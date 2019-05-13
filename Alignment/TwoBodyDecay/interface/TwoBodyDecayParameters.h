@@ -11,53 +11,47 @@
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
-
-class TwoBodyDecayParameters
-{
-
+class TwoBodyDecayParameters {
 public:
-
   /// Define order of parameters
   enum ParameterName { x = 0, y = 1, z = 2, px = 3, py = 4, pz = 5, theta = 6, phi = 7, mass = 8 };
 
   enum { dimension = 9 };
 
-  TwoBodyDecayParameters( void ) :
-    theParameters( AlgebraicVector() ), theCovariance( AlgebraicSymMatrix() ) {}
+  TwoBodyDecayParameters(void) : theParameters(AlgebraicVector()), theCovariance(AlgebraicSymMatrix()) {}
 
-  TwoBodyDecayParameters( const AlgebraicVector & param, const AlgebraicSymMatrix & cov ) :
-    theParameters( param ), theCovariance( cov ) {}
+  TwoBodyDecayParameters(const AlgebraicVector &param, const AlgebraicSymMatrix &cov)
+      : theParameters(param), theCovariance(cov) {}
 
-  TwoBodyDecayParameters( const AlgebraicVector& param ) :
-    theParameters( param ), theCovariance( AlgebraicSymMatrix() ) {}
+  TwoBodyDecayParameters(const AlgebraicVector &param) : theParameters(param), theCovariance(AlgebraicSymMatrix()) {}
 
-  TwoBodyDecayParameters( const TwoBodyDecayParameters & other ) :
-    theParameters( other.parameters() ), theCovariance( other.covariance() ) {}
+  TwoBodyDecayParameters(const TwoBodyDecayParameters &other)
+      : theParameters(other.parameters()), theCovariance(other.covariance()) {}
 
-  ~TwoBodyDecayParameters( void ) {}
+  ~TwoBodyDecayParameters(void) {}
 
   /// Get decay parameters.
-  inline const AlgebraicVector & parameters( void ) const { return theParameters; }
+  inline const AlgebraicVector &parameters(void) const { return theParameters; }
 
   /// Get error matrix.
-  inline const AlgebraicSymMatrix & covariance( void ) const { return theCovariance; }
+  inline const AlgebraicSymMatrix &covariance(void) const { return theCovariance; }
 
   /// Get specified decay parameter.
-  inline double operator[]( ParameterName name ) const { return theParameters[name]; }
+  inline double operator[](ParameterName name) const { return theParameters[name]; }
 
   /// Get specified decay parameter.
-  inline double operator()( ParameterName name ) const { return theParameters[name]; }
+  inline double operator()(ParameterName name) const { return theParameters[name]; }
 
   /// Get specified range of decay parameters.
-  inline const AlgebraicVector sub( ParameterName first, ParameterName last ) const { return theParameters.sub( first+1, last+1 ); }
+  inline const AlgebraicVector sub(ParameterName first, ParameterName last) const {
+    return theParameters.sub(first + 1, last + 1);
+  }
 
-  inline bool hasError( void ) const { return ( theCovariance.num_row() != 0 ); }
+  inline bool hasError(void) const { return (theCovariance.num_row() != 0); }
 
 private:
-
   AlgebraicVector theParameters;
   AlgebraicSymMatrix theCovariance;
-
 };
 
 #endif

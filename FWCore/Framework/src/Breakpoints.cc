@@ -11,9 +11,7 @@
 */
 
 namespace bk {
-  void
-  beginJob() {}
+  void beginJob() {}
 
-  void
-  beginRuns() {}
-}
+  void beginRuns() {}
+}  // namespace bk

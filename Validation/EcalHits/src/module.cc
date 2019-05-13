@@ -1,11 +1,9 @@
-#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
 #include "Validation/EcalHits/interface/EcalSimHitsValidProducer.h"
-DEFINE_SIMWATCHER (EcalSimHitsValidProducer);
+DEFINE_SIMWATCHER(EcalSimHitsValidProducer);
 
 #include <Validation/EcalHits/interface/EcalSimHitsValidation.h>
 DEFINE_FWK_MODULE(EcalSimHitsValidation);

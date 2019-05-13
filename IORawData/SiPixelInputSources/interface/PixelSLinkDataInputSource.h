@@ -4,8 +4,9 @@
 //
 // Package:    SiPixelInputSources
 // Class:      PixelSLinkDataInputSource
-// 
-/**\class PixelSLinkDataInputSource PixelSLinkDataInputSource.h IORawData/SiPixelInputSources/interface/PixelSLinkDataInputSource.h
+//
+/**\class PixelSLinkDataInputSource PixelSLinkDataInputSource.h
+ IORawData/SiPixelInputSources/interface/PixelSLinkDataInputSource.h
 
  Description: <one line class summary>
 
@@ -18,36 +19,32 @@
 //
 //
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "Utilities/StorageFactory/interface/StorageAccount.h"
-#include "Utilities/StorageFactory/interface/Storage.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
+#include "Utilities/StorageFactory/interface/Storage.h"
+#include "Utilities/StorageFactory/interface/StorageAccount.h"
+#include "Utilities/StorageFactory/interface/StorageFactory.h"
 
 class FEDRawDataCollection;
 
 class PixelSLinkDataInputSource : public edm::ProducerSourceFromFiles {
-
 public:
-
-  explicit PixelSLinkDataInputSource(const edm::ParameterSet& pset, 
-				     const edm::InputSourceDescription& desc);
+  explicit PixelSLinkDataInputSource(const edm::ParameterSet &pset, const edm::InputSourceDescription &desc);
 
   ~PixelSLinkDataInputSource() override;
 
 private:
-
-  bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) override;
-  void produce(edm::Event& event) override;
+  bool setRunAndEventInfo(edm::EventID &id, edm::TimeValue_t &time, edm::EventAuxiliary::ExperimentType &) override;
+  void produce(edm::Event &event) override;
   uint32_t synchronizeEvents();
 
   int m_fedid;
@@ -59,7 +56,7 @@ private:
   uint32_t m_currenttriggernumber;
   uint32_t m_globaleventnumber;
   int32_t m_eventnumber_shift;
-  int getEventNumberFromFillWords(const std::vector<uint64_t>& data, uint32_t &totword);
+  int getEventNumberFromFillWords(const std::vector<uint64_t> &data, uint32_t &totword);
   std::unique_ptr<FEDRawDataCollection> buffers;
 };
 #endif

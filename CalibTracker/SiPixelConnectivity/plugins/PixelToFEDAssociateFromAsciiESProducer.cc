@@ -4,21 +4,15 @@
 
 using namespace edm;
 
-PixelToFEDAssociateFromAsciiESProducer::
-    PixelToFEDAssociateFromAsciiESProducer(const edm::ParameterSet & p)
-    : theConfig(p)
-{
+PixelToFEDAssociateFromAsciiESProducer::PixelToFEDAssociateFromAsciiESProducer(const edm::ParameterSet& p)
+    : theConfig(p) {
   std::string myname = "PixelToFEDAssociateFromAscii";
-  setWhatProduced(this,myname);
+  setWhatProduced(this, myname);
 }
 
-PixelToFEDAssociateFromAsciiESProducer::
-    ~PixelToFEDAssociateFromAsciiESProducer()
-{ }
+PixelToFEDAssociateFromAsciiESProducer::~PixelToFEDAssociateFromAsciiESProducer() {}
 
-std::unique_ptr<PixelToFEDAssociate> PixelToFEDAssociateFromAsciiESProducer::
-    produce(const TrackerDigiGeometryRecord & r)
-{
+std::unique_ptr<PixelToFEDAssociate> PixelToFEDAssociateFromAsciiESProducer::produce(
+    const TrackerDigiGeometryRecord& r) {
   return std::make_unique<PixelToFEDAssociateFromAscii>(theConfig.getParameter<std::string>("fileName"));
 }
-

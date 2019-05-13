@@ -7,8 +7,8 @@
 // Use in your sensitive detector builder:
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "Geometry/EcalCommonData/interface/EcalNumberingScheme.h"
+#include "SimG4CMS/Calo/interface/CaloSD.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -18,27 +18,26 @@
 class EcalBaseNumber;
 
 class EcalTBH4BeamSD : public CaloSD {
-
-public:    
-
-  EcalTBH4BeamSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
-		 edm::ParameterSet const &, const SimTrackManager*);
+public:
+  EcalTBH4BeamSD(const std::string &,
+                 const DDCompactView &,
+                 const SensitiveDetectorCatalog &,
+                 edm::ParameterSet const &,
+                 const SimTrackManager *);
   ~EcalTBH4BeamSD() override;
-  uint32_t setDetUnitId(const G4Step* step) override;
-  void setNumberingScheme(EcalNumberingScheme* scheme);
+  uint32_t setDetUnitId(const G4Step *step) override;
+  void setNumberingScheme(EcalNumberingScheme *scheme);
 
- protected:
-  double getEnergyDeposit(const G4Step*) override;
+protected:
+  double getEnergyDeposit(const G4Step *) override;
 
-private:    
-
-  void                 getBaseNumber(const G4Step* aStep); 
+private:
+  void getBaseNumber(const G4Step *aStep);
   EcalNumberingScheme *numberingScheme;
-  bool                 useWeight;
-  bool                 useBirk;
-  double               birk1, birk2, birk3;
-  EcalBaseNumber       theBaseNumber;
-
+  bool useWeight;
+  bool useBirk;
+  double birk1, birk2, birk3;
+  EcalBaseNumber theBaseNumber;
 };
 
-#endif // EcalTBH4BeamSD_h
+#endif  // EcalTBH4BeamSD_h

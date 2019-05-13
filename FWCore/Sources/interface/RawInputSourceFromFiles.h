@@ -19,10 +19,10 @@ namespace edm {
     RawInputSourceFromFiles(ParameterSet const& pset, InputSourceDescription const& desc);
     ~RawInputSourceFromFiles() override;
 
-    using FromFiles::logicalFileNames;
-    using FromFiles::fileNames;
     using FromFiles::catalog;
-    
+    using FromFiles::fileNames;
+    using FromFiles::logicalFileNames;
+
     static void fillDescription(ParameterSetDescription& desc);
 
   protected:
@@ -31,5 +31,5 @@ namespace edm {
   private:
     using FromFiles::fileIndex;
   };
-}
+}  // namespace edm
 #endif

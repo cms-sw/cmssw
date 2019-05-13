@@ -103,9 +103,7 @@ namespace
       throw cms::Exception("RecoTauDiscriminantCutMultiplexer::loadObjectFromFile") 
         << " Failed to load Object = " << objectName.data() << " from file = " << inputFile.GetName() << " !!\n";
     //Need to use TObject::Clone since the type T might be a base class
-    std::unique_ptr<const T> copy{ static_cast<T*>(object->Clone()) };
-
-    return std::move(copy);
+    return std::unique_ptr<const T>{ static_cast<T*>(object->Clone()) };
   }
 
   std::unique_ptr<const TGraph> loadTGraphFromDB(const edm::EventSetup& es, const std::string& graphName, const int& verbosity_ = 0)

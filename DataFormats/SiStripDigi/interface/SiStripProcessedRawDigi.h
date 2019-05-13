@@ -14,33 +14,28 @@
     container (the DetSet private vector).
 */
 class SiStripProcessedRawDigi : public edm::DoNotSortUponInsertion {
-  
- public:
+public:
+  SiStripProcessedRawDigi(const float& adc) : adc_(adc) { ; }
 
-  SiStripProcessedRawDigi( const float& adc ) : adc_(adc) {;}
+  SiStripProcessedRawDigi() : adc_(0) { ; }
+  ~SiStripProcessedRawDigi() { ; }
 
-  SiStripProcessedRawDigi() : adc_(0) {;}
-  ~SiStripProcessedRawDigi() {;}
-  
   inline const float& adc() const;
-  
+
   /** Not used! (even if implementation is required). */
-  inline bool operator< ( const SiStripProcessedRawDigi& other ) const;
-  
- private:
-  
+  inline bool operator<(const SiStripProcessedRawDigi& other) const;
+
+private:
   float adc_;
-  
 };
 
-#include<iostream>
-inline std::ostream & operator<<(std::ostream & o, const SiStripProcessedRawDigi& digi) {
-  return o << " " << digi.adc();
+#include <iostream>
+inline std::ostream& operator<<(std::ostream& o, const SiStripProcessedRawDigi& digi) { return o << " " << digi.adc(); }
+
+// inline methods
+const float& SiStripProcessedRawDigi::adc() const { return adc_; }
+bool SiStripProcessedRawDigi::operator<(const SiStripProcessedRawDigi& other) const {
+  return (this->adc() < other.adc());
 }
 
-// inline methods 
-const float& SiStripProcessedRawDigi::adc() const {  return adc_; }
-bool SiStripProcessedRawDigi::operator< ( const SiStripProcessedRawDigi& other ) const { return ( this->adc() < other.adc() ); }
-
-#endif // AnalysisDataFormats_SiStripDigi_SiStripProcessedRawDigi_H
-
+#endif  // AnalysisDataFormats_SiStripDigi_SiStripProcessedRawDigi_H

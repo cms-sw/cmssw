@@ -21,42 +21,38 @@ ProvenanceAdaptor.h
 namespace edm {
 
   //------------------------------------------------------------
-  // Class ProvenanceAdaptor: 
+  // Class ProvenanceAdaptor:
 
   class ProvenanceAdaptor {
   public:
     typedef ParameterSetConverter::ParameterSetIdConverter ParameterSetIdConverter;
     typedef std::map<ProcessHistoryID, ProcessHistoryID> ProcessHistoryIdConverter;
-    ProvenanceAdaptor(
-	     ProductRegistry& productRegistry,
-	     ProcessHistoryMap& pHistMap,
-	     ProcessHistoryVector& pHistVector,
-	     ProcessConfigurationVector& procConfigVector,
-	     ParameterSetIdConverter const& parameterSetIdConverter,
-	     bool fullConversion);
+    ProvenanceAdaptor(ProductRegistry& productRegistry,
+                      ProcessHistoryMap& pHistMap,
+                      ProcessHistoryVector& pHistVector,
+                      ProcessConfigurationVector& procConfigVector,
+                      ParameterSetIdConverter const& parameterSetIdConverter,
+                      bool fullConversion);
     ~ProvenanceAdaptor();
-  
-    ProvenanceAdaptor(ProvenanceAdaptor const&) = delete; // Disallow copying and moving
-    ProvenanceAdaptor& operator=(ProvenanceAdaptor const&) = delete; // Disallow copying and moving
+
+    ProvenanceAdaptor(ProvenanceAdaptor const&) = delete;             // Disallow copying and moving
+    ProvenanceAdaptor& operator=(ProvenanceAdaptor const&) = delete;  // Disallow copying and moving
 
     std::shared_ptr<BranchIDLists const> branchIDLists() const;
 
-    void branchListIndexes(BranchListIndexes & indexes) const;
+    void branchListIndexes(BranchListIndexes& indexes) const;
 
-    ParameterSetID const&
-    convertID(ParameterSetID const& oldID) const;
+    ParameterSetID const& convertID(ParameterSetID const& oldID) const;
 
-    ProcessHistoryID const&
-    convertID(ProcessHistoryID const& oldID) const;
+    ProcessHistoryID const& convertID(ProcessHistoryID const& oldID) const;
 
   private:
-    void fixProcessHistory(ProcessHistoryMap& pHistMap,
-			   ProcessHistoryVector& pHistVector);
+    void fixProcessHistory(ProcessHistoryMap& pHistMap, ProcessHistoryVector& pHistVector);
 
     ParameterSetIdConverter parameterSetIdConverter_;
     ProcessHistoryIdConverter processHistoryIdConverter_;
     std::shared_ptr<BranchIDLists const> branchIDLists_;
     std::vector<BranchListIndex> branchListIndexes_;
-  }; // class ProvenanceAdaptor
-}
+  };  // class ProvenanceAdaptor
+}  // namespace edm
 #endif

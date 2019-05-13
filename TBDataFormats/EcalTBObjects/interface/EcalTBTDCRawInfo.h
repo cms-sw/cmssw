@@ -6,7 +6,7 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCSample.h"
 
 /** \class EcalTBTDCRawInfo
-      
+
 $Id: EcalTBTDCRawInfo.h,v 1.2 2006/04/21 09:30:56 meridian Exp $
 */
 

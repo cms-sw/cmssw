@@ -84,37 +84,36 @@
 
 // forward declarations
 namespace edm {
-   class ESInputTag {
-   public:
-      ESInputTag();
-      ESInputTag(const std::string& iModuleLabel, const std::string& iDataLabel);
-      ESInputTag(const std::string& iEncodedValue);
+  class ESInputTag {
+  public:
+    explicit ESInputTag();
+    explicit ESInputTag(const std::string& iModuleLabel, const std::string& iDataLabel);
+    explicit ESInputTag(const std::string& iEncodedValue);
 
-      // ---------- const member functions ---------------------
+    // ---------- const member functions ---------------------
 
-      /**Returns the label assigned to the module for the data to be retrieved.
+    /**Returns the label assigned to the module for the data to be retrieved.
        If the value matches the defaultModule value (which is the empty string)
        Then no match is attempted with the module label.
        */
-      const std::string& module() const { return module_;}
+    const std::string& module() const { return module_; }
 
-      /**Returns the label used to access the data from the EventSetup.
+    /**Returns the label used to access the data from the EventSetup.
        The empty string is an allowed (and default) value.
        */
-      const std::string& data() const {return data_;}
+    const std::string& data() const { return data_; }
 
-      bool operator==(const edm::ESInputTag& iRHS) const;
+    bool operator==(const edm::ESInputTag& iRHS) const;
 
-      std::string encode() const;
+    std::string encode() const;
 
-   private:
+  private:
+    // ---------- member data --------------------------------
+    std::string module_;
+    std::string data_;
+  };
 
-      // ---------- member data --------------------------------
-      std::string module_;
-      std::string data_;
-   };
-
-   std::ostream& operator<<(std::ostream&, ESInputTag const&);
-}
+  std::ostream& operator<<(std::ostream&, ESInputTag const&);
+}  // namespace edm
 
 #endif

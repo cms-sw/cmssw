@@ -3,18 +3,16 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class TrackingTruthOutputTest  : public edm::EDAnalyzer {
- public:
+class TrackingTruthOutputTest : public edm::EDAnalyzer {
+public:
+  explicit TrackingTruthOutputTest(const edm::ParameterSet &conf);
 
-  explicit TrackingTruthOutputTest(const edm::ParameterSet& conf);
+  ~TrackingTruthOutputTest() override {}
 
-  ~TrackingTruthOutputTest() override{}
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-
- private:
+private:
   edm::ParameterSet conf_;
-
 };
 
 #endif

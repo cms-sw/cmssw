@@ -23,18 +23,17 @@
 #include <TGraph.h>
 #include <TH1.h>
 
-
 class SiStripDetVOffTrendPlotter : public edm::EDAnalyzer {
 public:
-  const std::vector<Color_t> PLOT_COLORS {kRed, kBlue, kBlack, kOrange, kMagenta};
+  const std::vector<Color_t> PLOT_COLORS{kRed, kBlue, kBlack, kOrange, kMagenta};
 
-  explicit SiStripDetVOffTrendPlotter(const edm::ParameterSet& iConfig );
+  explicit SiStripDetVOffTrendPlotter(const edm::ParameterSet &iConfig);
   ~SiStripDetVOffTrendPlotter() override;
-  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void analyze(const edm::Event &evt, const edm::EventSetup &evtSetup) override;
   void endJob() override;
 
 private:
-  std::string formatIOV(cond::Time_t iov, std::string format="%Y-%m-%d__%H_%M_%S");
+  std::string formatIOV(cond::Time_t iov, std::string format = "%Y-%m-%d__%H_%M_%S");
   void prepGraph(TGraph *gr, TString name, TString title, Color_t color);
   void dumpCSV(bool isHV);
 
@@ -60,101 +59,104 @@ private:
   std::map<cond::Time_t, std::map<std::string, std::pair<int, int>>> iovMap;
 };
 
-SiStripDetVOffTrendPlotter::SiStripDetVOffTrendPlotter(const edm::ParameterSet& iConfig):
-    m_connectionPool(),
-    m_condDb( iConfig.getParameter< std::string >("conditionDatabase") ),
-    m_plotTags( iConfig.getParameter< std::vector<std::string> >("plotTags") ),
-    m_interval( iConfig.getParameter< int >("timeInterval") ),
-    m_startTime( iConfig.getUntrackedParameter< std::string >("startTime", "") ),
-    m_endTime( iConfig.getUntrackedParameter< std::string >("endTime", "") ),
-    m_outputPlot( iConfig.getUntrackedParameter< std::string >("outputPlot", "") ),
-    m_outputRootFile( iConfig.getUntrackedParameter< std::string >("outputRootFile", "") ),
-    m_outputCSV( iConfig.getUntrackedParameter< std::string >("outputCSV", "") ),
-    fout(nullptr){
-  m_connectionPool.setParameters( iConfig.getParameter<edm::ParameterSet>("DBParameters")  );
+SiStripDetVOffTrendPlotter::SiStripDetVOffTrendPlotter(const edm::ParameterSet &iConfig)
+    : m_connectionPool(),
+      m_condDb(iConfig.getParameter<std::string>("conditionDatabase")),
+      m_plotTags(iConfig.getParameter<std::vector<std::string>>("plotTags")),
+      m_interval(iConfig.getParameter<int>("timeInterval")),
+      m_startTime(iConfig.getUntrackedParameter<std::string>("startTime", "")),
+      m_endTime(iConfig.getUntrackedParameter<std::string>("endTime", "")),
+      m_outputPlot(iConfig.getUntrackedParameter<std::string>("outputPlot", "")),
+      m_outputRootFile(iConfig.getUntrackedParameter<std::string>("outputRootFile", "")),
+      m_outputCSV(iConfig.getUntrackedParameter<std::string>("outputCSV", "")),
+      fout(nullptr) {
+  m_connectionPool.setParameters(iConfig.getParameter<edm::ParameterSet>("DBParameters"));
   m_connectionPool.configure();
-  if (m_outputRootFile!="") fout = new TFile(m_outputRootFile.data(), "RECREATE");
+  if (!m_outputRootFile.empty())
+    fout = new TFile(m_outputRootFile.data(), "RECREATE");
 }
 
 SiStripDetVOffTrendPlotter::~SiStripDetVOffTrendPlotter() {
-  if (fout) fout->Close();
+  if (fout)
+    fout->Close();
 }
 
-void SiStripDetVOffTrendPlotter::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
-
+void SiStripDetVOffTrendPlotter::analyze(const edm::Event &evt, const edm::EventSetup &evtSetup) {
   // get total number of modules
   auto num_modules = detidReader->getAllDetIds().size();
 
   // get start and end time for DB query
   boost::posix_time::ptime p_start, p_end;
-  if (m_interval > 0){
+  if (m_interval > 0) {
     // from m_interval hours ago to now
     p_end = boost::posix_time::second_clock::universal_time();
     p_start = p_end - boost::posix_time::hours(m_interval);
-  }else {
+  } else {
     // use start and end time from config file
     p_start = boost::posix_time::time_from_string(m_startTime);
-    p_end   = boost::posix_time::time_from_string(m_endTime);
+    p_end = boost::posix_time::time_from_string(m_endTime);
   }
   cond::Time_t startIov = cond::time::from_boost(p_start);
-  cond::Time_t endIov   = cond::time::from_boost(p_end);
+  cond::Time_t endIov = cond::time::from_boost(p_end);
   if (startIov > endIov)
     throw cms::Exception("endTime must be greater than startTime!");
-  edm::LogInfo("SiStripDetVOffTrendPlotter") << "[SiStripDetVOffTrendPlotter::" << __func__ << "] "
+  edm::LogInfo("SiStripDetVOffTrendPlotter")
+      << "[SiStripDetVOffTrendPlotter::" << __func__ << "] "
       << "Set start IOV " << startIov << " (" << boost::posix_time::to_simple_string(p_start) << ")"
-      << "\n ... Set end IOV " << endIov << " (" << boost::posix_time::to_simple_string(p_end) << ")" ;
+      << "\n ... Set end IOV " << endIov << " (" << boost::posix_time::to_simple_string(p_end) << ")";
 
   // open db session
   edm::LogInfo("SiStripDetVOffTrendPlotter") << "[SiStripDetVOffTrendPlotter::" << __func__ << "] "
-      << "Query the condition database " << m_condDb;
-  cond::persistency::Session condDbSession = m_connectionPool.createSession( m_condDb );
-  condDbSession.transaction().start( true );
+                                             << "Query the condition database " << m_condDb;
+  cond::persistency::Session condDbSession = m_connectionPool.createSession(m_condDb);
+  condDbSession.transaction().start(true);
 
   // loop over all tags to plot
-  std::vector<TGraph*> hvgraphs, lvgraphs;
+  std::vector<TGraph *> hvgraphs, lvgraphs;
   TLegend *leg_hv = new TLegend(0.6, 0.87, 0.99, 0.99);
   TLegend *leg_lv = new TLegend(0.6, 0.87, 0.99, 0.99);
-  for (unsigned itag=0; itag<m_plotTags.size(); ++itag){
+  for (unsigned itag = 0; itag < m_plotTags.size(); ++itag) {
     auto tag = m_plotTags.at(itag);
-    auto color = itag<PLOT_COLORS.size() ? PLOT_COLORS.at(itag) : kGreen+itag;
+    auto color = itag < PLOT_COLORS.size() ? PLOT_COLORS.at(itag) : kGreen + itag;
 
     std::vector<double> vTime;
     std::vector<double> vHVOffPercent, vLVOffPercent;
 
     // query the database
     edm::LogInfo("SiStripDetVOffTrendPlotter") << "[SiStripDetVOffTrendPlotter::" << __func__ << "] "
-        << "Reading IOVs from tag " << tag;
-    cond::persistency::IOVProxy iovProxy = condDbSession.readIov(tag, true); // load all?
+                                               << "Reading IOVs from tag " << tag;
+    cond::persistency::IOVProxy iovProxy = condDbSession.readIov(tag, true);  // load all?
     auto iiov = iovProxy.find(startIov);
     auto eiov = iovProxy.find(endIov);
     int niov = 0;
-    while (iiov != iovProxy.end() && (*iiov).since <= (*eiov).since){
+    while (iiov != iovProxy.end() && (*iiov).since <= (*eiov).since) {
       // convert cond::Time_t to seconds since epoch
-      if ((*iiov).since<startIov)
+      if ((*iiov).since < startIov)
         vTime.push_back(cond::time::unpack(startIov).first);
       else
         vTime.push_back(cond::time::unpack((*iiov).since).first);
-      auto payload = condDbSession.fetchPayload<SiStripDetVOff>( (*iiov).payloadId );
-      vHVOffPercent.push_back( 1.0*payload->getHVoffCounts()/num_modules );
-      vLVOffPercent.push_back( 1.0*payload->getLVoffCounts()/num_modules );
+      auto payload = condDbSession.fetchPayload<SiStripDetVOff>((*iiov).payloadId);
+      vHVOffPercent.push_back(1.0 * payload->getHVoffCounts() / num_modules);
+      vLVOffPercent.push_back(1.0 * payload->getLVoffCounts() / num_modules);
       iovMap[(*iiov).since][tag] = {payload->getHVoffCounts(), payload->getLVoffCounts()};
       // debug
-      std::cout << boost::posix_time::to_simple_string(cond::time::to_boost((*iiov).since))
-          << " (" << (*iiov).since <<  ")"
-          << ", # HV Off=" << std::setw(6) << payload->getHVoffCounts()
-          << ", # LV Off=" << std::setw(6) << payload->getLVoffCounts() << std::endl;
+      std::cout << boost::posix_time::to_simple_string(cond::time::to_boost((*iiov).since)) << " (" << (*iiov).since
+                << ")"
+                << ", # HV Off=" << std::setw(6) << payload->getHVoffCounts() << ", # LV Off=" << std::setw(6)
+                << payload->getLVoffCounts() << std::endl;
       ++iiov;
       ++niov;
     }
-    edm::LogInfo("SiStripDetVOffTrendPlotter") << "[SiStripDetVOffTrendPlotter::" << __func__ << "] "
+    edm::LogInfo("SiStripDetVOffTrendPlotter")
+        << "[SiStripDetVOffTrendPlotter::" << __func__ << "] "
         << "Read " << niov << " IOVs from tag " << tag << " in the specified interval.";
 
     TGraph *hv = new TGraph(vTime.size(), vTime.data(), vHVOffPercent.data());
-    prepGraph(hv, TString("HVOff_")+tag, ";UTC;Fraction of HV off", color);
+    prepGraph(hv, TString("HVOff_") + tag, ";UTC;Fraction of HV off", color);
     leg_hv->AddEntry(hv, tag.data(), "LP");
 
     TGraph *lv = new TGraph(vTime.size(), vTime.data(), vLVOffPercent.data());
-    prepGraph(lv, TString("LVOff_")+tag, ";UTC;Fraction of LV off", color);
+    prepGraph(lv, TString("LVOff_") + tag, ";UTC;Fraction of LV off", color);
     leg_lv->AddEntry(lv, tag.data(), "LP");
 
     hvgraphs.push_back(hv);
@@ -169,53 +171,52 @@ void SiStripDetVOffTrendPlotter::analyze(const edm::Event& evt, const edm::Event
   c.SetBottomMargin(0.08);
   c.SetGridx();
   c.SetGridy();
-  for (const auto hv : hvgraphs){
-    if (hv==hvgraphs.front())
+  for (const auto hv : hvgraphs) {
+    if (hv == hvgraphs.front())
       hv->Draw("ALP");
     else
       hv->Draw("LPsame");
-    if (fout){
+    if (fout) {
       fout->cd();
       hv->Write();
     }
   }
   leg_hv->Draw();
-  std::string plot_postfix = m_outputPlot!="" ? m_outputPlot : "from_" + formatIOV(startIov) + "_to_" + formatIOV(endIov) + ".png";
-  c.Print( ("HVOff_" + plot_postfix).data() );
+  std::string plot_postfix =
+      !m_outputPlot.empty() ? m_outputPlot : "from_" + formatIOV(startIov) + "_to_" + formatIOV(endIov) + ".png";
+  c.Print(("HVOff_" + plot_postfix).data());
 
   c.Clear();
-  for (const auto lv : lvgraphs){
-    if (lv==lvgraphs.front())
+  for (const auto lv : lvgraphs) {
+    if (lv == lvgraphs.front())
       lv->Draw("ALP");
     else
       lv->Draw("LPsame");
-    if (fout){
+    if (fout) {
       fout->cd();
       lv->Write();
     }
   }
   leg_lv->Draw();
-  c.Print( ("LVOff_" + plot_postfix).data() );
+  c.Print(("LVOff_" + plot_postfix).data());
 
-  if (m_outputCSV!="") {
+  if (!m_outputCSV.empty()) {
     dumpCSV(true);
     dumpCSV(false);
   }
-
 }
 
-void SiStripDetVOffTrendPlotter::endJob() {
-}
+void SiStripDetVOffTrendPlotter::endJob() {}
 
 std::string SiStripDetVOffTrendPlotter::formatIOV(cond::Time_t iov, std::string format) {
   auto facet = new boost::posix_time::time_facet(format.c_str());
-   std::ostringstream stream;
-   stream.imbue(std::locale(stream.getloc(), facet));
-   stream << cond::time::to_boost(iov);
-   return stream.str();
+  std::ostringstream stream;
+  stream.imbue(std::locale(stream.getloc(), facet));
+  stream << cond::time::to_boost(iov);
+  return stream.str();
 }
 
-void SiStripDetVOffTrendPlotter::prepGraph(TGraph* gr, TString name, TString title, Color_t color) {
+void SiStripDetVOffTrendPlotter::prepGraph(TGraph *gr, TString name, TString title, Color_t color) {
   gr->SetName(name);
   gr->SetTitle(title);
   gr->SetLineColor(color);
@@ -234,29 +235,29 @@ void SiStripDetVOffTrendPlotter::prepGraph(TGraph* gr, TString name, TString tit
 }
 
 void SiStripDetVOffTrendPlotter::dumpCSV(bool isHV) {
-
   // get total number of modules
   auto num_modules = detidReader->getAllDetIds().size();
 
-  std::string outCSV = isHV ? "HVOff_table_"+m_outputCSV : "LVOff_table_"+m_outputCSV;
+  std::string outCSV = isHV ? "HVOff_table_" + m_outputCSV : "LVOff_table_" + m_outputCSV;
   std::ofstream csv;
   csv.open(outCSV);
   csv << "IOV,Timestamp(UTC),";
-  for (const auto &tag : m_plotTags) csv << tag << ",";
+  for (const auto &tag : m_plotTags)
+    csv << tag << ",";
   csv << std::endl;
 
   csv << std::fixed << std::setprecision(1);
 
-  for (const auto &v : iovMap){
+  for (const auto &v : iovMap) {
     auto iov = v.first;
     auto timestamp = boost::posix_time::to_simple_string(cond::time::to_boost(iov));
     csv << iov << "," << timestamp << ",";
-    for (const auto &tag : m_plotTags){
-      if (v.second.find(tag)!=v.second.end()){
+    for (const auto &tag : m_plotTags) {
+      if (v.second.find(tag) != v.second.end()) {
         int count = isHV ? v.second.at(tag).first : v.second.at(tag).second;
-        csv << count << " (" << 100.*count/num_modules << "%)";
+        csv << count << " (" << 100. * count / num_modules << "%)";
       }
-        csv << ",";
+      csv << ",";
     }
     csv << std::endl;
   }
@@ -265,4 +266,3 @@ void SiStripDetVOffTrendPlotter::dumpCSV(bool isHV) {
 }
 
 DEFINE_FWK_MODULE(SiStripDetVOffTrendPlotter);
-

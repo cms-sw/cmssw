@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Modules
 // Class  :     TimeStudyModules
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -38,148 +38,132 @@
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-
 namespace timestudy {
   namespace {
     struct Sleeper {
-      Sleeper(edm::ParameterSet const& p, edm::ConsumesCollector&& iCol ) {
+      Sleeper(edm::ParameterSet const& p, edm::ConsumesCollector&& iCol) {
         auto const& cv = p.getParameter<std::vector<edm::InputTag>>("consumes");
         tokens_.reserve(cv.size());
-        for(auto const& c: cv) {
-          tokens_.emplace_back( iCol.consumes<int>(c));
+        for (auto const& c : cv) {
+          tokens_.emplace_back(iCol.consumes<int>(c));
         }
-        
+
         auto const& tv = p.getParameter<std::vector<double>>("eventTimes");
         eventTimes_.reserve(tv.size());
-        for(auto t: tv) {
-          eventTimes_.push_back( static_cast<useconds_t>(t*1E6));
+        for (auto t : tv) {
+          eventTimes_.push_back(static_cast<useconds_t>(t * 1E6));
         }
       }
 
-      void
-      getAndSleep(edm::Event const& e) const {
-        for(auto const&t: tokens_) {
-          (void) e.getHandle(t);
+      void getAndSleep(edm::Event const& e) const {
+        for (auto const& t : tokens_) {
+          (void)e.getHandle(t);
         }
         //Event number minimum value is 1
-        usleep( eventTimes_[ (e.id().event()-1) % eventTimes_.size()]);
+        usleep(eventTimes_[(e.id().event() - 1) % eventTimes_.size()]);
       }
-      
+
       static void fillDescription(edm::ParameterSetDescription& desc) {
         desc.add<std::vector<edm::InputTag>>("consumes", {})->setComment("What event int data products to consume");
-        desc.add<std::vector<double>>("eventTimes")->setComment("The time, in seconds, for how long the module should sleep each event. The index to use is based on a modulo of size of the list applied to the Event ID number.");
+        desc.add<std::vector<double>>("eventTimes")
+            ->setComment(
+                "The time, in seconds, for how long the module should sleep each event. The index to use is based on a "
+                "modulo of size of the list applied to the Event ID number.");
       }
-      
+
     private:
       std::vector<edm::EDGetTokenT<int>> tokens_;
       std::vector<useconds_t> eventTimes_;
-
     };
-  }
-//--------------------------------------------------------------------
-//
-// Produces an IntProduct instance.
-//
-class SleepingProducer : public edm::global::EDProducer<> {
-public:
-  explicit SleepingProducer(edm::ParameterSet const& p) :
-  value_(p.getParameter<int>("ivalue")),
-  sleeper_(p, consumesCollector()),
-  token_{produces<int>()}
-  {
-  }
-  void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
-  
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  
-private:
-  const int value_;
-  Sleeper sleeper_;
-  const edm::EDPutTokenT<int> token_;
-};
-
-void
-SleepingProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
-  // EventSetup is not used.
-  sleeper_.getAndSleep(e);
-  
-  e.emplace(token_,value_);
-}
-  
-void
-SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
-  edm::ParameterSetDescription desc;
-
-  desc.add<int>("ivalue")->setComment("Value to put into Event");
-  Sleeper::fillDescription(desc);
-  
-  descriptions.addDefault(desc);
-}
-
-  class OneSleepingProducer : public edm::one::EDProducer<edm::one::SharedResources> {
+  }  // namespace
+  //--------------------------------------------------------------------
+  //
+  // Produces an IntProduct instance.
+  //
+  class SleepingProducer : public edm::global::EDProducer<> {
   public:
-    explicit OneSleepingProducer(edm::ParameterSet const& p) :
-    value_(p.getParameter<int>("ivalue")),
-    sleeper_(p, consumesCollector()),
-    token_{produces<int>()}
-    {
-      usesResource(p.getParameter<std::string>("resource"));
-    }
-    void produce( edm::Event& e, edm::EventSetup const& c) override;
-    
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    
+    explicit SleepingProducer(edm::ParameterSet const& p)
+        : value_(p.getParameter<int>("ivalue")), sleeper_(p, consumesCollector()), token_{produces<int>()} {}
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   private:
     const int value_;
     Sleeper sleeper_;
     const edm::EDPutTokenT<int> token_;
   };
-  
-  void
-  OneSleepingProducer::produce(edm::Event& e, edm::EventSetup const&) {
+
+  void SleepingProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // EventSetup is not used.
     sleeper_.getAndSleep(e);
-    
-    e.emplace(token_,value_);
+
+    e.emplace(token_, value_);
   }
-  
-  void
-  OneSleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+  void SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    
+
     desc.add<int>("ivalue")->setComment("Value to put into Event");
-    desc.add<std::string>("resource",std::string())->setComment("The name of the resource that is being shared");
     Sleeper::fillDescription(desc);
-    
+
+    descriptions.addDefault(desc);
+  }
+
+  class OneSleepingProducer : public edm::one::EDProducer<edm::one::SharedResources> {
+  public:
+    explicit OneSleepingProducer(edm::ParameterSet const& p)
+        : value_(p.getParameter<int>("ivalue")), sleeper_(p, consumesCollector()), token_{produces<int>()} {
+      usesResource(p.getParameter<std::string>("resource"));
+    }
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  private:
+    const int value_;
+    Sleeper sleeper_;
+    const edm::EDPutTokenT<int> token_;
+  };
+
+  void OneSleepingProducer::produce(edm::Event& e, edm::EventSetup const&) {
+    // EventSetup is not used.
+    sleeper_.getAndSleep(e);
+
+    e.emplace(token_, value_);
+  }
+
+  void OneSleepingProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+
+    desc.add<int>("ivalue")->setComment("Value to put into Event");
+    desc.add<std::string>("resource", std::string())->setComment("The name of the resource that is being shared");
+    Sleeper::fillDescription(desc);
+
     descriptions.addDefault(desc);
   }
 
   class OneSleepingAnalyzer : public edm::one::EDAnalyzer<> {
   public:
-    explicit OneSleepingAnalyzer(edm::ParameterSet const& p) :
-    sleeper_(p, consumesCollector())
-    {
-    }
-    void analyze( edm::Event const& e, edm::EventSetup const& c) override;
-    
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    
+    explicit OneSleepingAnalyzer(edm::ParameterSet const& p) : sleeper_(p, consumesCollector()) {}
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   private:
     Sleeper sleeper_;
   };
-  
-  void
-  OneSleepingAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
+
+  void OneSleepingAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
     // EventSetup is not used.
     sleeper_.getAndSleep(e);
   }
-  
-  void
-  OneSleepingAnalyzer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+  void OneSleepingAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    
+
     Sleeper::fillDescription(desc);
-    
+
     descriptions.addDefault(desc);
   }
 
@@ -200,11 +184,10 @@ SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions
    */
   class SleepingServer {
   public:
-    SleepingServer(edm::ParameterSet const& iPS, edm::ActivityRegistry& iAR):
-    nWaitingEvents_(iPS.getUntrackedParameter<unsigned int>("nWaitingEvents"))
-    {
+    SleepingServer(edm::ParameterSet const& iPS, edm::ActivityRegistry& iAR)
+        : nWaitingEvents_(iPS.getUntrackedParameter<unsigned int>("nWaitingEvents")) {
       iAR.watchPreallocate([this](edm::service::SystemBounds const& iBounds) {
-        auto const nStreams =iBounds.maxNumberOfStreams();
+        auto const nStreams = iBounds.maxNumberOfStreams();
         waitingStreams_.reserve(nStreams);
         waitTimesPerStream_.resize(nStreams);
         waitingTaskPerStream_.resize(nStreams);
@@ -215,57 +198,54 @@ SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions
         condition_.notify_one();
         serverThread_->join();
       });
-      iAR.watchPreStreamBeginLumi([this](edm::StreamContext const&) {
-        ++activeStreams_;
-      });
+      iAR.watchPreStreamBeginLumi([this](edm::StreamContext const&) { ++activeStreams_; });
       iAR.watchPreStreamEndLumi([this](edm::StreamContext const&) {
         --activeStreams_;
         condition_.notify_one();
       });
 
-      serverThread_ = std::make_unique<std::thread>([this]() { threadWork(); } );
+      serverThread_ = std::make_unique<std::thread>([this]() { threadWork(); });
     }
-    
-    void asyncWork(edm::StreamID id, edm::WaitingTaskWithArenaHolder iTask, long initTime, long workTime, long finishTime) {
-      waitTimesPerStream_[id.value()]={{initTime,workTime,finishTime}};
-      waitingTaskPerStream_[id.value()]=std::move(iTask);
+
+    void asyncWork(
+        edm::StreamID id, edm::WaitingTaskWithArenaHolder iTask, long initTime, long workTime, long finishTime) {
+      waitTimesPerStream_[id.value()] = {{initTime, workTime, finishTime}};
+      waitingTaskPerStream_[id.value()] = std::move(iTask);
       {
         std::lock_guard<std::mutex> lk{mutex_};
         waitingStreams_.push_back(id.value());
       }
       condition_.notify_one();
     }
-    
+
   private:
     bool readyToDoSomething() {
-      if(stopProcessing_) {
+      if (stopProcessing_) {
         return true;
       }
-      if(waitingStreams_.size() >= nWaitingEvents_) {
+      if (waitingStreams_.size() >= nWaitingEvents_) {
         return true;
       }
       //every running stream is now waiting
       return waitingStreams_.size() == activeStreams_;
     }
-    
+
     void threadWork() {
-      while(not stopProcessing_.load()) {
+      while (not stopProcessing_.load()) {
         std::vector<int> streamsToProcess;
         {
           std::unique_lock<std::mutex> lk(mutex_);
-          condition_.wait(lk, [this]() {
-            return readyToDoSomething();
-          });
-          swap(streamsToProcess,waitingStreams_);
+          condition_.wait(lk, [this]() { return readyToDoSomething(); });
+          swap(streamsToProcess, waitingStreams_);
         }
-        if(stopProcessing_) {
+        if (stopProcessing_) {
           break;
         }
         long longestTime = 0;
         //simulate filling the external device
-        for(auto i: streamsToProcess) {
-          auto const& v=waitTimesPerStream_[i];
-          if(v[1]>longestTime) {
+        for (auto i : streamsToProcess) {
+          auto const& v = waitTimesPerStream_[i];
+          if (v[1] > longestTime) {
             longestTime = v[1];
           }
           usleep(v[0]);
@@ -274,8 +254,8 @@ SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions
         usleep(longestTime);
 
         //simulate copying data back
-        for(auto i: streamsToProcess) {
-          auto const& v=waitTimesPerStream_[i];
+        for (auto i : streamsToProcess) {
+          auto const& v = waitTimesPerStream_[i];
           usleep(v[2]);
           waitingTaskPerStream_[i].doneWaiting(std::exception_ptr());
         }
@@ -285,7 +265,7 @@ SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions
     const unsigned int nWaitingEvents_;
     std::unique_ptr<std::thread> serverThread_;
     std::vector<int> waitingStreams_;
-    std::vector<std::array<long,3>> waitTimesPerStream_;
+    std::vector<std::array<long, 3>> waitTimesPerStream_;
     std::vector<edm::WaitingTaskWithArenaHolder> waitingTaskPerStream_;
     std::mutex mutex_;
     std::condition_variable condition_;
@@ -295,41 +275,41 @@ SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions
 
   class ExternalWorkSleepingProducer : public edm::global::EDProducer<edm::ExternalWork> {
   public:
-    explicit ExternalWorkSleepingProducer(edm::ParameterSet const& p) :
-    value_(p.getParameter<int>("ivalue")),
-    sleeper_(p, consumesCollector()),
-    token_{produces<int>()}
-    {
+    explicit ExternalWorkSleepingProducer(edm::ParameterSet const& p)
+        : value_(p.getParameter<int>("ivalue")), sleeper_(p, consumesCollector()), token_{produces<int>()} {
       {
         auto const& tv = p.getParameter<std::vector<double>>("serviceInitTimes");
         initTimes_.reserve(tv.size());
-        for(auto t: tv) {
-          initTimes_.push_back( static_cast<useconds_t>(t*1E6));
+        for (auto t : tv) {
+          initTimes_.push_back(static_cast<useconds_t>(t * 1E6));
         }
       }
       {
         auto const& tv = p.getParameter<std::vector<double>>("serviceWorkTimes");
         workTimes_.reserve(tv.size());
-        for(auto t: tv) {
-          workTimes_.push_back( static_cast<useconds_t>(t*1E6));
+        for (auto t : tv) {
+          workTimes_.push_back(static_cast<useconds_t>(t * 1E6));
         }
       }
       {
         auto const& tv = p.getParameter<std::vector<double>>("serviceFinishTimes");
         finishTimes_.reserve(tv.size());
-        for(auto t: tv) {
-          finishTimes_.push_back( static_cast<useconds_t>(t*1E6));
+        for (auto t : tv) {
+          finishTimes_.push_back(static_cast<useconds_t>(t * 1E6));
         }
       }
       assert(finishTimes_.size() == initTimes_.size());
       assert(workTimes_.size() == initTimes_.size());
     }
-    void acquire(edm::StreamID, edm::Event const & e, edm::EventSetup const& c, edm::WaitingTaskWithArenaHolder holder) const override;
+    void acquire(edm::StreamID,
+                 edm::Event const& e,
+                 edm::EventSetup const& c,
+                 edm::WaitingTaskWithArenaHolder holder) const override;
 
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
-    
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   private:
     std::vector<long> initTimes_;
     std::vector<long> workTimes_;
@@ -339,37 +319,36 @@ SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions
     const edm::EDPutTokenT<int> token_;
   };
 
-  void
-  ExternalWorkSleepingProducer::acquire(edm::StreamID id, edm::Event const& e, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) const {
+  void ExternalWorkSleepingProducer::acquire(edm::StreamID id,
+                                             edm::Event const& e,
+                                             edm::EventSetup const&,
+                                             edm::WaitingTaskWithArenaHolder holder) const {
     // EventSetup is not used.
     sleeper_.getAndSleep(e);
     edm::Service<SleepingServer> server;
-    auto index = (e.id().event()-1) % initTimes_.size();
+    auto index = (e.id().event() - 1) % initTimes_.size();
     server->asyncWork(id, std::move(holder), initTimes_[index], workTimes_[index], finishTimes_[index]);
   }
 
-  void
-  ExternalWorkSleepingProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
-    e.emplace(token_,value_);
+  void ExternalWorkSleepingProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
+    e.emplace(token_, value_);
   }
-  
-  void
-  ExternalWorkSleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+  void ExternalWorkSleepingProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    
+
     desc.add<int>("ivalue")->setComment("Value to put into Event");
     desc.add<std::vector<double>>("serviceInitTimes");
     desc.add<std::vector<double>>("serviceWorkTimes");
     desc.add<std::vector<double>>("serviceFinishTimes");
     Sleeper::fillDescription(desc);
-    
+
     descriptions.addDefault(desc);
   }
 
-}
+}  // namespace timestudy
 DEFINE_FWK_SERVICE(timestudy::SleepingServer);
 DEFINE_FWK_MODULE(timestudy::SleepingProducer);
 DEFINE_FWK_MODULE(timestudy::OneSleepingProducer);
 DEFINE_FWK_MODULE(timestudy::ExternalWorkSleepingProducer);
 DEFINE_FWK_MODULE(timestudy::OneSleepingAnalyzer);
-

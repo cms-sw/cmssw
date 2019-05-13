@@ -6,6 +6,4 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include <vector>
 
-
-#endif // SIPIXELRAWDATA_CLASSES_H
-
+#endif  // SIPIXELRAWDATA_CLASSES_H

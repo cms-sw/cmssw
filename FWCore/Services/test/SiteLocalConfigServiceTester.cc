@@ -2,7 +2,7 @@
 //
 // Package:     Services
 // Class  :     SiteLocalConfigServiceTester
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -20,21 +20,21 @@
 // user include files
 
 namespace edmtest {
-   class SiteLocalConfigServiceTester : public edm::EDAnalyzer {
-   public:
-      SiteLocalConfigServiceTester(const edm::ParameterSet& iPSet);
-      
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      
-   private:
-      std::string m_cacheHint;
-      std::string m_readHint;
-      std::string m_tempDir;
-      unsigned int m_ttreeCacheSize;
-      std::vector<std::string> m_nativeProtocols;
-      bool m_valuesSet;
-   };
-}
+  class SiteLocalConfigServiceTester : public edm::EDAnalyzer {
+  public:
+    SiteLocalConfigServiceTester(const edm::ParameterSet& iPSet);
+
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  private:
+    std::string m_cacheHint;
+    std::string m_readHint;
+    std::string m_tempDir;
+    unsigned int m_ttreeCacheSize;
+    std::vector<std::string> m_nativeProtocols;
+    bool m_valuesSet;
+  };
+}  // namespace edmtest
 
 using namespace edmtest;
 
@@ -49,15 +49,13 @@ using namespace edmtest;
 //
 // constructors and destructor
 //
-SiteLocalConfigServiceTester::SiteLocalConfigServiceTester(const edm::ParameterSet& iPSet):
-m_cacheHint(iPSet.getUntrackedParameter<std::string>("sourceCacheHint")),
-m_readHint(iPSet.getUntrackedParameter<std::string>("sourceReadHint")),
-m_tempDir(iPSet.getUntrackedParameter<std::string>("sourceTempDir")),
-m_ttreeCacheSize(iPSet.getUntrackedParameter<unsigned int>("sourceTTreeCacheSize")),
-m_nativeProtocols(iPSet.getUntrackedParameter<std::vector<std::string> >("sourceNativeProtocols")),
-m_valuesSet(iPSet.getUntrackedParameter<bool>("sourceValuesSet",true))
-{
-}
+SiteLocalConfigServiceTester::SiteLocalConfigServiceTester(const edm::ParameterSet& iPSet)
+    : m_cacheHint(iPSet.getUntrackedParameter<std::string>("sourceCacheHint")),
+      m_readHint(iPSet.getUntrackedParameter<std::string>("sourceReadHint")),
+      m_tempDir(iPSet.getUntrackedParameter<std::string>("sourceTempDir")),
+      m_ttreeCacheSize(iPSet.getUntrackedParameter<unsigned int>("sourceTTreeCacheSize")),
+      m_nativeProtocols(iPSet.getUntrackedParameter<std::vector<std::string> >("sourceNativeProtocols")),
+      m_valuesSet(iPSet.getUntrackedParameter<bool>("sourceValuesSet", true)) {}
 
 // SiteLocalConfigServiceTester::SiteLocalConfigServiceTester(const SiteLocalConfigServiceTester& rhs)
 // {
@@ -84,70 +82,72 @@ m_valuesSet(iPSet.getUntrackedParameter<bool>("sourceValuesSet",true))
 // member functions
 //
 static void throwNotSet(const char* iName) {
-   throw cms::Exception("TestFailure")<<"The value "<<iName<<" should have been set but was not";
+  throw cms::Exception("TestFailure") << "The value " << iName << " should have been set but was not";
 }
 
 template <typename T>
-static 
-void throwWrongValue(const char* iName, const T& iExpected, const T& iRetrieved) {
-   throw cms::Exception("TestFailure")<<"The value "<<iName <<" should have been "<<iExpected<<" but instead was "<<iRetrieved;
+static void throwWrongValue(const char* iName, const T& iExpected, const T& iRetrieved) {
+  throw cms::Exception("TestFailure") << "The value " << iName << " should have been " << iExpected
+                                      << " but instead was " << iRetrieved;
 }
 
 namespace {
-   template <typename T>
-   void testValue(const char* iName, const T& iExpected, const T* iRetrieved) {
-      if(nullptr==iRetrieved) {
-         throwNotSet(iName);
-      } else if (*iRetrieved != iExpected) {
-         throwWrongValue(iName, iExpected, *iRetrieved);
-      }
-   }
+  template <typename T>
+  void testValue(const char* iName, const T& iExpected, const T* iRetrieved) {
+    if (nullptr == iRetrieved) {
+      throwNotSet(iName);
+    } else if (*iRetrieved != iExpected) {
+      throwWrongValue(iName, iExpected, *iRetrieved);
+    }
+  }
 
-   template <typename T>
-   void checkNotSet(const char* iName, const T* iRetrieved) {
-      if(nullptr!=iRetrieved) {
-         throw cms::Exception("TestFailure")<<"The value "<<iName<<" should not have been set but was set to "<<*iRetrieved;
-      }
-   }
+  template <typename T>
+  void checkNotSet(const char* iName, const T* iRetrieved) {
+    if (nullptr != iRetrieved) {
+      throw cms::Exception("TestFailure")
+          << "The value " << iName << " should not have been set but was set to " << *iRetrieved;
+    }
+  }
 
-   void checkNotSet(const char* iName, const std::vector<std::string>* iRetrieved) {
-      if(nullptr!=iRetrieved) {
-         throw cms::Exception("TestFailure")<<"The value "<<iName<<" should not have been set but was set";
-      }
-   }
-   
-}
+  void checkNotSet(const char* iName, const std::vector<std::string>* iRetrieved) {
+    if (nullptr != iRetrieved) {
+      throw cms::Exception("TestFailure") << "The value " << iName << " should not have been set but was set";
+    }
+  }
+
+}  // namespace
 //
 // const member functions
 //
-void SiteLocalConfigServiceTester::analyze(const edm::Event&, const edm::EventSetup&)
-{
-   edm::Service<edm::SiteLocalConfig> pConfig;
-   if(m_valuesSet) {
-      testValue("sourceCacheTempDir",m_tempDir,pConfig->sourceCacheTempDir());
-      testValue("sourceCacheHint",m_cacheHint,pConfig->sourceCacheHint());
-      testValue("sourceReadHint",m_readHint,pConfig->sourceReadHint());
-      testValue("sourceTTreeCacheSize",m_ttreeCacheSize,pConfig->sourceTTreeCacheSize());
-      const std::vector<std::string>* protocols = pConfig->sourceNativeProtocols();
-      if(nullptr==protocols) {
-         throwNotSet("sourceNativeProtocols");
-      }
-      if (protocols->size() != m_nativeProtocols.size()) {
-         throw cms::Exception("TestFailure")<<"The value sourceNativeProtocols has size "
-         <<protocols->size()<<" but should have had size "<<m_nativeProtocols.size();
-      }
-      for (std::vector<std::string>::const_iterator it = protocols->begin(), itEnd = protocols->end(), 
-           itExpect = m_nativeProtocols.begin(); it != itEnd; ++it, ++itExpect) {
-         testValue("sourceNativeProtocols",*itExpect,&(*it));
-      }
-   } else {
-      checkNotSet("sourceCacheTempDir",pConfig->sourceCacheTempDir());
-      checkNotSet("sourceCacheHint",pConfig->sourceCacheHint());
-      checkNotSet("sourceReadHint",pConfig->sourceReadHint());
-      checkNotSet("sourceTTreeCacheSize",pConfig->sourceTTreeCacheSize());
-      checkNotSet("sourceNativeProtocols",pConfig->sourceNativeProtocols());
-   }
-   
+void SiteLocalConfigServiceTester::analyze(const edm::Event&, const edm::EventSetup&) {
+  edm::Service<edm::SiteLocalConfig> pConfig;
+  if (m_valuesSet) {
+    testValue("sourceCacheTempDir", m_tempDir, pConfig->sourceCacheTempDir());
+    testValue("sourceCacheHint", m_cacheHint, pConfig->sourceCacheHint());
+    testValue("sourceReadHint", m_readHint, pConfig->sourceReadHint());
+    testValue("sourceTTreeCacheSize", m_ttreeCacheSize, pConfig->sourceTTreeCacheSize());
+    const std::vector<std::string>* protocols = pConfig->sourceNativeProtocols();
+    if (nullptr == protocols) {
+      throwNotSet("sourceNativeProtocols");
+    }
+    if (protocols->size() != m_nativeProtocols.size()) {
+      throw cms::Exception("TestFailure") << "The value sourceNativeProtocols has size " << protocols->size()
+                                          << " but should have had size " << m_nativeProtocols.size();
+    }
+    for (std::vector<std::string>::const_iterator it = protocols->begin(),
+                                                  itEnd = protocols->end(),
+                                                  itExpect = m_nativeProtocols.begin();
+         it != itEnd;
+         ++it, ++itExpect) {
+      testValue("sourceNativeProtocols", *itExpect, &(*it));
+    }
+  } else {
+    checkNotSet("sourceCacheTempDir", pConfig->sourceCacheTempDir());
+    checkNotSet("sourceCacheHint", pConfig->sourceCacheHint());
+    checkNotSet("sourceReadHint", pConfig->sourceReadHint());
+    checkNotSet("sourceTTreeCacheSize", pConfig->sourceTTreeCacheSize());
+    checkNotSet("sourceNativeProtocols", pConfig->sourceNativeProtocols());
+  }
 }
 
 //

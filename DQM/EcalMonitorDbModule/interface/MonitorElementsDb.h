@@ -5,9 +5,8 @@
 /*!
   \file MonitorElementsDb.h
   \brief Generate a Monitor Element from DB data
-  \author B. Gobbo 
+  \author B. Gobbo
 */
-
 
 #include <string>
 #include <vector>
@@ -25,44 +24,39 @@
 class MonitorElement;
 class DQMStore;
 
-class MonitorElementsDb{
-
+class MonitorElementsDb {
   friend class EcalBarrelMonitorDbModule;
 
- public:
-
+public:
   /// Constructors
-  MonitorElementsDb(const edm::ParameterSet& ps, std::string& xmlFile );
+  MonitorElementsDb(const edm::ParameterSet &ps, std::string &xmlFile);
 
   /// Destructor
   virtual ~MonitorElementsDb();
 
- protected:
-
+protected:
   /// Analyze
-  void analyze( const edm::Event& e, const edm::EventSetup& c, coral::ISessionProxy* s );
+  void analyze(const edm::Event &e, const edm::EventSetup &c, coral::ISessionProxy *s);
 
   // BeginJob
-  void beginJob( void );
+  void beginJob(void);
 
   // EndJob
-  void endJob( void ); 
- 
+  void endJob(void);
+
   // HtmlOutput
-  void htmlOutput( std::string& htmlDir );
+  void htmlOutput(std::string &htmlDir);
 
-  void startSession( void );
+  void startSession(void);
 
- private:
-
-  std::string                   prefixME_;
-  std::string                   xmlFile_;
-  MonitorXMLParser*             parser_;
-  std::vector<DB_ME>            MEinfo_;
-  std::vector<MonitorElement*>  MEs_;
-  int                           ievt_;
-  DQMStore*        dqmStore_;
-  
+private:
+  std::string prefixME_;
+  std::string xmlFile_;
+  MonitorXMLParser *parser_;
+  std::vector<DB_ME> MEinfo_;
+  std::vector<MonitorElement *> MEs_;
+  int ievt_;
+  DQMStore *dqmStore_;
 };
 
 #endif  // MonitorElementsDb_H

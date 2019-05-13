@@ -18,8 +18,8 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
-#include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h" //amend to point at your copy...
-#include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
+#include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
+#include "CommonTools/RecoAlgos/interface/KDTreeLinkerTools.h"
 
 #include "CommonTools/Utils/interface/DynArray.h"
 

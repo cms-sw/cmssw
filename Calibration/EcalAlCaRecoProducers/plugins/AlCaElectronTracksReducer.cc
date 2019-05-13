@@ -51,11 +51,7 @@ void AlCaElectronTracksReducer::produce (edm::Event& iEvent,
 
   for (eleIt=electronCollection->begin(); eleIt!=electronCollection->end(); eleIt++) {
     // barrel
-#ifndef CMSSW42X
-    TrackRef track = (eleIt-> closestTrack() ) ;
-#else
     TrackRef track = (eleIt-> closestCtfTrackRef());
-#endif
     if(track.isNull()){
       //      edm::LogError("track") << "Track Ref not found " << eleIt->energy() << "\t" << eleIt->eta();
       continue;

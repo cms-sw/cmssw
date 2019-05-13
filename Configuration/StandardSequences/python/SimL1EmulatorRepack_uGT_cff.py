@@ -11,12 +11,20 @@ def _print(ignored):
 stage2L1Trigger.toModify(None, _print)
 (~stage2L1Trigger).toModify(None, lambda x: print("L1T INFO:  L1REPACK:uGT (intended for 2016 data) will unpack uGMT and CaloLaye2 outputs and re-emulate uGT"))
 
+
 # First, inputs to uGT:
 import EventFilter.L1TRawToDigi.gtStage2Digis_cfi
 unpackGtStage2 = EventFilter.L1TRawToDigi.gtStage2Digis_cfi.gtStage2Digis.clone(
     InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
 
+import EventFilter.Utilities.tcdsRawToDigi_cfi
+unpackTcds = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone(
+    InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
+
 from L1Trigger.Configuration.SimL1Emulator_cff import *
+
+simGtExtFakeStage2Digis.tcdsRecordLabel= cms.InputTag("unpackTcds","tcdsRecord")
+
 simGtStage2Digis.MuonInputTag   = "unpackGtStage2:Muon"
 simGtStage2Digis.EGammaInputTag = "unpackGtStage2:EGamma"
 simGtStage2Digis.TauInputTag    = "unpackGtStage2:Tau"
@@ -49,8 +57,11 @@ rawDataCollector = EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi.rawD
     )
 
 
-SimL1Emulator = cms.Sequence()
-stage2L1Trigger.toReplaceWith(SimL1Emulator, cms.Sequence(unpackGtStage2
-                                                          +SimL1TGlobal
-                                                          +packGtStage2
-                                                          +rawDataCollector))
+SimL1EmulatorTask = cms.Task()
+stage2L1Trigger.toReplaceWith(SimL1EmulatorTask, cms.Task(unpackGtStage2
+                                                          ,unpackTcds
+                                                          ,SimL1TechnicalTriggersTask
+                                                          ,SimL1TGlobalTask
+                                                          ,packGtStage2
+                                                          ,rawDataCollector))
+SimL1Emulator = cms.Sequence(SimL1EmulatorTask)

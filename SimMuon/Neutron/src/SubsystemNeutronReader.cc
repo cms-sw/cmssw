@@ -10,76 +10,68 @@
 
 using namespace std;
 
-SubsystemNeutronReader::SubsystemNeutronReader(const edm::ParameterSet & pset)
-: theHitReader(nullptr),
-  theLuminosity(pset.getParameter<double>("luminosity")), // in units of 10^34
-  theStartTime(pset.getParameter<double>("startTime")), 
-  theEndTime(pset.getParameter<double>("endTime")),
-  theEventOccupancy(pset.getParameter<vector<double> >("eventOccupancy")) // TODO make map
+SubsystemNeutronReader::SubsystemNeutronReader(const edm::ParameterSet& pset)
+    : theHitReader(nullptr),
+      theLuminosity(pset.getParameter<double>("luminosity")),  // in units of 10^34
+      theStartTime(pset.getParameter<double>("startTime")),
+      theEndTime(pset.getParameter<double>("endTime")),
+      theEventOccupancy(pset.getParameter<vector<double> >("eventOccupancy"))  // TODO make map
 {
   // 17.3 collisions per live bx, 79.5% of bx live
   float collisionsPerCrossing = 13.75 * theLuminosity;
-  int windowSize = (int)((theEndTime-theStartTime)/25.);
+  int windowSize = (int)((theEndTime - theStartTime) / 25.);
   theEventsInWindow = collisionsPerCrossing * windowSize;
   string reader = pset.getParameter<string>("reader");
   edm::FileInPath input = pset.getParameter<edm::FileInPath>("input");
-  if(reader == "ASCII")
-  {
+  if (reader == "ASCII") {
     theHitReader = new AsciiNeutronReader(input.fullPath());
-  }
-  else if (reader == "ROOT")
-  {
+  } else if (reader == "ROOT") {
     theHitReader = new RootNeutronReader(input.fullPath());
   }
 }
 
+SubsystemNeutronReader::~SubsystemNeutronReader() { delete theHitReader; }
 
-SubsystemNeutronReader::~SubsystemNeutronReader() {
-  delete theHitReader;
-}
-
-
-void
-SubsystemNeutronReader::generateChamberNoise(int chamberType, int chamberIndex, 
-                                             edm::PSimHitContainer & result,
-                                             CLHEP::HepRandomEngine* engine)
-{
+void SubsystemNeutronReader::generateChamberNoise(int chamberType,
+                                                  int chamberIndex,
+                                                  edm::PSimHitContainer& result,
+                                                  CLHEP::HepRandomEngine* engine) {
   // make sure this chamber hasn't been done before
-  if(find(theChambersDone.begin(), theChambersDone.end(), chamberIndex) 
-     == theChambersDone.end()) 
-  {
-    float meanNumberOfEvents = theEventOccupancy[chamberType-1] 
-                             * theEventsInWindow;
+  if (find(theChambersDone.begin(), theChambersDone.end(), chamberIndex) == theChambersDone.end()) {
+    float meanNumberOfEvents = theEventOccupancy[chamberType - 1] * theEventsInWindow;
     CLHEP::RandPoissonQ randPoissonQ(*engine, meanNumberOfEvents);
     int nEventsToAdd = randPoissonQ.fire();
-//    LogDebug("NeutronReader") << "Number of neutron events to add: " 
-//std::cout << "Number of neutron events to add for chamber type " << chamberType << " : " 
-// << nEventsToAdd <<  " mean " << meanNumberOfEvents << std::endl;
-//                   << nEventsToAdd <<  " mean " << meanNumberOfEvents;
+    //    LogDebug("NeutronReader") << "Number of neutron events to add: "
+    //std::cout << "Number of neutron events to add for chamber type " << chamberType << " : "
+    // << nEventsToAdd <<  " mean " << meanNumberOfEvents << std::endl;
+    //                   << nEventsToAdd <<  " mean " << meanNumberOfEvents;
 
-    for(int i = 0; i < nEventsToAdd; ++i) {
+    for (int i = 0; i < nEventsToAdd; ++i) {
       // find the time for this event
       float timeOffset = CLHEP::RandFlat::shoot(engine, theStartTime, theEndTime);
       vector<PSimHit> neutronHits;
       theHitReader->readNextEvent(chamberType, neutronHits);
 
-      for( vector<PSimHit>::const_iterator neutronHitItr = neutronHits.begin();
-           neutronHitItr != neutronHits.end(); ++neutronHitItr)
-      {
-         const PSimHit & rawHit = *neutronHitItr;
-         // do the time offset and local det id
-         int det = detId(chamberIndex, rawHit.detUnitId());
-         PSimHit hit(rawHit.entryPoint(), rawHit.exitPoint(), rawHit.pabs(),
-                     rawHit.tof()+timeOffset,
-                     rawHit.energyLoss(), rawHit.particleType(),
-                     det, rawHit.trackId(),
-                     rawHit.thetaAtEntry(),  rawHit.phiAtEntry(), rawHit.processType());
-//std::cout << "NEWHIT " << hit << std::endl;
-         result.push_back(hit);
+      for (vector<PSimHit>::const_iterator neutronHitItr = neutronHits.begin(); neutronHitItr != neutronHits.end();
+           ++neutronHitItr) {
+        const PSimHit& rawHit = *neutronHitItr;
+        // do the time offset and local det id
+        int det = detId(chamberIndex, rawHit.detUnitId());
+        PSimHit hit(rawHit.entryPoint(),
+                    rawHit.exitPoint(),
+                    rawHit.pabs(),
+                    rawHit.tof() + timeOffset,
+                    rawHit.energyLoss(),
+                    rawHit.particleType(),
+                    det,
+                    rawHit.trackId(),
+                    rawHit.thetaAtEntry(),
+                    rawHit.phiAtEntry(),
+                    rawHit.processType());
+        //std::cout << "NEWHIT " << hit << std::endl;
+        result.push_back(hit);
       }
-
     }
     theChambersDone.push_back(chamberIndex);
   }
 }
-

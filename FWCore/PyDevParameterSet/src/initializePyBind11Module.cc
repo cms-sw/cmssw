@@ -2,7 +2,7 @@
 //
 // Package:     PyBind11ParameterSet
 // Class  :     initializePyBind11Module
-// 
+//
 
 #include "FWCore/PyDevParameterSet/src/initializePyBind11Module.h"
 #include "PyBind11Module.h"
@@ -10,10 +10,10 @@
 #include <iostream>
 
 namespace edm {
-   namespace python3 {
-      void initializePyBind11Module() {
-	 char *libFWCoreParameterSet = const_cast<char *>("libFWCorePyDevParameterSet");
-	 pybind11::module::import(libFWCoreParameterSet);
-      }
-   }
-}
+  namespace python3 {
+    void initializePyBind11Module() {
+      char *libFWCoreParameterSet = const_cast<char *>("libFWCorePyDevParameterSet");
+      pybind11::module::import(libFWCoreParameterSet);
+    }
+  }  // namespace python3
+}  // namespace edm

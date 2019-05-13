@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -30,6 +31,8 @@ class GlobalTrackQualityProducer : public edm::stream::EDProducer<> {
 
   ~GlobalTrackQualityProducer() override; // {}
   
+  // describe the parameters it allows or requires to be in its configuration
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
  private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   virtual std::pair<double,double> kink(Trajectory& muon) const ;

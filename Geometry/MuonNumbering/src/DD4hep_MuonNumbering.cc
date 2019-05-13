@@ -2,10 +2,7 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
-
 using namespace cms;
-using namespace std;
 using namespace edm;
 
 const MuonBaseNumber
@@ -19,20 +16,20 @@ MuonNumbering::geoHistoryToBaseNumber(const cms::ExpandedNodes &nodes) const {
 
   // some consistency checks
   if(basePart != 1) {
-    LogError("Geometry") << "MuonNumbering finds unusual base constant:"
-			 << basePart;
+    edm::LogError("Geometry") << "MuonNumbering finds unusual base constant:"
+			      << basePart;
   }
   if(superPart < 100) {
-    LogError("Geometry") << "MuonNumbering finds unusual super constant:"
-			 << superPart;
+    edm::LogError("Geometry") << "MuonNumbering finds unusual super constant:"
+			      << superPart;
   }
   if(levelPart < 10*superPart) {
-    LogError("Geometry") << "MuonNumbering finds unusual level constant:"
-			 << levelPart;
+    edm::LogError("Geometry") << "MuonNumbering finds unusual level constant:"
+			      << levelPart;
   }
   if((startCopyNo !=0 ) && (startCopyNo != 1)) {
-    LogError("Geometry") << "MuonNumbering finds unusual start value for copy numbers:"
-			 << startCopyNo;
+    edm::LogError("Geometry") << "MuonNumbering finds unusual start value for copy numbers:"
+			      << startCopyNo;
   }
   int ctr(0);
   for(auto const& it : nodes.tags) {
@@ -58,7 +55,7 @@ MuonNumbering::get(const char* key) const {
 }
 
 void
-MuonNumbering::put(string_view str, int num) {
+MuonNumbering::put(std::string_view str, int num) {
   values_.emplace(str, num);
 }
 

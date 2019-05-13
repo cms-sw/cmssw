@@ -5,7 +5,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
 from Configuration.Geometry.dict2023Geometry import detectorVersionDict
 
-varType = Enumerate ("Run1 2015 2017 2019 2023 MaPSA")
+varType = Enumerate ("Run1 2015 2017 2021 2023 MaPSA")
 defaultVersion=str();
 
 def help():
@@ -64,13 +64,13 @@ def recoGeoLoad(score):
        process.GlobalTag.globaltag = autoCond['upgrade2017']
        process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
        
-    elif  score == "2019":
+    elif  score == "2021":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['upgrade2019']
+       process.GlobalTag.globaltag = autoCond['upgrade2021']
        ## NOTE: There is no PTrackerParameters Rcd in this GT yet
        process.load('Geometry.TrackerGeometryBuilder.trackerParameters_cfi')
-       process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
+       process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
        ## NOTE: There are no Muon alignement records in the GT yet
        process.DTGeometryESModule.applyAlignment = cms.bool(False)
        process.CSCGeometryESModule.applyAlignment = cms.bool(False)

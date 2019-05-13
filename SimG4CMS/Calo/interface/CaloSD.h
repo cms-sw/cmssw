@@ -27,6 +27,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 
 class G4Step;
 class G4HCofThisEvent;
@@ -64,6 +65,7 @@ public:
 
   void clearHits() override;
   void fillHits(edm::PCaloHitContainer&, const std::string&) override;
+  void reset() override;
 
 protected:
   virtual double getEnergyDeposit(const G4Step* step);
@@ -163,10 +165,7 @@ private:
 
   std::map<CaloHitID, CaloG4Hit*> hitMap;
   std::map<int, TrackWithHistory*> tkMap;
-
-  std::vector<CaloG4Hit*> reusehit;
-  std::vector<CaloG4Hit*> hitvec;
-  std::vector<unsigned int> selIndex;
+  std::vector<std::unique_ptr<CaloG4Hit>> reusehit;
 };
 
 #endif  // SimG4CMS_CaloSD_h

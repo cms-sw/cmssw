@@ -13,6 +13,7 @@ from .primaryVertexValidation import PrimaryVertexValidation
 from .TkAlExceptions import AllInOneError
 from .trackSplittingValidation import TrackSplittingValidation
 from .zMuMuValidation import ZMuMuValidation
+from .overlapValidation import OverlapValidation
 
 class BasePlottingOptions(object):
     __metaclass__ = ValidationMetaClass
@@ -224,12 +225,18 @@ class PlottingOptionsPrimaryVertex(BasePlottingOptions):
         for name in "autoLimits", "doMaps", "stdResiduals":
             self.general[name] = cppboolstring(self.general[name], name)
 
+class PlottingOptionsOverlap(BasePlottingOptions):
+    validationclass = OverlapValidation
+    def __init__(self, config):
+        super(PlottingOptionsOverlap, self).__init__(config, "overlap")
+
 def PlottingOptions(config, valType):
     plottingOptionsClasses = {
                               "offline": PlottingOptionsOffline,
                               "split": PlottingOptionsTrackSplitting,
                               "zmumu": PlottingOptionsZMuMu,
                               "primaryvertex": PlottingOptionsPrimaryVertex,
+                              "overlap": PlottingOptionsOverlap
                              }
     if isinstance(valType, type):
         valType = valType.valType
@@ -239,3 +246,6 @@ def PlottingOptions(config, valType):
             raise ValueError("Have to provide a config the first time you call PlottingOptions for {}".format(valType))
         globalDictionaries.plottingOptions[valType] = plottingOptionsClasses[valType](config)
     return globalDictionaries.plottingOptions[valType].getRepMap()
+
+
+

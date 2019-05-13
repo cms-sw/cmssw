@@ -24,19 +24,19 @@ using namespace edm::eventsetup;
 using namespace edm::eventsetup::test;
 
 namespace {
-edm::ActivityRegistry activityRegistry;
+  edm::ActivityRegistry activityRegistry;
 }
 
-class testfullChain: public CppUnit::TestFixture
-{
-CPPUNIT_TEST_SUITE(testfullChain);
+class testfullChain : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(testfullChain);
 
-CPPUNIT_TEST(getfromDataproxyproviderTest);
+  CPPUNIT_TEST(getfromDataproxyproviderTest);
 
-CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE_END();
+
 public:
-  void setUp(){}
-  void tearDown(){}
+  void setUp() {}
+  void tearDown() {}
 
   void getfromDataproxyproviderTest();
 };
@@ -44,28 +44,27 @@ public:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testfullChain);
 
-void testfullChain::getfromDataproxyproviderTest()
-{
-   eventsetup::EventSetupProvider provider(&activityRegistry);
+void testfullChain::getfromDataproxyproviderTest() {
+  eventsetup::EventSetupProvider provider(&activityRegistry);
 
-   std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<DummyProxyProvider>();
-   provider.add(pProxyProv);
-   
-   std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
-   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+  std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<DummyProxyProvider>();
+  provider.add(pProxyProv);
 
-   const Timestamp time_1(1);
-   const IOVSyncValue sync_1(time_1);
-   pFinder->setInterval(ValidityInterval(sync_1, IOVSyncValue(Timestamp(5))));
-   for(unsigned int iTime=1; iTime != 6; ++iTime) {
-      const Timestamp time(iTime);
-      auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(time));
-      ESHandle<DummyData> pDummy;
-      eventSetup.get<DummyRecord>().get(pDummy);
-      CPPUNIT_ASSERT(0 != pDummy.product());
-      
-      eventSetup.getData(pDummy);
-   
-      CPPUNIT_ASSERT(0 != pDummy.product());
-   }
+  std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
+  provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+
+  const Timestamp time_1(1);
+  const IOVSyncValue sync_1(time_1);
+  pFinder->setInterval(ValidityInterval(sync_1, IOVSyncValue(Timestamp(5))));
+  for (unsigned int iTime = 1; iTime != 6; ++iTime) {
+    const Timestamp time(iTime);
+    EventSetup const eventSetup{provider.eventSetupForInstance(IOVSyncValue(time)), 0, nullptr};
+    ESHandle<DummyData> pDummy;
+    eventSetup.get<DummyRecord>().get(pDummy);
+    CPPUNIT_ASSERT(0 != pDummy.product());
+
+    eventSetup.getData(pDummy);
+
+    CPPUNIT_ASSERT(0 != pDummy.product());
+  }
 }

@@ -55,60 +55,57 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-   struct NewPedBunch
-   {
-      HcalCastorDetId detid;
-      bool usedflag;
-      float cap[4];
-      float capfc[4];
-      float sig[4][4];
-      float sigfc[4][4];
-      float prod[4][4];
-      float prodfc[4][4];
-      int num[4][4];
-   };
+struct NewPedBunch {
+  HcalCastorDetId detid;
+  bool usedflag;
+  float cap[4];
+  float capfc[4];
+  float sig[4][4];
+  float sigfc[4][4];
+  float prod[4][4];
+  float prodfc[4][4];
+  int num[4][4];
+};
 
-class CastorPedestalsAnalysis : public edm::EDAnalyzer
-{
-   public:
-   //Constructor
-   CastorPedestalsAnalysis(const edm::ParameterSet& ps);
-   //Destructor
-   ~CastorPedestalsAnalysis() override;
-   //Analysis
-   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+class CastorPedestalsAnalysis : public edm::EDAnalyzer {
+public:
+  //Constructor
+  CastorPedestalsAnalysis(const edm::ParameterSet &ps);
+  //Destructor
+  ~CastorPedestalsAnalysis() override;
+  //Analysis
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
-   private:
-   //Container for data, 1 per channel
-   std::vector<NewPedBunch> Bunches;
-   //Flag for saving histos
-   bool hiSaveFlag;
-   bool dumpXML;
-   bool verboseflag;
-   int runnum;
-   int firstTS;
-   int lastTS;
-   std::string ROOTfilename;
-   std::string pedsADCfilename;
-   std::string pedsfCfilename;
-   std::string widthsADCfilename;
-   std::string widthsfCfilename;
-   std::string XMLfilename;
-   std::string XMLtag;
-   std::string ZSfilename;
+private:
+  //Container for data, 1 per channel
+  std::vector<NewPedBunch> Bunches;
+  //Flag for saving histos
+  bool hiSaveFlag;
+  bool dumpXML;
+  bool verboseflag;
+  int runnum;
+  int firstTS;
+  int lastTS;
+  std::string ROOTfilename;
+  std::string pedsADCfilename;
+  std::string pedsfCfilename;
+  std::string widthsADCfilename;
+  std::string widthsfCfilename;
+  std::string XMLfilename;
+  std::string XMLtag;
+  std::string ZSfilename;
 
-   TH1F *CASTORMeans;
-   TH1F *CASTORWidths;
+  TH1F *CASTORMeans;
+  TH1F *CASTORWidths;
 
-   // TH2F *dephist[4];
-   TH2F *dephist;
+  // TH2F *dephist[4];
+  TH2F *dephist;
 
-   TFile *theFile;
-   bool firsttime;
+  TFile *theFile;
+  bool firsttime;
 
-   edm::InputTag castorDigiCollectionTag;
+  edm::InputTag castorDigiCollectionTag;
 };
 #endif
-

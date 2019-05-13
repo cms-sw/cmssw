@@ -2,7 +2,7 @@
 //
 // Package:     ParameterSet
 // Class  :     ParameterSetDescriptionFillerPluginFactory
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -15,8 +15,8 @@
 // user include files
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
 
-
 //
 // constants, enums and typedefs
 //
-EDM_REGISTER_PLUGINFACTORY(edm::ParameterSetDescriptionFillerPluginFactory,"CMS EDM Framework ParameterSet Description");
+EDM_REGISTER_PLUGINFACTORY(edm::ParameterSetDescriptionFillerPluginFactory,
+                           "CMS EDM Framework ParameterSet Description");

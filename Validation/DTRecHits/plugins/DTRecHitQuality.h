@@ -32,7 +32,7 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class PSimHit;
 class DTLayer;
@@ -47,15 +47,17 @@ namespace dtrechit {
 class DTRecHitQuality : public DQMGlobalEDAnalyzer<dtrechit::Histograms> {
 public:
   /// Constructor
-  DTRecHitQuality(const edm::ParameterSet& pset);
+  DTRecHitQuality(const edm::ParameterSet &pset);
 
 private:
   /// Book the DQM plots
-  void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const&, edm::EventSetup const&, dtrechit::Histograms &) const override;
+  void bookHistograms(DQMStore::ConcurrentBooker &,
+                      edm::Run const &,
+                      edm::EventSetup const &,
+                      dtrechit::Histograms &) const override;
 
   /// Perform the real analysis
-  void dqmAnalyze(edm::Event const&, edm::EventSetup const&, dtrechit::Histograms const&) const override;
-
+  void dqmAnalyze(edm::Event const &, edm::EventSetup const &, dtrechit::Histograms const &) const override;
 
 private:
   // Switch for debug output
@@ -65,7 +67,8 @@ private:
   edm::EDGetTokenT<edm::PSimHitContainer> simHitToken_;
   edm::EDGetTokenT<DTRecHitCollection> recHitToken_;
   edm::EDGetTokenT<DTRecSegment2DCollection> segment2DToken_;
-  edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;;
+  edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;
+  ;
 
   edm::InputTag simHitLabel_;
   edm::InputTag recHitLabel_;
@@ -80,61 +83,51 @@ private:
   bool doall_;
 
   // Return a map between DTRecHit1DPair and wireId
-  std::map<DTWireId, std::vector<DTRecHit1DPair>>
-  map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs) const;
+  std::map<DTWireId, std::vector<DTRecHit1DPair>> map1DRecHitsPerWire(const DTRecHitCollection *dt1DRecHitPairs) const;
 
   // Return a map between DTRecHit1D and wireId
-  std::map<DTWireId, std::vector<DTRecHit1D>>
-  map1DRecHitsPerWire(const DTRecSegment2DCollection* segment2Ds) const;
+  std::map<DTWireId, std::vector<DTRecHit1D>> map1DRecHitsPerWire(const DTRecSegment2DCollection *segment2Ds) const;
 
   // Return a map between DTRecHit1D and wireId
-  std::map<DTWireId, std::vector<DTRecHit1D>>
-  map1DRecHitsPerWire(const DTRecSegment4DCollection* segment4Ds) const;
+  std::map<DTWireId, std::vector<DTRecHit1D>> map1DRecHitsPerWire(const DTRecSegment4DCollection *segment4Ds) const;
 
   // Compute SimHit distance from wire (cm)
-  float simHitDistFromWire(const DTLayer* layer,
-                           const DTWireId& wireId,
-                           const PSimHit& hit) const;
+  float simHitDistFromWire(const DTLayer *layer, const DTWireId &wireId, const PSimHit &hit) const;
 
   // Compute SimHit impact angle (in direction perp to wire)
-  float simHitImpactAngle(const DTLayer* layer,
-                           const DTWireId& wireId,
-                           const PSimHit& hit) const;
+  float simHitImpactAngle(const DTLayer *layer, const DTWireId &wireId, const PSimHit &hit) const;
 
   // Compute SimHit distance from FrontEnd
-  float simHitDistFromFE(const DTLayer* layer,
-                           const DTWireId& wireId,
-                           const PSimHit& hit) const;
+  float simHitDistFromFE(const DTLayer *layer, const DTWireId &wireId, const PSimHit &hit) const;
 
   // Find the RecHit closest to the muon SimHit
-//   const DTRecHit1DPair*
-//   findBestRecHit(const DTLayer* layer,
-//               DTWireId wireId,
-//               const std::vector<DTRecHit1DPair>& recHits,
-//               const float simHitDist) const;
+  //   const DTRecHit1DPair*
+  //   findBestRecHit(const DTLayer* layer,
+  //               DTWireId wireId,
+  //               const std::vector<DTRecHit1DPair>& recHits,
+  //               const float simHitDist) const;
   template <typename type>
-  const type*
-  findBestRecHit(const DTLayer* layer,
-                 const DTWireId& wireId,
-                 const std::vector<type>& recHits,
-                 float simHitDist) const;
+  const type *findBestRecHit(const DTLayer *layer,
+                             const DTWireId &wireId,
+                             const std::vector<type> &recHits,
+                             float simHitDist) const;
 
   // Compute the distance from wire (cm) of a hits in a DTRecHit1DPair
-  float recHitDistFromWire(const DTRecHit1DPair& hitPair, const DTLayer* layer) const;
+  float recHitDistFromWire(const DTRecHit1DPair &hitPair, const DTLayer *layer) const;
   // Compute the distance from wire (cm) of a hits in a DTRecHit1D
-  float recHitDistFromWire(const DTRecHit1D& recHit, const DTLayer* layer) const;
+  float recHitDistFromWire(const DTRecHit1D &recHit, const DTLayer *layer) const;
 
   // Return the error on the measured (cm) coordinate
-  float recHitPositionError(const DTRecHit1DPair& recHit) const;
-  float recHitPositionError(const DTRecHit1D& recHit) const;
+  float recHitPositionError(const DTRecHit1DPair &recHit) const;
+  float recHitPositionError(const DTRecHit1D &recHit) const;
 
   // Does the real job
   template <typename type>
   void compute(const DTGeometry *dtGeom,
-               const std::map<DTWireId, std::vector<PSimHit>>& simHitsPerWire,
-               const std::map<DTWireId, std::vector<type>>& recHitsPerWire,
-               dtrechit::Histograms const& histograms, int step) const;
-
+               const std::map<DTWireId, std::vector<PSimHit>> &simHitsPerWire,
+               const std::map<DTWireId, std::vector<type>> &recHitsPerWire,
+               dtrechit::Histograms const &histograms,
+               int step) const;
 };
 
-#endif // Validation_DTRecHits_DTRecHitQuality_h
+#endif  // Validation_DTRecHits_DTRecHitQuality_h

@@ -112,7 +112,6 @@ class HeavyFlavorValidation : public DQMEDAnalyzer {
     vector<double> dimuonPtBins;
     vector<double> dimuonEtaBins;
     vector<double> dimuonDRBins;
-    DQMStore* dqmStore;
     map<TString, MonitorElement *> ME;
     vector<pair<string,int> > filterNamesLevels;
     const double muonMass;

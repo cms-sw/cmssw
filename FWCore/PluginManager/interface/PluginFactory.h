@@ -4,7 +4,7 @@
 //
 // Package:     PluginManager
 // Class  :     PluginFactory
-// 
+//
 /**\class PluginFactory PluginFactory.h FWCore/PluginManager/interface/PluginFactory.h
 
  Description: Public interface for loading a plugin
@@ -29,86 +29,97 @@
 // forward declarations
 
 namespace edmplugin {
-template< class T> class PluginFactory;
+  template <class T>
+  class PluginFactory;
   class DummyFriend;
-  
-template<typename R, typename... Args>
-class PluginFactory<R*(Args...)> : public PluginFactoryBase
-{
-      friend class DummyFriend;
-   public:
-      using TemplateArgType = R*(Args...);
-      using CreatedType = R;
 
-      struct PMakerBase {
-        virtual R* create(Args...) const = 0;
-        virtual ~PMakerBase() {}
-      };
-      template<class TPlug>
-      struct PMaker : public PMakerBase {
-        PMaker(const std::string& iName) {
-          PluginFactory<R*(Args...)>::get()->registerPMaker(this,iName);
-        }
-        R* create(Args... args) const override {
-          return new TPlug(std::forward<Args>(args)...);
-        }
-      };
+  template <typename R, typename... Args>
+  class PluginFactory<R*(Args...)> : public PluginFactoryBase {
+    friend class DummyFriend;
 
-      // ---------- const member functions ---------------------
-      const std::string& category() const override ;
-      
-      R* create(const std::string& iName, Args... args) const {
-        return reinterpret_cast<PMakerBase*>(PluginFactoryBase::findPMaker(iName))->create(std::forward<Args>(args)...);
+  public:
+    using TemplateArgType = R*(Args...);
+    using CreatedType = R;
+
+    struct PMakerBase {
+      virtual R* create(Args...) const = 0;
+      virtual ~PMakerBase() {}
+    };
+    template <class TPlug>
+    struct PMaker : public PMakerBase {
+      PMaker(const std::string& iName) { PluginFactory<R*(Args...)>::get()->registerPMaker(this, iName); }
+      R* create(Args... args) const override { return new TPlug(std::forward<Args>(args)...); }
+    };
+
+    // ---------- const member functions ---------------------
+    const std::string& category() const override;
+
+    R* create(const std::string& iName, Args... args) const {
+      return reinterpret_cast<PMakerBase*>(PluginFactoryBase::findPMaker(iName))->create(std::forward<Args>(args)...);
+    }
+
+    ///like above but returns 0 if iName is unknown
+    R* tryToCreate(const std::string& iName, Args... args) const {
+      auto found = PluginFactoryBase::tryToFindPMaker(iName);
+      if (found == nullptr) {
+        return nullptr;
       }
+      return reinterpret_cast<PMakerBase*>(found)->create(args...);
+    }
+    // ---------- static member functions --------------------
 
-      ///like above but returns 0 if iName is unknown
-      R* tryToCreate(const std::string& iName, Args... args) const {
-        auto found = PluginFactoryBase::tryToFindPMaker(iName);
-        if(found ==nullptr) {
-          return nullptr;
-        }
-        return reinterpret_cast<PMakerBase*>(found)->create(args...);
-      }
-      // ---------- static member functions --------------------
+    static PluginFactory<R*(Args...)>* get();
+    // ---------- member functions ---------------------------
+    void registerPMaker(PMakerBase* iPMaker, const std::string& iName) {
+      PluginFactoryBase::registerPMaker(iPMaker, iName);
+    }
 
-      static PluginFactory<R*(Args...)>* get();
-      // ---------- member functions ---------------------------
-      void registerPMaker(PMakerBase* iPMaker, const std::string& iName) {
-        PluginFactoryBase::registerPMaker(iPMaker, iName);
-      }
+  private:
+    PluginFactory() { finishedConstruction(); }
+    PluginFactory(const PluginFactory&) = delete;  // stop default
 
-   private:
-      PluginFactory() {
-        finishedConstruction();
-      }
-      PluginFactory(const PluginFactory&) = delete; // stop default
+    const PluginFactory& operator=(const PluginFactory&) = delete;  // stop default
+  };
+}  // namespace edmplugin
+#define FWCORE_CONCATENATE_HIDDEN(a, b) a##b
+#define FWCORE_CONCATENATE(a, b) FWCORE_CONCATENATE_HIDDEN(a, b)
+#define EDM_REGISTER_PLUGINFACTORY(_factory_, _category_)                                                               \
+  namespace edmplugin {                                                                                                 \
+    template <>                                                                                                         \
+    edmplugin::PluginFactory<_factory_::TemplateArgType>* edmplugin::PluginFactory<_factory_::TemplateArgType>::get() { \
+      CMS_THREAD_SAFE static edmplugin::PluginFactory<_factory_::TemplateArgType> s_instance;                           \
+      return &s_instance;                                                                                               \
+    }                                                                                                                   \
+    template <>                                                                                                         \
+    const std::string& edmplugin::PluginFactory<_factory_::TemplateArgType>::category() const {                         \
+      static const std::string s_cat(_category_);                                                                       \
+      return s_cat;                                                                                                     \
+    }                                                                                                                   \
+  }                                                                                                                     \
+  enum { FWCORE_CONCATENATE(dummy_edm_register_pluginfactory_, __LINE__) }
 
-      const PluginFactory& operator=(const PluginFactory&) = delete; // stop default
-
-};
-}
-#define CONCATENATE_HIDDEN(a,b) a ## b 
-#define CONCATENATE(a,b) CONCATENATE_HIDDEN(a,b)
-#define EDM_REGISTER_PLUGINFACTORY(_factory_,_category_) \
-namespace edmplugin {\
-  template<> edmplugin::PluginFactory<_factory_::TemplateArgType>* edmplugin::PluginFactory<_factory_::TemplateArgType>::get() { CMS_THREAD_SAFE static edmplugin::PluginFactory<_factory_::TemplateArgType> s_instance; return &s_instance;}\
-  template<> const std::string& edmplugin::PluginFactory<_factory_::TemplateArgType>::category() const { static const std::string s_cat(_category_);  return s_cat;}\
-  } enum {CONCATENATE(dummy_edm_register_pluginfactory_, __LINE__)}
-
-#define EDM_REGISTER_PLUGINFACTORY2(_factory_,_category_) \
-namespace edmplugin {\
-template<> edmplugin::PluginFactory<_factory_::TemplateArgType>* edmplugin::PluginFactory<_factory_::TemplateArgType>::get() { CMS_THREAD_SAFE static edmplugin::PluginFactory<_factory_::TemplateArgType> s_instance; return &s_instance;}\
-template<> const std::string& edmplugin::PluginFactory<_factory_::TemplateArgType>::category() const { static const std::string s_cat(_category_);  return s_cat;}\
-} enum {CONCATENATE(dummy_edm_register_pluginfactory_2_, __LINE__)}
+#define EDM_REGISTER_PLUGINFACTORY2(_factory_, _category_)                                                              \
+  namespace edmplugin {                                                                                                 \
+    template <>                                                                                                         \
+    edmplugin::PluginFactory<_factory_::TemplateArgType>* edmplugin::PluginFactory<_factory_::TemplateArgType>::get() { \
+      CMS_THREAD_SAFE static edmplugin::PluginFactory<_factory_::TemplateArgType> s_instance;                           \
+      return &s_instance;                                                                                               \
+    }                                                                                                                   \
+    template <>                                                                                                         \
+    const std::string& edmplugin::PluginFactory<_factory_::TemplateArgType>::category() const {                         \
+      static const std::string s_cat(_category_);                                                                       \
+      return s_cat;                                                                                                     \
+    }                                                                                                                   \
+  }                                                                                                                     \
+  enum { FWCORE_CONCATENATE(dummy_edm_register_pluginfactory_2_, __LINE__) }
 
 #endif
 
-#define EDM_PLUGIN_SYM(x,y) EDM_PLUGIN_SYM2(x,y)
-#define EDM_PLUGIN_SYM2(x,y) x ## y
+#define EDM_PLUGIN_SYM(x, y) EDM_PLUGIN_SYM2(x, y)
+#define EDM_PLUGIN_SYM2(x, y) x##y
 
-#define DEFINE_EDM_PLUGIN(factory,type,name) \
-static const factory::PMaker<type> EDM_PLUGIN_SYM(s_maker , __LINE__ ) (name)
+#define DEFINE_EDM_PLUGIN(factory, type, name) \
+  static const factory::PMaker<type> EDM_PLUGIN_SYM(s_maker, __LINE__)(name)
 
-#define DEFINE_EDM_PLUGIN2(factory,type,name) \
-static const factory::PMaker<type> EDM_PLUGIN_SYM(s_maker2 , __LINE__ ) (name)
-
+#define DEFINE_EDM_PLUGIN2(factory, type, name) \
+  static const factory::PMaker<type> EDM_PLUGIN_SYM(s_maker2, __LINE__)(name)

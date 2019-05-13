@@ -116,7 +116,7 @@ OBSOLETE! in NEWGEO the bti number order is the correct one!
       || wheel()==-1 
       || wheel()==-2)
     {n=DTConfigTSTheta::NCELLTH + 1 - n; }
-  
+
 */
 
   if( n<1 || n>geom()->nCell(2) ) {

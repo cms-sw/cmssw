@@ -136,7 +136,7 @@ void SiPixelDigiToRaw::produce( edm::StreamID, edm::Event& ev,
 
   PixelDataFormatter::BadChannels badChannels;
   edm::Handle<PixelFEDChannelCollection> pixelFEDChannelCollectionHandle;
-  if (ev.getByToken(theBadPixelFEDChannelsToken, pixelFEDChannelCollectionHandle)){
+  if (usePhase1 && ev.getByToken(theBadPixelFEDChannelsToken, pixelFEDChannelCollectionHandle)){
     for (auto const& fedChannels: *pixelFEDChannelCollectionHandle) {
       PixelDataFormatter::DetBadChannels detBadChannels;
       for(const auto& fedChannel: fedChannels) {

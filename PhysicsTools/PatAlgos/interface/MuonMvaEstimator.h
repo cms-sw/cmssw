@@ -34,6 +34,7 @@ namespace pat {
                      const reco::JetTagCollection& bTags,
                      float& jetPtRatio,
                      float& jetPtRel,
+		     float& miniIsoValue,
                      const reco::JetCorrector* correctorL1=nullptr,
                      const reco::JetCorrector* correctorL1L2L3Res=nullptr) const;
 

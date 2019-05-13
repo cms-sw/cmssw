@@ -84,9 +84,13 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
 			   edm::ValueMap<reco::PhotonRef>  pfEGCandToPhotonMap,
 			   edm::Handle< reco::VertexCollection >&  pvVertices,
 			   reco::PhotonCollection & outputCollection,
-			   int& iSC, const edm::Handle<edm::ValueMap<float>>& chargedHadrons,
+			   int& iSC, 
+			   const edm::Handle<edm::ValueMap<float>>& chargedHadrons,
 			   const edm::Handle<edm::ValueMap<float>>& neutralHadrons, 
 			   const edm::Handle<edm::ValueMap<float>>& photons,
+			   const edm::Handle<edm::ValueMap<float>>& chargedHadronsWorstVtx,
+			   const edm::Handle<edm::ValueMap<float>>& chargedHadronsWorstVtxGeomVeto,
+			   const edm::Handle<edm::ValueMap<float>>& chargedHadronsPFPV,
 			   const edm::Handle<edm::ValueMap<float>>& pfEcalClusters,
 			   const edm::Handle<edm::ValueMap<float>>& pfHcalClusters);
    
@@ -109,9 +113,13 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
  //for isolation with map-based veto
  edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef > > > particleBasedIsolationToken;
   //photon isolation sums
-  edm::EDGetTokenT<edm::ValueMap<float> > phoChargedIsolationTokenCITK_; 
-  edm::EDGetTokenT<edm::ValueMap<float> > phoNeutralHadronIsolationTokenCITK_; 
-  edm::EDGetTokenT<edm::ValueMap<float> > phoPhotonIsolationTokenCITK_; 
+  edm::EDGetTokenT<edm::ValueMap<float> > phoChargedIsolationToken_; 
+  edm::EDGetTokenT<edm::ValueMap<float> > phoNeutralHadronIsolationToken_; 
+  edm::EDGetTokenT<edm::ValueMap<float> > phoPhotonIsolationToken_; 
+  edm::EDGetTokenT<edm::ValueMap<float> > phoChargedWorstVtxIsoToken_; 
+  edm::EDGetTokenT<edm::ValueMap<float> > phoChargedWorstVtxGeomVetoIsoToken_; 
+  edm::EDGetTokenT<edm::ValueMap<float> > phoChargedPFPVIsoToken_; 
+
   edm::EDGetTokenT<edm::ValueMap<float> > phoPFECALClusIsolationToken_; 
   edm::EDGetTokenT<edm::ValueMap<float> > phoPFHCALClusIsolationToken_; 
  

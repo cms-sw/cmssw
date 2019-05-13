@@ -17,10 +17,9 @@
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
-class IPTCorrector : public edm::global::EDProducer<>
-{
+class IPTCorrector : public edm::global::EDProducer<> {
 public:
-  IPTCorrector (const edm::ParameterSet& ps);
+  IPTCorrector(const edm::ParameterSet& ps);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -31,6 +30,5 @@ private:
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_uncor_;
   const double assocCone_;
 };
-
 
 #endif

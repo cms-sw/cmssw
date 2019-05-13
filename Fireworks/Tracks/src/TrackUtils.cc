@@ -256,6 +256,22 @@ pixelLocalY( const double mpy, const float* par )
   return lpY;
 }
 
+// Transform measurement to local coordinates in X dimension
+float
+phase2PixelLocalX( const double mpx, const float* par, const float* shape )
+{
+  // The final position in local coordinates
+  return (-shape[1] + mpx * par[0]);
+}
+
+// Transform measurement to local coordinates in Y dimension
+float
+phase2PixelLocalY( const double mpy, const float* par, const float* shape )
+{
+  // The final position in local coordinates
+  return (-shape[2] + mpy * par[1]);
+}
+
 //
 // Returns strip geometry in local coordinates of a detunit.
 // The strip is a line from a localTop to a localBottom point.

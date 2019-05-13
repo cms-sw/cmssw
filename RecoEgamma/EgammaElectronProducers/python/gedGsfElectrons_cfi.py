@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
 from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 
-from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol03CfgV1,trkIsol04CfgV1
+from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol03CfgV1,trkIsol04CfgV1,trkIsol03CfgV2,trkIsol04CfgV2
 
 
 gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
@@ -45,6 +45,8 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     # Isolation algos configuration
     trkIsol03Cfg = trkIsol03CfgV1,
     trkIsol04Cfg = trkIsol04CfgV1,
+    trkIsolHEEP03Cfg = trkIsol03CfgV2,
+    trkIsolHEEP04Cfg = trkIsol04CfgV2,
 
     # regression. The labels are needed in all cases.
     ecalRefinedRegressionWeightLabels = cms.vstring("gedelectron_EBCorrection_offline_v1",

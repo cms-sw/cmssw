@@ -2,7 +2,7 @@
 /*
  * \file DQMDcsInfoClient.cc
  * \author Andreas Meyer
- * Last Update:
+ * Last Update: 2019-03-26 Migrate to DQMEDHarvester
  *
 */
 
@@ -17,8 +17,6 @@ DQMDcsInfoClient::DQMDcsInfoClient( const edm::ParameterSet& ps ) {
 
   parameters_ = ps;
 
-  dbe_ = edm::Service<DQMStore>().operator->();
-
   subsystemname_ = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "Info") ;
   dcsinfofolder_ = parameters_.getUntrackedParameter<std::string>("dcsInfoFolder", "DcsInfo") ;
 
@@ -30,31 +28,14 @@ DQMDcsInfoClient::~DQMDcsInfoClient() = default;
 void 
 DQMDcsInfoClient::beginRun(const edm::Run& r, const edm::EventSetup& c) 
 {
-  // Fetch GlobalTag information and fill the string/ME.
-  dbe_->cd();  
-  dbe_->setCurrentFolder(subsystemname_ +"/CMSSWInfo/");
-  const edm::ParameterSet &globalTagPSet =
-    edm::getProcessParameterSetContainingModule(moduleDescription())
-    .getParameterSet("PoolDBESSource@GlobalTag");
-
-  dbe_->bookString("globalTag_Harvesting", globalTagPSet.getParameter<std::string>("globaltag"));
-
   DCS.clear();
   DCS.resize(10);  // start with 10 LS, resize later
   processedLS_.clear();
 }
 
 void 
-DQMDcsInfoClient::analyze(const edm::Event& e, const edm::EventSetup& c)
+DQMDcsInfoClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const edm::LuminosityBlock& l, const edm::EventSetup& c)
 {
-  return;
-}
-
-void 
-DQMDcsInfoClient::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c)
-{
-  if (!dbe_) return;
-
   unsigned int nlumi = l.id().luminosityBlock() ;
   processedLS_.insert(nlumi);
   // cout << " in lumi section " << nlumi << endl;
@@ -64,7 +45,7 @@ DQMDcsInfoClient::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::E
   // cout << "DCS size: " << DCS.size() << endl;     
 
   MonitorElement* DCSbyLS_ = 
-            dbe_->get(subsystemname_ + "/" + dcsinfofolder_ + "/DCSbyLS" ); 
+            igetter.get(subsystemname_ + "/" + dcsinfofolder_ + "/DCSbyLS" ); 
 
   if ( DCSbyLS_ ) 
   {
@@ -86,27 +67,35 @@ DQMDcsInfoClient::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::E
 }
 
 void 
-DQMDcsInfoClient::endRun(const edm::Run& r, const edm::EventSetup& c) 
+DQMDcsInfoClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter)
 {
+  // Fetch GlobalTag information and fill the string/ME.
+  ibooker.cd();  
+  ibooker.setCurrentFolder(subsystemname_ +"/CMSSWInfo/");
+  const edm::ParameterSet &globalTagPSet =
+    edm::getProcessParameterSetContainingModule(moduleDescription())
+    .getParameterSet("PoolDBESSource@GlobalTag");
 
-  // book 
-  dbe_->cd();  
-  dbe_->setCurrentFolder(subsystemname_ +"/EventInfo/");
+  ibooker.bookString("globalTag_Harvesting", globalTagPSet.getParameter<std::string>("globaltag"));
+
+  ibooker.cd();  
+  ibooker.setCurrentFolder(subsystemname_ +"/EventInfo/");
 
   unsigned int nlsmax = DCS.size();
-  reportSummary_=dbe_->bookFloat("reportSummary");
+  reportSummary_=ibooker.bookFloat("reportSummary");
   reportSummary_->Fill(1.);
   
-  reportSummaryMap_ = dbe_->get(subsystemname_ +"/EventInfo/reportSummaryMap");
-  if (reportSummaryMap_) dbe_->removeElement(reportSummaryMap_->getName());
+  reportSummaryMap_ = igetter.get(subsystemname_ +"/EventInfo/reportSummaryMap");
+  assert(!reportSummaryMap_); // this would be a configuration problem
 
-  reportSummaryMap_ = dbe_->book2D("reportSummaryMap",
+  reportSummaryMap_ = ibooker.book2D("reportSummaryMap",
                      "HV and GT vs Lumi", nlsmax, 0., nlsmax, 25, 0., 25.);
+  if (processedLS_.empty()) return;
   unsigned int lastProcessedLS = *(--processedLS_.end());
-  meProcessedLS_ = dbe_->book1D("ProcessedLS",
-				"Processed Lumisections",
-				lastProcessedLS+1,
-				0.,lastProcessedLS+1);
+  meProcessedLS_ = ibooker.book1D("ProcessedLS",
+                                  "Processed Lumisections",
+                                  lastProcessedLS+1,
+                                  0.,lastProcessedLS+1);
   reportSummaryMap_->setBinLabel( 1, "CSC+"    , 2);
   reportSummaryMap_->setBinLabel( 2, "CSC-"    , 2);
   reportSummaryMap_->setBinLabel( 3, "DT0"     , 2);
@@ -146,22 +135,18 @@ DQMDcsInfoClient::endRun(const edm::Run& r, const edm::EventSetup& c)
     }
   }
 
-  std::set<unsigned int>::iterator it,ite;
-  it  = processedLS_.begin();
-  ite = processedLS_.end();
   unsigned int lastAccessed = 0;
   
-  for (; it!=ite; it++)
+  for (auto ls : processedLS_)
   {
-    while (lastAccessed < (*it))
+    while (lastAccessed < ls)
     {
       //      std::cout << "Filling " << lastAccessed << " with -1" << std::endl; 
       meProcessedLS_->Fill(lastAccessed, -1.);
       lastAccessed++;
     }
     //    std::cout << "Filling " << *it << " with 1" << std::endl; 
-    meProcessedLS_->Fill(*it);
-    lastAccessed = (*it)+1;
+    meProcessedLS_->Fill(ls);
+    lastAccessed = ls+1;
   }
-  
 }

@@ -4,8 +4,8 @@
 //
 // Package:     SiStripMonitorRawData
 // Class  :     SiStripMonitorRawData
-// 
-/**\class SiStripMonitorRawData SiStripMonitorRawData.h 
+//
+/**\class SiStripMonitorRawData SiStripMonitorRawData.h
 
  Description: <one line class summary>
 
@@ -22,10 +22,10 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -47,28 +47,26 @@ class DQMStore;
 class SiStripDetCabling;
 
 class SiStripMonitorRawData : public DQMEDAnalyzer {
- public:
-  explicit SiStripMonitorRawData(const edm::ParameterSet&);
+public:
+  explicit SiStripMonitorRawData(const edm::ParameterSet &);
   ~SiStripMonitorRawData() override;
-  
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-  void endJob() override;
-  
-  
- private:
-  edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > digiToken_;
 
-  MonitorElement* BadFedNumber;
-  
-  DQMStore* dqmStore_;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endRun(edm::Run const &run, edm::EventSetup const &eSetup) override;
+  void endJob() override;
+
+private:
+  edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi>> digiToken_;
+
+  MonitorElement *BadFedNumber;
+
+  DQMStore *dqmStore_;
   edm::ParameterSet conf_;
-  edm::ESHandle< SiStripDetCabling > detcabling;
+  edm::ESHandle<SiStripDetCabling> detcabling;
   std::vector<uint32_t> SelectedDetIds;
 
   unsigned long long m_cacheID_;
-
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
 #include <map>
+#include <memory>
 #include <vector>
 
 class CaloSubdetectorTopology;
@@ -18,13 +19,13 @@ $Revision: 1.4 $
 class CaloTopology {
 public:
 
-      typedef std::map<int, const CaloSubdetectorTopology*> TopMap ;
+  typedef std::map<int, std::unique_ptr<const CaloSubdetectorTopology>> TopMap ;
 
   CaloTopology();
 
   ~CaloTopology();
   /// Register a subdetector Topology
-  void setSubdetTopology(DetId::Detector det, int subdet, const CaloSubdetectorTopology* geom);
+  void setSubdetTopology(DetId::Detector det, int subdet, std::unique_ptr<const CaloSubdetectorTopology> geom);
   /// access the subdetector Topology for the given subdetector directly
   const CaloSubdetectorTopology* getSubdetectorTopology(const DetId& id) const;
   /// access the subdetector Topology for the given subdetector directly

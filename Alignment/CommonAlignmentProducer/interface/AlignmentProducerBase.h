@@ -57,7 +57,6 @@
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
-
 class AlignTransform;
 class Alignments;
 class AlignmentErrorsExtended;
@@ -67,9 +66,7 @@ struct SurveyErrors;
 class TrackerTopology;
 class TrackerDigiGeometryRecord;
 
-
-class AlignmentProducerBase
-{
+class AlignmentProducerBase {
 protected:
   AlignmentProducerBase(const edm::ParameterSet&);
 
@@ -108,15 +105,11 @@ protected:
   /// @alignmentAlgo_
   bool finish();
 
-  virtual bool getTrajTrackAssociationCollection(const edm::Event&,
-                                                 edm::Handle<TrajTrackAssociationCollection>&) = 0;
+  virtual bool getTrajTrackAssociationCollection(const edm::Event&, edm::Handle<TrajTrackAssociationCollection>&) = 0;
   virtual bool getBeamSpot(const edm::Event&, edm::Handle<reco::BeamSpot>&) = 0;
-  virtual bool getTkFittedLasBeamCollection(const edm::Run&,
-                                            edm::Handle<TkFittedLasBeamCollection>&) = 0;
-  virtual bool getTsosVectorCollection(const edm::Run&,
-                                       edm::Handle<TsosVectorCollection>&) = 0;
-  virtual bool getAliClusterValueMap(const edm::Event&,
-                                     edm::Handle<AliClusterValueMap>&) = 0;
+  virtual bool getTkFittedLasBeamCollection(const edm::Run&, edm::Handle<TkFittedLasBeamCollection>&) = 0;
+  virtual bool getTsosVectorCollection(const edm::Run&, edm::Handle<TsosVectorCollection>&) = 0;
+  virtual bool getAliClusterValueMap(const edm::Event&, edm::Handle<AliClusterValueMap>&) = 0;
 
   std::shared_ptr<TrackerGeometry> trackerGeometry_;
   std::shared_ptr<DTGeometry> muonDTGeometry_;
@@ -136,7 +129,6 @@ protected:
   const edm::InputTag clusterValueMapTag_;
 
 private:
-
   /// Creates the choosen alignment algorithm
   void createAlignmentAlgorithm();
 
@@ -170,8 +162,7 @@ private:
   void applyMisalignment();
 
   /// Applies misalignment scenario to @alignableTracker_
-  void simpleMisalignment(const align::Alignables&, const std::string&,
-                          float, float, bool);
+  void simpleMisalignment(const align::Alignables&, const std::string&, float, float, bool);
 
   /// Applies Alignments, AlignmentErrors and SurfaceDeformations to
   /// @trackerGeometry_
@@ -179,11 +170,11 @@ private:
 
   /// Applies DB constants belonging to (Err)Rcd to Geometry, taking into
   /// account 'globalPosition' correction.
-  template<class G, class Rcd, class ErrRcd>
+  template <class G, class Rcd, class ErrRcd>
   void applyDB(G*, const edm::EventSetup&, const AlignTransform&) const;
 
   /// Applies DB constants for SurfaceDeformations
-  template<class G, class DeformationRcd>
+  template <class G, class DeformationRcd>
   void applyDB(G*, const edm::EventSetup&) const;
 
   /// Reads in survey records
@@ -202,18 +193,19 @@ private:
   /// Writes Alignments and/or AlignmentErrors to DB for record names
   /// (removes *globalCoordinates before writing if non-null...).
   /// Takes over ownership of Alignments and AlignmentErrors.
-  void writeDB(Alignments*, const std::string&, AlignmentErrorsExtended*,
-               const std::string&, const AlignTransform*, cond::Time_t) const;
+  void writeDB(Alignments*,
+               const std::string&,
+               AlignmentErrorsExtended*,
+               const std::string&,
+               const AlignTransform*,
+               cond::Time_t) const;
 
   /// Writes SurfaceDeformations (bows & kinks) to DB for given record name
   /// Takes over ownership of AlignmentSurfaceDeformations.
-  void writeDB(AlignmentSurfaceDeformations*,
-               const std::string&, cond::Time_t) const;
+  void writeDB(AlignmentSurfaceDeformations*, const std::string&, cond::Time_t) const;
 
-  template<typename T>
+  template <typename T>
   bool hasParameter(const edm::ParameterSet&, const std::string& name);
-
-
 
   //========================== PRIVATE DATA ====================================
   //============================================================================
@@ -237,7 +229,6 @@ private:
   int nevent_{0};
   bool runAtPCL_{false};
 
-
   /*** Parameters from config-file ***/
 
   edm::ParameterSet config_;
@@ -250,7 +241,6 @@ private:
   const bool useSurvey_;
   const bool enableAlignableUpdates_;
 
-
   /*** ESWatcher ***/
 
   edm::ESWatcher<IdealGeometryRecord> watchIdealGeometryRcd_;
@@ -261,7 +251,7 @@ private:
   edm::ESWatcher<TrackerSurfaceDeformationRcd> watchTrackerSurDeRcd_;
 
   edm::ESWatcher<DTAlignmentRcd> watchDTAlRcd_;
-  edm::ESWatcher<DTAlignmentErrorExtendedRcd>  watchDTAlErrExtRcd_;
+  edm::ESWatcher<DTAlignmentErrorExtendedRcd> watchDTAlErrExtRcd_;
   edm::ESWatcher<CSCAlignmentRcd> watchCSCAlRcd_;
   edm::ESWatcher<CSCAlignmentErrorExtendedRcd> watchCSCAlErrExtRcd_;
 
@@ -272,49 +262,39 @@ private:
   edm::ESWatcher<CSCSurveyRcd> watchCSCSurveyRcd_;
   edm::ESWatcher<CSCSurveyErrorExtendedRcd> watchCSCSurveyErrExtRcd_;
 
-
   /*** Survey stuff ***/
 
   size_t surveyIndex_{0};
   const Alignments* surveyValues_{nullptr};
   const SurveyErrors* surveyErrors_{nullptr};
 
-
   /*** Status flags ***/
   bool isAlgoInitialized_{false};
-  bool isDuringLoop_{false};    // -> needed to ensure correct behaviour in
-                                //    both, EDLooper and standard framework
-                                //    modules
+  bool isDuringLoop_{false};  // -> needed to ensure correct behaviour in
+                              //    both, EDLooper and standard framework
+                              //    modules
   cond::Time_t firstRun_{cond::timeTypeSpecs[cond::runnumber].endValue};
-
 };
 
-
-
-template<class G, class Rcd, class ErrRcd>
-void
-AlignmentProducerBase::applyDB(G* geometry, const edm::EventSetup& iSetup,
-                               const AlignTransform& globalCoordinates) const
-{
+template <class G, class Rcd, class ErrRcd>
+void AlignmentProducerBase::applyDB(G* geometry,
+                                    const edm::EventSetup& iSetup,
+                                    const AlignTransform& globalCoordinates) const {
   // 'G' is the geometry class for that DB should be applied,
   // 'Rcd' is the record class for its Alignments
   // 'ErrRcd' is the record class for its AlignmentErrorsExtended
   // 'globalCoordinates' are global transformation for this geometry
 
-  const Rcd & record = iSetup.get<Rcd>();
+  const Rcd& record = iSetup.get<Rcd>();
   if (checkDbAlignmentValidity_) {
-    const edm::ValidityInterval & validity = record.validityInterval();
+    const edm::ValidityInterval& validity = record.validityInterval();
     const edm::IOVSyncValue first = validity.first();
     const edm::IOVSyncValue last = validity.last();
-    if (first!=edm::IOVSyncValue::beginOfTime() ||
-        last!=edm::IOVSyncValue::endOfTime()) {
+    if (first != edm::IOVSyncValue::beginOfTime() || last != edm::IOVSyncValue::endOfTime()) {
       throw cms::Exception("DatabaseError")
-        << "@SUB=AlignmentProducerBase::applyDB"
-        << "\nTrying to apply "
-        << record.key().name()
-        << " with multiple IOVs in tag.\n"
-        << "Validity range is "
-        << first.eventID().run() << " - " << last.eventID().run();
+          << "@SUB=AlignmentProducerBase::applyDB"
+          << "\nTrying to apply " << record.key().name() << " with multiple IOVs in tag.\n"
+          << "Validity range is " << first.eventID().run() << " - " << last.eventID().run();
     }
   }
 
@@ -325,32 +305,24 @@ AlignmentProducerBase::applyDB(G* geometry, const edm::EventSetup& iSetup,
   iSetup.get<ErrRcd>().get(alignmentErrors);
 
   GeometryAligner aligner;
-  aligner.applyAlignments<G>(geometry, &(*alignments), &(*alignmentErrors),
-                             globalCoordinates);
+  aligner.applyAlignments<G>(geometry, &(*alignments), &(*alignmentErrors), globalCoordinates);
 }
 
-
-template<class G, class DeformationRcd>
-void
-AlignmentProducerBase::applyDB(G* geometry, const edm::EventSetup& iSetup) const
-{
+template <class G, class DeformationRcd>
+void AlignmentProducerBase::applyDB(G* geometry, const edm::EventSetup& iSetup) const {
   // 'G' is the geometry class for that DB should be applied,
   // 'DeformationRcd' is the record class for its surface deformations
 
-  const DeformationRcd & record = iSetup.get<DeformationRcd>();
+  const DeformationRcd& record = iSetup.get<DeformationRcd>();
   if (checkDbAlignmentValidity_) {
-    const edm::ValidityInterval & validity = record.validityInterval();
+    const edm::ValidityInterval& validity = record.validityInterval();
     const edm::IOVSyncValue first = validity.first();
     const edm::IOVSyncValue last = validity.last();
-    if (first!=edm::IOVSyncValue::beginOfTime() ||
-        last!=edm::IOVSyncValue::endOfTime()) {
+    if (first != edm::IOVSyncValue::beginOfTime() || last != edm::IOVSyncValue::endOfTime()) {
       throw cms::Exception("DatabaseError")
-        << "@SUB=AlignmentProducerBase::applyDB"
-        << "\nTrying to apply "
-        << record.key().name()
-        << " with multiple IOVs in tag.\n"
-        << "Validity range is "
-        << first.eventID().run() << " - " << last.eventID().run();
+          << "@SUB=AlignmentProducerBase::applyDB"
+          << "\nTrying to apply " << record.key().name() << " with multiple IOVs in tag.\n"
+          << "Validity range is " << first.eventID().run() << " - " << last.eventID().run();
     }
   }
   edm::ESHandle<AlignmentSurfaceDeformations> surfaceDeformations;
@@ -359,6 +331,5 @@ AlignmentProducerBase::applyDB(G* geometry, const edm::EventSetup& iSetup) const
   GeometryAligner aligner;
   aligner.attachSurfaceDeformations<G>(geometry, &(*surfaceDeformations));
 }
-
 
 #endif /* Alignment_CommonAlignmentProducer_AlignmentProducerBase_h */

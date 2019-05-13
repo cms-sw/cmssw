@@ -11,48 +11,40 @@
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-class  GlobalPositionRcdRead : public edm::EDAnalyzer
-{
+class GlobalPositionRcdRead : public edm::EDAnalyzer {
 public:
-  explicit GlobalPositionRcdRead( const edm::ParameterSet& iConfig )
-    : nEventCalls_(0)
-  {}
+  explicit GlobalPositionRcdRead(const edm::ParameterSet& iConfig) : nEventCalls_(0) {}
   ~GlobalPositionRcdRead() {}
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup); 
-  
-private:
+  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
 
+private:
   unsigned int nEventCalls_;
 };
 
-void GlobalPositionRcdRead::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup)
-{
-  if (nEventCalls_>0) {
+void GlobalPositionRcdRead::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
+  if (nEventCalls_ > 0) {
     std::cout << "Reading from DB to be done only once, "
-	      << "set 'untracked PSet maxEvents = {untracked int32 input = 1}'." << std::endl;
- 
+              << "set 'untracked PSet maxEvents = {untracked int32 input = 1}'." << std::endl;
+
     return;
   }
 
   std::cout << "Reading from database in GlobalPositionRcdRead::analyze..." << std::endl;
-  
+
   edm::ESHandle<Alignments> globalPositionRcd;
   evtSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
-  
-  std::cout << "Expecting entries in " 
-	    << DetId(DetId::Tracker).rawId() << " " 
-	    << DetId(DetId::Muon).rawId() << " " 
-	    << DetId(DetId::Ecal).rawId() << " " 
-	    << DetId(DetId::Hcal).rawId() << " " 
-	    << DetId(DetId::Calo).rawId() << std::endl;
+
+  std::cout << "Expecting entries in " << DetId(DetId::Tracker).rawId() << " " << DetId(DetId::Muon).rawId() << " "
+            << DetId(DetId::Ecal).rawId() << " " << DetId(DetId::Hcal).rawId() << " " << DetId(DetId::Calo).rawId()
+            << std::endl;
   for (std::vector<AlignTransform>::const_iterator i = globalPositionRcd->m_align.begin();
-       i != globalPositionRcd->m_align.end();  ++i) {
-    std::cout << "entry " << i->rawId() 
-	      << " translation " << i->translation() 
-	      << " angles " << i->rotation().eulerAngles() << std::endl;
+       i != globalPositionRcd->m_align.end();
+       ++i) {
+    std::cout << "entry " << i->rawId() << " translation " << i->translation() << " angles "
+              << i->rotation().eulerAngles() << std::endl;
     std::cout << i->rotation() << std::endl;
   }
-  
+
   std::cout << "done!" << std::endl;
   nEventCalls_++;
 }

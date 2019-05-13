@@ -9,16 +9,15 @@
 #include "CalibMuon/CSCCalibration/interface/CSCChannelMapperRecord.h"
 
 class CSCChannelMapperESProducer : public edm::ESProducer {
-
- public:
+public:
   typedef std::unique_ptr<CSCChannelMapperBase> BSP_TYPE;
 
-  CSCChannelMapperESProducer(const edm::ParameterSet&);
+  CSCChannelMapperESProducer(const edm::ParameterSet &);
   ~CSCChannelMapperESProducer() override;
 
-  BSP_TYPE produce(const CSCChannelMapperRecord&);
+  BSP_TYPE produce(const CSCChannelMapperRecord &);
 
- private:
+private:
   std::string algoName;
 };
 

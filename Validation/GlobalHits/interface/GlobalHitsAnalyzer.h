@@ -2,101 +2,95 @@
 #define GlobalHitsAnalyzer_h
 
 /** \class GlobalHitsAnalyzer
- *  
+ *
  *  Class to fill dqm monitor elements from existing EDM file
  *
  *  \author M. Strang SUNY-Buffalo
  */
 
 // framework & common header files
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/DetId/interface/DetId.h"
 
-//DQM services
+// DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 // tracker info
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 // muon info
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 // calorimeter info
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 // data in edm::event
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 // helper files
 //#include <CLHEP/Vector/LorentzVector.h>
-#include "DataFormats/Math/interface/LorentzVector.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
-#include <iostream>
 #include <cstdlib>
-#include <string>
+#include <iostream>
 #include <memory>
+#include <string>
 #include <vector>
 
-#include "TString.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "TString.h"
 
-class GlobalHitsAnalyzer : public DQMEDAnalyzer
-{
-  
- public:
+class GlobalHitsAnalyzer : public DQMEDAnalyzer {
+public:
+  // typedef std::vector<float> FloatVector;
 
-  //typedef std::vector<float> FloatVector;
-
-  explicit GlobalHitsAnalyzer(const edm::ParameterSet&);
+  explicit GlobalHitsAnalyzer(const edm::ParameterSet &);
   ~GlobalHitsAnalyzer() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
- protected:
+protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  
- private:
 
+private:
   // production related methods
-  void fillG4MC(const edm::Event&);
-  void fillTrk(const edm::Event&, const edm::EventSetup&);
-  void fillMuon(const edm::Event&, const edm::EventSetup&);
-  void fillECal(const edm::Event&, const edm::EventSetup&);
-  void fillHCal(const edm::Event&, const edm::EventSetup&);
+  void fillG4MC(const edm::Event &);
+  void fillTrk(const edm::Event &, const edm::EventSetup &);
+  void fillMuon(const edm::Event &, const edm::EventSetup &);
+  void fillECal(const edm::Event &, const edm::EventSetup &);
+  void fillHCal(const edm::Event &, const edm::EventSetup &);
 
-
- private:
-
+private:
   //  parameter information
   std::string fName;
   int verbosity;
@@ -134,8 +128,8 @@ class GlobalHitsAnalyzer : public DQMEDAnalyzer
   MonitorElement *meMCRGP[2];
   MonitorElement *meMCG4Vtx[2];
   MonitorElement *meGeantVtxX[2];
-  MonitorElement *meGeantVtxY[2];  
-  MonitorElement *meGeantVtxZ[2];  
+  MonitorElement *meGeantVtxY[2];
+  MonitorElement *meGeantVtxZ[2];
   MonitorElement *meMCG4Trk[2];
   MonitorElement *meGeantTrkPt;
   MonitorElement *meGeantTrkE;
@@ -143,7 +137,7 @@ class GlobalHitsAnalyzer : public DQMEDAnalyzer
   MonitorElement *meGeantVtxPhi;
   MonitorElement *meGeantVtxRad[2];
   MonitorElement *meGeantVtxMulti;
-  int nRawGenPart;  
+  int nRawGenPart;
 
   edm::InputTag G4VtxSrc_;
   edm::InputTag G4TrkSrc_;
@@ -156,7 +150,7 @@ class GlobalHitsAnalyzer : public DQMEDAnalyzer
   MonitorElement *meCaloEcalE[2];
   MonitorElement *meCaloEcalToF[2];
   MonitorElement *meCaloEcalPhi;
-  MonitorElement *meCaloEcalEta;  
+  MonitorElement *meCaloEcalEta;
   edm::InputTag ECalEBSrc_;
   edm::InputTag ECalEESrc_;
   edm::EDGetTokenT<edm::PCaloHitContainer> ECalEBSrc_Token_;
@@ -177,9 +171,9 @@ class GlobalHitsAnalyzer : public DQMEDAnalyzer
   MonitorElement *meCaloHcalE[2];
   MonitorElement *meCaloHcalToF[2];
   MonitorElement *meCaloHcalPhi;
-  MonitorElement *meCaloHcalEta;  
+  MonitorElement *meCaloHcalEta;
   edm::InputTag HCalSrc_;
-  edm::EDGetTokenT<edm::PCaloHitContainer>  HCalSrc_Token_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> HCalSrc_Token_;
 
   // Tracker info
   // Pixel info
@@ -253,44 +247,44 @@ class GlobalHitsAnalyzer : public DQMEDAnalyzer
   // private statistics information
   unsigned int count;
 
-}; // end class declaration
-  
+};  // end class declaration
+
 #endif
 
 #ifndef GlobalHitMap
 #define GlobalHitMap
 // geometry mapping
-static const int dTrk             = 1;
-static const int sdPxlBrl         = 1;
-static const int sdPxlFwd         = 2;
-static const int sdSiTIB          = 3;
-static const int sdSiTID          = 4;
-static const int sdSiTOB          = 5;
-static const int sdSiTEC          = 6;
+static const int dTrk = 1;
+static const int sdPxlBrl = 1;
+static const int sdPxlFwd = 2;
+static const int sdSiTIB = 3;
+static const int sdSiTID = 4;
+static const int sdSiTOB = 5;
+static const int sdSiTEC = 6;
 
-static const int dMuon            = 2;
-static const int sdMuonDT         = 1;
-static const int sdMuonCSC        = 2;
-static const int sdMuonRPC        = 3;
-static const int sdMuonRPCRgnBrl  = 0;
+static const int dMuon = 2;
+static const int sdMuonDT = 1;
+static const int sdMuonCSC = 2;
+static const int sdMuonRPC = 3;
+static const int sdMuonRPCRgnBrl = 0;
 static const int sdMuonRPCRgnFwdp = 1;
 static const int sdMuonRPCRgnFwdn = -1;
 
-static const int dEcal            = 3;
-static const int sdEcalBrl        = 1;
-static const int sdEcalFwd        = 2;
-static const int sdEcalPS         = 3;
-static const int sdEcalTT         = 4;
-static const int sdEcalLPnD       = 5;
+static const int dEcal = 3;
+static const int sdEcalBrl = 1;
+static const int sdEcalFwd = 2;
+static const int sdEcalPS = 3;
+static const int sdEcalTT = 4;
+static const int sdEcalLPnD = 5;
 
-static const int dHcal            = 4;
-static const int sdHcalEmpty      = 0;
-static const int sdHcalBrl        = 1;
-static const int sdHcalEC         = 2;
-static const int sdHcalOut        = 3;
-static const int sdHcalFwd        = 4;
-static const int sdHcalTT         = 5;
-static const int sdHcalCalib      = 6;
-static const int sdHcalCompst     = 7;
+static const int dHcal = 4;
+static const int sdHcalEmpty = 0;
+static const int sdHcalBrl = 1;
+static const int sdHcalEC = 2;
+static const int sdHcalOut = 3;
+static const int sdHcalFwd = 4;
+static const int sdHcalTT = 5;
+static const int sdHcalCalib = 6;
+static const int sdHcalCompst = 7;
 
 #endif

@@ -147,7 +147,8 @@ CandidateTriggerObjectProducer::produce(edm::Event & iEvent, const edm::EventSet
  	  // check whether the module is packed up in TriggerEvent product
 	  const unsigned int filterIndex(triggerEventHandle_->filterIndex(InputTag(moduleLabel,"",triggerEventTag_.process())));
 	  if (filterIndex<triggerEventHandle_->sizeFilters()) {
-	    //	    std::cout << " 'L3' filter in slot " << imodule << " - label/type " << moduleLabel << "/" << moduleType << std::endl;
+	    //	    std::cout << " 'L3' filter in slot " << imodule 
+	    //	              << " - label/type " << moduleLabel << "/" << moduleType << std::endl;
 	    const Vids& VIDS (triggerEventHandle_->filterIds(filterIndex));
 	    const Keys& KEYS(triggerEventHandle_->filterKeys(filterIndex));
 	    const size_type nI(VIDS.size());
@@ -160,8 +161,8 @@ CandidateTriggerObjectProducer::produce(edm::Event & iEvent, const edm::EventSet
 	      const TriggerObject& TO(TOC[KEYS[i]]);
 	      coll->push_back(reco::LeafCandidate( 0, TO.particle().p4(), reco::Particle::Point( 0., 0., 0. ), TO.id() ));
 // 	      std::cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "
-// 			<< TO.id() << " " << TO.pt() << " " << TO.eta() << " " << TO.phi() << " " << TO.mass()
-// 			<< std::endl;
+//                      << TO.id() << " " << TO.pt() << " " << TO.eta() << " " << TO.phi() << " " << TO.mass()
+//                      << std::endl;
 	    }
 	  }
 	}

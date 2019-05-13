@@ -8,7 +8,8 @@ not be used as version numbers. By convention, CMS will use 3 as the
 initial version number of a class which has never been stored before.
 -->
 <lcgdict>
-  <class name="reco::Muon" ClassVersion="19">
+  <class name="reco::Muon" ClassVersion="20">
+   <version ClassVersion="20" checksum="1015091642"/>
    <version ClassVersion="19" checksum="3201675353"/>
    <version ClassVersion="18" checksum="2257088106"/>
    <version ClassVersion="17" checksum="2296096670"/>
@@ -57,7 +58,8 @@ initial version number of a class which has never been stored before.
   <class name="reco::HcalMuonRecHit" ClassVersion="3">
    <version ClassVersion="3" checksum="2031556424"/>
   </class>
-  <class name="reco::MuonChamberMatch" ClassVersion="12">
+  <class name="reco::MuonChamberMatch" ClassVersion="13">
+   <version ClassVersion="13" checksum="2674954213"/>
    <version ClassVersion="12" checksum="2575855272"/>
    <version ClassVersion="11" checksum="541727491"/>
    <version ClassVersion="10" checksum="4050071853"/>

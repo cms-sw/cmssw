@@ -2,105 +2,79 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-SiStripHashedDetId::SiStripHashedDetId( const std::vector<uint32_t>& raw_ids ) 
-  : detIds_(),
-    id_(0),
-    iter_(detIds_.begin())
-{
-  LogTrace(mlCabling_)
-    << "[SiStripHashedDetId::" << __func__ << "]"
-    << " Constructing object...";
+SiStripHashedDetId::SiStripHashedDetId(const std::vector<uint32_t> &raw_ids)
+    : detIds_(), id_(0), iter_(detIds_.begin()) {
+  LogTrace(mlCabling_) << "[SiStripHashedDetId::" << __func__ << "]"
+                       << " Constructing object...";
   init(raw_ids);
 }
 
 // -----------------------------------------------------------------------------
 //
-SiStripHashedDetId::SiStripHashedDetId( const std::vector<DetId>& det_ids ) 
-  : detIds_(),
-    id_(0),
-    iter_(detIds_.begin())
-{
-  LogTrace(mlCabling_)
-    << "[SiStripHashedDetId::" << __func__ << "]"
-    << " Constructing object...";
+SiStripHashedDetId::SiStripHashedDetId(const std::vector<DetId> &det_ids) : detIds_(), id_(0), iter_(detIds_.begin()) {
+  LogTrace(mlCabling_) << "[SiStripHashedDetId::" << __func__ << "]"
+                       << " Constructing object...";
   detIds_.clear();
   detIds_.reserve(16000);
   std::vector<DetId>::const_iterator iter = det_ids.begin();
-  for ( ; iter != det_ids.end(); ++iter ) {
-    detIds_.push_back( iter->rawId() );
+  for (; iter != det_ids.end(); ++iter) {
+    detIds_.push_back(iter->rawId());
   }
   init(detIds_);
 }
 
 // -----------------------------------------------------------------------------
 //
-SiStripHashedDetId::SiStripHashedDetId( const SiStripHashedDetId& input ) 
-  : detIds_(),
-    id_(0),
-    iter_(detIds_.begin())
-{
-  LogTrace(mlCabling_)
-    << "[SiStripHashedDetId::" << __func__ << "]"
-    << " Constructing object...";
-  detIds_.reserve( input.end() - input.begin() );
-  std::copy( input.begin(), input.end(), detIds_.begin() );
+SiStripHashedDetId::SiStripHashedDetId(const SiStripHashedDetId &input) : detIds_(), id_(0), iter_(detIds_.begin()) {
+  LogTrace(mlCabling_) << "[SiStripHashedDetId::" << __func__ << "]"
+                       << " Constructing object...";
+  detIds_.reserve(input.end() - input.begin());
+  std::copy(input.begin(), input.end(), detIds_.begin());
 }
 
 // -----------------------------------------------------------------------------
 //
-SiStripHashedDetId::SiStripHashedDetId() 
-  : detIds_(),
-    id_(0),
-    iter_(detIds_.begin())
-{
-  LogTrace(mlCabling_) 
-    << "[SiStripHashedDetId::" << __func__ << "]"
-    << " Constructing object...";
+SiStripHashedDetId::SiStripHashedDetId() : detIds_(), id_(0), iter_(detIds_.begin()) {
+  LogTrace(mlCabling_) << "[SiStripHashedDetId::" << __func__ << "]"
+                       << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 SiStripHashedDetId::~SiStripHashedDetId() {
-  LogTrace(mlCabling_)
-    << "[SiStripHashedDetId::" << __func__ << "]"
-    << " Destructing object...";
+  LogTrace(mlCabling_) << "[SiStripHashedDetId::" << __func__ << "]"
+                       << " Destructing object...";
   detIds_.clear();
 }
 
 // -----------------------------------------------------------------------------
 //
-void SiStripHashedDetId::init( const std::vector<uint32_t>& raw_ids ) {
+void SiStripHashedDetId::init(const std::vector<uint32_t> &raw_ids) {
   detIds_.clear();
   detIds_.reserve(16000);
   const_iterator iter = raw_ids.begin();
-  for ( ; iter != raw_ids.end(); ++iter ) {
-    DetId detectorId=DetId(*iter);
-    if ( *iter != sistrip::invalid32_ && 
-	 *iter != sistrip::invalid_ && 
-	 detectorId.det() == DetId::Tracker &&
-	 ( detectorId.subdetId() == StripSubdetector::TID ||
-	   detectorId.subdetId() == StripSubdetector::TIB ||
-	   detectorId.subdetId() == StripSubdetector::TOB ||
-	   detectorId.subdetId() == StripSubdetector::TEC ) ) {
+  for (; iter != raw_ids.end(); ++iter) {
+    DetId detectorId = DetId(*iter);
+    if (*iter != sistrip::invalid32_ && *iter != sistrip::invalid_ && detectorId.det() == DetId::Tracker &&
+        (detectorId.subdetId() == StripSubdetector::TID || detectorId.subdetId() == StripSubdetector::TIB ||
+         detectorId.subdetId() == StripSubdetector::TOB || detectorId.subdetId() == StripSubdetector::TEC)) {
       detIds_.push_back(*iter);
     } else {
-      edm::LogWarning(mlCabling_)
-	<< "[SiStripHashedDetId::" << __func__ << "]"
-	<< " DetId 0x" 
-	<< std::hex << std::setw(8) << std::setfill('0') << *iter
-	<< " is not from the strip tracker!";
+      edm::LogWarning(mlCabling_) << "[SiStripHashedDetId::" << __func__ << "]"
+                                  << " DetId 0x" << std::hex << std::setw(8) << std::setfill('0') << *iter
+                                  << " is not from the strip tracker!";
     }
   }
-  if ( !detIds_.empty() ) {
-    std::sort( detIds_.begin(), detIds_.end() );
+  if (!detIds_.empty()) {
+    std::sort(detIds_.begin(), detIds_.end());
     id_ = detIds_.front();
     iter_ = detIds_.begin();
   }
@@ -108,20 +82,14 @@ void SiStripHashedDetId::init( const std::vector<uint32_t>& raw_ids ) {
 
 // -----------------------------------------------------------------------------
 //
-std::ostream& operator<< ( std::ostream& os, const SiStripHashedDetId& input ) {
+std::ostream &operator<<(std::ostream &os, const SiStripHashedDetId &input) {
   std::stringstream ss;
   ss << "[SiStripHashedDetId::" << __func__ << "]"
-     << " Found " << input.end() - input.begin()
-     << " entries in DetId hash map:"
-     << std::endl;
+     << " Found " << input.end() - input.begin() << " entries in DetId hash map:" << std::endl;
   SiStripHashedDetId::const_iterator iter = input.begin();
-  for ( ; iter != input.end(); ++iter ) {
-    ss << " Index: "
-       << std::dec << std::setw(5) << std::setfill(' ')
-       << iter - input.begin() 
-       << "  DetId: 0x"
-       << std::hex << std::setw(8) << std::setfill('0')
-       << *iter << std::endl;
+  for (; iter != input.end(); ++iter) {
+    ss << " Index: " << std::dec << std::setw(5) << std::setfill(' ') << iter - input.begin() << "  DetId: 0x"
+       << std::hex << std::setw(8) << std::setfill('0') << *iter << std::endl;
   }
   os << ss.str();
   return os;
