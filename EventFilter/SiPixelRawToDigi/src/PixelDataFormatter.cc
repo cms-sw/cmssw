@@ -100,12 +100,17 @@ PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map, bool phase
   PXID_mask = ~(~PixelDataFormatter::Word32(0) << PXID_bits);
   ADC_mask  = ~(~PixelDataFormatter::Word32(0) << ADC_bits);
 
+  if (phase1) {
+    errorcheck=std::unique_ptr<ErrorCheckerBase>(new ErrorChecker());
+  } else {
+    errorcheck=std::unique_ptr<ErrorCheckerBase>(new ErrorCheckerPhase0());
+  }
 }
 
 void PixelDataFormatter::setErrorStatus(bool ErrorStatus)
 {
   includeErrors = ErrorStatus;
-  errorcheck.setErrorStatus(includeErrors);
+  errorcheck->setErrorStatus(includeErrors);
 }
 
 void PixelDataFormatter::setQualityStatus(bool QualityStatus, const SiPixelQuality* QualityInfo)
@@ -135,7 +140,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 
   // check CRC bit
   const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1);  
-  if(!errorcheck.checkCRC(errorsInEvent, fedId, trailer, errors)) return;
+  if(!errorcheck->checkCRC(errorsInEvent, fedId, trailer, errors)) return;
 
   // check headers
   const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); header--;
@@ -143,7 +148,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
   while (moreHeaders) {
     header++;
     LogTrace("")<<"HEADER:  " <<  print(*header);
-    bool headerStatus = errorcheck.checkHeader(errorsInEvent, fedId, header, errors);
+    bool headerStatus = errorcheck->checkHeader(errorsInEvent, fedId, header, errors);
     moreHeaders = headerStatus;
   }
 
@@ -153,7 +158,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
   while (moreTrailers) {
     trailer--;
     LogTrace("")<<"TRAILER: " <<  print(*trailer);
-    bool trailerStatus = errorcheck.checkTrailer(errorsInEvent, fedId, nWords, trailer, errors);
+    bool trailerStatus = errorcheck->checkTrailer(errorsInEvent, fedId, nWords, trailer, errors);
     moreTrailers = trailerStatus;
   }
 
@@ -183,12 +188,12 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 
     if ( (nlink!=link) | (nroc!=roc) ) {  // new roc
       link = nlink; roc=nroc;
-      skipROC = LIKELY(roc<maxROCIndex) ? false : !errorcheck.checkROC(errorsInEvent, fedId, &converter, theCablingTree, ww, errors);
+      skipROC = LIKELY(roc<maxROCIndex) ? false : !errorcheck->checkROC(errorsInEvent, fedId, &converter, theCablingTree, ww, errors);
       if (skipROC) continue;
       rocp = converter.toRoc(link,roc);
       if UNLIKELY(!rocp) {
 	errorsInEvent = true;
-	errorcheck.conversionError(fedId, &converter, 2, ww, errors);
+	errorcheck->conversionError(fedId, &converter, 2, ww, errors);
 	skipROC=true;
 	continue;
       }
@@ -231,7 +236,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 	  LogDebug("PixelDataFormatter::interpretRawData") 
 	    << "status #3";
 	  errorsInEvent = true;
-	  errorcheck.conversionError(fedId, &converter, 3, ww, errors);
+	  errorcheck->conversionError(fedId, &converter, 3, ww, errors);
 	  continue;
 	}
       local = std::make_unique<LocalPixel>(localCR); // local pixel coordinate 
@@ -250,7 +255,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 	  LogDebug("PixelDataFormatter::interpretRawData") 
 	    << "status #3";
 	  errorsInEvent = true;
-	  errorcheck.conversionError(fedId, &converter, 3, ww, errors);
+	  errorcheck->conversionError(fedId, &converter, 3, ww, errors);
 	  continue;
 	}
       local = std::make_unique<LocalPixel>(localDP); // local pixel coordinate 
