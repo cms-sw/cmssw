@@ -4,7 +4,7 @@
 #include "analtypedefs.h"
 
 
-#include "L1Trigger/DTPhase2Trigger/src/dtprimitive.h"
+#include "L1Trigger/DTPhase2Trigger/interface/dtprimitive.h"
 
 class MuonPath {
 

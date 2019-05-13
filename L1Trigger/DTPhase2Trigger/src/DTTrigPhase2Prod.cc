@@ -33,7 +33,7 @@
 #include "TMath.h"
 
 
-#include "L1Trigger/DTPhase2Trigger/src/muonpath.h"
+#include "L1Trigger/DTPhase2Trigger/interface/muonpath.h"
 
 using namespace edm;
 using namespace std;

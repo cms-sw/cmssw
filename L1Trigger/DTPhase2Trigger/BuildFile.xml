@@ -13,7 +13,6 @@
 <use   name="DataFormats/L1DTTrackFinder"/>
 <use   name="L1TriggerConfig/DTTPGConfig"/>
 <use   name="Utilities/General"/>
-<use   name="DataFormats/L1DTTrackFinder"/>
 <use   name="CLHEP"/>
 <use   name="root"/>
 <use   name="rootgraphics"/>

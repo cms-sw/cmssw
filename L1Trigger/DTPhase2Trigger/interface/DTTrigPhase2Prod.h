@@ -13,9 +13,9 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
-#include "L1Trigger/DTPhase2Trigger/src/muonpath.h"
-#include "L1Trigger/DTPhase2Trigger/src/analtypedefs.h"
-#include "L1Trigger/DTPhase2Trigger/src/constants.h"
+#include "L1Trigger/DTPhase2Trigger/interface/muonpath.h"
+#include "L1Trigger/DTPhase2Trigger/interface/analtypedefs.h"
+#include "L1Trigger/DTPhase2Trigger/interface/constants.h"
 
 #include "L1Trigger/DTPhase2Trigger/interface/MotherGrouping.h"
 #include "L1Trigger/DTPhase2Trigger/interface/InitialGrouping.h"
