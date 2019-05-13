@@ -130,7 +130,7 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
   std::array<TH2D*, 6> GLZ = {{nullptr}};
   std::array<TH2D*, 6> GL = {{nullptr}};
   std::unique_ptr<TFile>  ProbsFile;
-  if( probabilitiesFile_ != "" ) {
+  if( !probabilitiesFile_.empty() ) {
     ProbsFile = std::make_unique<TFile>(probabilitiesFile_.c_str());
     std::cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from " << probabilitiesFile_ << std::endl;
   }
