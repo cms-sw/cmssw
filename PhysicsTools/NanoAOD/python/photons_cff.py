@@ -269,6 +269,7 @@ for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94
     modifier.toModify(calibratedPatPhotons94Xv1, src = "slimmedPhotonsTo106X")
     modifier.toModify(calibratedPatPhotons80XLegacy, src = "slimmedPhotonsTo106X")
     modifier.toModify(slimmedPhotonsWithUserData, src = "slimmedPhotonsTo106X")
+    modifier.toModify(seedGainPho, src = "slimmedPhotonsTo106X")
 
 
 
