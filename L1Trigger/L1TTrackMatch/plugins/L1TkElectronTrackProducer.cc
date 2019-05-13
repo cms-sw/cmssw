@@ -110,7 +110,6 @@ class L1TkElectronTrackProducer : public edm::EDProducer {
         std::vector<double> dPhiCutoff;
         std::vector<double> dRCutoff;
         float dEtaCutoff;
-        bool debug;
 
         const edm::EDGetTokenT< EGammaBxCollection > egToken;
         const edm::EDGetTokenT< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken;
@@ -152,10 +151,6 @@ L1TkElectronTrackProducer::L1TkElectronTrackProducer(const edm::ParameterSet& iC
    dPhiCutoff      = iConfig.getParameter< std::vector<double> >("TrackEGammaDeltaPhi");
    dRCutoff        = iConfig.getParameter< std::vector<double> >("TrackEGammaDeltaR");
    dEtaCutoff      = (float)iConfig.getParameter<double>("TrackEGammaDeltaEta");
-
-   debug = iConfig.getUntrackedParameter<bool>("debug", false);
-
-   if(debug) std::cout << "CONSTRUCTOR: " << maxChi2IsoTracks << " , " << minNStubsIsoTracks << std::endl;
 
    produces<L1TkElectronParticleCollection>(label);
 }
@@ -233,7 +228,6 @@ L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       itr++;
     }
     if (itrack >= 0)  {
-      if(debug) std::cout << "  Matched to track: " << itrack << std::endl;
       edm::Ptr< L1TTTrackType > matchedL1TrackPtr(L1TTTrackHandle, itrack);
 
       const math::XYZTLorentzVector P4 = egIter -> p4() ;
@@ -261,8 +255,6 @@ L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	if (trkisol <= IsoCut) result -> push_back( trkEm );
       }
 
-    } else {
-      if(debug) std::cout << " not matched!" << std::endl;
     }
 
   } // end loop over EGamma objects
@@ -329,19 +321,13 @@ L1TkElectronTrackProducer::isolation(const edm::Handle<L1TTTrackCollectionType> 
   edm::Ptr< L1TTTrackType > matchedTrkPtr (trkHandle, match_index) ;
   L1TTTrackCollectionType::const_iterator trackIter;
 
-  if(debug) std::cout << "# of tracks: " << trkHandle->size() << " matched idx: " << match_index << std::endl;
   float sumPt = 0.0;
   int itr = 0;
   for (trackIter = trkHandle->begin(); trackIter != trkHandle->end(); ++trackIter) {
-    if(debug) std::cout << " -- itr: " << itr << std::endl;
     if (itr++ != match_index) {
-      if(debug) std::cout << "   chi2: " << trackIter->getChi2() << " (" << maxChi2IsoTracks << ")"
-                << " pt: " << trackIter->getMomentum().perp() << " (" << PTMINTRA << ")"
-                << " #stubs: " << trackIter->getStubRefs().size() << " (" << minNStubsIsoTracks << ")" << std::endl;
       if (trackIter->getChi2() > maxChi2IsoTracks ||
           trackIter->getMomentum().perp() <= PTMINTRA ||
           trackIter->getStubRefs().size() < minNStubsIsoTracks) {
-            if(debug) std::cout << "    rejecting this one! " << std::endl;
             continue;
           }
 
@@ -355,11 +341,9 @@ L1TkElectronTrackProducer::isolation(const edm::Handle<L1TTTrackCollectionType> 
 
       if (dR > DRmin && dR < DRmax && dZ < DeltaZ && trackIter->getMomentum().perp() > PTMINTRA) {
 	       sumPt += trackIter->getMomentum().perp();
-         if(debug) std::cout << " new sumPt: " << sumPt << std::endl;
       }
     }
   }
-  if(debug) std::cout << " return sumPt: " << sumPt << std::endl;
 
   return sumPt;
 }
