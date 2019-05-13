@@ -4,6 +4,7 @@
 #include "MuScleFitBase.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <memory>
+#include <array>
 
 void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   //Reconstructed muon kinematics
@@ -126,8 +127,8 @@ void MuScleFitBase::writeHistoMap( const unsigned int iLoop ) {
 
 void MuScleFitBase::readProbabilityDistributionsFromFile()
 {
-  TH2D * GLZ[6];
-  TH2D * GL[6];
+  std::array<TH2D*, 6> GLZ;
+  std::array<TH2D*, 6> GL;
   std::unique_ptr<TFile>  ProbsFile;
   if( probabilitiesFile_ != "" ) {
     ProbsFile = std::make_unique<TFile>(probabilitiesFile_.c_str());
@@ -146,7 +147,7 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
   bool resfindEmpty = true;
   if( MuScleFitUtils::rapidityBinsForZ_ && MuScleFitUtils::resfind[0] && theMuonType_!=2 ) {
     resfindEmpty=false;
-    for ( unsigned char i=0; i<6; i++ ) {
+    for ( unsigned char i=0; i<GLZ.size(); i++ ) {
       char nameh[6];
       snprintf (nameh,6,"GLZ%hhu",i);
       GLZ[i] = dynamic_cast<TH2D*>(ProbsFile->Get(nameh));
@@ -156,7 +157,7 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
     GL[0] = dynamic_cast<TH2D*> (ProbsFile->Get("GL0"));
     resfindEmpty=false;
   }
-  for(unsigned char i=1; i<6; ++i) {
+  for(unsigned char i=1; i<GL.size(); ++i) {
     if(MuScleFitUtils::resfind[i]) {
       char nameh[6];
       snprintf(nameh,6,"GL%hhu",i);
@@ -182,7 +183,7 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
     MuScleFitUtils::ResMaxSigma[0] = (GL[0]->GetYaxis()->GetXmax() - GL[0]->GetYaxis()->GetXmin());
     MuScleFitUtils::ResMinMass[0] = (GL[0]->GetXaxis()->GetXmin());
   }
-  for( int i=1; i<6; ++i ) {
+  for( unsigned int i=1; i<GL.size(); ++i ) {
     if(MuScleFitUtils::resfind[i]){
       MuScleFitUtils::ResHalfWidth[i] = (GL[i]->GetXaxis()->GetXmax() - GL[i]->GetXaxis()->GetXmin())/2.;
       MuScleFitUtils::ResMaxSigma[i] = (GL[i]->GetYaxis()->GetXmax() - GL[i]->GetYaxis()->GetXmin());
@@ -197,7 +198,7 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
   // Extract normalization for mass slice in Y bins of Z
   // ---------------------------------------------------
   if(MuScleFitUtils::rapidityBinsForZ_ && MuScleFitUtils::resfind[0] && theMuonType_!=2) {
-    for (int iY=0; iY<6; iY++) {
+    for (unsigned int iY=0; iY<GLZ.size(); iY++) {
       int nBinsX = GLZ[iY]->GetNbinsX();
       int nBinsY = GLZ[iY]->GetNbinsY();
       if( nBinsX != MuScleFitUtils::nbins+1 || nBinsY != MuScleFitUtils::nbins+1 ) {
@@ -238,7 +239,7 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
     }  
   // Extract normalization for each mass slice
   // -----------------------------------------
-  for (int ires=1; ires<6; ires++) {
+  for (unsigned int ires=1; ires<GL.size(); ires++) {
     if(MuScleFitUtils::resfind[ires]){
       int nBinsX = GL[ires]->GetNbinsX();
       int nBinsY = GL[ires]->GetNbinsY();
@@ -262,14 +263,14 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
     }
   }
   // Free all the memory for the probability histograms.
-  if(MuScleFitUtils::resfind[0] && theMuonType_!=2) {
-    for ( int i=0; i<6; i++ ) {
+  if(MuScleFitUtils::rapidityBinsForZ_ && MuScleFitUtils::resfind[0] && theMuonType_!=2) {
+    for ( unsigned int i=0; i<GLZ.size(); i++ ) {
       delete GLZ[i];
     }
   }
   if(MuScleFitUtils::resfind[0] && theMuonType_==2)
     delete GL[0];
-  for (int ires=1; ires<6; ires++) {
+  for (unsigned int ires=1; ires<GL.size(); ires++) {
     if(MuScleFitUtils::resfind[ires])
       delete GL[ires];
   }
