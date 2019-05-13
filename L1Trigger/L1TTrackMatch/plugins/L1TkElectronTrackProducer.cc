@@ -138,8 +138,8 @@ L1TkElectronTrackProducer::L1TkElectronTrackProducer(const edm::ParameterSet& iC
    DRmin = (float)iConfig.getParameter<double>("DRmin");
    DRmax = (float)iConfig.getParameter<double>("DRmax");
    DeltaZ = (float)iConfig.getParameter<double>("DeltaZ");
-   maxChi2IsoTracks = iConfig.getUntrackedParameter<double>("maxChi2IsoTracks" , 9999999);
-   minNStubsIsoTracks = iConfig.getUntrackedParameter<int>("minNStubsIsoTracks", 0);
+   maxChi2IsoTracks = iConfig.getParameter<double>("maxChi2IsoTracks");
+   minNStubsIsoTracks = iConfig.getParameter<int>("minNStubsIsoTracks");
    // cut applied on the isolation (if this number is <= 0, no cut is applied)
    IsoCut = (float)iConfig.getParameter<double>("IsoCut");
    RelativeIsolation = iConfig.getParameter<bool>("RelativeIsolation");
