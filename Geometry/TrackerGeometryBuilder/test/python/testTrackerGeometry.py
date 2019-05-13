@@ -52,7 +52,7 @@ process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer"
                                                     )
 
 process.test = cms.EDAnalyzer("DDCMSDetector",
-                              DDDetector = cms.ESInputTag('Tracker')
+                              DDDetector = cms.ESInputTag('','Tracker')
                               )
 
 process.p = cms.Path(process.test)
