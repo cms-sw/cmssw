@@ -61,6 +61,10 @@ L1TkElectronsHGC.L1EGammaInputTag = cms.InputTag("l1EGammaEEProducer","L1EGammaC
 L1TkElectronsHGC.IsoCut = cms.double(-0.1)
 
 L1TkIsoElectronsHGC=L1TkElectronsHGC.clone()
+L1TkIsoElectronsHGC.DRmax = cms.double(0.4)
+L1TkIsoElectronsHGC.DeltaZ = cms.double(1.0)
+L1TkIsoElectronsHGC.maxChi2IsoTracks = cms.double(100)
+L1TkIsoElectronsHGC.minNStubsIsoTracks = cms.int32(4)
 L1TkIsoElectronsHGC.IsoCut = cms.double(0.30)
 
 L1TkElectronsLooseHGC = L1TkElectronsHGC.clone()
