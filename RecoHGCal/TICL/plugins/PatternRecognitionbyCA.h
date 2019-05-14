@@ -21,9 +21,9 @@ class PatternRecognitionbyCA final : public PatternRecognitionAlgoBase {
     missing_layers_ = conf.getParameter<int>("missing_layers");
     min_clusters_per_ntuplet_ = conf.getParameter<int>("min_clusters_per_ntuplet");
     // TODO get number of bins from configuration
-    // eta min 1.5, max 3.0
+    // eta min 1.5, max 3.2
     // phi min -pi, max +pi
-    // bins of size 0.05 in eta/phi -> 30 bins in eta, 126 bins in phi
+    // bins of size 0.05 in eta/phi -> 34 bins in eta, 126 bins in phi
     histogram_.resize(nLayers_);
     auto nBins = nEtaBins_ * nPhiBins_;
     for (int i = 0; i < nLayers_; ++i) {
@@ -71,7 +71,7 @@ class PatternRecognitionbyCA final : public PatternRecognitionAlgoBase {
 
   hgcal::RecHitTools rhtools_;
 
-  const int nEtaBins_ = 30;
+  const int nEtaBins_ = 34;
   const int nPhiBins_ = 126;
   const int nLayers_ = 104;
   HGCGraph theGraph_;
