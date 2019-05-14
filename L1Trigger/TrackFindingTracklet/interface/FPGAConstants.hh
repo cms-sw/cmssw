@@ -24,6 +24,8 @@ static bool hourglassExtended=false; // This is turn on Displaced Tracking. Also
 //Gemetry extensions
 static std::string geomext=hourglassExtended?"hourglassExtended":"hourglass";  
 
+static bool geomTDR=false; // default is newest T14 tracker, alternative is "TDR" (T5/T6 tracker, D21/D11/D17 CMS geometries) => set to true to enable
+
 static int TMUX = 6;
 
 static std::string fitpatternfile="../data/fitpattern.txt";
@@ -158,34 +160,23 @@ static const int MEBinsDisks=8; //on each side
 static double zlength=120.0;
 static double rmaxdisk=120.0;
 
-// can automatically determine the above values using script plotstub.cc:
-// root -b -q 'plotstub.cc("evlist_MuPlus_1to10_D11_PU0")'
-// Values are commented out and use discrete values consistent with integer positions
 
-// these assume D11 geometry!
-// http://cms-tklayout.web.cern.ch/cms-tklayout/layouts/recent-layouts/OT616_200_IT404/layout.html
-/*
-static double rmeanL1=(rmaxdisk*858)/4096; //25.1493;
-static double rmeanL2=(rmaxdisk*1279)/4096; //37.468;
-static double rmeanL3=(rmaxdisk*1795)/4096; //52.5977;
-static double rmeanL4=(rmaxdisk*2347)/4096; //68.7737;
-static double rmeanL5=(rmaxdisk*2937)/4096; //86.0591;
-static double rmeanL6=(rmaxdisk*3783)/4096; //110.844;
-*/
-// http://cms-tklayout.web.cern.ch/cms-tklayout/layouts/recent-layouts/OT616_200_IT404/layout.html
-static double rmeanL1=(rmaxdisk*851)/4096;  //24.9281
-static double rmeanL2=(rmaxdisk*1269)/4096; //37.1678
-static double rmeanL3=(rmaxdisk*1784)/4096; //52.2700 	
-static double rmeanL4=(rmaxdisk*2347)/4096; //68.7000
-static double rmeanL5=(rmaxdisk*2936)/4096; //86.0000
-static double rmeanL6=(rmaxdisk*3697)/4096; //108.300
+// these assume either "TDR" tracker geometry (T5 or T6), or otherwise most recent T14 tracker 
+// T5: http://cms-tklayout.web.cern.ch/cms-tklayout/layouts/recent-layouts/OT616_200_IT404/layout.html
+// T14: http://cms-tklayout.web.cern.ch/cms-tklayout/layouts/recent-layouts/OT616_200_IT404/layout.html
 
-static double zmeanD1=(zlength*2239)/2048; //131.18;
-static double zmeanD2=(zlength*2645)/2048; //155.0;
-static double zmeanD3=(zlength*3163)/2048; //185.34;
-static double zmeanD4=(zlength*3782)/2048; //221.619;
-static double zmeanD5=(zlength*4523)/2048; //265.0;
+static double rmeanL1=geomTDR?(rmaxdisk*858)/4096:(rmaxdisk*851)/4096;
+static double rmeanL2=geomTDR?(rmaxdisk*1279)/4096:(rmaxdisk*1269)/4096;
+static double rmeanL3=geomTDR?(rmaxdisk*1795)/4096:(rmaxdisk*1784)/4096;
+static double rmeanL4=geomTDR?(rmaxdisk*2347)/4096:(rmaxdisk*2347)/4096;
+static double rmeanL5=geomTDR?(rmaxdisk*2937)/4096:(rmaxdisk*2936)/4096;
+static double rmeanL6=geomTDR?(rmaxdisk*3783)/4096:(rmaxdisk*3697)/4096;
 
+static double zmeanD1=(zlength*2239)/2048;
+static double zmeanD2=(zlength*2645)/2048;
+static double zmeanD3=(zlength*3163)/2048;
+static double zmeanD4=(zlength*3782)/2048;
+static double zmeanD5=(zlength*4523)/2048;
 
 
 static double rmindiskvm=22.5;
@@ -199,15 +190,34 @@ static double half2SmoduleWidth=4.57;
 
 // need separate lookup values for inner two vs outer three disks for 2S modules
 
-// these assume T5 tracker geometry (= D11, D17, D21, ... CMS geometry)!
+// T5 tracker geometry (= D11, D17, D21, ... CMS geometry)!
 // http://cms-tklayout.web.cern.ch/cms-tklayout/layouts/recent-layouts/OT616_200_IT404/layout.html
 //static double rDSSinner[10] = {66.7728, 71.7967, 77.5409, 82.5584, 84.8736, 89.8953, 95.7791, 100.798, 102.495, 107.52};  // <=== these 10 are for inner 2 disks
 //static double rDSSouter[10] = {65.1694, 70.1936, 75.6641, 80.6908, 83.9581, 88.9827, 94.6539, 99.6772, 102.494, 107.519}; // <=== these 10 are for outer 3 disks
 
-// updating to T14 tracker geometry (= D41 CMS geometry) 
+// T14 tracker geometry (= D41 CMS geometry) 
 // http://cms-tklayout.web.cern.ch/cms-tklayout/layouts/recent-layouts/OT616_200_IT404/layout.html
-static double rDSSinner[10] = {66.4391, 71.4391, 76.275, 81.275, 82.9550, 87.9550, 93.815, 98.815, 99.816, 104.816};
-static double rDSSouter[10] = {63.9903, 68.9903, 74.275, 79.275, 81.9562, 86.9562, 92.492, 97.492, 99.816, 104.816};
+//static double rDSSinner[10] = {66.4391, 71.4391, 76.275, 81.275, 82.9550, 87.9550, 93.815, 98.815, 99.816, 104.816};
+//static double rDSSouter[10] = {63.9903, 68.9903, 74.275, 79.275, 81.9562, 86.9562, 92.492, 97.492, 99.816, 104.816};
+
+static double rDSSinner_mod1 = geomTDR?69.2345:68.9391;
+static double rDSSinner_mod2 = geomTDR?80.0056:78.7750;
+static double rDSSinner_mod3 = geomTDR?87.3444:85.4550;
+static double rDSSinner_mod4 = geomTDR?98.2515:96.3150;
+static double rDSSinner_mod5 = geomTDR?104.9750:102.3160;
+
+static double rDSSouter_mod1 = geomTDR?67.6317:66.4903;
+static double rDSSouter_mod2 = geomTDR?78.1300:76.7750;
+static double rDSSouter_mod3 = geomTDR?86.4293:84.4562;
+static double rDSSouter_mod4 = geomTDR?97.1316:94.9920;
+static double rDSSouter_mod5 = geomTDR?104.9750:102.3160;
+
+static double halfstrip = 2.5; //we want the center of the two strip positions in a module, not just the center of a module 
+
+static double rDSSinner[10] = {rDSSinner_mod1-halfstrip, rDSSinner_mod1+halfstrip, rDSSinner_mod2-halfstrip, rDSSinner_mod2+halfstrip, rDSSinner_mod3-halfstrip, rDSSinner_mod3+halfstrip,
+			       rDSSinner_mod4-halfstrip, rDSSinner_mod4+halfstrip, rDSSinner_mod5-halfstrip, rDSSinner_mod5+halfstrip};
+static double rDSSouter[10] = {rDSSouter_mod1-halfstrip, rDSSouter_mod1+halfstrip, rDSSouter_mod2-halfstrip, rDSSouter_mod2+halfstrip, rDSSouter_mod3-halfstrip, rDSSouter_mod3+halfstrip, 
+			       rDSSouter_mod4-halfstrip, rDSSouter_mod4+halfstrip, rDSSouter_mod5-halfstrip, rDSSouter_mod5+halfstrip};
 
 
 static double drmax=rmaxdisk/32.0;

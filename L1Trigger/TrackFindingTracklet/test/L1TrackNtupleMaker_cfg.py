@@ -49,7 +49,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 # input and output
 ############################################################
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
 if GEOMETRY == "D17": # Tilted barrel T5 tracker
     Source_Files = cms.untracked.vstring(
@@ -95,7 +95,7 @@ process.load("SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff")
 if GEOMETRY != "TkOnly":
     from SimTracker.TrackTriggerAssociation.TTClusterAssociation_cfi import *
     TTClusterAssociatorFromPixelDigis.digiSimLinks = cms.InputTag("simSiPixelDigis","Tracker")
-
+    
 process.TTClusterStub = cms.Path(process.TrackTriggerClustersStubs)
 process.TTClusterStubTruth = cms.Path(process.TrackTriggerAssociatorClustersStubs)
 
