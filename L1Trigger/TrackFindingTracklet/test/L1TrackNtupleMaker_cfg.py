@@ -7,7 +7,8 @@ import FWCore.Utilities.FileUtils as FileUtils
 import os
 process = cms.Process("L1TrackNtuple")
 
-GEOMETRY = "D21"
+#GEOMETRY = "D21"
+GEOMETRY = "D41"
 
  
 ############################################################
@@ -27,6 +28,10 @@ elif GEOMETRY == "D21":
     print "using geometry " + GEOMETRY + " (tilted)"
     process.load('Configuration.Geometry.GeometryExtended2023D21Reco_cff')
     process.load('Configuration.Geometry.GeometryExtended2023D21_cff')
+elif GEOMETRY == "D41":
+    print "using geometry " + GEOMETRY + " (tilted)"
+    process.load('Configuration.Geometry.GeometryExtended2023D41Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtended2023D41_cff')
 elif GEOMETRY == "TkOnly": 
     print "using standalone tilted (T5) tracker geometry" 
     process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff')
@@ -46,13 +51,17 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
-if GEOMETRY == "D17":
+if GEOMETRY == "D17": # Tilted barrel T5 tracker
     Source_Files = cms.untracked.vstring(
         "/store/relval/CMSSW_9_3_7/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_93X_upgrade2023_realistic_v5_2023D17PU200-v1/10000/5A8CFF7F-1E2D-E811-A7B0-0242AC130002.root"
     )
 elif GEOMETRY == "D21": # Tilted barrel T6 tracker
     Source_Files = cms.untracked.vstring(
         "/store/relval/CMSSW_10_4_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_103X_upgrade2023_realistic_v2_2023D21PU200-v1/20000/FFF48AB4-E5E6-3842-8A5B-20E2B7E497BC.root"
+    )
+elif GEOMETRY == "D41": # Tilted barrel T14 tracker
+    Source_Files = cms.untracked.vstring(
+        "/store/relval/CMSSW_10_6_0_pre4/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/106X_upgrade2023_realistic_v2_2023D41noPU-v1/10000/F1B6D387-7EA9-0B47-8661-2D444502CD15.root"
     )
 elif GEOMETRY == "TkOnly":
     Source_Files = cms.untracked.vstring(
@@ -94,10 +103,11 @@ from L1Trigger.TrackFindingTracklet.Tracklet_cfi import *
 
 ### floating-point simulation
 #process.load("L1Trigger.TrackFindingTracklet.L1TrackletTracks_cff")
+#TTTracksFromTracklet.asciiFileName = cms.untracked.string("output.txt")
 #process.TTTracks = cms.Path(process.L1TrackletTracks)
 #process.TTTracksWithTruth = cms.Path(process.L1TrackletTracksWithAssociators)
 
-### emulation 
+## emulation 
 process.load("L1Trigger.TrackFindingTracklet.L1TrackletEmulationTracks_cff")
 process.TTTracksEmulation = cms.Path(process.L1TrackletEmulationTracks)
 process.TTTracksEmulationWithTruth = cms.Path(process.L1TrackletEmulationTracksWithAssociators)
@@ -149,4 +159,3 @@ process.ana = cms.Path(process.L1TrackNtuple)
 # use this to only run tracking + track associator
 #process.schedule = cms.Schedule(process.TTTracksWithTruth,process.ana)            # floating-point simulation
 process.schedule = cms.Schedule(process.TTTracksEmulationWithTruth,process.ana)    # emulation
-
