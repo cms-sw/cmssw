@@ -1,8 +1,9 @@
+#ifndef RecoPixelVertexing_PixelTriplets_plugins_GPUCACell_h
+#define RecoPixelVertexing_PixelTriplets_plugins_GPUCACell_h
+
 //
 // Author: Felice Pantaleo, CERN
 //
-#ifndef RecoPixelVertexing_PixelTriplets_plugins_GPUCACell_h
-#define RecoPixelVertexing_PixelTriplets_plugins_GPUCACell_h
 
 #include <cuda_runtime.h>
 
@@ -11,12 +12,10 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUVecArray.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/CircleEq.h"
-
 #include "RecoPixelVertexing/PixelTriplets/plugins/pixelTuplesHeterogeneousProduct.h"
 
 class GPUCACell {
 public:
-
   using ptrAsInt = unsigned long long;
 
   static constexpr int maxCellsPerHit = CAConstants::maxCellsPerHit();
@@ -29,7 +28,7 @@ public:
   using Hits = TrackingRecHit2DSOAView;
   using hindex_type = Hits::hindex_type;
 
-  using TmpTuple = GPU::VecArray<uint32_t,6>;
+  using TmpTuple = GPU::VecArray<uint32_t, 6>;
 
   using TuplesOnGPU = pixelTuplesHeterogeneousProduct::TuplesOnGPU;
 
@@ -38,12 +37,13 @@ public:
   GPUCACell() = default;
 #ifdef __CUDACC__
 
-  __device__ __forceinline__
-  void init(CellNeighborsVector & cellNeighbors, CellTracksVector & cellTracks,
-      Hits const & hh,
-      int layerPairId, int doubletId,  
-      hindex_type innerHitId, hindex_type outerHitId)
-  {
+  __device__ __forceinline__ void init(CellNeighborsVector& cellNeighbors,
+                                       CellTracksVector& cellTracks,
+                                       Hits const& hh,
+                                       int layerPairId,
+                                       int doubletId,
+                                       hindex_type innerHitId,
+                                       hindex_type outerHitId) {
     theInnerHitId = innerHitId;
     theOuterHitId = outerHitId;
     theDoubletId = doubletId;
@@ -56,62 +56,56 @@ public:
     tracks().reset();
     assert(outerNeighbors().empty());
     assert(tracks().empty());
-
   }
 
-
- __device__ __forceinline__
-  int addOuterNeighbor(CellNeighbors::value_t t, CellNeighborsVector & cellNeighbors) {
-     return outerNeighbors().push_back(t);
+  __device__ __forceinline__ int addOuterNeighbor(CellNeighbors::value_t t, CellNeighborsVector& cellNeighbors) {
+    return outerNeighbors().push_back(t);
   }
 
-  __device__ __forceinline__
-  int addTrack(CellTracks::value_t t, CellTracksVector & cellTracks) {
-     return tracks().push_back(t);
-  } 
-
-  __device__ __forceinline__ CellTracks & tracks() { return theTracks;}
-  __device__ __forceinline__ CellTracks const & tracks() const { return theTracks;}
-  __device__ __forceinline__ CellNeighbors & outerNeighbors() { return theOuterNeighbors;}
-  __device__ __forceinline__ CellNeighbors const & outerNeighbors() const { return theOuterNeighbors;}
-  __device__ __forceinline__ float get_inner_x(Hits const & hh) const { return hh.xGlobal(theInnerHitId); }
-  __device__ __forceinline__ float get_outer_x(Hits const & hh) const { return hh.xGlobal(theOuterHitId); }
-  __device__ __forceinline__ float get_inner_y(Hits const & hh) const { return hh.yGlobal(theInnerHitId); }
-  __device__ __forceinline__ float get_outer_y(Hits const & hh) const { return hh.yGlobal(theOuterHitId); }
-  __device__ __forceinline__ float get_inner_z(Hits const & hh) const { return theInnerZ; } // { return hh.zGlobal(theInnerHitId); } // { return theInnerZ; }
-  __device__ __forceinline__ float get_outer_z(Hits const & hh) const { return hh.zGlobal(theOuterHitId); }
-  __device__ __forceinline__ float get_inner_r(Hits const & hh) const { return theInnerR; } // { return hh.rGlobal(theInnerHitId); } // { return theInnerR; }
-  __device__ __forceinline__ float get_outer_r(Hits const & hh) const { return hh.rGlobal(theOuterHitId); }
-
-   __device__ __forceinline__ auto get_inner_iphi(Hits const & hh) const { return hh.iphi(theInnerHitId); }
-   __device__ __forceinline__ auto get_outer_iphi(Hits const & hh) const { return hh.iphi(theOuterHitId); }
-
-  __device__ __forceinline__ float get_inner_detId(Hits const & hh) const { return hh.detectorIndex(theInnerHitId); }
-  __device__ __forceinline__ float get_outer_detId(Hits const & hh) const { return hh.detectorIndex(theOuterHitId); }
-
-  constexpr unsigned int get_inner_hit_id() const {
-    return theInnerHitId;
-  }
-  constexpr unsigned int get_outer_hit_id() const {
-    return theOuterHitId;
+  __device__ __forceinline__ int addTrack(CellTracks::value_t t, CellTracksVector& cellTracks) {
+    return tracks().push_back(t);
   }
 
+  __device__ __forceinline__ CellTracks& tracks() { return theTracks; }
+  __device__ __forceinline__ CellTracks const& tracks() const { return theTracks; }
+  __device__ __forceinline__ CellNeighbors& outerNeighbors() { return theOuterNeighbors; }
+  __device__ __forceinline__ CellNeighbors const& outerNeighbors() const { return theOuterNeighbors; }
+  __device__ __forceinline__ float get_inner_x(Hits const& hh) const { return hh.xGlobal(theInnerHitId); }
+  __device__ __forceinline__ float get_outer_x(Hits const& hh) const { return hh.xGlobal(theOuterHitId); }
+  __device__ __forceinline__ float get_inner_y(Hits const& hh) const { return hh.yGlobal(theInnerHitId); }
+  __device__ __forceinline__ float get_outer_y(Hits const& hh) const { return hh.yGlobal(theOuterHitId); }
+  __device__ __forceinline__ float get_inner_z(Hits const& hh) const {
+    return theInnerZ;
+  }  // { return hh.zGlobal(theInnerHitId); } // { return theInnerZ; }
+  __device__ __forceinline__ float get_outer_z(Hits const& hh) const { return hh.zGlobal(theOuterHitId); }
+  __device__ __forceinline__ float get_inner_r(Hits const& hh) const {
+    return theInnerR;
+  }  // { return hh.rGlobal(theInnerHitId); } // { return theInnerR; }
+  __device__ __forceinline__ float get_outer_r(Hits const& hh) const { return hh.rGlobal(theOuterHitId); }
 
-  __device__
-  void print_cell() const {
-    printf("printing cell: %d, on layerPair: %d, innerHitId: %d, outerHitId: "
-           "%d, innerradius %f, outerRadius %f \n",
-           theDoubletId, theLayerPairId, theInnerHitId, theOuterHitId
-    );
+  __device__ __forceinline__ auto get_inner_iphi(Hits const& hh) const { return hh.iphi(theInnerHitId); }
+  __device__ __forceinline__ auto get_outer_iphi(Hits const& hh) const { return hh.iphi(theOuterHitId); }
+
+  __device__ __forceinline__ float get_inner_detId(Hits const& hh) const { return hh.detectorIndex(theInnerHitId); }
+  __device__ __forceinline__ float get_outer_detId(Hits const& hh) const { return hh.detectorIndex(theOuterHitId); }
+
+  constexpr unsigned int get_inner_hit_id() const { return theInnerHitId; }
+  constexpr unsigned int get_outer_hit_id() const { return theOuterHitId; }
+
+  __device__ void print_cell() const {
+    printf(
+        "printing cell: %d, on layerPair: %d, innerHitId: %d, outerHitId: "
+        "%d, innerradius %f, outerRadius %f \n",
+        theDoubletId,
+        theLayerPairId,
+        theInnerHitId,
+        theOuterHitId);
   }
 
-
-  __device__
-  bool check_alignment(Hits const & hh,
-      GPUCACell const & otherCell, 
-      const float ptmin,
-      const float hardCurvCut) const
-  {
+  __device__ bool check_alignment(Hits const& hh,
+                                  GPUCACell const& otherCell,
+                                  const float ptmin,
+                                  const float hardCurvCut) const {
     auto ri = get_inner_r(hh);
     auto zi = get_inner_z(hh);
 
@@ -120,36 +114,30 @@ public:
 
     auto r1 = otherCell.get_inner_r(hh);
     auto z1 = otherCell.get_inner_z(hh);
-    auto isBarrel = otherCell.get_outer_detId(hh)<1184;
-    bool aligned = areAlignedRZ(r1, z1, ri, zi, ro, zo, ptmin, isBarrel ? 0.002f : 0.003f); // 2.f*thetaCut); // FIXME tune cuts
-    return (aligned &&  dcaCut(hh, otherCell, otherCell.get_inner_detId(hh)<96 ? 0.15f : 0.25f, hardCurvCut));  // FIXME tune cuts
-                            // region_origin_radius_plus_tolerance,  hardCurvCut));
+    auto isBarrel = otherCell.get_outer_detId(hh) < 1184;
+    bool aligned =
+        areAlignedRZ(r1, z1, ri, zi, ro, zo, ptmin, isBarrel ? 0.002f : 0.003f);  // 2.f*thetaCut); // FIXME tune cuts
+    return (aligned &&
+            dcaCut(hh, otherCell, otherCell.get_inner_detId(hh) < 96 ? 0.15f : 0.25f, hardCurvCut));  // FIXME tune cuts
+    // region_origin_radius_plus_tolerance,  hardCurvCut));
   }
 
-  __device__ __forceinline__
-  static bool areAlignedRZ(float r1, float z1, float ri, float zi, float ro, float zo,
-                                        const float ptmin,
-                                        const float thetaCut) {
+  __device__ __forceinline__ static bool areAlignedRZ(
+      float r1, float z1, float ri, float zi, float ro, float zo, const float ptmin, const float thetaCut) {
     float radius_diff = std::abs(r1 - ro);
-    float distance_13_squared =
-        radius_diff * radius_diff + (z1 - zo) * (z1 - zo);
+    float distance_13_squared = radius_diff * radius_diff + (z1 - zo) * (z1 - zo);
 
-    float pMin =
-        ptmin * std::sqrt(distance_13_squared); // this needs to be divided by
-                                                // radius_diff later
+    float pMin = ptmin * std::sqrt(distance_13_squared);  // this needs to be divided by
+                                                          // radius_diff later
 
-    float tan_12_13_half_mul_distance_13_squared =
-        fabs(z1 * (ri - ro) + zi * (ro - r1) + zo * (r1 - ri));
+    float tan_12_13_half_mul_distance_13_squared = fabs(z1 * (ri - ro) + zi * (ro - r1) + zo * (r1 - ri));
     return tan_12_13_half_mul_distance_13_squared * pMin <= thetaCut * distance_13_squared * radius_diff;
   }
 
-  
-  __device__
-  inline bool
-  dcaCut(Hits const & hh, GPUCACell const & otherCell,
-                       const float region_origin_radius_plus_tolerance,
-                       const float maxCurv) const {
-
+  __device__ inline bool dcaCut(Hits const& hh,
+                                GPUCACell const& otherCell,
+                                const float region_origin_radius_plus_tolerance,
+                                const float maxCurv) const {
     auto x1 = otherCell.get_inner_x(hh);
     auto y1 = otherCell.get_inner_y(hh);
 
@@ -159,48 +147,43 @@ public:
     auto x3 = get_outer_x(hh);
     auto y3 = get_outer_y(hh);
 
-    CircleEq<float> eq(x1,y1,x2,y2,x3,y3);  
+    CircleEq<float> eq(x1, y1, x2, y2, x3, y3);
 
-    if (eq.curvature() > maxCurv) return false;
+    if (eq.curvature() > maxCurv)
+      return false;
 
-    return std::abs(eq.dca0()) < region_origin_radius_plus_tolerance*std::abs(eq.curvature());
-
+    return std::abs(eq.dca0()) < region_origin_radius_plus_tolerance * std::abs(eq.curvature());
   }
 
-  __device__
-  inline bool 
-  hole(Hits const & hh, GPUCACell const & innerCell) const {
+  __device__ inline bool hole(Hits const& hh, GPUCACell const& innerCell) const {
     int p = get_outer_iphi(hh);
-    if (p<0) p+=std::numeric_limits<unsigned short>::max();
-    p = (64*p)/std::numeric_limits<unsigned short>::max();
-    p %=2;
-    float r4 = p==0 ? 15.815 : 16.146;  // later on from geom
+    if (p < 0)
+      p += std::numeric_limits<unsigned short>::max();
+    p = (64 * p) / std::numeric_limits<unsigned short>::max();
+    p %= 2;
+    float r4 = p == 0 ? 15.815 : 16.146;  // later on from geom
     auto ri = innerCell.get_inner_r(hh);
     auto zi = innerCell.get_inner_z(hh);
     auto ro = get_outer_r(hh);
     auto zo = get_outer_z(hh);
-    auto z4 = std::abs(zi + (r4-ri)*(zo-zi)/(ro-ri));
-    auto zm = z4-6.7*int(z4/6.7);
-    auto h = zm<0.2 || zm>6.5;
-    return h || ( z4>26 && z4<32.f);
+    auto z4 = std::abs(zi + (r4 - ri) * (zo - zi) / (ro - ri));
+    auto zm = z4 - 6.7 * int(z4 / 6.7);
+    auto h = zm < 0.2 || zm > 6.5;
+    return h || (z4 > 26 && z4 < 32.f);
   }
-
 
   // trying to free the track building process from hardcoded layers, leaving
   // the visit of the graph based on the neighborhood connections between cells.
 
-  template<typename CM>
-  __device__
-  inline void find_ntuplets(
-      Hits const & hh,
-      GPUCACell * __restrict__ cells,
-      CellTracksVector & cellTracks,
-      TuplesOnGPU::Container & foundNtuplets, 
-      AtomicPairCounter & apc,
-      CM & tupleMultiplicity,
-      TmpTuple & tmpNtuplet,
-      const unsigned int minHitsPerNtuplet) const
-  {
+  template <typename CM>
+  __device__ inline void find_ntuplets(Hits const& hh,
+                                       GPUCACell* __restrict__ cells,
+                                       CellTracksVector& cellTracks,
+                                       TuplesOnGPU::Container& foundNtuplets,
+                                       AtomicPairCounter& apc,
+                                       CM& tupleMultiplicity,
+                                       TmpTuple& tmpNtuplet,
+                                       const unsigned int minHitsPerNtuplet) const {
     // the building process for a track ends if:
     // it has no right neighbor
     // it has no compatible neighbor
@@ -208,28 +191,31 @@ public:
     // than a threshold
 
     tmpNtuplet.push_back_unsafe(theDoubletId);
-    assert(tmpNtuplet.size()<=4);
+    assert(tmpNtuplet.size() <= 4);
 
-    if(outerNeighbors().size()>0) {
+    if (outerNeighbors().size() > 0) {
       for (int j = 0; j < outerNeighbors().size(); ++j) {
         auto otherCell = outerNeighbors()[j];
-        cells[otherCell].find_ntuplets(hh, cells, cellTracks, foundNtuplets, apc, tupleMultiplicity, 
-                                       tmpNtuplet, minHitsPerNtuplet);
+        cells[otherCell].find_ntuplets(
+            hh, cells, cellTracks, foundNtuplets, apc, tupleMultiplicity, tmpNtuplet, minHitsPerNtuplet);
       }
     } else {  // if long enough save...
-      if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet-1) {
+      if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet - 1) {
 #ifndef ALL_TRIPLETS
         // triplets accepted only pointing to the hole
-        if (tmpNtuplet.size()>=3 || hole(hh, cells[tmpNtuplet[0]]))
+        if (tmpNtuplet.size() >= 3 || hole(hh, cells[tmpNtuplet[0]]))
 #endif
-       {
-          hindex_type hits[6]; auto nh=0U;
-          for (auto c : tmpNtuplet) hits[nh++] = cells[c].theInnerHitId;
-          hits[nh] = theOuterHitId; 
-          auto it = foundNtuplets.bulkFill(apc,hits,tmpNtuplet.size()+1);
-          if (it>=0)  { // if negative is overflow....
-            for (auto c : tmpNtuplet) cells[c].addTrack(it,cellTracks);
-            tupleMultiplicity.countDirect(tmpNtuplet.size()+1);
+        {
+          hindex_type hits[6];
+          auto nh = 0U;
+          for (auto c : tmpNtuplet)
+            hits[nh++] = cells[c].theInnerHitId;
+          hits[nh] = theOuterHitId;
+          auto it = foundNtuplets.bulkFill(apc, hits, tmpNtuplet.size() + 1);
+          if (it >= 0) {  // if negative is overflow....
+            for (auto c : tmpNtuplet)
+              cells[c].addTrack(it, cellTracks);
+            tupleMultiplicity.countDirect(tmpNtuplet.size() + 1);
           }
         }
       }
@@ -238,7 +224,7 @@ public:
     assert(tmpNtuplet.size() < 4);
   }
 
-#endif // __CUDACC__
+#endif  // __CUDACC__
 
 private:
   CellNeighbors theOuterNeighbors;
@@ -255,4 +241,4 @@ private:
   hindex_type theOuterHitId;
 };
 
-#endif // RecoPixelVertexing_PixelTriplets_plugins_GPUCACell_h
+#endif  // RecoPixelVertexing_PixelTriplets_plugins_GPUCACell_h

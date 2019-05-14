@@ -1,14 +1,18 @@
-#ifndef PixelTrackProducer_h
-#define PixelTrackProducer_h
+#ifndef RecoPixelVertexing_PixelTrackFitting_plugins_PixelTrackProducer_h
+#define RecoPixelVertexing_PixelTrackFitting_plugins_PixelTrackProducer_h
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstruction.h"
 
-namespace edm { class Event; class EventSetup; class ParameterSet; class ConfigurationDescriptions; }
+namespace edm {
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+  class ConfigurationDescriptions;
+}  // namespace edm
 class TrackerTopology;
 
-class PixelTrackProducer :  public edm::stream::EDProducer<> {
-
+class PixelTrackProducer : public edm::stream::EDProducer<> {
 public:
   explicit PixelTrackProducer(const edm::ParameterSet& conf);
 
@@ -22,4 +26,4 @@ private:
   PixelTrackReconstruction theReconstruction;
 };
 
-#endif // PixelTrackProducer_h
+#endif  // RecoPixelVertexing_PixelTrackFitting_plugins_PixelTrackProducer_h
