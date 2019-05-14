@@ -89,7 +89,7 @@ namespace Rivet {
 
       // Print warning message to the screen/log
       static int Nwarnings = 0;
-      if ( msg!="" && ++Nwarnings < NmaxWarnings )
+      if ( !msg.empty() && ++Nwarnings < NmaxWarnings )
 	  MSG_WARNING(msg);
 
       return cat;
@@ -207,7 +207,7 @@ namespace Rivet {
       }
 
       // Make sure result make sense
-      if ( (prodMode==HTXS::TTH && Ws.size()<2) || (prodMode==HTXS::TH && Ws.size()<1 ) )
+      if ( (prodMode==HTXS::TTH && Ws.size()<2) || (prodMode==HTXS::TH && Ws.empty() ) )
     return error(cat,HTXS::TOP_W_IDENTIFICATION,"Failed to identify W-boson(s) from t-decay!");
 
       /*****
@@ -237,7 +237,7 @@ namespace Rivet {
 	// Cross-check the V decay products for VH
 	if ( isVH(prodMode) && !is_uncatdV && originateFrom(p,Ws) ) vSum += p.momentum();
 	// ignore final state particles from leptonic V decays
-	if ( leptonicVs.size() && originateFrom(p,leptonicVs) ) continue;
+	if ( !leptonicVs.empty() && originateFrom(p,leptonicVs) ) continue;
 	// All particles reaching here are considered hadrons and will be used to build jets
 	hadrons += p;
       }
@@ -287,7 +287,7 @@ namespace Rivet {
     
     /// @brief Return bin index of x given the provided bin edges. 0=first bin, -1=underflow bin.
     int getBin(double x, std::vector<double> bins) {
-      if (bins.size()==0||x<bins[0]) return -1; // should not happen!
+      if (bins.empty()||x<bins[0]) return -1; // should not happen!
       for (size_t i=1;i<bins.size();++i)
         if (x<bins[i]) return i-1;
       return bins.size()-1;
@@ -389,7 +389,7 @@ namespace Rivet {
         else if (V.pt()<150) return QQ2HLNU_PTV_75_150;
       	else if (V.pt()>250) return QQ2HLNU_PTV_GT250;
       	// 150 < pTV/GeV < 250
-      	return jets.size()==0 ? QQ2HLNU_PTV_150_250_0J : QQ2HLNU_PTV_150_250_GE1J;
+      	return jets.empty() ? QQ2HLNU_PTV_150_250_0J : QQ2HLNU_PTV_150_250_GE1J;
       }
       // 4. qq->ZH->llH categories
       else if (prodMode==HTXS::QQ2ZH) {
@@ -398,7 +398,7 @@ namespace Rivet {
         else if (V.pt()<150) return QQ2HLL_PTV_75_150;
       	else if (V.pt()>250) return QQ2HLL_PTV_GT250;
       	// 150 < pTV/GeV < 250
-      	return jets.size()==0 ? QQ2HLL_PTV_150_250_0J : QQ2HLL_PTV_150_250_GE1J;
+      	return jets.empty() ? QQ2HLL_PTV_150_250_0J : QQ2HLL_PTV_150_250_GE1J;
       }
       // 5. gg->ZH->llH categories
       else if (prodMode==HTXS::GG2ZH ) {
@@ -406,7 +406,7 @@ namespace Rivet {
         else if (V.pt()<75) return GG2HLL_PTV_0_75;
         else if (V.pt()<150) return GG2HLL_PTV_75_150;
         else if (V.pt()>250) return GG2HLL_PTV_GT250;
-        return jets.size()==0 ? GG2HLL_PTV_150_250_0J : GG2HLL_PTV_150_250_GE1J;
+        return jets.empty() ? GG2HLL_PTV_150_250_0J : GG2HLL_PTV_150_250_GE1J;
       }
       // 6.ttH,bbH,tH categories
       else if (prodMode==HTXS::TTH) return Category(TTH_FWDH+ctrlHiggs);
@@ -506,7 +506,7 @@ namespace Rivet {
     /// @brief default Rivet Analysis::init method
     /// Booking of histograms, initializing Rivet projection
     /// Extracts Higgs production mode from shell variable if not set manually using setHiggsProdMode
-    void init() {
+    void init() override {
       printf("==============================================================\n");
       printf("========     HiggsTemplateCrossSections Initialization     =========\n");
       printf("==============================================================\n");
@@ -543,7 +543,7 @@ namespace Rivet {
     }
         
     // Perform the per-event analysis
-    void analyze(const Event& event) {
+    void analyze(const Event& event) override {
 
       // get the classification
       HiggsClassification cat = classifyEvent(event,m_HiggsProdMode);
@@ -577,7 +577,7 @@ namespace Rivet {
       hist_Njets30->fill(cat.jets30.size(),weight);
 
       // Jet variables. Use jet collection with pT threshold at 30 GeV
-      if (cat.jets30.size()) hist_pT_jet1->fill(cat.jets30[0].pt(),weight);
+      if (!cat.jets30.empty()) hist_pT_jet1->fill(cat.jets30[0].pt(),weight);
       if (cat.jets30.size()>=2) {
 	const FourMomentum &j1 = cat.jets30[0].momentum(), &j2 = cat.jets30[1].momentum();
 	hist_deltay_jj->fill(std::abs(j1.rapidity()-j2.rapidity()),weight);
@@ -608,7 +608,7 @@ namespace Rivet {
     }
 
 
-    void finalize() {
+    void finalize() override {
       printClassificationSummary();
       double sf = m_sumw>0?1.0/m_sumw:1.0;
       for (auto hist:{hist_stage0,hist_stage1_1_pTjet25,hist_stage1_1_pTjet30,hist_stage1_1_fine_pTjet25,hist_stage1_1_fine_pTjet30,hist_Njets25,hist_Njets30,
