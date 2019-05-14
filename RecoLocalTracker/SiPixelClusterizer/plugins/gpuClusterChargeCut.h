@@ -11,28 +11,27 @@
 
 namespace gpuClustering {
 
-  __global__ void  clusterChargeCut(
-                           uint16_t * __restrict__ id,             // module id of each pixel (modified if bad cluster)
-                           uint16_t const * __restrict__ adc,              //  charge of each pixel
-                           uint32_t const * __restrict__ moduleStart,    // index of the first pixel of each module
-                           uint32_t * __restrict__ nClustersInModule,    // modified: number of clusters found in each module
-                           uint32_t const * __restrict__ moduleId,             // module id of each module
-                           int32_t * __restrict__  clusterId,            // modified: cluster id of each pixel
-                           uint32_t numElements)
-  {
-
+  __global__ void clusterChargeCut(
+      uint16_t* __restrict__ id,                 // module id of each pixel (modified if bad cluster)
+      uint16_t const* __restrict__ adc,          //  charge of each pixel
+      uint32_t const* __restrict__ moduleStart,  // index of the first pixel of each module
+      uint32_t* __restrict__ nClustersInModule,  // modified: number of clusters found in each module
+      uint32_t const* __restrict__ moduleId,     // module id of each module
+      int32_t* __restrict__ clusterId,           // modified: cluster id of each pixel
+      uint32_t numElements) {
     if (blockIdx.x >= moduleStart[0])
       return;
 
     auto firstPixel = moduleStart[1 + blockIdx.x];
     auto thisModuleId = id[firstPixel];
     assert(thisModuleId < MaxNumModules);
-    assert(thisModuleId==moduleId[blockIdx.x]);
+    assert(thisModuleId == moduleId[blockIdx.x]);
 
     auto nclus = nClustersInModule[thisModuleId];
-    if (nclus==0) return;
+    if (nclus == 0)
+      return;
 
-    assert(nclus<=MaxNumClustersPerModules);
+    assert(nclus <= MaxNumClustersPerModules);
 
 #ifdef GPU_DEBUG
     if (thisModuleId % 100 == 1)
@@ -43,23 +42,25 @@ namespace gpuClustering {
     auto first = firstPixel + threadIdx.x;
 
     __shared__ int32_t charge[MaxNumClustersPerModules];
-    for (auto i=threadIdx.x; i<nclus; i += blockDim.x) {
-      charge[i]=0;
+    for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {
+      charge[i] = 0;
     }
     __syncthreads();
 
     for (auto i = first; i < numElements; i += blockDim.x) {
-      if (id[i] == InvId) continue;     // not valid
-      if (id[i] != thisModuleId) break;           // end of module
+      if (id[i] == InvId)
+        continue;  // not valid
+      if (id[i] != thisModuleId)
+        break;  // end of module
       atomicAdd(&charge[clusterId[i]], adc[i]);
     }
     __syncthreads();
 
-    auto chargeCut = thisModuleId<96 ? 2000 : 4000; // move in constants (calib?)
+    auto chargeCut = thisModuleId < 96 ? 2000 : 4000;  // move in constants (calib?)
     __shared__ uint8_t ok[MaxNumClustersPerModules];
     __shared__ uint16_t newclusId[MaxNumClustersPerModules];
-    for (auto i=threadIdx.x; i<nclus; i += blockDim.x) {
-       newclusId[i] = ok[i] =  charge[i]>chargeCut ? 1 : 0;
+    for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {
+      newclusId[i] = ok[i] = charge[i] > chargeCut ? 1 : 0;
     }
 
     __syncthreads();
@@ -68,30 +69,35 @@ namespace gpuClustering {
     __shared__ uint16_t ws[32];
     blockPrefixScan(newclusId, nclus, ws);
 
-    assert(nclus>=newclusId[nclus-1]);
-    
-    if(nclus==newclusId[nclus-1]) return;
+    assert(nclus >= newclusId[nclus - 1]);
 
-    nClustersInModule[thisModuleId] = newclusId[nclus-1];
+    if (nclus == newclusId[nclus - 1])
+      return;
+
+    nClustersInModule[thisModuleId] = newclusId[nclus - 1];
     __syncthreads();
 
     // mark bad cluster again
-    for (auto i=threadIdx.x; i<nclus; i += blockDim.x) {
-      if (0==ok[i]) newclusId[i]=InvId+1;
+    for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {
+      if (0 == ok[i])
+        newclusId[i] = InvId + 1;
     }
     __syncthreads();
 
     // reassign id
     for (auto i = first; i < numElements; i += blockDim.x) {
-      if (id[i] == InvId) continue;     // not valid
-      if (id[i] != thisModuleId) break;           // end of module
-      clusterId[i] = newclusId[clusterId[i]]-1;
-      if(clusterId[i]==InvId) id[i] = InvId;
+      if (id[i] == InvId)
+        continue;  // not valid
+      if (id[i] != thisModuleId)
+        break;  // end of module
+      clusterId[i] = newclusId[clusterId[i]] - 1;
+      if (clusterId[i] == InvId)
+        id[i] = InvId;
     }
 
     //done
   }
 
+}  // namespace gpuClustering
 
-} // namespace
-#endif
+#endif  // RecoLocalTracker_SiPixelClusterizer_plugins_gpuClusterChargeCut_h
