@@ -48,7 +48,7 @@ run2_miniAOD_80XLegacy.toModify(slimmedMuonsWithUserData, src = "slimmedMuonsUpd
 
 finalMuons = cms.EDFilter("PATMuonRefSelector",
     src = cms.InputTag("slimmedMuonsWithUserData"),
-    cut = cms.string("pt > 3 && track.isNonnull && isLooseMuon")
+    cut = cms.string("pt > 3 && (passed('CutBasedIdLoose') || passed('SoftCutBasedId') || passed('CutBasedIdGlobalHighPt') || passed('CutBasedIdTrkHighPt'))")
 )
 
 muonMVATTH= cms.EDProducer("MuonBaseMVAValueMapProducer",
@@ -74,6 +74,12 @@ muonMVATTH= cms.EDProducer("MuonBaseMVAValueMapProducer",
     )
 )
 
+muonMVALowPt = muonMVATTH.clone(
+    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml"),
+    name = cms.string("muonMVALowPt"),
+)
+
+
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
     modifier.toModify(muonMVATTH,
         weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG_2016.weights.xml",
@@ -96,7 +102,7 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         sip3d = Var("abs(dB('PV3D')/edB('PV3D'))",float,doc="3D impact parameter significance wrt first PV",precision=10),
         segmentComp   = Var("segmentCompatibility()", float, doc = "muon segment compatibility", precision=14), # keep higher precision since people have cuts with 3 digits on this
         nStations = Var("numberOfMatchedStations", int, doc = "number of matched stations with default arbitration (segment & track)"),
-        nTrackerLayers = Var("innerTrack().hitPattern().trackerLayersWithMeasurement()", int, doc = "number of layers in the tracker"),
+        nTrackerLayers = Var("?track.isNonnull?innerTrack().hitPattern().trackerLayersWithMeasurement():0", int, doc = "number of layers in the tracker"),
         jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
         miniPFRelIso_chg = Var("userFloat('miniIsoChg')/pt",float,doc="mini PF relative isolation, charged component"),
         miniPFRelIso_all = Var("userFloat('miniIsoAll')/pt",float,doc="mini PF relative isolation, total (with scaled rho*EA PU corrections)"),
@@ -106,6 +112,7 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         jetRelIso = Var("?userCand('jetForLepJetVar').isNonnull()?(1./userFloat('ptRatio'))-1.:(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt",float,doc="Relative isolation in matched jet (1/ptRatio-1, pfRelIso04_all if no matched jet)",precision=8),
         jetPtRelv2 = Var("?userCand('jetForLepJetVar').isNonnull()?userFloat('ptRel'):0",float,doc="Relative momentum of the lepton with respect to the closest jet after subtracting the lepton",precision=8),
         tightCharge = Var("?(muonBestTrack().ptError()/muonBestTrack().pt() < 0.2)?2:0",int,doc="Tight charge criterion using pterr/pt of muonBestTrack (0:fail, 2:pass)"),
+        looseId  = Var("passed('CutBasedIdLoose')",bool, doc="muon is loose muon"),
         isPFcand = Var("isPFMuon",bool,doc="muon is PF candidate"),
         isGlobal = Var("isGlobalMuon",bool,doc="muon is global muon"),
         isTracker = Var("isTrackerMuon",bool,doc="muon is tracker muon"),
@@ -125,6 +132,7 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
     externalVariables = cms.PSet(
         mvaTTH = ExtVar(cms.InputTag("muonMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
+        mvaLowPt = ExtVar(cms.InputTag("muonMVALowPt"),float, doc="Low pt muon ID score",precision=14),
     ),
 )
 
@@ -152,7 +160,7 @@ muonMCTable = cms.EDProducer("CandMCMatchTableProducer",
 
 muonSequence = cms.Sequence(isoForMu + ptRatioRelForMu + slimmedMuonsWithUserData + finalMuons)
 muonMC = cms.Sequence(muonsMCMatchForTable + muonMCTable)
-muonTables = cms.Sequence(muonMVATTH + muonTable)
+muonTables = cms.Sequence(muonMVATTH + muonMVALowPt + muonTable)
 
 _withUpdate_sequence = muonSequence.copy()
 _withUpdate_sequence.replace(isoForMu, slimmedMuonsUpdated+isoForMu)
