@@ -240,7 +240,12 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
     cands.emplace_back(pat::PackedCandidate(p4,trk->vertex(),
 					    trk->pt(),trk->eta(),trk->phi(),
 					    id,pvSlimmedColl,pvSlimmed.key()));
-
+ 
+   if (trk->quality(reco::TrackBase::highPurity))
+       cands.back().setTrackHighPurity(true);
+    else
+       cands.back().setTrackHighPurity(false);
+              
     if(trk->pt()>minPtToStoreProps_ || trkStatus==TrkStatus::VTX) cands.back().setTrackProperties(*trk,covarianceSchema_,covarianceVersion_);
     if(pvOrig.trackWeight(trk) > 0.5) {
          cands.back().setAssociationQuality(pat::PackedCandidate::UsedInFitTight);
