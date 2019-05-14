@@ -66,12 +66,10 @@ namespace {
 
     bool pass_conversion = false;
     if (convs.isValid()) {
-      try {
-        pass_conversion = !ConversionTools::hasMatchedConversion(el, *convs, bs_position);
-      } catch (...) {
-        edm::LogError("SUSY_HLT_SingleLepton") << "Electron conversion matching failed.\n";
-        return false;
-      }
+      pass_conversion = !ConversionTools::hasMatchedConversion(el, *convs, bs_position);
+    } else {
+      edm::LogError("SUSY_HLT_SingleLepton") << "Electron conversion matching failed.\n";
+      return false;
     }
 
     float etasc = 0.0;
