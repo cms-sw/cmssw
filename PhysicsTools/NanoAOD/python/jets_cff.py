@@ -112,7 +112,7 @@ bJetVars = cms.EDProducer("JetRegressionVarProducer",
 )
 
 jercVars = cms.EDProducer("BetaStarPackedCandidateVarProducer",
-    srcJet = cms.InputTag("slimmedJets"),    
+    srcJet = cms.InputTag("updatedJets"),    
     srcPF = cms.InputTag("packedPFCandidates"),
     maxDR = cms.double(0.4)
 )
