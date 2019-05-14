@@ -21,6 +21,7 @@
 #include "L1Trigger/DTPhase2Trigger/interface/InitialGrouping.h"
 #include "L1Trigger/DTPhase2Trigger/interface/MuonPathAnalyzer.h"
 #include "L1Trigger/DTPhase2Trigger/interface/MuonPathAnalyzerPerSL.h"
+#include "L1Trigger/DTPhase2Trigger/interface/MuonPathFilter.h"
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
@@ -82,8 +83,6 @@ class DTTrigPhase2Prod: public edm::EDProducer{
 
     std::vector<std::pair<int,MuonPath>> primitives;
 
-    int arePrimos(metaPrimitive primera, metaPrimitive segunda);
-    int rango(metaPrimitive primera);
     bool outer(metaPrimitive primera);
     bool inner(metaPrimitive primera);
     void printmP(metaPrimitive mP);
@@ -123,7 +122,6 @@ class DTTrigPhase2Prod: public edm::EDProducer{
     int min_phinhits_match_segment;
     bool do_correlation;
     int p2_df;
-    bool filter_primos;
 
     // txt ttrig flag
     bool txt_ttrig_bc0;
@@ -136,7 +134,8 @@ class DTTrigPhase2Prod: public edm::EDProducer{
     // Grouping attributes and methods
     Int_t grcode; // Grouping code
     MotherGrouping* grouping_obj;
-    MuonPathAnalyzer* mpathanalyzer;
+MuonPathAnalyzer* mpathanalyzer;
+MuonPathFilter* mpathfilter;
 };
 
 
