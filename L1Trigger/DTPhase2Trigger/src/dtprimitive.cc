@@ -1,5 +1,5 @@
-#include "L1Trigger/DTPhase2Trigger/src/dtprimitive.h"
-#include "L1Trigger/DTPhase2Trigger/src/constants.h"
+#include "L1Trigger/DTPhase2Trigger/interface/dtprimitive.h"
+#include "L1Trigger/DTPhase2Trigger/interface/constants.h"
 #include <iostream> 
 
 //------------------------------------------------------------------

@@ -1,4 +1,4 @@
-#include "L1Trigger/DTPhase2Trigger/src/muonpath.h"
+#include "L1Trigger/DTPhase2Trigger/interface/muonpath.h"
 
 #include <cstring>  // Para función "memcpy"
 #include "math.h"
