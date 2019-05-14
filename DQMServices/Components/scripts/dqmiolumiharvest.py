@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 from __future__ import print_function
-import re
+import os
 import json
 import ROOT
-import sqlite3
+import fnmatch
 import argparse
 import subprocess
 import multiprocessing
@@ -13,99 +13,40 @@ from collections import defaultdict
 ROOTPREFIX = "root://cms-xrd-global.cern.ch/"
 #ROOTPREFIX = "root://eoscms//eos/cms" # for more local files
 
-parser = argparse.ArgumentParser(description="Collect MEs for given lumisections from DQMIO data and upload to a DQMGUI.")
+parser = argparse.ArgumentParser(description="Collect MEs for given lumisections from DQMIO data and upload to a DQMGUI. " +
+                                             "The from-to lumi range will be shown in an artificial run number of form 1xxxxyyyy, while the run number goes into the lumi number field.")
 
 parser.add_argument('dataset', help='dataset name, like "/StreamHIExpress/HIRun2018A-Express-v1/DQMIO"')
 parser.add_argument('-r', '--run', help='Run number of run to process', default=None, type=int)
 parser.add_argument('-l', '--lumis', help='JSON file with runs/lumisecitons to process (golden JSON format)', default=None)
-parser.add_argument('-u', '--upload', help='Upload files to this GUI, instead of just creating them', default=None)
+parser.add_argument('-u', '--upload', help='Upload files to this GUI, instead of just creating them. Delete files after upload.', default=None)
 parser.add_argument('-j', '--njobs', help='Number of threads to read files', type=int, default=1)
+parser.add_argument('-m', '--me', help='Glob pattern of MEs to load.', default=[], action='append')
 parser.add_argument('--limit', help='Only load up to LIMIT files', type=int, default=-1)
 args = parser.parse_args()
 
 
 # we can save a lot of time by only scanning some types, if we know all interesting MEs are of these types.
 interesting_types = {
+  # for some reasons, reding mixed types does not work.
   "TH2Fs",
+#  "TH1Fs",
+#  "TH2Ds",
+#  "TH1Ds",
+#  "TH2Ds",
+#  "TProfiles",
+#  "TProfile2Ds",
 }
 
-interesting_mes = {
-  "PixelPhase1/Phase1_MechanicalView/PXBarrel/digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_1",
-  "PixelPhase1/Phase1_MechanicalView/PXBarrel/digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_2",
-  "PixelPhase1/Phase1_MechanicalView/PXBarrel/digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_3",
-  "PixelPhase1/Phase1_MechanicalView/PXBarrel/digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_4",
-  "PixelPhase1/Phase1_MechanicalView/PXForward/digi_occupancy_per_SignedDiskCoord_per_SignedBladePanelCoord_PXRing_1",
-  "PixelPhase1/Phase1_MechanicalView/PXForward/digi_occupancy_per_SignedDiskCoord_per_SignedBladePanelCoord_PXRing_2",
-  "SiStrip/MechanicalView/TEC/MINUS/wheel_1/TkHMap_NumberValidHits_TECM_W1",
-  "SiStrip/MechanicalView/TEC/MINUS/wheel_2/TkHMap_NumberValidHits_TECM_W2",
-  "SiStrip/MechanicalView/TEC/MINUS/wheel_3/TkHMap_NumberValidHits_TECM_W3",
-  "SiStrip/MechanicalView/TEC/MINUS/wheel_4/TkHMap_NumberValidHits_TECM_W4",
-  "SiStrip/MechanicalView/TEC/MINUS/wheel_5/TkHMap_NumberValidHits_TECM_W5",
-  "SiStrip/MechanicalView/TEC/MINUS/wheel_6/TkHMap_NumberValidHits_TECM_W6",
-  "SiStrip/MechanicalView/TEC/MINUS/wheel_7/TkHMap_NumberValidHits_TECM_W7",
-  "SiStrip/MechanicalView/TEC/MINUS/wheel_8/TkHMap_NumberValidHits_TECM_W8",
-  "SiStrip/MechanicalView/TEC/MINUS/wheel_9/TkHMap_NumberValidHits_TECM_W9",
-  "SiStrip/MechanicalView/TEC/PLUS/wheel_1/TkHMap_NumberValidHits_TECP_W1",
-  "SiStrip/MechanicalView/TEC/PLUS/wheel_2/TkHMap_NumberValidHits_TECP_W2",
-  "SiStrip/MechanicalView/TEC/PLUS/wheel_3/TkHMap_NumberValidHits_TECP_W3",
-  "SiStrip/MechanicalView/TEC/PLUS/wheel_4/TkHMap_NumberValidHits_TECP_W4",
-  "SiStrip/MechanicalView/TEC/PLUS/wheel_5/TkHMap_NumberValidHits_TECP_W5",
-  "SiStrip/MechanicalView/TEC/PLUS/wheel_6/TkHMap_NumberValidHits_TECP_W6",
-  "SiStrip/MechanicalView/TEC/PLUS/wheel_7/TkHMap_NumberValidHits_TECP_W7",
-  "SiStrip/MechanicalView/TEC/PLUS/wheel_8/TkHMap_NumberValidHits_TECP_W8",
-  "SiStrip/MechanicalView/TEC/PLUS/wheel_9/TkHMap_NumberValidHits_TECP_W9",
-  "SiStrip/MechanicalView/TIB/layer_1/TkHMap_NumberValidHits_TIB_L1",
-  "SiStrip/MechanicalView/TIB/layer_2/TkHMap_NumberValidHits_TIB_L2",
-  "SiStrip/MechanicalView/TIB/layer_3/TkHMap_NumberValidHits_TIB_L3",
-  "SiStrip/MechanicalView/TIB/layer_4/TkHMap_NumberValidHits_TIB_L4",
-  "SiStrip/MechanicalView/TID/MINUS/wheel_1/TkHMap_NumberValidHits_TIDM_D1",
-  "SiStrip/MechanicalView/TID/MINUS/wheel_2/TkHMap_NumberValidHits_TIDM_D2",
-  "SiStrip/MechanicalView/TID/MINUS/wheel_3/TkHMap_NumberValidHits_TIDM_D3",
-  "SiStrip/MechanicalView/TID/PLUS/wheel_1/TkHMap_NumberValidHits_TIDP_D1",
-  "SiStrip/MechanicalView/TID/PLUS/wheel_2/TkHMap_NumberValidHits_TIDP_D2",
-  "SiStrip/MechanicalView/TID/PLUS/wheel_3/TkHMap_NumberValidHits_TIDP_D3",
-  "SiStrip/MechanicalView/TOB/layer_1/TkHMap_NumberValidHits_TOB_L1",
-  "SiStrip/MechanicalView/TOB/layer_2/TkHMap_NumberValidHits_TOB_L2",
-  "SiStrip/MechanicalView/TOB/layer_3/TkHMap_NumberValidHits_TOB_L3",
-  "SiStrip/MechanicalView/TOB/layer_4/TkHMap_NumberValidHits_TOB_L4",
-  "SiStrip/MechanicalView/TOB/layer_5/TkHMap_NumberValidHits_TOB_L5",
-  "SiStrip/MechanicalView/TOB/layer_6/TkHMap_NumberValidHits_TOB_L6",
-  "EcalBarrel/EBOccupancyTask/EBOT digi occupancy",
-  "EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE -",
-  "EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE +",
-  "EcalPreshower/ESOccupancyTask/ES Energy Density Z -1 P 1",
-  "EcalPreshower/ESOccupancyTask/ES Energy Density Z -1 P 2",
-  "EcalPreshower/ESOccupancyTask/ES Energy Density Z 1 P 1",
-  "EcalPreshower/ESOccupancyTask/ES Energy Density Z 1 P 2",
-  "Hcal/DigiRunHarvesting/Occupancy/depth/depth1",
-  "Hcal/DigiRunHarvesting/Occupancy/depth/depth2",
-  "Hcal/DigiRunHarvesting/Occupancy/depth/depth3",
-  "Hcal/DigiRunHarvesting/Occupancy/depth/depth4",
-  "CSC/CSCOfflineMonitor/Occupancy/hOStripsAndWiresAndCLCT",
-  "RPC/AllHits/SummaryHistograms/Occupancy_for_Barrel",
-  "RPC/AllHits/SummaryHistograms/Occupancy_for_Endcap",
-  "DT/02-Segments/Wheel-1/numberOfSegments_W-1",
-  "DT/02-Segments/Wheel-2/numberOfSegments_W-2",
-  "DT/02-Segments/Wheel0/numberOfSegments_W0",
-  "DT/02-Segments/Wheel1/numberOfSegments_W1",
-  "DT/02-Segments/Wheel2/numberOfSegments_W2",
+interesting_mes = args.me
+if not interesting_mes:
+  print("No --me patterns given. This is fine, but output *will* be empty.")
 
-  "L1T/L1TObjects/L1TEGamma/timing/egamma_eta_phi_bx_0",
-  "L1T/L1TObjects/L1TJet/timing/jet_eta_phi_bx_0",
-  "L1T/L1TObjects/L1TMuon/timing/muons_eta_phi_bx_0",
-  "L1T/L1TObjects/L1TTau/timing/tau_eta_phi_bx_0",
-  "L1T/L1TObjects/L1TEGamma/timing/denominator_egamma",
-  "L1T/L1TObjects/L1TJet/timing/denominator_jet",
-  "L1T/L1TObjects/L1TMuon/timing/denominator_muons",
-  "L1T/L1TObjects/L1TTau/timing/denominator_tau",
-}
-
-inf = re.compile("([- \[])inf([,}\]])")
-nan = re.compile("([- \[])nan([,}\]])")
-
-def tojson(x):
-    rootobj = ROOT.TBufferJSON.ConvertToJSON(x)
-    return rootobj
+if args.upload and "https:" in args.upload:
+  print("Refuing to upload to production servers, only http upload to local servers allowed.")
+  uploadurl = None
+else:
+  uploadurl = args.upload
 
 def dasquery(dataset):
     if not dataset.endswith("DQMIO"):
@@ -116,6 +57,21 @@ def dasquery(dataset):
     files = files.splitlines()
     print("Got %d files." % len(files))
     return files
+
+files = dasquery(args.dataset)
+if args.limit > 0: files = files[:args.limit]
+
+if args.lumis:
+  with open(args.lumis) as f:
+    j  = json.load(f)
+    lumiranges = {int(run): lumis for run, lumis in j.iteritems()}
+else:
+  if args.run:
+    # let's define no lumis -> full run
+    lumiranges = {args.run : []}
+  else:
+    # ... and similarly, no runs -> everything.
+    lumiranges = {}
 
 
 treenames = { 
@@ -132,6 +88,34 @@ treenames = {
   10: "TProfiles",
   11: "TProfile2Ds",
 }
+
+def check_interesting(mename):
+  for pattern in interesting_mes:
+    if fnmatch.fnmatch(mename, pattern):
+      return True
+
+def rangecheck(run, lumi):
+  if not lumiranges: return True
+  if run not in lumiranges: return False
+  lumis = lumiranges[run]
+  if not lumis: return True
+  for start, end in lumis:
+    if lumi >= start and lumi <= end:
+      return True
+  return False
+
+def create_dir(parent_dir, name):
+   dir = parent_dir.Get(name)
+   if not dir:
+      dir = parent_dir.mkdir(name)
+   return dir
+
+def gotodir(base, path):
+  current = base
+  for directory in path[:-1]:
+    current = create_dir(current, directory)
+    current.cd()
+
 
 def harvestfile(fname):
     f = ROOT.TFile.Open(ROOTPREFIX + fname)
@@ -185,7 +169,7 @@ def harvestfile(fname):
         for x in range(firstidx, lastidx+1):
             metree.GetEntry(x)
             mename = str(metree.FullName)
-            if mename in interesting_mes:
+            if check_interesting(mename):
                 metree.GetEntry(x, 1)
                 value = metree.Value
 
@@ -204,7 +188,8 @@ def harvestfile(fname):
             # in the TDirectory is also checked and has to match the filename,
             # but the  headerbar can show anything and uses these magic MEs.
             for subsys in subsystems:
-                gotodir(result_file, prefix + [subsys, "Run summary", "EventInfo"])
+                # last item is considerd object name and ignored
+                gotodir(result_file, prefix + [subsys, "Run summary", "EventInfo", "blub"])
                 s = ROOT.TObjString("<iRun>i=1%04d%04d</iRun>" % (lumi, endlumi))
                 s.Write()
                 s = ROOT.TObjString("<iLumiSection>i=%s</iLumiSection>" % run)
@@ -215,49 +200,19 @@ def harvestfile(fname):
 
     return files
 
-files = dasquery(args.dataset)
-if args.limit > 0: files = files[:args.limit]
-
-if args.lumis:
-  with open(args.lumis) as f:
-    j  = json.load(f)
-    lumiranges = {int(run): lumis for run, lumis in j.iteritems()}
-
-else:
-  if args.run:
-    # let's define no lumis -> full run
-    lumiranges = {args.run : []}
-  else:
-    # ... and similarly, no runs -> everything.
-    lumiranges = {}
-
-def rangecheck(run, lumi):
-  if not lumiranges: return True
-  if run not in lumiranges: return False
-  lumis = lumiranges[run]
-  if not lumis: return True
-  for start, end in lumis:
-    if lumi >= start and lumi <= end:
-      return True
-  return False
-
-def create_dir(parent_dir, name):
-   dir = parent_dir.Get(name)
-   if not dir:
-      dir = parent_dir.mkdir(name)
-   return dir
-
-def gotodir(base, path):
-  current = base
-  for directory in path[:-1]:
-    current = create_dir(current, directory)
-    current.cd()
-  
+def uploadfile(filename):
+    uploadcommand = ["visDQMUpload.py", uploadurl, filename]
+    print("Uploading ... %s" % uploadcommand)
+    subprocess.check_call(uploadcommand)
 
 pool = multiprocessing.Pool(processes=args.njobs)
 ctr = 0
 for outfiles in pool.imap_unordered(harvestfile, files):
 #for mes_to_store in map(harvestfile, files):
+    if uploadurl:
+        for f in outfiles:
+            uploadfile(f)
+            os.remove(f)
     ctr += 1
     print("Processed %d files of %d, got %d out files...\r" % (ctr, len(files), len(outfiles)),  end='')
 print("\nDone.")
