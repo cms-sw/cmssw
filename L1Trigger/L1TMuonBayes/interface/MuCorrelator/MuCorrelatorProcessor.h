@@ -8,13 +8,13 @@
 #ifndef MUCORRELATOR_MUCORRELATORPROCESSOR_H_
 #define MUCORRELATOR_MUCORRELATORPROCESSOR_H_
 
+#include <L1Trigger/L1TMuonBayes/interface/MuonStubsInput.h>
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/BayesMuCorrelatorTrack.h"
 
 #include "L1Trigger/L1TMuonBayes/interface/MuonStub.h"
 #include "L1Trigger/L1TMuonBayes/interface/TrackingTriggerTrack.h"
 
-#include "L1Trigger/L1TMuonBayes/interface/MuCorrelator/MuonStubsInput.h"
 #include "L1Trigger/L1TMuonBayes/interface/MuCorrelator/MuCorrelatorConfig.h"
 #include "L1Trigger/L1TMuonBayes/interface/MuCorrelator/AlgoTTMuon.h"
 #include "L1Trigger/L1TMuonBayes/interface/MuCorrelator/PdfModule.h"

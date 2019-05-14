@@ -47,6 +47,8 @@ public:
   int phiHw = 0;
   int phiBHw = 0;
 
+  static const int EMTPY_PHI = 0xffffff;
+
   int etaHw = 0;
   int etaSigmaHw = 0; ///error of the eta measurement
   int qualityHw = 0;

@@ -131,7 +131,7 @@ AlgoTTMuonPtr MuCorrelatorProcessor::processTrackUsingRefStubs(const MuonStubsIn
 }
 
 MuonStubsInput MuCorrelatorProcessor::selectStubs(const MuonStubsInput& muonStubs, const TrackingTriggerTrackPtr& ttTrack) {
-  MuonStubsInput selectedMuonStubs(config);
+  MuonStubsInput selectedMuonStubs(config.get());
 
   //TODO this implementation is rather not possible in the hardware, a different approach would be needed
   for(unsigned int iLayer = 0; iLayer < muonStubs.getMuonStubs().size(); ++iLayer) {

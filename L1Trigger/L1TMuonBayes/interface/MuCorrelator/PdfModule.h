@@ -12,8 +12,8 @@
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp>
+#include <L1Trigger/L1TMuonBayes/interface/MuonStubsInput.h>
 
-#include "L1Trigger/L1TMuonBayes/interface/MuCorrelator/MuonStubsInput.h"
 #include "L1Trigger/L1TMuonBayes/interface/MuCorrelator/MuCorrelatorConfig.h"
 #include "L1Trigger/L1TMuonBayes/interface/MuCorrelator/AlgoTTMuon.h"
 

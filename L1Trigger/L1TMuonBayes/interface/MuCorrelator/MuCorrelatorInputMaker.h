@@ -8,6 +8,7 @@
 #ifndef MUCORRELATOR_MUONCORRELATORINPUTMAKER_H_
 #define MUCORRELATOR_MUONCORRELATORINPUTMAKER_H_
 
+#include <L1Trigger/L1TMuonBayes/interface/MuonStubsInput.h>
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -23,7 +24,6 @@
 #include "L1Trigger/L1TMuonBayes/interface/AngleConverterBase.h"
 #include "L1Trigger/L1TMuonBayes/interface/MuCorrelator/MuCorrelatorConfig.h"
 
-#include "L1Trigger/L1TMuonBayes/interface/MuCorrelator/MuonStubsInput.h"
 
 
 namespace edm {

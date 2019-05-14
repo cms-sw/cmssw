@@ -79,6 +79,8 @@ public:
 
   virtual bool isPhiLayer(unsigned int layer) const;
 
+  virtual bool isBendingLayer(unsigned int iLayer) const;
+
   virtual unsigned int nLayers() const {
     return layers;
   }

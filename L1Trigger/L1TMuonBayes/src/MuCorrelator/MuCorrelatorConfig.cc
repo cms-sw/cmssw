@@ -159,6 +159,14 @@ bool MuCorrelatorConfig::isPhiLayer(unsigned int layer) const {
   return false;
 }
 
+
+bool MuCorrelatorConfig::isBendingLayer(unsigned int layer) const {
+  if(layer == 1 || layer == 3 || layer == 5 || layer == 7) {
+    return true;
+  }
+  return false;
+}
+
 std::string MuCorrelatorConfig::ptBinString(unsigned int ptBin, int mode) const {
   int ptHwLow = ptBin > 0 ? ptHwBins.at(ptBin - 1) : 0;
   int ptHwUp = ptHwBins.at(ptBin);

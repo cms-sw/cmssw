@@ -42,6 +42,8 @@ public:
   virtual int foldPhi(int phi) const;
 
   virtual unsigned int nLayers() const = 0;
+
+  virtual bool isBendingLayer(unsigned int iLayer) const = 0;
 };
 
 #endif /* INTERFACE_PROCCONFIGURATIONBASE_H_ */

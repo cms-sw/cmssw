@@ -338,7 +338,7 @@ const MuonStubsInput MuCorrelatorInputMaker::buildInputForProcessor(unsigned int
     l1t::tftype type,
     int bxFrom, int bxTo) {
 
-  MuonStubsInput result(config);
+  MuonStubsInput result(config.get());
   processDT( result.getMuonStubs(), dtPhDigis.product(), dtThDigis.product(), iProcessor, type, false, bxFrom, bxTo);
   processCSC(result.getMuonStubs(), cscDigis.product(), iProcessor, type, bxFrom, bxTo);
   processRPC(result.getMuonStubs(), rpcDigis.product(), iProcessor, type, bxFrom, bxTo);

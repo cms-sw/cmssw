@@ -8,13 +8,13 @@
 #ifndef MUCORRELATOR_MUONSTUBSINPUT_H_
 #define MUCORRELATOR_MUONSTUBSINPUT_H_
 
-#include "L1Trigger/L1TMuonBayes/interface/MuCorrelator/MuCorrelatorConfig.h"
+#include "L1Trigger/L1TMuonBayes/interface/ProcConfigurationBase.h"
 #include "L1Trigger/L1TMuonBayes/interface/MuonStub.h"
 #include <ostream>
 
 class MuonStubsInput {
 public:
-  MuonStubsInput(MuCorrelatorConfigPtr& config);
+  MuonStubsInput(const ProcConfigurationBase* config);
 
   //void addStub(unsigned int iLayer, unsigned int iInput, MuonStubPtr& stub);
   void addStub(unsigned int iLayer, const MuonStubPtr& stub) {
@@ -40,10 +40,14 @@ public:
     return muonStubsInLayers;
   }
 
+  //gives stub phiHw or phiBHw - depending which layer is requested
+  //if there is no stun at input iInput - return MuonStub::EMTPY_PHI
+  const int getPhiHw(unsigned int iLayer, unsigned int iInput) const;
+
   friend std::ostream & operator << (std::ostream &out, const MuonStubsInput& stubsInput);
 
 private:
-  MuCorrelatorConfigPtr config;
+  const ProcConfigurationBase* config = nullptr;
 
   //[iLayer][iStub]
   MuonStubPtrs2D muonStubsInLayers;
