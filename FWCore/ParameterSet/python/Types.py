@@ -605,7 +605,7 @@ class ESInputTag(_ParameterTypeBase):
         if dataLabel is None:
             if moduleLabel:
                 if  -1 == moduleLabel.find(":"):
-                    raise RuntimeError("ESInputTag passed one string '"+str(moduleLabel)+"' which does not contain a ':'. If you want to specify more than one label, please pass them as separate arguments.")
+                    raise RuntimeError("ESInputTag passed one string '"+str(moduleLabel)+"' which does not contain a ':'. Please add ':' to explicitly separate the module (1st) and data (2nd) label or use two strings.")
                 toks = moduleLabel.split(":")
                 self.__moduleLabel = toks[0]
                 if len(toks) > 1:
