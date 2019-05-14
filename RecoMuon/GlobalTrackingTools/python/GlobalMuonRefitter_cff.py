@@ -33,7 +33,7 @@ GlobalMuonRefitter = cms.PSet(
     DYTupdator = cms.bool(True),
     DYTuseAPE = cms.bool(False),
     ## Parameters for DYT threshold parametrization
-    DYTuseThrsParametrization = cms.bool(False),
+    DYTuseThrsParametrization = cms.bool(True),
     DYTthrsParameters = cms.PSet(
                                   eta0p8 = cms.vdouble(1, -0.919853, 0.990742),
                                   eta1p2 = cms.vdouble(1, -0.897354, 0.987738),
