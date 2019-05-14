@@ -8,10 +8,7 @@
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 
-
-namespace Rfit
-{
-
+namespace Rfit {
 
   using Vector2d = Eigen::Vector2d;
   using Vector3d = Eigen::Vector3d;
@@ -23,13 +20,10 @@ namespace Rfit
   using Matrix5d = Eigen::Matrix<double, 5, 5>;
   using Matrix6d = Eigen::Matrix<double, 6, 6>;
 
+  template <int N>
+  using Matrix3xNd = Eigen::Matrix<double, 3, N>;  // used for inputs hits
 
- template<int N>
- using Matrix3xNd = Eigen::Matrix<double, 3, N>; // used for inputs hits
-
-
-  struct circle_fit
-  {
+  struct circle_fit {
     Vector3d par;  //!< parameter: (X0,Y0,R)
     Matrix3d cov;
     /*!< covariance matrix: \n
@@ -40,9 +34,8 @@ namespace Rfit
     int32_t q;  //!< particle charge
     float chi2;
   };
-  
-  struct line_fit
-  {
+
+  struct line_fit {
     Vector2d par;  //!<(cotan(theta),Zip)
     Matrix2d cov;
     /*!<
@@ -51,9 +44,8 @@ namespace Rfit
     */
     double chi2;
   };
-  
-  struct helix_fit
-  {
+
+  struct helix_fit {
     Vector5d par;  //!<(phi,Tip,pt,cotan(theta)),Zip)
     Matrix5d cov;
     /*!< ()->cov() \n
@@ -67,7 +59,7 @@ namespace Rfit
     float chi2_line;
     //    Vector4d fast_fit;
     int32_t q;  //!< particle charge
-  }; // __attribute__((aligned(16)));
+  };            // __attribute__((aligned(16)));
 
-} // namespace RFit
+}  // namespace Rfit
 #endif
