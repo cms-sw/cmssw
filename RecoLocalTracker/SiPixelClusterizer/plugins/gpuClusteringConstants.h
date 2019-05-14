@@ -3,4 +3,4 @@
 
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 
-#endif // RecoLocalTracker_SiPixelClusterizer_plugins_gpuClusteringConstants_h
+#endif  // RecoLocalTracker_SiPixelClusterizer_plugins_gpuClusteringConstants_h

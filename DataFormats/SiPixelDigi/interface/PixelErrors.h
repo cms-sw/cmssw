@@ -1,11 +1,11 @@
-#ifndef DataFormats_SiPixelDigi_PixelErrors_h
-#define DataFormats_SiPixelDigi_PixelErrors_h
-
-#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
-#include "FWCore/Utilities/interface/typedefs.h"
+#ifndef DataFormats_SiPixelDigi_interface_PixelErrors_h
+#define DataFormats_SiPixelDigi_interface_PixelErrors_h
 
 #include <map>
 #include <vector>
+
+#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
+#include "FWCore/Utilities/interface/typedefs.h"
 
 // Better ideas for the placement of these?
 
@@ -18,4 +18,4 @@ struct PixelErrorCompact {
 
 using PixelFormatterErrors = std::map<cms_uint32_t, std::vector<SiPixelRawDataError>>;
 
-#endif
+#endif  // DataFormats_SiPixelDigi_interface_PixelErrors_h

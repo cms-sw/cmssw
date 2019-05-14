@@ -18,129 +18,131 @@
 
 namespace {
 
-  template <typename T> T sqr(T x) { return x * x; }
+  template <typename T>
+  T sqr(T x) {
+    return x * x;
+  }
 
-} // namespace
+}  // namespace
 
 using namespace std;
 
 constexpr unsigned int CAHitQuadrupletGeneratorGPU::minLayers;
 
-CAHitQuadrupletGeneratorGPU::CAHitQuadrupletGeneratorGPU(
-    const edm::ParameterSet &cfg,
-    edm::ConsumesCollector &iC) : 
-    kernels(cfg.getParameter<unsigned int>("minHitsPerNtuplet"), 
-            cfg.getParameter<bool>("earlyFishbone"),cfg.getParameter<bool>("lateFishbone"),
-            cfg.getParameter<bool>("idealConditions"), cfg.getParameter<bool>("fillStatistics")),
-    fitter(cfg.getParameter<bool>("fit5as4")),
-    caThetaCut(cfg.getParameter<double>("CAThetaCut")),
-    caPhiCut(cfg.getParameter<double>("CAPhiCut")),
-    caHardPtCut(cfg.getParameter<double>("CAHardPtCut"))
-{
-}
+CAHitQuadrupletGeneratorGPU::CAHitQuadrupletGeneratorGPU(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC)
+    : kernels(cfg.getParameter<unsigned int>("minHitsPerNtuplet"),
+              cfg.getParameter<bool>("earlyFishbone"),
+              cfg.getParameter<bool>("lateFishbone"),
+              cfg.getParameter<bool>("idealConditions"),
+              cfg.getParameter<bool>("fillStatistics")),
+      fitter(cfg.getParameter<bool>("fit5as4")),
+      caThetaCut(cfg.getParameter<double>("CAThetaCut")),
+      caPhiCut(cfg.getParameter<double>("CAPhiCut")),
+      caHardPtCut(cfg.getParameter<double>("CAHardPtCut")) {}
 
 void CAHitQuadrupletGeneratorGPU::fillDescriptions(edm::ParameterSetDescription &desc) {
   desc.add<double>("CAThetaCut", 0.00125);
   desc.add<double>("CAPhiCut", 10);
   desc.add<double>("CAHardPtCut", 0);
-  desc.add<bool>("earlyFishbone",false);
-  desc.add<bool>("lateFishbone",true);
-  desc.add<bool>("idealConditions",true),
-  desc.add<bool>("fillStatistics",false),
-  desc.add<unsigned int>("minHitsPerNtuplet",4);
-  desc.add<bool>("fit5as4",true);
+  desc.add<bool>("earlyFishbone", false);
+  desc.add<bool>("lateFishbone", true);
+  desc.add<bool>("idealConditions", true), desc.add<bool>("fillStatistics", false),
+      desc.add<unsigned int>("minHitsPerNtuplet", 4);
+  desc.add<bool>("fit5as4", true);
 }
 
-void CAHitQuadrupletGeneratorGPU::initEvent(edm::Event const& ev, edm::EventSetup const& es) {
+void CAHitQuadrupletGeneratorGPU::initEvent(edm::Event const &ev, edm::EventSetup const &es) {
   fitter.setBField(1 / PixelRecoUtilities::fieldInInvGev(es));
 }
 
+CAHitQuadrupletGeneratorGPU::~CAHitQuadrupletGeneratorGPU() { deallocateOnGPU(); }
 
-CAHitQuadrupletGeneratorGPU::~CAHitQuadrupletGeneratorGPU() {
-    deallocateOnGPU();
-}
-
-void CAHitQuadrupletGeneratorGPU::hitNtuplets(
-    HitsOnCPU const& hh,
-    edm::EventSetup const& es,
-    bool useRiemannFit,
-    bool transferToCPU,
-    cuda::stream_t<> &cudaStream)
-{
+void CAHitQuadrupletGeneratorGPU::hitNtuplets(HitsOnCPU const &hh,
+                                              edm::EventSetup const &es,
+                                              bool useRiemannFit,
+                                              bool transferToCPU,
+                                              cuda::stream_t<> &cudaStream) {
   hitsOnCPU = &hh;
   launchKernels(hh, useRiemannFit, transferToCPU, cudaStream);
 }
 
-void CAHitQuadrupletGeneratorGPU::fillResults(
-    const TrackingRegion &region, SiPixelRecHitCollectionNew const & rechits,
-    std::vector<OrderedHitSeeds> &result, const edm::EventSetup &es)
-{
-
+void CAHitQuadrupletGeneratorGPU::fillResults(const TrackingRegion &region,
+                                              SiPixelRecHitCollectionNew const &rechits,
+                                              std::vector<OrderedHitSeeds> &result,
+                                              const edm::EventSetup &es) {
   assert(hitsOnCPU);
   auto nhits = hitsOnCPU->nHits();
 
-   uint32_t hitsModuleStart[gpuClustering::MaxNumModules+1];
+  uint32_t hitsModuleStart[gpuClustering::MaxNumModules + 1];
   // to be understood where to locate
-  cudaCheck(cudaMemcpy(hitsModuleStart, hitsOnCPU->hitsModuleStart(), (gpuClustering::MaxNumModules+1) * sizeof(uint32_t), cudaMemcpyDefault));
+  cudaCheck(cudaMemcpy(hitsModuleStart,
+                       hitsOnCPU->hitsModuleStart(),
+                       (gpuClustering::MaxNumModules + 1) * sizeof(uint32_t),
+                       cudaMemcpyDefault));
 
   auto fc = hitsModuleStart;
 
   hitmap_.clear();
-  auto const & rcs = rechits.data();
+  auto const &rcs = rechits.data();
   hitmap_.resize(nhits);
-  for (auto const & h : rcs) {
-       auto const & thit = static_cast<BaseTrackerRecHit const&>(h);
-       auto detI = thit.det()->index();
-       auto const & clus = thit.firstClusterRef();
-       assert(clus.isPixel());  
-       auto i = fc[detI] + clus.pixelCluster().originalId();
-       assert(i<nhits);
-       hitmap_[i] = &h;
-  } 
+  for (auto const &h : rcs) {
+    auto const &thit = static_cast<BaseTrackerRecHit const &>(h);
+    auto detI = thit.det()->index();
+    auto const &clus = thit.firstClusterRef();
+    assert(clus.isPixel());
+    auto i = fc[detI] + clus.pixelCluster().originalId();
+    assert(i < nhits);
+    hitmap_[i] = &h;
+  }
 
   int index = 0;
 
-  auto const & foundQuads = fetchKernelResult(index);
+  auto const &foundQuads = fetchKernelResult(index);
   unsigned int numberOfFoundQuadruplets = foundQuads.size();
 
-  std::array<BaseTrackerRecHit const*, 4> phits;
+  std::array<BaseTrackerRecHit const *, 4> phits;
 
   indToEdm.clear();
-  indToEdm.resize(numberOfFoundQuadruplets,64000);
+  indToEdm.resize(numberOfFoundQuadruplets, 64000);
 
-  int nbad=0;
+  int nbad = 0;
   // loop over quadruplets
   for (unsigned int quadId = 0; quadId < numberOfFoundQuadruplets; ++quadId) {
     bool bad = pixelTuplesHeterogeneousProduct::bad == quality_[quadId];
     for (unsigned int i = 0; i < 4; ++i) {
       auto k = foundQuads[quadId][i];
-      if (k<0) { phits[i] = nullptr;continue; } // (actually break...)
-      assert(k<int(nhits));
+      if (k < 0) {
+        phits[i] = nullptr;
+        continue;
+      }  // (actually break...)
+      assert(k < int(nhits));
       auto hp = hitmap_[k];
-      if (hp==nullptr) {
+      if (hp == nullptr) {
         edm::LogWarning("CAHitQuadrupletGeneratorGPU") << "hit not found????  " << k << std::endl;
-        bad=true;
+        bad = true;
         break;
       }
       phits[i] = static_cast<BaseTrackerRecHit const *>(hp);
     }
-    if (bad) { nbad++; quality_[quadId] = pixelTuplesHeterogeneousProduct::bad; continue;}
-    if (quality_[quadId] != pixelTuplesHeterogeneousProduct::loose) continue; // FIXME remove dup
-    
-    result[index].emplace_back(phits[0],  phits[1],  phits[2],  phits[3]);
-    indToEdm[quadId] = result[index].size()-1;
-  } // end loop over quads
+    if (bad) {
+      nbad++;
+      quality_[quadId] = pixelTuplesHeterogeneousProduct::bad;
+      continue;
+    }
+    if (quality_[quadId] != pixelTuplesHeterogeneousProduct::loose)
+      continue;  // FIXME remove dup
+
+    result[index].emplace_back(phits[0], phits[1], phits[2], phits[3]);
+    indToEdm[quadId] = result[index].size() - 1;
+  }  // end loop over quads
 
 #ifdef GPU_DEBUG
-  std::cout << "Q Final quads " << result[index].size() << ' ' << nbad << std::endl; 
+  std::cout << "Q Final quads " << result[index].size() << ' ' << nbad << std::endl;
 #endif
-
 }
 
-
-void CAHitQuadrupletGeneratorGPU::deallocateOnGPU()
-{
-   //product
+void CAHitQuadrupletGeneratorGPU::deallocateOnGPU() {
+  //product
   cudaFree(gpu_.tuples_d);
   cudaFree(gpu_.helix_fit_results_d);
   cudaFree(gpu_.quality_d);
@@ -151,41 +153,36 @@ void CAHitQuadrupletGeneratorGPU::deallocateOnGPU()
   cudaFreeHost(quality_);
 }
 
-void CAHitQuadrupletGeneratorGPU::allocateOnGPU()
-{
+void CAHitQuadrupletGeneratorGPU::allocateOnGPU() {
   constexpr auto maxNumberOfQuadruplets_ = CAConstants::maxNumberOfQuadruplets();
 
   // allocate and initialise the GPU memory
   cudaCheck(cudaMalloc(&gpu_.tuples_d, sizeof(TuplesOnGPU::Container)));
   cudaCheck(cudaMemset(gpu_.tuples_d, 0x00, sizeof(TuplesOnGPU::Container)));
   cudaCheck(cudaMalloc(&gpu_.apc_d, sizeof(AtomicPairCounter)));
-  cudaCheck(cudaMemset(gpu_.apc_d, 0x00, sizeof(AtomicPairCounter)));  
-  cudaCheck(cudaMalloc(&gpu_.helix_fit_results_d, sizeof(Rfit::helix_fit)*maxNumberOfQuadruplets_));
-  cudaCheck(cudaMemset(gpu_.helix_fit_results_d, 0x00, sizeof(Rfit::helix_fit)*maxNumberOfQuadruplets_));
-  cudaCheck(cudaMalloc(&gpu_.quality_d, sizeof(Quality)*maxNumberOfQuadruplets_));
-  cudaCheck(cudaMemset(gpu_.quality_d, 0x00, sizeof(Quality)*maxNumberOfQuadruplets_));
+  cudaCheck(cudaMemset(gpu_.apc_d, 0x00, sizeof(AtomicPairCounter)));
+  cudaCheck(cudaMalloc(&gpu_.helix_fit_results_d, sizeof(Rfit::helix_fit) * maxNumberOfQuadruplets_));
+  cudaCheck(cudaMemset(gpu_.helix_fit_results_d, 0x00, sizeof(Rfit::helix_fit) * maxNumberOfQuadruplets_));
+  cudaCheck(cudaMalloc(&gpu_.quality_d, sizeof(Quality) * maxNumberOfQuadruplets_));
+  cudaCheck(cudaMemset(gpu_.quality_d, 0x00, sizeof(Quality) * maxNumberOfQuadruplets_));
 
   cudaCheck(cudaMalloc(&gpu_d, sizeof(TuplesOnGPU)));
   gpu_.me_d = gpu_d;
   cudaCheck(cudaMemcpy(gpu_d, &gpu_, sizeof(TuplesOnGPU), cudaMemcpyDefault));
 
   cudaCheck(cudaMallocHost(&tuples_, sizeof(TuplesOnGPU::Container)));
-  cudaCheck(cudaMallocHost(&helix_fit_results_, sizeof(Rfit::helix_fit)*maxNumberOfQuadruplets_));
-  cudaCheck(cudaMallocHost(&quality_, sizeof(Quality)*maxNumberOfQuadruplets_));
+  cudaCheck(cudaMallocHost(&helix_fit_results_, sizeof(Rfit::helix_fit) * maxNumberOfQuadruplets_));
+  cudaCheck(cudaMallocHost(&quality_, sizeof(Quality) * maxNumberOfQuadruplets_));
 
   kernels.allocateOnGPU();
   fitter.allocateOnGPU(gpu_.tuples_d, kernels.tupleMultiplicity(), gpu_.helix_fit_results_d);
-
-
 }
 
-void CAHitQuadrupletGeneratorGPU::launchKernels(HitsOnCPU const & hh,
+void CAHitQuadrupletGeneratorGPU::launchKernels(HitsOnCPU const &hh,
                                                 bool useRiemannFit,
                                                 bool transferToCPU,
-                                                cuda::stream_t<> &cudaStream)
-{
-
-  kernels.launchKernels(hh, gpu_, cudaStream.id()); 
+                                                cuda::stream_t<> &cudaStream) {
+  kernels.launchKernels(hh, gpu_, cudaStream.id());
   if (useRiemannFit) {
     fitter.launchRiemannKernels(hh, hh.nHits(), CAConstants::maxNumberOfQuadruplets(), cudaStream);
   } else {
@@ -194,63 +191,72 @@ void CAHitQuadrupletGeneratorGPU::launchKernels(HitsOnCPU const & hh,
   kernels.classifyTuples(hh, gpu_, cudaStream.id());
 
   if (transferToCPU) {
-    cudaCheck(cudaMemcpyAsync(tuples_,gpu_.tuples_d,
-                              sizeof(TuplesOnGPU::Container),
-                              cudaMemcpyDeviceToHost, cudaStream.id()));
+    cudaCheck(cudaMemcpyAsync(
+        tuples_, gpu_.tuples_d, sizeof(TuplesOnGPU::Container), cudaMemcpyDeviceToHost, cudaStream.id()));
 
-    cudaCheck(cudaMemcpyAsync(helix_fit_results_,gpu_.helix_fit_results_d, 
-                              sizeof(Rfit::helix_fit)*CAConstants::maxNumberOfQuadruplets(),
-                              cudaMemcpyDeviceToHost, cudaStream.id()));
+    cudaCheck(cudaMemcpyAsync(helix_fit_results_,
+                              gpu_.helix_fit_results_d,
+                              sizeof(Rfit::helix_fit) * CAConstants::maxNumberOfQuadruplets(),
+                              cudaMemcpyDeviceToHost,
+                              cudaStream.id()));
 
-    cudaCheck(cudaMemcpyAsync(quality_,gpu_.quality_d,
-                              sizeof(Quality)*CAConstants::maxNumberOfQuadruplets(),
-                              cudaMemcpyDeviceToHost, cudaStream.id()));
-
+    cudaCheck(cudaMemcpyAsync(quality_,
+                              gpu_.quality_d,
+                              sizeof(Quality) * CAConstants::maxNumberOfQuadruplets(),
+                              cudaMemcpyDeviceToHost,
+                              cudaStream.id()));
   }
-
 }
 
-void CAHitQuadrupletGeneratorGPU::cleanup(cudaStream_t cudaStream) {
-  kernels.cleanup(cudaStream);
-}
+void CAHitQuadrupletGeneratorGPU::cleanup(cudaStream_t cudaStream) { kernels.cleanup(cudaStream); }
 
-
-
-std::vector<std::array<int, 4>>
-CAHitQuadrupletGeneratorGPU::fetchKernelResult(int)
-{
+std::vector<std::array<int, 4>> CAHitQuadrupletGeneratorGPU::fetchKernelResult(int) {
   assert(tuples_);
-  auto const & tuples = *tuples_;
+  auto const &tuples = *tuples_;
 
-  uint32_t sizes[7]={0};
+  uint32_t sizes[7] = {0};
   std::vector<int> ntk(10000);
-  auto add = [&](uint32_t hi) { if (hi>=ntk.size()) ntk.resize(hi+1); ++ntk[hi];};
+  auto add = [&](uint32_t hi) {
+    if (hi >= ntk.size())
+      ntk.resize(hi + 1);
+    ++ntk[hi];
+  };
 
-  std::vector<std::array<int, 4>> quadsInterface; quadsInterface.reserve(10000);
+  std::vector<std::array<int, 4>> quadsInterface;
+  quadsInterface.reserve(10000);
 
-  nTuples_=0;
+  nTuples_ = 0;
   for (auto i = 0U; i < tuples.nbins(); ++i) {
     auto sz = tuples.size(i);
-    if (sz==0) break;  // we know cannot be less then 3
+    if (sz == 0)
+      break;  // we know cannot be less then 3
     ++nTuples_;
     ++sizes[sz];
-    for (auto j=tuples.begin(i); j!=tuples.end(i); ++j) add(*j);
+    for (auto j = tuples.begin(i); j != tuples.end(i); ++j)
+      add(*j);
     quadsInterface.emplace_back(std::array<int, 4>());
     quadsInterface.back()[0] = tuples.begin(i)[0];
     quadsInterface.back()[1] = tuples.begin(i)[1];
-    quadsInterface.back()[2] = tuples.begin(i)[2];   // [sz-2];
-    quadsInterface.back()[3] = sz>3 ? tuples.begin(i)[3] : -1;   // [sz-1];
+    quadsInterface.back()[2] = tuples.begin(i)[2];                // [sz-2];
+    quadsInterface.back()[3] = sz > 3 ? tuples.begin(i)[3] : -1;  // [sz-1];
   }
 
 #ifdef GPU_DEBUG
-  long long ave =0; int nn=0; for (auto k : ntk) if(k>0){ave+=k; ++nn;}
+  long long ave = 0;
+  int nn = 0;
+  for (auto k : ntk)
+    if (k > 0) {
+      ave += k;
+      ++nn;
+    }
   std::cout << "Q Produced " << quadsInterface.size() << " quadruplets: ";
-  for (auto i=3; i<7; ++i) std::cout << sizes[i] << ' ';
-  std::cout << "max/ave " << *std::max_element(ntk.begin(),ntk.end())<<'/'<<float(ave)/float(nn) << std::endl;
+  for (auto i = 3; i < 7; ++i)
+    std::cout << sizes[i] << ' ';
+  std::cout << "max/ave " << *std::max_element(ntk.begin(), ntk.end()) << '/' << float(ave) / float(nn) << std::endl;
 #endif
   return quadsInterface;
 }
 
-void CAHitQuadrupletGeneratorGPU::buildDoublets(HitsOnCPU const & hh, cuda::stream_t<>& stream) {
-   kernels.buildDoublets(hh,stream);
+void CAHitQuadrupletGeneratorGPU::buildDoublets(HitsOnCPU const &hh, cuda::stream_t<> &stream) {
+  kernels.buildDoublets(hh, stream);
 }
