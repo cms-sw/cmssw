@@ -12,16 +12,17 @@
 #include <DataFormats/TrackReco/interface/TrackFwd.h>
 #include <DataFormats/METReco/interface/CaloMETFwd.h>
 
-namespace edm { class Event; class EventSetup; }
+namespace edm {
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
-class AlignmentTwoBodyDecayTrackSelector
-{
- public:
-
-  typedef std::vector<const reco::Track*> Tracks; 
+class AlignmentTwoBodyDecayTrackSelector {
+public:
+  typedef std::vector<const reco::Track*> Tracks;
 
   /// constructor
-  AlignmentTwoBodyDecayTrackSelector(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
+  AlignmentTwoBodyDecayTrackSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   /// destructor
   ~AlignmentTwoBodyDecayTrackSelector();
@@ -30,17 +31,18 @@ class AlignmentTwoBodyDecayTrackSelector
   Tracks select(const Tracks& tracks, const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   bool useThisFilter();
- private:
+
+private:
   ///checks if the mass of the mother is in the mass region
-  Tracks checkMass(const Tracks& cands)const;
+  Tracks checkMass(const Tracks& cands) const;
   ///checks if the mass of the mother is in the mass region adding missing E_T
-  Tracks checkMETMass(const Tracks& cands,const edm::Event& iEvent)const;
+  Tracks checkMETMass(const Tracks& cands, const edm::Event& iEvent) const;
   ///checks if the mother has charge = [theCharge]
-  bool checkCharge(const reco::Track* trk1,const reco::Track* trk2 = nullptr)const;
+  bool checkCharge(const reco::Track* trk1, const reco::Track* trk2 = nullptr) const;
   ///checks if the [cands] are acoplanar (returns empty set if not)
-  bool checkAcoplanarity(const reco::Track* trk1,const reco::Track* trk2)const;
+  bool checkAcoplanarity(const reco::Track* trk1, const reco::Track* trk2) const;
   ///checks if [cands] contains a acoplanar track w.r.t missing ET (returns empty set if not)
-  bool checkMETAcoplanarity(const reco::Track* trk,const reco::CaloMET* met)const; 
+  bool checkMETAcoplanarity(const reco::Track* trk, const reco::CaloMET* met) const;
 
   /// private data members
 
@@ -55,8 +57,8 @@ class AlignmentTwoBodyDecayTrackSelector
   double theDaughterMass;
   unsigned int theCandNumber;
   bool secThrBool;
-  double thesecThr ;
-   //charge filter
+  double thesecThr;
+  //charge filter
   int theCharge;
   bool theUnsignedSwitch;
   //missing ET Filter
@@ -69,4 +71,3 @@ class AlignmentTwoBodyDecayTrackSelector
 };
 
 #endif
-

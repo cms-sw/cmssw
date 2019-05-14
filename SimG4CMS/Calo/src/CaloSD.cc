@@ -20,7 +20,6 @@
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 
-#include <iostream>
 #include <fstream>
 
 //#define EDM_ML_DEBUG
@@ -103,7 +102,7 @@ CaloSD::CaloSD(const std::string& name,
                               << "        Time Slice Unit " << timeSlice << " Ignore TrackID Flag " << ignoreTrackID;
 }
 
-CaloSD::~CaloSD() { delete theHC; }
+CaloSD::~CaloSD() { }
 
 G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   NaNTrap(aStep);
@@ -260,6 +259,7 @@ void CaloSD::Initialize(G4HCofThisEvent* HCE) {
   if (hcID < 0) {
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   }
+  //theHC ownership is transfered here to HCE
   HCE->AddHitsCollection(hcID, theHC);
 }
 
@@ -360,10 +360,10 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep) {
 
   CaloG4Hit* aHit;
   if (!reusehit.empty()) {
-    aHit = reusehit[0];
+    aHit = reusehit.back().release();
     aHit->setEM(0.f);
     aHit->setHadr(0.f);
-    reusehit.erase(reusehit.begin());
+    reusehit.pop_back();
   } else {
     aHit = new CaloG4Hit;
   }
@@ -544,15 +544,12 @@ void CaloSD::update(const ::EndOfEvent*) {
                               << " E0mean= " << ee << " Zglob= " << zglob << " Zloc= " << zloc << " ";
 
   tkMap.erase(tkMap.begin(), tkMap.end());
+  std::vector<std::unique_ptr<CaloG4Hit>>().swap(reusehit);
+  if (useMap) hitMap.erase (hitMap.begin(), hitMap.end());
 }
 
 void CaloSD::clearHits() {
-  if (useMap)
-    hitMap.erase(hitMap.begin(), hitMap.end());
-  for (unsigned int i = 0; i < reusehit.size(); ++i)
-    delete reusehit[i];
-  std::vector<CaloG4Hit*>().swap(reusehit);
-  cleanIndex = 0;
+  cleanIndex  = 0;
   previousID.reset();
   primIDSaved = -99;
 #ifdef EDM_ML_DEBUG
@@ -560,6 +557,12 @@ void CaloSD::clearHits() {
                               << " and initialise slave: " << slave.get()->name();
 #endif
   slave.get()->Initialize();
+}
+
+void CaloSD::reset() {
+  if(fpCaloG4HitAllocator) {
+    fpCaloG4HitAllocator->ResetStorage();
+  }
 }
 
 void CaloSD::initRun() {}
@@ -699,13 +702,13 @@ void CaloSD::cleanHitCollection() {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloSD: collection before merging, size = " << theHC->entries();
 #endif
-
-  selIndex.reserve(theHC->entries() - cleanIndex);
-  if (reusehit.empty())
-    reusehit.reserve(theHC->entries() - cleanIndex);
+  if (reusehit.empty()) 
+    reusehit.reserve(theHC->entries() - cleanIndex); 
 
   // if no map used, merge before hits to have the save situation as a map
-  if (!useMap) {
+  if ( !useMap ) {
+    std::vector<CaloG4Hit*> hitvec;
+
     hitvec.swap(*theCollection);
     sort((hitvec.begin() + cleanIndex), hitvec.end(), CaloG4HitLess());
 #ifdef EDM_ML_DEBUG
@@ -714,18 +717,17 @@ void CaloSD::cleanHitCollection() {
     for (unsigned int i = 0; i < hitvec.size(); ++i)
       edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
 #endif
-    unsigned int i, j;
     CaloG4HitEqual equal;
-    for (i = cleanIndex; i < hitvec.size(); ++i) {
-      selIndex.push_back(i - cleanIndex);
+    for (unsigned int i= cleanIndex; i < hitvec.size(); ++i) {
       int jump = 0;
-      for (j = i + 1; j < hitvec.size() && equal(hitvec[i], hitvec[j]); ++j) {
+      for (unsigned int j = i + 1; j < hitvec.size() && equal(hitvec[i], hitvec[j]); ++j) {
         ++jump;
         // merge j to i
         (*hitvec[i]).addEnergyDeposit(*hitvec[j]);
         (*hitvec[j]).setEM(0.);
         (*hitvec[j]).setHadr(0.);
-        reusehit.push_back(hitvec[j]);
+        reusehit.emplace_back(hitvec[j]);
+        hitvec[j] = nullptr;
       }
       i += jump;
     }
@@ -734,19 +736,17 @@ void CaloSD::cleanHitCollection() {
     for (unsigned int i = 0; i < hitvec.size(); ++i)
       edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
 #endif
-    for (unsigned int i = cleanIndex; i < cleanIndex + selIndex.size(); ++i) {
-      hitvec[i] = hitvec[selIndex[i - cleanIndex] + cleanIndex];
-    }
-    hitvec.resize(cleanIndex + selIndex.size());
+    //move all nullptr to end of list and then remove them
+    hitvec.erase(std::stable_partition(hitvec.begin()+cleanIndex, 
+                                       hitvec.end(), [](CaloG4Hit* p) { return p!= nullptr;}),
+                 hitvec.end());
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("CaloSim") << "CaloSD::cleanHitCollection: remove the merged hits in buffer,"
                                 << " new size = " << hitvec.size();
-    for (unsigned int i = 0; i < hitvec.size(); ++i)
+    for (unsigned int i = 0; i < hitvec.size(); ++i) 
       edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
 #endif
     hitvec.swap(*theCollection);
-    std::vector<CaloG4Hit*>().swap(hitvec);
-    selIndex.clear();
     totalHits = theHC->entries();
   }
 
@@ -757,8 +757,7 @@ void CaloSD::cleanHitCollection() {
 #endif
 
   int addhit = 0;
-  selIndex.reserve(theCollection->size() - cleanIndex);
-  for (unsigned int i = cleanIndex; i < theCollection->size(); ++i) {
+  for (unsigned int i = cleanIndex; i < theCollection->size(); ++i) {   
     CaloG4Hit* aHit((*theCollection)[i]);
 
     // selection
@@ -773,11 +772,10 @@ void CaloSD::cleanHitCollection() {
 #endif
 
       // create the list of hits to be reused
-
-      reusehit.push_back((*theCollection)[i]);
+      
+      reusehit.emplace_back((*theCollection)[i]);
+      (*theCollection)[i] = nullptr;
       ++addhit;
-    } else {
-      selIndex.push_back(i - cleanIndex);
     }
   }
 
@@ -794,13 +792,11 @@ void CaloSD::cleanHitCollection() {
       }
     }
   }
-  for (unsigned int j = 0; j < selIndex.size(); ++j) {
-    (*theCollection)[cleanIndex + j] = (*theCollection)[cleanIndex + selIndex[j]];
-  }
 
-  theCollection->resize(cleanIndex + selIndex.size());
-  std::vector<unsigned int>().swap(selIndex);
-
+  //move all nullptr to end of list and then remove them
+  theCollection->erase(std::stable_partition(theCollection->begin()+cleanIndex,
+                                             theCollection->end(), [](CaloG4Hit* p) { return p!= nullptr;}),
+                       theCollection->end());
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloSD: hit collection after selection, size = " << theHC->entries();
   theHC->PrintAllHits();

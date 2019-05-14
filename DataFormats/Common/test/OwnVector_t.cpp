@@ -5,7 +5,7 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
-
+namespace ownvector_test {
 struct Base
 {
   virtual ~Base();
@@ -26,6 +26,10 @@ struct Derived : Base
   edm::propagate_const<int*> pointer;
 };
 
+void Derived::swap(Derived& other)
+{
+  std::swap(pointer, other.pointer);
+}
 Derived::Derived(int n) : pointer(new int(n)) { }
 
 Derived::Derived(Derived const& other) : pointer(new int(*other.pointer)) { }
@@ -35,16 +39,6 @@ Derived& Derived::operator=(Derived const& other)
   Derived temp(other);
   swap(temp);
   return *this;
-}
-
-void Derived::swap(Derived& other)
-{
-  std::swap(pointer, other.pointer);
-}
-
-void swap(Derived& a, Derived& b)
-{
-  a.swap(b);
 }
 
 Derived::~Derived()
@@ -60,6 +54,19 @@ Derived::clone() const
 
 
 
+void swap(Derived& a, Derived& b)
+{
+  a.swap(b);
+}
+
+}
+
+using namespace ownvector_test;
+
+namespace {
+
+
+/*
 void same_guy_twice()
 {
   edm::OwnVector<Base> vec;
@@ -76,7 +83,7 @@ void two_different_owners()
   v1.push_back(p);
   v2.push_back(p);
 }
-
+  */
 // void guy_on_stack()
 // {
 //   edm::OwnVector<Base> v;
@@ -106,12 +113,18 @@ void assign_to_other()
   v2 = v1;
 }
 
+
+void do_assign(edm::OwnVector<Base>&iLHS, edm::OwnVector<Base>& iRHS) {
+  iLHS = iRHS;
+}
+
 void assign_to_self()
 {
   // Self-assignment happens, often by accident...
   edm::OwnVector<Base> v1;
   v1.push_back(new Derived(100));
-  v1 = v1;
+  auto& v2 = v1;
+  do_assign(v1,v2);
 }
 
 void pop_one()
@@ -200,7 +213,7 @@ void insert_with_iter()
   assert(&v1[2] == backup[2]);
 }
 
-
+}
 
 
 

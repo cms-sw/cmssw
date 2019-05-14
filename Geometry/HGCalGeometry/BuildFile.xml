@@ -1,6 +1,7 @@
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/ForwardDetId"/>
 <use   name="DataFormats/Common"/>
+<use   name="CommonTools/UtilAlgos"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>

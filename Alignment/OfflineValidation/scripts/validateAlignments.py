@@ -40,7 +40,8 @@ from Alignment.OfflineValidation.TkAlAllInOneTool.plottingOptions \
     import PlottingOptions
 import Alignment.OfflineValidation.TkAlAllInOneTool.globalDictionaries \
     as globalDictionaries
-
+from Alignment.OfflineValidation.TkAlAllInOneTool.overlapValidation \
+    import OverlapValidation 
 
 ####################--- Classes ---############################
 class ParallelMergeJob(object):
@@ -178,6 +179,9 @@ class ValidationJob(object):
                 Alignment( alignments.strip(), self.__config ), self.__config )
         elif valType == "preexistingprimaryvertex":
             validation = PreexistingPrimaryVertexValidation(name, self.__config)
+        elif valType == "overlap":
+            validation = OverlapValidation( name,
+                Alignment( alignments.strip(), self.__config ), self.__config )
         else:
             raise AllInOneError("Unknown validation mode '%s'"%valType)
 

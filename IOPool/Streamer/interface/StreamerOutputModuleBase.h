@@ -21,7 +21,7 @@ namespace edm {
   public:
     explicit StreamerOutputModuleBase(ParameterSet const& ps);
     ~StreamerOutputModuleBase() override;
-    static void fillDescription(ParameterSetDescription & desc);
+    static void fillDescription(ParameterSetDescription& desc);
 
   private:
     void beginRun(RunForOutput const&) override;
@@ -42,8 +42,8 @@ namespace edm {
   private:
     edm::EDGetTokenT<edm::TriggerResults> trToken_;
 
-  }; //end-of-class-def
+  };  //end-of-class-def
 
-} // end of namespace-edm
+}  // namespace edm
 
 #endif

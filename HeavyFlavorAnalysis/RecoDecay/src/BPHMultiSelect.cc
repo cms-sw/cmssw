@@ -41,20 +41,16 @@
 //--------------
 // Operations --
 //--------------
-template<>
 bool BPHMultiSelect<BPHRecoSelect    >::accept(
                                         const reco::Candidate & cand,
                                         const BPHRecoBuilder* build ) const {
   return select( cand, build );
 }
 
-
-template<>
 bool BPHMultiSelect<BPHRecoSelect    >::accept(
                                         const reco::Candidate & cand ) const {
   return select( cand );
 }
-
 
 template<>
 bool BPHMultiSelect<BPHMomentumSelect>::accept(

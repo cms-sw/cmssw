@@ -6,10 +6,9 @@
  *
  */
 
-class PixelSubdetector { 
- public:
-  enum SubDetector {PixelBarrel=1,PixelEndcap=2};
-
+class PixelSubdetector {
+public:
+  enum SubDetector { PixelBarrel = 1, PixelEndcap = 2 };
 };
 
 #endif

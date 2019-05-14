@@ -205,7 +205,7 @@ void SiPixelClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& de
     
     //LogDebug ("SiPixelClusterProducer") << " Executing " 
     //      << clusterMode_ << " resulted in " << numberOfClusters
-    //				    << " SiPixelClusters in " << numberOfDetUnits << " DetUnits."; 
+    //      << " SiPixelClusters in " << numberOfDetUnits << " DetUnits."; 
   }
 
 

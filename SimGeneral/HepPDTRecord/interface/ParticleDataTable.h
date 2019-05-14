@@ -8,6 +8,6 @@
 typedef HepPDT::ParticleDataTable ParticleDataTable;
 typedef HepPDT::ParticleData ParticleData;
 
-EVENTSETUP_DATA_DEFAULT_RECORD( HepPDT::ParticleDataTable, PDTRecord )
+EVENTSETUP_DATA_DEFAULT_RECORD(HepPDT::ParticleDataTable, PDTRecord)
 
 #endif

@@ -1,5 +1,5 @@
 /** \class HcalCoderDB
-    
+
     coder which uses DB services to convert to fC
     $Author: ratnikov
 */

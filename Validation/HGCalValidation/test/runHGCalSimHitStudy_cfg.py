@@ -1,85 +1,36 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
-#process = cms.Process('PROD',eras.Phase2C4)
+#from Configuration.Eras.Era_Phase2C4_cff import Phase2C4
+#process = cms.Process('PROD',Phase2C4)
 #process.load('Configuration.Geometry.GeometryExtended2023D28_cff')
 
-process = cms.Process('PROD',eras.Phase2C4_timing_layer_bar)
+from Configuration.Eras.Era_Phase2C4_timing_layer_bar_cff import Phase2C4_timing_layer_bar
+process = cms.Process('PROD',Phase2C4_timing_layer_bar)
 process.load('Configuration.Geometry.GeometryExtended2023D41_cff')
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
-process.load('Configuration.StandardSequences.Generator_cff')
-process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Validation.HGCalValidation.hgcSimHitStudy_cfi')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
-#if hasattr(process,'MessageLogger'):
-#    process.MessageLogger.categories.append('HGCalGeom')
-#    process.MessageLogger.categories.append('HGCSim')
-#    process.MessageLogger.categories.append('HGCalValidation')
-
-process.load("IOMC.RandomEngine.IOMC_cff")
-process.RandomNumberGeneratorService.generator.initialSeed = 456789
-process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
-
-process.Timing = cms.Service("Timing")
+process.source = cms.Source("PoolSource",
+                            fileNames = cms.untracked.vstring(
+        'file:step1_29034.root',
+#       'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_1_1_patch1/RelValSingleElectronPt35Extended/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/10D95AC2-B14A-E711-BC4A-0CC47A7C3638.root',
+        )
+                            )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
-)
-
-process.source = cms.Source("EmptySource",
-    firstRun        = cms.untracked.uint32(1),
-    firstEvent      = cms.untracked.uint32(1)
-)
-
-process.generator = cms.EDProducer("FlatRandomEGunProducer",
-    PGunParameters = cms.PSet(
-        PartID = cms.vint32(13),
-        MinEta = cms.double(1.25),
-        MaxEta = cms.double(3.00),
-        MinPhi = cms.double(-3.1415926),
-        MaxPhi = cms.double(3.1415926),
-        MinE   = cms.double(100.00),
-        MaxE   = cms.double(100.00)
-    ),
-    Verbosity       = cms.untracked.int32(0),
-    AddAntiParticle = cms.bool(True)
-)
-
-process.output = cms.OutputModule("PoolOutputModule",
-    process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('simevent.root')
+    input = cms.untracked.int32(-1)
 )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hgcSimHit.root'),
+                                   fileName = cms.string('hgcSimHitD41tt.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
-process.generation_step = cms.Path(process.pgen)
-process.simulation_step = cms.Path(process.psim)
-process.analysis_step   = cms.Path(process.hgcalSimHitStudy)
-process.out_step = cms.EndPath(process.output)
-
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
-process.g4SimHits.Physics.DefaultCutValue   = 0.1
-process.hgcalSimHitStudy.verbosity = 0
-process.hgcalSimHitStudy.nBinZ = 3000
-
-# Schedule definition
-process.schedule = cms.Schedule(process.generation_step,
-                                process.simulation_step,
-                                process.analysis_step,
-                                )
-
-# filter all path with the production filter sequence
-for path in process.paths:
-        getattr(process,path)._seq = process.generator * getattr(process,path)._seq
+process.p = cms.Path(process.hgcalSimHitStudy)

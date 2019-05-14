@@ -4,7 +4,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 
 /** \class HcalCoderDb
-    
+
     coder which uses DB services to convert to fC
     $Author: ratnikov
 */

@@ -13,7 +13,6 @@
 //
 //
 
-
 // system include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -30,11 +29,11 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
-//DQM services for histogram
+// DQM services for histogram
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 class TFile;
 class MonitorElement;
@@ -44,34 +43,32 @@ class MonitorElement;
 //
 
 class GlobalTest : public DQMEDAnalyzer {
- public:
-  explicit GlobalTest(const edm::ParameterSet&);
+public:
+  explicit GlobalTest(const edm::ParameterSet &);
   ~GlobalTest() override;
 
-  void bookHistograms(DQMStore::IBooker &,
-      edm::Run const &, edm::EventSetup const &) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
- private:
+private:
   std::string filename_;
   int minbunch_;
   int maxbunch_;
   TFile *histfile_;
 
-  const static int nMaxH=10;
-  MonitorElement * nrPileupsH_[nMaxH];
-  MonitorElement * nrVerticesH_[nMaxH];
-  MonitorElement * nrTracksH_[nMaxH];
-  MonitorElement * trackPartIdH_[nMaxH];
-  MonitorElement * caloEnergyEBH_[nMaxH];
-  MonitorElement * caloEnergyEEH_[nMaxH];
+  const static int nMaxH = 10;
+  MonitorElement *nrPileupsH_[nMaxH];
+  MonitorElement *nrVerticesH_[nMaxH];
+  MonitorElement *nrTracksH_[nMaxH];
+  MonitorElement *trackPartIdH_[nMaxH];
+  MonitorElement *caloEnergyEBH_[nMaxH];
+  MonitorElement *caloEnergyEEH_[nMaxH];
 
-  const static int nrHistos=6;
-  char * labels[nrHistos];
+  const static int nrHistos = 6;
+  char *labels[nrHistos];
 
-  edm::EDGetTokenT<CrossingFrame<SimTrack> > cfTrackToken_;
-  edm::EDGetTokenT<CrossingFrame<SimTrack> > cfVertexToken_;
-  edm::EDGetTokenT<CrossingFrame<PCaloHit> > g4SimHits_EB_Token_;
-  edm::EDGetTokenT<CrossingFrame<PCaloHit> > g4SimHits_EE_Token_;
+  edm::EDGetTokenT<CrossingFrame<SimTrack>> cfTrackToken_;
+  edm::EDGetTokenT<CrossingFrame<SimTrack>> cfVertexToken_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> g4SimHits_EB_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> g4SimHits_EE_Token_;
 };
-

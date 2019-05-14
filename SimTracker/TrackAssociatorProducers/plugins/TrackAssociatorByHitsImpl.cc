@@ -224,7 +224,7 @@ TrackAssociatorByHitsImpl::associateSimToReco(const edm::RefToBaseVector<reco::T
 	//  unsigned int detid = TPhit->detUnitId();
 	//  DetId detId = DetId(TPhit->detUnitId());
 	//  LogTrace("TrackAssociator") <<  " hit trackId= " << TPhit->trackId() << " det ID = " << detid 
-	//				      << " SUBDET = " << detId.subdetId() << " layer = " << LayerFromDetid(detId); 
+	//                              << " SUBDET = " << detId.subdetId() << " layer = " << LayerFromDetid(detId); 
 	//}
 
 	if (nshared!=0) {//do not waste time recounting when it is not needed!!!!
@@ -504,10 +504,10 @@ int TrackAssociatorByHitsImpl::getShared(std::vector<SimHitIdpr>& matchedIds,
       
       for (TrackingParticle::g4t_iterator g4T = t . g4Track_begin(); g4T !=  t . g4Track_end(); ++g4T) {
 //	LogTrace("TrackAssociator") << " TP   (ID, Ev, BC) = " << (*g4T).trackId() 
-//				    << ", " << t.eventId().event() << ", "<< t.eventId().bunchCrossing()
-//				    << " Match(ID, Ev, BC) = " <<  matchedIds[j].first
-//				    << ", " << matchedIds[j].second.event() << ", "
-//				    << matchedIds[j].second.bunchCrossing() ;
+//                                  << ", " << t.eventId().event() << ", "<< t.eventId().bunchCrossing()
+//                                  << " Match(ID, Ev, BC) = " <<  matchedIds[j].first
+//                                  << ", " << matchedIds[j].second.event() << ", "
+//                                  << matchedIds[j].second.bunchCrossing() ;
 	                            //<< "\t G4  Track Momentum " << (*g4T).momentum() 
 	                            //<< " \t reco Track Momentum " << track->momentum();  	      
 	if((*g4T).trackId() == matchedIds[j].first && t.eventId() == matchedIds[j].second){

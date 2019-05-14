@@ -103,9 +103,9 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
   // create new collection of corrected super clusters
   auto superclusters_p = std::make_unique<reco::SuperClusterCollection>();
   
-  CaloSubdetectorTopology * topology_p=nullptr;
+  std::unique_ptr<CaloSubdetectorTopology> topology_p;
   if (geometry_p)
-    topology_p  = new EcalPreshowerTopology(geoHandle);
+    topology_p  = std::make_unique<EcalPreshowerTopology>();
   
   // fetch the product (pSuperClusters)
   evt.getByToken(endcapSClusterToken_, pSuperClusters);   
@@ -181,13 +181,13 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
 	
 	// Get a vector of ES clusters (found by the PreshSeeded algorithm) associated with a given EE basic cluster.           
 	for (int i=0; i<preshNclust_; i++) {
-	  reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&rechits_map,geometry_p,topology_p);   
+	  reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&rechits_map,geometry_p,topology_p.get());
 	  cl1.setBCRef(*bc_iter);
 	  if (cl1.energy() > preshClustECut) {
 	    clusters1.push_back(cl1);
 	    e1 += cl1.energy();       
 	  }
-	  reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&rechits_map,geometry_p,topology_p); 
+	  reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&rechits_map,geometry_p,topology_p.get());
 	  cl2.setBCRef(*bc_iter);
 	  
 	  if ( cl2.energy() > preshClustECut) {
@@ -254,9 +254,6 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
   superclusters_p->assign(new_SC.begin(), new_SC.end());
   evt.put(std::move(superclusters_p), assocSClusterCollection_);
   LogTrace("EcalClusters") << "Corrected SClusters added to the event" ;
-  
-  if (topology_p)
-    delete topology_p;
   
   nEvt_++;
   

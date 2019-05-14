@@ -57,10 +57,11 @@ rawDataCollector = EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi.rawD
     )
 
 
-SimL1Emulator = cms.Sequence()
-stage2L1Trigger.toReplaceWith(SimL1Emulator, cms.Sequence(unpackGtStage2
-                                                          +unpackTcds
-                                                          +SimL1TechnicalTriggers
-                                                          +SimL1TGlobal
-                                                          +packGtStage2
-                                                          +rawDataCollector))
+SimL1EmulatorTask = cms.Task()
+stage2L1Trigger.toReplaceWith(SimL1EmulatorTask, cms.Task(unpackGtStage2
+                                                          ,unpackTcds
+                                                          ,SimL1TechnicalTriggersTask
+                                                          ,SimL1TGlobalTask
+                                                          ,packGtStage2
+                                                          ,rawDataCollector))
+SimL1Emulator = cms.Sequence(SimL1EmulatorTask)

@@ -90,6 +90,12 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   filterSyncNoise = ps.getUntrackedParameter<bool>("filterSyncNoise", false);
   // look for synch noisy events, produce histograms but do not filter them
   lookForSyncNoise = ps.getUntrackedParameter<bool>("lookForSyncNoise", false);
+
+  // switch on the mode for running on slice test (different top folder and other customizations)
+  sliceTestMode = ps.getUntrackedParameter<bool>("sliceTestMode", false);
+  // time pedestal to be subtracted if sliceTestMode is true
+  tdcPedestal = ps.getUntrackedParameter<int>("tdcPedestal", 105100);
+
   // switch on production of time-boxes with layer granularity
   doLayerTimeBoxes = ps.getUntrackedParameter<bool>("doLayerTimeBoxes", false);
 
@@ -613,7 +619,12 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
         tdcTime += int(round(t0));
       }
 
-
+      if (sliceTestMode)
+	{
+	  tdcTime -= tdcPedestal;
+	  tdcTime = std::max(1,std::min(maxTTMounts-1,tdcTime));
+	  // std::cout << tdcTime << std::endl;
+	}
 
       // Fill Time-Boxes
       // NOTE: avoid to fill TB and PhotoPeak with noise. Occupancy are filled anyway
@@ -732,6 +743,7 @@ string DTDigiTask::triggerSource() {
 string DTDigiTask::topFolder() const {
 
   if(tpMode) return string("DT/10-TestPulses/");
+  else if(sliceTestMode) return string("DT/01-SliceTestDigi/");
   return string("DT/01-Digi/");
 
 }

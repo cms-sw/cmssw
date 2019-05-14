@@ -47,10 +47,6 @@ HectorTransport::HectorTransport(const edm::ParameterSet & param, bool verbosity
          <<"             Bulding LHC Proton transporter based on HECTOR model\n"
          <<"=============================================================================\n";
     setBeamLine();
-    PPSTools::fBeamMomentum=fBeamMomentum;
-    PPSTools::fBeamEnergy=fBeamEnergy;
-    PPSTools::fCrossingAngleBeam1=fCrossingAngle_56;
-    PPSTools::fCrossingAngleBeam2=fCrossingAngle_45;
     fPPSRegionStart_56=m_b_ctpps_b;
     fPPSRegionStart_45=m_f_ctpps_f;
 }
@@ -69,7 +65,6 @@ void HectorTransport::process( const HepMC::GenEvent * ev , const edm::EventSetu
 bool HectorTransport::transportProton(const HepMC::GenParticle* gpart)
 {
      edm::LogInfo("ProtonTransport")<<"Starting proton transport using HECTOR method\n";
-     H_BeamParticle* h_p  = nullptr;
 
      double px,py,pz,e;
      unsigned int line = (gpart)->barcode();
@@ -87,18 +82,20 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart)
      int direction = (pz>0)?1:-1;
 
      // Apply Beam and Crossing Angle Corrections
-     TLorentzVector* p_out = new TLorentzVector(px,py,pz,e);
-     PPSTools::LorentzBoost(*p_out,"LAB");
+     TLorentzVector p_out(px,py,pz,e);
+     PPSTools::LorentzBoost(p_out,"LAB", {fCrossingAngle_56 ,//Beam1
+           fCrossingAngle_45, //Beam2
+           fBeamMomentum,fBeamEnergy});
 
-     ApplyBeamCorrection(*p_out);
+     ApplyBeamCorrection(p_out);
 
      // from mm to cm        
      double XforPosition = gpart->production_vertex()->position().x()/cm;//cm
      double YforPosition = gpart->production_vertex()->position().y()/cm;//cm
      double ZforPosition = gpart->production_vertex()->position().z()/cm;//cm
 
-     h_p = new H_BeamParticle(mass,charge);
-     h_p->set4Momentum(-direction*p_out->Px(), p_out->Py(), fabs(p_out->Pz()), p_out->E());
+     H_BeamParticle h_p(mass,charge);
+     h_p.set4Momentum(-direction*p_out.Px(), p_out.Py(), fabs(p_out.Pz()), p_out.E());
 // shift the beam position to the given beam position at IP (in cm)
      XforPosition=(XforPosition-fVtxMeanX)+fBeamXatIP*mm_to_cm;
      YforPosition=(YforPosition-fVtxMeanY)+fBeamYatIP*mm_to_cm;
@@ -106,15 +103,15 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart)
 //
 // shift the starting position of the track to Z=0 if configured so (all the variables below are still in cm)
      if (bApplyZShift) {
-        double fCrossingAngle = (p_out->Pz()>0)?fCrossingAngle_45:-fCrossingAngle_56;
-        XforPosition = XforPosition+(tan((long double)fCrossingAngle*urad)-((long double)p_out->Px())/((long double)p_out->Pz()))*ZforPosition;
-        YforPosition = YforPosition-((long double)p_out->Py())/((long double)p_out->Pz())*ZforPosition;
+        double fCrossingAngle = (p_out.Pz()>0)?fCrossingAngle_45:-fCrossingAngle_56;
+        XforPosition = XforPosition+(tan((long double)fCrossingAngle*urad)-((long double)p_out.Px())/((long double)p_out.Pz()))*ZforPosition;
+        YforPosition = YforPosition-((long double)p_out.Py())/((long double)p_out.Pz())*ZforPosition;
         ZforPosition = 0.;
      }
 
 //
 // set position, but do not invert the coordinate for the angles (TX,TY) because it is done by set4Momentum
-     h_p->setPosition(-direction*XforPosition*cm_to_um,YforPosition*cm_to_um,h_p->getTX(),h_p->getTY(),-direction*ZforPosition*cm_to_m);
+     h_p.setPosition(-direction*XforPosition*cm_to_um,YforPosition*cm_to_um,h_p.getTX(),h_p.getTY(),-direction*ZforPosition*cm_to_m);
      bool is_stop;
      float x1_ctpps;
      float y1_ctpps;
@@ -130,29 +127,23 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart)
                       break;
      }
      // insert protection for NULL beamlines here
-     h_p->computePath(&*_beamline);
-     is_stop = h_p->stopped(&*_beamline);
+     h_p.computePath(&*_beamline);
+     is_stop = h_p.stopped(&*_beamline);
      if(m_verbosity) LogDebug("HectorTransportEventProcessing") << "HectorTransport:filterPPS: barcode = "
              << line << " is_stop=  "<< is_stop;
-     if (p_out) {
-       delete p_out;
-       p_out = nullptr;
-     } 
      if (is_stop) {
-       delete h_p;
-       h_p=nullptr;
        return false;
      }
      //
      //propagating
      //
-     h_p->propagate( _targetZ );
+     h_p.propagate( _targetZ );
 
-     p_out = new TLorentzVector(PPSTools::HectorParticle2LorentzVector(*h_p,direction));
+     p_out = PPSTools::HectorParticle2LorentzVector(h_p,direction);
 
-     p_out->SetPx(direction*p_out->Px());
-     x1_ctpps = direction*h_p->getX()*um_to_mm; 
-     y1_ctpps = h_p->getY()*um_to_mm;
+     p_out.SetPx(direction*p_out.Px());
+     x1_ctpps = direction*h_p.getX()*um_to_mm; 
+     y1_ctpps = h_p.getY()*um_to_mm;
 
      if(m_verbosity) LogDebug("HectorTransportEventProcessing") <<
              "HectorTransport:filterPPS: barcode = " << line << " x=  "<< x1_ctpps <<" y= " << y1_ctpps;
@@ -160,8 +151,6 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart)
      m_beamPart[line]    = p_out;
      m_xAtTrPoint[line]  = x1_ctpps;
      m_yAtTrPoint[line]  = y1_ctpps;
-     delete p_out; p_out = nullptr;
-     delete h_p; h_p = nullptr;
      return true;
 }
 void HectorTransport::genProtonsLoop( const HepMC::GenEvent * evt ,const edm::EventSetup & iSetup)

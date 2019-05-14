@@ -21,41 +21,41 @@
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
-#include <iostream>
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include <iostream>
 
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
-#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
 #include <TH1F.h>
 #include <TH1I.h>
 
 //#include <SimDataFormats/Track/interface/SimTrackContainer.h>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQM files
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 // GCT and RCT data formats
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
-#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 //#include <SimDataFormats/Track/interface/SimTrackContainer.h>
 
 // TPs
@@ -64,47 +64,46 @@
 
 // L1Extra
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 
 struct rct_location {
   unsigned crate, card, region;
 };
 
 class RCTMonitor : public DQMEDAnalyzer {
- public:
-  explicit RCTMonitor(const edm::ParameterSet&);
+public:
+  explicit RCTMonitor(const edm::ParameterSet &);
   ~RCTMonitor() override;
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
-                      edm::EventSetup const&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void FillRCT(const edm::Event&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void FillRCT(const edm::Event &, const edm::EventSetup &);
 
- private:
+private:
   // RCT stuff
-  MonitorElement* m_rctRegionsEtEtaPhi;
-  MonitorElement* m_rctRegionsOccEtaPhi;
-  MonitorElement* m_rctTauVetoEtaPhi;
-  MonitorElement* m_rctRegionEt;
+  MonitorElement *m_rctRegionsEtEtaPhi;
+  MonitorElement *m_rctRegionsOccEtaPhi;
+  MonitorElement *m_rctTauVetoEtaPhi;
+  MonitorElement *m_rctRegionEt;
 
-  MonitorElement* m_rctIsoEmRankEtaPhi1;
-  MonitorElement* m_rctIsoEmRankEtaPhi10;
-  MonitorElement* m_rctIsoEmOccEtaPhi1;
-  MonitorElement* m_rctIsoEmOccEtaPhi10;
-  MonitorElement* m_rctNonIsoEmRankEtaPhi1;
-  MonitorElement* m_rctNonIsoEmRankEtaPhi10;
-  MonitorElement* m_rctRelaxedEmRankEtaPhi1;
-  MonitorElement* m_rctRelaxedEmRankEtaPhi10;
-  MonitorElement* m_rctNonIsoEmOccEtaPhi1;
-  MonitorElement* m_rctNonIsoEmOccEtaPhi10;
-  MonitorElement* m_rctRelaxedEmOccEtaPhi1;
-  MonitorElement* m_rctRelaxedEmOccEtaPhi10;
-  MonitorElement* m_rctIsoEmRank1;
-  MonitorElement* m_rctIsoEmRank10;
-  MonitorElement* m_rctRelaxedEmRank1;
-  MonitorElement* m_rctRelaxedEmRank10;
-  MonitorElement* m_rctNonIsoEmRank1;
-  MonitorElement* m_rctNonIsoEmRank10;
+  MonitorElement *m_rctIsoEmRankEtaPhi1;
+  MonitorElement *m_rctIsoEmRankEtaPhi10;
+  MonitorElement *m_rctIsoEmOccEtaPhi1;
+  MonitorElement *m_rctIsoEmOccEtaPhi10;
+  MonitorElement *m_rctNonIsoEmRankEtaPhi1;
+  MonitorElement *m_rctNonIsoEmRankEtaPhi10;
+  MonitorElement *m_rctRelaxedEmRankEtaPhi1;
+  MonitorElement *m_rctRelaxedEmRankEtaPhi10;
+  MonitorElement *m_rctNonIsoEmOccEtaPhi1;
+  MonitorElement *m_rctNonIsoEmOccEtaPhi10;
+  MonitorElement *m_rctRelaxedEmOccEtaPhi1;
+  MonitorElement *m_rctRelaxedEmOccEtaPhi10;
+  MonitorElement *m_rctIsoEmRank1;
+  MonitorElement *m_rctIsoEmRank10;
+  MonitorElement *m_rctRelaxedEmRank1;
+  MonitorElement *m_rctRelaxedEmRank10;
+  MonitorElement *m_rctNonIsoEmRank1;
+  MonitorElement *m_rctNonIsoEmRank10;
 
   // Bins etc.
   // GCT and RCT
@@ -153,4 +152,4 @@ class RCTMonitor : public DQMEDAnalyzer {
   edm::EDGetTokenT<L1CaloEmCollection> m_rctSourceToken_;
 };
 
-#endif // RCTMonitor_RCTMonitor_H
+#endif  // RCTMonitor_RCTMonitor_H

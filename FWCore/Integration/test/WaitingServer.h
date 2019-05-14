@@ -25,12 +25,11 @@ namespace edmtest {
     public:
       WaitingServer(unsigned int iNumberOfStreams,
                     unsigned int iMinNumberOfStreamsBeforeDoingWork,
-                    unsigned int iSecondsToWait):
-        m_perStream(iNumberOfStreams),
-        m_minNumStreamsBeforeDoingWork(iMinNumberOfStreamsBeforeDoingWork),
-        m_secondsToWait(iSecondsToWait),
-        m_shouldStop(false) {
-      }
+                    unsigned int iSecondsToWait)
+          : m_perStream(iNumberOfStreams),
+            m_minNumStreamsBeforeDoingWork(iMinNumberOfStreamsBeforeDoingWork),
+            m_secondsToWait(iSecondsToWait),
+            m_shouldStop(false) {}
 
       void start();
       void stop();
@@ -41,12 +40,11 @@ namespace edmtest {
                               edm::WaitingTaskWithArenaHolder holder);
 
     private:
-
       void serverDoWork();
 
       bool readyForWork() const;
 
-      std::mutex m_mutex; //needed by m_cond
+      std::mutex m_mutex;  //needed by m_cond
       std::condition_variable m_cond;
       std::unique_ptr<std::thread> m_thread;
       std::vector<StreamData> m_perStream;
@@ -58,18 +56,16 @@ namespace edmtest {
 
     class Cache {
     public:
-
       std::vector<int> const& retrieved() const { return m_retrieved; }
-      std::vector<int> & retrieved() { return m_retrieved; }
+      std::vector<int>& retrieved() { return m_retrieved; }
 
       std::vector<int> const& processed() const { return m_processed; }
-      std::vector<int> & processed() { return m_processed; }
+      std::vector<int>& processed() { return m_processed; }
 
     private:
-
       std::vector<int> m_retrieved;
       std::vector<int> m_processed;
     };
-  }
-}
+  }  // namespace test_acquire
+}  // namespace edmtest
 #endif

@@ -90,11 +90,18 @@ def literal2root (literal,rootType):
 #-------------------------------------------------------------------------------
 
 def getNbins(h):
+  """
+  To be used in loops on bin number with range()
+  For each dimension there are GetNbinsX()+2 bins including underflow 
+  and overflow, and range() loops starts from 0. So the total number
+  of bins as upper limit of a range() loop already includes the next 
+  to last value needed.
+  """
   biny=h.GetNbinsY()
-  if biny>1:biny+=1
+  if biny>1: biny+=2
   binz=h.GetNbinsZ()
-  if binz>1:binz+=1
-  return (h.GetNbinsX()+1)*(biny)*(binz)
+  if binz>1:binz+=2
+  return (h.GetNbinsX()+2)*(biny)*(binz)
 
 #-------------------------------------------------------------------------------
 
@@ -168,7 +175,7 @@ class StatisticalTest(object):
 #-------------------------------------------------------------------------------
 
 def is_empty(h):
-  for i in range(1,getNbins(h)):
+  for i in range(0,getNbins(h)):
     if h.GetBinContent(i)!=0: return False
   return True
   #return h.GetSumOfWeights()==0
@@ -178,7 +185,7 @@ def is_empty(h):
 def is_sparse(h):
   filled_bins=0.
   nbins=h.GetNbinsX()
-  for ibin in range(nbins):
+  for ibin in range(0,nbins+2):
     if h.GetBinContent(ibin)>0:
       filled_bins+=1
   #print "%s %s --> %s" %(filled_bins,nbins,filled_bins/nbins)
@@ -227,7 +234,7 @@ def profile2histo(profile):
     bin_low_edges.append(profile.GetBinLowEdge(ibin))
   bin_low_edges=array.array('f',bin_low_edges)
   histo=TH1F(profile.GetName(),profile.GetTitle(),n_bins,bin_low_edges)
-  for ibin in range(0,n_bins+1):
+  for ibin in range(0,n_bins+2):
     histo.SetBinContent(ibin,profile.GetBinContent(ibin))
     histo.SetBinError(ibin,profile.GetBinError(ibin))    
   
@@ -244,7 +251,7 @@ class Chi2(StatisticalTest):
     n_filled_l=[]
     for h in self.h1,self.h2:
       nfilled=0.
-      for ibin in range(1,nbins+1):
+      for ibin in range(0,nbins+2):
         if h.GetBinContent(ibin)>0:
           nfilled+=1
       n_filled_l.append(nfilled)
@@ -253,7 +260,7 @@ class Chi2(StatisticalTest):
   def absval(self):
     nbins=getNbins(self.h1)
     binc=0
-    for i in range(1,nbins):
+    for i in range(0,nbins):
       for h in self.h1,self.h2:
         binc=h.GetBinContent(i)
         if binc<0:
@@ -329,7 +336,7 @@ class BinToBin(StatisticalTest):
     equal = 1
     nbins = getNbins(self.h1)
     n_ok_bins=0.0
-    for ibin in range(0, nbins+2):
+    for ibin in range(0, nbins):
       h1bin=self.h1.GetBinContent(ibin)
       h2bin=self.h2.GetBinContent(ibin)
       bindiff=h1bin-h2bin
@@ -338,7 +345,7 @@ class BinToBin(StatisticalTest):
 
       if binavg==0 or abs(bindiff) < self.epsilon:
         n_ok_bins+=1
-        #print "Bin %ibin: bindiff %s" %(ibin,bindiff)
+        #print("Bin %ibin: bindiff %s" %(ibin,bindiff))
       else:
         print("Bin %ibin: bindiff %s" %(ibin,bindiff))
 

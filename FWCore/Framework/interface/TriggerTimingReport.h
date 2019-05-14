@@ -14,54 +14,47 @@ reporting on the timing of the trigger.
 
 namespace edm {
 
-  struct EventTimingSummary
-  {
+  struct EventTimingSummary {
     int totalEvents = 0;
     double cpuTime = 0.;
-    double realTime =0.;
+    double realTime = 0.;
     double sumStreamRealTime = 0.;
   };
 
-  struct ModuleInPathTimingSummary
-  {
+  struct ModuleInPathTimingSummary {
     int timesVisited = 0;
-    double realTime =0.;
+    double realTime = 0.;
 
     std::string moduleLabel;
   };
 
-
-  struct PathTimingSummary
-  {
+  struct PathTimingSummary {
     int bitPosition = 0;
     int timesRun = 0;
-    double realTime =0.;
+    double realTime = 0.;
 
     std::string name;
     std::vector<ModuleInPathTimingSummary> moduleInPathSummaries;
   };
 
-  struct WorkerTimingSummary
-  {
+  struct WorkerTimingSummary {
     int timesVisited = 0;
     int timesRun = 0;
-    double realTime =0.;
+    double realTime = 0.;
 
     std::string moduleLabel;
   };
 
-  inline
-  bool operator<(WorkerTimingSummary const& a, WorkerTimingSummary const& b) {
+  inline bool operator<(WorkerTimingSummary const& a, WorkerTimingSummary const& b) {
     return a.moduleLabel < b.moduleLabel;
   }
 
-  struct TriggerTimingReport
-  {
-    EventTimingSummary               eventSummary;
-    std::vector<PathTimingSummary>   trigPathSummaries;
-    std::vector<PathTimingSummary>   endPathSummaries;
+  struct TriggerTimingReport {
+    EventTimingSummary eventSummary;
+    std::vector<PathTimingSummary> trigPathSummaries;
+    std::vector<PathTimingSummary> endPathSummaries;
     std::vector<WorkerTimingSummary> workerSummaries;
   };
 
-}
+}  // namespace edm
 #endif

@@ -44,8 +44,8 @@ class PreshowerClusterAlgo {
    reco::PreshowerCluster makeOneCluster(ESDetId strip,
 					 HitsID *used_strips,
                                          RecHitsMap *rechits_map,
-                                         const CaloSubdetectorGeometry*& geometry_p,
-                                         CaloSubdetectorTopology*& topology_p);
+                                         const CaloSubdetectorGeometry* geometry_p,
+                                         const CaloSubdetectorTopology* topology_p);
 
    bool goodStrip(RecHitsMap::iterator candidate_it);
 

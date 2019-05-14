@@ -1,7 +1,7 @@
 // -*-c++-*-
-// 
+//
 // Client class for HLT Scalers module.
-// 
+//
 
 // Revision 1.13  2010/03/17 20:56:18  wittich
 // Check for good updates based on mergeCount values
@@ -37,13 +37,13 @@
 
 #ifndef HLTSCALERSCLIENT_H
 #define HLTSCALERSCLIENT_H
-#include <fstream>
-#include <vector>
 #include <deque>
-#include <utility> 
+#include <fstream>
+#include <utility>
+#include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -54,146 +54,122 @@
 #define MAX_PATHS 200
 #define MAX_LUMI_SEG_HLT 2400
 
-class HLTScalersClient: public edm::EDAnalyzer
-{
+class HLTScalersClient : public edm::EDAnalyzer {
 private:
   std::ofstream textfile_;
 
 public:
-//   typedef std::pair<int,double> CountLS_t;
-//   //typedef std::deque<CountLS_t> CountLSFifo_t;
-//   typedef std::map<int,double> CountLSFifo_t;
+  //   typedef std::pair<int,double> CountLS_t;
+  //   //typedef std::deque<CountLS_t> CountLSFifo_t;
+  //   typedef std::map<int,double> CountLSFifo_t;
 
   // helper data structures - slightly modified stl objects
-  class CountLS_t: public std::pair<int,double>
-  {
+  class CountLS_t : public std::pair<int, double> {
   public:
-    CountLS_t(int ls, double cnt):
-      std::pair<int,double>(ls,cnt)
-    {};
-    bool operator==(int ls) const
-    {
-      return ls == this->first;
-    }
-    bool operator<(CountLS_t & rhs ) 
-    {
-      return  this->first< rhs.first;
-    };
-
+    CountLS_t(int ls, double cnt) : std::pair<int, double>(ls, cnt){};
+    bool operator==(int ls) const { return ls == this->first; }
+    bool operator<(CountLS_t &rhs) { return this->first < rhs.first; };
   };
 
-  class CountLSFifo_t: public std::deque<CountLS_t> 
-  {
+  class CountLSFifo_t : public std::deque<CountLS_t> {
   private:
     unsigned int targetSize_;
     bool accumulate_;
+
   public:
     // default constructor
-    CountLSFifo_t(unsigned int sz = 3) :
-      std::deque<CountLS_t>(),
-      targetSize_(sz)
-    {}
+    CountLSFifo_t(unsigned int sz = 3) : std::deque<CountLS_t>(), targetSize_(sz) {}
     unsigned int targetSize() const { return targetSize_; };
-    double getCount(int ls)
-    {
-      CountLSFifo_t::iterator p = std::find(this->begin(), this->end(),
-					    ls);
-      if ( p != end() ) 
-	return p->second;
+    double getCount(int ls) {
+      CountLSFifo_t::iterator p = std::find(this->begin(), this->end(), ls);
+      if (p != end())
+        return p->second;
       else
-	return -1;
+        return -1;
     }
 
-
-    void update( const CountLS_t & T)
-    {
+    void update(const CountLS_t &T) {
       // do we already have data for this LS?
-      CountLSFifo_t::iterator p = std::find(this->begin(), this->end(),
-					    T.first);
-      if ( p != this->end() ) { // we already have data for this LS
-	p->second = T.second; 
-      }
-      else { // new data
-	this->push_back(T);
+      CountLSFifo_t::iterator p = std::find(this->begin(), this->end(), T.first);
+      if (p != this->end()) {  // we already have data for this LS
+        p->second = T.second;
+      } else {  // new data
+        this->push_back(T);
       }
       trim_();
     }
+
   private:
-    void trim_()
-    {
-      if ( this->size() > targetSize_ ) {
-	std::sort(begin(), end());
-	while ( size() > targetSize_ ) {
-	  pop_front();
-	}
+    void trim_() {
+      if (this->size() > targetSize_) {
+        std::sort(begin(), end());
+        while (size() > targetSize_) {
+          pop_front();
+        }
       }
     }
   };
 
-  
 public:
   /// Constructors
-  HLTScalersClient(const edm::ParameterSet& ps);
-  
+  HLTScalersClient(const edm::ParameterSet &ps);
+
   /// Destructor
   ~HLTScalersClient() override {
-    if ( debug_ ) {
+    if (debug_) {
       textfile_.close();
     }
   };
-  
+
   /// BeginJob
   void beginJob(void) override;
 
-  
   /// BeginRun
-  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void beginRun(const edm::Run &run, const edm::EventSetup &c) override;
 
   /// EndRun
-  void endRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void endRun(const edm::Run &run, const edm::EventSetup &c) override;
 
-  
   /// End LumiBlock
   /// DQM Client Diagnostic should be performed here
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c) override;
+  void endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) override;
 
   // unused
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
-
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
 private:
-  DQMStore * dbe_;
+  DQMStore *dbe_;
 
-  int nev_; // Number of events processed
-  int nLumi_; // number of lumi blocks
+  int nev_;    // Number of events processed
+  int nLumi_;  // number of lumi blocks
   int currentRun_;
 
   MonitorElement *currentRate_;
   int currentLumiBlockNumber_;
-  std::vector<MonitorElement*> rateHistories_; 
-  std::vector<MonitorElement*> countHistories_; 
+  std::vector<MonitorElement *> rateHistories_;
+  std::vector<MonitorElement *> countHistories_;
 
-  std::vector<MonitorElement*> hltCurrentRate_;
-  MonitorElement *hltRate_; // global rate - any accept
-  MonitorElement *hltCount_; // globalCounts
+  std::vector<MonitorElement *> hltCurrentRate_;
+  MonitorElement *hltRate_;   // global rate - any accept
+  MonitorElement *hltCount_;  // globalCounts
   //  MonitorElement *hltCountN_; // globalCounts normalized
   MonitorElement *updates_;
   MonitorElement *mergeCount_;
 
   // Normalized
-  MonitorElement *hltNormRate_; // global rate - any accept
+  MonitorElement *hltNormRate_;  // global rate - any accept
   MonitorElement *currentNormRate_;
-  std::vector<MonitorElement*> rateNormHistories_; 
-  std::vector<MonitorElement*> hltCurrentNormRate_;
-  
+  std::vector<MonitorElement *> rateNormHistories_;
+  std::vector<MonitorElement *> hltCurrentNormRate_;
+
   bool first_, missingPathNames_;
   std::string folderName_;
   unsigned int kRateIntegWindow_;
   std::string processName_;
-  //HLTConfigProvider hltConfig_;
+  // HLTConfigProvider hltConfig_;
   std::deque<int> ignores_;
-  std::pair<double,double> getSlope_(const CountLSFifo_t& points);
+  std::pair<double, double> getSlope_(const CountLSFifo_t &points);
+
 private:
   bool debug_;
   int maxFU_;
@@ -202,9 +178,6 @@ private:
 
   std::vector<CountLSFifo_t> recentNormedPathCountsPerLS_;
   CountLSFifo_t recentNormedOverallCountsPerLS_;
-
-
 };
 
-
-#endif // HLTSCALERSCLIENT_H
+#endif  // HLTSCALERSCLIENT_H

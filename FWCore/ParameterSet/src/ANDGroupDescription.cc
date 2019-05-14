@@ -10,40 +10,25 @@
 
 namespace edm {
 
-  ANDGroupDescription::
-  ANDGroupDescription(ParameterDescriptionNode const& node_left,
-                      ParameterDescriptionNode const& node_right) :
-    node_left_(node_left.clone()),
-    node_right_(node_right.clone()) {
-  }
+  ANDGroupDescription::ANDGroupDescription(ParameterDescriptionNode const& node_left,
+                                           ParameterDescriptionNode const& node_right)
+      : node_left_(node_left.clone()), node_right_(node_right.clone()) {}
 
-  ANDGroupDescription::
-  ANDGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
-                      ParameterDescriptionNode const& node_right) :
-    node_left_(std::move(node_left)),
-    node_right_(node_right.clone()) {
-  }
+  ANDGroupDescription::ANDGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
+                                           ParameterDescriptionNode const& node_right)
+      : node_left_(std::move(node_left)), node_right_(node_right.clone()) {}
 
-  ANDGroupDescription::
-  ANDGroupDescription(ParameterDescriptionNode const& node_left,
-                      std::unique_ptr<ParameterDescriptionNode> node_right) :
-    node_left_(node_left.clone()),
-    node_right_(std::move(node_right)) {
-  }
+  ANDGroupDescription::ANDGroupDescription(ParameterDescriptionNode const& node_left,
+                                           std::unique_ptr<ParameterDescriptionNode> node_right)
+      : node_left_(node_left.clone()), node_right_(std::move(node_right)) {}
 
-  ANDGroupDescription::
-  ANDGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
-                      std::unique_ptr<ParameterDescriptionNode> node_right) :
-    node_left_(std::move(node_left)),
-    node_right_(std::move(node_right)) {
-  }
+  ANDGroupDescription::ANDGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
+                                           std::unique_ptr<ParameterDescriptionNode> node_right)
+      : node_left_(std::move(node_left)), node_right_(std::move(node_right)) {}
 
-  void
-  ANDGroupDescription::
-  checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
-                             std::set<ParameterTypes> & parameterTypes,
-                             std::set<ParameterTypes> & wildcardTypes) const {
-
+  void ANDGroupDescription::checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+                                                       std::set<ParameterTypes>& parameterTypes,
+                                                       std::set<ParameterTypes>& wildcardTypes) const {
     std::set<std::string> labelsLeft;
     std::set<ParameterTypes> parameterTypesLeft;
     std::set<ParameterTypes> wildcardTypesLeft;
@@ -68,34 +53,22 @@ namespace edm {
     wildcardTypes.insert(wildcardTypesLeft.begin(), wildcardTypesLeft.end());
   }
 
-  void
-  ANDGroupDescription::
-  validate_(ParameterSet & pset,
-            std::set<std::string> & validatedLabels,
-            bool optional) const {
+  void ANDGroupDescription::validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const {
     if (partiallyExists(pset) || !optional) {
       node_left_->validate(pset, validatedLabels, false);
       node_right_->validate(pset, validatedLabels, false);
     }
   }
 
-  void
-  ANDGroupDescription::
-  writeCfi_(std::ostream & os,
-            bool & startWithComma,
-            int indentation,
-            bool & wroteSomething) const {
+  void ANDGroupDescription::writeCfi_(std::ostream& os,
+                                      bool& startWithComma,
+                                      int indentation,
+                                      bool& wroteSomething) const {
     node_left_->writeCfi(os, startWithComma, indentation, wroteSomething);
     node_right_->writeCfi(os, startWithComma, indentation, wroteSomething);
   }
 
-  void
-  ANDGroupDescription::
-  print_(std::ostream & os,
-         bool optional,
-         bool writeToCfi,
-         DocFormatHelper & dfh) const {
-
+  void ANDGroupDescription::print_(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const {
     if (dfh.parent() == DocFormatHelper::AND) {
       dfh.decrementCounter();
       node_left_->print(os, false, true, dfh);
@@ -104,26 +77,27 @@ namespace edm {
     }
 
     if (dfh.pass() == 1) {
-
       dfh.indent(os);
       os << "AND group:";
 
       if (dfh.brief()) {
+        if (optional)
+          os << " optional";
 
-        if (optional)  os << " optional";
-
-        if (!writeToCfi) os << " (do not write to cfi)";
+        if (!writeToCfi)
+          os << " (do not write to cfi)";
 
         os << " see Section " << dfh.section() << "." << dfh.counter() << "\n";
       }
       // not brief
       else {
-
         os << "\n";
         dfh.indent2(os);
 
-        if (optional)  os << "optional";
-        if (!writeToCfi) os << " (do not write to cfi)";
+        if (optional)
+          os << "optional";
+        if (!writeToCfi)
+          os << " (do not write to cfi)";
         if (optional || !writeToCfi) {
           os << "\n";
           dfh.indent2(os);
@@ -132,22 +106,14 @@ namespace edm {
         os << "see Section " << dfh.section() << "." << dfh.counter() << "\n";
 
         if (!comment().empty()) {
-          DocFormatHelper::wrapAndPrintText(os,
-                                            comment(),
-                                            dfh.startColumn2(),
-                                            dfh.commentWidth());
+          DocFormatHelper::wrapAndPrintText(os, comment(), dfh.startColumn2(), dfh.commentWidth());
         }
         os << "\n";
       }
     }
   }
 
-  void
-  ANDGroupDescription::
-  printNestedContent_(std::ostream & os,
-                      bool optional,
-                      DocFormatHelper & dfh) const {
-
+  void ANDGroupDescription::printNestedContent_(std::ostream& os, bool optional, DocFormatHelper& dfh) const {
     if (dfh.parent() == DocFormatHelper::AND) {
       dfh.decrementCounter();
       node_left_->printNestedContent(os, false, dfh);
@@ -165,16 +131,15 @@ namespace edm {
     std::string newSection = ss.str();
 
     printSpaces(os, indentation);
-    os << "Section " << newSection
-       << " AND group description:\n";
+    os << "Section " << newSection << " AND group description:\n";
     printSpaces(os, indentation);
     if (optional) {
       os << "This optional AND group requires all or none of the following to be in the PSet\n";
-    }
-    else {
+    } else {
       os << "This AND group requires all of the following to be in the PSet\n";
     }
-    if (!dfh.brief()) os << "\n";
+    if (!dfh.brief())
+      os << "\n";
 
     DocFormatHelper new_dfh(dfh);
     new_dfh.init();
@@ -198,77 +163,54 @@ namespace edm {
     node_right_->printNestedContent(os, false, new_dfh);
   }
 
-  bool
-  ANDGroupDescription::
-  exists_(ParameterSet const& pset) const {
+  bool ANDGroupDescription::exists_(ParameterSet const& pset) const {
     return node_left_->exists(pset) && node_right_->exists(pset);
   }
 
-  bool
-  ANDGroupDescription::
-  partiallyExists_(ParameterSet const& pset) const {
+  bool ANDGroupDescription::partiallyExists_(ParameterSet const& pset) const {
     return node_left_->partiallyExists(pset) || node_right_->partiallyExists(pset);
   }
 
-  int
-  ANDGroupDescription::
-  howManyXORSubNodesExist_(ParameterSet const& pset) const {
-    return exists(pset) ? 1 : 0; 
-  }
+  int ANDGroupDescription::howManyXORSubNodesExist_(ParameterSet const& pset) const { return exists(pset) ? 1 : 0; }
 
-  void
-  ANDGroupDescription::
-  throwIfDuplicateLabels(std::set<std::string> const& labelsLeft,
-                         std::set<std::string> const& labelsRight) const {
-
+  void ANDGroupDescription::throwIfDuplicateLabels(std::set<std::string> const& labelsLeft,
+                                                   std::set<std::string> const& labelsRight) const {
     std::set<std::string> duplicateLabels;
     std::insert_iterator<std::set<std::string> > insertIter(duplicateLabels, duplicateLabels.begin());
-    std::set_intersection(labelsLeft.begin(), labelsLeft.end(),
-                          labelsRight.begin(), labelsRight.end(),
-                          insertIter);
+    std::set_intersection(labelsLeft.begin(), labelsLeft.end(), labelsRight.begin(), labelsRight.end(), insertIter);
     if (!duplicateLabels.empty()) {
       std::stringstream ss;
-      for (std::set<std::string>::const_iterator iter = duplicateLabels.begin(),
-	                                         iEnd = duplicateLabels.end();
+      for (std::set<std::string>::const_iterator iter = duplicateLabels.begin(), iEnd = duplicateLabels.end();
            iter != iEnd;
            ++iter) {
-        ss << " \"" << *iter <<  "\"\n";
+        ss << " \"" << *iter << "\"\n";
       }
-      throw edm::Exception(errors::LogicError)
-        << "Labels used in different nodes of a ParameterSetDescription\n"
-        << "\"and\" expression must be unique.  The following duplicate\n"
-        << "labels were detected:\n"
-        << ss.str()
-        << "\n";
+      throw edm::Exception(errors::LogicError) << "Labels used in different nodes of a ParameterSetDescription\n"
+                                               << "\"and\" expression must be unique.  The following duplicate\n"
+                                               << "labels were detected:\n"
+                                               << ss.str() << "\n";
     }
   }
 
-  void
-  ANDGroupDescription::
-  throwIfDuplicateTypes(std::set<ParameterTypes> const& types1,
-                        std::set<ParameterTypes> const& types2) const
-  {
+  void ANDGroupDescription::throwIfDuplicateTypes(std::set<ParameterTypes> const& types1,
+                                                  std::set<ParameterTypes> const& types2) const {
     if (!types1.empty()) {
       std::set<ParameterTypes> duplicateTypes;
       std::insert_iterator<std::set<ParameterTypes> > insertIter(duplicateTypes, duplicateTypes.begin());
-      std::set_intersection(types1.begin(), types1.end(),
-                            types2.begin(), types2.end(),
-                            insertIter);
+      std::set_intersection(types1.begin(), types1.end(), types2.begin(), types2.end(), insertIter);
       if (!duplicateTypes.empty()) {
         std::stringstream ss;
-        for (std::set<ParameterTypes>::const_iterator iter = duplicateTypes.begin(),
-	                                              iEnd = duplicateTypes.end();
+        for (std::set<ParameterTypes>::const_iterator iter = duplicateTypes.begin(), iEnd = duplicateTypes.end();
              iter != iEnd;
              ++iter) {
-          ss << " \"" << parameterTypeEnumToString(*iter) <<  "\"\n";
+          ss << " \"" << parameterTypeEnumToString(*iter) << "\"\n";
         }
         throw edm::Exception(errors::LogicError)
-          << "Types used for wildcards in different nodes of a ParameterSetDescription\n"
-          << "\"and\" expression must be different from types used for other parameters.\n"
-          << "The following duplicate types were detected:\n"
-          << ss.str()
-          << "\n";
+            << "Types used for wildcards in different nodes of a ParameterSetDescription\n"
+            << "\"and\" expression must be different from types used for other parameters.\n"
+            << "The following duplicate types were detected:\n"
+            << ss.str() << "\n";
       }
     }
   }
-}
+}  // namespace edm

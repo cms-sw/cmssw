@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     one::EDFilterBase
-// 
+//
 /**\class one::EDFilterBase EDFilterBase.h "FWCore/Framework/interface/one/EDFilterBase.h"
 
  Description: Base class for edm::one::EDFilter<>
@@ -37,25 +37,25 @@ namespace edm {
   class ProductRegistry;
   class ThinnedAssociationsHelper;
   class WaitingTask;
-  
+
   namespace maker {
-    template<typename T> class ModuleHolderT;
+    template <typename T>
+    class ModuleHolderT;
   }
 
   namespace one {
 
-    class EDFilterBase : public ProducerBase, public EDConsumerBase
-    {
-      
+    class EDFilterBase : public ProducerBase, public EDConsumerBase {
     public:
-      template <typename T> friend class edm::maker::ModuleHolderT;
-      template <typename T> friend class edm::WorkerT;
+      template <typename T>
+      friend class edm::maker::ModuleHolderT;
+      template <typename T>
+      friend class edm::WorkerT;
       typedef EDFilterBase ModuleType;
 
-      
       EDFilterBase();
       ~EDFilterBase() override;
-      
+
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void prevalidate(ConfigurationDescriptions& descriptions);
       static const std::string& baseType();
@@ -63,53 +63,50 @@ namespace edm {
       // Warning: the returned moduleDescription will be invalid during construction
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
-      virtual bool wantsGlobalRuns() const =0;
-      virtual bool wantsGlobalLuminosityBlocks() const =0;
-      bool wantsStreamRuns() const {return false;}
-      bool wantsStreamLuminosityBlocks() const {return false;};
+      virtual bool wantsGlobalRuns() const = 0;
+      virtual bool wantsGlobalLuminosityBlocks() const = 0;
+      bool wantsStreamRuns() const { return false; }
+      bool wantsStreamLuminosityBlocks() const { return false; };
 
       virtual SerialTaskQueue* globalRunsQueue();
       virtual SerialTaskQueue* globalLuminosityBlocksQueue();
 
     private:
-      bool doEvent(EventPrincipal const& ep, EventSetupImpl const&  c,
-                   ActivityRegistry*,
-                   ModuleCallingContext const*);
+      bool doEvent(EventPrincipal const& ep, EventSetupImpl const& c, ActivityRegistry*, ModuleCallingContext const*);
       //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
+                                                    ModuleCallingContext const& iModuleCallingContext,
+                                                    Principal const& iPrincipal) const {}
 
       void doPreallocate(PreallocationConfiguration const&);
       virtual void preallocLumis(unsigned int);
       void doBeginJob();
       void doEndJob();
-      
-      void doBeginRun(RunPrincipal const& rp, EventSetupImpl const&  c,
-                      ModuleCallingContext const*);
-      void doEndRun(RunPrincipal const& rp, EventSetupImpl const&  c,
-                    ModuleCallingContext const*);
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const&  c,
+
+      void doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
+      void doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
+      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+                                  EventSetupImpl const& c,
                                   ModuleCallingContext const*);
-      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const&  c,
+      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+                                EventSetupImpl const& c,
                                 ModuleCallingContext const*);
-      
+
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
-      void doRegisterThinnedAssociations(ProductRegistry const&,
-                                         ThinnedAssociationsHelper&) { }
+      void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
       void registerProductsAndCallbacks(EDFilterBase* module, ProductRegistry* reg) {
         registerProducts(module, reg, moduleDescription_);
       }
-      std::string workerType() const {return "WorkerT<EDFilter>";}
-      
-      SharedResourcesAcquirer& sharedResourcesAcquirer() {
-        return resourcesAcquirer_;
-      }
-      
+      std::string workerType() const { return "WorkerT<EDFilter>"; }
+
+      SharedResourcesAcquirer& sharedResourcesAcquirer() { return resourcesAcquirer_; }
+
       virtual bool filter(Event&, EventSetup const&) = 0;
       virtual void beginJob() {}
-      virtual void endJob(){}
+      virtual void endJob() {}
 
       virtual void preallocThreads(unsigned int) {}
 
@@ -128,18 +125,15 @@ namespace edm {
 
       virtual SharedResourcesAcquirer createAcquirer();
 
-      void setModuleDescription(ModuleDescription const& md) {
-        moduleDescription_ = md;
-      }
+      void setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
       ModuleDescription moduleDescription_;
       std::vector<BranchID> previousParentage_;
       ParentageID previousParentageId_;
 
       SharedResourcesAcquirer resourcesAcquirer_;
     };
-    
-  }
-}
 
+  }  // namespace one
+}  // namespace edm
 
 #endif

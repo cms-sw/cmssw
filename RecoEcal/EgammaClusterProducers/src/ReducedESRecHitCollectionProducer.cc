@@ -18,8 +18,7 @@ using namespace std;
 using namespace reco;
 
 ReducedESRecHitCollectionProducer::ReducedESRecHitCollectionProducer(const edm::ParameterSet& ps):
-  geometry_p(nullptr),
-  topology_p(nullptr)
+  geometry_p(nullptr)
 {
 
  scEtThresh_          = ps.getParameter<double>("scEtThreshold");
@@ -48,9 +47,7 @@ ReducedESRecHitCollectionProducer::ReducedESRecHitCollectionProducer(const edm::
  
 }
 
-ReducedESRecHitCollectionProducer::~ReducedESRecHitCollectionProducer() {
-  if (topology_p) delete topology_p;
-}
+ReducedESRecHitCollectionProducer::~ReducedESRecHitCollectionProducer() = default;
 
 void ReducedESRecHitCollectionProducer::beginRun (edm::Run const&, const edm::EventSetup&iSetup){
   ESHandle<CaloGeometry> geoHandle;
@@ -61,7 +58,7 @@ void ReducedESRecHitCollectionProducer::beginRun (edm::Run const&, const edm::Ev
       "could not cast the subdet geometry to preshower geometry";
   }
   
-  if (geometry_p) topology_p = new EcalPreshowerTopology(geoHandle);
+  if (geometry_p) topology_p = std::make_unique<EcalPreshowerTopology>();
   
 }
 
@@ -178,10 +175,10 @@ void ReducedESRecHitCollectionProducer::collectIds(const ESDetId esDetId1, const
   strip1 = esDetId1;
   strip2 = esDetId2;
 
-  EcalPreshowerNavigator theESNav1(strip1, topology_p);
+  EcalPreshowerNavigator theESNav1(strip1, topology_p.get());
   theESNav1.setHome(strip1);
   
-  EcalPreshowerNavigator theESNav2(strip2, topology_p);
+  EcalPreshowerNavigator theESNav2(strip2, topology_p.get());
   theESNav2.setHome(strip2);
 
   if (row == 1) {

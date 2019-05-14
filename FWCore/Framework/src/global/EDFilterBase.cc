@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     global::EDFilterBase
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -26,7 +26,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -38,56 +37,47 @@ namespace edm {
     //
     // static data member definitions
     //
-    
+
     //
     // constructors and destructor
     //
-    EDFilterBase::EDFilterBase():
-    ProducerBase(),
-    moduleDescription_(),
-    previousParentages_(),
-    previousParentageIds_() { }
-    
-    EDFilterBase::~EDFilterBase()
-    {
-    }
-    
-    bool
-    EDFilterBase::doEvent(EventPrincipal const& ep, EventSetupImpl const& ci,
-                          ActivityRegistry* act,
-                          ModuleCallingContext const* mcc) {
+    EDFilterBase::EDFilterBase()
+        : ProducerBase(), moduleDescription_(), previousParentages_(), previousParentageIds_() {}
+
+    EDFilterBase::~EDFilterBase() {}
+
+    bool EDFilterBase::doEvent(EventPrincipal const& ep,
+                               EventSetupImpl const& ci,
+                               ActivityRegistry* act,
+                               ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
-      const auto streamIndex =e.streamID().value();
-      e.setProducer(this,
-                    &previousParentages_[streamIndex],
-                    hasAcquire() ? &gotBranchIDsFromAcquire_[streamIndex] : nullptr);
-      EventSignalsSentry sentry(act,mcc);
-      const EventSetup c{ci};
+      const auto streamIndex = e.streamID().value();
+      e.setProducer(
+          this, &previousParentages_[streamIndex], hasAcquire() ? &gotBranchIDsFromAcquire_[streamIndex] : nullptr);
+      EventSignalsSentry sentry(act, mcc);
+      const EventSetup c{ci, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event)};
       bool returnValue = this->filter(e.streamID(), e, c);
       commit_(e, &previousParentageIds_[streamIndex]);
       return returnValue;
     }
-    
-    void
-    EDFilterBase::doAcquire(EventPrincipal const& ep, EventSetupImpl const& ci,
-                            ActivityRegistry* act,
-                            ModuleCallingContext const* mcc,
-                            WaitingTaskWithArenaHolder& holder) {
+
+    void EDFilterBase::doAcquire(EventPrincipal const& ep,
+                                 EventSetupImpl const& ci,
+                                 ActivityRegistry* act,
+                                 ModuleCallingContext const* mcc,
+                                 WaitingTaskWithArenaHolder& holder) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
       const auto streamIndex = e.streamID().value();
-      e.setProducerForAcquire(this,
-                              nullptr,
-                              gotBranchIDsFromAcquire_[streamIndex]);
-      EventAcquireSignalsSentry sentry(act,mcc);
-      const EventSetup c{ci};
+      e.setProducerForAcquire(this, nullptr, gotBranchIDsFromAcquire_[streamIndex]);
+      EventAcquireSignalsSentry sentry(act, mcc);
+      const EventSetup c{ci, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event)};
       this->doAcquire_(e.streamID(), e, c, holder);
     }
 
-    void
-    EDFilterBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
-      const auto nStreams =iPrealloc.numberOfStreams();
+    void EDFilterBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
+      const auto nStreams = iPrealloc.numberOfStreams();
       previousParentages_.reset(new std::vector<BranchID>[nStreams]);
       if (hasAcquire()) {
         gotBranchIDsFromAcquire_.reset(new std::vector<BranchID>[nStreams]);
@@ -98,160 +88,144 @@ namespace edm {
       preallocate(iPrealloc);
     }
 
-    void
-    EDFilterBase::doBeginJob() {
-      this->beginJob();
-    }
-    
-    void
-    EDFilterBase::doEndJob() {
-      this->endJob();
-    }
-    
-    void
-    EDFilterBase::doBeginRun(RunPrincipal const& rp, EventSetupImpl const& ci,
-                             ModuleCallingContext const* mcc) {
+    void EDFilterBase::doBeginJob() { this->beginJob(); }
+
+    void EDFilterBase::doEndJob() { this->endJob(); }
+
+    void EDFilterBase::doBeginRun(RunPrincipal const& rp, EventSetupImpl const& ci, ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
       Run const& cnstR = r;
-      const EventSetup c{ci};
+      const EventSetup c{ci, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun)};
       this->doBeginRun_(cnstR, c);
       this->doBeginRunSummary_(cnstR, c);
       r.setProducer(this);
-      this->doBeginRunProduce_(r,c);
+      this->doBeginRunProduce_(r, c);
       commit_(r);
     }
-    
-    void
-    EDFilterBase::doEndRun(RunPrincipal const& rp, EventSetupImpl const& ci,
-                           ModuleCallingContext const* mcc) {
+
+    void EDFilterBase::doEndRun(RunPrincipal const& rp, EventSetupImpl const& ci, ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
       r.setProducer(this);
       Run const& cnstR = r;
-      const EventSetup c{ci};
+      const EventSetup c{ci, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun)};
       this->doEndRunProduce_(r, c);
-      this->doEndRunSummary_(r,c);
+      this->doEndRunSummary_(r, c);
       this->doEndRun_(cnstR, c);
       commit_(r);
     }
-    
-    void
-    EDFilterBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const& ci,
-                                         ModuleCallingContext const* mcc) {
+
+    void EDFilterBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+                                              EventSetupImpl const& ci,
+                                              ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
-      const EventSetup c{ci};
+      const EventSetup c{ci,
+                         static_cast<unsigned int>(Transition::BeginLuminosityBlock),
+                         esGetTokenIndices(Transition::BeginLuminosityBlock)};
       this->doBeginLuminosityBlock_(cnstLb, c);
       this->doBeginLuminosityBlockSummary_(cnstLb, c);
       lb.setProducer(this);
       this->doBeginLuminosityBlockProduce_(lb, c);
       commit_(lb);
     }
-    
-    void
-    EDFilterBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const& ci,
-                                       ModuleCallingContext const* mcc) {
+
+    void EDFilterBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+                                            EventSetupImpl const& ci,
+                                            ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       lb.setProducer(this);
       LuminosityBlock const& cnstLb = lb;
-      const EventSetup c{ci};
+      const EventSetup c{ci,
+                         static_cast<unsigned int>(Transition::EndLuminosityBlock),
+                         esGetTokenIndices(Transition::EndLuminosityBlock)};
       this->doEndLuminosityBlockProduce_(lb, c);
-      this->doEndLuminosityBlockSummary_(cnstLb,c);
+      this->doEndLuminosityBlockSummary_(cnstLb, c);
       this->doEndLuminosityBlock_(cnstLb, c);
       commit_(lb);
     }
-    
-    void
-    EDFilterBase::doBeginStream(StreamID id) {
-      doBeginStream_(id);
-    }
-    void
-    EDFilterBase::doEndStream(StreamID id) {
-      doEndStream_(id);
-    }
-    void
-    EDFilterBase::doStreamBeginRun(StreamID id,
-                                     RunPrincipal const& rp,
-                                     EventSetupImpl const& ci,
-                                     ModuleCallingContext const* mcc)
-    {
+
+    void EDFilterBase::doBeginStream(StreamID id) { doBeginStream_(id); }
+    void EDFilterBase::doEndStream(StreamID id) { doEndStream_(id); }
+    void EDFilterBase::doStreamBeginRun(StreamID id,
+                                        RunPrincipal const& rp,
+                                        EventSetupImpl const& ci,
+                                        ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
-      const EventSetup c{ci};
+      const EventSetup c{ci, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun)};
       this->doStreamBeginRun_(id, r, c);
     }
-    void
-    EDFilterBase::doStreamEndRun(StreamID id,
-                                   RunPrincipal const& rp,
-                                   EventSetupImpl const& ci,
-                                   ModuleCallingContext const* mcc) {
+    void EDFilterBase::doStreamEndRun(StreamID id,
+                                      RunPrincipal const& rp,
+                                      EventSetupImpl const& ci,
+                                      ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
-      const EventSetup c{ci};
+      const EventSetup c{ci, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun)};
       this->doStreamEndRun_(id, r, c);
       this->doStreamEndRunSummary_(id, r, c);
     }
-    void
-    EDFilterBase::doStreamBeginLuminosityBlock(StreamID id,
-                                                 LuminosityBlockPrincipal const& lbp,
-                                                 EventSetupImpl const& ci,
-                                                 ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc, false );
+    void EDFilterBase::doStreamBeginLuminosityBlock(StreamID id,
+                                                    LuminosityBlockPrincipal const& lbp,
+                                                    EventSetupImpl const& ci,
+                                                    ModuleCallingContext const* mcc) {
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(this);
-      const EventSetup c{ci};
-      this->doStreamBeginLuminosityBlock_(id,lb, c);
+      const EventSetup c{ci,
+                         static_cast<unsigned int>(Transition::BeginLuminosityBlock),
+                         esGetTokenIndices(Transition::BeginLuminosityBlock)};
+      this->doStreamBeginLuminosityBlock_(id, lb, c);
     }
-    
-    void
-    EDFilterBase::doStreamEndLuminosityBlock(StreamID id,
-                                               LuminosityBlockPrincipal const& lbp,
-                                               EventSetupImpl const& ci,
-                                               ModuleCallingContext const* mcc) {
+
+    void EDFilterBase::doStreamEndLuminosityBlock(StreamID id,
+                                                  LuminosityBlockPrincipal const& lbp,
+                                                  EventSetupImpl const& ci,
+                                                  ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
-      const EventSetup c{ci};
-      this->doStreamEndLuminosityBlock_(id,lb, c);
-      this->doStreamEndLuminosityBlockSummary_(id,lb, c);
+      const EventSetup c{ci,
+                         static_cast<unsigned int>(Transition::EndLuminosityBlock),
+                         esGetTokenIndices(Transition::EndLuminosityBlock)};
+      this->doStreamEndLuminosityBlock_(id, lb, c);
+      this->doStreamEndLuminosityBlockSummary_(id, lb, c);
     }
-    
-    
-    
-    void
-    EDFilterBase::doRespondToOpenInputFile(FileBlock const& fb) {
+
+    void EDFilterBase::doRespondToOpenInputFile(FileBlock const& fb) {
       //respondToOpenInputFile(fb);
     }
-    
-    void
-    EDFilterBase::doRespondToCloseInputFile(FileBlock const& fb) {
+
+    void EDFilterBase::doRespondToCloseInputFile(FileBlock const& fb) {
       //respondToCloseInputFile(fb);
     }
-    
+
     void EDFilterBase::preallocStreams(unsigned int) {}
     void EDFilterBase::preallocLumis(unsigned int) {}
     void EDFilterBase::preallocate(PreallocationConfiguration const&) {}
-    void EDFilterBase::doBeginStream_(StreamID id){}
+    void EDFilterBase::doBeginStream_(StreamID id) {}
     void EDFilterBase::doEndStream_(StreamID id) {}
     void EDFilterBase::doStreamBeginRun_(StreamID id, Run const& rp, EventSetup const& c) {}
     void EDFilterBase::doStreamEndRun_(StreamID id, Run const& rp, EventSetup const& c) {}
     void EDFilterBase::doStreamEndRunSummary_(StreamID id, Run const& rp, EventSetup const& c) {}
     void EDFilterBase::doStreamBeginLuminosityBlock_(StreamID id, LuminosityBlock const& lbp, EventSetup const& c) {}
     void EDFilterBase::doStreamEndLuminosityBlock_(StreamID id, LuminosityBlock const& lbp, EventSetup const& c) {}
-    void EDFilterBase::doStreamEndLuminosityBlockSummary_(StreamID id, LuminosityBlock const& lbp, EventSetup const& c) {}
-    
-    
+    void EDFilterBase::doStreamEndLuminosityBlockSummary_(StreamID id,
+                                                          LuminosityBlock const& lbp,
+                                                          EventSetup const& c) {}
+
     void EDFilterBase::doBeginRun_(Run const& rp, EventSetup const& c) {}
     void EDFilterBase::doEndRun_(Run const& rp, EventSetup const& c) {}
     void EDFilterBase::doBeginRunSummary_(Run const& rp, EventSetup const& c) {}
     void EDFilterBase::doEndRunSummary_(Run const& rp, EventSetup const& c) {}
-    
+
     void EDFilterBase::doBeginLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c) {}
     void EDFilterBase::doEndLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c) {}
     void EDFilterBase::doBeginLuminosityBlockSummary_(LuminosityBlock const& rp, EventSetup const& c) {}
     void EDFilterBase::doEndLuminosityBlockSummary_(LuminosityBlock const& lb, EventSetup const& c) {}
-    
+
     void EDFilterBase::doBeginRunProduce_(Run& rp, EventSetup const& c) {}
     void EDFilterBase::doEndRunProduce_(Run& rp, EventSetup const& c) {}
     void EDFilterBase::doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) {}
@@ -259,24 +233,17 @@ namespace edm {
 
     void EDFilterBase::doAcquire_(StreamID, Event const&, EventSetup const&, WaitingTaskWithArenaHolder&) {}
 
-    void
-    EDFilterBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    void EDFilterBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;
       desc.setUnknown();
       descriptions.addDefault(desc);
     }
-    
-    void
-    EDFilterBase::prevalidate(ConfigurationDescriptions& iConfig) {
-      edmodule_mightGet_config(iConfig);
-    }
-    
-    static const std::string kBaseType("EDFilter");
-    
-    const std::string&
-    EDFilterBase::baseType() {
-      return kBaseType;
-    }
 
-  }
-}
+    void EDFilterBase::prevalidate(ConfigurationDescriptions& iConfig) { edmodule_mightGet_config(iConfig); }
+
+    static const std::string kBaseType("EDFilter");
+
+    const std::string& EDFilterBase::baseType() { return kBaseType; }
+
+  }  // namespace global
+}  // namespace edm

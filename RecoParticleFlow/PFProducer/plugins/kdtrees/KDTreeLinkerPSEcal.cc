@@ -75,10 +75,10 @@ KDTreeLinkerPSEcal::buildTree()
 
 void 
 KDTreeLinkerPSEcal::buildTree(const RecHitSet	&rechitsSet,
-			      KDTreeLinkerAlgo	&tree)
+			      KDTreeLinkerAlgo<reco::PFRecHit const*>	&tree)
 {
   // List of pseudo-rechits that will be used to create the KDTree
-  std::vector<KDTreeNodeInfo> eltList;
+  std::vector<KDTreeNodeInfo<reco::PFRecHit const*>> eltList;
 
   // Filling of this eltList
   for(RecHitSet::const_iterator it = rechitsSet.begin(); 
@@ -87,12 +87,12 @@ KDTreeLinkerPSEcal::buildTree(const RecHitSet	&rechitsSet,
     const reco::PFRecHit* rh = *it;
     const auto & posxyz = rh->position();
         
-    KDTreeNodeInfo rhinfo (rh, posxyz.x(), posxyz.y());
+    KDTreeNodeInfo rhinfo {rh, posxyz.x(), posxyz.y()};
     eltList.push_back(rhinfo);
   }
 
   // xmin-xmax, ymain-ymax
-  KDTreeBox region(-150., 150., -150., 150.);
+  KDTreeBox region{-150., 150., -150., 150.};
 
   // We may now build the KDTree
   tree.build(eltList, region);
@@ -154,7 +154,7 @@ KDTreeLinkerPSEcal::searchLinks()
     double rangeY = maxEcalRadius * (1 + (0.05 + 1.0 / maxEcalRadius * deltaY / 2.)) * inflation; 
     
     // We search for all candidate recHits, ie all recHits contained in the maximal size envelope.
-    std::vector<KDTreeNodeInfo> recHits;
+    std::vector<reco::PFRecHit const*> recHits;
     KDTreeBox trackBox(xPSonEcal - rangeX, xPSonEcal + rangeX, 
 		  yPSonEcal - rangeY, yPSonEcal + rangeY);
 
@@ -164,13 +164,12 @@ KDTreeLinkerPSEcal::searchLinks()
       treePos_.search(trackBox, recHits);
 
 
-    for(std::vector<KDTreeNodeInfo>::const_iterator rhit = recHits.begin(); 
-	rhit != recHits.end(); ++rhit) {
+    for(auto const& recHit : recHits) {
            
-      const auto & corners = rhit->ptr->getCornersXYZ();
+      const auto & corners = recHit->getCornersXYZ();
 
       // Find all clusters associated to given rechit
-      RecHit2BlockEltMap::iterator ret = rechit2ClusterLinks_.find(rhit->ptr);
+      RecHit2BlockEltMap::iterator ret = rechit2ClusterLinks_.find(recHit);
       
       for(BlockEltSet::const_iterator clusterIt = ret->second.begin(); 
 	  clusterIt != ret->second.end(); clusterIt++) {
@@ -178,7 +177,7 @@ KDTreeLinkerPSEcal::searchLinks()
 	reco::PFClusterRef clusterref = (*clusterIt)->clusterRef();
 	double clusterz = clusterref->position().z();
 
-	const auto & posxyz = rhit->ptr->position() * zPS / clusterz;
+	const auto & posxyz = recHit->position() * zPS / clusterz;
 
 	double x[5];
 	double y[5];

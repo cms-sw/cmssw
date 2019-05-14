@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms 
-from Configuration.StandardSequences.Eras import eras
 from Configuration.ProcessModifiers.convertHGCalDigisSim_cff import convertHGCalDigisSim
 
 # For old samples use the digi converter
-#process = cms.Process('DIGI',eras.Phase2,convertHGCalDigisSim)
-process = cms.Process('DIGI',eras.Phase2)
+#from Configuration.Eras.Era_Phase2_cff import Phase2
+#process = cms.Process('DIGI',Phase2,convertHGCalDigisSim)
+process = cms.Process('DIGI',Phase2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

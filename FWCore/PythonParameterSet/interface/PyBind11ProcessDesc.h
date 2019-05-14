@@ -11,7 +11,7 @@
 namespace edm {
   class ParameterSet;
   class ProcessDesc;
-}
+}  // namespace edm
 
 class PyBind11ProcessDesc {
 public:
@@ -25,14 +25,14 @@ public:
   */
   PyBind11ProcessDesc(std::string const& config);
 
-  PyBind11ProcessDesc(std::string const& config, int argc, char * argv[]);
+  PyBind11ProcessDesc(std::string const& config, int argc, char* argv[]);
 
   ~PyBind11ProcessDesc();
 
-  Python11ParameterSet newPSet() const {return Python11ParameterSet();}
+  Python11ParameterSet newPSet() const { return Python11ParameterSet(); }
 
-  Python11ParameterSet& pset() { return theProcessPSet;}
-  
+  Python11ParameterSet& pset() { return theProcessPSet; }
+
   std::string dump() const;
 
   // makes a new (copy) of the ParameterSet

@@ -7,49 +7,43 @@
 #include <boost/cstdint.hpp>
 #include <vector>
 
-/** 
+/**
     \class SiStripCcu
     \author R.Bainbridge
 */
 class SiStripCcu {
-  
- public: 
-  
+public:
   /** */
-  SiStripCcu( const FedChannelConnection& conn );
-  
-  /** */
-  ~SiStripCcu() {;}
- 
-   /** */
-  inline const std::vector<SiStripModule>& modules() const;
-  inline std::vector<SiStripModule>& modules();
+  SiStripCcu(const FedChannelConnection &conn);
 
   /** */
-  inline const uint16_t& ccuAddr() const;
+  ~SiStripCcu() { ; }
 
   /** */
-  void addDevices( const FedChannelConnection& conn );
-  
- private:
+  inline const std::vector<SiStripModule> &modules() const;
+  inline std::vector<SiStripModule> &modules();
 
   /** */
-  SiStripCcu() {;}
+  inline const uint16_t &ccuAddr() const;
+
+  /** */
+  void addDevices(const FedChannelConnection &conn);
+
+private:
+  /** */
+  SiStripCcu() { ; }
 
   /** */
   uint16_t ccuAddr_;
 
   /** */
   std::vector<SiStripModule> modules_;
-
 };
 
 // ---------- inline methods ----------
 
-const std::vector<SiStripModule>& SiStripCcu::modules() const { return modules_; }
-std::vector<SiStripModule>& SiStripCcu::modules() { return modules_; }
-const uint16_t& SiStripCcu::ccuAddr() const { return ccuAddr_; }
+const std::vector<SiStripModule> &SiStripCcu::modules() const { return modules_; }
+std::vector<SiStripModule> &SiStripCcu::modules() { return modules_; }
+const uint16_t &SiStripCcu::ccuAddr() const { return ccuAddr_; }
 
-#endif // CalibTracker_SiStripObjects_SiStripCcu_H
-
-
+#endif  // CalibTracker_SiStripObjects_SiStripCcu_H

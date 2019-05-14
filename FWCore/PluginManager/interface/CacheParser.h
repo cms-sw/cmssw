@@ -4,7 +4,7 @@
 //
 // Package:     PluginManager
 // Class  :     CacheParser
-// 
+//
 /**\class CacheParser CacheParser.h FWCore/PluginManager/interface/CacheParser.h
 
  Description: Parses the cache information about which plugins are in which libraries
@@ -37,44 +37,45 @@ If a space exists in either of these three fields, it will be replaced with a %,
 class TestCacheParser;
 
 namespace edmplugin {
-class CacheParser
-{
+  class CacheParser {
+  public:
+    typedef std::map<std::string, std::vector<PluginInfo> > CategoryToInfos;
+    typedef std::pair<std::string, std::string> NameAndType;
+    typedef std::vector<NameAndType> NameAndTypes;
+    typedef std::map<boost::filesystem::path, NameAndTypes> LoadableToPlugins;
 
-   public:
-      typedef std::map<std::string, std::vector<PluginInfo> > CategoryToInfos;
-      typedef std::pair< std::string, std::string> NameAndType;
-      typedef std::vector< NameAndType > NameAndTypes;
-      typedef std::map<boost::filesystem::path, NameAndTypes > LoadableToPlugins;
+    // ---------- const member functions ---------------------
 
-      // ---------- const member functions ---------------------
+    // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-      /**The std::vector<PluginInfo>'s in CategoryToInfos are guaranteed to be ordered by
+    // ---------- member functions ---------------------------
+    /**The std::vector<PluginInfo>'s in CategoryToInfos are guaranteed to be ordered by
         PluginInfo.name_ where identical names are ordered by the order they are passed to read.
         In this way multiple calls to read for different directories will preserve the ordering
         */
-      static void read(std::istream&, const boost::filesystem::path& iDirectory, CategoryToInfos& oOut);
-      static void write(const CategoryToInfos&, std::ostream&);
-      
-      static void read(std::istream&, LoadableToPlugins& oOut);
-      static void write(LoadableToPlugins& iIn, std::ostream&);
-   private:
-      //for testing
-      friend class ::TestCacheParser;
-      CacheParser(const CacheParser&) = delete; // stop default
+    static void read(std::istream&, const boost::filesystem::path& iDirectory, CategoryToInfos& oOut);
+    static void write(const CategoryToInfos&, std::ostream&);
 
-      const CacheParser& operator=(const CacheParser&) = delete; // stop default
+    static void read(std::istream&, LoadableToPlugins& oOut);
+    static void write(LoadableToPlugins& iIn, std::ostream&);
 
-      static bool readline(std::istream& iIn, const boost::filesystem::path& iDirectory,
-               unsigned long iRecordNumber, PluginInfo &oInfo, std::string& oPluginType);
-      static std::string& replaceSpaces(std::string& io);
-      static std::string& restoreSpaces(std::string& io);
-      
-      // ---------- member data --------------------------------
+  private:
+    //for testing
+    friend class ::TestCacheParser;
+    CacheParser(const CacheParser&) = delete;  // stop default
 
-};
+    const CacheParser& operator=(const CacheParser&) = delete;  // stop default
 
-}
+    static bool readline(std::istream& iIn,
+                         const boost::filesystem::path& iDirectory,
+                         unsigned long iRecordNumber,
+                         PluginInfo& oInfo,
+                         std::string& oPluginType);
+    static std::string& replaceSpaces(std::string& io);
+    static std::string& restoreSpaces(std::string& io);
+
+    // ---------- member data --------------------------------
+  };
+
+}  // namespace edmplugin
 #endif

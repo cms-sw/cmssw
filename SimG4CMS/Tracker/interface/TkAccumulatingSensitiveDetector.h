@@ -64,7 +64,7 @@ private:
     std::unique_ptr<TrackingSlaveSD> slaveHighTof;
     std::unique_ptr<FrameRotation>   theRotation;
     std::unique_ptr<const G4ProcessTypeEnumerator> theG4ProcTypeEnumerator;
-    std::unique_ptr<TrackerG4SimHitNumberingScheme> theNumberingScheme;
+    TrackerG4SimHitNumberingScheme* theNumberingScheme; //does not own
     bool allowZeroEnergyLoss;
     bool printHits;
     bool neverAccumulate;

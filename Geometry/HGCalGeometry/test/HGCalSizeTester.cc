@@ -8,8 +8,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -26,20 +24,20 @@ public:
   explicit HGCalSizeTester(const edm::ParameterSet& );
   ~HGCalSizeTester() override;
 
-  void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}
   
 private:
   void doTestWafer(const HGCalGeometry* geom, DetId::Detector det);
   void doTestScint(const HGCalGeometry* geom, DetId::Detector det);
   
   std::string    name;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
 };
 
-HGCalSizeTester::HGCalSizeTester(const edm::ParameterSet& iC) {
-  name       = iC.getParameter<std::string>("detector");
-}
+HGCalSizeTester::HGCalSizeTester(const edm::ParameterSet& iC):
+  name{iC.getParameter<std::string>("detector")},
+  geomToken_{esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name})}
+{}
 
 
 HGCalSizeTester::~HGCalSizeTester() {}
@@ -47,28 +45,22 @@ HGCalSizeTester::~HGCalSizeTester() {}
 void HGCalSizeTester::analyze(const edm::Event& , 
 			      const edm::EventSetup& iSetup ) {
 
-  edm::ESHandle<HGCalGeometry> geomH;
-  iSetup.get<IdealGeometryRecord>().get(name,geomH);
-  const HGCalGeometry* geom = (geomH.product());
-  if (!geomH.isValid()) {
-    std::cout << "Cannot get valid HGCalGeometry Object for " << name 
-	      << std::endl;
+  const auto& geomR = iSetup.getData(geomToken_);
+  const HGCalGeometry* geom = &geomR;
+  HGCalGeometryMode::GeometryMode mode = geom->topology().dddConstants().geomMode();
+  if ((mode == HGCalGeometryMode::Hexagon) ||
+      (mode == HGCalGeometryMode::HexagonFull)) {
   } else {
-    HGCalGeometryMode::GeometryMode mode = geom->topology().dddConstants().geomMode();
-    if ((mode == HGCalGeometryMode::Hexagon) ||
-	(mode == HGCalGeometryMode::HexagonFull)) {
+    DetId::Detector det;
+    if      (name == "HGCalHESiliconSensitive")      det = DetId::HGCalHSi;
+    else if (name == "HGCalHEScintillatorSensitive") det = DetId::HGCalHSc;
+    else                                             det = DetId::HGCalEE;
+    std::cout << "Perform test for " << name << " Detector " << det
+              << std::endl;
+    if (name == "HGCalHEScintillatorSensitive") {
+      doTestScint(geom, det);
     } else {
-      DetId::Detector det;
-      if      (name == "HGCalHESiliconSensitive")      det = DetId::HGCalHSi;
-      else if (name == "HGCalHEScintillatorSensitive") det = DetId::HGCalHSc;
-      else                                             det = DetId::HGCalEE;
-      std::cout << "Perform test for " << name << " Detector " << det
-		<< std::endl;
-      if (name == "HGCalHEScintillatorSensitive") {
-	doTestScint(geom, det);
-      } else {
-	doTestWafer(geom,det);
-      }
+      doTestWafer(geom,det);
     }
   }
 }

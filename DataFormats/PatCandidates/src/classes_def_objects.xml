@@ -67,7 +67,9 @@
   </ioread>
 
 
-  <class name="pat::Muon"  ClassVersion="25">
+  <class name="pat::Muon"  ClassVersion="27">
+   <version ClassVersion="27" checksum="3473399161"/>
+   <version ClassVersion="26" checksum="1156855644"/>
    <version ClassVersion="25" checksum="574733987"/>
    <version ClassVersion="24" checksum="2298704767"/>
    <version ClassVersion="23" checksum="3471390119"/>
@@ -336,7 +338,8 @@
   <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="3">
    <version ClassVersion="3" checksum="3320406063"/>
   </class>
-  <class name="pat::PackedCandidate" ClassVersion="33">
+  <class name="pat::PackedCandidate" ClassVersion="34">
+   <version ClassVersion="34" checksum="3953181632"/>
    <version ClassVersion="33" checksum="1092680546"/>
    <version ClassVersion="32" checksum="926869123"/>
    <version ClassVersion="31" checksum="1248040002"/>
@@ -417,6 +420,18 @@
    target="packedPuppiweightNoLepDiff_" include="DataFormats/Math/interface/liblogintpack.h">
    <![CDATA[
             packedPuppiweightNoLepDiff_ = std::numeric_limits<int8_t>::max()*(logintpack::unpack8logClosed(onfile.packedPuppiweightNoLepDiff_+onfile.packedPuppiweight_,-2,0,64)/2. - logintpack::unpack8logClosed(onfile.packedPuppiweight_,-2,0,64)/2.);
+   ]]>
+   </ioread>
+  <ioread sourceClass="pat::PackedCandidate" source="int8_t hcalFraction_; int pdgId_" version="[-33]" targetClass="pat::PackedCandidate" target="rawHcalFraction_,hcalFraction_,pdgId_">
+   <![CDATA[
+      int absPdgId = abs(onfile.pdgId_);
+      if (absPdgId == 211 || absPdgId == 11 || absPdgId == 13) {
+        rawHcalFraction_ = onfile.hcalFraction_;
+        hcalFraction_ = 0;
+      } else {
+        hcalFraction_ = onfile.hcalFraction_;
+      }
+      pdgId_ = onfile.pdgId_;
    ]]>
    </ioread>
 

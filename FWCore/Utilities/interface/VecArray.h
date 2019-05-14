@@ -40,7 +40,7 @@ namespace edm {
     using iterator = value_type*;
     using const_iterator = const value_type*;
 
-    VecArray(): data_{}, size_{0} {}
+    VecArray() : data_{}, size_{0} {}
 
     // Not range-checked, undefined behaviour if access beyond size()
     reference operator[](size_type pos) { return data_[pos]; }
@@ -52,9 +52,9 @@ namespace edm {
     const_reference front() const { return data_[0]; }
 
     // Undefined behaviour if size()==0
-    reference back() { return data_[size_-1]; }
+    reference back() { return data_[size_ - 1]; }
     // Undefined behaviour if size()==0
-    const_reference back() const { return data_[size_-1]; }
+    const_reference back() const { return data_[size_ - 1]; }
     pointer data() { return data_; }
     const_pointer data() const { return data_; }
 
@@ -62,22 +62,20 @@ namespace edm {
     const_iterator begin() const noexcept { return data_; }
     const_iterator cbegin() const noexcept { return data_; }
 
-    iterator end() noexcept { return begin()+size_; }
-    const_iterator end() const noexcept { return begin()+size_; }
-    const_iterator cend() const noexcept { return cbegin()+size_; }
+    iterator end() noexcept { return begin() + size_; }
+    const_iterator end() const noexcept { return begin() + size_; }
+    const_iterator cend() const noexcept { return cbegin() + size_; }
 
     constexpr bool empty() const noexcept { return size_ == 0; }
     constexpr size_type size() const noexcept { return size_; }
     static constexpr size_type capacity() noexcept { return N; }
 
-    void clear() {
-      size_ = 0;
-    }
+    void clear() { size_ = 0; }
 
     // Throws if size()==N
     void push_back(const T& value) {
-      if(size_ >= N)
-        throw std::length_error("push_back on already-full VecArray (N="+std::to_string(N)+")");
+      if (size_ >= N)
+        throw std::length_error("push_back on already-full VecArray (N=" + std::to_string(N) + ")");
       push_back_unchecked(value);
     }
 
@@ -88,42 +86,39 @@ namespace edm {
     }
 
     // Throws if size()==N
-    template <typename ...Args>
+    template <typename... Args>
     void emplace_back(Args&&... args) {
-      if(size_ >= N)
-        throw std::length_error("emplace_back on already-full VecArray (N="+std::to_string(N)+")");
+      if (size_ >= N)
+        throw std::length_error("emplace_back on already-full VecArray (N=" + std::to_string(N) + ")");
       emplace_back_unchecked(std::forward<Args>(args)...);
     }
 
     // Undefined behaviour if size()==N
-    template <typename ...Args>
+    template <typename... Args>
     void emplace_back_unchecked(Args&&... args) {
       data_[size_] = T(std::forward<Args>(args)...);
       ++size_;
     }
 
     // Undefined behaviour if size()==0
-    void pop_back() {
-      --size_;
-    }
+    void pop_back() { --size_; }
 
     void resize(unsigned int size) {
-      if(size > N)
-        throw std::length_error("Requesting size "+std::to_string(size)+" while maximum allowed is "+std::to_string(N));
+      if (size > N)
+        throw std::length_error("Requesting size " + std::to_string(size) + " while maximum allowed is " +
+                                std::to_string(N));
 
-      while(size < size_)
+      while (size < size_)
         pop_back();
       size_ = size;
     }
 
-    void swap(VecArray& other)
-      noexcept(noexcept(std::swap(data_, other.data_)) &&
-               noexcept(std::swap(size_, other.size_)))
-    {
+    void swap(VecArray& other) noexcept(noexcept(std::swap(data_, other.data_)) &&
+                                        noexcept(std::swap(size_, other.size_))) {
       std::swap(data_, other.data_);
       std::swap(size_, other.size_);
     }
   };
-}
+}  // namespace edm
 
 #endif

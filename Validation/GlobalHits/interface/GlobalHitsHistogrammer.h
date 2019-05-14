@@ -2,26 +2,26 @@
 #define GlobalHitsHistogrammer_h
 
 /** \class GlobalHitsHistogrammer
- *  
+ *
  *  Class to fill dqm monitor elements from existing EDM file
  *
  *  \author M. Strang SUNY-Buffalo
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 //#include "DataFormats/DetId/interface/DetId.h"
 
-//DQM services
+// DQM services
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -59,32 +59,28 @@
 
 // helper files
 //#include <CLHEP/Vector/LorentzVector.h>
-#include "DataFormats/Math/interface/LorentzVector.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
-#include <iostream>
 #include <cstdlib>
-#include <string>
+#include <iostream>
 #include <memory>
+#include <string>
 #include <vector>
 
-#include "TString.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "TString.h"
 
 class GlobalHitsHistogrammer : public DQMEDAnalyzer {
+public:
+  // typedef std::vector<float> FloatVector;
 
- public:
-
-  //typedef std::vector<float> FloatVector;
-
-  explicit GlobalHitsHistogrammer(const edm::ParameterSet&);
+  explicit GlobalHitsHistogrammer(const edm::ParameterSet &);
   ~GlobalHitsHistogrammer() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &,
-      edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
- private:
-
+private:
   //  parameter information
   std::string fName;
   int verbosity;
@@ -104,11 +100,11 @@ class GlobalHitsHistogrammer : public DQMEDAnalyzer {
   MonitorElement *meMCRGP[2];
   MonitorElement *meMCG4Vtx[2];
   MonitorElement *meGeantVtxX[2];
-  MonitorElement *meGeantVtxY[2];  
-  MonitorElement *meGeantVtxZ[2];  
+  MonitorElement *meGeantVtxY[2];
+  MonitorElement *meGeantVtxZ[2];
   MonitorElement *meMCG4Trk[2];
   MonitorElement *meGeantTrkPt;
-  MonitorElement *meGeantTrkE; 
+  MonitorElement *meGeantTrkE;
 
   // Electromagnetic info
   // ECal info
@@ -116,7 +112,7 @@ class GlobalHitsHistogrammer : public DQMEDAnalyzer {
   MonitorElement *meCaloEcalE[2];
   MonitorElement *meCaloEcalToF[2];
   MonitorElement *meCaloEcalPhi;
-  MonitorElement *meCaloEcalEta;  
+  MonitorElement *meCaloEcalEta;
 
   // Preshower info
   MonitorElement *meCaloPreSh[2];
@@ -131,7 +127,7 @@ class GlobalHitsHistogrammer : public DQMEDAnalyzer {
   MonitorElement *meCaloHcalE[2];
   MonitorElement *meCaloHcalToF[2];
   MonitorElement *meCaloHcalPhi;
-  MonitorElement *meCaloHcalEta;  
+  MonitorElement *meCaloHcalEta;
 
   // Tracker info
   // Pixel info
@@ -185,8 +181,6 @@ class GlobalHitsHistogrammer : public DQMEDAnalyzer {
   // private statistics information
   unsigned int count;
 
-}; // end class declaration
-  
+};  // end class declaration
+
 #endif
-
-

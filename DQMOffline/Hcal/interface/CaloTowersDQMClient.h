@@ -3,43 +3,40 @@
 
 // -*- C++ -*-
 //
-// 
+//
 /*
- Description: This is a CaloTowers client meant to plot calotowers quantities 
+ Description: This is a CaloTowers client meant to plot calotowers quantities
 */
 
 //
-// Originally create by: Hongxuan Liu 
+// Originally create by: Hongxuan Liu
 //                        May 2010
 //
 
-#include <memory>
-#include <unistd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <memory>
+#include <unistd.h>
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <vector>
 
 class DQMStore;
 class MonitorElement;
 
 class CaloTowersDQMClient : public DQMEDHarvester {
- 
- private:
+private:
   std::string outputFile_;
   edm::ParameterSet conf_;
 
@@ -50,16 +47,16 @@ class CaloTowersDQMClient : public DQMEDHarvester {
   std::string dirNameJet_;
   std::string dirNameMET_;
 
- public:
-  explicit CaloTowersDQMClient(const edm::ParameterSet& );
+public:
+  explicit CaloTowersDQMClient(const edm::ParameterSet &);
   ~CaloTowersDQMClient() override;
-  
+
   void beginJob(void) override;
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
-  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void dqmEndJob(DQMStore::IBooker &,
+                 DQMStore::IGetter &) override;  // performed in the endJob
+  void beginRun(const edm::Run &run, const edm::EventSetup &c) override;
 
-  int CaloTowersEndjob(const std::vector<MonitorElement*> &hcalMEs);
-
+  int CaloTowersEndjob(const std::vector<MonitorElement *> &hcalMEs);
 };
- 
+
 #endif

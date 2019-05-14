@@ -8,8 +8,8 @@
 #include "TH1F.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -21,89 +21,76 @@
 // class decleration
 //
 
-class TrackingParticleCategoriesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>
-{
+class TrackingParticleCategoriesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
-
-    explicit TrackingParticleCategoriesAnalyzer(const edm::ParameterSet&);
-    ~TrackingParticleCategoriesAnalyzer() override;
+  explicit TrackingParticleCategoriesAnalyzer(const edm::ParameterSet &);
+  ~TrackingParticleCategoriesAnalyzer() override;
 
 private:
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+  // Member data
 
-    // Member data
+  edm::EDGetTokenT<TrackingParticleCollection> trackingTruth_;
 
-    edm::EDGetTokenT<TrackingParticleCollection> trackingTruth_;
+  std::size_t totalTrakingParticles_;
 
-    std::size_t totalTrakingParticles_;
+  TrackClassifier classifier_;
 
-    TrackClassifier classifier_;
+  TH1F *trackingParticleCategories_;
 
-    TH1F * trackingParticleCategories_;
-
-    Int_t numberTrackingParticleCategories_;
+  Int_t numberTrackingParticleCategories_;
 };
 
+TrackingParticleCategoriesAnalyzer::TrackingParticleCategoriesAnalyzer(const edm::ParameterSet &config)
+    : classifier_(config, consumesCollector()) {
+  // Get the track collection
+  trackingTruth_ = consumes<TrackingParticleCollection>(config.getUntrackedParameter<edm::InputTag>("trackingTruth"));
 
-TrackingParticleCategoriesAnalyzer::TrackingParticleCategoriesAnalyzer(const edm::ParameterSet& config) : classifier_(config,consumesCollector())
-{
-    // Get the track collection
-    trackingTruth_ = consumes<TrackingParticleCollection>(config.getUntrackedParameter<edm::InputTag> ( "trackingTruth" ));
+  // Get the file service
+  usesResource("TFileService");
+  edm::Service<TFileService> fs;
 
-    // Get the file service
-    usesResource("TFileService");
-    edm::Service<TFileService> fs;
+  // Create a sub directory associated to the analyzer
+  TFileDirectory directory = fs->mkdir("TrackingParticleCategoriesAnalyzer");
 
-    // Create a sub directory associated to the analyzer
-    TFileDirectory directory = fs->mkdir( "TrackingParticleCategoriesAnalyzer" );
+  // Number of track categories
+  numberTrackingParticleCategories_ = TrackCategories::Unknown + 1;
 
-    // Number of track categories
-    numberTrackingParticleCategories_ = TrackCategories::Unknown+1;
+  // Define a new histograms
+  trackingParticleCategories_ = fs->make<TH1F>("Frequency",
+                                               "Frequency for the different track categories",
+                                               numberTrackingParticleCategories_,
+                                               -0.5,
+                                               numberTrackingParticleCategories_ - 0.5);
 
-    // Define a new histograms
-    trackingParticleCategories_ = fs->make<TH1F>(
-                           "Frequency",
-                           "Frequency for the different track categories",
-                           numberTrackingParticleCategories_,
-                           -0.5,
-                           numberTrackingParticleCategories_ - 0.5
-                       );
-
-    // Set the proper categories names
-    for (Int_t i = 0; i < numberTrackingParticleCategories_; ++i)
-        trackingParticleCategories_->GetXaxis()->SetBinLabel(i+1, TrackCategories::Names[i]);
+  // Set the proper categories names
+  for (Int_t i = 0; i < numberTrackingParticleCategories_; ++i)
+    trackingParticleCategories_->GetXaxis()->SetBinLabel(i + 1, TrackCategories::Names[i]);
 }
 
+TrackingParticleCategoriesAnalyzer::~TrackingParticleCategoriesAnalyzer() {}
 
-TrackingParticleCategoriesAnalyzer::~TrackingParticleCategoriesAnalyzer() { }
+void TrackingParticleCategoriesAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &setup) {
+  // Track collection
+  edm::Handle<TrackingParticleCollection> TPCollection;
+  event.getByToken(trackingTruth_, TPCollection);
 
+  // Set the classifier for a new event
+  classifier_.newEvent(event, setup);
 
-void TrackingParticleCategoriesAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
-{
-    // Track collection
-    edm::Handle<TrackingParticleCollection> TPCollection;
-    event.getByToken(trackingTruth_, TPCollection);
+  // Loop over the track collection.
+  for (std::size_t index = 0; index < TPCollection->size(); index++) {
+    TrackingParticleRef trackingParticle(TPCollection, index);
 
-    // Set the classifier for a new event
-    classifier_.newEvent(event, setup);
+    // Classify the tracks
+    classifier_.evaluate(trackingParticle);
 
-    // Loop over the track collection.
-    for (std::size_t index = 0; index < TPCollection->size(); index++)
-    {
-        TrackingParticleRef trackingParticle(TPCollection, index);
-
-        // Classify the tracks
-        classifier_.evaluate(trackingParticle);
-
-        // Fill the histogram with the categories
-        for (Int_t i = 0; i != numberTrackingParticleCategories_; ++i)
-            if (
-                classifier_.is( (TrackCategories::Category) i )
-            )
-                trackingParticleCategories_->Fill(i);
-    }
+    // Fill the histogram with the categories
+    for (Int_t i = 0; i != numberTrackingParticleCategories_; ++i)
+      if (classifier_.is((TrackCategories::Category)i))
+        trackingParticleCategories_->Fill(i);
+  }
 }
-
 
 DEFINE_FWK_MODULE(TrackingParticleCategoriesAnalyzer);

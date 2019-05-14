@@ -139,13 +139,13 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
       if (!uncalibRecHits->empty()) {
 	if ((*uncalibRecHits)[0].id().subdetId() == EcalBarrel) {
 	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-	  topology = std::make_unique<EcalBarrelTopology>(geoHandle);
+	  topology = std::make_unique<EcalBarrelTopology>(*geoHandle);
 	} else if ((*uncalibRecHits)[0].id().subdetId() == EcalEndcap) {
 	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-	  topology = std::make_unique<EcalEndcapTopology>(geoHandle);
+	  topology = std::make_unique<EcalEndcapTopology>(*geoHandle);
 	} else if ((*uncalibRecHits)[0].id().subdetId() == EcalPreshower) {
 	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-	  topology = std::make_unique<EcalPreshowerTopology>(geoHandle);
+	  topology = std::make_unique<EcalPreshowerTopology>();
 	} else throw(std::runtime_error("\n\nProducer encountered invalied ecalhitcollection type.\n\n"));
 	
 	if(!regions.empty()) {
@@ -184,13 +184,13 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
       if (!recHits->empty()) {
 	if ((*recHits)[0].id().subdetId() == EcalBarrel) {
 	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-	  topology = std::make_unique<EcalBarrelTopology>(geoHandle);
+	  topology = std::make_unique<EcalBarrelTopology>(*geoHandle);
 	} else if ((*recHits)[0].id().subdetId() == EcalEndcap) {
 	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-	  topology = std::make_unique<EcalEndcapTopology>(geoHandle);
+	  topology = std::make_unique<EcalEndcapTopology>(*geoHandle);
 	} else if ((*recHits)[0].id().subdetId() == EcalPreshower) {
 	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-	  topology = std::make_unique<EcalPreshowerTopology>(geoHandle);
+	  topology = std::make_unique<EcalPreshowerTopology>();
 	} else throw(std::runtime_error("\n\nProducer encountered invalied ecalhitcollection type.\n\n"));
 	
 	if(!regions.empty()) {

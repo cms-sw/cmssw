@@ -405,23 +405,22 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
   setup.get<CaloGeometryRecord>().get(geoHandle);
 
   const CaloSubdetectorGeometry *geometry_p;
-  CaloSubdetectorTopology *topology_p;
 
   std::string clustershapetag;
   geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  topology_p = new EcalBarrelTopology(geoHandle);
+  EcalBarrelTopology topology{*geoHandle};
 
   const CaloSubdetectorGeometry *geometryES_p;
   geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
   /*
   reco::BasicClusterCollection clusters;
-  clusters = island_p->makeClusters(ecalRecHitBarrelCollection,geometry_p,topology_p,geometryES_p,IslandClusterAlgo::barrel);
+  clusters = island_p->makeClusters(ecalRecHitBarrelCollection,geometry_p,&topology,geometryES_p,IslandClusterAlgo::barrel);
   
   //Create associated ClusterShape objects.
   std::vector <reco::ClusterShape> ClusVec;
   for (int erg=0;erg<int(clusters.size());++erg){
-    reco::ClusterShape TestShape = shapeAlgo_.Calculate(clusters[erg],ecalRecHitBarrelCollection,geometry_p,topology_p);
+    reco::ClusterShape TestShape = shapeAlgo_.Calculate(clusters[erg],ecalRecHitBarrelCollection,geometry_p,&topology);
     ClusVec.push_back(TestShape);
   }
 
@@ -441,12 +440,12 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
 
   // recalibrated clusters
   reco::BasicClusterCollection clusters_recalib;
-  clusters_recalib = island_p->makeClusters(recalibEcalRecHitCollection,geometry_p,topology_p,geometryES_p,IslandClusterAlgo::barrel);
+  clusters_recalib = island_p->makeClusters(recalibEcalRecHitCollection,geometry_p,&topology,geometryES_p,IslandClusterAlgo::barrel);
   
   //Create associated ClusterShape objects.
   std::vector <reco::ClusterShape> ClusVec_recalib;
   for (int erg=0;erg<int(clusters_recalib.size());++erg){
-    reco::ClusterShape TestShape_recalib = shapeAlgo_.Calculate(clusters_recalib[erg],recalibEcalRecHitCollection,geometry_p,topology_p);
+    reco::ClusterShape TestShape_recalib = shapeAlgo_.Calculate(clusters_recalib[erg],recalibEcalRecHitCollection,geometry_p,&topology);
     ClusVec_recalib.push_back(TestShape_recalib);
   }
 

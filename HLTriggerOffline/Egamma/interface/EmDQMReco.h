@@ -1,67 +1,70 @@
 #ifndef HLTriggerOffline_Egamma_EmDQMReco_H
 #define HLTriggerOffline_Egamma_EmDQMReco_H
 
-
 // Base Class Headers
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/RefToBase.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include <vector>
-#include "TDirectory.h"
-#include "HepMC/GenParticle.h"
-#include "CommonTools/Utils/interface/PtComparator.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HepMC/GenParticle.h"
+#include "TDirectory.h"
+#include <vector>
 
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/scoped_ptr.hpp>
 
 class EmDQMReco;
 
-template <class T> 
+template <class T>
 class HistoFillerReco {
- public:
-  HistoFillerReco(EmDQMReco* d):dqm(d) {};
-  ~HistoFillerReco() {};
-    
-  void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& triggerObj,const edm::Event& iEvent ,unsigned int n, std::vector<reco::Particle>& sortedReco, bool plotReco, bool plotMonpath);
-  std::vector<edm::EDGetTokenT<edm::AssociationMap<edm::OneToValue< T , float>>>> isoNameTokens_;
+public:
+  HistoFillerReco(EmDQMReco *d) : dqm(d){};
+  ~HistoFillerReco(){};
 
- private:
-  EmDQMReco* dqm;
+  void fillHistos(edm::Handle<trigger::TriggerEventWithRefs> &triggerObj,
+                  const edm::Event &iEvent,
+                  unsigned int n,
+                  std::vector<reco::Particle> &sortedReco,
+                  bool plotReco,
+                  bool plotMonpath);
+  std::vector<edm::EDGetTokenT<edm::AssociationMap<edm::OneToValue<T, float>>>> isoNameTokens_;
+
+private:
+  EmDQMReco *dqm;
 };
 
-class EmDQMReco : public DQMEDAnalyzer{
-
+class EmDQMReco : public DQMEDAnalyzer {
   //----------------------------------------
 
   /** a class managing a set of MonitorElements for quantities of a fourvector
    *  we want to histogram.
    */
-  class FourVectorMonitorElements
-  {
-
+  class FourVectorMonitorElements {
   public:
-    /** @param histogramNameTemplate should be a format string (like used in printf(..)
-     *  or boost::format(..) for the histogram NAME where the first %s is replaced with et,eta or phi.
+    /** @param histogramNameTemplate should be a format string (like used in
+     * printf(..) or boost::format(..) for the histogram NAME where the first %s
+     * is replaced with et,eta or phi.
      *
-     *  @param histogramTitleTemplate should be a format string (see histogramNameTemplate)
-     *   for the histogram TITLE where the first %s is replaced with et,eta or phi.
+     *  @param histogramTitleTemplate should be a format string (see
+     * histogramNameTemplate) for the histogram TITLE where the first %s is
+     * replaced with et,eta or phi.
      */
     FourVectorMonitorElements(EmDQMReco *_parent,
-        DQMStore::IBooker &iBooker,
-        const std::string &histogramNameTemplate,
-        const std::string &histogramTitleTemplate);
+                              DQMStore::IBooker &iBooker,
+                              const std::string &histogramNameTemplate,
+                              const std::string &histogramTitleTemplate);
 
     void fill(const math::XYZTLorentzVector &momentum);
 
@@ -70,28 +73,26 @@ class EmDQMReco : public DQMEDAnalyzer{
     EmDQMReco *parent;
 
     /** DQM objects (histograms) for the variables to be plotted */
-    MonitorElement* etMonitorElement;
-    MonitorElement* etaMonitorElement;
-    MonitorElement* phiMonitorElement;
-
+    MonitorElement *etMonitorElement;
+    MonitorElement *etaMonitorElement;
+    MonitorElement *phiMonitorElement;
   };
   //----------------------------------------
 
 public:
-
   friend class HistoFillerReco<reco::ElectronCollection>;
   friend class HistoFillerReco<reco::RecoEcalCandidateCollection>;
   friend class HistoFillerReco<l1extra::L1EmParticleCollection>;
 
   /// Constructor
-  explicit EmDQMReco(const edm::ParameterSet& pset);
+  explicit EmDQMReco(const edm::ParameterSet &pset);
 
   /// Destructor
   ~EmDQMReco() override;
 
   // Operations
-  void analyze(const edm::Event & event, const edm::EventSetup&) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup& ) override;
+  void analyze(const edm::Event &event, const edm::EventSetup &) override;
+  void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
@@ -103,12 +104,12 @@ private:
   unsigned int numOfHLTCollectionLabels;  // Will be size of above vector
 
   bool useHumanReadableHistTitles;
-  std::vector<std::string> theHLTCollectionHumanNames; // Human-readable names for the collections
-  //edm::InputTag theL1Seed;
+  std::vector<std::string> theHLTCollectionHumanNames;  // Human-readable names for the collections
+  // edm::InputTag theL1Seed;
   std::vector<int> theHLTOutputTypes;
   std::vector<bool> plotiso;
-  std::vector<std::vector<edm::InputTag> > isoNames; // there has to be a better solution
-  std::vector<std::pair<double,double> > plotBounds;
+  std::vector<std::vector<edm::InputTag>> isoNames;  // there has to be a better solution
+  std::vector<std::pair<double, double>> plotBounds;
   std::string theHltName;
   HLTConfigProvider hltConfig_;
   bool isHltConfigInitialized_;
@@ -118,20 +119,20 @@ private:
   ////////////////////////////////////////////////////////////
   // parameters for generator study
   unsigned int reqNum;
-  int   pdgGen;
+  int pdgGen;
   double recoEtaAcc;
   double recoEtAcc;
   // plotting paramters
   double plotEtaMax;
-  double plotPtMin ;
-  double plotPtMax ;
+  double plotPtMin;
+  double plotPtMax;
   double plotPhiMax;
 
   /** number of bins to use for ALL plots (?) */
-  unsigned int plotBins ;
+  unsigned int plotBins;
 
   // preselction cuts
-  //edm::InputTag recocutCollection_;
+  // edm::InputTag recocutCollection_;
   unsigned int recocut_;
 
   /** events which fire this trigger are filled into {et,eta,phi}recomonpath
@@ -157,55 +158,54 @@ private:
   /** \label Et, eta and phi distributions (RECO) for the different
    *  HLT modules to be looked at. */
   /** @{ */
-// std::vector<MonitorElement*> etahist;
-//  std::vector<MonitorElement*> ethist;
-//  std::vector<MonitorElement*> phiHist;
+  // std::vector<MonitorElement*> etahist;
+  //  std::vector<MonitorElement*> ethist;
+  //  std::vector<MonitorElement*> phiHist;
 
   boost::ptr_vector<FourVectorMonitorElements> standardHist;
 
-//  std::vector<MonitorElement*> etahistmatchreco;
-//  std::vector<MonitorElement*> ethistmatchreco;
-//  std::vector<MonitorElement*> phiHistMatchReco;
+  //  std::vector<MonitorElement*> etahistmatchreco;
+  //  std::vector<MonitorElement*> ethistmatchreco;
+  //  std::vector<MonitorElement*> phiHistMatchReco;
   boost::ptr_vector<FourVectorMonitorElements> histMatchReco;
 
-//  std::vector<MonitorElement*> etahistmatchrecomonpath;
-//  std::vector<MonitorElement*> ethistmatchrecomonpath;
-//  std::vector<MonitorElement*> phiHistMatchRecoMonPath;
+  //  std::vector<MonitorElement*> etahistmatchrecomonpath;
+  //  std::vector<MonitorElement*> ethistmatchrecomonpath;
+  //  std::vector<MonitorElement*> phiHistMatchRecoMonPath;
   boost::ptr_vector<FourVectorMonitorElements> histMatchRecoMonPath;
 
-
-//  std::vector<MonitorElement*> histEtOfHltObjMatchToReco;
-//  std::vector<MonitorElement*> histEtaOfHltObjMatchToReco;
-//  std::vector<MonitorElement*> histPhiOfHltObjMatchToReco;
+  //  std::vector<MonitorElement*> histEtOfHltObjMatchToReco;
+  //  std::vector<MonitorElement*> histEtaOfHltObjMatchToReco;
+  //  std::vector<MonitorElement*> histPhiOfHltObjMatchToReco;
   boost::ptr_vector<FourVectorMonitorElements> histHltObjMatchToReco;
 
   /** @} */
 
   /** \label Isolation distributions */
   /** @{ */
-  std::vector<MonitorElement*> etahistiso;
-  std::vector<MonitorElement*> ethistiso;
-  std::vector<MonitorElement*> phiHistIso;
+  std::vector<MonitorElement *> etahistiso;
+  std::vector<MonitorElement *> ethistiso;
+  std::vector<MonitorElement *> phiHistIso;
 
-  std::vector<MonitorElement*> etahistisomatchreco;
-  std::vector<MonitorElement*> ethistisomatchreco;
-  std::vector<MonitorElement*> phiHistIsoMatchReco;
+  std::vector<MonitorElement *> etahistisomatchreco;
+  std::vector<MonitorElement *> ethistisomatchreco;
+  std::vector<MonitorElement *> phiHistIsoMatchReco;
 
-  std::vector<MonitorElement*> histEtIsoOfHltObjMatchToReco;
-  std::vector<MonitorElement*> histEtaIsoOfHltObjMatchToReco;
-  std::vector<MonitorElement*> histPhiIsoOfHltObjMatchToReco;
+  std::vector<MonitorElement *> histEtIsoOfHltObjMatchToReco;
+  std::vector<MonitorElement *> histEtaIsoOfHltObjMatchToReco;
+  std::vector<MonitorElement *> histPhiIsoOfHltObjMatchToReco;
   /** @} */
 
   /** Plots of efficiency per step (note that these are NOT
    *  filled with four vector quantities but rather event counts) */
-  MonitorElement* totalreco;
-  MonitorElement* totalmatchreco;
+  MonitorElement *totalreco;
+  MonitorElement *totalmatchreco;
 
   /** \name reco histograms */
   /** @{ */
-//  MonitorElement* etreco;
-//  MonitorElement* etareco;
-//  MonitorElement* phiReco;
+  //  MonitorElement* etreco;
+  //  MonitorElement* etareco;
+  //  MonitorElement* phiReco;
   boost::scoped_ptr<FourVectorMonitorElements> histReco;
 
   //  MonitorElement* etrecomonpath;
@@ -225,16 +225,17 @@ private:
   // interface to DQM framework
   std::string dirname_;
 
-  HistoFillerReco<reco::ElectronCollection>* histoFillerEle;
-  HistoFillerReco<reco::RecoEcalCandidateCollection>* histoFillerClu;
-  HistoFillerReco<l1extra::L1EmParticleCollection>* histoFillerL1NonIso;
-  HistoFillerReco<reco::RecoEcalCandidateCollection>* histoFillerPho;
-  HistoFillerReco<l1extra::L1EmParticleCollection>* histoFillerL1Iso;
-  
-  //template <class T> void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>&,const edm::Event& ,unsigned int, std::vector<reco::Particle>&, bool, bool);
+  HistoFillerReco<reco::ElectronCollection> *histoFillerEle;
+  HistoFillerReco<reco::RecoEcalCandidateCollection> *histoFillerClu;
+  HistoFillerReco<l1extra::L1EmParticleCollection> *histoFillerL1NonIso;
+  HistoFillerReco<reco::RecoEcalCandidateCollection> *histoFillerPho;
+  HistoFillerReco<l1extra::L1EmParticleCollection> *histoFillerL1Iso;
+
+  // template <class T> void
+  // fillHistos(edm::Handle<trigger::TriggerEventWithRefs>&,const edm::Event&
+  // ,unsigned int, std::vector<reco::Particle>&, bool, bool);
   GreaterByPt<reco::Particle> pTComparator_;
   GreaterByPt<reco::GsfElectron> pTRecoComparator_;
-
 
   //----------------------------------------
 };

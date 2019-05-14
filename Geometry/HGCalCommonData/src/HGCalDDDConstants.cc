@@ -201,6 +201,19 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z,
   return std::array<int, 3>{{irad, iphi, type}};
 }
 
+std::pair<double, double> HGCalDDDConstants::cellEtaPhiTrap(int type, 
+							    int irad) const {
+  double dr(0), df(0);
+  if (mode_ == HGCalGeometryMode::Trapezoid) {
+    double r = 0.5*((hgpar_->radiusLayer_[type][irad-1] +
+		     hgpar_->radiusLayer_[type][irad]));
+    dr       = (hgpar_->radiusLayer_[type][irad] - 
+		hgpar_->radiusLayer_[type][irad-1]);
+    df       = r * hgpar_->cellSize_[type];
+  }
+  return std::make_pair(dr,df);
+}
+
 bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU,
                                     int cellV, int lay, bool reco) const {
   const auto& indx = getIndex(lay, true);
@@ -387,14 +400,14 @@ int HGCalDDDConstants::getLayer(double z, bool reco) const {
   double zz =
       (reco ? std::abs(z) : HGCalParameters::k_ScaleFromDDD * std::abs(z));
   const auto& zLayerHex = hgpar_->zLayerHex_;
-  std::find_if(zLayerHex.begin() + 1, zLayerHex.end(),
-               [&k, &zz, &zLayerHex](double zLayer) {
-                 ++k;
-                 return zz < 0.5 * (zLayerHex[k - 1] + zLayerHex[k]);
-               });
-  int lay = k;
+  auto itr = std::find_if(zLayerHex.begin() + 1, zLayerHex.end(),
+			  [&k, &zz, &zLayerHex](double zLayer) {
+			    ++k;
+			    return zz < 0.5 * (zLayerHex[k-1] + zLayerHex[k]);
+			  });
+  int lay = (itr == zLayerHex.end()) ? static_cast<int>(zLayerHex.size()) :  k;
   if (((mode_ == HGCalGeometryMode::Hexagon) ||
-       (mode_ == HGCalGeometryMode::HexagonFull)) &
+       (mode_ == HGCalGeometryMode::HexagonFull)) &&
       reco) {
     int indx = layerIndex(lay, false);
     if (indx >= 0) lay = hgpar_->layerGroup_[indx];
@@ -1039,17 +1052,20 @@ std::pair<double, double> HGCalDDDConstants::rangeR(double z, bool reco) const {
       rmin = HGCalGeomTools::radius(zz, hgpar_->zFrontMin_, hgpar_->rMinFront_,
                                     hgpar_->slopeMin_);
     } else {
-      rmin = HGCalGeomTools::radius(
-          zz, hgpar_->firstLayer_, hgpar_->firstMixedLayer_, hgpar_->zLayerHex_,
-          hgpar_->radiusMixBoundary_);
+      rmin = HGCalGeomTools::radius(zz, hgpar_->firstLayer_, 
+				    hgpar_->firstMixedLayer_, 
+				    hgpar_->zLayerHex_,
+				    hgpar_->radiusMixBoundary_);
     }
     if ((hgpar_->detectorType_ == 2) &&
         (zz >= hgpar_->zLayerHex_[hgpar_->firstMixedLayer_ - 1])) {
-      rmax = HGCalGeomTools::radius(
-          zz, hgpar_->firstLayer_, hgpar_->firstMixedLayer_, hgpar_->zLayerHex_,
-          hgpar_->radiusMixBoundary_);
+      rmax = HGCalGeomTools::radius(zz, hgpar_->firstLayer_, 
+				    hgpar_->firstMixedLayer_, 
+				    hgpar_->zLayerHex_,
+				    hgpar_->radiusMixBoundary_);
     } else {
-      rmax = HGCalGeomTools::radius(zz, hgpar_->zFrontTop_, hgpar_->rMaxFront_,
+      rmax = HGCalGeomTools::radius(zz, hgpar_->zFrontTop_, 
+				    hgpar_->rMaxFront_,
                                     hgpar_->slopeTop_);
     }
   }
@@ -1061,7 +1077,7 @@ std::pair<double, double> HGCalDDDConstants::rangeR(double z, bool reco) const {
   edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants:rangeR: " << z << ":"
                                 << zz << " R " << rmin << ":" << rmax;
 #endif
-  return std::pair<double, double>(rmin, rmax);
+  return std::make_pair(rmin, rmax);
 }
 
 std::pair<double, double> HGCalDDDConstants::rangeZ(bool reco) const {
@@ -1076,7 +1092,7 @@ std::pair<double, double> HGCalDDDConstants::rangeZ(bool reco) const {
     zmin *= HGCalParameters::k_ScaleToDDD;
     zmax *= HGCalParameters::k_ScaleToDDD;
   }
-  return std::pair<double, double>(zmin, zmax);
+  return std::make_pair(zmin, zmax);
 }
 
 std::pair<int, int> HGCalDDDConstants::rowColumnWafer(int wafer) const {
