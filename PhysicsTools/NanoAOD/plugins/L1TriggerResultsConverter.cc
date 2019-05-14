@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
@@ -47,7 +47,7 @@
 // class declaration
 //
 
-class L1TriggerResultsConverter : public edm::global::EDProducer<> {
+class L1TriggerResultsConverter : public edm::stream::EDProducer<> {
    public:
       explicit L1TriggerResultsConverter(const edm::ParameterSet&);
       ~L1TriggerResultsConverter() override;
@@ -55,8 +55,8 @@ class L1TriggerResultsConverter : public edm::global::EDProducer<> {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-      virtual void beginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
       const bool legacyL1_;
@@ -94,7 +94,7 @@ L1TriggerResultsConverter::~L1TriggerResultsConverter()
 // member functions
 //
 
-void L1TriggerResultsConverter::beginRun(edm::StreamID streamID, edm::Run const&, edm::EventSetup const&setup) {
+void L1TriggerResultsConverter::beginRun(edm::Run const&, edm::EventSetup const& setup) {
     mask_.clear();
     names_.clear();
     indices_.clear();
@@ -125,7 +125,7 @@ void L1TriggerResultsConverter::beginRun(edm::StreamID streamID, edm::Run const&
 
 
 void
-L1TriggerResultsConverter::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
+L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     using namespace edm;
     const std::vector<bool> * wordp=nullptr;
