@@ -57,8 +57,8 @@ finalMuons = cms.EDFilter("PATMuonRefSelector",
 )
 
 finalLooseMuons = cms.EDFilter("PATMuonRefSelector", # for isotrack cleaning
-    src = cms.InputTag("finalMuons"),
-    cut = cms.string("track.isNonnull && isLooseMuon")
+    src = cms.InputTag("slimmedMuonsWithUserData"),
+    cut = cms.string("pt > 3 && track.isNonnull && isLooseMuon")
 )
 
 muonMVATTH= cms.EDProducer("MuonBaseMVAValueMapProducer",
