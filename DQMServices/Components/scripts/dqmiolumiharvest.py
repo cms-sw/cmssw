@@ -143,7 +143,7 @@ def harvestfile(fname):
     # are covered in the end-of-job MEs. This might fail if there are no 
     # per-lumi MEs.
     knownlumis = set()
-    mes_to_store = []
+    files = []
 
     for i in range(idxtree.GetEntries()):
         idxtree.GetEntry(i)
@@ -165,6 +165,9 @@ def harvestfile(fname):
         if not (rangecheck(run, lumi) or rangecheck(endrun, endlumi)):
           continue
            
+        filename = "DQM_V0001_R1%04d%04d__perlumiharvested__perlumi%d_%s_v1__DQMIO.root" % (lumi, endlumi, run, treenames[metype])
+        prefix = ["DQMData", "Run 1%04d%04d" % (lumi, endlumi)]
+        result_file = None
 
         # inclusive range -- for 0 entries, row is left out
         firstidx, lastidx = idxtree.FirstIndex, idxtree.LastIndex
@@ -178,15 +181,24 @@ def harvestfile(fname):
             if mename in interesting_mes:
                 metree.GetEntry(x, 1)
                 value = metree.Value
+                if not value:
+                    print("Got a weird falsy value: ", value)
+                if not result_file:
+                    result_file = ROOT.TFile(filename, 'recreate')
+                path = mename.split("/")
+                filepath = prefix + [path[0]] + ["Run summary"] + path[1:]
+                gotodir(result_file, filepath)
+                value.Write()
+        if result_file:
+            gotodir(result_file, prefix + ["DQM", "Run summary", "EventInfo"])
+            s = ROOT.TObjString("<iRun>i=1%04d%04d</iRun>" % (lumi, endlumi))
+            s.Write()
+            s = ROOT.TObjString("<iLumiSection>i=%s</iLumiSection>" % run)
+            s.Write()
+            result_file.Close()
+            files.append(filename)
 
-                mes_to_store.append((
-                  mename,
-                  run, lumi, endrun, endlumi,
-                  metype,
-                  tojson(value),
-                ))
-
-    return mes_to_store
+    return files
 
 files = dasquery(args.dataset)
 if args.limit > 0: files = files[:args.limit]
@@ -227,32 +239,10 @@ def gotodir(base, path):
     current.cd()
   
 
-def writetofile(mes, fromrun, fromlumi, torun, tolumi):
-  filename = "DQM_V0001_R1%04d%04d__perlumiharvested__perlumi%d_unknown_v1__DQMIO.root" % (fromlumi, tolumi, fromrun)
-  prefix = ["DQMData", "Run %d" % fromrun]
-  result_file = ROOT.TFile(filename, 'recreate')
-  for name, jsondata in mes:
-    path = name.split("/")
-    filepath = prefix + [path[0]] + ["Run summary"] + path[1:]
-    gotodir(result_file, filepath)
-    h = ROOT.TBufferJSON.ConvertFromJSON(str(jsondata))
-    h.Write()
-  gotodir(result_file, prefix + ["DQM", "Run summary", "EventInfo"])
-  s = ROOT.TObjString("<iRun>i=1%04d%04d</iRun>" % (fromlumi, tolumi))
-  s.Write()
-  s = ROOT.TObjString("<iLumiSection>i=%s</iLumiSection>" % fromrun)
-  s.Write()
-
 pool = multiprocessing.Pool(processes=args.njobs)
 ctr = 0
-for mes_to_store in pool.imap_unordered(harvestfile, files):
+for outfiles in pool.imap_unordered(harvestfile, files):
 #for mes_to_store in map(harvestfile, files):
-    ordered = defaultdict(list)
-    for mename, run, lumi, endrun, endlumi, metype, jsonvalue in mes_to_store:
-        ordered[(run, lumi, endrun, endlumi)].append((mename, jsonvalue))
-    for lumirange, mes in ordered.iteritems():
-        writetofile(mes, *lumirange)
-    
     ctr += 1
-    print("Processed %d files of %d, got %d MEs...\r" % (ctr, len(files), len(mes_to_store)),  end='')
+    print("Processed %d files of %d, got %d out files...\r" % (ctr, len(files), len(outfiles)),  end='')
 print("\nDone.")
