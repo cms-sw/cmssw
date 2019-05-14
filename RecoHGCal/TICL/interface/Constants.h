@@ -5,7 +5,7 @@
 
 namespace ticl::constants {
 constexpr float minEta = 1.5f;
-constexpr float maxEta = 3.0f;
+constexpr float maxEta = 3.2f;
 }  // namespace ticl::constants
 
 #endif  // RecoHGCal_TICL_interface_Constants_h
