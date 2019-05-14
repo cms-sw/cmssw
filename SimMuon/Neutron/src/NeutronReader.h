@@ -6,16 +6,14 @@
  */
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include<vector>
+#include <vector>
 
-class NeutronReader
-{
-public:  
-  NeutronReader() {};
-  virtual ~NeutronReader() {};
+class NeutronReader {
+public:
+  NeutronReader(){};
+  virtual ~NeutronReader(){};
 
-  virtual void readNextEvent(int chamberType, edm::PSimHitContainer & result) = 0;
+  virtual void readNextEvent(int chamberType, edm::PSimHitContainer& result) = 0;
 };
 
 #endif
-

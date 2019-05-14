@@ -16,13 +16,12 @@ using namespace edm;
 using namespace reco;
 using namespace Rivet;
 
-ParticleLevelProducer::ParticleLevelProducer(const edm::ParameterSet& pset):
-  srcToken_(consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"))),
-  rivetAnalysis_(new Rivet::RivetAnalysis(pset))
-{
-  usesResource();
+ParticleLevelProducer::ParticleLevelProducer(const edm::ParameterSet& pset)
+    : srcToken_(consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"))),
+      rivetAnalysis_(new Rivet::RivetAnalysis(pset)) {
+  usesResource("Rivet");
 
-  genVertex_ = reco::Particle::Point(0,0,0);
+  genVertex_ = reco::Particle::Point(0, 0, 0);
 
   produces<reco::GenParticleCollection>("neutrinos");
   produces<reco::GenParticleCollection>("photons");
@@ -32,53 +31,65 @@ ParticleLevelProducer::ParticleLevelProducer(const edm::ParameterSet& pset):
   produces<reco::GenParticleCollection>("consts");
   produces<reco::GenParticleCollection>("tags");
   produces<reco::METCollection>("mets");
-  
+
   analysisHandler_.setIgnoreBeams(true);
   analysisHandler_.addAnalysis(rivetAnalysis_);
 }
 
-void ParticleLevelProducer::addGenJet(Rivet::Jet jet, std::unique_ptr<reco::GenJetCollection> &jets,
-                                      std::unique_ptr<reco::GenParticleCollection> &consts, edm::RefProd<reco::GenParticleCollection>& constsRefHandle, int &iConstituent,
-                                      std::unique_ptr<reco::GenParticleCollection> &tags, edm::RefProd<reco::GenParticleCollection>& tagsRefHandle, int &iTag)
-{
+void ParticleLevelProducer::addGenJet(Rivet::Jet jet,
+                                      std::unique_ptr<reco::GenJetCollection>& jets,
+                                      std::unique_ptr<reco::GenParticleCollection>& consts,
+                                      edm::RefProd<reco::GenParticleCollection>& constsRefHandle,
+                                      int& iConstituent,
+                                      std::unique_ptr<reco::GenParticleCollection>& tags,
+                                      edm::RefProd<reco::GenParticleCollection>& tagsRefHandle,
+                                      int& iTag) {
   const auto pjet = jet.pseudojet();
 
   reco::GenJet genJet;
   genJet.setP4(p4(jet));
   genJet.setVertex(genVertex_);
-  if ( jet.bTagged() ) genJet.setPdgId(5);
-  else if ( jet.cTagged() ) genJet.setPdgId(4);
+  if (jet.bTagged())
+    genJet.setPdgId(5);
+  else if (jet.cTagged())
+    genJet.setPdgId(4);
   genJet.setJetArea(pjet.has_area() ? pjet.area() : 0);
-  
-  for ( auto const & p : jet.particles()) {
+
+  for (auto const& p : jet.particles()) {
     auto pp4 = p4(p);
-    bool match = false; int iMatch = -1;
-    for ( auto const & q : *consts ) {
+    bool match = false;
+    int iMatch = -1;
+    for (auto const& q : *consts) {
       ++iMatch;
-      if (q.p4() == pp4) { match = true; break; }
+      if (q.p4() == pp4) {
+        match = true;
+        break;
+      }
     }
-    if (match){
+    if (match) {
       genJet.addDaughter(edm::refToPtr(reco::GenParticleRef(constsRefHandle, iMatch)));
-    }
-    else {
+    } else {
       consts->push_back(reco::GenParticle(p.charge(), pp4, genVertex_, p.pdgId(), 1, true));
       genJet.addDaughter(edm::refToPtr(reco::GenParticleRef(constsRefHandle, ++iConstituent)));
     }
   }
-  for ( auto const & p : jet.tags()) {
+  for (auto const& p : jet.tags()) {
     // The tag particles are accessible as jet daughters, so scale down p4 for safety.
     // p4 needs to be multiplied by 1e20 for fragmentation analysis.
-    auto pp4 = p4(p)*1e-20;
-    bool match = false; int iMatch = -1;
-    for ( auto const & q : *tags ) {
+    auto pp4 = p4(p) * 1e-20;
+    bool match = false;
+    int iMatch = -1;
+    for (auto const& q : *tags) {
       ++iMatch;
-      if (q.p4() == pp4) { match = true; break; }
+      if (q.p4() == pp4) {
+        match = true;
+        break;
+      }
     }
-    if (match){
+    if (match) {
       genJet.addDaughter(edm::refToPtr(reco::GenParticleRef(tagsRefHandle, iMatch)));
-    }
-    else {    
-      tags->push_back(reco::GenParticle(p.charge(), p4(p)*1e-20, genVertex_, p.pdgId(), 2, true));
+    } else {
+      tags->push_back(reco::GenParticle(p.charge(), p4(p) * 1e-20, genVertex_, p.pdgId(), 2, true));
       genJet.addDaughter(edm::refToPtr(reco::GenParticleRef(tagsRefHandle, ++iTag)));
     }
   }
@@ -86,8 +97,7 @@ void ParticleLevelProducer::addGenJet(Rivet::Jet jet, std::unique_ptr<reco::GenJ
   jets->push_back(genJet);
 }
 
-void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
-{
+void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
   using namespace Rivet;
   typedef reco::Candidate::LorentzVector LorentzVector;
 
@@ -110,50 +120,57 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
 
   // Convert into edm objects
   // Prompt neutrinos
-  for ( auto const & p : rivetAnalysis_->neutrinos() ) {
+  for (auto const& p : rivetAnalysis_->neutrinos()) {
     neutrinos->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pdgId(), 1, true));
   }
   std::sort(neutrinos->begin(), neutrinos->end(), GreaterByPt<reco::Candidate>());
-  
+
   // Photons
-  for ( auto const & p : rivetAnalysis_->photons() ) {
+  for (auto const& p : rivetAnalysis_->photons()) {
     photons->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pdgId(), 1, true));
   }
   std::sort(photons->begin(), photons->end(), GreaterByPt<reco::Candidate>());
 
   // Prompt leptons
   int iConstituent = -1;
-  for ( auto const & lepton : rivetAnalysis_->leptons() ) {
+  int iTag = -1;
+  for (auto const& lepton : rivetAnalysis_->leptons()) {
     reco::GenJet lepJet;
     lepJet.setP4(p4(lepton));
     lepJet.setVertex(genVertex_);
     lepJet.setPdgId(lepton.pdgId());
     lepJet.setCharge(lepton.charge());
-    
-    const auto& cl = lepton.constituentLepton();
-    consts->push_back(reco::GenParticle(cl.charge(), p4(cl), genVertex_, cl.pdgId(), 1, true));
-    lepJet.addDaughter(edm::refToPtr(reco::GenParticleRef(constsRefHandle, ++iConstituent)));
-    
-    for ( auto const & p : lepton.constituentPhotons()) {
-      consts->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pdgId(), 1, true));
-      lepJet.addDaughter(edm::refToPtr(reco::GenParticleRef(constsRefHandle, ++iConstituent)));
+
+    for (auto const & p : lepton.constituents()) {
+      // ghost taus (momentum scaled with 10e-20 in RivetAnalysis.h already)
+      if (p.abspid() == 15) {
+        tags->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pdgId(), 2, true));
+        lepJet.addDaughter(edm::refToPtr(reco::GenParticleRef(tagsRefHandle, ++iTag)));
+      }
+      // electrons, muons, photons
+      else {
+        consts->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pdgId(), 1, true));
+        lepJet.addDaughter(edm::refToPtr(reco::GenParticleRef(constsRefHandle, ++iConstituent)));
+      }
     }
-    
+
     leptons->push_back(lepJet);
   }
   std::sort(leptons->begin(), leptons->end(), GreaterByPt<reco::GenJet>());
 
   // Jets with constituents and tag particles
-  int iTag = -1;
-  for ( auto jet : rivetAnalysis_->jets() ) {
+  for (auto jet : rivetAnalysis_->jets()) {
     addGenJet(jet, jets, consts, constsRefHandle, iConstituent, tags, tagsRefHandle, iTag);
   }
-  for ( auto jet : rivetAnalysis_->fatjets() ) {
+  for (auto jet : rivetAnalysis_->fatjets()) {
     addGenJet(jet, fatjets, consts, constsRefHandle, iConstituent, tags, tagsRefHandle, iTag);
   }
-  
+
   // MET
-  reco::Candidate::LorentzVector metP4(rivetAnalysis_->met().x(), rivetAnalysis_->met().y(), 0., sqrt(pow(rivetAnalysis_->met().x(), 2) + pow(rivetAnalysis_->met().y(), 2)));
+  reco::Candidate::LorentzVector metP4(rivetAnalysis_->met().x(),
+                                       rivetAnalysis_->met().y(),
+                                       0.,
+                                       sqrt(pow(rivetAnalysis_->met().x(), 2) + pow(rivetAnalysis_->met().y(), 2)));
   mets->push_back(reco::MET(metP4, genVertex_));
 
   event.put(std::move(neutrinos), "neutrinos");

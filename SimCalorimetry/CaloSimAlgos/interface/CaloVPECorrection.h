@@ -11,12 +11,10 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class CaloVPECorrection
-{
+class CaloVPECorrection {
 public:
   virtual ~CaloVPECorrection() {}
-  virtual double correctPE(const DetId & detId, double npe, CLHEP::HepRandomEngine*) const = 0;
+  virtual double correctPE(const DetId &detId, double npe, CLHEP::HepRandomEngine *) const = 0;
 };
 
 #endif
-

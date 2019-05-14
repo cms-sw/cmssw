@@ -23,9 +23,9 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -60,6 +60,8 @@ private:
   double beamEnergy_;
 
   double crystalDepth(){ return A_*(B_+log(beamEnergy_)); }
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
 };
 
 CrystalCenterDump::CrystalCenterDump( const edm::ParameterSet& iConfig )
@@ -74,6 +76,7 @@ CrystalCenterDump::CrystalCenterDump( const edm::ParameterSet& iConfig )
   edm::LogInfo("CrysInfo") << "Position computed according to the depth " << crystalDepth() << 
     " based on:" << "\n A = " << A_ << " cm " << "\n B = " << B_ << "\n BeamEnergy = " << beamEnergy_ << " GeV";
 
+  geometryToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{});
 }
 
 
@@ -135,13 +138,12 @@ CrystalCenterDump::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
    
    std::cout << "Writing the center (eta,phi) for crystals in barrel SM 1 " << std::endl;
 
-   edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<CaloGeometryRecord>().get(pG);     
+   const auto& pG = iSetup.getData(geometryToken_);
    //
    // get the ecal & hcal geometry
    //
    if (pass_==0) {
-     build(*pG,DetId::Ecal,EcalBarrel,"BarrelSM1CrystalCenter.dat");
+     build(pG,DetId::Ecal,EcalBarrel,"BarrelSM1CrystalCenter.dat");
    }
 
    pass_++;

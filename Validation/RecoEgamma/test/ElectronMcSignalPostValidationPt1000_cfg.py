@@ -9,11 +9,12 @@ cmsEnv = env() # be careful, cmsEnv != cmsenv. cmsEnv is local
 cmsEnv.checkSample() # check the sample value
 cmsEnv.checkValues()
 
-from Configuration.StandardSequences.Eras import eras 
 if cmsEnv.beginTag() == 'Run2_2017':
-    process = cms.Process("electronPostValidation",eras.Run2_2017)
+    from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+    process = cms.Process("electronPostValidation",Run2_2017)
 else:
-    process = cms.Process('electronPostValidation',eras.Phase2) 
+    from Configuration.Eras.Era_Phase2_cff import Phase2
+    process = cms.Process('electronPostValidation',Phase2) 
 
 process.DQMStore = cms.Service("DQMStore")
 process.load("Validation.RecoEgamma.ElectronMcSignalPostValidatorPt1000_cfi")

@@ -10,7 +10,6 @@
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
 
-
 typedef edm::EDCollection<EBDetId> EBDetIdCollection;
 typedef edm::EDCollection<EEDetId> EEDetIdCollection;
 typedef edm::EDCollection<EcalElectronicsId> EcalElectronicsIdCollection;

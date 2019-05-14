@@ -1,9 +1,10 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
-#process = cms.Process("BeamMonitor", eras.Run2_2018) FIXME
-process = cms.Process("BeamMonitor", eras.Run2_2018_pp_on_AA)
+#from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+#process = cms.Process("BeamMonitor", Run2_2018) FIXME
+from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
+process = cms.Process("BeamMonitor", Run2_2018_pp_on_AA)
 
 #
 process.MessageLogger = cms.Service("MessageLogger",

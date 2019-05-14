@@ -24,45 +24,37 @@ namespace edm {
 
   // =================================================================
 
-  ParameterDescription<ParameterSetDescription>::
-  ParameterDescription(std::string const& iLabel,
-                       ParameterSetDescription const& value,
-                       bool isTracked,
-                       Comment const& iComment) :
-      ParameterDescriptionBase(iLabel, k_PSet, isTracked, true, iComment),
-      psetDesc_(new ParameterSetDescription(value)) {
-  }
+  ParameterDescription<ParameterSetDescription>::ParameterDescription(std::string const& iLabel,
+                                                                      ParameterSetDescription const& value,
+                                                                      bool isTracked,
+                                                                      Comment const& iComment)
+      : ParameterDescriptionBase(iLabel, k_PSet, isTracked, true, iComment),
+        psetDesc_(new ParameterSetDescription(value)) {}
 
-  ParameterDescription<ParameterSetDescription>::
-  ParameterDescription(char const* iLabel,
-                       ParameterSetDescription const& value,
-                       bool isTracked,
-                       Comment const& iComment) :
-      ParameterDescriptionBase(iLabel, k_PSet, isTracked, true, iComment),
-      psetDesc_(new ParameterSetDescription(value)) {
-  }
+  ParameterDescription<ParameterSetDescription>::ParameterDescription(char const* iLabel,
+                                                                      ParameterSetDescription const& value,
+                                                                      bool isTracked,
+                                                                      Comment const& iComment)
+      : ParameterDescriptionBase(iLabel, k_PSet, isTracked, true, iComment),
+        psetDesc_(new ParameterSetDescription(value)) {}
 
-  ParameterDescription<ParameterSetDescription>::
-  ~ParameterDescription() { }
+  ParameterDescription<ParameterSetDescription>::~ParameterDescription() {}
 
-  void
-  ParameterDescription<ParameterSetDescription>::
-  validate_(ParameterSet& pset,
-           std::set<std::string>& validatedLabels,
-           bool optional) const {
-
+  void ParameterDescription<ParameterSetDescription>::validate_(ParameterSet& pset,
+                                                                std::set<std::string>& validatedLabels,
+                                                                bool optional) const {
     bool exists = pset.existsAs<ParameterSet>(label(), isTracked());
 
-    if(exists) {
+    if (exists) {
       validatedLabels.insert(label());
-    } else if(pset.existsAs<ParameterSet>(label(), !isTracked())) {
+    } else if (pset.existsAs<ParameterSet>(label(), !isTracked())) {
       throwParameterWrongTrackiness();
-    } else if(pset.exists(label())) {
+    } else if (pset.exists(label())) {
       throwParameterWrongType();
     }
 
-    if(!optional && !exists) {
-      if(isTracked()) {
+    if (!optional && !exists) {
+      if (isTracked()) {
         pset.addParameter(label(), ParameterSet());
       } else {
         pset.addUntrackedParameter(label(), ParameterSet());
@@ -72,39 +64,31 @@ namespace edm {
 
     exists = pset.existsAs<ParameterSet>(label(), isTracked());
 
-    if(exists) {
-      if(pset.isRegistered()) {
-         pset.invalidateRegistration("");
+    if (exists) {
+      if (pset.isRegistered()) {
+        pset.invalidateRegistration("");
       }
-      ParameterSet * containedPSet = pset.getPSetForUpdate(label());
+      ParameterSet* containedPSet = pset.getPSetForUpdate(label());
       psetDesc_->validate(*containedPSet);
     }
   }
 
-  void
-  ParameterDescription<ParameterSetDescription>::
-  printDefault_(std::ostream& os,
-                  bool writeToCfi,
-                  DocFormatHelper& dfh) const {
-    os << "see Section " << dfh.section()
-       << "." << dfh.counter();
-    if(!writeToCfi) os << " (do not write to cfi)";
+  void ParameterDescription<ParameterSetDescription>::printDefault_(std::ostream& os,
+                                                                    bool writeToCfi,
+                                                                    DocFormatHelper& dfh) const {
+    os << "see Section " << dfh.section() << "." << dfh.counter();
+    if (!writeToCfi)
+      os << " (do not write to cfi)";
     os << "\n";
   }
 
-  bool
-  ParameterDescription<ParameterSetDescription>::
-  hasNestedContent_() const {
-    return true;
-  }
+  bool ParameterDescription<ParameterSetDescription>::hasNestedContent_() const { return true; }
 
-  void
-  ParameterDescription<ParameterSetDescription>::
-  printNestedContent_(std::ostream& os,
-                      bool /*optional*/,
-                      DocFormatHelper& dfh) const {
+  void ParameterDescription<ParameterSetDescription>::printNestedContent_(std::ostream& os,
+                                                                          bool /*optional*/,
+                                                                          DocFormatHelper& dfh) const {
     int indentation = dfh.indentation();
-    if(dfh.parent() != DocFormatHelper::TOP) {
+    if (dfh.parent() != DocFormatHelper::TOP) {
       indentation -= DocFormatHelper::offsetSectionContent();
     }
 
@@ -113,147 +97,116 @@ namespace edm {
     std::string newSection = ss.str();
 
     printSpaces(os, indentation);
-    os << "Section " << newSection
-       << " " << label() << " PSet description:\n";
-    if(!dfh.brief()) os << "\n";
+    os << "Section " << newSection << " " << label() << " PSet description:\n";
+    if (!dfh.brief())
+      os << "\n";
 
     DocFormatHelper new_dfh(dfh);
     new_dfh.init();
     new_dfh.setSection(newSection);
-    if(dfh.parent() == DocFormatHelper::TOP) {
+    if (dfh.parent() == DocFormatHelper::TOP) {
       new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
     }
     psetDesc_->print(os, new_dfh);
   }
 
-  bool
-  ParameterDescription<ParameterSetDescription>::
-  exists_(ParameterSet const& pset) const {
+  bool ParameterDescription<ParameterSetDescription>::exists_(ParameterSet const& pset) const {
     return pset.existsAs<ParameterSet>(label(), isTracked());
   }
 
-  ParameterSetDescription const*
-  ParameterDescription<ParameterSetDescription>::
-  parameterSetDescription() const {
+  ParameterSetDescription const* ParameterDescription<ParameterSetDescription>::parameterSetDescription() const {
     return psetDesc_.operator->();
   }
 
-  ParameterSetDescription *
-  ParameterDescription<ParameterSetDescription>::
-  parameterSetDescription() {
+  ParameterSetDescription* ParameterDescription<ParameterSetDescription>::parameterSetDescription() {
     return psetDesc_.operator->();
   }
 
-  void
-  ParameterDescription<ParameterSetDescription>::
-  writeCfi_(std::ostream& os, int indentation) const {
+  void ParameterDescription<ParameterSetDescription>::writeCfi_(std::ostream& os, int indentation) const {
     bool startWithComma = false;
     indentation += 2;
     psetDesc_->writeCfi(os, startWithComma, indentation);
   }
 
-  void
-  ParameterDescription<ParameterSetDescription>::
-  writeDoc_(std::ostream&, int /*indentation*/) const {
-  }
+  void ParameterDescription<ParameterSetDescription>::writeDoc_(std::ostream&, int /*indentation*/) const {}
 
   // These next two should not be needed for this specialization
-  bool
-  ParameterDescription<ParameterSetDescription>::
-  exists_(ParameterSet const&, bool /*isTracked*/) const {
+  bool ParameterDescription<ParameterSetDescription>::exists_(ParameterSet const&, bool /*isTracked*/) const {
     throw Exception(errors::LogicError);
     return true;
   }
 
-  void
-  ParameterDescription<ParameterSetDescription>::
-  insertDefault_(ParameterSet&) const {
+  void ParameterDescription<ParameterSetDescription>::insertDefault_(ParameterSet&) const {
     throw Exception(errors::LogicError);
     return;
   }
 
   // =================================================================
 
-  ParameterDescription<std::vector<ParameterSet> >::
-  ParameterDescription(std::string const& iLabel,
-                       ParameterSetDescription const& psetDesc,
-                       bool isTracked,
-                       std::vector<ParameterSet> const& vPset,
-                       Comment const& iComment) :
-      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true, iComment),
-      psetDesc_(new ParameterSetDescription(psetDesc)),
-      vPset_(vPset),
-      partOfDefaultOfVPSet_(false) {
-  }
+  ParameterDescription<std::vector<ParameterSet> >::ParameterDescription(std::string const& iLabel,
+                                                                         ParameterSetDescription const& psetDesc,
+                                                                         bool isTracked,
+                                                                         std::vector<ParameterSet> const& vPset,
+                                                                         Comment const& iComment)
+      : ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true, iComment),
+        psetDesc_(new ParameterSetDescription(psetDesc)),
+        vPset_(vPset),
+        partOfDefaultOfVPSet_(false) {}
 
-  ParameterDescription<std::vector<ParameterSet> >::
-  ParameterDescription(char const* iLabel,
-                       ParameterSetDescription const& psetDesc,
-                       bool isTracked,
-                       std::vector<ParameterSet> const& vPset,
-                       Comment const& iComment) :
-      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true, iComment),
-      psetDesc_(new ParameterSetDescription(psetDesc)),
-      vPset_(vPset),
-      partOfDefaultOfVPSet_(false) {
-  }
+  ParameterDescription<std::vector<ParameterSet> >::ParameterDescription(char const* iLabel,
+                                                                         ParameterSetDescription const& psetDesc,
+                                                                         bool isTracked,
+                                                                         std::vector<ParameterSet> const& vPset,
+                                                                         Comment const& iComment)
+      : ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true, iComment),
+        psetDesc_(new ParameterSetDescription(psetDesc)),
+        vPset_(vPset),
+        partOfDefaultOfVPSet_(false) {}
 
-  ParameterDescription<std::vector<ParameterSet> >::
-  ParameterDescription(std::string const& iLabel,
-                       ParameterSetDescription const& psetDesc,
-                       bool isTracked,
-                       Comment const& iComment) :
-      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, false, iComment),
-      psetDesc_(new ParameterSetDescription(psetDesc)),
-      vPset_(),
-      partOfDefaultOfVPSet_(false) {
-  }
+  ParameterDescription<std::vector<ParameterSet> >::ParameterDescription(std::string const& iLabel,
+                                                                         ParameterSetDescription const& psetDesc,
+                                                                         bool isTracked,
+                                                                         Comment const& iComment)
+      : ParameterDescriptionBase(iLabel, k_VPSet, isTracked, false, iComment),
+        psetDesc_(new ParameterSetDescription(psetDesc)),
+        vPset_(),
+        partOfDefaultOfVPSet_(false) {}
 
-  ParameterDescription<std::vector<ParameterSet> >::
-  ParameterDescription(char const* iLabel,
-                       ParameterSetDescription const& psetDesc,
-                       bool isTracked,
-                       Comment const& iComment) :
-      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, false, iComment),
-      psetDesc_(new ParameterSetDescription(psetDesc)),
-      vPset_(),
-      partOfDefaultOfVPSet_(false) {
-  }
+  ParameterDescription<std::vector<ParameterSet> >::ParameterDescription(char const* iLabel,
+                                                                         ParameterSetDescription const& psetDesc,
+                                                                         bool isTracked,
+                                                                         Comment const& iComment)
+      : ParameterDescriptionBase(iLabel, k_VPSet, isTracked, false, iComment),
+        psetDesc_(new ParameterSetDescription(psetDesc)),
+        vPset_(),
+        partOfDefaultOfVPSet_(false) {}
 
-  ParameterDescription<std::vector<ParameterSet> >::
-  ~ParameterDescription() { }
+  ParameterDescription<std::vector<ParameterSet> >::~ParameterDescription() {}
 
-  ParameterSetDescription const*
-  ParameterDescription<std::vector<ParameterSet> >::
-  parameterSetDescription() const {
+  ParameterSetDescription const* ParameterDescription<std::vector<ParameterSet> >::parameterSetDescription() const {
     return psetDesc_.operator->();
   }
 
-  ParameterSetDescription *
-  ParameterDescription<std::vector<ParameterSet> >::
-  parameterSetDescription() {
+  ParameterSetDescription* ParameterDescription<std::vector<ParameterSet> >::parameterSetDescription() {
     return psetDesc_.operator->();
   }
 
-  void
-  ParameterDescription<std::vector<ParameterSet> >::
-  validate_(ParameterSet& pset,
-            std::set<std::string>& validatedLabels,
-            bool optional) const {
-
+  void ParameterDescription<std::vector<ParameterSet> >::validate_(ParameterSet& pset,
+                                                                   std::set<std::string>& validatedLabels,
+                                                                   bool optional) const {
     bool exists = pset.existsAs<std::vector<ParameterSet> >(label(), isTracked());
 
-    if(exists) {
+    if (exists) {
       validatedLabels.insert(label());
-    } else if(pset.existsAs<std::vector<ParameterSet> >(label(), !isTracked())) {
+    } else if (pset.existsAs<std::vector<ParameterSet> >(label(), !isTracked())) {
       throwParameterWrongTrackiness();
-    } else if(pset.exists(label())) {
+    } else if (pset.exists(label())) {
       throwParameterWrongType();
     }
 
-    if(!exists && !optional) {
-      if(hasDefault()) {
-        if(isTracked()) {
+    if (!exists && !optional) {
+      if (hasDefault()) {
+        if (isTracked()) {
           pset.addParameter(label(), vPset_);
         } else {
           pset.addUntrackedParameter(label(), vPset_);
@@ -265,104 +218,97 @@ namespace edm {
     }
 
     exists = pset.existsAs<std::vector<ParameterSet> >(label(), isTracked());
-    if(exists) {
-      VParameterSetEntry * vpsetEntry = pset.getPSetVectorForUpdate(label());
+    if (exists) {
+      VParameterSetEntry* vpsetEntry = pset.getPSetVectorForUpdate(label());
       assert(vpsetEntry);
 
-      for(unsigned i = 0; i < vpsetEntry->size(); ++i) {
+      for (unsigned i = 0; i < vpsetEntry->size(); ++i) {
         psetDesc_->validate(vpsetEntry->psetInVector(i));
       }
     }
   }
 
-  void
-  ParameterDescription<std::vector<ParameterSet> >::
-  printDefault_(std::ostream& os,
-                bool writeToCfi,
-                DocFormatHelper& dfh) const {
-    os << "see Section " << dfh.section()
-       << "." << dfh.counter();
-    if(!writeToCfi) os << " (do not write to cfi)";
+  void ParameterDescription<std::vector<ParameterSet> >::printDefault_(std::ostream& os,
+                                                                       bool writeToCfi,
+                                                                       DocFormatHelper& dfh) const {
+    os << "see Section " << dfh.section() << "." << dfh.counter();
+    if (!writeToCfi)
+      os << " (do not write to cfi)";
     os << "\n";
   }
 
+  bool ParameterDescription<std::vector<ParameterSet> >::hasNestedContent_() const { return true; }
 
-  bool
-  ParameterDescription<std::vector<ParameterSet> >::
-  hasNestedContent_() const {
-    return true;
-  }
-
-  void
-  ParameterDescription<std::vector<ParameterSet> >::
-  printNestedContent_(std::ostream& os,
-                      bool /*optional*/,
-                      DocFormatHelper& dfh) const {
-
+  void ParameterDescription<std::vector<ParameterSet> >::printNestedContent_(std::ostream& os,
+                                                                             bool /*optional*/,
+                                                                             DocFormatHelper& dfh) const {
     int indentation = dfh.indentation();
-    if(dfh.parent() != DocFormatHelper::TOP) {
+    if (dfh.parent() != DocFormatHelper::TOP) {
       indentation -= DocFormatHelper::offsetSectionContent();
     }
 
-    if(!partOfDefaultOfVPSet_) {
+    if (!partOfDefaultOfVPSet_) {
       printSpaces(os, indentation);
-      os << "Section " << dfh.section() << "." << dfh.counter()
-         << " " << label() << " VPSet description:\n";
+      os << "Section " << dfh.section() << "." << dfh.counter() << " " << label() << " VPSet description:\n";
 
       printSpaces(os, indentation + DocFormatHelper::offsetSectionContent());
-      os << "All elements will be validated using the PSet description in Section "
-         << dfh.section() << "." << dfh.counter() << ".1.\n";
+      os << "All elements will be validated using the PSet description in Section " << dfh.section() << "."
+         << dfh.counter() << ".1.\n";
     } else {
       printSpaces(os, indentation);
-      os << "Section " << dfh.section() << "." << dfh.counter()
-         << " " << " VPSet description for VPSet that is part of the default of a containing VPSet:\n";
+      os << "Section " << dfh.section() << "." << dfh.counter() << " "
+         << " VPSet description for VPSet that is part of the default of a containing VPSet:\n";
     }
 
     printSpaces(os, indentation + DocFormatHelper::offsetSectionContent());
 
     unsigned subsectionOffset = 2;
-    if(partOfDefaultOfVPSet_) subsectionOffset = 1;
+    if (partOfDefaultOfVPSet_)
+      subsectionOffset = 1;
 
-    if(hasDefault()) {
-      if(vPset_.empty()) os << "The default VPSet is empty.\n";
-      else if(vPset_.size() == 1U) os << "The default VPSet has 1 element.\n";
-      else os << "The default VPSet has " << vPset_.size() << " elements.\n";
+    if (hasDefault()) {
+      if (vPset_.empty())
+        os << "The default VPSet is empty.\n";
+      else if (vPset_.size() == 1U)
+        os << "The default VPSet has 1 element.\n";
+      else
+        os << "The default VPSet has " << vPset_.size() << " elements.\n";
 
-      if(!vPset_.empty()) {
-        for(unsigned i = 0; i < vPset_.size(); ++i) {
+      if (!vPset_.empty()) {
+        for (unsigned i = 0; i < vPset_.size(); ++i) {
           printSpaces(os, indentation + DocFormatHelper::offsetSectionContent());
-          os << "[" << (i) << "]: see Section " << dfh.section()
-             << "." << dfh.counter() << "." << (i + subsectionOffset) << "\n";
+          os << "[" << (i) << "]: see Section " << dfh.section() << "." << dfh.counter() << "."
+             << (i + subsectionOffset) << "\n";
         }
       }
     } else {
       os << "Does not have a default VPSet.\n";
     }
 
-    if(!dfh.brief()) os << "\n";
+    if (!dfh.brief())
+      os << "\n";
 
-    if(!partOfDefaultOfVPSet_) {
-
+    if (!partOfDefaultOfVPSet_) {
       std::stringstream ss;
       ss << dfh.section() << "." << dfh.counter() << ".1";
       std::string newSection = ss.str();
 
       printSpaces(os, indentation);
       os << "Section " << newSection << " description of PSet used to validate elements of VPSet:\n";
-      if(!dfh.brief()) os << "\n";
+      if (!dfh.brief())
+        os << "\n";
 
       DocFormatHelper new_dfh(dfh);
       new_dfh.init();
       new_dfh.setSection(newSection);
-      if(dfh.parent() == DocFormatHelper::TOP) {
-         new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
+      if (dfh.parent() == DocFormatHelper::TOP) {
+        new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
       }
       psetDesc_->print(os, new_dfh);
     }
 
-    if(hasDefault()) {
-      for(unsigned i = 0; i < vPset_.size(); ++i) {
-
+    if (hasDefault()) {
+      for (unsigned i = 0; i < vPset_.size(); ++i) {
         std::stringstream ss;
         ss << dfh.section() << "." << dfh.counter() << "." << (i + subsectionOffset);
         std::string newSection = ss.str();
@@ -370,12 +316,13 @@ namespace edm {
         printSpaces(os, indentation);
         os << "Section " << newSection << " PSet description of "
            << "default VPSet element [" << i << "]\n";
-        if(!dfh.brief()) os << "\n";
+        if (!dfh.brief())
+          os << "\n";
 
         DocFormatHelper new_dfh(dfh);
         new_dfh.init();
         new_dfh.setSection(newSection);
-        if(dfh.parent() == DocFormatHelper::TOP) {
+        if (dfh.parent() == DocFormatHelper::TOP) {
           new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
         }
 
@@ -386,19 +333,16 @@ namespace edm {
     }
   }
 
-  bool
-  ParameterDescription<std::vector<ParameterSet> >::
-  exists_(ParameterSet const& pset) const {
+  bool ParameterDescription<std::vector<ParameterSet> >::exists_(ParameterSet const& pset) const {
     return pset.existsAs<std::vector<ParameterSet> >(label(), isTracked());
   }
 
-  void
-  ParameterDescription<std::vector<ParameterSet> >::
-  writeOneElementToCfi(ParameterSet const& pset,
-                       std::ostream& os,
-                       int indentation,
-                       bool& nextOneStartsWithAComma) {
-    if(nextOneStartsWithAComma) os << ",";
+  void ParameterDescription<std::vector<ParameterSet> >::writeOneElementToCfi(ParameterSet const& pset,
+                                                                              std::ostream& os,
+                                                                              int indentation,
+                                                                              bool& nextOneStartsWithAComma) {
+    if (nextOneStartsWithAComma)
+      os << ",";
     nextOneStartsWithAComma = true;
     os << "\n";
     printSpaces(os, indentation + 2);
@@ -415,35 +359,25 @@ namespace edm {
     os << ")";
   }
 
-  void
-  ParameterDescription<std::vector<ParameterSet> >::
-  writeCfi_(std::ostream& os, int indentation) const {
+  void ParameterDescription<std::vector<ParameterSet> >::writeCfi_(std::ostream& os, int indentation) const {
     bool nextOneStartsWithAComma = false;
-    for_all(vPset_, std::bind(&writeOneElementToCfi,
-                                 std::placeholders::_1,
-                                 std::ref(os),
-                                 indentation,
-                                 std::ref(nextOneStartsWithAComma)));
+    for_all(
+        vPset_,
+        std::bind(
+            &writeOneElementToCfi, std::placeholders::_1, std::ref(os), indentation, std::ref(nextOneStartsWithAComma)));
     os << "\n";
     printSpaces(os, indentation);
   }
 
-  void
-  ParameterDescription<std::vector<ParameterSet> >::
-  writeDoc_(std::ostream&, int /*indentation*/) const {
-  }
+  void ParameterDescription<std::vector<ParameterSet> >::writeDoc_(std::ostream&, int /*indentation*/) const {}
 
   // These next two should not be needed for this specialization
-  bool
-  ParameterDescription<std::vector<ParameterSet> >::
-  exists_(ParameterSet const&, bool /*isTracked*/) const {
+  bool ParameterDescription<std::vector<ParameterSet> >::exists_(ParameterSet const&, bool /*isTracked*/) const {
     throw Exception(errors::LogicError);
     return true;
   }
 
-  void
-  ParameterDescription<std::vector<ParameterSet> >::
-  insertDefault_(ParameterSet&) const {
+  void ParameterDescription<std::vector<ParameterSet> >::insertDefault_(ParameterSet&) const {
     throw Exception(errors::LogicError);
     return;
   }
@@ -452,7 +386,7 @@ namespace edm {
 
   namespace writeParameterValue {
 
-    template<typename T>
+    template <typename T>
     void writeSingleValue(std::ostream& os, T const& value, ValueFormat) {
       os << value;
     }
@@ -481,43 +415,43 @@ namespace edm {
       s << std::setprecision(17) << value;
       result = s.str();
 
-      if(result.size() > 15 && std::string::npos != result.find(".")) {
+      if (result.size() > 15 && std::string::npos != result.find(".")) {
         std::stringstream s;
         s << std::setprecision(15) << value;
         std::string resultLessPrecision = s.str();
 
-        if(resultLessPrecision.size() < result.size() - 2) {
+        if (resultLessPrecision.size() < result.size() - 2) {
           double test = std::strtod(resultLessPrecision.c_str(), nullptr);
-          if(test == value) {
+          if (test == value) {
             result = resultLessPrecision;
           }
         }
       }
     }
 
-    template<>
+    template <>
     void writeSingleValue<double>(std::ostream& os, double const& value, ValueFormat) {
       std::string sValue;
       formatDouble(value, sValue);
       os << sValue;
     }
 
-    template<>
+    template <>
     void writeSingleValue<bool>(std::ostream& os, bool const& value, ValueFormat) {
       value ? os << "True" : os << "False";
     }
 
-    template<>
+    template <>
     void writeSingleValue<std::string>(std::ostream& os, std::string const& value, ValueFormat) {
       os << "'" << value << "'";
     }
 
-    template<>
+    template <>
     void writeSingleValue<EventID>(std::ostream& os, EventID const& value, ValueFormat format) {
-      if(format == CFI) {
+      if (format == CFI) {
         os << value.run() << ", " << value.luminosityBlock() << ", " << value.event();
       } else {
-        if(value.luminosityBlock() == 0U) {
+        if (value.luminosityBlock() == 0U) {
           os << value.run() << ":" << value.event();
         } else {
           os << value.run() << ":" << value.luminosityBlock() << ":" << value.event();
@@ -525,63 +459,71 @@ namespace edm {
       }
     }
 
-    template<>
+    template <>
     void writeSingleValue<LuminosityBlockID>(std::ostream& os, LuminosityBlockID const& value, ValueFormat format) {
-      if(format == CFI) os << value.run() << ", " << value.luminosityBlock();
-      else os << value.run() << ":" << value.luminosityBlock();
+      if (format == CFI)
+        os << value.run() << ", " << value.luminosityBlock();
+      else
+        os << value.run() << ":" << value.luminosityBlock();
     }
 
-    template<>
+    template <>
     void writeSingleValue<EventRange>(std::ostream& os, EventRange const& value, ValueFormat format) {
-      if(value.startLumi() == 0U) {
-        if(format == CFI) os << "'" << value.startRun() << ":" << value.startEvent() << "-"
-                                     << value.endRun() << ":" << value.endEvent() << "'";
-        else os << value.startRun() << ":" << value.startEvent() << "-"
-                << value.endRun() << ":" << value.endEvent();
+      if (value.startLumi() == 0U) {
+        if (format == CFI)
+          os << "'" << value.startRun() << ":" << value.startEvent() << "-" << value.endRun() << ":" << value.endEvent()
+             << "'";
+        else
+          os << value.startRun() << ":" << value.startEvent() << "-" << value.endRun() << ":" << value.endEvent();
       } else {
-        if(format == CFI) os << "'" << value.startRun() << ":" << value.startLumi() << ":" << value.startEvent() << "-"
-                                     << value.endRun() << ":" << value.endLumi() << ":" << value.endEvent() << "'";
-        else os << value.startRun() << ":" << value.startLumi() << ":" << value.startEvent() << "-"
-                << value.endRun() << ":" << value.endLumi() << ":" << value.endEvent();
+        if (format == CFI)
+          os << "'" << value.startRun() << ":" << value.startLumi() << ":" << value.startEvent() << "-"
+             << value.endRun() << ":" << value.endLumi() << ":" << value.endEvent() << "'";
+        else
+          os << value.startRun() << ":" << value.startLumi() << ":" << value.startEvent() << "-" << value.endRun()
+             << ":" << value.endLumi() << ":" << value.endEvent();
       }
     }
 
-    template<>
-    void writeSingleValue<LuminosityBlockRange>(std::ostream& os, LuminosityBlockRange const& value, ValueFormat format) {
-      if(format == CFI) os << "'" << value.startRun() << ":" << value.startLumi() << "-"
-                            << value.endRun() << ":" << value.endLumi() << "'";
-      else os << value.startRun() << ":" << value.startLumi() << "-"
-              << value.endRun() << ":" << value.endLumi();
+    template <>
+    void writeSingleValue<LuminosityBlockRange>(std::ostream& os,
+                                                LuminosityBlockRange const& value,
+                                                ValueFormat format) {
+      if (format == CFI)
+        os << "'" << value.startRun() << ":" << value.startLumi() << "-" << value.endRun() << ":" << value.endLumi()
+           << "'";
+      else
+        os << value.startRun() << ":" << value.startLumi() << "-" << value.endRun() << ":" << value.endLumi();
     }
 
-    template<>
+    template <>
     void writeSingleValue<InputTag>(std::ostream& os, InputTag const& value, ValueFormat format) {
-      if(format == CFI) {
+      if (format == CFI) {
         os << "'" << value.label() << "'";
-        if(!value.instance().empty() || !value.process().empty()) {
+        if (!value.instance().empty() || !value.process().empty()) {
           os << ", '" << value.instance() << "'";
         }
-        if(!value.process().empty()) {
+        if (!value.process().empty()) {
           os << ", '" << value.process() << "'";
         }
       } else {
         os << "'" << value.label();
-        if(!value.instance().empty() || !value.process().empty()) {
+        if (!value.instance().empty() || !value.process().empty()) {
           os << ":" << value.instance();
         }
-        if(!value.process().empty()) {
+        if (!value.process().empty()) {
           os << ":" << value.process();
         }
         os << "'";
       }
     }
 
-    template<>
+    template <>
     void writeSingleValue<FileInPath>(std::ostream& os, FileInPath const& value, ValueFormat) {
       os << "'" << value.relativePath() << "'";
     }
 
-    template<typename T>
+    template <typename T>
     void writeValue(std::ostream& os, T const& value_, ValueFormat format) {
       std::ios_base::fmtflags ff = os.flags(std::ios_base::dec);
       os.width(0);
@@ -589,81 +531,90 @@ namespace edm {
       os.flags(ff);
     }
 
-    template<typename T>
+    template <typename T>
     void writeValueInVector(std::ostream& os, T const& value, ValueFormat format) {
       writeSingleValue<T>(os, value, format);
     }
 
     // Specializations for cases where we write the single values into
     // vectors differently than when there is only one not in a vector.
-    template<>
+    template <>
     void writeValueInVector<EventID>(std::ostream& os, EventID const& value, ValueFormat format) {
-      if(value.luminosityBlock() == 0U) {
-        if(format == CFI) os << "'" << value.run() << ":" << value.event() << "'";
-        else os << value.run() << ":" << value.event();
+      if (value.luminosityBlock() == 0U) {
+        if (format == CFI)
+          os << "'" << value.run() << ":" << value.event() << "'";
+        else
+          os << value.run() << ":" << value.event();
       } else {
-        if(format == CFI) os << "'" << value.run() << ":" << value.luminosityBlock() << ":" << value.event() << "'";
-        else os << value.run() << ":" << value.luminosityBlock() << ":" << value.event();
+        if (format == CFI)
+          os << "'" << value.run() << ":" << value.luminosityBlock() << ":" << value.event() << "'";
+        else
+          os << value.run() << ":" << value.luminosityBlock() << ":" << value.event();
       }
     }
 
-    template<>
+    template <>
     void writeValueInVector<LuminosityBlockID>(std::ostream& os, LuminosityBlockID const& value, ValueFormat format) {
-      if(format == CFI) os << "'" << value.run() << ":" << value.luminosityBlock() << "'";
-      else os << value.run() << ":" << value.luminosityBlock();
+      if (format == CFI)
+        os << "'" << value.run() << ":" << value.luminosityBlock() << "'";
+      else
+        os << value.run() << ":" << value.luminosityBlock();
     }
 
-    template<>
+    template <>
     void writeValueInVector<InputTag>(std::ostream& os, InputTag const& value, ValueFormat) {
       os << "'" << value.label();
-      if(!value.instance().empty() || !value.process().empty()) {
+      if (!value.instance().empty() || !value.process().empty()) {
         os << ":" << value.instance();
       }
-      if(!value.process().empty()) {
+      if (!value.process().empty()) {
         os << ":" << value.process();
       }
       os << "'";
     }
 
-    template<typename T>
-    void writeValueInVectorWithSpace(T const& value,
-                                     std::ostream& os,
-                                     int indentation,
-                                     bool& startWithComma,
-                                     ValueFormat format,
-                                     int& i) {
-      if(startWithComma && format == CFI) os << ",";
+    template <typename T>
+    void writeValueInVectorWithSpace(
+        T const& value, std::ostream& os, int indentation, bool& startWithComma, ValueFormat format, int& i) {
+      if (startWithComma && format == CFI)
+        os << ",";
       startWithComma = true;
       os << "\n" << std::setw(indentation) << "";
-      if(format == DOC) os << "[" << i << "]: ";
+      if (format == DOC)
+        os << "[" << i << "]: ";
       writeValueInVector<T>(os, value, format);
       ++i;
     }
 
-    template<typename T>
+    template <typename T>
     void writeVector(std::ostream& os, int indentation, std::vector<T> const& value_, ValueFormat format) {
       std::ios_base::fmtflags ff = os.flags(std::ios_base::dec);
       char oldFill = os.fill();
       os.width(0);
-      if(value_.empty() && format == DOC) {
+      if (value_.empty() && format == DOC) {
         os << "empty";
-      } else if(value_.size() == 1U && format == CFI) {
+      } else if (value_.size() == 1U && format == CFI) {
         writeValueInVector<T>(os, value_[0], format);
-      } else if(!value_.empty()) {
-        if(format == DOC) os << "(vector size = " << value_.size() << ")";
-        if(format == CFI and value_.size() > 255U) os << " *(";
+      } else if (!value_.empty()) {
+        if (format == DOC)
+          os << "(vector size = " << value_.size() << ")";
+        if (format == CFI and value_.size() > 255U)
+          os << " *(";
         os.fill(' ');
         bool startWithComma = false;
         int i = 0;
-        for_all(value_, std::bind(&writeValueInVectorWithSpace<T>,
-                                    std::placeholders::_1,
-                                    std::ref(os),
-                                    indentation + 2,
-                                    std::ref(startWithComma),
-                                    format,
-                                    std::ref(i)));
-        if(format == CFI) os << "\n" << std::setw(indentation) << "";
-        if(format == CFI and value_.size() > 255U) os << ") ";
+        for_all(value_,
+                std::bind(&writeValueInVectorWithSpace<T>,
+                          std::placeholders::_1,
+                          std::ref(os),
+                          indentation + 2,
+                          std::ref(startWithComma),
+                          format,
+                          std::ref(i)));
+        if (format == CFI)
+          os << "\n" << std::setw(indentation) << "";
+        if (format == CFI and value_.size() > 255U)
+          os << ") ";
       }
       os.flags(ff);
       os.fill(oldFill);
@@ -697,7 +648,10 @@ namespace edm {
       writeValue<unsigned long long>(os, value_, format);
     }
 
-    void writeValue(std::ostream& os, int indentation, std::vector<unsigned long long> const& value_, ValueFormat format) {
+    void writeValue(std::ostream& os,
+                    int indentation,
+                    std::vector<unsigned long long> const& value_,
+                    ValueFormat format) {
       writeVector<unsigned long long>(os, indentation, value_, format);
     }
 
@@ -733,7 +687,10 @@ namespace edm {
       writeValue<LuminosityBlockID>(os, value_, format);
     }
 
-    void writeValue(std::ostream& os, int indentation, std::vector<LuminosityBlockID> const& value_, ValueFormat format) {
+    void writeValue(std::ostream& os,
+                    int indentation,
+                    std::vector<LuminosityBlockID> const& value_,
+                    ValueFormat format) {
       writeVector<LuminosityBlockID>(os, indentation, value_, format);
     }
 
@@ -741,7 +698,10 @@ namespace edm {
       writeValue<LuminosityBlockRange>(os, value_, format);
     }
 
-    void writeValue(std::ostream& os, int indentation, std::vector<LuminosityBlockRange> const& value_, ValueFormat format) {
+    void writeValue(std::ostream& os,
+                    int indentation,
+                    std::vector<LuminosityBlockRange> const& value_,
+                    ValueFormat format) {
       writeVector<LuminosityBlockRange>(os, indentation, value_, format);
     }
 
@@ -789,5 +749,5 @@ namespace edm {
     bool hasNestedContent(InputTag const&) { return false; }
     bool hasNestedContent(std::vector<InputTag> const& value) { return value.size() > 5U; }
     bool hasNestedContent(FileInPath const&) { return false; }
-  }
-}
+  }  // namespace writeParameterValue
+}  // namespace edm

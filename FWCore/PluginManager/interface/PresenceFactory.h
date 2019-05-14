@@ -8,9 +8,9 @@
 #include <memory>
 
 namespace edm {
-  typedef edmplugin::PluginFactory<Presence* ()> PresencePluginFactory;
-  
-  typedef Presence* (PresenceFunc)();
+  typedef edmplugin::PluginFactory<Presence*()> PresencePluginFactory;
+
+  typedef Presence*(PresenceFunc)();
 
   class PresenceFactory {
   public:
@@ -18,12 +18,11 @@ namespace edm {
 
     static PresenceFactory* get();
 
-    std::unique_ptr<Presence>
-      makePresence(std::string const & presence_type) const;
+    std::unique_ptr<Presence> makePresence(std::string const& presence_type) const;
 
   private:
     PresenceFactory();
     //static PresenceFactory singleInstance_;
   };
-}
-#endif // FWCore_PluginManager_PresenceFactory_h
+}  // namespace edm
+#endif  // FWCore_PluginManager_PresenceFactory_h

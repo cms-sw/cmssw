@@ -184,7 +184,6 @@ public:
         );
 protected:
 
-  DQMStore* dqm_;
 
 private:
 

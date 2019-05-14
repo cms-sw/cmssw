@@ -125,17 +125,17 @@ void Multi5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Eve
   es.get<CaloGeometryRecord>().get(geoHandle);
 
   const CaloSubdetectorGeometry *geometry_p;
-  CaloSubdetectorTopology *topology_p;
+  std::unique_ptr<CaloSubdetectorTopology> topology_p;
 
   if (detector == reco::CaloID::DET_ECAL_BARREL) 
     {
       geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-      topology_p = new EcalBarrelTopology(geoHandle);
+      topology_p = std::make_unique<EcalBarrelTopology>(*geoHandle);
     }
   else
     {
       geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-      topology_p = new EcalEndcapTopology(geoHandle); 
+      topology_p = std::make_unique<EcalEndcapTopology>(*geoHandle);
    }
 
   const CaloSubdetectorGeometry *geometryES_p;
@@ -143,7 +143,7 @@ void Multi5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Eve
 
   // Run the clusterization algorithm:
   reco::BasicClusterCollection clusters;
-  clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p, detector);
+  clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p.get(), geometryES_p, detector);
 
   // create a unique_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
   auto clusters_p = std::make_unique<reco::BasicClusterCollection>();
@@ -153,6 +153,4 @@ void Multi5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Eve
     bccHandle = evt.put(std::move(clusters_p), barrelClusterCollection_);
   else
     bccHandle = evt.put(std::move(clusters_p), endcapClusterCollection_);
-
-  delete topology_p;
 }

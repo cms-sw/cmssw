@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 ##################### Updated tau collection with MVA-based tau-Ids rerun #######
 # Used only in some eras
-from Configuration.StandardSequences.Eras import eras
 from RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi import *
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import *
 
@@ -557,7 +556,8 @@ patTauMVAIDsSeq += patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Seq
 
 _patTauMVAIDsSeqWith2017v1 = _patTauMVAIDsSeq2017v2.copy()
 _patTauMVAIDsSeqWith2017v1 += patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1Seq
-for era in [eras.run2_nanoAOD_94XMiniAODv1,]:
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
+for era in [run2_nanoAOD_94XMiniAODv1,]:
     era.toReplaceWith(patTauMVAIDsSeq,_patTauMVAIDsSeqWith2017v1)
 
 # embed new MVA tau-Ids into new tau collection
@@ -623,7 +623,7 @@ _tauIDSourcesWith2015 = cms.PSet(
 )
 slimmedTausUpdated.tauIDSources=_tauIDSourcesWith2015
 
-for era in [eras.run2_nanoAOD_94XMiniAODv1,]:
+for era in [run2_nanoAOD_94XMiniAODv1,]:
     era.toModify(slimmedTausUpdated,
                  tauIDSources = _tauIDSourcesWith2017v1
     )

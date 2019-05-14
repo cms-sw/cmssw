@@ -16,26 +16,27 @@
 
 namespace edm {
   DaqProvenanceHelper::DaqProvenanceHelper(TypeID const& rawDataType)
-        : constBranchDescription_(BranchDescription(InEvent
-                                                  , "rawDataCollector"
+      : constBranchDescription_(BranchDescription(InEvent,
+                                                  "rawDataCollector"
                                                   //, "source"
-                                                  , "LHC"
+                                                  ,
+                                                  "LHC"
                                                   // , "HLT"
-                                                  , "FEDRawDataCollection"
-                                                  , "FEDRawDataCollection"
-                                                  , ""
-                                                  , "FedRawDataInputSource"
-                                                  , ParameterSetID()
-                                                  , TypeWithDict(rawDataType.typeInfo())
-                                                  , false))
-        , dummyProvenance_(constBranchDescription_.branchID())
-        , processParameterSet_()
-        , oldProcessName_()
-        , oldBranchID_()
-        , newBranchID_()
-        , oldProcessHistoryID_(nullptr)
-        , phidMap_() {
-    
+                                                  ,
+                                                  "FEDRawDataCollection",
+                                                  "FEDRawDataCollection",
+                                                  "",
+                                                  "FedRawDataInputSource",
+                                                  ParameterSetID(),
+                                                  TypeWithDict(rawDataType.typeInfo()),
+                                                  false)),
+        dummyProvenance_(constBranchDescription_.branchID()),
+        processParameterSet_(),
+        oldProcessName_(),
+        oldBranchID_(),
+        newBranchID_(),
+        oldProcessHistoryID_(nullptr),
+        phidMap_() {
     // Now we create a process parameter set for the "LHC" process.
     // We don't currently use the untracked parameters, However, we make them available, just in case.
     std::string const& moduleLabel = constBranchDescription_.moduleLabel();
@@ -73,10 +74,10 @@ namespace edm {
     //std::cerr << processParameterSet_.dump() << std::endl;
   }
 
-  ProcessHistoryID
-  DaqProvenanceHelper::daqInit(ProductRegistry& productRegistry, ProcessHistoryRegistry& processHistoryRegistry) const {
+  ProcessHistoryID DaqProvenanceHelper::daqInit(ProductRegistry& productRegistry,
+                                                ProcessHistoryRegistry& processHistoryRegistry) const {
     // Now we need to set all the metadata
-    // Add the product to the product registry  
+    // Add the product to the product registry
     productRegistry.copyProduct(constBranchDescription_);
 
     // Insert an entry for this process in the process history registry
@@ -88,34 +89,31 @@ namespace edm {
     return ph.setProcessHistoryID();
   }
 
-  bool
-  DaqProvenanceHelper::matchProcesses(ProcessConfiguration const& newPC, ProcessHistory const& ph) const {
-    for(auto const& pc : ph) {
-      if(pc.processName() == oldProcessName_) {
-        return(pc.releaseVersion() == newPC.releaseVersion() && pc.passID() == newPC.passID());
+  bool DaqProvenanceHelper::matchProcesses(ProcessConfiguration const& newPC, ProcessHistory const& ph) const {
+    for (auto const& pc : ph) {
+      if (pc.processName() == oldProcessName_) {
+        return (pc.releaseVersion() == newPC.releaseVersion() && pc.passID() == newPC.passID());
       }
     }
     return false;
   }
 
-  void
-  DaqProvenanceHelper::fixMetaData(std::vector<ProcessConfiguration>& pcv, std::vector<ProcessHistory>& phv) {
-    phv.push_back(ProcessHistory()); // For new processHistory, containing only processConfiguration_
+  void DaqProvenanceHelper::fixMetaData(std::vector<ProcessConfiguration>& pcv, std::vector<ProcessHistory>& phv) {
+    phv.push_back(ProcessHistory());  // For new processHistory, containing only processConfiguration_
     std::vector<ProcessConfiguration> newPCs;
-    for(auto const& pc : pcv) {
-       if(pc.processName() == oldProcessName_) {
-         newPCs.emplace_back(constBranchDescription_.processName(),
-                             processParameterSet_.id(),
-                             pc.releaseVersion(), pc.passID());
-       }
+    for (auto const& pc : pcv) {
+      if (pc.processName() == oldProcessName_) {
+        newPCs.emplace_back(
+            constBranchDescription_.processName(), processParameterSet_.id(), pc.releaseVersion(), pc.passID());
+      }
     }
     assert(!newPCs.empty());
     pcv.reserve(pcv.size() + newPCs.size());
     pcv.insert(pcv.end(), newPCs.begin(), newPCs.end());
     // update existing process histories
-    for(auto& ph : phv) {
-      for(auto const& newPC : newPCs) {
-        if(ph.empty() || matchProcesses(newPC, ph)) {
+    for (auto& ph : phv) {
+      for (auto const& newPC : newPCs) {
+        if (ph.empty() || matchProcesses(newPC, ph)) {
           ProcessHistoryID oldPHID = ph.id();
           ph.push_front(newPC);
           ProcessHistoryID newPHID = ph.id();
@@ -126,52 +124,48 @@ namespace edm {
     }
     // For new process histories, containing only the new process configurations
     phv.reserve(phv.size() + newPCs.size());
-    for(auto const& newPC : newPCs) {
+    for (auto const& newPC : newPCs) {
       phv.emplace_back();
       phv.back().push_front(newPC);
     }
   }
 
-  void
-  DaqProvenanceHelper::fixMetaData(std::vector<BranchID>& branchID) const {
+  void DaqProvenanceHelper::fixMetaData(std::vector<BranchID>& branchID) const {
     std::replace(branchID.begin(), branchID.end(), oldBranchID_, newBranchID_);
   }
 
-  void
-  DaqProvenanceHelper::fixMetaData(BranchIDLists const& branchIDLists) const {
+  void DaqProvenanceHelper::fixMetaData(BranchIDLists const& branchIDLists) const {
     BranchID::value_type oldID = oldBranchID_.id();
     BranchID::value_type newID = newBranchID_.id();
     // The const_cast is ugly, but it beats the alternatives.
     BranchIDLists& lists = const_cast<BranchIDLists&>(branchIDLists);
-    for(auto& list : lists) {
+    for (auto& list : lists) {
       std::replace(list.begin(), list.end(), oldID, newID);
     }
   }
 
-  void
-  DaqProvenanceHelper::fixMetaData(BranchChildren& branchChildren) const {
+  void DaqProvenanceHelper::fixMetaData(BranchChildren& branchChildren) const {
     typedef std::map<BranchID, std::set<BranchID> > BCMap;
     // The const_cast is ugly, but it beats the alternatives.
     BCMap& childLookup = const_cast<BCMap&>(branchChildren.childLookup());
     // First fix any old branchID's in the key.
     {
       BCMap::iterator i = childLookup.find(oldBranchID_);
-      if(i != childLookup.end()) {
+      if (i != childLookup.end()) {
         childLookup.insert(std::make_pair(newBranchID_, i->second));
         childLookup.erase(i);
       }
     }
     // Now fix any old branchID's in the sets;
-    for(auto& child : childLookup) {
-      if(child.second.erase(oldBranchID_) != 0) {
+    for (auto& child : childLookup) {
+      if (child.second.erase(oldBranchID_) != 0) {
         child.second.insert(newBranchID_);
       }
     }
   }
 
   // Replace process history ID.
-  ProcessHistoryID const&
-  DaqProvenanceHelper::mapProcessHistoryID(ProcessHistoryID const& phid) {
+  ProcessHistoryID const& DaqProvenanceHelper::mapProcessHistoryID(ProcessHistoryID const& phid) {
     ProcessHistoryIDMap::const_iterator it = phidMap_.find(phid);
     assert(it != phidMap_.end());
     oldProcessHistoryID_ = &it->first;
@@ -179,23 +173,21 @@ namespace edm {
   }
 
   // Replace parentage ID.
-  ParentageID const&
-  DaqProvenanceHelper::mapParentageID(ParentageID const& parentageID) const {
+  ParentageID const& DaqProvenanceHelper::mapParentageID(ParentageID const& parentageID) const {
     ParentageIDMap::const_iterator it = parentageIDMap_.find(parentageID);
-    if(it == parentageIDMap_.end()) {
+    if (it == parentageIDMap_.end()) {
       return parentageID;
     }
     return it->second;
   }
 
   // Replace branch ID if necessary.
-  BranchID const&
-  DaqProvenanceHelper::mapBranchID(BranchID const& branchID) const {
-    return(branchID == oldBranchID_ ? newBranchID_ : branchID);
+  BranchID const& DaqProvenanceHelper::mapBranchID(BranchID const& branchID) const {
+    return (branchID == oldBranchID_ ? newBranchID_ : branchID);
   }
 
   void DaqProvenanceHelper::setOldParentageIDToNew(ParentageID const& iOld, ParentageID const& iNew) {
     parentageIDMap_.insert(std::make_pair(iOld, iNew));
   }
 
-}
+}  // namespace edm

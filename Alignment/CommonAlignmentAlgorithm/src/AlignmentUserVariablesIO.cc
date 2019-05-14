@@ -16,45 +16,40 @@
 //-----------------------------------------------------------------------------
 // write many user variables
 
-int 
-AlignmentUserVariablesIO::write(const align::Alignables& alivec, 
-  bool validCheck) 
-{
-  int icount=0;
-  for(align::Alignables::const_iterator it=alivec.begin();
-    it!=alivec.end(); ++it) {
+int AlignmentUserVariablesIO::write(const align::Alignables& alivec, bool validCheck) {
+  int icount = 0;
+  for (align::Alignables::const_iterator it = alivec.begin(); it != alivec.end(); ++it) {
     if ((*it)->alignmentParameters()->isValid() || !(validCheck)) {
       icount++;
-      int iret=writeOne(*it);
-      if (iret!=0) return iret;
+      int iret = writeOne(*it);
+      if (iret != 0)
+        return iret;
     }
   }
   edm::LogInfo("Alignment") << "@SUB=AlignmentUserVariablesIO::write"
-                            << "Write variables all,written: " << alivec.size() <<","<< icount;
+                            << "Write variables all,written: " << alivec.size() << "," << icount;
   return 0;
 }
 
 //-----------------------------------------------------------------------------
 // read many user variables
 
-std::vector<AlignmentUserVariables*> 
-AlignmentUserVariablesIO::read(const align::Alignables& alivec, int& ierr) 
-{
+std::vector<AlignmentUserVariables*> AlignmentUserVariablesIO::read(const align::Alignables& alivec, int& ierr) {
   std::vector<AlignmentUserVariables*> retvec;
-  ierr=0;
+  ierr = 0;
   int ierr2;
-  int icount=0;
-  int icount2=0;
-  for(align::Alignables::const_iterator it=alivec.begin();
-    it!=alivec.end(); ++it) {
-    AlignmentUserVariables* ad=readOne(*it, ierr2); // should create with new!
-    if (ierr2==0) { 
-      retvec.push_back(ad); icount++; 
-      if (ad!=nullptr) icount2++;
+  int icount = 0;
+  int icount2 = 0;
+  for (align::Alignables::const_iterator it = alivec.begin(); it != alivec.end(); ++it) {
+    AlignmentUserVariables* ad = readOne(*it, ierr2);  // should create with new!
+    if (ierr2 == 0) {
+      retvec.push_back(ad);
+      icount++;
+      if (ad != nullptr)
+        icount2++;
     }
   }
   edm::LogInfo("Alignment") << "@SUB=AlignmentUserVariablesIO::read"
-                            << "Read variables all,read,valid: " << alivec.size() <<","
-                            << icount <<","<< icount2;
+                            << "Read variables all,read,valid: " << alivec.size() << "," << icount << "," << icount2;
   return retvec;
 }

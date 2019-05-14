@@ -139,7 +139,6 @@ private:
   std::vector<std::string> m_G4Commands;
   edm::ParameterSet m_p;
 
-  AttachSD * m_attach;
   std::vector<SensitiveTkDetector*> m_sensTkDets;
   std::vector<SensitiveCaloDetector*> m_sensCaloDets;
 

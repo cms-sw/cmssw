@@ -20,8 +20,8 @@ public:
   ~EcalEndcapTopology() override { }  
   
   /// create a new Topology from geometry
-  EcalEndcapTopology(edm::ESHandle<CaloGeometry> theGeom) {
-    theGeom_ = theGeom.product()->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+  EcalEndcapTopology(CaloGeometry const& theGeom) {
+    theGeom_ = theGeom.getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
   }
 
   /// move the Topology north (increment iy)  

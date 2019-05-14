@@ -23,4 +23,3 @@ void dumpEvent(uint8* buf);
 void dumpFRDEventView(const FRDEventMsgView* fview);
 
 #endif
-

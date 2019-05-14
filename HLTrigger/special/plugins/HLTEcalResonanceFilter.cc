@@ -231,9 +231,9 @@ HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle); 
   const CaloSubdetectorGeometry *geometry_es = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  CaloSubdetectorTopology *topology_es=nullptr;
+  std::unique_ptr<CaloSubdetectorTopology> topology_es;
   if (geometry_es) {
-    topology_es  = new EcalPreshowerTopology(geoHandle);
+    topology_es  = std::make_unique<EcalPreshowerTopology>();
   }else{
     storeRecHitES_ = false; ///if no preshower
   }
@@ -395,7 +395,7 @@ HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       ///save preshower rechits 
       if(storeRecHitES_){
 	std::set<DetId> used_strips_before = m_used_strips;  
-	makeClusterES(it_bc3->x(),it_bc3->y(),it_bc3->z(),geometry_es,topology_es);
+	makeClusterES(it_bc3->x(),it_bc3->y(),it_bc3->z(),geometry_es,topology_es.get());
 	auto ites = m_used_strips.begin();
 	for(; ites != m_used_strips.end(); ++ ites ){
 	  ESDetId d1 = ESDetId(*ites);
@@ -449,8 +449,6 @@ HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   }// end of selection for eta/pi0->gg in the endcap
     
  
-  
-  delete topology_es;
   
   ////==============End of endcap ===============///
   
@@ -917,8 +915,8 @@ float HLTEcalResonanceFilter::GetDeltaR(float eta1, float eta2, float phi1, floa
 }
 
 
-void HLTEcalResonanceFilter::makeClusterES(float x, float y, float z,const CaloSubdetectorGeometry*& geometry_es,
-					CaloSubdetectorTopology*& topology_es
+void HLTEcalResonanceFilter::makeClusterES(float x, float y, float z, const CaloSubdetectorGeometry* geometry_es,
+                                           const CaloSubdetectorTopology* topology_es
 					){
   
   

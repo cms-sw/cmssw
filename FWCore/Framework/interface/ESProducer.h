@@ -87,17 +87,16 @@ Example: two algorithms each creating only one objects
 namespace edm {
   namespace eventsetup {
 
+    class ESRecordsToProxyIndices;
     //used by ESProducer to create the proper Decorator based on the
     //  argument type passed.  The default it to just 'pass through'
     //  the argument as the decorator itself
-    template< typename T, typename TRecord, typename TDecorator >
+    template <typename T, typename TRecord, typename TDecorator>
     inline const TDecorator& createDecoratorFrom(T*, const TRecord*, const TDecorator& iDec) {
       return iDec;
     }
-  }
-  class ESProducer : public ESProxyFactoryProducer
-  {
-
+  }  // namespace eventsetup
+  class ESProducer : public ESProxyFactoryProducer {
   public:
     ESProducer();
     ~ESProducer() noexcept(false) override;
@@ -107,39 +106,46 @@ namespace edm {
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
+    void updateLookup(eventsetup::ESRecordsToProxyIndices const&) final;
+    ESProxyIndex const* getTokenIndices(unsigned int iIndex) const {
+      if (itemsToGetFromRecords_.empty()) {
+        return nullptr;
+      }
+      return (itemsToGetFromRecords_[iIndex].empty()) ? static_cast<ESProxyIndex const*>(nullptr)
+                                                      : &(itemsToGetFromRecords_[iIndex].front());
+    }
+
   protected:
     /** \param iThis the 'this' pointer to an inheriting class instance
         The method determines the Record argument and return value of the 'produce'
         method in order to do the registration with the EventSetup
     */
-    template<typename T>
+    template <typename T>
     auto setWhatProduced(T* iThis, const es::Label& iLabel = {}) {
-      return setWhatProduced(iThis , &T::produce, iLabel);
+      return setWhatProduced(iThis, &T::produce, iLabel);
     }
 
-    template<typename T>
+    template <typename T>
     auto setWhatProduced(T* iThis, const char* iLabel) {
-      return setWhatProduced(iThis , es::Label(iLabel));
+      return setWhatProduced(iThis, es::Label(iLabel));
     }
-    template<typename T>
+    template <typename T>
     auto setWhatProduced(T* iThis, const std::string& iLabel) {
-      return setWhatProduced(iThis , es::Label(iLabel));
+      return setWhatProduced(iThis, es::Label(iLabel));
     }
 
-    template<typename T, typename TDecorator >
+    template <typename T, typename TDecorator>
     auto setWhatProduced(T* iThis, const TDecorator& iDec, const es::Label& iLabel = {}) {
-      return setWhatProduced(iThis , &T::produce, iDec, iLabel);
+      return setWhatProduced(iThis, &T::produce, iDec, iLabel);
     }
     /** \param iThis the 'this' pointer to an inheriting class instance
         \param iMethod a member method of then inheriting class
         The method determines the Record argument and return value of the iMethod argument
         method in order to do the registration with the EventSetup
     */
-    template<typename T, typename TReturn, typename TRecord>
-    auto setWhatProduced(T* iThis,
-                         TReturn (T ::* iMethod)(const TRecord&),
-                         const es::Label& iLabel = {}) {
-      return setWhatProduced(iThis, iMethod, eventsetup::CallbackSimpleDecorator<TRecord>(),iLabel);
+    template <typename T, typename TReturn, typename TRecord>
+    auto setWhatProduced(T* iThis, TReturn (T ::*iMethod)(const TRecord&), const es::Label& iLabel = {}) {
+      return setWhatProduced(iThis, iMethod, eventsetup::CallbackSimpleDecorator<TRecord>(), iLabel);
     }
     /** \param iThis the 'this' pointer to an inheriting class instance
         \param iMethod a member method of then inheriting class
@@ -147,54 +153,54 @@ namespace edm {
         The method determines the Record argument and return value of the iMethod argument
         method in order to do the registration with the EventSetup
     */
-    template<typename T, typename TReturn, typename TRecord, typename TArg>
+    template <typename T, typename TReturn, typename TRecord, typename TArg>
     ESConsumesCollectorT<TRecord> setWhatProduced(T* iThis,
-                         TReturn (T ::* iMethod)(const TRecord&),
-                         const TArg& iDec,
-                         const es::Label& iLabel = {}) {
-      auto callback = std::make_shared<eventsetup::Callback<T,
-                                                            TReturn,
-                                                            TRecord,
-                                                            typename eventsetup::DecoratorFromArg<T,TRecord,TArg>::Decorator_t>>(iThis,
-                                                                                                                                 iMethod,
-                                                                                                                                 createDecoratorFrom(iThis,
-                                                                                                                                                     static_cast<const TRecord*>(nullptr),
-                                                                                                                                                     iDec));
+                                                  TReturn (T ::*iMethod)(const TRecord&),
+                                                  const TArg& iDec,
+                                                  const es::Label& iLabel = {}) {
+      const auto id = consumesInfos_.size();
+      auto callback = std::make_shared<
+          eventsetup::Callback<T, TReturn, TRecord, typename eventsetup::DecoratorFromArg<T, TRecord, TArg>::Decorator_t>>(
+          iThis, iMethod, id, createDecoratorFrom(iThis, static_cast<const TRecord*>(nullptr), iDec));
       registerProducts(callback,
-                       static_cast<const typename eventsetup::produce::product_traits<TReturn>::type *>(nullptr),
+                       static_cast<const typename eventsetup::produce::product_traits<TReturn>::type*>(nullptr),
                        static_cast<const TRecord*>(nullptr),
                        iLabel);
-      return ESConsumesCollectorT<TRecord>{iThis};
+      consumesInfos_.push_back(std::make_unique<ESConsumesInfo>());
+      return ESConsumesCollectorT<TRecord>(consumesInfos_.back().get(), id);
     }
 
-    ESProducer(const ESProducer&) = delete; // stop default
-    ESProducer const& operator=(const ESProducer&) = delete; // stop default
+    ESProducer(const ESProducer&) = delete;                   // stop default
+    ESProducer const& operator=(const ESProducer&) = delete;  // stop default
 
   private:
-
-    template<typename CallbackT, typename TList, typename TRecord>
-    void registerProducts(std::shared_ptr<CallbackT> iCallback, const TList*, const TRecord* iRecord,
+    template <typename CallbackT, typename TList, typename TRecord>
+    void registerProducts(std::shared_ptr<CallbackT> iCallback,
+                          const TList*,
+                          const TRecord* iRecord,
                           const es::Label& iLabel) {
       registerProduct(iCallback, static_cast<const typename TList::tail_type*>(nullptr), iRecord, iLabel);
       registerProducts(iCallback, static_cast<const typename TList::head_type*>(nullptr), iRecord, iLabel);
     }
 
-    template<typename T, typename TRecord>
-    void registerProducts(std::shared_ptr<T>, const eventsetup::produce::Null*, const TRecord*,const es::Label&) {
+    template <typename T, typename TRecord>
+    void registerProducts(std::shared_ptr<T>, const eventsetup::produce::Null*, const TRecord*, const es::Label&) {
       //do nothing
     }
 
-    template<typename T, typename TProduct, typename TRecord>
-    void registerProduct(std::shared_ptr<T> iCallback, const TProduct*, const TRecord*,const es::Label& iLabel) {
+    template <typename T, typename TProduct, typename TRecord>
+    void registerProduct(std::shared_ptr<T> iCallback, const TProduct*, const TRecord*, const es::Label& iLabel) {
       typedef eventsetup::CallbackProxy<T, TRecord, TProduct> ProxyType;
       typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, std::shared_ptr<T>> FactoryType;
       registerFactory(std::make_unique<FactoryType>(iCallback), iLabel.default_);
     }
 
-    template<typename T, typename TProduct, typename TRecord, int IIndex>
-    void registerProduct(std::shared_ptr<T> iCallback, const es::L<TProduct,IIndex>*, const TRecord*,const es::Label& iLabel) {
-      if(iLabel.labels_.size() <= IIndex ||
-         iLabel.labels_[IIndex] == es::Label::def()) {
+    template <typename T, typename TProduct, typename TRecord, int IIndex>
+    void registerProduct(std::shared_ptr<T> iCallback,
+                         const es::L<TProduct, IIndex>*,
+                         const TRecord*,
+                         const es::Label& iLabel) {
+      if (iLabel.labels_.size() <= IIndex || iLabel.labels_[IIndex] == es::Label::def()) {
         Exception::throwThis(errors::Configuration,
                              "Unnamed Label\nthe index ",
                              IIndex,
@@ -205,6 +211,11 @@ namespace edm {
       registerFactory(std::make_unique<FactoryType>(iCallback), iLabel.labels_[IIndex]);
     }
 
+    std::vector<std::unique_ptr<ESConsumesInfo>> consumesInfos_;
+    std::vector<std::vector<ESProxyIndex>> itemsToGetFromRecords_;
+    //need another structure to say which record to get the data from in
+    // order to make prefetching work
+    std::vector<std::vector<ESRecordIndex>> recordsUsedDuringGet_;
   };
-}
+}  // namespace edm
 #endif

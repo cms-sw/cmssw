@@ -10,5 +10,5 @@ FSimVertex::FSimVertex(const XYZTLorentzVector& v, int im, int id, FBaseSimEvent
   position_(v) {;}
 
 std::ostream& operator <<(std::ostream& o , const FSimVertex& t) {
-  return o << t;
+  return o << static_cast<SimVertex const&>(t);
 }

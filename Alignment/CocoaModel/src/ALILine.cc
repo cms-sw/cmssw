@@ -65,20 +65,20 @@ CLHEP::Hep3Vector ALILine::intersect( const ALILine& l2, bool notParallel )
   } else {
 
 
- //	****************************************************************	//
- //	****************************************************************	//
- //	****************************************************************	//
- //  			     Determination of Fact				//
- //										//
- //	Problem :  3D quantity was determined by doing calculation with		//
- //		   the 2D projections of the std::vectors.  It is possible 		//
- //	   	   for projection in a particular plane to be 0 		//
- //										//
- //	Solution : Test for problem and redo calculation if necessary by	//
- //		   projecting into a different plane				//
- //	****************************************************************	//
- //	****************************************************************	//
- //	****************************************************************	//
+ //	****************************************************************        //
+ //	****************************************************************        //
+ //	****************************************************************        //
+ //  			     Determination of Fact			        //
+ //									        //
+ //	Problem :  3D quantity was determined by doing calculation with	        //
+ //		   the 2D projections of the std::vectors.  It is possible      //
+ //	   	   for projection in a particular plane to be 0                 //
+ //                                                                             //
+ //	Solution : Test for problem and redo calculation if necessary by        //
+ //		   projecting into a different plane                            //
+ //	****************************************************************        //
+ //	****************************************************************        //
+ //	****************************************************************        //
 
 
 

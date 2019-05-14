@@ -6,7 +6,7 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronTools.h"
 
-namespace GsfElectronTools {
+namespace gsfElectronTools {
 
   using namespace reco ;
 

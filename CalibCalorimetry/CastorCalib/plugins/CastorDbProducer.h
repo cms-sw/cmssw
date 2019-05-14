@@ -11,19 +11,19 @@ class CastorDbService;
 class CastorDbRecord;
 
 #include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
-#include "CondFormats/DataRecord/interface/CastorElectronicsMapRcd.h"  	 
+#include "CondFormats/DataRecord/interface/CastorElectronicsMapRcd.h"
 #include "CondFormats/DataRecord/interface/CastorGainWidthsRcd.h"
 #include "CondFormats/DataRecord/interface/CastorGainsRcd.h"
 #include "CondFormats/DataRecord/interface/CastorPedestalWidthsRcd.h"
-#include "CondFormats/DataRecord/interface/CastorPedestalsRcd.h" 
+#include "CondFormats/DataRecord/interface/CastorPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/CastorQIEDataRcd.h"
 
 class CastorDbProducer : public edm::ESProducer {
 public:
-  CastorDbProducer( const edm::ParameterSet& );
+  CastorDbProducer(const edm::ParameterSet&);
   ~CastorDbProducer() override;
-  
-  std::shared_ptr<CastorDbService> produce( const CastorDbRecord& );
+
+  std::shared_ptr<CastorDbService> produce(const CastorDbRecord&);
 
 private:
   // ----------member data ---------------------------

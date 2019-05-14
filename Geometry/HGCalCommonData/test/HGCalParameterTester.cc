@@ -1,7 +1,6 @@
 #include <iostream>
 #include <map>
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -27,15 +26,17 @@ class HGCalParameterTester : public edm::one::EDAnalyzer<> {
                std::vector<double> const& obj2, int n) const;
   void myPrint(std::string const& s, HGCalParameters::wafer_map const& obj,
                int n) const;
-  void printTrform(edm::ESHandle<HGCalParameters> const&) const;
-  void printWaferType(edm::ESHandle<HGCalParameters> const& phgp) const;
+  void printTrform(HGCalParameters const*) const;
+  void printWaferType(HGCalParameters const* phgp) const;
 
   const std::string name_;
+  edm::ESGetToken<HGCalParameters, IdealGeometryRecord> token_;
   const int mode_;
 };
 
 HGCalParameterTester::HGCalParameterTester(const edm::ParameterSet& ic)
     : name_(ic.getUntrackedParameter<std::string>("Name")),
+      token_(esConsumes<HGCalParameters, IdealGeometryRecord>(edm::ESInputTag{"", name_})),
       mode_(ic.getUntrackedParameter<int>("Mode")) {}
 
 void HGCalParameterTester::analyze(const edm::Event& iEvent,
@@ -43,8 +44,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
   edm::LogVerbatim("HGCalGeomr") << "HGCalParameter::Here I am";
   auto start = std::chrono::high_resolution_clock::now();
 
-  edm::ESHandle<HGCalParameters> phgp;
-  iSetup.get<IdealGeometryRecord>().get(name_, phgp);
+  const auto& hgp = iSetup.getData(token_);
+  const auto* phgp = &hgp;
 
   std::cout << phgp->name_ << "\n";
   if (mode_ == 0) {
@@ -309,7 +310,7 @@ void HGCalParameterTester::myPrint(std::string const& s,
 }
 
 void HGCalParameterTester::printTrform(
-    edm::ESHandle<HGCalParameters> const& phgp) const {
+    HGCalParameters const* phgp) const {
   int k(0);
   std::cout << "TrformIndex with " << phgp->trformIndex_.size()
             << " elements\n";
@@ -326,7 +327,7 @@ void HGCalParameterTester::printTrform(
 }
 
 void HGCalParameterTester::printWaferType(
-    edm::ESHandle<HGCalParameters> const& phgp) const {
+    HGCalParameters const* phgp) const {
   int k(0);
   std::cout << "waferTypes with " << phgp->waferTypes_.size() << " elements\n";
   std::map<std::pair<int, int>, int> kounts;

@@ -30,15 +30,21 @@ from Configuration.StandardSequences.Generator_cff import *
 from GeneratorInterface.Core.generatorSmeared_cfi import *
 from SimGeneral.PileupInformation.genPUProtons_cfi import *
 
-doAllDigi = cms.Sequence(generatorSmeared*calDigi+muonDigi)
-pdigi = cms.Sequence(generatorSmeared*fixGenInfo*cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*addPileupInfo*genPUProtons)
-pdigi_valid = cms.Sequence(pdigi)
-pdigi_nogen=cms.Sequence(generatorSmeared*cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*addPileupInfo*genPUProtons)
-pdigi_valid_nogen=cms.Sequence(pdigi_nogen)
+doAllDigiTask = cms.Task(generatorSmeared, calDigiTask, muonDigiTask)
+pdigiTask_nogen = cms.Task(generatorSmeared, cms.TaskPlaceholder("randomEngineStateProducer"), cms.TaskPlaceholder("mix"), doAllDigiTask, addPileupInfo, genPUProtons)
+pdigiTask = cms.Task(pdigiTask_nogen, fixGenInfoTask)
+
+doAllDigi = cms.Sequence(doAllDigiTask)
+pdigi = cms.Sequence(pdigiTask)
+pdigi_valid = cms.Sequence(pdigiTask)
+pdigi_nogen=cms.Sequence(pdigiTask_nogen)
+pdigi_valid_nogen=cms.Sequence(pdigiTask_nogen)
 
 from GeneratorInterface.HiGenCommon.HeavyIon_cff import *
-pdigi_hi=cms.Sequence(pdigi+heavyIon)
-pdigi_hi_nogen=cms.Sequence(pdigi_nogen+genJetMET+heavyIon)
+pdigiTask_hi = cms.Task(pdigiTask, heavyIon)
+pdigiTask_hi_nogen = cms.Task(pdigiTask_nogen, genJetMETTask, heavyIon)
+pdigi_hi=cms.Sequence(pdigiTask_hi)
+pdigi_hi_nogen=cms.Sequence(pdigiTask_hi_nogen)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 def _fastSimDigis(process):

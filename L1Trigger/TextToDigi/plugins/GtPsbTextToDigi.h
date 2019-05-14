@@ -7,7 +7,7 @@
  *\date 08.08
  */
 
-/*\note on format 
+/*\note on format
   input file names: m_textFileName + mem# + .txt
   each line corresponds to one 80MHz clock (2 cycles/lines per event)
   input data: 16 bits: cycle (msb) + GCT em cand raw data (14:0)
@@ -23,26 +23,26 @@
   as specified to me by I.Mikulec, M.Jeitler, J.Brooke
 */
 
-#include <memory>
-#include <fstream>
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <fstream>
+#include <memory>
 
 class GtPsbTextToDigi : public edm::EDProducer {
- public:
-  explicit GtPsbTextToDigi(const edm::ParameterSet&);
+public:
+  explicit GtPsbTextToDigi(const edm::ParameterSet &);
   ~GtPsbTextToDigi() override;
-  
- private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  void produce(edm::Event &, const edm::EventSetup &) override;
   void endJob() override;
 
- private:
+private:
   /// Create empty digi collection
-  void putEmptyDigi(edm::Event&);
+  void putEmptyDigi(edm::Event &);
 
   /// Number of events to be offset wrt input
   int m_fileEventOffset;
@@ -57,7 +57,7 @@ class GtPsbTextToDigi : public edm::EDProducer {
   std::ifstream m_file[4];
 
   /// Hold detected BC0 signal position per file
-  int m_bc0[4];  
+  int m_bc0[4];
 };
 
 #endif

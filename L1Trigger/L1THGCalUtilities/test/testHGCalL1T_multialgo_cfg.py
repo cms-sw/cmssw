@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms 
-from Configuration.StandardSequences.Eras import eras
 from Configuration.ProcessModifiers.convertHGCalDigisSim_cff import convertHGCalDigisSim
 
 # For old samples use the digi converter
-#process = cms.Process('DIGI',eras.Phase2,convertHGCalDigisSim)
-process = cms.Process('DIGI',eras.Phase2)
+#from Configuration.Eras.Era_Phase2_cff import Phase2
+#process = cms.Process('DIGI',Phase2,convertHGCalDigisSim)
+process = cms.Process('DIGI',Phase2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -66,12 +66,14 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 # load HGCAL TPG simulation
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
+process.load('L1Trigger.L1THGCalUtilities.HGC3DClusterGenMatchSelector_cff')
 process.load('L1Trigger.L1THGCalUtilities.hgcalTriggerNtuples_cff')
 from L1Trigger.L1THGCalUtilities.hgcalTriggerChains import HGCalTriggerChains
 import L1Trigger.L1THGCalUtilities.vfe as vfe
 import L1Trigger.L1THGCalUtilities.concentrator as concentrator
 import L1Trigger.L1THGCalUtilities.clustering2d as clustering2d
 import L1Trigger.L1THGCalUtilities.clustering3d as clustering3d
+import L1Trigger.L1THGCalUtilities.selectors as selectors
 import L1Trigger.L1THGCalUtilities.customNtuples as ntuple
 
 
@@ -91,6 +93,8 @@ chains.register_backend2("Histomax", clustering3d.create_histoMax)
 chains.register_backend2("Histomaxvardrth0", lambda p,i : clustering3d.create_histoMax_variableDr(p,i,seed_threshold=0.))
 chains.register_backend2("Histomaxvardrth10", lambda p,i : clustering3d.create_histoMax_variableDr(p,i,seed_threshold=10.))
 chains.register_backend2("Histomaxvardrth20", lambda p,i : clustering3d.create_histoMax_variableDr(p,i,seed_threshold=20.))
+# Register selector
+chains.register_selector("Genmatch", selectors.create_genmatch)
 # Register ntuples
 # Store gen info only in the reference ntuple
 ntuple_list_ref = ['event', 'gen', 'multiclusters']
@@ -100,13 +104,13 @@ chains.register_ntuple("Clustersntuple", lambda p,i : ntuple.create_ntuple(p,i, 
 
 # Register trigger chains
 ## Reference chain
-chains.register_chain('Floatingpoint8', "Threshold", 'Ref2d', 'Ref3d', 'Genclustersntuple')
+chains.register_chain('Floatingpoint8', "Threshold", 'Ref2d', 'Ref3d', 'Genmatch', 'Genclustersntuple')
 concentrator_algos = ['Supertriggercell', 'Threshold']
 backend_algos = ['Histomax', 'Histomaxvardrth0', 'Histomaxvardrth10', 'Histomaxvardrth20']
 ## Make cross product fo ECON and BE algos
 import itertools
 for cc,be in itertools.product(concentrator_algos,backend_algos):
-    chains.register_chain('Floatingpoint8', cc, 'Dummy', be, 'Clustersntuple')
+    chains.register_chain('Floatingpoint8', cc, 'Dummy', be, 'Genmatch', 'Clustersntuple')
 
 process = chains.create_sequences(process)
 
@@ -115,10 +119,11 @@ process.hgcalTriggerPrimitives.remove(process.hgcalTowerMap)
 process.hgcalTriggerPrimitives.remove(process.hgcalTower)
 
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
+process.selector_step = cms.Path(process.hgcalTriggerSelector)
 process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.hgcl1tpg_step, process.ntuple_step)
+process.schedule = cms.Schedule(process.hgcl1tpg_step, process.selector_step, process.ntuple_step)
 
 # Add early deletion of temporary data products to reduce peak memory need
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete

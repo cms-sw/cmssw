@@ -23,18 +23,18 @@ public:
 
 private:
   int getSuperTriggerCellId(int detid) const;
-  static std::map<int, int> kSplit_;
-  static const int kWafer_offset_ = 6;
-  static const int kSTCsizeCoarse_ = 16;
-  static const int kSTCsizeFine_ = 4;
-  static const int kSplit_v8_Coarse_ = 0x30;
-  static const int kSplit_v8_Fine_ = 0x3a;
-  static const int kNLayers_ = 3;
-  static const int kSplit_v9_ = 0x36;
+  static const std::map<int, int> kSplit_;
+  static constexpr int kWafer_offset_ = 6;
+  static constexpr int kSTCsizeCoarse_ = 16;
+  static constexpr int kSTCsizeFine_ = 4;
+  static constexpr int kSplit_v8_Coarse_ = 0x30;
+  static constexpr int kSplit_v8_Fine_ = 0x3a;
+  static constexpr int kNLayers_ = 3;
+  static constexpr int kSplit_v9_ = 0x36;
 
-  static const int kRocShift_ = 6;
-  static const int kRotate4_ = 4;
-  static const int kUShift_ = 3;
+  static constexpr int kRocShift_ = 6;
+  static constexpr int kRotate4_ = 4;
+  static constexpr int kUShift_ = 3;
 
   HGCalTriggerTools triggerTools_;
   HGCSiliconDetIdToROC detIdToROC_;

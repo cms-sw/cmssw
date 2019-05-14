@@ -101,16 +101,17 @@ rawDataCollector = EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi.rawD
         ]
     )
 
-SimL1Emulator = cms.Sequence()
-stage2L1Trigger.toReplaceWith(SimL1Emulator, cms.Sequence(unpackRPC
-                                                          + unpackDT
-                                                          + unpackCSC
-                                                          + unpackEcal
-                                                          + unpackHcal
-                                                          #+ simEcalTriggerPrimitiveDigis
-                                                          + simHcalTriggerPrimitiveDigis
-                                                          + SimL1EmulatorCore
-                                                          + packCaloStage2
-                                                          + packGmtStage2
-                                                          + packGtStage2
-                                                          + rawDataCollector))
+SimL1EmulatorTask = cms.Task()
+stage2L1Trigger.toReplaceWith(SimL1EmulatorTask, cms.Task(unpackRPC
+                                                          , unpackDT
+                                                          , unpackCSC
+                                                          , unpackEcal
+                                                          , unpackHcal
+                                                          #, simEcalTriggerPrimitiveDigis
+                                                          , simHcalTriggerPrimitiveDigis
+                                                          , SimL1EmulatorCoreTask
+                                                          , packCaloStage2
+                                                          , packGmtStage2
+                                                          , packGtStage2
+                                                          , rawDataCollector))
+SimL1Emulator = cms.Sequence(SimL1EmulatorTask)

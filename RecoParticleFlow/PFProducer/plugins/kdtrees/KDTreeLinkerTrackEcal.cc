@@ -63,7 +63,7 @@ void
 KDTreeLinkerTrackEcal::buildTree()
 {
   // List of pseudo-rechits that will be used to create the KDTree
-  std::vector<KDTreeNodeInfo> eltList;
+  std::vector<KDTreeNodeInfo<reco::PFRecHit const*>> eltList;
 
   // Filling of this list
   for(RecHitSet::const_iterator it = rechitsSet_.begin(); 
@@ -71,20 +71,20 @@ KDTreeLinkerTrackEcal::buildTree()
     
     const reco::PFRecHit::REPPoint &posrep = (*it)->positionREP();
     
-    KDTreeNodeInfo rh1 (*it, posrep.eta(), posrep.phi());
+    KDTreeNodeInfo<reco::PFRecHit const*> rh1 (*it, posrep.eta(), posrep.phi());
     eltList.push_back(rh1);
     
     // Here we solve the problem of phi circular set by duplicating some rechits
     // too close to -Pi (or to Pi) and adding (substracting) to them 2 * Pi.
-    if (rh1.dim2 > (M_PI - phiOffset_)) {
-      double phi = rh1.dim2 - 2 * M_PI;
-      KDTreeNodeInfo rh2(*it, posrep.eta(), phi); 
+    if (rh1.dim[1] > (M_PI - phiOffset_)) {
+      double phi = rh1.dim[1] - 2 * M_PI;
+      KDTreeNodeInfo rh2(*it, posrep.eta(), phi);
       eltList.push_back(rh2);
     }
 
-    if (rh1.dim2 < (M_PI * -1.0 + phiOffset_)) {
-      double phi = rh1.dim2 + 2 * M_PI;
-      KDTreeNodeInfo rh3(*it, posrep.eta(), phi); 
+    if (rh1.dim[1] < (M_PI * -1.0 + phiOffset_)) {
+      double phi = rh1.dim[1] + 2 * M_PI;
+      KDTreeNodeInfo rh3(*it, posrep.eta(), phi);
       eltList.push_back(rh3);
     }
   }
@@ -136,18 +136,17 @@ KDTreeLinkerTrackEcal::searchLinks()
     double range = cristalPhiEtaMaxSize_ * (2.0 + 1.0 / std::min(1., trackPt / 2.)); 
 
     // We search for all candidate recHits, ie all recHits contained in the maximal size envelope.
-    std::vector<KDTreeNodeInfo> recHits;
+    std::vector<reco::PFRecHit const*> recHits;
     KDTreeBox trackBox(tracketa-range, tracketa+range, trackphi-range, trackphi+range);
     tree_.search(trackBox, recHits);
     
     // Here we check all rechit candidates using the non-approximated method.
-    for(std::vector<KDTreeNodeInfo>::const_iterator rhit = recHits.begin(); 
-	rhit != recHits.end(); ++rhit) {
+    for(auto const& recHit : recHits) {
            
-      const auto & cornersxyz      = rhit->ptr->getCornersXYZ();
-      const auto & posxyz			   = rhit->ptr->position();
-      const auto &rhrep		   = rhit->ptr->positionREP();
-      const auto & corners = rhit->ptr->getCornersREP();
+      const auto & cornersxyz      = recHit->getCornersXYZ();
+      const auto & posxyz			   = recHit->position();
+      const auto &rhrep		   = recHit->positionREP();
+      const auto & corners = recHit->getCornersREP();
       
       double rhsizeeta = fabs(corners[3].eta() - corners[1].eta());
       double rhsizephi = fabs(corners[3].phi() - corners[1].phi());
@@ -158,7 +157,7 @@ KDTreeLinkerTrackEcal::searchLinks()
       if ( dphi > M_PI ) dphi = 2.*M_PI - dphi;
       
       // Find all clusters associated to given rechit
-      RecHit2BlockEltMap::iterator ret = rechit2ClusterLinks_.find(rhit->ptr);
+      RecHit2BlockEltMap::iterator ret = rechit2ClusterLinks_.find(recHit);
       
       for(BlockEltSet::const_iterator clusterIt = ret->second.begin(); 
 	  clusterIt != ret->second.end(); clusterIt++) {

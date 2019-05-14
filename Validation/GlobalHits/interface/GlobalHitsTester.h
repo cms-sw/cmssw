@@ -2,33 +2,33 @@
 #define GlobalHitsTester_h
 
 /** \class GlobalHitsAnalyzer
- *  
+ *
  *  Class to fill dqm monitor elements from existing EDM file
  *
  *  \author M. Strang SUNY-Buffalo
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 //#include "DataFormats/DetId/interface/DetId.h"
 #include "TRandom.h"
 #include "TRandom3.h"
 
-//DQM services
+// DQM services
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 // tracker info
 //#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -65,25 +65,21 @@
 //#include "DataFormats/Math/interface/LorentzVector.h"
 //#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#include <iostream>
 #include <cstdlib>
-#include <string>
+#include <iostream>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "TString.h"
 
-class GlobalHitsTester : public DQMEDAnalyzer
-{
-  
- public:
-
-  explicit GlobalHitsTester(const edm::ParameterSet&);
+class GlobalHitsTester : public DQMEDAnalyzer {
+public:
+  explicit GlobalHitsTester(const edm::ParameterSet &);
   ~GlobalHitsTester() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &,
-    edm::Run const &, edm::EventSetup const &) override;
-  
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
 private:
   std::string fName;
   int verbosity;
@@ -110,7 +106,7 @@ private:
   double RandomVal2;
   double RandomVal3;
 
- // private statistics information
+  // private statistics information
   unsigned int count;
 };
 

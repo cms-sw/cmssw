@@ -3,8 +3,17 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
 #include <vector>
+#include <map>
+#include <set>
+
+using BlockEltSet = std::set<reco::PFBlockElement *>;
+using RecHitSet = std::set<const reco::PFRecHit *>;
+
+using RecHit2BlockEltMap = std::map<const reco::PFRecHit *, BlockEltSet>;
+using BlockElt2BlockEltMap = std::map<reco::PFBlockElement *, BlockEltSet>;
 
 class KDTreeLinkerBase
 {

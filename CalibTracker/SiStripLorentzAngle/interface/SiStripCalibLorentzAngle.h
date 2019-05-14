@@ -14,8 +14,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -35,6 +33,7 @@
 #include <memory>
 
 class TrackerTopology;
+class MonitorElement;
 
 class SiStripCalibLorentzAngle : public ConditionDBWriter<SiStripLorentzAngle>
 {

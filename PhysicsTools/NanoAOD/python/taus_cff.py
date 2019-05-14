@@ -15,11 +15,13 @@ finalTaus = cms.EDFilter("PATTauRefSelector",
     cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT2015') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBnewDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBdR03oldDMwLT2017v2'))")
 )
 
-for era in [eras.run2_nanoAOD_94XMiniAODv1,]:
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
+for era in [run2_nanoAOD_94XMiniAODv1,]:
     era.toModify(finalTaus,
                  cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v1') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBnewDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBdR03oldDMwLT2017v2'))")
     )
-eras.run2_miniAOD_80XLegacy.toModify(finalTaus,
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+run2_miniAOD_80XLegacy.toModify(finalTaus,
                                      src = cms.InputTag("slimmedTaus"),
                                      cut =  cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT'))")
     )
@@ -130,11 +132,11 @@ _variables80X =  cms.PSet(
 
 tauTable.variables=_variablesMiniV2
 
-for era in [eras.run2_nanoAOD_94XMiniAODv1,]:
+for era in [run2_nanoAOD_94XMiniAODv1,]:
     era.toModify(tauTable,
                  variables = _variablesMiniV1
     )
-eras.run2_miniAOD_80XLegacy.toModify(tauTable,
+run2_miniAOD_80XLegacy.toModify(tauTable,
                                      variables = _variables80X
 )
 tauGenJets.GenParticles = cms.InputTag("prunedGenParticles")
@@ -200,7 +202,7 @@ tauMCTable = cms.EDProducer("CandMCMatchTableProducer",
 
 tauSequence = cms.Sequence(patTauMVAIDsSeq + finalTaus)
 _tauSequence80X =  cms.Sequence(finalTaus)
-eras.run2_miniAOD_80XLegacy.toReplaceWith(tauSequence,_tauSequence80X)
+run2_miniAOD_80XLegacy.toReplaceWith(tauSequence,_tauSequence80X)
 tauTables = cms.Sequence(tauTable)
 tauMC = cms.Sequence(tauGenJets + tauGenJetsSelectorAllHadrons + genVisTaus + genVisTauTable + tausMCMatchLepTauForTable + tausMCMatchHadTauForTable + tauMCTable)
 

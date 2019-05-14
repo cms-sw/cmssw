@@ -29,6 +29,11 @@ namespace edm {
     }
   } // SecondaryEventProvider::SecondaryEventProvider
 
+
+  void SecondaryEventProvider::beginJob(ProductRegistry const& iRegistry, eventsetup::ESRecordsToProxyIndices const& iIndices) {
+    workerManager_.beginJob(iRegistry, iIndices);
+  }
+
   //NOTE: When the Stream interfaces are propagated to the modules, this code must be updated
   // to also send the stream based transitions
   void SecondaryEventProvider::beginRun(RunPrincipal& run, const EventSetupImpl& setup, ModuleCallingContext const* mcc, StreamContext& sContext) {

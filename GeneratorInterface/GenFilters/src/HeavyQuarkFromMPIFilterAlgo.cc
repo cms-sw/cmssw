@@ -38,9 +38,9 @@ bool HeavyQuarkFromMPIFilterAlgo::filter(const edm::Event& iEvent)  {
 //		cout<<"Note: it has "<<mothers.size()<<" mothers"<<endl;
 		for( reco::GenParticleRefVector::const_iterator im = mothers.begin(); im!=mothers.end(); ++im) {
 			const reco::GenParticle& part = **im;
-//			cout<<"--->Going to a mother, having eta="<<part.eta()<<endl;
+//                      cout<<"--->Going to a mother, having eta="<<part.eta()<<endl;
 			if( hasMPIAncestor( &part) ){
-//				cout<<"------>Found one ancestor with status of 3X (eta="<<gp.eta()<<")==>fromMPI=true"<<endl;
+//                              cout<<"------>Found one ancestor with status of 3X (eta="<<gp.eta()<<")==>fromMPI=true"<<endl;
 				fromMPI=true;
 			}
 		} 

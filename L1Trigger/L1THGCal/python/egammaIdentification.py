@@ -67,6 +67,31 @@ working_points_drnn_dbscan = [
         },
         ]
 
+# Identification for 3D HistoMax clustering (as in 3.5.2)
+bdt_weights_histomax = [
+        # Low eta
+        'L1Trigger/L1THGCal/data/egamma_id_histomax_352_loweta_v0.xml',
+        # High eta
+        'L1Trigger/L1THGCal/data/egamma_id_histomax_352_higheta_v0.xml',
+        ]
+
+working_points_histomax = [
+        # Low eta
+        {
+        '900':0.19146989,
+        '950':0.1379665 ,
+        '975':0.03496629,
+        '995':-0.24383164,
+        },
+        # High eta
+        {
+        '900':0.13347613,
+        '950':0.04267797,
+        '975':-0.03698097,
+        '995':-0.23077505,
+        },
+        ]
+
 tight_wp = ['975', '900']
 loose_wp = ['995', '950']
 
@@ -89,4 +114,14 @@ egamma_identification_drnn_dbscan = cms.PSet(
         CategoriesPtMax=cms.vdouble([cat.pt_max for cat in categories]),
         Weights=cms.vstring(bdt_weights_drnn_dbscan),
         WorkingPoints=cms.vdouble([wps[eff] for wps,eff in zip(working_points_drnn_dbscan,tight_wp)]),
+        )
+
+egamma_identification_histomax = cms.PSet(
+        Inputs=cms.vstring('cl3d_firstlayer', 'cl3d_coreshowerlength', 'cl3d_maxlayer', 'cl3d_srrmean'),
+        CategoriesEtaMin=cms.vdouble([cat.eta_min for cat in categories]),
+        CategoriesEtaMax=cms.vdouble([cat.eta_max for cat in categories]),
+        CategoriesPtMin=cms.vdouble([cat.pt_min for cat in categories]),
+        CategoriesPtMax=cms.vdouble([cat.pt_max for cat in categories]),
+        Weights=cms.vstring(bdt_weights_histomax),
+        WorkingPoints=cms.vdouble([wps[eff] for wps,eff in zip(working_points_histomax,tight_wp)]),
         )

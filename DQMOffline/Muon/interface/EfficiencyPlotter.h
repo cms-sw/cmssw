@@ -49,7 +49,6 @@ private:
   // Switch for verbosity
   std::string metname;
 
-  DQMStore* theDbe;
   edm::ParameterSet parameters;
 
    //histo binning parameters

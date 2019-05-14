@@ -7,23 +7,18 @@
 
 class MeasurementError {
 public:
-
   MeasurementError() : theuu(0), theuv(0), thevv(0) {}
 
-  MeasurementError( float uu, float uv, float vv) :
-    theuu(uu), theuv(uv), thevv(vv) {}
+  MeasurementError(float uu, float uv, float vv) : theuu(uu), theuv(uv), thevv(vv) {}
 
-  float uu() const { return theuu;}
-  float uv() const { return theuv;}
-  float vv() const { return thevv;}
+  float uu() const { return theuu; }
+  float uv() const { return theuv; }
+  float vv() const { return thevv; }
 
 private:
-
   float theuu;
   float theuv;
   float thevv;
+};
 
-};  
-
-
-#endif // MeasurementError_H
+#endif  // MeasurementError_H

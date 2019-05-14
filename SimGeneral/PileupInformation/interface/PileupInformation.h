@@ -25,57 +25,47 @@
 
 #include "SimGeneral/TrackingAnalysis/interface/EncodedTruthId.h"
 
-class PileupInformation : public edm::stream::EDProducer<>
-{
-
+class PileupInformation : public edm::stream::EDProducer<> {
 public:
-
-    explicit PileupInformation( const edm::ParameterSet & );
+  explicit PileupInformation(const edm::ParameterSet &);
 
 private:
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
-    void produce( edm::Event &, const edm::EventSetup & ) override;
+  edm::ParameterSet conf_;
 
-    edm::ParameterSet conf_;
+  typedef std::map<EncodedEventId, unsigned int> EncodedEventIdToIndex;
+  typedef std::map<int, int> myindex;
+  myindex event_index_;
 
-    typedef std::map<EncodedEventId, unsigned int> EncodedEventIdToIndex;
-    typedef std::map< int, int > myindex;
-    myindex event_index_;
+  std::vector<float> zpositions;
+  std::vector<float> sumpT_lowpT;
+  std::vector<float> sumpT_highpT;
+  std::vector<int> ntrks_lowpT;
+  std::vector<int> ntrks_highpT;
 
-    std::vector<float> zpositions;
-    std::vector<float> sumpT_lowpT;
-    std::vector<float> sumpT_highpT;
-    std::vector<int> ntrks_lowpT;
-    std::vector<int> ntrks_highpT;
+  double distanceCut_;
+  double volumeRadius_;
+  double volumeZ_;
+  double pTcut_1_;
+  double pTcut_2_;
+  bool isPreMixed_;
 
+  edm::EDGetTokenT<TrackingParticleCollection> trackingTruthT_;
+  edm::EDGetTokenT<TrackingVertexCollection> trackingTruthV_;
+  edm::EDGetTokenT<PileupMixingContent> PileupInfoLabel_;
+  edm::EDGetTokenT<int> bunchSpacingToken_;
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupSummaryToken_;
+  edm::EDGetTokenT<PileupVertexContent> PileupVtxLabel_;
 
-    double                   distanceCut_;
-    double                   volumeRadius_;
-    double                   volumeZ_;
-    double                   pTcut_1_;
-    double                   pTcut_2_;
-    bool isPreMixed_;
+  bool LookAtTrackingTruth_;
 
+  bool saveVtxTimes_;
 
-    edm::EDGetTokenT<TrackingParticleCollection>     trackingTruthT_;
-    edm::EDGetTokenT<TrackingVertexCollection>     trackingTruthV_;
-    edm::EDGetTokenT<PileupMixingContent>            PileupInfoLabel_;
-    edm::EDGetTokenT<int> bunchSpacingToken_;
-    edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupSummaryToken_;
-    edm::EDGetTokenT<PileupVertexContent>            PileupVtxLabel_;
-
-    bool LookAtTrackingTruth_ ;
-
-    bool saveVtxTimes_;
-
-    std::string MessageCategory_;
-    //std::string simHitLabel_;
-    //std::unique_ptr<MixCollection<SimTrack> >   simTracks_;
-    //std::unique_ptr<MixCollection<SimVertex> >  simVertexes_;
-
-
-
+  std::string MessageCategory_;
+  //std::string simHitLabel_;
+  //std::unique_ptr<MixCollection<SimTrack> >   simTracks_;
+  //std::unique_ptr<MixCollection<SimVertex> >  simVertexes_;
 };
-
 
 #endif

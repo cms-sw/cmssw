@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
-#process = cms.Process('PROD',eras.Phase2C4)
+#from Configuration.Eras.Era_Phase2C4_cff import Phase2C4
+#process = cms.Process('PROD',Phase2C4)
 #process.load('Configuration.Geometry.GeometryExtended2023D28_cff')
 #process.load('Configuration.Geometry.GeometryExtended2023D28Reco_cff')
 
-process = cms.Process('PROD',eras.Phase2C4_timing_layer_bar)
+from Configuration.Eras.Era_Phase2C4_timing_layer_bar_cff import Phase2C4_timing_layer_bar
+process = cms.Process('PROD',Phase2C4_timing_layer_bar)
 process.load('Configuration.Geometry.GeometryExtended2023D41_cff')
 process.load('Configuration.Geometry.GeometryExtended2023D41Reco_cff')
 
@@ -23,7 +24,7 @@ process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-        'file:step2.root',
+        'file:step2_29034.root',
 #       'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_1_1_patch1/RelValSingleElectronPt35Extended/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/10D95AC2-B14A-E711-BC4A-0CC47A7C3638.root',
         )
                             )
@@ -33,7 +34,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hgcDigi.root'),
+                                   fileName = cms.string('hgcDigiD41tt.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 

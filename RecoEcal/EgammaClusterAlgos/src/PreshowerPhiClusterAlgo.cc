@@ -15,8 +15,7 @@
 reco::PreshowerCluster PreshowerPhiClusterAlgo::makeOneCluster(ESDetId strip,
 							       HitsID *used_strips,
 							       RecHitsMap *the_rechitsMap_p,
-							       const CaloSubdetectorGeometry*& geometry_p,
-							       CaloSubdetectorTopology*& topology_p,
+							       const CaloSubdetectorGeometry* geometry_p,
 							       double deltaEta, double minDeltaPhi, double maxDeltaPhi)
 {
 

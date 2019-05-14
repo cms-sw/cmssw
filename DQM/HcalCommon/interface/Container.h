@@ -14,25 +14,17 @@
 #include "DQM/HcalCommon/interface/HcalCommonHeaders.h"
 #include "DQM/HcalCommon/interface/Logger.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
-namespace hcaldqm
-{
-  class Container
-  {
+namespace hcaldqm {
+  class Container {
   public:
-    Container():
-      _folder("HcalInfo"), _qname("SomeQuantity")
-    {}
-    Container(std::string const& folder, std::string const& qname):
-      _folder(folder), _qname(qname)
-    {}
+    Container() : _folder("HcalInfo"), _qname("SomeQuantity") {}
+    Container(std::string const &folder, std::string const &qname) : _folder(folder), _qname(qname) {}
     virtual ~Container() {}
 
-    virtual void initialize(std::string const &folder,
-                            std::string const& qname, int debug=0)
-    {
+    virtual void initialize(std::string const &folder, std::string const &qname, int debug = 0) {
       _folder = folder;
       _qname = qname;
       _logger.set(_qname, debug);
@@ -41,9 +33,8 @@ namespace hcaldqm
   protected:
     std::string _folder;
     std::string _qname;
-    Logger      _logger;
+    Logger _logger;
   };
-}
-
+}  // namespace hcaldqm
 
 #endif

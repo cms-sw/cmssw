@@ -36,44 +36,42 @@
 
 class G4ComponentGGHadronNucleusXsc;
 
-class CMSHadronPhysicsFTFP_BERT_ATL : public G4VPhysicsConstructor
-{
-  public:
-    CMSHadronPhysicsFTFP_BERT_ATL(G4int verbose =1);
-    ~CMSHadronPhysicsFTFP_BERT_ATL() override;
+class CMSHadronPhysicsFTFP_BERT_ATL : public G4VPhysicsConstructor {
+public:
+  CMSHadronPhysicsFTFP_BERT_ATL(G4int verbose = 1);
+  ~CMSHadronPhysicsFTFP_BERT_ATL() override;
 
-    void ConstructParticle() override;
-    void ConstructProcess() override;
+  void ConstructParticle() override;
+  void ConstructProcess() override;
 
-  private:
-    void CreateModels();
-    G4bool QuasiElastic;
+private:
+  void CreateModels();
+  G4bool QuasiElastic;
 
-    // Simplify handling of TLS data, encapsulate everyhing in a structure
-    struct ThreadPrivate { 
-      G4NeutronBuilder * theNeutrons;
-      G4BertiniNeutronBuilder * theBertiniNeutron;
-      G4FTFPNeutronBuilder * theFTFPNeutron;
- 
-      G4PiKBuilder * thePiK;
-      G4BertiniPiKBuilder * theBertiniPiK;
-      G4FTFPPiKBuilder * theFTFPPiK;
-    
-      G4ProtonBuilder * thePro;
-      G4BertiniProtonBuilder * theBertiniPro;
-      G4FTFPProtonBuilder * theFTFPPro;    
-    
-      G4HyperonFTFPBuilder * theHyperon;
-    
-      G4AntiBarionBuilder * theAntiBaryon;
-      G4FTFPAntiBarionBuilder * theFTFPAntiBaryon;
+  // Simplify handling of TLS data, encapsulate everyhing in a structure
+  struct ThreadPrivate {
+    G4NeutronBuilder* theNeutrons;
+    G4BertiniNeutronBuilder* theBertiniNeutron;
+    G4FTFPNeutronBuilder* theFTFPNeutron;
 
-      G4ComponentGGHadronNucleusXsc * xsKaon;
-      G4VCrossSectionDataSet * xsNeutronInelasticXS;
-      G4VCrossSectionDataSet * xsNeutronCaptureXS;
-    };
-    static G4ThreadLocal ThreadPrivate* tpdata;
+    G4PiKBuilder* thePiK;
+    G4BertiniPiKBuilder* theBertiniPiK;
+    G4FTFPPiKBuilder* theFTFPPiK;
+
+    G4ProtonBuilder* thePro;
+    G4BertiniProtonBuilder* theBertiniPro;
+    G4FTFPProtonBuilder* theFTFPPro;
+
+    G4HyperonFTFPBuilder* theHyperon;
+
+    G4AntiBarionBuilder* theAntiBaryon;
+    G4FTFPAntiBarionBuilder* theFTFPAntiBaryon;
+
+    G4ComponentGGHadronNucleusXsc* xsKaon;
+    G4VCrossSectionDataSet* xsNeutronInelasticXS;
+    G4VCrossSectionDataSet* xsNeutronCaptureXS;
+  };
+  static G4ThreadLocal ThreadPrivate* tpdata;
 };
 
 #endif
-

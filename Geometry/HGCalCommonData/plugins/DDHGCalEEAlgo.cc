@@ -15,7 +15,6 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 
 //#define EDM_ML_DEBUG
-using namespace geant_units;
 using namespace geant_units::operators;
 
 DDHGCalEEAlgo::DDHGCalEEAlgo() {
@@ -102,7 +101,7 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments& nArgs,
   waferSize_ = nArgs["waferSize"];
   waferSepar_ = nArgs["SensorSeparation"];
   sectors_ = (int)(nArgs["Sectors"]);
-  alpha_ = piRadians / sectors_;
+  alpha_ = (1._pi) / sectors_;
   cosAlpha_ = cos(alpha_);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom")
@@ -184,8 +183,6 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
       int copy = copyNumber_[ii];
       double hthick = 0.5 * thick_[ii];
       double rinB = HGCalGeomTools::radius(zo, zFrontB_, rMinFront_, slopeB_);
-      std::pair<double, double> zr =
-          HGCalGeomTools::zradius(zz, zz + thick_[ii], zFrontT_, rMaxFront_);
       zz += hthick;
       thickTot += thick_[ii];
 
@@ -201,32 +198,23 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
       DDMaterial matter(matName);
       DDLogicalPart glog;
       if (layerSense_[ly] < 1) {
-        int nsec =
-            (layerSense_[ly] == 0 || absorbMode_ == 0 || zr.first < 0) ? 2 : 3;
-        std::vector<double> pgonZ(nsec), pgonRin(nsec), pgonRout(nsec);
+        std::vector<double> pgonZ, pgonRin, pgonRout;
         if (layerSense_[ly] == 0 || absorbMode_ == 0) {
           double rmax = routF * cosAlpha_ - tol;
-          pgonZ[0] = -hthick;
-          pgonZ[1] = hthick;
-          pgonRin[0] = rinB;
-          pgonRin[1] = rinB;
-          pgonRout[0] = rmax;
-          pgonRout[1] = rmax;
+          pgonZ.emplace_back(-hthick);
+          pgonZ.emplace_back(hthick);
+          pgonRin.emplace_back(rinB);
+	  pgonRin.emplace_back(rinB);
+          pgonRout.emplace_back(rmax);
+          pgonRout.emplace_back(rmax);
         } else {
-          for (int isec = 0; isec < nsec; ++isec) {
-            double zs =
-                ((isec == 0) ? (zz - hthick)
-                             : (isec == nsec - 1) ? (zz + hthick) : zr.first);
-            double rm =
-                (((isec == 0) || (isec == nsec - 1))
-                     ? HGCalGeomTools::radius(zs, zFrontT_, rMaxFront_, slopeT_)
-                     : zr.second) *
-                    cosAlpha_ -
-                tol;
-            pgonZ[isec] = zs - zz;
-            pgonRin[isec] = rinB;
-            pgonRout[isec] = rm;
-          }
+	  HGCalGeomTools::radius(zz-hthick, zz+hthick, zFrontB_, rMinFront_, 
+				 slopeB_,  zFrontT_, rMaxFront_, slopeT_, 
+				 -layerSense_[ly], pgonZ, pgonRin, pgonRout);
+          for (unsigned int isec=0; isec < pgonZ.size(); ++isec) {
+	    pgonZ[isec]   -= zz;
+            pgonRout[isec] = pgonRout[isec]*cosAlpha_ - tol;
+	  }
         }
         DDSolid solid =
             DDSolidFactory::polyhedra(DDName(name, nameSpace_), sectors_,

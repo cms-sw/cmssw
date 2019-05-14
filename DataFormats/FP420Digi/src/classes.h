@@ -10,5 +10,4 @@
 #include <vector>
 #include <string>
 
-
-#endif // HDigiFP420_CLASSES_H
+#endif  // HDigiFP420_CLASSES_H
