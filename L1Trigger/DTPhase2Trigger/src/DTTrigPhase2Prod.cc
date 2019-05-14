@@ -75,6 +75,7 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset){
     produces<L1Phase2MuDTPhContainer>();
     
     debug = pset.getUntrackedParameter<bool>("debug");
+    dump = pset.getUntrackedParameter<bool>("dump");
     tanPhiTh = pset.getUntrackedParameter<double>("tanPhiTh");
     dT0_correlate_TP = pset.getUntrackedParameter<double>("dT0_correlate_TP");
     min_dT0_match_segment = pset.getUntrackedParameter<double>("min_dT0_match_segment");
@@ -226,7 +227,19 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 
     std::vector<metaPrimitive> metaPrimitives;
     mpathanalyzer->run(iEvent, iEventSetup,  muonpaths, metaPrimitives);  // New grouping implementation
-
+    
+    if (dump) {
+      for (unsigned int i=0; i<metaPrimitives.size(); i++){
+	cout << iEvent.id().event() << " mp " << i << ": "
+	     << metaPrimitives.at(i).t0 << " "
+           << metaPrimitives.at(i).x << " "
+	     << metaPrimitives.at(i).tanPhi << " "
+	     << metaPrimitives.at(i).phi << " "
+	     << metaPrimitives.at(i).phiB << " "
+	     << metaPrimitives.at(i).quality << " "
+	     << endl;
+      }
+    }
     /*
     //filtro por groupos de TDC times en las mismas celdas... corrobarar si sucede... esta implementacion no existe en software pero existe en firmware
     // loop over vector of muonpahts produced by grouping
