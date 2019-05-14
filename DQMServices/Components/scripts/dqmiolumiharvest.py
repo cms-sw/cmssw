@@ -165,9 +165,16 @@ def harvestfile(fname):
         if not (rangecheck(run, lumi) or rangecheck(endrun, endlumi)):
           continue
            
+        # we do the saving in here, concurrently with the reading, to avoid
+        # needing to copy/move the TH1's.
+        # doing a round-trip via JSON would probably also work, but this seems
+        # cleaner. For better structure, one could use Generators...
+        # but things need to stay in the same process (from multiprocessing).
         filename = "DQM_V0001_R1%04d%04d__perlumiharvested__perlumi%d_%s_v1__DQMIO.root" % (lumi, endlumi, run, treenames[metype])
         prefix = ["DQMData", "Run 1%04d%04d" % (lumi, endlumi)]
+        # we open the file only on the first found ME, to avoid empty files.
         result_file = None
+        subsystems = set()
 
         # inclusive range -- for 0 entries, row is left out
         firstidx, lastidx = idxtree.FirstIndex, idxtree.LastIndex
@@ -181,20 +188,28 @@ def harvestfile(fname):
             if mename in interesting_mes:
                 metree.GetEntry(x, 1)
                 value = metree.Value
-                if not value:
-                    print("Got a weird falsy value: ", value)
+
+                # navigate the TDirectory and save the thing again
                 if not result_file:
                     result_file = ROOT.TFile(filename, 'recreate')
                 path = mename.split("/")
-                filepath = prefix + [path[0]] + ["Run summary"] + path[1:]
+                filepath = prefix + [path[0], "Run summary"] + path[1:]
+                subsystems.add(path[0])
                 gotodir(result_file, filepath)
                 value.Write()
+
+        # if we found a ME and wrote it to a file, finalize the file here.
         if result_file:
-            gotodir(result_file, prefix + ["DQM", "Run summary", "EventInfo"])
-            s = ROOT.TObjString("<iRun>i=1%04d%04d</iRun>" % (lumi, endlumi))
-            s.Write()
-            s = ROOT.TObjString("<iLumiSection>i=%s</iLumiSection>" % run)
-            s.Write()
+            # DQMGUI wants these to show them in the header bar. The folder name
+            # in the TDirectory is also checked and has to match the filename,
+            # but the  headerbar can show anything and uses these magic MEs.
+            for subsys in subsystems:
+                gotodir(result_file, prefix + [subsys, "Run summary", "EventInfo"])
+                s = ROOT.TObjString("<iRun>i=1%04d%04d</iRun>" % (lumi, endlumi))
+                s.Write()
+                s = ROOT.TObjString("<iLumiSection>i=%s</iLumiSection>" % run)
+                s.Write()
+                # we could also set iEvent and runStartTimeStamp if we had values.
             result_file.Close()
             files.append(filename)
 
