@@ -105,25 +105,28 @@ MP_QUALITY MuonPathAnalyzerPerSL::getMinimumQuality(void) { return minQuality; }
 //--- Métodos privados
 //------------------------------------------------------------------
 
-void MuonPathAnalyzerPerSL::analyze(MuonPath *mPath,std::vector<metaPrimitive>& metaPrimitives) {
+void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath,std::vector<metaPrimitive>& metaPrimitives) {
   if(debug) std::cout<<"DTp2:analyze \t\t\t\t starts"<<std::endl;
     
   // LOCATE MPATH
   int selected_Id=0;
-  if     (mPath->getPrimitive(0)->getTDCTime()!=-1) selected_Id= mPath->getPrimitive(0)->getCameraId();
-  else if(mPath->getPrimitive(1)->getTDCTime()!=-1) selected_Id= mPath->getPrimitive(1)->getCameraId(); 
-  else if(mPath->getPrimitive(2)->getTDCTime()!=-1) selected_Id= mPath->getPrimitive(2)->getCameraId(); 
-  else if(mPath->getPrimitive(3)->getTDCTime()!=-1) selected_Id= mPath->getPrimitive(3)->getCameraId(); 
+  if     (inMPath->getPrimitive(0)->getTDCTime()!=-1) selected_Id= inMPath->getPrimitive(0)->getCameraId();
+  else if(inMPath->getPrimitive(1)->getTDCTime()!=-1) selected_Id= inMPath->getPrimitive(1)->getCameraId(); 
+  else if(inMPath->getPrimitive(2)->getTDCTime()!=-1) selected_Id= inMPath->getPrimitive(2)->getCameraId(); 
+  else if(inMPath->getPrimitive(3)->getTDCTime()!=-1) selected_Id= inMPath->getPrimitive(3)->getCameraId(); 
   
   DTLayerId thisLId(selected_Id);
   if(debug) std::cout<<"Building up MuonPathSLId from rawId in the Primitive"<<std::endl;
   DTSuperLayerId MuonPathSLId(thisLId.wheel(),thisLId.station(),thisLId.sector(),thisLId.superLayer());
   if(debug) std::cout<<"The MuonPathSLId is"<<MuonPathSLId<<std::endl;
   
-  if(debug) std::cout<<"DTp2:analyze \t\t\t\t In analyze function checking if mPath->isAnalyzable() "<<mPath->isAnalyzable()<<std::endl;
+  if(debug) std::cout<<"DTp2:analyze \t\t\t\t In analyze function checking if inMPath->isAnalyzable() "<<inMPath->isAnalyzable()<<std::endl;
   
   if (chosen_sl<4 && thisLId.superLayer()!=chosen_sl) return; // avoid running when mpath not in chosen SL (for 1SL fitting)
-
+  
+  // Clonamos el objeto analizado.
+  MuonPath *mPath = new MuonPath(inMPath);
+  
   if (mPath->isAnalyzable()) {
     if(debug) std::cout<<"DTp2:analyze \t\t\t\t\t yes it is analyzable "<<mPath->isAnalyzable()<<std::endl;
     setCellLayout( mPath->getCellHorizontalLayout() );
@@ -132,9 +135,6 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *mPath,std::vector<metaPrimitive>& 
     if(debug) std::cout<<"DTp2:analyze \t\t\t\t\t no it is NOT analyzable "<<mPath->isAnalyzable()<<std::endl;
   }
   
-  // Clonamos el objeto analizado.
-  MuonPath *mpAux = new MuonPath(mPath);
-
   int wi[8],tdc[8];
   DTPrimitive Prim0(mPath->getPrimitive(0)); wi[0]=Prim0.getChannelId();tdc[0]=Prim0.getTDCTime();
   DTPrimitive Prim1(mPath->getPrimitive(1)); wi[1]=Prim1.getChannelId();tdc[1]=Prim1.getTDCTime();
@@ -174,10 +174,14 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *mPath,std::vector<metaPrimitive>& 
 				   ((mPath->getQuality() == LOWQ or mPath->getQuality()==LOWQGHOST) and latQuality[i].quality==LOWQ))){
 	
 	if(debug) std::cout<<"DTp2:analyze \t\t\t\t\t laterality #- "<<i<<" inside if"<<std::endl;
-	mpAux->setBxTimeValue(latQuality[i].bxValue);
+	mPath->setBxTimeValue(latQuality[i].bxValue);
 	if(debug) std::cout<<"DTp2:analyze \t\t\t\t\t laterality #- "<<i<<" settingLateralCombination"<<std::endl;
-	mpAux->setLateralComb(lateralities[i]);
+	mPath->setLateralComb(lateralities[i]);
 	if(debug) std::cout<<"DTp2:analyze \t\t\t\t\t laterality #- "<<i<<" done settingLateralCombination"<<std::endl;
+	
+	// Clonamos el objeto analizado.
+	MuonPath *mpAux = new MuonPath(mPath);
+	
 	int idxHitNotValid = latQuality[i].invalidateHitIdx;
 	if (idxHitNotValid >= 0) {
 	  delete mpAux->getPrimitive(idxHitNotValid);
@@ -266,6 +270,7 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *mPath,std::vector<metaPrimitive>& 
 	    if(debug) std::cout<<"DTp2:analyze \t\t\t\t\t\t\t\t  done pushing back metaprimitive no HIGHQ or HIGHQGHOST"<<std::endl;	
 	  }				
 	}
+	delete mpAux;
       }
       else{
 	if(debug) std::cout<<"DTp2:analyze \t\t\t\t\t\t\t\t  latQuality[i].valid and (((mPath->getQuality()==HIGHQ or mPath->getQuality()==HIGHQGHOST) and latQuality[i].quality==HIGHQ) or  ((mPath->getQuality() == LOWQ or mPath->getQuality()==LOWQGHOST) and latQuality[i].quality==LOWQ)) not passed"<<std::endl;
@@ -285,7 +290,7 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *mPath,std::vector<metaPrimitive>& 
 	      }));
     }
   }
-  delete mpAux;
+  delete mPath;
   if(debug) std::cout<<"DTp2:analyze \t\t\t\t finishes"<<std::endl;
 }
 

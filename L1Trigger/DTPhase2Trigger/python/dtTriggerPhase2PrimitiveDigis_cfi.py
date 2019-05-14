@@ -21,6 +21,7 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                min_dT0_match_segment = cms.untracked.double(12.5),
                                                #debugging
                                                debug = cms.untracked.bool(False),
+                                               dump  = cms.untracked.bool(False),
                                                #RPC
                                                rpcRecHits = cms.untracked.InputTag("rpcRecHits")
                                                )

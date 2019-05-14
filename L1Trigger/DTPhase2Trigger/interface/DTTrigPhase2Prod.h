@@ -115,6 +115,7 @@ class DTTrigPhase2Prod: public edm::EDProducer{
 
     // Debug Flag
     bool debug;
+    bool dump;
     double tanPhiTh;
     double dT0_correlate_TP;
     double min_dT0_match_segment;
