@@ -1,7 +1,6 @@
 #include "Geometry/CommonDetUnit/interface/MuonGeomDet.h"
 
-bool MuonGeomDet::setAlignmentPositionError (const AlignmentPositionError& ape) 
-{
+bool MuonGeomDet::setAlignmentPositionError(const AlignmentPositionError& ape) {
   //this is a placeholder, global to local conversion is done in the MuonTransientTrackingRecHit at the moment
   return true;
 }

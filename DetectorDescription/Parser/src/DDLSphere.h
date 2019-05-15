@@ -21,13 +21,11 @@ class DDLElementRegistry;
  *                                                                         
  */
 
-class DDLSphere final : public DDLSolid
-{
- public:
+class DDLSphere final : public DDLSolid {
+public:
+  DDLSphere(DDLElementRegistry* myreg);
 
-  DDLSphere( DDLElementRegistry* myreg );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 };
 
 #endif
