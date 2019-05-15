@@ -15,7 +15,6 @@ namespace hgcalTilesConstants {
                                                                   : static_cast<int32_t>(num) + ((num > 0) ? 1 : 0);
   }
 
-  // first is for CE-E, second for CE-H in cm
   constexpr float minX = -265.f;
   constexpr float maxX = 265.f;
   constexpr float minY = -265.f;
