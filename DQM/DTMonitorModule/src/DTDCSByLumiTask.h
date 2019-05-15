@@ -33,10 +33,8 @@ class DQMStore;
 class MonitorElement;
 class DTHVStatus;
 
-class DTDCSByLumiTask: public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
-
+class DTDCSByLumiTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
 public:
-
   /// Constructor
   DTDCSByLumiTask(const edm::ParameterSet& ps);
 
@@ -44,12 +42,11 @@ public:
   ~DTDCSByLumiTask() override;
 
 protected:
-
   /// Begin Run
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   // Book the histograms
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   /// By Lumi DCS DB Operation
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
@@ -61,7 +58,6 @@ protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-
   std::string topFolder() const;
 
   int theEvents;
@@ -74,7 +70,6 @@ private:
   edm::ESHandle<DTHVStatus> hvStatus;
 
   std::vector<MonitorElement*> hActiveUnits;
-
 };
 
 #endif

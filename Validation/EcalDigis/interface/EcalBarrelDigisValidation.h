@@ -32,65 +32,58 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-
-class EcalBarrelDigisValidation: public DQMEDAnalyzer{
-
-    typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
+class EcalBarrelDigisValidation : public DQMEDAnalyzer {
+  typedef std::map<uint32_t, float, std::less<uint32_t> > MapType;
 
 public:
+  /// Constructor
+  EcalBarrelDigisValidation(const edm::ParameterSet& ps);
 
-/// Constructor
-EcalBarrelDigisValidation(const edm::ParameterSet& ps);
+  /// Destructor
+  ~EcalBarrelDigisValidation() override;
 
-/// Destructor
-~EcalBarrelDigisValidation() override;
-
-void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) override;
 
 protected:
-
-/// Analyze
-void analyze(edm::Event const & e, edm::EventSetup const & c) override;
-void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-void checkCalibrations(edm::EventSetup const & c);
-
+  /// Analyze
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void checkCalibrations(edm::EventSetup const& c);
 
 private:
+  bool verbose_;
 
- bool verbose_;
- 
- std::string outputFile_;
+  std::string outputFile_;
 
- edm::EDGetTokenT<EBDigiCollection> EBdigiCollection_;
- 
- std::map<int, double, std::less<int> > gainConv_;
+  edm::EDGetTokenT<EBDigiCollection> EBdigiCollection_;
 
- double barrelADCtoGeV_;
- double endcapADCtoGeV_;
- 
- MonitorElement* meEBDigiOccupancy_;
+  std::map<int, double, std::less<int> > gainConv_;
 
- MonitorElement* meEBDigiMultiplicity_;
+  double barrelADCtoGeV_;
+  double endcapADCtoGeV_;
 
- MonitorElement* meEBDigiADCGlobal_;
+  MonitorElement* meEBDigiOccupancy_;
 
- MonitorElement* meEBDigiADCAnalog_[10];
+  MonitorElement* meEBDigiMultiplicity_;
 
- MonitorElement* meEBDigiADCgS_[10];
- MonitorElement* meEBDigiADCg1_[10];
- MonitorElement* meEBDigiADCg6_[10];
- MonitorElement* meEBDigiADCg12_[10];
+  MonitorElement* meEBDigiADCGlobal_;
 
- MonitorElement* meEBDigiGain_[10];
+  MonitorElement* meEBDigiADCAnalog_[10];
 
- MonitorElement* meEBPedestal_;
+  MonitorElement* meEBDigiADCgS_[10];
+  MonitorElement* meEBDigiADCg1_[10];
+  MonitorElement* meEBDigiADCg6_[10];
+  MonitorElement* meEBDigiADCg12_[10];
 
- MonitorElement* meEBMaximumgt100ADC_;
+  MonitorElement* meEBDigiGain_[10];
 
- MonitorElement* meEBMaximumgt10ADC_;
+  MonitorElement* meEBPedestal_;
 
- MonitorElement* meEBnADCafterSwitch_;
+  MonitorElement* meEBMaximumgt100ADC_;
 
+  MonitorElement* meEBMaximumgt10ADC_;
+
+  MonitorElement* meEBnADCafterSwitch_;
 };
 
 #endif

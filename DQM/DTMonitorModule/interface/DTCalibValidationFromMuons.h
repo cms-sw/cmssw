@@ -28,13 +28,11 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "RecoMuon/TrackingTools/interface/MuonSegmentMatcher.h"
 
-
 #include <FWCore/Framework/interface/ESHandle.h>
 
 #include <string>
 #include <map>
 #include <vector>
-
 
 // To remove into CMSSW versions before 20X; removed in CMSSW 10_5_X onwards
 //class DQMStore;
@@ -46,9 +44,8 @@ class DTGeometry;
 class DTChamber;
 
 // FR class DTCalibValidationFromMuons: public edm::EDAnalyzer{
-class DTCalibValidationFromMuons: public DQMEDAnalyzer{
-
- public:
+class DTCalibValidationFromMuons : public DQMEDAnalyzer {
+public:
   /// Constructor
   DTCalibValidationFromMuons(const edm::ParameterSet& pset);
 
@@ -61,13 +58,10 @@ class DTCalibValidationFromMuons: public DQMEDAnalyzer{
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
+protected:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
- protected:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-
-
- private:
-
+private:
   // Switch for verbosity
   //bool debug;
   edm::ParameterSet parameters;
@@ -88,28 +82,27 @@ class DTCalibValidationFromMuons: public DQMEDAnalyzer{
   // Compute the distance from wire (cm) of a hits in a DTRecHit1D
   float recHitDistFromWire(const DTRecHit1D& recHit, const DTLayer* layer);
   // Compute the position with respect to the wire (cm) of a hits in a DTRecHit1DPair
-  float recHitPosition(const DTRecHit1DPair& hitPair, const DTLayer* layer, const DTChamber* chamber, float segmPos, int sl);
+  float recHitPosition(
+      const DTRecHit1DPair& hitPair, const DTLayer* layer, const DTChamber* chamber, float segmPos, int sl);
   // Compute the position with respect to the wire (cm) of a hits in a DTRecHit1D
   float recHitPosition(const DTRecHit1D& recHit, const DTLayer* layer, const DTChamber* chamber, float segmPos, int sl);
 
   // Does the real job
-  void compute(const DTGeometry *dtGeom, const DTRecSegment4D& segment);
+  void compute(const DTGeometry* dtGeom, const DTRecSegment4D& segment);
 
   // Book a set of histograms for a give chamber
   void bookHistos(DTSuperLayerId slId, int step);
   // Fill a set of histograms for a give chamber
   void fillHistos(DTSuperLayerId slId,
-		  float distance,
-		  float residualOnDistance,
-		  float position,
-		  float residualOnPosition,
-		  int step);
+                  float distance,
+                  float residualOnDistance,
+                  float position,
+                  float residualOnPosition,
+                  int step);
 
-  std::map<std::pair<DTSuperLayerId,int>, std::vector<MonitorElement*> > histosPerSL;
-
+  std::map<std::pair<DTSuperLayerId, int>, std::vector<MonitorElement*> > histosPerSL;
 };
 #endif
-
 
 /* Local Variables: */
 /* show-trailing-whitespace: t */

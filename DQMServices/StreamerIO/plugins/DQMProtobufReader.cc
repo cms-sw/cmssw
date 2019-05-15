@@ -9,10 +9,8 @@
 
 using namespace dqmservices;
 
-DQMProtobufReader::DQMProtobufReader(edm::ParameterSet const& pset,
-                                     edm::InputSourceDescription const& desc)
+DQMProtobufReader::DQMProtobufReader(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc)
     : PuttableSourceBase(pset, desc), fiterator_(pset) {
-
   flagSkipFirstLumis_ = pset.getUntrackedParameter<bool>("skipFirstLumis");
   flagEndOfRunKills_ = pset.getUntrackedParameter<bool>("endOfRunKills");
   flagDeleteDatFiles_ = pset.getUntrackedParameter<bool>("deleteDatFiles");
@@ -68,8 +66,7 @@ edm::InputSource::ItemType DQMProtobufReader::getNextItemType() {
 std::shared_ptr<edm::RunAuxiliary> DQMProtobufReader::readRunAuxiliary_() {
   // fiterator_.logFileAction("readRunAuxiliary_");
 
-  edm::RunAuxiliary* aux = new edm::RunAuxiliary(
-      fiterator_.runNumber(), edm::Timestamp(), edm::Timestamp());
+  edm::RunAuxiliary* aux = new edm::RunAuxiliary(fiterator_.runNumber(), edm::Timestamp(), edm::Timestamp());
   return std::shared_ptr<edm::RunAuxiliary>(aux);
 }
 
@@ -84,25 +81,21 @@ void DQMProtobufReader::readRun_(edm::RunPrincipal& rpCache) {
   }
 }
 
-std::shared_ptr<edm::LuminosityBlockAuxiliary>
-DQMProtobufReader::readLuminosityBlockAuxiliary_() {
+std::shared_ptr<edm::LuminosityBlockAuxiliary> DQMProtobufReader::readLuminosityBlockAuxiliary_() {
   // fiterator_.logFileAction("readLuminosityBlockAuxiliary_");
 
   currentLumi_ = fiterator_.open();
   edm::LuminosityBlockAuxiliary* aux = new edm::LuminosityBlockAuxiliary(
-      fiterator_.runNumber(), currentLumi_.file_ls, edm::Timestamp(),
-      edm::Timestamp());
+      fiterator_.runNumber(), currentLumi_.file_ls, edm::Timestamp(), edm::Timestamp());
 
   return std::shared_ptr<edm::LuminosityBlockAuxiliary>(aux);
 }
 
-void DQMProtobufReader::readLuminosityBlock_(
-    edm::LuminosityBlockPrincipal& lbCache) {
+void DQMProtobufReader::readLuminosityBlock_(edm::LuminosityBlockPrincipal& lbCache) {
   // fiterator_.logFileAction("readLuminosityBlock_");
 
   edm::Service<edm::JobReport> jr;
-  jr->reportInputLumiSection(lbCache.id().run(),
-                             lbCache.id().luminosityBlock());
+  jr->reportInputLumiSection(lbCache.id().run(), lbCache.id().luminosityBlock());
   lbCache.fillLuminosityBlockPrincipal(processHistoryRegistryForUpdate());
 }
 
@@ -146,11 +139,9 @@ void DQMProtobufReader::beginLuminosityBlock(edm::LuminosityBlock& lb) {
   }
 }
 
-
 void DQMProtobufReader::readEvent_(edm::EventPrincipal&){};
 
-void DQMProtobufReader::fillDescriptions(
-    edm::ConfigurationDescriptions& descriptions) {
+void DQMProtobufReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.setComment(

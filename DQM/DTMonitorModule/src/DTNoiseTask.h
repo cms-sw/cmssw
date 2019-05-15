@@ -26,16 +26,14 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "FWCore/Utilities/interface/InputTag.h"
 
-
 namespace edm {
   class ParameterSet;
   class EventSetup;
   class Event;
-}
+}  // namespace edm
 
 class DQMStore;
 class DTGeometry;
-
 
 //-class DTNoiseTask : public edm::EDAnalyzer {
 class DTNoiseTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
@@ -47,24 +45,20 @@ public:
   ~DTNoiseTask() override;
 
   // Operations
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 protected:
-
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) final {}
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) override;
 
-
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-
-  void bookHistos(DQMStore::IBooker &, DTChamberId chId);
-  void bookHistos(DQMStore::IBooker &, DTSuperLayerId slId);
+  void bookHistos(DQMStore::IBooker&, DTChamberId chId);
+  void bookHistos(DQMStore::IBooker&, DTSuperLayerId slId);
 
   // The label to retrieve the digis
   edm::EDGetTokenT<DTDigiCollection> dtDigiToken_;
@@ -96,10 +90,8 @@ private:
 
   // safe margin (ns) between ttrig and beginning of counting area
   double safeMargin;
-
 };
 #endif
-
 
 /* Local Variables: */
 /* show-trailing-whitespace: t */
