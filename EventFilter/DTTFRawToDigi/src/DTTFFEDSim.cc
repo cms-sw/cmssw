@@ -24,7 +24,6 @@
 using namespace std;
 
 DTTFFEDSim::DTTFFEDSim(const edm::ParameterSet &pset) : eventNum(0) {
-
   produces<FEDRawDataCollection>();
 
   DTDigiInputTag = pset.getParameter<edm::InputTag>("DTDigi_Source");
@@ -38,7 +37,6 @@ DTTFFEDSim::DTTFFEDSim(const edm::ParameterSet &pset) : eventNum(0) {
 DTTFFEDSim::~DTTFFEDSim() {}
 
 void DTTFFEDSim::produce(edm::Event &e, const edm::EventSetup &c) {
-
   FEDRawDataCollection data;
 
   if (!fillRawData(e, data))
@@ -50,7 +48,6 @@ void DTTFFEDSim::produce(edm::Event &e, const edm::EventSetup &c) {
 }
 
 bool DTTFFEDSim::fillRawData(edm::Event &e, FEDRawDataCollection &data) {
-
   eventNum = e.id().event();
 
   int lines = 2;
@@ -68,7 +65,7 @@ bool DTTFFEDSim::fillRawData(edm::Event &e, FEDRawDataCollection &data) {
   lines += trtrig->bxSize(-1, 1) * 3;
 
   FEDRawData &dttfdata = data.FEDData(0x30C);
-  dttfdata.resize(lines * 8); // size in bytes
+  dttfdata.resize(lines * 8);  // size in bytes
   unsigned char *LineFED = dttfdata.data();
 
   int *dataWord1 = new int;
@@ -88,7 +85,7 @@ bool DTTFFEDSim::fillRawData(edm::Event &e, FEDRawDataCollection &data) {
 
   //--> DTTF data
 
-  int TS1Id[4], TS2Id[4]; // word identifier for TS #1,#2 for stations
+  int TS1Id[4], TS2Id[4];  // word identifier for TS #1,#2 for stations
   TS1Id[0] = 0x0E;
   TS2Id[0] = 0x1E;
   TS1Id[1] = 0x2E;
@@ -101,10 +98,8 @@ bool DTTFFEDSim::fillRawData(edm::Event &e, FEDRawDataCollection &data) {
   // Input
   L1MuDTChambPhContainer::Phi_iterator tsphi;
 
-  for (tsphi = phtrig->getContainer()->begin();
-       tsphi != phtrig->getContainer()->end(); tsphi++) {
+  for (tsphi = phtrig->getContainer()->begin(); tsphi != phtrig->getContainer()->end(); tsphi++) {
     if (tsphi->code() != 7) {
-
       int wheelID = tsphi->whNum() + 1;
       if (wheelID <= 0)
         wheelID -= 2;
@@ -119,13 +114,10 @@ bool DTTFFEDSim::fillRawData(edm::Event &e, FEDRawDataCollection &data) {
       *dataWord1 = ((channelNr & 0xFF) << 24) + 0x00FFFFFF;
 
       if (stationID != 2) {
-        *dataWord2 = ((TSId & 0x0FF) << 24) + (~(tsphi->code() + 1) & 0x007) +
-                     ((~tsphi->phiB() & 0x3FF) << 3) +
+        *dataWord2 = ((TSId & 0x0FF) << 24) + (~(tsphi->code() + 1) & 0x007) + ((~tsphi->phiB() & 0x3FF) << 3) +
                      ((~tsphi->phi() & 0xFFF) << 13);
       } else {
-        *dataWord2 = ((TSId & 0xFFFFF) << 12) +
-                     (~(tsphi->code() + 1) & 0x00007) +
-                     ((~tsphi->phi() & 0x00FFF) << 3);
+        *dataWord2 = ((TSId & 0xFFFFF) << 12) + (~(tsphi->code() + 1) & 0x00007) + ((~tsphi->phi() & 0x00FFF) << 3);
       }
 
       dt_crc::calcCRC(*dataWord1, *dataWord2, newCRC);
@@ -141,9 +133,7 @@ bool DTTFFEDSim::fillRawData(edm::Event &e, FEDRawDataCollection &data) {
   // Input
   L1MuDTChambThContainer::The_iterator tsthe;
 
-  for (tsthe = thtrig->getContainer()->begin();
-       tsthe != thtrig->getContainer()->end(); tsthe++) {
-
+  for (tsthe = thtrig->getContainer()->begin(); tsthe != thtrig->getContainer()->end(); tsthe++) {
     int wheelTh = tsthe->whNum();
     int sectorID = tsthe->scNum();
 
@@ -159,8 +149,8 @@ bool DTTFFEDSim::fillRawData(edm::Event &e, FEDRawDataCollection &data) {
     int stationID = tsthe->stNum() - 1;
     for (int bti = 0; bti < 7; bti++)
       if (wheelTh == -2 || wheelTh == -1 ||
-          (wheelTh == 0 && (sectorID == 0 || sectorID == 3 || sectorID == 4 ||
-                            sectorID == 7 || sectorID == 8 || sectorID == 11)))
+          (wheelTh == 0 &&
+           (sectorID == 0 || sectorID == 3 || sectorID == 4 || sectorID == 7 || sectorID == 8 || sectorID == 11)))
         *dataWord2 -= (tsthe->position(bti) & 0x1) << (stationID * 7 + bti);
       else
         *dataWord2 -= (tsthe->position(6 - bti) & 0x1) << (stationID * 7 + bti);
@@ -177,9 +167,7 @@ bool DTTFFEDSim::fillRawData(edm::Event &e, FEDRawDataCollection &data) {
   // Output
   L1MuDTTrackContainer::Trackiterator tstrk;
 
-  for (tstrk = trtrig->getContainer()->begin();
-       tstrk != trtrig->getContainer()->end(); tstrk++) {
-
+  for (tstrk = trtrig->getContainer()->begin(); tstrk != trtrig->getContainer()->end(); tstrk++) {
     int channelNr = channel(tstrk->whNum(), tstrk->scNum(), tstrk->bx());
     if (channelNr == 255)
       continue;
@@ -187,10 +175,8 @@ bool DTTFFEDSim::fillRawData(edm::Event &e, FEDRawDataCollection &data) {
 
     *dataWord1 = ((channelNr & 0xFF) << 24) + 0x00FFFFFF;
 
-    *dataWord2 = ((TSId & 0xFFFF) << 16) + (tstrk->stNum(4) & 0x0000F) +
-                 ((tstrk->stNum(3) & 0x0000F) << 4) +
-                 ((tstrk->stNum(2) & 0x0000F) << 8) +
-                 ((tstrk->stNum(1) & 0x00003) << 12);
+    *dataWord2 = ((TSId & 0xFFFF) << 16) + (tstrk->stNum(4) & 0x0000F) + ((tstrk->stNum(3) & 0x0000F) << 4) +
+                 ((tstrk->stNum(2) & 0x0000F) << 8) + ((tstrk->stNum(1) & 0x00003) << 12);
 
     dt_crc::calcCRC(*dataWord1, *dataWord2, newCRC);
 
@@ -203,10 +189,8 @@ bool DTTFFEDSim::fillRawData(edm::Event &e, FEDRawDataCollection &data) {
 
     *dataWord1 = ((channelNr & 0xFF) << 24) + 0x00FFFFFF;
 
-    *dataWord2 = ((TSId & 0xFFFE) << 16) + (~tstrk->quality_packed() & 0x0007) +
-                 ((tstrk->phi_packed() & 0x00FF) << 3) +
-                 ((~tstrk->charge_packed() & 0x0001) << 11) +
-                 ((~tstrk->pt_packed() & 0x001F) << 12);
+    *dataWord2 = ((TSId & 0xFFFE) << 16) + (~tstrk->quality_packed() & 0x0007) + ((tstrk->phi_packed() & 0x00FF) << 3) +
+                 ((~tstrk->charge_packed() & 0x0001) << 11) + ((~tstrk->pt_packed() & 0x001F) << 12);
 
     dt_crc::calcCRC(*dataWord1, *dataWord2, newCRC);
 
@@ -226,11 +210,9 @@ bool DTTFFEDSim::fillRawData(edm::Event &e, FEDRawDataCollection &data) {
     *dataWord2 = (TSId & 0xFFFFC) << 12;
 
     if (tstrk->TrkTag() == 0) {
-      *dataWord2 += 0x3F80 + (tstrk->eta_packed() & 0x003F) +
-                    ((~tstrk->finehalo_packed() & 0x0001) << 6);
+      *dataWord2 += 0x3F80 + (tstrk->eta_packed() & 0x003F) + ((~tstrk->finehalo_packed() & 0x0001) << 6);
     } else {
-      *dataWord2 += 0x007F + ((tstrk->eta_packed() & 0x003F) << 7) +
-                    ((~tstrk->finehalo_packed() & 0x0001) << 13);
+      *dataWord2 += 0x007F + ((tstrk->eta_packed() & 0x003F) << 7) + ((~tstrk->finehalo_packed() & 0x0001) << 13);
     }
 
     dt_crc::calcCRC(*dataWord1, *dataWord2, newCRC);
@@ -262,7 +244,6 @@ bool DTTFFEDSim::fillRawData(edm::Event &e, FEDRawDataCollection &data) {
 }
 
 int DTTFFEDSim::channel(int wheel, int sector, int bx) {
-
   // wheel  :  -3 -2 -1 +1 +2 +3 <=> PHTF's : N2, N1, N0, P0, P1, P2
   //                           0 <=> ETTF
   // sector :  0 -> 11
@@ -289,7 +270,6 @@ int DTTFFEDSim::channel(int wheel, int sector, int bx) {
 }
 
 int DTTFFEDSim::bxNr(int channel) {
-
   int myChannel = channel;
 
   if (myChannel > 127)
@@ -305,7 +285,6 @@ int DTTFFEDSim::bxNr(int channel) {
 }
 
 int DTTFFEDSim::sector(int channel) {
-
   int myChannel = channel;
 
   if (myChannel > 127)
@@ -319,7 +298,6 @@ int DTTFFEDSim::sector(int channel) {
 }
 
 int DTTFFEDSim::wheel(int channel) {
-
   int myChannel = channel;
 
   if (myChannel > 127)

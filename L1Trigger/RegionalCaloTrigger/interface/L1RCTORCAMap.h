@@ -4,7 +4,6 @@
 #include <vector>
 
 class L1RCTORCAMap {
-
 public:
   L1RCTORCAMap();
 
@@ -13,14 +12,14 @@ public:
 
   void readData(const std::vector<unsigned> &emet,
                 const std::vector<unsigned> &hdet,
-                const std::vector<bool> &emfg, const std::vector<bool> &hdfg,
+                const std::vector<bool> &emfg,
+                const std::vector<bool> &hdfg,
                 const std::vector<unsigned> &hfet);
 
   std::vector<int> orcamap(int eta, int phi);
 
   unsigned short combine(unsigned short et, unsigned short fg);
-  std::vector<unsigned short> combVec(const std::vector<unsigned short> &et,
-                                      const std::vector<unsigned short> &fg);
+  std::vector<unsigned short> combVec(const std::vector<unsigned short> &et, const std::vector<unsigned short> &fg);
 
   void makeBarrelData();
   void makeHFData();

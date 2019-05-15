@@ -8,9 +8,7 @@ using std::cerr;
 using std::cout;
 using std::endl;
 
-L1RCTRegion::L1RCTRegion()
-    : totalRegionEt(36), totalRegionHE_FG(36), etIn9Bits(16), muonBit(16),
-      activityBit(16) {}
+L1RCTRegion::L1RCTRegion() : totalRegionEt(36), totalRegionHE_FG(36), etIn9Bits(16), muonBit(16), activityBit(16) {}
 
 L1RCTRegion::~L1RCTRegion() {}
 
@@ -37,20 +35,14 @@ void L1RCTRegion::setEtIn7Bits(int i, int j, unsigned short energy) {
     totalRegionEt.at(6 * (i + 1) + j + 1) = 127;
 }
 
-unsigned short L1RCTRegion::getHE_FGBit(int i, int j) const {
-  return totalRegionHE_FG.at(6 * (i + 1) + j + 1);
-}
+unsigned short L1RCTRegion::getHE_FGBit(int i, int j) const { return totalRegionHE_FG.at(6 * (i + 1) + j + 1); }
 
-void L1RCTRegion::setHE_FGBit(int i, int j, unsigned short HE_FG) {
-  totalRegionHE_FG.at(6 * (i + 1) + j + 1) = HE_FG;
-}
+void L1RCTRegion::setHE_FGBit(int i, int j, unsigned short HE_FG) { totalRegionHE_FG.at(6 * (i + 1) + j + 1) = HE_FG; }
 
 // The rest of the data stored in a region only works if i and j are
 // in the 0-3 range.  The arrays truly are 4x4 and will signal an error
 // if misused thanks to the vector function .at
-unsigned short L1RCTRegion::getEtIn9Bits(int i, int j) const {
-  return etIn9Bits.at(4 * i + j);
-}
+unsigned short L1RCTRegion::getEtIn9Bits(int i, int j) const { return etIn9Bits.at(4 * i + j); }
 
 void L1RCTRegion::setEtIn9Bits(int i, int j, unsigned short energy) {
   if (energy <= 511)
@@ -59,21 +51,13 @@ void L1RCTRegion::setEtIn9Bits(int i, int j, unsigned short energy) {
     etIn9Bits.at(4 * i + j) = 511;
 }
 
-unsigned short L1RCTRegion::getMuonBit(int i, int j) const {
-  return muonBit.at(4 * i + j);
-}
+unsigned short L1RCTRegion::getMuonBit(int i, int j) const { return muonBit.at(4 * i + j); }
 
-void L1RCTRegion::setMuonBit(int i, int j, unsigned short muon) {
-  muonBit.at(4 * i + j) = muon;
-}
+void L1RCTRegion::setMuonBit(int i, int j, unsigned short muon) { muonBit.at(4 * i + j) = muon; }
 
-void L1RCTRegion::setActivityBit(int i, int j, unsigned short activity) {
-  activityBit.at(4 * i + j) = activity;
-}
+void L1RCTRegion::setActivityBit(int i, int j, unsigned short activity) { activityBit.at(4 * i + j) = activity; }
 
-unsigned short L1RCTRegion::getActivityBit(int i, int j) const {
-  return activityBit.at(4 * i + j);
-}
+unsigned short L1RCTRegion::getActivityBit(int i, int j) const { return activityBit.at(4 * i + j); }
 
 // The following list of give and set functions are the core
 // of the work for neighbor sharing swept under the rug.
@@ -204,9 +188,7 @@ unsigned short L1RCTRegion::giveSWEt() const {
 }
 unsigned short L1RCTRegion::giveSWHE_FG() const { return getHE_FGBit(0, 3); }
 void L1RCTRegion::setSWEt(unsigned short sw) { totalRegionEt.at(30) = sw; }
-void L1RCTRegion::setSWHE_FG(unsigned short sw) {
-  totalRegionHE_FG.at(30) = sw;
-}
+void L1RCTRegion::setSWHE_FG(unsigned short sw) { totalRegionHE_FG.at(30) = sw; }
 
 unsigned short L1RCTRegion::giveSEEt() const {
   unsigned short et = getEtIn7Bits(0, 0);
@@ -217,12 +199,9 @@ unsigned short L1RCTRegion::giveSEEt() const {
 }
 unsigned short L1RCTRegion::giveSEHE_FG() const { return getHE_FGBit(0, 0); }
 void L1RCTRegion::setSEEt(unsigned short se) { totalRegionEt.at(35) = se; }
-void L1RCTRegion::setSEHE_FG(unsigned short se) {
-  totalRegionHE_FG.at(35) = se;
-}
+void L1RCTRegion::setSEHE_FG(unsigned short se) { totalRegionHE_FG.at(35) = se; }
 
 void L1RCTRegion::print() {
-
   std::cout << " 7 Bit Energies ";
   for (int i = 0; i < 4; i++) {
     std::cout << std::endl;

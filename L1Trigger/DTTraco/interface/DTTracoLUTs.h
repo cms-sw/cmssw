@@ -31,7 +31,6 @@
 typedef std::vector<unsigned short int> LUT;
 
 class DTTracoLUTs {
-
 public:
   //    typedef static std::vector<unsigned short int> LUT;
 
@@ -64,8 +63,8 @@ public:
   inline int size_phiLUT(int i) const { return phi_lut[i].size(); }
 
 private:
-  LUT phi_lut[3]; // phi rad: elem.0: inner; elem.1: outer; elem.2: corr.
-  LUT psi_lut;    // psi
+  LUT phi_lut[3];  // phi rad: elem.0: inner; elem.1: outer; elem.2: corr.
+  LUT psi_lut;     // psi
   std::string _testfile;
 };
 

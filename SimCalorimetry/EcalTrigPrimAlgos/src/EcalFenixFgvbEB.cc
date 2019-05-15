@@ -3,16 +3,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixFgvbEB.h>
 
-EcalFenixFgvbEB::EcalFenixFgvbEB(int maxNrSamples) {
-  add_out_8_.resize(maxNrSamples);
-}
+EcalFenixFgvbEB::EcalFenixFgvbEB(int maxNrSamples) { add_out_8_.resize(maxNrSamples); }
 
 EcalFenixFgvbEB::~EcalFenixFgvbEB() {}
 
-void EcalFenixFgvbEB::process(std::vector<int> &add_out,
-                              std::vector<int> &maxof2_out,
-                              std::vector<int> &output) {
-
+void EcalFenixFgvbEB::process(std::vector<int> &add_out, std::vector<int> &maxof2_out, std::vector<int> &output) {
   int Elow, Ehigh, Tlow, Thigh, lut;
   int ERatLow, ERatHigh;
   //    std::vector<int> add_out_8(add_out.size());
@@ -36,7 +31,6 @@ void EcalFenixFgvbEB::process(std::vector<int> &add_out,
     Thigh = Thigh - 128;
 
   for (unsigned int i = 0; i < add_out.size(); i++) {
-
     ERatLow = add_out[i] * Tlow >> 7;
     if (ERatLow > 0xFFF)
       ERatLow = 0xFFF;
@@ -74,10 +68,9 @@ void EcalFenixFgvbEB::process(std::vector<int> &add_out,
   return;
 }
 
-void EcalFenixFgvbEB::setParameters(
-    uint32_t towid, const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,
-    const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB) {
-
+void EcalFenixFgvbEB::setParameters(uint32_t towid,
+                                    const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,
+                                    const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB) {
   const EcalTPGGroups::EcalTPGGroupsMap &groupmap = ecaltpgFgEBGroup->getMap();
   EcalTPGGroups::EcalTPGGroupsMapItr it = groupmap.find(towid);
   if (it != groupmap.end()) {
@@ -88,10 +81,8 @@ void EcalFenixFgvbEB::setParameters(
     //     fgmap.find(fgid);
     //     (*itfg).second.getValues( ETlow_,  EThigh_,  Ratlow_,  Rathigh_,
     //     lut_);
-    EcalTPGFineGrainEBIdMap::EcalTPGFineGrainEBMapItr itfg =
-        (ecaltpgFineGrainEB->getMap()).find((*it).second);
+    EcalTPGFineGrainEBIdMap::EcalTPGFineGrainEBMapItr itfg = (ecaltpgFineGrainEB->getMap()).find((*it).second);
     (*itfg).second.getValues(ETlow_, EThigh_, Ratlow_, Rathigh_, lut_);
   } else
-    edm::LogWarning("EcalTPG")
-        << " could not find EcalTPGGroupsMap entry for " << towid;
+    edm::LogWarning("EcalTPG") << " could not find EcalTPGGroupsMap entry for " << towid;
 }

@@ -17,7 +17,6 @@ int EcalFenixPeakFinder::setInput(int input) {
 }
 
 int EcalFenixPeakFinder::process() {
-
   if (inputsAlreadyIn_ < 3)
     return 0;
   if (buffer_[1] > buffer_[0] && buffer_[1] > buffer_[2])
@@ -26,9 +25,7 @@ int EcalFenixPeakFinder::process() {
     return 0;
 }
 
-std::vector<int> EcalFenixPeakFinder::process(std::vector<int> &filtout,
-                                              std::vector<int> &output) {
-
+std::vector<int> EcalFenixPeakFinder::process(std::vector<int> &filtout, std::vector<int> &output) {
   // FIXME: 3
   inputsAlreadyIn_ = 0;
   for (unsigned int i = 0; i < 3; i++)
@@ -38,7 +35,6 @@ std::vector<int> EcalFenixPeakFinder::process(std::vector<int> &filtout,
 
   // attention, we have to shift by one, because the peak is found one too late
   for (unsigned int i = 0; i < filtout.size(); i++) {
-
     setInput(filtout[i]);
     if (i > 0) {
       //      int outone = process();
