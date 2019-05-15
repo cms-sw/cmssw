@@ -448,6 +448,12 @@ class Page(object):
             '  </table>',
         ])
 
+        if len(fileTable):
+            first_row = fileTable[0]
+            self._content.extend([
+              '  <a href="%s">Browse Folder</a>' % (first_row[1][0:first_row[1].rfind('/')])
+            ])
+
     def _appendColumnHeader(self, header):
         leg = ""
         if header in self._columnHeadersIndex:
