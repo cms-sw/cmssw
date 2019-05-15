@@ -15,7 +15,7 @@ class CaloGeometryDBWriter
       typedef CaloSubdetectorGeometry::DimVec DimVec     ;
       typedef CaloSubdetectorGeometry::IVec   IVec       ;
 
-      static bool writeFlag() { return true ; }
+      static constexpr bool writeFlag() { return true ; }
 
       static void write( const TrVec&  tvec, 
 			 const DimVec& dvec, 
