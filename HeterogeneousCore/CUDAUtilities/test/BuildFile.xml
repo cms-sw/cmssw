@@ -63,6 +63,10 @@
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
 </bin>
 
+<bin file="OneToManyAssoc_t.cpp" name="cpuOneToManyAssoc_t">
+  <flags CXXFLAGS="-g -DGPU_DEBUG"/>
+</bin>
+
 <bin file="prefixScan_t.cu" name="gpuPrefixScan_t">
   <use name="cub"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>

@@ -1,19 +1,21 @@
-#ifndef HeterogeneousCoreCUDAUtilitiesAtomicPairCounter_H
-#define HeterogeneousCoreCUDAUtilitiesAtomicPairCounter_H
+#ifndef HeterogeneousCore_CUDAUtilities_interface_AtomicPairCounter_h
+#define HeterogeneousCore_CUDAUtilities_interface_AtomicPairCounter_h
 
-#include <cuda_runtime.h>
 #include <cstdint>
+
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 
 class AtomicPairCounter {
 public:
-
   using c_type = unsigned long long int;
 
-  AtomicPairCounter(){}
-  AtomicPairCounter(c_type i) { counter.ac=i;}
+  AtomicPairCounter() {}
+  AtomicPairCounter(c_type i) { counter.ac = i; }
 
-  __device__ __host__
-  AtomicPairCounter & operator=(c_type i) { counter.ac=i; return *this;}
+  __device__ __host__ AtomicPairCounter& operator=(c_type i) {
+    counter.ac = i;
+    return *this;
+  }
 
   struct Counters {
     uint32_t n;  // in a "One to Many" association is the number of "One"
@@ -25,30 +27,26 @@ public:
     c_type ac;
   };
 
-#ifdef __CUDACC__
+  static constexpr c_type incr = 1UL << 32;
 
-  static constexpr c_type incr = 1UL<<32;
-
-  __device__ __host__
-  Counters get() const { return counter.counters;}
+  __device__ __host__ Counters get() const { return counter.counters; }
 
   // increment n by 1 and m by i.  return previous value
-  __device__
-  Counters add(uint32_t i) {
-    c_type c = i; 
-    c+=incr;
+  __host__ __device__ __forceinline__ Counters add(uint32_t i) {
+    c_type c = i;
+    c += incr;
     Atomic2 ret;
-    ret.ac = atomicAdd(&counter.ac,c);
+#ifdef __CUDA_ARCH__
+    ret.ac = atomicAdd(&counter.ac, c);
+#else
+    ret.ac = counter.ac;
+    counter.ac += c;
+#endif
     return ret.counters;
   }
 
-#endif
-
 private:
-
   Atomic2 counter;
-
 };
 
-
-#endif
+#endif  // HeterogeneousCore_CUDAUtilities_interface_AtomicPairCounter_h
