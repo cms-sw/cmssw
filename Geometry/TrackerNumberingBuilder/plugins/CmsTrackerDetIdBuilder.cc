@@ -10,7 +10,7 @@
 #include <string>
 #include <bitset>
 
-CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder( std::vector<int> detidShifts )
+CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder( const std::vector<int>& detidShifts )
   : m_detidshifts()
 {
   if(detidShifts.size()!=nSubDet*maxLevels) 
@@ -21,21 +21,19 @@ CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder( std::vector<int> detidShifts )
   }
 }
 
-GeometricDet*
-CmsTrackerDetIdBuilder::buildId( GeometricDet* tracker )
+void
+CmsTrackerDetIdBuilder::buildId( GeometricDet& tracker )
 {
 
   LogDebug("BuildingTrackerDetId") << "Starting to build Tracker DetIds";
 
   DetId t( DetId::Tracker, 0 );
-  tracker->setGeographicalID( t );
-  iterate( tracker, 0, tracker->geographicalID().rawId() );
-
-  return tracker;
+  tracker.setGeographicalID( t );
+  iterate( tracker, 0, tracker.geographicalID().rawId() );
 }
 
 void
-CmsTrackerDetIdBuilder::iterate( GeometricDet *in, int level, unsigned int ID )
+CmsTrackerDetIdBuilder::iterate( GeometricDet& in, int level, unsigned int ID )
 {
   std::bitset<32> binary_ID(ID);
 
@@ -53,9 +51,9 @@ CmsTrackerDetIdBuilder::iterate( GeometricDet *in, int level, unsigned int ID )
       // level 0: special case because it is used to assign the proper detid bits based on the endcap-like subdetector position: +z or -z
     case 0:
       {  
-	for( uint32_t i = 0; i<(in)->components().size(); i++ )
+	for( uint32_t i = 0; i<in.components().size(); i++ )
 	  {
-	    GeometricDet* component = in->component(i);
+	    GeometricDet* component = in.component(i);
 	    uint32_t iSubDet = component->geographicalID().rawId();
 	    uint32_t temp = ID;
 	    temp |= (iSubDet<<25);
@@ -80,16 +78,16 @@ CmsTrackerDetIdBuilder::iterate( GeometricDet *in, int level, unsigned int ID )
 	    component->setGeographicalID(DetId(temp));	
 	    
 	    // next level
-	    iterate(component,level+1,((in)->components())[i]->geographicalID().rawId());
+	    iterate(*component,level+1,(in.components())[i]->geographicalID().rawId());
 	  }	
 	break;
       }
       // level 1 to 5
     default:
       {
-	for( uint32_t i = 0; i < (in)->components().size(); i++ )
+	for( uint32_t i = 0; i < in.components().size(); i++ )
 	  {
-	    auto component = in->component(i);
+	    auto component = in.component(i);
 	    uint32_t temp = ID;
 	    
 	    if(level<maxLevels) {
@@ -98,7 +96,7 @@ CmsTrackerDetIdBuilder::iterate( GeometricDet *in, int level, unsigned int ID )
 	      }
 	      component->setGeographicalID( temp );
 	      // next level
-	      iterate(component,level+1,((in)->components())[i]->geographicalID().rawId());      
+	      iterate(*component,level+1,(in.components())[i]->geographicalID().rawId());      
 	    }
 	  }
 	
