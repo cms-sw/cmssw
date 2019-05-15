@@ -53,7 +53,11 @@ void MuonPathAssociator::run(edm::Event& iEvent, const edm::EventSetup& iEventSe
 			     std::vector<metaPrimitive> &outMPaths) 
 {
   
-  correlateMPaths(digis, inMPaths,outMPaths);
+  if (dT0_correlate_TP)  correlateMPaths(digis, inMPaths,outMPaths);
+  else { 
+    for (auto metaPrimitiveIt = inMPaths.begin(); metaPrimitiveIt != inMPaths.end(); ++metaPrimitiveIt)
+      outMPaths.push_back(*metaPrimitiveIt);
+  }
 }
 
 void MuonPathAssociator::finish() {
