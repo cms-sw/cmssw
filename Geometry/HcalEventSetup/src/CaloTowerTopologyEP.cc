@@ -29,9 +29,9 @@
 // constructors and destructor
 //
 CaloTowerTopologyEP::CaloTowerTopologyEP(const edm::ParameterSet& conf)
+  : topoToken_{setWhatProduced(this).consumes<HcalTopology>(edm::ESInputTag{})}
 {
   edm::LogInfo("HCAL") << "CaloTowerTopologyEP::CaloTowerTopologyEP";
-  setWhatProduced(this);
 }
 
 
@@ -50,12 +50,11 @@ void CaloTowerTopologyEP::fillDescriptions( edm::ConfigurationDescriptions & des
 // ------------ method called to produce the data  ------------
 CaloTowerTopologyEP::ReturnType
 CaloTowerTopologyEP::produce(const HcalRecNumberingRecord& iRecord) {
-  edm::ESHandle<HcalTopology> hcaltopo;
-  iRecord.get(hcaltopo);
+  const auto& hcaltopo = iRecord.get(topoToken_);
 
   edm::LogInfo("HCAL") << "CaloTowerTopologyEP::produce(const HcalRecNumberingRecord& iRecord)";
 
-  return std::make_unique<CaloTowerTopology>(&*hcaltopo);
+  return std::make_unique<CaloTowerTopology>(&hcaltopo);
 }
 
 

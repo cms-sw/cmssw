@@ -26,26 +26,20 @@ CaloTowerHardcodeGeometryEP::CaloTowerHardcodeGeometryEP(const edm::ParameterSet
 {
    //the following line is needed to tell the framework what
    // data is being produced
-   setWhatProduced(this,
-                   &CaloTowerHardcodeGeometryEP::produce,
-		   edm::es::Label("TOWER"));
-
-  loader_=new CaloTowerHardcodeGeometryLoader(); /// TODO : allow override of Topology.
-}
-
-CaloTowerHardcodeGeometryEP::~CaloTowerHardcodeGeometryEP() {
-  delete loader_;
+  auto cc = setWhatProduced(this,
+                            &CaloTowerHardcodeGeometryEP::produce,
+                            edm::es::Label("TOWER"));
+  cttopoToken_ = cc.consumesFrom<CaloTowerTopology, HcalRecNumberingRecord>(edm::ESInputTag{});
+  hcaltopoToken_ = cc.consumesFrom<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag{});
+  consToken_ = cc.consumesFrom<HcalDDDRecConstants, HcalRecNumberingRecord>(edm::ESInputTag{});
 }
 
 // ------------ method called to produce the data  ------------
 CaloTowerHardcodeGeometryEP::ReturnType
 CaloTowerHardcodeGeometryEP::produce(const CaloTowerGeometryRecord& iRecord) {
-  edm::ESHandle<CaloTowerTopology> cttopo;
-  iRecord.getRecord<HcalRecNumberingRecord>().get( cttopo );
-  edm::ESHandle<HcalTopology> hcaltopo;
-  iRecord.getRecord<HcalRecNumberingRecord>().get( hcaltopo );
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  iRecord.getRecord<HcalRecNumberingRecord>().get( pHRNDC );
+  const auto& cttopo = iRecord.get(cttopoToken_);
+  const auto& hcaltopo = iRecord.get(hcaltopoToken_);
+  const auto& cons = iRecord.get(consToken_);
 
-  return std::unique_ptr<CaloSubdetectorGeometry>( loader_->load( &*cttopo, &*hcaltopo, &*pHRNDC ));
+  return std::unique_ptr<CaloSubdetectorGeometry>( loader_.load( &cttopo, &hcaltopo, &cons ));
 }
