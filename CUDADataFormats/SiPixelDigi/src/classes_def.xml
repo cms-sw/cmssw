@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="CUDAProduct<SiPixelDigisCUDA>" persistent="false"/>
+  <class name="edm::Wrapper<CUDAProduct<SiPixelDigisCUDA>>" persistent="false"/>
+
+  <class name="CUDAProduct<SiPixelDigiErrorsCUDA>" persistent="false"/>
+  <class name="edm::Wrapper<CUDAProduct<SiPixelDigiErrorsCUDA>>" persistent="false"/>
+</lcgdict>

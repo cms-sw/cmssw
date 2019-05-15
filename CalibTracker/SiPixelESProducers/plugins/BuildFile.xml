@@ -6,6 +6,8 @@
 <use   name="Geometry/Records"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="CalibTracker/SiPixelESProducers"/>
+<use   name="HeterogeneousCore/CUDACore"/>
+<use   name="cuda-api-wrappers"/>
 <library   file="*.cc" name="CalibTrackerSiPixelESProducersPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

@@ -2,6 +2,7 @@
 #define Geometry_TrackerGeometryBuilder_phase1PixelTopology_h
 
 #include <cstdint>
+#include <array>
 
 namespace phase1PixelTopology {
 
@@ -20,9 +21,81 @@ namespace phase1PixelTopology {
 
   constexpr uint32_t numPixsInModule = uint32_t(numRowsInModule)* uint32_t(numColsInModule);
 
+  constexpr uint32_t numberOfModules = 1856;
+  constexpr uint32_t numberOfLayers = 10;
+  constexpr uint32_t layerStart[numberOfLayers + 1] = {
+       0,    96, 320,  672,         // barrel
+    1184, 1296, 1408,               // positive endcap
+    1520, 1632, 1744,               // negative endcap
+    numberOfModules
+  };
+  constexpr char const * layerName[numberOfLayers] = {
+    "BL1", "BL2", "BL3", "BL4",     // barrel
+    "E+1", "E+2", "E+3",            // positive endcap
+    "E-1", "E-2", "E-3"             // negative endcap
+  };
+
+
+  template<class Function, std::size_t... Indices>
+  constexpr auto map_to_array_helper(Function f, std::index_sequence<Indices...>)
+  -> std::array<typename std::result_of<Function(std::size_t)>::type, sizeof...(Indices)>
+  {
+    return {{ f(Indices)... }};
+  }
+
+  template<int N, class Function>
+  constexpr auto map_to_array(Function f)
+  -> std::array<typename std::result_of<Function(std::size_t)>::type, N>
+  {
+    return map_to_array_helper(f, std::make_index_sequence<N>{});
+  }
+
+
+  constexpr uint32_t findMaxModuleStride() {
+    bool go = true;
+    int n=2;
+    while (go) {
+      for  (uint8_t i=1; i<11; ++i) {
+        if (layerStart[i]%n !=0) {go=false; break;}
+      }
+      if(!go) break;
+      n*=2;
+    }
+    return n/2;
+  }
+
+  constexpr uint32_t maxModuleStride = findMaxModuleStride();
+
+  constexpr uint8_t findLayer(uint32_t detId) {
+    for  (uint8_t i=0; i<11; ++i) if (detId<layerStart[i+1]) return i;
+    return 11;
+  }
+
+  constexpr uint8_t findLayerFromCompact(uint32_t detId) {
+    detId*=maxModuleStride;
+    for  (uint8_t i=0; i<11; ++i) if (detId<layerStart[i+1]) return i;
+    return 11;
+  }
+
+  constexpr uint32_t layerIndexSize = numberOfModules / maxModuleStride;
+  constexpr std::array<uint8_t, layerIndexSize> layer = map_to_array<layerIndexSize>(findLayerFromCompact);
+
+  constexpr bool validateLayerIndex() {
+    bool res=true;
+    for (auto i=0U; i<numberOfModules; ++i)  {
+      auto j = i/maxModuleStride;
+      res &=(layer[j]<10);
+      res &=(i>=layerStart[layer[j]]);
+      res &=(i<layerStart[layer[j]+1]);
+    }
+    return res;
+  }
+
+  static_assert(validateLayerIndex(), "layer from detIndex algo is buggy");
+
   // this is for the ROC n<512 (upgrade 1024)
   constexpr inline
-  uint16_t  divu52(uint16_t n) {
+  uint16_t divu52(uint16_t n) {
     n = n>>2;
     uint16_t q = (n>>1) + (n>>4);
     q = q + (q>>4) + (q>>5); q = q >> 3;
@@ -31,13 +104,14 @@ namespace phase1PixelTopology {
   }
 
   constexpr inline
-  bool isEdgeX(uint16_t px) { return (px==0) | (px==lastRowInModule);}
-  constexpr inline
-  bool isEdgeY(uint16_t py) { return (py==0) | (py==lastColInModule);}
+  bool isEdgeX(uint16_t px) { return (px==0) | (px==lastRowInModule); }
 
+  constexpr inline
+  bool isEdgeY(uint16_t py) { return (py==0) | (py==lastColInModule); }
 
   constexpr inline
   uint16_t toRocX(uint16_t px) { return (px<numRowsInRoc) ? px : px-numRowsInRoc; }
+
   constexpr inline
   uint16_t toRocY(uint16_t py) {
     auto roc = divu52(py);

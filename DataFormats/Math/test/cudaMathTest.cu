@@ -28,10 +28,6 @@ end
 
 #include "cuda/api_wrappers.h"
 
-#include<DataFormats/Math/interface/approx_log.h>
-#include<DataFormats/Math/interface/approx_exp.h>
-#include<DataFormats/Math/interface/approx_atan2.h>
-
 #ifdef __CUDACC__
 #define inline __host__ __device__ inline
 #include <vdt/sin.h>
@@ -39,6 +35,11 @@ end
 #else
 #include <vdt/sin.h>
 #endif
+
+#include "DataFormats/Math/interface/approx_log.h"
+#include "DataFormats/Math/interface/approx_exp.h"
+#include "DataFormats/Math/interface/approx_atan2.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 
 std::mt19937 eng;
 std::mt19937 eng2;
@@ -205,22 +206,12 @@ void go()
 }
 
 int main() {
-  int count = 0;
-  auto status = cudaGetDeviceCount(& count);
-  if (status != cudaSuccess) {
-    std::cerr << "Failed to initialise the CUDA runtime, the test will be skipped." << "\n";
-    exit(EXIT_SUCCESS);
-  }
-  if (count == 0) {
-    std::cerr << "No CUDA devices on this system, the test will be skipped." << "\n";
-    exit(EXIT_SUCCESS);
-  }
+  exitSansCUDADevices();
 
   try {
     go<USEEXP>();
     go<USESIN>();
     go<USELOG>();
-
     go<USELOG, true>();
   } catch(cuda::runtime_error &ex) {
     std::cerr << "CUDA error: " << ex.what() << std::endl;
