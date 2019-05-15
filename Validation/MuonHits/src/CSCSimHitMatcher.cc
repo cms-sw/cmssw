@@ -2,28 +2,24 @@
 
 using namespace std;
 
-CSCSimHitMatcher::CSCSimHitMatcher(const edm::ParameterSet& ps,
-                                   edm::ConsumesCollector&& iC)
+CSCSimHitMatcher::CSCSimHitMatcher(const edm::ParameterSet& ps, edm::ConsumesCollector&& iC)
     : MuonSimHitMatcher(ps, std::move(iC)) {
   simHitPSet_ = ps.getParameterSet("cscSimHit");
   verbose_ = simHitPSet_.getParameter<int>("verbose");
   simMuOnly_ = simHitPSet_.getParameter<bool>("simMuOnly");
   discardEleHits_ = simHitPSet_.getParameter<bool>("discardEleHits");
 
-  simHitInput_ = iC.consumes<edm::PSimHitContainer>(
-      simHitPSet_.getParameter<edm::InputTag>("inputTag"));
+  simHitInput_ = iC.consumes<edm::PSimHitContainer>(simHitPSet_.getParameter<edm::InputTag>("inputTag"));
 }
 
 /// initialize the event
-void CSCSimHitMatcher::init(const edm::Event& iEvent,
-                            const edm::EventSetup& iSetup) {
+void CSCSimHitMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iSetup.get<MuonGeometryRecord>().get(csc_geom_);
   if (csc_geom_.isValid()) {
     geometry_ = &*csc_geom_;
   } else {
     hasGeometry_ = false;
-    edm::LogWarning("CSCSimHitMatcher")
-        << "+++ Info: CSC geometry is unavailable. +++\n";
+    edm::LogWarning("CSCSimHitMatcher") << "+++ Info: CSC geometry is unavailable. +++\n";
   }
   MuonSimHitMatcher::init(iEvent, iSetup);
 }
@@ -37,11 +33,9 @@ void CSCSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
     matchSimHitsToSimTrack();
 
     if (verbose_) {
-      edm::LogInfo("CSCSimHitMatcher")
-          << "nTrackIds " << track_ids_.size() << " nSelectedCSCSimHits "
-          << hits_.size() << endl;
-      edm::LogInfo("CSCSimHitMatcher")
-          << "detids CSC " << detIds(0).size() << endl;
+      edm::LogInfo("CSCSimHitMatcher") << "nTrackIds " << track_ids_.size() << " nSelectedCSCSimHits " << hits_.size()
+                                       << endl;
+      edm::LogInfo("CSCSimHitMatcher") << "detids CSC " << detIds(0).size() << endl;
 
       for (const auto& id : detIds(0)) {
         const auto& simhits = hitsInDetId(id);
@@ -49,11 +43,9 @@ void CSCSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
         const auto& strips = hitStripsInDetId(id);
         CSCDetId cscid(id);
         if (cscid.station() == 1 and (cscid.ring() == 1 or cscid.ring() == 4)) {
-          edm::LogInfo("CSCSimHitMatcher")
-              << "cscdetid " << CSCDetId(id) << ": " << simhits.size() << " "
-              << simhits_gp.phi() << " " << detid_to_hits_[id].size() << endl;
-          edm::LogInfo("CSCSimHitMatcher")
-              << "nStrip " << strips.size() << endl;
+          edm::LogInfo("CSCSimHitMatcher") << "cscdetid " << CSCDetId(id) << ": " << simhits.size() << " "
+                                           << simhits_gp.phi() << " " << detid_to_hits_[id].size() << endl;
+          edm::LogInfo("CSCSimHitMatcher") << "nStrip " << strips.size() << endl;
           edm::LogInfo("CSCSimHitMatcher") << "strips : ";
           for (const auto& p : strips) {
             edm::LogInfo("CSCSimHitMatcher") << p;
@@ -67,11 +59,14 @@ void CSCSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
 void CSCSimHitMatcher::matchSimHitsToSimTrack() {
   for (const auto& track_id : track_ids_) {
     for (const auto& h : simHits_) {
-      if (h.trackId() != track_id) continue;
+      if (h.trackId() != track_id)
+        continue;
       int pdgid = h.particleType();
-      if (simMuOnly_ && std::abs(pdgid) != 13) continue;
+      if (simMuOnly_ && std::abs(pdgid) != 13)
+        continue;
       // discard electron hits in the CSC chambers
-      if (discardEleHits_ && pdgid == 11) continue;
+      if (discardEleHits_ && pdgid == 11)
+        continue;
 
       const CSCDetId& layer_id(h.detUnitId());
       hits_.push_back(h);
@@ -123,14 +118,16 @@ bool CSCSimHitMatcher::hitStation(int st, int nlayers) const {
   for (const auto& ddt : chamberIds()) {
     const CSCDetId id(ddt);
     int ri(id.ring());
-    if (id.station() != st) continue;
+    if (id.station() != st)
+      continue;
 
     // ME1/a case - check the ME1/b chamber
     if (st == 1 and ri == 4) {
       CSCDetId idME1b(id.endcap(), id.station(), 1, id.chamber(), 0);
       const int nl1a(nLayersWithHitsInChamber(id.rawId()));
       const int nl1b(nLayersWithHitsInChamber(idME1b.rawId()));
-      if (nl1a + nl1b < nlayers) continue;
+      if (nl1a + nl1b < nlayers)
+        continue;
       ++nst;
     }
     // ME1/b case - check the ME1/a chamber
@@ -138,13 +135,15 @@ bool CSCSimHitMatcher::hitStation(int st, int nlayers) const {
       CSCDetId idME1a(id.endcap(), id.station(), 4, id.chamber(), 0);
       const int nl1a(nLayersWithHitsInChamber(idME1a.rawId()));
       const int nl1b(nLayersWithHitsInChamber(id.rawId()));
-      if (nl1a + nl1b < nlayers) continue;
+      if (nl1a + nl1b < nlayers)
+        continue;
       ++nst;
     }
     // default case
     else {
       const int nl(nLayersWithHitsInChamber(id.rawId()));
-      if (nl < nlayers) continue;
+      if (nl < nlayers)
+        continue;
       ++nst;
     }
   }
@@ -152,30 +151,24 @@ bool CSCSimHitMatcher::hitStation(int st, int nlayers) const {
 }
 
 int CSCSimHitMatcher::nStations(int nlayers) const {
-  return (hitStation(1, nlayers) + hitStation(2, nlayers) +
-          hitStation(3, nlayers) + hitStation(4, nlayers));
+  return (hitStation(1, nlayers) + hitStation(2, nlayers) + hitStation(3, nlayers) + hitStation(4, nlayers));
 }
 
 float CSCSimHitMatcher::LocalBendingInChamber(unsigned int detid) const {
   const CSCDetId cscid(detid);
-  if (nLayersWithHitsInChamber(detid) < 6) return -100;
+  if (nLayersWithHitsInChamber(detid) < 6)
+    return -100;
   float phi_layer1 = -10;
   float phi_layer6 = 10;
 
   if (cscid.station() == 1 and (cscid.ring() == 1 or cscid.ring() == 4)) {
     // phi in layer 1
-    const CSCDetId cscid1a(cscid.endcap(), cscid.station(), 4, cscid.chamber(),
-                           1);
-    const CSCDetId cscid1b(cscid.endcap(), cscid.station(), 1, cscid.chamber(),
-                           1);
-    const edm::PSimHitContainer& hits1a =
-        MuonSimHitMatcher::hitsInDetId(cscid1a.rawId());
-    const edm::PSimHitContainer& hits1b =
-        MuonSimHitMatcher::hitsInDetId(cscid1b.rawId());
-    const GlobalPoint& gp1a =
-        simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid1a.rawId()));
-    const GlobalPoint& gp1b =
-        simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid1b.rawId()));
+    const CSCDetId cscid1a(cscid.endcap(), cscid.station(), 4, cscid.chamber(), 1);
+    const CSCDetId cscid1b(cscid.endcap(), cscid.station(), 1, cscid.chamber(), 1);
+    const edm::PSimHitContainer& hits1a = MuonSimHitMatcher::hitsInDetId(cscid1a.rawId());
+    const edm::PSimHitContainer& hits1b = MuonSimHitMatcher::hitsInDetId(cscid1b.rawId());
+    const GlobalPoint& gp1a = simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid1a.rawId()));
+    const GlobalPoint& gp1b = simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid1b.rawId()));
     if (!hits1a.empty() and !hits1b.empty())
       phi_layer1 = (gp1a.phi() + gp1b.phi()) / 2.0;
     else if (!hits1a.empty())
@@ -184,18 +177,12 @@ float CSCSimHitMatcher::LocalBendingInChamber(unsigned int detid) const {
       phi_layer1 = gp1b.phi();
 
     // phi in layer 6
-    const CSCDetId cscid6a(cscid.endcap(), cscid.station(), 4, cscid.chamber(),
-                           6);
-    const CSCDetId cscid6b(cscid.endcap(), cscid.station(), 1, cscid.chamber(),
-                           6);
-    const edm::PSimHitContainer& hits6a =
-        MuonSimHitMatcher::hitsInDetId(cscid6a.rawId());
-    const edm::PSimHitContainer& hits6b =
-        MuonSimHitMatcher::hitsInDetId(cscid6b.rawId());
-    const GlobalPoint& gp6a =
-        simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid6a.rawId()));
-    const GlobalPoint& gp6b =
-        simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid6b.rawId()));
+    const CSCDetId cscid6a(cscid.endcap(), cscid.station(), 4, cscid.chamber(), 6);
+    const CSCDetId cscid6b(cscid.endcap(), cscid.station(), 1, cscid.chamber(), 6);
+    const edm::PSimHitContainer& hits6a = MuonSimHitMatcher::hitsInDetId(cscid6a.rawId());
+    const edm::PSimHitContainer& hits6b = MuonSimHitMatcher::hitsInDetId(cscid6b.rawId());
+    const GlobalPoint& gp6a = simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid6a.rawId()));
+    const GlobalPoint& gp6b = simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid6b.rawId()));
     if (!hits6a.empty() and !hits6b.empty())
       phi_layer6 = (gp6a.phi() + gp6b.phi()) / 2.0;
     else if (!hits6a.empty())
@@ -205,25 +192,21 @@ float CSCSimHitMatcher::LocalBendingInChamber(unsigned int detid) const {
 
   } else {
     // phi in layer 1
-    const CSCDetId cscid1(cscid.endcap(), cscid.station(), cscid.ring(),
-                          cscid.chamber(), 1);
-    const GlobalPoint& gp1 =
-        simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid1.rawId()));
+    const CSCDetId cscid1(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber(), 1);
+    const GlobalPoint& gp1 = simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid1.rawId()));
     phi_layer1 = gp1.phi();
 
     // phi in layer 6
-    const CSCDetId cscid6(cscid.endcap(), cscid.station(), cscid.ring(),
-                          cscid.chamber(), 6);
-    const GlobalPoint& gp6 =
-        simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid6.rawId()));
+    const CSCDetId cscid6(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber(), 6);
+    const GlobalPoint& gp6 = simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid6.rawId()));
     phi_layer6 = gp6.phi();
   }
   return deltaPhi(phi_layer6, phi_layer1);
 }
 
-float CSCSimHitMatcher::simHitsMeanStrip(
-    const edm::PSimHitContainer& sim_hits) const {
-  if (sim_hits.empty()) return -1.f;
+float CSCSimHitMatcher::simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const {
+  if (sim_hits.empty())
+    return -1.f;
 
   float sums = 0.f;
   size_t n = 0;
@@ -231,22 +214,20 @@ float CSCSimHitMatcher::simHitsMeanStrip(
     const LocalPoint& lp = h.entryPoint();
     float s;
     const auto& d = h.detUnitId();
-    s = dynamic_cast<const CSCGeometry*>(geometry_)
-            ->layer(d)
-            ->geometry()
-            ->strip(lp);
+    s = dynamic_cast<const CSCGeometry*>(geometry_)->layer(d)->geometry()->strip(lp);
     // convert to half-strip:
     s *= 2.;
     sums += s;
     ++n;
   }
-  if (n == 0) return -1.f;
+  if (n == 0)
+    return -1.f;
   return sums / n;
 }
 
-float CSCSimHitMatcher::simHitsMeanWG(
-    const edm::PSimHitContainer& sim_hits) const {
-  if (sim_hits.empty()) return -1.f;
+float CSCSimHitMatcher::simHitsMeanWG(const edm::PSimHitContainer& sim_hits) const {
+  if (sim_hits.empty())
+    return -1.f;
 
   float sums = 0.f;
   size_t n = 0;
@@ -255,61 +236,51 @@ float CSCSimHitMatcher::simHitsMeanWG(
     float s;
     const auto& d = h.detUnitId();
     // find nearest wire
-    const auto& layerG(
-        dynamic_cast<const CSCGeometry*>(geometry_)->layer(d)->geometry());
+    const auto& layerG(dynamic_cast<const CSCGeometry*>(geometry_)->layer(d)->geometry());
     int nearestWire(layerG->nearestWire(lp));
     // then find the corresponding wire group
     s = layerG->wireGroup(nearestWire);
     sums += s;
     ++n;
   }
-  if (n == 0) return -1.f;
+  if (n == 0)
+    return -1.f;
   return sums / n;
 }
 
-std::set<int> CSCSimHitMatcher::hitStripsInDetId(unsigned int detid,
-                                                 int margin_n_strips) const {
+std::set<int> CSCSimHitMatcher::hitStripsInDetId(unsigned int detid, int margin_n_strips) const {
   set<int> result;
   const auto& simhits = MuonSimHitMatcher::hitsInDetId(detid);
   CSCDetId id(detid);
-  int max_nstrips = dynamic_cast<const CSCGeometry*>(geometry_)
-                        ->layer(id)
-                        ->geometry()
-                        ->numberOfStrips();
+  int max_nstrips = dynamic_cast<const CSCGeometry*>(geometry_)->layer(id)->geometry()->numberOfStrips();
   for (const auto& h : simhits) {
     const LocalPoint& lp = h.entryPoint();
-    int central_strip = dynamic_cast<const CSCGeometry*>(geometry_)
-                            ->layer(id)
-                            ->geometry()
-                            ->nearestStrip(lp);
+    int central_strip = dynamic_cast<const CSCGeometry*>(geometry_)->layer(id)->geometry()->nearestStrip(lp);
     int smin = central_strip - margin_n_strips;
     smin = (smin > 0) ? smin : 1;
     int smax = central_strip + margin_n_strips;
     smax = (smax <= max_nstrips) ? smax : max_nstrips;
-    for (int ss = smin; ss <= smax; ++ss) result.insert(ss);
+    for (int ss = smin; ss <= smax; ++ss)
+      result.insert(ss);
   }
   return result;
 }
 
-std::set<int> CSCSimHitMatcher::hitWiregroupsInDetId(unsigned int detid,
-                                                     int margin_n_wg) const {
+std::set<int> CSCSimHitMatcher::hitWiregroupsInDetId(unsigned int detid, int margin_n_wg) const {
   set<int> result;
   const auto& simhits = MuonSimHitMatcher::hitsInDetId(detid);
   CSCDetId id(detid);
-  int max_n_wg = dynamic_cast<const CSCGeometry*>(geometry_)
-                     ->layer(id)
-                     ->geometry()
-                     ->numberOfWireGroups();
+  int max_n_wg = dynamic_cast<const CSCGeometry*>(geometry_)->layer(id)->geometry()->numberOfWireGroups();
   for (const auto& h : simhits) {
     const LocalPoint& lp = h.entryPoint();
-    const auto& layer_geo =
-        dynamic_cast<const CSCGeometry*>(geometry_)->layer(id)->geometry();
+    const auto& layer_geo = dynamic_cast<const CSCGeometry*>(geometry_)->layer(id)->geometry();
     int central_wg = layer_geo->wireGroup(layer_geo->nearestWire(lp));
     int wg_min = central_wg - margin_n_wg;
     wg_min = (wg_min > 0) ? wg_min : 1;
     int wg_max = central_wg + margin_n_wg;
     wg_max = (wg_max <= max_n_wg) ? wg_max : max_n_wg;
-    for (int wg = wg_min; wg <= wg_max; ++wg) result.insert(wg);
+    for (int wg = wg_min; wg <= wg_max; ++wg)
+      result.insert(wg);
   }
   return result;
 }
@@ -318,13 +289,13 @@ int CSCSimHitMatcher::nCoincidenceChambers(int min_n_layers) const {
   int result = 0;
   const auto& chamber_ids = chamberIds(0);
   for (const auto& id : chamber_ids) {
-    if (nLayersWithHitsInChamber(id) >= min_n_layers) result += 1;
+    if (nLayersWithHitsInChamber(id) >= min_n_layers)
+      result += 1;
   }
   return result;
 }
 
-void CSCSimHitMatcher::chamberIdsToString(
-    const std::set<unsigned int>& set) const {
+void CSCSimHitMatcher::chamberIdsToString(const std::set<unsigned int>& set) const {
   for (const auto& p : set) {
     CSCDetId detId(p);
     edm::LogInfo("CSCSimHitMatcher") << " " << detId << "\n";

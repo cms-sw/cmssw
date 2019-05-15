@@ -22,85 +22,77 @@
 
 namespace {
 
-class SiPixelPhase1TrackResiduals final : public SiPixelPhase1Base {
-  enum {
-    RESIDUAL_X,
-    RESIDUAL_Y,
-    RESONEDGE_X,
-    RESONEDGE_Y,
-    RESOTHERBAD_X,
-    RESOTHERBAD_Y
-  };
+  class SiPixelPhase1TrackResiduals final : public SiPixelPhase1Base {
+    enum { RESIDUAL_X, RESIDUAL_Y, RESONEDGE_X, RESONEDGE_Y, RESOTHERBAD_X, RESOTHERBAD_Y };
 
   public:
-  explicit SiPixelPhase1TrackResiduals(const edm::ParameterSet& conf);
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+    explicit SiPixelPhase1TrackResiduals(const edm::ParameterSet& conf);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   private:
-  TrackerValidationVariables validator;
-  edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
+    TrackerValidationVariables validator;
+    edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
 
-  bool applyVertexCut_;
-};
+    bool applyVertexCut_;
+  };
 
-SiPixelPhase1TrackResiduals::SiPixelPhase1TrackResiduals(const edm::ParameterSet& iConfig) :
-  SiPixelPhase1Base(iConfig),
-  validator(iConfig, consumesCollector())
-{
- 
-  applyVertexCut_=iConfig.getUntrackedParameter<bool>("VertexCut",true);
+  SiPixelPhase1TrackResiduals::SiPixelPhase1TrackResiduals(const edm::ParameterSet& iConfig)
+      : SiPixelPhase1Base(iConfig), validator(iConfig, consumesCollector()) {
+    applyVertexCut_ = iConfig.getUntrackedParameter<bool>("VertexCut", true);
 
-  offlinePrimaryVerticesToken_= consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"));
-			       
-}
-
-void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  if( !checktrigger(iEvent,iSetup,DCS) ) return;
-
-  edm::ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-  assert(tracker.isValid());
-
-  edm::Handle<reco::VertexCollection> vertices;
-  if(applyVertexCut_) {
-    iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
-    if (!vertices.isValid() || vertices->empty()) return;
+    offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"));
   }
 
-  std::vector<TrackerValidationVariables::AVTrackStruct> vtracks;
+  void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+    if (!checktrigger(iEvent, iSetup, DCS))
+      return;
 
-  validator.fillTrackQuantities(iEvent, iSetup, 
-    // tell the validator to only look at good tracks
-    [&](const reco::Track& track) -> bool { 
-	return (!applyVertexCut_ || (track.pt() > 0.75
-				     && std::abs( track.dxy(vertices->at(0).position()) ) < 5*track.dxyError())) ;
-    }, vtracks);
+    edm::ESHandle<TrackerGeometry> tracker;
+    iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+    assert(tracker.isValid());
 
-  for (auto& track : vtracks) {
-    for (auto& it : track.hits) {
-      auto id = DetId(it.rawDetId);
-      auto isPixel = id.subdetId() == 1 || id.subdetId() == 2;
-      if (!isPixel) continue; 
-      
-      histo[RESIDUAL_X].fill(it.resXprime, id, &iEvent);
-      histo[RESIDUAL_Y].fill(it.resYprime, id, &iEvent);
+    edm::Handle<reco::VertexCollection> vertices;
+    if (applyVertexCut_) {
+      iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
+      if (!vertices.isValid() || vertices->empty())
+        return;
+    }
 
-      if(it.isOnEdgePixel){
-	histo[RESONEDGE_X].fill(it.resXprime, id, &iEvent);
-	histo[RESONEDGE_Y].fill(it.resYprime, id, &iEvent);
+    std::vector<TrackerValidationVariables::AVTrackStruct> vtracks;
+
+    validator.fillTrackQuantities(
+        iEvent,
+        iSetup,
+        // tell the validator to only look at good tracks
+        [&](const reco::Track& track) -> bool {
+          return (!applyVertexCut_ ||
+                  (track.pt() > 0.75 && std::abs(track.dxy(vertices->at(0).position())) < 5 * track.dxyError()));
+        },
+        vtracks);
+
+    for (auto& track : vtracks) {
+      for (auto& it : track.hits) {
+        auto id = DetId(it.rawDetId);
+        auto isPixel = id.subdetId() == 1 || id.subdetId() == 2;
+        if (!isPixel)
+          continue;
+
+        histo[RESIDUAL_X].fill(it.resXprime, id, &iEvent);
+        histo[RESIDUAL_Y].fill(it.resYprime, id, &iEvent);
+
+        if (it.isOnEdgePixel) {
+          histo[RESONEDGE_X].fill(it.resXprime, id, &iEvent);
+          histo[RESONEDGE_Y].fill(it.resYprime, id, &iEvent);
+        }
+
+        if (it.isOtherBadPixel) {
+          histo[RESOTHERBAD_X].fill(it.resXprime, id, &iEvent);
+          histo[RESOTHERBAD_Y].fill(it.resYprime, id, &iEvent);
+        }
       }
-
-      if(it.isOtherBadPixel){      
-	histo[RESOTHERBAD_X].fill(it.resXprime, id, &iEvent);
-	histo[RESOTHERBAD_Y].fill(it.resYprime, id, &iEvent);
-      }
-
     }
   }
 
-}
-
-} // namespace
+}  // namespace
 
 DEFINE_FWK_MODULE(SiPixelPhase1TrackResiduals);
-
