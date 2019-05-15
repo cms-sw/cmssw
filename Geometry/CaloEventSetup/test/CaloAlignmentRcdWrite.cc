@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Utilities/General/interface/ClassName.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
@@ -22,26 +22,31 @@ class CaloAlignmentRcdWrite : public edm::one::EDAnalyzer<>
 public:
 
   explicit CaloAlignmentRcdWrite(const edm::ParameterSet& /*iConfig*/)
-    :nEventCalls_(0) {}
+    :ebToken_{esConsumes<Alignments, EBAlignmentRcd>(edm::ESInputTag{})},
+     eeToken_{esConsumes<Alignments, EEAlignmentRcd>(edm::ESInputTag{})},
+     esToken_{esConsumes<Alignments, ESAlignmentRcd>(edm::ESInputTag{})},
+     nEventCalls_(0) {}
   ~CaloAlignmentRcdWrite() override {}
   
   template<typename T>
-  void writeAlignments(const edm::EventSetup& evtSetup);
+  void writeAlignments(const edm::EventSetup& evtSetup, edm::ESGetToken<Alignments, T>& token);
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
 
 private:
+  edm::ESGetToken<Alignments, EBAlignmentRcd> ebToken_;
+  edm::ESGetToken<Alignments, EEAlignmentRcd> eeToken_;
+  edm::ESGetToken<Alignments, ESAlignmentRcd> esToken_;
   
   unsigned int nEventCalls_;
 };
 
 template<typename T>
-void CaloAlignmentRcdWrite::writeAlignments(const edm::EventSetup& evtSetup)
+void CaloAlignmentRcdWrite::writeAlignments(const edm::EventSetup& evtSetup, edm::ESGetToken<Alignments, T>& token)
 {
-  edm::ESHandle<Alignments> alignmentsHandle;
-  evtSetup.get<T>().get(alignmentsHandle);
+  const auto& alignmentsES = evtSetup.getData(token);
   
   std::string recordName = Demangle(typeid(T).name())();
 
@@ -52,7 +57,7 @@ void CaloAlignmentRcdWrite::writeAlignments(const edm::EventSetup& evtSetup)
   if (!poolDbService.isAvailable())
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
   
-  Alignments * alignments = new Alignments(*alignmentsHandle);
+  Alignments * alignments = new Alignments(alignmentsES);
 
   poolDbService->writeOne<Alignments>(&(*alignments), 
 				      poolDbService->currentTime(),
@@ -68,9 +73,9 @@ void CaloAlignmentRcdWrite::analyze(const edm::Event& /*evt*/, const edm::EventS
      return;
    }
 
-   writeAlignments<EBAlignmentRcd>(evtSetup);
-   writeAlignments<EEAlignmentRcd>(evtSetup);
-   writeAlignments<ESAlignmentRcd>(evtSetup);
+   writeAlignments<EBAlignmentRcd>(evtSetup, ebToken_);
+   writeAlignments<EEAlignmentRcd>(evtSetup, eeToken_);
+   writeAlignments<ESAlignmentRcd>(evtSetup, esToken_);
    
    std::cout << "done!" << std::endl;
    nEventCalls_++;

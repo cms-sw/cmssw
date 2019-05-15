@@ -3,8 +3,8 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -35,10 +35,16 @@ public:
 private:
   void build(const CaloGeometry& cg, const EcalTrigTowerConstituentsMap& etmap, DetId::Detector det, int subdetn, const char* name);
   int towerColor(const EcalTrigTowerDetId& theTower);
+
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> eTTmapToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+
   int pass_;
 };
 
-DumpEcalTrigTowerMapping::DumpEcalTrigTowerMapping( const edm::ParameterSet& /*iConfig*/ )
+DumpEcalTrigTowerMapping::DumpEcalTrigTowerMapping( const edm::ParameterSet& /*iConfig*/ ):
+  eTTmapToken_{esConsumes<EcalTrigTowerConstituentsMap, IdealGeometryRecord>(edm::ESInputTag{})},
+  geometryToken_{esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})}
 {
   //now do what ever initialization is needed
   pass_=0;
@@ -193,17 +199,14 @@ DumpEcalTrigTowerMapping::analyze( const edm::Event& /*iEvent*/, const edm::Even
    
    std::cout << "Here I am " << std::endl;
 
-   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap;
-   iSetup.get<IdealGeometryRecord>().get(eTTmap);     
-
-   edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<CaloGeometryRecord>().get(pG);     
+   const auto& eTTmap = iSetup.getData(eTTmapToken_);
+   const auto& pG = iSetup.getData(geometryToken_);
 
    if (pass_==1) {
-     build(*pG,*eTTmap,DetId::Ecal,EcalBarrel,"EBTTmapping.eps");
+     build(pG,eTTmap,DetId::Ecal,EcalBarrel,"EBTTmapping.eps");
    }
    if (pass_==2) {
-     build(*pG,*eTTmap,DetId::Ecal,EcalEndcap,"EETTmapping.eps");
+     build(pG,eTTmap,DetId::Ecal,EcalEndcap,"EETTmapping.eps");
    }
    
    pass_++;

@@ -17,9 +17,6 @@
 //
 
 #include "Geometry/CaloEventSetup/plugins/CaloTowerConstituentsMapBuilder.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -38,7 +35,11 @@ CaloTowerConstituentsMapBuilder::CaloTowerConstituentsMapBuilder(const edm::Para
   skipHE_(iConfig.getUntrackedParameter<bool>("SkipHE",false)) {
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced(this);
+  auto cc = setWhatProduced(this);
+
+  hcaltopoToken_ = cc.consumesFrom<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag{});
+  cttopoToken_ = cc.consumesFrom<CaloTowerTopology, HcalRecNumberingRecord>(edm::ESInputTag{});
+  geometryToken_ = cc.consumes<CaloGeometry>(edm::ESInputTag{});
 
 //now do what ever other initialization is needed
 }
@@ -65,20 +66,15 @@ CaloTowerConstituentsMapBuilder::fillDescriptions(edm::ConfigurationDescriptions
 CaloTowerConstituentsMapBuilder::ReturnType
 CaloTowerConstituentsMapBuilder::produce(const CaloGeometryRecord& iRecord)
 {
-  edm::ESHandle<HcalTopology> hcaltopo;
-  iRecord.getRecord<HcalRecNumberingRecord>().get(hcaltopo);
+  const auto& hcaltopo = iRecord.get(hcaltopoToken_);
+  const auto& cttopo = iRecord.get(cttopoToken_);
 
-  edm::ESHandle<CaloTowerTopology> cttopo;
-  iRecord.getRecord<HcalRecNumberingRecord>().get(cttopo);
+  auto prod = std::make_unique<CaloTowerConstituentsMap>( &hcaltopo, &cttopo );
 
-  auto prod = std::make_unique<CaloTowerConstituentsMap>( &*hcaltopo, &*cttopo );
-
-//auto prod = std::make_unique<CaloTowerConstituentsMap>( &*hcaltopo );
+//auto prod = std::make_unique<CaloTowerConstituentsMap>( &hcaltopo );
 
   //keep geometry pointer as member for alternate EE->HE mapping
-  edm::ESHandle<CaloGeometry> pG;
-  iRecord.get(pG);
-  const CaloGeometry* geometry = pG.product();
+  const CaloGeometry& geometry = iRecord.get(geometryToken_);
    
   prod->useStandardHB(true);
   if(!skipHE_) prod->useStandardHE(true);
@@ -89,7 +85,7 @@ CaloTowerConstituentsMapBuilder::produce(const CaloGeometryRecord& iRecord)
   if (!mapFile_.empty()) {
     parseTextMap(mapFile_,*prod);
   } else if (mapAuto_ && !skipHE_) {
-    assignEEtoHE(geometry, *prod, &*cttopo);
+    assignEEtoHE(&geometry, *prod, &cttopo);
   }
   prod->sort();
   
