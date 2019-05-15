@@ -27,39 +27,32 @@ class MonitorElement;
 class DTTimeEvolutionHisto;
 
 class DTDCSByLumiSummary : public DQMEDHarvester {
-
 public:
-
   /// Constructor
   DTDCSByLumiSummary(const edm::ParameterSet& pset);
 
   /// Destructor
   ~DTDCSByLumiSummary() override;
 
+protected:
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
- protected:
-
-  void beginRun (const edm::Run& r, const edm::EventSetup& c) override;
-
-  void dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, 
-                             edm::LuminosityBlock const & lumi, edm::EventSetup const & setup) override;
-  void dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
+                             DQMStore::IGetter& igetter,
+                             edm::LuminosityBlock const& lumi,
+                             edm::EventSetup const& setup) override;
+  void dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) override;
 
 private:
-
-  
-  MonitorElement*       totalDCSFraction;
-  MonitorElement*       globalHVSummary;
+  MonitorElement* totalDCSFraction;
+  MonitorElement* globalHVSummary;
 
   std::vector<DTTimeEvolutionHisto*> hDCSFracTrend;
   std::vector<MonitorElement*> totalDCSFractionWh;
-  
- std::map<int, std::vector<float> > dcsFracPerLumi;
+
+  std::map<int, std::vector<float> > dcsFracPerLumi;
 
   bool bookingdone;
-
 };
 
-
 #endif
-

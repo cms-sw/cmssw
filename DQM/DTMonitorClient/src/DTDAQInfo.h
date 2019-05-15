@@ -25,7 +25,7 @@ class DTReadOutMapping;
 class DTDAQInfo : public DQMEDHarvester {
 public:
   /// Constructor
-  DTDAQInfo(const edm::ParameterSet& pset);
+  DTDAQInfo(const edm::ParameterSet &pset);
 
   /// Destructor
   ~DTDAQInfo() override;
@@ -33,24 +33,22 @@ public:
   // Operations
 
 protected:
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, 
-                                                      edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
 private:
-
   bool bookingdone;
 
   // Check FEDs from uROS, otherwise standard ROS
   bool checkUros;
 
-  MonitorElement*  totalDAQFraction;
-  MonitorElement*  daqMap;
-  std::map<int, MonitorElement*> daqFractions;
+  MonitorElement *totalDAQFraction;
+  MonitorElement *daqMap;
+  std::map<int, MonitorElement *> daqFractions;
   edm::ESHandle<DTReadOutMapping> mapping;
-
 };
 
-
 #endif
-

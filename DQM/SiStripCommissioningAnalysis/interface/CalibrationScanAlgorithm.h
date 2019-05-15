@@ -18,42 +18,37 @@ class TF1;
 */
 
 class CalibrationScanAlgorithm : public CommissioningAlgorithm {
-  
- public:
-  
-  CalibrationScanAlgorithm( const edm::ParameterSet & pset, CalibrationScanAnalysis* const);
-  ~CalibrationScanAlgorithm() override {;} 
-  
-  inline const Histo & histo(std::string & key, int & i) { return histo_[key][i]; }
+public:
+  CalibrationScanAlgorithm(const edm::ParameterSet &pset, CalibrationScanAnalysis *const);
+  ~CalibrationScanAlgorithm() override { ; }
+
+  inline const Histo &histo(std::string &key, int &i) { return histo_[key][i]; }
 
   void tuneIndependently(const int &, const float &, const float &);
   void tuneSimultaneously(const int &, const float &, const float &);
-  void fillTunedObservables(const int & );
+  void fillTunedObservables(const int &);
 
- private:
+private:
+  CalibrationScanAlgorithm() { ; }
 
-  CalibrationScanAlgorithm() {;}
-  
-  void extract( const std::vector<TH1*>& ) override;
+  void extract(const std::vector<TH1 *> &) override;
 
   void analyse() override;
 
-  void correctDistribution( TH1*, const bool &) const;  
-  float baseLine(TF1*);
-  float turnOn(TF1*, const float &);
-  float decayTime(TF1*);  
-    
+  void correctDistribution(TH1 *, const bool &) const;
+  float baseLine(TF1 *);
+  float turnOn(TF1 *, const float &);
+  float decayTime(TF1 *);
+
   /** pulse shape*/
-  std::map<std::string,std::vector<Histo> >  histo_;
+  std::map<std::string, std::vector<Histo> > histo_;
 
   /** analysis object */
-  CalibrationScanAnalysis* cal_;
+  CalibrationScanAnalysis *cal_;
 
   /** values of the scanned isha and vfs **/
   std::vector<int> scanned_isha_;
   std::vector<int> scanned_vfs_;
-
 };
 
-#endif // DQM_SiStripCommissioningAnalysis_CalibrationScanAlgorithm_H
-
+#endif  // DQM_SiStripCommissioningAnalysis_CalibrationScanAlgorithm_H

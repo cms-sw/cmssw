@@ -33,20 +33,19 @@ class L1GlobalTriggerEvmReadoutRecord;
 class APVCyclePhaseCollection;
 
 class SiStripMonitorDigi : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
- public:
+public:
   explicit SiStripMonitorDigi(const edm::ParameterSet&);
   ~SiStripMonitorDigi() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
   void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   std::string topFolderName_;
 
-  struct ModMEs{
-
+  struct ModMEs {
     MonitorElement* NumberOfDigis;
     MonitorElement* NumberOfDigisPerStrip;
     MonitorElement* ADCsHottestStrip;
@@ -55,8 +54,7 @@ class SiStripMonitorDigi : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBl
     MonitorElement* StripOccupancy;
   };
 
-  struct LayerMEs{
-
+  struct LayerMEs {
     MonitorElement* LayerNumberOfDigis;
     MonitorElement* LayerNumberOfDigisTrend;
     MonitorElement* LayerADCsHottestStrip;
@@ -69,11 +67,9 @@ class SiStripMonitorDigi : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBl
     MonitorElement* LayerStripOccupancyTrend;
     MonitorElement* LayerNumberOfDigisProfile;
     MonitorElement* LayerDigiADCProfile;
-
   };
 
-  struct SubDetMEs{
-
+  struct SubDetMEs {
     int totNDigis;
     MonitorElement* SubDetTotDigiProf;
     MonitorElement* SubDetDigiApvProf;
@@ -88,45 +84,58 @@ class SiStripMonitorDigi : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBl
     MonitorElement* SubDetNApvShotsNApvTH1;
   };
 
-  struct DigiFailureMEs{
+  struct DigiFailureMEs {
     MonitorElement* SubDetTotDigiProfLS;
     MonitorElement* SubDetDigiFailures2D;
   };
 
   MonitorElement* NumberOfFEDDigis = nullptr;
 
- private:
-  void createMEs(DQMStore::IBooker & ibooker , const edm::EventSetup& es );
+private:
+  void createMEs(DQMStore::IBooker& ibooker, const edm::EventSetup& es);
   void ResetModuleMEs(uint32_t idet);
-  void bookLayer( DQMStore::IBooker & ibooker );
-  MonitorElement* bookMETrend( DQMStore::IBooker & ibooker , const char* ParameterSetLabel, const char* HistoName);
-  MonitorElement* bookME1D( DQMStore::IBooker & ibooker , const char* ParameterSetLabel, const char* HistoName);
-  void bookTrendMEs( DQMStore::IBooker & ibooker , const TString& name,int32_t layer,uint32_t id,std::string flag);
+  void bookLayer(DQMStore::IBooker& ibooker);
+  MonitorElement* bookMETrend(DQMStore::IBooker& ibooker, const char* ParameterSetLabel, const char* HistoName);
+  MonitorElement* bookME1D(DQMStore::IBooker& ibooker, const char* ParameterSetLabel, const char* HistoName);
+  void bookTrendMEs(DQMStore::IBooker& ibooker, const TString& name, int32_t layer, uint32_t id, std::string flag);
   void fillDigiADCsMEs(int value, std::string name);
-  void fillTrend(MonitorElement* me ,float value, float timeinorbit);
-  inline void fillME(MonitorElement* ME,float value1){if (ME!=nullptr)ME->Fill(value1);}
-  inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=nullptr)ME->Fill(value1,value2);}
-  inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=nullptr)ME->Fill(value1,value2,value3);}
-  inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=nullptr)ME->Fill(value1,value2,value3,value4);}
-  bool AllDigis( const edm::EventSetup& es);
+  void fillTrend(MonitorElement* me, float value, float timeinorbit);
+  inline void fillME(MonitorElement* ME, float value1) {
+    if (ME != nullptr)
+      ME->Fill(value1);
+  }
+  inline void fillME(MonitorElement* ME, float value1, float value2) {
+    if (ME != nullptr)
+      ME->Fill(value1, value2);
+  }
+  inline void fillME(MonitorElement* ME, float value1, float value2, float value3) {
+    if (ME != nullptr)
+      ME->Fill(value1, value2, value3);
+  }
+  inline void fillME(MonitorElement* ME, float value1, float value2, float value3, float value4) {
+    if (ME != nullptr)
+      ME->Fill(value1, value2, value3, value4);
+  }
+  bool AllDigis(const edm::EventSetup& es);
 
-  void createModuleMEs( DQMStore::IBooker & ibooker , ModMEs& mod_single, uint32_t detid);
-  void createLayerMEs( DQMStore::IBooker & ibooker , std::string label, int ndet);
-  void createSubDetMEs( DQMStore::IBooker & ibooker , std::string label);
-  void createSubDetTH2( DQMStore::IBooker & ibooker , std::string label);
+  void createModuleMEs(DQMStore::IBooker& ibooker, ModMEs& mod_single, uint32_t detid);
+  void createLayerMEs(DQMStore::IBooker& ibooker, std::string label, int ndet);
+  void createSubDetMEs(DQMStore::IBooker& ibooker, std::string label);
+  void createSubDetTH2(DQMStore::IBooker& ibooker, std::string label);
   int getDigiSourceIndex(uint32_t id);
-  void AddApvShotsToSubDet(const std::vector<APVShot> &, std::vector<APVShot> &);
-  void FillApvShotsMap(TkHistoMap*, const std::vector<APVShot> &, uint32_t id ,int);
+  void AddApvShotsToSubDet(const std::vector<APVShot>&, std::vector<APVShot>&);
+  void FillApvShotsMap(TkHistoMap*, const std::vector<APVShot>&, uint32_t id, int);
 
- private:
-
+private:
   edm::ParameterSet conf_;
   std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > > digiProducerTokenList;
   std::vector<edm::InputTag> digiProducerList;
-  std::map<uint32_t, ModMEs> DigiMEs; // uint32_t me_type: 1=#digis/module; 2=adcs of hottest strip/module; 3= adcs of coolest strips/module.
-  bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors, calculate_strip_occupancy, reset_each_run;
+  std::map<uint32_t, ModMEs>
+      DigiMEs;  // uint32_t me_type: 1=#digis/module; 2=adcs of hottest strip/module; 3= adcs of coolest strips/module.
+  bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors,
+      calculate_strip_occupancy, reset_each_run;
 
-  std::map<std::string, std::vector< uint32_t > > LayerDetMap;
+  std::map<std::string, std::vector<uint32_t> > LayerDetMap;
   std::map<std::string, LayerMEs> LayerMEsMap;
   std::map<std::string, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetPhasePartMap;
@@ -134,15 +143,16 @@ class SiStripMonitorDigi : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBl
 
   TString name;
   SiStripFolderOrganizer folder_organizer;
-  std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
-  std::vector<const edm::DetSetVector<SiStripDigi> *> digi_detset_handles;
+  std::map<std::pair<std::string, int32_t>, bool> DetectedLayers;
+  std::vector<const edm::DetSetVector<SiStripDigi>*> digi_detset_handles;
 
   unsigned long long m_cacheID_;
   edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
   std::vector<uint32_t> ModulesToBeExcluded_;
 
   //Global MEs to monitor APV Shots properties
-  MonitorElement *NApvShotsGlobal, *NApvShotsGlobalProf, *MedianChargeApvShotsGlobal, *NApvApvShotsGlobal, *StripMultiplicityApvShotsGlobal, *ShotsVsTimeApvShotsGlobal;
+  MonitorElement *NApvShotsGlobal, *NApvShotsGlobalProf, *MedianChargeApvShotsGlobal, *NApvApvShotsGlobal,
+      *StripMultiplicityApvShotsGlobal, *ShotsVsTimeApvShotsGlobal;
 
   std::unique_ptr<TkHistoMap> tkmapdigi, tkmapNApvshots, tkmapNstripApvshot, tkmapMedianChargeApvshots;
 
