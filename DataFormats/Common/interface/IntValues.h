@@ -4,7 +4,7 @@
 //
 // Package:     Common
 // Class  :     IntValues
-// 
+//
 /**\class IntValues IntValues.h DataFormats/Common/interface/IntValues.h
 
  Description: Classes used for simple tests
@@ -26,12 +26,12 @@
 namespace test_with_dictionaries {
   struct IntValue {
     int value_;
-    IntValue(int iValue): value_(iValue) {}
+    IntValue(int iValue) : value_(iValue) {}
   };
-  
+
   struct IntValue2 : public IntValue {
-    IntValue2(int iValue2): IntValue(iValue2) {}
+    IntValue2(int iValue2) : IntValue(iValue2) {}
   };
-}
+}  // namespace test_with_dictionaries
 
 #endif

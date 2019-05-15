@@ -6,13 +6,13 @@
 namespace edmtest {
 
   struct ThingWithMerge {
-    ~ThingWithMerge() { }
-    ThingWithMerge():a() { }
+    ~ThingWithMerge() {}
+    ThingWithMerge() : a() {}
     bool mergeProduct(ThingWithMerge const& newThing);
     void swap(ThingWithMerge& iOther);
     cms_int32_t a;
   };
 
-}
+}  // namespace edmtest
 
 #endif
