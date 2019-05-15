@@ -17,62 +17,49 @@
 
 /* ====================================================================== */
 
-/* Constructor */ 
-DTSuperLayer::DTSuperLayer(const DTSuperLayerId& id,
-                           ReferenceCountingPointer<BoundPlane>& plane,
-                           const DTChamber* ch) :
-  GeomDet(plane), theId(id) , theLayers(4,(const DTLayer*)nullptr), theCh(ch) {
+/* Constructor */
+DTSuperLayer::DTSuperLayer(const DTSuperLayerId& id, ReferenceCountingPointer<BoundPlane>& plane, const DTChamber* ch)
+    : GeomDet(plane), theId(id), theLayers(4, (const DTLayer*)nullptr), theCh(ch) {
   setDetId(id);
 }
 
-/* Destructor */ 
+/* Destructor */
 DTSuperLayer::~DTSuperLayer() {
-  for (std::vector<const DTLayer*>::const_iterator il=theLayers.begin();
-       il!=theLayers.end(); ++il) delete (*il);
+  for (std::vector<const DTLayer*>::const_iterator il = theLayers.begin(); il != theLayers.end(); ++il)
+    delete (*il);
 }
 
-/* Operations */ 
+/* Operations */
 
-DTSuperLayerId DTSuperLayer::id() const {
-  return theId;
-}
+DTSuperLayerId DTSuperLayer::id() const { return theId; }
 
-bool DTSuperLayer::operator==(const DTSuperLayer& sl) const {
-  return id()==sl.id();
-}
+bool DTSuperLayer::operator==(const DTSuperLayer& sl) const { return id() == sl.id(); }
 
 /// Return the layers in the SL
-std::vector< const GeomDet*> DTSuperLayer::components() const {
+std::vector<const GeomDet*> DTSuperLayer::components() const {
   return std::vector<const GeomDet*>(theLayers.begin(), theLayers.end());
 }
 
+const GeomDet* DTSuperLayer::component(DetId id) const { return layer(DTLayerId(id.rawId())); }
 
-const GeomDet* DTSuperLayer::component(DetId id) const {
-  return layer(DTLayerId(id.rawId()));
-}
-
-
-const std::vector< const DTLayer*>& DTSuperLayer::layers() const {
-  return theLayers;
-}
+const std::vector<const DTLayer*>& DTSuperLayer::layers() const { return theLayers; }
 
 void DTSuperLayer::add(DTLayer* l) {
   // theLayers size is preallocated.
-  theLayers[l->id().layer()-1] = l;
+  theLayers[l->id().layer() - 1] = l;
 }
 
-const DTChamber* DTSuperLayer::chamber() const {
-  return theCh;
-}
+const DTChamber* DTSuperLayer::chamber() const { return theCh; }
 
 const DTLayer* DTSuperLayer::layer(const DTLayerId& id) const {
-  if (id.superlayerId()!=theId) return nullptr; // not in this SL!
+  if (id.superlayerId() != theId)
+    return nullptr;  // not in this SL!
   return layer(id.layer());
 }
-  
-const DTLayer* DTSuperLayer::layer(int ilay) const{
-  if ((ilay>=1) && (ilay<=4)) {
-    return theLayers[ilay-1];
+
+const DTLayer* DTSuperLayer::layer(int ilay) const {
+  if ((ilay >= 1) && (ilay <= 4)) {
+    return theLayers[ilay - 1];
   } else {
     return nullptr;
   }

@@ -30,35 +30,33 @@ class MapMakeDouble;
  *  has a name associated with the Map for the DDD name-reference system.
  *
  */
-class DDLMap final : public DDXMLElement
-{
+class DDLMap final : public DDXMLElement {
   friend class MapPair;
   friend class MapMakeName;
   friend class MapMakeDouble;
 
 public:
+  DDLMap(DDLElementRegistry* myreg);
 
-  DDLMap( DDLElementRegistry* myreg );
+  void preProcessElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
-
-  ReadMapType<std::map<std::string,double> > & getMapOfMaps( void );
+  ReadMapType<std::map<std::string, double> >& getMapOfMaps(void);
 
 private:
   dd_map_type pMap;
-  ReadMapType<std::map<std::string,double> > pMapMap;
+  ReadMapType<std::map<std::string, double> > pMapMap;
   double pDouble;
   std::string pName;
   std::string pNameSpace;
 
-  void errorOut( const char* str );
+  void errorOut(const char* str);
 
-  void do_pair( char const* str, char const* end );
+  void do_pair(char const* str, char const* end);
 
-  void do_makeName( char const* str, char const* end );
+  void do_makeName(char const* str, char const* end);
 
-  void do_makeDouble( char const* str, char const* end );
+  void do_makeDouble(char const* str, char const* end);
 };
 
 #endif

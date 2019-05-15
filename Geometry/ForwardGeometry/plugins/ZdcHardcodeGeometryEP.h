@@ -1,7 +1,6 @@
 #ifndef Geometry_ForwardGeometry_ZdcHardcodeGeometryEP_H
 #define Geometry_ForwardGeometry_ZdcHardcodeGeometryEP_H 1
 
-
 // system include files
 #include <memory>
 
@@ -17,27 +16,23 @@
 // class decleration
 //
 
-class ZdcHardcodeGeometryEP : public edm::ESProducer 
-{
-   public:
-      ZdcHardcodeGeometryEP(const edm::ParameterSet&);
-      ~ZdcHardcodeGeometryEP() override;
+class ZdcHardcodeGeometryEP : public edm::ESProducer {
+public:
+  ZdcHardcodeGeometryEP(const edm::ParameterSet&);
+  ~ZdcHardcodeGeometryEP() override;
 
-      using ReturnType = std::unique_ptr<CaloSubdetectorGeometry>;
+  using ReturnType = std::unique_ptr<CaloSubdetectorGeometry>;
 
-      ReturnType produce( const ZDCGeometryRecord&   ) ;
+  ReturnType produce(const ZDCGeometryRecord&);
 
-   private:
+private:
+  // ----------member data ---------------------------
 
-      // ----------member data ---------------------------
+  ZdcHardcodeGeometryLoader* m_loader;
 
-      ZdcHardcodeGeometryLoader* m_loader ;
+  ZdcTopology m_topology;
 
-      ZdcTopology m_topology ;
-
-      bool m_applyAlignment ;
+  bool m_applyAlignment;
 };
-
-
 
 #endif
