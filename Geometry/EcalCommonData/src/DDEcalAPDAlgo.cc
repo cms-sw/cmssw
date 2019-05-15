@@ -235,7 +235,7 @@ void DDEcalAPDAlgo::execute(DDCompactView& cpv) {
 DDName DDEcalAPDAlgo::ddname( const std::string& s ) const { 
 
   const std::pair<std::string,std::string> temp ( DDSplit(s) ) ;
-  if ( temp.second == "" ) {
+  if ( temp.second.empty() ) {
     return DDName( temp.first, m_idNameSpace ) ;
   } else {
     return DDName( temp.first, temp.second );
