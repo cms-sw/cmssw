@@ -1,5 +1,9 @@
 #include "Validation/RecoB/plugins/BDHadronTrackMonitoringAnalyzer.h"
 
+using namespace reco;
+using namespace edm;
+using namespace std;
+
 const reco::TrackBaseRef toTrackRef(const edm::Ptr<reco::Candidate> &cnd) {
   const reco::PFCandidate *pfcand = dynamic_cast<const reco::PFCandidate *>(cnd.get());
 
