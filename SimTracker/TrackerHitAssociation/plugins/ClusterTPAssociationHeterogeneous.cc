@@ -6,6 +6,8 @@
 
 #include "CUDADataFormats/Common/interface/CUDAProduct.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
+
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -29,12 +31,11 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "HeterogeneousCore/CUDACore/interface/GPUCuda.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
+#include "HeterogeneousCore/CUDACore/interface/GPUCuda.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/Producer/interface/HeterogeneousEDProducer.h"
-#include "RecoLocalTracker/SiPixelRecHits/plugins/siPixelRecHitsHeterogeneousProduct.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
@@ -44,9 +45,8 @@
 
 #include "ClusterSLOnGPU.h"
 
-class ClusterTPAssociationHeterogeneous : public HeterogeneousEDProducer<heterogeneous::HeterogeneousDevices<
-          heterogeneous::GPUCuda, heterogeneous::CPU>>
-{
+class ClusterTPAssociationHeterogeneous
+    : public HeterogeneousEDProducer<heterogeneous::HeterogeneousDevices<heterogeneous::GPUCuda, heterogeneous::CPU>> {
 public:
   typedef std::vector<OmniClusterRef> OmniClusterCollection;
 
@@ -55,17 +55,15 @@ public:
   using CPUProduct = trackerHitAssociationHeterogeneousProduct::CPUProduct;
   using Output = trackerHitAssociationHeterogeneousProduct::ClusterTPAHeterogeneousProduct;
 
-  using PixelRecHitsH = siPixelRecHitsHeterogeneousProduct::HeterogeneousPixelRecHit;
+  using Clus2TP = ClusterSLGPU::Clus2TP;
 
-  explicit ClusterTPAssociationHeterogeneous(const edm::ParameterSet&);
+  explicit ClusterTPAssociationHeterogeneous(const edm::ParameterSet &);
   ~ClusterTPAssociationHeterogeneous() override = default;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-
-  void beginStreamGPUCuda(edm::StreamID streamId,
-                          cuda::stream_t<> &cudaStream) override;
+  void beginStreamGPUCuda(edm::StreamID streamId, cuda::stream_t<> &cudaStream) override;
 
   void acquireGPUCuda(const edm::HeterogeneousEvent &iEvent,
                       const edm::EventSetup &iSetup,
@@ -73,15 +71,15 @@ private:
   void produceGPUCuda(edm::HeterogeneousEvent &iEvent,
                       const edm::EventSetup &iSetup,
                       cuda::stream_t<> &cudaStream) override;
-  void produceCPU(edm::HeterogeneousEvent &iEvent,
-                  const edm::EventSetup &iSetup) override;
+  void produceCPU(edm::HeterogeneousEvent &iEvent, const edm::EventSetup &iSetup) override;
 
   void makeMap(const edm::HeterogeneousEvent &iEvent);
-  std::unique_ptr<CPUProduct> produceLegacy(edm::HeterogeneousEvent &iEvent, const edm::EventSetup& es);
+  std::unique_ptr<CPUProduct> produceLegacy(edm::HeterogeneousEvent &iEvent, const edm::EventSetup &es);
 
   template <typename T>
-  std::vector<std::pair<uint32_t, EncodedEventId>>
-  getSimTrackId(const edm::Handle<edm::DetSetVector<T>>& simLinks, const DetId& detId, uint32_t channel) const;
+  std::vector<std::pair<uint32_t, EncodedEventId>> getSimTrackId(const edm::Handle<edm::DetSetVector<T>> &simLinks,
+                                                                 const DetId &detId,
+                                                                 uint32_t channel) const;
 
   edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink>> sipixelSimLinksToken_;
   edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink>> sistripSimLinksToken_;
@@ -92,46 +90,53 @@ private:
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
 
   edm::EDGetTokenT<CUDAProduct<SiPixelDigisCUDA>> tGpuDigis;
-  edm::EDGetTokenT<HeterogeneousProduct> tGpuHits;
+  edm::EDGetTokenT<CUDAProduct<TrackingRecHit2DCUDA>> tGpuHits;
 
   std::unique_ptr<clusterSLOnGPU::Kernel> gpuAlgo;
 
   std::map<std::pair<size_t, EncodedEventId>, TrackingParticleRef> mapping;
 
-  std::vector<std::array<uint32_t, 4>> digi2tp;
+  std::vector<Clus2TP> digi2tp;
 
   bool doDump;
-
 };
 
-ClusterTPAssociationHeterogeneous::ClusterTPAssociationHeterogeneous(const edm::ParameterSet & cfg)
-  : HeterogeneousEDProducer(cfg),
-    sipixelSimLinksToken_(consumes<edm::DetSetVector<PixelDigiSimLink>>(cfg.getParameter<edm::InputTag>("pixelSimLinkSrc"))),
-    sistripSimLinksToken_(consumes<edm::DetSetVector<StripDigiSimLink>>(cfg.getParameter<edm::InputTag>("stripSimLinkSrc"))),
-    siphase2OTSimLinksToken_(consumes<edm::DetSetVector<PixelDigiSimLink>>(cfg.getParameter<edm::InputTag>("phase2OTSimLinkSrc"))),
-    pixelClustersToken_(consumes<edmNew::DetSetVector<SiPixelCluster>>(cfg.getParameter<edm::InputTag>("pixelClusterSrc"))),
-    stripClustersToken_(consumes<edmNew::DetSetVector<SiStripCluster>>(cfg.getParameter<edm::InputTag>("stripClusterSrc"))),
-    phase2OTClustersToken_(consumes<edmNew::DetSetVector<Phase2TrackerCluster1D>>(cfg.getParameter<edm::InputTag>("phase2OTClusterSrc"))),
-    trackingParticleToken_(consumes<TrackingParticleCollection>(cfg.getParameter<edm::InputTag>("trackingParticleSrc"))),
-    tGpuDigis(consumes<CUDAProduct<SiPixelDigisCUDA>>(cfg.getParameter<edm::InputTag>("heterogeneousPixelDigiClusterSrc"))),
-    tGpuHits(consumesHeterogeneous(cfg.getParameter<edm::InputTag>("heterogeneousPixelRecHitSrc"))),
-    doDump(cfg.getParameter<bool>("dumpCSV"))
-{
+ClusterTPAssociationHeterogeneous::ClusterTPAssociationHeterogeneous(const edm::ParameterSet &cfg)
+    : HeterogeneousEDProducer(cfg),
+      sipixelSimLinksToken_(
+          consumes<edm::DetSetVector<PixelDigiSimLink>>(cfg.getParameter<edm::InputTag>("pixelSimLinkSrc"))),
+      sistripSimLinksToken_(
+          consumes<edm::DetSetVector<StripDigiSimLink>>(cfg.getParameter<edm::InputTag>("stripSimLinkSrc"))),
+      siphase2OTSimLinksToken_(
+          consumes<edm::DetSetVector<PixelDigiSimLink>>(cfg.getParameter<edm::InputTag>("phase2OTSimLinkSrc"))),
+      pixelClustersToken_(
+          consumes<edmNew::DetSetVector<SiPixelCluster>>(cfg.getParameter<edm::InputTag>("pixelClusterSrc"))),
+      stripClustersToken_(
+          consumes<edmNew::DetSetVector<SiStripCluster>>(cfg.getParameter<edm::InputTag>("stripClusterSrc"))),
+      phase2OTClustersToken_(consumes<edmNew::DetSetVector<Phase2TrackerCluster1D>>(
+          cfg.getParameter<edm::InputTag>("phase2OTClusterSrc"))),
+      trackingParticleToken_(
+          consumes<TrackingParticleCollection>(cfg.getParameter<edm::InputTag>("trackingParticleSrc"))),
+      tGpuDigis(
+          consumes<CUDAProduct<SiPixelDigisCUDA>>(cfg.getParameter<edm::InputTag>("heterogeneousPixelDigiClusterSrc"))),
+      tGpuHits(
+          consumes<CUDAProduct<TrackingRecHit2DCUDA>>(cfg.getParameter<edm::InputTag>("heterogeneousPixelRecHitSrc"))),
+      doDump(cfg.getParameter<bool>("dumpCSV")) {
   produces<HeterogeneousProduct>();
 }
 
-void ClusterTPAssociationHeterogeneous::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void ClusterTPAssociationHeterogeneous::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("simTrackSrc",     edm::InputTag("g4SimHits"));
+  desc.add<edm::InputTag>("simTrackSrc", edm::InputTag("g4SimHits"));
   desc.add<edm::InputTag>("pixelSimLinkSrc", edm::InputTag("simSiPixelDigis"));
   desc.add<edm::InputTag>("stripSimLinkSrc", edm::InputTag("simSiStripDigis"));
-  desc.add<edm::InputTag>("phase2OTSimLinkSrc", edm::InputTag("simSiPixelDigis","Tracker"));
+  desc.add<edm::InputTag>("phase2OTSimLinkSrc", edm::InputTag("simSiPixelDigis", "Tracker"));
   desc.add<edm::InputTag>("pixelClusterSrc", edm::InputTag("siPixelClusters"));
   desc.add<edm::InputTag>("stripClusterSrc", edm::InputTag("siStripClusters"));
   desc.add<edm::InputTag>("phase2OTClusterSrc", edm::InputTag("siPhase2Clusters"));
   desc.add<edm::InputTag>("trackingParticleSrc", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("heterogeneousPixelDigiClusterSrc", edm::InputTag("siPixelClustersCUDAPreSplitting"));
-  desc.add<edm::InputTag>("heterogeneousPixelRecHitSrc", edm::InputTag("siPixelRecHitsPreSplitting"));
+  desc.add<edm::InputTag>("heterogeneousPixelRecHitSrc", edm::InputTag("siPixelRecHitsCUDAPreSplitting"));
 
   desc.add<bool>("dumpCSV", false);
 
@@ -140,120 +145,122 @@ void ClusterTPAssociationHeterogeneous::fillDescriptions(edm::ConfigurationDescr
   descriptions.add("tpClusterProducerHeterogeneousDefault", desc);
 }
 
-void ClusterTPAssociationHeterogeneous::beginStreamGPUCuda(edm::StreamID streamId, cuda::stream_t<> & cudaStream) {
-   gpuAlgo = std::make_unique<clusterSLOnGPU::Kernel>(cudaStream, doDump);
+void ClusterTPAssociationHeterogeneous::beginStreamGPUCuda(edm::StreamID streamId, cuda::stream_t<> &cudaStream) {
+  gpuAlgo = std::make_unique<clusterSLOnGPU::Kernel>(cudaStream, doDump);
 }
 
 void ClusterTPAssociationHeterogeneous::makeMap(const edm::HeterogeneousEvent &iEvent) {
-    // TrackingParticle
-    edm::Handle<TrackingParticleCollection>  TPCollectionH;
-    iEvent.getByToken(trackingParticleToken_, TPCollectionH);
+  // TrackingParticle
+  edm::Handle<TrackingParticleCollection> TPCollectionH;
+  iEvent.getByToken(trackingParticleToken_, TPCollectionH);
 
-    // prepare temporary map between SimTrackId and TrackingParticle index
-    mapping.clear();
-    for (TrackingParticleCollection::size_type itp = 0;
-                                             itp < TPCollectionH.product()->size(); ++itp) {
-      TrackingParticleRef trackingParticle(TPCollectionH, itp);
+  // prepare temporary map between SimTrackId and TrackingParticle index
+  mapping.clear();
+  for (TrackingParticleCollection::size_type itp = 0; itp < TPCollectionH.product()->size(); ++itp) {
+    TrackingParticleRef trackingParticle(TPCollectionH, itp);
 
-      // SimTracks inside TrackingParticle
-      EncodedEventId eid(trackingParticle->eventId());
-      for (auto itrk  = trackingParticle->g4Track_begin();
-                itrk != trackingParticle->g4Track_end(); ++itrk) {
-        std::pair<uint32_t, EncodedEventId> trkid(itrk->trackId(), eid);
-        //std::cout << "creating map for id: " << trkid.first << " with tp: " << trackingParticle.key() << std::endl;
-        mapping.insert(std::make_pair(trkid, trackingParticle));
-      }
+    // SimTracks inside TrackingParticle
+    EncodedEventId eid(trackingParticle->eventId());
+    for (auto itrk = trackingParticle->g4Track_begin(); itrk != trackingParticle->g4Track_end(); ++itrk) {
+      std::pair<uint32_t, EncodedEventId> trkid(itrk->trackId(), eid);
+      //std::cout << "creating map for id: " << trkid.first << " with tp: " << trackingParticle.key() << std::endl;
+      mapping.insert(std::make_pair(trkid, trackingParticle));
     }
+  }
 }
 
 void ClusterTPAssociationHeterogeneous::acquireGPUCuda(const edm::HeterogeneousEvent &iEvent,
-                      const edm::EventSetup &iSetup,
-                      cuda::stream_t<> &cudaStream) {
+                                                       const edm::EventSetup &iSetup,
+                                                       cuda::stream_t<> &cudaStream) {
+  edm::ESHandle<TrackerGeometry> geom;
+  iSetup.get<TrackerDigiGeometryRecord>().get(geom);
 
-    edm::ESHandle<TrackerGeometry> geom;
-    iSetup.get<TrackerDigiGeometryRecord>().get( geom );
+  // Pixel DigiSimLink
+  edm::Handle<edm::DetSetVector<PixelDigiSimLink>> sipixelSimLinks;
+  //  iEvent.getByLabel(_pixelSimLinkSrc, sipixelSimLinks);
+  iEvent.getByToken(sipixelSimLinksToken_, sipixelSimLinks);
 
-    // Pixel DigiSimLink
-    edm::Handle<edm::DetSetVector<PixelDigiSimLink>> sipixelSimLinks;
-    //  iEvent.getByLabel(_pixelSimLinkSrc, sipixelSimLinks);
-    iEvent.getByToken(sipixelSimLinksToken_, sipixelSimLinks);
+  // TrackingParticle
+  edm::Handle<TrackingParticleCollection> TPCollectionH;
+  iEvent.getByToken(trackingParticleToken_, TPCollectionH);
 
-    // TrackingParticle
-    edm::Handle<TrackingParticleCollection>  TPCollectionH;
-    iEvent.getByToken(trackingParticleToken_, TPCollectionH);
+  makeMap(iEvent);
 
-    makeMap(iEvent);
+  //  gpu stuff ------------------------
 
-    //  gpu stuff ------------------------
+  edm::Handle<CUDAProduct<SiPixelDigisCUDA>> gd;
+  iEvent.getByToken(tGpuDigis, gd);
+  edm::Handle<CUDAProduct<TrackingRecHit2DCUDA>> gh;
+  iEvent.getByToken(tGpuHits, gh);
+  // temporary check (until the migration)
+  edm::Service<CUDAService> cs;
+  assert(gd->device() == cs->getCurrentDevice());
 
-    edm::Handle<CUDAProduct<SiPixelDigisCUDA>> gd;
-    iEvent.getByToken(tGpuDigis, gd);
-    // temporary check (until the migration)
-    edm::Service<CUDAService> cs;
-    assert(gd->device() == cs->getCurrentDevice());
+  // We're processing in a stream given by base class, so need to
+  // synchronize explicitly (implementation is from
+  // CUDAScopedContext). In practice these should not be needed
+  // (because of synchronizations upstream), but let's play generic.
+  if (not gd->isAvailable() and not gd->event()->has_occurred()) {
+    cudaCheck(cudaStreamWaitEvent(cudaStream.id(), gd->event()->id(), 0));
+  }
+  if (not gh->isAvailable() and not gh->event()->has_occurred()) {
+    cudaCheck(cudaStreamWaitEvent(cudaStream.id(), gh->event()->id(), 0));
+  }
 
-    CUDAScopedContext ctx{*gd};
-    auto const &gDigis = ctx.get(*gd);
+  CUDAScopedContext ctx{*gd};
+  auto const &gDigis = ctx.get(*gd);
+  auto const &gHits = ctx.get(*gh);
+  auto ndigis = gDigis.nDigis();
+  auto nhits = gHits.nHits();
 
-    // We're processing in a stream given by base class, so need to
-    // synchronize explicitly (implementation is from
-    // CUDAScopedContext). In practice these should not be needed
-    // (because of synchronizations upstream), but let's play generic.
-    if(not gd->isAvailable() and gd->event()->has_occurred()) {
-      cudaCheck(cudaStreamWaitEvent(cudaStream.id(), gd->event()->id(), 0));
-    }
-
-    edm::Handle<siPixelRecHitsHeterogeneousProduct::GPUProduct> gh;
-    iEvent.getByToken<siPixelRecHitsHeterogeneousProduct::HeterogeneousPixelRecHit>(tGpuHits, gh);
-    auto const & gHits = *gh;
-    auto ndigis = gDigis.nDigis();
-    auto nhits = gHits.nHits;
-
-    digi2tp.clear();
-    digi2tp.push_back({{0, 0, 0, 0}});  // put at 0 0
-    for (auto const & links : *sipixelSimLinks) {
-      DetId detId(links.detId());
-      const GeomDetUnit * genericDet = geom->idToDetUnit(detId);
-      uint32_t gind = genericDet->index();
-      for (auto const & link : links) {
-        if (link.fraction() < 0.5f) {
-          continue;
-        }
-        auto tkid = std::make_pair(link.SimTrackId(), link.eventId());
-        auto ipos = mapping.find(tkid);
-        if (ipos != mapping.end()) {
-            uint32_t pt = 1000*(*ipos).second->pt();
-            digi2tp.push_back({{gind, uint32_t(link.channel()),(*ipos).second.key(), pt}});
-        }
+  digi2tp.clear();
+  digi2tp.push_back({{0, 0, 0, 0, 0, 0}});  // put at 0 0
+  for (auto const &links : *sipixelSimLinks) {
+    DetId detId(links.detId());
+    const GeomDetUnit *genericDet = geom->idToDetUnit(detId);
+    uint32_t gind = genericDet->index();
+    for (auto const &link : links) {
+      if (link.fraction() < 0.5f) {
+        continue;
+      }
+      auto tkid = std::make_pair(link.SimTrackId(), link.eventId());
+      auto ipos = mapping.find(tkid);
+      if (ipos != mapping.end()) {
+        uint32_t pt = 1000 * (*ipos).second->pt();
+        uint32_t z0 = 10000 * (*ipos).second->vz();  // in um
+        uint32_t r0 = 10000 * std::sqrt((*ipos).second->vx() * (*ipos).second->vx() +
+                                        (*ipos).second->vy() * (*ipos).second->vy());  // in um
+        digi2tp.push_back({{gind, uint32_t(link.channel()), (*ipos).second.key(), pt, z0, r0}});
       }
     }
-    std::sort(digi2tp.begin(), digi2tp.end());
-    cudaCheck(cudaMemcpyAsync(gpuAlgo->slgpu.links_d, digi2tp.data(), sizeof(std::array<uint32_t, 4>)*digi2tp.size(), cudaMemcpyDefault, cudaStream.id()));
-    gpuAlgo->algo(gDigis, ndigis, gHits, nhits, digi2tp.size(), cudaStream);
+  }
+  std::sort(digi2tp.begin(), digi2tp.end());
+  cudaCheck(cudaMemcpyAsync(
+      gpuAlgo->slgpu.links_d, digi2tp.data(), sizeof(Clus2TP) * digi2tp.size(), cudaMemcpyDefault, cudaStream.id()));
+  gpuAlgo->algo(gDigis, ndigis, gHits, nhits, digi2tp.size(), cudaStream);
 
   //  end gpu stuff ---------------------
 }
 
 void ClusterTPAssociationHeterogeneous::produceGPUCuda(edm::HeterogeneousEvent &iEvent,
-                      const edm::EventSetup &iSetup,
-                      cuda::stream_t<> &cudaStream) {
+                                                       const edm::EventSetup &iSetup,
+                                                       cuda::stream_t<> &cudaStream) {
   auto output = std::make_unique<GPUProduct>(gpuAlgo->getProduct());
   auto legacy = produceLegacy(iEvent, iSetup).release();
 
-  iEvent.put<Output>(std::move(output), [legacy](const GPUProduct& hits, CPUProduct& cpu) {
-                       cpu = *legacy; delete legacy;
-                     });
-}
-		
-void ClusterTPAssociationHeterogeneous::produceCPU(edm::HeterogeneousEvent &iEvent, const edm::EventSetup& es) {
-
-   makeMap(iEvent);
-   iEvent.put(produceLegacy(iEvent, es));
-
+  iEvent.put<Output>(std::move(output), [legacy](const GPUProduct &hits, CPUProduct &cpu) {
+    cpu = *legacy;
+    delete legacy;
+  });
 }
 
-std::unique_ptr<ClusterTPAssociationHeterogeneous::CPUProduct>
-ClusterTPAssociationHeterogeneous::produceLegacy(edm::HeterogeneousEvent &iEvent, const edm::EventSetup& es) {
+void ClusterTPAssociationHeterogeneous::produceCPU(edm::HeterogeneousEvent &iEvent, const edm::EventSetup &es) {
+  makeMap(iEvent);
+  iEvent.put(produceLegacy(iEvent, es));
+}
+
+std::unique_ptr<ClusterTPAssociationHeterogeneous::CPUProduct> ClusterTPAssociationHeterogeneous::produceLegacy(
+    edm::HeterogeneousEvent &iEvent, const edm::EventSetup &es) {
   // Pixel DigiSimLink
   edm::Handle<edm::DetSetVector<PixelDigiSimLink>> sipixelSimLinks;
   //  iEvent.getByLabel(_pixelSimLinkSrc, sipixelSimLinks);
@@ -280,108 +287,119 @@ ClusterTPAssociationHeterogeneous::produceLegacy(edm::HeterogeneousEvent &iEvent
   bool foundPhase2OTClusters = iEvent.getByToken(phase2OTClustersToken_, phase2OTClusters);
 
   // TrackingParticle
-  edm::Handle<TrackingParticleCollection>  TPCollectionH;
+  edm::Handle<TrackingParticleCollection> TPCollectionH;
   iEvent.getByToken(trackingParticleToken_, TPCollectionH);
 
   auto output = std::make_unique<CPUProduct>(TPCollectionH);
-  auto & clusterTPList = output->collection;
+  auto &clusterTPList = output->collection;
 
-  if ( foundPixelClusters ) {
+  if (foundPixelClusters) {
     // Pixel Clusters
-    for (edmNew::DetSetVector<SiPixelCluster>::const_iterator iter  = pixelClusters->begin();
-                                                            iter != pixelClusters->end(); ++iter) {
+    for (edmNew::DetSetVector<SiPixelCluster>::const_iterator iter = pixelClusters->begin();
+         iter != pixelClusters->end();
+         ++iter) {
       uint32_t detid = iter->id();
       DetId detId(detid);
       edmNew::DetSet<SiPixelCluster> link_pixel = (*iter);
-      for (edmNew::DetSet<SiPixelCluster>::const_iterator di  = link_pixel.begin();
-	   di != link_pixel.end(); ++di) {
-	const SiPixelCluster& cluster = (*di);
-	edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> c_ref =
-	  edmNew::makeRefTo(pixelClusters, di);
-	
-	std::set<std::pair<uint32_t, EncodedEventId>> simTkIds;
-	for (int irow = cluster.minPixelRow(); irow <= cluster.maxPixelRow(); ++irow) {
-	  for (int icol = cluster.minPixelCol(); icol <= cluster.maxPixelCol(); ++icol) {
-	    uint32_t channel = PixelChannelIdentifier::pixelToChannel(irow, icol);
-	    std::vector<std::pair<uint32_t, EncodedEventId>> trkid(getSimTrackId<PixelDigiSimLink>(sipixelSimLinks, detId, channel));
-	    if (trkid.empty()) continue;
-	    simTkIds.insert(trkid.begin(), trkid.end());
-	  }
-	}
-	for (std::set<std::pair<uint32_t, EncodedEventId>>::const_iterator iset  = simTkIds.begin();
-	     iset != simTkIds.end(); iset++) {
-	  auto ipos = mapping.find(*iset);
-	  if (ipos != mapping.end()) {
-	    //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
-	    clusterTPList.emplace_back(OmniClusterRef(c_ref), ipos->second);
-	  }
-	}
+      for (edmNew::DetSet<SiPixelCluster>::const_iterator di = link_pixel.begin(); di != link_pixel.end(); ++di) {
+        const SiPixelCluster &cluster = (*di);
+        edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> c_ref = edmNew::makeRefTo(pixelClusters, di);
+
+        std::set<std::pair<uint32_t, EncodedEventId>> simTkIds;
+        for (int irow = cluster.minPixelRow(); irow <= cluster.maxPixelRow(); ++irow) {
+          for (int icol = cluster.minPixelCol(); icol <= cluster.maxPixelCol(); ++icol) {
+            uint32_t channel = PixelChannelIdentifier::pixelToChannel(irow, icol);
+            std::vector<std::pair<uint32_t, EncodedEventId>> trkid(
+                getSimTrackId<PixelDigiSimLink>(sipixelSimLinks, detId, channel));
+            if (trkid.empty())
+              continue;
+            simTkIds.insert(trkid.begin(), trkid.end());
+          }
+        }
+        for (std::set<std::pair<uint32_t, EncodedEventId>>::const_iterator iset = simTkIds.begin();
+             iset != simTkIds.end();
+             iset++) {
+          auto ipos = mapping.find(*iset);
+          if (ipos != mapping.end()) {
+            //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
+            clusterTPList.emplace_back(OmniClusterRef(c_ref), ipos->second);
+          }
+        }
       }
     }
   }
 
-  if ( foundStripClusters ) {
+  if (foundStripClusters) {
     // Strip Clusters
-    for (edmNew::DetSetVector<SiStripCluster>::const_iterator iter  = stripClusters->begin(false), eter = stripClusters->end(false);
-	 iter != eter; ++iter) {
-      if (!(*iter).isValid()) continue;
+    for (edmNew::DetSetVector<SiStripCluster>::const_iterator iter = stripClusters->begin(false),
+                                                              eter = stripClusters->end(false);
+         iter != eter;
+         ++iter) {
+      if (!(*iter).isValid())
+        continue;
       uint32_t detid = iter->id();
       DetId detId(detid);
       edmNew::DetSet<SiStripCluster> link_strip = (*iter);
-      for (edmNew::DetSet<SiStripCluster>::const_iterator di  = link_strip.begin();
-	   di != link_strip.end(); di++) {
-	const SiStripCluster& cluster = (*di);
-	edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster> c_ref =
-	  edmNew::makeRefTo(stripClusters, di);
-	
-	std::set<std::pair<uint32_t, EncodedEventId>> simTkIds;
-	int first  = cluster.firstStrip();
-	int last   = first + cluster.amplitudes().size();
-	
-	for (int istr = first; istr < last; ++istr) {
-	  std::vector<std::pair<uint32_t, EncodedEventId>> trkid(getSimTrackId<StripDigiSimLink>(sistripSimLinks, detId, istr));
-	  if (trkid.empty()) continue;
-	  simTkIds.insert(trkid.begin(), trkid.end());
-	}
-	for (std::set<std::pair<uint32_t, EncodedEventId>>::const_iterator iset  = simTkIds.begin();
-	     iset != simTkIds.end(); iset++) {
-	  auto ipos = mapping.find(*iset);
-	  if (ipos != mapping.end()) {
-	    //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
-	    clusterTPList.emplace_back(OmniClusterRef(c_ref), ipos->second);
-	  }
-	}
+      for (edmNew::DetSet<SiStripCluster>::const_iterator di = link_strip.begin(); di != link_strip.end(); di++) {
+        const SiStripCluster &cluster = (*di);
+        edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster> c_ref = edmNew::makeRefTo(stripClusters, di);
+
+        std::set<std::pair<uint32_t, EncodedEventId>> simTkIds;
+        int first = cluster.firstStrip();
+        int last = first + cluster.amplitudes().size();
+
+        for (int istr = first; istr < last; ++istr) {
+          std::vector<std::pair<uint32_t, EncodedEventId>> trkid(
+              getSimTrackId<StripDigiSimLink>(sistripSimLinks, detId, istr));
+          if (trkid.empty())
+            continue;
+          simTkIds.insert(trkid.begin(), trkid.end());
+        }
+        for (std::set<std::pair<uint32_t, EncodedEventId>>::const_iterator iset = simTkIds.begin();
+             iset != simTkIds.end();
+             iset++) {
+          auto ipos = mapping.find(*iset);
+          if (ipos != mapping.end()) {
+            //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
+            clusterTPList.emplace_back(OmniClusterRef(c_ref), ipos->second);
+          }
+        }
       }
     }
   }
 
-  if ( foundPhase2OTClusters ) {
-
+  if (foundPhase2OTClusters) {
     // Phase2 Clusters
-    if(phase2OTClusters.isValid()){
-      for (edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator iter  = phase2OTClusters->begin(false), eter = phase2OTClusters->end(false);
-                                                                iter != eter; ++iter) {
-        if (!(*iter).isValid()) continue;
+    if (phase2OTClusters.isValid()) {
+      for (edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator iter = phase2OTClusters->begin(false),
+                                                                        eter = phase2OTClusters->end(false);
+           iter != eter;
+           ++iter) {
+        if (!(*iter).isValid())
+          continue;
         uint32_t detid = iter->id();
         DetId detId(detid);
         edmNew::DetSet<Phase2TrackerCluster1D> link_phase2 = (*iter);
-        for (edmNew::DetSet<Phase2TrackerCluster1D>::const_iterator di  = link_phase2.begin();
-             di != link_phase2.end(); di++) {
-          const Phase2TrackerCluster1D& cluster = (*di);
+        for (edmNew::DetSet<Phase2TrackerCluster1D>::const_iterator di = link_phase2.begin(); di != link_phase2.end();
+             di++) {
+          const Phase2TrackerCluster1D &cluster = (*di);
           edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>, Phase2TrackerCluster1D> c_ref =
-            edmNew::makeRefTo(phase2OTClusters, di);
+              edmNew::makeRefTo(phase2OTClusters, di);
 
           std::set<std::pair<uint32_t, EncodedEventId>> simTkIds;
 
           for (unsigned int istr(0); istr < cluster.size(); ++istr) {
             uint32_t channel = Phase2TrackerDigi::pixelToChannel(cluster.firstRow() + istr, cluster.column());
-            std::vector<std::pair<uint32_t, EncodedEventId>> trkid(getSimTrackId<PixelDigiSimLink>(siphase2OTSimLinks, detId, channel));
-            if (trkid.empty()) continue;
+            std::vector<std::pair<uint32_t, EncodedEventId>> trkid(
+                getSimTrackId<PixelDigiSimLink>(siphase2OTSimLinks, detId, channel));
+            if (trkid.empty())
+              continue;
             simTkIds.insert(trkid.begin(), trkid.end());
           }
 
-          for (std::set<std::pair<uint32_t, EncodedEventId>>::const_iterator iset  = simTkIds.begin();
-                                                                              iset != simTkIds.end(); iset++) {
+          for (std::set<std::pair<uint32_t, EncodedEventId>>::const_iterator iset = simTkIds.begin();
+               iset != simTkIds.end();
+               iset++) {
             auto ipos = mapping.find(*iset);
             if (ipos != mapping.end()) {
               clusterTPList.emplace_back(OmniClusterRef(c_ref), ipos->second);
@@ -401,17 +419,16 @@ ClusterTPAssociationHeterogeneous::produceLegacy(edm::HeterogeneousEvent &iEvent
 template <typename T>
 std::vector<std::pair<uint32_t, EncodedEventId>>
 //std::pair<uint32_t, EncodedEventId>
-ClusterTPAssociationHeterogeneous::getSimTrackId(const edm::Handle<edm::DetSetVector<T>>& simLinks,
-                                            const DetId& detId, uint32_t channel) const
-{
+ClusterTPAssociationHeterogeneous::getSimTrackId(const edm::Handle<edm::DetSetVector<T>> &simLinks,
+                                                 const DetId &detId,
+                                                 uint32_t channel) const {
   //std::pair<uint32_t, EncodedEventId> simTrkId;
   std::vector<std::pair<uint32_t, EncodedEventId>> simTrkId;
   auto isearch = simLinks->find(detId);
   if (isearch != simLinks->end()) {
     // Loop over DigiSimLink in this det unit
     edm::DetSet<T> link_detset = (*isearch);
-    for (typename edm::DetSet<T>::const_iterator it  = link_detset.data.begin();
-                                                 it != link_detset.data.end(); ++it) {
+    for (typename edm::DetSet<T>::const_iterator it = link_detset.data.begin(); it != link_detset.data.end(); ++it) {
       if (channel == it->channel()) {
         simTrkId.push_back(std::make_pair(it->SimTrackId(), it->eventId()));
       }
@@ -419,6 +436,7 @@ ClusterTPAssociationHeterogeneous::getSimTrackId(const edm::Handle<edm::DetSetVe
   }
   return simTrkId;
 }
+
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
