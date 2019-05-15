@@ -7,7 +7,6 @@
 #include <vector>
 #include <string>
 
-
 class SiStripConfigWriter;
 class DQMStore;
 
@@ -21,23 +20,14 @@ public:
 
   void fillLayout(DQMStore& dqm_store);
   void setSummaryMENames(std::map<std::string, std::string>& me_names);
-  int
-  getFrequency() const
-  {
-    return summaryFrequency_;
-  }
+  int getFrequency() const { return summaryFrequency_; }
 
 private:
-  MonitorElement*
-  getSummaryME(DQMStore& dqm_store, std::string& name, std::string htype);
+  MonitorElement* getSummaryME(DQMStore& dqm_store, std::string& name, std::string htype);
 
   void fillGrandSummaryHistos(DQMStore& dqm_store);
   void fillSummaryHistos(DQMStore& dqm_store);
-  void fillHistos(int ival,
-                  int istep,
-                  std::string htype,
-                  MonitorElement* me_src,
-                  MonitorElement* me);
+  void fillHistos(int ival, int istep, std::string htype, MonitorElement* me_src, MonitorElement* me);
 
   std::map<std::string, std::string> summaryMEs_;
   int summaryFrequency_{-1};

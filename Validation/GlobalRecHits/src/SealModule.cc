@@ -2,8 +2,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
-
 #include <Validation/GlobalRecHits/interface/GlobalRecHitsProducer.h>
 DEFINE_FWK_MODULE(GlobalRecHitsProducer);
 
