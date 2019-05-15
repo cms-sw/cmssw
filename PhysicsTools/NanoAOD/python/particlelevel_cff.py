@@ -46,10 +46,6 @@ particleLevel = cms.EDProducer("ParticleLevelProducer",
     fatJetMaxEta   = cms.double(999.),
 )
 
-tautagger = cms.EDProducer("GenJetTauTaggerProducer",
-    src = rivetLeptonTable.src,
-)
-
 rivetProducerHTXS = cms.EDProducer('HTXSRivetProducer',
    HepMCCollection = cms.InputTag('genParticles2HepMCHiggsVtx','unsmeared'),
    LHERunInfo = cms.InputTag('externalLHEProducer'),
@@ -72,6 +68,11 @@ rivetLeptonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         P4Vars,
         pdgId = Var("pdgId", int, doc="PDG id"), 
     )
+)
+
+
+tautagger = cms.EDProducer("GenJetTauTaggerProducer",
+    src = rivetLeptonTable.src,
 )
 
 #rivetJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
