@@ -9,7 +9,6 @@
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
-
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
@@ -29,25 +28,19 @@ class AlignableCSCStation;
 class AlignableCSCRing;
 class AlignableCSCChamber;
 
-
-
-
 /// Constructor of the full muon geometry.
 
-class AlignableMuon: public AlignableComposite 
-{
-
+class AlignableMuon : public AlignableComposite {
 public:
-
   /// Constructor from geometries
-  AlignableMuon( const DTGeometry* , const CSCGeometry* );
+  AlignableMuon(const DTGeometry*, const CSCGeometry*);
 
   /// Destructor
   ~AlignableMuon() override;
-  
+
   /// Updater using DTGeometry and CSCGeometry.
   /// The given geometries have to match the current ones.
-  void update(const DTGeometry* , const CSCGeometry*);
+  void update(const DTGeometry*, const CSCGeometry*);
 
   /// Return all components
   const align::Alignables& components() const final { return theMuonComponents; }
@@ -80,14 +73,12 @@ public:
   /// Get CSC alignment errors sorted by DetId
   AlignmentErrorsExtended* cscAlignmentErrorsExtended();
 
-
   /// Return muon alignable object ID provider derived from the muon system geometry
   const AlignableObjectId& objectIdProvider() const { return alignableObjectId_; }
 
 private:
-  
   /// Get the position (centered at 0 by default)
-  PositionType computePosition(); 
+  PositionType computePosition();
 
   /// Get the global orientation (no rotation by default)
   RotationType computeOrientation();
@@ -101,8 +92,6 @@ private:
   /// Get alignment errors sorted by DetId
   AlignmentErrorsExtended* alignmentErrors() const override;
 
-
-
   // Sub-structure builders
 
   /// Build muon barrel
@@ -112,25 +101,23 @@ private:
   void buildCSCEndcap(const CSCGeometry*, bool update = false);
 
   /// Set mothers recursively
-  void recursiveSetMothers( Alignable* alignable );
+  void recursiveSetMothers(Alignable* alignable);
 
   /// alignable object ID provider
   const AlignableObjectId alignableObjectId_;
 
   /// Containers of separate components
-  std::vector<AlignableDTChamber*>   theDTChambers;
-  std::vector<AlignableDTStation*>   theDTStations;
-  std::vector<AlignableDTWheel*>     theDTWheels;
-  std::vector<AlignableDTBarrel*>    theDTBarrel;
-  
-  std::vector<AlignableCSCChamber*>  theCSCChambers;
-  std::vector<AlignableCSCStation*>  theCSCStations;
-  std::vector<AlignableCSCRing*>     theCSCRings;
-  std::vector<AlignableCSCEndcap*>   theCSCEndcaps;
+  std::vector<AlignableDTChamber*> theDTChambers;
+  std::vector<AlignableDTStation*> theDTStations;
+  std::vector<AlignableDTWheel*> theDTWheels;
+  std::vector<AlignableDTBarrel*> theDTBarrel;
+
+  std::vector<AlignableCSCChamber*> theCSCChambers;
+  std::vector<AlignableCSCStation*> theCSCStations;
+  std::vector<AlignableCSCRing*> theCSCRings;
+  std::vector<AlignableCSCEndcap*> theCSCEndcaps;
 
   align::Alignables theMuonComponents;
-
 };
 
-#endif //AlignableMuon_H
-
+#endif  //AlignableMuon_H
