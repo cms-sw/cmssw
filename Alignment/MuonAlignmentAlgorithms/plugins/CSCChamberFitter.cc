@@ -25,7 +25,7 @@ CSCChamberFitter::CSCChamberFitter(const edm::ParameterSet &iConfig, std::vector
 
   m_fixed = -1;
   std::string fixed = iConfig.getParameter<std::string>("fixed");
-  if (fixed != "") {
+  if (!fixed.empty()) {
     int i = 0;
     for (std::vector<std::string>::const_iterator alignable = m_alignables.begin();  alignable != m_alignables.end();  ++alignable) {
       if (fixed == *alignable) {
