@@ -44,7 +44,7 @@ public:
 
     bool ret = true;
     // if error in previous write return....
-    if (ce == "")
+    if (ce.empty())
     {
       outbuf.swap(ibuf);
       nout = n;
@@ -138,7 +138,7 @@ public:
 
     IOSize ret = 0;
     // if error in previous write return....
-    if (ce == "")
+    if (ce.empty())
     {
       inbuf.swap(ibuf);
       ret = nin;

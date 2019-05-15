@@ -77,7 +77,7 @@ void getParamDumper::analyzerEval(const clang::CallExpr *CE, clang::ento::Checke
          os << "' with args '";
          for ( unsigned I=0, E=CE->getNumArgs(); I != E; ++I) {
               if (I) os <<", ";
-              CE->getArg(I)->printPretty(os,0,Policy);
+              CE->getArg(I)->printPretty(os,nullptr,Policy);
          }
          os << "' with implicit object '";
          const Expr * E = IOA->IgnoreParenNoopCasts(C.getASTContext());
@@ -91,19 +91,19 @@ void getParamDumper::analyzerEval(const clang::CallExpr *CE, clang::ento::Checke
                  os << dyn_cast<DeclRefExpr>(E)->getDecl()->getQualifiedNameAsString();
                  break;
              case Stmt::CXXOperatorCallExprClass:  
-                 dyn_cast<CXXOperatorCallExpr>(E)->printPretty(os,0,Policy);
+                 dyn_cast<CXXOperatorCallExpr>(E)->printPretty(os,nullptr,Policy);
                  break;
              case Stmt::CXXBindTemporaryExprClass:
-                 dyn_cast<CXXBindTemporaryExpr>(E)->printPretty(os,0,Policy);
+                 dyn_cast<CXXBindTemporaryExpr>(E)->printPretty(os,nullptr,Policy);
                  break;
              case Stmt::CXXMemberCallExprClass:
-                 dyn_cast<CXXMemberCallExpr>(E)->printPretty(os,0,Policy);
+                 dyn_cast<CXXMemberCallExpr>(E)->printPretty(os,nullptr,Policy);
                  break;
              case Stmt::UnaryOperatorClass:
-                 dyn_cast<UnaryOperator>(E)->printPretty(os,0,Policy);
+                 dyn_cast<UnaryOperator>(E)->printPretty(os,nullptr,Policy);
                  break;
              default:
-                 E->printPretty(os,0,Policy);
+                 E->printPretty(os,nullptr,Policy);
                  os << " unhandled expr class " <<E->getStmtClassName();
              }
          os<<"'\n";
@@ -192,7 +192,7 @@ void gpWalkAST::VisitCXXMemberCallExpr( clang::CXXMemberCallExpr *CE ) {
          for ( unsigned I=0, E=CE->getNumArgs(); I != E; ++I) {
               if (I) os <<", ";
               os << CE->getType().getCanonicalType().getAsString()<<" ";
-              CE->getArg(I)->printPretty(os,0,Policy);
+              CE->getArg(I)->printPretty(os,nullptr,Policy);
          }
          os << "' with implicit object '";
          const Expr * E = IOA->IgnoreParenCasts();
@@ -206,19 +206,19 @@ void gpWalkAST::VisitCXXMemberCallExpr( clang::CXXMemberCallExpr *CE ) {
                  os << dyn_cast<DeclRefExpr>(E)->getDecl()->getQualifiedNameAsString();
                  break;
              case Stmt::CXXOperatorCallExprClass:  
-                 dyn_cast<CXXOperatorCallExpr>(E)->printPretty(os,0,Policy);
+                 dyn_cast<CXXOperatorCallExpr>(E)->printPretty(os,nullptr,Policy);
                  break;
              case Stmt::CXXBindTemporaryExprClass:
-                 dyn_cast<CXXBindTemporaryExpr>(E)->printPretty(os,0,Policy);
+                 dyn_cast<CXXBindTemporaryExpr>(E)->printPretty(os,nullptr,Policy);
                  break;
              case Stmt::CXXMemberCallExprClass:
-                 dyn_cast<CXXMemberCallExpr>(E)->printPretty(os,0,Policy);
+                 dyn_cast<CXXMemberCallExpr>(E)->printPretty(os,nullptr,Policy);
                  break;
              case Stmt::UnaryOperatorClass:
-                 dyn_cast<UnaryOperator>(E)->printPretty(os,0,Policy);
+                 dyn_cast<UnaryOperator>(E)->printPretty(os,nullptr,Policy);
                  break;
              default:
-                 E->printPretty(os,0,Policy);
+                 E->printPretty(os,nullptr,Policy);
                  os << " unhandled expr class " <<E->getStmtClassName();
              }
          os<<"'\n";

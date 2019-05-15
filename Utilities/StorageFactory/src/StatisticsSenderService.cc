@@ -42,7 +42,7 @@ StatisticsSenderService::FileStatistics::FileStatistics() :
   m_read_vector_square(0),
   m_read_vector_count_sum(0),
   m_read_vector_count_square(0),
-  m_start_time(time(NULL))
+  m_start_time(time(nullptr))
 {}
 
 void
@@ -106,7 +106,7 @@ StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
   UPDATE_AND_OUTPUT_STATISTIC(read_vector_bytes)
 
   os << "\"start_time\":" << m_start_time << ", ";
-  m_start_time = time(NULL);
+  m_start_time = time(nullptr);
   // NOTE: last entry doesn't have the trailing comma.
   os << "\"end_time\":" << m_start_time;
 }
@@ -179,7 +179,7 @@ StatisticsSenderService::filePreCloseEvent(std::string const& lfn, bool usedFall
   }
 
   std::set<std::string> const * info = pSLC->statisticsInfo();
-  if (info && info->size() && (m_userdn != "unknown") && (
+  if (info && !info->empty() && (m_userdn != "unknown") && (
       (info->find("dn") == info->end()) ||
       (info->find("nodn") != info->end()))
      )
@@ -293,7 +293,7 @@ static X509 * findEEC(STACK_OF(X509) * certstack) {
   char *subject = nullptr;
   X509 *x509cert = sk_X509_value(certstack, idx);
   for (; x509cert && idx>0; idx--) {
-    subject = X509_NAME_oneline(X509_get_subject_name(x509cert),0,0);
+    subject = X509_NAME_oneline(X509_get_subject_name(x509cert),nullptr,0);
     if (subject && priorsubject && (strncmp(subject, priorsubject, strlen(subject)) != 0)) {
       break;
     }
@@ -347,7 +347,7 @@ getX509SubjectFromFile(const std::string &filename, std::string &result) {
       x509cert = findEEC(certs);
     }
     if (x509cert) {
-      subject = X509_NAME_oneline(X509_get_subject_name(x509cert),0,0);
+      subject = X509_NAME_oneline(X509_get_subject_name(x509cert),nullptr,0);
     }
     // Note we do not free x509cert directly, as it's still owned by the certs stack.
     if (certs) {

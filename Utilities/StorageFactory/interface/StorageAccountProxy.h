@@ -19,25 +19,25 @@ class StorageAccountProxy : public Storage
 {
 public:
   StorageAccountProxy (const std::string &storageClass, std::unique_ptr<Storage> baseStorage);
-  ~StorageAccountProxy (void);
+  ~StorageAccountProxy (void) override;
 
   using Storage::read;
   using Storage::write;
 
-  virtual bool		prefetch (const IOPosBuffer *what, IOSize n);
-  virtual IOSize	read (void *into, IOSize n);
-  virtual IOSize	read (void *into, IOSize n, IOOffset pos);
-  virtual IOSize	readv (IOBuffer *into, IOSize n);
-  virtual IOSize	readv (IOPosBuffer *into, IOSize n);
-  virtual IOSize	write (const void *from, IOSize n);
-  virtual IOSize	write (const void *from, IOSize n, IOOffset pos);
-  virtual IOSize	writev (const IOBuffer *from, IOSize n);
-  virtual IOSize	writev (const IOPosBuffer *from, IOSize n);
+  bool		prefetch (const IOPosBuffer *what, IOSize n) override;
+  IOSize	read (void *into, IOSize n) override;
+  IOSize	read (void *into, IOSize n, IOOffset pos) override;
+  IOSize	readv (IOBuffer *into, IOSize n) override;
+  IOSize	readv (IOPosBuffer *into, IOSize n) override;
+  IOSize	write (const void *from, IOSize n) override;
+  IOSize	write (const void *from, IOSize n, IOOffset pos) override;
+  IOSize	writev (const IOBuffer *from, IOSize n) override;
+  IOSize	writev (const IOPosBuffer *from, IOSize n) override;
 
-  virtual IOOffset	position (IOOffset offset, Relative whence = SET);
-  virtual void		resize (IOOffset size);
-  virtual void		flush (void);
-  virtual void		close (void);
+  IOOffset	position (IOOffset offset, Relative whence = SET) override;
+  void		resize (IOOffset size) override;
+  void		flush (void) override;
+  void		close (void) override;
 
 protected:
   void releaseStorage() {get_underlying_safe(m_baseStorage).release();}

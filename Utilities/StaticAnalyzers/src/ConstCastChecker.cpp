@@ -40,7 +40,7 @@ void ConstCastChecker::checkPreStmt(const clang::CXXConstCastExpr *CE,
       if ( ! m_exception.reportConstCast( *R, C ) )
           return;
       C.emitReport(std::move(R));
-      if (cname == "")
+      if (cname.empty())
           return;
       std::string tname = "constcast-checker.txt.unsorted";
       std::string tolog = "flagged class '"+cname+"' const_cast used ";

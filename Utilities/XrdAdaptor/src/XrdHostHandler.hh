@@ -27,10 +27,10 @@ public:
   {
   }
 
-  virtual ~SyncHostResponseHandler() = default;
+  ~SyncHostResponseHandler() override = default;
 
 
-  virtual void HandleResponse(XrdCl::XRootDStatus *status,
+  void HandleResponse(XrdCl::XRootDStatus *status,
                               XrdCl::AnyObject    *response) override
   {
     // propagate_const<T> has no reset() function
@@ -39,7 +39,7 @@ public:
     sem.Post();
   }
 
-  virtual void HandleResponseWithHosts(XrdCl::XRootDStatus *status,
+  void HandleResponseWithHosts(XrdCl::XRootDStatus *status,
                                        XrdCl::AnyObject    *response,
                                        XrdCl::HostList     *hostList) override
   {
