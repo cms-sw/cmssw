@@ -21,6 +21,8 @@
 #include "L1Trigger/DTPhase2Trigger/interface/InitialGrouping.h"
 #include "L1Trigger/DTPhase2Trigger/interface/MuonPathAnalyzer.h"
 #include "L1Trigger/DTPhase2Trigger/interface/MuonPathAnalyzerPerSL.h"
+#include "L1Trigger/DTPhase2Trigger/interface/MuonPathFilter.h"
+#include "L1Trigger/DTPhase2Trigger/interface/MuonPathAssociator.h"
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
@@ -66,24 +68,8 @@ class DTTrigPhase2Prod: public edm::EDProducer{
     
     edm::ESHandle<DTGeometry> dtGeo;
 
-    //ttrig
-    std::string ttrig_filename;
-    std::map<int,float> ttriginfo;
-
-    //z
-    std::string z_filename;
-    std::map<int,float> zinfo;
-
-    //shift
-    std::string shift_filename;
-    std::map<int,float> shiftinfo;
-
-    int chosen_sl;
-
     std::vector<std::pair<int,MuonPath>> primitives;
 
-    int arePrimos(metaPrimitive primera, metaPrimitive segunda);
-    int rango(metaPrimitive primera);
     bool outer(metaPrimitive primera);
     bool inner(metaPrimitive primera);
     void printmP(metaPrimitive mP);
@@ -116,14 +102,10 @@ class DTTrigPhase2Prod: public edm::EDProducer{
     // Debug Flag
     bool debug;
     bool dump;
-    double tanPhiTh;
     double dT0_correlate_TP;
-    double min_dT0_match_segment;
-    double minx_match_2digis;
     int min_phinhits_match_segment;
     bool do_correlation;
     int p2_df;
-    bool filter_primos;
 
     // txt ttrig flag
     bool txt_ttrig_bc0;
@@ -137,6 +119,9 @@ class DTTrigPhase2Prod: public edm::EDProducer{
     Int_t grcode; // Grouping code
     MotherGrouping* grouping_obj;
     MuonPathAnalyzer* mpathanalyzer;
+    MuonPathFilter* mpathfilter;
+    MuonPathAssociator* mpathassociator;
+    
 };
 
 
