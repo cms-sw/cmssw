@@ -6,7 +6,6 @@
 namespace edmtest {
   struct OtherThing;
   typedef std::vector<OtherThing> OtherThingCollection;
-}
+}  // namespace edmtest
 
 #endif
-

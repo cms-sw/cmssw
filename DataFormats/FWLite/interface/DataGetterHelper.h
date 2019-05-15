@@ -18,7 +18,6 @@
 //         Created:  Fri Jan 29 12:45:17 CST 2010
 //
 
-
 // user include files
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/FWLite/interface/HistoryGetterBase.h"
@@ -41,87 +40,79 @@ class TTreeCache;
 class TTree;
 
 namespace edm {
-    class BranchDescription;
-    class BranchID;
-    class ObjectWithDict;
-    class ProductID;
-    class ThinnedAssociation;
-    class WrapperBase;
-}
+  class BranchDescription;
+  class BranchID;
+  class ObjectWithDict;
+  class ProductID;
+  class ThinnedAssociation;
+  class WrapperBase;
+}  // namespace edm
 
 namespace fwlite {
-    class DataGetterHelper {
+  class DataGetterHelper {
+  public:
+    //            DataGetterHelper() {};
+    DataGetterHelper(TTree* tree,
+                     std::shared_ptr<HistoryGetterBase> historyGetter,
+                     std::shared_ptr<BranchMapReader> branchMap = std::shared_ptr<BranchMapReader>(),
+                     std::shared_ptr<edm::EDProductGetter> getter = std::shared_ptr<edm::EDProductGetter>(),
+                     bool useCache = false,
+                     std::function<void(TBranch const&)> baFunc = [](TBranch const&) {});
+    virtual ~DataGetterHelper();
 
-        public:
-//            DataGetterHelper() {};
-            DataGetterHelper(TTree* tree,
-                             std::shared_ptr<HistoryGetterBase> historyGetter,
-                             std::shared_ptr<BranchMapReader> branchMap = std::shared_ptr<BranchMapReader>(),
-                             std::shared_ptr<edm::EDProductGetter> getter = std::shared_ptr<edm::EDProductGetter>(),
-                             bool useCache = false, std::function<void (TBranch const&)> baFunc = [](TBranch const&){});
-            virtual ~DataGetterHelper();
+    // ---------- const member functions ---------------------
+    virtual std::string const getBranchNameFor(std::type_info const&, char const*, char const*, char const*) const;
 
-            // ---------- const member functions ---------------------
-            virtual std::string const getBranchNameFor(std::type_info const&,
-                                                        char const*,
-                                                        char const*,
-                                                        char const*) const;
+    // This function should only be called by fwlite::Handle<>
+    virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*, Long_t) const;
 
-            // This function should only be called by fwlite::Handle<>
-            virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*, Long_t) const;
+    edm::WrapperBase const* getByProductID(edm::ProductID const& pid, Long_t eventEntry) const;
+    edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key, Long_t eventEntry) const;
+    void getThinnedProducts(edm::ProductID const& pid,
+                            std::vector<edm::WrapperBase const*>& foundContainers,
+                            std::vector<unsigned int>& keys,
+                            Long_t eventEntry) const;
 
-            edm::WrapperBase const* getByProductID(edm::ProductID const& pid, Long_t eventEntry) const;
-            edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key, Long_t eventEntry) const;
-            void getThinnedProducts(edm::ProductID const& pid,
-                                    std::vector<edm::WrapperBase const*>& foundContainers,
-                                    std::vector<unsigned int>& keys,
-                                    Long_t eventEntry) const;
+    // ---------- static member functions --------------------
 
-            // ---------- static member functions --------------------
+    // ---------- member functions ---------------------------
 
-            // ---------- member functions ---------------------------
+    void setGetter(std::shared_ptr<edm::EDProductGetter const> getter) { getter_ = getter; }
 
-            void setGetter(std::shared_ptr<edm::EDProductGetter const> getter) {
-                getter_ = getter;
-            }
+    edm::EDProductGetter const* getter() const { return getter_.get(); }
 
-            edm::EDProductGetter const* getter() const {
-               return getter_.get();
-            }
+  private:
+    DataGetterHelper(const DataGetterHelper&) = delete;                   // stop default
+    const DataGetterHelper& operator=(const DataGetterHelper&) = delete;  // stop default
 
-        private:
+    typedef std::map<internal::DataKey, std::shared_ptr<internal::Data>> KeyToDataMap;
 
-            DataGetterHelper(const DataGetterHelper&) = delete; // stop default
-            const DataGetterHelper& operator=(const DataGetterHelper&) = delete; // stop default
+    internal::Data& getBranchDataFor(std::type_info const&, char const*, char const*, char const*) const;
+    void getBranchData(edm::EDProductGetter const*, Long64_t, internal::Data&) const;
+    bool getByBranchDescription(edm::BranchDescription const&, Long_t eventEntry, KeyToDataMap::iterator&) const;
+    edm::WrapperBase const* getByBranchID(edm::BranchID const& bid, Long_t eventEntry) const;
+    edm::WrapperBase const* wrapperBasePtr(edm::ObjectWithDict const&) const;
+    edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID, Long_t eventEntry) const;
 
-            typedef std::map<internal::DataKey, std::shared_ptr<internal::Data> > KeyToDataMap;
+    // ---------- member data --------------------------------
+    TTree* tree_;
+    mutable std::shared_ptr<BranchMapReader> branchMap_;
+    mutable KeyToDataMap data_;
+    mutable std::vector<char const*> labels_;
+    const edm::ProcessHistory& history() const;
 
-            internal::Data& getBranchDataFor(std::type_info const&, char const*, char const*, char const*) const;
-            void getBranchData(edm::EDProductGetter const*, Long64_t, internal::Data&) const;
-            bool getByBranchDescription(edm::BranchDescription const&, Long_t eventEntry, KeyToDataMap::iterator&) const;
-            edm::WrapperBase const* getByBranchID(edm::BranchID const& bid, Long_t eventEntry) const;
-            edm::WrapperBase const* wrapperBasePtr(edm::ObjectWithDict const&) const;
-            edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID, Long_t eventEntry) const;
+    mutable std::map<std::pair<edm::ProductID, edm::BranchListIndex>, std::shared_ptr<internal::Data>> idToData_;
+    mutable std::map<edm::BranchID, std::shared_ptr<internal::Data>> bidToData_;
+    edm::propagate_const<std::shared_ptr<fwlite::HistoryGetterBase>> historyGetter_;
+    std::shared_ptr<edm::EDProductGetter const> getter_;
+    mutable bool tcTrained_;
+    /// Use internal TTreeCache.
+    const bool tcUse_;
+    /// Branch-access-function gets called whenever a branch data is accessed.
+    /// This can be used for management of TTreeCache on the user side.
+    std::function<void(TBranch const&)> branchAccessFunc_;
+  };
 
-            // ---------- member data --------------------------------
-            TTree* tree_;
-            mutable std::shared_ptr<BranchMapReader> branchMap_;
-            mutable KeyToDataMap data_;
-            mutable std::vector<char const*> labels_;
-            const edm::ProcessHistory& history() const;
-
-            mutable std::map<std::pair<edm::ProductID, edm::BranchListIndex>,std::shared_ptr<internal::Data> > idToData_;
-            mutable std::map<edm::BranchID, std::shared_ptr<internal::Data> > bidToData_;
-            edm::propagate_const<std::shared_ptr<fwlite::HistoryGetterBase>> historyGetter_;
-            std::shared_ptr<edm::EDProductGetter const> getter_;
-            mutable bool tcTrained_;
-            /// Use internal TTreeCache.
-            const   bool tcUse_;
-            /// Branch-access-function gets called whenever a branch data is accessed.
-            /// This can be used for management of TTreeCache on the user side.
-            std::function<void (TBranch const&)> branchAccessFunc_;
-    };
-
-}
+}  // namespace fwlite
 
 #endif

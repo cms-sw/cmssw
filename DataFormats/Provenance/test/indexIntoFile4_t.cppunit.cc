@@ -17,14 +17,12 @@
 
 using namespace edm;
 
-class TestIndexIntoFile4: public CppUnit::TestFixture
-{
-  CPPUNIT_TEST_SUITE(TestIndexIntoFile4);  
+class TestIndexIntoFile4 : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(TestIndexIntoFile4);
   CPPUNIT_TEST(testFind);
   CPPUNIT_TEST_SUITE_END();
-  
-public:
 
+public:
   static const IndexIntoFile::EntryType kRun = IndexIntoFile::kRun;
   static const IndexIntoFile::EntryType kLumi = IndexIntoFile::kLumi;
   static const IndexIntoFile::EntryType kEvent = IndexIntoFile::kEvent;
@@ -32,10 +30,7 @@ public:
 
   class Skipped {
   public:
-    Skipped(): phIndexOfSkippedEvent_(0),
-               runOfSkippedEvent_(0),
-               lumiOfSkippedEvent_(0),
-               skippedEventEntry_(0) { }
+    Skipped() : phIndexOfSkippedEvent_(0), runOfSkippedEvent_(0), lumiOfSkippedEvent_(0), skippedEventEntry_(0) {}
     int phIndexOfSkippedEvent_;
     RunNumber_t runOfSkippedEvent_;
     LuminosityBlockNumber_t lumiOfSkippedEvent_;
@@ -43,7 +38,7 @@ public:
   };
 
   Skipped skipped_;
-  
+
   void setUp() {
     // Make some fake processHistoryID's to work with
     nullPHID = ProcessHistoryID();
@@ -68,7 +63,7 @@ public:
     fakePHID3 = ph3.id();
   }
 
-  void tearDown() { }
+  void tearDown() {}
 
   void testFind();
   void testReduce();
@@ -91,7 +86,7 @@ public:
                     LuminosityBlockNumber_t lumiOfSkippedEvent,
                     IndexIntoFile::EntryNumber_t skippedEventEntry);
 
-  void skipEventBackward(edm::IndexIntoFile::IndexIntoFileItr & iter);
+  void skipEventBackward(edm::IndexIntoFile::IndexIntoFileItr& iter);
 
   // This is a helper class for IndexIntoFile.
   class TestEventFinder : public IndexIntoFile::EventFinder {
@@ -101,7 +96,7 @@ public:
     virtual EventNumber_t getEventNumberOfEntry(IndexIntoFile::EntryNumber_t entry) const {
       return testData_.at(entry);
     }
-    void push_back(EventNumber_t e) {testData_.push_back(e); }
+    void push_back(EventNumber_t e) { testData_.push_back(e); }
 
   private:
     std::vector<EventNumber_t> testData_;
@@ -112,40 +107,31 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(TestIndexIntoFile4);
 
 void TestIndexIntoFile4::check(edm::IndexIntoFile::IndexIntoFileItr const& iter,
-                              IndexIntoFile::EntryType type,
-                              int indexToRun,
-                              int indexToLumi,
-                              int indexToEventRange,
-                              long long indexToEvent,
-                              long long nEvents) {
-  bool theyMatch = iter.getEntryType() == type &&
-                   iter.type() == type &&
-                   iter.indexToRun() == indexToRun &&
-                   iter.indexToLumi() == indexToLumi &&
-                   iter.indexToEventRange() == indexToEventRange &&
-                   iter.indexToEvent() == indexToEvent &&
-                   iter.nEvents() == nEvents;
+                               IndexIntoFile::EntryType type,
+                               int indexToRun,
+                               int indexToLumi,
+                               int indexToEventRange,
+                               long long indexToEvent,
+                               long long nEvents) {
+  bool theyMatch = iter.getEntryType() == type && iter.type() == type && iter.indexToRun() == indexToRun &&
+                   iter.indexToLumi() == indexToLumi && iter.indexToEventRange() == indexToEventRange &&
+                   iter.indexToEvent() == indexToEvent && iter.nEvents() == nEvents;
   if (!theyMatch) {
-    std::cout << "\nExpected        " << type << "  " << indexToRun << "  "
-              << indexToLumi << "  " << indexToEventRange << "  " << indexToEvent
-              << "  " << nEvents << "\n";
-    std::cout << "Iterator values " << iter.type() << "  " << iter.indexToRun() << "  "
-              << iter.indexToLumi() << "  " << iter.indexToEventRange() << "  " << iter.indexToEvent()
-              << "  " << iter.nEvents() << "\n";
+    std::cout << "\nExpected        " << type << "  " << indexToRun << "  " << indexToLumi << "  " << indexToEventRange
+              << "  " << indexToEvent << "  " << nEvents << "\n";
+    std::cout << "Iterator values " << iter.type() << "  " << iter.indexToRun() << "  " << iter.indexToLumi() << "  "
+              << iter.indexToEventRange() << "  " << iter.indexToEvent() << "  " << iter.nEvents() << "\n";
   }
   CPPUNIT_ASSERT(theyMatch);
 }
 
 void TestIndexIntoFile4::checkSkipped(int phIndexOfSkippedEvent,
-                                     RunNumber_t runOfSkippedEvent,
-                                     LuminosityBlockNumber_t lumiOfSkippedEvent,
-                                     IndexIntoFile::EntryNumber_t skippedEventEntry) {
-  bool theyMatch = skipped_.phIndexOfSkippedEvent_ == phIndexOfSkippedEvent &&
-                   skipped_.runOfSkippedEvent_ == runOfSkippedEvent &&
-                   skipped_.lumiOfSkippedEvent_ == lumiOfSkippedEvent &&
-                   skipped_.skippedEventEntry_ == skippedEventEntry;
-
-
+                                      RunNumber_t runOfSkippedEvent,
+                                      LuminosityBlockNumber_t lumiOfSkippedEvent,
+                                      IndexIntoFile::EntryNumber_t skippedEventEntry) {
+  bool theyMatch =
+      skipped_.phIndexOfSkippedEvent_ == phIndexOfSkippedEvent && skipped_.runOfSkippedEvent_ == runOfSkippedEvent &&
+      skipped_.lumiOfSkippedEvent_ == lumiOfSkippedEvent && skipped_.skippedEventEntry_ == skippedEventEntry;
 
   if (!theyMatch) {
     std::cout << "\nExpected        " << phIndexOfSkippedEvent << "  " << runOfSkippedEvent << "  "
@@ -156,7 +142,7 @@ void TestIndexIntoFile4::checkSkipped(int phIndexOfSkippedEvent,
   CPPUNIT_ASSERT(theyMatch);
 }
 
-void TestIndexIntoFile4::skipEventBackward(edm::IndexIntoFile::IndexIntoFileItr & iter) {
+void TestIndexIntoFile4::skipEventBackward(edm::IndexIntoFile::IndexIntoFileItr& iter) {
   iter.skipEventBackward(skipped_.phIndexOfSkippedEvent_,
                          skipped_.runOfSkippedEvent_,
                          skipped_.lumiOfSkippedEvent_,
@@ -164,36 +150,34 @@ void TestIndexIntoFile4::skipEventBackward(edm::IndexIntoFile::IndexIntoFileItr 
 }
 
 void TestIndexIntoFile4::testFind() {
-
   for (int j = 0; j < 2; ++j) {
-
     edm::IndexIntoFile indexIntoFile;
-    indexIntoFile.addEntry(fakePHID1, 1,   0, 0, 0); // Run
-    indexIntoFile.addEntry(fakePHID1, 2,  12, 7, 0); // Event
-    indexIntoFile.addEntry(fakePHID1, 2,  12, 6, 1); // Event
-    indexIntoFile.addEntry(fakePHID1, 2,  12, 0, 0); // Lumi
-    indexIntoFile.addEntry(fakePHID1, 2,  12, 5, 2); // Event
-    indexIntoFile.addEntry(fakePHID1, 2,  12, 4, 3); // Event
-    indexIntoFile.addEntry(fakePHID1, 2,  12, 0, 1); // Lumi
-    indexIntoFile.addEntry(fakePHID1, 2,   0, 0, 1); // Run
-    indexIntoFile.addEntry(fakePHID2, 3,   0, 0, 2); // Run
-    indexIntoFile.addEntry(fakePHID2, 4,  12, 7, 4); // Event
-    indexIntoFile.addEntry(fakePHID2, 4,  12, 6, 5); // Event
-    indexIntoFile.addEntry(fakePHID2, 4,  12, 0, 2); // Lumi
-    indexIntoFile.addEntry(fakePHID2, 4,  12, 5, 6); // Event
-    indexIntoFile.addEntry(fakePHID2, 4,  12, 4, 7); // Event
-    indexIntoFile.addEntry(fakePHID2, 4,  12, 0, 3); // Lumi
-    indexIntoFile.addEntry(fakePHID2, 4,   0, 0, 3); // Run
-    indexIntoFile.addEntry(fakePHID3, 5,   0, 0, 4); // Run
-    indexIntoFile.addEntry(fakePHID3, 6,  12, 7, 8); // Event
-    indexIntoFile.addEntry(fakePHID3, 6,  12, 6, 9); // Event
-    indexIntoFile.addEntry(fakePHID3, 6,  12, 0, 4); // Lumi
-    indexIntoFile.addEntry(fakePHID3, 6,  100, 0, 5); // Lumi
-    indexIntoFile.addEntry(fakePHID3, 6,   0, 0, 5); // Run
+    indexIntoFile.addEntry(fakePHID1, 1, 0, 0, 0);    // Run
+    indexIntoFile.addEntry(fakePHID1, 2, 12, 7, 0);   // Event
+    indexIntoFile.addEntry(fakePHID1, 2, 12, 6, 1);   // Event
+    indexIntoFile.addEntry(fakePHID1, 2, 12, 0, 0);   // Lumi
+    indexIntoFile.addEntry(fakePHID1, 2, 12, 5, 2);   // Event
+    indexIntoFile.addEntry(fakePHID1, 2, 12, 4, 3);   // Event
+    indexIntoFile.addEntry(fakePHID1, 2, 12, 0, 1);   // Lumi
+    indexIntoFile.addEntry(fakePHID1, 2, 0, 0, 1);    // Run
+    indexIntoFile.addEntry(fakePHID2, 3, 0, 0, 2);    // Run
+    indexIntoFile.addEntry(fakePHID2, 4, 12, 7, 4);   // Event
+    indexIntoFile.addEntry(fakePHID2, 4, 12, 6, 5);   // Event
+    indexIntoFile.addEntry(fakePHID2, 4, 12, 0, 2);   // Lumi
+    indexIntoFile.addEntry(fakePHID2, 4, 12, 5, 6);   // Event
+    indexIntoFile.addEntry(fakePHID2, 4, 12, 4, 7);   // Event
+    indexIntoFile.addEntry(fakePHID2, 4, 12, 0, 3);   // Lumi
+    indexIntoFile.addEntry(fakePHID2, 4, 0, 0, 3);    // Run
+    indexIntoFile.addEntry(fakePHID3, 5, 0, 0, 4);    // Run
+    indexIntoFile.addEntry(fakePHID3, 6, 12, 7, 8);   // Event
+    indexIntoFile.addEntry(fakePHID3, 6, 12, 6, 9);   // Event
+    indexIntoFile.addEntry(fakePHID3, 6, 12, 0, 4);   // Lumi
+    indexIntoFile.addEntry(fakePHID3, 6, 100, 0, 5);  // Lumi
+    indexIntoFile.addEntry(fakePHID3, 6, 0, 0, 5);    // Run
     indexIntoFile.sortVector_Run_Or_Lumi_Entries();
 
     if (j == 0) {
-      std::vector<IndexIntoFile::EventEntry>&  eventEntries  = indexIntoFile.eventEntries();
+      std::vector<IndexIntoFile::EventEntry>& eventEntries = indexIntoFile.eventEntries();
       eventEntries.emplace_back(7, 0);
       eventEntries.emplace_back(6, 1);
       eventEntries.emplace_back(5, 2);
@@ -204,10 +188,9 @@ void TestIndexIntoFile4::testFind() {
       eventEntries.emplace_back(4, 7);
       eventEntries.emplace_back(7, 8);
       eventEntries.emplace_back(6, 9);
-      indexIntoFile.sortEventEntries(); 
-    }
-    else if (j == 1) {
-      std::vector<EventNumber_t>&  eventNumbers  = indexIntoFile.eventNumbers();
+      indexIntoFile.sortEventEntries();
+    } else if (j == 1) {
+      std::vector<EventNumber_t>& eventNumbers = indexIntoFile.eventNumbers();
       eventNumbers.push_back(7);
       eventNumbers.push_back(6);
       eventNumbers.push_back(5);
@@ -218,7 +201,7 @@ void TestIndexIntoFile4::testFind() {
       eventNumbers.push_back(4);
       eventNumbers.push_back(7);
       eventNumbers.push_back(6);
-      indexIntoFile.sortEvents(); 
+      indexIntoFile.sortEvents();
     }
 
     TestEventFinder* ptr(new TestEventFinder);
@@ -236,28 +219,28 @@ void TestIndexIntoFile4::testFind() {
     indexIntoFile.setEventFinder(shptr);
 
     edm::IndexIntoFile::IndexIntoFileItr iter = indexIntoFile.findPosition(1000, 0, 0);
-    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));  
+    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));
 
     iter = indexIntoFile.findPosition(2, 1, 0);
-    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));  
+    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));
 
     iter = indexIntoFile.findPosition(2, 100, 0);
-    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));  
+    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));
 
     iter = indexIntoFile.findPosition(6, 100, 1);
-    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));  
+    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));
 
     iter = indexIntoFile.findPosition(2, 12, 3);
-    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));  
+    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));
 
     iter = indexIntoFile.findPosition(2, 12, 8);
-    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));  
+    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));
 
     iter = indexIntoFile.findPosition(1, 0, 1);
-    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));  
+    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));
 
     iter = indexIntoFile.findPosition(6, 0, 100);
-    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));  
+    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));
 
     iter = indexIntoFile.findPosition(6, 100, 0);
     CPPUNIT_ASSERT(iter.type() == kRun);
@@ -270,8 +253,8 @@ void TestIndexIntoFile4::testFind() {
     iter = indexIntoFile.findPosition(1, 0, 0);
     edm::IndexIntoFile::IndexIntoFileItr iter1 = indexIntoFile.findPosition(1, 1, 0);
     edm::IndexIntoFile::IndexIntoFileItr iter2 = indexIntoFile.findPosition(1, 1, 1);
-    CPPUNIT_ASSERT(iter1 == indexIntoFile.end(IndexIntoFile::numericalOrder));  
-    CPPUNIT_ASSERT(iter2 == indexIntoFile.end(IndexIntoFile::numericalOrder));  
+    CPPUNIT_ASSERT(iter1 == indexIntoFile.end(IndexIntoFile::numericalOrder));
+    CPPUNIT_ASSERT(iter2 == indexIntoFile.end(IndexIntoFile::numericalOrder));
     CPPUNIT_ASSERT(iter.indexIntoFile() == &indexIntoFile);
     CPPUNIT_ASSERT(iter.size() == 12);
     CPPUNIT_ASSERT(iter.type() == kRun);
@@ -302,8 +285,8 @@ void TestIndexIntoFile4::testFind() {
     iter = indexIntoFile.findPosition(3, 0, 0);
     iter1 = indexIntoFile.findPosition(3, 1, 0);
     iter2 = indexIntoFile.findPosition(3, 1, 1);
-    CPPUNIT_ASSERT(iter1 == indexIntoFile.end(IndexIntoFile::numericalOrder));  
-    CPPUNIT_ASSERT(iter2 == indexIntoFile.end(IndexIntoFile::numericalOrder));  
+    CPPUNIT_ASSERT(iter1 == indexIntoFile.end(IndexIntoFile::numericalOrder));
+    CPPUNIT_ASSERT(iter2 == indexIntoFile.end(IndexIntoFile::numericalOrder));
     CPPUNIT_ASSERT(iter.type() == kRun);
     CPPUNIT_ASSERT(iter.indexToRun() == 4);
     CPPUNIT_ASSERT(iter.indexToLumi() == IndexIntoFile::invalidIndex);
@@ -326,8 +309,8 @@ void TestIndexIntoFile4::testFind() {
     iter = indexIntoFile.findPosition(5, 0, 0);
     iter1 = indexIntoFile.findPosition(5, 1, 0);
     iter2 = indexIntoFile.findPosition(5, 1, 1);
-    CPPUNIT_ASSERT(iter1 == indexIntoFile.end(IndexIntoFile::numericalOrder));  
-    CPPUNIT_ASSERT(iter2 == indexIntoFile.end(IndexIntoFile::numericalOrder));  
+    CPPUNIT_ASSERT(iter1 == indexIntoFile.end(IndexIntoFile::numericalOrder));
+    CPPUNIT_ASSERT(iter2 == indexIntoFile.end(IndexIntoFile::numericalOrder));
     CPPUNIT_ASSERT(iter.type() == kRun);
     CPPUNIT_ASSERT(iter.indexToRun() == 8);
     CPPUNIT_ASSERT(iter.indexToLumi() == IndexIntoFile::invalidIndex);
@@ -352,8 +335,8 @@ void TestIndexIntoFile4::testFind() {
     iter2 = indexIntoFile.findPosition(IndexIntoFile::numericalOrder, 2, 0, 5);
     iter3 = indexIntoFile.findPosition(IndexIntoFile::firstAppearanceOrder, 2, 0, 5);
     CPPUNIT_ASSERT(iter == iter1);
-    CPPUNIT_ASSERT(iter == iter2);    
-    CPPUNIT_ASSERT(iter != iter3);    
+    CPPUNIT_ASSERT(iter == iter2);
+    CPPUNIT_ASSERT(iter != iter3);
     CPPUNIT_ASSERT(iter.type() == kRun);
     CPPUNIT_ASSERT(iter.indexToRun() == 1);
     CPPUNIT_ASSERT(iter.indexToLumi() == 2);

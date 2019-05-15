@@ -17,5 +17,5 @@ BranchIDLists:
 namespace edm {
   typedef std::vector<BranchID::value_type> BranchIDList;
   typedef std::vector<BranchIDList> BranchIDLists;
-}
+}  // namespace edm
 #endif

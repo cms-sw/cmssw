@@ -21,6 +21,6 @@ namespace edm {
     Timestamp time_;
     LuminosityBlockNumber_t luminosityBlockID_;
   };
-  void conversion(EventAux const& from, EventAuxiliary & to);
-}
+  void conversion(EventAux const& from, EventAuxiliary& to);
+}  // namespace edm
 #endif

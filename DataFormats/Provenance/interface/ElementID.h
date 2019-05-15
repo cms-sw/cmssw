@@ -19,13 +19,16 @@ namespace edm {
     using key_type = unsigned int;
 
     ElementID() = default;
-    explicit ElementID(edm::ProductID id, key_type ind): index_(ind), id_(id) {}
+    explicit ElementID(edm::ProductID id, key_type ind) : index_(ind), id_(id) {}
 
     bool isValid() const { return id_.isValid(); }
     ProductID id() const { return id_; }
     key_type index() const { return index_; }
     key_type key() const { return index_; }
-    void reset() { index_ = 0; id_.reset(); }
+    void reset() {
+      index_ = 0;
+      id_.reset();
+    }
 
     void swap(ElementID& other);
 
@@ -34,24 +37,17 @@ namespace edm {
     ProductID id_;
   };
 
-  inline
-  void swap(ElementID& a, ElementID& b) {
-    a.swap(b);
-  }
+  inline void swap(ElementID& a, ElementID& b) { a.swap(b); }
 
-  inline
-  bool operator==(ElementID const& lh, ElementID const& rh) {
+  inline bool operator==(ElementID const& lh, ElementID const& rh) {
     return lh.index() == rh.index() && lh.id() == rh.id();
   }
 
-  inline
-  bool operator!=(ElementID const& lh, ElementID const& rh) {
-    return !(lh == rh);
-  }
+  inline bool operator!=(ElementID const& lh, ElementID const& rh) { return !(lh == rh); }
 
   bool operator<(ElementID const& lh, ElementID const& rh);
 
   std::ostream& operator<<(std::ostream& os, ElementID const& id);
-}
+}  // namespace edm
 
 #endif
