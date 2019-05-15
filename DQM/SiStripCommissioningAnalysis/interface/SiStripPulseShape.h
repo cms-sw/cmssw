@@ -40,31 +40,27 @@ double pulse_x0_yz(double z, double t);
 
 double pulse(double x, double y, double z, double t);
 
-class SiStripPulseShape
-{
- public: 
-  enum mode {peak,deconvolution};
- SiStripPulseShape():mode_(deconvolution) {}
+class SiStripPulseShape {
+public:
+  enum mode { peak, deconvolution };
+  SiStripPulseShape() : mode_(deconvolution) {}
   virtual ~SiStripPulseShape() {}
-  inline void setMode(const mode theMode) { mode_=theMode; }
-  inline mode getMode() const { return mode_; } 
-  inline double getNormalizedValue(const double& t) const
-  {
-    double parameters[5]={0.,-2.82,0.066,50,20};
+  inline void setMode(const mode theMode) { mode_ = theMode; }
+  inline mode getMode() const { return mode_; }
+  inline double getNormalizedValue(const double &t) const {
+    double parameters[5] = {0., -2.82, 0.066, 50, 20};
     double time = t;
-    switch(mode_) {
-    case peak:
-      {
-	return fpeak(&time,parameters);
+    switch (mode_) {
+      case peak: {
+        return fpeak(&time, parameters);
       }
-    case deconvolution:
-      {
-	return fdeconv(&time,parameters);
+      case deconvolution: {
+        return fdeconv(&time, parameters);
       }
     }
   }
-    
- private:
+
+private:
   mode mode_;
 };
 

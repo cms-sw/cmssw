@@ -1,7 +1,6 @@
 #ifndef DTNoiseAnalysisTest_H
 #define DTNoiseAnalysisTest_H
 
-
 /** \class DTNoiseAnalysisTest
  * *
  *  DQM Test Client
@@ -13,20 +12,15 @@
  *   
  */
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 
 #include <DQMServices/Core/interface/DQMEDHarvester.h>
 
-
 #include <iostream>
 #include <string>
 #include <map>
-
-
-
 
 class DTGeometry;
 class DTChamberId;
@@ -34,51 +28,49 @@ class DTSuperLayerId;
 class DQMStore;
 class MonitorElement;
 
-class DTNoiseAnalysisTest: public DQMEDHarvester{
-
+class DTNoiseAnalysisTest : public DQMEDHarvester {
 public:
-
   /// Constructor
   DTNoiseAnalysisTest(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   ~DTNoiseAnalysisTest() override;
 
 protected:
-
   /// BeginRun
-  void beginRun(edm::Run const& run, edm::EventSetup const& context) override ;
+  void beginRun(edm::Run const& run, edm::EventSetup const& context) override;
 
   /// book the summary histograms
 
-  void bookHistos(DQMStore::IBooker &);
+  void bookHistos(DQMStore::IBooker&);
 
   /// DQM Client Diagnostic
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker&,
+                             DQMStore::IGetter&,
+                             edm::LuminosityBlock const&,
+                             edm::EventSetup const&) override;
 
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
 private:
-
   /// Get the ME name
-  std::string getMEName(const DTChamberId & chID);
+  std::string getMEName(const DTChamberId& chID);
   std::string getSynchNoiseMEName(int wheelId) const;
-
 
   int nevents;
   int nMinEvts;
-  
+
   bool bookingdone;
-  
+
   // the dt geometry
   edm::ESHandle<DTGeometry> muonGeom;
 
   // paramaters from cfg
   int noisyCellDef;
 
-  // wheel summary histograms  
-  std::map< int, MonitorElement* > noiseHistos;
-  std::map< int, MonitorElement* > noisyCellHistos;
+  // wheel summary histograms
+  std::map<int, MonitorElement*> noiseHistos;
+  std::map<int, MonitorElement*> noisyCellHistos;
   MonitorElement* summaryNoiseHisto;
   MonitorElement* threshChannelsHisto;
   MonitorElement* summarySynchNoiseHisto;
