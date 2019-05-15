@@ -77,9 +77,6 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
     for(auto& cells : cells_)
       cells.clear();
     
-    for(auto& tiles: layerTiles_)
-      tiles.clear();
-
   }
 
   Density getDensity() override;

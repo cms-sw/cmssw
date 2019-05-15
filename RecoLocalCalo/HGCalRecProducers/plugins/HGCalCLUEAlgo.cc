@@ -93,6 +93,7 @@ void HGCalCLUEAlgo::makeClusters() {
       calculateLocalDensity(i, delta_c);
       calculateDistanceToHigher(i, delta_c);
       numberOfClustersPerLayer_[i] = findAndAssignClusters(i,delta_c);
+      layerTiles_[i].clear();
   
     });
   });
