@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
@@ -37,6 +36,6 @@ public:
 
 private:
   // ----------member data ---------------------------
-
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topoToken_;
 };
 #endif

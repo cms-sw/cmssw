@@ -27,7 +27,8 @@
 //#define DebugLog
 
 HcalTopologyIdealEP::HcalTopologyIdealEP(const edm::ParameterSet& conf)
-  : m_restrictions(conf.getUntrackedParameter<std::string>("Exclude")),
+  : m_hdcToken{setWhatProduced(this, &HcalTopologyIdealEP::produce).consumes<HcalDDDRecConstants>(edm::ESInputTag{})},
+    m_restrictions(conf.getUntrackedParameter<std::string>("Exclude")),
     m_mergePosition(conf.getUntrackedParameter<bool>("MergePosition")) {
 #ifdef DebugLog
   std::cout << "HcalTopologyIdealEP::HcalTopologyIdealEP with Exclude: "
@@ -35,8 +36,6 @@ HcalTopologyIdealEP::HcalTopologyIdealEP(const edm::ParameterSet& conf)
 	    << std::endl;
   edm::LogInfo("HCAL") << "HcalTopologyIdealEP::HcalTopologyIdealEP";
 #endif
-  setWhatProduced(this,
-                  &HcalTopologyIdealEP::produce);
 }
 
 void HcalTopologyIdealEP::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) {
@@ -54,20 +53,18 @@ HcalTopologyIdealEP::produce(const HcalRecNumberingRecord& iRecord) {
   std::cout << "HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)" << std::endl;
   edm::LogInfo("HCAL") << "HcalTopologyIdealEP::produce(const HcalGeometryRecord& iRecord)";
 #endif
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  iRecord.get( pHRNDC );
-  const HcalDDDRecConstants* hdc = &(*pHRNDC);
+  const HcalDDDRecConstants& hdc = iRecord.get(m_hdcToken);
 
 #ifdef DebugLog
-  std::cout << "mode = " << hdc->getTopoMode() << ", maxDepthHB = "
-	    << hdc->getMaxDepth(0) << ", maxDepthHE = " << hdc->getMaxDepth(1)
-	    << ", maxDepthHF = " << hdc->getMaxDepth(2) << std::endl;
-  edm::LogInfo("HCAL") << "mode = " << hdc->getTopoMode() << ", maxDepthHB = "
-		       << hdc->getMaxDepth(0) << ", maxDepthHE = "
-		       << hdc->getMaxDepth(1) << ", maxDepthHF = "
-		       << hdc->getMaxDepth(2);
+  std::cout << "mode = " << hdc.getTopoMode() << ", maxDepthHB = "
+	    << hdc.getMaxDepth(0) << ", maxDepthHE = " << hdc.getMaxDepth(1)
+	    << ", maxDepthHF = " << hdc.getMaxDepth(2) << std::endl;
+  edm::LogInfo("HCAL") << "mode = " << hdc.getTopoMode() << ", maxDepthHB = "
+		       << hdc.getMaxDepth(0) << ", maxDepthHE = "
+		       << hdc.getMaxDepth(1) << ", maxDepthHF = "
+		       << hdc.getMaxDepth(2);
 #endif
-  ReturnType myTopo(new HcalTopology(hdc,m_mergePosition));
+  ReturnType myTopo(new HcalTopology(&hdc,m_mergePosition));
 
   HcalTopologyRestrictionParser parser(*myTopo);
   if (!m_restrictions.empty()) {
