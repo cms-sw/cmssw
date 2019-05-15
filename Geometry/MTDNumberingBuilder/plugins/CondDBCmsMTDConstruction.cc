@@ -9,16 +9,14 @@
 
 using namespace cms;
 
-CondDBCmsMTDConstruction::CondDBCmsMTDConstruction() { }
-
-const GeometricTimingDet* CondDBCmsMTDConstruction::construct(const PGeometricTimingDet& pgd) {
-  GeometricTimingDet* mtd  = new GeometricTimingDet(pgd.pgeomdets_[0],GeometricTimingDet::MTD);
+std::unique_ptr<GeometricTimingDet> CondDBCmsMTDConstruction::construct(const PGeometricTimingDet& pgd) {
+  auto mtd  = std::make_unique<GeometricTimingDet>(pgd.pgeomdets_[0],GeometricTimingDet::MTD);
 
   size_t detMax =  pgd.pgeomdets_.size();
   size_t tri = 1;
   std::vector<GeometricTimingDet*> hier;
   int lev=1;
-  GeometricTimingDet* subdet = mtd;
+  GeometricTimingDet* subdet = mtd.get();
   hier.emplace_back(subdet);
     while ( tri < detMax && pgd.pgeomdets_[tri].level_ == 1 ) {
       subdet = new GeometricTimingDet(pgd.pgeomdets_[tri], GeometricTimingDet::GTDEnumType(pgd.pgeomdets_[tri].type_));
