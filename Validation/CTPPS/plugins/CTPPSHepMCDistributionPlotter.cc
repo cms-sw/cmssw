@@ -25,20 +25,19 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class CTPPSHepMCDistributionPlotter : public edm::one::EDAnalyzer<>
-{
-  public:
-    explicit CTPPSHepMCDistributionPlotter(const edm::ParameterSet&);
+class CTPPSHepMCDistributionPlotter : public edm::one::EDAnalyzer<> {
+public:
+  explicit CTPPSHepMCDistributionPlotter(const edm::ParameterSet &);
 
-  private:
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
-    void endJob() override;
+private:
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
 
-    edm::EDGetTokenT<edm::HepMCProduct> tokenHepMC_;
-    std::string lhcInfoLabel_;
-    std::string outputFile_;
+  edm::EDGetTokenT<edm::HepMCProduct> tokenHepMC_;
+  std::string lhcInfoLabel_;
+  std::string outputFile_;
 
-    std::unique_ptr<TH1D> h_xi_, h_th_x_, h_th_y_;
+  std::unique_ptr<TH1D> h_xi_, h_th_x_, h_th_y_;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -49,19 +48,17 @@ using namespace HepMC;
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSHepMCDistributionPlotter::CTPPSHepMCDistributionPlotter(const edm::ParameterSet& iConfig) :
-  tokenHepMC_( consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagHepMC")) ),
-  lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
-  outputFile_(iConfig.getParameter<string>("outputFile")),
-  h_xi_(new TH1D("h_xi", ";#xi", 100, 0., 0.30)),
-  h_th_x_(new TH1D("h_th_x", ";#theta^{*}_{x}", 100, -300E-6, +300E-6)),
-  h_th_y_(new TH1D("h_th_y", ";#theta^{*}_{y}", 100, -300E-6, +300E-6))
-{}
+CTPPSHepMCDistributionPlotter::CTPPSHepMCDistributionPlotter(const edm::ParameterSet &iConfig)
+    : tokenHepMC_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagHepMC"))),
+      lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
+      outputFile_(iConfig.getParameter<string>("outputFile")),
+      h_xi_(new TH1D("h_xi", ";#xi", 100, 0., 0.30)),
+      h_th_x_(new TH1D("h_th_x", ";#theta^{*}_{x}", 100, -300E-6, +300E-6)),
+      h_th_y_(new TH1D("h_th_y", ";#theta^{*}_{y}", 100, -300E-6, +300E-6)) {}
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSHepMCDistributionPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup &iSetup)
-{
+void CTPPSHepMCDistributionPlotter::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get conditions
   edm::ESHandle<LHCInfo> hLHCInfo;
   iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
@@ -69,11 +66,10 @@ void CTPPSHepMCDistributionPlotter::analyze(const edm::Event& iEvent, const edm:
   // get input
   edm::Handle<edm::HepMCProduct> hHepMC;
   iEvent.getByToken(tokenHepMC_, hHepMC);
-  HepMC::GenEvent *hepMCEvent = (HepMC::GenEvent *) hHepMC->GetEvent();
+  HepMC::GenEvent *hepMCEvent = (HepMC::GenEvent *)hHepMC->GetEvent();
 
   // extract protons
-  for (auto it = hepMCEvent->particles_begin(); it != hepMCEvent->particles_end(); ++it)
-  {
+  for (auto it = hepMCEvent->particles_begin(); it != hepMCEvent->particles_end(); ++it) {
     const auto &part = *it;
 
     // accept only stable non-beam protons
@@ -104,8 +100,7 @@ void CTPPSHepMCDistributionPlotter::analyze(const edm::Event& iEvent, const edm:
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSHepMCDistributionPlotter::endJob()
-{
+void CTPPSHepMCDistributionPlotter::endJob() {
   auto f_out = std::make_unique<TFile>(outputFile_.c_str(), "recreate");
 
   h_xi_->Write();
@@ -116,4 +111,3 @@ void CTPPSHepMCDistributionPlotter::endJob()
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(CTPPSHepMCDistributionPlotter);
-

@@ -42,22 +42,19 @@ class L1MuDTChambThDigi;
 class DTTPGCompareUnit;
 class DTTimeEvolutionHisto;
 
-class DTLocalTriggerBaseTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
-
+class DTLocalTriggerBaseTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
   friend class DTMonitorModule;
 
- public:
-
+public:
   /// Constructor
-  DTLocalTriggerBaseTask(const edm::ParameterSet& ps );
+  DTLocalTriggerBaseTask(const edm::ParameterSet& ps);
 
   /// Destructor
   ~DTLocalTriggerBaseTask() override;
 
- protected:
-
+protected:
   ///Beginrun
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
@@ -66,12 +63,13 @@ class DTLocalTriggerBaseTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosit
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
 
   /// Perform trend plot operations
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context)  override;
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
 
- private:
-
+private:
   /// Run analysis on TM data
-  void runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phInTrigs, std::vector<L1MuDTChambPhDigi> const* phOutTrigs, std::vector<L1MuDTChambThDigi> const* thTrigs);
+  void runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phInTrigs,
+                     std::vector<L1MuDTChambPhDigi> const* phOutTrigs,
+                     std::vector<L1MuDTChambThDigi> const* thTrigs);
 
   /// Run analysis on ROS data
   void runDDUAnalysis(edm::Handle<DTLocalTriggerCollection>& trigsDDU);
@@ -82,13 +80,13 @@ class DTLocalTriggerBaseTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosit
   /// Get the Top folder (different between Physics and TP and TM/DDU)
   std::string& topFolder(std::string const& type) { return baseFolder[type == "TM"]; }
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   /// Book the histograms
-  void bookHistos(DQMStore::IBooker &, const DTChamberId& chamb);
+  void bookHistos(DQMStore::IBooker&, const DTChamberId& chamb);
 
   /// Book the histograms
-  void bookHistos(DQMStore::IBooker &, int wh);
+  void bookHistos(DQMStore::IBooker&, int wh);
 
   /// Set Quality labels
   void setQLabels(MonitorElement* me, short int iaxis);
@@ -112,11 +110,11 @@ class DTLocalTriggerBaseTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosit
   DTTrigGeomUtils* theTrigGeomUtils;
   std::vector<std::string> theTypes;
 
-  std::map<uint32_t,DTTPGCompareUnit> theCompMapIn;
-  std::map<uint32_t,DTTPGCompareUnit> theCompMapOut;
-  std::map<int,std::map<std::string,MonitorElement*> > wheelHistos;
-  std::map<uint32_t,std::map<std::string,MonitorElement*> > chamberHistos;
-  std::map<uint32_t,DTTimeEvolutionHisto* > trendHistos;
+  std::map<uint32_t, DTTPGCompareUnit> theCompMapIn;
+  std::map<uint32_t, DTTPGCompareUnit> theCompMapOut;
+  std::map<int, std::map<std::string, MonitorElement*> > wheelHistos;
+  std::map<uint32_t, std::map<std::string, MonitorElement*> > chamberHistos;
+  std::map<uint32_t, DTTimeEvolutionHisto*> trendHistos;
   MonitorElement* nEventMonitor;
 
   edm::EDGetTokenT<L1MuDTChambPhContainer> tm_phiIn_Token_;

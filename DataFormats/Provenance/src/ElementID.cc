@@ -16,4 +16,4 @@ namespace edm {
     os << id.id() << ":" << id.index();
     return os;
   }
-}
+}  // namespace edm

@@ -12,69 +12,59 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include<map>
-#include<vector>
-#include<iostream>
+#include <map>
+#include <vector>
+#include <iostream>
 
-
-class QTestConfigure{
-
- public:
- 
+class QTestConfigure {
+public:
   ///Constructor
-  QTestConfigure(){}
+  QTestConfigure() {}
   ///Destructor
-  ~QTestConfigure(){}
+  ~QTestConfigure() {}
   ///Creates and defines quality tests
-  bool enableTests(const std::map<std::string, std::map<std::string, std::string> >& tests, DQMStore * bei); 
+  bool enableTests(const std::map<std::string, std::map<std::string, std::string> >& tests, DQMStore* bei);
   ///Disables the Quality Tests in the string list
-  void disableTests(const std::vector<std::string>& testsOFFList, DQMStore * bei);
+  void disableTests(const std::vector<std::string>& testsOFFList, DQMStore* bei);
   ///Returns the vector containing the names of the quality tests that have been created
-  std::vector<std::string> testsReady(){return testsConfigured;}
- 
- private:
+  std::vector<std::string> testsReady() { return testsConfigured; }
 
+private:
   ///Creates ContentsXRangeROOT test
-  void EnableXRangeTest(std::string testName, 
-                        const std::map<std::string, std::string>& params,DQMStore * bei); 
+  void EnableXRangeTest(std::string testName, const std::map<std::string, std::string>& params, DQMStore* bei);
   ///Creates ContentsXRangeASROOT test
-//  void EnableXRangeASTest(std::string testName, 
-//                        std::map<std::string, std::string>params,DQMStore * bei); 
+  //  void EnableXRangeASTest(std::string testName,
+  //                        std::map<std::string, std::string>params,DQMStore * bei);
   ///Creates ContentsYRangeROOT test
-  void EnableYRangeTest(std::string testName, 
-                        const std::map<std::string, std::string>& params,DQMStore * bei); 
+  void EnableYRangeTest(std::string testName, const std::map<std::string, std::string>& params, DQMStore* bei);
   ///Creates ContentsYRangeASROOT test
-//  void EnableYRangeASTest(std::string testName, 
-//                        std::map<std::string, std::string>params,DQMStore * bei); 
-   ///Creates DeadChannelROOT test
-  void EnableDeadChannelTest(std::string testName, 
-                             const std::map<std::string,std::string>& params,DQMStore * bei); 
-   ///Creates NoisyChannelROOT test
-  void EnableNoisyChannelTest(std::string testName, 
-                              const std::map<std::string,std::string>& params,DQMStore * bei);
-   ///Creates ContentSigmaROOT test
-  void EnableContentSigmaTest(std::string testName, 
-                              const std::map<std::string,std::string>& params,DQMStore * bei);
-    ///Creates MeanWithinExpectedROOT test
-  void EnableMeanWithinExpectedTest(std::string testName, 
-                                    const std::map<std::string,std::string>& params,DQMStore * bei);
+  //  void EnableYRangeASTest(std::string testName,
+  //                        std::map<std::string, std::string>params,DQMStore * bei);
+  ///Creates DeadChannelROOT test
+  void EnableDeadChannelTest(std::string testName, const std::map<std::string, std::string>& params, DQMStore* bei);
+  ///Creates NoisyChannelROOT test
+  void EnableNoisyChannelTest(std::string testName, const std::map<std::string, std::string>& params, DQMStore* bei);
+  ///Creates ContentSigmaROOT test
+  void EnableContentSigmaTest(std::string testName, const std::map<std::string, std::string>& params, DQMStore* bei);
+  ///Creates MeanWithinExpectedROOT test
+  void EnableMeanWithinExpectedTest(std::string testName,
+                                    const std::map<std::string, std::string>& params,
+                                    DQMStore* bei);
 
   //===================== new quality tests in the parser =============================//
-///Creates Comp2RefEqualH test
- void EnableComp2RefEqualHTest(std::string testName, 
-                     const std::map<std::string, std::string>& params,DQMStore * bei); 
+  ///Creates Comp2RefEqualH test
+  void EnableComp2RefEqualHTest(std::string testName, const std::map<std::string, std::string>& params, DQMStore* bei);
 
-///Creates Comp2RefChi2 test
- void EnableComp2RefChi2Test(std::string testName, 
-                     const std::map<std::string, std::string>& params,DQMStore * bei); 
+  ///Creates Comp2RefChi2 test
+  void EnableComp2RefChi2Test(std::string testName, const std::map<std::string, std::string>& params, DQMStore* bei);
 
-///Creates Comp2Ref2DChi2 test
- void EnableComp2Ref2DChi2Test(std::string testName, 
-                     const std::map<std::string, std::string>& params,DQMStore * bei); 
+  ///Creates Comp2Ref2DChi2 test
+  void EnableComp2Ref2DChi2Test(std::string testName, const std::map<std::string, std::string>& params, DQMStore* bei);
 
- ///Creates EnableComp2RefKolmogorov test
- void EnableComp2RefKolmogorovTest(std::string testName, 
-                     const std::map<std::string, std::string>& params,DQMStore * bei); 
+  ///Creates EnableComp2RefKolmogorov test
+  void EnableComp2RefKolmogorovTest(std::string testName,
+                                    const std::map<std::string, std::string>& params,
+                                    DQMStore* bei);
 
   /*
     ///Creates MostProbableLandauROOT test
@@ -82,36 +72,30 @@ class QTestConfigure{
                                      std::map<std::string, std::string> &roMParams, DQMStore *bei);
   */
 
-    /// Creates ContentsWithinRangeROOT test
+  /// Creates ContentsWithinRangeROOT test
   void EnableContentsWithinExpectedTest(std::string testName,
-                                        const std::map<std::string,std::string>& params,DQMStore * bei);
+                                        const std::map<std::string, std::string>& params,
+                                        DQMStore* bei);
 
-    /// Creates ContentsWithinRangeROOT test
-//  void EnableContentsWithinExpectedASTest(std::string testName,
-//                                        std::map<std::string,std::string> params,DQMStore * bei);
+  /// Creates ContentsWithinRangeROOT test
+  //  void EnableContentsWithinExpectedASTest(std::string testName,
+  //                                        std::map<std::string,std::string> params,DQMStore * bei);
 
   ///Creates CompareToMedian test
-  void EnableCompareToMedianTest(std::string testName,
-                           const std::map<std::string,std::string>& params,DQMStore * bei); 
+  void EnableCompareToMedianTest(std::string testName, const std::map<std::string, std::string>& params, DQMStore* bei);
 
-  ///Creates EnableCompareLastFilledBinTest test  
-  void EnableCompareLastFilledBinTest(std::string testName, const std::map<std::string, std::string>& params, DQMStore *bei);
+  ///Creates EnableCompareLastFilledBinTest test
+  void EnableCompareLastFilledBinTest(std::string testName,
+                                      const std::map<std::string, std::string>& params,
+                                      DQMStore* bei);
 
   ///Creates CheckVariance test
-  void EnableCheckVarianceTest(std::string testName,
-			       const std::map<std::string,std::string>& params, DQMStore * bei);
+  void EnableCheckVarianceTest(std::string testName, const std::map<std::string, std::string>& params, DQMStore* bei);
 
-  const char * findOrDefault(const std::map<std::string, std::string> &,
-                             const char *,
-                             const char *) const;
+  const char* findOrDefault(const std::map<std::string, std::string>&, const char*, const char*) const;
 
-  
- private:
+private:
   std::vector<std::string> testsConfigured;
- 
-
 };
 
-
 #endif
-

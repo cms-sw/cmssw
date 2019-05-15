@@ -12,7 +12,7 @@
 #include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 
 class DTSimHitMatcher : public MuonSimHitMatcher {
- public:
+public:
   // constructor
   DTSimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector&& iC);
 
@@ -61,16 +61,13 @@ class DTSimHitMatcher : public MuonSimHitMatcher {
   // calculate the average position at the second station
   GlobalPoint simHitsMeanPositionStation(int n) const;
 
-  std::set<unsigned int> hitWiresInDTLayerId(
-      unsigned int, int margin_n_wires = 0) const;  // DT
-  std::set<unsigned int> hitWiresInDTSuperLayerId(
-      unsigned int, int margin_n_wires = 0) const;  // DT
-  std::set<unsigned int> hitWiresInDTChamberId(
-      unsigned int, int margin_n_wires = 0) const;  // DT
+  std::set<unsigned int> hitWiresInDTLayerId(unsigned int, int margin_n_wires = 0) const;       // DT
+  std::set<unsigned int> hitWiresInDTSuperLayerId(unsigned int, int margin_n_wires = 0) const;  // DT
+  std::set<unsigned int> hitWiresInDTChamberId(unsigned int, int margin_n_wires = 0) const;     // DT
 
   void dtChamberIdsToString(const std::set<unsigned int>&) const;
 
- private:
+private:
   void matchSimHitsToSimTrack();
 
   std::map<unsigned int, edm::PSimHitContainer> layer_to_hits_;

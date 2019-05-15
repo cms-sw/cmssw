@@ -3,12 +3,11 @@
 
 #include "DQWorkerClient.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class TrigPrimClient : public DQWorkerClient {
   public:
     TrigPrimClient();
-    ~TrigPrimClient() {}
+    ~TrigPrimClient() override {}
 
     void producePlots(ProcessType) override;
 
@@ -20,7 +19,6 @@ namespace ecaldqm
     float TTF4MaskingAlarmThreshold_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-

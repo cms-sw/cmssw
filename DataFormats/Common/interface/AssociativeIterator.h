@@ -42,166 +42,179 @@
 #include "DataFormats/Common/interface/EDProductGetter.h"
 
 namespace edm {
-    class Event;
-    template <class T> class View;
-    template <class T> class Handle;
-    template <class T> class Association;
-    template <class T> class RefToBase;
-    template <class T> class Ptr;
-    template <class C, class T, class F> class Ref;
-}
+  class Event;
+  template <class T>
+  class View;
+  template <class T>
+  class Handle;
+  template <class T>
+  class Association;
+  template <class T>
+  class RefToBase;
+  template <class T>
+  class Ptr;
+  template <class C, class T, class F>
+  class Ref;
+}  // namespace edm
 
 namespace edm {
 
-    // Helper classes to convert one ref type to another.
-    // Now it's able to convert anything to itself, and RefToBase to anything else
-    // This won't be needed if we used Ptr
-    namespace helper {
-        template<typename RefFrom, typename RefTo>
-        struct RefConverter {
-            static RefTo convert(const RefFrom &ref) { return RefTo(ref); }
-        };
-        template<typename T>
-        struct RefConverter<RefToBase<T>, Ptr<T> > {
-            static Ptr<T> convert(const RefToBase<T> &ref) { return Ptr<T>(ref.id(), ref.isAvailable() ? ref.get() : 0, ref.key()); }
-        };
-        template<typename T, typename C, typename V, typename F>
-        struct RefConverter<RefToBase<T>, Ref<C,V,F> > {
-            static Ref<C,V,F> convert(const RefToBase<T> &ref) { return ref.template castTo<Ref<C,V,F> >(); }
-        };
+  // Helper classes to convert one ref type to another.
+  // Now it's able to convert anything to itself, and RefToBase to anything else
+  // This won't be needed if we used Ptr
+  namespace helper {
+    template <typename RefFrom, typename RefTo>
+    struct RefConverter {
+      static RefTo convert(const RefFrom &ref) { return RefTo(ref); }
+    };
+    template <typename T>
+    struct RefConverter<RefToBase<T>, Ptr<T> > {
+      static Ptr<T> convert(const RefToBase<T> &ref) {
+        return Ptr<T>(ref.id(), ref.isAvailable() ? ref.get() : 0, ref.key());
+      }
+    };
+    template <typename T, typename C, typename V, typename F>
+    struct RefConverter<RefToBase<T>, Ref<C, V, F> > {
+      static Ref<C, V, F> convert(const RefToBase<T> &ref) { return ref.template castTo<Ref<C, V, F> >(); }
+    };
+  }  // namespace helper
+
+  /// Helper class that fetches some type of Ref given ProductID and index, using the edm::Event
+  //  the implementation uses View, and works for RefType = Ref, RefToBase and Ptr
+  template <typename RefType, typename EventType>
+  class EventItemGetter {
+  public:
+    typedef typename RefType::value_type element_type;
+    EventItemGetter(const EventType &iEvent) : iEvent_(iEvent) {}
+    ~EventItemGetter() {}
+
+    RefType get(const ProductID &id, size_t idx) const {
+      typedef typename edm::RefToBase<element_type>
+          BaseRefType;  // could also use Ptr, but then I can't do Ptr->RefToBase
+      if (id_ != id) {
+        id_ = id;
+        iEvent_.get(id_, view_);
+      }
+      BaseRefType ref = view_->refAt(idx);
+      typedef typename helper::RefConverter<BaseRefType, RefType> conv;
+      return conv::convert(ref);
     }
 
-    /// Helper class that fetches some type of Ref given ProductID and index, using the edm::Event
-    //  the implementation uses View, and works for RefType = Ref, RefToBase and Ptr
-    template<typename RefType, typename EventType>
-    class EventItemGetter {
-        public: 
-            typedef typename RefType::value_type element_type;
-            EventItemGetter(const EventType &iEvent) : iEvent_(iEvent) { }
-            ~EventItemGetter() { }
+  private:
+    mutable Handle<View<element_type> > view_;
+    mutable ProductID id_;
+    const EventType &iEvent_;
+  };
 
-            RefType get(const ProductID &id, size_t idx) const {
-                typedef typename edm::RefToBase<element_type> BaseRefType; // could also use Ptr, but then I can't do Ptr->RefToBase
-                if (id_ != id) {
-                    id_ = id;
-                    iEvent_.get(id_, view_);
-                }
-                BaseRefType ref = view_->refAt(idx);
-                typedef typename helper::RefConverter<BaseRefType, RefType> conv; 
-                return conv::convert(ref);
-            }
-        private:
-            mutable Handle<View<element_type> > view_;
-            mutable ProductID id_;
-            const EventType &iEvent_;
+  // unfortunately it's not possible to define value_type of an Association<C> correctly
+  // so we need yet another template trick
+  namespace helper {
+    template <typename AC>
+    struct AssociativeCollectionValueType {
+      typedef typename AC::value_type type;
     };
 
-    // unfortunately it's not possible to define value_type of an Association<C> correctly
-    // so we need yet another template trick
-    namespace helper {
-        template<typename AC> 
-        struct AssociativeCollectionValueType {
-            typedef typename AC::value_type type;
-        };
-
-        template<typename C>
-        struct AssociativeCollectionValueType< Association<C> > {
-            typedef typename Association<C>::reference_type type;
-        };
-    }
-
-template<typename KeyRefType, typename AssociativeCollection, typename ItemGetter >
-class AssociativeIterator {
-    public:
-        typedef KeyRefType                                  key_type;
-        typedef typename KeyRefType::value_type             key_val_type;
-        typedef typename helper::AssociativeCollectionValueType<AssociativeCollection>::type  val_type;
-        typedef typename std::pair<key_type, val_type>      value_type;
-
-        typedef AssociativeIterator<KeyRefType,AssociativeCollection,ItemGetter>   self_type;
-
-        /// Create the associative iterator, pointing at the beginning of the collection
-        AssociativeIterator(const AssociativeCollection &map, const ItemGetter &getter) ;
-
-        self_type & operator++() ;
-        self_type & operator--() ;
-        self_type & nextProductID() ;
-        // self_type & skipTo(const ProductID &id, size_t offs = 0) ; // to be implemented one day
-
-        const value_type & operator*()  const { return *(this->get()); }
-        const value_type * operator->() const { return  (this->get()); }
-        const value_type * get()        const { chkPair(); return & pair_; }
-
-        const key_type   & key() const { chkPair(); return pair_.first; }
-        const val_type   & val() const { return map_.get(idx_);         }
-        const ProductID  & id()  const { return ioi_->first; }
-        
-        operator bool() const { return idx_ < map_.size(); }
-        self_type end() const ;
-    
-        bool operator==(const self_type &other) const { return other.idx_ == idx_; }
-        bool operator!=(const self_type &other) const { return other.idx_ != idx_; }
-        bool operator<( const self_type &other) const { return other.idx_  < idx_; }
-
-    private:
-        typedef typename AssociativeCollection::id_offset_vector  id_offset_vector;
-        typedef typename id_offset_vector::const_iterator         id_offset_iterator;
-        const AssociativeCollection & map_;
-        id_offset_iterator   ioi_, ioi2_;
-        size_t               idx_; 
-
-        ItemGetter           getter_;
-
-        mutable bool         pairOk_;
-        mutable value_type   pair_;
-                
-        void chkPair() const ;
-
+    template <typename C>
+    struct AssociativeCollectionValueType<Association<C> > {
+      typedef typename Association<C>::reference_type type;
     };
+  }  // namespace helper
 
-    template<typename KeyRefType, typename AC, typename IG>
-    AssociativeIterator<KeyRefType,AC,IG>::AssociativeIterator(const AC &map, const IG &getter) :
-        map_(map), ioi_(map_.ids().begin()), ioi2_(ioi_+1), idx_(0), 
-        getter_(getter),
-        pairOk_(false)
-    {
+  template <typename KeyRefType, typename AssociativeCollection, typename ItemGetter>
+  class AssociativeIterator {
+  public:
+    typedef KeyRefType key_type;
+    typedef typename KeyRefType::value_type key_val_type;
+    typedef typename helper::AssociativeCollectionValueType<AssociativeCollection>::type val_type;
+    typedef typename std::pair<key_type, val_type> value_type;
+
+    typedef AssociativeIterator<KeyRefType, AssociativeCollection, ItemGetter> self_type;
+
+    /// Create the associative iterator, pointing at the beginning of the collection
+    AssociativeIterator(const AssociativeCollection &map, const ItemGetter &getter);
+
+    self_type &operator++();
+    self_type &operator--();
+    self_type &nextProductID();
+    // self_type & skipTo(const ProductID &id, size_t offs = 0) ; // to be implemented one day
+
+    const value_type &operator*() const { return *(this->get()); }
+    const value_type *operator->() const { return (this->get()); }
+    const value_type *get() const {
+      chkPair();
+      return &pair_;
     }
 
-    template<typename KeyRefType, typename AC, typename IG>
-    AssociativeIterator<KeyRefType,AC,IG> & AssociativeIterator<KeyRefType,AC,IG>::operator++() {
-        pairOk_ = false;
-        idx_++;
-        if (ioi2_ < map_.ids().end()) {
-            if (ioi2_->second == idx_) {
-                ++ioi_; ++ioi2_;
-            }
-        }
-        return *this;
+    const key_type &key() const {
+      chkPair();
+      return pair_.first;
     }
+    const val_type &val() const { return map_.get(idx_); }
+    const ProductID &id() const { return ioi_->first; }
 
-    template<typename KeyRefType, typename AC, typename IG>
-    AssociativeIterator<KeyRefType,AC,IG> & AssociativeIterator<KeyRefType,AC,IG>::operator--() {
-        pairOk_ = false;
-        idx_--;
-        if (ioi_->second < idx_) {
-            --ioi_; --ioi2_;
-        }
-        return *this;
+    operator bool() const { return idx_ < map_.size(); }
+    self_type end() const;
 
+    bool operator==(const self_type &other) const { return other.idx_ == idx_; }
+    bool operator!=(const self_type &other) const { return other.idx_ != idx_; }
+    bool operator<(const self_type &other) const { return other.idx_ < idx_; }
+
+  private:
+    typedef typename AssociativeCollection::id_offset_vector id_offset_vector;
+    typedef typename id_offset_vector::const_iterator id_offset_iterator;
+    const AssociativeCollection &map_;
+    id_offset_iterator ioi_, ioi2_;
+    size_t idx_;
+
+    ItemGetter getter_;
+
+    mutable bool pairOk_;
+    mutable value_type pair_;
+
+    void chkPair() const;
+  };
+
+  template <typename KeyRefType, typename AC, typename IG>
+  AssociativeIterator<KeyRefType, AC, IG>::AssociativeIterator(const AC &map, const IG &getter)
+      : map_(map), ioi_(map_.ids().begin()), ioi2_(ioi_ + 1), idx_(0), getter_(getter), pairOk_(false) {}
+
+  template <typename KeyRefType, typename AC, typename IG>
+  AssociativeIterator<KeyRefType, AC, IG> &AssociativeIterator<KeyRefType, AC, IG>::operator++() {
+    pairOk_ = false;
+    idx_++;
+    if (ioi2_ < map_.ids().end()) {
+      if (ioi2_->second == idx_) {
+        ++ioi_;
+        ++ioi2_;
+      }
     }
+    return *this;
+  }
 
-    template<typename KeyRefType, typename AC, typename IG>
-    AssociativeIterator<KeyRefType,AC,IG> & AssociativeIterator<KeyRefType,AC,IG>::nextProductID() {
-        pairOk_ = false;
-        ioi_++; ioi2_++;
-        if (ioi_ == map_.ids().end()) {
-            idx_ = map_.size();
-        } else {
-            idx_ = ioi_->second;
-        }
+  template <typename KeyRefType, typename AC, typename IG>
+  AssociativeIterator<KeyRefType, AC, IG> &AssociativeIterator<KeyRefType, AC, IG>::operator--() {
+    pairOk_ = false;
+    idx_--;
+    if (ioi_->second < idx_) {
+      --ioi_;
+      --ioi2_;
     }
+    return *this;
+  }
 
-    /*
+  template <typename KeyRefType, typename AC, typename IG>
+  AssociativeIterator<KeyRefType, AC, IG> &AssociativeIterator<KeyRefType, AC, IG>::nextProductID() {
+    pairOk_ = false;
+    ioi_++;
+    ioi2_++;
+    if (ioi_ == map_.ids().end()) {
+      idx_ = map_.size();
+    } else {
+      idx_ = ioi_->second;
+    }
+  }
+
+  /*
     template<typename KeyRefType, typename AC, typename IG>
     AssociativeIterator<KeyRefType,AC,IG> & AssociativeIterator<KeyRefType,AC,IG>::skipTo(const ProductID &id, size_t offs) {
         pairOk_ = false;
@@ -209,30 +222,30 @@ class AssociativeIterator {
     }
     */
 
-    template<typename KeyRefType, typename AC, typename IG>
-    AssociativeIterator<KeyRefType,AC,IG> AssociativeIterator<KeyRefType,AC,IG>::end() const {
-        self_type ret(map_, getter_);
-        ret.ioi_  = map_.ids().end();
-        ret.ioi2_ = ret.ioi_ + 1;
-        ret.idx_  = map_.size(); 
-        return ret;
-    }
-   
-    template<typename KeyRefType, typename AC, typename IG>
-    void AssociativeIterator<KeyRefType,AC,IG>::chkPair() const {
-        if (pairOk_) return;
-        pair_.first = getter_.get(id(), idx_ - ioi_->second);
-        pair_.second = map_.get(idx_);
-        pairOk_ = true;
-    }
+  template <typename KeyRefType, typename AC, typename IG>
+  AssociativeIterator<KeyRefType, AC, IG> AssociativeIterator<KeyRefType, AC, IG>::end() const {
+    self_type ret(map_, getter_);
+    ret.ioi_ = map_.ids().end();
+    ret.ioi2_ = ret.ioi_ + 1;
+    ret.idx_ = map_.size();
+    return ret;
+  }
 
-    template<typename KeyRefType, typename AC, typename EventType>
-      AssociativeIterator<KeyRefType, AC, edm::EventItemGetter<KeyRefType, EventType > >
-      makeAssociativeIterator(const AC &map, const EventType &event) {
-      using Getter =  edm::EventItemGetter<KeyRefType,EventType>;
-      return AssociativeIterator<KeyRefType, AC, Getter >(map, Getter{event});
-    }
-}
+  template <typename KeyRefType, typename AC, typename IG>
+  void AssociativeIterator<KeyRefType, AC, IG>::chkPair() const {
+    if (pairOk_)
+      return;
+    pair_.first = getter_.get(id(), idx_ - ioi_->second);
+    pair_.second = map_.get(idx_);
+    pairOk_ = true;
+  }
+
+  template <typename KeyRefType, typename AC, typename EventType>
+  AssociativeIterator<KeyRefType, AC, edm::EventItemGetter<KeyRefType, EventType> > makeAssociativeIterator(
+      const AC &map, const EventType &event) {
+    using Getter = edm::EventItemGetter<KeyRefType, EventType>;
+    return AssociativeIterator<KeyRefType, AC, Getter>(map, Getter{event});
+  }
+}  // namespace edm
 
 #endif
-

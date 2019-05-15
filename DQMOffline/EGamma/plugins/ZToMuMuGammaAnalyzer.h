@@ -96,21 +96,20 @@ class TTree;
 class SimVertex;
 class SimTrack;
 
-class ZToMuMuGammaAnalyzer : public DQMEDAnalyzer
-{
- public:
+class ZToMuMuGammaAnalyzer : public DQMEDAnalyzer {
+public:
   explicit ZToMuMuGammaAnalyzer(const edm::ParameterSet&);
   ~ZToMuMuGammaAnalyzer() override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;                                
-  void analyze( const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   edm::EDGetTokenT<std::vector<reco::Photon> > photon_token_;
   edm::EDGetTokenT<std::vector<reco::Muon> > muon_token_;
   edm::EDGetTokenT<edm::ValueMap<bool> > PhotonIDLoose_token_;
   edm::EDGetTokenT<edm::ValueMap<bool> > PhotonIDTight_token_;
-  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > barrelRecHit_token_;
-  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > endcapRecHit_token_;
+  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> > > barrelRecHit_token_;
+  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> > > endcapRecHit_token_;
   edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent_token_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpot_token_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
@@ -141,7 +140,7 @@ class ZToMuMuGammaAnalyzer : public DQMEDAnalyzer
   float photonMinEt_;
   float photonMaxEta_;
   float photonTrackIso_;
-  
+
   // mu mu gamma selection
   float nearMuonDr_;
   float nearMuonHcalIso_;
@@ -154,50 +153,50 @@ class ZToMuMuGammaAnalyzer : public DQMEDAnalyzer
   // Histogram parameters
   double eMin_;
   double eMax_;
-  int    eBin_;
+  int eBin_;
 
   double etMin_;
   double etMax_;
-  int    etBin_;
+  int etBin_;
 
   double sumMin_;
   double sumMax_;
-  int    sumBin_;
+  int sumBin_;
 
   double etaMin_;
   double etaMax_;
-  int    etaBin_;
+  int etaBin_;
 
   double phiMin_;
   double phiMax_;
-  int    phiBin_;
+  int phiBin_;
 
   double r9Min_;
   double r9Max_;
-  int    r9Bin_;
+  int r9Bin_;
 
   double hOverEMin_;
   double hOverEMax_;
-  int    hOverEBin_;
+  int hOverEBin_;
 
   double numberMin_;
   double numberMax_;
-  int    numberBin_;
+  int numberBin_;
 
   double sigmaIetaMin_;
   double sigmaIetaMax_;
-  int    sigmaIetaBin_;
+  int sigmaIetaBin_;
 
   int reducedEtBin_;
   int reducedEtaBin_;
   int reducedSumBin_;
   int reducedR9Bin_;
 
-  float mumuInvMass( const reco::Muon & m1,const reco::Muon & m2 ) ;
-  float mumuGammaInvMass(const reco::Muon & mu1,const reco::Muon & mu2, const reco::PhotonRef& pho );
-  bool  basicMuonSelection (  const reco::Muon & m );
-  bool  muonSelection (  const reco::Muon & m,  const reco::BeamSpot& bs );
-  bool  photonSelection (  const reco::PhotonRef & p );
+  float mumuInvMass(const reco::Muon& m1, const reco::Muon& m2);
+  float mumuGammaInvMass(const reco::Muon& mu1, const reco::Muon& mu2, const reco::PhotonRef& pho);
+  bool basicMuonSelection(const reco::Muon& m);
+  bool muonSelection(const reco::Muon& m, const reco::BeamSpot& bs);
+  bool photonSelection(const reco::PhotonRef& p);
 
   MonitorElement* h_nRecoVtx_;
   ///photon histos
@@ -227,70 +226,70 @@ class ZToMuMuGammaAnalyzer : public DQMEDAnalyzer
   MonitorElement* p_e1x5VsEta_[3];
   MonitorElement* h2_e1x5VsEt_[3];
   MonitorElement* p_e1x5VsEt_[3];
-        
+
   MonitorElement* h_e2x5_[3];
   MonitorElement* h2_e2x5VsEta_[3];
   MonitorElement* p_e2x5VsEta_[3];
   MonitorElement* h2_e2x5VsEt_[3];
   MonitorElement* p_e2x5VsEt_[3];
-  
+
   MonitorElement* h_r1x5_[3];
   MonitorElement* h2_r1x5VsEta_[3];
   MonitorElement* p_r1x5VsEta_[3];
   MonitorElement* h2_r1x5VsEt_[3];
   MonitorElement* p_r1x5VsEt_[3];
-        
+
   MonitorElement* h_r2x5_[3];
   MonitorElement* h2_r2x5VsEta_[3];
   MonitorElement* p_r2x5VsEta_[3];
   MonitorElement* h2_r2x5VsEt_[3];
   MonitorElement* p_r2x5VsEt_[3];
-        
+
   MonitorElement* h_phoSigmaIetaIeta_[3];
-  MonitorElement* h2_sigmaIetaIetaVsEta_[3]; 
+  MonitorElement* h2_sigmaIetaIetaVsEta_[3];
   MonitorElement* p_sigmaIetaIetaVsEta_[3];
 
-  MonitorElement* h_nTrackIsolSolid_[3];     
-  MonitorElement* h2_nTrackIsolSolidVsEt_[3]; 
-  MonitorElement* p_nTrackIsolSolidVsEt_[3]; 
+  MonitorElement* h_nTrackIsolSolid_[3];
+  MonitorElement* h2_nTrackIsolSolidVsEt_[3];
+  MonitorElement* p_nTrackIsolSolidVsEt_[3];
   MonitorElement* h2_nTrackIsolSolidVsEta_[3];
   MonitorElement* p_nTrackIsolSolidVsEta_[3];
-  
-  MonitorElement* h_nTrackIsolHollow_[3];    
-  MonitorElement* h2_nTrackIsolHollowVsEt_[3]; 
-  MonitorElement* p_nTrackIsolHollowVsEt_[3]; 
+
+  MonitorElement* h_nTrackIsolHollow_[3];
+  MonitorElement* h2_nTrackIsolHollowVsEt_[3];
+  MonitorElement* p_nTrackIsolHollowVsEt_[3];
   MonitorElement* h2_nTrackIsolHollowVsEta_[3];
   MonitorElement* p_nTrackIsolHollowVsEta_[3];
-  
-  MonitorElement* h_trackPtSumSolid_[3];      
-  MonitorElement* h2_trackPtSumSolidVsEt_[3];  
-  MonitorElement* p_trackPtSumSolidVsEt_[3];  
-  MonitorElement* h2_trackPtSumSolidVsEta_[3]; 
-  MonitorElement* p_trackPtSumSolidVsEta_[3]; 
- 
-  MonitorElement* h_trackPtSumHollow_[3];     
-  MonitorElement* h2_trackPtSumHollowVsEt_[3]; 
-  MonitorElement* p_trackPtSumHollowVsEt_[3]; 
-  MonitorElement* h2_trackPtSumHollowVsEta_[3]; 
-  MonitorElement* p_trackPtSumHollowVsEta_[3]; 
 
-  MonitorElement* h_ecalSum_[3];    
-  MonitorElement* h2_ecalSumVsEt_[3];  
-  MonitorElement* p_ecalSumVsEt_[3];  
-  MonitorElement* h2_ecalSumVsEta_[3]; 
-  MonitorElement* p_ecalSumVsEta_[3]; 
-  
-  MonitorElement* h_hcalSum_[3];      
-  MonitorElement* h2_hcalSumVsEt_[3];  
-  MonitorElement* p_hcalSumVsEt_[3];  
-  MonitorElement* h2_hcalSumVsEta_[3]; 
-  MonitorElement* p_hcalSumVsEta_[3]; 
-  
-  MonitorElement* h_hOverE_[3];       
-  MonitorElement* p_hOverEVsEt_[3];   
-  MonitorElement* p_hOverEVsEta_[3];  
-  MonitorElement* h_h1OverE_[3];      
-  MonitorElement* h_h2OverE_[3];      
+  MonitorElement* h_trackPtSumSolid_[3];
+  MonitorElement* h2_trackPtSumSolidVsEt_[3];
+  MonitorElement* p_trackPtSumSolidVsEt_[3];
+  MonitorElement* h2_trackPtSumSolidVsEta_[3];
+  MonitorElement* p_trackPtSumSolidVsEta_[3];
+
+  MonitorElement* h_trackPtSumHollow_[3];
+  MonitorElement* h2_trackPtSumHollowVsEt_[3];
+  MonitorElement* p_trackPtSumHollowVsEt_[3];
+  MonitorElement* h2_trackPtSumHollowVsEta_[3];
+  MonitorElement* p_trackPtSumHollowVsEta_[3];
+
+  MonitorElement* h_ecalSum_[3];
+  MonitorElement* h2_ecalSumVsEt_[3];
+  MonitorElement* p_ecalSumVsEt_[3];
+  MonitorElement* h2_ecalSumVsEta_[3];
+  MonitorElement* p_ecalSumVsEta_[3];
+
+  MonitorElement* h_hcalSum_[3];
+  MonitorElement* h2_hcalSumVsEt_[3];
+  MonitorElement* p_hcalSumVsEt_[3];
+  MonitorElement* h2_hcalSumVsEta_[3];
+  MonitorElement* p_hcalSumVsEta_[3];
+
+  MonitorElement* h_hOverE_[3];
+  MonitorElement* p_hOverEVsEt_[3];
+  MonitorElement* p_hOverEVsEta_[3];
+  MonitorElement* h_h1OverE_[3];
+  MonitorElement* h_h2OverE_[3];
 
   MonitorElement* h_newhOverE_[3];
   MonitorElement* p_newhOverEVsEta_[3];

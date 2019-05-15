@@ -16,7 +16,6 @@
 #include "TProfile.h"
 //
 
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -40,7 +39,6 @@
  **     
  ***/
 
-
 // forward declarations
 class TFile;
 class TH1F;
@@ -48,37 +46,28 @@ class TH2F;
 class TProfile;
 class TTree;
 
-
-class PhotonPostprocessing : public edm::EDAnalyzer
-{
-
- public:
-   
+class PhotonPostprocessing : public edm::EDAnalyzer {
+public:
   //
-  explicit PhotonPostprocessing( const edm::ParameterSet& pset ) ;
+  explicit PhotonPostprocessing(const edm::ParameterSet& pset);
   ~PhotonPostprocessing() override;
-                                   
-      
-  void analyze(const edm::Event&, const edm::EventSetup&  ) override ;
-  void beginJob() override ;
-  void endJob() override ;
-  void endRun(const edm::Run& , const edm::EventSetup& ) override ;
- 
 
- private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+
+private:
   //
 
+  void dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator, std::string type);
+  void dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator);
+  virtual void runPostprocessing();
 
-
-  void dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator,std::string type);
-  void dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator); 
-  virtual void runPostprocessing();      
-
-  DQMStore *dbe_;
+  DQMStore* dbe_;
   int verbosity_;
 
   edm::ParameterSet parameters_;
-
 
   bool standAlone_;
   bool batch_;
@@ -90,86 +79,75 @@ class PhotonPostprocessing : public edm::EDAnalyzer
 
   std::stringstream currentFolder_;
 
-
   double etMin;
   double etMax;
-  int    etBin;
+  int etBin;
   double etaMin;
   double etaMax;
-  int    etaBin;
-  int    etaBin2;
+  int etaBin;
+  int etaBin2;
   double phiMin;
   double phiMax;
-  int    phiBin;
+  int phiBin;
   double rMin;
   double rMax;
-  int    rBin;
+  int rBin;
   double zMin;
   double zMax;
-  int    zBin;
+  int zBin;
 
+  MonitorElement* phoRecoEffEta_;
+  MonitorElement* phoRecoEffPhi_;
+  MonitorElement* phoRecoEffEt_;
 
+  MonitorElement* phoDeadChEta_;
+  MonitorElement* phoDeadChPhi_;
+  MonitorElement* phoDeadChEt_;
 
-  MonitorElement*  phoRecoEffEta_;
-  MonitorElement*  phoRecoEffPhi_;
-  MonitorElement*  phoRecoEffEt_;
+  MonitorElement* convEffEtaTwoTracks_;
+  MonitorElement* convEffPhiTwoTracks_;
+  MonitorElement* convEffRTwoTracks_;
+  MonitorElement* convEffZTwoTracks_;
+  MonitorElement* convEffEtTwoTracks_;
 
-  MonitorElement*  phoDeadChEta_;
-  MonitorElement*  phoDeadChPhi_;
-  MonitorElement*  phoDeadChEt_;
+  MonitorElement* convEffEtaTwoTracksAndVtxProbGT0_;
+  MonitorElement* convEffEtaTwoTracksAndVtxProbGT0005_;
+  MonitorElement* convEffRTwoTracksAndVtxProbGT0_;
+  MonitorElement* convEffRTwoTracksAndVtxProbGT0005_;
 
+  MonitorElement* convEffEtaOneTrack_;
+  MonitorElement* convEffPhiOneTrack_;
+  MonitorElement* convEffROneTrack_;
+  MonitorElement* convEffZOneTrack_;
+  MonitorElement* convEffEtOneTrack_;
 
-  MonitorElement*  convEffEtaTwoTracks_;
-  MonitorElement*  convEffPhiTwoTracks_;
-  MonitorElement*  convEffRTwoTracks_;
-  MonitorElement*  convEffZTwoTracks_;
-  MonitorElement*  convEffEtTwoTracks_;
+  MonitorElement* h_simConvEtaMTotal_;
+  MonitorElement* h_simConvPhiMTotal_;
+  MonitorElement* h_simConvRMTotal_;
+  MonitorElement* h_simConvZMTotal_;
+  MonitorElement* h_simConvEtMTotal_;
 
-  MonitorElement*  convEffEtaTwoTracksAndVtxProbGT0_;
-  MonitorElement*  convEffEtaTwoTracksAndVtxProbGT0005_;
-  MonitorElement*  convEffRTwoTracksAndVtxProbGT0_;
-  MonitorElement*  convEffRTwoTracksAndVtxProbGT0005_;
+  MonitorElement* convEffEtaTotal_;
+  MonitorElement* convEffPhiTotal_;
+  MonitorElement* convEffRTotal_;
+  MonitorElement* convEffZTotal_;
+  MonitorElement* convEffEtTotal_;
 
-  MonitorElement*  convEffEtaOneTrack_;
-  MonitorElement*  convEffPhiOneTrack_;
-  MonitorElement*  convEffROneTrack_;
-  MonitorElement*  convEffZOneTrack_;
-  MonitorElement*  convEffEtOneTrack_;
+  MonitorElement* convFakeRateEtaTwoTracks_;
+  MonitorElement* convFakeRatePhiTwoTracks_;
+  MonitorElement* convFakeRateRTwoTracks_;
+  MonitorElement* convFakeRateZTwoTracks_;
+  MonitorElement* convFakeRateEtTwoTracks_;
 
-  MonitorElement*  h_simConvEtaMTotal_;
-  MonitorElement*  h_simConvPhiMTotal_;
-  MonitorElement*  h_simConvRMTotal_;
-  MonitorElement*  h_simConvZMTotal_;
-  MonitorElement*  h_simConvEtMTotal_;
+  MonitorElement* bkgRecoEffEta_;
+  MonitorElement* bkgRecoEffPhi_;
+  MonitorElement* bkgRecoEffEt_;
 
-  MonitorElement*  convEffEtaTotal_;
-  MonitorElement*  convEffPhiTotal_;
-  MonitorElement*  convEffRTotal_;
-  MonitorElement*  convEffZTotal_;
-  MonitorElement*  convEffEtTotal_;
+  MonitorElement* bkgDeadChEta_;
+  MonitorElement* bkgDeadChPhi_;
+  MonitorElement* bkgDeadChEt_;
 
-
-  MonitorElement*  convFakeRateEtaTwoTracks_;
-  MonitorElement*  convFakeRatePhiTwoTracks_;
-  MonitorElement*  convFakeRateRTwoTracks_;
-  MonitorElement*  convFakeRateZTwoTracks_;
-  MonitorElement*  convFakeRateEtTwoTracks_;
-
-  MonitorElement*  bkgRecoEffEta_;
-  MonitorElement*  bkgRecoEffPhi_;
-  MonitorElement*  bkgRecoEffEt_;
-
-  MonitorElement*  bkgDeadChEta_;
-  MonitorElement*  bkgDeadChPhi_;
-  MonitorElement*  bkgDeadChEt_;
-
-  MonitorElement*  convVsEt_[2];
-
-   
+  MonitorElement* convVsEt_[2];
 };
-
-
-
-
 
 #endif

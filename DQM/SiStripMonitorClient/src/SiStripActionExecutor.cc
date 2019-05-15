@@ -17,47 +17,38 @@
 #include <iostream>
 #include <sstream>
 
-SiStripActionExecutor::SiStripActionExecutor(edm::ParameterSet const& ps)
-  : pSet_{ps}
-{
+SiStripActionExecutor::SiStripActionExecutor(edm::ParameterSet const& ps) : pSet_{ps} {
   edm::LogInfo("SiStripActionExecutor") << " Creating SiStripActionExecutor "
                                         << "\n";
 }
 
-SiStripActionExecutor::~SiStripActionExecutor()
-{
+SiStripActionExecutor::~SiStripActionExecutor() {
   edm::LogInfo("SiStripActionExecutor") << " Deleting SiStripActionExecutor "
                                         << "\n";
 }
 
-bool
-SiStripActionExecutor::readConfiguration()
-{
+bool SiStripActionExecutor::readConfiguration() {
   if (!summaryCreator_) {
     summaryCreator_ = std::make_unique<SiStripSummaryCreator>();
   }
   auto const fpath = pSet_.getUntrackedParameter<std::string>(
-    "SummaryConfigPath",
-    "DQM/SiStripMonitorClient/data/sistrip_monitorelement_config.xml");
+      "SummaryConfigPath", "DQM/SiStripMonitorClient/data/sistrip_monitorelement_config.xml");
   return summaryCreator_->readConfiguration(fpath);
 }
 
 //
 // -- Read Configuration File
 //
-bool
-SiStripActionExecutor::readTkMapConfiguration(edm::EventSetup const& eSetup)
-{
+bool SiStripActionExecutor::readTkMapConfiguration(edm::EventSetup const& eSetup) {
   tkMapCreator_ = std::make_unique<SiStripTrackerMapCreator>(eSetup);
   return tkMapCreator_.get() != nullptr;
 }
 //
 // -- Create and Fill Summary Monitor Elements
 //
-void
-SiStripActionExecutor::createSummary(DQMStore& dqm_store)
-{
-  if (!summaryCreator_) return;
+void SiStripActionExecutor::createSummary(DQMStore& dqm_store) {
+  if (!summaryCreator_)
+    return;
 
   dqm_store.cd();
   std::string dname = "SiStrip/MechanicalView";
@@ -69,10 +60,9 @@ SiStripActionExecutor::createSummary(DQMStore& dqm_store)
 //
 // -- Create and Fill Summary Monitor Elements
 //
-void
-SiStripActionExecutor::createSummaryOffline(DQMStore& dqm_store)
-{
-  if (!summaryCreator_) return;
+void SiStripActionExecutor::createSummaryOffline(DQMStore& dqm_store) {
+  if (!summaryCreator_)
+    return;
 
   dqm_store.cd();
   std::string dname = "MechanicalView";
@@ -84,34 +74,31 @@ SiStripActionExecutor::createSummaryOffline(DQMStore& dqm_store)
 //
 // -- create tracker map
 //
-void
-SiStripActionExecutor::createTkMap(edm::ParameterSet const& tkmapPset,
-                                   DQMStore& dqm_store,
-                                   std::string& map_type,
-                                   edm::EventSetup const& eSetup)
-{
-  if (tkMapCreator_) tkMapCreator_->create(tkmapPset, dqm_store, map_type, eSetup);
+void SiStripActionExecutor::createTkMap(edm::ParameterSet const& tkmapPset,
+                                        DQMStore& dqm_store,
+                                        std::string& map_type,
+                                        edm::EventSetup const& eSetup) {
+  if (tkMapCreator_)
+    tkMapCreator_->create(tkmapPset, dqm_store, map_type, eSetup);
 }
 //
 // -- create tracker map for offline
 //
-void
-SiStripActionExecutor::createOfflineTkMap(edm::ParameterSet const& tkmapPset,
-                                          DQMStore& dqm_store,
-                                          std::string& map_type,
-                                          edm::EventSetup const& eSetup)
-{
-  if (tkMapCreator_) tkMapCreator_->createForOffline(tkmapPset, dqm_store, map_type, eSetup);
+void SiStripActionExecutor::createOfflineTkMap(edm::ParameterSet const& tkmapPset,
+                                               DQMStore& dqm_store,
+                                               std::string& map_type,
+                                               edm::EventSetup const& eSetup) {
+  if (tkMapCreator_)
+    tkMapCreator_->createForOffline(tkmapPset, dqm_store, map_type, eSetup);
 }
 //
 // -- create root file with detId info from tracker maps
 //
-void
-SiStripActionExecutor::createTkInfoFile(std::vector<std::string> map_names,
-                                        TTree* tkinfo_tree,
-                                        DQMStore& dqm_store)
-{
-  if (!tkMapCreator_) return;
+void SiStripActionExecutor::createTkInfoFile(std::vector<std::string> map_names,
+                                             TTree* tkinfo_tree,
+                                             DQMStore& dqm_store) {
+  if (!tkMapCreator_)
+    return;
 
   auto const& detidList = edm::Service<SiStripDetInfoFileReader> {}
   ->getAllDetIds();
@@ -120,56 +107,39 @@ SiStripActionExecutor::createTkInfoFile(std::vector<std::string> map_names,
 //
 // -- Create Status Monitor Elements
 //
-void
-SiStripActionExecutor::createStatus(DQMStore& dqm_store)
-{
+void SiStripActionExecutor::createStatus(DQMStore& dqm_store) {
   if (qualityChecker_.get() == nullptr) {
     qualityChecker_ = std::make_unique<SiStripQualityChecker>(pSet_);
   }
   qualityChecker_->bookStatus(dqm_store);
 }
 
-void
-SiStripActionExecutor::fillDummyStatus()
-{
-  qualityChecker_->fillDummyStatus();
-}
+void SiStripActionExecutor::fillDummyStatus() { qualityChecker_->fillDummyStatus(); }
 
-void
-SiStripActionExecutor::fillStatus(
-  DQMStore& dqm_store,
-  edm::ESHandle<SiStripDetCabling> const& detcabling,
-  edm::EventSetup const& eSetup)
-{
+void SiStripActionExecutor::fillStatus(DQMStore& dqm_store,
+                                       edm::ESHandle<SiStripDetCabling> const& detcabling,
+                                       edm::EventSetup const& eSetup) {
   qualityChecker_->fillStatus(dqm_store, detcabling, eSetup);
 }
 
-void
-SiStripActionExecutor::fillStatusAtLumi(DQMStore& dqm_store)
-{
-  qualityChecker_->fillStatusAtLumi(dqm_store);
-}
+void SiStripActionExecutor::fillStatusAtLumi(DQMStore& dqm_store) { qualityChecker_->fillStatusAtLumi(dqm_store); }
 
-void
-SiStripActionExecutor::createDummyShiftReport()
-{
+void SiStripActionExecutor::createDummyShiftReport() {
   std::ofstream report_file;
   report_file.open("sistrip_shift_report.txt", std::ios::out);
   report_file << " Nothing to report!!" << std::endl;
   report_file.close();
 }
 
-void
-SiStripActionExecutor::createShiftReport(DQMStore& dqm_store)
-{
+void SiStripActionExecutor::createShiftReport(DQMStore& dqm_store) {
   // Read layout configuration
-  std::string const localPath{
-    "DQM/SiStripMonitorClient/data/sistrip_plot_layout.xml"};
+  std::string const localPath{"DQM/SiStripMonitorClient/data/sistrip_plot_layout.xml"};
   SiStripLayoutParser layout_parser;
   layout_parser.getDocument(edm::FileInPath(localPath).fullPath());
 
   std::map<std::string, std::vector<std::string>> layout_map;
-  if (!layout_parser.getAllLayouts(layout_map)) return;
+  if (!layout_parser.getAllLayouts(layout_map))
+    return;
 
   std::ostringstream shift_summary;
   configWriter_ = std::make_unique<SiStripConfigWriter>();
@@ -217,12 +187,8 @@ SiStripActionExecutor::createShiftReport(DQMStore& dqm_store)
   configWriter_.reset();
 }
 
-void
-SiStripActionExecutor::printReportSummary(MonitorElement* me,
-                                          std::ostringstream& str_val,
-                                          std::string name)
-{
-  str_val <<" " << name << "  : ";
+void SiStripActionExecutor::printReportSummary(MonitorElement* me, std::ostringstream& str_val, std::string name) {
+  str_val << " " << name << "  : ";
   std::string value;
   SiStripUtility::getMEValue(me, value);
   configWriter_->createChildElement("MonitorElement", name, "value", value);
@@ -233,24 +199,23 @@ SiStripActionExecutor::printReportSummary(MonitorElement* me,
     str_val << fvalue << std::endl;
 }
 
-void
-SiStripActionExecutor::printShiftHistoParameters(
-  DQMStore& dqm_store,
-  std::map<std::string, std::vector<std::string>> const& layout_map,
-  std::ostringstream& str_val)
-{
+void SiStripActionExecutor::printShiftHistoParameters(DQMStore& dqm_store,
+                                                      std::map<std::string, std::vector<std::string>> const& layout_map,
+                                                      std::ostringstream& str_val) {
   str_val << std::endl;
   for (auto const& [set_name, path_names] : layout_map) {
-    if (set_name.find("Summary") != std::string::npos) continue;
+    if (set_name.find("Summary") != std::string::npos)
+      continue;
     configWriter_->createElement(set_name);
 
     str_val << " " << set_name << " : " << std::endl;
-    str_val << " ===================================="<< std::endl;
+    str_val << " ====================================" << std::endl;
 
     str_val << std::setprecision(2);
     str_val << setiosflags(std::ios::fixed);
     for (auto const& path_name : path_names) {
-      if (path_name.empty()) continue;
+      if (path_name.empty())
+        continue;
       MonitorElement* me = dqm_store.get(path_name);
       std::ostringstream entry_str, mean_str, rms_str;
       entry_str << std::setprecision(2);
@@ -262,19 +227,12 @@ SiStripActionExecutor::printShiftHistoParameters(
       entry_str << std::setw(7) << me->getEntries();
       mean_str << std::setw(7) << me->getMean();
       rms_str << std::setw(7) << me->getRMS();
-      configWriter_->createChildElement("MonitorElement",
-                                        me->getName(),
-                                        "entries",
-                                        entry_str.str(),
-                                        "mean",
-                                        mean_str.str(),
-                                        "rms",
-                                        rms_str.str());
+      configWriter_->createChildElement(
+          "MonitorElement", me->getName(), "entries", entry_str.str(), "mean", mean_str.str(), "rms", rms_str.str());
 
       if (me)
-        str_val << " " << me->getName() << " : entries = " << std::setw(7)
-                << me->getEntries() << " mean = " << me->getMean()
-                << " : rms = " << me->getRMS() << '\n';
+        str_val << " " << me->getName() << " : entries = " << std::setw(7) << me->getEntries()
+                << " mean = " << me->getMean() << " : rms = " << me->getRMS() << '\n';
     }
     str_val << std::endl;
   }
@@ -283,14 +241,12 @@ SiStripActionExecutor::printShiftHistoParameters(
 //
 //  -- Print List of Modules with QTest warning or Error
 //
-void
-SiStripActionExecutor::printFaultyModuleList(DQMStore& dqm_store,
-                                             std::ostringstream& str_val)
-{
+void SiStripActionExecutor::printFaultyModuleList(DQMStore& dqm_store, std::ostringstream& str_val) {
   dqm_store.cd();
 
   std::string mdir = "MechanicalView";
-  if (!SiStripUtility::goToDir(dqm_store, mdir)) return;
+  if (!SiStripUtility::goToDir(dqm_store, mdir))
+    return;
   std::string mechanicalview_dir = dqm_store.pwd();
 
   std::vector<std::string> subdet_folder;
@@ -305,7 +261,8 @@ SiStripActionExecutor::printFaultyModuleList(DQMStore& dqm_store,
   int nDetsWithErrorTotal = 0;
   for (auto const& sd : subdet_folder) {
     std::string dname = mechanicalview_dir + "/" + sd;
-    if (!dqm_store.dirExists(dname)) continue;
+    if (!dqm_store.dirExists(dname))
+      continue;
     str_val << "============\n" << sd << '\n' << "============\n" << std::endl;
 
     dqm_store.cd(dname);
@@ -323,24 +280,20 @@ SiStripActionExecutor::printFaultyModuleList(DQMStore& dqm_store,
         uint16_t flag = me->getIntValue();
         std::string message;
         SiStripUtility::getBadModuleStatus(flag, message);
-        str_val << me->getName() << " flag : " << me->getIntValue() << "  "
-                << message << std::endl;
+        str_val << me->getName() << " flag : " << me->getIntValue() << "  " << message << std::endl;
       }
     }
     str_val << "---------------------------------------------------------------"
                "-----\n"
-            << " Detectors :  Total " << nDets << " with Error "
-            << nDetsWithError << '\n'
+            << " Detectors :  Total " << nDets << " with Error " << nDetsWithError << '\n'
             << "---------------------------------------------------------------"
                "-----\n";
     nDetsTotal += nDets;
     nDetsWithErrorTotal += nDetsWithError;
   }
   dqm_store.cd();
-  str_val
-    << "--------------------------------------------------------------------\n"
-    << " Total Number of Connected Detectors : " << nDetsTotal << '\n'
-    << " Total Number of Detectors with Error : " << nDetsWithErrorTotal << '\n'
-    << "--------------------------------------------------------------------"
-    << std::endl;
+  str_val << "--------------------------------------------------------------------\n"
+          << " Total Number of Connected Detectors : " << nDetsTotal << '\n'
+          << " Total Number of Detectors with Error : " << nDetsWithErrorTotal << '\n'
+          << "--------------------------------------------------------------------" << std::endl;
 }

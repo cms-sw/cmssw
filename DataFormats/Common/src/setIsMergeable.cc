@@ -13,7 +13,6 @@
 namespace edm {
 
   void setIsMergeable(BranchDescription& desc) {
-
     // Save some time here with the knowledge that the isMergeable
     // data member can only be true for run or lumi products.
     // It defaults to false. Also if it is true that means it
@@ -31,4 +30,4 @@ namespace edm {
       }
     }
   }
-}
+}  // namespace edm
