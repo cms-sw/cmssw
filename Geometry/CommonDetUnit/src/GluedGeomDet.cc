@@ -1,13 +1,15 @@
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 
-GluedGeomDet::GluedGeomDet( BoundPlane* sp,const GeomDetUnit* monoDet, const GeomDetUnit* stereoDet, const DetId gluedDetId) : 
-  TrackerGeomDet(sp),theMonoDet(monoDet),theStereoDet(stereoDet) {
+GluedGeomDet::GluedGeomDet(BoundPlane* sp,
+                           const GeomDetUnit* monoDet,
+                           const GeomDetUnit* stereoDet,
+                           const DetId gluedDetId)
+    : TrackerGeomDet(sp), theMonoDet(monoDet), theStereoDet(stereoDet) {
   setDetId(gluedDetId);
 }
 
-GluedGeomDet::~GluedGeomDet()
-{}
+GluedGeomDet::~GluedGeomDet() {}
 
 std::vector<const GeomDet*> GluedGeomDet::components() const {
-  return std::vector<const GeomDet*>{theMonoDet,theStereoDet};
+  return std::vector<const GeomDet*>{theMonoDet, theStereoDet};
 }

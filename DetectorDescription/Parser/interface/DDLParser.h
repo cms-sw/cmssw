@@ -60,21 +60,20 @@ class DDLElementRegistry;
  *         for CMSSW Framework example see XMLIdealGeometryESSource (different
  *         DDLDocumentProvider completely
  */
-class DDLParser
-{
- public:
+class DDLParser {
+public:
   typedef XERCES_CPP_NAMESPACE::SAX2XMLReader SAX2XMLReader;
 
-  typedef std::map< int, std::pair<std::string, std::string> > FileNameHolder;
-  
-  DDLParser( DDCompactView& cpv );
+  typedef std::map<int, std::pair<std::string, std::string> > FileNameHolder;
 
-  DDLParser() = delete; 
-  
+  DDLParser(DDCompactView& cpv);
+
+  DDLParser() = delete;
+
   ~DDLParser();
 
   /// Parse all files. Return is meaningless.
-  int parse( const DDLDocumentProvider& dp );
+  int parse(const DDLDocumentProvider& dp);
 
   /// Process a single files.
   /** 
@@ -102,7 +101,7 @@ class DDLParser
   // I ASSUME I take ownership of this blob
   //  void parse( std::vector<unsigned char>* ablob, unsigned int bsize ) ;
   //old way  void parse( const std::vector<unsigned char>& ablob, unsigned int bsize ) ;
-  void parse( const std::vector<unsigned char>& ablob, unsigned int bsize ) ;
+  void parse(const std::vector<unsigned char>& ablob, unsigned int bsize);
 
   /// Get the SAX2Parser from the DDLParser.  USE WITH CAUTION.  Set your own handler, etc.
   SAX2XMLReader* getXMLParser();
@@ -112,27 +111,27 @@ class DDLParser
    *  In order to retrieve the name of the parent element from DDLSAX2Handlers.
    */
   DDLSAX2FileHandler* getDDLSAX2FileHandler();
-  
+
   /// Clear the file list - see Warning!
   /**
    *  This could result in mangled geometry if the Core has not been cleared.
    **/
   void clearFiles();
 
- private:
+private:
   /// Parse File.  Just to hold some common looking code.
-  void parseFile (const int& numtoproc);
+  void parseFile(const int& numtoproc);
 
   /// Is the file already known by the DDLParser?  Returns 0 if not found, and index if found.
   size_t isFound(const std::string& filename);
-  
+
   /// Is the file already parsed?
   bool isParsed(const std::string& filename);
 
-  std::string const extractFileName( const std::string& fullname );
+  std::string const extractFileName(const std::string& fullname);
 
-  std::string const getNameSpace( const std::string& fname );
-  
+  std::string const getNameSpace(const std::string& fname);
+
   /// reference to storage
   DDCompactView& cpv_;
 
