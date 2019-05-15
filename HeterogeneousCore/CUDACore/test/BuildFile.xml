@@ -1,9 +1,10 @@
 <bin file="test_*.cc test_*.cu" name="testHeterogeneousCoreCUDACore">
   <use name="CUDADataFormats/Common"/>
-  <use name="FWCore/TestProcessor"/>
   <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ParameterSetReader"/>
   <use name="FWCore/PluginManager"/>
   <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/TestProcessor"/>
   <use name="HeterogeneousCore/CUDACore"/>
   <use name="HeterogeneousCore/CUDAServices"/>
   <use name="catch2"/>
