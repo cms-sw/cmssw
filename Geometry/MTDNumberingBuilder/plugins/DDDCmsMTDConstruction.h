@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/types.h"
 #include <string>
 #include <vector>
+#include <memory>
 
 class GeometricTimingDet;
 class DDCompactView;
@@ -17,13 +18,8 @@ class DDCompactView;
 class DDDCmsMTDConstruction
 {
 public:
-  DDDCmsMTDConstruction( void );
-  const GeometricTimingDet* construct( const DDCompactView* cpv, std::vector<int> detidShifts);
-  
-protected:
-
-  std::string attribute;  
-  CmsMTDStringToEnum theCmsMTDStringToEnum;
+  DDDCmsMTDConstruction() = delete;
+  static std::unique_ptr<GeometricTimingDet> construct( const DDCompactView& cpv, std::vector<int> detidShifts);
 };
 
 #endif
