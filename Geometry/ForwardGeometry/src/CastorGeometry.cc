@@ -5,94 +5,75 @@
 #include "CastorGeometryData.h"
 #include <algorithm>
 
-typedef CaloCellGeometry::CCGFloat CCGFloat ;
-typedef CaloCellGeometry::Pt3D     Pt3D     ;
-typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+typedef CaloCellGeometry::CCGFloat CCGFloat;
+typedef CaloCellGeometry::Pt3D Pt3D;
+typedef CaloCellGeometry::Pt3DVec Pt3DVec;
 
-CastorGeometry::CastorGeometry() :
-   theTopology( new CastorTopology ), 
-   lastReqDet_(DetId::Detector(0)),
-   lastReqSubdet_(0),
-   m_ownsTopology ( true ),
-   m_cellVec ( k_NumberOfCellsForCorners )
-{}
+CastorGeometry::CastorGeometry()
+    : theTopology(new CastorTopology),
+      lastReqDet_(DetId::Detector(0)),
+      lastReqSubdet_(0),
+      m_ownsTopology(true),
+      m_cellVec(k_NumberOfCellsForCorners) {}
 
-CastorGeometry::CastorGeometry( const CastorTopology* topology ) :
-   theTopology(topology), 
-   lastReqDet_(DetId::Detector(0)),
-   lastReqSubdet_(0),
-   m_ownsTopology ( false ),
-   m_cellVec ( k_NumberOfCellsForCorners )
-{}
+CastorGeometry::CastorGeometry(const CastorTopology* topology)
+    : theTopology(topology),
+      lastReqDet_(DetId::Detector(0)),
+      lastReqSubdet_(0),
+      m_ownsTopology(false),
+      m_cellVec(k_NumberOfCellsForCorners) {}
 
-
-CastorGeometry::~CastorGeometry() 
-{
-  if( m_ownsTopology ) delete theTopology ;
+CastorGeometry::~CastorGeometry() {
+  if (m_ownsTopology)
+    delete theTopology;
 }
 
-DetId 
-CastorGeometry::getClosestCell(const GlobalPoint& r) const
-{
-  DetId returnId ( 0 ) ;
-  const std::vector<DetId>& detIds ( getValidDetIds() ) ;
-  for(auto detId : detIds)  {
+DetId CastorGeometry::getClosestCell(const GlobalPoint& r) const {
+  DetId returnId(0);
+  const std::vector<DetId>& detIds(getValidDetIds());
+  for (auto detId : detIds) {
     auto cell = getGeometry(detId);
-    if( nullptr != cell &&
-	cell->inside( r ) ) {
-      returnId = detId ;
-      break ;
+    if (nullptr != cell && cell->inside(r)) {
+      returnId = detId;
+      break;
     }
   }
-  return returnId ;
+  return returnId;
 }
 
+unsigned int CastorGeometry::alignmentTransformIndexLocal(const DetId& id) {
+  const CaloGenericDetId gid(id);
 
-unsigned int
-CastorGeometry::alignmentTransformIndexLocal( const DetId& id )
-{
-   const CaloGenericDetId gid ( id ) ;
+  assert(gid.isCastor());
 
-   assert( gid.isCastor() ) ;
-
-   return 0 ;
+  return 0;
 }
 
-unsigned int
-CastorGeometry::alignmentTransformIndexGlobal( const DetId& /*id*/ )
-{
-   return (unsigned int)DetId::Calo - 1 ;
+unsigned int CastorGeometry::alignmentTransformIndexGlobal(const DetId& /*id*/) {
+  return (unsigned int)DetId::Calo - 1;
 }
 
-void
-CastorGeometry::localCorners( Pt3DVec&        lc ,
-			      const CCGFloat* pv ,
-			      unsigned int  /*i*/,
-			      Pt3D&           ref )
-{
-   IdealCastorTrapezoid::localCorners( lc, pv, ref ) ;
+void CastorGeometry::localCorners(Pt3DVec& lc, const CCGFloat* pv, unsigned int /*i*/, Pt3D& ref) {
+  IdealCastorTrapezoid::localCorners(lc, pv, ref);
 }
 
-void
-CastorGeometry::newCell( const GlobalPoint& f1 ,
-			 const GlobalPoint& /*f2*/ ,
-			 const GlobalPoint& /*f3*/ ,
-			 const CCGFloat*    parm ,
-			 const DetId&       detId   ) 
-{
-   const CaloGenericDetId cgid ( detId ) ;
-   
-   assert( cgid.isCastor() ) ;
+void CastorGeometry::newCell(const GlobalPoint& f1,
+                             const GlobalPoint& /*f2*/,
+                             const GlobalPoint& /*f3*/,
+                             const CCGFloat* parm,
+                             const DetId& detId) {
+  const CaloGenericDetId cgid(detId);
 
-   const unsigned int di ( cgid.denseIndex() ) ;
+  assert(cgid.isCastor());
 
-   m_cellVec[ di ] = IdealCastorTrapezoid( f1, cornersMgr(), parm ) ;
-   addValidID( detId ) ;
+  const unsigned int di(cgid.denseIndex());
+
+  m_cellVec[di] = IdealCastorTrapezoid(f1, cornersMgr(), parm);
+  addValidID(detId);
 }
 
 const CaloCellGeometry* CastorGeometry::getGeometryRawPtr(uint32_t index) const {
   // Modify the RawPtr class
   const CaloCellGeometry* cell(&m_cellVec[index]);
-  return (m_cellVec.size() < index ||
-	  nullptr == cell->param() ? nullptr : cell);
+  return (m_cellVec.size() < index || nullptr == cell->param() ? nullptr : cell);
 }

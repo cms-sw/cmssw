@@ -10,12 +10,10 @@
 
 #include "Geometry/CSCGeometry/interface/CSCStripTopology.h"
 
-class CSCGangedStripTopology : public CSCStripTopology
-{
+class CSCGangedStripTopology : public CSCStripTopology {
 public:
-
-  CSCGangedStripTopology(const CSCStripTopology & topology, int numberOfGangedStrips ) 
-    : CSCStripTopology(topology), theNumberOfGangedStrips(numberOfGangedStrips) {}
+  CSCGangedStripTopology(const CSCStripTopology& topology, int numberOfGangedStrips)
+      : CSCStripTopology(topology), theNumberOfGangedStrips(numberOfGangedStrips) {}
 
   ~CSCGangedStripTopology() override {}
 
@@ -24,7 +22,7 @@ public:
    * (Count from 1)
    */
   int channel(const LocalPoint& lp) const override {
-    return (int) (CSCRadialStripTopology::strip(lp)) % theNumberOfGangedStrips + 1;
+    return (int)(CSCRadialStripTopology::strip(lp)) % theNumberOfGangedStrips + 1;
   }
 
   /** 
@@ -32,8 +30,10 @@ public:
    * (Count from 1).
    */
   int channel(int strip) const override {
-    while(strip > theNumberOfGangedStrips) strip -= theNumberOfGangedStrips;
-    while(strip <= 0) strip += theNumberOfGangedStrips;
+    while (strip > theNumberOfGangedStrips)
+      strip -= theNumberOfGangedStrips;
+    while (strip <= 0)
+      strip += theNumberOfGangedStrips;
     return strip;
   }
 
@@ -43,21 +43,15 @@ public:
    * If gcc could handle it, should be
    *   virtual CSCGangedStripTopology* clone() const
    */
-  CSCStripTopology* clone() const override {
-    return new CSCGangedStripTopology(*this);
-  }
+  CSCStripTopology* clone() const override { return new CSCGangedStripTopology(*this); }
 
   /**
    * Implement CSCStripTopology interface for its op<<
    */
-  std::ostream& put ( std::ostream& os ) const override {
-    return os << "CSCGangedStripTopology";
-  }
+  std::ostream& put(std::ostream& os) const override { return os << "CSCGangedStripTopology"; }
 
- private:
+private:
   int theNumberOfGangedStrips;
 };
 
 #endif
-
-

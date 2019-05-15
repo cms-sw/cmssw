@@ -9,40 +9,34 @@ class DDCompactView;
 class DDLogicalPart;
 class DDRotation;
 
-class DDDividedConsRho final : public DDDividedGeometryObject
-{ 
- public:  
-  
-  DDDividedConsRho( const DDDivision& div, DDCompactView* cpv );
+class DDDividedConsRho final : public DDDividedGeometryObject {
+public:
+  DDDividedConsRho(const DDDivision& div, DDCompactView* cpv);
 
   double getMaxParameter() const override;
-  DDTranslation makeDDTranslation( int copyNo ) const override;
-  DDRotation makeDDRotation( int copyNo ) const override;
-  DDLogicalPart makeDDLogicalPart( int copyNo ) const override;
+  DDTranslation makeDDTranslation(int copyNo) const override;
+  DDRotation makeDDRotation(int copyNo) const override;
+  DDLogicalPart makeDDLogicalPart(int copyNo) const override;
 };
 
-class DDDividedConsPhi final : public DDDividedGeometryObject
-{ 
- public:  
-  
-  DDDividedConsPhi( const DDDivision& div, DDCompactView* cpv );
+class DDDividedConsPhi final : public DDDividedGeometryObject {
+public:
+  DDDividedConsPhi(const DDDivision& div, DDCompactView* cpv);
 
   double getMaxParameter() const override;
-  DDTranslation makeDDTranslation( int copyNo ) const override;
-  DDRotation makeDDRotation( int copyNo ) const override;
-  DDLogicalPart makeDDLogicalPart( int copyNo ) const override;
+  DDTranslation makeDDTranslation(int copyNo) const override;
+  DDRotation makeDDRotation(int copyNo) const override;
+  DDLogicalPart makeDDLogicalPart(int copyNo) const override;
 };
 
-class DDDividedConsZ final : public DDDividedGeometryObject
-{ 
- public:  
-  
-  DDDividedConsZ( const DDDivision& div, DDCompactView* cpv) ;
+class DDDividedConsZ final : public DDDividedGeometryObject {
+public:
+  DDDividedConsZ(const DDDivision& div, DDCompactView* cpv);
 
   double getMaxParameter() const override;
-  DDTranslation makeDDTranslation( int copyNo ) const override;
-  DDRotation makeDDRotation( int copyNo ) const override;
-  DDLogicalPart makeDDLogicalPart( int copyNo ) const override;
+  DDTranslation makeDDTranslation(int copyNo) const override;
+  DDRotation makeDDRotation(int copyNo) const override;
+  DDLogicalPart makeDDLogicalPart(int copyNo) const override;
 };
 
 #endif

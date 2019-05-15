@@ -11,65 +11,54 @@
 
 class DDCompactView;
 
-DDLBooleanSolid::DDLBooleanSolid( DDLElementRegistry* myreg )
-  : DDLSolid( myreg )
-{}
+DDLBooleanSolid::DDLBooleanSolid(DDLElementRegistry* myreg) : DDLSolid(myreg) {}
 
 // Clear out rSolids.
-void
-DDLBooleanSolid::preProcessElement( const std::string& name, const std::string& nmspace,
-				    DDCompactView& cpv )
-{
-  myRegistry_->getElement( "rSolid" )->clear();
+void DDLBooleanSolid::preProcessElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) {
+  myRegistry_->getElement("rSolid")->clear();
 }
 
 // To process a BooleanSolid we should have in the meantime
 // hit two rSolid calls and possibly one rRotation and one Translation.
 // So, retrieve them and make the call to DDCore.
-void
-DDLBooleanSolid::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
-{
+void DDLBooleanSolid::processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) {
   // new DDLBoolean will handle:
   // <UnionSolid name="bs" firstSolid="blah" secondSolid="argh"> <Translation...> <rRotation .../> </UnionSolid
   // AND <UnionSolid> <rSolid...> <rSolid...> <Translation...> <rRotation...> </UnionSolid>
 
-  auto myrSolid = myRegistry_->getElement( "rSolid" ); // get rSolid children
-  auto myTranslation = myRegistry_->getElement( "Translation" ); // get Translation child
-  auto myrRotation  = myRegistry_->getElement( "rRotation" ); // get rRotation child
+  auto myrSolid = myRegistry_->getElement("rSolid");            // get rSolid children
+  auto myTranslation = myRegistry_->getElement("Translation");  // get Translation child
+  auto myrRotation = myRegistry_->getElement("rRotation");      // get rRotation child
 
-  ClhepEvaluator & ev = myRegistry_->evaluator();
+  ClhepEvaluator& ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
 
   DDName ddn1, ddn2;
-  double x=0.0, y=0.0, z=0.0;
+  double x = 0.0, y = 0.0, z = 0.0;
   DDRotation ddrot;
 
   // Basically check if there are rSolids or Translation or rRotation then we have
   // should NOT have any of the attributes shown above.
-  if( myrSolid->size() == 0 ) 
-  {
+  if (myrSolid->size() == 0) {
     // do the solids using the attributes only.
-    if ( atts.find("firstSolid") != atts.end() && atts.find("secondSolid") != atts.end() ) {
+    if (atts.find("firstSolid") != atts.end() && atts.find("secondSolid") != atts.end()) {
       ddn1 = getDDName(nmspace, "firstSolid");
       ddn2 = getDDName(nmspace, "secondSolid");
     } else {
-      std::string s ("DDLBooleanSolid did not find any solids with which to form a boolean solid.");
+      std::string s("DDLBooleanSolid did not find any solids with which to form a boolean solid.");
       s += dumpBooleanSolid(name, nmspace);
-      throwError( s );
+      throwError(s);
     }
-  }
-  else if (myrSolid->size() == 2)
-  {
+  } else if (myrSolid->size() == 2) {
     ddn1 = myrSolid->getDDName(nmspace, "name", 0);
     ddn2 = myrSolid->getDDName(nmspace, "name", 1);
   } else {
     std::string s("DDLBooleanSolid did not find any solids with which to form a boolean solid.");
     s += dumpBooleanSolid(name, nmspace);
-    throwError( s );
+    throwError(s);
   }
 
-  if (myTranslation->size() > 0)
-  {
+  if (myTranslation->size() > 0) {
     atts.clear();
     atts = myTranslation->getAttributeSet();
     x = ev.eval(nmspace, atts.find("x")->second);
@@ -77,41 +66,26 @@ DDLBooleanSolid::processElement( const std::string& name, const std::string& nms
     z = ev.eval(nmspace, atts.find("z")->second);
   }
 
-  if (myrRotation->size() > 0) 
-  {
-    ddrot = DDRotation( myrRotation->getDDName (nmspace) );
+  if (myrRotation->size() > 0) {
+    ddrot = DDRotation(myrRotation->getDDName(nmspace));
   }
 
   DDSolid theSolid;
 
   if (name == "UnionSolid") {
-    theSolid = DDSolidFactory::unionSolid (getDDName(nmspace)
-					   , DDSolid(ddn1)
-					   , DDSolid(ddn2)
-					   , DDTranslation(x, y, z)
-					   , ddrot
-      );	       
+    theSolid =
+        DDSolidFactory::unionSolid(getDDName(nmspace), DDSolid(ddn1), DDSolid(ddn2), DDTranslation(x, y, z), ddrot);
+  } else if (name == "SubtractionSolid") {
+    theSolid =
+        DDSolidFactory::subtraction(getDDName(nmspace), DDSolid(ddn1), DDSolid(ddn2), DDTranslation(x, y, z), ddrot);
+  } else if (name == "IntersectionSolid") {
+    theSolid =
+        DDSolidFactory::intersection(getDDName(nmspace), DDSolid(ddn1), DDSolid(ddn2), DDTranslation(x, y, z), ddrot);
+  } else {
+    throw cms::Exception("DDException")
+        << "DDLBooleanSolid was asked to do something other than Union-, Subtraction- or IntersectionSolid?";
   }
-  else if (name == "SubtractionSolid") {
-    theSolid = DDSolidFactory::subtraction (getDDName(nmspace)
-					    , DDSolid(ddn1)
-					    , DDSolid(ddn2)
-					    , DDTranslation(x, y, z)
-					    , ddrot
-      );	       
-  }
-  else if (name == "IntersectionSolid") {
-    theSolid = DDSolidFactory::intersection (getDDName(nmspace)
-					     , DDSolid(ddn1)
-					     , DDSolid(ddn2)
-					     , DDTranslation(x, y, z)
-					     , ddrot
-      );	       
-  }
-  else {
-    throw cms::Exception("DDException") << "DDLBooleanSolid was asked to do something other than Union-, Subtraction- or IntersectionSolid?";
-  }
-  
+
   DDLSolid::setReference(nmspace, cpv);
 
   // clear all "children" and attributes
@@ -122,45 +96,42 @@ DDLBooleanSolid::processElement( const std::string& name, const std::string& nms
 }
 
 // This only happens on error, so I don't care how "slow" it is :-)
-std::string
-DDLBooleanSolid::dumpBooleanSolid( const std::string& name, const std::string& nmspace )
-{
+std::string DDLBooleanSolid::dumpBooleanSolid(const std::string& name, const std::string& nmspace) {
   std::string s;
   DDXMLAttribute atts = getAttributeSet();
 
-  s = std::string ("\n<") + name + " name=\"" + atts.find("name")->second + "\"";
+  s = std::string("\n<") + name + " name=\"" + atts.find("name")->second + "\"";
 
-  if (atts.find("firstSolid") != atts.end()) s+= " firstSolid=\"" + atts.find("firstSolid")->second + "\"";
-  if (atts.find("secondSolid") != atts.end()) s+= " secondSolid=\"" + atts.find("secondSolid")->second + "\"";
-  s +=  ">\n";
+  if (atts.find("firstSolid") != atts.end())
+    s += " firstSolid=\"" + atts.find("firstSolid")->second + "\"";
+  if (atts.find("secondSolid") != atts.end())
+    s += " secondSolid=\"" + atts.find("secondSolid")->second + "\"";
+  s += ">\n";
 
-  auto myrSolid = myRegistry_->getElement("rSolid"); // get rSolid children
-  auto myTranslation = myRegistry_->getElement("Translation"); // get Translation child
-  auto myrRotation  = myRegistry_->getElement("rRotation"); // get rRotation child
-  if (myrSolid->size() > 0)
-  {
-    for (size_t i = 0; i < myrSolid->size(); ++i)
-    {
+  auto myrSolid = myRegistry_->getElement("rSolid");            // get rSolid children
+  auto myTranslation = myRegistry_->getElement("Translation");  // get Translation child
+  auto myrRotation = myRegistry_->getElement("rRotation");      // get rRotation child
+  if (myrSolid->size() > 0) {
+    for (size_t i = 0; i < myrSolid->size(); ++i) {
       atts = myrSolid->getAttributeSet(i);
-      s+="<rSolid name=\"" + atts.find("name")->second + "\"/>\n";
+      s += "<rSolid name=\"" + atts.find("name")->second + "\"/>\n";
     }
   }
 
   atts = myTranslation->getAttributeSet();
-  s+= "<Translation";
-  if (atts.find("x") != atts.end()) 
-    s+=" x=\"" + atts.find("x")->second + "\"";
-  if (atts.find("y") != atts.end()) 
-    s+= " y=\"" + atts.find("y")->second + "\"";
-  if (atts.find("z") != atts.end()) 
-    s+= " z=\"" + atts.find("z")->second + "\"";
-  s+="/>\n";
+  s += "<Translation";
+  if (atts.find("x") != atts.end())
+    s += " x=\"" + atts.find("x")->second + "\"";
+  if (atts.find("y") != atts.end())
+    s += " y=\"" + atts.find("y")->second + "\"";
+  if (atts.find("z") != atts.end())
+    s += " z=\"" + atts.find("z")->second + "\"";
+  s += "/>\n";
 
   atts = myrRotation->getAttributeSet();
-  if (atts.find("name") != atts.end())
-  {
-    s+= "<rRotation name=\"" + atts.find("name")->second + "\"/>\n";
+  if (atts.find("name") != atts.end()) {
+    s += "<rRotation name=\"" + atts.find("name")->second + "\"/>\n";
   }
-  s+= "</" + name + ">\n\n";
+  s += "</" + name + ">\n\n";
   return s;
 }
