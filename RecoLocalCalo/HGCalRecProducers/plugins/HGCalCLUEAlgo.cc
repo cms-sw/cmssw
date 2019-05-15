@@ -358,7 +358,6 @@ int HGCalCLUEAlgo::findAndAssignClusters(const unsigned int layerId, float delta
   // need to pass clusterIndex to their followers
   while (!localStack.empty()) {
     int endStack = localStack.back();
-    // RecHitGPU thisHit = hits[frontOfBuffer];
     auto& thisSeed = cellsOnLayer.followers[endStack];
     localStack.pop_back();
 
