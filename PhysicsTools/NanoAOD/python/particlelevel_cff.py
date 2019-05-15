@@ -31,11 +31,11 @@ particleLevel = cms.EDProducer("ParticleLevelProducer",
     excludeNeutrinosFromJetClustering = cms.bool(True),
     
     particleMinPt  = cms.double(0.),
-    particleMaxEta = cms.double(5.), # HF range. Maximum 6.0 on MiniAOD
+    particleMaxEta = cms.double(6.), # HF range. Maximum 6.0 on MiniAOD
     
     lepConeSize = cms.double(0.1), # for photon dressing
-    lepMinPt    = cms.double(15.),
-    lepMaxEta   = cms.double(2.5),
+    lepMinPt    = cms.double(0.),
+    lepMaxEta   = cms.double(6.0),
     
     jetConeSize = cms.double(0.4),
     jetMinPt    = cms.double(10.),
@@ -44,6 +44,10 @@ particleLevel = cms.EDProducer("ParticleLevelProducer",
     fatJetConeSize = cms.double(0.8),
     fatJetMinPt    = cms.double(170.),
     fatJetMaxEta   = cms.double(999.),
+)
+
+tautagger = cms.EDProducer("GenJetTauTaggerProducer",
+    src = rivetLeptonTable.src,
 )
 
 rivetProducerHTXS = cms.EDProducer('HTXSRivetProducer',
@@ -61,6 +65,9 @@ rivetLeptonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     doc = cms.string("Dressed leptons from Rivet-based ParticleLevelProducer"),
     singleton = cms.bool(False), # the number of entries is variable
     extension = cms.bool(False), # this is the main table
+    externalVariables = cms.PSet(
+        hasTauAnc = ExtVar(cms.InputTag("tautagger"),bool, doc="true if Dressed lepton has a tau as ancestor"),
+        ),
     variables = cms.PSet(
         P4Vars,
         pdgId = Var("pdgId", int, doc="PDG id"), 
@@ -138,5 +145,5 @@ HTXSCategoryTable = cms.EDProducer("SimpleHTXSFlatTableProducer",
 )
 
 
-particleLevelSequence = cms.Sequence(mergedGenParticles + genParticles2HepMC + particleLevel + genParticles2HepMCHiggsVtx + rivetProducerHTXS)
+particleLevelSequence = cms.Sequence(mergedGenParticles + genParticles2HepMC + particleLevel + tautagger + genParticles2HepMCHiggsVtx + rivetProducerHTXS)
 particleLevelTables = cms.Sequence(rivetLeptonTable + rivetMetTable + HTXSCategoryTable)
