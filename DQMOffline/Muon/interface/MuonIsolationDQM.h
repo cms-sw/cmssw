@@ -2,7 +2,7 @@
 // MuonIsolationDQM.h
 // Package:    Muon Isolation DQM
 // Class:      MuonIsolationDQM
-// 
+//
 /*
   
 Description: Muon Isolation DQM class
@@ -63,35 +63,34 @@ class MuonIsolationDQM : public DQMEDAnalyzer {
   typedef edm::RefToBase<reco::Muon> MuonBaseRef;
   typedef edm::Handle<reco::IsoDepositMap> MuIsoDepHandle;
   typedef const reco::IsoDeposit MuIsoDepRef;
-  
+
 public:
   //---------methods----------------------------
   explicit MuonIsolationDQM(const edm::ParameterSet&);
   ~MuonIsolationDQM() override;
-  
+
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
   //---------methods----------------------------
   void InitStatics();
-  void RecordData(const reco::Muon& muon);//Fills Histograms with info from single muo
+  void RecordData(const reco::Muon& muon);  //Fills Histograms with info from single muo
   //  void doPFIsoPlots(MuonIterator muon); //Fills Histograms with PF info from single muo (only for GLB)
-  void InitHistos();//adds title, bin information to member histograms
-  void FillHistos(int);//Fills histograms with data
+  void InitHistos();     //adds title, bin information to member histograms
+  void FillHistos(int);  //Fills histograms with data
   void FillNVtxHistos(int);
-  void NormalizeHistos(); //Normalize to number of muons
+  void NormalizeHistos();  //Normalize to number of muons
 
   //----- helper methods
-  int  GetNVtxBin(int); 
+  int GetNVtxBin(int);
   TH1* GetTH1FromMonitorElement(MonitorElement* me);
 
   //----------Static Variables---------------
-  
+
   //Collection labels
   edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionLabel_;
-  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
-
+  edm::EDGetTokenT<edm::View<reco::Muon> > theMuonCollectionLabel_;
 
   //root file name
   std::string rootfilename;
@@ -99,13 +98,13 @@ private:
   std::string dirName;
 
   //Histogram parameters
-  static const int NUM_VARS      = 48; // looking at R03 and R05.  Total of 54 histos.
-  static const int NUM_VARS_2D   = 10; // looking only at R03.  Total of 8 TH2F. 
-  static const int NUM_VARS_NVTX = 6 ;
-  
-  double L_BIN_WIDTH;//large bins
-  double S_BIN_WIDTH;//small bins
-  int LOG_BINNING_ENABLED;//pseudo log binning for profile plots
+  static const int NUM_VARS = 48;     // looking at R03 and R05.  Total of 54 histos.
+  static const int NUM_VARS_2D = 10;  // looking only at R03.  Total of 8 TH2F.
+  static const int NUM_VARS_NVTX = 6;
+
+  double L_BIN_WIDTH;       //large bins
+  double S_BIN_WIDTH;       //small bins
+  int LOG_BINNING_ENABLED;  //pseudo log binning for profile plots
   int NUM_LOG_BINS;
   double LOG_BINNING_RATIO;
   bool requireGLBMuon;
@@ -115,21 +114,21 @@ private:
   std::string title_sam;
   std::string title_cone;
   //  std::string title_cd;
-  
-  std::vector<std::string> main_titles;//[NUM_VARS]
-  std::vector<std::string> axis_titles;//[NUM_VARS]
-  std::vector<std::string> names;//[NUM_VARS]
-  std::vector< std::vector<double> > param;//[NUM_VARS][3]
-  std::vector<int> isContinuous;//[NUM_VARS]
-  
-  std::vector<std::string> titles_2D;     //[NUM_VARS]
-  std::vector<std::string> names_2D;      //[NUM_VARS]
+
+  std::vector<std::string> main_titles;     //[NUM_VARS]
+  std::vector<std::string> axis_titles;     //[NUM_VARS]
+  std::vector<std::string> names;           //[NUM_VARS]
+  std::vector<std::vector<double> > param;  //[NUM_VARS][3]
+  std::vector<int> isContinuous;            //[NUM_VARS]
+
+  std::vector<std::string> titles_2D;  //[NUM_VARS]
+  std::vector<std::string> names_2D;   //[NUM_VARS]
 
   std::vector<std::string> main_titles_NVtxs;
   std::vector<std::string> names_NVtxs;
   std::vector<std::string> axis_titles_NVtxs;
   //---------------Dynamic Variables---------------------
-  
+
   //The Data
   double theData[NUM_VARS];
   double theData2D[NUM_VARS_2D];
@@ -137,20 +136,18 @@ private:
 
   //Histograms
   MonitorElement* h_nMuons;
-  std::vector<MonitorElement*> h_1D;     //[NUM_VARS]
-  std::vector<MonitorElement*> h_2D;     //[NUM_VARS_2D]
-  std::vector<MonitorElement*> h_1D_NVTX;//[NUM_VARS_NVTX]
-  
+  std::vector<MonitorElement*> h_1D;       //[NUM_VARS]
+  std::vector<MonitorElement*> h_2D;       //[NUM_VARS_2D]
+  std::vector<MonitorElement*> h_1D_NVTX;  //[NUM_VARS_NVTX]
+
   //  std::vector<MonitorElement*> cd_plots;//[NUM_VARS]
-  
+
   //Counters
   int nEvents;
   int nSTAMuons;
   int nGLBMuons;
   int nTRKMuons;
 
-  
   //enums for monitorElement
-  enum {NOAXIS,XAXIS,YAXIS,ZAXIS};
+  enum { NOAXIS, XAXIS, YAXIS, ZAXIS };
 };
-
