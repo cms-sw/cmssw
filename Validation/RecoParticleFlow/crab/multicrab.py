@@ -11,10 +11,11 @@ def submit(config):
         fi.write(config.pythonise_())
 
 samples = [
-    ("/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_4_0_pre4-103X_mc2017_realistic_v2-v1/GEN-SIM-DIGI-RAW", "QCD_FlatPt_noPU"),
-    ("/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_4_0_pre4-PU25ns_103X_mc2017_realistic_v2-v1/GEN-SIM-DIGI-RAW", "QCD_FlatPt_PU25ns"),
-    ("/RelValZMM_13/CMSSW_10_4_0_pre4-103X_mc2017_realistic_v2-v1/GEN-SIM-DIGI-RAW", "ZMM"),
-    ("/RelValMinBias_13/CMSSW_10_4_0_pre4-103X_mc2017_realistic_v2-v1/GEN-SIM-DIGI-RAW", "MinBias"),
+    ("/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_5_0_pre1-103X_mc2017_realistic_v2_HS-v1/GEN-SIM-DIGI-RAW", "QCD_FlatPt_noPU"),
+    ("/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_5_0_pre1-PU25ns_103X_mc2017_realistic_v2_HSresub-v1/GEN-SIM-DIGI-RAW", "QCD_FlatPt_PU25ns"),
+    ("/RelValZMM_13/CMSSW_10_5_0_pre1-103X_mc2017_realistic_v2-v1/GEN-SIM-DIGI-RAW", "ZMM"),
+    ("/RelValMinBias_13/CMSSW_10_5_0_pre1-103X_mc2017_realistic_v2-v1/GEN-SIM-DIGI-RAW", "MinBias"),
+    ("/RelValNuGun/CMSSW_10_5_0_pre1-PU25ns_103X_mc2017_realistic_v2_HS-v1/GEN-SIM-DIGI-RAW", "NuGun"),
 ]
 
 if __name__ == "__main__":
@@ -45,7 +46,8 @@ if __name__ == "__main__":
         #conf.Data.ignoreLocality = True
         
         # Where the output files will be transmitted to
-        conf.Site.storageSite = 'T2_US_Caltech'
+        conf.Site.storageSite = 'T3_US_Baylor'
+        #conf.Site.storageSite = 'T2_US_Caltech'
         #conf.Site.whitelist = ["T2_US_Caltech", "T2_CH_CERN"]
         
         submit(conf) 
