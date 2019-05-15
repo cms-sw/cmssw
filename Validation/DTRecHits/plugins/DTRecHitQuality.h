@@ -19,7 +19,6 @@
 #include <string>
 #include <vector>
 
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"

@@ -21,7 +21,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 #include <fstream>

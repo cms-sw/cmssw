@@ -15,7 +15,6 @@ V00-03-25
 */
 
 #include "DQM/BeamMonitor/plugins/BeamMonitor.h"
-#include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"

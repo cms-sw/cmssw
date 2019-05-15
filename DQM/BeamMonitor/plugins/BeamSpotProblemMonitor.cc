@@ -5,7 +5,7 @@
  */
 
 #include "DQM/BeamMonitor/plugins/BeamSpotProblemMonitor.h"
-#include "DQMServices/Core/interface/QReport.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"

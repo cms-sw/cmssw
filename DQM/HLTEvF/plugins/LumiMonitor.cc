@@ -3,7 +3,6 @@
 #include <map>
 
 #include "DQM/TrackingMonitor/interface/GetLumi.h"
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h"

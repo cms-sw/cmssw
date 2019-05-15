@@ -34,7 +34,6 @@
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 

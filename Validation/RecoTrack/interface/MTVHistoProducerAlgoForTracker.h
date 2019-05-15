@@ -24,7 +24,6 @@
 #include "CommonTools/CandAlgos/interface/GenParticleCustomSelector.h"
 #include "CommonTools/RecoAlgos/interface/RecoTrackSelectorBase.h"
 
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 struct MTVHistoProducerAlgoForTrackerHistograms {

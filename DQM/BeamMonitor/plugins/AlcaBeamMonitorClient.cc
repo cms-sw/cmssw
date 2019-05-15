@@ -6,7 +6,7 @@
 
 #include "DQM/BeamMonitor/plugins/AlcaBeamMonitorClient.h"
 #include <numeric>
-#include "DQMServices/Core/interface/QReport.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"

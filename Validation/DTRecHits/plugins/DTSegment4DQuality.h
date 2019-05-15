@@ -25,7 +25,6 @@
 #include <string>
 #include <vector>
 
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "FWCore/Utilities/interface/InputTag.h"

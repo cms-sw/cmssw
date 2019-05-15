@@ -13,7 +13,6 @@
 
 #include <TH1F.h>
 
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 //---------------------------------------------------------------------------------------

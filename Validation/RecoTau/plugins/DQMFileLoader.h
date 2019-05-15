@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMDefinitions.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <TH1.h>
 

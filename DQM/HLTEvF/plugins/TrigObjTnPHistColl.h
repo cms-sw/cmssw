@@ -82,7 +82,6 @@
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "DQMOffline/Trigger/interface/VarRangeCutColl.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 

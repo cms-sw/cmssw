@@ -7,7 +7,6 @@
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"

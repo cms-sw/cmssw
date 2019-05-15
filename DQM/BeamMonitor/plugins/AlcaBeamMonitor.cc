@@ -17,7 +17,7 @@
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 #include "RecoVertex/BeamSpotProducer/interface/PVFitter.h"
 #include "DQM/BeamMonitor/plugins/AlcaBeamMonitor.h"
-#include "DQMServices/Core/interface/QReport.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EventSetup.h"
