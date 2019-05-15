@@ -31,15 +31,13 @@ class L1GlobalTriggerPSB;
 
 // class declaration
 class L1GtJetCountsCondition : public L1GtConditionEvaluation {
-
 public:
   /// constructors
   ///     default
   L1GtJetCountsCondition();
 
   ///     from base template condition (from event setup usually)
-  L1GtJetCountsCondition(const L1GtCondition *, const L1GlobalTriggerPSB *,
-                         const int nrL1JetCounts);
+  L1GtJetCountsCondition(const L1GtCondition *, const L1GlobalTriggerPSB *, const int nrL1JetCounts);
 
   // copy constructor
   L1GtJetCountsCondition(const L1GtJetCountsCondition &);
@@ -59,9 +57,7 @@ public:
 
 public:
   ///   get / set the pointer to a L1GtCondition
-  inline const L1GtJetCountsTemplate *gtJetCountsTemplate() const {
-    return m_gtJetCountsTemplate;
-  }
+  inline const L1GtJetCountsTemplate *gtJetCountsTemplate() const { return m_gtJetCountsTemplate; }
 
   void setGtJetCountsTemplate(const L1GtJetCountsTemplate *);
 

@@ -34,20 +34,15 @@
 
 // constructors
 //     default
-L1GtHfBitCountsCondition::L1GtHfBitCountsCondition()
-    : L1GtConditionEvaluation() {
-
+L1GtHfBitCountsCondition::L1GtHfBitCountsCondition() : L1GtConditionEvaluation() {
   // empty
 }
 
 //     from base template condition (from event setup usually)
-L1GtHfBitCountsCondition::L1GtHfBitCountsCondition(
-    const L1GtCondition *bcTemplate, const L1GlobalTriggerPSB *ptrPSB)
+L1GtHfBitCountsCondition::L1GtHfBitCountsCondition(const L1GtCondition *bcTemplate, const L1GlobalTriggerPSB *ptrPSB)
     : L1GtConditionEvaluation(),
-      m_gtHfBitCountsTemplate(
-          static_cast<const L1GtHfBitCountsTemplate *>(bcTemplate)),
+      m_gtHfBitCountsTemplate(static_cast<const L1GtHfBitCountsTemplate *>(bcTemplate)),
       m_gtPSB(ptrPSB) {
-
   // maximum number of objects received for the evaluation of the condition
   // no objects, in fact, just a count
   m_condMaxNumberObjects = 1;
@@ -55,7 +50,6 @@ L1GtHfBitCountsCondition::L1GtHfBitCountsCondition(
 
 // copy constructor
 void L1GtHfBitCountsCondition::copy(const L1GtHfBitCountsCondition &cp) {
-
   m_gtHfBitCountsTemplate = cp.gtHfBitCountsTemplate();
   m_gtPSB = cp.gtPSB();
 
@@ -66,42 +60,31 @@ void L1GtHfBitCountsCondition::copy(const L1GtHfBitCountsCondition &cp) {
   m_verbosity = cp.m_verbosity;
 }
 
-L1GtHfBitCountsCondition::L1GtHfBitCountsCondition(
-    const L1GtHfBitCountsCondition &cp)
-    : L1GtConditionEvaluation() {
-
+L1GtHfBitCountsCondition::L1GtHfBitCountsCondition(const L1GtHfBitCountsCondition &cp) : L1GtConditionEvaluation() {
   copy(cp);
 }
 
 // destructor
 L1GtHfBitCountsCondition::~L1GtHfBitCountsCondition() {
-
   // empty
 }
 
 // equal operator
-L1GtHfBitCountsCondition &L1GtHfBitCountsCondition::
-operator=(const L1GtHfBitCountsCondition &cp) {
+L1GtHfBitCountsCondition &L1GtHfBitCountsCondition::operator=(const L1GtHfBitCountsCondition &cp) {
   copy(cp);
   return *this;
 }
 
 // methods
-void L1GtHfBitCountsCondition::setGtHfBitCountsTemplate(
-    const L1GtHfBitCountsTemplate *bcTemplate) {
-
+void L1GtHfBitCountsCondition::setGtHfBitCountsTemplate(const L1GtHfBitCountsTemplate *bcTemplate) {
   m_gtHfBitCountsTemplate = bcTemplate;
 }
 
 ///   set the pointer to PSB
-void L1GtHfBitCountsCondition::setGtPSB(const L1GlobalTriggerPSB *ptrPSB) {
-
-  m_gtPSB = ptrPSB;
-}
+void L1GtHfBitCountsCondition::setGtPSB(const L1GlobalTriggerPSB *ptrPSB) { m_gtPSB = ptrPSB; }
 
 // try all object permutations and check spatial correlations, if required
 const bool L1GtHfBitCountsCondition::evaluateCondition() const {
-
   // number of trigger objects in the condition
   // no objects, in fact, just a count
   int iCondition = 0;
@@ -125,28 +108,23 @@ const bool L1GtHfBitCountsCondition::evaluateCondition() const {
     return false;
   }
 
-  const L1GtHfBitCountsTemplate::ObjectParameter objPar =
-      (*(m_gtHfBitCountsTemplate->objectParameter()))[iCondition];
+  const L1GtHfBitCountsTemplate::ObjectParameter objPar = (*(m_gtHfBitCountsTemplate->objectParameter()))[iCondition];
 
   // FIXME ask GCT to provide a method to retrieve it
   const unsigned int numberL1HfBitCounts = 4;
 
   const unsigned int cIndex = objPar.countIndex;
   if (cIndex >= numberL1HfBitCounts) {
-
-    edm::LogError("L1GlobalTrigger")
-        << "\nL1GtHfBitCountsCondition error: countIndex " << cIndex
-        << "greater than GCT maximum index = " << numberL1HfBitCounts
-        << "\n  ==> condResult = false " << std::endl;
+    edm::LogError("L1GlobalTrigger") << "\nL1GtHfBitCountsCondition error: countIndex " << cIndex
+                                     << "greater than GCT maximum index = " << numberL1HfBitCounts
+                                     << "\n  ==> condResult = false " << std::endl;
     return false;
   }
 
   const unsigned int countValue = bitCounts->bitCount(cIndex);
 
   // check countThreshold
-  if (!checkThreshold(objPar.countThreshold, countValue,
-                      m_gtHfBitCountsTemplate->condGEq())) {
-
+  if (!checkThreshold(objPar.countThreshold, countValue, m_gtHfBitCountsTemplate->condGEq())) {
     return false;
   }
 
@@ -164,7 +142,6 @@ const bool L1GtHfBitCountsCondition::evaluateCondition() const {
 }
 
 void L1GtHfBitCountsCondition::print(std::ostream &myCout) const {
-
   m_gtHfBitCountsTemplate->print(myCout);
   L1GtConditionEvaluation::print(myCout);
 }

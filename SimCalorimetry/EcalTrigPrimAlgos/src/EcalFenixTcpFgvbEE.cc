@@ -6,11 +6,12 @@
 //---------------------------------------------------------------
 EcalFenixTcpFgvbEE::EcalFenixTcpFgvbEE(int maxNrSamples) {
   indexLut_.resize(maxNrSamples);
-} //---------------------------------------------------------------
+}  //---------------------------------------------------------------
 EcalFenixTcpFgvbEE::~EcalFenixTcpFgvbEE() {}
 //---------------------------------------------------------------
 void EcalFenixTcpFgvbEE::process(std::vector<std::vector<int>> &bypasslin_out,
-                                 int nStr, int bitMask,
+                                 int nStr,
+                                 int bitMask,
                                  std::vector<int> &output) {
   //  std::vector<int> indexLut(output.size());
 
@@ -22,7 +23,7 @@ void EcalFenixTcpFgvbEE::process(std::vector<std::vector<int>> &bypasslin_out,
   for (unsigned int i = 0; i < output.size(); i++) {
     for (int istrip = 0; istrip < nStr; istrip++) {
       int res = (bypasslin_out[istrip])[i];
-      res = (res >> bitMask) & 1; // res is FGVB at this stage
+      res = (res >> bitMask) & 1;  // res is FGVB at this stage
       indexLut_[i] = indexLut_[i] | (res << istrip);
     }
     indexLut_[i] = indexLut_[i] | (nStr << 5);
@@ -37,16 +38,12 @@ void EcalFenixTcpFgvbEE::process(std::vector<std::vector<int>> &bypasslin_out,
 
 //-------------------------------------------------------------------
 
-void EcalFenixTcpFgvbEE::setParameters(
-    uint32_t towid, const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE) {
-
-  const EcalTPGFineGrainTowerEEMap &fgee_map =
-      ecaltpgFineGrainTowerEE->getMap();
+void EcalFenixTcpFgvbEE::setParameters(uint32_t towid, const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE) {
+  const EcalTPGFineGrainTowerEEMap &fgee_map = ecaltpgFineGrainTowerEE->getMap();
 
   EcalTPGFineGrainTowerEEMapIterator it = fgee_map.find(towid);
   if (it != fgee_map.end())
     fgee_lut_ = (*it).second;
   else
-    edm::LogWarning("EcalTPG")
-        << " could not find EcalTPGFineGrainTowerEEMap for " << towid;
+    edm::LogWarning("EcalTPG") << " could not find EcalTPGFineGrainTowerEEMap for " << towid;
 }

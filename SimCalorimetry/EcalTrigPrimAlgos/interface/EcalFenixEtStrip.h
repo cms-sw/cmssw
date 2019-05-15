@@ -22,8 +22,7 @@ private:
 public:
   EcalFenixEtStrip();
   virtual ~EcalFenixEtStrip();
-  void process(const std::vector<std::vector<int>> &linout, int nrXtals,
-               std::vector<int> &output);
+  void process(const std::vector<std::vector<int>> &linout, int nrXtals, std::vector<int> &output);
 };
 
 #endif

@@ -49,7 +49,6 @@ DTPosNegCompare::operator()( const DTCCBId& idl,
 */
 
 void DTPosNegType::dump() {
-
   if (initRequest)
     fillMap();
   std::map<int, int>::const_iterator iter = geomMap.begin();
@@ -86,9 +85,7 @@ int DTPosNegType::getPN(int whe, int sec, int sta) {
   return p_n;
 }
 
-int DTPosNegType::getPN(const DTChamberId &cha) {
-  return getPN(cha.wheel(), cha.sector(), cha.station());
-}
+int DTPosNegType::getPN(const DTChamberId &cha) { return getPN(cha.wheel(), cha.sector(), cha.station()); }
 
 int DTPosNegType::getCT(int whe, int sec, int sta) {
   int p_n;
@@ -97,9 +94,7 @@ int DTPosNegType::getCT(int whe, int sec, int sta) {
   return c_t;
 }
 
-int DTPosNegType::getCT(const DTChamberId &cha) {
-  return getCT(cha.wheel(), cha.sector(), cha.station());
-}
+int DTPosNegType::getCT(const DTChamberId &cha) { return getCT(cha.wheel(), cha.sector(), cha.station()); }
 
 void DTPosNegType::fillMap() {
   // std::cout << "DTPosNeg::fillMap()" << std::endl;
@@ -361,9 +356,7 @@ void DTPosNegType::fillMap() {
   initRequest = false;
 }
 
-int DTPosNegType::idCode(int whe, int sec, int sta) {
-  return ((((whe + 3) * 100) + sec) * 10) + sta;
-}
+int DTPosNegType::idCode(int whe, int sec, int sta) { return ((((whe + 3) * 100) + sec) * 10) + sta; }
 
 int DTPosNegType::pnCode(int p, int t) { return (p * 1000) + t; }
 

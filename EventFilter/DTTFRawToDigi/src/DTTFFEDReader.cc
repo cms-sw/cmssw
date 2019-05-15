@@ -24,7 +24,6 @@
 using namespace std;
 
 DTTFFEDReader::DTTFFEDReader(const edm::ParameterSet &pset) {
-
   produces<L1MuDTChambPhContainer>();
   produces<L1MuDTChambThContainer>();
   produces<L1MuDTTrackContainer>("DATA");
@@ -39,7 +38,6 @@ DTTFFEDReader::DTTFFEDReader(const edm::ParameterSet &pset) {
 DTTFFEDReader::~DTTFFEDReader() {}
 
 void DTTFFEDReader::produce(edm::Event &e, const edm::EventSetup &c) {
-
   unique_ptr<L1MuDTChambPhContainer> phi_product(new L1MuDTChambPhContainer);
   unique_ptr<L1MuDTChambThContainer> the_product(new L1MuDTChambThContainer);
   unique_ptr<L1MuDTTrackContainer> tra_product(new L1MuDTTrackContainer);
@@ -60,11 +58,10 @@ void DTTFFEDReader::produce(edm::Event &e, const edm::EventSetup &c) {
   e.put(std::move(tra_product), "DATA");
 }
 
-bool DTTFFEDReader::fillRawData(
-    edm::Event &e, L1MuDTChambPhContainer::Phi_Container &phi_data,
-    L1MuDTChambThContainer::The_Container &the_data,
-    L1MuDTTrackContainer::TrackContainer &tra_data) {
-
+bool DTTFFEDReader::fillRawData(edm::Event &e,
+                                L1MuDTChambPhContainer::Phi_Container &phi_data,
+                                L1MuDTChambThContainer::The_Container &the_data,
+                                L1MuDTTrackContainer::TrackContainer &tra_data) {
   analyse(e);
 
   phi_data = p_data();
@@ -86,7 +83,6 @@ void DTTFFEDReader::analyse(edm::Event &e) {
 
 // process data
 void DTTFFEDReader::process(edm::Event &e) {
-
   // Container
   vector<int> DTTFWordContainer;
   vector<int>::iterator DTTFiterator;
@@ -119,15 +115,14 @@ void DTTFFEDReader::process(edm::Event &e) {
   *dataWord2 = *((int *)LineFED);
   LineFED += 4;
   *dataWord1 = *((int *)LineFED);
-  int lines = 1; // already counting header
+  int lines = 1;  // already counting header
 
-  BOEevTy = ((*dataWord1) & 0xFF000000) >> 24; // positions 57 ->64
-  DTTFId = ((*dataWord2) & 0x000FFF00) >> 8;   // positions 9 ->20
+  BOEevTy = ((*dataWord1) & 0xFF000000) >> 24;  // positions 57 ->64
+  DTTFId = ((*dataWord2) & 0x000FFF00) >> 8;    // positions 9 ->20
 
   if ((BOEevTy != 0x50) || (DTTFId != 0x030C)) {
     if (verbose_)
-      edm::LogWarning("dttf_unpacker")
-          << "Not a DTTF header " << hex << *dataWord1;
+      edm::LogWarning("dttf_unpacker") << "Not a DTTF header " << hex << *dataWord1;
     delete dataWord1;
     delete dataWord2;
     return;
@@ -146,7 +141,6 @@ void DTTFFEDReader::process(edm::Event &e) {
   lines++;
 
   while (chkEOE != 0xA00) {
-
     dt_crc::calcCRC(*dataWord1, *dataWord2, newCRC);
 
     DTTFWord = *dataWord1;
@@ -163,30 +157,28 @@ void DTTFFEDReader::process(edm::Event &e) {
 
     if (lines > 3026) {
       if (verbose_)
-        edm::LogWarning("dttf_unpacker")
-            << "Warning : number of DTTF lines > 3026 "; // 3026 = 1(header) +
-                                                         // 3024(max # PHTF-ETTF
-                                                         // 64 bits words) +
-                                                         // 1(trailer)
+        edm::LogWarning("dttf_unpacker") << "Warning : number of DTTF lines > 3026 ";  // 3026 = 1(header) +
+                                                                                       // 3024(max # PHTF-ETTF
+                                                                                       // 64 bits words) +
+                                                                                       // 1(trailer)
       delete dataWord1;
       delete dataWord2;
       return;
     }
 
-  } // end while-Data loop
+  }  // end while-Data loop
 
   //--> Trailer
 
-  evtLgth = ((*dataWord1) & 0x00FFFFFF);   // positions 33 ->56
-  CRC = ((*dataWord2) & 0xFFFF0000) >> 16; // positions 17 ->32
+  evtLgth = ((*dataWord1) & 0x00FFFFFF);    // positions 33 ->56
+  CRC = ((*dataWord2) & 0xFFFF0000) >> 16;  // positions 17 ->32
 
   dt_crc::calcCRC(*dataWord1, (*dataWord2) & 0xFFFF, newCRC);
 
   if (newCRC != CRC) {
     if (verbose_)
-      edm::LogWarning("dttf_unpacker")
-          << "Calculated CRC " << hex << newCRC
-          << " differs from CRC in trailer " << hex << CRC;
+      edm::LogWarning("dttf_unpacker") << "Calculated CRC " << hex << newCRC << " differs from CRC in trailer " << hex
+                                       << CRC;
     delete dataWord1;
     delete dataWord2;
     return;
@@ -194,9 +186,7 @@ void DTTFFEDReader::process(edm::Event &e) {
 
   if (lines != evtLgth) {
     if (verbose_)
-      edm::LogWarning("dttf_unpacker")
-          << "Number of words read != event length " << dec << lines << " "
-          << evtLgth;
+      edm::LogWarning("dttf_unpacker") << "Number of words read != event length " << dec << lines << " " << evtLgth;
     delete dataWord1;
     delete dataWord2;
     return;
@@ -204,9 +194,7 @@ void DTTFFEDReader::process(edm::Event &e) {
 
   // --> analyse event
 
-  for (DTTFiterator = DTTFWordContainer.begin();
-       DTTFiterator != DTTFWordContainer.end(); DTTFiterator++) {
-
+  for (DTTFiterator = DTTFWordContainer.begin(); DTTFiterator != DTTFWordContainer.end(); DTTFiterator++) {
     DTTFChan = ((*DTTFiterator) & 0xFF000000) >> 24;
     DTTFiterator++;
     bitsID = ((*DTTFiterator) & 0xF0000000) >> 28;
@@ -223,7 +211,6 @@ void DTTFFEDReader::process(edm::Event &e) {
 
     // Input
     if (wheelID != 0 && bitsID <= 0x9) {
-
       int wheelPh = (abs(wheelID) - 1) * wheelID / abs(wheelID);
       int stationID = 0;
       int ra = 0;
@@ -245,7 +232,6 @@ void DTTFFEDReader::process(edm::Event &e) {
       }
 
       if (stationID != 3) {
-
         ts2tag = (bitsID)&0x1;
         tsqual = (~(*DTTFiterator) & 0x07) - 1;
         ba = (~(*DTTFiterator) & 0x1FF8) >> 3;
@@ -255,7 +241,6 @@ void DTTFFEDReader::process(edm::Event &e) {
         if (ra > 0x7FF)
           ra -= 0x1000;
       } else {
-
         ts2tag = (bitsID)&0x1;
         tsqual = (~(*DTTFiterator) & 0x07) - 1;
         ra = (~(*DTTFiterator) & 0x7FF8) >> 3;
@@ -264,25 +249,21 @@ void DTTFFEDReader::process(edm::Event &e) {
       }
 
       if (tsqual != 7 && wheelID != -1) {
-        phiSegments.push_back(L1MuDTChambPhDigi(bxID + ts2tag, wheelPh,
-                                                sectorID, stationID, ra, ba,
-                                                tsqual, ts2tag, 0));
+        phiSegments.push_back(
+            L1MuDTChambPhDigi(bxID + ts2tag, wheelPh, sectorID, stationID, ra, ba, tsqual, ts2tag, 0));
       }
     }
     // Input
 
     // Input
     if (wheelID == 0 && bitsID <= 0x4) {
-
       int wheelTh = bitsID - 2;
 
       int posALL, posBTI[7];
 
       if (wheelTh == -2 || wheelTh == -1 ||
           (wheelTh == 0 &&
-           (sectorID == 0 || sectorID == 3 || sectorID == 4 || sectorID == 7 ||
-            sectorID == 8 || sectorID == 11))) {
-
+           (sectorID == 0 || sectorID == 3 || sectorID == 4 || sectorID == 7 || sectorID == 8 || sectorID == 11))) {
         posALL = ~(*DTTFiterator) & 0x7F;
         posBTI[0] = ~(*DTTFiterator) & 0x01;
         posBTI[1] = (~(*DTTFiterator) & 0x02) >> 1;
@@ -293,8 +274,7 @@ void DTTFFEDReader::process(edm::Event &e) {
         posBTI[6] = (~(*DTTFiterator) & 0x40) >> 6;
 
         if (posALL) {
-          theSegments.push_back(
-              L1MuDTChambThDigi(bxID, wheelTh, sectorID, 1, posBTI));
+          theSegments.push_back(L1MuDTChambThDigi(bxID, wheelTh, sectorID, 1, posBTI));
         }
 
         posALL = ~(*DTTFiterator) & 0x3F80;
@@ -307,8 +287,7 @@ void DTTFFEDReader::process(edm::Event &e) {
         posBTI[6] = (~(*DTTFiterator) & 0x2000) >> 13;
 
         if (posALL) {
-          theSegments.push_back(
-              L1MuDTChambThDigi(bxID, wheelTh, sectorID, 2, posBTI));
+          theSegments.push_back(L1MuDTChambThDigi(bxID, wheelTh, sectorID, 2, posBTI));
         }
 
         posALL = ~(*DTTFiterator) & 0x1FC000;
@@ -321,13 +300,11 @@ void DTTFFEDReader::process(edm::Event &e) {
         posBTI[6] = (~(*DTTFiterator) & 0x100000) >> 20;
 
         if (posALL) {
-          theSegments.push_back(
-              L1MuDTChambThDigi(bxID, wheelTh, sectorID, 3, posBTI));
+          theSegments.push_back(L1MuDTChambThDigi(bxID, wheelTh, sectorID, 3, posBTI));
         }
       }
 
       else {
-
         posALL = ~(*DTTFiterator) & 0x7F;
         posBTI[6] = ~(*DTTFiterator) & 0x01;
         posBTI[5] = (~(*DTTFiterator) & 0x02) >> 1;
@@ -338,8 +315,7 @@ void DTTFFEDReader::process(edm::Event &e) {
         posBTI[0] = (~(*DTTFiterator) & 0x40) >> 6;
 
         if (posALL) {
-          theSegments.push_back(
-              L1MuDTChambThDigi(bxID, wheelTh, sectorID, 1, posBTI));
+          theSegments.push_back(L1MuDTChambThDigi(bxID, wheelTh, sectorID, 1, posBTI));
         }
 
         posALL = ~(*DTTFiterator) & 0x3F80;
@@ -352,8 +328,7 @@ void DTTFFEDReader::process(edm::Event &e) {
         posBTI[0] = (~(*DTTFiterator) & 0x2000) >> 13;
 
         if (posALL) {
-          theSegments.push_back(
-              L1MuDTChambThDigi(bxID, wheelTh, sectorID, 2, posBTI));
+          theSegments.push_back(L1MuDTChambThDigi(bxID, wheelTh, sectorID, 2, posBTI));
         }
 
         posALL = ~(*DTTFiterator) & 0x1FC000;
@@ -366,8 +341,7 @@ void DTTFFEDReader::process(edm::Event &e) {
         posBTI[0] = (~(*DTTFiterator) & 0x100000) >> 20;
 
         if (posALL) {
-          theSegments.push_back(
-              L1MuDTChambThDigi(bxID, wheelTh, sectorID, 3, posBTI));
+          theSegments.push_back(L1MuDTChambThDigi(bxID, wheelTh, sectorID, 3, posBTI));
         }
       }
     }
@@ -375,7 +349,6 @@ void DTTFFEDReader::process(edm::Event &e) {
 
     // Addresses
     if (wheelID != 0 && bitsID >= 0xA && bitsID <= 0xB) {
-
       int candID = bitsID - 0xA;
 
       addr4[candID] = ((*DTTFiterator) & 0x0F);
@@ -387,7 +360,6 @@ void DTTFFEDReader::process(edm::Event &e) {
 
     // Output
     if (wheelID != 0 && bitsID >= 0xC) {
-
       int muonID = 0;
       int pt = 0;
       int ch = 0;
@@ -401,16 +373,28 @@ void DTTFFEDReader::process(edm::Event &e) {
       pt = (~(*DTTFiterator) & 0x1F000) >> 12;
 
       if (qual != 0) {
-        dtTracks.push_back(L1MuDTTrackCand(
-            0, phi, 0, pt, ch, 1, 0, qual, bxID, wheelID, sectorID, muonID,
-            addr1[muonID], addr2[muonID], addr3[muonID], addr4[muonID]));
+        dtTracks.push_back(L1MuDTTrackCand(0,
+                                           phi,
+                                           0,
+                                           pt,
+                                           ch,
+                                           1,
+                                           0,
+                                           qual,
+                                           bxID,
+                                           wheelID,
+                                           sectorID,
+                                           muonID,
+                                           addr1[muonID],
+                                           addr2[muonID],
+                                           addr3[muonID],
+                                           addr4[muonID]));
       }
     }
     // Output
 
     // Output
     if (wheelID == 0 && bitsID >= 0x8) {
-
       int wheelTh = bitsID & 0x7;
 
       int etaALL;
@@ -418,21 +402,18 @@ void DTTFFEDReader::process(edm::Event &e) {
       etaALL = ~(*DTTFiterator) & 0x007F;
       if (etaALL) {
         etTrack[bxID + 1][sectorID][wheelTh][0] = (*DTTFiterator) & 0x003F;
-        efTrack[bxID + 1][sectorID][wheelTh][0] =
-            (~(*DTTFiterator) & 0x0040) >> 6;
+        efTrack[bxID + 1][sectorID][wheelTh][0] = (~(*DTTFiterator) & 0x0040) >> 6;
       }
 
       etaALL = (~(*DTTFiterator) & 0x3F80) >> 7;
       if (etaALL) {
-        etTrack[bxID + 1][sectorID][wheelTh][1] =
-            ((*DTTFiterator) & 0x1F80) >> 7;
-        efTrack[bxID + 1][sectorID][wheelTh][1] =
-            (~(*DTTFiterator) & 0x2000) >> 13;
+        etTrack[bxID + 1][sectorID][wheelTh][1] = ((*DTTFiterator) & 0x1F80) >> 7;
+        efTrack[bxID + 1][sectorID][wheelTh][1] = (~(*DTTFiterator) & 0x2000) >> 13;
       }
     }
     // Output
 
-  } // end for-loop container content
+  }  // end for-loop container content
 
   delete dataWord1;
   delete dataWord2;
@@ -440,9 +421,7 @@ void DTTFFEDReader::process(edm::Event &e) {
 }
 
 void DTTFFEDReader::match() {
-
-  for (L1MuDTTrackContainer::TrackIterator i = dtTracks.begin();
-       i != dtTracks.end(); i++) {
+  for (L1MuDTTrackContainer::TrackIterator i = dtTracks.begin(); i != dtTracks.end(); i++) {
     int bxTh = i->bx() + 1;
     int sectorTh = i->scNum();
     int wheelTh = i->whNum() + 3;
@@ -458,17 +437,11 @@ void DTTFFEDReader::match() {
 }
 
 // access data
-const L1MuDTChambPhContainer::Phi_Container &DTTFFEDReader::p_data() {
-  return phiSegments;
-}
+const L1MuDTChambPhContainer::Phi_Container &DTTFFEDReader::p_data() { return phiSegments; }
 
-const L1MuDTChambThContainer::The_Container &DTTFFEDReader::t_data() {
-  return theSegments;
-}
+const L1MuDTChambThContainer::The_Container &DTTFFEDReader::t_data() { return theSegments; }
 
-const L1MuDTTrackContainer::TrackContainer &DTTFFEDReader::k_data() {
-  return dtTracks;
-}
+const L1MuDTTrackContainer::TrackContainer &DTTFFEDReader::k_data() { return dtTracks; }
 
 void DTTFFEDReader::clear() {
   phiSegments.clear();
@@ -490,7 +463,6 @@ void DTTFFEDReader::clear() {
 }
 
 int DTTFFEDReader::channel(int wheel, int sector, int bx) {
-
   // wheel  :  -3 -2 -1 +1 +2 +3 <=> PHTF's : N2, N1, N0, P0, P1, P2
   //                           0 <=> ETTF
   // sector :  0 -> 11
@@ -517,7 +489,6 @@ int DTTFFEDReader::channel(int wheel, int sector, int bx) {
 }
 
 int DTTFFEDReader::bxNr(int channel) {
-
   int myChannel = channel;
 
   if (myChannel > 127)
@@ -533,7 +504,6 @@ int DTTFFEDReader::bxNr(int channel) {
 }
 
 int DTTFFEDReader::sector(int channel) {
-
   int myChannel = channel;
 
   if (myChannel > 127)
@@ -547,7 +517,6 @@ int DTTFFEDReader::sector(int channel) {
 }
 
 int DTTFFEDReader::wheel(int channel) {
-
   int myChannel = channel;
 
   if (myChannel > 127)

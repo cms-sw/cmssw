@@ -22,12 +22,8 @@ public:
   // although, in the case of the emulator they may always be in
   // the descending order of rank
 
-  std::vector<unsigned short> getIsolatedEGObjects() {
-    return isolatedEGObjects;
-  }
-  std::vector<unsigned short> getNonisolatedEGObjects() {
-    return nonisolatedEGObjects;
-  }
+  std::vector<unsigned short> getIsolatedEGObjects() { return isolatedEGObjects; }
+  std::vector<unsigned short> getNonisolatedEGObjects() { return nonisolatedEGObjects; }
 
   // Region sums 10-bit energy (bits 0-9),overflow (bit 10)
   // bit 11 is tau bit
@@ -74,14 +70,11 @@ public:
   std::vector<unsigned short> getHFFineGrainBits() { return hfFineGrainBits; }
 
   void fillHFRegionSums(const std::vector<unsigned short> &hfRegionSums);
-  void fillRegionSums(const std::vector<unsigned short> &regSums) {
-    barrelRegions = regSums;
-  }
+  void fillRegionSums(const std::vector<unsigned short> &regSums) { barrelRegions = regSums; }
   void fillJetRegions();
 
   void fillIsolatedEGObjects(const std::vector<unsigned short> &isoElectrons);
-  void
-  fillNonIsolatedEGObjects(const std::vector<unsigned short> &nonIsoElectrons);
+  void fillNonIsolatedEGObjects(const std::vector<unsigned short> &nonIsoElectrons);
 
   void fillMIPBits(const std::vector<unsigned short> &mip);
   void fillTauBits(const std::vector<unsigned short> &tau);
@@ -99,10 +92,9 @@ private:
   std::vector<unsigned short> nonisolatedEGObjects;
   std::vector<unsigned short> jetRegions;
 
-  std::vector<unsigned short> HFRegions; // 8-bit et + fine grain?
-  std::vector<unsigned short>
-      barrelRegions; // no, this is 10-bit et, not
-                     // (activityBit)(etIn9Bits)(HE_FGBit)(etIn7Bits)
+  std::vector<unsigned short> HFRegions;      // 8-bit et + fine grain?
+  std::vector<unsigned short> barrelRegions;  // no, this is 10-bit et, not
+                                              // (activityBit)(etIn9Bits)(HE_FGBit)(etIn7Bits)
 
   unsigned short mipBits;
   unsigned short quietBits;

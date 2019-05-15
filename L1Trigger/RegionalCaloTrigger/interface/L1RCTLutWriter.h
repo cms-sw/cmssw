@@ -33,8 +33,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"   // why doesn't mkedanlzr
-#include "FWCore/Framework/interface/EventSetup.h" // add these??
+#include "FWCore/Framework/interface/ESHandle.h"    // why doesn't mkedanlzr
+#include "FWCore/Framework/interface/EventSetup.h"  // add these??
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class L1RCTLookupTables;
@@ -56,9 +56,7 @@ private:
   void writeRcLutFile(unsigned short card);
   void writeEicLutFile(unsigned short card);
   void writeJscLutFile();
-  void writeThresholdsFile(unsigned int eicThreshold,
-                           unsigned int jscThresholdBarrel,
-                           unsigned int jscThresholdEndcap);
+  void writeThresholdsFile(unsigned int eicThreshold, unsigned int jscThresholdBarrel, unsigned int jscThresholdEndcap);
 
   // ----------member data ---------------------------
 

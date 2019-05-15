@@ -35,12 +35,9 @@ private:
 };
 
 L1GTPrescaler::L1GTPrescaler(edm::ParameterSet const &config)
-    : m_l1ResultsToken(consumes<L1GlobalTriggerReadoutRecord>(
-          config.getParameter<edm::InputTag>("l1Results"))),
-      m_algoPrescales(make_array<double, 128>(
-          config.getParameter<std::vector<double>>("l1AlgoPrescales"))),
-      m_techPrescales(make_array<double, 64>(
-          config.getParameter<std::vector<double>>("l1TechPrescales"))) {
+    : m_l1ResultsToken(consumes<L1GlobalTriggerReadoutRecord>(config.getParameter<edm::InputTag>("l1Results"))),
+      m_algoPrescales(make_array<double, 128>(config.getParameter<std::vector<double>>("l1AlgoPrescales"))),
+      m_techPrescales(make_array<double, 64>(config.getParameter<std::vector<double>>("l1TechPrescales"))) {
   m_algoCounters.fill(0);
   m_techCounters.fill(0);
   produces<L1GlobalTriggerReadoutRecord>();
@@ -49,9 +46,8 @@ L1GTPrescaler::L1GTPrescaler(edm::ParameterSet const &config)
 bool L1GTPrescaler::filter(edm::Event &event, edm::EventSetup const &setup) {
   edm::Handle<L1GlobalTriggerReadoutRecord> handle;
   event.getByToken(m_l1ResultsToken, handle);
-  auto algoWord = handle->decisionWord(); // make a copy of the L1 algo results
-  auto techWord =
-      handle->technicalTriggerWord(); // make a copy of the L1 tech results
+  auto algoWord = handle->decisionWord();          // make a copy of the L1 algo results
+  auto techWord = handle->technicalTriggerWord();  // make a copy of the L1 tech results
   bool finalOr = false;
 
   for (unsigned int i = 0; i < 128; ++i) {
@@ -85,8 +81,7 @@ bool L1GTPrescaler::filter(edm::Event &event, edm::EventSetup const &setup) {
   }
 
   // make a copy of the L1GlobalTriggerReadoutRecord, and set the new decisions
-  std::unique_ptr<L1GlobalTriggerReadoutRecord> result(
-      new L1GlobalTriggerReadoutRecord(*handle));
+  std::unique_ptr<L1GlobalTriggerReadoutRecord> result(new L1GlobalTriggerReadoutRecord(*handle));
   result->setDecisionWord(algoWord);
   result->setTechnicalTriggerWord(techWord);
   result->setDecision(finalOr);
@@ -95,8 +90,7 @@ bool L1GTPrescaler::filter(edm::Event &event, edm::EventSetup const &setup) {
   return finalOr;
 }
 
-void L1GTPrescaler::fillDescriptions(
-    edm::ConfigurationDescriptions &descriptions) {
+void L1GTPrescaler::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("l1Results", edm::InputTag("gtDigis"));
   desc.add<std::vector<double>>("l1AlgoPrescales", std::vector<double>(128, 1));

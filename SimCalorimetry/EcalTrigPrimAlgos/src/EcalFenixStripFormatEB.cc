@@ -21,7 +21,7 @@ int EcalFenixStripFormatEB::process() {
   //    int output=buffer_;
   int output = input_ >> shift_;
   if (output > 0XFFF)
-    output = 0XFFF; // ok: barrel saturates at 12 bits
+    output = 0XFFF;  // ok: barrel saturates at 12 bits
   // Add stripFGVB
   output |= ((inputsFGVB_ & 0x1) << 12);
 
@@ -33,9 +33,8 @@ void EcalFenixStripFormatEB::process(std::vector<int> &sFGVBout,
                                      std::vector<int> &filtout,
                                      std::vector<int> &output) {
   if (peakout.size() != filtout.size() || sFGVBout.size() != filtout.size()) {
-    edm::LogWarning("EcalTPG")
-        << " problem in EcalFenixStripFormatEB: sfgvb_out, peak_out and "
-           "filt_out don't have the same size";
+    edm::LogWarning("EcalTPG") << " problem in EcalFenixStripFormatEB: sfgvb_out, peak_out and "
+                                  "filt_out don't have the same size";
   }
   for (unsigned int i = 0; i < filtout.size(); i++) {
     setInput(filtout[i], peakout[i], sFGVBout[i]);
@@ -45,14 +44,11 @@ void EcalFenixStripFormatEB::process(std::vector<int> &sFGVBout,
   return;
 }
 
-void EcalFenixStripFormatEB::setParameters(uint32_t &id,
-                                           const EcalTPGSlidingWindow *&slWin) {
-
+void EcalFenixStripFormatEB::setParameters(uint32_t &id, const EcalTPGSlidingWindow *&slWin) {
   const EcalTPGSlidingWindowMap &slwinmap = slWin->getMap();
   EcalTPGSlidingWindowMapIterator it = slwinmap.find(id);
   if (it != slwinmap.end())
     shift_ = (*it).second;
   else
-    edm::LogWarning("EcalTPG")
-        << " could not find EcalTPGSlidingWindowMap entry for " << id;
+    edm::LogWarning("EcalTPG") << " could not find EcalTPGSlidingWindowMap entry for " << id;
 }
