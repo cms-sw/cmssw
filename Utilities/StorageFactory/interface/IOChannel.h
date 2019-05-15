@@ -10,18 +10,18 @@ class IOChannel : public virtual IOInput, public virtual IOOutput
 {
 public:
   IOChannel (IOFD fd = EDM_IOFD_INVALID);
-  virtual ~IOChannel (void);
+  ~IOChannel (void) override;
   // implicit copy constructor
   // implicit assignment operator
 
   using IOInput::read;
   using IOOutput::write;
   
-  virtual IOSize	read (void *into, IOSize n);
-  virtual IOSize	readv (IOBuffer *into, IOSize buffers);
+  IOSize	read (void *into, IOSize n) override;
+  IOSize	readv (IOBuffer *into, IOSize buffers) override;
 
-  virtual IOSize	write (const void *from, IOSize n);
-  virtual IOSize	writev (const IOBuffer *from, IOSize buffers);
+  IOSize	write (const void *from, IOSize n) override;
+  IOSize	writev (const IOBuffer *from, IOSize buffers) override;
 
   virtual IOFD		fd (void) const;
   virtual void		fd (IOFD value); // FIXME: dangerous?
@@ -33,7 +33,7 @@ public:
 
 protected:
   // System implementation
-  bool			sysclose (IOFD fd, int *error = 0);
+  bool			sysclose (IOFD fd, int *error = nullptr);
 
 private:
   IOFD			m_fd;		/*< System file descriptor. */

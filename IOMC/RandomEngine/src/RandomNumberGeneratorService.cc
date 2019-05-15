@@ -70,7 +70,7 @@ namespace edm {
 
       if(pset.exists("restoreStateTag")) {
         restoreStateTag_ = pset.getUntrackedParameter<edm::InputTag>("restoreStateTag");
-        if(restoreStateTag_.process() == "") {
+        if(restoreStateTag_.process().empty()) {
           restoreStateTag_ = edm::InputTag(restoreStateTag_.label(), "", edm::InputTag::kSkipCurrentProcess);
         }
       } else {

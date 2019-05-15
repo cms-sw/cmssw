@@ -26,7 +26,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
      if (SD) {
           std::string buf;
           llvm::raw_string_ostream os(buf);
-          SD->getNameForDiagnostic(os,Policy,1);
+          SD->getNameForDiagnostic(os,Policy,true);
           crname = crname+os.str()+"'";
           support::writeLog(crname, tname);
           for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
@@ -79,7 +79,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
                          if (SD) {
                                    std::string buf;
                                    llvm::raw_string_ostream os(buf);
-                                   SD->getNameForDiagnostic(os,Policy,1);
+                                   SD->getNameForDiagnostic(os,Policy,true);
                                    std::string cfname ="member data class '"+os.str()+"'";
                                    support::writeLog(crname+" "+cfname,tname);
                          // Recurse the template args

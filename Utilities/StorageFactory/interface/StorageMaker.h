@@ -39,7 +39,7 @@ public:
   virtual bool		check (const std::string &proto,
 			       const std::string &path,
              const AuxSettings& aux,
-			       IOOffset *size = 0) const;
+			       IOOffset *size = nullptr) const;
 };
 
 #endif // STORAGE_FACTORY_STORAGE_MAKER_H
