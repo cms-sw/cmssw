@@ -27,8 +27,7 @@ public:
     static_assert(xRange >= 0.);
     constexpr float r = hgcalTilesConstants::nColumns / xRange;
     int xBin = (x - hgcalTilesConstants::minX) * r;
-    xBin = std::min(xBin, hgcalTilesConstants::nColumns);
-    xBin = std::max(xBin, 0);
+    xBin = std::clamp(xBin, 0, hgcalTilesConstants::nColumns);
     return xBin;
   }
 
@@ -37,8 +36,7 @@ public:
     static_assert(yRange >= 0.);
     constexpr float r = hgcalTilesConstants::nRows / yRange;
     int yBin = (y - hgcalTilesConstants::minY) * r;
-    yBin = std::min(yBin, hgcalTilesConstants::nRows);
-    yBin = std::max(yBin, 0);
+    yBin = std::clamp(yBin, 0, hgcalTilesConstants::nRows);
     return yBin;
   }
 
