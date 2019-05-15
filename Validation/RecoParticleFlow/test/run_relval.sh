@@ -18,9 +18,11 @@ if [ -z "$PERJOB" ]; then
     PERJOB=200
 fi
 
-#set default conditions
+#set default conditions - 2017
 CONDITIONS=auto:phase1_2017_realistic
 ERA=Run2_2017,run2_nanoAOD_94XMiniAODv1
+#CONDITIONS=auto:phase1_2018_realistic
+#ERA=Run2_2018
 #Running with 2 threads allows to use more memory on grid
 NTHREADS=2
 
@@ -61,8 +63,15 @@ elif [ "$1" == "ZMM" ]; then
 elif [ "$1" == "MinBias" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/MinBias/RelValMinBias_13__CMSSW_10_4_0_pre4-103X_mc2017_realistic_v2-v1__GEN-SIM-DIGI-RAW.txt
     NAME=MinBias
+elif [ "$1" == "NuGunPU" ]; then
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/NuGun_PU25ns/RelValNuGun__CMSSW_10_5_0_pre1-PU25ns_103X_mc2017_realistic_v2_HS-v1__GEN-SIM-DIGI-RAW.txt
+
+
+
+MinBias/RelValMinBias_13__CMSSW_10_4_0_pre4-103X_mc2017_realistic_v2-v1__GEN-SIM-DIGI-RAW.txt # temporary hack
+    NAME=NuGunPU
 else
-    echo "Argument 1 must be [QCD|QCDPU|ZMM|MinBias] but was $1"
+    echo "Argument 1 must be [QCD|QCDPU|ZMM|MinBias|NuGunPU] but was $1"
     exit 1
 fi
 
