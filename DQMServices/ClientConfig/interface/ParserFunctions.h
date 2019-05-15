@@ -6,16 +6,16 @@
 
 #include <string>
 
-namespace qtxml{
-	inline std::string _toString(const XMLCh *toTranscode){
-		std::string tmp(xercesc::XMLString::transcode(toTranscode));
-		return tmp;
-	}
+namespace qtxml {
+  inline std::string _toString(const XMLCh* toTranscode) {
+    std::string tmp(xercesc::XMLString::transcode(toTranscode));
+    return tmp;
+  }
 
-	inline XMLCh*  _toDOMS( std::string temp ){
-		XMLCh* buff = xercesc::XMLString::transcode(temp.c_str());    
-		return  buff;
-	}
+  inline XMLCh* _toDOMS(std::string temp) {
+    XMLCh* buff = xercesc::XMLString::transcode(temp.c_str());
+    return buff;
+  }
 
-}
-#endif // DQMServices_ClientConfig_ParserFunctions_h
+}  // namespace qtxml
+#endif  // DQMServices_ClientConfig_ParserFunctions_h

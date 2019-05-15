@@ -40,7 +40,7 @@
 class DQMStore;
 class SiStripDetCabling;
 
-class SiStripOfflineDQM: public edm::EDAnalyzer {
+class SiStripOfflineDQM : public edm::EDAnalyzer {
 public:
   SiStripOfflineDQM(edm::ParameterSet const& ps);
 

@@ -1,5 +1,5 @@
 #ifndef HCALDIGISVALIDATION_H
-#define	HCALDIGISVALIDATION_H
+#define HCALDIGISVALIDATION_H
 
 #include <memory>
 
@@ -32,12 +32,10 @@
 
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 
-
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-
 
 /*TP Code*/
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
@@ -45,7 +43,6 @@
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 /*~TP Code*/
-
 
 #include <map>
 #include <vector>
@@ -58,106 +55,106 @@
 
 class HcalDigisValidation : public DQMEDAnalyzer {
 public:
-    explicit HcalDigisValidation(const edm::ParameterSet&);
+  explicit HcalDigisValidation(const edm::ParameterSet &);
 
-    ~HcalDigisValidation() override; 
+  ~HcalDigisValidation() override;
 
-    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-    void dqmBeginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(const edm::Run &run, const edm::EventSetup &c) override;
 
 private:
+  struct HistLim {
+    HistLim(int nbin, double mini, double maxi) : n(nbin), min(mini), max(maxi) {}
+    int n;
+    double min;
+    double max;
+  };
 
-    struct HistLim {
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-        HistLim(int nbin, double mini, double maxi)
-        : n(nbin), min(mini), max(maxi) {
-        }
-        int n;
-        double min;
-        double max;
-    };
+  std::map<std::string, MonitorElement *> *msm_;
 
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void book1D(DQMStore::IBooker &ib, std::string name, int n, double min, double max);
 
-    std::map<std::string, MonitorElement*> *msm_;
+  void book1D(DQMStore::IBooker &ib, std::string name, const HistLim &limX);
 
-    void book1D(DQMStore::IBooker &ib, std::string name, int n, double min, double max);
+  void fill1D(std::string name, double X, double weight = 1);
 
-    void book1D(DQMStore::IBooker &ib, std::string name, const HistLim& limX);
+  void book2D(DQMStore::IBooker &ib, std::string name, const HistLim &limX, const HistLim &limY);
 
-    void fill1D(std::string name, double X, double weight = 1);
+  void fill2D(std::string name, double X, double Y, double weight = 1);
 
-    void book2D(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY);
+  void bookPf(DQMStore::IBooker &ib, std::string name, const HistLim &limX, const HistLim &limY);
 
-    void fill2D(std::string name, double X, double Y, double weight = 1);
+  void bookPf(DQMStore::IBooker &ib, std::string name, const HistLim &limX, const HistLim &limY, const char *option);
 
-    void bookPf(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY);
+  void fillPf(std::string name, double X, double Y);
 
-    void bookPf(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY, const char *option);
+  MonitorElement *monitor(std::string name);
 
-    void fillPf(std::string name, double X, double Y);
+  void booking(DQMStore::IBooker &ib, std::string subdetopt, int bnoise, int bmc);
 
-    MonitorElement* monitor(std::string name);
+  std::string str(int x);
 
-    void booking(DQMStore::IBooker &ib, std::string subdetopt, int bnoise, int bmc);
+  template <class Digi>
+  void reco(const edm::Event &iEvent,
+            const edm::EventSetup &iSetup,
+            const edm::EDGetTokenT<edm::SortedCollection<Digi> > &tok);
+  template <class dataFrameType>
+  void reco(const edm::Event &iEvent,
+            const edm::EventSetup &iSetup,
+            const edm::EDGetTokenT<HcalDataFrameContainer<dataFrameType> > &tok);
 
-    std::string str(int x);
+  std::string outputFile_;
+  std::string subdet_;
+  std::string zside_;
+  std::string dirName_;
+  //    std::string inputLabel_;
+  edm::InputTag inputTag_;
+  edm::InputTag QIE10inputTag_;
+  edm::InputTag QIE11inputTag_;
+  edm::InputTag emulTPsTag_;
+  edm::InputTag dataTPsTag_;
+  std::string mode_;
+  std::string mc_;
+  int noise_;
+  bool testNumber_;
+  bool hep17_;
+  bool HEPhase1_;
+  bool HBPhase1_;
+  bool Plot_TP_ver_;
 
-    template<class Digi> void reco(const edm::Event& iEvent, const edm::EventSetup& iSetup, const edm::EDGetTokenT<edm::SortedCollection<Digi> > &tok);
-    template<class dataFrameType> void reco(const edm::Event& iEvent, const edm::EventSetup& iSetup, const edm::EDGetTokenT<HcalDataFrameContainer<dataFrameType> > &tok);
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_mc_;
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+  edm::EDGetTokenT<HODigiCollection> tok_ho_;
+  edm::EDGetTokenT<HFDigiCollection> tok_hf_;
+  edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_emulTPs_;
+  edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_dataTPs_;
 
-    std::string outputFile_;
-    std::string subdet_;
-    std::string zside_;
-    std::string dirName_;
-//    std::string inputLabel_;
-    edm::InputTag inputTag_;
-    edm::InputTag QIE10inputTag_;
-    edm::InputTag QIE11inputTag_;
-    edm::InputTag emulTPsTag_;
-    edm::InputTag dataTPsTag_;
-    std::string mode_;
-    std::string mc_;
-    int noise_;
-    bool testNumber_;
-    bool hep17_;
-    bool HEPhase1_;
-    bool HBPhase1_;
-    bool Plot_TP_ver_;
+  edm::EDGetTokenT<QIE10DigiCollection> tok_qie10_hf_;
+  edm::EDGetTokenT<QIE11DigiCollection> tok_qie11_hbhe_;
 
-    edm::EDGetTokenT<edm::PCaloHitContainer> tok_mc_;
-    edm::EDGetTokenT< HBHEDigiCollection > tok_hbhe_; 
-    edm::EDGetTokenT< HODigiCollection > tok_ho_;
-    edm::EDGetTokenT< HFDigiCollection > tok_hf_;
-    edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_emulTPs_;
-    edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_dataTPs_;
+  edm::ESHandle<CaloGeometry> geometry;
 
-    edm::EDGetTokenT< QIE10DigiCollection > tok_qie10_hf_; 
-    edm::EDGetTokenT< QIE11DigiCollection > tok_qie11_hbhe_; 
-    
-    edm::ESHandle<CaloGeometry> geometry;
+  edm::ESHandle<HcalDbService> conditions;
 
-    edm::ESHandle<HcalDbService> conditions;
+  //TP Code
+  edm::ESHandle<HcalTopology> htopo;
+  //~TP Code
 
-    //TP Code
-    edm::ESHandle<HcalTopology> htopo;
-    //~TP Code
+  int nevent1;
+  int nevent2;
+  int nevent3;
+  int nevent4;
+  int nevtot;
 
-    int nevent1;
-    int nevent2;
-    int nevent3;
-    int nevent4;
-    int nevtot;
+  const HcalDDDRecConstants *hcons;
+  const HcalTopology *htopology;
 
-    const HcalDDDRecConstants *hcons;
-    const HcalTopology *htopology;    
+  int maxDepth_[5];   // 0:any, 1:HB, 2:HE, 3:HF
+  int nChannels_[5];  // 0:any, 1:HB, 2:HE,
 
-    int maxDepth_[5]; // 0:any, 1:HB, 2:HE, 3:HF
-    int nChannels_[5]; // 0:any, 1:HB, 2:HE, 
-
-    bool skipDataTPs;
+  bool skipDataTPs;
 };
 
 #endif
-
-
