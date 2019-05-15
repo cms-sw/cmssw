@@ -218,7 +218,6 @@ math::XYZPoint HGCalCLUEAlgo::calculatePosition(const std::vector<int> &v, const
     for (auto i : v) {
 
       float rhEnergy = cellsOnLayer.weight[i];
-      total_weight += rhEnergy;
 
       x += cellsOnLayer.x[i] * rhEnergy;
       y += cellsOnLayer.y[i] * rhEnergy;
