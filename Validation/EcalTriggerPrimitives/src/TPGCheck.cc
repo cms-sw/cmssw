@@ -93,12 +93,10 @@ TPGCheck::TPGCheck(const edm::ParameterSet &iConfig) {
 
   label_ = iConfig.getParameter<std::string>("Label");
   producer_ = iConfig.getParameter<std::string>("Producer");
-  ecal_tp_token_ =
-      consumes<EcalTrigPrimDigiCollection>(edm::InputTag(label_, producer_));
+  ecal_tp_token_ = consumes<EcalTrigPrimDigiCollection>(edm::InputTag(label_, producer_));
 }
 
 TPGCheck::~TPGCheck() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
@@ -111,9 +109,7 @@ TPGCheck::~TPGCheck() {
 //
 
 // ------------ method called to for each event  ------------
-void TPGCheck::analyze(const edm::Event &iEvent,
-                       const edm::EventSetup &iSetup) {
-
+void TPGCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Get input
   edm::Handle<EcalTrigPrimDigiCollection> tp;
   iEvent.getByToken(ecal_tp_token_, tp);

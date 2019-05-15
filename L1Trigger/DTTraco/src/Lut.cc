@@ -12,7 +12,6 @@
 //----------------
 
 Lut::Lut(const DTConfigLUTs *conf, int ntc, float SL_shift) : _conf_luts(conf) {
-
   // set parameters from configuration
   m_d = _conf_luts->D();
   m_ST = _conf_luts->BTIC();
@@ -48,7 +47,6 @@ void Lut::setForTestBeam(int station, int board, int traco) {
   float tracoPos[50];
 
   if (nStat == 1) {
-
     tracoPos[0] = -120.19;
     tracoPos[1] = -103.39;
     tracoPos[2] = -86.59;
@@ -124,15 +122,15 @@ int Lut::get_x(int addr) const {
   int i;
   float a, b, x;
 
-  if (addr <= 511) // LUT outer
+  if (addr <= 511)  // LUT outer
   {
     i = addr;
     b = m_d + SL_DIFF;
-  } else if (addr <= 1023) // LUT inner
+  } else if (addr <= 1023)  // LUT inner
   {
     i = addr - 512;
     b = m_d - SL_DIFF;
-  } else // LUT correlati
+  } else  // LUT correlati
   {
     i = addr - 1024;
     b = m_d;
@@ -429,13 +427,13 @@ void IEEE32toDSP(float f, short *DSPmantissa, short *DSPexp) {
     // pl = (long*) (&f);
     if ((pl & 0x80000000) != 0)
       sign = true;
-    lm = (0x800000 | (pl & 0x7FFFFF)); // [1][23bit mantissa]
-    lm >>= 9;                          // reduce to 15bits
+    lm = (0x800000 | (pl & 0x7FFFFF));  // [1][23bit mantissa]
+    lm >>= 9;                           // reduce to 15bits
     lm &= 0x7FFF;
     *DSPexp = ((pl >> 23) & 0xFF) - 126;
     *DSPmantissa = (short)lm;
     if (sign)
-      *DSPmantissa = -*DSPmantissa; // convert negative value in 2.s
+      *DSPmantissa = -*DSPmantissa;  // convert negative value in 2.s
     // complement
   }
   return;

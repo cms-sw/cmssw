@@ -22,7 +22,6 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
 class GctDigiToPsbText : public edm::EDAnalyzer {
-
 public:
   explicit GctDigiToPsbText(const edm::ParameterSet &);
   ~GctDigiToPsbText() override;

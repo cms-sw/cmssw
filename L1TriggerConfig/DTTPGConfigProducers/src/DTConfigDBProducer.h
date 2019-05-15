@@ -44,7 +44,6 @@
 //
 
 class DTConfigDBProducer : public edm::ESProducer {
-
 public:
   //! Constructor
   DTConfigDBProducer(const edm::ParameterSet &);
@@ -57,12 +56,10 @@ public:
 
 private:
   //! Read DTTPG pedestal configuration
-  void readDBPedestalsConfig(const DTConfigManagerRcd &iRecord,
-                             DTConfigManager &dttpgConfig);
+  void readDBPedestalsConfig(const DTConfigManagerRcd &iRecord, DTConfigManager &dttpgConfig);
 
   //! Read CCB string configuration
-  int readDTCCBConfig(const DTConfigManagerRcd &iRecord,
-                      DTConfigManager &dttpgConfig);
+  int readDTCCBConfig(const DTConfigManagerRcd &iRecord, DTConfigManager &dttpgConfig);
 
   //! SV for debugging purpose ONLY
   void configFromCfg(DTConfigManager &dttpgConfig);

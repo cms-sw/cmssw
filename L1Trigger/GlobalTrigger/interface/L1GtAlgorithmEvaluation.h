@@ -36,17 +36,16 @@
 //   how to hash std::string, using a "template specialization"
 namespace __gnu_cxx {
 
-/**
+  /**
  Explicit template specialization of hash of a string class,
  which just uses the internal char* representation as a wrapper.
  */
-template <> struct hash<std::string> {
-  size_t operator()(const std::string &x) const {
-    return hash<const char *>()(x.c_str());
-  }
-};
+  template <>
+  struct hash<std::string> {
+    size_t operator()(const std::string &x) const { return hash<const char *>()(x.c_str()); }
+  };
 
-} // namespace __gnu_cxx
+}  // namespace __gnu_cxx
 // end hash map
 
 // user include files
@@ -63,7 +62,6 @@ class L1GtConditionEvaluation;
 
 // class interface
 class L1GtAlgorithmEvaluation {
-
 public:
   typedef L1GtLogicParser::TokenRPN TokenRPN;
   typedef std::vector<TokenRPN> RpnVector;
@@ -83,8 +81,7 @@ public:
 
   // typedef std::map<std::string, L1GtConditionEvaluation*>
   // ConditionEvaluationMap;
-  typedef __gnu_cxx ::hash_map<std::string, L1GtConditionEvaluation *>
-      ConditionEvaluationMap;
+  typedef __gnu_cxx ::hash_map<std::string, L1GtConditionEvaluation *> ConditionEvaluationMap;
   typedef ConditionEvaluationMap::const_iterator CItEvalMap;
   typedef ConditionEvaluationMap::iterator ItEvalMap;
 
@@ -92,23 +89,16 @@ public:
   /// get / set the result of the algorithm
   inline bool gtAlgoResult() const { return m_algoResult; }
 
-  inline void setGtAlgoResult(const bool algoResult) {
-    m_algoResult = algoResult;
-  }
+  inline void setGtAlgoResult(const bool algoResult) { m_algoResult = algoResult; }
 
   /// evaluate an algorithm
-  void evaluateAlgorithm(const int chipNumber,
-                         const std::vector<ConditionEvaluationMap> &);
+  void evaluateAlgorithm(const int chipNumber, const std::vector<ConditionEvaluationMap> &);
 
   /// get all the object combinations evaluated to true in the conditions
   /// from the algorithm
-  inline std::vector<CombinationsInCond> &gtAlgoCombinationVector() {
-    return m_algoCombinationVector;
-  }
+  inline std::vector<CombinationsInCond> &gtAlgoCombinationVector() { return m_algoCombinationVector; }
 
-  inline std::vector<L1GtLogicParser::OperandToken> &operandTokenVector() {
-    return m_operandTokenVector;
-  }
+  inline std::vector<L1GtLogicParser::OperandToken> &operandTokenVector() { return m_operandTokenVector; }
 
   void print(std::ostream &myCout) const;
 

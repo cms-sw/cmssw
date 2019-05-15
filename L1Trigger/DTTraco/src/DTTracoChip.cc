@@ -44,15 +44,12 @@
 // Constructors --
 //----------------
 
-DTTracoChip::DTTracoChip(DTTracoCard *card, int n, DTConfigTraco *conf)
-    : _card(card), _config(conf) {
-
+DTTracoChip::DTTracoChip(DTTracoCard *card, int n, DTConfigTraco *conf) : _card(card), _config(conf) {
   _geom = _card->geom();
 
   // n=traco number 1,2,...
   if (config()->debug() == 4) {
-    std::cout << "DTTracoChip constructor called for TRACO number " << n
-              << std::endl;
+    std::cout << "DTTracoChip constructor called for TRACO number " << n << std::endl;
   }
 
   // set acceptances from CMSSW geometry
@@ -72,8 +69,7 @@ DTTracoChip::DTTracoChip(DTTracoCard *card, int n, DTConfigTraco *conf)
 
   // Flags for LTS
   _bxlts.zero();
-  for (int is = 0; is < DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1;
-       is++) {
+  for (int is = 0; is < DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1; is++) {
     _flag[is].zero();
   }
 
@@ -89,8 +85,7 @@ DTTracoChip::DTTracoChip(DTTracoCard *card, int n, DTConfigTraco *conf)
 
   // offset from geometry (x1-x3 FE view): converted from cm to ST units (0.9999
   // for rounding)
-  _ibtioff = static_cast<int>(config()->BTIC() / (_geom->cellPitch()) *
-                              (_geom->phiSLOffset() / 0.9999));
+  _ibtioff = static_cast<int>(config()->BTIC() / (_geom->cellPitch()) * (_geom->phiSLOffset() / 0.9999));
 
   // 091030 SV lut parameters from DB
   // SV 08/12/12 : added flag for computing luts from DB parameters
@@ -99,16 +94,8 @@ DTTracoChip::DTTracoChip(DTTracoCard *card, int n, DTConfigTraco *conf)
     // int traco = int(fmod( double(n-1),4.));
     // 110208 SV for TRACO hardware bug included SL_shift
     // SL shift
-    float xBTI1_3 =
-        _geom
-            ->localPosition(DTBtiId(
-                DTSuperLayerId(sid.wheel(), sid.station(), sid.sector(), 3), 1))
-            .x();
-    float xBTI1_1 =
-        _geom
-            ->localPosition(DTBtiId(
-                DTSuperLayerId(sid.wheel(), sid.station(), sid.sector(), 1), 1))
-            .x();
+    float xBTI1_3 = _geom->localPosition(DTBtiId(DTSuperLayerId(sid.wheel(), sid.station(), sid.sector(), 3), 1)).x();
+    float xBTI1_1 = _geom->localPosition(DTBtiId(DTSuperLayerId(sid.wheel(), sid.station(), sid.sector(), 1), 1)).x();
     float SL_shift = xBTI1_3 - xBTI1_1;
 
     _lutsCCB = new Lut(_card->config_luts(), n, SL_shift);
@@ -158,8 +145,7 @@ DTTracoChip::DTTracoChip(DTTracoCard *card, int n, DTConfigTraco *conf)
 }
 
 DTTracoChip::DTTracoChip(const DTTracoChip &traco)
-    : _geom(traco._geom), _id(traco._id), _card(traco._card),
-      _luts(traco._luts) {
+    : _geom(traco._geom), _id(traco._id), _card(traco._card), _luts(traco._luts) {
   int i = 0;
   for (i = 0; i < DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF; i++) {
     _innerCand[i].reserve(DTConfigTraco::NBTITC);
@@ -173,14 +159,12 @@ DTTracoChip::DTTracoChip(const DTTracoChip &traco)
     }
     _tracotrig[i].reserve(2);
     std::vector<DTTracoTrig *>::const_iterator p1;
-    for (p1 = traco._tracotrig[i].begin(); p1 < traco._tracotrig[i].end();
-         p1++) {
+    for (p1 = traco._tracotrig[i].begin(); p1 < traco._tracotrig[i].end(); p1++) {
       _tracotrig[i].push_back(*p1);
     }
   }
   _bxlts = traco._bxlts;
-  for (int is = 0; is < DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1;
-       is++) {
+  for (int is = 0; is < DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1; is++) {
     _flag[is] = traco._flag[is];
   }
 }
@@ -217,25 +201,21 @@ DTTracoChip &DTTracoChip::operator=(const DTTracoChip &traco) {
     for (i = 0; i < DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF; i++) {
       _innerCand[i].reserve(DTConfigTraco::NBTITC);
       std::vector<DTTracoCand>::const_iterator p;
-      for (p = traco._innerCand[i].begin(); p < traco._innerCand[i].end();
-           p++) {
+      for (p = traco._innerCand[i].begin(); p < traco._innerCand[i].end(); p++) {
         _innerCand[i].push_back(*p);
       }
       _outerCand[i].reserve(3 * DTConfigTraco::NBTITC);
-      for (p = traco._outerCand[i].begin(); p < traco._outerCand[i].end();
-           p++) {
+      for (p = traco._outerCand[i].begin(); p < traco._outerCand[i].end(); p++) {
         _outerCand[i].push_back(*p);
       }
       _tracotrig[i].reserve(2);
       std::vector<DTTracoTrig *>::const_iterator p1;
-      for (p1 = traco._tracotrig[i].begin(); p1 < traco._tracotrig[i].end();
-           p1++) {
+      for (p1 = traco._tracotrig[i].begin(); p1 < traco._tracotrig[i].end(); p1++) {
         _tracotrig[i].push_back(*p1);
       }
     }
     _bxlts = traco._bxlts;
-    for (int is = 0; is < DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1;
-         is++) {
+    for (int is = 0; is < DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1; is++) {
       _flag[is] = traco._flag[is];
     }
   }
@@ -243,10 +223,8 @@ DTTracoChip &DTTracoChip::operator=(const DTTracoChip &traco) {
 }
 
 void DTTracoChip::clear() {
-
   std::vector<DTTracoTrig *>::iterator p1;
-  for (int is = 0; is < DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1;
-       is++) {
+  for (int is = 0; is < DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1; is++) {
     for (p1 = _tracotrig[is].begin(); p1 < _tracotrig[is].end(); p1++) {
       delete (*p1);
     }
@@ -259,21 +237,17 @@ void DTTracoChip::clear() {
 }
 
 void DTTracoChip::run() {
-
   // Debugging...
   if (config()->debug() > 1) {
-    std::cout << "DTTracoChip::run: Processing TRACO " << _id.traco()
-              << std::endl;
+    std::cout << "DTTracoChip::run: Processing TRACO " << _id.traco() << std::endl;
   }
   // End debugging
 
-  int maxtc = static_cast<int>(
-      ceil(float(geom()->nCell(1)) / float(DTConfigTraco::NBTITC)));
+  int maxtc = static_cast<int>(ceil(float(geom()->nCell(1)) / float(DTConfigTraco::NBTITC)));
 
   if (_id.traco() < 1 || _id.traco() > maxtc) {
     if (config()->debug() == 4)
-      std::cout << "DTTracoChip::run: wrong TRACO number " << _id.traco()
-                << std::endl;
+      std::cout << "DTTracoChip::run: wrong TRACO number " << _id.traco() << std::endl;
     return;
   }
 
@@ -285,15 +259,13 @@ void DTTracoChip::run() {
     }
 
     // skip if no cand. at this step
-    if (_innerCand[is - DTConfigTraco::NSTEPF].empty() &&
-        _outerCand[is - DTConfigTraco::NSTEPF].empty())
+    if (_innerCand[is - DTConfigTraco::NSTEPF].empty() && _outerCand[is - DTConfigTraco::NSTEPF].empty())
       continue;
 
     // Debugging...
     if (config()->debug() == 4) {
       std::cout << " --> "
-                << _innerCand[is - DTConfigTraco::NSTEPF].size() +
-                       _outerCand[is - DTConfigTraco::NSTEPF].size();
+                << _innerCand[is - DTConfigTraco::NSTEPF].size() + _outerCand[is - DTConfigTraco::NSTEPF].size();
       std::cout << " candidates " << std::endl;
     }
     // End debugging
@@ -303,15 +275,13 @@ void DTTracoChip::run() {
 
     // check if there is a H in bx for LVALIDIFH flag
     if (config()->LVALIDIFH()) {
-      for (unsigned int e = 0;
-           e < _innerCand[is - DTConfigTraco::NSTEPF].size(); e++) {
+      for (unsigned int e = 0; e < _innerCand[is - DTConfigTraco::NSTEPF].size(); e++) {
         if (_innerCand[is - DTConfigTraco::NSTEPF][e].BtiTrig()->code() == 8) {
           _flag[is - DTConfigTraco::NSTEPF].set(9);
           break;
         }
       }
-      for (unsigned int e = 0;
-           e < _outerCand[is - DTConfigTraco::NSTEPF].size(); e++) {
+      for (unsigned int e = 0; e < _outerCand[is - DTConfigTraco::NSTEPF].size(); e++) {
         if (_outerCand[is - DTConfigTraco::NSTEPF][e].BtiTrig()->code() == 8) {
           _flag[is - DTConfigTraco::NSTEPF].set(9);
           break;
@@ -323,22 +293,18 @@ void DTTracoChip::run() {
     // for(int itk=0; itk < DTConfigTraco::NMAXCAND; itk++){
     // FIX this hardcoded 2!!
     for (int itk = 0; itk < 2; itk++) {
-
       // Get the best inner and outer segments
       if (config()->debug() == 4)
         std::cout << "Inner:" << std::endl;
-      DTTracoCand *inner =
-          bestCand(itk, _innerCand[is - DTConfigTraco::NSTEPF]);
+      DTTracoCand *inner = bestCand(itk, _innerCand[is - DTConfigTraco::NSTEPF]);
       if (config()->debug() == 4)
         std::cout << "Outer:" << std::endl;
-      DTTracoCand *outer =
-          bestCand(itk, _outerCand[is - DTConfigTraco::NSTEPF]);
+      DTTracoCand *outer = bestCand(itk, _outerCand[is - DTConfigTraco::NSTEPF]);
 
       // debug
       if (config()->debug() > 1) {
         if (inner || outer)
-          std::cout << "Best candidates for track " << itk + 1
-                    << " are:" << std::endl;
+          std::cout << "Best candidates for track " << itk + 1 << " are:" << std::endl;
         if (inner) {
           std::cout << "inner->";
           inner->print();
@@ -375,7 +341,7 @@ void DTTracoChip::run() {
 
       // skip if no TRACO trigger has been created with this trigger
       if (!tct)
-        break; // something nasty happened. Go to next step
+        break;  // something nasty happened. Go to next step
 
       // try a correlation between segments
       int stored = 0;
@@ -397,35 +363,29 @@ void DTTracoChip::run() {
         // break;-> II track is computed even if no I track found...
       }
 
-    } // end loop on first/second track
+    }  // end loop on first/second track
 
     // Inhibit second track at previous bunch crossing
     if (config()->debug() == 4)
       std::cout << "Checking overlap I-II track..." << std::endl;
-    if (!_tracotrig[is - DTConfigTraco::NSTEPF].empty() &&
-        is > DTConfigTraco::NSTEPF &&
-        (_tracotrig[is - DTConfigTraco::NSTEPF])[0]
-            ->isFirst()) {                      // I track at bx
-      if (nTrig(is - 1) > 0) {                  // there is a track at bx-1
-        if (!(trigger(is - 1, 1)->isFirst()) || // trig 1 is II track
-            (nTrig(is - 1) == 2 &&
-             !(trigger(is - 1, 2)->isFirst()))) { // trig 2 is II track
+    if (!_tracotrig[is - DTConfigTraco::NSTEPF].empty() && is > DTConfigTraco::NSTEPF &&
+        (_tracotrig[is - DTConfigTraco::NSTEPF])[0]->isFirst()) {        // I track at bx
+      if (nTrig(is - 1) > 0) {                                           // there is a track at bx-1
+        if (!(trigger(is - 1, 1)->isFirst()) ||                          // trig 1 is II track
+            (nTrig(is - 1) == 2 && !(trigger(is - 1, 2)->isFirst()))) {  // trig 2 is II track
           raiseOverlap(is);
           if (config()->debug() == 4) {
-            std::cout << "II track at step " << std::hex << is - 1 << std::dec
-                      << "marked rej." << std::endl;
-            std::cout << "I track overlap flag at step " << std::hex << is
-                      << std::dec << " setted" << std::endl;
+            std::cout << "II track at step " << std::hex << is - 1 << std::dec << "marked rej." << std::endl;
+            std::cout << "I track overlap flag at step " << std::hex << is << std::dec << " setted" << std::endl;
           }
         }
       }
     }
     // debug...
-    for (int isd = 0; isd <= DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1;
-         isd++)
+    for (int isd = 0; isd <= DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1; isd++)
       if (config()->debug() == 4) {
-        std::cout << "overlap flag step = " << isd + DTConfigTraco::NSTEPF
-                  << "  " << _flag[isd].element(1) << std::endl;
+        std::cout << "overlap flag step = " << isd + DTConfigTraco::NSTEPF << "  " << _flag[isd].element(1)
+                  << std::endl;
       }
     // debugging...
     if (config()->debug() > 0) {
@@ -434,17 +394,16 @@ void DTTracoChip::run() {
           trigger(is, cc)->print();
         }
       }
-    } // end debugging
-  }   // end loop on step
+    }  // end debugging
+  }    // end loop on step
 }
 
 void DTTracoChip::raiseOverlap(int step) {
-  _flag[step - DTConfigTraco::NSTEPF].set(1);     // overlap flag raised
-  _flag[step - DTConfigTraco::NSTEPF - 1].set(2); // mark II rej.
+  _flag[step - DTConfigTraco::NSTEPF].set(1);      // overlap flag raised
+  _flag[step - DTConfigTraco::NSTEPF - 1].set(2);  // mark II rej.
 }
 
 void DTTracoChip::setFlag(int step, int ext) {
-
   if (ext == 0) {
     // this is the original: flags from card
     DTTracoChip *prevTraco = _card->getTRACO(_id.traco() - 1);
@@ -465,7 +424,7 @@ void DTTracoChip::setFlag(int step, int ext) {
     // SV III/03: flags from input EXT: only for testing purpose
     for (int i = 0; i < 6; i++) {
       int ibit = ext >> i;
-      if (ibit & 0x01) // bit i+1 -> flag 3,4,5,6 : IL,IR,OL,OR
+      if (ibit & 0x01)  // bit i+1 -> flag 3,4,5,6 : IL,IR,OL,OR
         _flag[step - DTConfigTraco::NSTEPF].set(i + 1 + 2);
     }
   }
@@ -481,13 +440,11 @@ void DTTracoChip::setFlag(int step, int ext) {
     std::cout << _flag[step - DTConfigTraco::NSTEPF].element(6) << "  ";
     std::cout << _flag[step - DTConfigTraco::NSTEPF].element(7) << "  ";
     std::cout << _flag[step - DTConfigTraco::NSTEPF].element(8) << "  ";
-    std::cout << _flag[step - DTConfigTraco::NSTEPF].element(9) << "  "
-              << std::endl;
-  } // end debugging
+    std::cout << _flag[step - DTConfigTraco::NSTEPF].element(9) << "  " << std::endl;
+  }  // end debugging
 }
 
 DTTracoCand *DTTracoChip::bestCand(int itk, std::vector<DTTracoCand> &tclist) {
-
   // Return if no candidates
   if (tclist.empty())
     return nullptr;
@@ -495,9 +452,8 @@ DTTracoCand *DTTracoChip::bestCand(int itk, std::vector<DTTracoCand> &tclist) {
   // stl function: sort in Ktc ascending or descending order according
   // to user request comparing by default with user-defined <
   // NB don't reverse if candidates are two with same K
-  stable_sort(tclist.begin(), tclist.end()); // 0=K ascending, 1=K descending
-  if (config()->sortKascend(itk) &&
-      !(tclist.size() == 2 && tclist[0].K() == tclist[1].K())) {
+  stable_sort(tclist.begin(), tclist.end());  // 0=K ascending, 1=K descending
+  if (config()->sortKascend(itk) && !(tclist.size() == 2 && tclist[0].K() == tclist[1].K())) {
     reverse(tclist.begin(), tclist.end());
     if (config()->debug() == 4)
       std::cout << "Reversing order of sorted candidate list..." << std::endl;
@@ -513,20 +469,16 @@ DTTracoCand *DTTracoChip::bestCand(int itk, std::vector<DTTracoCand> &tclist) {
 
   // debugging...
   if (config()->debug() == 4) {
-    std::cout << "DTTracoChip::findBest - Looking for track number " << itk + 1
-              << std::endl;
-    std::cout << "Sorted std::vector of usable track candidates is:"
-              << std::endl;
+    std::cout << "DTTracoChip::findBest - Looking for track number " << itk + 1 << std::endl;
+    std::cout << "Sorted std::vector of usable track candidates is:" << std::endl;
     int i = 1;
-    for (std::vector<DTTracoCand>::iterator p = tclist.begin();
-         p < tclist.end(); p++) {
+    for (std::vector<DTTracoCand>::iterator p = tclist.begin(); p < tclist.end(); p++) {
       if ((*p).usable()) {
         std::cout << " DTTracoChip Candidate # " << i++;
         (*p).print();
       }
     }
-    std::cout << "--------------------------------------------------"
-              << std::endl;
+    std::cout << "--------------------------------------------------" << std::endl;
   }
   // end debugging
 
@@ -539,8 +491,7 @@ DTTracoCand *DTTracoChip::bestCand(int itk, std::vector<DTTracoCand> &tclist) {
     // candidate must be usable and not suppressed by LTS
     if (AdjBtiLTSuppressed(&(*p)))
       if (config()->debug() == 4)
-        std::cout << "Candidate # " << i
-                  << " supp. because next to H in adiacent Tracos" << std::endl;
+        std::cout << "Candidate # " << i << " supp. because next to H in adiacent Tracos" << std::endl;
     if ((*p).usable() && !AdjBtiLTSuppressed(&(*p))) {
       // check if preference to HTRIG is set and return first trigger
       if (!config()->prefHtrig(itk))
@@ -554,8 +505,7 @@ DTTracoCand *DTTracoChip::bestCand(int itk, std::vector<DTTracoCand> &tclist) {
   return bestltrig;
 }
 
-void DTTracoChip::DoAdjBtiLts(DTTracoCand *candidate,
-                              std::vector<DTTracoCand> &tclist) {
+void DTTracoChip::DoAdjBtiLts(DTTracoCand *candidate, std::vector<DTTracoCand> &tclist) {
   // If requested, do suppression of LTRIG on BTI close to selected HTRIG in
   // same traco
   // if(!(config()->adjBtiLts()) && candidate->BtiTrig()->code()==8) {
@@ -563,18 +513,16 @@ void DTTracoChip::DoAdjBtiLts(DTTracoCand *candidate,
   if (candidate->BtiTrig()->code() == 8) {
     std::vector<DTTracoCand>::iterator p;
     for (p = tclist.begin(); p < tclist.end(); p++) {
-      if ((*p).BtiTrig()->code() < 8 &&
-          abs((*p).BtiTrig()->btiNumber() - candidate->BtiTrig()->btiNumber()) <
-              2) {
+      if ((*p).BtiTrig()->code() < 8 && abs((*p).BtiTrig()->btiNumber() - candidate->BtiTrig()->btiNumber()) < 2) {
         (*p).setUsed();
         if (config()->debug() == 4) {
           std::cout << "Candidate :";
           (*p).print();
           std::cout << "Suppressed because adiacent to H trig" << std::endl;
-        } // end debug
-      }   // end if
-    }     // end candidate loop
-  }       // end if H
+        }  // end debug
+      }    // end if
+    }      // end candidate loop
+  }        // end if H
 }
 
 int DTTracoChip::AdjBtiLTSuppressed(DTTracoCand *candidate) {
@@ -582,11 +530,9 @@ int DTTracoChip::AdjBtiLTSuppressed(DTTracoCand *candidate) {
   // if(!(config()->adjBtiLts()) && candidate->BtiTrig()->code()<8) {
   // SV: Ltrig always suppressed in hardware if Htrig in adj traco!
   if (candidate->BtiTrig()->code() < 8) {
-    if (_flag[candidate->step() - DTConfigTraco::NSTEPF].element(3) &&
-        candidate->position() == 1)
+    if (_flag[candidate->step() - DTConfigTraco::NSTEPF].element(3) && candidate->position() == 1)
       return 1;
-    if (_flag[candidate->step() - DTConfigTraco::NSTEPF].element(4) &&
-        candidate->position() == DTConfigTraco::NBTITC)
+    if (_flag[candidate->step() - DTConfigTraco::NSTEPF].element(4) && candidate->position() == DTConfigTraco::NBTITC)
       return 1;
     if (_flag[candidate->step() - DTConfigTraco::NSTEPF].element(5) &&
         candidate->position() == DTConfigTraco::NBTITC + 1)
@@ -599,9 +545,7 @@ int DTTracoChip::AdjBtiLTSuppressed(DTTracoCand *candidate) {
   return 0;
 }
 
-DTTracoTrig *DTTracoChip::setPV(int itk, DTTracoCand *inner,
-                                DTTracoCand *outer) {
-
+DTTracoTrig *DTTracoChip::setPV(int itk, DTTracoCand *inner, DTTracoCand *outer) {
   // debugging...
   if (config()->debug() == 4) {
     std::cout << "DTTracoChip::setPV called for candidates : " << std::endl;
@@ -609,8 +553,7 @@ DTTracoTrig *DTTracoChip::setPV(int itk, DTTracoCand *inner,
       inner->print();
     if (outer)
       outer->print();
-    std::cout << "--------------------------------------------------"
-              << std::endl;
+    std::cout << "--------------------------------------------------" << std::endl;
   }
   // end debugging
 
@@ -631,7 +574,7 @@ DTTracoTrig *DTTracoChip::setPV(int itk, DTTracoCand *inner,
       candidate = inner;
     } else if (inner->BtiTrig()->code() < 8 && outer->BtiTrig()->code() == 8) {
       candidate = outer;
-    } else { // for same quality tracks, pref. to in/out selection
+    } else {  // for same quality tracks, pref. to in/out selection
       if (!config()->prefInner(itk)) {
         candidate = inner;
       } else {
@@ -653,7 +596,7 @@ DTTracoTrig *DTTracoChip::setPV(int itk, DTTracoCand *inner,
   } else if (inner != nullptr && outer == nullptr) {
     candidate = inner;
   } else {
-    return nullptr; // no candidates
+    return nullptr;  // no candidates
   }
 
   // create new trigger with this candidate
@@ -669,7 +612,7 @@ DTTracoTrig *DTTracoChip::setPV(int itk, DTTracoCand *inner,
   int ioflag = 0;
   if (candidate->position() > 4)
     ioflag = 1;
-  tct->setPV(first, cod, K, ioflag); // this is already BTI_K-KRAD
+  tct->setPV(first, cod, K, ioflag);  // this is already BTI_K-KRAD
 
   if (config()->debug() == 4) {
     std::cout << "Selected candidate stored for preview is: ";
@@ -678,9 +621,7 @@ DTTracoTrig *DTTracoChip::setPV(int itk, DTTracoCand *inner,
   return tct;
 }
 
-int DTTracoChip::storeCorr(DTTracoTrig *tctrig, DTTracoCand *inner,
-                           DTTracoCand *outer, int tkn) {
-
+int DTTracoChip::storeCorr(DTTracoTrig *tctrig, DTTracoCand *inner, DTTracoCand *outer, int tkn) {
   // Bunch crossing
   int is = tctrig->step();
 
@@ -691,8 +632,7 @@ int DTTracoChip::storeCorr(DTTracoTrig *tctrig, DTTracoCand *inner,
       inner->print();
     if (outer)
       outer->print();
-    std::cout << "--------------------------------------------------"
-              << std::endl;
+    std::cout << "--------------------------------------------------" << std::endl;
   }
   // End debugging
 
@@ -727,13 +667,11 @@ int DTTracoChip::storeCorr(DTTracoTrig *tctrig, DTTracoCand *inner,
   int kd1 = abs(kcor / 16 - kq1 / 16);
   int kd2 = abs(kcor / 16 - kq2 / 16);
 
-  icor = kd1 <= config()->TcKToll(tkn) && kd2 <= config()->TcKToll(tkn) &&
-         xcor > 0;
+  icor = kd1 <= config()->TcKToll(tkn) && kd2 <= config()->TcKToll(tkn) && xcor > 0;
 
   // Debugging...
   if (config()->debug() == 4) {
-    std::cout
-        << "*************************************************************";
+    std::cout << "*************************************************************";
     std::cout << std::endl;
     std::cout << " shift = " << shift;
     std::cout << " xq1 = " << xq1;
@@ -746,10 +684,9 @@ int DTTracoChip::storeCorr(DTTracoTrig *tctrig, DTTracoCand *inner,
     std::cout << " kd2 = " << kd2;
     std::cout << " icor = " << icor;
     std::cout << std::endl;
-    std::cout
-        << "*************************************************************";
+    std::cout << "*************************************************************";
     std::cout << std::endl;
-  } // End debugging
+  }  // End debugging
 
   //}//end if TcBxLts....
 
@@ -784,13 +721,12 @@ int DTTracoChip::storeCorr(DTTracoTrig *tctrig, DTTracoCand *inner,
       tctrig->resetVar();
     }
     // SV 1/IV/04 BUG FIX: check LTS after angle cut...
-    else if (tctrig->qdec() == 4 && // cut only LL
-             config()->TcBxLts()) { // BX LTS is  enabled or
+    else if (tctrig->qdec() == 4 &&  // cut only LL
+             config()->TcBxLts()) {  // BX LTS is  enabled or
       // reset codes, K, X and angles
-      if (tkn == 0 && _bxlts.element(is)) // I track : there is H -4,+1
+      if (tkn == 0 && _bxlts.element(is))  // I track : there is H -4,+1
         tctrig->resetVar();
-      if (tkn == 1 &&
-          _bxlts.element(is + 1)) // II track : there is H -4,+1 1 bx later
+      if (tkn == 1 && _bxlts.element(is + 1))  // II track : there is H -4,+1 1 bx later
         tctrig->resetVar();
     } else {
       // set links to BTI triggers
@@ -800,34 +736,27 @@ int DTTracoChip::storeCorr(DTTracoTrig *tctrig, DTTracoCand *inner,
 
     // Debugging...
     if (config()->debug() > 1) {
-      std::cout
-          << "*************************************************************";
+      std::cout << "*************************************************************";
       std::cout << std::endl;
-      std::cout
-          << "               Correlation was successfull:                  ";
+      std::cout << "               Correlation was successfull:                  ";
       std::cout << std::endl;
       std::cout << " Code = " << tctrig->code();
       std::cout << " K = " << tctrig->K();
       std::cout << " X = " << tctrig->X();
       std::cout << std::endl;
-      std::cout
-          << "*************************************************************";
+      std::cout << "*************************************************************";
       std::cout << std::endl;
     }
     // End debugging
 
   } else {
-
     // Debugging...
     if (config()->debug() > 1) {
-      std::cout
-          << "*************************************************************";
+      std::cout << "*************************************************************";
       std::cout << std::endl;
-      std::cout
-          << "               No correlation possible                       ";
+      std::cout << "               No correlation possible                       ";
       std::cout << std::endl;
-      std::cout
-          << "*************************************************************";
+      std::cout << "*************************************************************";
       std::cout << std::endl;
     }
     // End debugging
@@ -836,22 +765,18 @@ int DTTracoChip::storeCorr(DTTracoTrig *tctrig, DTTracoCand *inner,
   return icor;
 }
 
-int DTTracoChip::storeUncorr(DTTracoTrig *tctrig, DTTracoCand *inner,
-                             DTTracoCand *outer, int tkn) {
-
+int DTTracoChip::storeUncorr(DTTracoTrig *tctrig, DTTracoCand *inner, DTTracoCand *outer, int tkn) {
   // Bunch crossing
   int is = tctrig->step();
 
   // Debugging...
   if (config()->debug() == 4) {
-    std::cout << "DTTracoChip::storeUncorr called with candidates: "
-              << std::endl;
+    std::cout << "DTTracoChip::storeUncorr called with candidates: " << std::endl;
     if (inner)
       inner->print();
     if (outer)
       outer->print();
-    std::cout << "--------------------------------------------------"
-              << std::endl;
+    std::cout << "--------------------------------------------------" << std::endl;
   }
 
   // End debugging
@@ -869,7 +794,7 @@ int DTTracoChip::storeUncorr(DTTracoTrig *tctrig, DTTracoCand *inner,
     } else if (inner->BtiTrig()->code() < 8 && outer->BtiTrig()->code() == 8) {
       candidate = outer;
       // if(config()->TcReuse(0)) inner->setUnused(); // reusable
-    } else { // for the same quality triggers:
+    } else {  // for the same quality triggers:
       if (!config()->prefInner(tkn)) {
         candidate = inner;
         // if(config()->TcReuse(1))  outer->setUnused(); // reusable
@@ -877,7 +802,7 @@ int DTTracoChip::storeUncorr(DTTracoTrig *tctrig, DTTracoCand *inner,
         candidate = outer;
         // if(config()->TcReuse(0))  inner->setUnused(); // reusable
       }
-    } // end else
+    }  // end else
     /*
         } else {//no Htrig preference
           if(!config()->prefInner(tkn)) {
@@ -894,7 +819,7 @@ int DTTracoChip::storeUncorr(DTTracoTrig *tctrig, DTTracoCand *inner,
   } else if (inner != nullptr && outer == nullptr) {
     candidate = inner;
   } else {
-    return 0; // no candidates
+    return 0;  // no candidates
   }
 
   // SV *** FOR TESTBEAM OR TEST BENCH PURPOSE ***
@@ -911,11 +836,11 @@ int DTTracoChip::storeUncorr(DTTracoTrig *tctrig, DTTracoCand *inner,
     if (config()->LVALIDIFH() && _flag[is - DTConfigTraco::NSTEPF].element(9)) {
       if (config()->debug() > 1)
         std::cout << "Low accepted because LVALIDIFH on...." << std::endl;
-    } else { // LVALIDIFH==0 or there isn't H in traco in bx : check theta!
+    } else {  // LVALIDIFH==0 or there isn't H in traco in bx : check theta!
       // theta check
       if (!config()->singleLenab(tkn)) {
         // LTF: single LTRIG not always en. Check cond.:
-        if (config()->singleLflag(tkn) == 1 || // always discarded
+        if (config()->singleLflag(tkn) == 1 ||  // always discarded
             (config()->singleLflag(tkn) == 2 && !(_card->TSTh()->nHTrig(is))) ||
             (config()->singleLflag(tkn) == 0 && !(_card->TSTh()->nTrig(is)))) {
           // SV --> for TESTS version
@@ -928,9 +853,9 @@ int DTTracoChip::storeUncorr(DTTracoTrig *tctrig, DTTracoCand *inner,
           return 0;
         }
         //       ^-------- trigger is suppressed and will not be stored
-      } // end theta
+      }  // end theta
 
-    } // end else
+    }  // end else
     // REUSE : mark candidates reusable HERE! SV BUG FIX 6IV04
     if (candidate == inner && config()->TcReuse(1) && outer)
       outer->setUnused();
@@ -939,24 +864,22 @@ int DTTracoChip::storeUncorr(DTTracoTrig *tctrig, DTTracoCand *inner,
 
     // LTS suppression
     if (config()->TcBxLts()) {
-      if ((tkn == 0 && _bxlts.element(is)) // I track : there is H -4,+1
-          ||
-          (tkn == 1 &&
-           _bxlts.element(is + 1))) { // II track : there is H -4,+1 1 bx later
+      if ((tkn == 0 && _bxlts.element(is))            // I track : there is H -4,+1
+          || (tkn == 1 && _bxlts.element(is + 1))) {  // II track : there is H -4,+1 1 bx later
         tctrig->resetVar();
         if (config()->debug() > 1)
           std::cout << "Low trigger suppressed because H in next 4 bx "
                     << " and LTS flag on...." << std::endl;
-        return 1; // trigger is suppressed but preview will be stored
+        return 1;  // trigger is suppressed but preview will be stored
       }
-    } // end lts
+    }  // end lts
 
     //    } //end else
-  } // Low trigs
+  }  // Low trigs
 
   // Preview Htmsk not implemented: awaiting decision
   // --> implemented in priority selector by SV
-  else { // HTRIG
+  else {  // HTRIG
     // if(config()->singleHflag(tkn)==1 && thTr==0 )  //this is for testing
     if (config()->singleHflag(tkn) == 1 && !(_card->TSTh()->nTrig(is)))
       return 0;
@@ -981,7 +904,7 @@ int DTTracoChip::storeUncorr(DTTracoTrig *tctrig, DTTracoCand *inner,
   // correlation wasn't successfull
   // set the preview correlation bit.
   tctrig->setPVCorr(0);
-  if (candidate->BtiTrig()->btiSL() == 1) { // inner track
+  if (candidate->BtiTrig()->btiSL() == 1) {  // inner track
     tctrig->setCodeIn(candidate->BtiTrig()->code());
     tctrig->setCodeOut(0);
     // tctrig->setPosIn(candidate->position());
@@ -991,7 +914,7 @@ int DTTracoChip::storeUncorr(DTTracoTrig *tctrig, DTTracoCand *inner,
     // SV store also equation
     tctrig->setEqIn(candidate->BtiTrig()->eq() + 1);
     tctrig->setEqOut(0);
-  } else { // outer track
+  } else {  // outer track
     tctrig->setCodeIn(0);
     tctrig->setCodeOut(candidate->BtiTrig()->code());
     tctrig->setPosIn(0);
@@ -1020,18 +943,15 @@ int DTTracoChip::storeUncorr(DTTracoTrig *tctrig, DTTracoCand *inner,
 
   // Debugging...
   if (config()->debug() > 1) {
-    std::cout
-        << "*************************************************************";
+    std::cout << "*************************************************************";
     std::cout << std::endl;
-    std::cout
-        << "               Single trigger stored:                        ";
+    std::cout << "               Single trigger stored:                        ";
     std::cout << std::endl;
     std::cout << " Code = " << tctrig->code();
     std::cout << " K = " << tctrig->K();
     std::cout << " X = " << tctrig->X();
     std::cout << std::endl;
-    std::cout
-        << "*************************************************************";
+    std::cout << "*************************************************************";
     std::cout << std::endl;
   }
   // End debugging
@@ -1040,7 +960,6 @@ int DTTracoChip::storeUncorr(DTTracoTrig *tctrig, DTTracoCand *inner,
 }
 
 void DTTracoChip::add_btiT(int step, int pos, const DTBtiTrigData *btitrig) {
-
   if (pos < 1 || pos > 4 * DTConfigTraco::NBTITC) {
     std::cout << "DTTracoChip::add_btiT: wrong position: " << pos;
     std::cout << "trigger not added!" << std::endl;
@@ -1067,8 +986,7 @@ void DTTracoChip::add_btiT(int step, int pos, const DTBtiTrigData *btitrig) {
     // check K inside acceptance
     if (btitrig->K() < _PSIMIN[pos - 1] || btitrig->K() > _PSIMAX[pos - 1]) {
       if (config()->debug() > 1) {
-        std::cout << "In TRACO num. " << number() << " BTI trig. in pos " << pos
-                  << " outside K acceptance (";
+        std::cout << "In TRACO num. " << number() << " BTI trig. in pos " << pos << " outside K acceptance (";
         std::cout << _PSIMIN[pos - 1] << "-->";
         std::cout << _PSIMAX[pos - 1] << ") - Not added" << std::endl;
       }
@@ -1078,16 +996,14 @@ void DTTracoChip::add_btiT(int step, int pos, const DTBtiTrigData *btitrig) {
 
   // Store trigger candidate
   if (pos <= DTConfigTraco::NBTITC) {
-    _innerCand[step - DTConfigTraco::NSTEPF].push_back(
-        DTTracoCand(this, btitrig, pos, step));
+    _innerCand[step - DTConfigTraco::NSTEPF].push_back(DTTracoCand(this, btitrig, pos, step));
   } else {
-    _outerCand[step - DTConfigTraco::NSTEPF].push_back(
-        DTTracoCand(this, btitrig, pos, step));
+    _outerCand[step - DTConfigTraco::NSTEPF].push_back(DTTracoCand(this, btitrig, pos, step));
   }
 
   // Fill array for BX LTS
   if (btitrig->code() == 8) {
-    for (int is = step - 4; is < step; is++) { // set flag for 4 previous BX
+    for (int is = step - 4; is < step; is++) {  // set flag for 4 previous BX
       if (is > 0 && is <= DTConfigTraco::NSTEPL)
         _bxlts.set(is);
     }
@@ -1102,10 +1018,9 @@ void DTTracoChip::add_btiT(int step, int pos, const DTBtiTrigData *btitrig) {
   // Debugging
   if (config()->debug() > 1) {
     std::cout << "BTI Trigger added at step " << step;
-    std::cout << " to TRACO " << _id.traco() << " at position " << pos
-              << std::endl;
+    std::cout << " to TRACO " << _id.traco() << " at position " << pos << std::endl;
     btitrig->print();
-  } // End debugging
+  }  // End debugging
 }
 
 void DTTracoChip::addTrig(int step, DTTracoTrig *tctrig) {
@@ -1145,8 +1060,7 @@ DTTracoTrig *DTTracoChip::trigger(int step, unsigned n) const {
     std::cout << " empty pointer returned!" << std::endl;
     return nullptr;
   }
-  std::vector<DTTracoTrig *>::const_iterator p =
-      _tracotrig[step - DTConfigTraco::NSTEPF].begin() + n - 1;
+  std::vector<DTTracoTrig *>::const_iterator p = _tracotrig[step - DTConfigTraco::NSTEPF].begin() + n - 1;
   return *p;
 }
 
@@ -1161,8 +1075,7 @@ DTTracoTrigData DTTracoChip::triggerData(int step, unsigned n) const {
     std::cout << " dummy trigger returned!" << std::endl;
     return DTTracoTrigData();
   }
-  std::vector<DTTracoTrig *>::const_iterator p =
-      _tracotrig[step - DTConfigTraco::NSTEPF].begin() + n - 1;
+  std::vector<DTTracoTrig *>::const_iterator p = _tracotrig[step - DTConfigTraco::NSTEPF].begin() + n - 1;
   return (*p)->data();
 }
 
@@ -1223,29 +1136,26 @@ int DTTracoChip::edgeBTI(int step, int io, int lr) const {
   if (io == 1) {
     if (!_innerCand[step - DTConfigTraco::NSTEPF].empty()) {
       // SV 24/IX/03 fix: only HTRIG accepted
-      for (p = _innerCand[step - DTConfigTraco::NSTEPF].begin();
-           p < _innerCand[step - DTConfigTraco::NSTEPF].end(); p++) {
+      for (p = _innerCand[step - DTConfigTraco::NSTEPF].begin(); p < _innerCand[step - DTConfigTraco::NSTEPF].end();
+           p++) {
         if (lr == 1 && (*p).position() == 1 && (*p).BtiTrig()->code() == 8)
           return 1;
-        if (lr == 2 && (*p).position() == DTConfigTraco::NBTITC &&
-            (*p).BtiTrig()->code() == 8)
+        if (lr == 2 && (*p).position() == DTConfigTraco::NBTITC && (*p).BtiTrig()->code() == 8)
           return 1;
       }
     }
   } else {
     if (!_outerCand[step - DTConfigTraco::NSTEPF].empty()) {
-      for (p = _outerCand[step - DTConfigTraco::NSTEPF].begin();
-           p < _outerCand[step - DTConfigTraco::NSTEPF].end(); p++) {
+      for (p = _outerCand[step - DTConfigTraco::NSTEPF].begin(); p < _outerCand[step - DTConfigTraco::NSTEPF].end();
+           p++) {
         // SV: is the following correct???FIX if using _card to set _flag
         // if(lr==1 && (*p).position()==DTConfigTraco::NBTITC+1)return 1; //or
         // pos=8?? if(lr==2 && (*p).position()==DTConfigTraco::NBTITC*4)return
         // 1;
         // //or pos=13?? SV 24/IX/03 fix
-        if (lr == 1 && (*p).position() == DTConfigTraco::NBTITC * 3 + 1 &&
-            (*p).BtiTrig()->code() == 8)
+        if (lr == 1 && (*p).position() == DTConfigTraco::NBTITC * 3 + 1 && (*p).BtiTrig()->code() == 8)
           return 1;
-        if (lr == 2 && (*p).position() == DTConfigTraco::NBTITC * 2 &&
-            (*p).BtiTrig()->code() == 8)
+        if (lr == 2 && (*p).position() == DTConfigTraco::NBTITC * 2 && (*p).BtiTrig()->code() == 8)
           return 1;
       }
     }
@@ -1254,7 +1164,6 @@ int DTTracoChip::edgeBTI(int step, int io, int lr) const {
 }
 
 void DTTracoChip::calculateAngles(DTTracoTrig *tct) {
-
   int ipsi = 0;
   int iphir = 0;
   int idpsir = 0;
@@ -1301,11 +1210,11 @@ void DTTracoChip::calculateAngles(DTTracoTrig *tct) {
 
     int flag = 0;
     int qual = tct->data().qdec();
-    if (qual == 3 || qual == 1) // case 0:outer
+    if (qual == 3 || qual == 1)  // case 0:outer
       flag = 0;
-    if (qual == 2 || qual == 0) // case 1:inner
+    if (qual == 2 || qual == 0)  // case 1:inner
       flag = 1;
-    if (qual == 6 || qual == 5 || qual == 4) // case 2:correlated
+    if (qual == 6 || qual == 5 || qual == 4)  // case 2:correlated
       flag = 2;
 
     iphir = _lutsCCB->get_x((tct->X() + 512 * flag));
@@ -1319,8 +1228,8 @@ void DTTracoChip::calculateAngles(DTTracoTrig *tct) {
     // psi
     //  float fpsi = atan( (float)(tct->K()) * _geom->cellPitch() /
     //		     (_geom->distSL() * config()->ST()) );
-    float fpsi = atan(_card->localDirection(&td).x() / // e.g. x>0 and
-                      _card->localDirection(&td).z()); //      z<0 => fpsi<0
+    float fpsi = atan(_card->localDirection(&td).x() /  // e.g. x>0 and
+                      _card->localDirection(&td).z());  //      z<0 => fpsi<0
 
     // Change sign in case of wheel<0 or wheel==0 and station == 1,4,5,8,9,12
     int mywh = tct->ChamberId().wheel();
@@ -1347,8 +1256,7 @@ void DTTracoChip::calculateAngles(DTTracoTrig *tct) {
       fpsir -= 1.0;
     iphir = (int)fpsir;
     // if outside range set to lower edge
-    if (iphir >= DTConfigTraco::RESOLPSIR / 2 ||
-        iphir < -DTConfigTraco::RESOLPSIR / 2)
+    if (iphir >= DTConfigTraco::RESOLPSIR / 2 || iphir < -DTConfigTraco::RESOLPSIR / 2)
       iphir = -DTConfigTraco::RESOLPSIR / 2;
 
     // Delta(psi_r)
@@ -1369,9 +1277,8 @@ void DTTracoChip::calculateAngles(DTTracoTrig *tct) {
     std::cout << " ipsi = " << ipsi << " iphir = " << iphir;
     std::cout << " idpsir = " << idpsir << std::endl;
     if (_card->lutFromDBFlag() == 1)
-      std::cout << "Angles are calculated from LUT parameters from DB!"
-                << std::endl;
-  } // end debugging
+      std::cout << "Angles are calculated from LUT parameters from DB!" << std::endl;
+  }  // end debugging
 }
 
 int DTTracoChip::insideAngWindow(DTTracoTrig *tctrig) const {
@@ -1382,18 +1289,16 @@ int DTTracoChip::insideAngWindow(DTTracoTrig *tctrig) const {
   BitArray<10> bendAng;
   bendAng.assign(0, 10, tctrig->DeltaPsiR());
   // bendAng.print();
-  if (bendAng.element(9)) // negativo!
+  if (bendAng.element(9))  // negativo!
     bendAng.twoComplement();
   int bendAngINT = bendAng.read(0, 9);
   // std::cout<<"abs bend angle int ="<< bendAngINT <<std::endl;
 
-  if (config()->BendingAngleCut() != -1 &&
-      bendAngINT > 2 * (config()->BendingAngleCut())) {
+  if (config()->BendingAngleCut() != -1 && bendAngINT > 2 * (config()->BendingAngleCut())) {
     int absBendAng = tctrig->DeltaPsiR() & 0x1FF;
     if (config()->debug() == 4)
-      std::cout << "Attention: abs(bendAng)=" << absBendAng << " > "
-                << 2 * config()->BendingAngleCut() << "!! reject trigger"
-                << std::endl;
+      std::cout << "Attention: abs(bendAng)=" << absBendAng << " > " << 2 * config()->BendingAngleCut()
+                << "!! reject trigger" << std::endl;
     return 0;
   }
   return 1;
@@ -1427,22 +1332,19 @@ void DTTracoChip::setTracoAcceptances() {
       float Xin_max = 2. * DTConfig::NBTITC * K0 + shiftSL;
       float Xout_min = i * K0;
       float Xout_max = Xout_min + K0;
-      _PSIMAX[DTConfig::NBTITC + i] =
-          int(2. * h / distsl * (Xin_max - Xout_min) + K0 + 1.01);
-      _PSIMIN[DTConfig::NBTITC + i] =
-          int(2. * h / distsl * (Xin_min - Xout_max) + K0);
+      _PSIMAX[DTConfig::NBTITC + i] = int(2. * h / distsl * (Xin_max - Xout_min) + K0 + 1.01);
+      _PSIMIN[DTConfig::NBTITC + i] = int(2. * h / distsl * (Xin_min - Xout_max) + K0);
     }
   }
 
   // debugging
   if (config()->debug() == 4) {
     // if(wheel()==2&&station()==3&&sector()==1){ // only 1 chamber
-    std::cout << "Acceptance of mt ports for offset (cell unit) "
-              << _geom->phiSLOffset() / pitch << std::endl;
+    std::cout << "Acceptance of mt ports for offset (cell unit) " << _geom->phiSLOffset() / pitch << std::endl;
     for (int i = 0; i < 4 * DTConfig::NBTITC; i++) {
       std::cout << "Port " << i + 1 << " : ";
       std::cout << _PSIMIN[i] << " --> " << _PSIMAX[i] << std::endl;
     }
     //}
-  } // end debugging
+  }  // end debugging
 }

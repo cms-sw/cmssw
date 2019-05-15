@@ -36,7 +36,6 @@ class DTTracoChip;
 //              ---------------------
 
 class DTTracoCand {
-
 public:
   /// Constructor
   DTTracoCand() {}
@@ -104,12 +103,12 @@ public:
   void print() const;
 
 private:
-  DTTracoChip *_traco; // Parent DTTracoChip
+  DTTracoChip *_traco;  // Parent DTTracoChip
 
-  const DTBtiTrigData *_btitr; // Associated BTI trigger
+  const DTBtiTrigData *_btitr;  // Associated BTI trigger
 
   // Other variables
-  BitArray<7> _dataword; // the word on which sorting is done
+  BitArray<7> _dataword;  // the word on which sorting is done
   int _step;
   int _position;
   int _usable;

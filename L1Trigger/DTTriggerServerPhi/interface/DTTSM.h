@@ -36,7 +36,6 @@ class DTTrigGeom;
 //              ---------------------
 
 class DTTSM {
-
 public:
   ///  Constructor
   // SM double TSM

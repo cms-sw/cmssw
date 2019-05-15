@@ -3,8 +3,7 @@
 EcalFenixEtStrip::EcalFenixEtStrip() {}
 EcalFenixEtStrip::~EcalFenixEtStrip() {}
 
-void EcalFenixEtStrip::process(const std::vector<std::vector<int>> &linout,
-                               int nrXtals, std::vector<int> &output) {
+void EcalFenixEtStrip::process(const std::vector<std::vector<int>> &linout, int nrXtals, std::vector<int> &output) {
   for (unsigned int i = 0; i < output.size(); i++) {
     output[i] = 0;
   }

@@ -13,8 +13,7 @@
 //#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 GtPsbTextToDigi::GtPsbTextToDigi(const edm::ParameterSet &iConfig)
-    : m_fileEventOffset(
-          iConfig.getUntrackedParameter<int>("FileEventOffset", 0)),
+    : m_fileEventOffset(iConfig.getUntrackedParameter<int>("FileEventOffset", 0)),
       m_textFileName(iConfig.getParameter<std::string>("TextFileName")),
       m_nevt(0) {
   // Produces collections
@@ -59,16 +58,11 @@ GtPsbTextToDigi::~GtPsbTextToDigi() {
 
 /// Append empty digi collection
 void GtPsbTextToDigi::putEmptyDigi(edm::Event &iEvent) {
-  std::unique_ptr<L1GctEmCandCollection> gctIsolaEm(
-      new L1GctEmCandCollection());
-  std::unique_ptr<L1GctEmCandCollection> gctNoIsoEm(
-      new L1GctEmCandCollection());
-  std::unique_ptr<L1GctJetCandCollection> gctCenJets(
-      new L1GctJetCandCollection());
-  std::unique_ptr<L1GctJetCandCollection> gctForJets(
-      new L1GctJetCandCollection());
-  std::unique_ptr<L1GctJetCandCollection> gctTauJets(
-      new L1GctJetCandCollection());
+  std::unique_ptr<L1GctEmCandCollection> gctIsolaEm(new L1GctEmCandCollection());
+  std::unique_ptr<L1GctEmCandCollection> gctNoIsoEm(new L1GctEmCandCollection());
+  std::unique_ptr<L1GctJetCandCollection> gctCenJets(new L1GctJetCandCollection());
+  std::unique_ptr<L1GctJetCandCollection> gctForJets(new L1GctJetCandCollection());
+  std::unique_ptr<L1GctJetCandCollection> gctTauJets(new L1GctJetCandCollection());
   // std::unique_ptr<L1GctEtTotal>           gctEtTotal( new L1GctEtTotal () );
   for (int i = 0; i < 4; i++) {
     gctIsolaEm->push_back(L1GctEmCand(0, true));
@@ -88,18 +82,14 @@ void GtPsbTextToDigi::putEmptyDigi(edm::Event &iEvent) {
   LogDebug("GtPsbTextToDigi") << "putting empty digi (evt:" << m_nevt << ")\n";
 }
 
-void GtPsbTextToDigi::produce(edm::Event &iEvent,
-                              const edm::EventSetup &iSetup) {
-
+void GtPsbTextToDigi::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // specify clock cycle bit sequence 1 0 1 0... or 0 1 0 1...
   unsigned short cbs[2] = {1, 0};
 
   // Skip event if required
   if (m_nevt < m_fileEventOffset) {
     putEmptyDigi(iEvent);
-    LogDebug("GtPsbTextToDigi")
-        << "[GtPsbTextToDigi::produce()] skipping event " << m_nevt
-        << std::endl;
+    LogDebug("GtPsbTextToDigi") << "[GtPsbTextToDigi::produce()] skipping event " << m_nevt << std::endl;
     m_nevt++;
     return;
   } else if (m_nevt == 0 && m_fileEventOffset < 0) {
@@ -118,30 +108,22 @@ void GtPsbTextToDigi::produce(edm::Event &iEvent,
               throw cms::Exception("GtPsbTextToDigiTextFileFormatError")
                   // std::cout << "GtPsbTextToDigiTextFileFormatError"
                   << "GtPsbTextToDigi::produce : "
-                  << " found format inconsistency in file #" << ifile
-                  << "\n in skipped line:" << ievt * 2 + 1 << " cycle:" << tmp
-                  << " is different from " << cbs[cycle] << std::endl;
+                  << " found format inconsistency in file #" << ifile << "\n in skipped line:" << ievt * 2 + 1
+                  << " cycle:" << tmp << " is different from " << cbs[cycle] << std::endl;
           }
         }
       }
-      LogDebug("GtPsbTextToDigi")
-          << "[GtPsbTextToDigi::produce()] skipping input " << ievt
-          << std::endl;
+      LogDebug("GtPsbTextToDigi") << "[GtPsbTextToDigi::produce()] skipping input " << ievt << std::endl;
     }
   }
   m_nevt++;
 
   // New collections
-  std::unique_ptr<L1GctEmCandCollection> gctIsolaEm(
-      new L1GctEmCandCollection());
-  std::unique_ptr<L1GctEmCandCollection> gctNoIsoEm(
-      new L1GctEmCandCollection());
-  std::unique_ptr<L1GctJetCandCollection> gctCenJets(
-      new L1GctJetCandCollection());
-  std::unique_ptr<L1GctJetCandCollection> gctForJets(
-      new L1GctJetCandCollection());
-  std::unique_ptr<L1GctJetCandCollection> gctTauJets(
-      new L1GctJetCandCollection());
+  std::unique_ptr<L1GctEmCandCollection> gctIsolaEm(new L1GctEmCandCollection());
+  std::unique_ptr<L1GctEmCandCollection> gctNoIsoEm(new L1GctEmCandCollection());
+  std::unique_ptr<L1GctJetCandCollection> gctCenJets(new L1GctJetCandCollection());
+  std::unique_ptr<L1GctJetCandCollection> gctForJets(new L1GctJetCandCollection());
+  std::unique_ptr<L1GctJetCandCollection> gctTauJets(new L1GctJetCandCollection());
   // std::unique_ptr<L1GctEtTotal>           gctEtTotal( new L1GctEtTotal () );
 
   /// buffer
@@ -156,18 +138,15 @@ void GtPsbTextToDigi::produce(edm::Event &iEvent,
 
     // Check we're not at the end of the file
     if (m_file[ifile].eof()) {
-      LogDebug("GtPsbTextToDigi")
-          << "GtPsbTextToDigi::produce : "
-          << " unexpected end of file " << m_textFileName << ii << ".txt"
-          << std::endl;
+      LogDebug("GtPsbTextToDigi") << "GtPsbTextToDigi::produce : "
+                                  << " unexpected end of file " << m_textFileName << ii << ".txt" << std::endl;
       putEmptyDigi(iEvent);
       continue;
     }
 
     if (!m_file[ifile].good()) {
       LogDebug("GtPsbTextToDigi") << "GtPsbTextToDigi::produce : "
-                                  << " problem reading file " << m_textFileName
-                                  << ii << ".txt" << std::endl;
+                                  << " problem reading file " << m_textFileName << ii << ".txt" << std::endl;
       putEmptyDigi(iEvent);
       continue;
     }
@@ -182,10 +161,8 @@ void GtPsbTextToDigi::produce(edm::Event &iEvent,
       /// cycle debuging (temporary)
       if (false && tmp != cbs[cycle])
         std::cout << "[GtPsbTextToDigi::produce()] asserting "
-                  << " evt:" << m_nevt << " ifile:" << ifile
-                  << " cycle:" << cbs[cycle] << std::hex
-                  << " buffer:" << uLongBuffer << " tmp: " << tmp << std::dec
-                  << "\n\n"
+                  << " evt:" << m_nevt << " ifile:" << ifile << " cycle:" << cbs[cycle] << std::hex
+                  << " buffer:" << uLongBuffer << " tmp: " << tmp << std::dec << "\n\n"
                   << std::flush;
 
       if (tmp != cbs[cycle]) {
@@ -196,14 +173,13 @@ void GtPsbTextToDigi::produce(edm::Event &iEvent,
               // std::cout << "GtPsbTextToDigiTextFileFormatError "
               << "GtPsbTextToDigi::produce : "
               << " found format inconsistency in file #" << ifile
-              << "\n in line:" << (m_nevt - m_fileEventOffset) * 2 - 1
-              << " cycle:" << tmp << " is different from " << cbs[cycle]
-              << std::endl;
+              << "\n in line:" << (m_nevt - m_fileEventOffset) * 2 - 1 << " cycle:" << tmp << " is different from "
+              << cbs[cycle] << std::endl;
         }
       }
       data[ifile][cycle] = (uLongBuffer & 0x7fff);
-    } // cycle loop
-  }   // ifile loop
+    }  // cycle loop
+  }    // ifile loop
 
   /// Fill in digi collections
   unsigned iIsola, iNoIso;
@@ -235,8 +211,7 @@ void GtPsbTextToDigi::endJob() {
     match &= (m_bc0[i] == m_bc0[i + 1]);
   LogDebug("GtPsbTextToDigi") << "[GtPsbTextToDigi::endJob()] ";
   if (!match)
-    LogDebug("GtPsbTextToDigi")
-        << "did not find matching BC0 in all input files: ";
+    LogDebug("GtPsbTextToDigi") << "did not find matching BC0 in all input files: ";
   else
     LogDebug("GtPsbTextToDigi") << "detected common BC0 in all input files: ";
   for (int i = 0; i < nmem; i++)

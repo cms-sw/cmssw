@@ -27,7 +27,6 @@
 #include <string>
 
 class DTTFFEDSim : public edm::stream::EDProducer<> {
-
 public:
   /// Constructor
   DTTFFEDSim(const edm::ParameterSet &pset);

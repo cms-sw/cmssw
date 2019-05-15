@@ -10,21 +10,27 @@ using std::vector;
 #include <bitset>
 using std::bitset;
 
-L1RCTJetSummaryCard::L1RCTJetSummaryCard(
-    int crtNo, const L1RCTLookupTables *rctLookupTables)
-    : crtNo(crtNo), rctLookupTables_(rctLookupTables), isolatedEGObjects(4),
-      nonisolatedEGObjects(4), jetRegions(22), HFRegions(8), barrelRegions(14),
-      mipBits(0), quietBits(0), tauBits(0), overFlowBits(0), hfFineGrainBits(8)
+L1RCTJetSummaryCard::L1RCTJetSummaryCard(int crtNo, const L1RCTLookupTables *rctLookupTables)
+    : crtNo(crtNo),
+      rctLookupTables_(rctLookupTables),
+      isolatedEGObjects(4),
+      nonisolatedEGObjects(4),
+      jetRegions(22),
+      HFRegions(8),
+      barrelRegions(14),
+      mipBits(0),
+      quietBits(0),
+      tauBits(0),
+      overFlowBits(0),
+      hfFineGrainBits(8)
 // quietThreshold(3)
 {}
 
-void L1RCTJetSummaryCard::fillHFRegionSums(
-    const std::vector<unsigned short> &hfRegionSums) {
+void L1RCTJetSummaryCard::fillHFRegionSums(const std::vector<unsigned short> &hfRegionSums) {
   // std::cout << "JSC.fillHFRegionSums() entered" << std::endl;
   for (int i = 0; i < 8; i++) {
     // std::cout << "filling hf region at " << i << std::endl;
-    HFRegions.at(i) =
-        rctLookupTables_->lookup((hfRegionSums.at(i) / 2), crtNo, 999, i);
+    HFRegions.at(i) = rctLookupTables_->lookup((hfRegionSums.at(i) / 2), crtNo, 999, i);
     // std::cout << "hf region " << i << " et filled" << std::endl;
     hfFineGrainBits.at(i) = (hfRegionSums.at(i) & 1);
     // std::cout << "hf region " << i << " fine grain bit filled" << std::endl;
@@ -76,8 +82,7 @@ void L1RCTJetSummaryCard::fillJetRegions() {
   }
 }
 
-void L1RCTJetSummaryCard::fillIsolatedEGObjects(
-    const std::vector<unsigned short> &isoElectrons) {
+void L1RCTJetSummaryCard::fillIsolatedEGObjects(const std::vector<unsigned short> &isoElectrons) {
   // sort(isoElectrons.begin(),isoElectrons.end());
   // reverse(isoElectrons.begin(),isoElectrons.end());
 
@@ -118,8 +123,7 @@ void L1RCTJetSummaryCard::fillIsolatedEGObjects(
   isolatedEGObjects.at(3) = sortIso.at(2);
 }
 
-void L1RCTJetSummaryCard::fillNonIsolatedEGObjects(
-    const std::vector<unsigned short> &nonIsoElectrons) {
+void L1RCTJetSummaryCard::fillNonIsolatedEGObjects(const std::vector<unsigned short> &nonIsoElectrons) {
   // sort(nonIsoElectrons.begin(),nonIsoElectrons.end());
   // reverse(nonIsoElectrons.begin(),nonIsoElectrons.end());
 
@@ -174,8 +178,7 @@ void L1RCTJetSummaryCard::fillTauBits(const std::vector<unsigned short> &tau) {
   tauBits = taus.to_ulong();
 }
 
-void L1RCTJetSummaryCard::fillOverFlowBits(
-    const std::vector<unsigned short> &overflow) {
+void L1RCTJetSummaryCard::fillOverFlowBits(const std::vector<unsigned short> &overflow) {
   bitset<14> overflows;
   for (int i = 0; i < 14; i++)
     overflows[i] = overflow.at(i);
@@ -185,22 +188,20 @@ void L1RCTJetSummaryCard::fillOverFlowBits(
 void L1RCTJetSummaryCard::fillQuietBits() {
   bitset<14> quiet;
 
-  quietThresholdBarrel =
-      rctLookupTables_->rctParameters()->jscQuietThresholdBarrel();
-  quietThresholdEndcap =
-      rctLookupTables_->rctParameters()->jscQuietThresholdEndcap();
+  quietThresholdBarrel = rctLookupTables_->rctParameters()->jscQuietThresholdBarrel();
+  quietThresholdEndcap = rctLookupTables_->rctParameters()->jscQuietThresholdEndcap();
 
   // use one threshold for barrel regions (first 8 in list, cards 0-3)
   for (int i = 0; i < 8; i++) {
     if ((barrelRegions.at(i)) > quietThresholdBarrel)
-      quiet[i] = false; // switched 0 and 1
+      quiet[i] = false;  // switched 0 and 1
     else
       quiet[i] = true;
   }
   // use second for endcap regions (last 6 in list, cards 4-6)
   for (int i = 8; i < 14; i++) {
     if ((barrelRegions.at(i)) > quietThresholdEndcap)
-      quiet[i] = false; // switched 0 and 1
+      quiet[i] = false;  // switched 0 and 1
     else
       quiet[i] = true;
   }
@@ -257,11 +258,10 @@ void L1RCTJetSummaryCard::asicCompare(std::vector<unsigned short> &array) {
   int i;
   unsigned short temp;
   for (i = 0; i < 4; i++) {
-
     unsigned short rank1 = rctLookupTables_->emRank(array.at(2 * i) >> 4);
     unsigned short rank2 = rctLookupTables_->emRank(array.at(2 * i + 1) >> 4);
 
-    if (rank1 < rank2) // currently bottom 3 bits are rgn,crd
+    if (rank1 < rank2)  // currently bottom 3 bits are rgn,crd
     {
       temp = array.at(2 * i);
       array.at(2 * i) = array.at((2 * i) + 1);
@@ -275,11 +275,9 @@ void L1RCTJetSummaryCard::print() {
   std::cout << "MIPBits " << mipBits << std::endl;
   std::cout << "QuietBits " << quietBits << std::endl;
   for (int i = 0; i < 4; i++) {
-    std::cout << "isoElectron " << i << " " << isolatedEGObjects.at(i)
-              << std::endl;
+    std::cout << "isoElectron " << i << " " << isolatedEGObjects.at(i) << std::endl;
     ;
-    std::cout << "nonIsoElectron " << i << " " << nonisolatedEGObjects.at(i)
-              << std::endl;
+    std::cout << "nonIsoElectron " << i << " " << nonisolatedEGObjects.at(i) << std::endl;
   }
   std::cout << "Jets ";
   for (int i = 0; i < 22; i++)

@@ -70,8 +70,7 @@ private:
 
   void printComment() const;
   void printEcalTPGPhysicsConst(const EcalTPGPhysicsConst *) const;
-  void printCRYSTAL(const EcalTPGPedestals *ecaltpPed,
-                    const EcalTPGLinearizationConst *ecaltpLin);
+  void printCRYSTAL(const EcalTPGPedestals *ecaltpPed, const EcalTPGLinearizationConst *ecaltpLin);
   void printSTRIP(const EcalTPGSlidingWindow *ecaltpgSlidW,
                   const EcalTPGWeightGroup *ecaltpgWeightGroup,
                   const EcalTPGFineGrainStripEE *ecaltpgFgStripEE) const;
@@ -80,8 +79,7 @@ private:
                     const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,
                     const EcalTPGLutGroup *ecaltpgLutGroup) const;
   void printEcalTPGLutIdMap(const EcalTPGLutIdMap *ecaltpgLut) const;
-  void printEcalTPGFineGrainEBIdMap(
-      const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB) const;
+  void printEcalTPGFineGrainEBIdMap(const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB) const;
   void printTOWEREE(const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE,
                     const EcalTPGLutGroup *ecaltpgLutGroup) const;
   void printBadX(const EcalTPGCrystalStatus *ecaltpgBadX) const;
