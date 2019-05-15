@@ -2,7 +2,7 @@
 //
 // Package:    DetectorDescription/MuonNumberingESProducer
 // Class:      MuonNumberingESProducer
-// 
+//
 /**\class MuonNumberingESProducer
 
  Description: Produce Muon numbering constants
@@ -31,9 +31,9 @@ class MuonNumberingESProducer : public edm::ESProducer {
 public:
   MuonNumberingESProducer(const edm::ParameterSet&);
   ~MuonNumberingESProducer() override;
-  
+
   using ReturnType = std::unique_ptr<cms::MuonNumbering>;
-  
+
   ReturnType produce(const MuonNumberingRecord&);
 
 private:
@@ -42,33 +42,30 @@ private:
 };
 
 MuonNumberingESProducer::MuonNumberingESProducer(const edm::ParameterSet& iConfig)
-  : m_label(iConfig.getParameter<std::string>("label")),
-    m_key(iConfig.getParameter<std::string>("key"))
+    : m_label(iConfig.getParameter<std::string>("label")),
+      m_key(iConfig.getParameter<std::string>("key"))
 
 {
   setWhatProduced(this);
 }
 
-MuonNumberingESProducer::~MuonNumberingESProducer()
-{}
+MuonNumberingESProducer::~MuonNumberingESProducer() {}
 
-MuonNumberingESProducer::ReturnType
-MuonNumberingESProducer::produce(const MuonNumberingRecord& iRecord)
-{
+MuonNumberingESProducer::ReturnType MuonNumberingESProducer::produce(const MuonNumberingRecord& iRecord) {
   LogDebug("Geometry") << "MuonNumberingESProducer::produce from " << m_label << " with " << m_key;
   auto product = std::make_unique<cms::MuonNumbering>();
 
   edm::ESHandle<cms::DDSpecParRegistry> registry;
   iRecord.getRecord<DDSpecParRegistryRcd>().get(m_label, registry);
   auto it = registry->specpars.find(m_key);
-  if(it != end(registry->specpars)) {
-    for(const auto& l : it->second.spars) {
-      if(l.first == "OnlyForMuonNumbering") {
-	for(const auto& k : it->second.numpars) {
-	  for(const auto& ik : k.second) {
-	    product->put(k.first, static_cast<int>(ik));//values.emplace(k.first, static_cast<int>(ik)); 
-	  }
-	}
+  if (it != end(registry->specpars)) {
+    for (const auto& l : it->second.spars) {
+      if (l.first == "OnlyForMuonNumbering") {
+        for (const auto& k : it->second.numpars) {
+          for (const auto& ik : k.second) {
+            product->put(k.first, static_cast<int>(ik));  //values.emplace(k.first, static_cast<int>(ik));
+          }
+        }
       }
     }
   }

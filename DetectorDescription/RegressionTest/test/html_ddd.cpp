@@ -18,8 +18,7 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char* argv[]) {
   if (argc < 2) {
     std::cout << "This program does nothing unless it is given a command line argument.\n";
     std::cout << "The argument should be the name of an xml configuration file.\n";
@@ -29,7 +28,7 @@ int main(int argc, char *argv[])
   // required for main() in cmssw framework
   edmplugin::PluginManager::configure(edmplugin::standard::config());
 
-  try {   
+  try {
     // Initialize a DDL Schema aware parser for DDL-documents
     // (DDL ... Detector Description Language)
     std::cout << "initialize DDL parser" << std::endl;
@@ -40,7 +39,7 @@ int main(int argc, char *argv[])
     std::cout << "about to set configuration" << std::endl;
     //  std::string configfile("configuration.xml");
     std::string configfile("DetectorDescription/RegressionTest/test/");
-    if (argc==2) {
+    if (argc == 2) {
       configfile += argv[1];
     } else {
       configfile += "configuration.xml";
@@ -57,47 +56,44 @@ int main(int argc, char *argv[])
       exit(1);
     }
     std::cout << " parsing completed" << std::endl;
-  
+
     std::cout << std::endl << std::endl << "Start checking!" << std::endl << std::endl;
-  
+
     DDCheck(ddcpv, std::cout);
 
-    std::cout << std::endl << "Done with DDCheck!" << std::endl << std::endl;  
-  
+    std::cout << std::endl << "Done with DDCheck!" << std::endl << std::endl;
+
     typedef DDHtmlFormatter::ns_type ns_type;
-  
+
     ns_type names;
-    { 
+    {
       DDLogicalPart lp;
       findNameSpaces(lp, names);
     }
-  
+
     std::cout << names.size() << " namespaces found: " << std::endl << std::endl;
     ns_type::const_iterator nit = names.begin();
-    for(; nit != names.end(); ++nit) {
-      std::cout << nit->first 
-		<< " has " 
-		<< nit->second.size()
-		<< " entries." << std::endl; 
+    for (; nit != names.end(); ++nit) {
+      std::cout << nit->first << " has " << nit->second.size() << " entries." << std::endl;
     }
- 
+
     DDErrorDetection ed(ddcpv);
 
     ed.report(ddcpv, std::cout);
-  
-    DDHtmlLpDetails lpd("lp","LogicalParts");
+
+    DDHtmlLpDetails lpd("lp", "LogicalParts");
     dd_to_html(lpd);
- 
-    DDHtmlMaDetails mad("ma","Materials");
+
+    DDHtmlMaDetails mad("ma", "Materials");
     dd_to_html(mad);
- 
-    DDHtmlSoDetails sod("so","Solids");
+
+    DDHtmlSoDetails sod("so", "Solids");
     dd_to_html(sod);
 
-    DDHtmlRoDetails rod("ro","Rotations");
+    DDHtmlRoDetails rod("ro", "Rotations");
     dd_to_html(rod);
 
-    DDHtmlSpDetails spd("sp","Specifics (SpecPars)");
+    DDHtmlSpDetails spd("sp", "Specifics (SpecPars)");
     dd_to_html(spd);
 
     std::ofstream fr;
@@ -113,7 +109,7 @@ int main(int argc, char *argv[])
     fr.open("lp/index.html");
     dd_html_frameset(fr);
     fr.close();
-  
+
     fr.open("ma/index.html");
     dd_html_frameset(fr);
     fr.close();
@@ -131,12 +127,9 @@ int main(int argc, char *argv[])
     fr.close();
 
     return 0;
-  
-  }
-  catch (cms::Exception& e) // DDD-Exceptions are simple string for the Prototype
-    {
-      std::cerr << "DDD-PROBLEM:" << std::endl 
-		<< e << std::endl;
-    }  
 
+  } catch (cms::Exception& e)  // DDD-Exceptions are simple string for the Prototype
+  {
+    std::cerr << "DDD-PROBLEM:" << std::endl << e << std::endl;
+  }
 }

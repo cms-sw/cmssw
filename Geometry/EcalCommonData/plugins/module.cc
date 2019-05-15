@@ -10,12 +10,12 @@
 
 //DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTestAlgorithm, "DDTestAlgorithm");
 
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDEcalEndcapAlgo, "ecal:DDEcalEndcapAlgo");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDEcalEndcapAlgo, "ecal:DDEcalEndcapAlgo");
 
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDEcalBarrelAlgo, "ecal:DDEcalBarrelAlgo");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDEcalBarrelAlgo, "ecal:DDEcalBarrelAlgo");
 
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDEcalBarrelNewAlgo, "ecal:DDEcalBarrelNewAlgo");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDEcalBarrelNewAlgo, "ecal:DDEcalBarrelNewAlgo");
 
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDEcalPreshowerAlgo, "ecal:DDEcalPreshowerAlgo");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDEcalPreshowerAlgo, "ecal:DDEcalPreshowerAlgo");
 
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDEcalAPDAlgo, "ecal:DDEcalAPDAlgo");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDEcalAPDAlgo, "ecal:DDEcalAPDAlgo");

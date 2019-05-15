@@ -18,19 +18,17 @@ class DDCompactView;
 class MuonDDDConstants;
 
 class DTNumberingScheme : public MuonNumberingScheme {
- public:
+public:
+  DTNumberingScheme(const DDCompactView& cpv);
+  DTNumberingScheme(const MuonDDDConstants& muonConstants);
+  ~DTNumberingScheme() override {}
 
-  DTNumberingScheme( const DDCompactView& cpv );
-  DTNumberingScheme( const MuonDDDConstants& muonConstants );
-  ~DTNumberingScheme() override{}
-  
   int baseNumberToUnitNumber(const MuonBaseNumber& num) override;
 
   int getDetId(const MuonBaseNumber& num) const;
-  
- private:
 
-  void initMe ( const MuonDDDConstants& muonConstants );
+private:
+  void initMe(const MuonDDDConstants& muonConstants);
   // Decode MuonBaseNumber to id: no checking
   void decode(const MuonBaseNumber& num,
               int& wire_id,
@@ -38,8 +36,7 @@ class DTNumberingScheme : public MuonNumberingScheme {
               int& superlayer_id,
               int& sector_id,
               int& station_id,
-              int& wheel_id
-             ) const;
+              int& wheel_id) const;
 
   int theRegionLevel;
   int theWheelLevel;

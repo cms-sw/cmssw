@@ -2,7 +2,7 @@
 //
 // Package:    CrystalCenterDump
 // Class:      CrystalCenterDump
-// 
+//
 /**\class CrystalCenterDump CrystalCenterDump.cc test/CrystalCenterDump/src/CrystalCenterDump.cc
 
  Description: <one line class summary>
@@ -11,8 +11,6 @@
      <Notes on implementation>
 */
 //
-
-
 
 // system include files
 #include <memory>
@@ -40,10 +38,9 @@
 
 #include "CLHEP/Vector/ThreeVector.h"
 
-class CrystalCenterDump : public edm::one::EDAnalyzer<>
-{
+class CrystalCenterDump : public edm::one::EDAnalyzer<> {
 public:
-  explicit CrystalCenterDump( const edm::ParameterSet& );
+  explicit CrystalCenterDump(const edm::ParameterSet&);
   ~CrystalCenterDump() override;
 
   void beginJob() override {}
@@ -51,7 +48,6 @@ public:
   void endJob() override {}
 
 private:
-
   void build(const CaloGeometry& cg, DetId::Detector det, int subdetn, const char* name);
   int pass_;
 
@@ -59,70 +55,61 @@ private:
   double B_;
   double beamEnergy_;
 
-  double crystalDepth(){ return A_*(B_+log(beamEnergy_)); }
+  double crystalDepth() { return A_ * (B_ + log(beamEnergy_)); }
 
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
 };
 
-CrystalCenterDump::CrystalCenterDump( const edm::ParameterSet& iConfig )
-{
-   //now do what ever initialization is needed
-  pass_=0;
+CrystalCenterDump::CrystalCenterDump(const edm::ParameterSet& iConfig) {
+  //now do what ever initialization is needed
+  pass_ = 0;
 
-  A_ = iConfig.getUntrackedParameter<double>("Afac",0.89);
-  B_ = iConfig.getUntrackedParameter<double>("Bfac",5.7);
-  beamEnergy_ = iConfig.getUntrackedParameter<double>("BeamEnergy",120.);
+  A_ = iConfig.getUntrackedParameter<double>("Afac", 0.89);
+  B_ = iConfig.getUntrackedParameter<double>("Bfac", 5.7);
+  beamEnergy_ = iConfig.getUntrackedParameter<double>("BeamEnergy", 120.);
 
-  edm::LogInfo("CrysInfo") << "Position computed according to the depth " << crystalDepth() << 
-    " based on:" << "\n A = " << A_ << " cm " << "\n B = " << B_ << "\n BeamEnergy = " << beamEnergy_ << " GeV";
+  edm::LogInfo("CrysInfo") << "Position computed according to the depth " << crystalDepth() << " based on:"
+                           << "\n A = " << A_ << " cm "
+                           << "\n B = " << B_ << "\n BeamEnergy = " << beamEnergy_ << " GeV";
 
   geometryToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{});
 }
 
-
-CrystalCenterDump::~CrystalCenterDump()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+CrystalCenterDump::~CrystalCenterDump() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
-
 void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int subdetn, const char* name) {
-  std::fstream f(name,std::ios_base::out);
-  const CaloSubdetectorGeometry* geom(cg.getSubdetectorGeometry(det,subdetn));
+  std::fstream f(name, std::ios_base::out);
+  const CaloSubdetectorGeometry* geom(cg.getSubdetectorGeometry(det, subdetn));
 
-  int n=0;
-  const std::vector<DetId>& ids=geom->getValidDetIds(det,subdetn);
+  int n = 0;
+  const std::vector<DetId>& ids = geom->getValidDetIds(det, subdetn);
   for (auto id : ids) {
     n++;
-    auto cell=geom->getGeometry(id);
-    if (det == DetId::Ecal)
-      {
-        if (subdetn == EcalBarrel) {
-          EBDetId ebid(id.rawId());
-          if (ebid.ism() == 1) {
-            
-            float depth = (crystalDepth());
-            double crysX = (cell)->getPosition(depth).x();
-            double crysY = (cell)->getPosition(depth).y();
-            double crysZ = (cell)->getPosition(depth).z();
+    auto cell = geom->getGeometry(id);
+    if (det == DetId::Ecal) {
+      if (subdetn == EcalBarrel) {
+        EBDetId ebid(id.rawId());
+        if (ebid.ism() == 1) {
+          float depth = (crystalDepth());
+          double crysX = (cell)->getPosition(depth).x();
+          double crysY = (cell)->getPosition(depth).y();
+          double crysZ = (cell)->getPosition(depth).z();
 
-            CLHEP::Hep3Vector crysPos(crysX,crysY,crysZ);
-            double crysEta = crysPos.eta();
-            double crysTheta = crysPos.theta();
-            double crysPhi = crysPos.phi();
+          CLHEP::Hep3Vector crysPos(crysX, crysY, crysZ);
+          double crysEta = crysPos.eta();
+          double crysTheta = crysPos.theta();
+          double crysPhi = crysPos.phi();
 
-            edm::LogInfo("CrysPos") << ebid.ic() << " x = " << crysX << " y = " << crysY << " z = " << crysZ << " \n " 
-                                    << " eta = " << crysEta << " phi = " << crysPhi << " theta = " << crysTheta;
-            f << std::setw(4) << ebid.ic() << " " 
-              << std::setw(8) << std::setprecision(6) << crysEta << " " 
-              << std::setw(8) << std::setprecision(6) << crysPhi << " " 
-              << std::endl;
-          }
+          edm::LogInfo("CrysPos") << ebid.ic() << " x = " << crysX << " y = " << crysY << " z = " << crysZ << " \n "
+                                  << " eta = " << crysEta << " phi = " << crysPhi << " theta = " << crysTheta;
+          f << std::setw(4) << ebid.ic() << " " << std::setw(8) << std::setprecision(6) << crysEta << " "
+            << std::setw(8) << std::setprecision(6) << crysPhi << " " << std::endl;
         }
       }
+    }
   }
   f.close();
 }
@@ -132,22 +119,18 @@ void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int s
 //
 
 // ------------ method called to produce the data  ------------
-void
-CrystalCenterDump::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
-   
-   std::cout << "Writing the center (eta,phi) for crystals in barrel SM 1 " << std::endl;
+void CrystalCenterDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  std::cout << "Writing the center (eta,phi) for crystals in barrel SM 1 " << std::endl;
 
-   const auto& pG = iSetup.getData(geometryToken_);
-   //
-   // get the ecal & hcal geometry
-   //
-   if (pass_==0) {
-     build(pG,DetId::Ecal,EcalBarrel,"BarrelSM1CrystalCenter.dat");
-   }
+  const auto& pG = iSetup.getData(geometryToken_);
+  //
+  // get the ecal & hcal geometry
+  //
+  if (pass_ == 0) {
+    build(pG, DetId::Ecal, EcalBarrel, "BarrelSM1CrystalCenter.dat");
+  }
 
-   pass_++;
-      
+  pass_++;
 }
 
 //define this as a plug-in

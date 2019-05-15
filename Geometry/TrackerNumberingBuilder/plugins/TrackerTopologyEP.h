@@ -11,21 +11,20 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class TrackerTopologyEP : public edm::ESProducer
-{
+class TrackerTopologyEP : public edm::ESProducer {
 public:
-  TrackerTopologyEP( const edm::ParameterSet & );
-  ~TrackerTopologyEP( void ) override;
+  TrackerTopologyEP(const edm::ParameterSet&);
+  ~TrackerTopologyEP(void) override;
 
   using ReturnType = std::unique_ptr<TrackerTopology>;
 
-  static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
-    
-  ReturnType produce( const TrackerTopologyRcd & );
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  ReturnType produce(const TrackerTopologyRcd&);
 
 private:
-  void fillParameters( const PTrackerParameters& );
-    
+  void fillParameters(const PTrackerParameters&);
+
   TrackerTopology::PixelBarrelValues pxbVals_;
   TrackerTopology::PixelEndcapValues pxfVals_;
   TrackerTopology::TECValues tecVals_;

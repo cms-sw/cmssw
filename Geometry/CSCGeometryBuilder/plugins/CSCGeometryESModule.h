@@ -48,13 +48,8 @@ public:
   /// Produce CSCGeometry
   std::shared_ptr<CSCGeometry> produce(const MuonGeometryRecord& record);
 
-private:  
-
-
-  using HostType = edm::ESProductHost<CSCGeometry,
-                                      MuonNumberingRecord,
-                                      CSCRecoGeometryRcd,
-                                      CSCRecoDigiParametersRcd>;
+private:
+  using HostType = edm::ESProductHost<CSCGeometry, MuonNumberingRecord, CSCRecoGeometryRcd, CSCRecoDigiParametersRcd>;
 
   void initCSCGeometry_(const MuonGeometryRecord&, std::shared_ptr<HostType>& host);
 
@@ -76,8 +71,8 @@ private:
   bool useGangedStripsInME1a;
   bool useCentreTIOffsets;
   bool debugV;
-  bool applyAlignment_; // Switch to apply alignment corrections
-  bool useDDD_; // whether to build from DDD or DB
+  bool applyAlignment_;  // Switch to apply alignment corrections
+  bool useDDD_;          // whether to build from DDD or DB
   const std::string alignmentsLabel_;
   const std::string myLabel_;
 };

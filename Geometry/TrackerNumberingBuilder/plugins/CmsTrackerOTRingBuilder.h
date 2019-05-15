@@ -8,11 +8,9 @@
  * Class which contructs PixelForward Panels. 
  */
 class CmsTrackerOTRingBuilder : public CmsTrackerLevelBuilder {
-  
- private:
-  void sortNS(DDFilteredView& , GeometricDet*) override;
-  void buildComponent(DDFilteredView& , GeometricDet*, std::string) override;
-
+private:
+  void sortNS(DDFilteredView&, GeometricDet*) override;
+  void buildComponent(DDFilteredView&, GeometricDet*, std::string) override;
 };
 
 #endif

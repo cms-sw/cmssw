@@ -24,34 +24,29 @@
 
 using namespace edm;
 
-RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet & p){
-  comp11 = p.getUntrackedParameter<bool>("compatibiltyWith11",true);
+RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet& p) {
+  comp11 = p.getUntrackedParameter<bool>("compatibiltyWith11", true);
   // Find out if using the DDD or CondDB Geometry source.
-  useDDD = p.getUntrackedParameter<bool>("useDDD",true);
+  useDDD = p.getUntrackedParameter<bool>("useDDD", true);
   setWhatProduced(this);
-
 }
 
+RPCGeometryESModule::~RPCGeometryESModule() {}
 
-RPCGeometryESModule::~RPCGeometryESModule(){}
-
-
-std::unique_ptr<RPCGeometry>
-RPCGeometryESModule::produce(const MuonGeometryRecord & record) {
-  if(useDDD){
+std::unique_ptr<RPCGeometry> RPCGeometryESModule::produce(const MuonGeometryRecord& record) {
+  if (useDDD) {
     edm::ESTransientHandle<DDCompactView> cpv;
     record.getRecord<IdealGeometryRecord>().get(cpv);
     edm::ESHandle<MuonDDDConstants> mdc;
     record.getRecord<MuonNumberingRecord>().get(mdc);
     RPCGeometryBuilderFromDDD builder(comp11);
     return std::unique_ptr<RPCGeometry>(builder.build(&(*cpv), *mdc));
-  }else{
+  } else {
     edm::ESHandle<RecoIdealGeometry> rigrpc;
     record.getRecord<RPCRecoGeometryRcd>().get(rigrpc);
     RPCGeometryBuilderFromCondDB builder(comp11);
     return std::unique_ptr<RPCGeometry>(builder.build(*rigrpc));
   }
-
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(RPCGeometryESModule);

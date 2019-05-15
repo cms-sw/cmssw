@@ -6,7 +6,7 @@
 
 //DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTestAlgorithm, "DDTestAlgorithm");
 
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTBH4Algo, "TBH4:DDTBH4Algo");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDTBH4Algo, "TBH4:DDTBH4Algo");
 
 #include "Geometry/EcalTestBeam/plugins/EcalTBHodoscopeGeometryEP.h"
 

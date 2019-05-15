@@ -13,26 +13,21 @@
 #include <map>
 #include <list>
 
-
 class RPCGeometry;
 class RPCDetId;
 class RPCRoll;
 
-class RPCGeometryBuilderFromCondDB 
-{ 
- public:
-
+class RPCGeometryBuilderFromCondDB {
+public:
   RPCGeometryBuilderFromCondDB(bool comp11);
 
   ~RPCGeometryBuilderFromCondDB();
 
   RPCGeometry* build(const RecoIdealGeometry& rgeo);
 
-
- private:
-  std::map<RPCDetId,std::list<RPCRoll *> > chids;
+private:
+  std::map<RPCDetId, std::list<RPCRoll*> > chids;
   bool theComp11Flag;
-
 };
 
 #endif

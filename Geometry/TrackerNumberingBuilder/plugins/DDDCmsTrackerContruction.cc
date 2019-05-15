@@ -10,33 +10,28 @@
 
 using namespace cms;
 
-DDDCmsTrackerContruction::DDDCmsTrackerContruction( void )
-{}
+DDDCmsTrackerContruction::DDDCmsTrackerContruction(void) {}
 
-const GeometricDet*
-DDDCmsTrackerContruction::construct( const DDCompactView* cpv, std::vector<int> detidShifts)
-{
-  attribute = "TkDDDStructure"; // could come from .orcarc
-  DDSpecificsHasNamedValueFilter filter{ attribute };
-  
-  DDFilteredView fv( *cpv, filter ); 
-  if( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString(attribute,&fv)) != GeometricDet::Tracker )
-  {
+const GeometricDet* DDDCmsTrackerContruction::construct(const DDCompactView* cpv, std::vector<int> detidShifts) {
+  attribute = "TkDDDStructure";  // could come from .orcarc
+  DDSpecificsHasNamedValueFilter filter{attribute};
+
+  DDFilteredView fv(*cpv, filter);
+  if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute, &fv)) != GeometricDet::Tracker) {
     fv.firstChild();
-    if( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString(attribute,&fv)) != GeometricDet::Tracker )
-    {  
-      throw cms::Exception( "Configuration" ) << " The first child of the DDFilteredView is not what is expected \n"
-					      << ExtractStringFromDDD::getString( attribute, &fv ) << "\n";
+    if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute, &fv)) != GeometricDet::Tracker) {
+      throw cms::Exception("Configuration") << " The first child of the DDFilteredView is not what is expected \n"
+                                            << ExtractStringFromDDD::getString(attribute, &fv) << "\n";
     }
   }
-  
-  GeometricDet* tracker = new GeometricDet( &fv, GeometricDet::Tracker );
+
+  GeometricDet* tracker = new GeometricDet(&fv, GeometricDet::Tracker);
   CmsTrackerBuilder theCmsTrackerBuilder;
-  theCmsTrackerBuilder.build( fv, tracker, attribute );
-  
-  CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder( std::move(detidShifts) );
-  
-  tracker = theCmsTrackerDetIdBuilder.buildId( tracker );
+  theCmsTrackerBuilder.build(fv, tracker, attribute);
+
+  CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder(std::move(detidShifts));
+
+  tracker = theCmsTrackerDetIdBuilder.buildId(tracker);
   fv.parent();
   //
   // set the Tracker
@@ -48,4 +43,3 @@ DDDCmsTrackerContruction::construct( const DDCompactView* cpv, std::vector<int> 
 
   return tracker;
 }
-

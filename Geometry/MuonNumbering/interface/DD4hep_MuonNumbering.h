@@ -5,7 +5,7 @@
 //
 // Package:    Geometry/MuonNumbering
 // Class:      MuonNumbering
-// 
+//
 /**\class MuonNumbering
 
  Description: MuonNumbering class to handle the conversion
@@ -33,19 +33,17 @@ class MuonBaseNumber;
 namespace cms {
 
   using MuonConstants = std::unordered_map<std::string_view, int>;
-  
+
   class MuonNumbering {
   public:
     const MuonBaseNumber geoHistoryToBaseNumber(const cms::ExpandedNodes&) const;
     const int get(const char*) const;
     void put(std::string_view, int);
-    const MuonConstants& values() const {
-      return values_;
-    }
-    
+    const MuonConstants& values() const { return values_; }
+
   private:
     MuonConstants values_;
   };
-}
+}  // namespace cms
 
 #endif

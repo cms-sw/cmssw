@@ -28,42 +28,40 @@
 
 using namespace cms::xerces;
 
-class DDLTestDoc : public DDLDocumentProvider
-{
+class DDLTestDoc : public DDLDocumentProvider {
 public:
-
-  DDLTestDoc( void );
+  DDLTestDoc(void);
   ~DDLTestDoc() override;
 
   /// Return a list of files as a vector of strings.
-  const std::vector < std::string >&  getFileList( void ) const override;
+  const std::vector<std::string>& getFileList(void) const override;
 
   /// Return a list of urls as a vector of strings.
-  const std::vector < std::string >&  getURLList( void ) const override;
+  const std::vector<std::string>& getURLList(void) const override;
 
   /// Print out the list of files.
-  void dumpFileList( void ) const override;
+  void dumpFileList(void) const override;
 
   /// Return whether Validation should be on or off and where the DDL SchemaLocation is.
-  bool doValidation( void ) const override;
+  bool doValidation(void) const override;
 
   /// Return the designation for where to look for the schema.
-  std::string getSchemaLocation( void ) const override;
+  std::string getSchemaLocation(void) const override;
 
   /// ReadConfig
-  int readConfig( const std::string& filename ) override;
+  int readConfig(const std::string& filename) override;
 
-  void emplace_back( const std::string& fileName, const std::string& url = std::string( "./" ));
+  void emplace_back(const std::string& fileName, const std::string& url = std::string("./"));
 
-  void setSchemaLocation( std::string path = std::string( "../../DDSchema" ));
+  void setSchemaLocation(std::string path = std::string("../../DDSchema"));
 
-  void setValidation( bool val );
+  void setValidation(bool val);
 
-  void clear( void );
+  void clear(void);
 
 private:
-  std::vector < std::string > fnames_;
-  std::vector < std::string > urls_;
+  std::vector<std::string> fnames_;
+  std::vector<std::string> urls_;
   std::string schemaLoc_;
   bool validate_;
 };
@@ -71,54 +69,31 @@ private:
 //--------------------------------------------------------------------------
 //  DDLTestDoc:  Default constructor and destructor.
 //--------------------------------------------------------------------------
-DDLTestDoc::~DDLTestDoc( void )
-{ 
-}
+DDLTestDoc::~DDLTestDoc(void) {}
 
-DDLTestDoc::DDLTestDoc( void )
-  : validate_(true)
-{ 
-  schemaLoc_ = "http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd";
-}
+DDLTestDoc::DDLTestDoc(void) : validate_(true) { schemaLoc_ = "http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd"; }
 
-const std::vector<std::string>&
-DDLTestDoc::getFileList( void ) const
-{
-  return fnames_;
-}
+const std::vector<std::string>& DDLTestDoc::getFileList(void) const { return fnames_; }
 
-const std::vector<std::string>&
-DDLTestDoc::getURLList( void ) const
-{
-  return urls_;
-}
+const std::vector<std::string>& DDLTestDoc::getURLList(void) const { return urls_; }
 
-void
-DDLTestDoc::emplace_back( const std::string& fileName, const std::string& url ) 
-{
+void DDLTestDoc::emplace_back(const std::string& fileName, const std::string& url) {
   fnames_.emplace_back(fileName);
   urls_.emplace_back(url);
 }
 
-void
-DDLTestDoc::setValidation( bool val )
-{ validate_= val; }
+void DDLTestDoc::setValidation(bool val) { validate_ = val; }
 
-bool
-DDLTestDoc::doValidation( void ) const
-{ return validate_; }
+bool DDLTestDoc::doValidation(void) const { return validate_; }
 
-void
-DDLTestDoc::setSchemaLocation( std::string path )
-{ schemaLoc_ = std::move(path); }
+void DDLTestDoc::setSchemaLocation(std::string path) { schemaLoc_ = std::move(path); }
 
-std::string
-DDLTestDoc::getSchemaLocation( void ) const
-{ std::cout << schemaLoc_ << std::endl; return schemaLoc_; }
+std::string DDLTestDoc::getSchemaLocation(void) const {
+  std::cout << schemaLoc_ << std::endl;
+  return schemaLoc_;
+}
 
-void
-DDLTestDoc::dumpFileList( void ) const
-{
+void DDLTestDoc::dumpFileList(void) const {
   std::cout << "File List:" << std::endl;
   std::vector<std::string> vst = getFileList();
   std::cout << "  number of files=" << vst.size() << std::endl;
@@ -126,25 +101,21 @@ DDLTestDoc::dumpFileList( void ) const
     std::cout << *it << std::endl;
 }
 
-void
-DDLTestDoc::clear( void )
-{
+void DDLTestDoc::clear(void) {
   fnames_.clear();
   urls_.clear();
 }
 
 //-----------------------------------------------------------------------
-//  Here the Xerces parser is used to process the content of the 
+//  Here the Xerces parser is used to process the content of the
 //  configuration file.
-//  FIX:  Right now, each config file passed to this will simply increase the 
+//  FIX:  Right now, each config file passed to this will simply increase the
 //  size of the list of files.  So if this default DDLDocumentProvider is
 //  called repeatedly (i.e. the same instance of it) then the file list MAY
 //  repeat files.  It is the Parser which checks for maintains a list of real
 //  files.
 //-----------------------------------------------------------------------
-int
-DDLTestDoc::readConfig( const std::string& filename )
-{
+int DDLTestDoc::readConfig(const std::string& filename) {
   std::cout << "readConfig" << std::endl;
 
   // Set the parser to use the handler for the configuration file.
@@ -152,7 +123,7 @@ DDLTestDoc::readConfig( const std::string& filename )
   DDCompactView cpv;
   DDLParser parser(cpv);
   DDLSAX2Handler* errHandler;
-  DDLSAX2ConfigHandler * sch;
+  DDLSAX2ConfigHandler* sch;
 
   sch = new DDLSAX2ConfigHandler(cpv);
   errHandler = new DDLSAX2Handler;
@@ -162,15 +133,12 @@ DDLTestDoc::readConfig( const std::string& filename )
 
   try {
     parser.getXMLParser()->parse(filename.c_str());
-  }
-  catch (const XERCES_CPP_NAMESPACE::XMLException& toCatch) {
+  } catch (const XERCES_CPP_NAMESPACE::XMLException& toCatch) {
     std::cout << "\nXMLException: parsing '" << filename << "'\n"
-	      << "Exception message is: \n"
-	      << cStr(toCatch.getMessage()).ptr() << "\n" ;
+              << "Exception message is: \n"
+              << cStr(toCatch.getMessage()).ptr() << "\n";
     return 1;
-  }
-  catch (...)
-  {
+  } catch (...) {
     std::cout << "\nUnexpected exception during parsing: '" << filename << "'\n";
     return 3;
   }
@@ -183,36 +151,35 @@ DDLTestDoc::readConfig( const std::string& filename )
   return 0;
 }
 
-
-void
-testRotations( void )
-{
+void testRotations(void) {
   std::cout << "--------------- Parser testing Rotations --------------" << std::endl;
   std::cout << "z30 should be a rotation of 30 degrees around the z axis:" << std::endl;
-  std::cout << DDRotation(DDName( "z30", "testRotations")) << std::endl;
+  std::cout << DDRotation(DDName("z30", "testRotations")) << std::endl;
   std::cout << std::endl;
   std::cout << "z30x20 should be a rotation 30 degrees around z, then 20 degrees around x:" << std::endl;
-  std::cout << DDRotation(DDName( "z30x20", "testRotations")) << std::endl;
+  std::cout << DDRotation(DDName("z30x20", "testRotations")) << std::endl;
   std::cout << std::endl;
   std::cout << "x90y45 should be a rotation 90 degrees around x, then 45 degrees around y:" << std::endl;
-  std::cout << DDRotation(DDName( "x90y45", "testRotations")) << std::endl;
+  std::cout << DDRotation(DDName("x90y45", "testRotations")) << std::endl;
   std::cout << std::endl;
   std::cout << "x90y90 should be a rotation 90 degrees around x, then 90 degrees around y:" << std::endl;
-  std::cout << DDRotation(DDName( "x90y90", "testRotations")) << std::endl;
+  std::cout << DDRotation(DDName("x90y90", "testRotations")) << std::endl;
   std::cout << std::endl;
   std::cout << "x90y135 should be a rotation 90 degrees around x, then 135 degrees around y:" << std::endl;
-  std::cout << DDRotation(DDName( "x90y135", "testRotations")) << std::endl;
+  std::cout << DDRotation(DDName("x90y135", "testRotations")) << std::endl;
   std::cout << std::endl;
   std::cout << "x90y180 should be a rotation 90 degrees around x, then 180 degrees around y:" << std::endl;
-  std::cout << DDRotation(DDName( "x90y180", "testRotations")) << std::endl;
+  std::cout << DDRotation(DDName("x90y180", "testRotations")) << std::endl;
   std::cout << std::endl;
   std::cout << "x90 should be a rotation of 90 degrees around the x axis:" << std::endl;
-  std::cout << DDRotation(DDName( "x90", "testRotations")) << std::endl;
+  std::cout << DDRotation(DDName("x90", "testRotations")) << std::endl;
   std::cout << std::endl;
-  std::cout << "cmsimIdentity makes the identity rotation matrix using the cmsim method (phi and theta of each axis):" << std::endl;
+  std::cout << "cmsimIdentity makes the identity rotation matrix using the cmsim method (phi and theta of each axis):"
+            << std::endl;
   std::cout << DDRotation(DDName("cmsimIdentity", "testRotations")) << std::endl;
   std::cout << std::endl;
-  std::cout << "newrotIdentity makes the identity rotation matrix by rotating 0 degrees around the z axis:" << std::endl;
+  std::cout << "newrotIdentity makes the identity rotation matrix by rotating 0 degrees around the z axis:"
+            << std::endl;
   std::cout << DDRotation(DDName("newrotIdentity", "testRotations")) << std::endl;
   std::cout << std::endl;
   std::cout << "180R should be a REFLECTION rotation.  It is defined using the cmsim way:" << std::endl;
@@ -220,7 +187,7 @@ testRotations( void )
   std::cout << std::endl;
 }
 
-void testMaterials() { 
+void testMaterials() {
   std::cout << "--------------- Parser testing Materials --------------" << std::endl;
   std::cout << "There should be 4 Elementary Materials: Nitrogen," << std::endl;
   std::cout << "Oxygen,Argon and Hydrogen.  There should be one composite" << std::endl;
@@ -237,9 +204,7 @@ void testMaterials() {
   std::cout << std::endl;
 }
 
-void
-testSolids( void )
-{ 
+void testSolids(void) {
   std::cout << "--------------- Parser testing Solids --------------" << std::endl;
   std::cout << "trap1 is a trapezoid:" << std::endl;
   std::cout << DDSolid(DDName("trap1", "testSolids")) << std::endl;
@@ -277,11 +242,11 @@ testSolids( void )
   std::cout << "phrz is a polyhedra defined using r & z points:" << std::endl;
   std::cout << DDSolid(DDName("phrz", "testSolids")) << std::endl;
   std::cout << std::endl;
-  std::cout << "trd1 is a \"special\" trapezoid declaration with fewer" ;
+  std::cout << "trd1 is a \"special\" trapezoid declaration with fewer";
   std::cout << " parameters (Trd1):" << std::endl;
   std::cout << DDSolid(DDName("trd1", "testSolids")) << std::endl;
   std::cout << std::endl;
-  std::cout << "trd2 is a \"special\" trapezoid declaration with fewer" ;
+  std::cout << "trd2 is a \"special\" trapezoid declaration with fewer";
   std::cout << " parameters (Trd1):" << std::endl;
   std::cout << DDSolid(DDName("trd2", "testSolids")) << std::endl;
   std::cout << std::endl;
@@ -326,28 +291,26 @@ testSolids( void )
   std::vector<double> zx = extrPgon.zxVec();
   std::vector<double> zy = extrPgon.zyVec();
   std::vector<double> zs = extrPgon.zscaleVec();
-  for( auto i : x )
+  for (auto i : x)
     std::cout << i << ", ";
   std::cout << "\ny: ";
-  for( auto i : y )
+  for (auto i : y)
     std::cout << i << ", ";
   std::cout << "\nz: ";
-  for( auto i : z )
+  for (auto i : z)
     std::cout << i << ", ";
   std::cout << "\nzx: ";
-  for( auto i : zx )
+  for (auto i : zx)
     std::cout << i << ", ";
   std::cout << "\nzy: ";
-  for( auto i : zy )
+  for (auto i : zy)
     std::cout << i << ", ";
   std::cout << "\nz scale: ";
-  for( auto i : zs )
+  for (auto i : zs)
     std::cout << i << ", ";
 }
 
-void
-testLogicalParts( void )
-{ 
+void testLogicalParts(void) {
   std::cout << "--------------- Parser testing LogicalParts --------------" << std::endl;
   std::cout << "LogicalPart trap1:" << std::endl;
   std::cout << DDLogicalPart(DDName("trap1", "testLogicalParts")) << std::endl;
@@ -385,7 +348,7 @@ testLogicalParts( void )
   std::cout << "LogicalPart phrz:" << std::endl;
   std::cout << DDLogicalPart(DDName("phrz", "testLogicalParts")) << std::endl;
   std::cout << std::endl;
-  std::cout << "LogicalPart trd1:" ;
+  std::cout << "LogicalPart trd1:";
   std::cout << DDLogicalPart(DDName("trd1", "testLogicalParts")) << std::endl;
   std::cout << std::endl;
   std::cout << "LogicalPart trd2:" << std::endl;
@@ -423,87 +386,77 @@ testLogicalParts( void )
   std::cout << std::endl;
 }
 
-int main(int argc, char *argv[])
-{
-   std::string const kProgramName = argv[0];
-   int rc = 0;
-   if (argc < 2 || argc > 2 ) {
-      std::cout << "This is a polite exit so that scram b runtests' first run of this program does not give an error" << std::endl;
-      exit(0); // SUCCESS;
-   }
+int main(int argc, char* argv[]) {
+  std::string const kProgramName = argv[0];
+  int rc = 0;
+  if (argc < 2 || argc > 2) {
+    std::cout << "This is a polite exit so that scram b runtests' first run of this program does not give an error"
+              << std::endl;
+    exit(0);  // SUCCESS;
+  }
 
-   try {
-      edmplugin::PluginManager::configure(edmplugin::standard::config());
-      std::cout << "Initialize a DDL parser " << std::endl;
-      DDCompactView cpv;
-      DDLParser myP(cpv);
-      if ( argc == 2 ) {
-         DDLTestDoc dp; 
-         
-         dp.readConfig(argv[1]);
-         dp.dumpFileList();
-         
-         std::cout << "About to start parsing..." << std::endl;
-         
-         myP.parse(dp);
-         
-         std::cout << "Completed Parser" << std::endl;
-         
-         std::cout << std::endl << std::endl << "Start checking!" << std::endl << std::endl;
-         std::cout << "Call DDCheckMaterials and other DDChecks." << std::endl;
-         DDCheckMaterials(std::cout);
-         
-         std::cout << "======== Navigate a little bit  ======" << std::endl;
-         try {
-            if (!cpv.root().isDefined().second) {
-               cpv.setRoot(DDRootDef::instance().root());
-            }
-            DDExpandedView ev(cpv);
-            while (ev.next()) {
-               std::cout << ev.geoHistory() << std::endl;
-            }
-         }
-         catch (cms::Exception& e) {
-            std::cout << e.what() << std::endl;
-         }
-         std::cout << "--------------- Parser testing started --------------" << std::endl;
-         std::cout << std::endl << "Run the XML tests." << std::endl;
-         testMaterials();
-         testRotations();
-         testSolids();
-         testLogicalParts();
-      } else if (argc < 3) {
-         // scram b runtests for now this should not work.
-         // just to have something!
-         DDRootDef::instance().set(DDName("LP1", "testNoSections"));
-         
-         std::string fname = std::string(argv[1]);
-         DDLTestDoc dp;
-         while (fname != "q") {
-            std::cout << "about to try to process the file " << fname << std::endl;
-            dp.emplace_back(fname);
-            myP.parse(dp);
-            std::cout << "next file name:" ;
-            std::cin >> fname;
-            dp.clear();
-         }
+  try {
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
+    std::cout << "Initialize a DDL parser " << std::endl;
+    DDCompactView cpv;
+    DDLParser myP(cpv);
+    if (argc == 2) {
+      DDLTestDoc dp;
+
+      dp.readConfig(argv[1]);
+      dp.dumpFileList();
+
+      std::cout << "About to start parsing..." << std::endl;
+
+      myP.parse(dp);
+
+      std::cout << "Completed Parser" << std::endl;
+
+      std::cout << std::endl << std::endl << "Start checking!" << std::endl << std::endl;
+      std::cout << "Call DDCheckMaterials and other DDChecks." << std::endl;
+      DDCheckMaterials(std::cout);
+
+      std::cout << "======== Navigate a little bit  ======" << std::endl;
+      try {
+        if (!cpv.root().isDefined().second) {
+          cpv.setRoot(DDRootDef::instance().root());
+        }
+        DDExpandedView ev(cpv);
+        while (ev.next()) {
+          std::cout << ev.geoHistory() << std::endl;
+        }
+      } catch (cms::Exception& e) {
+        std::cout << e.what() << std::endl;
       }
-   }
-   catch (cms::Exception& e)
-   {
-      std::cout << "cms::Exception caught in "
-      << kProgramName
-      << "\n"
-      << e.explainSelf();
-      rc = 1;
-   }
-   catch (std::exception& e) {
-      std::cout << "Standard library exception caught in "
-      << kProgramName
-      << "\n"
-      << e.what();
-      rc = 1;
-   }
-   
-   return rc;
+      std::cout << "--------------- Parser testing started --------------" << std::endl;
+      std::cout << std::endl << "Run the XML tests." << std::endl;
+      testMaterials();
+      testRotations();
+      testSolids();
+      testLogicalParts();
+    } else if (argc < 3) {
+      // scram b runtests for now this should not work.
+      // just to have something!
+      DDRootDef::instance().set(DDName("LP1", "testNoSections"));
+
+      std::string fname = std::string(argv[1]);
+      DDLTestDoc dp;
+      while (fname != "q") {
+        std::cout << "about to try to process the file " << fname << std::endl;
+        dp.emplace_back(fname);
+        myP.parse(dp);
+        std::cout << "next file name:";
+        std::cin >> fname;
+        dp.clear();
+      }
+    }
+  } catch (cms::Exception& e) {
+    std::cout << "cms::Exception caught in " << kProgramName << "\n" << e.explainSelf();
+    rc = 1;
+  } catch (std::exception& e) {
+    std::cout << "Standard library exception caught in " << kProgramName << "\n" << e.what();
+    rc = 1;
+  }
+
+  return rc;
 }

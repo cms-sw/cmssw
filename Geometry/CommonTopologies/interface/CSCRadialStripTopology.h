@@ -26,8 +26,7 @@
  */
 
 class CSCRadialStripTopology : public RadialStripTopology {
- public:
-
+public:
   /** 
    * Constructor from:
    *    \param ns number of strips
@@ -42,12 +41,12 @@ class CSCRadialStripTopology : public RadialStripTopology {
    *    \param yMid local y offset if mid-point of detector (strip plane) does not coincide with local origin.
    *    This decouples the extent of strip plane from the boundary of the detector in which the RST is embedded.
    */
-  CSCRadialStripTopology( int ns, float aw, float dh, float r, float yAx = 1.f, float yMid = 0.);
+  CSCRadialStripTopology(int ns, float aw, float dh, float r, float yAx = 1.f, float yMid = 0.);
 
   /** 
    * Destructor
    */
-  ~CSCRadialStripTopology() override{}
+  ~CSCRadialStripTopology() override {}
 
   // =========================================================
   // StripTopology interface - implement pure virtual methods
@@ -98,7 +97,6 @@ class CSCRadialStripTopology : public RadialStripTopology {
    */
   float strip(const LocalPoint&) const override;
 
-
   /** 
    * Pitch (strip width) at a given LocalPoint. <BR>
    * BEWARE: are you sure you really want to call this for a RadialStripTopology?
@@ -131,17 +129,16 @@ class CSCRadialStripTopology : public RadialStripTopology {
   /** 
    * Length of a strip passing through a given LocalPpoint
    */
-  float localStripLength(const LocalPoint& ) const override;
-
+  float localStripLength(const LocalPoint&) const override;
 
   // =========================================================
-  // Topology interface (not already implemented for 
+  // Topology interface (not already implemented for
   // StripTopology interface)
   // =========================================================
 
-  MeasurementPoint measurementPosition( const LocalPoint& ) const override;
+  MeasurementPoint measurementPosition(const LocalPoint&) const override;
 
-  MeasurementError measurementError( const LocalPoint&, const LocalError& ) const override;
+  MeasurementError measurementError(const LocalPoint&, const LocalError&) const override;
 
   /** 
    * Channel number corresponding to a given LocalPoint.<BR>
@@ -150,8 +147,7 @@ class CSCRadialStripTopology : public RadialStripTopology {
    * LocalPoints outside the detector strip plane will be considered
    * as contributing to the edge channels 0 or nstrips-1.
    */
-  int channel( const LocalPoint& ) const override;
-
+  int channel(const LocalPoint&) const override;
 
   // =========================================================
   // RadialStripTopology interface itself
@@ -160,7 +156,7 @@ class CSCRadialStripTopology : public RadialStripTopology {
   /** 
    * Angular width of a each strip
    */
-  float angularWidth() const override { return theAngularWidth;}
+  float angularWidth() const override { return theAngularWidth; }
 
   /** 
    * Phi pitch of each strip (= angular width!)
@@ -170,12 +166,12 @@ class CSCRadialStripTopology : public RadialStripTopology {
   /** 
    * Length of long symmetry axis of plane of strips
    */
-  float detHeight() const override { return theDetHeight;}
+  float detHeight() const override { return theDetHeight; }
 
   /** 
    * y extent of strip plane
    */
-  float yExtentOfStripPlane() const override { return theDetHeight; } // same as detHeight()
+  float yExtentOfStripPlane() const override { return theDetHeight; }  // same as detHeight()
 
   /** 
    * Distance from the intersection of the projections of
@@ -210,8 +206,8 @@ class CSCRadialStripTopology : public RadialStripTopology {
    * 'strip' should be in range 1 to nstrips() <BR>
    */
   float xOfStrip(int strip, float y) const override;
- 
-   /**
+
+  /**
    * Nearest strip to given LocalPoint
    */
   int nearestStrip(const LocalPoint&) const override;
@@ -229,21 +225,18 @@ class CSCRadialStripTopology : public RadialStripTopology {
   /**
    * Distance in local y from a hit to the point of intersection of projected strips
    */
-  float yDistanceToIntersection( float y ) const override;
+  float yDistanceToIntersection(float y) const override;
 
-  friend std::ostream & operator<<(std::ostream&, const RadialStripTopology& );
+  friend std::ostream& operator<<(std::ostream&, const RadialStripTopology&);
 
- private:
-
-  int   theNumberOfStrips; // total no. of strips in plane of strips
-  float theAngularWidth;   // angle subtended by each strip = phi pitch
-  float theDetHeight;      // length of long symmetry axis = twice the apothem of the enclosing trapezoid
+private:
+  int theNumberOfStrips;          // total no. of strips in plane of strips
+  float theAngularWidth;          // angle subtended by each strip = phi pitch
+  float theDetHeight;             // length of long symmetry axis = twice the apothem of the enclosing trapezoid
   float theCentreToIntersection;  // distance centre of detector face to intersection of edge strips (projected)
-  float thePhiOfOneEdge;   // local 'phi' of one edge of plane of strips (I choose it negative!)
-  float theYAxisOrientation; // 1 means y axis going from smaller to larger side, -1 means opposite direction
-  float yCentre; // Non-zero if offset in local y between midpoint of detector (strip plane) extent and local origin.
+  float thePhiOfOneEdge;          // local 'phi' of one edge of plane of strips (I choose it negative!)
+  float theYAxisOrientation;      // 1 means y axis going from smaller to larger side, -1 means opposite direction
+  float yCentre;  // Non-zero if offset in local y between midpoint of detector (strip plane) extent and local origin.
 };
 
 #endif
-
-

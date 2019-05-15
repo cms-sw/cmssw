@@ -1,7 +1,6 @@
 #ifndef GEOMETRY_ECALEVENTSETUP_ECALTBHODOSCOPEGEOMETRYEPEP_H
 #define GEOMETRY_ECALEVENTSETUP_ECALTBHODOSCOPEGEOMETRYEPEP_H 1
 
-
 // system include files
 #include <memory>
 
@@ -22,21 +21,18 @@
 //
 
 class EcalTBHodoscopeGeometryEP : public edm::ESProducer {
- public:
+public:
   EcalTBHodoscopeGeometryEP(const edm::ParameterSet&);
   ~EcalTBHodoscopeGeometryEP() override = default;
-  
+
   typedef std::unique_ptr<CaloSubdetectorGeometry> ReturnType;
-  
+
   ReturnType produce(const IdealGeometryRecord&);
 
- private:
-
+private:
   // ----------member data ---------------------------
   EcalTBHodoscopeGeometryLoaderFromDDD loader_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
 };
-
-
 
 #endif

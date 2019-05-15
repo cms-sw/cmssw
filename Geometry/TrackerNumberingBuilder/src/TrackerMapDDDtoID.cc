@@ -4,39 +4,37 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include<algorithm>
+#include <algorithm>
 
-TrackerMapDDDtoID::TrackerMapDDDtoID(const GeometricDet* iDet) 
-{
-   buildAll(iDet);
+TrackerMapDDDtoID::TrackerMapDDDtoID(const GeometricDet* iDet) {
+  buildAll(iDet);
   //
-  // loop over all the volumes which hahe a SpecPar called specpar with value value, 
+  // loop over all the volumes which hahe a SpecPar called specpar with value value,
   // and save in the map the association nav_type<->id
   //
 }
 
-void TrackerMapDDDtoID::buildAll(const GeometricDet* iDet){
-  edm::LogInfo("TrackerMapDDDtoID")<<" Building the TrackerMapDDDtoID map.";
+void TrackerMapDDDtoID::buildAll(const GeometricDet* iDet) {
+  edm::LogInfo("TrackerMapDDDtoID") << " Building the TrackerMapDDDtoID map.";
   TrackerMapDDDtoID* me = const_cast<TrackerMapDDDtoID*>(this);
   me->buildAllStep2(iDet);
 }
 
-void TrackerMapDDDtoID::buildAllStep2(const GeometricDet* theTracker){
-  
+void TrackerMapDDDtoID::buildAllStep2(const GeometricDet* theTracker) {
   std::vector<const GeometricDet*> allDetectors;
   theTracker->deepComponents(allDetectors);
-  
+
   //
   // Also build a map! (for slower access)
   //
 
-  for (auto & allDetector : allDetectors){
-    
-    path2id_.insert(std::pair<nav_type,uint32_t>(allDetector->navType(),(allDetector->geographicalID())()));
-    revpath2id_.insert(std::pair<uint32_t,nav_type>((allDetector->geographicalID())(),allDetector->navType()));
+  for (auto& allDetector : allDetectors) {
+    path2id_.insert(std::pair<nav_type, uint32_t>(allDetector->navType(), (allDetector->geographicalID())()));
+    revpath2id_.insert(std::pair<uint32_t, nav_type>((allDetector->geographicalID())(), allDetector->navType()));
     navVec.emplace_back(allDetector->navType());
   }
-  edm::LogInfo("TrackerMapDDDtoID")<<"Created TrackerMapDDDtoID; results in "<<allDetectors.size()<<" detectors numbered.";
+  edm::LogInfo("TrackerMapDDDtoID") << "Created TrackerMapDDDtoID; results in " << allDetectors.size()
+                                    << " detectors numbered.";
 }
 
 /*
@@ -52,33 +50,28 @@ unsigned int TrackerMapDDDtoID::id(const DDFilteredView & f) const
 }
 */
 
-unsigned int TrackerMapDDDtoID::id(const nav_type & n) const
-{
-  std::map<nav_type,uint32_t>::const_iterator it = path2id_.find(n);
+unsigned int TrackerMapDDDtoID::id(const nav_type& n) const {
+  std::map<nav_type, uint32_t>::const_iterator it = path2id_.find(n);
   unsigned int result = 0;
   if (it != path2id_.end())
     result = it->second;
-  return result;  
+  return result;
 }
 
-
-std::vector<TrackerMapDDDtoID::nav_type> const & TrackerMapDDDtoID::allNavTypes() const{
-  return navVec;
-}
+std::vector<TrackerMapDDDtoID::nav_type> const& TrackerMapDDDtoID::allNavTypes() const { return navVec; }
 
 namespace {
   const TrackerMapDDDtoID::nav_type nullresult;
 }
 
-TrackerMapDDDtoID::nav_type const & TrackerMapDDDtoID::navType(uint32_t num) const
-{ 
-  std::map<uint32_t,nav_type>::const_iterator it = revpath2id_.find(num);
+TrackerMapDDDtoID::nav_type const& TrackerMapDDDtoID::navType(uint32_t num) const {
+  std::map<uint32_t, nav_type>::const_iterator it = revpath2id_.find(num);
   if (it != revpath2id_.end())
     return it->second;
-  return nullresult;  
+  return nullresult;
 }
 
-void TrackerMapDDDtoID::clear(){
+void TrackerMapDDDtoID::clear() {
   path2id_.clear();
-  edm::LogInfo("TrackerMapDDDtoID")<<" TrackerMapDDDtoID maps deleted from memory.";
+  edm::LogInfo("TrackerMapDDDtoID") << " TrackerMapDDDtoID maps deleted from memory.";
 }

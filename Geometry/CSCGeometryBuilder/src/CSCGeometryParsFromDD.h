@@ -18,25 +18,21 @@ class RecoIdealGeometry;
 class CSCRecoDigiParameters;
 
 class CSCGeometryParsFromDD {
- public:
-
+public:
   /// Constructor
-  CSCGeometryParsFromDD( );
-  
+  CSCGeometryParsFromDD();
+
   /// Destructor
   virtual ~CSCGeometryParsFromDD();
 
   /// Build the geometry returning the RecoIdealGeometry and the CSCRecoDigiParameters objects
   // as built from the DDD.
-  bool build( const DDCompactView* cview 
-	      , const MuonDDDConstants& muonConstants
-	      , RecoIdealGeometry& rig
-	      , CSCRecoDigiParameters& rdp
-	      );
+  bool build(const DDCompactView* cview,
+             const MuonDDDConstants& muonConstants,
+             RecoIdealGeometry& rig,
+             CSCRecoDigiParameters& rdp);
 
- private:
+private:
   std::string myName;
-
 };
 #endif
-

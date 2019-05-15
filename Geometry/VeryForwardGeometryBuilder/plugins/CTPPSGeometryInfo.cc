@@ -33,62 +33,58 @@
 /**
  * \brief Class to print out information on current geometry.
  **/
-class CTPPSGeometryInfo : public edm::one::EDAnalyzer<>
-{
-  public:
-    explicit CTPPSGeometryInfo( const edm::ParameterSet& );
+class CTPPSGeometryInfo : public edm::one::EDAnalyzer<> {
+public:
+  explicit CTPPSGeometryInfo(const edm::ParameterSet&);
 
-  private:
-    std::string geometryType_;
+private:
+  std::string geometryType_;
 
-    bool printRPInfo_, printSensorInfo_;
+  bool printRPInfo_, printSensorInfo_;
 
-    edm::ESWatcher<IdealGeometryRecord> watcherIdealGeometry_;
-    edm::ESWatcher<VeryForwardRealGeometryRecord> watcherRealGeometry_;
-    edm::ESWatcher<VeryForwardMisalignedGeometryRecord> watcherMisalignedGeometry_;
+  edm::ESWatcher<IdealGeometryRecord> watcherIdealGeometry_;
+  edm::ESWatcher<VeryForwardRealGeometryRecord> watcherRealGeometry_;
+  edm::ESWatcher<VeryForwardMisalignedGeometryRecord> watcherMisalignedGeometry_;
 
-    void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    static std::string formatDetId( const CTPPSDetId &id, bool printDetails = true );
+  static std::string formatDetId(const CTPPSDetId& id, bool printDetails = true);
 
-    void printGeometry( const CTPPSGeometry &, const edm::Event& );
+  void printGeometry(const CTPPSGeometry&, const edm::Event&);
 };
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSGeometryInfo::CTPPSGeometryInfo( const edm::ParameterSet& iConfig ) :
-  geometryType_   ( iConfig.getUntrackedParameter<std::string>( "geometryType", "real" ) ),
-  printRPInfo_    ( iConfig.getUntrackedParameter<bool>( "printRPInfo", true ) ),
-  printSensorInfo_( iConfig.getUntrackedParameter<bool>( "printSensorInfo", true ) )
-{}
+CTPPSGeometryInfo::CTPPSGeometryInfo(const edm::ParameterSet& iConfig)
+    : geometryType_(iConfig.getUntrackedParameter<std::string>("geometryType", "real")),
+      printRPInfo_(iConfig.getUntrackedParameter<bool>("printRPInfo", true)),
+      printSensorInfo_(iConfig.getUntrackedParameter<bool>("printSensorInfo", true)) {}
 
 //----------------------------------------------------------------------------------------------------
 
-void
-CTPPSGeometryInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
+void CTPPSGeometryInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<CTPPSGeometry> geometry;
 
-  if ( geometryType_ == "ideal" ) {
-    if ( watcherIdealGeometry_.check( iSetup ) ) {
-      iSetup.get<IdealGeometryRecord>().get( geometry );
-      printGeometry( *geometry, iEvent );
+  if (geometryType_ == "ideal") {
+    if (watcherIdealGeometry_.check(iSetup)) {
+      iSetup.get<IdealGeometryRecord>().get(geometry);
+      printGeometry(*geometry, iEvent);
     }
     return;
   }
 
-  else if ( geometryType_ == "real" ) {
-    if ( watcherRealGeometry_.check( iSetup ) ) {
-      iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );
-      printGeometry( *geometry, iEvent );
+  else if (geometryType_ == "real") {
+    if (watcherRealGeometry_.check(iSetup)) {
+      iSetup.get<VeryForwardRealGeometryRecord>().get(geometry);
+      printGeometry(*geometry, iEvent);
     }
     return;
   }
 
-  else if ( geometryType_ == "misaligned" ) {
-    if ( watcherMisalignedGeometry_.check( iSetup ) ) {
-      iSetup.get<VeryForwardMisalignedGeometryRecord>().get( geometry );
-      printGeometry( *geometry, iEvent );
+  else if (geometryType_ == "misaligned") {
+    if (watcherMisalignedGeometry_.check(iSetup)) {
+      iSetup.get<VeryForwardMisalignedGeometryRecord>().get(geometry);
+      printGeometry(*geometry, iEvent);
     }
     return;
   }
@@ -98,43 +94,41 @@ CTPPSGeometryInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 
 //----------------------------------------------------------------------------------------------------
 
-std::string
-CTPPSGeometryInfo::formatDetId( const CTPPSDetId &id, bool printDetails )
-{
+std::string CTPPSGeometryInfo::formatDetId(const CTPPSDetId& id, bool printDetails) {
   std::ostringstream oss;
   oss << id.rawId();
 
-  const unsigned int rpDecId = id.arm()*100 + id.station()*10 + id.rp();
+  const unsigned int rpDecId = id.arm() * 100 + id.station() * 10 + id.rp();
 
-  if ( id.subdetId() == CTPPSDetId::sdTrackingStrip ) {
-    TotemRPDetId fid( id );
+  if (id.subdetId() == CTPPSDetId::sdTrackingStrip) {
+    TotemRPDetId fid(id);
     oss << " (strip RP " << std::setw(3) << rpDecId;
-    if ( printDetails )
-      oss <<  ", plane " << fid.plane();
+    if (printDetails)
+      oss << ", plane " << fid.plane();
     oss << ")";
   }
 
-  else if ( id.subdetId() == CTPPSDetId::sdTrackingPixel ) {
-    CTPPSPixelDetId fid( id );
+  else if (id.subdetId() == CTPPSDetId::sdTrackingPixel) {
+    CTPPSPixelDetId fid(id);
     oss << " (pixel RP " << std::setw(3) << rpDecId;
-    if ( printDetails )
-      oss <<  ", plane " << fid.plane();
+    if (printDetails)
+      oss << ", plane " << fid.plane();
     oss << ")";
   }
 
-  else if ( id.subdetId() == CTPPSDetId::sdTimingDiamond ) {
-    CTPPSDiamondDetId fid( id );
+  else if (id.subdetId() == CTPPSDetId::sdTimingDiamond) {
+    CTPPSDiamondDetId fid(id);
     oss << " (diamd RP " << std::setw(3) << rpDecId;
-    if ( printDetails )
-      oss <<  ", plane " << fid.plane() << ", channel " << std::setw(2) << fid.channel();
+    if (printDetails)
+      oss << ", plane " << fid.plane() << ", channel " << std::setw(2) << fid.channel();
     oss << ")";
   }
 
-  else if ( id.subdetId() == CTPPSDetId::sdTimingFastSilicon ) {
-    TotemTimingDetId fid( id );
+  else if (id.subdetId() == CTPPSDetId::sdTimingFastSilicon) {
+    TotemTimingDetId fid(id);
     oss << " (totim RP " << std::setw(3) << rpDecId;
-    if ( printDetails )
-      oss <<  ", plane " << fid.plane() << ", channel " << std::setw(2) << fid.channel();
+    if (printDetails)
+      oss << ", plane " << fid.plane() << ", channel " << std::setw(2) << fid.channel();
     oss << ")";
   }
 
@@ -143,63 +137,58 @@ CTPPSGeometryInfo::formatDetId( const CTPPSDetId &id, bool printDetails )
 
 //----------------------------------------------------------------------------------------------------
 
-void
-CTPPSGeometryInfo::printGeometry( const CTPPSGeometry& geometry, const edm::Event& event )
-{
+void CTPPSGeometryInfo::printGeometry(const CTPPSGeometry& geometry, const edm::Event& event) {
   time_t unixTime = event.time().unixTime();
   char timeStr[50];
-  strftime( timeStr, 50, "%F %T", localtime( &unixTime ) );
+  strftime(timeStr, 50, "%F %T", localtime(&unixTime));
 
   std::ostringstream oss;
 
   // RP geometry
-  if ( printRPInfo_ ) {
+  if (printRPInfo_) {
     oss << "* RPs:\n"
         << "    ce: RP center in global coordinates, in mm\n";
 
-    for ( auto it = geometry.beginRP(); it != geometry.endRP(); ++it ) {
-      const DetGeomDesc::Translation &t = it->second->translation();
+    for (auto it = geometry.beginRP(); it != geometry.endRP(); ++it) {
+      const DetGeomDesc::Translation& t = it->second->translation();
 
-      oss << formatDetId( CTPPSDetId( it->first ), false )
-        << std::fixed << std::setprecision( 3 ) << std::showpos
-        << " | ce=(" << t.x() << ", " << t.y() << ", " << t.z() << ")\n";
+      oss << formatDetId(CTPPSDetId(it->first), false) << std::fixed << std::setprecision(3) << std::showpos
+          << " | ce=(" << t.x() << ", " << t.y() << ", " << t.z() << ")\n";
     }
 
     edm::LogVerbatim("CTPPSGeometryInfo") << oss.str();
   }
 
   // sensor geometry
-  if ( printSensorInfo_ ) {
+  if (printSensorInfo_) {
     oss << "* sensors:\n"
-      << "    ce: sensor center in global coordinates, in mm\n"
-      << "    a1: local axis (1, 0, 0) in global coordinates\n"
-      << "    a2: local axis (0, 1, 0) in global coordinates\n"
-      << "    a3: local axis (0, 0, 1) in global coordinates\n";
+        << "    ce: sensor center in global coordinates, in mm\n"
+        << "    a1: local axis (1, 0, 0) in global coordinates\n"
+        << "    a2: local axis (0, 1, 0) in global coordinates\n"
+        << "    a3: local axis (0, 0, 1) in global coordinates\n";
 
-    for ( auto it = geometry.beginSensor(); it != geometry.endSensor(); ++it ) {
-      CTPPSDetId detId( it->first );
+    for (auto it = geometry.beginSensor(); it != geometry.endSensor(); ++it) {
+      CTPPSDetId detId(it->first);
 
-      const CLHEP::Hep3Vector gl_o  = geometry.localToGlobal( detId, CLHEP::Hep3Vector( 0, 0, 0 ) );
-      const CLHEP::Hep3Vector gl_a1 = geometry.localToGlobal( detId, CLHEP::Hep3Vector( 1, 0, 0 ) ) - gl_o;
-      const CLHEP::Hep3Vector gl_a2 = geometry.localToGlobal( detId, CLHEP::Hep3Vector( 0, 1, 0 ) ) - gl_o;
-      const CLHEP::Hep3Vector gl_a3 = geometry.localToGlobal( detId, CLHEP::Hep3Vector( 0, 0, 1 ) ) - gl_o;
+      const CLHEP::Hep3Vector gl_o = geometry.localToGlobal(detId, CLHEP::Hep3Vector(0, 0, 0));
+      const CLHEP::Hep3Vector gl_a1 = geometry.localToGlobal(detId, CLHEP::Hep3Vector(1, 0, 0)) - gl_o;
+      const CLHEP::Hep3Vector gl_a2 = geometry.localToGlobal(detId, CLHEP::Hep3Vector(0, 1, 0)) - gl_o;
+      const CLHEP::Hep3Vector gl_a3 = geometry.localToGlobal(detId, CLHEP::Hep3Vector(0, 0, 1)) - gl_o;
 
-      oss << formatDetId( detId )
-        << std::fixed << std::setprecision( 3 ) << std::showpos
-        << " | ce=(" << gl_o.x() << ", " << gl_o.y() << ", " << gl_o.z() << ")"
-        << " | a1=(" << gl_a1.x() << ", " << gl_a1.y() << ", " << gl_a1.z() << ")"
-        << " | a2=(" << gl_a2.x() << ", " << gl_a2.y() << ", " << gl_a2.z() << ")"
-        << " | a3=(" << gl_a3.x() << ", " << gl_a3.y() << ", " << gl_a3.z() << ")\n";
+      oss << formatDetId(detId) << std::fixed << std::setprecision(3) << std::showpos << " | ce=(" << gl_o.x() << ", "
+          << gl_o.y() << ", " << gl_o.z() << ")"
+          << " | a1=(" << gl_a1.x() << ", " << gl_a1.y() << ", " << gl_a1.z() << ")"
+          << " | a2=(" << gl_a2.x() << ", " << gl_a2.y() << ", " << gl_a2.z() << ")"
+          << " | a3=(" << gl_a3.x() << ", " << gl_a3.y() << ", " << gl_a3.z() << ")\n";
     }
   }
 
-  edm::LogInfo("CTPPSGeometryInfo")
-    << "New " << geometryType_ << " geometry found in run="
-    << event.id().run() << ", event=" << event.id().event() << ", UNIX timestamp=" << unixTime
-    << " (" << timeStr << ")\n"
-    << oss.str();
+  edm::LogInfo("CTPPSGeometryInfo") << "New " << geometryType_ << " geometry found in run=" << event.id().run()
+                                    << ", event=" << event.id().event() << ", UNIX timestamp=" << unixTime << " ("
+                                    << timeStr << ")\n"
+                                    << oss.str();
 }
 
 //----------------------------------------------------------------------------------------------------
 
-DEFINE_FWK_MODULE( CTPPSGeometryInfo );
+DEFINE_FWK_MODULE(CTPPSGeometryInfo);

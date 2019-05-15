@@ -1,5 +1,5 @@
 #ifndef Geometry_TrackerNumberingBuilder_DDDCmsTrackerContruction_H
-# define Geometry_TrackerNumberingBuilder_DDDCmsTrackerContruction_H
+#define Geometry_TrackerNumberingBuilder_DDDCmsTrackerContruction_H
 
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
 #include "FWCore/ParameterSet/interface/types.h"
@@ -14,15 +14,13 @@ class DDCompactView;
  * then call subdet builders
  */
 
-class DDDCmsTrackerContruction
-{
+class DDDCmsTrackerContruction {
 public:
-  DDDCmsTrackerContruction( void );
-  const GeometricDet* construct( const DDCompactView* cpv, std::vector<int> detidShifts);
-  
-protected:
+  DDDCmsTrackerContruction(void);
+  const GeometricDet* construct(const DDCompactView* cpv, std::vector<int> detidShifts);
 
-  std::string attribute;  
+protected:
+  std::string attribute;
   CmsTrackerStringToEnum theCmsTrackerStringToEnum;
 };
 

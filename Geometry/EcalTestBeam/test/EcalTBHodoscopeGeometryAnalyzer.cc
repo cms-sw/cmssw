@@ -2,7 +2,7 @@
 //
 // Package:    EcalTBHodoscopeGeometryAnalyzer
 // Class:      EcalTBHodoscopeGeometryAnalyzer
-// 
+//
 /**\class EcalTBHodoscopeGeometryAnalyzer EcalTBHodoscopeGeometryAnalyzer.cc test/EcalTBHodoscopeGeometryAnalyzer/src/EcalTBHodoscopeGeometryAnalyzer.cc
 
  Description: <one line class summary>
@@ -11,8 +11,6 @@
      <Notes on implementation>
 */
 //
-
-
 
 // system include files
 #include <memory>
@@ -41,10 +39,9 @@
 // class decleration
 //
 
-class EcalTBHodoscopeGeometryAnalyzer : public edm::one::EDAnalyzer<>
-{
+class EcalTBHodoscopeGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  explicit EcalTBHodoscopeGeometryAnalyzer( const edm::ParameterSet& );
+  explicit EcalTBHodoscopeGeometryAnalyzer(const edm::ParameterSet&);
   ~EcalTBHodoscopeGeometryAnalyzer() override;
 
   void beginJob() override {}
@@ -52,16 +49,15 @@ public:
   void endJob() override {}
 
 private:
-
   void build(const CaloGeometry& cg, DetId::Detector det, int subdetn);
 
-  CLHEP::HepRotation * fromCMStoTB( const double & myEta , const double & myPhi ) const;
+  CLHEP::HepRotation* fromCMStoTB(const double& myEta, const double& myPhi) const;
 
   int pass_;
 
   double eta_;
   double phi_;
-  CLHEP::HepRotation * fromCMStoTB_;
+  CLHEP::HepRotation* fromCMStoTB_;
 
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
 };
@@ -77,47 +73,40 @@ private:
 //
 // constructors and destructor
 //
-EcalTBHodoscopeGeometryAnalyzer::EcalTBHodoscopeGeometryAnalyzer( const edm::ParameterSet& iConfig )
-{
-   //now do what ever initialization is needed
-  pass_=0;
+EcalTBHodoscopeGeometryAnalyzer::EcalTBHodoscopeGeometryAnalyzer(const edm::ParameterSet& iConfig) {
+  //now do what ever initialization is needed
+  pass_ = 0;
 
-  eta_ = iConfig.getUntrackedParameter<double>("eta",0.971226);
-  phi_ = iConfig.getUntrackedParameter<double>("phi",0.115052);
+  eta_ = iConfig.getUntrackedParameter<double>("eta", 0.971226);
+  phi_ = iConfig.getUntrackedParameter<double>("phi", 0.115052);
 
-  fromCMStoTB_ = fromCMStoTB( eta_ , phi_ );
+  fromCMStoTB_ = fromCMStoTB(eta_, phi_);
 
   geometryToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{});
 }
 
-
-EcalTBHodoscopeGeometryAnalyzer::~EcalTBHodoscopeGeometryAnalyzer()
-{
+EcalTBHodoscopeGeometryAnalyzer::~EcalTBHodoscopeGeometryAnalyzer() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
   delete fromCMStoTB_;
 }
 
-
 void EcalTBHodoscopeGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detector det, int subdetn) {
-  const CaloSubdetectorGeometry* geom(cg.getSubdetectorGeometry(det,subdetn));
-  
-  int n=0;
-  const std::vector<DetId>& ids=geom->getValidDetIds(det,subdetn);
+  const CaloSubdetectorGeometry* geom(cg.getSubdetectorGeometry(det, subdetn));
+
+  int n = 0;
+  const std::vector<DetId>& ids = geom->getValidDetIds(det, subdetn);
   for (auto id : ids) {
     n++;
-    auto cell=geom->getGeometry(id);
-    if (det == DetId::Ecal)
-      {
-        if (subdetn == EcalLaserPnDiode) 
-          {
+    auto cell = geom->getGeometry(id);
+    if (det == DetId::Ecal) {
+      if (subdetn == EcalLaserPnDiode) {
+        CLHEP::Hep3Vector thisCellPos(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
+        CLHEP::Hep3Vector rotCellPos = (*fromCMStoTB_) * thisCellPos;
 
-            CLHEP::Hep3Vector thisCellPos( cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z() );
-            CLHEP::Hep3Vector rotCellPos = (*fromCMStoTB_)*thisCellPos;
-
-            edm::LogInfo("EcalTBGeom") << "Fiber DetId = " << HodoscopeDetId(id) << " position =  " <<rotCellPos;
-          }
+        edm::LogInfo("EcalTBGeom") << "Fiber DetId = " << HodoscopeDetId(id) << " position =  " << rotCellPos;
       }
+    }
   }
 }
 //
@@ -125,48 +114,40 @@ void EcalTBHodoscopeGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detec
 //
 
 // ------------ method called to produce the data  ------------
-void
-EcalTBHodoscopeGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
-   std::cout << "Here I am " << std::endl;
+void EcalTBHodoscopeGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  std::cout << "Here I am " << std::endl;
 
-   auto const pG = iSetup.getData(geometryToken_);
-   //
-   // get the ecal & hcal geometry
-   //
+  auto const pG = iSetup.getData(geometryToken_);
+  //
+  // get the ecal & hcal geometry
+  //
 
-   if (pass_==0) {
-     build(pG,DetId::Ecal,EcalLaserPnDiode);
-   }
+  if (pass_ == 0) {
+    build(pG, DetId::Ecal, EcalLaserPnDiode);
+  }
 
-   pass_++;
-      
+  pass_++;
 }
 
-
-CLHEP::HepRotation * EcalTBHodoscopeGeometryAnalyzer::fromCMStoTB( const double & myEta , const double & myPhi ) const
-{
-
-  double myTheta = 2.0*atan(exp(-myEta));
+CLHEP::HepRotation* EcalTBHodoscopeGeometryAnalyzer::fromCMStoTB(const double& myEta, const double& myPhi) const {
+  double myTheta = 2.0 * atan(exp(-myEta));
 
   // rotation matrix to move from the CMS reference frame to the test beam one
-  
-  CLHEP::HepRotation * CMStoTB = new CLHEP::HepRotation();
-  
-  double angle1 = 90.*deg - myPhi;
-  CLHEP::HepRotationZ * r1 = new CLHEP::HepRotationZ(angle1);
+
+  CLHEP::HepRotation* CMStoTB = new CLHEP::HepRotation();
+
+  double angle1 = 90. * deg - myPhi;
+  CLHEP::HepRotationZ* r1 = new CLHEP::HepRotationZ(angle1);
   double angle2 = myTheta;
-  CLHEP::HepRotationX * r2 = new CLHEP::HepRotationX(angle2);
-  double angle3 = 90.*deg;
-  CLHEP::HepRotationZ * r3 = new CLHEP::HepRotationZ(angle3);
+  CLHEP::HepRotationX* r2 = new CLHEP::HepRotationX(angle2);
+  double angle3 = 90. * deg;
+  CLHEP::HepRotationZ* r3 = new CLHEP::HepRotationZ(angle3);
   (*CMStoTB) *= (*r3);
   (*CMStoTB) *= (*r2);
   (*CMStoTB) *= (*r1);
 
   return CMStoTB;
-
 }
-
 
 //define this as a plug-in
 

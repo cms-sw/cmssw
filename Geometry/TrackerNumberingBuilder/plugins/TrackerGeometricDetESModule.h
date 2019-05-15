@@ -6,26 +6,21 @@
 namespace edm {
   class ConfigurationDescriptions;
   class ParameterSet;
-}
+}  // namespace edm
 
 class GeometricDet;
 class IdealGeometryRecord;
 
-class TrackerGeometricDetESModule : public edm::ESProducer
-{
+class TrackerGeometricDetESModule : public edm::ESProducer {
 public:
-  TrackerGeometricDetESModule( const edm::ParameterSet & p );
-  ~TrackerGeometricDetESModule( void ) override; 
-  std::unique_ptr<GeometricDet> produce( const IdealGeometryRecord & );
+  TrackerGeometricDetESModule(const edm::ParameterSet& p);
+  ~TrackerGeometricDetESModule(void) override;
+  std::unique_ptr<GeometricDet> produce(const IdealGeometryRecord&);
 
-  static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   bool fromDDD_;
 };
 
 #endif
-
-
-
-

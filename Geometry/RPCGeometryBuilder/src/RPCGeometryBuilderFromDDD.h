@@ -20,23 +20,19 @@ class RPCDetId;
 class RPCRoll;
 class MuonDDDConstants;
 
-class RPCGeometryBuilderFromDDD 
-{ 
- public:
-
+class RPCGeometryBuilderFromDDD {
+public:
   RPCGeometryBuilderFromDDD(bool comp11);
 
   ~RPCGeometryBuilderFromDDD();
 
   RPCGeometry* build(const DDCompactView* cview, const MuonDDDConstants& muonConstants);
 
-
- private:
+private:
   RPCGeometry* buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants);
-  std::map<RPCDetId,std::list<RPCRoll *> > chids;
+  std::map<RPCDetId, std::list<RPCRoll*> > chids;
 
   bool theComp11Flag;
-
 };
 
 #endif

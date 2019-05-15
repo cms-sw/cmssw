@@ -7,21 +7,17 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDetExtra.h"
 
-class  TrackerGeometricDetExtraESModule: public edm::ESProducer {
+class TrackerGeometricDetExtraESModule : public edm::ESProducer {
+public:
+  TrackerGeometricDetExtraESModule(const edm::ParameterSet& p);
+  ~TrackerGeometricDetExtraESModule() override;
+  std::unique_ptr<std::vector<GeometricDetExtra> > produce(const IdealGeometryRecord&);
 
- public:
-  TrackerGeometricDetExtraESModule(const edm::ParameterSet & p);
-  ~TrackerGeometricDetExtraESModule() override; 
-  std::unique_ptr<std::vector<GeometricDetExtra> > produce(const IdealGeometryRecord &);
-
- protected:
-
- private:
-  void putOne(std::vector<GeometricDetExtra> & gde, const GeometricDet* gd, const DDExpandedView& ev, int lev );
+protected:
+private:
+  void putOne(std::vector<GeometricDetExtra>& gde, const GeometricDet* gd, const DDExpandedView& ev, int lev);
 
   bool fromDDD_;
-
 };
 
 #endif
-

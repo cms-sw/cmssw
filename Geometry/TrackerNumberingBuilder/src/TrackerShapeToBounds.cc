@@ -7,7 +7,7 @@
 #include <iostream>
 //#define DEBUG
 
-  /* find out about the rotations of the detectors:
+/* find out about the rotations of the detectors:
        
   (the code should also find out about other detector-types (pixes-fw, ...)	  	
   currently not implemented, of course)
@@ -27,48 +27,51 @@
   2. Define a rotation which reorientates the box to Orca-conventions
   in the local frame, if necessary
   3. combine the global rotation from DDD with the rotation defined in 2.   
-  */	   
+  */
 
-Bounds * TrackerShapeToBounds::buildBounds(const DDSolidShape & _shape, const std::vector<double>& _par) const{
-  switch(_shape){
-  case DDSolidShape::ddbox: return buildBox(_par);
-    break;
-  case DDSolidShape::ddtrap: return buildTrap(_par);
-    break;
-  case DDSolidShape::ddtubs: return buildOpen(_par);
-    break;
-  case DDSolidShape::ddpolycone_rrz: return buildOpen(_par);
-    break;
-  case DDSolidShape::ddsubtraction: return buildOpen(_par);
-    break;
-  default:
-    std::cout<<"Wrong DDshape to build...."<<DDSolidShapesName::name(_shape)<<std::endl; 
-    Bounds* bounds = nullptr;
-    return bounds;
+Bounds* TrackerShapeToBounds::buildBounds(const DDSolidShape& _shape, const std::vector<double>& _par) const {
+  switch (_shape) {
+    case DDSolidShape::ddbox:
+      return buildBox(_par);
+      break;
+    case DDSolidShape::ddtrap:
+      return buildTrap(_par);
+      break;
+    case DDSolidShape::ddtubs:
+      return buildOpen(_par);
+      break;
+    case DDSolidShape::ddpolycone_rrz:
+      return buildOpen(_par);
+      break;
+    case DDSolidShape::ddsubtraction:
+      return buildOpen(_par);
+      break;
+    default:
+      std::cout << "Wrong DDshape to build...." << DDSolidShapesName::name(_shape) << std::endl;
+      Bounds* bounds = nullptr;
+      return bounds;
   }
-}      
+}
 
-Bounds * TrackerShapeToBounds::buildBox(const std::vector<double>& paras ) const{
+Bounds* TrackerShapeToBounds::buildBox(const std::vector<double>& paras) const {
   int indexX = 0;
-  int indexY = 1; 
+  int indexY = 1;
   int indexZ = 2;
   Bounds* bounds = nullptr;
-  
-  if(paras[1]<paras[0]&&paras[0]<paras[2]){
-    indexX=0;
-    indexY=2;
-    indexZ=1;
+
+  if (paras[1] < paras[0] && paras[0] < paras[2]) {
+    indexX = 0;
+    indexY = 2;
+    indexZ = 1;
   }
-  
-  bounds = new RectangularPlaneBounds(paras[indexX]/cm, // width - shorter side 
-				      paras[indexY]/cm, // length - longer side
-				      paras[indexZ]/cm);// thickness
+
+  bounds = new RectangularPlaneBounds(paras[indexX] / cm,   // width - shorter side
+                                      paras[indexY] / cm,   // length - longer side
+                                      paras[indexZ] / cm);  // thickness
   return bounds;
-} 
+}
 
-Bounds * TrackerShapeToBounds::buildTrap(const std::vector<double>& paras ) const{
-
-
+Bounds* TrackerShapeToBounds::buildTrap(const std::vector<double>& paras) const {
   Bounds* bounds = nullptr;
   /*
     TrapezoidalPlaneBounds (float be, float te, float a, float t)
@@ -94,24 +97,16 @@ Bounds * TrackerShapeToBounds::buildTrap(const std::vector<double>& paras ) cons
     if indexX==0, indexY==1, indexZ==2, then everything is ok and
     the following orcaCorrection-rotation will be a unit-matrix.
   */
-  
 
-  if(paras[0]<5){
-    bounds = new TrapezoidalPlaneBounds(paras[4]/cm,
-					paras[9]/cm,
-					paras[3]/cm,
-					paras[0]/cm);
-  }else if(paras[0]>paras[3]){
-    bounds = new TrapezoidalPlaneBounds(paras[4]/cm,
-					paras[9]/cm,
-					paras[0]/cm,
-					paras[3]/cm);
-  }  
+  if (paras[0] < 5) {
+    bounds = new TrapezoidalPlaneBounds(paras[4] / cm, paras[9] / cm, paras[3] / cm, paras[0] / cm);
+  } else if (paras[0] > paras[3]) {
+    bounds = new TrapezoidalPlaneBounds(paras[4] / cm, paras[9] / cm, paras[0] / cm, paras[3] / cm);
+  }
   return bounds;
-} 
+}
 
-
-Bounds * TrackerShapeToBounds::buildOpen(const std::vector<double>& paras ) const{  
-  OpenBounds*  bounds = new OpenBounds();
+Bounds* TrackerShapeToBounds::buildOpen(const std::vector<double>& paras) const {
+  OpenBounds* bounds = new OpenBounds();
   return bounds;
-} 
+}

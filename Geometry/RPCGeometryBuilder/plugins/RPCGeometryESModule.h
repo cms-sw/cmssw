@@ -17,17 +17,15 @@
 class RPCGeometryESModule : public edm::ESProducer {
 public:
   /// Constructor
-  RPCGeometryESModule(const edm::ParameterSet & p);
+  RPCGeometryESModule(const edm::ParameterSet& p);
 
   /// Destructor
   ~RPCGeometryESModule() override;
 
   /// Produce RPCGeometry.
-  std::unique_ptr<RPCGeometry>  produce(const MuonGeometryRecord & record);
+  std::unique_ptr<RPCGeometry> produce(const MuonGeometryRecord& record);
 
-private:  
-
-  bool comp11,useDDD;
-
+private:
+  bool comp11, useDDD;
 };
 #endif
