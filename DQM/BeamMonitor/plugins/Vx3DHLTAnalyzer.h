@@ -10,7 +10,6 @@
   \Date $ Date: 2010/23/02 13:15:00 $
 */
 
-
 #include <memory>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -31,49 +30,42 @@
 #include <fstream>
 #include <vector>
 
-
 // #################
 // # Fit variables #
 // #################
 #define DIM 3
-typedef struct
-{
+typedef struct {
   double x;
   double y;
   double z;
   double Covariance[DIM][DIM];
 } VertexType;
 
+class Vx3DHLTAnalyzer : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+public:
+  Vx3DHLTAnalyzer(const edm::ParameterSet&);
+  ~Vx3DHLTAnalyzer() override;
 
-class Vx3DHLTAnalyzer : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements>
-{
-
-
- public:
-  Vx3DHLTAnalyzer  (const edm::ParameterSet&);
-  ~Vx3DHLTAnalyzer () override;
-
- protected:
+protected:
   double Gauss3DFunc(const double* par);
 
- private:
-  void analyze              (const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  void beginLuminosityBlock (const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) override;
-  void endLuminosityBlock   (const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) override;
-  void bookHistograms       (DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+private:
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) override;
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-  unsigned int HitCounter (const edm::Event& iEvent);
-  std::string formatTime (const time_t& t);
-  int MyFit (std::vector<double>* vals);
-  void reset (std::string ResetType);
-  void writeToFile (std::vector<double>* vals,
-		    edm::TimeValue_t BeginTimeOfFit,
-		    edm::TimeValue_t EndTimeOfFit,
-		    unsigned int BeginLumiOfFit,
-		    unsigned int EndLumiOfFit,
-		    int dataType);
-  void printFitParams (const std::vector<double>& fitResults);
-
+  unsigned int HitCounter(const edm::Event& iEvent);
+  std::string formatTime(const time_t& t);
+  int MyFit(std::vector<double>* vals);
+  void reset(std::string ResetType);
+  void writeToFile(std::vector<double>* vals,
+                   edm::TimeValue_t BeginTimeOfFit,
+                   edm::TimeValue_t EndTimeOfFit,
+                   unsigned int BeginLumiOfFit,
+                   unsigned int EndLumiOfFit,
+                   int dataType);
+  void printFitParams(const std::vector<double>& fitResults);
 
   // #######################
   // # cfg file parameters #
@@ -92,11 +84,10 @@ class Vx3DHLTAnalyzer : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElement
   double yStep;
   double zRange;
   double zStep;
-  double VxErrCorr; // Coefficient to compensate the under-estimation of the vertex errors
+  double VxErrCorr;  // Coefficient to compensate the under-estimation of the vertex errors
   double minVxDoF;
   double minVxWgt;
   std::string fileName;
-
 
   // ##############
   // # Histograms #
@@ -104,18 +95,18 @@ class Vx3DHLTAnalyzer : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElement
   MonitorElement* mXlumi;
   MonitorElement* mYlumi;
   MonitorElement* mZlumi;
-  
+
   MonitorElement* sXlumi;
   MonitorElement* sYlumi;
   MonitorElement* sZlumi;
-  
+
   MonitorElement* dxdzlumi;
   MonitorElement* dydzlumi;
-  
+
   MonitorElement* Vx_X;
   MonitorElement* Vx_Y;
   MonitorElement* Vx_Z;
-  
+
   MonitorElement* Vx_ZX;
   MonitorElement* Vx_ZY;
   MonitorElement* Vx_XY;
@@ -135,13 +126,12 @@ class Vx3DHLTAnalyzer : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElement
   MonitorElement* goodVxCounter;
   MonitorElement* hitCounter;
   MonitorElement* statusCounter;
-  
+
   MonitorElement* reportSummary;
   MonitorElement* reportSummaryMap;
-  
+
   MonitorElement* fitResults;
-  
-  
+
   // ######################
   // # Internal variables #
   // ######################
@@ -162,10 +152,10 @@ class Vx3DHLTAnalyzer : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElement
 
   std::vector<VertexType> Vertices;
   bool considerVxCovariance;
-  unsigned int counterVx; // Counts the number of vertices taken into account for the fit
-  double maxTransRadius;  // Max transverse radius in which the vertices must be [cm]
-  double maxLongLength;   // Max longitudinal length in which the vertices must be [cm]
-  double xPos,yPos,zPos;  // x,y,z approximate positions of the beam spot
+  unsigned int counterVx;   // Counts the number of vertices taken into account for the fit
+  double maxTransRadius;    // Max transverse radius in which the vertices must be [cm]
+  double maxLongLength;     // Max longitudinal length in which the vertices must be [cm]
+  double xPos, yPos, zPos;  // x,y,z approximate positions of the beam spot
   double pi;
 };
 

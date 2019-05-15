@@ -1,7 +1,6 @@
 #ifndef DTSummaryClients_H
 #define DTSummaryClients_H
 
-
 /** \class DTSummaryClients
  * *
  *  DQM Client for global summary
@@ -12,7 +11,6 @@
  *
  *   
  */
-
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -33,31 +31,30 @@
 #include <memory>
 #include <string>
 
-class DTSummaryClients: public DQMEDHarvester{
-
+class DTSummaryClients : public DQMEDHarvester {
 public:
-
   /// Constructor
-  DTSummaryClients(const edm::ParameterSet& ps);
-  
+  DTSummaryClients(const edm::ParameterSet &ps);
+
   /// Destructor
   ~DTSummaryClients() override;
 
 protected:
-
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;
 
 private:
-
   int nevents;
 
-  MonitorElement*  summaryReport;
-  MonitorElement*  summaryReportMap;
-  std::vector<MonitorElement*>  theSummaryContents;
+  MonitorElement *summaryReport;
+  MonitorElement *summaryReportMap;
+  std::vector<MonitorElement *> theSummaryContents;
 
-    bool bookingdone;
+  bool bookingdone;
 };
 
 #endif

@@ -27,68 +27,62 @@ class SiStripEventSummary;
    @class SiStripCommissioningSource
 */
 class SiStripCommissioningSource : public edm::EDAnalyzer {
-  
- public: // ---------- Public interface ----------
-  
+public:  // ---------- Public interface ----------
   /** Map of task objects, identified through FedChanelId */
   typedef std::map<unsigned int, CommissioningTask*> TaskMap;
   typedef std::vector<CommissioningTask*> VecOfTasks;
   typedef std::vector<VecOfTasks> VecOfVecOfTasks;
-  
-  SiStripCommissioningSource( const edm::ParameterSet& );
-  ~SiStripCommissioningSource() override;
-  
-  void beginRun( edm::Run const &, const edm::EventSetup & ) override;
-  void analyze( const edm::Event &, const edm::EventSetup & ) override;
-  void endJob() override;
-  
- private: // ---------- Private methods ----------
 
+  SiStripCommissioningSource(const edm::ParameterSet&);
+  ~SiStripCommissioningSource() override;
+
+  void beginRun(edm::Run const&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
+private:  // ---------- Private methods ----------
   /** Private default constructor. */
   SiStripCommissioningSource() = delete;
-  
+
   /** */
-  DQMStore* const dqm( std::string method = "" ) const;
-  
+  DQMStore* const dqm(std::string method = "") const;
+
   /** */
   void createRunNumber();
 
   /** */
-  void createTask( const SiStripEventSummary* const, const edm::EventSetup& );
-  
+  void createTask(const SiStripEventSummary* const, const edm::EventSetup&);
+
   /** */
   void createCablingTasks();
 
   /** */
-  void createTasks( sistrip::RunType, const edm::EventSetup& );
-  
+  void createTasks(sistrip::RunType, const edm::EventSetup&);
+
   /** */
   void clearCablingTasks();
 
   /** */
   void clearTasks();
-  
-  /** */
-  void fillCablingHistos( const SiStripEventSummary* const,
-			  const edm::DetSetVector<SiStripRawDigi>& );
 
   /** */
-  void fillHistos( const SiStripEventSummary* const,
-		   const edm::DetSetVector<SiStripRawDigi>&, 
-		   const edm::DetSetVector<SiStripRawDigi>& = edm::DetSetVector<SiStripRawDigi>(),
-		   const edmNew::DetSetVector<SiStripCluster> & = edmNew::DetSetVector<SiStripCluster>());
-  
+  void fillCablingHistos(const SiStripEventSummary* const, const edm::DetSetVector<SiStripRawDigi>&);
+
+  /** */
+  void fillHistos(const SiStripEventSummary* const,
+                  const edm::DetSetVector<SiStripRawDigi>&,
+                  const edm::DetSetVector<SiStripRawDigi>& = edm::DetSetVector<SiStripRawDigi>(),
+                  const edmNew::DetSetVector<SiStripCluster>& = edmNew::DetSetVector<SiStripCluster>());
+
   /** */
   void remove();
-  
+
   /** */
-  void directory( std::stringstream&, 
-		  uint32_t run_number = 0 );
-  
+  void directory(std::stringstream&, uint32_t run_number = 0);
+
   /** */
   //void cablingForConnectionRun( const sistrip::RunType& ); //@@ do not use!
 
-  
   // ---------- DQM fwk and cabling ----------
 
   /** Interface to Data Quality Monitoring framework. */
@@ -99,7 +93,7 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
 
   /** */
   SiStripFecCabling* fecCabling_;
-  
+
   // ---------- Input / output ----------
   edm::EDGetTokenT<SiStripEventSummary> inputModuleSummaryToken_;
   edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > digiVirginRawToken_;
@@ -132,10 +126,10 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   // ---------- Histogram-related ----------
 
   /** Identifies commissioning task read from cfg file. */
-  std::string taskConfigurable_; 
+  std::string taskConfigurable_;
 
   /** Identifies commissioning task. */
-  sistrip::RunType task_; 
+  sistrip::RunType task_;
 
   /** Vector of vector of task objects (indexed using FED id.ch. */
   VecOfVecOfTasks tasks_;
@@ -148,7 +142,7 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
 
   /** Flag to indicate whether task is FED cabling or not. */
   bool cablingTask_;
-  
+
   /** Update frequency for histograms (ignored for cabling). */
   int updateFreq_;
 
@@ -160,9 +154,6 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
 
   /** parameters to pass to the tasks */
   edm::ParameterSet parameters_;
-
-
 };
 
-#endif // DQM_SiStripCommissioningSources_SiStripCommissioningSource_H
-
+#endif  // DQM_SiStripCommissioningSources_SiStripCommissioningSource_H

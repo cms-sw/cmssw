@@ -5,73 +5,67 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/EcalMapping/interface/ESElectronicsMapper.h" // definition in line 75
+#include "Geometry/EcalMapping/interface/ESElectronicsMapper.h"  // definition in line 75
 
 class DQMStore;
 class MonitorElement;
 
-class ESDaqInfoTask: public edm::EDAnalyzer{
+class ESDaqInfoTask : public edm::EDAnalyzer {
+public:
+  /// Constructor
+  ESDaqInfoTask(const edm::ParameterSet& ps);
 
-   public:
+  /// Destructor
+  ~ESDaqInfoTask() override;
 
-      /// Constructor
-      ESDaqInfoTask(const edm::ParameterSet& ps);
+protected:
+  /// Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-      /// Destructor
-      ~ESDaqInfoTask() override;
+  /// BeginJob
+  void beginJob(void) override;
 
-   protected:
+  /// EndJob
+  void endJob(void) override;
 
-      /// Analyze
-      void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  /// BeginLuminosityBlock
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) override;
 
-      /// BeginJob
-      void beginJob(void) override;
+  /// Reset
+  void reset(void);
 
-      /// EndJob
-      void endJob(void) override;
+  /// Cleanup
+  void cleanup(void);
 
-      /// BeginLuminosityBlock
-      void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup) override;
+private:
+  DQMStore* dqmStore_;
 
-      /// Reset
-      void reset(void);
+  std::string prefixME_;
 
-      /// Cleanup
-      void cleanup(void);
-        
-   private:
-        
-      DQMStore* dqmStore_;
+  bool enableCleanup_;
 
-      std::string prefixME_;
+  bool mergeRuns_;
 
-      bool enableCleanup_;
+  MonitorElement* meESDaqFraction_;
+  MonitorElement* meESDaqActive_[56];
+  MonitorElement* meESDaqActiveMap_;
 
-      bool mergeRuns_;
+  MonitorElement* meESDaqError_;
 
-      MonitorElement* meESDaqFraction_;
-      MonitorElement* meESDaqActive_[56];
-      MonitorElement* meESDaqActiveMap_;
+  int ESFedRangeMin_;
+  int ESFedRangeMax_;
 
-      MonitorElement* meESDaqError_;
+  ESElectronicsMapper* es_mapping_;
 
-      int ESFedRangeMin_;
-      int ESFedRangeMax_;
+  bool ESOnFed_[56];
 
-      ESElectronicsMapper * es_mapping_;
-
-      bool ESOnFed_[56];
-
-      int getFEDNumber(const int x, const int y) {
-        int iz = (x < 40)  ? 1 : 2;
-        int ip = (y >= 40) ? 1 : 2;
-        int ix = (x < 40) ? x : x - 40;
-        int iy = (y < 40) ? y :y - 40;
-        return (*es_mapping_).getFED( iz, ip, ix + 1, iy + 1);
-      }
-  
+  int getFEDNumber(const int x, const int y) {
+    int iz = (x < 40) ? 1 : 2;
+    int ip = (y >= 40) ? 1 : 2;
+    int ix = (x < 40) ? x : x - 40;
+    int iy = (y < 40) ? y : y - 40;
+    return (*es_mapping_).getFED(iz, ip, ix + 1, iy + 1);
+  }
 };
 
 #endif
-
