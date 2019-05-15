@@ -397,7 +397,7 @@ namespace mathSSE {
 
 #ifdef  CMS_USE_AVX
 }// namespace mathSSE
-#include "AVXVec.h"
+#include "private/AVXVec.h"
 
 namespace mathSSE {
 #else
