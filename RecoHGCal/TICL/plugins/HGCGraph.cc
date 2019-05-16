@@ -7,7 +7,7 @@
 #include "HGCDoublet.h"
 #include "HGCGraph.h"
 
-void HGCGraph::makeAndConnectDoublets(const std::vector<std::vector<std::vector<unsigned int>>> &h,
+void HGCGraph::makeAndConnectDoublets(const std::vector<std::vector<std::vector<unsigned int>>> &histo,
                                       int nEtaBins, int nPhiBins,
                                       const std::vector<reco::CaloCluster> &layerClusters,
                                       int deltaIEta, int deltaIPhi, float minCosTheta,
@@ -23,8 +23,8 @@ void HGCGraph::makeAndConnectDoublets(const std::vector<std::vector<std::vector<
            ++outer_layer) {
         int currentInnerLayerId = il + maxNumberOfLayers * zSide;
         int currentOuterLayerId = currentInnerLayerId + 1 + outer_layer;
-        auto &outerLayerHisto = h[currentOuterLayerId];
-        auto &innerLayerHisto = h[currentInnerLayerId];
+        auto const &outerLayerHisto = histo[currentOuterLayerId];
+        auto const &innerLayerHisto = histo[currentInnerLayerId];
 
         for (int oeta = 0; oeta < nEtaBins; ++oeta) {
           auto offset = oeta * nPhiBins;

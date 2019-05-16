@@ -11,54 +11,51 @@ from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalLayerClu
 from RecoLocalCalo.HGCalRecProducers.hgcalMultiClusters_cfi import hgcalMultiClusters
 
 
-from RecoHGCal.TICL.tracksters_cfi import tracksters
-from RecoHGCal.TICL.FilteredLayerClusters_cfi import FilteredLayerClusters
-from RecoHGCal.TICL.multiClustersFromTracksters_cfi import multiClustersFromTracksters
+from RecoHGCal.TICL.trackstersProducer_cfi import trackstersProducer
+from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer
+from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClustersFromTrackstersProducer
 
 
 def TICL_iterations_withReco(process):
   process.FEVTDEBUGHLTEventContent.outputCommands.extend(['keep *_MultiClustersFromTracksters*_*_*'])
 
-  process.FilteredLayerClustersMIP = FilteredLayerClusters.clone(
-      ClusterFilter = "ClusterFilterBySize",
+  process.FilteredLayerClustersMIP = filteredLayerClustersProducer.clone(
+      clusterFilter = "ClusterFilterBySize",
       algo_number = 8,
       max_cluster_size = 2, # inclusive
       iteration_label = "MIP"
   )
 
-  process.TrackstersMIP = tracksters.clone(
-      original_layerclusters_mask = cms.InputTag("hgcalLayerClusters", "InitialLayerClustersMask"),
+  process.TrackstersMIP = trackstersProducer.clone(
       filtered_layerclusters_mask = cms.InputTag("FilteredLayerClustersMIP", "MIP"),
-      algo_verbosity = 0,
       missing_layers = 3,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.99, # ~10 degrees
       min_cos_pointing = 0.9
   )
 
-  process.MultiClustersFromTrackstersMIP = multiClustersFromTracksters.clone(
+  process.MultiClustersFromTrackstersMIP = multiClustersFromTrackstersProducer.clone(
       label = "MIPMultiClustersFromTracksterByCA",
-      Tracksters = cms.InputTag("TrackstersMIP", "TrackstersByCA")
+      Tracksters = "TrackstersMIP"
   )
 
-  process.FilteredLayerClusters = FilteredLayerClusters.clone(
+  process.FilteredLayerClusters = filteredLayerClustersProducer.clone(
       algo_number = 8,
       iteration_label = "algo8",
-      LayerClustersInputMask = cms.InputTag("TrackstersMIP")
+      LayerClustersInputMask = "TrackstersMIP"
   )
 
-  process.Tracksters = tracksters.clone(
-      original_layerclusters_mask = cms.InputTag("TrackstersMIP"),
+  process.Tracksters = trackstersProducer.clone(
+      original_layerclusters_mask = "TrackstersMIP",
       filtered_layerclusters_mask = cms.InputTag("FilteredLayerClusters", "algo8"),
-      algo_verbosity = 0,
       missing_layers = 2,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.94, # ~20 degrees
       min_cos_pointing = 0.7
   )
 
-  process.MultiClustersFromTracksters = multiClustersFromTracksters.clone(
-      Tracksters = cms.InputTag("Tracksters", "TrackstersByCA")
+  process.MultiClustersFromTracksters = multiClustersFromTrackstersProducer.clone(
+      Tracksters = "Tracksters"
   )
 
   process.hgcalMultiClusters = hgcalMultiClusters
@@ -75,44 +72,41 @@ def TICL_iterations_withReco(process):
 def TICL_iterations(process):
   process.FEVTDEBUGHLTEventContent.outputCommands.extend(['keep *_MultiClustersFromTracksters*_*_*'])
 
-  process.FilteredLayerClustersMIP = FilteredLayerClusters.clone(
-      ClusterFilter = "ClusterFilterBySize",
+  process.FilteredLayerClustersMIP = filteredLayerClustersProducer.clone(
+      clusterFilter = "ClusterFilterBySize",
       algo_number = 8,
       max_cluster_size = 2, # inclusive
       iteration_label = "MIP"
   )
 
-  process.TrackstersMIP = tracksters.clone(
-      original_layerclusters_mask = cms.InputTag("hgcalLayerClusters", "InitialLayerClustersMask"),
+  process.TrackstersMIP = trackstersProducer.clone(
       filtered_layerclusters_mask = cms.InputTag("FilteredLayerClustersMIP", "MIP"),
-      algo_verbosity = 0,
       missing_layers = 3,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.985 # ~10 degrees
   )
 
-  process.MultiClustersFromTrackstersMIP = multiClustersFromTracksters.clone(
+  process.MultiClustersFromTrackstersMIP = multiClustersFromTrackstersProducer.clone(
       label = "MIPMultiClustersFromTracksterByCA",
-      Tracksters = cms.InputTag("TrackstersMIP", "TrackstersByCA"),
+      Tracksters = "TrackstersMIP"
   )
 
-  process.FilteredLayerClusters = FilteredLayerClusters.clone(
+  process.FilteredLayerClusters = filteredLayerClustersProducer.clone(
       algo_number = 8,
       iteration_label = "algo8"
   )
 
-  process.Tracksters = tracksters.clone(
-      original_layerclusters_mask = cms.InputTag("TrackstersMIP"),
+  process.Tracksters = trackstersProducer.clone(
+      original_layerclusters_mask = "TrackstersMIP",
       filtered_layerclusters_mask = cms.InputTag("FilteredLayerClusters", "algo8"),
-      algo_verbosity = 0,
       missing_layers = 2,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.94, # ~20 degrees
       min_cos_pointing = 0.7
   )
 
-  process.MultiClustersFromTracksters = multiClustersFromTracksters.clone(
-      Tracksters = cms.InputTag("Tracksters", "TrackstersByCA")
+  process.MultiClustersFromTracksters = multiClustersFromTrackstersProducer.clone(
+      Tracksters = "Tracksters"
   )
 
   process.HGCalUncalibRecHit = HGCalUncalibRecHit

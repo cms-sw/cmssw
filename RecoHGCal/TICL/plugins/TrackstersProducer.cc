@@ -47,7 +47,7 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps)
       ps.getParameter<edm::InputTag>("filtered_layerclusters_mask"));
   original_layerclusters_mask_token_ =
       consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_layerclusters_mask"));
-  produces<std::vector<Trackster>>("TrackstersByCA");
+  produces<std::vector<Trackster>>();
   produces<std::vector<float>>();  // Mask to be applied at the next iteration
 }
 
@@ -64,7 +64,7 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("min_cos_pointing", -1.);
   desc.add<int>("missing_layers", 0);
   desc.add<int>("min_clusters_per_ntuplet", 10);
-  descriptions.add("tracksters", desc);
+  descriptions.add("trackstersProducer", desc);
 }
 
 void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
@@ -98,6 +98,6 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     }
   }
 
-  evt.put(std::move(result), "TrackstersByCA");
+  evt.put(std::move(result));
   evt.put(std::move(output_mask));
 }
