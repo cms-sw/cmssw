@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <array>
 
-namespace hgcalTilesConstants {
+namespace hgcaltilesconstants {
 
   constexpr int32_t ceil(float num) {
     return (static_cast<float>(static_cast<int32_t>(num)) == num) ? static_cast<int32_t>(num)
@@ -20,9 +20,9 @@ namespace hgcalTilesConstants {
   constexpr float minY = -265.f;
   constexpr float maxY = 265.f;
   constexpr float tileSize = 5.f;
-  constexpr int nColumns = hgcalTilesConstants::ceil(maxX - minX / tileSize);
-  constexpr int nRows = hgcalTilesConstants::ceil(maxY - minY / tileSize);
+  constexpr int nColumns = hgcaltilesconstants::ceil(maxX - minX / tileSize);
+  constexpr int nRows = hgcaltilesconstants::ceil(maxY - minY / tileSize);
 
-}  // namespace hgcalTilesConstants
+}  // namespace hgcaltilesconstants
 
 #endif  // RecoLocalCalo_HGCalRecAlgos_interface_HGCalTilesConstants_h
