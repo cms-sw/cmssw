@@ -2,6 +2,7 @@
 #define Geometry_HGCalGeometry_CaloGeometryDBHGCal_h
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryDBEP.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
 // Specializations for HGCal
 namespace calogeometryDBEPimpl {
