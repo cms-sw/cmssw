@@ -36,7 +36,7 @@ namespace fastsim{
         BarrelSimplifiedGeometry(BarrelSimplifiedGeometry &&) = default;
 
         //! Default destructor.
-        ~BarrelSimplifiedGeometry(){};
+        ~BarrelSimplifiedGeometry() override{};
         
         //! Return radius of the barrel layer.
         /*!
