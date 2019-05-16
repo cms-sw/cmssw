@@ -9,32 +9,28 @@ class TMTQ;
 
 #define N_samples 2560
 #define N_channels 1
-#define NSIDES     2     // Number of sides
+#define NSIDES 2  // Number of sides
 
-class EcalMatacqAnalyzer: public edm::EDAnalyzer{  
-
- public:
-  
-  explicit EcalMatacqAnalyzer(const edm::ParameterSet& iConfig);  
+class EcalMatacqAnalyzer : public edm::EDAnalyzer {
+public:
+  explicit EcalMatacqAnalyzer(const edm::ParameterSet &iConfig);
   ~EcalMatacqAnalyzer() override;
-  
-  
-  void analyze( const edm::Event & e, const  edm::EventSetup& c) override;
+
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
   void beginJob() override;
   void endJob() override;
-  
-  enum VarCol  { iBlue, iRed, nColor }; 
-  enum VarSide { iSide0, iSide1, nSide }; 
-  
- private:
-    
+
+  enum VarCol { iBlue, iRed, nColor };
+  enum VarSide { iSide0, iSide1, nSide };
+
+private:
   int iEvent;
 
-//
-// Framework parameters
-//
+  //
+  // Framework parameters
+  //
 
-  double       _presample;
+  double _presample;
   unsigned int _nsamplesaftmax;
   unsigned int _noiseCut;
   unsigned int _parabnbefmax;
@@ -45,12 +41,12 @@ class EcalMatacqAnalyzer: public edm::EDAnalyzer{
   unsigned int _nevlasers;
   unsigned int _timebefmax;
   unsigned int _timeaftmax;
-  double       _cutwindow;
+  double _cutwindow;
   unsigned int _nsamplesshape;
   unsigned int _presampleshape;
   unsigned int _slide;
-  int          _fedid;
-  int          _debug;
+  int _fedid;
+  int _debug;
 
   std::string resdir_;
   std::string digiCollection_;
@@ -61,27 +57,26 @@ class EcalMatacqAnalyzer: public edm::EDAnalyzer{
   std::string outfile;
   std::string sampfile;
 
-
   // Identify run type
 
   unsigned int nSides;
   int lightside;
   int runType;
   int runNum;
-  int  dccID;
-  int  fedID;
+  int dccID;
+  int fedID;
 
   // Count Laser Events
   int laserEvents;
   bool isThereMatacq;
 
   //Declaration of leaves types
-  
-  int   event ;
-  int   color ;
-  double  matacq[N_samples]; 
-  int  maxsamp; 
-  int  nsamples; 
+
+  int event;
+  int color;
+  double matacq[N_samples];
+  int maxsamp;
+  int nsamples;
   double tt;
 
   TFile *sampFile;
@@ -95,9 +90,5 @@ class EcalMatacqAnalyzer: public edm::EDAnalyzer{
   TFile *outFile;
   int status;
   double peak, sigma, fit, ampl, trise, fwhm, fw20, fw80, ped, pedsig, ttrig, sliding;
-  TTree* mtqShape;
-
-
+  TTree *mtqShape;
 };
-
-

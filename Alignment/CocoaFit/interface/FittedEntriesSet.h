@@ -2,9 +2,9 @@
 //Id:  FittedEntriesSet.h
 //CAT: Model
 //
-//   Class to store set of fitted entries with date 
-// 
-//   History: v1.0 
+//   Class to store set of fitted entries with date
+//
+//   History: v1.0
 //   Pedro Arce
 
 #ifndef _FittedEntriesSet_HH
@@ -19,49 +19,40 @@
 //typedef MatrixMeschach ALIMatrix;
 //#endif
 
-class FittedEntriesSet
-{
-
+class FittedEntriesSet {
 public:
   //---------- Constructors / Destructor
-  FittedEntriesSet( MatrixMeschach* AtWAMatrix );
-  FittedEntriesSet( const std::vector<ALIstring>& wl );
+  FittedEntriesSet(MatrixMeschach* AtWAMatrix);
+  FittedEntriesSet(const std::vector<ALIstring>& wl);
   //---- Average a list of FittedEntriesSet's
-  FittedEntriesSet( const std::vector<FittedEntriesSet*>& vSets ); 
-  ~FittedEntriesSet(){ };
+  FittedEntriesSet(const std::vector<FittedEntriesSet*>& vSets);
+  ~FittedEntriesSet(){};
   void Fill();
   void FillEntries();
   void FillCorrelations();
-  void CreateCorrelationMatrix( const ALIuint nent );
-  void FillEntriesFromFile( const std::vector<ALIstring>& wl);
-  void FillEntriesAveragingSets( const std::vector<FittedEntriesSet*>& vSets );
+  void CreateCorrelationMatrix(const ALIuint nent);
+  void FillEntriesFromFile(const std::vector<ALIstring>& wl);
+  void FillEntriesAveragingSets(const std::vector<FittedEntriesSet*>& vSets);
 
   void SetOptOEntries();
 
- public:
-  std::vector< FittedEntry* >& FittedEntries(){
-    return theFittedEntries;
-  }
+public:
+  std::vector<FittedEntry*>& FittedEntries() { return theFittedEntries; }
 
-//GET AND SET METHODS
-  ALIstring& getDate() {
-    return theDate;
-  }
-  ALIstring& getTime() {
-    return theTime;
-  }
+  //GET AND SET METHODS
+  ALIstring& getDate() { return theDate; }
+  ALIstring& getTime() { return theTime; }
 
 public:
+  std::vector<FittedEntry*> theFittedEntries;
 
-  std::vector< FittedEntry* > theFittedEntries;
- private:
-//t  struct tm theTime;
+private:
+  //t  struct tm theTime;
   ALIstring theDate;
   ALIstring theTime;
-  std::vector< std::vector<ALIdouble> > theCorrelationMatrix;
+  std::vector<std::vector<ALIdouble> > theCorrelationMatrix;
   ALIint theMinEntryQuality;
   MatrixMeschach* theEntriesErrorMatrix;
 };
 
 #endif
-

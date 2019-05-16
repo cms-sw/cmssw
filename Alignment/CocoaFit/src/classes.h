@@ -1,6 +1,5 @@
 #include "Alignment/CocoaFit/interface/NtupleObjects.h"
- 
+
 namespace Alignment_CocoaFit {
-  struct dictionary {
-  };
-}
+  struct dictionary {};
+}  // namespace Alignment_CocoaFit

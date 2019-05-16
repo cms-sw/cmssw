@@ -2,7 +2,7 @@
 //
 // Package:    AlignmentMonitorAsAnalyzer
 // Class:      AlignmentMonitorAsAnalyzer
-// 
+//
 /**\class AlignmentMonitorAsAnalyzer AlignmentMonitorAsAnalyzer.cc Dummy/AlignmentMonitorAsAnalyzer/src/AlignmentMonitorAsAnalyzer.cc
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 // $Id: AlignmentMonitorAsAnalyzer.cc,v 1.9 2012/07/13 09:18:40 yana Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -64,29 +63,29 @@
 //
 
 class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit AlignmentMonitorAsAnalyzer(const edm::ParameterSet&);
-      ~AlignmentMonitorAsAnalyzer() override;
+public:
+  explicit AlignmentMonitorAsAnalyzer(const edm::ParameterSet&);
+  ~AlignmentMonitorAsAnalyzer() override;
 
-      typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair; 
-      typedef std::vector<ConstTrajTrackPair> ConstTrajTrackPairCollection;
+  typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair;
+  typedef std::vector<ConstTrajTrackPair> ConstTrajTrackPairCollection;
 
-   private:
-      void beginJob() override;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override;
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-      // ----------member data ---------------------------
-      edm::InputTag m_tjTag;
-      edm::ParameterSet m_aliParamStoreCfg;
+  // ----------member data ---------------------------
+  edm::InputTag m_tjTag;
+  edm::ParameterSet m_aliParamStoreCfg;
 
-      AlignableTracker *m_alignableTracker;
-      AlignableMuon *m_alignableMuon;
-      AlignmentParameterStore *m_alignmentParameterStore;
+  AlignableTracker* m_alignableTracker;
+  AlignableMuon* m_alignableMuon;
+  AlignmentParameterStore* m_alignmentParameterStore;
 
-      std::vector<AlignmentMonitorBase*> m_monitors;
+  std::vector<AlignmentMonitorBase*> m_monitors;
 
-      bool m_firstEvent;
+  bool m_firstEvent;
 };
 
 //
@@ -101,143 +100,143 @@ class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
 // constructors and destructor
 //
 AlignmentMonitorAsAnalyzer::AlignmentMonitorAsAnalyzer(const edm::ParameterSet& iConfig)
-   : m_tjTag(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag"))
-   , m_aliParamStoreCfg(iConfig.getParameter<edm::ParameterSet>("ParameterStore"))
-   , m_alignableTracker(nullptr)
-   , m_alignableMuon(nullptr)
-   , m_alignmentParameterStore(nullptr)
-{
-   std::vector<std::string> monitors = iConfig.getUntrackedParameter<std::vector<std::string> >( "monitors" );
+    : m_tjTag(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag")),
+      m_aliParamStoreCfg(iConfig.getParameter<edm::ParameterSet>("ParameterStore")),
+      m_alignableTracker(nullptr),
+      m_alignableMuon(nullptr),
+      m_alignmentParameterStore(nullptr) {
+  std::vector<std::string> monitors = iConfig.getUntrackedParameter<std::vector<std::string> >("monitors");
 
-   for (std::vector<std::string>::const_iterator miter = monitors.begin();  miter != monitors.end();  ++miter) {
-      AlignmentMonitorBase* newMonitor = AlignmentMonitorPluginFactory::get()->create(*miter, iConfig.getUntrackedParameter<edm::ParameterSet>(*miter));
+  for (std::vector<std::string>::const_iterator miter = monitors.begin(); miter != monitors.end(); ++miter) {
+    AlignmentMonitorBase* newMonitor =
+        AlignmentMonitorPluginFactory::get()->create(*miter, iConfig.getUntrackedParameter<edm::ParameterSet>(*miter));
 
-      if (!newMonitor) throw cms::Exception("BadConfig") << "Couldn't find monitor named " << *miter;
+    if (!newMonitor)
+      throw cms::Exception("BadConfig") << "Couldn't find monitor named " << *miter;
 
-      m_monitors.push_back(newMonitor);
-   }
+    m_monitors.push_back(newMonitor);
+  }
 }
 
-
-AlignmentMonitorAsAnalyzer::~AlignmentMonitorAsAnalyzer()
-{
-   delete m_alignableTracker;
-   delete m_alignableMuon;
-   delete m_alignmentParameterStore;
+AlignmentMonitorAsAnalyzer::~AlignmentMonitorAsAnalyzer() {
+  delete m_alignableTracker;
+  delete m_alignableMuon;
+  delete m_alignmentParameterStore;
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void
-AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   //Retrieve tracker topology from geometry
-   edm::ESHandle<TrackerTopology> tTopoHandle;
-   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-   const TrackerTopology* const tTopo = tTopoHandle.product();
+void AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
-   if (m_firstEvent) {
-      GeometryAligner aligner;
-    
-      edm::ESTransientHandle<DDCompactView> cpv;
-      iSetup.get<IdealGeometryRecord>().get( cpv );
-      
-      edm::ESHandle<GeometricDet> theGeometricDet;
-      iSetup.get<IdealGeometryRecord>().get( theGeometricDet );
-      edm::ESHandle<PTrackerParameters> ptp;
-      iSetup.get<PTrackerParametersRcd>().get( ptp );
-      TrackerGeomBuilderFromGeometricDet trackerBuilder;
-      boost::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(&(*theGeometricDet), *ptp, tTopo ));
-      
-      edm::ESHandle<MuonDDDConstants> mdc;
-      iSetup.get<MuonNumberingRecord>().get(mdc);
-      DTGeometryBuilderFromDDD DTGeometryBuilder;
-      CSCGeometryBuilderFromDDD CSCGeometryBuilder;
-      auto theMuonDT = std::make_shared<DTGeometry>();
-      DTGeometryBuilder.build(*theMuonDT, &(*cpv), *mdc);
-      auto theMuonCSC = std::make_shared<CSCGeometry>();
-      CSCGeometryBuilder.build(*theMuonCSC, &(*cpv), *mdc);
-      
-      edm::ESHandle<Alignments> globalPositionRcd;
-      iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
-      
-      edm::ESHandle<Alignments> alignments;
-      iSetup.get<TrackerAlignmentRcd>().get( alignments );
-      edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-      iSetup.get<TrackerAlignmentErrorExtendedRcd>().get( alignmentErrors );
-      aligner.applyAlignments<TrackerGeometry>( &(*theTracker), &(*alignments), &(*alignmentErrors),
-						align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)) );
-      
-      edm::ESHandle<Alignments> dtAlignments;
-      iSetup.get<DTAlignmentRcd>().get( dtAlignments );
-      edm::ESHandle<AlignmentErrorsExtended> dtAlignmentErrorsExtended;
-      iSetup.get<DTAlignmentErrorExtendedRcd>().get( dtAlignmentErrorsExtended );
-      aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrorsExtended),
-					   align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)) );
-      
-      edm::ESHandle<Alignments> cscAlignments;
-      iSetup.get<CSCAlignmentRcd>().get( cscAlignments );
-      edm::ESHandle<AlignmentErrorsExtended> cscAlignmentErrorsExtended;
-      iSetup.get<CSCAlignmentErrorExtendedRcd>().get( cscAlignmentErrorsExtended );
-      aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrorsExtended),
-					    align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)) );
-      
-      // within an analyzer, modules can't expect to see any selected alignables!
-      align::Alignables empty_alignables;
-      
-      m_alignableTracker = new AlignableTracker( &(*theTracker), tTopo );
-      m_alignableMuon = new AlignableMuon( &(*theMuonDT), &(*theMuonCSC) );
-      m_alignmentParameterStore = new AlignmentParameterStore(empty_alignables, m_aliParamStoreCfg);
-      
-      for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin();  monitor != m_monitors.end();  ++monitor) {
-	(*monitor)->beginOfJob(m_alignableTracker, m_alignableMuon, m_alignmentParameterStore);
-      }
-      for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin();  monitor != m_monitors.end();  ++monitor) {
-	(*monitor)->startingNewLoop();
-      }
-      
-      m_firstEvent = false;
-   }
+  if (m_firstEvent) {
+    GeometryAligner aligner;
 
-   // Retrieve trajectories and tracks from the event
-   edm::Handle<TrajTrackAssociationCollection> trajTracksMap;
-   iEvent.getByLabel(m_tjTag, trajTracksMap);
-   
-   // Form pairs of trajectories and tracks
-   ConstTrajTrackPairCollection trajTracks;
-   for (TrajTrackAssociationCollection::const_iterator iPair = trajTracksMap->begin();  iPair != trajTracksMap->end();  ++iPair) {
-      trajTracks.push_back(ConstTrajTrackPair(&(*(*iPair).key), &(*(*iPair).val)));
-   }
-   
-   // Run the monitors
-   for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin();  monitor != m_monitors.end();  ++monitor) {
-      (*monitor)->duringLoop(iEvent, iSetup, trajTracks);
-   }
+    edm::ESTransientHandle<DDCompactView> cpv;
+    iSetup.get<IdealGeometryRecord>().get(cpv);
 
+    edm::ESHandle<GeometricDet> theGeometricDet;
+    iSetup.get<IdealGeometryRecord>().get(theGeometricDet);
+    edm::ESHandle<PTrackerParameters> ptp;
+    iSetup.get<PTrackerParametersRcd>().get(ptp);
+    TrackerGeomBuilderFromGeometricDet trackerBuilder;
+    boost::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(&(*theGeometricDet), *ptp, tTopo));
+
+    edm::ESHandle<MuonDDDConstants> mdc;
+    iSetup.get<MuonNumberingRecord>().get(mdc);
+    DTGeometryBuilderFromDDD DTGeometryBuilder;
+    CSCGeometryBuilderFromDDD CSCGeometryBuilder;
+    auto theMuonDT = std::make_shared<DTGeometry>();
+    DTGeometryBuilder.build(*theMuonDT, &(*cpv), *mdc);
+    auto theMuonCSC = std::make_shared<CSCGeometry>();
+    CSCGeometryBuilder.build(*theMuonCSC, &(*cpv), *mdc);
+
+    edm::ESHandle<Alignments> globalPositionRcd;
+    iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
+
+    edm::ESHandle<Alignments> alignments;
+    iSetup.get<TrackerAlignmentRcd>().get(alignments);
+    edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
+    iSetup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
+    aligner.applyAlignments<TrackerGeometry>(&(*theTracker),
+                                             &(*alignments),
+                                             &(*alignmentErrors),
+                                             align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
+
+    edm::ESHandle<Alignments> dtAlignments;
+    iSetup.get<DTAlignmentRcd>().get(dtAlignments);
+    edm::ESHandle<AlignmentErrorsExtended> dtAlignmentErrorsExtended;
+    iSetup.get<DTAlignmentErrorExtendedRcd>().get(dtAlignmentErrorsExtended);
+    aligner.applyAlignments<DTGeometry>(&(*theMuonDT),
+                                        &(*dtAlignments),
+                                        &(*dtAlignmentErrorsExtended),
+                                        align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
+
+    edm::ESHandle<Alignments> cscAlignments;
+    iSetup.get<CSCAlignmentRcd>().get(cscAlignments);
+    edm::ESHandle<AlignmentErrorsExtended> cscAlignmentErrorsExtended;
+    iSetup.get<CSCAlignmentErrorExtendedRcd>().get(cscAlignmentErrorsExtended);
+    aligner.applyAlignments<CSCGeometry>(&(*theMuonCSC),
+                                         &(*cscAlignments),
+                                         &(*cscAlignmentErrorsExtended),
+                                         align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
+
+    // within an analyzer, modules can't expect to see any selected alignables!
+    align::Alignables empty_alignables;
+
+    m_alignableTracker = new AlignableTracker(&(*theTracker), tTopo);
+    m_alignableMuon = new AlignableMuon(&(*theMuonDT), &(*theMuonCSC));
+    m_alignmentParameterStore = new AlignmentParameterStore(empty_alignables, m_aliParamStoreCfg);
+
+    for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin(); monitor != m_monitors.end();
+         ++monitor) {
+      (*monitor)->beginOfJob(m_alignableTracker, m_alignableMuon, m_alignmentParameterStore);
+    }
+    for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin(); monitor != m_monitors.end();
+         ++monitor) {
+      (*monitor)->startingNewLoop();
+    }
+
+    m_firstEvent = false;
+  }
+
+  // Retrieve trajectories and tracks from the event
+  edm::Handle<TrajTrackAssociationCollection> trajTracksMap;
+  iEvent.getByLabel(m_tjTag, trajTracksMap);
+
+  // Form pairs of trajectories and tracks
+  ConstTrajTrackPairCollection trajTracks;
+  for (TrajTrackAssociationCollection::const_iterator iPair = trajTracksMap->begin(); iPair != trajTracksMap->end();
+       ++iPair) {
+    trajTracks.push_back(ConstTrajTrackPair(&(*(*iPair).key), &(*(*iPair).val)));
+  }
+
+  // Run the monitors
+  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin(); monitor != m_monitors.end();
+       ++monitor) {
+    (*monitor)->duringLoop(iEvent, iSetup, trajTracks);
+  }
 }
-
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-AlignmentMonitorAsAnalyzer::beginJob()
-{
-   m_firstEvent = true;
-}
+void AlignmentMonitorAsAnalyzer::beginJob() { m_firstEvent = true; }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-AlignmentMonitorAsAnalyzer::endJob() 
-{
-   for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin();  monitor != m_monitors.end();  ++monitor) {
-      (*monitor)->endOfLoop();
-   }
-   for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin();  monitor != m_monitors.end();  ++monitor) {
-      (*monitor)->endOfJob();
-   }
+void AlignmentMonitorAsAnalyzer::endJob() {
+  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin(); monitor != m_monitors.end();
+       ++monitor) {
+    (*monitor)->endOfLoop();
+  }
+  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin(); monitor != m_monitors.end();
+       ++monitor) {
+    (*monitor)->endOfJob();
+  }
 }
 
 //define this as a plug-in
