@@ -61,7 +61,7 @@ namespace edm {
       EventSetupProvider(EventSetupProvider const&) = delete;
       EventSetupProvider const& operator=(EventSetupProvider const&) = delete;
 
-      virtual ~EventSetupProvider();
+      ~EventSetupProvider();
 
       std::set<ComponentDescription> proxyProviderDescriptions() const;
 
