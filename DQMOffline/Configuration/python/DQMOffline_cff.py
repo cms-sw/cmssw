@@ -51,7 +51,8 @@ from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_cff import *
 from DQM.TrackingMonitorSource.pixelTracksMonitoring_cff import *
 from DQM.SiOuterTracker.OuterTrackerSourceConfig_cff import *
 # miniAOD DQM validation
-from Validation.RecoParticleFlow.miniAODDQM_cff import *
+from Validation.RecoParticleFlow.miniAODDQM_cff import * # On MiniAOD vs RECO
+from Validation.RecoParticleFlow.DQMforPF_MiniAOD_source_cff import * # MiniAOD PF variables
 from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import * 
 from DQM.TrackingMonitor.trackingRecoMaterialAnalyzer_cfi import materialDumperAnalyzer
 materialDumperAnalyzer.usePV = True
@@ -76,22 +77,23 @@ DQMOfflinePOG = cms.Sequence( DQMOfflinePrePOG *
 HLTMonitoring = cms.Sequence( OfflineHLTMonitoring )
 HLTMonitoringPA = cms.Sequence( OfflineHLTMonitoringPA )
 
-from Validation.RecoParticleFlow.particleFlowDQM_cff import pfDQMAnalyzer
-from Validation.RecoParticleFlow.offsetAnalyzerDQM_cff import offsetAnalyzerDQM
-from Validation.RecoParticleFlow.PFJetValidation_cff import pfJetValidation1, pfJetValidation2 
-from Validation.RecoParticleFlow.PFJetResValidation_cff import pfJetResValidation1
-from Validation.RecoParticleFlow.PFMETValidation_cff import pfMETValidation1, pfMETValidation2
-from Validation.RecoParticleFlow.PFElectronValidation_cff import pfElectronValidation1
-DQMOfflinePF = cms.Sequence(
-  pfDQMAnalyzer +
-  offsetAnalyzerDQM +
-  pfJetValidation1 +
-  pfJetValidation2 +
-  pfJetResValidation1 +
-  pfMETValidation1 +
-  pfMETValidation2 +
-  pfElectronValidation1
-)
+#KH
+#from Validation.RecoParticleFlow.particleFlowDQM_cff import pfDQMAnalyzer
+#from Validation.RecoParticleFlow.offsetAnalyzerDQM_cff import offsetAnalyzerDQM
+#from Validation.RecoParticleFlow.PFJetValidation_cff import pfJetValidation1, pfJetValidation2 
+#from Validation.RecoParticleFlow.PFJetResValidation_cff import pfJetResValidation1
+#from Validation.RecoParticleFlow.PFMETValidation_cff import pfMETValidation1, pfMETValidation2
+#from Validation.RecoParticleFlow.PFElectronValidation_cff import pfElectronValidation1
+#DQMOfflinePF = cms.Sequence(
+#  pfDQMAnalyzer +
+#  offsetAnalyzerDQM +
+#  pfJetValidation1 +
+#  pfJetValidation2 +
+#  pfJetResValidation1 +
+#  pfMETValidation1 +
+#  pfMETValidation2 +
+#  pfElectronValidation1
+#)
 
 DQMOffline = cms.Sequence( DQMOfflinePF*
                            DQMOfflinePreDPG *
