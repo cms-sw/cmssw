@@ -4,7 +4,6 @@ pythia8CP1SettingsBlock = cms.PSet(
     pythia8CP1Settings = cms.vstring(
         'Tune:pp 14',
 	'Tune:ee 7',
-	'PDF:pSet=17',
 	'MultipartonInteractions:bProfile=2',
 	'MultipartonInteractions:ecmPow=0.1543',
 	'MultipartonInteractions:pT0Ref=2.40',
@@ -13,5 +12,9 @@ pythia8CP1SettingsBlock = cms.PSet(
 	'ColourReconnection:range=2.633',
 	'SigmaTotal:zeroAXB=off',
 	'SpaceShower:rapidityOrder=off',
+        'SigmaTotal:mode = 0',
+        'SigmaTotal:sigmaEl = 21.89',
+        'SigmaTotal:sigmaTot = 100.309',
+        'PDF:pSet=LHAPDF6:NNPDF31_lo_as_0130',
 	)
 )
