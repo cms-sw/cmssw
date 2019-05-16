@@ -17,7 +17,6 @@
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include <string>

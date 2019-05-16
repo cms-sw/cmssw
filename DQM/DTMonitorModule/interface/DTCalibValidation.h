@@ -16,7 +16,6 @@
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include <DQMServices/Core/interface/DQMStore.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "DataFormats/MuonDetId/interface/DTWireId.h"

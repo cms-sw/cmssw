@@ -10,7 +10,6 @@
 #include <string>
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 /*#define DECLARE_HISTS(TYPE) \
 TH2F * ## TYPE ## _N_Pt; \

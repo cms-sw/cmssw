@@ -63,7 +63,6 @@ private:
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 SiStripBadModuleFedErrESSource::SiStripBadModuleFedErrESSource(const edm::ParameterSet& iConfig)
 {

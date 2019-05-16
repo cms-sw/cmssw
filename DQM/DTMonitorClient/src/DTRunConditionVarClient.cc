@@ -15,7 +15,6 @@
  *********************************/
 
 #include <DQM/DTMonitorClient/src/DTRunConditionVarClient.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
 #include <DQMServices/Core/interface/DQMStore.h>
 
 #include <FWCore/Framework/interface/EventSetup.h>

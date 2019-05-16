@@ -20,7 +20,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // dqm includes
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 // l1 dataformats, d|e record includes
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
 

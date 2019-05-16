@@ -11,7 +11,6 @@
 
 //Include DQM core
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 using LV = math::XYZTLorentzVectorD;
 using LVColl = std::vector<LV>;

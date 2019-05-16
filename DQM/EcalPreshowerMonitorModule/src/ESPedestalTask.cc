@@ -14,7 +14,6 @@
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/EcalPreshowerMonitorModule/interface/ESPedestalTask.h"

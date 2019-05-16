@@ -31,7 +31,6 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "HLTriggerOffline/Higgs/src/MatchStruct.cc"
 

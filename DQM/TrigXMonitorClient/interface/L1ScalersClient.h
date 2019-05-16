@@ -11,7 +11,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 // HARD CODE THE NUMBER OF HISTOGRAMS TO 200, LENGTH OF MONITOR to 2000

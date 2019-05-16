@@ -35,7 +35,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 
 #include <string>
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 //For RecHit
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"

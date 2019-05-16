@@ -21,7 +21,6 @@
 
 #include <string>
 #include <map>
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 class HCALRecHitAnalyzer: public DQMEDAnalyzer {
  public:

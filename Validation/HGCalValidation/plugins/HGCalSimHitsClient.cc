@@ -10,7 +10,6 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/Run.h"

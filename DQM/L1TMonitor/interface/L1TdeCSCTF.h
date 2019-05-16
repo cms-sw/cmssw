@@ -22,7 +22,6 @@
 
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h"
 

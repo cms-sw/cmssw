@@ -15,7 +15,6 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 /// muon CSC, DT and RPC geometry info

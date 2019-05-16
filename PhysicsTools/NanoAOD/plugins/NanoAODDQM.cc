@@ -3,7 +3,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"

@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <CondFormats/DataRecord/interface/SiStripPedestalsRcd.h>
 #include <CondFormats/SiStripObjects/interface/SiStripPedestals.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
 
 #include <arpa/inet.h>
 #include <cstdio>

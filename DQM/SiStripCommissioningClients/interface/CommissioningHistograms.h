@@ -8,7 +8,6 @@
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DQM/SiStripCommissioningSummary/interface/CommissioningSummaryFactory.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <boost/cstdint.hpp>
 #include "TProfile.h"

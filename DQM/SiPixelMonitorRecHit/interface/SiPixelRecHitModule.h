@@ -25,7 +25,6 @@ detector segment (detID)
 //  for pixel offline DQM
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "FWCore/Framework/interface/EventSetup.h"

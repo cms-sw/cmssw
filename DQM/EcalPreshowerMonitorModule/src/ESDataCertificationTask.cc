@@ -14,7 +14,6 @@
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/EcalPreshowerMonitorModule/interface/ESDataCertificationTask.h"

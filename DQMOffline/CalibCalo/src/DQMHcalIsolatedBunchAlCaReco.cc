@@ -19,7 +19,7 @@
 
 // DQM include files
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // work on collections
 
@@ -35,7 +35,6 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 
 #include "DQMOffline/CalibCalo/src/DQMHcalIsolatedBunchAlCaReco.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 // ******************************************
 // constructors

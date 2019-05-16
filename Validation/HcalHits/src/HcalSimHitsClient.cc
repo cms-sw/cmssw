@@ -8,7 +8,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 HcalSimHitsClient::HcalSimHitsClient(const edm::ParameterSet &iConfig) {

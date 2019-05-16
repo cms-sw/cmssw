@@ -11,7 +11,6 @@
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 //#include "Validation/MuonGEMHits/interface/GEMHitsValidation.h"
 //#include "Validation/MuonGEMHits/interface/AbstractHarvester.h"
 #include <TEfficiency.h>

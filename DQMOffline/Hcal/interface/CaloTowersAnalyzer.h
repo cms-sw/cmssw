@@ -29,7 +29,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <algorithm>
 #include <cmath>
 #include <ostream>

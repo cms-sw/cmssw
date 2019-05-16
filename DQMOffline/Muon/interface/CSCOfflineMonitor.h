@@ -52,7 +52,6 @@
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"

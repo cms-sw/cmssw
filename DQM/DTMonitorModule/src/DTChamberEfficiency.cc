@@ -26,7 +26,6 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 

@@ -51,7 +51,6 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "TMath.h"

@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 using namespace std;
 using namespace edm;

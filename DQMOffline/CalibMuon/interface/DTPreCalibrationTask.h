@@ -9,7 +9,7 @@
  */
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,7 +18,6 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include <DataFormats/DTDigi/interface/DTDigi.h>
 
 #include <map>

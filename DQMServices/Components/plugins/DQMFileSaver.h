@@ -2,7 +2,6 @@
 #define DQMSERVICES_COMPONENTS_DQMFILESAVER_H
 
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include <boost/property_tree/ptree.hpp>

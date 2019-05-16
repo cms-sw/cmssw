@@ -22,7 +22,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 // L1 containers
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"

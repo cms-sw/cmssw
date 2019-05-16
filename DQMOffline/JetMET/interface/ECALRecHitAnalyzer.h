@@ -65,7 +65,6 @@
 #include <TH2.h>
 #include <TFile.h>
 #include <TMath.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 class DetId;
 //class HcalTopology;

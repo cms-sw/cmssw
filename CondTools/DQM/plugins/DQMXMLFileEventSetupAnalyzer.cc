@@ -16,7 +16,6 @@
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "CondFormats/DataRecord/interface/DQMXMLFileRcd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 namespace edmtest {
   class DQMXMLFileEventSetupAnalyzer: public edm::EDAnalyzer {

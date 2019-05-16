@@ -3,7 +3,6 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"

@@ -12,7 +12,6 @@
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "CondFormats/DataRecord/interface/ESGainRcd.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/EcalPreshowerMonitorModule/interface/ESTimingTask.h"
 

@@ -3,7 +3,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
