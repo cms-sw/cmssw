@@ -12,14 +12,14 @@
  Usage: Sets up histograms and stores in a file
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Sun 21 10:14:34 CEST 2006
 //
-  
+
 // system include files
-#include<string>
-#include<vector>
- 
+#include <string>
+#include <vector>
+
 // user include files
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -28,9 +28,7 @@
 #include <TH2D.h>
 
 class HcalTB02Histo {
-   
 public:
- 
   // ---------- Constructor and destructor -----------------
   HcalTB02Histo(const edm::ParameterSet &ps);
   virtual ~HcalTB02Histo();
@@ -40,17 +38,16 @@ public:
   void fillTransProf(float u, float v);
   void fillProfile(int ilayer, float value);
   float getMean(int ilayer);
-  float getRMS (int ilayer);
-                                                                               
+  float getRMS(int ilayer);
+
 private:
-
   // ---------- Private Data members -----------------------
-  std::string                   fileName;
-  bool                          verbose;
+  std::string fileName;
+  bool verbose;
 
-  TH1D                          *rt_tbTimes;
-  TH2D                          *rt_TransProf;
-  std::vector<TH1D *>           rt_histoProf;
+  TH1D *rt_tbTimes;
+  TH2D *rt_TransProf;
+  std::vector<TH1D *> rt_histoProf;
 };
- 
+
 #endif
