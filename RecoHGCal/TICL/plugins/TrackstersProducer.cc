@@ -32,7 +32,7 @@ class TrackstersProducer : public edm::stream::EDProducer<> {
 
  private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
-  edm::EDGetTokenT<std::vector<std::pair<unsigned int, float>>> filtered_layerclusters_mask_token_;
+  edm::EDGetTokenT<ticl::hgcalClusterFilterMask> filtered_layerclusters_mask_token_;
   edm::EDGetTokenT<std::vector<float>> original_layerclusters_mask_token_;
 
   std::unique_ptr<ticl::PatternRecognitionAlgoBase> myAlgo_;
@@ -43,7 +43,7 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps)
     : myAlgo_(std::make_unique<ticl::PatternRecognitionbyCA>(ps)) {
   clusters_token_ = consumes<std::vector<reco::CaloCluster>>(
       ps.getParameter<edm::InputTag>("hgcal_layerclusters"));
-  filtered_layerclusters_mask_token_ = consumes<std::vector<std::pair<unsigned int, float>>>(
+  filtered_layerclusters_mask_token_ = consumes<ticl::hgcalClusterFilterMask>(
       ps.getParameter<edm::InputTag>("filtered_layerclusters_mask"));
   original_layerclusters_mask_token_ =
       consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_layerclusters_mask"));
@@ -72,7 +72,7 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   auto output_mask = std::make_unique<std::vector<float>>();
 
   edm::Handle<std::vector<reco::CaloCluster>> cluster_h;
-  edm::Handle<std::vector<std::pair<unsigned int, float>>> filtered_layerclusters_mask_h;
+  edm::Handle<ticl::hgcalClusterFilterMask> filtered_layerclusters_mask_h;
   edm::Handle<std::vector<float>> original_layerclusters_mask_h;
 
   evt.getByToken(clusters_token_, cluster_h);
@@ -81,7 +81,7 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   const auto& layerClusters = *cluster_h;
   const auto& inputClusterMask = *filtered_layerclusters_mask_h;
-  std::unique_ptr<std::vector<std::pair<unsigned int, float>>> filteredLayerClusters;
+  std::unique_ptr<ticl::hgcalClusterFilterMask> filteredLayerClusters;
   myAlgo_->makeTracksters(evt, es, layerClusters, inputClusterMask, *result);
 
   // Now update the global mask and put it into the event

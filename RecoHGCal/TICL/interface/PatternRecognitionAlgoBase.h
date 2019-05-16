@@ -9,6 +9,7 @@
 #include <vector>
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoHGCal/TICL/interface/Constants.h"
 #include "RecoHGCal/TICL/interface/Trackster.h"
 
 namespace edm {
@@ -25,7 +26,7 @@ namespace ticl {
 
       virtual void makeTracksters(const edm::Event& ev, const edm::EventSetup& es,
           const std::vector<reco::CaloCluster>& layerClusters,
-          const std::vector<std::pair<unsigned int, float> >& mask,
+          const hgcalClusterFilterMask& mask,
           std::vector<Trackster>& result) = 0;
       enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
 

@@ -19,10 +19,10 @@ class ClusterFilterByAlgo final : public ClusterFilterBase {
       : ClusterFilterBase(ps), algo_number_(ps.getParameter<int>("algo_number")) {}
   ~ClusterFilterByAlgo() override {};
 
-  std::unique_ptr<std::vector<std::pair<unsigned int, float>>> filter(
+  std::unique_ptr<hgcalClusterFilterMask> filter(
       const std::vector<reco::CaloCluster>& layerClusters,
-      const std::vector<std::pair<unsigned int, float>>& availableLayerClusters) const override {
-    auto filteredLayerClusters = std::make_unique<std::vector<std::pair<unsigned int, float>>>();
+      const hgcalClusterFilterMask& availableLayerClusters) const override {
+    auto filteredLayerClusters = std::make_unique<hgcalClusterFilterMask>();
     for (auto const& cl : availableLayerClusters) {
       if (layerClusters[cl.first].algo() == algo_number_) filteredLayerClusters->emplace_back(cl);
     }
