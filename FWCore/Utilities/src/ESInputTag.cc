@@ -35,9 +35,9 @@ ESInputTag::ESInputTag(const std::string& iEncodedValue) {
         << "ESInputTag " << iEncodedValue << " has " << nwords << " tokens but only up two 2 are allowed.";
   }
   if (nwords > 0) {
-    if(nwords != 2) {
-    throw edm::Exception(errors::Configuration, "ESInputTag")
-        << "ESInputTag " << iEncodedValue << " must contain a ':' to separate the module and data labels.";
+    if (nwords != 2) {
+      throw edm::Exception(errors::Configuration, "ESInputTag")
+          << "ESInputTag " << iEncodedValue << " must contain a ':' to separate the module and data labels.";
     }
     module_ = tokens[0];
     data_ = tokens[1];
@@ -53,7 +53,7 @@ bool ESInputTag::operator==(const edm::ESInputTag& iRHS) const {
 
 std::string ESInputTag::encode() const {
   std::string result = module_;
-  result +=":";
+  result += ":";
   if (!data_.empty()) {
     result += data_;
   }
