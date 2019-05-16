@@ -216,7 +216,7 @@ bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
   if (id.iphi()<1 || id.iphi()>IPHI_MAX || id.ieta()==0)  return false;
   if (id.depth() != 0)                                    return false;
   if (maxDepthHE_ == 0) {
-    if (id.ietaAbs() > lastHBRing_ && id.ietaAbs() < firstHERing_) return false;
+    if (id.ietaAbs() > lastHBRing_ && id.ietaAbs() < firstHFRing_) return false;
   }
   if (id.version()==0) {
     if (id.ietaAbs() > 28) {
