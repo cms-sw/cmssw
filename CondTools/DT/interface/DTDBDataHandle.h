@@ -15,25 +15,20 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 
-
 //---------------
 // C++ Headers --
 //---------------
-
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class DTDBDataHandle {
-
 public:
-
   /** Constructor
    */
   DTDBDataHandle();
@@ -44,16 +39,12 @@ public:
 
   /** Operations
    */
-  /// 
-  static   int nearestInt( double d );
-  static  bool toBool( short s );
-  static short toShort( bool b );
+  ///
+  static int nearestInt(double d);
+  static bool toBool(short s);
+  static short toShort(bool b);
 
- private:
-
-
+private:
 };
 
-
-#endif // DTDBDataHandle_H
-
+#endif  // DTDBDataHandle_H

@@ -44,25 +44,25 @@
 #include "CondFormats/RPCObjects/interface/RBCBoardSpecs.h"
 #include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"
 
-REGISTER_PLUGIN(RPCReadOutMappingRcd,RPCReadOutMapping);
-REGISTER_PLUGIN(RPCEMapRcd,RPCEMap);
-REGISTER_PLUGIN(RPCStripNoisesRcd,RPCStripNoises);
-REGISTER_PLUGIN(RPCClusterSizeRcd,RPCClusterSize); //new plugin 21.XII.2009 for RPC cluster size chamber by chamber 
-REGISTER_PLUGIN(RPCDQMObjectRcd,RPCDQMObject); //new plugin for RPC DQMPVT 
-REGISTER_PLUGIN(L1RPCHwConfigRcd,L1RPCHwConfig);
-REGISTER_PLUGIN(RPCObGasRcd,RPCObGas);
-REGISTER_PLUGIN(RPCObImonRcd,RPCObImon);
-REGISTER_PLUGIN(RPCObVmonRcd,RPCObVmon);
-REGISTER_PLUGIN(RPCObStatusRcd,RPCObStatus);
-REGISTER_PLUGIN(RPCObTempRcd,RPCObTemp);
-REGISTER_PLUGIN(RPCObPVSSmapRcd,RPCObPVSSmap);
+REGISTER_PLUGIN(RPCReadOutMappingRcd, RPCReadOutMapping);
+REGISTER_PLUGIN(RPCEMapRcd, RPCEMap);
+REGISTER_PLUGIN(RPCStripNoisesRcd, RPCStripNoises);
+REGISTER_PLUGIN(RPCClusterSizeRcd, RPCClusterSize);  //new plugin 21.XII.2009 for RPC cluster size chamber by chamber
+REGISTER_PLUGIN(RPCDQMObjectRcd, RPCDQMObject);      //new plugin for RPC DQMPVT
+REGISTER_PLUGIN(L1RPCHwConfigRcd, L1RPCHwConfig);
+REGISTER_PLUGIN(RPCObGasRcd, RPCObGas);
+REGISTER_PLUGIN(RPCObImonRcd, RPCObImon);
+REGISTER_PLUGIN(RPCObVmonRcd, RPCObVmon);
+REGISTER_PLUGIN(RPCObStatusRcd, RPCObStatus);
+REGISTER_PLUGIN(RPCObTempRcd, RPCObTemp);
+REGISTER_PLUGIN(RPCObPVSSmapRcd, RPCObPVSSmap);
 REGISTER_PLUGIN(RPCMaskedStripsRcd, RPCMaskedStrips);
 REGISTER_PLUGIN(RPCDeadStripsRcd, RPCDeadStrips);
 REGISTER_PLUGIN(RPCObUXCRcd, RPCObUXC);
-REGISTER_PLUGIN(RBCBoardSpecsRcd,RBCBoardSpecs);
-REGISTER_PLUGIN(TTUBoardSpecsRcd,TTUBoardSpecs);
-REGISTER_PLUGIN(RPCObGasMixRcd,RPCObGasMix);
-REGISTER_PLUGIN(RPCObGasHumRcd,RPCObGasHum);
+REGISTER_PLUGIN(RBCBoardSpecsRcd, RBCBoardSpecs);
+REGISTER_PLUGIN(TTUBoardSpecsRcd, TTUBoardSpecs);
+REGISTER_PLUGIN(RPCObGasMixRcd, RPCObGasMix);
+REGISTER_PLUGIN(RPCObGasHumRcd, RPCObGasHum);
 
 #include "CondFormats/DataRecord/interface/RPCLBLinkMapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCLBLinkMap.h"
@@ -77,5 +77,5 @@ REGISTER_PLUGIN(RPCDCCLinkMapRcd, RPCDCCLinkMap);
 #include "CondFormats/DataRecord/interface/RPCCPPFLinkMapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCAMCLinkMap.h"
 REGISTER_PLUGIN(RPCTwinMuxLinkMapRcd, RPCAMCLinkMap);
-REGISTER_PLUGIN(RPCOMTFLinkMapRcd   , RPCAMCLinkMap);
-REGISTER_PLUGIN(RPCCPPFLinkMapRcd   , RPCAMCLinkMap);
+REGISTER_PLUGIN(RPCOMTFLinkMapRcd, RPCAMCLinkMap);
+REGISTER_PLUGIN(RPCCPPFLinkMapRcd, RPCAMCLinkMap);

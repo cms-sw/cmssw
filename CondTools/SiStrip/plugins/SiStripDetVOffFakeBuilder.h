@@ -11,20 +11,17 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class SiStripDetVOffFakeBuilder : public edm::EDAnalyzer {
-
 public:
-
-  explicit SiStripDetVOffFakeBuilder( const edm::ParameterSet& iConfig);
+  explicit SiStripDetVOffFakeBuilder(const edm::ParameterSet& iConfig);
 
   ~SiStripDetVOffFakeBuilder() override;
 
-  virtual void initialize( const edm::EventSetup& );
+  virtual void initialize(const edm::EventSetup&);
 
-  void analyze(const edm::Event& , const edm::EventSetup& ) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   bool printdebug_;
   std::vector<uint32_t> detids;
 };
 #endif
-

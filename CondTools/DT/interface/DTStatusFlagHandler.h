@@ -27,18 +27,15 @@
 //---------------
 #include <string>
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTStatusFlagHandler: public popcon::PopConSourceHandler<DTStatusFlag> {
-
- public:
-
+class DTStatusFlagHandler : public popcon::PopConSourceHandler<DTStatusFlag> {
+public:
   /** Constructor
    */
-  DTStatusFlagHandler( const edm::ParameterSet& ps );
+  DTStatusFlagHandler(const edm::ParameterSet& ps);
 
   /** Destructor
    */
@@ -46,23 +43,14 @@ class DTStatusFlagHandler: public popcon::PopConSourceHandler<DTStatusFlag> {
 
   /** Operations
    */
-  /// 
+  ///
   void getNewObjects() override;
   std::string id() const override;
 
- private:
-
+private:
   std::string dataTag;
   std::string fileName;
   unsigned int runNumber;
-
 };
 
-
-#endif // DTStatusFlagHandler_H
-
-
-
-
-
-
+#endif  // DTStatusFlagHandler_H
