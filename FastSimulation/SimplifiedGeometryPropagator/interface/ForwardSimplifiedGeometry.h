@@ -35,7 +35,7 @@ namespace fastsim{
         ForwardSimplifiedGeometry(ForwardSimplifiedGeometry &&) = default;
 
         //! Default destructor.
-        ~ForwardSimplifiedGeometry(){};
+        ~ForwardSimplifiedGeometry() override{};
 
         //! Return z-position of the forward layer.
         /*!
