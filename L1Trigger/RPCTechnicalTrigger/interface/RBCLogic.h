@@ -1,4 +1,4 @@
-#ifndef RBCLOGIC_H 
+#ifndef RBCLOGIC_H
 #define RBCLOGIC_H 1
 
 // Include files
@@ -18,21 +18,18 @@
  */
 
 class RBCLogic {
-public: 
-  
-  virtual ~RBCLogic() {};
-  
-  virtual void process ( const RBCInput & , std::bitset<2> & ) = 0;
+public:
+  virtual ~RBCLogic(){};
 
-  virtual void setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & ) = 0;
+  virtual void process(const RBCInput&, std::bitset<2>&) = 0;
 
-  virtual std::bitset<6> * getlayersignal( int ) = 0;
-  
+  virtual void setBoardSpecs(const RBCBoardSpecs::RBCBoardConfig&) = 0;
+
+  virtual std::bitset<6>* getlayersignal(int) = 0;
+
   bool m_triggersignal;
-  
+
 protected:
-  
 private:
-  
 };
-#endif // RBCLOGIC_H
+#endif  // RBCLOGIC_H

@@ -11,34 +11,34 @@ using namespace std;
 #include "EventFilter/L1TXRawToDigi/plugins/UCTAMCRawData.h"
 #include "EventFilter/L1TXRawToDigi/plugins/UCTCTP7RawData.h"
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   uint32_t index = 0;
   uint64_t fedRawDataArray[694];
   char line[256];
-  while(cin.getline(line, 256)) {
+  while (cin.getline(line, 256)) {
     char* saveptr;
-    char* iToken = strtok_r(line, ":",&saveptr);
-    if(iToken == 0) continue;
-    if(sscanf(iToken, "%d", &index) == 1) {
-      if(index < 694) {
-	char* fToken = strtok_r(nullptr, "\n",&saveptr);
-	if(fToken == 0) continue;
-	if(sscanf(fToken, "%lX", &fedRawDataArray[index]) != 1) {
-	  cerr << "oops! format error :(" << endl;
-	  continue;
-	}
+    char* iToken = strtok_r(line, ":", &saveptr);
+    if (iToken == 0)
+      continue;
+    if (sscanf(iToken, "%d", &index) == 1) {
+      if (index < 694) {
+        char* fToken = strtok_r(nullptr, "\n", &saveptr);
+        if (fToken == 0)
+          continue;
+        if (sscanf(fToken, "%lX", &fedRawDataArray[index]) != 1) {
+          cerr << "oops! format error :(" << endl;
+          continue;
+        }
+      } else {
+        cerr << "oops! index is too high :(" << endl;
       }
-      else {
-	cerr << "oops! index is too high :(" << endl;
-      }
-    }
-    else {
+    } else {
       cout << line << endl;
     }
   }
   UCTDAQRawData daqData(fedRawDataArray);
   daqData.print();
-  for(uint32_t i = 0; i < daqData.nAMCs(); i++) {
+  for (uint32_t i = 0; i < daqData.nAMCs(); i++) {
     UCTAMCRawData amcData(daqData.amcPayload(i));
     cout << endl;
     amcData.print();

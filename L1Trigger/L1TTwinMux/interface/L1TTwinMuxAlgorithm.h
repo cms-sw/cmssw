@@ -30,25 +30,25 @@
 
 #include <iostream>
 
-class L1TTwinMuxAlgorithm  {
+class L1TTwinMuxAlgorithm {
 public:
-  L1TTwinMuxAlgorithm()  {};
-  ~L1TTwinMuxAlgorithm() {};
+  L1TTwinMuxAlgorithm(){};
+  ~L1TTwinMuxAlgorithm(){};
 
-  void run( edm::Handle<L1MuDTChambPhContainer> phiDigis,
-                                                 edm::Handle<L1MuDTChambThContainer> thetaDigis,
-                                                 edm::Handle<RPCDigiCollection> rpcDigis,
-                                                 const edm::EventSetup& c);
+  void run(edm::Handle<L1MuDTChambPhContainer> phiDigis,
+           edm::Handle<L1MuDTChambThContainer> thetaDigis,
+           edm::Handle<RPCDigiCollection> rpcDigis,
+           const edm::EventSetup& c);
 
- ///Return Output PhContainer
- L1MuDTChambPhContainer get_ph_tm_output(){  return m_tm_phi_output;}
+  ///Return Output PhContainer
+  L1MuDTChambPhContainer get_ph_tm_output() { return m_tm_phi_output; }
 
 private:
-  int radialAngle(RPCDetId , const edm::EventSetup& , int);
+  int radialAngle(RPCDetId, const edm::EventSetup&, int);
   ///Output PhContainer
   L1MuDTChambPhContainer m_tm_phi_output;
 
   ///Event Setup Handler
-  edm::ESHandle< L1TTwinMuxParams > tmParamsHandle;
+  edm::ESHandle<L1TTwinMuxParams> tmParamsHandle;
 };
 #endif
