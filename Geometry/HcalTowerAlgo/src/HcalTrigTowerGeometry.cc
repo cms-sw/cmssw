@@ -54,7 +54,11 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
       
   } else {
     // the first twenty rings are one-to-one
-    if(cellId.ietaAbs() < theTopology->firstHEDoublePhiRing()) {    
+    if (cellId.ietaAbs() <= theTopology->lastHBRing()) {    
+      results.emplace_back( HcalTrigTowerDetId(cellId.ieta(), cellId.iphi()) );
+    } else if (theTopology->maxDepthHE() == 0) {
+      // Ignore these    
+    } else if (cellId.ietaAbs() < theTopology->firstHEDoublePhiRing()) {    
       results.emplace_back( HcalTrigTowerDetId(cellId.ieta(), cellId.iphi()) );
     } else {
       // the remaining rings are two-to-one in phi
