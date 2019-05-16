@@ -33,11 +33,11 @@ namespace ticl {
       }
 
       void fillHistogram(const std::vector<reco::CaloCluster>& layerClusters,
-          const std::vector<std::pair<unsigned int, float> >& mask);
+          const hgcalClusterFilterMask& mask);
 
       void makeTracksters(const edm::Event& ev, const edm::EventSetup& es,
           const std::vector<reco::CaloCluster>& layerClusters,
-          const std::vector<std::pair<unsigned int, float> >& mask,
+          const hgcalClusterFilterMask& mask,
           std::vector<Trackster>& result) override;
 
     private:

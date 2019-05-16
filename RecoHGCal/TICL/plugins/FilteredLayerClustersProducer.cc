@@ -46,7 +46,7 @@ FilteredLayerClustersProducer::FilteredLayerClustersProducer(const edm::Paramete
   theFilter_ = ClusterFilterFactory::get()->create(clusterFilter_, ps);
   iteration_label_ = ps.getParameter<std::string>("iteration_label");
 
-  produces<std::vector<std::pair<unsigned int, float>>>(iteration_label_);
+  produces<ticl::hgcalClusterFilterMask>(iteration_label_);
 }
 
 void FilteredLayerClustersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -65,7 +65,7 @@ void FilteredLayerClustersProducer::fillDescriptions(edm::ConfigurationDescripti
 void FilteredLayerClustersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   edm::Handle<std::vector<reco::CaloCluster>> clusterHandle;
   edm::Handle<std::vector<float>> inputClustersMaskHandle;
-  auto availableLayerClusters = std::make_unique<std::vector<std::pair<unsigned int, float>>>();
+  auto availableLayerClusters = std::make_unique<ticl::hgcalClusterFilterMask>();
   evt.getByToken(clusters_token_, clusterHandle);
   evt.getByToken(clustersMask_token_, inputClustersMaskHandle);
   const auto& inputClusterMask = *inputClustersMaskHandle;
@@ -79,7 +79,7 @@ void FilteredLayerClustersProducer::produce(edm::Event& evt, const edm::EventSet
     }
   }
 
-  std::unique_ptr<std::vector<std::pair<unsigned int, float>>> filteredLayerClusters;
+  std::unique_ptr<ticl::hgcalClusterFilterMask> filteredLayerClusters;
   if (theFilter_) {
     filteredLayerClusters = theFilter_->filter(layerClusters, *availableLayerClusters);
   } else {

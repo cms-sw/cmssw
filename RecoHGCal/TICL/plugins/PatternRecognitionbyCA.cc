@@ -12,7 +12,7 @@ using namespace ticl;
 
 void PatternRecognitionbyCA::fillHistogram(
     const std::vector<reco::CaloCluster> &layerClusters,
-    const std::vector<std::pair<unsigned int, float>> &mask) {
+    const hgcalClusterFilterMask &mask) {
   if (algo_verbosity_ > None) {
     LogDebug("HGCPatterRecoByCA") << "filling eta/phi histogram per Layer" << std::endl;
   }
@@ -37,7 +37,7 @@ void PatternRecognitionbyCA::fillHistogram(
 
 void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev, const edm::EventSetup &es,
                                             const std::vector<reco::CaloCluster> &layerClusters,
-                                            const std::vector<std::pair<unsigned int, float>> &mask,
+                                            const hgcalClusterFilterMask &mask,
                                             std::vector<Trackster> &result) {
   rhtools_.getEventSetup(es);
 
