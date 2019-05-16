@@ -3,16 +3,13 @@
 
 #include <string>
 
-class G4RegionReporter
-{
+class G4RegionReporter {
 public:
-
   G4RegionReporter();
-  
+
   ~G4RegionReporter();
 
   void ReportRegions(const std::string& ss);
-
 };
 
 #endif
