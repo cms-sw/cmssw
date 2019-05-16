@@ -4,7 +4,7 @@
 //
 // Package:     FastSimulation/Particle
 // Class  :     makeParticle
-// 
+//
 /**\class makeParticle makeParticle.h "FastSimulation/Particle/interface/makeParticle.h"
 
  Description: functions to create RawParticle from PDG ids
@@ -28,6 +28,9 @@
 class RawParticle;
 
 RawParticle makeParticle(HepPDT::ParticleDataTable const*, int id, const math::XYZTLorentzVector& p);
-RawParticle makeParticle(HepPDT::ParticleDataTable const*, int id, const math::XYZTLorentzVector& p, const math::XYZTLorentzVector& xStart);
+RawParticle makeParticle(HepPDT::ParticleDataTable const*,
+                         int id,
+                         const math::XYZTLorentzVector& p,
+                         const math::XYZTLorentzVector& xStart);
 
 #endif
