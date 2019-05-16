@@ -57,11 +57,12 @@ _Flag_plots_80x = copy.deepcopy(nanoDQM.vplots.Flag.plots)
 _Flag_plots_80x.append(Plot1D('BadGlobalMuon', 'BadGlobalMuon', 2, -0.5, 1.5, 'Bad muon flag'))
 _Flag_plots_80x.append(Plot1D('CloneGlobalMuon', 'CloneGlobalMuon', 2, -0.5, 1.5, 'Clone muon flag'))
 
-for modifier in eras.run2_miniAOD_80XLegacy, eras.run2_nanoAOD_94X2016:
+from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
+for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
     modifier.toModify(nanoDQM.vplots.Electron, plots = _Electron_plots_2016)
     modifier.toModify(nanoDQM.vplots.Photon, plots = _Photon_plots_2016)
-eras.run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.FatJet, plots = _FatJet_plots_80x)
-eras.run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.Flag, plots = _Flag_plots_80x)
+run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.FatJet, plots = _FatJet_plots_80x)
+run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.Flag, plots = _Flag_plots_80x)
 
 run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots, IsoTrack = None)
 
