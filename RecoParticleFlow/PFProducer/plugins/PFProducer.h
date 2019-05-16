@@ -79,25 +79,7 @@ class PFProducer : public edm::stream::EDProducer<> {
 
   // Post muon cleaning ?
   bool postMuonCleaning_;
-
-  // Use PF electrons ?
-  bool usePFElectrons_;
-
-  // Use PF photons ?
-  bool usePFPhotons_;
   
-  // Use photon regression
-  bool usePhotonReg_;
-  bool useRegressionFromDB_;
-  const GBRForest * ReaderGC_;
-  const GBRForest* ReaderLC_;
-  const GBRForest* ReaderRes_;
-  const GBRForest* ReaderLCEB_;
-  const GBRForest* ReaderLCEE_;
-  const GBRForest* ReaderGCBarrel_;
-  const GBRForest* ReaderGCEndCapHighr9_;
-  const GBRForest* ReaderGCEndCapLowr9_;
-  const GBRForest* ReaderEcalRes_;
   // what about e/g electrons ?
   bool useEGammaElectrons_;
 

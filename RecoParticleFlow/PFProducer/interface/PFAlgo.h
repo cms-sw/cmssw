@@ -32,8 +32,6 @@
 #include "RecoParticleFlow/PFProducer/interface/PFCandConnector.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaFilters.h"
-#include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"
-#include "RecoParticleFlow/PFProducer/interface/PFPhotonAlgo.h"
 
 /// \brief Particle Flow Algorithm
 /*!
@@ -314,22 +312,6 @@ class PFAlgo {
   /// Variables for PFElectrons
   std::string mvaWeightFileEleID_;
   std::vector<double> setchi2Values_;
-  double mvaEleCut_;
-  bool usePFElectrons_;
-  bool usePFPhotons_;
-  bool applyCrackCorrectionsElectrons_;
-  bool usePFSCEleCalib_;
-  bool useEGElectrons_;
-  bool useEGammaSupercluster_;
-  double sumEtEcalIsoForEgammaSC_barrel_;
-  double sumEtEcalIsoForEgammaSC_endcap_;
-  double coneEcalIsoForEgammaSC_;
-  double sumPtTrackIsoForEgammaSC_barrel_;
-  double sumPtTrackIsoForEgammaSC_endcap_;
-  double coneTrackIsoForEgammaSC_;
-  unsigned int nTrackIsoForEgammaSC_;
-  std::unique_ptr<PFElectronAlgo> pfele_;
-  std::unique_ptr<PFPhotonAlgo> pfpho_;
   PFMuonAlgo *pfmu_;
 
 
