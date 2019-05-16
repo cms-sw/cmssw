@@ -23,7 +23,7 @@ SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string parti
       SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
       for ( ; iter != jter; ++iter ) {
 	
-	if ( partition == "" || partition == iter->second.partitionName() ) {
+	if ( partition.empty() || partition == iter->second.partitionName() ) {
 	  
 	  if ( iter->second.partitionName() == SiStripPartition::defaultPartitionName_ ) { continue; }
 
@@ -78,7 +78,7 @@ SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string parti
   uint16_t np = 0;
   uint16_t nc = 0;
   DcuDetIdsRange range;
-  if ( partition != "" ) { 
+  if ( !partition.empty() ) { 
     range = dcuDetIds_.find( partition );
     np = 1;
     nc = range.size();
@@ -282,7 +282,7 @@ void SiStripConfigDb::clearDcuDetIds( std::string partition ) {
   
   // Reproduce temporary cache for "all partitions except specified one" (or clear all if none specified)
   DcuDetIds temporary_cache;
-  if ( partition == ""  ) { temporary_cache = DcuDetIds(); }
+  if ( partition.empty()  ) { temporary_cache = DcuDetIds(); }
   else {
     SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
     SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
@@ -304,7 +304,7 @@ void SiStripConfigDb::clearDcuDetIds( std::string partition ) {
   
   // Delete objects in local cache for specified partition (or all if not specified) 
   DcuDetIdsRange dcus;
-  if ( partition == "" ) { 
+  if ( partition.empty() ) { 
     if ( !dcuDetIds_.empty() ) {
       dcus = DcuDetIdsRange( dcuDetIds_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
 			     dcuDetIds_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
@@ -323,7 +323,7 @@ void SiStripConfigDb::clearDcuDetIds( std::string partition ) {
   } else {
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]";
-    if ( partition == "" ) { ss << " Found no DCU-DetId map in local cache!"; }
+    if ( partition.empty() ) { ss << " Found no DCU-DetId map in local cache!"; }
     else { ss << " Found no DCU-DetId map in local cache for partition \"" << partition << "\"!"; }
     edm::LogWarning(mlConfigDb_) << ss.str(); 
   }
@@ -349,7 +349,7 @@ void SiStripConfigDb::printDcuDetIds( std::string partition ) {
   for ( ; idcu != jdcu; ++idcu ) {
 
     cntr++;
-    if ( partition == "" || partition == idcu->first ) {
+    if ( partition.empty() || partition == idcu->first ) {
       
       ss << "  Partition number      : " << cntr << " (out of " << dcuDetIds_.size() << ")" << std::endl;
       ss << "  Partition name        : \"" << idcu->first << "\"" << std::endl;
