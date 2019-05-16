@@ -26,18 +26,15 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTCCBConfigValidateHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
-
- public:
-
+class DTCCBConfigValidateHandler : public popcon::PopConSourceHandler<DTCCBConfig> {
+public:
   /** Constructor
    */
-  DTCCBConfigValidateHandler( const edm::ParameterSet& ps );
+  DTCCBConfigValidateHandler(const edm::ParameterSet& ps);
 
   /** Destructor
    */
@@ -45,28 +42,18 @@ class DTCCBConfigValidateHandler: public popcon::PopConSourceHandler<DTCCBConfig
 
   /** Operations
    */
-  /// 
+  ///
   void getNewObjects();
   std::string id() const;
 
- private:
-
+private:
   int firstRun;
-  int  lastRun;
+  int lastRun;
   std::string dataVersion;
   std::string dataFileName;
   std::string elogFileName;
-  void addNewObject( int runNumber );
-  static bool cfrDiff( const std::vector<int>& l_conf,
-                       const std::vector<int>& r_conf );
-
+  void addNewObject(int runNumber);
+  static bool cfrDiff(const std::vector<int>& l_conf, const std::vector<int>& r_conf);
 };
 
-
-#endif // DTCCBConfigValidateHandler_H
-
-
-
-
-
-
+#endif  // DTCCBConfigValidateHandler_H

@@ -27,18 +27,15 @@
 //---------------
 #include <string>
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTPerformanceHandler: public popcon::PopConSourceHandler<DTPerformance> {
-
- public:
-
+class DTPerformanceHandler : public popcon::PopConSourceHandler<DTPerformance> {
+public:
   /** Constructor
    */
-  DTPerformanceHandler( const edm::ParameterSet& ps );
+  DTPerformanceHandler(const edm::ParameterSet& ps);
 
   /** Destructor
    */
@@ -46,23 +43,14 @@ class DTPerformanceHandler: public popcon::PopConSourceHandler<DTPerformance> {
 
   /** Operations
    */
-  /// 
+  ///
   void getNewObjects() override;
   std::string id() const override;
 
- private:
-
+private:
   std::string dataTag;
   std::string fileName;
   unsigned int runNumber;
-
 };
 
-
-#endif // DTPerformanceHandler_H
-
-
-
-
-
-
+#endif  // DTPerformanceHandler_H

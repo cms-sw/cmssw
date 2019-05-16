@@ -12,15 +12,11 @@ using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
-// 
-void test_FedCablingBuilder::analyze( const edm::Event& event, const edm::EventSetup& setup ) {
-  
-  LogTrace(mlCabling_) 
-    << "[test_FedCablingBuilder::" << __func__ << "]"
-    << " Dumping all FED connections...";
-  
-  edm::ESHandle<SiStripFedCabling> fed_cabling;
-  setup.get<SiStripFedCablingRcd>().get( fed_cabling ); 
-  
-}
+//
+void test_FedCablingBuilder::analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  LogTrace(mlCabling_) << "[test_FedCablingBuilder::" << __func__ << "]"
+                       << " Dumping all FED connections...";
 
+  edm::ESHandle<SiStripFedCabling> fed_cabling;
+  setup.get<SiStripFedCablingRcd>().get(fed_cabling);
+}
