@@ -1338,7 +1338,7 @@ ALIdouble Model::getParamFittedSigmaVectorItem( const ALIuint position )
 ALIbool Model::readMeasurementsFromFile(ALIstring only1Date, ALIstring only1Time )
 {
  if(ALIUtils::debug >= 5) std::cout << " readMeasurementsFromFile " << Measurement::measurementsFileName() << std::endl;
-  if( Measurement::measurementsFileName() == "") return true;
+  if( Measurement::measurementsFileName().empty()) return true;
 
   ALIFileIn& filein = ALIFileIn::getInstance( Measurement::measurementsFileName() );
   std::vector<ALIstring> wordlist;
