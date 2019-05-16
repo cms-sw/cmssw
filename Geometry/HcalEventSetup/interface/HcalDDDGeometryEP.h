@@ -12,9 +12,7 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalDDDGeometryLoader.h"
 
 class HcalDDDGeometryEP : public edm::ESProducer {
-
 public:
-
   HcalDDDGeometryEP(const edm::ParameterSet&);
 
   using ReturnType = std::unique_ptr<CaloSubdetectorGeometry>;

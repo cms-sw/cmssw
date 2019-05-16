@@ -2,7 +2,7 @@
 //
 // Package:    EcalTrigTowerConstituentsMapBuilder
 // Class:      EcalTrigTowerConstituentsMapBuilder
-// 
+//
 /**\class EcalTrigTowerConstituentsMapBuilder EcalTrigTowerConstituentsMapBuilder.h tmp/EcalTrigTowerConstituentsMapBuilder/interface/EcalTrigTowerConstituentsMapBuilder.h
 
  Description: <one line class summary>
@@ -33,7 +33,7 @@
 //
 
 class EcalTrigTowerConstituentsMapBuilder : public edm::ESProducer {
-   public:
+public:
   EcalTrigTowerConstituentsMapBuilder(const edm::ParameterSet&);
   ~EcalTrigTowerConstituentsMapBuilder() override;
 
@@ -42,9 +42,9 @@ class EcalTrigTowerConstituentsMapBuilder : public edm::ESProducer {
   ReturnType produce(const IdealGeometryRecord&);
 
 private:
-  void parseTextMap(const std::string& filename,EcalTrigTowerConstituentsMap& theMap);
+  void parseTextMap(const std::string& filename, EcalTrigTowerConstituentsMap& theMap);
   std::string mapFile_;
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 };
 
 #endif
