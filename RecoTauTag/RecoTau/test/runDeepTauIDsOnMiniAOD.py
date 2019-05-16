@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 # options.parseArguments()
 updatedTauName = "slimmedTausNewID"
 minimalOutput = True
-eventsToProcess = 1
+eventsToProcess = 1000
 nThreads = 1
 
 process = cms.Process('TauID')
@@ -22,8 +22,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '
 
 # Input source
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(
-    # File from dataset /TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1
-    '/store/mc/RunIIFall17MiniAODv2/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/40000/A256C80D-0943-E811-998E-7CD30AB0522C.roo'
+    # File from dataset TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1
+    'file:A256C80D-0943-E811-998E-7CD30AB0522C.root'
 ))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(eventsToProcess) )
@@ -32,12 +32,12 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(eventsToProc
 import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
 tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False,
                     updatedTauName = updatedTauName,
-                    toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2",
+                    toKeep = [ #"2017v2", "dR0p32017v2", "newDM2017v2",
                                # "deepTau2017v1",
                                "deepTau2017v2",
                                # "DPFTau_2016_v0",
                                # "DPFTau_2016_v1",
-                               "againstEle2018"
+                               # "againstEle2018"
                                ])
 tauIdEmbedder.runTauID()
 
@@ -78,3 +78,5 @@ process.options = cms.untracked.PSet(
      numberOfThreads = cms.untracked.uint32(nThreads),
      numberOfStreams = cms.untracked.uint32(0)
 )
+from Validation.Performance.IgProfInfo import customise
+process = customise(process)
