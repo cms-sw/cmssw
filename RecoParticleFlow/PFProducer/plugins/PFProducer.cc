@@ -45,29 +45,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
     use_EGammaFilters_ = false;
   }
 
-  usePFElectrons_
-    = iConfig.getParameter<bool>("usePFElectrons");    
-
-  usePFPhotons_
-    = iConfig.getParameter<bool>("usePFPhotons");    
-  
-  // **************************** !! IMPORTANT !! ************************************
-  // When you code is swithed on, automatically turn off the old PFElectrons/PFPhotons. 
-  // The two algorithms can not run at the same time
-  // *********************************************************************************
- 
-  if(use_EGammaFilters_) {
-    usePFElectrons_ = false;
-    usePFPhotons_ = false;
-  }
-
-
-  usePhotonReg_
-    = (usePFPhotons_) ? iConfig.getParameter<bool>("usePhotonReg") : false ;
-
-  useRegressionFromDB_
-    = (usePFPhotons_) ? iConfig.getParameter<bool>("useRegressionFromDB") : false; 
-
   useEGammaElectrons_
     = iConfig.getParameter<bool>("useEGammaElectrons");    
 
@@ -78,12 +55,10 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
   electronOutputCol_
     = iConfig.getParameter<std::string>("pf_electron_output_col");
 
-  bool usePFSCEleCalib;
   std::vector<double>  calibPFSCEle_Fbrem_barrel; 
   std::vector<double>  calibPFSCEle_Fbrem_endcap;
   std::vector<double>  calibPFSCEle_barrel;
   std::vector<double>  calibPFSCEle_endcap;
-  usePFSCEleCalib =     iConfig.getParameter<bool>("usePFSCEleCalib");
   calibPFSCEle_Fbrem_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_barrel");
   calibPFSCEle_Fbrem_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_endcap");
   calibPFSCEle_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_barrel");
@@ -91,15 +66,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
   std::shared_ptr<PFSCEnergyCalibration>  
     thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
 							 calibPFSCEle_barrel,calibPFSCEle_endcap )); 
-			       
-  bool useEGammaSupercluster = iConfig.getParameter<bool>("useEGammaSupercluster");
-  double sumEtEcalIsoForEgammaSC_barrel = iConfig.getParameter<double>("sumEtEcalIsoForEgammaSC_barrel");
-  double sumEtEcalIsoForEgammaSC_endcap = iConfig.getParameter<double>("sumEtEcalIsoForEgammaSC_endcap");
-  double coneEcalIsoForEgammaSC = iConfig.getParameter<double>("coneEcalIsoForEgammaSC");
-  double sumPtTrackIsoForEgammaSC_barrel = iConfig.getParameter<double>("sumPtTrackIsoForEgammaSC_barrel");
-  double sumPtTrackIsoForEgammaSC_endcap = iConfig.getParameter<double>("sumPtTrackIsoForEgammaSC_endcap");
-  double coneTrackIsoForEgammaSC = iConfig.getParameter<double>("coneTrackIsoForEgammaSC");
-  unsigned int nTrackIsoForEgammaSC  = iConfig.getParameter<unsigned int>("nTrackIsoForEgammaSC");
 
 
   // register products
@@ -112,37 +78,15 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
   produces<reco::PFCandidateCollection>("AddedMuonsAndHadrons");
 
 
-  if (usePFElectrons_) {
-    produces<reco::PFCandidateCollection>(electronOutputCol_);
-    produces<reco::PFCandidateElectronExtraCollection>(electronExtraOutputCol_);
-  }
-
-  if (usePFPhotons_) {
-    produces<reco::PFCandidatePhotonExtraCollection>(photonExtraOutputCol_);
-  }
-
-
   double nSigmaECAL 
     = iConfig.getParameter<double>("pf_nsigma_ECAL");
   double nSigmaHCAL 
     = iConfig.getParameter<double>("pf_nsigma_HCAL");
   
-  //PFElectrons Configuration
-  double mvaEleCut
-    = iConfig.getParameter<double>("pf_electron_mvaCut");
-
-  
   string mvaWeightFileEleID
     = iConfig.getParameter<string>("pf_electronID_mvaWeightFile");
 
-  bool applyCrackCorrectionsForElectrons
-    = iConfig.getParameter<bool>("pf_electronID_crackCorrection");
-  
   string path_mvaWeightFileEleID;
-  if(usePFElectrons_)
-    {
-      path_mvaWeightFileEleID = edm::FileInPath ( mvaWeightFileEleID.c_str() ).fullPath();
-     }
 
   //PFPhoton Configuration
 
@@ -152,40 +96,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
   string path_mvaWeightFileLCorr;
   string path_X0_Map;
   string path_mvaWeightFileRes;
-  double mvaConvCut=-99.;
-  double sumPtTrackIsoForPhoton = 99.;
-  double sumPtTrackIsoSlopeForPhoton = 99.;
 
-  if(usePFPhotons_ )
-    {
-      mvaWeightFileConvID =iConfig.getParameter<string>("pf_convID_mvaWeightFile");
-      mvaConvCut = iConfig.getParameter<double>("pf_conv_mvaCut");
-      path_mvaWeightFileConvID = edm::FileInPath ( mvaWeightFileConvID.c_str() ).fullPath();  
-      sumPtTrackIsoForPhoton = iConfig.getParameter<double>("sumPtTrackIsoForPhoton");
-      sumPtTrackIsoSlopeForPhoton = iConfig.getParameter<double>("sumPtTrackIsoSlopeForPhoton");
-
-      string X0_Map=iConfig.getParameter<string>("X0_Map");
-      path_X0_Map = edm::FileInPath( X0_Map.c_str() ).fullPath();
-
-      if(!useRegressionFromDB_) {
-	string mvaWeightFileLCorr=iConfig.getParameter<string>("pf_locC_mvaWeightFile");
-	path_mvaWeightFileLCorr = edm::FileInPath( mvaWeightFileLCorr.c_str() ).fullPath();
-	string mvaWeightFileGCorr=iConfig.getParameter<string>("pf_GlobC_mvaWeightFile");
-	path_mvaWeightFileGCorr = edm::FileInPath( mvaWeightFileGCorr.c_str() ).fullPath();
-	string mvaWeightFileRes=iConfig.getParameter<string>("pf_Res_mvaWeightFile");
-	path_mvaWeightFileRes=edm::FileInPath(mvaWeightFileRes.c_str()).fullPath();
-
-	TFile *fgbr = new TFile(path_mvaWeightFileGCorr.c_str(),"READ");
-	ReaderGC_  =(const GBRForest*)fgbr->Get("GBRForest");
-	TFile *fgbr2 = new TFile(path_mvaWeightFileLCorr.c_str(),"READ");
-	ReaderLC_  = (const GBRForest*)fgbr2->Get("GBRForest");
-	TFile *fgbr3 = new TFile(path_mvaWeightFileRes.c_str(),"READ");
-	ReaderRes_  = (const GBRForest*)fgbr3->Get("GBRForest");
-	LogDebug("PFProducer")<<"Will set regressions from binary files " <<endl;
-      }
-
-    }
-  
 
   // Reading new EGamma selection cuts
   bool useProtectionsForJetMET(false);
@@ -235,37 +146,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 			  nSigmaHCAL,
 			  calibration,
 			  thepfEnergyCalibrationHF);
-
-  //PFElectrons: call the method setpfeleparameters
-  pfAlgo_.setPFEleParameters(mvaEleCut,
-			      path_mvaWeightFileEleID,
-			      usePFElectrons_,
-			      thePFSCEnergyCalibration,
-			      calibration,
-			      sumEtEcalIsoForEgammaSC_barrel,
-			      sumEtEcalIsoForEgammaSC_endcap,
-			      coneEcalIsoForEgammaSC,
-			      sumPtTrackIsoForEgammaSC_barrel,
-			      sumPtTrackIsoForEgammaSC_endcap,
-			      nTrackIsoForEgammaSC,
-			      coneTrackIsoForEgammaSC,
-			      applyCrackCorrectionsForElectrons,
-			      usePFSCEleCalib,
-			      useEGammaElectrons_,
-			      useEGammaSupercluster);
-  
-  //  pfAlgo_.setPFConversionParameters(usePFConversions);
-
-  // PFPhotons: 
-  pfAlgo_.setPFPhotonParameters(usePFPhotons_,
-				 path_mvaWeightFileConvID,
-				 mvaConvCut,
-				 usePhotonReg_,
-				 path_X0_Map,
-				 calibration,
-				 sumPtTrackIsoForPhoton,
-				 sumPtTrackIsoSlopeForPhoton);
-
 
   // NEW EGamma Filters
    pfAlgo_.setEGammaParameters(use_EGammaFilters_, useProtectionsForJetMET);
@@ -364,56 +244,6 @@ PFProducer::beginRun(const edm::Run & run,
     pfAlgo_.thePFEnergyCalibration()->setCalibrationFunctions(pfCalibrations);
   }
   
-  /*
-  for(vector<string>::const_iterator name = fToRead.begin(); name != fToRead.end(); ++name) {    
-    
-    cout << "Function: " << *name << endl;
-    PerformanceResult::ResultType fType = functType[*name];
-    pfCalibrations->printFormula(fType);
-    
-    // evaluate it @ 10 GeV
-    float energy = 10.;
-    
-    BinningPointByMap point;
-    point.insert(BinningVariables::JetEt, energy);
-    
-    if(pfCalibrations->isInPayload(fType, point)) {
-      float value = pfCalibrations->getResult(fType, point);
-      cout << "   Energy before:: " << energy << " after: " << value << endl;
-    } else cout <<  "outside limits!" << endl;
-    
-  }
-  */
-  
-  if(usePFPhotons_ && useRegressionFromDB_) {
-    edm::ESHandle<GBRForest> readerPFLCEB;
-    edm::ESHandle<GBRForest> readerPFLCEE;    
-    edm::ESHandle<GBRForest> readerPFGCEB;
-    edm::ESHandle<GBRForest> readerPFGCEEHR9;
-    edm::ESHandle<GBRForest> readerPFGCEELR9;
-    edm::ESHandle<GBRForest> readerPFRes;
-    es.get<GBRWrapperRcd>().get("PFLCorrectionBar",readerPFLCEB);
-    ReaderLCEB_=readerPFLCEB.product();
-    es.get<GBRWrapperRcd>().get("PFLCorrectionEnd",readerPFLCEE);
-    ReaderLCEE_=readerPFLCEE.product();
-    es.get<GBRWrapperRcd>().get("PFGCorrectionBar",readerPFGCEB);	
-    ReaderGCBarrel_=readerPFGCEB.product();
-    es.get<GBRWrapperRcd>().get("PFGCorrectionEndHighR9",readerPFGCEEHR9);
-    ReaderGCEndCapHighr9_=readerPFGCEEHR9.product();
-    es.get<GBRWrapperRcd>().get("PFGCorrectionEndLowR9",readerPFGCEELR9);
-    ReaderGCEndCapLowr9_=readerPFGCEELR9.product();
-    es.get<GBRWrapperRcd>().get("PFEcalResolution",readerPFRes);
-    ReaderEcalRes_=readerPFRes.product();
-    
-    /*
-    LogDebug("PFProducer")<<"setting regressions from DB "<<endl;
-    */
-  } 
-
-    if(usePFPhotons_){
-      //pfAlgo_.setPFPhotonRegWeights(ReaderLC_, ReaderGC_, ReaderRes_);
-      pfAlgo_.setPFPhotonRegWeights(ReaderLCEB_,ReaderLCEE_,ReaderGCBarrel_,ReaderGCEndCapHighr9_, ReaderGCEndCapLowr9_, ReaderEcalRes_ );
-    }
 }
 
 
@@ -432,8 +262,6 @@ PFProducer::produce(Event& iEvent, const EventSetup& iSetup)
   // get the collection of muons 
   if ( postMuonCleaning_ ) pfAlgo_.setMuonHandle( iEvent.getHandle(inputTagMuons_) );
 
-  if (useEGammaElectrons_) pfAlgo_.setEGElectronCollection( iEvent.get(inputTagEgammaElectrons_) );
-
   if(use_EGammaFilters_) pfAlgo_.setEGammaCollections( iEvent.get(inputTagPFEGammaCandidates_),
                                                         iEvent.get(inputTagValueMapGedElectrons_),
                                                         iEvent.get(inputTagValueMapGedPhotons_));
@@ -449,27 +277,6 @@ PFProducer::produce(Event& iEvent, const EventSetup& iSetup)
     //    cout << pfAlgo_ << endl;
     LogInfo("PFProducer") <<str.str()<<endl;
   }  
-
-
-  // Florian 5/01/2011
-  // Save the PFElectron Extra Collection First as to be able to create valid References  
-  if(usePFElectrons_)   {  
-    std::unique_ptr<reco::PFCandidateElectronExtraCollection> pOutputElectronCandidateExtraCollection( pfAlgo_.transferElectronExtra() ); 
-
-    const edm::OrphanHandle<reco::PFCandidateElectronExtraCollection > electronExtraProd=
-      iEvent.put(std::move(pOutputElectronCandidateExtraCollection),electronExtraOutputCol_);      
-    pfAlgo_.setElectronExtraRef(electronExtraProd);
-  }
-
-  // Daniele 18/05/2011
-  // Save the PFPhoton Extra Collection First as to be able to create valid References  
-  if(usePFPhotons_)   {  
-    std::unique_ptr<reco::PFCandidatePhotonExtraCollection> pOutputPhotonCandidateExtraCollection( pfAlgo_.transferPhotonExtra() ); 
-
-    const edm::OrphanHandle<reco::PFCandidatePhotonExtraCollection > photonExtraProd=
-      iEvent.put(std::move(pOutputPhotonCandidateExtraCollection),photonExtraOutputCol_);      
-    pfAlgo_.setPhotonExtraRef(photonExtraProd);
-  }
 
    // Save cosmic cleaned muon candidates
     std::unique_ptr<reco::PFCandidateCollection> 
@@ -535,13 +342,5 @@ PFProducer::produce(Event& iEvent, const EventSetup& iSetup)
       iEvent.put(std::move(pPunchThroughMuonCleanedCandidateCollection),"CleanedPunchThroughMuons");
       iEvent.put(std::move(pPunchThroughHadronCleanedCandidateCollection),"CleanedPunchThroughNeutralHadrons");
       iEvent.put(std::move(pAddedMuonCandidateCollection),"AddedMuonsAndHadrons");
-    }
-
-  if(usePFElectrons_)
-    {
-      std::unique_ptr<reco::PFCandidateCollection>  
-	pOutputElectronCandidateCollection( pfAlgo_.transferElectronCandidates() ); 
-      iEvent.put(std::move(pOutputElectronCandidateCollection),electronOutputCol_);
-
     }
 }
