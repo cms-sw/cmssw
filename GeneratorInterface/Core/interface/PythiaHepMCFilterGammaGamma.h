@@ -4,7 +4,7 @@
 //
 // Package:    GeneratorInterface/GenFilters
 // Class:      PythiaHepMCFilterGammaGamma
-// 
+//
 // Original Author:  Matteo Sani
 //
 //
@@ -18,19 +18,19 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
-	  class HepMCProduct;
+  class HepMCProduct;
 }
 
 class PythiaHepMCFilterGammaGamma : public BaseHepMCFilter {
- public:
+public:
   explicit PythiaHepMCFilterGammaGamma(const edm::ParameterSet&);
   ~PythiaHepMCFilterGammaGamma() override;
-  
+
   /** @return true if this GenEvent passes the double EM enrichment
       criterion */
   bool filter(const HepMC::GenEvent* myGenEvent) override;
- private:
 
+private:
   const edm::EDGetTokenT<edm::HepMCProduct> token_;
 
   //----------
@@ -98,6 +98,5 @@ class PythiaHepMCFilterGammaGamma : public BaseHepMCFilter {
   /** minimum pt for prompt seed particles to be considered (only
       effective if acceptPrompts is true) */
   const double promptPtThreshold;
-
 };
 #endif
