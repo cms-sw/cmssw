@@ -10,6 +10,7 @@ namespace l1t {
     static void fillRegionalMuonCand(RegionalMuonCand&, uint64_t, int, tftype);
     static void generatePackedDataWords(const RegionalMuonCand&, uint32_t&, uint32_t&);
     static uint64_t generate64bitDataWord(const RegionalMuonCand&);
+    static int generateRawTrkAddress(const RegionalMuonCand&);
 
     static const unsigned ptMask_ = 0x1FF;
     static const unsigned ptShift_ = 0;

@@ -102,6 +102,21 @@ void l1t::RegionalMuonRawDigiTranslator::generatePackedDataWords(const RegionalM
                    (mu.hwPhi() < 0) << phiSignShift_;
 
   // generate the raw track address from the subaddresses
+  int rawTrkAddr = generateRawTrkAddress(mu);
+
+  raw_data_32_63 = mu.hwSign() << signShift_ | mu.hwSignValid() << signValidShift_ |
+                   (rawTrkAddr & trackAddressMask_) << trackAddressShift_;
+}
+
+uint64_t l1t::RegionalMuonRawDigiTranslator::generate64bitDataWord(const RegionalMuonCand& mu) {
+  uint32_t lsw;
+  uint32_t msw;
+
+  generatePackedDataWords(mu, lsw, msw);
+  return (((uint64_t)msw) << 32) + lsw;
+}
+
+int l1t::RegionalMuonRawDigiTranslator::generateRawTrkAddress(const RegionalMuonCand& mu) {
   int tf = mu.trackFinderType();
   int rawTrkAddr = 0;
   if (tf == bmtf) {
@@ -168,14 +183,5 @@ void l1t::RegionalMuonRawDigiTranslator::generatePackedDataWords(const RegionalM
     rawTrkAddr = mu.trackAddress().at(0);
   }
 
-  raw_data_32_63 = mu.hwSign() << signShift_ | mu.hwSignValid() << signValidShift_ |
-                   (rawTrkAddr & trackAddressMask_) << trackAddressShift_;
-}
-
-uint64_t l1t::RegionalMuonRawDigiTranslator::generate64bitDataWord(const RegionalMuonCand& mu) {
-  uint32_t lsw;
-  uint32_t msw;
-
-  generatePackedDataWords(mu, lsw, msw);
-  return (((uint64_t)msw) << 32) + lsw;
+  return rawTrkAddr;
 }
