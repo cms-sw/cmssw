@@ -154,7 +154,7 @@ bool L1GtVhdlTemplateFile::open(const std::string &fileName, bool internal)
         iter = lines_.begin();
         while( iter != lines_.end() )
         {
-            if ((*iter)=="" || (*iter).length()==0 || (*iter)=="    ") lines_.erase(iter); else
+            if (*iter.empty() || (*iter).length()==0 || (*iter)=="    ") lines_.erase(iter); else
                 iter++;
         }
 
@@ -378,7 +378,7 @@ bool L1GtVhdlTemplateFile::removeEmptyLines()
 
     while( iter != lines_.end() )
     {
-        if ((*iter)=="" || (*iter).length()==0 || (*iter)=="    ") lines_.erase(iter); else
+        if (*iter.empty() || (*iter).length()==0 || (*iter)=="    ") lines_.erase(iter); else
             iter++;
     }
 
