@@ -157,7 +157,6 @@ def psetPhoFull5x5SigmaIEtaIEtaCut(wpEB, wpEE):
         cutName = cms.string('PhoFull5x5SigmaIEtaIEtaCut'),
         cutValueEB = cms.double( wpEB.full5x5_sigmaIEtaIEtaCut ),
         cutValueEE = cms.double( wpEE.full5x5_sigmaIEtaIEtaCut ),
-        full5x5SigmaIEtaIEtaMap = cms.InputTag('photonIDValueMapProducer:phoFull5x5SigmaIEtaIEta'),
         barrelCutOff = cms.double(ebCutOff),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
@@ -169,17 +168,20 @@ def psetChHadIsoWithEALinScalingCut(wpEB, wpEE, isoInputs):
     """
     Arguments: two containers of working point cut values of the type WorkingPoint_*
     The third argument contains data for isolation calculation.
+    The cut is (for lessThan==True), otherwise replace "<" with ">="
+          X < constTerm + linearPtTerm*pt + quadPtTerm* pt*pt + rho*EA
     """
     return cms.PSet( 
-        cutName = cms.string('PhoAnyPFIsoWithEACut'), 
-        # Both barrel and endcap: cut = c1 + pt*c2
-        C1_EB = cms.double( wpEB.absPFChaHadIsoWithEACut_C1 ),
-        C2_EB = cms.double( wpEB.absPFChaHadIsoWithEACut_C2 ),
-        C1_EE = cms.double( wpEE.absPFChaHadIsoWithEACut_C1 ),
-        C2_EE = cms.double( wpEE.absPFChaHadIsoWithEACut_C2 ),
-        anyPFIsoMap = cms.InputTag( isoInputs.chHadIsolationMapName ),
-        barrelCutOff = cms.double(ebCutOff),
-        useRelativeIso = cms.bool(False),
+        cutName = cms.string('PhoGenericRhoPtScaledCut'), 
+        cutVariable = cms.string("chargedHadronIso"),
+        lessThan = cms.bool(True),
+        # cut 
+        constTermEB = cms.double( wpEB.absPFChaHadIsoWithEACut_C1 ),
+        constTermEE = cms.double( wpEE.absPFChaHadIsoWithEACut_C1 ),
+        linearPtTermEB = cms.double( wpEB.absPFChaHadIsoWithEACut_C2 ),
+        linearPtTermEE = cms.double( wpEE.absPFChaHadIsoWithEACut_C2 ),
+        quadPtTermEB = cms.double( 0. ),
+        quadPtTermEE = cms.double( 0. ),
         needsAdditionalProducts = cms.bool(True),
         isIgnored = cms.bool(False),
         rho = cms.InputTag("fixedGridRhoFastjetAll"),
@@ -194,15 +196,16 @@ def psetNeuHadIsoWithEALinScalingCut( wpEB, wpEE, isoInputs):
     The third argument contains data for isolation calculation.
     """
     return cms.PSet( 
-        cutName = cms.string('PhoAnyPFIsoWithEACut'), # Neutral hadrons isolation block
-        # Both barrel and endcap: cut = c1 + pt*c2
-        C1_EB = cms.double( wpEB.absPFNeuHadIsoWithEACut_C1 ),
-        C2_EB = cms.double( wpEB.absPFNeuHadIsoWithEACut_C2 ),
-        C1_EE = cms.double( wpEE.absPFNeuHadIsoWithEACut_C1 ),
-        C2_EE = cms.double( wpEE.absPFNeuHadIsoWithEACut_C2 ),
-        anyPFIsoMap = cms.InputTag( isoInputs.neuHadIsolationMapName ),
-        barrelCutOff = cms.double(ebCutOff),
-        useRelativeIso = cms.bool(False),
+        cutName = cms.string('PhoGenericRhoPtScaledCut'), 
+        cutVariable = cms.string("neutralHadronIso"),
+        lessThan = cms.bool(True),
+        # cut 
+        constTermEB = cms.double( wpEB.absPFNeuHadIsoWithEACut_C1 ),
+        constTermEE = cms.double( wpEE.absPFNeuHadIsoWithEACut_C1 ),
+        linearPtTermEB = cms.double( wpEB.absPFNeuHadIsoWithEACut_C2 ),
+        linearPtTermEE = cms.double( wpEE.absPFNeuHadIsoWithEACut_C2 ),
+        quadPtTermEB = cms.double( 0. ),
+        quadPtTermEE = cms.double( 0. ),
         needsAdditionalProducts = cms.bool(True),
         isIgnored = cms.bool(False),
         rho = cms.InputTag("fixedGridRhoFastjetAll"),
@@ -267,23 +270,21 @@ def psetNeuHadIsoWithEAQuadScalingCut(wpEB, wpEE, isoInputs):
     Arguments: two containers of working point cut values of the type WorkingPoint_*
     The third argument contains data for isolation calculation.
     """
-    return cms.PSet( 
-        cutName = cms.string('PhoAnyPFIsoWithEAAndQuadScalingCut'), # Neutral hadrons isolation block
-        # Barrel: cut = c1 + pt*c2 + pt*pt*c3
-        C1_EB = cms.double( wpEB.absPFNeuHadIsoWithEACut_C1 ),
-        C2_EB = cms.double( wpEB.absPFNeuHadIsoWithEACut_C2 ),
-        C3_EB = cms.double( wpEB.absPFNeuHadIsoWithEACut_C3 ),
-        # Endcap: cut = cut = c1 + pt*c2 + pt*pt*c3
-        C1_EE = cms.double( wpEE.absPFNeuHadIsoWithEACut_C1 ),
-        C2_EE = cms.double( wpEE.absPFNeuHadIsoWithEACut_C2 ),
-        C3_EE = cms.double( wpEE.absPFNeuHadIsoWithEACut_C3 ),
-        anyPFIsoMap = cms.InputTag( isoInputs.neuHadIsolationMapName ),
-        barrelCutOff = cms.double(ebCutOff),
-        useRelativeIso = cms.bool(False),
+    return cms.PSet(
+        cutName = cms.string('PhoGenericRhoPtScaledCut'), 
+        cutVariable = cms.string("neutralHadronIso"),
+        lessThan = cms.bool(True),
+        # cut 
+        constTermEB = cms.double( wpEB.absPFNeuHadIsoWithEACut_C1 ),
+        constTermEE = cms.double( wpEE.absPFNeuHadIsoWithEACut_C1 ),
+        linearPtTermEB = cms.double( wpEB.absPFNeuHadIsoWithEACut_C2 ),
+        linearPtTermEE = cms.double( wpEE.absPFNeuHadIsoWithEACut_C2 ),
+        quadPtTermEB = cms.double( wpEB.absPFNeuHadIsoWithEACut_C3 ),
+        quadPtTermEE = cms.double( wpEE.absPFNeuHadIsoWithEACut_C3 ),
         needsAdditionalProducts = cms.bool(True),
         isIgnored = cms.bool(False),
         rho = cms.InputTag("fixedGridRhoFastjetAll"),
-        effAreasConfigFile = cms.FileInPath( isoInputs.neuHadIsolationEffAreas ) 
+        effAreasConfigFile = cms.FileInPath( isoInputs.neuHadIsolationEffAreas )
         )
 
 # Configure the cut on the photon isolation that uses
@@ -293,21 +294,24 @@ def psetPhoIsoWithEALinScalingCut(wpEB, wpEE, isoInputs):
     Arguments: two containers of working point cut values of the type WorkingPoint_*
     The third argument contains data for isolation calculation.
     """
-    return cms.PSet( 
-        cutName = cms.string('PhoAnyPFIsoWithEACut'), # Photons isolation block
-        # Both barrel and endcap: cut = c1 + pt*c2
-        C1_EB = cms.double( wpEB.absPFPhoIsoWithEACut_C1 ),
-        C2_EB = cms.double( wpEB.absPFPhoIsoWithEACut_C2 ),
-        C1_EE = cms.double( wpEE.absPFPhoIsoWithEACut_C1 ),
-        C2_EE = cms.double( wpEE.absPFPhoIsoWithEACut_C2 ),
-        anyPFIsoMap = cms.InputTag( isoInputs.phoIsolationMapName ),
-        barrelCutOff = cms.double(ebCutOff),
-        useRelativeIso = cms.bool(False),
+    return cms.PSet(
+        cutName = cms.string('PhoGenericRhoPtScaledCut'), 
+        cutVariable = cms.string("photonIso"),
+        lessThan = cms.bool(True),
+        # cut 
+        constTermEB = cms.double( wpEB.absPFPhoIsoWithEACut_C1 ),
+        constTermEE = cms.double( wpEE.absPFPhoIsoWithEACut_C1 ),
+        linearPtTermEB = cms.double( wpEB.absPFPhoIsoWithEACut_C2 ),
+        linearPtTermEE = cms.double( wpEE.absPFPhoIsoWithEACut_C2 ),
+        quadPtTermEB = cms.double( 0. ),
+        quadPtTermEE = cms.double( 0. ),
         needsAdditionalProducts = cms.bool(True),
         isIgnored = cms.bool(False),
         rho = cms.InputTag("fixedGridRhoFastjetAll"),
-        effAreasConfigFile = cms.FileInPath( isoInputs.phoIsolationEffAreas ) 
+        effAreasConfigFile = cms.FileInPath( isoInputs.phoIsolationEffAreas )
         )
+
+    
 
 # ==============================================================
 # Define the complete cut sets
