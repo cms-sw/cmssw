@@ -38,11 +38,11 @@ namespace edm {
                                                        ActivityRegistry const* activityRegistry,
                                                        unsigned int nConcurrentIOVs)
         : key_(iKey),
-          nConcurrentIOVs_(nConcurrentIOVs),
           validityInterval_(),
           finder_(),
           providers_(),
-          multipleFinders_(new std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>()) {
+          multipleFinders_(new std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>()),
+          nConcurrentIOVs_(nConcurrentIOVs) {
       for (unsigned int i = 0; i < nConcurrentIOVs_; ++i) {
         recordImpls_.push_back(std::make_unique<EventSetupRecordImpl>(iKey, activityRegistry, i));
       }
