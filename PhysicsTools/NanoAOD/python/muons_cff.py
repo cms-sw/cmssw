@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
+from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
 from PhysicsTools.NanoAOD.common_cff import *
 import PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi
 
@@ -128,7 +131,7 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         tightId = Var("passed('CutBasedIdTight')",bool,doc="cut-based ID, tight WP"),
         softId = Var("passed('SoftCutBasedId')",bool,doc="soft cut-based ID"),
         softMvaId = Var("passed('SoftMvaId')",bool,doc="soft MVA ID"),
-        softMvaScore = Var("softMvaValue()",float,doc="soft MVA ID score",precision=6),
+        softMva = Var("softMvaValue()",float,doc="soft MVA ID score",precision=6),
         highPtId = Var("?passed('CutBasedIdGlobalHighPt')?2:passed('CutBasedIdTrkHighPt')","uint8",doc="high-pT cut-based ID (1 = tracker high pT, 2 = global high pT, which includes tracker high pT)"),
         pfIsoId = Var("passed('PFIsoVeryLoose')+passed('PFIsoLoose')+passed('PFIsoMedium')+passed('PFIsoTight')+passed('PFIsoVeryTight')+passed('PFIsoVeryVeryTight')","uint8",doc="PFIso ID from miniAOD selector (1=PFIsoVeryLoose, 2=PFIsoLoose, 3=PFIsoMedium, 4=PFIsoTight, 5=PFIsoVeryTight, 6=PFIsoVeryVeryTight)"),
         tkIsoId = Var("?passed('TkIsoTight')?2:passed('TkIsoLoose')","uint8",doc="TkIso ID (1=TkIsoLoose, 2=TkIsoTight)"),
@@ -144,6 +147,12 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         mvaLowPt = ExtVar(cms.InputTag("muonMVALowPt"),float, doc="Low pt muon ID score",precision=14),
     ),
 )
+
+
+for modifier in  run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
+    modifier.toModify(muonTable.variables, puppiIsoId = None, softMva = None)
+
+run2_nanoAOD_102Xv1.toModify(muonTable.variables, puppiIsoId = None)
 
 
 muonsMCMatchForTable = cms.EDProducer("MCMatcher",       # cut on deltaR, deltaPt/Pt; pick best by deltaR
@@ -174,3 +183,4 @@ muonTables = cms.Sequence(muonMVATTH + muonMVALowPt + muonTable)
 _withUpdate_sequence = muonSequence.copy()
 _withUpdate_sequence.replace(isoForMu, slimmedMuonsUpdated+isoForMu)
 run2_miniAOD_80XLegacy.toReplaceWith(muonSequence, _withUpdate_sequence)
+
