@@ -123,7 +123,7 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       std::vector<int> mvaCats_;
 
       // To get the auxiliary MVA variables
-      const MVAVariableHelper<reco::GsfElectron> variableHelper_;
+      const MVAVariableHelper variableHelper_;
 
       // other
       TTree* tree_;
@@ -311,7 +311,7 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         ele3Q_ = ele->chargeInfo().isGsfCtfScPixConsistent;
 
         for (int iVar = 0; iVar < nVars_; ++iVar) {
-            std::vector<float> extraVariables = variableHelper_.getAuxVariables(ele, iEvent);
+            std::vector<float> extraVariables = variableHelper_.getAuxVariables(iEvent);
             vars_[iVar] = mvaVarMngr_.getValue(iVar, *ele, extraVariables);
         }
 

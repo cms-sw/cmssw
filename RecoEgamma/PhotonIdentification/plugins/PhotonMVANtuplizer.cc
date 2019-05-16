@@ -107,7 +107,7 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
       std::vector<int> mvaCats_;
 
       // To get the auxiliary MVA variables
-      const MVAVariableHelper<reco::Photon> variableHelper_;
+      const MVAVariableHelper variableHelper_;
 
       // To manage the variables which are parsed from the text file
       MVAVariableManager<reco::Photon> mvaVarMngr_;
@@ -305,7 +305,7 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
         // variables from the text file
         for (int iVar = 0; iVar < nVars_; ++iVar) {
-            std::vector<float> extraVariables = variableHelper_.getAuxVariables(pho, iEvent);
+            std::vector<float> extraVariables = variableHelper_.getAuxVariables(iEvent);
             vars_[iVar] = mvaVarMngr_.getValue(iVar, *pho, extraVariables);
         }
 
