@@ -55,7 +55,7 @@ L1DummyProducer::L1DummyProducer(const edm::ParameterSet& iConfig) {
     std::cout << "[L1DummyProducer] instName:\n";
     for(int i=0; i<DEnsys; i++)
       for(int j=0; j<5; j++)
-	if(instName[i][j] != "")
+	if(!instName[i][j].empty())
 	  std::cout << i << " " << SystLabel[i] << " " << j << " " 
 		    << instName[i][j] << std::endl;
     std::cout << std::flush;

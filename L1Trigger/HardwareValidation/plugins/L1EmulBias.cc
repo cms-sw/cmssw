@@ -59,7 +59,7 @@ L1EmulBias::L1EmulBias(const edm::ParameterSet& iConfig) {
   if(verbose())
     for(int i=0; i<DEnsys; i++)
       for(int j=0; j<5; j++)
-	if(instName[i][j] != "")
+	if(!instName[i][j].empty())
 	  std::cout << "[emulbias] " << i << " " << SystLabel[i] 
 		    << " " << j << " " << instName[i][j] 
 		    << std::endl;  
