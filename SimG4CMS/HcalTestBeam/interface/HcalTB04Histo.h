@@ -15,11 +15,11 @@
 // Original Author:  Sunanda Banerjee
 //         Created:  Thu May 18 10:14:34 CEST 2006
 //
-  
+
 // system include files
-#include<string>
-#include<vector>
- 
+#include <string>
+#include <vector>
+
 // user include files
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -29,31 +29,29 @@
 #include <TProfile.h>
 
 class HcalTB04Histo {
-   
 public:
- 
   // ---------- Constructor and destructor -----------------
-  HcalTB04Histo(const edm::ParameterSet &ps);
+  HcalTB04Histo(const edm::ParameterSet& ps);
   virtual ~HcalTB04Histo();
 
   // ---------- member functions ---------------------------
   void fillPrimary(double energy, double eta, double phi);
-  void fillEdep(double etots, double eecals, double ehcals, 
-		double etotq, double eecalq, double ehcalq);
-  void fillTrnsProf(const std::vector<double>& es1, const std::vector<double>& eq1,
-                    const std::vector<double>& es2, const std::vector<double>& eq2);
+  void fillEdep(double etots, double eecals, double ehcals, double etotq, double eecalq, double ehcalq);
+  void fillTrnsProf(const std::vector<double>& es1,
+                    const std::vector<double>& eq1,
+                    const std::vector<double>& es2,
+                    const std::vector<double>& eq2);
   void fillLongProf(const std::vector<double>& es, const std::vector<double>& eq);
-                                                                               
+
 private:
-
   // ---------- Private Data members -----------------------
-  bool                  verbose;
-  double                eTotMax, eHcalMax;
+  bool verbose;
+  double eTotMax, eHcalMax;
 
-  TH1D                  *iniE,  *iEta,  *iPhi;
-  TH1D                  *edepS, *edecS, *edhcS, *edepQ, *edecQ, *edhcQ;
-  TH2D                  *edehS, *edehQ;
-  TProfile              *latse, *latqe, *latsf, *latqf, *lngs, *lngq;
+  TH1D *iniE, *iEta, *iPhi;
+  TH1D *edepS, *edecS, *edhcS, *edepQ, *edecQ, *edhcQ;
+  TH2D *edehS, *edehQ;
+  TProfile *latse, *latqe, *latsf, *latqf, *lngs, *lngq;
 };
- 
+
 #endif

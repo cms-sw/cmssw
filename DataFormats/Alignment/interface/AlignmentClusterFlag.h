@@ -12,9 +12,8 @@
  * Original author: A. Bonato
  */
 
-class AlignmentClusterFlag
-{
- public:
+class AlignmentClusterFlag {
+public:
   AlignmentClusterFlag();
   AlignmentClusterFlag(const DetId &id);
   AlignmentClusterFlag(const AlignmentClusterFlag &ahf);
@@ -26,10 +25,10 @@ class AlignmentClusterFlag
   void SetTakenFlag();
   void SetOverlapFlag();
   void SetDetId(const DetId &newdetid);
-  const DetId& detId() const {return detId_;}
-  char  hitFlag() const {return hitFlag_;}
+  const DetId &detId() const { return detId_; }
+  char hitFlag() const { return hitFlag_; }
 
- private:
+private:
   DetId detId_;
   char hitFlag_;
 };

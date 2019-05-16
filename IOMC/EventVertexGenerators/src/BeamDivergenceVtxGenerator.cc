@@ -23,46 +23,42 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class BeamDivergenceVtxGenerator : public edm::stream::EDProducer<>
-{
-  public:
-    explicit BeamDivergenceVtxGenerator(const edm::ParameterSet&);
-    ~BeamDivergenceVtxGenerator() override = default;
+class BeamDivergenceVtxGenerator : public edm::stream::EDProducer<> {
+public:
+  explicit BeamDivergenceVtxGenerator(const edm::ParameterSet&);
+  ~BeamDivergenceVtxGenerator() override = default;
 
-    static void fillDescriptions(edm::ConfigurationDescriptions&);
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-    void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-  private:
-    edm::EDGetTokenT<edm::HepMCProduct> sourceToken_;
+private:
+  edm::EDGetTokenT<edm::HepMCProduct> sourceToken_;
 
-    bool simulateVertex_;
-    bool simulateBeamDivergence_;
+  bool simulateVertex_;
+  bool simulateBeamDivergence_;
 };
 
 //----------------------------------------------------------------------------------------------------
 
-BeamDivergenceVtxGenerator::BeamDivergenceVtxGenerator(const edm::ParameterSet& iConfig) :
-  sourceToken_(consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>("src"))),
-  simulateVertex_        (iConfig.getParameter<bool>("simulateVertex")),
-  simulateBeamDivergence_(iConfig.getParameter<bool>("simulateBeamDivergence"))
-{
+BeamDivergenceVtxGenerator::BeamDivergenceVtxGenerator(const edm::ParameterSet& iConfig)
+    : sourceToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("src"))),
+      simulateVertex_(iConfig.getParameter<bool>("simulateVertex")),
+      simulateBeamDivergence_(iConfig.getParameter<bool>("simulateBeamDivergence")) {
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable())
     throw cms::Exception("Configuration")
-      << "The BeamDivergenceVtxGenerator requires the RandomNumberGeneratorService\n"
-         "which is not present in the configuration file. \n"
-         "You must add the service\n"
-         "in the configuration file or remove the modules that require it.";
+        << "The BeamDivergenceVtxGenerator requires the RandomNumberGeneratorService\n"
+           "which is not present in the configuration file. \n"
+           "You must add the service\n"
+           "in the configuration file or remove the modules that require it.";
 
   produces<edm::HepMCProduct>();
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void
-BeamDivergenceVtxGenerator::produce(edm::Event& iEvent, const edm::EventSetup &iSetup)
-{
+void BeamDivergenceVtxGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get random engine
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* rnd = &(rng->getEngine(iEvent.streamID()));
@@ -82,11 +78,14 @@ BeamDivergenceVtxGenerator::produce(edm::Event& iEvent, const edm::EventSetup &i
   // apply vertex smearing
   if (simulateVertex_) {
     // NB: the separtion between effective offsets in LHC sectors 45 and 56 cannot be applied, thus the values for 45 are used
-    const double vtx_x = hBeamParameters->getVtxOffsetX45() + CLHEP::RandGauss::shoot(rnd) * hBeamParameters->getVtxStddevX();
-    const double vtx_y = hBeamParameters->getVtxOffsetY45() + CLHEP::RandGauss::shoot(rnd) * hBeamParameters->getVtxStddevY();
-    const double vtx_z = hBeamParameters->getVtxOffsetZ45() + CLHEP::RandGauss::shoot(rnd) * hBeamParameters->getVtxStddevZ();
+    const double vtx_x =
+        hBeamParameters->getVtxOffsetX45() + CLHEP::RandGauss::shoot(rnd) * hBeamParameters->getVtxStddevX();
+    const double vtx_y =
+        hBeamParameters->getVtxOffsetY45() + CLHEP::RandGauss::shoot(rnd) * hBeamParameters->getVtxStddevY();
+    const double vtx_z =
+        hBeamParameters->getVtxOffsetZ45() + CLHEP::RandGauss::shoot(rnd) * hBeamParameters->getVtxStddevZ();
 
-    HepMC::FourVector shift(vtx_x*1E1, vtx_y*1E1, vtx_z*1E1, 0.);  // conversions: cm to mm
+    HepMC::FourVector shift(vtx_x * 1E1, vtx_y * 1E1, vtx_z * 1E1, 0.);  // conversions: cm to mm
     pEvent->applyVtxGen(&shift);
   }
 
@@ -107,8 +106,7 @@ BeamDivergenceVtxGenerator::produce(edm::Event& iEvent, const edm::EventSetup &i
       double th_x = mom.x() / mom.z();
       double th_y = mom.y() / mom.z();
 
-      if (mom.z() > 0.)
-      {
+      if (mom.z() > 0.) {
         th_x += bd_x_45;
         th_y += bd_y_45;
       } else {
@@ -118,7 +116,7 @@ BeamDivergenceVtxGenerator::produce(edm::Event& iEvent, const edm::EventSetup &i
 
       // calculate consistent p_z component
       const double sign = (mom.z() > 0.) ? 1. : -1.;
-      const double p_z = sign * mom.rho() / sqrt(1. + th_x*th_x + th_y*th_y);
+      const double p_z = sign * mom.rho() / sqrt(1. + th_x * th_x + th_y * th_y);
 
       // set smeared momentum
       (*part)->set_momentum(HepMC::FourVector(p_z * th_x, p_z * th_y, p_z, mom.e()));
@@ -131,12 +129,10 @@ BeamDivergenceVtxGenerator::produce(edm::Event& iEvent, const edm::EventSetup &i
 
 //----------------------------------------------------------------------------------------------------
 
-void
-BeamDivergenceVtxGenerator::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
-{
+void BeamDivergenceVtxGenerator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("generator", "unsmeared"))
-    ->setComment("input collection where to retrieve outgoing particles kinematics to be smeared");
+      ->setComment("input collection where to retrieve outgoing particles kinematics to be smeared");
   desc.add<bool>("simulateBeamDivergence", true)->setComment("account for the beam angular divergence?");
   desc.add<bool>("simulateVertex", true)->setComment("account for the vertex transverse smearing?");
 

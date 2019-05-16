@@ -1,9 +1,8 @@
 #ifndef CommonAlignmentMonitor_AlignmentStats_H
 #define CommonAlignmentMonitor_AlignmentStats_H
 
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EventPrincipal.h" 
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -26,17 +25,15 @@
 
 //using namespace edm;
 
-class AlignmentStats: public edm::EDAnalyzer{
- public:
+class AlignmentStats : public edm::EDAnalyzer {
+public:
   AlignmentStats(const edm::ParameterSet &iConfig);
   ~AlignmentStats() override;
   void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
-  void beginJob( ) override;
+  void beginJob() override;
   void endJob() override;
 
- private:
-
-
+private:
   //////inputs from config file
   edm::InputTag src_;
   edm::InputTag overlapAM_;
@@ -51,22 +48,20 @@ class AlignmentStats: public edm::EDAnalyzer{
   //Track stats
   TFile *treefile_;
   TTree *outtree_;
-  static const int MAXTRKS_=200;
+  static const int MAXTRKS_ = 200;
   int run_, event_;
   unsigned int ntracks;
-  float P[MAXTRKS_],Pt[MAXTRKS_],Eta[MAXTRKS_],Phi[MAXTRKS_],Chi2n[MAXTRKS_];
-  int Nhits[MAXTRKS_][7];//0=total, 1-6=Subdets
+  float P[MAXTRKS_], Pt[MAXTRKS_], Eta[MAXTRKS_], Phi[MAXTRKS_], Chi2n[MAXTRKS_];
+  int Nhits[MAXTRKS_][7];  //0=total, 1-6=Subdets
 
   //Hit Population
-  typedef std::map<uint32_t,uint32_t>DetHitMap;
+  typedef std::map<uint32_t, uint32_t> DetHitMap;
   DetHitMap hitmap_;
   DetHitMap overlapmap_;
 
   //  edm::ESHandle<TrackerGeometry> trackerGeometry_;
-  const TrackerGeometry* trackerGeometry_;
-  const TrackerTopology* trackerTopology_;
-
+  const TrackerGeometry *trackerGeometry_;
+  const TrackerTopology *trackerTopology_;
 };
-
 
 #endif
