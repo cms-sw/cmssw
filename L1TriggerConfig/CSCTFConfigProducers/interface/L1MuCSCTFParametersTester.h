@@ -27,24 +27,19 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 // forward declarations
 class L1GtParameters;
 
 // class declaration
-class L1MuCSCTFParametersTester : public edm::EDAnalyzer
-{
-
+class L1MuCSCTFParametersTester : public edm::EDAnalyzer {
 public:
+  // constructor
+  explicit L1MuCSCTFParametersTester(const edm::ParameterSet&);
 
-    // constructor
-    explicit L1MuCSCTFParametersTester(const edm::ParameterSet&);
+  // destructor
+  ~L1MuCSCTFParametersTester() override;
 
-    // destructor
-    ~L1MuCSCTFParametersTester() override;
-
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
-
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 };
 
 #endif /*CSCTFConfigProducers_L1MuCSCTFParametersTester_h*/

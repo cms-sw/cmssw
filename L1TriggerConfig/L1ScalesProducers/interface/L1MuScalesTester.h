@@ -2,8 +2,7 @@
 //
 // Package:    L1ScalesProducer
 // Class:      L1MuScalesTester
-// 
-
+//
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -16,16 +15,14 @@ class L1MuScale;
 //
 
 class L1MuScalesTester : public edm::EDAnalyzer {
-   public:
-      explicit L1MuScalesTester(const edm::ParameterSet&);
-      ~L1MuScalesTester() override;
+public:
+  explicit L1MuScalesTester(const edm::ParameterSet&);
+  ~L1MuScalesTester() override;
 
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void printScale(const L1MuScale*);
 
-      void printScale(const L1MuScale*);
-
-   private:
-      // ----------member data ---------------------------
+private:
+  // ----------member data ---------------------------
 };
-
