@@ -15,17 +15,18 @@ class EventSetup;
 }  // namespace edm
 // namespace reco {class CaloCluster;}
 
-class PatternRecognitionbyMultiClusters final : public PatternRecognitionAlgoBase {
- public:
-  PatternRecognitionbyMultiClusters(const edm::ParameterSet& conf)
-      : PatternRecognitionAlgoBase(conf) {
-  }
-  ~PatternRecognitionbyMultiClusters() override {};
+namespace ticl {
+  class PatternRecognitionbyMultiClusters final : public PatternRecognitionAlgoBase {
+    public:
+      PatternRecognitionbyMultiClusters(const edm::ParameterSet& conf)
+        : PatternRecognitionAlgoBase(conf) {
+        }
+      ~PatternRecognitionbyMultiClusters() override {};
 
-  void makeTracksters(const edm::Event& ev, const edm::EventSetup& es,
-                      const std::vector<reco::CaloCluster>& layerClusters,
-                      const std::vector<std::pair<unsigned int, float> >& mask,
-                      std::vector<Trackster>& result) override;
-};
-
+      void makeTracksters(const edm::Event& ev, const edm::EventSetup& es,
+          const std::vector<reco::CaloCluster>& layerClusters,
+          const std::vector<std::pair<unsigned int, float> >& mask,
+          std::vector<Trackster>& result) override;
+  };
+}
 #endif
