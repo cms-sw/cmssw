@@ -1,4 +1,4 @@
-#ifndef CONFIGCODE_TTUBOARDSPECSIO_H 
+#ifndef CONFIGCODE_TTUBOARDSPECSIO_H
 #define CONFIGCODE_TTUBOARDSPECSIO_H 1
 
 // Include files
@@ -16,20 +16,18 @@
  *  @date   2008-12-16
  */
 class TTUBoardSpecsIO : public TTUBoardSpecs {
-public: 
+public:
   /// Standard constructor
-  TTUBoardSpecsIO( ); 
+  TTUBoardSpecsIO();
 
-  ~TTUBoardSpecsIO( ) override; ///< Destructor
+  ~TTUBoardSpecsIO() override;  ///< Destructor
 
-  friend std::istream& operator>>(std::istream &, TTUBoardConfig &);
-  
+  friend std::istream &operator>>(std::istream &, TTUBoardConfig &);
+
 protected:
-  
 private:
-  
 };
 
-std::istream& operator>>(std::istream &, TTUBoardSpecsIO::TTUBoardConfig &);
+std::istream &operator>>(std::istream &, TTUBoardSpecsIO::TTUBoardConfig &);
 
-#endif // CONFIGCODE_TTUBOARDSPECSIO_H
+#endif  // CONFIGCODE_TTUBOARDSPECSIO_H
