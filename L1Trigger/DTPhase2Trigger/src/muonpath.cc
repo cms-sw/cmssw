@@ -7,32 +7,40 @@
 
 MuonPath::MuonPath(DTPrimitive *ptrPrimitive[4]) {
   //    std::cout<<"Creando un 'MuonPath'"<<std::endl;
-    
-    quality[0]       = NOPATH;
-    baseChannelId[0] = -1;
+  
+  quality[0]       = NOPATH;
+  baseChannelId[0] = -1;
 
-    for (int i = 0; i <= 3; i++) {
-      if ( (prim[i] = ptrPrimitive[i]) == NULL )
-	std::cout<<"Unable to create 'MuonPath'. Null 'Primitive'."<<std::endl;
-    }
-    
-    nprimitives = 4;
-    bxTimeValue[0] = -1;
-    bxNumId[0]     = -1;
-    tanPhi[0]      = 0;
-    horizPos[0]    = 0;
-    chiSquare[0]   = 0;
-    for (int i = 0; i <= 3; i++) {
-      lateralComb[0][i] = LEFT;
-      setXCoorCell     ( 0, i );
-      setDriftDistance ( 0, i );
-    }
+  for (int i = 0; i <= 3; i++) {
+    if ( (prim[i] = ptrPrimitive[i]) == NULL )
+      std::cout<<"Unable to create 'MuonPath'. Null 'Primitive'."<<std::endl;
+  }
+  
+  nprimitives = 4;
+  //Dummy values
+  nprimitivesUp = 0;
+  nprimitivesDown = 0;
+  bxTimeValue[0] = -1;
+  bxNumId[0]     = -1;
+  tanPhi[0]      = 0;
+  horizPos[0]    = 0;
+  chiSquare[0]   = 0;
+  Phi[0]         = 0;
+  PhiB[0]        = 0;
+  rawId          = 0;
+  for (int i = 0; i <= 3; i++) {
+    lateralComb[0][i] = LEFT;
+    setXCoorCell     ( 0, i );
+    setDriftDistance ( 0, i );
+  }
 }
 
-MuonPath::MuonPath(DTPrimitive *ptrPrimitive[8], short nprim) {
+MuonPath::MuonPath(DTPrimitive *ptrPrimitive[8], int nprimUp, int nprimDown) {
   //    std::cout<<"Creando un 'MuonPath'"<<std::endl;
-  nprimitives = nprim;
-  
+  nprimitives     = 8; //Instead of nprimUp + nprimDown;
+  nprimitivesUp   = nprimUp;
+  nprimitivesDown = nprimDown;
+  rawId           = 0;
   for (int i=1; i<=2; i++){
     quality[i]       = NOPATH;
     baseChannelId[i] = -1;
@@ -41,15 +49,16 @@ MuonPath::MuonPath(DTPrimitive *ptrPrimitive[8], short nprim) {
     tanPhi[i]      = 0;
     horizPos[i]    = 0;
     chiSquare[i]   = 0;
-
+    Phi[i]         = 0;
+    PhiB[i]        = 0;
     for (int l = 0; l <= 3; l++) {
       lateralComb[i][l] = LEFT;
     }
   }
-  for (short i = 0; i <= nprim; i++) {
-    if ( (prim[i] = ptrPrimitive[i]) == NULL )
+  for (short i = 0; i < nprimitives; i++) {
+    if ( (prim[i] = ptrPrimitive[i]) == NULL ){
       std::cout<<"Unable to create 'MuonPath'. Null 'Primitive'."<<std::endl;
-
+    }
     setXCoorCell     ( 0, i );
     setDriftDistance ( 0, i );
   }
@@ -58,25 +67,32 @@ MuonPath::MuonPath(DTPrimitive *ptrPrimitive[8], short nprim) {
 
 MuonPath::MuonPath(MuonPath *ptr) {
   //  std::cout<<"Clonando un 'MuonPath'"<<std::endl;
+  
 
-    setQuality             ( ptr->getQuality()              );
-    setBaseChannelId       ( ptr->getBaseChannelId()        );
-    setCellHorizontalLayout( ptr->getCellHorizontalLayout() );
-    setNPrimitives         ( ptr->getNPrimitives()          );
-
-    for (int i = 0; i < ptr->getNPrimitives(); i++)
-	setPrimitive( new DTPrimitive(ptr->getPrimitive(i)), i );
-
-    setLateralComb ( ptr->getLateralComb() );
-    setBxTimeValue ( ptr->getBxTimeValue() );
-    setTanPhi      ( ptr->getTanPhi()      );
-    setHorizPos    ( ptr->getHorizPos()    );
-    setChiSq       ( ptr->getChiSq()       );
-
-    for (int i = 0; i <  ptr->getNPrimitives(); i++) {
-	setXCoorCell     ( ptr->getXCoorCell(i), i     );
-	setDriftDistance ( ptr->getDriftDistance(i), i );
-    }
+  setNPrimitives         ( ptr->getNPrimitives()          );
+  setNPrimitivesUp       ( ptr->getNPrimitivesUp()        );
+  setNPrimitivesDown     ( ptr->getNPrimitivesDown()      );
+  
+  for (int i=0; i<3; i++) {
+    setQuality             ( ptr->getQuality(i)              );
+    setBaseChannelId       ( ptr->getBaseChannelId(i)        );
+    setCellHorizontalLayout( ptr->getCellHorizontalLayout(i) );
+    
+    setLateralComb ( ptr->getLateralComb(i) );
+    setBxTimeValue ( ptr->getBxTimeValue(i) );
+    setTanPhi      ( ptr->getTanPhi(i)      );
+    setHorizPos    ( ptr->getHorizPos(i)    );
+    setChiSq       ( ptr->getChiSq(i)       );
+    setPhi         ( ptr->getPhi(i)         );
+    setPhiB        ( ptr->getPhiB(i)        );
+  }
+  
+  for (int i = 0; i < ptr->getNPrimitives(); i++){ 
+    setPrimitive( new DTPrimitive(ptr->getPrimitive(i)), i );
+    
+    setXCoorCell     ( ptr->getXCoorCell(i), i     );
+    setDriftDistance ( ptr->getDriftDistance(i), i );
+  }
 }
 
 MuonPath::~MuonPath() {
@@ -134,7 +150,6 @@ const int* MuonPath::getCellHorizontalLayout(short sl) {
   if (sl==0) return (cellLayout[1]); 
   if (sl==2) return (cellLayout[2]); 
 
-  std::cerr<<"Please provide a valid SL Id"<<std::endl;    
   return  getCellHorizontalLayout();
 }
 
@@ -164,7 +179,6 @@ void MuonPath::setQuality(MP_QUALITY qty, short sl) {
   if      (sl==0) quality[1] = qty;
   else if (sl==2) quality[2] = qty;
   else {
-    std::cerr<<"Please provide a valid SL Id"<<std::endl;
     setQuality(qty);
   }
 }
@@ -173,7 +187,6 @@ MP_QUALITY MuonPath::getQuality(short sl) {
   if      (sl==0) return quality[1];
   else if (sl==2) return quality[2];
   else {
-    std::cerr<<"Please provide a valid SL Id"<<std::endl;    
     return getQuality();
   }
 }
@@ -422,6 +435,33 @@ float MuonPath::getChiSq(short sl)      {
   if (sl==0) return chiSquare[1];
   if (sl==2) return chiSquare[2];
   return getChiSq();
+}
+void  MuonPath::setPhi(float phi) { Phi[0] = phi;  }
+float MuonPath::getPhi(void)      { return Phi[0]; }
+
+void  MuonPath::setPhi(float phi, short sl) {
+  if      (sl==0) Phi[1] = phi;
+  else if (sl==2) Phi[2] = phi;
+  else            Phi[0] = phi;
+}
+float MuonPath::getPhi(short sl)      { 
+  if (sl==0) return Phi[1];
+  if (sl==2) return Phi[2];
+  return getPhi();
+}
+
+void  MuonPath::setPhiB(float phib) { PhiB[0] = phib;  }
+float MuonPath::getPhiB(void)      { return PhiB[0]; }
+
+void  MuonPath::setPhiB(float phib, short sl) {
+  if      (sl==0) PhiB[1] = phib;
+  else if (sl==2) PhiB[2] = phib;
+  else            PhiB[0] = phib;
+}
+float MuonPath::getPhiB(short sl)      { 
+  if (sl==0) return PhiB[1];
+  if (sl==2) return PhiB[2];
+  return getPhiB();
 }
 
 void  MuonPath::setXCoorCell(float x, int cell) { xCoorCell[cell] = x;    }

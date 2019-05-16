@@ -10,15 +10,19 @@ class MuonPath {
 
   public:
     MuonPath(DTPrimitive *ptrPrimitive[4]);
-    MuonPath(DTPrimitive *ptrPrimitive[8], short nprim);
+    MuonPath(DTPrimitive *ptrPrimitive[8], int nprimUp, int nprimDown);
     MuonPath(MuonPath *ptr);
     virtual ~MuonPath();
 
     void setPrimitive(DTPrimitive *ptr, int layer);
     DTPrimitive *getPrimitive(int layer);
     
-    short getNPrimitives(void) { return nprimitives; }
-    void setNPrimitives(short nprim) { nprimitives = nprim; }
+    short getNPrimitives(void)            { return nprimitives;     }
+    void  setNPrimitives(short nprim)     { nprimitives = nprim;    }
+    short getNPrimitivesUp(void)          { return nprimitivesUp;   }
+    void  setNPrimitivesUp(short nprim)   { nprimitives = nprim;    }
+    short getNPrimitivesDown(void)        { return nprimitivesDown; }
+    void  setNPrimitivesDown(short nprim) { nprimitives = nprim;    }
 
     void setCellHorizontalLayout(int layout[4]);
     void setCellHorizontalLayout(const int *layout);
@@ -78,11 +82,24 @@ class MuonPath {
     void  setChiSq(float chi, short sl);
     float getChiSq(short sl);
 
+    void  setPhi(float phi);
+    float getPhi(void);
+    void  setPhi(float phi, short sl);
+    float getPhi(short sl);
+
+    void  setPhiB(float phib);
+    float getPhiB(void);
+    void  setPhiB(float phib, short sl);
+    float getPhiB(short sl);
+
     void  setXCoorCell(float x, int cell);
     float getXCoorCell(int cell);
 
     void  setDriftDistance(float dx, int cell);
     float getDriftDistance(int cell);
+    
+    void setRawId(uint32_t id) { rawId=id; }
+    uint32_t getRawId() { return rawId;}
 
   private:
     //------------------------------------------------------------------
@@ -94,7 +111,9 @@ class MuonPath {
      */
     DTPrimitive *prim[8];
     short nprimitives;
-    
+    short nprimitivesUp;
+    short nprimitivesDown;
+
     /* Posiciones horizontales de cada celda (una por capa), en unidades de
        semilongitud de celda, relativas a la celda de la capa inferior
        (capa 0). Pese a que la celda de la capa 0 siempre está en posición
@@ -131,6 +150,11 @@ class MuonPath {
     float horizPos[3]; // SLX=0, SL1=1, SL3=2;
 
     float chiSquare[3]; // SLX=0, SL1=1, SL3=2;
+    
+    float Phi[3];
+    float PhiB[3];
+    
+    uint32_t rawId;
 };
 
 #endif
