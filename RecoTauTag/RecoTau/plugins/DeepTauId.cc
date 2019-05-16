@@ -781,7 +781,7 @@ private:
     template<typename Collection>
     void fillGrids(const TauType& tau, const Collection& objects, CellGrid& inner_grid, CellGrid& outer_grid)
     {
-        static constexpr double outer_dR2 = std::pow(0.5, 2);
+        static constexpr double outer_dR2 = 0.25;//0.5^2
         const double inner_radius = getInnerSignalConeRadius(tau.polarP4().pt());
         const double inner_dR2 = std::pow(inner_radius, 2);
 
