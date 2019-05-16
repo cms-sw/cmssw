@@ -30,8 +30,17 @@ from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 # DataFormat.AOD or DataFormat.MiniAOD, as appropriate
 if useAOD == True :
     dataFormat = DataFormat.AOD
+    input_tags = dict(
+        src = cms.InputTag("gedPhotons"),
+        vertices = cms.InputTag("offlinePrimaryVertices"),
+        pileup = cms.InputTag("addPileupInfo"),
+        genParticles = cms.InputTag("genParticles"),
+        ebReducedRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
+        eeReducedRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
+    )
 else :
     dataFormat = DataFormat.MiniAOD
+    input_tags = dict()
 
 switchOnVIDPhotonIdProducer(process, dataFormat)
 
@@ -73,7 +82,9 @@ process.ntuplizer = cms.EDAnalyzer('PhotonMVANtuplizer',
         variableDefinition = cms.string(mvaVariablesFile),
         #
         doEnergyMatrix = cms.bool(False), # disabled by default due to large size
-        energyMatrixSize = cms.int32(2) # corresponding to 5x5
+        energyMatrixSize = cms.int32(2), # corresponding to 5x5
+        #
+        **input_tags
         )
 """
 The energy matrix is the n x n of raw rec-hit energies around the seed
