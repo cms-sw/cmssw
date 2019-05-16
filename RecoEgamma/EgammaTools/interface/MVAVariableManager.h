@@ -128,7 +128,7 @@ class MVAVariableManager {
     std::vector<std::string> names_;
     std::map<std::string, int> indexMap_;
 
-    const MVAVariableIndexMap<ParticleType> indexMap;
+    const MVAVariableIndexMap indexMap;
 };
 
 #endif

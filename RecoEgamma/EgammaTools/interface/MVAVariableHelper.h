@@ -10,7 +10,6 @@
 #include <vector>
 #include <string>
 
-template<class ParticleType>
 class MVAVariableIndexMap {
 
   public:
@@ -24,24 +23,15 @@ class MVAVariableIndexMap {
     const std::unordered_map<std::string, int> indexMap_;
 };
 
-template<class ParticleType>
 class MVAVariableHelper {
 
   public:
 
     MVAVariableHelper(edm::ConsumesCollector && cc);
 
-    const std::vector<float> getAuxVariables(edm::Ptr<ParticleType> const& particlePtr,
-                                             const edm::Event& iEvent) const;
+    const std::vector<float> getAuxVariables(const edm::Event& iEvent) const;
 
   private:
-
-    static float getVariableFromValueMapToken(edm::Ptr<ParticleType> const& particlePtr,
-                                       edm::EDGetToken const& token, edm::Event const& iEvent) {
-        edm::Handle<edm::ValueMap<float>> handle;
-        iEvent.getByToken(token, handle);
-        return (*handle)[particlePtr];
-    }
 
     static float getVariableFromDoubleToken(edm::EDGetToken const& token, const edm::Event& iEvent) {
         edm::Handle<double> handle;
