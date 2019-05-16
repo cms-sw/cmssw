@@ -214,7 +214,10 @@ bool HcalTopology::validDetId(HcalSubdetector subdet, int ieta, int iphi,
 bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
 
   if (id.iphi()<1 || id.iphi()>IPHI_MAX || id.ieta()==0)  return false;
-  if (id.depth() != 0)                              return false;
+  if (id.depth() != 0)                                    return false;
+  if (maxDepthHE_ == 0) {
+    if (id.ietaAbs() > lastHBRing_ && id.ietaAbs() < firstHERing_) return false;
+  }
   if (id.version()==0) {
     if (id.ietaAbs() > 28) {
        if (triggerMode_ >= HcalTopologyMode::TriggerMode_2017) return false;
@@ -838,7 +841,7 @@ int HcalTopology::nPhiBins(HcalSubdetector bc, int etaRing) const {
 
 int HcalTopology::maxDepth() const {
   int maxd1 = std::max(maxDepthHB_,maxDepthHE_);
-  int maxd2 = std::max(maxDepthHF_,8);
+  int maxd2 = std::max(maxDepthHF_,minMaxDepth_);
   return std::max(maxd1,maxd2);
 }
 
