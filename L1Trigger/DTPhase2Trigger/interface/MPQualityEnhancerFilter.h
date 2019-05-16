@@ -1,5 +1,5 @@
-#ifndef Phase2L1Trigger_DTTrigger_MuonPathFilter_cc
-#define Phase2L1Trigger_DTTrigger_MuonPathFilter_cc
+#ifndef Phase2L1Trigger_DTTrigger_MPQualityEnhancerFilter_cc
+#define Phase2L1Trigger_DTTrigger_MPQualityEnhancerFilter_cc
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -50,25 +50,36 @@
 // Class declarations
 // ===============================================================================
 
-class MuonPathFilter {
+class MPQualityEnhancerFilter : public MuonPathFilter {
  public:
   // Constructors and destructor
-  MuonPathFilter(const edm::ParameterSet& pset);
-  virtual ~MuonPathFilter();
-  
-  // Main methods
-  virtual void initialise(const edm::EventSetup& iEventSetup)=0;
-  virtual void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath)=0;
-  virtual void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<MuonPath*> &inMPath, std::vector<MuonPath*> &outMPath)=0;
-  
-  virtual void finish()=0;
+  MPQualityEnhancerFilter(const edm::ParameterSet& pset);
+  virtual ~MPQualityEnhancerFilter();
     
+  // Main methods
+  void initialise(const edm::EventSetup& iEventSetup);
+  void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath);
+  void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<MuonPath*> &inMPath, std::vector<MuonPath*> &outMPath){};
+  
+  void finish();
+  
   // Other public methods
   
+  // Public attributes
+  int areCousins(metaPrimitive mp1, metaPrimitive mp2);
+  int rango(metaPrimitive mp);
+  void printmP(metaPrimitive mP);
+  
  private:
+  // Private methods
+  void filterCousins(std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath);
+  void filterTanPhi(std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath);
+
   
   // Private attributes
   Bool_t debug;
+  bool filter_cousins;
+  double tanPhiTh;
 };
 
 

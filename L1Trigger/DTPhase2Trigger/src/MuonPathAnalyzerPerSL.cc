@@ -921,10 +921,10 @@ void MuonPathAnalyzerPerSL::calcTanPhiXPosChamber(MuonPath* mPath)
     /*--------------------- Phi angle calculation ---------------------*/
     /*-----------------------------------------------------------------*/
     float num = CELL_SEMILENGTH * dHoriz +
-	DRIFT_SPEED *
-	eqMainTerm(sideComb, layerIdx, mPath,
-		   mPath->getBxTimeValue()
-		   );
+      DRIFT_SPEED *
+      eqMainTerm(sideComb, layerIdx, mPath,
+		 mPath->getBxTimeValue()
+		 );
 
     float denom = CELL_HEIGHT * dVert;
     float tanPhi = num / denom;
@@ -992,20 +992,15 @@ void MuonPathAnalyzerPerSL::calcTanPhiXPosChamber3Hits(MuonPath* mPath) {
     sideComb[1] = (mPath->getLateralComb())[ layerIdx[1] ];
 
     /* Horizontal gap between cells in cell's semi-length units */
-    int dHoriz = (mPath->getCellHorizontalLayout())[ layerIdx[1] ] -
-	(mPath->getCellHorizontalLayout())[ layerIdx[0] ];
+    int dHoriz = (mPath->getCellHorizontalLayout())[ layerIdx[1] ] - (mPath->getCellHorizontalLayout())[ layerIdx[0] ];
 
     /* Vertical gap between cells in cell's height units */
     int dVert = layerIdx[1] -layerIdx[0];
-
+    
     /*-----------------------------------------------------------------*/
     /*--------------------- Phi angle calculation ---------------------*/
     /*-----------------------------------------------------------------*/
-    float num = CELL_SEMILENGTH * dHoriz +
-	DRIFT_SPEED *
-	eqMainTerm(sideComb, layerIdx, mPath,
-		   mPath->getBxTimeValue()
-		   );
+    float num = CELL_SEMILENGTH * dHoriz + DRIFT_SPEED *eqMainTerm(sideComb, layerIdx, mPath, mPath->getBxTimeValue() );
 
     float denom = CELL_HEIGHT * dVert;
     float tanPhi = num / denom;

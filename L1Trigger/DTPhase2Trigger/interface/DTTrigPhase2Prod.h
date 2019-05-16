@@ -21,8 +21,10 @@
 #include "L1Trigger/DTPhase2Trigger/interface/InitialGrouping.h"
 #include "L1Trigger/DTPhase2Trigger/interface/MuonPathAnalyzer.h"
 #include "L1Trigger/DTPhase2Trigger/interface/MuonPathAnalyzerPerSL.h"
-#include "L1Trigger/DTPhase2Trigger/interface/MuonPathFilter.h"
 #include "L1Trigger/DTPhase2Trigger/interface/MuonPathAssociator.h"
+#include "L1Trigger/DTPhase2Trigger/interface/MuonPathFilter.h"
+#include "L1Trigger/DTPhase2Trigger/interface/MPQualityEnhancerFilter.h"
+#include "L1Trigger/DTPhase2Trigger/interface/MPRedundantFilter.h"
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
@@ -44,7 +46,7 @@
 
 
 class DTTrigPhase2Prod: public edm::EDProducer{
-
+  
     typedef std::map< DTChamberId,DTDigiCollection,std::less<DTChamberId> > DTDigiMap;
     typedef DTDigiMap::iterator DTDigiMap_iterator;
     typedef DTDigiMap::const_iterator DTDigiMap_const_iterator;
@@ -63,8 +65,8 @@ class DTTrigPhase2Prod: public edm::EDProducer{
     //! Producer: process every event and generates trigger data
     void produce(edm::Event & iEvent, const edm::EventSetup& iEventSetup) override;
     
-    //! endRun: finish things
-    void endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
+//! endRun: finish things
+void endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
     
     edm::ESHandle<DTGeometry> dtGeo;
 
@@ -119,7 +121,8 @@ class DTTrigPhase2Prod: public edm::EDProducer{
     Int_t grcode; // Grouping code
     MotherGrouping* grouping_obj;
     MuonPathAnalyzer* mpathanalyzer;
-    MuonPathFilter* mpathfilter;
+    MuonPathFilter*   mpathqualityenhancer;
+    MuonPathFilter*   mpathredundantfilter;
     MuonPathAssociator* mpathassociator;
     
 };

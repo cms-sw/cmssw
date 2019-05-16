@@ -1,5 +1,5 @@
-#ifndef Phase2L1Trigger_DTTrigger_MuonPathFilter_cc
-#define Phase2L1Trigger_DTTrigger_MuonPathFilter_cc
+#ifndef Phase2L1Trigger_DTTrigger_MPRedundantFilter_cc
+#define Phase2L1Trigger_DTTrigger_MPRedundantFilter_cc
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -40,7 +40,7 @@
 
 #include <iostream>
 #include <fstream>
-
+#include <deque>
 
 // ===============================================================================
 // Previous definitions and declarations
@@ -50,25 +50,31 @@
 // Class declarations
 // ===============================================================================
 
-class MuonPathFilter {
+class MPRedundantFilter : public MuonPathFilter {
  public:
   // Constructors and destructor
-  MuonPathFilter(const edm::ParameterSet& pset);
-  virtual ~MuonPathFilter();
-  
+  MPRedundantFilter(const edm::ParameterSet& pset);
+  virtual ~MPRedundantFilter();
+    
   // Main methods
-  virtual void initialise(const edm::EventSetup& iEventSetup)=0;
-  virtual void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath)=0;
-  virtual void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<MuonPath*> &inMPath, std::vector<MuonPath*> &outMPath)=0;
-  
-  virtual void finish()=0;
+  void initialise(const edm::EventSetup& iEventSetup);
+  void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath) {}; 
+  void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<MuonPath*> &inMPath, std::vector<MuonPath*> &outMPath);
+  void finish() { buffer.clear(); };
     
   // Other public methods
   
  private:
   
+  void filter(MuonPath *mpath, std::vector<MuonPath*> &outMPaths);
+  bool isInBuffer(MuonPath* mpath);
+  
+  
   // Private attributes
   Bool_t debug;
+  unsigned int MaxBufferSize;
+  std::deque<MuonPath*> buffer; 
+  
 };
 
 

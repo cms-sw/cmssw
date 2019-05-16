@@ -223,18 +223,18 @@ Bool_t InitialGrouping::notEnoughDataInChannels(void) {
 
 
 void InitialGrouping::resetPrvTDCTStamp(void) {
-  for (Int_t i = 0; i <= 3; i++) prevTDCTimeStamps[i] = -1;
+  for (int i=0; i<=3; i++) prevTDCTimeStamps[i] = -1;
 }
 
 
 Bool_t InitialGrouping::isEqualComb2Previous(DTPrimitive *dtPrims[4]) {
   Bool_t answer = true;
-
+  
   for (Int_t i = 0; i <= 3; i++) {
     if (prevTDCTimeStamps[i] != dtPrims[i]->getTDCTime()) {
       answer = false;
       for (Int_t j = 0; j <= 3; j++) {
-        prevTDCTimeStamps[j] = dtPrims[j]->getTDCTime();
+	prevTDCTimeStamps[j] = dtPrims[j]->getTDCTime();
       }
       break;
     }
