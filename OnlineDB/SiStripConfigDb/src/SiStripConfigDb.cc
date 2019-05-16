@@ -548,7 +548,7 @@ void SiStripConfigDb::usingXmlFiles() {
     } else {
       std::vector<std::string>::iterator iter = ip->second.inputFecXml().begin();
       for (; iter != ip->second.inputFecXml().end(); iter++) {
-        if (*iter.empty()) {
+        if ((*iter).empty()) {
           edm::LogWarning(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
                                        << " NULL path to input 'fec.xml' file!";
         } else {
@@ -576,7 +576,7 @@ void SiStripConfigDb::usingXmlFiles() {
     } else {
       std::vector<std::string>::iterator iter = ip->second.inputFedXml().begin();
       for (; iter != ip->second.inputFedXml().end(); iter++) {
-        if (*iter.empty()) {
+        if ((*iter).empty()) {
           edm::LogWarning(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
                                        << " NULL path to input 'fed.xml' file!";
         } else {
