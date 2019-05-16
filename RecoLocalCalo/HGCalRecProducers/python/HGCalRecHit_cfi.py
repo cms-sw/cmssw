@@ -204,7 +204,7 @@ HGCalRecHit = cms.EDProducer(
     HGCEE_cce = hgceeDigitizer.digiCfg.chargeCollectionEfficiencies,
     HGCHEF_noise_fC = hgchefrontDigitizer.digiCfg.noise_fC,
     HGCHEF_cce = hgchefrontDigitizer.digiCfg.chargeCollectionEfficiencies,
-    HGCHEB_noise_MIP = hgchebackDigitizer.digiCfg.noise_MIP,
+    HGCHEB_noise_MIP = hgchebackDigitizer.digiCfg.noise,
     # algo
     algo = cms.string("HGCalRecHitWorkerSimple")
 

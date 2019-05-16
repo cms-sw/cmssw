@@ -48,7 +48,7 @@ public:
      fcPerMip_(ps.getParameter<std::vector<double> >("fcPerMip")),
      fcPerEle_(ps.getParameter<double>("fcPerEle")),
      nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double> >("values")),
-     noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("value")),
+     noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("noise_MIP")),
      initialized_(false),
      points_(2*(maxlayer+1)),
      minpos_(2*(maxlayer+1),{ {0.0f,0.0f} }),
@@ -114,7 +114,11 @@ static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   descNestedNoises.add<std::vector<double> >("values", {});
   iDesc.add<edm::ParameterSetDescription>("noises", descNestedNoises);
   edm::ParameterSetDescription descNestedNoiseMIP;
-  descNestedNoiseMIP.add<double>("value", 0 );
+  descNestedNoiseMIP.add<bool>("scaleByDose", false );
+  iDesc.add<edm::ParameterSetDescription>("scaleByDose", descNestedNoiseMIP);
+  descNestedNoiseMIP.add<std::string>("doseMap", "" );
+  iDesc.add<edm::ParameterSetDescription>("doseMap", descNestedNoiseMIP);
+  descNestedNoiseMIP.add<double>("noise_MIP", 1./100. );
   iDesc.add<edm::ParameterSetDescription>("noiseMip", descNestedNoiseMIP);
 }
 
