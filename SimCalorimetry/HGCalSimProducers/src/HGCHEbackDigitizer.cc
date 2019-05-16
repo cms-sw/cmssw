@@ -99,18 +99,16 @@ std::pair<float, float> HGCHEbackSignalScaler::scaleByDose(const HGCScintillator
 
 float HGCHEbackSignalScaler::scaleByArea(const HGCScintillatorDetId& cellId, const std::array<double, 8>& radius)
 {
-  float circ = 2 * M_PI * radius[0];
-
-  float edge(refEdge_);
+  float edge;
   if(cellId.type() == 0)
   {
-    constexpr double factor = 1./360.;
-    edge = circ * factor; //1 degree
+    constexpr double factor = 2 * M_PI * 1./360.;
+    edge = radius[0] * factor; //1 degree
   }
   else
   {
-    constexpr double factor = 1./288.;
-    edge = circ * factor; //1.25 degrees
+    constexpr double factor = 2 * M_PI * 1./288.;
+    edge = radius[0] * factor; //1.25 degrees
   }
 
   float scaleFactor = refEdge_ / edge;  //assume reference 3cm of edge
