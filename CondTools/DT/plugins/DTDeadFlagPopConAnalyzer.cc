@@ -4,7 +4,4 @@
 
 typedef popcon::PopConAnalyzer<DTDeadFlagHandler> DTDeadFlagPopConAnalyzer;
 
-
 DEFINE_FWK_MODULE(DTDeadFlagPopConAnalyzer);
-
-
