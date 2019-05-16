@@ -6,31 +6,32 @@
 //
 // Class description:
 //
-// Catch Geant4 exception and throw CMS exception allowing 
+// Catch Geant4 exception and throw CMS exception allowing
 // correctly abort problematic run or notify about a problem
 // ------------------------------------------------------------
 
 #ifndef SimG4Core_Application_ExceptionHandler_H
-#define SimG4Core_Application_ExceptionHandler_H 
+#define SimG4Core_Application_ExceptionHandler_H
 
 #include "G4VExceptionHandler.hh"
 #include "G4ExceptionSeverity.hh"
 
-class ExceptionHandler : public G4VExceptionHandler
-{
+class ExceptionHandler : public G4VExceptionHandler {
 public:
   explicit ExceptionHandler();
   ~ExceptionHandler() override;
 
-  int operator==(const ExceptionHandler & right) const { return (this == &right); }
-  int operator!=(const ExceptionHandler & right) const { return (this != &right); }
+  int operator==(const ExceptionHandler &right) const { return (this == &right); }
+  int operator!=(const ExceptionHandler &right) const { return (this != &right); }
 
-  bool Notify(const char * exceptionOrigin, const char * exceptionCode,
-              G4ExceptionSeverity severity, const char * description) override;
+  bool Notify(const char *exceptionOrigin,
+              const char *exceptionCode,
+              G4ExceptionSeverity severity,
+              const char *description) override;
 
 private:
   ExceptionHandler(const ExceptionHandler &) = delete;
-  ExceptionHandler& operator=(const ExceptionHandler &right) = delete;
+  ExceptionHandler &operator=(const ExceptionHandler &right) = delete;
 };
 
 #endif
