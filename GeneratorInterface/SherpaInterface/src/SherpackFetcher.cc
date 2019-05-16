@@ -48,7 +48,7 @@ int SherpackFetcher::Fetch()
   my_file.close();
   std::cout << "SherpackFetcher: Sherpack found" << std::endl;
   
-  if(SherpackChecksum!=""){
+  if(!SherpackChecksum.empty()){
     char md5checksum[33]; 
     spu::md5_File(sherpack, md5checksum);
     for (int k=0; k<33; k++){
