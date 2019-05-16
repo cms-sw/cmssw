@@ -139,7 +139,7 @@ namespace Stage1_1 {
       GG2HLL_PTV_75_150 = 502,
       GG2HLL_PTV_150_250_0J = 503,
       GG2HLL_PTV_150_250_GE1J = 504,
-      GG2HLL_PTV_GT250 = 405,
+      GG2HLL_PTV_GT250 = 505,
       // ttH
       TTH_FWDH = 600, TTH = 601,
       // bbH
