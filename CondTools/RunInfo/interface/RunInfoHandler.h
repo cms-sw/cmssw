@@ -7,17 +7,17 @@
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class RunInfoHandler : public popcon::PopConSourceHandler<RunInfo>{
- public:
+class RunInfoHandler : public popcon::PopConSourceHandler<RunInfo> {
+public:
   void getNewObjects() override;
   std::string id() const override { return m_name; }
   ~RunInfoHandler() override;
-  RunInfoHandler(const edm::ParameterSet& pset); 
-  
- private:
+  RunInfoHandler(const edm::ParameterSet& pset);
+
+private:
   unsigned long long m_since;
   std::string m_name;
-  
+
   // for reading from omds
   std::string m_runinfo_schema;
   std::string m_dcsenv_schema;
@@ -25,4 +25,4 @@ class RunInfoHandler : public popcon::PopConSourceHandler<RunInfo>{
   edm::ParameterSet m_connectionPset;
 };
 
-#endif 
+#endif

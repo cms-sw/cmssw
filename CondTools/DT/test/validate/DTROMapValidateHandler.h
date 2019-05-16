@@ -26,18 +26,15 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTROMapValidateHandler: public popcon::PopConSourceHandler<DTReadOutMapping> {
-
- public:
-
+class DTROMapValidateHandler : public popcon::PopConSourceHandler<DTReadOutMapping> {
+public:
   /** Constructor
    */
-  DTROMapValidateHandler( const edm::ParameterSet& ps );
+  DTROMapValidateHandler(const edm::ParameterSet& ps);
 
   /** Destructor
    */
@@ -45,23 +42,14 @@ class DTROMapValidateHandler: public popcon::PopConSourceHandler<DTReadOutMappin
 
   /** Operations
    */
-  /// 
+  ///
   void getNewObjects();
   std::string id() const;
 
- private:
-
+private:
   std::string dataVersion;
   std::string dataFileName;
   std::string elogFileName;
-
 };
 
-
-#endif // DTROMapValidateHandler_H
-
-
-
-
-
-
+#endif  // DTROMapValidateHandler_H

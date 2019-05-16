@@ -9,30 +9,27 @@
 #include <memory>
 
 //typedef popcon::PopConAnalyzer<DTUserKeyedConfigHandler> DTUserKeyedConfigPopConAnalyzer;
-class DTUserKeyedConfigPopConAnalyzer: public popcon::PopConAnalyzer<DTUserKeyedConfigHandler> {
- public:
-  DTUserKeyedConfigPopConAnalyzer(const edm::ParameterSet& pset):
-    popcon::PopConAnalyzer<DTUserKeyedConfigHandler>( pset ) {}
-  ~DTUserKeyedConfigPopConAnalyzer() override{}
-  void analyze(const edm::Event& e, const edm::EventSetup& s) override{
-
+class DTUserKeyedConfigPopConAnalyzer : public popcon::PopConAnalyzer<DTUserKeyedConfigHandler> {
+public:
+  DTUserKeyedConfigPopConAnalyzer(const edm::ParameterSet& pset)
+      : popcon::PopConAnalyzer<DTUserKeyedConfigHandler>(pset) {}
+  ~DTUserKeyedConfigPopConAnalyzer() override {}
+  void analyze(const edm::Event& e, const edm::EventSetup& s) override {
     edm::ESHandle<cond::persistency::KeyList> klh;
-    std::cout<<"got eshandle"<<std::endl;
+    std::cout << "got eshandle" << std::endl;
     s.get<DTKeyedConfigListRcd>().get(klh);
-    std::cout<<"got context"<<std::endl;
-    cond::persistency::KeyList const &  kl= *klh.product();
-    cond::persistency::KeyList* list = const_cast<cond::persistency::KeyList*>( &kl );
-    for ( size_t i = 0; i < list->size(); i++ ) {
-      std::shared_ptr<DTKeyedConfig> kentry = list->get<DTKeyedConfig>( i );
-      if ( kentry.get() )
-           std::cout << kentry->getId() << std::endl;
+    std::cout << "got context" << std::endl;
+    cond::persistency::KeyList const& kl = *klh.product();
+    cond::persistency::KeyList* list = const_cast<cond::persistency::KeyList*>(&kl);
+    for (size_t i = 0; i < list->size(); i++) {
+      std::shared_ptr<DTKeyedConfig> kentry = list->get<DTKeyedConfig>(i);
+      if (kentry.get())
+        std::cout << kentry->getId() << std::endl;
     }
-    DTUserKeyedConfigHandler::setList( list );
-
+    DTUserKeyedConfigHandler::setList(list);
   }
- private:
+
+private:
 };
 
-
 DEFINE_FWK_MODULE(DTUserKeyedConfigPopConAnalyzer);
-
