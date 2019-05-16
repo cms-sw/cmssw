@@ -38,10 +38,10 @@ genParticleTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     singleton = cms.bool(False), # the number of entries is variable
     extension = cms.bool(False), # this is the main table for the taus
     variables = cms.PSet(
-         pt  = Var("pt",  float, precision="(abs(pdgId)==11|| abs(pdgId)==13 || abs(pdgId)==15||abs(pdgId)== 12 || abs(pdgId)== 14 || abs(pdgId)== 16|| abs(pdgId)== 6|| abs(pdgId)== 24|| pdgId== 23|| pdgId== 25)?24:8"),
-         phi = Var("phi", float,precision="(abs(pdgId)==11|| abs(pdgId)==13 || abs(pdgId)==15||abs(pdgId)== 12 || abs(pdgId)== 14 || abs(pdgId)== 16|| abs(pdgId)== 6|| abs(pdgId)== 24|| pdgId== 23|| pdgId== 25)?24:8"),
-         eta  = Var("eta",  float,precision="(abs(pdgId)==11|| abs(pdgId)==13 || abs(pdgId)==15||abs(pdgId)== 12 || abs(pdgId)== 14 || abs(pdgId)== 16|| abs(pdgId)== 6|| abs(pdgId)== 24|| pdgId== 23|| pdgId== 25)?24:8"),
-         mass = Var("?mass>10 || (pdgId==22 && mass > 1) || abs(pdgId)==24 || pdgId==23?mass:0", float,precision="(abs(pdgId)== 6|| abs(pdgId)== 24|| pdgId== 23|| pdgId== 25)?24:8",doc="Mass stored for all particles with mass > 10 GeV and photons with mass > 1 GeV. For other particles you can lookup from PDGID"),
+         pt  = Var("pt",  float, precision="?((abs(pdgId)>=11 && abs(pdgId)<=16) || (abs(pdgId)==6) || (abs(pdgId)>=23 && abs(pdgId)<=25))?23:8"),
+         phi = Var("phi", float,precision="?((abs(pdgId)>=11 && abs(pdgId)<=16) || (abs(pdgId)==6) || (abs(pdgId)>=23 && abs(pdgId)<=25))?23:8"),
+         eta  = Var("eta",  float,precision="?((abs(pdgId)>=11 && abs(pdgId)<=16) || (abs(pdgId)==6) || (abs(pdgId)>=23 && abs(pdgId)<=25))?23:8"),
+         mass = Var("?mass>10 || (pdgId==22 && mass > 1) || abs(pdgId)==24 || pdgId==23?mass:0", float,precision="?((abs(pdgId)>=11 && abs(pdgId)<=16) || (abs(pdgId)==6) || (abs(pdgId)>=23 && abs(pdgId)<=25))?23:8",doc="Mass stored for all particles with mass > 10 GeV and photons with mass > 1 GeV. For other particles you can lookup from PDGID"),
          pdgId  = Var("pdgId", int, doc="PDG id"),
          status  = Var("status", int, doc="Particle status. 1=stable"),
          genPartIdxMother = Var("?numberOfMothers>0?motherRef(0).key():-1", int, doc="index of the mother particle"),

@@ -82,7 +82,7 @@ class SimpleFlatTableProducerBase : public edm::stream::EDProducer<> {
             class FuncVariable : public Variable {
                 public:
                     FuncVariable(const std::string & aname, nanoaod::FlatTable::ColumnType atype, const edm::ParameterSet & cfg) :
-                        Variable(aname, atype, cfg), func_(cfg.getParameter<std::string>("expr"), true), precisionFunc_(cfg.existsAs<std::string>("precision") ? cfg.getParameter<std::string>("precision") : "",true){}
+                        Variable(aname, atype, cfg), func_(cfg.getParameter<std::string>("expr"), true), precisionFunc_(cfg.existsAs<std::string>("precision") ? cfg.getParameter<std::string>("precision") : "23",true){}
                     ~FuncVariable() override {}
                     void fill(std::vector<const T *> selobjs, nanoaod::FlatTable & out) const override {
                         std::vector<ValType> vals(selobjs.size());
