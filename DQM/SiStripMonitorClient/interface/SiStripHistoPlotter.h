@@ -8,9 +8,8 @@
 #include <string>
 
 #include "TCanvas.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class DQMStore;
-class MonitorElement;
 class TH1;
 
 class SiStripHistoPlotter {

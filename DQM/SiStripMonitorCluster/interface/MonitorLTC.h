@@ -19,9 +19,9 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-class DQMStore;
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class MonitorLTC : public DQMEDAnalyzer {
 public:

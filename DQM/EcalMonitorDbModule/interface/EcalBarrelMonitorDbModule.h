@@ -17,8 +17,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RelationalAccess/ISessionProxy.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class DQMStore;
 
 class MonitorElementsDb;
 

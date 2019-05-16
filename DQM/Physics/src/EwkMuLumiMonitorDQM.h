@@ -23,6 +23,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 namespace trigger {
 class TriggerEvent;
@@ -32,8 +33,6 @@ class BeamSpot;
 class MET;
 }
 
-class DQMStore;
-class MonitorElement;
 class EwkMuLumiMonitorDQM : public DQMEDAnalyzer {
  public:
   EwkMuLumiMonitorDQM(const edm::ParameterSet&);

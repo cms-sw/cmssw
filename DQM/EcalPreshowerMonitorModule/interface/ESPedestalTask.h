@@ -8,8 +8,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class MonitorElement;
 
 class ESPedestalTask : public DQMEDAnalyzer {
 public:

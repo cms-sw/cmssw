@@ -34,12 +34,11 @@
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "boost/cstdint.hpp"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <iostream>
 #include <string>
 #include <vector>
 
-class MonitorElement;
-class DQMStore;
 class SiStripDetCabling;
 class SiStripQuality;
 class TrackerTopology;

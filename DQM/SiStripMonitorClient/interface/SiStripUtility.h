@@ -16,7 +16,6 @@
 #include <map>
 #include <cstdint>
 
-class MonitorElement;
 class TrackerTopology;
 
 class SiStripUtility {

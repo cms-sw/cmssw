@@ -31,7 +31,6 @@
 #include <iostream>
 #include <vector>
 
-class MonitorElement;
 
 class HcalSimHitsClient : public DQMEDHarvester {
 private:

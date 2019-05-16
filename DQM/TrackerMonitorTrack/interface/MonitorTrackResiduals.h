@@ -22,12 +22,11 @@ track residuals on each detector module
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include <fstream>
 #include <memory>
 
-class MonitorElement;
-class DQMStore;
 class GenericTriggerEventFlag;
 namespace edm {
   class Event;

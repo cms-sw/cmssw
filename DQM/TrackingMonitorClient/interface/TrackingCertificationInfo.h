@@ -31,7 +31,6 @@
 #include <vector>
 #include <map>
 
-class MonitorElement;
 class SiStripDetCabling;
 
 class TrackingCertificationInfo: public DQMEDHarvester

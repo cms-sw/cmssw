@@ -27,6 +27,7 @@
 
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "CommonTools/RecoAlgos/interface/CosmicTrackingParticleSelector.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 #include <sstream>
@@ -34,7 +35,6 @@
 #include <TH1F.h>
 #include <TH2F.h>
 
-class DQMStore;
 class MuonTrackValidatorBase {
 public:
   /// Constructor

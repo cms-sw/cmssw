@@ -14,6 +14,7 @@
  */ 
 
 #include "FastSimulation/MaterialEffects/interface/MaterialEffectsSimulator.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <vector>
 #include <map>
@@ -28,7 +29,6 @@ class NUEvent;
 class ParticlePropagator;
 class RandomEngineAndDistribution;
 //class DaqMonitorBEInterface;
-//class MonitorElement;
 
 class NuclearInteractionSimulator : public MaterialEffectsSimulator
 {

@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <boost/property_tree/ptree.hpp>
 #include <sys/time.h>
@@ -11,7 +12,6 @@
 namespace evf { class FastMonitoringService; }
 namespace saverDetails { struct NoCache {}; }
 
-class DQMStore;
 class DQMFileSaver : public edm::global::EDAnalyzer<edm::RunCache<saverDetails::NoCache>, edm::LuminosityBlockCache<saverDetails::NoCache> >
 {
 public:

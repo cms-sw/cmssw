@@ -23,8 +23,8 @@
 // class declaration
 //
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class MonitorElement;
 class L1MuDTTrackCand;
 class L1MuRegionalCand;
 

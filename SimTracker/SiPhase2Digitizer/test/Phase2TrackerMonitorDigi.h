@@ -9,8 +9,8 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class MonitorElement;
 class PixelDigi;
 class Phase2TrackerDigi;
 class TrackerGeometry;

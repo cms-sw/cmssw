@@ -11,7 +11,6 @@
 
 #include <map>
 
-class DQMStore;
 
 namespace ecaldqm {
 

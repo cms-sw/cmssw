@@ -21,12 +21,12 @@
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "CondFormats/DataRecord/interface/DQMXMLFileRcd.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <memory>
 #include <iostream>
 #include <string>
 
-class DQMStore;
 class QTestHandle;
 
 

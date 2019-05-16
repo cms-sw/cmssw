@@ -16,13 +16,12 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
 #include <cmath>
 #include <map>
 
-class DQMStore;
-class MonitorElement;
 
 class BPhysicsOniaDQM : public DQMEDAnalyzer {
  public:

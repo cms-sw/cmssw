@@ -23,8 +23,6 @@
 #include <TDirectory.h>
 
 class TrackerTopology;
-class MonitorElement;
-class DQMStore;
 
 class SiStripLAProfileBooker : public edm::EDAnalyzer
 {

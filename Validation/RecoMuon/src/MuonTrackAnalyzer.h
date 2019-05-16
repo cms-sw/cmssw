@@ -24,6 +24,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 namespace edm {
@@ -47,7 +48,6 @@ class MuonServiceProxy;
 class MuonPatternRecoDumper;
 class TrajectorySeed;
 class MuonUpdatorAtVertex;
-class DQMStore;
 
 class MuonTrackAnalyzer : public DQMEDAnalyzer {
 public:

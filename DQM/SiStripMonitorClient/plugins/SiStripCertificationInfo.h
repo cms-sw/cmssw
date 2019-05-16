@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 #include <fstream>
@@ -34,8 +35,6 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
-class MonitorElement;
 class SiStripDetCabling;
 
 class SiStripCertificationInfo : public edm::EDAnalyzer {

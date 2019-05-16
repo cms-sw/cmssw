@@ -13,8 +13,8 @@
 
 #include "DQM/RPCMonitorClient/interface/RPCLinkSynchroStat.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class MonitorElement;
 
 namespace edm {
   class Event;

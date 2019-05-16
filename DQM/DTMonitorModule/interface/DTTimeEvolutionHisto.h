@@ -12,8 +12,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-class DQMStore;
-class MonitorElement;
 
 class DTTimeEvolutionHisto {
 public:

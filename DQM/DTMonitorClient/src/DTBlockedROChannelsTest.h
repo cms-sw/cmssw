@@ -15,10 +15,9 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <DQMServices/Core/interface/DQMEDHarvester.h>
 
-class DQMStore;
-class MonitorElement;
 class DTReadOutMapping;
 class DTTimeEvolutionHisto;
 

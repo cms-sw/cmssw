@@ -13,12 +13,12 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <boost/cstdint.hpp>
 #include <string>
 #include <vector>
 #include <map>
 
-class DQMStore;
 class CommissioningTask;
 class FedChannelConnection;
 class SiStripEventSummary;

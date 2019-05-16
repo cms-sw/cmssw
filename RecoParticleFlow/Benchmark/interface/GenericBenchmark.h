@@ -8,6 +8,7 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/METReco/interface/MET.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
 
@@ -15,7 +16,6 @@
 #include <TH2F.h>
 #include <TFile.h>
 
-class DQMStore; // CMSSW_2_X_X
 
 class BenchmarkTree;
 

@@ -7,6 +7,7 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <memory>
 #include <iostream>
@@ -15,7 +16,6 @@
 #include <vector>
 #include <map>
 
-//class DQMStore;
 
 class L1EmulatorErrorFlagClient : public DQMEDHarvester {
 public:

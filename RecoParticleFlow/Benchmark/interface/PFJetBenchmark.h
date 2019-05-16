@@ -20,12 +20,12 @@
 
 #include "TH1F.h"
 #include "TH2F.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <string>
 #include <TFile.h>
 #include <vector>
 
 
-class DQMStore;
 
 class PFJetBenchmark {
 	

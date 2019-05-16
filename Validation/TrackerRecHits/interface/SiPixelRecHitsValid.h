@@ -14,12 +14,11 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
 
-class DQMStore;
 class DetId;
-class MonitorElement;
 class PSimHit;
 class PixelGeomDetUnit;
 class SiPixelRecHit;

@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 #include <fstream>
@@ -35,8 +36,6 @@
 #include <map>
 #include <unordered_map>
 
-class DQMStore;
-class MonitorElement;
 class SiStripDetVOff;
 class SiStripDetCabling;
 

@@ -8,13 +8,12 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "boost/cstdint.hpp"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <vector>
 #include <string>
 #include <iomanip>
 
 class TAxis;
-class DQMStore;
-class MonitorElement;
 namespace edm {
   class EventSetup;
 }

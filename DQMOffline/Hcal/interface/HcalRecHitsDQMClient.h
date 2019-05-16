@@ -37,12 +37,12 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <fstream>
 #include <iostream>
 #include <vector>
 
-class MonitorElement;
 
 class HcalRecHitsDQMClient : public DQMEDHarvester {
 private:

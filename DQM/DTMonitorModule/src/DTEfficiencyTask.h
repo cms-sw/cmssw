@@ -29,8 +29,6 @@
 #include <map>
 #include <vector>
 
-class DQMStore;
-class MonitorElement;
 class DTGeometry;
 
 class DTEfficiencyTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {

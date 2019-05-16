@@ -8,13 +8,12 @@
  * all the ME, make projections and manipulations with extremely ugly copy&paste
  * code sections
  * */
-class DQMStore;
-class MonitorElement;
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <Rtypes.h>
 

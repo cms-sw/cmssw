@@ -29,11 +29,11 @@
 #include <TDirectory.h>
 #include "TROOT.h"
 #include "Riostream.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <memory>
 
 class TrackerTopology;
-class MonitorElement;
 
 class SiStripCalibLorentzAngle : public ConditionDBWriter<SiStripLorentzAngle>
 {

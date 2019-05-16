@@ -15,7 +15,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-class MonitorElement;
 class TrackerTopology;
 class TrackingUtility
 {

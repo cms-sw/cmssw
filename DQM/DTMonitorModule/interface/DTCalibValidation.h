@@ -30,11 +30,9 @@
 #include <vector>
 
 // To remove into CMSSW versions before 20X
-class DQMStore;
 // To add into CMSSW versions before 20X
 //class DaqMonitorBEInterface;
 
-class MonitorElement;
 class DTGeometry;
 class DTChamber;
 

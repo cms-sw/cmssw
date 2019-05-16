@@ -6,9 +6,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class MonitorElement;
-class DQMStore;
 
 class ESDcsInfoTask : public edm::EDAnalyzer {
 public:

@@ -2,8 +2,8 @@
 #define DQM_SiStripCommissioningClients_OptoScanHistograms_H
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class DQMStore;
 
 class OptoScanHistograms : public virtual CommissioningHistograms {
 public:

@@ -12,11 +12,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <memory>
 #include <string>
 #include <vector>
 
-class DQMStore;
 
 class OuterTrackerMonitorTTTrack : public DQMEDAnalyzer {
 public:

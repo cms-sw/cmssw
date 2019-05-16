@@ -10,13 +10,12 @@
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "DataFormats/RPCDigi/interface/RPCRawDataCounts.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <memory>
 #include <string>
 //#include <map>
 
-class DQMStore;
-class MonitorElement;
 
 class RPCFEDIntegrity : public DQMEDAnalyzer {
 public:

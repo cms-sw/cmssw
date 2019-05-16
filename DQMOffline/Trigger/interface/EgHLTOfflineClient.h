@@ -26,12 +26,11 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <vector>
 #include <string>
 
-class DQMStore;
-class MonitorElement;
 
 
 class EgHLTOfflineClient : public DQMEDHarvester {

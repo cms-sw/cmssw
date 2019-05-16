@@ -5,7 +5,7 @@
 
 #include "CondFormats/DQMObjects/interface/HDQMSummary.h"
 #include "DQMServices/Diagnostic/interface/HDQMfitUtilities.h"
-class MonitorElement;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class SiStripDQMHistoryHelper {
 public:
