@@ -46,7 +46,7 @@ void MultiClustersFromTrackstersProducer::fillDescriptions(
   desc.add<edm::InputTag>("LayerClusters", edm::InputTag("hgcalLayerClusters"));
   desc.add<std::string>("label", "MultiClustersFromTracksterByCA");
   desc.addUntracked<unsigned int>("verbosity", 3);
-  descriptions.add("multiClustersFromTracksters", desc);
+  descriptions.add("multiClustersFromTrackstersProducer", desc);
 }
 
 void MultiClustersFromTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {

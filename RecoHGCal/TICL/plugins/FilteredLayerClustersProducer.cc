@@ -42,7 +42,7 @@ FilteredLayerClustersProducer::FilteredLayerClustersProducer(const edm::Paramete
       consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("HGCLayerClusters"));
   clustersMask_token_ =
       consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("LayerClustersInputMask"));
-  clusterFilter_ = ps.getParameter<std::string>("ClusterFilter");
+  clusterFilter_ = ps.getParameter<std::string>("clusterFilter");
   theFilter_ = ClusterFilterFactory::get()->create(clusterFilter_, ps);
   iteration_label_ = ps.getParameter<std::string>("iteration_label");
 
@@ -56,10 +56,10 @@ void FilteredLayerClustersProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<edm::InputTag>("LayerClustersInputMask",
                           edm::InputTag("hgcalLayerClusters", "InitialLayerClustersMask"));
   desc.add<std::string>("iteration_label", "iterationLabelGoesHere");
-  desc.add<std::string>("ClusterFilter", "ClusterFilterByAlgo");
+  desc.add<std::string>("clusterFilter", "ClusterFilterByAlgo");
   desc.add<int>("algo_number", 9);
   desc.add<int>("max_cluster_size", 9999);
-  descriptions.add("FilteredLayerClusters", desc);
+  descriptions.add("filteredLayerClustersProducer", desc);
 }
 
 void FilteredLayerClustersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
