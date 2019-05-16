@@ -325,6 +325,7 @@ void PFECALSuperClusterProducer::fillDescriptions(edm::ConfigurationDescriptions
   {
     edm::ParameterSetDescription psd0;
     psd0.add<bool>("isHLT", false);
+    psd0.add<bool>("applySigmaIetaIphiBug", false);
     psd0.add<edm::InputTag>("ecalRecHitsEE",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
     psd0.add<edm::InputTag>("ecalRecHitsEB",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
     psd0.add<std::string>("regressionKeyEB","pfscecal_EBCorrection_offline_v1");
