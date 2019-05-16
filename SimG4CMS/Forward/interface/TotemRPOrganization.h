@@ -15,10 +15,10 @@
  
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
 //
- 
+
 // system include files
 
 // user include files
@@ -26,15 +26,12 @@
 #include "SimG4CMS/Forward/interface/TotemVDetectorOrganization.h"
 
 class TotemRPOrganization : public TotemVDetectorOrganization {
-
-public: 
-
+public:
   // ---------- Constructor and destructor -----------------
   TotemRPOrganization();
   ~TotemRPOrganization() override;
 
   // ---------- member functions ---------------------------
   uint32_t getUnitID(const G4Step* aStep) const override;
-
 };
 #endif

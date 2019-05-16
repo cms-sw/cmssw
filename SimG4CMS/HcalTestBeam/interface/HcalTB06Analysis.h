@@ -20,48 +20,44 @@
 #include <memory>
 #include <vector>
 #include <string>
-  
+
 class HcalTB06Histo;
 
-class HcalTB06Analysis : public edm::one::EDAnalyzer<edm::one::SharedResources>
-{
+class HcalTB06Analysis : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
-
-  explicit HcalTB06Analysis(const edm::ParameterSet &p);
+  explicit HcalTB06Analysis(const edm::ParameterSet& p);
   ~HcalTB06Analysis() override;
 
   void beginJob() override;
   void endJob() override;
-  void analyze(const edm::Event & e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  HcalTB06Analysis(const HcalTB06Analysis&) = delete; 
+  HcalTB06Analysis(const HcalTB06Analysis&) = delete;
   const HcalTB06Analysis& operator=(const HcalTB06Analysis&) = delete;
 
 private:
-
   edm::EDGetTokenT<edm::PCaloHitContainer> m_EcalToken;
   edm::EDGetTokenT<edm::PCaloHitContainer> m_HcalToken;
   edm::EDGetTokenT<edm::PCaloHitContainer> m_BeamToken;
-  bool        m_ECAL;
+  bool m_ECAL;
 
-  int         count;
-  int         m_idxetaEcal;
-  int         m_idxphiEcal;
-  int         m_idxetaHcal;
-  int         m_idxphiHcal;
+  int count;
+  int m_idxetaEcal;
+  int m_idxphiEcal;
+  int m_idxetaHcal;
+  int m_idxphiHcal;
 
-  double      m_eta;
-  double      m_phi;
-  double      m_ener;
-  double      m_timeLimit;
-  double      m_widthEcal;
-  double      m_widthHcal;
-  double      m_factEcal;
-  double      m_factHcal;
+  double m_eta;
+  double m_phi;
+  double m_ener;
+  double m_timeLimit;
+  double m_widthEcal;
+  double m_widthHcal;
+  double m_factEcal;
+  double m_factHcal;
   std::vector<int> m_PDG;
 
   HcalTB06Histo* m_histo;
-
 };
 
 #endif

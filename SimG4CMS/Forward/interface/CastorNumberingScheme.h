@@ -14,24 +14,21 @@
  
 */
 //
-// Original Author: 
+// Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
 // $Id: CastorNumberingScheme.h,v 1.5 2009/09/02 20:41:25 sunanda Exp $
 //
- 
+
 // system include files
 
 // user include files
-
 
 #include "G4Step.hh"
 #include "G4LogicalVolume.hh"
 #include <cstdint>
 
 class CastorNumberingScheme {
-
 public:
-
   CastorNumberingScheme();
   virtual ~CastorNumberingScheme();
 
@@ -50,10 +47,9 @@ public:
   //  static void   unpackIndex(const uint32_t& idx, int& det, int& z, int& sector, int& zmodule);
 
   static uint32_t packIndex(int z, int sector, int zmodule);
-  static void   unpackIndex(const uint32_t& idx, int& z, int& sector, int& zmodule);
+  static void unpackIndex(const uint32_t& idx, int& z, int& sector, int& zmodule);
 
 private:
-
   typedef G4LogicalVolume* lvp;
 
   // Utilities to get detector levels during a step
@@ -61,7 +57,6 @@ private:
 
   lvp lvCASTFar, lvCASTNear, lvCAST, lvCAES, lvCEDS, lvCAHS, lvCHDS, lvCAER, lvCEDR;
   lvp lvCAHR, lvCHDR, lvC3EF, lvC3HF, lvC4EF, lvC4HF;
-
 };
 
 #endif

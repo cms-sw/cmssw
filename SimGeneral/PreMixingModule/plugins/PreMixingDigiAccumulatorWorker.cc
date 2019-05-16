@@ -11,14 +11,14 @@
 #include "SimGeneral/PreMixingModule/interface/PreMixingWorker.h"
 #include "SimGeneral/PreMixingModule/interface/PreMixingWorkerFactory.h"
 
-class PreMixingDigiAccumulatorWorker: public PreMixingWorker {
+class PreMixingDigiAccumulatorWorker : public PreMixingWorker {
 public:
-  PreMixingDigiAccumulatorWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC):
-    accumulator_(edm::DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(ps.getParameter<edm::ParameterSet>("accumulator"), producer, iC))
-  {}
+  PreMixingDigiAccumulatorWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC)
+      : accumulator_(edm::DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(
+            ps.getParameter<edm::ParameterSet>("accumulator"), producer, iC)) {}
   ~PreMixingDigiAccumulatorWorker() override = default;
 
-  void initializeEvent(const edm::Event &e, const edm::EventSetup& ES) override {
+  void initializeEvent(const edm::Event& e, const edm::EventSetup& ES) override {
     accumulator_->initializeEvent(e, ES);
   }
 
@@ -28,14 +28,12 @@ public:
   void finalizeBunchCrossing(edm::Event& e, edm::EventSetup const& ES, int bunchCrossing) override {
     accumulator_->finalizeBunchCrossing(e, ES, bunchCrossing);
   }
-    
-  void addSignals(const edm::Event &e, const edm::EventSetup& ES) override {
-    accumulator_->accumulate(e, ES);
-  }
+
+  void addSignals(const edm::Event& e, const edm::EventSetup& ES) override { accumulator_->accumulate(e, ES); }
   void addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& ES) override {
     accumulator_->accumulate(pep, ES, pep.principal().streamID());
   }
-  void put(edm::Event &e,const edm::EventSetup& ES, std::vector<PileupSummaryInfo> const& ps, int bs) override {
+  void put(edm::Event& e, const edm::EventSetup& ES, std::vector<PileupSummaryInfo> const& ps, int bs) override {
     accumulator_->finalizeEvent(e, ES);
   }
 

@@ -26,29 +26,27 @@ class G4ProcessTypeEnumerator;
 
 //-------------------------------------------------------------------
 
-class TimingSD : public SensitiveTkDetector,
-                 public Observer<const BeginOfEvent *>{
-
+class TimingSD : public SensitiveTkDetector, public Observer<const BeginOfEvent*> {
 public:
-  
-  TimingSD(const std::string&, const DDCompactView&, 
+  TimingSD(const std::string&,
+           const DDCompactView&,
            const SensitiveDetectorCatalog&,
-	   const edm::ParameterSet&, const SimTrackManager*);
+           const edm::ParameterSet&,
+           const SimTrackManager*);
 
   ~TimingSD() override;
-  
-  bool ProcessHits(G4Step *,G4TouchableHistory *) override;
 
-  void Initialize(G4HCofThisEvent * HCE) override;
-  void EndOfEvent(G4HCofThisEvent * eventHC) override;
+  bool ProcessHits(G4Step*, G4TouchableHistory*) override;
+
+  void Initialize(G4HCofThisEvent* HCE) override;
+  void EndOfEvent(G4HCofThisEvent* eventHC) override;
   void PrintAll() override;
 
   void fillHits(edm::PSimHitContainer&, const std::string&) override;
   void clearHits() override;
-  
-protected:
 
-  void update(const BeginOfEvent *) override;
+protected:
+  void update(const BeginOfEvent*) override;
 
   // define time slices
   void setTimeFactor(double);
@@ -57,63 +55,58 @@ protected:
   void setCuts(double eCut, double historyCut);
 
   // by default accumulate hit for the same detector
-  // and time slice, use primary information for fastest 
+  // and time slice, use primary information for fastest
   // Geant4 particle, check if for this detector new
   // hit can be merged with the existing one
   virtual bool checkHit(const G4Step*, BscG4Hit*);
 
-  void setToLocal(const G4StepPoint* stepPoint,
-                  const G4ThreeVector& globalPoint, G4ThreeVector& localPoint);
+  void setToLocal(const G4StepPoint* stepPoint, const G4ThreeVector& globalPoint, G4ThreeVector& localPoint);
 
   // accessors
   const G4ThreeVector& getLocalEntryPoint() const { return hitPointLocal; };
   const G4ThreeVector& getGlobalEntryPoint() const { return hitPoint; };
 
 private:
-  void          getStepInfo(const G4Step*);
-  bool          hitExists(const G4Step*);
-  void          createNewHit(const G4Step*);
-  void          updateHit();
-  void          storeHit(BscG4Hit*);
-  
+  void getStepInfo(const G4Step*);
+  bool hitExists(const G4Step*);
+  void createNewHit(const G4Step*);
+  void updateHit();
+  void storeHit(BscG4Hit*);
+
   TrackingSlaveSD* slave;
   G4ProcessTypeEnumerator* theEnumerator;
-    
-  const SimTrackManager*   theManager;
-  BscG4HitCollection*      theHC; 
 
-  BscG4Hit*                currentHit;
-  const G4Track*           theTrack;
-  const G4StepPoint*       preStepPoint; 
-  const G4StepPoint*       postStepPoint; 
+  const SimTrackManager* theManager;
+  BscG4HitCollection* theHC;
+
+  BscG4Hit* currentHit;
+  const G4Track* theTrack;
+  const G4StepPoint* preStepPoint;
+  const G4StepPoint* postStepPoint;
 
   uint32_t unitID, previousUnitID;
 
-  int primID; 
-  int hcID; 
-  int tsID; 
+  int primID;
+  int hcID;
+  int tsID;
   int primaryID;
-  int tSliceID;  
+  int tSliceID;
 
-  G4ThreeVector  hitPoint;
-  G4ThreeVector  hitPointExit;
-  G4ThreeVector  hitPointLocal;
-  G4ThreeVector  hitPointLocalExit;
+  G4ThreeVector hitPoint;
+  G4ThreeVector hitPointExit;
+  G4ThreeVector hitPointLocal;
+  G4ThreeVector hitPointLocalExit;
 
   double tSlice;
   double timeFactor;
 
-  double energyCut;        // MeV
-  double energyHistoryCut; // MeV
-  
-  double incidentEnergy;   // MeV
-  float  tof;              // ns
-  float  edeposit;
-  float  edepositEM, edepositHAD;
+  double energyCut;         // MeV
+  double energyHistoryCut;  // MeV
+
+  double incidentEnergy;  // MeV
+  float tof;              // ns
+  float edeposit;
+  float edepositEM, edepositHAD;
 };
 
 #endif
-
-
-
-
