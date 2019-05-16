@@ -815,7 +815,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
       if (Muon->pt() >= muonPtCut_ and Muon->hwQual() >= muonQualCut_) {
         denominator_muons->Fill(Muon->eta(), Muon->phi());
         // the correlation from itBX to respective index of the vector
-        int index = (int)itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.));
+        int index = (int)itBX - std::min(0, 1 - (int)bxrange_ % 2 - (int)std::floor(bxrange_ / 2.));
         muons_eta_phi.at(index)->Fill(Muon->eta(), Muon->phi());
       }
     }
