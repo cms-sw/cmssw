@@ -86,7 +86,6 @@ def parse_args():
     sample_strings = args.sample
     for ss in sample_strings:
         name, files = parse_sample_string(ss)
-#        samp = SimpleSample(name, name, [(fn, "Option {0}".format(i)) for fn, i in zip(files, range(len(files)))])
         samp = SimpleSample(name, name, [(fn, fn.split('/')[-2]) for fn in files])
         samples += [samp]
     
@@ -201,22 +200,24 @@ def main():
             for f in s.files() :
                 fname = f.split('/')[-2]
                 outName = offsetStack( [(fname,f)], offsetVar, offsetDR, fullOffsetDir )
-                addLine( offsetDir, outName, lines )
+                outName = outName.replace("plots/", "")
+                addLine( outName, lines )
 
                 for f2 in s.files() :
                     if f == f2 : continue
                     fname2 = f2.split('/')[-2]
                     outName = offsetStack( [(fname,f), (fname2,f2)], offsetVar, offsetDR, fullOffsetDir )
-                    addLine( offsetDir, outName, lines )
+                    outName = outName.replace("plots/", "")
+                    addLine( outName, lines )
 
             offFile = open( outputDir + "/" + s.label() + "_offset.html", "w")
             lines = "".join(lines)
             offFile.write(lines)
             offFile.close()
 
-def addLine(dir, name, oldLines) :
+def addLine(name, oldLines) :
     newLines = [
-        '   <td><a href="{0}/{1}">{1}</a></td>\n'.format(dir, name),
+        '   <td><a href="{0}">{0}</a></td>\n'.format(name),
         '  <br/>\n',
         '  <br/>\n'
     ]
