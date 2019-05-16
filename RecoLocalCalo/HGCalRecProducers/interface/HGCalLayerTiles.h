@@ -13,7 +13,7 @@
 
 class HGCalLayerTiles {
 public:
-  HGCalLayerTiles() { tiles_.resize(hgcalTilesConstants::nColumns * hgcalTilesConstants::nRows); }
+  HGCalLayerTiles() { tiles_.resize(hgcaltilesconstants::nColumns * hgcaltilesconstants::nRows); }
 
   void fill(const std::vector<float>& x, const std::vector<float>& y) {
     auto cellsSize = x.size();
@@ -23,26 +23,26 @@ public:
   }
 
   int getXBin(float x) const {
-    constexpr float xRange = hgcalTilesConstants::maxX - hgcalTilesConstants::minX;
+    constexpr float xRange = hgcaltilesconstants::maxX - hgcaltilesconstants::minX;
     static_assert(xRange >= 0.);
-    constexpr float r = hgcalTilesConstants::nColumns / xRange;
-    int xBin = (x - hgcalTilesConstants::minX) * r;
-    xBin = std::clamp(xBin, 0, hgcalTilesConstants::nColumns);
+    constexpr float r = hgcaltilesconstants::nColumns / xRange;
+    int xBin = (x - hgcaltilesconstants::minX) * r;
+    xBin = std::clamp(xBin, 0, hgcaltilesconstants::nColumns);
     return xBin;
   }
 
   int getYBin(float y) const {
-    constexpr float yRange = hgcalTilesConstants::maxY - hgcalTilesConstants::minY;
+    constexpr float yRange = hgcaltilesconstants::maxY - hgcaltilesconstants::minY;
     static_assert(yRange >= 0.);
-    constexpr float r = hgcalTilesConstants::nRows / yRange;
-    int yBin = (y - hgcalTilesConstants::minY) * r;
-    yBin = std::clamp(yBin, 0, hgcalTilesConstants::nRows);
+    constexpr float r = hgcaltilesconstants::nRows / yRange;
+    int yBin = (y - hgcaltilesconstants::minY) * r;
+    yBin = std::clamp(yBin, 0, hgcaltilesconstants::nRows);
     return yBin;
   }
 
-  int getGlobalBin(float x, float y) const { return getXBin(x) + getYBin(y) * hgcalTilesConstants::nColumns; }
+  int getGlobalBin(float x, float y) const { return getXBin(x) + getYBin(y) * hgcaltilesconstants::nColumns; }
 
-  int getGlobalBinByBin(int xBin, int yBin) const { return xBin + yBin * hgcalTilesConstants::nColumns; }
+  int getGlobalBinByBin(int xBin, int yBin) const { return xBin + yBin * hgcaltilesconstants::nColumns; }
 
   std::array<int, 4> searchBox(float xMin, float xMax, float yMin, float yMax) {
     int xBinMin = getXBin(xMin);
