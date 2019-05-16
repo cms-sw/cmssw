@@ -13,18 +13,19 @@
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
 
 class L1SubsystemKeysOnlineProdExt : public edm::ESProducer {
-   public:
-      L1SubsystemKeysOnlineProdExt(const edm::ParameterSet&);
-      ~L1SubsystemKeysOnlineProdExt() override;
+public:
+  L1SubsystemKeysOnlineProdExt(const edm::ParameterSet&);
+  ~L1SubsystemKeysOnlineProdExt() override;
 
-      using ReturnType = std::unique_ptr<L1TriggerKeyExt>;
+  using ReturnType = std::unique_ptr<L1TriggerKeyExt>;
 
-      ReturnType produce(const L1TriggerKeyExtRcd&);
-   private:
-      // ----------member data ---------------------------
-      std::string m_tscKey, m_rsKey ;
-      l1t::OMDSReader m_omdsReader ;
-      bool m_forceGeneration ;
+  ReturnType produce(const L1TriggerKeyExtRcd&);
+
+private:
+  // ----------member data ---------------------------
+  std::string m_tscKey, m_rsKey;
+  l1t::OMDSReader m_omdsReader;
+  bool m_forceGeneration;
 };
 
 #endif
