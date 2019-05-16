@@ -45,12 +45,12 @@ class GenJetTauTaggerProducer : public edm::stream::EDProducer<> {
         {
           produces<edm::ValueMap<bool>>();
         } 
-      ~GenJetTauTaggerProducer();
+      ~GenJetTauTaggerProducer() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<std::vector<reco::GenJet> > src_;
 
 };
