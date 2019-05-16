@@ -4,10 +4,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoHGCal/TICL/interface/Constants.h"
 
+#include "PatternRecognitionbyCA.h"
 #include "HGCDoublet.h"
 #include "HGCGraph.h"
 
-void HGCGraph::makeAndConnectDoublets(const std::vector<std::vector<std::vector<unsigned int>>> &histo,
+void HGCGraph::makeAndConnectDoublets(const ticl::patternbyCA::tilePatternRecognitionByCA & histo,
                                       int nEtaBins, int nPhiBins,
                                       const std::vector<reco::CaloCluster> &layerClusters,
                                       int deltaIEta, int deltaIPhi, float minCosTheta,

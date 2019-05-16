@@ -6,11 +6,12 @@
 #define __RecoHGCal_TICL_HGCGraph_H__
 
 #include <vector>
+#include "PatternRecognitionbyCAConstants.h"
 #include "HGCDoublet.h"
 
 class HGCGraph {
  public:
-  void makeAndConnectDoublets(const std::vector<std::vector<std::vector<unsigned int>>> &h,
+  void makeAndConnectDoublets(const ticl::patternbyCA::tilePatternRecognitionByCA &h,
                               int nEtaBins, int nPhiBins,
                               const std::vector<reco::CaloCluster> &layerClusters, int deltaIEta,
                               int deltaIPhi, float minCosThetai, float maxCosPointing,

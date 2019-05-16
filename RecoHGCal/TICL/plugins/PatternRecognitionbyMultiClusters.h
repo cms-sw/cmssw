@@ -12,8 +12,7 @@ namespace edm {
 class ParameterSet;
 class Event;
 class EventSetup;
-}  // namespace edm
-// namespace reco {class CaloCluster;}
+}
 
 namespace ticl {
   class PatternRecognitionbyMultiClusters final : public PatternRecognitionAlgoBase {
