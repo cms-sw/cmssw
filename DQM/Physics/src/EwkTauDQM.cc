@@ -12,7 +12,7 @@ std::string dqmDirectoryName(const std::string& dqmRootDirectory,
   //--- concatenate names of dqmRootDirectory and dqmSubDirectory;
   //    add "/" separator inbetween if necessary
   std::string dirName = dqmRootDirectory;
-  if (dirName != "" &&
+  if (!dirName.empty() &&
       dirName.find_last_of(dqmSeparator) != (dirName.length() - 1))
     dirName.append(dqmSeparator);
   dirName.append(dqmSubDirectory);

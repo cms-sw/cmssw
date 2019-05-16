@@ -621,13 +621,13 @@ FastTimerService::PlotsPerPath::book(
   for (unsigned int bin: boost::irange(0u, bins)) {
     auto const& module = job[path.modules_and_dependencies_[bin]];
     std::string const& label = module.scheduled_ ? module.module_.moduleLabel() : module.module_.moduleLabel() + " (unscheduled)";
-    module_counter_          .setBinLabel(bin + 1, label.c_str());
-    module_time_thread_total_.setBinLabel(bin + 1, label.c_str());
-    module_time_real_total_  .setBinLabel(bin + 1, label.c_str());
+    module_counter_          .setBinLabel(bin + 1, label);
+    module_time_thread_total_.setBinLabel(bin + 1, label);
+    module_time_real_total_  .setBinLabel(bin + 1, label);
     if (memory_usage::is_available())
     {
-      module_allocated_total_  .setBinLabel(bin + 1, label.c_str());
-      module_deallocated_total_.setBinLabel(bin + 1, label.c_str());
+      module_allocated_total_  .setBinLabel(bin + 1, label);
+      module_deallocated_total_.setBinLabel(bin + 1, label);
     }
   }
   module_counter_.setBinLabel(bins + 1, "");

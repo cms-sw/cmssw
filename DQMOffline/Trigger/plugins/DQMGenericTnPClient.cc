@@ -64,7 +64,7 @@ void DQMGenericTnPClient::endRun(const edm::Run &run, const edm::EventSetup &set
 
   set<std::string> subDirSet;
   
-  if (myDQMrootFolder != "")
+  if (!myDQMrootFolder.empty())
     subDirSet.insert(myDQMrootFolder);
   else {
     for(auto iSubDir = subDirs.begin(); 
