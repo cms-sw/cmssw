@@ -1,6 +1,7 @@
 #ifndef __L1Analysis_L1AnalysisL1UpgradeTfMuonDataFormat_H__
 #define __L1Analysis_L1AnalysisL1UpgradeTfMuonDataFormat_H__
 
+#include "L1Trigger/L1TMuon/interface/RegionalMuonRawDigiTranslator.h"
 #include <vector>
 
 namespace L1Analysis {
@@ -41,6 +42,7 @@ namespace L1Analysis {
     std::vector<short int> tfMuonBx;
     std::vector<short int> tfMuonWh;
     std::vector<short int> tfMuonTrAdd;
+    std::vector<short int> tfMuonRawTrAdd;
   };
 }  // namespace L1Analysis
 #endif
