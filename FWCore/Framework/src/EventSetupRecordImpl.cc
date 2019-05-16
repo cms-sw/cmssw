@@ -28,13 +28,13 @@ namespace edm {
     EventSetupRecordImpl::EventSetupRecordImpl(EventSetupRecordKey const& iKey,
                                                ActivityRegistry const* activityRegistry,
                                                unsigned int iovIndex)
-        : validityModificationUnderway_(false),
-          validity_(),
+        : validity_(),
           key_(iKey),
           activityRegistry_(activityRegistry),
           cacheIdentifier_(1),
           iovIndex_(iovIndex),
-          isAvailable_(true) {}
+          isAvailable_(true),
+          validityModificationUnderway_(false) {}
 
     ValidityInterval EventSetupRecordImpl::validityInterval() const {
       bool expected = false;

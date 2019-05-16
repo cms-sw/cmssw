@@ -149,15 +149,11 @@ namespace edm {
     private:
       // ---------- member data --------------------------------
       const EventSetupRecordKey key_;
-      const unsigned int nConcurrentIOVs_;
 
       // This holds the interval most recently initialized with a call to
       // eventSetupForInstance. A particular EventSetupRecordImpl in flight
       // might contain an older interval.
       ValidityInterval validityInterval_;
-      IntervalStatus intervalStatus_ = IntervalStatus::NotInitializedForSyncValue;
-      bool newIntervalForAnySubProcess_ = false;
-      bool hasLegacyESSource_ = false;
 
       EventSetupImpl* eventSetupImpl_ = nullptr;
 
@@ -168,6 +164,11 @@ namespace edm {
       std::vector<edm::propagate_const<std::shared_ptr<DataProxyProvider>>> providers_;
       std::unique_ptr<std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>>
           multipleFinders_;
+
+      const unsigned int nConcurrentIOVs_;
+      IntervalStatus intervalStatus_ = IntervalStatus::NotInitializedForSyncValue;
+      bool newIntervalForAnySubProcess_ = false;
+      bool hasLegacyESSource_ = false;
     };
   }  // namespace eventsetup
 }  // namespace edm

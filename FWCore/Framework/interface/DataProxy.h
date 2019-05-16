@@ -94,9 +94,9 @@ namespace edm {
 
     private:
       // ---------- member data --------------------------------
+      ComponentDescription const* description_;
       CMS_THREAD_SAFE mutable void const* cache_;  //protected by a global mutex
       mutable std::atomic<bool> cacheIsValid_;
-      ComponentDescription const* description_;
 
       // While implementing the set of code changes that enabled support
       // for concurrent IOVs, I have gone to some effort to maintain

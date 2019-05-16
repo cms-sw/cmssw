@@ -212,9 +212,8 @@ namespace edm {
       // first part of the new validity range is the same,
       // but the last part of the validity range changes. In this case,
       // we do not want to start a new IOV, all the cached data should
-      // remain valid. The following atomic bool protects access to validity_
-      // while this change is made.
-      mutable std::atomic<bool> validityModificationUnderway_;
+      // remain valid. The atomic bool validityModificationUnderway_
+      // protects access to validity_ while this change is made.
       CMS_THREAD_SAFE mutable ValidityInterval validity_;
 
       EventSetupRecordKey key_;
@@ -224,6 +223,7 @@ namespace edm {
       unsigned long long cacheIdentifier_;
       unsigned int iovIndex_;
       std::atomic<bool> isAvailable_;
+      mutable std::atomic<bool> validityModificationUnderway_;
     };
   }  // namespace eventsetup
 }  // namespace edm

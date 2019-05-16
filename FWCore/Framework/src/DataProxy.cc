@@ -30,9 +30,9 @@ namespace edm {
     }
 
     DataProxy::DataProxy()
-        : cache_(nullptr),
+        : description_(dummyDescription()),
+          cache_(nullptr),
           cacheIsValid_(false),
-          description_(dummyDescription()),
           nonTransientAccessRequested_(false) {}
 
     DataProxy::~DataProxy() {}
