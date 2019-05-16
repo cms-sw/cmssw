@@ -7,9 +7,9 @@
 #include <cassert>
 
 #ifdef _POSIX_C_SOURCE
-#	include <sys/time.h>
-#	include <csignal>
-#	include <csetjmp>
+#include <sys/time.h>
+#include <csignal>
+#include <csetjmp>
 #endif
 
 #include <CLHEP/Random/RandomEngine.h>
@@ -26,8 +26,7 @@
 #include "params.inc"
 
 extern "C" void jminit_();
-__attribute__((visibility("hidden"))) void dummy()
-{
+__attribute__((visibility("hidden"))) void dummy() {
   int dummyInt = 0;
   jminit_();
   jimmin_();
@@ -49,30 +48,24 @@ using namespace gen;
 // random numbers.  Also true for FastSim, since FastSim uses its own
 // random numbers.  This means FastSim needs take a Herwig6Instance
 // instance of its own instead of calling into Herwig directly.
-double gen::hwrgen_(int *idummy)
-{ 
+double gen::hwrgen_(int *idummy) {
   Herwig6Instance *instance = FortranInstance::getInstance<Herwig6Instance>();
   assert(instance != nullptr);
   assert(instance->randomEngine != nullptr);
   return instance->randomEngine->flat();
 }
 
-void gen::cms_hwwarn_(char fn[6], int *code, int *exit)
-{
-	std::string function(fn, 6);
-	*exit = FortranInstance::getInstance<Herwig6Instance>()->hwwarn(function, *code);
+void gen::cms_hwwarn_(char fn[6], int *code, int *exit) {
+  std::string function(fn, 6);
+  *exit = FortranInstance::getInstance<Herwig6Instance>()->hwwarn(function, *code);
 }
 
 extern "C" {
-	void hwaend_()
-	{}
+void hwaend_() {}
 
-	void cmsending_(int *ecode)
-	{
-		throw cms::Exception("Herwig6Error")
-			<< "Herwig6 stopped run with error code " << *ecode
-			<< "." << std::endl;
-	}
+void cmsending_(int *ecode) {
+  throw cms::Exception("Herwig6Error") << "Herwig6 stopped run with error code " << *ecode << "." << std::endl;
+}
 }
 
 struct gen::TimeoutHolder {
@@ -81,15 +74,9 @@ struct gen::TimeoutHolder {
 
 // Herwig6Instance methods
 
-Herwig6Instance::Herwig6Instance() :
-	randomEngine(nullptr),
-	timeoutPrivate()
-{
-}
+Herwig6Instance::Herwig6Instance() : randomEngine(nullptr), timeoutPrivate() {}
 
-Herwig6Instance::~Herwig6Instance()
-{
-}
+Herwig6Instance::~Herwig6Instance() {}
 
 // timeout tool
 
@@ -97,218 +84,207 @@ Herwig6Instance::~Herwig6Instance()
 // some deep POSIX hackery to catch HERWIG sometimes (O(10k events) with
 // complicated topologies) getting caught in and endless loop :-(
 
-void Herwig6Instance::_timeout_sighandler(int signr)
-{
+void Herwig6Instance::_timeout_sighandler(int signr) {
   Herwig6Instance *instance = FortranInstance::getInstance<Herwig6Instance>();
   assert(instance != nullptr);
   assert(instance->timeoutPrivate);
   siglongjmp(instance->timeoutPrivate->buf, 1);
 }
 
-bool Herwig6Instance::timeout(unsigned int secs, void (*fn)())
-{
-	if (timeoutPrivate)
-		throw cms::Exception("ReentrancyProblem")
-			<< "Herwig6Instance::timeout() called recursively."
-			<< std::endl;
-	struct sigaction saOld;
-	std::memset(&saOld, 0, sizeof saOld);
+bool Herwig6Instance::timeout(unsigned int secs, void (*fn)()) {
+  if (timeoutPrivate)
+    throw cms::Exception("ReentrancyProblem") << "Herwig6Instance::timeout() called recursively." << std::endl;
+  struct sigaction saOld;
+  std::memset(&saOld, 0, sizeof saOld);
 
-	struct itimerval itv;
-	timerclear(&itv.it_value);
-	timerclear(&itv.it_interval);
-	itv.it_value.tv_sec = 0;
-	itv.it_interval.tv_sec = 0;
-	setitimer(ITIMER_VIRTUAL, &itv, nullptr);
+  struct itimerval itv;
+  timerclear(&itv.it_value);
+  timerclear(&itv.it_interval);
+  itv.it_value.tv_sec = 0;
+  itv.it_interval.tv_sec = 0;
+  setitimer(ITIMER_VIRTUAL, &itv, nullptr);
 
-	sigset_t ss;
-	sigemptyset(&ss);
-	sigaddset(&ss, SIGVTALRM);
+  sigset_t ss;
+  sigemptyset(&ss);
+  sigaddset(&ss, SIGVTALRM);
 
-	sigprocmask(SIG_UNBLOCK, &ss, nullptr);
-	sigprocmask(SIG_BLOCK, &ss, nullptr);
+  sigprocmask(SIG_UNBLOCK, &ss, nullptr);
+  sigprocmask(SIG_BLOCK, &ss, nullptr);
 
-	timeoutPrivate = std::make_unique<TimeoutHolder>();
-	if (sigsetjmp(timeoutPrivate->buf, 1)) {
-		timeoutPrivate.reset();
+  timeoutPrivate = std::make_unique<TimeoutHolder>();
+  if (sigsetjmp(timeoutPrivate->buf, 1)) {
+    timeoutPrivate.reset();
 
-		itv.it_value.tv_sec = 0;
-		itv.it_interval.tv_sec = 0;
-		setitimer(ITIMER_VIRTUAL, &itv, nullptr);
-		sigprocmask(SIG_UNBLOCK, &ss, nullptr);
-		return true;
-	}
+    itv.it_value.tv_sec = 0;
+    itv.it_interval.tv_sec = 0;
+    setitimer(ITIMER_VIRTUAL, &itv, nullptr);
+    sigprocmask(SIG_UNBLOCK, &ss, nullptr);
+    return true;
+  }
 
-	itv.it_value.tv_sec = secs;
-	itv.it_interval.tv_sec = secs;
-	setitimer(ITIMER_VIRTUAL, &itv, nullptr);
+  itv.it_value.tv_sec = secs;
+  itv.it_interval.tv_sec = secs;
+  setitimer(ITIMER_VIRTUAL, &itv, nullptr);
 
-	struct sigaction sa;
-	std::memset(&sa, 0, sizeof sa);
-	sa.sa_handler = &Herwig6Instance::_timeout_sighandler;
-	sa.sa_flags = SA_ONESHOT;
-	sigemptyset(&sa.sa_mask);
+  struct sigaction sa;
+  std::memset(&sa, 0, sizeof sa);
+  sa.sa_handler = &Herwig6Instance::_timeout_sighandler;
+  sa.sa_flags = SA_ONESHOT;
+  sigemptyset(&sa.sa_mask);
 
-	sigaction(SIGVTALRM, &sa, &saOld);
-	sigprocmask(SIG_UNBLOCK, &ss, nullptr);
+  sigaction(SIGVTALRM, &sa, &saOld);
+  sigprocmask(SIG_UNBLOCK, &ss, nullptr);
 
-	try {
-		fn();
-	} catch(...) {
+  try {
+    fn();
+  } catch (...) {
+    timeoutPrivate.reset();
 
-		timeoutPrivate.reset();
+    itv.it_value.tv_sec = 0;
+    itv.it_interval.tv_sec = 0;
+    setitimer(ITIMER_VIRTUAL, &itv, nullptr);
 
-		itv.it_value.tv_sec = 0;
-		itv.it_interval.tv_sec = 0;
-		setitimer(ITIMER_VIRTUAL, &itv, nullptr);
+    sigaction(SIGVTALRM, &saOld, nullptr);
 
-		sigaction(SIGVTALRM, &saOld, nullptr);
+    throw;
+  }
 
-		throw;
-	}
+  timeoutPrivate.reset();
 
-	timeoutPrivate.reset();
+  itv.it_value.tv_sec = 0;
+  itv.it_interval.tv_sec = 0;
+  setitimer(ITIMER_VIRTUAL, &itv, nullptr);
 
-	itv.it_value.tv_sec = 0;
-	itv.it_interval.tv_sec = 0;
-	setitimer(ITIMER_VIRTUAL, &itv, nullptr);
+  sigaction(SIGVTALRM, &saOld, nullptr);
 
-	sigaction(SIGVTALRM, &saOld, nullptr);
-
-	return false;
+  return false;
 }
 #else
-bool Herwig6Instance::timeout(unsigned int secs, void (*fn)())
-{
-	fn();
-	return false;
+bool Herwig6Instance::timeout(unsigned int secs, void (*fn)()) {
+  fn();
+  return false;
 }
 #endif
 
-bool Herwig6Instance::hwwarn(const std::string &fn, int code)
-{
-	return false;
-}
+bool Herwig6Instance::hwwarn(const std::string &fn, int code) { return false; }
 
 // regular Herwig6Instance methods
 
-bool Herwig6Instance::give(const std::string &line)
-{	
-	typedef std::istringstream::traits_type traits;
+bool Herwig6Instance::give(const std::string &line) {
+  typedef std::istringstream::traits_type traits;
 
-	const char *p = line.c_str(), *q;
-	p += std::strspn(p, " \t\r\n");
+  const char *p = line.c_str(), *q;
+  p += std::strspn(p, " \t\r\n");
 
-	for(q = p; std::isalnum(*q); q++);
-	std::string name(p, q - p);
+  for (q = p; std::isalnum(*q); q++)
+    ;
+  std::string name(p, q - p);
 
-	const ConfigParam *param;
-	for(param = configParams; param->name; param++)
-		if (name == param->name)
-			break;
-	if (!param->name)
-		return false;
+  const ConfigParam *param;
+  for (param = configParams; param->name; param++)
+    if (name == param->name)
+      break;
+  if (!param->name)
+    return false;
 
-	p = q + std::strspn(q, " \t\r\n");  
+  p = q + std::strspn(q, " \t\r\n");
 
-	std::size_t pos = 0;
-	std::size_t mult = 1;
-	for(unsigned int i = 0; i < 3; i++) {
-		if (!param->dim[i].size)
-			break;
+  std::size_t pos = 0;
+  std::size_t mult = 1;
+  for (unsigned int i = 0; i < 3; i++) {
+    if (!param->dim[i].size)
+      break;
 
-		if (*p++ != (i ? ',' : '('))
-			return false;
+    if (*p++ != (i ? ',' : '('))
+      return false;
 
-		p += std::strspn(p, " \t\r\n");
+    p += std::strspn(p, " \t\r\n");
 
-		for(q = p; std::isdigit(*q); q++);
-		std::istringstream ss(std::string(p, q - p));
-		std::size_t index;
-		ss >> index;
-		if (ss.bad() || ss.peek() != traits::eof())
-			return false;
+    for (q = p; std::isdigit(*q); q++)
+      ;
+    std::istringstream ss(std::string(p, q - p));
+    std::size_t index;
+    ss >> index;
+    if (ss.bad() || ss.peek() != traits::eof())
+      return false;
 
-		if (index < param->dim[i].offset)
-			return false;
-		index -= param->dim[i].offset;
-		if (index >= param->dim[i].size)
-			return false;
+    if (index < param->dim[i].offset)
+      return false;
+    index -= param->dim[i].offset;
+    if (index >= param->dim[i].size)
+      return false;
 
-		p = q + std::strspn(q, " \t\r\n");
+    p = q + std::strspn(q, " \t\r\n");
 
-		pos += mult * index;
-		mult *= param->dim[i].size;
-	}
+    pos += mult * index;
+    mult *= param->dim[i].size;
+  }
 
-	if (param->dim[0].size) {
-		if (*p++ != ')')
-			return false;
-		p += std::strspn(p, " \t\r\n");
-	}
+  if (param->dim[0].size) {
+    if (*p++ != ')')
+      return false;
+    p += std::strspn(p, " \t\r\n");
+  }
 
-	if (*p++ != '=')
-		return false;
-	p += std::strspn(p, " \t\r\n");
+  if (*p++ != '=')
+    return false;
+  p += std::strspn(p, " \t\r\n");
 
-	for(q = p; *q && (std::isalnum(*q) || std::strchr(".-+", *q)); q++);
-	std::istringstream ss(std::string(p, q - p));
+  for (q = p; *q && (std::isalnum(*q) || std::strchr(".-+", *q)); q++)
+    ;
+  std::istringstream ss(std::string(p, q - p));
 
-	p = q + std::strspn(q, " \t\r\n");
-	if (*p && *p != '!')
-		return false;
+  p = q + std::strspn(q, " \t\r\n");
+  if (*p && *p != '!')
+    return false;
 
-	switch(param->type) {
-	    case kInt: {
-		int value;
-		ss >> value;
-		if (ss.bad() || ss.peek() != traits::eof())
-			return false;
+  switch (param->type) {
+    case kInt: {
+      int value;
+      ss >> value;
+      if (ss.bad() || ss.peek() != traits::eof())
+        return false;
 
-		((int*)param->ptr)[pos] = value;
-		break;
-	    }
-	    case kDouble: {
-		double value;
-		ss >> value;
-		if (ss.bad() || ss.peek() != traits::eof())
-			return false;
+      ((int *)param->ptr)[pos] = value;
+      break;
+    }
+    case kDouble: {
+      double value;
+      ss >> value;
+      if (ss.bad() || ss.peek() != traits::eof())
+        return false;
 
-		((double*)param->ptr)[pos] = value;
-		break;
-	    }
-	    case kLogical: {
-		std::string value_;
-		ss >> value_;
-		if (ss.bad() || ss.peek() != traits::eof())
-			return false;
+      ((double *)param->ptr)[pos] = value;
+      break;
+    }
+    case kLogical: {
+      std::string value_;
+      ss >> value_;
+      if (ss.bad() || ss.peek() != traits::eof())
+        return false;
 
-		for(std::string::iterator iter = value_.begin();
-		    iter != value_.end(); ++iter)
-			*iter = std::tolower(*iter);
-		bool value;
-		if (value_ == "yes" || value_ == "true" || value_ == "1")
-			value = true;
-		else if (value_ == "no" || value_ == "false" || value_ == "0")
-			value = false;
-		else
-			return false;
+      for (std::string::iterator iter = value_.begin(); iter != value_.end(); ++iter)
+        *iter = std::tolower(*iter);
+      bool value;
+      if (value_ == "yes" || value_ == "true" || value_ == "1")
+        value = true;
+      else if (value_ == "no" || value_ == "false" || value_ == "0")
+        value = false;
+      else
+        return false;
 
-		((int*)param->ptr)[pos] = value;
-		break;
-	    }
-	}
+      ((int *)param->ptr)[pos] = value;
+      break;
+    }
+  }
 
-	return true;
+  return true;
 }
 
 void Herwig6Instance::openParticleSpecFile(const std::string fileName) {
-
-  edm::FileInPath fileAndPath( fileName );
+  edm::FileInPath fileAndPath(fileName);
   // WARING : This will call HWWARN if file does not exist.
-  lunread_( fileAndPath.fullPath().c_str(),strlen(fileAndPath.fullPath().c_str()) );
-  
+  lunread_(fileAndPath.fullPath().c_str(), strlen(fileAndPath.fullPath().c_str()));
+
   return;
 }
-
-

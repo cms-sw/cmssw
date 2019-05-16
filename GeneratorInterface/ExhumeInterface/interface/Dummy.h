@@ -8,12 +8,10 @@
 
 #include "GeneratorInterface/ExhumeInterface/interface/CrossSection.h"
 
-namespace Exhume{
+namespace Exhume {
 
-  class Dummy : public CrossSection{
-
+  class Dummy : public CrossSection {
   public:
-
     Dummy(const edm::ParameterSet&);
     double SubProcess() override;
     void SetPartons() override;
@@ -26,6 +24,6 @@ namespace Exhume{
     double Inv32;
   };
 
-}
+}  // namespace Exhume
 
 #endif

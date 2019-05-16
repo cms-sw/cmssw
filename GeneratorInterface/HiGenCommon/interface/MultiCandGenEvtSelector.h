@@ -4,17 +4,16 @@
 #include "GeneratorInterface/HiGenCommon/interface/BaseHiGenEvtSelector.h"
 
 class MultiCandGenEvtSelector : public BaseHiGenEvtSelector {
- public:
-   MultiCandGenEvtSelector(const edm::ParameterSet&);
-   ~MultiCandGenEvtSelector() override{;}
-   bool filter(HepMC::GenEvent *) override;
+public:
+  MultiCandGenEvtSelector(const edm::ParameterSet &);
+  ~MultiCandGenEvtSelector() override { ; }
+  bool filter(HepMC::GenEvent *) override;
 
-   double ptMin_;
-   double etaMax_;
-   int st_;
-   int pdg_;
-   int nTrig_;
-
+  double ptMin_;
+  double etaMax_;
+  int st_;
+  int pdg_;
+  int nTrig_;
 };
 
 #endif
