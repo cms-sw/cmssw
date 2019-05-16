@@ -38,8 +38,8 @@ MinBias_dqm:
 	rm -f ${TMPDIR}/MinBias/DQM*.root
 	cd ${TMPDIR} && ${RELVALCMD} MinBias dqm 0
 
-SN_dqm:
-	cd ${TMPDIR} && ${RELVALCMD} SingleNeutrino dqm 0
+NuGunPU_dqm:
+	cd ${TMPDIR} && ${RELVALCMD} NuGunPU dqm 0
 
 post: QCD_post QCDPU_post ZMM_post MinBias_post SN_post
 
@@ -63,22 +63,29 @@ MinBias_post:
 	cd ${TMPDIR}/MinBias && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponseAndResolution.py DQM*.root
 	hadd -f ${TMPDIR}/MinBias/DQMTotal.root ${TMPDIR}/MinBias/DQM_*.root
 
-SN_post:
-	rm -f ${TMPDIR}/SingleNeutrino/*withResponse*.root ${TMPDIR}/SingleNeutrino/DQMTotal.root
-	cd ${TMPDIR}/SingleNeutrino && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponseAndResolution.py DQM*.root
-	hadd -f ${TMPDIR}/SingleNeutrino/DQMTotal.root ${TMPDIR}/SingleNeutrino/DQM_*.root
+NuGunPU_post:
+	rm -f ${TMPDIR}/NoGunPU/*withResponse*.root ${TMPDIR}/NuGunPU/DQMTotal.root
+	cd ${TMPDIR}/NuGunPU && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponseAndResolution.py DQM*.root
+	hadd -f ${TMPDIR}/NuGunPU/DQMTotal.root ${TMPDIR}/NuGunPU/DQM_*.root
 
 .PHONY: plots # Enable re-running plots
 
 plots:
 	rm -Rf plots	
 	python test/compare.py \
-		--sample SingleNeutrino:${TMPDIR}/SingleNeutrino/DQMTotal.root:${TMPDIR}/SingleNeutrino/DQMTotal.root \
+		--sample FlatQCD_noPU:${TMPDIR}/QCD/DQMTotal.root:${TMPDIR}/QCD/DQMTotal.root \
+		--sample FlatQCD_PU25ns:${TMPDIR}/QCDPU/DQMTotal.root:${TMPDIR}/QCDPU/DQMTotal.root \
+		--sample NuGunPU:${TMPDIR}/NuGunPU/DQMTotal.root:${TMPDIR}/NuGunPU/DQMTotal.root \
 		--doResponsePlots --doOffsetPlots
 
-#		--sample HS:${TMPDIR}/HS_old/DQMTotal.root:${TMPDIR}/HS/DQMTotal.root \
-#		--sample FlatQCD_noPU:${TMPDIR}/QCD/DQMTotal.root:${TMPDIR}/QCD/DQMTotal.root \
-#		--sample FlatQCD_PU25ns:${TMPDIR}/QCDPU/DQMTotal.root:${TMPDIR}/QCDPU/DQMTotal.root \
+plots_with_ref:
+	rm -Rf plots	
+	python test/compare.py \
+		--sample FlatQCD_noPU:${TMPDIR}/QCD/DQMTotal.root:${TMPDIR}/QCD_ref/DQMTotal.root \
+		--sample FlatQCD_PU25ns:${TMPDIR}/QCDPU/DQMTotal.root:${TMPDIR}/QCDPU_ref/DQMTotal.root \
+		--sample NuGunPU:${TMPDIR}/NuGunPU/DQMTotal.root:${TMPDIR}/NuGunPU_ref/DQMTotal.root \
+		--doResponsePlots --doOffsetPlots
+
 #		--sample MinBias:${TMPDIR}/MinBias/DQMTotal.root:${TMPDIR}/MinBias/DQMTotal.root \
 #		--sample ZMM:${TMPDIR}/ZMM/DQMTotal.root:${TMPDIR}/ZMM/DQMTotal.root \
 #		--doResponsePlots --doOffsetPlots

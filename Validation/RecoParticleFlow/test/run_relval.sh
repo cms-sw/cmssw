@@ -114,6 +114,7 @@ if [ $STEP == "RECO" ]; then
     #On lxplus, this step takes about 1 minute / 1000 events
     #Can be skipped if doing DQM directly from RECO
     #cmsDriver.py step4 --conditions $CONDITIONS -s NANO --datatier NANOAODSIM --nThreads $NTHREADS -n $N --era $ERA --eventcontent NANOAODSIM --filein file:step3_inMINIAODSIM.root --fileout file:step4.root > step4.log 2>&1
+
 elif [ $STEP == "DQM" ]; then
     echo "Running step DQM" 
 

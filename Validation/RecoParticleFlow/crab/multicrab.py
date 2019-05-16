@@ -15,7 +15,7 @@ samples = [
     ("/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_5_0_pre1-PU25ns_103X_mc2017_realistic_v2_HSresub-v1/GEN-SIM-DIGI-RAW", "QCD_FlatPt_PU25ns"),
     ("/RelValZMM_13/CMSSW_10_5_0_pre1-103X_mc2017_realistic_v2-v1/GEN-SIM-DIGI-RAW", "ZMM"),
     ("/RelValMinBias_13/CMSSW_10_5_0_pre1-103X_mc2017_realistic_v2-v1/GEN-SIM-DIGI-RAW", "MinBias"),
-    ("/RelValNuGun/CMSSW_10_5_0_pre1-PU25ns_103X_mc2017_realistic_v2_HS-v1/GEN-SIM-DIGI-RAW", "NuGun"),
+    ("/RelValNuGun/CMSSW_10_5_0_pre1-PU25ns_103X_mc2017_realistic_v2_HS-v1/GEN-SIM-DIGI-RAW", "NuGunPU"),
 ]
 
 if __name__ == "__main__":
