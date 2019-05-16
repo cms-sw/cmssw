@@ -19,18 +19,15 @@ public:
   virtual ~HcalTPGScale() = default;
   /** \brief nominal ET value of this sample/code as to be used in
       RCT LUT creation */
-  virtual double et_RCT(const HcalTrigTowerDetId& id, const
-			HcalTriggerPrimitiveSample& s) const = 0;
+  virtual double et_RCT(const HcalTrigTowerDetId& id, const HcalTriggerPrimitiveSample& s) const = 0;
   /// smallest ET value which would resolve into this sample
-  virtual double et_bin_low(const HcalTrigTowerDetId& id, const
-			    HcalTriggerPrimitiveSample& s) const = 0;
+  virtual double et_bin_low(const HcalTrigTowerDetId& id, const HcalTriggerPrimitiveSample& s) const = 0;
   /** smallest ET value which would not resolve into sample (too big) */
-  virtual double et_bin_high(const HcalTrigTowerDetId& id, const
-		     HcalTriggerPrimitiveSample& s) const = 0;
+  virtual double et_bin_high(const HcalTrigTowerDetId& id, const HcalTriggerPrimitiveSample& s) const = 0;
   /// Get any needed information from the event setup
-  virtual void setup(const edm::EventSetup& es) const { }
+  virtual void setup(const edm::EventSetup& es) const {}
   /// Release any objects obtained from the EventSetup
-  virtual void releaseSetup() const { }
+  virtual void releaseSetup() const {}
 };
 
 #endif

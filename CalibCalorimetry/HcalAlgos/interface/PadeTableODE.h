@@ -8,24 +8,27 @@
 // to the Pade table. See http://en.wikipedia.org/wiki/Pade_table and
 // replace z by (-tau s).
 //
-class PadeTableODE
-{
+class PadeTableODE {
 public:
-    PadeTableODE(unsigned padeRow, unsigned padeColumn);
+  PadeTableODE(unsigned padeRow, unsigned padeColumn);
 
-    void calculate(double tau, double inputCurrent,
-                   double dIdt, double d2Id2t,
-                   const double* x, unsigned lenX,
-                   unsigned firstNode, double* derivative) const;
+  void calculate(double tau,
+                 double inputCurrent,
+                 double dIdt,
+                 double d2Id2t,
+                 const double* x,
+                 unsigned lenX,
+                 unsigned firstNode,
+                 double* derivative) const;
 
-    inline unsigned getPadeRow() const {return row_;}
-    inline unsigned getPadeColumn() const {return col_;}
-    inline unsigned nParameters() const {return 0U;}
-    void setParameters(const double* pars, unsigned nPars);
+  inline unsigned getPadeRow() const { return row_; }
+  inline unsigned getPadeColumn() const { return col_; }
+  inline unsigned nParameters() const { return 0U; }
+  void setParameters(const double* pars, unsigned nPars);
 
 private:
-    unsigned row_;
-    unsigned col_;
+  unsigned row_;
+  unsigned col_;
 };
 
-#endif // CalibCalorimetry_HcalAlgos_PadeTableODE_h_
+#endif  // CalibCalorimetry_HcalAlgos_PadeTableODE_h_

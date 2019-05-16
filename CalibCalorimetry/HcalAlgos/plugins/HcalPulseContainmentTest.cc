@@ -21,31 +21,26 @@
 class HcalTimeSlew;
 
 class HcalPulseContainmentTest : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
-
 public:
   explicit HcalPulseContainmentTest(const edm::ParameterSet& iConfig);
   ~HcalPulseContainmentTest() override;
 
 private:
   void beginJob() override;
-  void beginRun(edm::Run const&,  edm::EventSetup const&) override {}
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&,  edm::EventSetup const&) override {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
   const HcalTimeSlew* hcalTimeSlew_delay_;
 };
 
-HcalPulseContainmentTest::HcalPulseContainmentTest(const edm::ParameterSet& iConfig) { 
-  hcalTimeSlew_delay_ = nullptr;
-}
+HcalPulseContainmentTest::HcalPulseContainmentTest(const edm::ParameterSet& iConfig) { hcalTimeSlew_delay_ = nullptr; }
 
-HcalPulseContainmentTest::~HcalPulseContainmentTest() { } 
+HcalPulseContainmentTest::~HcalPulseContainmentTest() {}
 
-void HcalPulseContainmentTest::beginJob() {
-}
+void HcalPulseContainmentTest::beginJob() {}
 
 void HcalPulseContainmentTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   edm::ESHandle<HcalTimeSlew> delay;
   iSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
   hcalTimeSlew_delay_ = &*delay;
@@ -53,7 +48,7 @@ void HcalPulseContainmentTest::analyze(const edm::Event& iEvent, const edm::Even
   float fixedphase_ns = 6.0;
   float max_fracerror = 0.02;
   std::unique_ptr<HcalPulseContainmentManager> manager;
-  manager = std::unique_ptr<HcalPulseContainmentManager>( new HcalPulseContainmentManager(max_fracerror));
+  manager = std::unique_ptr<HcalPulseContainmentManager>(new HcalPulseContainmentManager(max_fracerror));
   manager->setTimeSlew(hcalTimeSlew_delay_);
 
   HcalDetId hb1(HcalBarrel, 1, 1, 1);
@@ -69,7 +64,7 @@ void HcalPulseContainmentTest::analyze(const edm::Event& iEvent, const edm::Even
   // HB and HE have the same shape here
   double corr4 = manager->correction(he1, 4, fixedphase_ns, fc);
   assert(corr4 == corr1);
-  std::cout << corr1 << " " <<corr2 << " " <<corr3 << " " <<corr4 << " " << std::endl;
+  std::cout << corr1 << " " << corr2 << " " << corr3 << " " << corr4 << " " << std::endl;
 }
 
 //define this as a plug-in
