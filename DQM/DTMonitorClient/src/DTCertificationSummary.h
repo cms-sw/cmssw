@@ -14,7 +14,6 @@
 
 #include <map>
 
-
 class DTCertificationSummary : public DQMEDHarvester {
 public:
   /// Constructor

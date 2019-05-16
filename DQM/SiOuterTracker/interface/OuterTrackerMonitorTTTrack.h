@@ -16,7 +16,6 @@
 #include <string>
 #include <vector>
 
-
 class OuterTrackerMonitorTTTrack : public DQMEDAnalyzer {
 public:
   explicit OuterTrackerMonitorTTTrack(const edm::ParameterSet &);

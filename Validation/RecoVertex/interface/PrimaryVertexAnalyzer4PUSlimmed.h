@@ -57,7 +57,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 // class declaration
 class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   typedef math::XYZTLorentzVector LorentzVector;

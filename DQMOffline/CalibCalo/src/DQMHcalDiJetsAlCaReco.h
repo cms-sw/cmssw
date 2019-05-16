@@ -21,7 +21,6 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
-
 class DQMHcalDiJetsAlCaReco : public DQMEDAnalyzer {
 public:
   DQMHcalDiJetsAlCaReco(const edm::ParameterSet &);

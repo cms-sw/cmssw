@@ -14,35 +14,30 @@
 #include <string>
 #include <map>
 
-
 class DQMMessageLogger : public DQMEDAnalyzer {
- public:
-
+public:
   /// Constructor
-  DQMMessageLogger(const edm::ParameterSet&);
-  
+  DQMMessageLogger(const edm::ParameterSet &);
+
   /// Destructor
   ~DQMMessageLogger() override;
-  
+
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
- protected:
-
+protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
- private:
-
-
+private:
   // ----------member data ---------------------------
-  
+
   // Switch for verbosity
   std::string metname;
-  
-  std::map<std::string,int> moduleMap;
-  std::map<std::string,int> categoryMap;
-  std::map<std::string,int> categoryWCount;
-  std::map<std::string,int> categoryECount;
+
+  std::map<std::string, int> moduleMap;
+  std::map<std::string, int> categoryMap;
+  std::map<std::string, int> categoryWCount;
+  std::map<std::string, int> categoryECount;
   // from parameters
   std::vector<std::string> categories_vector;
   std::string directoryName;
@@ -55,9 +50,5 @@ class DQMMessageLogger : public DQMEDAnalyzer {
   MonitorElement *modules_warnings;
   MonitorElement *total_errors;
   MonitorElement *total_warnings;
-
-  
 };
-#endif  
-
-
+#endif

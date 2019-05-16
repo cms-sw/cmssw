@@ -7,7 +7,7 @@
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //DQMServices
-# include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 // Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 

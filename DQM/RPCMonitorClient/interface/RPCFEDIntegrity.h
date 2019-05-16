@@ -16,7 +16,6 @@
 #include <string>
 //#include <map>
 
-
 class RPCFEDIntegrity : public DQMEDAnalyzer {
 public:
   /// Constructor

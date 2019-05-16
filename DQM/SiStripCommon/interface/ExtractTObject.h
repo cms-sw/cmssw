@@ -4,15 +4,11 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <string>
 
-
 /** */
-template <class T> 
+template <class T>
 class ExtractTObject {
-
- public:
-
-  static T* extract( MonitorElement* me );
-
+public:
+  static T* extract(MonitorElement* me);
 };
 
-#endif // DQM_SiStripCommon_ExtractTObject_H
+#endif  // DQM_SiStripCommon_ExtractTObject_H

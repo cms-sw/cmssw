@@ -8,7 +8,6 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 class ESDcsInfoTask : public edm::EDAnalyzer {
 public:
   /// Constructor

@@ -18,150 +18,138 @@
 // class declaration
 //
 namespace {
-class FillerBase {
- public:
-  virtual ~FillerBase() = default;
-  virtual void fill() = 0;
-  virtual void reset() = 0;
-};
+  class FillerBase {
+  public:
+    virtual ~FillerBase() = default;
+    virtual void fill() = 0;
+    virtual void reset() = 0;
+  };
 
-class TH1FFiller : public FillerBase {
- public:
-  TH1FFiller(const edm::ParameterSet& iPSet,
-             DQMStore::IBooker& iBooker,
-             bool iSetLumiFlag)
-      : m_valueToFill(iPSet.getUntrackedParameter<double>("value")),
-        valuesToFill_(iPSet.getUntrackedParameter<std::vector<double>>("values")),
-        m_min(iPSet.getUntrackedParameter<double>("lowX")),
-        m_steps(iPSet.getUntrackedParameter<int>("nchX")) {
-    std::string extension;
-    if (iSetLumiFlag) {
-      extension = "_lumi";
+  class TH1FFiller : public FillerBase {
+  public:
+    TH1FFiller(const edm::ParameterSet& iPSet, DQMStore::IBooker& iBooker, bool iSetLumiFlag)
+        : m_valueToFill(iPSet.getUntrackedParameter<double>("value")),
+          valuesToFill_(iPSet.getUntrackedParameter<std::vector<double>>("values")),
+          m_min(iPSet.getUntrackedParameter<double>("lowX")),
+          m_steps(iPSet.getUntrackedParameter<int>("nchX")) {
+      std::string extension;
+      if (iSetLumiFlag) {
+        extension = "_lumi";
+      }
+      m_element = iBooker.book1D(iPSet.getUntrackedParameter<std::string>("name") + extension,
+                                 iPSet.getUntrackedParameter<std::string>("title") + extension,
+                                 m_steps,
+                                 m_min,
+                                 iPSet.getUntrackedParameter<double>("highX"));
+
+      if (iSetLumiFlag) {
+        m_element->setLumiFlag();
+      }
+      m_hist = m_element->getTH1F();
+
+      if (!valuesToFill_.empty())
+        assert(valuesToFill_.size() == m_steps);
     }
-    m_element = iBooker.book1D(
-        iPSet.getUntrackedParameter<std::string>("name") + extension,
-        iPSet.getUntrackedParameter<std::string>("title") + extension,
-        m_steps,
-        m_min,
-        iPSet.getUntrackedParameter<double>("highX"));
 
-    if (iSetLumiFlag) {
-      m_element->setLumiFlag();
+    ~TH1FFiller() override = default;
+
+    void reset() override { m_element->Reset(); }
+
+    void fill() override {
+      if (!valuesToFill_.empty()) {
+        for (size_t i = 0; i < valuesToFill_.size(); ++i)
+          for (size_t j = 0; j < valuesToFill_[i]; ++j)
+            m_hist->Fill(i);
+      } else {
+        m_hist->Fill(m_valueToFill);
+      }
     }
-    m_hist = m_element->getTH1F();
 
-    if (!valuesToFill_.empty())
-      assert (valuesToFill_.size() == m_steps);
-  }
+  private:
+    TH1F* m_hist;
+    double m_valueToFill;
+    std::vector<double> valuesToFill_;
+    double m_min;
+    unsigned int m_steps;
+    MonitorElement* m_element;
+  };
 
-  ~TH1FFiller() override = default;
+  class TH2FFiller : public FillerBase {
+  public:
+    TH2FFiller(const edm::ParameterSet& iPSet, DQMStore::IBooker& iBooker, bool iSetLumiFlag)
+        : m_valueToFill(iPSet.getUntrackedParameter<double>("value")),
+          valuesToFill_(iPSet.getUntrackedParameter<std::vector<double>>("values")),
+          m_min(iPSet.getUntrackedParameter<double>("lowX")),
+          m_steps(iPSet.getUntrackedParameter<int>("nchX")) {
+      std::string extension;
+      if (iSetLumiFlag) {
+        extension = "_lumi";
+      }
+      m_element = iBooker.book2D(iPSet.getUntrackedParameter<std::string>("name") + extension,
+                                 iPSet.getUntrackedParameter<std::string>("title") + extension,
+                                 m_steps,
+                                 m_min,
+                                 iPSet.getUntrackedParameter<double>("highX"),
+                                 iPSet.getUntrackedParameter<int>("nchY"),
+                                 iPSet.getUntrackedParameter<double>("lowY"),
+                                 iPSet.getUntrackedParameter<double>("highY"));
 
-  void reset() override {
-    m_element->Reset();
-  }
+      if (iSetLumiFlag) {
+        m_element->setLumiFlag();
+      }
+      m_hist = m_element->getTH2F();
 
-  void fill() override {
-    if (!valuesToFill_.empty()) {
-      for (size_t i = 0; i < valuesToFill_.size(); ++i)
-        for (size_t j = 0; j < valuesToFill_[i]; ++j)
-          m_hist->Fill(i);
-    } else {
-      m_hist->Fill(m_valueToFill);
+      if (!valuesToFill_.empty())
+        assert(valuesToFill_.size() == m_steps);
     }
-  }
 
- private:
-  TH1F* m_hist;
-  double m_valueToFill;
-  std::vector<double> valuesToFill_;
-  double m_min;
-  unsigned int m_steps;
-  MonitorElement* m_element;
-};
+    ~TH2FFiller() override = default;
 
-class TH2FFiller : public FillerBase {
- public:
-  TH2FFiller(const edm::ParameterSet& iPSet,
-             DQMStore::IBooker& iBooker,
-             bool iSetLumiFlag)
-      : m_valueToFill(iPSet.getUntrackedParameter<double>("value")),
-        valuesToFill_(iPSet.getUntrackedParameter<std::vector<double>>("values")),
-        m_min(iPSet.getUntrackedParameter<double>("lowX")),
-        m_steps(iPSet.getUntrackedParameter<int>("nchX")) {
-    std::string extension;
-    if (iSetLumiFlag) {
-      extension = "_lumi";
+    void reset() override { m_element->Reset(); }
+
+    void fill() override {
+      if (!valuesToFill_.empty()) {
+        for (size_t i = 0; i < valuesToFill_.size(); ++i)
+          for (size_t j = 0; j < valuesToFill_[i]; ++j)
+            m_hist->Fill(i, i);
+      } else {
+        m_hist->Fill(m_valueToFill, m_valueToFill);
+      }
     }
-    m_element = iBooker.book2D(
-        iPSet.getUntrackedParameter<std::string>("name") + extension,
-        iPSet.getUntrackedParameter<std::string>("title") + extension,
-        m_steps,
-        m_min,
-        iPSet.getUntrackedParameter<double>("highX"),
-        iPSet.getUntrackedParameter<int>("nchY"),
-        iPSet.getUntrackedParameter<double>("lowY"),
-        iPSet.getUntrackedParameter<double>("highY"));
 
-    if (iSetLumiFlag) {
-      m_element->setLumiFlag();
-    }
-    m_hist = m_element->getTH2F();
+  private:
+    TH2F* m_hist;
+    double m_valueToFill;
+    std::vector<double> valuesToFill_;
+    double m_min;
+    unsigned int m_steps;
+    MonitorElement* m_element;
+  };
+}  // namespace
 
-    if (!valuesToFill_.empty())
-      assert (valuesToFill_.size() == m_steps);
-  }
-
-  ~TH2FFiller() override = default;
-
-  void reset() override {
-    m_element->Reset();
-  }
-
-  void fill() override {
-    if (!valuesToFill_.empty()) {
-      for (size_t i = 0; i < valuesToFill_.size(); ++i)
-        for (size_t j = 0; j < valuesToFill_[i]; ++j)
-          m_hist->Fill(i, i);
-    } else {
-      m_hist->Fill(m_valueToFill, m_valueToFill);
-    }
-  }
-
- private:
-  TH2F* m_hist;
-  double m_valueToFill;
-  std::vector<double> valuesToFill_;
-  double m_min;
-  unsigned int m_steps;
-  MonitorElement* m_element;
-};
-}
-
-class DummyBookFillDQMStoreMultiThread :  public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
- public:
+class DummyBookFillDQMStoreMultiThread : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+public:
   using PSets = std::vector<edm::ParameterSet>;
   explicit DummyBookFillDQMStoreMultiThread(const edm::ParameterSet&);
   ~DummyBookFillDQMStoreMultiThread() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
+private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
   void endRun(edm::Run const&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&,
-                                    edm::EventSetup const&) override;
-  void endLuminosityBlock(edm::LuminosityBlock const&,
-                                  edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void fillerDispose();
 
   // ----------member data ---------------------------
-  std::vector<boost::shared_ptr<FillerBase> > m_runFillers;
-  std::vector<boost::shared_ptr<FillerBase> > m_lumiFillers;
+  std::vector<boost::shared_ptr<FillerBase>> m_runFillers;
+  std::vector<boost::shared_ptr<FillerBase>> m_lumiFillers;
   std::string folder_;
   bool m_fillRuns;
   bool m_fillLumis;
@@ -171,7 +159,6 @@ class DummyBookFillDQMStoreMultiThread :  public one::DQMEDAnalyzer<one::DQMLumi
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -184,7 +171,7 @@ DummyBookFillDQMStoreMultiThread::DummyBookFillDQMStoreMultiThread(const edm::Pa
     : folder_(iConfig.getUntrackedParameter<std::string>("folder", "TestFolder/")),
       m_fillRuns(iConfig.getUntrackedParameter<bool>("fillRuns")),
       m_fillLumis(iConfig.getUntrackedParameter<bool>("fillLumis")),
-      elements_(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("elements")) {
+      elements_(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet>>("elements")) {
   // TODO(rovere): assert on multiple book conditions
 }
 
@@ -194,10 +181,9 @@ void DummyBookFillDQMStoreMultiThread::fillerDispose() {
   m_lumiFillers.erase(m_lumiFillers.begin(), m_lumiFillers.end());
 }
 
-
-void DummyBookFillDQMStoreMultiThread::bookHistograms(DQMStore::IBooker &iBooker,
-                                                      edm::Run const & /* iRun */,
-                                                      edm::EventSetup const & /* iSetup */) {
+void DummyBookFillDQMStoreMultiThread::bookHistograms(DQMStore::IBooker& iBooker,
+                                                      edm::Run const& /* iRun */,
+                                                      edm::EventSetup const& /* iSetup */) {
   fillerDispose();
 
   std::cout << "Booking" << std::endl;
@@ -213,12 +199,10 @@ void DummyBookFillDQMStoreMultiThread::bookHistograms(DQMStore::IBooker &iBooker
     for (; it != ite; ++it) {
       switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
         case 1:
-          m_runFillers.push_back(boost::shared_ptr<FillerBase>(
-              new TH1FFiller(*it, iBooker, false)));
+          m_runFillers.push_back(boost::shared_ptr<FillerBase>(new TH1FFiller(*it, iBooker, false)));
           break;
         case 2:
-          m_runFillers.push_back(boost::shared_ptr<FillerBase>(
-              new TH2FFiller(*it, iBooker, false)));
+          m_runFillers.push_back(boost::shared_ptr<FillerBase>(new TH2FFiller(*it, iBooker, false)));
           break;
       }
     }
@@ -226,16 +210,13 @@ void DummyBookFillDQMStoreMultiThread::bookHistograms(DQMStore::IBooker &iBooker
 
   if (m_fillLumis) {
     m_lumiFillers.reserve(elements_.size());
-    for (auto it = elements_.begin(), itEnd = elements_.end();
-         it != itEnd; ++it) {
+    for (auto it = elements_.begin(), itEnd = elements_.end(); it != itEnd; ++it) {
       switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
         case 1:
-          m_lumiFillers.push_back(boost::shared_ptr<FillerBase>(
-              new TH1FFiller(*it, iBooker, true)));
+          m_lumiFillers.push_back(boost::shared_ptr<FillerBase>(new TH1FFiller(*it, iBooker, true)));
           break;
         case 2:
-          m_lumiFillers.push_back(boost::shared_ptr<FillerBase>(
-              new TH2FFiller(*it, iBooker, true)));
+          m_lumiFillers.push_back(boost::shared_ptr<FillerBase>(new TH2FFiller(*it, iBooker, true)));
           break;
       }
     }
@@ -247,22 +228,18 @@ DummyBookFillDQMStoreMultiThread::~DummyBookFillDQMStoreMultiThread() {
   // (e.g. close files, deallocate resources etc.)
 }
 
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-DummyBookFillDQMStoreMultiThread::analyze(edm::Event const& iEvent,
-                               edm::EventSetup const& iSetup) {
-
+void DummyBookFillDQMStoreMultiThread::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   auto it = m_runFillers.begin();
   auto ite = m_runFillers.end();
   for (; it != ite; ++it)
     (*it)->fill();
 
-//   using namespace edm;
+  //   using namespace edm;
   /* This is an event example
   //Read 'ExampleData' from the Event
   Handle<ExampleData> pIn;
@@ -282,21 +259,16 @@ DummyBookFillDQMStoreMultiThread::analyze(edm::Event const& iEvent,
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void DummyBookFillDQMStoreMultiThread::beginJob() {
-}
+void DummyBookFillDQMStoreMultiThread::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void DummyBookFillDQMStoreMultiThread::endJob() {
-}
+void DummyBookFillDQMStoreMultiThread::endJob() {}
 
 // ------------ method called when ending the processing of a run  ------------
-void DummyBookFillDQMStoreMultiThread::endRun(edm::Run const&, edm::EventSetup const&) {
-}
+void DummyBookFillDQMStoreMultiThread::endRun(edm::Run const&, edm::EventSetup const&) {}
 
 // ------------ method called when starting to processes a luminosity block  ------------
-void
-DummyBookFillDQMStoreMultiThread::beginLuminosityBlock(edm::LuminosityBlock const&,
-                                            edm::EventSetup const&) {
+void DummyBookFillDQMStoreMultiThread::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
   auto it = m_lumiFillers.begin();
   auto ite = m_lumiFillers.end();
   for (; it != ite; ++it)
@@ -304,9 +276,7 @@ DummyBookFillDQMStoreMultiThread::beginLuminosityBlock(edm::LuminosityBlock cons
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-void
-DummyBookFillDQMStoreMultiThread::endLuminosityBlock(edm::LuminosityBlock const&,
-                                          edm::EventSetup const&) {
+void DummyBookFillDQMStoreMultiThread::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
   auto it = m_lumiFillers.begin();
   auto ite = m_lumiFillers.end();
   for (; it != ite; ++it)
@@ -314,8 +284,7 @@ DummyBookFillDQMStoreMultiThread::endLuminosityBlock(edm::LuminosityBlock const&
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-DummyBookFillDQMStoreMultiThread::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void DummyBookFillDQMStoreMultiThread::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

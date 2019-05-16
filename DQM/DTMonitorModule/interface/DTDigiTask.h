@@ -44,7 +44,6 @@ class DTChamberId;
 class DTTtrig;
 class DTT0;
 
-
 class DTDigiTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor

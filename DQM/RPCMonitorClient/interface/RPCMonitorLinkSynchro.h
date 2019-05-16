@@ -15,7 +15,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 namespace edm {
   class Event;
   class EventSetup;

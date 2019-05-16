@@ -11,7 +11,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 class ESFEDIntegrityTask : public DQMEDAnalyzer {
 public:
   ESFEDIntegrityTask(const edm::ParameterSet& ps);

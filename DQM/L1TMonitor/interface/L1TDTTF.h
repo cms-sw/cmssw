@@ -8,7 +8,6 @@
  *
  */
 
-
 // system include files
 #include <string>
 
@@ -29,38 +28,35 @@ class L1MuDTTrackCand;
 class L1MuRegionalCand;
 
 class L1TDTTF : public DQMEDAnalyzer {
-
- public:
-
+public:
   // Constructor
   L1TDTTF(const edm::ParameterSet& ps);
 
   // Destructor
   ~L1TDTTF() override;
 
- protected:
+protected:
   // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   // BeginJob
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-  void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) override;
 
- private:
-
-  void fillMEs( std::vector<L1MuDTTrackCand> const* trackContainer, std::vector<L1MuRegionalCand>& gmtDttfCands );
-  void setWheelLabel(MonitorElement *me);
-  void setQualLabel(MonitorElement *me, int axis);
-  void bookEta( int wh, int & nbins, float & start, float & stop );
+private:
+  void fillMEs(std::vector<L1MuDTTrackCand> const* trackContainer, std::vector<L1MuRegionalCand>& gmtDttfCands);
+  void setWheelLabel(MonitorElement* me);
+  void setQualLabel(MonitorElement* me, int axis);
+  void bookEta(int wh, int& nbins, float& start, float& stop);
 
   // ----------member data ---------------------------
   edm::InputTag dttpgSource_;
-  edm::InputTag gmtSource_ ;
+  edm::InputTag gmtSource_;
   edm::InputTag muonCollectionLabel_;
   std::string l1tsubsystemfolder_;
   bool online_;
   bool verbose_;
-  std::string outputFile_; //file name for ROOT ouput
+  std::string outputFile_;  //file name for ROOT ouput
   edm::InputTag trackInputTag_;
 
   MonitorElement* dttf_nTracksPerEvent_wheel[6];
@@ -90,12 +86,12 @@ class L1TDTTF : public DQMEDAnalyzer {
   MonitorElement* dttf_gmt_match;
   MonitorElement* dttf_gmt_missed;
   MonitorElement* dttf_gmt_ghost;
-  
+
   // MonitorElement* dttf_gmt_ghost_phys;
 
-  int nev_; // Number of events processed
-  int nev_dttf_; //Number of events with at least one DTTF track
-  int nev_dttf_track2_; //Number of events with at least one DTTF 2nd track
+  int nev_;              // Number of events processed
+  int nev_dttf_;         //Number of events with at least one DTTF track
+  int nev_dttf_track2_;  //Number of events with at least one DTTF 2nd track
   int numTracks[6][12];
 
   //define Token(-s)

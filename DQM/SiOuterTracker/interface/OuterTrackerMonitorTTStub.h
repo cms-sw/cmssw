@@ -15,7 +15,6 @@
 #include <memory>
 #include <vector>
 
-
 class OuterTrackerMonitorTTStub : public DQMEDAnalyzer {
 public:
   explicit OuterTrackerMonitorTTStub(const edm::ParameterSet &);

@@ -10,37 +10,36 @@
 #include <vector>
 #include <TH1.h>
 
-
-class DQMRivetClient : public edm::EDAnalyzer 
-{
- public:
+class DQMRivetClient : public edm::EDAnalyzer {
+public:
   DQMRivetClient(const edm::ParameterSet& pset);
-  ~DQMRivetClient() override {};
+  ~DQMRivetClient() override{};
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override{};
 
   void endJob() override;
 
   /// EndRun
   void endRun(const edm::Run& r, const edm::EventSetup& c) override;
-  
-  struct LumiOption
-  {
+
+  struct LumiOption {
     std::string name, normHistName;
     double xsection;
   };
 
-  struct ScaleFactorOption
-  {
+  struct ScaleFactorOption {
     std::string name;
     double scale;
   };
 
   void normalizeToIntegral(const std::string& startDir, const std::string& histName, const std::string& normHistName);
-  void normalizeToLumi(const std::string& startDir, const std::string& histName, const std::string& normHistName, double xsection);
+  void normalizeToLumi(const std::string& startDir,
+                       const std::string& histName,
+                       const std::string& normHistName,
+                       double xsection);
   void scaleByFactor(const std::string& startDir, const std::string& histName, double factor);
 
- private:
+private:
   unsigned int verbose_;
 
   DQMStore* theDQM;
@@ -50,8 +49,6 @@ class DQMRivetClient : public edm::EDAnalyzer
   std::vector<DQMGenericClient::NormOption> normOptions_;
   std::vector<LumiOption> lumiOptions_;
   std::vector<ScaleFactorOption> scaleOptions_;
-
-
 };
 
 #endif

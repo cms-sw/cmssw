@@ -5,7 +5,7 @@
 //
 // Package:    HLTInclusiveVBFClient
 // Class:      HLTInclusiveVBFClient
-// 
+//
 
 #include <memory>
 #include <unistd.h>
@@ -33,11 +33,9 @@
 #include <fstream>
 #include <vector>
 
-
 class HLTInclusiveVBFClient : public edm::EDAnalyzer {
- 
- private:
-  DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
+private:
+  DQMStore* dbe_;  //dbe seems to be the standard name for this, I dont know why. We of course dont own it
 
   edm::ParameterSet conf_;
 
@@ -48,18 +46,17 @@ class HLTInclusiveVBFClient : public edm::EDAnalyzer {
   std::string hltTag_;
   std::string processname_;
 
- public:
-  explicit HLTInclusiveVBFClient(const edm::ParameterSet& );
+public:
+  explicit HLTInclusiveVBFClient(const edm::ParameterSet&);
   ~HLTInclusiveVBFClient() override;
-  
+
   void beginJob() override;
   void endJob() override;
   void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
   void endRun(const edm::Run& run, const edm::EventSetup& c) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
-  virtual void runClient_();   
-
+  virtual void runClient_();
 };
- 
+
 #endif

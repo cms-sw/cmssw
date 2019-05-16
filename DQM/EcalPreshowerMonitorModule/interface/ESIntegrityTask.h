@@ -9,7 +9,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 class ESIntegrityTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
 public:
   ESIntegrityTask(const edm::ParameterSet& ps);

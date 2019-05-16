@@ -19,7 +19,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
-
 class SiStripMonitorHLT : public DQMEDAnalyzer {
 public:
   explicit SiStripMonitorHLT(const edm::ParameterSet &);
