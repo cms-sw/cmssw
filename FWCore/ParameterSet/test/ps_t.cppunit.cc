@@ -297,10 +297,10 @@ void testps::idTest() {
     // as that would affect reading back stored PSets
 
     edm::ParameterSet ps;
-    ps.addParameter<edm::ESInputTag>("default",edm::ESInputTag());
-    ps.addParameter<edm::ESInputTag>("moduleOnly",edm::ESInputTag("Prod",""));
-    ps.addParameter<edm::ESInputTag>("dataOnly",edm::ESInputTag("","data"));
-    ps.addParameter<edm::ESInputTag>("allLabels",edm::ESInputTag("Prod","data"));
+    ps.addParameter<edm::ESInputTag>("default", edm::ESInputTag());
+    ps.addParameter<edm::ESInputTag>("moduleOnly", edm::ESInputTag("Prod", ""));
+    ps.addParameter<edm::ESInputTag>("dataOnly", edm::ESInputTag("", "data"));
+    ps.addParameter<edm::ESInputTag>("allLabels", edm::ESInputTag("Prod", "data"));
     ps.registerIt();
 
     std::string stringValue;

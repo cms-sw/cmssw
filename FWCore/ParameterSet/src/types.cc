@@ -627,8 +627,8 @@ bool edm::encode(std::string& to, std::vector<InputTag> const& from) {
 // ----------------------------------------------------------------------
 
 bool edm::decode(ESInputTag& to, std::string const& from) {
-  if(not from.empty() and std::string::npos == from.find(':')) {
-    to = ESInputTag(from,"");
+  if (not from.empty() and std::string::npos == from.find(':')) {
+    to = ESInputTag(from, "");
   } else {
     to = ESInputTag(from);
   }
@@ -637,7 +637,7 @@ bool edm::decode(ESInputTag& to, std::string const& from) {
 
 bool edm::encode(std::string& to, ESInputTag const& from) {
   to = from.encode();
-  if(not to.empty() and to.back() ==':') {
+  if (not to.empty() and to.back() == ':') {
     to.pop_back();
   }
   return true;
