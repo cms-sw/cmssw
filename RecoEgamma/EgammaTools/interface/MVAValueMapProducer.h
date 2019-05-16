@@ -10,7 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
 #include "RecoEgamma/EgammaTools/interface/Utils.h"
-#include "RecoEgamma/EgammaTools/interface/MultiToken.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
 
 #include <memory>
@@ -23,7 +23,6 @@ class MVAValueMapProducer : public edm::global::EDProducer<> {
   public:
 
   MVAValueMapProducer(const edm::ParameterSet&);
-  ~MVAValueMapProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -32,7 +31,7 @@ class MVAValueMapProducer : public edm::global::EDProducer<> {
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // for AOD and MiniAOD case
-  const MultiTokenT<edm::View<ParticleType>> src_;
+  const edm::EDGetTokenT<edm::View<ParticleType>> src_;
 
   // MVA estimators
   const std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators_;
@@ -87,7 +86,7 @@ namespace {
 
 template <class ParticleType>
 MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& iConfig)
-  : src_(consumesCollector(), iConfig, "src", "srcMiniAOD")
+  : src_(consumes<edm::View<ParticleType>>(iConfig.getParameter<edm::InputTag>("src")))
   , mvaEstimators_(getMVAEstimators(iConfig.getParameterSetVector("mvaConfigurations")))
   , mvaValueMapNames_     (getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "Values"    ))
   , mvaRawValueMapNames_  (getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "RawValues" ))
@@ -103,7 +102,7 @@ template <class ParticleType>
 void MVAValueMapProducer<ParticleType>::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
 
-  edm::Handle<edm::View<ParticleType> > src = src_.getValidHandle(iEvent);
+  auto src = iEvent.getHandle(src_);
 
   // Loop over MVA estimators
   for( unsigned iEstimator = 0; iEstimator < mvaEstimators_.size(); iEstimator++ ){

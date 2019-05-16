@@ -29,7 +29,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
-#include "RecoEgamma/EgammaTools/interface/MultiToken.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -109,13 +109,13 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       const std::vector< std::string > mvaCatBranchNames_;
       const size_t nCats_;
 
-      // Tokens for AOD and MiniAOD case
-      const MultiTokenT<edm::View<reco::GsfElectron>>   src_;
-      const MultiTokenT<std::vector<reco::Vertex>>      vertices_;
-      const MultiTokenT<std::vector<PileupSummaryInfo>> pileup_;
-      const MultiTokenT<edm::View<reco::GenParticle>>   genParticles_;
-      const MultiTokenT<EcalRecHitCollection>           ebRecHits_;
-      const MultiTokenT<EcalRecHitCollection>           eeRecHits_;
+      // Tokens
+      const edm::EDGetTokenT<edm::View<reco::GsfElectron>>   src_;
+      const edm::EDGetTokenT<std::vector<reco::Vertex>>      vertices_;
+      const edm::EDGetTokenT<std::vector<PileupSummaryInfo>> pileup_;
+      const edm::EDGetTokenT<edm::View<reco::GenParticle>>   genParticles_;
+      const edm::EDGetTokenT<EcalRecHitCollection>           ebRecHits_;
+      const edm::EDGetTokenT<EcalRecHitCollection>           eeRecHits_;
 
       // to hold ID decisions and categories
       std::vector<int> mvaPasses_;
@@ -163,12 +163,12 @@ ElectronMVANtuplizer::ElectronMVANtuplizer(const edm::ParameterSet& iConfig)
   , mvaCatTags_            (iConfig.getParameter<std::vector<std::string>>("eleMVACats"))
   , mvaCatBranchNames_     (iConfig.getParameter<std::vector<std::string>>("eleMVACatLabels"))
   , nCats_                 (mvaCatBranchNames_.size())
-  , src_                   (consumesCollector(), iConfig, "src"         , "srcMiniAOD")
-  , vertices_        (src_, consumesCollector(), iConfig, "vertices"    , "verticesMiniAOD")
-  , pileup_          (src_, consumesCollector(), iConfig, "pileup"      , "pileupMiniAOD")
-  , genParticles_    (src_, consumesCollector(), iConfig, "genParticles", "genParticlesMiniAOD")
-  , ebRecHits_       (src_, consumesCollector(), iConfig, "ebReducedRecHitCollection", "ebReducedRecHitCollectionMiniAOD")
-  , eeRecHits_       (src_, consumesCollector(), iConfig, "eeReducedRecHitCollection", "eeReducedRecHitCollectionMiniAOD")
+  , src_                   (consumes<edm::View<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("src")))
+  , vertices_              (consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertices")))
+  , pileup_                (consumes<std::vector<PileupSummaryInfo>>(iConfig.getParameter<edm::InputTag>("pileup")))
+  , genParticles_          (consumes<edm::View<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticles")))
+  , ebRecHits_             (consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection")))
+  , eeRecHits_             (consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection")))
   , mvaPasses_             (nEleMaps_)
   , mvaValues_             (nValMaps_)
   , mvaCats_               (nCats_)
@@ -247,20 +247,19 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     nLumi_  = iEvent.luminosityBlock();
 
     // Get Handles
-    auto src          = src_.getValidHandle(iEvent);
-    auto vertices     = vertices_.getValidHandle(iEvent);
+    auto src      = iEvent.getHandle(src_);
+    auto vertices = iEvent.getHandle(vertices_);
 
     // initialize cluster tools
     std::unique_ptr<noZS::EcalClusterLazyTools> lazyTools;
     if(doEnergyMatrix_) {
         // Configure Lazy Tools, which will compute 5x5 quantities
-        lazyTools = std::make_unique<noZS::EcalClusterLazyTools>(
-                iEvent, iSetup, ebRecHits_.get(iEvent), eeRecHits_.get(iEvent));
+        lazyTools = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, ebRecHits_, eeRecHits_);
     }
 
     // Get MC only Handles, which are allowed to be non-valid
-    auto genParticles = genParticles_.getHandle(iEvent);
-    auto pileup       = pileup_.getHandle(iEvent);
+    auto genParticles = iEvent.getHandle(genParticles_);
+    auto pileup       = iEvent.getHandle(pileup_);
 
     vtxN_ = vertices->size();
 
@@ -377,18 +376,12 @@ void
 ElectronMVANtuplizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
     edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("src",                 edm::InputTag("gedGsfElectrons"));
-    desc.add<edm::InputTag>("vertices",            edm::InputTag("offlinePrimaryVertices"));
-    desc.add<edm::InputTag>("pileup",              edm::InputTag("addPileupInfo"));
-    desc.add<edm::InputTag>("genParticles",        edm::InputTag("genParticles"));
-    desc.add<edm::InputTag>("srcMiniAOD",          edm::InputTag("slimmedElectrons"));
-    desc.add<edm::InputTag>("verticesMiniAOD",     edm::InputTag("offlineSlimmedPrimaryVertices"));
-    desc.add<edm::InputTag>("pileupMiniAOD",       edm::InputTag("slimmedAddPileupInfo"));
-    desc.add<edm::InputTag>("genParticlesMiniAOD", edm::InputTag("prunedGenParticles"));
-    desc.add<edm::InputTag>("ebReducedRecHitCollection",        edm::InputTag("reducedEcalRecHitsEB"));
-    desc.add<edm::InputTag>("eeReducedRecHitCollection",        edm::InputTag("reducedEcalRecHitsEE"));
-    desc.add<edm::InputTag>("ebReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedEBRecHits"));
-    desc.add<edm::InputTag>("eeReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedEERecHits"));
+    desc.add<edm::InputTag>("src",          edm::InputTag("slimmedElectrons"));
+    desc.add<edm::InputTag>("vertices",     edm::InputTag("offlineSlimmedPrimaryVertices"));
+    desc.add<edm::InputTag>("pileup",       edm::InputTag("slimmedAddPileupInfo"));
+    desc.add<edm::InputTag>("genParticles", edm::InputTag("prunedGenParticles"));
+    desc.add<edm::InputTag>("ebReducedRecHitCollection", edm::InputTag("reducedEgamma","reducedEBRecHits"));
+    desc.add<edm::InputTag>("eeReducedRecHitCollection", edm::InputTag("reducedEgamma","reducedEERecHits"));
     desc.add<std::string>("variableDefinition");
     desc.add<bool>("doEnergyMatrix", false);
     desc.add<int>("energyMatrixSize", 2)->setComment("extension of crystals in each direction away from the seed");
