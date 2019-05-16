@@ -698,7 +698,7 @@ void Measurement::copyMeas( Measurement* meas, const std::string& subsstr1, cons
 void Measurement::setName()
 {
   // name already set by passing one argument with sensor type
-  if( theName != "" ) return;
+  if( !theName.empty() ) return;
   if( _OptONameList.empty()) {
     std::cerr << " !!! Error in your code, you cannot ask for the name of the Measurement before the OptONameList is build " << std::endl;
     exit(9);

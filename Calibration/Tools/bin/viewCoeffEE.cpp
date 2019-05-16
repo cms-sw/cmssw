@@ -39,12 +39,12 @@ int main (int argc, char* argv[])
   if (!fileName.empty ()) endcapreader.parseXMLMiscalibFile (fileName) ;
   EcalIntercalibConstants* constants = 
          new EcalIntercalibConstants (map.get ()) ;
-  EcalIntercalibConstantMap imap = 
+  const EcalIntercalibConstantMap& imap = 
       constants->getMap () ;  
 
   TH1F coeffDistr ("coeffDistrEE","coeffDistrEE",500,0,2) ;
   TH2F coeffMap ("coeffMapEE","coeffMapEE",101,0,101,101,0,101) ;
-  coeffMap.SetStats (0) ;
+  coeffMap.SetStats (false) ;
 
   // ECAL barrel
   for (int ix = 1 ; ix <= 100 ; ++ix)
