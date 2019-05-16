@@ -26,7 +26,7 @@ void PatternRecognitionbyCA::fillHistogram(
     assert(layer >= 0);
     auto etaBin = getEtaBin(lc.eta());
     auto phiBin = getPhiBin(lc.phi());
-    histogram_[layer][globalBin(etaBin, phiBin)].push_back(lcId);
+    tile_[layer][globalBin(etaBin, phiBin)].push_back(lcId);
     if (algo_verbosity_ > Advanced) {
       LogDebug("HGCPatterRecoByCA")
           << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ " << etaBin << ", "
@@ -49,16 +49,16 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev, const edm::Eve
   }
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
   fillHistogram(layerClusters, mask);
-  theGraph_.makeAndConnectDoublets(histogram_, nEtaBins_, nPhiBins_, layerClusters, 2, 2,
+  theGraph_.makeAndConnectDoublets(tile_, patternbyCA::nEtaBins, patternbyCA::nPhiBins, layerClusters, 2, 2,
                                    min_cos_theta_, min_cos_pointing_, missing_layers_,
                                    rhtools_.lastLayerFH());
   theGraph_.findNtuplets(foundNtuplets, min_clusters_per_ntuplet_);
   //#ifdef FP_DEBUG
   const auto &doublets = theGraph_.getAllDoublets();
   int tracksterId = 0;
-  for (auto &ntuplet : foundNtuplets) {
+  for (auto const &ntuplet : foundNtuplets) {
     std::set<unsigned int> effective_cluster_idx;
-    for (auto &doublet : ntuplet) {
+    for (auto const &doublet : ntuplet) {
       auto innerCluster = doublets[doublet].innerClusterId();
       auto outerCluster = doublets[doublet].outerClusterId();
       effective_cluster_idx.insert(innerCluster);
