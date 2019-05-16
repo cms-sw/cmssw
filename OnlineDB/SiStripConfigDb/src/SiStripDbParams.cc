@@ -125,7 +125,7 @@ void SiStripDbParams::reset() {
 // 
 void SiStripDbParams::addPartition( const SiStripPartition& in ) {
 
-  if ( in.partitionName() == "" ) {
+  if ( in.partitionName().empty() ) {
     std::stringstream ss;
     ss << "[SiStripDbParams::" << __func__ << "]"
        << " Attempting to add partition with null name!";
@@ -227,7 +227,7 @@ void SiStripDbParams::confdb( const std::string& confdb ) {
 void SiStripDbParams::confdb( const std::string& user,
 			      const std::string& passwd,
 			      const std::string& path ) {
-  if ( user != "" && passwd != "" && path != "" &&
+  if ( !user.empty() && !passwd.empty() && !path.empty() &&
        user != null_ && passwd != null_ && path != null_ ) {
     user_   = user;
     passwd_ = passwd;

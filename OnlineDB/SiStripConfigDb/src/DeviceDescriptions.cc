@@ -24,7 +24,7 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
       SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
       for ( ; iter != jter; ++iter ) {
 	
-	if ( partition == "" || partition == iter->second.partitionName() ) {
+	if ( partition.empty() || partition == iter->second.partitionName() ) {
 	  
 	  if ( iter->second.partitionName() == SiStripPartition::defaultPartitionName_ ) { continue; }
 
@@ -95,7 +95,7 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
   uint16_t np = 0;
   uint16_t nc = 0;
   DeviceDescriptionsRange devs;
-  if ( partition != "" ) { 
+  if ( !partition.empty() ) { 
     devs = devices_.find( partition );
     np = 1;
     nc = devs.size();
@@ -290,7 +290,7 @@ void SiStripConfigDb::uploadDeviceDescriptions( std::string partition ) {
     SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) {
       
-      if ( partition == "" || partition == iter->second.partitionName() ) {
+      if ( partition.empty() || partition == iter->second.partitionName() ) {
 	
 	DeviceDescriptionsRange range = devices_.find( iter->second.partitionName() );
 	if ( range != devices_.emptyRange() ) {
@@ -355,7 +355,7 @@ void SiStripConfigDb::clearDeviceDescriptions( std::string partition ) {
   
   // Reproduce temporary cache for "all partitions except specified one" (or clear all if none specified)
   DeviceDescriptions temporary_cache;
-  if ( partition == ""  ) { temporary_cache = DeviceDescriptions(); }
+  if ( partition.empty()  ) { temporary_cache = DeviceDescriptions(); }
   else {
     SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
     SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
@@ -377,7 +377,7 @@ void SiStripConfigDb::clearDeviceDescriptions( std::string partition ) {
 
   // Delete objects in local cache for specified partition (or all if not specified) 
   DeviceDescriptionsRange devs;
-  if ( partition == "" ) { 
+  if ( partition.empty() ) { 
     if ( !devices_.empty() ) {
       devs = DeviceDescriptionsRange( devices_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
 				      devices_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
@@ -396,7 +396,7 @@ void SiStripConfigDb::clearDeviceDescriptions( std::string partition ) {
   } else {
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]";
-    if ( partition == "" ) { ss << " Found no device descriptions in local cache!"; }
+    if ( partition.empty() ) { ss << " Found no device descriptions in local cache!"; }
     else { ss << " Found no device descriptions in local cache for partition \"" << partition << "\"!"; }
     edm::LogWarning(mlConfigDb_) << ss.str(); 
   }
@@ -422,7 +422,7 @@ void SiStripConfigDb::printDeviceDescriptions( std::string partition ) {
   for ( ; idev != jdev; ++idev ) {
 
     cntr++;
-    if ( partition == "" || partition == idev->first ) {
+    if ( partition.empty() || partition == idev->first ) {
       
       ss << "  Partition number : " << cntr << " (out of " << devices_.size() << ")" << std::endl;
       ss << "  Partition name   : \"" << idev->first << "\"" << std::endl;

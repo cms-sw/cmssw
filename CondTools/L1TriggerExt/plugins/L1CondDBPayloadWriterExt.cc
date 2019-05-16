@@ -64,7 +64,7 @@ L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent,
 
        if( !m_overwriteKeys )
 	 {
-	   triggerKeyOK = oldKeyList.token( key->tscKey() ) == "" ;
+	   triggerKeyOK = oldKeyList.token( key->tscKey() ).empty() ;
 	 }
      }
    catch( l1t::DataAlreadyPresentException& ex )
@@ -121,11 +121,11 @@ L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent,
 	      else
 		{
 		  // Check key is new before writing
-		  if( oldKeyList.token( it->first, it->second ) == "" ||
+		  if( oldKeyList.token( it->first, it->second ).empty() ||
 		      m_overwriteKeys )
 		    {
 		      // Write data to ORCON with no IOV
-		      if( oldKeyList.token( it->first, it->second ) != "" )
+		      if( !oldKeyList.token( it->first, it->second ).empty() )
 			{
 			  edm::LogVerbatim( "L1-O2O" )
 			    << "*** Overwriting payload: object key for "

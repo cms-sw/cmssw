@@ -25,7 +25,7 @@ SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::
       SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
       for ( ; iter != jter; ++iter ) {
 	
-	if ( partition == "" || partition == iter->second.partitionName() ) {
+	if ( partition.empty() || partition == iter->second.partitionName() ) {
 
 	  if ( iter->second.partitionName() == SiStripPartition::defaultPartitionName_ ) { continue; }
 
@@ -100,7 +100,7 @@ SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::
   uint16_t np = 0;
   uint16_t nc = 0;
   FedDescriptionsRange feds;
-  if ( partition != "" ) { 
+  if ( !partition.empty() ) { 
     feds = feds_.find( partition );
     np = 1;
     nc = feds.size();
@@ -223,7 +223,7 @@ void SiStripConfigDb::uploadFedDescriptions( std::string partition ) {
     SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) {
       
-      if ( partition == "" || partition == iter->second.partitionName() ) {
+      if ( partition.empty() || partition == iter->second.partitionName() ) {
 	
 	FedDescriptionsRange range = feds_.find( iter->second.partitionName() );
 	if ( range != feds_.emptyRange() ) {
@@ -288,7 +288,7 @@ void SiStripConfigDb::clearFedDescriptions( std::string partition ) {
   
   // Reproduce temporary cache for "all partitions except specified one" (or clear all if none specified)
   FedDescriptions temporary_cache;
-  if ( partition == ""  ) { temporary_cache = FedDescriptions(); }
+  if ( partition.empty()  ) { temporary_cache = FedDescriptions(); }
   else {
     SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
     SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
@@ -313,7 +313,7 @@ void SiStripConfigDb::clearFedDescriptions( std::string partition ) {
   
   // Delete objects in local cache for specified partition (or all if not specified) 
   FedDescriptionsRange feds;
-  if ( partition == "" ) { 
+  if ( partition.empty() ) { 
     if ( !feds_.empty() ) {
       feds = FedDescriptionsRange( feds_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
 				   feds_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
@@ -332,7 +332,7 @@ void SiStripConfigDb::clearFedDescriptions( std::string partition ) {
   } else {
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]";
-    if ( partition == "" ) { ss << " Found no FED descriptions in local cache!"; }
+    if ( partition.empty() ) { ss << " Found no FED descriptions in local cache!"; }
     else { ss << " Found no FED descriptions in local cache for partition \"" << partition << "\"!"; }
     edm::LogWarning(mlConfigDb_) << ss.str(); 
   }
@@ -358,7 +358,7 @@ void SiStripConfigDb::printFedDescriptions( std::string partition ) {
   for ( ; iconn != jconn; ++iconn ) {
 
     cntr++;
-    if ( partition == "" || partition == iconn->first ) {
+    if ( partition.empty() || partition == iconn->first ) {
       
       ss << "  Partition number : " << cntr << " (out of " << feds_.size() << ")" << std::endl;
       ss << "  Partition name   : \"" << iconn->first << "\"" << std::endl;

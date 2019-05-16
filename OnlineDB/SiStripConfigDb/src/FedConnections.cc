@@ -24,7 +24,7 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
       SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
       for ( ; iter != jter; ++iter ) {
 	
-	if ( partition == "" || partition == iter->second.partitionName() ) {
+	if ( partition.empty() || partition == iter->second.partitionName() ) {
 
 	  if ( iter->second.partitionName() == SiStripPartition::defaultPartitionName_ ) { continue; }
 	  
@@ -96,7 +96,7 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
   uint16_t np = 0;
   uint16_t nc = 0;
   FedConnectionsRange conns;
-  if ( partition != "" ) { 
+  if ( !partition.empty() ) { 
     conns = connections_.find( partition );
     np = 1;
     nc = conns.size();
@@ -221,7 +221,7 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
       SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
       for ( ; iter != jter; ++iter ) {
 
-	if ( partition == "" || partition == iter->second.partitionName() ) {
+	if ( partition.empty() || partition == iter->second.partitionName() ) {
 
 	  FedConnectionsRange range = connections_.find( iter->second.partitionName() );
 	  if ( range != connections_.emptyRange() ) {
@@ -288,7 +288,7 @@ void SiStripConfigDb::clearFedConnections( std::string partition ) {
   
   // Reproduce temporary cache for "all partitions except specified one" (or clear all if none specified)
   FedConnections temporary_cache;
-  if ( partition == ""  ) { temporary_cache = FedConnections(); }
+  if ( partition.empty()  ) { temporary_cache = FedConnections(); }
   else {
     SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
     SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
@@ -310,7 +310,7 @@ void SiStripConfigDb::clearFedConnections( std::string partition ) {
 
   // Delete objects in local cache for specified partition (or all if not specified) 
   FedConnectionsRange conns;
-  if ( partition == "" ) { 
+  if ( partition.empty() ) { 
     if ( !connections_.empty() ) {
       conns = FedConnectionsRange( connections_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
 				   connections_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
@@ -329,7 +329,7 @@ void SiStripConfigDb::clearFedConnections( std::string partition ) {
   } else {
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]";
-    if ( partition == "" ) { ss << " Found no FED connections in local cache!"; }
+    if ( partition.empty() ) { ss << " Found no FED connections in local cache!"; }
     else { ss << " Found no FED connections in local cache for partition \"" << partition << "\"!"; }
     edm::LogWarning(mlConfigDb_) << ss.str(); 
   }
@@ -355,7 +355,7 @@ void SiStripConfigDb::printFedConnections( std::string partition ) {
   for ( ; iconn != jconn; ++iconn ) {
 
     cntr++;
-    if ( partition == "" || partition == iconn->first ) {
+    if ( partition.empty() || partition == iconn->first ) {
       
       ss << "  Partition number   : " << cntr << " (out of " << connections_.size() << ")" << std::endl;
       ss << "  Partition name     : \"" << iconn->first << "\"" << std::endl;
