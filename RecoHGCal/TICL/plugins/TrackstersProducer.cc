@@ -35,12 +35,12 @@ class TrackstersProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<std::vector<std::pair<unsigned int, float>>> filtered_layerclusters_mask_token_;
   edm::EDGetTokenT<std::vector<float>> original_layerclusters_mask_token_;
 
-  std::unique_ptr<PatternRecognitionAlgoBase> myAlgo_;
+  std::unique_ptr<ticl::PatternRecognitionAlgoBase> myAlgo_;
 };
 DEFINE_FWK_MODULE(TrackstersProducer);
 
 TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps)
-    : myAlgo_(std::make_unique<PatternRecognitionbyCA>(ps)) {
+    : myAlgo_(std::make_unique<ticl::PatternRecognitionbyCA>(ps)) {
   clusters_token_ = consumes<std::vector<reco::CaloCluster>>(
       ps.getParameter<edm::InputTag>("hgcal_layerclusters"));
   filtered_layerclusters_mask_token_ = consumes<std::vector<std::pair<unsigned int, float>>>(

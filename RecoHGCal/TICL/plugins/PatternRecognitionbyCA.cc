@@ -8,6 +8,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PatternRecognitionbyCA.h"
 
+using namespace ticl;
+
 void PatternRecognitionbyCA::fillHistogram(
     const std::vector<reco::CaloCluster> &layerClusters,
     const std::vector<std::pair<unsigned int, float>> &mask) {
