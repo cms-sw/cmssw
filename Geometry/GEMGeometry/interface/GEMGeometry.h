@@ -30,6 +30,9 @@ class GEMGeometry : public TrackingGeometry {
   /// Destructor
   ~GEMGeometry() override;
 
+  friend class GEMGeometryBuilder;
+  friend class GeometryAligner;
+
   // Return a vector of all det types
   const DetTypeContainer&  detTypes() const override;
 
