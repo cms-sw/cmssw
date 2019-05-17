@@ -23,7 +23,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '
 # Input source
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(
     # File from dataset TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1
-    'file:A256C80D-0943-E811-998E-7CD30AB0522C.root'
+    '/store/mc/RunIIFall17MiniAODv2/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/40000/A256C80D-0943-E811-998E-7CD30AB0522C.root'
 ))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(eventsToProcess) )
@@ -78,5 +78,3 @@ process.options = cms.untracked.PSet(
      numberOfThreads = cms.untracked.uint32(nThreads),
      numberOfStreams = cms.untracked.uint32(0)
 )
-from Validation.Performance.IgProfInfo import customise
-process = customise(process)
