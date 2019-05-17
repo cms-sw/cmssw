@@ -1,11 +1,24 @@
 <use   name="dd4hep-core"/>
 <use   name="dd4hep-geant4"/>
 <use   name="geant4core"/>
+<use   name="DetectorDescription/DDCMS"/>
 <use   name="Geometry/Records"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
+<use   name="MagneticField/Engine"/>
+<use   name="MagneticField/Records"/>
+<use   name="SimG4Core/Application"/>
+<use   name="SimG4Core/Generators"/>
+<use   name="SimG4Core/Physics"/>
+<use   name="SimG4Core/SensitiveDetector"/>
+<use   name="SimG4Core/MagneticField"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+<use   name="hepmc"/>
+<use   name="heppdt"/>
 <use   name="rootgeom"/>
 <use   name="rootmath"/>
+
 <export>
   <lib   name="1"/>
 </export>

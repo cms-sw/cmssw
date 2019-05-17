@@ -3,7 +3,9 @@
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DDG4/Geant4Converter.h"
 #include "DDG4/Geant4GeometryInfo.h"
+#include "DDG4/Geant4Mapping.h"
 #include "DD4hep/Detector.h"
+#include "DD4hep/Printout.h"
 
 #include "G4RunManagerKernel.hh"
 #include "G4PVPlacement.hh"
@@ -11,31 +13,63 @@
  
 using namespace edm;
 using namespace cms;
+using namespace dd4hep;
+using namespace dd4hep::sim;
 
-DDDWorld::DDDWorld(const DDDetector* ddd) {
+DDDWorld::DDDWorld(const DDDetector* ddd, dd4hep::sim::Geant4GeometryMaps::VolumeMap& map) {
+
+  LogVerbatim("SimG4CoreApplication") 
+    << "DD4hep_DDDWorld: initialization of DDDWorld...";
   
-  dd4hep::DetElement world = ddd->description()->world();
-  const dd4hep::Detector& detector = *ddd->description();
-  dd4hep::sim::Geant4Converter g4Geo(detector);
-  dd4hep::sim::Geant4GeometryInfo* geometry = g4Geo.create(world).detach();
+  DetElement world = ddd->description()->world();
+  printout(INFO,"SimDD4CMS",
+	   "+++ DDDWorld::DDDWorld start... %s",
+	   world.name());
+  const Detector& detector = *ddd->description();
+  Geant4Converter g4Geo(detector);
+  Geant4GeometryInfo* geometry = g4Geo.create(world).detach();
+  map = geometry->g4Volumes;
+  
+  auto it = geometry->g4Volumes.find(detector.worldVolume().ptr());
+  std::cout << "The world is " << it->first.name() << "\n";
+  
+  if (geometry) {
+    for(auto iter = map.begin(); iter != map.end(); ++iter) {
+      std::cout << iter->first.name() << " = ";
+      if(iter->second)
+	std::cout << iter->second->GetName() << "; ";
+      else
+	std::cout << "***none***; ";
+    }
+    std::cout << "\n"; 
+  }
  
   m_world = geometry->world();
 
-  SetAsWorld(m_world);
+  setAsWorld(m_world);
+  printout(INFO,"SimDD4CMS",
+	   "+++ DDDWorld::DDDWorld done!");
+
+  LogVerbatim("SimG4CoreApplication") 
+    << "DD4hep_DDDWorld: initialization of DDDWorld done.";
 }
 
 DDDWorld::~DDDWorld() {}
 
 void
-DDDWorld::SetAsWorld(G4VPhysicalVolume * pv) {
+DDDWorld::setAsWorld(G4VPhysicalVolume * pv) {
   G4RunManagerKernel* kernel = G4RunManagerKernel::GetRunManagerKernel();
-  if(kernel) kernel->DefineWorldVolume(pv);
-  else edm::LogError("SimG4CoreGeometry") << "No G4RunManagerKernel?";
+
+  if(kernel)
+    kernel->DefineWorldVolume(pv);
+  else
+    edm::LogError("SimG4CoreGeometry") << "No G4RunManagerKernel?";
+
   edm::LogInfo("SimG4CoreGeometry") << " World volume defined ";
 }
 
 void
-DDDWorld::WorkerSetAsWorld(G4VPhysicalVolume * pv) {
+DDDWorld::workerSetAsWorld(G4VPhysicalVolume * pv) {
   G4RunManagerKernel* kernel = G4RunManagerKernel::GetRunManagerKernel();
   if(kernel) {
     kernel->WorkerDefineWorldVolume(pv);
@@ -44,7 +78,8 @@ DDDWorld::WorkerSetAsWorld(G4VPhysicalVolume * pv) {
     G4TransportationManager* transM = G4TransportationManager::GetTransportationManager();
     transM->SetWorldForTracking(pv);
   }
-  else edm::LogError("SimG4CoreGeometry") << "No G4RunManagerKernel?";
+  else
+    edm::LogError("SimG4CoreGeometry") << "No G4RunManagerKernel?";
+
   edm::LogInfo("SimG4CoreGeometry") << " World volume defined (for worker) ";
 }
-
