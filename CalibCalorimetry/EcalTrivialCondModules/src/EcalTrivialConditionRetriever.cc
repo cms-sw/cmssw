@@ -29,7 +29,24 @@ using namespace edm;
 
 EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::ParameterSet&  ps)
 {
-  // initilize parameters used to produce cond DB objects
+  std::string path="CalibCalorimetry/EcalTrivialCondModules/data/";
+
+  /*since CMSSW_10_6_0, this path points to https://github.com/cms-data/CalibCalorimetry-EcalTrivialCondModules  (extra package). 
+To modify the default values :
+$ git clone https://github.com/cms-data/CalibCalorimetry-EcalTrivialCondModules.git
+$ cd CalibCalorimetry-EcalTrivialCondModules
+$ modify what you want
+$ git commit -a
+$ git remote add ModifyCalibCalorimetryExtraPackage  git@github.com:yourName/CalibCalorimetry-EcalTrivialCondModules
+$ git push ModifyCalibCalorimetryExtraPackage master:building-calibCalorimetry-extra-package
+
+other solution : change this path name to work directly in afs, ex. :
+
+  std::string path="CalibCalorimetry/EcalTrivialCondModules/data_test/";
+
+ */
+
+  // initialize parameters used to produce cond DB objects
   totLumi_=ps.getUntrackedParameter<double>("TotLumi",0.0);
   instLumi_ = ps.getUntrackedParameter<double>("InstLumi",0.0);
 
@@ -76,7 +93,6 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   pfRecHitThresholdsNSigmasHEta_ = ps.getUntrackedParameter<double>("EcalPFRecHitThresholdNSigmasHEta", 1.0 );
   pfRecHitThresholdsEB_ = ps.getUntrackedParameter<double>("EcalPFRecHitThresholdEB", 0.0 );
   pfRecHitThresholdsEE_ = ps.getUntrackedParameter<double>("EcalPFRecHitThresholdEE", 0.0 );
-
 
   localContCorrParameters_ = ps.getUntrackedParameter< std::vector<double> >("localContCorrParameters", std::vector<double>(0) );
   crackCorrParameters_ = ps.getUntrackedParameter< std::vector<double> >("crackCorrParameters", std::vector<double>(0) );
@@ -135,7 +151,7 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
 
   if(totLumi_ > 0 ) {
 
-    edm::LogInfo(" EcalTrivialConditionRetriever going to create conditions based on the damage deu to ")<<totLumi_<<
+    edm::LogInfo(" EcalTrivialConditionRetriever going to create conditions based on the damage due to ")<<totLumi_<<
       " fb-1 integrated luminosity";
 
   }
@@ -147,7 +163,6 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
       nTDCbins_ = 50; //modif Alex-21-07-2006
     }
 
-  std::string path="CalibCalorimetry/EcalTrivialCondModules/data/";
   std::string weightType;
   std::ostringstream str;
 
@@ -332,8 +347,8 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
    producedEcalPFRecHitThresholds_ = ps.getUntrackedParameter<bool>("producedEcalPFRecHitThresholds", false);
 
    // new for PFRecHit Thresholds
-   pfRecHitFile_ = ps.getUntrackedParameter<std::string>("PFRecHitFile","");
-   pfRecHitFileEE_ = ps.getUntrackedParameter<std::string>("PFRecHitFileEE","");
+  pfRecHitFile_ = ps.getUntrackedParameter<std::string>("pFRecHitFile",path+"EB_thresholds_-1.txt");
+  pfRecHitFileEE_ = ps.getUntrackedParameter<std::string>("pFRecHitFileEE",path+"EE_thresholds_-1.txt");
  
  
    if (producedEcalPFRecHitThresholds_) { // user asks to produce constants
@@ -1634,7 +1649,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
     
     eta = fabs(eta);
     double drop=ageing.calcampDropTotal(eta);
-    edm::LogInfo("EB at eta=")<<eta<<" dropping by "<<drop;
+    // edm::LogInfo("EB at eta=")<<eta<<" dropping by "<<drop;
     
     for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
       if (EBDetId::validDetId(ieta,iphi)) {
@@ -1669,7 +1684,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
 					*2.98/328.)));
 	  eta = fabs(eta);
 	  double drop=ageing.calcampDropTotal(eta);
-	  if(iX==50) edm::LogInfo("EE at eta=")<<eta<<" dropping by "<<drop;
+	  // if(iX==50) edm::LogInfo("EE at eta=")<<eta<<" dropping by "<<drop;
 	  
 
  	  EcalLaserAPDPNRatios::EcalLaserAPDPNpair pairAPDPN;
@@ -1686,7 +1701,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
 	  double eta= -log(tan(0.5*atan(sqrt((iX-50.0)*(iX-50.0)+(iY-50.0)*(iY-50.0))*2.98/328.)));
 	  eta = fabs(eta);
 	  double drop=ageing.calcampDropTotal(eta);
-	  if(iX==50) edm::LogInfo("EE at eta=")<<eta<<" dropping by "<<drop;
+	  // if(iX==50) edm::LogInfo("EE at eta=")<<eta<<" dropping by "<<drop;
 
 
  	  EcalLaserAPDPNRatios::EcalLaserAPDPNpair pairAPDPN;
@@ -3009,29 +3024,27 @@ EcalTrivialConditionRetriever::getPFRecHitThresholdsFromConfiguration
   std::unique_ptr<EcalPFRecHitThresholds> ical;
 
   // Reads the values from a txt file                                                                                                                                          
-
-
-  edm::LogInfo("EcalTrivialConditionRetriever") << "Reading PF RecHit Thresholds from file "
-                                                << pfRecHitFile_.c_str() ;
+   edm::LogInfo("EcalTrivialConditionRetriever") << "Reading PF RecHit Thresholds from file " << edm::FileInPath(pfRecHitFile_).fullPath().c_str() ;
+  
+  std::ifstream PFRecHitsFile(edm::FileInPath(pfRecHitFile_).fullPath().c_str());
 
   ical = std::make_unique<EcalPFRecHitThresholds>();
   
-  char line[50];
-  
-  FILE *inpFile; // input file                                                                                                                                                
-  inpFile = fopen(pfRecHitFile_.c_str(),"r");
+  // char line[50];
+
   int nxt=0;
   
   edm::LogInfo ("Going to multiply the sigmas by ")<<pfRecHitThresholdsNSigmas_;
   edm::LogInfo ("We will print some values ");
-  
-  
-  while (fgets(line,50,inpFile)) {
+
+  while (!PFRecHitsFile.eof()) {
+    //  while (fgets(line,50,inpFile)) {
     float thresh;
     int eta=0;
     int phi=0;
     int zeta=0;
-    sscanf(line, "%d %d %d %f", &eta, &phi, &zeta, &thresh);
+    PFRecHitsFile >> eta >> phi >> zeta >> thresh;
+    //    sscanf(line, "%d %d %d %f", &eta, &phi, &zeta, &thresh);
     
     thresh=thresh*pfRecHitThresholdsNSigmas_;
     
@@ -3041,28 +3054,31 @@ EcalTrivialConditionRetriever::getPFRecHitThresholdsFromConfiguration
     EBDetId ebid(eta, phi);
     ical->setValue( ebid, thresh );
   }
-
-  fclose(inpFile);
+  PFRecHitsFile.close();
+  // fclose(inpFile);
   
   edm::LogInfo ("Read number of EB crystals: ")<<nxt;
 
-
+  //******************************************************
   edm::LogInfo ("Now reading the EE file ... ");
   edm::LogInfo ("We will multiply the sigma in EE by ")<<pfRecHitThresholdsNSigmas_;
   edm::LogInfo ("We will multiply the sigma in EE at high eta by")<<pfRecHitThresholdsNSigmasHEta_;
   edm::LogInfo ("We will print some values ");
   
 
-  FILE *inpFileEE; // input file                                                                                                                                              
-  inpFileEE = fopen(pfRecHitFileEE_.c_str(),"r");
+                                                                                  edm::LogInfo("EcalTrivialConditionRetriever") << "Reading PF RecHit Thresholds EE from file " << edm::FileInPath(pfRecHitFileEE_).fullPath().c_str() ;
+  std::ifstream PFRecHitsFileEE(edm::FileInPath(pfRecHitFileEE_).fullPath().c_str());
+              
   nxt=0;
   
-  while (fgets(line,40,inpFileEE)) {
+  while (!PFRecHitsFileEE.eof()) {
+    //  while (fgets(line,40,inpFileEE)) {
     float thresh;
     int ix=0;
     int iy=0;
     int iz=0;
-    sscanf(line, "%d %d %d %f", &ix, &iy,&iz, &thresh);
+    PFRecHitsFileEE >> ix >> iy >> iz >> thresh;
+    //    sscanf(line, "%d %d %d %f", &ix, &iy,&iz, &thresh);
 
     double eta= -log(tan(0.5*atan(sqrt((ix-50.5)*(ix-50.5)+
                                        (iy-50.5)*(iy-50.5))*2.98/328.))); // approx eta 
@@ -3080,7 +3096,8 @@ EcalTrivialConditionRetriever::getPFRecHitThresholdsFromConfiguration
     nxt=nxt+1;
   }
 
-  fclose(inpFileEE);
+  PFRecHitsFileEE.close();
+  //  fclose(inpFileEE);
   edm::LogInfo ("Read number of EE crystals: ")<<nxt;
   edm::LogInfo ("end PF Rec Hits ... ");
 
