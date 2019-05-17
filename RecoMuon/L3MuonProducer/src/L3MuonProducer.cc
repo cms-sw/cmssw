@@ -1,5 +1,5 @@
 /**  \class L3MuonProducer
- * 
+ *
  *   L3 muon reconstructor:
  *   reconstructs muons using DT, CSC, RPC and tracker
  *   information,<BR>
@@ -51,18 +51,18 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
 
   // TrackLoader parameters
   ParameterSet trackLoaderParameters = parameterSet.getParameter<ParameterSet>("TrackLoaderParameters");
-  
+
   // the services
   theService = new MuonServiceProxy(serviceParameters);
   ConsumesCollector iC = consumesCollector();
-  
+
   // instantiate the concrete trajectory builder in the Track Finder
   MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters,iC,theService);
   L3MuonTrajectoryBuilder* l3mtb = new L3MuonTrajectoryBuilder(trajectoryBuilderParameters, theService,iC);
   theTrackFinder = new MuonTrackFinder(l3mtb, mtl);
 
   theL2SeededTkLabel = trackLoaderParameters.getUntrackedParameter<std::string>("MuonSeededTracksInstance",std::string());
-  
+
   produces<reco::TrackCollection>(theL2SeededTkLabel);
   produces<TrackingRecHitCollection>(theL2SeededTkLabel);
   produces<reco::TrackExtraCollection>(theL2SeededTkLabel);
@@ -96,9 +96,9 @@ L3MuonProducer::~L3MuonProducer() {
 // reconstruct muons
 //
 void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
-  const string metname = "Muon|RecoMuon|L3MuonProducer";  
+  const string metname = "Muon|RecoMuon|L3MuonProducer";
   LogTrace(metname)<<endl<<endl<<endl;
-  LogTrace(metname)<<"L3 Muon Reconstruction started"<<endl;  
+  LogTrace(metname)<<"L3 Muon Reconstruction started"<<endl;
 
   typedef vector<Trajectory> TrajColl;
 
@@ -116,7 +116,7 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   vector<MuonTrajectoryBuilder::TrackCand> L2TrackCands;
 
 
-  event.getByToken(l2MuonTrajToken_, L2MuonsTraj);      
+  event.getByToken(l2MuonTrajToken_, L2MuonsTraj);
 
   edm::Handle<TrajTrackAssociationCollection> L2AssoMap;
   event.getByToken(l2AssoMapToken_,L2AssoMap);
@@ -125,8 +125,8 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   event.getByToken(updatedL2AssoMapToken_,updatedL2AssoMap);
 
 
-      
-  for(TrajTrackAssociationCollection::const_iterator it = L2AssoMap->begin(); it != L2AssoMap->end(); ++it){	
+
+  for(TrajTrackAssociationCollection::const_iterator it = L2AssoMap->begin(); it != L2AssoMap->end(); ++it){
     const Ref<vector<Trajectory> > traj = it->key;
     const reco::TrackRef tkRegular  = it->val;
     reco::TrackRef tkUpdated;
@@ -137,20 +137,20 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
       iii = updatedL2AssoMap->find(it->val);
       if (iii != iEnd ) tkUpdated = (*updatedL2AssoMap)[it->val] ;
     }
-    
-    const reco::TrackRef tk = ( tkUpdated.isNonnull() ) ? tkUpdated : tkRegular ;      
-    
+
+    const reco::TrackRef tk = ( tkUpdated.isNonnull() ) ? tkUpdated : tkRegular ;
+
     MuonTrajectoryBuilder::TrackCand L2Cand = MuonTrajectoryBuilder::TrackCand((Trajectory*)nullptr,tk);
     if( traj->isValid() ) L2Cand.first = &*traj ;
     L2TrackCands.push_back(L2Cand);
   }
-  
+
   theTrackFinder->reconstruct(L2TrackCands, event, eventSetup);
-  
+
   LogTrace(metname)<<"Event loaded"
                    <<"================================"
                    <<endl<<endl;
-    
+
 }
 
 void L3MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -220,7 +220,7 @@ void L3MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
       psd1.add<int>("DYTselector",1);
       psd1.add<bool>("DYTupdator", false);
       psd1.add<bool>("DYTuseAPE", false );
-      psd1.add<bool>("DYTuseThrsParametrization", false);
+      psd1.add<bool>("DYTuseThrsParametrization", true);
       {
         edm::ParameterSetDescription psd2;
         psd2.add<std::vector<double>>("eta0p8", {1,-0.919853, 0.990742});
@@ -291,7 +291,7 @@ void L3MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 					    true, // refit rpc hits
 					    "hltESPTTRHBWithTrackAngle", // tracker rechit builder
 					    "hltESPMuonTransientTrackingRecHitBuilder" // muon rechit builder
-					    );      
+					    );
       psd0.add<edm::ParameterSetDescription>("TrackTransformer", psd1);
     }
     {
