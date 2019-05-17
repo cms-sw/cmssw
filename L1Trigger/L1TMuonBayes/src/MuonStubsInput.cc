@@ -5,7 +5,7 @@
  *      Author: Karol Bunkowski kbunkow@cern.ch
  */
 
-#include <L1Trigger/L1TMuonBayes/interface/MuonStubsInput.h>
+#include "L1Trigger/L1TMuonBayes/interface/MuonStubsInput.h"
 
 MuonStubsInput::MuonStubsInput(const ProcConfigurationBase* config): config(config), muonStubsInLayers(config->nLayers()) {
 

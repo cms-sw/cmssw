@@ -9,9 +9,9 @@
 class AlgoMuon: public AlgoMuonBase {
 
  public:
-  AlgoMuon() {}
+  AlgoMuon(): AlgoMuonBase() {}
 
-  AlgoMuon(const GoldenPatternResult& gpResult, GoldenPatternBase* gp, unsigned int refHitNumber, int bx = 0):
+  AlgoMuon(const GoldenPatternResult& gpResult, GoldenPatternBase* gp, unsigned int refHitNumber, int bx = 0): AlgoMuonBase(gp->getConfig()),
               gpResult(gpResult), goldenPatern(gp),
               m_q(gpResult.getFiredLayerCnt()), //initial value of quality, can be altered later
               m_bx(bx), m_rhitNumb(refHitNumber) {}
@@ -94,13 +94,13 @@ class AlgoMuon: public AlgoMuonBase {
     return killed;
   }
 
-  unsigned int getTrackIndex() const override {
+/*  unsigned int getTrackIndex() const {
     return index;
   }
 
   void setTrackIndex(unsigned int index) {
     this->index = index;
-  }
+  }*/
 
   void kill() {
     killed = true;

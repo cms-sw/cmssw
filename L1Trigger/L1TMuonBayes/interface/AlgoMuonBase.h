@@ -8,12 +8,16 @@
 #ifndef INTERFACE_ALGOMUONBASE_H_
 #define INTERFACE_ALGOMUONBASE_H_
 
+#include "L1Trigger/L1TMuonBayes/interface/ProcConfigurationBase.h"
 #include "L1Trigger/L1TMuonBayes/interface/MuonStub.h"
 #include "L1Trigger/L1TMuonBayes/interface/StubResult.h"
+#include "boost/dynamic_bitset.hpp"
 
 class AlgoMuonBase {
 public:
-  AlgoMuonBase();
+  AlgoMuonBase() {};
+
+  AlgoMuonBase(const ProcConfigurationBase* config);
   virtual ~AlgoMuonBase();
 
   virtual int getEtaHw() const = 0;
@@ -22,7 +26,29 @@ public:
 
   //virtual void setValid(bool valid) = 0;
 
-  virtual unsigned int getFiredLayerCnt() const = 0;
+  virtual unsigned int getFiredLayerCnt() const {
+    unsigned int count = 0;
+    for(auto& firedLayerBits: firedLayerBitsInBx) {
+      count += firedLayerBits.count();
+    }
+    return count;
+  }
+
+  virtual unsigned int getFiredLayerCnt(int bx) const {
+    return firedLayerBitsInBx.at(bx).count();
+  }
+
+  boost::dynamic_bitset<> getFiredLayerBits() const { //TODO make it virtual, and change the return type in in the AlgoMuon to dynamic_bitset<>
+    boost::dynamic_bitset<> firedLayerBitsSum(firedLayerBitsInBx[0].size());
+    for(auto& firedLayerBits: firedLayerBitsInBx) {
+      firedLayerBitsSum |= firedLayerBits;
+    }
+    return firedLayerBitsSum;
+  }
+
+  virtual bool isLayerFired(unsigned int iLayer, unsigned int bx) const {
+    return firedLayerBitsInBx.at(bx)[iLayer];
+  }
 
   virtual double getPdfSum() const = 0;
 
@@ -47,24 +73,24 @@ public:
     return beta;
   }
 
-  //index in the tTTrackHandle or in the SimTrackHanlde, needed for generation of patterns etc. not for firmware
-  virtual unsigned int getTrackIndex() const = 0;
-
   virtual double getSimBeta() const {
     return 0;
   }
 
-  float getBetaLikelihood() const {
+  virtual float getBetaLikelihood() const {
     return betaLikelihood;
   }
 
-  void setBetaLikelihood(float betaLikelihood = 0) {
+  virtual void setBetaLikelihood(float betaLikelihood = 0) {
     this->betaLikelihood = betaLikelihood;
   }
 
-private:
+protected:
   float beta = 0; //zero means it is not measured
   float betaLikelihood = 0; //beta measurement goodness, likelihood of return beta hypothesis
+
+  ///bits representing fired logicLayers (including bending layers),
+  std::vector<boost::dynamic_bitset<> > firedLayerBitsInBx;
 };
 
 #endif /* INTERFACE_ALGOMUONBASE_H_ */

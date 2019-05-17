@@ -7,7 +7,9 @@
 
 #include "L1Trigger/L1TMuonBayes/interface/AlgoMuonBase.h"
 
-AlgoMuonBase::AlgoMuonBase() {
+AlgoMuonBase::AlgoMuonBase(const ProcConfigurationBase* config):
+firedLayerBitsInBx(config->getBxToProcess(),  boost::dynamic_bitset<>(config->nLayers()) )
+{
 
 }
 

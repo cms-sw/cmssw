@@ -21,11 +21,11 @@
 
 class AlgoTTMuon: public AlgoMuonBase {
 public:
-  AlgoTTMuon(const TrackingTriggerTrackPtr& ttTrack, MuCorrelatorConfigPtr& config):
-    firedLayerBitsInBx(config->getBxToProcess(),  boost::dynamic_bitset<>(config->nLayers()) ), ttTrack(ttTrack), stubResults(config->nLayers()) {};
+  AlgoTTMuon(const TrackingTriggerTrackPtr& ttTrack, MuCorrelatorConfigPtr& config): AlgoMuonBase(config.get() ),
+    ttTrack(ttTrack), stubResults(config->nLayers()) {};
 
-  AlgoTTMuon(const TrackingTriggerTrackPtr& ttTrack, MuCorrelatorConfigPtr& config, const MuonStubPtr& refStub):
-    firedLayerBitsInBx(config->getBxToProcess(),  boost::dynamic_bitset<>(config->nLayers()) ), ttTrack(ttTrack), stubResults(config->nLayers()), refStub(refStub) {};
+  AlgoTTMuon(const TrackingTriggerTrackPtr& ttTrack, MuCorrelatorConfigPtr& config, const MuonStubPtr& refStub): AlgoMuonBase(config.get() ),
+    ttTrack(ttTrack), stubResults(config->nLayers()), refStub(refStub) {};
 
   virtual ~AlgoTTMuon() {};
 
@@ -41,18 +41,6 @@ public:
     this->valid = valid;
   }
 
-  unsigned int getFiredLayerCnt() const override {
-    unsigned int count = 0;
-    for(auto& firedLayerBits: firedLayerBitsInBx) {
-      count += firedLayerBits.count();
-    }
-    return count;
-  }
-
-  unsigned int getFiredLayerCnt(int bx) const {
-    return firedLayerBitsInBx.at(bx).count();
-  }
-
   double getPdfSum() const override {
     return pdfSum;
   }
@@ -65,11 +53,6 @@ public:
     killed = true;
     //FIXME maybe also valid = false???
   }
-
-  bool isLayerFired(unsigned int iLayer, unsigned int bx) const {
-    return firedLayerBitsInBx.at(bx)[iLayer];
-  }
-
 
   const TrackingTriggerTrackPtr& getTTTrack() const {
     return ttTrack;
@@ -85,24 +68,12 @@ public:
 
   friend std::ostream & operator << (std::ostream &out, const AlgoTTMuon& algoTTMuon);
 
-  const boost::dynamic_bitset<> getFiredLayerBits() const {
-    boost::dynamic_bitset<> firedLayerBitsSum(firedLayerBitsInBx[0].size());
-    for(auto& firedLayerBits: firedLayerBitsInBx) {
-      firedLayerBitsSum |= firedLayerBits;
-    }
-    return firedLayerBitsSum;
-  }
-
   int getQuality() const {
     return quality;
   }
 
   void setQuality(int quality = 0) {
     this->quality = quality;
-  }
-
-  unsigned int getTrackIndex() const override {
-    return ttTrack->getIndex();
   }
 
   double getSimBeta() const {
@@ -120,9 +91,6 @@ private:
 
   ///Number of fired layers - excluding bending layers
   //unsigned int firedLayerCnt = 0;
-
-  ///bits representing fired logicLayers (including bending layers),
-  std::vector<boost::dynamic_bitset<> > firedLayerBitsInBx;
 
   //ttTrack, stubResults and refStub should be needed in the emulation (debugging etc), but not in the firmware
 
