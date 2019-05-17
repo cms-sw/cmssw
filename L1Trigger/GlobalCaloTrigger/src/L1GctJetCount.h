@@ -29,12 +29,10 @@
 
 template <int nBits>
 class L1GctJetCount : public L1GctUnsignedInt<nBits> {
-
- public:
-
+public:
   /// Construct a counter and initialise its value to zero
   L1GctJetCount();
-  /// Construct a counter, checking for overFlow 
+  /// Construct a counter, checking for overFlow
   L1GctJetCount(unsigned value);
   /// Destructor
   ~L1GctJetCount();
@@ -50,15 +48,14 @@ class L1GctJetCount : public L1GctUnsignedInt<nBits> {
   void setOverFlow(bool oflow);
 
   /// Define increment operators, since this is a counter.
-  L1GctJetCount& operator++ ();
-  L1GctJetCount operator++ (int);
+  L1GctJetCount& operator++();
+  L1GctJetCount operator++(int);
 
   /// add two numbers
-  L1GctJetCount operator+ (const L1GctJetCount &rhs) const;
+  L1GctJetCount operator+(const L1GctJetCount& rhs) const;
 
   /// overload = operator
-  L1GctJetCount& operator= (int value);
-
+  L1GctJetCount& operator=(int value);
 };
 
 template <int nBits>
@@ -75,55 +72,48 @@ L1GctJetCount<nBits>::~L1GctJetCount() {}
 template <int nBits>
 template <int mBits>
 L1GctJetCount<nBits>::L1GctJetCount(const L1GctJetCount<mBits>& rhs) {
-  this->m_nBits = nBits>0 && nBits<this->MAX_NBITS ? nBits : 16 ;
-  this->setValue( rhs.value() );
-  this->setOverFlow( this->overFlow() || rhs.overFlow() );
+  this->m_nBits = nBits > 0 && nBits < this->MAX_NBITS ? nBits : 16;
+  this->setValue(rhs.value());
+  this->setOverFlow(this->overFlow() || rhs.overFlow());
 }
 
 template <int nBits>
-void L1GctJetCount<nBits>::setValue(unsigned value)
-{
+void L1GctJetCount<nBits>::setValue(unsigned value) {
   // check for overflow
-  if (value >= (static_cast<unsigned>((1<<this->m_nBits) - 1)) ) {
+  if (value >= (static_cast<unsigned>((1 << this->m_nBits) - 1))) {
     this->m_overFlow = true;
-    this->m_value = ((1<<this->m_nBits) - 1);
+    this->m_value = ((1 << this->m_nBits) - 1);
   } else {
     this->m_value = value;
   }
-
 }
 
 template <int nBits>
-void L1GctJetCount<nBits>::setOverFlow(bool oflow)
-{
+void L1GctJetCount<nBits>::setOverFlow(bool oflow) {
   this->m_overFlow = oflow;
-  if (oflow) { this->m_value = ((1<<this->m_nBits) - 1); }
+  if (oflow) {
+    this->m_value = ((1 << this->m_nBits) - 1);
+  }
 }
 
 // increment operators
 template <int nBits>
-L1GctJetCount<nBits>&
-L1GctJetCount<nBits>::operator++ () {
-
-  this->setValue(this->m_value+1);
+L1GctJetCount<nBits>& L1GctJetCount<nBits>::operator++() {
+  this->setValue(this->m_value + 1);
   return *this;
 }
 
 template <int nBits>
-L1GctJetCount<nBits>
-L1GctJetCount<nBits>::operator++ (int) {
-
+L1GctJetCount<nBits> L1GctJetCount<nBits>::operator++(int) {
   L1GctJetCount<nBits> temp(this->m_value);
   temp.setOverFlow(this->m_overFlow);
-  this->setValue(this->m_value+1);
+  this->setValue(this->m_value + 1);
   return temp;
 }
 
 // add two jet counts
 template <int nBits>
-L1GctJetCount<nBits>
-L1GctJetCount<nBits>::operator+ (const L1GctJetCount<nBits> &rhs) const {
-
+L1GctJetCount<nBits> L1GctJetCount<nBits>::operator+(const L1GctJetCount<nBits>& rhs) const {
   // temporary variable for storing the result (need to set its size)
   L1GctJetCount<nBits> temp;
 
@@ -140,27 +130,24 @@ L1GctJetCount<nBits>::operator+ (const L1GctJetCount<nBits> &rhs) const {
 
   // return the temporary
   return temp;
-
 }
 
 // overload assignment by int
 template <int nBits>
-L1GctJetCount<nBits>& L1GctJetCount<nBits>::operator= (int value) {
-  
+L1GctJetCount<nBits>& L1GctJetCount<nBits>::operator=(int value) {
   this->setValue(value);
   return *this;
-
 }
 
 // overload ostream<<
 template <int nBits>
 std::ostream& operator<<(std::ostream& s, const L1GctJetCount<nBits>& data) {
-
   s << "L1GctJetCount value : " << data.value();
-  if (data.overFlow()) { s << " Overflow set! "; }
+  if (data.overFlow()) {
+    s << " Overflow set! ";
+  }
 
   return s;
-
 }
 
 // removed typedefs for slc4 compilation
@@ -169,6 +156,5 @@ std::ostream& operator<<(std::ostream& s, const L1GctJetCount<nBits>& data) {
 //typedef L1GctJetCount<5>        L1GctJcFinalType;
 /// typedef for the data type used for Wheel card jet counts
 //typedef L1GctJetCount<3>        L1GctJcWheelType;
-
 
 #endif

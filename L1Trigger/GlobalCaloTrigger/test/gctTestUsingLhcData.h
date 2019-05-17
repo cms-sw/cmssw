@@ -22,12 +22,10 @@ class L1GlobalCaloTrigger;
 namespace edm {
   class Event;
   class InputTag;
-}
+}  // namespace edm
 
-class gctTestUsingLhcData
-{
+class gctTestUsingLhcData {
 public:
-
   // structs and typedefs
 
   // Constructor and destructor
@@ -40,13 +38,11 @@ public:
   void checkEmResults(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent);
 
 private:
-
   bool checkResults(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag);
 
-  bool checkJets   (const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag);
-  bool checkEtSums (const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag);
-  bool checkHtSums (const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag);
-
+  bool checkJets(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag);
+  bool checkEtSums(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag);
+  bool checkHtSums(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag);
 };
 
 #endif /*GCTTEST_H_*/
