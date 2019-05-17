@@ -461,6 +461,35 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks, PFEGam
      pfmu_->addMissingMuons(muonHandle_,pfCandidates_.get());
 }
 
+void PFAlgo::photonAlgo(const reco::PFBlockRef &blockref, std::vector<bool>& active, std::vector<reco::PFCandidate>& tempElectronCandidates) {
+    if(debug_)
+      cout<<endl<<"--------------- entering PFPhotonAlgo ----------------"<<endl;
+    vector<PFCandidatePhotonExtra> pfPhotonExtraCand;
+    if ( pfpho_->isPhotonValidCandidate(blockref,               // passing the reference to the PFBlock
+					active,                 // std::vector<bool> containing information about acitivity
+					pfPhotonCandidates_,    // pointer to candidate vector, to be filled by the routine
+					pfPhotonExtraCand,      // candidate extra vector, to be filled by the routine
+					tempElectronCandidates
+					//pfElectronCandidates_   // pointer to some auziliary UNTOUCHED FOR NOW
+					) ) {
+      if(debug_)
+	std::cout<< " In this PFBlock we found "<<pfPhotonCandidates_->size()<<" Photon Candidates."<<std::endl;
+
+      // CAUTION: In case we want to allow the PhotonAlgo to 'over-write' what the ElectronAlgo did above
+      // ........ we should NOT fill the PFCandidate-vector with the electrons above (***)
+
+      // Here we need to add all the photon cands to the pfCandidate list
+      unsigned int extracand =0;
+      for(auto const& cand : *pfPhotonCandidates_) {
+        pfCandidates_->push_back(cand);
+        pfPhotonExtra_.push_back(pfPhotonExtraCand[extracand]);
+        ++extracand;
+      }
+
+    } // end of 'if' in case photons are found
+    pfPhotonExtraCand.clear();
+    pfPhotonCandidates_->clear();
+}
 
 void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
                            std::list<reco::PFBlockRef>& hcalBlockRefs,
@@ -512,34 +541,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
   }
   if( /* --- */ usePFPhotons_ /* --- */ ) {
-
-    if(debug_)
-      cout<<endl<<"--------------- entering PFPhotonAlgo ----------------"<<endl;
-    vector<PFCandidatePhotonExtra> pfPhotonExtraCand;
-    if ( pfpho_->isPhotonValidCandidate(blockref,               // passing the reference to the PFBlock
-					active,                 // std::vector<bool> containing information about acitivity
-					pfPhotonCandidates_,    // pointer to candidate vector, to be filled by the routine
-					pfPhotonExtraCand,      // candidate extra vector, to be filled by the routine
-					tempElectronCandidates
-					//pfElectronCandidates_   // pointer to some auziliary UNTOUCHED FOR NOW
-					) ) {
-      if(debug_)
-	std::cout<< " In this PFBlock we found "<<pfPhotonCandidates_->size()<<" Photon Candidates."<<std::endl;
-
-      // CAUTION: In case we want to allow the PhotonAlgo to 'over-write' what the ElectronAlgo did above
-      // ........ we should NOT fill the PFCandidate-vector with the electrons above (***)
-
-      // Here we need to add all the photon cands to the pfCandidate list
-      unsigned int extracand =0;
-      for(auto const& cand : *pfPhotonCandidates_) {
-        pfCandidates_->push_back(cand);
-        pfPhotonExtra_.push_back(pfPhotonExtraCand[extracand]);
-        ++extracand;
-      }
-
-    } // end of 'if' in case photons are found
-    pfPhotonExtraCand.clear();
-    pfPhotonCandidates_->clear();
+    photonAlgo(blockref, active, tempElectronCandidates);
   } // end of Photon algo
 
   if (usePFElectrons_) {

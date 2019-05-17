@@ -223,7 +223,9 @@ class PFAlgo {
   void processBlock( const reco::PFBlockRef& blockref,
                              std::list<reco::PFBlockRef>& hcalBlockRefs, 
                              std::list<reco::PFBlockRef>& ecalBlockRefs, PFEGammaFilters const* pfegamma );
-  
+  void photonAlgo( const reco::PFBlockRef &blockref, std::vector<bool>& active,
+                   std::vector<reco::PFCandidate>& tempElectronCandidates);
+ 
   /// Reconstruct a charged particle from a track
   /// Returns the index of the newly created candidate in pfCandidates_
   /// Michalis added a flag here to treat muons inside jets
