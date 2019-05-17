@@ -161,10 +161,6 @@ float dPhi(const LVector1& p4, const LVector2& tau_p4)
     return static_cast<float>(ROOT::Math::VectorUtil::DeltaPhi(p4, tau_p4));
 }
 
-namespace MuonSubdetId {
-  enum { DT = 1, CSC = 2, RPC = 3, GEM = 4, ME0 = 5 };
-}
-
 struct MuonHitMatchV1 {
     static constexpr int n_muon_stations = 4;
 
