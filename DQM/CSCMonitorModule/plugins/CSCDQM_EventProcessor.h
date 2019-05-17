@@ -57,7 +57,6 @@ namespace cscdqm {
    * Structure of standby flags
    */
   struct HWStandbyType {
-  
     // if standby flag should be considered at all?
     // at the start it will be false, thus good for last value ;)
     bool process;
@@ -68,41 +67,28 @@ namespace cscdqm {
     // ME-
     bool MeM;
 
-    HWStandbyType() {
-      process = MeP = MeM = false;
-    }
+    HWStandbyType() { process = MeP = MeM = false; }
 
-    void applyMeP(bool ready) {
-      MeP = MeP || !ready;
-    }
+    void applyMeP(bool ready) { MeP = MeP || !ready; }
 
-    void applyMeM(bool ready) {
-      MeM = MeM || !ready;
-    }
+    void applyMeM(bool ready) { MeM = MeM || !ready; }
 
-    bool fullStandby() const {
-      return (MeM && MeP);
-    }
+    bool fullStandby() const { return (MeM && MeP); }
 
-    bool operator==(const HWStandbyType& t) const {
-      return (t.MeP == MeP && t.MeM == MeM && t.process == process);
-    }
+    bool operator==(const HWStandbyType& t) const { return (t.MeP == MeP && t.MeM == MeM && t.process == process); }
 
-    bool operator!=(const HWStandbyType& t) const {
-      return !(*this == t);
-    }
+    bool operator!=(const HWStandbyType& t) const { return !(*this == t); }
 
-    const HWStandbyType& operator= (const HWStandbyType& t) {
+    const HWStandbyType& operator=(const HWStandbyType& t) {
       MeP = t.MeP;
       MeM = t.MeM;
       process = t.process;
       return *this;
     }
-
   };
 
   typedef std::map<CSCIdType, ExaminerStatusType> CSCExaminerMapType;
-  typedef std::vector<DDUIdType>                  DDUExaminerVectorType;
+  typedef std::vector<DDUIdType> DDUExaminerVectorType;
   // typedef std::map<int, long> CSCExaminerMapType;
   // typedef std::vector<int>    DDUExaminerVectorType;
 
@@ -111,112 +97,107 @@ namespace cscdqm {
    * @brief Object used to process Events and compute statistics
    */
   class EventProcessor {
+    // ===================================================================================================
+    // General stuff
+    // ===================================================================================================
 
-// ===================================================================================================
-// General stuff 
-// ===================================================================================================
-
-    public:
-
+  public:
     EventProcessor(Configuration* const p_config);
-      
+
 #ifdef DQMGLOBAL
 
     EventProcessor(Configuration* const p_config, const edm::InputTag& itag, edm::ConsumesCollector& coco);
 
 #endif
 
-      /**
+    /**
        * @brief  Destructor
        */
-      ~EventProcessor() { }
+    ~EventProcessor() {}
 
-      void init();
+    void init();
 
-      void updateFractionHistos();
-      void updateEfficiencyHistos();
-      void standbyEfficiencyHistos(HWStandbyType& standby);
-      void writeShifterHistograms();
+    void updateFractionHistos();
+    void updateEfficiencyHistos();
+    void standbyEfficiencyHistos(HWStandbyType& standby);
+    void writeShifterHistograms();
 
-      unsigned int maskHWElements(std::vector<std::string>& tokens);
+    unsigned int maskHWElements(std::vector<std::string>& tokens);
 
-    private:
-      
-      bool processExaminer(const CSCDCCExaminer& binChecker); 
-      bool processExaminer(const CSCDCCExaminer& binChecker, const CSCDCCFormatStatusDigi& digi);
-      void processDDU(const CSCDDUEventData& data, const CSCDCCExaminer& binChecker);
-      void processCSC(const CSCEventData& data, const int dduID, const CSCDCCExaminer& binChecker);
+  private:
+    bool processExaminer(const CSCDCCExaminer& binChecker);
+    bool processExaminer(const CSCDCCExaminer& binChecker, const CSCDCCFormatStatusDigi& digi);
+    void processDDU(const CSCDDUEventData& data, const CSCDCCExaminer& binChecker);
+    void processCSC(const CSCEventData& data, const int dduID, const CSCDCCExaminer& binChecker);
 
-      void calcEMUFractionHisto(const HistoId& result, const HistoId& set, const HistoId& subset);
+    void calcEMUFractionHisto(const HistoId& result, const HistoId& set, const HistoId& subset);
 
-      const bool getEMUHisto(const HistoId& histo, MonitorObject*& me);
-      const bool getFEDHisto(const HistoId& histo, const HwId& fedID, MonitorObject*& me);
-      const bool getDDUHisto(const HistoId& histo, const HwId& dduID, MonitorObject*& me);
-      const bool getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, MonitorObject*& me);
-      const bool getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, const HwId& adId, MonitorObject*& me);
-      const bool getParHisto(const HistoId& histo, MonitorObject*& me);
-      void preProcessEvent();
+    const bool getEMUHisto(const HistoId& histo, MonitorObject*& me);
+    const bool getFEDHisto(const HistoId& histo, const HwId& fedID, MonitorObject*& me);
+    const bool getDDUHisto(const HistoId& histo, const HwId& dduID, MonitorObject*& me);
+    const bool getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, MonitorObject*& me);
+    const bool getCSCHisto(
+        const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, const HwId& adId, MonitorObject*& me);
+    const bool getParHisto(const HistoId& histo, MonitorObject*& me);
+    void preProcessEvent();
 
-      const bool getCSCFromMap(const unsigned int& crateId, const unsigned int& dmbId, unsigned int& cscType, unsigned int& cscPosition) const;
-      void setEmuEventDisplayBit(MonitorObject*& mo, const unsigned int x, const unsigned int y, const unsigned int bit);
-      void resetEmuEventDisplays();
+    const bool getCSCFromMap(const unsigned int& crateId,
+                             const unsigned int& dmbId,
+                             unsigned int& cscType,
+                             unsigned int& cscPosition) const;
+    void setEmuEventDisplayBit(MonitorObject*& mo, const unsigned int x, const unsigned int y, const unsigned int bit);
+    void resetEmuEventDisplays();
 
-      /** Pointer to Global Configuration */
-      Configuration* config;
+    /** Pointer to Global Configuration */
+    Configuration* config;
 
-      /** Detector efficiency manipulation object */
-      Summary summary;
+    /** Detector efficiency manipulation object */
+    Summary summary;
 
-      std::map<uint32_t, uint32_t> L1ANumbers;
-      std::map<uint32_t, bool> fNotFirstEvent;
-      uint32_t L1ANumber;
-      uint32_t BXN;
-      uint32_t cntDMBs; 	/// Total Number of DMBs per event from DDU Header DAV
-      uint32_t cntCFEBs;	/// Total Number of CFEBs per event from DMB DAV 
-      uint32_t cntALCTs;	/// Total Number of ALCTs per event from DMB DAV 
-      uint32_t cntTMBs;		/// Total Number of TMBs per event from DMB DAV
+    std::map<uint32_t, uint32_t> L1ANumbers;
+    std::map<uint32_t, bool> fNotFirstEvent;
+    uint32_t L1ANumber;
+    uint32_t BXN;
+    uint32_t cntDMBs;   /// Total Number of DMBs per event from DDU Header DAV
+    uint32_t cntCFEBs;  /// Total Number of CFEBs per event from DMB DAV
+    uint32_t cntALCTs;  /// Total Number of ALCTs per event from DMB DAV
+    uint32_t cntTMBs;   /// Total Number of TMBs per event from DMB DAV
 
-      
-      uint16_t    theFormatVersion; /// Data Format version (2005, 2013)
-      
-	
-      // bool fFirstEvent;
-      bool fCloseL1As; // Close L1A bit from DDU Trailer
-      bool EmuEventDisplayWasReset;
+    uint16_t theFormatVersion;  /// Data Format version (2005, 2013)
 
-      // token for input
-      edm::EDGetTokenT<FEDRawDataCollection> frdtoken;      
+    // bool fFirstEvent;
+    bool fCloseL1As;  // Close L1A bit from DDU Trailer
+    bool EmuEventDisplayWasReset;
 
-// ===================================================================================================
-// Local ONLY stuff 
-// ===================================================================================================
+    // token for input
+    edm::EDGetTokenT<FEDRawDataCollection> frdtoken;
+
+    // ===================================================================================================
+    // Local ONLY stuff
+    // ===================================================================================================
 
 #ifdef DQMLOCAL
 
-    public:
+  public:
+    void processEvent(const char* data, const int32_t dataSize, const uint32_t errorStat, const int32_t nodeNumber);
 
-      void processEvent(const char* data, const int32_t dataSize, const uint32_t errorStat, const int32_t nodeNumber);
+#endif
 
-#endif      
-
-// ===================================================================================================
-// Global ONLY stuff 
-// ===================================================================================================
+    // ===================================================================================================
+    // Global ONLY stuff
+    // ===================================================================================================
 
 #ifdef DQMGLOBAL
 
-    private:
+  private:
+    bool bCSCEventCounted;
 
-      bool bCSCEventCounted;
+  public:
+    void processEvent(const edm::Event& e, const edm::InputTag& inputTag);
 
-    public:
-
-      void processEvent(const edm::Event& e, const edm::InputTag& inputTag );
-
-#endif      
-
+#endif
   };
 
-}
+}  // namespace cscdqm
 
 #endif

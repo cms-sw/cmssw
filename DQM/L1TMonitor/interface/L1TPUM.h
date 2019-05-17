@@ -23,41 +23,41 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 class L1TPUM : public DQMEDAnalyzer {
-  public:
-    L1TPUM(const edm::ParameterSet& ps);
-    ~L1TPUM() override;
-  
-  protected:
-    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-    void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  
-  private:
-    edm::EDGetTokenT<L1CaloRegionCollection> regionSource_;
-    std::string histFolder_;
+public:
+  L1TPUM(const edm::ParameterSet& ps);
+  ~L1TPUM() override;
 
-    MonitorElement* regionsTotalEtBxP2_;
-    MonitorElement* regionsTotalEtBx0_;
-    MonitorElement* regionsTotalEtBxM2_;
+protected:
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
-    MonitorElement* regionsAvgEtBxP2_;
-    MonitorElement* regionsAvgEtBx0_;
-    MonitorElement* regionsAvgEtBxM2_;
+private:
+  edm::EDGetTokenT<L1CaloRegionCollection> regionSource_;
+  std::string histFolder_;
 
-    MonitorElement* regionsAvgNonZeroEtBxP2_;
-    MonitorElement* regionsAvgNonZeroEtBx0_;
-    MonitorElement* regionsAvgNonZeroEtBxM2_;
+  MonitorElement* regionsTotalEtBxP2_;
+  MonitorElement* regionsTotalEtBx0_;
+  MonitorElement* regionsTotalEtBxM2_;
 
-    MonitorElement* nonZeroRegionsBxP2_;
-    MonitorElement* nonZeroRegionsBx0_;
-    MonitorElement* nonZeroRegionsBxM2_;
+  MonitorElement* regionsAvgEtBxP2_;
+  MonitorElement* regionsAvgEtBx0_;
+  MonitorElement* regionsAvgEtBxM2_;
 
-    MonitorElement* regionBxPopulation_;
-    MonitorElement* regionBxEtSum_;
+  MonitorElement* regionsAvgNonZeroEtBxP2_;
+  MonitorElement* regionsAvgNonZeroEtBx0_;
+  MonitorElement* regionsAvgNonZeroEtBxM2_;
 
-    std::vector<MonitorElement*> regionsPUMEtaBxP2_;
-    std::vector<MonitorElement*> regionsPUMEtaBx0_;
-    std::vector<MonitorElement*> regionsPUMEtaBxM2_;
+  MonitorElement* nonZeroRegionsBxP2_;
+  MonitorElement* nonZeroRegionsBx0_;
+  MonitorElement* nonZeroRegionsBxM2_;
+
+  MonitorElement* regionBxPopulation_;
+  MonitorElement* regionBxEtSum_;
+
+  std::vector<MonitorElement*> regionsPUMEtaBxP2_;
+  std::vector<MonitorElement*> regionsPUMEtaBx0_;
+  std::vector<MonitorElement*> regionsPUMEtaBxM2_;
 };
 
 #endif

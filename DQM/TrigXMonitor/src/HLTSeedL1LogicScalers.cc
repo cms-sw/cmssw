@@ -14,10 +14,16 @@ using namespace edm;
 using namespace std;
 using namespace trigger;
 
-HLTSeedL1LogicScalers::HLTSeedL1LogicScalers(const edm::ParameterSet& iConfig) :
-  fL1GtDaqReadoutRecordInputTag(iConfig.getParameter<edm::InputTag>("L1GtDaqReadoutRecordInputTag")),
-  fL1GtRecordInputTag(iConfig.getParameter<edm::InputTag>("L1GtRecordInputTag")),
-  m_l1GtUtils(iConfig, consumesCollector(), false, *this, fL1GtRecordInputTag, fL1GtDaqReadoutRecordInputTag, edm::InputTag()) {
+HLTSeedL1LogicScalers::HLTSeedL1LogicScalers(const edm::ParameterSet& iConfig)
+    : fL1GtDaqReadoutRecordInputTag(iConfig.getParameter<edm::InputTag>("L1GtDaqReadoutRecordInputTag")),
+      fL1GtRecordInputTag(iConfig.getParameter<edm::InputTag>("L1GtRecordInputTag")),
+      m_l1GtUtils(iConfig,
+                  consumesCollector(),
+                  false,
+                  *this,
+                  fL1GtRecordInputTag,
+                  fL1GtDaqReadoutRecordInputTag,
+                  edm::InputTag()) {
   // now do what ever initialization is needed
   LogDebug("HLTSeedL1LogicScalers") << "constructor";
 
@@ -27,38 +33,29 @@ HLTSeedL1LogicScalers::HLTSeedL1LogicScalers(const edm::ParameterSet& iConfig) :
   fProcessname = iConfig.getParameter<std::string>("processname");
 
   // get untracked parameters
-  fDQMFolder = iConfig.getUntrackedParameter(
-      "DQMFolder", string("HLT/HLTSeedL1LogicScalers/HLT_LogicL1"));
-  fMonitorPaths =
-      iConfig.getUntrackedParameter<std::vector<std::string> >("monitorPaths");
+  fDQMFolder = iConfig.getUntrackedParameter("DQMFolder", string("HLT/HLTSeedL1LogicScalers/HLT_LogicL1"));
+  fMonitorPaths = iConfig.getUntrackedParameter<std::vector<std::string> >("monitorPaths");
 }
 
 HLTSeedL1LogicScalers::~HLTSeedL1LogicScalers() {}
 
-void HLTSeedL1LogicScalers::dqmBeginRun(const edm::Run& run,
-                                        const edm::EventSetup& iSetup) {
+void HLTSeedL1LogicScalers::dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
   // HLT config does not change within runs!
   bool changed = false;
   if (!fHLTConfig.init(run, iSetup, fProcessname, changed)) {
-    LogDebug("HLTSeedL1LogicScalers")
-        << "HLTConfigProvider failed to initialize.";
+    LogDebug("HLTSeedL1LogicScalers") << "HLTConfigProvider failed to initialize.";
     return;
   }
 
   const unsigned int n(fHLTConfig.size());
   for (unsigned int j = 0; j != n; ++j) {
-    LogTrace("HLTSeedL1LogicScalers") << "HLTConfig path "
-                                      << fHLTConfig.triggerName(j) << endl;
+    LogTrace("HLTSeedL1LogicScalers") << "HLTConfig path " << fHLTConfig.triggerName(j) << endl;
   }
 }
 
-void HLTSeedL1LogicScalers::bookHistograms(DQMStore::IBooker& iBooker,
-                                           edm::Run const&,
-                                           edm::EventSetup const&) {
+void HLTSeedL1LogicScalers::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const&) {
   // book histos for L1 logic of specificified HLT paths
-  LogTrace("HLTSeedL1LogicScalers")
-      << "size of vector of paths to monitor = " << fMonitorPaths.size()
-      << endl;
+  LogTrace("HLTSeedL1LogicScalers") << "size of vector of paths to monitor = " << fMonitorPaths.size() << endl;
   for (unsigned int iPath = 0; iPath < fMonitorPaths.size(); iPath++) {
     string monPath = fMonitorPaths[iPath];
     LogTrace("HLTSeedL1LogicScalers") << "monPath = " << monPath << endl;
@@ -67,19 +64,17 @@ void HLTSeedL1LogicScalers::bookHistograms(DQMStore::IBooker& iBooker,
     iBooker.setCurrentFolder(folderName);
 
     // do nothing if monPath is not in the HLT menu
-    if (fHLTConfig.triggerIndex(monPath) == fHLTConfig.size()) continue;
+    if (fHLTConfig.triggerIndex(monPath) == fHLTConfig.size())
+      continue;
     // get L1SeedLogicalExpression of this path
     vector<pair<bool, string> > hltL1GTSeed = fHLTConfig.hltL1GTSeeds(monPath);
-    LogTrace("HLTSeedL1LogicScalers")
-        << endl << "size of vector of GTSeedL1LogicalExpression = "
-        << hltL1GTSeed.size() << endl;
+    LogTrace("HLTSeedL1LogicScalers") << endl
+                                      << "size of vector of GTSeedL1LogicalExpression = " << hltL1GTSeed.size() << endl;
 
     // each GT Seed of each path contains l1Algos
     for (unsigned int iSeed = 0; iSeed < hltL1GTSeed.size(); iSeed++) {
-      LogTrace("HLTSeedL1LogicScalers")
-          << "  TechBit_flag = " << hltL1GTSeed[iSeed].first
-          << "  GTSeedL1LogicalExpression = " << hltL1GTSeed[iSeed].second
-          << endl;
+      LogTrace("HLTSeedL1LogicScalers") << "  TechBit_flag = " << hltL1GTSeed[iSeed].first
+                                        << "  GTSeedL1LogicalExpression = " << hltL1GTSeed[iSeed].second << endl;
 
       istringstream totalSString(hltL1GTSeed[iSeed].second);
       string temp_string;
@@ -91,11 +86,11 @@ void HLTSeedL1LogicScalers::bookHistograms(DQMStore::IBooker& iBooker,
         totalSString >> temp_string;
 
         if (!l1Algos.empty()) {
-          if (temp_string == l1Algos.back()) break;
+          if (temp_string == l1Algos.back())
+            break;
         }
-        if (temp_string != "OR" && temp_string != "AND" &&
-            temp_string != "NOT" && temp_string != "(" && temp_string != ")" &&
-            !temp_string.empty()) {
+        if (temp_string != "OR" && temp_string != "AND" && temp_string != "NOT" && temp_string != "(" &&
+            temp_string != ")" && !temp_string.empty()) {
           l1Algos.push_back(temp_string);
         }
       }
@@ -104,44 +99,35 @@ void HLTSeedL1LogicScalers::bookHistograms(DQMStore::IBooker& iBooker,
 
       // put an upper limit on the size of l1Algos
       if (nL1Algo > 32) {
-        LogWarning("HLTSeedL1LogicScalers")
-            << "  number of l1 Algos grater than 32. Using only the first 32."
-            << endl;
+        LogWarning("HLTSeedL1LogicScalers") << "  number of l1 Algos grater than 32. Using only the first 32." << endl;
         l1Algos.resize(32);
       }
       int nBins = 1 << nL1Algo;
 
       for (unsigned int k = 0; k < l1Algos.size(); k++) {
-        LogTrace("HLTSeedL1LogicScalers") << "  l1 Algo = " << l1Algos[k]
-                                          << endl;
+        LogTrace("HLTSeedL1LogicScalers") << "  l1 Algo = " << l1Algos[k] << endl;
       }  // end for k
 
       std::stringstream title;
       std::stringstream name;
 
       name << monPath << "_Seed_" << iSeed << "_L1BitLogic";
-      title << monPath << "  BitPacked L1Algos of GTSeed " << iSeed << ": '"
-            << hltL1GTSeed[iSeed].second << "'";
+      title << monPath << "  BitPacked L1Algos of GTSeed " << iSeed << ": '" << hltL1GTSeed[iSeed].second << "'";
 
-      LogTrace("HLTSeedL1LogicScalers") << "  MonitorElement name = " << name.str()
-                                        << endl;
-      LogTrace("HLTSeedL1LogicScalers") << "  MonitorElement title = " << title.str()
-                                        << endl;
-      LogTrace("HLTSeedL1LogicScalers") << "  MonitorElement nBins = " << nBins
-                                        << endl << endl;
+      LogTrace("HLTSeedL1LogicScalers") << "  MonitorElement name = " << name.str() << endl;
+      LogTrace("HLTSeedL1LogicScalers") << "  MonitorElement title = " << title.str() << endl;
+      LogTrace("HLTSeedL1LogicScalers") << "  MonitorElement nBins = " << nBins << endl << endl;
 
-      MonitorElement* me = iBooker.book1D(name.str().c_str(), title.str().c_str(),
-                                        nBins, 0, nBins);
+      MonitorElement* me = iBooker.book1D(name.str().c_str(), title.str().c_str(), nBins, 0, nBins);
       me->setAxisTitle("bit-packed word L1 Algorithms");
       fMonitorPathsME.push_back(me);
 
       fMapMEL1Algos.push_back(make_pair(me, l1Algos));
     }  // end for Seeds
-  }  // end for monitoring paths
+  }    // end for monitoring paths
 }
 
-void HLTSeedL1LogicScalers::analyze(const edm::Event& iEvent,
-                                    const edm::EventSetup& iSetup) {
+void HLTSeedL1LogicScalers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LogDebug("HLTSeedL1LogicScalers") << "HLTSeedL1LogicScalers::analyze  event ";
 
   // before accessing any result from L1GtUtils, one must retrieve and cache
@@ -165,8 +151,7 @@ void HLTSeedL1LogicScalers::analyze(const edm::Event& iEvent,
     for (unsigned int j = 0; j < l1Algos.size(); j++) {
       // check if this l1Algo passed
       bool l1Pass = analyzeL1GtUtils(iEvent, iSetup, l1Algos[j]);
-      LogTrace("HLTSeedL1LogicScalers") << "l1Algo = " << l1Algos[j]
-                                        << "  l1Pass = " << l1Pass << endl;
+      LogTrace("HLTSeedL1LogicScalers") << "l1Algo = " << l1Algos[j] << "  l1Pass = " << l1Pass << endl;
       if (l1Pass) {
         // bit-wise pack
         myL1Word |= (1 << j);
@@ -192,28 +177,22 @@ bool HLTSeedL1LogicScalers::analyzeL1GtUtils(const edm::Event& iEvent,
 
   // check flag L1BeforeMask
   if (fL1BeforeMask) {
-    decisionAlgTechTrig = m_l1GtUtils.decisionBeforeMask(
-        iEvent, l1AlgoName,
-        iErrorCode);
+    decisionAlgTechTrig = m_l1GtUtils.decisionBeforeMask(iEvent, l1AlgoName, iErrorCode);
   } else {
-    decisionAlgTechTrig = m_l1GtUtils.decisionAfterMask(
-        iEvent, l1AlgoName,
-        iErrorCode);
+    decisionAlgTechTrig = m_l1GtUtils.decisionAfterMask(iEvent, l1AlgoName, iErrorCode);
   }
 
-  LogTrace("HLTSeedL1LogicScalers")
-      << "bool L1BeforeMask = " << fL1BeforeMask
-      << "  decisionAlgTechTrig = " << decisionAlgTechTrig << endl;
+  LogTrace("HLTSeedL1LogicScalers") << "bool L1BeforeMask = " << fL1BeforeMask
+                                    << "  decisionAlgTechTrig = " << decisionAlgTechTrig << endl;
 
   if (iErrorCode == 0) {
     return decisionAlgTechTrig;
   } else if (iErrorCode == 1) {
     // algorithm / technical trigger  does not exist in the L1 menu
-    LogWarning("HLTSeedL1LogicScalers")
-        << "L1 algorithm " << l1AlgoName
-        << " not in L1 menu, but HLTConfigProvider found it in "
-           "L1SeedsLogicalExpression of at least one HLT path of the HLT menu."
-        << endl;
+    LogWarning("HLTSeedL1LogicScalers") << "L1 algorithm " << l1AlgoName
+                                        << " not in L1 menu, but HLTConfigProvider found it in "
+                                           "L1SeedsLogicalExpression of at least one HLT path of the HLT menu."
+                                        << endl;
     return false;
   } else {
     // error - see error code

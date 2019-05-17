@@ -39,37 +39,35 @@
 //
 
 class L1TFED : public DQMEDAnalyzer {
-
 public:
+  // Constructor
+  L1TFED(const edm::ParameterSet& ps);
 
-// Constructor
-L1TFED(const edm::ParameterSet& ps);
-
-// Destructor
-~L1TFED() override;
+  // Destructor
+  ~L1TFED() override;
 
 protected:
-// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  // Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-// BeginRun
-void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  // BeginRun
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
   // ----------member data ---------------------------
-  MonitorElement * hfedsize;
-  MonitorElement * hfedprof;
-  
-  MonitorElement* fedentries; 
-  MonitorElement* fedfatal;
-  MonitorElement* fednonfatal;  
+  MonitorElement* hfedsize;
+  MonitorElement* hfedprof;
 
-  int nev_; // Number of events processed
+  MonitorElement* fedentries;
+  MonitorElement* fedfatal;
+  MonitorElement* fednonfatal;
+
+  int nev_;  // Number of events processed
   bool verbose_;
   bool monitorDaemon_;
   std::vector<int> l1feds_;
   std::ofstream logFile_;
-  edm::InputTag fedSource_;  
+  edm::InputTag fedSource_;
   edm::EDGetTokenT<FEDRawDataCollection> rawl_;
   std::string directory_;
   bool stableROConfig_;

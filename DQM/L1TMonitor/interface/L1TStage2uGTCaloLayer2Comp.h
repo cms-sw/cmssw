@@ -32,8 +32,7 @@
  * types of objects and their properties for the current implementation.
  */
 class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
-
- public:
+public:
   /**
    * Class constructor
    *
@@ -47,11 +46,9 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    *
    * @param edm::ParamterSet & ps A pointer to the parameter set used
    */
-  L1TStage2uGTCaloLayer2Comp (const edm::ParameterSet & ps);
+  L1TStage2uGTCaloLayer2Comp(const edm::ParameterSet& ps);
 
-
- protected:
-
+protected:
   /**
    * Method to declare or "book" all histograms that will be part of module
    *
@@ -70,9 +67,7 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    *
    * @return void
    */
-  void bookHistograms (DQMStore::IBooker&,
-			       const edm::Run&,
-			       const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
 
   /**
    * Main method where the analysis code resides, executed once for each run
@@ -86,10 +81,9 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    *
    * @return void
    */
-  void analyze (const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   /**
    * Encapsulates the code required for performing a comparison of
    * the jets contained in a given event.
@@ -107,8 +101,7 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    *
    * @return bool Flag of whether the agreement was perfect
    */
-  bool compareJets(const edm::Handle<l1t::JetBxCollection> & col1,
-                   const edm::Handle<l1t::JetBxCollection> & col2);
+  bool compareJets(const edm::Handle<l1t::JetBxCollection>& col1, const edm::Handle<l1t::JetBxCollection>& col2);
 
   /**
    * Encapsulates the code required for performing a comparison of
@@ -127,8 +120,7 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    *
    * @return bool Flag of whether the agreement was perfect
    */
-  bool compareEGs(const edm::Handle<l1t::EGammaBxCollection> & col1,
-                  const edm::Handle<l1t::EGammaBxCollection> & col2);
+  bool compareEGs(const edm::Handle<l1t::EGammaBxCollection>& col1, const edm::Handle<l1t::EGammaBxCollection>& col2);
 
   /**
    * Encapsulates the code required for performing a comparison of
@@ -146,8 +138,7 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    *
    * @return bool Flag of whether the agreement was perfect
    */
-  bool compareTaus(const edm::Handle<l1t::TauBxCollection> & col1,
-                   const edm::Handle<l1t::TauBxCollection> & col2);
+  bool compareTaus(const edm::Handle<l1t::TauBxCollection>& col1, const edm::Handle<l1t::TauBxCollection>& col2);
 
   /**
    * Encapsulates the code required for performing a comparison of
@@ -165,8 +156,7 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    *
    * @return bool Flag of whether the agreement was perfect
    */
-  bool compareSums(const edm::Handle<l1t::EtSumBxCollection> & col1,
-                   const edm::Handle<l1t::EtSumBxCollection> & col2);
+  bool compareSums(const edm::Handle<l1t::EtSumBxCollection>& col1, const edm::Handle<l1t::EtSumBxCollection>& col2);
 
   // Holds the name of directory in DQM where module hostograms will be shown.
   // Value is taken from python configuration file (passed in class constructor)
@@ -187,44 +177,44 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
   edm::EDGetTokenT<l1t::EtSumBxCollection> EtSumCollection2;
 
   enum numeratorBins {
-    EVENTBAD = 1,   // number of (no.) bad events (where an error was found)
-    EVENTBADJETCOL, // no. events with a jet collection size difference
-    EVENTBADEGCOL,  // no. events with a eg collection size difference
-    EVENTBADTAUCOL, // no. events with a tau collection size difference
-    EVENTBADSUMCOL, // no. events with a sum collection size difference
-    JETBADET,       // no. jets with bad Et
-    JETBADETA,      // no. jets with bad eta
-    JETBADPHI,      // no. jets with bad phi
-    EGBADET,        // no. egs with bad Et
-    EGBADETA,       // no. egs with bad phi
-    EGBADPHI,       // no. egs with bad eta
-    TAUBADET,       // no. tau with bad Et
-    TAUBADETA,      // no. tau with bad eta
-    TAUBADPHI,      // no. tau with bad phi
-    BADSUM          // no. sums with any disagreement
+    EVENTBAD = 1,    // number of (no.) bad events (where an error was found)
+    EVENTBADJETCOL,  // no. events with a jet collection size difference
+    EVENTBADEGCOL,   // no. events with a eg collection size difference
+    EVENTBADTAUCOL,  // no. events with a tau collection size difference
+    EVENTBADSUMCOL,  // no. events with a sum collection size difference
+    JETBADET,        // no. jets with bad Et
+    JETBADETA,       // no. jets with bad eta
+    JETBADPHI,       // no. jets with bad phi
+    EGBADET,         // no. egs with bad Et
+    EGBADETA,        // no. egs with bad phi
+    EGBADPHI,        // no. egs with bad eta
+    TAUBADET,        // no. tau with bad Et
+    TAUBADETA,       // no. tau with bad eta
+    TAUBADPHI,       // no. tau with bad phi
+    BADSUM           // no. sums with any disagreement
   };
 
   enum denumBins {
-    EVENTS1 = 1, // total no. events (used for taking a ratio) x5
+    EVENTS1 = 1,  // total no. events (used for taking a ratio) x5
     EVENTS2,
     EVENTS3,
     EVENTS4,
     EVENTS5,
-    JETS1,       // total no. jets x3
+    JETS1,  // total no. jets x3
     JETS2,
     JETS3,
-    EGS1,        // total no. egs x3
+    EGS1,  // total no. egs x3
     EGS2,
     EGS3,
-    TAUS1,       // total no. taus x3
+    TAUS1,  // total no. taus x3
     TAUS2,
     TAUS3,
-    SUMS         // total no. sums
+    SUMS  // total no. sums
   };
 
   // objects to represent individual plots shown in DQM
-  MonitorElement * comparisonNum;
-  MonitorElement * comparisonDenum;
+  MonitorElement* comparisonNum;
+  MonitorElement* comparisonDenum;
   bool verbose;
 };
 
