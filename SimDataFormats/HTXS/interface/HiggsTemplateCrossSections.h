@@ -319,10 +319,10 @@ namespace Stage1_1 {
       cat.stage0_cat = htxs_cat_rivet.stage0_cat;
       cat.stage1_cat_pTjet25GeV = htxs_cat_rivet.stage1_cat_pTjet25GeV;
       cat.stage1_cat_pTjet30GeV = htxs_cat_rivet.stage1_cat_pTjet30GeV;
-      cat.stage1_1_cat_pTjet25GeV = stxs_cat_rivet.stage1_1_cat_pTjet25GeV;
-      cat.stage1_1_cat_pTjet30GeV = stxs_cat_rivet.stage1_1_cat_pTjet30GeV;
-      cat.stage1_1_fine_cat_pTjet25GeV = stxs_cat_rivet.stage1_1_fine_cat_pTjet25GeV;
-      cat.stage1_1_fine_cat_pTjet30GeV = stxs_cat_rivet.stage1_1_fine_cat_pTjet30GeV;
+      cat.stage1_1_cat_pTjet25GeV = htxs_cat_rivet.stage1_1_cat_pTjet25GeV;
+      cat.stage1_1_cat_pTjet30GeV = htxs_cat_rivet.stage1_1_cat_pTjet30GeV;
+      cat.stage1_1_fine_cat_pTjet25GeV = htxs_cat_rivet.stage1_1_fine_cat_pTjet25GeV;
+      cat.stage1_1_fine_cat_pTjet30GeV = htxs_cat_rivet.stage1_1_fine_cat_pTjet30GeV;
       return cat;    
     }
     
