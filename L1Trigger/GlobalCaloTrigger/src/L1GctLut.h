@@ -1,11 +1,11 @@
 #ifndef L1GCTLUT_H_
 #define L1GCTLUT_H_
 
-#include <boost/cstdint.hpp> //for uint16_t
+#include <boost/cstdint.hpp>  //for uint16_t
 
 #include <iomanip>
 #include <sstream>
- 
+
 /*!
  * \author Greg Heath
  * \date Feb 2007
@@ -17,27 +17,25 @@
 */
 
 template <int NAddressBits, int NDataBits>
-class L1GctLut
-{
+class L1GctLut {
 public:
   static const uint16_t MAX_ADDRESS_BITMASK;
   static const uint16_t MAX_DATA_BITMASK;
-  
+
   virtual ~L1GctLut();
 
   /// Overload << operator
-  friend std::ostream& operator << (std::ostream& os, const L1GctLut<NAddressBits, NDataBits>& lut)
-  {
+  friend std::ostream& operator<<(std::ostream& os, const L1GctLut<NAddressBits, NDataBits>& lut) {
     //----------------------------------------------------------------------------------------
     // Define the code here for the friend template function to get around
     // compiler/linker problems when instantiating the template class.
     // See http://www.parashift.com/c++-faq-lite/templates.html#faq-35.16
-    static const int maxAddress=L1GctLut<NAddressBits, NDataBits>::MAX_ADDRESS_BITMASK;
-    static const int width=L1GctLut<NAddressBits, NDataBits>::printWidth;
+    static const int maxAddress = L1GctLut<NAddressBits, NDataBits>::MAX_ADDRESS_BITMASK;
+    static const int width = L1GctLut<NAddressBits, NDataBits>::printWidth;
 
     os << lut.printHeader();
 
-    for (int a=0; a<=maxAddress; a += width) {
+    for (int a = 0; a <= maxAddress; a += width) {
       os << lut.printLine(a);
     }
     return os;
@@ -46,18 +44,22 @@ public:
   }
 
   /// Access the look-up table contents for a given Address
-  uint16_t lutValue (const uint16_t lutAddress) const;
+  uint16_t lutValue(const uint16_t lutAddress) const;
 
   /// Access the look-up table contents for a given Address
-  uint16_t operator[] (const uint16_t lutAddress) const { return lutValue(lutAddress); } 
+  uint16_t operator[](const uint16_t lutAddress) const { return lutValue(lutAddress); }
 
   /// Equality check between look-up tables
   template <int KAddressBits, int KDataBits>
-  int operator==(const L1GctLut<KAddressBits, KDataBits>& rhsLut) const { return equalityCheck(rhsLut); }
+  int operator==(const L1GctLut<KAddressBits, KDataBits>& rhsLut) const {
+    return equalityCheck(rhsLut);
+  }
 
   /// Inequality check between look-up tables
   template <int KAddressBits, int KDataBits>
-  int operator!=(const L1GctLut<KAddressBits, KDataBits>& rhsLut) const { return !equalityCheck(rhsLut); }
+  int operator!=(const L1GctLut<KAddressBits, KDataBits>& rhsLut) const {
+    return !equalityCheck(rhsLut);
+  }
 
   bool setupOk() { return m_setupOk; }
 
@@ -66,10 +68,9 @@ public:
   void setTerse() { m_verbose = false; }
 
 protected:
-  
   L1GctLut();
 
-  virtual uint16_t value (const uint16_t lutAddress) const=0;
+  virtual uint16_t value(const uint16_t lutAddress) const = 0;
 
   template <int KAddressBits, int KDataBits>
   bool equalityCheck(const L1GctLut<KAddressBits, KDataBits>& c) const;
@@ -78,12 +79,10 @@ protected:
   bool m_verbose;
 
 private:
-
   // For use by the friend function to print the lut contents
   static const int printWidth;
   std::string printHeader() const;
   std::string printLine(const int add) const;
-
 };
 
 template <int NAddressBits, int NDataBits>
@@ -101,22 +100,24 @@ template <int NAddressBits, int NDataBits>
 L1GctLut<NAddressBits, NDataBits>::~L1GctLut() {}
 
 template <int NAddressBits, int NDataBits>
-uint16_t L1GctLut<NAddressBits, NDataBits>::lutValue(const uint16_t lutAddress) const
-{
-  if (!m_setupOk) return (uint16_t) 0;
-  uint16_t address=(lutAddress & MAX_ADDRESS_BITMASK);
-  uint16_t data=(value(address) & MAX_DATA_BITMASK);
+uint16_t L1GctLut<NAddressBits, NDataBits>::lutValue(const uint16_t lutAddress) const {
+  if (!m_setupOk)
+    return (uint16_t)0;
+  uint16_t address = (lutAddress & MAX_ADDRESS_BITMASK);
+  uint16_t data = (value(address) & MAX_DATA_BITMASK);
   return data;
 }
 
 template <int NAddressBits, int NDataBits>
 template <int KAddressBits, int KDataBits>
-bool L1GctLut<NAddressBits, NDataBits>::equalityCheck(const L1GctLut<KAddressBits, KDataBits>& rhsLut) const
-{
-  if (KAddressBits==NAddressBits && KDataBits==NDataBits) {
-    bool match=true;
-    for (uint16_t address=0; address<=MAX_ADDRESS_BITMASK; address++) {
-      if (this->lutValue(address)!=rhsLut.lutValue(address)) { match = false; break; }
+bool L1GctLut<NAddressBits, NDataBits>::equalityCheck(const L1GctLut<KAddressBits, KDataBits>& rhsLut) const {
+  if (KAddressBits == NAddressBits && KDataBits == NDataBits) {
+    bool match = true;
+    for (uint16_t address = 0; address <= MAX_ADDRESS_BITMASK; address++) {
+      if (this->lutValue(address) != rhsLut.lutValue(address)) {
+        match = false;
+        break;
+      }
     }
     return match;
   } else {
@@ -125,17 +126,16 @@ bool L1GctLut<NAddressBits, NDataBits>::equalityCheck(const L1GctLut<KAddressBit
 }
 
 template <int NAddressBits, int NDataBits>
-std::string L1GctLut<NAddressBits, NDataBits>::printHeader() const
-{
+std::string L1GctLut<NAddressBits, NDataBits>::printHeader() const {
   std::stringstream ss;
-  ss << std::hex << std::showbase; 
+  ss << std::hex << std::showbase;
   ss << std::setw(8) << "|";
-  for (int a=0; ((a<printWidth) && (a<=MAX_ADDRESS_BITMASK)); ++a) {
+  for (int a = 0; ((a < printWidth) && (a <= MAX_ADDRESS_BITMASK)); ++a) {
     ss << std::setw(7) << a;
   }
   ss << std::endl;
   ss << std::setfill('-') << std::setw(8) << "+";
-  for (int a=0; ((a<printWidth) && (a<=MAX_ADDRESS_BITMASK)); ++a) {
+  for (int a = 0; ((a < printWidth) && (a <= MAX_ADDRESS_BITMASK)); ++a) {
     ss << std::setw(7) << "-";
   }
   ss << std::endl;
@@ -144,13 +144,12 @@ std::string L1GctLut<NAddressBits, NDataBits>::printHeader() const
 }
 
 template <int NAddressBits, int NDataBits>
-std::string L1GctLut<NAddressBits, NDataBits>::printLine(const int add) const
-{
+std::string L1GctLut<NAddressBits, NDataBits>::printLine(const int add) const {
   std::stringstream ss;
-  ss << std::hex << std::showbase; 
-  int a=add;
+  ss << std::hex << std::showbase;
+  int a = add;
   ss << std::setw(7) << a << "|";
-  for (int c=0; ((c<printWidth) && (a<=MAX_ADDRESS_BITMASK)); ++c) {
+  for (int c = 0; ((c < printWidth) && (a <= MAX_ADDRESS_BITMASK)); ++c) {
     uint16_t address = static_cast<uint16_t>(a++);
     ss << std::setw(7) << lutValue(address);
   }

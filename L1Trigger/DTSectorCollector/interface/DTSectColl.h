@@ -9,8 +9,8 @@
  *    \author D. Bonacorsi, S. Marcellini
  */
 //--------------------------------------------------
-#ifndef DT_SECT_COLL_H   
-#define DT_SECT_COLL_H   
+#ifndef DT_SECT_COLL_H
+#define DT_SECT_COLL_H
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -50,42 +50,40 @@ class DTSCTrigUnit;
 
 typedef std::vector<DTSectCollPhSegm> DTSectCollPhVector;
 typedef std::vector<DTSectCollThSegm> DTSectCollThVector;
-typedef DTCache< DTSectCollPhSegm, DTSectCollPhVector > DTSCPhCache;
-typedef DTCache< DTSectCollThSegm, DTSectCollThVector > DTSCThCache;
+typedef DTCache<DTSectCollPhSegm, DTSectCollPhVector> DTSCPhCache;
+typedef DTCache<DTSectCollThSegm, DTSectCollThVector> DTSCThCache;
 
-class DTSectColl : public DTSCPhCache, public DTSCThCache  {
-
- public:
-
+class DTSectColl : public DTSCPhCache, public DTSCThCache {
+public:
   //!  Constructor
   //DTSectColl(edm::ParameterSet& sc_pset);
   DTSectColl(DTSectCollId id);
-  
-  //!  Destructor 
+
+  //!  Destructor
   ~DTSectColl() override;
 
   /// Set configuration
-  void setConfig(const DTConfigManager *conf);
+  void setConfig(const DTConfigManager* conf);
 
   //! Return TSPhi
-  inline DTTSPhi* getTSPhi(int istat) const { return _tsphi[istat-1]; }
-  
+  inline DTTSPhi* getTSPhi(int istat) const { return _tsphi[istat - 1]; }
+
   //! Return TSTheta
-  inline DTTSTheta* getTSTheta(int istat) const { return _tstheta[istat-1]; }
+  inline DTTSTheta* getTSTheta(int istat) const { return _tstheta[istat - 1]; }
 
   //!Configuration
   inline const DTConfigSectColl* config() const { return _config; }
 
   // non-const methods
 
-/*   //! Add a TSM candidate to the Sect Coll, ifs is first/second track flag  */
-/*   void addCandPh(DTSectCollPhCand* cand);  */
+  /*   //! Add a TSM candidate to the Sect Coll, ifs is first/second track flag  */
+  /*   void addCandPh(DTSectCollPhCand* cand);  */
 
-/*   //! Add a TS Theta candidate to the Sect Coll, ifs is first/second track flag  */
-/*   void addCandTh(DTSectCollThCand* cand); */
+  /*   //! Add a TS Theta candidate to the Sect Coll, ifs is first/second track flag  */
+  /*   void addCandTh(DTSectCollThCand* cand); */
 
-/*    //! Set a flag to skip sort2 */
-/*    void ignoreSecondTrack() { _ignoreSecondTrack=1; } */
+  /*    //! Set a flag to skip sort2 */
+  /*    void ignoreSecondTrack() { _ignoreSecondTrack=1; } */
 
   //! Local Clear
   void localClear();
@@ -95,7 +93,7 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache  {
 
   //! Add a TSM candidate (step is TSM step not SC one)
   void addTSPhi(int step, const DTChambPhSegm* tsmsegm, int ifs, int istat);
-  
+
   //! Add a TS Theta candidate (step is TSTheta step not sc one)
   void addTSTheta(int step, const DTChambThSegm* tsmsegm, int istat);
 
@@ -117,21 +115,21 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache  {
   // const methods
 
   //! Return the requested Phi track
-  DTSectCollPhCand* getTrackPh(int n) const ; 
-  
+  DTSectCollPhCand* getTrackPh(int n) const;
+
   //! Return the requested Theta track
-  DTSectCollThCand* getTrackTh(int n) const ;
+  DTSectCollThCand* getTrackTh(int n) const;
 
   //! Return the number of Phi input tracks (first/second)
-  unsigned nCandPh(int ifs) const;  
-  
+  unsigned nCandPh(int ifs) const;
+
   //! Return the number of Theta input tracks
   unsigned nCandTh() const;
 
-  //! Return number of DTSectCollPhi segments (SC step) 
+  //! Return number of DTSectCollPhi segments (SC step)
   int nSegmPh(int step);
-  
-  //! Return number of DTSectCollTheta segments (SC step)  
+
+  //! Return number of DTSectCollTheta segments (SC step)
   int nSegmTh(int step);
 
   //! Return the number of output Phi tracks
@@ -147,23 +145,23 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache  {
   const DTSectCollThSegm* SectCollThSegment(int step);
 
   //! Return iterator to the beghin of Phi cache
-  std::vector<DTSectCollPhSegm>::const_iterator beginPh() const { return  DTSCPhCache::_cache.begin(); }
+  std::vector<DTSectCollPhSegm>::const_iterator beginPh() const { return DTSCPhCache::_cache.begin(); }
 
-  //! Return Phi cache size 
-  int sizePh() const { return DTSCPhCache::_cache.size(); } 
+  //! Return Phi cache size
+  int sizePh() const { return DTSCPhCache::_cache.size(); }
 
   //! Return iterator to the end of Phi cache
-  std::vector<DTSectCollPhSegm>::const_iterator endPh() const { return DTSCPhCache::_cache.end(); } 
-  
+  std::vector<DTSectCollPhSegm>::const_iterator endPh() const { return DTSCPhCache::_cache.end(); }
+
   //! Return iterator to the begni of Theta cache
   std::vector<DTSectCollThSegm>::const_iterator beginTh() const { return DTSCThCache::_cache.begin(); }
-  
-  //! Return Theta cache size 
+
+  //! Return Theta cache size
   int sizeTh() const { return DTSCThCache::_cache.size(); }
 
   //! Return iterator to the end of Theta cache
   std::vector<DTSectCollThSegm>::const_iterator endTh() const { return DTSCThCache::_cache.end(); }
-  
+
   //! Local position in chamber of a trigger-data object
   //  LocalPoint LocalPosition(const DTTrigData*) const;
 
@@ -171,16 +169,21 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache  {
   //  LocalVector LocalDirection(const DTTrigData*) const;
 
   //! Clear both (Phi and Theta) caches
-  void clearCache() { DTSCPhCache::clearCache();  DTSCThCache::clearCache(); }
-  
+  void clearCache() {
+    DTSCPhCache::clearCache();
+    DTSCThCache::clearCache();
+  }
+
   //! Load Trigger Units triggers and run Sector Collector algorithm
-  void reconstruct() override { loadSectColl(); runSectColl(); }
+  void reconstruct() override {
+    loadSectColl();
+    runSectColl();
+  }
 
   //! Return the Sector Collector Id
   DTSectCollId SectCollId() { return _sectcollid; }
- 
- private:
 
+private:
   // Configuration
   const DTConfigSectColl* _config;
 
@@ -190,20 +193,19 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache  {
   DTTSPhi* _tsphi[DTConfigSectColl::NTSPSC];
   DTTSTheta* _tstheta[DTConfigSectColl::NTSTSC];
 
-  // SM: new  sector collector 
-  DTSC* _tsc[DTConfigSectColl::NSTEPL-DTConfigSectColl::NSTEPF+1][DTConfigSectColl::NDTSC];
+  // SM: new  sector collector
+  DTSC* _tsc[DTConfigSectColl::NSTEPL - DTConfigSectColl::NSTEPF + 1][DTConfigSectColl::NDTSC];
 
   // input data Phi
-  std::vector<DTSectCollPhCand*> _incand_ph[2]; 
+  std::vector<DTSectCollPhCand*> _incand_ph[2];
 
   // output data Phi
-  std::vector<DTSectCollPhCand*> _outcand_ph; 
-  
+  std::vector<DTSectCollPhCand*> _outcand_ph;
+
   // input data Theta
-  std::vector<DTSectCollThCand*> _incand_th;  
+  std::vector<DTSectCollThCand*> _incand_th;
 
   // output data Theta
-  std::vector<DTSectCollThCand*> _outcand_th; 
-
+  std::vector<DTSectCollThCand*> _outcand_th;
 };
 #endif
