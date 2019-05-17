@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoTauTag.RecoTau.tauDecayModes_cfi import *
+
 # module to produce tau-jet energy correction factors
 patTauJetCorrFactors = cms.EDProducer("TauJetCorrFactorsProducer",
     # input collection of jets
@@ -12,19 +14,19 @@ patTauJetCorrFactors = cms.EDProducer("TauJetCorrFactorsProducer",
     parameters = cms.VPSet(
         cms.PSet(
             payload    = cms.string('AK5tauHPSlooseCombDBcorrOneProng0Pi0'),
-            decayModes = cms.vstring('%i' % 0)
+            decayModes = cms.vstring('%i' % tauToOneProng0PiZero)
         ),
         cms.PSet(
             payload    = cms.string('AK5tauHPSlooseCombDBcorrOneProng1Pi0'),
-            decayModes = cms.vstring('%i' % 1)
+            decayModes = cms.vstring('%i' % tauToOneProng1PiZero)
         ),
         cms.PSet(
             payload    = cms.string('AK5tauHPSlooseCombDBcorrOneProng2Pi0'),
-            decayModes = cms.vstring('%i' % 2)
+            decayModes = cms.vstring('%i' % tauToOneProng2PiZero)
         ),
         cms.PSet(
             payload    = cms.string('AK5tauHPSlooseCombDBcorrThreeProng0Pi0'),
-            decayModes = cms.vstring('%i' % 10)
+            decayModes = cms.vstring('%i' % tauToThreeProng0PiZero)
         ),
         cms.PSet(
             payload    = cms.string('AK5tauHPSlooseCombDBcorr'),
