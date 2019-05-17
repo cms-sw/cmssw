@@ -17,20 +17,18 @@
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentErrorExtendedRcd.h"
 
 class HcalAlignmentEP : public edm::ESProducer {
-
 public:
-
   using ReturnAli = std::unique_ptr<Alignments>;
 
-  typedef AlignTransform::Translation Trl ;
-  typedef AlignTransform::Rotation    Rot ;
+  typedef AlignTransform::Translation Trl;
+  typedef AlignTransform::Rotation Rot;
 
   HcalAlignmentEP(const edm::ParameterSet&);
   ~HcalAlignmentEP() override;
 
-//-------------------------------------------------------------------
- 
-  ReturnAli    produceHcalAli( const HcalAlignmentRcd& iRecord );
+  //-------------------------------------------------------------------
+
+  ReturnAli produceHcalAli(const HcalAlignmentRcd& iRecord);
 
 private:
   edm::ESGetToken<Alignments, HBAlignmentRcd> hbToken_;

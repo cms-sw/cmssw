@@ -29,29 +29,26 @@
 
 class HcalTopology;
 
-HcalHardcodeGeometryEP::HcalHardcodeGeometryEP( const edm::ParameterSet& ps ) {
+HcalHardcodeGeometryEP::HcalHardcodeGeometryEP(const edm::ParameterSet& ps) {
   useOld_ = ps.getParameter<bool>("UseOldLoader");
   //the following line is needed to tell the framework what
   // data is being produced
-  auto cc = setWhatProduced( this,
-                             &HcalHardcodeGeometryEP::produceAligned,
-                             edm::es::Label(HcalGeometry::producerTag()));
-  if(not useOld_) {
+  auto cc = setWhatProduced(this, &HcalHardcodeGeometryEP::produceAligned, edm::es::Label(HcalGeometry::producerTag()));
+  if (not useOld_) {
     consToken_ = cc.consumesFrom<HcalDDDRecConstants, HcalRecNumberingRecord>(edm::ESInputTag{});
   }
   topologyToken_ = cc.consumesFrom<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag{});
 }
 
-HcalHardcodeGeometryEP::ReturnType
-HcalHardcodeGeometryEP::produceAligned( const HcalGeometryRecord& iRecord ) {
-  edm::LogInfo("HCAL") << "Using default HCAL topology" ;
+HcalHardcodeGeometryEP::ReturnType HcalHardcodeGeometryEP::produceAligned(const HcalGeometryRecord& iRecord) {
+  edm::LogInfo("HCAL") << "Using default HCAL topology";
   const auto& topology = iRecord.get(topologyToken_);
   if (useOld_) {
     HcalHardcodeGeometryLoader loader;
-    return ReturnType (loader.load (topology));
+    return ReturnType(loader.load(topology));
   } else {
     const auto& cons = iRecord.get(consToken_);
     HcalFlexiHardcodeGeometryLoader loader;
-    return ReturnType (loader.load (topology, cons));
+    return ReturnType(loader.load(topology, cons));
   }
 }
