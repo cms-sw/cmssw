@@ -47,7 +47,7 @@ vfe_proc = cms.PSet( ProcessorName = cms.string('HGCalVFEProcessorSums'),
                      # cell thresholds before TC sums
                      # Cut at 3sigma of the noise
                      thresholdsSilicon = cms.vdouble([3.*x for x in digiparam.HGCAL_noise_fC.values.value()]),
-                     thresholdScintillator = cms.double(3.*digiparam.HGCAL_noise_MIP.value.value()),
+                     thresholdScintillator = cms.double(3.*digiparam.HGCAL_noise_heback.noise_MIP.value()),
                      # Floating point compression
                      exponentBits = cms.uint32(4),
                      mantissaBits = cms.uint32(4),
