@@ -25,8 +25,7 @@
 
 class L1GctJetCand;
 
-class L1GctJetLeafCard : public L1GctProcessor
-{
+class L1GctJetLeafCard : public L1GctProcessor {
 public:
   //Type declaration
   enum jetFinderType { tdrJetFinder, hardwareJetFinder, nullJetFinder };
@@ -38,8 +37,8 @@ public:
   typedef L1GctUnsignedInt<L1GctInternEtSum::kTotEtOrHtNBits> etTotalType;
   typedef L1GctUnsignedInt<L1GctInternEtSum::kTotEtOrHtNBits> etHadType;
 
-  typedef L1GctTwosComplement<  L1GctInternEtSum::kMissExOrEyNBits > etComponentType;
-  typedef L1GctTwosComplement< L1GctInternHtMiss::kMissHxOrHyNBits > htComponentType;
+  typedef L1GctTwosComplement<L1GctInternEtSum::kMissExOrEyNBits> etComponentType;
+  typedef L1GctTwosComplement<L1GctInternHtMiss::kMissHxOrHyNBits> htComponentType;
 
   typedef L1GctJetFinderBase::hfTowerSumsType hfTowerSumsType;
 
@@ -50,7 +49,7 @@ public:
 
   //Construtors/destructor
   L1GctJetLeafCard(int id, int iphi, jetFinderType jfType = tdrJetFinder);
-                   
+
   ~L1GctJetLeafCard() override;
 
   /// set pointers to neighbours - needed to complete the setup
@@ -60,14 +59,14 @@ public:
   bool setupOk() const;
 
   /// Overload << operator
-  friend std::ostream& operator << (std::ostream& os, const L1GctJetLeafCard& card);
+  friend std::ostream& operator<<(std::ostream& os, const L1GctJetLeafCard& card);
 
   /// clear internal buffers
   void reset();
 
   /// set the input buffers
   void fetchInput() override;
- 
+
   /// process the data and set outputs
   void process() override;
 
@@ -86,46 +85,45 @@ public:
   std::vector<L1GctJetCand> getOutputJetsA() const;  ///< Output jetfinder A jets (lowest jetFinder in phi)
   std::vector<L1GctJetCand> getOutputJetsB() const;  ///< Output jetfinder B jets (middle jetFinder in phi)
   std::vector<L1GctJetCand> getOutputJetsC() const;  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
-    
+
   /// get the Ex output
   etComponentType getOutputEx() const { return m_exSum; }
-   
+
   /// get the Ey output
   etComponentType getOutputEy() const { return m_eySum; }
-    
+
   /// get the output Ht components
   etComponentType getOutputHx() const { return m_hxSum; }
   etComponentType getOutputHy() const { return m_hySum; }
-    
+
   /// get the Et output
   etTotalType getOutputEt() const { return m_etSum; }
-  etHadType   getOutputHt() const { return m_htSum; }
+  etHadType getOutputHt() const { return m_htSum; }
 
   hfTowerSumsType getOutputHfSums() const { return m_hfSums; }
-   
+
   /// Bunch crossing history acces methods
   /// get the Ex output history
-  std::vector< etComponentType > getAllOutputEx() const { return m_exSumPipe.contents; }
-   
+  std::vector<etComponentType> getAllOutputEx() const { return m_exSumPipe.contents; }
+
   /// get the Ey output history
-  std::vector< etComponentType > getAllOutputEy() const { return m_eySumPipe.contents; }
+  std::vector<etComponentType> getAllOutputEy() const { return m_eySumPipe.contents; }
 
   /// get the output Ht components history
-  std::vector< htComponentType > getAllOutputHx() const { return m_hxSumPipe.contents; }
-  std::vector< htComponentType > getAllOutputHy() const { return m_hySumPipe.contents; }
-    
+  std::vector<htComponentType> getAllOutputHx() const { return m_hxSumPipe.contents; }
+  std::vector<htComponentType> getAllOutputHy() const { return m_hySumPipe.contents; }
+
   /// get the Et output history
-  std::vector< etTotalType > getAllOutputEt() const { return m_etSumPipe.contents; }
-  std::vector< etHadType >   getAllOutputHt() const { return m_htSumPipe.contents; }
+  std::vector<etTotalType> getAllOutputEt() const { return m_etSumPipe.contents; }
+  std::vector<etHadType> getAllOutputHt() const { return m_htSumPipe.contents; }
 
-  std::vector< hfTowerSumsType > getAllOutputHfSums() const { return m_hfSumsPipe.contents; }
-   
+  std::vector<hfTowerSumsType> getAllOutputHfSums() const { return m_hfSumsPipe.contents; }
+
   /// get the Et sums in internal component format
-  std::vector< L1GctInternEtSum  > getInternalEtSums() const;
-  std::vector< L1GctInternHtMiss > getInternalHtMiss() const;
+  std::vector<L1GctInternEtSum> getInternalEtSums() const;
+  std::vector<L1GctInternHtMiss> getInternalHtMiss() const;
 
- protected:
-
+protected:
   /// Separate reset methods for the processor itself and any data stored in pipelines
   void resetProcessor() override;
   void resetPipelines() override;
@@ -133,8 +131,7 @@ public:
   /// Initialise inputs with null objects for the correct bunch crossing if required
   void setupObjects() override {}
 
- private:
-
+private:
   // Leaf card ID
   int m_id;
 
@@ -145,7 +142,7 @@ public:
   L1GctJetFinderBase* m_jetFinderA;  ///< lowest jetFinder in phi
   L1GctJetFinderBase* m_jetFinderB;  ///< middle jetFinder in phi
   L1GctJetFinderBase* m_jetFinderC;  ///< highest jetFinder in phi
-  
+
   // internal data (other than jets)
 
   int phiPosition;
@@ -155,7 +152,7 @@ public:
   htComponentType m_hxSum;
   htComponentType m_hySum;
   etTotalType m_etSum;
-  etHadType   m_htSum;
+  etHadType m_htSum;
 
   hfTowerSumsType m_hfSums;
 
@@ -164,14 +161,13 @@ public:
   Pipeline<etComponentType> m_eySumPipe;
   Pipeline<htComponentType> m_hxSumPipe;
   Pipeline<htComponentType> m_hySumPipe;
-  Pipeline<etTotalType>     m_etSumPipe;
-  Pipeline<etHadType>       m_htSumPipe;
+  Pipeline<etTotalType> m_etSumPipe;
+  Pipeline<etHadType> m_htSumPipe;
   Pipeline<hfTowerSumsType> m_hfSumsPipe;
 
   bool m_ctorInputOk;
-
 };
 
-std::ostream& operator << (std::ostream& os, const L1GctJetLeafCard& card);
+std::ostream& operator<<(std::ostream& os, const L1GctJetLeafCard& card);
 
 #endif /*L1GCTJETLEAFCARD_H_*/

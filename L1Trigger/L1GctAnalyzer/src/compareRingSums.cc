@@ -12,45 +12,40 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h" // Framework services
-#include "CommonTools/UtilAlgos/interface/TFileService.h" // Framework service for histograms
+#include "FWCore/ServiceRegistry/interface/Service.h"      // Framework services
+#include "CommonTools/UtilAlgos/interface/TFileService.h"  // Framework service for histograms
 
-compareRingSums::compareRingSums(const edm::Handle<L1GctHFRingEtSumsCollection> &data, const edm::Handle<L1GctHFRingEtSumsCollection> &emu, const GctErrorAnalyzerMBxInfo &mbxparams) :
-  data_(data),
-  emu_(emu),
-  mbxparams_(mbxparams)
-{
+compareRingSums::compareRingSums(const edm::Handle<L1GctHFRingEtSumsCollection> &data,
+                                 const edm::Handle<L1GctHFRingEtSumsCollection> &emu,
+                                 const GctErrorAnalyzerMBxInfo &mbxparams)
+    : data_(data), emu_(emu), mbxparams_(mbxparams) {}
 
-}
-
-compareRingSums::~compareRingSums() {
-
-}
+compareRingSums::~compareRingSums() {}
 
 bool compareRingSums::doCompare(TH1I *errorFlag_hist_) {
+  bool errorFlag = false;
 
-  bool errorFlag=false;
-  
-  for(unsigned int i=0; i < data_->size(); i++) {
+  for (unsigned int i = 0; i < data_->size(); i++) {
     //check that the GCT trig bx is being considered
-    if(data_->at(i).bx() != mbxparams_.GCTTrigBx) continue;
+    if (data_->at(i).bx() != mbxparams_.GCTTrigBx)
+      continue;
 
-    for(unsigned int j=0; j < emu_->size(); j++) {
+    for (unsigned int j = 0; j < emu_->size(); j++) {
       //now check that the Emu trig bx is being considered
-      if(emu_->at(j).bx() != mbxparams_.EmuTrigBx) continue;
-      
+      if (emu_->at(j).bx() != mbxparams_.EmuTrigBx)
+        continue;
+
       //now loop over each ring and make sure the energy sums match
-      for(unsigned int k=0; k < NUM_GCT_RINGS; k++) {
-	if(data_->at(i).etSum(k) == emu_->at(j).etSum(k)) {
-	  errorFlag_hist_->Fill(0); //i.e. the two match
-	} else {
-	  errorFlag_hist_->Fill(1);
-	  errorFlag=true;
-	}
+      for (unsigned int k = 0; k < NUM_GCT_RINGS; k++) {
+        if (data_->at(i).etSum(k) == emu_->at(j).etSum(k)) {
+          errorFlag_hist_->Fill(0);  //i.e. the two match
+        } else {
+          errorFlag_hist_->Fill(1);
+          errorFlag = true;
+        }
       }
     }
   }
-  
-  return errorFlag;
 
+  return errorFlag;
 }

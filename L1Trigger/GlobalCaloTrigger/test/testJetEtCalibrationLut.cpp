@@ -20,17 +20,14 @@
 #include <exception>
 #include <vector>
 
-
 typedef std::vector<L1GctJet::lutPtr> lutPtrVector;
 
 using namespace std;
 
-int main(int argc, char **argv)
-{
+int main(int argc, char** argv) {
   try {
-
     //create jet calibration lookup table
-    produceTrivialCalibrationLut* lutProducer=new produceTrivialCalibrationLut();
+    produceTrivialCalibrationLut* lutProducer = new produceTrivialCalibrationLut();
     lutProducer->setOrcaStyleCorrectionType();
 
     // Instance of the class
@@ -40,24 +37,19 @@ int main(int argc, char **argv)
 
     // print it out
     if (argc > 1) {
-      std::string opt=std::string(argv[1]);
+      std::string opt = std::string(argv[1]);
       if (opt == "print") {
-	for (lutPtrVector::const_iterator lut = lutVector.begin(); lut != lutVector.end(); lut++) {
-	  cout << "\n===Lookup table for eta=" << (*lut)->etaBin() << "===" << endl;
-	  cout << (**lut) << endl;
-	}
+        for (lutPtrVector::const_iterator lut = lutVector.begin(); lut != lutVector.end(); lut++) {
+          cout << "\n===Lookup table for eta=" << (*lut)->etaBin() << "===" << endl;
+          cout << (**lut) << endl;
+        }
       }
     }
+  } catch (cms::Exception& e) {
+    cerr << "CMS exception from " << e.what() << endl;
+  } catch (std::exception& e) {
+    cerr << "std exception from " << e.what() << endl;
+  } catch (...) {  // Catch anything unknown that goes wrong!
+    cerr << "yikes! something awful happened.... (unknown exception)" << endl;
   }
-  catch (cms::Exception& e)
-    {
-      cerr << "CMS exception from " << e.what() << endl;
-    }
-  catch (std::exception& e)
-    {
-      cerr << "std exception from " << e.what() << endl;
-    }
-  catch (...) { // Catch anything unknown that goes wrong! 
-    cerr << "yikes! something awful happened.... (unknown exception)" << endl; 
-  } 
 }

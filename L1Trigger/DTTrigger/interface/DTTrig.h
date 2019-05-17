@@ -9,14 +9,14 @@
  */
 //
 //--------------------------------------------------
-#ifndef DT_TRIG_H 
+#ifndef DT_TRIG_H
 #define DT_TRIG_H
 
 //---------------
 // C++ Headers --
 //---------------
-#include<map>
-#include<string>
+#include <map>
+#include <string>
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -50,208 +50,216 @@ class InputTag;
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
- 
+
 class DTTrig {
+public:
+  typedef std::map<DTChamberId, DTSCTrigUnit, std::less<DTChamberId> > TUcontainer;
+  typedef TUcontainer::iterator TU_iterator;
+  typedef TUcontainer::const_iterator TU_const_iterator;
+  typedef std::map<DTSectCollId, DTSectColl, std::less<DTSectCollId> > SCcontainer;
+  typedef SCcontainer::iterator SC_iterator;
+  typedef SCcontainer::const_iterator SC_const_iterator;
+  typedef std::pair<TU_iterator, TU_iterator> Range;
+  typedef std::pair<SC_iterator, SC_iterator> SCRange;
+  typedef std::map<DTChamberId, DTDigiCollection, std::less<DTChamberId> > DTDigiMap;
+  typedef DTDigiMap::iterator DTDigiMap_iterator;
+  typedef DTDigiMap::const_iterator DTDigiMap_const_iterator;
 
-  public:
+public:
+  //! Constructors
+  DTTrig(const edm::ParameterSet& params, edm::ConsumesCollector&& ix);
 
-    typedef std::map< DTChamberId,DTSCTrigUnit,std::less<DTChamberId> > TUcontainer;
-    typedef TUcontainer::iterator TU_iterator;
-    typedef TUcontainer::const_iterator TU_const_iterator;
-    typedef std::map< DTSectCollId,DTSectColl,std::less<DTSectCollId> > SCcontainer;
-    typedef SCcontainer::iterator SC_iterator;
-    typedef SCcontainer::const_iterator SC_const_iterator;
-    typedef std::pair<TU_iterator,TU_iterator> Range;
-    typedef std::pair<SC_iterator,SC_iterator> SCRange;
-    typedef std::map< DTChamberId,DTDigiCollection,std::less<DTChamberId> > DTDigiMap;
-    typedef DTDigiMap::iterator DTDigiMap_iterator;
-    typedef DTDigiMap::const_iterator DTDigiMap_const_iterator;
+  //! Create the trigger units and store them in the cache
+  void createTUs(const edm::EventSetup& iSetup);
 
-  public:
-  
-    //! Constructors
-    DTTrig(const edm::ParameterSet &params, edm::ConsumesCollector && ix);
+  //! update the eventsetup info
+  void updateES(const edm::EventSetup& iSetup);
 
-    //! Create the trigger units and store them in the cache
-    void createTUs(const edm::EventSetup& iSetup);
+  //! Run the whole trigger reconstruction chain
+  void triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-    //! update the eventsetup info
-    void updateES(const edm::EventSetup& iSetup);
+  //! Clear the trigger units cache
+  void clear();
 
-    //! Run the whole trigger reconstruction chain
-    void triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-      
-    //! Clear the trigger units cache
-    void clear();
+  //! Size of the trigger units store
+  int size() const { return _cache.size(); }
 
-    //! Size of the trigger units store
-    int size() const { return _cache.size(); }
+  //! Begin of the trigger units store
+  TU_iterator begin() { /*check();*/
+    return _cache.begin();
+  }
 
-    //! Begin of the trigger units store
-    TU_iterator begin() { /*check();*/ return _cache.begin(); }
+  //! End of the trigger units store
+  TU_iterator end() { /*check();*/
+    return _cache.end();
+  }
 
-    //! End of the trigger units store
-    TU_iterator end() { /*check();*/ return _cache.end(); }
+  //! Find a trigger unit in the map
+  TU_iterator find(DTChamberId id) { /*check();*/
+    return _cache.find(id);
+  }
 
-    //! Find a trigger unit in the map
-    TU_iterator find(DTChamberId id) { /*check();*/ return _cache.find(id); }
+  //! Begin of the trigger units store
+  Range cache() { /*check();*/
+    return Range(_cache.begin(), _cache.end());
+  }
 
-    //! Begin of the trigger units store
-    Range cache() { /*check();*/ return Range(_cache.begin(), _cache.end()); }
- 
-    // ------------ do the same for Sector Collector
-    
-    //! Size of the sector collector store
-    int size1() const { /*check();*/ return _cache1.size(); }
+  // ------------ do the same for Sector Collector
 
-    //! Begin of the sector collector store
-    SC_iterator begin1() { /*check();*/ return _cache1.begin(); }
+  //! Size of the sector collector store
+  int size1() const { /*check();*/
+    return _cache1.size();
+  }
 
-    //! End of the sectoor collector store
-    SC_iterator end1() { /*check();*/ return _cache1.end(); }
+  //! Begin of the sector collector store
+  SC_iterator begin1() { /*check();*/
+    return _cache1.begin();
+  }
 
-    //! Find a Sector Collector in the map
-    SC_iterator find1(DTSectCollId id) { /*check();*/ return _cache1.find(id); }
+  //! End of the sectoor collector store
+  SC_iterator end1() { /*check();*/
+    return _cache1.end();
+  }
 
-    //! Range of the sector collector store
-    SCRange cache1() { /*check();*/ return SCRange(_cache1.begin(), _cache1.end()); }
+  //! Find a Sector Collector in the map
+  SC_iterator find1(DTSectCollId id) { /*check();*/
+    return _cache1.find(id);
+  }
 
-    //! Return a trigger unit - Muon numbering
-    DTSCTrigUnit* trigUnit(DTChamberId sid);
+  //! Range of the sector collector store
+  SCRange cache1() { /*check();*/
+    return SCRange(_cache1.begin(), _cache1.end());
+  }
 
-    //! Return a trigger unit - Muon numbering, MTTF numbering
-    DTSCTrigUnit* trigUnit(int wheel, int stat, int sect);
+  //! Return a trigger unit - Muon numbering
+  DTSCTrigUnit* trigUnit(DTChamberId sid);
 
-    //! Return the first phi track segment in req. chamber/step
-    DTChambPhSegm* chPhiSegm1(DTChamberId sid, int step);
+  //! Return a trigger unit - Muon numbering, MTTF numbering
+  DTSCTrigUnit* trigUnit(int wheel, int stat, int sect);
 
-    //! Return the first phi track segment in req. chamber/step
-    DTChambPhSegm* chPhiSegm1(DTSCTrigUnit* unit, int step);
+  //! Return the first phi track segment in req. chamber/step
+  DTChambPhSegm* chPhiSegm1(DTChamberId sid, int step);
 
-    //! Return the first phi track segment in req. chamber/step, MTTF numbering
-    DTChambPhSegm* chPhiSegm1(int wheel, int stat, int sect, int step); 
+  //! Return the first phi track segment in req. chamber/step
+  DTChambPhSegm* chPhiSegm1(DTSCTrigUnit* unit, int step);
 
-    //! Return the second phi track segment in req. chamber/step
-    DTChambPhSegm* chPhiSegm2(DTChamberId sid, int step);
+  //! Return the first phi track segment in req. chamber/step, MTTF numbering
+  DTChambPhSegm* chPhiSegm1(int wheel, int stat, int sect, int step);
 
-    //! Return the second phi track segment in req. chamber/step
-    DTChambPhSegm* chPhiSegm2(DTSCTrigUnit* unit, int step);
+  //! Return the second phi track segment in req. chamber/step
+  DTChambPhSegm* chPhiSegm2(DTChamberId sid, int step);
 
-    //! Return the second phi track segment in req. chamber/step, MTTF numbering
-    DTChambPhSegm* chPhiSegm2(int wheel, int stat, int sect, int step);
+  //! Return the second phi track segment in req. chamber/step
+  DTChambPhSegm* chPhiSegm2(DTSCTrigUnit* unit, int step);
 
-    //! Return the theta candidates in req. chamber/step
-    DTChambThSegm* chThetaSegm(DTChamberId sid, int step);
+  //! Return the second phi track segment in req. chamber/step, MTTF numbering
+  DTChambPhSegm* chPhiSegm2(int wheel, int stat, int sect, int step);
 
-    //! Return the theta candidates in req. chamber/step
-    DTChambThSegm* chThetaSegm(DTSCTrigUnit* unit, int step);
+  //! Return the theta candidates in req. chamber/step
+  DTChambThSegm* chThetaSegm(DTChamberId sid, int step);
 
-    //! Return the theta candidates in req. chamber/step, MTTF numbering
-    DTChambThSegm* chThetaSegm(int wheel, int stat, int sect, int step);
+  //! Return the theta candidates in req. chamber/step
+  DTChambThSegm* chThetaSegm(DTSCTrigUnit* unit, int step);
 
-    // sector collector 
+  //! Return the theta candidates in req. chamber/step, MTTF numbering
+  DTChambThSegm* chThetaSegm(int wheel, int stat, int sect, int step);
 
-    //! Return the first phi track segment in req. chamber/step [SC step]
-    DTSectCollPhSegm* chSectCollPhSegm1(DTSectColl* unit, int step);
+  // sector collector
 
-    //! Return the first phi track segment in req. chamber/step, [MTTF numbering & SC step]
-    DTSectCollPhSegm* chSectCollPhSegm1(int wheel, int sect, int step); 
+  //! Return the first phi track segment in req. chamber/step [SC step]
+  DTSectCollPhSegm* chSectCollPhSegm1(DTSectColl* unit, int step);
 
-    //! Return the second phi track segment in req. chamber/step [SC step]
-    DTSectCollPhSegm* chSectCollPhSegm2(DTSectColl* unit, int step);
-  
-    //! Return the second phi track segment in req. chamber/step, [MTTF numbering & SC step]
-    DTSectCollPhSegm* chSectCollPhSegm2(int wheel, int sect, int step);
+  //! Return the first phi track segment in req. chamber/step, [MTTF numbering & SC step]
+  DTSectCollPhSegm* chSectCollPhSegm1(int wheel, int sect, int step);
 
-    //! Return the theta track segment in req. chamber/step [SC step]
-    DTSectCollThSegm* chSectCollThSegm(DTSectColl* unit, int step);
+  //! Return the second phi track segment in req. chamber/step [SC step]
+  DTSectCollPhSegm* chSectCollPhSegm2(DTSectColl* unit, int step);
 
-    //! Return the theta track segment in req. chamber/step, [MTTF numbering & SC step]
-    DTSectCollThSegm* chSectCollThSegm(int wheel, int sect, int step);
+  //! Return the second phi track segment in req. chamber/step, [MTTF numbering & SC step]
+  DTSectCollPhSegm* chSectCollPhSegm2(int wheel, int sect, int step);
 
-    // end sector collector
+  //! Return the theta track segment in req. chamber/step [SC step]
+  DTSectCollThSegm* chSectCollThSegm(DTSectColl* unit, int step);
 
-    //! Dump the geometry
-    void dumpGeom() const;
+  //! Return the theta track segment in req. chamber/step, [MTTF numbering & SC step]
+  DTSectCollThSegm* chSectCollThSegm(int wheel, int sect, int step);
 
-    //! Dump the LUT files
-    void dumpLuts(short int lut_btic, const DTConfigManager *conf) const;
+  // end sector collector
 
-    //! Get BX Offset
-    int getBXOffset() const { return _conf_manager->getBXOffset(); }
+  //! Dump the geometry
+  void dumpGeom() const;
 
-    // Methods to access intermediate results
+  //! Dump the LUT files
+  void dumpLuts(short int lut_btic, const DTConfigManager* conf) const;
 
-    //! Return a copy of all the BTI triggers
-    std::vector<DTBtiTrigData> BtiTrigs() const;
+  //! Get BX Offset
+  int getBXOffset() const { return _conf_manager->getBXOffset(); }
 
-    //! Return a copy of all the TRACO triggers
-    std::vector<DTTracoTrigData> TracoTrigs() const;
+  // Methods to access intermediate results
 
-    //! Return a copy of all the Trigger Server (Phi) triggers
-    std::vector<DTChambPhSegm> TSPhTrigs() const;
+  //! Return a copy of all the BTI triggers
+  std::vector<DTBtiTrigData> BtiTrigs() const;
 
-    //! Return a copy of all the Trigger Server (Theta) triggers
-    std::vector<DTChambThSegm> TSThTrigs() const;
+  //! Return a copy of all the TRACO triggers
+  std::vector<DTTracoTrigData> TracoTrigs() const;
 
-    //! Return a copy of all the Sector Collector (Phi) triggers
-    std::vector<DTSectCollPhSegm> SCPhTrigs() const;
+  //! Return a copy of all the Trigger Server (Phi) triggers
+  std::vector<DTChambPhSegm> TSPhTrigs() const;
 
-    //! Return a copy of all the Sector Collector (Theta) triggers
-    std::vector<DTSectCollThSegm> SCThTrigs() const;
+  //! Return a copy of all the Trigger Server (Theta) triggers
+  std::vector<DTChambThSegm> TSThTrigs() const;
 
-    //! Coordinate of a trigger-data object in chamber frame
-    LocalPoint localPosition(const DTTrigData* trig) const {
-      return constTrigUnit(trig->ChamberId())->localPosition(trig);
-    }
+  //! Return a copy of all the Sector Collector (Phi) triggers
+  std::vector<DTSectCollPhSegm> SCPhTrigs() const;
 
-    //! Coordinate of a trigger-data object  in CMS frame
-    GlobalPoint CMSPosition(const DTTrigData* trig) const {
-      return constTrigUnit(trig->ChamberId())->CMSPosition(trig);
-    }
+  //! Return a copy of all the Sector Collector (Theta) triggers
+  std::vector<DTSectCollThSegm> SCThTrigs() const;
 
-    //! Direction of a trigger-data object  in chamber frame
-    LocalVector localDirection(const DTTrigData* trig) const {
-      return constTrigUnit(trig->ChamberId())->localDirection(trig);
-    }
+  //! Coordinate of a trigger-data object in chamber frame
+  LocalPoint localPosition(const DTTrigData* trig) const {
+    return constTrigUnit(trig->ChamberId())->localPosition(trig);
+  }
 
-    //! Direction of a trigger-data object in CMS frame
-    GlobalVector CMSDirection(const DTTrigData* trig) const {
-      return constTrigUnit(trig->ChamberId())->CMSDirection(trig);
-    }
+  //! Coordinate of a trigger-data object  in CMS frame
+  GlobalPoint CMSPosition(const DTTrigData* trig) const { return constTrigUnit(trig->ChamberId())->CMSPosition(trig); }
 
-    //! Print a trigger-data object 
-    void print(DTTrigData* trig) const {
-      constTrigUnit(trig->ChamberId())->print(trig);
-    }
+  //! Direction of a trigger-data object  in chamber frame
+  LocalVector localDirection(const DTTrigData* trig) const {
+    return constTrigUnit(trig->ChamberId())->localDirection(trig);
+  }
 
-  private:
+  //! Direction of a trigger-data object in CMS frame
+  GlobalVector CMSDirection(const DTTrigData* trig) const {
+    return constTrigUnit(trig->ChamberId())->CMSDirection(trig);
+  }
 
-    // const version of the methods to access TUs and SCs are private to avoid misuse
-    //! Return a trigger unit - Muon numbering - const version
-    DTSCTrigUnit const* constTrigUnit(DTChamberId sid) const;
+  //! Print a trigger-data object
+  void print(DTTrigData* trig) const { constTrigUnit(trig->ChamberId())->print(trig); }
 
-    //! Return a trigger unit - Muon numbering, MTTF numbering - const version
-    DTSCTrigUnit const* constTrigUnit(int wheel, int stat, int sect) const;
+private:
+  // const version of the methods to access TUs and SCs are private to avoid misuse
+  //! Return a trigger unit - Muon numbering - const version
+  DTSCTrigUnit const* constTrigUnit(DTChamberId sid) const;
 
-    //! Return a SC unit - Muon numbering - const version
-    DTSectColl const* SCUnit(DTSectCollId scid) const;
+  //! Return a trigger unit - Muon numbering, MTTF numbering - const version
+  DTSCTrigUnit const* constTrigUnit(int wheel, int stat, int sect) const;
 
-    //! Return a SC Unit Muon Numbering, MTTF numbering - const version
-    DTSectColl const* SCUnit(int wheel, int sect) const;
- 
-  private:
+  //! Return a SC unit - Muon numbering - const version
+  DTSectColl const* SCUnit(DTSectCollId scid) const;
 
-    TUcontainer _cache;       		// Trigger units
-    SCcontainer _cache1;      		// Sector Collector units
-    const DTConfigManager *_conf_manager;    // Configuration Manager class pointer 
-    edm::InputTag _digitag;
-    bool _debug;                        // Debug flag
-    bool _inputexist;
+  //! Return a SC Unit Muon Numbering, MTTF numbering - const version
+  DTSectColl const* SCUnit(int wheel, int sect) const;
 
-    unsigned long long _configid;
-    unsigned long long _geomid;
+private:
+  TUcontainer _cache;                    // Trigger units
+  SCcontainer _cache1;                   // Sector Collector units
+  const DTConfigManager* _conf_manager;  // Configuration Manager class pointer
+  edm::InputTag _digitag;
+  bool _debug;  // Debug flag
+  bool _inputexist;
 
+  unsigned long long _configid;
+  unsigned long long _geomid;
 };
 
 #endif
