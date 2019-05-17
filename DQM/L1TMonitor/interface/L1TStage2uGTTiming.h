@@ -34,25 +34,23 @@
 // Class declaration
 //
 
-class L1TStage2uGTTiming: public DQMEDAnalyzer {
-
+class L1TStage2uGTTiming : public DQMEDAnalyzer {
 public:
-  L1TStage2uGTTiming(const edm::ParameterSet& ps); // constructor
-  ~L1TStage2uGTTiming() override; // destructor
+  L1TStage2uGTTiming(const edm::ParameterSet& ps);  // constructor
+  ~L1TStage2uGTTiming() override;                   // destructor
 
 protected:
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-   
   // Input parameters
-  edm::EDGetTokenT<GlobalAlgBlkBxCollection> l1tStage2uGtSource_; // input tag for L1 uGT DAQ readout record
+  edm::EDGetTokenT<GlobalAlgBlkBxCollection> l1tStage2uGtSource_;  // input tag for L1 uGT DAQ readout record
 
-  std::string monitorDir_; // histogram folder for L1 uGT plots
+  std::string monitorDir_;  // histogram folder for L1 uGT plots
 
-  bool verbose_; // verbosity switch
+  bool verbose_;  // verbosity switch
 
   // To get the algo bits corresponding to algo names
   std::shared_ptr<l1t::L1TGlobalUtil> gtUtil_;
@@ -68,12 +66,12 @@ private:
   const std::string algoNameIsoBx_;
 
   unsigned int useAlgoDecision_;
- 
-  std::vector<std::string> unprescaledAlgoShortList_;
-  std::vector<std::string> prescaledAlgoShortList_; 
 
-  std::vector<std::pair<std::string,int>> unprescaledAlgoBitName_;
-  std::vector<std::pair<std::string,int>> prescaledAlgoBitName_; 
+  std::vector<std::string> unprescaledAlgoShortList_;
+  std::vector<std::string> prescaledAlgoShortList_;
+
+  std::vector<std::pair<std::string, int>> unprescaledAlgoBitName_;
+  std::vector<std::pair<std::string, int>> prescaledAlgoBitName_;
 
   // Pre- Post- firing timing dedicated plots
   MonitorElement* first_collision_in_train_minus2_;
@@ -82,9 +80,9 @@ private:
   MonitorElement* last_collision_in_train_;
   MonitorElement* isolated_collision_;
 
-  MonitorElement* den_first_collision_in_train_minus2_; 
-  MonitorElement* den_first_collision_in_train_minus1_; 
-  MonitorElement* den_first_collision_in_train_; 
+  MonitorElement* den_first_collision_in_train_minus2_;
+  MonitorElement* den_first_collision_in_train_minus1_;
+  MonitorElement* den_first_collision_in_train_;
   MonitorElement* den_last_collision_in_train_;
   MonitorElement* den_isolated_collision_;
 

@@ -35,138 +35,157 @@ namespace ComparisonHelper {
   // But with both collections saved in std::pair
   // Is this necessary? Absolutely not... but it was fun to make!
   template <class InputIterator1, class InputIterator2, class OutputIterator, class Compare>
-    OutputIterator zip (InputIterator1 first1, InputIterator1 last1,
-                        InputIterator2 first2, InputIterator2 last2,
-                        OutputIterator result, Compare comp) {
+  OutputIterator zip(InputIterator1 first1,
+                     InputIterator1 last1,
+                     InputIterator2 first2,
+                     InputIterator2 last2,
+                     OutputIterator result,
+                     Compare comp) {
     typedef typename InputIterator1::value_type dummy1;
     typedef typename InputIterator2::value_type dummy2;
-    while ( first1 != last1 || first2 != last2 ) {
-      if ( first1 == last1 ) {
-        while ( first2 != last2 ) { *result = std::make_pair(dummy1{first2->id()}, *first2); ++first2; ++result; }
+    while (first1 != last1 || first2 != last2) {
+      if (first1 == last1) {
+        while (first2 != last2) {
+          *result = std::make_pair(dummy1{first2->id()}, *first2);
+          ++first2;
+          ++result;
+        }
         return result;
       }
-      if ( first2 == last2 ) {
-        while ( first1 != last1 ) { *result = std::make_pair(*first1, dummy2{first1->id()}); ++first1; ++result; }
+      if (first2 == last2) {
+        while (first1 != last1) {
+          *result = std::make_pair(*first1, dummy2{first1->id()});
+          ++first1;
+          ++result;
+        }
         return result;
       }
-      if (comp(*first1,*first2)) { *result = std::make_pair(*first1, dummy2{first1->id()}); ++first1; }
-      else if (comp(*first2,*first1)) { *result = std::make_pair(dummy1{first2->id()}, *first2); ++first2; }
-      else { *result = std::make_pair(*first1, *first2); ++first1; ++first2; }
+      if (comp(*first1, *first2)) {
+        *result = std::make_pair(*first1, dummy2{first1->id()});
+        ++first1;
+      } else if (comp(*first2, *first1)) {
+        *result = std::make_pair(dummy1{first2->id()}, *first2);
+        ++first2;
+      } else {
+        *result = std::make_pair(*first1, *first2);
+        ++first1;
+        ++first2;
+      }
       ++result;
     }
     return result;
   }
-}
+}  // namespace ComparisonHelper
 
 class L1TStage2CaloLayer1 : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
-  public:
-    L1TStage2CaloLayer1(const edm::ParameterSet& ps);
-    ~L1TStage2CaloLayer1() override;
-  
-  protected:
-    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-    void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-    void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-    void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  
-  private:
-    void updateMismatch(const edm::Event& e, int mismatchType);
-    // Input and config info 
-    edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceRecd_;
-    std::string ecalTPSourceRecdLabel_;
-    edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSourceRecd_;
-    std::string hcalTPSourceRecdLabel_;
-    edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceSent_;
-    std::string ecalTPSourceSentLabel_;
-    edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSourceSent_;
-    std::string hcalTPSourceSentLabel_;
-    edm::EDGetTokenT<FEDRawDataCollection> fedRawData_;
-    std::string histFolder_;
-    int tpFillThreshold_;
-    bool ignoreHFfbs_;
+public:
+  L1TStage2CaloLayer1(const edm::ParameterSet &ps);
+  ~L1TStage2CaloLayer1() override;
 
-    MonitorElement *ecalDiscrepancy_;
-    MonitorElement *ecalLinkError_;
-    MonitorElement *ecalOccupancy_;
-    MonitorElement *hcalDiscrepancy_;
-    MonitorElement *hcalLinkError_;
-    MonitorElement *hcalOccupancy_;
+protected:
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &, const edm::EventSetup &) override;
+  void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
+  void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
 
-    MonitorElement *ecalOccEtDiscrepancy_;
-    MonitorElement *ecalOccFgDiscrepancy_;
-    MonitorElement *ecalOccLinkMasked_;
-    MonitorElement *ecalOccRecdEtWgt_;
-    MonitorElement *ecalOccRecdFgVB_;
-    MonitorElement *ecalOccSentAndRecd_;
-    MonitorElement *ecalOccSentFgVB_;
-    MonitorElement *ecalOccSent_;
-    MonitorElement *ecalOccTowerMasked_;
-    MonitorElement *ecalTPRawEtCorrelation_;
-    MonitorElement *ecalTPRawEtDiffNoMatch_;
-    MonitorElement *ecalTPRawEtRecd_;
-    MonitorElement *ecalTPRawEtSentAndRecd_;
-    MonitorElement *ecalTPRawEtSent_;
+private:
+  void updateMismatch(const edm::Event &e, int mismatchType);
+  // Input and config info
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceRecd_;
+  std::string ecalTPSourceRecdLabel_;
+  edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSourceRecd_;
+  std::string hcalTPSourceRecdLabel_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceSent_;
+  std::string ecalTPSourceSentLabel_;
+  edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSourceSent_;
+  std::string hcalTPSourceSentLabel_;
+  edm::EDGetTokenT<FEDRawDataCollection> fedRawData_;
+  std::string histFolder_;
+  int tpFillThreshold_;
+  bool ignoreHFfbs_;
 
-    MonitorElement *ecalOccSentNotRecd_;
-    MonitorElement *ecalOccRecdNotSent_;
-    MonitorElement *ecalOccNoMatch_;
+  MonitorElement *ecalDiscrepancy_;
+  MonitorElement *ecalLinkError_;
+  MonitorElement *ecalOccupancy_;
+  MonitorElement *hcalDiscrepancy_;
+  MonitorElement *hcalLinkError_;
+  MonitorElement *hcalOccupancy_;
 
-    MonitorElement *hcalOccEtDiscrepancy_;
-    MonitorElement *hcalOccFbDiscrepancy_;
-    MonitorElement *hcalOccFb2Discrepancy_;
-    MonitorElement *hcalOccLinkMasked_;
-    MonitorElement *hcalOccRecdEtWgt_;
-    MonitorElement *hcalOccRecdFb_;
-    MonitorElement *hcalOccRecdFb2_;
-    MonitorElement *hcalOccSentAndRecd_;
-    MonitorElement *hcalOccSentFb_;
-    MonitorElement *hcalOccSentFb2_;
-    MonitorElement *hcalOccSent_;
-    MonitorElement *hcalOccTowerMasked_;
-    MonitorElement *hcalTPRawEtCorrelationHBHE_;
-    MonitorElement *hcalTPRawEtCorrelationHF_;
-    MonitorElement *hcalTPRawEtDiffNoMatch_;
-    MonitorElement *hcalTPRawEtRecd_;
-    MonitorElement *hcalTPRawEtSentAndRecd_;
-    MonitorElement *hcalTPRawEtSent_;
+  MonitorElement *ecalOccEtDiscrepancy_;
+  MonitorElement *ecalOccFgDiscrepancy_;
+  MonitorElement *ecalOccLinkMasked_;
+  MonitorElement *ecalOccRecdEtWgt_;
+  MonitorElement *ecalOccRecdFgVB_;
+  MonitorElement *ecalOccSentAndRecd_;
+  MonitorElement *ecalOccSentFgVB_;
+  MonitorElement *ecalOccSent_;
+  MonitorElement *ecalOccTowerMasked_;
+  MonitorElement *ecalTPRawEtCorrelation_;
+  MonitorElement *ecalTPRawEtDiffNoMatch_;
+  MonitorElement *ecalTPRawEtRecd_;
+  MonitorElement *ecalTPRawEtSentAndRecd_;
+  MonitorElement *ecalTPRawEtSent_;
 
-    MonitorElement *hcalOccSentNotRecd_;
-    MonitorElement *hcalOccRecdNotSent_;
-    MonitorElement *hcalOccNoMatch_;
+  MonitorElement *ecalOccSentNotRecd_;
+  MonitorElement *ecalOccRecdNotSent_;
+  MonitorElement *ecalOccNoMatch_;
 
-    MonitorElement *last20Mismatches_;
-    std::array<std::pair<std::string, int>, 20> last20MismatchArray_;
-    size_t lastMismatchIndex_{0};
+  MonitorElement *hcalOccEtDiscrepancy_;
+  MonitorElement *hcalOccFbDiscrepancy_;
+  MonitorElement *hcalOccFb2Discrepancy_;
+  MonitorElement *hcalOccLinkMasked_;
+  MonitorElement *hcalOccRecdEtWgt_;
+  MonitorElement *hcalOccRecdFb_;
+  MonitorElement *hcalOccRecdFb2_;
+  MonitorElement *hcalOccSentAndRecd_;
+  MonitorElement *hcalOccSentFb_;
+  MonitorElement *hcalOccSentFb2_;
+  MonitorElement *hcalOccSent_;
+  MonitorElement *hcalOccTowerMasked_;
+  MonitorElement *hcalTPRawEtCorrelationHBHE_;
+  MonitorElement *hcalTPRawEtCorrelationHF_;
+  MonitorElement *hcalTPRawEtDiffNoMatch_;
+  MonitorElement *hcalTPRawEtRecd_;
+  MonitorElement *hcalTPRawEtSentAndRecd_;
+  MonitorElement *hcalTPRawEtSent_;
 
-    MonitorElement *ecalLinkErrorByLumi_;
-    MonitorElement *ecalMismatchByLumi_;
-    MonitorElement *hcalLinkErrorByLumi_;
-    MonitorElement *hcalMismatchByLumi_;
+  MonitorElement *hcalOccSentNotRecd_;
+  MonitorElement *hcalOccRecdNotSent_;
+  MonitorElement *hcalOccNoMatch_;
 
-    MonitorElement *maxEvtLinkErrorsByLumiECAL_;
-    MonitorElement *maxEvtLinkErrorsByLumiHCAL_;
-    MonitorElement *maxEvtLinkErrorsByLumi_;
-    int maxEvtLinkErrorsECALCurrentLumi_{0};
-    int maxEvtLinkErrorsHCALCurrentLumi_{0};
+  MonitorElement *last20Mismatches_;
+  std::array<std::pair<std::string, int>, 20> last20MismatchArray_;
+  size_t lastMismatchIndex_{0};
 
-    MonitorElement *maxEvtMismatchByLumiECAL_;
-    MonitorElement *maxEvtMismatchByLumiHCAL_;
-    MonitorElement *maxEvtMismatchByLumi_;
-    int maxEvtMismatchECALCurrentLumi_{0};
-    int maxEvtMismatchHCALCurrentLumi_{0};
+  MonitorElement *ecalLinkErrorByLumi_;
+  MonitorElement *ecalMismatchByLumi_;
+  MonitorElement *hcalLinkErrorByLumi_;
+  MonitorElement *hcalMismatchByLumi_;
 
-    MonitorElement *ECALmismatchesPerBx_;
-    MonitorElement *HBHEmismatchesPerBx_;
-    MonitorElement *HFmismatchesPerBx_;
+  MonitorElement *maxEvtLinkErrorsByLumiECAL_;
+  MonitorElement *maxEvtLinkErrorsByLumiHCAL_;
+  MonitorElement *maxEvtLinkErrorsByLumi_;
+  int maxEvtLinkErrorsECALCurrentLumi_{0};
+  int maxEvtLinkErrorsHCALCurrentLumi_{0};
 
-    MonitorElement *bxidErrors_;
-    MonitorElement *l1idErrors_;
-    MonitorElement *orbitErrors_;
+  MonitorElement *maxEvtMismatchByLumiECAL_;
+  MonitorElement *maxEvtMismatchByLumiHCAL_;
+  MonitorElement *maxEvtMismatchByLumi_;
+  int maxEvtMismatchECALCurrentLumi_{0};
+  int maxEvtMismatchHCALCurrentLumi_{0};
 
-    // Prevent reallocation per event
-    std::vector<std::pair<EcalTriggerPrimitiveDigi, EcalTriggerPrimitiveDigi> > ecalTPSentRecd_;
-    std::vector<std::pair<HcalTriggerPrimitiveDigi, HcalTriggerPrimitiveDigi> > hcalTPSentRecd_;
+  MonitorElement *ECALmismatchesPerBx_;
+  MonitorElement *HBHEmismatchesPerBx_;
+  MonitorElement *HFmismatchesPerBx_;
+
+  MonitorElement *bxidErrors_;
+  MonitorElement *l1idErrors_;
+  MonitorElement *orbitErrors_;
+
+  // Prevent reallocation per event
+  std::vector<std::pair<EcalTriggerPrimitiveDigi, EcalTriggerPrimitiveDigi> > ecalTPSentRecd_;
+  std::vector<std::pair<HcalTriggerPrimitiveDigi, HcalTriggerPrimitiveDigi> > hcalTPSentRecd_;
 };
 
 #endif
