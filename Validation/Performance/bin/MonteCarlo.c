@@ -31,40 +31,27 @@
 
 static const int SEED = 113;
 
+double MonteCarlo_num_flops(int Num_samples) {
+  /* 3 flops in x^2+y^2 and 1 flop in random routine */
 
-    double MonteCarlo_num_flops(int Num_samples)
-    {
-        /* 3 flops in x^2+y^2 and 1 flop in random routine */
+  return ((double)Num_samples) * 4.0;
+}
 
-        return ((double) Num_samples)* 4.0;
+double MonteCarlo_integrate(int Num_samples) {
+  Random R = new_Random_seed(SEED);
 
-    }
+  int under_curve = 0;
+  int count;
 
-    
+  for (count = 0; count < Num_samples; count++) {
+    double x = Random_nextDouble(R);
+    double y = Random_nextDouble(R);
 
-    double MonteCarlo_integrate(int Num_samples)
-    {
+    if (x * x + y * y <= 1.0)
+      under_curve++;
+  }
 
+  Random_delete(R);
 
-        Random R = new_Random_seed(SEED);
-
-
-        int under_curve = 0;
-        int count;
-
-        for (count=0; count<Num_samples; count++)
-        {
-            double x= Random_nextDouble(R);
-            double y= Random_nextDouble(R);
-
-            if ( x*x + y*y <= 1.0)
-                 under_curve ++;
-            
-        }
-
-        Random_delete(R);
-
-        return ((double) under_curve / Num_samples) * 4.0;
-    }
-
-
+  return ((double)under_curve / Num_samples) * 4.0;
+}
