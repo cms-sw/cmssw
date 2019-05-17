@@ -20,7 +20,7 @@ class GlobalVariablesTableProducer : public edm::stream::EDProducer<> {
                 if (type == "int") vars_.push_back(new IntVar(vname, nanoaod::FlatTable::IntColumn, varPSet, consumesCollector()));
                 else if (type == "float") vars_.push_back(new FloatVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
                 else if (type == "double") vars_.push_back(new DoubleVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
-                else if (type == "bool") vars_.push_back(new BoolVar(vname, nanoaod::FlatTable::UInt8Column, varPSet, consumesCollector()));
+                else if (type == "bool") vars_.push_back(new BoolVar(vname, nanoaod::FlatTable::BoolColumn, varPSet, consumesCollector()));
                 else if (type == "candidatescalarsum") vars_.push_back(new CandidateScalarSumVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
                 else if (type == "candidatesize") vars_.push_back(new CandidateSizeVar(vname, nanoaod::FlatTable::IntColumn, varPSet, consumesCollector()));
 		else if (type == "candidatesummass") vars_.push_back(new CandidateSumMassVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
