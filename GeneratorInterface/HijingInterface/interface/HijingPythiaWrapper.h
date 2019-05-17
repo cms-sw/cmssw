@@ -4,43 +4,42 @@
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 #include "HepMC/PythiaWrapper6_4.h"
 
- extern "C"
- {
-    void   py1ent_(int& ip, int& kf, double& pe, double& the, double& phi);
-    double pymass_(int& );
-    void   pyexec_();
-    int    pycomp_(int& );
-    void   pyglfr_();
-    void   pyglrhad_();
-    void   pystlfr_();
-    void   pystrhad_();
-    void   pygive_(const char*, int );
-    void   pydecy_( int& ip ) ;
-    void   pyrobo_( int&, int&, double&, double&, double&, double&, double& );
-    
-    void   txgive_(const char*, int );
-    void   txgive_init_(void);
-    
-    // static bool call_pygive(const std::string &line)
-    // {
-    //    int numWarn = pydat1.mstu[26];    // # warnings
-    //    int numErr = pydat1.mstu[22];     // # errors
-    //   
-    //    pygive_(line.c_str(), line.length());
-    //   
-    //    return pydat1.mstu[26] == numWarn &&
-    //	  pydat1.mstu[22] == numErr;
-    // }
- }
- 
+extern "C" {
+void py1ent_(int& ip, int& kf, double& pe, double& the, double& phi);
+double pymass_(int&);
+void pyexec_();
+int pycomp_(int&);
+void pyglfr_();
+void pyglrhad_();
+void pystlfr_();
+void pystrhad_();
+void pygive_(const char*, int);
+void pydecy_(int& ip);
+void pyrobo_(int&, int&, double&, double&, double&, double&, double&);
+
+void txgive_(const char*, int);
+void txgive_init_(void);
+
+// static bool call_pygive(const std::string &line)
+// {
+//    int numWarn = pydat1.mstu[26];    // # warnings
+//    int numErr = pydat1.mstu[22];     // # errors
+//
+//    pygive_(line.c_str(), line.length());
+//
+//    return pydat1.mstu[26] == numWarn &&
+//	  pydat1.mstu[22] == numErr;
+// }
+}
+
 #define PYCOMP pycomp_
 extern "C" {
-   int PYCOMP(int& length);
+int PYCOMP(int& length);
 }
 
 #define LUGIVE pygive_
 extern "C" {
-   void LUGIVE(const char*,int length);
+void LUGIVE(const char*, int length);
 }
 
 /*
@@ -51,10 +50,9 @@ extern "C" {
 }
 */
 
-float ranff_(unsigned int *iseed)
-{
-   (*iseed) = (69069 * (*iseed) + 1) & 0xffffffffUL;
-   return (*iseed) / 4294967296.0;
+float ranff_(unsigned int* iseed) {
+  (*iseed) = (69069 * (*iseed) + 1) & 0xffffffffUL;
+  return (*iseed) / 4294967296.0;
 }
 
 /*
