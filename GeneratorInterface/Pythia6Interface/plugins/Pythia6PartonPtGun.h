@@ -9,28 +9,21 @@ namespace CLHEP {
 
 namespace gen {
 
-   class Pythia6PartonPtGun : public Pythia6PartonGun
-   {
-   
-      public:
-      
-      Pythia6PartonPtGun( const edm::ParameterSet& );
-      ~Pythia6PartonPtGun() override;
-      
-      protected:
+  class Pythia6PartonPtGun : public Pythia6PartonGun {
+  public:
+    Pythia6PartonPtGun(const edm::ParameterSet&);
+    ~Pythia6PartonPtGun() override;
 
-         void generateEvent(CLHEP::HepRandomEngine*) override ;
-      
-      private:
-      
-         double  fMinEta;
-	 double  fMaxEta;
-	 double  fMinPt ;
-         double  fMaxPt ;
-   
-   };
+  protected:
+    void generateEvent(CLHEP::HepRandomEngine*) override;
 
+  private:
+    double fMinEta;
+    double fMaxEta;
+    double fMinPt;
+    double fMaxPt;
+  };
 
-}
+}  // namespace gen
 
 #endif

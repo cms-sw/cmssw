@@ -17,17 +17,9 @@
 using namespace edm;
 using namespace gen;
 
-Pythia6ParticleGun::Pythia6ParticleGun( const ParameterSet& pset ) :
-   Pythia6Gun(pset)
-{
-   
-   ParameterSet pgun_params = 
-      pset.getParameter<ParameterSet>("PGunParameters"); 
-   fPartIDs    = pgun_params.getParameter< std::vector<int> >("ParticleID");
-
+Pythia6ParticleGun::Pythia6ParticleGun(const ParameterSet& pset) : Pythia6Gun(pset) {
+  ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters");
+  fPartIDs = pgun_params.getParameter<std::vector<int> >("ParticleID");
 }
 
-Pythia6ParticleGun::~Pythia6ParticleGun()
-{
-}
-
+Pythia6ParticleGun::~Pythia6ParticleGun() {}
