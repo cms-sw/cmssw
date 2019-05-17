@@ -37,19 +37,18 @@ namespace {
 
   const std::vector<HcalGenericDetId>& allCells (const HcalTopology& hcaltopology, bool killHE = false) {
     static std::vector<HcalGenericDetId> result;
-    int maxDepthHB=hcaltopology.maxDepthHB();
-    int maxDepthHE=hcaltopology.maxDepthHE();
+    int maxDepth=hcaltopology.maxDepth();
 
 #ifdef DebugLog
-    std::cout << std::endl << "HcalHardcodeCalibrations:   maxDepthHB, maxDepthHE = " 
-	      <<  maxDepthHB << ", " <<  maxDepthHE << std::endl;
+    std::cout << std::endl << "HcalHardcodeCalibrations:   maxDepth = " 
+	      <<  maxDepth << std::endl;
 #endif
 
     if (result.empty()) {
       for (int eta = -HcalDetId::kHcalEtaMask2; 
            eta <= (int)(HcalDetId::kHcalEtaMask2); eta++) {
         for (unsigned int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
-          for (int depth = 1; depth < maxDepthHB + maxDepthHE; depth++) {
+          for (int depth = 1; depth <= maxDepth; depth++) {
             for (int det = 1; det <= HcalForward; det++) {
 	      HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
 	      if( killHE && HcalEndcap == cell.subdetId() ) continue;

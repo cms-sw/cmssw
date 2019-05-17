@@ -49,7 +49,12 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons,
     if (i.layer.size() > 2 && firstHETripleDepthRing_ > i.ieta) 
       firstHETripleDepthRing_ = i.ieta;
   }
-  nEtaHE_     = (lastHERing_ - firstHERing_ + 1);
+  if (firstHERing_ > lastHERing_) {
+    firstHERing_ = lastHERing_ = firstHEDoublePhiRing_ = firstHEQuadPhiRing_ =
+      firstHETripleDepthRing_ = nEtaHE_ = 0;
+  } else {
+    nEtaHE_     = (lastHERing_ - firstHERing_ + 1);
+  }
   if (mode_==HcalTopologyMode::LHC) {
     topoVersion_=0; //DL
     HBSize_     = kHBSizePreLS1; // qie-per-fiber * fiber/rm * rm/rbx * rbx/barrel * barrel/hcal
@@ -85,20 +90,22 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons,
   dPhiTable   = hcons_->getPhiTable();
   phioff      = hcons_->getPhiOffs();
   std::pair<int,int>  ietaHF = hcons_->getEtaRange(2);
-  double eta  = etaBinsHE_[etaBinsHE_.size()-1].etaMax;
   etaHE2HF_   = firstHFRing_;
-  for (unsigned int i=1; i<etaTableHF.size(); ++i) {
-    if (eta < etaTableHF[i]) {
-      etaHE2HF_ = ietaHF.first + i - 1;
-      break;
-    }
-  }
-  eta         = etaTableHF[0];
   etaHF2HE_   = lastHERing_;
-  for (auto & i : etaBinsHE_) {
-    if (eta < i.etaMax) {
-      etaHF2HE_ = i.ieta;
-      break;
+  if (etaBinsHE_.size() > 1) {
+    double eta  = etaBinsHE_[etaBinsHE_.size()-1].etaMax;
+    for (unsigned int i=1; i<etaTableHF.size(); ++i) {
+      if (eta < etaTableHF[i]) {
+	etaHE2HF_ = ietaHF.first + i - 1;
+	break;
+      }
+    }
+    eta         = etaTableHF[0];
+    for (auto & i : etaBinsHE_) {
+      if (eta < i.etaMax) {
+	etaHF2HE_ = i.ieta;
+	break;
+      }
     }
   }
   const double fiveDegInRad = 5.0_deg;
@@ -207,7 +214,10 @@ bool HcalTopology::validDetId(HcalSubdetector subdet, int ieta, int iphi,
 bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
 
   if (id.iphi()<1 || id.iphi()>IPHI_MAX || id.ieta()==0)  return false;
-  if (id.depth() != 0)                              return false;
+  if (id.depth() != 0)                                    return false;
+  if (maxDepthHE_ == 0) {
+    if (id.ietaAbs() > lastHBRing_ && id.ietaAbs() < firstHFRing_) return false;
+  }
   if (id.version()==0) {
     if (id.ietaAbs() > 28) {
        if (triggerMode_ >= HcalTopologyMode::TriggerMode_2017) return false;
@@ -827,6 +837,12 @@ int HcalTopology::nPhiBins(HcalSubdetector bc, int etaRing) const {
   if (phiTableVal != 0.0)
     lastPhiBin = static_cast<int>((2._pi / phiTableVal) + 0.001);
   return lastPhiBin;
+}
+
+int HcalTopology::maxDepth() const {
+  int maxd1 = std::max(maxDepthHB_,maxDepthHE_);
+  int maxd2 = std::max(maxDepthHF_,minMaxDepth_);
+  return std::max(maxd1,maxd2);
 }
 
 int HcalTopology::maxDepth(HcalSubdetector bc) const {
