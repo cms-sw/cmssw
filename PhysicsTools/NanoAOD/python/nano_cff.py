@@ -226,7 +226,10 @@ def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet, addDeepDoubleX
         _btagDiscriminators += pfDeepBoostedJetTagsAll
     if addDeepDoubleX: 
         print("Updating process to run DeepDoubleX on datasets before 104X")
-        _btagDiscriminators += ['pfMassIndependentDeepDoubleBvLJetTags:probHbb', 'pfMassIndependentDeepDoubleCvLJetTags:probHcc', 'pfMassIndependentDeepDoubleCvBJetTags:probHcc']
+        _btagDiscriminators += ['pfDeepDoubleBvLJetTags:probHbb', \
+            'pfDeepDoubleCvLJetTags:probHcc', \
+            'pfDeepDoubleCvBJetTags:probHcc', \
+            'pfMassIndependentDeepDoubleBvLJetTags:probHbb', 'pfMassIndependentDeepDoubleCvLJetTags:probHcc', 'pfMassIndependentDeepDoubleCvBJetTags:probHcc']
     if len(_btagDiscriminators)==0: return process
     print("Will recalculate the following discriminators on AK8 jets: "+", ".join(_btagDiscriminators))
     updateJetCollection(
