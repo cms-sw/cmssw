@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-#include "RecoEgamma/EgammaTools/interface/MultiToken.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "RecoEgamma/EgammaTools/interface/Utils.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
@@ -105,15 +105,16 @@ private:
     // check whether a non-null preshower is there
     const bool usesES_;
 
-    // Dual Tokens for AOD and MiniAOD case
-    const MultiTokenT<edm::View<reco::Photon>>    src_;
-    const MultiTokenT<EcalRecHitCollection>       ebRecHits_;
-    const MultiTokenT<EcalRecHitCollection>       eeRecHits_;
-    const MultiTokenT<EcalRecHitCollection>       esRecHits_;
-    const MultiTokenT<reco::VertexCollection>     vtxToken_;
-    const MultiTokenT<edm::View<reco::Candidate>> pfCandsToken_;
+    // Tokens
+    const edm::EDGetTokenT<edm::View<reco::Photon>>    src_;
+    const edm::EDGetTokenT<EcalRecHitCollection>       ebRecHits_;
+    const edm::EDGetTokenT<EcalRecHitCollection>       eeRecHits_;
+    const edm::EDGetTokenT<EcalRecHitCollection>       esRecHits_;
+    const edm::EDGetTokenT<reco::VertexCollection>     vtxToken_;
+    const edm::EDGetTokenT<edm::View<reco::Candidate>> pfCandsToken_;
     const edm::EDGetToken                         particleBasedIsolationToken_;
 
+    const bool isAOD_;
 };
 
 constexpr int nVars_ = 19;
@@ -157,18 +158,17 @@ const unsigned char DR_VETO = 0x2;
 const unsigned char PT_MIN_THRESH = 0x8;
 
 PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& cfg)
-    : usesES_(!cfg.getParameter<edm::InputTag>("esReducedRecHitCollection").label().empty()
-          || !cfg.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD").label().empty())
-    , src_(               consumesCollector(), cfg, "src", "srcMiniAOD")
-    , ebRecHits_   (src_, consumesCollector(), cfg, "ebReducedRecHitCollection", "ebReducedRecHitCollectionMiniAOD")
-    , eeRecHits_   (src_, consumesCollector(), cfg, "eeReducedRecHitCollection", "eeReducedRecHitCollectionMiniAOD")
-    , esRecHits_   (src_, consumesCollector(), cfg, "esReducedRecHitCollection", "esReducedRecHitCollectionMiniAOD")
-    , vtxToken_    (src_, consumesCollector(), cfg, "vertices", "verticesMiniAOD")
-    , pfCandsToken_(src_, consumesCollector(), cfg, "pfCandidates", "pfCandidatesMiniAOD")
+    : usesES_(!cfg.getParameter<edm::InputTag>("esReducedRecHitCollection").label().empty())
+    , src_(consumes<edm::View<reco::Photon>>(cfg.getParameter<edm::InputTag>("src")))
+    , ebRecHits_(consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("ebReducedRecHitCollection")))
+    , eeRecHits_(consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("eeReducedRecHitCollection")))
+    , esRecHits_(consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("esReducedRecHitCollection")))
+    , vtxToken_(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices")))
+    , pfCandsToken_(consumes<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("pfCandidates")))
     , particleBasedIsolationToken_(mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(
           cfg.getParameter<edm::InputTag>("particleBasedIsolation")) /* ...only for AOD... */ )
+    , isAOD_(cfg.getParameter<bool>("isAOD"))
 {
-
     // Declare producibles
     for (int i = 0; i < nVars_; ++i)
         produces<edm::ValueMap<float>>(names[i]);
@@ -177,13 +177,12 @@ PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& cfg)
 void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
     // Get the handles
-    auto src           = src_.getValidHandle(iEvent);
-    auto vertices      = vtxToken_.getValidHandle(iEvent);
-    auto pfCandsHandle = pfCandsToken_.getValidHandle(iEvent);
+    auto src           = iEvent.getHandle(src_);
+    auto vertices      = iEvent.getHandle(vtxToken_);
+    auto pfCandsHandle = iEvent.getHandle(pfCandsToken_);
 
-    bool isAOD = src_.getGoodTokenIndex() == 0;
     edm::Handle<edm::ValueMap<std::vector<reco::PFCandidateRef>>> particleBasedIsolationMap;
-    if (isAOD) { // this exists only in AOD
+    if (isAOD_) { // this exists only in AOD
         iEvent.getByToken(particleBasedIsolationToken_, particleBasedIsolationMap);
     } else if (!src->empty()) {
         edm::Ptr<pat::Photon> test(src->ptrAt(0));
@@ -194,10 +193,8 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
     }
 
     // Configure Lazy Tools, which will compute 5x5 quantities
-    auto lazyToolnoZS = usesES_ ? noZS::EcalClusterLazyTools(iEvent, iSetup,
-                                        ebRecHits_.get(iEvent), eeRecHits_.get(iEvent), esRecHits_.get(iEvent))
-                                : noZS::EcalClusterLazyTools(iEvent, iSetup,
-                                        ebRecHits_.get(iEvent), eeRecHits_.get(iEvent));
+    auto lazyToolnoZS = usesES_ ? noZS::EcalClusterLazyTools(iEvent, iSetup, ebRecHits_, eeRecHits_, esRecHits_)
+                                : noZS::EcalClusterLazyTools(iEvent, iSetup, ebRecHits_, eeRecHits_);
 
     // Get PV
     if (vertices->empty())
@@ -260,7 +257,7 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
             // the PF collection do not contain the supercluser link, so can't
             // use that).
             //
-            // if( isAOD ) {
+            // if( isAOD_ ) {
             //     if( ((const edm::Ptr<reco::PFCandidate>)iCand)->superClusterRef() == iPho->superCluster() )
             //     continue;
             // }
@@ -271,7 +268,7 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
                 continue;
 
             // Check if this candidate is not in the footprint
-            if (isAOD) {
+            if (isAOD_) {
                 if(isInFootprint((*particleBasedIsolationMap)[iPho], iCand))
                     continue;
             } else {
@@ -281,7 +278,7 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
             }
 
             // Find candidate type
-            reco::PFCandidate::ParticleType thisCandidateType = getCandidatePdgId(&*iCand, isAOD);
+            reco::PFCandidate::ParticleType thisCandidateType = getCandidatePdgId(&*iCand, isAOD_);
 
             // Increment the appropriate isolation sum
             if (thisCandidateType == reco::PFCandidate::h) {
@@ -290,7 +287,7 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
                 float dxy = -999;
                 float dz = -999;
 
-                getImpactParameters(CachingPtrCandidate(&*iCand, isAOD), pv, dxy, dz);
+                getImpactParameters(CachingPtrCandidate(&*iCand, isAOD_), pv, dxy, dz);
 
                 if (fabs(dxy) > dxyMax || fabs(dz) > dzMax)
                     continue;
@@ -312,19 +309,19 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
 
         // Worst isolation computed with no vetos or ptMin cut, as in Run 1 Hgg code.
         unsigned char options = 0;
-        vars[13].push_back(computeWorstPFChargedIsolation(*iPho, *pfCandsHandle, *vertices, pv, options, isAOD));
+        vars[13].push_back(computeWorstPFChargedIsolation(*iPho, *pfCandsHandle, *vertices, pv, options, isAOD_));
 
         // Worst isolation computed with cone vetos and a ptMin cut, as in Run 2 Hgg code.
         options |= PT_MIN_THRESH | DR_VETO;
-        vars[14].push_back(computeWorstPFChargedIsolation(*iPho, *pfCandsHandle, *vertices, pv, options, isAOD));
+        vars[14].push_back(computeWorstPFChargedIsolation(*iPho, *pfCandsHandle, *vertices, pv, options, isAOD_));
 
         // Like before, but adding primary vertex constraint
         options |= PV_CONSTRAINT;
-        vars[15].push_back(computeWorstPFChargedIsolation(*iPho, *pfCandsHandle, *vertices, pv, options, isAOD));
+        vars[15].push_back(computeWorstPFChargedIsolation(*iPho, *pfCandsHandle, *vertices, pv, options, isAOD_));
 
         // PFCluster Isolations
         vars[16].push_back(iPho->trkSumPtSolidConeDR04());
-        if (isAOD) {
+        if (isAOD_) {
             vars[17].push_back(0.f);
             vars[18].push_back(0.f);
         } else {
@@ -343,19 +340,14 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
 void PhotonIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // photonIDValueMapProducer
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("particleBasedIsolation",           edm::InputTag("particleBasedIsolation","gedPhotons"));
-  desc.add<edm::InputTag>("src",                              edm::InputTag("gedPhotons"));
-  desc.add<edm::InputTag>("srcMiniAOD",                       edm::InputTag("slimmedPhotons","","@skipCurrentProcess"));
-  desc.add<edm::InputTag>("esReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedESRecHits"));
-  desc.add<edm::InputTag>("eeReducedRecHitCollection",        edm::InputTag("reducedEcalRecHitsEE"));
-  desc.add<edm::InputTag>("pfCandidates",                     edm::InputTag("particleFlow"));
-  desc.add<edm::InputTag>("vertices",                         edm::InputTag("offlinePrimaryVertices"));
-  desc.add<edm::InputTag>("ebReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedEBRecHits"));
-  desc.add<edm::InputTag>("eeReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedEERecHits"));
-  desc.add<edm::InputTag>("esReducedRecHitCollection",        edm::InputTag("reducedEcalRecHitsES"));
-  desc.add<edm::InputTag>("pfCandidatesMiniAOD",              edm::InputTag("packedPFCandidates"));
-  desc.add<edm::InputTag>("verticesMiniAOD",                  edm::InputTag("offlineSlimmedPrimaryVertices"));
-  desc.add<edm::InputTag>("ebReducedRecHitCollection",        edm::InputTag("reducedEcalRecHitsEB"));
+  desc.add<edm::InputTag>("particleBasedIsolation",    edm::InputTag("particleBasedIsolation","gedPhotons"));
+  desc.add<edm::InputTag>("src",                       edm::InputTag("slimmedPhotons","","@skipCurrentProcess"));
+  desc.add<edm::InputTag>("esReducedRecHitCollection", edm::InputTag("reducedEgamma","reducedESRecHits"));
+  desc.add<edm::InputTag>("ebReducedRecHitCollection", edm::InputTag("reducedEgamma","reducedEBRecHits"));
+  desc.add<edm::InputTag>("eeReducedRecHitCollection", edm::InputTag("reducedEgamma","reducedEERecHits"));
+  desc.add<edm::InputTag>("pfCandidates",              edm::InputTag("packedPFCandidates"));
+  desc.add<edm::InputTag>("vertices",                  edm::InputTag("offlineSlimmedPrimaryVertices"));
+  desc.add<bool>("isAOD", false);
   descriptions.add("photonIDValueMapProducer", desc);
 }
 
