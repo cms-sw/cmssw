@@ -206,9 +206,9 @@ def OptionsFromItems(items):
 
     # if not specified by user try to guess whether MC or DATA
     if not options.isData and not options.isMC:
-        if 'LHE' in options.trimmedStep:
+        if 'LHE' in options.trimmedStep or 'LHE' in options.datatier:
             options.isMC=True
-        if 'GEN' in options.trimmedStep:
+        if 'GEN' in options.trimmedStep or 'GEN' in options.datatier:
             options.isMC=True
         if 'SIM' in options.trimmedStep:
             options.isMC=True
