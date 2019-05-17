@@ -1,7 +1,6 @@
 #ifndef GEOMETRY_HCALEVENTSETUP_CaloTowerTopologyEP_H
 #define GEOMETRY_HCALEVENTSETUP_CaloTowerTopologyEP_H 1
 
-
 // system include files
 #include <memory>
 
@@ -23,15 +22,14 @@ namespace edm {
 //
 
 class CaloTowerTopologyEP : public edm::ESProducer {
-
 public:
   CaloTowerTopologyEP(const edm::ParameterSet&);
   ~CaloTowerTopologyEP() override;
 
   using ReturnType = std::unique_ptr<CaloTowerTopology>;
 
-  static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
-    
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   ReturnType produce(const HcalRecNumberingRecord&);
 
 private:

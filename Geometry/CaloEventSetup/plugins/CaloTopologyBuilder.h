@@ -2,7 +2,7 @@
 //
 // Package:    CaloTopologyBuilder
 // Class:      CaloTopologyBuilder
-// 
+//
 /**\class CaloTopologyBuilder CaloTopologyBuilder.h 
 
  Description: <one line class summary>
@@ -14,7 +14,6 @@
 // Original Author:  Paolo Meridiani
 //
 //
-
 
 // system include files
 #include <memory>
@@ -32,18 +31,16 @@
 // class decleration
 //
 
-class CaloTopologyBuilder : public edm::ESProducer 
-{
-   public:
-      CaloTopologyBuilder( const edm::ParameterSet& iP );
-      ~CaloTopologyBuilder() override ;
+class CaloTopologyBuilder : public edm::ESProducer {
+public:
+  CaloTopologyBuilder(const edm::ParameterSet& iP);
+  ~CaloTopologyBuilder() override;
 
-      using ReturnType = std::unique_ptr<CaloTopology>;
+  using ReturnType = std::unique_ptr<CaloTopology>;
 
-      ReturnType produceCalo(  const CaloTopologyRecord&  );
+  ReturnType produceCalo(const CaloTopologyRecord&);
 
-   private:
-      // ----------member data ---------------------------
-      edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+private:
+  // ----------member data ---------------------------
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
 };
-

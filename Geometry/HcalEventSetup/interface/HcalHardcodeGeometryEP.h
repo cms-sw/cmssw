@@ -14,17 +14,16 @@ class HcalDDDRecConstants;
 class HcalTopology;
 
 class HcalHardcodeGeometryEP : public edm::ESProducer {
-
 public:
   HcalHardcodeGeometryEP(const edm::ParameterSet&);
 
   using ReturnType = std::unique_ptr<CaloSubdetectorGeometry>;
 
-  ReturnType produceAligned(const HcalGeometryRecord& );
+  ReturnType produceAligned(const HcalGeometryRecord&);
 
 private:
   edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> consToken_;
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topologyToken_;
-  bool              useOld_;
+  bool useOld_;
 };
 #endif
