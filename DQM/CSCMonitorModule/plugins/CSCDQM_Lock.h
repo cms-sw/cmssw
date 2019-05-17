@@ -19,7 +19,7 @@
 #ifndef CSCDQM_Lock_H
 #define CSCDQM_Lock_H
 
-#ifdef DQMMT      
+#ifdef DQMMT
 #include <boost/thread.hpp>
 #endif
 
@@ -30,8 +30,8 @@ namespace cscdqm {
 #else
   struct LockType {
     bool locked;
-    LockType(bool locked_) : locked(locked_) { }
-    void unlock() { locked = false;  }
+    LockType(bool locked_) : locked(locked_) {}
+    void unlock() { locked = false; }
   };
 #endif
 
@@ -40,28 +40,25 @@ namespace cscdqm {
    * @brief Lockable interface that blocks thread
    */
   class Lock {
-  
-    public:
-
-      /** Mutual exclusion object */
+  public:
+    /** Mutual exclusion object */
 #ifdef DQMMT
-      boost::recursive_mutex mutex;
+    boost::recursive_mutex mutex;
 #else
-      bool mutex;
+    bool mutex;
 #endif
 
-      /**
+    /**
        * @brief  Constructor.
        */
-      Lock() { }
+    Lock() {}
 
-      /**
+    /**
        * @brief  Destructor.
        */
-      virtual ~Lock() { }
-
+    virtual ~Lock() {}
   };
 
-}
+}  // namespace cscdqm
 
 #endif

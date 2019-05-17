@@ -22,8 +22,7 @@
  * ... desc continued.
  */
 class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
-
- public:
+public:
   /**
    * Class constructor
    *
@@ -37,11 +36,9 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    *
    * @param edm::ParamterSet & ps A pointer to the parameter set used
    */
-  L1TdeStage2CaloLayer2 (const edm::ParameterSet & ps);
+  L1TdeStage2CaloLayer2(const edm::ParameterSet& ps);
 
-
- protected:
-
+protected:
   /**
    * Method to declare or "book" all histograms that will be part of module
    *
@@ -59,9 +56,7 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    *
    * @return void
    */
-  void bookHistograms (DQMStore::IBooker&,
-			       const edm::Run&,
-			       const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
 
   /**
    * Main method where the analysis code resides, executed once for each run
@@ -75,10 +70,9 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    *
    * @return void
    */
-  void analyze (const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   /**
    * Encapsulates the code required for performing a comparison of
    * the jets contained in a given event.
@@ -101,8 +95,7 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    *
    * @return bool Flag of whether the agreement was perfect
    */
-  bool compareJets(const edm::Handle<l1t::JetBxCollection> & dataCol,
-                   const edm::Handle<l1t::JetBxCollection> & emulCol);
+  bool compareJets(const edm::Handle<l1t::JetBxCollection>& dataCol, const edm::Handle<l1t::JetBxCollection>& emulCol);
 
   /**
    * Encapsulates the code required for performing a comparison of
@@ -128,8 +121,8 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    *
    * @return bool Flag of whether the agreement was perfect
    */
-  bool compareEGs(const edm::Handle<l1t::EGammaBxCollection> & dataCol,
-                  const edm::Handle<l1t::EGammaBxCollection> & emulCol);
+  bool compareEGs(const edm::Handle<l1t::EGammaBxCollection>& dataCol,
+                  const edm::Handle<l1t::EGammaBxCollection>& emulCol);
 
   /**
    * Encapsulates the code required for performing a comparison of
@@ -155,8 +148,7 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    *
    * @return bool Flag of whether the agreement was perfect
    */
-  bool compareTaus(const edm::Handle<l1t::TauBxCollection> & dataCol,
-                   const edm::Handle<l1t::TauBxCollection> & emulCol);
+  bool compareTaus(const edm::Handle<l1t::TauBxCollection>& dataCol, const edm::Handle<l1t::TauBxCollection>& emulCol);
 
   /**
    * Encapsulates the code required for performing a comparison of
@@ -177,8 +169,8 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    *
    * @return bool Flag of whether the agreement was perfect
    */
-  bool compareSums(const edm::Handle<l1t::EtSumBxCollection> & dataCol,
-                   const edm::Handle<l1t::EtSumBxCollection> & emulCol);
+  bool compareSums(const edm::Handle<l1t::EtSumBxCollection>& dataCol,
+                   const edm::Handle<l1t::EtSumBxCollection>& emulCol);
 
   // Holds the name of directory in DQM where module hostograms will be shown.
   // Value is taken from python configuration file (passed in class constructor)
@@ -195,57 +187,34 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
   edm::EDGetTokenT<l1t::EtSumBxCollection> calol2EtSumCollectionEmul;
 
   enum summaryBins {
-    NEVENTS = 1,      // total number of events
-    EVENTGOOD,        // number of good events (100% agreement)
-    NJETS_S,          // total number of jets objects found
-    JETGOOD_S,        // number of jets in agreement (energy and pos)
-    NEGS_S,           // total number of e/g objects found
-    EGGOOD_S,         // number of e/g in agremeent (energy and pos)
-    NTAUS_S,          // total number of tau objects found
-    TAUGOOD_S,        // number of taus in agremenet (energy and pos)
-    NSUMS_S,          // total number of sums
-    SUMGOOD_S         // number of good sums across all events
+    NEVENTS = 1,  // total number of events
+    EVENTGOOD,    // number of good events (100% agreement)
+    NJETS_S,      // total number of jets objects found
+    JETGOOD_S,    // number of jets in agreement (energy and pos)
+    NEGS_S,       // total number of e/g objects found
+    EGGOOD_S,     // number of e/g in agremeent (energy and pos)
+    NTAUS_S,      // total number of tau objects found
+    TAUGOOD_S,    // number of taus in agremenet (energy and pos)
+    NSUMS_S,      // total number of sums
+    SUMGOOD_S     // number of good sums across all events
   };
 
   enum problemCauses {
-    NEVENTS_P = 1,    // total number of events
-    JETCOLLSIZE,      // no. events with different data/emul obj. in jet coll.
-    EGCOLLSIZE,       // no. events with different data/emul obj. in eg coll.
-    TAUCOLLSIZE,      // no. events with different data/emul obj. in tau coll.
-    JETMISMATCH,      // no. events failed due to a jet mismatch
-    EGMISMATCH,       // no. events failed due to an e/g mismatch
-    TAUMISMATCH,      // no. events failed due to a tau mismatch
-    SUMMISMATCH       // no. events failed due to a sum mismatch
+    NEVENTS_P = 1,  // total number of events
+    JETCOLLSIZE,    // no. events with different data/emul obj. in jet coll.
+    EGCOLLSIZE,     // no. events with different data/emul obj. in eg coll.
+    TAUCOLLSIZE,    // no. events with different data/emul obj. in tau coll.
+    JETMISMATCH,    // no. events failed due to a jet mismatch
+    EGMISMATCH,     // no. events failed due to an e/g mismatch
+    TAUMISMATCH,    // no. events failed due to a tau mismatch
+    SUMMISMATCH     // no. events failed due to a sum mismatch
   };
 
-  enum jetVars {
-    NJETS = 1,
-    JETGOOD,
-    JETPOSOFF,
-    JETETOFF
-  };
+  enum jetVars { NJETS = 1, JETGOOD, JETPOSOFF, JETETOFF };
 
-  enum egVars {
-    NEGS = 1,
-    EGGOOD,
-    EGPOSOFF,
-    EGETOFF,
-    NISOEGS,
-    ISOEGGOOD,
-    ISOEGPOSOFF,
-    ISOEGETOFF
-  };
+  enum egVars { NEGS = 1, EGGOOD, EGPOSOFF, EGETOFF, NISOEGS, ISOEGGOOD, ISOEGPOSOFF, ISOEGETOFF };
 
-  enum tauVars {
-    NTAUS = 1,
-    TAUGOOD,
-    TAUPOSOFF,
-    TAUETOFF,
-    NISOTAUS,
-    ISOTAUGOOD,
-    ISOTAUPOSOFF,
-    ISOTAUETOFF
-  };
+  enum tauVars { NTAUS = 1, TAUGOOD, TAUPOSOFF, TAUETOFF, NISOTAUS, ISOTAUGOOD, ISOTAUPOSOFF, ISOTAUETOFF };
 
   enum sumVars {
     NSUMS = 1,
@@ -269,125 +238,123 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
   };
 
   // objects to represent individual plots shown in DQM
-  MonitorElement * agreementSummary;
-  MonitorElement * jetSummary;
-  MonitorElement * tauSummary;
-  MonitorElement * egSummary;
-  MonitorElement * sumSummary;
-  MonitorElement * problemSummary;
+  MonitorElement* agreementSummary;
+  MonitorElement* jetSummary;
+  MonitorElement* tauSummary;
+  MonitorElement* egSummary;
+  MonitorElement* sumSummary;
+  MonitorElement* problemSummary;
 
   // histograms to store the properties of mismatched jets
-  MonitorElement * jetEtData;
-  MonitorElement * jetEtaData;
-  MonitorElement * jetPhiData;
-  MonitorElement * jetEtEmul;
-  MonitorElement * jetEtaEmul;
-  MonitorElement * jetPhiEmul;
-  MonitorElement * jet2DEtaPhiData; // This histogram will be filled only if enable2DComp is true 
-  MonitorElement * jet2DEtaPhiEmul; // This histogram will be filled only if enable2DComp is true  
+  MonitorElement* jetEtData;
+  MonitorElement* jetEtaData;
+  MonitorElement* jetPhiData;
+  MonitorElement* jetEtEmul;
+  MonitorElement* jetEtaEmul;
+  MonitorElement* jetPhiEmul;
+  MonitorElement* jet2DEtaPhiData;  // This histogram will be filled only if enable2DComp is true
+  MonitorElement* jet2DEtaPhiEmul;  // This histogram will be filled only if enable2DComp is true
 
   // histograms to store the properties of mismatched non-isolated e/g
-  MonitorElement * egEtData;
-  MonitorElement * egEtaData;
-  MonitorElement * egPhiData;
-  MonitorElement * egEtEmul;
-  MonitorElement * egEtaEmul;
-  MonitorElement * egPhiEmul;
-  MonitorElement * eg2DEtaPhiData; // This histogram will be filled only if enable2DComp is true
-  MonitorElement * eg2DEtaPhiEmul; // This histogram will be filled only if enable2DComp is true
-  
+  MonitorElement* egEtData;
+  MonitorElement* egEtaData;
+  MonitorElement* egPhiData;
+  MonitorElement* egEtEmul;
+  MonitorElement* egEtaEmul;
+  MonitorElement* egPhiEmul;
+  MonitorElement* eg2DEtaPhiData;  // This histogram will be filled only if enable2DComp is true
+  MonitorElement* eg2DEtaPhiEmul;  // This histogram will be filled only if enable2DComp is true
+
   // histograms to store the properties of mismatched isolated e/g
-  MonitorElement * isoEgEtData;
-  MonitorElement * isoEgEtaData;
-  MonitorElement * isoEgPhiData;
-  MonitorElement * isoEgEtEmul;
-  MonitorElement * isoEgEtaEmul;
-  MonitorElement * isoEgPhiEmul;
-  MonitorElement * isoEg2DEtaPhiData; // This histogram will be filled only if enable2DComp is true
-  MonitorElement * isoEg2DEtaPhiEmul; // This histogram will be filled only if enable2DComp is true
-  
+  MonitorElement* isoEgEtData;
+  MonitorElement* isoEgEtaData;
+  MonitorElement* isoEgPhiData;
+  MonitorElement* isoEgEtEmul;
+  MonitorElement* isoEgEtaEmul;
+  MonitorElement* isoEgPhiEmul;
+  MonitorElement* isoEg2DEtaPhiData;  // This histogram will be filled only if enable2DComp is true
+  MonitorElement* isoEg2DEtaPhiEmul;  // This histogram will be filled only if enable2DComp is true
+
   // histograms to store the properties of mismatched non-isolated taus
-  MonitorElement * tauEtData;
-  MonitorElement * tauEtaData;
-  MonitorElement * tauPhiData;
-  MonitorElement * tauEtEmul;
-  MonitorElement * tauEtaEmul;
-  MonitorElement * tauPhiEmul;
-  MonitorElement * tau2DEtaPhiData; // This histogram will be filled only if enable2DComp is true 
-  MonitorElement * tau2DEtaPhiEmul; // This histogram will be filled only if enable2DComp is true
+  MonitorElement* tauEtData;
+  MonitorElement* tauEtaData;
+  MonitorElement* tauPhiData;
+  MonitorElement* tauEtEmul;
+  MonitorElement* tauEtaEmul;
+  MonitorElement* tauPhiEmul;
+  MonitorElement* tau2DEtaPhiData;  // This histogram will be filled only if enable2DComp is true
+  MonitorElement* tau2DEtaPhiEmul;  // This histogram will be filled only if enable2DComp is true
 
   // histograms to store the properties of mismatched isolated taus
-  MonitorElement * isoTauEtData;
-  MonitorElement * isoTauEtaData;
-  MonitorElement * isoTauPhiData;
-  MonitorElement * isoTauEtEmul;
-  MonitorElement * isoTauEtaEmul;
-  MonitorElement * isoTauPhiEmul;
-  MonitorElement * isoTau2DEtaPhiData; // This histogram will be filled only if enable2DComp is true
-  MonitorElement * isoTau2DEtaPhiEmul; // This histogram will be filled only if enable2DComp is true
-  
+  MonitorElement* isoTauEtData;
+  MonitorElement* isoTauEtaData;
+  MonitorElement* isoTauPhiData;
+  MonitorElement* isoTauEtEmul;
+  MonitorElement* isoTauEtaEmul;
+  MonitorElement* isoTauPhiEmul;
+  MonitorElement* isoTau2DEtaPhiData;  // This histogram will be filled only if enable2DComp is true
+  MonitorElement* isoTau2DEtaPhiEmul;  // This histogram will be filled only if enable2DComp is true
+
   // histograms for mismatched ett sums
-  MonitorElement * ettData;
-  MonitorElement * ettEmul;
-  MonitorElement * ettHFData;
-  MonitorElement * ettHFEmul;
-  MonitorElement * ettEmData;
-  MonitorElement * ettEmEmul;
+  MonitorElement* ettData;
+  MonitorElement* ettEmul;
+  MonitorElement* ettHFData;
+  MonitorElement* ettHFEmul;
+  MonitorElement* ettEmData;
+  MonitorElement* ettEmEmul;
 
   // mismatched htt sums
-  MonitorElement * httData;
-  MonitorElement * httEmul;
-  MonitorElement * httHFData;
-  MonitorElement * httHFEmul;
+  MonitorElement* httData;
+  MonitorElement* httEmul;
+  MonitorElement* httHFData;
+  MonitorElement* httHFEmul;
 
   // mismatched met sums
-  MonitorElement * metEtData;
-  MonitorElement * metEtEmul;
-  MonitorElement * metPhiData;
-  MonitorElement * metPhiEmul;
-  MonitorElement * metHFEtData;
-  MonitorElement * metHFEtEmul;
-  MonitorElement * metHFPhiData;
-  MonitorElement * metHFPhiEmul;
+  MonitorElement* metEtData;
+  MonitorElement* metEtEmul;
+  MonitorElement* metPhiData;
+  MonitorElement* metPhiEmul;
+  MonitorElement* metHFEtData;
+  MonitorElement* metHFEtEmul;
+  MonitorElement* metHFPhiData;
+  MonitorElement* metHFPhiEmul;
 
   // mismatched mht sums
-  MonitorElement * mhtEtData;
-  MonitorElement * mhtEtEmul;
-  MonitorElement * mhtPhiData;
-  MonitorElement * mhtPhiEmul;
-  MonitorElement * mhtHFEtData;
-  MonitorElement * mhtHFEtEmul;
-  MonitorElement * mhtHFPhiData;
-  MonitorElement * mhtHFPhiEmul;
+  MonitorElement* mhtEtData;
+  MonitorElement* mhtEtEmul;
+  MonitorElement* mhtPhiData;
+  MonitorElement* mhtPhiEmul;
+  MonitorElement* mhtHFEtData;
+  MonitorElement* mhtHFEtEmul;
+  MonitorElement* mhtHFPhiData;
+  MonitorElement* mhtHFPhiEmul;
 
   // mismatched min bias sums
-  MonitorElement * mbhfp0Data;
-  MonitorElement * mbhfp0Emul;
-  MonitorElement * mbhfm0Data;
-  MonitorElement * mbhfm0Emul;
-  MonitorElement * mbhfp1Data;
-  MonitorElement * mbhfp1Emul;
-  MonitorElement * mbhfm1Data;
-  MonitorElement * mbhfm1Emul;
+  MonitorElement* mbhfp0Data;
+  MonitorElement* mbhfp0Emul;
+  MonitorElement* mbhfm0Data;
+  MonitorElement* mbhfm0Emul;
+  MonitorElement* mbhfp1Data;
+  MonitorElement* mbhfp1Emul;
+  MonitorElement* mbhfm1Data;
+  MonitorElement* mbhfm1Emul;
 
   // mismatched towercount sum
-  MonitorElement * towCountData;
-  MonitorElement * towCountEmul;
+  MonitorElement* towCountData;
+  MonitorElement* towCountEmul;
 
   // mismatched assymetry
-  
-  MonitorElement * asymCountData;
-  MonitorElement * asymCountEmul;
+
+  MonitorElement* asymCountData;
+  MonitorElement* asymCountEmul;
 
   // mismatched centrality
-     
-  MonitorElement * centrCountData;
-  MonitorElement * centrCountEmul;
 
-
+  MonitorElement* centrCountData;
+  MonitorElement* centrCountEmul;
 
   bool verbose;
-  bool enable2DComp; // Default value is false. Set to true in the configuration file for enabling 2D eta-phi histograms
+  bool enable2DComp;  // Default value is false. Set to true in the configuration file for enabling 2D eta-phi histograms
 
   // use only bx = 0 since it only contains RAW data (needed for emulator)
   const unsigned int currBx = 0;

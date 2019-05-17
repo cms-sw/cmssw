@@ -162,7 +162,7 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
 	for (const auto & it : *(hbhecoll.product())) {
 	  DetId detId = it.id();
 	  ntot++;
-	  if (detId.subdetId() == HcalEndcap) {
+	  if (detId.subdetId() == static_cast<int>(HcalEndcap)) {
 	    nused++;
 	    int   layer = HcalDetId(detId).depth();
 	    recHitValidation(detId, layer, geom0, &it);
@@ -311,7 +311,7 @@ void HGCalRecHitStudy::beginRun(edm::Run const&,
   edm::Service<TFileService> fs;
   char histoname[100];
   for (unsigned int il = 0; il < layers_; il++ ) {
-    int ilayer = firstLayer_ + (int)(il);
+    int ilayer = firstLayer_ + static_cast<int>(il);
     sprintf (histoname,"HitOccupancy_Plus_layer_%d", ilayer);
     HitOccupancy_Plus_.push_back(fs->make<TH1D>(histoname, "RecHitOccupancy_Plus", 100, 0, 10000));
     sprintf (histoname, "HitOccupancy_Minus_layer_%d", ilayer);

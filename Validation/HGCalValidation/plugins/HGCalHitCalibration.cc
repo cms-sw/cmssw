@@ -63,10 +63,12 @@ class HGCalHitCalibration : public DQMEDAnalyzer {
   edm::EDGetTokenT<std::vector<reco::GsfElectron> > electrons_;
   edm::EDGetTokenT<std::vector<reco::Photon> > photons_;
 
-  int algo_;
+  int algo_, depletion0_;
   bool rawRecHits_;
   int debug_;
   hgcal::RecHitTools recHitTools_;
+  static constexpr int depletion1_=200;
+  static constexpr int depletion2_=300;
 
   std::map<int, MonitorElement*> h_EoP_CPene_calib_fraction_;
   std::map<int, MonitorElement*> hgcal_EoP_CPene_calib_fraction_;
@@ -103,6 +105,7 @@ HGCalHitCalibration::HGCalHitCalibration(const edm::ParameterSet& iConfig)
     recHitsBH_ = consumes<HGCRecHitCollection>(recHitsBH);
     algo_ = 3;
   }
+  depletion0_ = iConfig.getParameter<int>("depletionFine");
   caloParticles_ = consumes<std::vector<CaloParticle> >(caloParticles);
   hgcalMultiClusters_ = consumes<std::vector<reco::PFCluster> >(hgcalMultiClusters);
   electrons_ = consumes<std::vector<reco::GsfElectron> >(electrons);
@@ -123,29 +126,29 @@ void HGCalHitCalibration::bookHistograms(DQMStore::IBooker& ibooker,
                                          edm::EventSetup const& /* iSetup */) {
   ibooker.cd();
   ibooker.setCurrentFolder("HGCalHitCalibration");
-  h_EoP_CPene_calib_fraction_[100] =
+  h_EoP_CPene_calib_fraction_[depletion0_] =
       ibooker.book1D("h_EoP_CPene_100_calib_fraction", "", 1000, -0.5, 2.5);
-  h_EoP_CPene_calib_fraction_[200] =
+  h_EoP_CPene_calib_fraction_[depletion1_] =
       ibooker.book1D("h_EoP_CPene_200_calib_fraction", "", 1000, -0.5, 2.5);
-  h_EoP_CPene_calib_fraction_[300] =
+  h_EoP_CPene_calib_fraction_[depletion2_] =
       ibooker.book1D("h_EoP_CPene_300_calib_fraction", "", 1000, -0.5, 2.5);
-  hgcal_EoP_CPene_calib_fraction_[100] =
+  hgcal_EoP_CPene_calib_fraction_[depletion0_] =
       ibooker.book1D("hgcal_EoP_CPene_100_calib_fraction", "", 1000, -0.5, 2.5);
-  hgcal_EoP_CPene_calib_fraction_[200] =
+  hgcal_EoP_CPene_calib_fraction_[depletion1_] =
       ibooker.book1D("hgcal_EoP_CPene_200_calib_fraction", "", 1000, -0.5, 2.5);
-  hgcal_EoP_CPene_calib_fraction_[300] =
+  hgcal_EoP_CPene_calib_fraction_[depletion2_] =
       ibooker.book1D("hgcal_EoP_CPene_300_calib_fraction", "", 1000, -0.5, 2.5);
-  hgcal_ele_EoP_CPene_calib_fraction_[100] =
+  hgcal_ele_EoP_CPene_calib_fraction_[depletion0_] =
       ibooker.book1D("hgcal_ele_EoP_CPene_100_calib_fraction", "", 1000, -0.5, 2.5);
-  hgcal_ele_EoP_CPene_calib_fraction_[200] =
+  hgcal_ele_EoP_CPene_calib_fraction_[depletion1_] =
       ibooker.book1D("hgcal_ele_EoP_CPene_200_calib_fraction", "", 1000, -0.5, 2.5);
-  hgcal_ele_EoP_CPene_calib_fraction_[300] =
+  hgcal_ele_EoP_CPene_calib_fraction_[depletion2_] =
       ibooker.book1D("hgcal_ele_EoP_CPene_300_calib_fraction", "", 1000, -0.5, 2.5);
-  hgcal_photon_EoP_CPene_calib_fraction_[100] =
+  hgcal_photon_EoP_CPene_calib_fraction_[depletion0_] =
       ibooker.book1D("hgcal_photon_EoP_CPene_100_calib_fraction", "", 1000, -0.5, 2.5);
-  hgcal_photon_EoP_CPene_calib_fraction_[200] =
+  hgcal_photon_EoP_CPene_calib_fraction_[depletion1_] =
       ibooker.book1D("hgcal_photon_EoP_CPene_200_calib_fraction", "", 1000, -0.5, 2.5);
-  hgcal_photon_EoP_CPene_calib_fraction_[300] =
+  hgcal_photon_EoP_CPene_calib_fraction_[depletion2_] =
       ibooker.book1D("hgcal_photon_EoP_CPene_300_calib_fraction", "", 1000, -0.5, 2.5);
   LayerOccupancy_ = ibooker.book1D("LayerOccupancy", "", layers_, 0., (float)layers_);
 }
@@ -385,6 +388,7 @@ void HGCalHitCalibration::fillDescriptions(
   desc.add<int>("debug", 0);
   desc.add<bool>("rawRecHits", true);
   desc.add<std::string>("detector", "all");
+  desc.add<int>("depletionFine", 100);
   desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("recHitsEE", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
   desc.add<edm::InputTag>("recHitsFH", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));

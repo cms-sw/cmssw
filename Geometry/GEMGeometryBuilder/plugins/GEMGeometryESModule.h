@@ -30,6 +30,7 @@ class GEMGeometryESModule : public edm::ESProducer
  private:  
   // use the DDD as Geometry source
   bool useDDD;
-
+  bool applyAlignment;
+  const std::string alignmentsLabel;
 };
 #endif

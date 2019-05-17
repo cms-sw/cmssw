@@ -9,7 +9,7 @@
 class SummaryPlot;
 
 /** Provides debug information. */
-std::ostream& operator<< ( std::ostream&, const SummaryPlot& );
+std::ostream& operator<<(std::ostream&, const SummaryPlot&);
 
 /** 
     @class SummaryPlot
@@ -17,28 +17,26 @@ std::ostream& operator<< ( std::ostream&, const SummaryPlot& );
     @brief Class holding info that defines a summary plot.
 */
 class SummaryPlot {
-
- public:
-
+public:
   // ---------- Con(de)structors ----------
 
   /** */
-  SummaryPlot( const std::string& monitorable, 
-	       const std::string& presentation, 
-	       const std::string& granularity, 
-	       const std::string& level ); 
-  
+  SummaryPlot(const std::string& monitorable,
+              const std::string& presentation,
+              const std::string& granularity,
+              const std::string& level);
+
   /** */
-  SummaryPlot( const SummaryPlot& );
-  
+  SummaryPlot(const SummaryPlot&);
+
   /** */
   SummaryPlot();
 
   /** */
-  ~SummaryPlot() {;}
+  ~SummaryPlot() { ; }
 
   // ---------- Access to member data ----------
-  
+
   /** */
   inline const sistrip::Monitorable& monitorable() const;
 
@@ -55,23 +53,22 @@ class SummaryPlot {
   inline const std::string& level() const;
 
   // ---------- Utility methods ----------
-  
+
   /** */
   inline const bool& isValid() const;
-  
+
   /** */
   void reset();
 
   /** */
-  void print( std::stringstream& ) const;
+  void print(std::stringstream&) const;
 
- private: 
-  
+private:
   // ---------- Private methods ----------
 
   /** */
   void check();
-  
+
   // ---------- Private member data ----------
 
   sistrip::Monitorable mon_;
@@ -85,7 +82,6 @@ class SummaryPlot {
   std::string level_;
 
   bool isValid_;
-
 };
 
 // ---------- Inline methods ----------
@@ -97,7 +93,4 @@ const sistrip::Granularity& SummaryPlot::granularity() const { return gran_; }
 const std::string& SummaryPlot::level() const { return level_; }
 const bool& SummaryPlot::isValid() const { return isValid_; }
 
-#endif // DQM_SiStripCommissioningSummary_SummaryPlot_H
-
-
-    
+#endif  // DQM_SiStripCommissioningSummary_SummaryPlot_H

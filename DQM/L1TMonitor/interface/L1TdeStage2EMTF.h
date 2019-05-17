@@ -10,22 +10,17 @@
 
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 
-
 class L1TdeStage2EMTF : public DQMEDAnalyzer {
-
- public:
-
+public:
   L1TdeStage2EMTF(const edm::ParameterSet& ps);
   ~L1TdeStage2EMTF() override;
 
- protected:
-
+protected:
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> dataToken;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> emulToken;
   std::string monitorDir;

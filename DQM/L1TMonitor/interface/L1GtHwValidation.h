@@ -53,237 +53,222 @@ class L1GtTriggerMask;
 
 // class declaration
 
-class L1GtHwValidation: public DQMEDAnalyzer  {
-
+class L1GtHwValidation : public DQMEDAnalyzer {
 public:
-    explicit L1GtHwValidation(const edm::ParameterSet&);
-    ~L1GtHwValidation() override;
+  explicit L1GtHwValidation(const edm::ParameterSet&);
+  ~L1GtHwValidation() override;
 
 private:
+  /// compare the GTFE board
+  virtual void compareGTFE(const edm::Event&, const edm::EventSetup&, const L1GtfeWord&, const L1GtfeWord&, const int);
 
-    /// compare the GTFE board
-    virtual void compareGTFE(const edm::Event&, const edm::EventSetup&,
-            const L1GtfeWord&, const L1GtfeWord&, const int);
+  /// compare the FDL board
+  virtual void compareFDL(const edm::Event&, const edm::EventSetup&, const L1GtFdlWord&, const L1GtFdlWord&, const int);
 
-    /// compare the FDL board
-    virtual void compareFDL(const edm::Event&, const edm::EventSetup&,
-            const L1GtFdlWord&, const L1GtFdlWord&, const int);
+  /// compare the PSB board
+  virtual void comparePSB(const edm::Event&, const edm::EventSetup&, const L1GtPsbWord&, const L1GtPsbWord&);
 
-    /// compare the PSB board
-    virtual void comparePSB(const edm::Event&, const edm::EventSetup&,
-            const L1GtPsbWord&, const L1GtPsbWord&);
+  /// compare the TCS board
+  virtual void compareTCS(const edm::Event&, const edm::EventSetup&, const L1TcsWord&, const L1TcsWord&);
 
-    /// compare the TCS board
-    virtual void compareTCS(const edm::Event&, const edm::EventSetup&,
-            const L1TcsWord&, const L1TcsWord&);
+  /// L1 GT DAQ record comparison
+  virtual void compareDaqRecord(const edm::Event&, const edm::EventSetup&);
 
-    /// L1 GT DAQ record comparison
-    virtual void compareDaqRecord(const edm::Event&, const edm::EventSetup&);
+  /// L1 GT EVM record comparison
+  virtual void compareEvmRecord(const edm::Event&, const edm::EventSetup&);
 
-    /// L1 GT EVM record comparison
-    virtual void compareEvmRecord(const edm::Event&, const edm::EventSetup&);
+  /// compare the GCT collections obtained from L1 GT PSB with the input
+  /// GCT collections
+  virtual void compareGt_Gct(const edm::Event&, const edm::EventSetup&);
 
-    /// compare the GCT collections obtained from L1 GT PSB with the input 
-    /// GCT collections
-    virtual void compareGt_Gct(const edm::Event&, const edm::EventSetup&);
+  /// book all histograms for the module
+  //void bookhistograms(DQMStore::IBooker &ibooker);
 
-    /// book all histograms for the module
-    //void bookhistograms(DQMStore::IBooker &ibooker);
+  /// return true if an algorithm has a condition of that category
+  /// for CondNull, it returns always true
+  bool matchCondCategory(const L1GtConditionCategory&, const L1GtConditionCategory&);
 
-    /// return true if an algorithm has a condition of that category
-    /// for CondNull, it returns always true
-    bool matchCondCategory(const L1GtConditionCategory&, const L1GtConditionCategory&);
+  /// return true if an algorithm has a condition of that type
+  /// for TypeNull, it returns always true
+  bool matchCondType(const L1GtConditionType&, const L1GtConditionType&);
 
-    /// return true if an algorithm has a condition of that type
-    /// for TypeNull, it returns always true
-    bool matchCondType(const L1GtConditionType&, const L1GtConditionType&);
+  /// return true if an algorithm has a condition containing that object
+  /// for ObjNull, it returns always true
+  bool matchCondL1GtObject(const std::vector<L1GtObject>&, const L1GtObject&);
 
-    /// return true if an algorithm has a condition containing that object
-    /// for ObjNull, it returns always true
-    bool matchCondL1GtObject(const std::vector<L1GtObject>&, const L1GtObject&);
+  /// exclude from comparison some bits with known disagreement - bit list
+  void excludedAlgoList();
 
-    /// exclude from comparison some bits with known disagreement - bit list
-    void excludedAlgoList();
+  /// exclusion status for algorithm with bit i
+  bool excludedAlgo(const int&) const;
 
-    /// exclusion status for algorithm with bit i
-    bool excludedAlgo(const int&) const;
-
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 protected:
-    
-    void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-    //virtual void analyze(DQMStore::IBooker &ibooker, const edm::Event&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  //virtual void analyze(DQMStore::IBooker &ibooker, const edm::Event&, const edm::EventSetup&);
 
 private:
+  /// input tag for the L1 GT hardware DAQ record
+  edm::InputTag m_l1GtDataDaqInputTag;
 
-    /// input tag for the L1 GT hardware DAQ record
-    edm::InputTag m_l1GtDataDaqInputTag;
+  /// input tag for the L1 GT hardware EVM record
+  edm::InputTag m_l1GtDataEvmInputTag;
 
-    /// input tag for the L1 GT hardware EVM record
-    edm::InputTag m_l1GtDataEvmInputTag;
+  /// input tag for the L1 GT emulator DAQ record
+  edm::InputTag m_l1GtEmulDaqInputTag;
 
-    /// input tag for the L1 GT emulator DAQ record
-    edm::InputTag m_l1GtEmulDaqInputTag;
+  /// input tag for the L1 GT emulator EVM record
+  edm::InputTag m_l1GtEmulEvmInputTag;
 
-    /// input tag for the L1 GT emulator EVM record
-    edm::InputTag m_l1GtEmulEvmInputTag;
+  /// input tag for the L1 GCT hardware record
+  edm::InputTag m_l1GctDataInputTag;
 
-    /// input tag for the L1 GCT hardware record 
-    edm::InputTag m_l1GctDataInputTag;
+  /// directory name for L1Extra plots
+  std::string m_dirName;
 
-    /// directory name for L1Extra plots
-    std::string m_dirName;
+  /// exclude algorithm triggers from comparison data - emulator by
+  /// condition category and / or type
+  std::vector<edm::ParameterSet> m_excludeCondCategTypeObject;
 
-    /// exclude algorithm triggers from comparison data - emulator by
-    /// condition category and / or type
-    std::vector<edm::ParameterSet> m_excludeCondCategTypeObject;
+  /// exclude algorithm triggers from comparison data - emulator by algorithm name
+  std::vector<std::string> m_excludeAlgoTrigByName;
 
-    /// exclude algorithm triggers from comparison data - emulator by algorithm name
-    std::vector<std::string> m_excludeAlgoTrigByName;
-
-    /// exclude algorithm triggers from comparison data - emulator by algorithm bit number
-    std::vector<int> m_excludeAlgoTrigByBit;
-
+  /// exclude algorithm triggers from comparison data - emulator by algorithm bit number
+  std::vector<int> m_excludeAlgoTrigByBit;
 
 private:
+  /// excluded condition categories
+  std::vector<L1GtConditionCategory> m_excludedCondCategory;
 
-    /// excluded condition categories
-    std::vector<L1GtConditionCategory> m_excludedCondCategory;
+  /// excluded condition types
+  std::vector<L1GtConditionType> m_excludedCondType;
 
-    /// excluded condition types
-    std::vector<L1GtConditionType> m_excludedCondType;
+  /// excluded L1 GT objects
+  std::vector<L1GtObject> m_excludedL1GtObject;
 
-    /// excluded L1 GT objects
-    std::vector<L1GtObject> m_excludedL1GtObject;
+  /// an output stream to print into
+  /// it can then be directed to whatever log level is desired
+  std::ostringstream m_myCoutStream;
 
-    /// an output stream to print into
-    /// it can then be directed to whatever log level is desired
-    std::ostringstream m_myCoutStream;
+  /// counters
+  int m_nrDataEventError;
+  int m_nrEmulEventError;
 
-    /// counters
-    int m_nrDataEventError;
-    int m_nrEmulEventError;
+  // cached stuff
 
-    // cached stuff
+  /// trigger menu
+  const L1GtTriggerMenu* m_l1GtMenu;
+  unsigned long long m_l1GtMenuCacheID;
 
-    /// trigger menu
-    const L1GtTriggerMenu* m_l1GtMenu;
-    unsigned long long m_l1GtMenuCacheID;
+  /// prescale factors
+  const L1GtPrescaleFactors* m_l1GtPfAlgo;
+  unsigned long long m_l1GtPfAlgoCacheID;
 
-    /// prescale factors
-    const L1GtPrescaleFactors* m_l1GtPfAlgo;
-    unsigned long long m_l1GtPfAlgoCacheID;
+  const L1GtPrescaleFactors* m_l1GtPfTech;
+  unsigned long long m_l1GtPfTechCacheID;
 
-    const L1GtPrescaleFactors* m_l1GtPfTech;
-    unsigned long long m_l1GtPfTechCacheID;
+  const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
+  const std::vector<std::vector<int> >* m_prescaleFactorsTechTrig;
 
-    const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
-    const std::vector<std::vector<int> >* m_prescaleFactorsTechTrig;
+  /// trigger masks
+  const L1GtTriggerMask* m_l1GtTmAlgo;
+  unsigned long long m_l1GtTmAlgoCacheID;
 
-    /// trigger masks
-    const L1GtTriggerMask* m_l1GtTmAlgo;
-    unsigned long long m_l1GtTmAlgoCacheID;
+  const L1GtTriggerMask* m_l1GtTmTech;
+  unsigned long long m_l1GtTmTechCacheID;
 
-    const L1GtTriggerMask* m_l1GtTmTech;
-    unsigned long long m_l1GtTmTechCacheID;
-
-    std::vector<unsigned int> m_triggerMaskAlgoTrig;
-    std::vector<unsigned int> m_triggerMaskTechTrig;
-
-private:
-
-    /// internal members
-
-    bool m_agree;
-    bool m_dataOnly;
-    bool m_emulOnly;
-    bool m_dataOnlyMask;
-    bool m_emulOnlyMask;
+  std::vector<unsigned int> m_triggerMaskAlgoTrig;
+  std::vector<unsigned int> m_triggerMaskTechTrig;
 
 private:
+  /// internal members
 
-    static const int TotalBxInEvent = 5;
-    static const int NumberOfGtRecords = 2; // DAQ and EVM
+  bool m_agree;
+  bool m_dataOnly;
+  bool m_emulOnly;
+  bool m_dataOnlyMask;
+  bool m_emulOnlyMask;
 
-    /// histograms
+private:
+  static const int TotalBxInEvent = 5;
+  static const int NumberOfGtRecords = 2;  // DAQ and EVM
 
-    /// GTFE    
-    MonitorElement* m_gtfeDataEmul[NumberOfGtRecords];
+  /// histograms
 
-    /// FDL (0 for DAQ, 1 for EVM record)
-    MonitorElement* m_fdlDataEmul[TotalBxInEvent][NumberOfGtRecords];
-    //
-    MonitorElement* m_fdlDataAlgoDecision[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataAlgoDecisionPrescaled[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataAlgoDecisionUnprescaled[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataAlgoDecisionMask[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataAlgoDecision_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataAlgoDecisionPrescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataAlgoDecisionUnprescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataAlgoDecisionMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataAlgoDecisionPrescaledMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataAlgoDecisionUnprescaledMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataAlgoDecision_Err[NumberOfGtRecords];
+  /// GTFE
+  MonitorElement* m_gtfeDataEmul[NumberOfGtRecords];
 
-    MonitorElement* m_fdlEmulAlgoDecision[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecisionPrescaled[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecisionUnprescaled[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecisionMask[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecision_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecisionPrescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecisionUnprescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecisionMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecisionPrescaledMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecisionUnprescaledMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecision_Err[NumberOfGtRecords];
+  /// FDL (0 for DAQ, 1 for EVM record)
+  MonitorElement* m_fdlDataEmul[TotalBxInEvent][NumberOfGtRecords];
+  //
+  MonitorElement* m_fdlDataAlgoDecision[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataAlgoDecisionPrescaled[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataAlgoDecisionUnprescaled[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataAlgoDecisionMask[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataAlgoDecision_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataAlgoDecisionPrescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataAlgoDecisionUnprescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataAlgoDecisionMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataAlgoDecisionPrescaledMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataAlgoDecisionUnprescaledMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataAlgoDecision_Err[NumberOfGtRecords];
 
-    //
-    MonitorElement* m_fdlDataEmulAlgoDecision[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataEmulAlgoDecisionPrescaled[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataEmulAlgoDecisionUnprescaled[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataEmulAlgoDecisionUnprescaledAllowed[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataEmulAlgoDecisionMask[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataEmulAlgoDecision_Err[NumberOfGtRecords];
-    MonitorElement* m_fdlDataEmul_Err[NumberOfGtRecords];
+  MonitorElement* m_fdlEmulAlgoDecision[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlEmulAlgoDecisionPrescaled[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlEmulAlgoDecisionUnprescaled[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlEmulAlgoDecisionMask[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlEmulAlgoDecision_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlEmulAlgoDecisionPrescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlEmulAlgoDecisionUnprescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlEmulAlgoDecisionMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlEmulAlgoDecisionPrescaledMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlEmulAlgoDecisionUnprescaledMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlEmulAlgoDecision_Err[NumberOfGtRecords];
 
-    //
-    MonitorElement* m_fdlDataTechDecision[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataTechDecisionMask[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataTechDecision_Err[NumberOfGtRecords];
+  //
+  MonitorElement* m_fdlDataEmulAlgoDecision[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataEmulAlgoDecisionPrescaled[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataEmulAlgoDecisionUnprescaled[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataEmulAlgoDecisionUnprescaledAllowed[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataEmulAlgoDecisionMask[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataEmulAlgoDecision_Err[NumberOfGtRecords];
+  MonitorElement* m_fdlDataEmul_Err[NumberOfGtRecords];
 
-    MonitorElement* m_fdlEmulTechDecision[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulTechDecisionMask[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulTechDecision_Err[NumberOfGtRecords];
+  //
+  MonitorElement* m_fdlDataTechDecision[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataTechDecisionMask[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataTechDecision_Err[NumberOfGtRecords];
 
-    MonitorElement* m_fdlDataEmulTechDecision[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataEmulTechDecisionMask[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataEmulTechDecision_Err[NumberOfGtRecords];
+  MonitorElement* m_fdlEmulTechDecision[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlEmulTechDecisionMask[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlEmulTechDecision_Err[NumberOfGtRecords];
 
-    MonitorElement* m_excludedAlgorithmsAgreement;
+  MonitorElement* m_fdlDataEmulTechDecision[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataEmulTechDecisionMask[TotalBxInEvent][NumberOfGtRecords];
+  MonitorElement* m_fdlDataEmulTechDecision_Err[NumberOfGtRecords];
 
-    /// PSB
+  MonitorElement* m_excludedAlgorithmsAgreement;
 
-    // FIXME add PSB comparison
+  /// PSB
 
-    /// ErrorFlag a la HardwareValidation
-    MonitorElement* m_gtErrorFlag;
+  // FIXME add PSB comparison
 
+  /// ErrorFlag a la HardwareValidation
+  MonitorElement* m_gtErrorFlag;
 
-    ///
-    int m_nrEvJob;
-    int m_nrEvRun;
+  ///
+  int m_nrEvJob;
+  int m_nrEvRun;
 
+  std::vector<int> m_excludedAlgoList;
 
-    std::vector<int> m_excludedAlgoList;
-
-    //define Token(-s)
-    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtDataDaqInputToken_;
-    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtEmulDaqInputToken_;
-    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtDataEvmInputToken_;
-    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtEmulEvmInputToken_;
-
+  //define Token(-s)
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtDataDaqInputToken_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtEmulDaqInputToken_;
+  edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtDataEvmInputToken_;
+  edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtEmulEvmInputToken_;
 };
 
 #endif /*DQM_L1TMonitor_L1GtHwValidation_h*/

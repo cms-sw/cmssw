@@ -29,23 +29,19 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 
-#define nfed_ FEDNumbering::MAXFEDID+1
+#define nfed_ FEDNumbering::MAXFEDID + 1
 
 class BxTiming : public DQMEDAnalyzer {
-
- public:
-
+public:
   explicit BxTiming(const edm::ParameterSet&);
   ~BxTiming() override;
 
- protected:
-
+protected:
   void dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
-  
- private:
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
 
+private:
   // input
   edm::InputTag fedSource_;
   edm::EDGetTokenT<FEDRawDataCollection> fedSource_token_;
@@ -54,7 +50,7 @@ class BxTiming : public DQMEDAnalyzer {
 
   // debug verbose level
   int verbose_;
-  int verbose() {return verbose_;}
+  int verbose() { return verbose_; }
 
   /** calculates the difference (closest distance) between two bunch crossing numbers.
       This is similar to calculating delta phi between two vectors. 
@@ -73,42 +69,39 @@ class BxTiming : public DQMEDAnalyzer {
   // dqm histogram folder
   std::string histFolder_;
 
- 
   // running in filter farm? (use reduced set of me's)
   bool runInFF_;
 
   // readout l1 systems
-  static const int norb_ = 3564;  // bx per orbit
-  static const int half_norb_ = norb_ / 2; // for calculating the difference between two BX numbers
+  static const int norb_ = 3564;            // bx per orbit
+  static const int half_norb_ = norb_ / 2;  // for calculating the difference between two BX numbers
 
-  static const int nbig_ = 10000; // larger than bx spread
-  static const int nttype_ = 6;   // number of trigger types (physics, cal,...)
+  static const int nbig_ = 10000;  // larger than bx spread
+  static const int nttype_ = 6;    // number of trigger types (physics, cal,...)
 
-  std::vector<int>  listGtBits_;  // selected gt bit numbers for synch monitoring
+  std::vector<int> listGtBits_;  // selected gt bit numbers for synch monitoring
 
-  enum nsys {NSYS=10};
-  enum syslist {PS=0, ETP, HTP, GCT, CTP, CTF, DTP, DTF, RPC, GLT};
-  std::pair<int,int> fedRange_[NSYS];
-  int fedRef_; // reference fed
+  enum nsys { NSYS = 10 };
+  enum syslist { PS = 0, ETP, HTP, GCT, CTP, CTF, DTP, DTF, RPC, GLT };
+  std::pair<int, int> fedRange_[NSYS];
+  int fedRef_;  // reference fed
 
   // bx spread counters
-  static const int nspr_=3; // delta, min, max  
+  static const int nspr_ = 3;  // delta, min, max
   int nBxDiff[nfed_][nspr_];
   int nBxOccy[nfed_][nspr_];
 
   /// histograms
-  MonitorElement* hBxDiffAllFed;              // bx shift wrt reference fed, for all feds
-  MonitorElement* hBxDiffSysFed[NSYS];        // bx shift wrt reference fed, per subsystem
-  MonitorElement* hBxOccyAllFed;              // bx occupancy, for all fed's
-  MonitorElement**hBxOccyOneFed;              // bx occupancy, per each fed
-					      
-  MonitorElement* hBxDiffAllFedSpread[nspr_]; // bx shift wrt ref fed: mean shift, min, max
-  MonitorElement* hBxOccyAllFedSpread[nspr_]; // bx occupancy: mean shift, min, max
+  MonitorElement* hBxDiffAllFed;        // bx shift wrt reference fed, for all feds
+  MonitorElement* hBxDiffSysFed[NSYS];  // bx shift wrt reference fed, per subsystem
+  MonitorElement* hBxOccyAllFed;        // bx occupancy, for all fed's
+  MonitorElement** hBxOccyOneFed;       // bx occupancy, per each fed
 
-  MonitorElement* hBxOccyGtTrigType[nttype_]; // gt bx occupancy per trigger type
-  MonitorElement**hBxOccyTrigBit[NSYS];       // subsystem bx occupancy per selected trigger bit
+  MonitorElement* hBxDiffAllFedSpread[nspr_];  // bx shift wrt ref fed: mean shift, min, max
+  MonitorElement* hBxOccyAllFedSpread[nspr_];  // bx occupancy: mean shift, min, max
 
-
+  MonitorElement* hBxOccyGtTrigType[nttype_];  // gt bx occupancy per trigger type
+  MonitorElement** hBxOccyTrigBit[NSYS];       // subsystem bx occupancy per selected trigger bit
 };
 
 #endif
