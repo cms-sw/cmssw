@@ -56,18 +56,13 @@ egmElectronIsolationPileUpCITK.srcForIsolationCone = cms.InputTag("pfPileUpAllCh
 photonIDValueMaps = cms.EDProducer(
   "PhotonIDValueMapProducer",
   ebReducedRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-  ebReducedRecHitCollectionMiniAOD = cms.InputTag(""),
   eeReducedRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-  eeReducedRecHitCollectionMiniAOD = cms.InputTag(""),
   esReducedRecHitCollection  = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
-  esReducedRecHitCollectionMiniAOD = cms.InputTag(""),
   particleBasedIsolation = cms.InputTag("particleBasedIsolationTmp","gedPhotonsTmp"),
   pfCandidates = cms.InputTag("particleFlowTmp"),
-  pfCandidatesMiniAOD = cms.InputTag(""),
   src = cms.InputTag("gedPhotonsTmp"),
-  srcMiniAOD = cms.InputTag(""),
   vertices = cms.InputTag("offlinePrimaryVertices"),
-  verticesMiniAOD = cms.InputTag("")
+  isAOD = cms.bool(True)
   )
 
 
