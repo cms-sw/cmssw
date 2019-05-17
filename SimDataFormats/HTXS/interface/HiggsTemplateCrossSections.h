@@ -297,10 +297,10 @@ namespace Stage1_1 {
       HTXS::Stage0::Category stage0_cat;
       HTXS::Stage1::Category stage1_cat_pTjet25GeV;
       HTXS::Stage1::Category stage1_cat_pTjet30GeV;
-      STXS::Stage1_1::Category stage1_1_cat_pTjet25GeV;
-      STXS::Stage1_1::Category stage1_1_cat_pTjet30GeV;
-      STXS::Stage1_1_Fine::Category stage1_1_fine_cat_pTjet25GeV;
-      STXS::Stage1_1_Fine::Category stage1_1_fine_cat_pTjet30GeV;
+      HTXS::Stage1_1::Category stage1_1_cat_pTjet25GeV;
+      HTXS::Stage1_1::Category stage1_1_cat_pTjet30GeV;
+      HTXS::Stage1_1_Fine::Category stage1_1_fine_cat_pTjet25GeV;
+      HTXS::Stage1_1_Fine::Category stage1_1_fine_cat_pTjet30GeV;
       // Error code :: classification was succesful or some error occured
       HTXS::ErrorCode errorCode;
     };
