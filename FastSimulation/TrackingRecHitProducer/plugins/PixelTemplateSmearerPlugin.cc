@@ -16,36 +16,19 @@
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/Utilities/interface/SimpleHistogramGenerator.h"
 
-
-class PixelTemplateSmearerPlugin:
-  public PixelTemplateSmearerBase
-{
+class PixelTemplateSmearerPlugin : public PixelTemplateSmearerBase {
 public:
-  explicit PixelTemplateSmearerPlugin( const std::string& name,
-				       const edm::ParameterSet& config,
-				       edm::ConsumesCollector& consumesCollector
-				       );
+  explicit PixelTemplateSmearerPlugin(const std::string& name,
+                                      const edm::ParameterSet& config,
+                                      edm::ConsumesCollector& consumesCollector);
   ~PixelTemplateSmearerPlugin() override;
 };
 
+PixelTemplateSmearerPlugin::PixelTemplateSmearerPlugin(const std::string& name,
+                                                       const edm::ParameterSet& config,
+                                                       edm::ConsumesCollector& consumesCollector)
+    : PixelTemplateSmearerBase(name, config, consumesCollector) {}
 
-PixelTemplateSmearerPlugin::PixelTemplateSmearerPlugin(
-    const std::string& name,
-    const edm::ParameterSet& config,
-    edm::ConsumesCollector& consumesCollector
-):
-  PixelTemplateSmearerBase(name, config, consumesCollector)
-{
-}
+PixelTemplateSmearerPlugin::~PixelTemplateSmearerPlugin() {}
 
-
-PixelTemplateSmearerPlugin::~PixelTemplateSmearerPlugin()
-{
-}
-
-
-DEFINE_EDM_PLUGIN(
-    TrackingRecHitAlgorithmFactory,
-    PixelTemplateSmearerPlugin,
-    "PixelTemplateSmearerPlugin"
-);
+DEFINE_EDM_PLUGIN(TrackingRecHitAlgorithmFactory, PixelTemplateSmearerPlugin, "PixelTemplateSmearerPlugin");
