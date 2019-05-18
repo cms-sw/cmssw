@@ -4,7 +4,7 @@
 //
 // Package:     FastSimulation/Particle
 // Class  :     pdg_functions
-// 
+//
 /**\class pdg_functions pdg_functions.h "FastSimulation/Particle/interface/pdg_functions.h"
 
  Description: [one line class summary]
@@ -25,14 +25,12 @@
 
 // forward declarations
 
-namespace pdg
-{
+namespace pdg {
   constexpr static double kInvalidMass = -99999;
   double mass(int pdgID, const HepPDT::ParticleDataTable* pdt);
 
   constexpr static double kInvalidCtau = 1E99;
   double cTau(int pdgID, const HepPDT::ParticleDataTable* pdt);
-}
-
+}  // namespace pdg
 
 #endif

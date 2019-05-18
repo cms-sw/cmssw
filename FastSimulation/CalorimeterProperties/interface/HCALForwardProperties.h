@@ -5,7 +5,7 @@
 
 #include <cmath>
 
-namespace edm { 
+namespace edm {
   class ParameterSet;
 }
 
@@ -16,30 +16,26 @@ namespace edm {
  *
  * \author Patrick Janot
  * \date: 25-Jan-2004
- */ 
+ */
 
-class HCALForwardProperties : public HCALProperties
-{
+class HCALForwardProperties : public HCALProperties {
+public:
+  HCALForwardProperties(const edm::ParameterSet& fastDet) : HCALProperties(fastDet) { ; }
 
- public:
-
-  HCALForwardProperties(const edm::ParameterSet& fastDet):HCALProperties(fastDet) {; } 
-
-  ~HCALForwardProperties() override { }
+  ~HCALForwardProperties() override {}
 
   double getHcalDepth(double);
 
-  double thickness(double eta) const override { 
-    
+  double thickness(double eta) const override {
     double feta = fabs(eta);
-    if(feta > 3.0 && feta < 5.19)
-      {return HCALProperties::getHcalDepth(eta) * interactionLength();}
-    else {return 0.;}
-      
+    if (feta > 3.0 && feta < 5.19) {
+      return HCALProperties::getHcalDepth(eta) * interactionLength();
+    } else {
+      return 0.;
+    }
   }
 
- private:
-
+private:
 };
 
 #endif

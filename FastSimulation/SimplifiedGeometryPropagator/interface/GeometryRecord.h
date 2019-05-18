@@ -5,6 +5,8 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "boost/mpl/vector.hpp"
 
-class GeometryRecord : public edm::eventsetup::DependentRecordImplementation<GeometryRecord, boost::mpl::vector<TrackerRecoGeometryRecord> > {};
+class GeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<GeometryRecord,
+                                                            boost::mpl::vector<TrackerRecoGeometryRecord> > {};
 
 #endif

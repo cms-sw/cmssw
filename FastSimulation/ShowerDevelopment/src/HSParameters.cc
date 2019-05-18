@@ -1,8 +1,7 @@
 #include "FastSimulation/ShowerDevelopment/interface/HSParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-HSParameters::HSParameters(const edm::ParameterSet& param)
-{
+HSParameters::HSParameters(const edm::ParameterSet& param) {
   lossesOpt_ = param.getParameter<int>("lossesOpt");
   nDepthSteps_ = param.getParameter<int>("nDepthSteps");
   nTRsteps_ = param.getParameter<int>("nTRsteps");
@@ -12,5 +11,5 @@ HSParameters::HSParameters(const edm::ParameterSet& param)
   criticalEnergy_ = param.getParameter<double>("criticalHDEnergy");
   maxTRfactor_ = param.getParameter<double>("maxTRfactor");
   balanceEH_ = param.getParameter<double>("balanceEH");
-  hcalDepthFactor_ = param.getParameter<double>("hcalDepthFactor"); 
+  hcalDepthFactor_ = param.getParameter<double>("hcalDepthFactor");
 }
