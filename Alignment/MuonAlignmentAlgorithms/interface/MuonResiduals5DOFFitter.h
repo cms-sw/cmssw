@@ -15,8 +15,7 @@
 
 class TTree;
 
-class MuonResiduals5DOFFitter: public MuonResidualsFitter
-{
+class MuonResiduals5DOFFitter : public MuonResidualsFitter {
 public:
   enum {
     kAlignX = 0,
@@ -51,16 +50,22 @@ public:
     kNData
   };
 
-  MuonResiduals5DOFFitter(int residualsModel, int minHits, int useResiduals, bool weightAlignment=true): MuonResidualsFitter(residualsModel, minHits, useResiduals, weightAlignment) {}
-  ~MuonResiduals5DOFFitter() override{}
+  MuonResiduals5DOFFitter(int residualsModel, int minHits, int useResiduals, bool weightAlignment = true)
+      : MuonResidualsFitter(residualsModel, minHits, useResiduals, weightAlignment) {}
+  ~MuonResiduals5DOFFitter() override {}
 
   int type() const override { return MuonResidualsFitter::k5DOF; }
 
   int npar() override {
-    if (residualsModel() == kPureGaussian || residualsModel() == kPureGaussian2D || residualsModel() == kGaussPowerTails) return kNPar - 2;
-    else if (residualsModel() == kPowerLawTails) return kNPar;
-    else if (residualsModel() == kROOTVoigt) return kNPar;
-    else assert(false);
+    if (residualsModel() == kPureGaussian || residualsModel() == kPureGaussian2D ||
+        residualsModel() == kGaussPowerTails)
+      return kNPar - 2;
+    else if (residualsModel() == kPowerLawTails)
+      return kNPar;
+    else if (residualsModel() == kROOTVoigt)
+      return kNPar;
+    else
+      assert(false);
   }
   int ndata() override { return kNData; }
 
@@ -70,10 +75,11 @@ public:
 
   void correctBField() override;
 
-  TTree * readNtuple(std::string fname, unsigned int wheel, unsigned int station, unsigned int sector, unsigned int preselected = 1);
+  TTree *readNtuple(
+      std::string fname, unsigned int wheel, unsigned int station, unsigned int sector, unsigned int preselected = 1);
 
 protected:
   void inform(TMinuit *tMinuit) override;
 };
 
-#endif // Alignment_MuonAlignmentAlgorithms_MuonResiduals5DOFFitter_H
+#endif  // Alignment_MuonAlignmentAlgorithms_MuonResiduals5DOFFitter_H

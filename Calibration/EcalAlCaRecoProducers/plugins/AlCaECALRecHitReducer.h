@@ -5,7 +5,7 @@
 //
 // Package:    AlCaECALRecHitReducer
 // Class:      AlCaECALRecHitReducer
-// 
+//
 /**\class AlCaECALRecHitReducer AlCaECALRecHitReducer.cc Calibration/EcalAlCaRecoProducers/src/AlCaECALRecHitReducer.cc
 
  Description: Example of a producer of AlCa electrons
@@ -20,7 +20,6 @@
 // $Id: AlCaECALRecHitReducer.h,v 1.13 2010/02/11 00:10:34 wmtan Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -46,25 +45,22 @@
 //!
 
 class AlCaECALRecHitReducer : public edm::EDProducer {
- public:
+public:
   //! ctor
   explicit AlCaECALRecHitReducer(const edm::ParameterSet&);
   ~AlCaECALRecHitReducer() override;
-  
-  
+
   //! producer
-  void produce(edm::Event &, const edm::EventSetup&) override;
-  
- private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
   // ----------member data ---------------------------
-  
-  
-  
+
   edm::EDGetTokenT<EcalRecHitCollection> ebRecHitsToken_;
   edm::EDGetTokenT<EcalRecHitCollection> eeRecHitsToken_;
   edm::EDGetTokenT<EcalRecHitCollection> esRecHitsToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
-  std::vector< edm::EDGetTokenT<edm::View < reco::RecoCandidate> > > eleViewTokens_;
+  std::vector<edm::EDGetTokenT<edm::View<reco::RecoCandidate> > > eleViewTokens_;
 
   edm::EDGetTokenT<reco::PhotonCollection> photonToken_;
   edm::EDGetTokenT<reco::SuperClusterCollection> EESuperClusterToken_;
@@ -84,11 +80,8 @@ class AlCaECALRecHitReducer : public edm::EDProducer {
   std::string alcaCaloClusterCollection_;
 
   void AddMiniRecHitCollection(const reco::SuperCluster& sc,
-			       std::set<DetId>& reducedRecHitMap,
-			       const CaloTopology *caloTopology
-			       );
-
-
+                               std::set<DetId>& reducedRecHitMap,
+                               const CaloTopology* caloTopology);
 };
 
 #endif
