@@ -14,8 +14,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "RecoEgamma/EgammaTools/interface/Utils.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "FWCore/Framework/interface/Event.h"
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace {
 
@@ -333,7 +339,11 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
 
     // write the value maps
     for (int i = 0; i < nVars_; ++i) {
-        writeValueMap(iEvent, src, vars[i], names[i]);
+        auto valMap = std::make_unique<edm::ValueMap<float>>();
+        typename edm::ValueMap<float>::Filler filler(*valMap);
+        filler.insert(src, vars[i].begin(), vars[i].end());
+        filler.fill();
+        iEvent.put(std::move(valMap),names[i]);
     }
 }
 
