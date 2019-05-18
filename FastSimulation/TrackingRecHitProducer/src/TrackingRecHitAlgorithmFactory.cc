@@ -4,7 +4,4 @@
 
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitAlgorithmFactory.h"
 
-EDM_REGISTER_PLUGINFACTORY(
-    TrackingRecHitAlgorithmFactory,
-    "TrackingRecHitAlgorithmFactory"
-);
+EDM_REGISTER_PLUGINFACTORY(TrackingRecHitAlgorithmFactory, "TrackingRecHitAlgorithmFactory");

@@ -12,7 +12,6 @@
 //
 //
 
-
 #ifndef CALORESPONSE_H
 #define CALORESPONSE_H
 
@@ -23,23 +22,20 @@
 #include <TFile.h>
 #include <TROOT.h>
 
-
 class KKCorrectionFactors {
-
- public:
+public:
   /* Constructor: pset must contain two strings: "fileName" is the name of the
    * file in which the TH3F named "histogramName" is saved.
    */
-  KKCorrectionFactors( const edm::ParameterSet& pset );
+  KKCorrectionFactors(const edm::ParameterSet& pset);
   ~KKCorrectionFactors() { delete h3_; };
 
-  float getScale( float genEnergy, float genEta, float simEnergy ) const;
+  float getScale(float genEnergy, float genEta, float simEnergy) const;
 
- private:
+private:
   // histogram which contains the scales
   TH3F* h3_;
   bool interpolate3D_;
-
 };
 
 #endif

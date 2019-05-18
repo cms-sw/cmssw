@@ -38,18 +38,17 @@ class GflashAntiProtonShowerProfile;
 // FastHFshowerLibrary
 class FastHFShowerLibrary;
 
-namespace edm { 
+namespace edm {
   class ParameterSet;
 }
 
-class CalorimetryManager{
-
- public:
+class CalorimetryManager {
+public:
   CalorimetryManager();
-  CalorimetryManager(FSimEvent* aSimEvent, 
-		     const edm::ParameterSet& fastCalo,
-		     const edm::ParameterSet& MuonECALPars,
-		     const edm::ParameterSet& MuonHCALPars,
+  CalorimetryManager(FSimEvent* aSimEvent,
+                     const edm::ParameterSet& fastCalo,
+                     const edm::ParameterSet& MuonECALPars,
+                     const edm::ParameterSet& MuonHCALPars,
                      const edm::ParameterSet& fastGflash);
   ~CalorimetryManager();
 
@@ -58,67 +57,66 @@ class CalorimetryManager{
   void reconstructTrack(FSimTrack& myTrack, RandomEngineAndDistribution const*);
   void reconstruct(RandomEngineAndDistribution const*);
 
-  // Return the address of the Calorimeter 
-  CaloGeometryHelper * getCalorimeter() const {return myCalorimeter_;}
+  // Return the address of the Calorimeter
+  CaloGeometryHelper* getCalorimeter() const { return myCalorimeter_; }
 
-  // Return the address of the FastHFShowerLibrary 
-  FastHFShowerLibrary * getHFShowerLibrary() const {return theHFShowerLibrary;}
-  
+  // Return the address of the FastHFShowerLibrary
+  FastHFShowerLibrary* getHFShowerLibrary() const { return theHFShowerLibrary; }
+
   // load container from edm::Event
-  void loadFromEcalBarrel(edm::PCaloHitContainer & c) const;
-  
-  void loadFromEcalEndcap(edm::PCaloHitContainer & c) const;
-  
-  void loadFromHcal(edm::PCaloHitContainer & c) const;
-  
-  void loadFromPreshower(edm::PCaloHitContainer & c) const;
-  
-  void loadMuonSimTracks(edm::SimTrackContainer & m) const;
+  void loadFromEcalBarrel(edm::PCaloHitContainer& c) const;
 
-  void harvestMuonSimTracks(edm::SimTrackContainer & m) const;
-  
- private:
+  void loadFromEcalEndcap(edm::PCaloHitContainer& c) const;
+
+  void loadFromHcal(edm::PCaloHitContainer& c) const;
+
+  void loadFromPreshower(edm::PCaloHitContainer& c) const;
+
+  void loadMuonSimTracks(edm::SimTrackContainer& m) const;
+
+  void harvestMuonSimTracks(edm::SimTrackContainer& m) const;
+
+private:
   // Simulation of electromagnetic showers in PS, ECAL, HCAL
   void EMShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*);
-  
+
   void reconstructHCAL(const FSimTrack& myTrack, RandomEngineAndDistribution const*);
-  
-  void MuonMipSimulation(const FSimTrack & myTrack, RandomEngineAndDistribution const*);
- 
+
+  void MuonMipSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*);
+
   /// Hadronic Shower Simulation
   void HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*);
 
-  // Read the parameters 
+  // Read the parameters
   void readParameters(const edm::ParameterSet& fastCalo);
 
-  void updateECAL(const std::map<CaloHitID,float>& hitMap, int onEcal, int trackID=0, float corr=1.0); 
-  void updateHCAL(const std::map<CaloHitID,float>& hitMap, int trackID=0, float corr=1.0); 
-  void updatePreshower(const std::map<CaloHitID,float>& hitMap, int trackID=0, float corr=1.0); 
-  
+  void updateECAL(const std::map<CaloHitID, float>& hitMap, int onEcal, int trackID = 0, float corr = 1.0);
+  void updateHCAL(const std::map<CaloHitID, float>& hitMap, int trackID = 0, float corr = 1.0);
+  void updatePreshower(const std::map<CaloHitID, float>& hitMap, int trackID = 0, float corr = 1.0);
+
   void respCorr(double);
 
-  void clean(); 
+  void clean();
 
- private:
-
+private:
   FSimEvent* mySimEvent;
   CaloGeometryHelper* myCalorimeter_;
 
-  Histos * myHistos;
+  Histos* myHistos;
 
   HCALResponse* myHDResponse_;
-  HSParameters * myHSParameters_;
+  HSParameters* myHSParameters_;
 
-  std::vector<std::pair<CaloHitID,float> > EBMapping_;
-  std::vector<std::pair<CaloHitID,float> > EEMapping_;
-  std::vector<std::pair<CaloHitID,float> > HMapping_;
-  std::vector<std::pair<CaloHitID,float> > ESMapping_;
+  std::vector<std::pair<CaloHitID, float> > EBMapping_;
+  std::vector<std::pair<CaloHitID, float> > EEMapping_;
+  std::vector<std::pair<CaloHitID, float> > HMapping_;
+  std::vector<std::pair<CaloHitID, float> > ESMapping_;
 
   bool debug_;
   std::vector<unsigned int> evtsToDebug_;
 
   bool unfoldedMode_;
- 
+
   //Digitizer
   bool EcalDigitizer_;
   bool HcalDigitizer_;
@@ -136,22 +134,22 @@ class CalorimetryManager{
   RawParticle myPosi;
   RawParticle myPart;
 
-  // Parameters 
+  // Parameters
   double pulledPadSurvivalProbability_;
   double crackPadSurvivalProbability_;
   double spotFraction_;
   //  double radiusFactor_;
-  double radiusFactorEB_ , radiusFactorEE_;
+  double radiusFactorEB_, radiusFactorEE_;
   std::vector<double> radiusPreshowerCorrections_;
   double aTerm, bTerm;
   std::vector<double> mipValues_;
   int gridSize_;
-  std::vector<double> theCoreIntervals_,theTailIntervals_;
-  double RCFactor_,RTFactor_;
+  std::vector<double> theCoreIntervals_, theTailIntervals_;
+  double RCFactor_, RTFactor_;
   //FR
   int optionHDSim_, hdGridSize_, hdSimMethod_;
   bool simulatePreshower_;
-  //RF 
+  //RF
 
   const LandauFluctuationGenerator* aLandauGenerator;
   GammaFunctionGenerator* aGammaGenerator;
@@ -159,7 +157,7 @@ class CalorimetryManager{
   static std::vector<std::pair<int, float> > myZero_;
 
   // RespCorrP p, k_e(p), k_h(p) vectors  and evaluated for each p
-  // ecorr and hcorr  
+  // ecorr and hcorr
   std::vector<double> rsp;
   std::vector<double> p_knots;
   std::vector<double> k_e;
@@ -172,9 +170,8 @@ class CalorimetryManager{
 
   std::vector<FSimTrack> muonSimTracks;
   std::vector<FSimTrack> savedMuonSimTracks;
-  MaterialEffects* theMuonEcalEffects; // material effects for muons in ECAL
-  MaterialEffects* theMuonHcalEffects; // material effects for muons in HCAL
-
+  MaterialEffects* theMuonEcalEffects;  // material effects for muons in ECAL
+  MaterialEffects* theMuonHcalEffects;  // material effects for muons in HCAL
 
   // If set to true the simulation in ECAL would be done 1X0 by 1X0
   // this is slow but more adapted to detailed studies.
@@ -183,17 +180,16 @@ class CalorimetryManager{
   bool bFixedLength_;
 
   //Gflash
-  GflashHadronShowerProfile *theProfile;
-  GflashPiKShowerProfile *thePiKProfile;
-  GflashProtonShowerProfile *theProtonProfile;
-  GflashAntiProtonShowerProfile *theAntiProtonProfile;
+  GflashHadronShowerProfile* theProfile;
+  GflashPiKShowerProfile* thePiKProfile;
+  GflashProtonShowerProfile* theProtonProfile;
+  GflashAntiProtonShowerProfile* theAntiProtonProfile;
 
   // HFShowerLibrary
   bool useShowerLibrary;
   bool useCorrectionSL;
-  FastHFShowerLibrary *theHFShowerLibrary;
+  FastHFShowerLibrary* theHFShowerLibrary;
 
   std::unique_ptr<KKCorrectionFactors> ecalCorrection;
-
 };
 #endif
