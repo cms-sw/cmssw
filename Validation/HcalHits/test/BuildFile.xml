@@ -1,12 +1,24 @@
+<use   name="CommonTools/UtilAlgos"/>
 <use   name="DataFormats/HcalDetId"/>
-<use   name="SimDataFormats/CaloHit"/>
-<use   name="SimDataFormats/ValidationFormats"/>
+<use   name="DataFormats/HepMCCandidate"/>
+<use   name="DataFormats/Math"/>
+<use   name="DQMServices/Core"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>
-<use   name="DQMServices/Core"/>
+<use   name="Geometry/HcalCommonData"/>
+<use   name="Geometry/Records"/>
+<use   name="SimDataFormats/CaloHit"/>
+<use   name="SimDataFormats/ValidationFormats"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimG4Core/Notification"/>
+<use   name="SimG4Core/Watcher"/>
+<use   name="SimG4CMS/Calo"/>
+<use   name="geant4core"/>
 <use   name="boost"/>
+<use   name="hepmc"/>
+<use   name="clhep"/>
 <use   name="root"/>
 <flags   EDM_PLUGIN="1"/>
-<library   file="HcalHitValidation.cc" name="testValidationHcalHits">
+<library   file="*.cc" name="testValidationHcalHits">
 </library>
