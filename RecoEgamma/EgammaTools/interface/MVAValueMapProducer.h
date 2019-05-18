@@ -9,13 +9,16 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
-#include "RecoEgamma/EgammaTools/interface/Utils.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "FWCore/Framework/interface/Event.h"
 
-#include <memory>
-#include <vector>
 #include <cmath>
+#include <memory>
+#include <string>
+#include <vector>
 
 template <class ParticleType>
 class MVAValueMapProducer : public edm::global::EDProducer<> {
@@ -47,6 +50,20 @@ class MVAValueMapProducer : public edm::global::EDProducer<> {
 };
 
 namespace {
+
+    template<typename ValueType, class HandleType>
+    void writeValueMap(edm::Event &iEvent,
+                       const edm::Handle<HandleType>& handle,
+                       const std::vector<ValueType>& values,
+                       const std::string& label)
+    {
+        auto valMap = std::make_unique<edm::ValueMap<ValueType>>();
+        typename edm::ValueMap<ValueType>::Filler filler(*valMap);
+        filler.insert(handle, values.begin(), values.end());
+        filler.fill();
+        iEvent.put(std::move(valMap),label);
+    }
+
 
     auto getMVAEstimators(const edm::VParameterSet& vConfig)
     {
