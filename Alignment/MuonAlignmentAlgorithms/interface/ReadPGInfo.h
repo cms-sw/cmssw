@@ -14,12 +14,10 @@
 #define TOTALCHAMBERS 264
 
 class ReadPGInfo {
-
 public:
-
   ReadPGInfo(const char *name);
   ~ReadPGInfo();
-  char * getId(int, int, int);
+  char *getId(int, int, int);
   TMatrixD giveR(int, int, int);
   TMatrixD giveQC(int, int, int);
   TMatrixD giveSurvey(int, int, int);
@@ -27,7 +25,6 @@ public:
 
 private:
   TFile *rootFile;
-
 };
 
 #endif
