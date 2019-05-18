@@ -1,7 +1,6 @@
 #ifndef Tracker_APVAnalysis_h
 #define Tracker_APVAnalysis_h
 
-
 #include <vector>
 #include <iostream>
 // user include files
@@ -12,7 +11,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "boost/cstdint.hpp"
-
 
 //#define DEBUG_INSTANCE_COUNTING
 
@@ -37,44 +35,42 @@ class TkNoiseCalculator;
  * - a TkNoiseCalculator
  */
 
-
-class ApvAnalysis 
+class ApvAnalysis
 #ifdef DEBUG_INSTANCE_COUNTING
-  : public InstanceCounting<ApvAnalysis>
+    : public InstanceCounting<ApvAnalysis>
 #endif
 {
- public:
+public:
   typedef edm::DetSet<SiStripRawDigi> RawSignalType;
   typedef std::vector<float> PedestalType;
-  
+
   ApvAnalysis(int nev);
-  ~ApvAnalysis(){;}
+  ~ApvAnalysis() { ; }
 
   //
   // Tell ApvAnalysis which algorithms to use.
   //
 
-  void setCommonModeCalculator (TkCommonModeCalculator& in ){theTkCommonModeCalculator = &in;} 
-  void setPedestalCalculator (TkPedestalCalculator& in ){theTkPedestalCalculator = &in;} 
-  void setNoiseCalculator(TkNoiseCalculator& in){theTkNoiseCalculator = &in;} 
-  void setMask(TkApvMask& in){theTkApvMask=&in;}
-  
-  TkCommonModeCalculator& commonModeCalculator() {return *theTkCommonModeCalculator;}
-  TkPedestalCalculator& pedestalCalculator() {return *theTkPedestalCalculator;}
-  TkNoiseCalculator& noiseCalculator() {return *theTkNoiseCalculator;}
-  TkApvMask& mask() {return *theTkApvMask;}
-  
+  void setCommonModeCalculator(TkCommonModeCalculator& in) { theTkCommonModeCalculator = &in; }
+  void setPedestalCalculator(TkPedestalCalculator& in) { theTkPedestalCalculator = &in; }
+  void setNoiseCalculator(TkNoiseCalculator& in) { theTkNoiseCalculator = &in; }
+  void setMask(TkApvMask& in) { theTkApvMask = &in; }
+
+  TkCommonModeCalculator& commonModeCalculator() { return *theTkCommonModeCalculator; }
+  TkPedestalCalculator& pedestalCalculator() { return *theTkPedestalCalculator; }
+  TkNoiseCalculator& noiseCalculator() { return *theTkNoiseCalculator; }
+  TkApvMask& mask() { return *theTkApvMask; }
+
   //
-  // Give store/load commands to the TkPedestalCalculator and to 
+  // Give store/load commands to the TkPedestalCalculator and to
   // TkNoiseCalculator, will use ApvEventReader.
   // Has to be done here because they have no access to the reader.
   //
   /** Update pedestals & noise with current event */
-  void updateCalibration(edm::DetSet<SiStripRawDigi>& in) ;
+  void updateCalibration(edm::DetSet<SiStripRawDigi>& in);
   void newEvent() const;
 
-  
- private:
+private:
   TkCommonModeCalculator* theTkCommonModeCalculator;
   TkPedestalCalculator* theTkPedestalCalculator;
   TkNoiseCalculator* theTkNoiseCalculator;
@@ -83,4 +79,3 @@ class ApvAnalysis
   int eventsRequiredToUpdate_;
 };
 #endif
-
