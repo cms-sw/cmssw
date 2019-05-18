@@ -21,7 +21,7 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
-#include <boost/regex.hpp>
+#include <regex>
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositVetoFactory.h"
 
@@ -30,7 +30,7 @@ using namespace reco;
 using namespace reco::isodeposit;
 
 bool PFCandIsolatorFromDeposits::SingleDeposit::isNumber(const std::string &str) const {
-   static boost::regex re("^[+-]?(\\d+\\.?|\\d*\\.\\d*)$");
+   static const std::regex re("^[+-]?(\\d+\\.?|\\d*\\.\\d*)$");
    return regex_match(str.c_str(), re);
 }
 double PFCandIsolatorFromDeposits::SingleDeposit::toNumber(const std::string &str) const {
@@ -61,10 +61,10 @@ PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet
   typedef std::vector<std::string> vstring;
   vstring vetos = iConfig.getParameter< vstring >("vetos");
   reco::isodeposit::EventDependentAbsVeto *evdep=nullptr;
-  static boost::regex ecalSwitch("^Ecal(Barrel|Endcaps):(.*)");
+  static const std::regex ecalSwitch("^Ecal(Barrel|Endcaps):(.*)");
 
   for (vstring::const_iterator it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
-    boost::cmatch match;
+    std::cmatch match;
     // in that case, make two series of vetoes
     if( usePivotForBarrelEndcaps_) {
       if (regex_match(it->c_str(), match, ecalSwitch))

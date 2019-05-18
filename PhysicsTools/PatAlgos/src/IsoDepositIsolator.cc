@@ -4,8 +4,6 @@
 #include "DataFormats/RecoCandidate/interface/IsoDepositVetos.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositVetoFactory.h"
 
-#include <boost/regex.hpp>
-
 using pat::helper::IsoDepositIsolator;
 using pat::helper::BaseIsolator;
 using namespace reco::isodeposit;
