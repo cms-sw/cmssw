@@ -63,6 +63,7 @@ struct dnn_inputs_2017v1 {
         NumberOfInputs
     };
 
+    static constexpr int NumberOfOutputs = 4;
 };
 
 namespace dnn_inputs_2017_v2 {
@@ -145,7 +146,6 @@ namespace HadronBlockInputs {
         pfCand_nHad_puppiWeight, pfCand_nHad_puppiWeightNoLep, pfCand_nHad_hcalFraction, NumberOfInputs};
 }
 
-  //static constexpr int NumberOfOutputs = 4;
 }
 
 template<typename LVector1, typename LVector2>
