@@ -26,6 +26,11 @@ MaterialBudgetCategorizer::MaterialBudgetCategorizer(std::string mode) {
     buildCategoryMap(theMaterialX0FileName, theX0Map);
     std::string theMaterialL0FileName = edm::FileInPath("Validation/Geometry/data/trackerMaterials.l0").fullPath();
     buildCategoryMap(theMaterialL0FileName, theL0Map);
+  } else if (mode.compare("Mtd") == 0) {
+    std::string theMaterialX0FileName = edm::FileInPath("Validation/Geometry/data/mtdMaterials.x0").fullPath();
+    buildCategoryMap(theMaterialX0FileName, theX0Map);
+    std::string theMaterialL0FileName = edm::FileInPath("Validation/Geometry/data/mtdMaterials.l0").fullPath();
+    buildCategoryMap(theMaterialL0FileName, theL0Map);
   } else if (mode.compare("HGCal") == 0) {
     std::string thehgcalMaterialX0FileName = edm::FileInPath("Validation/Geometry/data/hgcalMaterials.x0").fullPath();
     buildHGCalCategoryMap(thehgcalMaterialX0FileName, theHGCalX0Map);

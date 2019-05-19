@@ -10,6 +10,7 @@ MaterialBudgetData::MaterialBudgetData() {
   myMaterialBudgetCategorizer = nullptr;
   allStepsToTree = false;
   isHGCal = false;
+  isMtd = false;
   densityConvertionFactor = 6.24E18;
 }
 
@@ -23,6 +24,8 @@ void MaterialBudgetData::dataStartTrack(const G4Track* aTrack) {
   if (myMaterialBudgetCategorizer == nullptr) {
     if (isHGCal) {
       myMaterialBudgetCategorizer = std::make_unique<MaterialBudgetCategorizer>("HGCal");
+    } else if (isMtd) {
+      myMaterialBudgetCategorizer = std::make_unique<MaterialBudgetCategorizer>("Mtd");
     } else {
       myMaterialBudgetCategorizer = std::make_unique<MaterialBudgetCategorizer>("Tracker");
     }

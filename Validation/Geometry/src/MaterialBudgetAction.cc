@@ -51,6 +51,8 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet) {
     edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: running in Tracker Mode";
   } else if (theHistoList == "ECAL") {
     edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: running in Ecal Mode";
+  } else if (theHistoList == "Mtd") {
+    edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: running in Mtd Mode";
   } else if (theHistoList == "HGCal") {
     edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: running in HGCal Mode";
   } else {
@@ -71,6 +73,9 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet) {
       theHistos = std::make_shared<MaterialBudgetTrackerHistos>(theData, theHistoMgr, saveToHistosFile);
     } else if (theHistoList == "ECAL") {
       theHistos = std::make_shared<MaterialBudgetEcalHistos>(theData, theHistoMgr, saveToHistosFile);
+    } else if (theHistoList == "Mtd") {
+      theHistos = std::make_shared<MaterialBudgetMtdHistos>(theData, theHistoMgr, saveToHistosFile);
+      theData->setMtdmode(true);
     } else if (theHistoList == "HGCal") {
       theHistos = std::make_shared<MaterialBudgetHGCalHistos>(theData, theHistoMgr, saveToHistosFile);
       //In HGCal mode, so tell data class
