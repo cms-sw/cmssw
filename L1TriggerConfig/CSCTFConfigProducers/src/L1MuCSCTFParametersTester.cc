@@ -38,24 +38,19 @@
 // forward declarations
 
 // constructor(s)
-L1MuCSCTFParametersTester::L1MuCSCTFParametersTester(const edm::ParameterSet& parSet)
-{
-    // empty
+L1MuCSCTFParametersTester::L1MuCSCTFParametersTester(const edm::ParameterSet& parSet) {
+  // empty
 }
 
 // destructor
-L1MuCSCTFParametersTester::~L1MuCSCTFParametersTester()
-{
-    // empty
+L1MuCSCTFParametersTester::~L1MuCSCTFParametersTester() {
+  // empty
 }
 
 // loop over events
-void L1MuCSCTFParametersTester::analyze(
-    const edm::Event& iEvent, const edm::EventSetup& evSetup)
-{
+void L1MuCSCTFParametersTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  edm::ESHandle<L1MuCSCTFConfiguration> l1CSCTFPar;
+  evSetup.get<L1MuCSCTFConfigurationRcd>().get(l1CSCTFPar);
 
-    edm::ESHandle< L1MuCSCTFConfiguration > l1CSCTFPar ;
-    evSetup.get< L1MuCSCTFConfigurationRcd >().get( l1CSCTFPar ) ;
-
-    l1CSCTFPar->print(std::cout);
+  l1CSCTFPar->print(std::cout);
 }

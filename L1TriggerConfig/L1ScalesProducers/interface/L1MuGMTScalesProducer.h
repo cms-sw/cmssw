@@ -25,7 +25,6 @@
 #include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
 #include "CondFormats/DataRecord/interface/L1MuGMTScalesRcd.h"
 
-
 //
 // class declaration
 //
@@ -34,13 +33,13 @@ class L1MuGMTScalesProducer : public edm::ESProducer {
 public:
   L1MuGMTScalesProducer(const edm::ParameterSet&);
   ~L1MuGMTScalesProducer() override;
-  
+
   std::unique_ptr<L1MuGMTScales> produceL1MuGMTScales(const L1MuGMTScalesRcd&);
 
 private:
   // ----------member data ---------------------------
-  
-  L1MuGMTScales m_scales ;
+
+  L1MuGMTScales m_scales;
 };
 
 #endif
