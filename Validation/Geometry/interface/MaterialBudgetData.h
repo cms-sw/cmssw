@@ -215,6 +215,7 @@ public:
 
   inline bool getHGCalmode(void) { return isHGCal; }
   inline void setHGCalmode(bool t) { isHGCal = t; }
+  inline void setMtdmode(bool t) { isMtd = t; }
 
 private:
   static constexpr int MAXNUMBERSTEPS = 10000;
@@ -407,6 +408,7 @@ private:
   int stepN;
   bool allStepsToTree;
   bool isHGCal;  //HGCal mode
+  bool isMtd;    //Mtd mode
 
   double densityConvertionFactor;
 };
