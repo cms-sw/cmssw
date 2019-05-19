@@ -38,14 +38,11 @@
 namespace l1t {
 
   class L1ComparatorRun2 : public edm::EDProducer {
-
   public:
-
     explicit L1ComparatorRun2(const edm::ParameterSet& ps);
     ~L1ComparatorRun2() override;
 
   private:
-
     void produce(edm::Event&, edm::EventSetup const&) override;
 
     edm::EDGetToken JetDataToken_;
@@ -65,7 +62,6 @@ namespace l1t {
     bool doLayer2_;
     bool doLayer1_;
   };
-};
+};  // namespace l1t
 
 #endif
-  
