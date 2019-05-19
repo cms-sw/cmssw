@@ -2,7 +2,7 @@
 //
 // Package:    L1ScalesProducers
 // Class:      L1CaloInputScalesGenerator
-// 
+//
 /**\class L1CaloInputScalesGenerator L1CaloInputScalesGenerator.cc L1TriggerConfig/L1ScalesProducers/src/L1CaloInputScalesGenerator.cc
 
  Description: <one line class summary>
@@ -25,15 +25,14 @@
 //
 
 class L1CaloInputScalesGenerator : public edm::EDAnalyzer {
-   public:
-      explicit L1CaloInputScalesGenerator(const edm::ParameterSet&);
-      ~L1CaloInputScalesGenerator() override;
+public:
+  explicit L1CaloInputScalesGenerator(const edm::ParameterSet&);
+  ~L1CaloInputScalesGenerator() override;
 
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-   private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 };
