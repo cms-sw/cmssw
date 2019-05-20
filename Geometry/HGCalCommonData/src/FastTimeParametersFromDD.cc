@@ -10,11 +10,10 @@
 
 bool FastTimeParametersFromDD::build(const DDCompactView* cpv,
                                      FastTimeParameters& php,
-                                     const std::string& name, const int type) {
+                                     const std::string& name,
+                                     const int type) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") 
-    << "FastTimeParametersFromDD::build called with names " << name
-    << " and type " << type;
+  edm::LogVerbatim("HGCalGeom") << "FastTimeParametersFromDD::build called with names " << name << " and type " << type;
 #endif
 
   // Special parameters at simulation level
@@ -35,9 +34,8 @@ bool FastTimeParametersFromDD::build(const DDCompactView* cpv,
       temp = getDDDArray("numberPhiB", sv);
       php.nPhiBarrel_ = (int)(temp[0]);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") 
-	<< "Barrel Parameters: " << php.nZBarrel_ << ":" << php.nPhiBarrel_ 
-	<< ":" << php.geomParBarrel_[0] << ":" << php.geomParBarrel_[1];
+      edm::LogVerbatim("HGCalGeom") << "Barrel Parameters: " << php.nZBarrel_ << ":" << php.nPhiBarrel_ << ":"
+                                    << php.geomParBarrel_[0] << ":" << php.geomParBarrel_[1];
 #endif
     } else if (type == 2) {
       php.geomParEndcap_ = getDDDArray("geomParsE", sv);
@@ -46,46 +44,36 @@ bool FastTimeParametersFromDD::build(const DDCompactView* cpv,
       temp = getDDDArray("numberPhiE", sv);
       php.nPhiEndcap_ = (int)(temp[0]);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") 
-	<< "Endcap Parameters: " << php.nEtaEndcap_ << ":"
-	<< php.nPhiEndcap_ << ":" << php.geomParEndcap_[0] << ":"
-	<< php.geomParEndcap_[1] << ":" << php.geomParEndcap_[2];
+      edm::LogVerbatim("HGCalGeom") << "Endcap Parameters: " << php.nEtaEndcap_ << ":" << php.nPhiEndcap_ << ":"
+                                    << php.geomParEndcap_[0] << ":" << php.geomParEndcap_[1] << ":"
+                                    << php.geomParEndcap_[2];
 #endif
     } else {
-      edm::LogWarning("HGCalGeom")
-          << "Unknown Geometry type " << type << " for FastTiming " << name;
+      edm::LogWarning("HGCalGeom") << "Unknown Geometry type " << type << " for FastTiming " << name;
     }
   } else {
-    edm::LogError("HGCalGeom")
-        << " Attribute " << val << " not found but needed.";
-    throw cms::Exception("DDException")
-        << "Attribute " << val << " not found but needed.";
+    edm::LogError("HGCalGeom") << " Attribute " << val << " not found but needed.";
+    throw cms::Exception("DDException") << "Attribute " << val << " not found but needed.";
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom")
-    << "FastTimeParametersFromDD::Returns with flag " << ok << " for "
-    << name << " and type " << type;
+  edm::LogVerbatim("HGCalGeom") << "FastTimeParametersFromDD::Returns with flag " << ok << " for " << name
+                                << " and type " << type;
 #endif
   return ok;
 }
 
-std::vector<double> FastTimeParametersFromDD::getDDDArray(
-    const std::string& str, const DDsvalues_type& sv) {
+std::vector<double> FastTimeParametersFromDD::getDDDArray(const std::string& str, const DDsvalues_type& sv) {
   DDValue value(str);
   if (DDfetch(&sv, value)) {
     const std::vector<double>& fvec = value.doubles();
     int nval = fvec.size();
     if (nval < 1) {
-      edm::LogError("HGCalGeom") << "HGCalGeomParameters : # of " << str
-                                 << " bins " << nval << " < 1 ==> illegal";
-      throw cms::Exception("DDException")
-          << "HGCalGeomParameters: cannot get array " << str;
+      edm::LogError("HGCalGeom") << "HGCalGeomParameters : # of " << str << " bins " << nval << " < 1 ==> illegal";
+      throw cms::Exception("DDException") << "HGCalGeomParameters: cannot get array " << str;
     }
     return fvec;
   } else {
-    edm::LogError("HGCalGeom")
-        << "HGCalGeomParameters: cannot get array " << str;
-    throw cms::Exception("DDException")
-        << "HGCalGeomParameters: cannot get array " << str;
+    edm::LogError("HGCalGeom") << "HGCalGeomParameters: cannot get array " << str;
+    throw cms::Exception("DDException") << "HGCalGeomParameters: cannot get array " << str;
   }
 }

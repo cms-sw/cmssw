@@ -35,7 +35,7 @@
 //#define EDM_ML_DEBUG
 
 class FastTimeNumberingInitialization : public edm::ESProducer {
- public:
+public:
   FastTimeNumberingInitialization(const edm::ParameterSet&);
   ~FastTimeNumberingInitialization() override;
 
@@ -47,23 +47,20 @@ private:
   edm::ESGetToken<FastTimeParameters, IdealGeometryRecord> ftParToken_;
 };
 
-FastTimeNumberingInitialization::FastTimeNumberingInitialization(const edm::ParameterSet&):
-  ftParToken_{setWhatProduced(this).consumes<FastTimeParameters>(edm::ESInputTag{})}
-{
+FastTimeNumberingInitialization::FastTimeNumberingInitialization(const edm::ParameterSet&)
+    : ftParToken_{setWhatProduced(this).consumes<FastTimeParameters>(edm::ESInputTag{})} {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") 
-    << "constructing FastTimeNumberingInitialization";
+  edm::LogVerbatim("HGCalGeom") << "constructing FastTimeNumberingInitialization";
 #endif
 }
 
 FastTimeNumberingInitialization::~FastTimeNumberingInitialization() {}
 
 // ------------ method called to produce the data  ------------
-FastTimeNumberingInitialization::ReturnType
-FastTimeNumberingInitialization::produce(const IdealGeometryRecord& iRecord) {
+FastTimeNumberingInitialization::ReturnType FastTimeNumberingInitialization::produce(
+    const IdealGeometryRecord& iRecord) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom")
-    << "in FastTimeNumberingInitialization::produce";
+  edm::LogVerbatim("HGCalGeom") << "in FastTimeNumberingInitialization::produce";
 #endif
   const auto& pFTpar = iRecord.get(ftParToken_);
   return std::make_unique<FastTimeDDDConstants>(&pFTpar);

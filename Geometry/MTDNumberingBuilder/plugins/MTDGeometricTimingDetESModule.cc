@@ -14,16 +14,14 @@
 
 #include <memory>
 
-
-class MTDGeometricTimingDetESModule : public edm::ESProducer
-{
+class MTDGeometricTimingDetESModule : public edm::ESProducer {
 public:
-  MTDGeometricTimingDetESModule( const edm::ParameterSet & p );
+  MTDGeometricTimingDetESModule(const edm::ParameterSet& p);
 
-  std::unique_ptr<GeometricTimingDet> produce( const IdealGeometryRecord & );
+  std::unique_ptr<GeometricTimingDet> produce(const IdealGeometryRecord&);
 
-  static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   const bool fromDDD_;
 
@@ -33,42 +31,34 @@ private:
 
 using namespace edm;
 
-MTDGeometricTimingDetESModule::MTDGeometricTimingDetESModule( const edm::ParameterSet & p ) 
-  : fromDDD_( p.getParameter<bool>( "fromDDD" ))
-{
-  auto cc = setWhatProduced( this );
-  if(fromDDD_) {
+MTDGeometricTimingDetESModule::MTDGeometricTimingDetESModule(const edm::ParameterSet& p)
+    : fromDDD_(p.getParameter<bool>("fromDDD")) {
+  auto cc = setWhatProduced(this);
+  if (fromDDD_) {
     ddCompactToken_ = cc.consumes<DDCompactView>(edm::ESInputTag());
   } else {
     pGTDetToken_ = cc.consumes<PGeometricTimingDet>(edm::ESInputTag());
   }
 }
 
-void
-MTDGeometricTimingDetESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
-{
+void MTDGeometricTimingDetESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription descDB;
-  descDB.add<bool>( "fromDDD", false );
-  descriptions.add( "mtdNumberingGeometryDB", descDB );
+  descDB.add<bool>("fromDDD", false);
+  descriptions.add("mtdNumberingGeometryDB", descDB);
 
   edm::ParameterSetDescription desc;
-  desc.add<bool>( "fromDDD", true );
-  descriptions.add( "mtdNumberingGeometry", desc );
+  desc.add<bool>("fromDDD", true);
+  descriptions.add("mtdNumberingGeometry", desc);
 }
 
-std::unique_ptr<GeometricTimingDet> 
-MTDGeometricTimingDetESModule::produce( const IdealGeometryRecord & iRecord )
-{ 
-  if( fromDDD_ )
-  {
-    edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle( ddCompactToken_ );
-    return DDDCmsMTDConstruction::construct((*cpv), dbl_to_int( DDVectorGetter::get( "detIdShifts" )));
-  }
-  else
-  {
-    PGeometricTimingDet const& pgd = iRecord.get( pGTDetToken_ );
-    return CondDBCmsMTDConstruction::construct( pgd );
+std::unique_ptr<GeometricTimingDet> MTDGeometricTimingDetESModule::produce(const IdealGeometryRecord& iRecord) {
+  if (fromDDD_) {
+    edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(ddCompactToken_);
+    return DDDCmsMTDConstruction::construct((*cpv), dbl_to_int(DDVectorGetter::get("detIdShifts")));
+  } else {
+    PGeometricTimingDet const& pgd = iRecord.get(pGTDetToken_);
+    return CondDBCmsMTDConstruction::construct(pgd);
   }
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE( MTDGeometricTimingDetESModule );
+DEFINE_FWK_EVENTSETUP_MODULE(MTDGeometricTimingDetESModule);

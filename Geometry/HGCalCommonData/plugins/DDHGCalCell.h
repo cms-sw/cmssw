@@ -7,18 +7,19 @@
 #include "DetectorDescription/Core/interface/DDTypes.h"
 
 class DDHGCalCell : public DDAlgorithm {
- public:
+public:
   // Constructor and Destructor
   DDHGCalCell();
   ~DDHGCalCell() override;
 
   void initialize(const DDNumericArguments& nArgs,
-                  const DDVectorArguments& vArgs, const DDMapArguments& mArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
                   const DDStringArguments& sArgs,
                   const DDStringVectorArguments& vsArgs) override;
   void execute(DDCompactView& cpv) override;
 
- private:
+private:
   double waferSize_;                               // Wafer Size
   double waferT_;                                  // Wafer Thickness
   double cellT_;                                   // Cell Thickness

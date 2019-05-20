@@ -36,18 +36,14 @@ void DDHGCalWafer::initialize(const DDNumericArguments& nArgs,
   idNameSpace_ = DDCurrentNamespace::ns();
   parentName_ = parent().name();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom")
-    << childNames_.size() << " children: " << childNames_[0] << "; "
-    << childNames_[1] << " in namespace " << idNameSpace_
-    << " positioned in " << nCellsRow_.size() << " rows and "
-    << nColumns_ << " columns with lowest column at " << nBottomY_
-    << " in mother " << parentName_ << " of size " << waferSize_;
+  edm::LogVerbatim("HGCalGeom") << childNames_.size() << " children: " << childNames_[0] << "; " << childNames_[1]
+                                << " in namespace " << idNameSpace_ << " positioned in " << nCellsRow_.size()
+                                << " rows and " << nColumns_ << " columns with lowest column at " << nBottomY_
+                                << " in mother " << parentName_ << " of size " << waferSize_;
   for (unsigned int k = 0; k < nCellsRow_.size(); ++k)
-    edm::LogVerbatim("HGCalGeom")
-      << "[" << k << "] Ncells " << nCellsRow_[k] << " Edge rotations "
-      << angleEdges_[2 * k] << ":" << angleEdges_[2 * k + 1]
-      << " Type of edge cells " << detectorType_[2 * k] << ":"
-      << detectorType_[2 * k + 1];
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] Ncells " << nCellsRow_[k] << " Edge rotations "
+                                  << angleEdges_[2 * k] << ":" << angleEdges_[2 * k + 1] << " Type of edge cells "
+                                  << detectorType_[2 * k] << ":" << detectorType_[2 * k + 1];
 #endif
 }
 
@@ -75,18 +71,15 @@ void DDHGCalWafer::execute(DDCompactView& cpv) {
       }
       DDRotation rot;
       if (irot != 0) {
-	double phi = convertDegToRad(irot);
+        double phi = convertDegToRad(irot);
         rotstr = "R" + formatAsDegrees(phi);
         rot = DDRotation(DDName(rotstr, idNameSpace_));
         if (!rot) {
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom")
-	    << "DDHGCalWaferAlgo: Creating new rotation "
-	    << DDName(rotstr, idNameSpace_) << "\t90, " << irot
-	    << ", 90, " << (irot + 90) << ", 0, 0";
+          edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: Creating new rotation " << DDName(rotstr, idNameSpace_)
+                                        << "\t90, " << irot << ", 90, " << (irot + 90) << ", 0, 0";
 #endif
-          rot = DDrot(DDName(rotstr, idNameSpace_), 90._deg, phi, 90._deg,
-                      (90._deg+phi), 0, 0);
+          rot = DDrot(DDName(rotstr, idNameSpace_), 90._deg, phi, 90._deg, (90._deg + phi), 0, 0);
         }
       }
       double xpos = dx * nx;
@@ -96,10 +89,8 @@ void DDHGCalWafer::execute(DDCompactView& cpv) {
       cpv.position(DDName(name, idNameSpace_), parentName_, copy, tran, rot);
       ++kount;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom")
-	<< "DDHGCalWafer: " << DDName(name, idNameSpace_) << " number "
-	<< copy << " positioned in " << parentName_ << " at " << tran
-	<< " with " << rot;
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer: " << DDName(name, idNameSpace_) << " number " << copy
+                                    << " positioned in " << parentName_ << " at " << tran << " with " << rot;
 #endif
     }
     ny += 6;

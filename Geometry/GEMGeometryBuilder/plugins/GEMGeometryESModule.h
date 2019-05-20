@@ -15,19 +15,18 @@
 
 #include <memory>
 
-class GEMGeometryESModule : public edm::ESProducer 
-{
- public:
+class GEMGeometryESModule : public edm::ESProducer {
+public:
   /// Constructor
-  GEMGeometryESModule(const edm::ParameterSet & p);
-  
+  GEMGeometryESModule(const edm::ParameterSet& p);
+
   /// Destructor
   ~GEMGeometryESModule() override;
-  
+
   /// Produce GEMGeometry.
-  std::unique_ptr<GEMGeometry> produce(const MuonGeometryRecord & record);
-  
- private:  
+  std::unique_ptr<GEMGeometry> produce(const MuonGeometryRecord& record);
+
+private:
   // use the DDD as Geometry source
   bool useDDD;
   bool applyAlignment;

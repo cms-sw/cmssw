@@ -10,20 +10,21 @@
 
 class DDNameFilter : public DDFilter {
 public:
-  void add(const std::string& add) { allowed_.emplace_back(add); } 
+  void add(const std::string& add) { allowed_.emplace_back(add); }
   void veto(const std::string& veto) { veto_.emplace_back(veto); }
 
-  bool accept(const DDExpandedView & ev) const final {
-    for( const auto& test : veto_ ) {
-      if( ev.logicalPart().name().fullname().find(test) != std::string::npos )
+  bool accept(const DDExpandedView& ev) const final {
+    for (const auto& test : veto_) {
+      if (ev.logicalPart().name().fullname().find(test) != std::string::npos)
         return false;
     }
-    for( const auto& test : allowed_ ) {
-      if( ev.logicalPart().name().fullname().find(test) != std::string::npos ) 
+    for (const auto& test : allowed_) {
+      if (ev.logicalPart().name().fullname().find(test) != std::string::npos)
         return true;
     }
     return false;
   }
+
 private:
   std::vector<std::string> allowed_;
   std::vector<std::string> veto_;
@@ -31,9 +32,8 @@ private:
 
 using namespace cms;
 
-std::unique_ptr<GeometricTimingDet>
-DDDCmsMTDConstruction::construct( const DDCompactView& cpv, std::vector<int> detidShifts)
-{
+std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCompactView& cpv,
+                                                                     std::vector<int> detidShifts) {
   std::string attribute{"CMSCutsRegion"};
   DDNameFilter filter;
   filter.add("mtd:");
@@ -48,27 +48,24 @@ DDDCmsMTDConstruction::construct( const DDCompactView& cpv, std::vector<int> det
   filter.veto("Between");
   filter.veto("SupportPlate");
   filter.veto("Shield");
-  
-  DDFilteredView fv( cpv, filter ); 
+
+  DDFilteredView fv(cpv, filter);
 
   CmsMTDStringToEnum theCmsMTDStringToEnum;
-  auto check_root = theCmsMTDStringToEnum.type( ExtractStringFromDDD::getString(attribute,&fv));
-  if( check_root != GeometricTimingDet::MTD )
-  {
+  auto check_root = theCmsMTDStringToEnum.type(ExtractStringFromDDD::getString(attribute, &fv));
+  if (check_root != GeometricTimingDet::MTD) {
     fv.firstChild();
-    auto check_child = theCmsMTDStringToEnum.type( ExtractStringFromDDD::getString(attribute,&fv));
-    if( check_child != GeometricTimingDet::MTD )
-    {  
-      throw cms::Exception( "Configuration" ) << " The first child of the DDFilteredView is not what is expected \n"
-					      << ExtractStringFromDDD::getString( attribute, &fv ) << "\n";
+    auto check_child = theCmsMTDStringToEnum.type(ExtractStringFromDDD::getString(attribute, &fv));
+    if (check_child != GeometricTimingDet::MTD) {
+      throw cms::Exception("Configuration") << " The first child of the DDFilteredView is not what is expected \n"
+                                            << ExtractStringFromDDD::getString(attribute, &fv) << "\n";
     }
     fv.parent();
   }
-  
-  auto  mtd = std::make_unique<GeometricTimingDet>( &fv, GeometricTimingDet::MTD );
+
+  auto mtd = std::make_unique<GeometricTimingDet>(&fv, GeometricTimingDet::MTD);
   CmsMTDBuilder theCmsMTDBuilder;
-  theCmsMTDBuilder.build( fv, mtd.get(), attribute );
-  
+  theCmsMTDBuilder.build(fv, mtd.get(), attribute);
+
   return mtd;
 }
-

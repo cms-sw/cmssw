@@ -13,22 +13,19 @@
 #include <map>
 #include <list>
 
-
 class ME0Geometry;
 class ME0DetId;
 class ME0EtaPartition;
 
-class ME0GeometryBuilderFromCondDB 
-{ 
- public:
-
+class ME0GeometryBuilderFromCondDB {
+public:
   ME0GeometryBuilderFromCondDB();
 
   ~ME0GeometryBuilderFromCondDB();
 
   ME0Geometry* build(const RecoIdealGeometry& rgeo);
 
- private:
+private:
   //  std::map<ME0DetId,std::list<ME0EtaPartition *> > chids;
 };
 

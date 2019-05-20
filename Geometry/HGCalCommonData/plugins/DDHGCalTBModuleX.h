@@ -10,28 +10,40 @@
 #include "DetectorDescription/Core/interface/DDTypes.h"
 
 class DDHGCalTBModuleX : public DDAlgorithm {
- public:
+public:
   // Constructor and Destructor
   DDHGCalTBModuleX();  //
   ~DDHGCalTBModuleX() override;
 
   void initialize(const DDNumericArguments& nArgs,
-                  const DDVectorArguments& vArgs, const DDMapArguments& mArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
                   const DDStringArguments& sArgs,
                   const DDStringVectorArguments& vsArgs) override;
   void execute(DDCompactView& cpv) override;
 
- protected:
+protected:
   void constructBlocks(const DDLogicalPart&, DDCompactView& cpv);
-  void constructLayers(int block, int layerFront, int layerBack, double zFront,
-                       double thick, bool ignore, const DDLogicalPart&,
+  void constructLayers(int block,
+                       int layerFront,
+                       int layerBack,
+                       double zFront,
+                       double thick,
+                       bool ignore,
+                       const DDLogicalPart&,
                        DDCompactView&);
-  void positionSensitive(double zpos, int copyIn, int type, double rmax,
-                         int ncrMax, bool ignoreCenter, const std::string&,
-                         const DDMaterial&, const DDLogicalPart&,
+  void positionSensitive(double zpos,
+                         int copyIn,
+                         int type,
+                         double rmax,
+                         int ncrMax,
+                         bool ignoreCenter,
+                         const std::string&,
+                         const DDMaterial&,
+                         const DDLogicalPart&,
                          DDCompactView& cpv);
 
- private:
+private:
   static constexpr double tolerance_ = 0.00001;
   const double factor_, tan30deg_;
 

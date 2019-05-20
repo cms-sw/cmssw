@@ -13,23 +13,24 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 class DDHGCalEEAlgo : public DDAlgorithm {
- public:
+public:
   // Constructor and Destructor
   DDHGCalEEAlgo();  // const std::string & name);
   ~DDHGCalEEAlgo() override;
 
   void initialize(const DDNumericArguments& nArgs,
-                  const DDVectorArguments& vArgs, const DDMapArguments& mArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
                   const DDStringArguments& sArgs,
                   const DDStringVectorArguments& vsArgs) override;
   void execute(DDCompactView& cpv) override;
 
- protected:
+protected:
   void constructLayers(const DDLogicalPart&, DDCompactView& cpv);
-  void positionSensitive(const DDLogicalPart& glog, double rin, double rout,
-                         double zpos, int layertype, DDCompactView& cpv);
+  void positionSensitive(
+      const DDLogicalPart& glog, double rin, double rout, double zpos, int layertype, DDCompactView& cpv);
 
- private:
+private:
   std::unique_ptr<HGCalWaferType> waferType_;
 
   std::vector<std::string> wafers_;     // Wafers

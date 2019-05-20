@@ -9,24 +9,24 @@
 #include "DetectorDescription/Core/interface/DDTypes.h"
 
 class DDHGCalModule : public DDAlgorithm {
- public:
+public:
   // Constructor and Destructor
   DDHGCalModule();  // const std::string & name);
   ~DDHGCalModule() override;
 
   void initialize(const DDNumericArguments& nArgs,
-                  const DDVectorArguments& vArgs, const DDMapArguments& mArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
                   const DDStringArguments& sArgs,
                   const DDStringVectorArguments& vsArgs) override;
   void execute(DDCompactView& cpv) override;
 
- protected:
+protected:
   void constructLayers(const DDLogicalPart&, DDCompactView& cpv);
   double rMax(double z);
-  void positionSensitive(DDLogicalPart& glog, double rin, double rout,
-                         DDCompactView& cpv);
+  void positionSensitive(DDLogicalPart& glog, double rin, double rout, DDCompactView& cpv);
 
- private:
+private:
   std::vector<std::string> wafer;      // Wafers
   std::vector<std::string> materials;  // Materials
   std::vector<std::string> names;      // Names

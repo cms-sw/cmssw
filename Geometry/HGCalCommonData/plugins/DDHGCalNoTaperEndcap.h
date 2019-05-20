@@ -7,20 +7,20 @@
 #include "DetectorDescription/Core/interface/DDTypes.h"
 
 class DDHGCalNoTaperEndcap : public DDAlgorithm {
- public:
+public:
   DDHGCalNoTaperEndcap(void);
   ~DDHGCalNoTaperEndcap(void) override;
 
   void initialize(const DDNumericArguments& nArgs,
-                  const DDVectorArguments& vArgs, const DDMapArguments& mArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
                   const DDStringArguments& sArgs,
                   const DDStringVectorArguments& vsArgs) override;
 
   void execute(DDCompactView& cpv) override;
 
- private:
-  int createQuarter(DDCompactView& cpv, int xQuadrant, int yQuadrant,
-                    int startCopyNo);
+private:
+  int createQuarter(DDCompactView& cpv, int xQuadrant, int yQuadrant, int startCopyNo);
 
   double m_startAngle;        // Start angle
   double m_tiltAngle;         // Tilt  angle

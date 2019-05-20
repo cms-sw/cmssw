@@ -7,18 +7,19 @@
 #include "DetectorDescription/Core/interface/DDTypes.h"
 
 class DDHGCalWafer8 : public DDAlgorithm {
- public:
+public:
   // Constructor and Destructor
   DDHGCalWafer8();
   ~DDHGCalWafer8() override;
 
   void initialize(const DDNumericArguments& nArgs,
-                  const DDVectorArguments& vArgs, const DDMapArguments& mArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
                   const DDStringArguments& sArgs,
                   const DDStringVectorArguments& vsArgs) override;
   void execute(DDCompactView& cpv) override;
 
- private:
+private:
   double waferSize_;                    // Wafer size
   double waferT_;                       // Wafer thickness
   double waferSepar_;                   // Sensor separation
