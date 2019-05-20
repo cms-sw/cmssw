@@ -17,7 +17,6 @@
 #include "CondFormats/L1TObjects/interface/L1TTwinMuxParams.h"
 #include "CondFormats/DataRecord/interface/L1TTwinMuxParamsRcd.h"
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -27,31 +26,29 @@
 
 #include <iostream>
 
-class RPCHitCleaner  {
+class RPCHitCleaner {
 public:
   RPCHitCleaner(RPCDigiCollection const& inrpcDigis);
 
   void run(const edm::EventSetup& c);
 
   ///Return Output RPCCollection
-  RPCDigiCollection const& getRPCCollection(){  return m_outrpcDigis;}
- 
-  struct detId_Ext{
-   RPCDetId detid;
-   int bx;
-   int strip;
-   bool const operator<(const detId_Ext &o) const {
-       return strip < o.strip || (strip == o.strip && detid < o.detid)|| ( bx < o.bx && strip == o.strip && detid == o.detid);
-   }
+  RPCDigiCollection const& getRPCCollection() { return m_outrpcDigis; }
+
+  struct detId_Ext {
+    RPCDetId detid;
+    int bx;
+    int strip;
+    bool const operator<(const detId_Ext& o) const {
+      return strip < o.strip || (strip == o.strip && detid < o.detid) ||
+             (bx < o.bx && strip == o.strip && detid == o.detid);
+    }
   };
 
 private:
-
   ///Input
   RPCDigiCollection const& m_inrpcDigis;
   ///Output
   RPCDigiCollection m_outrpcDigis;
-
-
 };
 #endif

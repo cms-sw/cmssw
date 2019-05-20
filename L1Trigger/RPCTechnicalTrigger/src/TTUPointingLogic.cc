@@ -1,6 +1,4 @@
-// Include files 
-
-
+// Include files
 
 // local
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUPointingLogic.h"
@@ -14,41 +12,31 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-TTUPointingLogic::TTUPointingLogic(  ) {
-
+TTUPointingLogic::TTUPointingLogic() {
   m_triggersignal = false;
- 
+
   m_debug = false;
-  
-    
 }
 //=============================================================================
 // Destructor
 //=============================================================================
-TTUPointingLogic::~TTUPointingLogic() { 
-
-} 
+TTUPointingLogic::~TTUPointingLogic() {}
 
 //=============================================================================
-void TTUPointingLogic::setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & boardspecs ) 
-{
-  
-  m_wedgeLogic->setBoardSpecs( boardspecs );
-  
+void TTUPointingLogic::setBoardSpecs(const TTUBoardSpecs::TTUBoardConfig& boardspecs) {
+  m_wedgeLogic->setBoardSpecs(boardspecs);
 }
 
-bool TTUPointingLogic::process( const TTUInput & inmap )
-{
-  
-  if( m_debug) std::cout << "TTUPointingLogic::process starts" << std::endl;
-  
+bool TTUPointingLogic::process(const TTUInput& inmap) {
+  if (m_debug)
+    std::cout << "TTUPointingLogic::process starts" << std::endl;
+
   m_triggersignal = false;
-  
-  //m_ttuLogic->process( inmap );
-  
-  if( m_debug ) std::cout << "TTUPointingLogic>process ends" << std::endl;
-  
-  return true;
-  
-}
 
+  //m_ttuLogic->process( inmap );
+
+  if (m_debug)
+    std::cout << "TTUPointingLogic>process ends" << std::endl;
+
+  return true;
+}
