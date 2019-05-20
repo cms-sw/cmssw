@@ -293,7 +293,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    const EcalClusterLocalContCorrParameters* paramLocalCont = pLocalCont.product();
    edm::LogInfo("LocalContCorrParameters:");
    for ( EcalFunctionParameters::const_iterator it = paramLocalCont->params().begin(); it != paramLocalCont->params().end(); ++it ) {
-     edm::LogInfo(" ") << *it;
+     // edm::LogInfo(" ") << *it;
    }
    // std::cout << "\n";
    edm::ESHandle<EcalClusterCrackCorrParameters> pCrack;
@@ -301,7 +301,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    const EcalClusterCrackCorrParameters* paramCrack = pCrack.product();
    edm::LogInfo("CrackCorrParameters:");
    for ( EcalFunctionParameters::const_iterator it = paramCrack->params().begin(); it != paramCrack->params().end(); ++it ) {
-     edm::LogInfo(" ") << *it;
+     //  edm::LogInfo(" ") << *it;
    }
    // std::cout << "\n";
    edm::ESHandle<EcalClusterEnergyCorrectionParameters> pEnergyCorrection;
@@ -309,7 +309,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    const EcalClusterEnergyCorrectionParameters* paramEnergyCorrection = pEnergyCorrection.product();
    edm::LogInfo("EnergyCorrectionParameters:");
    for ( EcalFunctionParameters::const_iterator it = paramEnergyCorrection->params().begin(); it != paramEnergyCorrection->params().end(); ++it ) {
-     edm::LogInfo(" ") << *it;
+     // edm::LogInfo(" ") << *it;
    }
    // std::cout << "\n";
    edm::ESHandle<EcalClusterEnergyUncertaintyParameters> pEnergyUncertainty;
@@ -317,7 +317,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    const EcalClusterEnergyUncertaintyParameters* paramEnergyUncertainty = pEnergyUncertainty.product();
    edm::LogInfo("EnergyCorrectionParameters:");
    for ( EcalFunctionParameters::const_iterator it = paramEnergyUncertainty->params().begin(); it != paramEnergyUncertainty->params().end(); ++it ) {
-     edm::LogInfo(" ") << *it;
+     // edm::LogInfo(" ") << *it;
    }
    // std::cout << "\n";
    edm::ESHandle<EcalClusterEnergyCorrectionObjectSpecificParameters> pEnergyCorrectionObjectSpecific;
@@ -325,7 +325,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    const EcalClusterEnergyCorrectionObjectSpecificParameters* paramEnergyCorrectionObjectSpecific = pEnergyCorrectionObjectSpecific.product();
    edm::LogInfo("EnergyCorrectionObjectSpecificParameters:");
    for ( EcalFunctionParameters::const_iterator it = paramEnergyCorrectionObjectSpecific->params().begin(); it != paramEnergyCorrectionObjectSpecific->params().end(); ++it ) {
-     edm::LogInfo(" ") << *it;
+     //  edm::LogInfo(" ") << *it;
    }
    // std::cout << "\n";
 
@@ -357,9 +357,9 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    EcalLaserAPDPNRatiosRef::const_iterator lrefit;
    lrefit = lref->getMap().find(ebid.rawId());
    if( lrefit!=lref->getMap().end() ){
-     edm::LogInfo("EcalLaserAPDPNRatiosRef: ")
-  	       <<std::setprecision(6)
-  	       << (*lrefit)
+     //  edm::LogInfo("EcalLaserAPDPNRatiosRef: ")
+     //	       <<std::setprecision(6)
+     //	       << (*lrefit)
   	       ;
    } else {
      edm::LogInfo("No laser apd/pn ref found for this xtal! something wrong with EcalLaserAPDPNRatiosRef in your DB? ")
@@ -378,10 +378,10 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    if( lratioit!=lratio->getLaserMap().end() ){
      lratioconst = (*lratioit);
      
-     edm::LogInfo("EcalLaserAPDPNRatios: ")
-       //	       <<e.id().run() << " " << e.id().event() << " " 
-    	       << std::setprecision(6)
-    	       << lratioconst.p1 << " " << lratioconst.p2
+     //  edm::LogInfo("EcalLaserAPDPNRatios: ")
+      //	       <<e.id().run() << " " << e.id().event() << " " 
+     //	       << std::setprecision(6)
+     //	       << lratioconst.p1 << " " << lratioconst.p2
     	       ;
    } else {
      edm::LogInfo("No laser apd/pn ratio found for this xtal! something wrong with EcalLaserAPDPNRatios in your DB? ")
@@ -393,10 +393,10 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    // EcalLaserAPDPNRatios::EcalLaserTimeStampMap::const_iterator ltimeit;
    for (int i=1; i<=92; i++) {     
      ltimestamp = lratio->getTimeMap()[i];
-     edm::LogInfo("i = ") << std::setprecision(6) << i
-             << ltimestamp.t1.value() << " " << ltimestamp.t2.value() << " : " ;
+     //  edm::LogInfo("i = ") << std::setprecision(6) << i
+     //         << ltimestamp.t1.value() << " " << ltimestamp.t2.value() << " : " ;
    }
-   edm::LogInfo("Tests finished.");
+   // edm::LogInfo("Tests finished.");
 
    // channel status
    edm::ESHandle<EcalChannelStatus> pChannelStatus;

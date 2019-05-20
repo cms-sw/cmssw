@@ -5,7 +5,7 @@
 //
 // Package:    GctDigiToRaw
 // Class:      GctDigiToRaw
-// 
+//
 /**\class GctDigiToRaw GctDigiToRaw.cc EventFilter/GctRawToDigi/src/GctDigiToRaw.cc
 
  Description: Produce fake GCT raw data from digis
@@ -18,7 +18,6 @@
 //         Created:  Wed Nov  1 11:57:10 CET 2006
 //
 //
-
 
 // system include files
 #include <memory>
@@ -39,16 +38,15 @@
 //
 
 class GctDigiToRaw : public edm::global::EDProducer<> {
- public:
+public:
   explicit GctDigiToRaw(const edm::ParameterSet&);
-  
- private: // methods
+
+private:  // methods
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const final;
-  
+
   void print(FEDRawData& data) const;
 
- private:  // members
-
+private:  // members
   // input tokens
   edm::EDGetTokenT<L1GctEmCandCollection> tokenL1GctEmCand_isoEm_;
   edm::EDGetTokenT<L1GctEmCandCollection> tokenL1GctEmCand_nonIsoEm_;
@@ -70,14 +68,13 @@ class GctDigiToRaw : public edm::global::EDProducer<> {
   const bool packRctCalo_;
 
   // FED numbers
-  const int fedId_;            
+  const int fedId_;
 
   // print out for each event
   const bool verbose_;
 
   // counter events
-  mutable std::atomic<int> counter_;          
-
+  mutable std::atomic<int> counter_;
 };
 
 #endif

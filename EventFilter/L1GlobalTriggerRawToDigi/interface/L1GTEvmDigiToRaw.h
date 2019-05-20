@@ -39,73 +39,64 @@ class L1TcsWord;
 class L1GtFdlWord;
 
 // class declaration
-class L1GTEvmDigiToRaw : public edm::stream::EDProducer<>
-{
-
+class L1GTEvmDigiToRaw : public edm::stream::EDProducer<> {
 public:
-
-    /// constructor(s)
-    explicit L1GTEvmDigiToRaw(const edm::ParameterSet&);
-
-private:
-
-    /// loop over events
-    void produce(edm::Event&, const edm::EventSetup&) override;
-
-    /// block packers -------------
-
-    /// pack header
-    void packHeader(unsigned char*, edm::Event&);
-
-    /// pack the GTFE block
-    /// gives the number of bunch crosses in the event, as well as the active boards
-    /// records for inactive boards are not written in the GT EVM record
-    void packGTFE(const edm::EventSetup&, unsigned char*, L1GtfeExtWord&,
-                  cms_uint16_t activeBoardsGtValue);
-
-    /// pack the TCS block
-    void packTCS(const edm::EventSetup& evSetup, unsigned char* ptrGt,
-                 L1TcsWord& tcsBlock);
-
-    /// pack FDL blocks for various bunch crosses
-    void packFDL(const edm::EventSetup&, unsigned char*, L1GtFdlWord&);
-
-    /// pack trailer word
-    void packTrailer(unsigned char*, unsigned char*, int);
+  /// constructor(s)
+  explicit L1GTEvmDigiToRaw(const edm::ParameterSet&);
 
 private:
+  /// loop over events
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-    /// FED Id for GT EVM record
-    /// default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
-    int m_evmGtFedId;
+  /// block packers -------------
 
-    /// input tag for GT EVM record
-    const edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_evmGtInputToken;
-    const edm::InputTag m_evmGtInputTag;
+  /// pack header
+  void packHeader(unsigned char*, edm::Event&);
 
-    /// mask for active boards
-    cms_uint16_t m_activeBoardsMaskGt;
+  /// pack the GTFE block
+  /// gives the number of bunch crosses in the event, as well as the active boards
+  /// records for inactive boards are not written in the GT EVM record
+  void packGTFE(const edm::EventSetup&, unsigned char*, L1GtfeExtWord&, cms_uint16_t activeBoardsGtValue);
 
-    /// total Bx's in the event, obtained from GTFE block
-    int m_totalBxInEvent;
+  /// pack the TCS block
+  void packTCS(const edm::EventSetup& evSetup, unsigned char* ptrGt, L1TcsWord& tcsBlock);
 
-    /// min Bx's in the event, computed after m_totalBxInEvent is obtained from GTFE block
-    /// assume symmetrical number of BX around L1Accept
-    int m_minBxInEvent;
+  /// pack FDL blocks for various bunch crosses
+  void packFDL(const edm::EventSetup&, unsigned char*, L1GtFdlWord&);
 
-    /// max Bx's in the event, computed after m_totalBxInEvent is obtained from GTFE block
-    /// assume symmetrical number of BX around L1Accept
-    int m_maxBxInEvent;
-
-    /// length of BST record (in bytes)
-    int m_bstLengthBytes;
+  /// pack trailer word
+  void packTrailer(unsigned char*, unsigned char*, int);
 
 private:
+  /// FED Id for GT EVM record
+  /// default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
+  int m_evmGtFedId;
 
-    /// verbosity level
-    const int m_verbosity;
-    const bool m_isDebugEnabled;
+  /// input tag for GT EVM record
+  const edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_evmGtInputToken;
+  const edm::InputTag m_evmGtInputTag;
 
+  /// mask for active boards
+  cms_uint16_t m_activeBoardsMaskGt;
+
+  /// total Bx's in the event, obtained from GTFE block
+  int m_totalBxInEvent;
+
+  /// min Bx's in the event, computed after m_totalBxInEvent is obtained from GTFE block
+  /// assume symmetrical number of BX around L1Accept
+  int m_minBxInEvent;
+
+  /// max Bx's in the event, computed after m_totalBxInEvent is obtained from GTFE block
+  /// assume symmetrical number of BX around L1Accept
+  int m_maxBxInEvent;
+
+  /// length of BST record (in bytes)
+  int m_bstLengthBytes;
+
+private:
+  /// verbosity level
+  const int m_verbosity;
+  const bool m_isDebugEnabled;
 };
 
-#endif // EventFilter_L1GlobalTriggerRawToDigi_L1GTEvmDigiToRaw_h
+#endif  // EventFilter_L1GlobalTriggerRawToDigi_L1GTEvmDigiToRaw_h
