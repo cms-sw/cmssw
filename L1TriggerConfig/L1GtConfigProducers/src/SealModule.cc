@@ -56,4 +56,3 @@ DEFINE_FWK_MODULE(L1GtBoardMapsTester);
 DEFINE_FWK_MODULE(L1GtPsbSetupTester);
 DEFINE_FWK_MODULE(L1GtTriggerMenuTester);
 DEFINE_FWK_MODULE(L1GtVhdlWriter);
-

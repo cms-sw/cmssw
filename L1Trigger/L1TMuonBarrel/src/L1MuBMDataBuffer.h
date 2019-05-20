@@ -39,41 +39,37 @@ class L1MuBMTrackSegPhi;
 //              ---------------------
 
 class L1MuBMDataBuffer {
+public:
+  /// container to store phi track segments
+  typedef std::vector<L1MuBMTrackSegPhi*> TSPhivector;
 
-  public:
+  /// constructor
+  L1MuBMDataBuffer(const L1MuBMSectorProcessor&);
 
-    /// container to store phi track segments 
-    typedef std::vector<L1MuBMTrackSegPhi*> TSPhivector;
+  /// destructor
+  virtual ~L1MuBMDataBuffer();
 
-    /// constructor
-    L1MuBMDataBuffer(const L1MuBMSectorProcessor& );
+  /// clear Data Buffer
+  void reset();
 
-    /// destructor
-    virtual ~L1MuBMDataBuffer();
-    
-    /// clear Data Buffer
-    void reset(); 
+  /// get all track segments from the buffer
+  const TSPhivector& getTSphi() const { return *m_tsphi; }
 
-    /// get all track segments from the buffer
-    const TSPhivector& getTSphi() const { return *m_tsphi; }
+  /// get phi track segment of a given station from the buffer
+  const L1MuBMTrackSegPhi* getTSphi(int station, int address) const;
 
-    /// get phi track segment of a given station from the buffer
-    const L1MuBMTrackSegPhi* getTSphi(int station, int address) const;
-    
-    /// add new phi track segment to the Data Buffer
-    void addTSphi(int adr, const L1MuBMTrackSegPhi&);
-    
-    /// print all phi track segments which are in the buffer
-    void printTSphi() const;
-    
-    /// return number of non-empty phi track segments
-    int numberTSphi() const;
-    
-  private:
+  /// add new phi track segment to the Data Buffer
+  void addTSphi(int adr, const L1MuBMTrackSegPhi&);
 
-    const L1MuBMSectorProcessor& m_sp;
-    TSPhivector*                 m_tsphi;
-   
+  /// print all phi track segments which are in the buffer
+  void printTSphi() const;
+
+  /// return number of non-empty phi track segments
+  int numberTSphi() const;
+
+private:
+  const L1MuBMSectorProcessor& m_sp;
+  TSPhivector* m_tsphi;
 };
-  
+
 #endif

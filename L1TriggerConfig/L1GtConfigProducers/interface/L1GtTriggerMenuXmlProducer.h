@@ -34,33 +34,25 @@
 // forward declarations
 
 // class declaration
-class L1GtTriggerMenuXmlProducer : public edm::ESProducer
-{
-
+class L1GtTriggerMenuXmlProducer : public edm::ESProducer {
 public:
+  /// constructor
+  L1GtTriggerMenuXmlProducer(const edm::ParameterSet&);
 
-    /// constructor
-    L1GtTriggerMenuXmlProducer(const edm::ParameterSet&);
+  /// destructor
+  ~L1GtTriggerMenuXmlProducer() override;
 
-    /// destructor
-    ~L1GtTriggerMenuXmlProducer() override;
+  /// public methods
 
-
-    /// public methods
-
-    /// L1 GT parameters
-    std::unique_ptr<L1GtTriggerMenu> produceGtTriggerMenu(
-        const L1GtTriggerMenuRcd&);
+  /// L1 GT parameters
+  std::unique_ptr<L1GtTriggerMenu> produceGtTriggerMenu(const L1GtTriggerMenuRcd&);
 
 private:
+  /// XML file for Global Trigger menu (def.xml)
+  std::string m_defXmlFile;
 
-    /// XML file for Global Trigger menu (def.xml)
-    std::string m_defXmlFile;
-
-    /// XML file for Global Trigger VME configuration (vme.xml)
-    std::string m_vmeXmlFile;
-
-
+  /// XML file for Global Trigger VME configuration (vme.xml)
+  std::string m_vmeXmlFile;
 };
 
 #endif

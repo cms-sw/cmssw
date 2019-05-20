@@ -1,6 +1,5 @@
-#ifndef RBCPROCESSTESTSIGNAL_H 
+#ifndef RBCPROCESSTESTSIGNAL_H
 #define RBCPROCESSTESTSIGNAL_H 1
-
 
 // Include files
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCInput.h"
@@ -24,31 +23,25 @@
  *  @date   2008-10-10
  */
 class RBCProcessTestSignal : public ProcessInputSignal {
-public: 
-  explicit RBCProcessTestSignal( const char * ); 
-  
-  ~RBCProcessTestSignal( ) override; ///< Destructor
-  
-  int  next() override;
-  
+public:
+  explicit RBCProcessTestSignal(const char*);
+
+  ~RBCProcessTestSignal() override;  ///< Destructor
+
+  int next() override;
+
   void rewind();
-  
+
   void showfirst();
-  
-  RPCInputSignal * retrievedata() override { 
-    return  m_lbin.get(); 
-  };
-  
+
+  RPCInputSignal* retrievedata() override { return m_lbin.get(); };
+
 protected:
-  
 private:
-  
   std::ifstream m_in;
-  
+
   RBCInput m_input;
 
   std::unique_ptr<RPCInputSignal> m_lbin;
-  
-  
 };
-#endif // RBCPROCESSTESTSIGNAL_H
+#endif  // RBCPROCESSTESTSIGNAL_H
