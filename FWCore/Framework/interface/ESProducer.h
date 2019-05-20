@@ -1,11 +1,11 @@
-#ifndef Framework_ESProducer_h
-#define Framework_ESProducer_h
+#ifndef FWCore_Framework_ESProducer_h
+#define FWCore_Framework_ESProducer_h
 // -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     ESProducer
 //
-/**\class ESProducer ESProducer.h FWCore/Framework/interface/ESProducer.h
+/**\class edm::ESProducer
 
  Description: An EventSetup algorithmic Provider that encapsulates the algorithm as a member method
 
@@ -96,16 +96,12 @@ namespace edm {
       return iDec;
     }
   }  // namespace eventsetup
+
   class ESProducer : public ESProxyFactoryProducer {
   public:
     ESProducer();
     ~ESProducer() noexcept(false) override;
 
-    // ---------- const member functions ---------------------
-
-    // ---------- static member functions --------------------
-
-    // ---------- member functions ---------------------------
     void updateLookup(eventsetup::ESRecordsToProxyIndices const&) final;
     ESProxyIndex const* getTokenIndices(unsigned int iIndex) const {
       if (itemsToGetFromRecords_.empty()) {
@@ -161,10 +157,10 @@ namespace edm {
       const auto id = consumesInfos_.size();
       using DecoratorType = typename eventsetup::DecoratorFromArg<T, TRecord, TArg>::Decorator_t;
       using CallbackType = eventsetup::Callback<T, TReturn, TRecord, DecoratorType>;
-      auto callbacks = std::make_shared<std::vector<std::shared_ptr<CallbackType>>>();
-      callbacks->push_back(std::make_shared<CallbackType>(
-          iThis, iMethod, id, createDecoratorFrom(iThis, static_cast<const TRecord*>(nullptr), iDec)));
-      registerProducts(callbacks,
+      unsigned int iovIndex = 0;  // Start with 0, but later will cycle through all of them
+      auto temp = std::make_shared<CallbackType>(iThis, iMethod, id, createDecoratorFrom(iThis, static_cast<const TRecord*>(nullptr), iDec));
+      auto callback = std::make_shared<std::pair<unsigned int, std::shared_ptr<CallbackType>>>(iovIndex, std::move(temp));
+      registerProducts(std::move(callback),
                        static_cast<const typename eventsetup::produce::product_traits<TReturn>::type*>(nullptr),
                        static_cast<const TRecord*>(nullptr),
                        iLabel);
@@ -177,16 +173,16 @@ namespace edm {
 
   private:
     template <typename CallbackT, typename TList, typename TRecord>
-    void registerProducts(std::shared_ptr<std::vector<std::shared_ptr<CallbackT>>> iCallbacks,
+    void registerProducts(std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackT>>> iCallback,
                           const TList*,
                           const TRecord* iRecord,
                           const es::Label& iLabel) {
-      registerProduct(iCallbacks, static_cast<const typename TList::tail_type*>(nullptr), iRecord, iLabel);
-      registerProducts(iCallbacks, static_cast<const typename TList::head_type*>(nullptr), iRecord, iLabel);
+      registerProduct(iCallback, static_cast<const typename TList::tail_type*>(nullptr), iRecord, iLabel);
+      registerProducts(std::move(iCallback), static_cast<const typename TList::head_type*>(nullptr), iRecord, iLabel);
     }
 
-    template <typename T, typename TRecord>
-    void registerProducts(std::shared_ptr<std::vector<std::shared_ptr<T>>>,
+    template <typename CallbackT, typename TRecord>
+    void registerProducts(std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackT>>>,
                           const eventsetup::produce::Null*,
                           const TRecord*,
                           const es::Label&) {
@@ -194,17 +190,17 @@ namespace edm {
     }
 
     template <typename CallbackT, typename TProduct, typename TRecord>
-    void registerProduct(std::shared_ptr<std::vector<std::shared_ptr<CallbackT>>> iCallbacks,
+    void registerProduct(std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackT>>> iCallback,
                          const TProduct*,
                          const TRecord*,
                          const es::Label& iLabel) {
       using ProxyType = eventsetup::CallbackProxy<CallbackT, TRecord, TProduct>;
       using FactoryType = eventsetup::ProxyArgumentFactoryTemplate<ProxyType, CallbackT>;
-      registerFactory(std::make_unique<FactoryType>(iCallbacks), iLabel.default_);
+      registerFactory(std::make_unique<FactoryType>(std::move(iCallback)), iLabel.default_);
     }
 
     template <typename CallbackT, typename TProduct, typename TRecord, int IIndex>
-    void registerProduct(std::shared_ptr<std::vector<std::shared_ptr<CallbackT>>> iCallbacks,
+    void registerProduct(std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackT>>> iCallback,
                          const es::L<TProduct, IIndex>*,
                          const TRecord*,
                          const es::Label& iLabel) {
@@ -216,7 +212,7 @@ namespace edm {
       }
       using ProxyType = eventsetup::CallbackProxy<CallbackT, TRecord, es::L<TProduct, IIndex>>;
       using FactoryType = eventsetup::ProxyArgumentFactoryTemplate<ProxyType, CallbackT>;
-      registerFactory(std::make_unique<FactoryType>(iCallbacks), iLabel.labels_[IIndex]);
+      registerFactory(std::make_unique<FactoryType>(std::move(iCallback)), iLabel.labels_[IIndex]);
     }
 
     std::vector<std::unique_ptr<ESConsumesInfo>> consumesInfos_;

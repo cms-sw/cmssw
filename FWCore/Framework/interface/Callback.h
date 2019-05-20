@@ -1,11 +1,11 @@
-#ifndef Framework_Callback_h
-#define Framework_Callback_h
+#ifndef FWCore_Framework_Callback_h
+#define FWCore_Framework_Callback_h
 // -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     Callback
 //
-/**\class Callback Callback.h FWCore/Framework/interface/Callback.h
+/**\class edm::eventsetup::Callback
 
  Description: Functional object used as the 'callback' for the CallbackProxy
 
@@ -26,16 +26,8 @@
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 
-// forward declarations
 namespace edm {
   namespace eventsetup {
-
-    //need a virtual distructor since owner of callback only knows
-    // about the base class.  Other users of callback know the specific
-    // type
-    struct CallbackBase {
-      virtual ~CallbackBase() {}
-    };
 
     // The default decorator that does nothing
     template <typename TRecord>
@@ -49,7 +41,7 @@ namespace edm {
               typename TRecord,    //the record passed in as an argument
               typename TDecorator  //allows customization using pre/post calls
               = CallbackSimpleDecorator<TRecord> >
-    class Callback : public CallbackBase {
+    class Callback {
     public:
       using method_type = TReturn (T ::*)(const TRecord&);
 
@@ -60,6 +52,10 @@ namespace edm {
             id_(iID),
             wasCalledForThisRecord_(false),
             decorator_(iDec) {}
+
+      Callback* clone() {
+        return new Callback(producer_.get(), method_, id_, decorator_);
+      }
 
       Callback(const Callback&) = delete;
       const Callback& operator=(const Callback&) = delete;
@@ -79,7 +75,6 @@ namespace edm {
       }
 
       void storeReturnedValues(TReturn iReturn) {
-        //std::cout <<" storeReturnedValues "<< iReturn <<" " <<iReturn->value_ <<std::endl;
         using type = typename produce::product_traits<TReturn>::type;
         setData<typename type::head_type, typename type::tail_type>(iReturn);
       }
@@ -98,10 +93,6 @@ namespace edm {
 
       unsigned int transitionID() const { return id_; }
       ESProxyIndex const* getTokenIndices() const { return producer_->getTokenIndices(id_); }
-
-      T* get() { return producer_.get(); }
-      method_type method() const { return method_; }
-      TDecorator const& decorator() const { return decorator_; }
 
     private:
       std::array<void*, produce::size<TReturn>::value> proxyData_;

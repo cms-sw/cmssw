@@ -95,9 +95,9 @@ void testCallback::uniquePtrTest() {
   std::unique_ptr<Data> handle;
   callback.holdOntoPointer(&handle);
 
-  UniquePtrCallback callback2(callback.get(), callback.method(), callback.transitionID(), callback.decorator());
+  auto callback2 = std::unique_ptr<UniquePtrCallback>(callback.clone());
   std::unique_ptr<Data> handle2;
-  callback2.holdOntoPointer(&handle2);
+  callback2->holdOntoPointer(&handle2);
 
   Record record;
   callback.newRecordComing();
@@ -122,18 +122,18 @@ void testCallback::uniquePtrTest() {
   assert(0 != handle.get());
   CPPUNIT_ASSERT(prod.value_ == handle->value_);
 
-  callback2(record);
+  (*callback2)(record);
   CPPUNIT_ASSERT(handle2->value_ == 3);
   CPPUNIT_ASSERT(handle->value_ == 2);
 
   callback(record);
-  callback2(record);
+  (*callback2)(record);
   CPPUNIT_ASSERT(handle2->value_ == 3);
   CPPUNIT_ASSERT(handle->value_ == 2);
 
-  callback2.newRecordComing();
+  callback2->newRecordComing();
   callback(record);
-  callback2(record);
+  (*callback2)(record);
   CPPUNIT_ASSERT(handle2->value_ == 4);
   CPPUNIT_ASSERT(handle->value_ == 2);
 }
