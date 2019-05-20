@@ -13,4 +13,3 @@
 typedef MuonDigiCollection<ME0DetId, ME0Digi> ME0DigiCollection;
 
 #endif
-
