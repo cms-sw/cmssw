@@ -8,18 +8,12 @@
 #include <L1Trigger/L1TMuonBayes/interface/MuCorrelator/MuCorrelatorInputMaker.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-MuCorrelatorInputMaker::MuCorrelatorInputMaker(const edm::ParameterSet& edmCfg, const edm::EventSetup& es, MuCorrelatorConfigPtr config, MuStubsInputTokens muStubsInputTokens):
-  config(config), rpcClusterization(3, 2), muStubsInputTokens(muStubsInputTokens)
+MuCorrelatorInputMaker::MuCorrelatorInputMaker(const edm::ParameterSet& edmCfg, const edm::EventSetup& es, MuCorrelatorConfigPtr config, MuStubsInputTokens& muStubsInputTokens):
+  MuonStubMakerBase(),
+  config(config), rpcClusterization(3, 2)
 {
-  angleConverter.checkAndUpdateGeometry(es, config.get() );
-
-  dropDTPrimitives = edmCfg.getParameter<bool>("dropDTPrimitives");
-  dropRPCPrimitives = edmCfg.getParameter<bool>("dropRPCPrimitives");
-  dropCSCPrimitives = edmCfg.getParameter<bool>("dropCSCPrimitives");
-
-  if(edmCfg.exists("minDtPhQuality") ) {
-    minDtPhQuality = edmCfg.getParameter<int>("minDtPhQuality");
-  }
+  initialize(edmCfg, es, config.get(), muStubsInputTokens);
+  angleConverter.checkAndUpdateGeometry(es, config.get());
 }
 
 MuCorrelatorInputMaker::~MuCorrelatorInputMaker() {
@@ -318,30 +312,3 @@ uint32_t MuCorrelatorInputMaker::getLayerNumber(const RPCDetId& detid) const {
   return (detid.station() -1) + 8 + 5 + 6; //8 is DT layers number - two per station, 5 is CSC layer number, 6 is RPC barrel station number
 }
 
-
-
-
-void MuCorrelatorInputMaker::loadAndFilterDigis(const edm::Event& event) {
-  // Filter digis by dropping digis from selected (by cfg.py) subsystems
-  if(!dropDTPrimitives){
-    event.getByToken(muStubsInputTokens.inputTokenDTPh, dtPhDigis);
-    event.getByToken(muStubsInputTokens.inputTokenDTTh, dtThDigis);
-  }
-  if(!dropRPCPrimitives) event.getByToken(muStubsInputTokens.inputTokenRPC, rpcDigis);
-  if(!dropCSCPrimitives) event.getByToken(muStubsInputTokens.inputTokenCSC, cscDigis);
-}
-
-
-
-
-const MuonStubsInput MuCorrelatorInputMaker::buildInputForProcessor(unsigned int iProcessor,
-    l1t::tftype type,
-    int bxFrom, int bxTo) {
-
-  MuonStubsInput result(config.get());
-  processDT( result.getMuonStubs(), dtPhDigis.product(), dtThDigis.product(), iProcessor, type, false, bxFrom, bxTo);
-  processCSC(result.getMuonStubs(), cscDigis.product(), iProcessor, type, bxFrom, bxTo);
-  processRPC(result.getMuonStubs(), rpcDigis.product(), iProcessor, type, bxFrom, bxTo);
-  //cout<<result<<endl;
-  return result;
-}

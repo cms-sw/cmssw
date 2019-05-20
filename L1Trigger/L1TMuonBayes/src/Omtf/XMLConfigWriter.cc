@@ -183,7 +183,7 @@ xercesc::DOMElement * XMLConfigWriter::writeEventData(xercesc::DOMElement *aTopE
     stringStr<<iLayer;
     aLayer->setAttribute(_toDOMS("iLayer"), _toDOMS(stringStr.str()));
     for(unsigned int iHit=0; iHit < aInput.getMuonStubs()[iLayer].size(); ++iHit) {
-      int hitPhi = aInput.getHitPhi(iLayer, iHit);
+      int hitPhi = aInput.getPhiHw(iLayer, iHit);
       if(hitPhi >= (int)myOMTFConfig->nPhiBins())
         continue;
 

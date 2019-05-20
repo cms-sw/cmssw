@@ -26,11 +26,18 @@ MuonStubMakerBase::MuonStubMakerBase(): rpcClusterization(3, 2) {
 
 ///////////////////////////////////////
 ///////////////////////////////////////
-void MuonStubMakerBase::initialize(const edm::EventSetup& es, const OMTFConfiguration *omtfConfig){
+void MuonStubMakerBase::initialize(const edm::ParameterSet& edmCfg, const edm::EventSetup& es, const ProcConfigurationBase* procConf, MuStubsInputTokens& muStubsInputTokens) {
+  config = procConf;
 
-  angleConverter->checkAndUpdateGeometry(es, omtfConfig);
+  this->muStubsInputTokens = muStubsInputTokens;
 
-  config = omtfConfig;
+  dropDTPrimitives = edmCfg.getParameter<bool>("dropDTPrimitives");
+  dropRPCPrimitives = edmCfg.getParameter<bool>("dropRPCPrimitives");
+  dropCSCPrimitives = edmCfg.getParameter<bool>("dropCSCPrimitives");
+
+  if(edmCfg.exists("minDtPhQuality") ) {
+    minDtPhQuality = edmCfg.getParameter<int>("minDtPhQuality");
+  }
 
 }
 ///////////////////////////////////////
@@ -38,6 +45,27 @@ void MuonStubMakerBase::initialize(const edm::EventSetup& es, const OMTFConfigur
 MuonStubMakerBase::~MuonStubMakerBase(){ }
 ///////////////////////////////////////
 ///////////////////////////////////////
+
+void MuonStubMakerBase::loadAndFilterDigis(const edm::Event& event) {
+  // Filter digis by dropping digis from selected (by cfg.py) subsystems
+  if(!dropDTPrimitives){
+    event.getByToken(muStubsInputTokens.inputTokenDTPh, dtPhDigis);
+    event.getByToken(muStubsInputTokens.inputTokenDTTh, dtThDigis);
+  }
+  if(!dropRPCPrimitives) event.getByToken(muStubsInputTokens.inputTokenRPC, rpcDigis);
+  if(!dropCSCPrimitives) event.getByToken(muStubsInputTokens.inputTokenCSC, cscDigis);
+}
+
+
+const void MuonStubMakerBase::buildInputForProcessor(MuonStubPtrs2D& muonStubsInLayers, unsigned int iProcessor,
+    l1t::tftype type,
+    int bxFrom, int bxTo) {
+
+  processDT( muonStubsInLayers, dtPhDigis.product(), dtThDigis.product(), iProcessor, type, false, bxFrom, bxTo);
+  processCSC(muonStubsInLayers, cscDigis.product(), iProcessor, type, bxFrom, bxTo);
+  processRPC(muonStubsInLayers, rpcDigis.product(), iProcessor, type, bxFrom, bxTo);
+  //cout<<result<<endl;
+}
 
 
 //iProcessor counted from 0
@@ -152,7 +180,7 @@ void MuonStubMakerBase::processRPC(MuonStubPtrs2D& muonStubsInLayers, const RPCD
     std::vector<RpcCluster> clusters = rpcClusterization.getClusters(roll, digisCopy);
 
     for (auto & cluster: clusters) {
-      LogTrace("l1tMuBayesEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" roll "<<roll<<" cluster: firstStrip "<<cluster.firstStrip<<" lastStrip "<<cluster.lastStrip<<" halfStrip "<<cluster.halfStrip()<<std::endl;
+      LogTrace("l1tMuBayesEventPrint")<<__FUNCTION__<<":"<<155<<" roll "<<roll<<" cluster: firstStrip "<<cluster.firstStrip<<" lastStrip "<<cluster.lastStrip<<" halfStrip "<<cluster.halfStrip()<<std::endl;
       addRPCstub(muonStubsInLayers, roll, cluster, iProcessor, procTyp);
     }
   }

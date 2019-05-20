@@ -25,16 +25,16 @@
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
 template <class GoldenPatternType>
-OMTFProcessor<GoldenPatternType>::OMTFProcessor(OMTFConfiguration* omtfConfig, const edm::ParameterSet& edmCfg, edm::EventSetup const& evSetup, const L1TMuonOverlapParams* omtfPatterns): ProcessorBase<GoldenPatternType>(omtfConfig, omtfPatterns)  {
-  init(edmCfg, evSetup);
+OMTFProcessor<GoldenPatternType>::OMTFProcessor(OMTFConfiguration* omtfConfig, const edm::ParameterSet& edmCfg, edm::EventSetup const& evSetup, const L1TMuonOverlapParams* omtfPatterns, MuStubsInputTokens& muStubsInputTokens): ProcessorBase<GoldenPatternType>(omtfConfig, omtfPatterns)  {
+  init(edmCfg, evSetup, muStubsInputTokens);
 };
 
 
 template <class GoldenPatternType>
-OMTFProcessor<GoldenPatternType>::OMTFProcessor(OMTFConfiguration* omtfConfig, const edm::ParameterSet& edmCfg, edm::EventSetup const& evSetup, const typename ProcessorBase<GoldenPatternType>::GoldenPatternVec& gps):
+OMTFProcessor<GoldenPatternType>::OMTFProcessor(OMTFConfiguration* omtfConfig, const edm::ParameterSet& edmCfg, edm::EventSetup const& evSetup, const typename ProcessorBase<GoldenPatternType>::GoldenPatternVec& gps, MuStubsInputTokens& muStubsInputTokens):
     ProcessorBase<GoldenPatternType>(omtfConfig, gps)
 {
-  init(edmCfg, evSetup);
+  init(edmCfg, evSetup, muStubsInputTokens);
 };
 
 template <class GoldenPatternType>
@@ -43,7 +43,7 @@ OMTFProcessor<GoldenPatternType>::~OMTFProcessor() {
 }
 
 template <class GoldenPatternType>
-void OMTFProcessor<GoldenPatternType>::init(const edm::ParameterSet& edmCfg, edm::EventSetup const& evSetup) {
+void OMTFProcessor<GoldenPatternType>::init(const edm::ParameterSet& edmCfg, edm::EventSetup const& evSetup, MuStubsInputTokens& muStubsInputTokens) {
   //TODO make it working....
 /*  if(edmCfg.exists("sorterType") ) {//TODO add it also for the patternType == "GoldenPattern" - if needed
     string sorterType = edmCfg.getParameter<std::string>("sorterType");
@@ -75,19 +75,12 @@ void OMTFProcessor<GoldenPatternType>::init(const edm::ParameterSet& edmCfg, edm
     setGhostBuster(new GhostBuster()); //initialize with the default sorter
   }
 
-  inputMaker.initialize(evSetup, this->myOmtfConfig);
+  inputMaker.initialize(edmCfg, evSetup, this->myOmtfConfig, muStubsInputTokens);
 }
 
 template <class GoldenPatternType>
 void OMTFProcessor<GoldenPatternType>::loadAndFilterDigis(const edm::Event& event, const edm::ParameterSet& edmCfg){
-  // Filter digis by dropping digis from selected (by cfg.py) subsystems
-  if(!edmCfg.getParameter<bool>("dropDTPrimitives")){
-    event.getByLabel(edmCfg.getParameter<edm::InputTag>("srcDTPh"),dtPhDigis);
-    event.getByLabel(edmCfg.getParameter<edm::InputTag>("srcDTTh"),dtThDigis);
-  }
-  if(!edmCfg.getParameter<bool>("dropRPCPrimitives")) event.getByLabel(edmCfg.getParameter<edm::InputTag>("srcRPC"),rpcDigis);
-  if(!edmCfg.getParameter<bool>("dropCSCPrimitives")) event.getByLabel(edmCfg.getParameter<edm::InputTag>("srcCSC"),cscDigis);
-
+  inputMaker.loadAndFilterDigis(event);
 }
 
 template <class GoldenPatternType>
@@ -301,11 +294,9 @@ run(unsigned int iProcessor, l1t::tftype mtfType, int bx, std::vector<std::uniqu
   //boost::timer::auto_cpu_timer t("%ws wall, %us user in getProcessorCandidates\n");
   inputMaker.setFlag(0);
 
-  OMTFinput input = inputMaker.buildInputForProcessor(dtPhDigis.product(),
-                dtThDigis.product(),
-                cscDigis.product(),
-                rpcDigis.product(),
-                iProcessor, mtfType, bx);
+  OMTFinput input(this->myOmtfConfig);
+  inputMaker.buildInputForProcessor(input.getMuonStubs(),
+                iProcessor, mtfType, bx, bx);
   int flag = inputMaker.getFlag();
 
   //cout<<"buildInputForProce "; t.report();

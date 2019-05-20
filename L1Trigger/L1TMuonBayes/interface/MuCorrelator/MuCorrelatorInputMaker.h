@@ -8,7 +8,7 @@
 #ifndef MUCORRELATOR_MUONCORRELATORINPUTMAKER_H_
 #define MUCORRELATOR_MUONCORRELATORINPUTMAKER_H_
 
-#include <L1Trigger/L1TMuonBayes/interface/MuonStubsInput.h>
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -21,6 +21,7 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 #include "L1Trigger/L1TMuonBayes/interface/MuonStubMakerBase.h"
+#include "L1Trigger/L1TMuonBayes/interface/MuonStubsInput.h"
 #include "L1Trigger/L1TMuonBayes/interface/AngleConverterBase.h"
 #include "L1Trigger/L1TMuonBayes/interface/MuCorrelator/MuCorrelatorConfig.h"
 
@@ -30,23 +31,11 @@ namespace edm {
   class EventSetup;
 }
 
-struct MuStubsInputTokens {
-  edm::EDGetTokenT<L1MuDTChambPhContainer> inputTokenDTPh;
-  edm::EDGetTokenT<L1MuDTChambThContainer> inputTokenDTTh;
-  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> inputTokenCSC;
-  edm::EDGetTokenT<RPCDigiCollection> inputTokenRPC;
-};
-
 class MuCorrelatorInputMaker : public MuonStubMakerBase {
 public:
-  MuCorrelatorInputMaker(const edm::ParameterSet& edmCfg, const edm::EventSetup& es, MuCorrelatorConfigPtr config, MuStubsInputTokens muStubsInputTokens);
+  MuCorrelatorInputMaker(const edm::ParameterSet& edmCfg, const edm::EventSetup& es, MuCorrelatorConfigPtr config, MuStubsInputTokens& muStubsInputTokens);
   virtual ~MuCorrelatorInputMaker();
 
-  void loadAndFilterDigis(const edm::Event& event);
-
-  ///Method translating trigger digis into input matrix with global phi coordinates
-  const MuonStubsInput buildInputForProcessor(unsigned int iProcessor,
-           l1t::tftype procTyp, int bxFrom = 0, int bxTo = 0);
 private:
 
   virtual bool acceptDigi(uint32_t rawId, unsigned int iProcessor, l1t::tftype procType) {
@@ -80,17 +69,6 @@ private:
   AngleConverterBase angleConverter;
 
   RpcClusterization rpcClusterization;
-
-  edm::Handle<L1MuDTChambPhContainer> dtPhDigis;
-  edm::Handle<L1MuDTChambThContainer> dtThDigis;
-  edm::Handle<CSCCorrelatedLCTDigiCollection> cscDigis;
-  edm::Handle<RPCDigiCollection> rpcDigis;
-
-  MuStubsInputTokens muStubsInputTokens;
-
-  bool dropDTPrimitives = false;
-  bool dropRPCPrimitives = false;
-  bool dropCSCPrimitives = false;
 
   int minDtPhQuality = 2;
 };

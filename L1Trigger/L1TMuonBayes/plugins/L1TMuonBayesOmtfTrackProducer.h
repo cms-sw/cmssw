@@ -56,14 +56,12 @@ class L1TMuonBayesOmtfTrackProducer : public edm::EDProducer {
 
   edm::ParameterSet theConfig;
   
-  edm::EDGetTokenT<L1MuDTChambPhContainer> inputTokenDTPh;
-  edm::EDGetTokenT<L1MuDTChambThContainer> inputTokenDTTh;
-  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> inputTokenCSC;
-  edm::EDGetTokenT<RPCDigiCollection> inputTokenRPC;
-
   edm::EDGetTokenT<edm::SimTrackContainer> inputTokenSimHit; //TODO remove
 
-  bool dumpResultToXML, dumpDetailedResultToXML;
+  bool dumpResultToXML = false;
+  bool dumpDetailedResultToXML = false;
+
+  MuStubsInputTokens muStubsInputTokens;
 
   OMTFReconstruction m_Reconstruction;
 

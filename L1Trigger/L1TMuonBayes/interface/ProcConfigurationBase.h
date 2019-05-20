@@ -45,7 +45,7 @@ public:
 
   virtual bool isBendingLayer(unsigned int iLayer) const = 0;
 
-  unsigned int getBxToProcess() const {
+  virtual unsigned int getBxToProcess() const {
     return 1;
   }
 };

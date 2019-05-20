@@ -16,8 +16,10 @@ class MuonStubsInput {
 public:
   MuonStubsInput(const ProcConfigurationBase* config);
 
+  virtual ~MuonStubsInput() {}
+
   //void addStub(unsigned int iLayer, unsigned int iInput, MuonStubPtr& stub);
-  void addStub(unsigned int iLayer, const MuonStubPtr& stub) {
+  virtual void addStub(unsigned int iLayer, const MuonStubPtr& stub) {
     muonStubsInLayers.at(iLayer).emplace_back(stub);
   }
 
@@ -32,21 +34,21 @@ public:
 
   //MuonStub getMuonStub(unsigned int iLayer, unsigned int iInput) const;
 
-  MuonStubPtrs2D& getMuonStubs() {
+  virtual MuonStubPtrs2D& getMuonStubs() {
     return muonStubsInLayers;
   }
 
-  const MuonStubPtrs2D& getMuonStubs() const {
+  virtual const MuonStubPtrs2D& getMuonStubs() const {
     return muonStubsInLayers;
   }
 
   //gives stub phiHw or phiBHw - depending which layer is requested
   //if there is no stun at input iInput - return MuonStub::EMTPY_PHI
-  const int getPhiHw(unsigned int iLayer, unsigned int iInput) const;
+  virtual int getPhiHw(unsigned int iLayer, unsigned int iInput) const;
 
   friend std::ostream & operator << (std::ostream &out, const MuonStubsInput& stubsInput);
 
-private:
+protected:
   const ProcConfigurationBase* config = nullptr;
 
   //[iLayer][iStub]

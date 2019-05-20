@@ -27,14 +27,15 @@
 
 OMTFTrainer::OMTFTrainer(const edm::ParameterSet& cfg):
 theConfig(cfg),
-g4SimTrackSrc(cfg.getParameter<edm::InputTag>("g4SimTrackSrc")), m_Reconstruction(cfg) {
+g4SimTrackSrc(cfg.getParameter<edm::InputTag>("g4SimTrackSrc")), m_Reconstruction(cfg, muStubsInputTokens) {
 
   produces<l1t::RegionalMuonCandBxCollection >("OMTF");
 
-  inputTokenDTPh = consumes<L1MuDTChambPhContainer>(theConfig.getParameter<edm::InputTag>("srcDTPh"));
-  inputTokenDTTh = consumes<L1MuDTChambThContainer>(theConfig.getParameter<edm::InputTag>("srcDTTh"));
-  inputTokenCSC = consumes<CSCCorrelatedLCTDigiCollection>(theConfig.getParameter<edm::InputTag>("srcCSC"));
-  inputTokenRPC = consumes<RPCDigiCollection>(theConfig.getParameter<edm::InputTag>("srcRPC"));
+  muStubsInputTokens.inputTokenDTPh = consumes<L1MuDTChambPhContainer>(theConfig.getParameter<edm::InputTag>("srcDTPh"));
+  muStubsInputTokens.inputTokenDTTh = consumes<L1MuDTChambThContainer>(theConfig.getParameter<edm::InputTag>("srcDTTh"));
+  muStubsInputTokens.inputTokenCSC = consumes<CSCCorrelatedLCTDigiCollection>(theConfig.getParameter<edm::InputTag>("srcCSC"));
+  muStubsInputTokens.inputTokenRPC = consumes<RPCDigiCollection>(theConfig.getParameter<edm::InputTag>("srcRPC"));
+
   inputTokenSimHit = consumes<edm::SimTrackContainer>(theConfig.getParameter<edm::InputTag>("g4SimTrackSrc"));
 
   ptDist = new TH1I("ptDist", "ptDist", 200, -0.5, 200-0.5);

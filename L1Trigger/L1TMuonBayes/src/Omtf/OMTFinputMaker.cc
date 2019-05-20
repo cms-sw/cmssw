@@ -22,15 +22,12 @@ OMTFinputMaker::OMTFinputMaker(): rpcClusterization(3, 2) {
 
 }
 
-///////////////////////////////////////
-///////////////////////////////////////
-void OMTFinputMaker::initialize(const edm::EventSetup& es, const OMTFConfiguration *omtfConfig){ 
-
-  angleConverter.checkAndUpdateGeometry(es, omtfConfig);
-
-  config = omtfConfig;
-
+void OMTFinputMaker::initialize(const edm::ParameterSet& edmCfg, const edm::EventSetup& es, const OMTFConfiguration* procConf, MuStubsInputTokens& muStubsInputTokens) {
+  this->config = procConf;
+  MuonStubMakerBase::initialize(edmCfg, es, config, muStubsInputTokens);
+  angleConverter.checkAndUpdateGeometry(es, config);
 }
+
 ///////////////////////////////////////
 ///////////////////////////////////////
 OMTFinputMaker::~OMTFinputMaker(){ }
@@ -404,7 +401,7 @@ void OMTFinputMaker::addStub(MuonStubPtrs2D& muonStubsInLayers, unsigned int iLa
 
 ////////////////////////////////////////////
 ////////////////////////////////////////////
-const OMTFinput OMTFinputMaker::buildInputForProcessor(const L1MuDTChambPhContainer *dtPhDigis,
+/*const OMTFinput OMTFinputMaker::buildInputForProcessor(const L1MuDTChambPhContainer *dtPhDigis,
     const L1MuDTChambThContainer *dtThDigis,
     const CSCCorrelatedLCTDigiCollection *cscDigis,
     const RPCDigiCollection *rpcDigis,
@@ -419,6 +416,6 @@ const OMTFinput OMTFinputMaker::buildInputForProcessor(const L1MuDTChambPhContai
   processRPC(result.getMuonStubs(), rpcDigis, iProcessor, type, bxFrom, bxTo);
   //cout<<result<<endl;
   return result;
-}
+}*/
 ////////////////////////////////////////////
 ////////////////////////////////////////////

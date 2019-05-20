@@ -1,6 +1,7 @@
 #ifndef OMTF_OMTFinput_H
 #define OMTF_OMTFinput_H
 
+#include "L1Trigger/L1TMuonBayes/interface/MuonStubsInput.h"
 #include "L1Trigger/L1TMuonBayes/interface/MuonStub.h"
 
 #include <vector>
@@ -10,7 +11,7 @@
 class XMLConfigReader;
 class OMTFConfiguration;
 
-class OMTFinput {
+class OMTFinput: public MuonStubsInput {
 
  public:
 
@@ -18,6 +19,8 @@ class OMTFinput {
   //typedef std::vector<vector1D> vector2D;
 
   OMTFinput(const OMTFConfiguration*);
+
+  virtual ~OMTFinput() {}
 
   ///Add hit to given layer.
   ///iInput marks input number (max 14 per layer)
@@ -46,18 +49,8 @@ class OMTFinput {
     return muonStubsInLayers.at(iLayer).at(iInput);
   }
 
-  //needed by the OMTFinputMaker
-  MuonStubPtrs2D& getMuonStubs() {
-    return muonStubsInLayers;
-  }
-
-  //otherwise the OMTFinput should be const to avoid any modification
-  const MuonStubPtrs2D& getMuonStubs() const {
-    return muonStubsInLayers;
-  }
-
   //if the layer is banding layer, the phiB from the iLayer -1 is returned
-  const int getHitPhi(unsigned int iLayer, unsigned int iInput) const;
+  virtual int getPhiHw(unsigned int iLayer, unsigned int iInput) const;
 
   //if the layer is banding layer, the eta from the iLayer -1 is returned
   const int getHitEta(unsigned int iLayer, unsigned int iInput) const;
@@ -70,9 +63,6 @@ class OMTFinput {
 
  private:
   //friend class OMTFinputMaker; //to allow the OMTFinputMaker see and modify the muonStubsInLayers, which for other classes should be const
-
-  //[iLayer][iInput]
-  MuonStubPtrs2D muonStubsInLayers;
 
   ///Phi measurements in logic layers
   ///First index: layer number
@@ -87,7 +77,7 @@ class OMTFinput {
   ///RefHitsEta
   //mutable vector1D refHitsEta;
 
-  const OMTFConfiguration* myOmtfConfig;
+  const OMTFConfiguration* myOmtfConfig = nullptr;;
 };
 
 

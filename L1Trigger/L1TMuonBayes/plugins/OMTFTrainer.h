@@ -56,12 +56,10 @@ private:
   edm::ParameterSet theConfig;
   edm::InputTag g4SimTrackSrc;
 
-  edm::EDGetTokenT<L1MuDTChambPhContainer> inputTokenDTPh;
-  edm::EDGetTokenT<L1MuDTChambThContainer> inputTokenDTTh;
-  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> inputTokenCSC;
-  edm::EDGetTokenT<RPCDigiCollection> inputTokenRPC;
   edm::EDGetTokenT<edm::SimTrackContainer> inputTokenSimHit;
   
+  MuStubsInputTokens muStubsInputTokens;
+
   OMTFReconstruction m_Reconstruction;
 
   TH1I* ptDist;

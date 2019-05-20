@@ -87,14 +87,14 @@ class AngleConverterBase {
 			   const L1MuDTChambThContainer *dtThDigis);
     
     // pointers to the current geometry records
-    unsigned long long _geom_cache_id;
+    unsigned long long _geom_cache_id = 0;
     edm::ESHandle<RPCGeometry> _georpc;    
     edm::ESHandle<CSCGeometry> _geocsc;    
     edm::ESHandle<DTGeometry>  _geodt;    
 
     const ProcConfigurationBase* config = nullptr;
     ///Number of phi bins along 2Pi.
-    unsigned int nPhiBins;
+    unsigned int nPhiBins = 0;
    
   };
 

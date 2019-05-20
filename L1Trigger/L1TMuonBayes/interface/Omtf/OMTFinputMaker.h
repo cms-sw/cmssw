@@ -30,17 +30,17 @@ public:
 
   virtual ~OMTFinputMaker();
 
-  virtual void initialize(const edm::EventSetup& es, const OMTFConfiguration*);
+  virtual void initialize(const edm::ParameterSet& edmCfg, const edm::EventSetup& es, const OMTFConfiguration* procConf, MuStubsInputTokens& muStubsInputTokens);
 
   ///Method translating trigger digis into input matrix with global phi coordinates
-  const OMTFinput buildInputForProcessor(const L1MuDTChambPhContainer *dtPhDigis,
+/*  const OMTFinput buildInputForProcessor(const L1MuDTChambPhContainer *dtPhDigis,
 				   const L1MuDTChambThContainer *dtThDigis,
 				   const CSCCorrelatedLCTDigiCollection *cscDigis,
 				   const RPCDigiCollection *rpcDigis,
 				   unsigned int iProcessor,
 				   l1t::tftype procTyp = l1t::tftype::omtf_pos,
                            int bx=0);
-  
+  */
 
  void setFlag(int aFlag) {flag = aFlag; }
  int getFlag() const { return flag;}
@@ -87,7 +87,7 @@ private:
 
   OmtfAngleConverter angleConverter;
 
-  const OMTFConfiguration* config;
+  const OMTFConfiguration* config =  nullptr;
 
   int flag;
 

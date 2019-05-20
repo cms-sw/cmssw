@@ -54,10 +54,8 @@ void AngleConverterBase::checkAndUpdateGeometry(const edm::EventSetup& es,  cons
     geom.get(_geodt);
     _geom_cache_id = geomid;
   }
-
   this->config = config;
   nPhiBins = config->nPhiBins();
-
 }
 ///////////////////////////////////////
 ///////////////////////////////////////

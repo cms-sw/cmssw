@@ -285,7 +285,7 @@ StandaloneCandWithStubsVec MuCorrelatorProcessor::selectCandsWithStubs(const Sta
 
 
 
-std::vector<l1t::RegionalMuonCand> MuCorrelatorProcessor::getFinalCandidates(unsigned int iProcessor, l1t::tftype mtfType, AlgoTTMuons& algoTTMuons) {
+/*std::vector<l1t::RegionalMuonCand> MuCorrelatorProcessor::getFinalCandidates(unsigned int iProcessor, l1t::tftype mtfType, AlgoTTMuons& algoTTMuons) {
   std::vector<l1t::RegionalMuonCand> candidates;
 
   for(auto& algoTTMuon: algoTTMuons) {
@@ -311,7 +311,9 @@ std::vector<l1t::RegionalMuonCand> MuCorrelatorProcessor::getFinalCandidates(uns
       candidates.push_back(candidate);
   }
   return candidates;
-}
+}*/
+
+
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 l1t::BayesMuCorrTrackCollection MuCorrelatorProcessor::getMuCorrTrackCollection(unsigned int iProcessor, AlgoTTMuons& algoTTMuons) {

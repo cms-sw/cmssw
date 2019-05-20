@@ -39,7 +39,7 @@ class OMTFReconstruction {
   public:
     //OMTFReconstruction();
 
-    OMTFReconstruction(const edm::ParameterSet&);
+    OMTFReconstruction(const edm::ParameterSet&, MuStubsInputTokens& muStubsInputTokens);
 
     ~OMTFReconstruction();
 
@@ -54,6 +54,8 @@ class OMTFReconstruction {
   private:
 
     edm::ParameterSet m_Config;
+
+    MuStubsInputTokens& muStubsInputTokens;
 
 /*    void loadAndFilterDigis(const edm::Event&);
 
@@ -75,7 +77,7 @@ class OMTFReconstruction {
     //XMLConfigWriter     *m_Writer;
 
     std::vector<std::unique_ptr<IOMTFEmulationObserver> > observers;
-    unsigned int theEvent;
+    unsigned int theEvent = 0;
 };
 
 #endif

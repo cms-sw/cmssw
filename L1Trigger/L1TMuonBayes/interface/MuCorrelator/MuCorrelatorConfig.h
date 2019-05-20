@@ -138,6 +138,10 @@ public:
     return bxToProcess;
   }
 
+  void setBxToProcess(unsigned int bxToProcess = 4) {
+    this->bxToProcess = bxToProcess;
+  }
+
 private:
   unsigned int layers = 30;
 

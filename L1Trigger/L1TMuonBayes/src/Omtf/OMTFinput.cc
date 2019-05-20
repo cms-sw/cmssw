@@ -11,7 +11,7 @@
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 const int inputsPerLayer = 14;
-OMTFinput::OMTFinput(const OMTFConfiguration* omtfConfig){
+OMTFinput::OMTFinput(const OMTFConfiguration* omtfConfig): MuonStubsInput(omtfConfig) {
 
   myOmtfConfig = omtfConfig;
   //muonStubsInLayers.assign(omtfConfig->nLayers(), std::vector<MuonStub>(inputsPerLayer, MuonStub(myOmtfConfig->nPhiBins(), myOmtfConfig->nPhiBins())) );
@@ -40,7 +40,9 @@ OMTFinput::OMTFinput(const OMTFConfiguration* omtfConfig){
   return muonStubsInLayers[iLayer][iInput];
 }*/
 
-const int OMTFinput::getHitPhi(unsigned int iLayer, unsigned int iInput) const {
+
+//TODO remove and leave only the MuonStubsInput::getPhiHw
+const int OMTFinput::getPhiHw(unsigned int iLayer, unsigned int iInput) const {
   /*  assert(iLayer < muonStubsInLayers.size());
   assert(iInput < muonStubsInLayers[iLayer].size());*/
   if(this->myOmtfConfig->isBendingLayer(iLayer) ) {
@@ -80,7 +82,7 @@ std::bitset<128> OMTFinput::getRefHits(unsigned int iProcessor) const{
 
   unsigned int iRefHit = 0;
   for(auto iRefHitDef:myOmtfConfig->getRefHitsDefs()[iProcessor]){
-    int iPhi = getHitPhi(myOmtfConfig->getRefToLogicNumber()[iRefHitDef.iRefLayer], iRefHitDef.iInput);
+    int iPhi = getPhiHw(myOmtfConfig->getRefToLogicNumber()[iRefHitDef.iRefLayer], iRefHitDef.iInput);
     if(iPhi<(int)myOmtfConfig->nPhiBins()){
       refHits.set(iRefHit, iRefHitDef.fitsRange(iPhi));    
     }
@@ -182,7 +184,7 @@ for(unsigned int iLogicLayer=0;iLogicLayer<aInput.muonStubsInLayers.size();++iLo
     out<<"Logic layer: "<<std::setw(2)<<iLogicLayer<<" Hits: ";
     for(unsigned int iHit=0;iHit<aInput.muonStubsInLayers[iLogicLayer].size();++iHit){
       //out<<aInput.muonStubsInLayers[iLogicLayer][iHit]<<"\t";
-      int phi = aInput.getHitPhi(iLogicLayer, iHit);
+      int phi = aInput.getPhiHw(iLogicLayer, iHit);
       if(phi == 5400)
         out<<std::setw(4)<<"...."<<" ";
       else

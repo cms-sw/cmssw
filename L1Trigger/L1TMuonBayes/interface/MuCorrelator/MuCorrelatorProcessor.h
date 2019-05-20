@@ -86,7 +86,7 @@ public:
     return pdfModule.get();
   }
 
-  virtual std::vector<l1t::RegionalMuonCand> getFinalCandidates(unsigned int iProcessor, l1t::tftype mtfType, AlgoTTMuons& algoTTMuons);
+  //virtual std::vector<l1t::RegionalMuonCand> getFinalCandidates(unsigned int iProcessor, l1t::tftype mtfType, AlgoTTMuons& algoTTMuons);
 
   virtual l1t::BayesMuCorrTrackCollection getMuCorrTrackCollection(unsigned int iProcessor, AlgoTTMuons& algoTTMuons);
 
