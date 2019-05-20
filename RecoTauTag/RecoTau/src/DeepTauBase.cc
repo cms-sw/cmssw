@@ -76,8 +76,11 @@ DeepTauBase::Output::ResultMap DeepTauBase::Output::get_value(const edm::Handle<
     return output;
 }
 
-DeepTauBase::DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& outputCollection, const DeepTauCache* cache) :
+DeepTauBase::DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& outputCollection,
+                         const DeepTauCache* cache) :
     tausToken_(consumes<TauCollection>(cfg.getParameter<edm::InputTag>("taus"))),
+    pfcand_token_(consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("pfcands"))),
+    vtx_token_(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
     outputs_(outputCollection),
     cache_(cache)
 {

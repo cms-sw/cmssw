@@ -8,7 +8,7 @@ class TauIDEmbedder(object):
 
     def __init__(self, process, cms, debug = False,
         updatedTauName = "slimmedTausNewID",
-        toKeep = ["2016v1", "newDM2016v1","deepTau2017v1","DPFTau_2016_v0"],
+        toKeep = ["2016v1", "newDM2016v1","deepTau2017v1", "deepTau2017v2","DPFTau_2016_v0"],
         tauIdDiscrMVA_trainings_run2_2017 = {
             'tauIdMVAIsoDBoldDMwLT2017' : "tauIdMVAIsoDBoldDMwLT2017",
         },
@@ -639,14 +639,69 @@ class TauIDEmbedder(object):
                 electrons              = self.cms.InputTag('slimmedElectrons'),
                 muons                  = self.cms.InputTag('slimmedMuons'),
                 taus                   = self.cms.InputTag('slimmedTaus'),
+                pfcands                = self.cms.InputTag('packedPFCandidates'),
+                vertices               = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
+                rho                    = self.cms.InputTag('fixedGridRhoAll'),
                 graph_file             = self.cms.string(file_name),
-                mem_mapped             = self.cms.bool(False)
+                mem_mapped             = self.cms.bool(False),
+                version                = self.cms.uint32(self.getDeepTauVersion(file_name)[1])
             )
 
             self.processDeepProducer('deepTau2017v1', tauIDSources, workingPoints_)
 
             self.process.rerunMvaIsolationTask.add(self.process.deepTau2017v1)
             self.process.rerunMvaIsolationSequence += self.process.deepTau2017v1
+
+        if "deepTau2017v2" in self.toKeep:
+            print ("Adding DeepTau IDs")
+
+            workingPoints_ = {
+                "e": {
+                    "VVVLoose": 0.0630386,
+                    "VVLoose": 0.1686942,
+                    "VLoose": 0.3628130,
+                    "Loose": 0.6815435,
+                    "Medium": 0.8847544,
+                    "Tight": 0.9675541,
+                    "VTight": 0.9859251,
+                    "VVTight": 0.9928449,
+                },
+                "mu": {
+                    "VLoose": 0.1058354,
+                    "Loose": 0.2158633,
+                    "Medium": 0.5551894,
+                    "Tight": 0.8754835,
+                },
+                "jet": {
+                    "VVVLoose": 0.2599605,
+                    "VVLoose": 0.4249705,
+                    "VLoose": 0.5983682,
+                    "Loose": 0.7848675,
+                    "Medium": 0.8834768,
+                    "Tight": 0.9308689,
+                    "VTight": 0.9573137,
+                    "VVTight": 0.9733927,
+                },
+            }
+            file_name = 'RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6.pb'
+            self.process.deepTau2017v2 = self.cms.EDProducer("DeepTauId",
+                electrons              = self.cms.InputTag('slimmedElectrons'),
+                muons                  = self.cms.InputTag('slimmedMuons'),
+                taus                   = self.cms.InputTag('slimmedTaus'),
+                pfcands                = self.cms.InputTag('packedPFCandidates'),
+                vertices               = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
+                rho                    = self.cms.InputTag('fixedGridRhoAll'),
+                graph_file             = self.cms.string(file_name),
+                mem_mapped             = self.cms.bool(True),
+                version                = self.cms.uint32(self.getDeepTauVersion(file_name)[1]),
+                debug_level            = self.cms.int32(0)
+
+            )
+
+            self.processDeepProducer('deepTau2017v2', tauIDSources, workingPoints_)
+
+            self.process.rerunMvaIsolationTask.add(self.process.deepTau2017v2)
+            self.process.rerunMvaIsolationSequence += self.process.deepTau2017v2
 
         if "DPFTau_2016_v0" in self.toKeep:
             print "Adding DPFTau isolation (v0)"
@@ -1013,3 +1068,20 @@ class TauIDEmbedder(object):
                                 Unable to extract version number.'.format(file_name))
         version = version_search.group(1)
         return int(version)
+
+    def getDeepTauVersion(self, file_name):
+        """returns the DeepTau year, version, subversion. File name should contain a version label with data takig year \
+        (2011-2, 2015-8), version number (vX) and subversion (pX), e.g. 2017v0p6, in general the following format: \
+        {year}v{version}p{subversion}"""
+        version_search = re.search('(201[125678])v([0-9]+)(p[0-9]+|)[\._]', file_name)
+        if not version_search:
+            raise RuntimeError('File "{}" has an invalid name pattern, should be in the format "{year}v{version}p{subversion}". \
+                                Unable to extract version number.'.format(file_name))
+        year = version_search.group(1)
+        version = version_search.group(2)
+        subversion = version_search.group(3)
+        if len(subversion) > 0:
+            subversion = subversion[1:]
+        else:
+            subversion = 0
+        return int(year), int(version), int(subversion)
