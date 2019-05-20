@@ -42,7 +42,7 @@ OMTFinput::OMTFinput(const OMTFConfiguration* omtfConfig): MuonStubsInput(omtfCo
 
 
 //TODO remove and leave only the MuonStubsInput::getPhiHw
-const int OMTFinput::getPhiHw(unsigned int iLayer, unsigned int iInput) const {
+int OMTFinput::getPhiHw(unsigned int iLayer, unsigned int iInput) const {
   /*  assert(iLayer < muonStubsInLayers.size());
   assert(iInput < muonStubsInLayers[iLayer].size());*/
   if(this->myOmtfConfig->isBendingLayer(iLayer) ) {

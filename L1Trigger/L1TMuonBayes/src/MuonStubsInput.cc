@@ -26,7 +26,7 @@ std::ostream & operator<< (std::ostream &out, const MuonStubsInput& stubsInput) 
 
 //gives stub phiHw or phiBHw - depending which layer is requested
 //assumes that the banidg layer
-const int MuonStubsInput::getPhiHw(unsigned int iLayer, unsigned int iInput) const {
+int MuonStubsInput::getPhiHw(unsigned int iLayer, unsigned int iInput) const {
   if(config->isBendingLayer(iLayer) ) {
     if(iInput >= muonStubsInLayers[iLayer -1].size())
       return MuonStub::EMTPY_PHI;
