@@ -8,9 +8,6 @@ from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig
     import mvaPhoID_Spring16_nonTrig_V1_producer_config
 mvaConfigsForPhoProducer.append( mvaPhoID_Spring16_nonTrig_V1_producer_config )
 
-from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1_cff import *
-mvaConfigsForPhoProducer.append( mvaPhoID_RunIIFall17_v1_producer_config )
-
 from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1p1_cff import *
 mvaConfigsForPhoProducer.append( mvaPhoID_RunIIFall17_v1p1_producer_config )
 
