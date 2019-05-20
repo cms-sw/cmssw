@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
@@ -37,20 +38,25 @@ namespace edm {
     public:
       using RecordType = typename ProxyType::RecordType;
 
-      ProxyArgumentFactoryTemplate(std::shared_ptr<std::vector<std::shared_ptr<CallbackType>>> callbacks)
-          : callbacks_(std::move(callbacks)) {}
+      ProxyArgumentFactoryTemplate(std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackType>>> callback)
+          : callback_(std::move(callback)) {}
 
       ProxyArgumentFactoryTemplate(const ProxyArgumentFactoryTemplate&) = delete;
       const ProxyArgumentFactoryTemplate& operator=(const ProxyArgumentFactoryTemplate&) = delete;
 
       std::unique_ptr<DataProxy> makeProxy(unsigned int iovIndex) override {
-        while (iovIndex >= callbacks_->size()) {
-          callbacks_->push_back(std::make_shared<CallbackType>(callbacks_->at(0)->get(),
-                                                               callbacks_->at(0)->method(),
-                                                               callbacks_->at(0)->transitionID(),
-                                                               callbacks_->at(0)->decorator()));
+        if (iovIndex != callback_->first) {
+          // We are using the fact that we know all the factories related
+          // to one iovIndex are dealt with before makeProxy is called with
+          // a different iovIndex and that these calls are made in an
+          // order such that the iovIndex increments by 1 when it changes.
+          // We must clone, because we need a different callback object
+          // for each iovIndex.
+          assert(iovIndex == callback_->first + 1);
+          callback_->first = callback_->first + 1;
+          callback_->second = std::shared_ptr<CallbackType>(callback_->second->clone());
         }
-        return std::make_unique<ProxyType>(callbacks_->at(iovIndex));
+        return std::make_unique<ProxyType>(callback_->second);
       }
 
       DataKey makeKey(const std::string& iName) const override {
@@ -58,7 +64,7 @@ namespace edm {
       }
 
     private:
-      std::shared_ptr<std::vector<std::shared_ptr<CallbackType>>> callbacks_;
+      std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackType>>> callback_;
     };
   }  // namespace eventsetup
 }  // namespace edm
