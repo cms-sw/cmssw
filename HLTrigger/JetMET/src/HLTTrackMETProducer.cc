@@ -67,7 +67,7 @@ void HLTTrackMETProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     // Create a pointer to the products
     std::unique_ptr<reco::METCollection> result(new reco::METCollection());
 
-    if (pfCandidatesLabel_.label() == "")
+    if (pfCandidatesLabel_.label().empty())
         excludePFMuons_ = false;
 
     bool useJets = !useTracks_ && !usePFRecTracks_ && !usePFCandidatesCharged_ && !usePFCandidates_;
