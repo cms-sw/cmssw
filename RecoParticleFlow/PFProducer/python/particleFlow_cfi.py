@@ -24,23 +24,8 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     useHO = cms.bool(True),                                 
 
     # Use electron identification in PFAlgo
-    usePFElectrons = cms.bool(False),
     pf_electron_output_col=cms.string('electrons'),
     pf_electronID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt'),
-    pf_electron_mvaCut = cms.double(-0.1),
-
-    # Use Photon identification in PFAlgo (for now this has NO impact, algo is swicthed off hard-coded
-    usePFPhotons = cms.bool(False),
-    usePhotonReg=cms.bool(False),
-    useRegressionFromDB=cms.bool(True),                                 
-    pf_convID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt'),        
-    pf_conv_mvaCut=cms.double(0.0),                                 
-    pf_locC_mvaWeightFile=cms.string('RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterLCorr_14Dec2011.root'),
-    pf_GlobC_mvaWeightFile=cms.string('RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr_14Dec2011.root'),
-    pf_Res_mvaWeightFile=cms.string('RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes_14Dec2011.root'),
-    X0_Map=cms.string('RecoParticleFlow/PFProducer/data/allX0histos.root'),
-    sumPtTrackIsoForPhoton=cms.double(2.0),
-    sumPtTrackIsoSlopeForPhoton=cms.double(0.001),
 
     useEGammaFilters = cms.bool(True),
     useProtectionsForJetMET = cms.bool(True),    
@@ -103,8 +88,6 @@ particleFlowTmp = cms.EDProducer("PFProducer",
 
                                  
     # apply the crack corrections                             
-    pf_electronID_crackCorrection = cms.bool(False),
-    usePFSCEleCalib = cms.bool(True),
                               #new corrections  #MM /*
     calibPFSCEle_Fbrem_barrel = cms.vdouble(0.6, 6,                                                 #Range of non constant correction
                                             -0.0255975, 0.0576727, 0.975442, -0.000546394, 1.26147, #standard parameters
@@ -126,14 +109,6 @@ particleFlowTmp = cms.EDProducer("PFProducer",
 #    calibPFSCEle_barrel = cms.vdouble(1.0326,-13.71,339.72,0.4862,0.00182,0.36445,1.411,1.0206,0.0059162,-5.14434e-05,1.42516e-07),
 #    calibPFSCEle_endcap = cms.vdouble(0.9995,-12.313,2.8784,-1.057e-04,10.282,3.059,1.3502e-03,-2.2185,3.4206),
 
-    useEGammaSupercluster =  cms.bool(True),
-    sumEtEcalIsoForEgammaSC_barrel = cms.double(1.),
-    sumEtEcalIsoForEgammaSC_endcap = cms.double(2.),
-    coneEcalIsoForEgammaSC = cms.double(0.3),
-    sumPtTrackIsoForEgammaSC_barrel = cms.double(4.),
-    sumPtTrackIsoForEgammaSC_endcap = cms.double(4.),
-    nTrackIsoForEgammaSC = cms.uint32(2),                          
-    coneTrackIsoForEgammaSC = cms.double(0.3),
     useEGammaElectrons = cms.bool(True),                                 
     egammaElectrons = cms.InputTag('mvaElectrons'),                              
 
