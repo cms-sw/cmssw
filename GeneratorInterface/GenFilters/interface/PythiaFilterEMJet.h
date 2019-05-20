@@ -26,28 +26,26 @@ namespace edm {
 }
 
 class PythiaFilterEMJet : public edm::EDFilter {
-   public:
-      explicit PythiaFilterEMJet(const edm::ParameterSet&);
-      ~PythiaFilterEMJet() override;
+public:
+  explicit PythiaFilterEMJet(const edm::ParameterSet&);
+  ~PythiaFilterEMJet() override;
 
-      bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-   private:
-      
-       edm::EDGetTokenT<edm::HepMCProduct> token_;
-       double etaMin;
-       double eTSumMin;
-       double pTMin;
-       double etaMax;
-       double eTSumMax;        
-       double pTMax;        
-       double ebEtaMax;
-       double deltaEB;
-       double deltaEE;
+private:
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
+  double etaMin;
+  double eTSumMin;
+  double pTMin;
+  double etaMax;
+  double eTSumMax;
+  double pTMax;
+  double ebEtaMax;
+  double deltaEB;
+  double deltaEE;
 
-       int theNumberOfTestedEvt;
-       int theNumberOfSelected;
-       int maxnumberofeventsinrun;
-
+  int theNumberOfTestedEvt;
+  int theNumberOfSelected;
+  int maxnumberofeventsinrun;
 };
 #endif

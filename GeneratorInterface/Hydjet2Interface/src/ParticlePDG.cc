@@ -19,41 +19,43 @@
 using namespace std;
 
 ParticlePDG::ParticlePDG() {
-  fPDG   = kNonsensePDG;
-  fMass  = -1.0;
+  fPDG = kNonsensePDG;
+  fMass = -1.0;
   fWidth = 0.0;
   fNDecayChannels = 0;
-  for(int i=0; i<kMaxDecayChannels; i++)
+  for (int i = 0; i < kMaxDecayChannels; i++)
     fDecayChannels[i] = new DecayChannel();
 }
 
 ParticlePDG::ParticlePDG(char *name, int pdg, double mass, double width) {
-  for(int i=0; i<9; i++)
-    if(*(name+i) != '\0') fName[i] = *(name+i);
-    else break;
-  fPDG   = pdg;
-  fMass  = mass;
+  for (int i = 0; i < 9; i++)
+    if (*(name + i) != '\0')
+      fName[i] = *(name + i);
+    else
+      break;
+  fPDG = pdg;
+  fMass = mass;
   fWidth = width;
   fNDecayChannels = 0;
-  for(int i=0; i<kMaxDecayChannels; i++)
+  for (int i = 0; i < kMaxDecayChannels; i++)
     fDecayChannels[i] = new DecayChannel();
 }
 
 ParticlePDG::~ParticlePDG() {
-  for(int i=0; i<kMaxDecayChannels; i++)
+  for (int i = 0; i < kMaxDecayChannels; i++)
     delete fDecayChannels[i];
 }
 
 double ParticlePDG::GetFullBranching() {
   double fullBranching = 0.0;
-  for(int i=0; i<fNDecayChannels; i++)
+  for (int i = 0; i < fNDecayChannels; i++)
     fullBranching += fDecayChannels[i]->GetBranching();
   return fullBranching;
 }
 
 void ParticlePDG::AddChannel(DecayChannel &channel) {
-  if(channel.GetMotherPDG() != fPDG) {
-    edm::LogError("ParticlePDG") <<" AddChannel() : You try to add a channel which has a different mother PDG";
+  if (channel.GetMotherPDG() != fPDG) {
+    edm::LogError("ParticlePDG") << " AddChannel() : You try to add a channel which has a different mother PDG";
     return;
   }
   fDecayChannels[fNDecayChannels]->SetMotherPDG(channel.GetMotherPDG());

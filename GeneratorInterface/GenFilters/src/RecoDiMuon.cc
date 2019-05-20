@@ -21,33 +21,21 @@
 using namespace edm;
 using namespace std;
 
-
-RecoDiMuon::RecoDiMuon(const edm::ParameterSet& iConfig) :
-  nEvents_(0), nAccepted_(0)
-{
+RecoDiMuon::RecoDiMuon(const edm::ParameterSet& iConfig) : nEvents_(0), nAccepted_(0) {
   muonLabel_ = iConfig.getParameter<InputTag>("MuonLabel");
-  singleMuonPtMin_ = iConfig.getUntrackedParameter<double>("SingleMuonPtMin",20.);
-  diMuonPtMin_ = iConfig.getUntrackedParameter<double>("DiMuonPtMin",5.);
+  singleMuonPtMin_ = iConfig.getUntrackedParameter<double>("SingleMuonPtMin", 20.);
+  diMuonPtMin_ = iConfig.getUntrackedParameter<double>("DiMuonPtMin", 5.);
 }
 
+RecoDiMuon::~RecoDiMuon() {}
 
-RecoDiMuon::~RecoDiMuon()
-{
-}
-
-void RecoDiMuon::endJob() 
-{
-  edm::LogVerbatim("RecoDiMuon") 
-	    << "Events read " << nEvents_ 
-            << " Events accepted " << nAccepted_ 
-            << "\nEfficiency " << ((double)nAccepted_)/((double)nEvents_) 
-	    << std::endl;
+void RecoDiMuon::endJob() {
+  edm::LogVerbatim("RecoDiMuon") << "Events read " << nEvents_ << " Events accepted " << nAccepted_ << "\nEfficiency "
+                                 << ((double)nAccepted_) / ((double)nEvents_) << std::endl;
 }
 
 // ------------ method called to skim the data  ------------
-bool RecoDiMuon::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
+bool RecoDiMuon::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   nEvents_++;
   bool accepted = false;
   using namespace edm;
@@ -60,22 +48,24 @@ bool RecoDiMuon::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     return false;
   }
 
-  if ( muons->empty() ) {
+  if (muons->empty()) {
     return false;
   }
 
-  // at least one muons above a pt threshold singleMuonPtMin 
+  // at least one muons above a pt threshold singleMuonPtMin
   // or at least 2 muons above a pt threshold diMuonPtMin
   int nMuonOver2ndCut = 0;
-  for(reco::TrackCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++ muon ) {
-
-    if ( muon->pt() > singleMuonPtMin_ ) accepted = true;
-    if ( muon->pt() > diMuonPtMin_ )  nMuonOver2ndCut++;
+  for (reco::TrackCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
+    if (muon->pt() > singleMuonPtMin_)
+      accepted = true;
+    if (muon->pt() > diMuonPtMin_)
+      nMuonOver2ndCut++;
   }
-  if ( nMuonOver2ndCut >= 2 ) accepted = true;
+  if (nMuonOver2ndCut >= 2)
+    accepted = true;
 
-  if ( accepted ) nAccepted_++;
+  if (accepted)
+    nAccepted_++;
 
   return accepted;
-
 }

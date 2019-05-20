@@ -2,7 +2,7 @@
 //
 // Package:    PythiaFilterTTBar
 // Class:      PythiaFilterTTBar
-// 
+//
 /**\class PythiaFilterTTBar PythiaFilterTTBar.cc GeneratorInterface/GenFilter/src/PythiaFilterTTBar.cc
 
  Description: edmFilter to select a TTBar decay channel
@@ -23,7 +23,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -42,7 +41,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/Common/interface/View.h"
 
-
 #include <map>
 #include <vector>
 
@@ -53,23 +51,18 @@
 //
 
 class PythiaFilterTTBar : public edm::EDFilter {
-   public:
-      explicit PythiaFilterTTBar(const edm::ParameterSet&);
-      ~PythiaFilterTTBar() override;
+public:
+  explicit PythiaFilterTTBar(const edm::ParameterSet&);
+  ~PythiaFilterTTBar() override;
 
-      bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-   private:
+private:
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
 
-      edm::EDGetTokenT<edm::HepMCProduct> token_;
+  unsigned int decayType_;
 
-      unsigned int decayType_;
+  unsigned int leptonFlavour_;
 
-      unsigned int leptonFlavour_;
-      
-
-      
-      // ----------member data ---------------------------
-		
+  // ----------member data ---------------------------
 };
-

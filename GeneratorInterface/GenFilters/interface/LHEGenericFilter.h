@@ -4,7 +4,7 @@
 //
 // Package:    LHEGenericFilter
 // Class:      LHEGenericFilter
-// 
+//
 /* 
 
  Description: Filter to select events with an arbitrary number of given particle(s).
@@ -37,26 +37,26 @@
 //
 
 class LHEGenericFilter : public edm::EDFilter {
- public:
+public:
   explicit LHEGenericFilter(const edm::ParameterSet&);
   ~LHEGenericFilter() override;
-  
- private:
+
+private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
-  
+
   // ----------member data ---------------------------
-  
+
   edm::EDGetTokenT<LHEEventProduct> src_;
-  int numRequired_;                // number of particles required to pass filter
-  std::string acceptLogic_;        // LT  meaning <
-                                   // GT          >
-                                   // EQ          =
-                                   // NE          !=
-  std::vector<int> particleID_;    // vector of particle IDs to look for
-  int totalEvents_;                // counters
+  int numRequired_;              // number of particles required to pass filter
+  std::string acceptLogic_;      // LT  meaning <
+                                 // GT          >
+                                 // EQ          =
+                                 // NE          !=
+  std::vector<int> particleID_;  // vector of particle IDs to look for
+  int totalEvents_;              // counters
   int passedEvents_;
-  enum logic_ { LT, GT, EQ, NE};
+  enum logic_ { LT, GT, EQ, NE };
   logic_ whichlogic;
 };
 #endif
