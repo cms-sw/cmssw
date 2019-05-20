@@ -16,7 +16,6 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -63,18 +62,21 @@
 //
 // const member functions
 //
-void
-FWModelId::unselect() const {
-   if(m_item) {m_item->unselect(m_index);}
+void FWModelId::unselect() const {
+  if (m_item) {
+    m_item->unselect(m_index);
+  }
 }
-void
-FWModelId::select() const {
-   if(m_item) {m_item->select(m_index);}
+void FWModelId::select() const {
+  if (m_item) {
+    m_item->select(m_index);
+  }
 }
 
-void
-FWModelId::toggleSelect() const {
-   if(m_item) {m_item->toggleSelect(m_index);}
+void FWModelId::toggleSelect() const {
+  if (m_item) {
+    m_item->toggleSelect(m_index);
+  }
 }
 
 //

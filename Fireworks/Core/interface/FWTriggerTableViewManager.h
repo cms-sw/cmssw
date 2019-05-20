@@ -15,47 +15,43 @@ class FWGUIManager;
 class TEveWindowSlot;
 
 namespace fwlite {
-   class Event;
+  class Event;
 }
 
 class FWTriggerTableViewManager : public FWViewManagerBase, public FWConfigurable {
-
 public:
-   FWTriggerTableViewManager(FWGUIManager*);
-   ~FWTriggerTableViewManager() override;
+  FWTriggerTableViewManager(FWGUIManager*);
+  ~FWTriggerTableViewManager() override;
 
-   // dummy functions of FWViewManagerBase
-   FWTypeToRepresentations supportedTypesAndRepresentations() const override
-   { return FWTypeToRepresentations();}
-   void newItem(const FWEventItem*) override {}
+  // dummy functions of FWViewManagerBase
+  FWTypeToRepresentations supportedTypesAndRepresentations() const override { return FWTypeToRepresentations(); }
+  void newItem(const FWEventItem*) override {}
 
-   // backward compatibility
-   void addTo(FWConfiguration&) const override {}
-   void setFrom(const FWConfiguration&) override {}
+  // backward compatibility
+  void addTo(FWConfiguration&) const override {}
+  void setFrom(const FWConfiguration&) override {}
 
-   FWViewBase *buildView (TEveWindowSlot *iParent, const std::string& type);
+  FWViewBase* buildView(TEveWindowSlot* iParent, const std::string& type);
 
-   // virtual void setContext(const fireworks::Context*);
+  // virtual void setContext(const fireworks::Context*);
 protected:
-   FWTriggerTableViewManager();
+  FWTriggerTableViewManager();
 
+  void modelChangesComing() override {}
+  void modelChangesDone() override {}
 
-   void modelChangesComing() override {}
-   void modelChangesDone() override {}
+  void eventEnd() override;
+  void colorsChanged() override;
 
-   void eventEnd() override;
-   void colorsChanged() override;
+  void updateProcessList();
 
-   void updateProcessList();
-
-   std::vector<std::shared_ptr<FWTriggerTableView> > m_views;
+  std::vector<std::shared_ptr<FWTriggerTableView> > m_views;
 
 private:
-   FWTriggerTableViewManager(const FWTriggerTableViewManager&);      // stop default
-   const FWTriggerTableViewManager& operator=(const FWTriggerTableViewManager&);      // stop default
+  FWTriggerTableViewManager(const FWTriggerTableViewManager&);                   // stop default
+  const FWTriggerTableViewManager& operator=(const FWTriggerTableViewManager&);  // stop default
 
-   void beingDestroyed(const FWViewBase*);
-
+  void beingDestroyed(const FWViewBase*);
 };
 
 #endif

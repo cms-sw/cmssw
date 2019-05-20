@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWDataCategories
-// 
+//
 /**\class FWDataCategories FWDataCategories.h Fireworks/Core/interface/FWDataCategories.h
 
  Description: <one line class summary>
@@ -23,6 +23,6 @@
 // user include files
 
 // forward declarations
-enum FWDataCategories {kGraphics,kFilter,kSelect,kData, kViewableSize};
+enum FWDataCategories { kGraphics, kFilter, kSelect, kData, kViewableSize };
 
 #endif
