@@ -2,7 +2,7 @@
 //
 // Package:    PhotonEnrichmentFilter
 // Class:      PhotonEnrichmentFilter
-// 
+//
 /**\class PhotonEnrichmentFilter PhotonEnrichmentFilter.cc GeneratorInterface/GenFilters/src/PhotonEnrichmentFilter.cc
 
  Description: [one line class summary]
@@ -15,7 +15,6 @@
 //         Created:  Mon Jul 26 10:02:34 CEST 2010
 //
 //
-
 
 // system include files
 #include <memory>
@@ -44,11 +43,11 @@ class PhotonEnrichmentFilter : public edm::EDFilter {
 public:
   explicit PhotonEnrichmentFilter(const edm::ParameterSet&);
   ~PhotonEnrichmentFilter() override;
-  
+
 private:
-  void beginJob() override ;
+  void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  void endJob() override;
   // ----------member data ---------------------------
   bool Debug_;
   //bool Report_;
@@ -59,7 +58,7 @@ private:
   double SecondarySeedThreshold_;
   double IsoConeSize_;
   double IsolationCutOff_;
-  
+
   double ClusterEtThreshold_;
   double ClusterEtRatio_;
   double CaloIsoEtRatio_;
@@ -71,7 +70,6 @@ private:
   int ClusterNonSeedThreshold_;
   int ClusterSeedThreshold_;
   int NumPhotons_;
-
 };
 
 //
@@ -85,103 +83,106 @@ private:
 //
 // constructors and destructor
 //
-PhotonEnrichmentFilter::PhotonEnrichmentFilter(const edm::ParameterSet& iConfig)
-{
+PhotonEnrichmentFilter::PhotonEnrichmentFilter(const edm::ParameterSet& iConfig) {
   //now do what ever initialization is needed
-  Debug_ = (bool) iConfig.getParameter<bool>("Debug");
+  Debug_ = (bool)iConfig.getParameter<bool>("Debug");
   //Report_ = (bool) iConfig.getParameter<bool>("Report");
-  ClusterConeSize_ = (double) iConfig.getParameter<double>("ClusterConeSize");
-  EMSeedThreshold_ = (double) iConfig.getParameter<double>("EMSeedThreshold");
-  PionSeedThreshold_ = (double) iConfig.getParameter<double>("PionSeedThreshold");
-  GenParticleThreshold_ = (double) iConfig.getParameter<double>("GenParticleThreshold");
-  SecondarySeedThreshold_ = (double) iConfig.getParameter<double>("SecondarySeedThreshold");
-  IsoConeSize_ = (double) iConfig.getParameter<double>("IsoConeSize");
-  IsolationCutOff_ = (double) iConfig.getParameter<double>("IsolationCutOff");
-  
-  ClusterEtThreshold_ = (double) iConfig.getParameter<double>("ClusterEtThreshold");
-  ClusterEtRatio_ = (double) iConfig.getParameter<double>("ClusterEtRatio");
-  CaloIsoEtRatio_ = (double) iConfig.getParameter<double>("CaloIsoEtRatio");
-  TrackIsoEtRatio_ = (double) iConfig.getParameter<double>("TrackIsoEtRatio");
-  ClusterTrackEtRatio_ = (double) iConfig.getParameter<double>("ClusterTrackEtRatio");
+  ClusterConeSize_ = (double)iConfig.getParameter<double>("ClusterConeSize");
+  EMSeedThreshold_ = (double)iConfig.getParameter<double>("EMSeedThreshold");
+  PionSeedThreshold_ = (double)iConfig.getParameter<double>("PionSeedThreshold");
+  GenParticleThreshold_ = (double)iConfig.getParameter<double>("GenParticleThreshold");
+  SecondarySeedThreshold_ = (double)iConfig.getParameter<double>("SecondarySeedThreshold");
+  IsoConeSize_ = (double)iConfig.getParameter<double>("IsoConeSize");
+  IsolationCutOff_ = (double)iConfig.getParameter<double>("IsolationCutOff");
 
-  MaxClusterCharge_ = (int) iConfig.getParameter<int>("MaxClusterCharge");
-  ChargedParticleThreshold_ = (int) iConfig.getParameter<int>("ChargedParticleThreshold");
-  ClusterNonSeedThreshold_ = (int) iConfig.getParameter<int>("ClusterNonSeedThreshold");
-  ClusterSeedThreshold_ = (int) iConfig.getParameter<int>("ClusterSeedThreshold");
-  NumPhotons_ = (int) iConfig.getParameter<int>("NumPhotons");
+  ClusterEtThreshold_ = (double)iConfig.getParameter<double>("ClusterEtThreshold");
+  ClusterEtRatio_ = (double)iConfig.getParameter<double>("ClusterEtRatio");
+  CaloIsoEtRatio_ = (double)iConfig.getParameter<double>("CaloIsoEtRatio");
+  TrackIsoEtRatio_ = (double)iConfig.getParameter<double>("TrackIsoEtRatio");
+  ClusterTrackEtRatio_ = (double)iConfig.getParameter<double>("ClusterTrackEtRatio");
+
+  MaxClusterCharge_ = (int)iConfig.getParameter<int>("MaxClusterCharge");
+  ChargedParticleThreshold_ = (int)iConfig.getParameter<int>("ChargedParticleThreshold");
+  ClusterNonSeedThreshold_ = (int)iConfig.getParameter<int>("ClusterNonSeedThreshold");
+  ClusterSeedThreshold_ = (int)iConfig.getParameter<int>("ClusterSeedThreshold");
+  NumPhotons_ = (int)iConfig.getParameter<int>("NumPhotons");
 }
 
-
-PhotonEnrichmentFilter::~PhotonEnrichmentFilter()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+PhotonEnrichmentFilter::~PhotonEnrichmentFilter() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool
-PhotonEnrichmentFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+bool PhotonEnrichmentFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace reco;
-  
-  Handle<GenParticleCollection> GenParticles; 
-  iEvent.getByLabel("genParticles", GenParticles); 
+
+  Handle<GenParticleCollection> GenParticles;
+  iEvent.getByLabel("genParticles", GenParticles);
 
   bool FilterResult = false;
   double etalimit = 2.4;
   //EventNumber_t eventNumber = iEvent.id().event();
   //RunNumber_t runNumber = iEvent.id().run();
-  vector <pair <GenParticle, GenParticle> > ClusterSeeds;
+  vector<pair<GenParticle, GenParticle> > ClusterSeeds;
   int NumPassClusters = 0;
-  
-  for (GenParticleCollection::const_iterator itGenParticles = GenParticles->begin(); itGenParticles != GenParticles->end(); ++itGenParticles) {
+
+  for (GenParticleCollection::const_iterator itGenParticles = GenParticles->begin();
+       itGenParticles != GenParticles->end();
+       ++itGenParticles) {
     double CandidateEt = itGenParticles->et();
     double CandidateEta = itGenParticles->eta();
     double CandidatePDGID = abs(itGenParticles->pdgId());
     double CandidatePhi = itGenParticles->phi();
 
     GenParticle SecondarySeed = *itGenParticles;
-    
-    if ((CandidatePDGID==22 || CandidatePDGID==11
-         || CandidatePDGID==211 || CandidatePDGID==310 || CandidatePDGID==130
-         || CandidatePDGID==321 || CandidatePDGID==2112 || CandidatePDGID==2212 || CandidatePDGID==3122)
-         && abs(CandidateEta)<etalimit && CandidateEt>EMSeedThreshold_) {
-      bool newseed=true;
 
-      if ((CandidatePDGID==211 || CandidatePDGID==321
-           || CandidatePDGID==2112 || CandidatePDGID==2212 || CandidatePDGID==3122)
-           && CandidateEt<PionSeedThreshold_) newseed=false;
+    if ((CandidatePDGID == 22 || CandidatePDGID == 11 || CandidatePDGID == 211 || CandidatePDGID == 310 ||
+         CandidatePDGID == 130 || CandidatePDGID == 321 || CandidatePDGID == 2112 || CandidatePDGID == 2212 ||
+         CandidatePDGID == 3122) &&
+        abs(CandidateEta) < etalimit && CandidateEt > EMSeedThreshold_) {
+      bool newseed = true;
+
+      if ((CandidatePDGID == 211 || CandidatePDGID == 321 || CandidatePDGID == 2112 || CandidatePDGID == 2212 ||
+           CandidatePDGID == 3122) &&
+          CandidateEt < PionSeedThreshold_)
+        newseed = false;
 
       if (newseed) {
-        for (GenParticleCollection::const_iterator checkGenParticles = GenParticles->begin(); checkGenParticles != GenParticles->end(); ++checkGenParticles) {
+        for (GenParticleCollection::const_iterator checkGenParticles = GenParticles->begin();
+             checkGenParticles != GenParticles->end();
+             ++checkGenParticles) {
           double GenEt = checkGenParticles->et();
           double GenEta = checkGenParticles->eta();
           double GenPDGID = abs(checkGenParticles->pdgId());
           double GenPhi = checkGenParticles->phi();
-          double dR = deltaR2(CandidateEta,CandidatePhi,GenEta,GenPhi);
-          
-          if ((((GenPDGID==22 || GenPDGID==11 || GenPDGID==310 || GenPDGID==130) && GenEt>CandidateEt)
-               || ((GenPDGID==211 || GenPDGID==321 || GenPDGID==2112 || GenPDGID==2212 || GenPDGID==3122) && GenEt>CandidateEt && GenEt>PionSeedThreshold_))
-               && dR<ClusterConeSize_) newseed=false;
+          double dR = deltaR2(CandidateEta, CandidatePhi, GenEta, GenPhi);
 
-          if ((GenPDGID==211 || GenPDGID==321 || GenPDGID==2112 || GenPDGID==2212 || GenPDGID==3122)
-              && (GenEt>SecondarySeed.et() || SecondarySeed.et()==CandidateEt)
-              && GenEt>SecondarySeedThreshold_ && GenEt<CandidateEt && dR<ClusterConeSize_) SecondarySeed=*checkGenParticles;
+          if ((((GenPDGID == 22 || GenPDGID == 11 || GenPDGID == 310 || GenPDGID == 130) && GenEt > CandidateEt) ||
+               ((GenPDGID == 211 || GenPDGID == 321 || GenPDGID == 2112 || GenPDGID == 2212 || GenPDGID == 3122) &&
+                GenEt > CandidateEt && GenEt > PionSeedThreshold_)) &&
+              dR < ClusterConeSize_)
+            newseed = false;
+
+          if ((GenPDGID == 211 || GenPDGID == 321 || GenPDGID == 2112 || GenPDGID == 2212 || GenPDGID == 3122) &&
+              (GenEt > SecondarySeed.et() || SecondarySeed.et() == CandidateEt) && GenEt > SecondarySeedThreshold_ &&
+              GenEt < CandidateEt && dR < ClusterConeSize_)
+            SecondarySeed = *checkGenParticles;
         }
       }
-      
-      if (newseed) ClusterSeeds.push_back(make_pair(*itGenParticles,SecondarySeed));
+
+      if (newseed)
+        ClusterSeeds.push_back(make_pair(*itGenParticles, SecondarySeed));
     }
   }
-   
-  for (vector<pair <GenParticle, GenParticle> >::const_iterator itClusterSeeds = ClusterSeeds.begin(); itClusterSeeds != ClusterSeeds.end(); ++itClusterSeeds) {
+
+  for (vector<pair<GenParticle, GenParticle> >::const_iterator itClusterSeeds = ClusterSeeds.begin();
+       itClusterSeeds != ClusterSeeds.end();
+       ++itClusterSeeds) {
     double CaloIsoEnergy = 0;
     double ClusterEnergy = 0;
     double ClusterTrackEnergy = 0;
@@ -193,12 +194,14 @@ PhotonEnrichmentFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
     double SecondaryEta = itClusterSeeds->second.eta();
     double SecondaryPhi = itClusterSeeds->second.phi();
-    
+
     int NumChargesInConeCounter = 0;
     int NumSeedsInConeCounter = 0;
     int NumNonSeedsInConeCounter = 0;
 
-    for(GenParticleCollection::const_iterator itGenParticles = GenParticles->begin(); itGenParticles != GenParticles->end(); ++itGenParticles) { 
+    for (GenParticleCollection::const_iterator itGenParticles = GenParticles->begin();
+         itGenParticles != GenParticles->end();
+         ++itGenParticles) {
       bool TheSecondarySeed = false;
       bool TheSeedParticle = false;
       double GenCharge = itGenParticles->charge();
@@ -207,57 +210,62 @@ PhotonEnrichmentFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       double GenPDGID = abs(itGenParticles->pdgId());
       double GenPhi = itGenParticles->phi();
       double GenStatus = itGenParticles->status();
-      double dR = deltaR2(GenEta,GenPhi,ClusterEta,ClusterPhi);
+      double dR = deltaR2(GenEta, GenPhi, ClusterEta, ClusterPhi);
 
-      if (ClusterEta==GenEta && ClusterPhi==GenPhi) TheSeedParticle=true;
-      if (SecondaryEta==GenEta && SecondaryPhi==GenPhi && !(SecondaryEta==ClusterEta && SecondaryPhi==ClusterPhi)) TheSecondarySeed=true;
-      if (GenStatus==1 && GenEt>GenParticleThreshold_) {
-
-        if (dR<ClusterConeSize_) {
-          if (GenCharge!=0 && !TheSeedParticle && !TheSecondarySeed) {
+      if (ClusterEta == GenEta && ClusterPhi == GenPhi)
+        TheSeedParticle = true;
+      if (SecondaryEta == GenEta && SecondaryPhi == GenPhi &&
+          !(SecondaryEta == ClusterEta && SecondaryPhi == ClusterPhi))
+        TheSecondarySeed = true;
+      if (GenStatus == 1 && GenEt > GenParticleThreshold_) {
+        if (dR < ClusterConeSize_) {
+          if (GenCharge != 0 && !TheSeedParticle && !TheSecondarySeed) {
             NumChargesInConeCounter++;
             ClusterTotalCharge += GenCharge;
             ClusterTrackEnergy += GenEt;
           }
-          if (GenPDGID!=12 && GenPDGID!=14 && GenPDGID!=16) ClusterTotalEnergy+=GenEt;
-          if (GenPDGID!=12 && GenPDGID!=14 && GenPDGID!=16 && GenPDGID!=22 && GenPDGID!=11 && GenPDGID!=310 && GenPDGID!=130 && !TheSeedParticle && !TheSecondarySeed) NumNonSeedsInConeCounter++;
-          if (GenPDGID==22 || GenPDGID==11 || GenPDGID==310 || GenPDGID==130 || TheSeedParticle || TheSecondarySeed) {
+          if (GenPDGID != 12 && GenPDGID != 14 && GenPDGID != 16)
+            ClusterTotalEnergy += GenEt;
+          if (GenPDGID != 12 && GenPDGID != 14 && GenPDGID != 16 && GenPDGID != 22 && GenPDGID != 11 &&
+              GenPDGID != 310 && GenPDGID != 130 && !TheSeedParticle && !TheSecondarySeed)
+            NumNonSeedsInConeCounter++;
+          if (GenPDGID == 22 || GenPDGID == 11 || GenPDGID == 310 || GenPDGID == 130 || TheSeedParticle ||
+              TheSecondarySeed) {
             NumSeedsInConeCounter++;
             ClusterEnergy += GenEt;
           }
         }
-        if (dR<IsoConeSize_ && dR>ClusterConeSize_) {
-          if (GenCharge!=0) TrackIsoEnergy += GenEt;
-          if (GenPDGID>100 || GenPDGID==22 || GenPDGID==11) CaloIsoEnergy += GenEt;
+        if (dR < IsoConeSize_ && dR > ClusterConeSize_) {
+          if (GenCharge != 0)
+            TrackIsoEnergy += GenEt;
+          if (GenPDGID > 100 || GenPDGID == 22 || GenPDGID == 11)
+            CaloIsoEnergy += GenEt;
         }
-
       }
-
     }
 
-    if (Debug_) cout << "ClusterEnergy: " << ClusterEnergy << " | CaloIsoEtRatio: " << CaloIsoEnergy/ClusterEnergy << " | TrackIsoEtRatio: " << TrackIsoEnergy/ClusterEnergy << " | ClusterTrackEtRatio: " << ClusterTrackEnergy/ClusterEnergy << " | ClusterEtRatio: " << ClusterEnergy/ClusterTotalEnergy << " | ChargedParticles: " << NumChargesInConeCounter << " | ClusterNonSeeds: " << NumNonSeedsInConeCounter << " | ClusterSeeds: " << NumSeedsInConeCounter << endl;
-    if ((ClusterEnergy<IsolationCutOff_
-         && ClusterEnergy>ClusterEtThreshold_
-         && ClusterEnergy/ClusterTotalEnergy>ClusterEtRatio_
-         && CaloIsoEnergy/ClusterEnergy<CaloIsoEtRatio_
-         && TrackIsoEnergy/ClusterEnergy<TrackIsoEtRatio_
-         && ClusterTrackEnergy/ClusterEnergy<ClusterTrackEtRatio_
-         && abs(ClusterTotalCharge)<MaxClusterCharge_
-         && NumChargesInConeCounter<ChargedParticleThreshold_
-         && NumNonSeedsInConeCounter<ClusterNonSeedThreshold_
-         && NumSeedsInConeCounter<ClusterSeedThreshold_) ||
-        (ClusterEnergy>=IsolationCutOff_
-         && ClusterEnergy>ClusterEtThreshold_
-         && ClusterEnergy/ClusterTotalEnergy>ClusterEtRatio_
+    if (Debug_)
+      cout << "ClusterEnergy: " << ClusterEnergy << " | CaloIsoEtRatio: " << CaloIsoEnergy / ClusterEnergy
+           << " | TrackIsoEtRatio: " << TrackIsoEnergy / ClusterEnergy
+           << " | ClusterTrackEtRatio: " << ClusterTrackEnergy / ClusterEnergy
+           << " | ClusterEtRatio: " << ClusterEnergy / ClusterTotalEnergy
+           << " | ChargedParticles: " << NumChargesInConeCounter << " | ClusterNonSeeds: " << NumNonSeedsInConeCounter
+           << " | ClusterSeeds: " << NumSeedsInConeCounter << endl;
+    if ((ClusterEnergy < IsolationCutOff_ && ClusterEnergy > ClusterEtThreshold_ &&
+         ClusterEnergy / ClusterTotalEnergy > ClusterEtRatio_ && CaloIsoEnergy / ClusterEnergy < CaloIsoEtRatio_ &&
+         TrackIsoEnergy / ClusterEnergy < TrackIsoEtRatio_ &&
+         ClusterTrackEnergy / ClusterEnergy < ClusterTrackEtRatio_ && abs(ClusterTotalCharge) < MaxClusterCharge_ &&
+         NumChargesInConeCounter < ChargedParticleThreshold_ && NumNonSeedsInConeCounter < ClusterNonSeedThreshold_ &&
+         NumSeedsInConeCounter < ClusterSeedThreshold_) ||
+        (ClusterEnergy >= IsolationCutOff_ && ClusterEnergy > ClusterEtThreshold_ &&
+         ClusterEnergy / ClusterTotalEnergy > ClusterEtRatio_
          //&& CaloIsoEnergy/ClusterEnergy<CaloIsoEtRatio_
          //&& TrackIsoEnergy/ClusterEnergy<TrackIsoEtRatio_
-         && ClusterTrackEnergy/ClusterEnergy<ClusterTrackEtRatio_
-         && abs(ClusterTotalCharge)<MaxClusterCharge_
-         && NumChargesInConeCounter<ChargedParticleThreshold_
-         && NumNonSeedsInConeCounter<ClusterNonSeedThreshold_
+         && ClusterTrackEnergy / ClusterEnergy < ClusterTrackEtRatio_ && abs(ClusterTotalCharge) < MaxClusterCharge_ &&
+         NumChargesInConeCounter < ChargedParticleThreshold_ && NumNonSeedsInConeCounter < ClusterNonSeedThreshold_
          //&& NumSeedsInConeCounter<ClusterSeedThreshold_
-         )
-        ) NumPassClusters++;
+         ))
+      NumPassClusters++;
 
     /* if (Report_) {
       Handle<PhotonCollection> Photons;
@@ -317,24 +325,18 @@ PhotonEnrichmentFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       }
       
     } */
-    
   }
 
-  if (NumPassClusters>=NumPhotons_) FilterResult=true;
+  if (NumPassClusters >= NumPhotons_)
+    FilterResult = true;
   return FilterResult;
-  
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-PhotonEnrichmentFilter::beginJob()
-{
-}
+void PhotonEnrichmentFilter::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-PhotonEnrichmentFilter::endJob() {
-}
+void PhotonEnrichmentFilter::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(PhotonEnrichmentFilter);

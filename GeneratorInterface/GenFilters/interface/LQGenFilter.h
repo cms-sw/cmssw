@@ -2,7 +2,7 @@
 //
 // Package:    LQGenFilter
 // Class:      LQGenFilter
-// 
+//
 /**\class LQGenFilter LQGenFilter.cc GeneratorInterface/GenFilters/src/LQGenFilter.cc
 
  Description: [one line class summary]
@@ -15,7 +15,6 @@
 //         Created:  Mon Mar  8 15:28:06 CET 2010
 //
 //
-
 
 // system include files
 #include <memory>
@@ -36,16 +35,16 @@
 //
 
 class LQGenFilter : public edm::EDFilter {
-   public:
-      explicit LQGenFilter(const edm::ParameterSet&);
-      ~LQGenFilter() override;
+public:
+  explicit LQGenFilter(const edm::ParameterSet&);
+  ~LQGenFilter() override;
 
-   private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      
-      // ----------member data ---------------------------
-      edm::InputTag src_;
-      bool eejj_, enuejj_, nuenuejj_, mumujj_, munumujj_, numunumujj_; 
+private:
+  void beginJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
+  // ----------member data ---------------------------
+  edm::InputTag src_;
+  bool eejj_, enuejj_, nuenuejj_, mumujj_, munumujj_, numunumujj_;
 };
