@@ -1,42 +1,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFElectronExtraEqual.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
-
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
 
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-
-#include "DataFormats/Common/interface/OrphanHandle.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-
-
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
-
-
-#include "Math/PxPyPzM4D.h"
-#include "Math/LorentzVector.h"
-#include "Math/DisplacementVector3D.h"
-#include "Math/SMatrix.h"
 #include "TDecompChol.h"
 
 #include <numeric>
@@ -50,7 +20,6 @@ PFAlgo::PFAlgo(bool debug)
   : pfCandidates_( new PFCandidateCollection),
     nSigmaECAL_(0),
     nSigmaHCAL_(1),
-    algo_(1),
     debug_(debug),
     connector_(debug),
     useVertices_(false)
@@ -197,10 +166,8 @@ PFAlgo::setPFVertexParameters(bool useVertex, reco::VertexCollection const&  pri
 void PFAlgo::reconstructParticles( const reco::PFBlockHandle& blockHandle, PFEGammaFilters const* pfegamma ) {
 
   blockHandle_ = blockHandle;
-  reconstructParticles( *blockHandle_, pfegamma );
-}
 
-void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks, PFEGammaFilters const* pfegamma ) {
+  auto blocks = *blockHandle_;
 
   // reset output collection
   if(pfCandidates_.get() )
@@ -208,25 +175,10 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks, PFEGam
   else
     pfCandidates_.reset( new reco::PFCandidateCollection );
 
-  if(pfElectronCandidates_.get() )
-    pfElectronCandidates_->clear();
-  else
-    pfElectronCandidates_.reset( new reco::PFCandidateCollection);
-
-  // Clearing pfPhotonCandidates
-  if( pfPhotonCandidates_.get() )
-    pfPhotonCandidates_->clear();
-  else
-    pfPhotonCandidates_.reset( new reco::PFCandidateCollection);
-
   if(pfCleanedCandidates_.get() )
     pfCleanedCandidates_->clear();
   else
     pfCleanedCandidates_.reset( new reco::PFCandidateCollection );
-
-  // not a unique_ptr; should not be deleted after transfer
-  pfElectronExtra_.clear();
-  pfPhotonExtra_.clear();
 
   if( debug_ ) {
     cout<<"*********************************************************"<<endl;
@@ -3184,9 +3136,7 @@ ostream& operator<<(ostream& out, const PFAlgo& algo) {
   out<<endl;
   out<<"reconstructed particles: "<<endl;
 
-  const std::unique_ptr<reco::PFCandidateCollection>& candidates = algo.pfCandidates();
-
-  if(!candidates.get() ) {
+  if(!algo.pfCandidates_.get() ) {
     out<<"candidates already transfered"<<endl;
     return out;
   }
