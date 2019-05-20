@@ -10,27 +10,28 @@ namespace edm {
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 class HLTDisplacedmumumuFilter : public HLTFilter {
+public:
+  explicit HLTDisplacedmumumuFilter(const edm::ParameterSet&);
+  ~HLTDisplacedmumumuFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void beginJob() override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  void endJob() override;
 
-  public:
-    explicit HLTDisplacedmumumuFilter(const edm::ParameterSet&);
-    ~HLTDisplacedmumumuFilter() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    void beginJob() override ;
-    bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-    void endJob() override ;
-
-  private:
-    bool fastAccept_;
-    double minLxySignificance_;
-    double maxLxySignificance_;
-    double maxNormalisedChi2_;
-    double minVtxProbability_;
-    double minCosinePointingAngle_;
-    edm::InputTag                            DisplacedVertexTag_;
-    edm::EDGetTokenT<reco::VertexCollection> DisplacedVertexToken_;
-    edm::InputTag                            beamSpotTag_;
-    edm::EDGetTokenT<reco::BeamSpot>         beamSpotToken_;
-    edm::InputTag                                          MuonTag_;
-    edm::EDGetTokenT<reco::RecoChargedCandidateCollection> MuonToken_;
+private:
+  bool fastAccept_;
+  double minLxySignificance_;
+  double maxLxySignificance_;
+  double maxNormalisedChi2_;
+  double minVtxProbability_;
+  double minCosinePointingAngle_;
+  edm::InputTag DisplacedVertexTag_;
+  edm::EDGetTokenT<reco::VertexCollection> DisplacedVertexToken_;
+  edm::InputTag beamSpotTag_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  edm::InputTag MuonTag_;
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> MuonToken_;
 };
 #endif
