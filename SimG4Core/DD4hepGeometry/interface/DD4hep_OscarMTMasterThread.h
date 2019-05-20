@@ -20,7 +20,7 @@ class DD4hep_RunManagerMT;
 
 namespace cms {
   class DDDetector;
-  class DDSpecParRegistry;
+  struct DDSpecParRegistry;
 }
 
 class MagneticField;
