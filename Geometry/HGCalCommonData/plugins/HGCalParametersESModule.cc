@@ -11,7 +11,7 @@
 //#define EDM_ML_DEBUG
 
 class HGCalParametersESModule : public edm::ESProducer {
- public:
+public:
   HGCalParametersESModule(const edm::ParameterSet&);
   ~HGCalParametersESModule(void) override;
 
@@ -19,7 +19,7 @@ class HGCalParametersESModule : public edm::ESProducer {
 
   ReturnType produce(const IdealGeometryRecord&);
 
- private:
+private:
   std::string name_, namew_, namec_, namet_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
 };
@@ -30,9 +30,8 @@ HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
   namec_ = iC.getUntrackedParameter<std::string>("NameC");
   namet_ = iC.getUntrackedParameter<std::string>("NameT");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") 
-    << "HGCalParametersESModule for " << name_ << ":" << namew_ << ":"
-    << namec_ << ":" << namet_;
+  edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << namew_ << ":" << namec_ << ":"
+                                << namet_;
 #endif
   auto cc = setWhatProduced(this, name_);
   cpvToken_ = cc.consumes<DDCompactView>(edm::ESInputTag{});
@@ -40,10 +39,8 @@ HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
 
 HGCalParametersESModule::~HGCalParametersESModule() {}
 
-HGCalParametersESModule::ReturnType HGCalParametersESModule::produce(
-    const IdealGeometryRecord& iRecord) {
-  edm::LogVerbatim("HGCalGeom")
-      << "HGCalParametersESModule::produce(const IdealGeometryRecord& iRecord)";
+HGCalParametersESModule::ReturnType HGCalParametersESModule::produce(const IdealGeometryRecord& iRecord) {
+  edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule::produce(const IdealGeometryRecord& iRecord)";
   edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvToken_);
 
   auto ptp = std::make_unique<HGCalParameters>(name_);

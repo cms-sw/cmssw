@@ -32,22 +32,19 @@
 
 using namespace edm;
 
-GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet & p)
-  : useDDD(p.getParameter<bool>("useDDD")),
-    applyAlignment(p.getParameter<bool>("applyAlignment")),
-    alignmentsLabel(p.getParameter<std::string>("alignmentsLabel"))
-{
+GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet& p)
+    : useDDD(p.getParameter<bool>("useDDD")),
+      applyAlignment(p.getParameter<bool>("applyAlignment")),
+      alignmentsLabel(p.getParameter<std::string>("alignmentsLabel")) {
   setWhatProduced(this);
 }
 
-GEMGeometryESModule::~GEMGeometryESModule(){}
+GEMGeometryESModule::~GEMGeometryESModule() {}
 
-std::unique_ptr<GEMGeometry>
-GEMGeometryESModule::produce(const MuonGeometryRecord & record) 
-{
+std::unique_ptr<GEMGeometry> GEMGeometryESModule::produce(const MuonGeometryRecord& record) {
   auto gemGeometry = std::make_unique<GEMGeometry>();
 
-  if( useDDD ) {
+  if (useDDD) {
     edm::ESTransientHandle<DDCompactView> cpv;
     record.getRecord<IdealGeometryRecord>().get(cpv);
     edm::ESHandle<MuonDDDConstants> mdc;
@@ -68,20 +65,22 @@ GEMGeometryESModule::produce(const MuonGeometryRecord & record)
     record.getRecord<GEMAlignmentRcd>().get(alignmentsLabel, alignments);
     edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
     record.getRecord<GEMAlignmentErrorExtendedRcd>().get(alignmentsLabel, alignmentErrors);
-    
+
     // No alignment records, assume ideal geometry is wanted
     if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
       edm::LogInfo("Config") << "@SUB=GEMGeometryRecord::produce"
-			     << "Alignment(Error)s and global position (label '"
-			     << alignmentsLabel << "') empty: it is assumed fake and will not apply.";
+                             << "Alignment(Error)s and global position (label '" << alignmentsLabel
+                             << "') empty: it is assumed fake and will not apply.";
     } else {
       GeometryAligner aligner;
-      aligner.applyAlignments<GEMGeometry>(&(*gemGeometry), &(*alignments), &(*alignmentErrors),
-					   align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)));
+      aligner.applyAlignments<GEMGeometry>(&(*gemGeometry),
+                                           &(*alignments),
+                                           &(*alignmentErrors),
+                                           align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)));
     }
   }
 
-  return gemGeometry;  
+  return gemGeometry;
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(GEMGeometryESModule);
