@@ -15,15 +15,13 @@ using namespace std;
 
 class CondDBApp {
 public:
-
   /**
    *   App constructor; Makes the database connection
    */
-  CondDBApp(string sid, string user, string pass)
-  {
+  CondDBApp(string sid, string user, string pass) {
     try {
       cout << "Making connection..." << flush;
-      econn = new EcalCondDBInterface( sid, user, pass );
+      econn = new EcalCondDBInterface(sid, user, pass);
       cout << "Done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -34,10 +32,7 @@ public:
   /**
    *  App destructor;  Cleans up database connection
    */
-  ~CondDBApp() 
-  {
-    delete econn;
-  }
+  ~CondDBApp() { delete econn; }
 
   void doRead() {
     LMFPnPrimDat pnPrim(econn);
@@ -47,8 +42,7 @@ public:
     pnPrim.fetch(ecid, t);
     pnPrim.setMaxDataToDump(10);
     pnPrim.dump();
-    cout << "These data were taken on " << pnPrim.getSubrunStart().str() 
-	 << endl;
+    cout << "These data were taken on " << pnPrim.getSubrunStart().str() << endl;
     LMFPnPrimDat *p = new LMFPnPrimDat;
     LMFPnPrimDat *n = new LMFPnPrimDat;
     pnPrim.getPrevious(p);
@@ -61,11 +55,10 @@ public:
 
 private:
   CondDBApp();  // hidden default constructor
-  EcalCondDBInterface* econn;
+  EcalCondDBInterface *econn;
 };
 
-int main (int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
   string sid;
   string user;
   string pass;

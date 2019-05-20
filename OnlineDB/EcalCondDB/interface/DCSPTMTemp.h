@@ -9,11 +9,10 @@
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
-
 typedef int run_t;
 
-class DCSPTMTemp  : public IDBObject {
- public:
+class DCSPTMTemp : public IDBObject {
+public:
   friend class EcalCondDBInterface;
 
   DCSPTMTemp();
@@ -21,8 +20,8 @@ class DCSPTMTemp  : public IDBObject {
 
   // Methods for user data
   inline std::string getTable() { return ""; }
-  
-  float getTemperature() ;
+
+  float getTemperature();
   void setTemperature(float temp);
 
   void setStart(const Tm& start);
@@ -32,16 +31,13 @@ class DCSPTMTemp  : public IDBObject {
   EcalLogicID getEcalLogicID() const;
   void setEcalLogicID(const EcalLogicID& ecid);
 
-  
- private:
+private:
   // User data
   int m_ID;
   EcalLogicID m_ecid;
   float m_temp;
   Tm m_runStart;
   Tm m_runEnd;
-
-
 };
 
 #endif

@@ -59,7 +59,4 @@
 #include "OnlineDB/EcalCondDB/interface/ODWeightsDat.h"
 #include "OnlineDB/EcalCondDB/interface/ODWeightsSamplesDat.h"
 
-
 #endif
-
-
