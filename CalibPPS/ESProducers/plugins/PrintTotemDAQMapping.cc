@@ -22,17 +22,16 @@
 /**
  *\brief Prints the DAQ mapping loaded by TotemDAQMappingESSourceXML.
  **/
-class PrintTotemDAQMapping : public edm::one::EDAnalyzer<>
-{
-  public:
-    PrintTotemDAQMapping(const edm::ParameterSet &ps);
-    ~PrintTotemDAQMapping() override {}
+class PrintTotemDAQMapping : public edm::one::EDAnalyzer<> {
+public:
+  PrintTotemDAQMapping(const edm::ParameterSet &ps);
+  ~PrintTotemDAQMapping() override {}
 
-  private:
-    /// label of the CTPPS sub-system
-    std::string subSystemName;
+private:
+  /// label of the CTPPS sub-system
+  std::string subSystemName;
 
-    void analyze(const edm::Event &e, const edm::EventSetup &es) override;
+  void analyze(const edm::Event &e, const edm::EventSetup &es) override;
 };
 
 using namespace std;
@@ -40,15 +39,12 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-PrintTotemDAQMapping::PrintTotemDAQMapping(const edm::ParameterSet &ps) :
-  subSystemName(ps.getUntrackedParameter<string>("subSystem"))
-{
-}
+PrintTotemDAQMapping::PrintTotemDAQMapping(const edm::ParameterSet &ps)
+    : subSystemName(ps.getUntrackedParameter<string>("subSystem")) {}
 
 //----------------------------------------------------------------------------------------------------
 
-void PrintTotemDAQMapping::analyze(const edm::Event&, edm::EventSetup const& es)
-{
+void PrintTotemDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es) {
   // get mapping
   ESHandle<TotemDAQMapping> mapping;
   es.get<TotemReadoutRcd>().get(subSystemName, mapping);
@@ -65,9 +61,8 @@ void PrintTotemDAQMapping::analyze(const edm::Event&, edm::EventSetup const& es)
   // print mapping
   printf("* mask\n");
   for (const auto &p : analysisMask->analysisMask)
-    cout << "    " << p.first
-      << ": fullMask=" << p.second.fullMask
-      << ", number of masked channels " << p.second.maskedChannels.size() << endl;
+    cout << "    " << p.first << ": fullMask=" << p.second.fullMask << ", number of masked channels "
+         << p.second.maskedChannels.size() << endl;
 }
 
 //----------------------------------------------------------------------------------------------------

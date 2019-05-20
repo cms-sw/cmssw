@@ -19,19 +19,16 @@
 class Alignable;
 class AlignableSurface;
 
-class SurveyResidual
-{
-  public:
-
+class SurveyResidual {
+public:
   /// Constructor from an alignable whose residuals are to be found.
   /// The type of residuals (panel, disc etc.) is given by StructureType.
   /// Set bias to true for biased residuals.
   /// Default is to find unbiased residuals.
-  SurveyResidual(
-		 const Alignable&,
-		 align::StructureType, // level at which residuals are found 
-		 bool bias = false     // true for biased residuals
-		 );
+  SurveyResidual(const Alignable&,
+                 align::StructureType,  // level at which residuals are found
+                 bool bias = false      // true for biased residuals
+  );
 
   /// Check if survey residual is valid (theMother != 0).
   /// This check must be done before calling the other methods so that
@@ -49,41 +46,32 @@ class SurveyResidual
   /// Get inverse of survey covariance wrt given structure type in constructor.
   AlgebraicSymMatrix inverseCovariance() const;
 
-  private:
-
+private:
   /// Find the terminal sisters of an alignable.
   /// bias = true to include itself in the list.
-  void findSisters(
-		   const Alignable*,
-		   bool bias
-		   );
+  void findSisters(const Alignable*, bool bias);
 
   /// Find the nominal and current vectors.
-  void calculate(
-		 const Alignable&
-		 );
-		 
+  void calculate(const Alignable&);
+
   // Cache some values for calculation
 
-  const Alignable* theMother; // mother that matches the structure type
-                              // given in constructor
+  const Alignable* theMother;  // mother that matches the structure type
+                               // given in constructor
 
-  const AlignableSurface& theSurface; // current surface
+  const AlignableSurface& theSurface;  // current surface
 
-  const std::vector<bool>& theSelector; // flags for selected parameters
+  const std::vector<bool>& theSelector;  // flags for selected parameters
 
-  std::vector<const Alignable*> theSisters; // list of final daughters for
-                                            // finding mother's position
+  std::vector<const Alignable*> theSisters;  // list of final daughters for
+                                             // finding mother's position
 
-  align::GlobalVectors theNominalVs; // nominal points from mother's pos
-  align::GlobalVectors theCurrentVs; // current points rotated to nominal surf
+  align::GlobalVectors theNominalVs;  // nominal points from mother's pos
+  align::GlobalVectors theCurrentVs;  // current points rotated to nominal surf
 
   align::ErrorMatrix theCovariance;
 };
 
-bool SurveyResidual::valid() const
-{
-  return theMother != nullptr;
-}
+bool SurveyResidual::valid() const { return theMother != nullptr; }
 
 #endif

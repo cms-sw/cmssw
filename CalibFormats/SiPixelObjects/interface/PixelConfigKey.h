@@ -11,23 +11,19 @@
 #include <string>
 #include <cassert>
 
-namespace pos{
-/*! \class PixelConfigKey PixelConfigKey.h "interface/PixelConfigKey.h"
+namespace pos {
+  /*! \class PixelConfigKey PixelConfigKey.h "interface/PixelConfigKey.h"
 *   \brief This class implements..
 *
 *   A longer explanation will be placed here later
 */
   class PixelConfigKey {
-
   public:
-
-    explicit PixelConfigKey(unsigned int key) { key_=key;}
-    unsigned int key() {return key_;}
+    explicit PixelConfigKey(unsigned int key) { key_ = key; }
+    unsigned int key() { return key_; }
 
   private:
-
     unsigned int key_;
-    
   };
-}
+}  // namespace pos
 #endif
