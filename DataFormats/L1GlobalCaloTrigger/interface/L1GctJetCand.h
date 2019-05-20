@@ -14,7 +14,6 @@
 /// \date June 2006
 ///
 
-
 class L1GctJetCand : public L1GctCand {
 public:
   /// default constructor (for vector initialisation etc.)
@@ -32,7 +31,8 @@ public:
 
   /// construct from rank, eta, phi, isolation - will be used in GCT emulator?
   /// NB - eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
-  L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
+  L1GctJetCand(
+      unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
 
   /// destructor (virtual to prevent compiler warnings)
   ~L1GctJetCand() override;
@@ -44,22 +44,22 @@ public:
   std::string name() const;
 
   /// was an object really found?
-  bool empty() const override  { return (rank() == 0); }
+  bool empty() const override { return (rank() == 0); }
 
   /// get the raw data
   uint16_t raw() const { return m_data; }
-  
+
   /// get rank bits
-  unsigned rank() const override  { return m_data & 0x3f; }
+  unsigned rank() const override { return m_data & 0x3f; }
 
   /// get eta index (bit 3 is sign, 1 for -ve Z, 0 for +ve Z)
-  unsigned etaIndex() const override { return (m_data>>6) & 0xf; }
+  unsigned etaIndex() const override { return (m_data >> 6) & 0xf; }
 
   /// get eta sign bit (1 for -ve Z, 0 for +ve Z)
-  unsigned etaSign() const override { return (m_data>>9) & 0x1; }
-  
+  unsigned etaSign() const override { return (m_data >> 9) & 0x1; }
+
   /// get phi index (0-17)
-  unsigned phiIndex() const override  { return (m_data>>10) & 0x1f; }
+  unsigned phiIndex() const override { return (m_data >> 10) & 0x1f; }
 
   /// check if this is a central jet
   bool isCentral() const { return (!m_isTau) && (!m_isFor); }
@@ -80,23 +80,21 @@ public:
   int16_t bx() const { return m_bx; }
 
   /// equality operator
-  int operator==(const L1GctJetCand& c) const { return ((m_data==c.raw() && 
-                                                m_isTau==c.isTau() && m_isFor==c.isForward())
-                                                 || (this->empty() && c.empty())); }
+  int operator==(const L1GctJetCand& c) const {
+    return ((m_data == c.raw() && m_isTau == c.isTau() && m_isFor == c.isForward()) || (this->empty() && c.empty()));
+  }
 
-   /// inequality operator
+  /// inequality operator
   int operator!=(const L1GctJetCand& c) const { return !(*this == c); }
 
 private:
-
   uint16_t m_data;
   bool m_isTau;
   bool m_isFor;
   uint16_t m_captureBlock;
   uint8_t m_captureIndex;
   int16_t m_bx;
-
- };
+};
 
 std::ostream& operator<<(std::ostream& s, const L1GctJetCand& cand);
 
