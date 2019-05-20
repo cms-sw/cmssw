@@ -8,15 +8,15 @@
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
-/// \class AlignmentParameters 
+/// \class AlignmentParameters
 ///
-/// Base class for alignment parameters 
+/// Base class for alignment parameters
 ///
-/// It contains a parameter vector of size N and a covariance matrix of size NxN. 
-/// There is a pointer to the Alignable to which the parameters belong. 
-/// There is also a pointer to UserVariables. 
-/// Parameters can be enabled/disabled using theSelector. 
-/// bValid declares if the parameters are 'valid'.  
+/// It contains a parameter vector of size N and a covariance matrix of size NxN.
+/// There is a pointer to the Alignable to which the parameters belong.
+/// There is also a pointer to UserVariables.
+/// Parameters can be enabled/disabled using theSelector.
+/// bValid declares if the parameters are 'valid'.
 /// The methods *selected* set/return only the active
 /// parameters/derivatives/covariance as subvector/submatrix
 /// of reduced size.
@@ -25,33 +25,31 @@
 ///  $Revision: 1.9 $
 /// (last update by $Author: flucke $)
 
-// include and not forward declare to ensure automatic conversion from AlignableDet(Unit): 
+// include and not forward declare to ensure automatic conversion from AlignableDet(Unit):
 // NO: include problems... #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 class AlignableDetOrUnitPtr;
 class Alignable;
 class TrajectoryStateOnSurface;
 class RecHit;
 
-class AlignmentParameters 
-{
-
+class AlignmentParameters {
 public:
-
   typedef AlignmentParametersData::DataContainer DataContainer;
 
   /// Default constructor
   AlignmentParameters();
 
   /// Constructor from given input
-  AlignmentParameters(Alignable* object, const AlgebraicVector& par, 
-                      const AlgebraicSymMatrix& cov);
+  AlignmentParameters(Alignable* object, const AlgebraicVector& par, const AlgebraicSymMatrix& cov);
 
   /// Constructor including selection of active parameters
-  AlignmentParameters(Alignable* object, const AlgebraicVector& par, 
-                      const AlgebraicSymMatrix& cov, const std::vector<bool>& sel);
+  AlignmentParameters(Alignable* object,
+                      const AlgebraicVector& par,
+                      const AlgebraicSymMatrix& cov,
+                      const std::vector<bool>& sel);
 
   /// Constructor
-  AlignmentParameters(Alignable* object, const DataContainer& data );
+  AlignmentParameters(Alignable* object, const DataContainer& data);
 
   /// Destructor
   virtual ~AlignmentParameters();
@@ -62,19 +60,17 @@ public:
   virtual int type() const = 0;
 
   /// Enforce clone methods in derived classes
-  virtual AlignmentParameters* clone(const AlgebraicVector& par,
-				     const AlgebraicSymMatrix& cov) const = 0;
-  virtual AlignmentParameters* cloneFromSelected(const AlgebraicVector& par,
-						 const AlgebraicSymMatrix& cov) const = 0;
- 
-  /// Get alignment parameter selector vector 
-  const std::vector<bool>& selector( void ) const;
+  virtual AlignmentParameters* clone(const AlgebraicVector& par, const AlgebraicSymMatrix& cov) const = 0;
+  virtual AlignmentParameters* cloneFromSelected(const AlgebraicVector& par, const AlgebraicSymMatrix& cov) const = 0;
 
-  /// Get number of selected parameters 
-  int numSelected( void ) const;
+  /// Get alignment parameter selector vector
+  const std::vector<bool>& selector(void) const;
+
+  /// Get number of selected parameters
+  int numSelected(void) const;
 
   /// Get selected parameters
-  AlgebraicVector selectedParameters( void ) const;
+  AlgebraicVector selectedParameters(void) const;
 
   /// Get covariance matrix of selected parameters
   AlgebraicSymMatrix selectedCovariance(void) const;
@@ -87,21 +83,21 @@ public:
 
   /// Get derivatives of selected parameters
   virtual AlgebraicMatrix derivatives(const TrajectoryStateOnSurface& tsos,
-				      const AlignableDetOrUnitPtr &alidet) const = 0;
-  virtual AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
-					       const AlignableDetOrUnitPtr &alidet) const;
+                                      const AlignableDetOrUnitPtr& alidet) const = 0;
+  virtual AlgebraicMatrix selectedDerivatives(const TrajectoryStateOnSurface& tsos,
+                                              const AlignableDetOrUnitPtr& alidet) const;
 
   /// Set pointer to user variables
   void setUserVariables(AlignmentUserVariables* auv);
   /// Get pointer to user variables
-  AlignmentUserVariables* userVariables( void ) const;
+  AlignmentUserVariables* userVariables(void) const;
 
   /// Get pointer to corresponding alignable
-  Alignable* alignable( void ) const;
+  Alignable* alignable(void) const;
 
-  /// How many levels of Alignables with parameters can be found in the 
+  /// How many levels of Alignables with parameters can be found in the
   /// substructures of the Alignable of these parameters? E.g.
-  /// 0: lowest level, i.e. no components of hte Alignable have parameters, 
+  /// 0: lowest level, i.e. no components of hte Alignable have parameters,
   /// n: up to n generations of components have parameters (some 'branches' may have less)
   virtual unsigned int hierarchyLevel() const;
 
@@ -114,30 +110,21 @@ public:
   void setValid(bool v);
 
 protected:
-
   // private helper methods
-  AlgebraicSymMatrix collapseSymMatrix(const AlgebraicSymMatrix& m, 
-				       const std::vector<bool>& sel) const; 
-  AlgebraicVector collapseVector(const AlgebraicVector& m, 
-				 const std::vector<bool>& sel) const;
-  AlgebraicSymMatrix expandSymMatrix(const AlgebraicSymMatrix& m, 
-				     const std::vector<bool>& sel) const;
-  AlgebraicVector expandVector(const AlgebraicVector& m, 
-			       const std::vector<bool>& sel) const;
+  AlgebraicSymMatrix collapseSymMatrix(const AlgebraicSymMatrix& m, const std::vector<bool>& sel) const;
+  AlgebraicVector collapseVector(const AlgebraicVector& m, const std::vector<bool>& sel) const;
+  AlgebraicSymMatrix expandSymMatrix(const AlgebraicSymMatrix& m, const std::vector<bool>& sel) const;
+  AlgebraicVector expandVector(const AlgebraicVector& m, const std::vector<bool>& sel) const;
 
   // data members
-  
+
   Alignable* theAlignable;
 
   DataContainer theData;
 
   AlignmentUserVariables* theUserVariables;
 
-  bool bValid; ///< True if parameters are valid
-
-
+  bool bValid;  ///< True if parameters are valid
 };
 
 #endif
-
-

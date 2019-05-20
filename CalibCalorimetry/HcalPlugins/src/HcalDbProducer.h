@@ -2,7 +2,7 @@
 //
 // Package:    HcalDbProducer
 // Class:      HcalDbProducer
-// 
+//
 /**\class HcalDbProducer HcalDbProducer.h CalibFormats/HcalDbProducer/interface/HcalDbProducer.h
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
 //
 //
-
 
 // system include files
 #include <memory>
@@ -36,10 +35,10 @@
 
 class HcalDbProducer : public edm::ESProducer {
 public:
-  HcalDbProducer( const edm::ParameterSet& );
+  HcalDbProducer(const edm::ParameterSet&);
   ~HcalDbProducer() override;
 
-  std::shared_ptr<HcalDbService> produce( const HcalDbRecord& );
+  std::shared_ptr<HcalDbService> produce(const HcalDbRecord&);
 
   std::unique_ptr<HcalPedestals> producePedestalsWithTopo(const HcalPedestalsRcd&);
   std::unique_ptr<HcalPedestalWidths> producePedestalWidthsWithTopo(const HcalPedestalWidthsRcd&);
@@ -49,7 +48,7 @@ public:
   std::unique_ptr<HcalGainWidths> produceGainWidthsWithTopo(const HcalGainWidthsRcd&);
   std::unique_ptr<HcalQIEData> produceQIEDataWithTopo(const HcalQIEDataRcd&);
   std::unique_ptr<HcalQIETypes> produceQIETypesWithTopo(const HcalQIETypesRcd&);
-  std::unique_ptr<HcalChannelQuality> produceChannelQualityWithTopo( const HcalChannelQualityRcd&);
+  std::unique_ptr<HcalChannelQuality> produceChannelQualityWithTopo(const HcalChannelQualityRcd&);
   std::unique_ptr<HcalZSThresholds> produceZSThresholdsWithTopo(const HcalZSThresholdsRcd&);
   std::unique_ptr<HcalRespCorrs> produceRespCorrsWithTopo(const HcalRespCorrsRcd&);
   std::unique_ptr<HcalL1TriggerObjects> produceL1triggerObjectsWithTopo(const HcalL1TriggerObjectsRcd&);
@@ -68,7 +67,6 @@ public:
   void setupEffectivePedestalWidths(const HcalPedestalWidthsRcd&, HcalDbService&);
 
 private:
-
   using HostType = edm::ESProductHost<HcalDbService,
                                       HcalPedestalsRcd,
                                       HcalPedestalWidthsRcd,
@@ -95,34 +93,28 @@ private:
 
   template <typename ProductType, typename RecordType>
   static std::unique_ptr<ProductType> produceWithTopology(RecordType const& record) {
-
     edm::ESTransientHandle<ProductType> item;
     record.get(item);
 
     auto productWithTopology = std::make_unique<ProductType>(*item);
 
     edm::ESHandle<HcalTopology> htopo;
-    record. template getRecord<HcalRecNumberingRecord>().get(htopo);
-    const HcalTopology* topo=&(*htopo);
+    record.template getRecord<HcalRecNumberingRecord>().get(htopo);
+    const HcalTopology* topo = &(*htopo);
     productWithTopology->setTopo(topo);
 
     return productWithTopology;
   }
 
   template <typename ProductType, typename RecordType>
-  void setupHcalDbService(HostType& host,
-                          const HcalDbRecord& record,
-                          const char* label,
-                          const char* dumpName,
-                          const char* dumpHeader) {
-
-    host.ifRecordChanges<RecordType>(record,
-                                     [this, &host, label, dumpName, dumpHeader](auto const& rec) {
+  void setupHcalDbService(
+      HostType& host, const HcalDbRecord& record, const char* label, const char* dumpName, const char* dumpHeader) {
+    host.ifRecordChanges<RecordType>(record, [this, &host, label, dumpName, dumpHeader](auto const& rec) {
       edm::ESHandle<ProductType> item;
       rec.get(label, item);
       host.setData(item.product());
 
-      if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string (dumpName)) != mDumpRequest.end()) {
+      if (std::find(mDumpRequest.begin(), mDumpRequest.end(), std::string(dumpName)) != mDumpRequest.end()) {
         *mDumpStream << dumpHeader << std::endl;
         HcalDbASCIIIO::dumpObject(*mDumpStream, *item);
       }

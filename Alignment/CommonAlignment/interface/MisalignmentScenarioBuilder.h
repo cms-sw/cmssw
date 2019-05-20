@@ -19,11 +19,8 @@
 
 /// Base class to build a scenario from configuration and apply to either tracker or muon.
 
-class MisalignmentScenarioBuilder
-{
-
+class MisalignmentScenarioBuilder {
 public:
- 
   /// Constructor
   MisalignmentScenarioBuilder(AlignableObjectId::Geometry);
 
@@ -31,68 +28,61 @@ public:
   virtual ~MisalignmentScenarioBuilder() = default;
 
   /// Apply misalignment scenario to the tracker (sub-system specific)
-  virtual void applyScenario( const edm::ParameterSet& scenario ) = 0;
+  virtual void applyScenario(const edm::ParameterSet& scenario) = 0;
 
-protected: // Methods
-
+protected:  // Methods
   /// Decode movements defined in given parameter set for given set of alignables
   void decodeMovements_(const edm::ParameterSet&, const align::Alignables&);
-  
+
   /// Decode movements defined in given parameter set for given set of alignables tagged by given name
-  void decodeMovements_(const edm::ParameterSet&, const align::Alignables&,
-			const std::string &levelName);
+  void decodeMovements_(const edm::ParameterSet&, const align::Alignables&, const std::string& levelName);
 
   /// Apply movements given by parameter set to given alignable
-  void applyMovements_( Alignable* alignable, const edm::ParameterSet& pSet );
-  
+  void applyMovements_(Alignable* alignable, const edm::ParameterSet& pSet);
+
   /// Merge two sets of parameters into one (the first argument)
-  void mergeParameters_( edm::ParameterSet& localSet, const edm::ParameterSet& globalSet ) const;
+  void mergeParameters_(edm::ParameterSet& localSet, const edm::ParameterSet& globalSet) const;
 
   /// Propagate global parameters to sub-parameters
-  void propagateParameters_( const edm::ParameterSet& pSet, const std::string& globalName,
-			     edm::ParameterSet& subSet ) const;
+  void propagateParameters_(const edm::ParameterSet& pSet,
+                            const std::string& globalName,
+                            edm::ParameterSet& subSet) const;
 
   /// Get parameter set corresponding to given name from pSet
   /// returns empty parameter set if does not exist)
-  edm::ParameterSet getParameterSet_( const std::string& name, const edm::ParameterSet& pSet ) const;
+  edm::ParameterSet getParameterSet_(const std::string& name, const edm::ParameterSet& pSet) const;
 
   /// Get parameter set corresponding to given levelName and iComponent from pSet,
   /// any parameter set name like <levelName><m>, <levelName><m>_<n>, <levelName><m>_<n>_<o> etc.
   /// is accepted for iComponent == m, n or o. (returns empty parameter set if does not exist).
-  edm::ParameterSet getParameterSet_( const std::string& levelName, int iComponent, 
-				      const edm::ParameterSet& pSet ) const;
-
+  edm::ParameterSet getParameterSet_(const std::string& levelName, int iComponent, const edm::ParameterSet& pSet) const;
 
   /// Check if given parameter exists in parameter set
-  bool hasParameter_( const std::string& name, const edm::ParameterSet& pSet ) const;
+  bool hasParameter_(const std::string& name, const edm::ParameterSet& pSet) const;
 
   /// Print all parameters and values for given set
-  void printParameters_( const edm::ParameterSet& pSet, const bool showPsets = false ) const;
+  void printParameters_(const edm::ParameterSet& pSet, const bool showPsets = false) const;
 
   /// Check if given parameter is for a top-level structure
   virtual bool isTopLevel_(const std::string& parameterSetName) const;
 
   /// Check whether structure 'subStruct' could be part of 'largeStruct',
   /// defaults to true, but can be overwritten in derived classes to speed up recursive merging.
-  virtual bool possiblyPartOf(const std::string &subStruct, const std::string &largeStruct) const;
+  virtual bool possiblyPartOf(const std::string& subStruct, const std::string& largeStruct) const;
 
   /// Get root name of a parameter set (e.g. 'Rod' in 'Rods' or 'Rod1')
-  const std::string rootName_( const std::string& parameterSetName ) const;
-  
+  const std::string rootName_(const std::string& parameterSetName) const;
 
-protected: // Members
+protected:                        // Members
+  edm::ParameterSet theScenario;  ///< Misalignment scenario to apply (from config file)
+  AlignableModifier theModifier;  ///< Helper class for random movements
 
-  edm::ParameterSet theScenario;           ///< Misalignment scenario to apply (from config file)
-  AlignableModifier theModifier;           ///< Helper class for random movements
-  
-  int theModifierCounter{0};                  ///< Counter for applied modification
+  int theModifierCounter{0};  ///< Counter for applied modification
 
-  mutable std::string indent_;             ///< Depth in hierarchy
+  mutable std::string indent_;  ///< Depth in hierarchy
 
 private:
   const AlignableObjectId alignableObjectId_;
 };
-
-
 
 #endif

@@ -9,12 +9,6 @@ using namespace std;
 
 using namespace pos;
 
-PixelCalibBase::PixelCalibBase() {
-  mode_ = "Default";
-}
+PixelCalibBase::PixelCalibBase() { mode_ = "Default"; }
 
-PixelCalibBase::~PixelCalibBase() {
-}
-
-
-
+PixelCalibBase::~PixelCalibBase() {}
