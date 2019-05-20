@@ -42,7 +42,7 @@ DDTestSpecParsFilter::analyze(const Event&, const EventSetup& iEventSetup)
   LogVerbatim("Geometry") << "DD SpecPar Registry size: " << registry->specpars.size();
 
   DDSpecParRefs myReg;
-  if(m_value == "")
+  if(m_value.empty())
     registry->filter(myReg, m_attribute);
   else
     registry->filter(myReg, m_attribute, m_value);
