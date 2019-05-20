@@ -11,7 +11,7 @@
  * only
  */
 class AHCalDetId : public DetId {
- public:
+public:
   /** Create a null cellid*/
   AHCalDetId();
   /** Create cellid from raw id (0=invalid tower id) */
@@ -32,9 +32,7 @@ class AHCalDetId : public DetId {
   int zside() const { return 1; }
   /// get the row number
   int irow() const;
-  int irowAbs() const {
-    return ((id_ >> HcalDetId::kHcalEtaOffset2) & HcalDetId::kHcalEtaMask2);
-  }
+  int irowAbs() const { return ((id_ >> HcalDetId::kHcalEtaOffset2) & HcalDetId::kHcalEtaMask2); }
   /// get the column number
   int icol() const;
   int icolAbs() const { return (id_ & HcalDetId::kHcalPhiMask2); }

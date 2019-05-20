@@ -14,10 +14,8 @@
 class ME0Geometry;
 class ME0DigiPreRecoModel;
 
-class ME0DigiPreRecoProducer : public edm::stream::EDProducer<>
-{
+class ME0DigiPreRecoProducer : public edm::stream::EDProducer<> {
 public:
-
   explicit ME0DigiPreRecoProducer(const edm::ParameterSet& ps);
 
   ~ME0DigiPreRecoProducer() override;
@@ -27,13 +25,11 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-
-  //Name of Collection used for create the XF 
-  edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token; 
+  //Name of Collection used for create the XF
+  edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token;
 
   std::string digiPreRecoModelString_;
   std::unique_ptr<ME0DigiPreRecoModel> me0DigiPreRecoModel_;
 };
 
 #endif
-

@@ -17,12 +17,10 @@
 class ME0Geometry;
 class ME0DigiModel;
 
-class ME0DigiProducer : public edm::stream::EDProducer<>
-{
+class ME0DigiProducer : public edm::stream::EDProducer<> {
 public:
-
   typedef edm::DetSetVector<StripDigiSimLink> StripDigiSimLinks;
-  
+
   typedef edm::DetSetVector<ME0DigiSimLink> ME0DigiSimLinks;
 
   explicit ME0DigiProducer(const edm::ParameterSet& ps);
@@ -34,12 +32,10 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
+  //Name of Collection used for create the XF
+  edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token;
 
-  //Name of Collection used for create the XF 
-  edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token; 
-  
   std::unique_ptr<ME0DigiModel> ME0DigiModel_;
 };
 
 #endif
-
