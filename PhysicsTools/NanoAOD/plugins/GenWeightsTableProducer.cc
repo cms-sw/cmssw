@@ -261,7 +261,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                 if (mNamed != namedWeightIDs_.end()) wNamed[mNamed-namedWeightIDs_.begin()] = weight.wgt/w0;
             } 
 
-            int vectorSize = genProd.weights().size() == 14 ? 4 : 1;
+            int vectorSize = (genProd.weights().size() == 14 || genProd.weights().size() == 46) ? 4 : 1;
             std::vector<double> wPS(vectorSize, 1);
             if (vectorSize > 1 ) {
                 for (unsigned int i=6; i<10; i++){
@@ -295,7 +295,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                 const GenEventInfoProduct & genProd,
                 std::unique_ptr<nanoaod::FlatTable> & outPS ) const
         {
-            int vectorSize = genProd.weights().size() == 14 ? 4 : 1;
+            int vectorSize = (genProd.weights().size() == 14 || genProd.weights().size() == 46) ? 4 : 1;
 
             std::vector<double> wPS(vectorSize, 1);
             if (vectorSize > 1 ){
