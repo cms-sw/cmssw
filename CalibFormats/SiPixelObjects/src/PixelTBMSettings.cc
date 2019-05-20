@@ -232,7 +232,7 @@ void PixelTBMSettings::writeASCII(std::string dir) const {
 
   PixelModuleName module(rocid_.rocname());
   
-  if (dir!="") dir+="/";
+  if (!dir.empty()) dir+="/";
   std::string filename=dir+"TBM_module_"+module.modulename()+".dat";
 
     std::ofstream out(filename.c_str());

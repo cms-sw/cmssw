@@ -975,7 +975,7 @@ void PixelPortCardConfig::fillDBToFileAddress()
 void PixelPortCardConfig::writeASCII(std::string dir) const {
 
   std::string mthn = "[PixelPortCardConfig::writeASCII()]\t\t\t\t    " ;
-  if (dir!="") dir+="/";
+  if (!dir.empty()) dir+="/";
   std::string filename=dir+"portcard_"+portcardname_+".dat";
 
   std::ofstream out(filename.c_str());
@@ -1063,7 +1063,7 @@ void PixelPortCardConfig::writeASCII(std::string dir) const {
     }
     // end of special handling
     
-    if ( settingName=="" ) out << "0x" <<std::hex<< device_.at(i).first <<std::dec;
+    if ( settingName.empty() ) out << "0x" <<std::hex<< device_.at(i).first <<std::dec;
     else                   out << settingName << ":";
     
     out << " 0x" <<std::hex<< device_.at(i).second <<std::dec<< std::endl;
@@ -1466,7 +1466,7 @@ void PixelPortCardConfig::writeXML(std::ofstream *outstream,
     }
     // end of special handling
     
-    if ( settingName=="" ) *outstream << device_.at(i).first;
+    if ( settingName.empty() ) *outstream << device_.at(i).first;
     else                   *outstream << "   <" << settingName << ">" ;
     
     *outstream << device_.at(i).second << "</" << settingName << ">" << std::endl;

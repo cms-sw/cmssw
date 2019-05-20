@@ -147,7 +147,7 @@ PixelTKFECConfig::~PixelTKFECConfig() {}
 
 void PixelTKFECConfig::writeASCII(std::string dir) const {
 
-  if (dir!="") dir+="/";
+  if (!dir.empty()) dir+="/";
   string filename=dir+"tkfecconfig.dat";
 
   ofstream out(filename.c_str());

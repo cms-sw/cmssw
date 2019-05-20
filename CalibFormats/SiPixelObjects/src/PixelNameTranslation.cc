@@ -83,7 +83,7 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
  for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
    std::string rocname       = tableMat[r][colM["ROC_NAME"]] ;
    std::string TBMChannel    = tableMat[r][colM["TBM_MODE"]] ; // assert(0); // need to add this to the input table
-   if(TBMChannel == "")
+   if(TBMChannel.empty())
      {
        TBMChannel = "A" ;
      }
@@ -749,7 +749,7 @@ const PixelChannel& PixelNameTranslation::getChannelFromHdwAddress(const PixelHd
 void PixelNameTranslation::writeASCII(std::string dir) const {
 
   std::string mthn = "[PixelNameTranslation::writeASCII()]\t\t\t    " ;
-  if (dir!="") dir+="/";
+  if (!dir.empty()) dir+="/";
   std::string filename=dir+"translation.dat";
 
   std::ofstream out(filename.c_str());
