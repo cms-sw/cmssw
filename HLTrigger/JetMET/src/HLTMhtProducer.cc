@@ -24,7 +24,7 @@ HLTMhtProducer::HLTMhtProducer(const edm::ParameterSet & iConfig) :
   jetsLabel_              ( iConfig.getParameter<edm::InputTag>("jetsLabel") ),
   pfCandidatesLabel_      ( iConfig.getParameter<edm::InputTag>("pfCandidatesLabel") ) {
     m_theJetToken = consumes<edm::View<reco::Jet>>(jetsLabel_);
-    if (pfCandidatesLabel_.label() == "") excludePFMuons_ = false;
+    if (pfCandidatesLabel_.label().empty()) excludePFMuons_ = false;
     if (excludePFMuons_) m_thePFCandidateToken = consumes<reco::PFCandidateCollection>(pfCandidatesLabel_);
 
     // Register the products

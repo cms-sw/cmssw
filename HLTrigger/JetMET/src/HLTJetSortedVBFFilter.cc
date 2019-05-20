@@ -123,7 +123,7 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 	double value(0.0);
 
 	Particle::LorentzVector b1,b2,q1,q2;
-	if (inputJetTags_.encode()=="") {
+	if (inputJetTags_.encode().empty()) {
 		for (typename TCollection::const_iterator jet=jets->begin(); (jet!=jets->end()&& nJet<nMax); ++jet) {
 			if (value_=="Pt") {
 				value=jet->pt();

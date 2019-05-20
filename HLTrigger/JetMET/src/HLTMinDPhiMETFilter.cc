@@ -59,7 +59,7 @@ bool HLTMinDPhiMETFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
     // The filter object
     if (saveTags()) filterproduct.addCollectionTag(jetsLabel_);
 
-    bool usePFMET = (metLabel_.label() != "") || (calometLabel_.label() == "");
+    bool usePFMET = (!metLabel_.label().empty()) || (calometLabel_.label().empty());
 
     edm::Handle<reco::METCollection> mets;
     edm::Handle<reco::CaloMETCollection> calomets;
