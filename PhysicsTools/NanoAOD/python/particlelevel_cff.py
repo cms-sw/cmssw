@@ -61,10 +61,18 @@ rivetLeptonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     doc = cms.string("Dressed leptons from Rivet-based ParticleLevelProducer"),
     singleton = cms.bool(False), # the number of entries is variable
     extension = cms.bool(False), # this is the main table
+    externalVariables = cms.PSet(
+        hasTauAnc = ExtVar(cms.InputTag("tautagger"),bool, doc="true if Dressed lepton has a tau as ancestor"),
+        ),
     variables = cms.PSet(
         P4Vars,
         pdgId = Var("pdgId", int, doc="PDG id"), 
     )
+)
+
+
+tautagger = cms.EDProducer("GenJetTauTaggerProducer",
+    src = rivetLeptonTable.src,
 )
 
 #rivetJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
@@ -138,5 +146,5 @@ HTXSCategoryTable = cms.EDProducer("SimpleHTXSFlatTableProducer",
 )
 
 
-particleLevelSequence = cms.Sequence(mergedGenParticles + genParticles2HepMC + particleLevel + genParticles2HepMCHiggsVtx + rivetProducerHTXS)
+particleLevelSequence = cms.Sequence(mergedGenParticles + genParticles2HepMC + particleLevel + tautagger + genParticles2HepMCHiggsVtx + rivetProducerHTXS)
 particleLevelTables = cms.Sequence(rivetLeptonTable + rivetMetTable + HTXSCategoryTable)

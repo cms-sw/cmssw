@@ -182,6 +182,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
             plots = cms.VPSet(
                 Count1D('_size', 25, -0.5, 24.5, 'Dressed leptons from Rivet-based ParticleLevelProducer'),
                 Plot1D('eta', 'eta', 20, -7, 7, 'eta'),
+                Plot1D('hasTauAnc', 'hasTauAnc', 2, -0.5, 1.5, 'true if Dressed lepton has a tau as ancestor'),
                 Plot1D('mass', 'mass', 20, 0, 200, 'mass'),
                 Plot1D('pdgId', 'pdgId', 40, -20, 20, 'pdgId'),
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
