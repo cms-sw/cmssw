@@ -2,8 +2,7 @@
 
 #include "CondFormats/PCLConfig/src/headers.h"
 
-int main()
-{
+int main() {
   testSerialization<AlignPCLThresholds>();
   testSerialization<std::vector<AlignPCLThreshold>>();
   //testSerialization<std::vector<AlignPCLThreshold::coordThresholds>>();

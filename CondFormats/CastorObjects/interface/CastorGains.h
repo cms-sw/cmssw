@@ -15,16 +15,14 @@ POOL container to store Gain values 4xCapId
 
 //typedef CastorCondObjectContainer<CastorGain> CastorGains;
 
-class CastorGains: public CastorCondObjectContainer<CastorGain>
-{
- public:
-  CastorGains():CastorCondObjectContainer<CastorGain>() {}
+class CastorGains : public CastorCondObjectContainer<CastorGain> {
+public:
+  CastorGains() : CastorCondObjectContainer<CastorGain>() {}
 
-  std::string myname() const {return (std::string)"CastorGains";}
+  std::string myname() const { return (std::string) "CastorGains"; }
 
- private:
-
- COND_SERIALIZABLE;
+private:
+  COND_SERIALIZABLE;
 };
 
 #endif
