@@ -162,7 +162,7 @@ bool PythiaDauVFilterMatchID::filter(edm::StreamID,edm::Event& iEvent, const edm
       }
     }  
 
-    if (ndau == ndaughters && targets.size() == 0 ) 
+    if (ndau == ndaughters && targets.empty() ) 
       {
 	accepted=true;
 	if (fVerbose > 0) {
@@ -272,7 +272,7 @@ bool PythiaDauVFilterMatchID::filter(edm::StreamID,edm::Event& iEvent, const edm
 	  }    		     
 	}
       }
-      if (ndau == ndaughters && targets.size() == 0 ) 
+      if (ndau == ndaughters && targets.empty() ) 
 	{
 	  accepted=true;
 	  if (fVerbose > 0) {

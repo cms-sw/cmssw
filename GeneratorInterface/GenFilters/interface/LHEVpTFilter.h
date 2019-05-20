@@ -38,11 +38,11 @@
 class LHEVpTFilter : public edm::EDFilter {
  public:
   explicit LHEVpTFilter(const edm::ParameterSet&);
-  ~LHEVpTFilter();
+  ~LHEVpTFilter() override;
   
  private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   
   // ----------member data ---------------------------
   
