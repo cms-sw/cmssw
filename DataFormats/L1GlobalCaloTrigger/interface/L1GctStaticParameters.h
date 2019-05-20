@@ -2,8 +2,7 @@
 #define L1GctStaticParameters_h
 
 class L1GctStaticParameters {
- public:
-
+public:
   static const unsigned jetRankMax;
   static const unsigned jetRankNBits;
 
@@ -12,7 +11,6 @@ class L1GctStaticParameters {
 
   static const unsigned emRankMax;
   static const unsigned emRankNBits;
-
 };
 
 #endif

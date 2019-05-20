@@ -18,6 +18,3 @@
 #include "DataFormats/L1TMuon/interface/L1MuKBMTrack.h"
 
 #include <vector>
-
-
-
