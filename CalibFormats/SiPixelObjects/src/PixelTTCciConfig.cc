@@ -86,7 +86,7 @@ PixelTTCciConfig::PixelTTCciConfig(std::string filename):
 void PixelTTCciConfig::writeASCII(std::string dir) const {
 
   
-  if (dir!="") dir+="/";
+  if (!dir.empty()) dir+="/";
   std::string filename=dir+"TTCciConfiguration.txt";
   std::ofstream out(filename.c_str());
 

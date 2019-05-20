@@ -19,7 +19,7 @@ namespace edm{
 class HcalTimeSlewEP : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
   public:
     HcalTimeSlewEP(const edm::ParameterSet&);
-    ~HcalTimeSlewEP();
+    ~HcalTimeSlewEP() override;
     
     typedef std::unique_ptr<HcalTimeSlew> ReturnType;
 

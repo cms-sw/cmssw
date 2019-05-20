@@ -243,7 +243,7 @@ PixelDelay25Calib::~PixelDelay25Calib() {
 }
 
 void PixelDelay25Calib::openFiles(std::string portcardName, std::string moduleName, std::string path) {
-  if (path!="") path+="/";
+  if (!path.empty()) path+="/";
   graph_ = path+"graph_"+portcardName+"_"+moduleName+".dat";
   graphout_.open(graph_.c_str());
   return;
@@ -281,7 +281,7 @@ void PixelDelay25Calib::writeASCII(std::string dir) const {
 
   //FIXME this is not tested for all the use cases...
 
-  if (dir!="") dir+="/";
+  if (!dir.empty()) dir+="/";
   std::string filename=dir+"delay25.dat";
   std::ofstream out(filename.c_str());
 

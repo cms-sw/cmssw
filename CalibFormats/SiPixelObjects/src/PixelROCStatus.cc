@@ -95,7 +95,7 @@ string PixelROCStatus::statusName() const {
 //======================================================================================
 void PixelROCStatus::set(const string& statName){
 
-  if(statName != "")
+  if(!statName.empty())
     {
       for (ROCstatus istat=off; istat!=nStatus; istat=ROCstatus(istat+1)){
 	if (statName==statusName(istat)){

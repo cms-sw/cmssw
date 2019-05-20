@@ -107,7 +107,7 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
 	std::cout << __LINE__ << "]\t" << mthn << "Parsed to : " << module.modulename() << std::endl;
 	assert(0);
       }
-    if(tbmChannel == "")
+    if(tbmChannel.empty())
       {
 	tbmChannel = "A";// assert(0); // add TBMChannel to the input, then remove assert
       }
@@ -195,7 +195,7 @@ void PixelPortcardMap::writeASCII(std::string dir) const {
 
   
   std::string mthn = "[PixelPortcardMap::writeASCII()]\t\t\t\t    " ;
-  if (dir!="") dir+="/";
+  if (!dir.empty()) dir+="/";
   string filename=dir+"portcardmap.dat";
   
   ofstream out(filename.c_str());

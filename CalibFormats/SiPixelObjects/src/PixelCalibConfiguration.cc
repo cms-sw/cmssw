@@ -270,7 +270,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::s
       }
       // end of addition by F.B.
       
-      if ( tmp=="" ) continue;
+      if ( tmp.empty() ) continue;
       rocListInstructions_.push_back(tmp);
     }
   
@@ -513,7 +513,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
        }
        // end of addition by F.B.
 	 
-       if ( tmp=="" ) continue;
+       if ( tmp.empty() ) continue;
        rocListInstructions_.push_back(tmp);
     }
 
@@ -922,7 +922,7 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
   int mode=-1;
 
   if (modeName=="maskAllPixel")  mode=0;
-  if (modeName=="useAllPixel"||modeName=="")  mode=1;
+  if (modeName=="useAllPixel"||modeName.empty())  mode=1;
   if (modeName=="default")  mode=2;
 
   static bool first=true;
@@ -1547,7 +1547,7 @@ void PixelCalibConfiguration::writeASCII(std::string dir) const {
 
   //FIXME this is not tested for all the use cases...
 
-  if (dir!="") dir+="/";
+  if (!dir.empty()) dir+="/";
   std::string filename=dir+"calib.dat";
   std::ofstream out(filename.c_str());
 

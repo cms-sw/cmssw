@@ -180,7 +180,7 @@ unsigned int PixelGlobalDelay25::getTTCrxDelay() const{
 void PixelGlobalDelay25::writeASCII(std::string dir) const {
 
   std::string mthn = "[PixelGlobalDelay25::writeASCII()]\t\t\t    " ;
-  if (dir!="") dir+="/";
+  if (!dir.empty()) dir+="/";
   string filename=dir+"globaldelay25.dat";
 
   ofstream out(filename.c_str());

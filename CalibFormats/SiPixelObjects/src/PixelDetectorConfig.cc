@@ -77,7 +77,7 @@ PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string>
         {
           status = "" ;
         }
-      if (status!=""){
+      if (!status.empty()){
         rocstatus.set(status);
       }
       rocs_[roc]=rocstatus;
@@ -142,7 +142,7 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
         while (!instring.eof()) {
           instring >> status;
 //        cout << __LINE__ << "]\t" << mthn << "Read status:"<<status<<endl;
-          if (status!=""){
+          if (!status.empty()){
             rocstatus.set(status);
           }
         }
@@ -332,7 +332,7 @@ void PixelDetectorConfig::writeASCII(std::string dir) const {
   std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::writeASCII()]\t\t    " ;
   std::string mthn = s.str() ;
 
-  if (dir!="") dir+="/";
+  if (!dir.empty()) dir+="/";
   std::string filename=dir+"detectconfig.dat";
 
   std::ofstream out(filename.c_str(), std::ios_base::out) ;
@@ -444,7 +444,7 @@ void PixelDetectorConfig::writeXML( std::ofstream *outstream,
       for(; irocs != rocs_.end() ; ++irocs)
         {
           std::string sts = (irocs->second).statusName() ;
-          if( sts == "" ) {sts = "on" ;}
+          if( sts.empty() ) {sts = "on" ;}
           *outstream << " "                                                                                  << std::endl ;
           *outstream << "   <DATA>"                                                                          << std::endl ;
           *outstream << "    <ROC_NAME>" << (irocs->first).rocname() << "</ROC_NAME>"                        << std::endl ;
@@ -520,7 +520,7 @@ void PixelDetectorConfig::writeXML(pos::PixelConfigKey key, int version, std::st
       for(; irocs != rocs_.end() ; ++irocs)
         {
           std::string sts = (irocs->second).statusName() ;
-          if( sts == "" ) {sts = "on" ;}
+          if( sts.empty() ) {sts = "on" ;}
           out << "  <DATA_SET>"                                                                       << std::endl ;
           out << "   <VERSION>" << version << "</VERSION>"                                            << std::endl ;
           out << "    <PART>"                                                                         << std::endl ;

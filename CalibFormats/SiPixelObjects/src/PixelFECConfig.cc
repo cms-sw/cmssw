@@ -215,7 +215,7 @@ unsigned int PixelFECConfig::VMEBaseAddressFromFECNumber(unsigned int fecnumber)
 //=============================================================================================
 void PixelFECConfig::writeASCII(std::string dir) const {
 
-  if (dir!="") dir+="/";
+  if (!dir.empty()) dir+="/";
   std::string filename=dir+"fecconfig.dat";
   std::ofstream out(filename.c_str());
 

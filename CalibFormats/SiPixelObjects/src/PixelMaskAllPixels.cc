@@ -233,7 +233,7 @@ void PixelMaskAllPixels::writeBinary(std::string filename) const{
 //================================================================================================================
 void PixelMaskAllPixels::writeASCII(std::string dir) const{
 
-  if (dir!="") dir+="/";
+  if (!dir.empty()) dir+="/";
   PixelModuleName module(maskbits_[0].name().rocname());
   std::string filename=dir+"ROC_Masks_module_"+module.modulename()+".dat";
   
