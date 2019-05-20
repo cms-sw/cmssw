@@ -70,7 +70,7 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2021,  Strip tracker in DECO mode
     'phase1_2021_cosmics'      : '106X_upgrade2021cosmics_realistic_deco_v2',
     # GlobalTag for MC production with realistic conditions for Phase2 2023
-    'phase2_realistic'         : '106X_upgrade2023_realistic_v2'
+    'phase2_realistic'         : '106X_upgrade2023_realistic_v3'
 }
 
 aliases = {
