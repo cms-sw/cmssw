@@ -672,7 +672,7 @@ void FWTableView::addColumn ()
      // convert the precision to a long int
      char *endptr = nullptr;
      int prec = (int) strtol(m_column_prec_field->GetText(), &endptr, 0);
-     if (name == "" || expr == "" || 
+     if (name.empty() || expr.empty() || 
 	 m_column_prec_field->GetText() == nullptr || *endptr != 0) {
         fwLog(fwlog::kInfo) << "bad input\n";
 	  fflush(stdout);
@@ -716,7 +716,7 @@ void FWTableView::modifyColumn ()
      // convert the precision to a long int
      char *endptr = nullptr;
      int prec = (int) strtol(m_column_prec_field->GetText(), &endptr, 0);
-     if (name == "" || expr == "" || 
+     if (name.empty() || expr.empty() || 
 	 m_column_prec_field->GetText() == nullptr || *endptr != 0) {
         fwLog(fwlog::kInfo) << "bad input\n";
 	  fflush(stdout);

@@ -14,10 +14,10 @@
 
 template <typename T>
 FWDetailViewGL<T>::FWDetailViewGL () :
-m_infoCanvas(0),
-m_guiFrame(0),
-m_eveViewer(0),
-m_eveScene(0)
+m_infoCanvas(nullptr),
+m_guiFrame(nullptr),
+m_eveViewer(nullptr),
+m_eveScene(nullptr)
 {
 }
 
@@ -62,7 +62,7 @@ void  FWDetailViewGL<T>::init(TEveWindowSlot* slot)
    // viewer GL 
    m_eveViewer = new TEveViewer("DetailView");
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,4)
-   m_eveViewer->SpawnGLEmbeddedViewer(0);
+   m_eveViewer->SpawnGLEmbeddedViewer(nullptr);
 #else
    m_eveViewer->SpawnGLEmbeddedViewer();
 #endif

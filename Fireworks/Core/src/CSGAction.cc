@@ -125,7 +125,7 @@ void CSGAction::setToolTip(const std::string& tip) {
 
 void CSGAction::createTextButton(TGCompositeFrame* p, TGLayoutHints* l, Int_t id, GContext_t norm, FontStruct_t font, UInt_t option) {
    TGTextButton* textButton = new TGTextButton(p, m_name.c_str(), id, norm, font, option);
-   if (m_toolTip != "") textButton->SetToolTipText(m_toolTip.c_str(), m_supervisor->getToolTipDelay());
+   if (!m_toolTip.empty()) textButton->SetToolTipText(m_toolTip.c_str(), m_supervisor->getToolTipDelay());
    p->AddFrame(textButton, l);
    TQObject::Connect(textButton, "Clicked()", "CSGAction", this, "activate()");
    m_buttons.push_back(textButton);
@@ -136,7 +136,7 @@ void CSGAction::createTextButton(TGCompositeFrame* p, TGLayoutHints* l, Int_t id
 
 void CSGAction::createCheckButton(TGCompositeFrame* p, TGLayoutHints* l, Bool_t state, Int_t id, GContext_t norm, FontStruct_t font) {
    TGCheckButton* checkButton = new TGCheckButton(p, m_name.c_str(), id, norm, font);
-   if (m_toolTip != "") checkButton->SetToolTipText(m_toolTip.c_str(), m_supervisor->getToolTipDelay());
+   if (!m_toolTip.empty()) checkButton->SetToolTipText(m_toolTip.c_str(), m_supervisor->getToolTipDelay());
    p->AddFrame(checkButton, l);
 
    if (state)   checkButton->SetState(kButtonDown, false);
@@ -149,7 +149,7 @@ void CSGAction::createCheckButton(TGCompositeFrame* p, TGLayoutHints* l, Bool_t 
 
 void CSGAction::createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l, Int_t id, GContext_t norm, UInt_t option) {
    TGPictureButton* picButton = new TGPictureButton(p, pic, id, norm, option);
-   if (m_toolTip != "") picButton->SetToolTipText(m_toolTip.c_str(), m_supervisor->getToolTipDelay());
+   if (!m_toolTip.empty()) picButton->SetToolTipText(m_toolTip.c_str(), m_supervisor->getToolTipDelay());
    p->AddFrame(picButton, l);
    TQObject::Connect(picButton, "Clicked()", "CSGAction", this, "activate()");
    m_buttons.push_back(picButton);
@@ -169,7 +169,7 @@ CSGAction::createCustomIconsButton(TGCompositeFrame* p,
                                    UInt_t option)
 {
    FWCustomIconsButton* picButton = new FWCustomIconsButton(p, upPic, downPic, disabledPic, nullptr, id, norm, option);
-   if (m_toolTip != "") picButton->SetToolTipText(m_toolTip.c_str(), m_supervisor->getToolTipDelay());
+   if (!m_toolTip.empty()) picButton->SetToolTipText(m_toolTip.c_str(), m_supervisor->getToolTipDelay());
    p->AddFrame(picButton, l);
    TQObject::Connect(picButton, "Clicked()", "CSGAction", this, "activate()");
    m_buttons.push_back(picButton);
