@@ -14,22 +14,21 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
-
 #include <map>
 #include <vector>
 
-class L1HLTJetsMatching: public edm::EDProducer {
- public:
+class L1HLTJetsMatching : public edm::EDProducer {
+public:
   explicit L1HLTJetsMatching(const edm::ParameterSet&);
   ~L1HLTJetsMatching() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   std::vector<l1extra::L1JetParticleRef> tauCandRefVec;
   std::vector<l1extra::L1JetParticleRef> jetCandRefVec;
   std::vector<l1extra::L1JetParticleRef> objL1CandRefVec;
   l1extra::L1JetParticleRef tauCandRef;
-    
+
   edm::EDGetTokenT<edm::View<reco::Candidate> > jetSrc;
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tauTrigger;
   double mEt_Min;

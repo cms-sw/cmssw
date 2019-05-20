@@ -53,31 +53,32 @@
 //
 
 class HLTPMMassFilter : public HLTFilter {
+public:
+  explicit HLTPMMassFilter(const edm::ParameterSet&);
+  ~HLTPMMassFilter() override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   public:
-      explicit HLTPMMassFilter(const edm::ParameterSet&);
-      ~HLTPMMassFilter() override;
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+private:
+  TLorentzVector approxMomAtVtx(const MagneticField* magField,
+                                const GlobalPoint& xvert,
+                                const reco::SuperClusterRef sc,
+                                int charge) const;
 
-   private:
-      TLorentzVector approxMomAtVtx( const MagneticField *magField, const GlobalPoint& xvert, const reco::SuperClusterRef sc, int charge) const;
+  edm::InputTag candTag_;  // input tag identifying product contains filtered egammas
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
+  edm::InputTag beamSpot_;  // input tag identifying beamSpot product
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  double lowerMassCut_;
+  double upperMassCut_;
+  int nZcandcut_;  // number of Z candidates required
+  bool reqOppCharge_;
 
-      edm::InputTag candTag_;     // input tag identifying product contains filtered egammas
-      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
-      edm::InputTag beamSpot_;    // input tag identifying beamSpot product
-      edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
-      double lowerMassCut_;
-      double upperMassCut_;
-      int    nZcandcut_;           // number of Z candidates required
-      bool   reqOppCharge_;
-
-      bool   isElectron1_;
-      bool   isElectron2_;
-      edm::InputTag l1EGTag_;
-
+  bool isElectron1_;
+  bool isElectron2_;
+  edm::InputTag l1EGTag_;
 };
 
-#endif //HLTPMMassFilter_h
-
-
+#endif  //HLTPMMassFilter_h

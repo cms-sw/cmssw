@@ -13,23 +13,24 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 HLTMCtruth::HLTMCtruth() {
-
-  //set parameter defaults 
-  _Monte=false;
-  _Gen=false;
-  _Debug=false;
+  //set parameter defaults
+  _Monte = false;
+  _Gen = false;
+  _Debug = false;
 }
 
 /*  Setup the analysis to put the branch-variables into the tree. */
 void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
+  edm::ParameterSet myMCParams = pSet.getParameter<edm::ParameterSet>("RunParameters");
+  std::vector<std::string> parameterNames = myMCParams.getParameterNames();
 
-  edm::ParameterSet myMCParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
-  std::vector<std::string> parameterNames = myMCParams.getParameterNames() ;
-  
-  for (auto & parameterName : parameterNames){
-    if  ( parameterName == "Monte" ) _Monte =  myMCParams.getParameter<bool>( parameterName );
-    else if ( parameterName == "GenTracks" ) _Gen =  myMCParams.getParameter<bool>( parameterName );
-    else if ( parameterName == "Debug" ) _Debug =  myMCParams.getParameter<bool>( parameterName );
+  for (auto& parameterName : parameterNames) {
+    if (parameterName == "Monte")
+      _Monte = myMCParams.getParameter<bool>(parameterName);
+    else if (parameterName == "GenTracks")
+      _Gen = myMCParams.getParameter<bool>(parameterName);
+    else if (parameterName == "Debug")
+      _Debug = myMCParams.getParameter<bool>(parameterName);
   }
 
   const int kMaxMcTruth = 10000;
@@ -41,44 +42,42 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   mcpt = new float[kMaxMcTruth];
   mceta = new float[kMaxMcTruth];
   mcphi = new float[kMaxMcTruth];
-  
-  // MCtruth-specific branches of the tree 
-  HltTree->Branch("NMCpart",&nmcpart,"NMCpart/I");
-  HltTree->Branch("MCpid",mcpid,"MCpid[NMCpart]/I");
-  HltTree->Branch("MCstatus",mcstatus,"MCstatus[NMCpart]/I");
-  HltTree->Branch("MCvtxX",mcvx,"MCvtxX[NMCpart]/F");
-  HltTree->Branch("MCvtxY",mcvy,"MCvtxY[NMCpart]/F");
-  HltTree->Branch("MCvtxZ",mcvz,"MCvtxZ[NMCpart]/F");
-  HltTree->Branch("MCpt",mcpt,"MCpt[NMCpart]/F");
-  HltTree->Branch("MCeta",mceta,"MCeta[NMCpart]/F");
-  HltTree->Branch("MCphi",mcphi,"MCphi[NMCpart]/F");
-  HltTree->Branch("MCPtHat",&pthatf,"MCPtHat/F");
-  HltTree->Branch("MCWeight",&weightf,"MCWeight/F");
-  HltTree->Branch("MCWeightSign",&weightsignf,"MCWeightSign/F");
-  HltTree->Branch("MCmu3",&nmu3,"MCmu3/I");
-  HltTree->Branch("MCel3",&nel3,"MCel3/I");
-  HltTree->Branch("MCbb",&nbb,"MCbb/I");
-  HltTree->Branch("MCab",&nab,"MCab/I");
-  HltTree->Branch("MCWenu",&nwenu,"MCWenu/I");
-  HltTree->Branch("MCWmunu",&nwmunu,"MCmunu/I");
-  HltTree->Branch("MCZee",&nzee,"MCZee/I");
-  HltTree->Branch("MCZmumu",&nzmumu,"MCZmumu/I");
-  HltTree->Branch("MCptEleMax",&ptEleMax,"MCptEleMax/F");
-  HltTree->Branch("MCptMuMax",&ptMuMax,"MCptMuMax/F");
-  HltTree->Branch("NPUTrueBX0",&npubx0, "NPUTrueBX0/I");
-  HltTree->Branch("NPUgenBX0",&npuvertbx0, "NPUgenBX0/I");
 
+  // MCtruth-specific branches of the tree
+  HltTree->Branch("NMCpart", &nmcpart, "NMCpart/I");
+  HltTree->Branch("MCpid", mcpid, "MCpid[NMCpart]/I");
+  HltTree->Branch("MCstatus", mcstatus, "MCstatus[NMCpart]/I");
+  HltTree->Branch("MCvtxX", mcvx, "MCvtxX[NMCpart]/F");
+  HltTree->Branch("MCvtxY", mcvy, "MCvtxY[NMCpart]/F");
+  HltTree->Branch("MCvtxZ", mcvz, "MCvtxZ[NMCpart]/F");
+  HltTree->Branch("MCpt", mcpt, "MCpt[NMCpart]/F");
+  HltTree->Branch("MCeta", mceta, "MCeta[NMCpart]/F");
+  HltTree->Branch("MCphi", mcphi, "MCphi[NMCpart]/F");
+  HltTree->Branch("MCPtHat", &pthatf, "MCPtHat/F");
+  HltTree->Branch("MCWeight", &weightf, "MCWeight/F");
+  HltTree->Branch("MCWeightSign", &weightsignf, "MCWeightSign/F");
+  HltTree->Branch("MCmu3", &nmu3, "MCmu3/I");
+  HltTree->Branch("MCel3", &nel3, "MCel3/I");
+  HltTree->Branch("MCbb", &nbb, "MCbb/I");
+  HltTree->Branch("MCab", &nab, "MCab/I");
+  HltTree->Branch("MCWenu", &nwenu, "MCWenu/I");
+  HltTree->Branch("MCWmunu", &nwmunu, "MCmunu/I");
+  HltTree->Branch("MCZee", &nzee, "MCZee/I");
+  HltTree->Branch("MCZmumu", &nzmumu, "MCZmumu/I");
+  HltTree->Branch("MCptEleMax", &ptEleMax, "MCptEleMax/F");
+  HltTree->Branch("MCptMuMax", &ptMuMax, "MCptMuMax/F");
+  HltTree->Branch("NPUTrueBX0", &npubx0, "NPUTrueBX0/I");
+  HltTree->Branch("NPUgenBX0", &npuvertbx0, "NPUgenBX0/I");
 }
 
 /* **Analyze the event** */
-void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
-			 const double        & pthat,
-			 const double        & weight,
-			 const edm::Handle<std::vector<SimTrack> > & simTracks,
-			 const edm::Handle<std::vector<SimVertex> > & simVertices,
-			 const edm::Handle<std::vector< PileupSummaryInfo > > & PupInfo,
-			 TTree* HltTree) {
-
+void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView>& mctruth,
+                         const double& pthat,
+                         const double& weight,
+                         const edm::Handle<std::vector<SimTrack> >& simTracks,
+                         const edm::Handle<std::vector<SimVertex> >& simVertices,
+                         const edm::Handle<std::vector<PileupSummaryInfo> >& PupInfo,
+                         TTree* HltTree) {
   //std::cout << " Beginning HLTMCtruth " << std::endl;
 
   if (_Monte) {
@@ -93,105 +92,129 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
     int zmumu = 0;
 
     ptEleMax = -999.0;
-    ptMuMax  = -999.0;    
-    pthatf   = pthat;
-    weightf   = weight;
-    weightsignf   = (weight > 0) ? 1. : -1.;
-    npubx0  = 0.0;
+    ptMuMax = -999.0;
+    pthatf = pthat;
+    weightf = weight;
+    weightsignf = (weight > 0) ? 1. : -1.;
+    npubx0 = 0.0;
     npuvertbx0 = 0;
 
-    int npvtrue = 0; 
+    int npvtrue = 0;
     int npuvert = 0;
 
-    if(PupInfo.isValid()) {
-      std::vector<PileupSummaryInfo>::const_iterator PVI;  
-      for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {  
-	
-	int BX = PVI->getBunchCrossing();  
-	npvtrue = PVI->getTrueNumInteractions();  
-	npuvert = PVI->getPU_NumInteractions();
-	
-	if(BX == 0)  
-	  {  
-	    npubx0+=npvtrue; 
-	    npuvertbx0+=npuvert;
-	  } 
+    if (PupInfo.isValid()) {
+      std::vector<PileupSummaryInfo>::const_iterator PVI;
+      for (PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+        int BX = PVI->getBunchCrossing();
+        npvtrue = PVI->getTrueNumInteractions();
+        npuvert = PVI->getPU_NumInteractions();
+
+        if (BX == 0) {
+          npubx0 += npvtrue;
+          npuvertbx0 += npuvert;
+        }
       }
     }
 
-    if((simTracks.isValid())&&(simVertices.isValid())){
-      for (auto const & j : *simTracks) {
-	int pdgid = j.type();
-	if (abs(pdgid)!=13) continue;
-	double pt = j.momentum().pt();
-	if (pt<5.0) continue;
-	double eta = j.momentum().eta();
-	if (abs(eta)>2.5) continue;
-	if (j.noVertex()) continue;
-	int vertIndex = j.vertIndex();
-	double x = simVertices->at(vertIndex).position().x();
-	double y = simVertices->at(vertIndex).position().y();
-	double r = sqrt(x*x+y*y);
-	if (r>200.) continue; // I think units are cm here
-	double z = simVertices->at(vertIndex).position().z();
-	if (abs(z)>400.) continue; // I think units are cm here
-	mu3 += 1;
-	break;
+    if ((simTracks.isValid()) && (simVertices.isValid())) {
+      for (auto const& j : *simTracks) {
+        int pdgid = j.type();
+        if (abs(pdgid) != 13)
+          continue;
+        double pt = j.momentum().pt();
+        if (pt < 5.0)
+          continue;
+        double eta = j.momentum().eta();
+        if (abs(eta) > 2.5)
+          continue;
+        if (j.noVertex())
+          continue;
+        int vertIndex = j.vertIndex();
+        double x = simVertices->at(vertIndex).position().x();
+        double y = simVertices->at(vertIndex).position().y();
+        double r = sqrt(x * x + y * y);
+        if (r > 200.)
+          continue;  // I think units are cm here
+        double z = simVertices->at(vertIndex).position().z();
+        if (abs(z) > 400.)
+          continue;  // I think units are cm here
+        mu3 += 1;
+        break;
       }
-
     }
 
-    if (_Gen && mctruth.isValid()){
+    if (_Gen && mctruth.isValid()) {
+      for (size_t i = 0; i < mctruth->size(); ++i) {
+        const reco::Candidate& p = (*mctruth)[i];
 
-      for (size_t i = 0; i < mctruth->size(); ++ i) {
-	const reco::Candidate & p = (*mctruth)[i];
+        mcpid[nmc] = p.pdgId();
+        mcstatus[nmc] = p.status();
+        mcpt[nmc] = p.pt();
+        mceta[nmc] = p.eta();
+        mcphi[nmc] = p.phi();
+        mcvx[nmc] = p.vx();
+        mcvy[nmc] = p.vy();
+        mcvz[nmc] = p.vz();
 
-	mcpid[nmc] = p.pdgId();
-	mcstatus[nmc] = p.status();
-	mcpt[nmc] = p.pt();
-	mceta[nmc] = p.eta();
-	mcphi[nmc] = p.phi();
-	mcvx[nmc] = p.vx();
-	mcvy[nmc] = p.vy();
-	mcvz[nmc] = p.vz();
+        if ((mcpid[nmc] == 24) || (mcpid[nmc] == -24)) {  // Checking W -> e/mu nu
+          size_t idg = p.numberOfDaughters();
+          for (size_t j = 0; j != idg; ++j) {
+            const reco::Candidate& d = *p.daughter(j);
+            if ((d.pdgId() == 11) || (d.pdgId() == -11)) {
+              wel += 1;
+            }
+            if ((d.pdgId() == 13) || (d.pdgId() == -13)) {
+              wmu += 1;
+            }
+            // 	    if ( (abs(d.pdgId())!=24) && ((mcpid[nmc])*(d.pdgId())>0) )
+            // 	      {std::cout << "Wrong sign between mother-W and daughter !" << std::endl;}
+          }
+        }
+        if (mcpid[nmc] == 23) {  // Checking Z -> 2 e/mu
+          size_t idg = p.numberOfDaughters();
+          for (size_t j = 0; j != idg; ++j) {
+            const reco::Candidate& d = *p.daughter(j);
+            if (d.pdgId() == 11) {
+              zee += 1;
+            }
+            if (d.pdgId() == -11) {
+              zee += 2;
+            }
+            if (d.pdgId() == 13) {
+              zmumu += 1;
+            }
+            if (d.pdgId() == -13) {
+              zmumu += 2;
+            }
+          }
+        }
 
-	if ((mcpid[nmc]==24)||(mcpid[nmc]==-24)) { // Checking W -> e/mu nu
-	  size_t idg = p.numberOfDaughters();
-	  for (size_t j=0; j != idg; ++j){
-	    const reco::Candidate & d = *p.daughter(j);
-	    if ((d.pdgId()==11)||(d.pdgId()==-11)){wel += 1;}
-	    if ((d.pdgId()==13)||(d.pdgId()==-13)){wmu += 1;}
-// 	    if ( (abs(d.pdgId())!=24) && ((mcpid[nmc])*(d.pdgId())>0) ) 
-// 	      {std::cout << "Wrong sign between mother-W and daughter !" << std::endl;}
-	  }
-	}
-	if (mcpid[nmc]==23) { // Checking Z -> 2 e/mu
-	  size_t idg = p.numberOfDaughters();
-	  for (size_t j=0; j != idg; ++j){
-	    const reco::Candidate & d = *p.daughter(j);
-	    if (d.pdgId()==11){zee += 1;}
-	    if (d.pdgId()==-11){zee += 2;}
-	    if (d.pdgId()==13){zmumu += 1;}
-	    if (d.pdgId()==-13){zmumu += 2;}
-	  }
-	}
+        // Set-up flags, based on Pythia-generator information, for avoiding double-counting events when
+        // using both pp->{e,mu}X AND QCD samples
+        // 	if (((mcpid[nmc]==13)||(mcpid[nmc]==-13))&&(mcpt[nmc]>2.5)) {mu3 += 1;} // Flag for muons with pT > 2.5 GeV/c
+        if (((mcpid[nmc] == 11) || (mcpid[nmc] == -11)) && (mcpt[nmc] > 2.5)) {
+          el3 += 1;
+        }  // Flag for electrons with pT > 2.5 GeV/c
 
-	// Set-up flags, based on Pythia-generator information, for avoiding double-counting events when
-	// using both pp->{e,mu}X AND QCD samples
-// 	if (((mcpid[nmc]==13)||(mcpid[nmc]==-13))&&(mcpt[nmc]>2.5)) {mu3 += 1;} // Flag for muons with pT > 2.5 GeV/c
-	if (((mcpid[nmc]==11)||(mcpid[nmc]==-11))&&(mcpt[nmc]>2.5)) {el3 += 1;} // Flag for electrons with pT > 2.5 GeV/c
+        if (mcpid[nmc] == -5) {
+          mab += 1;
+        }  // Flag for bbar
+        if (mcpid[nmc] == 5) {
+          mbb += 1;
+        }  // Flag for b
 
-	if (mcpid[nmc]==-5) {mab += 1;} // Flag for bbar
-	if (mcpid[nmc]==5) {mbb += 1;} // Flag for b
+        if ((mcpid[nmc] == 13) || (mcpid[nmc] == -13)) {
+          if (p.pt() > ptMuMax) {
+            ptMuMax = p.pt();
+          }
+        }  // Save max pt of generated Muons
+        if ((mcpid[nmc] == 11) || (mcpid[nmc] == -11)) {
+          if (p.pt() > ptEleMax)
+            ptEleMax = p.pt();
+        }  // Save max pt of generated Electrons
 
-	if ((mcpid[nmc]==13)||(mcpid[nmc]==-13))
-	  {if (p.pt()>ptMuMax) {ptMuMax=p.pt();} } // Save max pt of generated Muons
-	if ((mcpid[nmc]==11)||(mcpid[nmc]==-11))
-	  {if (p.pt() > ptEleMax) ptEleMax=p.pt();} // Save max pt of generated Electrons
-
-	nmc++;
+        nmc++;
       }
-
     }
     //    else {std::cout << "%HLTMCtruth -- No MC truth information" << std::endl;}
 
@@ -202,11 +225,13 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
     nab = mab;
     nwenu = wel;
     nwmunu = wmu;
-    if((zee%3)==0){nzee = zee/3;}
-//     else {std::cout << "Z does not decay in e+ e- !" << std::endl;}
-    if ((zmumu%3)==0){nzmumu = zmumu/3;}
-//     else {std::cout << "Z does not decay in mu+ mu- !" << std::endl;}
-
+    if ((zee % 3) == 0) {
+      nzee = zee / 3;
+    }
+    //     else {std::cout << "Z does not decay in e+ e- !" << std::endl;}
+    if ((zmumu % 3) == 0) {
+      nzmumu = zmumu / 3;
+    }
+    //     else {std::cout << "Z does not decay in mu+ mu- !" << std::endl;}
   }
-
 }
