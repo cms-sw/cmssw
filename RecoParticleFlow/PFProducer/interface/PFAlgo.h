@@ -82,32 +82,6 @@ class PFAlgo {
    
   PFMuonAlgo*  getPFMuonAlgo();
   
-  void setPFEleParameters(double mvaEleCut,
-			  std::string mvaWeightFileEleID,
-			  bool usePFElectrons,
-			  const std::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
-			  const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
-			  double sumEtEcalIsoForEgammaSC_barrel,
-			  double sumEtEcalIsoForEgammaSC_endcap,
-			  double coneEcalIsoForEgammaSC,
-			  double sumPtTrackIsoForEgammaSC_barrel,
-			  double sumPtTrackIsoForEgammaSC_endcap,
-			  unsigned int nTrackIsoForEgammaSC,
-			  double coneTrackIsoForEgammaSC,
-			  bool applyCrackCorrections=false,
-			  bool usePFSCEleCalib=true,
-			  bool useEGElectrons=false,
-			  bool useEGammaSupercluster = true);
-
-  void setPFPhotonParameters(bool usePFPhoton,
-			     std::string mvaWeightFileConvID,
-			     double mvaConvCut,
-			     bool useReg,
-			     std::string X0_Map,
-			     const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
-			     double sumPtTrackIsoForPhoton,
-			     double sumPtTrackIsoSlopeForPhoton);
-
   void setEGammaParameters(bool use_EGammaFilters, bool useProtectionsForJetMET);
 
   
@@ -115,22 +89,6 @@ class PFAlgo {
 			    const edm::ValueMap<reco::GsfElectronRef> & valueMapGedElectrons, 
  			    const edm::ValueMap<reco::PhotonRef> & valueMapGedPhotons); 
   
-  
-
-  // void setPFPhotonRegWeights(
-  //		     const GBRForest *LCorrForest,
-  //		     const GBRForest *GCorrForest,
-  //		     const GBRForest *ResForest
-			     
-  //		     ); 
-  void setPFPhotonRegWeights(
-			     const GBRForest *LCorrForestEB,
-			     const GBRForest *LCorrForestEE,
-			     const GBRForest *GCorrForestBarrel,
-			     const GBRForest *GCorrForestEndcapHr9,
-			     const GBRForest *GCorrForestEndcapLr9,
-			     const GBRForest *PFEcalResolution
-			     ); 
   void setPostHFCleaningParameters(bool postHFCleaning,
 				   double minHFCleaningPt,
 				   double minSignificance,
@@ -242,15 +200,6 @@ class PFAlgo {
 
   void setHcalDepthInfo(reco::PFCandidate & cand, const reco::PFCluster& cluster) const ;
 
-  /// \return calibrated energy of a photon
-  // double gammaCalibratedEnergy( double clusterEnergy ) const;
-
-  /// \return calibrated energy of a neutral hadron, 
-  /// which can leave some energy in the ECAL ( energyECAL>0 )
-  // double neutralHadronCalibratedEnergy( double energyHCAL, 
-  //                                    double energyECAL=-1) const;
-  
-
   /// todo: use PFClusterTools for this
   double neutralHadronEnergyResolution( double clusterEnergy,
 					double clusterEta ) const;
@@ -309,9 +258,6 @@ class PFAlgo {
   int                algo_;
   const bool         debug_;
 
-  /// Variables for PFElectrons
-  std::string mvaWeightFileEleID_;
-  std::vector<double> setchi2Values_;
   PFMuonAlgo *pfmu_;
 
 
