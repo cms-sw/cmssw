@@ -58,7 +58,4 @@
 #include "OnlineDB/EcalCondDB/interface/MonTimingLed2TTDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonTimingTTDat.h"
 
-
 #endif
-
-

@@ -10,17 +10,15 @@
  *   Def for Location information
  */
 class RunModeDef : public IDef {
-  public:
+public:
   friend class EcalCondDBInterface;
-  
+
   RunModeDef();
   ~RunModeDef() override;
 
   // Methods for user data
   std::string getRunMode() const;
   void setRunMode(std::string runmode);
-  
-
 
   // Methods from IUniqueDBObject
   int fetchID() noexcept(false) override;
@@ -29,13 +27,12 @@ class RunModeDef : public IDef {
   // Operators.  m_desc is not considered, it cannot be written to DB anyhow
   inline bool operator==(const RunModeDef &t) const { return m_runMode == t.m_runMode; }
   inline bool operator!=(const RunModeDef &t) const { return m_runMode != t.m_runMode; }
-  
- protected:
+
+protected:
   // User data for this def
   std::string m_runMode;
 
-
-  void fetchAllDefs( std::vector<RunModeDef>* fillVec) noexcept(false);
+  void fetchAllDefs(std::vector<RunModeDef> *fillVec) noexcept(false);
 };
 
 #endif

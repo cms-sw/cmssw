@@ -9,8 +9,8 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class FEConfigSpikeDat : public IDataItem {
- public:
-  friend class EcalCondDBInterface; // XXX temp should not need
+public:
+  friend class EcalCondDBInterface;  // XXX temp should not need
   FEConfigSpikeDat();
   ~FEConfigSpikeDat() override;
 
@@ -20,20 +20,17 @@ class FEConfigSpikeDat : public IDataItem {
   inline void setSpikeThreshold(int x) { m_thr = x; }
   inline int getSpikeThreshold() const { return m_thr; }
 
- private:
+private:
   void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const FEConfigSpikeDat* item, FEConfigSpikeInfo* iconf) noexcept(false);
 
+  void writeArrayDB(const std::map<EcalLogicID, FEConfigSpikeDat>* data, FEConfigSpikeInfo* iconf) noexcept(false);
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigSpikeDat>* data, FEConfigSpikeInfo* iconf) noexcept(false);
-
-
-  void fetchData(std::map< EcalLogicID, FEConfigSpikeDat >* fillMap, FEConfigSpikeInfo* iconf) noexcept(false);
+  void fetchData(std::map<EcalLogicID, FEConfigSpikeDat>* fillMap, FEConfigSpikeInfo* iconf) noexcept(false);
 
   // User data
   int m_thr;
-
 };
 
 #endif

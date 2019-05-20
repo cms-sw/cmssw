@@ -6,8 +6,7 @@
 using namespace std;
 using namespace oracle::occi;
 
-RunTag::RunTag()
-{
+RunTag::RunTag() {
   m_env = nullptr;
   m_conn = nullptr;
   m_ID = 0;
@@ -16,93 +15,57 @@ RunTag::RunTag()
   m_runTypeDef = RunTypeDef();
 }
 
+RunTag::~RunTag() {}
 
-
-RunTag::~RunTag()
-{
-}
-
-
-
-string RunTag::getGeneralTag() const
-{
-  return m_genTag;
-}
+string RunTag::getGeneralTag() const { return m_genTag; }
 
 // User data methods
 
-
-
-void RunTag::setGeneralTag(string genTag)
-{
+void RunTag::setGeneralTag(string genTag) {
   if (genTag != m_genTag) {
     m_ID = 0;
     m_genTag = genTag;
   }
 }
 
+LocationDef RunTag::getLocationDef() const { return m_locDef; }
 
-
-LocationDef RunTag::getLocationDef() const
-{
-  return m_locDef;
-}
-
-
-
-void RunTag::setLocationDef(const LocationDef& locDef)
-{
+void RunTag::setLocationDef(const LocationDef& locDef) {
   if (locDef != m_locDef) {
     m_ID = 0;
     m_locDef = locDef;
   }
 }
 
+RunTypeDef RunTag::getRunTypeDef() const { return m_runTypeDef; }
 
-
-RunTypeDef RunTag::getRunTypeDef() const
-{
-  return m_runTypeDef;
-}
-
-
-
-void RunTag::setRunTypeDef(const RunTypeDef& runTypeDef)
-{
+void RunTag::setRunTypeDef(const RunTypeDef& runTypeDef) {
   if (runTypeDef != m_runTypeDef) {
     m_ID = 0;
     m_runTypeDef = runTypeDef;
   }
 }
 
-
-
-int RunTag::fetchID()
-  noexcept(false)
-{
-
-
-
+int RunTag::fetchID() noexcept(false) {
   // Return tag from memory if available
   if (m_ID) {
     return m_ID;
   }
 
-  
   this->checkConnection();
-
 
   // fetch the parent IDs
   int locID, runTypeID;
   this->fetchParentIDs(&locID, &runTypeID);
-  
+
   // fetch this ID
   try {
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT tag_id FROM run_tag WHERE "
-		 "gen_tag     = :1 AND "
-		 "location_id = :2 AND "
-		 "run_type_id = :3");
+    stmt->setSQL(
+        "SELECT tag_id FROM run_tag WHERE "
+        "gen_tag     = :1 AND "
+        "location_id = :2 AND "
+        "run_type_id = :3");
     stmt->setString(1, m_genTag);
     stmt->setInt(2, locID);
     stmt->setInt(3, runTypeID);
@@ -115,18 +78,14 @@ int RunTag::fetchID()
       m_ID = 0;
     }
     m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(std::runtime_error("RunTag::fetchID:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("RunTag::fetchID:  " + e.getMessage()));
   }
 
   return m_ID;
 }
 
-
-
-void RunTag::setByID(int id) 
-  noexcept(false)
-{
+void RunTag::setByID(int id) noexcept(false) {
   this->checkConnection();
 
   try {
@@ -153,18 +112,15 @@ void RunTag::setByID(int id)
     }
 
     m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-   throw(std::runtime_error("RunTag::setByID:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("RunTag::setByID:  " + e.getMessage()));
   }
 }
 
-
-int RunTag::writeDB()
-  noexcept(false)
-{
+int RunTag::writeDB() noexcept(false) {
   // see if this data is already in the DB
-  if (this->fetchID()) { 
-    return m_ID; 
+  if (this->fetchID()) {
+    return m_ID;
   }
 
   // check the connectioin
@@ -178,17 +134,18 @@ int RunTag::writeDB()
   try {
     Statement* stmt = m_conn->createStatement();
 
-    stmt->setSQL("INSERT INTO run_tag (tag_id, gen_tag, location_id, run_type_id) "
-		 "VALUES (run_tag_sq.NextVal, :1, :2, :3)");
+    stmt->setSQL(
+        "INSERT INTO run_tag (tag_id, gen_tag, location_id, run_type_id) "
+        "VALUES (run_tag_sq.NextVal, :1, :2, :3)");
     stmt->setString(1, m_genTag);
     stmt->setInt(2, locID);
     stmt->setInt(3, runTypeID);
 
     stmt->executeUpdate();
-    
+
     m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-   throw(std::runtime_error("RunTag::writeDB:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("RunTag::writeDB:  " + e.getMessage()));
   }
 
   // now get the tag_id
@@ -199,34 +156,26 @@ int RunTag::writeDB()
   return m_ID;
 }
 
-
-
-void RunTag::fetchAllTags( std::vector<RunTag>* fillVec)
-  noexcept(false)
-{
+void RunTag::fetchAllTags(std::vector<RunTag>* fillVec) noexcept(false) {
   this->checkConnection();
   try {
     Statement* stmt = m_conn->createStatement();
     stmt->setSQL("SELECT tag_id FROM run_tag ORDER BY tag_id");
     ResultSet* rset = stmt->executeQuery();
-    
+
     RunTag runtag;
     runtag.setConnection(m_env, m_conn);
-    while(rset->next()) {
-      runtag.setByID( rset->getInt(1) );
-      fillVec->push_back( runtag );
+    while (rset->next()) {
+      runtag.setByID(rset->getInt(1));
+      fillVec->push_back(runtag);
     }
     m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(std::runtime_error("RunTag::fetchAllTags:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("RunTag::fetchAllTags:  " + e.getMessage()));
   }
 }
 
-
-
-void RunTag::fetchParentIDs(int* locID, int* runTypeID)
-  noexcept(false)
-{
+void RunTag::fetchParentIDs(int* locID, int* runTypeID) noexcept(false) {
   // get the location
   m_locDef.setConnection(m_env, m_conn);
   *locID = m_locDef.fetchID();
@@ -234,14 +183,12 @@ void RunTag::fetchParentIDs(int* locID, int* runTypeID)
   // get the run type
   m_runTypeDef.setConnection(m_env, m_conn);
   *runTypeID = m_runTypeDef.fetchID();
-  
 
-
-  if (! *locID) { 
-    throw(std::runtime_error("RunTag::fetchparentids:  Given location does not exist in DB")); 
+  if (!*locID) {
+    throw(std::runtime_error("RunTag::fetchparentids:  Given location does not exist in DB"));
   }
 
-  if (! *runTypeID) { 
-    throw(std::runtime_error("RunTag::fetchParentIDs:  Given run type does not exist in DB")); 
+  if (!*runTypeID) {
+    throw(std::runtime_error("RunTag::fetchParentIDs:  Given run type does not exist in DB"));
   }
 }

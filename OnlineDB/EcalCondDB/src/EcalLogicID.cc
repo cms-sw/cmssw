@@ -4,17 +4,9 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 //Constructors
-EcalLogicID::EcalLogicID()
-{
-}
+EcalLogicID::EcalLogicID() {}
 
-EcalLogicID::EcalLogicID( std::string name,
-			  int logicID,
-			  int id1,
-			  int id2,
-			  int id3,
-			  std::string mapsTo )
-{
+EcalLogicID::EcalLogicID(std::string name, int logicID, int id1, int id2, int id3, std::string mapsTo) {
   this->name = name;
   this->logicID = logicID;
   this->id1 = id1;
@@ -28,37 +20,17 @@ EcalLogicID::EcalLogicID( std::string name,
 }
 
 // Destructor
-EcalLogicID::~EcalLogicID()
-{
-}
+EcalLogicID::~EcalLogicID() {}
 
 // Getters
-std::string EcalLogicID::getName() const
-{
-  return name;
-}
+std::string EcalLogicID::getName() const { return name; }
 
-int EcalLogicID::getLogicID() const
-{
-  return logicID;
-}
+int EcalLogicID::getLogicID() const { return logicID; }
 
-int EcalLogicID::getID1() const
-{
-  return id1;
-}
+int EcalLogicID::getID1() const { return id1; }
 
-int EcalLogicID::getID2() const
-{
-  return id2;
-}
+int EcalLogicID::getID2() const { return id2; }
 
-int EcalLogicID::getID3() const
-{
-  return id3;
-}
+int EcalLogicID::getID3() const { return id3; }
 
-std::string EcalLogicID::getMapsTo() const
-{
-  return mapsTo;
-}
+std::string EcalLogicID::getMapsTo() const { return mapsTo; }

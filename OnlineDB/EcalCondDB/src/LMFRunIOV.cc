@@ -21,65 +21,51 @@ void LMFRunIOV::initialize() {
   m_stringFields["db_timestamp"] = tm.str();
   m_stringFields["subrun_type"] = "none";
   m_className = "LMFRunIOV";
-  
+
   _fabric = nullptr;
 }
 
-LMFRunIOV::LMFRunIOV() : LMFUnique()
-{
+LMFRunIOV::LMFRunIOV() : LMFUnique() { initialize(); }
+
+LMFRunIOV::LMFRunIOV(oracle::occi::Environment *env, oracle::occi::Connection *conn) : LMFUnique(env, conn) {
   initialize();
 }
 
-LMFRunIOV::LMFRunIOV(oracle::occi::Environment* env,
-		     oracle::occi::Connection* conn) : LMFUnique(env, conn)
-{
-  initialize();
-}
-
-LMFRunIOV::LMFRunIOV(EcalDBConnection *c) : LMFUnique(c)
-{
-  initialize();
-}
+LMFRunIOV::LMFRunIOV(EcalDBConnection *c) : LMFUnique(c) { initialize(); }
 
 LMFRunIOV::LMFRunIOV(const LMFRunIOV &r) {
   initialize();
   *this = r;
 }
 
-LMFRunIOV::~LMFRunIOV()
-{
+LMFRunIOV::~LMFRunIOV() {
   if (_fabric != nullptr) {
     delete _fabric;
   }
 }
 
-LMFRunIOV& LMFRunIOV::setLMFRunTag(const LMFRunTag &tag)
-{
+LMFRunIOV &LMFRunIOV::setLMFRunTag(const LMFRunTag &tag) {
   setInt("tag_id", tag.getID());
   return *this;
 }
 
-LMFRunIOV& LMFRunIOV::setLMFRunTag(int tag_id)
-{
+LMFRunIOV &LMFRunIOV::setLMFRunTag(int tag_id) {
   setInt("tag_id", tag_id);
   return *this;
 }
 
-LMFRunTag LMFRunIOV::getLMFRunTag() const
-{
+LMFRunTag LMFRunIOV::getLMFRunTag() const {
   LMFRunTag rtag = LMFRunTag(m_env, m_conn);
   rtag.setByID(getInt("tag_id"));
   return rtag;
 }
 
-LMFRunIOV& LMFRunIOV::setColor(const LMFColor &color)
-{
+LMFRunIOV &LMFRunIOV::setColor(const LMFColor &color) {
   setInt("color_id", color.getID());
   return *this;
 }
 
-LMFRunIOV& LMFRunIOV::setColor(int color_id)
-{
+LMFRunIOV &LMFRunIOV::setColor(int color_id) {
   setInt("color_id", color_id);
   return *this;
 }
@@ -90,22 +76,19 @@ void LMFRunIOV::checkFabric() {
   }
 }
 
-LMFRunIOV& LMFRunIOV::setColorIndex(int color_index)
-{
+LMFRunIOV &LMFRunIOV::setColorIndex(int color_index) {
   checkFabric();
   setInt("color_id", _fabric->getColorID(color_index));
   return *this;
 }
 
-LMFRunIOV& LMFRunIOV::setColor(std::string name)
-{
+LMFRunIOV &LMFRunIOV::setColor(std::string name) {
   checkFabric();
   setInt("color_id", _fabric->getColorID(name));
   return *this;
 }
 
-LMFColor LMFRunIOV::getLMFColor() const
-{
+LMFColor LMFRunIOV::getLMFColor() const {
   LMFColor rcol = LMFColor(m_env, m_conn);
   rcol.setByID(getInt("color_id"));
   return rcol;
@@ -121,41 +104,36 @@ std::string LMFRunIOV::getColorLongName() const {
   return rcol.getLongName();
 }
 
-LMFRunIOV& LMFRunIOV::setTriggerType(LMFTrigType &trigType)
-{
+LMFRunIOV &LMFRunIOV::setTriggerType(LMFTrigType &trigType) {
   setInt("trigType_id", trigType.getID());
   return *this;
 }
 
-LMFRunIOV& LMFRunIOV::setTriggerType(std::string sname)
-{
+LMFRunIOV &LMFRunIOV::setTriggerType(std::string sname) {
   checkFabric();
   setInt("trigType_id", _fabric->getTrigTypeID(sname));
   return *this;
 }
 
-LMFRunIOV& LMFRunIOV::setTriggerType(int id) {
+LMFRunIOV &LMFRunIOV::setTriggerType(int id) {
   setInt("trigType_id", id);
   return *this;
 }
 
-LMFTrigType LMFRunIOV::getTriggerType() const
-{
+LMFTrigType LMFRunIOV::getTriggerType() const {
   LMFTrigType rt = LMFTrigType(m_env, m_conn);
   rt.setByID(getInt("trigType_id"));
   return rt;
 }
 
-LMFRunIOV& LMFRunIOV::setLmr(int n) {
+LMFRunIOV &LMFRunIOV::setLmr(int n) {
   setInt("lmr", n);
   return *this;
 }
 
-int LMFRunIOV::getLmr() const {
-  return getInt("lmr");
-}
+int LMFRunIOV::getLmr() const { return getInt("lmr"); }
 
-LMFRunIOV& LMFRunIOV::setSubRunStart(const Tm& start) {
+LMFRunIOV &LMFRunIOV::setSubRunStart(const Tm &start) {
   setString("subrun_start", start.str());
   return *this;
 }
@@ -166,7 +144,7 @@ Tm LMFRunIOV::getSubRunStart() const {
   return t;
 }
 
-LMFRunIOV& LMFRunIOV::setSubRunEnd(const Tm& stop) {
+LMFRunIOV &LMFRunIOV::setSubRunEnd(const Tm &stop) {
   setString("subrun_end", stop.str());
   return *this;
 }
@@ -184,17 +162,14 @@ Tm LMFRunIOV::getDBInsertionTime() const {
   return t;
 }
 
-LMFRunIOV& LMFRunIOV::setSubRunType(const std::string &s) {
+LMFRunIOV &LMFRunIOV::setSubRunType(const std::string &s) {
   setString("subrun_type", s);
   return *this;
 }
 
-std::string LMFRunIOV::getSubRunType() const {
-  return getString("subrun_type");
-}
+std::string LMFRunIOV::getSubRunType() const { return getString("subrun_type"); }
 
-LMFRunIOV& LMFRunIOV::setSequence(LMFSeqDat &seq)
-{
+LMFRunIOV &LMFRunIOV::setSequence(LMFSeqDat &seq) {
   LMFSeqDat *seqdat = new LMFSeqDat();
   *seqdat = seq;
   attach("sequence", seqdat);
@@ -202,8 +177,7 @@ LMFRunIOV& LMFRunIOV::setSequence(LMFSeqDat &seq)
   return *this;
 }
 
-LMFSeqDat LMFRunIOV::getSequence() const
-{
+LMFSeqDat LMFRunIOV::getSequence() const {
   LMFSeqDat rs = LMFSeqDat(m_env, m_conn);
   rs.setByID(getInt("seq_id"));
   return rs;
@@ -217,13 +191,13 @@ void LMFRunIOV::dump() const {
   }
 }
 
-std::string LMFRunIOV::fetchIdSql(Statement *stmt)
-{
+std::string LMFRunIOV::fetchIdSql(Statement *stmt) {
   std::string sql = "";
-  
-  sql = "SELECT LMF_IOV_ID FROM CMS_ECAL_LASER_COND.LMF_RUN_IOV WHERE "
-    "SEQ_ID = :1 "
-    "AND LMR = :2 ";
+
+  sql =
+      "SELECT LMF_IOV_ID FROM CMS_ECAL_LASER_COND.LMF_RUN_IOV WHERE "
+      "SEQ_ID = :1 "
+      "AND LMR = :2 ";
   if (m_intFields["tag_id"] > 0) {
     sql += "AND TAG_ID = :3";
   }
@@ -236,16 +210,16 @@ std::string LMFRunIOV::fetchIdSql(Statement *stmt)
   return sql;
 }
 
-std::string LMFRunIOV::setByIDSql(Statement *stmt, int id) 
-{
-   DateHandler dh(m_env, m_conn);
-   std::string sql = "SELECT TAG_ID, SEQ_ID, LMR, COLOR_ID, TRIG_TYPE, "
-     "SUBRUN_START, SUBRUN_END, SUBRUN_TYPE, DB_TIMESTAMP FROM "
-     "CMS_ECAL_LASER_COND.LMF_RUN_IOV "
-     "WHERE LMF_IOV_ID = :1";
-   stmt->setSQL(sql);
-   stmt->setInt(1, id);
-   return sql;  
+std::string LMFRunIOV::setByIDSql(Statement *stmt, int id) {
+  DateHandler dh(m_env, m_conn);
+  std::string sql =
+      "SELECT TAG_ID, SEQ_ID, LMR, COLOR_ID, TRIG_TYPE, "
+      "SUBRUN_START, SUBRUN_END, SUBRUN_TYPE, DB_TIMESTAMP FROM "
+      "CMS_ECAL_LASER_COND.LMF_RUN_IOV "
+      "WHERE LMF_IOV_ID = :1";
+  stmt->setSQL(sql);
+  stmt->setInt(1, id);
+  return sql;
 }
 
 void LMFRunIOV::getParameters(ResultSet *rset) noexcept(false) {
@@ -253,7 +227,7 @@ void LMFRunIOV::getParameters(ResultSet *rset) noexcept(false) {
   setLMFRunTag(rset->getInt(1));
   LMFSeqDat *seq;
   if (m_foreignKeys.find("sequence") != m_foreignKeys.end()) {
-    seq = (LMFSeqDat*)m_foreignKeys["sequence"];
+    seq = (LMFSeqDat *)m_foreignKeys["sequence"];
     setInt("seq_id", seq->getID());
   } else {
     seq = new LMFSeqDat;
@@ -282,20 +256,19 @@ void LMFRunIOV::getParameters(ResultSet *rset) noexcept(false) {
   unsigned int fs = 0;
   rset->getTimestamp(9).getDate(year, month, day);
   rset->getTimestamp(9).getTime(hour, minute, second, fs);
-  const std::tm tt = {
-// Different max(second) is defined by C99 and Oracle Timestamp.
-    .tm_sec = static_cast<int>(second),
-    .tm_min = static_cast<int>(minute),
-    .tm_hour = static_cast<int>(hour),
-    .tm_mday = static_cast<int>(day),
-    .tm_mon = static_cast<int>(month),
-    .tm_year = year - 1900
-  };
-  char tt_str[30] = { 0 };
+  const std::tm tt = {// Different max(second) is defined by C99 and Oracle Timestamp.
+                      .tm_sec = static_cast<int>(second),
+                      .tm_min = static_cast<int>(minute),
+                      .tm_hour = static_cast<int>(hour),
+                      .tm_mday = static_cast<int>(day),
+                      .tm_mon = static_cast<int>(month),
+                      .tm_year = year - 1900};
+  char tt_str[30] = {0};
   if (std::strftime(tt_str, sizeof(tt_str), "%F %T", &tt)) {
     setString("db_timestamp", std::string(tt_str));
   } else {
-    throw std::runtime_error("LMFRunIOV::getParameters: failed to generate the date string for 'db_timestamp' parameter");
+    throw std::runtime_error(
+        "LMFRunIOV::getParameters: failed to generate the date string for 'db_timestamp' parameter");
   }
 #endif
 }
@@ -321,17 +294,18 @@ bool LMFRunIOV::isValid() {
   return ret;
 }
 
-std::string LMFRunIOV::writeDBSql(Statement *stmt) 
-{
+std::string LMFRunIOV::writeDBSql(Statement *stmt) {
   // check that everything has been setup
   int tag_id = getInt("tag_id");
   int seq_id = getInt("seq_id");
   int color_id = getInt("color_id");
   int tt = getInt("trigType_id");
   std::string sp = sequencePostfix(getSubRunStart());
-  std::string sql = "INSERT INTO LMF_RUN_IOV (LMF_IOV_ID, TAG_ID, SEQ_ID, "
-    "LMR, COLOR_ID, TRIG_TYPE, SUBRUN_START, SUBRUN_END, SUBRUN_TYPE) VALUES "
-    "(lmf_run_iov_" + sp + "_sq.NextVal, :1, :2, :3, :4, :5, :6, :7, :8)";
+  std::string sql =
+      "INSERT INTO LMF_RUN_IOV (LMF_IOV_ID, TAG_ID, SEQ_ID, "
+      "LMR, COLOR_ID, TRIG_TYPE, SUBRUN_START, SUBRUN_END, SUBRUN_TYPE) VALUES "
+      "(lmf_run_iov_" +
+      sp + "_sq.NextVal, :1, :2, :3, :4, :5, :6, :7, :8)";
   stmt->setSQL(sql);
   DateHandler dm(m_env, m_conn);
   stmt->setInt(1, tag_id);
@@ -345,11 +319,9 @@ std::string LMFRunIOV::writeDBSql(Statement *stmt)
   return sql;
 }
 
-std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const vector<int>& par, 
-						const std::string &sql,
-						const std::string &method) 
-  noexcept(false)
-{
+std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const vector<int> &par,
+                                                const std::string &sql,
+                                                const std::string &method) noexcept(false) {
   std::list<LMFRunIOV> l;
   this->checkConnection();
   try {
@@ -368,8 +340,7 @@ std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const vector<int>& par,
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(m_className + "::" + method + ": " +
-                             e.getMessage()));
+    throw(std::runtime_error(m_className + "::" + method + ": " + e.getMessage()));
   }
   return l;
 }
@@ -378,9 +349,11 @@ std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const LMFSeqDat &s) {
   int seq_id = s.getID();
   vector<int> parameters;
   parameters.push_back(seq_id);
-  return fetchBySequence(parameters, "SELECT LMF_IOV_ID FROM "
-			 "CMS_ECAL_LASER_COND.LMF_RUN_IOV "
-			 "WHERE SEQ_ID = :1", "fetchBySequence");
+  return fetchBySequence(parameters,
+                         "SELECT LMF_IOV_ID FROM "
+                         "CMS_ECAL_LASER_COND.LMF_RUN_IOV "
+                         "WHERE SEQ_ID = :1",
+                         "fetchBySequence");
 }
 
 std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const LMFSeqDat &s, int lmr) {
@@ -388,53 +361,53 @@ std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const LMFSeqDat &s, int lmr) {
   vector<int> parameters;
   parameters.push_back(seq_id);
   parameters.push_back(lmr);
-  return fetchBySequence(parameters, "SELECT LMF_IOV_ID FROM "
-			 "CMS_ECAL_LASER_COND.LMF_RUN_IOV "
-			 "WHERE SEQ_ID = :1 AND LMR = :2", 
-			 "fetchBySequence");
+  return fetchBySequence(parameters,
+                         "SELECT LMF_IOV_ID FROM "
+                         "CMS_ECAL_LASER_COND.LMF_RUN_IOV "
+                         "WHERE SEQ_ID = :1 AND LMR = :2",
+                         "fetchBySequence");
 }
 
-std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const LMFSeqDat &s, int lmr,
-						int type, int color) {
+std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const LMFSeqDat &s, int lmr, int type, int color) {
   int seq_id = s.getID();
   vector<int> parameters;
   parameters.push_back(seq_id);
   parameters.push_back(lmr);
   parameters.push_back(color);
   parameters.push_back(type);
-  return fetchBySequence(parameters, "SELECT LMF_IOV_ID FROM "
-			 "CMS_ECAL_LASER_COND.LMF_RUN_IOV "
-			 "WHERE SEQ_ID = :1 AND LMR = :2 AND COLOR_ID = :3 "
-			 "AND TRIG_TYPE = :4",
-			 "fetchBySequence");
+  return fetchBySequence(parameters,
+                         "SELECT LMF_IOV_ID FROM "
+                         "CMS_ECAL_LASER_COND.LMF_RUN_IOV "
+                         "WHERE SEQ_ID = :1 AND LMR = :2 AND COLOR_ID = :3 "
+                         "AND TRIG_TYPE = :4",
+                         "fetchBySequence");
 }
 
-std::list<LMFRunIOV> LMFRunIOV::fetchLastBeforeSequence(const LMFSeqDat &s, 
-							int lmr, int type, 
-							int color) {
+std::list<LMFRunIOV> LMFRunIOV::fetchLastBeforeSequence(const LMFSeqDat &s, int lmr, int type, int color) {
   int seq_id = s.getID();
   vector<int> parameters;
   parameters.push_back(seq_id);
   parameters.push_back(lmr);
   parameters.push_back(color);
   parameters.push_back(type);
-  return fetchBySequence(parameters, "SELECT LMF_IOV_ID FROM (SELECT "
-			 "SEQ_ID, LMF_IOV_ID FROM "
-			 "CMS_ECAL_LASER_COND.LMF_RUN_IOV "
-			 "WHERE SEQ_ID < :1 AND LMR = :2 AND COLOR_ID = :3 "
-			 "AND TRIG_TYPE = :4 ORDER BY SEQ_ID DESC) WHERE "
-			 "ROWNUM <= 1",
-			 "fetchBySequence");
+  return fetchBySequence(parameters,
+                         "SELECT LMF_IOV_ID FROM (SELECT "
+                         "SEQ_ID, LMF_IOV_ID FROM "
+                         "CMS_ECAL_LASER_COND.LMF_RUN_IOV "
+                         "WHERE SEQ_ID < :1 AND LMR = :2 AND COLOR_ID = :3 "
+                         "AND TRIG_TYPE = :4 ORDER BY SEQ_ID DESC) WHERE "
+                         "ROWNUM <= 1",
+                         "fetchBySequence");
 }
 
-LMFRunIOV& LMFRunIOV::operator=(const LMFRunIOV &r) {
+LMFRunIOV &LMFRunIOV::operator=(const LMFRunIOV &r) {
   if (this != &r) {
     LMFUnique::operator=(r);
     if (r._fabric != nullptr) {
-      checkFabric();//      _fabric = new LMFDefFabric;
+      checkFabric();  //      _fabric = new LMFDefFabric;
       if (m_debug) {
-	_fabric->debug();
-	std::cout << "COPYING INTO " << _fabric << std::endl;
+        _fabric->debug();
+        std::cout << "COPYING INTO " << _fabric << std::endl;
       }
       *_fabric = *(r._fabric);
     }
