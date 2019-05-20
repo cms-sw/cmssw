@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWDigitSetProxyBuilder
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -24,143 +24,122 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
-
-class FWSecondarySelectableSelector : public FWFromEveSelectorBase
-{
+class FWSecondarySelectableSelector : public FWFromEveSelectorBase {
 public:
-   FWSecondarySelectableSelector(const TEveSecondarySelectable::SelectionSet_t& s, const FWEventItem* i): m_selected(s), m_item(i) {}
-   ~FWSecondarySelectableSelector() override {}
+  FWSecondarySelectableSelector(const TEveSecondarySelectable::SelectionSet_t& s, const FWEventItem* i)
+      : m_selected(s), m_item(i) {}
+  ~FWSecondarySelectableSelector() override {}
 
-   void doSelect() override
-   {
-      syncSelection();
-   }
+  void doSelect() override { syncSelection(); }
 
-   void doUnselect() override
-   { 
-      syncSelection(); 
-   }
+  void doUnselect() override { syncSelection(); }
 
-   const FWEventItem* item() const { return m_item; }
+  const FWEventItem* item() const { return m_item; }
 
 private:
-   const TEveSecondarySelectable::SelectionSet_t& m_selected;
-   const FWEventItem* m_item;
+  const TEveSecondarySelectable::SelectionSet_t& m_selected;
+  const FWEventItem* m_item;
 
-   void syncSelection()
-   {
-      size_t size = m_item->size();
-      for (size_t i = 0; i < size; ++i)
-      {
-         FWEventItem::ModelInfo modelInfo = m_item->modelInfo(i);
-         TEveSecondarySelectable::SelectionSet_ci si = m_selected.find(i);
-         if ((si != m_selected.end()) != modelInfo.isSelected() )
-         {
-            if (si != m_selected.end())
-               m_item->select(i);
-            else
-               m_item->unselect(i);
-         }
+  void syncSelection() {
+    size_t size = m_item->size();
+    for (size_t i = 0; i < size; ++i) {
+      FWEventItem::ModelInfo modelInfo = m_item->modelInfo(i);
+      TEveSecondarySelectable::SelectionSet_ci si = m_selected.find(i);
+      if ((si != m_selected.end()) != modelInfo.isSelected()) {
+        if (si != m_selected.end())
+          m_item->select(i);
+        else
+          m_item->unselect(i);
       }
-   }
+    }
+  }
 };
 
 //==============================================================================
 //==============================================================================
 //==============================================================================
 
-FWDigitSetProxyBuilder::FWDigitSetProxyBuilder():
-   m_boxSet(nullptr)
-{
+FWDigitSetProxyBuilder::FWDigitSetProxyBuilder() : m_boxSet(nullptr) {}
+
+FWDigitSetProxyBuilder::~FWDigitSetProxyBuilder() {}
+
+TString FWDigitSetProxyBuilder::getTooltip(TEveDigitSet* set, int idx) {
+  TEveElement* el = static_cast<TEveElement*>(set);  // tmp-workaround
+  FWSecondarySelectableSelector* ss = static_cast<FWSecondarySelectableSelector*>(el->GetUserData());
+  return TString::Format(
+      "%d %s %s", idx, ss->item()->name().c_str(), ss->item()->modelInterestingValueAsString(idx).c_str());
 }
 
-FWDigitSetProxyBuilder::~FWDigitSetProxyBuilder()
-{
+TEveBoxSet* FWDigitSetProxyBuilder::addBoxSetToProduct(TEveElementList* product) {
+  assert(!product->HasChildren());
+
+  m_boxSet = new TEveBoxSet();
+  m_boxSet->SetTooltipCBFoo(getTooltip);
+  m_boxSet->Reset(TEveBoxSet::kBT_FreeBox, true, 256);
+  FWSecondarySelectableSelector* sel = new FWSecondarySelectableSelector(m_boxSet->RefSelectedSet(), item());
+  m_boxSet->SetUserData(sel);
+  m_boxSet->SetPickable(true);
+  m_boxSet->SetAlwaysSecSelect(true);
+
+  product->AddElement(m_boxSet);
+
+  return m_boxSet;
 }
 
-TString FWDigitSetProxyBuilder::getTooltip(TEveDigitSet* set, int idx)
-{
-   TEveElement* el = static_cast<TEveElement*>(set); // tmp-workaround
-   FWSecondarySelectableSelector* ss = static_cast<FWSecondarySelectableSelector*>(el->GetUserData());
-   return TString::Format("%d %s %s", idx, ss->item()->name().c_str(), ss->item()->modelInterestingValueAsString(idx).c_str());
+TEveDigitSet* FWDigitSetProxyBuilder::digitSet(TEveElement* product) {
+  assert(product->NumChildren() == 1);
+  return static_cast<TEveDigitSet*>(*product->BeginChildren());
 }
 
-TEveBoxSet* FWDigitSetProxyBuilder::addBoxSetToProduct(TEveElementList* product)
-{
-   assert(!product->HasChildren());
-   
-   m_boxSet = new TEveBoxSet();
-   m_boxSet->SetTooltipCBFoo(getTooltip);
-   m_boxSet->Reset(TEveBoxSet::kBT_FreeBox, true, 256);
-   FWSecondarySelectableSelector* sel = new FWSecondarySelectableSelector(m_boxSet->RefSelectedSet(), item());
-   m_boxSet->SetUserData(sel);
-   m_boxSet->SetPickable(true);
-   m_boxSet->SetAlwaysSecSelect(true);
+void FWDigitSetProxyBuilder::addBox(TEveBoxSet* boxSet, const float* pnts, const FWDisplayProperties& dp) {
+  boxSet->AddBox(pnts);
+  boxSet->DigitValue(dp.isVisible());
 
-   product->AddElement(m_boxSet);
+  if (dp.isVisible())
+    boxSet->DigitColor(dp.color(), dp.transparency());
 
-   return m_boxSet;
+  if (dp.transparency())
+    boxSet->SetMainTransparency(dp.transparency());
 }
 
-TEveDigitSet* FWDigitSetProxyBuilder::digitSet(TEveElement* product)
-{
-   assert(product->NumChildren() == 1);
-   return static_cast<TEveDigitSet*>(*product->BeginChildren());
-}
+void FWDigitSetProxyBuilder::modelChanges(const FWModelIds& iIds, Product* product) {
+  TEveDigitSet* digits = digitSet(product->m_elements);
+  if (!digits)
+    return;
 
-void FWDigitSetProxyBuilder::addBox(TEveBoxSet* boxSet, const float* pnts, const FWDisplayProperties& dp)
-{
-   boxSet->AddBox(pnts);
-   boxSet->DigitValue(dp.isVisible());
+  TEveSecondarySelectable::SelectionSet_t& selected =
+      (TEveSecondarySelectable::SelectionSet_t&)(digits->RefSelectedSet());
 
-   if (dp.isVisible()) 
-      boxSet->DigitColor(dp.color(), dp.transparency());
+  for (std::set<FWModelId>::const_iterator it = iIds.begin(); it != iIds.end(); ++it) {
+    const FWEventItem::ModelInfo& info = item()->modelInfo(it->index());
 
-   if (dp.transparency())
-      boxSet->SetMainTransparency(dp.transparency());
-}
+    // id display properties
+    const FWDisplayProperties& p = info.displayProperties();
+    digits->SetCurrentDigit(it->index());
+    digits->DigitValue(p.isVisible());
+    if (p.isVisible())
+      digits->DigitColor(p.color(), p.transparency());
 
-void FWDigitSetProxyBuilder::modelChanges(const FWModelIds& iIds, Product* product)
-{
-   TEveDigitSet* digits = digitSet(product->m_elements);
-   if (!digits) return;
-   
-   TEveSecondarySelectable::SelectionSet_t& selected = (TEveSecondarySelectable::SelectionSet_t&)(digits->RefSelectedSet());
+    // id selection
+    TEveSecondarySelectable::SelectionSet_ci si = selected.find(it->index());
+    if (info.isSelected()) {
+      if (si == selected.end())
+        selected.insert(it->index());
+    } else {
+      if (si != selected.end())
+        selected.erase(si);
+    }
+  }
 
-   for (std::set<FWModelId>::const_iterator it = iIds.begin(); it != iIds.end(); ++it)
-   {
-      const FWEventItem::ModelInfo& info = item()->modelInfo(it->index());
+  if (!selected.empty()) {
+    if (0 == digits->GetSelectedLevel()) {
+      gEve->GetSelection()->AddElement(digits);
+    }
+  } else {
+    if (1 == digits->GetSelectedLevel() || 2 == digits->GetSelectedLevel()) {
+      gEve->GetSelection()->RemoveElement(digits);
+    }
+  }
 
-      // id display properties
-      const FWDisplayProperties &p = info.displayProperties();
-      digits->SetCurrentDigit(it->index());
-      digits->DigitValue(p.isVisible());
-      if (p.isVisible())
-         digits->DigitColor(p.color(), p.transparency());
-
-      // id selection
-      TEveSecondarySelectable::SelectionSet_ci si = selected.find(it->index());
-      if (info.isSelected())
-      {
-         if (si == selected.end())
-            selected.insert(it->index());
-      }
-      else
-      {
-         if ( si != selected.end())
-            selected.erase(si);
-      }
-   }
-
-   if(!selected.empty()) {
-      if(0==digits->GetSelectedLevel()) {
-         gEve->GetSelection()->AddElement(digits);
-      }
-   } else {
-      if(1==digits->GetSelectedLevel()||2==digits->GetSelectedLevel()) {
-         gEve->GetSelection()->RemoveElement(digits);
-      }
-   }
-
-   digits->StampObjProps();
+  digits->StampObjProps();
 }

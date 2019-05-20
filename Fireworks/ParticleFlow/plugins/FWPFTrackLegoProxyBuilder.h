@@ -5,7 +5,7 @@
 //
 // Package:     ParticleFlow
 // Class  :     FWPFTrackLegoProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -25,22 +25,21 @@
 //-----------------------------------------------------------------------------
 // FWPFTrackLegoProxyBuilder
 //-----------------------------------------------------------------------------
-class FWPFTrackLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
-{
-   public:
-   // ---------------- Constructor(s)/Destructor ----------------------
-      FWPFTrackLegoProxyBuilder(){}
-      ~FWPFTrackLegoProxyBuilder() override{}
+class FWPFTrackLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track> {
+public:
+  // ---------------- Constructor(s)/Destructor ----------------------
+  FWPFTrackLegoProxyBuilder() {}
+  ~FWPFTrackLegoProxyBuilder() override {}
 
-      REGISTER_PROXYBUILDER_METHODS();
+  REGISTER_PROXYBUILDER_METHODS();
 
-   private:
-      FWPFTrackLegoProxyBuilder( const FWPFTrackLegoProxyBuilder& ) = delete;
-      const FWPFTrackLegoProxyBuilder& operator=( const FWPFTrackLegoProxyBuilder& ) = delete;
+private:
+  FWPFTrackLegoProxyBuilder(const FWPFTrackLegoProxyBuilder&) = delete;
+  const FWPFTrackLegoProxyBuilder& operator=(const FWPFTrackLegoProxyBuilder&) = delete;
 
-   // --------------------- Member Functions --------------------------
-      using FWSimpleProxyBuilderTemplate<reco::Track>::build;
-      void build( const reco::Track &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc ) override;
+  // --------------------- Member Functions --------------------------
+  using FWSimpleProxyBuilderTemplate<reco::Track>::build;
+  void build(const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* vc) override;
 };
 #endif
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_
