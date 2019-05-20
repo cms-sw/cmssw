@@ -73,7 +73,7 @@ namespace edmtest
     }
  
     FILE* pFile=nullptr;
-    if(formatedOutput_!="")pFile=fopen(formatedOutput_.c_str(), "w");
+    if(!formatedOutput_.empty())pFile=fopen(formatedOutput_.c_str(), "w");
     if(pFile){
 
       fprintf(pFile,"AlignPCLThresholds::printAll() \n");
