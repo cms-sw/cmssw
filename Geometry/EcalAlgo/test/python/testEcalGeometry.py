@@ -52,7 +52,7 @@ process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer"
                                                     )
 
 process.test = cms.EDAnalyzer("DDCMSDetector",
-                              DDDetector = cms.ESInputTag('Ecal')
+                              DDDetector = cms.ESInputTag('', 'Ecal')
                               )
 
 process.p = cms.Path(process.test)
