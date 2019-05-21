@@ -8,22 +8,21 @@
 #include "CondFormats/ESObjects/interface/ESStripGroupId.h"
 #include "CondFormats/ESObjects/interface/ESWeightSet.h"
 
-
 class ESTBWeights {
-  public:
-   typedef std::map< ESStripGroupId,  ESWeightSet > ESTBWeightMap;
+public:
+  typedef std::map<ESStripGroupId, ESWeightSet> ESTBWeightMap;
 
-    ESTBWeights();
-    ~ESTBWeights();
+  ESTBWeights();
+  ~ESTBWeights();
 
-    // modifiers
-    void setValue(const ESStripGroupId& groupId, const ESWeightSet& weight);
+  // modifiers
+  void setValue(const ESStripGroupId& groupId, const ESWeightSet& weight);
 
-    // accessors
-    const ESTBWeightMap& getMap() const { return map_; }
+  // accessors
+  const ESTBWeightMap& getMap() const { return map_; }
 
-  private:
-    ESTBWeightMap map_;
+private:
+  ESTBWeightMap map_;
 
   COND_SERIALIZABLE;
 };
