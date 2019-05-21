@@ -26,18 +26,13 @@
 
 // constructors
 //     default
-L1GtBptxCondition::L1GtBptxCondition() : L1GtConditionEvaluation() {
-
-  m_conditionResult = false;
-}
+L1GtBptxCondition::L1GtBptxCondition() : L1GtConditionEvaluation() { m_conditionResult = false; }
 
 //     from base template condition (from event setup usually)
-L1GtBptxCondition::L1GtBptxCondition(const L1GtCondition *bptxTemplate,
-                                     const bool result)
+L1GtBptxCondition::L1GtBptxCondition(const L1GtCondition *bptxTemplate, const bool result)
     : L1GtConditionEvaluation(),
       m_gtBptxTemplate(static_cast<const L1GtBptxTemplate *>(bptxTemplate)),
       m_conditionResult(result) {
-
   // maximum number of objects received for the evaluation of the condition
   // no object
   m_condMaxNumberObjects = 0;
@@ -45,7 +40,6 @@ L1GtBptxCondition::L1GtBptxCondition(const L1GtCondition *bptxTemplate,
 
 // copy constructor
 void L1GtBptxCondition::copy(const L1GtBptxCondition &cp) {
-
   m_gtBptxTemplate = cp.gtBptxTemplate();
   m_conditionResult = cp.conditionResult();
 
@@ -56,15 +50,10 @@ void L1GtBptxCondition::copy(const L1GtBptxCondition &cp) {
   m_verbosity = cp.m_verbosity;
 }
 
-L1GtBptxCondition::L1GtBptxCondition(const L1GtBptxCondition &cp)
-    : L1GtConditionEvaluation() {
-
-  copy(cp);
-}
+L1GtBptxCondition::L1GtBptxCondition(const L1GtBptxCondition &cp) : L1GtConditionEvaluation() { copy(cp); }
 
 // destructor
 L1GtBptxCondition::~L1GtBptxCondition() {
-
   // empty
 }
 
@@ -75,14 +64,9 @@ L1GtBptxCondition &L1GtBptxCondition::operator=(const L1GtBptxCondition &cp) {
 }
 
 // methods
-void L1GtBptxCondition::setGtBptxTemplate(
-    const L1GtBptxTemplate *bptxTemplate) {
-
-  m_gtBptxTemplate = bptxTemplate;
-}
+void L1GtBptxCondition::setGtBptxTemplate(const L1GtBptxTemplate *bptxTemplate) { m_gtBptxTemplate = bptxTemplate; }
 
 const bool L1GtBptxCondition::evaluateCondition() const {
-
   // clear the m_combinationsInCond vector
   (combinationsInCond()).clear();
 
@@ -91,7 +75,6 @@ const bool L1GtBptxCondition::evaluateCondition() const {
 }
 
 void L1GtBptxCondition::print(std::ostream &myCout) const {
-
   m_gtBptxTemplate->print(myCout);
   L1GtConditionEvaluation::print(myCout);
 }

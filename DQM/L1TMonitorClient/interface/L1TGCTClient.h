@@ -16,33 +16,33 @@
 #include <vector>
 #include <map>
 
-class L1TGCTClient: public DQMEDHarvester {
-
- public:
-
+class L1TGCTClient : public DQMEDHarvester {
+public:
   /// Constructor
-  L1TGCTClient(const edm::ParameterSet& ps);
-  
+  L1TGCTClient(const edm::ParameterSet &ps);
+
   /// Destructor
   ~L1TGCTClient() override;
- 
- protected:
-  void dqmEndJob(DQMStore::IBooker &ibooker,DQMStore::IGetter &igetter) override;
-  void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,DQMStore::IGetter &igetter,const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
 
- private:
+protected:
+  void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,
+                             DQMStore::IGetter &igetter,
+                             const edm::LuminosityBlock &lumiSeg,
+                             const edm::EventSetup &c) override;
 
+private:
   void book(DQMStore::IBooker &ibooker);
   void processHistograms(DQMStore::IGetter &igetter);
 
-  void makeXProjection(TH2F* input, MonitorElement* output);
-  void makeYProjection(TH2F* input, MonitorElement* output);
+  void makeXProjection(TH2F *input, MonitorElement *output);
+  void makeYProjection(TH2F *input, MonitorElement *output);
 
-  std::string monitorDir_; 
-  int counterLS_;      ///counter 
-  int counterEvt_;     ///counter 
-  int prescaleLS_;     ///units of lumi sections 
-  int prescaleEvt_;    ///prescale on number of events
+  std::string monitorDir_;
+  int counterLS_;    ///counter
+  int counterEvt_;   ///counter
+  int prescaleLS_;   ///units of lumi sections
+  int prescaleEvt_;  ///prescale on number of events
 
   bool m_runInEventLoop;
   bool m_runInEndLumi;
@@ -66,7 +66,6 @@ class L1TGCTClient: public DQMEDHarvester {
   MonitorElement *l1GctTauJetsOccPhi_;
   MonitorElement *l1GctIsoTauJetsOccEta_;
   MonitorElement *l1GctIsoTauJetsOccPhi_;
-
 };
 
 #endif

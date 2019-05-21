@@ -69,13 +69,13 @@
 #include "Fireworks/Core/interface/FWPartialConfig.h"
 
 namespace Fireworks_Core {
-   struct Fireworks_Core {
-      //add 'dummy' Wrapper variable for each class type you put into the Event
-      //FWDisplayEvent de;
-      FWBoolParameter bp;
-      FWDoubleParameter dp;
-      FWLongParameter lp;
-      FWStringParameter sp;
-      FWConfiguration::KeyValues kv;
-   };
-}
+  struct Fireworks_Core {
+    //add 'dummy' Wrapper variable for each class type you put into the Event
+    //FWDisplayEvent de;
+    FWBoolParameter bp;
+    FWDoubleParameter dp;
+    FWLongParameter lp;
+    FWStringParameter sp;
+    FWConfiguration::KeyValues kv;
+  };
+}  // namespace Fireworks_Core

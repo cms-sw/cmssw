@@ -3,8 +3,8 @@
 //CAT: Model
 //
 //   Class to store the data of a fitted entry (only those of quality 'unk')
-// 
-//   History: v1.0 
+//
+//   History: v1.0
 //   Pedro Arce
 
 #ifndef HistoDef_HH
@@ -14,38 +14,24 @@
 #include <vector>
 class Entry;
 
-class HistoDef
-{
-
+class HistoDef {
 public:
   //---------- Constructors / Destructor
-  HistoDef(){ };
-  void init( ALIstring name );
-  ~HistoDef(){ };
+  HistoDef(){};
+  void init(ALIstring name);
+  ~HistoDef(){};
 
-  ALIstring name() const {
-   return theName;
-  }
-  float minimum() const {
-   return theMin;
-  }
-  float maximum() const {
-   return theMax;
-  }
+  ALIstring name() const { return theName; }
+  float minimum() const { return theMin; }
+  float maximum() const { return theMax; }
 
-  void setMinimum( float min ){
-    theMin = min;
-  }
-  void setMaximum( float max ){
-    theMax = max;
-  }
+  void setMinimum(float min) { theMin = min; }
+  void setMaximum(float max) { theMax = max; }
 
 private:
   ALIstring theName;
   float theMin;
   float theMax;
-
 };
 
 #endif
-

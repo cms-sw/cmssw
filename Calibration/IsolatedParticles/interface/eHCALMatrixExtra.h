@@ -31,24 +31,69 @@ Created: August 2009
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Calibration/IsolatedParticles/interface/eHCALMatrix.h"
 
-namespace spr{
-
-  template< typename T>
-  std::vector< std::pair< DetId,double> > eHCALmatrixCell(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO=false, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, bool debug=false);
-
-  template< typename T>
-  std::pair<double,int> eHCALmatrixTotal(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO=false, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, bool debug=false);
+namespace spr {
 
   template <typename T>
-  double energyHCALmatrix(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO=false, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, bool debug=false);
+  std::vector<std::pair<DetId, double> > eHCALmatrixCell(const HcalTopology* topology,
+                                                         const DetId& det,
+                                                         edm::Handle<T>& hits,
+                                                         int ieta,
+                                                         int iphi,
+                                                         bool includeHO = false,
+                                                         double hbThr = -100,
+                                                         double heThr = -100,
+                                                         double hfThr = -100,
+                                                         double hoThr = -100,
+                                                         bool debug = false);
 
   template <typename T>
-  double energyHCAL(std::vector<DetId>& vNeighboursDetId, std::vector<DetId>& dets, const HcalTopology* topology, edm::Handle<T>& hits, bool includeHO=false, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, bool debug=false);
+  std::pair<double, int> eHCALmatrixTotal(const HcalTopology* topology,
+                                          const DetId& det,
+                                          edm::Handle<T>& hits,
+                                          int ieta,
+                                          int iphi,
+                                          bool includeHO = false,
+                                          double hbThr = -100,
+                                          double heThr = -100,
+                                          double hfThr = -100,
+                                          double hoThr = -100,
+                                          bool debug = false);
 
   template <typename T>
-  std::vector<std::pair<DetId,double> > energyDetIdHCAL(std::vector<DetId>& vdets, edm::Handle<T>& hits, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, bool debug=false);
+  double energyHCALmatrix(const HcalTopology* topology,
+                          const DetId& det,
+                          edm::Handle<T>& hits,
+                          int ieta,
+                          int iphi,
+                          bool includeHO = false,
+                          double hbThr = -100,
+                          double heThr = -100,
+                          double hfThr = -100,
+                          double hoThr = -100,
+                          bool debug = false);
 
-}
+  template <typename T>
+  double energyHCAL(std::vector<DetId>& vNeighboursDetId,
+                    std::vector<DetId>& dets,
+                    const HcalTopology* topology,
+                    edm::Handle<T>& hits,
+                    bool includeHO = false,
+                    double hbThr = -100,
+                    double heThr = -100,
+                    double hfThr = -100,
+                    double hoThr = -100,
+                    bool debug = false);
+
+  template <typename T>
+  std::vector<std::pair<DetId, double> > energyDetIdHCAL(std::vector<DetId>& vdets,
+                                                         edm::Handle<T>& hits,
+                                                         double hbThr = -100,
+                                                         double heThr = -100,
+                                                         double hfThr = -100,
+                                                         double hoThr = -100,
+                                                         bool debug = false);
+
+}  // namespace spr
 
 #include "Calibration/IsolatedParticles/interface/eHCALMatrixExtra.icc"
 #endif

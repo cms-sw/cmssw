@@ -17,10 +17,8 @@
 class L1RCTLookupTables;
 
 class L1RCTElectronIsolationCard {
-
 public:
-  L1RCTElectronIsolationCard(int crateNumber, int cardNumber,
-                             const L1RCTLookupTables *rctLookupTables);
+  L1RCTElectronIsolationCard(int crateNumber, int cardNumber, const L1RCTLookupTables *rctLookupTables);
   ~L1RCTElectronIsolationCard();
 
   int crateNumber() { return crtNo; }
@@ -40,14 +38,15 @@ public:
   }
 
 private:
-  std::vector<unsigned short> calcElectronCandidates(const L1RCTRegion &region,
-                                                     int regionNum);
-  unsigned short calcMaxSum(unsigned short primaryEt, unsigned short northEt,
-                            unsigned short southEt, unsigned short eastEt,
+  std::vector<unsigned short> calcElectronCandidates(const L1RCTRegion &region, int regionNum);
+  unsigned short calcMaxSum(unsigned short primaryEt,
+                            unsigned short northEt,
+                            unsigned short southEt,
+                            unsigned short eastEt,
                             unsigned short westEt);
 
-  unsigned short crtNo;  // changed from int
-  unsigned short cardNo; // changed from int
+  unsigned short crtNo;   // changed from int
+  unsigned short cardNo;  // changed from int
 
   const L1RCTLookupTables *rctLookupTables_;
 

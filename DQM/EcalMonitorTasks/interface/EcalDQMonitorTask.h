@@ -10,39 +10,41 @@
 #include <set>
 #include <map>
 
-namespace edm
-{
+namespace edm {
   class InputTag;
   class ParameterSetDescription;
-}
+}  // namespace edm
 
 class EcalDQMonitorTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements>, public ecaldqm::EcalDQMonitor {
- public:
+public:
   EcalDQMonitorTask(edm::ParameterSet const&);
-  ~EcalDQMonitorTask() {}
+  ~EcalDQMonitorTask() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
- private:
+private:
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
-  
-  typedef void (EcalDQMonitorTask::*Processor)(edm::Event const&, ecaldqm::Collections, std::set<ecaldqm::DQWorker*> const&);
 
-  template <typename CollectionClass> void runOnCollection(edm::Event const&, ecaldqm::Collections, std::set<ecaldqm::DQWorker*> const&);
+  typedef void (EcalDQMonitorTask::*Processor)(edm::Event const&,
+                                               ecaldqm::Collections,
+                                               std::set<ecaldqm::DQWorker*> const&);
+
+  template <typename CollectionClass>
+  void runOnCollection(edm::Event const&, ecaldqm::Collections, std::set<ecaldqm::DQWorker*> const&);
 
   void formSchedule(std::vector<ecaldqm::Collections> const&, edm::ParameterSet const&);
 
   /* DATA MEMBERS */
 
-  edm::EDGetToken collectionTokens_[ecaldqm::nCollections]; // list of EDGetTokens
-  std::vector<std::pair<Processor, ecaldqm::Collections> > schedule_; // schedule of collections to run
-  bool allowMissingCollections_; // when true, skip missing collections silently
+  edm::EDGetToken collectionTokens_[ecaldqm::nCollections];            // list of EDGetTokens
+  std::vector<std::pair<Processor, ecaldqm::Collections> > schedule_;  // schedule of collections to run
+  bool allowMissingCollections_;                                       // when true, skip missing collections silently
   int processedEvents_;
 
   /* TASK TIME PROFILING */

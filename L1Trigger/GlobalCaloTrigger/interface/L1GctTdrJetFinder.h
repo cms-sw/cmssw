@@ -3,7 +3,7 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
-#include <boost/cstdint.hpp> //for uint16_t
+#include <boost/cstdint.hpp>  //for uint16_t
 #include <vector>
 
 /*! \class L1GctTdrJetFinder
@@ -49,19 +49,15 @@
  * \date March 2006
  */
 
-
-
-class L1GctTdrJetFinder : public L1GctJetFinderBase
-{
- public:
-
+class L1GctTdrJetFinder : public L1GctJetFinderBase {
+public:
   /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
   L1GctTdrJetFinder(int id);
-                 
+
   ~L1GctTdrJetFinder() override;
-   
+
   /// Overload << operator
-  friend std::ostream& operator << (std::ostream& os, const L1GctTdrJetFinder& algo);
+  friend std::ostream& operator<<(std::ostream& os, const L1GctTdrJetFinder& algo);
 
   /// get input data from sources
   void fetchInput() override;
@@ -69,8 +65,7 @@ class L1GctTdrJetFinder : public L1GctJetFinderBase
   /// process the data, fill output buffers
   void process() override;
 
- protected:
-
+protected:
   // Each jetFinder must define the constants as private and copy the
   // function definitions below.
   unsigned maxRegionsIn() const override { return MAX_REGIONS_IN; }
@@ -78,14 +73,13 @@ class L1GctTdrJetFinder : public L1GctJetFinderBase
   unsigned int nCols() const override { return N_COLS; }
 
 private:
-
   /// The real jetFinders must define these constants
-  static const unsigned int MAX_REGIONS_IN; ///< Dependent on number of rows and columns.
+  static const unsigned int MAX_REGIONS_IN;  ///< Dependent on number of rows and columns.
   static const unsigned int N_COLS;
   static const unsigned int CENTRAL_COL0;
 
   /// Here is the TDR 3x3 sliding window jet finder algorithm
-  void findJets();  
+  void findJets();
 
   /// Returns true if region index is the centre of a jet. Set boundary = true if at edge of HCAL.
   bool detectJet(const UShort centreIndex, const bool boundary = false) const;
@@ -98,9 +92,8 @@ private:
 
   /// Returns combined tauVeto of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of Endcap.
   bool calcJetTauVeto(const UShort centreIndex, const bool boundary = false) const;
-    
 };
 
-std::ostream& operator << (std::ostream& os, const L1GctTdrJetFinder& algo);
+std::ostream& operator<<(std::ostream& os, const L1GctTdrJetFinder& algo);
 
 #endif /*L1GCTTDRJETFINDER_H_*/

@@ -4,16 +4,12 @@
 #include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 #include <iostream>
 
-HcalPulseContainmentManager::HcalPulseContainmentManager(float max_fracerror ) 
-: entries_(),
-  shapes_(),
-  max_fracerror_(max_fracerror)
-{
+HcalPulseContainmentManager::HcalPulseContainmentManager(float max_fracerror)
+    : entries_(), shapes_(), max_fracerror_(max_fracerror) {
   hcalTimeSlew_delay_ = nullptr;
 }
 
-void HcalPulseContainmentManager::beginRun(edm::EventSetup const & es)
-{
+void HcalPulseContainmentManager::beginRun(edm::EventSetup const& es) {
   edm::ESHandle<HcalTimeSlew> delay;
   es.get<HcalTimeSlewRecord>().get("HBHE", delay);
   hcalTimeSlew_delay_ = &*delay;
@@ -21,17 +17,13 @@ void HcalPulseContainmentManager::beginRun(edm::EventSetup const & es)
   shapes_.beginRun(es);
 }
 
-void HcalPulseContainmentManager::beginRun(const HcalDbService* conditions, const HcalTimeSlew* delay)
-{
+void HcalPulseContainmentManager::beginRun(const HcalDbService* conditions, const HcalTimeSlew* delay) {
   hcalTimeSlew_delay_ = delay;
 
   shapes_.beginRun(conditions);
 }
 
-double HcalPulseContainmentManager::correction(const HcalDetId & detId, 
-                                               int toAdd, float fixedphase_ns, double fc_ampl)
-{
-
+double HcalPulseContainmentManager::correction(const HcalDetId& detId, int toAdd, float fixedphase_ns, double fc_ampl) {
   /*
           int sub     = detId.subdet();
           int depth   = detId.depth();
@@ -50,17 +42,15 @@ double HcalPulseContainmentManager::correction(const HcalDetId & detId,
   return get(detId, toAdd, fixedphase_ns)->getCorrection(fc_ampl);
 }
 
-const HcalPulseContainmentCorrection * 
-HcalPulseContainmentManager::get(const HcalDetId & detId, int toAdd, float fixedphase_ns)
-{
+const HcalPulseContainmentCorrection* HcalPulseContainmentManager::get(const HcalDetId& detId,
+                                                                       int toAdd,
+                                                                       float fixedphase_ns) {
   // const HcalPulseShape * shape = &(shapes_.shape(detId));
-  const HcalPulseShape * shape = &(shapes_.shapeForReco(detId));
-  for(std::vector<HcalPulseContainmentEntry>::const_iterator entryItr = entries_.begin();
-      entryItr != entries_.end(); ++entryItr)
-  {
-    if (entryItr->shape_ == shape && entryItr->toAdd_ == toAdd && entryItr->fixedphase_ns_ == fixedphase_ns)
-    {
-        return &entryItr->correction_;
+  const HcalPulseShape* shape = &(shapes_.shapeForReco(detId));
+  for (std::vector<HcalPulseContainmentEntry>::const_iterator entryItr = entries_.begin(); entryItr != entries_.end();
+       ++entryItr) {
+    if (entryItr->shape_ == shape && entryItr->toAdd_ == toAdd && entryItr->fixedphase_ns_ == fixedphase_ns) {
+      return &entryItr->correction_;
     }
   }
 
@@ -78,7 +68,11 @@ HcalPulseContainmentManager::get(const HcalDetId & detId, int toAdd, float fixed
   */
 
   // didn't find it.  Make one.
-  HcalPulseContainmentEntry entry(toAdd, fixedphase_ns, shape, HcalPulseContainmentCorrection(shape, toAdd, fixedphase_ns, max_fracerror_, hcalTimeSlew_delay_));
+  HcalPulseContainmentEntry entry(
+      toAdd,
+      fixedphase_ns,
+      shape,
+      HcalPulseContainmentCorrection(shape, toAdd, fixedphase_ns, max_fracerror_, hcalTimeSlew_delay_));
   entries_.push_back(entry);
   return &(entries_.back().correction_);
 }

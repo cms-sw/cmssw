@@ -2,7 +2,7 @@
 //
 // Package:    L1RPCBxOrConfigOnlineProd
 // Class:      L1RPCBxOrConfigOnlineProd
-// 
+//
 /**\class L1RPCBxOrConfigOnlineProd L1RPCBxOrConfigOnlineProd.h L1Trigger/RPCConfigProducers/src/RPCBxOrConfigOnlineProd.cc
 
  Description: <one line class summary>
@@ -25,17 +25,15 @@
 // class declaration
 //
 
-class L1RPCBxOrConfigOnlineProd : public L1ConfigOnlineProdBase< L1RPCBxOrConfigRcd,
-							   L1RPCBxOrConfig > {
-   public:
-      L1RPCBxOrConfigOnlineProd(const edm::ParameterSet&);
-      ~L1RPCBxOrConfigOnlineProd() override;
+class L1RPCBxOrConfigOnlineProd : public L1ConfigOnlineProdBase<L1RPCBxOrConfigRcd, L1RPCBxOrConfig> {
+public:
+  L1RPCBxOrConfigOnlineProd(const edm::ParameterSet&);
+  ~L1RPCBxOrConfigOnlineProd() override;
 
-  std::unique_ptr< L1RPCBxOrConfig > newObject(
-    const std::string& objectKey ) override ;
+  std::unique_ptr<L1RPCBxOrConfig> newObject(const std::string& objectKey) override;
 
-   private:
-      // ----------member data ---------------------------
+private:
+  // ----------member data ---------------------------
 };
 
 //
@@ -50,29 +48,21 @@ class L1RPCBxOrConfigOnlineProd : public L1ConfigOnlineProdBase< L1RPCBxOrConfig
 // constructors and destructor
 //
 L1RPCBxOrConfigOnlineProd::L1RPCBxOrConfigOnlineProd(const edm::ParameterSet& iConfig)
-  : L1ConfigOnlineProdBase< L1RPCBxOrConfigRcd, L1RPCBxOrConfig >( iConfig )
-{
-   //the following line is needed to tell the framework what
-   // data is being produced
+    : L1ConfigOnlineProdBase<L1RPCBxOrConfigRcd, L1RPCBxOrConfig>(iConfig) {
+  //the following line is needed to tell the framework what
+  // data is being produced
 
-   //now do what ever other initialization is needed
+  //now do what ever other initialization is needed
 }
 
-
-L1RPCBxOrConfigOnlineProd::~L1RPCBxOrConfigOnlineProd()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+L1RPCBxOrConfigOnlineProd::~L1RPCBxOrConfigOnlineProd() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
-std::unique_ptr< L1RPCBxOrConfig >
-L1RPCBxOrConfigOnlineProd::newObject( const std::string& objectKey )
-{
-  edm::LogError( "L1-O2O" ) << "L1RPCBxOrConfig object with key "
-			    << objectKey << " not in ORCON!" ;
-  auto pBxOrConfig = std::make_unique< L1RPCBxOrConfig >();
+std::unique_ptr<L1RPCBxOrConfig> L1RPCBxOrConfigOnlineProd::newObject(const std::string& objectKey) {
+  edm::LogError("L1-O2O") << "L1RPCBxOrConfig object with key " << objectKey << " not in ORCON!";
+  auto pBxOrConfig = std::make_unique<L1RPCBxOrConfig>();
   pBxOrConfig->setFirstBX(0);
   pBxOrConfig->setLastBX(0);
   return pBxOrConfig;
@@ -82,9 +72,7 @@ L1RPCBxOrConfigOnlineProd::newObject( const std::string& objectKey )
 // member functions
 //
 
-
 // ------------ method called to produce the data  ------------
-
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(L1RPCBxOrConfigOnlineProd);

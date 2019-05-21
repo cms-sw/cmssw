@@ -296,9 +296,10 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent,
 				HGCSiliconDetId(detId).layer() :
 				HFNoseDetId(detId).layer());
 	const HGCSample&  hgcSample = it.sample(SampleIndx_);
-	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
-	double     charge    = adc*gain;
+	double     charge    = adc; 
+//      uint16_t   gain      = hgcSample.toa();
+//      double     charge    = adc*gain;
 	digiValidation(detId, hgcGeom_, layer, adc, charge);
 	if (geomType_ == 0) {
 	  HGCalDetId id = HGCalDetId(detId);
@@ -323,7 +324,7 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent,
       }
     } else {
       edm::LogVerbatim("HGCalValidation") << "DigiCollection handle "
-					  << source_ << " does not exist for " 
+					  << source_ << " does not exist for "
 					  << nameDetector_ << " !!!";
     }
   } else if ((nameDetector_ == "HGCalHESiliconSensitive") || 
@@ -345,9 +346,10 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent,
 				 HGCSiliconDetId(detId).layer() :
 				 HGCScintillatorDetId(detId).layer()));
 	const HGCSample&  hgcSample = it.sample(SampleIndx_);
-	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
-	double     charge    = adc*gain;
+	double     charge    = adc;
+//      uint16_t   gain      = hgcSample.toa();
+//      double     charge    = adc*gain;
 	digiValidation(detId, hgcGeom_, layer, adc, charge);
 	if (geomType_ == 0) {
 	  HGCalDetId id = HGCalDetId(detId);
@@ -387,9 +389,10 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent,
 	HcalDetId  detId     = it.id();
 	int        layer     = detId.depth();
 	const HGCSample&  hgcSample = it.sample(SampleIndx_);
-	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
-	double     charge    = adc*gain;
+	double     charge    = adc;
+//      uint16_t   gain      = hgcSample.toa();
+//      double     charge    = adc*gain;
 	digiValidation(detId, hcGeom_, layer, adc, charge);
       }
     } else {
@@ -424,7 +427,7 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent,
 	  int       layer  = detId.depth();
 	  uint16_t  adc    = (df)[SampleIndx_].adc();
 	  int       capid  = (df)[SampleIndx_].capid();
-	  double    charge = (tool[SampleIndx_] - calibrations.pedestal(capid));
+	  double    charge = (tool[SampleIndx_]-calibrations.pedestal(capid));
 	  digiValidation(detId, hcGeom_, layer, adc, charge);
 	}
       }

@@ -45,62 +45,58 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class EcalDigisValidation: public DQMEDAnalyzer{
-
-    typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
+class EcalDigisValidation : public DQMEDAnalyzer {
+  typedef std::map<uint32_t, float, std::less<uint32_t> > MapType;
 
 public:
+  /// Constructor
+  EcalDigisValidation(const edm::ParameterSet& ps);
 
-/// Constructor
-EcalDigisValidation(const edm::ParameterSet& ps);
+  /// Destructor
+  ~EcalDigisValidation() override;
 
-/// Destructor
-~EcalDigisValidation() override;
-
-void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) override;
 
 protected:
-
-/// Analyze
-void analyze(edm::Event const & e, edm::EventSetup const & c) override;
-void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override; 
+  /// Analyze
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 private:
+  void checkCalibrations(edm::EventSetup const& c);
 
- void checkCalibrations(edm::EventSetup const & c);
-  
- bool verbose_;
- 
- std::string outputFile_;
+  bool verbose_;
 
- edm::EDGetTokenT<edm::HepMCProduct> HepMCToken_;
- edm::EDGetTokenT<edm::SimTrackContainer> g4TkInfoToken_;
- edm::EDGetTokenT<edm::SimVertexContainer> g4VtxInfoToken_;
+  std::string outputFile_;
 
- edm::EDGetTokenT<EBDigiCollection> EBdigiCollectionToken_;
- edm::EDGetTokenT<EEDigiCollection> EEdigiCollectionToken_;
- edm::EDGetTokenT<ESDigiCollection> ESdigiCollectionToken_;
- 
- edm::EDGetTokenT< CrossingFrame<PCaloHit> > crossingFramePCaloHitEBToken_, crossingFramePCaloHitEEToken_, crossingFramePCaloHitESToken_;
- 
- std::map<int, double, std::less<int> > gainConv_;
+  edm::EDGetTokenT<edm::HepMCProduct> HepMCToken_;
+  edm::EDGetTokenT<edm::SimTrackContainer> g4TkInfoToken_;
+  edm::EDGetTokenT<edm::SimVertexContainer> g4VtxInfoToken_;
 
- double barrelADCtoGeV_;
- double endcapADCtoGeV_;
- 
- MonitorElement* meGunEnergy_;
- MonitorElement* meGunEta_;
- MonitorElement* meGunPhi_;   
+  edm::EDGetTokenT<EBDigiCollection> EBdigiCollectionToken_;
+  edm::EDGetTokenT<EEDigiCollection> EEdigiCollectionToken_;
+  edm::EDGetTokenT<ESDigiCollection> ESdigiCollectionToken_;
 
- MonitorElement* meEBDigiSimRatio_;
- MonitorElement* meEEDigiSimRatio_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit> > crossingFramePCaloHitEBToken_, crossingFramePCaloHitEEToken_,
+      crossingFramePCaloHitESToken_;
 
- MonitorElement* meEBDigiSimRatiogt10ADC_;
- MonitorElement* meEEDigiSimRatiogt20ADC_;
+  std::map<int, double, std::less<int> > gainConv_;
 
- MonitorElement* meEBDigiSimRatiogt100ADC_;
- MonitorElement* meEEDigiSimRatiogt100ADC_;
+  double barrelADCtoGeV_;
+  double endcapADCtoGeV_;
 
+  MonitorElement* meGunEnergy_;
+  MonitorElement* meGunEta_;
+  MonitorElement* meGunPhi_;
+
+  MonitorElement* meEBDigiSimRatio_;
+  MonitorElement* meEEDigiSimRatio_;
+
+  MonitorElement* meEBDigiSimRatiogt10ADC_;
+  MonitorElement* meEEDigiSimRatiogt20ADC_;
+
+  MonitorElement* meEBDigiSimRatiogt100ADC_;
+  MonitorElement* meEEDigiSimRatiogt100ADC_;
 };
 
 #endif

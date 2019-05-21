@@ -1,7 +1,6 @@
 #ifndef _JetFlavourCutCutFilter_h_
 #define _JetFlavourCutCutFilter_h_
 
-
 // system include files
 #include <memory>
 #include <iostream>
@@ -18,36 +17,27 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
+//
 
-// 
-
-
-class JetFlavourCutFilter : public edm::EDFilter 
-{
-
+class JetFlavourCutFilter : public edm::EDFilter {
 public:
-
   explicit JetFlavourCutFilter(const edm::ParameterSet&);
   ~JetFlavourCutFilter() override;
-  
+
   bool filter(edm::Event&, const edm::EventSetup&) override;
 
 private:
+  typedef std::vector<HepMC::GenParticle*> GenPartVect;
+  typedef std::vector<HepMC::GenParticle*>::const_iterator GenPartVectIt;
 
-  typedef std::vector< HepMC::GenParticle * > GenPartVect;
-  typedef std::vector< HepMC::GenParticle * >::const_iterator GenPartVectIt;
+  HepMC::GenParticle* findParticle(const GenPartVect& genPartVect, const int requested_id);
 
-  HepMC::GenParticle * findParticle(const GenPartVect& genPartVect, const int requested_id) ;
-
-  void printHisto(const HepMC::GenEvent::particle_iterator start, 
-			       const HepMC::GenEvent::particle_iterator end);
-
+  void printHisto(const HepMC::GenEvent::particle_iterator start, const HepMC::GenEvent::particle_iterator end);
 
   int jetType;
 
   edm::EDGetTokenT<edm::HepMCProduct> token_;
   int noAccepted;
 };
-
 
 #endif

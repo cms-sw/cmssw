@@ -44,41 +44,31 @@ L1RCTTestAnalyzer::L1RCTTestAnalyzer(const edm::ParameterSet &iConfig)
   emTree->Branch("emIso", &emIso);
 
   h_emRank = fs->make<TH1F>("emRank", "emRank", 64, 0., 64.);
-  h_emRankOutOfTime =
-      fs->make<TH1F>("emRankOutOfTime", "emRankOutOfTime", 64, 0., 64.);
+  h_emRankOutOfTime = fs->make<TH1F>("emRankOutOfTime", "emRankOutOfTime", 64, 0., 64.);
   h_emIeta = fs->make<TH1F>("emIeta", "emIeta", 22, 0., 22.);
   h_emIphi = fs->make<TH1F>("emIphi", "emIphi", 18, 0., 18.);
   h_emIso = fs->make<TH1F>("emIso", "emIso", 2, 0., 2.);
-  h_emRankInIetaIphi =
-      fs->make<TH2F>("emRank2D", "emRank2D", 22, 0., 22., 18, 0., 18.);
-  h_emIsoInIetaIphi =
-      fs->make<TH2F>("emIso2D", "emIso2D", 22, 0., 22., 18, 0., 18.);
-  h_emNonIsoInIetaIphi =
-      fs->make<TH2F>("emNonIso2D", "emNonIso2D", 22, 0., 22., 18, 0., 18.);
-  h_emCandTimeSample =
-      fs->make<TH1F>("emCandTimeSample", "emCandTimeSample", 5, -2., 2.);
+  h_emRankInIetaIphi = fs->make<TH2F>("emRank2D", "emRank2D", 22, 0., 22., 18, 0., 18.);
+  h_emIsoInIetaIphi = fs->make<TH2F>("emIso2D", "emIso2D", 22, 0., 22., 18, 0., 18.);
+  h_emNonIsoInIetaIphi = fs->make<TH2F>("emNonIso2D", "emNonIso2D", 22, 0., 22., 18, 0., 18.);
+  h_emCandTimeSample = fs->make<TH1F>("emCandTimeSample", "emCandTimeSample", 5, -2., 2.);
 
   h_regionSum = fs->make<TH1F>("regionSum", "regionSum", 100, 0., 100.);
   h_regionIeta = fs->make<TH1F>("regionIeta", "regionIeta", 22, 0., 22.);
   h_regionIphi = fs->make<TH1F>("regionIphi", "regionIphi", 18, 0., 18.);
   h_regionMip = fs->make<TH1F>("regionMip", "regionMipBit", 2, 0., 2.);
-  h_regionSumInIetaIphi =
-      fs->make<TH2F>("regionSum2D", "regionSum2D", 22, 0., 22., 18, 0., 18.);
-  h_regionFGInIetaIphi =
-      fs->make<TH2F>("regionFG2D", "regionFG2D", 22, 0., 22., 18, 0., 18.);
+  h_regionSumInIetaIphi = fs->make<TH2F>("regionSum2D", "regionSum2D", 22, 0., 22., 18, 0., 18.);
+  h_regionFGInIetaIphi = fs->make<TH2F>("regionFG2D", "regionFG2D", 22, 0., 22., 18, 0., 18.);
 
   h_towerMip = fs->make<TH1F>("towerMip", "towerMipBit", 2, 0., 2.);
 
-  h_ecalTimeSample =
-      fs->make<TH1F>("ecalTimeSample", "ecalTimeSample", 10, 0., 10.);
-  h_hcalTimeSample =
-      fs->make<TH1F>("hcalTimeSample", "hcalTimeSample", 10, 0., 10.);
+  h_ecalTimeSample = fs->make<TH1F>("ecalTimeSample", "ecalTimeSample", 10, 0., 10.);
+  h_hcalTimeSample = fs->make<TH1F>("hcalTimeSample", "hcalTimeSample", 10, 0., 10.);
 
   // get names of modules, producing object collections
 }
 
 L1RCTTestAnalyzer::~L1RCTTestAnalyzer() {
-
   // do anything here that needs to be done at destruction time
   // (e.g. close files, deallocate resources etc.)
 }
@@ -88,8 +78,7 @@ L1RCTTestAnalyzer::~L1RCTTestAnalyzer() {
 //
 
 // ------------ method called to produce the data  ------------
-void L1RCTTestAnalyzer::analyze(const edm::Event &iEvent,
-                                const edm::EventSetup &iSetup) {
+void L1RCTTestAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
   Handle<ExampleData> pIn;
@@ -153,14 +142,11 @@ void L1RCTTestAnalyzer::analyze(const edm::Event &iEvent,
         h_emIeta->Fill((*em).regionId().ieta());
         h_emIphi->Fill((*em).regionId().iphi());
         h_emIso->Fill((*em).isolated());
-        h_emRankInIetaIphi->Fill((*em).regionId().ieta(),
-                                 (*em).regionId().iphi(), (*em).rank());
+        h_emRankInIetaIphi->Fill((*em).regionId().ieta(), (*em).regionId().iphi(), (*em).rank());
         if ((*em).isolated()) {
-          h_emIsoInIetaIphi->Fill((*em).regionId().ieta(),
-                                  (*em).regionId().iphi());
+          h_emIsoInIetaIphi->Fill((*em).regionId().ieta(), (*em).regionId().iphi());
         } else {
-          h_emNonIsoInIetaIphi->Fill((*em).regionId().ieta(),
-                                     (*em).regionId().iphi());
+          h_emNonIsoInIetaIphi->Fill((*em).regionId().ieta(), (*em).regionId().iphi());
         }
       }
 
@@ -177,8 +163,7 @@ void L1RCTTestAnalyzer::analyze(const edm::Event &iEvent,
           } else if (card < 6) {
             rgnPhi = (card % 2);
           } else {
-            std::cout << "rgnPhi not assigned (still " << rgnPhi
-                      << ") -- Weird card number! " << card;
+            std::cout << "rgnPhi not assigned (still " << rgnPhi << ") -- Weird card number! " << card;
           }
 
           // unsigned short phi_bin = ((crate % 9) * 2) + rgnPhi;
@@ -209,7 +194,7 @@ void L1RCTTestAnalyzer::analyze(const edm::Event &iEvent,
   //    std::sort(rctEmCands->begin(),rctEmCands->end(),compareEmCands);
   //    for (em=rctEmCands->begin(); em!=rctEmCands->end(); em++)
   std::sort(myL1EmColl->begin(), myL1EmColl->end(), compareEmCands);
-  std::reverse(myL1EmColl->begin(), myL1EmColl->end()); // whoops!
+  std::reverse(myL1EmColl->begin(), myL1EmColl->end());  // whoops!
   for (em = myL1EmColl->begin(); em != myL1EmColl->end(); em++) {
     emRank.push_back((*em).rank());
     emIeta.push_back((*em).regionId().ieta());
@@ -230,10 +215,8 @@ void L1RCTTestAnalyzer::analyze(const edm::Event &iEvent,
         h_regionSum->Fill((*rgn).et());
         h_regionIeta->Fill((*rgn).gctEta());
         h_regionIphi->Fill((*rgn).gctPhi());
-        h_regionSumInIetaIphi->Fill((*rgn).gctEta(), (*rgn).gctPhi(),
-                                    (*rgn).et());
-        h_regionFGInIetaIphi->Fill((*rgn).gctEta(), (*rgn).gctPhi(),
-                                   (*rgn).fineGrain());
+        h_regionSumInIetaIphi->Fill((*rgn).gctEta(), (*rgn).gctPhi(), (*rgn).et());
+        h_regionFGInIetaIphi->Fill((*rgn).gctEta(), (*rgn).gctPhi(), (*rgn).fineGrain());
       }
       h_regionMip->Fill((*rgn).mip());
     }
@@ -250,7 +233,6 @@ void L1RCTTestAnalyzer::analyze(const edm::Event &iEvent,
   delete myL1EmColl;
 }
 
-bool L1RCTTestAnalyzer::compareEmCands(const L1CaloEmCand &cand1,
-                                       const L1CaloEmCand &cand2) {
+bool L1RCTTestAnalyzer::compareEmCands(const L1CaloEmCand &cand1, const L1CaloEmCand &cand2) {
   return (cand1.rank() < cand2.rank());
 }

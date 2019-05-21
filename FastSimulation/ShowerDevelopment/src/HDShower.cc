@@ -19,94 +19,92 @@
 using namespace edm;
 
 HDShower::HDShower(const RandomEngineAndDistribution* engine,
-		   HDShowerParametrization* myParam, 
-		   EcalHitMaker* myGrid,
-		   HcalHitMaker* myHcalHitMaker,
-		   int onECAL,
-		   double epart,
+                   HDShowerParametrization* myParam,
+                   EcalHitMaker* myGrid,
+                   HcalHitMaker* myHcalHitMaker,
+                   int onECAL,
+                   double epart,
                    double pmip)
-  : theParam(myParam), 
-    theGrid(myGrid),
-    theHcalHitMaker(myHcalHitMaker),
-    onEcal(onECAL),
-    e(epart),
-//    pmip(pmip),
-    random(engine)
-{ 
+    : theParam(myParam),
+      theGrid(myGrid),
+      theHcalHitMaker(myHcalHitMaker),
+      onEcal(onECAL),
+      e(epart),
+      //    pmip(pmip),
+      random(engine) {
   // To get an access to constants read in FASTCalorimeter
   //  FASTCalorimeter * myCalorimeter= FASTCalorimeter::instance();
 
   // Values taken from FamosGeneric/FamosCalorimeter/src/FASTCalorimeter.cc
-  lossesOpt       = myParam->hsParameters()->getHDlossesOpt();
-  nDepthSteps     = myParam->hsParameters()->getHDnDepthSteps();
-  nTRsteps        = myParam->hsParameters()->getHDnTRsteps();
-  transParam      = myParam->hsParameters()->getHDtransParam();
-  eSpotSize       = myParam->hsParameters()->getHDeSpotSize();
-  depthStep       = myParam->hsParameters()->getHDdepthStep();
-  criticalEnergy  = myParam->hsParameters()->getHDcriticalEnergy();
-  maxTRfactor     = myParam->hsParameters()->getHDmaxTRfactor();
-  balanceEH       = myParam->hsParameters()->getHDbalanceEH();
+  lossesOpt = myParam->hsParameters()->getHDlossesOpt();
+  nDepthSteps = myParam->hsParameters()->getHDnDepthSteps();
+  nTRsteps = myParam->hsParameters()->getHDnTRsteps();
+  transParam = myParam->hsParameters()->getHDtransParam();
+  eSpotSize = myParam->hsParameters()->getHDeSpotSize();
+  depthStep = myParam->hsParameters()->getHDdepthStep();
+  criticalEnergy = myParam->hsParameters()->getHDcriticalEnergy();
+  maxTRfactor = myParam->hsParameters()->getHDmaxTRfactor();
+  balanceEH = myParam->hsParameters()->getHDbalanceEH();
   hcalDepthFactor = myParam->hsParameters()->getHDhcalDepthFactor();
 
-  // Special tr.size fluctuations 
-  transParam *= (1. + random->flatShoot()); 
+  // Special tr.size fluctuations
+  transParam *= (1. + random->flatShoot());
 
   // Special long. fluctuations
-  hcalDepthFactor +=  0.05 * (2.* random->flatShoot() - 1.);
+  hcalDepthFactor += 0.05 * (2. * random->flatShoot() - 1.);
 
-  transFactor = 1.;   // normally 1, in HF - might be smaller 
-                      // to take into account
-                      // a narrowness of the HF shower (Cherenkov light) 
+  transFactor = 1.;  // normally 1, in HF - might be smaller
+                     // to take into account
+                     // a narrowness of the HF shower (Cherenkov light)
 
   // simple protection ...
-  if(e < 0) e = 0.;
+  if (e < 0)
+    e = 0.;
 
   // Get the Famos Histos pointer
   //  myHistos = FamosHistos::instance();
   //  std::cout << " Hello FamosShower " << std::endl;
-  
+
   theECALproperties = theParam->ecalProperties();
   theHCALproperties = theParam->hcalProperties();
 
-
-  double emax = theParam->emax(); 
-  double emid = theParam->emid(); 
-  double emin = theParam->emin(); 
+  double emax = theParam->emax();
+  double emid = theParam->emid();
+  double emin = theParam->emin();
   double effective = e;
 
-  if( e < emid ) {
+  if (e < emid) {
     theParam->setCase(1);
     // avoid "underflow" below Emin (for parameters calculation only)
-    if(e < emin) effective = emin; 
-  } 
-  else 
+    if (e < emin)
+      effective = emin;
+  } else
     theParam->setCase(2);
- 
+
   // Avoid "overflow" beyond Emax (for parameters)
-  if(effective > 0.5 * emax) {
+  if (effective > 0.5 * emax) {
     eSpotSize *= 2.5;
-    if(effective > emax) {
-      effective = emax; 
-      eSpotSize *= 4.; 
+    if (effective > emax) {
+      effective = emax;
+      eSpotSize *= 4.;
       depthStep *= 2.;
-      if(effective > 1000.)
-      eSpotSize *= 2.; 
+      if (effective > 1000.)
+        eSpotSize *= 2.;
     }
   }
 
-  if(debug == 2 )
-    LogInfo("FastCalorimetry") <<  " HDShower : " << std::endl 
-         << "       Energy   "  <<               e << std::endl     
-         << "      lossesOpt "  <<       lossesOpt << std::endl  
-         << "    nDepthSteps "  <<     nDepthSteps << std::endl
-         << "       nTRsteps "  <<        nTRsteps << std::endl
-         << "     transParam "  <<      transParam << std::endl
-         << "      eSpotSize "  <<       eSpotSize << std::endl
-         << " criticalEnergy "  <<  criticalEnergy << std::endl
-         << "    maxTRfactor "  <<     maxTRfactor << std::endl
-         << "      balanceEH "  <<       balanceEH << std::endl
-         << "hcalDepthFactor "  << hcalDepthFactor << std::endl;
-
+  if (debug == 2)
+    LogInfo("FastCalorimetry") << " HDShower : " << std::endl
+                               << "       Energy   " << e << std::endl
+                               << "      lossesOpt " << lossesOpt << std::endl
+                               << "    nDepthSteps " << nDepthSteps << std::endl
+                               << "       nTRsteps " << nTRsteps << std::endl
+                               << "     transParam " << transParam << std::endl
+                               << "      eSpotSize " << eSpotSize << std::endl
+                               << " criticalEnergy " << criticalEnergy << std::endl
+                               << "    maxTRfactor " << maxTRfactor << std::endl
+                               << "      balanceEH " << balanceEH << std::endl
+                               << "hcalDepthFactor " << hcalDepthFactor << std::endl;
 
   double alpEM1 = theParam->alpe1();
   double alpEM2 = theParam->alpe2();
@@ -124,200 +122,217 @@ HDShower::HDShower(const RandomEngineAndDistribution* engine,
   double part2 = theParam->part2();
 
   aloge = std::log(effective);
- 
+
   double edpar = (theParam->e1() + aloge * theParam->e2()) * effective;
   double aedep = std::log(edpar);
 
-  if(debug == 2)
+  if (debug == 2)
     LogInfo("FastCalorimetry") << " HDShower : " << std::endl
-         << "     edpar " <<   edpar << "   aedep " << aedep << std::endl 
-         << "    alpEM1 " <<  alpEM1 << std::endl  
-         << "    alpEM2 " <<  alpEM2 << std::endl  
-         << "    betEM1 " <<  betEM1 << std::endl  
-         << "    betEM2 " <<  betEM2 << std::endl  
-         << "    alpHD1 " <<  alpHD1 << std::endl  
-         << "    alpHD2 " <<  alpHD2 << std::endl  
-         << "    betHD1 " <<  betHD1 << std::endl  
-         << "    betHD2 " <<  betHD2 << std::endl  
-         << "     part1 " <<   part1 << std::endl  
-         << "     part2 " <<   part2 << std::endl; 
+                               << "     edpar " << edpar << "   aedep " << aedep << std::endl
+                               << "    alpEM1 " << alpEM1 << std::endl
+                               << "    alpEM2 " << alpEM2 << std::endl
+                               << "    betEM1 " << betEM1 << std::endl
+                               << "    betEM2 " << betEM2 << std::endl
+                               << "    alpHD1 " << alpHD1 << std::endl
+                               << "    alpHD2 " << alpHD2 << std::endl
+                               << "    betHD1 " << betHD1 << std::endl
+                               << "    betHD2 " << betHD2 << std::endl
+                               << "     part1 " << part1 << std::endl
+                               << "     part2 " << part2 << std::endl;
 
   // private members to set
-  theR1  = theParam->r1();
-  theR2  = theParam->r2();
-  theR3  = theParam->r3();
+  theR1 = theParam->r1();
+  theR2 = theParam->r2();
+  theR3 = theParam->r3();
 
-  alpEM  = alpEM1 + alpEM2 * aedep;
+  alpEM = alpEM1 + alpEM2 * aedep;
   tgamEM = tgamma(alpEM);
-  betEM  = betEM1 - betEM2 * aedep;
-  alpHD  = alpHD1 + alpHD2 * aedep;
+  betEM = betEM1 - betEM2 * aedep;
+  alpHD = alpHD1 + alpHD2 * aedep;
   tgamHD = tgamma(alpHD);
-  betHD  = betHD1 - betHD2 * aedep;
-  part   = part1  -  part2 * aedep;
-  if(part > 1.) part = 1.;          // protection - just in case of 
+  betHD = betHD1 - betHD2 * aedep;
+  part = part1 - part2 * aedep;
+  if (part > 1.)
+    part = 1.;  // protection - just in case of
 
-  if(debug  == 2 )
-    LogInfo("FastCalorimetry") << " HDShower : " << std::endl 
-         << "    alpEM " <<  alpEM << std::endl  
-         << "   tgamEM " << tgamEM << std::endl
-         << "    betEM " <<  betEM << std::endl
-         << "    alpHD " <<  alpHD << std::endl
-         << "   tgamHD " << tgamHD << std::endl
-         << "    betHD " <<  betHD << std::endl
-         << "     part " <<   part << std::endl;
-       
+  if (debug == 2)
+    LogInfo("FastCalorimetry") << " HDShower : " << std::endl
+                               << "    alpEM " << alpEM << std::endl
+                               << "   tgamEM " << tgamEM << std::endl
+                               << "    betEM " << betEM << std::endl
+                               << "    alpHD " << alpHD << std::endl
+                               << "   tgamHD " << tgamHD << std::endl
+                               << "    betHD " << betHD << std::endl
+                               << "     part " << part << std::endl;
 
-  if(onECAL){
+  if (onECAL) {
     lambdaEM = theParam->ecalProperties()->interactionLength();
-    x0EM     = theParam->ecalProperties()->radLenIncm();
-  } 
-  else {
+    x0EM = theParam->ecalProperties()->radLenIncm();
+  } else {
     lambdaEM = 0.;
-    x0EM     = 0.;
+    x0EM = 0.;
   }
   lambdaHD = theParam->hcalProperties()->interactionLength();
-  x0HD     = theParam->hcalProperties()->radLenIncm();
+  x0HD = theParam->hcalProperties()->radLenIncm();
 
-  if(debug == 2)
-    LogInfo("FastCalorimetry") << " HDShower e " << e        << std::endl
-         << "          x0EM = " << x0EM     << std::endl 
-         << "          x0HD = " << x0HD     << std::endl 
-         << "         lamEM = " << lambdaEM << std::endl
-         << "         lamHD = " << lambdaHD << std::endl;
-
+  if (debug == 2)
+    LogInfo("FastCalorimetry") << " HDShower e " << e << std::endl
+                               << "          x0EM = " << x0EM << std::endl
+                               << "          x0HD = " << x0HD << std::endl
+                               << "         lamEM = " << lambdaEM << std::endl
+                               << "         lamHD = " << lambdaHD << std::endl;
 
   // Starting point of the shower
-  // try first with ECAL lambda  
+  // try first with ECAL lambda
 
-  double sum1   = 0.;  // lambda path from the ECAL/HF entrance;  
-  double sum2   = 0.;  // lambda path from the interaction point;
-  double sum3   = 0.;  // x0     path from the interaction point;
-  int  nsteps   = 0;   // full number of longitudinal steps (counter);
+  double sum1 = 0.;  // lambda path from the ECAL/HF entrance;
+  double sum2 = 0.;  // lambda path from the interaction point;
+  double sum3 = 0.;  // x0     path from the interaction point;
+  int nsteps = 0;    // full number of longitudinal steps (counter);
 
-  int nmoresteps;      // how many longitudinal steps in addition to 
-                       // one (if interaction happens there) in ECAL
+  int nmoresteps;  // how many longitudinal steps in addition to
+                   // one (if interaction happens there) in ECAL
 
-  mip = 1;             // just to initiate particle as MIP in ECAL    
+  mip = 1;  // just to initiate particle as MIP in ECAL
 
-  if(e < criticalEnergy ) nmoresteps = 1;  
-  else                    nmoresteps = nDepthSteps;
-  
-  depthECAL  = 0.;
-  depthGAP   = 0.;
-  depthGAPx0 = 0.; 
-  if(onECAL ) {
-    depthECAL  = theGrid->ecalTotalL0();         // ECAL depth segment
-	//depthECAL  = theGrid->ecalTotalL0() + theGrid->ps1TotalL0() + theGrid->ps2TotalL0() + theGrid->ps2eeTotalL0(); //TEST: include preshower
-    depthGAP   = theGrid->ecalHcalGapTotalL0();  // GAP  depth segment
+  if (e < criticalEnergy)
+    nmoresteps = 1;
+  else
+    nmoresteps = nDepthSteps;
+
+  depthECAL = 0.;
+  depthGAP = 0.;
+  depthGAPx0 = 0.;
+  if (onECAL) {
+    depthECAL = theGrid->ecalTotalL0();  // ECAL depth segment
+        //depthECAL  = theGrid->ecalTotalL0() + theGrid->ps1TotalL0() + theGrid->ps2TotalL0() + theGrid->ps2eeTotalL0(); //TEST: include preshower
+    depthGAP = theGrid->ecalHcalGapTotalL0();    // GAP  depth segment
     depthGAPx0 = theGrid->ecalHcalGapTotalX0();  // GAP  depth x0
   }
-  
-  depthHCAL   = theGrid->hcalTotalL0();    // HCAL depth segment
-  depthToHCAL = depthECAL + depthGAP;    
+
+  depthHCAL = theGrid->hcalTotalL0();  // HCAL depth segment
+  depthToHCAL = depthECAL + depthGAP;
 
   //---------------------------------------------------------------------------
   // Depth simulation & various protections, among them
   // if too deep - get flat random in the allowed region
   // if no HCAL material behind - force to deposit in ECAL
-  double maxDepth    = depthToHCAL + depthHCAL - 1.1 * depthStep;
-  double depthStart  = std::log(1./random->flatShoot()); // starting point lambda unts
+  double maxDepth = depthToHCAL + depthHCAL - 1.1 * depthStep;
+  double depthStart = std::log(1. / random->flatShoot());  // starting point lambda unts
   //std::cout<<"generated depth             "<<depthStart<<std::endl;
-  if (pmip==1) {depthStart=depthToHCAL;}
-  else {depthStart=depthStart*0.9*depthECAL/std::log(1./pmip);}
- // std::cout<<"modified  depth             "<<depthStart<<std::endl;
+  if (pmip == 1) {
+    depthStart = depthToHCAL;
+  } else {
+    depthStart = depthStart * 0.9 * depthECAL / std::log(1. / pmip);
+  }
+  // std::cout<<"modified  depth             "<<depthStart<<std::endl;
 
-
-  if(e < emin) {
-    if(debug) LogInfo("FastCalorimetry") << " FamosHDShower : e <emin ->  depthStart = 0" << std::endl; 
+  if (e < emin) {
+    if (debug)
+      LogInfo("FastCalorimetry") << " FamosHDShower : e <emin ->  depthStart = 0" << std::endl;
     depthStart = 0.;
   }
- 
-  if(depthStart > maxDepth) {
-    if(debug) LogInfo("FastCalorimetry") << " FamosHDShower : depthStart too big ...   = " << depthStart << std::endl;     
-    depthStart = maxDepth *  random->flatShoot();
-    if(depthStart < 0.) depthStart = 0.;
-    if(debug) LogInfo("FastCalorimetry") << " FamosHDShower : depthStart re-calculated = " << depthStart << std::endl; 
+
+  if (depthStart > maxDepth) {
+    if (debug)
+      LogInfo("FastCalorimetry") << " FamosHDShower : depthStart too big ...   = " << depthStart << std::endl;
+    depthStart = maxDepth * random->flatShoot();
+    if (depthStart < 0.)
+      depthStart = 0.;
+    if (debug)
+      LogInfo("FastCalorimetry") << " FamosHDShower : depthStart re-calculated = " << depthStart << std::endl;
   }
-  
-  if(onECAL && e < emid) {
-    if(depthECAL > depthStep && (depthECAL - depthStart)/depthECAL > 0.2) {
+
+  if (onECAL && e < emid) {
+    if (depthECAL > depthStep && (depthECAL - depthStart) / depthECAL > 0.2) {
       depthStart = 0.5 * depthECAL * random->flatShoot();
-      if(debug) LogInfo("FastCalorimetry") << " FamosHDShower : small energy, " << " depthStart reduced to = " << depthStart << std::endl; 
+      if (debug)
+        LogInfo("FastCalorimetry") << " FamosHDShower : small energy, "
+                                   << " depthStart reduced to = " << depthStart << std::endl;
     }
   }
 
-  if(depthHCAL < depthStep) {
-    if(debug) LogInfo("FastCalorimetry") << " FamosHDShower : depthHCAL  too small ... = " << depthHCAL << " depthStart -> forced to 0 !!!" << std::endl;
-    depthStart = 0.;    
+  if (depthHCAL < depthStep) {
+    if (debug)
+      LogInfo("FastCalorimetry") << " FamosHDShower : depthHCAL  too small ... = " << depthHCAL
+                                 << " depthStart -> forced to 0 !!!" << std::endl;
+    depthStart = 0.;
     nmoresteps = 0;
-    
-    if(depthECAL < depthStep) {
+
+    if (depthECAL < depthStep) {
       nsteps = -1;
-      LogInfo("FastCalorimetry") << " FamosHDShower : too small ECAL and HCAL depths - " << " particle is lost !!! " << std::endl; 
+      LogInfo("FastCalorimetry") << " FamosHDShower : too small ECAL and HCAL depths - "
+                                 << " particle is lost !!! " << std::endl;
     }
   }
 
-  if(debug)
-    LogInfo("FastCalorimetry") << " FamosHDShower  depths(lam) - "  << std::endl 
-         << "          ECAL = " << depthECAL  << std::endl
-         << "           GAP = " << depthGAP   << std::endl
-         << "          HCAL = " << depthHCAL  << std::endl
-         << "  starting point = " << depthStart << std::endl; 
+  if (debug)
+    LogInfo("FastCalorimetry") << " FamosHDShower  depths(lam) - " << std::endl
+                               << "          ECAL = " << depthECAL << std::endl
+                               << "           GAP = " << depthGAP << std::endl
+                               << "          HCAL = " << depthHCAL << std::endl
+                               << "  starting point = " << depthStart << std::endl;
 
-  if( onEcal ) {
-    if(debug) LogInfo("FastCalorimetry") << " FamosHDShower : onECAL" << std::endl;
-    if(depthStart < depthECAL) {
-      if(debug) LogInfo("FastCalorimetry") << " FamosHDShower : depthStart < depthECAL" << std::endl;
-      if(depthECAL > depthStep && (depthECAL - depthStart)/depthECAL > 0.1) {
-	    if(debug) LogInfo("FastCalorimetry") << " FamosHDShower : enough space to make ECAL step" << std::endl;
-	    
-	    //  ECAL - one step
-	    nsteps++; 
-	    sum1   += depthECAL;             // at the end of step
-	    sum2   += depthECAL-depthStart; 
-	    sum3   += sum2 * lambdaEM / x0EM;
-	    lamtotal.push_back(sum1);
-	    lamdepth.push_back(sum2);
-	    lamcurr.push_back(lambdaEM);
-	    lamstep.push_back(depthECAL-depthStart);
-	    x0depth.push_back(sum3);
-	    x0curr.push_back(x0EM);
-	    detector.push_back(1);
-	    mip = 0;	
-        
-	    if(debug) LogInfo("FastCalorimetry") << " FamosHDShower : " << " in ECAL sum1, sum2 " << sum1 << " " << sum2 << std::endl;
-	    
-	    // Gap - no additional step after ECAL
-	    // just move further to HCAL over the gap
-	    sum1   += depthGAP;          
-	    sum2   += depthGAP; 
-	    sum3   += depthGAPx0;
-      }
-      else { // Just shift starting point to HCAL
-	    //	cout << " FamosHDShower : not enough space to make ECAL step" << std::endl;
-	    if(debug)  LogInfo("FastCalorimetry") << " FamosHDShower : goto HCAL" << std::endl;
+  if (onEcal) {
+    if (debug)
+      LogInfo("FastCalorimetry") << " FamosHDShower : onECAL" << std::endl;
+    if (depthStart < depthECAL) {
+      if (debug)
+        LogInfo("FastCalorimetry") << " FamosHDShower : depthStart < depthECAL" << std::endl;
+      if (depthECAL > depthStep && (depthECAL - depthStart) / depthECAL > 0.1) {
+        if (debug)
+          LogInfo("FastCalorimetry") << " FamosHDShower : enough space to make ECAL step" << std::endl;
 
-	    depthStart = depthToHCAL;
-	    sum1 += depthStart;     
+        //  ECAL - one step
+        nsteps++;
+        sum1 += depthECAL;  // at the end of step
+        sum2 += depthECAL - depthStart;
+        sum3 += sum2 * lambdaEM / x0EM;
+        lamtotal.push_back(sum1);
+        lamdepth.push_back(sum2);
+        lamcurr.push_back(lambdaEM);
+        lamstep.push_back(depthECAL - depthStart);
+        x0depth.push_back(sum3);
+        x0curr.push_back(x0EM);
+        detector.push_back(1);
+        mip = 0;
+
+        if (debug)
+          LogInfo("FastCalorimetry") << " FamosHDShower : "
+                                     << " in ECAL sum1, sum2 " << sum1 << " " << sum2 << std::endl;
+
+        // Gap - no additional step after ECAL
+        // just move further to HCAL over the gap
+        sum1 += depthGAP;
+        sum2 += depthGAP;
+        sum3 += depthGAPx0;
+      } else {  // Just shift starting point to HCAL
+        //	cout << " FamosHDShower : not enough space to make ECAL step" << std::endl;
+        if (debug)
+          LogInfo("FastCalorimetry") << " FamosHDShower : goto HCAL" << std::endl;
+
+        depthStart = depthToHCAL;
+        sum1 += depthStart;
       }
-    }
-    else { // GAP or HCAL         
-      if(depthStart >= depthECAL &&  depthStart < depthToHCAL ) {
-        depthStart = depthToHCAL; // just a shift to HCAL for simplicity
+    } else {  // GAP or HCAL
+      if (depthStart >= depthECAL && depthStart < depthToHCAL) {
+        depthStart = depthToHCAL;  // just a shift to HCAL for simplicity
       }
       sum1 += depthStart;
-      if(debug) LogInfo("FastCalorimetry") << " FamosHDShower : goto HCAL" << std::endl;
+      if (debug)
+        LogInfo("FastCalorimetry") << " FamosHDShower : goto HCAL" << std::endl;
     }
-  }
-  else {   // Forward 
-    if(debug)  LogInfo("FastCalorimetry") << " FamosHDShower : forward" << std::endl;
+  } else {  // Forward
+    if (debug)
+      LogInfo("FastCalorimetry") << " FamosHDShower : forward" << std::endl;
     sum1 += depthStart;
-    transFactor = 0.5;   // makes narower tresverse size of shower     
+    transFactor = 0.5;  // makes narower tresverse size of shower
   }
- 
-  for (int i = 0; i < nmoresteps ; i++) {
+
+  for (int i = 0; i < nmoresteps; i++) {
     sum1 += depthStep;
-    if (sum1 > (depthECAL + depthGAP + depthHCAL)) break; 
+    if (sum1 > (depthECAL + depthGAP + depthHCAL))
+      break;
     sum2 += depthStep;
     sum3 += sum2 * lambdaHD / x0HD;
     lamtotal.push_back(sum1);
@@ -330,291 +345,302 @@ HDShower::HDShower(const RandomEngineAndDistribution* engine,
     nsteps++;
   }
 
-  // Make fractions of energy and transverse radii at each step 
+  // Make fractions of energy and transverse radii at each step
 
-  if(nsteps > 0) { makeSteps(nsteps); }
-
+  if (nsteps > 0) {
+    makeSteps(nsteps);
+  }
 }
 
 void HDShower::makeSteps(int nsteps) {
-
   double sumes = 0.;
-  double sum   = 0.;
+  double sum = 0.;
   std::vector<double> temp;
 
-  if(debug)
-    LogInfo("FastCalorimetry") << " FamosHDShower::makeSteps - " 
-       << " nsteps required : " << nsteps << std::endl;
+  if (debug)
+    LogInfo("FastCalorimetry") << " FamosHDShower::makeSteps - "
+                               << " nsteps required : " << nsteps << std::endl;
 
   int count = 0;
-  for (int i = 0; i < nsteps; i++) {    
-    
+  for (int i = 0; i < nsteps; i++) {
     double deplam = lamdepth[i] - 0.5 * lamstep[i];
-    double depx0  = x0depth[i]  - 0.5 * lamstep[i] / x0curr[i]; 
-    double     x = betEM * depx0;
-    double     y = betHD * deplam;
-    
-    if(debug == 2)
-      LogInfo("FastCalorimetry") << " FamosHDShower::makeSteps " 
-                                  << " - step " << i
-				  << "   depx0, x = " << depx0 << ", " << x 
-				  << "   deplam, y = " << deplam << ", "
-				  << y << std::endl;
-    
-    double est = (part * betEM * gam(x,alpEM) * lamcurr[i] /
-		  (x0curr[i] * tgamEM) + 
-		  (1.-part) * betHD * gam(y,alpHD) / tgamHD) * lamstep[i];
-    
+    double depx0 = x0depth[i] - 0.5 * lamstep[i] / x0curr[i];
+    double x = betEM * depx0;
+    double y = betHD * deplam;
+
+    if (debug == 2)
+      LogInfo("FastCalorimetry") << " FamosHDShower::makeSteps "
+                                 << " - step " << i << "   depx0, x = " << depx0 << ", " << x
+                                 << "   deplam, y = " << deplam << ", " << y << std::endl;
+
+    double est = (part * betEM * gam(x, alpEM) * lamcurr[i] / (x0curr[i] * tgamEM) +
+                  (1. - part) * betHD * gam(y, alpHD) / tgamHD) *
+                 lamstep[i];
+
     // protection ...
-    if(est < 0.) {
-      LogInfo("FastCalorimetry") << "*** FamosHDShower::makeSteps " << " - negative step energy !!!" 
-	   << std::endl;
+    if (est < 0.) {
+      LogInfo("FastCalorimetry") << "*** FamosHDShower::makeSteps "
+                                 << " - negative step energy !!!" << std::endl;
       est = 0.;
-      break ; 
+      break;
     }
 
     // for estimates only
     sum += est;
-    int nPest = (int) (est * e / sum / eSpotSize) ;
+    int nPest = (int)(est * e / sum / eSpotSize);
 
-    if(debug == 2)
-      LogInfo("FastCalorimetry") << " FamosHDShower::makeSteps - nPoints estimate = " 
-	   <<  nPest << std::endl;
+    if (debug == 2)
+      LogInfo("FastCalorimetry") << " FamosHDShower::makeSteps - nPoints estimate = " << nPest << std::endl;
 
-    if(nPest <= 1 && count !=0 ) break;
+    if (nPest <= 1 && count != 0)
+      break;
 
     // good step - to proceed
 
     temp.push_back(est);
     sumes += est;
-    
-    rlamStep.push_back(transParam * (theR1 + (theR2 - theR3 * aloge))
-		       * deplam * transFactor); 
-    count ++;
+
+    rlamStep.push_back(transParam * (theR1 + (theR2 - theR3 * aloge)) * deplam * transFactor);
+    count++;
   }
 
   // fluctuations in ECAL and re-distribution of remaining energy in HCAL
-  if(detector[0] == 1 && count > 1) {
+  if (detector[0] == 1 && count > 1) {
     double oldECALenergy = temp[0];
-    double oldHCALenergy = sumes - oldECALenergy ;
+    double oldHCALenergy = sumes - oldECALenergy;
     double newECALenergy = 2. * sumes;
     for (int i = 0; newECALenergy > sumes && i < infinity; i++)
-      newECALenergy = 2.* balanceEH * random->flatShoot() * oldECALenergy; 
-     
-    if(debug == 2)
-      LogInfo("FastCalorimetry") << "*** FamosHDShower::makeSteps " << " ECAL fraction : old/new - "
-	   << oldECALenergy/sumes << "/" << newECALenergy/sumes << std::endl;
+      newECALenergy = 2. * balanceEH * random->flatShoot() * oldECALenergy;
+
+    if (debug == 2)
+      LogInfo("FastCalorimetry") << "*** FamosHDShower::makeSteps "
+                                 << " ECAL fraction : old/new - " << oldECALenergy / sumes << "/"
+                                 << newECALenergy / sumes << std::endl;
 
     temp[0] = newECALenergy;
     double newHCALenergy = sumes - newECALenergy;
-    double newHCALreweight =  newHCALenergy / oldHCALenergy;
+    double newHCALreweight = newHCALenergy / oldHCALenergy;
 
     for (int i = 1; i < count; i++) {
       temp[i] *= newHCALreweight;
     }
-    
-  }
-  
-  // final re-normalization of the energy fractions  
-  for (int i = 0; i < count ; i++) {
-    eStep.push_back(temp[i] * e / sumes );
-    nspots.push_back((int)(eStep[i]/eSpotSize)+1);
-
-   if(debug)
-     LogInfo("FastCalorimetry") 
-       << " step " << i
-       << "  det: " << detector[i]   
-       << "  xO and lamdepth at the end of step = " 
-       << x0depth[i] << " "  
-       << lamdepth[i] << "   Estep func = " <<  eStep[i]
-       << "   Rstep = " << rlamStep[i] << "  Nspots = " <<  nspots[i]
-       << "  espot = " <<  eStep[i] / (double)nspots[i]
-       << std::endl; 
-
   }
 
-  // The only step is in ECAL - let's make the size bigger ...  
-  if(count == 1 and detector[0] == 1) rlamStep[0] *= 2.;
+  // final re-normalization of the energy fractions
+  for (int i = 0; i < count; i++) {
+    eStep.push_back(temp[i] * e / sumes);
+    nspots.push_back((int)(eStep[i] / eSpotSize) + 1);
 
-  if(debug) {
-    if(eStep[0] > 0.95 * e && detector[0] == 1) 
-      LogInfo("FastCalorimetry") << " FamosHDShower::makeSteps - " << "ECAL energy = " << eStep[0]
-	   << " out of total = " << e << std::endl;  
+    if (debug)
+      LogInfo("FastCalorimetry") << " step " << i << "  det: " << detector[i]
+                                 << "  xO and lamdepth at the end of step = " << x0depth[i] << " " << lamdepth[i]
+                                 << "   Estep func = " << eStep[i] << "   Rstep = " << rlamStep[i]
+                                 << "  Nspots = " << nspots[i] << "  espot = " << eStep[i] / (double)nspots[i]
+                                 << std::endl;
   }
 
+  // The only step is in ECAL - let's make the size bigger ...
+  if (count == 1 and detector[0] == 1)
+    rlamStep[0] *= 2.;
+
+  if (debug) {
+    if (eStep[0] > 0.95 * e && detector[0] == 1)
+      LogInfo("FastCalorimetry") << " FamosHDShower::makeSteps - "
+                                 << "ECAL energy = " << eStep[0] << " out of total = " << e << std::endl;
+  }
 }
 
 bool HDShower::compute() {
-  
   //  TimeMe theT("FamosHDShower::compute");
 
   bool status = false;
   int numLongit = eStep.size();
-  if(debug)
-    LogInfo("FastCalorimetry") << " FamosHDShower::compute - " 
-	    << " N_long.steps required : " << numLongit << std::endl;
+  if (debug)
+    LogInfo("FastCalorimetry") << " FamosHDShower::compute - "
+                               << " N_long.steps required : " << numLongit << std::endl;
 
-  if(numLongit > 0) {
-
-    status = true;    
+  if (numLongit > 0) {
+    status = true;
     // Prepare the trsanverse probability function
     std::vector<double> Fhist;
-    std::vector<double> rhist; 
+    std::vector<double> rhist;
     for (int j = 0; j < nTRsteps + 1; j++) {
-      rhist.push_back(maxTRfactor * j / nTRsteps );  
-      Fhist.push_back(transProb(maxTRfactor,1.,rhist[j]));
-      if(debug == 3) LogInfo("FastCalorimetry") << "indexFinder - i, Fhist[i] = " << j << " " << Fhist[j] << std::endl;
+      rhist.push_back(maxTRfactor * j / nTRsteps);
+      Fhist.push_back(transProb(maxTRfactor, 1., rhist[j]));
+      if (debug == 3)
+        LogInfo("FastCalorimetry") << "indexFinder - i, Fhist[i] = " << j << " " << Fhist[j] << std::endl;
     }
-    
+
     // Longitudinal steps
-    for (int i = 0; i < numLongit ; i++) {
-      
+    for (int i = 0; i < numLongit; i++) {
       double currentDepthL0 = lamtotal[i] - 0.5 * lamstep[i];
       // vary the longitudinal profile if needed
-      if(detector[i] != 1) currentDepthL0 *= hcalDepthFactor;                     
-      if(debug) LogInfo("FastCalorimetry") << " FamosHDShower::compute - detector = " << detector[i] << "  currentDepthL0 = " << currentDepthL0 << std::endl;
-      
-      double maxTRsize   = maxTRfactor * rlamStep[i];     // in lambda units
-      double rbinsize    = maxTRsize / nTRsteps; 
-      double espot       = eStep[i] / (double)nspots[i];  // re-adjust espot
+      if (detector[i] != 1)
+        currentDepthL0 *= hcalDepthFactor;
+      if (debug)
+        LogInfo("FastCalorimetry") << " FamosHDShower::compute - detector = " << detector[i]
+                                   << "  currentDepthL0 = " << currentDepthL0 << std::endl;
 
-      if(espot > 2. || espot < 0. ) LogInfo("FastCalorimetry") << " FamosHDShower::compute - unphysical espot = " << espot << std::endl;
+      double maxTRsize = maxTRfactor * rlamStep[i];  // in lambda units
+      double rbinsize = maxTRsize / nTRsteps;
+      double espot = eStep[i] / (double)nspots[i];  // re-adjust espot
+
+      if (espot > 2. || espot < 0.)
+        LogInfo("FastCalorimetry") << " FamosHDShower::compute - unphysical espot = " << espot << std::endl;
 
       int ecal = 0;
-      if(detector[i] != 1) { 
-	    bool setHDdepth = theHcalHitMaker->setDepth(currentDepthL0);
-	
-	    if(debug) LogInfo("FastCalorimetry") << " FamosHDShower::compute - status of " << " theHcalHitMaker->setDepth(currentDepthL0) is " 
-					<< setHDdepth << std::endl;
-	
-	    if(!setHDdepth) {
-	      currentDepthL0 -= lamstep[i];
-	      setHDdepth =  theHcalHitMaker->setDepth(currentDepthL0);
-	    }
-	    
-		if(!setHDdepth) continue;
+      if (detector[i] != 1) {
+        bool setHDdepth = theHcalHitMaker->setDepth(currentDepthL0);
 
-	    theHcalHitMaker->setSpotEnergy(espot);
-		
-	    //fill hcal longitudinal distribution histogram
-      }
-      else {
-	    ecal = 1;
-	    bool status = theGrid->getPads(currentDepthL0);   
-	
-	    if(debug) LogInfo("FastCalorimetry") << " FamosHDShower::compute - status of Grid = " << status << std::endl;
-	
-        if(!status) continue; 
+        if (debug)
+          LogInfo("FastCalorimetry") << " FamosHDShower::compute - status of "
+                                     << " theHcalHitMaker->setDepth(currentDepthL0) is " << setHDdepth << std::endl;
 
-        int ntry = nspots[i] * 10;  
-        if( ntry >= infinity ) {  // use max allowed in case of too many spots
-	      nspots[i] = 0.5 * infinity;  
-	      espot *= 0.1 * (double)ntry / double(nspots[i]);
-	    }     
-	    else {
-	      espot *= 0.1;  // fine-grain energy spots in ECAL
-                         // to avoid false ECAL clustering 
+        if (!setHDdepth) {
+          currentDepthL0 -= lamstep[i];
+          setHDdepth = theHcalHitMaker->setDepth(currentDepthL0);
+        }
+
+        if (!setHDdepth)
+          continue;
+
+        theHcalHitMaker->setSpotEnergy(espot);
+
+        //fill hcal longitudinal distribution histogram
+      } else {
+        ecal = 1;
+        bool status = theGrid->getPads(currentDepthL0);
+
+        if (debug)
+          LogInfo("FastCalorimetry") << " FamosHDShower::compute - status of Grid = " << status << std::endl;
+
+        if (!status)
+          continue;
+
+        int ntry = nspots[i] * 10;
+        if (ntry >= infinity) {  // use max allowed in case of too many spots
+          nspots[i] = 0.5 * infinity;
+          espot *= 0.1 * (double)ntry / double(nspots[i]);
+        } else {
+          espot *= 0.1;  // fine-grain energy spots in ECAL
+                         // to avoid false ECAL clustering
           nspots[i] = ntry;
-	    }
+        }
 
         theGrid->setSpotEnergy(espot);
-		
-	    //fill ecal longitudinal distribution histogram
-      }  
-      
-      // Transverse distribition
-      int nok   = 0;                          // counter of OK  
-      int count = 0;
-      int inf   = infinity;
-      if(lossesOpt) inf = nspots[i];          // if losses are enabled, otherwise
-      // only OK points are counted ...
-      if(nspots[i] > inf ) std::cout << " FamosHDShower::compute - at long.step " << i << "  too many spots required : "  <<  nspots[i] << " !!! " << std::endl;
 
-      for (int j = 0; j < inf; j++) {
-	    if(nok == nspots[i]) break;
-	    count ++;
-	    
-	    double prob   = random->flatShoot();
-	    int index     = indexFinder(prob,Fhist);
-	    double radius = rlamStep[i] * rhist[index] + random->flatShoot() * rbinsize; // in-bin  
-	    double phi = 2.*M_PI*random->flatShoot();
-	
-	    if(debug == 2)  LogInfo("FastCalorimetry") << std::endl << " FamosHDShower::compute " << " r = " << radius 
-						<< "    phi = " << phi << std::endl;
-	
-	    bool result;
-	    if(ecal) {
-	      result = theGrid->addHit(radius,phi,0);
-	  
-	      if(debug == 2) LogInfo("FastCalorimetry") << " FamosHDShower::compute - " << " theGrid->addHit result = " << result << std::endl;
-		  
-		  //fill ecal transverse distribution histogram
-	    }
-	    else {
-	      result = theHcalHitMaker->addHit(radius,phi,0); 
- 
-	      if(debug == 2) LogInfo("FastCalorimetry") << " FamosHDShower::compute - " << " theHcalHitMaker->addHit result = " << result << std::endl;
-		  
-		  //fill hcal transverse distribution histogram
-	    }    
-	    
-		if(result) nok ++; 
-
-
-
-      } // end of tranverse simulation
-	  
-	  
-      if(count == infinity) { 
-	    if(debug) LogInfo("FastCalorimetry") << " FamosHDShower::compute " << " maximum number of" 
-					<< " transverse points " << count << " is used !!!" << std::endl; 
+        //fill ecal longitudinal distribution histogram
       }
 
-      if(debug) LogInfo("FastCalorimetry")  << " FamosHDShower::compute " << " long.step No." 
-				<< i << "   Ntry, Nok = " << count << " " << nok << std::endl; 
-    } // end of longitudinal steps
-  } // end of no steps
+      // Transverse distribition
+      int nok = 0;  // counter of OK
+      int count = 0;
+      int inf = infinity;
+      if (lossesOpt)
+        inf = nspots[i];  // if losses are enabled, otherwise
+      // only OK points are counted ...
+      if (nspots[i] > inf)
+        std::cout << " FamosHDShower::compute - at long.step " << i << "  too many spots required : " << nspots[i]
+                  << " !!! " << std::endl;
+
+      for (int j = 0; j < inf; j++) {
+        if (nok == nspots[i])
+          break;
+        count++;
+
+        double prob = random->flatShoot();
+        int index = indexFinder(prob, Fhist);
+        double radius = rlamStep[i] * rhist[index] + random->flatShoot() * rbinsize;  // in-bin
+        double phi = 2. * M_PI * random->flatShoot();
+
+        if (debug == 2)
+          LogInfo("FastCalorimetry") << std::endl
+                                     << " FamosHDShower::compute "
+                                     << " r = " << radius << "    phi = " << phi << std::endl;
+
+        bool result;
+        if (ecal) {
+          result = theGrid->addHit(radius, phi, 0);
+
+          if (debug == 2)
+            LogInfo("FastCalorimetry") << " FamosHDShower::compute - "
+                                       << " theGrid->addHit result = " << result << std::endl;
+
+          //fill ecal transverse distribution histogram
+        } else {
+          result = theHcalHitMaker->addHit(radius, phi, 0);
+
+          if (debug == 2)
+            LogInfo("FastCalorimetry") << " FamosHDShower::compute - "
+                                       << " theHcalHitMaker->addHit result = " << result << std::endl;
+
+          //fill hcal transverse distribution histogram
+        }
+
+        if (result)
+          nok++;
+
+      }  // end of tranverse simulation
+
+      if (count == infinity) {
+        if (debug)
+          LogInfo("FastCalorimetry") << " FamosHDShower::compute "
+                                     << " maximum number of"
+                                     << " transverse points " << count << " is used !!!" << std::endl;
+      }
+
+      if (debug)
+        LogInfo("FastCalorimetry") << " FamosHDShower::compute "
+                                   << " long.step No." << i << "   Ntry, Nok = " << count << " " << nok << std::endl;
+    }  // end of longitudinal steps
+  }    // end of no steps
 
   return status;
-
 }
 
-int HDShower::indexFinder(double x, const std::vector<double> & Fhist) {
+int HDShower::indexFinder(double x, const std::vector<double>& Fhist) {
   // binary search in the vector of doubles
   int size = Fhist.size();
 
   int curr = size / 2;
   int step = size / 4;
   int iter;
-  int prevdir = 0; 
-  int actudir = 0; 
+  int prevdir = 0;
+  int actudir = 0;
 
-  for (iter = 0; iter < size ; iter++) {
+  for (iter = 0; iter < size; iter++) {
+    if (curr >= size || curr < 1)
+      LogWarning("FastCalorimetry") << " FamosHDShower::indexFinder - wrong current index = " << curr << " !!!"
+                                    << std::endl;
 
-    if( curr >= size || curr < 1 )
-      LogWarning("FastCalorimetry") << " FamosHDShower::indexFinder - wrong current index = " 
-	   << curr << " !!!" << std::endl;
-
-    if ((x <= Fhist[curr]) && (x > Fhist[curr-1])) break;
+    if ((x <= Fhist[curr]) && (x > Fhist[curr - 1]))
+      break;
     prevdir = actudir;
-    if(x > Fhist[curr]) {actudir =  1;}
-    else                {actudir = -1;}
-    if(prevdir * actudir < 0) { if(step > 1) step /= 2;}
+    if (x > Fhist[curr]) {
+      actudir = 1;
+    } else {
+      actudir = -1;
+    }
+    if (prevdir * actudir < 0) {
+      if (step > 1)
+        step /= 2;
+    }
     curr += actudir * step;
-    if(curr > size) curr = size;
-    else { if(curr < 1) {curr = 1;}}
- 
-    if(debug == 3)
-      LogInfo("FastCalorimetry") << " indexFinder - end of iter." << iter 
-	   << " curr, F[curr-1], F[curr] = "
-	   << curr << " " << Fhist[curr-1] << " " << Fhist[curr] << std::endl;
-    
+    if (curr > size)
+      curr = size;
+    else {
+      if (curr < 1) {
+        curr = 1;
+      }
+    }
+
+    if (debug == 3)
+      LogInfo("FastCalorimetry") << " indexFinder - end of iter." << iter << " curr, F[curr-1], F[curr] = " << curr
+                                 << " " << Fhist[curr - 1] << " " << Fhist[curr] << std::endl;
   }
 
-  if(debug == 3)
-    LogInfo("FastCalorimetry") << " indexFinder x = " << x << "  found index = " << curr-1
-         << std::endl;
+  if (debug == 3)
+    LogInfo("FastCalorimetry") << " indexFinder x = " << x << "  found index = " << curr - 1 << std::endl;
 
-
-  return curr-1;
+  return curr - 1;
 }

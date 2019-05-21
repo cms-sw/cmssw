@@ -1,4 +1,5 @@
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/HGCalGeometry/interface/CaloGeometryDBHGCal.h"
 #include "Geometry/CaloEventSetup/interface/CaloGeometryDBEP.h"
 #include "Geometry/CaloEventSetup/interface/CaloGeometryDBReader.h"
 
@@ -11,39 +12,21 @@ CaloGeometryDBEP<HGCalGeometry, CaloGeometryDBReader>::produceAligned( const typ
   IVec   ivec;
   IVec   dins;
 
-  std::string name;
-
-  name = "HGCalEESensitive";
-  std::cout << "Reading HGCalGeometry " << name.c_str() << "\n";
-  if( CaloGeometryDBReader::writeFlag() )
-  {
-    edm::ESHandle<HGCalGeometry> geomHandle;
-    iRecord.getRecord<IdealGeometryRecord>().get( name, geomHandle );
-     
-    const HGCalGeometry* geom = geomHandle.product();
-    geom->getSummary( tvec, ivec, dvec, dins ) ;
-
-    CaloGeometryDBReader::writeIndexed( tvec, dvec, ivec, dins, HGCalGeometry::dbString() ) ;
-  }
-  else
-  {
-    edm::ESHandle<PCaloGeometry> pG ;
-    iRecord.getRecord<typename HGCalGeometry::PGeometryRecord >().get( pG ) ; 
+  std::cout << "Reading HGCalGeometry " << calogeometryDBEPimpl::nameHGCal << "\n";
+  const auto& pG = iRecord.get( geometryToken_ ) ;
     
-    tvec = pG->getTranslation() ;
-    dvec = pG->getDimension() ;
-    ivec = pG->getIndexes() ;
-    dins = pG->getDenseIndices();
-  }	 
+  tvec = pG.getTranslation() ;
+  dvec = pG.getDimension() ;
+  ivec = pG.getIndexes() ;
+  dins = pG.getDenseIndices();
   //*********************************************************************************************
-  edm::ESHandle<HGCalTopology> topology;
-  iRecord.getRecord<IdealGeometryRecord>().get( name, topology );
+  const auto& topology = iRecord.get( additionalTokens_.topology );
 
-  assert( dvec.size() <= topology->totalGeomModules() * HGCalGeometry::k_NumberOfParametersPerShape );
-  HGCalGeometry* hcg = new HGCalGeometry( *topology );
+  assert( dvec.size() <= topology.totalGeomModules() * HGCalGeometry::k_NumberOfParametersPerShape );
+  HGCalGeometry* hcg = new HGCalGeometry( topology );
   PtrType ptr ( hcg );
 
-  ptr->allocateCorners( topology->ncells());
+  ptr->allocateCorners( topology.ncells());
   ptr->allocatePar( HGCalGeometry::k_NumberOfShapes,
 		    HGCalGeometry::k_NumberOfParametersPerShape );
 
@@ -52,7 +35,7 @@ CaloGeometryDBEP<HGCalGeometry, CaloGeometryDBReader>::produceAligned( const typ
  
   for( auto it : dins )
   {
-    DetId id = topology->encode( topology->geomDenseId2decId( it ));
+    DetId id = topology.encode( topology.geomDenseId2decId( it ));
     // get layer
     int layer = ivec[ it ];
 

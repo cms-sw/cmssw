@@ -12,7 +12,7 @@
 #include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 
 class RPCSimHitMatcher : public MuonSimHitMatcher {
- public:
+public:
   // constructor
   RPCSimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector&& iC);
 
@@ -41,7 +41,7 @@ class RPCSimHitMatcher : public MuonSimHitMatcher {
 
   std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 0) const;
 
- private:
+private:
   void matchSimHitsToSimTrack();
 
   edm::ESHandle<RPCGeometry> rpc_geom_;

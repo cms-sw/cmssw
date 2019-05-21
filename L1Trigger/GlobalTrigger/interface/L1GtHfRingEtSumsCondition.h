@@ -30,7 +30,6 @@ class L1GlobalTriggerPSB;
 
 // class declaration
 class L1GtHfRingEtSumsCondition : public L1GtConditionEvaluation {
-
 public:
   /// constructors
   ///     default
@@ -57,9 +56,7 @@ public:
 
 public:
   ///   get / set the pointer to a L1GtCondition
-  inline const L1GtHfRingEtSumsTemplate *gtHfRingEtSumsTemplate() const {
-    return m_gtHfRingEtSumsTemplate;
-  }
+  inline const L1GtHfRingEtSumsTemplate *gtHfRingEtSumsTemplate() const { return m_gtHfRingEtSumsTemplate; }
 
   void setGtHfRingEtSumsTemplate(const L1GtHfRingEtSumsTemplate *);
 

@@ -4,8 +4,8 @@
 //
 // Package:     SensitiveDetector
 // Class  :     SensitiveDetectorMakerBase
-// 
-// Original Author:  
+//
+// Original Author:
 //         Created:  Mon Nov 14 11:50:24 EST 2005
 //
 
@@ -20,15 +20,14 @@ class DDCompactView;
 class SimTrackManager;
 class SensitiveDetectorCatalog;
 
-namespace edm{
+namespace edm {
   class ParameterSet;
 }
 
-class SensitiveDetectorMakerBase
-{
+class SensitiveDetectorMakerBase {
 public:
-  explicit SensitiveDetectorMakerBase() {};
-  virtual ~SensitiveDetectorMakerBase() {};
+  explicit SensitiveDetectorMakerBase(){};
+  virtual ~SensitiveDetectorMakerBase(){};
 
   // ---------- const member functions ---------------------
   virtual SensitiveDetector* make(const std::string& iname,
@@ -42,6 +41,5 @@ private:
   SensitiveDetectorMakerBase(const SensitiveDetectorMakerBase&) = delete;
   const SensitiveDetectorMakerBase& operator=(const SensitiveDetectorMakerBase&) = delete;
 };
-
 
 #endif

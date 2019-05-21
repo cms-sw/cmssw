@@ -8,10 +8,11 @@ class testOneToOneAssociation : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testOneToOneAssociation);
   CPPUNIT_TEST(checkAll);
   CPPUNIT_TEST_SUITE_END();
+
 public:
   void setUp() {}
   void tearDown() {}
-  void checkAll(); 
+  void checkAll();
   void dummy();
 };
 
@@ -27,7 +28,7 @@ void testOneToOneAssociation::checkAll() {
 }
 
 // just check that some stuff compiles
-void  testOneToOneAssociation::dummy() {
+void testOneToOneAssociation::dummy() {
   typedef std::vector<int> CKey;
   typedef std::vector<double> CVal;
   typedef edm::AssociationMap<edm::OneToOne<CKey, CVal, unsigned char> > Assoc;
@@ -35,10 +36,12 @@ void  testOneToOneAssociation::dummy() {
   v.insert(edm::Ref<CKey>(), edm::Ref<CVal>());
   v.insert(Assoc::value_type(edm::Ref<CKey>(), edm::Ref<CVal>()));
   Assoc::const_iterator b = v.begin(), e = v.end();
-  ++b; ++e;
+  ++b;
+  ++e;
   Assoc::const_iterator f = v.find(edm::Ref<CKey>());
   v.numberOfAssociations(edm::Ref<CKey>());
-  const edm::Ref<CVal> & x = v[edm::Ref<CKey>()]; x.id();
+  const edm::Ref<CVal>& x = v[edm::Ref<CKey>()];
+  x.id();
   ++f;
   int n = v.numberOfAssociations(edm::Ref<CKey>());
   ++n;

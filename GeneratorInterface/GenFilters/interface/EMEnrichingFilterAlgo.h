@@ -23,32 +23,32 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-
 class EMEnrichingFilterAlgo {
- public:
-  EMEnrichingFilterAlgo(const edm::ParameterSet&, edm::ConsumesCollector &&);
+public:
+  EMEnrichingFilterAlgo(const edm::ParameterSet &, edm::ConsumesCollector &&);
   ~EMEnrichingFilterAlgo();
-  
-  bool filter(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
- private:
+  bool filter(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+
+private:
   bool filterPhotonElectronSeed(float clusterthreshold,
-				float isoConeSize,
-				float hOverEMax,
-				float tkIsoMax,
-				float caloIsoMax,
-				bool requiretrackmatch,
-				const std::vector<reco::GenParticle> &genPars,
-				const std::vector<reco::GenParticle> &genParsCurved);
+                                float isoConeSize,
+                                float hOverEMax,
+                                float tkIsoMax,
+                                float caloIsoMax,
+                                bool requiretrackmatch,
+                                const std::vector<reco::GenParticle> &genPars,
+                                const std::vector<reco::GenParticle> &genParsCurved);
 
-  std::vector<reco::GenParticle> applyBFieldCurv(const std::vector<reco::GenParticle> &genPars, const edm::EventSetup& iSetup);
-  bool filterIsoGenPar(float etmin, float conesize,const reco::GenParticleCollection &gph,
-		       const reco::GenParticleCollection &gphCurved);
+  std::vector<reco::GenParticle> applyBFieldCurv(const std::vector<reco::GenParticle> &genPars,
+                                                 const edm::EventSetup &iSetup);
+  bool filterIsoGenPar(float etmin,
+                       float conesize,
+                       const reco::GenParticleCollection &gph,
+                       const reco::GenParticleCollection &gphCurved);
   float deltaRxyAtEE(const reco::GenParticle &gp1, const reco::GenParticle &gp2);
-    
-		       
- private:
 
+private:
   //constants
   float FILTER_TKISOCUT_;
   float FILTER_CALOISOCUT_;

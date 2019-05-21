@@ -16,26 +16,24 @@
 
 namespace l1s {
   struct Empty {};
-}
+}  // namespace l1s
 class L1Scalers : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<l1s::Empty>> {
- public:
+public:
   L1Scalers(const edm::ParameterSet &ps);
   ~L1Scalers() override{};
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
   /// DQM Client Diagnostic should be performed here:
-  std::shared_ptr<l1s::Empty>  globalBeginLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                                                    const edm::EventSetup &c) const final;
-  void globalEndLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                                const edm::EventSetup &c) override;
+  std::shared_ptr<l1s::Empty> globalBeginLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
+                                                         const edm::EventSetup &c) const final;
+  void globalEndLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) override;
 
- private:
+private:
   int nev_;  // Number of events processed
 
   bool verbose_;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> l1GtDataSource_;  // L1 Scalers
-  edm::EDGetTokenT<L1MuGMTReadoutCollection> l1GmtDataSource_;  // L1 Scalers
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> l1GmtDataSource_;     // L1 Scalers
 
   bool denomIsTech_;
   unsigned int denomBit_;
@@ -57,7 +55,7 @@ class L1Scalers : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<l1s::Empty
   // Int
   MonitorElement *nLumiBlock_;
   MonitorElement *l1AlgoCounter_;  // for total Algo Rate
-  MonitorElement *l1TtCounter_;  // for total TT Rate
+  MonitorElement *l1TtCounter_;    // for total TT Rate
 
   // timing plots
   std::vector<MonitorElement *> algoBxDiff_;
@@ -78,7 +76,7 @@ class L1Scalers : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<l1s::Empty
   unsigned int fedStart_, fedStop_;
   // total Rates
   unsigned int rateAlgoCounter_;  // for total Algo Rate
-  unsigned int rateTtCounter_;  // for total TT Rate
+  unsigned int rateTtCounter_;    // for total TT Rate
 
   edm::InputTag fedRawCollection_;
 

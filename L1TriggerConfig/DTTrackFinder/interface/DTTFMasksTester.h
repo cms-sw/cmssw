@@ -20,18 +20,15 @@
 #include "CondFormats/L1TObjects/interface/L1MuDTTFMasks.h"
 #include "CondFormats/DataRecord/interface/L1MuDTTFMasksRcd.h"
 
-
 class DTTFMasksTester : public edm::EDAnalyzer {
- public:
-
+public:
   DTTFMasksTester(const edm::ParameterSet& ps);
 
   ~DTTFMasksTester() override;
-  
+
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
- private:
-
+private:
 };
 
 #endif

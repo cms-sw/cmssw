@@ -1,4 +1,4 @@
-#ifndef RBCPATTERNLOGIC_H 
+#ifndef RBCPATTERNLOGIC_H
 #define RBCPATTERNLOGIC_H 1
 
 // Include files
@@ -17,23 +17,20 @@
  *  @date   2008-10-15
  */
 class RBCPatternLogic : public RBCLogic {
-public: 
+public:
   /// Standard constructor
-  RBCPatternLogic( ); 
-  
-  ~RBCPatternLogic( ) override; ///< Destructor
-  
-  void process(const RBCInput & , std::bitset<2> & ) override;
+  RBCPatternLogic();
 
-  void setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & ) override;
+  ~RBCPatternLogic() override;  ///< Destructor
 
-  std::bitset<6> * getlayersignal( int _idx ) override { return &m_testlayer[_idx];};
-  
+  void process(const RBCInput&, std::bitset<2>&) override;
+
+  void setBoardSpecs(const RBCBoardSpecs::RBCBoardConfig&) override;
+
+  std::bitset<6>* getlayersignal(int _idx) override { return &m_testlayer[_idx]; };
+
 protected:
-  
 private:
-  
   std::bitset<6> m_testlayer[2];
-  
 };
-#endif // RBCPATTERNLOGIC_H
+#endif  // RBCPATTERNLOGIC_H

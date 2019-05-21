@@ -51,7 +51,7 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet &p) {
   m_debugLUTs = p.getParameter<bool>("debugLUTs");
   m_debugPed = p.getParameter<bool>("debugPed");
 
-  m_UseT0 = p.getParameter<bool>("UseT0"); // CB check for a better way to do it
+  m_UseT0 = p.getParameter<bool>("UseT0");  // CB check for a better way to do it
 }
 
 DTConfigDBProducer::~DTConfigDBProducer() {}
@@ -60,12 +60,10 @@ DTConfigDBProducer::~DTConfigDBProducer() {}
 // member functions
 //
 
-std::unique_ptr<DTConfigManager>
-DTConfigDBProducer::produce(const DTConfigManagerRcd &iRecord) {
+std::unique_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManagerRcd &iRecord) {
   using namespace edm;
 
-  std::unique_ptr<DTConfigManager> dtConfig =
-      std::unique_ptr<DTConfigManager>(new DTConfigManager());
+  std::unique_ptr<DTConfigManager> dtConfig = std::unique_ptr<DTConfigManager>(new DTConfigManager());
   DTConfigManager &dttpgConfig = *(dtConfig.get());
 
   // DB specific requests
@@ -77,8 +75,7 @@ DTConfigDBProducer::produce(const DTConfigManagerRcd &iRecord) {
   dttpgConfig.setUseAcceptParam(useBtiAcceptParam);
 
   // set debug
-  edm::ParameterSet conf_ps =
-      m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");
+  edm::ParameterSet conf_ps = m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");
   bool dttpgdebug = conf_ps.getUntrackedParameter<bool>("Debug");
   dttpgConfig.setDTTPGDebug(dttpgdebug);
 
@@ -102,19 +99,15 @@ DTConfigDBProducer::produce(const DTConfigManagerRcd &iRecord) {
                          << "configurations has been read from cfg" << endl;
   } else if (code == 0) {
     LogVerbatim("DTTPG") << "DTConfigDBProducer::produce : " << endl
-                         << "Configurations successfully read from OMDS"
-                         << endl;
+                         << "Configurations successfully read from OMDS" << endl;
   } else {
-    LogProblem("DTTPG") << "DTConfigDBProducer::produce : " << endl
-                        << "Wrong configuration return CODE" << endl;
+    LogProblem("DTTPG") << "DTConfigDBProducer::produce : " << endl << "Wrong configuration return CODE" << endl;
   }
 
   return dtConfig;
 }
 
-void DTConfigDBProducer::readDBPedestalsConfig(
-    const DTConfigManagerRcd &iRecord, DTConfigManager &dttpgConfig) {
-
+void DTConfigDBProducer::readDBPedestalsConfig(const DTConfigManagerRcd &iRecord, DTConfigManager &dttpgConfig) {
   edm::ESHandle<DTTPGParameters> dttpgParams;
   iRecord.getRecord<DTTPGParametersRcd>().get(dttpgParams);
 
@@ -122,7 +115,6 @@ void DTConfigDBProducer::readDBPedestalsConfig(
   pedestals.setDebug(m_debugPed);
 
   if (m_UseT0) {
-
     edm::ESHandle<DTT0> t0i;
     iRecord.getRecord<DTT0Rcd>().get(t0i);
 
@@ -131,7 +123,6 @@ void DTConfigDBProducer::readDBPedestalsConfig(
     // cout << "checkDTCCBConfig CODE is " << checkDTCCBConfig() << endl;
 
   } else {
-
     pedestals.setUseT0(false);
     pedestals.setES(dttpgParams.product());
   }
@@ -153,7 +144,6 @@ int DTConfigDBProducer::checkDTCCBConfig(DTConfigManager &dttpgConfig) {
   for (int iwh = -2; iwh <= 2; iwh++) {
     for (int ise = 1; ise <= 12; ise++) {
       for (int ist = 1; ist <= 4; ist++) {
-
         check_cfg_code = 0;
         DTChamberId chid(iwh, ist, ise);
 
@@ -164,42 +154,33 @@ int DTConfigDBProducer::checkDTCCBConfig(DTConfigManager &dttpgConfig) {
         int ntsm = dttpgConfig.getDTConfigTSPhi(chid)->nValidTSM();
 
         // check BTIs
-        if ((ist == 1 && nbti != 168) || (ist == 2 && nbti != 192) ||
-            (ist == 3 && nbti != 224) ||
+        if ((ist == 1 && nbti != 168) || (ist == 2 && nbti != 192) || (ist == 3 && nbti != 224) ||
             (ist == 4 &&
-             (ise == 1 || ise == 2 || ise == 3 || ise == 5 || ise == 6 ||
-              ise == 7 || ise == 8 || ise == 12) &&
+             (ise == 1 || ise == 2 || ise == 3 || ise == 5 || ise == 6 || ise == 7 || ise == 8 || ise == 12) &&
              nbti != 192) ||
-            (ist == 4 && (ise == 9 || ise == 11) && nbti != 96) ||
-            (ist == 4 && ise == 10 && nbti != 128) ||
+            (ist == 4 && (ise == 9 || ise == 11) && nbti != 96) || (ist == 4 && ise == 10 && nbti != 128) ||
             (ist == 4 && ise == 4 && nbti != 160)) {
           check_cfg_code = 1;
           return check_cfg_code;
         }
 
         // check TRACOs
-        if ((ist == 1 && ntraco != 13) || (ist == 2 && ntraco != 16) ||
-            (ist == 3 && ntraco != 20) ||
+        if ((ist == 1 && ntraco != 13) || (ist == 2 && ntraco != 16) || (ist == 3 && ntraco != 20) ||
             (ist == 4 &&
-             (ise == 1 || ise == 2 || ise == 3 || ise == 5 || ise == 6 ||
-              ise == 7 || ise == 8 || ise == 12) &&
+             (ise == 1 || ise == 2 || ise == 3 || ise == 5 || ise == 6 || ise == 7 || ise == 8 || ise == 12) &&
              ntraco != 24) ||
-            (ist == 4 && (ise == 9 || ise == 11) && ntraco != 12) ||
-            (ist == 4 && ise == 10 && ntraco != 16) ||
+            (ist == 4 && (ise == 9 || ise == 11) && ntraco != 12) || (ist == 4 && ise == 10 && ntraco != 16) ||
             (ist == 4 && ise == 4 && ntraco != 20)) {
           check_cfg_code = 2;
           return check_cfg_code;
         }
 
         // check TSS
-        if ((ist == 1 && ntss != 4) || (ist == 2 && ntss != 4) ||
-            (ist == 3 && ntss != 5) ||
+        if ((ist == 1 && ntss != 4) || (ist == 2 && ntss != 4) || (ist == 3 && ntss != 5) ||
             (ist == 4 &&
-             (ise == 1 || ise == 2 || ise == 3 || ise == 5 || ise == 6 ||
-              ise == 7 || ise == 8 || ise == 12) &&
+             (ise == 1 || ise == 2 || ise == 3 || ise == 5 || ise == 6 || ise == 7 || ise == 8 || ise == 12) &&
              ntss != 6) ||
-            (ist == 4 && (ise == 9 || ise == 11) && ntss != 3) ||
-            (ist == 4 && ise == 10 && ntss != 4) ||
+            (ist == 4 && (ise == 9 || ise == 11) && ntss != 3) || (ist == 4 && ise == 10 && ntss != 4) ||
             (ist == 4 && ise == 4 && ntss != 5)) {
           check_cfg_code = 3;
           return check_cfg_code;
@@ -217,12 +198,11 @@ int DTConfigDBProducer::checkDTCCBConfig(DTConfigManager &dttpgConfig) {
         // << ise << " wh " << iwh << " == >check_cfg_code " << check_cfg_code
         // << endl;
         //}
-      } // end st loop
-    }   // end sec loop
+      }  // end st loop
+    }    // end sec loop
 
     // SV MB4 has two more chambers
     for (int ise = 13; ise <= 14; ise++) {
-
       DTChamberId chid(iwh, 4, ise);
 
       int nbti = dttpgConfig.getDTConfigBtiMap(chid).size();
@@ -251,17 +231,16 @@ int DTConfigDBProducer::checkDTCCBConfig(DTConfigManager &dttpgConfig) {
       // " ntsm " << ntsm << endl; cout << "Check: ch " << 4 << " sec " << ise
       // << " wh " << iwh << " == >check_cfg_code " << check_cfg_code << endl;
       //}
-    } // end sec 13 14
+    }  // end sec 13 14
 
-  } // end wh loop
+  }  // end wh loop
 
   // cout << "CheckDTCCB: config OK! check_cfg_code = " << check_cfg_code <<
   // endl;
   return check_cfg_code;
 }
 
-int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord,
-                                        DTConfigManager &dttpgConfig) {
+int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord, DTConfigManager &dttpgConfig) {
   using namespace edm::eventsetup;
 
   // initialize CCB validity flag
@@ -272,22 +251,19 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord,
   iRecord.getRecord<DTCCBConfigRcd>().get(ccb_conf);
   int ndata = std::distance(ccb_conf->begin(), ccb_conf->end());
 
-  const DTKeyedConfigListRcd &keyRecord =
-      iRecord.getRecord<DTKeyedConfigListRcd>();
+  const DTKeyedConfigListRcd &keyRecord = iRecord.getRecord<DTKeyedConfigListRcd>();
 
   if (m_debugDB) {
     cout << ccb_conf->version() << endl;
     cout << ndata << " data in the container" << endl;
   }
 
-  edm::ValidityInterval iov(
-      iRecord.getRecord<DTCCBConfigRcd>().validityInterval());
+  edm::ValidityInterval iov(iRecord.getRecord<DTCCBConfigRcd>().validityInterval());
   unsigned int currValidityStart = iov.first().eventID().run();
   unsigned int currValidityEnd = iov.last().eventID().run();
 
   if (m_debugDB)
-    cout << "valid since run " << currValidityStart << " to run "
-         << currValidityEnd << endl;
+    cout << "valid since run " << currValidityStart << " to run " << currValidityEnd << endl;
 
   // if there are no data in the container, configuration from cfg files...
   if (ndata == 0) {
@@ -295,8 +271,7 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord,
   }
 
   // get DTTPGMap for retrieving bti number and traco number
-  edm::ParameterSet conf_map =
-      m_ps.getUntrackedParameter<edm::ParameterSet>("DTTPGMap");
+  edm::ParameterSet conf_map = m_ps.getUntrackedParameter<edm::ParameterSet>("DTTPGMap");
 
   // loop over chambers
   DTCCBConfig::ccb_config_map configKeys(ccb_conf->configKeyMap());
@@ -304,7 +279,7 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord,
   DTCCBConfig::ccb_config_iterator iend = configKeys.end();
 
   // 110628 SV check that number of CCB is equal to total number of chambers
-  if (ccb_conf->configKeyMap().size() != 250) // check the number of chambers!!!
+  if (ccb_conf->configKeyMap().size() != 250)  // check the number of chambers!!!
     return -1;
 
   // read data from CCBConfig
@@ -320,15 +295,12 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord,
     // get chamber id
     const DTCCBId &ccbId = iter->first;
     if (m_debugDB)
-      cout << " Filling configuration for chamber : wh " << ccbId.wheelId
-           << " st " << ccbId.stationId << " se " << ccbId.sectorId << " -> "
-           << endl;
+      cout << " Filling configuration for chamber : wh " << ccbId.wheelId << " st " << ccbId.stationId << " se "
+           << ccbId.sectorId << " -> " << endl;
 
     // get chamber type and id from ccbId
-    int mbtype =
-        DTPosNegType::getCT(ccbId.wheelId, ccbId.sectorId, ccbId.stationId);
-    int posneg =
-        DTPosNegType::getPN(ccbId.wheelId, ccbId.sectorId, ccbId.stationId);
+    int mbtype = DTPosNegType::getCT(ccbId.wheelId, ccbId.sectorId, ccbId.stationId);
+    int posneg = DTPosNegType::getPN(ccbId.wheelId, ccbId.sectorId, ccbId.stationId);
     if (m_debugDB)
       cout << "Chamber type : " << mbtype << " posneg : " << posneg << endl;
     DTChamberId chambid(ccbId.wheelId, ccbId.stationId, ccbId.sectorId);
@@ -363,7 +335,7 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord,
 
         // copy string in unsigned int buffer
         std::string str = *s_iter++;
-        unsigned short int buffer[100]; // 2 bytes
+        unsigned short int buffer[100];  // 2 bytes
         int c = 0;
         const char *cstr = str.c_str();
         const char *ptr = cstr + 2;
@@ -387,7 +359,7 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord,
             i2 = 10 + c2 - 'A';
           buffer[c] = (i1 * 16) + i2;
           c++;
-        } // end loop over string
+        }  // end loop over string
 
         // BTI configuration string
         if (buffer[2] == 0x54) {
@@ -398,16 +370,16 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord,
           flagDBBti = true;
 
           // compute sl and bti number from board and chip
-          int brd = buffer[3];  // Board Nr.
-          int chip = buffer[4]; // Chip Nr.
+          int brd = buffer[3];   // Board Nr.
+          int chip = buffer[4];  // Chip Nr.
 
           if (brd > 7) {
             cout << "Not existing board ... " << brd << endl;
-            return -1; // Non-existing board
+            return -1;  // Non-existing board
           }
           if (chip > 31) {
             cout << "Not existing chip... " << chip << endl;
-            return -1; // Non existing chip
+            return -1;  // Non existing chip
           }
 
           // Is it Phi or Theta board?
@@ -415,49 +387,49 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord,
           PhiSL = false;
           ThetaSL = false;
           switch (mbtype) {
-          case 1: // mb1
-            if (brd == 6 || brd == 7) {
-              ThetaSL = true;
-              brd -= 6;
-            } else if ((brd < 3 && chip < 32) || (brd == 3 && chip < 8))
-              PhiSL = true;
-            break;
-          case 2: // mb2
-            if (brd == 6 || brd == 7) {
-              ThetaSL = true;
-              brd -= 6;
-            } else if (brd < 4 && chip < 32)
-              PhiSL = true;
-            break;
-          case 3: // mb3
-            if (brd == 6 || brd == 7) {
-              ThetaSL = true;
-              brd -= 6;
-            } else if (brd < 5 && chip < 32)
-              PhiSL = true;
-            break;
-          case 4: // mb4-s, mb4_8
-            if (brd < 6 && chip < 32)
-              PhiSL = true;
-            break;
-          case 5: // mb4-9
-            if (brd < 3 && chip < 32)
-              PhiSL = true;
-            break;
-          case 6: // mb4-4
-            if (brd < 5 && chip < 32)
-              PhiSL = true;
-            break;
-          case 7: // mb4-10
-            if (brd < 4 && chip < 32)
-              PhiSL = true;
-            break;
+            case 1:  // mb1
+              if (brd == 6 || brd == 7) {
+                ThetaSL = true;
+                brd -= 6;
+              } else if ((brd < 3 && chip < 32) || (brd == 3 && chip < 8))
+                PhiSL = true;
+              break;
+            case 2:  // mb2
+              if (brd == 6 || brd == 7) {
+                ThetaSL = true;
+                brd -= 6;
+              } else if (brd < 4 && chip < 32)
+                PhiSL = true;
+              break;
+            case 3:  // mb3
+              if (brd == 6 || brd == 7) {
+                ThetaSL = true;
+                brd -= 6;
+              } else if (brd < 5 && chip < 32)
+                PhiSL = true;
+              break;
+            case 4:  // mb4-s, mb4_8
+              if (brd < 6 && chip < 32)
+                PhiSL = true;
+              break;
+            case 5:  // mb4-9
+              if (brd < 3 && chip < 32)
+                PhiSL = true;
+              break;
+            case 6:  // mb4-4
+              if (brd < 5 && chip < 32)
+                PhiSL = true;
+              break;
+            case 7:  // mb4-10
+              if (brd < 4 && chip < 32)
+                PhiSL = true;
+              break;
           }
           if (!PhiSL && !ThetaSL) {
             cout << "MB type " << mbtype << endl;
             cout << "Board " << brd << " chip " << chip << endl;
             cout << "Not phi SL nor Theta SL" << endl;
-            return -1; // Not PhiSL nor ThetaSL
+            return -1;  // Not PhiSL nor ThetaSL
           }
 
           // compute SL number and bti number
@@ -465,12 +437,12 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord,
           int ibti = 0;
           if (PhiSL) {
             if ((chip % 8) < 4)
-              isl = 1; // Phi1
+              isl = 1;  // Phi1
             else
-              isl = 3; // Phi2
+              isl = 3;  // Phi2
             ibti = brd * 16 + (int)(chip / 8) * 4 + (chip % 4);
           } else if (ThetaSL) {
-            isl = 2; // Theta
+            isl = 2;  // Theta
             if ((chip % 8) < 4)
               ibti = brd * 32 + chip - 4 * (int)(chip / 8);
             else
@@ -483,9 +455,8 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord,
           dttpgConfig.setDTConfigBti(DTBtiId(chambid, isl, ibti + 1), bticonf);
 
           if (m_debugDB)
-            cout << "Filling BTI config for chamber : wh " << chambid.wheel()
-                 << ", st " << chambid.station() << ", se " << chambid.sector()
-                 << "... sl " << isl << ", bti " << ibti + 1 << endl;
+            cout << "Filling BTI config for chamber : wh " << chambid.wheel() << ", st " << chambid.station() << ", se "
+                 << chambid.sector() << "... sl " << isl << ", bti " << ibti + 1 << endl;
         }
 
         // TRACO configuration string
@@ -496,17 +467,16 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord,
           flagDBTraco = true;
 
           // TRACO config constructor from strings
-          int traco_brd = buffer[3];  // Board Nr.;
-          int traco_chip = buffer[4]; // Chip Nr.;
+          int traco_brd = buffer[3];   // Board Nr.;
+          int traco_chip = buffer[4];  // Chip Nr.;
           int itraco = traco_brd * 4 + traco_chip + 1;
           DTConfigTraco tracoconf(m_debugTraco, buffer);
           dttpgConfig.setDTConfigTraco(DTTracoId(chambid, itraco), tracoconf);
 
           if (m_debugDB)
-            cout << "Filling TRACO config for chamber : wh " << chambid.wheel()
-                 << ", st " << chambid.station() << ", se " << chambid.sector()
-                 << ", board " << traco_brd << ", chip " << traco_chip
-                 << ", traco " << itraco << endl;
+            cout << "Filling TRACO config for chamber : wh " << chambid.wheel() << ", st " << chambid.station()
+                 << ", se " << chambid.sector() << ", board " << traco_brd << ", chip " << traco_chip << ", traco "
+                 << itraco << endl;
         }
 
         // TSS configuration string
@@ -546,8 +516,8 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord,
           dttpgConfig.setDTConfigLUTs(chambid, lutconf);
         }
 
-      } // end string iteration
-    }   // end brick iteration
+      }  // end string iteration
+    }    // end brick iteration
 
     // TSS + TSM configurations are set in DTConfigTSPhi constructor
     if (flagDBTSM && flagDBTSS) {
@@ -556,23 +526,18 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord,
     }
 
     // get configuration for TSTheta, SC and TU from .cfg
-    edm::ParameterSet conf_ps =
-        m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");
-    edm::ParameterSet tups =
-        conf_ps.getParameter<edm::ParameterSet>("TUParameters");
+    edm::ParameterSet conf_ps = m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");
+    edm::ParameterSet tups = conf_ps.getParameter<edm::ParameterSet>("TUParameters");
 
     // TSTheta configuration from .cfg
-    DTConfigTSTheta tsthetaconf(
-        tups.getParameter<edm::ParameterSet>("TSThetaParameters"));
+    DTConfigTSTheta tsthetaconf(tups.getParameter<edm::ParameterSet>("TSThetaParameters"));
     tsthetaconf.setDebug(m_debugTST);
     dttpgConfig.setDTConfigTSTheta(chambid, tsthetaconf);
 
     // SC configuration from .cfg
-    DTConfigSectColl sectcollconf(
-        conf_ps.getParameter<edm::ParameterSet>("SectCollParameters"));
+    DTConfigSectColl sectcollconf(conf_ps.getParameter<edm::ParameterSet>("SectCollParameters"));
     sectcollconf.setDebug(m_debugSC);
-    dttpgConfig.setDTConfigSectColl(
-        DTSectCollId(chambid.wheel(), chambid.sector()), sectcollconf);
+    dttpgConfig.setDTConfigSectColl(DTSectCollId(chambid.wheel(), chambid.sector()), sectcollconf);
 
     // TU configuration from .cfg
     DTConfigTrigUnit trigunitconf(tups);
@@ -591,7 +556,7 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord,
     if (!flagDBLUTS && dttpgConfig.lutFromDB() == true) {
       return -1;
     }
-  } // end loop over CCB
+  }  // end loop over CCB
 
   return 0;
 }
@@ -610,27 +575,19 @@ std::string DTConfigDBProducer::mapEntryName(const DTChamberId &chambid) const {
 }
 
 void DTConfigDBProducer::configFromCfg(DTConfigManager &dttpgConfig) {
-
   // ... but still set CCB validity flag to let the emulator run
   dttpgConfig.setCCBConfigValidity(true);
 
   // create config classes&C.
-  edm::ParameterSet conf_ps =
-      m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");
-  edm::ParameterSet conf_map =
-      m_ps.getUntrackedParameter<edm::ParameterSet>("DTTPGMap");
+  edm::ParameterSet conf_ps = m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");
+  edm::ParameterSet conf_map = m_ps.getUntrackedParameter<edm::ParameterSet>("DTTPGMap");
   bool dttpgdebug = conf_ps.getUntrackedParameter<bool>("Debug");
-  DTConfigSectColl sectcollconf(
-      conf_ps.getParameter<edm::ParameterSet>("SectCollParameters"));
-  edm::ParameterSet tups =
-      conf_ps.getParameter<edm::ParameterSet>("TUParameters");
+  DTConfigSectColl sectcollconf(conf_ps.getParameter<edm::ParameterSet>("SectCollParameters"));
+  edm::ParameterSet tups = conf_ps.getParameter<edm::ParameterSet>("TUParameters");
   DTConfigBti bticonf(tups.getParameter<edm::ParameterSet>("BtiParameters"));
-  DTConfigTraco tracoconf(
-      tups.getParameter<edm::ParameterSet>("TracoParameters"));
-  DTConfigTSTheta tsthetaconf(
-      tups.getParameter<edm::ParameterSet>("TSThetaParameters"));
-  DTConfigTSPhi tsphiconf(
-      tups.getParameter<edm::ParameterSet>("TSPhiParameters"));
+  DTConfigTraco tracoconf(tups.getParameter<edm::ParameterSet>("TracoParameters"));
+  DTConfigTSTheta tsthetaconf(tups.getParameter<edm::ParameterSet>("TSThetaParameters"));
+  DTConfigTSPhi tsphiconf(tups.getParameter<edm::ParameterSet>("TSPhiParameters"));
   DTConfigTrigUnit trigunitconf(tups);
   DTConfigLUTs lutconf(tups.getParameter<edm::ParameterSet>("LutParameters"));
 
@@ -638,13 +595,11 @@ void DTConfigDBProducer::configFromCfg(DTConfigManager &dttpgConfig) {
     for (int ist = 1; ist <= 4; ++ist) {
       for (int ise = 1; ise <= 12; ++ise) {
         DTChamberId chambid(iwh, ist, ise);
-        vector<int> nmap = conf_map.getUntrackedParameter<vector<int>>(
-            mapEntryName(chambid).c_str());
+        vector<int> nmap = conf_map.getUntrackedParameter<vector<int>>(mapEntryName(chambid).c_str());
 
         if (dttpgdebug) {
-          cout << " Filling configuration for chamber : wh " << chambid.wheel()
-               << ", st " << chambid.station() << ", se " << chambid.sector()
-               << endl;
+          cout << " Filling configuration for chamber : wh " << chambid.wheel() << ", st " << chambid.station()
+               << ", se " << chambid.sector() << endl;
         }
 
         // fill the bti map
@@ -653,13 +608,10 @@ void DTConfigDBProducer::configFromCfg(DTConfigManager &dttpgConfig) {
             int ncell = nmap[isl - 1];
             //	  cout << ncell <<" , ";
             for (int ibti = 0; ibti < ncell; ibti++) {
-              dttpgConfig.setDTConfigBti(DTBtiId(chambid, isl, ibti + 1),
-                                         bticonf);
+              dttpgConfig.setDTConfigBti(DTBtiId(chambid, isl, ibti + 1), bticonf);
               if (dttpgdebug)
-                cout << "Filling BTI config for chamber : wh "
-                     << chambid.wheel() << ", st " << chambid.station()
-                     << ", se " << chambid.sector() << "... sl " << isl
-                     << ", bti " << ibti + 1 << endl;
+                cout << "Filling BTI config for chamber : wh " << chambid.wheel() << ", st " << chambid.station()
+                     << ", se " << chambid.sector() << "... sl " << isl << ", bti " << ibti + 1 << endl;
             }
           }
         }
@@ -669,12 +621,10 @@ void DTConfigDBProducer::configFromCfg(DTConfigManager &dttpgConfig) {
           int ntraco = nmap[3];
           // cout << ntraco << " }" << endl;
           for (int itraco = 0; itraco < ntraco; itraco++) {
-            dttpgConfig.setDTConfigTraco(DTTracoId(chambid, itraco + 1),
-                                         tracoconf);
+            dttpgConfig.setDTConfigTraco(DTTracoId(chambid, itraco + 1), tracoconf);
             if (dttpgdebug)
-              cout << "Filling TRACO config for chamber : wh "
-                   << chambid.wheel() << ", st " << chambid.station() << ", se "
-                   << chambid.sector() << ", traco " << itraco + 1 << endl;
+              cout << "Filling TRACO config for chamber : wh " << chambid.wheel() << ", st " << chambid.station()
+                   << ", se " << chambid.sector() << ", traco " << itraco + 1 << endl;
           }
         }
 
@@ -692,13 +642,11 @@ void DTConfigDBProducer::configFromCfg(DTConfigManager &dttpgConfig) {
     for (int ise = 13; ise <= 14; ++ise) {
       int ist = 4;
       DTChamberId chambid(iwh, ist, ise);
-      vector<int> nmap = conf_map.getUntrackedParameter<vector<int>>(
-          mapEntryName(chambid).c_str());
+      vector<int> nmap = conf_map.getUntrackedParameter<vector<int>>(mapEntryName(chambid).c_str());
 
       if (dttpgdebug) {
-        cout << " Filling configuration for chamber : wh " << chambid.wheel()
-             << ", st " << chambid.station() << ", se " << chambid.sector()
-             << endl;
+        cout << " Filling configuration for chamber : wh " << chambid.wheel() << ", st " << chambid.station() << ", se "
+             << chambid.sector() << endl;
       }
 
       // fill the bti map
@@ -707,13 +655,10 @@ void DTConfigDBProducer::configFromCfg(DTConfigManager &dttpgConfig) {
           int ncell = nmap[isl - 1];
           // 	cout << ncell <<" , ";
           for (int ibti = 0; ibti < ncell; ibti++) {
-            dttpgConfig.setDTConfigBti(DTBtiId(chambid, isl, ibti + 1),
-                                       bticonf);
+            dttpgConfig.setDTConfigBti(DTBtiId(chambid, isl, ibti + 1), bticonf);
             if (dttpgdebug)
-              cout << "Filling BTI config for chamber : wh " << chambid.wheel()
-                   << ", st " << chambid.station() << ", se "
-                   << chambid.sector() << "... sl " << isl << ", bti "
-                   << ibti + 1 << endl;
+              cout << "Filling BTI config for chamber : wh " << chambid.wheel() << ", st " << chambid.station()
+                   << ", se " << chambid.sector() << "... sl " << isl << ", bti " << ibti + 1 << endl;
           }
         }
       }
@@ -723,12 +668,10 @@ void DTConfigDBProducer::configFromCfg(DTConfigManager &dttpgConfig) {
         int ntraco = nmap[3];
         //       cout << ntraco << " }" << endl;
         for (int itraco = 0; itraco < ntraco; itraco++) {
-          dttpgConfig.setDTConfigTraco(DTTracoId(chambid, itraco + 1),
-                                       tracoconf);
+          dttpgConfig.setDTConfigTraco(DTTracoId(chambid, itraco + 1), tracoconf);
           if (dttpgdebug)
-            cout << "Filling TRACO config for chamber : wh " << chambid.wheel()
-                 << ", st " << chambid.station() << ", se " << chambid.sector()
-                 << ", traco " << itraco + 1 << endl;
+            cout << "Filling TRACO config for chamber : wh " << chambid.wheel() << ", st " << chambid.station()
+                 << ", se " << chambid.sector() << ", traco " << itraco + 1 << endl;
         }
       }
 

@@ -39,7 +39,6 @@ class L1GlobalTriggerPSB;
 
 // class declaration
 class L1GlobalTriggerFDL {
-
 public:
   /// constructor
   L1GlobalTriggerFDL();
@@ -48,18 +47,23 @@ public:
   virtual ~L1GlobalTriggerFDL();
 
   /// run the FDL
-  void run(edm::Event &iEvent, const std::vector<int> &prescaleFactorsAlgoTrig,
+  void run(edm::Event &iEvent,
+           const std::vector<int> &prescaleFactorsAlgoTrig,
            const std::vector<int> &prescaleFactorsTechTrig,
            const std::vector<unsigned int> &triggerMaskAlgoTrig,
            const std::vector<unsigned int> &triggerMaskTechTrig,
            const std::vector<unsigned int> &triggerMaskVetoAlgoTrig,
            const std::vector<unsigned int> &triggerMaskVetoTechTrig,
-           const std::vector<L1GtBoard> &boardMaps, const int totalBxInEvent,
-           const int iBxInEvent, const unsigned int numberPhysTriggers,
+           const std::vector<L1GtBoard> &boardMaps,
+           const int totalBxInEvent,
+           const int iBxInEvent,
+           const unsigned int numberPhysTriggers,
            const unsigned int numberTechnicalTriggers,
            const unsigned int numberDaqPartitions,
-           const L1GlobalTriggerGTL *ptrGTL, const L1GlobalTriggerPSB *ptrPSB,
-           const int pfAlgoSetIndex, const int pfTechSetIndex,
+           const L1GlobalTriggerGTL *ptrGTL,
+           const L1GlobalTriggerPSB *ptrPSB,
+           const int pfAlgoSetIndex,
+           const int pfTechSetIndex,
            const bool algorithmTriggersUnprescaled,
            const bool algorithmTriggersUnmasked,
            const bool technicalTriggersUnprescaled,
@@ -69,7 +73,8 @@ public:
   /// fill the FDL block in the L1 GT DAQ record for iBxInEvent
   void fillDaqFdlBlock(const int iBxInEvent,
                        const boost::uint16_t &activeBoardsGtDaq,
-                       const int recordLength0, const int recordLength1,
+                       const int recordLength0,
+                       const int recordLength1,
                        const unsigned int altNrBxBoardDaq,
                        const std::vector<L1GtBoard> &boardMaps,
                        L1GlobalTriggerReadoutRecord *gtDaqReadoutRecord);
@@ -77,7 +82,8 @@ public:
   /// fill the FDL block in the L1 GT EVM record for iBxInEvent
   void fillEvmFdlBlock(const int iBxInEvent,
                        const boost::uint16_t &activeBoardsGtEvm,
-                       const int recordLength0, const int recordLength1,
+                       const int recordLength0,
+                       const int recordLength1,
                        const unsigned int altNrBxBoardEvm,
                        const std::vector<L1GtBoard> &boardMaps,
                        L1GlobalTriggerEvmReadoutRecord *gtEvmReadoutRecord);

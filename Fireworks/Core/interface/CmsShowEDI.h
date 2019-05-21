@@ -49,88 +49,88 @@ class FWGUIValidatingTextEntry;
 class FWExpressionValidator;
 class TGTab;
 
-class CmsShowEDI : public TGTransientFrame
-{
-
+class CmsShowEDI : public TGTransientFrame {
 public:
-   CmsShowEDI(const TGWindow* p = nullptr, UInt_t w = 1, UInt_t h = 1, FWSelectionManager* selMgr = nullptr,
-              FWColorManager* colorMgr=nullptr);
-   ~CmsShowEDI() override;
+  CmsShowEDI(const TGWindow* p = nullptr,
+             UInt_t w = 1,
+             UInt_t h = 1,
+             FWSelectionManager* selMgr = nullptr,
+             FWColorManager* colorMgr = nullptr);
+  ~CmsShowEDI() override;
 
-   void CloseWindow() override { UnmapWindow(); }
+  void CloseWindow() override { UnmapWindow(); }
 
-   // ---------- const member functions ---------------------
-   
-   // ---------- static member functions --------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- member functions --------------------------
-   void fillEDIFrame();
-   void removeItem();
-   //      void emptyEDIFrame();
-   void updateDisplay();
-   void updateFilter();
-   void colorSetChanged();
-   void disconnectAll();
-   void changeItemColor(Color_t color );
-   void changeSelectionColor(Color_t color );
-   void toggleItemVisible(Bool_t on = kTRUE);
-   void changeItemOpacity(Int_t opacity); 
-   void runFilter();
-   void runSelection();
-   void selectAll();
-   void deselectAll();
+  // ---------- static member functions --------------------
 
-   void updateLayerControls();
-   void moveToBack();
-   void moveToFront();
-   void moveToLayer(Long_t);
-   void show(FWDataCategories);
+  // ---------- member functions --------------------------
+  void fillEDIFrame();
+  void removeItem();
+  //      void emptyEDIFrame();
+  void updateDisplay();
+  void updateFilter();
+  void colorSetChanged();
+  void disconnectAll();
+  void changeItemColor(Color_t color);
+  void changeSelectionColor(Color_t color);
+  void toggleItemVisible(Bool_t on = kTRUE);
+  void changeItemOpacity(Int_t opacity);
+  void runFilter();
+  void runSelection();
+  void selectAll();
+  void deselectAll();
 
-   ClassDefOverride(CmsShowEDI, 0);
+  void updateLayerControls();
+  void moveToBack();
+  void moveToFront();
+  void moveToLayer(Long_t);
+  void show(FWDataCategories);
+
+  ClassDefOverride(CmsShowEDI, 0);
 
 private:
-   CmsShowEDI(const CmsShowEDI&);    // stop default
+  CmsShowEDI(const CmsShowEDI&);  // stop default
 
-   const CmsShowEDI& operator=(const CmsShowEDI&);    // stop default
+  const CmsShowEDI& operator=(const CmsShowEDI&);  // stop default
 
-   void clearPBFrame();
-   //   void addBut();
-   // ---------- member data --------------------------------
-   FWSelectionManager* m_selectionManager;
-   TGTab* m_tabs;
-   TGLabel* m_objectLabel;
-   TGTextButton* m_removeButton;
-   TGTextButton* m_frontButton;
-   TGTextButton* m_backButton;
-   TGNumberEntry* m_layerEntry;
-   FWColorSelect* m_colorSelectWidget;
-   TGHSlider*     m_opacitySlider;
-   TGCheckButton* m_isVisibleButton;
-   FWGUIValidatingTextEntry* m_filterExpressionEntry;
-   FWGUIValidatingTextEntry* m_selectExpressionEntry;
-   TGTextButton* m_filterButton;
-   TGTextButton* m_selectButton;
-   TGTextButton* m_selectAllButton;
-   TGTextButton* m_deselectAllButton;
-   FWColorSelect* m_cw;
-   TGTextEntry* m_nameEntry;
-   TGTextEntry* m_typeEntry;
-   TGTextEntry* m_moduleEntry;
-   TGTextEntry* m_instanceEntry;
-   TGTextEntry* m_processEntry;
-   FWEventItem* m_item;
+  void clearPBFrame();
+  //   void addBut();
+  // ---------- member data --------------------------------
+  FWSelectionManager* m_selectionManager;
+  TGTab* m_tabs;
+  TGLabel* m_objectLabel;
+  TGTextButton* m_removeButton;
+  TGTextButton* m_frontButton;
+  TGTextButton* m_backButton;
+  TGNumberEntry* m_layerEntry;
+  FWColorSelect* m_colorSelectWidget;
+  TGHSlider* m_opacitySlider;
+  TGCheckButton* m_isVisibleButton;
+  FWGUIValidatingTextEntry* m_filterExpressionEntry;
+  FWGUIValidatingTextEntry* m_selectExpressionEntry;
+  TGTextButton* m_filterButton;
+  TGTextButton* m_selectButton;
+  TGTextButton* m_selectAllButton;
+  TGTextButton* m_deselectAllButton;
+  FWColorSelect* m_cw;
+  TGTextEntry* m_nameEntry;
+  TGTextEntry* m_typeEntry;
+  TGTextEntry* m_moduleEntry;
+  TGTextEntry* m_instanceEntry;
+  TGTextEntry* m_processEntry;
+  FWEventItem* m_item;
 #ifndef __CINT__
-   sigc::connection m_displayChangedConn;
-   sigc::connection m_modelChangedConn;
-   sigc::connection m_destroyedConn;
+  sigc::connection m_displayChangedConn;
+  sigc::connection m_modelChangedConn;
+  sigc::connection m_destroyedConn;
 #endif
-   TGTextView* m_filterError;
-   TGTextView* m_selectError;
-   FWExpressionValidator* m_validator;
-   FWColorManager* m_colorManager;
+  TGTextView* m_filterError;
+  TGTextView* m_selectError;
+  FWExpressionValidator* m_validator;
+  FWColorManager* m_colorManager;
 
-   TGCompositeFrame* m_settersFrame;
+  TGCompositeFrame* m_settersFrame;
 };
-
 
 #endif

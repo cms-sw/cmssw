@@ -41,25 +41,21 @@
 //
 
 class L1TRPCTF : public DQMEDAnalyzer {
-
 public:
+  // Constructor
+  L1TRPCTF(const edm::ParameterSet& ps);
 
-// Constructor
- L1TRPCTF(const edm::ParameterSet& ps);
-
-// Destructor
- ~L1TRPCTF() override;
+  // Destructor
+  ~L1TRPCTF() override;
 
 protected:
-// Analyze
- void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  // Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-// BeginJob
-  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+  // BeginJob
+  void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) override;
 
 private:
-
-  
   // ----------member data ---------------------------
 
   MonitorElement* rpctfetavalue[3];
@@ -73,24 +69,23 @@ private:
   MonitorElement* m_qualVsEta[3];
   MonitorElement* m_muonsEtaPhi[3];
   //MonitorElement* m_phipacked;
-  
+
   MonitorElement* m_bxDiff;
   MonitorElement* rpctfcratesynchro[12];
 
-  
-  std::set<unsigned long long int>  m_globBX;
-  
-  edm::EDGetTokenT<L1MuGMTReadoutCollection> rpctfSource_ ;
+  std::set<unsigned long long int> m_globBX;
 
-  int nev_; // Number of events processed
-  int nevRPC_; // Number of events processed where muon was found by rpc trigger
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> rpctfSource_;
+
+  int nev_;     // Number of events processed
+  int nevRPC_;  // Number of events processed where muon was found by rpc trigger
   bool verbose_;
 
   long long int m_lastUsedBxInBxdiff;
   std::string output_dir_;
-  struct BxDelays { int bx, eta_t, phi_p; };  
-
-
+  struct BxDelays {
+    int bx, eta_t, phi_p;
+  };
 };
 
 #endif

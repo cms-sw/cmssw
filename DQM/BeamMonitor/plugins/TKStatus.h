@@ -19,34 +19,28 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include <fstream>
 
-
 //
 // class declaration
 //
 
 class TKStatus : public edm::one::EDAnalyzer<> {
- public:
-  TKStatus( const edm::ParameterSet& );
+public:
+  TKStatus(const edm::ParameterSet&);
 
- protected:
+protected:
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
-
- private:
-
-  void dumpTkDcsStatus(std::string const &, edm::RunNumber_t, std::array<bool,6> const&);
+private:
+  void dumpTkDcsStatus(std::string const&, edm::RunNumber_t, std::array<bool, 6> const&);
 
   std::string dcsTkFileName_;
   edm::EDGetTokenT<DcsStatusCollection> dcsStatus_;
 
-  int  lastlumi_ = -1;
+  int lastlumi_ = -1;
   // ----------member data ---------------------------
-
-
 };
 
 #endif
-
 
 // Local Variables:
 // show-trailing-whitespace: t

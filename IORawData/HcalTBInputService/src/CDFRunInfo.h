@@ -13,7 +13,7 @@
     methods for decoding string values as integers and doubles.
 */
 class CDFRunInfo {
-public: 
+public:
   CDFRunInfo();
   CDFRunInfo(TFile* fromFile);
 
@@ -36,10 +36,11 @@ public:
   void print() const;
 
   void store(TFile* toFile);
+
 private:
   bool load(TFile* fromFile);
   static const char* RootVariableName;
-  std::map<std::string,std::string> m_mapData;
+  std::map<std::string, std::string> m_mapData;
 };
 
-#endif // CDFRunInfo_hh_included
+#endif  // CDFRunInfo_hh_included

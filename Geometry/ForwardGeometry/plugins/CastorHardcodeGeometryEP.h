@@ -17,18 +17,17 @@
 //
 
 class CastorHardcodeGeometryEP : public edm::ESProducer {
-   public:
-      CastorHardcodeGeometryEP(const edm::ParameterSet&);
-      ~CastorHardcodeGeometryEP() override;
+public:
+  CastorHardcodeGeometryEP(const edm::ParameterSet&);
+  ~CastorHardcodeGeometryEP() override;
 
-      typedef std::unique_ptr<CaloSubdetectorGeometry> ReturnType;
+  typedef std::unique_ptr<CaloSubdetectorGeometry> ReturnType;
 
-      ReturnType produce(const CastorGeometryRecord&);
+  ReturnType produce(const CastorGeometryRecord&);
+
 private:
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
   CastorHardcodeGeometryLoader* loader_;
 };
-
-
 
 #endif

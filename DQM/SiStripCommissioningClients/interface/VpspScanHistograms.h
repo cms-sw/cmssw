@@ -6,18 +6,13 @@
 class DQMStore;
 
 class VpspScanHistograms : public virtual CommissioningHistograms {
-
- public:
-  
-  VpspScanHistograms( const edm::ParameterSet& pset, DQMStore* );
+public:
+  VpspScanHistograms(const edm::ParameterSet& pset, DQMStore*);
   ~VpspScanHistograms() override;
-  
-  void histoAnalysis( bool debug ) override;
 
-  void printAnalyses() override; // override
+  void histoAnalysis(bool debug) override;
 
+  void printAnalyses() override;  // override
 };
 
-#endif // DQM_SiStripCommissioningClients_VpspScanHistograms_H
-
-
+#endif  // DQM_SiStripCommissioningClients_VpspScanHistograms_H

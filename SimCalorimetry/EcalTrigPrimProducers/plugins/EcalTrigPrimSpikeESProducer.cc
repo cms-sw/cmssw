@@ -7,10 +7,8 @@
 //
 // constructors and destructor
 //
-EcalTrigPrimSpikeESProducer::EcalTrigPrimSpikeESProducer(
-    const edm::ParameterSet &iConfig)
-    : zeroThresh_(
-          iConfig.getUntrackedParameter<uint32_t>("TCCZeroingThreshold", 0)) {
+EcalTrigPrimSpikeESProducer::EcalTrigPrimSpikeESProducer(const edm::ParameterSet &iConfig)
+    : zeroThresh_(iConfig.getUntrackedParameter<uint32_t>("TCCZeroingThreshold", 0)) {
   // Indicate we produce the spike record
   setWhatProduced(this, &EcalTrigPrimSpikeESProducer::produceSpike);
 
@@ -28,11 +26,9 @@ EcalTrigPrimSpikeESProducer::EcalTrigPrimSpikeESProducer(
 EcalTrigPrimSpikeESProducer::~EcalTrigPrimSpikeESProducer() {}
 
 // ------------ method called to produce the data  ------------
-std::unique_ptr<EcalTPGSpike>
-EcalTrigPrimSpikeESProducer::produceSpike(const EcalTPGSpikeRcd &iRecord) {
+std::unique_ptr<EcalTPGSpike> EcalTrigPrimSpikeESProducer::produceSpike(const EcalTPGSpikeRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGSpike>();
-  for (std::vector<uint32_t>::const_iterator it = towerIDs_.begin();
-       it != towerIDs_.end(); ++it) {
+  for (std::vector<uint32_t>::const_iterator it = towerIDs_.begin(); it != towerIDs_.end(); ++it) {
     prod->setValue(*it, zeroThresh_);
   }
   return prod;

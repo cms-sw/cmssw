@@ -15,24 +15,20 @@
 class Measurement;
 class LightRay;
 
-class OptOUserDefined: public OpticalObject
-{
-
+class OptOUserDefined : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptOUserDefined(){ };
-  OptOUserDefined(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) :
-  OpticalObject( parent, type, name, copy_data){ };
-  ~OptOUserDefined() override{ };
+  OptOUserDefined(){};
+  OptOUserDefined(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
+      : OpticalObject(parent, type, name, copy_data){};
+  ~OptOUserDefined() override{};
 
 #ifdef COCOA_VIS
   virtual void fillVRML() override;
   virtual void fillIguana() override;
 #endif
   //---------- userDefinedBehaviour
-  void userDefinedBehaviour( LightRay& lightray, Measurement& meas, const ALIstring& behav) override;
-
+  void userDefinedBehaviour(LightRay& lightray, Measurement& meas, const ALIstring& behav) override;
 };
 
 #endif
-

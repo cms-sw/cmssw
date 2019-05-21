@@ -19,10 +19,11 @@
 
 // system include files
 #include <memory>
+#include <algorithm>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
@@ -32,12 +33,12 @@
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+#include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/StreamID.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -47,7 +48,7 @@
 // class declaration
 //
 
-class L1TriggerResultsConverter : public edm::global::EDProducer<> {
+class L1TriggerResultsConverter : public edm::stream::EDProducer<> {
    public:
       explicit L1TriggerResultsConverter(const edm::ParameterSet&);
       ~L1TriggerResultsConverter() override;
@@ -55,16 +56,20 @@ class L1TriggerResultsConverter : public edm::global::EDProducer<> {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-      virtual void beginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
       const bool legacyL1_;
+      const bool store_unprefireable_bit_;
       const edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tokenLegacy_;
       const edm::EDGetTokenT<GlobalAlgBlkBxCollection> token_;
+      const edm::EDGetTokenT<GlobalExtBlkBxCollection> token_ext_;
       std::vector<std::string> names_;
       std::vector<unsigned int> mask_;
       std::vector<unsigned int> indices_;
+
+      const unsigned int m_triggerRulePrefireVetoBit=255;
 };
 
 
@@ -74,8 +79,10 @@ class L1TriggerResultsConverter : public edm::global::EDProducer<> {
 //
 L1TriggerResultsConverter::L1TriggerResultsConverter(const edm::ParameterSet& params):
  legacyL1_( params.getParameter<bool>("legacyL1") ),
+ store_unprefireable_bit_(!legacyL1_?params.getParameter<bool>("storeUnprefireableBit"):false),
  tokenLegacy_(legacyL1_?consumes<L1GlobalTriggerReadoutRecord>( params.getParameter<edm::InputTag>("src") ): edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>()),
- token_(!legacyL1_?consumes<GlobalAlgBlkBxCollection>( params.getParameter<edm::InputTag>("src") ): edm::EDGetTokenT<GlobalAlgBlkBxCollection>())
+ token_(!legacyL1_?consumes<GlobalAlgBlkBxCollection>( params.getParameter<edm::InputTag>("src") ): edm::EDGetTokenT<GlobalAlgBlkBxCollection>()),
+ token_ext_(store_unprefireable_bit_?consumes<GlobalExtBlkBxCollection> (params.getParameter<edm::InputTag>("src_ext") ): edm::EDGetTokenT<GlobalExtBlkBxCollection>())
 {
    produces<edm::TriggerResults>();
 }
@@ -94,7 +101,7 @@ L1TriggerResultsConverter::~L1TriggerResultsConverter()
 // member functions
 //
 
-void L1TriggerResultsConverter::beginRun(edm::StreamID streamID, edm::Run const&, edm::EventSetup const&setup) {
+void L1TriggerResultsConverter::beginRun(edm::Run const&, edm::EventSetup const& setup) {
     mask_.clear();
     names_.clear();
     indices_.clear();
@@ -117,22 +124,29 @@ void L1TriggerResultsConverter::beginRun(edm::StreamID streamID, edm::Run const&
            names_.push_back(keyval.first);
 	   indices_.push_back(keyval.second.getIndex()); 
         }
-
+	if (store_unprefireable_bit_) names_.push_back("L1_UnprefireableEvent");
     }
+
 }
 
 // ------------ method called to produce the data  ------------
 
 
 void
-L1TriggerResultsConverter::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
+L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     using namespace edm;
     const std::vector<bool> * wordp=nullptr;
+    bool unprefireable_bit = false;
     if (!legacyL1_){
       edm::Handle<GlobalAlgBlkBxCollection> handleResults;
        iEvent.getByToken(token_, handleResults);
        wordp= & handleResults->at(0,0).getAlgoDecisionFinal() ;
+       if (store_unprefireable_bit_) {
+        edm::Handle<GlobalExtBlkBxCollection> handleExtResults;
+        iEvent.getByToken(token_ext_, handleExtResults);
+        unprefireable_bit = handleExtResults->at(0,0).getExternalDecision(std::max(m_triggerRulePrefireVetoBit,GlobalExtBlk::maxExternalConditions-1));
+       }
      } else {
 // Legacy access
        edm::Handle<L1GlobalTriggerReadoutRecord> handleResults;
@@ -141,7 +155,6 @@ L1TriggerResultsConverter::produce(edm::StreamID streamID, edm::Event& iEvent, c
     }
     auto const &word = *wordp;
     HLTGlobalStatus l1bitsAsHLTStatus(names_.size());
-//    std::cout << word.size() << " " << names_.size() << " " << mask_.size()  << std::endl;
     unsigned indices_size = indices_.size();
     for(size_t nidx=0;nidx<indices_size; nidx++) {
         unsigned int index = indices_[nidx];
@@ -149,6 +162,7 @@ L1TriggerResultsConverter::produce(edm::StreamID streamID, edm::Event& iEvent, c
 	if(!mask_.empty()) result &=  (mask_[index] !=0);
 	l1bitsAsHLTStatus[nidx]=HLTPathStatus(result?edm::hlt::Pass:edm::hlt::Fail);
     }
+    if (store_unprefireable_bit_) l1bitsAsHLTStatus[indices_size]=HLTPathStatus(unprefireable_bit?edm::hlt::Pass:edm::hlt::Fail);
     //mimic HLT trigger bits for L1
     auto out = std::make_unique<edm::TriggerResults>(l1bitsAsHLTStatus,names_);
     iEvent.put(std::move(out));
@@ -161,6 +175,8 @@ L1TriggerResultsConverter::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
   desc.add<bool>("legacyL1")->setComment("is legacy L1");
   desc.add<edm::InputTag>("src")->setComment("L1 input (L1GlobalTriggerReadoutRecord if legacy, GlobalAlgBlkBxCollection otherwise)");
+  desc.add<bool>("storeUnprefireableBit",false)->setComment("Activate storage of L1 unprefireable bit (needs L1 external decision input)");
+  desc.add<edm::InputTag>("src_ext",edm::InputTag(""))->setComment("L1 external decision input (GlobalExtBlkBxCollection, only supported if not legacy");
   descriptions.add("L1TriggerResultsConverter",desc);
 }
 

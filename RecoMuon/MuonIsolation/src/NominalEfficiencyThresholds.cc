@@ -74,6 +74,7 @@ NominalEfficiencyThresholds::NominalEfficiencyThresholds(const string & infile)
   }
   ThresholdLocation location;
   EfficiencyBin eb;
+  eb.eff = 0;
   float thr_val;
   while (fgets(buffer,80,INFILE)) {
     sscanf(buffer,"%4s",tag);

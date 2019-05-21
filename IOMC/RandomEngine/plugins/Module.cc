@@ -6,10 +6,10 @@
 #include "IOMC/RandomEngine/src/RandomEngineStateProducer.h"
 #include "IOMC/RandomEngine/src/RandomFilter.h"
 
-using edm::service::RandomNumberGeneratorService;
 using edm::RandomFilter;
+using edm::service::RandomNumberGeneratorService;
 
-typedef edm::serviceregistry::AllArgsMaker<edm::RandomNumberGenerator,RandomNumberGeneratorService> RandomMaker;
+typedef edm::serviceregistry::AllArgsMaker<edm::RandomNumberGenerator, RandomNumberGeneratorService> RandomMaker;
 DEFINE_FWK_SERVICE_MAKER(RandomNumberGeneratorService, RandomMaker);
 
 DEFINE_FWK_MODULE(RandomEngineStateProducer);

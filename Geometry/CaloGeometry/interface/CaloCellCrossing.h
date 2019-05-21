@@ -9,52 +9,48 @@
 #include <vector>
 #include <string>
 
-class CaloCellCrossing 
-{
-   public:
+class CaloCellCrossing {
+public:
+  typedef std::vector<DetId> DetIds;
+  typedef std::vector<GlobalPoint> Points;
+  typedef std::vector<double> Lengths;
 
-      typedef std::vector< DetId >        DetIds ;
-      typedef std::vector< GlobalPoint >  Points;
-      typedef std::vector< double >       Lengths ;
+  CaloCellCrossing(const GlobalPoint& gp,
+                   const GlobalVector& gv,
+                   const DetIds* di,
+                   const CaloSubdetectorGeometry* sg,
+                   DetId::Detector det,
+                   int subdet,
+                   double small = 1.e-10,
+                   bool onewayonly = false);
 
-      CaloCellCrossing( const GlobalPoint&             gp ,
-			const GlobalVector&            gv ,
-			const DetIds*                  di ,
-			const CaloSubdetectorGeometry* sg ,
-			DetId::Detector                det ,
-			int                            subdet,
-			double                         small  = 1.e-10,
-			bool                           onewayonly = false ) ;
+  virtual ~CaloCellCrossing(){};
 
-      virtual ~CaloCellCrossing() {} ;
+  const GlobalPoint& gp() const { return m_gp; }
+  const GlobalVector& gv() const { return m_gv; }
 
-      const GlobalPoint&  gp() const { return m_gp ; }
-      const GlobalVector& gv() const { return m_gv ; }
+  const DetIds& detIds() const { return m_detId; }
+  const Points& centers() const { return m_ctr; }
+  const Points& entrances() const { return m_entr; }
+  const Points& exits() const { return m_exit; }
+  const Lengths& lengths() const { return m_len; }
 
-      const DetIds&  detIds()    const { return m_detId ; }
-      const Points&  centers()   const { return m_ctr   ; }
-      const Points&  entrances() const { return m_entr  ; }
-      const Points&  exits()     const { return m_exit  ; }
-      const Lengths& lengths()   const { return m_len   ; }
+  CaloCellCrossing(const CaloCellCrossing&) = delete;
+  CaloCellCrossing operator=(const CaloCellCrossing&) = delete;
 
-      CaloCellCrossing( const CaloCellCrossing& ) = delete;
-      CaloCellCrossing operator=( const CaloCellCrossing& ) = delete;
+private:
+  GlobalPoint m_gp;
+  GlobalVector m_gv;
 
-   private:
+  DetIds m_detId;
 
-      GlobalPoint  m_gp ;
-      GlobalVector m_gv ;
+  Points m_ctr;
 
-      DetIds  m_detId ;
-
-      Points  m_ctr  ;
-
-      Points  m_entr ;
-      Points  m_exit ;
-      Lengths m_len  ;
-
+  Points m_entr;
+  Points m_exit;
+  Lengths m_len;
 };
 
-std::ostream& operator<<( std::ostream& s, const CaloCellCrossing& cell ) ;
+std::ostream& operator<<(std::ostream& s, const CaloCellCrossing& cell);
 
 #endif

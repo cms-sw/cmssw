@@ -44,7 +44,7 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             )
 
 process.DTGeometryESProducer = cms.ESProducer("DTGeometryESProducer",
-                                              DDDetector = cms.ESInputTag('MUON'),
+                                              DDDetector = cms.ESInputTag('','MUON'),
                                               appendToDataLabel = cms.string(''),
                                               applyAlignment = cms.bool(False),
                                               alignmentsLabel = cms.string(''),
@@ -63,11 +63,11 @@ process.MuonNumberingESProducer = cms.ESProducer("MuonNumberingESProducer",
                                                  )
 
 process.test = cms.EDAnalyzer("DTGeometryTest",
-                              DDDetector = cms.ESInputTag('MUON')
+                              DDDetector = cms.ESInputTag('','MUON')
                               )
 
 process.dump = cms.EDAnalyzer("DDTestDumpGeometry",
-                              DDDetector = cms.ESInputTag('MUON')
+                              DDDetector = cms.ESInputTag('','MUON')
                               )
 
 process.p = cms.Path(process.test+process.dump)

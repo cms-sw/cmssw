@@ -16,7 +16,7 @@ charmTagsComputerCvsL = cms.ESProducer(
       ),
    weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_udsg_sklearn.weight.xml'),
    variables = c_vs_l_vars_vpset,
-   computer = cms.ESInputTag('combinedSecondaryVertexSoftLeptonComputer'),
+   computer = cms.ESInputTag('combinedSecondaryVertexSoftLeptonComputer',''),
    tagInfos = cms.VInputTag(
       cms.InputTag('pfImpactParameterTagInfos'),
       cms.InputTag('pfInclusiveSecondaryVertexFinderCvsLTagInfos'),

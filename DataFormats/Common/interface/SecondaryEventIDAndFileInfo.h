@@ -9,15 +9,12 @@ namespace edm {
   public:
     SecondaryEventIDAndFileInfo() : eventID_(), fileNameHash_(0U) {}
     SecondaryEventIDAndFileInfo(EventID const& evID, size_t fNameHash) : eventID_(evID), fileNameHash_(fNameHash) {}
-    EventID const& eventID() const {
-      return eventID_;
-    }
-    size_t fileNameHash() const {
-      return fileNameHash_;
-    }
+    EventID const& eventID() const { return eventID_; }
+    size_t fileNameHash() const { return fileNameHash_; }
+
   private:
     EventID eventID_;
     size_t fileNameHash_;
   };
-}
+}  // namespace edm
 #endif

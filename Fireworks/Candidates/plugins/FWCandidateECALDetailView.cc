@@ -1,17 +1,14 @@
 #include "Fireworks/Calo/interface/FWECALDetailViewBase.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-class  FWCandidateECALDetailView: public FWECALDetailViewBase<reco::Candidate>
-{
+class FWCandidateECALDetailView : public FWECALDetailViewBase<reco::Candidate> {
 public:
-   FWCandidateECALDetailView() {}
-   ~FWCandidateECALDetailView() override {}
+  FWCandidateECALDetailView() {}
+  ~FWCandidateECALDetailView() override {}
 
 private:
-   FWCandidateECALDetailView(const FWCandidateECALDetailView&) = delete; // stop default
-   const FWCandidateECALDetailView& operator=(const FWCandidateECALDetailView&) = delete; // stop default
-
-
+  FWCandidateECALDetailView(const FWCandidateECALDetailView&) = delete;                   // stop default
+  const FWCandidateECALDetailView& operator=(const FWCandidateECALDetailView&) = delete;  // stop default
 };
 
 REGISTER_FWDETAILVIEW(FWCandidateECALDetailView, ECAL);
@@ -24,4 +21,3 @@ REGISTER_FWDETAILVIEW(FWCandidateECALDetailView, ECAL,reducedEcalRecHitsEB);
 // miniaod
 REGISTER_FWDETAILVIEW(FWCandidateECALDetailView, ECAL,reducedEgamma);
 */
-

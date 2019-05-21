@@ -25,34 +25,30 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class EcalPreshowerNoiseDistrib: public DQMEDAnalyzer{
-
-    typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
+class EcalPreshowerNoiseDistrib : public DQMEDAnalyzer {
+  typedef std::map<uint32_t, float, std::less<uint32_t> > MapType;
 
 public:
+  /// Constructor
+  EcalPreshowerNoiseDistrib(const edm::ParameterSet& ps);
 
-/// Constructor
-EcalPreshowerNoiseDistrib(const edm::ParameterSet& ps);
-
-void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) override;
 
 protected:
-
-/// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  /// Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
+  bool verbose_;
 
- bool verbose_;
- 
- std::string outputFile_;
+  std::string outputFile_;
 
- edm::EDGetTokenT<ESDigiCollection> ESdigiCollectionToken_;
+  edm::EDGetTokenT<ESDigiCollection> ESdigiCollectionToken_;
 
- MonitorElement* meESDigiADC_[3];
- MonitorElement* meESDigiCorr_[3];
- MonitorElement* meESDigi3D_;
- MonitorElement* meESDigiMultiplicity_;
+  MonitorElement* meESDigiADC_[3];
+  MonitorElement* meESDigiCorr_[3];
+  MonitorElement* meESDigi3D_;
+  MonitorElement* meESDigiMultiplicity_;
 };
 
 #endif

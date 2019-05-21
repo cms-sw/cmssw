@@ -20,7 +20,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h" // Logger
+#include "FWCore/MessageLogger/interface/MessageLogger.h"  // Logger
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
@@ -28,7 +28,6 @@
 const static unsigned NUM_RCT_CRATES = 18;
 
 class RctDigiToRctText : public edm::EDAnalyzer {
-
 public:
   explicit RctDigiToRctText(const edm::ParameterSet &);
   ~RctDigiToRctText() override;

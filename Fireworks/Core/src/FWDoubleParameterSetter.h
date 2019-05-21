@@ -25,38 +25,34 @@
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
 
-
 // forward declarations
 class TGNumberEntry;
 
-class FWDoubleParameterSetter : public FWParameterSetterBase
-{
-
+class FWDoubleParameterSetter : public FWParameterSetterBase {
 public:
-   FWDoubleParameterSetter();
-   ~FWDoubleParameterSetter() override;
+  FWDoubleParameterSetter();
+  ~FWDoubleParameterSetter() override;
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void attach(FWParameterBase*) override ;
-   TGFrame* build(TGFrame* iParent, bool labelBack=true) override ;
+  // ---------- member functions ---------------------------
+  void attach(FWParameterBase*) override;
+  TGFrame* build(TGFrame* iParent, bool labelBack = true) override;
 
-   void setEnabled(bool) override;
+  void setEnabled(bool) override;
 
-   void doUpdate(Long_t);
-   
+  void doUpdate(Long_t);
+
 private:
-   FWDoubleParameterSetter(const FWDoubleParameterSetter&) = delete;    // stop default
+  FWDoubleParameterSetter(const FWDoubleParameterSetter&) = delete;  // stop default
 
-   const FWDoubleParameterSetter& operator=(const FWDoubleParameterSetter&) = delete;    // stop default
+  const FWDoubleParameterSetter& operator=(const FWDoubleParameterSetter&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   FWDoubleParameter* m_param;
-   TGNumberEntry* m_widget;
+  // ---------- member data --------------------------------
+  FWDoubleParameter* m_param;
+  TGNumberEntry* m_widget;
 };
-
 
 #endif

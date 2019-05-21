@@ -8,7 +8,6 @@
  *
  */
 
-
 #include "DQM/DTMonitorClient/src/DTDCSSummary.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
@@ -19,38 +18,33 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-
 using namespace std;
 using namespace edm;
 
-
-
-DTDCSSummary::DTDCSSummary(const ParameterSet& pset) {
-
-  bookingdone = false;
-
-}
+DTDCSSummary::DTDCSSummary(const ParameterSet& pset) { bookingdone = false; }
 
 DTDCSSummary::~DTDCSSummary() {}
 
-void DTDCSSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
-                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
-
-  if (bookingdone) return;
+void DTDCSSummary::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
+                                         DQMStore::IGetter& igetter,
+                                         edm::LuminosityBlock const& lumiSeg,
+                                         edm::EventSetup const& context) {
+  if (bookingdone)
+    return;
 
   ibooker.setCurrentFolder("DT/EventInfo/DCSContents");
   // global fraction
-  totalDCSFraction = ibooker.bookFloat("DTDCSSummary");  
+  totalDCSFraction = ibooker.bookFloat("DTDCSSummary");
   totalDCSFraction->Fill(-1);
   // Wheel "fractions" -> will be 0 or 1
-  for(int wheel = -2; wheel != 3; ++wheel) {
+  for (int wheel = -2; wheel != 3; ++wheel) {
     stringstream streams;
     streams << "DT_Wheel" << wheel;
     dcsFractions[wheel] = ibooker.bookFloat(streams.str());
     dcsFractions[wheel]->Fill(-1);
   }
-  
-  bookingdone = true; 
+
+  bookingdone = true;
 }
 
-void DTDCSSummary::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {}
+void DTDCSSummary::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {}

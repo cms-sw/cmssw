@@ -26,24 +26,20 @@ public:
   void bookStatus(DQMStore& dqm_store);
   void resetStatus();
   void fillDummyStatus();
-  void fillStatus(DQMStore& dqm_store,
-                  const edm::ESHandle<SiStripDetCabling>& cabling,
-                  const edm::EventSetup& eSetup);
+  void fillStatus(DQMStore& dqm_store, const edm::ESHandle<SiStripDetCabling>& cabling, const edm::EventSetup& eSetup);
   void fillStatusAtLumi(DQMStore& dqm_store);
   void printStatusReport();
-  void fillFaultyModuleStatus(DQMStore& dqm_store,
-                              const edm::EventSetup& eSetup);
+  void fillFaultyModuleStatus(DQMStore& dqm_store, const edm::EventSetup& eSetup);
 
 private:
-  struct SubDetMEs{
+  struct SubDetMEs {
     MonitorElement* DetFraction;
     MonitorElement* SToNFlag;
     MonitorElement* SummaryFlag;
-    std::string     detectorTag;
+    std::string detectorTag;
   };
 
-  void fillDetectorStatus(DQMStore& dqm_store,
-                          const edm::ESHandle<SiStripDetCabling>& cabling);
+  void fillDetectorStatus(DQMStore& dqm_store, const edm::ESHandle<SiStripDetCabling>& cabling);
   void fillSubDetStatus(DQMStore& dqm_store,
                         const edm::ESHandle<SiStripDetCabling>& cabling,
                         SubDetMEs& mes,
@@ -58,8 +54,7 @@ private:
                        int& errdet_hasExclFed,
                        int& errdet_hasDcsErr);
 
-  void
-  fillStatusHistogram(MonitorElement const*, int xbin, int ybin, float val);
+  void fillStatusHistogram(MonitorElement const*, int xbin, int ybin, float val);
   void initialiseBadModuleList();
 
   void fillDetectorStatusAtLumi(DQMStore& dqm_store);
@@ -79,7 +74,7 @@ private:
   MonitorElement* TrackSummaryReportMap{nullptr};
   MonitorElement* TrackSummaryReportGlobal{nullptr};
 
-  std::map<uint32_t,uint16_t> badModuleList;
+  std::map<uint32_t, uint16_t> badModuleList;
 
   edm::ParameterSet const pSet_;
 

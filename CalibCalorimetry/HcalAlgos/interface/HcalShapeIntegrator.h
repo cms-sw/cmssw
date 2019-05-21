@@ -9,10 +9,9 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 #include <vector>
 
-class HcalShapeIntegrator
-{
+class HcalShapeIntegrator {
 public:
-  HcalShapeIntegrator( const HcalPulseShapes::Shape* aShape ) ;
+  HcalShapeIntegrator(const HcalPulseShapes::Shape* aShape);
   float operator()(double startTime, double stopTime) const;
 
 private:
@@ -23,4 +22,3 @@ private:
 };
 
 #endif
-

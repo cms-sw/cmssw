@@ -25,13 +25,13 @@ ele_scletawidth                    superCluster.etaWidth                        
 ele_sclphiwidth                    superCluster.phiWidth                                      None None
 ele_hadronicOverEm             hadronicOverEm                                             None None
 ele_oldhe                          full5x5_hcalOverEcal                                       None None
-ele_kfhits                         electronMVAVariableHelper:kfhits                           None None
-ele_kfchi2                         electronMVAVariableHelper:kfchi2                           None  10.
+ele_kfhits                         closestCtfTrackNLayers                                          None None
+ele_kfchi2                         closestCtfTrackNormChi2                                           None  10.
 ele_gsfchi2                        gsfTrack.normalizedChi2                                    None 200.
 ele_fbrem                          fbrem                                                       -1. None
 ele_gsfhits                        gsfTrack.hitPattern.trackerLayersWithMeasurement           None None
 ele_expected_inner_hits            gsfTrack.hitPattern.numberOfLostHits('MISSING_INNER_HITS') None None
-ele_conversionVertexFitProbability electronMVAVariableHelper:convVtxFitProb                   None None
+ele_conversionVertexFitProbability convVtxFitProb                                             None None
 ele_ep                             eSuperClusterOverP                                         None  20.
 ele_eelepout                       eEleClusterOverPout                                        None  20.
 ele_IoEmIop                        1.0/ecalEnergy-1.0/trackMomentumAtVtx.R                    None None

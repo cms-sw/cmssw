@@ -30,7 +30,6 @@ class L1GtExternalTemplate;
 
 // class declaration
 class L1GtExternalCondition : public L1GtConditionEvaluation {
-
 public:
   /// constructors
   ///     default
@@ -57,18 +56,14 @@ public:
 
 public:
   ///   get / set the pointer to a L1GtCondition
-  inline const L1GtExternalTemplate *gtExternalTemplate() const {
-    return m_gtExternalTemplate;
-  }
+  inline const L1GtExternalTemplate *gtExternalTemplate() const { return m_gtExternalTemplate; }
 
   void setGtExternalTemplate(const L1GtExternalTemplate *);
 
   ///   get / set the result
   inline const bool conditionResult() const { return m_conditionResult; }
 
-  inline void setConditionResult(const bool result) {
-    m_conditionResult = result;
-  }
+  inline void setConditionResult(const bool result) { m_conditionResult = result; }
 
 private:
   /// copy function for copy constructor and operator=

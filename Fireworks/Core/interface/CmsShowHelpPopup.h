@@ -28,16 +28,16 @@ class TGHtml;
 
 class CmsShowHelpPopup : public TGTransientFrame {
 public:
-   CmsShowHelpPopup (const std::string &filename,
-                     const std::string &windowname, const TGWindow* p = nullptr,
-                     UInt_t w = 1, UInt_t h = 1);
-   ~CmsShowHelpPopup() override;
-   void CloseWindow() override { UnmapWindow(); }
+  CmsShowHelpPopup(const std::string &filename,
+                   const std::string &windowname,
+                   const TGWindow *p = nullptr,
+                   UInt_t w = 1,
+                   UInt_t h = 1);
+  ~CmsShowHelpPopup() override;
+  void CloseWindow() override { UnmapWindow(); }
 
- 
 protected:
-   TGHtml     *m_helpHtml;
+  TGHtml *m_helpHtml;
 };
-
 
 #endif

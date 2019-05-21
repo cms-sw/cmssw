@@ -31,7 +31,7 @@ DDTestVectors::analyze( const Event&, const EventSetup& iEventSetup)
 {
   LogVerbatim("Geometry") << "DDTestVectors::analyze: " << m_tag;
   ESTransientHandle<DDVectorRegistry> registry;
-  iEventSetup.get<DDVectorRegistryRcd>().get(m_tag.module(), registry);
+  iEventSetup.get<DDVectorRegistryRcd>().get(m_tag, registry);
 
   LogVerbatim("Geometry").log([&registry](auto& log) {
       log << "DD Vector Registry size: " << registry->vectors.size();

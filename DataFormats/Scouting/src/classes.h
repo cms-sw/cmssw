@@ -8,5 +8,3 @@
 #include "DataFormats/Scouting/interface/ScoutingPhoton.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/Ref.h"
-
-

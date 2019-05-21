@@ -28,32 +28,29 @@
 // forward declarations
 class TGCheckButton;
 
-class FWBoolParameterSetter : public FWParameterSetterBase
-{
-
+class FWBoolParameterSetter : public FWParameterSetterBase {
 public:
-   FWBoolParameterSetter();
-   ~FWBoolParameterSetter() override;
+  FWBoolParameterSetter();
+  ~FWBoolParameterSetter() override;
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void attach(FWParameterBase*) override ;
-   TGFrame* build(TGFrame* iParent, bool labelBack = true) override ;
-   void setEnabled(bool) override;
-   void doUpdate();
+  // ---------- member functions ---------------------------
+  void attach(FWParameterBase*) override;
+  TGFrame* build(TGFrame* iParent, bool labelBack = true) override;
+  void setEnabled(bool) override;
+  void doUpdate();
 
 private:
-   FWBoolParameterSetter(const FWBoolParameterSetter&) = delete;    // stop default
+  FWBoolParameterSetter(const FWBoolParameterSetter&) = delete;  // stop default
 
-   const FWBoolParameterSetter& operator=(const FWBoolParameterSetter&) = delete;    // stop default
+  const FWBoolParameterSetter& operator=(const FWBoolParameterSetter&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   FWBoolParameter* m_param;
-   TGCheckButton* m_widget;
+  // ---------- member data --------------------------------
+  FWBoolParameter* m_param;
+  TGCheckButton* m_widget;
 };
-
 
 #endif

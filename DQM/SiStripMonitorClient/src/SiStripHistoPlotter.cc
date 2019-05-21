@@ -37,14 +37,13 @@ SiStripHistoPlotter::~SiStripHistoPlotter() {
 //
 // -- Set New Plot
 //
-void
-SiStripHistoPlotter::setNewPlot(std::string const& path,
-                                std::string const& option,
-                                int const width,
-                                int const height)
-{
+void SiStripHistoPlotter::setNewPlot(std::string const& path,
+                                     std::string const& option,
+                                     int const width,
+                                     int const height) {
   std::string name = "Dummy";
-  if (!hasNamedImage(name)) createDummyImage(name);
+  if (!hasNamedImage(name))
+    createDummyImage(name);
   PlotParameter local_par{path, option, width, height};
   plotList_.push_back(std::move(local_par));
 }
@@ -52,9 +51,11 @@ SiStripHistoPlotter::setNewPlot(std::string const& path,
 // -- Create Plots
 //
 void SiStripHistoPlotter::createPlots(DQMStore* dqm_store) {
-  if (plotList_.empty()) return;
+  if (plotList_.empty())
+    return;
   std::string name = "Dummy";
-  if (!hasNamedImage(name)) createDummyImage(name);
+  if (!hasNamedImage(name))
+    createDummyImage(name);
   for (auto const& par : plotList_) {
     makePlot(dqm_store, par);
   }
@@ -63,26 +64,19 @@ void SiStripHistoPlotter::createPlots(DQMStore* dqm_store) {
 //
 // -- Draw Histograms
 //
-void
-SiStripHistoPlotter::makePlot(DQMStore const* dqm_store,
-                              const PlotParameter& par)
-{
-  TCanvas* canvas =
-    new TCanvas("TKCanvas", "TKCanvas", par.CWidth, par.CHeight);
+void SiStripHistoPlotter::makePlot(DQMStore const* dqm_store, const PlotParameter& par) {
+  TCanvas* canvas = new TCanvas("TKCanvas", "TKCanvas", par.CWidth, par.CHeight);
 
   MonitorElement* me = dqm_store->get(par.Path);
   if (me) {
-
     int istat = SiStripUtility::getMEStatus(me);
 
     std::string dopt = par.Option;
     std::string tag;
     int icol;
     SiStripUtility::getMEStatusColor(istat, icol, tag);
-    if (me->kind() == MonitorElement::DQM_KIND_TH1F ||
-        me->kind() == MonitorElement::DQM_KIND_TH2F ||
-        me->kind() == MonitorElement::DQM_KIND_TPROFILE ||
-        me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
+    if (me->kind() == MonitorElement::DQM_KIND_TH1F || me->kind() == MonitorElement::DQM_KIND_TH2F ||
+        me->kind() == MonitorElement::DQM_KIND_TPROFILE || me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
       TH1* histo = me->getTH1();
       TH1F* tproject = nullptr;
       if (dopt == "projection") {
@@ -94,9 +88,9 @@ SiStripHistoPlotter::makePlot(DQMStore const* dqm_store,
       } else {
         dopt = "";
         std::string name = histo->GetName();
-        if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D ) {
+        if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
           dopt = "colz";
-          histo->SetStats( kFALSE );
+          histo->SetStats(kFALSE);
         } else {
           if (name.find("Summary_Mean") != std::string::npos) {
             histo->SetStats(kFALSE);
@@ -129,15 +123,15 @@ SiStripHistoPlotter::makePlot(DQMStore const* dqm_store,
 void SiStripHistoPlotter::getNamedImageBuffer(const std::string& path, std::string& image) {
   std::map<std::string, std::string>::iterator cPos;
   if (path == "dummy_path") {
-    std::cout << " Sending Dummy Image for : "
-         <<  path << std::endl;
+    std::cout << " Sending Dummy Image for : " << path << std::endl;
     cPos = namedPictureBuffer_.find("Dummy");
     image = cPos->second;
   } else {
     cPos = namedPictureBuffer_.find(path);
     if (cPos != namedPictureBuffer_.end()) {
       image = cPos->second;
-      if (namedPictureBuffer_.size() > 99 ) namedPictureBuffer_.erase(cPos);
+      if (namedPictureBuffer_.size() > 99)
+        namedPictureBuffer_.erase(cPos);
     } else {
       std::cout << " Sending Dummy Image for : " << path << std::endl;
       cPos = namedPictureBuffer_.find("Dummy");
@@ -149,11 +143,9 @@ void SiStripHistoPlotter::getNamedImageBuffer(const std::string& path, std::stri
  *
  *  This method
  */
-void
-SiStripHistoPlotter::fillNamedImageBuffer(TCanvas* c1, const std::string& name)
-{
+void SiStripHistoPlotter::fillNamedImageBuffer(TCanvas* c1, const std::string& name) {
   //  DQMScope enter;
- // Now extract the image
+  // Now extract the image
   // 114 - stands for "no write on Close"
   //   std::cout << ACYellow << ACBold
   //        << "[SiPixelInformationExtractor::fillNamedImageBuffer()] "
@@ -166,28 +158,29 @@ SiStripHistoPlotter::fillNamedImageBuffer(TCanvas* c1, const std::string& name)
   TImageDump imgdump("tmp.png", 114);
   c1->Paint();
 
-// get an internal image which will be automatically deleted
-// in the imgdump destructor
-  TImage *image = imgdump.GetImage();
+  // get an internal image which will be automatically deleted
+  // in the imgdump destructor
+  TImage* image = imgdump.GetImage();
 
-  if( image == nullptr )
-  {
+  if (image == nullptr) {
     std::cout << "No TImage found for " << name << std::endl;
-    return ;
+    return;
   }
-  char *buf;
+  char* buf;
   int sz = 0;
   image->GetImageBuffer(&buf, &sz);
 
   std::ostringstream local_str;
-  for (int i = 0; i < sz; i++) local_str << buf[i];
+  for (int i = 0; i < sz; i++)
+    local_str << buf[i];
 
-//  delete [] buf;
-  ::free(buf); // buf is allocated via realloc() by a C language AfterStep library invoked by the
-               // default (and so far only) TImage implementation in root, TASImage.
+  //  delete [] buf;
+  ::free(buf);  // buf is allocated via realloc() by a C language AfterStep library invoked by the
+                // default (and so far only) TImage implementation in root, TASImage.
 
   // clear the first element map if # of entries > 30
-  if (hasNamedImage(name)) namedPictureBuffer_.erase(name);
+  if (hasNamedImage(name))
+    namedPictureBuffer_.erase(name);
   namedPictureBuffer_[name] = local_str.str();
   //  if (namedPictureBuffer_[name].size() > 0) std::cout << "image created " << name << std::endl;
 }
@@ -198,12 +191,13 @@ bool SiStripHistoPlotter::hasNamedImage(const std::string& name) {
   std::map<std::string, std::string>::const_iterator cPos = namedPictureBuffer_.find(name);
   if (cPos == namedPictureBuffer_.end()) {
     return false;
-  } else return true;
+  } else
+    return true;
 }
 //
 // -- Create Dummy Image
 //
-void SiStripHistoPlotter::createDummyImage(const std::string & name) {
+void SiStripHistoPlotter::createDummyImage(const std::string& name) {
   std::string image;
   getDummyImage(image);
   namedPictureBuffer_.insert(std::pair<std::string, std::string>(name, image));
@@ -211,15 +205,15 @@ void SiStripHistoPlotter::createDummyImage(const std::string & name) {
 //
 // -- Get Image reading a disk resident image
 //
-void SiStripHistoPlotter::getDummyImage(std::string & image) {
-  std::string          line;
-  std::ostringstream   local_str;
+void SiStripHistoPlotter::getDummyImage(std::string& image) {
+  std::string line;
+  std::ostringstream local_str;
   // Read back the file line by line and temporarily store it in a stringstream
   std::string localPath = std::string("DQM/TrackerCommon/test/images/EmptyPlot.png");
-  std::ifstream * imagefile = new std::ifstream((edm::FileInPath(localPath).fullPath()).c_str(),std::ios::in);
-  if(imagefile->is_open()) {
-    while (getline( *imagefile, line )) {
-      local_str << line << std::endl ;
+  std::ifstream* imagefile = new std::ifstream((edm::FileInPath(localPath).fullPath()).c_str(), std::ios::in);
+  if (imagefile->is_open()) {
+    while (getline(*imagefile, line)) {
+      local_str << line << std::endl;
     }
   }
   imagefile->close();
@@ -228,7 +222,8 @@ void SiStripHistoPlotter::getDummyImage(std::string & image) {
 // -- Set Drawing Option
 //
 void SiStripHistoPlotter::setDrawingOption(TH1* hist) {
-  if (!hist) return;
+  if (!hist)
+    return;
 
   TAxis* xa = hist->GetXaxis();
   TAxis* ya = hist->GetYaxis();
@@ -240,44 +235,37 @@ void SiStripHistoPlotter::setDrawingOption(TH1* hist) {
   ya->SetTitleOffset(0.7);
   ya->SetTitleSize(0.05);
   ya->SetLabelSize(0.04);
-
 }
 // -- Get Projection Histogram
 //
 void SiStripHistoPlotter::getProjection(MonitorElement* me, TH1F* tp) {
-
   std::string ptit = me->getTitle();
   ptit += "-Yprojection";
 
   if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
     TH2F* hist2 = me->getTH2F();
-    tp = new TH1F(ptit.c_str(),
-                  ptit.c_str(),
-                  hist2->GetNbinsY(),
-                  hist2->GetYaxis()->GetXmin(),
-                  hist2->GetYaxis()->GetXmax());
+    tp = new TH1F(
+        ptit.c_str(), ptit.c_str(), hist2->GetNbinsY(), hist2->GetYaxis()->GetXmin(), hist2->GetYaxis()->GetXmax());
     tp->GetXaxis()->SetTitle(ptit.c_str());
-    for (int j = 1; j < hist2->GetNbinsY()+1; j++) {
+    for (int j = 1; j < hist2->GetNbinsY() + 1; j++) {
       float tot_count = 0.0;
-      for (int i = 1; i < hist2->GetNbinsX()+1; i++) {
+      for (int i = 1; i < hist2->GetNbinsX() + 1; i++) {
         tot_count += hist2->GetBinContent(i, j);
       }
       tp->SetBinContent(j, tot_count);
     }
   } else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
-     TProfile* prof = me->getTProfile();
-     tp =
-       new TH1F(ptit.c_str(), ptit.c_str(), 100, 0.0, prof->GetMaximum() * 1.2);
-     tp->GetXaxis()->SetTitle(ptit.c_str());
-     for (int i = 1; i < prof->GetNbinsX()+1; i++) {
-       tp->Fill(prof->GetBinContent(i));
-     }
+    TProfile* prof = me->getTProfile();
+    tp = new TH1F(ptit.c_str(), ptit.c_str(), 100, 0.0, prof->GetMaximum() * 1.2);
+    tp->GetXaxis()->SetTitle(ptit.c_str());
+    for (int i = 1; i < prof->GetNbinsX() + 1; i++) {
+      tp->Fill(prof->GetBinContent(i));
+    }
   } else if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
     TH1F* hist1 = me->getTH1F();
-    tp =
-      new TH1F(ptit.c_str(), ptit.c_str(), 100, 0.0, hist1->GetMaximum() * 1.2);
+    tp = new TH1F(ptit.c_str(), ptit.c_str(), 100, 0.0, hist1->GetMaximum() * 1.2);
     tp->GetXaxis()->SetTitle(ptit.c_str());
-    for (int i = 1; i < hist1->GetNbinsX()+1; i++) {
+    for (int i = 1; i < hist1->GetNbinsX() + 1; i++) {
       tp->Fill(hist1->GetBinContent(i));
     }
   }
@@ -311,35 +299,31 @@ void SiStripHistoPlotter::createStaticPlot(MonitorElement* me, const std::string
   canvas->Update();
   std::string command = "rm -f " + file_name;
   gSystem->Exec(command.c_str());
-  canvas->Print(file_name.c_str(),"png");
+  canvas->Print(file_name.c_str(), "png");
   canvas->Clear();
   delete canvas;
 }
 //
 // -- Set New CondDB Plot
 //
-void
-SiStripHistoPlotter::setNewCondDBPlot(std::string const& path,
-                                      std::string const& option,
-                                      int const width,
-                                      int const height)
-{
+void SiStripHistoPlotter::setNewCondDBPlot(std::string const& path,
+                                           std::string const& option,
+                                           int const width,
+                                           int const height) {
   PlotParameter local_par{path, option, width, height};
   condDBPlotList_.push_back(std::move(local_par));
 }
 //
 // -- Create CondDB Plots
 //
-void
-SiStripHistoPlotter::createCondDBPlots(DQMStore* dqm_store)
-{
-  if (condDBPlotList_.empty()) return;
+void SiStripHistoPlotter::createCondDBPlots(DQMStore* dqm_store) {
+  if (condDBPlotList_.empty())
+    return;
   std::string name = "Dummy";
-  if (!hasNamedImage(name)) createDummyImage(name);
+  if (!hasNamedImage(name))
+    createDummyImage(name);
 
-  for (std::vector<PlotParameter>::iterator it = condDBPlotList_.begin();
-       it != condDBPlotList_.end();
-       it++) {
+  for (std::vector<PlotParameter>::iterator it = condDBPlotList_.begin(); it != condDBPlotList_.end(); it++) {
     makeCondDBPlots(dqm_store, (*it));
   }
   condDBPlotList_.clear();
@@ -348,7 +332,7 @@ SiStripHistoPlotter::createCondDBPlots(DQMStore* dqm_store)
 // -- Draw CondDB Histograms
 //
 void SiStripHistoPlotter::makeCondDBPlots(DQMStore* dqm_store, const PlotParameter& par) {
-  TCanvas * canvas = new TCanvas("TKCanvas", "TKCanvas", par.CWidth, par.CHeight);
+  TCanvas* canvas = new TCanvas("TKCanvas", "TKCanvas", par.CWidth, par.CHeight);
 
   std::vector<std::string> htypes;
   std::string option = par.Option;
@@ -357,16 +341,15 @@ void SiStripHistoPlotter::makeCondDBPlots(DQMStore* dqm_store, const PlotParamet
   std::string tag;
   std::vector<MonitorElement*> all_mes = dqm_store->getContents(par.Path);
 
-  for (std::vector<std::string>::const_iterator ih = htypes.begin();
-       ih!= htypes.end(); ih++) {
+  for (std::vector<std::string>::const_iterator ih = htypes.begin(); ih != htypes.end(); ih++) {
     std::string type = (*ih);
-    if (type.empty()) continue;
+    if (type.empty())
+      continue;
     std::string tag = par.Path + "/";
-    for (std::vector<MonitorElement*>::const_iterator it = all_mes.begin();
-         it != all_mes.end();
-         it++) {
-      MonitorElement * me = (*it);
-      if (!me) continue;
+    for (std::vector<MonitorElement*>::const_iterator it = all_mes.begin(); it != all_mes.end(); it++) {
+      MonitorElement* me = (*it);
+      if (!me)
+        continue;
       std::string hname = me->getName();
       if (hname.find(type) != std::string::npos) {
         TH1* histo = me->getTH1();

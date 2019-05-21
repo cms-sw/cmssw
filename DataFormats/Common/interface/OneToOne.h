@@ -3,7 +3,7 @@
 #include "DataFormats/Common/interface/OneToOneGeneric.h"
 
 namespace edm {
-  template<typename CKey, typename CVal, typename index = unsigned int>
+  template <typename CKey, typename CVal, typename index = unsigned int>
   class OneToOne : public OneToOneGeneric<CKey, CVal, index> {
   private:
     typedef OneToOneGeneric<CKey, CVal, index> base;
@@ -28,6 +28,6 @@ namespace edm {
     /// transient val vector
     typedef typename base::transient_val_vector transient_val_vector;
   };
-}
+}  // namespace edm
 
 #endif

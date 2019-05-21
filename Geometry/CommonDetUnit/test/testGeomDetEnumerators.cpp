@@ -6,18 +6,17 @@ int main(void) {
   // Test that each SubDetector is either barrel or endcap
 
   bool success = true;
-  for(int subdetRaw = GeomDetEnumerators::PixelBarrel; subdetRaw != GeomDetEnumerators::invalidDet; ++subdetRaw) {
+  for (int subdetRaw = GeomDetEnumerators::PixelBarrel; subdetRaw != GeomDetEnumerators::invalidDet; ++subdetRaw) {
     auto subdet = static_cast<GeomDetEnumerators::SubDetector>(subdetRaw);
-    if(!(GeomDetEnumerators::isBarrel(subdet) || GeomDetEnumerators::isEndcap(subdet))) {
+    if (!(GeomDetEnumerators::isBarrel(subdet) || GeomDetEnumerators::isEndcap(subdet))) {
       success = false;
       std::cout << "GeomDetEnumerator::SubDetector " << subdet << " (" << subdetRaw << ") is not barrel or endcap!";
     }
-    if(GeomDetEnumerators::isBarrel(subdet) && GeomDetEnumerators::isEndcap(subdet)) {
+    if (GeomDetEnumerators::isBarrel(subdet) && GeomDetEnumerators::isEndcap(subdet)) {
       success = false;
       std::cout << "GeomDetEnumerator::SubDetector " << subdet << " (" << subdetRaw << ") is both barrel and endcap!";
     }
   }
-
 
   return success ? 0 : 1;
 }

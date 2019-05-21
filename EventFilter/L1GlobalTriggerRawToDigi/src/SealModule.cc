@@ -11,7 +11,6 @@
 
 #include "EventFilter/L1GlobalTriggerRawToDigi/interface/L1GlobalTriggerRecordProducer.h"
 
-
 DEFINE_FWK_MODULE(L1GTDigiToRaw);
 DEFINE_FWK_MODULE(L1GlobalTriggerRawToDigi);
 

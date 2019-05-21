@@ -23,18 +23,15 @@
  * \date    12/05/06
  */
 
-
 class L1GctEmLeafCard;
 
-class L1GctElectronFinalSort : public L1GctProcessor
-{
+class L1GctElectronFinalSort : public L1GctProcessor {
 public:
   /// Use some definitions from the ElectronSorter in the leaf cards
   typedef L1GctElectronSorter::prioritisedEmCand prioritisedEmCand;
-  ///     
+  ///
   /// constructor
-  L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* posEtaCard,
-                                   L1GctEmLeafCard* negEtaCard);
+  L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* posEtaCard, L1GctEmLeafCard* negEtaCard);
   ///
   /// destructor
   ~L1GctElectronFinalSort() override;
@@ -49,19 +46,18 @@ public:
   void setInputEmCand(unsigned i, const L1GctEmCand& cand);
   ///
   /// return input data
-  inline std::vector<L1GctEmCand> getInputCands()  const { return m_inputCands; }
+  inline std::vector<L1GctEmCand> getInputCands() const { return m_inputCands; }
   ///
   /// return output data
   inline std::vector<L1GctEmCand> getOutputCands() const { return m_outputCands.contents; }
   ///
   /// overload of cout operator
-  friend std::ostream& operator<<(std::ostream& s,const L1GctElectronFinalSort& cand); 
+  friend std::ostream& operator<<(std::ostream& s, const L1GctElectronFinalSort& cand);
   ///
   /// check setup
   bool setupOk() const { return m_setupOk; }
-  
- protected:
 
+protected:
   /// Separate reset methods for the processor itself and any data stored in pipelines
   void resetProcessor() override;
   void resetPipelines() override;
@@ -69,7 +65,7 @@ public:
   /// Initialise inputs with null objects for the correct bunch crossing if required
   void setupObjects() override {}
 
- private:
+private:
   ///
   /// type of electron candidate (iso(0) or non-iso(1))
   bool m_emCandsType;
@@ -83,11 +79,11 @@ public:
   ///
   /// output data
   Pipeline<L1GctEmCand> m_outputCands;
-  
+
   /// Check the setup
   bool m_setupOk;
 };
 
-std::ostream& operator<<(std::ostream& s,const L1GctElectronFinalSort& cand); 
+std::ostream& operator<<(std::ostream& s, const L1GctElectronFinalSort& cand);
 
 #endif /*L1GCTELECTRONFINALSORT_H_*/

@@ -33,26 +33,26 @@ struct DDPosData;
  */
 
 struct DDCoreToDDXMLOutput {
+  void solid(const DDSolid& solid, std::ostream& xos);
 
-  void solid ( const DDSolid& solid, std::ostream& xos );
-  
-  void material ( const DDMaterial& material, std::ostream& xos );
+  void material(const DDMaterial& material, std::ostream& xos);
 
-  void rotation ( const DDRotation& rotation, std::ostream& xos, const std::string& rotn=""  );
+  void rotation(const DDRotation& rotation, std::ostream& xos, const std::string& rotn = "");
 
-  void logicalPart ( const DDLogicalPart& lp, std::ostream& xos );
+  void logicalPart(const DDLogicalPart& lp, std::ostream& xos);
 
-  void position ( const DDLogicalPart& parent
-		   , const DDLogicalPart& child
-		   , DDPosData* edgeToChild
-		  //		   , PIdealGeometry& geom 
-		   , int& rotNameSeed
-		   , std::ostream& xos );
+  void position(const DDLogicalPart& parent,
+                const DDLogicalPart& child,
+                DDPosData* edgeToChild
+                //		   , PIdealGeometry& geom
+                ,
+                int& rotNameSeed,
+                std::ostream& xos);
   // left in for now as legacy...
-  void specpar ( const DDSpecifics & sp, std::ostream& xos );
-  void specpar ( const std::pair<DDsvalues_type, std::set<const DDPartSelection*> >& pssv, std::ostream& xos );
-  
-  std::string ns_; // default namespace
+  void specpar(const DDSpecifics& sp, std::ostream& xos);
+  void specpar(const std::pair<DDsvalues_type, std::set<const DDPartSelection*> >& pssv, std::ostream& xos);
+
+  std::string ns_;  // default namespace
   double tol_;
 };
 

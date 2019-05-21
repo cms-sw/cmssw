@@ -1,4 +1,4 @@
-#ifndef INTERFACE_TTUTWOORLOGIC_H 
+#ifndef INTERFACE_TTUTWOORLOGIC_H
 #define INTERFACE_TTUTWOORLOGIC_H 1
 
 // Include files
@@ -20,29 +20,24 @@
  */
 
 class TTUTwoORLogic : public TTULogic {
-public: 
+public:
   /// Standard constructor
-  TTUTwoORLogic( ); 
+  TTUTwoORLogic();
 
   //... from TTULogic interface:
-  
-  bool process( const TTUInput & ) override;
-  
-  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & ) override;
-  
+
+  bool process(const TTUInput&) override;
+
+  void setBoardSpecs(const TTUBoardSpecs::TTUBoardConfig&) override;
+
   //...
 
 protected:
-
 private:
-
-
   TTUTrackingAlg m_ttuLogic;
-  
+
   TTUSectorORLogic m_rbcLogic;
 
   bool m_debug;
-  
-
 };
-#endif // INTERFACE_TTUTWOORLOGIC_H
+#endif  // INTERFACE_TTUTWOORLOGIC_H

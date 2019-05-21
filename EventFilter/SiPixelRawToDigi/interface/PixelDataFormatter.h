@@ -39,6 +39,7 @@
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorChecker.h"
+#include "EventFilter/SiPixelRawToDigi/interface/ErrorCheckerPhase0.h"
 #include "FWCore/Utilities/interface/typedefs.h"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 
@@ -101,7 +102,7 @@ private:
   bool debug;
   int allDetDigis;
   int hasDetDigis;
-  ErrorChecker errorcheck;
+  std::unique_ptr<ErrorCheckerBase> errorcheck;
 
   // For the 32bit data format (moved from *.cc namespace, keep uppercase for compatibility)
   // Add special layer 1 roc for phase1

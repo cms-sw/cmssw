@@ -2,7 +2,7 @@
 #define Geometry_CommonTopologies_Topology_H
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/LocalError.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"

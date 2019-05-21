@@ -38,7 +38,7 @@ class DQMStore;
 class MonitorElement;
 class SiStripDetCabling;
 
-class SiStripCertificationInfo: public edm::EDAnalyzer {
+class SiStripCertificationInfo : public edm::EDAnalyzer {
 public:
   SiStripCertificationInfo(const edm::ParameterSet& ps);
 
@@ -50,13 +50,12 @@ private:
 
   void bookSiStripCertificationMEs(DQMStore& dqm_store);
   void resetSiStripCertificationMEs(DQMStore& dqm_store);
-  void fillSiStripCertificationMEs(DQMStore& dqm_store,
-                                   edm::EventSetup const& eSetup);
+  void fillSiStripCertificationMEs(DQMStore& dqm_store, edm::EventSetup const& eSetup);
 
   void fillDummySiStripCertification(DQMStore& dqm_store);
   void fillSiStripCertificationMEsAtLumi(DQMStore& dqm_store);
 
-  struct SubDetMEs{
+  struct SubDetMEs {
     MonitorElement* det_fractionME;
     std::string folder_name;
     std::string subdet_tag;

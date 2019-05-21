@@ -44,39 +44,36 @@ class DTLocalTrigger;
 class L1MuDTChambPhDigi;
 class L1MuDTChambThDigi;
 
-typedef std::array<std::array<std::array<int,13>, 5 > ,6> DTArr3int;
-typedef std::array<std::array<std::array<const L1MuDTChambPhDigi*,15>, 5 > ,6> DTArr3PhDigi;
-typedef std::array<std::array<std::array<const L1MuDTChambThDigi*,15>, 5 > ,6> DTArr3ThDigi;
-typedef std::array<std::array<std::array<const DTLocalTrigger*,15>, 5 > ,6> DTArr3LocalTrigger;
-typedef std::array<std::array<std::array<int,2>, 13 > ,6> DTArr3mapInt;
+typedef std::array<std::array<std::array<int, 13>, 5>, 6> DTArr3int;
+typedef std::array<std::array<std::array<const L1MuDTChambPhDigi*, 15>, 5>, 6> DTArr3PhDigi;
+typedef std::array<std::array<std::array<const L1MuDTChambThDigi*, 15>, 5>, 6> DTArr3ThDigi;
+typedef std::array<std::array<std::array<const DTLocalTrigger*, 15>, 5>, 6> DTArr3LocalTrigger;
+typedef std::array<std::array<std::array<int, 2>, 13>, 6> DTArr3mapInt;
 
-class DTLocalTriggerTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
-
+class DTLocalTriggerTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
   friend class DTMonitorModule;
 
- public:
-
+public:
   /// Constructor
-  DTLocalTriggerTask(const edm::ParameterSet& ps );
+  DTLocalTriggerTask(const edm::ParameterSet& ps);
 
   /// Destructor
   ~DTLocalTriggerTask() override;
 
- protected:
-
+protected:
   ///Beginrun
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// Book the histograms
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void bookHistos(DQMStore::IBooker &, const DTChamberId& dtCh, std::string folder, std::string histoTag );
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void bookHistos(DQMStore::IBooker&, const DTChamberId& dtCh, std::string folder, std::string histoTag);
 
   /// Book the histograms
-  void bookWheelHistos(DQMStore::IBooker &, int wh, std::string histoTag );
+  void bookWheelHistos(DQMStore::IBooker&, int wh, std::string histoTag);
 
   /// Book the histograms
-  void bookBarrelHistos(DQMStore::IBooker &, std::string histoTag);
+  void bookBarrelHistos(DQMStore::IBooker&, std::string histoTag);
 
   /// Set Quality labels
   void setQLabels(MonitorElement* me, short int iaxis);
@@ -98,7 +95,7 @@ class DTLocalTriggerTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlo
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   /// To reset the MEs
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override ;
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) final {}
 
   /// Get the L1A source
@@ -109,10 +106,9 @@ class DTLocalTriggerTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlo
 
   const int wheelArrayShift = 3;
 
- private:
-
+private:
   edm::EDGetTokenT<L1MuDTChambPhContainer> tm_Token_;
-  edm::EDGetTokenT<L1MuDTChambThContainer> tmTh_Token_;    
+  edm::EDGetTokenT<L1MuDTChambThContainer> tmTh_Token_;
   edm::EDGetTokenT<DTLocalTriggerCollection> ros_Token_;
   edm::EDGetTokenT<DTRecSegment4DCollection> seg_Token_;
   edm::EDGetTokenT<LTCDigiCollection> ltcDigiCollectionToken_;
@@ -126,14 +122,13 @@ class DTLocalTriggerTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlo
   bool doTMTheta;
   bool detailedAnalysis;
 
-
   DTArr3int phcode_best;
   DTArr3int dduphcode_best;
   DTArr3int thcode_best;
   DTArr3int dduthcode_best;
   DTArr3mapInt mapDTTF;
   DTArr3PhDigi iphbest;
-  DTArr3LocalTrigger  iphbestddu;
+  DTArr3LocalTrigger iphbestddu;
   DTArr3ThDigi ithbest;
   bool track_ok[6][5][15];
 

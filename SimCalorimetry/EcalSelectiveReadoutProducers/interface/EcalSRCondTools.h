@@ -23,13 +23,12 @@ public:
    */
   ~EcalSRCondTools() override;
 
-
   /** Called by CMSSW event loop
    * @param evt the event
    * @param es events setup
    */
   void analyze(const edm::Event& evt, const edm::EventSetup& es) override;
-  
+
   /** Converts CMSSW python file selective readout setting ("parameter set")
    * into a condition database object.
    * Configuration from parameter set covers only part of the config,
@@ -40,7 +39,6 @@ public:
    */
   static void importParameterSet(EcalSRSettings& sr, const edm::ParameterSet& ps);
 
-
   /** Imports an SRP configuration file (stored in database "CLOB") into a
    * Selective readout setting object.
    * @param sr [in] ECAL selective readout setting object to set
@@ -49,7 +47,7 @@ public:
    * @param debug verbosity flag. If true, imported parameter are displayed on stdout.
    */
   static void importSrpConfigFile(EcalSRSettings& sr, std::istream& f, bool debug = false);
-  
+
   ///convert hardware weights (interger weights)
   ///into normalized weights. The former reprensentation is used in DCC firmware
   ///and in online databaser, while the later is used in offline software.
@@ -65,14 +63,12 @@ private:
   ///Help function to trim spaces at beginning and end of a string
   ///@param s string to trim
   static std::string trim(std::string s);
-  
+
   //fields
 private:
-
   edm::ParameterSet ps_;
 
   bool done_;
-
 };
 
-#endif //SRCONDACCESS_H not defined
+#endif  //SRCONDACCESS_H not defined

@@ -26,13 +26,13 @@ public:
 
   /// average cell occupancy in the layer
   double mean() const;
-  
+
   /// RMS of the distribution of the cell occupancies in the layer
   double rms() const;
 
   /// distance from another point in the 2D plane
   double distance(const DTOccupancyPoint& anotherPoint) const;
-  
+
   double deltaMean(const DTOccupancyPoint& anotherPoint) const;
 
   double deltaRMS(const DTOccupancyPoint& anotherPoint) const;
@@ -40,7 +40,7 @@ public:
   bool operator==(const DTOccupancyPoint& other) const;
 
   bool operator!=(const DTOccupancyPoint& other) const;
-  
+
   bool operator<(const DTOccupancyPoint& other) const;
 
   void setLayerId(DTLayerId layerId);
@@ -48,13 +48,11 @@ public:
   DTLayerId layerId() const;
 
 private:
-
   double theMean;
   double theRMS;
   DTLayerId theLayerId;
-  
-  bool debug; // FIXME: to be removed
 
+  bool debug;  // FIXME: to be removed
 };
 
 // Compute the average RMS among two DTOccupancyPoints
@@ -64,4 +62,3 @@ double computeAverageRMS(const DTOccupancyPoint& onePoint, const DTOccupancyPoin
 double computeMinRMS(const DTOccupancyPoint& onePoint, const DTOccupancyPoint& anotherPoint);
 
 #endif
-

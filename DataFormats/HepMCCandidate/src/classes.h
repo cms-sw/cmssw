@@ -10,4 +10,3 @@
 #include "DataFormats/HepMCCandidate/interface/FlavorHistory.h"
 #include "DataFormats/HepMCCandidate/interface/FlavorHistoryEvent.h"
 #include <vector>
-

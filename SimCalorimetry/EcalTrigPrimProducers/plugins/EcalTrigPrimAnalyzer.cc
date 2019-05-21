@@ -74,8 +74,7 @@ EcalTrigPrimAnalyzer::EcalTrigPrimAnalyzer(const edm::ParameterSet &iConfig)
   recHits_ = iConfig.getParameter<bool>("AnalyzeRecHits");
   label_ = iConfig.getParameter<edm::InputTag>("inputTP");
   if (recHits_) {
-    hTPvsRechit_ =
-        new TH2F("TP_vs_RecHit", "TP vs  rechit", 256, -1, 255, 255, 0, 255);
+    hTPvsRechit_ = new TH2F("TP_vs_RecHit", "TP vs  rechit", 256, -1, 255, 255, 0, 255);
     hTPoverRechit_ = new TH1F("TP_over_RecHit", "TP over rechit", 500, 0, 4);
     rechits_labelEB_ = iConfig.getParameter<edm::InputTag>("inputRecHitsEB");
     rechits_labelEE_ = iConfig.getParameter<edm::InputTag>("inputRecHitsEE");
@@ -83,7 +82,6 @@ EcalTrigPrimAnalyzer::EcalTrigPrimAnalyzer(const edm::ParameterSet &iConfig)
 }
 
 EcalTrigPrimAnalyzer::~EcalTrigPrimAnalyzer() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
@@ -96,8 +94,7 @@ EcalTrigPrimAnalyzer::~EcalTrigPrimAnalyzer() {
 //
 
 // ------------ method called to analyze the data  ------------
-void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent,
-                                   const edm::EventSetup &iSetup) {
+void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   using namespace std;
 
@@ -133,15 +130,11 @@ void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent,
   edm::ESHandle<CaloSubdetectorGeometry> theBarrelGeometry_handle;
   edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle;
   iSetup.get<CaloGeometryRecord>().get(theGeometry);
-  iSetup.get<EcalEndcapGeometryRecord>().get("EcalEndcap",
-                                             theEndcapGeometry_handle);
-  iSetup.get<EcalBarrelGeometryRecord>().get("EcalBarrel",
-                                             theBarrelGeometry_handle);
+  iSetup.get<EcalEndcapGeometryRecord>().get("EcalEndcap", theEndcapGeometry_handle);
+  iSetup.get<EcalBarrelGeometryRecord>().get("EcalBarrel", theBarrelGeometry_handle);
 
-  const CaloSubdetectorGeometry *theEndcapGeometry =
-      theEndcapGeometry_handle.product();
-  const CaloSubdetectorGeometry *theBarrelGeometry =
-      theBarrelGeometry_handle.product();
+  const CaloSubdetectorGeometry *theEndcapGeometry = theEndcapGeometry_handle.product();
+  const CaloSubdetectorGeometry *theBarrelGeometry = theBarrelGeometry_handle.product();
   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
   iSetup.get<IdealGeometryRecord>().get(eTTmap_);
 
@@ -166,8 +159,7 @@ void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent,
       const EBDetId &myid2 = (*rechit_EB_col.product())[j].id();
       EcalTrigTowerDetId towid2 = myid2.tower();
       if (towid1 == towid2) {
-        float theta =
-            theBarrelGeometry->getGeometry(myid2)->getPosition().theta();
+        float theta = theBarrelGeometry->getGeometry(myid2)->getPosition().theta();
         Etsum += (*rechit_EB_col.product())[j].energy() * sin(theta);
       }
       j++;
@@ -195,8 +187,7 @@ void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent,
       const EEDetId &myid2 = (*rechit_EE_col.product())[j].id();
       EcalTrigTowerDetId towid2 = (*eTTmap_).towerOf(myid2);
       if (towid1 == towid2) {
-        float theta =
-            theEndcapGeometry->getGeometry(myid2)->getPosition().theta();
+        float theta = theEndcapGeometry->getGeometry(myid2)->getPosition().theta();
         Etsum += (*rechit_EE_col.product())[j].energy() * sin(theta);
       }
       //  else loopend=true;
