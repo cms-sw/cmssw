@@ -31,7 +31,8 @@ def parse_sample_string(ss):
         tf = ROOT.TFile(fi)
         if not tf:
             raise Exception("Could not read DQM file {0}, it's not a ROOT file".format(fi))
-        d = tf.Get("DQMData/Run 1/Physics/Run summary")
+        #KH d = tf.Get("DQMData/Run 1/Physics/Run summary")
+        d = tf.Get("DQMData/Run 1/ParticleFlow/Run summary")
         if not d:
             raise Exception("Could not read DQM file {0}, it's does not seem to be a harvested DQM file".format(fi))
     return name, files
@@ -119,13 +120,12 @@ def parse_args():
             for itype in candidateType :
                 offsetHists += [ offset_name( args.offsetVar, ivar, itype ) ]
             plots += [("Offset/{0}Plots/{0}{1}".format(args.offsetVar, ivar), "{0}{1}".format(args.offsetVar, ivar), offsetHists)]
-
     return samples, plots, args.doOffsetPlots, args.offsetVar, args.offsetDR
 
 def addPlots(plotter, folder, name, section, histograms, opts, offset=False):
     folders = [folder]
     plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
-    print plots
+    #KH print plots
     if offset :
         plotter.append("Offset", folders, PlotFolder(*plots, loopSubFolders=False, page="offset", section=section))
     else :
@@ -164,7 +164,8 @@ def main():
     for folder, name, histograms in plots:
         opts = plot_opts.get(name, {})
 
-        fullfolder =  "DQMData/Run 1/Physics/Run summary/{0}".format(folder)
+        #fullfolder =  "DQMData/Run 1/Physics/Run summary/{0}".format(folder)
+        fullfolder =  "DQMData/Run 1/ParticleFlow/Run summary/{0}".format(folder)
         print "Booking histogram group {0}={1} from folder {2}".format(name, histograms, folder)
         if "Offset/" in folder :
             opts = {'xtitle':'Default', 'ytitle':'Default'}
@@ -200,14 +201,14 @@ def main():
             for f in s.files() :
                 fname = f.split('/')[-2]
                 outName = offsetStack( [(fname,f)], offsetVar, offsetDR, fullOffsetDir )
-                outName = outName.replace("plots/", "")
+                outName = outName.replace("plots/", "") #KH: This "plots" look redundant and causes trouble for .html. Stripping it off.
                 addLine( outName, lines )
 
                 for f2 in s.files() :
                     if f == f2 : continue
                     fname2 = f2.split('/')[-2]
                     outName = offsetStack( [(fname,f), (fname2,f2)], offsetVar, offsetDR, fullOffsetDir )
-                    outName = outName.replace("plots/", "")
+                    outName = outName.replace("plots/", "") #KH: This "plots" look redundant and causes trouble for .html. Stripping it off.
                     addLine( outName, lines )
 
             offFile = open( outputDir + "/" + s.label() + "_offset.html", "w")

@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from Validation.RecoParticleFlow.defaults_cfi import ptbins, etabins, response_distribution_name, genjet_distribution_name
+from Validation.RecoParticleFlow.defaults_cfi import ptbins, etabins, response_distribution_name, genjet_distribution_name,jetResponseDir,genjetDir
 
 def make_response_plot_pset(name, title, responseNbins, responseLow, responseHigh, ptBinLow, ptBinHigh, etaBinLow, etaBinHigh):
     return cms.PSet(
@@ -67,6 +67,19 @@ pfDQMAnalyzer = cms.EDProducer("ParticleFlowDQM",
     genJetPlots = cms.VPSet(createGenJetPlots(ptbins, etabins))
 )
 
+pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
+
+    jetResponseDir = cms.string( jetResponseDir ),
+    genjetDir = cms.string( genjetDir ),
+    ptBins = cms.vdouble( ptbins ),
+    etaBins = cms.vdouble( etabins ),
+    recoPtCut = cms.double( 15. ) 
+                                       
+)
+
+
+
+# Do we need this?
 pfDQM = cms.Sequence(
 #    matchRecoJetToGenJet *
     pfDQMAnalyzer

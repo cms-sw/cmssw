@@ -137,6 +137,9 @@ private:
     std::vector<Plot1DInBin> jetResponsePlots;
     std::vector<Plot1DInBinVariable> genJetPlots;
 
+    // Is this data or MC?
+    bool isMC;
+  
     float jetDeltaR;
 
     edm::InputTag recoJetsLabel;
@@ -266,13 +269,13 @@ void ParticleFlowDQM::fillJetResponse(
 
 void ParticleFlowDQM::bookHistograms(DQMStore::IBooker & booker, edm::Run const &, edm::EventSetup const &) {
     std::cout << "ParticleFlowDQM booking response histograms" << std::endl;
-    booker.setCurrentFolder("Physics/JetResponse/");
+    booker.setCurrentFolder("ParticleFlow/JetResponse/");
     for (auto& plot : jetResponsePlots) {
         plot.book(booker);
     }
 
     //Book plots for gen-jet pt spectra
-    booker.setCurrentFolder("Physics/GenJets/");
+    booker.setCurrentFolder("ParticleFlow/GenJets/");
     for (auto& plot : genJetPlots) {
         plot.book(booker);
     }
@@ -283,14 +286,20 @@ void ParticleFlowDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&)
 
     edm::Handle<edm::View<reco::Jet>> recoJetCollectionHandle;
     iEvent.getByToken(recoJetsToken, recoJetCollectionHandle);
-
-    edm::Handle<edm::View<reco::Jet>> genJetCollectionHandle;
-    iEvent.getByToken(genJetsToken, genJetCollectionHandle);
-    
     auto recoJetCollection = *recoJetCollectionHandle;
+
+    isMC = !iEvent.isRealData();
+
+    if (isMC){
+      
+    edm::Handle<edm::View<reco::Jet>> genJetCollectionHandle;
+    iEvent.getByToken(genJetsToken, genJetCollectionHandle);    
     auto genJetCollection = *genJetCollectionHandle;
 
     fillJetResponse(recoJetCollection, genJetCollection);
+
+    }
+    
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
