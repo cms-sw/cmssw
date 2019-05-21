@@ -62,6 +62,9 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
   if (auto pHSNDC = iSetup.getHandle(token_)) {
     edm::LogVerbatim("HcalGeom") << "about to de-reference the edm::ESHandle<HcalDDDRecConstants> pHSNDC";
     const HcalDDDRecConstants& hdc (*pHSNDC);
+    for (int i=0; i<4; ++i) 
+      edm::LogVerbatim("HcalGeom") << "MaxDepth[" << i << "] = "
+				   << hdc.getMaxDepth(i);
     edm::LogVerbatim("HcalGeom") << "about to getPhiOff and getPhiBin for 0..2";
     int neta = hdc.getNEta();
     edm::LogVerbatim("HcalGeom") << neta << " eta bins with phi off set for "
