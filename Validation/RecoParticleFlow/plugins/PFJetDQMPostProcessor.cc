@@ -87,6 +87,7 @@ PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& i
   //for(unsigned int ipt = 0; ipt < ptBins.size(); ++ipt) std::cout << ptBins[ipt] << std::endl;
   
   std::string stitle;
+  char ctitle[50];
   std::vector<MonitorElement*> vME_presponse;
   std::vector<MonitorElement*> vME_preso;
   std::vector<MonitorElement*> vME_preso_rms;
@@ -105,13 +106,16 @@ PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& i
     h_genjet_pt = (TH1F*) me->getTH1F();
           
     stitle = "presponse_eta"+seta(etaBins[ieta]);
-    TH1F *h_presponse = new TH1F(stitle.c_str(),stitle.c_str(),nPtBins,ptBinsArray);
+    sprintf(ctitle,"Jet pT response, %4.1f<|#eta|<%4.1f",etaBins[ieta],etaBins[ieta+1]);
+    TH1F *h_presponse = new TH1F(stitle.c_str(),ctitle,nPtBins,ptBinsArray);
 
     stitle = "preso_eta"+seta(etaBins[ieta]);
-    TH1F *h_preso = new TH1F(stitle.c_str(),stitle.c_str(),nPtBins,ptBinsArray);
+    sprintf(ctitle,"Jet pT resolution, %4.1f<|#eta|<%4.1f",etaBins[ieta],etaBins[ieta+1]);
+    TH1F *h_preso = new TH1F(stitle.c_str(),ctitle,nPtBins,ptBinsArray);
 
     stitle = "preso_eta"+seta(etaBins[ieta])+"_rms";
-    TH1F *h_preso_rms = new TH1F(stitle.c_str(),stitle.c_str(),nPtBins,ptBinsArray);
+    sprintf(ctitle,"Jet pT resolution using RMS, %4.1f<|#eta|<%4.1f",etaBins[ieta],etaBins[ieta+1]);
+    TH1F *h_preso_rms = new TH1F(stitle.c_str(),ctitle,nPtBins,ptBinsArray);
 
     for(unsigned int ipt = 0; ipt < ptBins.size()-1; ++ipt) {
 

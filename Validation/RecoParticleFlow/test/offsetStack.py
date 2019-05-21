@@ -133,7 +133,7 @@ def getHists( file, var, var_val, r ) :
     if p == None : raise Exception( "Could not find {} profile in {}!".format(name, file.GetName()) )
     dict[pf] = p.ProjectionX( pf )
     dict[pf].Scale( r*r / 2 / var_val )
-
+    
     xbins = p.GetXaxis().GetXbins().GetArray()
     for i in range(1, p.GetNbinsX()+1) :
       dict[pf].SetBinContent( i, dict[pf].GetBinContent(i) / (xbins[i]-xbins[i-1]) )
