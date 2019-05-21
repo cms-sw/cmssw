@@ -93,8 +93,6 @@ process.pfReReco = cms.Sequence(process.particleFlowReco+
 #pfeg switch
 def switch_on_pfeg(the_process):
     the_process.particleFlowTmp.useEGammaFilters = cms.bool(True)
-    the_process.particleFlowTmp.usePFPhotons = cms.bool(False)
-    the_process.particleFlowTmp.usePFElectrons = cms.bool(False)
     the_process.particleFlow.GsfElectrons = cms.InputTag('gedGsfElectrons')
     the_process.particleFlow.Photons = cms.InputTag('gedPhotons')
     the_process.particleFlowReco.remove(the_process.pfElectronTranslatorSequence)
