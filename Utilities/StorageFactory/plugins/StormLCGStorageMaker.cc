@@ -9,28 +9,24 @@
 #include <cstdio>
 #include <sys/stat.h>
 
-class StormLcgGtStorageMaker : public StorageMaker
-{
+class StormLcgGtStorageMaker : public StorageMaker {
   /* getTURL: Executes lcg-gt and extracts the physical file path */
-  std::string getTURL (const std::string &surl) const
-  {
-    // PrepareToGet timeout  
+  std::string getTURL(const std::string &surl) const {
+    // PrepareToGet timeout
     std::string timeout("300");
-    if(char *p = getenv("CMS_STORM_LCG_GT_TIMEOUT"))
+    if (char *p = getenv("CMS_STORM_LCG_GT_TIMEOUT"))
       timeout = p;
 
     /* Build the command line:
 	-b => no BDII contacted
 	-T srmv2 => necessary with -b 
 	-t timeout */
-    std::string comm("lcg-gt -b -T srmv2 -t " + timeout + " srm:" + surl + " file 2>&1"); 
+    std::string comm("lcg-gt -b -T srmv2 -t " + timeout + " srm:" + surl + " file 2>&1");
     LogDebug("StormLCGStorageMaker") << "command: " << comm << std::endl;
 
     FILE *pipe = popen(comm.c_str(), "r");
-    if(! pipe)
-      throw cms::Exception("StormLCGStorageMaker")
-	<< "failed to execute lcg-gt command: "
-	<< comm;
+    if (!pipe)
+      throw cms::Exception("StormLCGStorageMaker") << "failed to execute lcg-gt command: " << comm;
 
     // Get output
     int ch;
@@ -40,48 +36,43 @@ class StormLcgGtStorageMaker : public StorageMaker
     pclose(pipe);
 
     LogDebug("StormLCGStorageMaker") << "output: " << output << std::endl;
- 
+
     // Extract TURL if possible.
     size_t start = output.find("file:", 0);
     if (start == std::string::npos)
-      throw cms::Exception("StormLCGStorageMaker")
-        << "no turl found in command '" << comm << "' output:\n" << output;
+      throw cms::Exception("StormLCGStorageMaker") << "no turl found in command '" << comm << "' output:\n" << output;
 
     start += 5;
-    std::string turl(output, start, output.find_first_of("\n", start) - start); 
+    std::string turl(output, start, output.find_first_of("\n", start) - start);
     LogDebug("StormLCGStorageMaker") << "file to open: " << turl << std::endl;
     return turl;
   }
 
-
 public:
-  std::unique_ptr<Storage> open (const std::string &proto,
-			 const std::string &surl,
-			 int mode,
-       const AuxSettings& ) const override
-  {
+  std::unique_ptr<Storage> open(const std::string &proto,
+                                const std::string &surl,
+                                int mode,
+                                const AuxSettings &) const override {
     const StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
     StorageFactory::CacheHint cacheHint = f->cacheHint();
 
-    if (readHint != StorageFactory::READ_HINT_UNBUFFERED
-	|| cacheHint == StorageFactory::CACHE_HINT_STORAGE)
+    if (readHint != StorageFactory::READ_HINT_UNBUFFERED || cacheHint == StorageFactory::CACHE_HINT_STORAGE)
       mode &= ~IOFlags::OpenUnbuffered;
     else
       mode |= IOFlags::OpenUnbuffered;
 
     std::string path = getTURL(surl);
-    auto file = std::make_unique<File> (path, mode);
-    return f->wrapNonLocalFile (std::move(file), proto, path, mode);
+    auto file = std::make_unique<File>(path, mode);
+    return f->wrapNonLocalFile(std::move(file), proto, path, mode);
   }
 
-  bool check (const std::string &/*proto*/,
-		      const std::string &path,
-          const AuxSettings&,
-		      IOOffset *size = nullptr) const override
-  {
+  bool check(const std::string & /*proto*/,
+             const std::string &path,
+             const AuxSettings &,
+             IOOffset *size = nullptr) const override {
     struct stat st;
-    if (stat (getTURL(path).c_str(), &st) != 0)
+    if (stat(getTURL(path).c_str(), &st) != 0)
       return false;
 
     if (size)
@@ -91,4 +82,4 @@ public:
   }
 };
 
-DEFINE_EDM_PLUGIN (StorageMakerFactory, StormLcgGtStorageMaker, "storm-lcg");
+DEFINE_EDM_PLUGIN(StorageMakerFactory, StormLcgGtStorageMaker, "storm-lcg");
