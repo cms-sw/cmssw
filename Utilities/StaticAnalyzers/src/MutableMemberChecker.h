@@ -15,16 +15,15 @@
 #include "CmsSupport.h"
 
 namespace clangcms {
-class MutableMemberChecker : public clang::ento::Checker< clang::ento::check::ASTDecl< clang::FieldDecl> > {
-  CMS_THREAD_SAFE mutable std::unique_ptr< clang::ento::BuiltinBug> BT;
+  class MutableMemberChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::FieldDecl> > {
+    CMS_THREAD_SAFE mutable std::unique_ptr<clang::ento::BuiltinBug> BT;
 
-public:
-  void checkASTDecl(const clang::FieldDecl *D,
-                      clang::ento::AnalysisManager &Mgr,
-                      clang::ento::BugReporter &BR) const;
-private:
-  CmsException m_exception;
-};  
-}
+  public:
+    void checkASTDecl(const clang::FieldDecl *D, clang::ento::AnalysisManager &Mgr, clang::ento::BugReporter &BR) const;
+
+  private:
+    CmsException m_exception;
+  };
+}  // namespace clangcms
 
 #endif
