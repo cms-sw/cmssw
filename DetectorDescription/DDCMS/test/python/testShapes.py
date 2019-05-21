@@ -17,15 +17,15 @@ process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer"
                                                     )
 
 process.test = cms.EDAnalyzer("DDCMSDetector",
-                              DDDetector = cms.ESInputTag('TestShapes')
+                              DDDetector = cms.ESInputTag('','TestShapes')
                               )
 
 process.testVectors = cms.EDAnalyzer("DDTestVectors",
-                                     DDDetector = cms.ESInputTag('TestShapes')
+                                     DDDetector = cms.ESInputTag('','TestShapes')
                                      )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  DDDetector = cms.ESInputTag('TestShapes')
+                                  DDDetector = cms.ESInputTag('','TestShapes')
                                   )
 
 process.p = cms.Path(process.test+process.testVectors+process.testDump)

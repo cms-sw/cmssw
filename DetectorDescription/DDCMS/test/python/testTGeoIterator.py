@@ -43,7 +43,7 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             appendToDataLabel = cms.string('CMS')
                                             )
 process.test = cms.EDAnalyzer("DDTestDumpGeometry",
-                              DDDetector = cms.ESInputTag('CMS')
+                              DDDetector = cms.ESInputTag('','CMS')
                               )
 
 process.p = cms.Path(process.test)

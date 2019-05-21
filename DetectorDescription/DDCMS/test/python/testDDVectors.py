@@ -16,7 +16,7 @@ process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer"
                                                     appendToDataLabel = cms.string('CMS'))
 
 process.test = cms.EDAnalyzer("DDTestVectors",
-                              DDDetector = cms.ESInputTag('CMS')
+                              DDDetector = cms.ESInputTag('','CMS')
                               )
 
 process.p = cms.Path(process.test)
