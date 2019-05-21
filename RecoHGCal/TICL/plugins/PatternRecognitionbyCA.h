@@ -11,7 +11,7 @@
 #include "HGCDoublet.h"
 #include "HGCGraph.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
-#include "RecoHGCal/TICL/interface/Constants.h"
+#include "RecoHGCal/TICL/interface/Common.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 namespace ticl {
@@ -25,43 +25,43 @@ namespace ticl {
       }
 
       void fillHistogram(const std::vector<reco::CaloCluster>& layerClusters,
-          const hgcalClusterFilterMask& mask);
+          const HgcalClusterFilterMask& mask);
 
       void makeTracksters(const edm::Event& ev, const edm::EventSetup& es,
           const std::vector<reco::CaloCluster>& layerClusters,
-          const hgcalClusterFilterMask& mask,
+          const HgcalClusterFilterMask& mask,
           std::vector<Trackster>& result) override;
 
     private:
       int getEtaBin(float eta) const {
         constexpr float etaRange = ticl::constants::maxEta - ticl::constants::minEta;
         static_assert(etaRange >= 0.f);
-        float r = patternbyCA::nEtaBins / etaRange;
+        float r = patternbyca::nEtaBins / etaRange;
         int etaBin = (std::abs(eta) - ticl::constants::minEta) * r;
-        etaBin = std::clamp(etaBin, 0, patternbyCA::nEtaBins);
+        etaBin = std::clamp(etaBin, 0, patternbyca::nEtaBins);
         return etaBin;
       }
 
       int getPhiBin(float phi) const {
         auto normPhi = normalizedPhi(phi);
-        float r = patternbyCA::nPhiBins * M_1_PI * 0.5f;
+        float r = patternbyca::nPhiBins * M_1_PI * 0.5f;
         int phiBin = (normPhi + M_PI) * r;
 
         return phiBin;
       }
 
-      int globalBin(int etaBin, int phiBin) const { return phiBin + etaBin * patternbyCA::nPhiBins; }
+      int globalBin(int etaBin, int phiBin) const { return phiBin + etaBin * patternbyca::nPhiBins; }
 
       void clearHistogram() {
-        auto nBins = patternbyCA::nEtaBins * patternbyCA::nPhiBins;
-        for (int i = 0; i < patternbyCA::nLayers; ++i) {
+        auto nBins = patternbyca::nEtaBins * patternbyca::nPhiBins;
+        for (int i = 0; i < patternbyca::nLayers; ++i) {
           for (int j = 0; j < nBins; ++j) tile_[i][j].clear();
         }
       }
 
 
       hgcal::RecHitTools rhtools_;
-      patternbyCA::tilePatternRecognitionByCA tile_;  // a histogram of layerClusters IDs per layer
+      patternbyca::Tile tile_;  // a histogram of layerClusters IDs per layer
       HGCGraph theGraph_;
       float min_cos_theta_;
       float min_cos_pointing_;

@@ -12,7 +12,7 @@ using namespace ticl;
 
 void PatternRecognitionbyCA::fillHistogram(
     const std::vector<reco::CaloCluster> &layerClusters,
-    const hgcalClusterFilterMask &mask) {
+    const HgcalClusterFilterMask &mask) {
   if (algo_verbosity_ > None) {
     LogDebug("HGCPatterRecoByCA") << "filling eta/phi histogram per Layer" << std::endl;
   }
@@ -37,7 +37,7 @@ void PatternRecognitionbyCA::fillHistogram(
 
 void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev, const edm::EventSetup &es,
                                             const std::vector<reco::CaloCluster> &layerClusters,
-                                            const hgcalClusterFilterMask &mask,
+                                            const HgcalClusterFilterMask &mask,
                                             std::vector<Trackster> &result) {
   rhtools_.getEventSetup(es);
 
@@ -49,7 +49,7 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev, const edm::Eve
   }
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
   fillHistogram(layerClusters, mask);
-  theGraph_.makeAndConnectDoublets(tile_, patternbyCA::nEtaBins, patternbyCA::nPhiBins, layerClusters, 2, 2,
+  theGraph_.makeAndConnectDoublets(tile_, patternbyca::nEtaBins, patternbyca::nPhiBins, layerClusters, 2, 2,
                                    min_cos_theta_, min_cos_pointing_, missing_layers_,
                                    rhtools_.lastLayerFH());
   theGraph_.findNtuplets(foundNtuplets, min_clusters_per_ntuplet_);

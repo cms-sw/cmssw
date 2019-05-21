@@ -27,7 +27,7 @@ def TICL_iterations_withReco(process):
   )
 
   process.TrackstersMIP = trackstersProducer.clone(
-      filtered_layerclusters_mask = cms.InputTag("FilteredLayerClustersMIP", "MIP"),
+      filtered_mask = cms.InputTag("FilteredLayerClustersMIP", "MIP"),
       missing_layers = 3,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.99, # ~10 degrees
@@ -46,8 +46,8 @@ def TICL_iterations_withReco(process):
   )
 
   process.Tracksters = trackstersProducer.clone(
-      original_layerclusters_mask = "TrackstersMIP",
-      filtered_layerclusters_mask = cms.InputTag("FilteredLayerClusters", "algo8"),
+      original_mask = "TrackstersMIP",
+      filtered_mask = cms.InputTag("FilteredLayerClusters", "algo8"),
       missing_layers = 2,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.94, # ~20 degrees
@@ -80,7 +80,7 @@ def TICL_iterations(process):
   )
 
   process.TrackstersMIP = trackstersProducer.clone(
-      filtered_layerclusters_mask = cms.InputTag("FilteredLayerClustersMIP", "MIP"),
+      filtered_mask = cms.InputTag("FilteredLayerClustersMIP", "MIP"),
       missing_layers = 3,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.985 # ~10 degrees
@@ -97,8 +97,8 @@ def TICL_iterations(process):
   )
 
   process.Tracksters = trackstersProducer.clone(
-      original_layerclusters_mask = "TrackstersMIP",
-      filtered_layerclusters_mask = cms.InputTag("FilteredLayerClusters", "algo8"),
+      original_mask = "TrackstersMIP",
+      filtered_mask = cms.InputTag("FilteredLayerClusters", "algo8"),
       missing_layers = 2,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.94, # ~20 degrees

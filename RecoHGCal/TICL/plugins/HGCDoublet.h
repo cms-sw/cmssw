@@ -57,7 +57,7 @@ class HGCDoublet {
 
   bool checkCompatibilityAndTag(std::vector<HGCDoublet> &,
                                 const std::vector<int> &, float,
-                                float minCosPointing, bool debug = false);
+                                float minCosPointing = 1., bool debug = false);
 
   int areAligned(double xi, double yi, double zi, double xo, double yo, double zo,
                  float minCosTheta, float minCosPointing, bool debug = false) const;

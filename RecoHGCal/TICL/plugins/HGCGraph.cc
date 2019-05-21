@@ -2,13 +2,13 @@
 // Date: 11/2018
 // Copyright CERN
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "RecoHGCal/TICL/interface/Constants.h"
+#include "RecoHGCal/TICL/interface/Common.h"
 
 #include "PatternRecognitionbyCA.h"
 #include "HGCDoublet.h"
 #include "HGCGraph.h"
 
-void HGCGraph::makeAndConnectDoublets(const ticl::patternbyCA::tilePatternRecognitionByCA & histo,
+void HGCGraph::makeAndConnectDoublets(const ticl::patternbyca::Tile & histo,
                                       int nEtaBins, int nPhiBins,
                                       const std::vector<reco::CaloCluster> &layerClusters,
                                       int deltaIEta, int deltaIPhi, float minCosTheta,
