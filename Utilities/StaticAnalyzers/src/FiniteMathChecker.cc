@@ -5,41 +5,41 @@
 #include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/AST/Expr.h>
 
-
 #include "CmsSupport.h"
 #include <iostream>
 #include <utility>
 
 namespace clangcms {
 
-void FiniteMathChecker::checkPreStmt(const clang::CallExpr *CE, clang::ento::CheckerContext &ctx) const
-{
-  const clang::ento::ProgramStateRef state = ctx.getState();
-  const clang::LocationContext *LC = ctx.getLocationContext();
-  const clang::Expr *Callee = CE->getCallee();
-  const clang::FunctionDecl *FD = state->getSVal(Callee, LC).getAsFunctionDecl();
+  void FiniteMathChecker::checkPreStmt(const clang::CallExpr *CE, clang::ento::CheckerContext &ctx) const {
+    const clang::ento::ProgramStateRef state = ctx.getState();
+    const clang::LocationContext *LC = ctx.getLocationContext();
+    const clang::Expr *Callee = CE->getCallee();
+    const clang::FunctionDecl *FD = state->getSVal(Callee, LC).getAsFunctionDecl();
 
-  if (!FD)
-    return;
+    if (!FD)
+      return;
 
-  // Get the name of the callee.
-  clang::IdentifierInfo *II = FD->getIdentifier();
-  if (!II)   // if no identifier, not a simple C function
-    return;
+    // Get the name of the callee.
+    clang::IdentifierInfo *II = FD->getIdentifier();
+    if (!II)  // if no identifier, not a simple C function
+      return;
 
-  if (!II->isStr("isnan") && !II->isStr("isinf")) 
-    return;
+    if (!II->isStr("isnan") && !II->isStr("isinf"))
+      return;
 
-  clang::ento::ExplodedNode *N = ctx.generateErrorNode();
-  if (!N)
-    return;
+    clang::ento::ExplodedNode *N = ctx.generateErrorNode();
+    if (!N)
+      return;
 
-  if (!BT)
-    BT.reset(new clang::ento::BugType(this,"std::isnan / std::isinf does not work when fast-math is used. Please use edm::isNotFinite from 'FWCore/Utilities/interface/isFinite.h'", "fastmath plugin"));
+    if (!BT)
+      BT.reset(new clang::ento::BugType(this,
+                                        "std::isnan / std::isinf does not work when fast-math is used. Please use "
+                                        "edm::isNotFinite from 'FWCore/Utilities/interface/isFinite.h'",
+                                        "fastmath plugin"));
 
-  std::unique_ptr<clang::ento::BugReport> report = llvm::make_unique<clang::ento::BugReport>(*BT, BT->getName(), N);
-  report->addRange(Callee->getSourceRange());
-  ctx.emitReport(std::move(report));
-}
-}
-
+    std::unique_ptr<clang::ento::BugReport> report = llvm::make_unique<clang::ento::BugReport>(*BT, BT->getName(), N);
+    report->addRange(Callee->getSourceRange());
+    ctx.emitReport(std::move(report));
+  }
+}  // namespace clangcms

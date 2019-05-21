@@ -40,7 +40,7 @@ DDTestDumpGeometry::analyze(const Event&, const EventSetup& iEventSetup)
 {
   LogVerbatim("Geometry") << "DDTestDumpGeometry::analyze: " << m_tag;
   ESTransientHandle<DDDetector> det;
-  iEventSetup.get<GeometryFileRcd>().get(m_tag.module(), det);
+  iEventSetup.get<GeometryFileRcd>().get(m_tag, det);
 
   TGeoManager const& geom = det->description()->manager();
 

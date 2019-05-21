@@ -541,7 +541,7 @@ class InputTag(_ParameterTypeBase):
         parameterSet.addInputTag(self.isTracked(), myname, self.cppTag(parameterSet))
 
 class ESInputTag(_ParameterTypeBase):
-    def __init__(self,module='',data=''):
+    def __init__(self,module='',data= None):
         super(ESInputTag,self).__init__()
         self._setValues(module, data)
     def getModuleLabel(self):
@@ -559,9 +559,7 @@ class ESInputTag(_ParameterTypeBase):
             self._isModified=True
     dataLabel = property(getDataLabel,setDataLabel,"data label for the product")
     def configValue(self, options=PrintOptions()):
-        result = self.__moduleLabel
-        if self.__data != "":
-            result += ':' + self.__data
+        result = self.__moduleLabel + ':' + self.__data
         if result == "":
             result = '\"\"'
         return result;
@@ -601,18 +599,22 @@ class ESInputTag(_ParameterTypeBase):
     def setValue(self,v):
         self._setValues(v)
         self._isModified=True
-    def _setValues(self,moduleLabel='',dataLabel=''):
+    def _setValues(self,moduleLabel='',dataLabel=None):
         self.__moduleLabel = moduleLabel
         self.__data = dataLabel
-        if -1 != moduleLabel.find(":"):
-        #    raise RuntimeError("the module label '"+str(moduleLabel)+"' contains a ':'. If you want to specify more than one label, please pass them as separate arguments.")
-        # tolerate it, at least for the translation phase
-            toks = moduleLabel.split(":")
-            self.__moduleLabel = toks[0]
-            if len(toks) > 1:
-                self.__data = toks[1]
-            if len(toks) > 2:
-                raise RuntimeError("an ESInputTag was passed the value'"+moduleLabel+"' which contains more than one ':'")
+        if dataLabel is None:
+            if moduleLabel:
+                if  -1 == moduleLabel.find(":"):
+                    raise RuntimeError("ESInputTag passed one string '"+str(moduleLabel)+"' which does not contain a ':'. Please add ':' to explicitly separate the module (1st) and data (2nd) label or use two strings.")
+                toks = moduleLabel.split(":")
+                self.__moduleLabel = toks[0]
+                if len(toks) > 1:
+                    self.__data = toks[1]
+                if len(toks) > 2:
+                    raise RuntimeError("an ESInputTag was passed the value'"+moduleLabel+"' which contains more than one ':'")
+            else:
+                self.__data = ''
+            
 
     # convert to the wrapper class for C++ ESInputTags
     def cppTag(self, parameterSet):
@@ -1408,10 +1410,10 @@ if __name__ == "__main__":
             self.assertEqual(it.getModuleLabel(), "")
             self.assertEqual(it.getDataLabel(), "data")
             self.assertEqual(repr(it), "cms.ESInputTag(\"\",\"data\")")
-            vit = VESInputTag(ESInputTag("label1"), ESInputTag("label2"))
-            self.assertEqual(repr(vit), "cms.VESInputTag(cms.ESInputTag(\"label1\"), cms.ESInputTag(\"label2\"))")
-            vit = VESInputTag("label1", "label2:label3")
-            self.assertEqual(repr(vit), "cms.VESInputTag(\"label1\", \"label2:label3\")")
+            vit = VESInputTag(ESInputTag("label1:"), ESInputTag("label2:"))
+            self.assertEqual(repr(vit), 'cms.VESInputTag(cms.ESInputTag("label1",""), cms.ESInputTag("label2",""))')
+            vit = VESInputTag("label1:", "label2:label3")
+            self.assertEqual(repr(vit), "cms.VESInputTag(\"label1:\", \"label2:label3\")")
 
         def testPSet(self):
             p1 = PSet(anInt = int32(1), a = PSet(b = int32(1)))
@@ -1557,8 +1559,8 @@ if __name__ == "__main__":
 
         def testPSetConversion(self):
             p = PSet(a = untracked.int32(7),
-                     b = untracked.InputTag("b"),
-                     c = untracked.ESInputTag("c"),
+                     b = untracked.InputTag("b:"),
+                     c = untracked.ESInputTag("c:"),
                      d = EventID(1,1,1),
                      e = LuminosityBlockID(1,1),
                      f = EventRange(1,1,1,8,8,8),
@@ -1571,8 +1573,8 @@ if __name__ == "__main__":
                      m = untracked.double(7.0),
                      n = FileInPath("xxx"),
                      o = untracked.vint32(7,8),
-                     p = untracked.VInputTag(InputTag("b"),InputTag("c")),
-                     q = untracked.VESInputTag(ESInputTag("c"),ESInputTag("d")),
+                     p = untracked.VInputTag(InputTag("b:"),InputTag("c:")),
+                     q = untracked.VESInputTag(ESInputTag("c:"),ESInputTag("d:")),
                      r = untracked.VEventID(EventID(1,1,1),EventID(2,2,2)),
                      s = untracked.VLuminosityBlockID(LuminosityBlockID(1,1),LuminosityBlockID(2,3)),
                      t = untracked.VEventRange(EventRange(1,1,1,8,8,8), EventRange(9,9,9,18,18,18)),

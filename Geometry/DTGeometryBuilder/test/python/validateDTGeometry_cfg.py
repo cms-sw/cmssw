@@ -13,7 +13,7 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             )
 
 process.DTGeometryESProducer = cms.ESProducer("DTGeometryESProducer",
-                                              DDDetector = cms.ESInputTag('MUON'),
+                                              DDDetector = cms.ESInputTag('','MUON'),
                                               appendToDataLabel = cms.string(''),
                                               applyAlignment = cms.bool(False),
                                               alignmentsLabel = cms.string(''),

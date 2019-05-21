@@ -346,11 +346,11 @@ void testmakepset::typesTest() {
       "    vlumis = cms.VLuminosityBlockID('75:85', '95:105'),\n"
       "    einput1 = cms.ESInputTag(),\n"
       "    einput2 = cms.ESInputTag(data='blah'),\n"
-      "    einput3 = cms.ESInputTag('ESProd'),\n"
+      "    einput3 = cms.ESInputTag('ESProd:'),\n"
       "    einput4 = cms.ESInputTag('ESProd','something'),\n"
       "    einput5 = cms.ESInputTag('ESProd:something'),\n"
       "    veinput1 = cms.VESInputTag(),\n"
-      "    veinput2 = cms.VESInputTag(cms.ESInputTag(data='blah'),cms.ESInputTag('ESProd'))\n"
+      "    veinput2 = cms.VESInputTag(cms.ESInputTag(data='blah'),cms.ESInputTag('ESProd:'))\n"
       ")\n"
 
       ;
