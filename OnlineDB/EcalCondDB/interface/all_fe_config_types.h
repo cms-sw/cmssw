@@ -38,5 +38,3 @@
 #include "OnlineDB/EcalCondDB/interface/FEConfigBadStripDat.h"
 
 #endif
-
-

@@ -11,7 +11,7 @@
 typedef int run_t;
 
 class CaliIOV : public IIOV {
- public:
+public:
   friend class EcalCondDBInterface;
 
   CaliIOV();
@@ -19,7 +19,6 @@ class CaliIOV : public IIOV {
 
   // Methods for user data
 
-  
   void setSince(const Tm& since);
   Tm getSince() const;
   void setTill(const Tm& till);
@@ -28,22 +27,18 @@ class CaliIOV : public IIOV {
   CaliTag getCaliTag() const;
 
   // Methods from IUniqueDBObject
-  int getID(){ return m_ID;} ;
+  int getID() { return m_ID; };
   int fetchID() noexcept(false) override;
   void setByID(int id) noexcept(false) override;
 
   // Operators
-  inline bool operator==(const CaliIOV &m) const
-    {
-      return ( m_caliTag   == m.m_caliTag &&
-	       m_since == m.m_since &&
-	       m_till   == m.m_till );
-    }
+  inline bool operator==(const CaliIOV& m) const {
+    return (m_caliTag == m.m_caliTag && m_since == m.m_since && m_till == m.m_till);
+  }
 
-  inline bool operator!=(const CaliIOV &m) const { return !(*this == m); }
+  inline bool operator!=(const CaliIOV& m) const { return !(*this == m); }
 
-
- private:
+private:
   // User data for this IOV
   Tm m_since;
   Tm m_till;
