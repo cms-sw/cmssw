@@ -69,29 +69,36 @@ OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
   std::string stitle;
   std::vector<MonitorElement*> vME;
 
+  // temporary ME and root objects
   MonitorElement* mtmp;
   TProfile *hproftmp;
   TH1F * htmp;
-  TH1F * htmp2;
+  TH1F * hscaled;
   
   //
   // Offset plots vs eta
   // 
   for(std::vector<std::string>::const_iterator i = offsetVariableTypes.begin(); i != offsetVariableTypes.end(); ++i) {
 
+    //
     // getting the average value for Npv and mu
+    //
     stitle=offsetDir+(*i);
     mtmp=iget_.get(stitle);
     int navg = int( mtmp->getMean()-0.5 ); 
     if (navg<1) navg=1;
 
+    //
     // storing the value
+    //
     stitle=(*i)+"_mean";
     MonitorElement *MEmean = ibook_.bookInt(stitle);
     MEmean->Fill(navg);
     vME.push_back(MEmean);
 
+    //
     // for each pf types
+    //
     for(std::vector<std::string>::const_iterator j = pftypes.begin(); j != pftypes.end(); ++j) {
 
       // accessing profiles
@@ -106,17 +113,17 @@ OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
       htmp = (TH1F*)hproftmp->ProjectionX();
       TAxis *xaxis = (TAxis*)htmp->GetXaxis();
       stitle = offsetPlotBaseName + "_" + str_base + "_" + *j;
-      htmp2 = new TH1F(stitle.c_str(),stitle.c_str(),xaxis->GetNbins(),xaxis->GetXmin(),xaxis->GetXmax());
+      hscaled = new TH1F(stitle.c_str(),stitle.c_str(),xaxis->GetNbins(),xaxis->GetXmin(),xaxis->GetXmax());
 
       htmp->Scale(pow(offsetR,2)/2./float(navg));         // pi*R^2 / (deltaEta*2pi) / <mu or NPV>
-      for (int ibin=1; ibin<=htmp2->GetNbinsX(); ibin++){ // 1/deltaEta part
-	htmp2->SetBinContent(ibin,htmp->GetBinContent(ibin)/htmp->GetBinWidth(ibin));
-	htmp2->SetBinError(ibin,htmp->GetBinError(ibin)/htmp->GetBinWidth(ibin));
+      for (int ibin=1; ibin<=hscaled->GetNbinsX(); ibin++){ // 1/deltaEta part
+	hscaled->SetBinContent(ibin,htmp->GetBinContent(ibin)/htmp->GetBinWidth(ibin));
+	hscaled->SetBinError(ibin,htmp->GetBinError(ibin)/htmp->GetBinWidth(ibin));
       }
 
-      // storing new MEs
+      // storing new ME
       stitle = offsetPlotBaseName + "_" + *i + "_" + *j;
-      mtmp = ibook_.book1D(stitle.c_str(),htmp2);
+      mtmp = ibook_.book1D(stitle.c_str(),hscaled);
       vME.push_back(mtmp);
       
     }
