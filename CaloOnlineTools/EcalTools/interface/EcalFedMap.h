@@ -4,22 +4,20 @@
 #include <map>
 #include <string>
 
-class EcalFedMap{
-
- public: 
-
+class EcalFedMap {
+public:
   EcalFedMap();
   ~EcalFedMap();
   int getFedFromSlice(std::string);
   std::string getSliceFromFed(int);
 
- private:
+private:
   // use:
   // #include <boost/bimap.hpp>
-  // bimap< int, std::string > bm; 
+  // bimap< int, std::string > bm;
   // when available
 
-  std::map<int,  std::string> fedToSliceMap_;
-  std::map<std::string, int>  sliceToFedMap_;
+  std::map<int, std::string> fedToSliceMap_;
+  std::map<std::string, int> sliceToFedMap_;
 };
 #endif

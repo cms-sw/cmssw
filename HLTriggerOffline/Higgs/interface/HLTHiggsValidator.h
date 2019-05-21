@@ -26,32 +26,30 @@
 #include <vector>
 #include <cstring>
 
-
 struct EVTColContainer;
 
-class HLTHiggsValidator : public DQMEDAnalyzer
-{
-    public:
-        //! Constructor
-        HLTHiggsValidator(const edm::ParameterSet &);
-        ~HLTHiggsValidator() override;
+class HLTHiggsValidator : public DQMEDAnalyzer {
+public:
+  //! Constructor
+  HLTHiggsValidator(const edm::ParameterSet &);
+  ~HLTHiggsValidator() override;
 
-    private:
-        // concrete analyzer methods
-        void bookHistograms(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &) override;
-        void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
-        void analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup) override;
-        void endRun(const edm::Run & iRun, const edm::EventSetup & iSetup) override;
+private:
+  // concrete analyzer methods
+  void bookHistograms(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &) override;
+  void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
+  void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+  void endRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
 
-        //! Input from configuration file
-        edm::ParameterSet _pset;
-        //! the names of the subanalysis
-        std::vector<std::string> _analysisnames;
-        
-        //! The instances of the class which do the real work
-        std::vector<HLTHiggsSubAnalysis> _analyzers;
-                
-        //! The container with all the collections needed
-        EVTColContainer * _collections;
+  //! Input from configuration file
+  edm::ParameterSet _pset;
+  //! the names of the subanalysis
+  std::vector<std::string> _analysisnames;
+
+  //! The instances of the class which do the real work
+  std::vector<HLTHiggsSubAnalysis> _analyzers;
+
+  //! The container with all the collections needed
+  EVTColContainer *_collections;
 };
 #endif

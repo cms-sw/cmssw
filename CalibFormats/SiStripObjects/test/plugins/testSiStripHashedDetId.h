@@ -11,7 +11,6 @@
    @brief Simple class that tests SiStripHashedDetId.
 */
 class testSiStripHashedDetId : public edm::EDAnalyzer {
-
 public:
   testSiStripHashedDetId(const edm::ParameterSet &);
   ~testSiStripHashedDetId();
@@ -21,4 +20,4 @@ public:
   void endJob() { ; }
 };
 
-#endif // CalibFormats_SiStripObjects_test_SiStripHashedDetId_H
+#endif  // CalibFormats_SiStripObjects_test_SiStripHashedDetId_H

@@ -2,7 +2,7 @@
 //
 // Package:    CalibTracker/SiStripDCS/test/Synchronization
 // Class:      SyncDCSO2O
-// 
+//
 /**\class SyncDCSO2O SyncDCSO2O.cc
 
  Description: Produces a histogram with the digi occupancy vs time and the change of payload.
@@ -42,24 +42,28 @@ public:
   ~SyncDCSO2O();
 
 private:
-  virtual void beginJob() ;
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void endJob();
 
   void getDigis(const edm::Event& iEvent);
   /// Build TGraphs with quantity vs time
-  TGraph * buildGraph(TH1F * histo, Float_t * timeArray);
+  TGraph* buildGraph(TH1F* histo, Float_t* timeArray);
 
   // ----------member data ---------------------------
-  edm::Handle< edm::DetSetVector<SiStripDigi> > digiDetsetVector_[4];
+  edm::Handle<edm::DetSetVector<SiStripDigi> > digiDetsetVector_[4];
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters digiProducersList_;
 
-  struct TimeInfo
-  {
-    TimeInfo(unsigned long long inputTime, unsigned int inputDigiOccupancy, unsigned int inputDigiOccupancyWithMasking, unsigned int inputHVoff) :
-      time(inputTime), digiOccupancy(inputDigiOccupancy), digiOccupancyWithMasking(inputDigiOccupancyWithMasking), HVoff(inputHVoff)
-    {}
+  struct TimeInfo {
+    TimeInfo(unsigned long long inputTime,
+             unsigned int inputDigiOccupancy,
+             unsigned int inputDigiOccupancyWithMasking,
+             unsigned int inputHVoff)
+        : time(inputTime),
+          digiOccupancy(inputDigiOccupancy),
+          digiOccupancyWithMasking(inputDigiOccupancyWithMasking),
+          HVoff(inputHVoff) {}
 
     unsigned long long time;
     unsigned int digiOccupancy;
@@ -67,12 +71,8 @@ private:
     unsigned int HVoff;
   };
 
-  struct SortByTime
-  {
-    bool operator()(const TimeInfo & timeInfo1, const TimeInfo & timeInfo2)
-    {
-      return( timeInfo1.time < timeInfo2.time );
-    }
+  struct SortByTime {
+    bool operator()(const TimeInfo& timeInfo1, const TimeInfo& timeInfo2) { return (timeInfo1.time < timeInfo2.time); }
   };
 
   std::vector<TimeInfo> timeInfo_;

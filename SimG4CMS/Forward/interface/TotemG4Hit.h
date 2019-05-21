@@ -26,7 +26,7 @@
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
 //
- 
+
 // system include files
 
 // user include files
@@ -37,115 +37,109 @@
 #include <iostream>
 
 class TotemG4Hit : public G4VHit {
-  
 public:
-
   // ---------- Constructor and destructor -----------------
   TotemG4Hit();
   ~TotemG4Hit() override;
-  TotemG4Hit(const TotemG4Hit &right);
+  TotemG4Hit(const TotemG4Hit& right);
 
   // ---------- operators ----------------------------------
-  const TotemG4Hit& operator=(const TotemG4Hit &right);
-  int operator==(const TotemG4Hit &){return 0;}
+  const TotemG4Hit& operator=(const TotemG4Hit& right);
+  int operator==(const TotemG4Hit&) { return 0; }
 
   // ---------- member functions ---------------------------
-  void         Draw() override{}
-  void         Print() override;
+  void Draw() override {}
+  void Print() override;
 
-  math::XYZPoint   getEntry() const;
-  void         setEntry(double x, double y, double z)      {entry.SetCoordinates(x,y,z);}
-  
-  double       getEM() const;
-  void         setEM (double e);
-  
-  double       getHadr() const;
-  void         setHadr (double e);
-  
-  double       getIncidentEnergy() const;
-  void         setIncidentEnergy (double e);
-  
-  int          getTrackID() const;
-  void         setTrackID (int i);
-  
-  uint32_t     getUnitID() const;
-  void         setUnitID (uint32_t i);
-  
-  double       getTimeSlice() const;     
-  void         setTimeSlice(double d);
-  int          getTimeSliceID() const;     
-  
-  void         addEnergyDeposit(double em, double hd);
-  void         addEnergyDeposit(const TotemG4Hit& aHit);
-  
-  double       getEnergyDeposit() const;
-  
-  float        getPabs() const;
-  float        getTof() const;
-  float        getEnergyLoss() const;
-  int          getParticleType() const;
+  math::XYZPoint getEntry() const;
+  void setEntry(double x, double y, double z) { entry.SetCoordinates(x, y, z); }
 
-  void         setPabs(float e);
-  void         setTof(float e);
-  void         setEnergyLoss(float e) ;
-  void         setParticleType(short i) ;
+  double getEM() const;
+  void setEM(double e);
 
-  float        getThetaAtEntry() const;   
-  float        getPhiAtEntry() const;
+  double getHadr() const;
+  void setHadr(double e);
 
-  void         setThetaAtEntry(float t);
-  void         setPhiAtEntry(float f) ;
+  double getIncidentEnergy() const;
+  void setIncidentEnergy(double e);
 
-  float        getX() const;
-  float        getY() const;
-  float        getZ() const;
-  void         setX(float t);
-  void         setY(float t);
-  void         setZ(float t);
+  int getTrackID() const;
+  void setTrackID(int i);
 
-  int          getParentId() const;
-  float        getVx() const;
-  float        getVy() const;
-  float        getVz() const;
+  uint32_t getUnitID() const;
+  void setUnitID(uint32_t i);
 
-  void         setParentId(int p);
-  void         setVx(float p);
-  void         setVy(float p);
-  void         setVz(float p);
+  double getTimeSlice() const;
+  void setTimeSlice(double d);
+  int getTimeSliceID() const;
+
+  void addEnergyDeposit(double em, double hd);
+  void addEnergyDeposit(const TotemG4Hit& aHit);
+
+  double getEnergyDeposit() const;
+
+  float getPabs() const;
+  float getTof() const;
+  float getEnergyLoss() const;
+  int getParticleType() const;
+
+  void setPabs(float e);
+  void setTof(float e);
+  void setEnergyLoss(float e);
+  void setParticleType(short i);
+
+  float getThetaAtEntry() const;
+  float getPhiAtEntry() const;
+
+  void setThetaAtEntry(float t);
+  void setPhiAtEntry(float f);
+
+  float getX() const;
+  float getY() const;
+  float getZ() const;
+  void setX(float t);
+  void setY(float t);
+  void setZ(float t);
+
+  int getParentId() const;
+  float getVx() const;
+  float getVy() const;
+  float getVz() const;
+
+  void setParentId(int p);
+  void setVx(float p);
+  void setVy(float p);
+  void setVz(float p);
 
 private:
-  
-  math::XYZPoint   entry;             //Entry point
-  double       elem;              //EnergyDeposit of EM particles
-  double       hadr;              //EnergyDeposit of HD particles
-  double       theIncidentEnergy; //Energy of the primary particle
-  int          theTrackID;        //Identification number of the primary
-                                  //particle
-  uint32_t     theUnitID;         //Totem Unit Number
-  double       theTimeSlice;      //Time Slice Identification
+  math::XYZPoint entry;      //Entry point
+  double elem;               //EnergyDeposit of EM particles
+  double hadr;               //EnergyDeposit of HD particles
+  double theIncidentEnergy;  //Energy of the primary particle
+  int theTrackID;            //Identification number of the primary
+                             //particle
+  uint32_t theUnitID;        //Totem Unit Number
+  double theTimeSlice;       //Time Slice Identification
 
+  float theX;
+  float theY;
+  float theZ;
+  float thePabs;
+  float theTof;
+  float theEnergyLoss;
+  int theParticleType;
 
-  float        theX;
-  float        theY;
-  float        theZ;
-  float        thePabs;
-  float        theTof;
-  float        theEnergyLoss;
-  int          theParticleType;
+  float theThetaAtEntry;
+  float thePhiAtEntry;
+  math::XYZPoint theEntryPoint;
+  math::XYZPoint theExitPoint;
 
-  float        theThetaAtEntry;
-  float        thePhiAtEntry;
-  math::XYZPoint   theEntryPoint;
-  math::XYZPoint   theExitPoint;
-
-  int          theParentId;
-  float        theVx;
-  float        theVy;
-  float        theVz;
-
+  int theParentId;
+  float theVx;
+  float theVy;
+  float theVz;
 };
 
 std::ostream& operator<<(std::ostream&, const TotemG4Hit&);
 
 #endif
-

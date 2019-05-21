@@ -19,7 +19,6 @@
  */
 
 class TwoBodyDecayFitter {
-
 public:
   TwoBodyDecayFitter(const edm::ParameterSet &config);
 
@@ -30,37 +29,26 @@ public:
 
   virtual ~TwoBodyDecayFitter(void);
 
-  virtual const TwoBodyDecay
-  estimate(const std::vector<reco::TransientTrack> &tracks,
-           const TwoBodyDecayVirtualMeasurement &vm) const;
+  virtual const TwoBodyDecay estimate(const std::vector<reco::TransientTrack> &tracks,
+                                      const TwoBodyDecayVirtualMeasurement &vm) const;
 
-  virtual const TwoBodyDecay
-  estimate(const std::vector<reco::TransientTrack> &tracks,
-           const std::vector<TrajectoryStateOnSurface> &tsos,
-           const TwoBodyDecayVirtualMeasurement &vm) const;
+  virtual const TwoBodyDecay estimate(const std::vector<reco::TransientTrack> &tracks,
+                                      const std::vector<TrajectoryStateOnSurface> &tsos,
+                                      const TwoBodyDecayVirtualMeasurement &vm) const;
 
-  inline const TwoBodyDecayLinearizationPointFinder *
-  linearizationPointFinder(void) const {
+  inline const TwoBodyDecayLinearizationPointFinder *linearizationPointFinder(void) const {
     return theLinPointFinder.operator->();
   }
-  inline const TwoBodyDecayEstimator *estimator(void) const {
-    return theEstimator.operator->();
-  }
-  inline const LinearizationPointFinder *vertexFinder(void) const {
-    return theVertexFinder.operator->();
-  }
+  inline const TwoBodyDecayEstimator *estimator(void) const { return theEstimator.operator->(); }
+  inline const LinearizationPointFinder *vertexFinder(void) const { return theVertexFinder.operator->(); }
 
-  virtual TwoBodyDecayFitter *clone(void) const {
-    return new TwoBodyDecayFitter(*this);
-  }
+  virtual TwoBodyDecayFitter *clone(void) const { return new TwoBodyDecayFitter(*this); }
 
 private:
-  typedef PerigeeLinearizedTrackState::RefCountedLinearizedTrackState
-      RefCountedLinearizedTrackState;
+  typedef PerigeeLinearizedTrackState::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
 
   DeepCopyPointerByClone<const LinearizationPointFinder> theVertexFinder;
-  DeepCopyPointerByClone<const TwoBodyDecayLinearizationPointFinder>
-      theLinPointFinder;
+  DeepCopyPointerByClone<const TwoBodyDecayLinearizationPointFinder> theLinPointFinder;
   DeepCopyPointerByClone<const TwoBodyDecayEstimator> theEstimator;
 
   LinearizedTrackStateFactory theLinTrackStateFactory;

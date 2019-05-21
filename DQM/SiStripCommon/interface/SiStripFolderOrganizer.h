@@ -4,7 +4,7 @@
 //
 // Package:     SiStripCommon
 // Class  :     SiStripFolderOrganizer
-// 
+//
 /**\class SiStripFolderOrganizer SiStripFolderOrganizer.h DQM/SiStripCommon/interface/SiStripFolderOrganizer.h
 
  Description: <Organizes the folders for the monitoring elements of the SiStrip Tracker. Its methods return strings with names of folders to be created and used.>
@@ -17,7 +17,6 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:49:46 CET 2006
 
-
 //
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
@@ -25,63 +24,75 @@
 
 class DQMStore;
 class TrackerTopology;
-class SiStripFolderOrganizer
-{
+class SiStripFolderOrganizer {
+public:
+  static unsigned short const all_ = 65535;
 
-   public:
-      static unsigned short const all_ = 65535;
+  SiStripFolderOrganizer();
+  virtual ~SiStripFolderOrganizer();
 
-      SiStripFolderOrganizer();
-      virtual ~SiStripFolderOrganizer();
+  // top folder
+  void setSiStripFolderName(std::string name);
+  std::string getSiStripFolder();
+  void setSiStripFolder();
 
-      // top folder
-      void setSiStripFolderName(std::string name);
-      std::string getSiStripFolder();
-      void setSiStripFolder();
+  // control folder
+  std::string getSiStripTopControlFolder();
+  void setSiStripTopControlFolder();
+  std::string getSiStripControlFolder(
+      // unsigned short crate,
+      unsigned short slot = all_,
+      unsigned short ring = all_,
+      unsigned short addr = all_,
+      unsigned short chan = all_
+      // unsigned short i2c
+  );
+  void setSiStripControlFolder(
+      // unsigned short crate,
+      unsigned short slot = all_,
+      unsigned short ring = all_,
+      unsigned short addr = all_,
+      unsigned short chan = all_
+      // unsigned short i2c
+  );
 
-      // control folder
-      std::string getSiStripTopControlFolder();
-      void setSiStripTopControlFolder();
-      std::string getSiStripControlFolder(
-              // unsigned short crate,
-              unsigned short slot = all_,
-              unsigned short ring = all_,
-              unsigned short addr = all_,
-              unsigned short chan = all_
-              // unsigned short i2c
-      );
-      void setSiStripControlFolder(
-              // unsigned short crate,
-              unsigned short slot = all_,
-              unsigned short ring = all_,
-              unsigned short addr = all_,
-              unsigned short chan = all_
-              // unsigned short i2c
-      );
+  std::pair<std::string, int32_t> GetSubDetAndLayer(const uint32_t& detid,
+                                                    const TrackerTopology* tTopo,
+                                                    bool ring_flag = false);
+  std::pair<std::string, int32_t> GetSubDetAndLayerThickness(const uint32_t& detid,
+                                                             const TrackerTopology* tTopo,
+                                                             std::string& cThickness);
+  std::pair<std::string, int32_t> GetSubDetAndRing(const uint32_t& detid, const TrackerTopology* tTopo);
+  // detector folders
+  void setDetectorFolder(uint32_t rawdetid, const TrackerTopology* tTopo);
+  void getFolderName(int32_t rawdetid, const TrackerTopology* tTopo, std::string& lokal_folder);
 
-      std::pair<std::string,int32_t> GetSubDetAndLayer(const uint32_t& detid, const TrackerTopology* tTopo, bool ring_flag = false);
-      std::pair<std::string,int32_t> GetSubDetAndLayerThickness(const uint32_t& detid, const TrackerTopology* tTopo, std::string & cThickness);
-      std::pair<std::string,int32_t> GetSubDetAndRing(const uint32_t& detid, const TrackerTopology* tTopo);
-      // detector folders
-      void setDetectorFolder(uint32_t rawdetid, const TrackerTopology* tTopo);
-      void getFolderName(int32_t rawdetid, const TrackerTopology* tTopo, std::string& lokal_folder);
+  // layer folders
+  void setLayerFolder(uint32_t rawdetid, const TrackerTopology* tTopo, int32_t layer = 0, bool ring_flag = false);
+  void getLayerFolderName(std::stringstream& ss,
+                          uint32_t rawdetid,
+                          const TrackerTopology* tTopo,
+                          bool ring_flag = false);
+  void getSubDetLayerFolderName(std::stringstream& ss,
+                                SiStripDetId::SubDetector subDet,
+                                uint32_t layer,
+                                uint32_t side = 0);
+  // ring folder
+  void setRingFolder(uint32_t rawdetid, const TrackerTopology* tTopo, int32_t layer = 0) {
+    setLayerFolder(rawdetid, tTopo, layer, true);
+  }
+  void getRingFolderName(std::stringstream& ss, uint32_t rawdetid, const TrackerTopology* tTopo) {
+    getLayerFolderName(ss, rawdetid, tTopo, true);
+  }
+  // SubDetector Folder
+  void getSubDetFolder(const uint32_t& detid, const TrackerTopology* tTopo, std::string& folder_name);
+  std::pair<const std::string, const char*> getSubDetFolderAndTag(const uint32_t& detid, const TrackerTopology* tTopo);
 
-      // layer folders
-      void setLayerFolder(uint32_t rawdetid,const TrackerTopology* tTopo,int32_t layer=0,bool ring_flag = false);
-      void getLayerFolderName(std::stringstream& ss, uint32_t rawdetid, const TrackerTopology* tTopo, bool ring_flag = false);
-      void getSubDetLayerFolderName(std::stringstream& ss, SiStripDetId::SubDetector subDet, uint32_t layer, uint32_t side=0);
-      // ring folder
-      void setRingFolder(uint32_t rawdetid,const TrackerTopology* tTopo,int32_t layer=0) { setLayerFolder(rawdetid,tTopo,layer,true); }
-      void getRingFolderName(std::stringstream& ss, uint32_t rawdetid, const TrackerTopology* tTopo) { getLayerFolderName(ss,rawdetid,tTopo,true); }
-      // SubDetector Folder
-      void getSubDetFolder(const uint32_t& detid, const TrackerTopology* tTopo, std::string& folder_name);
-      std::pair<const std::string, const char *> getSubDetFolderAndTag(const uint32_t& detid, const TrackerTopology* tTopo);
+  SiStripFolderOrganizer(const SiStripFolderOrganizer&) = delete;                   // stop default
+  const SiStripFolderOrganizer& operator=(const SiStripFolderOrganizer&) = delete;  // stop default
 
-      SiStripFolderOrganizer(const SiStripFolderOrganizer&) = delete; // stop default
-      const SiStripFolderOrganizer& operator=(const SiStripFolderOrganizer&) = delete; // stop default
-
-   private:
-      std::string TopFolderName;
-      DQMStore* dbe_;
+private:
+  std::string TopFolderName;
+  DQMStore* dbe_;
 };
 #endif

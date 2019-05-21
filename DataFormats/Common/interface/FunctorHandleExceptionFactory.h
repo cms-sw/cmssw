@@ -4,7 +4,7 @@
 //
 // Package:     Subsystem/Package
 // Class  :     FunctorHandleExceptionFactory
-// 
+//
 /**\class FunctorHandleExceptionFactory FunctorHandleExceptionFactory.h "FunctorHandleExceptionFactory.h"
 
  Description: [one line class summary]
@@ -25,11 +25,9 @@
 
 // forward declarations
 namespace edm {
-  
-  template<typename T>
-  class FunctorHandleExceptionFactory : public HandleExceptionFactory
-  {
-    
+
+  template <typename T>
+  class FunctorHandleExceptionFactory : public HandleExceptionFactory {
   public:
     FunctorHandleExceptionFactory(T&& iFunctor) : m_functor(std::move(iFunctor)) {}
 
@@ -37,18 +35,16 @@ namespace edm {
 
     // ---------- const member functions ---------------------
 
-    std::shared_ptr<cms::Exception> make() const override {
-      return m_functor();
-    }
+    std::shared_ptr<cms::Exception> make() const override { return m_functor(); }
+
   private:
     T m_functor;
   };
 
-  template<typename T>
+  template <typename T>
   std::shared_ptr<HandleExceptionFactory> makeHandleExceptionFactory(T&& iFunctor) {
     return std::make_shared<FunctorHandleExceptionFactory<T>>(std::move(iFunctor));
   }
-}
-
+}  // namespace edm
 
 #endif

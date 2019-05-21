@@ -18,8 +18,7 @@ class CSCAnalogSignal;
 
 class CSCCrosstalkGenerator {
 public:
-  CSCCrosstalkGenerator()
-      : theCrosstalk(0), theDelay(0), theResistiveFraction(0.){};
+  CSCCrosstalkGenerator() : theCrosstalk(0), theDelay(0), theResistiveFraction(0.){};
 
   void setParameters(float crosstalk, float delay, float resistiveFraction) {
     theCrosstalk = crosstalk;
@@ -30,8 +29,7 @@ public:
   CSCAnalogSignal getCrosstalk(const CSCAnalogSignal &inputSignal) const;
 
   /// analyzes the ratio between two signals.
-  float ratio(const CSCAnalogSignal &crosstalkSignal,
-              const CSCAnalogSignal &signal) const;
+  float ratio(const CSCAnalogSignal &crosstalkSignal, const CSCAnalogSignal &signal) const;
 
 private:
   float theCrosstalk;

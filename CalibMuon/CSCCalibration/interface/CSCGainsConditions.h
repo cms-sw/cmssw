@@ -16,8 +16,7 @@
 #include "CondFormats/DataRecord/interface/CSCGainsRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCGainsConditions : public edm::ESProducer,
-                           public edm::EventSetupRecordIntervalFinder {
+class CSCGainsConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   CSCGainsConditions(const edm::ParameterSet &);
   ~CSCGainsConditions() override;

@@ -39,13 +39,11 @@ class EndOfRun;
 class EndOfEvent;
 class EndOfTrack;
 
-#define OBSERVES(type)                                                         \
-public                                                                         \
+#define OBSERVES(type) \
+public                 \
   Observer<const type *>
-#define UPDATE(type)                                                           \
-  void update(const type *) override {                                         \
-    std::cout << "++ signal " #type << std::endl;                              \
-  }
+#define UPDATE(type) \
+  void update(const type *) override { std::cout << "++ signal " #type << std::endl; }
 class SimTracer : public SimWatcher,
                   OBSERVES(DDDWorld),
                   OBSERVES(BeginOfJob),
@@ -56,10 +54,8 @@ class SimTracer : public SimWatcher,
                   OBSERVES(EndOfRun),
                   OBSERVES(EndOfEvent),
                   OBSERVES(EndOfTrack) {
-
 public:
-  SimTracer(const edm::ParameterSet &pSet)
-      : m_verbose(pSet.getUntrackedParameter<bool>("verbose", false)) {}
+  SimTracer(const edm::ParameterSet &pSet) : m_verbose(pSet.getUntrackedParameter<bool>("verbose", false)) {}
   // virtual ~SimTracer();
 
   // ---------- const member functions ---------------------

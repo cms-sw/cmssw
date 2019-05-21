@@ -4,7 +4,7 @@
 //
 // Package:    MuonSimHitProducer
 // Class:      MuonSimHitProducer
-// 
+//
 /**\class MuonSimHitProducer MuonSimHitProducer.cc FastSimulation/MuonSimHitProducer/src/MuonSimHitProducer.cc
 
  Description: <one line class summary>
@@ -17,7 +17,6 @@
 // Created:  Wed July 11 12:37:24 CET 2007
 // $Id: MuonSimHitProducer.h,v 1.10 2010/05/13 15:23:21 aperrott Exp $
 //
-
 
 // system include files
 #include <memory>
@@ -46,69 +45,62 @@ namespace reco {
 }
 */
 
-namespace edm { 
+namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 //
 // class declaration
 //
 
-class MuonSimHitProducer : public edm::stream::EDProducer <> {
-   public:
+class MuonSimHitProducer : public edm::stream::EDProducer<> {
+public:
+  explicit MuonSimHitProducer(const edm::ParameterSet&);
+  ~MuonSimHitProducer() override;
 
-      explicit MuonSimHitProducer(const edm::ParameterSet&);
-      ~MuonSimHitProducer() override;
+private:
+  MuonServiceProxy* theService;
+  Chi2MeasurementEstimator theEstimator;
 
-   private:
+  const MagneticField* magfield;
+  const DTGeometry* dtGeom;
+  const CSCGeometry* cscGeom;
+  const RPCGeometry* rpcGeom;
+  const Propagator* propagatorWithMaterial;
+  Propagator* propagatorWithoutMaterial;
 
-      MuonServiceProxy *theService;
-      Chi2MeasurementEstimator theEstimator;
+  MaterialEffects* theMaterialEffects;
 
-      const MagneticField*  magfield;
-      const DTGeometry*     dtGeom;
-      const CSCGeometry*    cscGeom;
-      const RPCGeometry*    rpcGeom;
-      const Propagator*     propagatorWithMaterial;
-            Propagator* propagatorWithoutMaterial;
+  void beginRun(edm::Run const& run, const edm::EventSetup& es) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void readParameters(const edm::ParameterSet&, const edm::ParameterSet&, const edm::ParameterSet&);
 
-      MaterialEffects* theMaterialEffects;
-  
-      void beginRun(edm::Run const& run, const edm::EventSetup & es) override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void readParameters(const edm::ParameterSet&, 
-			  const edm::ParameterSet&,
-			  const edm::ParameterSet& );
+  // Parameters to emulate the muonSimHit association inefficiency due to delta's
+  double kDT;
+  double fDT;
+  double kCSC;
+  double fCSC;
 
-      // Parameters to emulate the muonSimHit association inefficiency due to delta's
-      double kDT;
-      double fDT;
-      double kCSC;
-      double fCSC;
+  /// Simulate material effects in iron (dE/dx, multiple scattering)
+  void applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
+                            TrajectoryStateOnSurface& tsos,
+                            double radPath,
+                            RandomEngineAndDistribution const*,
+                            HepPDT::ParticleDataTable const&);
 
-      /// Simulate material effects in iron (dE/dx, multiple scattering)
-      void applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
-				TrajectoryStateOnSurface& tsos,
-				double radPath,
-                                RandomEngineAndDistribution const*,
-                                HepPDT::ParticleDataTable const&);
+  // ----------- parameters ----------------------------
+  bool fullPattern_;
+  bool doL1_, doL3_, doGL_;
 
-          
-      // ----------- parameters ---------------------------- 
-      bool fullPattern_;
-      bool doL1_ , doL3_ , doGL_;
+  // tags
+  edm::InputTag simMuonLabel;
+  edm::InputTag simVertexLabel;
 
-      // tags
-      edm::InputTag simMuonLabel;
-      edm::InputTag simVertexLabel;
-
-      // tokens
-      edm::EDGetTokenT<std::vector<SimTrack> > simMuonToken;
-      edm::EDGetTokenT<std::vector<SimVertex> > simVertexToken;
-      
-      
+  // tokens
+  edm::EDGetTokenT<std::vector<SimTrack> > simMuonToken;
+  edm::EDGetTokenT<std::vector<SimVertex> > simVertexToken;
 };
 
 #endif

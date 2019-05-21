@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "TMatrixDEigen.h"
-#include "TMatrixDSym.h"  
+#include "TMatrixDSym.h"
 #include "TDecompSVD.h"
 #include "TEveTrans.h"
 #include "TEveTrack.h"
@@ -18,82 +18,83 @@
 
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 
-class FWSecVertexProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::SecondaryVertexTagInfo>  {
-   
+class FWSecVertexProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::SecondaryVertexTagInfo> {
 public:
-   FWSecVertexProxyBuilder(){}
-   ~FWSecVertexProxyBuilder() override{}
-  
-   REGISTER_PROXYBUILDER_METHODS();
- 
+  FWSecVertexProxyBuilder() {}
+  ~FWSecVertexProxyBuilder() override {}
+
+  REGISTER_PROXYBUILDER_METHODS();
+
 private:
-   FWSecVertexProxyBuilder(const FWSecVertexProxyBuilder&) = delete; // stop default
-   const FWSecVertexProxyBuilder& operator=(const FWSecVertexProxyBuilder&) = delete; // stop default
-   
-   // ---------- member data --------------------------------
-   using FWSimpleProxyBuilderTemplate<reco::SecondaryVertexTagInfo>::build;
-   void build(const reco::SecondaryVertexTagInfo& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
+  FWSecVertexProxyBuilder(const FWSecVertexProxyBuilder&) = delete;                   // stop default
+  const FWSecVertexProxyBuilder& operator=(const FWSecVertexProxyBuilder&) = delete;  // stop default
+
+  // ---------- member data --------------------------------
+  using FWSimpleProxyBuilderTemplate<reco::SecondaryVertexTagInfo>::build;
+  void build(const reco::SecondaryVertexTagInfo& iData,
+             unsigned int iIndex,
+             TEveElement& oItemHolder,
+             const FWViewContext*) override;
 };
 
-void 
-FWSecVertexProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) 
-{
-   TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
-   TEvePointSet* pointSet = new TEvePointSet();
-   pointSet->SetMainColor(item()->defaultDisplayProperties().color());
-   for(unsigned int i=0;i<iData.nVertices();i++)
-   {
-      const reco::Vertex & v = iData.secondaryVertex(i);
-      // do we need this stuff?
-      TGeoSphere * sphere = new TGeoSphere(0, 0.002); //would that leak?
-      TGeoTranslation position(v.x(), v.y(), v.z() );
-      TEveGeoShape * shape = new TEveGeoShape();
-      sphere->SetBoxDimensions(2.5,2.5,2.5);
-      shape->SetShape(sphere);
-      shape->SetMainColor(item()->defaultDisplayProperties().color());
-      shape->SetMainTransparency(10);
- 
-      TEveTrans & t =   shape->RefMainTrans();
-      reco::Vertex::Error e= v.error();
-      TMatrixDSym m(3);
-      for(int i=0;i<3;i++)
-         for(int j=0;j<3;j++)
-         {
-            m(i,j) = e(i,j);
-         }
-      TMatrixDEigen eig(m);
-      TDecompSVD svd(m);
-      TMatrixD mm = svd.GetU();
-      //   TMatrixD mm =  eig.GetEigenVectors().Print();
-      for(int i=0;i<3;i++)
-         for(int j=0;j<3;j++)
-         {
-            t(i+1,j+1) = mm(i,j);
-         }   
-      TVectorD vv ( eig.GetEigenValuesRe())   ; 
-      t.Scale(sqrt(vv(0))*1000.,sqrt(vv(1))*1000.,sqrt(vv(2))*1000.);
-      t.SetPos(v.x(),v.y(),v.z());
+void FWSecVertexProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData,
+                                    unsigned int iIndex,
+                                    TEveElement& oItemHolder,
+                                    const FWViewContext*) {
+  TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
+  TEvePointSet* pointSet = new TEvePointSet();
+  pointSet->SetMainColor(item()->defaultDisplayProperties().color());
+  for (unsigned int i = 0; i < iData.nVertices(); i++) {
+    const reco::Vertex& v = iData.secondaryVertex(i);
+    // do we need this stuff?
+    TGeoSphere* sphere = new TGeoSphere(0, 0.002);  //would that leak?
+    TGeoTranslation position(v.x(), v.y(), v.z());
+    TEveGeoShape* shape = new TEveGeoShape();
+    sphere->SetBoxDimensions(2.5, 2.5, 2.5);
+    shape->SetShape(sphere);
+    shape->SetMainColor(item()->defaultDisplayProperties().color());
+    shape->SetMainTransparency(10);
 
-      setupAddElement(shape, &oItemHolder);
-
-      pointSet->SetNextPoint( v.x(), v.y(), v.z() );
-
-      for(reco::Vertex::trackRef_iterator it = v.tracks_begin(), itEnd = v.tracks_end(); 
-          it != itEnd; ++it)
-      {
-         const reco::Track & track = *it->get();
-         TEveRecTrack t;
-         t.fBeta = 1.;
-         t.fV = TEveVector(track.vx(), track.vy(), track.vz());
-         t.fP = TEveVector(track.px(), track.py(), track.pz());
-         t.fSign = track.charge();
-         TEveTrack* trk = new TEveTrack(&t, context().getTrackPropagator());
-         trk->SetMainColor(item()->defaultDisplayProperties().color());
-         trk->MakeTrack();
-         setupAddElement(trk, &oItemHolder);
+    TEveTrans& t = shape->RefMainTrans();
+    reco::Vertex::Error e = v.error();
+    TMatrixDSym m(3);
+    for (int i = 0; i < 3; i++)
+      for (int j = 0; j < 3; j++) {
+        m(i, j) = e(i, j);
       }
-   }
-   setupAddElement(pointSet, &oItemHolder);
+    TMatrixDEigen eig(m);
+    TDecompSVD svd(m);
+    TMatrixD mm = svd.GetU();
+    //   TMatrixD mm =  eig.GetEigenVectors().Print();
+    for (int i = 0; i < 3; i++)
+      for (int j = 0; j < 3; j++) {
+        t(i + 1, j + 1) = mm(i, j);
+      }
+    TVectorD vv(eig.GetEigenValuesRe());
+    t.Scale(sqrt(vv(0)) * 1000., sqrt(vv(1)) * 1000., sqrt(vv(2)) * 1000.);
+    t.SetPos(v.x(), v.y(), v.z());
+
+    setupAddElement(shape, &oItemHolder);
+
+    pointSet->SetNextPoint(v.x(), v.y(), v.z());
+
+    for (reco::Vertex::trackRef_iterator it = v.tracks_begin(), itEnd = v.tracks_end(); it != itEnd; ++it) {
+      const reco::Track& track = *it->get();
+      TEveRecTrack t;
+      t.fBeta = 1.;
+      t.fV = TEveVector(track.vx(), track.vy(), track.vz());
+      t.fP = TEveVector(track.px(), track.py(), track.pz());
+      t.fSign = track.charge();
+      TEveTrack* trk = new TEveTrack(&t, context().getTrackPropagator());
+      trk->SetMainColor(item()->defaultDisplayProperties().color());
+      trk->MakeTrack();
+      setupAddElement(trk, &oItemHolder);
+    }
+  }
+  setupAddElement(pointSet, &oItemHolder);
 }
 
-REGISTER_FWPROXYBUILDER(FWSecVertexProxyBuilder, reco::SecondaryVertexTagInfo, "SecVertex", FWViewType::k3DBit | FWViewType::kAllRPZBits);
+REGISTER_FWPROXYBUILDER(FWSecVertexProxyBuilder,
+                        reco::SecondaryVertexTagInfo,
+                        "SecVertex",
+                        FWViewType::k3DBit | FWViewType::kAllRPZBits);

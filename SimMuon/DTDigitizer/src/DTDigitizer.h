@@ -27,7 +27,7 @@
 #include <vector>
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class DTLayer;
@@ -38,21 +38,20 @@ class DTTopology;
 class DTDigiSyncBase;
 
 namespace edm {
-class ParameterSet;
-class Event;
-class EventSetup;
-} // namespace edm
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class DTDigitizer : public edm::stream::EDProducer<> {
-
 public:
   explicit DTDigitizer(const edm::ParameterSet &);
 
   void produce(edm::Event &, const edm::EventSetup &) override;
 
 private:
-  typedef std::pair<const PSimHit *, float> hitAndT; // hit & corresponding time
-  typedef std::vector<hitAndT> TDContainer; // hits & times for one wire
+  typedef std::pair<const PSimHit *, float> hitAndT;  // hit & corresponding time
+  typedef std::vector<hitAndT> TDContainer;           // hits & times for one wire
 
   typedef std::map<DTWireId, std::vector<const PSimHit *>> DTWireIdMap;
   typedef DTWireIdMap::iterator DTWireIdMapIter;
@@ -70,16 +69,16 @@ private:
   // Calculate the drift time for one hit.
   // if status flag == false, hit has to be discarded.
   std::pair<float, bool> computeTime(const DTLayer *layer,
-                                     const DTWireId &wireId, const PSimHit *hit,
+                                     const DTWireId &wireId,
+                                     const PSimHit *hit,
                                      const LocalVector &BLoc,
-                                     CLHEP::HepRandomEngine *); // FIXME??
+                                     CLHEP::HepRandomEngine *);  // FIXME??
 
   // Calculate the drift time using the GARFIELD cell parametrization,
   // taking care of all conversions from CMSSW local coordinates
   // to the conventions used for the parametrization.
-  std::pair<float, bool>
-  driftTimeFromParametrization(float x, float alpha, float By, float Bz,
-                               CLHEP::HepRandomEngine *) const;
+  std::pair<float, bool> driftTimeFromParametrization(
+      float x, float alpha, float By, float Bz, CLHEP::HepRandomEngine *) const;
 
   // Calculate the drift time for the cases where it is not possible
   // to use the GARFIELD cell parametrization.
@@ -87,21 +86,17 @@ private:
 
   // Add all delays other than drift times (signal propagation along the wire,
   // TOF etc.; subtract calibration time.
-  float externalDelays(const DTLayer *layer, const DTWireId &wireId,
-                       const PSimHit *hit) const;
+  float externalDelays(const DTLayer *layer, const DTWireId &wireId, const PSimHit *hit) const;
 
   // Store digis for one wire, taking into account the dead time.
   // FiXME put alias for the map.
-  void storeDigis(DTWireId &wireId, TDContainer &hits, DTDigiCollection &output,
-                  DTDigiSimLinkCollection &outputLinks);
+  void storeDigis(DTWireId &wireId, TDContainer &hits, DTDigiCollection &output, DTDigiSimLinkCollection &outputLinks);
 
   // Debug output
-  void dumpHit(const PSimHit *hit, float xEntry, float xExit,
-               const DTTopology &topo);
+  void dumpHit(const PSimHit *hit, float xEntry, float xExit, const DTTopology &topo);
 
   // Double half-gaussian smearing.
-  float asymGausSmear(double mean, double sigmaLeft, double sigmaRight,
-                      CLHEP::HepRandomEngine *) const;
+  float asymGausSmear(double mean, double sigmaLeft, double sigmaRight, CLHEP::HepRandomEngine *) const;
 
   // Allow debugging and testing.
   friend class DTDigitizerAnalysis;

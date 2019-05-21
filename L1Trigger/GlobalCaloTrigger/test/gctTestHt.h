@@ -12,7 +12,7 @@
  * \date March 2007
  *
  */
- 
+
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
@@ -26,24 +26,27 @@ class L1GctJetFinderParams;
 class L1GctJetLeafCard;
 class L1GctJetFinderBase;
 
-class gctTestHt
-{
+class gctTestHt {
 public:
-
   // structs and typedefs
   typedef std::vector<L1GctJetCand> JetsVector;
-  typedef std::vector<L1GctJet>     RawJetsVector;
+  typedef std::vector<L1GctJet> RawJetsVector;
 
   typedef L1GctJet::lutPtr lutPtr;
   typedef std::vector<lutPtr> lutPtrVector;
 
   struct rawJetData {
-    RawJetsVector jets; unsigned httSum; int htxSum; int htySum; bool httOverFlow; bool htmOverFlow;
+    RawJetsVector jets;
+    unsigned httSum;
+    int htxSum;
+    int htySum;
+    bool httOverFlow;
+    bool htmOverFlow;
 
-    rawJetData() :
-      jets(), httSum(0), htxSum(0), htySum(0), httOverFlow(false), htmOverFlow(false) {}
-    rawJetData(const RawJetsVector jv, const unsigned htt, const int htx, const int hty, const bool httof, const bool htmof) : 
-      jets(jv), httSum(htt), htxSum(htx), htySum(hty), httOverFlow(httof), htmOverFlow(htmof) {}
+    rawJetData() : jets(), httSum(0), htxSum(0), htySum(0), httOverFlow(false), htmOverFlow(false) {}
+    rawJetData(
+        const RawJetsVector jv, const unsigned htt, const int htx, const int hty, const bool httof, const bool htmof)
+        : jets(jv), httSum(htt), htxSum(htx), htySum(hty), httOverFlow(httof), htmOverFlow(htmof) {}
   };
 
   // Constructor and destructor
@@ -51,9 +54,7 @@ public:
   ~gctTestHt();
 
   /// Configuration method
-  void configure(const L1CaloEtScale* jetScale,
-		 const L1CaloEtScale* mhtScale,
-		 const L1GctJetFinderParams* jfPars);
+  void configure(const L1CaloEtScale* jetScale, const L1CaloEtScale* mhtScale, const L1GctJetFinderParams* jfPars);
   bool setupOk() const;
 
   /// Set array sizes for the number of bunch crossings
@@ -66,7 +67,6 @@ public:
   bool checkHtSums(const L1GlobalCaloTrigger* gct) const;
 
 private:
-
   //
 
   rawJetData rawJetFinderOutput(const L1GctJetFinderBase* jf, const unsigned phiPos, const int bx) const;
@@ -81,8 +81,7 @@ private:
   const L1CaloEtScale* m_htMissScale;
   const L1GctJetFinderParams* m_jfPars;
 
-  int htComponent(const unsigned Emag0, const unsigned fact0,
-		  const unsigned Emag1, const unsigned fact1) const;
+  int htComponent(const unsigned Emag0, const unsigned fact0, const unsigned Emag1, const unsigned fact1) const;
 
   double htComponentGeVForHtMiss(int inputComponent) const;
 };

@@ -31,34 +31,31 @@
 
 // forward declarations
 namespace edm {
-class ParameterSet;
+  class ParameterSet;
 }
 
 namespace simwatcher {
-class BeginOfTrackCounter : public SimProducer,
-                            public Observer<const BeginOfTrack *> {
+  class BeginOfTrackCounter : public SimProducer, public Observer<const BeginOfTrack *> {
+  public:
+    BeginOfTrackCounter(const edm::ParameterSet &);
 
-public:
-  BeginOfTrackCounter(const edm::ParameterSet &);
+    // ---------- const member functions ---------------------
 
-  // ---------- const member functions ---------------------
+    // ---------- static member functions --------------------
 
-  // ---------- static member functions --------------------
+    // ---------- member functions ---------------------------
+    void produce(edm::Event &, const edm::EventSetup &) override;
 
-  // ---------- member functions ---------------------------
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  private:
+    BeginOfTrackCounter(const BeginOfTrackCounter &) = delete;  // stop default
 
-private:
-  BeginOfTrackCounter(const BeginOfTrackCounter &) = delete; // stop default
+    const BeginOfTrackCounter &operator=(const BeginOfTrackCounter &) = delete;  // stop default
 
-  const BeginOfTrackCounter &
-  operator=(const BeginOfTrackCounter &) = delete; // stop default
+    void update(const BeginOfTrack *) override;
+    // ---------- member data --------------------------------
+    int m_count;
+    std::string m_label;
+  };
 
-  void update(const BeginOfTrack *) override;
-  // ---------- member data --------------------------------
-  int m_count;
-  std::string m_label;
-};
-
-} // namespace simwatcher
+}  // namespace simwatcher
 #endif

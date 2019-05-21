@@ -22,25 +22,23 @@
 #include "G4StepPoint.hh"
 #include "SimG4CMS/Tracker/interface/TkAccumulatingSensitiveDetector.h"
 
-LaserAlignmentSimulation::LaserAlignmentSimulation(
-    edm::ParameterSet const &theConf)
+LaserAlignmentSimulation::LaserAlignmentSimulation(edm::ParameterSet const &theConf)
     : theDebugLevel(theConf.getUntrackedParameter<int>("DebugLevel", 0)),
-      theEnergyLossScalingFactor(theConf.getUntrackedParameter<double>(
-          "EnergyLossScalingFactor", 1.0)),
-      theMPDebug(theConf.getUntrackedParameter<int>(
-          "MaterialPropertiesDebugLevel", 0)),
-      theSiAbsLengthScale(theConf.getUntrackedParameter<double>(
-          "SiAbsorptionLengthScalingFactor", 1.0)),
-      theTimer(), theMaterialProperties(), thePrimaryGenerator(),
-      theSteppingAction(), theBarrelHits(0), theEndcapHits(0),
+      theEnergyLossScalingFactor(theConf.getUntrackedParameter<double>("EnergyLossScalingFactor", 1.0)),
+      theMPDebug(theConf.getUntrackedParameter<int>("MaterialPropertiesDebugLevel", 0)),
+      theSiAbsLengthScale(theConf.getUntrackedParameter<double>("SiAbsorptionLengthScalingFactor", 1.0)),
+      theTimer(),
+      theMaterialProperties(),
+      thePrimaryGenerator(),
+      theSteppingAction(),
+      theBarrelHits(0),
+      theEndcapHits(0),
       theParameterSet(theConf) {
-
   // make some noise
   edm::LogInfo("SimLaserAlignmentSimulation")
       << " *****     AC1CMS: Configuration from ParameterSet      ***** "
       << "\n  AC1CMS: theDebugLevel               = " << theDebugLevel
-      << "\n  AC1CMS: theEnergyLossScalingFactor  = "
-      << theEnergyLossScalingFactor
+      << "\n  AC1CMS: theEnergyLossScalingFactor  = " << theEnergyLossScalingFactor
       << "\n  AC1CMS: theMPDebugLevel             = " << theMPDebug
       << "\n  AC1CMS: theSiAbsLengthScalingFactor = " << theSiAbsLengthScale;
 
@@ -66,8 +64,7 @@ LaserAlignmentSimulation::~LaserAlignmentSimulation() {
 void LaserAlignmentSimulation::update(const BeginOfRun *myRun) {
   LogDebug("SimLaserAlignmentSimulation")
       << "<LaserAlignmentSimulation::update(const BeginOfRun * myRun)>"
-      << "\n *****     AC1CMS: Start of Run: " << (*myRun)()->GetRunID()
-      << "     ***** ";
+      << "\n *****     AC1CMS: Start of Run: " << (*myRun)()->GetRunID() << "     ***** ";
 
   // start timer
   theTimer->Start();
@@ -81,8 +78,7 @@ void LaserAlignmentSimulation::update(const BeginOfRun *myRun) {
 
   // construct your own material properties for setting refractionindex and so
   // on
-  theMaterialProperties =
-      new MaterialProperties(theMPDebug, theSiAbsLengthScale);
+  theMaterialProperties = new MaterialProperties(theMPDebug, theSiAbsLengthScale);
 
   // list the tree of sensitive detectors
   if (theDebugLevel >= 1) {
@@ -92,9 +88,8 @@ void LaserAlignmentSimulation::update(const BeginOfRun *myRun) {
 }
 
 void LaserAlignmentSimulation::update(const BeginOfEvent *myEvent) {
-  LogDebug("SimLaserAlignmentSimulation")
-      << "<LaserAlignmentSimulation::update(const BeginOfEvent * myEvent)>"
-      << "\n AC1CMS: Event number = " << (*myEvent)()->GetEventID();
+  LogDebug("SimLaserAlignmentSimulation") << "<LaserAlignmentSimulation::update(const BeginOfEvent * myEvent)>"
+                                          << "\n AC1CMS: Event number = " << (*myEvent)()->GetEventID();
 
   // some statistics for this event
   theBarrelHits = 0;
@@ -107,8 +102,7 @@ void LaserAlignmentSimulation::update(const BeginOfEvent *myEvent) {
 void LaserAlignmentSimulation::update(const BeginOfTrack *myTrack) {}
 
 void LaserAlignmentSimulation::update(const G4Step *myStep) {
-  LogDebug("SimLaserAlignmentSimulationStepping")
-      << "<LaserAlignmentSimulation::update(const G4Step * myStep)>";
+  LogDebug("SimLaserAlignmentSimulationStepping") << "<LaserAlignmentSimulation::update(const G4Step * myStep)>";
 
   G4Step *theStep = const_cast<G4Step *>(myStep);
 
@@ -116,68 +110,40 @@ void LaserAlignmentSimulation::update(const G4Step *myStep) {
   theSteppingAction->UserSteppingAction(theStep);
 
   // Trigger sensitive detector manually since photon is absorbed
-  if ((theStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() ==
-       "OpAbsorption")) {
-    LogDebug("SimLaserAlignmentSimulationStepping")
-        << "<LaserAlignmentSimulation::update(const G4Step*)>: Photon was "
-           "absorbed! ";
+  if ((theStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() == "OpAbsorption")) {
+    LogDebug("SimLaserAlignmentSimulationStepping") << "<LaserAlignmentSimulation::update(const G4Step*)>: Photon was "
+                                                       "absorbed! ";
 
-    if (theStep->GetPreStepPoint()
-            ->GetPhysicalVolume()
-            ->GetLogicalVolume()
-            ->GetSensitiveDetector()) {
+    if (theStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetSensitiveDetector()) {
       LogDebug("SimLaserAlignmentSimulationStepping")
-          << " AC1CMS: Setting the EnergyLoss to "
-          << theStep->GetTotalEnergyDeposit() << "\n AC1CMS: The z position is "
-          << theStep->GetPreStepPoint()->GetPosition().z()
+          << " AC1CMS: Setting the EnergyLoss to " << theStep->GetTotalEnergyDeposit()
+          << "\n AC1CMS: The z position is " << theStep->GetPreStepPoint()->GetPosition().z()
           << "\n AC1CMS: the Sensitive Detector: "
-          << theStep->GetPreStepPoint()
-                 ->GetPhysicalVolume()
-                 ->GetLogicalVolume()
-                 ->GetSensitiveDetector()
-                 ->GetName()
-          << "\n AC1CMS: the Material: "
-          << theStep->GetPreStepPoint()->GetMaterial()->GetName()
+          << theStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetSensitiveDetector()->GetName()
+          << "\n AC1CMS: the Material: " << theStep->GetPreStepPoint()->GetMaterial()->GetName()
           << "\n AC1CMS: the Logical Volume: "
-          << theStep->GetPostStepPoint()
-                 ->GetPhysicalVolume()
-                 ->GetLogicalVolume()
-                 ->GetName();
+          << theStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName();
 
       if (theStep->GetTotalEnergyDeposit() > 0.0) {
         // process a hit
         TkAccumulatingSensitiveDetector *theSD =
-            (TkAccumulatingSensitiveDetector *)(theStep->GetPreStepPoint()
-                                                    ->GetPhysicalVolume()
-                                                    ->GetLogicalVolume()
-                                                    ->GetSensitiveDetector());
+            (TkAccumulatingSensitiveDetector
+                 *)(theStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetSensitiveDetector());
 
-        theSD->ProcessHits(theStep,
-                           ((G4TouchableHistory *)(theStep->GetPreStepPoint()
-                                                       ->GetTouchable())));
+        theSD->ProcessHits(theStep, ((G4TouchableHistory *)(theStep->GetPreStepPoint()->GetTouchable())));
 
         // some statistics for this event
-        if ((theStep->GetPostStepPoint()
-                 ->GetPhysicalVolume()
-                 ->GetLogicalVolume()
-                 ->GetName() == "TECModule3RphiActive") ||
-            (theStep->GetPostStepPoint()
-                 ->GetPhysicalVolume()
-                 ->GetLogicalVolume()
-                 ->GetName() == "TECModule5RphiActive")) {
+        if ((theStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName() ==
+             "TECModule3RphiActive") ||
+            (theStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName() ==
+             "TECModule5RphiActive")) {
           theEndcapHits++;
-        } else if ((theStep->GetPostStepPoint()
-                        ->GetPhysicalVolume()
-                        ->GetLogicalVolume()
-                        ->GetName() == "TOBActiveSter0") ||
-                   (theStep->GetPostStepPoint()
-                        ->GetPhysicalVolume()
-                        ->GetLogicalVolume()
-                        ->GetName() == "TOBActiveRphi0") ||
-                   (theStep->GetPostStepPoint()
-                        ->GetPhysicalVolume()
-                        ->GetLogicalVolume()
-                        ->GetName() == "TIBActiveRphi2")) {
+        } else if ((theStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName() ==
+                    "TOBActiveSter0") ||
+                   (theStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName() ==
+                    "TOBActiveRphi0") ||
+                   (theStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName() ==
+                    "TIBActiveRphi2")) {
           theBarrelHits++;
         }
       }
@@ -185,8 +151,7 @@ void LaserAlignmentSimulation::update(const G4Step *myStep) {
       LogDebug("SimLaserAlignmentSimulationStepping")
           << " AC1CMS: No SensitiveDetector available for this Step ... No Hit "
              "created :-( "
-          << "\n AC1CMS: The Material was: "
-          << theStep->GetPreStepPoint()->GetMaterial()->GetName();
+          << "\n AC1CMS: The Material was: " << theStep->GetPreStepPoint()->GetMaterial()->GetName();
     }
   }
 }
@@ -194,27 +159,22 @@ void LaserAlignmentSimulation::update(const G4Step *myStep) {
 void LaserAlignmentSimulation::update(const EndOfTrack *myTrack) {}
 
 void LaserAlignmentSimulation::update(const EndOfEvent *myEvent) {
-  LogDebug("SimLaserAlignmentSimulation")
-      << "<LaserAlignmentSimulation::update(const EndOfEvent * myEvent)>"
-      << "\n AC1CMS: End of Event " << (*myEvent)()->GetEventID();
+  LogDebug("SimLaserAlignmentSimulation") << "<LaserAlignmentSimulation::update(const EndOfEvent * myEvent)>"
+                                          << "\n AC1CMS: End of Event " << (*myEvent)()->GetEventID();
 
   // some statistics for this event
   edm::LogInfo("SimLaserAlignmentSimulation")
-      << " *** Number of Hits: " << theBarrelHits << " / " << theEndcapHits
-      << " (Barrel / Endcaps) *** ";
+      << " *** Number of Hits: " << theBarrelHits << " / " << theEndcapHits << " (Barrel / Endcaps) *** ";
 }
 
 void LaserAlignmentSimulation::update(const EndOfRun *myRun) {
-  LogDebug("SimLaserAlignmentSimulation")
-      << "<LaserAlignmentSimulation::update(const EndOfRun * myRun)>";
+  LogDebug("SimLaserAlignmentSimulation") << "<LaserAlignmentSimulation::update(const EndOfRun * myRun)>";
 
   // stop timer
   theTimer->Stop();
   edm::LogInfo("SimLaserAlignmentSimulation")
-      << " AC1CMS: Number of Events = "
-      << (*myRun)()->GetNumberOfEventToBeProcessed() << " " << *theTimer
-      << " *****     AC1CMS: End of Run: " << (*myRun)()->GetRunID()
-      << "     ***** ";
+      << " AC1CMS: Number of Events = " << (*myRun)()->GetNumberOfEventToBeProcessed() << " " << *theTimer
+      << " *****     AC1CMS: End of Run: " << (*myRun)()->GetRunID() << "     ***** ";
 }
 
 // register a SimWatcher to get the Observer signals from OscarProducer

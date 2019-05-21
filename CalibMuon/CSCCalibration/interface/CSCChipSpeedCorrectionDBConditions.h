@@ -18,16 +18,14 @@
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCChipSpeedCorrectionDBConditions
-    : public edm::ESProducer,
-      public edm::EventSetupRecordIntervalFinder {
+class CSCChipSpeedCorrectionDBConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   CSCChipSpeedCorrectionDBConditions(const edm::ParameterSet &);
   ~CSCChipSpeedCorrectionDBConditions() override;
 
-  inline static CSCDBChipSpeedCorrection *
-  prefillDBChipSpeedCorrection(bool isForMC, std::string dataCorrFileName,
-                               float dataOffse);
+  inline static CSCDBChipSpeedCorrection *prefillDBChipSpeedCorrection(bool isForMC,
+                                                                       std::string dataCorrFileName,
+                                                                       float dataOffse);
 
   typedef std::unique_ptr<CSCDBChipSpeedCorrection> ReturnType;
 
@@ -57,9 +55,9 @@ private:
 #include <vector>
 
 // to workaround plugin library
-inline CSCDBChipSpeedCorrection *
-CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(
-    bool isMC, std::string filename, float dataOffset) {
+inline CSCDBChipSpeedCorrection *CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(bool isMC,
+                                                                                                  std::string filename,
+                                                                                                  float dataOffset) {
   if (isMC)
     printf("\n Generating fake DB constants for MC\n");
   else {
@@ -74,8 +72,7 @@ CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(
   const int MAX_SHORT = 32767;
   CSCDBChipSpeedCorrection *cndbChipCorr = new CSCDBChipSpeedCorrection();
 
-  CSCDBChipSpeedCorrection::ChipSpeedContainer &itemvector =
-      cndbChipCorr->chipSpeedCorr;
+  CSCDBChipSpeedCorrection::ChipSpeedContainer &itemvector = cndbChipCorr->chipSpeedCorr;
   itemvector.resize(MAX_SIZE);
   cndbChipCorr->factor_speedCorr = int(CHIP_FACTOR);
 
@@ -101,9 +98,17 @@ CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(
   while (!feof(fin)) {
     // note space at end of format string to convert last \n
     // int check = fscanf(fin,"%d %d %f %f \n",&serialChamber,&chip,&t,&dt);
-    int check =
-        fscanf(fin, "%d %d %d %d %d %d %f %f %d \n", &serialChamber, &endcap,
-               &station, &ring, &chamber, &chip, &t, &dt, &nPulses);
+    int check = fscanf(fin,
+                       "%d %d %d %d %d %d %f %f %d \n",
+                       &serialChamber,
+                       &endcap,
+                       &station,
+                       &ring,
+                       &chamber,
+                       &chip,
+                       &t,
+                       &dt,
+                       &nPulses);
     if (check != 9) {
       printf("The input file format is not as expected\n");
       assert(0);
@@ -124,7 +129,7 @@ CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(
 
     if (serialChamber >= 235 && serialChamber <= 270)
       serialChamber += 234;
-    else { // not in ME+4\2
+    else {  // not in ME+4\2
       if (serialChamber >= 271 && serialChamber <= 504)
         serialChamber -= 36;
     }
@@ -135,14 +140,17 @@ CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(
     // /DataFormats/MuonDetId/interface/CSCIndexer.h Layer 1-6 and chip 1-5 for
     // all chambers except ME1/3 which is chip 1-4
     int layer = (chip) / 5 + 1;
-    CSCDetId cscId(chamberId.endcap(), chamberId.station(), chamberId.ring(),
-                   chamberId.chamber(), layer);
+    CSCDetId cscId(chamberId.endcap(), chamberId.station(), chamberId.ring(), chamberId.chamber(), layer);
     // This should yield the same CSCDetId as decoding the chamber serial does
     // If not, some debugging is needed
     CSCDetId cscId_doubleCheck(endcap, station, ring, chamber, layer);
     if (cscId != cscId_doubleCheck) {
       printf("Why doesn't chamberSerial %d map to e: %d s: %d r: %d c: %d ? \n",
-             serialChamber_safecopy, endcap, station, ring, chamber);
+             serialChamber_safecopy,
+             endcap,
+             station,
+             ring,
+             chamber);
       assert(0);
     }
 
@@ -154,7 +162,7 @@ CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(
     // (EventFilter/CSCRawToDigi/src/CSCCFEBData.cc). Since we're filling an
     // electronics channel database, I'll flip again ME-1/1b
     if (endcap == 2 && station == 1 && ring == 1 && chip < 5) {
-      chip = 5 - chip; // change 1-4 to 4-1
+      chip = 5 - chip;  // change 1-4 to 4-1
     }
 
     new_index_id.push_back(indexer.chipIndex(cscId, chip));
@@ -172,11 +180,9 @@ CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(
   }
 
   for (unsigned int i = 0; i < new_index_id.size(); i++) {
-    if ((short int)(fabs((dataOffset - new_chipPulse[i]) * CHIP_FACTOR + 0.5)) <
-        MAX_SHORT)
+    if ((short int)(fabs((dataOffset - new_chipPulse[i]) * CHIP_FACTOR + 0.5)) < MAX_SHORT)
       itemvector[new_index_id[i] - 1].speedCorr =
-          (short int)((dataOffset - new_chipPulse[i]) * CHIP_FACTOR +
-                      0.5 * (dataOffset >= new_chipPulse[i]) -
+          (short int)((dataOffset - new_chipPulse[i]) * CHIP_FACTOR + 0.5 * (dataOffset >= new_chipPulse[i]) -
                       0.5 * (dataOffset < new_chipPulse[i]));
     // printf("i= %d \t new index id = %d \t corr = %f \n",i,new_index_id[i],
     // new_chipPulse[i]);
@@ -190,11 +196,9 @@ CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(
   // average, this is probably very safe to first order
   float ave = runningTotal / numNonZero;
   for (int i = 0; i < MAX_SIZE; i++) {
-    if (itemvector[i].speedCorr == 0 ||
-        itemvector[i].speedCorr == (short int)(dataOffset * CHIP_FACTOR + 0.5))
+    if (itemvector[i].speedCorr == 0 || itemvector[i].speedCorr == (short int)(dataOffset * CHIP_FACTOR + 0.5))
       itemvector[i].speedCorr =
-          (short int)((dataOffset - ave) * CHIP_FACTOR +
-                      0.5 * (dataOffset >= ave) - 0.5 * (dataOffset < ave));
+          (short int)((dataOffset - ave) * CHIP_FACTOR + 0.5 * (dataOffset >= ave) - 0.5 * (dataOffset < ave));
   }
 
   return cndbChipCorr;

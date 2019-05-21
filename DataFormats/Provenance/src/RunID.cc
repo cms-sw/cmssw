@@ -6,4 +6,4 @@ namespace edm {
     oStream << "run: " << iID.run();
     return oStream;
   }
-}
+}  // namespace edm

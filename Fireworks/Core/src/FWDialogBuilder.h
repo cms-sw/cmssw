@@ -21,45 +21,44 @@ class FWColorManager;
 class TGTextEdit;
 class TGHtml;
 
-class FWLayoutBuilder
-{
+class FWLayoutBuilder {
 protected:
-   FWLayoutBuilder(TGCompositeFrame *window, bool expandY = true);
-   FWLayoutBuilder &newRow();
+  FWLayoutBuilder(TGCompositeFrame *window, bool expandY = true);
+  FWLayoutBuilder &newRow();
 
-   FWLayoutBuilder &indent(int left = 2, int right = -1);
-   
-   FWLayoutBuilder &unindent(void);
-   TGCompositeFrame *currentFrame(void) { return m_currentFrame; }
-   FWLayoutBuilder &floatLeft(size_t spacing);
-   FWLayoutBuilder &spaceUp(size_t spacing);
-   FWLayoutBuilder &spaceDown(size_t spacing);
-   FWLayoutBuilder &spaceLeft(size_t spacing);
-   FWLayoutBuilder &spaceRight(size_t spacing);
-   FWLayoutBuilder &frameSpaceUp(size_t spacing);
-   FWLayoutBuilder &frameSpaceDown(size_t spacing);
-   FWLayoutBuilder &frameSpaceLeft(size_t spacing);
-   FWLayoutBuilder &frameSpaceRight(size_t spacing);
-   FWLayoutBuilder &expand(bool expandX = true, bool expandY = false);
+  FWLayoutBuilder &indent(int left = 2, int right = -1);
 
-   bool isFloatingLeft() { return m_floatLeft; }
-   TGLayoutHints *nextHints();
-   TGCompositeFrame *nextFrame();
-   TGVerticalFrame  *verticalFrame();
-   void            frameForTab();
+  FWLayoutBuilder &unindent(void);
+  TGCompositeFrame *currentFrame(void) { return m_currentFrame; }
+  FWLayoutBuilder &floatLeft(size_t spacing);
+  FWLayoutBuilder &spaceUp(size_t spacing);
+  FWLayoutBuilder &spaceDown(size_t spacing);
+  FWLayoutBuilder &spaceLeft(size_t spacing);
+  FWLayoutBuilder &spaceRight(size_t spacing);
+  FWLayoutBuilder &frameSpaceUp(size_t spacing);
+  FWLayoutBuilder &frameSpaceDown(size_t spacing);
+  FWLayoutBuilder &frameSpaceLeft(size_t spacing);
+  FWLayoutBuilder &frameSpaceRight(size_t spacing);
+  FWLayoutBuilder &expand(bool expandX = true, bool expandY = false);
 
-private:   
-   TGCompositeFrame *m_window;
+  bool isFloatingLeft() { return m_floatLeft; }
+  TGLayoutHints *nextHints();
+  TGCompositeFrame *nextFrame();
+  TGVerticalFrame *verticalFrame();
+  void frameForTab();
 
-   std::vector<TGVerticalFrame *> m_framesStack;
-   //  TGCompositeFrame *m_lastFrame;
-   TGCompositeFrame *m_currentFrame;
+private:
+  TGCompositeFrame *m_window;
 
-   bool             m_floatLeft;
-   size_t           m_topSpacing;
-   size_t           m_leftSpacing;
-   TGLayoutHints   *m_currentHints;
-   TGLayoutHints   *m_currentFrameHints;
+  std::vector<TGVerticalFrame *> m_framesStack;
+  //  TGCompositeFrame *m_lastFrame;
+  TGCompositeFrame *m_currentFrame;
+
+  bool m_floatLeft;
+  size_t m_topSpacing;
+  size_t m_leftSpacing;
+  TGLayoutHints *m_currentHints;
+  TGLayoutHints *m_currentFrameHints;
 };
 
 /** Helper class to construct dialogs in a more readable ways.
@@ -91,86 +90,74 @@ private:
           "addWithCallback(Callbak)"  method which can be used to specify a 
           generic widget creation action.
   */
-class FWDialogBuilder : public FWLayoutBuilder
-{
+class FWDialogBuilder : public FWLayoutBuilder {
 public:
-   FWDialogBuilder(TGCompositeFrame *window, FWDialogBuilder *parent = nullptr, bool expandY = true);
+  FWDialogBuilder(TGCompositeFrame *window, FWDialogBuilder *parent = nullptr, bool expandY = true);
 
-   FWDialogBuilder &newRow();
-   FWDialogBuilder &indent(int left = 2, int right = -1);   
-   FWDialogBuilder &unindent(void);
-   
-   FWDialogBuilder &addLabel(const char *text,
-                             size_t fontSize = 12,
-                             size_t weight = 0,
-                             TGLabel **out = nullptr);
-   
-   FWDialogBuilder &addTextView(const char *defaultText = nullptr,
-                                TGTextView **out = nullptr);
+  FWDialogBuilder &newRow();
+  FWDialogBuilder &indent(int left = 2, int right = -1);
+  FWDialogBuilder &unindent(void);
+
+  FWDialogBuilder &addLabel(const char *text, size_t fontSize = 12, size_t weight = 0, TGLabel **out = nullptr);
+
+  FWDialogBuilder &addTextView(const char *defaultText = nullptr, TGTextView **out = nullptr);
 
   // Is default text meaningful here as the html is
   // a document with structure?
-   FWDialogBuilder &addHtml(TGHtml **out = nullptr);
+  FWDialogBuilder &addHtml(TGHtml **out = nullptr);
 
-   FWDialogBuilder &addTextEdit(const char *defaultText = nullptr,
-                                TGTextEdit **out = nullptr);
-   FWDialogBuilder &addColorPicker(const FWColorManager *manager,
-                                   FWColorSelect **out = nullptr);
-   
-   FWDialogBuilder &addHSlider(size_t size, TGHSlider **out = nullptr);
-   
-   FWDialogBuilder &addTextButton(const char *text, TGTextButton **out = nullptr);
-   FWDialogBuilder &addValidatingTextEntry(const char *defaultText, 
-                                           FWGUIValidatingTextEntry **out);
-   FWDialogBuilder &addTextEntry(const char *defaultText, TGTextEntry **out);
-   FWDialogBuilder &addNumberEntry(float defaultValue, size_t digits,
-                                   TGNumberFormat::EStyle style,
-                                   int min, int max,
-                                   TGNumberEntry **out);
-   
-   FWDialogBuilder &addCheckbox(const char *text, TGCheckButton **out = nullptr);
-   FWDialogBuilder &addTable(FWTableManagerBase *manager, FWTableWidget **out = nullptr);
+  FWDialogBuilder &addTextEdit(const char *defaultText = nullptr, TGTextEdit **out = nullptr);
+  FWDialogBuilder &addColorPicker(const FWColorManager *manager, FWColorSelect **out = nullptr);
 
-      
-   FWDialogBuilder &addHSeparator(size_t horizontalPadding = 4, 
-                                  size_t verticalPadding = 3);
+  FWDialogBuilder &addHSlider(size_t size, TGHSlider **out = nullptr);
 
-   FWDialogBuilder &tabs(TGTab **out);
-   FWDialogBuilder &untabs(void);
-   FWDialogBuilder &beginTab(const char *label);
-   FWDialogBuilder &endTab(void);
-   
-   FWDialogBuilder &floatLeft(size_t spacing = 3);
+  FWDialogBuilder &addTextButton(const char *text, TGTextButton **out = nullptr);
+  FWDialogBuilder &addValidatingTextEntry(const char *defaultText, FWGUIValidatingTextEntry **out);
+  FWDialogBuilder &addTextEntry(const char *defaultText, TGTextEntry **out);
+  FWDialogBuilder &addNumberEntry(
+      float defaultValue, size_t digits, TGNumberFormat::EStyle style, int min, int max, TGNumberEntry **out);
 
-   FWDialogBuilder &spaceUp(size_t spacing = 3);
-   FWDialogBuilder &spaceDown(size_t spacing = 3);
-   FWDialogBuilder &spaceUpDown(size_t spacing = 3);
-   FWDialogBuilder &spaceLeft(size_t spacing = 3);
-   FWDialogBuilder &spaceRight(size_t spacing = 3);
-   FWDialogBuilder &spaceLeftRight(size_t spacing = 3);
+  FWDialogBuilder &addCheckbox(const char *text, TGCheckButton **out = nullptr);
+  FWDialogBuilder &addTable(FWTableManagerBase *manager, FWTableWidget **out = nullptr);
 
-   FWDialogBuilder &frameSpaceUp(size_t spacing = 3);
-   FWDialogBuilder &frameSpaceDown(size_t spacing = 3);
-   FWDialogBuilder &frameSpaceUpDown(size_t spacing = 3);
-   FWDialogBuilder &frameSpaceLeft(size_t spacing = 3);
-   FWDialogBuilder &frameSpaceRight(size_t spacing = 3);
-   FWDialogBuilder &frameSpaceLeftRight(size_t spacing = 3);
+  FWDialogBuilder &addHSeparator(size_t horizontalPadding = 4, size_t verticalPadding = 3);
 
-   FWDialogBuilder &expand(size_t expandX = true, size_t expandY = false);
-   FWDialogBuilder &vSpacer(size_t size = 0);
-   FWDialogBuilder &hSpacer(size_t size = 0);
+  FWDialogBuilder &tabs(TGTab **out);
+  FWDialogBuilder &untabs(void);
+  FWDialogBuilder &beginTab(const char *label);
+  FWDialogBuilder &endTab(void);
+
+  FWDialogBuilder &floatLeft(size_t spacing = 3);
+
+  FWDialogBuilder &spaceUp(size_t spacing = 3);
+  FWDialogBuilder &spaceDown(size_t spacing = 3);
+  FWDialogBuilder &spaceUpDown(size_t spacing = 3);
+  FWDialogBuilder &spaceLeft(size_t spacing = 3);
+  FWDialogBuilder &spaceRight(size_t spacing = 3);
+  FWDialogBuilder &spaceLeftRight(size_t spacing = 3);
+
+  FWDialogBuilder &frameSpaceUp(size_t spacing = 3);
+  FWDialogBuilder &frameSpaceDown(size_t spacing = 3);
+  FWDialogBuilder &frameSpaceUpDown(size_t spacing = 3);
+  FWDialogBuilder &frameSpaceLeft(size_t spacing = 3);
+  FWDialogBuilder &frameSpaceRight(size_t spacing = 3);
+  FWDialogBuilder &frameSpaceLeftRight(size_t spacing = 3);
+
+  FWDialogBuilder &expand(size_t expandX = true, size_t expandY = false);
+  FWDialogBuilder &vSpacer(size_t size = 0);
+  FWDialogBuilder &hSpacer(size_t size = 0);
 
 protected:
-   template <class T> FWDialogBuilder &extract(T *in, T **out)
-      {
-         if (out)
-            *out = in;
-         return *this;
-      }
-   
+  template <class T>
+  FWDialogBuilder &extract(T *in, T **out) {
+    if (out)
+      *out = in;
+    return *this;
+  }
+
 private:
-   FWDialogBuilder *m_parent;
-   TGTab           *m_tabs;
+  FWDialogBuilder *m_parent;
+  TGTab *m_tabs;
 };
 
 #endif

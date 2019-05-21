@@ -3,10 +3,10 @@
 // CAT: Model
 //
 // Class for measurements
-// 
+//
 // History: v1.0.0
 // v1.1.0: add measurementsFileName
-// 
+//
 // Authors:
 //   Pedro Arce
 
@@ -24,31 +24,30 @@ class EntryLength;
 class OpticalAlignMeasurementInfo;
 class OpticalAlignParam;
 
-class Measurement
-{ 
+class Measurement {
 public:
   //----- Constructors / destructor
-  Measurement( const ALIint measdim, ALIstring& type, ALIstring& name );
-  Measurement(){ };   
+  Measurement(const ALIint measdim, ALIstring& type, ALIstring& name);
+  Measurement(){};
   virtual ~Measurement();
-    
+
   // construct Measurement reading date from file
   void construct();
   void postConstruct();
   // Fill the list of names of OptOs that take part in this measurement ( names only )
-  virtual void buildOptONamesList( const std::vector<ALIstring>& wl );
-  // Fill the data 
-  void fillData(ALIuint coor, const std::vector<ALIstring>& wl );
-  void fillData( ALIuint coor, OpticalAlignParam* oaParam);
+  virtual void buildOptONamesList(const std::vector<ALIstring>& wl);
+  // Fill the data
+  void fillData(ALIuint coor, const std::vector<ALIstring>& wl);
+  void fillData(ALIuint coor, OpticalAlignParam* oaParam);
 
   // Convert OptOs names in OptOs pointers
   void buildOptOList();
   // Make list including every entry of every ancestor of each Measured OptO
   void buildAffectingEntryList();
-  void addAffectingEntriesFromOptO( const OpticalObject* optoP );
+  void addAffectingEntriesFromOptO(const OpticalObject* optoP);
 
   // Get simulated value (called every time a parameter is displaced)
-  virtual void calculateSimulatedValue( ALIbool firstTime ) {};
+  virtual void calculateSimulatedValue(ALIbool firstTime){};
   // Get simulated value original (called every time a parameter value is changed: after getting values from file and every non-linear fit iteration )
   void calculateOriginalSimulatedValue();
 
@@ -56,187 +55,132 @@ public:
   void DumpBadOrderOptOs();
 
   // Calculate derivative of this Measurement with respect to a parameter of an Entry
-  std::vector<ALIdouble> DerivativeRespectEntry( Entry* entry );
+  std::vector<ALIdouble> DerivativeRespectEntry(Entry* entry);
 
   // get the ':X' that determines how the behaviour of the OptO w.r.t. this Measurement
-  ALIstring getMeasuringBehaviour( const std::vector< OpticalObject* >::const_iterator vocite);
+  ALIstring getMeasuringBehaviour(const std::vector<OpticalObject*>::const_iterator vocite);
 
- // Get the previous OptOs in the list of OptO that take part in this measurement
-  const OpticalObject* getPreviousOptO( const OpticalObject* Popto ) const;
+  // Get the previous OptOs in the list of OptO that take part in this measurement
+  const OpticalObject* getPreviousOptO(const OpticalObject* Popto) const;
   //---------- Add any correction between the measurement data and the default format in COCOA
   virtual void correctValueAndSigma(){};
 
   //---------- Convert from V to rad
-  virtual void setConversionFactor( const std::vector<ALIstring>& wordlist ){
+  virtual void setConversionFactor(const std::vector<ALIstring>& wordlist) {
     std::cerr << " Measurement::setConversionFactor should never be called " << std::endl;
-    exit(1); };
+    exit(1);
+  };
 
   //! set the date of the current measurement
-  static void setCurrentDate( const std::vector<ALIstring>& wl );
+  static void setCurrentDate(const std::vector<ALIstring>& wl);
 
-  void copyMeas( Measurement* meas, const std::string& subsstr1, const std::string& subsstr2 );
+  void copyMeas(Measurement* meas, const std::string& subsstr1, const std::string& subsstr2);
 
-  void constructFromOA( OpticalAlignMeasurementInfo&  measInfo);
+  void constructFromOA(OpticalAlignMeasurementInfo& measInfo);
 
- // ACCESS DATA MEMBERS
-  const ALIuint dim() const { 
-    return theDim;
-  }
- 
-  const ALIstring& type() const {
-    return theType;
-  }
-  
-  const ALIstring& name() const {
-    return theName;
-  }
+  // ACCESS DATA MEMBERS
+  const ALIuint dim() const { return theDim; }
+
+  const ALIstring& type() const { return theType; }
+
+  const ALIstring& name() const { return theName; }
 
   const ALIstring& sensorName() {
     ALIstring sensName = theName;
     ALIint colon = theName.find(':');
-    theName = theName.substr(colon+1, theName.length()-colon);
+    theName = theName.substr(colon + 1, theName.length() - colon);
     return theName;
   }
-  
+
   //  const OpticalObject* OptOCurrent() const {
   //  return _OptOCurrent;
   // }
-  
-  const std::vector<ALIstring>& OptONameList() const {
-    return _OptONameList;
-  }
-  
-  const std::vector<OpticalObject*>& OptOList() const {
-    return _OptOList;
-  }
-  
-  const std::vector<Entry*>& affectingEntryList() const {
-    return theAffectingEntryList;
-  }
-  
-  const  ALIdouble valueSimulated( ALIuint ii ) const {
-    return theValueSimulated[ii];
-  }
 
-  const ALIdouble valueSimulated_orig( ALIuint ii ) const {
-    return theValueSimulated_orig[ii];
-  }
+  const std::vector<ALIstring>& OptONameList() const { return _OptONameList; }
 
-  const ALIdouble* value() const {
-    return theValue;
-  } 
-  const ALIdouble value( ALIuint ii ) const {
-    return theValue[ii];
-  } 
+  const std::vector<OpticalObject*>& OptOList() const { return _OptOList; }
 
-  const ALIdouble* sigma() const {
-    return theSigma;
-  } 
+  const std::vector<Entry*>& affectingEntryList() const { return theAffectingEntryList; }
 
-  const ALIdouble sigma( ALIuint ii) const {
-    return theSigma[ii];
-  } 
+  const ALIdouble valueSimulated(ALIuint ii) const { return theValueSimulated[ii]; }
 
-  const ALIstring valueType( ALIuint ii) const {
-    return theValueType[ii];
-  } 
+  const ALIdouble valueSimulated_orig(ALIuint ii) const { return theValueSimulated_orig[ii]; }
 
-  virtual const ALIdouble valueDimensionFactor() const{
-    return ALIUtils::LengthValueDimensionFactor();
-  }
+  const ALIdouble* value() const { return theValue; }
+  const ALIdouble value(ALIuint ii) const { return theValue[ii]; }
 
-  virtual const ALIdouble sigmaDimensionFactor() const{
-    return ALIUtils::LengthSigmaDimensionFactor();
-  }
+  const ALIdouble* sigma() const { return theSigma; }
 
-  static ALIstring getCurrentDate(){
-    return theCurrentDate;
-  }
-  static ALIstring getCurrentTime(){
-    return theCurrentTime;
-  }
+  const ALIdouble sigma(ALIuint ii) const { return theSigma[ii]; }
 
-  const CLHEP::Hep3Vector& getLightRayPosition( ) const{
-    return theLightRayPosition; 
-  }
-  const CLHEP::Hep3Vector& getLightRayDirection( ) const{ 
-    return theLightRayDirection; 
-  }
+  const ALIstring valueType(ALIuint ii) const { return theValueType[ii]; }
 
- // SET DATA MEMBERS
-  void setValue( ALIint coor, ALIdouble val) {
-    theValue[coor] = val;
-  }
-  
-  void setSigma( ALIint coor, ALIdouble val) {
+  virtual const ALIdouble valueDimensionFactor() const { return ALIUtils::LengthValueDimensionFactor(); }
+
+  virtual const ALIdouble sigmaDimensionFactor() const { return ALIUtils::LengthSigmaDimensionFactor(); }
+
+  static ALIstring getCurrentDate() { return theCurrentDate; }
+  static ALIstring getCurrentTime() { return theCurrentTime; }
+
+  const CLHEP::Hep3Vector& getLightRayPosition() const { return theLightRayPosition; }
+  const CLHEP::Hep3Vector& getLightRayDirection() const { return theLightRayDirection; }
+
+  // SET DATA MEMBERS
+  void setValue(ALIint coor, ALIdouble val) { theValue[coor] = val; }
+
+  void setSigma(ALIint coor, ALIdouble val) {
     theSigma[coor] = val;
     //-    std::cout << coor << " setting sigma " << theSigma[coor] << std::endl;
   }
 
-  void setType( ALIstring type ) {
-    theType = type;
-  }
+  void setType(ALIstring type) { theType = type; }
 
-  void SetDimension(ALIuint dim) {
-    theDim = dim;
-  }    
+  void SetDimension(ALIuint dim) { theDim = dim; }
 
-  void AddOptONameListItem(ALIstring optos) {
-      _OptONameList.push_back( optos );
-  }
+  void AddOptONameListItem(ALIstring optos) { _OptONameList.push_back(optos); }
 
-  void AddOptOListItem(OpticalObject* opto) {
-      _OptOList.push_back( opto );
-  }
+  void AddOptOListItem(OpticalObject* opto) { _OptOList.push_back(opto); }
 
-  void setValueSimulated_orig( ALIint coor, ALIdouble value) {
-      theValueSimulated_orig[coor] = value;
-  }
+  void setValueSimulated_orig(ALIint coor, ALIdouble value) { theValueSimulated_orig[coor] = value; }
 
-  void setValueSimulated( ALIint coor, ALIdouble value) {
-      theValueSimulated[coor] = value;
-  }
-  virtual int xlaserLine( ALIuint ii) { std::cerr << "!!!! Measurement::xlaserLine is not returning anything " << std::endl; abort(); };
- 
-  //----- Set name as type plus name of last OptO 
+  void setValueSimulated(ALIint coor, ALIdouble value) { theValueSimulated[coor] = value; }
+  virtual int xlaserLine(ALIuint ii) {
+    std::cerr << "!!!! Measurement::xlaserLine is not returning anything " << std::endl;
+    abort();
+  };
+
+  //----- Set name as type plus name of last OptO
   void setName();
 
   // Check is value is simulated
-  bool valueIsSimulated(ALIint coor) {
-      return theValueIsSimulated[coor];
+  bool valueIsSimulated(ALIint coor) { return theValueIsSimulated[coor]; }
+
+  virtual void setXlaserLine(ALIuint ii, int val){};
+
+  static ALIdouble cameraScaleFactor;
+
+  static ALIstring& measurementsFileName() { return theMeasurementsFileName; }
+  static void setMeasurementsFileName(const ALIstring& filename) {
+    //-   std::cout << " setting file name " << filename << std::endl;
+    theMeasurementsFileName = filename;
+    //-   std::cout << " dsetting file name " << filename << std::endl;
   }
 
-  virtual void setXlaserLine( ALIuint ii, int val ) { };
+  void setLightRayPosition(const CLHEP::Hep3Vector& lightRayPosition) { theLightRayPosition = lightRayPosition; }
+  void setLightRayDirection(const CLHEP::Hep3Vector& lightRayDirection) { theLightRayDirection = lightRayDirection; }
 
- static ALIdouble cameraScaleFactor;
+protected:
+  // Substitute '..' by parent OptO in name
+  void Substitute2p(ALIstring& ref, const ALIstring& firstref, int NtwoPoints);
+  void printStartCalculateSimulatedValue(const Measurement* meas);
 
- static ALIstring& measurementsFileName() { 
-   return theMeasurementsFileName;
- }
- static void setMeasurementsFileName( const ALIstring& filename ) { 
-   //-   std::cout << " setting file name " << filename << std::endl;
-   theMeasurementsFileName = filename;
-   //-   std::cout << " dsetting file name " << filename << std::endl;
- }
-
- void setLightRayPosition( const CLHEP::Hep3Vector& lightRayPosition )
-   { theLightRayPosition = lightRayPosition; }
- void setLightRayDirection( const CLHEP::Hep3Vector& lightRayDirection )
-   { theLightRayDirection = lightRayDirection; }
-
- protected:  
-  // Substitute '..' by parent OptO in name 
-  void Substitute2p( ALIstring& ref, const ALIstring& firstref, int NtwoPoints);
-  void printStartCalculateSimulatedValue( const Measurement* meas);
-
-
- // private DATA MEMBERS
+  // private DATA MEMBERS
 private:
   ALIuint theDim;
   ALIstring theType;
-  ALIdouble* theValue;  
+  ALIdouble* theValue;
   ALIdouble* theSigma;
-  ALIstring theName;  //name of last OptO
+  ALIstring theName;        //name of last OptO
   ALIstring* theValueType;  //type of each measurement value (e.g. H:, TA:)
 
   //----- values of measurement obtained simulating the light ray through all the OptO that take part in the measurement
@@ -261,13 +205,13 @@ private:
   CLHEP::Hep3Vector theLightRayDirection;
   static ALIstring theMeasurementsFileName;
 
-  static ALIstring theCurrentDate;  
-  static ALIstring theCurrentTime;  
- public:
+  static ALIstring theCurrentDate;
+  static ALIstring theCurrentTime;
+
+public:
   static ALIbool only1;
   static ALIstring only1Date;
   static ALIstring only1Time;
-
 };
 
 #endif

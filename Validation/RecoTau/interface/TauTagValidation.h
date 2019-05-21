@@ -16,7 +16,6 @@
 // Original Author: Ricardo Vasquez Sierra On August 29, 2007
 // user include files
 
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -49,19 +48,19 @@
 #include <DQMServices/Core/interface/MonitorElement.h>
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
-typedef math::XYZTLorentzVectorD  LV;
-typedef std::vector<LV>  LVCollection;
+typedef math::XYZTLorentzVectorD LV;
+typedef std::vector<LV> LVCollection;
 
-struct hinfo{
+struct hinfo {
   int nbins;
   double min;
   double max;
-  hinfo(int n, double m, double M){
+  hinfo(int n, double m, double M) {
     nbins = n;
     min = m;
     max = M;
   }
-  hinfo(const edm::ParameterSet& config){
+  hinfo(const edm::ParameterSet& config) {
     nbins = config.getParameter<int>("nbins");
     min = config.getParameter<double>("min");
     max = config.getParameter<double>("max");
@@ -69,13 +68,12 @@ struct hinfo{
 };
 
 // class declaration
-class TauTagValidation : public DQMEDAnalyzer{
-
+class TauTagValidation : public DQMEDAnalyzer {
 public:
   explicit TauTagValidation(const edm::ParameterSet&);
   ~TauTagValidation() override;
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
@@ -83,34 +81,34 @@ private:
   /// label of the current module
   std::string moduleLabel_;
   ///sum the transversal momentum of all candidates
-  double getSumPt(const std::vector<edm::Ptr<reco::Candidate> > & candidates);
+  double getSumPt(const std::vector<edm::Ptr<reco::Candidate> >& candidates);
   ///get rid of redundant parts to shorten the label
-  bool stripDiscriminatorLabel(const std::string& discriminatorLabel, std::string & newLabel);
+  bool stripDiscriminatorLabel(const std::string& discriminatorLabel, std::string& newLabel);
 
   edm::ParameterSet histoSettings_;
   /// generic access to dynamic trigger table
-  GenericTriggerEventFlag * genericTriggerEventFlag_;
-    
+  GenericTriggerEventFlag* genericTriggerEventFlag_;
+
   /// What's the reference for the Validation Leptons or Jets
   std::string dataType_;
 
- // Matching criteria
+  // Matching criteria
   double matchDeltaR_Leptons_;
   double matchDeltaR_Jets_;
   double TauPtCut_;
-  
+
   //optional: filter candidates by passed cuts
   std::string recoCuts_, genCuts_;
 
   // output histograms
   bool saveoutputhistograms_, turnOnTrigger_;
 
- // Reference Collection
+  // Reference Collection
   edm::InputTag refCollectionInputTag_;
   edm::EDGetTokenT<edm::View<reco::Candidate> > refCollectionInputTagToken_;
   edm::EDGetTokenT<reco::PFTauCollection> tauProducerInputTagToken_;
   edm::EDGetTokenT<reco::VertexCollection> primaryVertexCollectionToken_;
-  std::vector <edm::EDGetTokenT<reco::PFTauDiscriminator> > currentDiscriminatorToken_;
+  std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator> > currentDiscriminatorToken_;
   std::string refCollection_;
 
   // In case you need to distinguish the output file
@@ -123,23 +121,23 @@ private:
   // std::vector<std::string> TauProducerDiscriminators_;
   // std::vector<double> TauDiscriminatorCuts_;
 
-  std::vector< edm::ParameterSet > discriminators_;
+  std::vector<edm::ParameterSet> discriminators_;
 
   // CMSSW version
 
   std::string tversion;
   std::string outPutFile_;
 
-  std::map<std::string,  MonitorElement *> ptTauVisibleMap;
-  std::map<std::string,  MonitorElement *> etaTauVisibleMap;
-  std::map<std::string,  MonitorElement *> phiTauVisibleMap;
-  std::map<std::string,  MonitorElement *> pileupTauVisibleMap;
-  std::map<std::string,  MonitorElement *> nTauVisibleMap;
-  std::map<std::string,  MonitorElement *> massTauVisibleMap;
-  std::map<std::string,  MonitorElement *> plotMap_;
-  std::map<std::string,  MonitorElement *> summaryMap;
+  std::map<std::string, MonitorElement*> ptTauVisibleMap;
+  std::map<std::string, MonitorElement*> etaTauVisibleMap;
+  std::map<std::string, MonitorElement*> phiTauVisibleMap;
+  std::map<std::string, MonitorElement*> pileupTauVisibleMap;
+  std::map<std::string, MonitorElement*> nTauVisibleMap;
+  std::map<std::string, MonitorElement*> massTauVisibleMap;
+  std::map<std::string, MonitorElement*> plotMap_;
+  std::map<std::string, MonitorElement*> summaryMap;
 
-  std::map<std::string,  int> tauDecayCountMap_;
+  std::map<std::string, int> tauDecayCountMap_;
 
   MonitorElement* nTaus_;
 
@@ -169,7 +167,6 @@ private:
   MonitorElement* nIsolated_NoChargedNoGammas_NeutralHadronsSignal_;
   MonitorElement* nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_;
 
-
   // Second for the CaloTaus
   // Number of CaloJets with a Leading Track (within a cone of 0.1 around the jet axis and a minimum pt of 5. GeV)
 
@@ -178,13 +175,13 @@ private:
   MonitorElement* nCaloJet_LeadingTrack_isolationTracks_;
   MonitorElement* nCaloJet_LeadingTrack_isolationECALhitsEtSum_;
 
- // Track Isolated CaloTau with a Leading Track
+  // Track Isolated CaloTau with a Leading Track
 
   MonitorElement* nTrackIsolated_isolationECALhitsEtSum_;
   MonitorElement* nTrackIsolated_signalTracksInvariantMass_;
   MonitorElement* nTrackIsolated_signalTracks_;
 
- // EM Isolated CaloTau with a Leading with no tracks in the Isolation Annulus
+  // EM Isolated CaloTau with a Leading with no tracks in the Isolation Annulus
 
   MonitorElement* nEMIsolated_signalTracksInvariantMass_;
   MonitorElement* nEMIsolated_signalTracks_;
@@ -192,13 +189,11 @@ private:
   // book-keeping variables
   int numEvents_;
 
- protected:
+protected:
+  PFBenchmarkAlgo* algo_;
 
-  PFBenchmarkAlgo *algo_;
-
- private:
+private:
   bool chainCuts_;
-
 };
 
 #endif

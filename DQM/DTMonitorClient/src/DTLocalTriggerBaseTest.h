@@ -1,7 +1,6 @@
 #ifndef DTLocalTriggerBaseTest_H
 #define DTLocalTriggerBaseTest_H
 
-
 /** \class DTLocalTriggerBaseTest
  * *
  *  DQM Base for TriggerTests
@@ -12,7 +11,6 @@
  *
  *   
  */
-
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -39,47 +37,47 @@ class TH1F;
 class TH2F;
 class TH1D;
 
-class DTLocalTriggerBaseTest: public DQMEDHarvester{
-
+class DTLocalTriggerBaseTest : public DQMEDHarvester {
 public:
-
   /// Constructor
-  DTLocalTriggerBaseTest() {};
-  
+  DTLocalTriggerBaseTest(){};
+
   /// Destructor
   ~DTLocalTriggerBaseTest() override;
 
-
 protected:
-
   /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& context) override;
 
   /// Perform client diagnostic in online
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker&,
+                             DQMStore::IGetter&,
+                             edm::LuminosityBlock const&,
+                             edm::EventSetup const&) override;
 
   /// Perform client diagnostic in offline
   void endRun(edm::Run const& run, edm::EventSetup const& context) override;
 
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
   /// Perform client analysis
-  virtual void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &) = 0;
+  virtual void runClientDiagnostic(DQMStore::IBooker&, DQMStore::IGetter&) = 0;
 
   /// Book the new MEs (for each sector)
-  void bookSectorHistos(DQMStore::IBooker &, int wheel, int sector, std::string hTag, std::string folder="" );
+  void bookSectorHistos(DQMStore::IBooker&, int wheel, int sector, std::string hTag, std::string folder = "");
 
   /// Book the new MEs (for each wheel)
-  void bookWheelHistos(DQMStore::IBooker &, int wheel, std::string hTag, std::string folder="" );
+  void bookWheelHistos(DQMStore::IBooker&, int wheel, std::string hTag, std::string folder = "");
 
   /// Book the new MEs (CMS summary)
-  void bookCmsHistos(DQMStore::IBooker &,std::string hTag, std::string folder="" , bool isGlb = false);
+  void bookCmsHistos(DQMStore::IBooker&, std::string hTag, std::string folder = "", bool isGlb = false);
 
   /// Calculate phi range for histograms
-  std::pair<float,float> phiRange(const DTChamberId& id);
+  std::pair<float, float> phiRange(const DTChamberId& id);
 
   /// Convert ME to Histogram fo type T
-  template <class T>  T* getHisto(MonitorElement* me);
+  template <class T>
+  T* getHisto(MonitorElement* me);
 
   /// Set configuration variables
   void setConfig(const edm::ParameterSet& ps, std::string name);
@@ -90,16 +88,14 @@ protected:
   /// Get the ME name (by chamber)
   std::string getMEName(std::string histoTag, std::string subfolder, const DTChamberId& chambid);
 
- /// Get the ME name (by wheel)
+  /// Get the ME name (by wheel)
   std::string getMEName(std::string histoTag, std::string subfolder, int wh);
-  
-  /// Get top folder name
-  inline std::string & topFolder(bool isTM) { return isTM ? baseFolderTM : baseFolderDDU; } ;
-  
-  /// Get message logger name
-  inline std::string category() { return "DTDQM|DTMonitorClient|" + testName + "Test"; } ;
-  
 
+  /// Get top folder name
+  inline std::string& topFolder(bool isTM) { return isTM ? baseFolderTM : baseFolderDDU; };
+
+  /// Get message logger name
+  inline std::string category() { return "DTDQM|DTMonitorClient|" + testName + "Test"; };
 
   int nevents;
   unsigned int nLumiSegs;
@@ -117,12 +113,10 @@ protected:
   std::string trigSource;
   std::string hwSource;
   edm::ESHandle<DTGeometry> muonGeom;
-  std::map<int,std::map<std::string,MonitorElement*> > secME;
-  std::map<int,std::map<std::string,MonitorElement*> > whME;
-  std::map<std::string,MonitorElement*> cmsME;
-
+  std::map<int, std::map<std::string, MonitorElement*> > secME;
+  std::map<int, std::map<std::string, MonitorElement*> > whME;
+  std::map<std::string, MonitorElement*> cmsME;
 };
-
 
 template <class T>
 T* DTLocalTriggerBaseTest::getHisto(MonitorElement* me) {
@@ -130,5 +124,3 @@ T* DTLocalTriggerBaseTest::getHisto(MonitorElement* me) {
 }
 
 #endif
-
-

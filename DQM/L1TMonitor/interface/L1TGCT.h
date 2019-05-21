@@ -92,11 +92,9 @@
 #include <memory>
 #include <unistd.h>
 
-
 #include <iostream>
 #include <fstream>
 #include <vector>
-
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -115,28 +113,24 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-
-
 //
 // class declaration
 //
 
 class L1TGCT : public DQMEDAnalyzer {
-
 public:
-
-// Constructor
+  // Constructor
   L1TGCT(const edm::ParameterSet& ps);
-  
-// Destructor
- ~L1TGCT() override;
+
+  // Destructor
+  ~L1TGCT() override;
 
 protected:
-// Analyze
- void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  // Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
 
 private:
   // ----------member data ---------------------------
@@ -144,24 +138,24 @@ private:
   std::string monitorDir_;
 
   // trigger type information
-  MonitorElement *triggerType_;
+  MonitorElement* triggerType_;
 
   // Jet and EM stuff
-  MonitorElement* l1GctAllJetsEtEtaPhi_; 
-  MonitorElement* l1GctCenJetsEtEtaPhi_; 
+  MonitorElement* l1GctAllJetsEtEtaPhi_;
+  MonitorElement* l1GctCenJetsEtEtaPhi_;
   MonitorElement* l1GctForJetsEtEtaPhi_;
   MonitorElement* l1GctTauJetsEtEtaPhi_;
   MonitorElement* l1GctIsoTauJetsEtEtaPhi_;
   MonitorElement* l1GctIsoEmRankEtaPhi_;
   MonitorElement* l1GctNonIsoEmRankEtaPhi_;
 
-  MonitorElement* l1GctAllJetsOccEtaPhi_; 
+  MonitorElement* l1GctAllJetsOccEtaPhi_;
   MonitorElement* l1GctCenJetsOccEtaPhi_;
-  MonitorElement* l1GctForJetsOccEtaPhi_;  
+  MonitorElement* l1GctForJetsOccEtaPhi_;
   MonitorElement* l1GctTauJetsOccEtaPhi_;
   MonitorElement* l1GctIsoTauJetsOccEtaPhi_;
-  MonitorElement* l1GctIsoEmOccEtaPhi_;    
-  MonitorElement* l1GctNonIsoEmOccEtaPhi_; 
+  MonitorElement* l1GctIsoEmOccEtaPhi_;
+  MonitorElement* l1GctNonIsoEmOccEtaPhi_;
 
   MonitorElement* l1GctCenJetsRank_;
   MonitorElement* l1GctForJetsRank_;
@@ -191,7 +185,7 @@ private:
   MonitorElement* l1GctEtHadOf_;
   MonitorElement* l1GctEtHadOccBx_;
   MonitorElement* l1GctEtTotalEtHadCorr_;
-  
+
   // HF Rings stuff
   MonitorElement* l1GctHFRing1PosEtaNegEta_;
   MonitorElement* l1GctHFRing2PosEtaNegEta_;
@@ -210,8 +204,8 @@ private:
   MonitorElement* l1GctHFRingETSumOccBx_;
   MonitorElement* l1GctHFRingTowerCountOccBx_;
 
-  int nev_; // Number of events processed
-  std::string outputFile_; //file name for ROOT ouput
+  int nev_;                 // Number of events processed
+  std::string outputFile_;  //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
   std::ofstream logFile_;
@@ -241,7 +235,6 @@ private:
   edm::EDGetTokenT<L1GctHtMissCollection> l1HtMissToken_;
   edm::EDGetTokenT<L1GctEtHadCollection> l1EtHadToken_;
   edm::EDGetTokenT<L1GctEtTotalCollection> l1EtTotalToken_;
-
 };
 
 #endif

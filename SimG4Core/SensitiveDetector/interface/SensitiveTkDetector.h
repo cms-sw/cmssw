@@ -5,19 +5,14 @@
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
 #include <string>
 
-class SensitiveTkDetector : public SensitiveDetector
-{
+class SensitiveTkDetector : public SensitiveDetector {
 public:
-  explicit SensitiveTkDetector(const std::string & iname, const DDCompactView & cpv,
-                               const SensitiveDetectorCatalog & clg,
-                               edm::ParameterSet const & p) : 
-  SensitiveDetector(iname, cpv, clg, p, false) {}
-  virtual void fillHits(edm::PSimHitContainer &, const std::string& hname) = 0;
-
+  explicit SensitiveTkDetector(const std::string& iname,
+                               const DDCompactView& cpv,
+                               const SensitiveDetectorCatalog& clg,
+                               edm::ParameterSet const& p)
+      : SensitiveDetector(iname, cpv, clg, p, false) {}
+  virtual void fillHits(edm::PSimHitContainer&, const std::string& hname) = 0;
 };
 
 #endif
-
-
-
-

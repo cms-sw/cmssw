@@ -8,8 +8,7 @@ using std::setw;
 GctDigiToPsbText::GctDigiToPsbText(const edm::ParameterSet &iConfig)
     : m_gctInputLabel(iConfig.getParameter<edm::InputTag>("GctInputLabel")),
       m_textFileName(iConfig.getParameter<std::string>("TextFileName")),
-      m_hexUpperCase(
-          iConfig.getUntrackedParameter<bool>("HexUpperCase", false)) {
+      m_hexUpperCase(iConfig.getUntrackedParameter<bool>("HexUpperCase", false)) {
   /// open output text files
   for (unsigned i = 0; i < 4; i++) {
     std::stringstream fileStream;
@@ -31,9 +30,7 @@ GctDigiToPsbText::~GctDigiToPsbText() {
     m_file[i].close();
 }
 
-void GctDigiToPsbText::analyze(const edm::Event &iEvent,
-                               const edm::EventSetup &iSetup) {
-
+void GctDigiToPsbText::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // static int nevt = -1; nevt++;
 
   // get digis
@@ -73,12 +70,10 @@ void GctDigiToPsbText::analyze(const edm::Event &iEvent,
 
     // print electrons
     sstrm.str("");
-    sstrm << setw(4) << setfill('0') << std::hex
-          << (data[iIsola][cycle] & 0x7fff) + ((cbs[cycle] & 0x1) << 15);
+    sstrm << setw(4) << setfill('0') << std::hex << (data[iIsola][cycle] & 0x7fff) + ((cbs[cycle] & 0x1) << 15);
     m_file[iIsola] << sstrm.str() << std::endl;
     sstrm.str("");
-    sstrm << setw(4) << setfill('0') << std::hex
-          << (data[iNoIso][cycle] & 0x7fff) + ((cbs[cycle] & 0x1) << 15);
+    sstrm << setw(4) << setfill('0') << std::hex << (data[iNoIso][cycle] & 0x7fff) + ((cbs[cycle] & 0x1) << 15);
     m_file[iNoIso] << sstrm.str() << std::endl;
   }
 

@@ -32,11 +32,9 @@ void testPolycone::matched_g4_and_dd(void) {
   vector<double> z(pl, pl + sizeof(pl) / sizeof(double));
   string name("fred1");
 
-  G4Polycone g4(name, phiStart, phiTotal, z.size(), &z[0], &rInner[0],
-                &rOuter[0]);
+  G4Polycone g4(name, phiStart, phiTotal, z.size(), &z[0], &rInner[0], &rOuter[0]);
   DDI::Polycone dd(phiStart, phiTotal, z, rInner, rOuter);
-  DDPolycone dds =
-      DDSolidFactory::polycone(name, phiStart, phiTotal, z, rInner, rOuter);
+  DDPolycone dds = DDSolidFactory::polycone(name, phiStart, phiTotal, z, rInner, rOuter);
   cout << endl;
   dd.stream(cout);
   cout << endl;

@@ -4,7 +4,4 @@
 
 typedef popcon::PopConAnalyzer<DTHVStatusValidateHandler> DTHVStatusValidateDBWrite;
 
-
 DEFINE_FWK_MODULE(DTHVStatusValidateDBWrite);
-
-

@@ -12,12 +12,10 @@ RctDigiToRctText::RctDigiToRctText(const edm::ParameterSet &iConfig)
     : m_rctInputLabel(iConfig.getParameter<edm::InputTag>("RctInputLabel")),
       m_textFileName(iConfig.getParameter<std::string>("TextFileName")),
       m_hexUpperCase(iConfig.getParameter<bool>("HexUpperCase")) {
-
   /// open output text files
   for (unsigned i = 0; i < NUM_RCT_CRATES; i++) {
     std::stringstream fileStream;
-    fileStream << m_textFileName << std::setw(2) << std::setfill('0') << i
-               << ".txt";
+    fileStream << m_textFileName << std::setw(2) << std::setfill('0') << i << ".txt";
     std::string fileName(fileStream.str());
     m_file[i].open(fileName.c_str(), std::ios::out);
 
@@ -39,9 +37,7 @@ RctDigiToRctText::~RctDigiToRctText() {
   fdebug.close();
 }
 
-void RctDigiToRctText::analyze(const edm::Event &iEvent,
-                               const edm::EventSetup &iSetup) {
-
+void RctDigiToRctText::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   /// count bunch crossing
   static int nevt = -1;
   nevt++;
@@ -67,9 +63,7 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent,
   bool iso;
   int id;
 
-  for (L1CaloEmCollection::const_iterator iem = em->begin(); iem != em->end();
-       iem++) {
-
+  for (L1CaloEmCollection::const_iterator iem = em->begin(); iem != em->end(); iem++) {
     int crate = iem->rctCrate();
     iso = iem->isolated();
     unsigned data = iem->raw();
@@ -81,14 +75,12 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent,
     /// debug
     if (crate > 17 || id > 7)
       throw cms::Exception("RctDigiToRctTextElectronIndexOutBounds")
-          << "out of bounds indices  crate:" << crate << "id:" << id
-          << std::endl;
+          << "out of bounds indices  crate:" << crate << "id:" << id << std::endl;
     if (ldebug && data != 0)
       debug_NOTEMPTY[crate] = true;
     dstrm.str("");
     dstrm << "electron "
-          << " bx:" << nevt << " crate:" << crate << " iso:" << iso
-          << " raw:" << data << " \t cand:" << *iem;
+          << " bx:" << nevt << " crate:" << crate << " iso:" << iso << " raw:" << data << " \t cand:" << *iem;
     if (debug_NOTEMPTY[crate])
       fdebug << dstrm.str() << std::endl;
   }
@@ -102,9 +94,7 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent,
   unsigned short RCtau[18][7][2] = {{{0}}};
   unsigned short HF[18][4][2] = {{{0}}};
 
-  for (L1CaloRegionCollection::const_iterator irgn = rgn->begin();
-       irgn != rgn->end(); irgn++) {
-
+  for (L1CaloRegionCollection::const_iterator irgn = rgn->begin(); irgn != rgn->end(); irgn++) {
     int crate = irgn->rctCrate();
     int card = irgn->rctCard();
     int rgnidx = irgn->rctRegionIndex();
@@ -117,25 +107,22 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent,
       MIPbits[crate][card][rgnidx] = irgn->mip();
       QIEbits[crate][card][rgnidx] = irgn->quiet();
       // debug info
-      dstrm << hex << "Et=" << irgn->et() << " OverFlow=" << irgn->overFlow()
-            << " tauVeto=" << irgn->tauVeto() << " mip=" << irgn->mip()
-            << " quiet=" << irgn->quiet() << " Card=" << irgn->rctCard()
-            << " Region=" << irgn->rctRegionIndex()
-            << " Crate=" << irgn->rctCrate() << dec;
+      dstrm << hex << "Et=" << irgn->et() << " OverFlow=" << irgn->overFlow() << " tauVeto=" << irgn->tauVeto()
+            << " mip=" << irgn->mip() << " quiet=" << irgn->quiet() << " Card=" << irgn->rctCard()
+            << " Region=" << irgn->rctRegionIndex() << " Crate=" << irgn->rctCrate() << dec;
       if (ldebug)
         LogDebug("Regions") << dstrm.str();
     } else {
       HF[crate][irgn->id().rctEta() - 7][irgn->id().rctPhi()] = irgn->et();
       // debug info
-      dstrm << hex << "Et=" << irgn->et() << " FGrain=" << irgn->fineGrain()
-            << " Eta=" << irgn->id().rctEta() << " Phi=" << irgn->id().rctPhi()
-            << " Crate=" << irgn->rctCrate() << dec;
+      dstrm << hex << "Et=" << irgn->et() << " FGrain=" << irgn->fineGrain() << " Eta=" << irgn->id().rctEta()
+            << " Phi=" << irgn->id().rctPhi() << " Crate=" << irgn->rctCrate() << dec;
       if (ldebug)
         LogDebug("HFRegions") << dstrm.str();
     }
 
     if (ldebug && irgn->et() != 0)
-      debug_NOTEMPTY[crate] = true; // debug
+      debug_NOTEMPTY[crate] = true;  // debug
     if (debug_NOTEMPTY[crate]) {
       fdebug << "region"
              << " bx:" << nevt << " crate:" << crate << "\t";
@@ -152,7 +139,6 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent,
   /// print electrons
 
   for (unsigned crate = 0; crate < NUM_RCT_CRATES; crate++) {
-
     sstrm.str("");
     sstrm << "Crossing " << nevt << std::endl;
 
@@ -174,7 +160,6 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent,
   /// print regions
 
   for (unsigned crate = 0; crate < NUM_RCT_CRATES; crate++) {
-
     /// mip bits
     sstrm.str("");
     for (int card = 0; card < 7; card++) {
@@ -184,7 +169,7 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent,
     }
     m_file[crate] << sstrm.str() << std::endl;
     if (debug_NOTEMPTY[crate])
-      fdebug << sstrm.str() << std::endl; // debug
+      fdebug << sstrm.str() << std::endl;  // debug
 
     /// quiet bits
     sstrm.str("");
@@ -195,7 +180,7 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent,
     }
     m_file[crate] << sstrm.str() << std::endl;
     if (debug_NOTEMPTY[crate])
-      fdebug << sstrm.str() << std::endl; // debug
+      fdebug << sstrm.str() << std::endl;  // debug
 
     /// region info
     sstrm.str("");
@@ -212,7 +197,7 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent,
     }
     m_file[crate] << sstrm.str() << std::endl;
     if (debug_NOTEMPTY[crate])
-      fdebug << sstrm.str() << std::endl << std::endl; // debug
+      fdebug << sstrm.str() << std::endl << std::endl;  // debug
 
     /// HF
     sstrm.str("");
@@ -224,10 +209,10 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent,
     }
     m_file[crate] << sstrm.str() << std::endl;
     if (debug_NOTEMPTY[crate])
-      fdebug << sstrm.str() << std::endl; // debug
+      fdebug << sstrm.str() << std::endl;  // debug
     sstrm << setfill(' ') << dec;
 
-  } // end crate loop
+  }  // end crate loop
 
   /// flush data to files
   for (unsigned i = 0; i < NUM_RCT_CRATES; i++)

@@ -27,29 +27,27 @@
 // forward declarations
 
 class FWEDProductRepresentationChecker : public FWRepresentationCheckerBase {
-
 public:
-   FWEDProductRepresentationChecker(const std::string& iTypeidName,
-                                    const std::string& iPurpose,
-                                    unsigned int iBitPackedViews,
-                                    bool iRepresentsSubPart,
-                                    bool iRequiresFF = false);
+  FWEDProductRepresentationChecker(const std::string& iTypeidName,
+                                   const std::string& iPurpose,
+                                   unsigned int iBitPackedViews,
+                                   bool iRepresentsSubPart,
+                                   bool iRequiresFF = false);
 
-   // ---------- const member functions ---------------------
-   FWRepresentationInfo infoFor(const std::string& iTypeName) const override;
+  // ---------- const member functions ---------------------
+  FWRepresentationInfo infoFor(const std::string& iTypeName) const override;
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
 private:
-   FWEDProductRepresentationChecker(const FWEDProductRepresentationChecker&) = delete; // stop default
+  FWEDProductRepresentationChecker(const FWEDProductRepresentationChecker&) = delete;  // stop default
 
-   const FWEDProductRepresentationChecker& operator=(const FWEDProductRepresentationChecker&) = delete; // stop default
+  const FWEDProductRepresentationChecker& operator=(const FWEDProductRepresentationChecker&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   const std::string m_typeidName;
+  // ---------- member data --------------------------------
+  const std::string m_typeidName;
 };
-
 
 #endif

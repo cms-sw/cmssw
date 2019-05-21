@@ -36,27 +36,24 @@ namespace edm {
 
     void write(std::ostream& os) const;
 
-    std::vector<BranchID> const& parents() const {return parents_;}
-    
-    void setParents(std::vector<BranchID> const& parents) {parents_ = parents;} 
+    std::vector<BranchID> const& parents() const { return parents_; }
+
+    void setParents(std::vector<BranchID> const& parents) { parents_ = parents; }
 
   private:
-
     // The Branch IDs of the parents
     std::vector<BranchID> parents_;
 
     Hash<ModuleDescriptionType> moduleDescriptionID_;
   };
-  
-  inline
-  std::ostream&
-  operator<<(std::ostream& os, EventEntryDescription const& p) {
+
+  inline std::ostream& operator<<(std::ostream& os, EventEntryDescription const& p) {
     p.write(os);
     return os;
   }
 
   // Only the 'salient attributes' are testing in equality comparison.
   bool operator==(EventEntryDescription const& a, EventEntryDescription const& b);
-  inline bool operator!=(EventEntryDescription const& a, EventEntryDescription const& b) { return !(a==b); }
-}
+  inline bool operator!=(EventEntryDescription const& a, EventEntryDescription const& b) { return !(a == b); }
+}  // namespace edm
 #endif

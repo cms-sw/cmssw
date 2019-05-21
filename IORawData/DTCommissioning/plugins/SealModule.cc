@@ -7,8 +7,8 @@
 #include "IORawData/DTCommissioning/plugins/DTDDUFileReader.h"
 #include "IORawData/DTCommissioning/plugins/DTSpyReader.h"
 
-DEFINE_FWK_MODULE ( DTNewROS8FileReader);
-DEFINE_FWK_MODULE ( DTROS8FileReader);
-DEFINE_FWK_MODULE ( DTROS25FileReader);
-DEFINE_FWK_MODULE ( DTDDUFileReader);
-DEFINE_FWK_MODULE ( DTSpyReader);
+DEFINE_FWK_MODULE(DTNewROS8FileReader);
+DEFINE_FWK_MODULE(DTROS8FileReader);
+DEFINE_FWK_MODULE(DTROS25FileReader);
+DEFINE_FWK_MODULE(DTDDUFileReader);
+DEFINE_FWK_MODULE(DTSpyReader);

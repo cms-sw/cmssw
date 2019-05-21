@@ -13,6 +13,7 @@
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 //__________________________________________________________________________________________________
 Alignable::Alignable(align::ID id, const AlignableSurface& surf):

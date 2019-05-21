@@ -35,9 +35,9 @@ DDTestSpecParsFilter::analyze(const Event&, const EventSetup& iEventSetup)
 {
   LogVerbatim("Geometry") << "DDTestSpecParsFilter::analyze: " << m_tag;
   ESTransientHandle<DDSpecParRegistry> registry;
-  iEventSetup.get<DDSpecParRegistryRcd>().get(m_tag.module(), registry);
+  iEventSetup.get<DDSpecParRegistryRcd>().get(m_tag, registry);
 
-  LogVerbatim("Geometry") << "DDTestSpecParsFilter::analyze: " << m_tag.module()
+  LogVerbatim("Geometry") << "DDTestSpecParsFilter::analyze: " << m_tag
 			  << " for attribute " << m_attribute << " and value " << m_value;
   LogVerbatim("Geometry") << "DD SpecPar Registry size: " << registry->specpars.size();
 

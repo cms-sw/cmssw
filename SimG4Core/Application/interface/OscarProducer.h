@@ -13,20 +13,19 @@
 
 #include <memory>
 
-class OscarProducer : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns>
-{
+class OscarProducer : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
   typedef std::vector<std::shared_ptr<SimProducer> > Producers;
 
-  explicit OscarProducer(edm::ParameterSet const & p);
+  explicit OscarProducer(edm::ParameterSet const& p);
   ~OscarProducer() override;
-  void beginRun(const edm::Run & r,const edm::EventSetup& c) override;
-  void endRun(const edm::Run & r,const edm::EventSetup& c) override;
-  void produce(edm::Event & e, const edm::EventSetup& c) override;
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
   std::unique_ptr<RunManager> m_runManager;
-  Producers     m_producers;
+  Producers m_producers;
   std::unique_ptr<CustomUIsession> m_UIsession;
 };
 

@@ -40,12 +40,10 @@
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
-
 class DTLayer;
 class DTWireId;
 class DTT0;
 class DTTtrig;
-
 
 namespace edm {
   class ParameterSet;
@@ -64,37 +62,31 @@ public:
   /// Pass the Event Setup to the algo at each event
   void setES(const edm::EventSetup& setup) override;
 
-
   /// Time (ns) to be subtracted to the digi time,
   /// Parameters are the layer and the wireId to which the
   /// digi is referred and the estimation of
   /// the 3D hit position (globPos)
   double offset(const DTLayer* layer,
-			const DTWireId& wireId,
-			const GlobalPoint& globPos,
-			double& tTrig,
-			double& wirePropCorr,
-			double& tofCorr) const override;
+                const DTWireId& wireId,
+                const GlobalPoint& globPos,
+                double& tTrig,
+                double& wirePropCorr,
+                double& tofCorr) const override;
 
   /// Time (ns) to be subtracted to the digi time.
   /// It does not take into account TOF and signal propagation along the wire
   double offset(const DTWireId& wireId) const override;
-
 
   /// Time (ns) to be subtracted to the digi time for emulation purposes
   /// It does not take into account TOF and signal propagation along the wire
   /// It also returns the different contributions separately:
   ///     - tTrig is the offset (t_trig)
   ///     - t0cell is the t0 from pulses
-  double emulatorOffset(const DTWireId& wireId,
-				double &tTrig,
-				double &t0cell) const override;
+  double emulatorOffset(const DTWireId& wireId, double& tTrig, double& t0cell) const override;
 
-
- private:
-  
-  const DTT0 *tZeroMap;
-  const DTTtrig *tTrigMap;
+private:
+  const DTT0* tZeroMap;
+  const DTTtrig* tTrigMap;
   // Set the verbosity level
   const bool debug;
   // The velocity of signal propagation along the wire (cm/ns)
@@ -111,7 +103,5 @@ public:
   double theBXspace;
 
   std::string thetTrigLabel;
-
 };
 #endif
-

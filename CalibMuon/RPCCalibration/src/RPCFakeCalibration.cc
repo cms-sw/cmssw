@@ -19,8 +19,7 @@
 #include <iostream>
 #include <memory>
 
-RPCFakeCalibration::RPCFakeCalibration(const edm::ParameterSet &pset)
-    : RPCPerformanceESSource(pset) {
+RPCFakeCalibration::RPCFakeCalibration(const edm::ParameterSet &pset) : RPCPerformanceESSource(pset) {
   edm::LogInfo("RPCFakeCalibration::RPCFakeCalibration");
   theRPCCalibSetUp = new RPCCalibSetUp(pset);
 }
@@ -29,18 +28,16 @@ RPCStripNoises *RPCFakeCalibration::makeNoise() {
   RPCStripNoises *obj = new RPCStripNoises();
 
   std::map<int, std::vector<double>>::iterator itc;
-  for (itc = (theRPCCalibSetUp->_clsMap).begin();
-       itc != (theRPCCalibSetUp->_clsMap).end(); ++itc) {
+  for (itc = (theRPCCalibSetUp->_clsMap).begin(); itc != (theRPCCalibSetUp->_clsMap).end(); ++itc) {
     for (unsigned int n = 0; n < (itc->second).size(); ++n) {
       (obj->v_cls).push_back((itc->second)[n]);
     }
   }
 
   RPCStripNoises::NoiseItem tipoprova;
-  for (std::map<uint32_t, std::vector<float>>::iterator it =
-           (theRPCCalibSetUp->_mapDetIdNoise).begin();
-       it != (theRPCCalibSetUp->_mapDetIdNoise).end(); ++it) {
-
+  for (std::map<uint32_t, std::vector<float>>::iterator it = (theRPCCalibSetUp->_mapDetIdNoise).begin();
+       it != (theRPCCalibSetUp->_mapDetIdNoise).end();
+       ++it) {
     tipoprova.dpid = it->first;
     tipoprova.time = theRPCCalibSetUp->getTime(it->first);
 
@@ -58,14 +55,12 @@ RPCClusterSize *RPCFakeCalibration::makeCls() {
   RPCClusterSize *obj = new RPCClusterSize();
   RPCClusterSize::ClusterSizeItem rpcClsItem;
 
-  for (std::map<uint32_t, std::vector<double>>::iterator it =
-           (theRPCCalibSetUp->_mapDetClsMap).begin();
-       it != (theRPCCalibSetUp->_mapDetClsMap).end(); ++it) {
-
+  for (std::map<uint32_t, std::vector<double>>::iterator it = (theRPCCalibSetUp->_mapDetClsMap).begin();
+       it != (theRPCCalibSetUp->_mapDetClsMap).end();
+       ++it) {
     rpcClsItem.dpid = it->first;
 
     for (unsigned int k = 0; k < 100; k++) {
-
       rpcClsItem.clusterSize = (theRPCCalibSetUp->getCls(it->first))[k];
       (obj->v_cls).push_back(rpcClsItem);
     }

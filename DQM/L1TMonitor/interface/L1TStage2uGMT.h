@@ -1,7 +1,6 @@
 #ifndef DQM_L1TMonitor_L1TStage2uGMT_h
 #define DQM_L1TMonitor_L1TStage2uGMT_h
 
-
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
@@ -15,23 +14,18 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-
 class L1TStage2uGMT : public DQMEDAnalyzer {
-
- public:
-
+public:
   L1TStage2uGMT(const edm::ParameterSet& ps);
   ~L1TStage2uGMT() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- protected:
-
+protected:
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:  
-
+private:
   l1t::tftype getTfOrigin(const int tfMuonIndex);
 
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtBMTFToken;

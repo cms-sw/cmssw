@@ -10,7 +10,6 @@
 #include <vector>
 
 class DDG4SensitiveConverter {
-
 public:
   DDG4SensitiveConverter();
   virtual ~DDG4SensitiveConverter();

@@ -20,8 +20,7 @@
 //
 // constructors and destructor
 //
-LaserAlignmentProducer::LaserAlignmentProducer(const edm::ParameterSet &)
-    : EDProducer(), theEvent(nullptr) {
+LaserAlignmentProducer::LaserAlignmentProducer(const edm::ParameterSet &) : EDProducer(), theEvent(nullptr) {
   // register your products
   produces<edm::HepMCProduct>("unsmeared");
 
@@ -33,19 +32,16 @@ LaserAlignmentProducer::~LaserAlignmentProducer() {
 }
 
 // ------------ method called to produce the event  ------------
-void LaserAlignmentProducer::produce(edm::Event &iEvent,
-                                     const edm::EventSetup &) {
+void LaserAlignmentProducer::produce(edm::Event &iEvent, const edm::EventSetup &) {
   // create the event
   theEvent = new HepMC::GenEvent();
 
   // create a primary vertex
-  HepMC::GenVertex *theVtx =
-      new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
+  HepMC::GenVertex *theVtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
 
   // add a particle to the vertex; this is needed to avoid crashes in
   // OscarProducer. Use a electron neutrino, with zero energy and mass
-  HepMC::GenParticle *theParticle =
-      new HepMC::GenParticle(HepMC::FourVector(0., 0., 0., 0.), 12, 1);
+  HepMC::GenParticle *theParticle = new HepMC::GenParticle(HepMC::FourVector(0., 0., 0., 0.), 12, 1);
 
   theVtx->add_particle_out(theParticle);
 

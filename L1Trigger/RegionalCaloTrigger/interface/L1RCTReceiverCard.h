@@ -12,10 +12,8 @@
 class L1RCTLookupTables;
 
 class L1RCTReceiverCard {
-
 public:
-  L1RCTReceiverCard(int crateNumber, int cardNumber,
-                    const L1RCTLookupTables *rctLookupTables);
+  L1RCTReceiverCard(int crateNumber, int cardNumber, const L1RCTLookupTables *rctLookupTables);
   ~L1RCTReceiverCard();
 
   // Information needed to identify cards

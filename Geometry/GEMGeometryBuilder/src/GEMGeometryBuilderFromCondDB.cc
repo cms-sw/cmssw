@@ -204,13 +204,8 @@ GEMGeometryBuilderFromCondDB::boundPlane(const RecoIdealGeometry& rgeo, unsigned
   
   //Change of axes for the forward
   Basic3DVector<float> newX(1.,0.,0.);
-  Basic3DVector<float> newY(0.,0.,1.);
+  Basic3DVector<float> newY(0.,0.,-1.);
   Basic3DVector<float> newZ(0.,1.,0.);
-  // Odd chambers are inverted in gem.xml
-  bool isOdd = detId.chamber()%2;
-  // all me0 chambers are inverted
-  if (detId.station() == 0) isOdd = true;
-  if (isOdd) newY *= -1;
   
   rotResult.rotateAxes(newX, newY, newZ);
 

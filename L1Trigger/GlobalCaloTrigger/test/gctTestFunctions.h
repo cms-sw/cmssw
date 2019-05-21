@@ -35,10 +35,8 @@ class gctTestHfEtSums;
 
 class L1GlobalCaloTrigger;
 
-class gctTestFunctions
-{
+class gctTestFunctions {
 public:
-
   // structs and typedefs
 
   // Constructor and destructor
@@ -52,17 +50,17 @@ public:
   void reset();
 
   /// Load another event into the gct. Overloaded for the various ways of doing this.
-  void loadNextEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent, const int16_t bx);
-  void loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, bool &endOfFile, const int16_t bx);
-  void loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, const int16_t bx);
-  void loadNextEvent(L1GlobalCaloTrigger* &gct, const edm::Event& iEvent, const int16_t bx);
-  void loadSingleEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, const int16_t bx);
+  void loadNextEvent(L1GlobalCaloTrigger*& gct, const bool simpleEvent, const int16_t bx);
+  void loadNextEvent(L1GlobalCaloTrigger*& gct, const std::string fileName, bool& endOfFile, const int16_t bx);
+  void loadNextEvent(L1GlobalCaloTrigger*& gct, const std::string fileName, const int16_t bx);
+  void loadNextEvent(L1GlobalCaloTrigger*& gct, const edm::Event& iEvent, const int16_t bx);
+  void loadSingleEvent(L1GlobalCaloTrigger*& gct, const std::string fileName, const int16_t bx);
 
   /// Read the input electron data (after GCT processing).
   void fillElectronData(const L1GlobalCaloTrigger* gct);
 
   /// Read the firmware results from a file for the next event
-  void fillJetsFromFirmware(const std::string &fileName);
+  void fillJetsFromFirmware(const std::string& fileName);
 
   /// Read the input jet data from the jetfinders (after GCT processing).
   void fillRawJetData(const L1GlobalCaloTrigger* gct);
@@ -83,30 +81,28 @@ public:
   bool checkHfEtSums(const L1GlobalCaloTrigger* gct) const;
 
   /// Analyse calculation of energy sums in firmware
-  bool checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string &fileName) const;
+  bool checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string& fileName) const;
 
   /// Check against data read from hardware or a different version of the emulator
-  void checkHwResults(const L1GlobalCaloTrigger* gct, const edm::Event &iEvent) const;
-  void checkEmResults(const L1GlobalCaloTrigger* gct, const edm::Event &iEvent) const;
+  void checkHwResults(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent) const;
+  void checkEmResults(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent) const;
 
 private:
+  gctTestElectrons* theElectronsTester;
+  gctTestSingleEvent* theSingleEventTester;
+  gctTestEnergyAlgos* theEnergyAlgosTester;
+  gctTestFirmware* theFirmwareTester;
+  gctTestUsingLhcData* theRealDataTester;
+  gctTestHt* theHtTester;
+  gctTestHfEtSums* theHfEtSumsTester;
 
-  gctTestElectrons*      theElectronsTester;
-  gctTestSingleEvent*    theSingleEventTester;
-  gctTestEnergyAlgos*    theEnergyAlgosTester;
-  gctTestFirmware*       theFirmwareTester;
-  gctTestUsingLhcData*   theRealDataTester;
-  gctTestHt*             theHtTester;
-  gctTestHfEtSums*       theHfEtSumsTester;
-
-  std::vector< std::vector<L1CaloEmCand> > m_inputEmCands;
-  std::vector< std::vector<L1CaloRegion> > m_inputRegions;
+  std::vector<std::vector<L1CaloEmCand> > m_inputEmCands;
+  std::vector<std::vector<L1CaloRegion> > m_inputRegions;
 
   int m_bxStart;
   int m_numOfBx;
 
   void bxRangeUpdate(const int16_t bx);
-
 };
 
 #endif /*GCTTEST_H_*/

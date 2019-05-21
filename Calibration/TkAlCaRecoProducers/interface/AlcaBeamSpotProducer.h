@@ -22,26 +22,22 @@ ________________________________________________________________**/
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 
 class AlcaBeamSpotProducer
-    : public edm::one::EDProducer<edm::EndLuminosityBlockProducer,
-                                  edm::one::WatchLuminosityBlocks> {
+    : public edm::one::EDProducer<edm::EndLuminosityBlockProducer, edm::one::WatchLuminosityBlocks> {
 public:
   explicit AlcaBeamSpotProducer(const edm::ParameterSet &);
   ~AlcaBeamSpotProducer() override;
 
 private:
-  void beginLuminosityBlock(edm::LuminosityBlock const &lumiSeg,
-                            const edm::EventSetup &iSetup) final;
-  void endLuminosityBlock(edm::LuminosityBlock const &lumiSeg,
-                          const edm::EventSetup &iSetup) final;
-  void endLuminosityBlockProduce(edm::LuminosityBlock &lumiSeg,
-                                 const edm::EventSetup &iSetup) final;
+  void beginLuminosityBlock(edm::LuminosityBlock const &lumiSeg, const edm::EventSetup &iSetup) final;
+  void endLuminosityBlock(edm::LuminosityBlock const &lumiSeg, const edm::EventSetup &iSetup) final;
+  void endLuminosityBlockProduce(edm::LuminosityBlock &lumiSeg, const edm::EventSetup &iSetup) final;
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) final;
 
   int ftotalevents;
   int fitNLumi_;
   int resetFitNLumi_;
-  int countEvt_;  // counter
-  int countLumi_; // counter
+  int countEvt_;   // counter
+  int countLumi_;  // counter
   int ftmprun0, ftmprun;
   int beginLumiOfBSFit_;
   int endLumiOfBSFit_;

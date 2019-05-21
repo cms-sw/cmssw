@@ -1,4 +1,4 @@
-#ifndef RBCTESTLOGIC_H 
+#ifndef RBCTESTLOGIC_H
 #define RBCTESTLOGIC_H 1
 
 // Include files
@@ -8,7 +8,6 @@
 
 #include <iostream>
 #include <ios>
-
 
 /** @class RBCTestLogic RBCTestLogic.h
  *  
@@ -20,23 +19,20 @@
  *  @date   2008-10-13
  */
 class RBCTestLogic : public RBCLogic {
-public: 
+public:
   /// Standard constructor
-  RBCTestLogic( ); 
+  RBCTestLogic();
 
-  ~RBCTestLogic( ) override; ///< Destructor
+  ~RBCTestLogic() override;  ///< Destructor
 
-  void process ( const RBCInput & , std::bitset<2> & ) override;
+  void process(const RBCInput&, std::bitset<2>&) override;
 
-  void setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & ) override;
+  void setBoardSpecs(const RBCBoardSpecs::RBCBoardConfig&) override;
 
-  std::bitset<6> * getlayersignal( int _idx ) override { return &m_testlayer[_idx];};
-      
+  std::bitset<6>* getlayersignal(int _idx) override { return &m_testlayer[_idx]; };
+
 protected:
-  
 private:
-
   std::bitset<6> m_testlayer[2];
-  
 };
-#endif // RBCTESTLOGIC_H
+#endif  // RBCTESTLOGIC_H

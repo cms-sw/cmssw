@@ -9,7 +9,6 @@
 #include "CalibMuon/CSCCalibration/interface/CSCIndexerRecord.h"
 
 class CSCIndexerESProducer : public edm::ESProducer {
-
 public:
   typedef std::unique_ptr<CSCIndexerBase> BSP_TYPE;
 

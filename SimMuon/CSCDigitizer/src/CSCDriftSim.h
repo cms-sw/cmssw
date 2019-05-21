@@ -26,7 +26,7 @@ class MagneticField;
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class CSCDriftSim {
@@ -39,12 +39,12 @@ public:
    and creates a signal on the wire
   */
   CSCDetectorHit getWireHit(const Local3DPoint &ionClusterPosition,
-                            const CSCLayer *, int wire, const PSimHit &simHit,
+                            const CSCLayer *,
+                            int wire,
+                            const PSimHit &simHit,
                             CLHEP::HepRandomEngine *);
 
-  void setMagneticField(const MagneticField *field) {
-    theMagneticField = field;
-  }
+  void setMagneticField(const MagneticField *field) { theMagneticField = field; }
 
 private:
   // helper functions

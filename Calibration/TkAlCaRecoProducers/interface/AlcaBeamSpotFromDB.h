@@ -20,16 +20,14 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class AlcaBeamSpotFromDB
-    : public edm::one::EDProducer<edm::EndLuminosityBlockProducer> {
+class AlcaBeamSpotFromDB : public edm::one::EDProducer<edm::EndLuminosityBlockProducer> {
 public:
   explicit AlcaBeamSpotFromDB(const edm::ParameterSet &);
   ~AlcaBeamSpotFromDB() override;
 
 private:
   void beginJob() final;
-  void endLuminosityBlockProduce(edm::LuminosityBlock &lumiSeg,
-                                 const edm::EventSetup &iSetup) final;
+  void endLuminosityBlockProduce(edm::LuminosityBlock &lumiSeg, const edm::EventSetup &iSetup) final;
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) final;
   void endJob() final;
 };

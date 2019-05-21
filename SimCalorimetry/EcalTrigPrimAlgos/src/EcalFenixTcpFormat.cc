@@ -8,8 +8,7 @@
 
 using namespace std;
 
-EcalFenixTcpFormat::EcalFenixTcpFormat(bool tcpFormat, bool debug, bool famos,
-                                       int binOfMax)
+EcalFenixTcpFormat::EcalFenixTcpFormat(bool tcpFormat, bool debug, bool famos, int binOfMax)
     : tcpFormat_(tcpFormat), debug_(debug), famos_(famos), binOfMax_(binOfMax) {
   status_ = 0;
   badTTStatus_ = &status_;
@@ -17,8 +16,10 @@ EcalFenixTcpFormat::EcalFenixTcpFormat(bool tcpFormat, bool debug, bool famos,
 
 EcalFenixTcpFormat::~EcalFenixTcpFormat() {}
 
-void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
-                                 std::vector<int> &sfgvb, int eTTotShift,
+void EcalFenixTcpFormat::process(std::vector<int> &Et,
+                                 std::vector<int> &fgvb,
+                                 std::vector<int> &sfgvb,
+                                 int eTTotShift,
                                  std::vector<EcalTriggerPrimitiveSample> &out,
                                  std::vector<EcalTriggerPrimitiveSample> &out2,
                                  bool isInInnerRings) {
@@ -81,8 +82,7 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
 
       int ttFlag = (lut_out & 0x700) >> 8;
       if (tcpFormat_) {
-        out2[i] = EcalTriggerPrimitiveSample(
-            ((ttFlag & 0x7) << 11) | ((myFgvb & 0x1) << 10) | (myEt & 0x3ff));
+        out2[i] = EcalTriggerPrimitiveSample(((ttFlag & 0x7) << 11) | ((myFgvb & 0x1) << 10) | (myEt & 0x3ff));
       }
       myEt = lut_out & 0xff;
       out[i] = EcalTriggerPrimitiveSample(myEt, myFgvb, mysFgvb, ttFlag);
@@ -115,12 +115,10 @@ void EcalFenixTcpFormat::setParameters(uint32_t towid,
     if (itl != lutmap.end()) {
       lut_ = (*itl).second.getLut();
     } else
-      edm::LogWarning("EcalTPG")
-          << " could not find EcalTPGLutMap for " << lutid;
+      edm::LogWarning("EcalTPG") << " could not find EcalTPGLutMap for " << lutid;
 
   } else
-    edm::LogWarning("EcalTPG")
-        << " could not find EcalTPGFineGrainTowerEEMap for " << towid;
+    edm::LogWarning("EcalTPG") << " could not find EcalTPGFineGrainTowerEEMap for " << towid;
 
   const EcalTPGTowerStatusMap &badTTMap = ecaltpgbadTT->getMap();
   EcalTPGTowerStatusMapIterator itbadTT = badTTMap.find(towid);

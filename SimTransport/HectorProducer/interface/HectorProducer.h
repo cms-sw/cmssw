@@ -10,22 +10,21 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 namespace edm {
-class ParameterSet;
-class Event;
-class EventSetup;
-class ConsumesCollector;
-class HepMCProduct;
-} // namespace edm
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+  class ConsumesCollector;
+  class HepMCProduct;
+}  // namespace edm
 
 class HectorManager;
 
 class Hector;
 
 namespace HepMC {
-class GenEvent;
+  class GenEvent;
 }
-class HectorProducer : public edm::one::EDProducer<edm::one::SharedResources,
-                                                   edm::one::WatchRuns> {
+class HectorProducer : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
   explicit HectorProducer(edm::ParameterSet const &p);
   ~HectorProducer() override;
@@ -41,7 +40,7 @@ private:
   bool m_verbosity;
   bool m_FP420Transport;
   bool m_ZDCTransport;
-  int m_evtAnalysed; //!< just to count events that have been analysed
+  int m_evtAnalysed;  //!< just to count events that have been analysed
 };
 
 #endif

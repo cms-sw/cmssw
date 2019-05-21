@@ -40,7 +40,6 @@
 //              ---------------------
 
 class DTGeomSupplier {
-
 public:
   ///  Constructor
   DTGeomSupplier(DTTrigGeom *geom) : _geom(geom) {}
@@ -73,14 +72,10 @@ public:
   virtual LocalVector localDirection(const DTTrigData *) const = 0;
 
   /// CMS position in chamber of a trigger-data object
-  inline GlobalPoint CMSPosition(const DTTrigData *trig) const {
-    return _geom->toGlobal(localPosition(trig));
-  }
+  inline GlobalPoint CMSPosition(const DTTrigData *trig) const { return _geom->toGlobal(localPosition(trig)); }
 
   /// CMS direction in chamber of a trigger -data object
-  inline GlobalVector CMSDirection(const DTTrigData *trig) const {
-    return _geom->toGlobal(localDirection(trig));
-  }
+  inline GlobalVector CMSDirection(const DTTrigData *trig) const { return _geom->toGlobal(localDirection(trig)); }
 
   /// Print a trigger-data object with also local and global position/direction
   virtual void print(const DTTrigData *trig) const;

@@ -36,14 +36,12 @@ using namespace std;
 // Constructors --
 //----------------
 DTTracoTrig::DTTracoTrig() {
-
   // reserve the appropriate amount of space for vectors
   _btitrig.reserve(2);
   clear();
 }
 
 DTTracoTrig::DTTracoTrig(DTTracoChip *tparent, int step) : _tparent(tparent) {
-
   // reserve the appropriate amount of space for vectors
   _btitrig.reserve(2);
   clear();
@@ -53,9 +51,7 @@ DTTracoTrig::DTTracoTrig(DTTracoChip *tparent, int step) : _tparent(tparent) {
   _data.setParent(tparent->id());
 }
 
-DTTracoTrig::DTTracoTrig(DTTracoChip *parent, DTTracoTrigData data)
-    : _tparent(parent), _data(data) {
-
+DTTracoTrig::DTTracoTrig(DTTracoChip *parent, DTTracoTrigData data) : _tparent(parent), _data(data) {
   // reserve the appropriate amount of space for vectors
   _btitrig.reserve(2);
 }
@@ -70,12 +66,9 @@ bool DTTracoTrig::operator==(const DTTracoTrig &tt) const {
     return true;
 
   if (!(isFirst() == tt.isFirst()) || !(pvK() == tt.pvK()) ||
-      ((fmod(double(pvCode()), 8.) == 0) ^
-       (fmod(double(tt.pvCode()), 8.) == 0)) ||
-      !(pvCorr() == tt.pvCorr()) || !(psiR() == tt.psiR()) ||
-      !(DeltaPsiR() == tt.DeltaPsiR()) || !(qdec() == tt.qdec()) ||
+      ((fmod(double(pvCode()), 8.) == 0) ^ (fmod(double(tt.pvCode()), 8.) == 0)) || !(pvCorr() == tt.pvCorr()) ||
+      !(psiR() == tt.psiR()) || !(DeltaPsiR() == tt.DeltaPsiR()) || !(qdec() == tt.qdec()) ||
       !(data().pvIO() == tt.data().pvIO())) {
-
     cout << "fs:" << isFirst() << "," << tt.isFirst() << endl;
     cout << "pvCode:" << pvCode() << "," << tt.pvCode() << endl;
     cout << "pvK:" << pvK() << "," << tt.pvK() << endl;

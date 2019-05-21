@@ -3,8 +3,7 @@
 #include <cmath>
 #include <iostream>
 
-TSinglePedEntry::TSinglePedEntry()
-    : m_pedestalSqSum(0), m_pedestalSum(0), m_entries(0) {
+TSinglePedEntry::TSinglePedEntry() : m_pedestalSqSum(0), m_pedestalSum(0), m_entries(0) {
   //  std::cout << "[TSinglePedEntry][ctor]" << std::endl ;
 }
 
@@ -43,7 +42,6 @@ double TSinglePedEntry::RMSSq() const {
   if (!m_entries)
     return -1;
   double num = 1. / static_cast<double>(m_entries);
-  double output =
-      m_pedestalSqSum * num - m_pedestalSum * num * m_pedestalSum * num;
+  double output = m_pedestalSqSum * num - m_pedestalSum * num * m_pedestalSum * num;
   return output;
 }

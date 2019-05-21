@@ -9,23 +9,18 @@ class DavixFile : public Storage {
 public:
   DavixFile(void);
   DavixFile(const char *name, int flags = IOFlags::OpenRead, int perms = 0666);
-  DavixFile(const std::string &name, int flags = IOFlags::OpenRead,
-            int perms = 0666);
+  DavixFile(const std::string &name, int flags = IOFlags::OpenRead, int perms = 0666);
   ~DavixFile(void) override;
   static void configureDavixLogLevel();
 
-  virtual void create(const char *name, bool exclusive = false,
-                      int perms = 0666);
-  virtual void create(const std::string &name, bool exclusive = false,
-                      int perms = 0666);
-  virtual void open(const char *name, int flags = IOFlags::OpenRead,
-                    int perms = 0666);
-  virtual void open(const std::string &name, int flags = IOFlags::OpenRead,
-                    int perms = 0666);
+  virtual void create(const char *name, bool exclusive = false, int perms = 0666);
+  virtual void create(const std::string &name, bool exclusive = false, int perms = 0666);
+  virtual void open(const char *name, int flags = IOFlags::OpenRead, int perms = 0666);
+  virtual void open(const std::string &name, int flags = IOFlags::OpenRead, int perms = 0666);
 
+  using Storage::position;
   using Storage::read;
   using Storage::write;
-  using Storage::position;
 
   IOSize read(void *into, IOSize n) override;
   IOSize readv(IOBuffer *into, IOSize buffers) override;
@@ -46,4 +41,4 @@ private:
   std::string m_name;
 };
 
-#endif // DAVIX_ADAPTOR_DAVIX_FILE_H
+#endif  // DAVIX_ADAPTOR_DAVIX_FILE_H

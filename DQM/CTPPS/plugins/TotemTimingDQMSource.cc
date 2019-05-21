@@ -45,40 +45,37 @@ namespace totemds {
 
     std::unordered_map<unsigned int, unsigned long> hitsCounterMap;
   };
-}
+}  // namespace totemds
 
-class TotemTimingDQMSource : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<totemds::Cache>>
-{
+class TotemTimingDQMSource : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<totemds::Cache>> {
 public:
   TotemTimingDQMSource(const edm::ParameterSet &);
   ~TotemTimingDQMSource() override;
 
 protected:
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, const edm::Run &,
-                      const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   std::shared_ptr<totemds::Cache> globalBeginLuminosityBlock(const edm::LuminosityBlock &,
                                                              const edm::EventSetup &) const override;
-  void globalEndLuminosityBlock(const edm::LuminosityBlock &,
-                                const edm::EventSetup &) override;
+  void globalEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
   void endRun(const edm::Run &, const edm::EventSetup &) override;
 
 private:
   // Constants
-  static const double SEC_PER_LUMI_SECTION; // Number of seconds per
-                                            // lumisection: used to compute hit
-                                            // rates in Hz
+  static const double SEC_PER_LUMI_SECTION;  // Number of seconds per
+                                             // lumisection: used to compute hit
+                                             // rates in Hz
   static const double LHC_CLOCK_PERIOD_NS;
-  static const double DQM_FRACTION_OF_EVENTS; // approximate fraction of events
-                                              // sent to DQM stream
-  static const double HIT_RATE_FACTOR;        // factor to have real rate in Hz
-  static const double DISPLAY_RESOLUTION_FOR_HITS_MM; // Bin width of histograms
-                                                      // showing hits and tracks
-                                                      // (in mm)
+  static const double DQM_FRACTION_OF_EVENTS;          // approximate fraction of events
+                                                       // sent to DQM stream
+  static const double HIT_RATE_FACTOR;                 // factor to have real rate in Hz
+  static const double DISPLAY_RESOLUTION_FOR_HITS_MM;  // Bin width of histograms
+                                                       // showing hits and tracks
+                                                       // (in mm)
   static const double INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
   static const double TOMOGRAPHY_RESOLUTION_MM;
-  static const double SAMPIC_SAMPLING_PERIOD_NS; // ns per HPTDC bin
+  static const double SAMPIC_SAMPLING_PERIOD_NS;  // ns per HPTDC bin
   static const double SAMPIC_MAX_NUMBER_OF_SAMPLES;
   static const double SAMPIC_ADC_V;
   static const int CTPPS_NUM_OF_ARMS;
@@ -113,8 +110,7 @@ private:
   float verticalShiftBot_, verticalShiftTop_;
 
   /// plots related to the whole system
-  struct GlobalPlots
-  {
+  struct GlobalPlots {
     MonitorElement *digiSentPercentage = nullptr;
 
     GlobalPlots() {}
@@ -124,8 +120,7 @@ private:
   GlobalPlots globalPlot_;
 
   /// plots related to one Diamond detector package
-  struct PotPlots
-  {
+  struct PotPlots {
     // Digis
     MonitorElement *activityPerBX = nullptr;
     MonitorElement *digiDistribution = nullptr;
@@ -169,8 +164,7 @@ private:
   std::unordered_map<unsigned int, PotPlots> potPlots_;
 
   /// plots related to one Diamond plane
-  struct PlanePlots
-  {
+  struct PlanePlots {
     MonitorElement *digiDistribution = nullptr;
 
     MonitorElement *hitProfile = nullptr;
@@ -184,8 +178,7 @@ private:
   std::unordered_map<unsigned int, PlanePlots> planePlots_;
 
   /// plots related to one Diamond channel
-  struct ChannelPlots
-  {
+  struct ChannelPlots {
     // Digis
     MonitorElement *activityPerBX = nullptr;
     MonitorElement *dataSamplesRaw = nullptr;
@@ -217,15 +210,13 @@ private:
 const double TotemTimingDQMSource::SEC_PER_LUMI_SECTION = 23.31;
 const double TotemTimingDQMSource::LHC_CLOCK_PERIOD_NS = 24.95;
 const double TotemTimingDQMSource::DQM_FRACTION_OF_EVENTS = 1.;
-const double TotemTimingDQMSource::HIT_RATE_FACTOR =
-    DQM_FRACTION_OF_EVENTS / SEC_PER_LUMI_SECTION;
+const double TotemTimingDQMSource::HIT_RATE_FACTOR = DQM_FRACTION_OF_EVENTS / SEC_PER_LUMI_SECTION;
 const double TotemTimingDQMSource::DISPLAY_RESOLUTION_FOR_HITS_MM = 0.1;
-const double TotemTimingDQMSource::INV_DISPLAY_RESOLUTION_FOR_HITS_MM =
-    1. / DISPLAY_RESOLUTION_FOR_HITS_MM;
+const double TotemTimingDQMSource::INV_DISPLAY_RESOLUTION_FOR_HITS_MM = 1. / DISPLAY_RESOLUTION_FOR_HITS_MM;
 const double TotemTimingDQMSource::TOMOGRAPHY_RESOLUTION_MM = 1;
 const double TotemTimingDQMSource::SAMPIC_SAMPLING_PERIOD_NS = 1. / 7.8e9;
 const double TotemTimingDQMSource::SAMPIC_MAX_NUMBER_OF_SAMPLES = 64;
-const double TotemTimingDQMSource::SAMPIC_ADC_V = 1./256;
+const double TotemTimingDQMSource::SAMPIC_ADC_V = 1. / 256;
 const int TotemTimingDQMSource::CTPPS_NUM_OF_ARMS = 2;
 const int TotemTimingDQMSource::TOTEM_TIMING_STATION_ID = 2;
 const int TotemTimingDQMSource::TOTEM_STATION_210 = 0;
@@ -238,197 +229,189 @@ const int TotemTimingDQMSource::CTPPS_NEAR_RP_ID = 2;
 const int TotemTimingDQMSource::CTPPS_FAR_RP_ID = 3;
 const int TotemTimingDQMSource::TOTEM_TIMING_NUM_OF_PLANES = 4;
 const int TotemTimingDQMSource::TOTEM_TIMING_NUM_OF_CHANNELS = 12;
-const int TotemTimingDQMSource::TOTEM_TIMING_FED_ID_45 =
-    FEDNumbering::MAXTotemRPTimingVerticalFEDID;
-const int TotemTimingDQMSource::TOTEM_TIMING_FED_ID_56 =
-    FEDNumbering::MINTotemRPTimingVerticalFEDID;
+const int TotemTimingDQMSource::TOTEM_TIMING_FED_ID_45 = FEDNumbering::MAXTotemRPTimingVerticalFEDID;
+const int TotemTimingDQMSource::TOTEM_TIMING_FED_ID_56 = FEDNumbering::MINTotemRPTimingVerticalFEDID;
 const float TotemTimingDQMSource::COS_8_DEG = 0.990268;
 const float TotemTimingDQMSource::SIN_8_DEG = -0.139173;
 
 //----------------------------------------------------------------------------------------------------
 
-TotemTimingDQMSource::GlobalPlots::GlobalPlots(DQMStore::IBooker &ibooker)
-{
+TotemTimingDQMSource::GlobalPlots::GlobalPlots(DQMStore::IBooker &ibooker) {
   ibooker.setCurrentFolder("CTPPS/TimingFastSilicon");
 
-  digiSentPercentage = ibooker.book2D( "sent digis percentage",
-                      "sent digis percentage (sampic);board + 0.5 sampic;channel",
-                      14, -0.5, 6.5, 16, 0, 16);
+  digiSentPercentage = ibooker.book2D(
+      "sent digis percentage", "sent digis percentage (sampic);board + 0.5 sampic;channel", 14, -0.5, 6.5, 16, 0, 16);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-TotemTimingDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned int id)
-{
+TotemTimingDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned int id) {
   std::string path, title;
   TotemTimingDetId(id).rpName(path, TotemTimingDetId::nPath);
   ibooker.setCurrentFolder(path);
 
   TotemTimingDetId(id).rpName(title, TotemTimingDetId::nFull);
 
-  activityPerBX = ibooker.book1D("activity per BX CMS",
-                  title + " Activity per BX;Event.BX",
-                  3600, -1.5, 3598. + 0.5);
+  activityPerBX = ibooker.book1D("activity per BX CMS", title + " Activity per BX;Event.BX", 3600, -1.5, 3598. + 0.5);
 
-  digiDistribution = ibooker.book2D("digi distribution",
-                     title + " digi distribution;plane;channel",
-                     10, -0.5, 4.5, 12, 0, 12);
+  digiDistribution =
+      ibooker.book2D("digi distribution", title + " digi distribution;plane;channel", 10, -0.5, 4.5, 12, 0, 12);
 
-  dataSamplesRaw = ibooker.book1D("raw Samples",
-                   title + " Raw Samples; ADC",
-                   256, 0, 256);
+  dataSamplesRaw = ibooker.book1D("raw Samples", title + " Raw Samples; ADC", 256, 0, 256);
 
-  baseline = ibooker.book2D("baseline",
-             title + " baseline (V);plane;channel",
-             10, -0.5, 4.5, 12, 0, 12);
-  noiseRMS = ibooker.book2D( "noise RMS",
-             title+" noise RMS (V);plane;channel",
-             10, -0.5, 4.5, 12, 0, 12);
+  baseline = ibooker.book2D("baseline", title + " baseline (V);plane;channel", 10, -0.5, 4.5, 12, 0, 12);
+  noiseRMS = ibooker.book2D("noise RMS", title + " noise RMS (V);plane;channel", 10, -0.5, 4.5, 12, 0, 12);
 
-  digiSent = ibooker.book2D( "digis sent",
-            title + " digi sent (sampic);board + 0.5 sampic;channel",
-            14, -0.5, 6.5, 16, 0, 16);
-  digiAll = ibooker.book2D( "all digis",
-            title + " all digis(sampic);board + 0.5 sampic;channel",
-            14, -0.5, 6.5, 16, 0, 16);
-  digiSentPercentage = ibooker.book2D( "sent digis percentage",
-                      title + " sent digis percentage (sampic);board + 0.5 sampic;channel",
-                      14, -0.5, 6.5, 16, 0, 16);
+  digiSent =
+      ibooker.book2D("digis sent", title + " digi sent (sampic);board + 0.5 sampic;channel", 14, -0.5, 6.5, 16, 0, 16);
+  digiAll =
+      ibooker.book2D("all digis", title + " all digis(sampic);board + 0.5 sampic;channel", 14, -0.5, 6.5, 16, 0, 16);
+  digiSentPercentage = ibooker.book2D("sent digis percentage",
+                                      title + " sent digis percentage (sampic);board + 0.5 sampic;channel",
+                                      14,
+                                      -0.5,
+                                      6.5,
+                                      16,
+                                      0,
+                                      16);
 
-  hitDistribution2d = ibooker.book2D( "hits in planes",
-                      title+" hits in planes;plane number;x (mm)",
-                      18, -0.5, 4, 15.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, 0, 15 );
-  hitDistribution2dWithTime = ibooker.book2D( "hits in planes with time",
-                      title+" hits in planes with time;plane number;x (mm)",
-                      18, -0.5, 4, 15.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, 0, 15 );
-  hitDistribution2d_lumisection = ibooker.book2D( "hits in planes lumisection",
-                      title+" hits in planes in the last lumisection;plane number;x (mm)",
-                      18, -0.5, 4, 15.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, 0, 15 );
+  hitDistribution2d = ibooker.book2D("hits in planes",
+                                     title + " hits in planes;plane number;x (mm)",
+                                     18,
+                                     -0.5,
+                                     4,
+                                     15. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
+                                     0,
+                                     15);
+  hitDistribution2dWithTime = ibooker.book2D("hits in planes with time",
+                                             title + " hits in planes with time;plane number;x (mm)",
+                                             18,
+                                             -0.5,
+                                             4,
+                                             15. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
+                                             0,
+                                             15);
+  hitDistribution2d_lumisection = ibooker.book2D("hits in planes lumisection",
+                                                 title + " hits in planes in the last lumisection;plane number;x (mm)",
+                                                 18,
+                                                 -0.5,
+                                                 4,
+                                                 15. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
+                                                 0,
+                                                 15);
 
-  recHitTime = ibooker.book1D("recHit time",
-              title + " time in the recHits; t (ns)", 500, -25, 25);
-  amplitude = ibooker.book1D("amplitude",
-              title + " amplitude above baseline; amplitude (V)", 50, 0, 1);
-  tirggerCellTime = ibooker.book1D( "trigger cell time",
-                    title + " Trigger Cell Time; t (ns)", 390, -25, 25);
-  baselineRMS = ibooker.book2D("noise RMS",
-                title + " noise RMS (V);plane;channel",
-                10, -0.5, 4.5, 12, 0, 12);
-  meanAmplitude = ibooker.book2D("mean amplitude",
-                  title + " Mean Amplitude (V);plane;channel",
-                  10, -0.5, 4.5, 12, 0, 12);
-  cellOfMax = ibooker.book2D("cell of max", title + " cell of max (0-23);plane;channel",
-              10, -0.5, 4.5, 12, 0, 12);
+  recHitTime = ibooker.book1D("recHit time", title + " time in the recHits; t (ns)", 500, -25, 25);
+  amplitude = ibooker.book1D("amplitude", title + " amplitude above baseline; amplitude (V)", 50, 0, 1);
+  tirggerCellTime = ibooker.book1D("trigger cell time", title + " Trigger Cell Time; t (ns)", 390, -25, 25);
+  baselineRMS = ibooker.book2D("noise RMS", title + " noise RMS (V);plane;channel", 10, -0.5, 4.5, 12, 0, 12);
+  meanAmplitude =
+      ibooker.book2D("mean amplitude", title + " Mean Amplitude (V);plane;channel", 10, -0.5, 4.5, 12, 0, 12);
+  cellOfMax = ibooker.book2D("cell of max", title + " cell of max (0-23);plane;channel", 10, -0.5, 4.5, 12, 0, 12);
 
-  hitRate = ibooker.book2D("hit rate", title + " hit rate (Hz);plane;channel",
-            10, -0.5, 4.5, 12, 0, 12);
+  hitRate = ibooker.book2D("hit rate", title + " hit rate (Hz);plane;channel", 10, -0.5, 4.5, 12, 0, 12);
 
-  planesWithDigis = ibooker.book1D("active planes digis",
-                    title + " active planes with digis sent (per event);number of active planes",
-                    6, -0.5, 5.5);
-  planesWithTime = ibooker.book1D("active planes with time",
-                   title + " active planes with time (per event);number of active planes",
-                   6, -0.5, 5.5);
+  planesWithDigis = ibooker.book1D(
+      "active planes digis", title + " active planes with digis sent (per event);number of active planes", 6, -0.5, 5.5);
+  planesWithTime = ibooker.book1D(
+      "active planes with time", title + " active planes with time (per event);number of active planes", 6, -0.5, 5.5);
 
   // trackDistribution = ibooker.book1D( "tracks", title+" tracks;x (mm)",
   //     19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );    //TODO needs tracks
 
-  stripTomography210 = ibooker.book2D("tomography 210",
-      title + " tomography (only with time) with strips 210 (all planes);x + 50*plane(mm);y (mm)",
-      190/TOMOGRAPHY_RESOLUTION_MM, -20, 170, 25/TOMOGRAPHY_RESOLUTION_MM, 0, 25);
-  stripTomography220 = ibooker.book2D("tomography 220",
-      title + " tomography (only with time) with strips 220 (all planes);x + 50*plane(mm);y (mm)",
-      190/TOMOGRAPHY_RESOLUTION_MM, -20, 170, 25/TOMOGRAPHY_RESOLUTION_MM, 0, 25);
+  stripTomography210 =
+      ibooker.book2D("tomography 210",
+                     title + " tomography (only with time) with strips 210 (all planes);x + 50*plane(mm);y (mm)",
+                     190 / TOMOGRAPHY_RESOLUTION_MM,
+                     -20,
+                     170,
+                     25 / TOMOGRAPHY_RESOLUTION_MM,
+                     0,
+                     25);
+  stripTomography220 =
+      ibooker.book2D("tomography 220",
+                     title + " tomography (only with time) with strips 220 (all planes);x + 50*plane(mm);y (mm)",
+                     190 / TOMOGRAPHY_RESOLUTION_MM,
+                     -20,
+                     170,
+                     25 / TOMOGRAPHY_RESOLUTION_MM,
+                     0,
+                     25);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-TotemTimingDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker &ibooker, unsigned int id)
-{
+TotemTimingDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker &ibooker, unsigned int id) {
   std::string path, title;
   TotemTimingDetId(id).planeName(path, TotemTimingDetId::nPath);
   ibooker.setCurrentFolder(path);
 
   TotemTimingDetId(id).planeName(title, TotemTimingDetId::nFull);
 
-  digiDistribution = ibooker.book1D("digi distribution",
-                     title + " digi distribution;channel",
-                     12, 0, 12);
+  digiDistribution = ibooker.book1D("digi distribution", title + " digi distribution;channel", 12, 0, 12);
 
-  hitProfile = ibooker.book1D( "hit distribution with time",
-               title+" hit distribution (with time);y (+ 15 for x>3) (mm)",
-               30.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, 0, 30 );
+  hitProfile = ibooker.book1D("hit distribution with time",
+                              title + " hit distribution (with time);y (+ 15 for x>3) (mm)",
+                              30. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
+                              0,
+                              30);
 
-  hitMultiplicity = ibooker.book1D("channels per plane",
-                    title + " channels per plane; ch per plane",
-                    13, -0.5, 12.5);
+  hitMultiplicity = ibooker.book1D("channels per plane", title + " channels per plane; ch per plane", 13, -0.5, 12.5);
 
-  hitMultiplicityWithTime = ibooker.book1D("channels per plane with time",
-                            title + " channels per plane with time; ch per plane",
-                            13, -0.5, 12.5);
+  hitMultiplicityWithTime = ibooker.book1D(
+      "channels per plane with time", title + " channels per plane with time; ch per plane", 13, -0.5, 12.5);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-TotemTimingDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker &ibooker, unsigned int id)
-{
+TotemTimingDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker &ibooker, unsigned int id) {
   std::string path, title;
   TotemTimingDetId(id).channelName(path, TotemTimingDetId::nPath);
   ibooker.setCurrentFolder(path);
 
   TotemTimingDetId(id).channelName(title, TotemTimingDetId::nFull);
 
-  activityPerBX = ibooker.book1D("activity per BX",
-                  title + " Activity per BX;Event.BX",
-                  1000, -1.5, 998. + 0.5);
-  dataSamplesRaw = ibooker.book1D("raw samples",
-                   title + " Raw Samples; ADC", 256, 0, 256);
-  cellOfMax = ibooker.book1D("cell of max",
-              title + " cell of max; cell", 24, 0, 24);
+  activityPerBX = ibooker.book1D("activity per BX", title + " Activity per BX;Event.BX", 1000, -1.5, 998. + 0.5);
+  dataSamplesRaw = ibooker.book1D("raw samples", title + " Raw Samples; ADC", 256, 0, 256);
+  cellOfMax = ibooker.book1D("cell of max", title + " cell of max; cell", 24, 0, 24);
 
-  tirggerCellTime = ibooker.book1D("sampic trigger time",
-                    title + " Sampic Trigger Time; t (ns)", 100, -25, 25);
-  recHitTime = ibooker.book1D("recHit Time",
-               title + " recHit Time; t (ns)", 500, -25, 25);
-  amplitude = ibooker.book1D("amplitude",
-              title + " amplitude above baseline; amplitude (V)", 50, 0, 1);
-  noiseSamples = ibooker.book1D( "noise samples",
-              title+" noise samples; V", 50, 0, 1 );
+  tirggerCellTime = ibooker.book1D("sampic trigger time", title + " Sampic Trigger Time; t (ns)", 100, -25, 25);
+  recHitTime = ibooker.book1D("recHit Time", title + " recHit Time; t (ns)", 500, -25, 25);
+  amplitude = ibooker.book1D("amplitude", title + " amplitude above baseline; amplitude (V)", 50, 0, 1);
+  noiseSamples = ibooker.book1D("noise samples", title + " noise samples; V", 50, 0, 1);
 
-  hitTime = ibooker.book1D("hit time",
-            title + "hit time;t - t_previous (us)", 100, 0, 10000);
-  hitRate = ibooker.book1D("hit rate",
-            title + "hit rate;rate (Hz)", 100, 0, 10000);
+  hitTime = ibooker.book1D("hit time", title + "hit time;t - t_previous (us)", 100, 0, 10000);
+  hitRate = ibooker.book1D("hit rate", title + "hit rate;rate (Hz)", 100, 0, 10000);
 
   stripTomography210 = ibooker.book2D("tomography 210",
-                       title + " tomography with strips 210;x (mm);y (mm)",
-                       20/TOMOGRAPHY_RESOLUTION_MM, -20, 20,
-                       25/TOMOGRAPHY_RESOLUTION_MM, 0, 25);
+                                      title + " tomography with strips 210;x (mm);y (mm)",
+                                      20 / TOMOGRAPHY_RESOLUTION_MM,
+                                      -20,
+                                      20,
+                                      25 / TOMOGRAPHY_RESOLUTION_MM,
+                                      0,
+                                      25);
   stripTomography220 = ibooker.book2D("tomography 220",
-                       title + " tomography with strips 220;x (mm);y (mm)",
-                       20/TOMOGRAPHY_RESOLUTION_MM, -20, 20,
-                       25/TOMOGRAPHY_RESOLUTION_MM, 0, 25);
+                                      title + " tomography with strips 220;x (mm);y (mm)",
+                                      20 / TOMOGRAPHY_RESOLUTION_MM,
+                                      -20,
+                                      20,
+                                      25 / TOMOGRAPHY_RESOLUTION_MM,
+                                      0,
+                                      25);
 }
 
 //----------------------------------------------------------------------------------------------------
 
 TotemTimingDQMSource::TotemTimingDQMSource(const edm::ParameterSet &ps)
-    : tokenLocalTrack_(consumes<edm::DetSetVector<TotemRPLocalTrack>>(
-          ps.getParameter<edm::InputTag>("tagLocalTrack"))),
-      tokenDigi_(consumes<edm::DetSetVector<TotemTimingDigi>>(
-          ps.getParameter<edm::InputTag>("tagDigi"))),
-      tokenRecHit_(consumes<edm::DetSetVector<TotemTimingRecHit>>(
-          ps.getParameter<edm::InputTag>("tagRecHits"))),
+    : tokenLocalTrack_(consumes<edm::DetSetVector<TotemRPLocalTrack>>(ps.getParameter<edm::InputTag>("tagLocalTrack"))),
+      tokenDigi_(consumes<edm::DetSetVector<TotemTimingDigi>>(ps.getParameter<edm::InputTag>("tagDigi"))),
+      tokenRecHit_(consumes<edm::DetSetVector<TotemTimingRecHit>>(ps.getParameter<edm::InputTag>("tagRecHits"))),
       // tokenTrack_(consumes<edm::DetSetVector<TotemTimingLocalTrack>>(
       //     ps.getParameter<edm::InputTag>("tagLocalTracks"))),
-      tokenFEDInfo_(consumes<std::vector<TotemFEDInfo>>(
-          ps.getParameter<edm::InputTag>("tagFEDInfo"))),
-      minimumStripAngleForTomography_(
-          ps.getParameter<double>("minimumStripAngleForTomography")),
-      maximumStripAngleForTomography_(
-          ps.getParameter<double>("maximumStripAngleForTomography")),
-      samplesForNoise_(
-          ps.getUntrackedParameter<unsigned int>("samplesForNoise", 5)),
+      tokenFEDInfo_(consumes<std::vector<TotemFEDInfo>>(ps.getParameter<edm::InputTag>("tagFEDInfo"))),
+      minimumStripAngleForTomography_(ps.getParameter<double>("minimumStripAngleForTomography")),
+      maximumStripAngleForTomography_(ps.getParameter<double>("maximumStripAngleForTomography")),
+      samplesForNoise_(ps.getUntrackedParameter<unsigned int>("samplesForNoise", 5)),
       verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
       timeOfPreviousEvent_(0) {}
 
@@ -438,52 +421,42 @@ TotemTimingDQMSource::~TotemTimingDQMSource() {}
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemTimingDQMSource::dqmBeginRun(const edm::Run &iRun,
-                                       const edm::EventSetup &iSetup)
-{
+void TotemTimingDQMSource::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   // Get detector shifts from the geometry (if present)
   edm::ESHandle<CTPPSGeometry> geometry_;
-  iSetup.get<VeryForwardRealGeometryRecord>().get( geometry_ );
+  iSetup.get<VeryForwardRealGeometryRecord>().get(geometry_);
   const CTPPSGeometry *geom = geometry_.product();
-  const TotemTimingDetId detid_top(0, TOTEM_TIMING_STATION_ID, TOTEM_TIMING_BOT_RP_ID, 0, 0 );
-  const TotemTimingDetId detid_bot(0, TOTEM_TIMING_STATION_ID, TOTEM_TIMING_TOP_RP_ID, 0, 7 );
+  const TotemTimingDetId detid_top(0, TOTEM_TIMING_STATION_ID, TOTEM_TIMING_BOT_RP_ID, 0, 0);
+  const TotemTimingDetId detid_bot(0, TOTEM_TIMING_STATION_ID, TOTEM_TIMING_TOP_RP_ID, 0, 7);
   verticalShiftTop_ = 0;
   verticalShiftBot_ = 0;
   {
-    const DetGeomDesc* det_top = geom->getSensorNoThrow( detid_top );
-    if(det_top) {
-      verticalShiftTop_ = det_top->translation().y() + det_top->params().at( 1 );
+    const DetGeomDesc *det_top = geom->getSensorNoThrow(detid_top);
+    if (det_top) {
+      verticalShiftTop_ = det_top->translation().y() + det_top->params().at(1);
     }
-    const DetGeomDesc* det_bot = geom->getSensorNoThrow( detid_bot );
-    if(det_bot)
-      verticalShiftBot_ = det_bot->translation().y() + det_bot->params().at( 1 );
+    const DetGeomDesc *det_bot = geom->getSensorNoThrow(detid_bot);
+    if (det_bot)
+      verticalShiftBot_ = det_bot->translation().y() + det_bot->params().at(1);
   }
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemTimingDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
-                                          const edm::Run &,
-                                          const edm::EventSetup &)
-{
+void TotemTimingDQMSource::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &, const edm::EventSetup &) {
   ibooker.cd();
   ibooker.setCurrentFolder("CTPPS");
 
   globalPlot_ = GlobalPlots(ibooker);
 
-  for (unsigned short arm = 0; arm < CTPPS_NUM_OF_ARMS; ++arm)
-  {
-    for (unsigned short rp = TOTEM_TIMING_TOP_RP_ID;
-         rp <= TOTEM_TIMING_BOT_RP_ID; ++rp)
-      {
+  for (unsigned short arm = 0; arm < CTPPS_NUM_OF_ARMS; ++arm) {
+    for (unsigned short rp = TOTEM_TIMING_TOP_RP_ID; rp <= TOTEM_TIMING_BOT_RP_ID; ++rp) {
       const TotemTimingDetId rpId(arm, TOTEM_TIMING_STATION_ID, rp);
       potPlots_[rpId] = PotPlots(ibooker, rpId);
-      for (unsigned short pl = 0; pl < TOTEM_TIMING_NUM_OF_PLANES; ++pl)
-      {
+      for (unsigned short pl = 0; pl < TOTEM_TIMING_NUM_OF_PLANES; ++pl) {
         const TotemTimingDetId plId(arm, TOTEM_TIMING_STATION_ID, rp, pl);
         planePlots_[plId] = PlanePlots(ibooker, plId);
-        for (unsigned short ch = 0; ch < TOTEM_TIMING_NUM_OF_CHANNELS; ++ch)
-        {
+        for (unsigned short ch = 0; ch < TOTEM_TIMING_NUM_OF_CHANNELS; ++ch) {
           const TotemTimingDetId chId(arm, TOTEM_TIMING_STATION_ID, rp, pl, ch);
           channelPlots_[chId] = ChannelPlots(ibooker, chId);
         }
@@ -494,22 +467,19 @@ void TotemTimingDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
 
 //----------------------------------------------------------------------------------------------------
 
-std::shared_ptr<totemds::Cache>
-TotemTimingDQMSource::globalBeginLuminosityBlock(const edm::LuminosityBlock &,
-                                                 const edm::EventSetup &) const
-{
+std::shared_ptr<totemds::Cache> TotemTimingDQMSource::globalBeginLuminosityBlock(const edm::LuminosityBlock &,
+                                                                                 const edm::EventSetup &) const {
   auto d = std::make_shared<totemds::Cache>();
   d->hitDistribution2dMap.reserve(potPlots_.size());
-  for ( auto& plot : potPlots_ )
-    d->hitDistribution2dMap[plot.first] = std::unique_ptr<TH2F>(static_cast<TH2F*>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
+  for (auto &plot : potPlots_)
+    d->hitDistribution2dMap[plot.first] =
+        std::unique_ptr<TH2F>(static_cast<TH2F *>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
   return d;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemTimingDQMSource::analyze(const edm::Event &event,
-                                   const edm::EventSetup &eventSetup)
-{
+void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetup &eventSetup) {
   // get event setup data
   edm::ESHandle<CTPPSGeometry> geometry;
   eventSetup.get<VeryForwardRealGeometryRecord>().get(geometry);
@@ -535,15 +505,12 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
   valid &= timingDigis.isValid();
   valid &= fedInfo.isValid();
 
-  if (!valid)
-  {
-    if (verbosity_)
-    {
-      edm::LogProblem("TotemTimingDQMSource")
-          << "ERROR in TotemTimingDQMSource::analyze > some of the required inputs "
-             "are not valid. Skipping this event.\n"
-          << "    timingDigis.isValid = " << timingDigis.isValid() << "\n"
-          << "    fedInfo.isValid = " << fedInfo.isValid();
+  if (!valid) {
+    if (verbosity_) {
+      edm::LogProblem("TotemTimingDQMSource") << "ERROR in TotemTimingDQMSource::analyze > some of the required inputs "
+                                                 "are not valid. Skipping this event.\n"
+                                              << "    timingDigis.isValid = " << timingDigis.isValid() << "\n"
+                                              << "    fedInfo.isValid = " << fedInfo.isValid();
     }
 
     return;
@@ -555,8 +522,7 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
   std::unordered_map<unsigned int, unsigned int> channelsPerPlaneWithTime;
 
   auto lumiCache = luminosityBlockCache(event.getLuminosityBlock().index());
-  for (const auto &digis : *timingDigis)
-  {
+  for (const auto &digis : *timingDigis) {
     const TotemTimingDetId detId(digis.detId());
     TotemTimingDetId detId_pot(digis.detId());
     detId_pot.setPlane(0);
@@ -564,11 +530,9 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
     TotemTimingDetId detId_plane(digis.detId());
     detId_plane.setChannel(0);
 
-    for (const auto &digi : digis)
-    {
+    for (const auto &digi : digis) {
       // Pot Plots
-      if (potPlots_.find(detId_pot) != potPlots_.end())
-      {
+      if (potPlots_.find(detId_pot) != potPlots_.end()) {
         potPlots_[detId_pot].activityPerBX->Fill(event.bunchCrossing());
 
         potPlots_[detId_pot].digiDistribution->Fill(detId.plane(), detId.channel());
@@ -576,18 +540,14 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
         for (auto it = digi.getSamplesBegin(); it != digi.getSamplesEnd(); ++it)
           potPlots_[detId_pot].dataSamplesRaw->Fill(*it);
 
-        float boardId = digi.getEventInfo().getHardwareBoardId() +
-                        0.5 * digi.getEventInfo().getHardwareSampicId();
+        float boardId = digi.getEventInfo().getHardwareBoardId() + 0.5 * digi.getEventInfo().getHardwareSampicId();
         potPlots_[detId_pot].digiSent->Fill(boardId, digi.getHardwareChannelId());
-        if (boardSet.find(digi.getEventInfo().getHardwareId()) == boardSet.end())
-        {
+        if (boardSet.find(digi.getEventInfo().getHardwareId()) == boardSet.end()) {
           // This guarantees that every board is counted only once
           boardSet.insert(digi.getEventInfo().getHardwareId());
           std::bitset<16> chMap(digi.getEventInfo().getChannelMap());
-          for (int i = 0; i < 16; ++i)
-          {
-            if (chMap.test(i))
-            {
+          for (int i = 0; i < 16; ++i) {
+            if (chMap.test(i)) {
               potPlots_[detId_pot].digiAll->Fill(boardId, i);
             }
           }
@@ -597,8 +557,7 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
       }
 
       // Plane Plots
-      if (planePlots_.find(detId_plane) != planePlots_.end())
-      {
+      if (planePlots_.find(detId_plane) != planePlots_.end()) {
         planePlots_[detId_plane].digiDistribution->Fill(detId.channel());
 
         if (channelsPerPlane.find(detId_plane) != channelsPerPlane.end())
@@ -614,26 +573,22 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
         for (auto it = digi.getSamplesBegin(); it != digi.getSamplesEnd(); ++it)
           channelPlots_[detId].dataSamplesRaw->Fill(*it);
         for (unsigned short i = 0; i < samplesForNoise_; ++i)
-          channelPlots_[detId].noiseSamples->Fill(SAMPIC_ADC_V *
-                                                  digi.getSampleAt(i));
+          channelPlots_[detId].noiseSamples->Fill(SAMPIC_ADC_V * digi.getSampleAt(i));
 
         unsigned int cellOfMax =
-            std::max_element(digi.getSamplesBegin(), digi.getSamplesEnd()) -
-            digi.getSamplesBegin();
+            std::max_element(digi.getSamplesBegin(), digi.getSamplesEnd()) - digi.getSamplesBegin();
         channelPlots_[detId].cellOfMax->Fill((int)cellOfMax);
 
         if (timeOfPreviousEvent_ != 0)
-          channelPlots_[detId].hitTime->Fill(
-              1e-3 * LHC_CLOCK_PERIOD_NS *
-              (event.time().value() - timeOfPreviousEvent_));
+          channelPlots_[detId].hitTime->Fill(1e-3 * LHC_CLOCK_PERIOD_NS *
+                                             (event.time().value() - timeOfPreviousEvent_));
         ++(lumiCache->hitsCounterMap[detId]);
       }
     }
   }
   // End digis
 
-  for (const auto &rechits : *timingRecHits)
-  {
+  for (const auto &rechits : *timingRecHits) {
     const TotemTimingDetId detId(rechits.detId());
     TotemTimingDetId detId_pot(rechits.detId());
     detId_pot.setPlane(0);
@@ -641,65 +596,51 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
     TotemTimingDetId detId_plane(rechits.detId());
     detId_plane.setChannel(0);
 
-    for (const auto &rechit : rechits)
-    {
-      if (potPlots_.find(detId_pot) != potPlots_.end())
-      {
+    for (const auto &rechit : rechits) {
+      if (potPlots_.find(detId_pot) != potPlots_.end()) {
         potPlots_[detId_pot].amplitude->Fill(rechit.getAmplitude());
-
 
         TH2F *hitHistoTmp = potPlots_[detId_pot].hitDistribution2d->getTH2F();
         TAxis *hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
         float yCorrected = rechit.getY();
-        yCorrected += (detId.rp()==TOTEM_TIMING_TOP_RP_ID)?
-                      verticalShiftTop_ :
-                      verticalShiftBot_;
+        yCorrected += (detId.rp() == TOTEM_TIMING_TOP_RP_ID) ? verticalShiftTop_ : verticalShiftBot_;
         float x_shift = detId.plane();
-        x_shift += (rechit.getX()>2)? 0.25 : 0;
-        int startBin = hitHistoTmpYAxis->FindBin( yCorrected - 0.5*rechit.getYWidth() );
-        int numOfBins = rechit.getYWidth()*INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-        for ( int i=0; i<numOfBins; ++i)
-        {
-          potPlots_[detId_pot].hitDistribution2d->Fill(
-                    detId.plane() + 0.25 * (rechit.getX()>2),
-                    hitHistoTmpYAxis->GetBinCenter(startBin+i) );
-          potPlots_[detId_pot].hitDistribution2d_lumisection->Fill(
-                    x_shift,
-                    hitHistoTmpYAxis->GetBinCenter(startBin+i) );
+        x_shift += (rechit.getX() > 2) ? 0.25 : 0;
+        int startBin = hitHistoTmpYAxis->FindBin(yCorrected - 0.5 * rechit.getYWidth());
+        int numOfBins = rechit.getYWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+        for (int i = 0; i < numOfBins; ++i) {
+          potPlots_[detId_pot].hitDistribution2d->Fill(detId.plane() + 0.25 * (rechit.getX() > 2),
+                                                       hitHistoTmpYAxis->GetBinCenter(startBin + i));
+          potPlots_[detId_pot].hitDistribution2d_lumisection->Fill(x_shift,
+                                                                   hitHistoTmpYAxis->GetBinCenter(startBin + i));
         }
 
         //All plots with Time
-        if ( rechit.getT() != TotemTimingRecHit::NO_T_AVAILABLE )
-        {
-          for ( int i=0; i<numOfBins; ++i)
-            potPlots_[detId_pot].hitDistribution2dWithTime->Fill(
-                     detId.plane() + 0.25 * (rechit.getX()>2),
-                     hitHistoTmpYAxis->GetBinCenter(startBin+i) );
+        if (rechit.getT() != TotemTimingRecHit::NO_T_AVAILABLE) {
+          for (int i = 0; i < numOfBins; ++i)
+            potPlots_[detId_pot].hitDistribution2dWithTime->Fill(detId.plane() + 0.25 * (rechit.getX() > 2),
+                                                                 hitHistoTmpYAxis->GetBinCenter(startBin + i));
 
           potPlots_[detId_pot].recHitTime->Fill(rechit.getT());
           potPlots_[detId_pot].planesWithTimeSet.insert(detId.plane());
 
           // Plane Plots
-          if (planePlots_.find(detId_plane) != planePlots_.end())
-          {
+          if (planePlots_.find(detId_plane) != planePlots_.end()) {
             // Visualization tricks
-            float x_shift = (rechit.getX()>2)? 15 : 0;
+            float x_shift = (rechit.getX() > 2) ? 15 : 0;
             TH1F *hitProfileHistoTmp = planePlots_[detId_plane].hitProfile->getTH1F();
-            int numOfBins = rechit.getYWidth()*INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-            if (detId.rp()==TOTEM_TIMING_TOP_RP_ID)
-            {
-              float yCorrected = rechit.getY()+verticalShiftTop_-0.5*rechit.getYWidth()+x_shift;
+            int numOfBins = rechit.getYWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+            if (detId.rp() == TOTEM_TIMING_TOP_RP_ID) {
+              float yCorrected = rechit.getY() + verticalShiftTop_ - 0.5 * rechit.getYWidth() + x_shift;
               int startBin = hitProfileHistoTmp->FindBin(yCorrected);
-              for ( int i=0; i<numOfBins; ++i)
-                hitProfileHistoTmp->Fill( hitProfileHistoTmp->GetBinCenter(startBin+i) );
-            }
-            else
-            {
-              float yCorrected = rechit.getY()+verticalShiftBot_+0.5*rechit.getYWidth()+(15-x_shift);
+              for (int i = 0; i < numOfBins; ++i)
+                hitProfileHistoTmp->Fill(hitProfileHistoTmp->GetBinCenter(startBin + i));
+            } else {
+              float yCorrected = rechit.getY() + verticalShiftBot_ + 0.5 * rechit.getYWidth() + (15 - x_shift);
               int startBin = hitProfileHistoTmp->FindBin(yCorrected);
               int totBins = hitProfileHistoTmp->GetNbinsX();
-              for ( int i=0; i<numOfBins; ++i)
-                hitProfileHistoTmp->Fill( hitProfileHistoTmp->GetBinCenter(totBins-startBin+i) );
+              for (int i = 0; i < numOfBins; ++i)
+                hitProfileHistoTmp->Fill(hitProfileHistoTmp->GetBinCenter(totBins - startBin + i));
             }
 
             if (channelsPerPlaneWithTime.find(detId_plane) != channelsPerPlaneWithTime.end())
@@ -708,8 +649,7 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
               channelsPerPlaneWithTime[detId_plane] = 0;
           }
 
-          if (channelPlots_.find(detId) != channelPlots_.end())
-          {
+          if (channelPlots_.find(detId) != channelPlots_.end()) {
             potPlots_[detId_pot].tirggerCellTime->Fill(rechit.getSampicThresholdTime());
             channelPlots_[detId].tirggerCellTime->Fill(rechit.getSampicThresholdTime());
             channelPlots_[detId].recHitTime->Fill(rechit.getT());
@@ -722,8 +662,7 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
   // End RecHits
 
   // Tomography of timing using strips
-  for (const auto &rechits : *timingRecHits)
-  {
+  for (const auto &rechits : *timingRecHits) {
     const TotemTimingDetId detId(rechits.detId());
     TotemTimingDetId detId_pot(rechits.detId());
     detId_pot.setPlane(0);
@@ -731,17 +670,12 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
     TotemTimingDetId detId_plane(rechits.detId());
     detId_plane.setChannel(0);
 
-    float y_shift=(detId.rp()==TOTEM_TIMING_TOP_RP_ID)?20:5;
+    float y_shift = (detId.rp() == TOTEM_TIMING_TOP_RP_ID) ? 20 : 5;
 
-    for (const auto &rechit : rechits)
-    {
-      if (rechit.getT() != TotemTimingRecHit::NO_T_AVAILABLE        &&
-                potPlots_.find(detId_pot) != potPlots_.end()        &&
-                planePlots_.find(detId_plane) != planePlots_.end()  &&
-                channelPlots_.find(detId) != channelPlots_.end()      )
-      {
-        if ( stripTracks.isValid() )
-        {
+    for (const auto &rechit : rechits) {
+      if (rechit.getT() != TotemTimingRecHit::NO_T_AVAILABLE && potPlots_.find(detId_pot) != potPlots_.end() &&
+          planePlots_.find(detId_plane) != planePlots_.end() && channelPlots_.find(detId) != channelPlots_.end()) {
+        if (stripTracks.isValid()) {
           for (const auto &ds : *stripTracks) {
             const CTPPSDetId stripId(ds.detId());
             // mean position of U and V planes
@@ -752,15 +686,12 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
 
             double rp_x = 0;
             double rp_y = 0;
-            try
-            {
-              rp_x = (geometry->getSensor(plId_V)->translation().x() +
-                      geometry->getSensor(plId_U)->translation().x())/2;
-              rp_y = (geometry->getSensor(plId_V)->translation().y() +
-                      geometry->getSensor(plId_U)->translation().y())/2;
-            }
-            catch(const cms::Exception &)
-            {
+            try {
+              rp_x =
+                  (geometry->getSensor(plId_V)->translation().x() + geometry->getSensor(plId_U)->translation().x()) / 2;
+              rp_y =
+                  (geometry->getSensor(plId_V)->translation().y() + geometry->getSensor(plId_U)->translation().y()) / 2;
+            } catch (const cms::Exception &) {
               continue;
             }
 
@@ -772,19 +703,14 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
                 if (striplt.getTx() < minimumStripAngleForTomography_ ||
                     striplt.getTy() < minimumStripAngleForTomography_)
                   continue;
-                if (stripId.rp() - detId.rp() ==
-                    (TOTEM_STRIP_MAX_RP_ID - TOTEM_TIMING_BOT_RP_ID))
-                {
+                if (stripId.rp() - detId.rp() == (TOTEM_STRIP_MAX_RP_ID - TOTEM_TIMING_BOT_RP_ID)) {
                   double x = striplt.getX0() - rp_x;
                   double y = striplt.getY0() - rp_y;
-                  if (stripId.station() == TOTEM_STATION_210)
-                  {
-                    potPlots_[detId_pot].stripTomography210->Fill(x + detId.plane()*50, y + y_shift);
+                  if (stripId.station() == TOTEM_STATION_210) {
+                    potPlots_[detId_pot].stripTomography210->Fill(x + detId.plane() * 50, y + y_shift);
                     channelPlots_[detId].stripTomography210->Fill(x, y + y_shift);
-                  }
-                  else if (stripId.station() == TOTEM_STATION_220)
-                  {
-                    potPlots_[detId_pot].stripTomography220->Fill(x+detId.plane()*50, y + y_shift);
+                  } else if (stripId.station() == TOTEM_STATION_220) {
+                    potPlots_[detId_pot].stripTomography220->Fill(x + detId.plane() * 50, y + y_shift);
                     channelPlots_[detId].stripTomography220->Fill(x, y + y_shift);
                   }
                 }
@@ -795,7 +721,6 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
       }
     }
   }
-
 
   for (auto &plt : potPlots_) {
     plt.second.planesWithDigis->Fill(plt.second.planesWithDigisSet.size());
@@ -816,11 +741,10 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemTimingDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock & iLumi,
-                                                    const edm::EventSetup &) {
+void TotemTimingDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock &iLumi, const edm::EventSetup &) {
   auto lumiCache = luminosityBlockCache(iLumi.index());
-  for ( auto& plot : potPlots_ ) {
-    *(plot.second.hitDistribution2d_lumisection->getTH2F())=*(lumiCache->hitDistribution2dMap[plot.first]);
+  for (auto &plot : potPlots_) {
+    *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
   }
 
   globalPlot_.digiSentPercentage->Reset();
@@ -832,7 +756,7 @@ void TotemTimingDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock &
 
     hitHistoTmp->Divide(histoSent, histoAll);
     hitHistoTmp->Scale(100);
-    hitHistoGlobalTmp->Add(hitHistoTmp,1);
+    hitHistoGlobalTmp->Add(hitHistoTmp, 1);
 
     plot.second.baseline->Reset();
     plot.second.noiseRMS->Reset();
@@ -843,31 +767,20 @@ void TotemTimingDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock &
     for (auto &chPlot : channelPlots_) {
       TotemTimingDetId chId(chPlot.first);
       if (chId.arm() == rpId.arm() && chId.rp() == rpId.rp()) {
-        plot.second.baseline->Fill(
-            chId.plane(), chId.channel(),
-            chPlot.second.noiseSamples->getTH1F()->GetMean());
-        plot.second.noiseRMS->Fill(
-            chId.plane(), chId.channel(),
-            chPlot.second.noiseSamples->getTH1F()->GetRMS());
-        plot.second.meanAmplitude->Fill(
-            chId.plane(), chId.channel(),
-            chPlot.second.amplitude->getTH1F()->GetMean());
-        plot.second.cellOfMax->Fill(
-            chId.plane(), chId.channel(),
-            chPlot.second.cellOfMax->getTH1F()->GetMean());
+        plot.second.baseline->Fill(chId.plane(), chId.channel(), chPlot.second.noiseSamples->getTH1F()->GetMean());
+        plot.second.noiseRMS->Fill(chId.plane(), chId.channel(), chPlot.second.noiseSamples->getTH1F()->GetRMS());
+        plot.second.meanAmplitude->Fill(chId.plane(), chId.channel(), chPlot.second.amplitude->getTH1F()->GetMean());
+        plot.second.cellOfMax->Fill(chId.plane(), chId.channel(), chPlot.second.cellOfMax->getTH1F()->GetMean());
         auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[chPlot.first];
-        plot.second.hitRate->Fill(
-            chId.plane(), chId.channel(),
-            (double)hitsCounterPerLumisection * HIT_RATE_FACTOR);
+        plot.second.hitRate->Fill(chId.plane(), chId.channel(), (double)hitsCounterPerLumisection * HIT_RATE_FACTOR);
       }
     }
   }
 
   for (auto &plot : channelPlots_) {
-        auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[plot.first];
+    auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[plot.first];
     if (hitsCounterPerLumisection != 0) {
-      plot.second.hitRate->Fill((double)hitsCounterPerLumisection *
-                                HIT_RATE_FACTOR);
+      plot.second.hitRate->Fill((double)hitsCounterPerLumisection * HIT_RATE_FACTOR);
     }
   }
 }

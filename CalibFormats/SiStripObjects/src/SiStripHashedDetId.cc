@@ -19,8 +19,7 @@ SiStripHashedDetId::SiStripHashedDetId(const std::vector<uint32_t> &raw_ids)
 
 // -----------------------------------------------------------------------------
 //
-SiStripHashedDetId::SiStripHashedDetId(const std::vector<DetId> &det_ids)
-    : detIds_(), id_(0), iter_(detIds_.begin()) {
+SiStripHashedDetId::SiStripHashedDetId(const std::vector<DetId> &det_ids) : detIds_(), id_(0), iter_(detIds_.begin()) {
   LogTrace(mlCabling_) << "[SiStripHashedDetId::" << __func__ << "]"
                        << " Constructing object...";
   detIds_.clear();
@@ -34,8 +33,7 @@ SiStripHashedDetId::SiStripHashedDetId(const std::vector<DetId> &det_ids)
 
 // -----------------------------------------------------------------------------
 //
-SiStripHashedDetId::SiStripHashedDetId(const SiStripHashedDetId &input)
-    : detIds_(), id_(0), iter_(detIds_.begin()) {
+SiStripHashedDetId::SiStripHashedDetId(const SiStripHashedDetId &input) : detIds_(), id_(0), iter_(detIds_.begin()) {
   LogTrace(mlCabling_) << "[SiStripHashedDetId::" << __func__ << "]"
                        << " Constructing object...";
   detIds_.reserve(input.end() - input.begin());
@@ -44,8 +42,7 @@ SiStripHashedDetId::SiStripHashedDetId(const SiStripHashedDetId &input)
 
 // -----------------------------------------------------------------------------
 //
-SiStripHashedDetId::SiStripHashedDetId()
-    : detIds_(), id_(0), iter_(detIds_.begin()) {
+SiStripHashedDetId::SiStripHashedDetId() : detIds_(), id_(0), iter_(detIds_.begin()) {
   LogTrace(mlCabling_) << "[SiStripHashedDetId::" << __func__ << "]"
                        << " Constructing object...";
 }
@@ -66,18 +63,14 @@ void SiStripHashedDetId::init(const std::vector<uint32_t> &raw_ids) {
   const_iterator iter = raw_ids.begin();
   for (; iter != raw_ids.end(); ++iter) {
     DetId detectorId = DetId(*iter);
-    if (*iter != sistrip::invalid32_ && *iter != sistrip::invalid_ &&
-        detectorId.det() == DetId::Tracker &&
-        (detectorId.subdetId() == StripSubdetector::TID ||
-         detectorId.subdetId() == StripSubdetector::TIB ||
-         detectorId.subdetId() == StripSubdetector::TOB ||
-         detectorId.subdetId() == StripSubdetector::TEC)) {
+    if (*iter != sistrip::invalid32_ && *iter != sistrip::invalid_ && detectorId.det() == DetId::Tracker &&
+        (detectorId.subdetId() == StripSubdetector::TID || detectorId.subdetId() == StripSubdetector::TIB ||
+         detectorId.subdetId() == StripSubdetector::TOB || detectorId.subdetId() == StripSubdetector::TEC)) {
       detIds_.push_back(*iter);
     } else {
-      edm::LogWarning(mlCabling_)
-          << "[SiStripHashedDetId::" << __func__ << "]"
-          << " DetId 0x" << std::hex << std::setw(8) << std::setfill('0')
-          << *iter << " is not from the strip tracker!";
+      edm::LogWarning(mlCabling_) << "[SiStripHashedDetId::" << __func__ << "]"
+                                  << " DetId 0x" << std::hex << std::setw(8) << std::setfill('0') << *iter
+                                  << " is not from the strip tracker!";
     }
   }
   if (!detIds_.empty()) {
@@ -92,13 +85,11 @@ void SiStripHashedDetId::init(const std::vector<uint32_t> &raw_ids) {
 std::ostream &operator<<(std::ostream &os, const SiStripHashedDetId &input) {
   std::stringstream ss;
   ss << "[SiStripHashedDetId::" << __func__ << "]"
-     << " Found " << input.end() - input.begin()
-     << " entries in DetId hash map:" << std::endl;
+     << " Found " << input.end() - input.begin() << " entries in DetId hash map:" << std::endl;
   SiStripHashedDetId::const_iterator iter = input.begin();
   for (; iter != input.end(); ++iter) {
-    ss << " Index: " << std::dec << std::setw(5) << std::setfill(' ')
-       << iter - input.begin() << "  DetId: 0x" << std::hex << std::setw(8)
-       << std::setfill('0') << *iter << std::endl;
+    ss << " Index: " << std::dec << std::setw(5) << std::setfill(' ') << iter - input.begin() << "  DetId: 0x"
+       << std::hex << std::setw(8) << std::setfill('0') << *iter << std::endl;
   }
   os << ss.str();
   return os;

@@ -2,13 +2,10 @@
 #define TAPDPulse_H
 
 #include "TObject.h"
-#include<vector>
+#include <vector>
 
-class TAPDPulse: public TObject 
-{
-
- private:
-
+class TAPDPulse : public TObject {
+private:
   int _nsamples;
   int _presample;
   int _firstsample;
@@ -20,20 +17,17 @@ class TAPDPulse: public TObject
   double _ratiomaxcutlow;
   double _ratiomincutlow;
   double _ratiomincuthigh;
-  
 
-  double *adc_;
+  double* adc_;
   bool isMaxFound_;
   bool isPedCalc_;
   double adcMax_;
   int iadcMax_;
   double pedestal_;
 
-  void init(int, int, int, int, int, int, int, int, double, double, double );
+  void init(int, int, int, int, int, int, int, int, double, double, double);
 
- public:
-
-
+public:
   // Default Constructor, mainly for Root
   TAPDPulse();
 
@@ -58,7 +52,7 @@ class TAPDPulse: public TObject
   double getPedestal();
   double* getAdcWithoutPedestal();
   void setPresamples(int);
-  ClassDefOverride(TAPDPulse,0)
+  ClassDefOverride(TAPDPulse, 0)
 };
 
 #endif

@@ -31,56 +31,53 @@
 #include <vector>
 
 namespace reco {
-class GenParticle;
+  class GenParticle;
 }
 
 namespace edm {
-class ModuleCallingContext;
+  class ModuleCallingContext;
 
-class DataMixingPileupCopy {
-public:
-  DataMixingPileupCopy();
+  class DataMixingPileupCopy {
+  public:
+    DataMixingPileupCopy();
 
-  /** standard constructor*/
-  explicit DataMixingPileupCopy(const edm::ParameterSet &ps,
-                                edm::ConsumesCollector &&iC);
+    /** standard constructor*/
+    explicit DataMixingPileupCopy(const edm::ParameterSet &ps, edm::ConsumesCollector &&iC);
 
-  /**Default destructor*/
-  virtual ~DataMixingPileupCopy();
+    /**Default destructor*/
+    virtual ~DataMixingPileupCopy();
 
-  void putPileupInfo(edm::Event &e);
-  void addPileupInfo(const edm::EventPrincipal *, unsigned int EventId,
-                     ModuleCallingContext const *mcc);
+    void putPileupInfo(edm::Event &e);
+    void addPileupInfo(const edm::EventPrincipal *, unsigned int EventId, ModuleCallingContext const *mcc);
 
-  void getPileupInfo(std::vector<PileupSummaryInfo> &ps, int &bs) {
-    ps = PileupSummaryStorage_;
-    bs = bsStorage_;
-  }
+    void getPileupInfo(std::vector<PileupSummaryInfo> &ps, int &bs) {
+      ps = PileupSummaryStorage_;
+      bs = bsStorage_;
+    }
 
-private:
-  // data specifiers
+  private:
+    // data specifiers
 
-  edm::InputTag PileupInfoInputTag_;   // InputTag for PileupSummaryInfo
-  edm::InputTag BunchSpacingInputTag_; // InputTag for bunch spacing int
-  edm::InputTag
-      CFPlaybackInputTag_; // InputTag for CrossingFrame Playback information
+    edm::InputTag PileupInfoInputTag_;    // InputTag for PileupSummaryInfo
+    edm::InputTag BunchSpacingInputTag_;  // InputTag for bunch spacing int
+    edm::InputTag CFPlaybackInputTag_;    // InputTag for CrossingFrame Playback information
 
-  std::vector<edm::InputTag> GenPUProtonsInputTags_;
+    std::vector<edm::InputTag> GenPUProtonsInputTags_;
 
-  CrossingFramePlaybackInfoNew CrossingFramePlaybackStorage_;
+    CrossingFramePlaybackInfoNew CrossingFramePlaybackStorage_;
 
-  std::vector<PileupSummaryInfo> PileupSummaryStorage_;
-  int bsStorage_;
+    std::vector<PileupSummaryInfo> PileupSummaryStorage_;
+    int bsStorage_;
 
-  std::vector<std::string> GenPUProtons_labels_;
-  std::vector<std::vector<reco::GenParticle>> GenPUProtons_;
+    std::vector<std::string> GenPUProtons_labels_;
+    std::vector<std::vector<reco::GenParticle>> GenPUProtons_;
 
-  //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
+    //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
 
-  std::string label_;
+    std::string label_;
 
-  bool FoundPlayback_;
-};
-} // namespace edm
+    bool FoundPlayback_;
+  };
+}  // namespace edm
 
-#endif // SimDataMixingPileupCopy_h
+#endif  // SimDataMixingPileupCopy_h

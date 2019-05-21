@@ -18,29 +18,28 @@
 
    Returns the number of entries of the original array packed into iov.
  */
-int
-ReadRepacker::pack(long long int *pos, int *len, int nbuf, char *buf, IOSize buffer_size)
-{
+int ReadRepacker::pack(long long int *pos, int *len, int nbuf, char *buf, IOSize buffer_size) {
   reset(nbuf);
-  m_len = len; // Record the len array so we can later unpack.
+  m_len = len;  // Record the len array so we can later unpack.
 
   // Determine the buffer to use for the initial packing.
-  char * tmp_buf;
+  char *tmp_buf;
   IOSize tmp_size;
   if (buffer_size < TEMPORARY_BUFFER_SIZE) {
-        m_spare_buffer.resize(TEMPORARY_BUFFER_SIZE);
-        tmp_buf = &m_spare_buffer[0];
-        tmp_size = TEMPORARY_BUFFER_SIZE;
+    m_spare_buffer.resize(TEMPORARY_BUFFER_SIZE);
+    tmp_buf = &m_spare_buffer[0];
+    tmp_size = TEMPORARY_BUFFER_SIZE;
   } else {
-        tmp_buf = buf;
-        tmp_size = buffer_size;
-  } 
-  
+    tmp_buf = buf;
+    tmp_size = buffer_size;
+  }
+
   int pack_count = packInternal(pos, len, nbuf, tmp_buf, tmp_size);
 
-  if ((nbuf - pack_count > 0) &&  // If there is remaining work..
-      (tmp_buf != &m_spare_buffer[0]) &&    // and the spare buffer isn't already used
-      ((IOSize)len[pack_count] < TEMPORARY_BUFFER_SIZE)) { // And the spare buffer is big enough to hold at least one read.
+  if ((nbuf - pack_count > 0) &&          // If there is remaining work..
+      (tmp_buf != &m_spare_buffer[0]) &&  // and the spare buffer isn't already used
+      ((IOSize)len[pack_count] <
+       TEMPORARY_BUFFER_SIZE)) {  // And the spare buffer is big enough to hold at least one read.
 
     // Verify the spare is allocated.
     // If tmp_buf != &m_spare_buffer[0] before, it certainly won't after.
@@ -49,17 +48,14 @@ ReadRepacker::pack(long long int *pos, int *len, int nbuf, char *buf, IOSize buf
     // If there are remaining chunks and we aren't already using the spare
     // buffer, try using that too.
     // This clutters up the code badly, but could save a network round-trip.
-    pack_count += packInternal(&pos[pack_count], &len[pack_count], nbuf-pack_count,
-                               &m_spare_buffer[0], TEMPORARY_BUFFER_SIZE);
-
+    pack_count +=
+        packInternal(&pos[pack_count], &len[pack_count], nbuf - pack_count, &m_spare_buffer[0], TEMPORARY_BUFFER_SIZE);
   }
 
   return pack_count;
 }
 
-int
-ReadRepacker::packInternal(long long int *pos, int *len, int nbuf, char *buf, IOSize buffer_size)
-{
+int ReadRepacker::packInternal(long long int *pos, int *len, int nbuf, char *buf, IOSize buffer_size) {
   if (nbuf == 0) {
     return 0;
   }
@@ -75,16 +71,17 @@ ReadRepacker::packInternal(long long int *pos, int *len, int nbuf, char *buf, IO
 
   IOSize buffer_used = len[0];
   int idx;
-  for (idx=1; idx < nbuf; idx++) {
+  for (idx = 1; idx < nbuf; idx++) {
     if (buffer_used + len[idx] > buffer_size) {
       // No way we can include this chunk in the read buffer
       break;
     }
 
-    IOOffset extra_bytes_signed = (idx == 0) ? 0 : ((pos[idx] - iopb.offset()) - iopb.size()); assert(extra_bytes_signed >= 0);
-    IOSize   extra_bytes = static_cast<IOSize>(extra_bytes_signed);
+    IOOffset extra_bytes_signed = (idx == 0) ? 0 : ((pos[idx] - iopb.offset()) - iopb.size());
+    assert(extra_bytes_signed >= 0);
+    IOSize extra_bytes = static_cast<IOSize>(extra_bytes_signed);
 
-    if (((static_cast<IOSize>(len[idx]) < BIG_READ_SIZE) || (iopb.size() < BIG_READ_SIZE)) && 
+    if (((static_cast<IOSize>(len[idx]) < BIG_READ_SIZE) || (iopb.size() < BIG_READ_SIZE)) &&
         (extra_bytes < READ_COALESCE_SIZE) && (buffer_used + len[idx] + extra_bytes <= buffer_size)) {
       // The space between the two reads is small enough we can coalesce.
 
@@ -92,8 +89,8 @@ ReadRepacker::packInternal(long long int *pos, int *len, int nbuf, char *buf, IO
       // This is so we can "perfectly pack" buffers consisting of only big
       // reads - in such a case, read coalescing doesn't help much.
       m_idx_to_iopb.push_back(iopb_offset);
-      m_idx_to_iopb_offset.push_back(pos[idx]-iopb.offset());
-      iopb.set_size(pos[idx]+len[idx] - iopb.offset());
+      m_idx_to_iopb_offset.push_back(pos[idx] - iopb.offset());
+      iopb.set_size(pos[idx] + len[idx] - iopb.offset());
       buffer_used += (len[idx] + extra_bytes);
       m_extra_bytes += extra_bytes;
       continue;
@@ -108,7 +105,7 @@ ReadRepacker::packInternal(long long int *pos, int *len, int nbuf, char *buf, IO
     iopb.set_size(len[idx]);
 
     // Record location of this chunk.
-    iopb_offset ++;
+    iopb_offset++;
 
     m_idx_to_iopb.push_back(iopb_offset);
     m_idx_to_iopb_offset.push_back(0);
@@ -125,35 +122,29 @@ ReadRepacker::packInternal(long long int *pos, int *len, int nbuf, char *buf, IO
  * Unpack the optimized set of reads from the storage system and copy the
  * results in the order ROOT requested.
  */
-void
-ReadRepacker::unpack(char *buf)
-{
-
-  char * root_result_ptr = buf;
+void ReadRepacker::unpack(char *buf) {
+  char *root_result_ptr = buf;
   int nbuf = m_idx_to_iopb.size();
-  for (int idx=0; idx < nbuf; idx++) {
+  for (int idx = 0; idx < nbuf; idx++) {
     int iov_idx = m_idx_to_iopb[idx];
     IOPosBuffer &iopb = m_iov[iov_idx];
     int iopb_offset = m_idx_to_iopb_offset[idx];
-    char * io_result_ptr = static_cast<char *>(iopb.data()) + iopb_offset;
+    char *io_result_ptr = static_cast<char *>(iopb.data()) + iopb_offset;
     // Note that we use the input buffer as a temporary where possible.
     // Hence, the source and destination can overlap; use memmove instead of memcpy.
     memmove(root_result_ptr, io_result_ptr, m_len[idx]);
 
     root_result_ptr += m_len[idx];
   }
-
 }
 
-void
-ReadRepacker::reset(unsigned int nbuf)
-{
+void ReadRepacker::reset(unsigned int nbuf) {
   m_extra_bytes = 0;
   m_buffer_used = 0;
 
   // Number of buffers to storage typically decreases, but nbuf/2 is just an
   // somewhat-informed guess.
-  m_iov.reserve(nbuf/2);
+  m_iov.reserve(nbuf / 2);
   m_iov.clear();
   m_idx_to_iopb.reserve(nbuf);
   m_idx_to_iopb.clear();

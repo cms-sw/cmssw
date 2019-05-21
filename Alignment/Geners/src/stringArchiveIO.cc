@@ -23,86 +23,83 @@ static bool suffix_matches(const char *filename, const char *suffix) {
 }
 
 namespace gs {
-bool writeStringArchive(const StringArchive &ar, const char *filename) {
-  assert(filename);
-  bool status = false;
-  {
-    std::ofstream of(filename, std::ios_base::binary);
-    if (of.is_open()) {
-      const_cast<StringArchive &>(ar).flush();
-      status = write_item(of, ar);
+  bool writeStringArchive(const StringArchive &ar, const char *filename) {
+    assert(filename);
+    bool status = false;
+    {
+      std::ofstream of(filename, std::ios_base::binary);
+      if (of.is_open()) {
+        const_cast<StringArchive &>(ar).flush();
+        status = write_item(of, ar);
+      }
     }
+    return status;
   }
-  return status;
-}
 
-StringArchive *readStringArchive(const char *filename) {
-  assert(filename);
-  std::ifstream is(filename, std::ios_base::binary);
-  if (!is.is_open())
-    throw IOOpeningFailure("gs::readStringArchive", filename);
-  CPP11_auto_ptr<StringArchive> ar = read_item<StringArchive>(is);
-  return ar.release();
-}
+  StringArchive *readStringArchive(const char *filename) {
+    assert(filename);
+    std::ifstream is(filename, std::ios_base::binary);
+    if (!is.is_open())
+      throw IOOpeningFailure("gs::readStringArchive", filename);
+    CPP11_auto_ptr<StringArchive> ar = read_item<StringArchive>(is);
+    return ar.release();
+  }
 
-bool writeCompressedStringArchive(const StringArchive &ar, const char *filename,
-                                  const unsigned inCompressionMode,
-                                  const int compressionLevel,
-                                  const unsigned minSizeToCompress,
-                                  const unsigned bufSize) {
-  assert(filename);
-  if (inCompressionMode > CStringStream::BZIP2)
-    throw gs::IOInvalidArgument("In gs::writeCompressedStringArchive: "
-                                "compression mode argument out of range");
-  const CStringStream::CompressionMode m =
-      static_cast<CStringStream::CompressionMode>(inCompressionMode);
-  bool status = false;
-  {
-    std::ofstream of(filename, std::ios_base::binary);
-    if (of.is_open()) {
-      const_cast<StringArchive &>(ar).flush();
-      status = write_compressed_item(of, ar, m, compressionLevel,
-                                     minSizeToCompress, bufSize);
+  bool writeCompressedStringArchive(const StringArchive &ar,
+                                    const char *filename,
+                                    const unsigned inCompressionMode,
+                                    const int compressionLevel,
+                                    const unsigned minSizeToCompress,
+                                    const unsigned bufSize) {
+    assert(filename);
+    if (inCompressionMode > CStringStream::BZIP2)
+      throw gs::IOInvalidArgument(
+          "In gs::writeCompressedStringArchive: "
+          "compression mode argument out of range");
+    const CStringStream::CompressionMode m = static_cast<CStringStream::CompressionMode>(inCompressionMode);
+    bool status = false;
+    {
+      std::ofstream of(filename, std::ios_base::binary);
+      if (of.is_open()) {
+        const_cast<StringArchive &>(ar).flush();
+        status = write_compressed_item(of, ar, m, compressionLevel, minSizeToCompress, bufSize);
+      }
     }
+    return status;
   }
-  return status;
-}
 
-StringArchive *readCompressedStringArchive(const char *filename) {
-  assert(filename);
-  std::ifstream is(filename, std::ios_base::binary);
-  if (!is.is_open())
-    throw IOOpeningFailure("gs::readCompressedStringArchive", filename);
-  CPP11_auto_ptr<StringArchive> ar = read_compressed_item<StringArchive>(is);
-  return ar.release();
-}
-
-StringArchive *loadStringArchiveFromArchive(AbsArchive &arch,
-                                            const unsigned long long id) {
-  Reference<StringArchive> ref(arch, id);
-  if (!ref.unique()) {
-    std::ostringstream os;
-    os << "In gs::loadStringArchiveFromArchive: "
-       << "StringArchive item with id " << id << " not found";
-    throw gs::IOInvalidArgument(os.str());
+  StringArchive *readCompressedStringArchive(const char *filename) {
+    assert(filename);
+    std::ifstream is(filename, std::ios_base::binary);
+    if (!is.is_open())
+      throw IOOpeningFailure("gs::readCompressedStringArchive", filename);
+    CPP11_auto_ptr<StringArchive> ar = read_compressed_item<StringArchive>(is);
+    return ar.release();
   }
-  CPP11_auto_ptr<StringArchive> p = ref.get(0);
-  return p.release();
-}
 
-StringArchive *readCompressedStringArchiveExt(const char *filename,
-                                              const char *suffix) {
-  if (suffix_matches(filename, suffix))
-    return readCompressedStringArchive(filename);
-  else
-    return readStringArchive(filename);
-}
+  StringArchive *loadStringArchiveFromArchive(AbsArchive &arch, const unsigned long long id) {
+    Reference<StringArchive> ref(arch, id);
+    if (!ref.unique()) {
+      std::ostringstream os;
+      os << "In gs::loadStringArchiveFromArchive: "
+         << "StringArchive item with id " << id << " not found";
+      throw gs::IOInvalidArgument(os.str());
+    }
+    CPP11_auto_ptr<StringArchive> p = ref.get(0);
+    return p.release();
+  }
 
-bool writeCompressedStringArchiveExt(const StringArchive &ar,
-                                     const char *filename, const char *suffix) {
-  if (suffix_matches(filename, suffix))
-    return writeCompressedStringArchive(ar, filename);
-  else
-    return writeStringArchive(ar, filename);
-}
-} // namespace gs
+  StringArchive *readCompressedStringArchiveExt(const char *filename, const char *suffix) {
+    if (suffix_matches(filename, suffix))
+      return readCompressedStringArchive(filename);
+    else
+      return readStringArchive(filename);
+  }
+
+  bool writeCompressedStringArchiveExt(const StringArchive &ar, const char *filename, const char *suffix) {
+    if (suffix_matches(filename, suffix))
+      return writeCompressedStringArchive(ar, filename);
+    else
+      return writeStringArchive(ar, filename);
+  }
+}  // namespace gs

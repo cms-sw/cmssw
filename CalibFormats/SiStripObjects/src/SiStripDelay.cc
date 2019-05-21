@@ -15,17 +15,16 @@
 #include <cassert>
 #include <sstream>
 
-void SiStripDelay::fillNewDelay(
-    const SiStripBaseDelay &baseDelay, const int sumSign,
-    const std::pair<std::string, std::string> &recordLabelPair) {
+void SiStripDelay::fillNewDelay(const SiStripBaseDelay &baseDelay,
+                                const int sumSign,
+                                const std::pair<std::string, std::string> &recordLabelPair) {
   baseDelayVector_.push_back(&baseDelay);
   sumSignVector_.push_back(sumSign);
   recordLabelPair_.push_back(recordLabelPair);
 }
 
 float SiStripDelay::getDelay(const uint32_t detId) const {
-  boost::unordered_map<uint32_t, double>::const_iterator it =
-      delays_.find(detId);
+  boost::unordered_map<uint32_t, double>::const_iterator it = delays_.find(detId);
   if (it != delays_.end()) {
     return it->second;
   }
@@ -36,14 +35,12 @@ bool SiStripDelay::makeDelay() {
   if (baseDelayVector_.empty()) {
     return false;
   }
-  std::vector<const SiStripBaseDelay *>::const_iterator it =
-      baseDelayVector_.begin();
+  std::vector<const SiStripBaseDelay *>::const_iterator it = baseDelayVector_.begin();
   // Check for consistent size in all baseDelays
   if (baseDelayVector_.size() > 1) {
     for (; it != baseDelayVector_.end() - 1; ++it) {
       if ((*it)->delaysSize() != (*(it + 1))->delaysSize()) {
-        std::cout << "makeDelay: Error, size of base delays is different!!"
-                  << std::endl;
+        std::cout << "makeDelay: Error, size of base delays is different!!" << std::endl;
         return false;
       }
     }
@@ -95,13 +92,11 @@ bool SiStripDelay::makeDelay() {
     for (; detIdIt != detIds.end(); ++detIdIt) {
       // The same detIds should be in both maps, if not don't rely on the
       // default initialization
-      boost::unordered_map<uint32_t, double>::iterator delayIt =
-          delays_.find(*detIdIt);
+      boost::unordered_map<uint32_t, double>::iterator delayIt = delays_.find(*detIdIt);
       if (delayIt != delays_.end()) {
         delays_[*detIdIt] += (*it)->delay(*detIdIt) * sumSign;
       } else {
-        std::cout << "makeDelay: Warning, detId = " << *detIdIt
-                  << " not present, summing to 0..." << std::endl;
+        std::cout << "makeDelay: Warning, detId = " << *detIdIt << " not present, summing to 0..." << std::endl;
         std::cout << "This means that the two baseDelay tags have different "
                      "detIds. PLEASE, CHECK THAT THIS IS EXPECTED."
                   << std::endl;
@@ -120,16 +115,14 @@ void SiStripDelay::clear() {
   delays_.clear();
 }
 
-void SiStripDelay::printDebug(std::stringstream &ss,
-                              const TrackerTopology * /*trackerTopo*/) const {
+void SiStripDelay::printDebug(std::stringstream &ss, const TrackerTopology * /*trackerTopo*/) const {
   boost::unordered_map<uint32_t, double>::const_iterator it = delays_.begin();
   for (; it != delays_.end(); ++it) {
     ss << "detId = " << it->first << " delay = " << it->second << std::endl;
   }
 }
 
-void SiStripDelay::printSummary(std::stringstream &ss,
-                                const TrackerTopology *trackerTopo) const {
+void SiStripDelay::printSummary(std::stringstream &ss, const TrackerTopology *trackerTopo) const {
   SiStripDetSummary summaryDelays{trackerTopo};
   boost::unordered_map<uint32_t, double>::const_iterator it = delays_.begin();
   for (; it != delays_.end(); ++it) {

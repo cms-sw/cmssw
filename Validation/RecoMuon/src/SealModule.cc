@@ -6,7 +6,6 @@
 #include "Validation/RecoMuon/src/MuonSeedTrack.h"
 #include "Validation/RecoMuon/src/GlobalMuonMatchAnalyzer.h"
 
-
 DEFINE_FWK_MODULE(MuonTrackAnalyzer);
 DEFINE_FWK_MODULE(MuonTrackResidualAnalyzer);
 DEFINE_FWK_MODULE(RecoMuonValidator);

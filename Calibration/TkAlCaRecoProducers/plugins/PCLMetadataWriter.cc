@@ -23,14 +23,11 @@ using namespace std;
 using namespace edm;
 
 PCLMetadataWriter::PCLMetadataWriter(const edm::ParameterSet &pSet) {
-
   readFromDB = pSet.getParameter<bool>("readFromDB");
 
-  vector<ParameterSet> recordsToMap =
-      pSet.getParameter<vector<ParameterSet>>("recordsToMap");
-  for (vector<ParameterSet>::const_iterator recordPset = recordsToMap.begin();
-       recordPset != recordsToMap.end(); ++recordPset) {
-
+  vector<ParameterSet> recordsToMap = pSet.getParameter<vector<ParameterSet>>("recordsToMap");
+  for (vector<ParameterSet>::const_iterator recordPset = recordsToMap.begin(); recordPset != recordsToMap.end();
+       ++recordPset) {
     // record is the key which identifies one set of metadata in
     // DropBoxMetadataRcd (not necessarily a record in the strict framework
     // sense)
@@ -39,8 +36,7 @@ PCLMetadataWriter::PCLMetadataWriter(const edm::ParameterSet &pSet) {
     map<string, string> jrInfo;
     if (!readFromDB) {
       vector<string> paramKeys = (*recordPset).getParameterNames();
-      for (vector<string>::const_iterator key = paramKeys.begin();
-           key != paramKeys.end(); ++key) {
+      for (vector<string>::const_iterator key = paramKeys.begin(); key != paramKeys.end(); ++key) {
         jrInfo["Source"] = "AlcaHarvesting";
         jrInfo["FileClass"] = "ALCA";
         if (*key != "record") {
@@ -54,15 +50,11 @@ PCLMetadataWriter::PCLMetadataWriter(const edm::ParameterSet &pSet) {
 
 PCLMetadataWriter::~PCLMetadataWriter() {}
 
-void PCLMetadataWriter::analyze(const edm::Event &event,
-                                const edm::EventSetup &eSetup) {}
+void PCLMetadataWriter::analyze(const edm::Event &event, const edm::EventSetup &eSetup) {}
 
-void PCLMetadataWriter::beginRun(const edm::Run &run,
-                                 const edm::EventSetup &eSetup) {}
+void PCLMetadataWriter::beginRun(const edm::Run &run, const edm::EventSetup &eSetup) {}
 
-void PCLMetadataWriter::endRun(const edm::Run &run,
-                               const edm::EventSetup &eSetup) {
-
+void PCLMetadataWriter::endRun(const edm::Run &run, const edm::EventSetup &eSetup) {
   const DropBoxMetadata *metadata = nullptr;
 
   if (readFromDB) {
@@ -82,10 +74,9 @@ void PCLMetadataWriter::endRun(const edm::Run &run,
       string filename = poolDbService->session().connectionString();
 
       // loop over all records
-      for (map<string, map<string, string>>::const_iterator recordAndMap =
-               recordMap.begin();
-           recordAndMap != recordMap.end(); ++recordAndMap) {
-
+      for (map<string, map<string, string>>::const_iterator recordAndMap = recordMap.begin();
+           recordAndMap != recordMap.end();
+           ++recordAndMap) {
         string record = (*recordAndMap).first;
 
         // this is the map of metadata that we write in the JR

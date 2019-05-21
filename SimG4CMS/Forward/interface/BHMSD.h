@@ -12,25 +12,19 @@ class BHMNumberingScheme;
 //-------------------------------------------------------------------
 
 class BHMSD : public TimingSD {
-
 public:
-  
-  BHMSD(const std::string&, const DDCompactView &, 
-        const SensitiveDetectorCatalog &, 
-	edm::ParameterSet const &, const SimTrackManager* );
+  BHMSD(const std::string &,
+        const DDCompactView &,
+        const SensitiveDetectorCatalog &,
+        edm::ParameterSet const &,
+        const SimTrackManager *);
 
   ~BHMSD() override;
-  
-  uint32_t  setDetUnitId(const G4Step*) override;
-    
+
+  uint32_t setDetUnitId(const G4Step *) override;
+
 private:
-  
-  BHMNumberingScheme    *numberingScheme;
-  
+  BHMNumberingScheme *numberingScheme;
 };
 
 #endif
-
-
-
-

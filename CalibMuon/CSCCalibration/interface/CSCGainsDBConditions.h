@@ -17,8 +17,7 @@
 #include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCGainsDBConditions : public edm::ESProducer,
-                             public edm::EventSetupRecordIntervalFinder {
+class CSCGainsDBConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   CSCGainsDBConditions(const edm::ParameterSet &);
   ~CSCGainsDBConditions() override;
@@ -50,7 +49,7 @@ inline CSCDBGains *CSCGainsDBConditions::prefillDBGains() {
   CSCDBGains *cndbgains = new CSCDBGains();
 
   int db_index;
-  float db_gainslope; // db_intercpt, db_chisq;
+  float db_gainslope;  // db_intercpt, db_chisq;
   std::vector<int> db_index_id;
   std::vector<float> db_slope;
   std::vector<float> db_intercept;

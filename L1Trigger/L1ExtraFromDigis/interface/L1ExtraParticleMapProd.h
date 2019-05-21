@@ -47,105 +47,93 @@ public:
 private:
   // Adds Refs to the objects in handle to the outputRefs vector.
   template <class TCollection>
-  void
-  addToVectorRefs(const edm::Handle<TCollection> &handle,          // input
-                  std::vector<edm::Ref<TCollection>> &vectorRefs); // output
+  void addToVectorRefs(const edm::Handle<TCollection> &handle,           // input
+                       std::vector<edm::Ref<TCollection>> &vectorRefs);  // output
 
   template <class TCollection>
-  void evaluateSingleObjectTrigger(
-      const std::vector<edm::Ref<TCollection>> &inputRefs, // input
-      const double &etThreshold,                           // input
-      bool &decision,                                      // output
-      std::vector<edm::Ref<TCollection>> &outputRefs);     // output
+  void evaluateSingleObjectTrigger(const std::vector<edm::Ref<TCollection>> &inputRefs,  // input
+                                   const double &etThreshold,                            // input
+                                   bool &decision,                                       // output
+                                   std::vector<edm::Ref<TCollection>> &outputRefs);      // output
 
   template <class TCollection>
-  void evaluateDoubleSameObjectTrigger(
-      const std::vector<edm::Ref<TCollection>> &inputRefs, // input
-      const double &etThreshold,                           // input
-      bool &decision,                                      // output
-      std::vector<edm::Ref<TCollection>> &outputRefs,      // output
-      l1extra::L1ParticleMap::L1IndexComboVector &combos,  // output
-      bool combinedWithGlobalObject = false); // if true, add entry for
-                                              // HT or MET to particle combos
+  void evaluateDoubleSameObjectTrigger(const std::vector<edm::Ref<TCollection>> &inputRefs,  // input
+                                       const double &etThreshold,                            // input
+                                       bool &decision,                                       // output
+                                       std::vector<edm::Ref<TCollection>> &outputRefs,       // output
+                                       l1extra::L1ParticleMap::L1IndexComboVector &combos,   // output
+                                       bool combinedWithGlobalObject = false);               // if true, add entry for
+  // HT or MET to particle combos
 
   template <class TCollection>
-  void evaluateTripleSameObjectTrigger(
-      const std::vector<edm::Ref<TCollection>> &inputRefs, // input
-      const double &etThreshold,                           // input
-      bool &decision,                                      // output
-      std::vector<edm::Ref<TCollection>> &outputRefs,      // output
-      l1extra::L1ParticleMap::L1IndexComboVector &combos); // output
+  void evaluateTripleSameObjectTrigger(const std::vector<edm::Ref<TCollection>> &inputRefs,  // input
+                                       const double &etThreshold,                            // input
+                                       bool &decision,                                       // output
+                                       std::vector<edm::Ref<TCollection>> &outputRefs,       // output
+                                       l1extra::L1ParticleMap::L1IndexComboVector &combos);  // output
 
   template <class TCollection1, class TCollection2>
-  void evaluateDoublePlusSingleObjectTrigger(
-      const std::vector<edm::Ref<TCollection1>> &inputRefs1, // input
-      const std::vector<edm::Ref<TCollection2>> &inputRefs2, // input
-      const double &etThreshold1,                            // input
-      const double &etThreshold2,                            // input
-      bool &decision,                                        // output
-      std::vector<edm::Ref<TCollection1>> &outputRefs1,      // output
-      std::vector<edm::Ref<TCollection2>> &outputRefs2,      // output
-      l1extra::L1ParticleMap::L1IndexComboVector &combos);   // output
+  void evaluateDoublePlusSingleObjectTrigger(const std::vector<edm::Ref<TCollection1>> &inputRefs1,  // input
+                                             const std::vector<edm::Ref<TCollection2>> &inputRefs2,  // input
+                                             const double &etThreshold1,                             // input
+                                             const double &etThreshold2,                             // input
+                                             bool &decision,                                         // output
+                                             std::vector<edm::Ref<TCollection1>> &outputRefs1,       // output
+                                             std::vector<edm::Ref<TCollection2>> &outputRefs2,       // output
+                                             l1extra::L1ParticleMap::L1IndexComboVector &combos);    // output
 
   template <class TCollection>
-  void evaluateQuadSameObjectTrigger(
-      const std::vector<edm::Ref<TCollection>> &inputRefs, // input
-      const double &etThreshold,                           // input
-      bool &decision,                                      // output
-      std::vector<edm::Ref<TCollection>> &outputRefs,      // output
-      l1extra::L1ParticleMap::L1IndexComboVector &combos); // output
+  void evaluateQuadSameObjectTrigger(const std::vector<edm::Ref<TCollection>> &inputRefs,  // input
+                                     const double &etThreshold,                            // input
+                                     bool &decision,                                       // output
+                                     std::vector<edm::Ref<TCollection>> &outputRefs,       // output
+                                     l1extra::L1ParticleMap::L1IndexComboVector &combos);  // output
 
   template <class TCollection1, class TCollection2>
-  void evaluateDoubleDifferentObjectTrigger(
-      const std::vector<edm::Ref<TCollection1>> &inputRefs1, // input
-      const std::vector<edm::Ref<TCollection2>> &inputRefs2, // input
-      const double &etThreshold1,                            // input
-      const double &etThreshold2,                            // input
-      bool &decision,                                        // output
-      std::vector<edm::Ref<TCollection1>> &outputRefs1,      // output
-      std::vector<edm::Ref<TCollection2>> &outputRefs2,      // output
-      l1extra::L1ParticleMap::L1IndexComboVector &combos);   // output
+  void evaluateDoubleDifferentObjectTrigger(const std::vector<edm::Ref<TCollection1>> &inputRefs1,  // input
+                                            const std::vector<edm::Ref<TCollection2>> &inputRefs2,  // input
+                                            const double &etThreshold1,                             // input
+                                            const double &etThreshold2,                             // input
+                                            bool &decision,                                         // output
+                                            std::vector<edm::Ref<TCollection1>> &outputRefs1,       // output
+                                            std::vector<edm::Ref<TCollection2>> &outputRefs2,       // output
+                                            l1extra::L1ParticleMap::L1IndexComboVector &combos);    // output
 
   template <class TCollection>
-  void evaluateDoubleDifferentObjectSameTypeTrigger(
-      const std::vector<edm::Ref<TCollection>> &inputRefs1, // input
-      const std::vector<edm::Ref<TCollection>> &inputRefs2, // input
-      const double &etThreshold1,                           // input
-      const double &etThreshold2,                           // input
-      bool &decision,                                       // output
-      std::vector<edm::Ref<TCollection>> &outputRefs,       // output
-      l1extra::L1ParticleMap::L1IndexComboVector &combos);  // output
+  void evaluateDoubleDifferentObjectSameTypeTrigger(const std::vector<edm::Ref<TCollection>> &inputRefs1,  // input
+                                                    const std::vector<edm::Ref<TCollection>> &inputRefs2,  // input
+                                                    const double &etThreshold1,                            // input
+                                                    const double &etThreshold2,                            // input
+                                                    bool &decision,                                        // output
+                                                    std::vector<edm::Ref<TCollection>> &outputRefs,        // output
+                                                    l1extra::L1ParticleMap::L1IndexComboVector &combos);   // output
 
-  void evaluateDoubleDifferentCaloObjectTrigger(
-      const l1extra::L1EmParticleVectorRef &inputRefs1,    // input
-      const l1extra::L1JetParticleVectorRef &inputRefs2,   // input
-      const double &etThreshold1,                          // input
-      const double &etThreshold2,                          // input
-      bool &decision,                                      // output
-      l1extra::L1EmParticleVectorRef &outputRefs1,         // output
-      l1extra::L1JetParticleVectorRef &outputRefs2,        // output
-      l1extra::L1ParticleMap::L1IndexComboVector &combos); // output
+  void evaluateDoubleDifferentCaloObjectTrigger(const l1extra::L1EmParticleVectorRef &inputRefs1,     // input
+                                                const l1extra::L1JetParticleVectorRef &inputRefs2,    // input
+                                                const double &etThreshold1,                           // input
+                                                const double &etThreshold2,                           // input
+                                                bool &decision,                                       // output
+                                                l1extra::L1EmParticleVectorRef &outputRefs1,          // output
+                                                l1extra::L1JetParticleVectorRef &outputRefs2,         // output
+                                                l1extra::L1ParticleMap::L1IndexComboVector &combos);  // output
 
-  void evaluateJetGapJetTrigger(
-      const l1extra::L1JetParticleVectorRef &inputRefs,    // input
-      const double &etThreshold,                           // input
-      bool &decision,                                      // output
-      l1extra::L1JetParticleVectorRef &outputRefs,         // output
-      l1extra::L1ParticleMap::L1IndexComboVector &combos); // output
+  void evaluateJetGapJetTrigger(const l1extra::L1JetParticleVectorRef &inputRefs,     // input
+                                const double &etThreshold,                            // input
+                                bool &decision,                                       // output
+                                l1extra::L1JetParticleVectorRef &outputRefs,          // output
+                                l1extra::L1ParticleMap::L1IndexComboVector &combos);  // output
 
-  void evaluateForwardRapidityGap(
-      const l1extra::L1JetParticleVectorRef &inputRefs, // input
-      const double &etThreshold,                        // input
-      bool &decision);                                  // output
+  void evaluateForwardRapidityGap(const l1extra::L1JetParticleVectorRef &inputRefs,  // input
+                                  const double &etThreshold,                         // input
+                                  bool &decision);                                   // output
 
-  void evaluateDoubleExclusiveIsoEG(
-      const l1extra::L1EmParticleVectorRef &inputRefs1,    // input
-      const l1extra::L1JetParticleVectorRef &inputRefs2,   // input
-      const double &etThreshold1,                          // input
-      const double &etThreshold2,                          // input
-      bool &decision,                                      // output
-      l1extra::L1EmParticleVectorRef &outputRefs1,         // output
-      l1extra::L1ParticleMap::L1IndexComboVector &combos); // output
+  void evaluateDoubleExclusiveIsoEG(const l1extra::L1EmParticleVectorRef &inputRefs1,     // input
+                                    const l1extra::L1JetParticleVectorRef &inputRefs2,    // input
+                                    const double &etThreshold1,                           // input
+                                    const double &etThreshold2,                           // input
+                                    bool &decision,                                       // output
+                                    l1extra::L1EmParticleVectorRef &outputRefs1,          // output
+                                    l1extra::L1ParticleMap::L1IndexComboVector &combos);  // output
 
   // ----------member data ---------------------------
   edm::InputTag muonSource_;
@@ -160,8 +148,7 @@ private:
   double singleThresholds_[l1extra::L1ParticleMap::kNumOfL1TriggerTypes];
   int prescales_[l1extra::L1ParticleMap::kNumOfL1TriggerTypes];
   int prescaleCounters_[l1extra::L1ParticleMap::kNumOfL1TriggerTypes];
-  std::pair<double, double>
-      doubleThresholds_[l1extra::L1ParticleMap::kNumOfL1TriggerTypes];
+  std::pair<double, double> doubleThresholds_[l1extra::L1ParticleMap::kNumOfL1TriggerTypes];
 };
 
 #endif

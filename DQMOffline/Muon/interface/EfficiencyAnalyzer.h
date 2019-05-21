@@ -23,7 +23,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -34,37 +34,36 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 class EfficiencyAnalyzer : public DQMEDAnalyzer {
-  
- public:
-  /* Constructor */ 
+public:
+  /* Constructor */
   EfficiencyAnalyzer(const edm::ParameterSet& pset);
-  
-  /* Destructor */ 
-  ~EfficiencyAnalyzer() override ;
 
-  /* Operations */ 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  /* Destructor */
+  ~EfficiencyAnalyzer() override;
 
- private:
+  /* Operations */
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+
+private:
   edm::ParameterSet parameters;
-  MuonServiceProxy *theService;
-    
+  MuonServiceProxy* theService;
+
   // Switch for verbosity
   std::string metname;
-  
+
   //histo binning parameters
   int etaBin_;
   int phiBin_;
   int ptBin_;
 
-  double ptMin_;  
+  double ptMin_;
   double ptMax_;
-  
-  double etaMin_;  
+
+  double etaMin_;
   double etaMax_;
 
-  double phiMin_;  
+  double phiMin_;
   double phiMax_;
 
   int vtxBin_;
@@ -88,12 +87,12 @@ class EfficiencyAnalyzer : public DQMEDAnalyzer {
   MonitorElement* h_passProbes_pfIsoID_pt;
   MonitorElement* h_passProbes_EB_pfIsoID_pt;
   MonitorElement* h_passProbes_EE_pfIsoID_pt;
-  MonitorElement* h_passProbes_detIsoID_nVtx; 
-  MonitorElement* h_passProbes_pfIsoID_nVtx; 
-  MonitorElement* h_passProbes_EB_detIsoID_nVtx; 
-  MonitorElement* h_passProbes_EE_detIsoID_nVtx; 
-  MonitorElement* h_passProbes_EB_pfIsoID_nVtx; 
-  MonitorElement* h_passProbes_EE_pfIsoID_nVtx; 
+  MonitorElement* h_passProbes_detIsoID_nVtx;
+  MonitorElement* h_passProbes_pfIsoID_nVtx;
+  MonitorElement* h_passProbes_EB_detIsoID_nVtx;
+  MonitorElement* h_passProbes_EE_detIsoID_nVtx;
+  MonitorElement* h_passProbes_EB_pfIsoID_nVtx;
+  MonitorElement* h_passProbes_EE_pfIsoID_nVtx;
 
   MonitorElement* h_failProbes_ID_pt;
   MonitorElement* h_failProbes_ID_eta;
@@ -114,28 +113,26 @@ class EfficiencyAnalyzer : public DQMEDAnalyzer {
   MonitorElement* h_allProbes_ID_nVtx;
   MonitorElement* h_allProbes_EB_ID_nVtx;
   MonitorElement* h_allProbes_EE_ID_nVtx;
-  
-  
+
   // Apply deltaBeta PU corrections to the PF isolation eficiencies.
   MonitorElement* h_passProbes_pfIsodBID_pt;
   MonitorElement* h_passProbes_EB_pfIsodBID_pt;
   MonitorElement* h_passProbes_EE_pfIsodBID_pt;
   MonitorElement* h_passProbes_pfIsodBID_nVtx;
-  MonitorElement* h_passProbes_EB_pfIsodBID_nVtx; 
-  MonitorElement* h_passProbes_EE_pfIsodBID_nVtx; 
+  MonitorElement* h_passProbes_EB_pfIsodBID_nVtx;
+  MonitorElement* h_passProbes_EE_pfIsodBID_nVtx;
 
   int _numPV;
 
   // STA Label
-  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
+  edm::EDGetTokenT<edm::View<reco::Muon> > theMuonCollectionLabel_;
   edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionLabel_;
 
   //Vertex requirements
   bool doPVCheck_;
   edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
-  edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
+  edm::EDGetTokenT<reco::BeamSpot> theBeamSpotLabel_;
 
   std::string theFolder;
 };
-#endif 
-
+#endif

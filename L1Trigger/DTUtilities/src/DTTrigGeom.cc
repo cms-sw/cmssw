@@ -49,11 +49,7 @@ using namespace std;
 // Constructors --
 //----------------
 
-DTTrigGeom::DTTrigGeom(const DTChamber *stat, bool debug)
-    : _stat(stat), _debug(debug) {
-
-  getGeom();
-}
+DTTrigGeom::DTTrigGeom(const DTChamber *stat, bool debug) : _stat(stat), _debug(debug) { getGeom(); }
 
 //--------------
 // Destructor --
@@ -205,13 +201,11 @@ int DTTrigGeom::posFE(int sl) const {
 }
 
 void DTTrigGeom::setGeom(const DTChamber *stat) {
-
   _stat = stat;
   getGeom();
 }
 
 void DTTrigGeom::getGeom() {
-
   // Geometrical constants of chamber
   // Cell width (cm)
   _PITCH = 4.2;
@@ -225,13 +219,13 @@ void DTTrigGeom::getGeom() {
   DTLayer const *l1[3];
   int i = 0;
   for (i = 0; i < 3; i++) {
-    if (station() == 4 && i == 1) { // No theta SL in MB4
+    if (station() == 4 && i == 1) {  // No theta SL in MB4
       _ZSL[i] = -999;
       _NCELL[i] = 0;
     } else {
       sl[i] = _stat->superLayer(DTSuperLayerId(statId(), i + 1));
       l1[i] = sl[i]->layer(DTLayerId(statId(), i + 1, 1));
-      _ZSL[i] = _stat->surface().toLocal(sl[i]->position()).z(); // - 1.5 * _H;
+      _ZSL[i] = _stat->surface().toLocal(sl[i]->position()).z();  // - 1.5 * _H;
       // LocalPoint posInLayer=l1[i]->layType()->getWire(1)->positionInLayer();
       const DTTopology &tp = l1[i]->specificTopology();
       float posX = tp.wirePosition(tp.firstChannel());
@@ -242,22 +236,19 @@ void DTTrigGeom::getGeom() {
 
   // debugging
   if (_debug) {
-    std::cout << setiosflags(std::ios::showpoint | std::ios::fixed)
-              << std::setw(4) << std::setprecision(1);
+    std::cout << setiosflags(std::ios::showpoint | std::ios::fixed) << std::setw(4) << std::setprecision(1);
     std::cout << "Identification: wheel=" << wheel();
     std::cout << ", station=" << station();
     std::cout << ", sector=" << sector() << std::endl;
     GlobalPoint pp = _stat->toGlobal(LocalPoint(0, 0, 0));
-    std::cout << "Position: Mag=" << pp.mag()
-              << "cm, Phi=" << pp.phi() * 180 / 3.14159;
+    std::cout << "Position: Mag=" << pp.mag() << "cm, Phi=" << pp.phi() * 180 / 3.14159;
     std::cout << " deg, Z=" << pp.z() << " cm" << std::endl;
     std::cout << "Rotation: ANGLE=" << phiCh() * 180 / 3.14159 << std::endl;
     // if(wheel()==2&&sector()==2){ // only 1 sector-wheel
     std::cout << "Z of superlayers: phi=" << ZSL(1) << ", ";
     std::cout << ZSL(3) << " theta=" << ZSL(2);
     std::cout << " (DeltaY = " << distSL() << ")" << std::endl;
-    std::cout << " ncell: sl 1 " << nCell(1) << " sl 2 " << nCell(2) << " sl 3 "
-              << nCell(3) << std::endl;
+    std::cout << " ncell: sl 1 " << nCell(1) << " sl 2 " << nCell(2) << " sl 3 " << nCell(3) << std::endl;
     //}
   }
   // end debugging
@@ -277,14 +268,12 @@ void DTTrigGeom::dumpGeom() const {
   std::cout << ", station=" << station();
   std::cout << ", sector=" << sector() << std::endl;
   GlobalPoint pp = _stat->toGlobal(LocalPoint(0, 0, 0));
-  std::cout << "Position: Mag=" << pp.mag()
-            << "cm, Phi=" << pp.phi() * 180 / 3.14159;
+  std::cout << "Position: Mag=" << pp.mag() << "cm, Phi=" << pp.phi() * 180 / 3.14159;
   std::cout << " deg, Z=" << pp.z() << " cm" << std::endl;
   std::cout << "Rotation: ANGLE=" << phiCh() * 180 / 3.14159 << std::endl;
   std::cout << "Z of superlayers: phi=" << ZSL(1) << ", ";
   std::cout << ZSL(3) << " theta=" << ZSL(2) << std::endl;
-  std::cout << "Number of cells: SL1=" << nCell(1) << " SL2=" << nCell(2)
-            << " SL3=" << nCell(3) << std::endl;
+  std::cout << "Number of cells: SL1=" << nCell(1) << " SL2=" << nCell(2) << " SL3=" << nCell(3) << std::endl;
   std::cout << "First wire positions:" << std::endl;
   int ii = 0;
   int jj = 0;
@@ -304,32 +293,27 @@ void DTTrigGeom::dumpGeom() const {
 
   std::cout << "First BTI position:";
   std::cout << " SL1:" << localPosition(DTBtiId(statId(), 1, 1)) << std::endl;
-  std::cout << " Position: R=" << gp1.perp()
-            << "cm, Phi=" << gp1.phi() * 180 / 3.14159 << " deg, Z=" << gp1.z()
+  std::cout << " Position: R=" << gp1.perp() << "cm, Phi=" << gp1.phi() * 180 / 3.14159 << " deg, Z=" << gp1.z()
             << " cm" << std::endl;
 
   if (station() != 4) {
     GlobalPoint gp2 = CMSPosition(DTBtiId(statId(), 2, 1));
     std::cout << " SL2:" << localPosition(DTBtiId(statId(), 2, 1)) << std::endl;
-    std::cout << " Position: R=" << gp2.perp()
-              << "cm, Phi=" << gp2.phi() * 180 / 3.14159
-              << " deg, Z=" << gp2.z() << " cm" << std::endl;
+    std::cout << " Position: R=" << gp2.perp() << "cm, Phi=" << gp2.phi() * 180 / 3.14159 << " deg, Z=" << gp2.z()
+              << " cm" << std::endl;
   }
 
   GlobalPoint gp3 = CMSPosition(DTBtiId(statId(), 3, 1));
   std::cout << " SL3:" << localPosition(DTBtiId(statId(), 3, 1)) << std::endl;
-  std::cout << " Position: R=" << gp3.perp()
-            << "cm, Phi=" << gp3.phi() * 180 / 3.14159 << " deg, Z=" << gp3.z()
+  std::cout << " Position: R=" << gp3.perp() << "cm, Phi=" << gp3.phi() * 180 / 3.14159 << " deg, Z=" << gp3.z()
             << " cm" << std::endl;
 
   std::cout << "First TRACO position:";
   std::cout << localPosition(DTTracoId(statId(), 1)) << std::endl;
-  std::cout << "******************************************************"
-            << std::endl;
+  std::cout << "******************************************************" << std::endl;
 }
 
 void DTTrigGeom::dumpLUT(short int btic) {
-
   // chamber id
   int wh = wheel();
   int st = station();
@@ -366,12 +350,8 @@ void DTTrigGeom::dumpLUT(short int btic) {
   fout << "\t" << se;
 
   // SL shift
-  float xBTI1_3 =
-      localPosition(DTBtiId(DTSuperLayerId(wheel(), station(), sector(), 3), 1))
-          .x();
-  float xBTI1_1 =
-      localPosition(DTBtiId(DTSuperLayerId(wheel(), station(), sector(), 1), 1))
-          .x();
+  float xBTI1_3 = localPosition(DTBtiId(DTSuperLayerId(wheel(), station(), sector(), 3), 1)).x();
+  float xBTI1_1 = localPosition(DTBtiId(DTSuperLayerId(wheel(), station(), sector(), 1), 1)).x();
   float SL_shift = xBTI1_3 - xBTI1_1;
   //  std::cout << " SL shift " << SL_shift << std::endl;
 
@@ -396,8 +376,7 @@ void DTTrigGeom::dumpLUT(short int btic) {
     // 110208 SV comment: this was inserted for a TRACO hardware bug
     if (SL_shift > 0)
       xcn = xcn + SL_shift;
-    xcn_sign = static_cast<int>(pp.y() / fabs(pp.y())) *
-               static_cast<int>(traco_1.y() / fabs(traco_1.y()));
+    xcn_sign = static_cast<int>(pp.y() / fabs(pp.y())) * static_cast<int>(traco_1.y() / fabs(traco_1.y()));
     if (station() == 2 || (station() == 4 && sector() == 1))
       xcn_sign = -xcn_sign;
     xcn = xcn * xcn_sign;
@@ -409,8 +388,7 @@ void DTTrigGeom::dumpLUT(short int btic) {
     float yn = m * xn;
 
     d = sqrt(xn * xn + yn * yn);
-    xcn = sqrt((xn - traco_1.x()) * (xn - traco_1.x()) +
-               (yn - traco_1.y()) * (yn - traco_1.y()));
+    xcn = sqrt((xn - traco_1.x()) * (xn - traco_1.x()) + (yn - traco_1.y()) * (yn - traco_1.y()));
     // 110208 SV comment: this was inserted for a TRACO hardware bug
     if (SL_shift > 0)
       xcn = xcn + SL_shift;
@@ -428,11 +406,9 @@ void DTTrigGeom::dumpLUT(short int btic) {
   fout << "\tA8";
   // short int btic = 31;
   // cout << "CHECK BTIC " << btic << endl;
-  short int Low_byte =
-      (btic & 0x00FF); // output in hex bytes format with zero padding
+  short int Low_byte = (btic & 0x00FF);  // output in hex bytes format with zero padding
   short int High_byte = (btic >> 8 & 0x00FF);
-  fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0')
-       << Low_byte;
+  fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0') << Low_byte;
 
   // convert parameters from IEE32 float to DSP float format
   short int DSPmantissa = 0;
@@ -440,36 +416,28 @@ void DTTrigGeom::dumpLUT(short int btic) {
 
   // d parameter conversion and dump
   IEEE32toDSP(d, DSPmantissa, DSPexp);
-  Low_byte =
-      (DSPmantissa & 0x00FF); // output in hex bytes format with zero padding
+  Low_byte = (DSPmantissa & 0x00FF);  // output in hex bytes format with zero padding
   High_byte = (DSPmantissa >> 8 & 0x00FF);
-  fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0')
-       << Low_byte;
+  fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0') << Low_byte;
   Low_byte = (DSPexp & 0x00FF);
   High_byte = (DSPexp >> 8 & 0x00FF);
-  fout << setw(2) << setfill('0') << High_byte << setw(2) << setfill('0')
-       << Low_byte;
+  fout << setw(2) << setfill('0') << High_byte << setw(2) << setfill('0') << Low_byte;
 
   // xnc parameter conversion and dump
   DSPmantissa = 0;
   DSPexp = 0;
   IEEE32toDSP(xcn, DSPmantissa, DSPexp);
-  Low_byte =
-      (DSPmantissa & 0x00FF); // output in hex bytes format with zero padding
+  Low_byte = (DSPmantissa & 0x00FF);  // output in hex bytes format with zero padding
   High_byte = (DSPmantissa >> 8 & 0x00FF);
-  fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0')
-       << Low_byte;
+  fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0') << Low_byte;
   Low_byte = (DSPexp & 0x00FF);
   High_byte = (DSPexp >> 8 & 0x00FF);
-  fout << setw(2) << setfill('0') << High_byte << setw(2) << setfill('0')
-       << Low_byte;
+  fout << setw(2) << setfill('0') << High_byte << setw(2) << setfill('0') << Low_byte;
 
   // sign bits
-  Low_byte =
-      (xcn_sign & 0x00FF); // output in hex bytes format with zero padding
+  Low_byte = (xcn_sign & 0x00FF);  // output in hex bytes format with zero padding
   High_byte = (xcn_sign >> 8 & 0x00FF);
-  fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0')
-       << Low_byte << dec << "\n";
+  fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0') << Low_byte << dec << "\n";
 
   fout.close();
 
@@ -511,8 +479,7 @@ complement
 // A.Gozzelino May 11th 2012: bug fix in method IEEE32toDSP
 //******************
 
-void DTTrigGeom::IEEE32toDSP(float f, short int &DSPmantissa,
-                             short int &DSPexp) {
+void DTTrigGeom::IEEE32toDSP(float f, short int &DSPmantissa, short int &DSPexp) {
   long int lm;
   long int pl = 0;
 
@@ -526,13 +493,13 @@ void DTTrigGeom::IEEE32toDSP(float f, short int &DSPmantissa,
 
     if ((pl & 0x80000000) != 0)
       sign = true;
-    lm = (0x800000 | (pl & 0x7FFFFF)); // [1][23bit mantissa]
-    lm >>= 9;                          // reduce to 15bits
+    lm = (0x800000 | (pl & 0x7FFFFF));  // [1][23bit mantissa]
+    lm >>= 9;                           // reduce to 15bits
     lm &= 0x7FFF;
     DSPexp = ((pl >> 23) & 0xFF) - 126;
     DSPmantissa = (short)lm;
     if (sign)
-      DSPmantissa = -DSPmantissa; // convert negative value in 2.s complement
+      DSPmantissa = -DSPmantissa;  // convert negative value in 2.s complement
   }
   return;
 }
@@ -591,8 +558,7 @@ LocalPoint DTTrigGeom::localPosition(const DTBtiId id) const {
   // LocalPoint posInLayer1(localX+xt,yt,0); //Correction now y is left I of
   // first cell of layer 1 y=0 and z in the middle of SL,
   LocalPoint posInLayer1(localX + xt, 0, zt);
-  LocalPoint posInChamber =
-      _stat->surface().toLocal(lay->toGlobal(posInLayer1));
+  LocalPoint posInChamber = _stat->surface().toLocal(lay->toGlobal(posInLayer1));
   // GlobalPoint posInCMS = lay->toGlobal(posInLayer1);
 
   /* cout <<endl;
@@ -614,9 +580,7 @@ LocalPoint DTTrigGeom::localPosition(const DTTracoId id) const {
   */
   // NEWGEO
   // position of first BTI in sl 3 on X
-  float x =
-      localPosition(DTBtiId(DTSuperLayerId(wheel(), station(), sector(), 3), 1))
-          .x();
+  float x = localPosition(DTBtiId(DTSuperLayerId(wheel(), station(), sector(), 3), 1)).x();
   // 10/7/06 May be not needed anymore in new geometry
   //   if(posFE(3)==1)
   //     x -= (id.traco()-2)*DTConfig::NBTITC * cellPitch();

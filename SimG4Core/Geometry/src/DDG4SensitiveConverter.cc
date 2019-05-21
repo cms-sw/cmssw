@@ -9,9 +9,7 @@ DDG4SensitiveConverter::DDG4SensitiveConverter() {}
 
 DDG4SensitiveConverter::~DDG4SensitiveConverter() {}
 
-SensitiveDetectorCatalog
-DDG4SensitiveConverter::upDate(const DDG4DispContainer &ddg4s) {
-
+SensitiveDetectorCatalog DDG4SensitiveConverter::upDate(const DDG4DispContainer &ddg4s) {
   LogDebug("SimG4CoreGeometry") << " DDG4SensitiveConverter::upDate() starts";
   SensitiveDetectorCatalog catalog;
 
@@ -23,9 +21,8 @@ DDG4SensitiveConverter::upDate(const DDG4DispContainer &ddg4s) {
     std::string sROUName = getString("ReadOutName", part);
     std::string fff = result->GetName();
     if (sClassName != "NotFound") {
-      LogDebug("SimG4CoreGeometry")
-          << " DDG4SensitiveConverter: Sensitive " << fff << " Class Name "
-          << sClassName << " ROU Name " << sROUName;
+      LogDebug("SimG4CoreGeometry") << " DDG4SensitiveConverter: Sensitive " << fff << " Class Name " << sClassName
+                                    << " ROU Name " << sROUName;
       fff = result->GetName();
       catalog.insert(sClassName, sROUName, fff);
     }
@@ -33,8 +30,7 @@ DDG4SensitiveConverter::upDate(const DDG4DispContainer &ddg4s) {
   return catalog;
 }
 
-std::string DDG4SensitiveConverter::getString(const std::string &ss,
-                                              const DDLogicalPart *part) {
+std::string DDG4SensitiveConverter::getString(const std::string &ss, const DDLogicalPart *part) {
   std::vector<std::string> temp;
   DDValue val(ss);
   std::vector<const DDsvalues_type *> result = part->specifics();
@@ -47,8 +43,7 @@ std::string DDG4SensitiveConverter::getString(const std::string &ss,
   if (foundIt) {
     temp = val.strings();
     if (temp.size() != 1) {
-      edm::LogError("SimG4CoreGeometry")
-          << "DDG4SensitiveConverter - ERROR: I need 1 " << ss << " tags";
+      edm::LogError("SimG4CoreGeometry") << "DDG4SensitiveConverter - ERROR: I need 1 " << ss << " tags";
       throw cms::Exception("SimG4CoreGeometry",
                            " DDG4SensitiveConverter::getString Problem with "
                            "Region tags - one and only one allowed: " +

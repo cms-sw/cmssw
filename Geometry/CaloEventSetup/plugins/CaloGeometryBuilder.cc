@@ -30,8 +30,19 @@
 #include "Geometry/HcalTowerAlgo/interface/CaloTowerGeometry.h"
 #include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
 #include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+namespace {
+  template <typename Record>
+  void makeToken(edm::ESConsumesCollector& cc, std::vector<std::string>& list, std::string const& tag, edm::ESGetToken<CaloSubdetectorGeometry, Record>& token) {
+    auto found = std::find(list.begin(), list.end(), tag);
+    if(found != list.end()) {
+      token = cc.consumesFrom<CaloSubdetectorGeometry, Record>(edm::ESInputTag{"", *found});
+      list.erase(found);
+    }
+  }
+}
+
 //
 // member functions
 //
@@ -39,14 +50,42 @@ CaloGeometryBuilder::CaloGeometryBuilder( const edm::ParameterSet& iConfig )
 {
    //the following line is needed to tell the framework what
    // data is being produced
-   setWhatProduced( this, 
-		    &CaloGeometryBuilder::produceAligned );
+   auto cc = setWhatProduced( this,
+                              &CaloGeometryBuilder::produceAligned );
 
    //now do what ever other initialization is needed
-   
-   theCaloList = iConfig.getParameter< std::vector<std::string> >("SelectedCalos");
-   if ( theCaloList.empty() ) throw cms::Exception("Configuration") 
+   auto caloList = iConfig.getParameter< std::vector<std::string> >("SelectedCalos");
+   if ( caloList.empty() ) throw cms::Exception("Configuration")
       << "No calorimeter specified for geometry, aborting";
+
+   makeToken(cc, caloList, HcalGeometry::producerTag(), hcalToken_);
+   makeToken(cc, caloList, ZdcGeometry::producerTag(), zdcToken_);
+   makeToken(cc, caloList, CastorGeometry::producerTag(), castorToken_);
+   makeToken(cc, caloList, EcalBarrelGeometry::producerTag(), ecalBarrelToken_);
+   makeToken(cc, caloList, EcalEndcapGeometry::producerTag(), ecalEndcapToken_);
+   makeToken(cc, caloList, EcalPreshowerGeometry::producerTag(), ecalPreshowerToken_);
+   makeToken(cc, caloList, CaloTowerGeometry::producerTag(), caloTowerToken_);
+
+   // Move HGC elements to the end
+   auto hgcBegin = std::partition(caloList.begin(), caloList.end(), [](std::string const& elem) {
+       return elem.find(HGCalGeometry::producerTag()) == std::string::npos;
+     });
+   // Process HGC elements
+   for(auto iter = hgcBegin; iter != caloList.end(); ++iter) {
+     hgcalTokens_.emplace_back(cc.consumesFrom<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", *iter}), *iter);
+   }
+   // Erase HGC elements
+   caloList.erase(hgcBegin, caloList.end());
+
+   // Throw if any elements are left
+   if(not caloList.empty()) {
+     cms::Exception ex{"Configuration"};
+     ex << "Reconstruction geometry requested for a not implemented sub-detectors:";
+     for(auto const& elem: caloList) {
+       ex << " " << elem;
+     }
+     throw ex;
+   }
 }
 
 // ------------ method called to produce the data  ------------
@@ -58,76 +97,60 @@ CaloGeometryBuilder::produceAligned( const CaloGeometryRecord& iRecord )
 
    ReturnType pCalo  = std::make_unique<CaloGeometry>();
 
-   // loop on selected calorimeters
+   // look for HCAL parts
+   // assume 'HCAL' for all of HCAL.
+   if(hcalToken_.isInitialized()) {
+     edm::LogInfo("CaloGeometryBuilder") << "Building HCAL reconstruction geometry";
 
-   for ( std::vector<std::string>::const_iterator ite ( theCaloList.begin() ) ;
-	 ite != theCaloList.end(); ++ite ) 
-   {
-      // look for HCAL parts
-      // assume 'HCAL' for all of HCAL.  
-      if ( (*ite) == HcalGeometry::producerTag() ) 
-      {
-	 edm::LogInfo("CaloGeometryBuilder") << "Building HCAL reconstruction geometry";
-
-	 iRecord.getRecord< HcalGeometryRecord >().get( HcalGeometry::producerTag(), pG );  
-	 pCalo->setSubdetGeometry( DetId::Hcal, HcalBarrel , pG.product() );
-	 pCalo->setSubdetGeometry( DetId::Hcal, HcalEndcap , pG.product() );
-	 pCalo->setSubdetGeometry( DetId::Hcal, HcalOuter  , pG.product() );
-	 pCalo->setSubdetGeometry( DetId::Hcal, HcalForward, pG.product() );
-      }
-      else if ( (*ite) == ZdcGeometry::producerTag() ) 
-      {
-	 edm::LogInfo("CaloGeometryBuilder") << "Building ZDC reconstruction geometry";
-	 iRecord.getRecord< ZDCGeometryRecord >().get( ZdcGeometry::producerTag(), pG ); 
-	 pCalo->setSubdetGeometry( DetId::Calo, HcalZDCDetId::SubdetectorId,pG.product());
-      }
-      else if ( (*ite) == CastorGeometry::producerTag() ) 
-      {
-	 edm::LogInfo("CaloGeometryBuilder") << "Building CASTOR reconstruction geometry";
-	 iRecord.getRecord< CastorGeometryRecord >().get( CastorGeometry::producerTag(), pG ); 
-	 pCalo->setSubdetGeometry( DetId::Calo, HcalCastorDetId::SubdetectorId,pG.product());
-      }
-      // look for Ecal Barrel
-      else if ( (*ite) == EcalBarrelGeometry::producerTag() ) 
-      {
-	 edm::LogInfo("CaloGeometryBuilder") << "Building EcalBarrel reconstruction geometry";
-	 iRecord.getRecord<EcalBarrelGeometryRecord>().get( EcalBarrelGeometry::producerTag(), pG ); 
-	 pCalo->setSubdetGeometry(DetId::Ecal,EcalBarrel,pG.product());
-      }
-      // look for Ecal Endcap
-      else if ( (*ite) == EcalEndcapGeometry::producerTag() ) 
-      {
-	 edm::LogInfo("CaloGeometryBuilder") << "Building EcalEndcap reconstruction geometry";
-	 iRecord.getRecord<EcalEndcapGeometryRecord>().get( EcalEndcapGeometry::producerTag(), pG ); 
-	 pCalo->setSubdetGeometry(DetId::Ecal,EcalEndcap,pG.product());
-      }
-      // look for Ecal Preshower
-      else if ( (*ite) == EcalPreshowerGeometry::producerTag() ) 
-      {
-	 edm::LogInfo("CaloGeometryBuilder") << "Building EcalPreshower reconstruction geometry";
- 	 iRecord.getRecord<EcalPreshowerGeometryRecord>().get(EcalPreshowerGeometry::producerTag(), pG); 
-	 pCalo->setSubdetGeometry(DetId::Ecal,EcalPreshower,pG.product());
-      }
-      // look for TOWER parts
-      else if ( (*ite) == CaloTowerGeometry::producerTag() ) 
-      {
-	 edm::LogInfo("CaloGeometryBuilder") << "Building TOWER reconstruction geometry";
-	 iRecord.getRecord<CaloTowerGeometryRecord>().get(CaloTowerGeometry::producerTag(),pG);
-	 pCalo->setSubdetGeometry(DetId::Calo,1,pG.product());
-      }
-      else if ( ite->find(HGCalGeometry::producerTag()) != std::string::npos ) {
-	edm::LogInfo("CaloGeometryBuilder") << "Building " << *ite << " reconstruction geometry";
-	edm::ESHandle<HGCalGeometry> pHG;
-	iRecord.getRecord<IdealGeometryRecord>().get(*ite,pHG);
-	const auto& topo = pHG->topology();
-	pCalo->setSubdetGeometry(topo.detector(),topo.subDetector(),pHG.product());
-      }
-      else 
-      {
-	 edm::LogWarning("CaloGeometryBuilder") 
-	    << "Reconstruction geometry requested for a not implemented sub-detector: " 
-	    << (*ite); 
-      }
+     auto const& pG = iRecord.get(hcalToken_);
+     pCalo->setSubdetGeometry( DetId::Hcal, HcalBarrel , &pG );
+     pCalo->setSubdetGeometry( DetId::Hcal, HcalEndcap , &pG );
+     pCalo->setSubdetGeometry( DetId::Hcal, HcalOuter  , &pG );
+     pCalo->setSubdetGeometry( DetId::Hcal, HcalForward, &pG );
    }
+   if(zdcToken_.isInitialized()) {
+     edm::LogInfo("CaloGeometryBuilder") << "Building ZDC reconstruction geometry";
+     auto const& pG = iRecord.get( zdcToken_ );
+     pCalo->setSubdetGeometry( DetId::Calo, HcalZDCDetId::SubdetectorId, &pG);
+   }
+   if(castorToken_.isInitialized()) {
+     edm::LogInfo("CaloGeometryBuilder") << "Building CASTOR reconstruction geometry";
+     auto const& pG = iRecord.get( castorToken_ );
+     pCalo->setSubdetGeometry( DetId::Calo, HcalCastorDetId::SubdetectorId, &pG);
+   }
+
+   // look for Ecal Barrel
+   if(ecalBarrelToken_.isInitialized()) {
+     edm::LogInfo("CaloGeometryBuilder") << "Building EcalBarrel reconstruction geometry";
+     auto const& pG = iRecord.get( ecalBarrelToken_ );
+     pCalo->setSubdetGeometry(DetId::Ecal, EcalBarrel, &pG);
+   }
+   // look for Ecal Endcap
+   if(ecalEndcapToken_.isInitialized()) {
+     edm::LogInfo("CaloGeometryBuilder") << "Building EcalEndcap reconstruction geometry";
+     auto const& pG = iRecord.get( ecalEndcapToken_ );
+     pCalo->setSubdetGeometry(DetId::Ecal, EcalEndcap, &pG);
+   }
+   // look for Ecal Preshower
+   if(ecalPreshowerToken_.isInitialized()) {
+     edm::LogInfo("CaloGeometryBuilder") << "Building EcalPreshower reconstruction geometry";
+     const auto& pG = iRecord.get(ecalPreshowerToken_);
+     pCalo->setSubdetGeometry(DetId::Ecal, EcalPreshower, &pG);
+   }
+
+   // look for TOWER parts
+   if(caloTowerToken_.isInitialized()) {
+     edm::LogInfo("CaloGeometryBuilder") << "Building TOWER reconstruction geometry";
+     const auto& pG = iRecord.get(caloTowerToken_);
+     pCalo->setSubdetGeometry(DetId::Calo, 1, &pG);
+   }
+
+   for(auto const& hgcTokenLabel: hgcalTokens_) {
+     edm::LogInfo("CaloGeometryBuilder") << "Building " << hgcTokenLabel.second << " reconstruction geometry";
+     auto const& pHG = iRecord.get(hgcTokenLabel.first);
+     const auto& topo = pHG.topology();
+     pCalo->setSubdetGeometry(topo.detector(), topo.subDetector(), &pHG);
+   }
+
    return pCalo ;
 }

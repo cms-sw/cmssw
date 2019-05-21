@@ -48,9 +48,9 @@ process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProduce
                                                  )
 
 process.test = cms.EDAnalyzer("DDTestSpecParsFilter",
-                              DDDetector = cms.ESInputTag('MUON'),
-                              attribute = cms.untracked.string('CMSCutsRegion')
-##                              value = cms.untracked.string('Muon')
+                              DDDetector = cms.ESInputTag('','MUON'),
+                              attribute = cms.untracked.string('CMSCutsRegion'),
+                              value = cms.untracked.string('Muon')
                           )
 
 process.p = cms.Path(process.test)

@@ -16,26 +16,21 @@
 //#include <utility>
 
 //============================================================================
-IntegratedCalibrationBase::IntegratedCalibrationBase(const edm::ParameterSet &cfg) 
-  : name_(cfg.getParameter<std::string>("calibrationName"))
-{
-}
-  
+IntegratedCalibrationBase::IntegratedCalibrationBase(const edm::ParameterSet &cfg)
+    : name_(cfg.getParameter<std::string>("calibrationName")) {}
+
 //============================================================================
-std::vector<IntegratedCalibrationBase::Values>
-IntegratedCalibrationBase::derivatives(const TrackingRecHit &hit,
-				       const TrajectoryStateOnSurface &tsos,
-				       const edm::EventSetup &setup,
-				       const EventInfo &eventInfo) const
-{
+std::vector<IntegratedCalibrationBase::Values> IntegratedCalibrationBase::derivatives(
+    const TrackingRecHit &hit,
+    const TrajectoryStateOnSurface &tsos,
+    const edm::EventSetup &setup,
+    const EventInfo &eventInfo) const {
   // Prepare result vector, initialised all with 0.:
-  std::vector<Values> result(this->numParameters(), Values(0.,0.));
+  std::vector<Values> result(this->numParameters(), Values(0., 0.));
 
   // Get non-zero derivatives and their index:
   std::vector<ValuesIndexPair> derivsIndexPairs;
-  const unsigned int numNonZero = this->derivatives(derivsIndexPairs,
-						    hit, tsos, setup,
-						    eventInfo);
+  const unsigned int numNonZero = this->derivatives(derivsIndexPairs, hit, tsos, setup, eventInfo);
 
   // Put non-zero values into result:
   for (unsigned int i = 0; i < numNonZero; ++i) {

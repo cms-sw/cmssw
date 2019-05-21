@@ -20,9 +20,7 @@ bool hexStringToInt64(const std::string &, std::vector<unsigned long long> &);
 /// the third parameter of stringToNumber should be
 /// one of std::hex, std::dec or std::oct
 template <class T>
-bool stringToNumber(T &tmpl, const std::string &str,
-                    std::ios_base &(*f)(std::ios_base &)) {
-
+bool stringToNumber(T &tmpl, const std::string &str, std::ios_base &(*f)(std::ios_base &)) {
   std::istringstream iss(str);
   return !(iss >> f >> tmpl).fail();
 }

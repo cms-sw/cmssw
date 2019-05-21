@@ -13,8 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 
-CosmicParametersDefinerForTPESProducer::CosmicParametersDefinerForTPESProducer(
-    const edm::ParameterSet &iConfig) {
+CosmicParametersDefinerForTPESProducer::CosmicParametersDefinerForTPESProducer(const edm::ParameterSet &iConfig) {
   // the following line is needed to tell the framework what
   // data is being produced
   std::string myName = iConfig.getParameter<std::string>("ComponentName");
@@ -24,9 +23,7 @@ CosmicParametersDefinerForTPESProducer::CosmicParametersDefinerForTPESProducer(
   // conf_=iConfig;
 }
 
-CosmicParametersDefinerForTPESProducer::
-    ~CosmicParametersDefinerForTPESProducer() {
-
+CosmicParametersDefinerForTPESProducer::~CosmicParametersDefinerForTPESProducer() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
@@ -36,8 +33,7 @@ CosmicParametersDefinerForTPESProducer::
 //
 
 // ------------ method called to produce the data  ------------
-CosmicParametersDefinerForTPESProducer::ReturnType
-CosmicParametersDefinerForTPESProducer::produce(
+CosmicParametersDefinerForTPESProducer::ReturnType CosmicParametersDefinerForTPESProducer::produce(
     const TrackAssociatorRecord &iRecord) {
   return std::make_unique<CosmicParametersDefinerForTP>();
 }

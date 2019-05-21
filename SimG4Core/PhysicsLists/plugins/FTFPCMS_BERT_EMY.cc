@@ -13,23 +13,20 @@
 #include "G4DataQuestionaire.hh"
 #include "G4HadronPhysicsFTFP_BERT.hh"
 
-FTFPCMS_BERT_EMY::FTFPCMS_BERT_EMY(const edm::ParameterSet & p) 
-  : PhysicsList(p) {
-
+FTFPCMS_BERT_EMY::FTFPCMS_BERT_EMY(const edm::ParameterSet& p) : PhysicsList(p) {
   G4DataQuestionaire it(photon);
-  
-  int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
-  bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
-  bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
-  bool tracking= p.getParameter<bool>("TrackingCut");
+
+  int ver = p.getUntrackedParameter<int>("Verbosity", 0);
+  bool emPhys = p.getUntrackedParameter<bool>("EMPhysics", true);
+  bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics", true);
+  bool tracking = p.getParameter<bool>("TrackingCut");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "FTFP_BERT_EMY \n Flags for EM Physics "
-			      << emPhys << ", for Hadronic Physics "
-			      << hadPhys << " and tracking cut " << tracking;
+                              << "FTFP_BERT_EMY \n Flags for EM Physics " << emPhys << ", for Hadronic Physics "
+                              << hadPhys << " and tracking cut " << tracking;
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new G4EmStandardPhysics_option3(ver));
+    RegisterPhysics(new G4EmStandardPhysics_option3(ver));
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
@@ -37,27 +34,26 @@ FTFPCMS_BERT_EMY::FTFPCMS_BERT_EMY(const edm::ParameterSet & p)
   }
 
   // Decays
-  this->RegisterPhysics( new G4DecayPhysics(ver) );
+  this->RegisterPhysics(new G4DecayPhysics(ver));
 
   if (hadPhys) {
     G4HadronicProcessStore::Instance()->SetVerbose(ver);
 
     // Hadron Elastic scattering
-    RegisterPhysics( new G4HadronElasticPhysics(ver));
+    RegisterPhysics(new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    RegisterPhysics(  new G4HadronPhysicsFTFP_BERT(ver));
+    RegisterPhysics(new G4HadronPhysicsFTFP_BERT(ver));
 
     // Stopping Physics
-    RegisterPhysics( new G4StoppingPhysics(ver));
+    RegisterPhysics(new G4StoppingPhysics(ver));
 
     // Ion Physics
-    RegisterPhysics( new G4IonPhysics(ver));
+    RegisterPhysics(new G4IonPhysics(ver));
 
     // Neutron tracking cut
     if (tracking) {
-      RegisterPhysics( new G4NeutronTrackingCut(ver));
+      RegisterPhysics(new G4NeutronTrackingCut(ver));
     }
   }
 }
-

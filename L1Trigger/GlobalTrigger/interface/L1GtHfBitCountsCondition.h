@@ -30,7 +30,6 @@ class L1GlobalTriggerPSB;
 
 // class declaration
 class L1GtHfBitCountsCondition : public L1GtConditionEvaluation {
-
 public:
   /// constructors
   ///     default
@@ -57,9 +56,7 @@ public:
 
 public:
   ///   get / set the pointer to a L1GtCondition
-  inline const L1GtHfBitCountsTemplate *gtHfBitCountsTemplate() const {
-    return m_gtHfBitCountsTemplate;
-  }
+  inline const L1GtHfBitCountsTemplate *gtHfBitCountsTemplate() const { return m_gtHfBitCountsTemplate; }
 
   void setGtHfBitCountsTemplate(const L1GtHfBitCountsTemplate *);
 

@@ -35,37 +35,33 @@
 
 class DTTimeEvolutionHisto;
 
-class DTScalerInfoTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
-
+class DTScalerInfoTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
   friend class DTMonitorModule;
 
- public:
-
+public:
   /// Constructor
-  DTScalerInfoTask(const edm::ParameterSet& ps );
+  DTScalerInfoTask(const edm::ParameterSet& ps);
 
   /// Destructor
   ~DTScalerInfoTask() override;
 
- protected:
-
+protected:
   // Book the histograms
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   ///Beginrun
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   /// To reset the MEs
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context)  override;
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
 
   /// Perform trend plot operations
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context)  override;
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
 
- private:
-
+private:
   int nEvents;
   int nEventsInLS;
 
@@ -73,9 +69,8 @@ class DTScalerInfoTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlock
 
   edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
 
-  std::map<std::string ,DTTimeEvolutionHisto* > trendHistos;
+  std::map<std::string, DTTimeEvolutionHisto*> trendHistos;
   MonitorElement* nEventMonitor;
-
 };
 
 #endif

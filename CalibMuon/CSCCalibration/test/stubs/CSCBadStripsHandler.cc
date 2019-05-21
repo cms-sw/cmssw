@@ -6,13 +6,11 @@
 #include "CondFormats/CSCObjects/interface/CSCBadStrips.h"
 
 popcon::CSCBadStripsImpl::CSCBadStripsImpl(const edm::ParameterSet &pset)
-    : m_name(pset.getUntrackedParameter<std::string>("name",
-                                                     "CSCBadStripsImpl")) {}
+    : m_name(pset.getUntrackedParameter<std::string>("name", "CSCBadStripsImpl")) {}
 
 popcon::CSCBadStripsImpl::~CSCBadStripsImpl() {}
 
 void popcon::CSCBadStripsImpl::getNewObjects() {
-
   std::cout << "------- CSC src - > getNewObjects\n" << m_name;
 
   // fill object from file
@@ -21,8 +19,7 @@ void popcon::CSCBadStripsImpl::getNewObjects() {
   // check whats already inside of database
 
   std::cerr << "got offlineInfo" << std::endl;
-  std::cerr << tagInfo().name << " , last object valid since "
-            << tagInfo().lastInterval.first << std::endl;
+  std::cerr << tagInfo().name << " , last object valid since " << tagInfo().lastInterval.first << std::endl;
 
   unsigned int snc;
 
@@ -31,6 +28,5 @@ void popcon::CSCBadStripsImpl::getNewObjects() {
 
   m_to_transfer.push_back(std::make_pair(cnbadstrips, snc));
 
-  std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n"
-            << std::endl;
+  std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n" << std::endl;
 }

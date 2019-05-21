@@ -26,30 +26,25 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-
 class L1TDEMON : public DQMEDAnalyzer {
-
- public:
-
+public:
   explicit L1TDEMON(const edm::ParameterSet&);
   ~L1TDEMON() override;
 
- protected:
-
+protected:
   //virtual void beginJob(void) ;
-  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-    
- private:
 
+private:
   // input d|e record
   edm::InputTag DEsource_;
   bool hasRecord_;
 
   // debug verbose level
   int verbose_;
-  int verbose() {return verbose_;}
+  int verbose() { return verbose_; }
 
   // root output file name
   std::string histFile_;
@@ -59,7 +54,7 @@ class L1TDEMON : public DQMEDAnalyzer {
 
   // dqm common
   bool monitorDaemon_;
- 
+
   // running in filter farm? (use reduced set of me's)
   bool runInFF_;
 
@@ -67,13 +62,12 @@ class L1TDEMON : public DQMEDAnalyzer {
   int nEvt_;
   int deSysCount[dedefs::DEnsys];
   int nEvtWithSys[dedefs::DEnsys];
-  
+
   // system status (enabled / disabled)
   // similar to COMPARE_COLLS HardwareValidation/L1Comparator, probably a more elegant solution
   // possible TODO
 
   bool m_doSys[dedefs::DEnsys];
-
 
   /// monitoring elements
 
@@ -87,15 +81,15 @@ class L1TDEMON : public DQMEDAnalyzer {
   MonitorElement* etaphi[dedefs::DEnsys];
   MonitorElement* eta[dedefs::DEnsys];
   MonitorElement* phi[dedefs::DEnsys];
-  MonitorElement* x3 [dedefs::DEnsys];
+  MonitorElement* x3[dedefs::DEnsys];
   MonitorElement* etaData[dedefs::DEnsys];
   MonitorElement* phiData[dedefs::DEnsys];
-  MonitorElement*  x3Data[dedefs::DEnsys];
+  MonitorElement* x3Data[dedefs::DEnsys];
   MonitorElement* rnkData[dedefs::DEnsys];
 
   // trigger data word
-  MonitorElement* dword [dedefs::DEnsys];
-  MonitorElement* eword [dedefs::DEnsys];
+  MonitorElement* dword[dedefs::DEnsys];
+  MonitorElement* eword[dedefs::DEnsys];
   MonitorElement* deword[dedefs::DEnsys];
   MonitorElement* masked[dedefs::DEnsys];
 

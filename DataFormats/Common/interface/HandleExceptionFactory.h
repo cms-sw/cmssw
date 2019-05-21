@@ -4,7 +4,7 @@
 //
 // Package:     DataFormats/Common
 // Class  :     HandleExceptionFactory
-// 
+//
 /**\class edm::HandleExceptionFactory HandleExceptionFactory.h "DataFormats/Common/interface/HandleExceptionFactory.h"
 
  Description: Creates an cms::Exception for an edm::Handle
@@ -36,26 +36,22 @@ namespace cms {
 }
 
 namespace edm {
-  
-  class HandleExceptionFactory
-  {
-    
+
+  class HandleExceptionFactory {
   public:
     HandleExceptionFactory();
     virtual ~HandleExceptionFactory();
-    
+
     // ---------- const member functions ---------------------
     virtual std::shared_ptr<cms::Exception> make() const = 0;
-    
+
   private:
     //HandleExceptionFactory(const HandleExceptionFactory&); // stop default
-    
-    //const HandleExceptionFactory& operator=(const HandleExceptionFactory&); // stop default
-    
-    // ---------- member data --------------------------------
-    
-  };
-}
 
+    //const HandleExceptionFactory& operator=(const HandleExceptionFactory&); // stop default
+
+    // ---------- member data --------------------------------
+  };
+}  // namespace edm
 
 #endif

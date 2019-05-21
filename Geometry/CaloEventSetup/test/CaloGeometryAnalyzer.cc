@@ -2,8 +2,8 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
@@ -101,6 +101,8 @@ private:
 	       const EBDetId&   id   , 
 	       std::fstream&    fOvr  );
 
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topologyToken_;
 
   edm::Service<TFileService> h_fs;
 
@@ -121,8 +123,11 @@ private:
   bool m_allOK ;
 };
 
-CaloGeometryAnalyzer::CaloGeometryAnalyzer( const edm::ParameterSet& /*iConfig*/ )
+CaloGeometryAnalyzer::CaloGeometryAnalyzer( const edm::ParameterSet& /*iConfig*/ ):
+  geometryToken_{esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})},
+  topologyToken_{esConsumes<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag{})}
 {
+
   usesResource("TFileService");
   
   pass_=0;
@@ -1152,26 +1157,24 @@ void
 CaloGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
 
-   edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<CaloGeometryRecord>().get(pG);
-   const CaloGeometry* cG = pG.product();
-   edm::ESHandle<HcalTopology> pT;
-   iSetup.get<HcalRecNumberingRecord>().get(pT);
+   const auto& pG = iSetup.getData(geometryToken_);
+   const CaloGeometry* cG = &pG;
+   const auto& pT = iSetup.getData(topologyToken_);
 
-   const std::vector<DetId> allDetId ( pG->getValidDetIds() ) ;
+   const std::vector<DetId> allDetId ( pG.getValidDetIds() ) ;
 
-   const std::vector<DetId>& deb ( pG->getValidDetIds(DetId::Ecal,EcalBarrel                     ));
-   const std::vector<DetId>& dee ( pG->getValidDetIds(DetId::Ecal,EcalEndcap                     ));
-   const std::vector<DetId>& des ( pG->getValidDetIds(DetId::Ecal,EcalPreshower                  ));
-   const std::vector<DetId>& dhb ( pG->getValidDetIds(DetId::Hcal,HcalBarrel                     ));
-   const std::vector<DetId>& dhe ( pG->getValidDetIds(DetId::Hcal,HcalEndcap                     ));
-   const std::vector<DetId>& dho ( pG->getValidDetIds(DetId::Hcal,HcalOuter                      ));
-   const std::vector<DetId>& dhf ( pG->getValidDetIds(DetId::Hcal,HcalForward                    ));
-   const std::vector<DetId>& dct ( pG->getValidDetIds(DetId::Calo,CaloTowerDetId::SubdetId       ));
-   const std::vector<DetId>& dca ( pG->getValidDetIds(DetId::Calo,HcalCastorDetId::SubdetectorId ));
-   const std::vector<DetId>& dzd ( pG->getValidDetIds(DetId::Calo,HcalZDCDetId::SubdetectorId    ));
+   const std::vector<DetId>& deb ( pG.getValidDetIds(DetId::Ecal,EcalBarrel                     ));
+   const std::vector<DetId>& dee ( pG.getValidDetIds(DetId::Ecal,EcalEndcap                     ));
+   const std::vector<DetId>& des ( pG.getValidDetIds(DetId::Ecal,EcalPreshower                  ));
+   const std::vector<DetId>& dhb ( pG.getValidDetIds(DetId::Hcal,HcalBarrel                     ));
+   const std::vector<DetId>& dhe ( pG.getValidDetIds(DetId::Hcal,HcalEndcap                     ));
+   const std::vector<DetId>& dho ( pG.getValidDetIds(DetId::Hcal,HcalOuter                      ));
+   const std::vector<DetId>& dhf ( pG.getValidDetIds(DetId::Hcal,HcalForward                    ));
+   const std::vector<DetId>& dct ( pG.getValidDetIds(DetId::Calo,CaloTowerDetId::SubdetId       ));
+   const std::vector<DetId>& dca ( pG.getValidDetIds(DetId::Calo,HcalCastorDetId::SubdetectorId ));
+   const std::vector<DetId>& dzd ( pG.getValidDetIds(DetId::Calo,HcalZDCDetId::SubdetectorId    ));
 
-   const std::vector<DetId>& dha ( pG->getSubdetectorGeometry(DetId::Hcal,1)->getValidDetIds());
+   const std::vector<DetId>& dha ( pG.getSubdetectorGeometry(DetId::Hcal,1)->getValidDetIds());
 
 
    const unsigned int sum ( deb.size() +
@@ -1202,25 +1205,25 @@ CaloGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSet
    {
 
       std::cout<<"**Ecal Barrel avg Radius = "
-	       << dynamic_cast<const EcalBarrelGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal, EcalBarrel))->avgRadiusXYFrontFaceCenter()
+	       << dynamic_cast<const EcalBarrelGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal, EcalBarrel))->avgRadiusXYFrontFaceCenter()
 	       << std::endl ;
 
       std::cout<<"**Ecal Endcap avg Zabs = "
-	       << dynamic_cast<const EcalEndcapGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal, EcalEndcap))->avgAbsZFrontFaceCenter()
+	       << dynamic_cast<const EcalEndcapGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal, EcalEndcap))->avgAbsZFrontFaceCenter()
 	       << std::endl ;
 
       m_allOK = true ;
 
-      build(cG,*pT,DetId::Ecal,EcalBarrel                     ,"eb",0);
-      build(cG,*pT,DetId::Ecal,EcalEndcap                     ,"ee",1);
-      build(cG,*pT,DetId::Ecal,EcalPreshower                  ,"es",2);
-      buildHcal(cG,*pT,DetId::Hcal,HcalBarrel                 ,"hb",3);
-      buildHcal(cG,*pT,DetId::Hcal,HcalEndcap                 ,"he",4);
-      buildHcal(cG,*pT,DetId::Hcal,HcalOuter                  ,"ho",5);
-      buildHcal(cG,*pT,DetId::Hcal,HcalForward                ,"hf",6);
-      build(cG,*pT,DetId::Calo,CaloTowerDetId::SubdetId       ,"ct",7);
-      build(cG,*pT,DetId::Calo,HcalCastorDetId::SubdetectorId ,"ca",8);
-      build(cG,*pT,DetId::Calo,HcalZDCDetId::SubdetectorId    ,"zd",9);
+      build(cG,pT,DetId::Ecal,EcalBarrel                     ,"eb",0);
+      build(cG,pT,DetId::Ecal,EcalEndcap                     ,"ee",1);
+      build(cG,pT,DetId::Ecal,EcalPreshower                  ,"es",2);
+      buildHcal(cG,pT,DetId::Hcal,HcalBarrel                 ,"hb",3);
+      buildHcal(cG,pT,DetId::Hcal,HcalEndcap                 ,"he",4);
+      buildHcal(cG,pT,DetId::Hcal,HcalOuter                  ,"ho",5);
+      buildHcal(cG,pT,DetId::Hcal,HcalForward                ,"hf",6);
+      build(cG,pT,DetId::Calo,CaloTowerDetId::SubdetId       ,"ct",7);
+      build(cG,pT,DetId::Calo,HcalCastorDetId::SubdetectorId ,"ca",8);
+      build(cG,pT,DetId::Calo,HcalZDCDetId::SubdetectorId    ,"zd",9);
 
       std::cout<<"\n\n*********** Validation of cell centers and corners "
 	       <<( m_allOK ? "SUCCEEDS!! " : "FAILS!! ")

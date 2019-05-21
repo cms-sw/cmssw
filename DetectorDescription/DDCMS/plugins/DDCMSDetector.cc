@@ -39,7 +39,7 @@ void
 DDCMSDetector::analyze(const Event&, const EventSetup& iEventSetup)
 {
   ESTransientHandle<DDDetector> det;
-  iEventSetup.get<GeometryFileRcd>().get(m_tag.module(), det);
+  iEventSetup.get<GeometryFileRcd>().get(m_tag, det);
 
   LogVerbatim("Geometry") << "Iterate over the detectors:\n";
   LogVerbatim("Geometry").log([&](auto& log) {
@@ -51,7 +51,7 @@ DDCMSDetector::analyze(const Event&, const EventSetup& iEventSetup)
   LogVerbatim("Geometry") << "..done!";
   
   ESTransientHandle<DDVectorRegistry> registry;
-  iEventSetup.get<DDVectorRegistryRcd>().get(m_tag.module(), registry);
+  iEventSetup.get<DDVectorRegistryRcd>().get(m_tag, registry);
 
   LogVerbatim("Geometry") << "DD Vector Registry size: " << registry->vectors.size();
   LogVerbatim("Geometry").log([&](auto& log) {

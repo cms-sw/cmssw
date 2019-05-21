@@ -32,7 +32,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-
 //
 #include <map>
 #include <vector>
@@ -45,9 +44,10 @@
  **
  ***/
 
-
 // forward declarations
-namespace edm {class HepMCProduct;}
+namespace edm {
+  class HepMCProduct;
+}
 class TFile;
 class TH1F;
 class TH2F;
@@ -56,30 +56,23 @@ class TTree;
 class SimVertex;
 class SimTrack;
 
-
-
-class PhotonValidator : public DQMEDAnalyzer
-{
-
- public:
-
+class PhotonValidator : public DQMEDAnalyzer {
+public:
   //
-  explicit PhotonValidator( const edm::ParameterSet& ) ;
+  explicit PhotonValidator(const edm::ParameterSet&);
   ~PhotonValidator() override;
 
-
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   //  virtual void beginJob();
-  void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) override;
-  void endRun (edm::Run const& r, edm::EventSetup const & es) override;
-  void  bookHistograms( DQMStore::IBooker&, edm::Run const &, edm::EventSetup const &) override; 
+  void dqmBeginRun(edm::Run const& r, edm::EventSetup const& theEventSetup) override;
+  void endRun(edm::Run const& r, edm::EventSetup const& es) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
- private:
+private:
   //
 
-  float  phiNormalization( float& a);
-  float  etaTransformation( float a, float b);
-
+  float phiNormalization(float& a);
+  float etaTransformation(float a, float b);
 
   std::string fName_;
   edm::ESHandle<MagneticField> theMF_;
@@ -100,23 +93,20 @@ class PhotonValidator : public DQMEDAnalyzer
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   edm::ESHandle<CaloTopology> theCaloTopo_;
 
-
   std::string photonCollectionProducer_;
   std::string photonCollection_;
   edm::EDGetTokenT<reco::PhotonCollection> photonCollectionToken_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
-  std::string   valueMapPhoPFCandIso_ ;
+  std::string valueMapPhoPFCandIso_;
   edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > particleBasedIso_token;
   edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
-  edm::InputTag  bcBarrelCollection_;
-  edm::InputTag  bcEndcapCollection_;
+  edm::InputTag bcBarrelCollection_;
+  edm::InputTag bcEndcapCollection_;
   edm::EDGetTokenT<reco::GenParticleCollection> genpartToken_;
 
   edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
   edm::EDGetTokenT<TrackingParticleCollection> token_tp_;
-
- 
 
   edm::InputTag conversionOITrackProducer_;
   edm::InputTag conversionIOTrackProducer_;
@@ -124,18 +114,17 @@ class PhotonValidator : public DQMEDAnalyzer
   edm::EDGetTokenT<edm::View<reco::Track> > conversionOITrackPr_Token_;
   edm::EDGetTokenT<edm::View<reco::Track> > conversionIOTrackPr_Token_;
 
-  edm::EDGetTokenT<edm::SimTrackContainer>  g4_simTk_Token_;
+  edm::EDGetTokenT<edm::SimTrackContainer> g4_simTk_Token_;
   edm::EDGetTokenT<edm::SimVertexContainer> g4_simVtx_Token_;
-  edm::EDGetTokenT<edm::SimTrackContainer>  famos_simTk_Token_;
+  edm::EDGetTokenT<edm::SimTrackContainer> famos_simTk_Token_;
   edm::EDGetTokenT<edm::SimVertexContainer> famos_simVtx_Token_;
-  edm::EDGetTokenT<edm::HepMCProduct>  hepMC_Token_;
+  edm::EDGetTokenT<edm::HepMCProduct> hepMC_Token_;
   edm::EDGetTokenT<reco::GenJetCollection> genjets_Token_;
 
-  std::unique_ptr<PhotonMCTruthFinder>  thePhotonMCTruthFinder_;
+  std::unique_ptr<PhotonMCTruthFinder> thePhotonMCTruthFinder_;
 
   bool fastSim_;
   bool isRunCentrally_;
-
 
   double minPhoEtCut_;
   double convTrackMinPtCut_;
@@ -149,14 +138,13 @@ class PhotonValidator : public DQMEDAnalyzer
   double hcalIsolExtRadius_;
   double hcalIsolInnRadius_;
   double hcalHitEtLow_;
-  int  numOfTracksInCone_;
+  int numOfTracksInCone_;
   double trkPtSumCut_;
   double ecalEtSumCut_;
   double hcalEtSumCut_;
   bool dCotCutOn_;
   double dCotCutValue_;
   double dCotHardCutValue_;
-
 
   /// global variable for the MC photon
   double mcPhi_;
@@ -171,7 +159,7 @@ class PhotonValidator : public DQMEDAnalyzer
   double mcJetPhi_;
 
   edm::RefVector<TrackingParticleCollection> theConvTP_;
- //  std::vector<TrackingParticleRef> theConvTP_;
+  //  std::vector<TrackingParticleRef> theConvTP_;
 
   double simMinPt_;
   double simMaxPt_;
@@ -196,31 +184,30 @@ class PhotonValidator : public DQMEDAnalyzer
   MonitorElement* h_simConvVtxRvsZ_[4];
   MonitorElement* h_simConvVtxYvsX_;
 
-
   ///   Denominator for efficiencies
-  MonitorElement*   h_SimPho_[3];
-  MonitorElement*   h_AllSimConv_[5];
-  MonitorElement*   h_VisSimConv_[6];
-  MonitorElement*   h_VisSimConvLarge_;
+  MonitorElement* h_SimPho_[3];
+  MonitorElement* h_AllSimConv_[5];
+  MonitorElement* h_VisSimConv_[6];
+  MonitorElement* h_VisSimConvLarge_;
   ///   Numerator for efficiencies
-  MonitorElement*   h_MatchedSimPho_[3];
-  MonitorElement*   h_MatchedSimPhoBadCh_[3];
-  MonitorElement*   h_SimConvOneTracks_[5];
-  MonitorElement*   h_SimConvOneMTracks_[5];
-  MonitorElement*   h_SimConvTwoTracks_[5];
-  MonitorElement*   h_SimConvTwoMTracks_[5];
-  MonitorElement*   h_SimConvMTotal_[5];
-  MonitorElement*   h_SimConvTwoMTracksAndVtxPGT0_[5];
-  MonitorElement*   h_SimConvTwoMTracksAndVtxPGT0005_[5];
-  MonitorElement*   h_SimConvTwoMTracksAndVtxPGT01_[5];
+  MonitorElement* h_MatchedSimPho_[3];
+  MonitorElement* h_MatchedSimPhoBadCh_[3];
+  MonitorElement* h_SimConvOneTracks_[5];
+  MonitorElement* h_SimConvOneMTracks_[5];
+  MonitorElement* h_SimConvTwoTracks_[5];
+  MonitorElement* h_SimConvTwoMTracks_[5];
+  MonitorElement* h_SimConvMTotal_[5];
+  MonitorElement* h_SimConvTwoMTracksAndVtxPGT0_[5];
+  MonitorElement* h_SimConvTwoMTracksAndVtxPGT0005_[5];
+  MonitorElement* h_SimConvTwoMTracksAndVtxPGT01_[5];
   // Denominators for conversion fake rate
-  MonitorElement*   h_RecoConvTwoTracks_[5];
+  MonitorElement* h_RecoConvTwoTracks_[5];
   // Numerators for conversion fake rate
-  MonitorElement*   h_RecoConvTwoMTracks_[5];
+  MonitorElement* h_RecoConvTwoMTracks_[5];
 
   //// tmp TH1F
   TH1F* th1f_SimConvMTotal_[5];
- 
+
   //// test on OutIn Tracks
   MonitorElement* h_OIinnermostHitR_;
   MonitorElement* h_IOinnermostHitR_;
@@ -229,18 +216,14 @@ class PhotonValidator : public DQMEDAnalyzer
   MonitorElement* h_convAlgo_;
   MonitorElement* h_convQuality_;
 
-
   MonitorElement* h_phoDEta_[2];
   MonitorElement* h_phoDPhi_[2];
-
-
 
   MonitorElement* h_scEta_[2];
   MonitorElement* h_scEtaWidth_[2];
   MonitorElement* h_scPhi_[2];
   MonitorElement* h_scPhiWidth_[2];
   MonitorElement* h_scEtaPhi_[2];
-
 
   MonitorElement* h_scE_[2][3];
   MonitorElement* h_scEt_[2][3];
@@ -281,10 +264,6 @@ class PhotonValidator : public DQMEDAnalyzer
   MonitorElement* p_newhOverEVsEta_[3];
   MonitorElement* p_newhOverEVsEt_[3];
 
-
-
-
-
   //
   MonitorElement* h_ecalRecHitSumEtConeDR04_[3][3];
   MonitorElement* h2_ecalRecHitSumEtConeDR04VsEta_[3];
@@ -315,15 +294,14 @@ class PhotonValidator : public DQMEDAnalyzer
   MonitorElement* p_nTrkSolidConeDR04VsEt_[3];
   //
 
-  MonitorElement*  h_gamgamMass_[3][3];
-  MonitorElement*  h_gamgamMassRegr1_[3][3];
-  MonitorElement*  h_gamgamMassRegr2_[3][3];
+  MonitorElement* h_gamgamMass_[3][3];
+  MonitorElement* h_gamgamMassRegr1_[3][3];
+  MonitorElement* h_gamgamMassRegr2_[3][3];
 
   MonitorElement* h_phoE_[2][3];
   MonitorElement* h_phoEt_[2][3];
   MonitorElement* h_phoERes_[3][3];
   MonitorElement* h_phoSigmaEoE_[3][3];
-
 
   MonitorElement* h2_eResVsEta_[3];
   MonitorElement* p_eResVsEta_[3];
@@ -347,7 +325,7 @@ class PhotonValidator : public DQMEDAnalyzer
   MonitorElement* h_phoEResRegr1_[3][3];
   MonitorElement* h_phoEResRegr2_[3][3];
 
-  // 
+  //
   MonitorElement* h_phoPixSeedSize_[2];
 
   // Information from Particle Flow
@@ -402,15 +380,12 @@ class PhotonValidator : public DQMEDAnalyzer
   MonitorElement* h_nHadIso_miniAOD_[3];
   MonitorElement* h_phoIso_miniAOD_[3];
 
-
-
-
   /// info per conversion
   MonitorElement* h_nConv_[2][3];
   MonitorElement* h_convEta_[3];
   MonitorElement* h_convPhi_[2];
   MonitorElement* h_convERes_[2][3];
-  MonitorElement*  p_eResVsR_;
+  MonitorElement* p_eResVsR_;
 
   MonitorElement* h_convPtRes_[2][3];
 
@@ -438,7 +413,6 @@ class PhotonValidator : public DQMEDAnalyzer
   MonitorElement* h2_EoverEtrueVsR_[3];
   MonitorElement* p_EoverEtrueVsR_[3];
 
-
   MonitorElement* h2_PoverPtrueVsEta_[3];
   MonitorElement* p_PoverPtrueVsEta_[3];
 
@@ -456,18 +430,13 @@ class PhotonValidator : public DQMEDAnalyzer
 
   MonitorElement* h_distMinAppTracks_[2][3];
 
-
-
   MonitorElement* h_DPhiTracksAtEcal_[2][3];
   MonitorElement* h2_DPhiTracksAtEcalVsR_;
   MonitorElement* p_DPhiTracksAtEcalVsR_;
   MonitorElement* h2_DPhiTracksAtEcalVsEta_;
   MonitorElement* p_DPhiTracksAtEcalVsEta_;
 
-
   MonitorElement* h_DEtaTracksAtEcal_[2][3];
-
-
 
   MonitorElement* h_convVtxRvsZ_[3];
   MonitorElement* h_convVtxYvsX_;
@@ -493,7 +462,6 @@ class PhotonValidator : public DQMEDAnalyzer
   MonitorElement* h_convVtxdEta_;
   MonitorElement* h_convVtxdPhi_;
 
-
   MonitorElement* h2_convVtxdRVsR_;
   MonitorElement* p_convVtxdRVsR_;
   MonitorElement* h2_convVtxdRVsEta_;
@@ -504,17 +472,14 @@ class PhotonValidator : public DQMEDAnalyzer
 
   MonitorElement* h2_convVtxRrecVsTrue_;
 
-  MonitorElement*  h_vtxChi2_[3];
-  MonitorElement*  h_vtxChi2Prob_[3];
-
-
+  MonitorElement* h_vtxChi2_[3];
+  MonitorElement* h_vtxChi2Prob_[3];
 
   MonitorElement* h_zPVFromTracks_[5];
   MonitorElement* h_dzPVFromTracks_[5];
   MonitorElement* h2_dzPVVsR_;
   MonitorElement* p_dzPVVsR_;
   MonitorElement* p_dzPVVsEta_;
-
 
   //////////// info per track
   MonitorElement* p_nHitsVsEta_[2];
@@ -542,12 +507,12 @@ class PhotonValidator : public DQMEDAnalyzer
   MonitorElement* hBCEnergyOverTrackPout_[3];
 
   // ME for bkg efficiencies
-  MonitorElement*   h_SimJet_[3];
-  MonitorElement*   h_MatchedSimJet_[3];
-  MonitorElement*   h_MatchedSimJetBadCh_[3];
+  MonitorElement* h_SimJet_[3];
+  MonitorElement* h_MatchedSimJet_[3];
+  MonitorElement* h_MatchedSimJetBadCh_[3];
   //
 
-  MonitorElement*   h_nPho_;
+  MonitorElement* h_nPho_;
 
   MonitorElement* h_scBkgEta_;
   MonitorElement* h_scBkgPhi_;
@@ -557,7 +522,6 @@ class PhotonValidator : public DQMEDAnalyzer
   MonitorElement* h_phoBkgDPhi_;
   MonitorElement* h_phoBkgE_[3];
   MonitorElement* h_phoBkgEt_[3];
-
 
   MonitorElement* h_scBkgE_[3];
   MonitorElement* h_scBkgEt_[3];
@@ -586,19 +550,16 @@ class PhotonValidator : public DQMEDAnalyzer
   MonitorElement* h2_sigmaIetaIetaVsEtBkg_[3];
   MonitorElement* p_sigmaIetaIetaVsEtBkg_[3];
 
-
   MonitorElement* h2_hOverEVsEtaBkg_;
   MonitorElement* h2_hOverEVsEtBkg_;
   MonitorElement* p_hOverEVsEtaBkg_;
   MonitorElement* p_hOverEVsEtBkg_;
-
 
   MonitorElement* h_ecalRecHitSumEtConeDR04Bkg_[3];
   MonitorElement* h2_ecalRecHitSumEtConeDR04VsEtaBkg_;
   MonitorElement* p_ecalRecHitSumEtConeDR04VsEtaBkg_;
   MonitorElement* h2_ecalRecHitSumEtConeDR04VsEtBkg_[3];
   MonitorElement* p_ecalRecHitSumEtConeDR04VsEtBkg_[3];
-
 
   MonitorElement* h_hcalTowerSumEtConeDR04Bkg_[3];
   MonitorElement* h2_hcalTowerSumEtConeDR04VsEtaBkg_;
@@ -630,25 +591,10 @@ class PhotonValidator : public DQMEDAnalyzer
   MonitorElement* h_convVtxYvsXBkg_;
   MonitorElement* h_convVtxRvsZBkg_[2];
 
-
-
-class  sortPhotons
-{
+  class sortPhotons {
   public:
-    bool operator () (const reco::PhotonRef& lhs, const reco::PhotonRef & rhs)
-    {
-        return lhs->et() > rhs->et();
-    }
+    bool operator()(const reco::PhotonRef& lhs, const reco::PhotonRef& rhs) { return lhs->et() > rhs->et(); }
+  };
 };
-
-
-
-};
-
-
-
-
-
-
 
 #endif

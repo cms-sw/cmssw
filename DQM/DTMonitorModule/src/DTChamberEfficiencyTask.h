@@ -1,7 +1,6 @@
 #ifndef DTChamberEfficiencyTask_H
 #define DTChamberEfficiencyTask_H
 
-
 /** \class DTChamberEfficiencyTask
  *  DQM Analysis of 4D DT segments, it produces plots about: <br>
  *      - single chamber efficiency
@@ -12,8 +11,6 @@
  *
  *  \author G. Mila - INFN Torino
  */
-
-
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
@@ -39,8 +36,7 @@
 class DQMStore;
 class MonitorElement;
 
-
-class DTChamberEfficiencyTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTChamberEfficiencyTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor
   DTChamberEfficiencyTask(const edm::ParameterSet& pset);
@@ -58,21 +54,17 @@ public:
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
- protected:
-// Book the histograms
-void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+protected:
+  // Book the histograms
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
-
   const DTRecSegment4D& getBestSegment(const DTRecSegment4DCollection::range& segs) const;
-  const DTRecSegment4D* getBestSegment(const DTRecSegment4D* s1,
-				       const DTRecSegment4D* s2) const;
+  const DTRecSegment4D* getBestSegment(const DTRecSegment4D* s1, const DTRecSegment4D* s2) const;
   bool isGoodSegment(const DTRecSegment4D& seg) const;
-  LocalPoint interpolate(const DTRecSegment4D& seg1,
-			 const DTRecSegment4D& seg3,
-			 const DTChamberId& MB2) const;
+  LocalPoint interpolate(const DTRecSegment4D& seg1, const DTRecSegment4D& seg3, const DTChamberId& MB2) const;
 
-  void bookHistos(DQMStore::IBooker & ibooker, DTChamberId chId);
+  void bookHistos(DQMStore::IBooker& ibooker, DTChamberId chId);
 
   // Switch for verbosity
   bool debug;
@@ -94,7 +86,6 @@ private:
 
   edm::ESHandle<DTGeometry> dtGeom;
   edm::Handle<DTRecSegment4DCollection> segs;
-
 };
 #endif
 

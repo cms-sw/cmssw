@@ -8,7 +8,7 @@
 *  Deliberately made non-copyable with const members and private copy ctor, etc.
 *
 * \author Robert Frazier
-*/ 
+*/
 
 // CMSSW headers
 #include "FWCore/Framework/interface/Event.h"
@@ -18,9 +18,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1Trigger/interface/L1TriggerError.h"
 
-
-class GctUnpackCollections
-{
+class GctUnpackCollections {
 public:
   /// Construct with an event. The collections get put into the event when the object instance goes out of scope (i.e. in the destructor).
   GctUnpackCollections(edm::Event& event);
@@ -28,52 +26,81 @@ public:
   /// Destructor - the last action of this object is to put the gct collections into the event provided on construction.
   ~GctUnpackCollections();
 
-  // Collections for storing GCT input data.  
-  L1GctFibreCollection * const gctFibres() const { return m_gctFibres.get(); }  ///< Raw fibre input to the GCT.
-  L1CaloEmCollection * const rctEm() const { return m_rctEm.get(); } ///< Input electrons from the RCT to the GCT.
-  L1CaloRegionCollection * const rctCalo() const { return m_rctCalo.get(); } ///< Input calo regions from the RCT to the GCT.
+  // Collections for storing GCT input data.
+  L1GctFibreCollection* const gctFibres() const { return m_gctFibres.get(); }  ///< Raw fibre input to the GCT.
+  L1CaloEmCollection* const rctEm() const { return m_rctEm.get(); }  ///< Input electrons from the RCT to the GCT.
+  L1CaloRegionCollection* const rctCalo() const {
+    return m_rctCalo.get();
+  }  ///< Input calo regions from the RCT to the GCT.
 
   // GCT intermediate data
-  L1GctInternEmCandCollection * const gctInternEm() const { return m_gctInternEm.get(); }  ///< Internal EM candidate collection
-  L1GctInternJetDataCollection * const gctInternJets() const { return m_gctInternJets.get(); } ///< Internal Jet candidate collection
-  L1GctInternEtSumCollection * const gctInternEtSums() const { return m_gctInternEtSums.get(); } ///< Internal Et Sum collection
-  L1GctInternHFDataCollection * const gctInternHFData() const { return m_gctInternHFData.get(); } ///< Internal Hadronic-Forward bit-counts/ring-sums data collection
-  L1GctInternHtMissCollection * const gctInternHtMiss() const { return m_gctInternHtMiss.get(); } ///< Internal missing Ht collection
+  L1GctInternEmCandCollection* const gctInternEm() const {
+    return m_gctInternEm.get();
+  }  ///< Internal EM candidate collection
+  L1GctInternJetDataCollection* const gctInternJets() const {
+    return m_gctInternJets.get();
+  }  ///< Internal Jet candidate collection
+  L1GctInternEtSumCollection* const gctInternEtSums() const {
+    return m_gctInternEtSums.get();
+  }  ///< Internal Et Sum collection
+  L1GctInternHFDataCollection* const gctInternHFData() const {
+    return m_gctInternHFData.get();
+  }  ///< Internal Hadronic-Forward bit-counts/ring-sums data collection
+  L1GctInternHtMissCollection* const gctInternHtMiss() const {
+    return m_gctInternHtMiss.get();
+  }  ///< Internal missing Ht collection
 
   // GCT output data
-  L1GctEmCandCollection * const gctIsoEm() const { return m_gctIsoEm.get(); }  ///< GCT output: Isolated EM candidate collection
-  L1GctEmCandCollection * const gctNonIsoEm() const { return m_gctNonIsoEm.get(); } ///< GCT output: Non-isolated EM candidate collection
-  L1GctJetCandCollection * const gctCenJets() const { return m_gctCenJets.get(); } ///< GCT output: Central Jets collection
-  L1GctJetCandCollection * const gctForJets() const { return m_gctForJets.get(); } ///< GCT output: Forward Jets collection
-  L1GctJetCandCollection * const gctTauJets() const { return m_gctTauJets.get(); } ///< GCT output: Tau Jets collection
-  L1GctHFBitCountsCollection * const gctHfBitCounts() const { return m_gctHfBitCounts.get(); } ///< GCT output: Hadronic-Forward bit-counts collection
-  L1GctHFRingEtSumsCollection * const gctHfRingEtSums() const { return m_gctHfRingEtSums.get(); }  ///< GCT output: Hadronic-Forward ring-sums collection
-  L1GctEtTotalCollection * const gctEtTot() const { return m_gctEtTot.get(); }  ///< GCT output: Total Et collection
-  L1GctEtHadCollection * const gctEtHad() const { return m_gctEtHad.get(); }  ///< GCT output: Hadronic transverse-energy (Ht) collection
-  L1GctEtMissCollection * const gctEtMiss() const { return m_gctEtMiss.get(); }  ///< GCT output: Missing Et collection
-  L1GctHtMissCollection * const gctHtMiss() const { return m_gctHtMiss.get(); }  ///< GCT output: Missing Ht collection
-  L1GctJetCountsCollection * const gctJetCounts() const { return m_gctJetCounts.get(); } ///< DEPRECATED. ONLY GT NEEDS THIS.
+  L1GctEmCandCollection* const gctIsoEm() const {
+    return m_gctIsoEm.get();
+  }  ///< GCT output: Isolated EM candidate collection
+  L1GctEmCandCollection* const gctNonIsoEm() const {
+    return m_gctNonIsoEm.get();
+  }  ///< GCT output: Non-isolated EM candidate collection
+  L1GctJetCandCollection* const gctCenJets() const {
+    return m_gctCenJets.get();
+  }  ///< GCT output: Central Jets collection
+  L1GctJetCandCollection* const gctForJets() const {
+    return m_gctForJets.get();
+  }  ///< GCT output: Forward Jets collection
+  L1GctJetCandCollection* const gctTauJets() const { return m_gctTauJets.get(); }  ///< GCT output: Tau Jets collection
+  L1GctHFBitCountsCollection* const gctHfBitCounts() const {
+    return m_gctHfBitCounts.get();
+  }  ///< GCT output: Hadronic-Forward bit-counts collection
+  L1GctHFRingEtSumsCollection* const gctHfRingEtSums() const {
+    return m_gctHfRingEtSums.get();
+  }  ///< GCT output: Hadronic-Forward ring-sums collection
+  L1GctEtTotalCollection* const gctEtTot() const { return m_gctEtTot.get(); }  ///< GCT output: Total Et collection
+  L1GctEtHadCollection* const gctEtHad() const {
+    return m_gctEtHad.get();
+  }  ///< GCT output: Hadronic transverse-energy (Ht) collection
+  L1GctEtMissCollection* const gctEtMiss() const { return m_gctEtMiss.get(); }  ///< GCT output: Missing Et collection
+  L1GctHtMissCollection* const gctHtMiss() const { return m_gctHtMiss.get(); }  ///< GCT output: Missing Ht collection
+  L1GctJetCountsCollection* const gctJetCounts() const {
+    return m_gctJetCounts.get();
+  }  ///< DEPRECATED. ONLY GT NEEDS THIS.
 
   // Misc
-  L1TriggerErrorCollection * const errors() const { return m_errors.get(); }  ///< Unpack error code collection.
+  L1TriggerErrorCollection* const errors() const { return m_errors.get(); }  ///< Unpack error code collection.
 
 private:
+  GctUnpackCollections(const GctUnpackCollections&) = delete;  ///< Copy ctor - deliberately not implemented!
+  GctUnpackCollections& operator=(const GctUnpackCollections&) =
+      delete;  ///< Assignment op - deliberately not implemented!
 
-  GctUnpackCollections(const GctUnpackCollections&) = delete; ///< Copy ctor - deliberately not implemented!
-  GctUnpackCollections& operator=(const GctUnpackCollections&) = delete; ///< Assignment op - deliberately not implemented!  
+  edm::Event&
+      m_event;  ///< The event the collections will be put into on destruction of the GctUnpackCollections instance.
 
-  edm::Event& m_event;  ///< The event the collections will be put into on destruction of the GctUnpackCollections instance.
-
-  // Collections for storing GCT input data.  
+  // Collections for storing GCT input data.
   std::unique_ptr<L1GctFibreCollection> m_gctFibres;  ///< Raw fibre input to the GCT.
-  std::unique_ptr<L1CaloEmCollection> m_rctEm; ///< Input electrons.
-  std::unique_ptr<L1CaloRegionCollection> m_rctCalo; ///< Input calo regions.
+  std::unique_ptr<L1CaloEmCollection> m_rctEm;        ///< Input electrons.
+  std::unique_ptr<L1CaloRegionCollection> m_rctCalo;  ///< Input calo regions.
 
   // GCT intermediate data
-  std::unique_ptr<L1GctInternEmCandCollection> m_gctInternEm; 
-  std::unique_ptr<L1GctInternJetDataCollection> m_gctInternJets; 
-  std::unique_ptr<L1GctInternEtSumCollection> m_gctInternEtSums; 
-  std::unique_ptr<L1GctInternHFDataCollection> m_gctInternHFData; 
+  std::unique_ptr<L1GctInternEmCandCollection> m_gctInternEm;
+  std::unique_ptr<L1GctInternJetDataCollection> m_gctInternJets;
+  std::unique_ptr<L1GctInternEtSumCollection> m_gctInternEtSums;
+  std::unique_ptr<L1GctInternHFDataCollection> m_gctInternHFData;
   std::unique_ptr<L1GctInternHtMissCollection> m_gctInternHtMiss;
 
   // GCT output data
@@ -89,10 +116,9 @@ private:
   std::unique_ptr<L1GctEtMissCollection> m_gctEtMiss;
   std::unique_ptr<L1GctHtMissCollection> m_gctHtMiss;
   std::unique_ptr<L1GctJetCountsCollection> m_gctJetCounts;  // DEPRECATED. ONLY GT NEEDS THIS.
-  
+
   // Misc
   std::unique_ptr<L1TriggerErrorCollection> m_errors;
-
 };
 
 // Pretty print for the GctUnpackCollections sub-class

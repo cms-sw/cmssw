@@ -17,24 +17,24 @@ class G4Track;
  *  (in some cases it may even create the TrackInformation on-the-fly).
  */
 
-class TrackInformationExtractor 
-{
+class TrackInformationExtractor {
 public:
-    /** for a const G4Track pointer/reference a const TrackInformation&
+  /** for a const G4Track pointer/reference a const TrackInformation&
      *  is returned.
      */
-    const TrackInformation & operator()(const G4Track & gtk) const;
-    const TrackInformation & operator()(const G4Track * gtk) const { return operator()(*gtk); }
-    /** for a non-const G4Track pointer/reference the TrackInformation&
+  const TrackInformation& operator()(const G4Track& gtk) const;
+  const TrackInformation& operator()(const G4Track* gtk) const { return operator()(*gtk); }
+  /** for a non-const G4Track pointer/reference the TrackInformation&
      *  is also non-const.
      */
-    TrackInformation & operator()(G4Track & gtk) const;
-    TrackInformation & operator()(G4Track * gtk) const { return operator()(*gtk); }
+  TrackInformation& operator()(G4Track& gtk) const;
+  TrackInformation& operator()(G4Track* gtk) const { return operator()(*gtk); }
+
 private:
-    void missing(const G4Track & gtk) const 
-    { throw SimG4Exception("TrackInformationExtractor: G4Track has no TrackInformation"); }    
-    void wrongType() const
-    { throw SimG4Exception("User information in G4Track is not of TrackInformation type"); } 
+  void missing(const G4Track& gtk) const {
+    throw SimG4Exception("TrackInformationExtractor: G4Track has no TrackInformation");
+  }
+  void wrongType() const { throw SimG4Exception("User information in G4Track is not of TrackInformation type"); }
 };
 
 #endif

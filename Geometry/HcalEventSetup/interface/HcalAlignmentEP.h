@@ -15,7 +15,6 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentErrorExtendedRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 class HcalAlignmentEP : public edm::ESProducer {
 
@@ -32,6 +31,12 @@ public:
 //-------------------------------------------------------------------
  
   ReturnAli    produceHcalAli( const HcalAlignmentRcd& iRecord );
+
+private:
+  edm::ESGetToken<Alignments, HBAlignmentRcd> hbToken_;
+  edm::ESGetToken<Alignments, HEAlignmentRcd> heToken_;
+  edm::ESGetToken<Alignments, HFAlignmentRcd> hfToken_;
+  edm::ESGetToken<Alignments, HOAlignmentRcd> hoToken_;
 };
 
 #endif

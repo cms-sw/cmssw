@@ -32,14 +32,28 @@ void testCutTubs::matched_g4_and_dd(void) {
   array<double, 3> lowNorm = {{0, -0.7, -0.71}};
   array<double, 3> highNorm = {{0.7, 0, 0.71}};
 
-  G4CutTubs g4(name, rIn, rOut, zhalf, startPhi, deltaPhi,
+  G4CutTubs g4(name,
+               rIn,
+               rOut,
+               zhalf,
+               startPhi,
+               deltaPhi,
                G4ThreeVector(lowNorm[0], lowNorm[1], lowNorm[2]),
                G4ThreeVector(highNorm[0], highNorm[1], highNorm[2]));
-  DDI::CutTubs dd(zhalf, rIn, rOut, startPhi, deltaPhi, lowNorm[0], lowNorm[1],
-                  lowNorm[2], highNorm[0], highNorm[1], highNorm[2]);
-  DDCutTubs dds = DDSolidFactory::cuttubs(
-      name, zhalf, rIn, rOut, startPhi, deltaPhi, lowNorm[0], lowNorm[1],
-      lowNorm[2], highNorm[0], highNorm[1], highNorm[2]);
+  DDI::CutTubs dd(
+      zhalf, rIn, rOut, startPhi, deltaPhi, lowNorm[0], lowNorm[1], lowNorm[2], highNorm[0], highNorm[1], highNorm[2]);
+  DDCutTubs dds = DDSolidFactory::cuttubs(name,
+                                          zhalf,
+                                          rIn,
+                                          rOut,
+                                          startPhi,
+                                          deltaPhi,
+                                          lowNorm[0],
+                                          lowNorm[1],
+                                          lowNorm[2],
+                                          highNorm[0],
+                                          highNorm[1],
+                                          highNorm[2]);
   cout << endl;
   dd.stream(cout);
   cout << endl;

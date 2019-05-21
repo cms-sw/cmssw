@@ -2,7 +2,7 @@
 //
 // Package:     FastSimulation/Particle
 // Class  :     pdg_functions
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,17 +15,15 @@
 // user include files
 #include "FastSimulation/Particle/interface/pdg_functions.h"
 
-double 
-pdg::mass(int pdgID, HepPDT::ParticleDataTable const* theTable) {
+double pdg::mass(int pdgID, HepPDT::ParticleDataTable const* theTable) {
   auto info = theTable->particle(HepPDT::ParticleID(pdgID));
-  if(info) {
+  if (info) {
     return info->mass().value();
   }
   return kInvalidMass;
 }
 
-double 
-pdg::cTau(int pdgID, HepPDT::ParticleDataTable const* theTable) {
+double pdg::cTau(int pdgID, HepPDT::ParticleDataTable const* theTable) {
   auto info = theTable->particle(HepPDT::ParticleID(pdgID));
   double ct = kInvalidCtau;
   if (info) {
@@ -34,26 +32,26 @@ pdg::cTau(int pdgID, HepPDT::ParticleDataTable const* theTable) {
 
     // Get it from the width (apparently Gamma/c!)
     double w = info->totalWidth().value();
-    if ( w != 0. && pdgID != 1000022 ) { 
-      ct = 6.582119e-25 / w / 10.;   // ctau in cm 
+    if (w != 0. && pdgID != 1000022) {
+      ct = 6.582119e-25 / w / 10.;  // ctau in cm
     } else {
       // Temporary fix of a bug in the particle data table
       unsigned amyId = abs(pdgID);
-      if ( amyId != 22 &&    // photon 
-	   amyId != 11 &&    // e+/-
-	   amyId != 10 &&    // nu_e
-	   amyId != 12 &&    // nu_mu
-	   amyId != 14 &&    // nu_tau
-	   amyId != 1000022 && // Neutralino
-	   amyId != 1000039 && // Gravitino
-	   amyId != 2112 &&  // neutron/anti-neutron
-	   amyId != 2212 &&  // proton/anti-proton
-	   amyId != 101 &&   // Deutreron etc..
-	   amyId != 102 &&   // Deutreron etc..
-	   amyId != 103 &&   // Deutreron etc..
-	   amyId != 104 ) {  // Deutreron etc.. 
-	ct = 0.;
-	/* */
+      if (amyId != 22 &&       // photon
+          amyId != 11 &&       // e+/-
+          amyId != 10 &&       // nu_e
+          amyId != 12 &&       // nu_mu
+          amyId != 14 &&       // nu_tau
+          amyId != 1000022 &&  // Neutralino
+          amyId != 1000039 &&  // Gravitino
+          amyId != 2112 &&     // neutron/anti-neutron
+          amyId != 2212 &&     // proton/anti-proton
+          amyId != 101 &&      // Deutreron etc..
+          amyId != 102 &&      // Deutreron etc..
+          amyId != 103 &&      // Deutreron etc..
+          amyId != 104) {      // Deutreron etc..
+        ct = 0.;
+        /* */
       }
     }
   }
@@ -65,4 +63,3 @@ pdg::cTau(int pdgID, HepPDT::ParticleDataTable const* theTable) {
   */
   return ct;
 }
-

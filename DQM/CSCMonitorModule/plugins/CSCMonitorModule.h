@@ -16,7 +16,6 @@
  * =====================================================================================
  */
 
-
 #ifndef CSCMonitorModule_H
 #define CSCMonitorModule_H
 
@@ -59,11 +58,11 @@
 #include "CSCMonitorObject.h"
 
 /// Local Constants
-static const char INPUT_TAG_LABEL[]      = "source";
-static const char DIR_EVENTINFO[]        = "CSC/EventInfo/";
-static const char DIR_DCSINFO[]          = "CSC/EventInfo/DCSContents/";
-static const char DIR_DAQINFO[]          = "CSC/EventInfo/DAQContents/";
-static const char DIR_CRTINFO[]          = "CSC/EventInfo/CertificationContents/";
+static const char INPUT_TAG_LABEL[] = "source";
+static const char DIR_EVENTINFO[] = "CSC/EventInfo/";
+static const char DIR_DCSINFO[] = "CSC/EventInfo/DCSContents/";
+static const char DIR_DAQINFO[] = "CSC/EventInfo/DAQContents/";
+static const char DIR_CRTINFO[] = "CSC/EventInfo/CertificationContents/";
 
 static const unsigned int MIN_CRATE_ID = 1;
 static const unsigned int MAX_CRATE_ID = 60;
@@ -74,62 +73,56 @@ static const unsigned int MAX_DMB_SLOT = 10;
  * @class CSCMonitorModule
  * @brief Common CSC DQM Module that uses CSCDQM Framework  
  */
-class CSCMonitorModule: public DQMEDAnalyzer, public cscdqm::MonitorObjectProvider {
- 
+class CSCMonitorModule : public DQMEDAnalyzer, public cscdqm::MonitorObjectProvider {
   /**
    * Global stuff
    */
 
-  public:
+public:
+  CSCMonitorModule(const edm::ParameterSet& ps);
+  ~CSCMonitorModule() override;
 
-    CSCMonitorModule(const edm::ParameterSet& ps);
-    ~CSCMonitorModule() override;
+private:
+  cscdqm::Configuration config;
+  cscdqm::Dispatcher* dispatcher;
+  // DQMStore                 *dbe;
+  DQMStore::IBooker* ibooker;
+  edm::InputTag inputTag;
+  bool prebookEffParams;
+  bool processDcsScalers;
 
-  private:
+  /** Pointer to crate mapping from database **/
+  const CSCCrateMap* pcrate;
 
-    cscdqm::Configuration     config;
-    cscdqm::Dispatcher       *dispatcher;
-    // DQMStore                 *dbe;
-    DQMStore::IBooker	      *ibooker;
-    edm::InputTag             inputTag;
-    bool                      prebookEffParams;
-    bool                      processDcsScalers;
-
-    /** Pointer to crate mapping from database **/
-    const CSCCrateMap* pcrate;
-
-    std::vector<std::string> maskedHW;
+  std::vector<std::string> maskedHW;
 
 #ifdef DQMGLOBAL
-    edm::EDGetTokenT<DcsStatusCollection> dcstoken;
+  edm::EDGetTokenT<DcsStatusCollection> dcstoken;
 #endif
 
   /**
    * MonitorObjectProvider Implementation
    */
 
-  public:
-
-    bool getCSCDetId(const unsigned int crateId, const unsigned int dmbId, CSCDetId& detId) const override  {
-      // Check parameter values
-      if (crateId < MIN_CRATE_ID || crateId > MAX_CRATE_ID || dmbId < MIN_DMB_SLOT || dmbId > MAX_DMB_SLOT) {
-        return false;
-      }
-      detId = pcrate->detId(crateId, dmbId, 0, 0);
-      return (detId.rawId() != 0);
+public:
+  bool getCSCDetId(const unsigned int crateId, const unsigned int dmbId, CSCDetId& detId) const override {
+    // Check parameter values
+    if (crateId < MIN_CRATE_ID || crateId > MAX_CRATE_ID || dmbId < MIN_DMB_SLOT || dmbId > MAX_DMB_SLOT) {
+      return false;
     }
+    detId = pcrate->detId(crateId, dmbId, 0, 0);
+    return (detId.rawId() != 0);
+  }
 
-    cscdqm::MonitorObject *bookMonitorObject (const cscdqm::HistoBookRequest& p_req) override;
+  cscdqm::MonitorObject* bookMonitorObject(const cscdqm::HistoBookRequest& p_req) override;
 
   /** 
    * EDAnalyzer Implementation
-   */ 
+   */
 
-  protected:
-
-    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-
+protected:
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 };
 
 #endif

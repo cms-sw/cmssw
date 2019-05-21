@@ -13,4 +13,3 @@
 typedef G4THitsCollection<BscG4Hit> BscG4HitCollection;
 
 #endif
-

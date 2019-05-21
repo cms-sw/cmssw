@@ -56,21 +56,13 @@ public:
   int geomWireChannel(const CSCDetId &id, int iraw) const { return iraw; }
 
   /// Alias for rawStripChannel
-  int rawCathodeChannel(const CSCDetId &id, int igeom) const {
-    return rawStripChannel(id, igeom);
-  }
+  int rawCathodeChannel(const CSCDetId &id, int igeom) const { return rawStripChannel(id, igeom); }
   /// Alias for rawWireChannel
-  int rawAnodeChannel(const CSCDetId &id, int igeom) const {
-    return rawWireChannel(id, igeom);
-  }
+  int rawAnodeChannel(const CSCDetId &id, int igeom) const { return rawWireChannel(id, igeom); }
   /// Alias for geomStripChannel
-  int geomCathodeChannel(const CSCDetId &id, int iraw) const {
-    return geomStripChannel(id, iraw);
-  }
+  int geomCathodeChannel(const CSCDetId &id, int iraw) const { return geomStripChannel(id, iraw); }
   /// Alias for geomWireChannel
-  int geomAnodeChannel(const CSCDetId &id, int iraw) const {
-    return geomWireChannel(id, iraw);
-  }
+  int geomAnodeChannel(const CSCDetId &id, int iraw) const { return geomWireChannel(id, iraw); }
 
   /// Offline conversion of a strip (geometric labelling) back to channel
   /// (At present this just has to convert the 48 strips of ME1A to 16 ganged

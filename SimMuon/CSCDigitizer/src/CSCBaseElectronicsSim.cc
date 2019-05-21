@@ -13,32 +13,33 @@
 #include <list>
 
 CSCBaseElectronicsSim::CSCBaseElectronicsSim(const edm::ParameterSet &p)
-    : theSpecs(nullptr), theLayerGeometry(nullptr), theLayer(nullptr),
-      theSignalMap(), theAmpResponse(), theBunchSpacing(25.),
-      theNoiseWasAdded(false), nElements(0),
+    : theSpecs(nullptr),
+      theLayerGeometry(nullptr),
+      theLayer(nullptr),
+      theSignalMap(),
+      theAmpResponse(),
+      theBunchSpacing(25.),
+      theNoiseWasAdded(false),
+      nElements(0),
       theShapingTime(p.getParameter<int>("shapingTime")),
       thePeakTimeSigma(p.getParameter<double>("peakTimeSigma")),
-      theBunchTimingOffsets(
-          p.getParameter<std::vector<double>>("bunchTimingOffsets")),
+      theBunchTimingOffsets(p.getParameter<std::vector<double>>("bunchTimingOffsets")),
       theSignalStartTime(p.getParameter<double>("signalStartTime")),
       theSignalStopTime(p.getParameter<double>("signalStopTime")),
       theSamplingTime(p.getParameter<double>("samplingTime")),
-      theNumberOfSamples(static_cast<int>(
-          (theSignalStopTime - theSignalStartTime) / theSamplingTime)),
+      theNumberOfSamples(static_cast<int>((theSignalStopTime - theSignalStartTime) / theSamplingTime)),
       theOffsetOfBxZero(p.getParameter<int>("timeBitForBxZero")),
-      theSignalPropagationSpeed(
-          p.getParameter<std::vector<double>>("signalSpeed")),
-      theTimingCalibrationError(
-          p.getParameter<std::vector<double>>("timingCalibrationError")),
+      theSignalPropagationSpeed(p.getParameter<std::vector<double>>("signalSpeed")),
+      theTimingCalibrationError(p.getParameter<std::vector<double>>("timingCalibrationError")),
       doNoise_(p.getParameter<bool>("doNoise")) {
   assert(theBunchTimingOffsets.size() == 11);
 }
 
 CSCBaseElectronicsSim::~CSCBaseElectronicsSim() {}
 
-void CSCBaseElectronicsSim::simulate(
-    const CSCLayer *layer, const std::vector<CSCDetectorHit> &detectorHits,
-    CLHEP::HepRandomEngine *engine) {
+void CSCBaseElectronicsSim::simulate(const CSCLayer *layer,
+                                     const std::vector<CSCDetectorHit> &detectorHits,
+                                     CLHEP::HepRandomEngine *engine) {
   theNoiseWasAdded = false;
 
   {
@@ -91,17 +92,13 @@ void CSCBaseElectronicsSim::fillAmpResponse() {
   ampBinValues.resize(i);
   theAmpResponse = CSCAnalogSignal(0, theSamplingTime, ampBinValues, 1., 0.);
 
-  LogTrace("CSCBaseElectronicsSim")
-      << "CSCBaseElectronicsSim: dump of theAmpResponse follows...\n"
-      << theAmpResponse;
+  LogTrace("CSCBaseElectronicsSim") << "CSCBaseElectronicsSim: dump of theAmpResponse follows...\n" << theAmpResponse;
 }
 
-CSCAnalogSignal
-CSCBaseElectronicsSim::amplifySignal(const CSCDetectorHit &detectorHit) {
+CSCAnalogSignal CSCBaseElectronicsSim::amplifySignal(const CSCDetectorHit &detectorHit) {
   int element = readoutElement(detectorHit.getElement());
 
-  float readoutTime =
-      detectorHit.getTime() + signalDelay(element, detectorHit.getPosition());
+  float readoutTime = detectorHit.getTime() + signalDelay(element, detectorHit.getPosition());
 
   // start from the amp response, and modify it.
   CSCAnalogSignal thisSignal(theAmpResponse);
@@ -109,39 +106,32 @@ CSCBaseElectronicsSim::amplifySignal(const CSCDetectorHit &detectorHit) {
   thisSignal.setTimeOffset(readoutTime);
   thisSignal.setElement(element);
   // keep track of links between digis and hits
-  theDetectorHitMap.insert(
-      DetectorHitMap::value_type(channelIndex(element), detectorHit));
+  theDetectorHitMap.insert(DetectorHitMap::value_type(channelIndex(element), detectorHit));
   return thisSignal;
 }
 
-CSCAnalogSignal
-CSCBaseElectronicsSim::makeNoiseSignal(int element, CLHEP::HepRandomEngine *) {
+CSCAnalogSignal CSCBaseElectronicsSim::makeNoiseSignal(int element, CLHEP::HepRandomEngine *) {
   std::vector<float> binValues(theNumberOfSamples);
   // default is empty
-  return CSCAnalogSignal(element, theSamplingTime, binValues, 0.,
-                         theSignalStartTime);
+  return CSCAnalogSignal(element, theSamplingTime, binValues, 0., theSignalStartTime);
 }
 
 void CSCBaseElectronicsSim::addNoise(CLHEP::HepRandomEngine *engine) {
-  for (CSCSignalMap::iterator mapI = theSignalMap.begin();
-       mapI != theSignalMap.end(); ++mapI) {
+  for (CSCSignalMap::iterator mapI = theSignalMap.begin(); mapI != theSignalMap.end(); ++mapI) {
     // superimpose electronics noise
     (*mapI).second.superimpose(makeNoiseSignal((*mapI).first, engine));
     // DON'T do amp gain variations.  Handled in strips by calibration code
     // and variations in the shaper peaking time.
-    double timeOffset = CLHEP::RandGaussQ::shoot(
-        engine, (*mapI).second.getTimeOffset(), thePeakTimeSigma);
+    double timeOffset = CLHEP::RandGaussQ::shoot(engine, (*mapI).second.getTimeOffset(), thePeakTimeSigma);
     (*mapI).second.setTimeOffset(timeOffset);
   }
   theNoiseWasAdded = true;
 }
 
-CSCAnalogSignal &CSCBaseElectronicsSim::find(int element,
-                                             CLHEP::HepRandomEngine *engine) {
+CSCAnalogSignal &CSCBaseElectronicsSim::find(int element, CLHEP::HepRandomEngine *engine) {
   if (element <= 0 || element > nElements) {
-    LogTrace("CSCBaseElectronicsSim")
-        << "CSCBaseElectronicsSim: bad element = " << element << ". There are "
-        << nElements << " elements.";
+    LogTrace("CSCBaseElectronicsSim") << "CSCBaseElectronicsSim: bad element = " << element << ". There are "
+                                      << nElements << " elements.";
     edm::LogError("Error in CSCBaseElectronicsSim:  element out of bounds");
   }
   CSCSignalMap::iterator signalMapItr = theSignalMap.find(element);
@@ -151,18 +141,14 @@ CSCAnalogSignal &CSCBaseElectronicsSim::find(int element,
       newSignal = makeNoiseSignal(element, engine);
     } else {
       std::vector<float> emptyV(theNumberOfSamples);
-      newSignal = CSCAnalogSignal(element, theSamplingTime, emptyV, 0.,
-                                  theSignalStartTime);
+      newSignal = CSCAnalogSignal(element, theSamplingTime, emptyV, 0., theSignalStartTime);
     }
-    signalMapItr =
-        theSignalMap.insert(std::pair<int, CSCAnalogSignal>(element, newSignal))
-            .first;
+    signalMapItr = theSignalMap.insert(std::pair<int, CSCAnalogSignal>(element, newSignal)).first;
   }
   return (*signalMapItr).second;
 }
 
-CSCAnalogSignal &CSCBaseElectronicsSim::add(const CSCAnalogSignal &signal,
-                                            CLHEP::HepRandomEngine *engine) {
+CSCAnalogSignal &CSCBaseElectronicsSim::add(const CSCAnalogSignal &signal, CLHEP::HepRandomEngine *engine) {
   int element = signal.getElement();
   CSCAnalogSignal &newSignal = find(element, engine);
   newSignal.superimpose(signal);
@@ -186,15 +172,13 @@ void CSCBaseElectronicsSim::addLinks(int channelIndex) {
   std::map<int, float> simTrackChargeMap;
   std::map<int, EncodedEventId> eventIdMap;
   float totalCharge = 0;
-  for (DetectorHitMap::iterator hitItr = channelHitItr.first;
-       hitItr != channelHitItr.second; ++hitItr) {
+  for (DetectorHitMap::iterator hitItr = channelHitItr.first; hitItr != channelHitItr.second; ++hitItr) {
     const PSimHit *hit = hitItr->second.getSimHit();
     // might be zero for unit tests and such
     if (hit != nullptr) {
       int simTrackId = hitItr->second.getSimHit()->trackId();
       float charge = hitItr->second.getCharge();
-      std::map<int, float>::iterator chargeItr =
-          simTrackChargeMap.find(simTrackId);
+      std::map<int, float>::iterator chargeItr = simTrackChargeMap.find(simTrackId);
       if (chargeItr == simTrackChargeMap.end()) {
         simTrackChargeMap[simTrackId] = charge;
         eventIdMap[simTrackId] = hit->eventId();
@@ -205,11 +189,10 @@ void CSCBaseElectronicsSim::addLinks(int channelIndex) {
     }
   }
 
-  for (std::map<int, float>::iterator chargeItr = simTrackChargeMap.begin();
-       chargeItr != simTrackChargeMap.end(); ++chargeItr) {
+  for (std::map<int, float>::iterator chargeItr = simTrackChargeMap.begin(); chargeItr != simTrackChargeMap.end();
+       ++chargeItr) {
     int simTrackId = chargeItr->first;
     theDigiSimLinks.push_back(
-        StripDigiSimLink(channelIndex, simTrackId, eventIdMap[simTrackId],
-                         chargeItr->second / totalCharge));
+        StripDigiSimLink(channelIndex, simTrackId, eventIdMap[simTrackId], chargeItr->second / totalCharge));
   }
 }

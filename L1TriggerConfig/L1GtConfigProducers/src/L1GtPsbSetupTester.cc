@@ -31,26 +31,20 @@
 // forward declarations
 
 // constructor(s)
-L1GtPsbSetupTester::L1GtPsbSetupTester(const edm::ParameterSet& parSet)
-{
-    // empty
+L1GtPsbSetupTester::L1GtPsbSetupTester(const edm::ParameterSet& parSet) {
+  // empty
 }
 
 // destructor
-L1GtPsbSetupTester::~L1GtPsbSetupTester()
-{
-    // empty
+L1GtPsbSetupTester::~L1GtPsbSetupTester() {
+  // empty
 }
 
 // loop over events
-void L1GtPsbSetupTester::analyze(
-    const edm::Event& iEvent, const edm::EventSetup& evSetup)
-{
+void L1GtPsbSetupTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  edm::ESHandle<L1GtPsbSetup> l1GtPsbSet;
+  evSetup.get<L1GtPsbSetupRcd>().get(l1GtPsbSet);
 
-    edm::ESHandle< L1GtPsbSetup > l1GtPsbSet ;
-    evSetup.get< L1GtPsbSetupRcd >().get( l1GtPsbSet ) ;
-
-    l1GtPsbSet->print(std::cout);
-    std::cout << std::endl;
-
+  l1GtPsbSet->print(std::cout);
+  std::cout << std::endl;
 }

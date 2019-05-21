@@ -1,4 +1,3 @@
-#include "Geometry/MTDNumberingBuilder/plugins/MTDGeometricTimingDetExtraESModule.h"
 #include "Geometry/MTDNumberingBuilder/plugins/DDDCmsMTDConstruction.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDet.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDetExtra.h"
@@ -15,16 +14,45 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
+#include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDetExtra.h"
 
 
 #include <memory>
+
+class  MTDGeometricTimingDetExtraESModule: public edm::ESProducer {
+
+ public:
+  MTDGeometricTimingDetExtraESModule(const edm::ParameterSet & p);
+  ~MTDGeometricTimingDetExtraESModule() override; 
+  std::unique_ptr<std::vector<GeometricTimingDetExtra> > produce(const IdealGeometryRecord &);
+
+ protected:
+
+ private:
+  void putOne(std::vector<GeometricTimingDetExtra> & gde, const GeometricTimingDet* gd, const DDExpandedView& ev, int lev );
+
+  edm::ESGetToken<GeometricTimingDet,IdealGeometryRecord> timingDetToken_;
+  edm::ESGetToken<DDCompactView,IdealGeometryRecord> compactViewToken_;
+  edm::ESGetToken<PGeometricTimingDetExtra, PGeometricTimingDetExtraRcd> pTimingDetExtraToken_;
+  const bool fromDDD_;
+
+};
 
 using namespace edm;
 
 MTDGeometricTimingDetExtraESModule::MTDGeometricTimingDetExtraESModule(const edm::ParameterSet & p) 
   : fromDDD_(p.getParameter<bool>("fromDDD")) 
 {
-  setWhatProduced(this);
+  auto cc = setWhatProduced(this);
+  const edm::ESInputTag kEmptyTag;
+  timingDetToken_=cc.consumes<GeometricTimingDet>(kEmptyTag);
+  if(fromDDD_) {
+    compactViewToken_ = cc.consumes<DDCompactView>(kEmptyTag);
+  } else {
+    pTimingDetExtraToken_ = cc.consumesFrom<PGeometricTimingDetExtra, PGeometricTimingDetExtraRcd>(kEmptyTag);
+  }
 }
 
 MTDGeometricTimingDetExtraESModule::~MTDGeometricTimingDetExtraESModule() {}
@@ -33,56 +61,53 @@ std::unique_ptr<std::vector<GeometricTimingDetExtra> >
 MTDGeometricTimingDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
   auto gde = std::make_unique<std::vector<GeometricTimingDetExtra> >();
   // get the GeometricTimingDet which has a nav_type
-  edm::ESHandle<GeometricTimingDet> gd;
-  iRecord.get ( gd );
+  auto const& gd = iRecord.get ( timingDetToken_ );
   if (fromDDD_) {
   // traverse all components from the tracker down;
   // read the DD if from DD
-    const GeometricTimingDet* tracker = &(*gd);
-    edm::ESTransientHandle<DDCompactView> cpv;
-    iRecord.get( cpv );
+    const GeometricTimingDet* tracker = &(gd);
+    auto cpv = iRecord.getTransientHandle( compactViewToken_ );
     DDExpandedView ev(*cpv);
     ev.goTo(tracker->navType());
     putOne((*gde), tracker, ev, 0);
-    std::vector<const GeometricTimingDet*> tc = tracker->components();    
     int count=0;
     int lev = 1;
     //  CmsMTDStringToEnum ctst
     gde->reserve(tracker->deepComponents().size());
-    for( const auto* git : tc ) {
+    for( const auto* git : tracker->components() ) {
       ev.goTo(git->navType());
       putOne((*gde), git, ev, lev);
-      std::vector<const GeometricTimingDet*> inone = git->components();
+      std::vector<const GeometricTimingDet*> const& inone = git->components();
       if ( inone.empty() )  ++count;
       ++lev;
       for( const auto* git2 : inone ) {
 	ev.goTo(git2->navType());
 	putOne((*gde), git2, ev, lev);
-	std::vector<const GeometricTimingDet*> intwo= git2->components();
+	std::vector<const GeometricTimingDet*> const& intwo= git2->components();
 	if ( intwo.empty() )  ++count;
 	++lev;
 	for( const auto* git3 : intwo ) {
 	  ev.goTo(git3->navType());
 	  putOne((*gde), git3, ev, lev);
-	  std::vector<const GeometricTimingDet*> inthree= git3->components();
+	  std::vector<const GeometricTimingDet*> const& inthree= git3->components();
 	  if ( inthree.empty() )  ++count;
 	  ++lev;
 	  for( const auto* git4 : inthree ) {
 	    ev.goTo(git4->navType());
 	    putOne((*gde), git4, ev, lev);
-	    std::vector<const GeometricTimingDet*> infour= git4->components();
+	    std::vector<const GeometricTimingDet*> const& infour= git4->components();
 	    if ( infour.empty() )  ++count;
 	    ++lev;
 	    for( const auto* git5 : infour ) {
 	      ev.goTo(git5->navType());
 	      putOne((*gde), git5, ev, lev);
-	      std::vector<const GeometricTimingDet*> infive= git5->components();
+	      std::vector<const GeometricTimingDet*> const& infive= git5->components();
 	      if ( infive.empty() )  ++count;
 	      ++lev;
 	      for( const auto* git6 : infive ) {
 		ev.goTo(git6->navType());
 		putOne((*gde), git6, ev, lev);
-		std::vector<const GeometricTimingDet*> insix= git6->components();
+		std::vector<const GeometricTimingDet*> const& insix= git6->components();
 		if ( insix.empty() ){
 		  ++count;
 		} else {
@@ -101,28 +126,21 @@ MTDGeometricTimingDetExtraESModule::produce(const IdealGeometryRecord & iRecord)
     }
   }else{
     // if it is not from the DD, then just get the GDE from ES and match w/ GD.
-    edm::ESHandle<PGeometricTimingDetExtra> pgde;
-    iRecord.getRecord<PGeometricTimingDetExtraRcd>().get(pgde);
+    PGeometricTimingDetExtra const& pgde = iRecord.get( pTimingDetExtraToken_ );
     std::map<uint32_t, const GeometricTimingDet*> helperMap;
-    const GeometricTimingDet* tracker = &(*gd);
-    helperMap[gd->geographicalID()] = tracker;
-    std::vector<const GeometricTimingDet*> tc = tracker->components();
-    for( const auto* git : tc ) { // level 1
+    const GeometricTimingDet* tracker = &gd;
+    helperMap[gd.geographicalID()] = tracker;
+    for( const auto* git : tracker->components() ) { // level 1
       helperMap[git->geographicalID()] = git;
-      std::vector<const GeometricTimingDet*> inone = git->components();
-      for( const auto* git2 : inone ) { // level 2
+      for( const auto* git2 : git->components() ) { // level 2
 	helperMap[git2->geographicalID()] = git2;
-	std::vector<const GeometricTimingDet*> intwo= git2->components();
-	for( const auto* git3 : intwo ) { // level 3
+	for( const auto* git3 : git2->components() ) { // level 3
 	  helperMap[git3->geographicalID()] = git3;
-	  std::vector<const GeometricTimingDet*> inthree= git3->components();
-	  for( const auto* git4 : inthree ) { // level 4
+	  for( const auto* git4 : git3->components() ) { // level 4
 	    helperMap[git4->geographicalID()] = git4;
-	    std::vector<const GeometricTimingDet*> infour= git4->components();
-	    for( const auto* git5 : infour ) { // level 5
+	    for( const auto* git5 : git4->components() ) { // level 5
 	      helperMap[git5->geographicalID()] = git5;
-	      std::vector<const GeometricTimingDet*> infive= git5->components();
-	      for( const auto* git6 : infive ) { // level 6
+	      for( const auto* git6 : git5->components() ) { // level 6
 		helperMap[git6->geographicalID()] = git6;
 		if ( !git6->components().empty() ){
 		  edm::LogError("GeometricTimingDetExtra") << "Hierarchy has exceeded hard-coded level of 6 for Tracker " ;
@@ -134,7 +152,7 @@ MTDGeometricTimingDetExtraESModule::produce(const IdealGeometryRecord & iRecord)
       } // level 2
     }
   
-    const std::vector<PGeometricTimingDetExtra::Item>& pgdes = pgde->pgdes_;
+    const std::vector<PGeometricTimingDetExtra::Item>& pgdes = pgde.pgdes_;
     gde->reserve(pgdes.size());
     std::vector<DDExpandedNode> evs; //EMPTY
     std::string nm; //EMPTY

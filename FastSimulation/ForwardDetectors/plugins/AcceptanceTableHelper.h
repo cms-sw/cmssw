@@ -24,33 +24,31 @@
 
 #include <string>
 
-class AcceptanceTableHelper
-{
+class AcceptanceTableHelper {
 public:
-
   /// Default constructor
-  AcceptanceTableHelper() : h_log10t_log10Xi_Phi(nullptr),h_t_log10Xi_Phi(nullptr) {;}
-  
+  AcceptanceTableHelper() : h_log10t_log10Xi_Phi(nullptr), h_t_log10Xi_Phi(nullptr) { ; }
+
   /// Delete acceptance histograms
-  ~AcceptanceTableHelper() { 
-    if (h_log10t_log10Xi_Phi) delete h_log10t_log10Xi_Phi;
-    if (h_t_log10Xi_Phi) delete h_t_log10Xi_Phi;
+  ~AcceptanceTableHelper() {
+    if (h_log10t_log10Xi_Phi)
+      delete h_log10t_log10Xi_Phi;
+    if (h_t_log10Xi_Phi)
+      delete h_t_log10Xi_Phi;
   }
 
   /// Get acceptance tables from root file
-  void Init(TFile&, const std::string);
+  void Init(TFile &, const std::string);
 
   /// Acceptance as a function of t, xi and phi
   float GetAcceptance(float, float, float);
-  
-private:
 
+private:
   /// Table for  low t: acceptance as a function of log10(t), log10(Xi) and Phi
   TH3F *h_log10t_log10Xi_Phi;
 
   /// Table for high t: acceptance as a function of -t, log10(Xi) and Phi
   TH3F *h_t_log10Xi_Phi;
-
 };
 
 #endif

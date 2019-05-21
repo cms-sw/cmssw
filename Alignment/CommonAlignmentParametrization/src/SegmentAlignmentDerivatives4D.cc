@@ -8,9 +8,7 @@
 
 #include "Alignment/CommonAlignmentParametrization/interface/SegmentAlignmentDerivatives4D.h"
 
-AlgebraicMatrix SegmentAlignmentDerivatives4D::
-operator()(const TrajectoryStateOnSurface &tsos) const {
-
+AlgebraicMatrix SegmentAlignmentDerivatives4D::operator()(const TrajectoryStateOnSurface &tsos) const {
   // Get track parameters on surface
   AlgebraicVector5 alivec = tsos.localParameters().mixedFormatVector();
 
@@ -49,8 +47,8 @@ operator()(const TrajectoryStateOnSurface &tsos) const {
   aliderivs[3][2] = 0;
   aliderivs[3][3] = 1.0;
   // beta
-  aliderivs[4][0] = -ux * tanpsi;   // New beta sign convention
-  aliderivs[4][1] = -ux * tantheta; // New beta sign convention
+  aliderivs[4][0] = -ux * tanpsi;    // New beta sign convention
+  aliderivs[4][1] = -ux * tantheta;  // New beta sign convention
   aliderivs[4][2] = -1.0;
   aliderivs[4][3] = 0.0;
   // gamma

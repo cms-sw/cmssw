@@ -6,7 +6,6 @@
 
 #include "G4LogicalVolume.hh"
 
-typedef DDMapper<G4LogicalVolume *, DDLogicalPart>
-    G4LogicalVolumeToDDLogicalPartMap;
+typedef DDMapper<G4LogicalVolume *, DDLogicalPart> G4LogicalVolumeToDDLogicalPartMap;
 
 #endif

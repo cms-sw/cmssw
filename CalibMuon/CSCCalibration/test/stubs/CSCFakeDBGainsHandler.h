@@ -16,17 +16,16 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 namespace popcon {
-class CSCFakeDBGainsImpl : public popcon::PopConSourceHandler<CSCDBGains> {
+  class CSCFakeDBGainsImpl : public popcon::PopConSourceHandler<CSCDBGains> {
+  public:
+    void getNewObjects();
+    std::string id() const { return m_name; }
+    ~CSCFakeDBGainsImpl();
 
-public:
-  void getNewObjects();
-  std::string id() const { return m_name; }
-  ~CSCFakeDBGainsImpl();
+    CSCFakeDBGainsImpl(const edm::ParameterSet &pset);
 
-  CSCFakeDBGainsImpl(const edm::ParameterSet &pset);
-
-private:
-  std::string m_name;
-};
-} // namespace popcon
+  private:
+    std::string m_name;
+  };
+}  // namespace popcon
 #endif

@@ -42,21 +42,16 @@ void printDt(double x, double alpha, double Bwire, double Bnorm, int ifl) {
   //  DRIFT_TIME * DT;
   DTDriftTimeParametrization::drift_time DT;
   static const DTDriftTimeParametrization p;
-  unsigned short status =
-      p.MB_DT_drift_time(x, alpha, Bwire, Bnorm, ifl, &DT, interpolate);
+  unsigned short status = p.MB_DT_drift_time(x, alpha, Bwire, Bnorm, ifl, &DT, interpolate);
 
-  std::cout << "(x = " << x << ", alpha = " << alpha << ", Bwire = " << Bwire
-            << ", Bnorm = " << Bnorm << ", ifl = " << ifl << "):" << std::endl
-            << "\tt_drift (ns) = " << DT.t_drift
-            << " t_width_m = " << DT.t_width_m
-            << " t_width_p = " << DT.t_width_p
-            << " v_drift (ns) = " << DT.v_drift << " status " << status
-            << std::endl;
+  std::cout << "(x = " << x << ", alpha = " << alpha << ", Bwire = " << Bwire << ", Bnorm = " << Bnorm
+            << ", ifl = " << ifl << "):" << std::endl
+            << "\tt_drift (ns) = " << DT.t_drift << " t_width_m = " << DT.t_width_m << " t_width_p = " << DT.t_width_p
+            << " v_drift (ns) = " << DT.v_drift << " status " << status << std::endl;
 
-} // end printDt()
+}  // end printDt()
 
 int main() {
-
   average();
 
   std::cout << "Enter x(mm), alpha(deg), Bwire(T), Bnorm(T), ifl(0=x from "

@@ -31,28 +31,24 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 class L1TObjectsTiming : public DQMEDAnalyzer {
-
- public:
-
+public:
   L1TObjectsTiming(const edm::ParameterSet& ps);
   ~L1TObjectsTiming() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- protected:
-
+protected:
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:  
-
+private:
   edm::EDGetTokenT<l1t::MuonBxCollection> ugmtMuonToken_;
   edm::EDGetTokenT<l1t::JetBxCollection> stage2CaloLayer2JetToken_;
   edm::EDGetTokenT<l1t::EGammaBxCollection> stage2CaloLayer2EGammaToken_;
   edm::EDGetTokenT<l1t::TauBxCollection> stage2CaloLayer2TauToken_;
   edm::EDGetTokenT<l1t::EtSumBxCollection> stage2CaloLayer2EtSumToken_;
 
-  edm::EDGetTokenT<GlobalAlgBlkBxCollection> l1tStage2uGtProducer_; // input tag for L1 uGT DAQ readout record
+  edm::EDGetTokenT<GlobalAlgBlkBxCollection> l1tStage2uGtProducer_;  // input tag for L1 uGT DAQ readout record
 
   std::string monitorDir_;
   bool verbose_;
@@ -67,7 +63,7 @@ class L1TObjectsTiming : public DQMEDAnalyzer {
   const std::string algoNameFirstBxInTrain_;
   const std::string algoNameLastBxInTrain_;
   const std::string algoNameIsoBx_;
-  const unsigned int bxrange_; //this is the out bx range
+  const unsigned int bxrange_;  //this is the out bx range
 
   unsigned int useAlgoDecision_;
 
@@ -78,8 +74,8 @@ class L1TObjectsTiming : public DQMEDAnalyzer {
   double etsumPtCut_;
   double muonPtCut_;
   int muonQualCut_;
-  
-//---------Histograms booking---------
+
+  //---------Histograms booking---------
   // All bunches
   std::vector<MonitorElement*> muons_eta_phi;
   std::vector<MonitorElement*> jet_eta_phi;
@@ -162,7 +158,7 @@ class L1TObjectsTiming : public DQMEDAnalyzer {
   MonitorElement* denominator_etsum_lastbunch_METHF;
   MonitorElement* denominator_etsum_lastbunch_MHT;
   MonitorElement* denominator_etsum_lastbunch_MHTHF;
- 
+
   std::vector<MonitorElement*> egamma_iso_bx_ieta_lastbunch;
   std::vector<MonitorElement*> egamma_noniso_bx_ieta_lastbunch;
 };

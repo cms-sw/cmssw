@@ -12,13 +12,11 @@
 #include "G4SystemOfUnits.hh"
 #include "G4TransportationProcessType.hh"
 
-ElectronLimiter::ElectronLimiter(const edm::ParameterSet & p)
- : G4VDiscreteProcess("eLimiter", fGeneral)
-{
+ElectronLimiter::ElectronLimiter(const edm::ParameterSet& p) : G4VDiscreteProcess("eLimiter", fGeneral) {
   // set Process Sub Type
   SetProcessSubType(static_cast<int>(STEP_LIMITER));
 
-  minStepLimit = p.getParameter<double>("MinStepLimit")*mm;
+  minStepLimit = p.getParameter<double>("MinStepLimit") * mm;
   rangeCheckFlag = false;
   fieldCheckFlag = false;
   killTrack = false;
@@ -27,11 +25,9 @@ ElectronLimiter::ElectronLimiter(const edm::ParameterSet & p)
   particle = nullptr;
 }
 
-ElectronLimiter::~ElectronLimiter() 
-{}
+ElectronLimiter::~ElectronLimiter() {}
 
-void ElectronLimiter::BuildPhysicsTable(const G4ParticleDefinition& part)
-{
+void ElectronLimiter::BuildPhysicsTable(const G4ParticleDefinition& part) {
   particle = &part;
   fIonisation = G4LossTableManager::Instance()->GetEnergyLossProcess(particle);
   /*
@@ -42,40 +38,35 @@ void ElectronLimiter::BuildPhysicsTable(const G4ParticleDefinition& part)
   */
 }
 
-G4double 
-ElectronLimiter::PostStepGetPhysicalInteractionLength(const G4Track& aTrack,
-						      G4double, 
-						      G4ForceCondition* condition)
-{
+G4double ElectronLimiter::PostStepGetPhysicalInteractionLength(const G4Track& aTrack,
+                                                               G4double,
+                                                               G4ForceCondition* condition) {
   *condition = NotForced;
-  
-  G4double limit = DBL_MAX; 
+
+  G4double limit = DBL_MAX;
   killTrack = false;
 
-  if(rangeCheckFlag) {
+  if (rangeCheckFlag) {
     G4double safety = aTrack.GetStep()->GetPreStepPoint()->GetSafety();
-    if(safety > minStepLimit) {
+    if (safety > minStepLimit) {
       G4double kinEnergy = aTrack.GetKineticEnergy();
-      G4double range = fIonisation->GetRangeForLoss(kinEnergy,
-						    aTrack.GetMaterialCutsCouple());
-      if(safety >= range) { 
-	killTrack = true; 
+      G4double range = fIonisation->GetRangeForLoss(kinEnergy, aTrack.GetMaterialCutsCouple());
+      if (safety >= range) {
+        killTrack = true;
         limit = 0.0;
       }
     }
   }
-  if(!killTrack && fieldCheckFlag) {
+  if (!killTrack && fieldCheckFlag) {
     limit = minStepLimit;
   }
 
   return limit;
 }
 
-inline G4VParticleChange* ElectronLimiter::PostStepDoIt(const G4Track& aTrack, 
-							const G4Step&)
-{
+inline G4VParticleChange* ElectronLimiter::PostStepDoIt(const G4Track& aTrack, const G4Step&) {
   fParticleChange.Initialize(aTrack);
-  if(killTrack) {
+  if (killTrack) {
     fParticleChange.ProposeTrackStatus(fStopAndKill);
     fParticleChange.ProposeLocalEnergyDeposit(aTrack.GetKineticEnergy());
     fParticleChange.SetProposedKineticEnergy(0.0);
@@ -83,8 +74,4 @@ inline G4VParticleChange* ElectronLimiter::PostStepDoIt(const G4Track& aTrack,
   return &fParticleChange;
 }
 
-inline G4double ElectronLimiter::GetMeanFreePath(const G4Track&,G4double,
-						 G4ForceCondition*)
-{
-  return DBL_MAX;
-}    
+inline G4double ElectronLimiter::GetMeanFreePath(const G4Track&, G4double, G4ForceCondition*) { return DBL_MAX; }

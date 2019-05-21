@@ -41,9 +41,7 @@ public:
                           DQMStore& dqm_store,
                           std::string& map_type,
                           const edm::EventSetup& eSetup);
-  void createTkInfoFile(std::vector<std::string> tkhmap_names,
-                        TTree* tkinfo_tree,
-                        DQMStore& dqm_store);
+  void createTkInfoFile(std::vector<std::string> tkhmap_names, TTree* tkinfo_tree, DQMStore& dqm_store);
 
   void createStatus(DQMStore& dqm_store);
   void fillDummyStatus();
@@ -54,13 +52,10 @@ public:
 
   void createDummyShiftReport();
   void createShiftReport(DQMStore& dqm_store);
-  void printReportSummary(MonitorElement* me,
-                          std::ostringstream& str_val,
-                          std::string name);
-  void printShiftHistoParameters(
-    DQMStore& dqm_store,
-    std::map<std::string, std::vector<std::string>> const& layout_map,
-    std::ostringstream& str_val);
+  void printReportSummary(MonitorElement* me, std::ostringstream& str_val, std::string name);
+  void printShiftHistoParameters(DQMStore& dqm_store,
+                                 std::map<std::string, std::vector<std::string>> const& layout_map,
+                                 std::ostringstream& str_val);
   void printFaultyModuleList(DQMStore& dqm_store, std::ostringstream& str_val);
   void createFaultyModuleMEs(DQMStore& dqm_store);
 

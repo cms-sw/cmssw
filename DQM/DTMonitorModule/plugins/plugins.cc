@@ -51,7 +51,6 @@ DEFINE_FWK_MODULE(DTScalerInfoTask);
 #include <DQM/DTMonitorModule/src/DTDCSByLumiTask.h>
 DEFINE_FWK_MODULE(DTDCSByLumiTask);
 
-
 #include <DQM/DTMonitorModule/interface/DTDataIntegrityTask.h>
 DEFINE_FWK_MODULE(DTDataIntegrityTask);
 

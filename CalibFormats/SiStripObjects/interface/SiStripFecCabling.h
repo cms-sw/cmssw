@@ -22,7 +22,6 @@ std::ostream &operator<<(std::ostream &, const SiStripFecCabling &);
    @brief FEC cabling object for the strip tracker.
 */
 class SiStripFecCabling {
-
 public:
   // ---------- Constructors, destructors ----------
 
@@ -31,7 +30,7 @@ public:
   /** */
   SiStripFecCabling() { ; }
   /** */
-  ~SiStripFecCabling() { ; } //@@ needs implementation!!
+  ~SiStripFecCabling() { ; }  //@@ needs implementation!!
 
   // ---------- Methods to retrieve connection info ----------
 
@@ -39,8 +38,7 @@ public:
   inline const std::vector<SiStripFecCrate> &crates() const;
   inline std::vector<SiStripFecCrate> &crates();
   /** */
-  inline const std::vector<SiStripFec> &
-  fecs() const; //@@ TEMPORARY: to maintain backward compatibility!
+  inline const std::vector<SiStripFec> &fecs() const;  //@@ TEMPORARY: to maintain backward compatibility!
   /** */
   void connections(std::vector<FedChannelConnection> &) const;
   /** */
@@ -75,9 +73,7 @@ private:
 
 // ---------- Inline methods ----------
 
-const std::vector<SiStripFecCrate> &SiStripFecCabling::crates() const {
-  return crates_;
-}
+const std::vector<SiStripFecCrate> &SiStripFecCabling::crates() const { return crates_; }
 std::vector<SiStripFecCrate> &SiStripFecCabling::crates() { return crates_; }
 
 // TEMPORARY method to maintain backward compatibility!
@@ -111,7 +107,7 @@ void SiStripFecCabling::nApvPairs(const FedChannelConnection &conn) {
   }
 }
 
-#endif // CalibTracker_SiStripObjects_SiStripFecCabling_H
+#endif  // CalibTracker_SiStripObjects_SiStripFecCabling_H
 
 /*
 

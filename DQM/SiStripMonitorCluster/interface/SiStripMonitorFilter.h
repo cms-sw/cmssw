@@ -22,15 +22,14 @@
 class DQMStore;
 
 class SiStripMonitorFilter : public DQMEDAnalyzer {
- public:
+public:
   explicit SiStripMonitorFilter(const edm::ParameterSet &);
   ~SiStripMonitorFilter() override{};
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
- private:
+private:
   edm::EDGetTokenT<int> filerDecisionToken_;
   edm::ParameterSet conf_;
   MonitorElement *FilterDecision;

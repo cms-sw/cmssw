@@ -13,25 +13,25 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "fastjet/ClusterSequence.hh"   // gives both PseudoJet & JetDefinition
+#include "fastjet/ClusterSequence.hh"  // gives both PseudoJet & JetDefinition
 // #include "fastjet/Selector.hh"
 
 namespace lhef {
 
-class LHERunInfo;
-class LHEEvent;
-class JetInput;
-// class JetClustering;
-}
+  class LHERunInfo;
+  class LHEEvent;
+  class JetInput;
+  // class JetClustering;
+}  // namespace lhef
 
 namespace gen {
 
-class JetMatching {
-    public:
-	JetMatching(const edm::ParameterSet &params);
-	virtual ~JetMatching();
+  class JetMatching {
+  public:
+    JetMatching(const edm::ParameterSet& params);
+    virtual ~JetMatching();
 
-/*
+    /*
 	struct JetPartonMatch {
 		JetPartonMatch(const HepMC::FourVector	&parton,
 		               const HepMC::FourVector	&jet,
@@ -57,42 +57,39 @@ class JetMatching {
 		int			pdgId;
 	};
 */
-	virtual void init(const lhef::LHERunInfo* runInfo);
-	virtual bool initAfterBeams() { return true; }
-	virtual void beforeHadronisation(const lhef::LHEEvent* event);
-	virtual void beforeHadronisationExec();
-	
-	// void setJetInput( const std::vector<fastjet::PseudoJet> input ) { fJetInput=input; return; }
+    virtual void init(const lhef::LHERunInfo* runInfo);
+    virtual bool initAfterBeams() { return true; }
+    virtual void beforeHadronisation(const lhef::LHEEvent* event);
+    virtual void beforeHadronisationExec();
 
-	virtual int match( const lhef::LHEEvent* partonLevel, const std::vector<fastjet::PseudoJet>* jetInput ) = 0;
-/*
+    // void setJetInput( const std::vector<fastjet::PseudoJet> input ) { fJetInput=input; return; }
+
+    virtual int match(const lhef::LHEEvent* partonLevel, const std::vector<fastjet::PseudoJet>* jetInput) = 0;
+    /*
 	virtual int match(const HepMC::GenEvent *partonLevel,
 	                  const HepMC::GenEvent *finalState,
 	                  bool showeredFinalState = false) = 0;
 */
-	virtual std::set<std::string> capabilities() const;
-	
-	void resetMatchingStatus() { fMatchingStatus = false; }
-	bool isMatchingDone() { return fMatchingStatus; }
-	
-	virtual const std::vector<int>* getPartonList()      { return nullptr; }
-	virtual double                  getJetEtaMax() const = 0;
+    virtual std::set<std::string> capabilities() const;
 
-/*
+    void resetMatchingStatus() { fMatchingStatus = false; }
+    bool isMatchingDone() { return fMatchingStatus; }
+
+    virtual const std::vector<int>* getPartonList() { return nullptr; }
+    virtual double getJetEtaMax() const = 0;
+
+    /*
 	const std::vector<JetPartonMatch> &getMatchSummary() const
 	{ return matchSummary; }
 */
-	static std::unique_ptr<JetMatching> create(
-					const edm::ParameterSet &params);
+    static std::unique_ptr<JetMatching> create(const edm::ParameterSet& params);
 
-    protected:
-        bool fMatchingStatus;
-/*	std::vector<JetPartonMatch>	matchSummary; */
-        // std::vector<fastjet::PseudoJet> fJetInput;
+  protected:
+    bool fMatchingStatus;
+    /*	std::vector<JetPartonMatch>	matchSummary; */
+    // std::vector<fastjet::PseudoJet> fJetInput;
+  };
 
-};
+}  // namespace gen
 
-} // namespace gen
-
-
-#endif // GeneratorCommon_PartonShowerVeto_JetMatching_h
+#endif  // GeneratorCommon_PartonShowerVeto_JetMatching_h

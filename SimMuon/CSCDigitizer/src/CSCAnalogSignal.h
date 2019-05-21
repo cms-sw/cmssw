@@ -31,15 +31,11 @@
 
 class CSCAnalogSignal {
 public:
-  inline CSCAnalogSignal()
-      : theElement(0), invBinSize(0.), theBinValues(0), theTotal(0),
-        theTimeOffset(0.) {}
+  inline CSCAnalogSignal() : theElement(0), invBinSize(0.), theBinValues(0), theTotal(0), theTimeOffset(0.) {}
 
-  inline CSCAnalogSignal(int element, float binSize,
-                         std::vector<float> &binValues, float total = 0.,
-                         float timeOffset = 0.)
-      : theElement(element), invBinSize(1. / binSize), theBinValues(),
-        theTotal(total), theTimeOffset(timeOffset) {
+  inline CSCAnalogSignal(
+      int element, float binSize, std::vector<float> &binValues, float total = 0., float timeOffset = 0.)
+      : theElement(element), invBinSize(1. / binSize), theBinValues(), theTotal(total), theTimeOffset(timeOffset) {
     theBinValues.swap(binValues);
   }
 
@@ -50,9 +46,7 @@ public:
   inline int getElement() const { return theElement; };
   inline void setElement(int element) { theElement = element; };
   inline float getBinValue(int i) const {
-    return (i >= static_cast<int>(theBinValues.size()) || i < 0)
-               ? 0.
-               : theBinValues[i];
+    return (i >= static_cast<int>(theBinValues.size()) || i < 0) ? 0. : theBinValues[i];
   }
 
   inline float getValue(float t) const {

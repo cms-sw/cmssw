@@ -5,9 +5,8 @@
 
 class L1GctJetCand;
 
-class L1GctJetSorter
-{
- public:
+class L1GctJetSorter {
+public:
   //Typedefs
   typedef std::vector<L1GctJetCand> JetVector;
 
@@ -19,9 +18,9 @@ class L1GctJetSorter
   void setJets(JetVector& inputJets);
 
   JetVector getSortedJets() const;
-  JetVector getInputJets()  const;
+  JetVector getInputJets() const;
 
- private:
+private:
   JetVector m_inputJets;
 };
 

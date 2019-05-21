@@ -20,16 +20,14 @@ class DDXMLElement;
  *
  */
 
-class DDLElementRegistry
-{
-
- public:
-  typedef std::map <std::string, std::shared_ptr<DDXMLElement> > RegistryMap;
+class DDLElementRegistry {
+public:
+  typedef std::map<std::string, std::shared_ptr<DDXMLElement> > RegistryMap;
 
   DDLElementRegistry();
 
   ~DDLElementRegistry();
-  
+
   /// This allows other Elements to register themselves with the static registry
   void registerElement(const std::string& name, DDXMLElement*);
 
@@ -39,11 +37,11 @@ class DDLElementRegistry
    *  return a pointer if already registered or NULL, no instantiating.
    *
    */
-  std::shared_ptr<DDXMLElement> getElement(const std::string& name); 
+  std::shared_ptr<DDXMLElement> getElement(const std::string& name);
 
-  ClhepEvaluator &evaluator() { return evaluator_; }
+  ClhepEvaluator& evaluator() { return evaluator_; }
 
- private:
+private:
   RegistryMap registry_;
   ClhepEvaluator evaluator_;
 };

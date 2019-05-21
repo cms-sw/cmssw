@@ -22,7 +22,6 @@
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
-
 #include <string>
 #include <map>
 #include <vector>
@@ -31,7 +30,7 @@ class DQMStore;
 class MonitorElement;
 class DTGeometry;
 
-class DTResolutionAnalysisTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTResolutionAnalysisTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor
   DTResolutionAnalysisTask(const edm::ParameterSet& pset);
@@ -40,7 +39,7 @@ public:
   ~DTResolutionAnalysisTask() override;
 
   /// BookHistograms
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   /// BeginRun
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
@@ -52,11 +51,8 @@ public:
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
-
 protected:
-
 private:
-
   edm::ESHandle<DTGeometry> dtGeom;
 
   int prescaleFactor;
@@ -69,20 +65,16 @@ private:
   edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   // Book a set of histograms for a give chamber
-  void bookHistos(DQMStore::IBooker & ibooker, DTSuperLayerId slId);
+  void bookHistos(DQMStore::IBooker& ibooker, DTSuperLayerId slId);
   // Fill a set of histograms for a give chamber
-  void fillHistos(DTSuperLayerId slId,
-		  float distExtr,
-		  float residual);
+  void fillHistos(DTSuperLayerId slId, float distExtr, float residual);
 
   std::map<DTSuperLayerId, std::vector<MonitorElement*> > histosPerSL;
 
   // top folder for the histograms in DQMStore
   std::string topHistoFolder;
-
 };
 #endif
-
 
 /* Local Variables: */
 /* show-trailing-whitespace: t */

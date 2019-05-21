@@ -21,13 +21,12 @@ using namespace edm;
 using namespace std;
 
 ESTrendTask::ESTrendTask(const ParameterSet& ps) {
-
-  prefixME_       = ps.getUntrackedParameter<string>("prefixME", "EcalPreshower"); 
-  rechittoken_    = consumes<ESRecHitCollection>(ps.getParameter<InputTag>("RecHitLabel"));
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "EcalPreshower");
+  rechittoken_ = consumes<ESRecHitCollection>(ps.getParameter<InputTag>("RecHitLabel"));
   dccCollections_ = consumes<ESRawDataCollection>(ps.getParameter<InputTag>("ESDCCCollections"));
 
-  for (int i=0; i<2; ++i)
-    for (int j=0; j<2; ++j) {
+  for (int i = 0; i < 2; ++i)
+    for (int j = 0; j < 2; ++j) {
       hESRecHitTrend_[i][j] = nullptr;
       hESRecHitTrendHr_[i][j] = nullptr;
     }
@@ -45,28 +44,25 @@ ESTrendTask::ESTrendTask(const ParameterSet& ps) {
 }
 
 void ESTrendTask::dqmBeginRun(const Run& r, const EventSetup& c) {
-
   start_time_ = (r.beginTime()).unixTime();
 
   //std::cout << "start time : " << start_time_ << std::endl;
-
 }
 
-void ESTrendTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, EventSetup const&)
-{
+void ESTrendTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, EventSetup const&) {
   char histo[200];
 
   iBooker.setCurrentFolder(prefixME_ + "/ESTrendTask");
 
-  for (int i=0 ; i<2; ++i)  
-    for (int j=0 ; j<2; ++j) {
-      int iz = (i==0)? 1:-1;
-      sprintf(histo, "ES Trending RH Occ per 5 mins Z %d P %d", iz, j+1);
+  for (int i = 0; i < 2; ++i)
+    for (int j = 0; j < 2; ++j) {
+      int iz = (i == 0) ? 1 : -1;
+      sprintf(histo, "ES Trending RH Occ per 5 mins Z %d P %d", iz, j + 1);
       hESRecHitTrend_[i][j] = iBooker.bookProfile(histo, histo, 36, 0.0, 180.0, 100, 0.0, 1.0e6, "s");
       hESRecHitTrend_[i][j]->setAxisTitle("Elapse time (Minutes)", 1);
       hESRecHitTrend_[i][j]->setAxisTitle("ES RecHit Occupancy / 5 minutes", 2);
 
-      sprintf(histo, "ES Trending RH Occ per hour Z %d P %d", iz, j+1);
+      sprintf(histo, "ES Trending RH Occ per hour Z %d P %d", iz, j + 1);
       hESRecHitTrendHr_[i][j] = iBooker.bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
       hESRecHitTrendHr_[i][j]->setAxisTitle("Elapse time (Hours)", 1);
       hESRecHitTrendHr_[i][j]->setAxisTitle("ES RecHit Occupancy / hour", 2);
@@ -93,21 +89,16 @@ void ESTrendTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, EventSe
   hESFiberErrTrendHr_->setAxisTitle("ES Fiber Err / hour", 2);
 }
 
-void ESTrendTask::endJob(void) {
-
-  LogInfo("ESTrendTask") << "analyzed " << ievt_ << " events";
-
-}
+void ESTrendTask::endJob(void) { LogInfo("ESTrendTask") << "analyzed " << ievt_ << " events"; }
 
 void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
-
   ievt_++;
 
   // Collect time information
   updateTime(e);
 
   long int diff_current_start = current_time_ - start_time_;
-  long int diff_last_start    = last_time_ - start_time_;
+  long int diff_last_start = last_time_ - start_time_;
   //LogInfo("ESTrendTask") << "time difference is negative in " << ievt_ << " events\n"
   //<< "\tcurrent - start time = " << diff_current_start
   //<< ", \tlast - start time = " << diff_last_start << endl;
@@ -117,19 +108,21 @@ void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
   // Calculate time interval and bin width
   //  int minuteBinWidth = int(nBasicClusterMinutely_->getTProfile()->GetXaxis()->GetBinWidth(1));
   int minuteBinWidth = 5;
-  long int minuteBinDiff = diff_current_start/60/minuteBinWidth - diff_last_start/60/minuteBinWidth;
-  long int minuteDiff = (current_time_ - last_time_)/60;
+  long int minuteBinDiff = diff_current_start / 60 / minuteBinWidth - diff_last_start / 60 / minuteBinWidth;
+  long int minuteDiff = (current_time_ - last_time_) / 60;
 
   //  int hourBinWidth = int(nBasicClusterHourly_->getTProfile()->GetXaxis()->GetBinWidth(1));
   int hourBinWidth = 1;
-  long int hourBinDiff = diff_current_start/3600/hourBinWidth - diff_last_start/3600/hourBinWidth;
-  long int hourDiff = (current_time_ - last_time_)/3600;
+  long int hourBinDiff = diff_current_start / 3600 / hourBinWidth - diff_last_start / 3600 / hourBinWidth;
+  long int hourDiff = (current_time_ - last_time_) / 3600;
 
   if (minuteDiff >= minuteBinWidth) {
-    while (minuteDiff >= minuteBinWidth) minuteDiff -= minuteBinWidth;
+    while (minuteDiff >= minuteBinWidth)
+      minuteDiff -= minuteBinWidth;
   }
   if (hourDiff >= hourBinWidth) {
-    while (hourDiff >= hourBinWidth) hourDiff -= hourBinWidth;
+    while (hourDiff >= hourBinWidth)
+      hourDiff -= hourBinWidth;
   }
 
   // ES DCC
@@ -137,18 +130,19 @@ void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
   Int_t fiberErr = 0;
   vector<int> fiberStatus;
   Handle<ESRawDataCollection> dccs;
-  if ( e.getByToken(dccCollections_, dccs) ) {
+  if (e.getByToken(dccCollections_, dccs)) {
     for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
       ESDCCHeaderBlock dcc = (*dccItr);
 
-      if (dcc.getDCCErrors() == 101) slinkCRCErr++;
+      if (dcc.getDCCErrors() == 101)
+        slinkCRCErr++;
 
       fiberStatus = dcc.getFEChannelStatus();
-      for (unsigned int i=0; i<fiberStatus.size(); ++i) {
-	if (fiberStatus[i]==4 || fiberStatus[i]==8 || fiberStatus[i]==10 || fiberStatus[i]==11 || fiberStatus[i]==12)
-	  fiberErr++;
+      for (unsigned int i = 0; i < fiberStatus.size(); ++i) {
+        if (fiberStatus[i] == 4 || fiberStatus[i] == 8 || fiberStatus[i] == 10 || fiberStatus[i] == 11 ||
+            fiberStatus[i] == 12)
+          fiberErr++;
       }
-      
     }
   }
 
@@ -167,100 +161,97 @@ void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
   // ES RecHits
   int zside, plane;
   int nrh[2][2];
-  for (int i = 0; i < 2; i++ ) 
-    for( int j = 0; j < 2; j++) {
+  for (int i = 0; i < 2; i++)
+    for (int j = 0; j < 2; j++) {
       nrh[i][j] = 0;
     }
 
   Handle<ESRecHitCollection> ESRecHit;
-  if ( e.getByToken(rechittoken_, ESRecHit) ) {
-    
+  if (e.getByToken(rechittoken_, ESRecHit)) {
     for (ESRecHitCollection::const_iterator hitItr = ESRecHit->begin(); hitItr != ESRecHit->end(); ++hitItr) {
-      
       ESDetId id = ESDetId(hitItr->id());
-      
+
       zside = id.zside();
       plane = id.plane();
-      
-      int i = (zside==1)? 0:1;
-      int j = plane-1;
-      
+
+      int i = (zside == 1) ? 0 : 1;
+      int j = plane - 1;
+
       nrh[i][j]++;
     }
   } else {
     LogWarning("ESTrendTask") << "RecHitCollection not available";
   }
-  
-  for (int i=0; i<2; ++i) 
-    for (int j=0; j<2; ++j) {
+
+  for (int i = 0; i < 2; ++i)
+    for (int j = 0; j < 2; ++j) {
       shift2Right(hESRecHitTrend_[i][j]->getTProfile(), minuteBinDiff);
-      hESRecHitTrend_[i][j]->Fill(minuteDiff, nrh[i][j]/(1072*32.));
+      hESRecHitTrend_[i][j]->Fill(minuteDiff, nrh[i][j] / (1072 * 32.));
 
       shift2Right(hESRecHitTrendHr_[i][j]->getTProfile(), hourBinDiff);
-      hESRecHitTrendHr_[i][j]->Fill(hourDiff, nrh[i][j]/(1072*32.));
+      hESRecHitTrendHr_[i][j]->Fill(hourDiff, nrh[i][j] / (1072 * 32.));
     }
-
 }
 
 void ESTrendTask::updateTime(const edm::Event& e) {
-
   last_time_ = current_time_;
   current_time_ = e.time().unixTime();
-
 }
 
 void ESTrendTask::shift2Right(TProfile* p, int bins) {
+  if (bins <= 0)
+    return;
 
-  if(bins <= 0) return;
-
-  if(!p->GetSumw2()) p->Sumw2();
+  if (!p->GetSumw2())
+    p->Sumw2();
   int nBins = p->GetXaxis()->GetNbins();
 
   // by shifting n bin to the right, the number of entries are
   // reduced by the number in n bins including the overflow bin.
   double nentries = p->GetEntries();
-  for(int i=0; i<bins; i++) nentries -= p->GetBinEntries(nBins+1-bins);
+  for (int i = 0; i < bins; i++)
+    nentries -= p->GetBinEntries(nBins + 1 - bins);
   p->SetEntries(nentries);
-  
+
   // the last bin goes to overflow
   // each bin moves to the right
 
   TArrayD* sumw2 = p->GetSumw2();
 
-  for(int i=nBins+1; i>bins; i--) {
+  for (int i = nBins + 1; i > bins; i--) {
     // GetBinContent return binContent/binEntries
-    p->SetBinContent(i, p->GetBinContent(i-bins)*p->GetBinEntries(i-bins));
-    p->SetBinEntries(i,p->GetBinEntries(i-bins));
-    sumw2->SetAt(sumw2->GetAt(i-bins),i);
+    p->SetBinContent(i, p->GetBinContent(i - bins) * p->GetBinEntries(i - bins));
+    p->SetBinEntries(i, p->GetBinEntries(i - bins));
+    sumw2->SetAt(sumw2->GetAt(i - bins), i);
   }
-
 }
 
 void ESTrendTask::shift2Left(TProfile* p, int bins) {
+  if (bins <= 0)
+    return;
 
-  if(bins <= 0) return;
-
-  if(!p->GetSumw2()) p->Sumw2();
+  if (!p->GetSumw2())
+    p->Sumw2();
   int nBins = p->GetXaxis()->GetNbins();
 
   // by shifting n bin to the left, the number of entries are
   // reduced by the number in n bins including the underflow bin.
   double nentries = p->GetEntries();
-  for(int i=0; i<bins; i++) nentries -= p->GetBinEntries(i);
+  for (int i = 0; i < bins; i++)
+    nentries -= p->GetBinEntries(i);
   p->SetEntries(nentries);
-  
+
   // the first bin goes to underflow
   // each bin moves to the right
 
   TArrayD* sumw2 = p->GetSumw2();
 
-  for(int i=0; i<=nBins+1-bins; i++) {
+  for (int i = 0; i <= nBins + 1 - bins; i++) {
     // GetBinContent return binContent/binEntries
-    p->SetBinContent(i, p->GetBinContent(i+bins)*p->GetBinEntries(i+bins));
-    p->SetBinEntries(i,p->GetBinEntries(i+bins));
-    sumw2->SetAt(sumw2->GetAt(i+bins),i);
+    p->SetBinContent(i, p->GetBinContent(i + bins) * p->GetBinEntries(i + bins));
+    p->SetBinEntries(i, p->GetBinEntries(i + bins));
+    sumw2->SetAt(sumw2->GetAt(i + bins), i);
   }
-
 }
 
 DEFINE_FWK_MODULE(ESTrendTask);

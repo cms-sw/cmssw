@@ -31,7 +31,7 @@
 #include <vector>
 
 class MuonSimHitMatcher {
- public:
+public:
   // constructor
   MuonSimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector&& iC);
 
@@ -67,10 +67,10 @@ class MuonSimHitMatcher {
   // calculate the average position at the second station
   GlobalPoint simHitsMeanPositionStation(int n) const;
 
- protected:
-  std::vector<unsigned int> getIdsOfSimTrackShower(
-      unsigned trk_id, const edm::SimTrackContainer& simTracks,
-      const edm::SimVertexContainer& simVertices);
+protected:
+  std::vector<unsigned int> getIdsOfSimTrackShower(unsigned trk_id,
+                                                   const edm::SimTrackContainer& simTracks,
+                                                   const edm::SimVertexContainer& simVertices);
 
   bool verboseSimTrack_;
   bool simMuOnly_;

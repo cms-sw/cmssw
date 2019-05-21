@@ -6,7 +6,6 @@
  *  \author A. Branca = INFN PD
  */
 
-
 #include "DQM/DTMonitorClient/src/DTDCSByLumiSummary.h"
 #include "DQM/DTMonitorModule/interface/DTTimeEvolutionHisto.h"
 
@@ -18,63 +17,51 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include<string>
-
+#include <string>
 
 using namespace std;
 using namespace edm;
 
-
-DTDCSByLumiSummary::DTDCSByLumiSummary(const ParameterSet& pset) {
-
-  bookingdone = false;
-
-}
-
+DTDCSByLumiSummary::DTDCSByLumiSummary(const ParameterSet& pset) { bookingdone = false; }
 
 DTDCSByLumiSummary::~DTDCSByLumiSummary() {}
 
+void DTDCSByLumiSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup) {}
 
-void  DTDCSByLumiSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup) {
-
-}
-
-void DTDCSByLumiSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, edm::LuminosityBlock const & lumi, 
-                        edm::EventSetup const & setup) {
-
+void DTDCSByLumiSummary::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
+                                               DQMStore::IGetter& igetter,
+                                               edm::LuminosityBlock const& lumi,
+                                               edm::EventSetup const& setup) {
   if (!bookingdone) {
-  
+    ibooker.setCurrentFolder("DT/EventInfo/DCSContents");
 
-  ibooker.setCurrentFolder("DT/EventInfo/DCSContents");
+    totalDCSFraction = ibooker.bookFloat("DTDCSSummary");
+    totalDCSFraction->setLumiFlag();  // set LumiFlag to DCS content value (save it by lumi)
 
-  totalDCSFraction = ibooker.bookFloat("DTDCSSummary");  
-  totalDCSFraction->setLumiFlag(); // set LumiFlag to DCS content value (save it by lumi)
+    globalHVSummary = ibooker.book2D("HVGlbSummary", "HV Status Summary", 1, 1, 13, 5, -2, 3);
+    globalHVSummary->setAxisTitle("Sectors", 1);
+    globalHVSummary->setAxisTitle("Wheel", 2);
 
-  globalHVSummary = ibooker.book2D("HVGlbSummary","HV Status Summary",1,1,13,5,-2,3);
-  globalHVSummary->setAxisTitle("Sectors",1);
-  globalHVSummary->setAxisTitle("Wheel",2);
+    for (int wh = -2; wh <= 2; wh++) {
+      stringstream wheel_str;
+      wheel_str << wh;
 
-  for(int wh=-2;wh<=2;wh++){
+      MonitorElement* FractionWh = ibooker.bookFloat("DT_Wheel" + wheel_str.str());
+      FractionWh->setLumiFlag();  // set LumiFlag to DCS content value (save it by lumi)
 
-    stringstream wheel_str; wheel_str << wh;
+      totalDCSFractionWh.push_back(FractionWh);
+    }
 
-    MonitorElement* FractionWh = ibooker.bookFloat("DT_Wheel"+wheel_str.str());  
-    FractionWh->setLumiFlag(); // set LumiFlag to DCS content value (save it by lumi)
+    globalHVSummary->Reset();
 
-    totalDCSFractionWh.push_back(FractionWh);
+    // CB LumiFlag marked products are reset on LS boundaries
+    totalDCSFraction->Reset();
+
+    for (int wh = -2; wh <= 2; wh++) {
+      totalDCSFractionWh[wh + 2]->Reset();
+    }
   }
-
-  globalHVSummary->Reset();
-
-  // CB LumiFlag marked products are reset on LS boundaries
-  totalDCSFraction->Reset(); 
-
-  for(int wh=-2;wh<=2;wh++){
-    totalDCSFractionWh[wh+2]->Reset();
-  }
-
-  }
-  bookingdone = true; 
+  bookingdone = true;
 
   // Get the by lumi product plot from the task
   int lumiNumber = lumi.id().luminosityBlock();
@@ -83,122 +70,119 @@ void DTDCSByLumiSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMS
 
   std::vector<float> wh_activeFrac;
 
-  for(int wh=-2;wh<=2;wh++){
+  for (int wh = -2; wh <= 2; wh++) {
+    stringstream wheel_str;
+    wheel_str << wh;
 
-    stringstream wheel_str; wheel_str << wh;	
+    string hActiveUnitsPath = "DT/EventInfo/DCSContents/hActiveUnits" + wheel_str.str();
 
-    string hActiveUnitsPath = "DT/EventInfo/DCSContents/hActiveUnits"+wheel_str.str();
-
-    MonitorElement *hActiveUnits = igetter.get(hActiveUnitsPath);
+    MonitorElement* hActiveUnits = igetter.get(hActiveUnitsPath);
 
     if (hActiveUnits) {
       float activeFrac = static_cast<float>(hActiveUnits->getBinContent(2)) /  // CB 2nd bin is # of active channels
-        hActiveUnits->getBinContent(1);    // first bin is overall number of channels
+                         hActiveUnits->getBinContent(1);  // first bin is overall number of channels
 
-      if(activeFrac < 0.) activeFrac=-1;
+      if (activeFrac < 0.)
+        activeFrac = -1;
 
       wh_activeFrac.push_back(activeFrac);
 
       // Fill by lumi Certification ME
-      totalDCSFraction->Fill(activeFrac); 
-      totalDCSFractionWh[wh+2]->Fill(activeFrac);
+      totalDCSFraction->Fill(activeFrac);
+      totalDCSFractionWh[wh + 2]->Fill(activeFrac);
 
     } else {
       LogTrace("DTDQM|DTMonitorClient|DTDCSByLumiSummary")
-        << "[DTDCSByLumiSummary]: got null pointer retrieving histo at :" 
-        << hActiveUnitsPath << " for lumi # " << lumiNumber
-        << "client operation not performed." << endl;
+          << "[DTDCSByLumiSummary]: got null pointer retrieving histo at :" << hActiveUnitsPath << " for lumi # "
+          << lumiNumber << "client operation not performed." << endl;
 
-      null_pointer_histo=true;
-    }    
+      null_pointer_histo = true;
+    }
 
-  } // end loop on wheels
+  }  // end loop on wheels
 
-  if(!null_pointer_histo) dcsFracPerLumi[lumiNumber] = wh_activeFrac; // Fill map to be used to compute trend plots
-
+  if (!null_pointer_histo)
+    dcsFracPerLumi[lumiNumber] = wh_activeFrac;  // Fill map to be used to compute trend plots
 
   // CB LumiFlag marked products are reset on LS boundaries
-  totalDCSFraction->Reset(); 
+  totalDCSFraction->Reset();
 
-  for(int wh=-2;wh<=2;wh++){
-    totalDCSFractionWh[wh+2]->Reset();
+  for (int wh = -2; wh <= 2; wh++) {
+    totalDCSFractionWh[wh + 2]->Reset();
   }
-
 }
 
-void DTDCSByLumiSummary::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
-
+void DTDCSByLumiSummary::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   // Book trend plots ME & loop on map to fill it with by lumi info
-  map<int,std::vector<float> >::const_iterator fracPerLumiIt  = dcsFracPerLumi.begin();
-  map<int,std::vector<float> >::const_iterator fracPerLumiEnd = dcsFracPerLumi.end();
+  map<int, std::vector<float> >::const_iterator fracPerLumiIt = dcsFracPerLumi.begin();
+  map<int, std::vector<float> >::const_iterator fracPerLumiEnd = dcsFracPerLumi.end();
 
-  if (fracPerLumiIt != fracPerLumiEnd ) {
+  if (fracPerLumiIt != fracPerLumiEnd) {
     int fLumi = dcsFracPerLumi.begin()->first;
     int lLumi = dcsFracPerLumi.rbegin()->first;
 
     ibooker.setCurrentFolder("DT/EventInfo/DCSContents");
 
-    int nLumis = lLumi-fLumi + 1.;
-    
+    int nLumis = lLumi - fLumi + 1.;
+
     // trend plots
-    for(int wh=-2; wh<=2; wh++) {
-      
-      stringstream wheel_str; wheel_str << wh;	
-      
+    for (int wh = -2; wh <= 2; wh++) {
+      stringstream wheel_str;
+      wheel_str << wh;
+
       DTTimeEvolutionHisto* trend;
-      
-      trend = new DTTimeEvolutionHisto(ibooker, "hDCSFracTrendWh" + wheel_str.str(), "Fraction of DT-HV ON Wh" + wheel_str.str(),
-				       nLumis, fLumi, 1, false, 2);
-      
+
+      trend = new DTTimeEvolutionHisto(ibooker,
+                                       "hDCSFracTrendWh" + wheel_str.str(),
+                                       "Fraction of DT-HV ON Wh" + wheel_str.str(),
+                                       nLumis,
+                                       fLumi,
+                                       1,
+                                       false,
+                                       2);
+
       hDCSFracTrend.push_back(trend);
-      
     }
   }
 
-  float goodLSperWh[5] = {0,0,0,0,0}; 
-  float badLSperWh[5] = {0,0,0,0,0};
+  float goodLSperWh[5] = {0, 0, 0, 0, 0};
+  float badLSperWh[5] = {0, 0, 0, 0, 0};
 
   // fill trend plots and save infos for summaryPlot
-  for(;fracPerLumiIt!=fracPerLumiEnd;++fracPerLumiIt) {
-
-    for(int wh=-2; wh<=2; wh++) {
-
+  for (; fracPerLumiIt != fracPerLumiEnd; ++fracPerLumiIt) {
+    for (int wh = -2; wh <= 2; wh++) {
       std::vector<float> activeFracPerWh;
-      activeFracPerWh =  fracPerLumiIt->second;
+      activeFracPerWh = fracPerLumiIt->second;
 
-      hDCSFracTrend[wh+2]->setTimeSlotValue(activeFracPerWh[wh+2],fracPerLumiIt->first);
+      hDCSFracTrend[wh + 2]->setTimeSlotValue(activeFracPerWh[wh + 2], fracPerLumiIt->first);
 
-      if( activeFracPerWh[wh+2] > 0 ) { // we do not count the lumi were the DTs are off (no real problem), 
+      if (activeFracPerWh[wh + 2] > 0) {  // we do not count the lumi were the DTs are off (no real problem),
         // even if this can happen in the middle of a run (real problem: to be fixed)
-        if( activeFracPerWh[wh+2] > 0.9 ) goodLSperWh[wh+2]++;
-        else { 
-          badLSperWh[wh+2]++;
+        if (activeFracPerWh[wh + 2] > 0.9)
+          goodLSperWh[wh + 2]++;
+        else {
+          badLSperWh[wh + 2]++;
         }
       } else {  // there is no HV value OR all channels OFF
-        if( activeFracPerWh[wh+2] < 0 ) badLSperWh[wh+2]=-1;       // if there were no HV values, activeFrac returning -1
+        if (activeFracPerWh[wh + 2] < 0)
+          badLSperWh[wh + 2] = -1;  // if there were no HV values, activeFrac returning -1
       }
-
     }
-
   }
 
   // fill summaryPlot
-  for(int wh=-2; wh<=2; wh++) {
-
-    if( goodLSperWh[wh+2] != 0 || badLSperWh[wh+2] == -1 ) {
-
-      float r = badLSperWh[wh+2]/fabs(goodLSperWh[wh+2] + badLSperWh[wh+2]);
-      if( r > 0.5 ) globalHVSummary->Fill(1,wh,0);
-      else globalHVSummary->Fill(1,wh,1); 
-      if( r == -1 ) globalHVSummary->Fill(1,wh,-1);    
+  for (int wh = -2; wh <= 2; wh++) {
+    if (goodLSperWh[wh + 2] != 0 || badLSperWh[wh + 2] == -1) {
+      float r = badLSperWh[wh + 2] / fabs(goodLSperWh[wh + 2] + badLSperWh[wh + 2]);
+      if (r > 0.5)
+        globalHVSummary->Fill(1, wh, 0);
+      else
+        globalHVSummary->Fill(1, wh, 1);
+      if (r == -1)
+        globalHVSummary->Fill(1, wh, -1);
 
     } else {
-
-      globalHVSummary->Fill(1,wh,0);
-
+      globalHVSummary->Fill(1, wh, 0);
     }
-
   }
-
 }
-

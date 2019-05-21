@@ -27,38 +27,34 @@
 // Initializations --
 //-------------------
 
-
 //----------------
 // Constructors --
 //----------------
-DTPerformanceHandler::DTPerformanceHandler( const edm::ParameterSet& ps ):
- dataTag(   ps.getParameter<std::string>  (  "tag" ) ),
- fileName(  ps.getParameter<std::string>  ( "file" ) ),
- runNumber( ps.getParameter<unsigned int> (  "run" ) ) {
-}
+DTPerformanceHandler::DTPerformanceHandler(const edm::ParameterSet& ps)
+    : dataTag(ps.getParameter<std::string>("tag")),
+      fileName(ps.getParameter<std::string>("file")),
+      runNumber(ps.getParameter<unsigned int>("run")) {}
 
 //--------------
 // Destructor --
 //--------------
-DTPerformanceHandler::~DTPerformanceHandler() {
-}
+DTPerformanceHandler::~DTPerformanceHandler() {}
 
 //--------------
 // Operations --
 //--------------
 void DTPerformanceHandler::getNewObjects() {
-
   //to access the information on the tag inside the offline database:
-  cond::TagInfo const & ti = tagInfo();
+  cond::TagInfo const& ti = tagInfo();
   unsigned int last = ti.lastInterval.first;
 
   //to access the information on last successful log entry for this tag:
-//  cond::LogDBEntry const & lde = logDBEntry();     
+  //  cond::LogDBEntry const & lde = logDBEntry();
 
   //to access the lastest payload (Ref is a smart pointer)
-//  Ref payload = lastPayload();
+  //  Ref payload = lastPayload();
 
-/*
+  /*
   int irun = event.id().run();
   int ievt = event.id().event();
   std::cout << "================ "
@@ -83,10 +79,10 @@ void DTPerformanceHandler::getNewObjects() {
     mp.find( dataTag );
 */
 
-  DTPerformance* dtPerf = new DTPerformance( dataTag );
+  DTPerformance* dtPerf = new DTPerformance(dataTag);
 
   int status = 0;
-  std::ifstream ifile( fileName.c_str() );
+  std::ifstream ifile(fileName.c_str());
   int whe;
   int sta;
   int sec;
@@ -98,36 +94,28 @@ void DTPerformanceHandler::getNewObjects() {
   float meanAfterPulse;
   float meanResolution;
   float meanEfficiency;
-  while ( ifile >> whe
-                >> sta
-                >> sec
-                >> qua
-                >> meanT0
-                >> meanTtrig
-                >> meanMtime
-                >> meanNoise
-                >> meanAfterPulse
-                >> meanResolution
-                >> meanEfficiency ) {
-    status = dtPerf->set( whe, sta, sec, qua,
-                          meanT0, meanTtrig, meanMtime, meanNoise,
-                          meanAfterPulse, meanResolution, meanEfficiency,
-                          DTTimeUnits::counts );
-    std::cout << whe << " "
-              << sta << " "
-              << sec << " "
-              << qua << std::endl << " === "
-              << meanT0 << " "
-              << meanTtrig << " "
-              << meanMtime << " "
-              << meanNoise << " "
-              << meanAfterPulse << " "
-              << meanResolution << " "
-              << meanEfficiency << std::endl << "  -> ";                
+  while (ifile >> whe >> sta >> sec >> qua >> meanT0 >> meanTtrig >> meanMtime >> meanNoise >> meanAfterPulse >>
+         meanResolution >> meanEfficiency) {
+    status = dtPerf->set(whe,
+                         sta,
+                         sec,
+                         qua,
+                         meanT0,
+                         meanTtrig,
+                         meanMtime,
+                         meanNoise,
+                         meanAfterPulse,
+                         meanResolution,
+                         meanEfficiency,
+                         DTTimeUnits::counts);
+    std::cout << whe << " " << sta << " " << sec << " " << qua << std::endl
+              << " === " << meanT0 << " " << meanTtrig << " " << meanMtime << " " << meanNoise << " " << meanAfterPulse
+              << " " << meanResolution << " " << meanEfficiency << std::endl
+              << "  -> ";
     std::cout << "insert status: " << status << std::endl;
   }
 
-/*
+  /*
   unsigned int runf = irun;
   unsigned int runl = 0xffffffff;
   popcon::IOVPair iop = { runf, runl };
@@ -138,18 +126,12 @@ void DTPerformanceHandler::getNewObjects() {
 
   //for each payload provide IOV information (say in this case we use since)
   cond::Time_t snc = runNumber;
-  if ( runNumber > last )
-       m_to_transfer.push_back( std::make_pair( dtPerf, snc ) );
+  if (runNumber > last)
+    m_to_transfer.push_back(std::make_pair(dtPerf, snc));
   else
-       std::cout << "More recent data already present - skipped" << std::endl;
+    std::cout << "More recent data already present - skipped" << std::endl;
 
   return;
-
 }
 
-
-std::string DTPerformanceHandler::id() const {
-  return dataTag;
-}
-
-
+std::string DTPerformanceHandler::id() const { return dataTag; }

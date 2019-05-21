@@ -17,32 +17,33 @@
 
 class L1TMuonGlobalParamsWriter : public edm::EDAnalyzer {
 private:
-    bool isO2Opayload;
-public:
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+  bool isO2Opayload;
 
-    explicit L1TMuonGlobalParamsWriter(const edm::ParameterSet &pset) : edm::EDAnalyzer(){
-       isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload",  false);
-    }
-    ~L1TMuonGlobalParamsWriter(void) override{}
+public:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  explicit L1TMuonGlobalParamsWriter(const edm::ParameterSet& pset) : edm::EDAnalyzer() {
+    isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload", false);
+  }
+  ~L1TMuonGlobalParamsWriter(void) override {}
 };
 
-void L1TMuonGlobalParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
-    edm::ESHandle<L1TMuonGlobalParams> handle1;
+void L1TMuonGlobalParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  edm::ESHandle<L1TMuonGlobalParams> handle1;
 
-    if( isO2Opayload )
-        evSetup.get<L1TMuonGlobalParamsO2ORcd>().get( handle1 ) ;
-    else
-        evSetup.get<L1TMuonGlobalParamsRcd>().get( handle1 ) ;
+  if (isO2Opayload)
+    evSetup.get<L1TMuonGlobalParamsO2ORcd>().get(handle1);
+  else
+    evSetup.get<L1TMuonGlobalParamsRcd>().get(handle1);
 
-    boost::shared_ptr<L1TMuonGlobalParams> ptr1(new L1TMuonGlobalParams(*(handle1.product ())));
+  boost::shared_ptr<L1TMuonGlobalParams> ptr1(new L1TMuonGlobalParams(*(handle1.product())));
 
-    edm::Service<cond::service::PoolDBOutputService> poolDb;
-    if( poolDb.isAvailable() ){
-        cond::Time_t firstSinceTime = poolDb->beginOfTime();
-        poolDb->writeOne(ptr1.get(),firstSinceTime,( isO2Opayload ? "L1TMuonGlobalParamsO2ORcd" : "L1TMuonGlobalParamsRcd"));
-    }
-
+  edm::Service<cond::service::PoolDBOutputService> poolDb;
+  if (poolDb.isAvailable()) {
+    cond::Time_t firstSinceTime = poolDb->beginOfTime();
+    poolDb->writeOne(
+        ptr1.get(), firstSinceTime, (isO2Opayload ? "L1TMuonGlobalParamsO2ORcd" : "L1TMuonGlobalParamsRcd"));
+  }
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -50,4 +51,3 @@ void L1TMuonGlobalParamsWriter::analyze(const edm::Event& iEvent, const edm::Eve
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
 DEFINE_FWK_MODULE(L1TMuonGlobalParamsWriter);
-

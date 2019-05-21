@@ -16,10 +16,9 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleGun.hh"
-#include "globals.hh" // Global Constants and typedefs
+#include "globals.hh"  // Global Constants and typedefs
 
-LaserBeamsTEC2::LaserBeamsTEC2()
-    : theParticleGun(nullptr), theDRand48Engine(nullptr) {
+LaserBeamsTEC2::LaserBeamsTEC2() : theParticleGun(nullptr), theDRand48Engine(nullptr) {
   G4int nPhotonsGun = 1;
   G4int nPhotonsBeam = 1;
   G4double Energy = 1.15 * eV;
@@ -27,10 +26,8 @@ LaserBeamsTEC2::LaserBeamsTEC2()
   LaserBeamsTEC2(nPhotonsGun, nPhotonsBeam, Energy);
 }
 
-LaserBeamsTEC2::LaserBeamsTEC2(G4int nPhotonsInGun, G4int nPhotonsInBeam,
-                               G4double PhotonEnergy)
-    : thenParticleInGun(0), thenParticle(0), thePhotonEnergy(0),
-      theParticleGun(), theDRand48Engine() {
+LaserBeamsTEC2::LaserBeamsTEC2(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4double PhotonEnergy)
+    : thenParticleInGun(0), thenParticle(0), thePhotonEnergy(0), theParticleGun(), theDRand48Engine() {
   /* *********************************************************************** */
   /*  initialize and configure the particle gun                              */
   /* *********************************************************************** */
@@ -52,13 +49,11 @@ LaserBeamsTEC2::LaserBeamsTEC2(G4int nPhotonsInGun, G4int nPhotonsInBeam,
 
   // default kinematics
   G4ParticleTable *theParticleTable = G4ParticleTable::GetParticleTable();
-  G4ParticleDefinition *theOpticalPhoton =
-      theParticleTable->FindParticle("opticalphoton");
+  G4ParticleDefinition *theOpticalPhoton = theParticleTable->FindParticle("opticalphoton");
 
   theParticleGun->SetParticleDefinition(theOpticalPhoton);
   theParticleGun->SetParticleTime(0.0 * ns);
-  theParticleGun->SetParticlePosition(
-      G4ThreeVector(-500.0 * cm, 0.0 * cm, 0.0 * cm));
+  theParticleGun->SetParticlePosition(G4ThreeVector(-500.0 * cm, 0.0 * cm, 0.0 * cm));
   theParticleGun->SetParticleMomentumDirection(G4ThreeVector(5.0, 3.0, 0.0));
   theParticleGun->SetParticleEnergy(10.0 * keV);
   setOptPhotonPolar(90.0);
@@ -107,8 +102,7 @@ void LaserBeamsTEC2::GeneratePrimaries(G4Event *myEvent) {
 
   // get the definition of the optical photon
   G4ParticleTable *theParticleTable = G4ParticleTable::GetParticleTable();
-  G4ParticleDefinition *theOpticalPhoton =
-      theParticleTable->FindParticle("opticalphoton");
+  G4ParticleDefinition *theOpticalPhoton = theParticleTable->FindParticle("opticalphoton");
 
   // loop over the LaserRings
   for (int theRing = 0; theRing < nLaserRings; theRing++) {
@@ -116,23 +110,17 @@ void LaserBeamsTEC2::GeneratePrimaries(G4Event *myEvent) {
     for (int theBeam = 0; theBeam < nLaserBeams; theBeam++) {
       // code for forward and backward beam
       // calculate the right phi for the current beam
-      G4double LaserPositionPhi =
-          LaserPhi0 +
-          G4double(theBeam * G4double(G4double(2 * M_PI) / nLaserBeams));
+      G4double LaserPositionPhi = LaserPhi0 + G4double(theBeam * G4double(G4double(2 * M_PI) / nLaserBeams));
 
       // calculate x and y position for the current beam
-      G4double LaserPositionX =
-          cos(LaserPositionPhi) * LaserRingRadius[theRing];
-      G4double LaserPositionY =
-          sin(LaserPositionPhi) * LaserRingRadius[theRing];
+      G4double LaserPositionX = cos(LaserPositionPhi) * LaserRingRadius[theRing];
+      G4double LaserPositionY = sin(LaserPositionPhi) * LaserRingRadius[theRing];
 
       // loop over all the particles in one beam
       for (int theParticle = 0; theParticle < thenParticle; theParticle++) {
         // get randomnumbers  and calculate the position
-        CLHEP::RandGaussQ aGaussObjX(*theDRand48Engine, LaserPositionX,
-                                     LaserRingSigmaX[theRing]);
-        CLHEP::RandGaussQ aGaussObjY(*theDRand48Engine, LaserPositionY,
-                                     LaserRingSigmaY[theRing]);
+        CLHEP::RandGaussQ aGaussObjX(*theDRand48Engine, LaserPositionX, LaserRingSigmaX[theRing]);
+        CLHEP::RandGaussQ aGaussObjY(*theDRand48Engine, LaserPositionY, LaserRingSigmaY[theRing]);
 
         G4double theXPosition = aGaussObjX.fire();
         G4double theYPosition = aGaussObjY.fire();
@@ -141,36 +129,33 @@ void LaserBeamsTEC2::GeneratePrimaries(G4Event *myEvent) {
         // set the properties of the newly created particle
         theParticleGun->SetParticleDefinition(theOpticalPhoton);
         theParticleGun->SetParticleTime(0.0 * ns);
-        theParticleGun->SetParticlePosition(
-            G4ThreeVector(theXPosition, theYPosition, theZPosition));
+        theParticleGun->SetParticlePosition(G4ThreeVector(theXPosition, theYPosition, theZPosition));
         theParticleGun->SetParticleEnergy(thePhotonEnergy);
 
         // loop over both directions of the beam
         for (int theDirection = 0; theDirection < 2; theDirection++) {
           // shoot in both beam directions ...
-          if (theDirection == 0) // shoot in forward direction (+z)
+          if (theDirection == 0)  // shoot in forward direction (+z)
           {
-            theParticleGun->SetParticleMomentumDirection(
-                G4ThreeVector(0.0, 0.0, 1.0));
+            theParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.0, 0.0, 1.0));
             // set the polarization
             setOptPhotonPolar(90.0);
             // generate the particle
             theParticleGun->GeneratePrimaryVertex(myEvent);
           }
 
-          if (theDirection == 1) // shoot in backward direction (-z)
+          if (theDirection == 1)  // shoot in backward direction (-z)
           {
-            theParticleGun->SetParticleMomentumDirection(
-                G4ThreeVector(0.0, 0.0, -1.0));
+            theParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.0, 0.0, -1.0));
             // set the polarization
             setOptPhotonPolar(90.0);
             // generate the particle
             theParticleGun->GeneratePrimaryVertex(myEvent);
           }
-        } // end loop over both beam directions
-      }   // end loop over particles in beam
-    }     // end loop over beams
-  }       // end loop over rings
+        }  // end loop over both beam directions
+      }    // end loop over particles in beam
+    }      // end loop over beams
+  }        // end loop over rings
 }
 
 void LaserBeamsTEC2::setOptPhotonPolar(G4double Angle) {
@@ -180,8 +165,7 @@ void LaserBeamsTEC2::setOptPhotonPolar(G4double Angle) {
   /* *********************************************************************** */
 
   // first check if we have an optical photon
-  if (theParticleGun->GetParticleDefinition()->GetParticleName() !=
-      "opticalphoton") {
+  if (theParticleGun->GetParticleDefinition()->GetParticleName() != "opticalphoton") {
     edm::LogWarning("SimLaserAlignment:LaserBeamsTEC2")
         << "<LaserBeamsTEC2::setOptPhotonPolar()>: WARNING! The ParticleGun is "
            "not an optical photon";

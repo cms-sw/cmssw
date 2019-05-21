@@ -4,7 +4,7 @@
 //
 // Package:    ClusterCount
 // Class:      ClusterCount
-// 
+//
 /**\class ClusterCount ClusterCount.cc mytests/ClusterCount/src/ClusterCount.cc
 
  Description: <one line class summary>
@@ -17,7 +17,6 @@
 //         Created:  Tue May 27 11:11:05 CEST 2008
 //
 //
-
 
 // system include files
 #include <memory>
@@ -42,23 +41,17 @@
 //
 
 class ClusterCount : public DQMEDAnalyzer {
+public:
+  explicit ClusterCount(const edm::ParameterSet&);
+  ~ClusterCount() override;
 
-   public:
+private:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-      explicit ClusterCount(const edm::ParameterSet&);
-      ~ClusterCount() override;
-
-
-   private:
-      void bookHistograms(DQMStore::IBooker&, edm::Run const&,
-                          edm::EventSetup const&) override;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-
-      // ----------member data ---------------------------
-      //      edm::InputTag clusterLabel_;
-      edm::EDGetTokenT<edm::DetSetVector<SiStripCluster> > clusterToken_;
-
+  // ----------member data ---------------------------
+  //      edm::InputTag clusterLabel_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripCluster> > clusterToken_;
 };
 
 #endif
-

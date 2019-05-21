@@ -28,27 +28,25 @@ namespace edm {
 }
 
 class PythiaFilterGammaJetIsoPi0 : public edm::EDFilter {
-   public:
-      explicit PythiaFilterGammaJetIsoPi0(const edm::ParameterSet&);
-      ~PythiaFilterGammaJetIsoPi0() override;
+public:
+  explicit PythiaFilterGammaJetIsoPi0(const edm::ParameterSet&);
+  ~PythiaFilterGammaJetIsoPi0() override;
 
-      bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-   private:
-      
-       edm::EDGetTokenT<edm::HepMCProduct> token_;
-       double etaMin;
-       double PtMin;
-       double etaMax;
-       double PtMax;        
-       double isocone;
-       double isodr;
-       double ebEtaMax;
-       double deltaEB;
-       double deltaEE;
+private:
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
+  double etaMin;
+  double PtMin;
+  double etaMax;
+  double PtMax;
+  double isocone;
+  double isodr;
+  double ebEtaMax;
+  double deltaEB;
+  double deltaEE;
 
-       int theNumberOfTestedEvt;
-       int theNumberOfSelected;
-
+  int theNumberOfTestedEvt;
+  int theNumberOfSelected;
 };
 #endif

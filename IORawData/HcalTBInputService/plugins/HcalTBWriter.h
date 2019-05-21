@@ -24,9 +24,10 @@ class CDFEventInfo;
   */
 class HcalTBWriter : public edm::EDAnalyzer {
 public:
-  HcalTBWriter(const edm::ParameterSet & pset);
+  HcalTBWriter(const edm::ParameterSet& pset);
   void analyze(const edm::Event& e, const edm::EventSetup& es) override;
   void endJob() override;
+
 private:
   std::string namePattern_;
   // chunk naming...
@@ -37,7 +38,7 @@ private:
   TTree* tree_;
   CDFEventInfo* eventInfo_;
   CDFRunInfo ri_;
-  std::map<int,int> chunkMap_;
+  std::map<int, int> chunkMap_;
   CDFChunk* chunkList_[1024];
   int trigChunk_;
   edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;

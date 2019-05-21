@@ -9,8 +9,7 @@
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
-
-#include <iosfwd> 
+#include <iosfwd>
 #include <iostream>
 #include <vector>
 
@@ -22,9 +21,9 @@
 
 /// A muon DT Chamber( an AlignableDet )
 
-class AlignableDTChamber: public AlignableDet {
- public:
-  friend std::ostream& operator<< (std::ostream&, const AlignableDTChamber &);
+class AlignableDTChamber : public AlignableDet {
+public:
+  friend std::ostream &operator<<(std::ostream &, const AlignableDTChamber &);
 
   /// Constructor
   AlignableDTChamber(const GeomDet *geomDet);

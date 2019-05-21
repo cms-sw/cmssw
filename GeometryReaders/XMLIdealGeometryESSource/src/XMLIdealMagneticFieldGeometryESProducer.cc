@@ -22,45 +22,39 @@
 
 #include <memory>
 
-class XMLIdealMagneticFieldGeometryESProducer : public edm::ESProducer
-{
+class XMLIdealMagneticFieldGeometryESProducer : public edm::ESProducer {
 public:
-  XMLIdealMagneticFieldGeometryESProducer( const edm::ParameterSet& );
+  XMLIdealMagneticFieldGeometryESProducer(const edm::ParameterSet&);
   ~XMLIdealMagneticFieldGeometryESProducer() override;
-  
+
   typedef std::unique_ptr<DDCompactView> ReturnType;
-  
-  ReturnType produce( const IdealMagneticFieldRecord& );
+
+  ReturnType produce(const IdealMagneticFieldRecord&);
 
 private:
-  std::string rootDDName_; // this must be the form namespace:name
+  std::string rootDDName_;  // this must be the form namespace:name
   std::string label_;
 
   DDI::Store<DDName, DDI::Material*> matStore_;
   DDI::Store<DDName, DDI::Solid*> solidStore_;
   DDI::Store<DDName, DDI::LogicalPart*> lpStore_;
   DDI::Store<DDName, DDI::Specific*> specStore_;
-  DDI::Store<DDName, DDRotationMatrix*> rotStore_;    
+  DDI::Store<DDName, DDRotationMatrix*> rotStore_;
 };
 
-XMLIdealMagneticFieldGeometryESProducer::XMLIdealMagneticFieldGeometryESProducer( const edm::ParameterSet& iConfig )
-  :   rootDDName_(iConfig.getParameter<std::string>( "rootDDName" )),
-      label_(iConfig.getParameter<std::string>( "label" ))
-{
-  setWhatProduced( this );
+XMLIdealMagneticFieldGeometryESProducer::XMLIdealMagneticFieldGeometryESProducer(const edm::ParameterSet& iConfig)
+    : rootDDName_(iConfig.getParameter<std::string>("rootDDName")), label_(iConfig.getParameter<std::string>("label")) {
+  setWhatProduced(this);
 }
 
+XMLIdealMagneticFieldGeometryESProducer::~XMLIdealMagneticFieldGeometryESProducer(void) {}
 
-XMLIdealMagneticFieldGeometryESProducer::~XMLIdealMagneticFieldGeometryESProducer( void )
-{}
-
-XMLIdealMagneticFieldGeometryESProducer::ReturnType
-XMLIdealMagneticFieldGeometryESProducer::produce( const IdealMagneticFieldRecord& iRecord )
-{
+XMLIdealMagneticFieldGeometryESProducer::ReturnType XMLIdealMagneticFieldGeometryESProducer::produce(
+    const IdealMagneticFieldRecord& iRecord) {
   using namespace edm::es;
 
   edm::ESTransientHandle<FileBlob> gdd;
-  iRecord.getRecord<MFGeometryFileRcd>().get( label_, gdd );
+  iRecord.getRecord<MFGeometryFileRcd>().get(label_, gdd);
 
   DDName ddName(rootDDName_);
   DDLogicalPart rootNode(ddName);
@@ -76,7 +70,7 @@ XMLIdealMagneticFieldGeometryESProducer::produce( const IdealMagneticFieldRecord
 
   returnValue->lockdown();
 
-  return returnValue ;
+  return returnValue;
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE( XMLIdealMagneticFieldGeometryESProducer );
+DEFINE_FWK_EVENTSETUP_MODULE(XMLIdealMagneticFieldGeometryESProducer);
