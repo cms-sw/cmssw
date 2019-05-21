@@ -26,8 +26,7 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 
-class FWGEMDigiProxyBuilder : public FWProxyBuilderBase
-{
+class FWGEMDigiProxyBuilder : public FWProxyBuilderBase {
 public:
   FWGEMDigiProxyBuilder() {}
   ~FWGEMDigiProxyBuilder() override {}
@@ -37,85 +36,74 @@ public:
 private:
   using FWProxyBuilderBase::build;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
-  FWGEMDigiProxyBuilder(const FWGEMDigiProxyBuilder&) = delete;    
+  FWGEMDigiProxyBuilder(const FWGEMDigiProxyBuilder&) = delete;
   const FWGEMDigiProxyBuilder& operator=(const FWGEMDigiProxyBuilder&) = delete;
 };
 
-void
-FWGEMDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
-{
+void FWGEMDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) {
   const GEMDigiCollection* digis = nullptr;
- 
+
   iItem->get(digis);
 
-  if ( ! digis ) 
-  {
-    fwLog(fwlog::kWarning)<<"Failed to get GEMDigis"<<std::endl;
+  if (!digis) {
+    fwLog(fwlog::kWarning) << "Failed to get GEMDigis" << std::endl;
     return;
   }
-  const FWGeometry *geom = iItem->getGeom();
+  const FWGeometry* geom = iItem->getGeom();
 
-  for ( GEMDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
-        dri != driEnd; ++dri )
-  {
+  for (GEMDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end(); dri != driEnd; ++dri) {
     unsigned int rawid = (*dri).first.rawId();
     const GEMDigiCollection::Range& range = (*dri).second;
 
-    if( ! geom->contains( rawid ))
-    {
-      fwLog( fwlog::kWarning ) << "Failed to get geometry of GEM roll with detid: "
-                               << rawid << std::endl;
-      
+    if (!geom->contains(rawid)) {
+      fwLog(fwlog::kWarning) << "Failed to get geometry of GEM roll with detid: " << rawid << std::endl;
+
       TEveCompound* compound = createCompound();
-      setupAddElement( compound, product );
-      
+      setupAddElement(compound, product);
+
       continue;
     }
 
-    const float* parameters = geom->getParameters( rawid );
+    const float* parameters = geom->getParameters(rawid);
     float nStrips = parameters[0];
-    float halfStripLength = parameters[1]*0.5;
+    float halfStripLength = parameters[1] * 0.5;
     float topPitch = parameters[3];
     float bottomPitch = parameters[4];
 
-    for( GEMDigiCollection::const_iterator dit = range.first;
-	 dit != range.second; ++dit )
-    {
+    for (GEMDigiCollection::const_iterator dit = range.first; dit != range.second; ++dit) {
       TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet;
       stripDigiSet->SetLineWidth(3);
-      setupAddElement( stripDigiSet, product );
+      setupAddElement(stripDigiSet, product);
 
       int strip = (*dit).strip();
-      float topOfStrip = (strip-0.5)*topPitch - 0.5*nStrips*topPitch;
-      float bottomOfStrip = (strip-0.5)*bottomPitch - 0.5*nStrips*bottomPitch;
+      float topOfStrip = (strip - 0.5) * topPitch - 0.5 * nStrips * topPitch;
+      float bottomOfStrip = (strip - 0.5) * bottomPitch - 0.5 * nStrips * bottomPitch;
 
-      float localPointTop[3] =
-      {
-        topOfStrip, halfStripLength, 0.0
-      };
+      float localPointTop[3] = {topOfStrip, halfStripLength, 0.0};
 
-      float localPointBottom[3] = 
-      {
-        bottomOfStrip, -halfStripLength, 0.0
-      };
+      float localPointBottom[3] = {bottomOfStrip, -halfStripLength, 0.0};
 
       float globalPointTop[3];
       float globalPointBottom[3];
 
-      geom->localToGlobal( rawid, localPointTop, globalPointTop, localPointBottom, globalPointBottom );
+      geom->localToGlobal(rawid, localPointTop, globalPointTop, localPointBottom, globalPointBottom);
 
-      stripDigiSet->AddLine(globalPointTop[0], globalPointTop[1], globalPointTop[2],
-                            globalPointBottom[0], globalPointBottom[1], globalPointBottom[2]);
+      stripDigiSet->AddLine(globalPointTop[0],
+                            globalPointTop[1],
+                            globalPointTop[2],
+                            globalPointBottom[0],
+                            globalPointBottom[1],
+                            globalPointBottom[2]);
     }
   }
 }
 
-REGISTER_FWPROXYBUILDER(FWGEMDigiProxyBuilder, GEMDigiCollection, "GEMDigi", 
+REGISTER_FWPROXYBUILDER(FWGEMDigiProxyBuilder,
+                        GEMDigiCollection,
+                        "GEMDigi",
                         FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
 
-
-class FWGEMPadDigiProxyBuilder : public FWProxyBuilderBase
-{
+class FWGEMPadDigiProxyBuilder : public FWProxyBuilderBase {
 public:
   FWGEMPadDigiProxyBuilder() {}
   ~FWGEMPadDigiProxyBuilder() override {}
@@ -124,80 +112,70 @@ public:
 
 private:
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
-  FWGEMPadDigiProxyBuilder(const FWGEMPadDigiProxyBuilder&) = delete;    
+  FWGEMPadDigiProxyBuilder(const FWGEMPadDigiProxyBuilder&) = delete;
   const FWGEMPadDigiProxyBuilder& operator=(const FWGEMPadDigiProxyBuilder&) = delete;
 };
 
-void
-FWGEMPadDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
-{
+void FWGEMPadDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) {
   const GEMPadDigiCollection* digis = nullptr;
- 
+
   iItem->get(digis);
 
-  if ( ! digis ) 
-  {
-    fwLog(fwlog::kWarning)<<"Failed to get GEMPadDigis"<<std::endl;
+  if (!digis) {
+    fwLog(fwlog::kWarning) << "Failed to get GEMPadDigis" << std::endl;
     return;
   }
-  const FWGeometry *geom = iItem->getGeom();
+  const FWGeometry* geom = iItem->getGeom();
 
-  for ( GEMPadDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
-        dri != driEnd; ++dri )
-  {
+  for (GEMPadDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end(); dri != driEnd; ++dri) {
     unsigned int rawid = (*dri).first.rawId();
     const GEMPadDigiCollection::Range& range = (*dri).second;
 
-    if( ! geom->contains( rawid ))
-    {
-      fwLog( fwlog::kWarning ) << "Failed to get geometry of GEM roll with detid: "
-                               << rawid << std::endl;
-      
+    if (!geom->contains(rawid)) {
+      fwLog(fwlog::kWarning) << "Failed to get geometry of GEM roll with detid: " << rawid << std::endl;
+
       TEveCompound* compound = createCompound();
-      setupAddElement( compound, product );
-      
+      setupAddElement(compound, product);
+
       continue;
     }
 
-    const float* parameters = geom->getParameters( rawid );
+    const float* parameters = geom->getParameters(rawid);
     float nStrips = parameters[0];
-    float halfStripLength = parameters[1]*0.5;
+    float halfStripLength = parameters[1] * 0.5;
     float nPads = parameters[5];
-    float topPitch = parameters[3]*nStrips/nPads;
-    float bottomPitch = parameters[4]*nStrips/nPads;
+    float topPitch = parameters[3] * nStrips / nPads;
+    float bottomPitch = parameters[4] * nStrips / nPads;
 
-    for( GEMPadDigiCollection::const_iterator dit = range.first;
-	 dit != range.second; ++dit )
-    {
+    for (GEMPadDigiCollection::const_iterator dit = range.first; dit != range.second; ++dit) {
       TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet;
-      stripDigiSet->SetLineWidth(3*nStrips/nPads);
-      setupAddElement( stripDigiSet, product );
+      stripDigiSet->SetLineWidth(3 * nStrips / nPads);
+      setupAddElement(stripDigiSet, product);
 
       int pad = (*dit).pad();
-      float topOfStrip = (pad-0.5)*topPitch - 0.5*topPitch*nPads;
-      float bottomOfStrip = (pad-0.5)*bottomPitch - 0.5*bottomPitch*nPads;
+      float topOfStrip = (pad - 0.5) * topPitch - 0.5 * topPitch * nPads;
+      float bottomOfStrip = (pad - 0.5) * bottomPitch - 0.5 * bottomPitch * nPads;
 
-      float localPointTop[3] =
-      {
-        topOfStrip, halfStripLength, 0.0
-      };
+      float localPointTop[3] = {topOfStrip, halfStripLength, 0.0};
 
-      float localPointBottom[3] = 
-      {
-        bottomOfStrip, -halfStripLength, 0.0
-      };
+      float localPointBottom[3] = {bottomOfStrip, -halfStripLength, 0.0};
 
       float globalPointTop[3];
       float globalPointBottom[3];
 
-      geom->localToGlobal( rawid, localPointTop, globalPointTop, localPointBottom, globalPointBottom );
-      
-      stripDigiSet->AddLine(globalPointTop[0], globalPointTop[1], globalPointTop[2],
-                            globalPointBottom[0], globalPointBottom[1], globalPointBottom[2]);
+      geom->localToGlobal(rawid, localPointTop, globalPointTop, localPointBottom, globalPointBottom);
+
+      stripDigiSet->AddLine(globalPointTop[0],
+                            globalPointTop[1],
+                            globalPointTop[2],
+                            globalPointBottom[0],
+                            globalPointBottom[1],
+                            globalPointBottom[2]);
     }
   }
 }
 
-REGISTER_FWPROXYBUILDER(FWGEMPadDigiProxyBuilder, GEMPadDigiCollection, "GEMPadDigi", 
+REGISTER_FWPROXYBUILDER(FWGEMPadDigiProxyBuilder,
+                        GEMPadDigiCollection,
+                        "GEMPadDigi",
                         FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
-

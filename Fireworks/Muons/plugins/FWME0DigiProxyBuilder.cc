@@ -12,8 +12,7 @@
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartition.h"
 
-class FWME0DigiProxyBuilder : public FWProxyBuilderBase
-{
+class FWME0DigiProxyBuilder : public FWProxyBuilderBase {
 public:
   FWME0DigiProxyBuilder() {}
   ~FWME0DigiProxyBuilder() override {}
@@ -22,56 +21,49 @@ public:
 
 private:
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
-  FWME0DigiProxyBuilder(const FWME0DigiProxyBuilder&) = delete;    
+  FWME0DigiProxyBuilder(const FWME0DigiProxyBuilder&) = delete;
   const FWME0DigiProxyBuilder& operator=(const FWME0DigiProxyBuilder&) = delete;
 };
 
-void FWME0DigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
-{
+void FWME0DigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) {
   const ME0DigiPreRecoCollection* digis = nullptr;
- 
+
   iItem->get(digis);
 
-  if ( ! digis ) 
-  {
-    fwLog(fwlog::kWarning)<<"Failed to get ME0Digis"<<std::endl;
+  if (!digis) {
+    fwLog(fwlog::kWarning) << "Failed to get ME0Digis" << std::endl;
     return;
   }
-  const FWGeometry *geom = iItem->getGeom();
+  const FWGeometry* geom = iItem->getGeom();
 
-  for ( ME0DigiPreRecoCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
-        dri != driEnd; ++dri )
-  {
+  for (ME0DigiPreRecoCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end(); dri != driEnd; ++dri) {
     unsigned int rawid = (*dri).first.rawId();
     const ME0DigiPreRecoCollection::Range& range = (*dri).second;
 
-    if( ! geom->contains( rawid ))
-    {
-      fwLog( fwlog::kWarning ) << "Failed to get geometry of ME0 roll with detid: "
-                               << rawid << std::endl;
-      
+    if (!geom->contains(rawid)) {
+      fwLog(fwlog::kWarning) << "Failed to get geometry of ME0 roll with detid: " << rawid << std::endl;
+
       TEveCompound* compound = createCompound();
-      setupAddElement( compound, product );
-      
+      setupAddElement(compound, product);
+
       continue;
     }
-    
-    for( ME0DigiPreRecoCollection::const_iterator dit = range.first;
-	 dit != range.second; ++dit )
-    {
+
+    for (ME0DigiPreRecoCollection::const_iterator dit = range.first; dit != range.second; ++dit) {
       TEveBoxSet* stripDigiSet = new TEveBoxSet;
-      setupAddElement( stripDigiSet, product );
-      
-      float localPoint[3] =    {(*dit).x(), (*dit).y(), 0.0};
+      setupAddElement(stripDigiSet, product);
+
+      float localPoint[3] = {(*dit).x(), (*dit).y(), 0.0};
       float globalPoint[3];
 
-      geom->localToGlobal( rawid, localPoint, globalPoint);
+      geom->localToGlobal(rawid, localPoint, globalPoint);
 
-      stripDigiSet->AddBox(globalPoint[0], globalPoint[1], globalPoint[2],
-                            (*dit).ex(), (*dit).ey(), 0.1);
+      stripDigiSet->AddBox(globalPoint[0], globalPoint[1], globalPoint[2], (*dit).ex(), (*dit).ey(), 0.1);
     }
   }
 }
 
-REGISTER_FWPROXYBUILDER(FWME0DigiProxyBuilder, ME0DigiPreRecoCollection, "ME0Digi", 
+REGISTER_FWPROXYBUILDER(FWME0DigiProxyBuilder,
+                        ME0DigiPreRecoCollection,
+                        "ME0Digi",
                         FWViewType::kAll3DBits | FWViewType::kAllRPZBits);

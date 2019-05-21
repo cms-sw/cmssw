@@ -8,29 +8,27 @@ class TTree;
 class TEventList;
 class TTreePlayer;
 
-class FWTSelectorToEventList : public TSelectorEntries
-{
+class FWTSelectorToEventList : public TSelectorEntries {
 private:
-   TEventList  *fEvList;
-   TTreePlayer *fPlayer;
-   Bool_t       fOwnEvList;
+  TEventList* fEvList;
+  TTreePlayer* fPlayer;
+  Bool_t fOwnEvList;
 
 public:
-   FWTSelectorToEventList(TTree* tree, TEventList* evl, const char* sel);
-   ~FWTSelectorToEventList() override;
+  FWTSelectorToEventList(TTree* tree, TEventList* evl, const char* sel);
+  ~FWTSelectorToEventList() override;
 
-   Bool_t   Process(Long64_t entry) override;
+  Bool_t Process(Long64_t entry) override;
 
-   virtual Long64_t ProcessTree(Long64_t nentries   = 1000000000,
-                                Long64_t firstentry = 0);
+  virtual Long64_t ProcessTree(Long64_t nentries = 1000000000, Long64_t firstentry = 0);
 
-   TEventList* GetEventList()  const { return fEvList; }
-   void        ClearEventList();
+  TEventList* GetEventList() const { return fEvList; }
+  void ClearEventList();
 
-   Bool_t GetOwnEventList() const   { return fOwnEvList; }
-   void   SetOwnEventList(Bool_t o) { fOwnEvList = o; }
+  Bool_t GetOwnEventList() const { return fOwnEvList; }
+  void SetOwnEventList(Bool_t o) { fOwnEvList = o; }
 
-   ClassDefOverride(FWTSelectorToEventList, 0);
+  ClassDefOverride(FWTSelectorToEventList, 0);
 };
 
 #endif

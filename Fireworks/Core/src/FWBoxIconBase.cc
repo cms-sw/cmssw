@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWBoxIconBase
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -16,7 +16,6 @@
 // user include files
 #include "Fireworks/Core/src/FWBoxIconBase.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -28,19 +27,14 @@
 //
 // constructors and destructor
 //
-FWBoxIconBase::FWBoxIconBase(unsigned int iEdgeLength):
-m_edgeLength(iEdgeLength)
-{
-}
+FWBoxIconBase::FWBoxIconBase(unsigned int iEdgeLength) : m_edgeLength(iEdgeLength) {}
 
 // FWBoxIconBase::FWBoxIconBase(const FWBoxIconBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWBoxIconBase::~FWBoxIconBase()
-{
-}
+FWBoxIconBase::~FWBoxIconBase() {}
 
 //
 // assignment operators
@@ -61,18 +55,16 @@ FWBoxIconBase::~FWBoxIconBase()
 //
 // const member functions
 //
-void 
-FWBoxIconBase::draw(Drawable_t iID, GContext_t iContext, int iX, int iY) const
-{
-   //draw in background color
-   gVirtualX->ClearArea(iID,iX,iY,m_edgeLength-1,m_edgeLength-1);
-   //now draw foreground
-   gVirtualX->DrawLine(iID, iContext, iX, iY, iX+m_edgeLength-1,iY);
-   gVirtualX->DrawLine(iID, iContext, iX+m_edgeLength-1, iY, iX+m_edgeLength-1,iY+m_edgeLength-1);
-   gVirtualX->DrawLine(iID, iContext, iX, iY+m_edgeLength-1, iX+m_edgeLength-1,iY+m_edgeLength-1);
-   gVirtualX->DrawLine(iID, iContext, iX, iY, iX,iY+m_edgeLength-1);
-   
-   drawInsideBox(iID,iContext, iX+1, iY+1, m_edgeLength-2);
+void FWBoxIconBase::draw(Drawable_t iID, GContext_t iContext, int iX, int iY) const {
+  //draw in background color
+  gVirtualX->ClearArea(iID, iX, iY, m_edgeLength - 1, m_edgeLength - 1);
+  //now draw foreground
+  gVirtualX->DrawLine(iID, iContext, iX, iY, iX + m_edgeLength - 1, iY);
+  gVirtualX->DrawLine(iID, iContext, iX + m_edgeLength - 1, iY, iX + m_edgeLength - 1, iY + m_edgeLength - 1);
+  gVirtualX->DrawLine(iID, iContext, iX, iY + m_edgeLength - 1, iX + m_edgeLength - 1, iY + m_edgeLength - 1);
+  gVirtualX->DrawLine(iID, iContext, iX, iY, iX, iY + m_edgeLength - 1);
+
+  drawInsideBox(iID, iContext, iX + 1, iY + 1, m_edgeLength - 2);
 }
 
 //

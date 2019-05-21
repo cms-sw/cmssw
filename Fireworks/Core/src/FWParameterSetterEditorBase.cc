@@ -15,7 +15,6 @@
 // user include files
 #include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -28,18 +27,14 @@
 // constructors and destructor
 //
 
-FWParameterSetterEditorBase::FWParameterSetterEditorBase()
-{
-}
+FWParameterSetterEditorBase::FWParameterSetterEditorBase() {}
 
 // FWParameterSetterEditorBase::FWParameterSetterEditorBase(const FWParameterSetterEditorBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWParameterSetterEditorBase::~FWParameterSetterEditorBase()
-{
-}
+FWParameterSetterEditorBase::~FWParameterSetterEditorBase() {}
 
 //
 // assignment operators
@@ -57,10 +52,7 @@ FWParameterSetterEditorBase::~FWParameterSetterEditorBase()
 // member functions
 //
 
-void
-FWParameterSetterEditorBase::updateEditor()
-{
-}
+void FWParameterSetterEditorBase::updateEditor() {}
 
 //
 // const member functions

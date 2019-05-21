@@ -24,29 +24,25 @@
 
 // forward declarations
 
-class FWParameterSetterEditorBase
-{
-
+class FWParameterSetterEditorBase {
 public:
-   FWParameterSetterEditorBase();
-   virtual ~FWParameterSetterEditorBase();
+  FWParameterSetterEditorBase();
+  virtual ~FWParameterSetterEditorBase();
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-   virtual void updateEditor();
+  virtual void updateEditor();
 
 private:
-   FWParameterSetterEditorBase(const FWParameterSetterEditorBase&) = delete;    // stop default
+  FWParameterSetterEditorBase(const FWParameterSetterEditorBase&) = delete;  // stop default
 
-   const FWParameterSetterEditorBase& operator=(const FWParameterSetterEditorBase&) = delete;    // stop default
+  const FWParameterSetterEditorBase& operator=(const FWParameterSetterEditorBase&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-
+  // ---------- member data --------------------------------
 };
-
 
 #endif
