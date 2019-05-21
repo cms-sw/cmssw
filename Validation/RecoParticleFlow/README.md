@@ -51,7 +51,7 @@ python multicrab.py
 Take note that the CMSSW python configuration for running the RECO sequence is dumped into `crab/step3_dump.py`.
 
 
-Running DQM steps from existing MINIAOD samples
+#Running DQM steps from existing MINIAOD samples
 ~~~
 
 # For example:
