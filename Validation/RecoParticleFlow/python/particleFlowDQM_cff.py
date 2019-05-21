@@ -55,7 +55,7 @@ def createGenJetPlots(ptbins, etabins):
 
 name = "genjet_pt"
 title = "genjet pt"
-pfDQMAnalyzer = cms.EDProducer("ParticleFlowDQM",
+pfJetDQMAnalyzer = cms.EDProducer("PFJetDQMAnalyzer",
 
     #match these reco-jets to the gen-jets and compute jet response
     recoJetCollection = cms.InputTag('slimmedJets'),
@@ -63,8 +63,8 @@ pfDQMAnalyzer = cms.EDProducer("ParticleFlowDQM",
     jetDeltaR = cms.double(0.2),
 
     responsePlots = cms.VPSet(createResponsePlots(ptbins, etabins)),
-
     genJetPlots = cms.VPSet(createGenJetPlots(ptbins, etabins))
+                                  
 )
 
 pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
@@ -82,5 +82,5 @@ pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
 # Do we need this?
 pfDQM = cms.Sequence(
 #    matchRecoJetToGenJet *
-    pfDQMAnalyzer
+    pfJetDQMAnalyzer
 )
