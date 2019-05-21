@@ -45,7 +45,7 @@ public:
 
   int getGlobalBinByBin(int xBin, int yBin) const { return xBin + yBin * hgcaltilesconstants::nColumns; }
 
-  std::array<int, 4> searchBox(float xMin, float xMax, float yMin, float yMax) {
+  std::array<int, 4> searchBox(float xMin, float xMax, float yMin, float yMax) const {
     int xBinMin = getXBin(xMin);
     int xBinMax = getXBin(xMax);
     int yBinMin = getYBin(yMin);
@@ -58,7 +58,7 @@ public:
       t.clear();
   }
 
-  std::vector<int>& operator[](int globalBinId) { return tiles_[globalBinId]; }
+  const std::vector<int>& operator[](int globalBinId) const { return tiles_[globalBinId]; }
 
 private:
   std::vector<std::vector<int> > tiles_;
