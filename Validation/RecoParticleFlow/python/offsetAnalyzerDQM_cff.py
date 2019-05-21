@@ -85,7 +85,9 @@ offsetDQMPostProcessor = DQMEDHarvester("OffsetDQMPostProcessor",
     offsetVariableTypes = cms.vstring( default.offsetVariableType ),
     offsetR = cms.untracked.double( default.offsetR ),
     pftypes = cms.vstring( default.candidateType ),                                        
-                                            
+    muHigh = cms.double( default.muHighOffset ),
+    npvHigh = cms.double( default.npvHighOffset )                                        
+                                        
 )
 
 #print( offsetAnalyzerDQM.offsetPlots[455].parameters_  )
