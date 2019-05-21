@@ -54,7 +54,6 @@ OffsetDQMPostProcessor::OffsetDQMPostProcessor(const edm::ParameterSet& iConfig)
   pftypes = iConfig.getParameter< std::vector<std::string> >("pftypes");
   muHigh = iConfig.getUntrackedParameter< int >("muHigh");
   npvHigh = iConfig.getUntrackedParameter< int >("npvHigh");
-  std::cout << muHigh << " " << npvHigh << std::endl;
   
 };
 
@@ -90,10 +89,10 @@ OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
     //
     stitle=offsetDir+(*i);
     mtmp=iget_.get(stitle);
-    int navg = int( mtmp->getMean()-0.5 ); 
-    if (navg<0) navg=0;
-    if      (*i=="npv" && navg>=npvHigh) navg=npvHigh-1;
-    else if (*i=="mu"  && navg>=muHigh)  navg=muHigh-1;
+    int navg = int( mtmp->getMean()+0.5 ); // in order to get the rounding correctly
+    if (navg<0) navg=0;                                  // checking lower bound
+    if      (*i=="npv" && navg>=npvHigh) navg=npvHigh-1; // checking upper bound
+    else if (*i=="mu"  && navg>=muHigh)  navg=muHigh-1;  // 
     
     //
     // storing the value
