@@ -21,6 +21,9 @@
 
 class L1TOccupancyClientHistogramService {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   L1TOccupancyClientHistogramService();
   L1TOccupancyClientHistogramService(const edm::ParameterSet& iParameters, DQMStore::IBooker& ibooker, bool iVerbose);
 

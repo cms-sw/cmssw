@@ -16,6 +16,7 @@
 
 #include <boost/cstdint.hpp>
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
@@ -26,6 +27,9 @@ namespace edm {
 
 class SiPixelTrackResidualModule {
 public:
+  typedef dqm::reco::DQMStore DQMStore;
+  typedef dqm::reco::MonitorElement MonitorElement;
+
   SiPixelTrackResidualModule();
   SiPixelTrackResidualModule(const uint32_t);
   ~SiPixelTrackResidualModule();

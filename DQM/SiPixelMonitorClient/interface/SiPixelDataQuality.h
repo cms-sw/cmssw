@@ -35,6 +35,9 @@
 class SiPixelEDAClient;
 class SiPixelDataQuality {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   SiPixelDataQuality(bool offlineXMLfile);
   ~SiPixelDataQuality();
 

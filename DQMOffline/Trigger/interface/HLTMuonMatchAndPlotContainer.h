@@ -42,6 +42,9 @@
 
 class HLTMuonMatchAndPlotContainer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   /// Constructor
   HLTMuonMatchAndPlotContainer(edm::ConsumesCollector &&, const edm::ParameterSet &);
 

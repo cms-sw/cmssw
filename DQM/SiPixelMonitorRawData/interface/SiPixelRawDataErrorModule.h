@@ -28,6 +28,9 @@
 
 class SiPixelRawDataErrorModule {
 public:
+  typedef dqm::reco::DQMStore DQMStore;
+  typedef dqm::reco::MonitorElement MonitorElement;
+
   /// Default constructor
   SiPixelRawDataErrorModule();
   /// Constructor with raw DetId

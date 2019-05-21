@@ -26,6 +26,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 namespace egHLT {
+  using dqm::legacy::DQMStore;
+  using dqm::legacy::MonitorElement;
+
   template <class T>
   class MonElemManagerBase {
   public:

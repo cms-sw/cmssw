@@ -23,6 +23,9 @@ class SiStripDetCabling;
 
 class SiStripActionExecutor {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   SiStripActionExecutor(edm::ParameterSet const& ps);
   virtual ~SiStripActionExecutor();
 

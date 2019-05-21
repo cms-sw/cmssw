@@ -24,15 +24,15 @@ inline std::string ScoutingAnalyzerBase::newName(const std::string &name) {
 
 void ScoutingAnalyzerBase::prepareBooking(DQMStore::IBooker &iBooker) { iBooker.setCurrentFolder(m_MEsPath); }
 
-MonitorElement *ScoutingAnalyzerBase::bookH1(DQMStore::IBooker &iBooker,
-                                             const std::string &name,
-                                             const std::string &title,
-                                             int nchX,
-                                             double lowX,
-                                             double highX,
-                                             const std::string &titleX,
-                                             const std::string &titleY,
-                                             Option_t *option) {
+ScoutingAnalyzerBase::MonitorElement *ScoutingAnalyzerBase::bookH1(DQMStore::IBooker &iBooker,
+                                                                   const std::string &name,
+                                                                   const std::string &title,
+                                                                   int nchX,
+                                                                   double lowX,
+                                                                   double highX,
+                                                                   const std::string &titleX,
+                                                                   const std::string &titleY,
+                                                                   Option_t *option) {
   MonitorElement *me = iBooker.book1DD(newName(name), title, nchX, lowX, highX);
   if (!titleX.empty()) {
     me->getTH1()->GetXaxis()->SetTitle(titleX.c_str());
@@ -46,15 +46,15 @@ MonitorElement *ScoutingAnalyzerBase::bookH1(DQMStore::IBooker &iBooker,
   return me;
 }
 
-MonitorElement *ScoutingAnalyzerBase::bookH1withSumw2(DQMStore::IBooker &iBooker,
-                                                      const std::string &name,
-                                                      const std::string &title,
-                                                      int nchX,
-                                                      double lowX,
-                                                      double highX,
-                                                      const std::string &titleX,
-                                                      const std::string &titleY,
-                                                      Option_t *option) {
+ScoutingAnalyzerBase::MonitorElement *ScoutingAnalyzerBase::bookH1withSumw2(DQMStore::IBooker &iBooker,
+                                                                            const std::string &name,
+                                                                            const std::string &title,
+                                                                            int nchX,
+                                                                            double lowX,
+                                                                            double highX,
+                                                                            const std::string &titleX,
+                                                                            const std::string &titleY,
+                                                                            Option_t *option) {
   std::cout << newName(name) << std::endl;
   MonitorElement *me = iBooker.book1DD(newName(name), title, nchX, lowX, highX);
   me->getTH1()->Sumw2();
@@ -70,14 +70,14 @@ MonitorElement *ScoutingAnalyzerBase::bookH1withSumw2(DQMStore::IBooker &iBooker
   return me;
 }
 
-MonitorElement *ScoutingAnalyzerBase::bookH1BinArray(DQMStore::IBooker &iBooker,
-                                                     const std::string &name,
-                                                     const std::string &title,
-                                                     int nchX,
-                                                     float *xbinsize,
-                                                     const std::string &titleX,
-                                                     const std::string &titleY,
-                                                     Option_t *option) {
+ScoutingAnalyzerBase::MonitorElement *ScoutingAnalyzerBase::bookH1BinArray(DQMStore::IBooker &iBooker,
+                                                                           const std::string &name,
+                                                                           const std::string &title,
+                                                                           int nchX,
+                                                                           float *xbinsize,
+                                                                           const std::string &titleX,
+                                                                           const std::string &titleY,
+                                                                           Option_t *option) {
   MonitorElement *me = iBooker.book1D(newName(name), title, nchX, xbinsize);
   // book1DD not implemented in DQMServices/Core/src/DQMStore.cc
   if (!titleX.empty()) {
@@ -92,14 +92,14 @@ MonitorElement *ScoutingAnalyzerBase::bookH1BinArray(DQMStore::IBooker &iBooker,
   return me;
 }
 
-MonitorElement *ScoutingAnalyzerBase::bookH1withSumw2BinArray(DQMStore::IBooker &iBooker,
-                                                              const std::string &name,
-                                                              const std::string &title,
-                                                              int nchX,
-                                                              float *xbinsize,
-                                                              const std::string &titleX,
-                                                              const std::string &titleY,
-                                                              Option_t *option) {
+ScoutingAnalyzerBase::MonitorElement *ScoutingAnalyzerBase::bookH1withSumw2BinArray(DQMStore::IBooker &iBooker,
+                                                                                    const std::string &name,
+                                                                                    const std::string &title,
+                                                                                    int nchX,
+                                                                                    float *xbinsize,
+                                                                                    const std::string &titleX,
+                                                                                    const std::string &titleY,
+                                                                                    Option_t *option) {
   std::cout << newName(name) << std::endl;
   MonitorElement *me = iBooker.book1D(newName(name), title, nchX, xbinsize);
   // book1DD not implemented in DQMServices/Core/src/DQMStore.cc
@@ -116,18 +116,18 @@ MonitorElement *ScoutingAnalyzerBase::bookH1withSumw2BinArray(DQMStore::IBooker 
   return me;
 }
 
-MonitorElement *ScoutingAnalyzerBase::bookH2(DQMStore::IBooker &iBooker,
-                                             const std::string &name,
-                                             const std::string &title,
-                                             int nchX,
-                                             double lowX,
-                                             double highX,
-                                             int nchY,
-                                             double lowY,
-                                             double highY,
-                                             const std::string &titleX,
-                                             const std::string &titleY,
-                                             Option_t *option) {
+ScoutingAnalyzerBase::MonitorElement *ScoutingAnalyzerBase::bookH2(DQMStore::IBooker &iBooker,
+                                                                   const std::string &name,
+                                                                   const std::string &title,
+                                                                   int nchX,
+                                                                   double lowX,
+                                                                   double highX,
+                                                                   int nchY,
+                                                                   double lowY,
+                                                                   double highY,
+                                                                   const std::string &titleX,
+                                                                   const std::string &titleY,
+                                                                   Option_t *option) {
   MonitorElement *me = iBooker.book2DD(newName(name), title, nchX, lowX, highX, nchY, lowY, highY);
   if (!titleX.empty()) {
     me->getTH1()->GetXaxis()->SetTitle(titleX.c_str());
@@ -141,18 +141,18 @@ MonitorElement *ScoutingAnalyzerBase::bookH2(DQMStore::IBooker &iBooker,
   return me;
 }
 
-MonitorElement *ScoutingAnalyzerBase::bookH2withSumw2(DQMStore::IBooker &iBooker,
-                                                      const std::string &name,
-                                                      const std::string &title,
-                                                      int nchX,
-                                                      double lowX,
-                                                      double highX,
-                                                      int nchY,
-                                                      double lowY,
-                                                      double highY,
-                                                      const std::string &titleX,
-                                                      const std::string &titleY,
-                                                      Option_t *option) {
+ScoutingAnalyzerBase::MonitorElement *ScoutingAnalyzerBase::bookH2withSumw2(DQMStore::IBooker &iBooker,
+                                                                            const std::string &name,
+                                                                            const std::string &title,
+                                                                            int nchX,
+                                                                            double lowX,
+                                                                            double highX,
+                                                                            int nchY,
+                                                                            double lowY,
+                                                                            double highY,
+                                                                            const std::string &titleX,
+                                                                            const std::string &titleY,
+                                                                            Option_t *option) {
   MonitorElement *me = iBooker.book2DD(newName(name), title, nchX, lowX, highX, nchY, lowY, highY);
   me->getTH1()->Sumw2();
   if (!titleX.empty()) {
@@ -167,17 +167,17 @@ MonitorElement *ScoutingAnalyzerBase::bookH2withSumw2(DQMStore::IBooker &iBooker
   return me;
 }
 
-MonitorElement *ScoutingAnalyzerBase::bookP1(DQMStore::IBooker &iBooker,
-                                             const std::string &name,
-                                             const std::string &title,
-                                             int nchX,
-                                             double lowX,
-                                             double highX,
-                                             double lowY,
-                                             double highY,
-                                             const std::string &titleX,
-                                             const std::string &titleY,
-                                             Option_t *option) {
+ScoutingAnalyzerBase::MonitorElement *ScoutingAnalyzerBase::bookP1(DQMStore::IBooker &iBooker,
+                                                                   const std::string &name,
+                                                                   const std::string &title,
+                                                                   int nchX,
+                                                                   double lowX,
+                                                                   double highX,
+                                                                   double lowY,
+                                                                   double highY,
+                                                                   const std::string &titleX,
+                                                                   const std::string &titleY,
+                                                                   Option_t *option) {
   MonitorElement *me = iBooker.bookProfile(newName(name), title, nchX, lowX, highX, lowY, highY, " ");
   if (!titleX.empty()) {
     me->getTProfile()->GetXaxis()->SetTitle(titleX.c_str());
@@ -191,13 +191,13 @@ MonitorElement *ScoutingAnalyzerBase::bookP1(DQMStore::IBooker &iBooker,
   return me;
 }
 
-MonitorElement *ScoutingAnalyzerBase::bookH1andDivide(DQMStore::IBooker &iBooker,
-                                                      const std::string &name,
-                                                      MonitorElement *num,
-                                                      MonitorElement *denom,
-                                                      const std::string &titleX,
-                                                      const std::string &titleY,
-                                                      const std::string &title) {
+ScoutingAnalyzerBase::MonitorElement *ScoutingAnalyzerBase::bookH1andDivide(DQMStore::IBooker &iBooker,
+                                                                            const std::string &name,
+                                                                            MonitorElement *num,
+                                                                            MonitorElement *denom,
+                                                                            const std::string &titleX,
+                                                                            const std::string &titleY,
+                                                                            const std::string &title) {
   std::string name2 = newName(name);
   TH1D *h_temp = dynamic_cast<TH1D *>(num->getTH1()->Clone(name2.c_str()));
   h_temp->Reset();
@@ -215,13 +215,13 @@ MonitorElement *ScoutingAnalyzerBase::bookH1andDivide(DQMStore::IBooker &iBooker
   return me;
 }
 
-MonitorElement *ScoutingAnalyzerBase::bookH2andDivide(DQMStore::IBooker &iBooker,
-                                                      const std::string &name,
-                                                      MonitorElement *num,
-                                                      MonitorElement *denom,
-                                                      const std::string &titleX,
-                                                      const std::string &titleY,
-                                                      const std::string &title) {
+ScoutingAnalyzerBase::MonitorElement *ScoutingAnalyzerBase::bookH2andDivide(DQMStore::IBooker &iBooker,
+                                                                            const std::string &name,
+                                                                            MonitorElement *num,
+                                                                            MonitorElement *denom,
+                                                                            const std::string &titleX,
+                                                                            const std::string &titleY,
+                                                                            const std::string &title) {
   std::string name2 = newName(name);
   TH2D *h_temp = dynamic_cast<TH2D *>(num->getTH1()->Clone(name2.c_str()));
   h_temp->Reset();
@@ -239,13 +239,13 @@ MonitorElement *ScoutingAnalyzerBase::bookH2andDivide(DQMStore::IBooker &iBooker
   return me;
 }
 
-MonitorElement *ScoutingAnalyzerBase::profileX(DQMStore::IBooker &iBooker,
-                                               MonitorElement *me2d,
-                                               const std::string &title,
-                                               const std::string &titleX,
-                                               const std::string &titleY,
-                                               Double_t minimum,
-                                               Double_t maximum) {
+ScoutingAnalyzerBase::MonitorElement *ScoutingAnalyzerBase::profileX(DQMStore::IBooker &iBooker,
+                                                                     MonitorElement *me2d,
+                                                                     const std::string &title,
+                                                                     const std::string &titleX,
+                                                                     const std::string &titleY,
+                                                                     Double_t minimum,
+                                                                     Double_t maximum) {
   std::string name2 = me2d->getName() + "_pfx";
   TProfile *p1_temp = me2d->getTH2D()->ProfileX();
   if (!title.empty()) {
@@ -268,13 +268,13 @@ MonitorElement *ScoutingAnalyzerBase::profileX(DQMStore::IBooker &iBooker,
   return me;
 }
 
-MonitorElement *ScoutingAnalyzerBase::profileY(DQMStore::IBooker &iBooker,
-                                               MonitorElement *me2d,
-                                               const std::string &title,
-                                               const std::string &titleX,
-                                               const std::string &titleY,
-                                               Double_t minimum,
-                                               Double_t maximum) {
+ScoutingAnalyzerBase::MonitorElement *ScoutingAnalyzerBase::profileY(DQMStore::IBooker &iBooker,
+                                                                     MonitorElement *me2d,
+                                                                     const std::string &title,
+                                                                     const std::string &titleX,
+                                                                     const std::string &titleY,
+                                                                     Double_t minimum,
+                                                                     Double_t maximum) {
   std::string name2 = me2d->getName() + "_pfy";
   TProfile *p1_temp = me2d->getTH2D()->ProfileY();
   if (!title.empty()) {

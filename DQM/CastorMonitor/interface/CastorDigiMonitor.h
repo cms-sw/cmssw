@@ -18,6 +18,8 @@
 
 class CastorDigiMonitor {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   CastorDigiMonitor(const edm::ParameterSet &ps);
   ~CastorDigiMonitor();
 

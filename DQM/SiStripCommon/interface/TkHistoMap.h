@@ -10,6 +10,9 @@
 #include <string>
 
 class TkHistoMap {
+protected:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   typedef std::vector<MonitorElement*> tkHistoMapVect;
 
 public:

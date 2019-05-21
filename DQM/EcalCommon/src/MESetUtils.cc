@@ -14,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace ecaldqm {
+  using dqm::reco::MonitorElement;
   MESet *createMESet(edm::ParameterSet const &_MEParam) {
     std::string path(_MEParam.getUntrackedParameter<std::string>("path"));
     binning::ObjectType otype(binning::translateObjectType(_MEParam.getUntrackedParameter<std::string>("otype")));

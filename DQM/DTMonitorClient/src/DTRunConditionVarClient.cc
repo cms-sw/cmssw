@@ -310,9 +310,9 @@ void DTRunConditionVarClient::bookWheelHistos(DQMStore::IBooker& ibooker,
   return;
 }
 
-MonitorElement* DTRunConditionVarClient::getChamberHistos(DQMStore::IGetter& igetter,
-                                                          const DTChamberId& dtCh,
-                                                          string histoType) {
+DTRunConditionVarClient::MonitorElement* DTRunConditionVarClient::getChamberHistos(DQMStore::IGetter& igetter,
+                                                                                   const DTChamberId& dtCh,
+                                                                                   string histoType) {
   int wh = dtCh.wheel();
   int sc = dtCh.sector();
   int st = dtCh.station();

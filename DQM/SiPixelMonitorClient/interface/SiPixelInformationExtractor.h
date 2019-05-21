@@ -37,6 +37,9 @@ class SiPixelEDAClient;
 class SiPixelWebInterface;
 class SiPixelInformationExtractor {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   SiPixelInformationExtractor(bool offlineXMLfile);
   ~SiPixelInformationExtractor();
 

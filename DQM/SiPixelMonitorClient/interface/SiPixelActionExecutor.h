@@ -47,6 +47,9 @@ enum funcType { EachBinContent, Entries, Mean, Sum, WeightedSum };
 
 class SiPixelActionExecutor {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   SiPixelActionExecutor(bool offlineXMLfile, bool Tier0Flag);
   ~SiPixelActionExecutor();
 

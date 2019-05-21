@@ -30,6 +30,9 @@ class GetLumi;
 
 class VertexMonitor {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   VertexMonitor(const edm::ParameterSet&, const edm::InputTag&, const edm::InputTag&, std::string pvLabel);
   VertexMonitor(const edm::ParameterSet&,
                 const edm::InputTag&,

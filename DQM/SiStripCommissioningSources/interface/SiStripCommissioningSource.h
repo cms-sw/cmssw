@@ -32,6 +32,8 @@ public:  // ---------- Public interface ----------
   typedef std::map<unsigned int, CommissioningTask*> TaskMap;
   typedef std::vector<CommissioningTask*> VecOfTasks;
   typedef std::vector<VecOfTasks> VecOfVecOfTasks;
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
 
   SiStripCommissioningSource(const edm::ParameterSet&);
   ~SiStripCommissioningSource() override;

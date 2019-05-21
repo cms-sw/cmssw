@@ -39,6 +39,8 @@
 #include "TLorentzVector.h"
 
 struct hltPlot {
+  typedef dqm::reco::MonitorElement MonitorElement;
+
   std::pair<MonitorElement*, bool> nME;
   std::pair<MonitorElement*, bool> etaME;
   std::pair<MonitorElement*, bool> phiME;

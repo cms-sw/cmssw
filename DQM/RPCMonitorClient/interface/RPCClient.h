@@ -20,6 +20,9 @@
 
 class RPCClient {
 public:
+  typedef dqm::harvesting::DQMStore DQMStore;
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+
   //RPCClient(const edm::ParameterSet& ps) {}
   virtual ~RPCClient(void) {}
 

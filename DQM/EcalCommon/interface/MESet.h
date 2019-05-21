@@ -26,6 +26,8 @@ namespace ecaldqm {
 
   class MESet {
   public:
+    typedef dqm::legacy::DQMStore DQMStore;
+    typedef dqm::legacy::MonitorElement MonitorElement;
     typedef std::map<std::string, std::string> PathReplacements;
 
     MESet();

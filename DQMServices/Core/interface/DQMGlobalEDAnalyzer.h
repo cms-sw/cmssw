@@ -9,6 +9,10 @@
 
 template <typename H, typename... Args>
 class DQMGlobalEDAnalyzer : public edm::global::EDAnalyzer<edm::RunCache<H>, Args...> {
+public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
+
 private:
   std::shared_ptr<H> globalBeginRun(edm::Run const&, edm::EventSetup const&) const final;
 

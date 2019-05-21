@@ -11,6 +11,9 @@ namespace edm {
 
 class ESClient {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   ESClient(edm::ParameterSet const &);
   virtual ~ESClient() {}
 

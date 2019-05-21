@@ -920,19 +920,19 @@ namespace ecaldqm {
       throw cms::Exception("InvalidConfiguration") << "No binning type " << _btypeName << " defined";
     }
 
-    MonitorElement::Kind translateKind(std::string const &_kindName) {
+    dqm::reco::MonitorElement::Kind translateKind(std::string const &_kindName) {
       if (_kindName == "REAL")
-        return MonitorElement::DQM_KIND_REAL;
+        return dqm::reco::MonitorElement::DQM_KIND_REAL;
       else if (_kindName == "TH1F")
-        return MonitorElement::DQM_KIND_TH1F;
+        return dqm::reco::MonitorElement::DQM_KIND_TH1F;
       else if (_kindName == "TProfile")
-        return MonitorElement::DQM_KIND_TPROFILE;
+        return dqm::reco::MonitorElement::DQM_KIND_TPROFILE;
       else if (_kindName == "TH2F")
-        return MonitorElement::DQM_KIND_TH2F;
+        return dqm::reco::MonitorElement::DQM_KIND_TH2F;
       else if (_kindName == "TProfile2D")
-        return MonitorElement::DQM_KIND_TPROFILE2D;
+        return dqm::reco::MonitorElement::DQM_KIND_TPROFILE2D;
       else
-        return MonitorElement::DQM_KIND_INVALID;
+        return dqm::reco::MonitorElement::DQM_KIND_INVALID;
     }
   }  // namespace binning
 }  // namespace ecaldqm

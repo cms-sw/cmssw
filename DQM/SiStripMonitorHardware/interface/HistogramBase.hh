@@ -26,6 +26,9 @@
 
 class HistogramBase {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   struct HistogramConfig {
     HistogramConfig() : globalswitchon(true) {}
     MonitorElement* monitorEle;

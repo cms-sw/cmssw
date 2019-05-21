@@ -155,7 +155,7 @@ namespace ecaldqm {
 
     ObjectType translateObjectType(std::string const &);
     BinningType translateBinningType(std::string const &);
-    MonitorElement::Kind translateKind(std::string const &);
+    dqm::legacy::MonitorElement::Kind translateKind(std::string const &);
 
     /* Functions used only internally within binning namespace */
 

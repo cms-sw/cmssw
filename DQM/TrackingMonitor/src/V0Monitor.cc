@@ -83,7 +83,7 @@ void V0Monitor::getHistoPSet(edm::ParameterSet pset, MEbinning& mebinning) {
   mebinning.xmax = pset.getParameter<double>("xmax");
 }
 
-MonitorElement* V0Monitor::bookHisto1D(DQMStore::IBooker& ibooker,
+V0Monitor::MonitorElement* V0Monitor::bookHisto1D(DQMStore::IBooker& ibooker,
                                        std::string name,
                                        std::string title,
                                        std::string xaxis,
@@ -92,7 +92,7 @@ MonitorElement* V0Monitor::bookHisto1D(DQMStore::IBooker& ibooker,
   std::string title_w_axes = title + ";" + xaxis + ";" + yaxis;
   return ibooker.book1D(name, title_w_axes, binning.nbins, binning.xmin, binning.xmax);
 }
-MonitorElement* V0Monitor::bookHisto2D(DQMStore::IBooker& ibooker,
+V0Monitor::MonitorElement* V0Monitor::bookHisto2D(DQMStore::IBooker& ibooker,
                                        std::string name,
                                        std::string title,
                                        std::string xaxis,
@@ -103,7 +103,7 @@ MonitorElement* V0Monitor::bookHisto2D(DQMStore::IBooker& ibooker,
   return ibooker.book2D(
       name, title_w_axes, xbinning.nbins, xbinning.xmin, xbinning.xmax, ybinning.nbins, ybinning.xmin, ybinning.xmax);
 }
-MonitorElement* V0Monitor::bookProfile(DQMStore::IBooker& ibooker,
+V0Monitor::MonitorElement* V0Monitor::bookProfile(DQMStore::IBooker& ibooker,
                                        std::string name,
                                        std::string title,
                                        std::string xaxis,

@@ -23,6 +23,9 @@ class MonitorElementsDb;
 
 class EcalBarrelMonitorDbModule : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   /// Constructor
   EcalBarrelMonitorDbModule(const edm::ParameterSet &ps);
 

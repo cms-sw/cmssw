@@ -39,6 +39,9 @@ class SiStripCablingDQM;
 
 class SiStripMonitorCondData : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   explicit SiStripMonitorCondData(const edm::ParameterSet &);
 
   ~SiStripMonitorCondData() override;

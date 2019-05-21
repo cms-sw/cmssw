@@ -27,6 +27,9 @@
 #include <iomanip>
 
 namespace {
+  using dqm::reco::DQMStore;
+  using dqm::reco::MonitorElement;
+
   template <typename T>
   void fillNoFlow(MonitorElement* me, T val) {
     auto h = me->getTH1();

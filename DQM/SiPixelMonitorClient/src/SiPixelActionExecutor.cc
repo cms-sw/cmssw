@@ -1770,10 +1770,10 @@ void SiPixelActionExecutor::getGrandSummaryME(
 //
 // -- Get Summary ME
 //
-MonitorElement *SiPixelActionExecutor::getSummaryME(DQMStore::IBooker &iBooker,
-                                                    DQMStore::IGetter &iGetter,
-                                                    string me_name,
-                                                    bool isUpgrade) {
+SiPixelActionExecutor::MonitorElement *SiPixelActionExecutor::getSummaryME(DQMStore::IBooker &iBooker,
+                                                                           DQMStore::IGetter &iGetter,
+                                                                           string me_name,
+                                                                           bool isUpgrade) {
   // printing cout<<"Entering SiPixelActionExecutor::getSummaryME for:
   // "<<me_name<<endl;
   MonitorElement *me = nullptr;
@@ -1831,9 +1831,9 @@ MonitorElement *SiPixelActionExecutor::getSummaryME(DQMStore::IBooker &iBooker,
 }
 
 //=============================================================================================================
-MonitorElement *SiPixelActionExecutor::getFEDSummaryME(DQMStore::IBooker &iBooker,
-                                                       DQMStore::IGetter &iGetter,
-                                                       string me_name) {
+SiPixelActionExecutor::MonitorElement *SiPixelActionExecutor::getFEDSummaryME(DQMStore::IBooker &iBooker,
+                                                                              DQMStore::IGetter &iGetter,
+                                                                              string me_name) {
   // printing cout<<"Entering SiPixelActionExecutor::getFEDSummaryME..."<<endl;
   MonitorElement *me = nullptr;
   if ((iBooker.pwd()).find("Pixel") == string::npos)
