@@ -26,34 +26,31 @@
 // forward declarations
 
 class FWItemSingleAccessor : public FWItemAccessorBase {
-
 public:
-   FWItemSingleAccessor(const TClass*);
-   ~FWItemSingleAccessor() override;
+  FWItemSingleAccessor(const TClass*);
+  ~FWItemSingleAccessor() override;
 
-   // ---------- const member functions ---------------------
-   const void* modelData(int iIndex) const override;
-   const void* data() const override;
-   unsigned int size() const override;
-   const TClass* modelType() const override;
-   const TClass* type() const override;
+  // ---------- const member functions ---------------------
+  const void* modelData(int iIndex) const override;
+  const void* data() const override;
+  unsigned int size() const override;
+  const TClass* modelType() const override;
+  const TClass* type() const override;
 
-   bool isCollection() const override;
+  bool isCollection() const override;
 
-   // ---------- member functions ---------------------------
-   void setData(const edm::ObjectWithDict& ) override;
-   void reset() override;
+  // ---------- member functions ---------------------------
+  void setData(const edm::ObjectWithDict&) override;
+  void reset() override;
 
 private:
-   FWItemSingleAccessor(const FWItemSingleAccessor&) = delete; // stop default
+  FWItemSingleAccessor(const FWItemSingleAccessor&) = delete;  // stop default
 
-   const FWItemSingleAccessor& operator=(const FWItemSingleAccessor&) = delete; // stop default
+  const FWItemSingleAccessor& operator=(const FWItemSingleAccessor&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   const TClass* m_type;
-   const void* m_data;
-
+  // ---------- member data --------------------------------
+  const TClass* m_type;
+  const void* m_data;
 };
-
 
 #endif

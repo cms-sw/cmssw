@@ -28,19 +28,17 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 
-class GenLeadTrackFilter : public edm::EDFilter 
-{
-  public:
+class GenLeadTrackFilter : public edm::EDFilter {
+public:
   explicit GenLeadTrackFilter(const edm::ParameterSet&);
   ~GenLeadTrackFilter() override;
 
-  private:
+private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  void endJob() override;
   // ----------member data ---------------------------
   edm::InputTag hepMCProduct_label_;
-  double   genLeadTrackPt_,
-           genEta_;
+  double genLeadTrackPt_, genEta_;
 };
 
 #endif

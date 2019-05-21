@@ -9,29 +9,21 @@
 #include "Fireworks/Core/interface/FWDetailViewBase.h"
 #include "Fireworks/Core/interface/FWDetailViewFactory.h"
 
-
-template<typename T>
+template <typename T>
 class FWDetailView : public FWDetailViewBase {
 public:
-   FWDetailView() :
-      FWDetailViewBase(typeid(T)) {
-   }
+  FWDetailView() : FWDetailViewBase(typeid(T)) {}
 
-   static std::string classTypeName() {
-      return edm::TypeWithDict(typeid(T)).name();
-   }
+  static std::string classTypeName() { return edm::TypeWithDict(typeid(T)).name(); }
 
-   static std::string classRegisterTypeName() {
-      return typeid(T).name();
-   }
-   virtual void build(const FWModelId&, const T*) = 0;
-   virtual void setTextInfo(const FWModelId&, const T*) = 0;
+  static std::string classRegisterTypeName() { return typeid(T).name(); }
+  virtual void build(const FWModelId&, const T*) = 0;
+  virtual void setTextInfo(const FWModelId&, const T*) = 0;
 
-   void build(const FWModelId& iID, const void* iData) override {
-      setItem(iID.item());
-      build(iID, reinterpret_cast<const T*> (iData));  
-   }
-
+  void build(const FWModelId& iID, const void* iData) override {
+    setItem(iID.item());
+    build(iID, reinterpret_cast<const T*>(iData));
+  }
 };
 
 #endif

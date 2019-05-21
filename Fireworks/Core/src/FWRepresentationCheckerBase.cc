@@ -15,7 +15,6 @@
 // user include files
 #include "Fireworks/Core/interface/FWRepresentationCheckerBase.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,22 +26,21 @@
 //
 // constructors and destructor
 //
-FWRepresentationCheckerBase::FWRepresentationCheckerBase(const std::string& iPurpose, 
+FWRepresentationCheckerBase::FWRepresentationCheckerBase(const std::string& iPurpose,
                                                          unsigned int iBitPackedViews,
                                                          bool iRepresentsSubPart,
-                                                         bool iRequiresFF) :
-   m_purpose(iPurpose), m_bitPackedViews(iBitPackedViews), m_representsSubPart(iRepresentsSubPart), m_requiresFF(iRequiresFF)
-{
-}
+                                                         bool iRequiresFF)
+    : m_purpose(iPurpose),
+      m_bitPackedViews(iBitPackedViews),
+      m_representsSubPart(iRepresentsSubPart),
+      m_requiresFF(iRequiresFF) {}
 
 // FWRepresentationCheckerBase::FWRepresentationCheckerBase(const FWRepresentationCheckerBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWRepresentationCheckerBase::~FWRepresentationCheckerBase()
-{
-}
+FWRepresentationCheckerBase::~FWRepresentationCheckerBase() {}
 
 //
 // assignment operators
@@ -63,22 +61,11 @@ FWRepresentationCheckerBase::~FWRepresentationCheckerBase()
 //
 // const member functions
 //
-const std::string&
-FWRepresentationCheckerBase::purpose() const
-{
-   return m_purpose;
-}
+const std::string& FWRepresentationCheckerBase::purpose() const { return m_purpose; }
 
-unsigned int 
-FWRepresentationCheckerBase::bitPackedViews() const
-{
-   return m_bitPackedViews;
-}
+unsigned int FWRepresentationCheckerBase::bitPackedViews() const { return m_bitPackedViews; }
 
-bool FWRepresentationCheckerBase::representsSubPart() const
-{
-   return m_representsSubPart;
-}
+bool FWRepresentationCheckerBase::representsSubPart() const { return m_representsSubPart; }
 //
 // static member functions
 //

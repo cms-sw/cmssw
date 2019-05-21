@@ -15,7 +15,6 @@
 // user include files
 #include "Fireworks/Core/interface/FWItemAccessorBase.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,18 +26,14 @@
 //
 // constructors and destructor
 //
-FWItemAccessorBase::FWItemAccessorBase()
-{
-}
+FWItemAccessorBase::FWItemAccessorBase() {}
 
 // FWItemAccessorBase::FWItemAccessorBase(const FWItemAccessorBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWItemAccessorBase::~FWItemAccessorBase()
-{
-}
+FWItemAccessorBase::~FWItemAccessorBase() {}
 
 //
 // assignment operators

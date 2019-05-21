@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h" 
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -26,86 +26,74 @@
 #include "GeneratorInterface/Pythia8Interface/test/analyserhepmc/JetInputHepMC.h"
 
 struct ParticlePtGreater {
-  double operator () (const HepMC::GenParticle *v1,
-                                  const HepMC::GenParticle *v2)
-  { return v1->momentum().perp() > v2->momentum().perp(); }
+  double operator()(const HepMC::GenParticle* v1, const HepMC::GenParticle* v2) {
+    return v1->momentum().perp() > v2->momentum().perp();
+  }
 };
 
+class ZJetsAnalyzer : public edm::EDAnalyzer {
+public:
+  //
+  explicit ZJetsAnalyzer(const edm::ParameterSet&);
+  virtual ~ZJetsAnalyzer();  // no need to delete ROOT stuff
+                             // as it'll be deleted upon closing TFile
 
-class ZJetsAnalyzer : public edm::EDAnalyzer
-{
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void beginJob() override;
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
 
-  public:
-   
-    //
-    explicit ZJetsAnalyzer( const edm::ParameterSet& ) ;
-    virtual ~ZJetsAnalyzer(); // no need to delete ROOT stuff
-                              // as it'll be deleted upon closing TFile
-      
-    virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
-    virtual void beginJob() override;
-    virtual void endRun( const edm::Run&, const edm::EventSetup& ) override;
+private:
+  edm::EDGetTokenT<GenEventInfoProduct> tokenGenEvent_;
+  edm::EDGetTokenT<edm::HepMCProduct> tokenHepMC_;
+  edm::EDGetTokenT<GenRunInfoProduct> tokenGenRun_;
 
-  private:
+  LeptonAnalyserHepMC LA;
+  JetInputHepMC JetInput;
+  fastjet::Strategy strategy;
+  fastjet::RecombinationScheme recombScheme;
+  fastjet::JetDefinition* jetDef;
 
-    edm::EDGetTokenT<GenEventInfoProduct> tokenGenEvent_;
-    edm::EDGetTokenT<edm::HepMCProduct> tokenHepMC_;
-    edm::EDGetTokenT<GenRunInfoProduct> tokenGenRun_;
+  int icategories[6];
 
-    LeptonAnalyserHepMC LA;
-    JetInputHepMC JetInput;
-    fastjet::Strategy strategy;
-    fastjet::RecombinationScheme recombScheme;
-    fastjet::JetDefinition* jetDef;
+  TH1D* fHist2muMass;
+};
 
-    int icategories[6];
-
-    TH1D*       fHist2muMass ;
-     
-}; 
-
-
-ZJetsAnalyzer::ZJetsAnalyzer( const edm::ParameterSet& pset ) :
-tokenGenEvent_(consumes<GenEventInfoProduct>(edm::InputTag(pset.getUntrackedParameter("moduleLabel",std::string("generator")),""))),
-tokenHepMC_(consumes<edm::HepMCProduct>(edm::InputTag(pset.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
-tokenGenRun_(consumes<GenRunInfoProduct,edm::InRun>(edm::InputTag(pset.getUntrackedParameter("moduleLabel",std::string("generator")),""))),
-fHist2muMass(0)
-{
-// actually, pset is NOT in use - we keep it here just for illustratory putposes
+ZJetsAnalyzer::ZJetsAnalyzer(const edm::ParameterSet& pset)
+    : tokenGenEvent_(consumes<GenEventInfoProduct>(
+          edm::InputTag(pset.getUntrackedParameter("moduleLabel", std::string("generator")), ""))),
+      tokenHepMC_(consumes<edm::HepMCProduct>(
+          edm::InputTag(pset.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))),
+      tokenGenRun_(consumes<GenRunInfoProduct, edm::InRun>(
+          edm::InputTag(pset.getUntrackedParameter("moduleLabel", std::string("generator")), ""))),
+      fHist2muMass(0) {
+  // actually, pset is NOT in use - we keep it here just for illustratory putposes
 }
 
+ZJetsAnalyzer::~ZJetsAnalyzer() { ; }
 
-ZJetsAnalyzer::~ZJetsAnalyzer()
-{;}
-
-
-void ZJetsAnalyzer::beginJob()
-{
-  
+void ZJetsAnalyzer::beginJob() {
   edm::Service<TFileService> fs;
-  fHist2muMass = fs->make<TH1D>(  "Hist2muMass", "2-mu inv. mass", 100,  60., 120. ) ;
-    
+  fHist2muMass = fs->make<TH1D>("Hist2muMass", "2-mu inv. mass", 100, 60., 120.);
+
   double Rparam = 0.5;
   strategy = fastjet::Best;
   recombScheme = fastjet::E_scheme;
-  jetDef = new fastjet::JetDefinition(fastjet::antikt_algorithm, Rparam,
-                                      recombScheme, strategy);
+  jetDef = new fastjet::JetDefinition(fastjet::antikt_algorithm, Rparam, recombScheme, strategy);
 
-  for (int ind=0; ind < 6; ind++) {icategories[ind]=0;}
+  for (int ind = 0; ind < 6; ind++) {
+    icategories[ind] = 0;
+  }
 
-  return ;
-  
+  return;
 }
 
-
-void ZJetsAnalyzer::endRun( const edm::Run& r, const edm::EventSetup& )
-{
+void ZJetsAnalyzer::endRun(const edm::Run& r, const edm::EventSetup&) {
   std::ofstream testi("testi.dat");
   double val, errval;
 
-  edm::Handle< GenRunInfoProduct > genRunInfoProduct;
+  edm::Handle<GenRunInfoProduct> genRunInfoProduct;
   //r.getByLabel("generator", genRunInfoProduct );
-  r.getByToken( tokenGenRun_ , genRunInfoProduct );
+  r.getByToken(tokenGenRun_, genRunInfoProduct);
 
   val = (double)genRunInfoProduct->crossSection();
   std::cout << std::endl;
@@ -113,50 +101,47 @@ void ZJetsAnalyzer::endRun( const edm::Run& r, const edm::EventSetup& )
   std::cout << std::endl;
 
   errval = 0.;
-  if(icategories[0] > 0) errval = val/sqrt( (double)(icategories[0]) );
+  if (icategories[0] > 0)
+    errval = val / sqrt((double)(icategories[0]));
   testi << "pythia8_test1  1   " << val << " " << errval << " " << std::endl;
 
   std::cout << std::endl;
   std::cout << " Events with at least 1 isolated lepton  :                     "
-       << ((double)icategories[1])/((double)icategories[0]) << std::endl;
+            << ((double)icategories[1]) / ((double)icategories[0]) << std::endl;
   std::cout << " Events with at least 2 isolated leptons :                     "
-       << ((double)icategories[2])/((double)icategories[0]) << std::endl;
+            << ((double)icategories[2]) / ((double)icategories[0]) << std::endl;
   std::cout << " Events with at least 2 isolated leptons and at least 1 jet  : "
-       << ((double)icategories[3])/((double)icategories[0]) << std::endl;
+            << ((double)icategories[3]) / ((double)icategories[0]) << std::endl;
   std::cout << " Events with at least 2 isolated leptons and at least 2 jets : "
-       << ((double)icategories[4])/((double)icategories[0]) << std::endl;
+            << ((double)icategories[4]) / ((double)icategories[0]) << std::endl;
   std::cout << std::endl;
 
-  val = ((double)icategories[4])/((double)icategories[0]);
+  val = ((double)icategories[4]) / ((double)icategories[0]);
   errval = 0.;
-  if(icategories[4] > 0) errval = val/sqrt((double)icategories[4]);
+  if (icategories[4] > 0)
+    errval = val / sqrt((double)icategories[4]);
   testi << "pythia8_test1  2   " << val << " " << errval << " " << std::endl;
-
 }
 
-
-void ZJetsAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
-{
-  
+void ZJetsAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
   icategories[0]++;
 
   // here's an example of accessing GenEventInfoProduct
-  edm::Handle< GenEventInfoProduct > GenInfoHandle;
+  edm::Handle<GenEventInfoProduct> GenInfoHandle;
   //e.getByLabel( "generator", GenInfoHandle );
-  e.getByToken( tokenGenEvent_ , GenInfoHandle );
+  e.getByToken(tokenGenEvent_, GenInfoHandle);
 
   double qScale = GenInfoHandle->qScale();
-  double pthat = ( GenInfoHandle->hasBinningValues() ? 
-                  (GenInfoHandle->binningValues())[0] : 0.0);
+  double pthat = (GenInfoHandle->hasBinningValues() ? (GenInfoHandle->binningValues())[0] : 0.0);
   std::cout << " qScale = " << qScale << " pthat = " << pthat << std::endl;
   //
-  // this (commented out) code below just exemplifies how to access certain info 
+  // this (commented out) code below just exemplifies how to access certain info
   //
   //double evt_weight1 = GenInfoHandle->weights()[0]; // this is "stanrd Py6 evt weight;
-                                                    // corresponds to PYINT1/VINT(97)
+  // corresponds to PYINT1/VINT(97)
   //double evt_weight2 = GenInfoHandle->weights()[1]; // in case you run in CSA mode or otherwise
-                                                    // use PYEVWT routine, this will be weight
-						    // as returned by PYEVWT, i.e. PYINT1/VINT(99)
+  // use PYEVWT routine, this will be weight
+  // as returned by PYEVWT, i.e. PYINT1/VINT(99)
   //std::cout << " evt_weight1 = " << evt_weight1 << std::endl;
   //std::cout << " evt_weight2 = " << evt_weight2 << std::endl;
   //double weight = GenInfoHandle->weight();
@@ -164,53 +149,52 @@ void ZJetsAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
 
   // here's an example of accessing particles in the event record (HepMCProduct)
   //
-  edm::Handle< edm::HepMCProduct > EvtHandle ;
+  edm::Handle<edm::HepMCProduct> EvtHandle;
   // find initial (unsmeared, unfiltered,...) HepMCProduct
   //e.getByLabel("VtxSmeared", EvtHandle);
-  e.getByToken( tokenHepMC_ , EvtHandle );
+  e.getByToken(tokenHepMC_, EvtHandle);
 
-  const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
+  const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
 
   int nisolep = LA.nIsolatedLeptons(Evt);
 
   //std::cout << "Number of leptons = " << nisolep << std::endl;
-  if(nisolep > 0) icategories[1]++;
-  if(nisolep > 1) icategories[2]++;
+  if (nisolep > 0)
+    icategories[1]++;
+  if (nisolep > 1)
+    icategories[2]++;
 
   JetInputHepMC::ParticleVector jetInput = JetInput(Evt);
   std::sort(jetInput.begin(), jetInput.end(), ParticlePtGreater());
 
   // Fastjet input
-  std::vector <fastjet::PseudoJet> jfInput;
+  std::vector<fastjet::PseudoJet> jfInput;
   jfInput.reserve(jetInput.size());
-  for (JetInputHepMC::ParticleVector::const_iterator iter = jetInput.begin();
-       iter != jetInput.end(); ++iter) {
-    jfInput.push_back(fastjet::PseudoJet( (*iter)->momentum().px(),
-                                          (*iter)->momentum().py(),
-                                          (*iter)->momentum().pz(),
-                                          (*iter)->momentum().e()  )  );
+  for (JetInputHepMC::ParticleVector::const_iterator iter = jetInput.begin(); iter != jetInput.end(); ++iter) {
+    jfInput.push_back(fastjet::PseudoJet(
+        (*iter)->momentum().px(), (*iter)->momentum().py(), (*iter)->momentum().pz(), (*iter)->momentum().e()));
     jfInput.back().set_user_index(iter - jetInput.begin());
   }
 
   // Run Fastjet algorithm
-  std::vector <fastjet::PseudoJet> inclusiveJets, sortedJets, cleanedJets;
+  std::vector<fastjet::PseudoJet> inclusiveJets, sortedJets, cleanedJets;
   fastjet::ClusterSequence clustSeq(jfInput, *jetDef);
 
   // Extract inclusive jets sorted by pT (note minimum pT in GeV)
   inclusiveJets = clustSeq.inclusive_jets(20.0);
-  sortedJets    = sorted_by_pt(inclusiveJets);
+  sortedJets = sorted_by_pt(inclusiveJets);
 
   cleanedJets = LA.removeLeptonsFromJets(sortedJets, Evt);
 
-  if(nisolep > 1) {
-    if(cleanedJets.size() > 0) icategories[3]++;
-    if(cleanedJets.size() > 1) icategories[4]++;
+  if (nisolep > 1) {
+    if (cleanedJets.size() > 0)
+      icategories[3]++;
+    if (cleanedJets.size() > 1)
+      icategories[4]++;
   }
 
-  return ;
-   
+  return;
 }
-
 
 typedef ZJetsAnalyzer ZJetsTest;
 DEFINE_FWK_MODULE(ZJetsTest);

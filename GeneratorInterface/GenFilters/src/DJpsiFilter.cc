@@ -2,7 +2,7 @@
 //
 // Package:    DJpsiFilter
 // Class:      DJpsiFilter
-// 
+//
 /**\class DJpsiFilter DJpsiFilter.cc psi2s1s/DJpsiFilter/src/DJpsiFilter.cc
 
  Description: [one line class summary]
@@ -15,7 +15,6 @@
 //         Created:  Tue Nov 22 20:39:54 CST 2011
 //
 //
-
 
 // system include files
 #include <memory>
@@ -37,26 +36,24 @@
 //
 
 class DJpsiFilter : public edm::EDFilter {
-   public:
-      explicit DJpsiFilter(const edm::ParameterSet&);
-      ~DJpsiFilter() override;
+public:
+  explicit DJpsiFilter(const edm::ParameterSet&);
+  ~DJpsiFilter() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-      bool filter(edm::Event&, const edm::EventSetup&) override;
+  // ----------member data ---------------------------
 
-      // ----------member data ---------------------------
-    
-       edm::EDGetToken token_;
-       double minPt;
-       double maxY;
-       double maxPt;
-       double minY;
-       int    status;
-       int    particleID;
-
+  edm::EDGetToken token_;
+  double minPt;
+  double maxY;
+  double maxPt;
+  double minY;
+  int status;
+  int particleID;
 };
 
 //
@@ -70,78 +67,69 @@ class DJpsiFilter : public edm::EDFilter {
 //
 // constructors and destructor
 //
-DJpsiFilter::DJpsiFilter(const edm::ParameterSet& iConfig):
-token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
-minPt(iConfig.getUntrackedParameter("MinPt", 0.)),
-maxY(iConfig.getUntrackedParameter("MaxY", 10.)),
-maxPt(iConfig.getUntrackedParameter("MaxPt", 1000.)),
-minY(iConfig.getUntrackedParameter("MinY", 0.)),
-status(iConfig.getUntrackedParameter("Status", 0)),
-particleID(iConfig.getUntrackedParameter("ParticleID", 0))
-{
-   //now do what ever initialization is needed
+DJpsiFilter::DJpsiFilter(const edm::ParameterSet& iConfig)
+    : token_(consumes<edm::HepMCProduct>(
+          edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))),
+      minPt(iConfig.getUntrackedParameter("MinPt", 0.)),
+      maxY(iConfig.getUntrackedParameter("MaxY", 10.)),
+      maxPt(iConfig.getUntrackedParameter("MaxPt", 1000.)),
+      minY(iConfig.getUntrackedParameter("MinY", 0.)),
+      status(iConfig.getUntrackedParameter("Status", 0)),
+      particleID(iConfig.getUntrackedParameter("ParticleID", 0)) {
+  //now do what ever initialization is needed
 }
 
-
-DJpsiFilter::~DJpsiFilter()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+DJpsiFilter::~DJpsiFilter() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool
-DJpsiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-//   DJpsiInput++;
-//   std::cout<<"NumberofInputEvent "<<DJpsiInput<<std::endl;
+bool DJpsiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
+  //   DJpsiInput++;
+  //   std::cout<<"NumberofInputEvent "<<DJpsiInput<<std::endl;
 
-   bool accepted = false;
-   int n2jpsi = 0;
-//   int n2hadron = 0;
-   double energy, pz, momentumY;
-   Handle< HepMCProduct > evt;
-   iEvent.getByToken(token_, evt);
-   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
+  bool accepted = false;
+  int n2jpsi = 0;
+  //   int n2hadron = 0;
+  double energy, pz, momentumY;
+  Handle<HepMCProduct> evt;
+  iEvent.getByToken(token_, evt);
+  const HepMC::GenEvent* myGenEvent = evt->GetEvent();
 
+  for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end();
+       ++p) {
+    if ((*p)->status() != status)
+      continue;
+    //      if ( abs((*p)->pdg_id()) == particleID  )n2hadron++;
+    energy = (*p)->momentum().e();
+    pz = (*p)->momentum().pz();
+    momentumY = 0.5 * log((energy + pz) / (energy - pz));
+    if ((*p)->momentum().perp() > minPt && fabs(momentumY) < maxY && (*p)->momentum().perp() < maxPt &&
+        fabs(momentumY) > minY) {
+      if (abs((*p)->pdg_id()) == particleID)
+        n2jpsi++;
+    }
+    if (n2jpsi >= 2) {
+      accepted = true;
+      break;
+    }
+  }
 
-   for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();   p != myGenEvent->particles_end(); ++p ) {
-      if ( (*p)->status()!=status ) continue;
-//      if ( abs((*p)->pdg_id()) == particleID  )n2hadron++;
-      energy=(*p)->momentum().e();
-      pz=(*p)->momentum().pz();
-      momentumY=0.5*log((energy+pz)/(energy-pz));
-          if ((*p)->momentum().perp() > minPt && fabs(momentumY) < maxY &&
-              (*p)->momentum().perp() < maxPt && fabs(momentumY) > minY) {
-                if ( abs((*p)->pdg_id()) == particleID  )  n2jpsi++;
-          }
-          if (n2jpsi >= 2) {
-            accepted = true;
-                break;
-          }
-   }
-
-
-   if (accepted) {
-        return true;
-   } else {
-        return false;
-   }
-
-
+  if (accepted) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-DJpsiFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void DJpsiFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

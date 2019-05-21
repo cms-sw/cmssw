@@ -29,38 +29,37 @@ class FWModelId;
 class FWEventItem;
 
 namespace fireworks {
-   class Context;
+  class Context;
 }
 
-class FWDetailViewBase
-{
+class FWDetailViewBase {
 public:
-   virtual ~FWDetailViewBase ();
+  virtual ~FWDetailViewBase();
 
-   void  build (const FWModelId&);
+  void build(const FWModelId&);
 
-   virtual void init(TEveWindowSlot*) = 0;
-   virtual void setBackgroundColor(Color_t col) {}
+  virtual void init(TEveWindowSlot*) = 0;
+  virtual void setBackgroundColor(Color_t col) {}
 
-   //canvas utilities
-   static void drawCanvasDot(Float_t x, Float_t y, Float_t r, Color_t);
-   static void drawCanvasBox(Double_t* pos, Color_t fillCol, Int_t fillType = 0, bool bg=kTRUE);
+  //canvas utilities
+  static void drawCanvasDot(Float_t x, Float_t y, Float_t r, Color_t);
+  static void drawCanvasBox(Double_t* pos, Color_t fillCol, Int_t fillType = 0, bool bg = kTRUE);
 
-   const FWEventItem* item() { return m_item; }
-   void  setItem(const FWEventItem* x) { m_item =x; }
-   const fireworks::Context& context() const;
+  const FWEventItem* item() { return m_item; }
+  void setItem(const FWEventItem* x) { m_item = x; }
+  const fireworks::Context& context() const;
 
 protected:
-   FWDetailViewBase(const std::type_info&);
- 
-private:
-   FWDetailViewBase(const FWDetailViewBase&) = delete; // stop default
-   const FWDetailViewBase& operator=(const FWDetailViewBase&) = delete; // stop default
+  FWDetailViewBase(const std::type_info&);
 
-   virtual void build(const FWModelId&, const void*) = 0;
-  
-   const FWEventItem  *m_item;   
-   FWSimpleProxyHelper m_helper;
+private:
+  FWDetailViewBase(const FWDetailViewBase&) = delete;                   // stop default
+  const FWDetailViewBase& operator=(const FWDetailViewBase&) = delete;  // stop default
+
+  virtual void build(const FWModelId&, const void*) = 0;
+
+  const FWEventItem* m_item;
+  FWSimpleProxyHelper m_helper;
 };
 
 #endif

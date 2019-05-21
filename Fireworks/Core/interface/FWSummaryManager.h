@@ -38,53 +38,50 @@ class FWModelChangeManager;
 class FWColorManager;
 class FWCollectionSummaryWidget;
 
-class FWSummaryManager
-{
-
+class FWSummaryManager {
 public:
-   FWSummaryManager(TGFrame* iParent,
-                    FWSelectionManager*,
-                    FWEventItemsManager*,
-                    FWGUIManager*,
-                    FWModelChangeManager*,
-                    FWColorManager*
-   );
-   virtual ~FWSummaryManager();
+  FWSummaryManager(TGFrame* iParent,
+                   FWSelectionManager*,
+                   FWEventItemsManager*,
+                   FWGUIManager*,
+                   FWModelChangeManager*,
+                   FWColorManager*);
+  virtual ~FWSummaryManager();
 
-   // ---------- const member functions ---------------------
-   TGCompositeFrame* widget() const;
-   
-   // ---------- static member functions --------------------
+  // ---------- const member functions ---------------------
+  TGCompositeFrame* widget() const;
 
-   // ---------- member functions ---------------------------
-   void requestForInfo(FWEventItem*);
-   void requestForFilter(FWEventItem*);
-   void requestForError(FWEventItem*);
-   void requestForController(FWEventItem*);
-   void requestForSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY);
+  // ---------- static member functions --------------------
 
-   void colorsChanged();
+  // ---------- member functions ---------------------------
+  void requestForInfo(FWEventItem*);
+  void requestForFilter(FWEventItem*);
+  void requestForError(FWEventItem*);
+  void requestForController(FWEventItem*);
+  void requestForSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY);
+
+  void colorsChanged();
+
 private:
-   FWSummaryManager(const FWSummaryManager&) = delete;    // stop default
+  FWSummaryManager(const FWSummaryManager&) = delete;  // stop default
 
-   const FWSummaryManager& operator=(const FWSummaryManager&) = delete;    // stop default
+  const FWSummaryManager& operator=(const FWSummaryManager&) = delete;  // stop default
 
-   void selectionChanged(const FWSelectionManager&);
-   void newItem(FWEventItem* iItem);
-   void itemChanged(const FWEventItem*);
-   void removeAllItems();
-   void changesDone();
+  void selectionChanged(const FWSelectionManager&);
+  void newItem(FWEventItem* iItem);
+  void itemChanged(const FWEventItem*);
+  void removeAllItems();
+  void changesDone();
 
-   void itemDestroyed(const FWEventItem*);
-   
-   // ---------- member data --------------------------------
-   //TGPack* m_pack;
-   TGCompositeFrame* m_pack;
-   std::vector<FWCollectionSummaryWidget*> m_collectionWidgets;
-   FWGUIManager* m_guiManager;
-   FWColorManager* m_colorManager;
-   bool m_itemChanged;
+  void itemDestroyed(const FWEventItem*);
+
+  // ---------- member data --------------------------------
+  //TGPack* m_pack;
+  TGCompositeFrame* m_pack;
+  std::vector<FWCollectionSummaryWidget*> m_collectionWidgets;
+  FWGUIManager* m_guiManager;
+  FWColorManager* m_colorManager;
+  bool m_itemChanged;
 };
-
 
 #endif

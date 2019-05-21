@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWViewContext
-// 
+//
 /**\class FWViewContext FWViewContext.h Fireworks/Core/interface/FWViewContext.h
 
  Description: [one line class summary]
@@ -29,28 +29,26 @@
 // forward declarations
 class FWViewEnergyScale;
 
-class FWViewContext
-{
+class FWViewContext {
 public:
-   FWViewContext();
-   virtual ~FWViewContext();
+  FWViewContext();
+  virtual ~FWViewContext();
 
-   FWViewEnergyScale* getEnergyScale() const;
-   void setEnergyScale(FWViewEnergyScale*);
+  FWViewEnergyScale* getEnergyScale() const;
+  void setEnergyScale(FWViewEnergyScale*);
 
-   void scaleChanged();
+  void scaleChanged();
 
-   mutable sigc::signal<void, const FWViewContext*> scaleChanged_;
-   
+  mutable sigc::signal<void, const FWViewContext*> scaleChanged_;
+
 private:
-   FWViewContext(const FWViewContext&) = delete; // stop default
+  FWViewContext(const FWViewContext&) = delete;  // stop default
 
-   const FWViewContext& operator=(const FWViewContext&) = delete; // stop default
+  const FWViewContext& operator=(const FWViewContext&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
-   FWViewEnergyScale* m_energyScale;
+  FWViewEnergyScale* m_energyScale;
 };
-
 
 #endif

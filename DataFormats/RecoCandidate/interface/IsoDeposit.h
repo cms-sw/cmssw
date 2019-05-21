@@ -19,11 +19,13 @@
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include <map>
 #include <cmath>
 #include <string>
 #include <vector>
 #include <typeinfo>
+#include <atomic>
 
 namespace reco { 
   namespace isodeposit {
@@ -152,13 +154,13 @@ namespace reco {
       friend class IsoDeposit;
     private:
       typedef Direction::Distance Distance;
-      void doDir() const { cache_ = parent_->direction() + it_->first; cacheReady_ = true; } 
+      void doDir() const { if (!cacheReady_) cache_ = parent_->direction() + it_->first; cacheReady_ = true; } 
       const_iterator(const IsoDeposit* parent, std::multimap<Distance, float>::const_iterator it) : 
 	parent_(parent), it_(it), cache_(), cacheReady_(false) { } 
 	const reco::IsoDeposit* parent_;
-	mutable std::multimap<Distance, float>::const_iterator it_;
-	mutable Direction cache_;
-	mutable bool      cacheReady_;
+	std::multimap<Distance, float>::const_iterator it_;
+	CMS_THREAD_SAFE mutable Direction cache_;
+	mutable std::atomic<bool>   cacheReady_;
     };
     const_iterator begin() const { return const_iterator(this, theDeposits.begin()); } 
     const_iterator end() const { return const_iterator(this, theDeposits.end()); } 

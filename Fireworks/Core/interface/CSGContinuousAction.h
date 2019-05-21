@@ -27,59 +27,55 @@
 // forward declarations
 
 class CSGContinuousAction : public CSGAction {
-
 public:
-   CSGContinuousAction(CSGActionSupervisor *sup, const char *name);
-   //virtual ~CSGContinuousAction();
+  CSGContinuousAction(CSGActionSupervisor* sup, const char* name);
+  //virtual ~CSGContinuousAction();
 
-   // ---------- const member functions ---------------------
-   bool isRunning() const { return m_isRunning; }
+  // ---------- const member functions ---------------------
+  bool isRunning() const { return m_isRunning; }
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void createCustomIconsButton(TGCompositeFrame* p,
-                                const TGPicture* upPic,
-                                const TGPicture* downPic,
-                                const TGPicture* disabledPic,
-                                const TGPicture* upRunningPic,
-                                const TGPicture* downRunningPic,
-                                TGLayoutHints* l = nullptr,
-                                Int_t id = -1,
-                                GContext_t norm = TGButton::GetDefaultGC() (),
-                                UInt_t option = 0);
-   void stop();
+  // ---------- member functions ---------------------------
+  void createCustomIconsButton(TGCompositeFrame* p,
+                               const TGPicture* upPic,
+                               const TGPicture* downPic,
+                               const TGPicture* disabledPic,
+                               const TGPicture* upRunningPic,
+                               const TGPicture* downRunningPic,
+                               TGLayoutHints* l = nullptr,
+                               Int_t id = -1,
+                               GContext_t norm = TGButton::GetDefaultGC()(),
+                               UInt_t option = 0);
+  void stop();
 
-   sigc::signal<void> started_;
-   sigc::signal<void> stopped_;
+  sigc::signal<void> started_;
+  sigc::signal<void> stopped_;
 
-   //override
-   void globalEnable() override;
-   void globalDisable() override;
+  //override
+  void globalEnable() override;
+  void globalDisable() override;
 
-   void switchMode();
+  void switchMode();
 
 private:
-   CSGContinuousAction(const CSGContinuousAction&) = delete; // stop default
+  CSGContinuousAction(const CSGContinuousAction&) = delete;  // stop default
 
-   const CSGContinuousAction& operator=(const CSGContinuousAction&) = delete; // stop default
+  const CSGContinuousAction& operator=(const CSGContinuousAction&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   std::string m_imageFileName;
-   std::string m_runningImageFileName;
-   //const TGPicture* m_runningImage;
-   const TGPicture* m_upPic;
-   const TGPicture* m_downPic;
-   const TGPicture* m_disabledPic;
-   const TGPicture* m_runningUpPic;
-   const TGPicture* m_runningDownPic;
+  // ---------- member data --------------------------------
+  std::string m_imageFileName;
+  std::string m_runningImageFileName;
+  //const TGPicture* m_runningImage;
+  const TGPicture* m_upPic;
+  const TGPicture* m_downPic;
+  const TGPicture* m_disabledPic;
+  const TGPicture* m_runningUpPic;
+  const TGPicture* m_runningDownPic;
 
-   FWCustomIconsButton* m_button;
+  FWCustomIconsButton* m_button;
 
-   bool m_isRunning;
-
-
+  bool m_isRunning;
 };
-
 
 #endif

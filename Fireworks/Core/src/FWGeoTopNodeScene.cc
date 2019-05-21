@@ -9,140 +9,124 @@
 #include "TEveSelection.h"
 #include "TBuffer3D.h"
 
-
 //______________________________________________________________________________
-FWGeoTopNodeGLScene::FWGeoTopNodeGLScene(TVirtualPad* pad) :
-   TGLScenePad(pad),
-   // fNextCompositeID(0),
-   m_eveTopNode(nullptr)
-{
-   // Constructor.
-   // fInternalPIDs = false;
-   fTitle="GeoTopNodeScene";
+FWGeoTopNodeGLScene::FWGeoTopNodeGLScene(TVirtualPad* pad)
+    : TGLScenePad(pad),
+      // fNextCompositeID(0),
+      m_eveTopNode(nullptr) {
+  // Constructor.
+  // fInternalPIDs = false;
+  fTitle = "GeoTopNodeScene";
 }
 
 //______________________________________________________________________________
-Bool_t FWGeoTopNodeGLScene::OpenCompositeWithPhyID(UInt_t phyID, const TBuffer3D& buffer)
-{
-   // Open new composite container.
-   // TVirtualViewer3D interface overload - see base/src/TVirtualViewer3D.cxx
-   // for description of viewer architecture.
+Bool_t FWGeoTopNodeGLScene::OpenCompositeWithPhyID(UInt_t phyID, const TBuffer3D& buffer) {
+  // Open new composite container.
+  // TVirtualViewer3D interface overload - see base/src/TVirtualViewer3D.cxx
+  // for description of viewer architecture.
 
-   if (fComposite) {
-      Error("FWGeoTopNodeGLScene::OpenComposite", "composite already open");
-      return kFALSE;
-   }
+  if (fComposite) {
+    Error("FWGeoTopNodeGLScene::OpenComposite", "composite already open");
+    return kFALSE;
+  }
 
-   UInt_t extraSections = TGLScenePad::AddObject(phyID, buffer, nullptr);
-   if (extraSections != TBuffer3D::kNone) {
-      Error("FWGeoTopNodeGLScene::OpenComposite", "expected top level composite to not require extra buffer sections");
-   }
+  UInt_t extraSections = TGLScenePad::AddObject(phyID, buffer, nullptr);
+  if (extraSections != TBuffer3D::kNone) {
+    Error("FWGeoTopNodeGLScene::OpenComposite", "expected top level composite to not require extra buffer sections");
+  }
 
-   // If composite was created it is of interest - we want the rest of the
-   // child components
-   if (fComposite) {
-      return kTRUE;
-   } else {
-      return kFALSE;
-   }
+  // If composite was created it is of interest - we want the rest of the
+  // child components
+  if (fComposite) {
+    return kTRUE;
+  } else {
+    return kFALSE;
+  }
 }
 
 //______________________________________________________________________________
-Int_t FWGeoTopNodeGLScene::AddObject(const TBuffer3D& buffer, Bool_t* addChildren)
-{
-   if (fComposite)
-   {
-      // TGeoSubstraction, TGeoUnion, ... phyID ignored in this case
-      int ns = TGLScenePad::AddObject(1, buffer, addChildren);
-      return ns;
-   }
-   else
-   {  
-      fwLog(fwlog::kError)<< "FWGeoTopNodeGLScene::AddObject() should not be called if fNextCompositeID \n";
-      return TGLScenePad::AddObject(buffer, addChildren);
-   }
+Int_t FWGeoTopNodeGLScene::AddObject(const TBuffer3D& buffer, Bool_t* addChildren) {
+  if (fComposite) {
+    // TGeoSubstraction, TGeoUnion, ... phyID ignored in this case
+    int ns = TGLScenePad::AddObject(1, buffer, addChildren);
+    return ns;
+  } else {
+    fwLog(fwlog::kError) << "FWGeoTopNodeGLScene::AddObject() should not be called if fNextCompositeID \n";
+    return TGLScenePad::AddObject(buffer, addChildren);
+  }
 }
 
 //______________________________________________________________________________
-Bool_t FWGeoTopNodeGLScene::ResolveSelectRecord(TGLSelectRecord& rec, Int_t curIdx)
-{
-   // Process selection record rec.
-   // 'curIdx' is the item position where the scene should start
-   // its processing.
-   // Return TRUE if an object has been identified or FALSE otherwise.
-   // The scene-info member of the record is already set by the caller.  
+Bool_t FWGeoTopNodeGLScene::ResolveSelectRecord(TGLSelectRecord& rec, Int_t curIdx) {
+  // Process selection record rec.
+  // 'curIdx' is the item position where the scene should start
+  // its processing.
+  // Return TRUE if an object has been identified or FALSE otherwise.
+  // The scene-info member of the record is already set by the caller.
 
-   if (curIdx >= rec.GetN())
-      return kFALSE;
+  if (curIdx >= rec.GetN())
+    return kFALSE;
 
-   TGLPhysicalShape* pshp = FindPhysical(rec.GetItem(curIdx));
+  TGLPhysicalShape* pshp = FindPhysical(rec.GetItem(curIdx));
 
-   /*
+  /*
    printf("FWGeoTopNodeGLScene::ResolveSelectRecord pshp=%p, lshp=%p, obj=%p, shpcls=%s\n",
           (void*)pshp,(void*) pshp->GetLogical(),(void*) pshp->GetLogical()->GetExternal(),
           ((TGeoVolume*)pshp->GetLogical()->GetExternal())->GetShape()->ClassName());
    */
-   if (pshp)
-   {
-      rec.SetTransparent(pshp->IsTransparent());
-      rec.SetPhysShape(pshp);
+  if (pshp) {
+    rec.SetTransparent(pshp->IsTransparent());
+    rec.SetPhysShape(pshp);
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,32,0)
-      rec.SetLogShape(FindLogical(m_eveTopNode));
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 32, 0)
+    rec.SetLogShape(FindLogical(m_eveTopNode));
 #endif
-      rec.SetObject(m_eveTopNode);
-      rec.SetSpecific(nullptr);
-      return kTRUE;
-   }
-   return kFALSE;
+    rec.SetObject(m_eveTopNode);
+    rec.SetSpecific(nullptr);
+    return kTRUE;
+  }
+  return kFALSE;
 }
 
 //______________________________________________________________________________
-Int_t FWGeoTopNodeGLScene::DestroyPhysicals()
-{
-   // Need to clear state on full redraw, else FWGeoTopNode ends
-   // with invalid set of selected physical and logical ids.
+Int_t FWGeoTopNodeGLScene::DestroyPhysicals() {
+  // Need to clear state on full redraw, else FWGeoTopNode ends
+  // with invalid set of selected physical and logical ids.
 
-   if (gEve->GetSelection()->HasChild( m_eveTopNode))
-      gEve->GetSelection()->RemoveElement( m_eveTopNode);
+  if (gEve->GetSelection()->HasChild(m_eveTopNode))
+    gEve->GetSelection()->RemoveElement(m_eveTopNode);
 
-   if (gEve->GetHighlight()->HasChild( m_eveTopNode))
-      gEve->GetHighlight()->RemoveElement( m_eveTopNode);
+  if (gEve->GetHighlight()->HasChild(m_eveTopNode))
+    gEve->GetHighlight()->RemoveElement(m_eveTopNode);
 
-
-   return TGLScene::DestroyPhysicals();
+  return TGLScene::DestroyPhysicals();
 }
 
 //______________________________________________________________________________
-Bool_t FWGeoTopNodeGLScene::DestroyPhysical(Int_t x)
-{ 
-   fwLog(fwlog::kInfo) << "FWGeoTopNodeGLScene::DestroyPhysical()\n"; 
-   return TGLScene::DestroyPhysical(x);
+Bool_t FWGeoTopNodeGLScene::DestroyPhysical(Int_t x) {
+  fwLog(fwlog::kInfo) << "FWGeoTopNodeGLScene::DestroyPhysical()\n";
+  return TGLScene::DestroyPhysical(x);
 }
 
 //______________________________________________________________________________
-void FWGeoTopNodeGLScene::GeoPopupMenu(Int_t gx, Int_t gy, TGLViewer* v)
-{
-   m_eveTopNode->popupMenu(gx, gy,v);
-}
+void FWGeoTopNodeGLScene::GeoPopupMenu(Int_t gx, Int_t gy, TGLViewer* v) { m_eveTopNode->popupMenu(gx, gy, v); }
 
 //==============================================================================
 //==============================================================================
 //==============================================================================
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,32,0)
+#if ROOT_VERSION_CODE < ROOT_VERSION(5, 32, 0)
 
 #include "TEvePad.h"
-FWGeoTopNodeEveScene::FWGeoTopNodeEveScene(FWGeoTopNodeGLScene* gl_scene, const char* n, const char* t)
-{
-   // Constructor.
+FWGeoTopNodeEveScene::FWGeoTopNodeEveScene(FWGeoTopNodeGLScene* gl_scene, const char* n, const char* t) {
+  // Constructor.
 
-   delete fGLScene;
+  delete fGLScene;
 
-   gl_scene->SetPad(fPad);
-   fGLScene = gl_scene;
+  gl_scene->SetPad(fPad);
+  fGLScene = gl_scene;
 
-   fGLScene->SetName(n);
-   fGLScene->SetAutoDestruct(kFALSE);
-   fGLScene->SetSmartRefresh(kTRUE);
+  fGLScene->SetName(n);
+  fGLScene->SetAutoDestruct(kFALSE);
+  fGLScene->SetSmartRefresh(kTRUE);
 }
 #endif
