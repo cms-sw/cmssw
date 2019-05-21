@@ -167,7 +167,7 @@ def main():
    argv = sys.argv
    sforig = argv[1]
    
-   treepath = "DQMData/Run 1/Physics/Run summary"
+   treepath = "DQMData/Run 1/ParticleFlow/Run summary"
    
    # Run in batch mode for avoiding pop-up windows when fitting
    r.gROOT.SetBatch(r.kTRUE)
