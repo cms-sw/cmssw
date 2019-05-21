@@ -15,7 +15,7 @@
 #include <functional>
 #include <numeric>
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
 static const int maxType = 2;
@@ -794,7 +794,7 @@ bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
                 break;
               }
               case (2): {
-                mask = (u <= v);
+                mask = (u > v);
                 break;
               }
               case (3): {
@@ -806,7 +806,7 @@ bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
                 break;
               }
               default: {
-                mask = (u > v);
+                mask = (u <= v);
                 break;
               }
             }
