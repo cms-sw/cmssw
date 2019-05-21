@@ -29,150 +29,130 @@ namespace CLHEP {
 }
 
 class Herwig7Hadronizer : public Herwig7Interface, public gen::BaseHadronizer {
-    public:
-	Herwig7Hadronizer(const edm::ParameterSet &params);
-	~Herwig7Hadronizer() override;
+public:
+  Herwig7Hadronizer(const edm::ParameterSet &params);
+  ~Herwig7Hadronizer() override;
 
-	bool readSettings( int ) { return true; }
-	bool initializeForInternalPartons();
-	bool initializeForExternalPartons();
-	bool declareStableParticles(const std::vector<int> &pdgIds);
-	bool declareSpecialSettings( const std::vector<std::string> ) { return true; }
+  bool readSettings(int) { return true; }
+  bool initializeForInternalPartons();
+  bool initializeForExternalPartons();
+  bool declareStableParticles(const std::vector<int> &pdgIds);
+  bool declareSpecialSettings(const std::vector<std::string>) { return true; }
 
-	void statistics();
+  void statistics();
 
-	bool generatePartonsAndHadronize();
-	bool hadronize();
-	bool decay();
-	bool residualDecay();
-	void finalizeEvent();
+  bool generatePartonsAndHadronize();
+  bool hadronize();
+  bool decay();
+  bool residualDecay();
+  void finalizeEvent();
 
-	const char *classname() const { return "Herwig7Hadronizer"; }
+  const char *classname() const { return "Herwig7Hadronizer"; }
 
-    private:
+private:
+  void doSetRandomEngine(CLHEP::HepRandomEngine *v) override { setPEGRandomEngine(v); }
 
-        void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { setPEGRandomEngine(v); }
+  unsigned int eventsToPrint;
 
-	unsigned int			eventsToPrint;
+  ThePEG::EventPtr thepegEvent;
 
-	ThePEG::EventPtr		thepegEvent;
-	
-	boost::shared_ptr<lhef::LHEProxy> proxy_;
-	const std::string		handlerDirectory_;
-	edm::ParameterSet 	paramSettings;
-	const std::string runFileName;
+  boost::shared_ptr<lhef::LHEProxy> proxy_;
+  const std::string handlerDirectory_;
+  edm::ParameterSet paramSettings;
+  const std::string runFileName;
 };
 
-Herwig7Hadronizer::Herwig7Hadronizer(const edm::ParameterSet &pset) :
-	Herwig7Interface(pset),
-	BaseHadronizer(pset),
-	eventsToPrint(pset.getUntrackedParameter<unsigned int>("eventsToPrint", 0)),
-	handlerDirectory_(pset.getParameter<std::string>("eventHandlers")),
-	runFileName(pset.getParameter<std::string>("run"))
-{  
-	initRepository(pset);
-	paramSettings = pset;
+Herwig7Hadronizer::Herwig7Hadronizer(const edm::ParameterSet &pset)
+    : Herwig7Interface(pset),
+      BaseHadronizer(pset),
+      eventsToPrint(pset.getUntrackedParameter<unsigned int>("eventsToPrint", 0)),
+      handlerDirectory_(pset.getParameter<std::string>("eventHandlers")),
+      runFileName(pset.getParameter<std::string>("run")) {
+  initRepository(pset);
+  paramSettings = pset;
 }
 
-Herwig7Hadronizer::~Herwig7Hadronizer()
-{
+Herwig7Hadronizer::~Herwig7Hadronizer() {}
+
+bool Herwig7Hadronizer::initializeForInternalPartons() {
+  std::ifstream runFile(runFileName + ".run");
+  if (runFile.fail())  //required for showering of LHE files
+  {
+    initRepository(paramSettings);
+  }
+  if (!initGenerator()) {
+    edm::LogInfo("Generator|Herwig7Hadronizer") << "No run step for Herwig chosen. Program will be aborted.";
+    exit(0);
+  }
+  return true;
 }
 
-bool Herwig7Hadronizer::initializeForInternalPartons()
-{
-	std::ifstream runFile(runFileName+".run");
-	if (runFile.fail()) //required for showering of LHE files
-	{
-		initRepository(paramSettings);
-	}
-	if (!initGenerator())
-	{
-		edm::LogInfo("Generator|Herwig7Hadronizer") << "No run step for Herwig chosen. Program will be aborted.";
-		exit(0);
-	}
-	return true;
+bool Herwig7Hadronizer::initializeForExternalPartons() {
+  edm::LogError("Herwig7 interface")
+      << "Read in of LHE files is not supported in this way. You can read them manually if necessary.";
+  return false;
 }
 
-bool Herwig7Hadronizer::initializeForExternalPartons()
-{
-	edm::LogError("Herwig7 interface") << "Read in of LHE files is not supported in this way. You can read them manually if necessary.";
-	return false;
-}
+bool Herwig7Hadronizer::declareStableParticles(const std::vector<int> &pdgIds) { return false; }
 
-bool Herwig7Hadronizer::declareStableParticles(const std::vector<int> &pdgIds)
-{
-	return false;
-}
-
-void Herwig7Hadronizer::statistics()
-{
-  if(eg_) {
-	runInfo().setInternalXSec(GenRunInfoProduct::XSec(
-		eg_->integratedXSec() / ThePEG::picobarn,
-		eg_->integratedXSecErr() / ThePEG::picobarn));
+void Herwig7Hadronizer::statistics() {
+  if (eg_) {
+    runInfo().setInternalXSec(
+        GenRunInfoProduct::XSec(eg_->integratedXSec() / ThePEG::picobarn, eg_->integratedXSecErr() / ThePEG::picobarn));
   }
 }
 
-bool Herwig7Hadronizer::generatePartonsAndHadronize()
-{
-	edm::LogInfo("Generator|Herwig7Hadronizer") << "Start production";
+bool Herwig7Hadronizer::generatePartonsAndHadronize() {
+  edm::LogInfo("Generator|Herwig7Hadronizer") << "Start production";
 
-	flushRandomNumberGenerator();
+  flushRandomNumberGenerator();
 
-        try {
-                thepegEvent = eg_->shoot();
-        } catch (std::exception& exc) {
-                edm::LogWarning("Generator|Herwig7Hadronizer") << "EGPtr::shoot() thrown an exception, event skipped: " << exc.what();
-                return false;
-        } 
-        
-	if (!thepegEvent) {
-		edm::LogWarning("Generator|Herwig7Hadronizer") << "thepegEvent not initialized";
-		return false;
-	}
+  try {
+    thepegEvent = eg_->shoot();
+  } catch (std::exception &exc) {
+    edm::LogWarning("Generator|Herwig7Hadronizer")
+        << "EGPtr::shoot() thrown an exception, event skipped: " << exc.what();
+    return false;
+  }
 
-	event() = convert(thepegEvent);
-	if (!event().get()) {
-		edm::LogWarning("Generator|Herwig7Hadronizer") << "genEvent not initialized";
-		return false;
-	}
+  if (!thepegEvent) {
+    edm::LogWarning("Generator|Herwig7Hadronizer") << "thepegEvent not initialized";
+    return false;
+  }
 
-	return true;
+  event() = convert(thepegEvent);
+  if (!event().get()) {
+    edm::LogWarning("Generator|Herwig7Hadronizer") << "genEvent not initialized";
+    return false;
+  }
+
+  return true;
 }
 
-bool Herwig7Hadronizer::hadronize()
-{
-
-	edm::LogError("Herwig7 interface") << "Read in of LHE files is not supported in this way. You can read them manually if necessary.";
-	return false;
+bool Herwig7Hadronizer::hadronize() {
+  edm::LogError("Herwig7 interface")
+      << "Read in of LHE files is not supported in this way. You can read them manually if necessary.";
+  return false;
 }
 
-void Herwig7Hadronizer::finalizeEvent()
-{
-	eventInfo().reset(new GenEventInfoProduct(event().get()));
-	eventInfo()->setBinningValues(
-			std::vector<double>(1, pthat(thepegEvent)));
+void Herwig7Hadronizer::finalizeEvent() {
+  eventInfo().reset(new GenEventInfoProduct(event().get()));
+  eventInfo()->setBinningValues(std::vector<double>(1, pthat(thepegEvent)));
 
-	if (eventsToPrint) {
-		eventsToPrint--;
-		event()->print();
-	}
+  if (eventsToPrint) {
+    eventsToPrint--;
+    event()->print();
+  }
 
-	if (iobc_.get())
-		iobc_->write_event(event().get());
+  if (iobc_.get())
+    iobc_->write_event(event().get());
 
-	edm::LogInfo("Generator|Herwig7Hadronizer") << "Event produced";
+  edm::LogInfo("Generator|Herwig7Hadronizer") << "Event produced";
 }
 
-bool Herwig7Hadronizer::decay()
-{
-	return true;
-}
+bool Herwig7Hadronizer::decay() { return true; }
 
-bool Herwig7Hadronizer::residualDecay()
-{
-	return true;
-}
+bool Herwig7Hadronizer::residualDecay() { return true; }
 
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 

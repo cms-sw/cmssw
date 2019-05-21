@@ -18,18 +18,16 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-
-
 class HeavyQuarkFromMPIFilterAlgo {
- public:
+public:
   HeavyQuarkFromMPIFilterAlgo(const edm::ParameterSet&);
   ~HeavyQuarkFromMPIFilterAlgo();
-  
-  bool filter(const edm::Event& iEvent);
-  bool hasMPIAncestor( const reco::GenParticle*); 
 
- private:
+  bool filter(const edm::Event& iEvent);
+  bool hasMPIAncestor(const reco::GenParticle*);
+
+private:
   int HeavyQuarkFlavour;
- edm::InputTag genParSource_; 
+  edm::InputTag genParSource_;
 };
 #endif
