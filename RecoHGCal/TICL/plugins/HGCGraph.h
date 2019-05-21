@@ -11,7 +11,7 @@
 
 class HGCGraph {
  public:
-  void makeAndConnectDoublets(const ticl::patternbyCA::tilePatternRecognitionByCA &h,
+  void makeAndConnectDoublets(const ticl::patternbyca::Tile &h,
                               int nEtaBins, int nPhiBins,
                               const std::vector<reco::CaloCluster> &layerClusters, int deltaIEta,
                               int deltaIPhi, float minCosThetai, float maxCosPointing,

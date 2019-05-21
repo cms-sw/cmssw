@@ -19,10 +19,10 @@ class ClusterFilterBySize final : public ClusterFilterBase {
       : ClusterFilterBase(ps), max_cluster_size_(ps.getParameter<int>("max_cluster_size")) {}
   ~ClusterFilterBySize() override {};
 
-  std::unique_ptr<hgcalClusterFilterMask> filter(
+  std::unique_ptr<HgcalClusterFilterMask> filter(
       const std::vector<reco::CaloCluster>& layerClusters,
-      const hgcalClusterFilterMask& availableLayerClusters) const override {
-    auto filteredLayerClusters = std::make_unique<hgcalClusterFilterMask>();
+      const HgcalClusterFilterMask& availableLayerClusters) const override {
+    auto filteredLayerClusters = std::make_unique<HgcalClusterFilterMask>();
     for (auto const& cl : availableLayerClusters) {
       if (layerClusters[cl.first].hitsAndFractions().size() <= max_cluster_size_)
         filteredLayerClusters->emplace_back(cl);

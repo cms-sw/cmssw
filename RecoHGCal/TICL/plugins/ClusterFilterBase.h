@@ -5,7 +5,7 @@
 #ifndef RecoHGCal_TICL_ClusterFilterBase_H__
 #define RecoHGCal_TICL_ClusterFilterBase_H__
 
-#include "RecoHGCal/TICL/interface/Constants.h"
+#include "RecoHGCal/TICL/interface/Common.h"
 
 #include <memory>
 #include <vector>
@@ -23,9 +23,9 @@ namespace ticl {
       explicit ClusterFilterBase(const edm::ParameterSet&){};
       virtual ~ClusterFilterBase(){};
 
-      virtual std::unique_ptr<hgcalClusterFilterMask> filter(
+      virtual std::unique_ptr<HgcalClusterFilterMask> filter(
           const std::vector<reco::CaloCluster>& layerClusters,
-          const hgcalClusterFilterMask& mask) const = 0;
+          const HgcalClusterFilterMask& mask) const = 0;
   };
 }
 

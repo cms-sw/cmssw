@@ -37,16 +37,8 @@ public:
 
 
    HGCal3DClustering(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes) :
-    radii(conf.getParameter<std::vector<double>>("multiclusterRadii")),
-    minClusters(conf.getParameter<unsigned>("minClusters")),
-    points(2*(maxlayer+1)),
-    minpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
-    maxpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
-    es(0),
-    zees(2*(maxlayer+1),0.),
-    clusterTools(std::make_unique<hgcal::ClusterTools>(conf,sumes))
-    {
-    }
+     HGCal3DClustering(conf, sumes, conf.getParameter<std::vector<double>>("multiclusterRadii"),
+         conf.getParameter<unsigned>("minClusters")) {}
 
   void getEvent(const edm::Event& ev) { clusterTools->getEvent(ev); }
   void getEventSetup(const edm::EventSetup& es)

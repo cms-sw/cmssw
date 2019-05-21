@@ -4,6 +4,6 @@
 void ticl::PatternRecognitionbyMultiClusters::makeTracksters(
     const edm::Event& ev, const edm::EventSetup& es,
     const std::vector<reco::CaloCluster>& layerClusters,
-    const ticl::hgcalClusterFilterMask & mask, std::vector<Trackster>& result) {
+    const ticl::HgcalClusterFilterMask & mask, std::vector<Trackster>& result) {
   LogDebug("HGCPatterRecoTrackster") << "making Tracksters" << std::endl;
 }

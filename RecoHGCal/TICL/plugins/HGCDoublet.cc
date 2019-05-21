@@ -2,7 +2,7 @@
 
 bool HGCDoublet::checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets,
     const std::vector<int> &innerDoublets, float minCosTheta,
-    float minCosPointing = 1., bool debug) {
+    float minCosPointing, bool debug) {
   int nDoublets = innerDoublets.size();
   int constexpr VSIZE = 4;
   int ok[VSIZE];
