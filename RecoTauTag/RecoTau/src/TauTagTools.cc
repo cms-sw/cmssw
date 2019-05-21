@@ -2,7 +2,7 @@
 
 using namespace reco;
 
-namespace TauTagTools{
+namespace tautagtools {
 
   TrackRefVector filteredTracks(const TrackRefVector& theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2, const Vertex& pv){
     TrackRefVector filteredTracks;

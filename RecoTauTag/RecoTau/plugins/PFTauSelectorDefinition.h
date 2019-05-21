@@ -1,5 +1,5 @@
-#ifndef RecoTauTag_TauTagTools_PFTauSelectorDefinition
-#define RecoTauTag_TauTagTools_PFTauSelectorDefinition
+#ifndef RecoTauTag_RecoTau_PFTauSelectorDefinition
+#define RecoTauTag_RecoTau_PFTauSelectorDefinition
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

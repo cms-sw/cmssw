@@ -7,7 +7,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-namespace TauTagTools{
+namespace tautagtools {
   reco::TrackRefVector filteredTracks(const reco::TrackRefVector& theInitialTracks, double tkminPt, int tkminPixelHitsn, int tkminTrackerHitsn, double tkmaxipt, double tkmaxChi2, const reco::Vertex& pV);
   reco::TrackRefVector filteredTracks(const reco::TrackRefVector& theInitialTracks, double tkminPt, int tkminPixelHitsn, int tkminTrackerHitsn, double tkmaxipt, double tkmaxChi2, double tktorefpointmaxDZ, const reco::Vertex& pV, double refpoint_Z);
 
