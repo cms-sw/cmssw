@@ -255,6 +255,146 @@ bool fastmatch::match(std::string const& s) const
 }
 
 //IBooker methods
+MonitorElement* DQMStore::IBooker::bookInt(TString const& name)
+{
+  return owner_->bookInt(name);
+}
+
+MonitorElement* DQMStore::IBooker::bookFloat(TString const& name)
+{
+  return owner_->bookFloat(name);
+}
+
+MonitorElement* DQMStore::IBooker::bookString(TString const& name, TString const& value)
+{
+  return owner_->bookString(name, value);
+}
+
+MonitorElement* DQMStore::IBooker::book1D(TString const& name, TString const& title, int const nchX, double const lowX, double const highX)
+{
+  return owner_->book1D(name, title, nchX, lowX, highX);
+}
+
+MonitorElement* DQMStore::IBooker::book1D(TString const& name, TString const& title, int nchX, float const* xbinsize)
+{
+  return owner_->book1D(name, title, nchX, xbinsize);
+};
+
+MonitorElement* DQMStore::IBooker::book1D(TString const& name, TH1F* object)
+{
+  return owner_->book1D(name, object);
+}
+
+MonitorElement* DQMStore::IBooker::book1S(TString const& name, TString const& title, int nchX, double lowX, double highX)
+{
+  return owner_->book1S(name, title, nchX, lowX, highX);
+}
+
+MonitorElement* DQMStore::IBooker::book1S(TString const& name, TH1S* object)
+{
+  return owner_->book1S(name, object);
+}
+
+MonitorElement* DQMStore::IBooker::book1DD(TString const& name, TString const& title, int nchX, double lowX, double highX)
+{
+  return owner_->book1DD(name, title, nchX, lowX, highX);
+}
+
+MonitorElement* DQMStore::IBooker::book1DD(TString const& name, TH1D* object)
+{
+  return owner_->book1DD(name, object);
+}
+
+MonitorElement* DQMStore::IBooker::book2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
+{
+  return owner_->book2D(name, title, nchX, lowX, highX, nchY, lowY, highY);
+}
+
+MonitorElement* DQMStore::IBooker::book2D(TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize)
+{
+  return owner_->book2D(name, title, nchX, xbinsize, nchY, ybinsize);
+}
+
+MonitorElement* DQMStore::IBooker::book2D(TString const& name, TH2F* object)
+{
+  return owner_->book2D(name, object);
+}
+
+MonitorElement* DQMStore::IBooker::book2S(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
+{
+  return owner_->book2S(name, title, nchX, lowX, highX, nchY, lowY, highY);
+}
+
+MonitorElement* DQMStore::IBooker::book2S(TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize)
+{
+  return owner_->book2S(name, title, nchX, xbinsize, nchY, ybinsize);
+}
+
+MonitorElement* DQMStore::IBooker::book2S(TString const& name, TH2S* object)
+{
+  return owner_->book2S(name, object);
+}
+
+MonitorElement* DQMStore::IBooker::book2DD(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
+{
+  return owner_->book2DD(name, title, nchX, lowX, highX, nchY, lowY, highY);
+}
+
+MonitorElement* DQMStore::IBooker::book2DD(TString const& name, TH2D* object)
+{
+  return owner_->book2DD(name, object);
+}
+
+MonitorElement* DQMStore::IBooker::book3D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ)
+{
+  return owner_->book3D(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ);
+}
+
+MonitorElement* DQMStore::IBooker::book3D(TString const& name, TH3F* object)
+{
+  return owner_->book3D(name, object);
+}
+
+MonitorElement* DQMStore::IBooker::bookProfile(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, char const* option)
+{
+  return owner_->bookProfile(name, title, nchX, lowX, highX, nchY, lowY, highY, option);
+}
+
+MonitorElement* DQMStore::IBooker::bookProfile(TString const& name, TString const& title, int nchX, double lowX, double highX, double lowY, double highY, char const* option)
+{
+  return owner_->bookProfile(name, title, nchX, lowX, highX, lowY, highY, option);
+}
+
+MonitorElement* DQMStore::IBooker::bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, int nchY, double lowY, double highY, char const* option)
+{
+  return owner_->bookProfile(name, title, nchX, xbinsize, nchY, lowY, highY, option);
+}
+
+MonitorElement* DQMStore::IBooker::bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, double lowY, double highY, char const* option)
+{
+  return owner_->bookProfile(name, title, nchX, xbinsize, lowY, highY, option);
+}
+
+MonitorElement* DQMStore::IBooker::bookProfile(TString const& name, TProfile* object)
+{
+  return owner_->bookProfile(name, object);
+}
+
+MonitorElement* DQMStore::IBooker::bookProfile2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, double lowZ, double highZ, char const* option)
+{
+  return owner_->bookProfile2D(name, title, nchX, lowX, highX, nchY, lowY, highY, lowZ, highZ, option);
+}
+
+MonitorElement* DQMStore::IBooker::bookProfile2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ, char const* option)
+{
+  return owner_->bookProfile2D(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ, option);
+}
+
+MonitorElement* DQMStore::IBooker::bookProfile2D(TString const& name, TProfile2D* object)
+{
+  return owner_->bookProfile2D(name, object);
+}
+
 void DQMStore::IBooker::cd()
 {
   owner_->cd();
@@ -361,6 +501,169 @@ void
 DQMStore::IGetter::setCurrentFolder(std::string const& fullpath)
 {
   owner_->setCurrentFolder(fullpath);
+}
+
+// ConcurrentBooker methods
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookInt(TString const& name)
+{
+  MonitorElement* me = IBooker::bookInt(name);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookFloat(TString const& name)
+{
+  MonitorElement* me = IBooker::bookFloat(name);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookString(TString const& name, TString const& value)
+{
+  MonitorElement* me = IBooker::bookString(name, value);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book1D(TString const& name, TString const& title, int const nchX, double const lowX, double const highX)
+{
+  MonitorElement* me = IBooker::book1D(name, title, nchX, lowX, highX);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book1D(TString const& name, TString const& title, int nchX, float const* xbinsize)
+{
+  MonitorElement* me = IBooker::book1D(name, title, nchX, xbinsize);
+  return ConcurrentMonitorElement(me);
+};
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book1D(TString const& name, TH1F* object)
+{
+  MonitorElement* me = IBooker::book1D(name, object);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book1S(TString const& name, TString const& title, int nchX, double lowX, double highX)
+{
+  MonitorElement* me = IBooker::book1S(name, title, nchX, lowX, highX);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book1S(TString const& name, TH1S* object)
+{
+  MonitorElement* me = IBooker::book1S(name, object);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book1DD(TString const& name, TString const& title, int nchX, double lowX, double highX)
+{
+  MonitorElement* me = IBooker::book1DD(name, title, nchX, lowX, highX);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book1DD(TString const& name, TH1D* object)
+{
+  MonitorElement* me = IBooker::book1DD(name, object);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
+{
+  MonitorElement* me = IBooker::book2D(name, title, nchX, lowX, highX, nchY, lowY, highY);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book2D(TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize)
+{
+  MonitorElement* me = IBooker::book2D(name, title, nchX, xbinsize, nchY, ybinsize);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book2D(TString const& name, TH2F* object)
+{
+  MonitorElement* me = IBooker::book2D(name, object);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book2S(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
+{
+  MonitorElement* me = IBooker::book2S(name, title, nchX, lowX, highX, nchY, lowY, highY);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book2S(TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize)
+{
+  MonitorElement* me = IBooker::book2S(name, title, nchX, xbinsize, nchY, ybinsize);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book2S(TString const& name, TH2S* object)
+{
+  MonitorElement* me = IBooker::book2S(name, object);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book2DD(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
+{
+  MonitorElement* me = IBooker::book2DD(name, title, nchX, lowX, highX, nchY, lowY, highY);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book2DD(TString const& name, TH2D* object)
+{
+  MonitorElement* me = IBooker::book2DD(name, object);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book3D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ)
+{
+  MonitorElement* me = IBooker::book3D(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book3D(TString const& name, TH3F* object)
+{
+  MonitorElement* me = IBooker::book3D(name, object);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookProfile(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, char const* option)
+{
+  MonitorElement* me = IBooker::bookProfile(name, title, nchX, lowX, highX, nchY, lowY, highY, option);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookProfile(TString const& name, TString const& title, int nchX, double lowX, double highX, double lowY, double highY, char const* option)
+{
+  MonitorElement* me = IBooker::bookProfile(name, title, nchX, (double)lowX, highX, lowY, highY, option);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, int nchY, double lowY, double highY, char const* option)
+{
+  MonitorElement* me = IBooker::bookProfile(name, title, nchX, xbinsize, nchY, lowY, highY, option);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, double lowY, double highY, char const* option)
+{
+  MonitorElement* me = IBooker::bookProfile(name, title, nchX, xbinsize, lowY, highY, option);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookProfile(TString const& name, TProfile* object)
+{
+  MonitorElement* me = IBooker::bookProfile(name, object);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookProfile2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, double lowZ, double highZ, char const* option)
+{
+  MonitorElement* me = IBooker::bookProfile2D(name, title, nchX, lowX, highX, nchY, lowY, highY, lowZ, highZ, option);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookProfile2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ, char const* option)
+{
+  MonitorElement* me = IBooker::bookProfile2D(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ, option);
+  return ConcurrentMonitorElement(me);
 }
 
 //////////////////////////////////////////////////////////////////////
