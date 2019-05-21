@@ -2,6 +2,7 @@
 #define Geometry_HcalTowerAlgo_CaloGeometryDBHcal_h
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryDBEP.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 namespace calogeometryDBEPimpl {
   template <>
