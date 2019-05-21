@@ -13,7 +13,7 @@
 #define BUFSIZE 200;
 
 class ODLTCConfig : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODLTCConfig();
   ~ODLTCConfig() override;
@@ -33,24 +33,22 @@ class ODLTCConfig : public IODConfig {
   inline void setLTCClob(unsigned char* x) { m_ltc_clob = x; }
   inline unsigned char* getLTCClob() const { return m_ltc_clob; }
 
-  void setParameters(const std::map<std::string,std::string>& my_keys_map);
-  
- private:
-  void prepareWrite()  noexcept(false) override;
-  void writeDB()       noexcept(false);
-  void clear();
-  void fetchData(ODLTCConfig * result)     noexcept(false);
-  int fetchID()  noexcept(false);
+  void setParameters(const std::map<std::string, std::string>& my_keys_map);
 
+private:
+  void prepareWrite() noexcept(false) override;
+  void writeDB() noexcept(false);
+  void clear();
+  void fetchData(ODLTCConfig* result) noexcept(false);
+  int fetchID() noexcept(false);
 
   int fetchNextId() noexcept(false);
 
   // User data
   int m_ID;
   unsigned char* m_ltc_clob;
-  std::string  m_ltc_file;
+  std::string m_ltc_file;
   int m_size;
-
 };
 
 #endif

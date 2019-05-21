@@ -9,8 +9,8 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class FEConfigFgrEETowerDat : public IDataItem {
- public:
-  friend class EcalCondDBInterface; // XXX temp should not need
+public:
+  friend class EcalCondDBInterface;  // XXX temp should not need
   FEConfigFgrEETowerDat();
   ~FEConfigFgrEETowerDat() override;
 
@@ -22,21 +22,18 @@ class FEConfigFgrEETowerDat : public IDataItem {
   inline void setLutValue(int mean) { m_lut = mean; }
   inline int getLutValue() const { return m_lut; }
 
- private:
+private:
   void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const FEConfigFgrEETowerDat* item, FEConfigFgrInfo* iconf) noexcept(false);
 
+  void writeArrayDB(const std::map<EcalLogicID, FEConfigFgrEETowerDat>* data, FEConfigFgrInfo* iconf) noexcept(false);
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigFgrEETowerDat>* data, FEConfigFgrInfo* iconf) noexcept(false);
-
-
-  void fetchData(std::map< EcalLogicID, FEConfigFgrEETowerDat >* fillMap, FEConfigFgrInfo* iconf) noexcept(false);
+  void fetchData(std::map<EcalLogicID, FEConfigFgrEETowerDat>* fillMap, FEConfigFgrInfo* iconf) noexcept(false);
 
   // User data
 
   int m_lut;
-
 };
 
 #endif

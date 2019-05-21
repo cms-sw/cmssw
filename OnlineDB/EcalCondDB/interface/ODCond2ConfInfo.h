@@ -10,7 +10,7 @@
 typedef int run_t;
 
 class ODCond2ConfInfo : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODCond2ConfInfo();
   ~ODCond2ConfInfo() override;
@@ -34,29 +34,28 @@ class ODCond2ConfInfo : public IODConfig {
   inline int getRunNumber() const { return m_run; }
 
   inline void setDescription(std::string x) { m_desc = x; }
-  inline std::string getDescription() const { return m_desc ; }
+  inline std::string getDescription() const { return m_desc; }
 
   inline void setDBDate(const Tm& x) { m_db_time = x; }
   inline Tm getDBDate() const { return m_db_time; }
 
-  // the tag is already in IODConfig 
+  // the tag is already in IODConfig
 
-  int fetchID()  noexcept(false);
+  int fetchID() noexcept(false);
 
   int fetchNextId() noexcept(false);
-  void setParameters(const std::map<std::string,std::string>& my_keys_map);
-  
- private:
-  void prepareWrite()  noexcept(false) override;
+  void setParameters(const std::map<std::string, std::string>& my_keys_map);
 
-  void writeDB()       noexcept(false);
+private:
+  void prepareWrite() noexcept(false) override;
+
+  void writeDB() noexcept(false);
 
   void clear();
 
-  void fetchData(ODCond2ConfInfo * result)     noexcept(false);
+  void fetchData(ODCond2ConfInfo* result) noexcept(false);
 
-  void fetchParents()  noexcept(false) ;
-
+  void fetchParents() noexcept(false);
 
   // User data
   int m_ID;
@@ -68,8 +67,6 @@ class ODCond2ConfInfo : public IODConfig {
   Tm m_db_time;
   int m_loc_id;
   int m_typ_id;
-
-
 };
 
 #endif

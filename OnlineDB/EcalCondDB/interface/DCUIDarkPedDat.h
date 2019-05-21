@@ -10,7 +10,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class DCUIDarkPedDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   DCUIDarkPedDat();
   ~DCUIDarkPedDat() override;
@@ -20,23 +20,18 @@ class DCUIDarkPedDat : public IDataItem {
 
   inline void setPed(float temp) { m_ped = temp; }
   inline float getPed() const { return m_ped; }
-  
- private:
-  void prepareWrite() 
-    noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const DCUIDarkPedDat* item, DCUIOV* iov)
-    noexcept(false);
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void writeArrayDB(const std::map< EcalLogicID, DCUIDarkPedDat>* data, DCUIOV* iov)
-    noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const DCUIDarkPedDat* item, DCUIOV* iov) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, DCUIDarkPedDat >* fillVec, DCUIOV* iov)
-     noexcept(false);
+  void writeArrayDB(const std::map<EcalLogicID, DCUIDarkPedDat>* data, DCUIOV* iov) noexcept(false);
+
+  void fetchData(std::map<EcalLogicID, DCUIDarkPedDat>* fillVec, DCUIOV* iov) noexcept(false);
 
   // User data
   float m_ped;
-  
 };
 
 #endif

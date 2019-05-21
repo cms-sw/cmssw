@@ -8,14 +8,12 @@
 
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
 
-
 /**
  *  A wrapper class for the oracle Connection and Environment classes
  *  along with any OCCI-dependent methods that are useful for any database
  */
 class EcalDBConnection {
- public:
-
+public:
   /******************\
   -  public methods  -
   \******************/
@@ -24,25 +22,14 @@ class EcalDBConnection {
    *  Constructor
    *  Makes a connection to an oracle database without TNS_ADMIN
    */
-  EcalDBConnection( std::string host,
-		    std::string sid,
-		    std::string user,
-		    std::string pass,
-		    int port = 1521 )
-    noexcept(false);
-
-
+  EcalDBConnection(std::string host, std::string sid, std::string user, std::string pass, int port = 1521) noexcept(
+      false);
 
   /**
    *  Constructor
    *  Makes a connection to an oracle database using TNS_ADMIN
    */
-  EcalDBConnection( std::string sid,
-		    std::string user,
-		    std::string pass )
-    noexcept(false);
-  
-
+  EcalDBConnection(std::string sid, std::string user, std::string pass) noexcept(false);
 
   /**
    *  Destructor
@@ -52,17 +39,15 @@ class EcalDBConnection {
   /**
    *  Get a new Statement
    */
-  inline oracle::occi::Statement* createStatement()
-    {
-      std::cout << "Creating statement" << std::endl;
-      return conn->createStatement();
-    }
+  inline oracle::occi::Statement* createStatement() {
+    std::cout << "Creating statement" << std::endl;
+    return conn->createStatement();
+  }
 
-  inline void terminateStatement(oracle::occi::Statement* stmt)
-    {
-      std::cout << "Creating statement" << std::endl;
-      conn->terminateStatement(stmt);
-    }
+  inline void terminateStatement(oracle::occi::Statement* stmt) {
+    std::cout << "Creating statement" << std::endl;
+    conn->terminateStatement(stmt);
+  }
 
   /** 
    *  Tranaction manaagement
@@ -73,16 +58,12 @@ class EcalDBConnection {
   /**
    *  Get a new clob locator
    */
-  inline oracle::occi::Clob getClobLocator()
-    {
-      return oracle::occi::Clob(conn);
-    }
+  inline oracle::occi::Clob getClobLocator() { return oracle::occi::Clob(conn); }
 
   oracle::occi::Environment* getEnv() const { return env; };
   oracle::occi::Connection* getConn() const { return conn; };
 
- protected:
-  
+protected:
   /***********************\
   -  protected variables  -
   \***********************/
@@ -96,7 +77,6 @@ class EcalDBConnection {
   std::string sid;
   std::string user;
   std::string pass;
-
 };
 
 #endif
