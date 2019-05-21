@@ -98,7 +98,7 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
 
             'pfDQM': ['DQMOfflinePF',
                            'PostDQMOffline',
-                           'DQMHarvestCommon'],
+                           'DQMHarvestPF'],
 
             'standardDQM': ['DQMOffline',
                             'PostDQMOffline',
