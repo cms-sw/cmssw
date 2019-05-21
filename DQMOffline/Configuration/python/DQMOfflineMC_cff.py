@@ -6,9 +6,6 @@ from DQMOffline.Configuration.DQMOffline_cff import *
 hcalOfflineSourceSequence.remove(tpTask)
 hcalOfflineSourceSequence.remove(rawTask)
 
-#       remote Gen-matching plots from PF sequence for data
-DQMOfflinePF.remove(pfDQMAnalyzer)
-
 siStripFEDCheck.RawDataTag = 'rawDataCollector'
 siStripFEDMonitor.RawDataTag = 'rawDataCollector'
 SiPixelHLTSource.RawInput = 'rawDataCollector'
