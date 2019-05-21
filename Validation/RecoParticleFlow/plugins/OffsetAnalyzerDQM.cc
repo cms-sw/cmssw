@@ -130,7 +130,7 @@ OffsetAnalyzerDQM::OffsetAnalyzerDQM(const edm::ParameterSet& iConfig)
 }
 
 void OffsetAnalyzerDQM::bookHistograms(DQMStore::IBooker & booker, edm::Run const &, edm::EventSetup const &) {
-    std::cout << "OffsetAnalyzerDQM booking offset histograms" << std::endl;
+    //std::cout << "OffsetAnalyzerDQM booking offset histograms" << std::endl;
     for (auto& pair : offsetPlots) {
         pair.second.book(booker);
     }

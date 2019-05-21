@@ -84,49 +84,25 @@ PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& i
   double ptBinsArray[ptBins.size()];
   unsigned int nPtBins = ptBins.size()-1;
   std::copy(ptBins.begin(),ptBins.end(),ptBinsArray);
-  for(unsigned int ipt = 0; ipt < ptBins.size(); ++ipt) std::cout << ptBins[ipt] << std::endl;
+  //for(unsigned int ipt = 0; ipt < ptBins.size(); ++ipt) std::cout << ptBins[ipt] << std::endl;
   
   std::string stitle;
   std::vector<MonitorElement*> vME_presponse;
   std::vector<MonitorElement*> vME_preso;
   std::vector<MonitorElement*> vME_preso_rms;
 
-  MonitorElement* mtmp;
-  TH1F * htmp;
-  TH1F * htmp2;
+  MonitorElement* me;
+  TH1F * h_resp;
+  TH1F * h_genjet_pt;
 
-  //
-  // Response distributions
-  //
-  for(unsigned int ieta = 1; ieta < etaBins.size(); ++ieta) {
-
-    stitle = "presponse_eta"+seta(etaBins[ieta]);
-    htmp = new TH1F(stitle.c_str(),stitle.c_str(),nPtBins,ptBinsArray);
-    mtmp = ibook_.book1D(stitle.c_str(),htmp);
-    vME_presponse.push_back(mtmp);
-
-    stitle = "preso_eta"+seta(etaBins[ieta]);
-    htmp = new TH1F(stitle.c_str(),stitle.c_str(),nPtBins,ptBinsArray);
-    mtmp = ibook_.book1D(stitle.c_str(),htmp);
-    vME_preso.push_back(mtmp);
-
-    stitle = "preso_eta"+seta(etaBins[ieta])+"_rms";
-    htmp = new TH1F(stitle.c_str(),stitle.c_str(),nPtBins,ptBinsArray);
-    mtmp = ibook_.book1D(stitle.c_str(),htmp);
-    vME_preso_rms.push_back(mtmp);
-
-  }
-  
   //
   // Response distributions
   //
   for(unsigned int ieta = 1; ieta < etaBins.size(); ++ieta) {
 
     stitle = genjetDir + "genjet_pt" + "_eta" + seta(etaBins[ieta]); 
-    //std::cout << stitle << std::endl;
-    mtmp=iget_.get(stitle);
-    htmp2 = (TH1F*) mtmp->getTH1F();
-    //htmp2->Print();
+    me=iget_.get(stitle);
+    h_genjet_pt = (TH1F*) me->getTH1F();
           
     stitle = "presponse_eta"+seta(etaBins[ieta]);
     TH1F *h_presponse = new TH1F(stitle.c_str(),stitle.c_str(),nPtBins,ptBinsArray);
@@ -140,14 +116,12 @@ PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& i
     for(unsigned int ipt = 0; ipt < ptBins.size()-1; ++ipt) {
 
       stitle = jetResponseDir + "reso_dist_" + spt(ptBins[ipt],ptBins[ipt+1]) + "_eta" + seta(etaBins[ieta]); 
-      //std::cout << stitle << std::endl;
-      mtmp=iget_.get(stitle);
-      htmp = (TH1F*) mtmp->getTH1F();
-      //htmp->Print();
+      me=iget_.get(stitle);
+      h_resp = (TH1F*) me->getTH1F();
 
       // Fit-based
       double resp=1.0, resp_err=0.0, reso=0.0, reso_err=0.0;
-      fitResponse(htmp, htmp2, ptBins[ipt], recoptcut,
+      fitResponse(h_resp, h_genjet_pt, ptBins[ipt], recoptcut,
 		  resp, resp_err, reso, reso_err);
       
       h_presponse->SetBinContent(ipt+1,resp);
@@ -156,43 +130,38 @@ PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& i
       h_preso->SetBinError(ipt+1,reso_err);
       
       // RMS-based
-      double std = htmp->GetStdDev();
-      double std_error = htmp->GetStdDevError();
+      double std = h_resp->GetStdDev();
+      double std_error = h_resp->GetStdDevError();
 
       // Scale each bin with mean response
       double mean = 1.0;
       double mean_error = 0.0;
       double err = 0.0;
-      if (htmp->GetMean()>0){
-	mean = htmp->GetMean();
-	mean_error = htmp->GetMeanError();
+      if (h_resp->GetMean()>0){
+	mean = h_resp->GetMean();
+	mean_error = h_resp->GetMeanError();
         if (std > 0.0 && mean > 0.0)
 	  err = std/mean * sqrt(pow(std_error,2) / pow(std,2) + pow(mean_error,2) / pow(mean,2));
 	if (mean > 0.0)
 	  std /= mean;
       }
 
-      // std::cout << ptBins[ipt] << " " << etaBins[ieta] << " "
-      // 		<< resp << " " << resp_err << " "
-      // 		<< reso << " " << reso_err << " "
-      // 		<< std << " " << err << std::endl;
-	
       h_preso_rms->SetBinContent(ipt+1,std);
       h_preso_rms->SetBinError(ipt+1,err);
 	
     } // ipt
 
     stitle = "presponse_eta"+seta(etaBins[ieta]);
-    mtmp = ibook_.book1D(stitle.c_str(),h_presponse);
-    vME_presponse.push_back(mtmp);
+    me = ibook_.book1D(stitle.c_str(),h_presponse);
+    vME_presponse.push_back(me);
 
     stitle = "preso_eta"+seta(etaBins[ieta]);
-    mtmp = ibook_.book1D(stitle.c_str(),h_preso);
-    vME_preso.push_back(mtmp);
+    me = ibook_.book1D(stitle.c_str(),h_preso);
+    vME_preso.push_back(me);
 
     stitle = "preso_eta"+seta(etaBins[ieta])+"_rms";
-    mtmp = ibook_.book1D(stitle.c_str(),h_preso_rms);
-    vME_preso_rms.push_back(mtmp);
+    me = ibook_.book1D(stitle.c_str(),h_preso_rms);
+    vME_preso_rms.push_back(me);
     
   } // ieta
 
@@ -229,10 +198,6 @@ PFJetDQMPostProcessor::fitResponse(TH1F* hreso, TH1F* h_genjet_pt, double ptlow,
   resp_err = fg->GetParError(1);
   reso     = fg->GetParameter(2);
   reso_err = fg->GetParError(2);
-
-  // std::cout 
-  // 	    << resp << " " << resp_err << " "
-  // 	    << reso << " " << reso_err << std::endl;
   
 }
 
