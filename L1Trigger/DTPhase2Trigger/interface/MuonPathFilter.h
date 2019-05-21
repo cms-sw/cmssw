@@ -15,18 +15,11 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 
 #include "L1Trigger/DTPhase2Trigger/interface/muonpath.h"
 #include "L1Trigger/DTPhase2Trigger/interface/analtypedefs.h"
 #include "L1Trigger/DTPhase2Trigger/interface/constants.h"
 #include "L1Trigger/DTPhase2Trigger/interface/MuonPathFilter.h"
-
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambDigi.h"
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
