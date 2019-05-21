@@ -276,6 +276,7 @@ run2_miniAOD_80XLegacy.toModify( slimmedPhotonsTo106X.modifierConfig.modificatio
 for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
     modifier.toModify(bitmapVIDForPho, src = "slimmedPhotonsTo106X")
     modifier.toModify(isoForPho, src = "slimmedPhotonsTo106X")
+    modifier.toModify(calibratedPatPhotons102Xv1, src = "slimmedPhotonsTo106X")
     modifier.toModify(calibratedPatPhotons94Xv1, src = "slimmedPhotonsTo106X")
     modifier.toModify(calibratedPatPhotons80XLegacy, src = "slimmedPhotonsTo106X")
     modifier.toModify(slimmedPhotonsWithUserData, src = "slimmedPhotonsTo106X")
