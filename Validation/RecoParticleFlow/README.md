@@ -55,7 +55,7 @@ Take note that the CMSSW python configuration for running the RECO sequence is d
 
 ~~~
 
-# For example:
+# For example (for 2017):
 CONDITIONS=auto:phase1_2017_realistic
 ERA=Run2_2017
 #Running with 2 threads allows to use more memory on grid
