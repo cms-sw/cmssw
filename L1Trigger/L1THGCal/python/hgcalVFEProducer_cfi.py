@@ -44,8 +44,8 @@ vfe_proc = cms.PSet( ProcessorName = cms.string('HGCalVFEProcessorSums'),
                      linnBits = cms.uint32(16),
                      siliconCellLSB_fC =  cms.double( triggerCellLsbBeforeCompression*(2**triggerCellTruncationBits) ),
                      scintillatorCellLSB_MIP = cms.double(float(adcSaturationBH_MIP.value())/(2**float(adcNbitsBH.value()))),
-                     noiseSilicon = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_fC")),
-                     noiseScintillator = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_heback")),
+                     noiseSilicon = cms.PSet(),
+                     noiseScintillator = cms.PSet(),
                      # cell thresholds before TC sums
                      # Cut at 3sigma of the noise
                      noiseThreshold = cms.double(3), # in units of sigmas of the noise
@@ -59,6 +59,13 @@ vfe_proc = cms.PSet( ProcessorName = cms.string('HGCalVFEProcessorSums'),
                      ThicknessCorrections = cms.vdouble(frontend_thickness_corrections),
                      thickCorr = cms.double(thicknessCorrection_200)
                      )
+
+# isolate these refs in case they aren't available in some other WF
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify(vfe_proc,
+    noiseSilicon = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_fC")),
+    noiseScintillator = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_heback")),
+)
 
 hgcalVFEProducer = cms.EDProducer(
         "HGCalVFEProducer",
