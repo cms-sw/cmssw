@@ -2,12 +2,11 @@
 
 #include "CondFormats/EcalCorrections/src/headers.h"
 
-int main()
-{
-    testSerialization<EcalGlobalShowerContainmentCorrectionsVsEta>();
-    testSerialization<EcalGlobalShowerContainmentCorrectionsVsEta::Coefficients>();
-    testSerialization<EcalShowerContainmentCorrections>();
-    testSerialization<EcalShowerContainmentCorrections::Coefficients>();
+int main() {
+  testSerialization<EcalGlobalShowerContainmentCorrectionsVsEta>();
+  testSerialization<EcalGlobalShowerContainmentCorrectionsVsEta::Coefficients>();
+  testSerialization<EcalShowerContainmentCorrections>();
+  testSerialization<EcalShowerContainmentCorrections::Coefficients>();
 
-    return 0;
+  return 0;
 }
