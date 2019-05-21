@@ -14,6 +14,9 @@ class TH1;
 
 class SiStripHistoPlotter {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   SiStripHistoPlotter();
   ~SiStripHistoPlotter();
 

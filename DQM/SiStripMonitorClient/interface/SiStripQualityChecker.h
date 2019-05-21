@@ -18,6 +18,9 @@ class SiStripDetCabling;
 
 class SiStripQualityChecker {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   SiStripQualityChecker(edm::ParameterSet const& ps);
   ~SiStripQualityChecker();
 

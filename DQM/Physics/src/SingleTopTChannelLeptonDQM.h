@@ -50,6 +50,8 @@
 */
 
 namespace SingleTopTChannelLepton {
+  using dqm::legacy::DQMStore;
+  using dqm::legacy::MonitorElement;
 
   class MonitorEnsemble {
   public:

@@ -39,6 +39,9 @@
 
 class SiPixelClusterModule {
 public:
+  typedef dqm::reco::DQMStore DQMStore;
+  typedef dqm::reco::MonitorElement MonitorElement;
+
   /// Default constructor
   SiPixelClusterModule();
   /// Constructor with raw DetId

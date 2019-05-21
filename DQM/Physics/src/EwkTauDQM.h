@@ -66,6 +66,9 @@ private:
 
 class EwkElecTauHistManager {
 public:
+  typedef EwkTauDQM::DQMStore DQMStore;
+  typedef EwkTauDQM::MonitorElement MonitorElement;
+
   EwkElecTauHistManager(const edm::ParameterSet&);
 
   void bookHistograms(DQMStore::IBooker&);
@@ -212,6 +215,9 @@ private:
 
 class EwkMuTauHistManager {
 public:
+  typedef EwkTauDQM::DQMStore DQMStore;
+  typedef EwkTauDQM::MonitorElement MonitorElement;
+
   EwkMuTauHistManager(const edm::ParameterSet&);
 
   void bookHistograms(DQMStore::IBooker&);

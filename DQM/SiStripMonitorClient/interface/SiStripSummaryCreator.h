@@ -11,6 +11,9 @@ class SiStripConfigWriter;
 
 class SiStripSummaryCreator {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   SiStripSummaryCreator();
   virtual ~SiStripSummaryCreator();
   bool readConfiguration(std::string const& file_path);

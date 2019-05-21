@@ -17,6 +17,7 @@
 #include <utility>
 
 //#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
@@ -28,6 +29,9 @@ namespace edm {
 
 class SiPixelHitEfficiencyModule {
 public:
+  typedef dqm::reco::DQMStore DQMStore;
+  typedef dqm::reco::MonitorElement MonitorElement;
+
   SiPixelHitEfficiencyModule();
   SiPixelHitEfficiencyModule(const uint32_t);
   ~SiPixelHitEfficiencyModule();

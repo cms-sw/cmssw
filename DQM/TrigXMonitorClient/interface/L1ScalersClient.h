@@ -21,6 +21,9 @@
 
 class L1ScalersClient : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   /// Constructors
   L1ScalersClient(const edm::ParameterSet &ps);
 

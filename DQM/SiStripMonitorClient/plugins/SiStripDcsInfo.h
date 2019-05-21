@@ -41,6 +41,9 @@ class SiStripDetCabling;
 
 class SiStripDcsInfo : public edm::EDAnalyzer {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   SiStripDcsInfo(const edm::ParameterSet& ps);
 
 private:

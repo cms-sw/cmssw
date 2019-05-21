@@ -18,7 +18,7 @@
 using namespace std;
 using namespace edm;
 
-typedef MonitorElement ME;
+typedef dqm::harvesting::MonitorElement ME;
 
 TrackingDQMClientHeavyIons::TrackingDQMClientHeavyIons(const edm::ParameterSet& pset) {
   TopFolder_ = pset.getParameter<std::string>("FolderName");

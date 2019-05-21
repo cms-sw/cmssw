@@ -25,6 +25,8 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 
 namespace SingleTopTChannelLepton_miniAOD {
+  using dqm::legacy::DQMStore;
+  using dqm::legacy::MonitorElement;
 
   class MonitorEnsemble {
   public:

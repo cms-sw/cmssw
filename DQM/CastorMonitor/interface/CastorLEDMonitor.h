@@ -26,6 +26,8 @@ static const float LedMonAdc2fc[128] = {
 
 class CastorLEDMonitor {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   CastorLEDMonitor(const edm::ParameterSet &ps);
   ~CastorLEDMonitor();
 

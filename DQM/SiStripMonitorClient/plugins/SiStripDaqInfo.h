@@ -40,6 +40,9 @@ class TrackerTopology;
 
 class SiStripDaqInfo : public edm::EDAnalyzer {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   SiStripDaqInfo(edm::ParameterSet const& ps);
 
 private:

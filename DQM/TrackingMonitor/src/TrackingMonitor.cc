@@ -116,7 +116,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
       denSelection_(iConfig.getParameter<std::string>("denCut")),
       pvNDOF_(iConfig.getParameter<int>("pvNDOF")) {
   edm::ConsumesCollector c{consumesCollector()};
-  theTrackAnalyzer = new dqm::TrackAnalyzer(iConfig, c);
+  theTrackAnalyzer = new TrackAnalyzer(iConfig, c);
 
   // input tags for collections from the configuration
   bsSrc_ = iConfig.getParameter<edm::InputTag>("beamSpot");

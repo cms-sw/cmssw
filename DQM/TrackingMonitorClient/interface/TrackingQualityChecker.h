@@ -17,6 +17,9 @@ class TrackingDetCabling;
 
 class TrackingQualityChecker {
 public:
+  typedef dqm::harvesting::DQMStore DQMStore;
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+
   TrackingQualityChecker(edm::ParameterSet const& ps);
   virtual ~TrackingQualityChecker();
 

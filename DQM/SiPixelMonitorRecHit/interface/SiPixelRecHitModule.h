@@ -33,6 +33,9 @@ detector segment (detID)
 
 class SiPixelRecHitModule {
 public:
+  typedef dqm::reco::DQMStore DQMStore;
+  typedef dqm::reco::MonitorElement MonitorElement;
+
   /// Default constructor
   SiPixelRecHitModule();
   /// Constructor with raw DetId

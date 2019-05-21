@@ -25,6 +25,8 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 
 namespace TopSingleLepton_miniAOD {
+  using dqm::legacy::DQMStore;
+  using dqm::legacy::MonitorElement;
 
   class MonitorEnsemble {
   public:

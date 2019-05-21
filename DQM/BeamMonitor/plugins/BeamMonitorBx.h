@@ -24,6 +24,9 @@
 
 class BeamMonitorBx : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   BeamMonitorBx(const edm::ParameterSet&);
   ~BeamMonitorBx() override;
 

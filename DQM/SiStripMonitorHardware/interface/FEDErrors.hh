@@ -34,6 +34,9 @@ class TrackerTopology;
 
 class FEDErrors {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   struct FEDCounters {
     unsigned int nFEDErrors;
     unsigned int nDAQProblems;
