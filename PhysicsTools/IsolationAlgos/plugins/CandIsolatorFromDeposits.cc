@@ -19,7 +19,7 @@
 #include "DataFormats/Candidate/interface/CandAssociation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
-#include <boost/regex.hpp>
+#include <regex>
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositVetoFactory.h"
 
@@ -28,7 +28,7 @@ using namespace reco;
 using namespace reco::isodeposit;
 
 bool isNumber(const std::string &str) {
-   static boost::regex re("^[+-]?(\\d+\\.?|\\d*\\.\\d*)$");
+   static const std::regex re("^[+-]?(\\d+\\.?|\\d*\\.\\d*)$");
    return regex_match(str.c_str(), re);
 }
 double toNumber(const std::string &str) {
