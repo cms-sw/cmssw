@@ -5,7 +5,7 @@
 
 using namespace geant_units::operators;
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 static long  algorithm(dd4hep::Detector& /* description */,
                        cms::DDParsingContext& ctxt,
@@ -33,9 +33,11 @@ static long  algorithm(dd4hep::Detector& /* description */,
     << " Zoffest " << zoffset << "\tStart and inremental "
     << "copy nos " << startCopyNo << ", " << incrCopyNo;
 #endif
-
+  std::string childName   = args.value<std::string>("ChildName");
+  if ( strchr( childName.c_str(), NAMESPACE_SEP ) == nullptr )
+    childName = ns.name() + childName;
   dd4hep::Volume parent = ns.volume(args.parentName());
-  dd4hep::Volume child  = ns.volume(args.value<std::string>("ChildName"));
+  dd4hep::Volume child  = ns.volume(childName);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MuonGeom") 
     << "DDGEMAngular: Parent " << parent.name() << "\tChild " << child.name()
@@ -75,5 +77,4 @@ static long  algorithm(dd4hep::Detector& /* description */,
 }
 
 // first argument is the type from the xml file
-DECLARE_DDCMS_DETELEMENT(DDCMS_Muon_DDGEMAngular,algorithm)
-
+DECLARE_DDCMS_DETELEMENT(DDCMS_muon_DDGEMAngular,algorithm)
