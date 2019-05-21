@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWISpyView
-// 
+//
 /**\class FWISpyView FWISpyView.h Fireworks/Core/interface/FWISpyView.h
 
  Description: [one line class summary]
@@ -25,26 +25,25 @@
 
 // forward declarations
 
-class FWISpyView : public FW3DViewBase
-{
+class FWISpyView : public FW3DViewBase {
 public:
-   FWISpyView(TEveWindowSlot*, FWViewType::EType, unsigned int version=9);
-   ~FWISpyView() override;
-   void setContext(const fireworks::Context& x) override;
+  FWISpyView(TEveWindowSlot*, FWViewType::EType, unsigned int version = 9);
+  ~FWISpyView() override;
+  void setContext(const fireworks::Context& x) override;
 
-   void populateController(ViewerParameterGUI&) const override;
-   // ---------- const member functions ---------------------
+  void populateController(ViewerParameterGUI&) const override;
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
 private:
-   FWISpyView(const FWISpyView&) = delete; // stop default
+  FWISpyView(const FWISpyView&) = delete;  // stop default
 
-   const FWISpyView& operator=(const FWISpyView&) = delete; // stop default
+  const FWISpyView& operator=(const FWISpyView&) = delete;  // stop default
 
-   // ---------- member data --------------------------------};
+  // ---------- member data --------------------------------};
 };
 
 #endif

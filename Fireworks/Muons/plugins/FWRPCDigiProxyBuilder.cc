@@ -21,8 +21,7 @@
 
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
-class FWRPCDigiProxyBuilder : public FWProxyBuilderBase
-{
+class FWRPCDigiProxyBuilder : public FWProxyBuilderBase {
 public:
   FWRPCDigiProxyBuilder() {}
   ~FWRPCDigiProxyBuilder() override {}
@@ -32,78 +31,68 @@ public:
 private:
   using FWProxyBuilderBase::build;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
-  FWRPCDigiProxyBuilder(const FWRPCDigiProxyBuilder&) = delete;    
+  FWRPCDigiProxyBuilder(const FWRPCDigiProxyBuilder&) = delete;
   const FWRPCDigiProxyBuilder& operator=(const FWRPCDigiProxyBuilder&) = delete;
 };
 
-void
-FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
-{
+void FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) {
   const RPCDigiCollection* digis = nullptr;
- 
+
   iItem->get(digis);
 
-  if ( ! digis ) 
-  {
-    fwLog(fwlog::kWarning)<<"Failed to get RPCDigis"<<std::endl;
+  if (!digis) {
+    fwLog(fwlog::kWarning) << "Failed to get RPCDigis" << std::endl;
     return;
   }
-  const FWGeometry *geom = iItem->getGeom();
+  const FWGeometry* geom = iItem->getGeom();
 
-  for ( RPCDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
-        dri != driEnd; ++dri )
-  {
+  for (RPCDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end(); dri != driEnd; ++dri) {
     unsigned int rawid = (*dri).first.rawId();
     const RPCDigiCollection::Range& range = (*dri).second;
 
-    if( ! geom->contains( rawid ))
-    {
-      fwLog( fwlog::kWarning ) << "Failed to get geometry of RPC roll with detid: "
-			       << rawid << std::endl;
-      
+    if (!geom->contains(rawid)) {
+      fwLog(fwlog::kWarning) << "Failed to get geometry of RPC roll with detid: " << rawid << std::endl;
+
       TEveCompound* compound = createCompound();
-      setupAddElement( compound, product );
-      
+      setupAddElement(compound, product);
+
       continue;
     }
-    
-    const float* parameters = geom->getParameters( rawid );
+
+    const float* parameters = geom->getParameters(rawid);
     float nStrips = parameters[0];
-    float halfStripLength = parameters[1]*0.5;
+    float halfStripLength = parameters[1] * 0.5;
     float pitch = parameters[2];
-    float offset = -0.5*nStrips*pitch;
-    
-    for( RPCDigiCollection::const_iterator dit = range.first;
-	 dit != range.second; ++dit )
-    {
+    float offset = -0.5 * nStrips * pitch;
+
+    for (RPCDigiCollection::const_iterator dit = range.first; dit != range.second; ++dit) {
       TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet;
       stripDigiSet->SetLineWidth(3);
-      setupAddElement( stripDigiSet, product );
+      setupAddElement(stripDigiSet, product);
 
       int strip = (*dit).strip();
-      float centreOfStrip = (strip-0.5)*pitch + offset;
+      float centreOfStrip = (strip - 0.5) * pitch + offset;
 
-      float localPointTop[3] =
-      {
-        centreOfStrip, halfStripLength, 0.0
-      };
+      float localPointTop[3] = {centreOfStrip, halfStripLength, 0.0};
 
-      float localPointBottom[3] = 
-      {
-        centreOfStrip, -halfStripLength, 0.0
-      };
+      float localPointBottom[3] = {centreOfStrip, -halfStripLength, 0.0};
 
       float globalPointTop[3];
       float globalPointBottom[3];
 
-      geom->localToGlobal( rawid, localPointTop, globalPointTop, localPointBottom, globalPointBottom );
+      geom->localToGlobal(rawid, localPointTop, globalPointTop, localPointBottom, globalPointBottom);
 
-      stripDigiSet->AddLine(globalPointTop[0], globalPointTop[1], globalPointTop[2],
-                            globalPointBottom[0], globalPointBottom[1], globalPointBottom[2]);
+      stripDigiSet->AddLine(globalPointTop[0],
+                            globalPointTop[1],
+                            globalPointTop[2],
+                            globalPointBottom[0],
+                            globalPointBottom[1],
+                            globalPointBottom[2]);
     }
   }
 }
 
-REGISTER_FWPROXYBUILDER(FWRPCDigiProxyBuilder, RPCDigiCollection, "RPCDigi", 
+REGISTER_FWPROXYBUILDER(FWRPCDigiProxyBuilder,
+                        RPCDigiCollection,
+                        "RPCDigi",
                         FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
-

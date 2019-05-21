@@ -34,37 +34,33 @@ class FWModelChangeManager;
 class FWColorManager;
 class FWTypeToRepresentations;
 
-class FWViewManagerManager
-{
-
+class FWViewManagerManager {
 public:
-   FWViewManagerManager(FWModelChangeManager*, FWColorManager*);
-   virtual ~FWViewManagerManager();
+  FWViewManagerManager(FWModelChangeManager*, FWColorManager*);
+  virtual ~FWViewManagerManager();
 
-   // ---------- const member functions ---------------------
-   FWTypeToRepresentations supportedTypesAndRepresentations() const;
+  // ---------- const member functions ---------------------
+  FWTypeToRepresentations supportedTypesAndRepresentations() const;
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void add( std::shared_ptr<FWViewManagerBase>);
-   void registerEventItem(const FWEventItem*iItem);
-   void removeEventItem(const FWEventItem*iItem);
-   void eventBegin();
-   void eventEnd();
+  // ---------- member functions ---------------------------
+  void add(std::shared_ptr<FWViewManagerBase>);
+  void registerEventItem(const FWEventItem* iItem);
+  void removeEventItem(const FWEventItem* iItem);
+  void eventBegin();
+  void eventEnd();
 
 private:
-   FWViewManagerManager(const FWViewManagerManager&) = delete;    // stop default
+  FWViewManagerManager(const FWViewManagerManager&) = delete;  // stop default
 
-   const FWViewManagerManager& operator=(const FWViewManagerManager&) = delete;    // stop default
+  const FWViewManagerManager& operator=(const FWViewManagerManager&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   std::vector<std::shared_ptr<FWViewManagerBase> > m_viewManagers;
-   FWModelChangeManager* m_changeManager;
-   FWColorManager* m_colorManager;
-   std::map<std::string, const FWEventItem*> m_typeToItems;    //use this to tell view managers registered after the item
-
+  // ---------- member data --------------------------------
+  std::vector<std::shared_ptr<FWViewManagerBase> > m_viewManagers;
+  FWModelChangeManager* m_changeManager;
+  FWColorManager* m_colorManager;
+  std::map<std::string, const FWEventItem*> m_typeToItems;  //use this to tell view managers registered after the item
 };
-
 
 #endif

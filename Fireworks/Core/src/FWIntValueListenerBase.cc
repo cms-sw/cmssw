@@ -2,6 +2,4 @@
 
 ClassImp(FWIntValueListenerBase);
 
-void FWIntValueListenerBase::setValue(Int_t val) {
-   setValueImp(val);
-}
+void FWIntValueListenerBase::setValue(Int_t val) { setValueImp(val); }

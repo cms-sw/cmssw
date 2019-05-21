@@ -13,30 +13,33 @@
 
 #include "TEveTrack.h"
 
-class FWTrackingVertexProxyBuilder : public FWSimpleProxyBuilderTemplate<TrackingVertex>
-{
+class FWTrackingVertexProxyBuilder : public FWSimpleProxyBuilderTemplate<TrackingVertex> {
 public:
-   FWTrackingVertexProxyBuilder( void ) {} 
-   ~FWTrackingVertexProxyBuilder( void ) override {}
+  FWTrackingVertexProxyBuilder(void) {}
+  ~FWTrackingVertexProxyBuilder(void) override {}
 
-   REGISTER_PROXYBUILDER_METHODS();
+  REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   // Disable default copy constructor
-   FWTrackingVertexProxyBuilder( const FWTrackingVertexProxyBuilder& ) = delete;
-   // Disable default assignment operator
-   const FWTrackingVertexProxyBuilder& operator=( const FWTrackingVertexProxyBuilder& ) = delete;
+  // Disable default copy constructor
+  FWTrackingVertexProxyBuilder(const FWTrackingVertexProxyBuilder&) = delete;
+  // Disable default assignment operator
+  const FWTrackingVertexProxyBuilder& operator=(const FWTrackingVertexProxyBuilder&) = delete;
 
-   using FWSimpleProxyBuilderTemplate<TrackingVertex>::build;
-   void build( const TrackingVertex& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
+  using FWSimpleProxyBuilderTemplate<TrackingVertex>::build;
+  void build(const TrackingVertex& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };
 
-void
-FWTrackingVertexProxyBuilder::build( const TrackingVertex& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* )
-{
-   TEvePointSet* pointSet = new TEvePointSet;
-   setupAddElement( pointSet, &oItemHolder );
-   pointSet->SetNextPoint( iData.position().x(), iData.position().y(), iData.position().z() );
+void FWTrackingVertexProxyBuilder::build(const TrackingVertex& iData,
+                                         unsigned int iIndex,
+                                         TEveElement& oItemHolder,
+                                         const FWViewContext*) {
+  TEvePointSet* pointSet = new TEvePointSet;
+  setupAddElement(pointSet, &oItemHolder);
+  pointSet->SetNextPoint(iData.position().x(), iData.position().y(), iData.position().z());
 }
 
-REGISTER_FWPROXYBUILDER( FWTrackingVertexProxyBuilder, TrackingVertex, "TrackingVertices", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER(FWTrackingVertexProxyBuilder,
+                        TrackingVertex,
+                        "TrackingVertices",
+                        FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
