@@ -64,6 +64,7 @@ TMPDIR=tmp
 cd $CMSSW_BASE/src/Validation/RecoParticleFlow
 cd tmp/QCD
 
+# make a text file for input files
 dasgoclient --query="file dataset=/RelValNuGun/CMSSW_10_5_0_pre1-PU25ns_103X_upgrade2018_realistic_v8-v1/MINIAODSIM" > step3_filelist.txt
 cat step3_filelist.txt
 
