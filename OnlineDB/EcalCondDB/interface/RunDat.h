@@ -9,7 +9,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class RunDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   RunDat();
   ~RunDat() override;
@@ -20,15 +20,12 @@ class RunDat : public IDataItem {
   inline void setNumEvents(int num) { m_numEvents = num; }
   inline int getNumEvents() const { return m_numEvents; }
 
- private:
-  void prepareWrite() 
-    noexcept(false) override;
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const RunDat* item, RunIOV* iov )
-    noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const RunDat* item, RunIOV* iov) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, RunDat >* fillMap, RunIOV* iov)
-     noexcept(false);
+  void fetchData(std::map<EcalLogicID, RunDat>* fillMap, RunIOV* iov) noexcept(false);
 
   // User data
   int m_numEvents;

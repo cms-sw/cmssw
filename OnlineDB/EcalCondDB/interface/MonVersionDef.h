@@ -10,9 +10,9 @@
  *   Def for Location information
  */
 class MonVersionDef : public IDef {
-  public:
+public:
   friend class EcalCondDBInterface;
-  
+
   MonVersionDef();
   ~MonVersionDef() override;
 
@@ -30,12 +30,12 @@ class MonVersionDef : public IDef {
   inline bool operator==(const MonVersionDef &d) const { return m_monVer == d.m_monVer; }
   inline bool operator!=(const MonVersionDef &d) const { return m_monVer != d.m_monVer; }
 
- protected:
+protected:
   // User data for this def
   std::string m_monVer;
   std::string m_desc;
 
-  void fetchAllDefs( std::vector<MonVersionDef>* fillVec) noexcept(false);
+  void fetchAllDefs(std::vector<MonVersionDef> *fillVec) noexcept(false);
 };
 
 #endif

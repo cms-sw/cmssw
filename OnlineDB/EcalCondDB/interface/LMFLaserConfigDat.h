@@ -11,7 +11,7 @@
  *   LMF_LASER_CONFIG_DAT interface
  */
 class LMFLaserConfigDat : public LMFDat {
- public:
+public:
   LMFLaserConfigDat() : LMFDat() {
     m_tableName = "LMF_LASER_CONFIG_DAT";
     m_className = "LMFLaserConfigDat";
@@ -38,40 +38,40 @@ class LMFLaserConfigDat : public LMFDat {
   }
   ~LMFLaserConfigDat() override {}
 
-  LMFLaserConfigDat& setWavelength(EcalLogicID &id, int w) {
+  LMFLaserConfigDat &setWavelength(EcalLogicID &id, int w) {
     LMFDat::setData(id, "WAVELENGTH", w);
     return *this;
   }
-  LMFLaserConfigDat& setVFEGain(EcalLogicID &id, float g) {
+  LMFLaserConfigDat &setVFEGain(EcalLogicID &id, float g) {
     LMFDat::setData(id, "VFE_GAIN", g);
     return *this;
   }
-  LMFLaserConfigDat& setPNGain(EcalLogicID &id, float g) {
+  LMFLaserConfigDat &setPNGain(EcalLogicID &id, float g) {
     LMFDat::setData(id, "PN_GAIN", g);
     return *this;
   }
-  LMFLaserConfigDat& setLSRPower(EcalLogicID &id, float g) {
+  LMFLaserConfigDat &setLSRPower(EcalLogicID &id, float g) {
     LMFDat::setData(id, "LSR_POWER", g);
     return *this;
   }
-  LMFLaserConfigDat& setLSRAttenuator(EcalLogicID &id, float g) {
+  LMFLaserConfigDat &setLSRAttenuator(EcalLogicID &id, float g) {
     LMFDat::setData(id, "LSR_ATTENUATOR", g);
     return *this;
   }
-  LMFLaserConfigDat& setLSRCurrent(EcalLogicID &id, float g) {
+  LMFLaserConfigDat &setLSRCurrent(EcalLogicID &id, float g) {
     LMFDat::setData(id, "LSR_CURRENT", g);
     return *this;
   }
-  LMFLaserConfigDat& setLSRDelay1(EcalLogicID &id, float g) {
+  LMFLaserConfigDat &setLSRDelay1(EcalLogicID &id, float g) {
     LMFDat::setData(id, "LSR_DELAY_1", g);
     return *this;
   }
-  LMFLaserConfigDat& setLSRDelay2(EcalLogicID &id, float g) {
+  LMFLaserConfigDat &setLSRDelay2(EcalLogicID &id, float g) {
     LMFDat::setData(id, "LSR_DELAY_2", g);
     return *this;
   }
-  LMFLaserConfigDat& setData(EcalLogicID &id, float w, float g, float pnga, 
-			     float p, float a, float c, float d1, float d2) {
+  LMFLaserConfigDat &setData(
+      EcalLogicID &id, float w, float g, float pnga, float p, float a, float c, float d1, float d2) {
     LMFDat::setData(id, "WAVELENGTH", w);
     LMFDat::setData(id, "VFE_GAIN", g);
     LMFDat::setData(id, "PN_GAIN", pnga);
@@ -82,64 +82,30 @@ class LMFLaserConfigDat : public LMFDat {
     LMFDat::setData(id, "LSR_DELAY_2", d2);
     return *this;
   }
-  LMFLaserConfigDat& setData(EcalLogicID &id, const std::vector<float>& v) {
+  LMFLaserConfigDat &setData(EcalLogicID &id, const std::vector<float> &v) {
     LMFDat::setData(id, v);
     return *this;
   }
 
-  float getWavelength(int id) {
-    return getData(id, "WAVELENGTH");
-  }
-  float getVFEGain(int id) {
-    return getData(id, "VFE_GAIN");
-  }
-  float getPNGain(int id) {
-    return getData(id, "PN_GAIN");
-  }
-  float getLSRPower(int id) {
-    return getData(id, "LSR_POWER");
-  }
-  float getLSRAttenuator(int id) {
-    return getData(id, "LSR_ATTENUATOR");
-  }
-  float getLSRCurrent(int id) {
-    return getData(id, "LSR_CURRENT");
-  }
-  float getLSRDelay1(int id) {
-    return getData(id, "LSR_DELAY_1");
-  }
-  float getLSRDelay2(int id) {
-    return getData(id, "LSR_DELAY_2");
-  }
+  float getWavelength(int id) { return getData(id, "WAVELENGTH"); }
+  float getVFEGain(int id) { return getData(id, "VFE_GAIN"); }
+  float getPNGain(int id) { return getData(id, "PN_GAIN"); }
+  float getLSRPower(int id) { return getData(id, "LSR_POWER"); }
+  float getLSRAttenuator(int id) { return getData(id, "LSR_ATTENUATOR"); }
+  float getLSRCurrent(int id) { return getData(id, "LSR_CURRENT"); }
+  float getLSRDelay1(int id) { return getData(id, "LSR_DELAY_1"); }
+  float getLSRDelay2(int id) { return getData(id, "LSR_DELAY_2"); }
 
-  float getWavelength(EcalLogicID &id) {
-    return getData(id, "WAVELENGTH");
-  }
-  float getVFEGain(EcalLogicID &id) {
-    return getData(id, "VFE_GAIN");
-  }
-  float getPNGain(EcalLogicID &id) {
-    return getData(id, "PN_GAIN");
-  }
-  float getLSRPower(EcalLogicID &id) {
-    return getData(id, "LSR_POWER");
-  }
-  float getLSRAttenuator(EcalLogicID &id) {
-    return getData(id, "LSR_ATTENUATOR");
-  }
-  float getLSRCurrent(EcalLogicID &id) {
-    return getData(id, "LSR_CURRENT");
-  }
-  float getLSRDelay1(EcalLogicID &id) {
-    return getData(id, "LSR_DELAY_1");
-  }
-  float getLSRDelay2(EcalLogicID &id) {
-    return getData(id, "LSR_DELAY_2");
-  }
+  float getWavelength(EcalLogicID &id) { return getData(id, "WAVELENGTH"); }
+  float getVFEGain(EcalLogicID &id) { return getData(id, "VFE_GAIN"); }
+  float getPNGain(EcalLogicID &id) { return getData(id, "PN_GAIN"); }
+  float getLSRPower(EcalLogicID &id) { return getData(id, "LSR_POWER"); }
+  float getLSRAttenuator(EcalLogicID &id) { return getData(id, "LSR_ATTENUATOR"); }
+  float getLSRCurrent(EcalLogicID &id) { return getData(id, "LSR_CURRENT"); }
+  float getLSRDelay1(EcalLogicID &id) { return getData(id, "LSR_DELAY_1"); }
+  float getLSRDelay2(EcalLogicID &id) { return getData(id, "LSR_DELAY_2"); }
 
-  
- private:
-
+private:
 };
 
 #endif
