@@ -1533,7 +1533,7 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ib
     tkmes.Chi2oNDFVsPt->setAxisTitle("Track #chi^{2}/ndf",2);
 
     histname = "Chi2oNDFVsNHits_" + histTag;
-    tkmes.Chi2oNDFVsNHits   = ibooker.bookProfile(histname, histname, 50, 0, 50, Chi2NDFMin, Chi2NDFMax,"");
+    tkmes.Chi2oNDFVsNHits   = ibooker.bookProfile(histname, histname, 50, 0., 50, Chi2NDFMin, Chi2NDFMax,"");
     tkmes.Chi2oNDFVsNHits->setAxisTitle("Track NHits", 1);
     tkmes.Chi2oNDFVsNHits->setAxisTitle("Track #chi^{2}/ndf",2);
 
