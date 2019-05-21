@@ -71,7 +71,6 @@ hltParticleFlow = particleFlowTmp.clone(
     rejectTracks_Bad = cms.bool(False),
     muons = cms.InputTag(""),
     postMuonCleaning = cms.bool(False),
-    usePFSCEleCalib = cms.bool(False)
 )
 
 

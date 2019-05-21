@@ -1,42 +1,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFElectronExtraEqual.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
-
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
 
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-
-#include "DataFormats/Common/interface/OrphanHandle.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-
-
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
-
-
-#include "Math/PxPyPzM4D.h"
-#include "Math/LorentzVector.h"
-#include "Math/DisplacementVector3D.h"
-#include "Math/SMatrix.h"
 #include "TDecompChol.h"
 
 #include <numeric>
@@ -50,10 +20,7 @@ PFAlgo::PFAlgo(bool debug)
   : pfCandidates_( new PFCandidateCollection),
     nSigmaECAL_(0),
     nSigmaHCAL_(1),
-    algo_(1),
     debug_(debug),
-    pfele_(nullptr),
-    pfpho_(nullptr),
     connector_(debug),
     useVertices_(false)
 {}
@@ -77,121 +44,6 @@ PFMuonAlgo* PFAlgo::getPFMuonAlgo() {
   return pfmu_;
 }
 
-//PFElectrons: a new method added to set the parameters for electron reconstruction.
-void
-PFAlgo::setPFEleParameters(double mvaEleCut,
-			   string mvaWeightFileEleID,
-			   bool usePFElectrons,
-			   const std::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
-			   const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
-			   double sumEtEcalIsoForEgammaSC_barrel,
-			   double sumEtEcalIsoForEgammaSC_endcap,
-			   double coneEcalIsoForEgammaSC,
-			   double sumPtTrackIsoForEgammaSC_barrel,
-			   double sumPtTrackIsoForEgammaSC_endcap,
-			   unsigned int nTrackIsoForEgammaSC,
-			   double coneTrackIsoForEgammaSC,
-			   bool applyCrackCorrections,
-			   bool usePFSCEleCalib,
-			   bool useEGElectrons,
-			   bool useEGammaSupercluster) {
-
-  mvaEleCut_ = mvaEleCut;
-  usePFElectrons_ = usePFElectrons;
-  applyCrackCorrectionsElectrons_ = applyCrackCorrections;
-  usePFSCEleCalib_ = usePFSCEleCalib;
-  thePFSCEnergyCalibration_ = thePFSCEnergyCalibration;
-  useEGElectrons_ = useEGElectrons;
-  useEGammaSupercluster_ = useEGammaSupercluster;
-  sumEtEcalIsoForEgammaSC_barrel_ = sumEtEcalIsoForEgammaSC_barrel;
-  sumEtEcalIsoForEgammaSC_endcap_ = sumEtEcalIsoForEgammaSC_endcap;
-  coneEcalIsoForEgammaSC_ = coneEcalIsoForEgammaSC;
-  sumPtTrackIsoForEgammaSC_barrel_ = sumPtTrackIsoForEgammaSC_barrel;
-  sumPtTrackIsoForEgammaSC_endcap_ = sumPtTrackIsoForEgammaSC_endcap;
-  coneTrackIsoForEgammaSC_ = coneTrackIsoForEgammaSC;
-  nTrackIsoForEgammaSC_ = nTrackIsoForEgammaSC;
-
-
-  if(!usePFElectrons_) return;
-  mvaWeightFileEleID_ = mvaWeightFileEleID;
-  FILE * fileEleID = fopen(mvaWeightFileEleID_.c_str(), "r");
-  if (fileEleID) {
-    fclose(fileEleID);
-  }
-  else {
-    string err = "PFAlgo: cannot open weight file '";
-    err += mvaWeightFileEleID;
-    err += "'";
-    throw invalid_argument( err );
-  }
-  pfele_= std::make_unique<PFElectronAlgo>(mvaEleCut_,mvaWeightFileEleID_,
-			     thePFSCEnergyCalibration_,
-			     thePFEnergyCalibration,
-			     applyCrackCorrectionsElectrons_,
-			     usePFSCEleCalib_,
-			     useEGElectrons_,
-			     useEGammaSupercluster_,
-			     sumEtEcalIsoForEgammaSC_barrel_,
-			     sumEtEcalIsoForEgammaSC_endcap_,
-			     coneEcalIsoForEgammaSC_,
-			     sumPtTrackIsoForEgammaSC_barrel_,
-			     sumPtTrackIsoForEgammaSC_endcap_,
-			     nTrackIsoForEgammaSC_,
-			     coneTrackIsoForEgammaSC_);
-}
-
-void
-PFAlgo::setPFPhotonParameters(bool usePFPhotons,
-			      std::string mvaWeightFileConvID,
-			      double mvaConvCut,
-			      bool useReg,
-			      std::string X0_Map,
-			      const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
-			      double sumPtTrackIsoForPhoton,
-			      double sumPtTrackIsoSlopeForPhoton)
- {
-
-  usePFPhotons_ = usePFPhotons;
-
-  //for MVA pass PV if there is one in the collection otherwise pass a dummy
-  reco::Vertex dummy;
-  if(useVertices_)
-    {
-      dummy = primaryVertex_;
-    }
-  else { // create a dummy PV
-    reco::Vertex::Error e;
-    e(0, 0) = 0.0015 * 0.0015;
-    e(1, 1) = 0.0015 * 0.0015;
-    e(2, 2) = 15. * 15.;
-    reco::Vertex::Point p(0, 0, 0);
-    dummy = reco::Vertex(p, e, 0, 0, 0);
-  }
-  // pv=&dummy;
-  if(! usePFPhotons_) return;
-  FILE * filePhotonConvID = fopen(mvaWeightFileConvID.c_str(), "r");
-  if (filePhotonConvID) {
-    fclose(filePhotonConvID);
-  }
-  else {
-    string err = "PFAlgo: cannot open weight file '";
-    err += mvaWeightFileConvID;
-    err += "'";
-    throw invalid_argument( err );
-  }
-  const reco::Vertex* pv=&dummy;
-  pfpho_ = std::make_unique<PFPhotonAlgo>(mvaWeightFileConvID,
-			    mvaConvCut,
-			    useReg,
-			    X0_Map,
-			    *pv,
-			    thePFEnergyCalibration,
-                            sumPtTrackIsoForPhoton,
-                            sumPtTrackIsoSlopeForPhoton
-			    );
-  return;
-}
-
 void PFAlgo::setEGammaParameters(bool use_EGammaFilters, bool useProtectionsForJetMET)
 {
 
@@ -212,18 +64,6 @@ void  PFAlgo::setEGammaCollections(const edm::View<reco::PFCandidate> & pfEgamma
 }
 
 
-void PFAlgo::setPFPhotonRegWeights(
-				   const GBRForest *LCorrForestEB,
-				   const GBRForest *LCorrForestEE,
-				   const GBRForest *GCorrForestBarrel,
-				   const GBRForest *GCorrForestEndcapHr9,
-				   const GBRForest *GCorrForestEndcapLr9,			     		   const GBRForest *PFEcalResolution
-				   ){
-
-  pfpho_->setGBRForest(LCorrForestEB,LCorrForestEE,
-		       GCorrForestBarrel, GCorrForestEndcapHr9,
-		       GCorrForestEndcapLr9, PFEcalResolution);
-}
 void
 PFAlgo::setPFMuonAndFakeParameters(const edm::ParameterSet& pset)
 {
@@ -310,9 +150,6 @@ PFAlgo::setPFVertexParameters(bool useVertex, reco::VertexCollection const&  pri
   //Now find the primary vertex!
   bool primaryVertexFound = false;
   nVtx_ = primaryVertices.size();
-  if(usePFPhotons_){
-    pfpho_->setnPU(nVtx_);
-  }
   for(auto const& vertex : primaryVertices)
     {
       if(vertex.isValid()&&(!vertex.isFake()))
@@ -324,30 +161,13 @@ PFAlgo::setPFVertexParameters(bool useVertex, reco::VertexCollection const&  pri
     }
   //Use vertices if the user wants to but only if it exists a good vertex
   useVertices_ = useVertex && primaryVertexFound;
-  if(usePFPhotons_) {
-    if (useVertices_ ){
-      pfpho_->setPhotonPrimaryVtx(primaryVertex_ );
-    }
-    else{
-      reco::Vertex::Error e;
-      e(0, 0) = 0.0015 * 0.0015;
-      e(1, 1) = 0.0015 * 0.0015;
-      e(2, 2) = 15. * 15.;
-      reco::Vertex::Point p(0, 0, 0);
-      reco::Vertex dummy = reco::Vertex(p, e, 0, 0, 0);
-      //      std::cout << " PFPho " << pfpho_ << std::endl;
-      pfpho_->setPhotonPrimaryVtx(dummy);
-    }
-  }
 }
 
 void PFAlgo::reconstructParticles( const reco::PFBlockHandle& blockHandle, PFEGammaFilters const* pfegamma ) {
 
   blockHandle_ = blockHandle;
-  reconstructParticles( *blockHandle_, pfegamma );
-}
 
-void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks, PFEGammaFilters const* pfegamma ) {
+  auto blocks = *blockHandle_;
 
   // reset output collection
   if(pfCandidates_.get() )
@@ -355,25 +175,10 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks, PFEGam
   else
     pfCandidates_.reset( new reco::PFCandidateCollection );
 
-  if(pfElectronCandidates_.get() )
-    pfElectronCandidates_->clear();
-  else
-    pfElectronCandidates_.reset( new reco::PFCandidateCollection);
-
-  // Clearing pfPhotonCandidates
-  if( pfPhotonCandidates_.get() )
-    pfPhotonCandidates_->clear();
-  else
-    pfPhotonCandidates_.reset( new reco::PFCandidateCollection);
-
   if(pfCleanedCandidates_.get() )
     pfCleanedCandidates_->clear();
   else
     pfCleanedCandidates_.reset( new reco::PFCandidateCollection );
-
-  // not a unique_ptr; should not be deleted after transfer
-  pfElectronExtra_.clear();
-  pfPhotonExtra_.clear();
 
   if( debug_ ) {
     cout<<"*********************************************************"<<endl;
@@ -490,64 +295,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
   // usePFElectrons_ external configurable parameter to set the usage of pf electron
   std::vector<reco::PFCandidate> tempElectronCandidates;
   tempElectronCandidates.clear();
-  if (usePFElectrons_) {
-    if (pfele_->isElectronValidCandidate(blockref,active, primaryVertex_ )){
-      // if there is at least a valid candidate is get the vector of pfcandidates
-      const std::vector<reco::PFCandidate> PFElectCandidates_(pfele_->getElectronCandidates());
-      for(auto const& ec : PFElectCandidates_) tempElectronCandidates.push_back(ec);
-
-      // (***) We're filling the ElectronCandidates into the PFCandiate collection
-      // ..... Once we let PFPhotonAlgo over-write electron-decision, we need to move this to
-      // ..... after the PhotonAlgo has run (Fabian)
-    }
-    // The vector active is automatically changed (it is passed by ref) in PFElectronAlgo
-    // for all the electron candidate
-    pfElectronCandidates_->insert(pfElectronCandidates_->end(),
-				  pfele_->getAllElectronCandidates().begin(),
-				  pfele_->getAllElectronCandidates().end());
-
-    pfElectronExtra_.insert(pfElectronExtra_.end(),
-			    pfele_->getElectronExtra().begin(),
-			    pfele_->getElectronExtra().end());
-
-  }
-  if( /* --- */ usePFPhotons_ /* --- */ ) {
-
-    if(debug_)
-      cout<<endl<<"--------------- entering PFPhotonAlgo ----------------"<<endl;
-    vector<PFCandidatePhotonExtra> pfPhotonExtraCand;
-    if ( pfpho_->isPhotonValidCandidate(blockref,               // passing the reference to the PFBlock
-					active,                 // std::vector<bool> containing information about acitivity
-					pfPhotonCandidates_,    // pointer to candidate vector, to be filled by the routine
-					pfPhotonExtraCand,      // candidate extra vector, to be filled by the routine
-					tempElectronCandidates
-					//pfElectronCandidates_   // pointer to some auziliary UNTOUCHED FOR NOW
-					) ) {
-      if(debug_)
-	std::cout<< " In this PFBlock we found "<<pfPhotonCandidates_->size()<<" Photon Candidates."<<std::endl;
-
-      // CAUTION: In case we want to allow the PhotonAlgo to 'over-write' what the ElectronAlgo did above
-      // ........ we should NOT fill the PFCandidate-vector with the electrons above (***)
-
-      // Here we need to add all the photon cands to the pfCandidate list
-      unsigned int extracand =0;
-      for(auto const& cand : *pfPhotonCandidates_) {
-        pfCandidates_->push_back(cand);
-        pfPhotonExtra_.push_back(pfPhotonExtraCand[extracand]);
-        ++extracand;
-      }
-
-    } // end of 'if' in case photons are found
-    pfPhotonExtraCand.clear();
-    pfPhotonCandidates_->clear();
-  } // end of Photon algo
-
-  if (usePFElectrons_) {
-    for(auto const& ec : tempElectronCandidates) {
-      pfCandidates_->push_back(ec);
-    }
-    tempElectronCandidates.clear();
-  }
 
 
   // New EGamma Reconstruction 10/10/2013
@@ -1036,12 +783,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     // if a GSF element is associated to the current TRACK element
     // This information will be used in the electron rejection for tau ID.
     std::multimap<double,unsigned> gsfElems;
-    if (usePFElectrons_ == false) {
-      block.associatedElements( iTrack,  linkData,
-				gsfElems ,
-				reco::PFBlockElement::GSF );
-    }
-    //
+    block.associatedElements( iTrack, linkData, gsfElems, reco::PFBlockElement::GSF );
 
     if(hcalElems.empty() && debug_) {
       cout<<"no hcal element connected to track "<<iTrack<<endl;
@@ -3394,9 +3136,7 @@ ostream& operator<<(ostream& out, const PFAlgo& algo) {
   out<<endl;
   out<<"reconstructed particles: "<<endl;
 
-  const std::unique_ptr<reco::PFCandidateCollection>& candidates = algo.pfCandidates();
-
-  if(!candidates.get() ) {
+  if(!algo.pfCandidates_.get() ) {
     out<<"candidates already transfered"<<endl;
     return out;
   }
@@ -3501,11 +3241,6 @@ PFAlgo::isFromSecInt(const reco::PFBlockElement& eTrack, string order) const {
 
 }
 
-
-void
-PFAlgo::setEGElectronCollection(const reco::GsfElectronCollection & egelectrons) {
-  if(useEGElectrons_ && pfele_) pfele_->setEGElectronCollection(egelectrons);
-}
 
 void
 PFAlgo::postCleaning() {
@@ -3711,84 +3446,4 @@ PFAlgo::checkCleaning( const reco::PFRecHitCollection& cleanedHits ) {
     }
   }
 
-}
-
-
-
-void PFAlgo::setElectronExtraRef(const edm::OrphanHandle<reco::PFCandidateElectronExtraCollection >& extrah) {
-  if(!usePFElectrons_) return;
-  //  std::cout << " setElectronExtraRef " << std::endl;
-  for(auto& cand : *pfCandidates_) {
-    // select the electrons and add the extra
-    if(cand.particleId()==PFCandidate::e) {
-
-      PFElectronExtraEqual myExtraEqual(cand.gsfTrackRef());
-      std::vector<PFCandidateElectronExtra>::const_iterator it=find_if(pfElectronExtra_.begin(),pfElectronExtra_.end(),myExtraEqual);
-      if(it!=pfElectronExtra_.end()) {
-	//	std::cout << " Index " << it-pfElectronExtra_.begin() << std::endl;
-	reco::PFCandidateElectronExtraRef theRef(extrah,it-pfElectronExtra_.begin());
-	cand.setPFElectronExtraRef(theRef);
-      }
-      else {
-	cand.setPFElectronExtraRef(PFCandidateElectronExtraRef());
-      }
-    }
-    else  // else save the mva and the extra as well !
-      {
-	if(cand.trackRef().isNonnull()) {
-	  auto it = find_if(pfElectronExtra_.begin(),pfElectronExtra_.end(),
-              [&cand](const reco::PFCandidateElectronExtra & extra) {
-                  return cand.trackRef() == extra.kfTrackRef();
-              });
-	  if(it!=pfElectronExtra_.end()) {
-	    cand.set_mva_e_pi(it->mvaVariable(PFCandidateElectronExtra::MVA_MVA));
-	    reco::PFCandidateElectronExtraRef theRef(extrah,it-pfElectronExtra_.begin());
-	    cand.setPFElectronExtraRef(theRef);
-	    cand.setGsfTrackRef(it->gsfTrackRef());
-	  }
-	}
-      }
-
-  }
-
-  for(auto& ele : *pfElectronCandidates_) {
-    // select the electrons - this test is actually not needed for this collection
-    if(ele.particleId()==PFCandidate::e) {
-      // find the corresponding extra
-      PFElectronExtraEqual myExtraEqual(ele.gsfTrackRef());
-      std::vector<PFCandidateElectronExtra>::const_iterator it=find_if(pfElectronExtra_.begin(),pfElectronExtra_.end(),myExtraEqual);
-      if(it!=pfElectronExtra_.end()) {
-	reco::PFCandidateElectronExtraRef theRef(extrah,it-pfElectronExtra_.begin());
-	ele.setPFElectronExtraRef(theRef);
-
-      }
-    }
-  }
-
-}
-void PFAlgo::setPhotonExtraRef(const edm::OrphanHandle<reco::PFCandidatePhotonExtraCollection >& ph_extrah) {
-  if(!usePFPhotons_) return;
-  for(auto& cand : *pfCandidates_) {
-    // select the electrons and add the extra
-    if(cand.particleId()==PFCandidate::gamma && cand.mva_nothing_gamma() > 0.99) {
-      if(cand.superClusterRef().isNonnull()) {
-	bool found = false;
-    unsigned int pcextra = 0;
-    for(auto const& photon : pfPhotonExtra_) {
-	  if(cand.superClusterRef() == photon.superClusterRef()) {
-	    reco::PFCandidatePhotonExtraRef theRef(ph_extrah,pcextra);
-	    cand.setPFPhotonExtraRef(theRef);
-	    found = true;
-	    break;
-	  }
-      ++pcextra;
-	}
-	if(!found)
-	  cand.setPFPhotonExtraRef((PFCandidatePhotonExtraRef())); // null ref
-      }
-      else {
-	cand.setPFPhotonExtraRef((PFCandidatePhotonExtraRef())); // null ref
-      }
-    }
-  }
 }

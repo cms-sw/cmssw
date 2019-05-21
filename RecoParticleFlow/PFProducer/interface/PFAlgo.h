@@ -1,26 +1,18 @@
 #ifndef RecoParticleFlow_PFProducer_PFAlgo_h
 #define RecoParticleFlow_PFProducer_PFAlgo_h 
 
-#include <iostream>
-
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
-
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-
-// next include is necessary for inline functions. 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtra.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtraFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
-
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
@@ -28,12 +20,11 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-
 #include "RecoParticleFlow/PFProducer/interface/PFCandConnector.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaFilters.h"
-#include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"
-#include "RecoParticleFlow/PFProducer/interface/PFPhotonAlgo.h"
+
+#include <iostream>
 
 /// \brief Particle Flow Algorithm
 /*!
@@ -55,7 +46,6 @@ class PFAlgo {
   PFAlgo(bool debug);
 
   void setHOTag(bool ho) { useHO_ = ho;}
-  void setAlgo( int algo ) {algo_ = algo;}
   void setPFMuonAlgo(PFMuonAlgo* algo) {pfmu_ =algo;}
   void setMuonHandle(const edm::Handle<reco::MuonCollection>&);
 
@@ -84,32 +74,6 @@ class PFAlgo {
    
   PFMuonAlgo*  getPFMuonAlgo();
   
-  void setPFEleParameters(double mvaEleCut,
-			  std::string mvaWeightFileEleID,
-			  bool usePFElectrons,
-			  const std::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
-			  const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
-			  double sumEtEcalIsoForEgammaSC_barrel,
-			  double sumEtEcalIsoForEgammaSC_endcap,
-			  double coneEcalIsoForEgammaSC,
-			  double sumPtTrackIsoForEgammaSC_barrel,
-			  double sumPtTrackIsoForEgammaSC_endcap,
-			  unsigned int nTrackIsoForEgammaSC,
-			  double coneTrackIsoForEgammaSC,
-			  bool applyCrackCorrections=false,
-			  bool usePFSCEleCalib=true,
-			  bool useEGElectrons=false,
-			  bool useEGammaSupercluster = true);
-
-  void setPFPhotonParameters(bool usePFPhoton,
-			     std::string mvaWeightFileConvID,
-			     double mvaConvCut,
-			     bool useReg,
-			     std::string X0_Map,
-			     const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
-			     double sumPtTrackIsoForPhoton,
-			     double sumPtTrackIsoSlopeForPhoton);
-
   void setEGammaParameters(bool use_EGammaFilters, bool useProtectionsForJetMET);
 
   
@@ -117,22 +81,6 @@ class PFAlgo {
 			    const edm::ValueMap<reco::GsfElectronRef> & valueMapGedElectrons, 
  			    const edm::ValueMap<reco::PhotonRef> & valueMapGedPhotons); 
   
-  
-
-  // void setPFPhotonRegWeights(
-  //		     const GBRForest *LCorrForest,
-  //		     const GBRForest *GCorrForest,
-  //		     const GBRForest *ResForest
-			     
-  //		     ); 
-  void setPFPhotonRegWeights(
-			     const GBRForest *LCorrForestEB,
-			     const GBRForest *LCorrForestEE,
-			     const GBRForest *GCorrForestBarrel,
-			     const GBRForest *GCorrForestEndcapHr9,
-			     const GBRForest *GCorrForestEndcapLr9,
-			     const GBRForest *PFEcalResolution
-			     ); 
   void setPostHFCleaningParameters(bool postHFCleaning,
 				   double minHFCleaningPt,
 				   double minSignificance,
@@ -154,50 +102,11 @@ class PFAlgo {
   // FlorianB : Collection of e/g electrons
   void setEGElectronCollection(const reco::GsfElectronCollection & egelectrons);
 
-  /// reconstruct particles (full framework case)
-  /// will keep track of the block handle to build persistent references,
-  /// and call reconstructParticles( const reco::PFBlockCollection& blocks, PFEGammaFilters const* pfegamma )
+  /// reconstruct particles 
   void reconstructParticles( const reco::PFBlockHandle& blockHandle, PFEGammaFilters const* pfegamma );
 
-  /// reconstruct particles 
-  void reconstructParticles( const reco::PFBlockCollection& blocks, PFEGammaFilters const* pfegamma );
-  
   /// Check HF Cleaning
   void checkCleaning( const reco::PFRecHitCollection& cleanedHF );
-
-  // Post Electron Extra Ref
-  void setElectronExtraRef(const edm::OrphanHandle<reco::PFCandidateElectronExtraCollection >& extrah);	
-	   
-  // Post Photon Extra Ref
-  void setPhotonExtraRef(const edm::OrphanHandle<reco::PFCandidatePhotonExtraCollection >& pf_extrah);	
-
-  /// \return collection of candidates
-  const std::unique_ptr<reco::PFCandidateCollection>& pfCandidates() const {
-    return pfCandidates_;
-  }
-
-  /// \return the unfiltered electron collection
-  std::unique_ptr<reco::PFCandidateCollection> transferElectronCandidates() {
-    return std::move(pfElectronCandidates_);
-  }
-
-  /// \return the unfiltered electron extra collection
-  // done this way because the pfElectronExtra is needed later in the code to create the Refs and with a unique_ptr, it would be destroyed
-  std::unique_ptr<reco::PFCandidateElectronExtraCollection> transferElectronExtra() {
-    auto result = std::make_unique<reco::PFCandidateElectronExtraCollection>();
-    result->insert(result->end(),pfElectronExtra_.begin(),pfElectronExtra_.end());
-    return result;
-  }
-
-
-  /// \return the unfiltered photon extra collection
-  // done this way because the pfPhotonExtra is needed later in the code to create the Refs and with a unique_ptr, it would be destroyed
-  std::unique_ptr< reco::PFCandidatePhotonExtraCollection> transferPhotonExtra()  {
-    auto result = std::make_unique<reco::PFCandidatePhotonExtraCollection>();
-    result->insert(result->end(),pfPhotonExtra_.begin(),pfPhotonExtra_.end());
-    return result;
-  }
-
 
   /// \return collection of cleaned HF candidates
   std::unique_ptr<reco::PFCandidateCollection> transferCleanedCandidates() {
@@ -210,8 +119,8 @@ class PFAlgo {
   }
   
   /// return the pointer to the calibration function
-  std::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration() { 
-    return calibration_;
+  PFEnergyCalibration* thePFEnergyCalibration() { 
+    return calibration_.get();
   }
 
   friend std::ostream& operator<<(std::ostream& out, const PFAlgo& algo);
@@ -244,15 +153,6 @@ class PFAlgo {
 
   void setHcalDepthInfo(reco::PFCandidate & cand, const reco::PFCluster& cluster) const ;
 
-  /// \return calibrated energy of a photon
-  // double gammaCalibratedEnergy( double clusterEnergy ) const;
-
-  /// \return calibrated energy of a neutral hadron, 
-  /// which can leave some energy in the ECAL ( energyECAL>0 )
-  // double neutralHadronCalibratedEnergy( double energyHCAL, 
-  //                                    double energyECAL=-1) const;
-  
-
   /// todo: use PFClusterTools for this
   double neutralHadronEnergyResolution( double clusterEnergy,
 					double clusterEta ) const;
@@ -262,17 +162,8 @@ class PFAlgo {
 		     double clusterEta ) const;
 
   std::unique_ptr<reco::PFCandidateCollection>    pfCandidates_;
-  /// the unfiltered electron collection 
-  std::unique_ptr<reco::PFCandidateCollection>    pfElectronCandidates_;
-  /// the unfiltered photon collection 
-  std::unique_ptr<reco::PFCandidateCollection>    pfPhotonCandidates_;
   // the post-HF-cleaned candidates
   std::unique_ptr<reco::PFCandidateCollection>    pfCleanedCandidates_;
-
-  /// the unfiltered electron collection 
-  reco::PFCandidateElectronExtraCollection    pfElectronExtra_;
-  /// the extra photon collection 
-  reco::PFCandidatePhotonExtraCollection      pfPhotonExtra_; 
 
   /// Associate PS clusters to a given ECAL cluster, and return their energy
   void associatePSClusters(unsigned iEcal,
@@ -308,28 +199,8 @@ class PFAlgo {
   std::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_;
 
   bool               useHO_;
-  int                algo_;
   const bool         debug_;
 
-  /// Variables for PFElectrons
-  std::string mvaWeightFileEleID_;
-  std::vector<double> setchi2Values_;
-  double mvaEleCut_;
-  bool usePFElectrons_;
-  bool usePFPhotons_;
-  bool applyCrackCorrectionsElectrons_;
-  bool usePFSCEleCalib_;
-  bool useEGElectrons_;
-  bool useEGammaSupercluster_;
-  double sumEtEcalIsoForEgammaSC_barrel_;
-  double sumEtEcalIsoForEgammaSC_endcap_;
-  double coneEcalIsoForEgammaSC_;
-  double sumPtTrackIsoForEgammaSC_barrel_;
-  double sumPtTrackIsoForEgammaSC_endcap_;
-  double coneTrackIsoForEgammaSC_;
-  unsigned int nTrackIsoForEgammaSC_;
-  std::unique_ptr<PFElectronAlgo> pfele_;
-  std::unique_ptr<PFPhotonAlgo> pfpho_;
   PFMuonAlgo *pfmu_;
 
 
