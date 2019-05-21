@@ -49,7 +49,7 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
      nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double> >("values")),
      noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("value")),
      initialized_(false),
-     layerTiles_(2*(maxlayer+1)),
+    //  layerTiles_(2*(maxlayer+1)),
      cells_(2*(maxlayer+1)),
      numberOfClustersPerLayer_(2*(maxlayer+1),0)
      {}
@@ -173,9 +173,6 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
       isSeed.clear();
     }
   };
-
-  //this are the tiles for the electromagnetic part
-  std::vector<HGCalLayerTiles> layerTiles_;
   
   std::vector<CellsOnLayer> cells_;
   
@@ -193,8 +190,8 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
   }
   
   void prepareDataStructures(const unsigned int layerId);
-  void calculateLocalDensity(const unsigned int layerId, float delta_c);  // return max density
-  void calculateDistanceToHigher(const unsigned int layerId, float delta_c);
+  void calculateLocalDensity(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c);  // return max density
+  void calculateDistanceToHigher(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c);
   int findAndAssignClusters(const unsigned int layerId, float delta_c);
   math::XYZPoint calculatePosition(const std::vector<int> &v, const unsigned int layerId) const;
   void setDensity(const unsigned int layerId);

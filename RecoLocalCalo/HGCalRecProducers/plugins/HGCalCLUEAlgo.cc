@@ -68,7 +68,7 @@ void HGCalCLUEAlgo::prepareDataStructures(unsigned int l)
   cells_[l].clusterIndex.resize(cellsSize,-1);
   cells_[l].followers.resize(cellsSize);
   cells_[l].isSeed.resize(cellsSize,false);
-  layerTiles_[l].fill(cells_[l].x,cells_[l].y);
+  
 }
 
 // Create a vector of Hexels associated to one cluster from a collection of
@@ -79,7 +79,8 @@ void HGCalCLUEAlgo::makeClusters() {
   // assign all hits in each layer to a cluster core
   tbb::this_task_arena::isolate([&] {
     tbb::parallel_for(size_t(0), size_t(2 * maxlayer + 2), [&](size_t i) {
-      
+      HGCalLayerTiles lt;
+      lt.fill(cells_[i].x,cells_[i].y);
       float delta_c;  // maximum search distance (critical distance) for local
                   // density calculation
       if (i%maxlayer < lastLayerEE)
@@ -90,11 +91,9 @@ void HGCalCLUEAlgo::makeClusters() {
         delta_c = vecDeltas_[2];
 
       prepareDataStructures(i);
-      calculateLocalDensity(i, delta_c);
-      calculateDistanceToHigher(i, delta_c);
-      numberOfClustersPerLayer_[i] = findAndAssignClusters(i,delta_c);
-      layerTiles_[i].clear();
-  
+      calculateLocalDensity(lt, i, delta_c);
+      calculateDistanceToHigher(lt, i, delta_c);
+      numberOfClustersPerLayer_[i] = findAndAssignClusters(i,delta_c);  
     });
   });
   //Now that we have the density per point we can store it
@@ -234,12 +233,11 @@ math::XYZPoint HGCalCLUEAlgo::calculatePosition(const std::vector<int> &v, const
 
 
 
-void HGCalCLUEAlgo::calculateLocalDensity(const unsigned int layerId, float delta_c)  
+void HGCalCLUEAlgo::calculateLocalDensity(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c)  
 {
 
   auto& cellsOnLayer = cells_[layerId];
   unsigned int numberOfCells = cellsOnLayer.detid.size();
-  auto& lt = layerTiles_[layerId];
 
   for(unsigned int i = 0; i < numberOfCells; i++) 
   {
@@ -264,13 +262,11 @@ void HGCalCLUEAlgo::calculateLocalDensity(const unsigned int layerId, float delt
 }
 
 
-void HGCalCLUEAlgo::calculateDistanceToHigher(const unsigned int layerId, float delta_c) {
+void HGCalCLUEAlgo::calculateDistanceToHigher(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c) {
 
 
   auto& cellsOnLayer = cells_[layerId];
   unsigned int numberOfCells = cellsOnLayer.detid.size();
-  auto& lt = layerTiles_[layerId];
-
 
   for(unsigned int i = 0; i < numberOfCells; i++) {
     // initialize delta and nearest higher for i
