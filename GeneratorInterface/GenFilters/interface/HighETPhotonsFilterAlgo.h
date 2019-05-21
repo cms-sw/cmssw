@@ -23,21 +23,15 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-
-
 class HighETPhotonsFilterAlgo {
- public:
+public:
   HighETPhotonsFilterAlgo(const edm::ParameterSet&);
   ~HighETPhotonsFilterAlgo();
-  
+
   bool filter(const edm::Event& iEvent);
 
- private:
-
-
-  
-
- private:
+private:
+private:
   //constants:
   float FILTER_ETA_MAX_;
   //filter parameters:
@@ -45,7 +39,5 @@ class HighETPhotonsFilterAlgo {
   float seedETThreshold_;
   float nonPhotETMax_;
   float isoConeSize_;
-
-  
 };
 #endif

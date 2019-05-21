@@ -20,14 +20,13 @@
 //
 
 class MinimumBiasFilter : public edm::EDFilter {
- public:
+public:
   MinimumBiasFilter(const edm::ParameterSet&);
-  ~MinimumBiasFilter() override {};
-  
- private:
+  ~MinimumBiasFilter() override{};
+
+private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
   // ----------member data ---------------------------
   float theEventFraction;
-  
 };
 #endif
