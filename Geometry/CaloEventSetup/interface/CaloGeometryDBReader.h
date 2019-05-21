@@ -22,7 +22,7 @@ public:
 			    const std::vector<uint32_t>& /*dins*/,
 			    const std::string&   /*tag*/   ) {}
 
-  static bool writeFlag() { return false ; }
+  static constexpr bool writeFlag() { return false ; }
 
   CaloGeometryDBReader() {}
   virtual ~CaloGeometryDBReader() {}

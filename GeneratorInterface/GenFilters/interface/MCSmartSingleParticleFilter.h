@@ -4,7 +4,7 @@
 //
 // Package:    MCSmartSingleParticleFilter
 // Class:      MCSmartSingleParticleFilter
-// 
+//
 /* 
 
  Description: filter events based on the Pythia particleID, the Pt and the production vertex
@@ -14,7 +14,6 @@
 */
 //         Created:  J. Alcaraz, 04/07/2008
 //
-
 
 // system include files
 #include <memory>
@@ -28,7 +27,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 //
 // class declaration
 //
@@ -37,28 +35,28 @@ namespace edm {
 }
 
 class MCSmartSingleParticleFilter : public edm::EDFilter {
-   public:
-      explicit MCSmartSingleParticleFilter(const edm::ParameterSet&);
-      ~MCSmartSingleParticleFilter() override;
+public:
+  explicit MCSmartSingleParticleFilter(const edm::ParameterSet&);
+  ~MCSmartSingleParticleFilter() override;
 
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-   private:
-      // ----------memeber function----------------------
+private:
+  // ----------memeber function----------------------
 
-      // ----------member data ---------------------------
-      
-       edm::EDGetTokenT<edm::HepMCProduct> token_;
-       std::vector<int> particleID;  
-       std::vector<double> pMin;
-       std::vector<double> ptMin;
-       std::vector<double> etaMin;  
-       std::vector<double> etaMax;
-       std::vector<int> status;
-       std::vector<double> decayRadiusMin;  
-       std::vector<double> decayRadiusMax;
-       std::vector<double> decayZMin;  
-       std::vector<double> decayZMax;
-       double betaBoost;
+  // ----------member data ---------------------------
+
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
+  std::vector<int> particleID;
+  std::vector<double> pMin;
+  std::vector<double> ptMin;
+  std::vector<double> etaMin;
+  std::vector<double> etaMax;
+  std::vector<int> status;
+  std::vector<double> decayRadiusMin;
+  std::vector<double> decayRadiusMax;
+  std::vector<double> decayZMin;
+  std::vector<double> decayZMax;
+  double betaBoost;
 };
 #endif

@@ -24,7 +24,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -54,10 +53,12 @@ public:
   void endJob() override {}
 
 private:
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
   int pass_;
 };
 
 HcalDDDGeometryAnalyzer::HcalDDDGeometryAnalyzer(const edm::ParameterSet& )
+  : geometryToken_{esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})}
 {
   pass_=0;
 }
@@ -70,8 +71,8 @@ void HcalDDDGeometryAnalyzer::analyze(const edm::Event& ,
 
   LogDebug("HCalGeom") << "HcalDDDGeometryAnalyzer::analyze at pass " << pass_;
 
-  edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<CaloGeometryRecord>().get(geometry);     
+  const auto& geometryR = iSetup.getData(geometryToken_);
+  const auto* geometry = &geometryR;
   //
   // get the ecal & hcal geometry
   //

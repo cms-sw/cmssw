@@ -11,10 +11,9 @@
 
 namespace edm {
   namespace reftobase {
-     //------------------------------------------------------------------
+    //------------------------------------------------------------------
     // Class template RefHolder<REF>
     //------------------------------------------------------------------
-
 
     template <class REF>
     class RefHolder : public RefHolderBase {
@@ -28,8 +27,7 @@ namespace edm {
       ProductID id() const override;
       size_t key() const override;
       bool isEqualTo(RefHolderBase const& rhs) const override;
-      bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
-					  std::string& msg) const override;
+      bool fillRefIfMyTypeMatches(RefHolderBase& fillme, std::string& msg) const override;
       REF const& getRef() const;
       void setRef(REF const& r);
       std::unique_ptr<RefVectorHolderBase> makeVectorHolder() const override;
@@ -53,94 +51,70 @@ namespace edm {
     //------------------------------------------------------------------
 
     template <class REF>
-    RefHolder<REF>::RefHolder() : 
-      RefHolderBase(), ref_()
-    { }
-  
-    template <class REF>
-    RefHolder<REF>::RefHolder(REF const& ref) : 
-      RefHolderBase(), ref_(ref) 
-    { }
+    RefHolder<REF>::RefHolder() : RefHolderBase(), ref_() {}
 
     template <class REF>
-    RefHolder<REF>::~RefHolder() 
-    { }
+    RefHolder<REF>::RefHolder(REF const& ref) : RefHolderBase(), ref_(ref) {}
 
     template <class REF>
-    RefHolderBase* 
-    RefHolder<REF>::clone() const
-    {
+    RefHolder<REF>::~RefHolder() {}
+
+    template <class REF>
+    RefHolderBase* RefHolder<REF>::clone() const {
       return new RefHolder(ref_);
     }
 
     template <class REF>
-    ProductID
-    RefHolder<REF>::id() const 
-    {
+    ProductID RefHolder<REF>::id() const {
       return ref_.id();
     }
 
     template <class REF>
-    bool
-    RefHolder<REF>::isEqualTo(RefHolderBase const& rhs) const 
-    { 
+    bool RefHolder<REF>::isEqualTo(RefHolderBase const& rhs) const {
       RefHolder const* h(dynamic_cast<RefHolder const*>(&rhs));
       return h && (getRef() == h->getRef());
     }
 
     template <class REF>
-    bool 
-    RefHolder<REF>::fillRefIfMyTypeMatches(RefHolderBase& fillme,
-					   std::string& msg) const
-    {
+    bool RefHolder<REF>::fillRefIfMyTypeMatches(RefHolderBase& fillme, std::string& msg) const {
       RefHolder* h = dynamic_cast<RefHolder*>(&fillme);
       bool conversion_worked = (h != nullptr);
       if (conversion_worked)
-	h->setRef(ref_);
+        h->setRef(ref_);
       else
-	msg = typeid(REF).name();
+        msg = typeid(REF).name();
       return conversion_worked;
     }
 
     template <class REF>
-    inline
-    REF const&
-    RefHolder<REF>::getRef() const
-    {
+    inline REF const& RefHolder<REF>::getRef() const {
       return ref_;
     }
 
-    template<class REF>
+    template <class REF>
     EDProductGetter const* RefHolder<REF>::productGetter() const {
       return ref_.productGetter();
     }
 
     template <class REF>
-    inline
-    void
-    RefHolder<REF>::swap(RefHolder& other)
-    {
+    inline void RefHolder<REF>::swap(RefHolder& other) {
       std::swap(ref_, other.ref_);
     }
 
     template <class REF>
-    inline
-    void
-    RefHolder<REF>::setRef(REF const& r)
-    {
+    inline void RefHolder<REF>::setRef(REF const& r) {
       ref_ = r;
     }
 
     template <class REF>
-    void const* 
-    RefHolder<REF>::pointerToType(std::type_info const& iToType) const {
+    void const* RefHolder<REF>::pointerToType(std::type_info const& iToType) const {
       typedef typename REF::value_type contained_type;
-      if(iToType == typeid(contained_type)) {
+      if (iToType == typeid(contained_type)) {
         return ref_.get();
       }
       return pointerToBase(iToType, ref_.get());
     }
-  } // namespace reftobase
-}
+  }  // namespace reftobase
+}  // namespace edm
 
 #endif

@@ -56,7 +56,6 @@ typedef std::map<DTTracoId, DTConfigTraco> ConfTracoMap;
 typedef DTCache<DTTracoTrigData, std::vector<DTTracoTrigData>> TRACOCache;
 
 class DTTracoCard : public TRACOCache, public DTGeomSupplier {
-
 public:
   /// Constructor
   // DTTracoCard(DTTrigGeom*, DTBtiCard*, DTTSTheta*,edm::ParameterSet&);
@@ -81,9 +80,7 @@ public:
   DTTracoChip *getTRACO(int n) const;
 
   /// Returns the required DTTracoChip. Return 0 if it doesn't exist
-  DTTracoChip *getTRACO(const DTTracoId &tracoid) const {
-    return getTRACO(tracoid.traco());
-  }
+  DTTracoChip *getTRACO(const DTTracoId &tracoid) const { return getTRACO(tracoid.traco()); }
 
   /// Returns the active TRACO list
   std::vector<DTTracoChip *> tracoList();
@@ -127,9 +124,7 @@ private:
   DTTracoChip *activeGetTRACO(int);
 
   /// Returns the required DTTracoChip. Create it if it doesn't exist
-  DTTracoChip *activeGetTRACO(const DTTracoId &tracoid) {
-    return activeGetTRACO(tracoid.traco());
-  }
+  DTTracoChip *activeGetTRACO(const DTTracoId &tracoid) { return activeGetTRACO(tracoid.traco()); }
 
   /// clear the TRACO map
   void localClear();
@@ -142,7 +137,7 @@ private:
   DTTSTheta *_tstheta;
 
   TRACOContainer _tracomap;
-  ConfTracoMap _conf_traco_map; // bti configuration map for this chamber
+  ConfTracoMap _conf_traco_map;  // bti configuration map for this chamber
 
   const DTConfigLUTs *_conf_luts;
 

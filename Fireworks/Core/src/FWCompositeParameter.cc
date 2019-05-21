@@ -18,7 +18,6 @@
 #include "Fireworks/Core/interface/FWCompositeParameter.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -30,22 +29,15 @@
 //
 // constructors and destructor
 //
-FWCompositeParameter::FWCompositeParameter(FWParameterizable* iParent,
-                                           const std::string& iName,
-                                           unsigned int iVersion) :
-   FWParameterBase(iParent,iName),
-   m_version(iVersion)
-{
-}
+FWCompositeParameter::FWCompositeParameter(FWParameterizable* iParent, const std::string& iName, unsigned int iVersion)
+    : FWParameterBase(iParent, iName), m_version(iVersion) {}
 
 // FWCompositeParameter::FWCompositeParameter(const FWCompositeParameter& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWCompositeParameter::~FWCompositeParameter()
-{
-}
+FWCompositeParameter::~FWCompositeParameter() {}
 
 //
 // assignment operators
@@ -62,41 +54,33 @@ FWCompositeParameter::~FWCompositeParameter()
 //
 // member functions
 //
-void
-FWCompositeParameter::setFrom(const FWConfiguration& iFrom)
-{
-   //need a way to handle versioning
-   const FWConfiguration* mine = iFrom.valueForKey(name());
-   const FWConfiguration::KeyValues* keyVals = mine->keyValues();
+void FWCompositeParameter::setFrom(const FWConfiguration& iFrom) {
+  //need a way to handle versioning
+  const FWConfiguration* mine = iFrom.valueForKey(name());
+  const FWConfiguration::KeyValues* keyVals = mine->keyValues();
 
-   assert(nullptr!=mine);
-   assert(mine->version()==m_version);
-   assert(nullptr != keyVals);
+  assert(nullptr != mine);
+  assert(mine->version() == m_version);
+  assert(nullptr != keyVals);
 
-   for(const_iterator it =begin(), itEnd = end();
-       it != itEnd;
-       ++it) {
-      (*it)->setFrom(*mine);
-   }
+  for (const_iterator it = begin(), itEnd = end(); it != itEnd; ++it) {
+    (*it)->setFrom(*mine);
+  }
 }
 
 //
 // const member functions
 //
-void
-FWCompositeParameter::addTo(FWConfiguration& oTo) const
-{
-   FWConfiguration conf(m_version);
+void FWCompositeParameter::addTo(FWConfiguration& oTo) const {
+  FWConfiguration conf(m_version);
 
-   for(const_iterator it =begin(), itEnd = end();
-       it != itEnd;
-       ++it) {
-      (*it)->addTo(conf);
-   }
-//   std::for_each(begin(), end(),
-//                 boost::bind(&FWParameterBase::addTo,_1,conf));
+  for (const_iterator it = begin(), itEnd = end(); it != itEnd; ++it) {
+    (*it)->addTo(conf);
+  }
+  //   std::for_each(begin(), end(),
+  //                 boost::bind(&FWParameterBase::addTo,_1,conf));
 
-   oTo.addKeyValue(name(),conf,true);
+  oTo.addKeyValue(name(), conf, true);
 }
 
 //

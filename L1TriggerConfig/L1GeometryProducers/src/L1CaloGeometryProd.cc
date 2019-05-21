@@ -43,21 +43,19 @@ L1CaloGeometryProd::L1CaloGeometryProd(const edm::ParameterSet &ps) {
 
   // This producer should never make more than one version of L1Geometry,
   // so we can initialize it in the ctor.
-  m_geom = L1CaloGeometry(
-      ps.getParameter<unsigned int>("numberGctEmJetPhiBins"),
-      ps.getParameter<double>("gctEmJetPhiBinOffset"),
-      ps.getParameter<unsigned int>("numberGctEtSumPhiBins"),
-      ps.getParameter<double>("gctEtSumPhiBinOffset"),
-      ps.getParameter<unsigned int>("numberGctHtSumPhiBins"),
-      ps.getParameter<double>("gctHtSumPhiBinOffset"),
-      ps.getParameter<unsigned int>("numberGctCentralEtaBinsPerHalf"),
-      ps.getParameter<unsigned int>("numberGctForwardEtaBinsPerHalf"),
-      ps.getParameter<unsigned int>("etaSignBitOffset"),
-      ps.getParameter<std::vector<double>>("gctEtaBinBoundaries"));
+  m_geom = L1CaloGeometry(ps.getParameter<unsigned int>("numberGctEmJetPhiBins"),
+                          ps.getParameter<double>("gctEmJetPhiBinOffset"),
+                          ps.getParameter<unsigned int>("numberGctEtSumPhiBins"),
+                          ps.getParameter<double>("gctEtSumPhiBinOffset"),
+                          ps.getParameter<unsigned int>("numberGctHtSumPhiBins"),
+                          ps.getParameter<double>("gctHtSumPhiBinOffset"),
+                          ps.getParameter<unsigned int>("numberGctCentralEtaBinsPerHalf"),
+                          ps.getParameter<unsigned int>("numberGctForwardEtaBinsPerHalf"),
+                          ps.getParameter<unsigned int>("etaSignBitOffset"),
+                          ps.getParameter<std::vector<double>>("gctEtaBinBoundaries"));
 }
 
 L1CaloGeometryProd::~L1CaloGeometryProd() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
@@ -67,8 +65,7 @@ L1CaloGeometryProd::~L1CaloGeometryProd() {
 //
 
 // ------------ method called to produce the data  ------------
-L1CaloGeometryProd::ReturnType
-L1CaloGeometryProd::produce(const L1CaloGeometryRecord &iRecord) {
+L1CaloGeometryProd::ReturnType L1CaloGeometryProd::produce(const L1CaloGeometryRecord &iRecord) {
   using namespace edm::es;
   std::unique_ptr<L1CaloGeometry> pL1CaloGeometry;
 

@@ -45,7 +45,7 @@ DDTestDumpFile::analyze(const Event&, const EventSetup& iEventSetup)
 {
   LogVerbatim("Geometry") << "DDTestDumpFile::analyze: " << m_label;
   ESTransientHandle<DDDetector> det;
-  iEventSetup.get<GeometryFileRcd>().get(m_label.module(), det);
+  iEventSetup.get<GeometryFileRcd>().get(m_label, det);
 
   TGeoManager& geom = det->description()->manager();
   

@@ -1,5 +1,7 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/CaloTowerGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/CaloGeometryDBHcal.h"
+#include "Geometry/HcalTowerAlgo/interface/CaloGeometryDBCaloTower.h"
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryDBEP.h"
 #include "Geometry/CaloEventSetup/interface/CaloGeometryDBReader.h"
@@ -8,65 +10,37 @@
 template<>
 CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::PtrType
 CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const typename HcalGeometry::AlignedRecord& iRecord ) {
-  const Alignments* alignPtr  ( nullptr ) ;
-  const Alignments* globalPtr ( nullptr ) ;
-  if( m_applyAlignment ) {// get ptr if necessary
-    edm::ESHandle< Alignments >                                      alignments ;
-    iRecord.getRecord< typename HcalGeometry::AlignmentRecord >().get( alignments ) ;
-    
-    assert( alignments.isValid() && // require valid alignments and expected size
-	    ( alignments->m_align.size() == HcalGeometry::numberOfAlignments() ) ) ;
-    alignPtr = alignments.product() ;
-
-    edm::ESHandle< Alignments >                          globals   ;
-    iRecord.getRecord<GlobalPositionRcd>().get( globals ) ;
-
-    assert( globals.isValid() ) ;
-    globalPtr = globals.product() ;
-  }
+  const auto [alignPtr, globalPtr] = getAlignGlobal(iRecord);
 
   TrVec  tvec ;
   DimVec dvec ;
   IVec   ivec ;
   IVec   dins ;
 
-  if( CaloGeometryDBReader::writeFlag() ) {
-    edm::ESHandle<CaloSubdetectorGeometry> pG ;
-    iRecord.get( HcalGeometry::producerTag() + std::string("_master"), pG ) ; 
+  const auto& pG = iRecord.get( geometryToken_ ) ;
 
-    const CaloSubdetectorGeometry* pGptr ( pG.product() ) ;
-
-    pGptr->getSummary( tvec, ivec, dvec, dins ) ;
-
-    CaloGeometryDBReader::writeIndexed( tvec, dvec, ivec, dins, HcalGeometry::dbString() ) ;
-  } else {
-    edm::ESHandle<PCaloGeometry> pG ;
-    iRecord.getRecord<typename HcalGeometry::PGeometryRecord >().get( pG ) ; 
-
-    tvec = pG->getTranslation() ;
-    dvec = pG->getDimension() ;
-    ivec = pG->getIndexes() ;
-    dins = pG->getDenseIndices();
-  }	 
+  tvec = pG.getTranslation() ;
+  dvec = pG.getDimension() ;
+  ivec = pG.getIndexes() ;
+  dins = pG.getDenseIndices();
   //*********************************************************************************************
 
-  edm::ESHandle<HcalTopology> hcalTopology;
-  iRecord.getRecord<HcalRecNumberingRecord>().get( hcalTopology );
+  const auto& hcalTopology = iRecord.get( additionalTokens_.topology );
 
   // We know that the numer of shapes chanes with changing depth
   // so, this check is temporary disabled. We need to implement
   // a way either to store or calculate the number of shapes or be able
   // to deal with only max numer of shapes.
-  // assert( dvec.size() == hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
-  assert( dvec.size() <= hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
-  HcalGeometry* hcg = new HcalGeometry( *hcalTopology );
+  // assert( dvec.size() == hcalTopology.getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
+  assert( dvec.size() <= hcalTopology.getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
+  HcalGeometry* hcg = new HcalGeometry( hcalTopology );
     
   PtrType ptr ( hcg );
  
   const unsigned int nTrParm( hcg->numberOfTransformParms());
    
   ptr->fillDefaultNamedParameters();
-  ptr->allocateCorners( hcalTopology->ncells()+hcalTopology->getHFSize());
+  ptr->allocateCorners( hcalTopology.ncells()+hcalTopology.getHFSize());
   ptr->allocatePar( dvec.size() ,
 		    HcalGeometry::k_NumberOfParametersPerShape );
 
@@ -88,7 +62,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
 							  ptr->parMgr(), 
 							  ptr->parVecVec()));
 
-    const DetId id( hcalTopology->denseId2detId( dins[i]));
+    const DetId id( hcalTopology.denseId2detId( dins[i]));
     
     const unsigned int iGlob( nullptr == globalPtr ? 0 :
 			      HcalGeometry::alignmentTransformIndexGlobal( id ));
@@ -149,7 +123,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
     const Pt3D        gCor( atr*lCor ) ;
     const GlobalPoint fCor( gCor.x(), gCor.y(), gCor.z() ) ;
 
-    assert( hcalTopology->detId2denseId(id) == dins[i] );
+    assert( hcalTopology.detId2denseId(id) == dins[i] );
 
     ptr->newCell( fCtr, fBck, fCor, myParm, id ) ;
   }
@@ -163,53 +137,25 @@ template<>
 CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBReader>::PtrType
 CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBReader>::produceAligned( const typename CaloTowerGeometry::AlignedRecord& iRecord ) {
 
-  const Alignments* alignPtr  ( nullptr ) ;
-  const Alignments* globalPtr ( nullptr ) ;
-  if( m_applyAlignment ) { // get ptr if necessary
-    edm::ESHandle< Alignments >                                      alignments ;
-    iRecord.getRecord< typename CaloTowerGeometry::AlignmentRecord >().get( alignments ) ;
-
-    assert( alignments.isValid() && // require valid alignments and expected sizet
-	    ( alignments->m_align.size() == CaloTowerGeometry::numberOfAlignments() ) ) ;
-    alignPtr = alignments.product() ;
-
-    edm::ESHandle< Alignments >                          globals   ;
-    iRecord.getRecord<GlobalPositionRcd>().get( globals ) ;
-
-    assert( globals.isValid() ) ;
-    globalPtr = globals.product() ;
-  }
+  const auto [alignPtr, globalPtr] = getAlignGlobal(iRecord);
 
   TrVec  tvec ;
   DimVec dvec ;
   IVec   ivec ;
   IVec   dins ;
   
-  if( CaloGeometryDBReader::writeFlag() ) {
-    edm::ESHandle<CaloSubdetectorGeometry> pG ;
-    iRecord.get( CaloTowerGeometry::producerTag() + std::string("_master"), pG ) ; 
+  const auto& pG = iRecord.get( geometryToken_ ) ;
 
-    const CaloSubdetectorGeometry* pGptr ( pG.product() ) ;
-
-    pGptr->getSummary( tvec, ivec, dvec, dins ) ;
-    
-    CaloGeometryDBReader::writeIndexed( tvec, dvec, ivec, dins, CaloTowerGeometry::dbString() ) ;
-  } else {
-    edm::ESHandle<PCaloGeometry> pG ;
-    iRecord.getRecord<typename CaloTowerGeometry::PGeometryRecord >().get( pG ) ; 
-
-    tvec = pG->getTranslation() ;
-    dvec = pG->getDimension() ;
-    ivec = pG->getIndexes() ;
-    dins = pG->getDenseIndices();
-  }	 
+  tvec = pG.getTranslation() ;
+  dvec = pG.getDimension() ;
+  ivec = pG.getIndexes() ;
+  dins = pG.getDenseIndices();
 //*********************************************************************************************
 
-  edm::ESHandle<CaloTowerTopology> caloTopology;
-  iRecord.getRecord<HcalRecNumberingRecord>().get( caloTopology );
+  const auto& caloTopology = iRecord.get( additionalTokens_.topology );
 
 
-  CaloTowerGeometry* ctg=new CaloTowerGeometry( &*caloTopology );
+  CaloTowerGeometry* ctg=new CaloTowerGeometry( &caloTopology );
 
   const unsigned int nTrParm ( tvec.size()/ctg->numberOfCellsForCorners() ) ;
 
@@ -244,7 +190,7 @@ CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBReader>::produceAligned( const
 							   ptr->parVecVec() ));
 
 
-    const DetId id ( caloTopology->detIdFromDenseIndex(dins[i]) ) ;
+    const DetId id ( caloTopology.detIdFromDenseIndex(dins[i]) ) ;
     
     const unsigned int iGlob ( nullptr == globalPtr ? 0 :
 			       ctg->alignmentTransformIndexGlobal( id ) ) ;
@@ -303,7 +249,7 @@ CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBReader>::produceAligned( const
     const Pt3D        gCor ( atr*lCor ) ;
     const GlobalPoint fCor ( gCor.x(), gCor.y(), gCor.z() ) ;
 
-    assert( caloTopology->denseIndex(id) == dins[i] );
+    assert( caloTopology.denseIndex(id) == dins[i] );
 
     ptr->newCell(  fCtr, fBck, fCor, myParm, id ) ;
   }

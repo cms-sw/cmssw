@@ -44,7 +44,8 @@ using std::ostream;
 
 L1RCTSaveInput::L1RCTSaveInput(const edm::ParameterSet &conf)
     : fileName(conf.getUntrackedParameter<std::string>("rctTestInputFile")),
-      rctLookupTables(new L1RCTLookupTables), rct(new L1RCT(rctLookupTables)),
+      rctLookupTables(new L1RCTLookupTables),
+      rct(new L1RCT(rctLookupTables)),
       useEcal(conf.getParameter<bool>("useEcal")),
       useHcal(conf.getParameter<bool>("useHcal")),
       ecalDigisLabel(conf.getParameter<edm::InputTag>("ecalDigisLabel")),
@@ -64,8 +65,7 @@ L1RCTSaveInput::~L1RCTSaveInput() {
     delete rctLookupTables;
 }
 
-void L1RCTSaveInput::analyze(const edm::Event &event,
-                             const edm::EventSetup &eventSetup) {
+void L1RCTSaveInput::analyze(const edm::Event &event, const edm::EventSetup &eventSetup) {
   edm::ESHandle<L1RCTParameters> rctParameters;
   eventSetup.get<L1RCTParametersRcd>().get(rctParameters);
   const L1RCTParameters *r = rctParameters.product();
@@ -96,14 +96,14 @@ void L1RCTSaveInput::analyze(const edm::Event &event,
     // ECAL
     std::cout << "ECAL Pos " << L1CaloEcalScale::nBinRank << std::endl;
     for (unsigned short ieta = 1; ieta <= L1CaloEcalScale::nBinEta; ++ieta) {
-      for (unsigned short irank = 0; irank < L1CaloEcalScale::nBinRank;
-           ++irank) {
+      for (unsigned short irank = 0; irank < L1CaloEcalScale::nBinRank; ++irank) {
         std::cout << ieta << " " << irank;
         EcalSubdetector subdet = (ieta <= 17) ? EcalBarrel : EcalEndcap;
-        double etGeVPos =
-            e_tpg->getTPGInGeV(irank, EcalTrigTowerDetId(1, // +ve eta
-                                                         subdet, ieta,
-                                                         1)); // dummy phi value
+        double etGeVPos = e_tpg->getTPGInGeV(irank,
+                                             EcalTrigTowerDetId(1,  // +ve eta
+                                                                subdet,
+                                                                ieta,
+                                                                1));  // dummy phi value
         ecalScale->setBin(irank, ieta, 1, etGeVPos);
         std::cout << etGeVPos << ", ";
       }
@@ -113,16 +113,15 @@ void L1RCTSaveInput::analyze(const edm::Event &event,
 
     std::cout << "ECAL Neg" << std::endl;
     for (unsigned short ieta = 1; ieta <= L1CaloEcalScale::nBinEta; ++ieta) {
-      for (unsigned short irank = 0; irank < L1CaloEcalScale::nBinRank;
-           ++irank) {
+      for (unsigned short irank = 0; irank < L1CaloEcalScale::nBinRank; ++irank) {
         EcalSubdetector subdet = (ieta <= 17) ? EcalBarrel : EcalEndcap;
 
         std::cout << ieta << " " << irank;
-        double etGeVNeg =
-            e_tpg->getTPGInGeV(irank,
-                               EcalTrigTowerDetId(-1, // -ve eta
-                                                  subdet, ieta,
-                                                  2)); // dummy phi value
+        double etGeVNeg = e_tpg->getTPGInGeV(irank,
+                                             EcalTrigTowerDetId(-1,  // -ve eta
+                                                                subdet,
+                                                                ieta,
+                                                                2));  // dummy phi value
         ecalScale->setBin(irank, ieta, -1, etGeVNeg);
         std::cout << etGeVNeg << ", ";
       }
@@ -133,8 +132,7 @@ void L1RCTSaveInput::analyze(const edm::Event &event,
     // HCAL
     std::cout << "HCAL" << std::endl;
     for (unsigned short ieta = 1; ieta <= L1CaloHcalScale::nBinEta; ++ieta) {
-      for (unsigned short irank = 0; irank < L1CaloHcalScale::nBinRank;
-           ++irank) {
+      for (unsigned short irank = 0; irank < L1CaloHcalScale::nBinRank; ++irank) {
         double etGeV = h_tpg->hcaletValue(ieta, irank);
 
         hcalScale->setBin(irank, ieta, 1, etGeV);
@@ -212,11 +210,9 @@ void L1RCTSaveInput::analyze(const edm::Event &event,
           unsigned short hcal = rct->hcalCompressedET(iCrate, iCard, iTower);
           unsigned short fgbit = rct->ecalFineGrainBit(iCrate, iCard, iTower);
           unsigned short mubit = rct->hcalFineGrainBit(iCrate, iCard, iTower);
-          unsigned long lutOutput =
-              rctLookupTables->lookup(ecal, hcal, fgbit, iCrate, iCard, iTower);
-          ofs << std::hex << nEvents << "\t" << iCrate << "\t" << iCard << "\t"
-              << iTower << "\t" << ecal * 2 + fgbit << "\t" << hcal * 2 + mubit
-              << "\t" << lutOutput << std::dec << std::endl;
+          unsigned long lutOutput = rctLookupTables->lookup(ecal, hcal, fgbit, iCrate, iCard, iTower);
+          ofs << std::hex << nEvents << "\t" << iCrate << "\t" << iCard << "\t" << iTower << "\t" << ecal * 2 + fgbit
+              << "\t" << hcal * 2 + mubit << "\t" << lutOutput << std::dec << std::endl;
         }
       }
     }

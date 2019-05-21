@@ -23,47 +23,32 @@
 
 // forward declarations
 
-template<class T>
-class FWGenericParameterWithRange : public FWGenericParameter<T>
-{
+template <class T>
+class FWGenericParameterWithRange : public FWGenericParameter<T> {
 public:
-   FWGenericParameterWithRange(void) :
-      FWGenericParameter<T>(),
-      m_min(-1),
-      m_max(-1)
-   {}
+  FWGenericParameterWithRange(void) : FWGenericParameter<T>(), m_min(-1), m_max(-1) {}
 
-   FWGenericParameterWithRange(FWParameterizable* iParent,
-                               const std::string& iName,
-                               const T &iDefault=T(),
-                               T iMin=-1,
-                               T iMax=-1) :
-      FWGenericParameter<T>(iParent, iName, iDefault),
-      m_min(iMin),
-      m_max(iMax)
-   {}
+  FWGenericParameterWithRange(
+      FWParameterizable* iParent, const std::string& iName, const T& iDefault = T(), T iMin = -1, T iMax = -1)
+      : FWGenericParameter<T>(iParent, iName, iDefault), m_min(iMin), m_max(iMax) {}
 
-   template <class K>
-   FWGenericParameterWithRange(FWParameterizable* iParent,
-                               const std::string& iName,
-                               K iCallback,
-                               const T &iDefault=T(),
-                               T iMin=-1,
-                               T iMax=-1) :
-      FWGenericParameter<T>(iParent, iName, iCallback, iDefault),
-      m_min(iMin),
-      m_max(iMax)
-   {}
+  template <class K>
+  FWGenericParameterWithRange(FWParameterizable* iParent,
+                              const std::string& iName,
+                              K iCallback,
+                              const T& iDefault = T(),
+                              T iMin = -1,
+                              T iMax = -1)
+      : FWGenericParameter<T>(iParent, iName, iCallback, iDefault), m_min(iMin), m_max(iMax) {}
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   T min() const { return m_min; }
-   T max() const { return m_max; }
+  T min() const { return m_min; }
+  T max() const { return m_max; }
 
 private:
-
-   T m_min;
-   T m_max;
+  T m_min;
+  T m_max;
 };
 
 #endif

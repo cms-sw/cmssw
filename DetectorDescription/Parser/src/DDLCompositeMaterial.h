@@ -28,14 +28,12 @@ class DDLElementRegistry;
  *                                                                         
  */
 
-class DDLCompositeMaterial final : public DDLMaterial
-{
- public:
+class DDLCompositeMaterial final : public DDLMaterial {
+public:
+  DDLCompositeMaterial(DDLElementRegistry* myreg);
 
-  DDLCompositeMaterial( DDLElementRegistry* myreg );
-  
-  void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void preProcessElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 };
 
 #endif

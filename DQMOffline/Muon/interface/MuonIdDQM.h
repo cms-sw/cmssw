@@ -2,7 +2,7 @@
 //
 // Package:    DQMOffline/Muon
 // Class:      MuonIdDQM
-// 
+//
 /*
 
  Description:  Makes and fills lots of histograms using the various reco::Muon
@@ -48,59 +48,59 @@
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
 class MuonIdDQM : public DQMEDAnalyzer {
-   public:
-      explicit MuonIdDQM(const edm::ParameterSet&);
-      ~MuonIdDQM() override;
+public:
+  explicit MuonIdDQM(const edm::ParameterSet&);
+  ~MuonIdDQM() override;
 
-      /* Operations */
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  /* Operations */
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-   private:
-      virtual void Fill(MonitorElement*, float);
+private:
+  virtual void Fill(MonitorElement*, float);
 
-      // ----------member data ---------------------------
-      edm::EDGetTokenT<reco::MuonCollection> inputMuonCollection_;
-      edm::EDGetTokenT<DTRecSegment4DCollection> inputDTRecSegment4DCollection_;
-      edm::EDGetTokenT<CSCSegmentCollection> inputCSCSegmentCollection_;
-      bool useTrackerMuons_;
-      bool useGlobalMuons_;
-      bool useTrackerMuonsNotGlobalMuons_;
-      bool useGlobalMuonsNotTrackerMuons_;
-      std::string baseFolder_;
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<reco::MuonCollection> inputMuonCollection_;
+  edm::EDGetTokenT<DTRecSegment4DCollection> inputDTRecSegment4DCollection_;
+  edm::EDGetTokenT<CSCSegmentCollection> inputCSCSegmentCollection_;
+  bool useTrackerMuons_;
+  bool useGlobalMuons_;
+  bool useTrackerMuonsNotGlobalMuons_;
+  bool useGlobalMuonsNotTrackerMuons_;
+  std::string baseFolder_;
 
-      edm::Handle<reco::MuonCollection> muonCollectionH_;
-      edm::Handle<DTRecSegment4DCollection> dtSegmentCollectionH_;
-      edm::Handle<CSCSegmentCollection> cscSegmentCollectionH_;
-      edm::ESHandle<GlobalTrackingGeometry> geometry_;
+  edm::Handle<reco::MuonCollection> muonCollectionH_;
+  edm::Handle<DTRecSegment4DCollection> dtSegmentCollectionH_;
+  edm::Handle<CSCSegmentCollection> cscSegmentCollectionH_;
+  edm::ESHandle<GlobalTrackingGeometry> geometry_;
 
-      // trackerMuon == 0; globalMuon == 1
-      MonitorElement* hNumChambers[4];
-      MonitorElement* hNumMatches[4];
-      MonitorElement* hNumChambersNoRPC[4];
+  // trackerMuon == 0; globalMuon == 1
+  MonitorElement* hNumChambers[4];
+  MonitorElement* hNumMatches[4];
+  MonitorElement* hNumChambersNoRPC[4];
 
-      // by station
-      MonitorElement* hDTNumSegments[4][4];
-      MonitorElement* hDTDx[4][4];
-      MonitorElement* hDTPullx[4][4];
-      MonitorElement* hDTDdXdZ[4][4];
-      MonitorElement* hDTPulldXdZ[4][4];
-      MonitorElement* hDTDy[4][3];
-      MonitorElement* hDTPully[4][3];
-      MonitorElement* hDTDdYdZ[4][3];
-      MonitorElement* hDTPulldYdZ[4][3];
-      MonitorElement* hCSCNumSegments[4][4];
-      MonitorElement* hCSCDx[4][4];
-      MonitorElement* hCSCPullx[4][4];
-      MonitorElement* hCSCDdXdZ[4][4];
-      MonitorElement* hCSCPulldXdZ[4][4];
-      MonitorElement* hCSCDy[4][4];
-      MonitorElement* hCSCPully[4][4];
-      MonitorElement* hCSCDdYdZ[4][4];
-      MonitorElement* hCSCPulldYdZ[4][4];
+  // by station
+  MonitorElement* hDTNumSegments[4][4];
+  MonitorElement* hDTDx[4][4];
+  MonitorElement* hDTPullx[4][4];
+  MonitorElement* hDTDdXdZ[4][4];
+  MonitorElement* hDTPulldXdZ[4][4];
+  MonitorElement* hDTDy[4][3];
+  MonitorElement* hDTPully[4][3];
+  MonitorElement* hDTDdYdZ[4][3];
+  MonitorElement* hDTPulldYdZ[4][3];
+  MonitorElement* hCSCNumSegments[4][4];
+  MonitorElement* hCSCDx[4][4];
+  MonitorElement* hCSCPullx[4][4];
+  MonitorElement* hCSCDdXdZ[4][4];
+  MonitorElement* hCSCPulldXdZ[4][4];
+  MonitorElement* hCSCDy[4][4];
+  MonitorElement* hCSCPully[4][4];
+  MonitorElement* hCSCDdYdZ[4][4];
+  MonitorElement* hCSCPulldYdZ[4][4];
 
-      // segment matching "efficiency"
-      MonitorElement* hSegmentIsAssociatedBool;
+  // segment matching "efficiency"
+  MonitorElement* hSegmentIsAssociatedBool;
 };
 
 #endif

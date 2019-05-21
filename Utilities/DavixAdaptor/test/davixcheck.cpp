@@ -5,10 +5,11 @@ int main(int, char ** /*argv*/) try {
   initTest();
 
   IOOffset size = -1;
-  bool exists = StorageFactory::get()->check("http://opendata.cern.ch/eos/opendata"
-                                             "/cms/Run2011A/PhotonHad/AOD/12Oct2013-v1"
-                                             "/00000/024938EB-3445-E311-A72B-002590593920.root",
-                                             &size);
+  bool exists = StorageFactory::get()->check(
+      "http://opendata.cern.ch/eos/opendata"
+      "/cms/Run2011A/PhotonHad/AOD/12Oct2013-v1"
+      "/00000/024938EB-3445-E311-A72B-002590593920.root",
+      &size);
 
   std::cout << "exists = " << exists << ", size = " << size << "\n";
   std::cout << "stats:\n" << StorageAccount::summaryText() << std::endl;

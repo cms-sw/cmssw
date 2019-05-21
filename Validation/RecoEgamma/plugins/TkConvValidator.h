@@ -47,32 +47,30 @@ class SimTrack;
  **
  ***/
 
-
-class TkConvValidator : public DQMEDAnalyzer
-{
-
- public:
-
+class TkConvValidator : public DQMEDAnalyzer {
+public:
   //
-  explicit TkConvValidator( const edm::ParameterSet& ) ;
+  explicit TkConvValidator(const edm::ParameterSet&);
   ~TkConvValidator() override;
 
-
-  void analyze( const edm::Event&, const edm::EventSetup& ) override ;
-  void  bookHistograms( DQMStore::IBooker&, edm::Run const &, edm::EventSetup const &) override; 
-  void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) override ;
-  void endRun (edm::Run const& r, edm::EventSetup const & es) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(edm::Run const& r, edm::EventSetup const& theEventSetup) override;
+  void endRun(edm::Run const& r, edm::EventSetup const& es) override;
   void endJob() override;
- private:
+
+private:
   //
 
-  float  phiNormalization( float& a);
-  float  etaTransformation( float a, float b);
-  math::XYZVector recalculateMomentumAtFittedVertex (const MagneticField& mf, const TrackerGeometry& trackerGeom, const  edm::RefToBase<reco::Track>&   tk,const  reco::Vertex& vtx);
-
+  float phiNormalization(float& a);
+  float etaTransformation(float a, float b);
+  math::XYZVector recalculateMomentumAtFittedVertex(const MagneticField& mf,
+                                                    const TrackerGeometry& trackerGeom,
+                                                    const edm::RefToBase<reco::Track>& tk,
+                                                    const reco::Vertex& vtx);
 
   std::string fName_;
-  DQMStore *dbe_;
+  DQMStore* dbe_;
   edm::ESHandle<MagneticField> theMF_;
 
   int verbosity_;
@@ -114,7 +112,7 @@ class TkConvValidator : public DQMEDAnalyzer
 
   edm::InputTag label_tp_;
 
-  PhotonMCTruthFinder*  thePhotonMCTruthFinder_;
+  PhotonMCTruthFinder* thePhotonMCTruthFinder_;
 
   bool isRunCentrally_;
 
@@ -128,7 +126,7 @@ class TkConvValidator : public DQMEDAnalyzer
   double hcalIsolExtRadius_;
   double hcalIsolInnRadius_;
   double hcalHitEtLow_;
-  int  numOfTracksInCone_;
+  int numOfTracksInCone_;
   double trkPtSumCut_;
   double ecalEtSumCut_;
   double hcalEtSumCut_;
@@ -143,7 +141,6 @@ class TkConvValidator : public DQMEDAnalyzer
   double minProb_;
   uint maxHitsBeforeVtx_;
   double minLxy_;
-
 
   /// global variable for the MC photon
   double mcPhi_;
@@ -188,30 +185,28 @@ class TkConvValidator : public DQMEDAnalyzer
   MonitorElement* h_simConvVtxRvsZ_[4];
   MonitorElement* h_simConvVtxYvsX_;
 
-
   ///   Denominator for efficiencies
-  MonitorElement*   h_AllSimConv_[5];
-  MonitorElement*   h_VisSimConv_[6];
-  MonitorElement*   h_VisSimConvLarge_;
+  MonitorElement* h_AllSimConv_[5];
+  MonitorElement* h_VisSimConv_[6];
+  MonitorElement* h_VisSimConvLarge_;
   ///   Numerator for efficiencies
-  MonitorElement*   h_SimConvOneTracks_[5];
-  MonitorElement*   h_SimConvOneMTracks_[5];
-  MonitorElement*   h_SimConvTwoTracks_[5];
-  MonitorElement*   h_SimConvTwoMTracks_[5];
-  MonitorElement*   h_SimConvTwoMTracksAndVtxPGT0_[5];
-  MonitorElement*   h_SimConvTwoMTracksAndVtxPGT0005_[5];
-  MonitorElement*   h_SimConvTwoMTracksAndVtxPGT01_[5];
+  MonitorElement* h_SimConvOneTracks_[5];
+  MonitorElement* h_SimConvOneMTracks_[5];
+  MonitorElement* h_SimConvTwoTracks_[5];
+  MonitorElement* h_SimConvTwoMTracks_[5];
+  MonitorElement* h_SimConvTwoMTracksAndVtxPGT0_[5];
+  MonitorElement* h_SimConvTwoMTracksAndVtxPGT0005_[5];
+  MonitorElement* h_SimConvTwoMTracksAndVtxPGT01_[5];
   // Numerator for double-counting quantification
-  MonitorElement*   h_SimRecConvOneTracks_[5];
-  MonitorElement*   h_SimRecConvOneMTracks_[5];
-  MonitorElement*   h_SimRecConvTwoTracks_[5];
-  MonitorElement*   h_SimRecConvTwoMTracks_[5];
+  MonitorElement* h_SimRecConvOneTracks_[5];
+  MonitorElement* h_SimRecConvOneMTracks_[5];
+  MonitorElement* h_SimRecConvTwoTracks_[5];
+  MonitorElement* h_SimRecConvTwoMTracks_[5];
 
   // Denominators for conversion fake rate
-  MonitorElement*   h_RecoConvTwoTracks_[5];
+  MonitorElement* h_RecoConvTwoTracks_[5];
   // Numerators for conversion fake rate
-  MonitorElement*   h_RecoConvTwoMTracks_[5];
-
+  MonitorElement* h_RecoConvTwoMTracks_[5];
 
   /// info per conversion
   MonitorElement* h_nConv_[3][3];
@@ -226,7 +221,6 @@ class TkConvValidator : public DQMEDAnalyzer
 
   MonitorElement* h_convSCdEta_[3][3];
   MonitorElement* h_convSCdPhi_[3][3];
-
 
   MonitorElement* h_convRplot_;
   MonitorElement* h_convZplot_;
@@ -257,8 +251,6 @@ class TkConvValidator : public DQMEDAnalyzer
 
   MonitorElement* h_DEtaTracksAtEcal_[3][3];
 
-
-
   MonitorElement* h_convVtxRvsZ_[3];
   MonitorElement* h_convVtxYvsX_;
   MonitorElement* h_convVtxRvsZ_zoom_[2];
@@ -281,7 +273,6 @@ class TkConvValidator : public DQMEDAnalyzer
   MonitorElement* h_convVtxdZ_endcap_;
   MonitorElement* h_convVtxdR_endcap_;
 
-
   MonitorElement* h2_convVtxdRVsR_;
   MonitorElement* h2_convVtxdRVsEta_;
 
@@ -293,16 +284,12 @@ class TkConvValidator : public DQMEDAnalyzer
   MonitorElement* p_convVtxdZVsZ_;
   MonitorElement* p_convVtxdZVsR_;
 
-
   MonitorElement* p2_convVtxdRVsRZ_;
   MonitorElement* p2_convVtxdZVsRZ_;
 
   MonitorElement* h2_convVtxRrecVsTrue_;
 
-
-  MonitorElement*  h_vtxChi2Prob_[3][3];
-
-
+  MonitorElement* h_vtxChi2Prob_[3][3];
 
   MonitorElement* h_zPVFromTracks_[2];
   MonitorElement* h_dzPVFromTracks_[2];
@@ -319,8 +306,6 @@ class TkConvValidator : public DQMEDAnalyzer
   MonitorElement* h_maxDlClosestHitToVtx_[3][3];
   MonitorElement* h_maxDlClosestHitToVtxSig_[3][3];
   MonitorElement* h_nSharedHits_[3][3];
-
-
 
   //////////// info per track
   MonitorElement* nHits_[3];
@@ -350,10 +335,6 @@ class TkConvValidator : public DQMEDAnalyzer
   MonitorElement* h_nHitsBeforeVtx_[3];
   MonitorElement* h_dlClosestHitToVtx_[3];
   MonitorElement* h_dlClosestHitToVtxSig_[3];
-
 };
-
-
-
 
 #endif

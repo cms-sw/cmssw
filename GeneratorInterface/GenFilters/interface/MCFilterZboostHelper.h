@@ -4,12 +4,12 @@
 #include "HepMC/SimpleVector.h"
 
 namespace HepMC {
-   class FourVector;
+  class FourVector;
 }
 
-namespace MCFilterZboostHelper{
+namespace MCFilterZboostHelper {
 
-HepMC::FourVector zboost(const HepMC::FourVector&, double);
+  HepMC::FourVector zboost(const HepMC::FourVector&, double);
 
 }
 

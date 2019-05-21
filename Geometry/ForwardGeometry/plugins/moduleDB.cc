@@ -4,13 +4,13 @@
 #include "Geometry/CaloEventSetup/interface/CaloGeometryDBEP.h"
 #include "Geometry/CaloEventSetup/interface/CaloGeometryDBReader.h"
 
-template class CaloGeometryDBEP< ZdcGeometry    , CaloGeometryDBReader > ;
-template class CaloGeometryDBEP< CastorGeometry , CaloGeometryDBReader > ;
+template class CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBReader>;
+template class CaloGeometryDBEP<CastorGeometry, CaloGeometryDBReader>;
 
-typedef CaloGeometryDBEP< ZdcGeometry , CaloGeometryDBReader > ZdcGeometryFromDBEP ;
+typedef CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBReader> ZdcGeometryFromDBEP;
 
 DEFINE_FWK_EVENTSETUP_MODULE(ZdcGeometryFromDBEP);
 
-typedef CaloGeometryDBEP< CastorGeometry , CaloGeometryDBReader > CastorGeometryFromDBEP ;
+typedef CaloGeometryDBEP<CastorGeometry, CaloGeometryDBReader> CastorGeometryFromDBEP;
 
 DEFINE_FWK_EVENTSETUP_MODULE(CastorGeometryFromDBEP);

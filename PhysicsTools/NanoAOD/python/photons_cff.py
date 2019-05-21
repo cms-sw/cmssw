@@ -4,10 +4,10 @@ from PhysicsTools.NanoAOD.common_cff import *
 from math import ceil,log
 
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
+from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
 
 photon_id_modules_WorkingPoints_nanoAOD = cms.PSet(
     modules = cms.vstring(
@@ -77,6 +77,8 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
         EAFile_PFIso_Pho = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfPhotons_90percentBased.txt"),
     )
 
+seedGainPho = cms.EDProducer("PhotonSeedGainProducer", src = cms.InputTag("slimmedPhotons"))
+
 import RecoEgamma.EgammaTools.calibratedEgammas_cff
 calibratedPatPhotons94Xv1 = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatPhotons.clone(
     produceCalibratedObjs = False,
@@ -110,6 +112,7 @@ slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
     ),
     userInts = cms.PSet(
         VIDNestedWPBitmap = cms.InputTag("bitmapVIDForPho"),
+        seedGain = cms.InputTag("seedGainPho"),
     ),
 )
 run2_miniAOD_80XLegacy.toModify(slimmedPhotonsWithUserData.userFloats,
@@ -188,6 +191,7 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         hoe = Var("hadronicOverEm()",float,doc="H over E",precision=8),
         isScEtaEB = Var("abs(superCluster().eta()) < 1.4442",bool,doc="is supercluster eta within barrel acceptance"),
         isScEtaEE = Var("abs(superCluster().eta()) > 1.566 && abs(superCluster().eta()) < 2.5",bool,doc="is supercluster eta within endcap acceptance"),
+        seedGain = Var("userInt('seedGain')","uint8",doc="Gain of the seed crystal"),
     )
 )
 
@@ -250,15 +254,43 @@ photonMCTable = cms.EDProducer("CandMCMatchTableProducer",
     docString = cms.string("MC matching to status==1 photons or electrons"),
 )
 
-photonSequence = cms.Sequence(bitmapVIDForPho + isoForPho + slimmedPhotonsWithUserData + finalPhotons)
+from RecoEgamma.EgammaTools.egammaObjectModificationsInMiniAOD_cff import egamma8XObjectUpdateModifier,egamma9X105XUpdateModifier,prependEgamma8XObjectUpdateModifier
+#we have dataformat changes to 106X so to read older releases we use egamma updators
+slimmedPhotonsTo106X = cms.EDProducer("ModifiedPhotonProducer",
+    src = cms.InputTag("slimmedPhotons"),
+    modifierConfig = cms.PSet( modifications = cms.VPSet(egamma9X105XUpdateModifier) )
+)
+#might as well fix 80X while we're at it although the differences are not so relavent for nano
+run2_miniAOD_80XLegacy.toModify( slimmedPhotonsTo106X.modifierConfig.modifications, prependEgamma8XObjectUpdateModifier )
+
+for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
+    modifier.toModify(bitmapVIDForPho, src = "slimmedPhotonsTo106X")
+    modifier.toModify(isoForPho, src = "slimmedPhotonsTo106X")
+    modifier.toModify(calibratedPatPhotons94Xv1, src = "slimmedPhotonsTo106X")
+    modifier.toModify(calibratedPatPhotons80XLegacy, src = "slimmedPhotonsTo106X")
+    modifier.toModify(slimmedPhotonsWithUserData, src = "slimmedPhotonsTo106X")
+    modifier.toModify(seedGainPho, src = "slimmedPhotonsTo106X")
+
+
+
+photonSequence = cms.Sequence(bitmapVIDForPho + isoForPho + seedGainPho + slimmedPhotonsWithUserData + finalPhotons)
+
 photonTables = cms.Sequence ( photonTable)
 photonMC = cms.Sequence(photonsMCMatchForTable + photonMCTable)
 
-_with80XScale_sequence = photonSequence.copy()
+from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import egmPhotonIsolation
+from RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff import photonIDValueMapProducer
+_updatePhoTo106X_sequence =cms.Sequence(egmPhotonIsolation + photonIDValueMapProducer + slimmedPhotonsTo106X)
+_withUpdatePho_sequence = photonSequence.copy()
+_withUpdatePho_sequence.insert(0,_updatePhoTo106X_sequence)
+for modifier in run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
+    modifier.toReplaceWith(photonSequence, _withUpdatePho_sequence)
+
+_with80XScale_sequence = _withUpdatePho_sequence.copy()
 _with80XScale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotons80XLegacy  + slimmedPhotonsWithUserData)
 run2_miniAOD_80XLegacy.toReplaceWith(photonSequence, _with80XScale_sequence)
 
-_with94Xv1Scale_sequence = photonSequence.copy()
+_with94Xv1Scale_sequence = _withUpdatePho_sequence.copy()
 _with94Xv1Scale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotons94Xv1 + slimmedPhotonsWithUserData)
 run2_nanoAOD_94XMiniAODv1.toReplaceWith(photonSequence, _with94Xv1Scale_sequence)
 

@@ -1,7 +1,6 @@
 #ifndef DTOfflineSummaryClients_H
 #define DTOfflineSummaryClients_H
 
-
 /** \class DTOfflineSummaryClients
  * *
  *  DQM Client for global summary
@@ -13,7 +12,6 @@
  *   
  */
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 
@@ -22,37 +20,35 @@
 class DQMStore;
 class MonitorElement;
 
-class DTOfflineSummaryClients: public DQMEDHarvester{
-
+class DTOfflineSummaryClients : public DQMEDHarvester {
 public:
-
   /// Constructor
-  DTOfflineSummaryClients(const edm::ParameterSet& ps);
-  
+  DTOfflineSummaryClients(const edm::ParameterSet &ps);
+
   /// Destructor
   ~DTOfflineSummaryClients() override;
 
   /// BeginRun
-  void beginRun (const edm::Run& r, const edm::EventSetup& c) override;
+  void beginRun(const edm::Run &r, const edm::EventSetup &c) override;
 
   /// EndLumi
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;
 
   /// EndJob
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
 protected:
-
 private:
-
   int nevents;
 
   bool bookingdone;
 
-  MonitorElement*  summaryReport;
-  MonitorElement*  summaryReportMap;
-  std::vector<MonitorElement*>  theSummaryContents;
-
+  MonitorElement *summaryReport;
+  MonitorElement *summaryReportMap;
+  std::vector<MonitorElement *> theSummaryContents;
 };
 
 #endif

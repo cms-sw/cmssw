@@ -29,7 +29,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -39,53 +38,49 @@
 //              ---------------------
 
 class L1MuDTSecProcId {
+public:
+  /// default constructor
+  L1MuDTSecProcId();
 
-  public:
+  /// constructor
+  L1MuDTSecProcId(int wheel_id, int sector_id);
 
-    /// default constructor
-    L1MuDTSecProcId();
+  /// copy constructor
+  L1MuDTSecProcId(const L1MuDTSecProcId&);
 
-    /// constructor
-    L1MuDTSecProcId(int wheel_id, int sector_id);
-  
-    /// copy constructor
-    L1MuDTSecProcId(const L1MuDTSecProcId&);
- 
-    /// destructor
-    virtual ~L1MuDTSecProcId();
+  /// destructor
+  virtual ~L1MuDTSecProcId();
 
-    /// return wheel number
-    inline int wheel() const { return m_wheel; }
-    
-    /// return sector number
-    inline int sector() const { return m_sector; }
-    
-    /// is it an overlap region Sector Processor?
-    inline bool ovl() const { return (abs(m_wheel) == 3) ? true : false; }
+  /// return wheel number
+  inline int wheel() const { return m_wheel; }
 
-    /// return physical wheel number (-2,-1,0,+1,+2)
-    int locwheel() const;
+  /// return sector number
+  inline int sector() const { return m_sector; }
 
-    /// assignment operator
-    L1MuDTSecProcId& operator=(const L1MuDTSecProcId&);
-    
-    /// equal operator
-    bool operator==(const L1MuDTSecProcId&) const;
-    
-    /// unequal operator
-    bool operator!=(const L1MuDTSecProcId&) const;
-    
-    /// less operator
-    bool operator<(const L1MuDTSecProcId&) const;
+  /// is it an overlap region Sector Processor?
+  inline bool ovl() const { return (abs(m_wheel) == 3) ? true : false; }
 
-    /// output stream operator
-    friend std::ostream& operator<<(std::ostream&, const L1MuDTSecProcId&);
+  /// return physical wheel number (-2,-1,0,+1,+2)
+  int locwheel() const;
 
-  private:
+  /// assignment operator
+  L1MuDTSecProcId& operator=(const L1MuDTSecProcId&);
 
-    int m_wheel;
-    int m_sector;
+  /// equal operator
+  bool operator==(const L1MuDTSecProcId&) const;
 
+  /// unequal operator
+  bool operator!=(const L1MuDTSecProcId&) const;
+
+  /// less operator
+  bool operator<(const L1MuDTSecProcId&) const;
+
+  /// output stream operator
+  friend std::ostream& operator<<(std::ostream&, const L1MuDTSecProcId&);
+
+private:
+  int m_wheel;
+  int m_sector;
 };
 
 #endif

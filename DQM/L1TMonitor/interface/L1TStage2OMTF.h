@@ -29,49 +29,44 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-
 // class decleration
 
-class  L1TStage2OMTF: public DQMEDAnalyzer {
-
+class L1TStage2OMTF : public DQMEDAnalyzer {
 public:
+  // class constructor
+  L1TStage2OMTF(const edm::ParameterSet& ps);
+  // class destructor
+  ~L1TStage2OMTF() override;
 
-// class constructor
-L1TStage2OMTF(const edm::ParameterSet & ps);
-// class destructor
-~L1TStage2OMTF() override;
-
-// member functions
+  // member functions
 protected:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override ;
+  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
 
-// data members
-private:  
-
+  // data members
+private:
   std::string monitorDir;
-  edm::InputTag omtfSource; 
-  bool verbose ;
-  edm::EDGetToken omtfToken; 
+  edm::InputTag omtfSource;
+  bool verbose;
+  edm::EDGetToken omtfToken;
   float global_phi;
 
-  MonitorElement* omtf_hwEta; 
+  MonitorElement* omtf_hwEta;
   MonitorElement* omtf_hwLocalPhi;
-  MonitorElement* omtf_hwPt;  
+  MonitorElement* omtf_hwPt;
   MonitorElement* omtf_hwQual;
-  MonitorElement* omtf_proc; 
-  MonitorElement* omtf_bx; 
+  MonitorElement* omtf_proc;
+  MonitorElement* omtf_bx;
 
   MonitorElement* omtf_hwEta_hwLocalPhi;
   MonitorElement* omtf_hwPt_hwEta;
   MonitorElement* omtf_hwPt_hwLocalPhi;
 
-  MonitorElement* omtf_hwEta_bx;  
-  MonitorElement* omtf_hwLocalPhi_bx;  
-  MonitorElement* omtf_hwPt_bx;   
-  MonitorElement* omtf_hwQual_bx; 
-
+  MonitorElement* omtf_hwEta_bx;
+  MonitorElement* omtf_hwLocalPhi_bx;
+  MonitorElement* omtf_hwPt_bx;
+  MonitorElement* omtf_hwQual_bx;
 };
 
 #endif

@@ -12,10 +12,10 @@
 #include <string>
 
 namespace edm {
-class ParameterSet;
-class Event;
-class EventSetup;
-} // namespace edm
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class DTChamberId;
 
@@ -30,15 +30,13 @@ public:
   // Operations
 
   /// Compute the ttrig by fiting the TB rising edge
-  void analyze(const edm::Event &event,
-               const edm::EventSetup &eventSetup) override;
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
   /// Write ttrig in the DB
   void endJob() override;
 
 private:
-  void pharseLine(std::string &line, DTChamberId &chId, float &fine,
-                  int &coarse);
+  void pharseLine(std::string &line, DTChamberId &chId, float &fine, int &coarse);
 
   bool debug_;
   std::string inputFileName_;

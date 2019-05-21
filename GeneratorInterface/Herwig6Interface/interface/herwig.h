@@ -11,13 +11,13 @@
      & VTOCDK(0:NMXRES),VTORDK(0:NMXRES),
      & QORQQB(0:NMXRES),QBORQQ(0:NMXRES) */
 
-static const int nmxres = 500+1; // we need NMXRES+1 entries ...
+static const int nmxres = 500 + 1;  // we need NMXRES+1 entries ...
 extern "C" {
-  extern struct {
-    double RLTIM[nmxres], RMASS[nmxres], RSPIN[nmxres];
-    int ICHRG[nmxres], IDPDG[nmxres],IFLAV[nmxres], NRES;
-    int VTOCDK[nmxres], VTORDK[nmxres], QORQQB[nmxres], QBORQQ[nmxres];    
-  } hwprop_;
+extern struct {
+  double RLTIM[nmxres], RMASS[nmxres], RSPIN[nmxres];
+  int ICHRG[nmxres], IDPDG[nmxres], IFLAV[nmxres], NRES;
+  int VTOCDK[nmxres], VTORDK[nmxres], QORQQB[nmxres], QBORQQ[nmxres];
+} hwprop_;
 }
 #define hwprop hwprop_
 
@@ -29,10 +29,10 @@ C (NMXSUD= max no of entries in lookup table)
 
 static const int nmxsud = 1024;
 extern "C" {
-  extern struct {
-    double ACCUR, QEV[6][nmxsud],SUD[6][nmxsud];
-    int INTER, NQEV, NSUD, SUDORD;
-  } hwusud_;
+extern struct {
+  double ACCUR, QEV[6][nmxsud], SUD[6][nmxsud];
+  int INTER, NQEV, NSUD, SUDORD;
+} hwusud_;
 }
 #define hwusud hwusud_
 
@@ -42,23 +42,20 @@ extern "C" {
       LOGICAL NEGWTS
       COMMON/HW6203/ABWGT,ABWSUM,AVABW,NNEGWT,NNEGEV,NEGWTS */
 
-extern"C" {
-  extern struct {
-    double ABWGT, ABWSUM, AVABW;
-    int NNEGWT,NNEGEV,NEGWTS;
-  } hw6203_;
+extern "C" {
+extern struct {
+  double ABWGT, ABWSUM, AVABW;
+  int NNEGWT, NNEGEV, NEGWTS;
+} hw6203_;
 }
 #define hw6203 hw6203_
-
 
 /*CHARACTER*20
      & AUTPDF
      COMMON/HWPRCH/AUTPDF(2),BDECAY   */
 
 extern "C" {
-  extern struct {
-    char AUTPDF[2][20],BDECAY[4];
-  } hwprch_;
+extern struct { char AUTPDF[2][20], BDECAY[4]; } hwprch_;
 }
 #define hwprch hwprch_
 
@@ -67,9 +64,7 @@ extern "C" {
       & PMBN1,PMBN2,PMBN3,PMBK1,PMBK2,PMBM1,PMBM2,PMBP1,PMBP2,PMBP3  */
 
 extern "C" {
-  extern struct {
-    double PMBN1,PMBN2,PMBN3,PMBK1,PMBK2,PMBM1,PMBM2,PMBP1,PMBP2,PMBP3;
-  } hwminb_;
+extern struct { double PMBN1, PMBN2, PMBN3, PMBK1, PMBK2, PMBM1, PMBM2, PMBP1, PMBP2, PMBP3; } hwminb_;
 }
 #define hwminb hwminb_
 
@@ -79,10 +74,10 @@ C--VTXPIP should have been a 5-vector, problems with NAG compiler
       & XMRCT(2),YMIX(2),YMRCT(2),IOPDKL,MAXDKL,MIXING,PIPSMR */
 
 extern "C" {
-  extern struct {
-    double EXAG,GEV2MM,HBAR,PLTCUT,VMIN2,VTXPIP[5],XMIX[2],XMRCT[2],YMIX[2],YMRCT[2];
-    int IOPDKL,MAXDKL,MIXING,PIPSMR;
-  } hwdist_;
+extern struct {
+  double EXAG, GEV2MM, HBAR, PLTCUT, VMIN2, VTXPIP[5], XMIX[2], XMRCT[2], YMIX[2], YMRCT[2];
+  int IOPDKL, MAXDKL, MIXING, PIPSMR;
+} hwdist_;
 }
 #define hwdist hwdist_
 
@@ -90,23 +85,21 @@ extern "C" {
       COMMON/HWUCLU/CLDKWT(NMXCDK),CTHRPW(12,12),PRECO,RESN(12,12),
       & RMIN(12,12),LOCN(12,12),NCLDK(NMXCDK),NRECO,CLRECO  */
 
-static const int nmxcdk=4000;
+static const int nmxcdk = 4000;
 extern "C" {
-  extern struct {
-    double CLDKWT[nmxcdk],CTHRPW[12][12],PRECO,RESN[12][12], RMIN[12][12];
-    int LOCN[12][12],NCLDK[nmxcdk], NRECO,CLRECO;
-  } hwuclu_;
+extern struct {
+  double CLDKWT[nmxcdk], CTHRPW[12][12], PRECO, RESN[12][12], RMIN[12][12];
+  int LOCN[12][12], NCLDK[nmxcdk], NRECO, CLRECO;
+} hwuclu_;
 }
-#define hwuclu hwuclu_ 
+#define hwuclu hwuclu_
 
 /*C Weights used in cluster decays
       COMMON/HWUWTS/REPWT(0:3,0:4,0:4),SNGWT,DECWT,QWT(3),PWT(12),
       & SWTEF(NMXRES)  */
 
 extern "C" {
-  extern struct {
-    double REPWT[5][5][4],SNGWT,DECWT,QWT[3],PWT[12],SWTEF[nmxres];
-  } hwuwts_;
+extern struct { double REPWT[5][5][4], SNGWT, DECWT, QWT[3], PWT[12], SWTEF[nmxres]; } hwuwts_;
 }
 #define hwuwts hwuwts_
 
@@ -118,10 +111,10 @@ extern "C" {
       & IMSSM,IHIGGS,PARITY,LRSUSY   */
 
 extern "C" {
-  extern struct {
-    double VIPWID[3], DXRCYL,DXZMAX,DXRSPH;
-    int WZRFR,FIX4JT,IMSSM,IHIGGS,PARITY,LRSUSY;
-  } hw6202_;
+extern struct {
+  double VIPWID[3], DXRCYL, DXZMAX, DXRSPH;
+  int WZRFR, FIX4JT, IMSSM, IHIGGS, PARITY, LRSUSY;
+} hw6202_;
 }
 #define hw6202 hw6202_
 
@@ -129,13 +122,13 @@ extern "C" {
       COMMON/HWBOSC/ALPFAC,BRHIG(12),ENHANC(12),GAMMAX,RHOHEP(3,NMXHEP),
       & IOPHIG,MODBOS(MODMAX)  */
 
-static const int hepevt_size = 4000; // check in HerwigWrapper
+static const int hepevt_size = 4000;  // check in HerwigWrapper
 static const int modmax = 50;
 extern "C" {
-  extern struct {
-    double ALPFAC, BRHIG[12], ENHANC[12], GAMMAX, RHOHEP[hepevt_size][3];
-    int IOPHIG, MODBOS[modmax];
-  } hwbosc_;
+extern struct {
+  double ALPFAC, BRHIG[12], ENHANC[12], GAMMAX, RHOHEP[hepevt_size][3];
+  int IOPHIG, MODBOS[modmax];
+} hwbosc_;
 }
 #define hwbosc hwbosc_
 
@@ -148,10 +141,13 @@ extern "C" {
      & BGSHAT,COLISR,FSTEVT,FSTWGT,GENEV,HVFCEN,TPOL,DURHAM   */
 
 extern "C" {
-  extern struct {
-    double ASFIXD,CLQ[6][7],COSS,COSTH,CTMAX,DISF[2][13],EMLST, EMMAX,EMMIN,EMPOW,EMSCA,EPOLN[3],GCOEF[7],GPOLN,OMEGA0,PHOMAS, PPOLN[3],PTMAX,PTMIN,PTPOW,Q2MAX,Q2MIN,Q2POW,Q2WWMN,Q2WWMX,QLIM, SINS,THMAX,Y4JT,TMNISR,TQWT,XX[2],XLMIN,XXMIN,YBMAX,YBMIN,YJMAX,YJMIN,YWWMAX,YWWMIN,WHMIN,ZJMAX,ZMXISR;
-    int IAPHIG,IBRN[2],IBSH, ICO[10],IDCMF,IDN[10],IFLMAX,IFLMIN,IHPRO,IPRO,MAPQ[6],MAXFL,BGSHAT,COLISR,FSTEVT,FSTWGT,GENEV,HVFCEN,TPOL,DURHAM;
-  } hwhard_;
+extern struct {
+  double ASFIXD, CLQ[6][7], COSS, COSTH, CTMAX, DISF[2][13], EMLST, EMMAX, EMMIN, EMPOW, EMSCA, EPOLN[3], GCOEF[7],
+      GPOLN, OMEGA0, PHOMAS, PPOLN[3], PTMAX, PTMIN, PTPOW, Q2MAX, Q2MIN, Q2POW, Q2WWMN, Q2WWMX, QLIM, SINS, THMAX,
+      Y4JT, TMNISR, TQWT, XX[2], XLMIN, XXMIN, YBMAX, YBMIN, YJMAX, YJMIN, YWWMAX, YWWMIN, WHMIN, ZJMAX, ZMXISR;
+  int IAPHIG, IBRN[2], IBSH, ICO[10], IDCMF, IDN[10], IFLMAX, IFLMIN, IHPRO, IPRO, MAPQ[6], MAXFL, BGSHAT, COLISR,
+      FSTEVT, FSTWGT, GENEV, HVFCEN, TPOL, DURHAM;
+} hwhard_;
 }
 #define hwhard hwhard_
 
@@ -160,10 +156,10 @@ extern "C" {
   & NSPAC(7),ISLENT,BREIT,FROST,USECMF */
 
 extern "C" {
-  extern struct {
-    double ANOMSC[2][2],HARDST,PTINT[2][3],XFACT;
-    int INHAD,JNHAD,NSPAC[7],ISLENT,BREIT,FROST,USECMF;
-  } hwbrch_;
+extern struct {
+  double ANOMSC[2][2], HARDST, PTINT[2][3], XFACT;
+  int INHAD, JNHAD, NSPAC[7], ISLENT, BREIT, FROST, USECMF;
+} hwbrch_;
 }
 #define hwbrch hwbrch_
 
@@ -171,9 +167,7 @@ extern "C" {
 	COMMON /HW6500/ PRESPL   */
 
 extern "C" {
-  extern struct {
-    int PRESPL;
-  } hw6500_;
+extern struct { int PRESPL; } hw6500_;
 }
 #define hw6500 hw6500_
 
@@ -182,10 +176,10 @@ extern "C" {
       &                LAMDA3(3,3,3),HRDCOL(2,5),RPARTY,COLUPD   */
 
 extern "C" {
-  extern struct {
-    double LAMDA1[3][3][3],LAMDA2[3][3][3],LAMDA3[3][3][3];
-    int HRDCOL[5][2],RPARTY,COLUPD;
-  } hwrpar_;
+extern struct {
+  double LAMDA1[3][3][3], LAMDA2[3][3][3], LAMDA3[3][3][3];
+  int HRDCOL[5][2], RPARTY, COLUPD;
+} hwrpar_;
 }
 #define hwrpar hwrpar_
 
@@ -200,10 +194,13 @@ extern "C" {
      & GHSQSS(4,6,2,2),XLMNSS,RMMNSS,DMSSM,SENHNC(24),SSPARITY,SUSYIN  */
 
 extern "C" {
-  extern struct {
-    double TANB,ALPHAH,COSBPA,SINBPA,COSBMA,SINBMA,COSA,SINA,COSB,SINB,COTB,ZMIXSS[4][4],ZMXNSS[4][4],ZSGNSS[4], LFCH[16],RFCH[16],SLFCH[4][16],SRFCH[4][16], WMXUSS[2][2],WMXVSS[2][2], WSGNSS[2],QMIXSS[2][2][6],LMIXSS[2][2][6],THETAT,THETAB,THETAL,ATSS,ABSS,ALSS,MUSS,FACTSS,GHWWSS[3],GHZZSS[3],GHDDSS[4],GHUUSS[4],GHWHSS[3],GHSQSS[2][2][6][4],XLMNSS,RMMNSS,DMSSM,SENHNC[24],SSPARITY;
-    int SUSYIN;
-  } hwsusy_;
+extern struct {
+  double TANB, ALPHAH, COSBPA, SINBPA, COSBMA, SINBMA, COSA, SINA, COSB, SINB, COTB, ZMIXSS[4][4], ZMXNSS[4][4],
+      ZSGNSS[4], LFCH[16], RFCH[16], SLFCH[4][16], SRFCH[4][16], WMXUSS[2][2], WMXVSS[2][2], WSGNSS[2], QMIXSS[2][2][6],
+      LMIXSS[2][2][6], THETAT, THETAB, THETAL, ATSS, ABSS, ALSS, MUSS, FACTSS, GHWWSS[3], GHZZSS[3], GHDDSS[4],
+      GHUUSS[4], GHWHSS[3], GHSQSS[2][2][6][4], XLMNSS, RMMNSS, DMSSM, SENHNC[24], SSPARITY;
+  int SUSYIN;
+} hwsusy_;
 }
 #define hwsusy hwsusy_
 
@@ -214,10 +211,10 @@ extern "C" {
       &	FOURB,TAUDEC */
 
 extern "C" {
-  extern struct {
-    int NDECSY,NSEARCH,LRDEC,LWDEC,SYSPIN,THREEB,FOURB;
-    char TAUDEC[6];
-  } hwdspn_;
+extern struct {
+  int NDECSY, NSEARCH, LRDEC, LWDEC, SYSPIN, THREEB, FOURB;
+  char TAUDEC[6];
+} hwdspn_;
 }
 
 #define hwdspn hwdspn_
@@ -235,10 +232,10 @@ C
 
 static const int maxhrp = 100;
 extern "C" {
-  extern struct {
-    double LHWGT[maxhrp],LHWGTS[maxhrp],LHMXSM,LHXSCT[maxhrp],LHXERR[maxhrp],LHXMAX[maxhrp];
-    int LHIWGT,LHNEVT,ITYPLH,LHSOFT,LHGLSF;
-  } hwgupr_;
+extern struct {
+  double LHWGT[maxhrp], LHWGTS[maxhrp], LHMXSM, LHXSCT[maxhrp], LHXERR[maxhrp], LHXMAX[maxhrp];
+  int LHIWGT, LHNEVT, ITYPLH, LHSOFT, LHGLSF;
+} hwgupr_;
 }
 #define hwgupr hwgupr_
 
@@ -252,10 +249,10 @@ extern "C" {
 
 static const int imaxch = 20;
 extern "C" {
-  extern struct {
-    double MJJMIN,CHNPRB[imaxch];
-    int IOPSTP,IOPSH,OPTM,CHON[imaxch];
-  } hw6300_;
+extern struct {
+  double MJJMIN, CHNPRB[imaxch];
+  int IOPSTP, IOPSH, OPTM, CHON[imaxch];
+} hw6300_;
 }
 #define hw6300 hw6300_
 
@@ -292,28 +289,27 @@ static const int NPSIMP = 16;
 static const double SMALL = 0.00000000000000000001;
 
 extern "C" {
-  extern struct {
-    double PTJIM,YGAMMA,JMZMIN,JMRAD[264],PHAD,JMU2,JMV2,JMARRY[NPSIMP+1][6+MAXMS],
-      NLOST,TOTSCAT;
-    int ANAMOFF,JCMVAR,JMUEO,JMPTYP[NPROC],JMBUG,FN_TYPE,MSFLAG,MAXMSTRY;
-  } jmparm_;
+extern struct {
+  double PTJIM, YGAMMA, JMZMIN, JMRAD[264], PHAD, JMU2, JMV2, JMARRY[NPSIMP + 1][6 + MAXMS], NLOST, TOTSCAT;
+  int ANAMOFF, JCMVAR, JMUEO, JMPTYP[NPROC], JMBUG, FN_TYPE, MSFLAG, MAXMSTRY;
+} jmparm_;
 }
 #define jmparm jmparm_
 
 extern "C" {
-  extern struct {
-    double JMPROC[NPROC],JMVETO[13][2];
-    int NSCAT;
-  } jmevnt_;
+extern struct {
+  double JMPROC[NPROC], JMVETO[13][2];
+  int NSCAT;
+} jmevnt_;
 }
 #define jmevnt jmevnt_
 
 //------------------------------ JIMMY functions -------------------------------------------------
 extern "C" {
-  void jimmin_(void);
-  void jminit_(void);
-  double hwmsct_(int*);
-  void jmefin_(void);
+void jimmin_(void);
+void jminit_(void);
+double hwmsct_(int*);
+void jmefin_(void);
 }
 
 #define jimmin jimmin_
@@ -321,24 +317,22 @@ extern "C" {
 #define hwmsct hwmsct_
 #define jmefin jmefin_
 
-
 //------------------------------ LHAPDF functions -------------------------------------------------
 
 //MLM-style matching for aMC@NLO
 extern "C" {
-  extern struct {
-    int n_match, max_multiplicity_flag;
-    double matching_scale;
-  } hwmatchpram_;
+extern struct {
+  int n_match, max_multiplicity_flag;
+  double matching_scale;
+} hwmatchpram_;
 }
 #define hwmatchpram hwmatchpram_
 
 extern "C" {
-  void hwmatch_(int*);
-  void hwhdecay_();
+void hwmatch_(int*);
+void hwhdecay_();
 }
 #define hwmatch hwmatch_
 #define hwhdecay hwhdecay_
-
 
 #endif

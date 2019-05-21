@@ -2,7 +2,7 @@
 //
 // Package:    CaloPropagationTest
 // Class:      CaloPropagationTest
-// 
+//
 /**\class CaloPropagationTest CaloPropagationTest.cc test/CaloPropagationTest.cc
 
  Description: <one line class summary>
@@ -44,7 +44,7 @@
 
 class CaloPropagationTest : public edm::one::EDAnalyzer<> {
 public:
-  explicit CaloPropagationTest( const edm::ParameterSet& );
+  explicit CaloPropagationTest(const edm::ParameterSet&);
   ~CaloPropagationTest() override;
 
   void beginJob() override {}
@@ -52,56 +52,54 @@ public:
   void endJob() override {}
 };
 
-CaloPropagationTest::CaloPropagationTest(const edm::ParameterSet& ) {}
+CaloPropagationTest::CaloPropagationTest(const edm::ParameterSet&) {}
 
 CaloPropagationTest::~CaloPropagationTest() {}
 
 // ------------ method called to produce the data  ------------
-void CaloPropagationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
-
+void CaloPropagationTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry* geo = pG.product();
-  const HcalGeometry* gHB = (const HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
-  
+  const HcalGeometry* gHB = (const HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
+
   edm::ESHandle<MagneticField> bFieldH;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField *bField = bFieldH.product();
+  const MagneticField* bField = bFieldH.product();
 
   edm::ESHandle<CaloTowerConstituentsMap> ct;
   iSetup.get<CaloGeometryRecord>().get(ct);
   const CaloTowerConstituentsMap* ctmap = ct.product();
 
-  const std::vector<DetId>& ids = gHB->getValidDetIds(DetId::Hcal,0);
+  const std::vector<DetId>& ids = gHB->getValidDetIds(DetId::Hcal, 0);
   bool debug(false);
   for (const auto& id : ids) {
-    if (id.det() == DetId::Hcal && ((id.subdetId() == HcalBarrel) ||
-				    (id.subdetId() == HcalEndcap))) {
+    if (id.det() == DetId::Hcal && ((id.subdetId() == HcalBarrel) || (id.subdetId() == HcalEndcap))) {
       const HcalDetId hid(id);
-      std::pair<DetId,bool> info = spr::propagateIdECAL(hid, geo, bField, debug);
+      std::pair<DetId, bool> info = spr::propagateIdECAL(hid, geo, bField, debug);
       if (!info.second) {
-	std::cout << "No valid Ecal Id found for " << hid << std::endl;
+        std::cout << "No valid Ecal Id found for " << hid << std::endl;
       } else {
-	CaloTowerDetId tower    = ctmap->towerOf(id);
-	std::vector<DetId> idts = ctmap->constituentsOf(tower);
-	std::string found("not found");
-	for (auto idt : idts) {
-	  if (info.first == idt) {
-	    found = "found"; break;
-	  }
-	}
-	if ((info.first).subdetId() == EcalBarrel) {
-	  std::cout << "Find " << EBDetId(info.first) << " as partner of "
-		    << hid << " and mtaching with tower " << found <<std::endl;
-	} else {
-	  std::cout << "Find " << EEDetId(info.first) << " as partner of "
-		    << hid << " and mtaching with tower " << found <<std::endl;
-	}
+        CaloTowerDetId tower = ctmap->towerOf(id);
+        std::vector<DetId> idts = ctmap->constituentsOf(tower);
+        std::string found("not found");
+        for (auto idt : idts) {
+          if (info.first == idt) {
+            found = "found";
+            break;
+          }
+        }
+        if ((info.first).subdetId() == EcalBarrel) {
+          std::cout << "Find " << EBDetId(info.first) << " as partner of " << hid << " and mtaching with tower "
+                    << found << std::endl;
+        } else {
+          std::cout << "Find " << EEDetId(info.first) << " as partner of " << hid << " and mtaching with tower "
+                    << found << std::endl;
+        }
       }
     }
   }
 }
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(CaloPropagationTest);

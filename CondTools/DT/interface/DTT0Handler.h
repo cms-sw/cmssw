@@ -27,18 +27,15 @@
 //---------------
 #include <string>
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTT0Handler: public popcon::PopConSourceHandler<DTT0> {
-
- public:
-
+class DTT0Handler : public popcon::PopConSourceHandler<DTT0> {
+public:
   /** Constructor
    */
-  DTT0Handler( const edm::ParameterSet& ps );
+  DTT0Handler(const edm::ParameterSet& ps);
 
   /** Destructor
    */
@@ -46,23 +43,14 @@ class DTT0Handler: public popcon::PopConSourceHandler<DTT0> {
 
   /** Operations
    */
-  /// 
+  ///
   void getNewObjects() override;
   std::string id() const override;
 
- private:
-
+private:
   std::string dataTag;
   std::string fileName;
   unsigned int runNumber;
-
 };
 
-
-#endif // DTT0Handler_H
-
-
-
-
-
-
+#endif  // DTT0Handler_H

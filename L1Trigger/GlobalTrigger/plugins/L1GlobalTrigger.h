@@ -53,7 +53,6 @@ class L1GtTriggerMask;
 
 // class declaration
 class L1GlobalTrigger : public edm::stream::EDProducer<> {
-
 public:
   explicit L1GlobalTrigger(const edm::ParameterSet &);
   ~L1GlobalTrigger() override;

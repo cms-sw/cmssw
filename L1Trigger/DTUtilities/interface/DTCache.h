@@ -19,8 +19,8 @@
 
 #include <vector>
 
-template <class T, class Coll = std::vector<T>> class DTCache {
-
+template <class T, class Coll = std::vector<T>>
+class DTCache {
 public:
   typedef T my_type;
   typedef Coll my_collection;

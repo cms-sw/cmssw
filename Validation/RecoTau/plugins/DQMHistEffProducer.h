@@ -20,10 +20,8 @@
 #include <string>
 #include <vector>
 
-class TauDQMHistEffProducer : public DQMEDHarvester
-{
-  struct cfgEntryPlot
-  {
+class TauDQMHistEffProducer : public DQMEDHarvester {
+  struct cfgEntryPlot {
     explicit cfgEntryPlot(const edm::ParameterSet&);
     explicit cfgEntryPlot(const std::string&, const std::string&, const std::string&);
     std::string numerator_;
@@ -31,7 +29,7 @@ class TauDQMHistEffProducer : public DQMEDHarvester
     std::string efficiency_;
   };
 
- public:
+public:
   explicit TauDQMHistEffProducer(const edm::ParameterSet&);
   ~TauDQMHistEffProducer() override;
   void dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& iget) override;
@@ -42,5 +40,3 @@ private:
 };
 
 #endif
-
-

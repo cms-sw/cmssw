@@ -1,14 +1,12 @@
 #ifndef MuonEnergyDepositAnalyzer_H
 #define MuonEnergyDepositAnalyzer_H
 
-
 /** \class MuEnergyDepositAnalyzer
  *
  *  DQM monitoring source for muon energy deposits
  *
  *  \author G. Mila - INFN Torino
  */
-
 
 #include <memory>
 #include <fstream>
@@ -26,28 +24,27 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
 
-class MuonEnergyDepositAnalyzer : public DQMEDAnalyzer{
- public:
-
+class MuonEnergyDepositAnalyzer : public DQMEDAnalyzer {
+public:
   /// Constructor
-  MuonEnergyDepositAnalyzer(const edm::ParameterSet&);
-  
+  MuonEnergyDepositAnalyzer(const edm::ParameterSet &);
+
   /// Destructor
   ~MuonEnergyDepositAnalyzer() override;
-  
+
   /* Operations */
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  
- private:
+
+private:
   // ----------member data ---------------------------
   edm::ParameterSet parameters;
   MuonServiceProxy *theService;
   edm::EDGetTokenT<reco::MuonCollection> theMuonCollectionLabel_;
-  
+
   // Switch for verbosity
   std::string metname;
   std::string AlgoName;
@@ -78,25 +75,24 @@ class MuonEnergyDepositAnalyzer : public DQMEDAnalyzer{
   double hoS9NoMax;
 
   //the histos
-  MonitorElement * ecalDepEnergyBarrel;
-  MonitorElement * ecalS9DepEnergyBarrel;
-  MonitorElement * hcalDepEnergyBarrel;
-  MonitorElement * hcalS9DepEnergyBarrel;
-  MonitorElement * ecalDepEnergyEndcap;
-  MonitorElement * ecalS9DepEnergyEndcap;
-  MonitorElement * hcalDepEnergyEndcap;
-  MonitorElement * hcalS9DepEnergyEndcap;
-  MonitorElement * hoDepEnergy;
-  MonitorElement * hoS9DepEnergy;
-  MonitorElement * ecalS9PointingMuDepEnergy_Glb;
-  MonitorElement * hcalS9PointingMuDepEnergy_Glb;
-  MonitorElement * hoS9PointingMuDepEnergy_Glb;
-  MonitorElement * ecalS9PointingMuDepEnergy_Tk;
-  MonitorElement * hcalS9PointingMuDepEnergy_Tk;
-  MonitorElement * hoS9PointingMuDepEnergy_Tk;
-  MonitorElement * ecalS9PointingMuDepEnergy_Sta;
-  MonitorElement * hcalS9PointingMuDepEnergy_Sta;
-  MonitorElement * hoS9PointingMuDepEnergy_Sta;
-
+  MonitorElement *ecalDepEnergyBarrel;
+  MonitorElement *ecalS9DepEnergyBarrel;
+  MonitorElement *hcalDepEnergyBarrel;
+  MonitorElement *hcalS9DepEnergyBarrel;
+  MonitorElement *ecalDepEnergyEndcap;
+  MonitorElement *ecalS9DepEnergyEndcap;
+  MonitorElement *hcalDepEnergyEndcap;
+  MonitorElement *hcalS9DepEnergyEndcap;
+  MonitorElement *hoDepEnergy;
+  MonitorElement *hoS9DepEnergy;
+  MonitorElement *ecalS9PointingMuDepEnergy_Glb;
+  MonitorElement *hcalS9PointingMuDepEnergy_Glb;
+  MonitorElement *hoS9PointingMuDepEnergy_Glb;
+  MonitorElement *ecalS9PointingMuDepEnergy_Tk;
+  MonitorElement *hcalS9PointingMuDepEnergy_Tk;
+  MonitorElement *hoS9PointingMuDepEnergy_Tk;
+  MonitorElement *ecalS9PointingMuDepEnergy_Sta;
+  MonitorElement *hcalS9PointingMuDepEnergy_Sta;
+  MonitorElement *hoS9PointingMuDepEnergy_Sta;
 };
-#endif  
+#endif

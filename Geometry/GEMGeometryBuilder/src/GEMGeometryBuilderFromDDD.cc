@@ -262,11 +262,8 @@ GEMGeometryBuilderFromDDD::boundPlane(const DDFilteredView& fv,
   
   //Change of axes for the forward
   Basic3DVector<float> newX(1.,0.,0.);
-  Basic3DVector<float> newY(0.,0.,1.);
+  Basic3DVector<float> newY(0.,0.,-1.);
   Basic3DVector<float> newZ(0.,1.,0.);
-
-  // Odd chambers are inverted in gem.xml
-  if (isOddChamber) newY *= -1;
   
   rotResult.rotateAxes(newX, newY, newZ);
 

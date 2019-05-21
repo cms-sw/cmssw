@@ -24,29 +24,27 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 class MuonTiming : public DQMEDAnalyzer {
- public:
-
+public:
   /// Constructor
-  MuonTiming(const edm::ParameterSet&);
-  
+  MuonTiming(const edm::ParameterSet &);
+
   /// Destructor
   ~MuonTiming() override;
 
   /// Inizialize parameters for histo binning
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
- private:
+private:
   // ----------member data ---------------------------
   MuonServiceProxy *theService;
-  
-  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
+
+  edm::EDGetTokenT<edm::View<reco::Muon> > theMuonCollectionLabel_;
   // Switch for verbosity
   std::string metname_;
-    
 
   //histo binning parameters
   int tnbins_;
@@ -67,8 +65,8 @@ class MuonTiming : public DQMEDAnalyzer {
 
   std::string theFolder_;
   std::vector<std::string> EtaName_, ObjectName_;
-  enum eta_ {overlap, barrel, endcap};
-  enum object_ {sta, glb};
+  enum eta_ { overlap, barrel, endcap };
+  enum object_ { sta, glb };
   //the histos
   /*
   std::vector<std::vector<MonitorElement*>> timeNDof_;
@@ -81,16 +79,14 @@ class MuonTiming : public DQMEDAnalyzer {
   std::vector<MonitorElement*> ptVeto_;
   std::vector<MonitorElement*> yields_;
   */
-  std::array<std::array<MonitorElement*,1>,3> timeNDof_;
-  std::array<std::array<MonitorElement*,1>,3> timeAtIpInOut_;
-  std::array<std::array<MonitorElement*,1>,3> timeAtIpInOutRPC_;
-  std::array<std::array<MonitorElement*,1>,3> timeAtIpInOutErr_;
-  std::array<std::array<MonitorElement*,1>,3> timeAtIpInOutErrRPC_;
-  std::array<MonitorElement*,1> etaptVeto_;
-  std::array<MonitorElement*,1> etaVeto_;
-  std::array<MonitorElement*,1> ptVeto_;
-  std::array<MonitorElement*,1> yields_;
-
-
+  std::array<std::array<MonitorElement *, 1>, 3> timeNDof_;
+  std::array<std::array<MonitorElement *, 1>, 3> timeAtIpInOut_;
+  std::array<std::array<MonitorElement *, 1>, 3> timeAtIpInOutRPC_;
+  std::array<std::array<MonitorElement *, 1>, 3> timeAtIpInOutErr_;
+  std::array<std::array<MonitorElement *, 1>, 3> timeAtIpInOutErrRPC_;
+  std::array<MonitorElement *, 1> etaptVeto_;
+  std::array<MonitorElement *, 1> etaVeto_;
+  std::array<MonitorElement *, 1> ptVeto_;
+  std::array<MonitorElement *, 1> yields_;
 };
 #endif

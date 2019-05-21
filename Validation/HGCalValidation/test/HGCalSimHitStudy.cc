@@ -158,7 +158,7 @@ void HGCalSimHitStudy::analyze(const edm::Event& iEvent,
 	for (auto const& hit : *(theCaloHitContainers.product()) ) {
 	  unsigned int id = hit.id();
 	  HcalDetId hid = HcalHitRelabeller::relabel(id,hcons_);
-	  if (hid.subdet()!=int(HcalEndcap)) {
+	  if (hid.subdet()!=static_cast<int>(HcalEndcap)) {
 	    caloHits.emplace_back(hit);
 	    caloHits.back().setID(hid.rawId());
 	    if (verbosity_>0)
@@ -236,7 +236,7 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name,
       } else if ((hgcons_[ih]->geomMode() == HGCalGeometryMode::Hexagon8) ||
 		 (hgcons_[ih]->geomMode() == HGCalGeometryMode::Hexagon8Full)){
 	HGCSiliconDetId detId = HGCSiliconDetId(id);
-	subdet   = (int)(detId.det());
+	subdet   = static_cast<int>(detId.det());
 	cell     = detId.cellU();
 	cell2    = detId.cellV();
 	sector   = detId.waferU();
@@ -250,7 +250,7 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name,
 	h_C2_[ih]->Fill(cell2);
       } else if (hgcons_[ih]->geomMode() == HGCalGeometryMode::Trapezoid) {
 	HGCScintillatorDetId detId = HGCScintillatorDetId(id);
-	subdet   = (int)(detId.det());
+	subdet   = static_cast<int>(detId.det());
 	sector   = detId.ieta();
 	cell     = detId.iphi();
 	type     = detId.type();

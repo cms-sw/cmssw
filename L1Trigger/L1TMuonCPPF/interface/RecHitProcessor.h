@@ -33,7 +33,6 @@ public:
   ~RecHitProcessor();
 
   struct CppfItem {
-
     int lb;
     int rawId;
     int strip;
@@ -49,22 +48,23 @@ public:
 
   void processLook(
       // Input
-      const edm::Event &iEvent, const edm::EventSetup &iSetup,
+      const edm::Event &iEvent,
+      const edm::EventSetup &iSetup,
       const edm::EDGetToken &recHitToken,
       std::vector<RecHitProcessor::CppfItem> &CppfVec1,
       // Output
-      l1t::CPPFDigiCollection &cppfDigis, const int MaxClusterSize) const;
+      l1t::CPPFDigiCollection &cppfDigis,
+      const int MaxClusterSize) const;
 
   void process(
       // Input
-      const edm::Event &iEvent, const edm::EventSetup &iSetup,
+      const edm::Event &iEvent,
+      const edm::EventSetup &iSetup,
       const edm::EDGetToken &recHitToken,
       // Output
       l1t::CPPFDigiCollection &cppfDigis) const;
 
-  void print(int a, int b, float c, float d) const {
-    std::cout << a << " " << b << " " << c << " " << d << std::endl;
-  };
+  void print(int a, int b, float c, float d) const { std::cout << a << " " << b << " " << c << " " << d << std::endl; };
 
   COND_SERIALIZABLE;
 

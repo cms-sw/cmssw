@@ -15,7 +15,6 @@
  */
 
 class EcalFenixPeakFinder {
-
 private:
   bool disabled;
   int setInput(int input);
@@ -27,8 +26,7 @@ private:
 public:
   EcalFenixPeakFinder();
   virtual ~EcalFenixPeakFinder();
-  virtual std::vector<int> process(std::vector<int> &filtout,
-                                   std::vector<int> &output);
+  virtual std::vector<int> process(std::vector<int> &filtout, std::vector<int> &output);
   // from CaloVShape
   //  virtual double operator()(double) const {return 0.;}
   //  virtual double derivative(double) const {return 0.;}

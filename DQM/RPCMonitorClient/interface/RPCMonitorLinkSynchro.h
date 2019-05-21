@@ -16,22 +16,28 @@
 
 class MonitorElement;
 
-namespace edm { class Event; class EventSetup; class Run;}
-
+namespace edm {
+  class Event;
+  class EventSetup;
+  class Run;
+}  // namespace edm
 
 class RPCMonitorLinkSynchro : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
-
 public:
-  explicit RPCMonitorLinkSynchro( const edm::ParameterSet& cfg);
+  explicit RPCMonitorLinkSynchro(const edm::ParameterSet& cfg);
   ~RPCMonitorLinkSynchro() override;
- 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override ;
-  void beginLuminosityBlock(const edm::LuminosityBlock&,const edm::EventSetup&) final {}
-  void endLuminosityBlock(const edm::LuminosityBlock&,const edm::EventSetup&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;  
-  virtual  const RPCRawSynchro::ProdItem & select(const RPCRawSynchro::ProdItem &v, const edm::Event&, const edm::EventSetup&) { return v; };
- 
+
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final {}
+  void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual const RPCRawSynchro::ProdItem& select(const RPCRawSynchro::ProdItem& v,
+                                                const edm::Event&,
+                                                const edm::EventSetup&) {
+    return v;
+  };
+
 protected:
   edm::ParameterSet theConfig;
   edm::ESWatcher<RPCEMapRcd> theCablingWatcher;
@@ -48,5 +54,3 @@ private:
 };
 
 #endif
-
-

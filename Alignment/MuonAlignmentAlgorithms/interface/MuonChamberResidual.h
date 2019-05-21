@@ -23,33 +23,30 @@
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
-class MuonChamberResidual
-{
+class MuonChamberResidual {
 public:
+  enum { kDT13, kDT2, kCSC };
 
-  enum {
-    kDT13,
-    kDT2,
-    kCSC
-  };
-
-  MuonChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, AlignableNavigator *navigator, 
-                      DetId chamberId, AlignableDetOrUnitPtr chamberAlignable);
+  MuonChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
+                      AlignableNavigator *navigator,
+                      DetId chamberId,
+                      AlignableDetOrUnitPtr chamberAlignable);
 
   virtual ~MuonChamberResidual() {}
 
-  // has to be implemented for rechit based residuals 
-  virtual void addResidual(edm::ESHandle<Propagator> prop, const TrajectoryStateOnSurface *, const TrackingRecHit *, double, double) = 0;
-  
+  // has to be implemented for rechit based residuals
+  virtual void addResidual(
+      edm::ESHandle<Propagator> prop, const TrajectoryStateOnSurface *, const TrackingRecHit *, double, double) = 0;
+
   // has to be implemented for track muon segment residuals
   virtual void setSegmentResidual(const reco::MuonChamberMatch *, const reco::MuonSegmentMatch *) = 0;
-  
+
   int type() const { return m_type; }
 
-  virtual double signConvention() const {return m_sign; }
+  virtual double signConvention() const { return m_sign; }
 
   DetId chamberId() const { return m_chamberId; }
-  
+
   AlignableDetOrUnitPtr chamberAlignable() const { return m_chamberAlignable; }
 
   int numHits() const { return m_numHits; }
@@ -68,25 +65,24 @@ public:
   double tracky() const { return m_tracky; }
 
   double ChambW() const { return m_ChambW; }
-  double Chambl() const { return m_Chambl; } 
+  double Chambl() const { return m_Chambl; }
 
   double segdxdz() const { return m_segdxdz; }
   double segdydz() const { return m_segdydz; }
   double segx() const { return m_segx; }
   double segy() const { return m_segy; }
 
-
   align::GlobalPoint global_trackpos();
   align::GlobalPoint global_stubpos();
   double global_residual() const;
   double global_resslope() const;
   double global_hitresid(int i) const;
-  
+
   // individual hit methods
   double hitresid(int i) const;
   int hitlayer(int i) const;
   double hitposition(int i) const;
-  DetId localid(int i) const { return m_localIDs[i];  }
+  DetId localid(int i) const { return m_localIDs[i]; }
 
 protected:
   edm::ESHandle<GlobalTrackingGeometry> m_globalGeometry;
@@ -119,8 +115,6 @@ protected:
   double m_segy;
   double m_ChambW;
   double m_Chambl;
-
-  
 };
 
-#endif // Alignment_MuonAlignmentAlgorithms_MuonChamberResidual_H
+#endif  // Alignment_MuonAlignmentAlgorithms_MuonChamberResidual_H

@@ -36,105 +36,99 @@
 
 // forward declarations
 namespace edm {
-   class WrapperBase;
-   class ProductRegistry;
-   class BranchDescription;
-   class EDProductGetter;
-   class LuminosityBlockAux;
-   class Timestamp;
-   class TriggerResults;
-   class TriggerNames;
-}
+  class WrapperBase;
+  class ProductRegistry;
+  class BranchDescription;
+  class EDProductGetter;
+  class LuminosityBlockAux;
+  class Timestamp;
+  class TriggerResults;
+  class TriggerNames;
+}  // namespace edm
 
 namespace fwlite {
-   class Event;
-   class BranchMapReader;
-   class HistoryGetterBase;
-   class DataGetterHelper;
-   class RunFactory;
+  class Event;
+  class BranchMapReader;
+  class HistoryGetterBase;
+  class DataGetterHelper;
+  class RunFactory;
 
-   class LuminosityBlock : public LuminosityBlockBase
-   {
+  class LuminosityBlock : public LuminosityBlockBase {
+  public:
+    // NOTE: Does NOT take ownership so iFile must remain around
+    // at least as long as LuminosityBlock
+    LuminosityBlock(TFile* iFile);
+    LuminosityBlock(std::shared_ptr<BranchMapReader> branchMap, std::shared_ptr<RunFactory> runFactory);
+    ~LuminosityBlock() override;
 
-      public:
-         // NOTE: Does NOT take ownership so iFile must remain around
-         // at least as long as LuminosityBlock
-         LuminosityBlock(TFile* iFile);
-         LuminosityBlock(std::shared_ptr<BranchMapReader> branchMap,  std::shared_ptr<RunFactory> runFactory);
-         ~LuminosityBlock() override;
+    const LuminosityBlock& operator++() override;
 
-         const LuminosityBlock& operator++() override;
+    /// Go to event by Run & LuminosityBlock number
+    bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi);
 
-         /// Go to event by Run & LuminosityBlock number
-         bool to (edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi);
+    // Go to the very first Event.
+    const LuminosityBlock& toBegin() override;
 
-         // Go to the very first Event.
-         const LuminosityBlock& toBegin() override;
+    // ---------- const member functions ---------------------
+    virtual std::string const getBranchNameFor(std::type_info const&, char const*, char const*, char const*) const;
 
-         // ---------- const member functions ---------------------
-         virtual std::string const getBranchNameFor(std::type_info const&,
-                                                    char const*,
-                                                    char const*,
-                                                    char const*) const;
+    // This function should only be called by fwlite::Handle<>
+    using fwlite::LuminosityBlockBase::getByLabel;
+    bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const override;
+    //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
-         // This function should only be called by fwlite::Handle<>
-         using fwlite::LuminosityBlockBase::getByLabel;
-         bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const override;
-         //void getByBranchName(std::type_info const&, char const*, void*&) const;
+    bool isValid() const;
+    operator bool() const;
+    bool atEnd() const override;
 
-         bool isValid() const;
-         operator bool () const;
-         bool atEnd() const override;
+    Long64_t size() const;
 
-         Long64_t size() const;
+    edm::LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const override;
 
-         edm::LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const override;
+    std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
+      return branchMap_->getBranchDescriptions();
+    }
 
-         std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
-            return branchMap_->getBranchDescriptions();
-         }
+    //       void setGetter(//Copy from Event if needed
 
-//       void setGetter(//Copy from Event if needed
+    edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
 
-         edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
+    // ---------- static member functions --------------------
+    static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
 
-         // ---------- static member functions --------------------
-         static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
+    // ---------- member functions ---------------------------
+    fwlite::Run const& getRun() const;
 
-         // ---------- member functions ---------------------------
-         fwlite::Run const& getRun() const;
+  private:
+    friend class internal::ProductGetter;
+    friend class LumiHistoryGetter;
 
-      private:
-         friend class internal::ProductGetter;
-         friend class LumiHistoryGetter;
+    LuminosityBlock(const LuminosityBlock&) = delete;  // stop default
 
-         LuminosityBlock(const LuminosityBlock&) = delete; // stop default
+    const LuminosityBlock& operator=(const LuminosityBlock&) = delete;  // stop default
 
-         const LuminosityBlock& operator=(const LuminosityBlock&) = delete; // stop default
+    const edm::ProcessHistory& history() const;
+    void updateAux(Long_t lumiIndex) const;
 
-         const edm::ProcessHistory& history() const;
-         void updateAux(Long_t lumiIndex) const;
+    // ---------- member data --------------------------------
+    mutable std::shared_ptr<BranchMapReader> branchMap_;
 
+    mutable std::shared_ptr<fwlite::Run> run_;
 
-         // ---------- member data --------------------------------
-         mutable std::shared_ptr<BranchMapReader> branchMap_;
+    //takes ownership of the strings used by the DataKey keys in data_
+    mutable std::vector<char const*> labels_;
+    mutable edm::ProcessHistoryMap historyMap_;
+    mutable std::vector<std::string> procHistoryNames_;
+    mutable edm::LuminosityBlockAuxiliary aux_;
+    mutable EntryFinder entryFinder_;
+    edm::LuminosityBlockAuxiliary const* pAux_;
+    edm::LuminosityBlockAux const* pOldAux_;
+    TBranch* auxBranch_;
+    int fileVersion_;
 
-         mutable std::shared_ptr<fwlite::Run>  run_;
+    DataGetterHelper dataHelper_;
+    mutable std::shared_ptr<RunFactory> runFactory_;
+  };
 
-         //takes ownership of the strings used by the DataKey keys in data_
-         mutable std::vector<char const*> labels_;
-         mutable edm::ProcessHistoryMap historyMap_;
-         mutable std::vector<std::string> procHistoryNames_;
-         mutable edm::LuminosityBlockAuxiliary aux_;
-         mutable EntryFinder entryFinder_;
-         edm::LuminosityBlockAuxiliary const* pAux_;
-         edm::LuminosityBlockAux const* pOldAux_;
-         TBranch* auxBranch_;
-         int fileVersion_;
-
-         DataGetterHelper dataHelper_;
-         mutable std::shared_ptr<RunFactory> runFactory_;
-   };
-
-}
+}  // namespace fwlite
 #endif

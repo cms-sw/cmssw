@@ -23,14 +23,12 @@
     *  in case of overflow, result is set to (2**12)-1 or (2**10)-1
     */
 class EcalFenixEtTot {
-
 public:
   EcalFenixEtTot();
   virtual ~EcalFenixEtTot();
   virtual std::vector<int> process(const std::vector<EBDataFrame *> &);
 
-  void process(std::vector<std::vector<int>> &, int nStr, int bitMask,
-               std::vector<int> &out);
+  void process(std::vector<std::vector<int>> &, int nStr, int bitMask, std::vector<int> &out);
 
 private:
 };

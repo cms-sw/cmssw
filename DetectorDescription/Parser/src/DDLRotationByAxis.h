@@ -22,16 +22,14 @@ class DDLElementRegistry;
  *  This is the RotationByAxis element which rotates around an axis.
  *
  */
-class DDLRotationByAxis : public DDXMLElement
-{
- public:
+class DDLRotationByAxis : public DDXMLElement {
+public:
+  DDLRotationByAxis(DDLElementRegistry* myreg);
 
-  DDLRotationByAxis( DDLElementRegistry* myreg );
+  void preProcessElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
-
-  virtual DDRotationMatrix processOne( DDRotationMatrix R, std::string& axis, std::string& angle ); 
+  virtual DDRotationMatrix processOne(DDRotationMatrix R, std::string& axis, std::string& angle);
 
 private:
   std::string pNameSpace;

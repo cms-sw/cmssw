@@ -18,75 +18,60 @@
 
 #include <memory>
 
-
-XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p): rootNodeName_(p.getParameter<std::string>("rootNodeName")),
-                                                                                 userNS_(p.getUntrackedParameter<bool>("userControlledNamespace", false)),
-                                                                                 geoConfig_(p)
-{
-  if ( rootNodeName_ == "" || rootNodeName_ == "\\" ) {
+XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet &p)
+    : rootNodeName_(p.getParameter<std::string>("rootNodeName")),
+      userNS_(p.getUntrackedParameter<bool>("userControlledNamespace", false)),
+      geoConfig_(p) {
+  if (rootNodeName_.empty() || rootNodeName_ == "\\") {
     throw cms::Exception("DDException") << "XMLIdealGeometryESSource must have a root node name.";
   }
-  
-  if ( rootNodeName_ == "MagneticFieldVolumes:MAGF" ||  rootNodeName_ == "cmsMagneticField:MAGF") {
-    setWhatProduced(this, &XMLIdealGeometryESSource::produceMagField, 
-                    edm::es::Label(p.getParameter<std::string>("@module_label")));
+
+  if (rootNodeName_ == "MagneticFieldVolumes:MAGF" || rootNodeName_ == "cmsMagneticField:MAGF") {
+    setWhatProduced(
+        this, &XMLIdealGeometryESSource::produceMagField, edm::es::Label(p.getParameter<std::string>("@module_label")));
     findingRecord<IdealMagneticFieldRecord>();
   } else {
-    setWhatProduced(this, &XMLIdealGeometryESSource::produceGeom, 
-                    edm::es::Label(p.getParameter<std::string>("@module_label")));
+    setWhatProduced(
+        this, &XMLIdealGeometryESSource::produceGeom, edm::es::Label(p.getParameter<std::string>("@module_label")));
     findingRecord<IdealGeometryRecord>();
   }
 }
 
-XMLIdealGeometryESSource::~XMLIdealGeometryESSource() { }
+XMLIdealGeometryESSource::~XMLIdealGeometryESSource() {}
 
-std::unique_ptr<DDCompactView>
-XMLIdealGeometryESSource::produceGeom(const IdealGeometryRecord &)
-{
+std::unique_ptr<DDCompactView> XMLIdealGeometryESSource::produceGeom(const IdealGeometryRecord &) { return produce(); }
+
+std::unique_ptr<DDCompactView> XMLIdealGeometryESSource::produceMagField(const IdealMagneticFieldRecord &) {
   return produce();
 }
 
-std::unique_ptr<DDCompactView>
-XMLIdealGeometryESSource::produceMagField(const IdealMagneticFieldRecord &)
-{ 
-  return produce();
-}
-
-
-std::unique_ptr<DDCompactView>
-XMLIdealGeometryESSource::produce() {
-  
+std::unique_ptr<DDCompactView> XMLIdealGeometryESSource::produce() {
   DDName ddName(rootNodeName_);
   DDLogicalPart rootNode(ddName);
   DDRootDef::instance().set(rootNode);
   std::unique_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
-  DDLParser parser(*returnValue); //* parser = DDLParser::instance();
+  DDLParser parser(*returnValue);  //* parser = DDLParser::instance();
   parser.getDDLSAX2FileHandler()->setUserNS(userNS_);
   int result2 = parser.parse(geoConfig_);
-  if (result2 != 0) throw cms::Exception("DDException") << "DDD-Parser: parsing failed!";
+  if (result2 != 0)
+    throw cms::Exception("DDException") << "DDD-Parser: parsing failed!";
 
   // after parsing the root node should be valid!
 
-  if( !rootNode.isValid() ){
-    throw cms::Exception("Geometry")<<"There is no valid node named \""
-                                    <<rootNodeName_<<"\"";
+  if (!rootNode.isValid()) {
+    throw cms::Exception("Geometry") << "There is no valid node named \"" << rootNodeName_ << "\"";
   }
-  returnValue->lockdown();  
+  returnValue->lockdown();
   return returnValue;
 }
 
 void XMLIdealGeometryESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                              const edm::IOVSyncValue & iosv, 
-                                              edm::ValidityInterval & oValidity)
-{
+                                              const edm::IOVSyncValue &iosv,
+                                              edm::ValidityInterval &oValidity) {
   edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
   oValidity = infinity;
 }
 
-
 #include "FWCore/Framework/interface/SourceFactory.h"
 
-
 DEFINE_FWK_EVENTSETUP_SOURCE(XMLIdealGeometryESSource);
-
-

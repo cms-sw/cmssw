@@ -30,22 +30,22 @@ public:
   ///         1 -> # of entries <br>
   ///         2 -> # of events <br>
   ///         3 -> mean over LSs <br>
-  DTTimeEvolutionHisto(DQMStore::IBooker& ibooker, const std::string& name,
-		       const std::string& title,
-		       int nbins,
-		       int lsPrescale,
-		       bool sliding,
-		       int mode = 0);
+  DTTimeEvolutionHisto(DQMStore::IBooker& ibooker,
+                       const std::string& name,
+                       const std::string& title,
+                       int nbins,
+                       int lsPrescale,
+                       bool sliding,
+                       int mode = 0);
 
-
-  DTTimeEvolutionHisto(DQMStore::IBooker& ibooker, const std::string& name,
-		       const std::string& title,
-		       int nbins,
-		       int firstLS,
-		       int lsPrescale,
-		       bool sliding,
-		       int mode = 0);
-
+  DTTimeEvolutionHisto(DQMStore::IBooker& ibooker,
+                       const std::string& name,
+                       const std::string& title,
+                       int nbins,
+                       int firstLS,
+                       int lsPrescale,
+                       bool sliding,
+                       int mode = 0);
 
   //FR changed the previous 2 argument constructor to the following one
   DTTimeEvolutionHisto(MonitorElement*);
@@ -61,24 +61,21 @@ public:
 
   void updateTimeSlot(int ls, int nEventsInLS);
 
-  void normalizeTo(const MonitorElement *histForNorm);
+  void normalizeTo(const MonitorElement* histForNorm);
 
 protected:
-
 private:
   float valueLastTimeSlot;
-  std::map<int,int> nEventsInLastTimeSlot;
-  std::map<int,int> nLumiTrInLastTimeSlot;
+  std::map<int, int> nEventsInLastTimeSlot;
+  std::map<int, int> nLumiTrInLastTimeSlot;
   int theFirstLS;
   int theLSPrescale;
   bool doSlide;
   int nBookedBins;
   int theMode;
-  MonitorElement *histo;
-
+  MonitorElement* histo;
 };
 #endif
-
 
 /* Local Variables: */
 /* show-trailing-whitespace: t */

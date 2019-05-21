@@ -31,7 +31,7 @@ SCEnergyCorrectorSemiParm::~SCEnergyCorrectorSemiParm()
 void SCEnergyCorrectorSemiParm::setTokens(const edm::ParameterSet &iConfig, edm::ConsumesCollector &cc) {
   
   isHLT_ = iConfig.getParameter<bool>("isHLT");
-
+  applySigmaIetaIphiBug_ = iConfig.getParameter<bool>("applySigmaIetaIphiBug");
   tokenEBRecHits_   = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRecHitsEB"));
   tokenEERecHits_   = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRecHitsEE"));
 
@@ -40,10 +40,11 @@ void SCEnergyCorrectorSemiParm::setTokens(const edm::ParameterSet &iConfig, edm:
   regressionKeyEE_  = iConfig.getParameter<std::string>("regressionKeyEE");
   uncertaintyKeyEE_ = iConfig.getParameter<std::string>("uncertaintyKeyEE");
  
-  if (not isHLT_)
+  if (not isHLT_){
     tokenVertices_     = cc.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
-  else
+  }else{
     eThreshold_       = iConfig.getParameter<double>("eRecHitThreshold");
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,7 +119,7 @@ std::pair<double, double> SCEnergyCorrectorSemiParm::getCorrections(const reco::
   std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,recHits,topo) ;
   
   if (not isHLT_) {
-    std::array<float, 29> eval;  
+    std::array<float, 30> eval;
     
     const float eLeft = EcalClusterTools::eLeft(seedCluster,recHits,topo);
     const float eRight = EcalClusterTools::eRight(seedCluster,recHits,topo);
@@ -128,9 +129,11 @@ std::pair<double, double> SCEnergyCorrectorSemiParm::getCorrections(const reco::
     float sigmaIetaIeta = sqrt(localCovariances[0]);
     float sigmaIetaIphi = std::numeric_limits<float>::max();
     float sigmaIphiIphi = std::numeric_limits<float>::max();
-    
+
+    if (!edm::isNotFinite(localCovariances[2])) sigmaIphiIphi = sqrt(localCovariances[2]) ;
+
     // extra shower shapes
-    const float see_by_spp = sigmaIetaIeta*sigmaIphiIphi;
+    const float see_by_spp = sigmaIetaIeta*(applySigmaIetaIphiBug_ ? std::numeric_limits<float>::max() : sigmaIphiIphi);
     if(  see_by_spp > 0 ) {
       sigmaIetaIphi = localCovariances[1] / see_by_spp;
     } else if ( localCovariances[1] > 0 ) {
@@ -138,8 +141,6 @@ std::pair<double, double> SCEnergyCorrectorSemiParm::getCorrections(const reco::
     } else {
       sigmaIetaIphi = -1.f;
     }
-    
-    if (!edm::isNotFinite(localCovariances[2])) sigmaIphiIphi = sqrt(localCovariances[2]) ;
     
     // calculate sub-cluster variables
     std::vector<float> clusterRawEnergy;
@@ -216,8 +217,12 @@ std::pair<double, double> SCEnergyCorrectorSemiParm::getCorrections(const reco::
       EEDetId eeseedid(seedCluster.seed());
       eval[27] = eeseedid.ix();
       eval[28] = eeseedid.iy();
+      //seed cluster eta is only needed for the 106X Ultra Legacy regressions
+      //and was not used in the 74X regression however as its just an extra varaible
+      //at the end, its harmless to add for the 74X regression
+      eval[29] = seedCluster.eta();
     }  
-    
+
     //magic numbers for MINUIT-like transformation of BDT output onto limited range
     //(These should be stored inside the conditions object in the future as well)
     constexpr double meanlimlow  = 0.2;

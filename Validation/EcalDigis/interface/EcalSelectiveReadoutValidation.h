@@ -31,36 +31,33 @@ class EEDetId;
 class EcalElectronicsMapping;
 class EcalTrigTowerConstituentsMap;
 
-class EcalSelectiveReadoutValidation: public DQMEDAnalyzer{
-
+class EcalSelectiveReadoutValidation : public DQMEDAnalyzer {
   typedef EcalRecHitCollection RecHitCollection;
   typedef EcalRecHit RecHit;
-  
-public:
 
+public:
   /// Constructor
   EcalSelectiveReadoutValidation(const edm::ParameterSet& ps);
 
   /// Destructor
   ~EcalSelectiveReadoutValidation() override;
- void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
- void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override; 
- 
-protected:
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) override;
 
+protected:
   /// Analyzes the event.
-  void analyze(edm::Event const & e, edm::EventSetup const & c) override;
- 
-  void endRun(const edm::Run& r, const edm::EventSetup& c) override; 
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
   ///distinguishes barral and endcap of ECAL.
-  enum subdet_t {EB, EE};
+  enum subdet_t { EB, EE };
 
   /** Accumulates statitics for data volume analysis. To be called for each
    * ECAL digi. See anaDigiInit().
    */
-  template<class T, class U>
+  template <class T, class U>
   void anaDigi(const T& frame, const U& srFlagColl);
 
   /** Initializes statistics accumalator for data volume analysis. To
@@ -90,12 +87,12 @@ private:
    * @param event EDM event
    * @param es event setup
    */
-  void analyzeTP(const edm::Event& event, const edm::EventSetup& es); 
-  
+  void analyzeTP(const edm::Event& event, const edm::EventSetup& es);
+
   //  /** Selective Readout decisions Validation
   //    * @param event EDM event
   //    * @param es event setup
-  //    */ 
+  //    */
   //   void SRFlagValidation(const edm::Event& event, const edm::EventSetup& es);
 
   /** Energy reconstruction from ADC samples.
@@ -109,9 +106,9 @@ private:
    * @param offset time offset. To be used to evaluate energy of the event
    * previous (offset=-1) and next (offset=+1) to the triggered one.
    */
-  template<class T>
+  template <class T>
   double frame2EnergyForTp(const T& frame, int offset = 0) const;
-  
+
   //   double getEcalEventSize(double nReadXtals) const{
   //     return getDccOverhead(EB)*nEbDccs+getDccOverhead(EE)*nEeDccs
   //       + nReadXtals*getBytesPerCrystal()
@@ -133,35 +130,32 @@ private:
   /** Gets the size in bytes fixed-size part of a DCC event fragment.
    * @return the fixed size in bytes.
    */
-  double getDccOverhead(subdet_t subdet) const{
+  double getDccOverhead(subdet_t subdet) const {
     //  return (subdet==EB?34:25)*8;
-    return (subdet==EB?34:52)*8;
+    return (subdet == EB ? 34 : 52) * 8;
   }
 
   /** Gets the number of bytes per crystal channel of the event part
    * depending on the number of read crystal channels.
    * @return the number of bytes.
    */
-  double getBytesPerCrystal() const{
-    return 3*8;
-  }
+  double getBytesPerCrystal() const { return 3 * 8; }
 
   /** Gets the size of an DCC event fragment.
    * @param iDcc0 the DCC logical number starting from 0.
    * @param nReadXtals number of read crystal channels.
    * @return the DCC event fragment size in bytes.
    */
-  double getDccEventSize(int iDcc0, double nReadXtals) const{
+  double getDccEventSize(int iDcc0, double nReadXtals) const {
     subdet_t subdet;
-     if(iDcc0<9 || iDcc0>=45){
-       subdet = EE;
-     } else{
-       subdet = EB;
-     }
-     //     return getDccOverhead(subdet)+nReadXtals*getBytesPerCrystal()
-     //       + getRuCount(iDcc0)*8;
-    return getDccOverhead(subdet)
-      + getDccSrDependentPayload(iDcc0, getRuCount(iDcc0), nReadXtals);
+    if (iDcc0 < 9 || iDcc0 >= 45) {
+      subdet = EE;
+    } else {
+      subdet = EB;
+    }
+    //     return getDccOverhead(subdet)+nReadXtals*getBytesPerCrystal()
+    //       + getRuCount(iDcc0)*8;
+    return getDccOverhead(subdet) + getDccSrDependentPayload(iDcc0, getRuCount(iDcc0), nReadXtals);
   }
 
   /** Gets DCC event fragment payload depending on the channel selection
@@ -171,9 +165,8 @@ private:
    * @param nReadXtals number of read-out crystal channels.
    * @return the DCC event fragment payload in bytes.
    */
-  double getDccSrDependentPayload(int iDcc0, double nReadRus,
-                                  double nReadXtals) const{
-    return nReadXtals*getBytesPerCrystal() + nReadRus*8;
+  double getDccSrDependentPayload(int iDcc0, double nReadRus, double nReadXtals) const {
+    return nReadXtals * getBytesPerCrystal() + nReadRus * 8;
   }
 
   /** Gets the number of readout unit read by a DCC. A readout unit
@@ -196,9 +189,7 @@ private:
    * @param ebDigis the ECAL endcap unsuppressed digi to use for the
    * computation
    */
-  void setTtEtSums(const edm::EventSetup& es,
-                   const EBDigiCollection& ebDigis,
-                   const EEDigiCollection& eeDigis);
+  void setTtEtSums(const edm::EventSetup& es, const EBDigiCollection& ebDigis, const EEDigiCollection& eeDigis);
 
   //   /** Retrieves the logical number of the DCC reading a given crystal channel.
   //    * @param xtarId crystal channel identifier
@@ -213,68 +204,55 @@ private:
    * endcap supercrystal identifier
    * @return pair of (DCC ID, DCC channel)
    */
-  std::pair<int,int> dccCh(const DetId& xtalId) const;
+  std::pair<int, int> dccCh(const DetId& xtalId) const;
 
-  
   /** Converts a std CMSSW crystal eta index to a c-array index (starting from
    * zero and without hole).
    */
-  int iEta2cIndex(int iEta) const{
-    return (iEta<0)?iEta+85:iEta+84;
-  }
-  
+  int iEta2cIndex(int iEta) const { return (iEta < 0) ? iEta + 85 : iEta + 84; }
+
   /** Converts a std CMSSW crystal phi index to a c-array index (starting from
    * zero and without hole).
    */
-  int iPhi2cIndex(int iPhi) const{
+  int iPhi2cIndex(int iPhi) const {
     //    return iPhi-1;
     int iPhi0 = iPhi - 11;
-    if(iPhi0<0) iPhi0 += 360;
+    if (iPhi0 < 0)
+      iPhi0 += 360;
     return iPhi0;
   }
 
   /** Converts a std CMSSW crystal x or y index to a c-array index (starting
    * from zero and without hole).
    */
-  int iXY2cIndex(int iX) const{
-    return iX-1;
-  }
+  int iXY2cIndex(int iX) const { return iX - 1; }
 
   /** converse of iXY2cIndex() method.
    */
-  int cIndex2iXY(int iX0) const{
-    return iX0+1;
-  }
+  int cIndex2iXY(int iX0) const { return iX0 + 1; }
 
   /** converse of iEta2cIndex() method.
    */
-  int cIndex2iEta(int i) const{
-    return (i<85)?i-85:i-84;
-  }
-
+  int cIndex2iEta(int i) const { return (i < 85) ? i - 85 : i - 84; }
 
   /** converse of iPhi2cIndex() method.
    */
-  int cIndex2iPhi(int i) const {
-    return (i+11) % 360;
-  }
+  int cIndex2iPhi(int i) const { return (i + 11) % 360; }
 
   /**Transforms CMSSW eta ECAL TT indices to indices starting at 0
    * to use for c-array or vector.
    * @param iEta CMSSW eta index (numbering -28...-1,28...56)
    * @return index in numbering from 0 to 55
    */
-  int iTtEta2cIndex(int iEta) const{
-    return (iEta<0)?iEta+28:iEta+27;
-  }
-  
+  int iTtEta2cIndex(int iEta) const { return (iEta < 0) ? iEta + 28 : iEta + 27; }
+
   /**Transforms CMSSW phi ECAL crystal indices to indices starting at 0
    * to use for c-array or vector.
    * @param iPhi CMSSW phi index (numbering 1...72)
    * @return index in numbering 0...71
    */
-  int iTtPhi2cIndex(int iPhi) const{
-    return iPhi-1;
+  int iTtPhi2cIndex(int iPhi) const {
+    return iPhi - 1;
     //int iPhi0 = iPhi - 3;
     //if(iPhi0<0) iPhi0 += 72;
     //return iPhi0;
@@ -282,16 +260,12 @@ private:
 
   /** converse of iTtEta2cIndex() method.
    */
-  int cIndex2iTtEta(int i) const{
-    return (i<27)?i-28:i-27;
-  }
+  int cIndex2iTtEta(int i) const { return (i < 27) ? i - 28 : i - 27; }
 
   /** converse of iTtPhi2cIndex() method.
    */
-  int cIndex2iTtPhi(int i) const{
-    return i + 1;
-  }
-  
+  int cIndex2iTtPhi(int i) const { return i + 1; }
+
   //@{
   /** Retrives the readout unit, a trigger tower in the barrel case,
    * and a supercrystal in the endcap case, a given crystal belongs to.
@@ -299,7 +273,7 @@ private:
    * @return identifer of the supercrystal or of the trigger tower.
    */
   EcalTrigTowerDetId readOutUnitOf(const EBDetId& xtalId) const;
-  
+
   EcalScDetId readOutUnitOf(const EEDetId& xtalId) const;
   //@}
 
@@ -314,58 +288,68 @@ private:
    * @return FIR output or numeric_limits<int>::max().
    */
   static int dccZsFIR(const EcalDataFrame& frame,
-		      const std::vector<int>& firWeights,
-		      int firstFIRSample,
-		      bool* saturated = nullptr);
-  
+                      const std::vector<int>& firWeights,
+                      int firstFIRSample,
+                      bool* saturated = nullptr);
 
   /** Computes the ZS FIR filter weights from the normalized weights.
    * @param normalizedWeights the normalized weights
    * @return the computed ZS filter weights.
    */
-  static std::vector<int> getFIRWeights(const std::vector<double>&
-					normalizedWeights);
-  
+  static std::vector<int> getFIRWeights(const std::vector<double>& normalizedWeights);
+
   //@{
   /** Wrappers to the book methods of the DQMStore DQM
    *  histogramming interface.
    */
   MonitorElement* bookFloat(DQMStore::IBooker&, const std::string& name);
-  
-  MonitorElement* book1D(DQMStore::IBooker&, const std::string& name,
-			 const std::string& title, int nbins,
-			 double xmin, double xmax);
- 
-  MonitorElement* book2D(DQMStore::IBooker&, const std::string& name,
-			 const std::string& title,
-			 int nxbins, double xmin, double xmax,
-			 int nybins, double ymin, double ymax);
 
-  MonitorElement* bookProfile(DQMStore::IBooker&, const std::string& name,
-			      const std::string& title,
-			      int nbins, double xmin, double xmax);
-  
-  MonitorElement* bookProfile2D(DQMStore::IBooker&, const std::string& name,
-				const std::string& title,
-				int nbinx, double xmin, double xmax,
-				int nbiny, double ymin, double ymax,
-				const char* option = "");
+  MonitorElement* book1D(
+      DQMStore::IBooker&, const std::string& name, const std::string& title, int nbins, double xmin, double xmax);
+
+  MonitorElement* book2D(DQMStore::IBooker&,
+                         const std::string& name,
+                         const std::string& title,
+                         int nxbins,
+                         double xmin,
+                         double xmax,
+                         int nybins,
+                         double ymin,
+                         double ymax);
+
+  MonitorElement* bookProfile(
+      DQMStore::IBooker&, const std::string& name, const std::string& title, int nbins, double xmin, double xmax);
+
+  MonitorElement* bookProfile2D(DQMStore::IBooker&,
+                                const std::string& name,
+                                const std::string& title,
+                                int nbinx,
+                                double xmin,
+                                double xmax,
+                                int nbiny,
+                                double ymin,
+                                double ymax,
+                                const char* option = "");
   //@}
 
   //@{
   /** Wrapper to fill methods of DQM monitor elements.
    */
-  void fill(MonitorElement* me, float x){
-    if(me) me->Fill(x);
+  void fill(MonitorElement* me, float x) {
+    if (me)
+      me->Fill(x);
   }
-  void fill(MonitorElement* me,float x, float yw){
-    if(me) me->Fill(x, yw);
+  void fill(MonitorElement* me, float x, float yw) {
+    if (me)
+      me->Fill(x, yw);
   }
-  void fill(MonitorElement* me,float x, float y, float zw){
-    if(me) me->Fill(x, y, zw);
+  void fill(MonitorElement* me, float x, float y, float zw) {
+    if (me)
+      me->Fill(x, y, zw);
   }
-  void fill(MonitorElement* me,float x, float y, float z, float w){
-    if(me) me->Fill(x, y, z, w);
+  void fill(MonitorElement* me, float x, float y, float z, float w) {
+    if (me)
+      me->Fill(x, y, z, w);
   }
   //@}
 
@@ -381,50 +365,50 @@ private:
    * @return L1A rate estimate
    */
   double getL1aRate() const;
-  
+
 private:
   /** Used to store barrel crystal channel information
    */
-  struct energiesEb_t{
-    double simE;     ///sim hit energy sum
-    double noZsRecE; ///energy reconstructed from unsuppressed digi
-    double recE;     ///energy reconstructed from zero-suppressed digi
+  struct energiesEb_t {
+    double simE;      ///sim hit energy sum
+    double noZsRecE;  ///energy reconstructed from unsuppressed digi
+    double recE;      ///energy reconstructed from zero-suppressed digi
     //    EBDigiCollection::const_iterator itNoZsFrame; //
-    int simHit;      ///number of sim hits
-    double phi;      ///phi crystal position in degrees
-    double eta;      ///eta crystal position
-    bool gain12;     //all MGPA samples at gain 12?
+    int simHit;   ///number of sim hits
+    double phi;   ///phi crystal position in degrees
+    double eta;   ///eta crystal position
+    bool gain12;  //all MGPA samples at gain 12?
   };
 
   /** Used to store endcap crystal channel information
    */
-  struct energiesEe_t{
-    double simE;     ///sim hit energy sum			      
-    double noZsRecE; ///energy reconstructed from unsuppressed digi   
-    double recE;     ///energy reconstructed from zero-suppressed digi
+  struct energiesEe_t {
+    double simE;      ///sim hit energy sum
+    double noZsRecE;  ///energy reconstructed from unsuppressed digi
+    double recE;      ///energy reconstructed from zero-suppressed digi
     //    EEDigiCollection::const_iterator itNoZsFrame;
-    int simHit;      ///number of sim hits	       
-    double phi;	     ///phi crystal position in degrees
-    double eta;	     ///eta crystal position
-    bool gain12;     //all MGPA samples at gain 12?
+    int simHit;   ///number of sim hits
+    double phi;   ///phi crystal position in degrees
+    double eta;   ///eta crystal position
+    bool gain12;  //all MGPA samples at gain 12?
   };
 
   /// number of bytes in 1 kByte:
   static const int kByte_ = 1024;
-  
+
   ///Total number of DCCs
   static const unsigned nDccs_ = 54;
 
   ///Number of input channels of a DCC
   // = maximum number of RUs read by a DCC
   static const unsigned nDccChs_ = 68;
-  
+
   //Lower bound of DCC ID range
-  static const int minDccId_ = 1 ;
+  static const int minDccId_ = 1;
 
   //Upper bound of DCC ID range
-  static const int maxDccId_  = minDccId_ + nDccs_ -1;
-  
+  static const int maxDccId_ = minDccId_ + nDccs_ - 1;
+
   /// number of DCCs for EB
   static const int nEbDccs = 36;
 
@@ -432,10 +416,10 @@ private:
   static const int nEeDccs = 18;
 
   ///number of RUs for EB
-  static const int nEbRus = 36*68;
+  static const int nEbRus = 36 * 68;
 
   ///number of RUs for EE
-  static const int nEeRus = 2*(34+32+33+33+32+34+33+34+33);
+  static const int nEeRus = 2 * (34 + 32 + 33 + 33 + 32 + 34 + 33 + 34 + 33);
 
   ///number of RUs for each DCC
   static const int nDccRus_[nDccs_];
@@ -457,18 +441,18 @@ private:
 
   ///Number of crystals along an EB TT
   static const int ebTtEdge = 5;
-  
+
   ///Number of crystals along a supercrystal edge
   static const int scEdge = 5;
 
   ///Number of Trigger Towers in an endcap along Eta
   static const int nOneEeTtEta = 11;
-  
+
   ///Number of Trigger Towers in barrel along Eta
   static const int nEbTtEta = 34;
-  
+
   ///Number of Trigger Towers along Eta
-  static const int nTtEta = 2*nOneEeTtEta + nEbTtEta;
+  static const int nTtEta = 2 * nOneEeTtEta + nEbTtEta;
 
   ///Number of Trigger Towers along Phi
   static const int nTtPhi = 72;
@@ -477,7 +461,7 @@ private:
   static const int nMaxXtalPerRu = 25;
   ///Conversion factor from radian to degree
   static const double rad2deg;
-  
+
   ///Verbosity switch
   bool verbose_;
 
@@ -486,7 +470,7 @@ private:
 
   ///Switch for collection-not-found warning
   bool collNotFoundWarn_;
-  
+
   ///Output ascii file name for unconsistency between SRFs read from data
   ///and SRF obtained by rerunning SRP algorithm on TTFs.
   std::string srpAlgoErrorLogFileName_;
@@ -494,33 +478,33 @@ private:
   ///Output ascii file name for unconsistency between SRFs and actual number
   ///of read-out crystals.
   std::string srApplicationErrorLogFileName_;
-  
+
   ///Output ascii file for unconsistency on SR flags
-  std::ofstream srpAlgoErrorLog_; 
+  std::ofstream srpAlgoErrorLog_;
 
   ///Output ascii file for unconsistency between Xtals and RU Flags
-  std::ofstream srApplicationErrorLog_; 
+  std::ofstream srApplicationErrorLog_;
 
   ///File to log ZS and other errors
   std::ofstream zsErrorLog_;
-  
+
   //@{
   /** The event product collections.
    */
-  CollHandle<EBDigiCollection>           ebDigis_;
-  CollHandle<EEDigiCollection>           eeDigis_;
-  CollHandle<EBDigiCollection>           ebNoZsDigis_;
-  CollHandle<EEDigiCollection>           eeNoZsDigis_;
-  CollHandle<EBSrFlagCollection>         ebSrFlags_;
-  CollHandle<EESrFlagCollection>         eeSrFlags_;
-  CollHandle<EBSrFlagCollection>         ebComputedSrFlags_;
-  CollHandle<EESrFlagCollection>         eeComputedSrFlags_;
-  CollHandle<std::vector<PCaloHit> >     ebSimHits_;
-  CollHandle<std::vector<PCaloHit> >     eeSimHits_;
+  CollHandle<EBDigiCollection> ebDigis_;
+  CollHandle<EEDigiCollection> eeDigis_;
+  CollHandle<EBDigiCollection> ebNoZsDigis_;
+  CollHandle<EEDigiCollection> eeNoZsDigis_;
+  CollHandle<EBSrFlagCollection> ebSrFlags_;
+  CollHandle<EESrFlagCollection> eeSrFlags_;
+  CollHandle<EBSrFlagCollection> ebComputedSrFlags_;
+  CollHandle<EESrFlagCollection> eeComputedSrFlags_;
+  CollHandle<std::vector<PCaloHit> > ebSimHits_;
+  CollHandle<std::vector<PCaloHit> > eeSimHits_;
   CollHandle<EcalTrigPrimDigiCollection> tps_;
-  CollHandle<RecHitCollection>       ebRecHits_;
-  CollHandle<RecHitCollection>       eeRecHits_;
-  CollHandle<FEDRawDataCollection>       fedRaw_;
+  CollHandle<RecHitCollection> ebRecHits_;
+  CollHandle<RecHitCollection> eeRecHits_;
+  CollHandle<FEDRawDataCollection> fedRaw_;
   //@}
 
   //@{
@@ -532,7 +516,7 @@ private:
   int64_t l1aOfTmax;
   bool l1aRateErr;
   //@}
-  
+
   //@{
   /** The histograms
    */
@@ -550,7 +534,7 @@ private:
   MonitorElement* meVolEHI_;
   MonitorElement* meVolHI_;
   MonitorElement* meChOcc_;
-  
+
   MonitorElement* meTp_;
   MonitorElement* meTtf_;
   MonitorElement* meTtfVsTp_;
@@ -564,7 +548,7 @@ private:
   MonitorElement* meEbRecEHitXtal_;
   MonitorElement* meEbRecVsSimE_;
   MonitorElement* meEbNoZsRecVsSimE_;
-  
+
   MonitorElement* meEeRecE_;
   MonitorElement* meEeEMean_;
   MonitorElement* meEeNoise_;
@@ -587,21 +571,21 @@ private:
   MonitorElement* meFullRoCnt_;
   MonitorElement* meEbFullRoCnt_;
   MonitorElement* meEeFullRoCnt_;
-  
+
   MonitorElement* meEbLiZsFir_;
   MonitorElement* meEbHiZsFir_;
   MonitorElement* meEbIncompleteRUZsFir_;
-  
+
   MonitorElement* meEeLiZsFir_;
   MonitorElement* meEeHiZsFir_;
-  MonitorElement* meSRFlagsFromData_; 
-  MonitorElement* meSRFlagsComputed_; 
+  MonitorElement* meSRFlagsFromData_;
+  MonitorElement* meSRFlagsComputed_;
   MonitorElement* meSRFlagsConsistency_;
-	
+
   MonitorElement* meIncompleteFRO_;
   MonitorElement* meDroppedFRO_;
   MonitorElement* meCompleteZS_;
-  
+
   MonitorElement* meIncompleteFROMap_;
   MonitorElement* meDroppedFROMap_;
   MonitorElement* meCompleteZSMap_;
@@ -629,11 +613,11 @@ private:
   MonitorElement* meEeFixedPayload_;
   MonitorElement* meFixedPayload_;
   //@}
-  
+
   /** Estimate of L1A rate
    */
   MonitorElement* meL1aRate_;
-  
+
   ///Counter of FRO-flagged RU dropped from data
   int nDroppedFRO_;
 
@@ -663,20 +647,19 @@ private:
   ///in a RU which was fully readout
   int nEeZsErrorsType1_;
 
-  
   /** ECAL trigger tower mapping
    */
-  const EcalTrigTowerConstituentsMap * triggerTowerMap_;
+  const EcalTrigTowerConstituentsMap* triggerTowerMap_;
 
   /** Ecal electronics/geometrical mapping.
    */
   const EcalElectronicsMapping* elecMap_;
-  
+
   /** Local reconstruction switch: true to reconstruct locally the amplitude
    * insted of using the Rec Hits.
    */
   bool localReco_;
-  
+
   /** Weights for amplitude local reconstruction
    */
   std::vector<double> weights_;
@@ -692,7 +675,7 @@ private:
   /** ZS threshold in 1/4th ADC count for EE
    */
   int eeZsThr_;
-  
+
   /** Switch for uncompressing TP value
    */
   bool tpInGeV_;
@@ -712,7 +695,7 @@ private:
    * out of the run and related validations are skipped.
    */
   std::vector<bool> logErrForDccs_;
-  
+
   /** ECAL barrel read channel count
    */
   int nEb_;
@@ -749,7 +732,6 @@ private:
    */
   int nHiPerDcc_[nDccs_];
 
-  
   /** Count for each DCC of RUs with at leat one channel read out:
    */
   int nRuPerDcc_[nDccs_];
@@ -762,20 +744,19 @@ private:
    */
   int nHiRuPerDcc_[nDccs_];
 
-  
   //@{
   /** For book keeping of RU actually read out (not fully zero suppressed)
    */
-  bool ebRuActive_[nEbEta/ebTtEdge][nEbPhi/ebTtEdge];
-  bool eeRuActive_[nEndcaps][nEeX/scEdge][nEeY/scEdge];
+  bool ebRuActive_[nEbEta / ebTtEdge][nEbPhi / ebTtEdge];
+  bool eeRuActive_[nEndcaps][nEeX / scEdge][nEeY / scEdge];
   //@}
-  
+
   bool isRuComplete_[nDccs_][nDccChs_];
 
   /** Number of crystal read for each DCC channel (aka readout unit).
    */
-  int nPerRu_[nDccs_][nDccChs_];  
-  
+  int nPerRu_[nDccs_][nDccChs_];
+
   /** Event sequence number
    */
   int ievt_;
@@ -813,12 +794,11 @@ private:
   /** Histogram directory PATH in DQM or within the output ROOT file
    */
   std::string histDir_;
-  
+
   /** List of available histograms. Filled by the booking methods.
    * key: name, value: title.
    */
   std::map<std::string, std::string> availableHistList_;
-
 
   /** Indicates if EE sim hits are available
    */
@@ -827,7 +807,7 @@ private:
   /** Indicates if EB sim hits are available
    */
   bool withEbSimHit_;
-  
+
   /** Register a histogram in the available histogram list and check if
    * the histogram is enabled. Called by the histogram booking methods.
    * @return true if the histogram is enable, false otherwise
@@ -865,52 +845,35 @@ private:
    * @param srfFromData SR flag collection read from data
    * @param compareSrf SR flag collection computed from TTF by SRP emulation
    */
-  template<class T>
+  template <class T>
   void compareSrfColl(const edm::Event& event, T& srfFromData, T& computedSrf);
 
   /** Checks application of SR decision by the DCC.
    * @param event event currently analyzed.
    * @param srfs Selective readou flags
    */
-  template<class T>
+  template <class T>
   void checkSrApplication(const edm::Event& event, T& srfs);
 
-  
   /** Functions to compute x and y coordinates of RU maps
    * grouping endcap and barrel.
    */
   ///@{
-  int ruGraphX(const EcalScDetId& id) const{
-    return id.ix() + (id.zside()>0?20:-40);
-  }
-  
-  int ruGraphY(const EcalScDetId& id) const{
-    return id.iy();
-  }
-  
-  int ruGraphX(const EcalTrigTowerDetId& id) const{
-    return id.ieta();
-  }
-  
-  int ruGraphY(const EcalTrigTowerDetId& id) const{
-    return id.iphi();
-  }
-  
-  int xtalGraphX(const EEDetId& id) const{
-    return id.ix() + (id.zside()>0?100:-200);
-  }
-  
-  int xtalGraphY(const EEDetId& id) const{
-    return id.iy();
-  }
-  
-  int xtalGraphX(const EBDetId& id) const{
-    return id.ieta();
-  }
-  
-  int xtalGraphY(const EBDetId& id) const{
-    return id.iphi();
-  }
+  int ruGraphX(const EcalScDetId& id) const { return id.ix() + (id.zside() > 0 ? 20 : -40); }
+
+  int ruGraphY(const EcalScDetId& id) const { return id.iy(); }
+
+  int ruGraphX(const EcalTrigTowerDetId& id) const { return id.ieta(); }
+
+  int ruGraphY(const EcalTrigTowerDetId& id) const { return id.iphi(); }
+
+  int xtalGraphX(const EEDetId& id) const { return id.ix() + (id.zside() > 0 ? 100 : -200); }
+
+  int xtalGraphY(const EEDetId& id) const { return id.iy(); }
+
+  int xtalGraphX(const EBDetId& id) const { return id.ieta(); }
+
+  int xtalGraphY(const EBDetId& id) const { return id.iphi(); }
 
   ///@}
 
@@ -935,8 +898,6 @@ private:
    * @return crystal count
    */
   int getCrystalCount(int iDcc, int iDccCh);
-
 };
 
-#endif //EcalSelectiveReadoutValidation_H not defined
-
+#endif  //EcalSelectiveReadoutValidation_H not defined

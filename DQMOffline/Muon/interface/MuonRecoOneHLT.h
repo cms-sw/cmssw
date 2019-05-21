@@ -1,7 +1,6 @@
 #ifndef MuonRecoOneHLT_H
 #define MuonRecoOneHLT_H
 
-
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -23,7 +22,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -34,7 +33,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
@@ -44,37 +42,36 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-class MuonRecoOneHLT : public DQMEDAnalyzer { 
- public:
-
+class MuonRecoOneHLT : public DQMEDAnalyzer {
+public:
   /// Constructor
-  MuonRecoOneHLT(const edm::ParameterSet&); 
-  
+  MuonRecoOneHLT(const edm::ParameterSet&);
+
   /// Destructor
   ~MuonRecoOneHLT() override;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
- private:
+private:
   // ----------member data ---------------------------
   edm::ParameterSet parameters;
-  MuonServiceProxy *theService;
+  MuonServiceProxy* theService;
 
   // Switch for verbosity
   std::string metname;
 
   // STA Label
-  edm::EDGetTokenT<reco::MuonCollection>   theMuonCollectionLabel_;
+  edm::EDGetTokenT<reco::MuonCollection> theMuonCollectionLabel_;
   edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
-  edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
-  edm::EDGetTokenT<edm::TriggerResults>    theTriggerResultsLabel_;
-    
+  edm::EDGetTokenT<reco::BeamSpot> theBeamSpotLabel_;
+  edm::EDGetTokenT<edm::TriggerResults> theTriggerResultsLabel_;
+
   std::vector<std::string> singlemuonExpr_;
   std::vector<std::string> doublemuonExpr_;
-  GenericTriggerEventFlag *_SingleMuonEventFlag;
-  GenericTriggerEventFlag *_DoubleMuonEventFlag;
-  
+  GenericTriggerEventFlag* _SingleMuonEventFlag;
+  GenericTriggerEventFlag* _DoubleMuonEventFlag;
+
   //histo binning parameters
   int ptBin;
   float ptMin;
@@ -94,7 +91,7 @@ class MuonRecoOneHLT : public DQMEDAnalyzer {
 
   //the histos
   MonitorElement* muReco;
-  
+
   // global muon
   std::vector<MonitorElement*> etaGlbTrack;
   std::vector<MonitorElement*> phiGlbTrack;
@@ -117,6 +114,5 @@ class MuonRecoOneHLT : public DQMEDAnalyzer {
   MonitorElement* phiStaTrack;
   MonitorElement* chi2OvDFStaTrack;
   MonitorElement* ptStaTrack;
-
 };
 #endif

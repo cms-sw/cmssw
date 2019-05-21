@@ -4,6 +4,7 @@
 #include "Geometry/MTDNumberingBuilder/interface/CmsMTDStringToEnum.h"
 #include "FWCore/ParameterSet/interface/types.h"
 #include <string>
+#include <memory>
 
 class GeometricTimingDet;
 class DDCompactView;
@@ -16,11 +17,8 @@ class PGeometricTimingDet;
 
 class CondDBCmsMTDConstruction {
  public:
-  CondDBCmsMTDConstruction();
-  const GeometricTimingDet* construct( const PGeometricTimingDet& pgd );
-  
- protected:
-  
+  CondDBCmsMTDConstruction() = delete;
+  static std::unique_ptr<GeometricTimingDet> construct( const PGeometricTimingDet& pgd );
 };
 
 #endif

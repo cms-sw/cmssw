@@ -24,19 +24,18 @@
 //
 
 class Z2muAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit Z2muAnalyzer(const edm::ParameterSet&);
-      ~Z2muAnalyzer();
+public:
+  explicit Z2muAnalyzer(const edm::ParameterSet&);
+  ~Z2muAnalyzer();
 
+private:
+  //virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
 
-   private:
-      //virtual void beginJob(const edm::EventSetup&);
-      virtual void beginJob();
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+  // ----------member data ---------------------------
 
-      // ----------member data ---------------------------
-      
   std::string outputFilename;
   TH1D* weight_histo;
   TH1D* invmass_histo;

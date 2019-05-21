@@ -6,8 +6,10 @@
 
 RctInputTextToDigi::RctInputTextToDigi(const edm::ParameterSet &iConfig)
     : inputFile_(iConfig.getParameter<edm::FileInPath>("inputFile")),
-      inputStream_(inputFile_.fullPath().c_str()), nEvent_(0),
-      oldVersion_(false), lookupTables_(new L1RCTLookupTables) {
+      inputStream_(inputFile_.fullPath().c_str()),
+      nEvent_(0),
+      oldVersion_(false),
+      lookupTables_(new L1RCTLookupTables) {
   // register your products
   /* Examples
      produces<ExampleData2>();
@@ -29,7 +31,6 @@ RctInputTextToDigi::RctInputTextToDigi(const edm::ParameterSet &iConfig)
 }
 
 RctInputTextToDigi::~RctInputTextToDigi() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
@@ -41,8 +42,7 @@ RctInputTextToDigi::~RctInputTextToDigi() {
 //
 
 // ------------ method called to produce the data  ------------
-void RctInputTextToDigi::produce(edm::Event &iEvent,
-                                 const edm::EventSetup &iSetup) {
+void RctInputTextToDigi::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
 
   // std::cout << std::endl << std::endl << "Event number " << nEvent_ <<
@@ -57,13 +57,11 @@ void RctInputTextToDigi::produce(edm::Event &iEvent,
   const L1RCTParameters *r = rctParameters.product();
   lookupTables_->setRCTParameters(r);
 
-  std::unique_ptr<EcalTrigPrimDigiCollection> ecalTPs(
-      new EcalTrigPrimDigiCollection());
-  std::unique_ptr<HcalTrigPrimDigiCollection> hcalTPs(
-      new HcalTrigPrimDigiCollection());
+  std::unique_ptr<EcalTrigPrimDigiCollection> ecalTPs(new EcalTrigPrimDigiCollection());
+  std::unique_ptr<HcalTrigPrimDigiCollection> hcalTPs(new HcalTrigPrimDigiCollection());
   ecalTPs->reserve(56 * 72);
-  hcalTPs->reserve(56 * 72 + 18 * 8); // includes HF
-  const int nEcalSamples = 1;         // we only use 1 sample for each
+  hcalTPs->reserve(56 * 72 + 18 * 8);  // includes HF
+  const int nEcalSamples = 1;          // we only use 1 sample for each
   const int nHcalSamples = 1;
 
   int fileEventNumber;
@@ -115,8 +113,7 @@ void RctInputTextToDigi::produce(edm::Event &iEvent,
       unsigned eAddr;
       unsigned hAddr;
 
-      inputStream_ >> std::hex >> fileEventNumber >> crate >> card >> tower >>
-          eAddr >> hAddr >> junk >> std::dec;
+      inputStream_ >> std::hex >> fileEventNumber >> crate >> card >> tower >> eAddr >> hAddr >> junk >> std::dec;
 
       if (oldVersion_) {
         tower = tower - 1;
@@ -124,7 +121,7 @@ void RctInputTextToDigi::produce(edm::Event &iEvent,
       int encodedEtEcal = (int)(eAddr >> 1);
       bool fineGrainEcal = (bool)(eAddr & 1);
       int encodedEtHcal = (int)(hAddr >> 1);
-      bool fineGrainHcal = (bool)(hAddr & 1); // mip bit
+      bool fineGrainHcal = (bool)(hAddr & 1);  // mip bit
 
       // std::cout << "Eventnumber " << fileEventNumber << "\tCrate "
       //    << crate << "\tCard " << card << "\tTower "
@@ -149,14 +146,12 @@ void RctInputTextToDigi::produce(edm::Event &iEvent,
       // args to detid are zside, type of tower, absieta, iphi
       // absieta and iphi must be between 1 and 127 inclusive
 
-      EcalTriggerPrimitiveDigi ecalDigi(
-          EcalTrigTowerDetId(zSide, EcalTriggerTower, absIeta, iPhi));
+      EcalTriggerPrimitiveDigi ecalDigi(EcalTrigTowerDetId(zSide, EcalTriggerTower, absIeta, iPhi));
       ecalDigi.setSize(nEcalSamples);
 
       // last arg is 3-bit trigger tower flag, which we don't use
       // we only use 8-bit encoded et and 1-bit fg
-      ecalDigi.setSample(
-          0, EcalTriggerPrimitiveSample(encodedEtEcal, fineGrainEcal, 0));
+      ecalDigi.setSample(0, EcalTriggerPrimitiveSample(encodedEtEcal, fineGrainEcal, 0));
       // std::cout << ecalDigi << std::endl;
       ecalTPs->push_back(ecalDigi);
 
@@ -165,8 +160,7 @@ void RctInputTextToDigi::produce(edm::Event &iEvent,
       hcalDigi.setSize(nHcalSamples);
 
       // last two arg's are slb and slb channel, which we don't need
-      hcalDigi.setSample(
-          0, HcalTriggerPrimitiveSample(encodedEtHcal, fineGrainHcal, 0, 0));
+      hcalDigi.setSample(0, HcalTriggerPrimitiveSample(encodedEtHcal, fineGrainHcal, 0, 0));
       // std::cout << hcalDigi << std::endl;
       hcalTPs->push_back(hcalDigi);
     }

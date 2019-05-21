@@ -29,8 +29,7 @@ namespace cscdqm {
   enum HistoType { INT, FLOAT, STRING, H1D, H2D, H3D, PROFILE, PROFILE2D };
 
   struct HistoBookRequest {
-
-    const HistoDef *hdef;
+    const HistoDef* hdef;
     HistoType htype;
     std::string ctype;
     std::string folder;
@@ -54,30 +53,39 @@ namespace cscdqm {
 
     std::string option;
 
-    HistoBookRequest (const HistoDef& p_hdef, const HistoType& p_htype, const std::string& p_ctype,
-                      const std::string& p_folder, const std::string& p_title,
-                      const int p_nchX = 0, const double p_lowX = 0, const double p_highX = 0,
-                      const int p_nchY = 0, const double p_lowY = 0, const double p_highY = 0,
-                      const int p_nchZ = 0, const double p_lowZ = 0, const double p_highZ = 0,
-                      const std::string& p_option = "s") {
-      hdef = &p_hdef; 
+    HistoBookRequest(const HistoDef& p_hdef,
+                     const HistoType& p_htype,
+                     const std::string& p_ctype,
+                     const std::string& p_folder,
+                     const std::string& p_title,
+                     const int p_nchX = 0,
+                     const double p_lowX = 0,
+                     const double p_highX = 0,
+                     const int p_nchY = 0,
+                     const double p_lowY = 0,
+                     const double p_highY = 0,
+                     const int p_nchZ = 0,
+                     const double p_lowZ = 0,
+                     const double p_highZ = 0,
+                     const std::string& p_option = "s") {
+      hdef = &p_hdef;
       htype = p_htype;
       ctype = p_ctype;
-      folder = p_folder; 
+      folder = p_folder;
       title = p_title;
-      nchX = p_nchX; 
+      nchX = p_nchX;
       lowX = p_lowX;
-      highX = p_highX; 
+      highX = p_highX;
       nchY = p_nchY;
-      lowY = p_lowY; 
+      lowY = p_lowY;
       highY = p_highY;
-      nchZ = p_nchZ; 
+      nchZ = p_nchZ;
       lowZ = p_lowZ;
-      highZ = p_highZ; 
+      highZ = p_highZ;
       option = p_option;
     }
 
-    HistoBookRequest (const HistoDef& p_hdef, const std::string& p_folder, const int p_value) {
+    HistoBookRequest(const HistoDef& p_hdef, const std::string& p_folder, const int p_value) {
       hdef = &p_hdef;
       htype = INT;
       ctype = "INT";
@@ -86,7 +94,7 @@ namespace cscdqm {
       default_int = p_value;
     }
 
-    HistoBookRequest (const HistoDef& p_hdef, const std::string& p_folder, const float p_value) {
+    HistoBookRequest(const HistoDef& p_hdef, const std::string& p_folder, const float p_value) {
       hdef = &p_hdef;
       htype = FLOAT;
       ctype = "FLOAT";
@@ -95,8 +103,10 @@ namespace cscdqm {
       default_float = p_value;
     }
 
-    HistoBookRequest (const HistoDef& p_hdef, const std::string& p_folder, 
-                      const std::string& p_title, const std::string& p_value) {
+    HistoBookRequest(const HistoDef& p_hdef,
+                     const std::string& p_folder,
+                     const std::string& p_title,
+                     const std::string& p_value) {
       hdef = &p_hdef;
       htype = STRING;
       ctype = "STRING";
@@ -104,7 +114,6 @@ namespace cscdqm {
       title = p_title;
       default_string = p_value;
     }
-
   };
 
   /**
@@ -113,13 +122,12 @@ namespace cscdqm {
    * to retrieve MonitorObject 's and by Collection to book MonitorObject 's
    */
   class MonitorObjectProvider {
-
-    public:
-      virtual ~MonitorObjectProvider() noexcept(false) {}
-      virtual bool getCSCDetId(const unsigned int crateId, const unsigned int dmbId, CSCDetId& detId) const = 0;
-      virtual MonitorObject *bookMonitorObject (const HistoBookRequest& p_req) = 0; 
+  public:
+    virtual ~MonitorObjectProvider() noexcept(false) {}
+    virtual bool getCSCDetId(const unsigned int crateId, const unsigned int dmbId, CSCDetId& detId) const = 0;
+    virtual MonitorObject* bookMonitorObject(const HistoBookRequest& p_req) = 0;
   };
 
-}
+}  // namespace cscdqm
 
 #endif

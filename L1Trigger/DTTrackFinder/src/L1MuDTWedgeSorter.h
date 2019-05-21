@@ -43,48 +43,43 @@ class L1MuDTSecProcId;
 //              ---------------------
 
 class L1MuDTWedgeSorter : public L1AbstractProcessor {
+public:
+  /// constructor
+  L1MuDTWedgeSorter(const L1MuDTTrackFinder&, int id);
 
-  public:
+  /// destructor
+  ~L1MuDTWedgeSorter() override;
 
-    /// constructor
-    L1MuDTWedgeSorter(const L1MuDTTrackFinder&, int id );
+  /// return Wedge Sorter identifier (0-11)
+  inline int id() const { return m_wsid; }
 
-    /// destructor
-    ~L1MuDTWedgeSorter() override;
- 
-    /// return Wedge Sorter identifier (0-11)
-    inline int id() const { return m_wsid; }
-    
-    /// run Wedge Sorter
-    void run() override;
-    
-    /// reset Wedge Sorter
-    void reset() override;
-    
-    /// print results after sorting 
-    void print() const;
+  /// run Wedge Sorter
+  void run() override;
 
-    /// return vector of muon candidates
-    inline const std::vector<const L1MuDTTrack*>& tracks() const { return m_TrackCands; }
-  
-  private:
+  /// reset Wedge Sorter
+  void reset() override;
 
-    /// run the Cancel Out Logic of the wedge sorter
-    void runCOL(std::vector<L1MuDTTrack*>&) const; 
-    
-    /// are there any non-empty muon candidates in the Wedge Sorter?
-    bool anyTrack() const;
-    
-    /// find out if two Sector Processors are neighbours in the same wedge
-    static bool neighbour(const L1MuDTSecProcId& spid1, const L1MuDTSecProcId& spid2);
+  /// print results after sorting
+  void print() const;
 
-  private:
+  /// return vector of muon candidates
+  inline const std::vector<const L1MuDTTrack*>& tracks() const { return m_TrackCands; }
 
-    const L1MuDTTrackFinder&        m_tf;
-    int                             m_wsid;
+private:
+  /// run the Cancel Out Logic of the wedge sorter
+  void runCOL(std::vector<L1MuDTTrack*>&) const;
 
-    std::vector<const L1MuDTTrack*> m_TrackCands;
+  /// are there any non-empty muon candidates in the Wedge Sorter?
+  bool anyTrack() const;
 
+  /// find out if two Sector Processors are neighbours in the same wedge
+  static bool neighbour(const L1MuDTSecProcId& spid1, const L1MuDTSecProcId& spid2);
+
+private:
+  const L1MuDTTrackFinder& m_tf;
+  int m_wsid;
+
+  std::vector<const L1MuDTTrack*> m_TrackCands;
 };
 
 #endif

@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -28,6 +27,7 @@ public:
 
 private:
   // ----------member data ---------------------------
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> m_hdcToken;
   std::string m_restrictions;
   bool        m_mergePosition;
 };

@@ -9,74 +9,65 @@
 #include "GeneratorInterface/ExhumeInterface/interface/CrossSection.h"
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
-namespace Exhume{
+namespace Exhume {
 
-  class Event : public Weight{
-
+  class Event : public Weight {
   public:
-    
-    Event(CrossSection&, CLHEP::HepRandomEngine*);
+    Event(CrossSection &, CLHEP::HepRandomEngine *);
     ~Event() override;
 
-    inline void SetRandomEngine(CLHEP::HepRandomEngine* engine){
+    inline void SetRandomEngine(CLHEP::HepRandomEngine *engine) {
       randomEngine = engine;
       Process->SetRandomEngine(engine);
     }
 
     void Generate();
-    inline void Setx1Max(const double &xx_){
+    inline void Setx1Max(const double &xx_) {
       x1Max = xx_;
       return;
     };
-    inline void Setx2Max(const double &xx_){
+    inline void Setx2Max(const double &xx_) {
       x2Max = xx_;
       return;
     };
-    inline void Sett1Max(const double &xx_){
+    inline void Sett1Max(const double &xx_) {
       t1Max = xx_;
       return;
     };
-    inline void Sett2Max(const double &xx_){
+    inline void Sett2Max(const double &xx_) {
       t2Max = xx_;
       return;
     };
-    inline void Sett1Min(const double &xx_){
+    inline void Sett1Min(const double &xx_) {
       t1Min = xx_;
       return;
     };
-    inline void Sett2Min(const double &xx_){
+    inline void Sett2Min(const double &xx_) {
       t2Min = xx_;
       return;
     };
-    inline void SetMassRange(const double &Min_, const double &Max_){
+    inline void SetMassRange(const double &Min_, const double &Max_) {
       MinMass = Min_;
       MaxMass = Max_;
       return;
     };
 
-    inline unsigned int GetLastSeed(){
-      return(rand());
-    };
+    inline unsigned int GetLastSeed() { return (rand()); };
 
-    inline std::vector<std::pair<double, double> > GetVar(){
-      return(Var);
-    };
+    inline std::vector<std::pair<double, double> > GetVar() { return (Var); };
 
     void SetParameterSpace();
 
     double CrossSectionCalculation();
 
-    inline double GetEfficiency(){
-      return(100.0 * NumberOfEvents / TotalAttempts);
-    };
+    inline double GetEfficiency() { return (100.0 * NumberOfEvents / TotalAttempts); };
 
   private:
-
     void SelectValues();
-    double WeightFunc(const double&) override;
+    double WeightFunc(const double &) override;
 
     std::vector<std::pair<double, double> > Var;
 
@@ -90,9 +81,9 @@ namespace Exhume{
     double x1Max, x2Max, t1Min, t1Max, t2Min, t2Max, MinMass, MaxMass;
     double tt1max, tt1min, tt2max, tt2min;
 
-    CLHEP::HepRandomEngine* randomEngine;
+    CLHEP::HepRandomEngine *randomEngine;
   };
 
-}
+}  // namespace Exhume
 
 #endif

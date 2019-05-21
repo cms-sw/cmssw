@@ -9,7 +9,6 @@
 #include "RooDataHist.h"
 #include "RooFitResult.h"
 
-
 /**\class PhotonDataCertification
 */
 //
@@ -22,46 +21,40 @@ using namespace std;
 PhotonDataCertification::PhotonDataCertification(const edm::ParameterSet& pset)
 
 {
-
-
   parameters_ = pset;
   verbose_ = parameters_.getParameter<bool>("verbose");
 
-  if(verbose_) cout << ">>> Constructor (PhotonDataCertification) <<<" << endl;
-
+  if (verbose_)
+    cout << ">>> Constructor (PhotonDataCertification) <<<" << endl;
 }
-
 
 PhotonDataCertification::~PhotonDataCertification() {}
 
-
-
 // ------------ method called right after a run ends ------------
-void
-PhotonDataCertification::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
-
+void PhotonDataCertification::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   using namespace RooFit;
-  if (verbose_) std::cout << ">>> endJob (PhotonDataCertification) <<<" << std::endl;
+  if (verbose_)
+    std::cout << ">>> endJob (PhotonDataCertification) <<<" << std::endl;
 
   //booking histograms according to naming conventions
   ibooker.setCurrentFolder("Egamma/EventInfo/");
   reportSummary_ = ibooker.bookFloat("reportSummary");
-  reportSummaryMap_ = ibooker.book2D("reportSummaryMap","reportSummaryMap",3,0,3,1,0,1);
+  reportSummaryMap_ = ibooker.book2D("reportSummaryMap", "reportSummaryMap", 3, 0, 3, 1, 0, 1);
 
-  TH2F * reportSummaryMapTH2 = reportSummaryMap_->getTH2F();
+  TH2F* reportSummaryMapTH2 = reportSummaryMap_->getTH2F();
   reportSummaryMapTH2->GetXaxis()->SetBinLabel(1, "EB");
   reportSummaryMapTH2->GetXaxis()->SetBinLabel(2, "EE");
   reportSummaryMapTH2->GetXaxis()->SetBinLabel(3, "Total");
   reportSummaryMapTH2->GetYaxis()->SetBinLabel(1, "InvMassTest");
 
-  float EBResult = invMassZtest("Egamma/stdPhotonAnalyzer/InvMass/h_02_invMassIsoPhotonsEBarrel",
-      "invMassIsolatedPhotonsEB", igetter);
+  float EBResult = invMassZtest(
+      "Egamma/stdPhotonAnalyzer/InvMass/h_02_invMassIsoPhotonsEBarrel", "invMassIsolatedPhotonsEB", igetter);
 
-  float EEResult = invMassZtest("Egamma/stdPhotonAnalyzer/InvMass/h_03_invMassIsoPhotonsEEndcap",
-      "invMassIsolatedPhotonsEE", igetter);
+  float EEResult = invMassZtest(
+      "Egamma/stdPhotonAnalyzer/InvMass/h_03_invMassIsoPhotonsEEndcap", "invMassIsolatedPhotonsEE", igetter);
 
-  float AllResult = invMassZtest("Egamma/stdPhotonAnalyzer/InvMass/h_01_invMassAllIsolatedPhotons",
-      "invMassAllIsolatedPhotons", igetter);
+  float AllResult = invMassZtest(
+      "Egamma/stdPhotonAnalyzer/InvMass/h_01_invMassAllIsolatedPhotons", "invMassAllIsolatedPhotons", igetter);
 
   if (verbose_) {
     std::cout << "EBResult: " << EBResult << std::endl;
@@ -75,24 +68,24 @@ PhotonDataCertification::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter
   reportSummary_->Fill(AllResult);
 }
 
-float PhotonDataCertification::invMassZtest(string path, TString name,
-    DQMStore::IGetter & igetter) {
-
+float PhotonDataCertification::invMassZtest(string path, TString name, DQMStore::IGetter& igetter) {
   float ZMass = 91.2;
   float ZWidth = 2.5;
-  MonitorElement *TestElem = nullptr;
+  MonitorElement* TestElem = nullptr;
   TestElem = igetter.get(path);
-  if (TestElem == nullptr) return 0;
-  TH1F *TestHist = TestElem->getTH1F();
-  if (TestHist == nullptr) return 0;
-  RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING) ;
-  RooRealVar mass("mass","Mass_{2#gamma}", 0, 200,"GeV");
+  if (TestElem == nullptr)
+    return 0;
+  TH1F* TestHist = TestElem->getTH1F();
+  if (TestHist == nullptr)
+    return 0;
+  RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
+  RooRealVar mass("mass", "Mass_{2#gamma}", 0, 200, "GeV");
   RooRealVar mRes("M_{Z}", "Z Mass", ZMass, 70, 110);
   RooRealVar gamma("#Gamma", "#Gamma", ZWidth, 0, 10.0);
   RooBreitWigner BreitWigner("BreitWigner", "Breit-Wigner", mass, mRes, gamma);
   RooDataHist test(name, name, mass, TestHist);
 
-  BreitWigner.fitTo(test, RooFit::Range(80, 100),RooFit::PrintLevel(-1000));
+  BreitWigner.fitTo(test, RooFit::Range(80, 100), RooFit::PrintLevel(-1000));
 
   if (std::abs(mRes.getValV() - ZMass) < ZWidth) {
     return 1.0;

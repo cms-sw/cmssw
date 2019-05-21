@@ -20,13 +20,23 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
+// Alignments
+#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
+#include "CondFormats/AlignmentRecord/interface/GEMAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/GEMAlignmentErrorExtendedRcd.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
+
 #include <memory>
 
 using namespace edm;
 
 GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet & p)
+  : useDDD(p.getParameter<bool>("useDDD")),
+    applyAlignment(p.getParameter<bool>("applyAlignment")),
+    alignmentsLabel(p.getParameter<std::string>("alignmentsLabel"))
 {
-  useDDD = p.getParameter<bool>("useDDD");
   setWhatProduced(this);
 }
 
@@ -50,7 +60,27 @@ GEMGeometryESModule::produce(const MuonGeometryRecord & record)
     GEMGeometryBuilderFromCondDB builder;
     builder.build(*gemGeometry, *riggem);
   }
-  
+
+  if (applyAlignment) {
+    edm::ESHandle<Alignments> globalPosition;
+    record.getRecord<GlobalPositionRcd>().get(alignmentsLabel, globalPosition);
+    edm::ESHandle<Alignments> alignments;
+    record.getRecord<GEMAlignmentRcd>().get(alignmentsLabel, alignments);
+    edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
+    record.getRecord<GEMAlignmentErrorExtendedRcd>().get(alignmentsLabel, alignmentErrors);
+    
+    // No alignment records, assume ideal geometry is wanted
+    if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
+      edm::LogInfo("Config") << "@SUB=GEMGeometryRecord::produce"
+			     << "Alignment(Error)s and global position (label '"
+			     << alignmentsLabel << "') empty: it is assumed fake and will not apply.";
+    } else {
+      GeometryAligner aligner;
+      aligner.applyAlignments<GEMGeometry>(&(*gemGeometry), &(*alignments), &(*alignmentErrors),
+					   align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)));
+    }
+  }
+
   return gemGeometry;  
 }
 

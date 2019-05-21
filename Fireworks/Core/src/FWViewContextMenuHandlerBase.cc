@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWViewContextMenuHandlerBase
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -23,32 +23,25 @@
 //
 // static data member definitions
 //
-FWViewContextMenuHandlerBase::MenuEntryAdder::MenuEntryAdder(FWModelContextMenuHandler& iHandler):
-m_handler(&iHandler){}
-   
-int 
-FWViewContextMenuHandlerBase::MenuEntryAdder::addEntry(const char* iEntryName, int idx, bool enabled)
-{
-   m_handler->addViewEntry(iEntryName, idx, enabled);
-   return idx;
-}
+FWViewContextMenuHandlerBase::MenuEntryAdder::MenuEntryAdder(FWModelContextMenuHandler& iHandler)
+    : m_handler(&iHandler) {}
 
+int FWViewContextMenuHandlerBase::MenuEntryAdder::addEntry(const char* iEntryName, int idx, bool enabled) {
+  m_handler->addViewEntry(iEntryName, idx, enabled);
+  return idx;
+}
 
 //
 // constructors and destructor
 //
-FWViewContextMenuHandlerBase::FWViewContextMenuHandlerBase()
-{
-}
+FWViewContextMenuHandlerBase::FWViewContextMenuHandlerBase() {}
 
 // FWViewContextMenuHandlerBase::FWViewContextMenuHandlerBase(const FWViewContextMenuHandlerBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWViewContextMenuHandlerBase::~FWViewContextMenuHandlerBase()
-{
-}
+FWViewContextMenuHandlerBase::~FWViewContextMenuHandlerBase() {}
 
 //
 // assignment operators
@@ -65,9 +58,7 @@ FWViewContextMenuHandlerBase::~FWViewContextMenuHandlerBase()
 //
 // member functions
 //
-void 
-FWViewContextMenuHandlerBase::addTo(FWModelContextMenuHandler& iHandle, const FWModelId &id)
-{
-   MenuEntryAdder adder(iHandle);
-   init(adder, id);
+void FWViewContextMenuHandlerBase::addTo(FWModelContextMenuHandler& iHandle, const FWModelId& id) {
+  MenuEntryAdder adder(iHandle);
+  init(adder, id);
 }

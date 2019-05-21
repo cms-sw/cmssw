@@ -29,145 +29,114 @@
 #include <FWCore/Framework/interface/EventSetupRecordKey.h>
 #include <iostream>
 
-
 using namespace edm;
 using namespace std;
 
-
-DTDCSByLumiTask::DTDCSByLumiTask(const edm::ParameterSet& ps) : theEvents(0) , theLumis(0) {
-
-  LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
-    << "[DTDCSByLumiTask]: Constructor" << endl;
+DTDCSByLumiTask::DTDCSByLumiTask(const edm::ParameterSet& ps) : theEvents(0), theLumis(0) {
+  LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask") << "[DTDCSByLumiTask]: Constructor" << endl;
 
   // If needed put getParameter here
   // dtDCSByLumiLabel = ps.getParameter<InputTag>("dtDCSByLumiLabel");
-
 }
 
-
-DTDCSByLumiTask::~DTDCSByLumiTask(){
-
+DTDCSByLumiTask::~DTDCSByLumiTask() {
   LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
-    << "DTDCSByLumiTask: processed " << theEvents <<
-    " events in " << theLumis << " lumi sections" << endl;
-
+      << "DTDCSByLumiTask: processed " << theEvents << " events in " << theLumis << " lumi sections" << endl;
 }
 
 void DTDCSByLumiTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
-
-  LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
-    << "[DTDCSByLumiTask]: begin run" << endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask") << "[DTDCSByLumiTask]: begin run" << endl;
 
   context.get<MuonGeometryRecord>().get(theDTGeom);
 
-  DTHVRecordFound=true;
+  DTHVRecordFound = true;
 
   eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType("DTHVStatusRcd"));
 
   std::vector<eventsetup::EventSetupRecordKey> recordKeys;
   context.fillAvailableRecordKeys(recordKeys);
-  vector<eventsetup::EventSetupRecordKey>::iterator it = find(recordKeys.begin(),recordKeys.end(),recordKey);
+  vector<eventsetup::EventSetupRecordKey>::iterator it = find(recordKeys.begin(), recordKeys.end(), recordKey);
 
-  if( it == recordKeys.end() ) {
+  if (it == recordKeys.end()) {
     //record not found
-    LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")<<"Record DTHVStatusRcd does not exist "<<std::endl;
+    LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask") << "Record DTHVStatusRcd does not exist " << std::endl;
 
-    DTHVRecordFound=false;
+    DTHVRecordFound = false;
   }
-
 }
 
-
-void DTDCSByLumiTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
-
+void DTDCSByLumiTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& context) {
   // Book bylumi histo (# of bins as reduced as possible)
   ibooker.setCurrentFolder(topFolder());
 
-  for(int wheel=-2; wheel <=2; wheel++) {
+  for (int wheel = -2; wheel <= 2; wheel++) {
+    stringstream wheel_str;
+    wheel_str << wheel;
 
-    stringstream wheel_str; wheel_str << wheel;
-
-    MonitorElement* ME = ibooker.book1D("hActiveUnits"+wheel_str.str(),"Active Untis x LS Wh"+wheel_str.str(),2,0.5,2.5);
-    ME->setLumiFlag();// Set LumiFlag in order to save histo every LS
+    MonitorElement* ME =
+        ibooker.book1D("hActiveUnits" + wheel_str.str(), "Active Untis x LS Wh" + wheel_str.str(), 2, 0.5, 2.5);
+    ME->setLumiFlag();  // Set LumiFlag in order to save histo every LS
 
     hActiveUnits.push_back(ME);
   }
 }
 
 void DTDCSByLumiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-
   theLumis++;
 
   LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
-    << "[DTDCSByLumiTask]: Begin of processed lumi # " << lumiSeg.id().luminosityBlock()
-    << " " << theLumis << " lumi processed by this job" <<  endl;
+      << "[DTDCSByLumiTask]: Begin of processed lumi # " << lumiSeg.id().luminosityBlock() << " " << theLumis
+      << " lumi processed by this job" << endl;
 
-  for(int wheel=0; wheel <5; wheel++) {
-    hActiveUnits[wheel]->Reset(); // Cb by lumi histo need to be resetted in between lumi boundaries
+  for (int wheel = 0; wheel < 5; wheel++) {
+    hActiveUnits[wheel]->Reset();  // Cb by lumi histo need to be resetted in between lumi boundaries
   }
-
 }
 
-
 void DTDCSByLumiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
+  if (DTHVRecordFound)
+    context.get<DTHVStatusRcd>().get(hvStatus);
 
-
-  if(DTHVRecordFound) context.get<DTHVStatusRcd>().get(hvStatus);
-
-  vector<const DTLayer*>::const_iterator layersIt  = theDTGeom->layers().begin();
+  vector<const DTLayer*>::const_iterator layersIt = theDTGeom->layers().begin();
   vector<const DTLayer*>::const_iterator layersEnd = theDTGeom->layers().end();
 
-  for(; layersIt!=layersEnd; ++layersIt) {
-
+  for (; layersIt != layersEnd; ++layersIt) {
     int wheel = (*layersIt)->id().wheel();
 
     int nWiresLayer = (*layersIt)->specificTopology().channels();
 
-    hActiveUnits[wheel+2]->Fill(1,nWiresLayer); // CB first bin is # of layers
+    hActiveUnits[wheel + 2]->Fill(1, nWiresLayer);  // CB first bin is # of layers
     int nActiveWires = nWiresLayer;
 
     int flagA = -100;
     int flagC = -100;
     int flagS = -100;
     int first = -100;
-    int last  = -100;
+    int last = -100;
 
     // CB info is not stored if HV is ON -> in this case get returns 1
     // process all other cases and removed wires with "BAD HV" from active
     // wires list
 
-    if( DTHVRecordFound ) {
-      if ( !hvStatus->get((*layersIt)->id(),0,first,last,flagA,flagC,flagS)
-          && (flagA || flagC || flagS) ) {
+    if (DTHVRecordFound) {
+      if (!hvStatus->get((*layersIt)->id(), 0, first, last, flagA, flagC, flagS) && (flagA || flagC || flagS)) {
         nActiveWires -= (last - first + 1);
       }
 
-      if ( !hvStatus->get((*layersIt)->id(),1,first,last,flagA,flagC,flagS)
-          && (flagA || flagC || flagS) ) {
+      if (!hvStatus->get((*layersIt)->id(), 1, first, last, flagA, flagC, flagS) && (flagA || flagC || flagS)) {
         nActiveWires -= (last - first + 1);
       }
     } else {
-      nActiveWires=-1.;
+      nActiveWires = -1.;
     }
 
-    hActiveUnits[wheel+2]->Fill(2,nActiveWires); // CB 2nd bin is the list of wires wit HV ON
-
+    hActiveUnits[wheel + 2]->Fill(2, nActiveWires);  // CB 2nd bin is the list of wires wit HV ON
   }
 }
 
+void DTDCSByLumiTask::analyze(const edm::Event& event, const edm::EventSetup& c) { theEvents++; }
 
-void DTDCSByLumiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
-
-  theEvents++;
-
-}
-
-
-string DTDCSByLumiTask::topFolder() const {
-
-  return string("DT/EventInfo/DCSContents");
-
-}
+string DTDCSByLumiTask::topFolder() const { return string("DT/EventInfo/DCSContents"); }
 
 // Local Variables:
 // show-trailing-whitespace: t

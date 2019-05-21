@@ -15,7 +15,6 @@
 // user include files
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -35,18 +34,16 @@ FWPhysicsObjectDesc::FWPhysicsObjectDesc(const std::string& iName,
                                          const std::string& iProductInstanceLabel,
                                          const std::string& iProcessName,
                                          const std::string& iFilterExpression,
-                                         unsigned int iLayer) :
-   m_name(iName),
-   m_type(iClass),
-   m_purpose(iPurpose),
-   m_displayProperties(iProperties),
-   m_moduleLabel(iModuleLabel),
-   m_productInstanceLabel(iProductInstanceLabel),
-   m_processName(iProcessName),
-   m_layer(iLayer),
-   m_filterExpression(iFilterExpression)
-{
-}
+                                         unsigned int iLayer)
+    : m_name(iName),
+      m_type(iClass),
+      m_purpose(iPurpose),
+      m_displayProperties(iProperties),
+      m_moduleLabel(iModuleLabel),
+      m_productInstanceLabel(iProductInstanceLabel),
+      m_processName(iProcessName),
+      m_layer(iLayer),
+      m_filterExpression(iFilterExpression) {}
 
 // FWPhysicsObjectDesc::FWPhysicsObjectDesc(const FWPhysicsObjectDesc& rhs)
 // {
@@ -72,83 +69,39 @@ FWPhysicsObjectDesc::FWPhysicsObjectDesc(const std::string& iName,
 //
 // member functions
 //
-void
-FWPhysicsObjectDesc::setLabels(const std::string& iModule,
-                               const std::string& iProductInstance,
-                               const std::string& iProcess)
-{
-   m_moduleLabel = iModule;
-   m_productInstanceLabel = iProductInstance;
-   m_processName = iProcess;
+void FWPhysicsObjectDesc::setLabels(const std::string& iModule,
+                                    const std::string& iProductInstance,
+                                    const std::string& iProcess) {
+  m_moduleLabel = iModule;
+  m_productInstanceLabel = iProductInstance;
+  m_processName = iProcess;
 }
 
-void
-FWPhysicsObjectDesc::setName(const std::string& iName)
-{
-   m_name = iName;
-}
+void FWPhysicsObjectDesc::setName(const std::string& iName) { m_name = iName; }
 
-void 
-FWPhysicsObjectDesc::setDisplayProperties( const FWDisplayProperties& iProperties)
-{
-   m_displayProperties = iProperties;
+void FWPhysicsObjectDesc::setDisplayProperties(const FWDisplayProperties& iProperties) {
+  m_displayProperties = iProperties;
 }
 
 //
 // const member functions
 //
-const FWDisplayProperties&
-FWPhysicsObjectDesc::displayProperties() const
-{
-   return m_displayProperties;
-}
+const FWDisplayProperties& FWPhysicsObjectDesc::displayProperties() const { return m_displayProperties; }
 
-const std::string&
-FWPhysicsObjectDesc::name() const
-{
-   return m_name;
-}
+const std::string& FWPhysicsObjectDesc::name() const { return m_name; }
 
-const TClass*
-FWPhysicsObjectDesc::type() const
-{
-   return m_type;
-}
+const TClass* FWPhysicsObjectDesc::type() const { return m_type; }
 
-const std::string&
-FWPhysicsObjectDesc::purpose() const
-{
-   return m_purpose;
-}
+const std::string& FWPhysicsObjectDesc::purpose() const { return m_purpose; }
 
-const std::string&
-FWPhysicsObjectDesc::moduleLabel() const
-{
-   return m_moduleLabel;
-}
-const std::string&
-FWPhysicsObjectDesc::productInstanceLabel() const
-{
-   return m_productInstanceLabel;
-}
+const std::string& FWPhysicsObjectDesc::moduleLabel() const { return m_moduleLabel; }
+const std::string& FWPhysicsObjectDesc::productInstanceLabel() const { return m_productInstanceLabel; }
 
-const std::string&
-FWPhysicsObjectDesc::processName() const
-{
-   return m_processName;
-}
+const std::string& FWPhysicsObjectDesc::processName() const { return m_processName; }
 
-unsigned int
-FWPhysicsObjectDesc::layer() const
-{
-   return m_layer;
-}
+unsigned int FWPhysicsObjectDesc::layer() const { return m_layer; }
 
-const std::string&
-FWPhysicsObjectDesc::filterExpression() const
-{
-   return m_filterExpression;
-}
+const std::string& FWPhysicsObjectDesc::filterExpression() const { return m_filterExpression; }
 //
 // static member functions
 //

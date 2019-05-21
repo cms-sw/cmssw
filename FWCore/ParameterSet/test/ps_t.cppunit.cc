@@ -291,6 +291,22 @@ void testps::idTest() {
 
   CPPUNIT_ASSERT(a != b);
   CPPUNIT_ASSERT(a.id() != b.id());
+
+  {
+    //Check that changes to ESInputTag do not affect ID
+    // as that would affect reading back stored PSets
+
+    edm::ParameterSet ps;
+    ps.addParameter<edm::ESInputTag>("default", edm::ESInputTag());
+    ps.addParameter<edm::ESInputTag>("moduleOnly", edm::ESInputTag("Prod", ""));
+    ps.addParameter<edm::ESInputTag>("dataOnly", edm::ESInputTag("", "data"));
+    ps.addParameter<edm::ESInputTag>("allLabels", edm::ESInputTag("Prod", "data"));
+    ps.registerIt();
+
+    std::string stringValue;
+    ps.id().toString(stringValue);
+    CPPUNIT_ASSERT(stringValue == "01642a9a7311dea2df2f9ee430855a99");
+  }
 }
 
 void testps::calculateIDTest() {

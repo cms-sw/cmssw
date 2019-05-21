@@ -9,17 +9,15 @@
 
 using namespace cms;
 
-CondDBCmsTrackerConstruction::CondDBCmsTrackerConstruction() { }
-
-const GeometricDet* CondDBCmsTrackerConstruction::construct(const PGeometricDet& pgd) {
+std::unique_ptr<GeometricDet> CondDBCmsTrackerConstruction::construct(const PGeometricDet& pgd) {
   //std::cout << "In CondDBCmsTrackerConstruction::construct with pgd.pgeomdets_.size() == " << pgd.pgeomdets_.size() << std::endl;  
-  GeometricDet* tracker  = new GeometricDet(pgd.pgeomdets_[0],GeometricDet::Tracker);
+  auto tracker  = std::make_unique<GeometricDet>(pgd.pgeomdets_[0],GeometricDet::Tracker);
 
   size_t detMax =  pgd.pgeomdets_.size();
   size_t tri = 1;
   std::vector<GeometricDet*> hier;
   int lev=1;
-  GeometricDet* subdet = tracker;
+  GeometricDet* subdet = tracker.get();
   hier.emplace_back(subdet);
     while ( tri < detMax && pgd.pgeomdets_[tri]._level == 1 ) {
       subdet = new GeometricDet(pgd.pgeomdets_[tri], GeometricDet::GDEnumType(pgd.pgeomdets_[tri]._type));
