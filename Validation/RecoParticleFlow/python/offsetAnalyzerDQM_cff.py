@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-import  Validation.RecoParticleFlow.defaults_cfi as default
+import Validation.RecoParticleFlow.defaults_cfi as default
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 def plotPSet(name, title, dir, nx, x0, x1, ny=0, y0=0, y1=0, vx=[0], vy=[0]):
     return cms.PSet(
@@ -55,12 +57,12 @@ def createTH1DVPSet():
                 hname,
                 hname + ";" + title,
                 default.offsetDir,
-                xmax*2, 0, xmax
+                xmax, 0, xmax
             )]
     return plots
 
-offsetAnalyzerDQM = cms.EDProducer("OffsetAnalyzerDQM",
-
+offsetAnalyzerDQM = DQMEDAnalyzer("OffsetAnalyzerDQM",
+                                      
     pvTag = cms.InputTag('offlineSlimmedPrimaryVertices'),
     muTag = cms.InputTag('slimmedAddPileupInfo'),
     pfTag = cms.InputTag('packedPFCandidates'),
@@ -76,10 +78,21 @@ offsetAnalyzerDQM = cms.EDProducer("OffsetAnalyzerDQM",
     etabins = cms.vdouble( default.etaBinsOffset )
 )
 
+offsetDQMPostProcessor = DQMEDHarvester("OffsetDQMPostProcessor",
+
+    offsetPlotBaseName = cms.string( default.offsetPlotBaseName ),
+    offsetDir = cms.string( default.offsetDir ),
+    offsetVariableTypes = cms.vstring( default.offsetVariableType ),
+    offsetR = cms.untracked.double( default.offsetR ),
+    pftypes = cms.vstring( default.candidateType ),                                        
+                                            
+)
+
 #print( offsetAnalyzerDQM.offsetPlots[455].parameters_  )
 #for i in range(0, len(offsetAnalyzerDQM.th1dPlots)) :
 #    print( offsetAnalyzerDQM.th1dPlots[i].parameters_  )
 
+# Do we need this?
 offsetDQM = cms.Sequence(
     offsetAnalyzerDQM
 )
