@@ -7,7 +7,6 @@
 #include "CUDADataFormats/Common/interface/CUDAProduct.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
-
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -295,6 +294,7 @@ std::unique_ptr<ClusterTPAssociationHeterogeneous::CPUProduct> ClusterTPAssociat
 
   if (foundPixelClusters) {
     // Pixel Clusters
+    clusterTPList.addKeyID(pixelClusters.id());
     for (edmNew::DetSetVector<SiPixelCluster>::const_iterator iter = pixelClusters->begin();
          iter != pixelClusters->end();
          ++iter) {
@@ -331,6 +331,7 @@ std::unique_ptr<ClusterTPAssociationHeterogeneous::CPUProduct> ClusterTPAssociat
 
   if (foundStripClusters) {
     // Strip Clusters
+    clusterTPList.addKeyID(stripClusters.id());
     for (edmNew::DetSetVector<SiStripCluster>::const_iterator iter = stripClusters->begin(false),
                                                               eter = stripClusters->end(false);
          iter != eter;
@@ -370,6 +371,7 @@ std::unique_ptr<ClusterTPAssociationHeterogeneous::CPUProduct> ClusterTPAssociat
 
   if (foundPhase2OTClusters) {
     // Phase2 Clusters
+    clusterTPList.addKeyID(phase2OTClusters.id());
     if (phase2OTClusters.isValid()) {
       for (edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator iter = phase2OTClusters->begin(false),
                                                                         eter = phase2OTClusters->end(false);
