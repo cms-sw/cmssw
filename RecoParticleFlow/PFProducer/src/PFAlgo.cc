@@ -41,7 +41,7 @@ PFAlgo::setParameters(double nSigmaECAL,
 
 
 PFMuonAlgo* PFAlgo::getPFMuonAlgo() {
-  return pfmu_;
+  return pfmu_.get();
 }
 
 void PFAlgo::setEGammaParameters(bool use_EGammaFilters, bool useProtectionsForJetMET)
@@ -67,7 +67,7 @@ void  PFAlgo::setEGammaCollections(const edm::View<reco::PFCandidate> & pfEgamma
 void
 PFAlgo::setPFMuonAndFakeParameters(const edm::ParameterSet& pset)
 {
-  pfmu_ = new PFMuonAlgo(pset);
+  pfmu_ = std::make_unique<PFMuonAlgo>(pset);
 
   // Muon parameters
   muonHCAL_= pset.getParameter<std::vector<double> >("muon_HCAL");
@@ -165,20 +165,10 @@ PFAlgo::setPFVertexParameters(bool useVertex, reco::VertexCollection const&  pri
 
 void PFAlgo::reconstructParticles( const reco::PFBlockHandle& blockHandle, PFEGammaFilters const* pfegamma ) {
 
-  blockHandle_ = blockHandle;
-
-  auto blocks = *blockHandle_;
+  auto const& blocks = *blockHandle;
 
   // reset output collection
-  if(pfCandidates_.get() )
-    pfCandidates_->clear();
-  else
-    pfCandidates_.reset( new reco::PFCandidateCollection );
-
-  if(pfCleanedCandidates_.get() )
-    pfCleanedCandidates_->clear();
-  else
-    pfCleanedCandidates_.reset( new reco::PFCandidateCollection );
+  pfCandidates_->clear();
 
   if( debug_ ) {
     cout<<"*********************************************************"<<endl;
@@ -193,8 +183,7 @@ void PFAlgo::reconstructParticles( const reco::PFBlockHandle& blockHandle, PFEGa
   std::list< reco::PFBlockRef > otherBlockRefs;
 
   for( unsigned i=0; i<blocks.size(); ++i ) {
-    // reco::PFBlockRef blockref( blockh,i );
-    reco::PFBlockRef blockref = createBlockRef( blocks, i);
+    reco::PFBlockRef blockref = reco::PFBlockRef(  blockHandle, i );
 
     const reco::PFBlock& block = *blockref;
     const edm::OwnVector< reco::PFBlockElement >&
@@ -256,7 +245,11 @@ void PFAlgo::reconstructParticles( const reco::PFBlockHandle& blockHandle, PFEGa
   }
 
   // Post HF Cleaning
-  postCleaning();
+  pfCleanedCandidates_.clear();
+  // Check if the post HF Cleaning was requested - if not, do nothing
+  if (postHFCleaning_) {
+    postCleaning();
+  }
 
   //Muon post cleaning
   pfmu_->postClean(pfCandidates_.get());
@@ -3145,18 +3138,6 @@ ostream& operator<<(ostream& out, const PFAlgo& algo) {
   return out;
 }
 
-reco::PFBlockRef
-PFAlgo::createBlockRef( const reco::PFBlockCollection& blocks,
-			unsigned bi ) {
-
-  if( blockHandle_.isValid() ) {
-    return reco::PFBlockRef(  blockHandle_, bi );
-  }
-  else {
-    return reco::PFBlockRef(  &blocks, bi );
-  }
-}
-
 void
 PFAlgo::associatePSClusters(unsigned iEcal,
 			    reco::PFBlockElement::Type psElementType,
@@ -3245,9 +3226,6 @@ PFAlgo::isFromSecInt(const reco::PFBlockElement& eTrack, string order) const {
 void
 PFAlgo::postCleaning() {
 
-  // Check if the post HF Cleaning was requested - if not, do nothing
-  if ( !postHFCleaning_ ) return;
-
   //Compute met and met significance (met/sqrt(SumEt))
   double metX = 0.;
   double metY = 0.;
@@ -3335,14 +3313,13 @@ PFAlgo::postCleaning() {
 		<< std::endl;
       for(unsigned int toRemove : pfCandidatesToBeRemoved) {
 	std::cout << "Removed : " << (*pfCandidates_)[toRemove] << std::endl;
-	pfCleanedCandidates_->push_back( (*pfCandidates_)[toRemove] );
+	pfCleanedCandidates_.push_back( (*pfCandidates_)[toRemove] );
 	(*pfCandidates_)[toRemove].rescaleMomentum(1E-6);
 	//reco::PFCandidate::ParticleType unknown = reco::PFCandidate::X;
 	//(*pfCandidates_)[toRemove].setParticleType(unknown);
       }
     }
   }
-
 }
 
 void

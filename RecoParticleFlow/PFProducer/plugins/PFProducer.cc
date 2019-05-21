@@ -52,7 +52,8 @@ class PFProducer : public edm::stream::EDProducer<> {
   void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
  private:
-  const edm::EDPutTokenT<reco::PFCandidateCollection> putToken_;
+  const edm::EDPutTokenT<reco::PFCandidateCollection> pfCandidatesToken_;
+  const edm::EDPutTokenT<reco::PFCandidateCollection> pfCleanedCandidatesToken_;
 
   edm::EDGetTokenT<reco::PFBlockCollection>  inputTagBlocks_;
   edm::EDGetTokenT<reco::MuonCollection>     inputTagMuons_;
@@ -110,7 +111,8 @@ using namespace edm;
 
 
 PFProducer::PFProducer(const edm::ParameterSet& iConfig)
-  : putToken_{produces<reco::PFCandidateCollection>()}
+  : pfCandidatesToken_{produces<reco::PFCandidateCollection>()}
+  , pfCleanedCandidatesToken_{produces<reco::PFCandidateCollection>("CleanedHF")}
   , pfAlgo_(iConfig.getUntrackedParameter<bool>("debug",false))
 {
   //--ab: get calibration factors for HF:
@@ -161,7 +163,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 
 
   // register products
-  produces<reco::PFCandidateCollection>("CleanedHF");
   produces<reco::PFCandidateCollection>("CleanedCosmicsMuons");
   produces<reco::PFCandidateCollection>("CleanedTrackerAndGlobalMuons");
   produces<reco::PFCandidateCollection>("CleanedFakeMuons");
@@ -310,22 +311,6 @@ PFProducer::beginRun(const edm::Run & run,
 		     const edm::EventSetup & es) 
 {
 
-
-  /*
-  static map<string, PerformanceResult::ResultType> functType;
-
-  functType["PFfa_BARREL"] = PerformanceResult::PFfa_BARREL;
-  functType["PFfa_ENDCAP"] = PerformanceResult::PFfa_ENDCAP;
-  functType["PFfb_BARREL"] = PerformanceResult::PFfb_BARREL;
-  functType["PFfb_ENDCAP"] = PerformanceResult::PFfb_ENDCAP;
-  functType["PFfc_BARREL"] = PerformanceResult::PFfc_BARREL;
-  functType["PFfc_ENDCAP"] = PerformanceResult::PFfc_ENDCAP;
-  functType["PFfaEta_BARREL"] = PerformanceResult::PFfaEta_BARREL;
-  functType["PFfaEta_ENDCAP"] = PerformanceResult::PFfaEta_ENDCAP;
-  functType["PFfbEta_BARREL"] = PerformanceResult::PFfbEta_BARREL;
-  functType["PFfbEta_ENDCAP"] = PerformanceResult::PFfbEta_ENDCAP;
-  */
-
   if ( useCalibrationsFromDB_ ) { 
     // read the PFCalibration functions from the global tags
     edm::ESHandle<PerformancePayload> perfH;
@@ -366,52 +351,26 @@ PFProducer::produce(Event& iEvent, const EventSetup& iSetup)
   if(verbose_) {
     ostringstream  str;
     str<< pfAlgo_ <<endl;
-    //    cout << pfAlgo_ << endl;
     LogInfo("PFProducer") <<str.str()<<endl;
   }  
 
-   // Save cosmic cleaned muon candidates
-    std::unique_ptr<reco::PFCandidateCollection> 
-      pCosmicsMuonCleanedCandidateCollection( pfAlgo_.getPFMuonAlgo()->transferCleanedCosmicCandidates() ); 
-    // Save tracker/global cleaned muon candidates
-    std::unique_ptr<reco::PFCandidateCollection> 
-      pTrackerAndGlobalCleanedMuonCandidateCollection( pfAlgo_.getPFMuonAlgo()->transferCleanedTrackerAndGlobalCandidates() ); 
-    // Save fake cleaned muon candidates
-    std::unique_ptr<reco::PFCandidateCollection> 
-      pFakeCleanedMuonCandidateCollection( pfAlgo_.getPFMuonAlgo()->transferCleanedFakeCandidates() ); 
-    // Save punch-through cleaned muon candidates
-    std::unique_ptr<reco::PFCandidateCollection> 
-      pPunchThroughMuonCleanedCandidateCollection( pfAlgo_.getPFMuonAlgo()->transferPunchThroughCleanedMuonCandidates() ); 
-    // Save punch-through cleaned neutral hadron candidates
-    std::unique_ptr<reco::PFCandidateCollection> 
-      pPunchThroughHadronCleanedCandidateCollection( pfAlgo_.getPFMuonAlgo()->transferPunchThroughCleanedHadronCandidates() ); 
-    // Save added muon candidates
-    std::unique_ptr<reco::PFCandidateCollection> 
-      pAddedMuonCandidateCollection( pfAlgo_.getPFMuonAlgo()->transferAddedMuonCandidates() ); 
-
   // Check HF overcleaning
-  reco::PFRecHitCollection hfCopy;
-  for ( unsigned ihf=0; ihf<inputTagCleanedHF_.size(); ++ihf ) {
-    Handle< reco::PFRecHitCollection > hfCleaned;
-    bool foundHF = iEvent.getByToken( inputTagCleanedHF_[ihf], hfCleaned );  
-    if (!foundHF) continue;
-    for ( unsigned jhf=0; jhf<(*hfCleaned).size(); ++jhf ) { 
-      hfCopy.push_back( (*hfCleaned)[jhf] );
+  if (postHFCleaning_) {
+    reco::PFRecHitCollection hfCopy;
+    for ( unsigned ihf=0; ihf<inputTagCleanedHF_.size(); ++ihf ) {
+      Handle< reco::PFRecHitCollection > hfCleaned;
+      bool foundHF = iEvent.getByToken( inputTagCleanedHF_[ihf], hfCleaned );  
+      if (!foundHF) continue;
+      for ( unsigned jhf=0; jhf<(*hfCleaned).size(); ++jhf ) { 
+        hfCopy.push_back( (*hfCleaned)[jhf] );
+      }
     }
+    pfAlgo_.checkCleaning( hfCopy );
   }
 
-  if (postHFCleaning_)
-    pfAlgo_.checkCleaning( hfCopy );
-
-  // Save recovered HF candidates
-  std::unique_ptr<reco::PFCandidateCollection> pCleanedCandidateCollection( pfAlgo_.transferCleanedCandidates() ); 
-
-  
   // Save the final PFCandidate collection
-  reco::PFCandidateCollection pOutputCandidateCollection = pfAlgo_.transferCandidates();
-  
+  auto pOutputCandidateCollection = pfAlgo_.makeConnectedCandidates();
 
-  
   LogDebug("PFProducer")<<"particle flow: putting products in the event"<<endl;
   if ( verbose_ ) std::cout <<"particle flow: putting products in the event. Here the full list"<<endl;
   int nC=0;
@@ -421,18 +380,24 @@ PFProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   }
 
-
-
   // Write in the event
-  iEvent.emplace(putToken_,pOutputCandidateCollection);
-  iEvent.put(std::move(pCleanedCandidateCollection),"CleanedHF");
+  iEvent.emplace(pfCandidatesToken_,pOutputCandidateCollection);
+  iEvent.emplace(pfCleanedCandidatesToken_, pfAlgo_.getCleanedCandidates());
 
-    if ( postMuonCleaning_ ) { 
-      iEvent.put(std::move(pCosmicsMuonCleanedCandidateCollection),"CleanedCosmicsMuons");
-      iEvent.put(std::move(pTrackerAndGlobalCleanedMuonCandidateCollection),"CleanedTrackerAndGlobalMuons");
-      iEvent.put(std::move(pFakeCleanedMuonCandidateCollection),"CleanedFakeMuons");
-      iEvent.put(std::move(pPunchThroughMuonCleanedCandidateCollection),"CleanedPunchThroughMuons");
-      iEvent.put(std::move(pPunchThroughHadronCleanedCandidateCollection),"CleanedPunchThroughNeutralHadrons");
-      iEvent.put(std::move(pAddedMuonCandidateCollection),"AddedMuonsAndHadrons");
-    }
+  if ( postMuonCleaning_ ) { 
+    auto& muAlgo = *pfAlgo_.getPFMuonAlgo();
+
+    // Save cosmic cleaned muon candidates
+    iEvent.put(muAlgo.transferCleanedCosmicCandidates(),"CleanedCosmicsMuons");
+    // Save tracker/global cleaned muon candidates
+    iEvent.put(muAlgo.transferCleanedTrackerAndGlobalCandidates(),"CleanedTrackerAndGlobalMuons");
+    // Save fake cleaned muon candidates
+    iEvent.put(muAlgo.transferCleanedFakeCandidates(),"CleanedFakeMuons");
+    // Save punch-through cleaned muon candidates
+    iEvent.put(muAlgo.transferPunchThroughCleanedMuonCandidates(),"CleanedPunchThroughMuons");
+    // Save punch-through cleaned neutral hadron candidates
+    iEvent.put(muAlgo.transferPunchThroughCleanedHadronCandidates(),"CleanedPunchThroughNeutralHadrons");
+    // Save added muon candidates
+    iEvent.put(muAlgo.transferAddedMuonCandidates(),"AddedMuonsAndHadrons");
+  }
 }
