@@ -59,7 +59,6 @@ using namespace std;
 CombinedTrajectoryFactory::CombinedTrajectoryFactory(const edm::ParameterSet &config)
     : TrajectoryFactoryBase(config), theUseAllFactories(config.getParameter<bool>("useAllFactories")) {
   vector<string> factoryNames = config.getParameter<vector<string>>("TrajectoryFactoryNames");
-  vector<string>::iterator itFactoryName;
   for (auto const &factoryName : factoryNames) {
     // auto_ptr to avoid missing a delete due to throw...
     std::unique_ptr<TObjArray> namePset(TString(factoryName.c_str()).Tokenize(","));
