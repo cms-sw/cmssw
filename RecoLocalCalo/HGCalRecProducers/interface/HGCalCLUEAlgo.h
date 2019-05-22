@@ -49,7 +49,6 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
      nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double> >("values")),
      noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("value")),
      initialized_(false),
-    //  layerTiles_(2*(maxlayer+1)),
      cells_(2*(maxlayer+1)),
      numberOfClustersPerLayer_(2*(maxlayer+1),0)
      {}
