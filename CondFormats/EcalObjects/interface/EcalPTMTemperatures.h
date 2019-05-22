@@ -6,25 +6,23 @@
  * $Id: $
  **/
 
-
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <map>
 #include <boost/cstdint.hpp>
 
-
 class EcalPTMTemperatures {
- public:
+public:
   typedef std::map<uint32_t, float> EcalPTMTemperatureMap;
-  
+
   EcalPTMTemperatures();
   ~EcalPTMTemperatures();
-  void  setValue(const uint32_t& id, const float& value);
+  void setValue(const uint32_t& id, const float& value);
   const EcalPTMTemperatureMap& getMap() const { return map_; }
 
- private:
+private:
   EcalPTMTemperatureMap map_;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 #endif
