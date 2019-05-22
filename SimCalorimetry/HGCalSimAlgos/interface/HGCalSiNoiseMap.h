@@ -14,37 +14,40 @@
 class HGCalSiNoiseMap : public HGCalRadiationMap {
 
  public:
-  
+
   enum SignalRange_t {q80fC, q160fC, q320fC};
 
   struct SiCellOpCharacteristics{
-  SiCellOpCharacteristics() : lnfluence(0.), ileak(0.), cce(1.), noise(0.) {}
-    double lnfluence,ileak,cce,noise;
+  SiCellOpCharacteristics() : lnfluence(0.), fluence(0.), ileak(0.), cce(1.), noise(0.) {}
+    double lnfluence,fluence,ileak,cce,noise;
   };
 
-  HGCalSiNoiseMap(); 
+  HGCalSiNoiseMap();
   ~HGCalSiNoiseMap() {};
-  
+
   /**
      @short returns the charge collection efficiency and noise
   */
-  SiCellOpCharacteristics getSiCellOpCharacteristics(SignalRange_t srange,const HGCSiliconDetId &did,double &radius);
-  
+  SiCellOpCharacteristics getSiCellOpCharacteristics(SignalRange_t srange,const HGCSiliconDetId &did, bool ignoreFluence=false);
+
  private:
 
   //
   std::map<HGCSiliconDetId::waferType,double> cellCapacitance_,cellVolume_;
   std::map<HGCSiliconDetId::waferType,std::vector<double> > cceParam_;
 
-  //leakage current/volume vs fluence 
+  //leakage current/volume vs fluence
   std::vector<double> ileakParam_;
-  
+
   //shaper noise param
   const double encpScale_;
-  
+
+  //common noise subtraction noise (final scaling value)
+  const double encCommonNoiseSub_;
+
   //electron charge in fC
-  const double encScale_;
-  
+  const double enc2fc_;
+
   //electronics noise (series+parallel) polynomial coeffs;
   std::map<SignalRange_t,std::vector<double> > encsParam_;
 };

@@ -4,4 +4,6 @@
   <flags EDM_PLUGIN="1"/>
   <library file="HGCSiNoiseMapAnalyzer.cc" name="HGCSiNoiseMapAnalyzer">
   </library>
+  <library file="HGCHEbackSignalScalerAnalyzer.cc" name="HGCHEbackSignalScalerAnalyzer">
+  </library>
 </environment>

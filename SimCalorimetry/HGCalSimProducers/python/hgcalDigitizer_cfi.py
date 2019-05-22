@@ -9,6 +9,8 @@ nonAgedNoises_v9 = [2000.0,2400.0,2000.0] # 120,200,300 um (in electrons)
 thresholdTracksMIP = False
 
 HGCAL_noise_fC = cms.PSet(
+    scaleByDose = cms.bool(False),
+    doseMap = cms.string(""),
     values = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
     )
 
@@ -272,15 +274,17 @@ for _m in [hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigiti
 #function to set noise to aged HGCal
 endOfLifeCCEs = [0.5, 0.5, 0.7]
 endOfLifeNoises = [2400.0,2250.0,1750.0]
-def HGCal_setEndOfLifeNoise(process):
+def HGCal_setEndOfLifeNoise(process,byDose=True):
     process.HGCAL_noise_fC = cms.PSet(
+        scaleByDose = cms.bool(byDose),
+        doseMap = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.5.15.9.txt"),
         values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #100,200,300 um
         )
     process.HGCAL_chargeCollectionEfficiencies = cms.PSet(
         values = cms.vdouble(endOfLifeCCEs)
         )
     process.HGCAL_noise_heback = cms.PSet(
-        scaleByDose = cms.bool(True),
+        scaleByDose = cms.bool(byDose),
         doseMap = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.5.15.9.txt"),
         noise_MIP = cms.double(1./5.) #uses noise map
         )

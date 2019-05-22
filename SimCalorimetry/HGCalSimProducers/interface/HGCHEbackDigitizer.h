@@ -4,7 +4,7 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerBase.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
-#include "SimCalorimetry/HGCalSimAlgos/interface/HGCalRadiationMap.h"
+#include "SimCalorimetry/HGCalSimAlgos/interface/HGCalSciNoiseMap.h"
 
 class HGCHEbackDigitizer : public HGCDigitizerBase<HGCalDataFrame>
 {
@@ -26,8 +26,8 @@ private:
   float keV2MIP_, noise_MIP_;
   float nPEperMIP_, nTotalPE_, xTalk_, sdPixels_;
   std::string doseMapFile_;
-  HGCalRadiationMap scal_;
-  
+  HGCalSciNoiseMap scal_;
+
   void runEmptyDigitizer(std::unique_ptr<HGCalDigiCollection> &digiColl,hgc::HGCSimHitDataAccumulator &simData,
                          const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
                          CLHEP::HepRandomEngine* engine);
