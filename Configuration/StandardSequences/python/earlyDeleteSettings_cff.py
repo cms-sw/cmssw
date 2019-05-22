@@ -8,14 +8,14 @@ from RecoTracker.Configuration.customiseEarlyDeleteForSeeding import customiseEa
 from CommonTools.ParticleFlow.Isolation.customiseEarlyDeleteForCandIsoDeposits import customiseEarlyDeleteForCandIsoDeposits
 import six
 
-def _hasInputTagModuleLabel(process, pset, moduleLabels,result):
+def _hasInputTagModuleLabel(process, pset, psetModLabel, moduleLabels, result):
     for name in pset.parameterNames_():
         value = getattr(pset,name)
         if isinstance(value, cms.PSet):
-            _hasInputTagModuleLabel(process, value, moduleLabels,result)
+            _hasInputTagModuleLabel(process, value, psetModLabel, moduleLabels, result)
         elif isinstance(value, cms.VPSet):
             for ps in value:
-                _hasInputTagModuleLabel(process, ps, moduleLabels,result)
+                _hasInputTagModuleLabel(process, ps, psetModLabel, moduleLabels, result)
         elif isinstance(value, cms.VInputTag):
             for t in value:
                 t2 = t
@@ -31,7 +31,11 @@ def _hasInputTagModuleLabel(process, pset, moduleLabels,result):
                 if value.getModuleLabel() == moduleLabel:
                     result[i]=True
         elif isinstance(value, cms.string) and name == "refToPSet_":
-            _hasInputTagModuleLabel(process, getattr(process, value.value()), moduleLabels,result)
+            try:
+                ps = getattr(process, value.value())
+            except AttributeError:
+                raise RuntimeError("Module %s has a 'PSet(refToPSet_ = cms.string(\"%s\"))', but the referenced-to PSet does not exist in the Process." % (psetModLabel, value.value()))
+            _hasInputTagModuleLabel(process, ps, psetModLabel, moduleLabels, result)
 
 
 def customiseEarlyDelete(process):
@@ -75,7 +79,7 @@ def customiseEarlyDelete(process):
             for producer in producers:
                 result.append(False)
 
-            _hasInputTagModuleLabel(process, module, producers,result)
+            _hasInputTagModuleLabel(process, module, name, producers, result)
             for i in range(len(result)):
                 if result[i]:
                     if hasattr(module, "mightGet"):
@@ -122,11 +126,19 @@ if __name__=="__main__":
                     refToPSet_ = cms.string("pset")
                 ),
             )
+            p.prod2 = cms.EDProducer("Producer2",
+                foo = cms.PSet(
+                    refToPSet_ = cms.string("nonexistent")
+                )
+            )
 
             result=[False,False,False,False,False,False,False,False,False,False,False,False,False,False]
-            _hasInputTagModuleLabel(p, p.prod, ["foo","foo2","foo3","bar","fred","wilma","a","foo4","bar2","bar3","fred2","wilma2","a2","joe"],result)
+            _hasInputTagModuleLabel(p, p.prod, "prod", ["foo","foo2","foo3","bar","fred","wilma","a","foo4","bar2","bar3","fred2","wilma2","a2","joe"], result)
             for i in range (0,13):
                 self.assert_(result[i])
             self.assert_(not result[13])
+
+            result = [False]
+            self.assertRaises(RuntimeError, _hasInputTagModuleLabel, p, p.prod2, "prod2", ["foo"], result)
 
     unittest.main()
