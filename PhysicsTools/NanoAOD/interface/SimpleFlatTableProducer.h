@@ -60,8 +60,8 @@ class SimpleFlatTableProducerBase : public edm::stream::EDProducer<> {
         class VariableBase {
             public:
                 VariableBase(const std::string & aname, nanoaod::FlatTable::ColumnType atype, const edm::ParameterSet & cfg) : 
-                    name_(aname), doc_(cfg.getParameter<std::string>("doc")), type_(atype),
-		    precision_(cfg.existsAs<int>("precision") ? cfg.getParameter<int>("precision") : -1)
+                name_(aname), doc_(cfg.getParameter<std::string>("doc")), type_(atype),
+                precision_(cfg.existsAs<int>("precision") ? cfg.getParameter<int>("precision") : (cfg.existsAs<std::string>("precision") ? -2 : -1))
             {
             }
                 virtual ~VariableBase() {}
@@ -70,7 +70,7 @@ class SimpleFlatTableProducerBase : public edm::stream::EDProducer<> {
             protected:
                 std::string name_, doc_;
                 nanoaod::FlatTable::ColumnType type_;
-		int precision_;
+		        int precision_;
         };
         class Variable : public VariableBase {
             public:
@@ -82,17 +82,21 @@ class SimpleFlatTableProducerBase : public edm::stream::EDProducer<> {
             class FuncVariable : public Variable {
                 public:
                     FuncVariable(const std::string & aname, nanoaod::FlatTable::ColumnType atype, const edm::ParameterSet & cfg) :
-                        Variable(aname, atype, cfg), func_(cfg.getParameter<std::string>("expr"), true) {}
+                        Variable(aname, atype, cfg), func_(cfg.getParameter<std::string>("expr"), true), precisionFunc_(cfg.existsAs<std::string>("precision") ? cfg.getParameter<std::string>("precision") : "23",true){}
                     ~FuncVariable() override {}
                     void fill(std::vector<const T *> selobjs, nanoaod::FlatTable & out) const override {
                         std::vector<ValType> vals(selobjs.size());
                         for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
-                            vals[i] = func_(*selobjs[i]);
+                            if(this->precision_ == -2){
+                            vals[i] = MiniFloatConverter::reduceMantissaToNbitsRounding(func_(*selobjs[i]),precisionFunc_(*selobjs[i]));
+                            }
+                            else vals[i] = func_(*selobjs[i]);
                         }
                         out.template addColumn<ValType>(this->name_, vals, this->doc_, this->type_,this->precision_);
                     }
                 protected:
                     StringFunctor func_;
+                    StringFunctor precisionFunc_;
 
             };
         typedef FuncVariable<StringObjectFunction<T>,int> IntVar;
