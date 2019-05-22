@@ -20,7 +20,7 @@ F15=${LOCAL_TEST_DIR}/python/testDDSpecParsFilterG4ProdCuts.py
 F16=${LOCAL_TEST_DIR}/python/testDDSpecParsFilter.py
 F17=${LOCAL_TEST_DIR}/python/testMuonNumbering.py
 F18=${LOCAL_TEST_DIR}/python/testDDHGCalCellAlgorithm.py
-F19=${LOCAL_TEST_DIR}/python/python/testDDCompactView.py
+F19=${LOCAL_TEST_DIR}/python/testDDCompactView.py
 
 echo " testing DetectorDescription/DDCMS"
 
