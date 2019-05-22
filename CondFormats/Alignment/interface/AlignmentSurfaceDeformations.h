@@ -19,28 +19,26 @@
 
 class AlignmentSurfaceDeformations {
 public:
-
   struct Item {
     align::ID m_rawId;
     int m_parametrizationType;
     int m_index;
-  
-  COND_SERIALIZABLE;
-};
-  
+
+    COND_SERIALIZABLE;
+  };
+
   typedef std::vector<Item> ItemVector;
   typedef std::vector<align::Scalar>::const_iterator ParametersConstIterator;
-  typedef std::pair<ParametersConstIterator,ParametersConstIterator> ParametersConstIteratorPair;
+  typedef std::pair<ParametersConstIterator, ParametersConstIterator> ParametersConstIteratorPair;
 
-  AlignmentSurfaceDeformations() { }
-  virtual ~AlignmentSurfaceDeformations() { }
-  
+  AlignmentSurfaceDeformations() {}
+  virtual ~AlignmentSurfaceDeformations() {}
+
   /// Test of empty vector without having to look into internals:
   inline bool empty() const { return m_items.empty(); }
-  
-  /// Add a new item
-  bool add(align::ID rawId, int type, const std::vector<align::Scalar> & parameters) {
 
+  /// Add a new item
+  bool add(align::ID rawId, int type, const std::vector<align::Scalar>& parameters) {
     Item item;
     item.m_rawId = rawId;
     item.m_parametrizationType = type;
@@ -54,27 +52,26 @@ public:
   }
 
   /// Get vector of all items
-  const ItemVector & items() const {return m_items; }
+  const ItemVector& items() const { return m_items; }
 
   /// Get a pair of iterators for the item at given index. The iterators can
   /// be used to access the actual parameters for that item
-  ParametersConstIteratorPair parameters( size_t index ) const {
+  ParametersConstIteratorPair parameters(size_t index) const {
     ParametersConstIteratorPair pair;
-    pair.first  = m_parameters.begin() + m_items[index].m_index;
-    if (index<m_items.size()-1) {
-      pair.second = m_parameters.begin() + m_items[index+1].m_index;
+    pair.first = m_parameters.begin() + m_items[index].m_index;
+    if (index < m_items.size() - 1) {
+      pair.second = m_parameters.begin() + m_items[index + 1].m_index;
     } else {
       pair.second = m_parameters.end();
     }
     return pair;
   }
-  
- private:
 
+private:
   std::vector<align::Scalar> m_parameters;
   ItemVector m_items;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-#endif // AlignmentSurfaceDeformations_H
+#endif  // AlignmentSurfaceDeformations_H
