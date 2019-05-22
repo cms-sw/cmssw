@@ -13,9 +13,9 @@
 #include <Math/SMatrix.h>
 
 namespace boost {
-namespace serialization {
+  namespace serialization {
 
-/*
+    /*
  * Note regarding object tracking: all autos used here
  * must resolve to untracked types, since we use local
  * variables in the stack which could end up with the same
@@ -24,19 +24,17 @@ namespace serialization {
  * by Boost Serialization.
  */
 
+    // Math/SMatrix.h
+    template <class Archive, typename T, unsigned int D1, unsigned int D2, class R>
+    void serialize(Archive& ar, ROOT::Math::SMatrix<T, D1, D2, R>& obj, const unsigned int) {
+      unsigned int i = 0;
+      for (auto& value : obj) {
+        ar& boost::serialization::make_nvp(std::to_string(i).c_str(), value);
+        ++i;
+      }
+    }
 
-// Math/SMatrix.h                                                                                                                                                                                          
-template<class Archive, typename T, unsigned int D1, unsigned int D2, class R>
-void serialize(Archive & ar, ROOT::Math::SMatrix<T, D1, D2, R> & obj, const unsigned int)
-{
-  unsigned int i = 0;
-  for (auto & value : obj) {
-    ar & boost::serialization::make_nvp(std::to_string(i).c_str(), value);
-    ++i;
-  }
-}
-
-} // namespace serialization
-} // namespace boost
+  }  // namespace serialization
+}  // namespace boost
 
 #endif
