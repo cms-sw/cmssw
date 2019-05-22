@@ -16,43 +16,36 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 //__________________________________________________________________________________________________
-Alignable::Alignable(align::ID id, const AlignableSurface& surf):
-  theDetId(id), // FIXME: inconsistent with other ctr., but needed for AlignableNavigator 
-  theId(id),    // (finally get rid of one of the IDs!)
-  theSurface(surf),
-  theCachedSurface(surf),
-  theAlignmentParameters(nullptr),
-  theMother(nullptr),
-  theSurvey(nullptr)
-{
-}
+Alignable::Alignable(align::ID id, const AlignableSurface& surf)
+    : theDetId(id),  // FIXME: inconsistent with other ctr., but needed for AlignableNavigator
+      theId(id),     // (finally get rid of one of the IDs!)
+      theSurface(surf),
+      theCachedSurface(surf),
+      theAlignmentParameters(nullptr),
+      theMother(nullptr),
+      theSurvey(nullptr) {}
 
 //__________________________________________________________________________________________________
-Alignable::Alignable(align::ID id, const RotationType& rot):
-  theDetId(), // FIXME: inconsistent with other ctr., cf. above
-  theId(id),
-  theSurface(PositionType(), rot),
-  theCachedSurface(PositionType(), rot),
-  theAlignmentParameters(nullptr),
-  theMother(nullptr),
-  theSurvey(nullptr)
-{
-}
+Alignable::Alignable(align::ID id, const RotationType& rot)
+    : theDetId(),  // FIXME: inconsistent with other ctr., cf. above
+      theId(id),
+      theSurface(PositionType(), rot),
+      theCachedSurface(PositionType(), rot),
+      theAlignmentParameters(nullptr),
+      theMother(nullptr),
+      theSurvey(nullptr) {}
 
 //__________________________________________________________________________________________________
-Alignable::~Alignable()
-{
+Alignable::~Alignable() {
   delete theAlignmentParameters;
   delete theSurvey;
 }
 
 //__________________________________________________________________________________________________
-void Alignable::update(align::ID id, const AlignableSurface& surf)
-{
+void Alignable::update(align::ID id, const AlignableSurface& surf) {
   if (theId != id) {
-    throw cms::Exception("Alignment")
-      << "@SUB=Alignable::update\n"
-      << "Current alignable ID does not match ID of the update.";
+    throw cms::Exception("Alignment") << "@SUB=Alignable::update\n"
+                                      << "Current alignable ID does not match ID of the update.";
   }
   const auto shift = surf.position() - theSurface.position();
   theSurface = surf;
@@ -66,26 +59,27 @@ void Alignable::update(align::ID id, const AlignableSurface& surf)
 }
 
 //__________________________________________________________________________________________________
-bool Alignable::firstCompsWithParams(Alignables &paramComps) const
-{
+bool Alignable::firstCompsWithParams(Alignables& paramComps) const {
   bool isConsistent = true;
-  bool hasAliComp = false; // whether there are any (grand-) daughters with parameters
+  bool hasAliComp = false;  // whether there are any (grand-) daughters with parameters
   bool first = true;
   const auto& comps = this->components();
-  for (const auto& iComp: comps) {
-    if (iComp->alignmentParameters()) { // component has parameters itself
+  for (const auto& iComp : comps) {
+    if (iComp->alignmentParameters()) {  // component has parameters itself
       paramComps.push_back(iComp);
-      if (!first && !hasAliComp) isConsistent = false;
+      if (!first && !hasAliComp)
+        isConsistent = false;
       hasAliComp = true;
     } else {
       const unsigned int nCompBefore = paramComps.size();
       if (!(iComp->firstCompsWithParams(paramComps))) {
-        isConsistent = false; // problem down in hierarchy
+        isConsistent = false;  // problem down in hierarchy
       }
       if (paramComps.size() != nCompBefore) {
-        if (!first && !hasAliComp) isConsistent = false;
+        if (!first && !hasAliComp)
+          isConsistent = false;
         hasAliComp = true;
-      } else if (hasAliComp) { // no components with params, but previous component did have comps.
+      } else if (hasAliComp) {  // no components with params, but previous component did have comps.
         isConsistent = false;
       }
     }
@@ -96,26 +90,27 @@ bool Alignable::firstCompsWithParams(Alignables &paramComps) const
 }
 
 //__________________________________________________________________________________________________
-bool Alignable::lastCompsWithParams(Alignables& paramComps) const
-{
+bool Alignable::lastCompsWithParams(Alignables& paramComps) const {
   bool isConsistent = true;
   bool hasAliComp = false;
   bool first = true;
   const auto& comps = this->components();
-  for (const auto& iComp: comps) {
+  for (const auto& iComp : comps) {
     const auto nCompsBefore = paramComps.size();
     isConsistent = iComp->lastCompsWithParams(paramComps);
     if (paramComps.size() == nCompsBefore) {
       if (iComp->alignmentParameters()) {
-	paramComps.push_back(iComp);
-	if (!first && !hasAliComp) isConsistent = false;
-	hasAliComp = true;
+        paramComps.push_back(iComp);
+        if (!first && !hasAliComp)
+          isConsistent = false;
+        hasAliComp = true;
       }
     } else {
       if (hasAliComp) {
-	isConsistent = false;
+        isConsistent = false;
       }
-      if (!first && !hasAliComp) isConsistent = false;
+      if (!first && !hasAliComp)
+        isConsistent = false;
       hasAliComp = true;
     }
     first = false;
@@ -125,207 +120,136 @@ bool Alignable::lastCompsWithParams(Alignables& paramComps) const
 }
 
 //__________________________________________________________________________________________________
-void Alignable::setAlignmentParameters( AlignmentParameters* dap )
-{
-
+void Alignable::setAlignmentParameters(AlignmentParameters* dap) {
   delete theAlignmentParameters;
   theAlignmentParameters = dap;
-
 }
 
-
 //__________________________________________________________________________________________________
-void Alignable::rotateInLocalFrame( const RotationType& rotation)
-{
-
+void Alignable::rotateInLocalFrame(const RotationType& rotation) {
   // This is done by simply transforming the rotation from
   // the local system O to the global one  O^-1 * Rot * O
   // and then applying the global rotation  O * Rot
 
-  rotateInGlobalFrame( surface().toGlobal(rotation) );
-
+  rotateInGlobalFrame(surface().toGlobal(rotation));
 }
 
-
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundGlobalAxis( const GlobalVector& axis, Scalar radians )
-{
-
-  rotateInGlobalFrame( RotationType(axis.basicVector(),radians) );
-
+void Alignable::rotateAroundGlobalAxis(const GlobalVector& axis, Scalar radians) {
+  rotateInGlobalFrame(RotationType(axis.basicVector(), radians));
 }
 
-
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundLocalAxis( const LocalVector& axis, Scalar radians )
-{
-
+void Alignable::rotateAroundLocalAxis(const LocalVector& axis, Scalar radians) {
   rotateInLocalFrame(RotationType(axis.basicVector(), radians));
-
 }
 
-
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundGlobalX( Scalar radians )
-{
-
-  RotationType rot( 1.,  0.,            0.,
-		    0.,  std::cos(radians),  std::sin(radians),
-		    0., -std::sin(radians),  std::cos(radians) );
+void Alignable::rotateAroundGlobalX(Scalar radians) {
+  RotationType rot(1., 0., 0., 0., std::cos(radians), std::sin(radians), 0., -std::sin(radians), std::cos(radians));
 
   rotateInGlobalFrame(rot);
-
 }
 
-
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundLocalX( Scalar radians )
-{
- 
-  RotationType rot( 1.,  0.,            0.,
-		    0.,  std::cos(radians),  std::sin(radians),
-		    0., -std::sin(radians),  std::cos(radians) );
+void Alignable::rotateAroundLocalX(Scalar radians) {
+  RotationType rot(1., 0., 0., 0., std::cos(radians), std::sin(radians), 0., -std::sin(radians), std::cos(radians));
 
   rotateInLocalFrame(rot);
-
 }
 
-
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundGlobalY( Scalar radians )
-{
-
-  RotationType rot( std::cos(radians),  0., -std::sin(radians), 
-		    0.,            1.,  0.,
-		    std::sin(radians),  0.,  std::cos(radians) );
+void Alignable::rotateAroundGlobalY(Scalar radians) {
+  RotationType rot(std::cos(radians), 0., -std::sin(radians), 0., 1., 0., std::sin(radians), 0., std::cos(radians));
 
   rotateInGlobalFrame(rot);
-  
 }
 
-
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundLocalY( Scalar radians )
-{
+void Alignable::rotateAroundLocalY(Scalar radians) {
+  RotationType rot(std::cos(radians), 0., -std::sin(radians), 0., 1., 0., std::sin(radians), 0., std::cos(radians));
 
-  RotationType rot( std::cos(radians),  0., -std::sin(radians), 
-		    0.,            1.,  0.,
-		    std::sin(radians),  0.,  std::cos(radians) );
-  
   rotateInLocalFrame(rot);
-
 }
 
-
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundGlobalZ( Scalar radians )
-{
-
-  RotationType rot(  std::cos(radians),  std::sin(radians),  0.,
-		    -std::sin(radians),  std::cos(radians),  0.,
-		     0.,            0.,            1. );
+void Alignable::rotateAroundGlobalZ(Scalar radians) {
+  RotationType rot(std::cos(radians), std::sin(radians), 0., -std::sin(radians), std::cos(radians), 0., 0., 0., 1.);
 
   rotateInGlobalFrame(rot);
-  
 }
 
-
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundLocalZ( Scalar radians)
-{
+void Alignable::rotateAroundLocalZ(Scalar radians) {
+  RotationType rot(std::cos(radians), std::sin(radians), 0., -std::sin(radians), std::cos(radians), 0., 0., 0., 1.);
 
-  RotationType rot(  std::cos(radians),  std::sin(radians), 0. ,
-		    -std::sin(radians),  std::cos(radians), 0. ,
-		     0.,            0.,           1. );
-  
   rotateInLocalFrame(rot);
-
-}
-
-
-//__________________________________________________________________________________________________
-void Alignable::addDisplacement( const GlobalVector& displacement )
-{
-
-  theDisplacement += displacement;
-
 }
 
 //__________________________________________________________________________________________________
-void Alignable::addRotation( const RotationType& rotation ) 
-{
-
-  theRotation *= rotation;
-
-}
+void Alignable::addDisplacement(const GlobalVector& displacement) { theDisplacement += displacement; }
 
 //__________________________________________________________________________________________________
-AlignmentSurfaceDeformations* Alignable::surfaceDeformations( void ) const
-{
+void Alignable::addRotation(const RotationType& rotation) { theRotation *= rotation; }
 
-  typedef std::pair<int,SurfaceDeformation*> IdSurfaceDeformationPtrPair;
+//__________________________________________________________________________________________________
+AlignmentSurfaceDeformations* Alignable::surfaceDeformations(void) const {
+  typedef std::pair<int, SurfaceDeformation*> IdSurfaceDeformationPtrPair;
 
   std::vector<IdSurfaceDeformationPtrPair> result;
   surfaceDeformationIdPairs(result);
-  std::sort( result.begin(), result.end(), [](auto& a, auto& b){return  a.first < b.first;});
-  
+  std::sort(result.begin(), result.end(), [](auto& a, auto& b) { return a.first < b.first; });
+
   AlignmentSurfaceDeformations* allSurfaceDeformations = new AlignmentSurfaceDeformations();
-  
-  for ( std::vector<IdSurfaceDeformationPtrPair>::const_iterator iPair = result.begin();
-	iPair != result.end();
-	++iPair) {
-    
+
+  for (std::vector<IdSurfaceDeformationPtrPair>::const_iterator iPair = result.begin(); iPair != result.end();
+       ++iPair) {
     // should we check for 'empty' parameters here (all zeros) and skip ?
     // may be add 'empty' method to SurfaceDeformation
-    allSurfaceDeformations->add((*iPair).first,
-				(*iPair).second->type(),
-				(*iPair).second->parameters());
+    allSurfaceDeformations->add((*iPair).first, (*iPair).second->type(), (*iPair).second->parameters());
   }
-  
-  return allSurfaceDeformations;
 
+  return allSurfaceDeformations;
 }
 
-void Alignable::cacheTransformation()
-{
+void Alignable::cacheTransformation() {
   // first treat itself
   theCachedSurface = theSurface;
   theCachedDisplacement = theDisplacement;
   theCachedRotation = theRotation;
 
   // now treat components (a clean design would move that to AlignableComposite...)
-  for (const auto& it: this->components()) it->cacheTransformation();
+  for (const auto& it : this->components())
+    it->cacheTransformation();
 }
 
-void Alignable::cacheTransformation(const align::RunNumber& run)
-{
+void Alignable::cacheTransformation(const align::RunNumber& run) {
   // first treat itself
   surfacesCache_[run] = theSurface;
   displacementsCache_[run] = theDisplacement;
   rotationsCache_[run] = theRotation;
 
   // now treat components (a clean design would move that to AlignableComposite...)
-  for (const auto& it: this->components()) it->cacheTransformation(run);
+  for (const auto& it : this->components())
+    it->cacheTransformation(run);
 }
 
-void Alignable::restoreCachedTransformation()
-{
+void Alignable::restoreCachedTransformation() {
   // first treat itself
   theSurface = theCachedSurface;
   theDisplacement = theCachedDisplacement;
   theRotation = theCachedRotation;
 
   // now treat components (a clean design would move that to AlignableComposite...)
-  for (const auto& it: this->components()) it->restoreCachedTransformation();
+  for (const auto& it : this->components())
+    it->restoreCachedTransformation();
 }
 
-void Alignable::restoreCachedTransformation(const align::RunNumber& run)
-{
+void Alignable::restoreCachedTransformation(const align::RunNumber& run) {
   if (surfacesCache_.find(run) == surfacesCache_.end()) {
-    throw cms::Exception("Alignment")
-      << "@SUB=Alignable::restoreCachedTransformation\n"
-      << "Trying to restore cached transformation for a run (" << run
-      << ") that has not been cached.";
+    throw cms::Exception("Alignment") << "@SUB=Alignable::restoreCachedTransformation\n"
+                                      << "Trying to restore cached transformation for a run (" << run
+                                      << ") that has not been cached.";
   } else {
     // first treat itself
     theSurface = surfacesCache_[run];
@@ -333,47 +257,42 @@ void Alignable::restoreCachedTransformation(const align::RunNumber& run)
     theRotation = rotationsCache_[run];
 
     // now treat components (a clean design would move that to AlignableComposite...)
-    for (const auto& it: this->components()) it->restoreCachedTransformation();
+    for (const auto& it : this->components())
+      it->restoreCachedTransformation();
   }
 }
 
 //__________________________________________________________________________________________________
-void Alignable::setSurvey( const SurveyDet* survey )
-{
-
+void Alignable::setSurvey(const SurveyDet* survey) {
   delete theSurvey;
   theSurvey = survey;
-
 }
 
 //______________________________________________________________________________
 void Alignable::updateMother(const GlobalVector& shift) {
-
-  if (!theMother) return;
+  if (!theMother)
+    return;
 
   const auto thisComps = this->deepComponents().size();
   const auto motherComps = theMother->deepComponents().size();
   const auto motherShift = shift * static_cast<Scalar>(thisComps) / motherComps;
 
-  switch(theMother->compConstraintType()) {
-  case CompConstraintType::NONE:
-    break;
-  case CompConstraintType::POSITION_Z:
-    theMother->theSurface.move(GlobalVector(0,0, motherShift.z()));
-    theMother->updateMother(GlobalVector(0,0, motherShift.z()));
-    break;
-  case CompConstraintType::POSITION:
-    theMother->theSurface.move(motherShift);
-    theMother->updateMother(motherShift);
-    break;
+  switch (theMother->compConstraintType()) {
+    case CompConstraintType::NONE:
+      break;
+    case CompConstraintType::POSITION_Z:
+      theMother->theSurface.move(GlobalVector(0, 0, motherShift.z()));
+      theMother->updateMother(GlobalVector(0, 0, motherShift.z()));
+      break;
+    case CompConstraintType::POSITION:
+      theMother->theSurface.move(motherShift);
+      theMother->updateMother(motherShift);
+      break;
   }
 }
 
 //______________________________________________________________________________
-void Alignable::recenterSurface()
-{
+void Alignable::recenterSurface() {
   const auto& currentPosition = this->globalPosition();
-  theSurface.move(align::GlobalVector{-currentPosition.x(),
-                                      -currentPosition.y(),
-                                      -currentPosition.z()});
+  theSurface.move(align::GlobalVector{-currentPosition.x(), -currentPosition.y(), -currentPosition.z()});
 }

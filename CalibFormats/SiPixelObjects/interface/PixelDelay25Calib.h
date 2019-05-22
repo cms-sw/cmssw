@@ -13,8 +13,8 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
-namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
+namespace pos {
+  /*!  \ingroup ConfigurationObjects "Configuration Objects"
 *    
 *  @{
 *
@@ -22,52 +22,44 @@ namespace pos{
 *  \brief This class manages data and files used in the Delay25 calibration
 */
   class PixelDelay25Calib : public PixelCalibBase, public PixelConfigBase {
-
   public:
-  
     PixelDelay25Calib(std::string);
     PixelDelay25Calib(std::vector<std::vector<std::string> > &);
     ~PixelDelay25Calib() override;
 
-    void writeASCII(std::string dir="") const override;
-    void 	 writeXML(        pos::PixelConfigKey key, int version, std::string path) const override {;}
-    void writeXMLHeader(  pos::PixelConfigKey key, 
-				  int version, 
-				  std::string path, 
-				  std::ofstream *out,
-				  std::ofstream *out1 = nullptr,
-				  std::ofstream *out2 = nullptr
-				  ) const override;
-    void writeXML( 	  std::ofstream *out,			     	   			    
-			   	  std::ofstream *out1 = nullptr ,
-			   	  std::ofstream *out2 = nullptr ) const override;
-    void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = nullptr,
-				  std::ofstream *out2 = nullptr
-				  ) const override;
+    void writeASCII(std::string dir = "") const override;
+    void writeXML(pos::PixelConfigKey key, int version, std::string path) const override { ; }
+    void writeXMLHeader(pos::PixelConfigKey key,
+                        int version,
+                        std::string path,
+                        std::ofstream *out,
+                        std::ofstream *out1 = nullptr,
+                        std::ofstream *out2 = nullptr) const override;
+    void writeXML(std::ofstream *out, std::ofstream *out1 = nullptr, std::ofstream *out2 = nullptr) const override;
+    void writeXMLTrailer(std::ofstream *out,
+                         std::ofstream *out1 = nullptr,
+                         std::ofstream *out2 = nullptr) const override;
 
-    std::set<std::string>& portcardList() {return portcardNames_;}
-    bool allPortcards() {return allPortcards_;}
-    bool allModules() {return allModules_;}
-    int getGridSize() {return gridSize_;}
-    int getGridSteps() {return gridSteps_;}
-    int getNumberTests() {return numTests_;}
-    int getRange() {return range_;}
-    int getOrigSDa() {return origSDa_;}
-    int getOrigRDa() {return origRDa_;}
-    int getCommands() {return commands_;}
-    void openFiles(std::string portcardName, std::string moduleName, 
-		   std::string path="");
+    std::set<std::string> &portcardList() { return portcardNames_; }
+    bool allPortcards() { return allPortcards_; }
+    bool allModules() { return allModules_; }
+    int getGridSize() { return gridSize_; }
+    int getGridSteps() { return gridSteps_; }
+    int getNumberTests() { return numTests_; }
+    int getRange() { return range_; }
+    int getOrigSDa() { return origSDa_; }
+    int getOrigRDa() { return origRDa_; }
+    int getCommands() { return commands_; }
+    void openFiles(std::string portcardName, std::string moduleName, std::string path = "");
     void writeSettings(std::string portcardName, std::string moduleName);
     void writeFiles(std::string tmp);
     void writeFiles(int currentSDa, int currentRDa, int number);
     void closeFiles();
 
     // Added by Dario April 28th, 2010
-    std::string getStreamedContent(void) const {return calibFileContent_;} ;
+    std::string getStreamedContent(void) const { return calibFileContent_; };
 
   private:
-
     std::set<std::string> portcardNames_;
     bool allPortcards_, allModules_;
     int origSDa_, origRDa_, range_, gridSize_, gridSteps_, numTests_, commands_;
@@ -75,8 +67,8 @@ namespace pos{
     std::string graph_;
 
     // Added by Dario April 28th, 2010
-    std::string calibFileContent_ ;
+    std::string calibFileContent_;
   };
-}
+}  // namespace pos
 /* @} */
 #endif
