@@ -19,56 +19,43 @@
 
 using namespace edm;
 
-class  MTDTimeCalibESProducer: public edm::ESProducer
-{
- public:
-  MTDTimeCalibESProducer(const edm::ParameterSet & p);
-  ~MTDTimeCalibESProducer() override = default; 
+class MTDTimeCalibESProducer : public edm::ESProducer {
+public:
+  MTDTimeCalibESProducer(const edm::ParameterSet& p);
+  ~MTDTimeCalibESProducer() override = default;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  std::unique_ptr<MTDTimeCalib> produce(const MTDTimeCalibRecord &);
-  
- private:
+  std::unique_ptr<MTDTimeCalib> produce(const MTDTimeCalibRecord&);
+
+private:
   edm::ParameterSet pset_;
 };
 
-
-MTDTimeCalibESProducer::MTDTimeCalibESProducer(const edm::ParameterSet & p) 
-{
+MTDTimeCalibESProducer::MTDTimeCalibESProducer(const edm::ParameterSet& p) {
   pset_ = p;
-  setWhatProduced(this,"MTDTimeCalib");
+  setWhatProduced(this, "MTDTimeCalib");
 }
 
 // Configuration descriptions
-void
-MTDTimeCalibESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void MTDTimeCalibESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<double>("BTLTimeOffset", 0.)->
-    setComment("Time offset (additive) to all the BTL RecHits [ns]");
-  desc.add<double>("ETLTimeOffset", 0.)->
-    setComment("Time offset (additive) to all the ETL RecHits [ns]");
-  desc.add<double>("BTLLightCollTime", 0.2)->
-    setComment("Light collection time for BTL tile geometry [ns]");
-  desc.add<double>("BTLLightCollSlope", 0.075)->
-    setComment("Light collection slope for bar for BTL bar tile geometry [ns/cm]");
+  desc.add<double>("BTLTimeOffset", 0.)->setComment("Time offset (additive) to all the BTL RecHits [ns]");
+  desc.add<double>("ETLTimeOffset", 0.)->setComment("Time offset (additive) to all the ETL RecHits [ns]");
+  desc.add<double>("BTLLightCollTime", 0.2)->setComment("Light collection time for BTL tile geometry [ns]");
+  desc.add<double>("BTLLightCollSlope", 0.075)
+      ->setComment("Light collection slope for bar for BTL bar tile geometry [ns/cm]");
   descriptions.add("MTDTimeCalibESProducer", desc);
 }
 
-std::unique_ptr<MTDTimeCalib>
-MTDTimeCalibESProducer::produce(const MTDTimeCalibRecord & iRecord)
-{ 
+std::unique_ptr<MTDTimeCalib> MTDTimeCalibESProducer::produce(const MTDTimeCalibRecord& iRecord) {
   edm::ESHandle<MTDGeometry> pDD;
-  iRecord.getRecord<MTDDigiGeometryRecord>().get( pDD );
-  
+  iRecord.getRecord<MTDDigiGeometryRecord>().get(pDD);
+
   edm::ESHandle<MTDTopology> pTopo;
-  iRecord.getRecord<MTDTopologyRcd>().get( pTopo );
-  
-  return std::make_unique<MTDTimeCalib>(
-					    pset_,
-					    pDD.product(),
-					    pTopo.product()
-					    );
+  iRecord.getRecord<MTDTopologyRcd>().get(pTopo);
+
+  return std::make_unique<MTDTimeCalib>(pset_, pDD.product(), pTopo.product());
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

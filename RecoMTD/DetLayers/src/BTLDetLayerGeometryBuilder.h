@@ -14,17 +14,16 @@
 class DetLayer;
 
 class BTLDetLayerGeometryBuilder {
-    public:
-        /// Constructor
-        BTLDetLayerGeometryBuilder();
+public:
+  /// Constructor
+  BTLDetLayerGeometryBuilder();
 
-        /// Destructor
-        virtual ~BTLDetLayerGeometryBuilder();
-  
-        /// Operations
-        static std::vector<DetLayer*> buildLayers(const MTDGeometry& geo);
-    private:
-    
+  /// Destructor
+  virtual ~BTLDetLayerGeometryBuilder();
+
+  /// Operations
+  static std::vector<DetLayer*> buildLayers(const MTDGeometry& geo);
+
+private:
 };
 #endif
-

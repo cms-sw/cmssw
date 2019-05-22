@@ -14,9 +14,8 @@
 
 #include "boost/mpl/vector.hpp"
 
+class MTDRecoGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<MTDRecoGeometryRecord,
+                                                            boost::mpl::vector<MTDDigiGeometryRecord> > {};
 
-class MTDRecoGeometryRecord : public edm::eventsetup::DependentRecordImplementation<MTDRecoGeometryRecord,
-  boost::mpl::vector<MTDDigiGeometryRecord> > {};
-
-#endif 
-
+#endif

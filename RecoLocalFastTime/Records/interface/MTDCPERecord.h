@@ -7,7 +7,8 @@
 
 #include "boost/mpl/vector.hpp"
 
-class  MTDCPERecord: public edm::eventsetup::DependentRecordImplementation<MTDCPERecord,
-  boost::mpl::vector<MTDDigiGeometryRecord> > {};
+class MTDCPERecord
+    : public edm::eventsetup::DependentRecordImplementation<MTDCPERecord, boost::mpl::vector<MTDDigiGeometryRecord> > {
+};
 
-#endif 
+#endif

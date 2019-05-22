@@ -22,18 +22,18 @@
 
 class GEMSegmentAlgorithmBase {
 public:
-  typedef std::pair<const GEMSuperChamber*, std::map<uint32_t, const GEMEtaPartition*> >GEMEnsemble; 
+  typedef std::pair<const GEMSuperChamber*, std::map<uint32_t, const GEMEtaPartition*> > GEMEnsemble;
 
-    /// Constructor
-    explicit GEMSegmentAlgorithmBase(const edm::ParameterSet&) {};
-    /// Destructor
-    virtual ~GEMSegmentAlgorithmBase() {};
+  /// Constructor
+  explicit GEMSegmentAlgorithmBase(const edm::ParameterSet&){};
+  /// Destructor
+  virtual ~GEMSegmentAlgorithmBase(){};
 
-    /** Run the algorithm = build the segments in this chamber
+  /** Run the algorithm = build the segments in this chamber
     */
-    virtual std::vector<GEMSegment> run(const GEMEnsemble& ensemble, const std::vector<const GEMRecHit*>& rechits) = 0;  
+  virtual std::vector<GEMSegment> run(const GEMEnsemble& ensemble, const std::vector<const GEMRecHit*>& rechits) = 0;
 
-    private:
+private:
 };
 
 #endif
