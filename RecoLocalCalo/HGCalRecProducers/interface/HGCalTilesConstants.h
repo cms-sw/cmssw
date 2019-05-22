@@ -20,8 +20,8 @@ namespace hgcaltilesconstants {
   constexpr float minY = -285.f;
   constexpr float maxY = 285.f;
   constexpr float tileSize = 5.f;
-  constexpr int nColumns = hgcaltilesconstants::ceil(maxX - minX / tileSize);
-  constexpr int nRows = hgcaltilesconstants::ceil(maxY - minY / tileSize);
+  constexpr int nColumns = hgcaltilesconstants::ceil((maxX - minX) / tileSize);
+  constexpr int nRows = hgcaltilesconstants::ceil((maxY - minY) / tileSize);
 
 }  // namespace hgcaltilesconstants
 
