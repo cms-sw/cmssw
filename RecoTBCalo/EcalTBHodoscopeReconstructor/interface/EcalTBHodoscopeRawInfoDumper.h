@@ -15,19 +15,16 @@
 #include "TGraph.h"
 #include "TH2.h"
 class EcalTBHodoscopeRawInfoDumper : public edm::EDAnalyzer {
-
- public:
-
+public:
   explicit EcalTBHodoscopeRawInfoDumper(const edm::ParameterSet& ps);
-  ~EcalTBHodoscopeRawInfoDumper() override ;
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  ~EcalTBHodoscopeRawInfoDumper() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginJob() override;
   void endJob() override;
 
- private:
-
-  std::string rawInfoProducer_; // name of module/plugin/producer making digis
-  std::string rawInfoCollection_; // secondary name given to collection of digis
+private:
+  std::string rawInfoProducer_;    // name of module/plugin/producer making digis
+  std::string rawInfoCollection_;  // secondary name given to collection of digis
   std::string rootfile_;
   TH1F* h_numberOfFiredHits_[4];
   TH1F* h_firedHits_[4];

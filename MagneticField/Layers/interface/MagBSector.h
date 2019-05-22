@@ -27,17 +27,16 @@ public:
   MagBSector(std::vector<MagBRod*>& rods, Geom::Phi<float> phiMin);
 
   /// Destructor
-  virtual ~MagBSector();  
+  virtual ~MagBSector();
 
   /// Find the volume containing a point, with a given tolerance
-  const MagVolume * findVolume(const GlobalPoint & gp, double tolerance) const;
+  const MagVolume* findVolume(const GlobalPoint& gp, double tolerance) const;
 
   /// Phi of sector start
-  Geom::Phi<float> minPhi() const {return thePhiMin;}
+  Geom::Phi<float> minPhi() const { return thePhiMin; }
 
 private:
   std::vector<MagBRod*> theRods;
   Geom::Phi<float> thePhiMin;
 };
 #endif
-

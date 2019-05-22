@@ -11,45 +11,43 @@
 #include <iostream>
 #include <fstream>
 
-
 class HcalLaserReco : public edm::EDProducer {
 public:
   explicit HcalLaserReco(const edm::ParameterSet& ps);
   ~HcalLaserReco() override;
   void produce(edm::Event& e, const edm::EventSetup& c) override;
+
 private:
   int qdctdcFed_;
   HcalLaserUnpacker unpacker_;
   edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
 };
 
-HcalLaserReco::HcalLaserReco(edm::ParameterSet const& conf):
-  qdctdcFed_(conf.getUntrackedParameter<int>("QADCTDCFED",8))
-{
+HcalLaserReco::HcalLaserReco(edm::ParameterSet const& conf)
+    : qdctdcFed_(conf.getUntrackedParameter<int>("QADCTDCFED", 8)) {
   tok_raw_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("fedRawDataCollectionTag"));
-  
-    produces<HcalLaserDigi>();
+
+  produces<HcalLaserDigi>();
 }
 
 // Virtual destructor needed.
-HcalLaserReco::~HcalLaserReco() { }  
+HcalLaserReco::~HcalLaserReco() {}
 
 // Functions that gets called by framework every event
-void HcalLaserReco::produce(edm::Event& e, const edm::EventSetup&)
-{
-  // Step A: Get Inputs 
+void HcalLaserReco::produce(edm::Event& e, const edm::EventSetup&) {
+  // Step A: Get Inputs
   edm::Handle<FEDRawDataCollection> rawraw;
   e.getByToken(tok_raw_, rawraw);
 
-  // Step B: Create empty output    
+  // Step B: Create empty output
   auto digi = std::make_unique<HcalLaserDigi>();
-    
-  if (qdctdcFed_ >=0) {
+
+  if (qdctdcFed_ >= 0) {
     // Step C: unpack all requested FEDs
     const FEDRawData& fed = rawraw->FEDData(qdctdcFed_);
-    unpacker_.unpack(fed,*digi);
+    unpacker_.unpack(fed, *digi);
   }
-  
+
   // Step D: Put outputs into event
   e.put(std::move(digi));
 }
@@ -58,4 +56,3 @@ void HcalLaserReco::produce(edm::Event& e, const edm::EventSetup&)
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(HcalLaserReco);
-

@@ -14,38 +14,38 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class TFile;
 class TH1F;
 class TH2F;
 
-class STAMuonAnalyzer: public edm::EDAnalyzer {
+class STAMuonAnalyzer : public edm::EDAnalyzer {
 public:
   /// Constructor
-  STAMuonAnalyzer(const edm::ParameterSet& pset);
+  STAMuonAnalyzer(const edm::ParameterSet &pset);
 
   /// Destructor
   virtual ~STAMuonAnalyzer();
 
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup);
 
-  virtual void beginJob() ;
-  virtual void endJob() ;
+  virtual void beginJob();
+  virtual void endJob();
+
 protected:
-
 private:
   std::string theRootFileName;
-  TFile* theFile;
+  TFile *theFile;
 
   std::string theSTAMuonLabel;
   std::string theSeedCollectionLabel;
 
   // Histograms
   TH1F *hPtRec;
-  TH1F *hPtSim; 
+  TH1F *hPtSim;
   TH1F *hPres;
   TH1F *h1_Pres;
   TH1F *hPTDiff;
@@ -58,7 +58,5 @@ private:
   int numberOfRecTracks;
 
   std::string theDataType;
-  
 };
 #endif
-

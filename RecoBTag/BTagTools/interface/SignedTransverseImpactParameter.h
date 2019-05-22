@@ -8,36 +8,21 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include <utility>
 
-
 /** Transverse track impact parameter signed according to the jet 
  *  direction
  */
 
-class SignedTransverseImpactParameter  {
-  
+class SignedTransverseImpactParameter {
 public:
-
   // construct
 
   SignedTransverseImpactParameter(){};
 
-  std::pair<bool,Measurement1D> apply(const reco::TransientTrack &, const GlobalVector & , const reco::Vertex &) const;
+  std::pair<bool, Measurement1D> apply(const reco::TransientTrack &, const GlobalVector &, const reco::Vertex &) const;
 
-  std::pair<bool,Measurement1D> zImpactParameter ( const reco::TransientTrack & , const GlobalVector & ,const reco::Vertex & ) const ;
-  
-
+  std::pair<bool, Measurement1D> zImpactParameter(const reco::TransientTrack &,
+                                                  const GlobalVector &,
+                                                  const reco::Vertex &) const;
 };
 
-
-
 #endif
-
-
-
-
-
-
-
-
-
-
