@@ -11,319 +11,304 @@
 #include "MPUnpacker_0x10010033.h"
 
 namespace l1t {
-namespace stage2 {
-   bool
-   MPUnpacker_0x10010033::unpack(const Block& block, UnpackerCollections *coll)
-   {
+  namespace stage2 {
+    bool MPUnpacker_0x10010033::unpack(const Block& block, UnpackerCollections* coll) {
+      LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize()
+                      << " AMC = " << block.amc().getAMCNumber();
 
-     LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize() << " AMC = " << block.amc().getAMCNumber();
+      // check this is the correct MP
+      unsigned int tmt = block.amc().getBoardID() - l1t::stage2::layer2::mp::offsetBoardId + 1;
+      unsigned int bxid = block.amc().getBX();
 
-     // check this is the correct MP
-     unsigned int tmt  = block.amc().getBoardID() - l1t::stage2::layer2::mp::offsetBoardId + 1;
-     unsigned int bxid = block.amc().getBX();
+      // handle offset between BC0 marker and actual BC0...
+      //if( (tmt-1) != ((bxid-1+3)%9) ) return true;
+      LogDebug("L1T") << "Unpacking TMT # " << tmt << " for BX " << bxid;
 
-     // handle offset between BC0 marker and actual BC0...
-     //if( (tmt-1) != ((bxid-1+3)%9) ) return true;
-     LogDebug("L1T") << "Unpacking TMT # " << tmt << " for BX " << bxid;
+      auto res1_ = static_cast<CaloCollections*>(coll)->getMPJets();
+      auto res2_ = static_cast<CaloCollections*>(coll)->getMPEtSums();
+      auto res3_ = static_cast<CaloCollections*>(coll)->getMPEGammas();
+      auto res4_ = static_cast<CaloCollections*>(coll)->getMPTaus();
 
-     auto res1_ = static_cast<CaloCollections*>(coll)->getMPJets();
-     auto res2_ = static_cast<CaloCollections*>(coll)->getMPEtSums();
-     auto res3_ = static_cast<CaloCollections*>(coll)->getMPEGammas();
-     auto res4_ = static_cast<CaloCollections*>(coll)->getMPTaus();
-     
-     res1_->setBXRange(0,0);
-     res2_->setBXRange(0,0);
-     res3_->setBXRange(0,0);
-     res4_->setBXRange(0,0);
+      res1_->setBXRange(0, 0);
+      res2_->setBXRange(0, 0);
+      res3_->setBXRange(0, 0);
+      res4_->setBXRange(0, 0);
 
-     // Initialise frame indices for each data type
-     int unsigned fet  = 0;
-     int unsigned fht  = 2;
-     int unsigned feg  = 4;
-     int unsigned ftau = 6;
-     int unsigned fjet = 8;
-     int unsigned faux = 10;
+      // Initialise frame indices for each data type
+      int unsigned fet = 0;
+      int unsigned fht = 2;
+      int unsigned feg = 4;
+      int unsigned ftau = 6;
+      int unsigned fjet = 8;
+      int unsigned faux = 10;
 
-     //      ===== Jets and Sums =====
+      //      ===== Jets and Sums =====
 
-     // ET / MET(x) / MET (y) with HF (configurable)
+      // ET / MET(x) / MET (y) with HF (configurable)
 
-     uint32_t raw_data = block.payload()[fet];
+      uint32_t raw_data = block.payload()[fet];
 
-     l1t::EtSum ethf = l1t::EtSum();
+      l1t::EtSum ethf = l1t::EtSum();
 
-     switch(block.header().getID()){
-     case 123: // 61
-       ethf.setType(l1t::EtSum::kTotalEtHF);
-       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF)) );
-       break;
-     case 121: // 60
-       ethf.setType(l1t::EtSum::kTotalEtxHF);
-       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 127: // 63
-       ethf.setType(l1t::EtSum::kTotalEtyHF);
-       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 125: // 62
-       ethf.setType(l1t::EtSum::kTotalEtHF);
-       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF)) );
-       break;
-     case 131: // 65
-       ethf.setType(l1t::EtSum::kTotalEtxHF);
-       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 129: // 64
-       ethf.setType(l1t::EtSum::kTotalEtyHF); 
-       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     default: 
-       break;
-     }
+      switch (block.header().getID()) {
+        case 123:  // 61
+          ethf.setType(l1t::EtSum::kTotalEtHF);
+          ethf.setHwPt(static_cast<int32_t>(uint32_t(raw_data & 0xFFFF)));
+          break;
+        case 121:  // 60
+          ethf.setType(l1t::EtSum::kTotalEtxHF);
+          ethf.setHwPt(static_cast<int32_t>(uint32_t(raw_data)));
+          break;
+        case 127:  // 63
+          ethf.setType(l1t::EtSum::kTotalEtyHF);
+          ethf.setHwPt(static_cast<int32_t>(uint32_t(raw_data)));
+          break;
+        case 125:  // 62
+          ethf.setType(l1t::EtSum::kTotalEtHF);
+          ethf.setHwPt(static_cast<int32_t>(uint32_t(raw_data & 0xFFFF)));
+          break;
+        case 131:  // 65
+          ethf.setType(l1t::EtSum::kTotalEtxHF);
+          ethf.setHwPt(static_cast<int32_t>(uint32_t(raw_data)));
+          break;
+        case 129:  // 64
+          ethf.setType(l1t::EtSum::kTotalEtyHF);
+          ethf.setHwPt(static_cast<int32_t>(uint32_t(raw_data)));
+          break;
+        default:
+          break;
+      }
 
-     LogDebug("L1T") << "ET/METx/METy: pT " << ethf.hwPt();
+      LogDebug("L1T") << "ET/METx/METy: pT " << ethf.hwPt();
 
-     res2_->push_back(0,ethf);
+      res2_->push_back(0, ethf);
 
+      // ET / MET(x) / MET (y) without HF
 
-     // ET / MET(x) / MET (y) without HF
+      raw_data = block.payload()[fet + 1];
 
-     raw_data = block.payload()[fet + 1];
+      l1t::EtSum etNoHF = l1t::EtSum();
+      l1t::EtSum etEm = l1t::EtSum();
 
-     l1t::EtSum etNoHF = l1t::EtSum();
-     l1t::EtSum etEm = l1t::EtSum();
+      switch (block.header().getID()) {
+        case 123:  // 61
+          etNoHF.setType(l1t::EtSum::kTotalEt);
+          etNoHF.setHwPt(static_cast<int32_t>(uint32_t(raw_data & 0xFFFF)));
+          break;
+        case 121:  // 60
+          etNoHF.setType(l1t::EtSum::kTotalEtx);
+          etNoHF.setHwPt(static_cast<int32_t>(uint32_t(raw_data)));
+          break;
+        case 127:  // 63
+          etNoHF.setType(l1t::EtSum::kTotalEty);
+          etNoHF.setHwPt(static_cast<int32_t>(uint32_t(raw_data)));
+          break;
+        case 125:  // 62
+          etNoHF.setType(l1t::EtSum::kTotalEt);
+          etNoHF.setHwPt(static_cast<int32_t>(uint32_t(raw_data & 0xFFFF)));
+          break;
+        case 131:  // 65
+          etNoHF.setType(l1t::EtSum::kTotalEtx);
+          etNoHF.setHwPt(static_cast<int32_t>(uint32_t(raw_data)));
+          break;
+        case 129:  // 64
+          etNoHF.setType(l1t::EtSum::kTotalEty);
+          etNoHF.setHwPt(static_cast<int32_t>(uint32_t(raw_data)));
+          break;
+        default:
+          break;
+      }
 
-     switch(block.header().getID()){
-     case 123: // 61
-       etNoHF.setType(l1t::EtSum::kTotalEt);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF)) );
-       break;
-     case 121: // 60
-       etNoHF.setType(l1t::EtSum::kTotalEtx);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 127: // 63
-       etNoHF.setType(l1t::EtSum::kTotalEty);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 125: // 62
-       etNoHF.setType(l1t::EtSum::kTotalEt);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF)) );
-       break;
-     case 131: // 65
-       etNoHF.setType(l1t::EtSum::kTotalEtx);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 129: // 64
-       etNoHF.setType(l1t::EtSum::kTotalEty); 
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     default:
-       break;
-     }
+      LogDebug("L1T") << "ET/METx/METy (no HF): pT " << etNoHF.hwPt();
 
-     LogDebug("L1T") << "ET/METx/METy (no HF): pT " << etNoHF.hwPt();
+      res2_->push_back(0, etNoHF);
 
-     res2_->push_back(0,etNoHF);
-   
-     
-     // ET EM
-     if(block.header().getID()==123 || block.header().getID()==125){
-       etEm.setType(l1t::EtSum::kTotalEtEm);
-       etEm.setHwPt( static_cast<int32_t>( uint32_t( ( raw_data >> 16 ) & 0xFFFF )) );
-       res2_->push_back(0,etEm);
+      // ET EM
+      if (block.header().getID() == 123 || block.header().getID() == 125) {
+        etEm.setType(l1t::EtSum::kTotalEtEm);
+        etEm.setHwPt(static_cast<int32_t>(uint32_t((raw_data >> 16) & 0xFFFF)));
+        res2_->push_back(0, etEm);
+      }
 
-     }
+      // HT / MHT(x)/ MHT (y) with HF
 
+      raw_data = block.payload()[fht];
 
-     // HT / MHT(x)/ MHT (y) with HF
+      l1t::EtSum hthf = l1t::EtSum();
 
-     raw_data = block.payload()[fht];
+      switch (block.header().getID()) {
+        case 123:  // 61
+          hthf.setType(l1t::EtSum::kTotalHtHF);
+          hthf.setHwPt(static_cast<int32_t>(uint32_t(raw_data & 0xFFFF)));
+          break;
+        case 121:  // 60
+          hthf.setType(l1t::EtSum::kTotalHtxHF);
+          hthf.setHwPt(static_cast<int32_t>(uint32_t(raw_data)));
+          break;
+        case 127:  // 63
+          hthf.setType(l1t::EtSum::kTotalHtyHF);
+          hthf.setHwPt(static_cast<int32_t>(uint32_t(raw_data)));
+          break;
+        case 125:  // 62
+          hthf.setType(l1t::EtSum::kTotalHtHF);
+          hthf.setHwPt(static_cast<int32_t>(uint32_t(raw_data & 0xFFFF)));
+          break;
+        case 131:  // 65
+          hthf.setType(l1t::EtSum::kTotalHtxHF);
+          hthf.setHwPt(static_cast<int32_t>(uint32_t(raw_data)));
+          break;
+        case 129:  // 64
+          hthf.setType(l1t::EtSum::kTotalHtyHF);
+          hthf.setHwPt(static_cast<int32_t>(uint32_t(raw_data)));
+          break;
+        default:
+          break;
+      }
 
-     l1t::EtSum hthf = l1t::EtSum(); 
+      LogDebug("L1T") << "HTHF/MHTHFx/MHTHFy: pT " << hthf.hwPt();
 
-     switch(block.header().getID()){
-     case 123: // 61
-       hthf.setType(l1t::EtSum::kTotalHtHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF)) );
-       break;
-     case 121: // 60
-       hthf.setType(l1t::EtSum::kTotalHtxHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 127: // 63
-       hthf.setType(l1t::EtSum::kTotalHtyHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 125: // 62
-       hthf.setType(l1t::EtSum::kTotalHtHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF)) );
-       break;
-     case 131: // 65
-       hthf.setType(l1t::EtSum::kTotalHtxHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 129: // 64
-       hthf.setType(l1t::EtSum::kTotalHtyHF); 
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     default: 
-       break;
-     }
+      res2_->push_back(0, hthf);
 
-     LogDebug("L1T") << "HTHF/MHTHFx/MHTHFy: pT " << hthf.hwPt();
+      // HT / MHT(x)/ MHT (y) no HF
 
-     res2_->push_back(0,hthf);
+      raw_data = block.payload()[fht + 1];
 
+      l1t::EtSum htNoHF = l1t::EtSum();
 
-     // HT / MHT(x)/ MHT (y) no HF
+      switch (block.header().getID()) {
+        case 123:  // 61
+          htNoHF.setType(l1t::EtSum::kTotalHt);
+          htNoHF.setHwPt(static_cast<int32_t>(uint32_t(raw_data & 0xFFFF)));
+          break;
+        case 121:  // 60
+          htNoHF.setType(l1t::EtSum::kTotalHtx);
+          htNoHF.setHwPt(static_cast<int32_t>(uint32_t(raw_data)));
+          break;
+        case 127:  // 63
+          htNoHF.setType(l1t::EtSum::kTotalHty);
+          htNoHF.setHwPt(static_cast<int32_t>(uint32_t(raw_data)));
+          break;
+        case 125:  // 62
+          htNoHF.setType(l1t::EtSum::kTotalHt);
+          htNoHF.setHwPt(static_cast<int32_t>(uint32_t(raw_data & 0xFFFF)));
+          break;
+        case 131:  // 65
+          htNoHF.setType(l1t::EtSum::kTotalHtx);
+          htNoHF.setHwPt(static_cast<int32_t>(uint32_t(raw_data)));
+          break;
+        case 129:  // 64
+          htNoHF.setType(l1t::EtSum::kTotalHty);
+          htNoHF.setHwPt(static_cast<int32_t>(uint32_t(raw_data)));
+          break;
+        default:
+          break;
+      }
 
-     raw_data = block.payload()[fht+1];
+      LogDebug("L1T") << "HTNOHF/MHTNOHFx/MHTNOHFy: pT " << htNoHF.hwPt();
 
-     l1t::EtSum htNoHF = l1t::EtSum(); 
+      res2_->push_back(0, htNoHF);
 
-     switch(block.header().getID()){
-     case 123: // 61
-       htNoHF.setType(l1t::EtSum::kTotalHt);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF)) );
-       break;
-     case 121: // 60
-       htNoHF.setType(l1t::EtSum::kTotalHtx);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 127: // 63
-       htNoHF.setType(l1t::EtSum::kTotalHty);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 125: // 62
-       htNoHF.setType(l1t::EtSum::kTotalHt);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF)) );
-       break;
-     case 131: // 65
-       htNoHF.setType(l1t::EtSum::kTotalHtx);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 129: // 64
-       htNoHF.setType(l1t::EtSum::kTotalHty); 
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     default:
-       break;
-     }
+      // Two jets
+      for (unsigned nJet = 0; nJet < 2; nJet++) {
+        raw_data = block.payload()[fjet + nJet];
 
+        if (raw_data == 0)
+          continue;
 
-     LogDebug("L1T") << "HTNOHF/MHTNOHFx/MHTNOHFy: pT " << htNoHF.hwPt();
+        l1t::Jet jet = l1t::Jet();
 
-     res2_->push_back(0,htNoHF);
+        int etasign = 1;
+        if ((block.header().getID() == 125) || (block.header().getID() == 131) || (block.header().getID() == 129)) {
+          etasign = -1;
+        }
 
+        LogDebug("L1") << "block ID=" << block.header().getID() << " etasign=" << etasign;
 
-     // Two jets
-     for (unsigned nJet=0; nJet < 2; nJet++){
+        int mpEta = etasign * (raw_data & 0x3F);
+        jet.setHwEta(CaloTools::caloEta(mpEta));
+        jet.setHwPhi((raw_data >> 6) & 0x7F);
+        jet.setHwPt((raw_data >> 13) & 0xFFFF);
+        jet.setHwQual((raw_data >> 29) & 0x1);
 
-       raw_data = block.payload()[fjet+nJet];
+        if (jet.hwPt() == 0)
+          continue;
 
-       if (raw_data == 0)
-            continue;
+        LogDebug("L1T") << "Jet: eta " << jet.hwEta() << " phi " << jet.hwPhi() << " pT " << jet.hwPt() << " qual "
+                        << jet.hwQual();
 
-       l1t::Jet jet = l1t::Jet();
+        jet.setP4(l1t::CaloTools::p4MP(&jet));
+        res1_->push_back(0, jet);
+      }
 
-       int etasign = 1;
-       if ((block.header().getID() == 125) ||
-           (block.header().getID() == 131) ||
-           (block.header().getID() == 129)) {
-         etasign = -1;
-       }
+      //      ===== EGammas =====
 
-       LogDebug("L1") << "block ID=" << block.header().getID() << " etasign=" << etasign;
+      // Two EGammas
 
-       int mpEta = etasign*(raw_data & 0x3F);
-       jet.setHwEta(CaloTools::caloEta(mpEta));
-       jet.setHwPhi((raw_data >> 6) & 0x7F);
-       jet.setHwPt((raw_data >> 13) & 0xFFFF);
-       jet.setHwQual((raw_data>>29) & 0x1 );
+      for (unsigned nEG = 0; nEG < 2; nEG++) {
+        raw_data = block.payload()[feg + nEG];
 
-       if (jet.hwPt()==0) continue;
-         
-       LogDebug("L1T") << "Jet: eta " << jet.hwEta() << " phi " << jet.hwPhi() << " pT " << jet.hwPt() << " qual " << jet.hwQual();
+        if (raw_data == 0)
+          continue;
 
-       jet.setP4( l1t::CaloTools::p4MP(&jet) );
-       res1_->push_back(0,jet);
+        l1t::EGamma eg = l1t::EGamma();
 
-     }
+        int etasign = 1;
+        if ((block.header().getID() == 125) || (block.header().getID() == 131) || (block.header().getID() == 129)) {
+          etasign = -1;
+        }
 
-     //      ===== EGammas =====
-     
-     // Two EGammas
+        LogDebug("L1") << "block ID=" << block.header().getID() << " etasign=" << etasign;
 
+        eg.setHwEta(etasign * ((raw_data >> 3) & 0x3F));
+        eg.setHwPhi((raw_data >> 9) & 0x7F);
+        eg.setHwPt((raw_data >> 20) & 0xFFF);
+        eg.setHwIso((raw_data >> 1) & 0x3);
+        eg.setHwQual((raw_data >> 16) & 0xf);
 
-     for (unsigned nEG=0; nEG < 2; nEG++){
-       
-       raw_data = block.payload()[feg+nEG];
-       
-       if (raw_data == 0)
-	 continue;
-       
-       l1t::EGamma eg = l1t::EGamma();
+        if (eg.hwPt() == 0)
+          continue;
 
-       int etasign = 1;
-       if ((block.header().getID() == 125) ||
-           (block.header().getID() == 131) ||
-           (block.header().getID() == 129)) {
-         etasign = -1;
-       }
-       
-       LogDebug("L1") << "block ID=" << block.header().getID() << " etasign=" << etasign;
+        LogDebug("L1T") << "Egamma: eta " << eg.hwEta() << " phi " << eg.hwPhi() << " pT " << eg.hwPt() << " qual "
+                        << eg.hwQual();
 
-       eg.setHwEta(etasign*((raw_data >> 3) & 0x3F));
-       eg.setHwPhi((raw_data >> 9) & 0x7F);
-       eg.setHwPt((raw_data >> 20) & 0xFFF);
-       eg.setHwIso((raw_data>>1) & 0x3);       
-       eg.setHwQual((raw_data>>16) & 0xf );
+        eg.setP4(l1t::CaloTools::p4MP(&eg));
+        res3_->push_back(0, eg);
+      }
 
-       if (eg.hwPt()==0) continue;
-	   
-       LogDebug("L1T") << "Egamma: eta " << eg.hwEta() << " phi " << eg.hwPhi() << " pT " << eg.hwPt() << " qual " << eg.hwQual();
-       
-       eg.setP4( l1t::CaloTools::p4MP(&eg) );
-       res3_->push_back(0,eg);
-     }
+      //      ===== Taus =====
 
-     
-     //      ===== Taus =====
-     
-     // Two taus
+      // Two taus
 
-     for (unsigned nTau=0; nTau < 2; nTau++){
-       
-       raw_data = block.payload()[ftau+nTau];
-       
-       if (raw_data == 0)
-	 continue;
-       
-       l1t::Tau tau = l1t::Tau();
+      for (unsigned nTau = 0; nTau < 2; nTau++) {
+        raw_data = block.payload()[ftau + nTau];
 
-       int etasign = 1;
-       if ((block.header().getID() == 125) ||
-           (block.header().getID() == 131) ||
-           (block.header().getID() == 129)) {
-         etasign = -1;
-       }
-       
-       LogDebug("L1") << "block ID=" << block.header().getID() << " etasign=" << etasign;
-       
-       tau.setHwEta(etasign*((raw_data >> 3) & 0x3F));
-       tau.setHwPhi((raw_data >> 9) & 0x7F);
-       tau.setHwPt((raw_data >> 20) & 0xFFF);
-       tau.setHwIso((raw_data>>1) & 0x3);       
-       tau.setHwQual((raw_data>>16) & 0xf );
+        if (raw_data == 0)
+          continue;
 
-       if (tau.hwPt()==0) continue;
-       
-       LogDebug("L1T") << "Tau: eta " << tau.hwEta() << " phi " << tau.hwPhi() << " pT " << tau.hwPt() << " qual " << tau.hwQual();
-       
-       tau.setP4( l1t::CaloTools::p4MP(&tau) );
-       res4_->push_back(0,tau);
-     }
+        l1t::Tau tau = l1t::Tau();
+
+        int etasign = 1;
+        if ((block.header().getID() == 125) || (block.header().getID() == 131) || (block.header().getID() == 129)) {
+          etasign = -1;
+        }
+
+        LogDebug("L1") << "block ID=" << block.header().getID() << " etasign=" << etasign;
+
+        tau.setHwEta(etasign * ((raw_data >> 3) & 0x3F));
+        tau.setHwPhi((raw_data >> 9) & 0x7F);
+        tau.setHwPt((raw_data >> 20) & 0xFFF);
+        tau.setHwIso((raw_data >> 1) & 0x3);
+        tau.setHwQual((raw_data >> 16) & 0xf);
+
+        if (tau.hwPt() == 0)
+          continue;
+
+        LogDebug("L1T") << "Tau: eta " << tau.hwEta() << " phi " << tau.hwPhi() << " pT " << tau.hwPt() << " qual "
+                        << tau.hwQual();
+
+        tau.setP4(l1t::CaloTools::p4MP(&tau));
+        res4_->push_back(0, tau);
+      }
 
       //      ===== Aux =====
       raw_data = block.payload()[faux];
@@ -336,46 +321,46 @@ namespace stage2 {
       l1t::EtSum towCount = l1t::EtSum();
 
       // readout the sums only if the correct block is  being processed (first frame of AUX)
-      switch(block.header().getID()){
-      case 121: // this should correspond to the first link
-        // read 4 bits starting at position 24 (24 -> 28)
-        mbp0.setHwPt( ( raw_data >> 24 ) & 0xF );
-        mbp0.setType( l1t::EtSum::kMinBiasHFP0 );
+      switch (block.header().getID()) {
+        case 121:  // this should correspond to the first link
+          // read 4 bits starting at position 24 (24 -> 28)
+          mbp0.setHwPt((raw_data >> 24) & 0xF);
+          mbp0.setType(l1t::EtSum::kMinBiasHFP0);
 
-        // read 4 bits starting at position 16 (16 -> 20)
-        mbm0.setHwPt( ( raw_data >> 16 ) & 0xF );
-        mbm0.setType( l1t::EtSum::kMinBiasHFM0 );
+          // read 4 bits starting at position 16 (16 -> 20)
+          mbm0.setHwPt((raw_data >> 16) & 0xF);
+          mbm0.setType(l1t::EtSum::kMinBiasHFM0);
 
-        // read 4 bits starting at position 8 (8 -> 12)
-        mbp1.setHwPt( ( raw_data >> 8 ) & 0xF );
-        mbp1.setType( l1t::EtSum::kMinBiasHFP1 );
+          // read 4 bits starting at position 8 (8 -> 12)
+          mbp1.setHwPt((raw_data >> 8) & 0xF);
+          mbp1.setType(l1t::EtSum::kMinBiasHFP1);
 
-        // read the first 4 bits by masking with 0xF
-        mbm1.setHwPt( raw_data & 0xF );
-        mbm1.setType( l1t::EtSum::kMinBiasHFM1 );
+          // read the first 4 bits by masking with 0xF
+          mbm1.setHwPt(raw_data & 0xF);
+          mbm1.setType(l1t::EtSum::kMinBiasHFM1);
 
-        LogDebug("L1T") << "mbp0 HF sum: " << mbp0.hwPt();
-        LogDebug("L1T") << "mbm0 HF sum: " << mbm0.hwPt();
-        LogDebug("L1T") << "mbp1 HF sum: " << mbp1.hwPt();
-        LogDebug("L1T") << "mbm1 HF sum: " << mbm1.hwPt();
+          LogDebug("L1T") << "mbp0 HF sum: " << mbp0.hwPt();
+          LogDebug("L1T") << "mbm0 HF sum: " << mbm0.hwPt();
+          LogDebug("L1T") << "mbp1 HF sum: " << mbp1.hwPt();
+          LogDebug("L1T") << "mbm1 HF sum: " << mbm1.hwPt();
 
-        res2_->push_back(0,mbp0);
-        res2_->push_back(0,mbm0);
-        res2_->push_back(0,mbp1);
-        res2_->push_back(0,mbm1);
-        break;
-      case 127:
-	towCount.setHwPt( raw_data & 0x1FFF );
-	towCount.setType( l1t::EtSum::kTowerCount );
-	res2_->push_back(0,towCount);
-	break;
-      default:
-        break;
+          res2_->push_back(0, mbp0);
+          res2_->push_back(0, mbm0);
+          res2_->push_back(0, mbp1);
+          res2_->push_back(0, mbm1);
+          break;
+        case 127:
+          towCount.setHwPt(raw_data & 0x1FFF);
+          towCount.setType(l1t::EtSum::kTowerCount);
+          res2_->push_back(0, towCount);
+          break;
+        default:
+          break;
       }
 
-     return true;
-   }
-}
-}
+      return true;
+    }
+  }  // namespace stage2
+}  // namespace l1t
 
 DEFINE_L1T_UNPACKER(l1t::stage2::MPUnpacker_0x10010033);

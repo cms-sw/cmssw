@@ -33,19 +33,17 @@
 //              ---------------------
 
 class DTConfigTSTheta : public DTConfig {
+public:
+  /*   //! Constants: first and last step to start trigger finding */
+  /*   static const int NSTEPL=24, NSTEPF=9; */
 
-  public:
-
-/*   //! Constants: first and last step to start trigger finding */
-/*   static const int NSTEPL=24, NSTEPF=9; */
-  
   //! Constants: number of cell (BTI) in theta view planes
-  static const int NCELLTH=57;
+  static const int NCELLTH = 57;
 
-  //! Constructor  
+  //! Constructor
   DTConfigTSTheta(const edm::ParameterSet& ps);
 
-  //! Constructor  
+  //! Constructor
   DTConfigTSTheta();
 
   //! Destructor
@@ -55,18 +53,16 @@ class DTConfigTSTheta : public DTConfig {
   inline bool debug() const { return m_debug; }
 
   //! Print the setup
-  void print() const ;
+  void print() const;
 
   //! Set debug flag
-  inline void setDebug(bool debug) { m_debug=debug; }
+  inline void setDebug(bool debug) { m_debug = debug; }
 
-  private:
-
+private:
   //! Load pset values into class variables
-  void setDefaults(const edm:: ParameterSet& ps);
+  void setDefaults(const edm::ParameterSet& ps);
 
   bool m_debug;
-
 };
 
 #endif

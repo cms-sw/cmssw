@@ -17,7 +17,7 @@
 //---------------
 // C++ Headers --
 //---------------
-#include<iostream>
+#include <iostream>
 
 //----------------------
 // Base Class Headers --
@@ -36,18 +36,16 @@
 //              ---------------------
 
 class DTConfigSectColl : public DTConfig {
-
-  public:
-
+public:
   //! Constants: number of TSTheta/TSPhi in input to Sector Collector
-  static const int NTSTSC=3, NTSPSC=5;
+  static const int NTSTSC = 3, NTSPSC = 5;
 
   //! Constant: maximum number of Sector Collector sorting Chip in input to Sector Collector
-  static const int NDTSC=4;
+  static const int NDTSC = 4;
 
   //! Constructor
   DTConfigSectColl(const edm::ParameterSet& ps);
-  
+
   //! Constructor
   DTConfigSectColl();
 
@@ -58,46 +56,43 @@ class DTConfigSectColl : public DTConfig {
   inline bool debug() const { return m_debug; }
 
   //! Return carry in Sector Collector for station istat (1 means enabled, 0 disabled)
-  inline bool  SCGetCarryFlag(int istat) const {
-    if (istat<1 || istat>4){
-       throw cms::Exception("DTTPG") << "DTConfigSectColl::SCGetCarryFlag: station number out of range: istat=" << istat << std::endl;
-    } 
-    return m_scecf[istat-1];
+  inline bool SCGetCarryFlag(int istat) const {
+    if (istat < 1 || istat > 4) {
+      throw cms::Exception("DTTPG") << "DTConfigSectColl::SCGetCarryFlag: station number out of range: istat=" << istat
+                                    << std::endl;
+    }
+    return m_scecf[istat - 1];
   }
 
   //! Return coarsesync parameter in Sector Collector for station istat (5 is second MB4 station)
   inline int CoarseSync(int istat) const {
-    
-    if (istat<1 || istat>5){
-       throw cms::Exception("DTTPG") << "DTConfigSectColl::CoarseSync: station number out of range: istat="
-		<< istat << std::endl;
+    if (istat < 1 || istat > 5) {
+      throw cms::Exception("DTTPG") << "DTConfigSectColl::CoarseSync: station number out of range: istat=" << istat
+                                    << std::endl;
     }
-    return m_sccsp[istat-1];
-    
+    return m_sccsp[istat - 1];
   }
 
   // Set Methods
   //! Set debug flag
-  inline void setDebug(bool debug) { m_debug=debug; }
+  inline void setDebug(bool debug) { m_debug = debug; }
 
   //! Set carry in Sector Collector for station istat (1 means enabled, 0 disabled)
-  void setSCCarryFlag(bool scecf,int istat);
+  void setSCCarryFlag(bool scecf, int istat);
 
   //! Return coarsesync parameter in Sector Collector for station istat (5 is second MB4 station)
   void setCoarseSync(int sccsp, int istat);
 
   //! Print the setup
-  void print() const ;
+  void print() const;
 
-  private:
-
+private:
   //! Load pset values into class variables
   void setDefaults(const edm::ParameterSet& ps);
 
   bool m_debug;
   bool m_scecf[4];
   int m_sccsp[5];
-
 };
 
 #endif
