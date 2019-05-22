@@ -8,13 +8,8 @@
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "boost/mpl/vector.hpp"
 
-class FastTimeGeometryRecord : 
-   public edm::eventsetup::DependentRecordImplementation<
-   FastTimeGeometryRecord,
-     boost::mpl::vector<
-     IdealGeometryRecord,
-     GlobalPositionRcd,
-     PFastTimeRcd               > > {};
+class FastTimeGeometryRecord : public edm::eventsetup::DependentRecordImplementation<
+                                   FastTimeGeometryRecord,
+                                   boost::mpl::vector<IdealGeometryRecord, GlobalPositionRcd, PFastTimeRcd> > {};
 
 #endif /* Records_FastTimeGeometryRecord_h */
-

@@ -14,8 +14,9 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "boost/mpl/vector.hpp"
 
-
-class GlobalTrackingGeometryRecord : public edm::eventsetup::DependentRecordImplementation<GlobalTrackingGeometryRecord,boost::mpl::vector<TrackerDigiGeometryRecord,MTDDigiGeometryRecord,MuonGeometryRecord> > {};
+class GlobalTrackingGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<
+          GlobalTrackingGeometryRecord,
+          boost::mpl::vector<TrackerDigiGeometryRecord, MTDDigiGeometryRecord, MuonGeometryRecord> > {};
 
 #endif
-
