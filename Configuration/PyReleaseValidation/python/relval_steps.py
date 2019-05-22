@@ -613,7 +613,7 @@ baseDataSetRelease=[
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1',              # 2 for fastsim id test
 #    'CMSSW_7_1_0_pre5-START71_V1-v2',                      # 3 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
-    'CMSSW_10_5_0_pre1-103X_mcRun2_asymptotic_v3-v1',              # 3 - GEN-SIM input for 13 TeV 2016 workfows
+    'CMSSW_10_6_0-106X_mcRun2_asymptotic_v3-v1',              # 3 - GEN-SIM input for 13 TeV 2016 workfows
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_10_4_0_pre1-PU25ns_103X_mcRun2_asymptotic_v1-v2',    # 5 - fullSim PU 25ns UP15 premix library
     'CMSSW_10_4_0_pre1-PU50ns_103X_mcRun2_startup_v1-v1',        # 6 - fullSim PU 50ns UP15 premix library
@@ -623,16 +623,16 @@ baseDataSetRelease=[
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                    # 10 - 13 TeV High Stats GEN-SIM
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',         # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM
     'CMSSW_8_1_0_pre9_Geant4102-81X_mcRun2cosmics_startup_peak_v2-v1', # 12 - GEN-SIM input for 1307 cosmics wf from 810_p2
-    'CMSSW_10_0_0_pre2-100X_mc2017_realistic_v1-v1',     # 13 - GENSIM input for 2017 fullSim premix workflows
+    'CMSSW_10_6_0-106X_mc2017_realistic_v3-v1',     # 13 - GENSIM input for 2017 fullSim premix workflows
     'CMSSW_10_4_0_pre1-PU25ns_103X_mc2017_realistic_v1-v1',     # 14 - fullSim PU 25ns UP17 premix library
     'CMSSW_10_5_0_pre1-103X_mc2017_realistic_v2_FastSim-v1',    # 15 - fastSim MinBias for mixing UP17
     'CMSSW_10_5_0_pre1-PU25ns_103X_mc2017_realistic_v2_FastSim-v1',# 16 - fastSim premix library UP17 
     'CMSSW_10_5_0_pre1-PU25ns_103X_upgrade2018_realistic_v8-v1',  # 17 - fullSim PU 25ns UP18 premix library
-    'CMSSW_10_5_0_pre1-103X_upgrade2018_realistic_v8-v1',  # 18 - GENSIM input for 2018 fullSim premix workflows
+    'CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1',  # 18 - GENSIM input for 2018 fullSim premix workflows
     'CMSSW_10_5_0_pre1-103X_upgrade2018_realistic_v8_FastSim-v1',    # 19 - fastSim MinBias for mixing UP18
     'CMSSW_10_5_0_pre1-PU25ns_103X_upgrade2018_realistic_v8_FastSim-v1',# 20 - fastSim premix library UP18 
-    'CMSSW_10_4_0-103X_mc2017_realistic_v2-v1',		# 21 - GEN-SIM inputs for LHE-GEN-SIM 2017 workflows
-    'CMSSW_10_4_0-103X_upgrade2018_realistic_v8-v1',		# 22 - GEN-SIM inputs for LHE-GEN-SIM 2018 workflows
+    'CMSSW_10_6_0-106X_mc2017_realistic_v3-v1',		# 21 - GEN-SIM inputs for LHE-GEN-SIM 2017 workflows
+    'CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1',		# 22 - GEN-SIM inputs for LHE-GEN-SIM 2018 workflows
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available
@@ -1268,22 +1268,6 @@ step1LHEDefaults=merge([{'-s':'LHE',
                          },
                         step1Defaults])
 
-# transfer extendedgen step1 LHE to be used in a normal workflow
-step1LHENormal = {'--relval'     : '9000,50',
-                 '--conditions'  : 'auto:run2_mc',
-                 '--beamspot'    : 'Realistic50ns13TeVCollision',
-                 }
-
-# transfer extendedgen step1 GEN to GEN-SIM to be used in a normal workflow
-step1GENNormal = {'--relval'     : '9000,50',
-                 '-s'            : 'GEN,SIM',
-                 '--conditions'  : 'auto:run2_mc',
-                 '--beamspot'    : 'Realistic50ns13TeVCollision',
-                 '--eventcontent': 'FEVTDEBUG',
-                 '--datatier'    : 'GEN-SIM',
-                 '--era'         : 'Run2_2016',
-                 }
-
 steps['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['TTbar_Pow_LHE_13TeV']=genvalid('Configuration/Generator/python/TTbar_Pow_LHE_13TeV_cff.py',step1LHEDefaults)
@@ -1437,6 +1421,52 @@ steps['VBFHToBB_M125_Pow_py8_Evt_13UP18']=lhegensim2018('Configuration/Generator
 #steps['VBFHToBB_M125_Pow_py8_Evt_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValVBFHToBB_M125_Pow_py8_Evt_13UP17/%s/GEN-SIM'%(baseDataSetRelease[21],),location='STD')}
 #steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValVBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP18/%s/GEN-SIM'%(baseDataSetRelease[22],),location='STD')}
 #steps['VBFHToBB_M125_Pow_py8_Evt_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValVBFHToBB_M125_Pow_py8_Evt_13UP18/%s/GEN-SIM'%(baseDataSetRelease[22],),location='STD')}
+
+# normal fullSim workflows using pLHE-GEN-SIM 2016 by default
+# pLHE step
+step1LHENormal = {'--relval'     : '10000,50',
+                 '--mc'          : '',
+                 '-s'            : 'NONE',
+                 '--conditions'  : 'auto:run2_mc',
+                 '--datatier'    : 'LHE',
+                 '--eventcontent': 'LHE',
+                 '--era'         : 'Run2_2016',
+                 '-n'            : 100,
+                 }
+# followed by GEN-SIM step
+step1GENNormal = {'--relval'     : '10000,50',
+                 '-s'           : 'GEN,SIM',
+                 '--conditions'  : 'auto:run2_mc',
+                 '--beamspot'    : 'Realistic50ns13TeVCollision',
+                 '--eventcontent': 'FEVTDEBUG',
+                 '--datatier'    : 'GEN-SIM',
+                 '--era'         : 'Run2_2016',
+                 }
+
+# pLHE-GEN-SIM step for 2017 conditions
+step1LHENormal2017Default = merge ([{'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017','--beamspot':'Realistic25ns13TeVEarly2017Collision','--geometry':'DB:Extended'},step1LHENormal])
+step1GENNormal2017Default = merge ([{'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017','--beamspot':'Realistic25ns13TeVEarly2017Collision','--geometry':'DB:Extended'},step1GENNormal])
+
+# pLHE-GEN-SIM step for 2018 conditions
+step1LHENormal2018Default = merge ([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018','--beamspot':'Realistic25ns13TeVEarly2018Collision','--geometry':'DB:Extended'},step1LHENormal])
+step1GENNormal2018Default = merge ([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018','--beamspot':'Realistic25ns13TeVEarly2018Collision','--geometry':'DB:Extended'},step1GENNormal])
+
+# pLHE and GEN-SIM steps 2016 workflows
+steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13']=merge ([{'--filein':'lhe:18334'},step1LHENormal])
+steps['Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_13']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_LHE_py8_cff',step1GENNormal)
+
+# pLHE and GEN-SIM steps 2017 workflows
+steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP17']=merge ([{'--filein':'lhe:18334'},step1LHENormal2017Default])
+steps['Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_13UP17']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_LHE_py8_cff',step1GENNormal2017Default)
+
+# pLHE and GEN-SIM steps 2018 workflows
+steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP18']=merge ([{'--filein':'lhe:18334'},step1LHENormal2018Default])
+steps['Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_13UP18']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_LHE_py8_cff',step1GENNormal2018Default)
+
+#GEN-SIM inputs for pLHE-GEN-SIM workflows 2016,2017,2018
+steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13INPUT']={'INPUT':InputInfo(dataSet='/RelValGluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValGluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP17/%s/GEN-SIM'%(baseDataSetRelease[21],),location='STD')}
+steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValGluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP18/%s/GEN-SIM'%(baseDataSetRelease[22],),location='STD')}
 
 
 #Sherpa
