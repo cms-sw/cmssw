@@ -253,12 +253,10 @@ namespace {
 
   // inherit from one of the predefined plot class: PlotImage
   template <SiStripPI::OpMode op_mode_>
-  class SiStripNoiseDistributionComparison : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  class SiStripNoiseDistributionComparisonBase : public cond::payloadInspector::PlotImage<SiStripNoises> {
   public:
-    SiStripNoiseDistributionComparison()
-        : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise values comparison") {
-      setSingleIov(false);
-    }
+    SiStripNoiseDistributionComparisonBase()
+        : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise values comparison") {}
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
       std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
@@ -433,21 +431,40 @@ namespace {
     }
   };
 
-  typedef SiStripNoiseDistributionComparison<SiStripPI::STRIP_BASED> SiStripNoiseValueComparisonPerStrip;
-  typedef SiStripNoiseDistributionComparison<SiStripPI::APV_BASED> SiStripNoiseValueComparisonPerAPV;
-  typedef SiStripNoiseDistributionComparison<SiStripPI::MODULE_BASED> SiStripNoiseValueComparisonPerModule;
+  template <SiStripPI::OpMode op_mode_>
+  class SiStripNoiseDistributionComparisonSingleTag : public SiStripNoiseDistributionComparisonBase<op_mode_> {
+  public:
+    SiStripNoiseDistributionComparisonSingleTag() : SiStripNoiseDistributionComparisonBase<op_mode_>() {
+      this->setSingleIov(false);
+    }
+  };
+
+  template <SiStripPI::OpMode op_mode_>
+  class SiStripNoiseDistributionComparisonTwoTags : public SiStripNoiseDistributionComparisonBase<op_mode_> {
+  public:
+    SiStripNoiseDistributionComparisonTwoTags() : SiStripNoiseDistributionComparisonBase<op_mode_>() {
+      this->setTwoTags(true);
+    }
+  };
+
+  typedef SiStripNoiseDistributionComparisonSingleTag<SiStripPI::STRIP_BASED>SiStripNoiseValueComparisonPerStripSingleTag;
+  typedef SiStripNoiseDistributionComparisonSingleTag<SiStripPI::APV_BASED> SiStripNoiseValueComparisonPerAPVSingleTag;
+  typedef SiStripNoiseDistributionComparisonSingleTag<SiStripPI::MODULE_BASED>SiStripNoiseValueComparisonPerModuleSingleTag;
+
+  typedef SiStripNoiseDistributionComparisonTwoTags<SiStripPI::STRIP_BASED> SiStripNoiseValueComparisonPerStripTwoTags;
+  typedef SiStripNoiseDistributionComparisonTwoTags<SiStripPI::APV_BASED> SiStripNoiseValueComparisonPerAPVTwoTags;
+  typedef SiStripNoiseDistributionComparisonTwoTags<SiStripPI::MODULE_BASED> SiStripNoiseValueComparisonPerModuleTwoTags;
 
   /************************************************
     1d histogram comparison of SiStripNoises of 1 IOV 
   *************************************************/
 
   // inherit from one of the predefined plot class: PlotImage
-  class SiStripNoiseValueComparison : public cond::payloadInspector::PlotImage<SiStripNoises> {
+
+  class SiStripNoiseValueComparisonBase : public cond::payloadInspector::PlotImage<SiStripNoises> {
   public:
-    SiStripNoiseValueComparison()
-        : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise values comparison") {
-      setSingleIov(false);
-    }
+    SiStripNoiseValueComparisonBase()
+        : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise values comparison") {}
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
       std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
@@ -549,6 +566,16 @@ namespace {
 
       return true;
     }
+  };
+
+  class SiStripNoiseValueComparisonSingleTag : public SiStripNoiseValueComparisonBase {
+  public:
+    SiStripNoiseValueComparisonSingleTag() : SiStripNoiseValueComparisonBase() { setSingleIov(false); }
+  };
+
+  class SiStripNoiseValueComparisonTwoTags : public SiStripNoiseValueComparisonBase {
+  public:
+    SiStripNoiseValueComparisonTwoTags() : SiStripNoiseValueComparisonBase() { setTwoTags(true); }
   };
 
   /************************************************
@@ -659,14 +686,13 @@ namespace {
   /************************************************
     SiStrip Noise Tracker Map  (ratio with previous gain per detid)
   *************************************************/
+
   template <SiStripPI::estimator est, int nsigma>
-  class SiStripNoiseRatioWithPreviousIOVTrackerMap : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  class SiStripNoiseRatioWithPreviousIOVTrackerMapBase : public cond::payloadInspector::PlotImage<SiStripNoises> {
   public:
-    SiStripNoiseRatioWithPreviousIOVTrackerMap()
+    SiStripNoiseRatioWithPreviousIOVTrackerMapBase()
         : cond::payloadInspector::PlotImage<SiStripNoises>("Tracker Map of ratio of SiStripNoises " +
-                                                           estimatorType(est) + "with previous IOV") {
-      setSingleIov(false);
-    }
+                                                           estimatorType(est) + "with previous IOV") {}
 
     std::map<unsigned int, float> computeEstimator(std::shared_ptr<SiStripNoises> payload) {
       std::map<unsigned int, float> info_per_detid;
@@ -728,7 +754,7 @@ namespace {
       std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
 
       std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
-        return std::get<0>(t1) < std::get<0>(t2);  //J: ???????
+        return std::get<0>(t1) < std::get<0>(t2);
       });
 
       auto firstiov = sorted_iovs.front();
@@ -776,30 +802,75 @@ namespace {
     }
   };
 
-  typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::min, 1>
-      SiStripNoiseMin_RatioWithPreviousIOV1sigmaTrackerMap;
-  typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::max, 1>
-      SiStripNoiseMax_RatioWithPreviousIOV1sigmaTrackerMap;
-  typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::mean, 1>
-      SiStripNoiseMean_RatioWithPreviousIOV1sigmaTrackerMap;
-  typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::rms, 1>
-      SiStripNoiseRms_RatioWithPreviousIOV1sigmaTrackerMap;
-  typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::min, 2>
-      SiStripNoiseMin_RatioWithPreviousIOV2sigmaTrackerMap;
-  typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::max, 2>
-      SiStripNoiseMax_RatioWithPreviousIOV2sigmaTrackerMap;
-  typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::mean, 2>
-      SiStripNoiseMean_RatioWithPreviousIOV2sigmaTrackerMap;
-  typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::rms, 2>
-      SiStripNoiseRms_RatioWithPreviousIOV2sigmaTrackerMap;
-  typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::min, 3>
-      SiStripNoiseMin_RatioWithPreviousIOV3sigmaTrackerMap;
-  typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::max, 3>
-      SiStripNoiseMax_RatioWithPreviousIOV3sigmaTrackerMap;
-  typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::mean, 3>
-      SiStripNoiseMean_RatioWithPreviousIOV3sigmaTrackerMap;
-  typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::rms, 3>
-      SiStripNoiseRms_RatioWithPreviousIOV3sigmaTrackerMap;
+  template <SiStripPI::estimator est, int nsigma>
+  class SiStripNoiseRatioWithPreviousIOVTrackerMapSingleTag
+      : public SiStripNoiseRatioWithPreviousIOVTrackerMapBase<est, nsigma> {
+  public:
+    SiStripNoiseRatioWithPreviousIOVTrackerMapSingleTag()
+        : SiStripNoiseRatioWithPreviousIOVTrackerMapBase<est, nsigma>() {
+      this->setSingleIov(false);
+    }
+  };
+
+  template <SiStripPI::estimator est, int nsigma>
+  class SiStripNoiseRatioWithPreviousIOVTrackerMapTwoTags
+      : public SiStripNoiseRatioWithPreviousIOVTrackerMapBase<est, nsigma> {
+  public:
+    SiStripNoiseRatioWithPreviousIOVTrackerMapTwoTags()
+        : SiStripNoiseRatioWithPreviousIOVTrackerMapBase<est, nsigma>() {
+      this->setTwoTags(true);
+    }
+  };
+
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapSingleTag<SiStripPI::min, 1>
+      SiStripNoiseMin_RatioWithPreviousIOV1sigmaTrackerMapSingleTag;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapSingleTag<SiStripPI::max, 1>
+      SiStripNoiseMax_RatioWithPreviousIOV1sigmaTrackerMapSingleTag;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapSingleTag<SiStripPI::mean, 1>
+      SiStripNoiseMean_RatioWithPreviousIOV1sigmaTrackerMapSingleTag;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapSingleTag<SiStripPI::rms, 1>
+      SiStripNoiseRms_RatioWithPreviousIOV1sigmaTrackerMapSingleTag;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapSingleTag<SiStripPI::min, 2>
+      SiStripNoiseMin_RatioWithPreviousIOV2sigmaTrackerMapSingleTag;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapSingleTag<SiStripPI::max, 2>
+      SiStripNoiseMax_RatioWithPreviousIOV2sigmaTrackerMapSingleTag;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapSingleTag<SiStripPI::mean, 2>
+      SiStripNoiseMean_RatioWithPreviousIOV2sigmaTrackerMapSingleTag;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapSingleTag<SiStripPI::rms, 2>
+      SiStripNoiseRms_RatioWithPreviousIOV2sigmaTrackerMapSingleTag;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapSingleTag<SiStripPI::min, 3>
+      SiStripNoiseMin_RatioWithPreviousIOV3sigmaTrackerMapSingleTag;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapSingleTag<SiStripPI::max, 3>
+      SiStripNoiseMax_RatioWithPreviousIOV3sigmaTrackerMapSingleTag;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapSingleTag<SiStripPI::mean, 3>
+      SiStripNoiseMean_RatioWithPreviousIOV3sigmaTrackerMapSingleTag;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapSingleTag<SiStripPI::rms, 3>
+      SiStripNoiseRms_RatioWithPreviousIOV3sigmaTrackerMapSingleTag;
+
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapTwoTags<SiStripPI::min, 1>
+      SiStripNoiseMin_RatioWithPreviousIOV1sigmaTrackerMapTwoTags;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapTwoTags<SiStripPI::max, 1>
+      SiStripNoiseMax_RatioWithPreviousIOV1sigmaTrackerMapTwoTags;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapTwoTags<SiStripPI::mean, 1>
+      SiStripNoiseMean_RatioWithPreviousIOV1sigmaTrackerMapTwoTags;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapTwoTags<SiStripPI::rms, 1>
+      SiStripNoiseRms_RatioWithPreviousIOV1sigmaTrackerMapTwoTags;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapTwoTags<SiStripPI::min, 2>
+      SiStripNoiseMin_RatioWithPreviousIOV2sigmaTrackerMapTwoTags;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapTwoTags<SiStripPI::max, 2>
+      SiStripNoiseMax_RatioWithPreviousIOV2sigmaTrackerMapTwoTags;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapTwoTags<SiStripPI::mean, 2>
+      SiStripNoiseMean_RatioWithPreviousIOV2sigmaTrackerMapTwoTags;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapTwoTags<SiStripPI::rms, 2>
+      SiStripNoiseRms_RatioWithPreviousIOV2sigmaTrackerMapTwoTags;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapTwoTags<SiStripPI::min, 3>
+      SiStripNoiseMin_RatioWithPreviousIOV3sigmaTrackerMapTwoTags;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapTwoTags<SiStripPI::max, 3>
+      SiStripNoiseMax_RatioWithPreviousIOV3sigmaTrackerMapTwoTags;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapTwoTags<SiStripPI::mean, 3>
+      SiStripNoiseMean_RatioWithPreviousIOV3sigmaTrackerMapTwoTags;
+  typedef SiStripNoiseRatioWithPreviousIOVTrackerMapTwoTags<SiStripPI::rms, 3>
+      SiStripNoiseRms_RatioWithPreviousIOV3sigmaTrackerMapTwoTags;
 
   /************************************************
   SiStrip Noise Tracker Summaries 
@@ -932,15 +1003,13 @@ namespace {
   *************************************************/
 
   template <SiStripPI::estimator est>
-  class SiStripNoiseComparatorByRegion : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  class SiStripNoiseComparatorByRegionBase : public cond::payloadInspector::PlotImage<SiStripNoises> {
   public:
-    SiStripNoiseComparatorByRegion()
+    SiStripNoiseComparatorByRegionBase()
         : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise " + estimatorType(est) +
                                                            " comparator by Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      setSingleIov(false);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
       std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
@@ -1110,10 +1179,27 @@ namespace {
     TrackerTopology m_trackerTopo;
   };
 
-  typedef SiStripNoiseComparatorByRegion<SiStripPI::mean> SiStripNoiseComparatorMeanByRegion;
-  typedef SiStripNoiseComparatorByRegion<SiStripPI::min> SiStripNoiseComparatorMinByRegion;
-  typedef SiStripNoiseComparatorByRegion<SiStripPI::max> SiStripNoiseComparatorMaxByRegion;
-  typedef SiStripNoiseComparatorByRegion<SiStripPI::rms> SiStripNoiseComparatorRMSByRegion;
+  template <SiStripPI::estimator est>
+  class SiStripNoiseComparatorByRegionSingleTag : public SiStripNoiseComparatorByRegionBase<est> {
+  public:
+    SiStripNoiseComparatorByRegionSingleTag() : SiStripNoiseComparatorByRegionBase<est>() { this->setSingleIov(false); }
+  };
+
+  template <SiStripPI::estimator est>
+  class SiStripNoiseComparatorByRegionTwoTags : public SiStripNoiseComparatorByRegionBase<est> {
+  public:
+    SiStripNoiseComparatorByRegionTwoTags() : SiStripNoiseComparatorByRegionBase<est>() { this->setTwoTags(true); }
+  };
+
+  typedef SiStripNoiseComparatorByRegionSingleTag<SiStripPI::mean> SiStripNoiseComparatorMeanByRegionSingleTag;
+  typedef SiStripNoiseComparatorByRegionSingleTag<SiStripPI::min> SiStripNoiseComparatorMinByRegionSingleTag;
+  typedef SiStripNoiseComparatorByRegionSingleTag<SiStripPI::max> SiStripNoiseComparatorMaxByRegionSingleTag;
+  typedef SiStripNoiseComparatorByRegionSingleTag<SiStripPI::rms> SiStripNoiseComparatorRMSByRegionSingleTag;
+
+  typedef SiStripNoiseComparatorByRegionTwoTags<SiStripPI::mean> SiStripNoiseComparatorMeanByRegionTwoTags;
+  typedef SiStripNoiseComparatorByRegionTwoTags<SiStripPI::min> SiStripNoiseComparatorMinByRegionTwoTags;
+  typedef SiStripNoiseComparatorByRegionTwoTags<SiStripPI::max> SiStripNoiseComparatorMaxByRegionTwoTags;
+  typedef SiStripNoiseComparatorByRegionTwoTags<SiStripPI::rms> SiStripNoiseComparatorRMSByRegionTwoTags;
 
   /************************************************
     Noise linearity
@@ -1371,6 +1457,178 @@ namespace {
   typedef NoiseTimeHistory<StripSubdetector::TID> TIDNoiseTimeHistory;
   typedef NoiseTimeHistory<StripSubdetector::TEC> TECNoiseTimeHistory;
 
+  /************************************************
+   template Noise run history  per layer
+  *************************************************/
+  template <StripSubdetector::SubDetector sub>
+  class NoiseLayerRunHistory : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  public:
+    NoiseLayerRunHistory()
+        : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise values comparison"),
+          m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
+      setSingleIov(false);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      std::unordered_map<int, std::vector<float> > noises_avg;
+      std::unordered_map<int, std::vector<float> > noises_err;
+      std::vector<float> runs;
+      std::vector<float> runs_err;
+      for (auto const &iov : sorted_iovs) {
+        std::unordered_map<int, std::vector<float> > noises;  //map with noises per layer
+
+        std::shared_ptr<SiStripNoises> payload = fetchPayload(std::get<1>(iov));
+        unsigned int run = std::get<0>(iov);
+        runs.push_back(run);
+        runs_err.push_back(0);
+
+        if (payload.get()) {
+          std::vector<uint32_t> detid;
+          payload->getDetIds(detid);
+
+          for (const auto &d : detid) {
+            int subid = DetId(d).subdetId();
+            int layer = -1;
+            if (subid != sub)
+              continue;
+            if (subid == StripSubdetector::TIB) {
+              layer = m_trackerTopo.tibLayer(d);
+            } else if (subid == StripSubdetector::TOB) {
+              layer = m_trackerTopo.tobLayer(d);
+            } else if (subid == StripSubdetector::TID) {
+              layer = m_trackerTopo.tidWheel(d);
+            } else if (subid == StripSubdetector::TEC) {
+              layer = m_trackerTopo.tecWheel(d);
+            }
+
+            SiStripNoises::Range range = payload->getRange(d);
+            for (int it = 0; it < (range.second - range.first) * 8 / 9; ++it) {
+              auto noise = payload->getNoise(it, range);
+              if (noises.find(layer) == noises.end())
+                noises.emplace(layer, std::vector<float>{});
+              noises[layer].push_back(noise);
+            }  // loop on strips
+          }    // loop on detIds
+
+          for (auto &entry : noises) {
+            double sum = std::accumulate(entry.second.begin(), entry.second.end(), 0.0);
+            double mean = sum / entry.second.size();
+
+            //double sq_sum = std::inner_product(entry.second.begin(), entry.second.end(), entry.second.begin(), 0.0);
+            //double stdev = std::sqrt(sq_sum / entry.second.size() - mean * mean);
+
+            if (noises_avg.find(entry.first) == noises_avg.end())
+              noises_avg.emplace(entry.first, std::vector<float>{});
+            noises_avg[entry.first].push_back(mean);
+
+            if (noises_err.find(entry.first) == noises_err.end())
+              noises_err.emplace(entry.first, std::vector<float>{});
+            noises_err[entry.first].push_back(0);
+          }  //get
+        }    //run on iov
+      }
+      TCanvas canvas("Partion summary", "partition summary", 2000, 1000);
+      canvas.cd();
+      canvas.SetBottomMargin(0.11);
+      canvas.SetLeftMargin(0.13);
+      canvas.SetRightMargin(0.05);
+      canvas.Modified();
+
+      TLegend legend = TLegend(0.73, 0.13, 0.89, 0.43);
+      //legend.SetHeader("Layers","C"); // option "C" allows to center the header
+      legend.SetTextSize(0.03);
+
+      std::unique_ptr<TGraphErrors> graph[noises_avg.size()];
+
+      int colors[18] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 30, 40, 42, 46, 48, 32, 36, 38};
+
+      int el = 0;
+      for (auto &entry : noises_avg) {
+        graph[el] = std::unique_ptr<TGraphErrors>(
+            new TGraphErrors(runs.size(), &runs[0], &(entry.second[0]), &runs_err[0], &(noises_err[entry.first][0])));
+        char title[100];
+        char name[100];
+        snprintf(name, sizeof(name), "gr%d", entry.first);
+        graph[el]->SetName(name);
+
+        if (sub == StripSubdetector::TIB) {
+          snprintf(title, sizeof(title), "SiStrip avg noise per layer -- TIB");
+          graph[el]->GetYaxis()->SetTitle("Average Noise per Layer [ADC counts]");
+        } else if (sub == StripSubdetector::TOB) {
+          snprintf(title, sizeof(title), "SiStrip avg noise per layer -- TOB");
+          graph[el]->GetYaxis()->SetTitle("Average Noise per Layer [ADC counts]");
+        } else if (sub == StripSubdetector::TID) {
+          snprintf(title, sizeof(title), "SiStrip avg noise per disk -- TID");
+          graph[el]->GetYaxis()->SetTitle("Average Noise per Disk [ADC counts]");
+        } else if (sub == StripSubdetector::TEC) {
+          snprintf(title, sizeof(title), "SiStrip avg noise per disk -- TEC");
+          graph[el]->GetYaxis()->SetTitle("Average Noise per Disk [ADC counts]");
+        }
+
+        graph[el]->SetTitle(title);
+        graph[el]->GetXaxis()->SetTitle("run");
+        graph[el]->SetMarkerColor(colors[el]);
+        graph[el]->SetMarkerStyle(20);
+        graph[el]->SetMarkerSize(1.5);
+        graph[el]->GetXaxis()->CenterTitle(true);
+        graph[el]->GetYaxis()->CenterTitle(true);
+        graph[el]->GetXaxis()->SetTitleFont(42);
+        graph[el]->GetYaxis()->SetTitleFont(42);
+        graph[el]->GetXaxis()->SetTitleSize(0.05);
+        graph[el]->GetYaxis()->SetTitleSize(0.05);
+        graph[el]->GetXaxis()->SetTitleOffset(1.1);
+        graph[el]->GetYaxis()->SetTitleOffset(1.3);
+        graph[el]->GetXaxis()->SetLabelFont(42);
+        graph[el]->GetYaxis()->SetLabelFont(42);
+        graph[el]->GetYaxis()->SetLabelSize(.05);
+        graph[el]->GetXaxis()->SetLabelSize(.05);
+        graph[el]->SetMinimum(3);
+        graph[el]->SetMaximum(7.5);
+
+        if (el == 0)
+          graph[el]->Draw("AP");
+        else
+          graph[el]->Draw("P");
+
+        if (sub == StripSubdetector::TIB) {
+          legend.AddEntry(name, ("layer " + std::to_string(entry.first)).c_str(), "lep");
+        } else if (sub == StripSubdetector::TOB) {
+          legend.AddEntry(name, ("layer " + std::to_string(entry.first)).c_str(), "lep");
+        } else if (sub == StripSubdetector::TID) {
+          legend.AddEntry(name, ("disk " + std::to_string(entry.first)).c_str(), "lep");
+        } else if (sub == StripSubdetector::TEC) {
+          legend.AddEntry(name, ("disk " + std::to_string(entry.first)).c_str(), "lep");
+        }
+
+        if (el == 0)
+          legend.Draw();
+        else
+          legend.Draw("same");
+        el++;
+      }
+      //canvas.BuildLegend();
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+      return true;
+    }
+
+  private:
+    TrackerTopology m_trackerTopo;
+  };
+
+  typedef NoiseLayerRunHistory<StripSubdetector::TIB> TIBNoiseLayerRunHistory;
+  typedef NoiseLayerRunHistory<StripSubdetector::TOB> TOBNoiseLayerRunHistory;
+  typedef NoiseLayerRunHistory<StripSubdetector::TID> TIDNoiseLayerRunHistory;
+  typedef NoiseLayerRunHistory<StripSubdetector::TEC> TECNoiseLayerRunHistory;
+
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiStripNoises) {
@@ -1379,10 +1637,14 @@ PAYLOAD_INSPECTOR_MODULE(SiStripNoises) {
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValuePerStrip);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValuePerAPV);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValuePerModule);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparison);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparisonPerStrip);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparisonPerAPV);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparisonPerModule);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparisonSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparisonTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparisonPerStripSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparisonPerAPVSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparisonPerModuleSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparisonPerStripTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparisonPerAPVTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparisonPerModuleTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_TrackerMap);
@@ -1391,22 +1653,38 @@ PAYLOAD_INSPECTOR_MODULE(SiStripNoises) {
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMinByRegion);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMaxByRegion);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRMSByRegion);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMeanByRegion);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMinByRegion);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMaxByRegion);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorRMSByRegion);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_RatioWithPreviousIOV1sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_RatioWithPreviousIOV1sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_RatioWithPreviousIOV1sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRms_RatioWithPreviousIOV1sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_RatioWithPreviousIOV2sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_RatioWithPreviousIOV2sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_RatioWithPreviousIOV2sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRms_RatioWithPreviousIOV2sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_RatioWithPreviousIOV3sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_RatioWithPreviousIOV3sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_RatioWithPreviousIOV3sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRms_RatioWithPreviousIOV3sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMeanByRegionSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMinByRegionSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMaxByRegionSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorRMSByRegionSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMeanByRegionTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMinByRegionTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMaxByRegionTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorRMSByRegionTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_RatioWithPreviousIOV1sigmaTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_RatioWithPreviousIOV1sigmaTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_RatioWithPreviousIOV1sigmaTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRms_RatioWithPreviousIOV1sigmaTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_RatioWithPreviousIOV2sigmaTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_RatioWithPreviousIOV2sigmaTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_RatioWithPreviousIOV2sigmaTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRms_RatioWithPreviousIOV2sigmaTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_RatioWithPreviousIOV3sigmaTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_RatioWithPreviousIOV3sigmaTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_RatioWithPreviousIOV3sigmaTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRms_RatioWithPreviousIOV3sigmaTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_RatioWithPreviousIOV1sigmaTrackerMapTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_RatioWithPreviousIOV1sigmaTrackerMapTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_RatioWithPreviousIOV1sigmaTrackerMapTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRms_RatioWithPreviousIOV1sigmaTrackerMapTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_RatioWithPreviousIOV2sigmaTrackerMapTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_RatioWithPreviousIOV2sigmaTrackerMapTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_RatioWithPreviousIOV2sigmaTrackerMapTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRms_RatioWithPreviousIOV2sigmaTrackerMapTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_RatioWithPreviousIOV3sigmaTrackerMapTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_RatioWithPreviousIOV3sigmaTrackerMapTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_RatioWithPreviousIOV3sigmaTrackerMapTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRms_RatioWithPreviousIOV3sigmaTrackerMapTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseLinearity);
   PAYLOAD_INSPECTOR_CLASS(TIBNoiseHistory);
   PAYLOAD_INSPECTOR_CLASS(TOBNoiseHistory);
@@ -1416,6 +1694,10 @@ PAYLOAD_INSPECTOR_MODULE(SiStripNoises) {
   PAYLOAD_INSPECTOR_CLASS(TOBNoiseRunHistory);
   PAYLOAD_INSPECTOR_CLASS(TIDNoiseRunHistory);
   PAYLOAD_INSPECTOR_CLASS(TECNoiseRunHistory);
+  PAYLOAD_INSPECTOR_CLASS(TIBNoiseLayerRunHistory);
+  PAYLOAD_INSPECTOR_CLASS(TOBNoiseLayerRunHistory);
+  PAYLOAD_INSPECTOR_CLASS(TIDNoiseLayerRunHistory);
+  PAYLOAD_INSPECTOR_CLASS(TECNoiseLayerRunHistory);
   PAYLOAD_INSPECTOR_CLASS(TIBNoiseTimeHistory);
   PAYLOAD_INSPECTOR_CLASS(TOBNoiseTimeHistory);
   PAYLOAD_INSPECTOR_CLASS(TIDNoiseTimeHistory);
