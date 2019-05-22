@@ -115,7 +115,7 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
     const PFBlockElement::Type type1 = elementTypes_.at(link1);
     const PFBlockElement::Type type2 = elementTypes_.at(link2);    
     const unsigned index  = rowsize*std::max(type1,type2)+std::min(type1,type2);
-    linkTests_[index].reset(BlockElementLinkerFactory::get()->create(linkerName,conf));
+    linkTests_[index] = std::unique_ptr<BlockElementLinkerBase>{BlockElementLinkerFactory::get()->create(linkerName,conf)};
     linkTestSquare_[type1][type2] = index;
     linkTestSquare_[type2][type1] = index;
     // setup KDtree if requested
