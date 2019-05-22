@@ -67,13 +67,13 @@ void CSCSharesInputTest::analyze(const edm::Event &myEvent, const edm::EventSetu
 		perEventData[2] += track->recHitsSize();
 		perMuonData[0] += track->recHitsSize();
 		
-		for (trackingRecHit_iterator jHit = track->recHitsBegin(); jHit != track->recHitsEnd(); ++jHit) {
+		for(auto const& jHit : track->recHits()) {
 			
 			// AllMatched:SomeMatched:AllWiresMatched:SomeWiresMatched:AllStripsMatched:SomeStripsMatched:NotMatched
 			float perRecHitData[7] = {0,0,0,0,0,0,0};
 			
 			// Kill us quickly if this is not a CSCRecHit.  Also allows us to use the CSCRecHit version of sharesInput, which we like.
-			const CSCRecHit2D *myHit = dynamic_cast<const CSCRecHit2D *>((*jHit));
+			const CSCRecHit2D *myHit = dynamic_cast<const CSCRecHit2D *>(jHit);
 			if (myHit == 0) {
 				++counts_["NotMatchedRecHits"];
 				++perEventData[9];

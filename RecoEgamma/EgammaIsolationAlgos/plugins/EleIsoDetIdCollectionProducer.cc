@@ -144,12 +144,8 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent, const edm::EventSetu
                   return;
               }
 
-              std::vector<int>::const_iterator vit;
               if (isBarrel) {
                 // new rechit flag checks
-                //vit = std::find(flagsexclEB_.begin(), flagsexclEB_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
-                //if (vit != flagsexclEB_.end())
-                //  continue;
                 if (!(recIt.checkFlag(EcalRecHit::kGood))) {
                   if (recIt.checkFlags(flagsexclEB_)) {                
                     return;
@@ -157,9 +153,6 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent, const edm::EventSetu
                 }
               } else {
                 // new rechit flag checks
-                //vit = std::find(flagsexclEE_.begin(), flagsexclEE_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
-                //if (vit != flagsexclEE_.end())
-                //  continue;
                 if (!(recIt.checkFlag(EcalRecHit::kGood))) {
                   if (recIt.checkFlags(flagsexclEE_)) {                
                     return;

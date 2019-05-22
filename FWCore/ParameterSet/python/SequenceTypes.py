@@ -1,9 +1,11 @@
+from __future__ import absolute_import
 
-from Mixins import _ConfigureComponent, PrintOptions
-from Mixins import _Labelable, _Unlabelable
-from Mixins import _ValidatingParameterListBase
-from ExceptionHandling import *
-from OrderedSet import OrderedSet
+from builtins import range
+from .Mixins import _ConfigureComponent, PrintOptions
+from .Mixins import _Labelable, _Unlabelable
+from .Mixins import _ValidatingParameterListBase
+from .ExceptionHandling import *
+from .OrderedSet import OrderedSet
 
 class _HardDependency(object):
     """Information relevant for when a hard dependency, 
@@ -194,7 +196,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             typename = format_typename(self)
             msg = format_outerframe(2) 
             msg += "The %s constructor takes zero or one sequenceable argument followed by zero or more arguments of type Task. But the following types are given:\n" %typename
-            for item,i in zip(arg, xrange(1,20)):
+            for item,i in zip(arg, range(1,20)):
                 try:
                     msg += "    %i) %s \n"  %(i, item._errorstr())
                 except:
@@ -581,7 +583,7 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
     def __init__(self,*arg,**argv):
         super(Schedule,self).__init__(*arg)
         self._tasks = OrderedSet()
-        theKeys = argv.keys()
+        theKeys = list(argv.keys())
         if theKeys:
             if len(theKeys) > 1 or theKeys[0] != "tasks":
                 raise RuntimeError("The Schedule constructor can only have one keyword argument after its Path and\nEndPath arguments and it must use the keyword 'tasks'")

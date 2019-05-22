@@ -202,14 +202,6 @@ L1TSync_Offline::L1TSync_Offline(const ParameterSet & pset) :
 
   }
 
-  m_outputFile = pset.getUntrackedParameter < std::string > ("outputFile","");
-
-  if (!m_outputFile.empty()) {
-    std::cout << "L1T Monitoring histograms will be saved to " <<	m_outputFile.c_str() << std::endl;
-  }
-
-  bool disable = pset.getUntrackedParameter < bool > ("disableROOToutput", false);
-  if (disable) {m_outputFile = "";}
 }
 
 //-------------------------------------------------------------------------------------
@@ -233,7 +225,6 @@ void L1TSync_Offline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&
 
   // Reseting run dependent variables
   m_lhcFill     = 0; 
-  m_currentLS   = 0;
   m_certFirstLS.clear();
   m_certLastLS .clear();
   
@@ -298,14 +289,12 @@ void L1TSync_Offline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&
 }
 
  //_____________________________________________________________________
- // Function: beginLuminosityBlock
+ // Function: globalBeginLuminosityBlock
  //_____________________________________________________________________
- void L1TSync_Offline::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
- 
+std::shared_ptr<ltso::LSValid> L1TSync_Offline::globalBeginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) const {
    if (m_verbose){cout << "[L1TSync_Offline] Called beginLuminosityBlock." << endl;}
  
-   m_currentLSValid = true; 
- 
+   return std::make_shared<ltso::LSValid>();
  }
  
 //_____________________________________________________________________
@@ -315,9 +304,10 @@ void L1TSync_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
   if(m_verbose){cout << "[L1TSync_Offline] Called analyze." << endl;}
 
   // We only start analyzing if current LS is still valid
-  if(m_currentLSValid){
+  auto& currentLSValid = luminosityBlockCache(iEvent.getLuminosityBlock().index())->lsIsValid;
+  if(currentLSValid){
   
-    if(m_verbose){cout << "[L1TSync_Offline] -> m_currentLSValid=" << m_currentLSValid << endl;}
+    if(m_verbose){cout << "[L1TSync_Offline] -> currentLSValid=" << currentLSValid << endl;}
     
     // Retriving information from GT
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
@@ -348,8 +338,8 @@ void L1TSync_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
 	
       }
 
-      if(lhcBeamMode != STABLE){m_currentLSValid = false;
-	if(m_verbose){cout << "[L1TSync_Offline] -> m_currentLSValid=" << m_currentLSValid << "because beams mode not stable, being " << lhcBeamMode << endl;}
+      if(lhcBeamMode != STABLE){currentLSValid = false;
+	if(m_verbose){cout << "[L1TSync_Offline] -> currentLSValid=" << currentLSValid << "because beams mode not stable, being " << lhcBeamMode << endl;}
       } // If Beams are not stable we invalidate this LS
     }else{
       int eCount = m_ErrorMonitor->getTH1()->GetBinContent(ERROR_UNABLE_RETRIVE_PRODUCT);
@@ -357,7 +347,7 @@ void L1TSync_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
       m_ErrorMonitor->getTH1()->SetBinContent(ERROR_UNABLE_RETRIVE_PRODUCT,eCount);
     }
   }else{
-    if(m_verbose){cout << "[L1TSync_Offline] -> m_currentLSValid=" << m_currentLSValid << endl;}
+    if(m_verbose){cout << "[L1TSync_Offline] -> currentLSValid=" << currentLSValid << endl;}
   }
 
   // Commenting out un-necessary  print outs (S.Dutta)
@@ -367,7 +357,7 @@ void L1TSync_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
   //------------------------------------------------------------------------------
   // If current LS is valid and Beam Configuration is Valid we analyse this event
   //------------------------------------------------------------------------------
-  if(m_currentLSValid && m_beamConfig.isValid()){     
+  if(currentLSValid && m_beamConfig.isValid()){     
 
     // Getting Final Decision Logic (FDL) Data from GT
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecordData;
@@ -422,7 +412,7 @@ void L1TSync_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
               }
             }
 
-            m_algoVsBunchStructure[tTrigger]->Fill(m_currentLS,DifAlgoVsBunchStructure);
+            m_algoVsBunchStructure[tTrigger]->Fill(0 /*m_currentLS*/,DifAlgoVsBunchStructure);
 
           }
         }

@@ -44,43 +44,41 @@
 class LaserSorter : public edm::EDAnalyzer {
   //inner classes
 private:
-  struct IndexRecord{
+  struct IndexRecord {
     uint32_t orbit;
     uint32_t filePos;
     bool operator<(const IndexRecord& i) const { return orbit < i.orbit; }
   };
-  
-  class OutStreamRecord{
+
+  class OutStreamRecord {
   public:
     //default ctor
     OutStreamRecord(int fedId__,
-		    edm::LuminosityBlockNumber_t startingLumiBlock__,
-		    std::ofstream* out__,
-		    std::string& tmpFileName__,
-		    std::string& finalFileName__):
-      fedId_(fedId__),
-      startingLumiBlock_(startingLumiBlock__),
-      out_(out__),
-      tmpFileName_(tmpFileName__), finalFileName_(finalFileName__),
-      indexError_(false){
+                    edm::LuminosityBlockNumber_t startingLumiBlock__,
+                    std::ofstream* out__,
+                    std::string& tmpFileName__,
+                    std::string& finalFileName__)
+        : fedId_(fedId__),
+          startingLumiBlock_(startingLumiBlock__),
+          out_(out__),
+          tmpFileName_(tmpFileName__),
+          finalFileName_(finalFileName__),
+          indexError_(false) {
       indices_.reserve(indexReserve_);
     }
-    
+
     int fedId() const { return fedId_; }
-    edm::LuminosityBlockNumber_t startingLumiBlock() const{
-      return startingLumiBlock_; 
-    } 
+    edm::LuminosityBlockNumber_t startingLumiBlock() const { return startingLumiBlock_; }
     std::ofstream* out() const { return out_.get(); }
     std::string finalFileName() const { return finalFileName_; }
     std::string tmpFileName() const { return tmpFileName_; }
-    std::vector<IndexRecord> * indices() { return &indices_; }
- 
-    
+    std::vector<IndexRecord>* indices() { return &indices_; }
+
     /** Gets the list of orbits to skip. Used to update an existing file:
      * orbits of events already present in the file are excluded.
      * @return the list of orbits to skip.
      */
-    std::set<uint32_t>&  excludedOrbit() { return excludedOrbit_; }   
+    std::set<uint32_t>& excludedOrbit() { return excludedOrbit_; }
 
   private:
     int fedId_;
@@ -99,8 +97,8 @@ private:
     /** List of orbits to skip. Used to update an existing file: orbits
      * of events already present in the file are excluded. 
      */
-    std::set<uint32_t> excludedOrbit_; 
-    
+    std::set<uint32_t> excludedOrbit_;
+
     /** Used to invalidate index table in case a problem preventing
      * indexing is encountered: in principle non unicity of the orbit id.
      */
@@ -109,18 +107,16 @@ private:
     /** Initial memory allocation for index table (see vector::reserve()).
      */
     static const size_t indexReserve_;
-
   };
 
   //typedefs:
 private:
   typedef boost::ptr_list<OutStreamRecord> OutStreamList;
-  
+
   //ctors/dtors
 public:
   LaserSorter(const edm::ParameterSet&);
   ~LaserSorter() override;
-
 
   //methods
 public:
@@ -148,8 +144,7 @@ private:
    * blocks, -1 is returned otherwise. If event does not contain any ECAL data
    * -2 is returned.
    */
-  int getDetailedTriggerType(const edm::Handle<FEDRawDataCollection>& rawdata,
-                             double* proba = nullptr);
+  int getDetailedTriggerType(const edm::Handle<FEDRawDataCollection>& rawdata, double* proba = nullptr);
 
   /** Closes output stream 2 lumi block older than the input 'lumiBlock' ID.
    * @param lumiBlock ID of the reference luminosity block.
@@ -160,15 +155,13 @@ private:
    */
   void closeAllStreams();
 
-  
   /** Gets and eventually creates the output stream for writing the events 
    * of a given FED and luminosity block.
    * @param fedId ID of the FED the event is issued from
    * @param lumiBlock luminositu block of the event
    * @return pointer of the output stream record or null if not found.
    */
-  OutStreamRecord* getStream(int fedId,
-			     edm::LuminosityBlockNumber_t lumiBlock);
+  OutStreamRecord* getStream(int fedId, edm::LuminosityBlockNumber_t lumiBlock);
 
   /** Writes a monitoring events to an output stream.
    * @param out stream to write the event out
@@ -179,17 +172,17 @@ private:
    * @return true on success, false on failure
    * @see getStream(int, edm::LuminosityBlockNumber_t)
    */
-  bool writeEvent(OutStreamRecord& out, const edm::Event& event,
-		  int detailedTriggerType,
-		  const FEDRawDataCollection& data);
-  
+  bool writeEvent(OutStreamRecord& out,
+                  const edm::Event& event,
+                  int detailedTriggerType,
+                  const FEDRawDataCollection& data);
+
   /** Writes out data of a FED
    * @param out stream to write the event out
    * @param data FED data
    * @return true on success, false on failure
    */
-  bool writeFedBlock(std::ofstream& out,
-                     const FEDRawData& data);
+  bool writeFedBlock(std::ofstream& out, const FEDRawData& data);
 
   /** Closes an output stream and removed it from opened stream records.
    * Beware: this methode modifies outStreamList_.
@@ -206,8 +199,7 @@ private:
    * @return iterator to the new stream record. outStreamList_.end() in case
    * of failure.
    */
-  OutStreamList::iterator createOutStream(int fedId, 
-					  edm::LuminosityBlockNumber_t lumiBlock);
+  OutStreamList::iterator createOutStream(int fedId, edm::LuminosityBlockNumber_t lumiBlock);
 
   /** Writing file header for an LMF binary file
    * @param out stream of the output file
@@ -219,12 +211,8 @@ private:
    * @param evt event
    * @return false in case of write failure
    */
-  bool writeEventHeader(std::ofstream& out,
-                        const edm::Event& evt,
-                        int fedId,
-                        unsigned nFeds);
+  bool writeEventHeader(std::ofstream& out, const edm::Event& evt, int fedId, unsigned nFeds);
 
-  
   /** Builds the file names for the group of event corresponding
    * to a FED and a starting lumi block.
    * @param fedId FED ID of the event set
@@ -232,9 +220,7 @@ private:
    * @param [out] tmpName name of the file to use when filling it.
    * @param [out] finalName name of the file once completed.
    */
-  void streamFileName(int fedId, edm::LuminosityBlockNumber_t lumiBlock, 
-                      std::string& tmpName, std::string& finalName);
-
+  void streamFileName(int fedId, edm::LuminosityBlockNumber_t lumiBlock, std::string& tmpName, std::string& finalName);
 
   /** Checks if an ECAL DCC event is empty. It is considered as
    * empty if it does not contains FE data ("tower" block). So
@@ -245,16 +231,13 @@ private:
    * @nTowerBlocks if not null, filled with number of tower blocks
    * @return true if event is empty, false otherwise
    */
-  bool isDccEventEmpty(const FEDRawData& data, size_t* dccLen = nullptr,
-		       int* nTowerBlocks = nullptr) const;
-  
+  bool isDccEventEmpty(const FEDRawData& data, size_t* dccLen = nullptr, int* nTowerBlocks = nullptr) const;
+
   /** Computes the list of FEDs which data must be written out.
    * @param data CMS raw event
    * @param fedIds [out] list of FEDs to keep
    */
-  void getOutputFedList(const edm::Event& event,
-                        const FEDRawDataCollection& data,
-                        std::vector<unsigned>& fedIds) const;
+  void getOutputFedList(const edm::Event& event, const FEDRawDataCollection& data, std::vector<unsigned>& fedIds) const;
 
   /** Read index table of an LMF file.
    * @param in LMF file whose index table must be read.
@@ -264,28 +247,23 @@ private:
    * @param err if not nul, in case of failure filled with the error message.
    * @return true in case of success, false otherwise
    */
-  bool readIndexTable(std::ifstream& in, std::string& inName,
-                      OutStreamRecord& outRcd, std::string* err);
+  bool readIndexTable(std::ifstream& in, std::string& inName, OutStreamRecord& outRcd, std::string* err);
 
   /** Writes index table in LMF output file. stream must be positionned
    * to the place for the index table (end of file).
    * @param out stream of output file.
    * @param indices index table
    */
-  bool writeIndexTable(std::ofstream& out,
-		       std::vector<IndexRecord>& indices);
+  bool writeIndexTable(std::ofstream& out, std::vector<IndexRecord>& indices);
 
-  bool renameAsBackup(const std::string& fileName,
-                      std::string& newFileName);
-  
+  bool renameAsBackup(const std::string& fileName, std::string& newFileName);
 
   /** Gets format version of an LMF file. Position of file is preserved.
    * @param in stream to read the file
    * @param fileName name of the file. Used in error message.
    * @return version or -1 in case of error.
    */
-  int readFormatVersion(std::ifstream& in,
-                        const std::string& fileName);
+  int readFormatVersion(std::ifstream& in, const std::string& fileName);
 
   /** Help function to format a date
    */
@@ -304,7 +282,7 @@ private:
    * @return FED ids.
    */
   std::vector<int> getFullyReadoutDccs(const FEDRawDataCollection& data) const;
-  
+
   //fields
 private:
   /** Lower bound of ECAL DCC FED ID
@@ -383,7 +361,7 @@ private:
   /** Debugging message verbosity level
    */
   int verbosity_;
-  
+
   /** stream where list of output file is listed to
    */
   std::ofstream outputList_;
@@ -411,11 +389,9 @@ private:
    */
   int iNoFullReadoutDccError_;
 
-
   /** Maximum number of "No fully readout DCC error" message in a run
    */
-  int maxFullReadoutDccError_;  
-
+  int maxFullReadoutDccError_;
 
   /** number of "ECAL DCC data" message in a run
    */
@@ -452,7 +428,7 @@ private:
   /** Limit of number of events to prevent exhausting memory
    * with indexTable_ in case of file corruption.
    */
-  static const unsigned maxEvents_ = 1<<20;
+  static const unsigned maxEvents_ = 1 << 20;
 
   /** Statistics on event processing
    */
@@ -474,8 +450,7 @@ private:
 
   /** Switch to recompute and overwrite the lumi block ID
    */
-  bool overWriteLumiBlockId_; 
-
+  bool overWriteLumiBlockId_;
 
   /** Length of a lumi block in number of orbits used when
    * overWriteLumiBlockId is set to true;
@@ -493,7 +468,6 @@ private:
    * Calibration event time = orbitZeroTime_ + orbit_ * (89.1 microsec).
    */
   struct timeval orbitZeroTime_;
-
 };
-  
-#endif //EVENT_SELECT_H not defined
+
+#endif  //EVENT_SELECT_H not defined

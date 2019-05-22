@@ -20,13 +20,17 @@ gsfElectrons.ctfTracks     = cms.InputTag("hiGeneralTracks")
 gsfElectronCores.ctfTracks = cms.InputTag("hiGeneralTracks")
 pfElectronTranslator.emptyIsOk = cms.bool(True)
 
+gsfElectrons.fillConvVtxFitProb = cms.bool(False)
+
 ecalDrivenGsfElectrons.ctfTracksTag = cms.InputTag("hiGeneralTracks")
 ecalDrivenGsfElectronCores.ctfTracks = cms.InputTag("hiGeneralTracks")
 ecalDrivenGsfElectrons.vtxTag = cms.InputTag("hiSelectedVertex")
 
-ecalDrivenGsfElectrons.maxHOverEBarrel = cms.double(0.25)
-ecalDrivenGsfElectrons.maxHOverEEndcaps = cms.double(0.25)
-
+ecalDrivenGsfElectrons.preselection.maxHOverEBarrelCone = cms.double(0.25)
+ecalDrivenGsfElectrons.preselection.maxHOverEEndcapsCone = cms.double(0.25)
+ecalDrivenGsfElectrons.preselection.maxHOverEBarrelTower = cms.double(0.)
+ecalDrivenGsfElectrons.preselection.maxHOverEEndcapsTower = cms.double(0.)
+ecalDrivenGsfElectrons.fillConvVtxFitProb = cms.bool(False)
 
 
 from RecoParticleFlow.PFTracking.pfTrack_cfi import *

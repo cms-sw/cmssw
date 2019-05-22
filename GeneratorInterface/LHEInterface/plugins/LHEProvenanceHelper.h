@@ -27,5 +27,5 @@ namespace edm {
     ParameterSet const commonProcessParameterSet_;
     ParameterSet processParameterSet_;
   };
-}
+}  // namespace edm
 #endif

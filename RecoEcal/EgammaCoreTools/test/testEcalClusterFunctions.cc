@@ -39,28 +39,21 @@ Implementation:
 class testEcalClusterFunctions : public edm::EDAnalyzer {
         public:
                 explicit testEcalClusterFunctions(const edm::ParameterSet&);
-                ~testEcalClusterFunctions();
+                ~testEcalClusterFunctions() override = default;
 
         private:
-                virtual void analyze(const edm::Event&, const edm::EventSetup&);
-                EcalClusterFunctionBaseClass *ff_;
+                void analyze(const edm::Event&, const edm::EventSetup&) override;
+                std::unique_ptr<EcalClusterFunctionBaseClass> ff_;
 
 };
 
 
 
-testEcalClusterFunctions::testEcalClusterFunctions(const edm::ParameterSet& ps) :
-        ff_(0)
+testEcalClusterFunctions::testEcalClusterFunctions(const edm::ParameterSet& ps)
 {
         std::string functionName = ps.getParameter<std::string>("functionName");
-        ff_ = EcalClusterFunctionFactory::get()->create( functionName, ps );
-        std::cout << "got " << functionName << " function at: " << ff_ << "\n";
-}
-
-
-
-testEcalClusterFunctions::~testEcalClusterFunctions()
-{
+        ff_ = std::unique_ptr<EcalClusterFunctionBaseClass>{EcalClusterFunctionFactory::get()->create( functionName, ps )};
+        std::cout << "got " << functionName << " function at: " << ff_.get() << "\n";
 }
 
 

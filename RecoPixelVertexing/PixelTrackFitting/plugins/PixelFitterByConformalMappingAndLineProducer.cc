@@ -61,8 +61,7 @@ void PixelFitterByConformalMappingAndLineProducer::produce(edm::StreamID, edm::E
   edm::ESHandle<MagneticField> field;
   iSetup.get<IdealMagneticFieldRecord>().get(field);
 
-  auto impl = std::make_unique<PixelFitterByConformalMappingAndLine>(&iSetup,
-                                                                     ttrhBuilder.product(),
+  auto impl = std::make_unique<PixelFitterByConformalMappingAndLine>(ttrhBuilder.product(),
                                                                      tracker.product(),
                                                                      field.product(),
                                                                      theFixImpactParameter,

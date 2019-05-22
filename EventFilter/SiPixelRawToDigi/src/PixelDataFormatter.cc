@@ -100,12 +100,17 @@ PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map, bool phase
   PXID_mask = ~(~PixelDataFormatter::Word32(0) << PXID_bits);
   ADC_mask  = ~(~PixelDataFormatter::Word32(0) << ADC_bits);
 
+  if (phase1) {
+    errorcheck=std::unique_ptr<ErrorCheckerBase>(new ErrorChecker());
+  } else {
+    errorcheck=std::unique_ptr<ErrorCheckerBase>(new ErrorCheckerPhase0());
+  }
 }
 
 void PixelDataFormatter::setErrorStatus(bool ErrorStatus)
 {
   includeErrors = ErrorStatus;
-  errorcheck.setErrorStatus(includeErrors);
+  errorcheck->setErrorStatus(includeErrors);
 }
 
 void PixelDataFormatter::setQualityStatus(bool QualityStatus, const SiPixelQuality* QualityInfo)
@@ -135,7 +140,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 
   // check CRC bit
   const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1);  
-  if(!errorcheck.checkCRC(errorsInEvent, fedId, trailer, errors)) return;
+  if(!errorcheck->checkCRC(errorsInEvent, fedId, trailer, errors)) return;
 
   // check headers
   const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); header--;
@@ -143,7 +148,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
   while (moreHeaders) {
     header++;
     LogTrace("")<<"HEADER:  " <<  print(*header);
-    bool headerStatus = errorcheck.checkHeader(errorsInEvent, fedId, header, errors);
+    bool headerStatus = errorcheck->checkHeader(errorsInEvent, fedId, header, errors);
     moreHeaders = headerStatus;
   }
 
@@ -153,7 +158,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
   while (moreTrailers) {
     trailer--;
     LogTrace("")<<"TRAILER: " <<  print(*trailer);
-    bool trailerStatus = errorcheck.checkTrailer(errorsInEvent, fedId, nWords, trailer, errors);
+    bool trailerStatus = errorcheck->checkTrailer(errorsInEvent, fedId, nWords, trailer, errors);
     moreTrailers = trailerStatus;
   }
 
@@ -183,12 +188,12 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 
     if ( (nlink!=link) | (nroc!=roc) ) {  // new roc
       link = nlink; roc=nroc;
-      skipROC = LIKELY(roc<maxROCIndex) ? false : !errorcheck.checkROC(errorsInEvent, fedId, &converter, theCablingTree, ww, errors);
+      skipROC = LIKELY(roc<maxROCIndex) ? false : !errorcheck->checkROC(errorsInEvent, fedId, &converter, theCablingTree, ww, errors);
       if (skipROC) continue;
       rocp = converter.toRoc(link,roc);
       if UNLIKELY(!rocp) {
 	errorsInEvent = true;
-	errorcheck.conversionError(fedId, &converter, 2, ww, errors);
+	errorcheck->conversionError(fedId, &converter, 2, ww, errors);
 	skipROC=true;
 	continue;
       }
@@ -231,7 +236,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 	  LogDebug("PixelDataFormatter::interpretRawData") 
 	    << "status #3";
 	  errorsInEvent = true;
-	  errorcheck.conversionError(fedId, &converter, 3, ww, errors);
+	  errorcheck->conversionError(fedId, &converter, 3, ww, errors);
 	  continue;
 	}
       local = std::make_unique<LocalPixel>(localCR); // local pixel coordinate 
@@ -250,7 +255,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 	  LogDebug("PixelDataFormatter::interpretRawData") 
 	    << "status #3";
 	  errorsInEvent = true;
-	  errorcheck.conversionError(fedId, &converter, 3, ww, errors);
+	  errorcheck->conversionError(fedId, &converter, 3, ww, errors);
 	  continue;
 	}
       local = std::make_unique<LocalPixel>(localDP); // local pixel coordinate 
@@ -281,7 +286,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 // }
 
 
-void PixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis) 
+void PixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis, const BadChannels & badChannels) 
 {
   std::map<int, vector<Word32> > words;
 
@@ -294,26 +299,50 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawDat
     if(barrel) layer = PixelROC::bpixLayerPhase1(rawId);
     //if(DANEK) cout<<" layer "<<layer<<" "<<phase1<<endl;
 
+    BadChannels::const_iterator detBadChannels=badChannels.find(rawId);
+
     hasDetDigis++;
     const DetDigis & detDigis = im->second;
     for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); it++) {
       theDigiCounter++;
       const PixelDigi & digi = (*it);
-      int status=0;
+      int fedId=0;
 
-      if(layer==1 && phase1) status = digi2wordPhase1Layer1( rawId, digi, words);
-      else                   status = digi2word( rawId, digi, words);
+      if(layer==1 && phase1) fedId = digi2wordPhase1Layer1( rawId, digi, words);
+      else                   fedId = digi2word( rawId, digi, words);
 
-      if (status) {
+      if (fedId<0) {
          LogError("FormatDataException")
-            <<" digi2word returns error #"<<status
+            <<" digi2word returns error #"<<fedId
             <<" Ndigis: "<<theDigiCounter << endl
             <<" detector: "<<rawId<< endl
             << print(digi) <<endl;
-      } // if (status)
+      } else if (detBadChannels!=badChannels.end()) {
+	auto badChannel=std::find_if(detBadChannels->second.begin(), 
+				     detBadChannels->second.end(), 
+				     [&] (const PixelFEDChannel& ch) {
+				       return (int(ch.fed)==fedId && ch.link==linkId(words[fedId].back()));
+				     });
+	if (badChannel!=detBadChannels->second.end()) {
+	  LogError("FormatDataException")
+            <<" while marked bad, found digi for FED "<<fedId<<" Link "<<linkId(words[fedId].back())
+            <<" on module "<<rawId<< endl
+            << print(digi) <<endl;
+	}
+      } // if (fedId)
     } // for (DetDigis
   } // for (Digis
   LogTrace(" allDetDigis/hasDetDigis : ") << allDetDigis<<"/"<<hasDetDigis;
+
+  // fill FED error 25 words
+  for(const auto& detBadChannels: badChannels) {
+    for(const auto& badChannel: detBadChannels.second) {
+      unsigned int FEDError25=25;
+      Word32 word = (badChannel.link << LINK_shift) | (FEDError25 << ROC_shift);
+      words[badChannel.fed].push_back(word);
+      theWordCounter++;
+    }
+  }
 
   typedef std::map<int, vector<Word32> >::const_iterator RI;
   for (RI feddata = words.begin(); feddata != words.end(); feddata++) {
@@ -382,7 +411,7 @@ int PixelDataFormatter::digi2word( cms_uint32_t detId, const PixelDigi& digi,
   words[fedId].push_back(word);
   theWordCounter++;
 
-  return 0;
+  return fedId;
 }
 int PixelDataFormatter::digi2wordPhase1Layer1( cms_uint32_t detId, const PixelDigi& digi, 
     std::map<int, vector<Word32> > & words) const
@@ -412,7 +441,7 @@ int PixelDataFormatter::digi2wordPhase1Layer1( cms_uint32_t detId, const PixelDi
   words[fedId].push_back(word);
   theWordCounter++;
 
-  return 0;
+  return fedId;
 }
 
 

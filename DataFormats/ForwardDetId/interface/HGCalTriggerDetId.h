@@ -8,18 +8,19 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 
 /* \brief description of the bit assigment
-   [0:4]   u-coordinate of the cell (measured from the lower left
-   [5:9]   v-coordinate of the cell  corner of the wafer)
-   [10:13] abs(u) of the wafer (u-axis points along -x axis)
-   [14:14] sign of u (0:+u; 1:-u) (u=0 is at the center of beam line)
-   [15:18] abs(v) of the wafer (v-axis points 60-degree wrt x-axis)
-   [19:19] sign of v (0:+v; 1:-v) (v=0 is at the center of beam line)
-   [20:24] layer number 
-   [25:25] z-side (0 for +z; 1 for -z)
-   [26:27] Type (0 fine divisions of wafer with 120 mum thick silicon
+   [0:3]   u-coordinate of the cell (measured from the lower left
+   [4:7]   v-coordinate of the cell  corner of the wafer)
+   [8:11]  abs(u) of the wafer (u-axis points along -x axis)
+   [12:12] sign of u (0:+u; 1:-u) (u=0 is at the center of beam line)
+   [13:16] abs(v) of the wafer (v-axis points 60-degree wrt x-axis)
+   [17:17] sign of v (0:+v; 1:-v) (v=0 is at the center of beam line)
+   [18:22] layer number 
+   [23:24] Type (0 fine divisions of wafer with 120 mum thick silicon
                  1 coarse divisions of wafer with 200 mum thick silicon
                  2 coarse divisions of wafer with 300 mum thick silicon)
-   [28:31] Detector type (HGCalEE or HGCalHSi)
+   [25:26] Subdetector Type (HGCalEETrigger/HGCalHSiTrigger)
+   [27:27] z-side (0 for +z; 1 for -z)
+   [28:31] Detector type (HGCalTrigger)
 */
 
 class HGCalTriggerDetId : public DetId {
@@ -102,7 +103,7 @@ public:
   static const int kHGCalLayerOffset      = 18;
   static const int kHGCalLayerMask        = 0x1F;
   static const int kHGCalTypeOffset       = 23;
-  static const int kHGCalTypeMask         = 0x1;
+  static const int kHGCalTypeMask         = 0x3;
   static const int kHGCalZsideOffset      = 27;
   static const int kHGCalZsideMask        = 0x1;
   static const int kHGCalSubdetOffset     = 25;

@@ -71,26 +71,20 @@ Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf) :
     _recHitEnergyNorms.emplace(_layerMap.find(det)->second,std::make_pair(depths,rhE_norm));
   }
   
-  _allCellsPosCalc.reset(nullptr);
   if( conf.exists("allCellsPositionCalc") ) {
     const edm::ParameterSet& acConf = 
       conf.getParameterSet("allCellsPositionCalc");
     const std::string& algoac = 
       acConf.getParameter<std::string>("algoName");
-    PosCalc* accalc = 
-      PFCPositionCalculatorFactory::get()->create(algoac, acConf);
-    _allCellsPosCalc.reset(accalc);
+    _allCellsPosCalc = std::unique_ptr<PosCalc>{PFCPositionCalculatorFactory::get()->create(algoac, acConf)};
   }
   // if necessary a third pos calc for convergence testing
-  _convergencePosCalc.reset(nullptr);
   if( conf.exists("positionCalcForConvergence") ) {
     const edm::ParameterSet& convConf = 
       conf.getParameterSet("positionCalcForConvergence");
     const std::string& algoconv = 
       convConf.getParameter<std::string>("algoName");
-    PosCalc* convcalc = 
-      PFCPositionCalculatorFactory::get()->create(algoconv, convConf);
-    _convergencePosCalc.reset(convcalc);
+    _convergencePosCalc = std::unique_ptr<PosCalc>{PFCPositionCalculatorFactory::get()->create(algoconv, convConf)};
   }
 }
 

@@ -89,6 +89,8 @@
 #include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
 #include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
@@ -156,6 +158,8 @@ public:
   virtual std::unique_ptr<EcalClusterEnergyCorrectionParameters> produceEcalClusterEnergyCorrectionParameters( const EcalClusterEnergyCorrectionParametersRcd& );
   virtual std::unique_ptr<EcalClusterEnergyUncertaintyParameters> produceEcalClusterEnergyUncertaintyParameters( const EcalClusterEnergyUncertaintyParametersRcd& );
   virtual std::unique_ptr<EcalClusterEnergyCorrectionObjectSpecificParameters> produceEcalClusterEnergyCorrectionObjectSpecificParameters( const EcalClusterEnergyCorrectionObjectSpecificParametersRcd& );
+  virtual std::unique_ptr<EcalPFRecHitThresholds> produceEcalPFRecHitThresholds( const EcalPFRecHitThresholdsRcd& );
+  virtual std::unique_ptr<EcalPFRecHitThresholds>  getPFRecHitThresholdsFromConfiguration ( const EcalPFRecHitThresholdsRcd& ) ;
 
 
   virtual std::unique_ptr<EcalChannelStatus> produceEcalChannelStatus( const EcalChannelStatusRcd& );
@@ -223,12 +227,24 @@ private:
   std::vector<double> energyCorrectionParameters_;
   std::vector<double> energyUncertaintyParameters_;
   std::vector<double> energyCorrectionObjectSpecificParameters_;
+  double pfRecHitThresholdsNSigmas_;
+  double pfRecHitThresholdsNSigmasHEta_;
+  double pfRecHitThresholdsEB_;
+  double pfRecHitThresholdsEE_;
 
   double sim_pulse_shape_EB_thresh_;
   double sim_pulse_shape_EE_thresh_;
   double sim_pulse_shape_APD_thresh_;
   float sim_pulse_shape_TI_;
 
+  double laserAlphaMeanEER_higheta_;  
+  double laserAlphaMeanEEC_higheta_;  
+  
+  std::string pfRecHitFile_ ;
+  std::string pfRecHitFileEE_ ;
+  
+  std::string EELaserAlphaFile2_;
+  
 
   // ageing parameters 
   double totLumi_;
@@ -359,6 +375,7 @@ private:
   bool producedEcalAlignmentEE_;
   bool producedEcalAlignmentES_;
   bool producedEcalSimPulseShape_;
+  bool producedEcalPFRecHitThresholds_;
   bool getEBAlignmentFromFile_;
   bool getEEAlignmentFromFile_;
   bool getESAlignmentFromFile_;

@@ -78,45 +78,38 @@
 #include "TH2F.h"
 
 class V0Validator : public DQMEDAnalyzer {
- public:
+public:
   explicit V0Validator(const edm::ParameterSet &);
   ~V0Validator() override;
   enum V0Type { KSHORT, LAMBDA };
   struct V0Couple {
     reco::TrackRef one;
     reco::TrackRef two;
-    explicit V0Couple(reco::TrackRef first_daughter,
-                      reco::TrackRef second_daughter) {
-      one = first_daughter.key() < second_daughter.key() ? first_daughter
-                                                         : second_daughter;
-      two = first_daughter.key() > second_daughter.key() ? first_daughter
-                                                         : second_daughter;
+    explicit V0Couple(reco::TrackRef first_daughter, reco::TrackRef second_daughter) {
+      one = first_daughter.key() < second_daughter.key() ? first_daughter : second_daughter;
+      two = first_daughter.key() > second_daughter.key() ? first_daughter : second_daughter;
       assert(one != two);
     }
-    bool operator<(const V0Couple &rh) const {
-      return one.key() < rh.one.key();
-    }
-    bool operator==(const V0Couple &rh) const {
-      return ((one.key() == rh.one.key()) && (two.key() == rh.two.key()));
-    }
+    bool operator<(const V0Couple &rh) const { return one.key() < rh.one.key(); }
+    bool operator==(const V0Couple &rh) const { return ((one.key() == rh.one.key()) && (two.key() == rh.two.key())); }
   };
 
- private:
+private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void doFakeRates(const reco::VertexCompositeCandidateCollection &collection,
                    const reco::RecoToSimCollection &recotosimCollection,
-                   V0Type t, int particle_pdgid,
+                   V0Type t,
+                   int particle_pdgid,
                    int misreconstructed_particle_pdgid);
 
-  void doEfficiencies(
-      const TrackingVertexCollection &gen_vertices, V0Type t,
-      int parent_particle_id,
-      int first_daughter_id,  /* give only positive charge */
-      int second_daughter_id, /* give only positive charge */
-      const reco::VertexCompositeCandidateCollection &collection,
-      const reco::SimToRecoCollection &simtorecoCollection);
+  void doEfficiencies(const TrackingVertexCollection &gen_vertices,
+                      V0Type t,
+                      int parent_particle_id,
+                      int first_daughter_id,  /* give only positive charge */
+                      int second_daughter_id, /* give only positive charge */
+                      const reco::VertexCompositeCandidateCollection &collection,
+                      const reco::SimToRecoCollection &simtorecoCollection);
 
   // MonitorElements for final histograms
 
@@ -153,7 +146,6 @@ class V0Validator : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::SimToRecoCollection> recoSimToRecoCollectionToken_;
   edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollection_Token_;
   edm::EDGetTokenT<std::vector<reco::Vertex> > vec_recoVertex_Token_;
-  edm::EDGetTokenT<reco::VertexCompositeCandidateCollection>
-      recoVertexCompositeCandidateCollection_k0s_Token_,
+  edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> recoVertexCompositeCandidateCollection_k0s_Token_,
       recoVertexCompositeCandidateCollection_lambda_Token_;
 };

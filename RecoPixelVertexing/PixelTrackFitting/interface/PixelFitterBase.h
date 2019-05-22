@@ -6,7 +6,7 @@
 #include <vector>
 #include <memory>
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {class EventSetup;}
 class TrackingRegion;
 class TrackingRecHit;
 
@@ -16,17 +16,7 @@ public:
   virtual ~PixelFitterBase(){}
 
   virtual std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits,
-                                           const TrackingRegion& region) const { return std::unique_ptr<reco::Track>(); }
-
-  virtual reco::Track* run(
-      const edm::EventSetup& es,
-      const std::vector<const TrackingRecHit *>& hits,
-      const TrackingRegion& region) const { return nullptr;}
-
-  virtual reco::Track* run(
-      const edm::Event& ev,
-      const edm::EventSetup& es,
-      const std::vector<const TrackingRecHit *>& hits,
-      const TrackingRegion& region) const { return run(es,hits,region); }
+                                           const TrackingRegion& region,
+                                           const edm::EventSetup& setup) const = 0;
 };
 #endif

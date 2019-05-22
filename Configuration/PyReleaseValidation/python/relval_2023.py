@@ -18,10 +18,12 @@ numWFIB.extend([20261.97]) # 2023D17 premixing stage1 (NuGun+PU)
 numWFIB.extend([20234.99]) # 2023D17 premixing combined stage1+stage2 (ttbar+PU)
 numWFIB.extend([20434.0]) #2023D19 (already has timing)
 numWFIB.extend([21234.0,21234.11]) #2023D21
-numWFIB.extend([21634.0]) #2023D22
-numWFIB.extend([22034.0]) #2023D23
 numWFIB.extend([22434.0]) #2023D24
 numWFIB.extend([24034.0]) #2023D28
-numWFIB.extend([27434.0]) #2023D35
+numWFIB.extend([27434.0,27434.21,27634.21]) #2023D35, prodlike, prodlike PU
+numWFIB.extend([27834.0]) #2023D38
+numWFIB.extend([28634.0]) #2023D40
+numWFIB.extend([29034.0]) #2023D41
+numWFIB.extend([29434.0]) #2023D42
 for numWF in numWFIB:
     workflows[numWF] = _upgrade_workflows[numWF]

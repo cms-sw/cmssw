@@ -6,10 +6,10 @@
 #include "SimG4CMS/Calo/interface/HFNoseSD.h"
 #include "SimG4CMS/Calo/interface/CaloTrkProcessing.h"
 #include "SimG4CMS/Calo/interface/HcalTestAnalysis.h"
+#include "SimG4CMS/Calo/interface/CaloSteppingAction.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorPluginFactory.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-  
 
 typedef ECalSD EcalSensitiveDetector;
 DEFINE_SENSITIVEDETECTOR(EcalSensitiveDetector);
@@ -26,4 +26,5 @@ DEFINE_SENSITIVEDETECTOR(HFNoseSensitiveDetector);
 
 DEFINE_SENSITIVEDETECTOR(CaloTrkProcessing);
 
-DEFINE_SIMWATCHER (HcalTestAnalysis);
+DEFINE_SIMWATCHER(HcalTestAnalysis);
+DEFINE_SIMWATCHER(CaloSteppingAction);

@@ -16,7 +16,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 // Add by Daniele
@@ -65,10 +65,10 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 				       XYZTLorentzVector(track.vertex().x(),
 							 track.vertex().y(),
 							 track.vertex().z(),
-							 0.)),
+							 0.),
+                                       track.charge()),
 			   0.,0.,B_.z());
 
-  theParticle.setCharge(track.charge());
   float pfoutenergy=sqrt((pfmass*pfmass)+track.outerMomentum().Mag2());
   BaseParticlePropagator theOutParticle = 
     BaseParticlePropagator( 
@@ -79,9 +79,9 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 				       XYZTLorentzVector(track.outerPosition().x(),
 							 track.outerPosition().y(),
 							 track.outerPosition().z(),
-							 0.)),
+							 0.),
+                                       track.charge()),
 			   0.,0.,B_.z());
-  theOutParticle.setCharge(track.charge());
   
   
   math::XYZTLorentzVector momClosest 
@@ -99,8 +99,8 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
   theParticle.propagate();
   if(theParticle.getSuccess()!=0)
     pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::BeamPipeOrEndVertex,
-				       math::XYZPoint(theParticle.vertex()),
-				       math::XYZTLorentzVector(theParticle.momentum())));
+				       math::XYZPoint(theParticle.particle().vertex()),
+				       math::XYZTLorentzVector(theParticle.particle().momentum())));
   else {
     PFTrajectoryPoint dummyMaxSh;
     pftrack.addPoint(dummyMaxSh); 
@@ -132,8 +132,8 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
    theOutParticle.propagateToPreshowerLayer1(false);
    if(theOutParticle.getSuccess()!=0)
      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS1,
-					math::XYZPoint(theOutParticle.vertex()),
-					math::XYZTLorentzVector(theOutParticle.momentum())));
+					math::XYZPoint(theOutParticle.particle().vertex()),
+					math::XYZTLorentzVector(theOutParticle.particle().momentum())));
    else {
      PFTrajectoryPoint dummyPS1;
      pftrack.addPoint(dummyPS1); 
@@ -143,8 +143,8 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
    theOutParticle.propagateToPreshowerLayer2(false);
    if(theOutParticle.getSuccess()!=0){
      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS2,
-					math::XYZPoint(theOutParticle.vertex()),
-					math::XYZTLorentzVector(theOutParticle.momentum())));
+					math::XYZPoint(theOutParticle.particle().vertex()),
+					math::XYZTLorentzVector(theOutParticle.particle().momentum())));
      isBelowPS=true;
    }   else {
      PFTrajectoryPoint dummyPS2;
@@ -155,19 +155,19 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 
    if(theOutParticle.getSuccess()!=0){
      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
-					math::XYZPoint(theOutParticle.vertex()),
-					math::XYZTLorentzVector(theOutParticle.momentum())));
+					math::XYZPoint(theOutParticle.particle().vertex()),
+					math::XYZTLorentzVector(theOutParticle.particle().momentum())));
    double ecalShowerDepth     
-     = PFCluster::getDepthCorrection(theOutParticle.momentum().E(),
+     = PFCluster::getDepthCorrection(theOutParticle.particle().momentum().E(),
 				     isBelowPS, 
 				     false);
 
-   math::XYZPoint meanShower=math::XYZPoint(theOutParticle.vertex())+
-     math::XYZTLorentzVector(theOutParticle.momentum()).Vect().Unit()*ecalShowerDepth;
+   math::XYZPoint meanShower=math::XYZPoint(theOutParticle.particle().vertex())+
+     math::XYZTLorentzVector(theOutParticle.particle().momentum()).Vect().Unit()*ecalShowerDepth;
  
    pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
 				      meanShower,
-				      math::XYZTLorentzVector(theOutParticle.momentum())));}
+				      math::XYZTLorentzVector(theOutParticle.particle().momentum())));}
    else {
      if (PT>5. && msgwarning)
        LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE ECAL HAS FAILED";
@@ -181,8 +181,8 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
    theOutParticle.propagateToHcalEntrance(false);
    if(theOutParticle.getSuccess()!=0)
      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
-					math::XYZPoint(theOutParticle.vertex()),
-					math::XYZTLorentzVector(theOutParticle.momentum())));
+					math::XYZPoint(theOutParticle.particle().vertex()),
+					math::XYZTLorentzVector(theOutParticle.particle().momentum())));
    else{
      if (PT>5.&& msgwarning)
        LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
@@ -195,8 +195,8 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
    theOutParticle.propagateToHcalExit(false);
    if(theOutParticle.getSuccess()!=0)
      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
-					math::XYZPoint(theOutParticle.vertex()),
-					math::XYZTLorentzVector(theOutParticle.momentum())));
+					math::XYZPoint(theOutParticle.particle().vertex()),
+					math::XYZTLorentzVector(theOutParticle.particle().momentum())));
    else{
      if (PT>5.&& msgwarning)
        LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL EXIT HAS FAILED";
@@ -206,17 +206,17 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
    
    
    //HO layer0
-   //   if (abs(theOutParticle.vertex().z())<550) {
+   //   if (abs(theOutParticle.particle().vertex().z())<550) {
    if ( PT>3.0) { //Same value is used in PFBlockAlgo::link( case PFBlockLink::TRACKandHO:
      theOutParticle.setMagneticField(0);
-     theOutParticle.setCharge(0);
+     //theOutParticle.setCharge(0);  //Since the B field is 0, there should be no need to change charge
      theOutParticle.propagateToHOLayer(false);
      if(theOutParticle.getSuccess()!=0) {
        pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HOLayer,
-					  math::XYZPoint(theOutParticle.vertex()),
-					  math::XYZTLorentzVector(theOutParticle.momentum())));
+					  math::XYZPoint(theOutParticle.particle().vertex()),
+					  math::XYZTLorentzVector(theOutParticle.particle().momentum())));
      } else {
-       if (PT>5. && abs(theOutParticle.Z()) < 700.25 && msgwarning)
+       if (PT>5. && abs(theOutParticle.particle().Z()) < 700.25 && msgwarning)
        	 LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE HO HAS FAILED";
        PFTrajectoryPoint dummyHOLayer;
        pftrack.addPoint(dummyHOLayer); 
@@ -279,9 +279,9 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					   XYZTLorentzVector(track.vertex().x(),
 							     track.vertex().y(),
 							     track.vertex().z(),
-							     0.)),  //DANIELE Same thing v.x(),v.y(),v.()? 
+							     0.),
+                                           track.charge()),  //DANIELE Same thing v.x(),v.y(),v.()? 
 			       0.,0.,B_.z());
-      theInnerParticle.setCharge(track.charge());  
 
       //BEAMPIPE
       theInnerParticle.setPropagationConditions(pfGeometry_.outerRadius(PFGeometry::BeamPipe), 
@@ -289,8 +289,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       theInnerParticle.propagate();
       if(theInnerParticle.getSuccess()!=0)
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::BeamPipeOrEndVertex,
-					   math::XYZPoint(theInnerParticle.vertex()),
-					   math::XYZTLorentzVector(theInnerParticle.momentum())));
+					   math::XYZPoint(theInnerParticle.particle().vertex()),
+					   math::XYZTLorentzVector(theInnerParticle.particle().momentum())));
       else {
 	PFTrajectoryPoint dummyMaxSh;
 	pftrack.addPoint(dummyMaxSh); 
@@ -329,15 +329,15 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					   XYZTLorentzVector(v.x(),
 							     v.y(),
 							     v.z(),
-							     0.)), 
+							     0.),
+                                           track.charge()), 
 			       0.,0.,B_.z());
-      theOutParticle.setCharge(track.charge());  
       bool isBelowPS=false; 
       theOutParticle.propagateToPreshowerLayer1(false);
       if(theOutParticle.getSuccess()!=0)
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS1,
-					   math::XYZPoint(theOutParticle.vertex()),
-					   math::XYZTLorentzVector(theOutParticle.momentum())));
+					   math::XYZPoint(theOutParticle.particle().vertex()),
+					   math::XYZTLorentzVector(theOutParticle.particle().momentum())));
       else {
 	PFTrajectoryPoint dummyPS1;
 	pftrack.addPoint(dummyPS1); 
@@ -347,8 +347,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       theOutParticle.propagateToPreshowerLayer2(false);
       if(theOutParticle.getSuccess()!=0){
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS2,
-					   math::XYZPoint(theOutParticle.vertex()),
-					   math::XYZTLorentzVector(theOutParticle.momentum())));
+					   math::XYZPoint(theOutParticle.particle().vertex()),
+					   math::XYZTLorentzVector(theOutParticle.particle().momentum())));
 	isBelowPS=true;
       }   else {
 	PFTrajectoryPoint dummyPS2;
@@ -359,19 +359,19 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       
       if(theOutParticle.getSuccess()!=0){
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
-					   math::XYZPoint(theOutParticle.vertex()),
-					   math::XYZTLorentzVector(theOutParticle.momentum())));
+					   math::XYZPoint(theOutParticle.particle().vertex()),
+					   math::XYZTLorentzVector(theOutParticle.particle().momentum())));
 	double ecalShowerDepth     
-	  = PFCluster::getDepthCorrection(theOutParticle.momentum().E(),
+	  = PFCluster::getDepthCorrection(theOutParticle.particle().momentum().E(),
 					  isBelowPS, 
 					  false);
 	
-	math::XYZPoint meanShower=math::XYZPoint(theOutParticle.vertex())+
-	  math::XYZTLorentzVector(theOutParticle.momentum()).Vect().Unit()*ecalShowerDepth;
+	math::XYZPoint meanShower=math::XYZPoint(theOutParticle.particle().vertex())+
+	  math::XYZTLorentzVector(theOutParticle.particle().momentum()).Vect().Unit()*ecalShowerDepth;
 	
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
 					   meanShower,
-					   math::XYZTLorentzVector(theOutParticle.momentum())));}
+					   math::XYZTLorentzVector(theOutParticle.particle().momentum())));}
       else {
 	if (PT>5.)
 	  LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE ECAL HAS FAILED";
@@ -387,8 +387,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       theOutParticle.propagateToHcalEntrance(false);
       if(theOutParticle.getSuccess()!=0)
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
-					   math::XYZPoint(theOutParticle.vertex()),
-					   math::XYZTLorentzVector(theOutParticle.momentum())));
+					   math::XYZPoint(theOutParticle.particle().vertex()),
+					   math::XYZTLorentzVector(theOutParticle.particle().momentum())));
       else{
 	if (PT>5.)
 	  LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
@@ -399,8 +399,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       theOutParticle.propagateToHcalExit(false);
       if(theOutParticle.getSuccess()!=0)
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
-					   math::XYZPoint(theOutParticle.vertex()),
-					   math::XYZTLorentzVector(theOutParticle.momentum())));
+					   math::XYZPoint(theOutParticle.particle().vertex()),
+					   math::XYZTLorentzVector(theOutParticle.particle().momentum())));
       else{
 	if (PT>5.)
 	  LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL EXIT HAS FAILED";
@@ -409,15 +409,15 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       } 
       
       //HO Layer0
-      if ( abs(theOutParticle.vertex().z())<550) {
+      if ( abs(theOutParticle.particle().vertex().z())<550) {
 	theOutParticle.setMagneticField(0);
 	theOutParticle.propagateToHOLayer(false);
 	if(theOutParticle.getSuccess()!=0)
 	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HOLayer,
-					     math::XYZPoint(theOutParticle.vertex()),
-					     math::XYZTLorentzVector(theOutParticle.momentum())));
+					     math::XYZPoint(theOutParticle.particle().vertex()),
+					     math::XYZTLorentzVector(theOutParticle.particle().momentum())));
 	else{
-	  if (PT>5. && abs(theOutParticle.Z()) < 700.25 )
+	  if (PT>5. && abs(theOutParticle.particle().Z()) < 700.25 )
 	    LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HO HAS FAILED";
 	  PFTrajectoryPoint dummyHOLayer;
 	  pftrack.addPoint(dummyHOLayer); 
@@ -440,6 +440,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 
     GlobalVector p_gamma= p*(fabs(DP)/p.mag());   // Direction from the electron (tangent), DP without any sign!;
     float e_gamma = fabs(DP); // DP = pout-pin so could be negative
+    constexpr int gamma_charge = 0;
     BaseParticlePropagator theBremParticle = 
       BaseParticlePropagator( 
 			     RawParticle(XYZTLorentzVector(p_gamma.x(),
@@ -449,10 +450,9 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					 XYZTLorentzVector(v.x(),
 							   v.y(),
 							   v.z(),
-							   0.)),
+							   0.),
+                                         gamma_charge),
 			     0.,0.,B_.z());
-    int gamma_charge = 0;
-    theBremParticle.setCharge(gamma_charge);  
 
 
     // add TrajectoryPoint for Brem, PS, ECAL, ECALShowMax, HCAL
@@ -471,8 +471,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     theBremParticle.propagateToPreshowerLayer1(false);
     if(theBremParticle.getSuccess()!=0)
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS1,
-					 math::XYZPoint(theBremParticle.vertex()),
-					 math::XYZTLorentzVector(theBremParticle.momentum())));
+					 math::XYZPoint(theBremParticle.particle().vertex()),
+					 math::XYZTLorentzVector(theBremParticle.particle().momentum())));
     else {
       PFTrajectoryPoint dummyPS1;
       brem.addPoint(dummyPS1); 
@@ -483,8 +483,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     theBremParticle.propagateToPreshowerLayer2(false);
     if(theBremParticle.getSuccess()!=0){
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS2,
-					 math::XYZPoint(theBremParticle.vertex()),
-					 math::XYZTLorentzVector(theBremParticle.momentum())));
+					 math::XYZPoint(theBremParticle.particle().vertex()),
+					 math::XYZTLorentzVector(theBremParticle.particle().momentum())));
       isBelowPS=true;
     }   else {
       PFTrajectoryPoint dummyPS2;
@@ -495,19 +495,19 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 
    if(theBremParticle.getSuccess()!=0){
      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
-					math::XYZPoint(theBremParticle.vertex()),
-					math::XYZTLorentzVector(theBremParticle.momentum())));
+					math::XYZPoint(theBremParticle.particle().vertex()),
+					math::XYZTLorentzVector(theBremParticle.particle().momentum())));
    double ecalShowerDepth     
-     = PFCluster::getDepthCorrection(theBremParticle.momentum().E(),
+     = PFCluster::getDepthCorrection(theBremParticle.particle().momentum().E(),
 				     isBelowPS, 
 				     false);
 
-   math::XYZPoint meanShower=math::XYZPoint(theBremParticle.vertex())+
-     math::XYZTLorentzVector(theBremParticle.momentum()).Vect().Unit()*ecalShowerDepth;
+   math::XYZPoint meanShower=math::XYZPoint(theBremParticle.particle().vertex())+
+     math::XYZTLorentzVector(theBremParticle.particle().momentum()).Vect().Unit()*ecalShowerDepth;
  
    brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
 				      meanShower,
-				      math::XYZTLorentzVector(theBremParticle.momentum())));}
+				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));}
    else {
      if ((DP>5.) && ((DP/SigmaDP)>3))
        LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED";
@@ -523,8 +523,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
    theBremParticle.propagateToHcalEntrance(false);
    if(theBremParticle.getSuccess()!=0)
      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
-					math::XYZPoint(theBremParticle.vertex()),
-					math::XYZTLorentzVector(theBremParticle.momentum())));
+					math::XYZPoint(theBremParticle.particle().vertex()),
+					math::XYZTLorentzVector(theBremParticle.particle().momentum())));
    else{
      if ((DP>5.) && ((DP/SigmaDP)>3))
        LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
@@ -536,8 +536,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
    theBremParticle.propagateToHcalExit(false);
    if(theBremParticle.getSuccess()!=0)
      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
-				     math::XYZPoint(theBremParticle.vertex()),
-				     math::XYZTLorentzVector(theBremParticle.momentum())));
+				     math::XYZPoint(theBremParticle.particle().vertex()),
+				     math::XYZTLorentzVector(theBremParticle.particle().momentum())));
    else{  
      if ((DP>5.) && ((DP/SigmaDP)>3))
        LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
@@ -546,15 +546,15 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
    }
    
    //HO Layer0
-   if ( abs(theBremParticle.vertex().z())<550.0) {
+   if ( abs(theBremParticle.particle().vertex().z())<550.0) {
      theBremParticle.setMagneticField(0);
      theBremParticle.propagateToHOLayer(false);
      if(theBremParticle.getSuccess()!=0)
        brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HOLayer,
-				       math::XYZPoint(theBremParticle.vertex()),
-				       math::XYZTLorentzVector(theBremParticle.momentum())));
+				       math::XYZPoint(theBremParticle.particle().vertex()),
+				       math::XYZTLorentzVector(theBremParticle.particle().momentum())));
      else {  
-       if ((DP>5.) && ((DP/SigmaDP)>3) && abs(theBremParticle.Z()) < 700.25 )
+       if ((DP>5.) && ((DP/SigmaDP)>3) && abs(theBremParticle.particle().Z()) < 700.25 )
 	 LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE H0 HAS FAILED";
        PFTrajectoryPoint dummyHOLayer;
        brem.addPoint(dummyHOLayer); 
@@ -594,8 +594,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
   GlobalVector InMom;
   GlobalPoint InPos;
   if(inTSOS.isValid()) {
-    mtsMode_->momentumFromModeCartesian(inTSOS,InMom);
-    mtsMode_->positionFromModeCartesian(inTSOS,InPos);
+    multiTrajectoryStateMode::momentumFromModeCartesian(inTSOS,InMom);
+    multiTrajectoryStateMode::positionFromModeCartesian(inTSOS,InPos);
   }
   else {
     InMom = GlobalVector(track.pxMode(),track.pyMode(),track.pzMode());
@@ -621,17 +621,17 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					XYZTLorentzVector(track.vertex().x(),
 							  track.vertex().y(),
 							  track.vertex().z(),
-							  0.)),  //DANIELE Same thing v.x(),v.y(),v.()? 
+							  0.),
+                                        track.charge()),  //DANIELE Same thing v.x(),v.y(),v.()? 
 			    0.,0.,B_.z());
-  theInnerParticle.setCharge(track.charge());   // Use the chargeMode ??   
   //BEAMPIPE
   theInnerParticle.setPropagationConditions(pfGeometry_.outerRadius(PFGeometry::BeamPipe), 
 					    pfGeometry_.outerZ(PFGeometry::BeamPipe), false);
   theInnerParticle.propagate();
   if(theInnerParticle.getSuccess()!=0)
     pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::BeamPipeOrEndVertex,
-				       math::XYZPoint(theInnerParticle.vertex()),
-				       math::XYZTLorentzVector(theInnerParticle.momentum())));
+				       math::XYZPoint(theInnerParticle.particle().vertex()),
+				       math::XYZTLorentzVector(theInnerParticle.particle().momentum())));
   else {
     PFTrajectoryPoint dummyBeam;
     pftrack.addPoint(dummyBeam); 
@@ -651,6 +651,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
   double dp_tang = ptot;
   double sdp_tang = track.ptModeError()*(track.pMode()/track.ptMode());
   PFBrem brem(dp_tang,sdp_tang,iTrajPoint);
+  constexpr int gamma_charge = 0;
   BaseParticlePropagator theBremParticle = 
     BaseParticlePropagator( 
 			   RawParticle(XYZTLorentzVector(InMom.x(),
@@ -660,10 +661,9 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				       XYZTLorentzVector(InPos.x(),
 							 InPos.y(),
 							 InPos.z(),
-							 0.)),
+							 0.),
+                                       gamma_charge),
 			   0.,0.,B_.z());
-  int gamma_charge = 0;
-  theBremParticle.setCharge(gamma_charge);  
   // add TrajectoryPoint for Brem, PS, ECAL, ECALShowMax, HCAL
   // Brem Entrance PS Layer1
   PFTrajectoryPoint dummyClosest;   // Added just to have the right number order in PFTrack.cc
@@ -679,8 +679,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
   theBremParticle.propagateToPreshowerLayer1(false);
   if(theBremParticle.getSuccess()!=0)
     brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS1,
-				    math::XYZPoint(theBremParticle.vertex()),
-				    math::XYZTLorentzVector(theBremParticle.momentum())));
+				    math::XYZPoint(theBremParticle.particle().vertex()),
+				    math::XYZTLorentzVector(theBremParticle.particle().momentum())));
   else {
     PFTrajectoryPoint dummyPS1;
     brem.addPoint(dummyPS1); 
@@ -691,8 +691,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
   theBremParticle.propagateToPreshowerLayer2(false);
   if(theBremParticle.getSuccess()!=0){
     brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS2,
-				    math::XYZPoint(theBremParticle.vertex()),
-				    math::XYZTLorentzVector(theBremParticle.momentum())));
+				    math::XYZPoint(theBremParticle.particle().vertex()),
+				    math::XYZTLorentzVector(theBremParticle.particle().momentum())));
     isBelowPS=true;
   }   else {
     PFTrajectoryPoint dummyPS2;
@@ -703,8 +703,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
   
   if(theBremParticle.getSuccess()!=0){
     brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
-				    math::XYZPoint(theBremParticle.vertex()),
-				    math::XYZTLorentzVector(theBremParticle.momentum())));
+				    math::XYZPoint(theBremParticle.particle().vertex()),
+				    math::XYZTLorentzVector(theBremParticle.particle().momentum())));
 
     //  for the first brem give a low default DP of 100 MeV.  
     double EDepthCorr = 0.01;
@@ -713,12 +713,12 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				      isBelowPS, 
 				      false);
     
-    math::XYZPoint meanShower=math::XYZPoint(theBremParticle.vertex())+
-      math::XYZTLorentzVector(theBremParticle.momentum()).Vect().Unit()*ecalShowerDepth;
+    math::XYZPoint meanShower=math::XYZPoint(theBremParticle.particle().vertex())+
+      math::XYZTLorentzVector(theBremParticle.particle().momentum()).Vect().Unit()*ecalShowerDepth;
     
     brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
 				    meanShower,
-				    math::XYZTLorentzVector(theBremParticle.momentum())));}
+				    math::XYZTLorentzVector(theBremParticle.particle().momentum())));}
   else {
     if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
       LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED";
@@ -734,8 +734,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
   theBremParticle.propagateToHcalEntrance(false);
   if(theBremParticle.getSuccess()!=0)
     brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
-				    math::XYZPoint(theBremParticle.vertex()),
-				    math::XYZTLorentzVector(theBremParticle.momentum())));
+				    math::XYZPoint(theBremParticle.particle().vertex()),
+				    math::XYZTLorentzVector(theBremParticle.particle().momentum())));
   else{
     if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
       LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
@@ -747,8 +747,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
   theBremParticle.propagateToHcalExit(false);
   if(theBremParticle.getSuccess()!=0)
     brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
-				    math::XYZPoint(theBremParticle.vertex()),
-				    math::XYZTLorentzVector(theBremParticle.momentum())));
+				    math::XYZPoint(theBremParticle.particle().vertex()),
+				    math::XYZTLorentzVector(theBremParticle.particle().momentum())));
   else{  
     if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
       LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
@@ -757,15 +757,15 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
   }
   
   //HO Layer0
-  if ( abs(theBremParticle.vertex().z())<550) {
+  if ( abs(theBremParticle.particle().vertex().z())<550) {
     theBremParticle.setMagneticField(0);
     theBremParticle.propagateToHOLayer(false);
     if(theBremParticle.getSuccess()!=0)
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HOLayer,
-				      math::XYZPoint(theBremParticle.vertex()),
-				      math::XYZTLorentzVector(theBremParticle.momentum())));
+				      math::XYZPoint(theBremParticle.particle().vertex()),
+				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));
     else{  
-      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && abs(theBremParticle.Z()) < 700.25 )
+      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && abs(theBremParticle.particle().Z()) < 700.25 )
 	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE H0 HAS FAILED";
       PFTrajectoryPoint dummyHOLayer;
       brem.addPoint(dummyHOLayer); 
@@ -830,10 +830,9 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 							 XYZTLorentzVector(gsftang[iTang].position().x(),
 									   gsftang[iTang].position().y(),
 									   gsftang[iTang].position().z(),
-									   0.)),
+									   0.),
+                                                         gamma_charge),
 					     0.,0.,B_.z());
-   
-    theBremParticle.setCharge(gamma_charge);  
     
     
     PFTrajectoryPoint dummyClosest;   // Added just to have the right number order in PFTrack.cc
@@ -849,8 +848,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     theBremParticle.propagateToPreshowerLayer1(false);
     if(theBremParticle.getSuccess()!=0)
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS1,
-				      math::XYZPoint(theBremParticle.vertex()),
-				      math::XYZTLorentzVector(theBremParticle.momentum())));
+				      math::XYZPoint(theBremParticle.particle().vertex()),
+				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));
     else {
       PFTrajectoryPoint dummyPS1;
       brem.addPoint(dummyPS1); 
@@ -861,8 +860,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     theBremParticle.propagateToPreshowerLayer2(false);
     if(theBremParticle.getSuccess()!=0){
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS2,
-				      math::XYZPoint(theBremParticle.vertex()),
-				      math::XYZTLorentzVector(theBremParticle.momentum())));
+				      math::XYZPoint(theBremParticle.particle().vertex()),
+				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));
       isBelowPS=true;
     }   else {
       PFTrajectoryPoint dummyPS2;
@@ -873,20 +872,20 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     
     if(theBremParticle.getSuccess()!=0){
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
-				      math::XYZPoint(theBremParticle.vertex()),
-				      math::XYZTLorentzVector(theBremParticle.momentum())));
+				      math::XYZPoint(theBremParticle.particle().vertex()),
+				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));
 
       double ecalShowerDepth     
-	= PFCluster::getDepthCorrection(theBremParticle.momentum().E(),
+	= PFCluster::getDepthCorrection(theBremParticle.particle().momentum().E(),
 					isBelowPS, 
 					false);
       
-      math::XYZPoint meanShower=math::XYZPoint(theBremParticle.vertex())+
-	math::XYZTLorentzVector(theBremParticle.momentum()).Vect().Unit()*ecalShowerDepth;
+      math::XYZPoint meanShower=math::XYZPoint(theBremParticle.particle().vertex())+
+	math::XYZTLorentzVector(theBremParticle.particle().momentum()).Vect().Unit()*ecalShowerDepth;
       
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
 				      meanShower,
-				      math::XYZTLorentzVector(theBremParticle.momentum())));}
+				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));}
     else {
       if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
 	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED";
@@ -902,8 +901,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     theBremParticle.propagateToHcalEntrance(false);
     if(theBremParticle.getSuccess()!=0)
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
-				      math::XYZPoint(theBremParticle.vertex()),
-				      math::XYZTLorentzVector(theBremParticle.momentum())));
+				      math::XYZPoint(theBremParticle.particle().vertex()),
+				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));
     else{
       if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
 	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
@@ -915,8 +914,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     theBremParticle.propagateToHcalExit(false);
     if(theBremParticle.getSuccess()!=0)
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
-				      math::XYZPoint(theBremParticle.vertex()),
-				      math::XYZTLorentzVector(theBremParticle.momentum())));
+				      math::XYZPoint(theBremParticle.particle().vertex()),
+				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));
     else{  
       if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
 	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
@@ -925,15 +924,15 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     }
     
     //HO Layer0
-    if ( abs(theBremParticle.vertex().z())<550) {
+    if ( abs(theBremParticle.particle().vertex().z())<550) {
       theBremParticle.setMagneticField(0);
       theBremParticle.propagateToHOLayer(false);
       if(theBremParticle.getSuccess()!=0)
 	brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HOLayer,
-					math::XYZPoint(theBremParticle.vertex()),
-					math::XYZTLorentzVector(theBremParticle.momentum())));
+					math::XYZPoint(theBremParticle.particle().vertex()),
+					math::XYZTLorentzVector(theBremParticle.particle().momentum())));
       else{  
-	if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && abs(theBremParticle.Z()) < 700.25 )
+	if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && abs(theBremParticle.particle().Z()) < 700.25 )
 	  LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE H0 HAS FAILED";
 	PFTrajectoryPoint dummyHOLayer;
 	brem.addPoint(dummyHOLayer); 
@@ -957,8 +956,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     // DANIELE ?????  if the out is not valid maybe take the last tangent?
     // From Wolfgang. It should be always valid 
 
-    mtsMode_->momentumFromModeCartesian(outTSOS,OutMom);
-    mtsMode_->positionFromModeCartesian(outTSOS,OutPos);
+    multiTrajectoryStateMode::momentumFromModeCartesian(outTSOS,OutMom);
+    multiTrajectoryStateMode::positionFromModeCartesian(outTSOS,OutPos);
 
 
 
@@ -979,15 +978,15 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					  XYZTLorentzVector(OutPos.x(),
 							    OutPos.y(),
 							    OutPos.z(),
-							    0.)), 
+							    0.),
+                                          track.charge()), 
 			      0.,0.,B_.z());
-    theOutParticle.setCharge(track.charge());  
     isBelowPS=false; 
     theOutParticle.propagateToPreshowerLayer1(false);
     if(theOutParticle.getSuccess()!=0)
       pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS1,
-					 math::XYZPoint(theOutParticle.vertex()),
-					 math::XYZTLorentzVector(theOutParticle.momentum())));
+					 math::XYZPoint(theOutParticle.particle().vertex()),
+					 math::XYZTLorentzVector(theOutParticle.particle().momentum())));
     else {
       PFTrajectoryPoint dummyPS1;
       pftrack.addPoint(dummyPS1); 
@@ -997,8 +996,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     theOutParticle.propagateToPreshowerLayer2(false);
     if(theOutParticle.getSuccess()!=0){
       pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS2,
-					 math::XYZPoint(theOutParticle.vertex()),
-					 math::XYZTLorentzVector(theOutParticle.momentum())));
+					 math::XYZPoint(theOutParticle.particle().vertex()),
+					 math::XYZTLorentzVector(theOutParticle.particle().momentum())));
       isBelowPS=true;
     }   else {
       PFTrajectoryPoint dummyPS2;
@@ -1009,20 +1008,20 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     
     if(theOutParticle.getSuccess()!=0){
       pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
-					 math::XYZPoint(theOutParticle.vertex()),
-					 math::XYZTLorentzVector(theOutParticle.momentum())));
+					 math::XYZPoint(theOutParticle.particle().vertex()),
+					 math::XYZTLorentzVector(theOutParticle.particle().momentum())));
       double EDepthCorr = 0.01;
       double ecalShowerDepth     
 	= PFCluster::getDepthCorrection(EDepthCorr,
 					isBelowPS, 
 					false);
       
-      math::XYZPoint meanShower=math::XYZPoint(theOutParticle.vertex())+
-	math::XYZTLorentzVector(theOutParticle.momentum()).Vect().Unit()*ecalShowerDepth;
+      math::XYZPoint meanShower=math::XYZPoint(theOutParticle.particle().vertex())+
+	math::XYZTLorentzVector(theOutParticle.particle().momentum()).Vect().Unit()*ecalShowerDepth;
       
       pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
 					 meanShower,
-					 math::XYZTLorentzVector(theOutParticle.momentum())));}
+					 math::XYZTLorentzVector(theOutParticle.particle().momentum())));}
     else {
       if (pTtot_out>5.)
 	LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE ECAL HAS FAILED";
@@ -1038,8 +1037,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     theOutParticle.propagateToHcalEntrance(false);
     if(theOutParticle.getSuccess()!=0)
       pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
-					 math::XYZPoint(theOutParticle.vertex()),
-					 math::XYZTLorentzVector(theOutParticle.momentum())));
+					 math::XYZPoint(theOutParticle.particle().vertex()),
+					 math::XYZTLorentzVector(theOutParticle.particle().momentum())));
     else{
       if (pTtot_out>5.)
 	LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
@@ -1050,8 +1049,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     theOutParticle.propagateToHcalExit(false);
     if(theOutParticle.getSuccess()!=0)
       pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
-					 math::XYZPoint(theOutParticle.vertex()),
-					 math::XYZTLorentzVector(theOutParticle.momentum())));
+					 math::XYZPoint(theOutParticle.particle().vertex()),
+					 math::XYZTLorentzVector(theOutParticle.particle().momentum())));
     else{
       if (pTtot_out>5.)
 	LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL EXIT HAS FAILED";
@@ -1060,15 +1059,15 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     }
     
     //HO Layer0
-    if ( abs(theOutParticle.vertex().z())<550) {
+    if ( abs(theOutParticle.particle().vertex().z())<550) {
       theOutParticle.setMagneticField(0);
       theOutParticle.propagateToHOLayer(false);
       if(theOutParticle.getSuccess()!=0)
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HOLayer,
-					   math::XYZPoint(theOutParticle.vertex()),
-					   math::XYZTLorentzVector(theOutParticle.momentum())));
+					   math::XYZPoint(theOutParticle.particle().vertex()),
+					   math::XYZTLorentzVector(theOutParticle.particle().momentum())));
       else{  
-	if ( pTtot_out > 5. && abs(theOutParticle.Z()) < 700.25 )
+	if ( pTtot_out > 5. && abs(theOutParticle.particle().Z()) < 700.25 )
 	  LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<<" PROPAGATION TO THE HO HAS FAILED";
 	PFTrajectoryPoint dummyHOLayer;
 	pftrack.addPoint(dummyHOLayer); 
@@ -1090,9 +1089,9 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					  XYZTLorentzVector(OutPos.x(),
 							    OutPos.y(),
 							    OutPos.z(),
-							    0.)), 
+							    0.),
+                                          gamma_charge), 
 			      0.,0.,B_.z());
-    theBremParticle.setCharge(gamma_charge);  
     
     
     PFTrajectoryPoint dummyClosest;   // Added just to have the right number order in PFTrack.cc
@@ -1108,8 +1107,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     theBremParticle.propagateToPreshowerLayer1(false);
     if(theBremParticle.getSuccess()!=0)
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS1,
-				      math::XYZPoint(theBremParticle.vertex()),
-				      math::XYZTLorentzVector(theBremParticle.momentum())));
+				      math::XYZPoint(theBremParticle.particle().vertex()),
+				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));
     else {
       PFTrajectoryPoint dummyPS1;
       brem.addPoint(dummyPS1); 
@@ -1120,8 +1119,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     theBremParticle.propagateToPreshowerLayer2(false);
     if(theBremParticle.getSuccess()!=0){
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS2,
-				      math::XYZPoint(theBremParticle.vertex()),
-				      math::XYZTLorentzVector(theBremParticle.momentum())));
+				      math::XYZPoint(theBremParticle.particle().vertex()),
+				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));
       isBelowPS=true;
     }   else {
       PFTrajectoryPoint dummyPS2;
@@ -1132,19 +1131,19 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     
     if(theBremParticle.getSuccess()!=0){
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
-				      math::XYZPoint(theBremParticle.vertex()),
-				      math::XYZTLorentzVector(theBremParticle.momentum())));
+				      math::XYZPoint(theBremParticle.particle().vertex()),
+				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));
       double ecalShowerDepth     
-	= PFCluster::getDepthCorrection(theBremParticle.momentum().E(),
+	= PFCluster::getDepthCorrection(theBremParticle.particle().momentum().E(),
 					isBelowPS, 
 					false);
       
-      math::XYZPoint meanShower=math::XYZPoint(theBremParticle.vertex())+
-	math::XYZTLorentzVector(theBremParticle.momentum()).Vect().Unit()*ecalShowerDepth;
+      math::XYZPoint meanShower=math::XYZPoint(theBremParticle.particle().vertex())+
+	math::XYZTLorentzVector(theBremParticle.particle().momentum()).Vect().Unit()*ecalShowerDepth;
       
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
 				      meanShower,
-				      math::XYZTLorentzVector(theBremParticle.momentum())));}
+				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));}
     else {
       if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
 	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED";
@@ -1160,8 +1159,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     theBremParticle.propagateToHcalEntrance(false);
     if(theBremParticle.getSuccess()!=0)
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
-				      math::XYZPoint(theBremParticle.vertex()),
-				      math::XYZTLorentzVector(theBremParticle.momentum())));
+				      math::XYZPoint(theBremParticle.particle().vertex()),
+				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));
     else{
       if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
 	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
@@ -1172,8 +1171,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     theBremParticle.propagateToHcalExit(false);
     if(theBremParticle.getSuccess()!=0)
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
-				      math::XYZPoint(theBremParticle.vertex()),
-				      math::XYZTLorentzVector(theBremParticle.momentum())));
+				      math::XYZPoint(theBremParticle.particle().vertex()),
+				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));
     else{  
       if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
 	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
@@ -1182,15 +1181,15 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     }
     
     //HO Layer0
-    if ( abs(theBremParticle.vertex().z())<550) {
+    if ( abs(theBremParticle.particle().vertex().z())<550) {
       theBremParticle.setMagneticField(0);
       theBremParticle.propagateToHOLayer(false);
       if(theBremParticle.getSuccess()!=0)
 	brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HOLayer,
-					math::XYZPoint(theBremParticle.vertex()),
-					math::XYZTLorentzVector(theBremParticle.momentum())));
+					math::XYZPoint(theBremParticle.particle().vertex()),
+					math::XYZTLorentzVector(theBremParticle.particle().momentum())));
       else{  
-	if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && abs(theBremParticle.Z()) < 700.25 )
+	if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && abs(theBremParticle.particle().Z()) < 700.25 )
 	  LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE H0 HAS FAILED";
 	PFTrajectoryPoint dummyHOLayer;
 	brem.addPoint(dummyHOLayer); 

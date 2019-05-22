@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Sources
 // Class  :     PuttableSourceBase
-// 
+//
 /**\class PuttableSourceBase PuttableSourceBase.h "PuttableSourceBase.h"
 
  Description: [one line class summary]
@@ -27,47 +27,40 @@
 
 // forward declarations
 namespace edm {
-  class PuttableSourceBase : public InputSource, public ProducerBase
-{
-  
-public:
-  PuttableSourceBase(ParameterSet const&, InputSourceDescription const&);
-  
-  // ---------- const member functions ---------------------
-  
-  // ---------- static member functions --------------------
-  
-  // ---------- member functions ---------------------------
-  using ProducerBase::resolvePutIndicies;
-  using ProducerBase::registerProducts;
-  void registerProducts() final;
+  class PuttableSourceBase : public InputSource, public ProducerBase {
+  public:
+    PuttableSourceBase(ParameterSet const&, InputSourceDescription const&);
 
-  bool hasAbilityToProduceInRuns() const final {
-    return true;
-  }
+    // ---------- const member functions ---------------------
 
-  bool hasAbilityToProduceInLumis() const final {
-    return true;
-  }
+    // ---------- static member functions --------------------
 
-protected:
-  //If inheriting class overrides, they need to call this function as well
-  void beginJob() override;
-private:
-  void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*) override;
-  void doBeginRun(RunPrincipal& rp, ProcessContext const*) override;
-  
-  
-  virtual void beginRun(Run&);
-  virtual void beginLuminosityBlock(LuminosityBlock&);
-  
-  PuttableSourceBase(const PuttableSourceBase&) = delete;
-  
-  PuttableSourceBase& operator=(const PuttableSourceBase&) = delete;
-  
-  // ---------- member data --------------------------------
-  
-};
-}
+    // ---------- member functions ---------------------------
+    using ProducerBase::registerProducts;
+    using ProducerBase::resolvePutIndicies;
+    void registerProducts() final;
+
+    bool hasAbilityToProduceInRuns() const final { return true; }
+
+    bool hasAbilityToProduceInLumis() const final { return true; }
+
+  protected:
+    //If inheriting class overrides, they need to call this function as well
+    void beginJob() override;
+
+  private:
+    void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*) override;
+    void doBeginRun(RunPrincipal& rp, ProcessContext const*) override;
+
+    virtual void beginRun(Run&);
+    virtual void beginLuminosityBlock(LuminosityBlock&);
+
+    PuttableSourceBase(const PuttableSourceBase&) = delete;
+
+    PuttableSourceBase& operator=(const PuttableSourceBase&) = delete;
+
+    // ---------- member data --------------------------------
+  };
+}  // namespace edm
 
 #endif

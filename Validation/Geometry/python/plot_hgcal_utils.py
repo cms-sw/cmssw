@@ -84,13 +84,16 @@ hist_label_to_num = OrderedDict()
 hist_label_to_num['COP'] = [100, 2, 'Copper'] # Index first, color second, legend label third
 hist_label_to_num['SCI'] = [200, 3, 'Scintillator']
 hist_label_to_num['CAB'] = [300, 4, 'Cables']
-hist_label_to_num['MNE'] = [400, 5, 'M_NEMA_FR4 plate']
+hist_label_to_num['MNE'] = [400, 5, 'HGC_G10-FR4']
 hist_label_to_num['SIL'] = [500, 6, 'Silicon']
 hist_label_to_num['OTH'] = [600, 7, 'Other']
 hist_label_to_num['AIR'] = [700, 8, 'Air']
 hist_label_to_num['SST'] = [800, 9, 'Stainless Steel']
 hist_label_to_num['WCU'] = [900, 28, 'WCu']
 hist_label_to_num['LEA'] = [1000, 12, 'Lead']
+hist_label_to_num['EPX'] = [1100, 46, 'Epoxy']
+hist_label_to_num['KAP'] = [1200, 49, 'Kapton']
+hist_label_to_num['ALU'] = [1300, 33, 'Aluminium']
 
 def TwikiPrintout(plotname, label, zoom): 
     """The plots in the twiki are already too much and to avoid mistakes 
@@ -192,6 +195,7 @@ dEdx['0']  = 0. # 2.398E-04 -> essentially zero
 dEdx['H']  = 0. #3.437E-05 -> essentially zero
 dEdx['Br'] = 0. #9.814E-04 -> essentially zero
 dEdx['W'] = 2.210
+dEdx['Al'] = 0.4358
 #-------- 
 
 dEdx['Copper'] = 1.257
@@ -199,7 +203,7 @@ dEdx['Copper'] = 1.257
 dEdx['H_Scintillator'] = 0.91512109*dEdx['C'] + 0.084878906*dEdx['H']
 dEdx['Silicon'] = 0.3876
 #http://cmslxr.fnal.gov/source/Geometry/CMSCommonData/data/materials.xml#2730
-dEdx['M_NEMA_FR4_plate'] = 0.18077359*dEdx['Silicon'] + 0.4056325*dEdx['0'] + 0.27804208*dEdx['C'] + 0.068442752*dEdx['H'] + 0.067109079*dEdx['Br']
+dEdx['HGC_G10-FR4'] = 0.18077359*dEdx['Silicon'] + 0.4056325*dEdx['0'] + 0.27804208*dEdx['C'] + 0.068442752*dEdx['H'] + 0.067109079*dEdx['Br']
 dEdx['Other'] = 0.
 #http://cmslxr.fnal.gov/source/Geometry/CMSCommonData/data/materials.xml#0290
 dEdx['Air'] = 0.
@@ -209,6 +213,8 @@ dEdx['StainlessSteel'] = 0.6996*dEdx['Fe']+0.01*dEdx['Mn']+0.19*dEdx['Cr']+0.1*d
 dEdx['WCu'] = 0.75*dEdx['W']+0.25*dEdx['Copper']
 #--------
 dEdx['Lead'] = 1.274 #Pb
+dEdx['Epoxy'] = 0.53539691*dEdx['C'] + 0.13179314*dEdx['H'] + 0.33280996*dEdx['0']
+dEdx['Kapton'] = 0.59985105*dEdx['C'] + 0.080541353*dEdx['H'] + 0.31960759*dEdx['0']
 #Composition of cable as Sunanda uses them is here: 
 #http://cmslxr.fnal.gov/source/Geometry/CMSCommonData/data/materials.xml#2841
 dEdx['Cables'] = 0.586*dEdx['Copper'] + 0.259*dEdx['C'] + 0.138*dEdx['0'] + 0.017*dEdx['H']
@@ -218,10 +224,13 @@ MatXo = OrderedDict()
 MatXo['Copper'] = 14.3559
 MatXo['H_Scintillator'] = 425.393
 MatXo['Cables'] = 66.722
-MatXo['M_NEMA_FR4_plate'] = 175.056
+MatXo['HGC_G10-FR4'] = 175.056
 MatXo['Silicon'] = 93.6762
 MatXo['Other'] = 0.
 MatXo['Air'] = 301522.
 MatXo['StainlessSteel'] = 17.3555
 MatXo['WCu'] = 5.1225
 MatXo['Lead'] = 5.6118
+MatXo['Epoxy'] = 315.901
+MatXo['Kapton'] = 365.309
+

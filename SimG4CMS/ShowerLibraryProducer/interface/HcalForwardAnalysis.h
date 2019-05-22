@@ -16,7 +16,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4ThreeVector.hh"
@@ -33,61 +32,58 @@ class BeginOfEvent;
 class EndOfEvent;
 
 class HcalForwardAnalysis : public SimProducer,
-			 public Observer<const BeginOfRun *>,
-			 public Observer<const BeginOfEvent *>,
-			 public Observer<const EndOfEvent *>,
-			 public Observer<const G4Step *> {
-
+                            public Observer<const BeginOfRun*>,
+                            public Observer<const BeginOfEvent*>,
+                            public Observer<const EndOfEvent*>,
+                            public Observer<const G4Step*> {
 public:
-
-	struct Photon {
-	    Photon(int id, float X, float Y, float Z, float T, float Lambda):
-	    	fiberId(id), x(X), y(Y), z(Z), t(T), lambda(Lambda) {}
-	    int fiberId;
-	    float x;
-	    float y;
-	    float z;
-	    float t;
-	    float lambda;
+  struct Photon {
+    Photon(int id, float X, float Y, float Z, float T, float Lambda)
+        : fiberId(id), x(X), y(Y), z(Z), t(T), lambda(Lambda) {}
+    int fiberId;
+    float x;
+    float y;
+    float z;
+    float t;
+    float lambda;
   };
 
-	HcalForwardAnalysis(const edm::ParameterSet &p);
+  HcalForwardAnalysis(const edm::ParameterSet& p);
   ~HcalForwardAnalysis() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-
-  HcalForwardAnalysis(const HcalForwardAnalysis&) = delete; // stop default
+  HcalForwardAnalysis(const HcalForwardAnalysis&) = delete;  // stop default
   const HcalForwardAnalysis& operator=(const HcalForwardAnalysis&) = delete;
 
-  void  init();
+  void init();
 
   // observer methods
-  void update(const BeginOfRun * run) override;
-  void update(const BeginOfEvent * evt) override;
-  void update(const G4Step * step) override;
-  void update(const EndOfEvent * evt) override;
-//  void write(const EndOfRun * run);
+  void update(const BeginOfRun* run) override;
+  void update(const BeginOfEvent* evt) override;
+  void update(const G4Step* step) override;
+  void update(const EndOfEvent* evt) override;
+  //  void write(const EndOfRun * run);
 
   //User methods
-  void setPhotons(const EndOfEvent * evt);
+  void setPhotons(const EndOfEvent* evt);
   //void fillEvent(PHcalForwardLibInfo&);
   void fillEvent();
   void parseDetId(int id, int& tower, int& cell, int& fiber);
-  void   clear();
+  void clear();
   edm::Service<TFileService> theFile;
-   //TFile * theFile;
+  //TFile * theFile;
   TTree* theTree;
   int theEventCounter;
   int count;
   int evNum;
-  float x[10000],y[10000],z[10000],t[10000],lambda[10000];
-  float primX, primY, primZ,primT;
+  float x[10000], y[10000], z[10000], t[10000], lambda[10000];
+  float primX, primY, primZ, primT;
   float primMomX, primMomY, primMomZ;
   int nphot;
   int fiberId[10000];
   std::vector<Photon> thePhotons;
-  std::vector<std::string>   theNames;
+  std::vector<std::string> theNames;
 };
 #endif

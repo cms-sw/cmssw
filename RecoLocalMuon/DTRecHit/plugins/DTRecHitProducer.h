@@ -38,9 +38,7 @@ private:
   // The label to be used to retrieve DT digis from the event
   edm::EDGetTokenT<DTDigiCollection> DTDigiToken_;
   // The reconstruction algorithm
-  DTRecHitBaseAlgo *theAlgo;
-//   static string theAlgoName;
-
+  std::unique_ptr<DTRecHitBaseAlgo> theAlgo;
 };
 #endif
 

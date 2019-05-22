@@ -1,7 +1,8 @@
 //-------------------------------------------------
 //
 /**  \class DTTrigData
- *     Defines the ability to calculate coordinates of Level1 MuDT Trigger objects
+ *     Defines the ability to calculate coordinates of Level1 MuDT Trigger
+ * objects
  *
  *   \author C.Grandi
  */
@@ -18,10 +19,10 @@
 // Base Class Headers --
 //----------------------
 //#include "Profound/MuNumbering/interface/MuBarIdInclude.h"
-//Should become
+// Should become
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 //---------------
 // C++ Headers --
@@ -32,13 +33,11 @@
 //              ---------------------
 
 class DTTrigData {
-
- public:
-
+public:
   ///  Constructor
   DTTrigData() {}
 
-   /// Destructor
+  /// Destructor
   virtual ~DTTrigData() {}
 
   /// Identifier of the associated chamber
@@ -55,10 +54,5 @@ class DTTrigData {
 
   /// Print a trigger-data object with also local and global position/direction
   virtual void print() const = 0;
-
 };
 #endif
-
-
-
-

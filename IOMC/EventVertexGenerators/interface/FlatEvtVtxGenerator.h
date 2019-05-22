@@ -19,40 +19,37 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class FlatEvtVtxGenerator : public BaseEvtVtxGenerator 
-{
+class FlatEvtVtxGenerator : public BaseEvtVtxGenerator {
 public:
-  FlatEvtVtxGenerator(const edm::ParameterSet & p);
+  FlatEvtVtxGenerator(const edm::ParameterSet& p);
   ~FlatEvtVtxGenerator() override;
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector* newVertex();
-  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override ;
+  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
 
-  const TMatrixD* GetInvLorentzBoost() const override {
-	  return nullptr;
-  }
+  const TMatrixD* GetInvLorentzBoost() const override { return nullptr; }
 
-    
   /// set min in X in cm
-  void minX(double m=0.0);
+  void minX(double m = 0.0);
   /// set min in Y in cm
-  void minY(double m=0.0);
+  void minY(double m = 0.0);
   /// set min in Z in cm
-  void minZ(double m=0.0);
+  void minZ(double m = 0.0);
 
   /// set max in X in cm
-  void maxX(double m=0);
+  void maxX(double m = 0);
   /// set max in Y in cm
-  void maxY(double m=0);
+  void maxY(double m = 0);
   /// set max in Z in cm
-  void maxZ(double m=0);
-  
+  void maxZ(double m = 0);
+
 private:
   /** Copy constructor */
-  FlatEvtVtxGenerator(const FlatEvtVtxGenerator &p) = delete;
+  FlatEvtVtxGenerator(const FlatEvtVtxGenerator& p) = delete;
   /** Copy assignment operator */
-  FlatEvtVtxGenerator&  operator = (const FlatEvtVtxGenerator & rhs ) = delete;
+  FlatEvtVtxGenerator& operator=(const FlatEvtVtxGenerator& rhs) = delete;
+
 private:
   double fMinX, fMinY, fMinZ, fMinT;
   double fMaxX, fMaxY, fMaxZ, fMaxT;

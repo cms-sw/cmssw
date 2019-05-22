@@ -401,11 +401,14 @@ namespace reco { namespace modules {
 		TrackCandidate cand(ownHits, seed, state, tk.seedRef());
 
 
+#ifdef EDM_ML_DEBUG
 		LogDebug("CosmicTrackSplitter") << "   dumping the hits now: ";
 		for (TrackCandidate::range hitR = cand.recHits(); hitR.first != hitR.second; ++hitR.first) {
+		      auto const& tmp = *hitR.first;
 		      LogTrace("CosmicTrackSplitter") << "     hit detid = " << hitR.first->geographicalId().rawId() <<
-			", type  = " << typeid(*hitR.first).name();
+			", type  = " << typeid(tmp).name();
 		}
+#endif
 
 		return cand;
 	}

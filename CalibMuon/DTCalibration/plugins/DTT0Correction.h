@@ -39,6 +39,6 @@ private:
   const DTT0* t0Map_;
   edm::ESHandle<DTGeometry> muonGeom_;
 
-  dtCalibration::DTT0BaseCorrection* correctionAlgo_;
+  std::unique_ptr<dtCalibration::DTT0BaseCorrection> correctionAlgo_;
 };
 #endif

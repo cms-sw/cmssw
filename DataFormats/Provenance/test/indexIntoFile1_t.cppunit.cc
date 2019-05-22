@@ -18,7 +18,7 @@
 using namespace edm;
 
 class TestIndexIntoFile1 : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(TestIndexIntoFile1);  
+  CPPUNIT_TEST_SUITE(TestIndexIntoFile1);
   CPPUNIT_TEST(testRunOrLumiEntry);
   CPPUNIT_TEST(testRunOrLumiIndexes);
   CPPUNIT_TEST(testEventEntry);
@@ -26,9 +26,8 @@ class TestIndexIntoFile1 : public CppUnit::TestFixture {
   CPPUNIT_TEST(testKeys);
   CPPUNIT_TEST(testConstructor);
   CPPUNIT_TEST_SUITE_END();
-  
-public:
 
+public:
   static const IndexIntoFile::EntryType kRun = IndexIntoFile::kRun;
   static const IndexIntoFile::EntryType kLumi = IndexIntoFile::kLumi;
   static const IndexIntoFile::EntryType kEvent = IndexIntoFile::kEvent;
@@ -58,7 +57,7 @@ public:
     fakePHID3 = ph3.id();
   }
 
-  void tearDown() { }
+  void tearDown() {}
 
   void testRunOrLumiEntry();
   void testRunOrLumiIndexes();
@@ -71,14 +70,12 @@ public:
   ProcessHistoryID fakePHID1;
   ProcessHistoryID fakePHID2;
   ProcessHistoryID fakePHID3;
-
 };
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(TestIndexIntoFile1);
 
 void TestIndexIntoFile1::testRunOrLumiEntry() {
-
   edm::IndexIntoFile::RunOrLumiEntry r1;
   CPPUNIT_ASSERT(r1.orderPHIDRun() == edm::IndexIntoFile::invalidEntry);
   CPPUNIT_ASSERT(r1.orderPHIDRunLumi() == edm::IndexIntoFile::invalidEntry);
@@ -102,7 +99,7 @@ void TestIndexIntoFile1::testRunOrLumiEntry() {
 
   CPPUNIT_ASSERT(r2.isRun() == false);
 
-  edm::IndexIntoFile::RunOrLumiEntry r3 (1, 2, 3, 4, 5, edm::IndexIntoFile::invalidLumi, 7, 8);
+  edm::IndexIntoFile::RunOrLumiEntry r3(1, 2, 3, 4, 5, edm::IndexIntoFile::invalidLumi, 7, 8);
 
   CPPUNIT_ASSERT(r3.isRun() == true);
 
@@ -114,16 +111,16 @@ void TestIndexIntoFile1::testRunOrLumiEntry() {
 
   CPPUNIT_ASSERT(!(r2 < r3));
   CPPUNIT_ASSERT(!(r3 < r2));
-  
-  edm::IndexIntoFile::RunOrLumiEntry r4 (10, 1, 1, 4, 5, 6, 7, 8);
+
+  edm::IndexIntoFile::RunOrLumiEntry r4(10, 1, 1, 4, 5, 6, 7, 8);
   CPPUNIT_ASSERT(r2 < r4);
   CPPUNIT_ASSERT(!(r4 < r2));
 
-  edm::IndexIntoFile::RunOrLumiEntry r5 (1, 10, 1, 4, 5, 6, 7, 8);
+  edm::IndexIntoFile::RunOrLumiEntry r5(1, 10, 1, 4, 5, 6, 7, 8);
   CPPUNIT_ASSERT(r2 < r5);
   CPPUNIT_ASSERT(!(r5 < r2));
 
-  edm::IndexIntoFile::RunOrLumiEntry r6 (1, 2, 10, 4, 5, 6, 7, 8);
+  edm::IndexIntoFile::RunOrLumiEntry r6(1, 2, 10, 4, 5, 6, 7, 8);
   CPPUNIT_ASSERT(r2 < r6);
   CPPUNIT_ASSERT(!(r6 < r2));
 
@@ -132,7 +129,6 @@ void TestIndexIntoFile1::testRunOrLumiEntry() {
 }
 
 void TestIndexIntoFile1::testRunOrLumiIndexes() {
-
   edm::IndexIntoFile::RunOrLumiIndexes r1(1, 2, 3, 4);
   CPPUNIT_ASSERT(r1.processHistoryIDIndex() == 1);
   CPPUNIT_ASSERT(r1.run() == 2);
@@ -150,7 +146,7 @@ void TestIndexIntoFile1::testRunOrLumiIndexes() {
 
   edm::IndexIntoFile::RunOrLumiIndexes r2(1, 2, edm::IndexIntoFile::invalidLumi, 4);
   CPPUNIT_ASSERT(r2.isRun() == true);
-  
+
   edm::IndexIntoFile::RunOrLumiIndexes r3(1, 2, 3, 4);
   CPPUNIT_ASSERT(!(r1 < r3));
   CPPUNIT_ASSERT(!(r3 < r1));
@@ -204,7 +200,6 @@ void TestIndexIntoFile1::testEventEntry() {
 }
 
 void TestIndexIntoFile1::testSortedRunOrLumiItr() {
-
   edm::IndexIntoFile indexIntoFile0;
   CPPUNIT_ASSERT(indexIntoFile0.empty());
   edm::IndexIntoFile::SortedRunOrLumiItr iter(&indexIntoFile0, 0);
@@ -216,26 +211,25 @@ void TestIndexIntoFile1::testSortedRunOrLumiItr() {
   CPPUNIT_ASSERT(iter == indexIntoFile0.endRunOrLumi());
 
   edm::IndexIntoFile indexIntoFile;
-  indexIntoFile.addEntry(fakePHID1, 1, 1, 1, 0); // Event
-  indexIntoFile.addEntry(fakePHID1, 1, 1, 2, 1); // Event
-  indexIntoFile.addEntry(fakePHID1, 1, 1, 0, 0); // Lumi
-  indexIntoFile.addEntry(fakePHID1, 1, 2, 1, 2); // Event
-  indexIntoFile.addEntry(fakePHID1, 1, 2, 2, 3); // Event
-  indexIntoFile.addEntry(fakePHID1, 1, 2, 3, 4); // Event
-  indexIntoFile.addEntry(fakePHID1, 1, 2, 0, 1); // Lumi
-  indexIntoFile.addEntry(fakePHID1, 1, 1, 3, 5); // Event
-  indexIntoFile.addEntry(fakePHID1, 1, 1, 4, 6); // Event
-  indexIntoFile.addEntry(fakePHID1, 1, 1, 0, 0); // Lumi
-  indexIntoFile.addEntry(fakePHID1, 1, 0, 0, 0); // Run
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 1, 0);  // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 2, 1);  // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 0, 0);  // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1, 2, 1, 2);  // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 2, 2, 3);  // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 2, 3, 4);  // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 2, 0, 1);  // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 3, 5);  // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 4, 6);  // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 0, 0);  // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1, 0, 0, 0);  // Run
   indexIntoFile.sortVector_Run_Or_Lumi_Entries();
 
   CPPUNIT_ASSERT(!indexIntoFile.empty());
 
   unsigned count = 0;
   IndexIntoFile::SortedRunOrLumiItr runOrLumi = indexIntoFile.beginRunOrLumi();
-  for (IndexIntoFile::SortedRunOrLumiItr endRunOrLumi = indexIntoFile.endRunOrLumi();
-       runOrLumi != endRunOrLumi; ++runOrLumi) {
-
+  for (IndexIntoFile::SortedRunOrLumiItr endRunOrLumi = indexIntoFile.endRunOrLumi(); runOrLumi != endRunOrLumi;
+       ++runOrLumi) {
     long long beginEventNumbers;
     long long endEventNumbers;
     IndexIntoFile::EntryNumber_t beginEventEntry;
@@ -248,8 +242,7 @@ void TestIndexIntoFile1::testSortedRunOrLumiItr() {
       CPPUNIT_ASSERT(endEventNumbers == -1);
       CPPUNIT_ASSERT(beginEventEntry == -1);
       CPPUNIT_ASSERT(endEventEntry == -1);
-    }
-    else if (count == 3) {
+    } else if (count == 3) {
       CPPUNIT_ASSERT(!runOrLumi.isRun());
       CPPUNIT_ASSERT(beginEventNumbers == 4);
       CPPUNIT_ASSERT(endEventNumbers == 7);

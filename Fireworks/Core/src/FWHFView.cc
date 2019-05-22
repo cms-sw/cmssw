@@ -2,11 +2,11 @@
 //
 // Package:     Core
 // Class  :     FWHFView
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
-// Original Author:  
+// Original Author:
 //         Created:  Mon May 31 13:42:13 CEST 2010
 //
 
@@ -34,19 +34,14 @@
 //
 // constructors and destructor
 //
-FWHFView::FWHFView(TEveWindowSlot* slot, FWViewType::EType typeId):
-   FWLegoViewBase(slot, typeId)
-{  
-}
+FWHFView::FWHFView(TEveWindowSlot* slot, FWViewType::EType typeId) : FWLegoViewBase(slot, typeId) {}
 
 // FWHFView::FWHFView(const FWHFView& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWHFView::~FWHFView()
-{
-}
+FWHFView::~FWHFView() {}
 
 //
 // assignment operators
@@ -71,16 +66,10 @@ FWHFView::~FWHFView()
 //
 // static member functions
 //
-   
 
-void
-FWHFView::setContext(const fireworks::Context& context)
-{  
-   FWLegoViewBase::setContext(context);
+void FWHFView::setContext(const fireworks::Context& context) {
+  FWLegoViewBase::setContext(context);
 
-   // phi bins center shifted for 10 degres
-   m_lego->RefMainTrans().SetPos(0, -TMath::DegToRad()*10, 0);
+  // phi bins center shifted for 10 degres
+  m_lego->RefMainTrans().SetPos(0, -TMath::DegToRad() * 10, 0);
 }
-
-
-

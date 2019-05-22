@@ -58,6 +58,6 @@ public:
 
   ClassDef(GenMuonPair, 3)
     };
-ClassImp(GenMuonPair)
+ClassImp(GenMuonPair);
   
 #endif

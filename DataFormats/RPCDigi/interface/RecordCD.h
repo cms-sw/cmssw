@@ -4,62 +4,59 @@
 #include "DataFormats/RPCDigi/interface/DataRecord.h"
 #include <vector>
 
-namespace rpcrawtodigi{
-class RecordCD : public DataRecord {
+namespace rpcrawtodigi {
+  class RecordCD : public DataRecord {
+  private:
+    static const int CD_TYPE_LESSTHENFLAG = 0x3;
+    static const int CD_TYPE_SHIFT = 14;
 
-private:
-  static const int CD_TYPE_LESSTHENFLAG = 0x3;
-  static const int CD_TYPE_SHIFT= 14;
+    static const int PARTITION_DATA_MASK = 0XFF;
+    static const int PARTITION_DATA_SHIFT = 0;
 
-  static const int PARTITION_DATA_MASK  = 0XFF;
-  static const int PARTITION_DATA_SHIFT =0;
+    static const int PARTITION_NUMBER_MASK = 0XF;
+    static const int PARTITION_NUMBER_SHIFT = 10;
 
-  static const int PARTITION_NUMBER_MASK = 0XF;
-  static const int PARTITION_NUMBER_SHIFT =10;
+    static const int HALFP_MASK = 0X1;
+    static const int HALFP_SHIFT = 8;
 
-  static const int HALFP_MASK = 0X1;
-  static const int HALFP_SHIFT =8;
+    static const int EOD_MASK = 0X1;
+    static const int EOD_SHIFT = 9;
 
-  static const int EOD_MASK = 0X1;
-  static const int EOD_SHIFT =9;
+    static const int CHAMBER_MASK = 0X3;
+    static const int CHAMBER_SHIFT = 14;
 
-  static const int CHAMBER_MASK = 0X3;
-  static const int CHAMBER_SHIFT =14;
+    static const int BITS_PER_PARTITION = 8;
 
-  static const int BITS_PER_PARTITION=8; 
+  public:
+    // empty record
+    RecordCD() : DataRecord() {}
 
-public:
+    // set with Data
+    RecordCD(int chamber, int partitionNumber, int eod, int halfP, const std::vector<int>& packedStrips);
 
-  // empty record 
-  RecordCD() : DataRecord() { }
+    // set LB from raw
+    RecordCD(const Data& lbData) : DataRecord(lbData) {}
 
-  // set with Data
-  RecordCD(int chamber, int partitionNumber, int eod, int halfP, 
-      const std::vector<int> & packedStrips);
+    // specialize given recort to this type
+    RecordCD(const DataRecord& rec) : DataRecord(rec) {}
 
-  // set LB from raw
-  RecordCD(const Data & lbData) : DataRecord(lbData) {} 
+    ~RecordCD() override {}
 
-  // specialize given recort to this type
-  RecordCD(const DataRecord & rec) : DataRecord(rec) {}
+    static bool matchType(const DataRecord& record) {
+      return ((record.data() >> CD_TYPE_SHIFT) < CD_TYPE_LESSTHENFLAG);
+    }
 
-  ~RecordCD() override {}
+    // more precisly - link board in link number
+    int lbInLink() const;
 
-  static bool matchType(const DataRecord & record) {
-    return ( (record.data() >> CD_TYPE_SHIFT) < CD_TYPE_LESSTHENFLAG);
-  }
+    int partitionNumber() const;
+    int eod() const;
+    int halfP() const;
 
-  // more precisly - link board in link number
-  int lbInLink() const;
+    std::vector<int> packedStrips() const;
+    int partitionData() const;
 
-  int partitionNumber() const;
-  int eod() const;
-  int halfP() const;
-
-  std::vector<int> packedStrips() const;
-  int partitionData() const;
-
-  std::string print()  const;
-};
-}
+    std::string print() const;
+  };
+}  // namespace rpcrawtodigi
 #endif

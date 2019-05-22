@@ -12,22 +12,21 @@
 #include "DatabasePDG.h"
 
 class InitialState {
- protected:
+protected:
   DatabasePDG *fDatabase;
- public:
+
+public:
   InitialState() {
     fDatabase = new DatabasePDG();
     fDatabase->LoadData();
     fDatabase->SetMassRange(0.0, 200.);
     fDatabase->SetWidthRange(0., 10.);
   };
-  virtual ~InitialState() noexcept(false) {
-    delete fDatabase;
-  };
-  
+  virtual ~InitialState() noexcept(false) { delete fDatabase; };
+
   virtual bool RunDecays() = 0;
   virtual double GetWeakDecayLimit() = 0;
-  
+
   virtual void Evolve(List_t &secondaries, ParticleAllocator &allocator, double weakDecayLimit);
 };
 

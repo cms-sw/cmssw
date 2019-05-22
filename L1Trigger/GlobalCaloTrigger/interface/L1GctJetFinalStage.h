@@ -20,43 +20,42 @@ class L1GctJetSorter;
 * 
 * \author Jim Brooke & Robert Frazier
 * \date June 2006
-*/ 
+*/
 
-class L1GctJetFinalStage : public L1GctProcessor
-{
+class L1GctJetFinalStage : public L1GctProcessor {
 public:
   typedef std::vector<L1GctJetCand> JetVector;
-  typedef Pipeline<L1GctJetCand>    JetPipeline;
-  static const unsigned int MAX_WHEEL_FPGAS; ///< Max number of wheel FPGA pointers
+  typedef Pipeline<L1GctJetCand> JetPipeline;
+  static const unsigned int MAX_WHEEL_FPGAS;  ///< Max number of wheel FPGA pointers
 
   /// Takes a vector of 2 wheel jet FPGA pointers, with which to get input data from
-	L1GctJetFinalStage(const std::vector<L1GctWheelJetFpga*>& m_wheelFpgas);
-	~L1GctJetFinalStage() override;
+  L1GctJetFinalStage(const std::vector<L1GctWheelJetFpga*>& m_wheelFpgas);
+  ~L1GctJetFinalStage() override;
 
   /// Overload << operator
-  friend std::ostream& operator << (std::ostream& os, const L1GctJetFinalStage& fpga);
+  friend std::ostream& operator<<(std::ostream& os, const L1GctJetFinalStage& fpga);
 
   /// get input data from sources
   void fetchInput() override;
 
   /// process the data, fill output buffers
   void process() override;
-    	
+
   void setInputCentralJet(int i, const L1GctJetCand& jet);  ///< set the central jets input data
   void setInputForwardJet(int i, const L1GctJetCand& jet);  ///< set the forward jets input data
   void setInputTauJet(int i, const L1GctJetCand& jet);      ///< set the tau jets input data
 
-  JetVector getInputCentralJets() const { return m_inputCentralJets; } ///< get the central jets input data
-  JetVector getInputForwardJets() const { return m_inputForwardJets; } ///< get the forward jets input data
-  JetVector getInputTauJets() const { return m_inputTauJets; }         ///< get the tau jets input data
+  JetVector getInputCentralJets() const { return m_inputCentralJets; }  ///< get the central jets input data
+  JetVector getInputForwardJets() const { return m_inputForwardJets; }  ///< get the forward jets input data
+  JetVector getInputTauJets() const { return m_inputTauJets; }          ///< get the tau jets input data
 
-  JetVector getCentralJets() const { return m_centralJets.contents; } ///< get the central jets output data
-  JetVector getForwardJets() const { return m_forwardJets.contents; } ///< get the forward jets output data
-  JetVector getTauJets() const     { return m_tauJets.contents; }     ///< get the tau jets output data
+  JetVector getCentralJets() const { return m_centralJets.contents; }  ///< get the central jets output data
+  JetVector getForwardJets() const { return m_forwardJets.contents; }  ///< get the forward jets output data
+  JetVector getTauJets() const { return m_tauJets.contents; }          ///< get the tau jets output data
 
   bool setupOk() const { return m_setupOk; }
- protected:
 
+protected:
   /// Separate reset methods for the processor itself and any data stored in pipelines
   void resetProcessor() override;
   void resetPipelines() override;
@@ -65,9 +64,9 @@ public:
   void setupObjects() override {}
 
 private:
-  static const int MAX_JETS_IN;  ///< Max number of jets of each type coming in
-  static const int MAX_JETS_OUT; ///< Max number of jets of each type going out
-  
+  static const int MAX_JETS_IN;   ///< Max number of jets of each type coming in
+  static const int MAX_JETS_OUT;  ///< Max number of jets of each type going out
+
   /// wheel jet FPGAs
   std::vector<L1GctWheelJetFpga*> m_wheelFpgas;
 
@@ -92,9 +91,8 @@ private:
   //PRIVATE MEMBER FUNCTIONS
   ///Enters jets into the specified storageVector, according to which wheel card we are taking them from.
   void storeJets(JetVector& storageVector, const JetVector& jets, unsigned short iWheel);
-  
 };
 
-std::ostream& operator << (std::ostream& os, const L1GctJetFinalStage& fpga);
+std::ostream& operator<<(std::ostream& os, const L1GctJetFinalStage& fpga);
 
 #endif /*L1GCTJETFINALSTAGE_H_*/

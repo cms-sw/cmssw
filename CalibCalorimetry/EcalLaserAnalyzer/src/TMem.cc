@@ -13,46 +13,35 @@ using namespace std;
 
 //ClassImp(TMem)
 
-
 // Default Constructor...
-TMem::TMem()
-{
-  init(610);
-}
+TMem::TMem() { init(610); }
 
 // Constructor...
-TMem::TMem( int fedid )
-{
-  init(fedid);
-}
+TMem::TMem(int fedid) { init(fedid); }
 
 // Destructor
-TMem::~TMem()
-{
+TMem::~TMem() {}
+
+void TMem::init(int fedid) {
+  _fedid = fedid;
+  _memFromDcc = ME::memFromDcc(_fedid);
 }
 
-void TMem::init(int fedid) 
-{
-  _fedid=fedid;
-  _memFromDcc=ME::memFromDcc(_fedid);
-}
-
-bool TMem::isMemRelevant(int mem){
-
-  bool isMemOK=false;
-  for (unsigned int imem=0;imem<_memFromDcc.size();imem++){
-    if(mem == _memFromDcc[imem]) {
-      isMemOK=true;
-      imem=_memFromDcc.size();
+bool TMem::isMemRelevant(int mem) {
+  bool isMemOK = false;
+  for (unsigned int imem = 0; imem < _memFromDcc.size(); imem++) {
+    if (mem == _memFromDcc[imem]) {
+      isMemOK = true;
+      imem = _memFromDcc.size();
     }
   }
   return isMemOK;
 }
 
-int TMem::Mem(int lmr, int n){
-  
-  std::pair<int,int> mempair=ME::memFromLmr(lmr);
-  if(n==0) return mempair.first;
-  else return mempair.second;
-  
+int TMem::Mem(int lmr, int n) {
+  std::pair<int, int> mempair = ME::memFromLmr(lmr);
+  if (n == 0)
+    return mempair.first;
+  else
+    return mempair.second;
 }

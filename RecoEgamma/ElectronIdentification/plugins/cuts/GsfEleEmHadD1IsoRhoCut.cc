@@ -1,8 +1,6 @@
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "RecoEgamma/EgammaTools/interface/EleEnergyRetriever.h"
 
 #include "RecoEgamma/ElectronIdentification/interface/EBEECutValues.h"
 
@@ -26,7 +24,7 @@ private:
   EBEECutValues slopeTerm_;
   EBEECutValues slopeStart_;
   EBEECutValues constTerm_;
-  
+  EleEnergyRetriever energyRetriever_;
   
   edm::Handle<double> rhoHandle_;
   
@@ -41,7 +39,9 @@ GsfEleEmHadD1IsoRhoCut::GsfEleEmHadD1IsoRhoCut(const edm::ParameterSet& params) 
   rhoConstant_(params.getParameter<double>("rhoConstant")),
   slopeTerm_(params,"slopeTerm"),
   slopeStart_(params,"slopeStart"),
-  constTerm_(params,"constTerm"){
+  constTerm_(params,"constTerm"),
+  energyRetriever_(params.getParameter<std::string>("energyType"))
+{
   edm::InputTag rhoTag = params.getParameter<edm::InputTag>("rho");
   contentTags_.emplace("rho",rhoTag);
  
@@ -61,9 +61,11 @@ GsfEleEmHadD1IsoRhoCut::
 operator()(const reco::GsfElectronPtr& cand) const{  
   const double rho = (*rhoHandle_);
   
-  const float isolEmHadDepth1 = cand->dr03EcalRecHitSumEt() + cand->dr03HcalDepth1TowerSumEt(); 
+  const float isolEmHadDepth1 = cand->dr03EcalRecHitSumEt() + cand->dr03HcalDepth1TowerSumEt();
 
-  const float et = cand->et();
+  const float sinTheta = cand->p()!=0. ? cand->pt()/cand->p() : 0.;
+  const float et = energyRetriever_(*cand)*sinTheta;
+
   const float cutValue = et > slopeStart_(cand)  ? slopeTerm_(cand)*(et-slopeStart_(cand)) + constTerm_(cand) : constTerm_(cand);
   return isolEmHadDepth1 < cutValue + rhoConstant_*rho;
 }

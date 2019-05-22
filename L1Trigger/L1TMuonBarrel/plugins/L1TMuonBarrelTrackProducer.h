@@ -20,24 +20,20 @@
 
 class L1MuBMTFSetup;
 
-
-class L1TMuonBarrelTrackProducer: public edm::one::EDProducer<edm::one::SharedResources> {
- public:
+class L1TMuonBarrelTrackProducer : public edm::one::EDProducer<edm::one::SharedResources> {
+public:
   /// Constructor
-  L1TMuonBarrelTrackProducer(const edm::ParameterSet & pset);
+  L1TMuonBarrelTrackProducer(const edm::ParameterSet& pset);
 
   /// Destructor
   ~L1TMuonBarrelTrackProducer() override;
 
   /// Produce digis out of raw data
-  void produce(edm::Event & e, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
- private:
-
+private:
   L1MuBMTFSetup* setup1;
   const edm::ParameterSet* m_ps;
-
-
 };
 
 #endif

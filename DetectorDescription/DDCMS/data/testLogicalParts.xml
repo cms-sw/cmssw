@@ -65,10 +65,11 @@
     <LogicalPart name="trd1">
       <rMaterial name="testMaterials:Air"/>
       <rSolid name="testSolids:trd1"/>
-    </LogicalPart> 
+    </LogicalPart>
+    <!-- Trd2 is don defined in CMS DD -->
     <LogicalPart name="trd2">
       <rMaterial name="testMaterials:Air"/>
-      <rSolid name="testSolids:trd2"/>
+      <rSolid name="testSolids:trd1"/>
     </LogicalPart> 
     <LogicalPart name="tube1">
       <rMaterial name="testMaterials:Air"/>
@@ -130,6 +131,26 @@
     <LogicalPart name="V_1101" category="unspecified">
       <rSolid name="testSolids:V_1101"/>
       <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="YE1_b" category="unspecified">
+      <rSolid name="testSolids:YE1_b"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="ZStopSpace" category="unspecified">
+      <rSolid name="testSolids:ZStopSpace"/>
+      <rMaterial name="materials:ME_free_space"/>
+    </LogicalPart>
+    <LogicalPart name="ZStopSpace1" category="unspecified">
+      <rSolid name="testSolids:ZStopSpace"/>
+      <rMaterial name="materials:ME_free_space"/>
+    </LogicalPart>
+    <LogicalPart name="ZStop_1_ZStopSpaceDivision" category="unspecified">
+      <rSolid name="testSolids:ZStop_1_ZStopSpaceDivision"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="ZStop_2_ZStopSpaceDivision" category="unspecified">
+      <rSolid name="testSolids:ZStop_2_ZStopSpaceDivision"/>
+      <rMaterial name="materials:Aluminium"/>
     </LogicalPart>
   </LogicalPartSection>
 

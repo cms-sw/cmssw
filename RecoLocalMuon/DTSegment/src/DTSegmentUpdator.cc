@@ -45,15 +45,14 @@ using namespace edm;
 
 /// Constructor
 DTSegmentUpdator::DTSegmentUpdator(const ParameterSet& config) :
-  theFitter(new DTLinearFit()) ,
+  theFitter{std::make_unique<DTLinearFit>()},
+  theAlgo{DTRecHitAlgoFactory::get()->create(config.getParameter<string>("recAlgo"),
+                                             config.getParameter<ParameterSet>("recAlgoConfig"))},
   vdrift_4parfit(config.getParameter<bool>("performT0_vdriftSegCorrection")),
   T0_hit_resolution(config.getParameter<double>("hit_afterT0_resolution")),
   perform_delta_rejecting(config.getParameter<bool>("perform_delta_rejecting")),
   debug(config.getUntrackedParameter<bool>("debug",false)) 
 {  
-  string theAlgoName = config.getParameter<string>("recAlgo");
-  theAlgo = DTRecHitAlgoFactory::get()->create(theAlgoName, 
-                                               config.getParameter<ParameterSet>("recAlgoConfig"));
   intime_cut=20.;
   if (config.exists("intime_cut"))
     intime_cut = config.getParameter<double>("intime_cut");
@@ -63,9 +62,7 @@ DTSegmentUpdator::DTSegmentUpdator(const ParameterSet& config) :
 }
 
 /// Destructor
-DTSegmentUpdator::~DTSegmentUpdator() {
-  delete theFitter;
-}
+DTSegmentUpdator::~DTSegmentUpdator() = default;
 
 /* Operations */ 
 

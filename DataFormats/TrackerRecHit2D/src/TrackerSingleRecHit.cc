@@ -32,7 +32,15 @@ namespace {
     }
     int id = thit->geographicalId().rawId();
     int subd =   thit->geographicalId().rawId() >> (DetId::kSubdetOffset);
-    
+
+    if (trackerHitRTTI::isNotFromDet(*thit)) {
+      static int n=0;
+      if (++n<5) {
+        std::cout << "NotFromDet:" << subd << " " << (id&3) << " "<< thit->dimension() << ". " << std::endl;
+     }
+     return;
+    }
+
     TrackerSingleRecHit const * hit= dynamic_cast<TrackerSingleRecHit const *>(thit);
     BaseTrackerRecHit const * bhit = dynamic_cast<BaseTrackerRecHit const *>(thit);    
     if (!bhit)
@@ -40,7 +48,7 @@ namespace {
 
     if (trackerHitRTTI::isUndef(*thit))
       std::cout << "undef hit! " << typeid(*thit).name() << std::endl;
-    
+
     if (dynamic_cast<SiPixelRecHit const *>(hit)) {
       static int n=0;
       if (++n<5) {

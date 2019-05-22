@@ -24,20 +24,24 @@ class TrackMVAClassifierBase : public edm::stream::EDProducer<> {
 public:
   explicit TrackMVAClassifierBase( const edm::ParameterSet & cfg );
   ~TrackMVAClassifierBase() override;
+
+  using MVACollection = std::vector<float>;
+  using QualityMaskCollection = std::vector<unsigned char>;
+
+  //Collection with pairs <MVAOutput, isReliable>
+  using MVAPairCollection = std::vector<std::pair<float, bool>>;
+
 protected:
 
   static void fill( edm::ParameterSetDescription& desc);
  
   
-  using MVACollection = std::vector<float>;
-  using QualityMaskCollection = std::vector<unsigned char>;
-
   virtual void initEvent(const edm::EventSetup& es) = 0;
 
   virtual void computeMVA(reco::TrackCollection const & tracks,
 			  reco::BeamSpot const & beamSpot,
 			  reco::VertexCollection const & vertices,
-			  MVACollection & mvas) const = 0;
+			  MVAPairCollection & mvas) const = 0;
 
 private:
   void produce(edm::Event& evt, const edm::EventSetup& es ) final;
@@ -56,7 +60,45 @@ private:
   
 };
 
-template<typename MVA>
+namespace trackMVAClassifierImpl {
+  template<typename EventCache>
+  struct ComputeMVA {
+    template <typename MVA>
+    void operator()(MVA const & mva,
+                    reco::TrackCollection const & tracks,
+                    reco::BeamSpot const & beamSpot,
+                    reco::VertexCollection const & vertices,
+                    TrackMVAClassifierBase::MVAPairCollection & mvas) {
+
+      EventCache cache;
+
+      size_t current = 0;
+      for (auto const & trk : tracks) {
+        mvas[current++] = mva(trk,beamSpot,vertices,cache);
+      }
+    }
+  };
+
+  template <>
+  struct ComputeMVA<void> {
+    template <typename MVA>
+    void operator()(MVA const & mva,
+                    reco::TrackCollection const & tracks,
+                    reco::BeamSpot const & beamSpot,
+                    reco::VertexCollection const & vertices,
+                    TrackMVAClassifierBase::MVAPairCollection & mvas) {
+
+      size_t current = 0;
+      for (auto const & trk : tracks) {
+        //BDT outputs are considered always reliable. Hence "true"
+        std::pair<float,bool> output (mva(trk,beamSpot,vertices), true);
+        mvas[current++]= output; 
+      }
+    }
+  };
+}
+
+template<typename MVA, typename EventCache=void>
 class TrackMVAClassifier : public TrackMVAClassifierBase {
 public:
   explicit TrackMVAClassifier( const edm::ParameterSet & cfg ) :
@@ -85,12 +127,10 @@ private:
     void computeMVA(reco::TrackCollection const & tracks,
 		    reco::BeamSpot const & beamSpot,
 		    reco::VertexCollection const & vertices,
-		    MVACollection & mvas) const final {
+		    MVAPairCollection & mvas) const final {
 
-      size_t current = 0;
-      for (auto const & trk : tracks) {
-	mvas[current++]= mva(trk,beamSpot,vertices);
-      }
+      trackMVAClassifierImpl::ComputeMVA<EventCache> computer;
+      computer(mva, tracks, beamSpot, vertices, mvas);
     }
 
   MVA mva;

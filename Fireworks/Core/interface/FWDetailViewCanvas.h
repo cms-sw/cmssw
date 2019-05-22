@@ -7,19 +7,19 @@ class TEveWindowSlot;
 
 #include "Fireworks/Core/interface/FWDetailView.h"
 
-template <typename T> class FWDetailViewCanvas : public FWDetailView<T> {
+template <typename T>
+class FWDetailViewCanvas : public FWDetailView<T> {
 public:
-  FWDetailViewCanvas ();
+  FWDetailViewCanvas();
   ~FWDetailViewCanvas() override;
-  
+
   void init(TEveWindowSlot*) override;
-  
+
 protected:
-  TCanvas*          m_infoCanvas;
+  TCanvas* m_infoCanvas;
   TGCompositeFrame* m_guiFrame;
-  TCanvas*          m_viewCanvas;
+  TCanvas* m_viewCanvas;
 };
 
 #include "Fireworks/Core/src/FWDetailViewCanvas.icc"
 #endif
-

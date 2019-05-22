@@ -16,7 +16,6 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
 
-#include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "RecoTracker/CkfPattern/interface/TrajCandLess.h"
 
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -24,6 +23,7 @@
 #include "RecoTracker/CkfPattern/interface/IntermediateTrajectoryCleaner.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
 using namespace std;
 
@@ -32,8 +32,8 @@ CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::C
                        BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC))
 {}
 
-CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, TrajectoryFilter *filter):
-  BaseCkfTrajectoryBuilder(conf, filter)
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, std::unique_ptr<TrajectoryFilter> filter):
+  BaseCkfTrajectoryBuilder(conf, std::move(filter))
 {
   theMaxCand              = conf.getParameter<int>("maxCand");
   theLostHitPenalty       = conf.getParameter<double>("lostHitPenalty");
@@ -154,7 +154,7 @@ TempTrajectory CkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed&see
       throw cms::Exception("LogicError") << "Asking to create trajectories to an un-initialized CkfTrajectoryBuilder.\nYou have to call clone(const MeasurementTrackerEvent *data) and then call trajectories on it instead.\n";
   }
  
-  TempTrajectory && startingTraj = createStartingTrajectory( seed );
+  TempTrajectory startingTraj = createStartingTrajectory( seed );
   
   /// limitedCandidates( startingTraj, regionalCondition, result);
   /// FIXME: restore regionalCondition
@@ -219,7 +219,7 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
 	if ( theAlwaysUseInvalidHits) last = meas.end();
 	else {
 	  if (meas.front().recHit()->isValid()) {
-	    last = find_if( meas.begin(), meas.end(), RecHitIsInvalid());
+	    last = find_if( meas.begin(), meas.end(), [](auto const& meas){ return !meas.recHit()->isValid(); });
 	  }
 	  else last = meas.end();
 	}

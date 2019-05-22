@@ -145,4 +145,4 @@ FWTableManagerBase::buttonReleasedInRowHeader(Int_t row, Event_t* event, Int_t r
 //
 // static member functions
 //
-ClassImp(FWTableManagerBase)
+ClassImp(FWTableManagerBase);

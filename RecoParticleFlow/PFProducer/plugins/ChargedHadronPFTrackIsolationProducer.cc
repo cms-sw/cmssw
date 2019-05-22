@@ -35,7 +35,7 @@ public:
 private:
   // input collection
   edm::InputTag srccandidates_;
-  edm::EDGetTokenT<edm::View<reco::PFCandidate> > candidates_token;
+  edm::EDGetTokenT<edm::View<reco::PFCandidate> > candidatesToken_;
   double minTrackPt_;
   double minRawCaloEnergy_;
 
@@ -44,7 +44,7 @@ private:
 ChargedHadronPFTrackIsolationProducer::ChargedHadronPFTrackIsolationProducer(const edm::ParameterSet& cfg)
 {
   srccandidates_ = cfg.getParameter<edm::InputTag>("src");
-  candidates_token = consumes<edm::View<reco::PFCandidate> >(srccandidates_);
+  candidatesToken_ = consumes<edm::View<reco::PFCandidate> >(srccandidates_);
   minTrackPt_ = cfg.getParameter<double>("minTrackPt");
   minRawCaloEnergy_ = cfg.getParameter<double>("minRawCaloEnergy");
   
@@ -54,9 +54,7 @@ ChargedHadronPFTrackIsolationProducer::ChargedHadronPFTrackIsolationProducer(con
 void ChargedHadronPFTrackIsolationProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const
 {
   // get a view of our candidates via the base candidates
-  typedef edm::View<reco::PFCandidate> PFCandidateView;
-  edm::Handle<PFCandidateView> candidates;
-  evt.getByToken(candidates_token, candidates);
+  auto candidates = evt.getHandle(candidatesToken_);
   
   std::vector<bool> values;
 

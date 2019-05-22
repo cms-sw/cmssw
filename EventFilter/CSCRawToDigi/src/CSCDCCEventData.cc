@@ -112,7 +112,6 @@ bool CSCDCCEventData::check() const
 void CSCDCCEventData::addChamber(CSCEventData & chamber, int dduID, int dduSlot, int dduInput, int dmbID, uint16_t format_version)
 {
   // first, find this DDU
-  std::vector<CSCDDUEventData>::iterator dduItr;
   int dduIndex = -1;
   int nDDUs = theDDUData.size();
   for(int i = 0; dduIndex == -1 && i < nDDUs; ++i)

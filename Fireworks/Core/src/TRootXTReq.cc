@@ -37,176 +37,149 @@
 // Must be initialized from the main thread like this:
 //   TRootXTReq::Bootstrap(TThread::SelfId());
 
-
-TRootXTReq::lpXTReq_t  TRootXTReq::sQueue;
-pthread_t              TRootXTReq::sRootThread = 0;
-TMutex                *TRootXTReq::sQueueMutex = nullptr;
-TSignalHandler        *TRootXTReq::sSigHandler = nullptr;
-bool                   TRootXTReq::sSheduled   = false;
-
+TRootXTReq::lpXTReq_t TRootXTReq::sQueue;
+pthread_t TRootXTReq::sRootThread = 0;
+TMutex *TRootXTReq::sQueueMutex = nullptr;
+TSignalHandler *TRootXTReq::sSigHandler = nullptr;
+bool TRootXTReq::sSheduled = false;
 
 //==============================================================================
 
-TRootXTReq::TRootXTReq(const char* n) :
-   m_return_condition(nullptr),
-   mName(n)
-{}
+TRootXTReq::TRootXTReq(const char *n) : m_return_condition(nullptr), mName(n) {}
 
-TRootXTReq::~TRootXTReq()
-{
-   delete m_return_condition;
-}
+TRootXTReq::~TRootXTReq() { delete m_return_condition; }
 
 //------------------------------------------------------------------------------
 
-void TRootXTReq::post_request()
-{
-   TLockGuard _lck(sQueueMutex);
+void TRootXTReq::post_request() {
+  TLockGuard _lck(sQueueMutex);
 
-   sQueue.push_back(this);
+  sQueue.push_back(this);
 
-   if ( ! sSheduled)
-   {
-      sSheduled = true;
-      pthread_kill(sRootThread, SIGUSR1);
-   }
+  if (!sSheduled) {
+    sSheduled = true;
+    pthread_kill(sRootThread, SIGUSR1);
+  }
 }
 
-void TRootXTReq::ShootRequest()
-{
-   // Places request into the queue and requests execution in Rint thread.
-   // It returns immediately after that, without waiting for execution.
-   // The request is deleted after execution.
+void TRootXTReq::ShootRequest() {
+  // Places request into the queue and requests execution in Rint thread.
+  // It returns immediately after that, without waiting for execution.
+  // The request is deleted after execution.
 
-   if (m_return_condition)
-   {
-      delete m_return_condition;
-      m_return_condition = nullptr;
-   }
+  if (m_return_condition) {
+    delete m_return_condition;
+    m_return_condition = nullptr;
+  }
 
-   post_request();
+  post_request();
 }
 
-void TRootXTReq::ShootRequestAndWait()
-{
-   // Places request into the queue, requests execution in Rint thread and
-   // waits for the execution to be completed.
-   // The request is not deleted after execution as it might carry return
-   // value.
-   // The same request can be reused several times.
+void TRootXTReq::ShootRequestAndWait() {
+  // Places request into the queue, requests execution in Rint thread and
+  // waits for the execution to be completed.
+  // The request is not deleted after execution as it might carry return
+  // value.
+  // The same request can be reused several times.
 
-   if (!m_return_condition)
-      m_return_condition = new TCondition;
+  if (!m_return_condition)
+    m_return_condition = new TCondition;
 
-   m_return_condition->GetMutex()->Lock();
+  m_return_condition->GetMutex()->Lock();
 
-   post_request();
+  post_request();
 
-   m_return_condition->Wait();
-   m_return_condition->GetMutex()->UnLock();
+  m_return_condition->Wait();
+  m_return_condition->GetMutex()->UnLock();
 }
-
 
 //==============================================================================
 
-class RootSig2XTReqHandler : public TSignalHandler
-{
+class RootSig2XTReqHandler : public TSignalHandler {
 private:
-   class XTReqTimer : public TTimer
-   {
-   public:
-      XTReqTimer() : TTimer() {}
-      ~XTReqTimer() override {}
+  class XTReqTimer : public TTimer {
+  public:
+    XTReqTimer() : TTimer() {}
+    ~XTReqTimer() override {}
 
-      void FireAway()
-      {
-         Reset();
-         gSystem->AddTimer(this);
-      }
+    void FireAway() {
+      Reset();
+      gSystem->AddTimer(this);
+    }
 
-      Bool_t Notify() override
-      {
-         gSystem->RemoveTimer(this);
-         TRootXTReq::ProcessQueue();
-         return kTRUE;
-      }
-   };
+    Bool_t Notify() override {
+      gSystem->RemoveTimer(this);
+      TRootXTReq::ProcessQueue();
+      return kTRUE;
+    }
+  };
 
-   XTReqTimer mTimer;
+  XTReqTimer mTimer;
 
 public:
-   RootSig2XTReqHandler() : TSignalHandler(kSigUser1), mTimer() { Add(); }
-   ~RootSig2XTReqHandler() override {}
+  RootSig2XTReqHandler() : TSignalHandler(kSigUser1), mTimer() { Add(); }
+  ~RootSig2XTReqHandler() override {}
 
-   Bool_t Notify() override
-   {
-      printf("Usr1 Woof Woof in Root thread! Starting Timer.\n");
-      mTimer.FireAway();
-      return kTRUE;
-   }
+  Bool_t Notify() override {
+    printf("Usr1 Woof Woof in Root thread! Starting Timer.\n");
+    mTimer.FireAway();
+    return kTRUE;
+  }
 };
 
 //------------------------------------------------------------------------------
 
-void TRootXTReq::Bootstrap(pthread_t root_thread)
-{
-   static const TString _eh("TRootXTReq::Bootstrap ");
+void TRootXTReq::Bootstrap(pthread_t root_thread) {
+  static const TString _eh("TRootXTReq::Bootstrap ");
 
-   if (sRootThread != 0)
-      throw _eh + "Already initialized.";
+  if (sRootThread != 0)
+    throw _eh + "Already initialized.";
 
-   sRootThread = root_thread;
-   sQueueMutex = new TMutex(kTRUE);
-   sSigHandler = new RootSig2XTReqHandler;
+  sRootThread = root_thread;
+  sQueueMutex = new TMutex(kTRUE);
+  sSigHandler = new RootSig2XTReqHandler;
 }
 
-void TRootXTReq::Shutdown()
-{
-   static const TString _eh("TRootXTReq::Shutdown ");
+void TRootXTReq::Shutdown() {
+  static const TString _eh("TRootXTReq::Shutdown ");
 
-   if (sRootThread == 0)
-      throw _eh + "Have not beem initialized.";
+  if (sRootThread == 0)
+    throw _eh + "Have not beem initialized.";
 
-   // Should lock and drain queue ... or sth.
+  // Should lock and drain queue ... or sth.
 
-   sRootThread = 0;
-   delete sSigHandler; sSigHandler = nullptr;
-   delete sQueueMutex; sQueueMutex = nullptr;
+  sRootThread = 0;
+  delete sSigHandler;
+  sSigHandler = nullptr;
+  delete sQueueMutex;
+  sQueueMutex = nullptr;
 }
 
-void TRootXTReq::ProcessQueue()
-{
-   printf("Timer fired, processing queue.\n");
+void TRootXTReq::ProcessQueue() {
+  printf("Timer fired, processing queue.\n");
 
-   while (true)
-   {
-      TRootXTReq *req = nullptr;
-      {
-         TLockGuard _lck(sQueueMutex);
+  while (true) {
+    TRootXTReq *req = nullptr;
+    {
+      TLockGuard _lck(sQueueMutex);
 
-         if ( ! sQueue.empty())
-         {
-            req = sQueue.front();
-            sQueue.pop_front();
-         }
-         else
-         {
-            sSheduled = false;
-            break;
-         }
+      if (!sQueue.empty()) {
+        req = sQueue.front();
+        sQueue.pop_front();
+      } else {
+        sSheduled = false;
+        break;
       }
+    }
 
-      req->Act();
+    req->Act();
 
-      if (req->m_return_condition)
-      {
-         req->m_return_condition->GetMutex()->Lock();
-         req->m_return_condition->Signal();
-         req->m_return_condition->GetMutex()->UnLock();
-      }
-      else
-      {
-         delete req;
-      }
-   }
+    if (req->m_return_condition) {
+      req->m_return_condition->GetMutex()->Lock();
+      req->m_return_condition->Signal();
+      req->m_return_condition->GetMutex()->UnLock();
+    } else {
+      delete req;
+    }
+  }
 }

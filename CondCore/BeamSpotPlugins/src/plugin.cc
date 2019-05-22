@@ -4,5 +4,5 @@
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "CondFormats/BeamSpotObjects/interface/SimBeamSpotObjects.h"
 
-REGISTER_PLUGIN(BeamSpotObjectsRcd,BeamSpotObjects);
-REGISTER_PLUGIN(SimBeamSpotObjectsRcd,SimBeamSpotObjects);
+REGISTER_PLUGIN(BeamSpotObjectsRcd, BeamSpotObjects);
+REGISTER_PLUGIN(SimBeamSpotObjectsRcd, SimBeamSpotObjects);

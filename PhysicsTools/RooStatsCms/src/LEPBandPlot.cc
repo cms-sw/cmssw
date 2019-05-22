@@ -15,7 +15,7 @@
 
 //For Cint
 #if (defined (STANDALONE) or defined (__CINT__) )
-ClassImp(LEPBandPlot)
+ClassImp(LEPBandPlot);
 #endif
 /*----------------------------------------------------------------------------*/
 

@@ -24,12 +24,10 @@
 #include <vector>
 #include <map>
 
-class TauDQMHistPlotter : public edm::EDAnalyzer
-{
+class TauDQMHistPlotter : public edm::EDAnalyzer {
   typedef std::vector<std::string> vstring;
 
-  struct cfgEntryProcess 
-  {
+  struct cfgEntryProcess {
     cfgEntryProcess(const std::string&, const edm::ParameterSet&);
     void print() const;
     std::string name_;
@@ -39,8 +37,7 @@ class TauDQMHistPlotter : public edm::EDAnalyzer
     std::string type_;
   };
 
-  struct cfgEntryAxisX
-  {
+  struct cfgEntryAxisX {
     explicit cfgEntryAxisX(const std::string&, const edm::ParameterSet&);
     void print() const;
     void applyTo(TH1*) const;
@@ -52,8 +49,7 @@ class TauDQMHistPlotter : public edm::EDAnalyzer
     double xAxisTitleSize_;
   };
 
-  struct cfgEntryAxisY
-  {
+  struct cfgEntryAxisY {
     explicit cfgEntryAxisY(const std::string&, const edm::ParameterSet&);
     void print() const;
     void applyTo(TH1*, double norm) const;
@@ -68,8 +64,7 @@ class TauDQMHistPlotter : public edm::EDAnalyzer
     double yAxisTitleSize_;
   };
 
-  struct cfgEntryLegend
-  {
+  struct cfgEntryLegend {
     cfgEntryLegend(const std::string&, const edm::ParameterSet&);
     void print() const;
     void applyTo(TLegend*) const;
@@ -84,8 +79,7 @@ class TauDQMHistPlotter : public edm::EDAnalyzer
     int fillColor_;
   };
 
-  struct cfgEntryLabel
-  {
+  struct cfgEntryLabel {
     cfgEntryLabel(const std::string&, const edm::ParameterSet&);
     void print() const;
     void applyTo(TPaveText*) const;
@@ -104,8 +98,7 @@ class TauDQMHistPlotter : public edm::EDAnalyzer
     vstring text_;
   };
 
-  struct cfgEntryDrawOption 
-  {
+  struct cfgEntryDrawOption {
     cfgEntryDrawOption(const std::string&, const edm::ParameterSet&);
     cfgEntryDrawOption(const std::string&, const cfgEntryDrawOption&);
     void print() const;
@@ -123,9 +116,9 @@ class TauDQMHistPlotter : public edm::EDAnalyzer
     std::string drawOptionLegend_;
   };
 
-  struct plotDefEntry
-  {
-    plotDefEntry(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&, bool);
+  struct plotDefEntry {
+    plotDefEntry(
+        const std::string&, const std::string&, const std::string&, const std::string&, const std::string&, bool);
     plotDefEntry(const plotDefEntry&);
     void print() const;
     std::string dqmMonitorElement_;
@@ -136,12 +129,17 @@ class TauDQMHistPlotter : public edm::EDAnalyzer
     bool doStack_;
     bool isErrorBand_;
   };
-  
+
   typedef std::list<plotDefEntry> plotDefList;
 
-  struct cfgEntryDrawJob 
-  {
-    cfgEntryDrawJob(const std::string&, const plotDefList&, const std::string&, const std::string&, const std::string&, const std::string&, const vstring&);
+  struct cfgEntryDrawJob {
+    cfgEntryDrawJob(const std::string&,
+                    const plotDefList&,
+                    const std::string&,
+                    const std::string&,
+                    const std::string&,
+                    const std::string&,
+                    const vstring&);
     void print() const;
     std::string name_;
     plotDefList plots_;
@@ -152,11 +150,11 @@ class TauDQMHistPlotter : public edm::EDAnalyzer
     vstring labels_;
   };
 
- public:
+public:
   explicit TauDQMHistPlotter(const edm::ParameterSet&);
   ~TauDQMHistPlotter() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override{}  
+  void endJob() override {}
   void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
@@ -177,5 +175,3 @@ private:
 };
 
 #endif
-
-

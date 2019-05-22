@@ -4,6 +4,7 @@ from __future__ import print_function
 ##  the classes may not function as intended.
 
 
+from builtins import range
 from FWCore.Utilities.Enumerate import Enumerate
 from DataFormats.FWLite import Events, Handle
 import re
@@ -1030,7 +1031,7 @@ class GenObject (object):
     def getRunEventEntryDict (chain, tupleName, numEntries):
         """Returns a dictionary of run, event tuples to entryIndicies"""
         reeDict = {}
-        for entryIndex in xrange (numEntries):
+        for entryIndex in range (numEntries):
             event = GenObject.loadEventFromTree (chain,
                                                  entryIndex,
                                                  onlyRunEvent = True)
@@ -1110,11 +1111,11 @@ class GenObject (object):
         if not len1 or not len2:
             # Nothing to see here folks.  Keep moving.
             if len1:
-                noMatch1Set = set( xrange(len1) )
+                noMatch1Set = set( range(len1) )
             else:
                 noMatch1Set = set ()
             if len2:
-                noMatch2Set = set( xrange(len2) )
+                noMatch2Set = set( range(len2) )
             else:
                 noMatch2Set = set ()
             if debug: warn ("Nothing found", sapces=6)
@@ -1127,8 +1128,8 @@ class GenObject (object):
         if GenObject._kitchenSinkDict.get ('strictPairing') or \
                equivList == [('index', 0)]:
             # we're only matching on index, nothing else matters
-            matchedSet = set (zip ( range( min (len1, len2) ),
-                                    range( min (len1, len2) ) ) )
+            matchedSet = set (zip ( list(range( min (len1, len2))),
+                                    list(range( min (len1, len2))) ) )
             if len1 > len2:
                 # since main pairing goes from 0..len2-1, we now want
                 # to go from len2..len1 inclusive
@@ -1155,10 +1156,10 @@ class GenObject (object):
         
         # First, look for vec2 objects that are equivalent to a
         # given vec1 object.
-        for index1 in xrange (len1):
+        for index1 in range (len1):
             objList = []
             obj1 = vec1[index1]
-            for index2 in xrange (len2):
+            for index2 in range (len2):
                 total = 0.
                 obj2 = vec2[index2]
                 ok = True
@@ -1182,10 +1183,10 @@ class GenObject (object):
             firstDict[index1] = objList
         # Now do the same thing, but this time look for vec1 objects
         # that are equivalent to a given vec2 object
-        for index2 in xrange (len2):
+        for index2 in range (len2):
             objList = []
             obj2 = vec2[index2]
-            for index1 in xrange (len1):
+            for index1 in range (len1):
                 total = 0.
                 obj1 = vec1[index1]
                 ok = True
@@ -1463,7 +1464,7 @@ class GenObject (object):
         print("saveTupleAs")
         rootfile, tree = GenObject.setupOutputTree (rootFile, "goTree")
         numEntries = GenObject._kitchenSinkDict[chain]['numEntries']        
-        for entryIndex in xrange (numEntries):
+        for entryIndex in range (numEntries):
             event = GenObject.loadEventFromTree (chain, entryIndex)            
             if GenObject._kitchenSinkDict.get('blur'):
                 where = "run %d event %d" % (event['runevent'].run,
@@ -1496,7 +1497,7 @@ class GenObject (object):
         numEntries = GenObject._kitchenSinkDict[chain]['numEntries']
         debug = GenObject._kitchenSinkDict.get ('debug', False)
         if debug: warn (numEntries)
-        for entryIndex in xrange (numEntries):
+        for entryIndex in range (numEntries):
             if debug: warn (entryIndex, spaces=3)
             event = GenObject.loadEventFromTree (chain, entryIndex)            
             GenObject.printEvent (event)

@@ -30,13 +30,12 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::ParameterSet theConfig;
   edm::InputTag theL2CollectionLabel;
-  MuonServiceProxy* theService;
+  std::unique_ptr<MuonServiceProxy> theService;
   double thePtCut,thePCut;
-  MuonTrackingRegionBuilder* theRegionBuilder;
-  TrackerSeedGenerator* theTkSeedGenerator;
-  TrackerSeedCleaner* theSeedCleaner;
+  std::unique_ptr<MuonTrackingRegionBuilder> theRegionBuilder;
+  std::unique_ptr<TrackerSeedGenerator> theTkSeedGenerator;
+  std::unique_ptr<TrackerSeedCleaner> theSeedCleaner;
   edm::EDGetTokenT<reco::TrackCollection> l2muonToken;
 };
 #endif

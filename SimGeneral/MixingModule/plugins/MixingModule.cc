@@ -320,7 +320,7 @@ namespace edm {
     }
   }
 
-  void MixingModule::pileAllWorkers(EventPrincipal const& eventPrincipal,
+  bool MixingModule::pileAllWorkers(EventPrincipal const& eventPrincipal,
                                     ModuleCallingContext const* mcc,
                                     int bunchCrossing, int eventId,
                                     int& vertexOffset,
@@ -346,6 +346,8 @@ namespace edm {
 
       worker->addPileups(eventPrincipal, &moduleCallingContext, eventId);
     }
+
+    return true;
   }
 
   void MixingModule::doPileUp(edm::Event &e, const edm::EventSetup& setup) {

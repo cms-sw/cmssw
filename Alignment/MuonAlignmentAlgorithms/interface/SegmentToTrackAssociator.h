@@ -12,7 +12,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
@@ -20,35 +20,37 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
-class SegmentToTrackAssociator
-{
+class SegmentToTrackAssociator {
 public:
-  typedef std::vector< std::vector<int> > intDVector;
-  
-  //constructor
-  SegmentToTrackAssociator ( const edm::ParameterSet& );
+  typedef std::vector<std::vector<int> > intDVector;
 
-  //destructor 
+  //constructor
+  SegmentToTrackAssociator(const edm::ParameterSet&);
+
+  //destructor
   virtual ~SegmentToTrackAssociator();
 
   //Associate
-  MuonTransientTrackingRecHit::MuonRecHitContainer associate( const edm::Event&, const edm::EventSetup&, const reco::Track&, std::string  );
-  
+  MuonTransientTrackingRecHit::MuonRecHitContainer associate(const edm::Event&,
+                                                             const edm::EventSetup&,
+                                                             const reco::Track&,
+                                                             std::string);
+
   //Clear the vector
   void clear();
-  
 
 private:
-
   intDVector indexCollectionDT;
   intDVector indexCollectionCSC;
- 
+
   edm::InputTag theDTSegmentLabel;
   edm::InputTag theCSCSegmentLabel;
-
-
 };
 
 #endif

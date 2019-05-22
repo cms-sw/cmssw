@@ -111,7 +111,8 @@ void HcalLaserEventFilter2012::readEventListFile(const string & eventFileName)
     bytes_read = gzread (file, buffer, LENGTH - 1);
     buffer[bytes_read] = '\0';
     i=0;
-    pch = strtok (buffer,"\n");
+    char* saveptr;
+    pch = strtok_r (buffer,"\n",&saveptr);
     if (buffer[0] == '\n' ) {
       addEventString(b2);
       ++i;
@@ -129,7 +130,7 @@ void HcalLaserEventFilter2012::readEventListFile(const string & eventFileName)
       } else if (i<LENGTH) {
 	addEventString(b2);
       } 
-      pch = strtok (nullptr, "\n");
+      pch = strtok_r (nullptr, "\n", &saveptr);
     }
     if (bytes_read < LENGTH - 1) {
       if (gzeof (file)) break;

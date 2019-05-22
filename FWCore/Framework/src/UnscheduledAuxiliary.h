@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     UnscheduledAuxiliary
-// 
+//
 /**\class UnscheduledAuxiliary UnscheduledAuxiliary.h "UnscheduledAuxiliary.h"
 
  Description: Holds auxiliary information needed for unscheduled calls to EDProducers
@@ -26,35 +26,29 @@
 // forward declarations
 
 namespace edm {
-  class EventSetup;
+  class EventSetupImpl;
   class ModuleCallingContext;
   class StreamContext;
-  
-  class UnscheduledAuxiliary
-  {
 
+  class UnscheduledAuxiliary {
   public:
-    UnscheduledAuxiliary(): m_eventSetup(nullptr) {}
+    UnscheduledAuxiliary() : m_eventSetup(nullptr) {}
 
     // ---------- const member functions ---------------------
-    EventSetup const* eventSetup() const { return m_eventSetup;}
-    
+    EventSetupImpl const* eventSetup() const { return m_eventSetup; }
+
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
-    void setEventSetup( EventSetup const* iSetup) {
-      m_eventSetup = iSetup;
-    }
+    void setEventSetup(EventSetupImpl const* iSetup) { m_eventSetup = iSetup; }
 
     signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> preModuleDelayedGetSignal_;
     signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> postModuleDelayedGetSignal_;
+
   private:
-
     // ---------- member data --------------------------------
-    EventSetup const * m_eventSetup;
-
+    EventSetupImpl const* m_eventSetup;
   };
-}
-
+}  // namespace edm
 
 #endif

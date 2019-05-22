@@ -15,27 +15,18 @@ using namespace std;
  * 
  */
 
-std::ostream& operator<<(std::ostream &out, const Tm &t) {
+std::ostream &operator<<(std::ostream &out, const Tm &t) {
   out << t.str();
   return out;
 }
 
 // Default Constructor
-Tm::Tm()
-{
-  this->setNull();
-}
-
-
+Tm::Tm() { this->setNull(); }
 
 // Initialized Constructor
-Tm::Tm(struct tm* initTm)
-{
-  m_tm = *initTm;
-}
+Tm::Tm(struct tm *initTm) { m_tm = *initTm; }
 
-Tm::Tm(uint64_t micros)
-{
+Tm::Tm(uint64_t micros) {
   this->setNull();
   if (micros > PLUS_INF_MICROS) {
     //micros = PLUS_INF_MICROS;
@@ -45,49 +36,34 @@ Tm::Tm(uint64_t micros)
   }
 }
 
-
 // Destructor
-Tm::~Tm()
-{
-}
+Tm::~Tm() {}
 
-
-
-struct tm Tm::c_tm() const
-{
+struct tm Tm::c_tm() const {
   return m_tm;
 }
 
-
-
-int Tm::isNull() const
-{
-  if (m_tm.tm_year == 0
-      && m_tm.tm_mon == 0
-      && m_tm.tm_mday == 0 ) {
+int Tm::isNull() const {
+  if (m_tm.tm_year == 0 && m_tm.tm_mon == 0 && m_tm.tm_mday == 0) {
     return 1;
-  } else { return 0; }
+  } else {
+    return 0;
+  }
 }
 
-
-
-void Tm::setNull()
-{
-  m_tm.tm_hour  = 0;
+void Tm::setNull() {
+  m_tm.tm_hour = 0;
   m_tm.tm_isdst = 0;
-  m_tm.tm_mday  = 0;
-  m_tm.tm_min   = 0;
-  m_tm.tm_mon   = 0;
-  m_tm.tm_sec   = 0;
-  m_tm.tm_wday  = 0;
-  m_tm.tm_yday  = 0;
-  m_tm.tm_year  = 0;
+  m_tm.tm_mday = 0;
+  m_tm.tm_min = 0;
+  m_tm.tm_mon = 0;
+  m_tm.tm_sec = 0;
+  m_tm.tm_wday = 0;
+  m_tm.tm_yday = 0;
+  m_tm.tm_year = 0;
 }
 
-
-
-string Tm::str() const
-{
+string Tm::str() const {
   if (this->isNull()) {
     return "";
   }
@@ -106,25 +82,18 @@ string Tm::str() const
     sprintf(timebuf, "9999-12-12 23:59:59");
   } else {
     Tm dummy_Tm;
-    dummy_Tm.setToGMTime(this->microsTime()/1000000);
+    dummy_Tm.setToGMTime(this->microsTime() / 1000000);
     struct tm dummy_tm = dummy_Tm.c_tm();
     strftime(timebuf, 20, "%Y-%m-%d %H:%M:%S", &dummy_tm);
   }
   return string(timebuf);
 }
 
-uint64_t Tm::cmsNanoSeconds() const
-{
-  return microsTime()/1000000 << 32;
-}
+uint64_t Tm::cmsNanoSeconds() const { return microsTime() / 1000000 << 32; }
 
-uint64_t Tm::unixTime() const 
-{
-  return microsTime()/1000000;
-}
+uint64_t Tm::unixTime() const { return microsTime() / 1000000; }
 
-uint64_t Tm::microsTime() const
-{
+uint64_t Tm::microsTime() const {
   uint64_t result = 0;
   /*  
   result += (uint64_t)ceil((m_tm.tm_year - 70 ) * 365.25) * 24 * 3600;
@@ -136,31 +105,27 @@ uint64_t Tm::microsTime() const
   */
 
   struct tm time_struct;
-  time_struct.tm_year=1970-1900;
-  time_struct.tm_mon=0;
-  time_struct.tm_mday=1;
-  time_struct.tm_sec=0;
-  time_struct.tm_min=0;
-  time_struct.tm_hour=0;
-  time_struct.tm_isdst=0;
-  
-  time_t t1970=mktime(&time_struct);
+  time_struct.tm_year = 1970 - 1900;
+  time_struct.tm_mon = 0;
+  time_struct.tm_mday = 1;
+  time_struct.tm_sec = 0;
+  time_struct.tm_min = 0;
+  time_struct.tm_hour = 0;
+  time_struct.tm_isdst = 0;
+
+  time_t t1970 = mktime(&time_struct);
   tm s = m_tm;
-  time_t t_this=mktime(&s);
+  time_t t_this = mktime(&s);
 
-  double x= difftime(t_this,t1970); 
-  result =(uint64_t) x*1000000;
+  double x = difftime(t_this, t1970);
+  result = (uint64_t)x * 1000000;
 
-  return result; 
-
+  return result;
 }
 
-void Tm::setToCmsNanoTime(uint64_t nanos) {
-  setToMicrosTime((nanos >> 32) * 1000000);
-}
+void Tm::setToCmsNanoTime(uint64_t nanos) { setToMicrosTime((nanos >> 32) * 1000000); }
 
-void Tm::setToMicrosTime(uint64_t micros)
-{
+void Tm::setToMicrosTime(uint64_t micros) {
   time_t t = micros / 1000000;
   if (t >= INT_MAX) {
     t = INT_MAX;
@@ -168,34 +133,29 @@ void Tm::setToMicrosTime(uint64_t micros)
   m_tm = *gmtime(&t);
 }
 
-void Tm::setToCurrentLocalTime()
-{
+void Tm::setToCurrentLocalTime() {
   time_t t = time(nullptr);
-  m_tm = *localtime( &t );
+  m_tm = *localtime(&t);
 }
 
-void Tm::setToCurrentGMTime()
-{
+void Tm::setToCurrentGMTime() {
   time_t t = time(nullptr);
-  m_tm = *gmtime( &t );
+  m_tm = *gmtime(&t);
 }
 
-void Tm::setToLocalTime(time_t t)
-{
-  m_tm = *localtime( &t );
-}
+void Tm::setToLocalTime(time_t t) { m_tm = *localtime(&t); }
 
-void Tm::setToGMTime(time_t t)
-{
-  m_tm = *gmtime( &t );
-}
+void Tm::setToGMTime(time_t t) { m_tm = *gmtime(&t); }
 
-void Tm::setToString(const string s)
-  noexcept(false)
-{
-  sscanf(s.c_str(), "%04d-%02d-%02d %02d:%02d:%02d", 
-	 &m_tm.tm_year, &m_tm.tm_mon, &m_tm.tm_mday,
-	 &m_tm.tm_hour, &m_tm.tm_min, &m_tm.tm_sec);
+void Tm::setToString(const string s) noexcept(false) {
+  sscanf(s.c_str(),
+         "%04d-%02d-%02d %02d:%02d:%02d",
+         &m_tm.tm_year,
+         &m_tm.tm_mon,
+         &m_tm.tm_mday,
+         &m_tm.tm_hour,
+         &m_tm.tm_min,
+         &m_tm.tm_sec);
 
   try {
     if (m_tm.tm_year > 9999 || m_tm.tm_year < 1900) {
@@ -216,19 +176,19 @@ void Tm::setToString(const string s)
       // take into account UNIX time limits
       m_tm.tm_year = 2038;
       if (m_tm.tm_mon > 1) {
-	m_tm.tm_mon = 1;
+        m_tm.tm_mon = 1;
       }
       if (m_tm.tm_mday > 19) {
-	m_tm.tm_mday = 19;
+        m_tm.tm_mday = 19;
       }
       if (m_tm.tm_hour > 3) {
-	m_tm.tm_hour = 3;
+        m_tm.tm_hour = 3;
       }
       if (m_tm.tm_min > 14) {
-	m_tm.tm_min = 14;
+        m_tm.tm_min = 14;
       }
       if (m_tm.tm_sec > 7) {
-	m_tm.tm_sec = 7;
+        m_tm.tm_sec = 7;
       }
     }
     m_tm.tm_year -= 1900;
@@ -241,8 +201,7 @@ void Tm::setToString(const string s)
   }
 }
 
-void Tm::dumpTm()
-{
+void Tm::dumpTm() {
   cout << "=== dumpTm() ===" << endl;
   cout << "tm_year  " << m_tm.tm_year << endl;
   cout << "tm_mon   " << m_tm.tm_mon << endl;

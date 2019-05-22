@@ -6,7 +6,7 @@
 //
 //
 //   Author :
-//   N. Neumeister            CERN EP 
+//   N. Neumeister            CERN EP
 //
 //   Migrated to CMSSW:
 //   I. Mikulec
@@ -39,55 +39,50 @@ class L1MuGlobalMuonTrigger;
 //              ---------------------
 
 class L1MuGMTMatcher {
+public:
+  static const unsigned int MaxMatch = 4;
 
-  public:
+  /// constructor
+  L1MuGMTMatcher(const L1MuGlobalMuonTrigger& gmt, int id);
 
-    static const unsigned int MaxMatch = 4;
+  /// destructor
+  virtual ~L1MuGMTMatcher();
 
-    /// constructor
-    L1MuGMTMatcher(const L1MuGlobalMuonTrigger& gmt, int id);
+  /// run Matcher
+  void run();
 
-    /// destructor
-    virtual ~L1MuGMTMatcher();
+  /// clear Matcher
+  void reset();
 
-    /// run Matcher
-    void run();
-    
-    /// clear Matcher
-    void reset();
+  /// print matching results
+  void print();
 
-    /// print matching results
-    void print();
-    
-    /// return identifier
-    inline int id() const { return m_id; } 
+  /// return identifier
+  inline int id() const { return m_id; }
 
-    /// return pair matrix
-    const L1MuGMTMatrix<bool>& pairM() const { return pairMatrix; }
+  /// return pair matrix
+  const L1MuGMTMatrix<bool>& pairM() const { return pairMatrix; }
 
-    /// return pair matrix
-    bool pairM(int i,int j) const { return pairMatrix(i,j); }
-    
-  private:
-    
-    void load();
-    
-    void match();
+  /// return pair matrix
+  bool pairM(int i, int j) const { return pairMatrix(i, j); }
 
-    //    int compareEtaPhi(float eta1, float phi1, float eta2, float phi2);
-    int lookup_mq(int i, int j);
-    
-  private:
+private:
+  void load();
 
-    const L1MuGlobalMuonTrigger& m_gmt;
-    int m_id;
+  void match();
 
-    std::vector<const L1MuRegionalCand*> first;
-    std::vector<const L1MuRegionalCand*> second;
+  //    int compareEtaPhi(float eta1, float phi1, float eta2, float phi2);
+  int lookup_mq(int i, int j);
 
-    L1MuGMTMatrix<int>  matchQuality;
-    L1MuGMTMatrix<bool> pairMatrix;
-   
+private:
+  const L1MuGlobalMuonTrigger& m_gmt;
+  int m_id;
+
+  std::vector<const L1MuRegionalCand*> first;
+  std::vector<const L1MuRegionalCand*> second;
+
+  L1MuGMTMatrix<int> matchQuality;
+  L1MuGMTMatrix<bool> pairMatrix;
 };
-  
+
 #endif

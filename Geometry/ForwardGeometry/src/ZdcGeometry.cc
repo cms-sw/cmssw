@@ -5,29 +5,27 @@
 #include "ZdcHardcodeGeometryData.h"
 #include <algorithm>
 
-typedef CaloCellGeometry::CCGFloat CCGFloat ;
-typedef CaloCellGeometry::Pt3D     Pt3D     ;
-typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+typedef CaloCellGeometry::CCGFloat CCGFloat;
+typedef CaloCellGeometry::Pt3D Pt3D;
+typedef CaloCellGeometry::Pt3DVec Pt3DVec;
 
-ZdcGeometry::ZdcGeometry() :
-   theTopology( new ZdcTopology ),
-   lastReqDet_(DetId::Detector(0)), 
-   lastReqSubdet_(0),
-   m_ownsTopology ( true ),
-   m_cellVec ( k_NumberOfCellsForCorners )
-{}
+ZdcGeometry::ZdcGeometry()
+    : theTopology(new ZdcTopology),
+      lastReqDet_(DetId::Detector(0)),
+      lastReqSubdet_(0),
+      m_ownsTopology(true),
+      m_cellVec(k_NumberOfCellsForCorners) {}
 
-ZdcGeometry::ZdcGeometry( const ZdcTopology* topology) :
-   theTopology(topology),
-   lastReqDet_(DetId::Detector(0)), 
-   lastReqSubdet_(0),
-   m_ownsTopology ( false ),
-   m_cellVec ( k_NumberOfCellsForCorners )
-{}
+ZdcGeometry::ZdcGeometry(const ZdcTopology* topology)
+    : theTopology(topology),
+      lastReqDet_(DetId::Detector(0)),
+      lastReqSubdet_(0),
+      m_ownsTopology(false),
+      m_cellVec(k_NumberOfCellsForCorners) {}
 
-ZdcGeometry::~ZdcGeometry() 
-{
-  if( m_ownsTopology ) delete theTopology ;
+ZdcGeometry::~ZdcGeometry() {
+  if (m_ownsTopology)
+    delete theTopology;
 }
 /*
 DetId ZdcGeometry::getClosestCell(const GlobalPoint& r) const
@@ -48,52 +46,37 @@ DetId ZdcGeometry::getClosestCell(const GlobalPoint& r) const
    return returnId ;
 }
 */
-unsigned int
-ZdcGeometry::alignmentTransformIndexLocal( const DetId& id )
-{
-   const CaloGenericDetId gid ( id ) ;
+unsigned int ZdcGeometry::alignmentTransformIndexLocal(const DetId& id) {
+  const CaloGenericDetId gid(id);
 
-   assert( gid.isZDC() ) ;
+  assert(gid.isZDC());
 
-   return ( 0 > HcalZDCDetId( id ).zside() ? 0 : 1 ) ;
+  return (0 > HcalZDCDetId(id).zside() ? 0 : 1);
 }
 
-unsigned int
-ZdcGeometry::alignmentTransformIndexGlobal( const DetId& /*id*/ )
-{
-   return (unsigned int)DetId::Calo - 1 ;
+unsigned int ZdcGeometry::alignmentTransformIndexGlobal(const DetId& /*id*/) { return (unsigned int)DetId::Calo - 1; }
+
+void ZdcGeometry::localCorners(Pt3DVec& lc, const CCGFloat* pv, unsigned int /*i*/, Pt3D& ref) {
+  IdealZDCTrapezoid::localCorners(lc, pv, ref);
 }
 
-void
-ZdcGeometry::localCorners( Pt3DVec&        lc  ,
-			   const CCGFloat* pv ,
-			   unsigned int    /*i*/  ,
-			   Pt3D&           ref  )
-{
-   IdealZDCTrapezoid::localCorners( lc, pv, ref ) ;
-}
+void ZdcGeometry::newCell(const GlobalPoint& f1,
+                          const GlobalPoint& /*f2*/,
+                          const GlobalPoint& /*f3*/,
+                          const CCGFloat* parm,
+                          const DetId& detId) {
+  const CaloGenericDetId cgid(detId);
 
-void
-ZdcGeometry::newCell( const GlobalPoint& f1 ,
-		      const GlobalPoint& /*f2*/ ,
-		      const GlobalPoint& /*f3*/ ,
-		      const CCGFloat*    parm ,
-		      const DetId&       detId   ) 
-{
-   const CaloGenericDetId cgid ( detId ) ;
+  assert(cgid.isZDC());
 
-   assert( cgid.isZDC() ) ;
+  const unsigned int di(cgid.denseIndex());
 
-   const unsigned int di ( cgid.denseIndex() ) ;
-
-   m_cellVec[ di ] = IdealZDCTrapezoid( f1, cornersMgr(), parm ) ;
-   addValidID( detId ) ;
+  m_cellVec[di] = IdealZDCTrapezoid(f1, cornersMgr(), parm);
+  addValidID(detId);
 }
 
 const CaloCellGeometry* ZdcGeometry::getGeometryRawPtr(uint32_t index) const {
   // Modify the RawPtr class
   const CaloCellGeometry* cell(&m_cellVec[index]);
-  return (m_cellVec.size() < index ||
-	  nullptr == cell->param() ? nullptr : cell);
+  return (m_cellVec.size() < index || nullptr == cell->param() ? nullptr : cell);
 }
-

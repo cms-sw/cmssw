@@ -8,7 +8,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -32,9 +31,7 @@ public:
   explicit HGCalTestRecHitTool(const edm::ParameterSet& );
   ~HGCalTestRecHitTool() override;
 
-  void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}
   
 private:
   std::vector<double> retrieveLayerPositions(unsigned int);
@@ -46,12 +43,14 @@ private:
   double      getLayerZ(int type, int layer) const;
   GlobalPoint getPosition(DetId const&) const;
 
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
   const CaloGeometry *geom_;
   const int           mode_;
   int                 layerEE_, layerFH_, layerBH_;
 };
 
 HGCalTestRecHitTool::HGCalTestRecHitTool(const edm::ParameterSet& iC) : 
+  geomToken_{esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})},
   geom_(nullptr), mode_(iC.getParameter<int>("Mode")) { }
 
 
@@ -60,10 +59,7 @@ HGCalTestRecHitTool::~HGCalTestRecHitTool() {}
 void HGCalTestRecHitTool::analyze(const edm::Event& , 
 				  const edm::EventSetup& iSetup) {
 
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-
-  if (pG.isValid()) {
+  if (auto pG = iSetup.getHandle(geomToken_)) {
     geom_ = pG.product();
     auto geomEE = ((mode_ == 0) ?
 		   static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE)) :

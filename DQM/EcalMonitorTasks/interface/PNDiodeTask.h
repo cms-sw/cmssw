@@ -13,7 +13,7 @@ namespace ecaldqm {
   class PNDiodeTask : public DQWorkerTask {
   public:
     PNDiodeTask();
-    ~PNDiodeTask() {}
+    ~PNDiodeTask() override {}
 
     bool filterRunType(short const*) override;
 
@@ -26,27 +26,28 @@ namespace ecaldqm {
     bool enable_[ecaldqm::nDCC];
   };
 
-  inline bool PNDiodeTask::analyze(void const* _p, Collections _collection){
-    switch(_collection){
-    case kMEMTowerIdErrors:
-    case kMEMBlockSizeErrors:
-    case kMEMChIdErrors:
-    case kMEMGainErrors:
-      if(_p) runOnErrors(*static_cast<EcalElectronicsIdCollection const*>(_p), _collection);
-      return true;
-      break;
-    case kPnDiodeDigi:
-      if(_p) runOnPnDigis(*static_cast<EcalPnDiodeDigiCollection const*>(_p));
-      return true;
-      break;
-    default:
-      break;
+  inline bool PNDiodeTask::analyze(void const* _p, Collections _collection) {
+    switch (_collection) {
+      case kMEMTowerIdErrors:
+      case kMEMBlockSizeErrors:
+      case kMEMChIdErrors:
+      case kMEMGainErrors:
+        if (_p)
+          runOnErrors(*static_cast<EcalElectronicsIdCollection const*>(_p), _collection);
+        return true;
+        break;
+      case kPnDiodeDigi:
+        if (_p)
+          runOnPnDigis(*static_cast<EcalPnDiodeDigiCollection const*>(_p));
+        return true;
+        break;
+      default:
+        break;
     }
 
     return false;
   }
 
-}
+}  // namespace ecaldqm
 
 #endif
-

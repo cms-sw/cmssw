@@ -24,6 +24,7 @@ RecoCTPPSAOD = cms.PSet(
     # TOTEM timing
     'keep TotemTimingDigiedmDetSetVector_totemTimingRawToDigi_*_*',
     'keep TotemTimingRecHitedmDetSetVector_totemTimingRecHits_*_*',
+    'keep TotemTimingLocalTrackedmDetSetVector_totemTimingLocalTracks_*_*',
 
     # tracking pixels
     'keep CTPPSPixelDigiedmDetSetVector_ctppsPixelDigis_*_*',
@@ -33,7 +34,8 @@ RecoCTPPSAOD = cms.PSet(
     'keep CTPPSPixelLocalTrackedmDetSetVector_ctppsPixelLocalTracks_*_*',
 
     # CTPPS common
-    'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*'
+    'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*',
+    'keep recoForwardProtons_ctppsProtons_*_*',
   )
 )
 

@@ -25,6 +25,9 @@
 
 #include "CLHEP/Random/RandGauss.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include <memory>
 
 using namespace reco;
@@ -36,6 +39,7 @@ class CaloRecoTauProducer : public EDProducer {
   explicit CaloRecoTauProducer(const edm::ParameterSet& iConfig);
   ~CaloRecoTauProducer() override;
   void produce(edm::Event&,const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
  private:
   edm::InputTag CaloRecoTauTagInfoProducer_;
   edm::InputTag PVProducer_;
@@ -108,4 +112,49 @@ void CaloRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSet
    iEvent.put(std::move(resultCaloTau));
    iEvent.put(std::move(selectedDetIds));
 }
+
+void
+CaloRecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // caloRecoTauProducer
+  edm::ParameterSetDescription desc;
+  desc.add<double>("LeadTrack_minPt", 0.5);
+  desc.add<double>("MatchingConeSize_min", 0.0);
+  desc.add<std::string>("ECALSignalConeSizeFormula", "0.15");
+  desc.add<std::string>("TrackerIsolConeMetric", "DR");
+  desc.add<std::string>("TrackerSignalConeMetric", "DR");
+  desc.add<edm::InputTag>("EBRecHitsSource", edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  desc.add<double>("IsolationTrack_minPt", 1.0);
+  desc.add<double>("ECALSignalConeSize_min", 0.0);
+  desc.add<double>("ECALRecHit_minEt", 0.5);
+  desc.add<std::string>("MatchingConeMetric", "DR");
+  desc.add<std::string>("TrackerSignalConeSizeFormula", "0.07");
+  desc.add<std::string>("MatchingConeSizeFormula", "0.10");
+  desc.add<double>("TrackerIsolConeSize_min", 0.0);
+  desc.add<double>("TrackerIsolConeSize_max", 0.6);
+  desc.add<double>("TrackerSignalConeSize_max", 0.6);
+  desc.add<edm::InputTag>("PVProducer", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("ESRecHitsSource", edm::InputTag("ecalPreshowerRecHit","EcalRecHitsES"));
+  desc.add<double>("TrackerSignalConeSize_min", 0.0);
+  desc.add<double>("ECALIsolConeSize_max", 0.6);
+  desc.add<double>("AreaMetric_recoElements_maxabsEta", 2.5);
+  desc.add<std::string>("ECALIsolConeMetric", "DR");
+  desc.add<std::string>("ECALIsolConeSizeFormula", "0.50");
+  desc.add<double>("JetPtMin", 0.0);
+  desc.add<edm::InputTag>("EERecHitsSource", edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  desc.add<unsigned int>("IsolationTrack_minHits", 0);
+  desc.add<std::string>("ECALSignalConeMetric", "DR");
+  desc.add<double>("TrackLeadTrack_maxDZ", 1.0);
+  desc.add<double>("Track_minPt", 0.5);
+  desc.add<std::string>("TrackerIsolConeSizeFormula", "0.50");
+  desc.add<double>("ECALSignalConeSize_max", 0.6);
+  desc.add<double>("ECALIsolConeSize_min", 0.0);
+  desc.add<bool>("UseTrackLeadTrackDZconstraint", true);
+  desc.add<double>("smearedPVsigmaY", 0.0015);
+  desc.add<double>("smearedPVsigmaX", 0.0015);
+  desc.add<double>("smearedPVsigmaZ", 0.005);
+  desc.add<edm::InputTag>("CaloRecoTauTagInfoProducer", edm::InputTag("caloRecoTauTagInfoProducer"));
+  desc.add<double>("MatchingConeSize_max", 0.6);
+  descriptions.add("caloRecoTauProducer", desc);
+}
+
 DEFINE_FWK_MODULE(CaloRecoTauProducer);

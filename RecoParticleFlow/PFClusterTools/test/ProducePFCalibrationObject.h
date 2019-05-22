@@ -2,10 +2,14 @@
 #define ProducePFCalibrationObject_H
 
 /** \class ProducePFCalibrationObject
- *  No description available.
- *
- *  \author G. Cerminara - CERN
+ *  
+ *  
+ *  This is used by ProducePFCalibration.py config to 
+ *  generate payload for offline and HLT PF hadron calibration.
+ *  
+ *  \Original author G. Cerminara - CERN
  */
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

@@ -97,6 +97,7 @@ private:
   std::vector<TH1D*>    HitOccupancy_Plus_;
   std::vector<TH1D*>    HitOccupancy_Minus_;
   TH1D                 *MeanHitOccupancy_Plus_, *MeanHitOccupancy_Minus_;
+  TH2D                 *h_RZ_, *h_EtaPhi_;
 };
 
 
@@ -161,7 +162,7 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
 	for (const auto & it : *(hbhecoll.product())) {
 	  DetId detId = it.id();
 	  ntot++;
-	  if (detId.subdetId() == HcalEndcap) {
+	  if (detId.subdetId() == static_cast<int>(HcalEndcap)) {
 	    nused++;
 	    int   layer = HcalDetId(detId).depth();
 	    recHitValidation(detId, layer, geom0, &it);
@@ -232,6 +233,8 @@ void HGCalRecHitStudy::recHitValidation(DetId & detId, int layer,
   float globalx = global.x();
   float globaly = global.y();
   float globalz = global.z();
+  h_RZ_->Fill(std::abs(globalz),global.perp());
+  h_EtaPhi_->Fill(std::abs(global.eta()),global.phi());
       
   HitsInfo   hinfo;
   hinfo.energy = energy;
@@ -308,7 +311,7 @@ void HGCalRecHitStudy::beginRun(edm::Run const&,
   edm::Service<TFileService> fs;
   char histoname[100];
   for (unsigned int il = 0; il < layers_; il++ ) {
-    int ilayer = firstLayer_ + (int)(il);
+    int ilayer = firstLayer_ + static_cast<int>(il);
     sprintf (histoname,"HitOccupancy_Plus_layer_%d", ilayer);
     HitOccupancy_Plus_.push_back(fs->make<TH1D>(histoname, "RecHitOccupancy_Plus", 100, 0, 10000));
     sprintf (histoname, "HitOccupancy_Minus_layer_%d", ilayer);
@@ -325,6 +328,14 @@ void HGCalRecHitStudy::beginRun(edm::Run const&,
 
   MeanHitOccupancy_Plus_= fs->make<TH1D>("SUMOfRecHitOccupancy_Plus", "SUMOfRecHitOccupancy_Plus", layers_, -0.5, layers_-0.5);
   MeanHitOccupancy_Minus_ = fs->make<TH1D>("SUMOfRecHitOccupancy_Minus", "SUMOfRecHitOccupancy_Minus", layers_, -0.5,layers_-0.5);
+
+  char title[100];
+  sprintf (histoname, "RZ_%s", nameDetector_.c_str());
+  sprintf (title,     "R vs Z for %s", nameDetector_.c_str());
+  h_RZ_ = fs->make<TH2D>(histoname,title,600,300.,600.,300,0,300.);
+  sprintf (histoname, "EtaPhi_%s", nameDetector_.c_str());
+  sprintf (title,     "#phi vs #eta for %s", nameDetector_.c_str());
+  h_EtaPhi_ = fs->make<TH2D>(histoname,title,200,1.0,3.0,200,-M_PI,M_PI);
 }
 
 

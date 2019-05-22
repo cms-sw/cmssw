@@ -24,7 +24,6 @@ public:
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "TrackingTools/DetLayers/src/DetBelowZ.h"
 #include "TrackingTools/DetLayers/src/DetLessZ.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
@@ -60,7 +59,7 @@ BeamHaloNavigationSchool::BeamHaloNavigationSchool(const GeometricSearchTracker*
   }
   
   FDLI middle = find_if( theForwardLayers.begin(), theForwardLayers.end(),
-			 not1(DetBelowZ(0)));
+          [](auto const* a){ return a->position().z() >= 0.0; });
   theLeftLayers  = FDLC( theForwardLayers.begin(), middle);
   theRightLayers = FDLC( middle, theForwardLayers.end());
   

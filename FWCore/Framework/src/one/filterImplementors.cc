@@ -2,7 +2,7 @@
 //
 // Package:     Package
 // Class  :     producerImplementors
-// 
+//
 // Implementation:
 //     Explicitly instantiate implementor templates for EDFilterBase
 //
@@ -26,6 +26,6 @@ namespace edm {
       template class EndRunProducer<edm::one::EDFilterBase>;
       template class BeginLuminosityBlockProducer<edm::one::EDFilterBase>;
       template class EndLuminosityBlockProducer<edm::one::EDFilterBase>;
-    }
-  }
-}
+    }  // namespace impl
+  }    // namespace one
+}  // namespace edm

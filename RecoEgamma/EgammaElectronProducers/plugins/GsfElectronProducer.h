@@ -8,10 +8,7 @@ class GsfElectronProducer : public GsfElectronBaseProducer
  {
   public:
 
-    //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
-
     explicit GsfElectronProducer( const edm::ParameterSet &, const gsfAlgoHelpers::HeavyObjectCache* ) ;
-    ~GsfElectronProducer() override;
     void produce( edm::Event &, const edm::EventSetup & ) override ;
 
   protected:
@@ -19,6 +16,10 @@ class GsfElectronProducer : public GsfElectronBaseProducer
     void beginEvent( edm::Event &, const edm::EventSetup & ) ;
 
   private :
+
+    reco::GsfElectronCollection clonePreviousElectrons(edm::Event const& event) const ;
+    void addPflowInfo(reco::GsfElectronCollection & electrons, edm::Event const& event) const ; // now deprecated
+    void setPflowPreselectionFlag( reco::GsfElectron & ele ) const;
 
     // check expected configuration of previous modules
     bool pfTranslatorParametersChecked_ ;

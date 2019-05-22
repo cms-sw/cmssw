@@ -2,8 +2,8 @@
 
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
@@ -37,10 +37,16 @@ private:
 
   void build(const CaloGeometry& cg, const CaloTopology& etmap, DetId::Detector det, int subdetn, const char* name);
   int towerColor(const EcalTrigTowerDetId& theTower);
+
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> topologyToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+
   int pass_;
 };
 
-TestEcalGetWindow::TestEcalGetWindow( const edm::ParameterSet& /*iConfig*/ )
+TestEcalGetWindow::TestEcalGetWindow( const edm::ParameterSet& /*iConfig*/ ):
+  topologyToken_{esConsumes<CaloTopology, CaloTopologyRecord>(edm::ESInputTag{})},
+  geometryToken_{esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})}
 {
    //now do what ever initialization is needed
   pass_=0;
@@ -187,17 +193,14 @@ TestEcalGetWindow::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup&
    
    std::cout << "Here I am " << std::endl;
 
-   edm::ESHandle<CaloTopology> theCaloTopology;
-   iSetup.get<CaloTopologyRecord>().get(theCaloTopology);     
-
-   edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<CaloGeometryRecord>().get(pG);     
+   const auto& theCaloTopology = iSetup.getData(topologyToken_);
+   const auto& pG = iSetup.getData(geometryToken_);
 
    if (pass_==1) {
-     build(*pG,*theCaloTopology,DetId::Ecal,EcalBarrel,"EBGetWindowTest.eps");
+     build(pG,theCaloTopology,DetId::Ecal,EcalBarrel,"EBGetWindowTest.eps");
    }
    if (pass_==2) {
-     build(*pG,*theCaloTopology,DetId::Ecal,EcalEndcap,"EEGetWindowTest.eps");
+     build(pG,theCaloTopology,DetId::Ecal,EcalEndcap,"EEGetWindowTest.eps");
    }
    
    pass_++;

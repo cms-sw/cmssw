@@ -1,10 +1,11 @@
+from __future__ import absolute_import
 import collections
 import os
 import re
 
-import configTemplates
-from helperFunctions import conddb, parsecolor, parsestyle, replaceByMap, clean_name
-from TkAlExceptions import AllInOneError
+from . import configTemplates
+from .helperFunctions import conddb, parsecolor, parsestyle, replaceByMap, clean_name
+from .TkAlExceptions import AllInOneError
 import six
 
 class Alignment(object):

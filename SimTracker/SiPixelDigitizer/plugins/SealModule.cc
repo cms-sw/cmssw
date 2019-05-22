@@ -4,4 +4,3 @@
 
 using cms::SiPixelDigitizer;
 DEFINE_DIGI_ACCUMULATOR(SiPixelDigitizer);
-

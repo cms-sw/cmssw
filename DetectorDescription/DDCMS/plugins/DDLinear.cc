@@ -1,4 +1,5 @@
 #include "DD4hep/DetFactoryHelper.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <Math/Cartesian3D.h>
@@ -7,6 +8,7 @@
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
+using namespace geant_units::operators;
 
 using DD3Vector = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >;
 
@@ -31,8 +33,8 @@ static long algorithm( Detector& /* description */,
  
   LogDebug("DDAlgorithm") << "DDLinear: Parameters for positioning:: n "
 			  << n << "  Direction Theta, Phi, Delta "
-			  << ConvertTo( theta, deg ) << " " 
-			  << ConvertTo( phi, deg ) << " " << ConvertTo( delta, deg )
+			  << convertRadToDeg( theta ) << " " 
+			  << convertRadToDeg( phi ) << " " << convertRadToDeg( delta )
 			  << " Base " << base[0]
 			  << ", " << base[1] << ", " << base[2];
 

@@ -14,84 +14,81 @@ namespace cond {
     ~Dump_LHCInfo() override;
     int execute() override;
   };
+}  // namespace cond
+
+cond::Dump_LHCInfo::Dump_LHCInfo() : Utilities("conddb_dump_LHCInfo") {
+  addConnectOption("connect", "c", "source connection string (optional, default=connect)");
+  addOption<std::string>("tag", "t", "the source tag");
+  addOption<std::string>("hash", "i", "the hash (id) of the payload to dump");
+  addOption<cond::Time_t>("since", "s", "since time of the iov");
 }
 
-cond::Dump_LHCInfo::Dump_LHCInfo():Utilities("conddb_dump_LHCInfo"){
-  addConnectOption("connect","c","source connection string (optional, default=connect)");
-  addOption<std::string>("tag","t","the source tag");
-  addOption<std::string>("hash","i","the hash (id) of the payload to dump");
-  addOption<cond::Time_t>("since","s","since time of the iov");
-}
-
-cond::Dump_LHCInfo::~Dump_LHCInfo(){
-}
+cond::Dump_LHCInfo::~Dump_LHCInfo() {}
 
 namespace Dump_LHCInfo_impl {
-  void dump( const LHCInfo& payload, std::ostream& out ){
+  void dump(const LHCInfo& payload, std::ostream& out) {
     std::stringstream ss;
-    payload.print( ss );
-    out <<ss.str();
-    out <<std::endl;
+    payload.print(ss);
+    out << ss.str();
+    out << std::endl;
   }
-}
+}  // namespace Dump_LHCInfo_impl
 
-int cond::Dump_LHCInfo::execute(){
-
+int cond::Dump_LHCInfo::execute() {
   std::string connect = getOptionValue<std::string>("connect");
   std::string tag("");
-  
+
   cond::persistency::ConnectionPool connection;
-  connection.setMessageVerbosity( coral::Error );
+  connection.setMessageVerbosity(coral::Error);
   connection.configure();
 
   cond::Hash payloadHash("");
-  cond::Time_t since=0;
-  if(hasOptionValue("hash")) {
+  cond::Time_t since = 0;
+  if (hasOptionValue("hash")) {
     payloadHash = getOptionValue<std::string>("hash");
   } else {
-    if(hasOptionValue("tag")){
+    if (hasOptionValue("tag")) {
       tag = getOptionValue<std::string>("tag");
     } else {
-      std::cout <<"Error: no tag provided to identify the payload."<<std::endl;
+      std::cout << "Error: no tag provided to identify the payload." << std::endl;
       return 1;
     }
-    if(hasOptionValue("since")){
+    if (hasOptionValue("since")) {
       since = getOptionValue<cond::Time_t>("since");
     } else {
-      std::cout <<"Error: no IOV since provided to identify the payload."<<std::endl;
+      std::cout << "Error: no IOV since provided to identify the payload." << std::endl;
       return 1;
     }
   }
 
-  cond::persistency::Session session = connection.createSession( connect, false );
+  cond::persistency::Session session = connection.createSession(connect, false);
   session.transaction().start(true);
 
-  if( payloadHash.empty() ){
-    cond::persistency::IOVProxy iovSeq = session.readIov( tag );
-    auto it = iovSeq.find( since );
-    if( it == iovSeq.end() ){
-      std::cout <<"Could not find iov with since="<<since<<" in tag "<<tag<<std::endl;
+  if (payloadHash.empty()) {
+    cond::persistency::IOVProxy iovSeq = session.readIov(tag);
+    auto it = iovSeq.find(since);
+    if (it == iovSeq.end()) {
+      std::cout << "Could not find iov with since=" << since << " in tag " << tag << std::endl;
       session.transaction().commit();
       return 2;
     }
     payloadHash = (*it).payloadId;
   }
 
-  std::shared_ptr<LHCInfo> payload = session.fetchPayload<LHCInfo>( payloadHash );
+  std::shared_ptr<LHCInfo> payload = session.fetchPayload<LHCInfo>(payloadHash);
   session.transaction().commit();
 
-  std::cout <<"# *********************************************************** "<<std::endl;
-  std::cout <<"# Dumping payload id "<<payloadHash<<std::endl;
-  std::cout <<"# *********************************************************** "<<std::endl;
+  std::cout << "# *********************************************************** " << std::endl;
+  std::cout << "# Dumping payload id " << payloadHash << std::endl;
+  std::cout << "# *********************************************************** " << std::endl;
 
-  Dump_LHCInfo_impl::dump( *payload,std::cout );
+  Dump_LHCInfo_impl::dump(*payload, std::cout);
 
-  std::cout <<"# *********************************************************** "<<std::endl;
+  std::cout << "# *********************************************************** " << std::endl;
   return 0;
 }
 
-int main( int argc, char** argv ){
-
+int main(int argc, char** argv) {
   cond::Dump_LHCInfo utilities;
-  return utilities.run(argc,argv);
+  return utilities.run(argc, argv);
 }

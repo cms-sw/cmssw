@@ -95,6 +95,7 @@ private:
   int                     layers_, layerFront_, geomType_;
   TH1D                   *h_Charge_, *h_ADC_, *h_LayZp_, *h_LayZm_;
   TH2D                   *h_RZ_, *h_EtaPhi_;
+  TH1D                   *h_W1_, *h_W2_, *h_C1_, *h_C2_, *h_Ly_;
 };
 
 HGCalDigiStudy::HGCalDigiStudy(const edm::ParameterSet& iConfig) :
@@ -193,6 +194,38 @@ void HGCalDigiStudy::beginJob() {
   title << "Charge vs Layer (-z) for " << nameDetector_;
   h_LayZm_ = fs->make<TH1D>(hname.str().c_str(), title.str().c_str(),
 			    60,0.0,60.0);
+  hname.str(""); title.str("");
+  hname  << "LY_" << nameDetector_;
+  title << "Layer number for " << nameDetector_;
+  h_Ly_ = fs->make<TH1D>(hname.str().c_str(),title.str().c_str(),200,0,100);
+  if ((nameDetector_=="HGCalHEScintillatorSensitive") ||
+      (nameDetector_=="HCal")) {
+    hname.str(""); title.str("");
+    hname  << "IR_" << nameDetector_;
+    title << "Radius index for " << nameDetector_;
+    h_W1_ = fs->make<TH1D>(hname.str().c_str(),title.str().c_str(),200,-50,50);
+    hname.str(""); title.str("");
+    hname  << "FI_" << nameDetector_;
+    title << "#phi index for " << nameDetector_;
+    h_C1_ = fs->make<TH1D>(hname.str().c_str(),title.str().c_str(),720,0,360);
+  } else {
+    hname.str(""); title.str("");
+    hname  << "WU_" << nameDetector_;
+    title << "u index of wafers for " << nameDetector_;
+    h_W1_ = fs->make<TH1D>(hname.str().c_str(),title.str().c_str(),200,-50,50);
+    hname.str(""); title.str("");
+    hname  << "WV_" << nameDetector_;
+    title << "v index of wafers for " << nameDetector_;
+    h_W2_ = fs->make<TH1D>(hname.str().c_str(),title.str().c_str(),100,-50,50);
+    hname.str(""); title.str("");
+    hname  << "CU_" << nameDetector_;
+    title << "u index of cells for " << nameDetector_;
+    h_C1_ = fs->make<TH1D>(hname.str().c_str(),title.str().c_str(),100,0,50);
+    hname.str(""); title.str("");
+    hname  << "CV_" << nameDetector_;
+    title << "v index of cells for " << nameDetector_;
+    h_C2_ = fs->make<TH1D>(hname.str().c_str(),title.str().c_str(),100,0,50);
+  }
 }
 
 void HGCalDigiStudy::beginRun(const edm::Run&, 
@@ -263,14 +296,35 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent,
 				HGCSiliconDetId(detId).layer() :
 				HFNoseDetId(detId).layer());
 	const HGCSample&  hgcSample = it.sample(SampleIndx_);
-	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
-	double     charge    = adc*gain;
+	double     charge    = adc; 
+//      uint16_t   gain      = hgcSample.toa();
+//      double     charge    = adc*gain;
 	digiValidation(detId, hgcGeom_, layer, adc, charge);
+	if (geomType_ == 0) {
+	  HGCalDetId id = HGCalDetId(detId);
+	  h_Ly_->Fill(id.layer());
+	  h_W1_->Fill(id.wafer());
+	  h_C1_->Fill(id.cell());
+	} else if (geomType_ == 1) {
+	  HGCSiliconDetId id = HGCSiliconDetId(detId);
+	  h_Ly_->Fill(id.layer());
+	  h_W1_->Fill(id.waferU());
+	  h_W2_->Fill(id.waferV());
+	  h_C1_->Fill(id.cellU());
+	  h_C2_->Fill(id.cellV());
+	} else {
+	  HFNoseDetId id = HFNoseDetId(detId);
+	  h_Ly_->Fill(id.layer());
+	  h_W1_->Fill(id.waferU());
+	  h_W2_->Fill(id.waferV());
+	  h_C1_->Fill(id.cellU());
+	  h_C2_->Fill(id.cellV());
+	}
       }
     } else {
       edm::LogVerbatim("HGCalValidation") << "DigiCollection handle "
-					  << source_ << " does not exist for " 
+					  << source_ << " does not exist for "
 					  << nameDetector_ << " !!!";
     }
   } else if ((nameDetector_ == "HGCalHESiliconSensitive") || 
@@ -292,10 +346,29 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent,
 				 HGCSiliconDetId(detId).layer() :
 				 HGCScintillatorDetId(detId).layer()));
 	const HGCSample&  hgcSample = it.sample(SampleIndx_);
-	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
-	double     charge    = adc*gain;
+	double     charge    = adc;
+//      uint16_t   gain      = hgcSample.toa();
+//      double     charge    = adc*gain;
 	digiValidation(detId, hgcGeom_, layer, adc, charge);
+	if (geomType_ == 0) {
+	  HGCalDetId id = HGCalDetId(detId);
+	  h_Ly_->Fill(id.layer());
+	  h_W1_->Fill(id.wafer());
+	  h_C1_->Fill(id.cell());
+	} else if (geomType_ == 1) {
+	  HGCSiliconDetId id = HGCSiliconDetId(detId);
+	  h_Ly_->Fill(id.layer());
+	  h_W1_->Fill(id.waferU());
+	  h_W2_->Fill(id.waferV());
+	  h_C1_->Fill(id.cellU());
+	  h_C2_->Fill(id.cellV());
+	} else {
+	  HGCScintillatorDetId id = HGCScintillatorDetId(detId);
+	  h_Ly_->Fill(id.layer());
+	  h_W1_->Fill(id.ieta());
+	  h_C1_->Fill(id.iphi());
+	}
       }
     } else {
       edm::LogVerbatim("HGCalValidation") << "DigiCollection handle "
@@ -316,9 +389,10 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent,
 	HcalDetId  detId     = it.id();
 	int        layer     = detId.depth();
 	const HGCSample&  hgcSample = it.sample(SampleIndx_);
-	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
-	double     charge    = adc*gain;
+	double     charge    = adc;
+//      uint16_t   gain      = hgcSample.toa();
+//      double     charge    = adc*gain;
 	digiValidation(detId, hcGeom_, layer, adc, charge);
       }
     } else {
@@ -353,7 +427,7 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent,
 	  int       layer  = detId.depth();
 	  uint16_t  adc    = (df)[SampleIndx_].adc();
 	  int       capid  = (df)[SampleIndx_].capid();
-	  double    charge = (tool[SampleIndx_] - calibrations.pedestal(capid));
+	  double    charge = (tool[SampleIndx_]-calibrations.pedestal(capid));
 	  digiValidation(detId, hcGeom_, layer, adc, charge);
 	}
       }

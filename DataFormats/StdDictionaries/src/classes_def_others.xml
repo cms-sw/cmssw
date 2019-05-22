@@ -20,5 +20,4 @@
  <class name="std::random_access_iterator_tag"/>
  <class name="std::set<int>"/>
  <class name="std::set<std::basic_string<char> >"/>
- <class name="std::binary_function<int,int,bool>"/>
 </lcgdict>

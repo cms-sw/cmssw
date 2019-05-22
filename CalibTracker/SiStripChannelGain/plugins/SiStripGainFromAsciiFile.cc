@@ -40,7 +40,8 @@ std::unique_ptr<SiStripApvGain> SiStripGainFromAsciiFile::getNewObject(){
        uint32_t detid;
        ModuleGain MG;
        MG.apv[0] = 0.0;  MG.apv[1] = 0.0; MG.apv[2] = 0.0; MG.apv[3] = 0.0; MG.apv[4] = 0.0; MG.apv[5] = 0.0;
-       char* pch=strtok(line," "); int Arg=0;
+       char* saveptr;
+       char* pch=strtok_r(line," ",&saveptr); int Arg=0;
        while (pch!=nullptr){
             if(Arg==0){
                sscanf(pch, "%d", &detid);
@@ -49,7 +50,7 @@ std::unique_ptr<SiStripApvGain> SiStripGainFromAsciiFile::getNewObject(){
             }else{
                //nothing to do here
             }       
-            pch=strtok(nullptr," ");Arg++;
+            pch=strtok_r(nullptr," ",&saveptr);Arg++;
       }
       ss << detid << " " <<  MG.apv[0] << " " <<  MG.apv[1] << " " <<  MG.apv[2] << " " <<  MG.apv[3] << " " <<  MG.apv[4] << " " <<  MG.apv[5] << std::endl;
       GainsMap.insert(std::pair<unsigned int,ModuleGain>(detid,MG));

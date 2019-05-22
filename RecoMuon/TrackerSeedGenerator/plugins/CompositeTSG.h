@@ -38,7 +38,7 @@ public:
  protected:
 
   unsigned int nTSGs() { return theTSGs.size();}
-  std::vector<TrackerSeedGenerator*> theTSGs;
+  std::vector<std::unique_ptr<TrackerSeedGenerator>> theTSGs;
   std::vector<std::string> theNames;
   std::string theCategory;
 

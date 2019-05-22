@@ -220,12 +220,8 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
 	  continue;
       }
 
-      std::vector<int>::const_iterator vit;
       if (barrel) {
 	// new rechit flag checks
-	//vit = std::find(flagsexclEB_.begin(), flagsexclEB_.end(), j->recoFlag());
-	//if (vit != flagsexclEB_.end())
-	//  continue;
 	if (!j->checkFlag(EcalRecHit::kGood)) {
 	  if (j->checkFlags(flagsexclEB_)) {
 	    continue;
@@ -233,9 +229,6 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
 	}
       } else {
 	// new rechit flag checks
-	//vit = std::find(flagsexclEE_.begin(), flagsexclEE_.end(), j->recoFlag());
-	//if (vit != flagsexclEE_.end())
-	//  continue;
 	if (!j->checkFlag(EcalRecHit::kGood)) {
 	  if (j->checkFlags(flagsexclEE_)) {
 	    continue;

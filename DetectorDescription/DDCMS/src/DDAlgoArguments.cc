@@ -47,7 +47,7 @@ cms::makeRotReflect( double thetaX, double phiX,
   constexpr double tol = 1.0e-3; // Geant4 compatible
   double check = ( x.Cross( y )).Dot( z ); // in case of a LEFT-handed orthogonal system this must be -1
   if( abs( 1. + check ) > tol ) {
-    except("MyDDCMS","+++ FAILED to construct Rotation is not LEFT-handed!");
+    except("DD4CMS","+++ FAILED to construct Rotation is not LEFT-handed!");
   }
 
   dd4hep::Rotation3D rotation( x.x(), y.x(), z.x(),
@@ -117,7 +117,7 @@ xml_h DDAlgoArguments::rawArgument(const string& nam)  const   {
       return std::move( p );
     }
   }
-  except("MyDDCMS","+++ Attempt to access non-existing algorithm option %s[%s]",name.c_str(),nam.c_str());
+  except("DD4CMS","+++ Attempt to access non-existing algorithm option %s[%s]",name.c_str(),nam.c_str());
   throw runtime_error("DDCMS: Attempt to access non-existing algorithm option.");
 }
 
@@ -146,14 +146,14 @@ namespace {
     val = remove_whitespace(val);
     int res = gr.fromString(&data,val);
     if ( !res )  {
-      except("MyDDCMS","+++ VectorParam<%s>: %s -> %s [Invalid conversion:%d]",
+      except("DD4CMS","+++ VectorParam<%s>: %s -> %s [Invalid conversion:%d]",
              typ.c_str(), nam.c_str(), val.c_str(), res);
     }
     else if ( num != (int)data.size() )  {
-      except("MyDDCMS","+++ VectorParam<%s>: %s -> %s [Invalid entry count: %d <> %ld]",
+      except("DD4CMS","+++ VectorParam<%s>: %s -> %s [Invalid entry count: %d <> %ld]",
              typ.c_str(), nam.c_str(), val.c_str(), num, data.size());
     }
-    printout(DEBUG,"MyDDCMS","+++ VectorParam<%s>: ret=%d %s -> %s",
+    printout(DEBUG,"DD4CMS","+++ VectorParam<%s>: ret=%d %s -> %s",
              typ.c_str(), res, nam.c_str(), gr.str(&data).c_str());
     return data;
   }
@@ -174,7 +174,7 @@ namespace {
     string val = xp.text();
     int    num = xp.attr<int>(DD_CMU(nEntries));
     if ( typ != req_typ )   {
-      except("MyDDCMS",
+      except("DD4CMS",
              "+++ VectorParam<%s | %s>: %s -> <%s> %s [Incompatible vector-type]",
              req_typ, typ.c_str(), nam.c_str(), typeName(typeid(T)).c_str(),
              val.c_str());
@@ -190,7 +190,7 @@ namespace {
       T d = __cnv<T>(piece);
       data.push_back(d);
     }
-    printout(DEBUG,"MyDDCMS","+++ VectorParam<%s>: %s[%d] -> %s",
+    printout(DEBUG,"DD4CMS","+++ VectorParam<%s>: %s[%d] -> %s",
              typ.c_str(), nam.c_str(), num, val.c_str());
     return data;
   }

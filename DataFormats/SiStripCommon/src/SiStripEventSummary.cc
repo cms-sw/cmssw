@@ -213,12 +213,11 @@ void SiStripEventSummary::commissioningInfo( const uint32_t& daq1,
   } else if ( runType_ == sistrip::PHYSICS_ZS ) { 
   } else if ( runType_ == sistrip::PEDESTALS ) { 
   } else if ( runType_ == sistrip::DAQ_SCOPE_MODE ) { 
-  } else if ( runType_ == sistrip::CALIBRATION ) { 
-  } else if ( runType_ == sistrip::CALIBRATION_DECO ) { 
+  } else if ( runType_ == sistrip::CALIBRATION or runType_ == sistrip::CALIBRATION_DECO) { 
     params_[0] = (daq2>>8)&0xFF; // latency
     params_[1] = (daq2>>4)&0x0F; // cal_chan
     params_[2] = (daq2>>0)&0x0F; // cal_sel
-  } else if ( runType_ == sistrip::CALIBRATION_SCAN ) { 
+  } else if ( runType_ == sistrip::CALIBRATION_SCAN or runType_ == sistrip::CALIBRATION_SCAN_DECO) { 
     params_[0] = (daq2>>8)&0xFF; // latency
     params_[1] = (daq2>>4)&0x0F; // cal_chan
     params_[2] = (daq2>>0)&0x0F; // cal_sel

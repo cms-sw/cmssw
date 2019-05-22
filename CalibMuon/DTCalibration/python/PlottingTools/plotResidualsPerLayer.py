@@ -1,7 +1,8 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import ROOT
-from fitResidual import fitResidual
-from drawHistoAllChambers import drawHisto
+from .fitResidual import fitResidual
+from .drawHistoAllChambers import drawHisto
 
 layerCorrectionFactors = {'SL1':(1.17,1.16,1.15,1.14),
                           'SL2':(1.83,1.20,1.20,1.83),

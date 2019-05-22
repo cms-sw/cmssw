@@ -58,8 +58,7 @@ void TrackFitterProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::
   edm::ESHandle<TransientTrackingRecHitBuilder> ttrhbESH;
   iSetup.get<TransientRecHitRecord>().get(theTTRHBuilderName, ttrhbESH);
 
-  auto impl = std::make_unique<TrackFitter>(&iSetup,
-                                            trackerESH.product(),
+  auto impl = std::make_unique<TrackFitter>(trackerESH.product(),
                                             fieldESH.product(),
                                             ttrhbESH.product());
   auto prod = std::make_unique<PixelFitter>(std::move(impl));

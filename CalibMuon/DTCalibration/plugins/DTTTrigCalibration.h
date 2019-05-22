@@ -88,9 +88,9 @@ private:
   double kFactor;
 
   // The fitter
-  DTTimeBoxFitter *theFitter;
+  std::unique_ptr<DTTimeBoxFitter> theFitter;
   // The module for t0 subtraction
-  DTTTrigBaseSync *theSync;//FIXME: should be const
+  std::unique_ptr<DTTTrigBaseSync> theSync;//FIXME: should be const
 
 };
 #endif

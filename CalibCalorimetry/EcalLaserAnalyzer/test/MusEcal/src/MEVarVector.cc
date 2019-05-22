@@ -5,7 +5,7 @@ using namespace std;
 
 #include "MEVarVector.hh"
 
-ClassImp(MEVarVector)
+ClassImp(MEVarVector);
 
 MEVarVector::MEVarVector( int size ) : _size(  size )
 {

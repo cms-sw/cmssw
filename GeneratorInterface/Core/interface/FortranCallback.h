@@ -8,104 +8,86 @@
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
-namespace HepMC
-{
-class GenEvent;
+namespace HepMC {
+  class GenEvent;
 }
 
 namespace gen {
 
-  class FortranCallback 
-  {
+  class FortranCallback {
+  public:
+    static FortranCallback* getInstance();
 
-    public:
-    
-      static FortranCallback* getInstance() ;
-    
-      //void setLHEEvent(lhef::LHEEvent* lhev) { fPartonLevel = lhev; }
-      void setLHERunInfo( lhef::LHERunInfo* lheri ) { fRunBlock=lheri; }
-      void setLHEEvent( lhef::LHEEvent* lhee ) { fEventBlock=lhee; }
-      
-      void resetIterationsPerEvent() { fIterationsPerEvent = 0; }
-      
-      void fillHeader();
-      void fillEvent();  
-      
-      int getIterationsPerEvent() const { return fIterationsPerEvent; }
+    //void setLHEEvent(lhef::LHEEvent* lhev) { fPartonLevel = lhev; }
+    void setLHERunInfo(lhef::LHERunInfo* lheri) { fRunBlock = lheri; }
+    void setLHEEvent(lhef::LHEEvent* lhee) { fEventBlock = lhee; }
 
-   private:
-   
-     // ctor
-     
-     FortranCallback();
+    void resetIterationsPerEvent() { fIterationsPerEvent = 0; }
 
-     // data member(s)
-     
-     lhef::LHERunInfo*       fRunBlock;
-     lhef::LHEEvent*         fEventBlock;
-     int                     fIterationsPerEvent;
-     
-     static FortranCallback* fInstance;
+    void fillHeader();
+    void fillEvent();
 
-	
+    int getIterationsPerEvent() const { return fIterationsPerEvent; }
+
+  private:
+    // ctor
+
+    FortranCallback();
+
+    // data member(s)
+
+    lhef::LHERunInfo* fRunBlock;
+    lhef::LHEEvent* fEventBlock;
+    int fIterationsPerEvent;
+
+    static FortranCallback* fInstance;
   };
 
-// --** Implementation **---
+  // --** Implementation **---
 
-FortranCallback* FortranCallback::fInstance = nullptr;
+  FortranCallback* FortranCallback::fInstance = nullptr;
 
-FortranCallback::FortranCallback()
-//   : fPartonLevel(0)
-   : fRunBlock(nullptr), fEventBlock(nullptr), fIterationsPerEvent(0)
-{   
-}
+  FortranCallback::FortranCallback()
+      //   : fPartonLevel(0)
+      : fRunBlock(nullptr), fEventBlock(nullptr), fIterationsPerEvent(0) {}
 
-FortranCallback* FortranCallback::getInstance()
-{
-   if ( fInstance == nullptr ) fInstance = new FortranCallback;
-   return fInstance;
-}
+  FortranCallback* FortranCallback::getInstance() {
+    if (fInstance == nullptr)
+      fInstance = new FortranCallback;
+    return fInstance;
+  }
 
-void FortranCallback::fillHeader()
-{
-   
-   if ( fRunBlock == nullptr ) return;
-      
-   //const lhef::HEPRUP* heprup = &(fRunBlock->heprup());
-   const lhef::HEPRUP* heprup = fRunBlock->getHEPRUP();
-   
-   lhef::CommonBlocks::fillHEPRUP(heprup);   
-   
-   return;
+  void FortranCallback::fillHeader() {
+    if (fRunBlock == nullptr)
+      return;
 
-}
+    //const lhef::HEPRUP* heprup = &(fRunBlock->heprup());
+    const lhef::HEPRUP* heprup = fRunBlock->getHEPRUP();
 
-void FortranCallback::fillEvent()
-{
+    lhef::CommonBlocks::fillHEPRUP(heprup);
 
-   //if ( fPartonLevel == 0 ) return;    
-   //const lhef::HEPEUP* hepeup = fPartonLevel->getHEPEUP();
-   
-   if ( fEventBlock == nullptr ) return;
-   
-   const lhef::HEPEUP* hepeup = fEventBlock->getHEPEUP(); 
+    return;
+  }
 
-        if (fIterationsPerEvent++) 
-	{
-           hepeup_.nup = 0;
-           return;
-        }
+  void FortranCallback::fillEvent() {
+    //if ( fPartonLevel == 0 ) return;
+    //const lhef::HEPEUP* hepeup = fPartonLevel->getHEPEUP();
 
-   lhef::CommonBlocks::fillHEPEUP(hepeup);
+    if (fEventBlock == nullptr)
+      return;
 
-   return;
-    
-}
+    const lhef::HEPEUP* hepeup = fEventBlock->getHEPEUP();
 
+    if (fIterationsPerEvent++) {
+      hepeup_.nup = 0;
+      return;
+    }
 
-} // end namespace
+    lhef::CommonBlocks::fillHEPEUP(hepeup);
+
+    return;
+  }
+
+}  // namespace gen
 
 #endif
-
-
-

@@ -2588,10 +2588,11 @@ int CountLexemes(char *s)
   int i=0;
   
   strcpy(tmp,s);
-  if (strtok(tmp," "))
+  char* saveptr;
+  if (strtok_r(tmp," ",&saveptr))
     {
       i=1;
-      while (strtok(nullptr," ")) i++;
+      while (strtok_r(nullptr," ",&saveptr)) i++;
     }
   return i;
 }
@@ -2605,9 +2606,10 @@ void getnLexemes(int n, char *s, char **ss)
   strcpy(tmp,s);
   if (n>0)
     {
-      strcpy(ss[0],strtok(tmp," "));
+      char* saveptr;
+      strcpy(ss[0],strtok_r(tmp," ",&saveptr));
       for (i=1;i<n;i++)
-        strcpy(ss[i],strtok(nullptr," "));
+        strcpy(ss[i],strtok_r(nullptr," ",&saveptr));
     }
 }
 
@@ -2621,9 +2623,10 @@ void getLexemes(char *s,char **ss)
   n=CountLexemes(tmp);
   if (n>0)
     {
-      strcpy(ss[0],strtok(tmp," "));
+      char* saveptr;
+      strcpy(ss[0],strtok_r(tmp," ",&saveptr));
       for (i=1;i<n;i++)
-        strcpy(ss[i],strtok(nullptr," "));
+        strcpy(ss[i],strtok_r(nullptr," ",&saveptr));
     }
 }
 
@@ -3597,10 +3600,11 @@ int GetNetStructure(char *s, int *Nlayer, int *Nneur)
 	if(strlen(s)>1024) return -2;
 
 	strcpy(tmp,s);
-	if (strtok(tmp,","))
+        char* saveptr;
+	if (strtok_r(tmp,",",&saveptr))
     		{
       		i=1;
-      		while (strtok(nullptr,",")) i++;
+      		while (strtok_r(nullptr,",",&saveptr)) i++;
     		}
 	*Nlayer = i;
 	if(i > NLMAX) return -3;
@@ -3608,9 +3612,9 @@ int GetNetStructure(char *s, int *Nlayer, int *Nneur)
 	strcpy(tmp,s);
 	if (*Nlayer>0)
     		{
-      		sscanf(strtok(tmp,","),"%d",&(Nneur[0]));
+                sscanf(strtok_r(tmp,",",&saveptr),"%d",&(Nneur[0]));
       		for (i=1;i<*Nlayer;i++)
-        		sscanf(strtok(nullptr,","),"%d",&(Nneur[i]));
+                  sscanf(strtok_r(nullptr,",",&saveptr),"%d",&(Nneur[i]));
     		}
 
 	return 0;

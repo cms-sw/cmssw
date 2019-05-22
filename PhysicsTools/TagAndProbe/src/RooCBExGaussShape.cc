@@ -1,6 +1,6 @@
 #include "PhysicsTools/TagAndProbe/interface/RooCBExGaussShape.h" 
 
-ClassImp(RooCBExGaussShape) 
+ClassImp(RooCBExGaussShape); 
 
  RooCBExGaussShape::RooCBExGaussShape(const char *name, const char *title, 
 				      RooAbsReal& _m,

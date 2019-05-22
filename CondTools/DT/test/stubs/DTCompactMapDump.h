@@ -14,15 +14,15 @@ Toy EDAnalyzer for testing purposes only.
 #include <string>
 
 namespace edmtest {
-  class DTCompactMapDump : public edm::EDAnalyzer
-  {
+  class DTCompactMapDump : public edm::EDAnalyzer {
   public:
-    explicit  DTCompactMapDump(edm::ParameterSet const& p);
-    explicit  DTCompactMapDump(int i) ;
-    virtual ~ DTCompactMapDump();
+    explicit DTCompactMapDump(edm::ParameterSet const& p);
+    explicit DTCompactMapDump(int i);
+    virtual ~DTCompactMapDump();
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
     virtual void endJob();
+
   private:
     std::string fileName;
   };
-}
+}  // namespace edmtest

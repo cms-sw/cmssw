@@ -1,7 +1,7 @@
-#ifndef SiPixelPhase1HitsV_h 
-#define SiPixelPhase1HitsV_h 
+#ifndef SiPixelPhase1HitsV_h
+#define SiPixelPhase1HitsV_h
 // -*- C++ -*-
-// 
+//
 // Package:     SiPixelPhase1HitsV
 // Class  :     SiPixelPhase1HitsV
 //
@@ -11,8 +11,8 @@
 
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
 namespace reco {
   class TrackToTrackingParticleAssociator;
@@ -33,21 +33,19 @@ class SiPixelPhase1HitsV : public SiPixelPhase1Base {
     EFFICIENCY_TRACK,
   };
 
-  public:
-  explicit SiPixelPhase1HitsV(const edm::ParameterSet& conf);
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+public:
+  explicit SiPixelPhase1HitsV(const edm::ParameterSet &conf);
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-  private:
+private:
   edm::EDGetTokenT<edm::PSimHitContainer> pixelBarrelLowToken_;
   edm::EDGetTokenT<edm::PSimHitContainer> pixelBarrelHighToken_;
   edm::EDGetTokenT<edm::PSimHitContainer> pixelForwardLowToken_;
   edm::EDGetTokenT<edm::PSimHitContainer> pixelForwardHighToken_;
 
-  edm::EDGetTokenT< edm::View<reco::Track> > tracksToken_;
-  edm::EDGetTokenT< TrackingParticleCollection > tpToken_;
-  edm::EDGetTokenT< reco::TrackToTrackingParticleAssociator > trackAssociatorByHitsToken_;
-
+  edm::EDGetTokenT<edm::View<reco::Track>> tracksToken_;
+  edm::EDGetTokenT<TrackingParticleCollection> tpToken_;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> trackAssociatorByHitsToken_;
 };
 
 #endif
-

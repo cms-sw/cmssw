@@ -20,7 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -43,7 +43,7 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" 
-#include "RecoParticleFlow/PFProducer/interface/Utils.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include <vector>
 #include <TROOT.h>
@@ -59,16 +59,16 @@
 using namespace edm;
 using namespace reco;
 using namespace std;
-class EgGEDPhotonAnalyzer : public edm::EDAnalyzer {
+class EgGEDPhotonAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
    public:
       explicit EgGEDPhotonAnalyzer(const edm::ParameterSet&);
-      ~EgGEDPhotonAnalyzer();
+      ~EgGEDPhotonAnalyzer() override;
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
   
   ParameterSet conf_;
 
@@ -114,7 +114,7 @@ EgGEDPhotonAnalyzer::EgGEDPhotonAnalyzer(const edm::ParameterSet& iConfig):
   conf_(iConfig)
 
 {
-
+  usesResource(TFileService::kSharedResource);
   
   edm::Service<TFileService> fs;
 
@@ -281,7 +281,7 @@ EgGEDPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  float phi =  (*it).phi();
 
 	  float deta = etamc - eta;
-	  float dphi = Utils::mpi_pi(phimc - phi);
+	  float dphi = normalizedPhi(phimc - phi);
 	  float dR = sqrt(deta*deta + dphi*dphi);
 
 	  if(dR < 0.1){
@@ -350,7 +350,7 @@ EgGEDPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
 	float deta = etamc - etareco;
-	float dphi = Utils::mpi_pi(phimc - phireco);
+	float dphi = normalizedPhi(phimc - phireco);
 	float dR = sqrt(deta*deta + dphi*dphi);
 
 	float SCEnergy = (theRecoPh[j]).energy();
@@ -414,7 +414,7 @@ EgGEDPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	
 	
 	float deta = etamc - etareco;
-	float dphi = Utils::mpi_pi(phimc - phireco);
+	float dphi = normalizedPhi(phimc - phireco);
 	float dR = sqrt(deta*deta + dphi*dphi);
 	
 	float SCEnergy = (theGedPh[j]).energy();
@@ -474,7 +474,7 @@ EgGEDPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EgGEDPhotonAnalyzer::beginJob(const edm::EventSetup&)
+EgGEDPhotonAnalyzer::beginJob()
 {
 
   ev = 0;

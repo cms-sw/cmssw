@@ -5,5 +5,8 @@
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="FWCore/Utilities"/>
 <library   file="*.cc" name="RecoTrackerTrackProducerPlugins">
+  <use   name="Alignment/TwoBodyDecay"/>
+  <use   name="Alignment/ReferenceTrajectories"/>
+  <use   name="TrackingTools/GsfTracking"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

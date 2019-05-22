@@ -4,7 +4,7 @@
 //
 // Package:     XMLTools
 // Class  :     XMLLUTLoader
-// 
+//
 /**\class XMLLUTLoader XMLLUTLoader.h CaloOnlineTools/HcalOnlineDb/interface/XMLLUTLoader.h
 
  Description: <one line class summary>
@@ -26,53 +26,43 @@
 
 // forward declarations
 
-class XMLLUTLoader : public XMLDOMBlock
-{
-  
- public:
-  
-  typedef struct _loaderBaseConfig : public XMLProcessor::loaderBaseConfig
-  {
-
+class XMLLUTLoader : public XMLDOMBlock {
+public:
+  typedef struct _loaderBaseConfig : public XMLProcessor::loaderBaseConfig {
   } loaderBaseConfig;
-  
-  typedef struct _lutDBConfig : public XMLProcessor::DBConfig
-  {
+
+  typedef struct _lutDBConfig : public XMLProcessor::DBConfig {
     _lutDBConfig();
     std::string kind_of_part;
     std::string name_label;
     std::string trig_prim_lookuptbl_data_file;
     int crate;
   } lutDBConfig;
-  
-  typedef struct _checksumsDBConfig : public XMLProcessor::DBConfig
-  {
+
+  typedef struct _checksumsDBConfig : public XMLProcessor::DBConfig {
     _checksumsDBConfig();
     std::string comment_description;
     std::string name_label;
     std::string trig_prim_lookuptbl_data_file;
     int crate;
   } checksumsDBConfig;
-  
-  XMLLUTLoader();
-  XMLLUTLoader( XMLProcessor::loaderBaseConfig * config, std::string templateBase = "HCAL_TRIG_PRIM_LOOKUP_TABLE.XMLloader.template" );
-  ~XMLLUTLoader() override;
-  
-  int addLUT( lutDBConfig * config,
-  	      std::string templateFileName = "HCAL_TRIG_PRIM_LOOKUP_TABLE.dataset.template" );
-  
-  int addChecksums( checksumsDBConfig * config,
-  		    std::string templateFileName = "HCAL_TRIG_PRIM_LOOKUP_TABLE.checksums.template" );
-  
-  int createLoader( const std::vector<int>& crate_number, const std::vector<std::string>& file_name );
-  
- private:
-  XMLLUTLoader(const XMLLUTLoader&) = delete; // stop default
-  
-  const XMLLUTLoader& operator=(const XMLLUTLoader&) = delete; // stop default
-  
-  
-};
 
+  XMLLUTLoader();
+  XMLLUTLoader(XMLProcessor::loaderBaseConfig* config,
+               std::string templateBase = "HCAL_TRIG_PRIM_LOOKUP_TABLE.XMLloader.template");
+  ~XMLLUTLoader() override;
+
+  int addLUT(lutDBConfig* config, std::string templateFileName = "HCAL_TRIG_PRIM_LOOKUP_TABLE.dataset.template");
+
+  int addChecksums(checksumsDBConfig* config,
+                   std::string templateFileName = "HCAL_TRIG_PRIM_LOOKUP_TABLE.checksums.template");
+
+  int createLoader(const std::vector<int>& crate_number, const std::vector<std::string>& file_name);
+
+private:
+  XMLLUTLoader(const XMLLUTLoader&) = delete;  // stop default
+
+  const XMLLUTLoader& operator=(const XMLLUTLoader&) = delete;  // stop default
+};
 
 #endif

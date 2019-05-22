@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 import six
 
-process = cms.Process("SIM",eras.Phase2C2)
+from Configuration.Eras.Era_Phase2_cff import Phase2
+process = cms.Process("SIM",Phase2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

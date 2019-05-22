@@ -1,3 +1,4 @@
+from builtins import range
 import logging
 import os.path
 
@@ -20,7 +21,7 @@ def all(container):
   if hasattr(container,'GetEntries'):
     try:
       entries = container.GetEntries()
-      for entry in xrange(entries):
+      for entry in range(entries):
         yield entry
     except:
         raise cmserror("Looping of %s failed" %container) 
@@ -31,7 +32,7 @@ def all(container):
       container = container.ids()
     try:
       entries = container.size()
-      for entry in xrange(entries):
+      for entry in range(entries):
         yield container[entry]
     except:
       pass
@@ -204,7 +205,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                 split_typestring=typestring.split(" ")
                 templates=0
                 end_typestring=0
-                for i in reversed(range(len(split_typestring))):
+                for i in reversed(list(range(len(split_typestring)))):
                     templates+=split_typestring[i].count("<")
                     templates-=split_typestring[i].count(">")
                     if templates==0:

@@ -11,11 +11,7 @@ L1TTriggerTowerConfig_etaphi = cms.PSet(readMappingFile=cms.bool(False),
                                         binsEta=cms.vdouble(),
                                         binsPhi=cms.vdouble())
 
-towerMap2D_parValues = cms.PSet( #nEtaBins = cms.int32(18),
-                                 #nPhiBins = cms.int32(72),
-                                 #etaBins = cms.vdouble(),
-                                 #phiBins = cms.vdouble(),
-                                 useLayerWeights = cms.bool(False),
+towerMap2D_parValues = cms.PSet( useLayerWeights = cms.bool(False),
                                  layerWeights = cms.vdouble(),
                                  L1TTriggerTowerConfig = L1TTriggerTowerConfig_etaphi
 )

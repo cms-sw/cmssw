@@ -26,25 +26,22 @@ class DDLElementRegistry;
  *  This is the Vector container
  *
  */
-class DDLVector final : public DDXMLElement
-{
+class DDLVector final : public DDXMLElement {
+public:
+  DDLVector(DDLElementRegistry* myreg);
 
- public:
-
-  DDLVector( DDLElementRegistry* myreg );
-
-  void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
+  void preProcessElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
   void clearall();
 
-  ReadMapType<std::vector<double> >  & getMapOfVectors();
-  ReadMapType<std::vector<std::string> >  & getMapOfStrVectors();
+  ReadMapType<std::vector<double> >& getMapOfVectors();
+  ReadMapType<std::vector<std::string> >& getMapOfStrVectors();
 
- private:
+private:
   std::vector<double> pVector;
   std::vector<std::string> pStrVector;
-  ReadMapType< std::vector<double> > pVecMap;
-  ReadMapType< std::vector<std::string> > pStrVecMap;
+  ReadMapType<std::vector<double> > pVecMap;
+  ReadMapType<std::vector<std::string> > pStrVecMap;
   std::string pNameSpace;
   void errorOut(const char* str) const;
   void do_makeDouble(char const* str, char const* end);

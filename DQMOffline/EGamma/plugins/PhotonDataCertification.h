@@ -4,7 +4,6 @@
 // system include files
 #include <memory>
 
-
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 //
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -20,7 +19,6 @@
 #include "TProfile.h"
 //
 
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -31,7 +29,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
 
 // forward declarations
 class TFile;
@@ -45,25 +42,21 @@ class TTree;
 //
 
 class PhotonDataCertification : public DQMEDHarvester {
-
 public:
   explicit PhotonDataCertification(const edm::ParameterSet& pset);
   ~PhotonDataCertification() override;
 
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;  //performed in the endJob
 
 private:
-
   edm::ParameterSet parameters_;
 
   bool verbose_;
   MonitorElement* reportSummary_;
   MonitorElement* reportSummaryMap_;
-  float invMassZtest(std::string path, TString name, DQMStore::IGetter &);
+  float invMassZtest(std::string path, TString name, DQMStore::IGetter&);
 
-
- // ----------member data ---------------------------
+  // ----------member data ---------------------------
 };
-
 
 #endif

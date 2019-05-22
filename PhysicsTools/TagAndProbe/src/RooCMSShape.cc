@@ -22,7 +22,7 @@
 
 #include "PhysicsTools/TagAndProbe/interface/RooCMSShape.h"
 
-ClassImp(RooCMSShape) 
+ClassImp(RooCMSShape); 
 
  RooCMSShape::RooCMSShape(const char *name, const char *title, 
                         RooAbsReal& _x,

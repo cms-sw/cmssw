@@ -139,7 +139,7 @@ for (auto const & tm : theTraj->measurements()) {
   if(0) std::cout << "h " << kk << ": "<< hit.localPosition() << ' ' << hit.localPositionError() << ' ' << tm.estimate() << std::endl;
   if ( hit.dimension()!=2 ) {
     ++chit[2];
-  } else {
+  } else if ( trackerHitRTTI::isFromDet(hit) ) {
     auto const & thit = static_cast<BaseTrackerRecHit const&>(hit);
     auto const & clus = thit.firstClusterRef();
     if (clus.isPixel()) ++chit[3];

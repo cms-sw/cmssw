@@ -17,14 +17,12 @@
 
 using namespace edm;
 
-class TestIndexIntoFile5: public CppUnit::TestFixture
-{
-  CPPUNIT_TEST_SUITE(TestIndexIntoFile5);  
+class TestIndexIntoFile5 : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(TestIndexIntoFile5);
   CPPUNIT_TEST(testDuplicateCheckerFunctions);
   CPPUNIT_TEST_SUITE_END();
-  
-public:
 
+public:
   static const IndexIntoFile::EntryType kRun = IndexIntoFile::kRun;
   static const IndexIntoFile::EntryType kLumi = IndexIntoFile::kLumi;
   static const IndexIntoFile::EntryType kEvent = IndexIntoFile::kEvent;
@@ -32,10 +30,7 @@ public:
 
   class Skipped {
   public:
-    Skipped(): phIndexOfSkippedEvent_(0),
-               runOfSkippedEvent_(0),
-               lumiOfSkippedEvent_(0),
-               skippedEventEntry_(0) { }
+    Skipped() : phIndexOfSkippedEvent_(0), runOfSkippedEvent_(0), lumiOfSkippedEvent_(0), skippedEventEntry_(0) {}
     int phIndexOfSkippedEvent_;
     RunNumber_t runOfSkippedEvent_;
     LuminosityBlockNumber_t lumiOfSkippedEvent_;
@@ -43,7 +38,7 @@ public:
   };
 
   Skipped skipped_;
-  
+
   void setUp() {
     // Make some fake processHistoryID's to work with
     nullPHID = ProcessHistoryID();
@@ -68,7 +63,7 @@ public:
     fakePHID3 = ph3.id();
   }
 
-  void tearDown() { }
+  void tearDown() {}
 
   void testDuplicateCheckerFunctions();
 
@@ -93,7 +88,7 @@ public:
     virtual EventNumber_t getEventNumberOfEntry(IndexIntoFile::EntryNumber_t entry) const {
       return testData_.at(entry);
     }
-    void push_back(EventNumber_t e) {testData_.push_back(e); }
+    void push_back(EventNumber_t e) { testData_.push_back(e); }
 
   private:
     std::vector<EventNumber_t> testData_;
@@ -104,37 +99,30 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(TestIndexIntoFile5);
 
 void TestIndexIntoFile5::check(edm::IndexIntoFile::IndexIntoFileItr const& iter,
-                              IndexIntoFile::EntryType type,
-                              int indexToRun,
-                              int indexToLumi,
-                              int indexToEventRange,
-                              long long indexToEvent,
-                              long long nEvents) {
-  bool theyMatch = iter.getEntryType() == type &&
-                   iter.type() == type &&
-                   iter.indexToRun() == indexToRun &&
-                   iter.indexToLumi() == indexToLumi &&
-                   iter.indexToEventRange() == indexToEventRange &&
-                   iter.indexToEvent() == indexToEvent &&
-                   iter.nEvents() == nEvents;
+                               IndexIntoFile::EntryType type,
+                               int indexToRun,
+                               int indexToLumi,
+                               int indexToEventRange,
+                               long long indexToEvent,
+                               long long nEvents) {
+  bool theyMatch = iter.getEntryType() == type && iter.type() == type && iter.indexToRun() == indexToRun &&
+                   iter.indexToLumi() == indexToLumi && iter.indexToEventRange() == indexToEventRange &&
+                   iter.indexToEvent() == indexToEvent && iter.nEvents() == nEvents;
   if (!theyMatch) {
-    std::cout << "\nExpected        " << type << "  " << indexToRun << "  "
-              << indexToLumi << "  " << indexToEventRange << "  " << indexToEvent
-              << "  " << nEvents << "\n";
-    std::cout << "Iterator values " << iter.type() << "  " << iter.indexToRun() << "  "
-              << iter.indexToLumi() << "  " << iter.indexToEventRange() << "  " << iter.indexToEvent()
-              << "  " << iter.nEvents() << "\n";
+    std::cout << "\nExpected        " << type << "  " << indexToRun << "  " << indexToLumi << "  " << indexToEventRange
+              << "  " << indexToEvent << "  " << nEvents << "\n";
+    std::cout << "Iterator values " << iter.type() << "  " << iter.indexToRun() << "  " << iter.indexToLumi() << "  "
+              << iter.indexToEventRange() << "  " << iter.indexToEvent() << "  " << iter.nEvents() << "\n";
   }
   CPPUNIT_ASSERT(theyMatch);
 }
 
 void TestIndexIntoFile5::testDuplicateCheckerFunctions() {
-
   std::set<IndexIntoFile::IndexRunLumiEventKey> relevantPreviousEvents;
 
   edm::IndexIntoFile indexIntoFile1;
-  indexIntoFile1.addEntry(fakePHID1, 6, 1, 0, 0); // Lumi
-  indexIntoFile1.addEntry(fakePHID1, 6, 0, 0, 0); // Run
+  indexIntoFile1.addEntry(fakePHID1, 6, 1, 0, 0);  // Lumi
+  indexIntoFile1.addEntry(fakePHID1, 6, 0, 0, 0);  // Run
   indexIntoFile1.sortVector_Run_Or_Lumi_Entries();
 
   //Empty Index
@@ -149,7 +137,7 @@ void TestIndexIntoFile5::testDuplicateCheckerFunctions() {
 
   // Run ranges do not overlap
   edm::IndexIntoFile indexIntoFile3;
-  indexIntoFile3.addEntry(fakePHID1, 7, 0, 0, 0); // Run
+  indexIntoFile3.addEntry(fakePHID1, 7, 0, 0, 0);  // Run
   indexIntoFile3.sortVector_Run_Or_Lumi_Entries();
 
   relevantPreviousEvents.clear();
@@ -162,8 +150,8 @@ void TestIndexIntoFile5::testDuplicateCheckerFunctions() {
 
   // No lumis
   edm::IndexIntoFile indexIntoFile4;
-  indexIntoFile4.addEntry(fakePHID1, 6, 0, 0, 0); // Run
-  indexIntoFile4.addEntry(fakePHID1, 7, 0, 0, 0); // Run
+  indexIntoFile4.addEntry(fakePHID1, 6, 0, 0, 0);  // Run
+  indexIntoFile4.addEntry(fakePHID1, 7, 0, 0, 0);  // Run
   indexIntoFile4.sortVector_Run_Or_Lumi_Entries();
 
   relevantPreviousEvents.clear();
@@ -176,9 +164,9 @@ void TestIndexIntoFile5::testDuplicateCheckerFunctions() {
 
   // Lumi ranges do not overlap
   edm::IndexIntoFile indexIntoFile5;
-  indexIntoFile5.addEntry(fakePHID1, 6, 2, 0, 0); // Lumi
-  indexIntoFile5.addEntry(fakePHID1, 6, 0, 0, 0); // Run
-  indexIntoFile5.addEntry(fakePHID1, 6, 0, 0, 0); // Run
+  indexIntoFile5.addEntry(fakePHID1, 6, 2, 0, 0);  // Lumi
+  indexIntoFile5.addEntry(fakePHID1, 6, 0, 0, 0);  // Run
+  indexIntoFile5.addEntry(fakePHID1, 6, 0, 0, 0);  // Run
   indexIntoFile5.sortVector_Run_Or_Lumi_Entries();
 
   relevantPreviousEvents.clear();
@@ -189,64 +177,63 @@ void TestIndexIntoFile5::testDuplicateCheckerFunctions() {
   indexIntoFile5.set_intersection(indexIntoFile1, relevantPreviousEvents);
   CPPUNIT_ASSERT(relevantPreviousEvents.empty());
 
-
   for (int j = 0; j < 2; ++j) {
     edm::IndexIntoFile indexIntoFile11;
-    indexIntoFile11.addEntry(fakePHID1, 6, 2, 0, 0); // Lumi
-    indexIntoFile11.addEntry(fakePHID1, 6, 3, 0, 1); // Lumi
-    indexIntoFile11.addEntry(fakePHID1, 6, 3, 0, 2); // Lumi
-    indexIntoFile11.addEntry(fakePHID1, 6, 0, 0, 0); // Run
-    indexIntoFile11.addEntry(fakePHID1, 6, 0, 0, 1); // Run
-    indexIntoFile11.addEntry(fakePHID1, 7, 1, 1, 0); // Event
-    indexIntoFile11.addEntry(fakePHID1, 7, 1, 2, 1); // Event
-    indexIntoFile11.addEntry(fakePHID1, 7, 1, 3, 2); // Event
-    indexIntoFile11.addEntry(fakePHID1, 7, 1, 4, 3); // Event
-    indexIntoFile11.addEntry(fakePHID1, 7, 1, 0, 3); // Lumi
-    indexIntoFile11.addEntry(fakePHID1, 7, 0, 0, 2); // Run
-    indexIntoFile11.addEntry(fakePHID1, 8, 1, 1, 4); // Event
-    indexIntoFile11.addEntry(fakePHID1, 8, 1, 0, 4); // Lumi
-    indexIntoFile11.addEntry(fakePHID1, 8, 0, 0, 3); // Run
-    indexIntoFile11.addEntry(fakePHID1, 8, 1, 2, 5); // Event
-    indexIntoFile11.addEntry(fakePHID1, 8, 1, 0, 5); // Lumi
-    indexIntoFile11.addEntry(fakePHID1, 8, 0, 0, 4); // Run
+    indexIntoFile11.addEntry(fakePHID1, 6, 2, 0, 0);  // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 6, 3, 0, 1);  // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 6, 3, 0, 2);  // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 6, 0, 0, 0);  // Run
+    indexIntoFile11.addEntry(fakePHID1, 6, 0, 0, 1);  // Run
+    indexIntoFile11.addEntry(fakePHID1, 7, 1, 1, 0);  // Event
+    indexIntoFile11.addEntry(fakePHID1, 7, 1, 2, 1);  // Event
+    indexIntoFile11.addEntry(fakePHID1, 7, 1, 3, 2);  // Event
+    indexIntoFile11.addEntry(fakePHID1, 7, 1, 4, 3);  // Event
+    indexIntoFile11.addEntry(fakePHID1, 7, 1, 0, 3);  // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 7, 0, 0, 2);  // Run
+    indexIntoFile11.addEntry(fakePHID1, 8, 1, 1, 4);  // Event
+    indexIntoFile11.addEntry(fakePHID1, 8, 1, 0, 4);  // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 8, 0, 0, 3);  // Run
+    indexIntoFile11.addEntry(fakePHID1, 8, 1, 2, 5);  // Event
+    indexIntoFile11.addEntry(fakePHID1, 8, 1, 0, 5);  // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 8, 0, 0, 4);  // Run
     indexIntoFile11.sortVector_Run_Or_Lumi_Entries();
-   
+
     edm::IndexIntoFile indexIntoFile12;
-    indexIntoFile12.addEntry(fakePHID1, 6, 1, 0, 0); // Lumi
-    indexIntoFile12.addEntry(fakePHID1, 6, 3, 0, 1); // Lumi
-    indexIntoFile12.addEntry(fakePHID1, 6, 3, 0, 2); // Lumi
-    indexIntoFile12.addEntry(fakePHID1, 6, 0, 0, 0); // Run
-    indexIntoFile12.addEntry(fakePHID1, 6, 0, 0, 1); // Run
-    indexIntoFile12.addEntry(fakePHID1, 7, 1, 1, 0); // Event
-    indexIntoFile12.addEntry(fakePHID1, 7, 1, 7, 1); // Event
-    indexIntoFile12.addEntry(fakePHID1, 7, 1, 3, 2); // Event
-    indexIntoFile12.addEntry(fakePHID1, 7, 1, 8, 3); // Event
-    indexIntoFile12.addEntry(fakePHID1, 7, 1, 0, 3); // Lumi
-    indexIntoFile12.addEntry(fakePHID1, 7, 1, 11, 4); // Event
-    indexIntoFile12.addEntry(fakePHID1, 7, 1, 6, 5); // Event
-    indexIntoFile12.addEntry(fakePHID1, 7, 1, 1, 6); // Event
-    indexIntoFile12.addEntry(fakePHID1, 7, 1, 4, 7); // Event
-    indexIntoFile12.addEntry(fakePHID1, 7, 1, 0, 4); // Lumi
-    indexIntoFile12.addEntry(fakePHID1, 7, 0, 0, 2); // Run
+    indexIntoFile12.addEntry(fakePHID1, 6, 1, 0, 0);   // Lumi
+    indexIntoFile12.addEntry(fakePHID1, 6, 3, 0, 1);   // Lumi
+    indexIntoFile12.addEntry(fakePHID1, 6, 3, 0, 2);   // Lumi
+    indexIntoFile12.addEntry(fakePHID1, 6, 0, 0, 0);   // Run
+    indexIntoFile12.addEntry(fakePHID1, 6, 0, 0, 1);   // Run
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 1, 0);   // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 7, 1);   // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 3, 2);   // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 8, 3);   // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 0, 3);   // Lumi
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 11, 4);  // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 6, 5);   // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 1, 6);   // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 4, 7);   // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 0, 4);   // Lumi
+    indexIntoFile12.addEntry(fakePHID1, 7, 0, 0, 2);   // Run
     indexIntoFile12.sortVector_Run_Or_Lumi_Entries();
 
     edm::IndexIntoFile indexIntoFile22;
-    indexIntoFile22.addEntry(fakePHID1, 6, 1, 0, 0); // Lumi
-    indexIntoFile22.addEntry(fakePHID1, 6, 3, 0, 1); // Lumi
-    indexIntoFile22.addEntry(fakePHID1, 6, 3, 0, 2); // Lumi
-    indexIntoFile22.addEntry(fakePHID1, 6, 0, 0, 0); // Run
-    indexIntoFile22.addEntry(fakePHID1, 6, 0, 0, 1); // Run
-    indexIntoFile22.addEntry(fakePHID1, 7, 1, 11, 0); // Event
-    indexIntoFile22.addEntry(fakePHID1, 7, 1, 7, 1); // Event
-    indexIntoFile22.addEntry(fakePHID1, 7, 1, 3, 2); // Event
-    indexIntoFile22.addEntry(fakePHID1, 7, 1, 8, 3); // Event
-    indexIntoFile22.addEntry(fakePHID1, 7, 1, 0, 3); // Lumi
-    indexIntoFile22.addEntry(fakePHID1, 7, 1, 11, 4); // Event
-    indexIntoFile22.addEntry(fakePHID1, 7, 1, 6, 5); // Event
-    indexIntoFile22.addEntry(fakePHID1, 7, 1, 1, 6); // Event
-    indexIntoFile22.addEntry(fakePHID1, 7, 1, 4, 7); // Event
-    indexIntoFile22.addEntry(fakePHID1, 7, 1, 0, 4); // Lumi
-    indexIntoFile22.addEntry(fakePHID1, 7, 0, 0, 2); // Run
+    indexIntoFile22.addEntry(fakePHID1, 6, 1, 0, 0);   // Lumi
+    indexIntoFile22.addEntry(fakePHID1, 6, 3, 0, 1);   // Lumi
+    indexIntoFile22.addEntry(fakePHID1, 6, 3, 0, 2);   // Lumi
+    indexIntoFile22.addEntry(fakePHID1, 6, 0, 0, 0);   // Run
+    indexIntoFile22.addEntry(fakePHID1, 6, 0, 0, 1);   // Run
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 11, 0);  // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 7, 1);   // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 3, 2);   // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 8, 3);   // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 0, 3);   // Lumi
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 11, 4);  // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 6, 5);   // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 1, 6);   // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 4, 7);   // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 0, 4);   // Lumi
+    indexIntoFile22.addEntry(fakePHID1, 7, 0, 0, 2);   // Run
     indexIntoFile22.sortVector_Run_Or_Lumi_Entries();
 
     TestEventFinder* ptr11(new TestEventFinder);
@@ -290,8 +277,7 @@ void TestIndexIntoFile5::testDuplicateCheckerFunctions() {
       indexIntoFile11.fillEventNumbers();
       indexIntoFile12.fillEventNumbers();
       indexIntoFile22.fillEventNumbers();
-    }
-    else {
+    } else {
       indexIntoFile11.fillEventEntries();
       indexIntoFile12.fillEventEntries();
       indexIntoFile22.fillEventEntries();
@@ -313,7 +299,7 @@ void TestIndexIntoFile5::testDuplicateCheckerFunctions() {
     CPPUNIT_ASSERT(iter->event() == 3);
     ++iter;
     CPPUNIT_ASSERT(iter->event() == 4);
-    
+
     relevantPreviousEvents.clear();
     indexIntoFile12.set_intersection(indexIntoFile11, relevantPreviousEvents);
     CPPUNIT_ASSERT(relevantPreviousEvents.size() == 3);
@@ -326,6 +312,5 @@ void TestIndexIntoFile5::testDuplicateCheckerFunctions() {
     CPPUNIT_ASSERT(iter->event() == 3);
     ++iter;
     CPPUNIT_ASSERT(iter->event() == 4);
-    
   }
 }

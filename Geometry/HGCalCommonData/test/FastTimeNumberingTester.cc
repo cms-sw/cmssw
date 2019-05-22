@@ -2,8 +2,9 @@
 //
 // Package:    FastTimeNumberingTester
 // Class:      FastTimeNumberingTester
-// 
-/**\class FastTimeNumberingTester FastTimeNumberingTester.cc test/FastTimeNumberingTester.cc
+//
+/**\class FastTimeNumberingTester FastTimeNumberingTester.cc
+ test/FastTimeNumberingTester.cc
 
  Description: <one line class summary>
 
@@ -20,9 +21,9 @@
 //#define EDM_ML_DEBUG
 
 // system include files
-#include <memory>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -30,59 +31,59 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/ForwardDetId/interface/FastTimeDetId.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/HGCalCommonData/interface/FastTimeDDDConstants.h"
-#include "DataFormats/ForwardDetId/interface/FastTimeDetId.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class FastTimeNumberingTester : public edm::one::EDAnalyzer<> {
-public:
-  explicit FastTimeNumberingTester( const edm::ParameterSet& );
+ public:
+  explicit FastTimeNumberingTester(const edm::ParameterSet&);
   ~FastTimeNumberingTester() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
+private:
+  edm::ESGetToken<FastTimeDDDConstants, IdealGeometryRecord> token_;
 };
 
-FastTimeNumberingTester::FastTimeNumberingTester(const edm::ParameterSet& ) {}
+FastTimeNumberingTester::FastTimeNumberingTester(const edm::ParameterSet&):
+  token_{esConsumes<FastTimeDDDConstants, IdealGeometryRecord>(edm::ESInputTag{})}
+ {}
 
 FastTimeNumberingTester::~FastTimeNumberingTester() {}
 
 // ------------ method called to produce the data  ------------
-void FastTimeNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
-  
-  edm::ESHandle<FastTimeDDDConstants> pFTNDC;
-
-  iSetup.get<IdealGeometryRecord>().get(pFTNDC);
-  const FastTimeDDDConstants fTnDC(*pFTNDC);
+void FastTimeNumberingTester::analyze(const edm::Event& iEvent,
+                                      const edm::EventSetup& iSetup) {
+  const FastTimeDDDConstants& fTnDC = iSetup.getData(token_);
   std::cout << "Fast timing device with " << fTnDC.getCells(1) << ":"
-	    << fTnDC.getCells(2) << " cells" << " for barrel and endcap\n";
-  for (int type=1; type<=2; ++type) {
-    for (int ix=0; ix<400; ++ix) {
-      for (int iy=0; iy<400; ++iy) {
-	if (fTnDC.isValidXY(type,ix,iy)) {
-	  FastTimeDetId id1(type,ix,iy,1), id2(type,ix,iy,-1);
-	  std::cout << "Valid ID " << id1 << " and " << id2 << std::endl;
-	} else {
+            << fTnDC.getCells(2) << " cells"
+            << " for barrel and endcap\n";
+  for (int type = 1; type <= 2; ++type) {
+    for (int ix = 0; ix < 400; ++ix) {
+      for (int iy = 0; iy < 400; ++iy) {
+        if (fTnDC.isValidXY(type, ix, iy)) {
+          FastTimeDetId id1(type, ix, iy, 1), id2(type, ix, iy, -1);
+          std::cout << "Valid ID " << id1 << " and " << id2 << std::endl;
+        } else {
 #ifdef EDM_ML_DEBUG
-	  std::cout << "ix = " << ix << ", iy = " << iy << " is not valid for "
-		    << "FastTime type " << type << std::endl;
+          std::cout << "ix = " << ix << ", iy = " << iy << " is not valid for "
+                    << "FastTime type " << type << std::endl;
 #endif
-	}
-	iy += 9;
+        }
+        iy += 9;
       }
       ix += 9;
     }
   }
 }
 
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_MODULE(FastTimeNumberingTester);

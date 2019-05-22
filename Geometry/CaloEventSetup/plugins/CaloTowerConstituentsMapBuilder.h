@@ -23,10 +23,13 @@
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
+#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 namespace edm {
@@ -50,6 +53,9 @@ public:
 private:
   void parseTextMap(const std::string& filename,CaloTowerConstituentsMap& theMap);
   void assignEEtoHE(const CaloGeometry* geometry, CaloTowerConstituentsMap& theMap, const CaloTowerTopology * cttopo);
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcaltopoToken_;
+  edm::ESGetToken<CaloTowerTopology, HcalRecNumberingRecord> cttopoToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
   std::string mapFile_;
   bool mapAuto_, skipHE_;
 };

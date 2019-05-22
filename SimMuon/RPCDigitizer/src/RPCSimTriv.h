@@ -16,20 +16,16 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class RPCSimTriv : public RPCSim
-{
- public:
+class RPCSimTriv : public RPCSim {
+public:
   RPCSimTriv(const edm::ParameterSet& config);
   ~RPCSimTriv() override;
 
-  void simulate(const RPCRoll* roll,
-		const edm::PSimHitContainer& rpcHits,
-                CLHEP::HepRandomEngine*) override;
+  void simulate(const RPCRoll* roll, const edm::PSimHitContainer& rpcHits, CLHEP::HepRandomEngine*) override;
 
-  void simulateNoise(const RPCRoll*,
-                     CLHEP::HepRandomEngine*) override;
+  void simulateNoise(const RPCRoll*, CLHEP::HepRandomEngine*) override;
 
- private:
+private:
   void init() override{};
 
   RPCSynchronizer* _rpcSync;

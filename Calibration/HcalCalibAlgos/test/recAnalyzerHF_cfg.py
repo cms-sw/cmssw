@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('recHitHF',eras.Run2_25ns)
+from Configuration.Eras.Era_Run2_25ns_cff import Run2_25ns
+process = cms.Process('recHitHF',Run2_25ns)
 process.load('Calibration.HcalCalibAlgos.recAnalyzerHF_cfi')
 process.load("FWCore.MessageService.MessageLogger_cfi")
 

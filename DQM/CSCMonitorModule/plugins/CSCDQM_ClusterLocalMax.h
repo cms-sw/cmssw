@@ -10,17 +10,15 @@ namespace cscdqm {
    * @brief Local Maximum of the Cluster
    */
   class ClusterLocalMax {
+  public:
+    int Time;
+    int Strip;
 
-    public:
-      int Time;
-      int Strip;
-
-      ClusterLocalMax();
-      virtual ~ClusterLocalMax();
-      // ClassDef(ClusterLocalMax,1) //ClusterLocalMax
-
+    ClusterLocalMax();
+    virtual ~ClusterLocalMax();
+    // ClassDef(ClusterLocalMax,1) //ClusterLocalMax
   };
 
-}
+}  // namespace cscdqm
 
 #endif

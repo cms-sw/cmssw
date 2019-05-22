@@ -8,8 +8,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -23,13 +21,12 @@ public:
   explicit FastTimeGeometryTester(const edm::ParameterSet& );
   ~FastTimeGeometryTester() override;
 
-  void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}
   
 private:
   void doTest(const FastTimeGeometry* geom, ForwardSubdetector subdet);
-  
+
+  edm::ESGetToken<FastTimeGeometry, IdealGeometryRecord> geomToken_;
   std::string    name_;
   int            type_;
 };
@@ -37,6 +34,7 @@ private:
 FastTimeGeometryTester::FastTimeGeometryTester(const edm::ParameterSet& iC) {
   name_ = iC.getParameter<std::string>("Detector");
   type_ = (name_ == "FastTimeBarrel") ? 1 : 2;
+  geomToken_ = esConsumes<FastTimeGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_});
 }
 
 
@@ -47,13 +45,10 @@ void FastTimeGeometryTester::analyze(const edm::Event& ,
 
   ForwardSubdetector subdet = FastTime;
 
-  edm::ESHandle<FastTimeGeometry> geomH;
-  iSetup.get<IdealGeometryRecord>().get(name_,geomH);
-  const FastTimeGeometry* geom = (geomH.product());
+  const auto& geomR = iSetup.getData(geomToken_);
+  const FastTimeGeometry* geom = &geomR;
 
-  if (geomH.isValid()) doTest(geom, subdet);
-  else                 std::cout << "Cannot get valid FastTimeGeometry Object "
-				 << "for " << name_ << std::endl;
+  doTest(geom, subdet);
 }
 
 void FastTimeGeometryTester::doTest(const FastTimeGeometry* geom, 

@@ -4,15 +4,6 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 
-
-
-
-SeedGeneratorFromRegionHits::SeedGeneratorFromRegionHits(
-    OrderedHitsGenerator *ohg, SeedComparitor* asc, SeedCreator* asp)
-  : theHitsGenerator(ohg), theComparitor(asc), theSeedCreator(asp)
-{ }
-
-
 void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection, 
     const TrackingRegion & region, const edm::Event& ev, const edm::EventSetup& es)
 {

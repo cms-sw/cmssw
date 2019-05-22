@@ -8,10 +8,8 @@
  * Ported from ORCA, factored out of CSCSectorReceiverLUT
  */
 
-class CSCFrontRearLUT
-{
- public:
-  
+class CSCFrontRearLUT {
+public:
   /**
    * This is a function which uses the variables to return the front/rear bit.
    * The calculation is done by considering how the chambers overlap each other.

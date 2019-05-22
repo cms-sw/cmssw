@@ -156,15 +156,6 @@ void L1TEfficiencyHarvesting::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
   }
 }
 
-//_____________________________________________________________________
-void L1TEfficiencyHarvesting::dqmEndLuminosityBlock(DQMStore::IGetter &igetter, LuminosityBlock const& lumiBlock,
-    EventSetup const& c)
-{
-  if (verbose_) {
-    edm::LogInfo("L1TEfficiencyHarvesting") << "Called endLuminosityBlock at LS=" << lumiBlock.id().luminosityBlock()
-        << endl;
-  }
-}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE (L1TEfficiencyHarvesting);

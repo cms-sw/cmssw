@@ -319,6 +319,7 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
     hMET_2      = ibooker.book1D("MET_2",      "MET Range 2",200,    0, 2000);
     hSumET      = ibooker.book1D("SumET",      "SumET",      400,    0, 4000);
     hMETSig     = ibooker.book1D("METSig",     "METSig",      51,    0,   51);
+    hMETSig->setLumiFlag();
     hMETPhi     = ibooker.book1D("METPhi",     "METPhi",      60, -M_PI,  M_PI);
     hMET_logx   = ibooker.book1D("MET_logx",   "MET_logx",    40,   -1,    9);
     hSumET_logx = ibooker.book1D("SumET_logx", "SumET_logx",  40,   -1,    9);
@@ -1771,7 +1772,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
     myLuminosityBlock = iEvent.luminosityBlock();
     //
     
-    if (subFolderName!=""){
+    if (!subFolderName.empty()){
       DirName = DirName +"/"+subFolderName;
     }
     

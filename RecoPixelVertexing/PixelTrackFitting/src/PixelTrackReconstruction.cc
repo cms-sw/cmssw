@@ -70,7 +70,7 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
       for (unsigned int iHit = 0; iHit < nHits; ++iHit) hits[iHit] = tuplet[iHit];
 
       // fitting
-      std::unique_ptr<reco::Track> track = fitter.run(hits, region);
+      std::unique_ptr<reco::Track> track = fitter.run(hits, region, es);
       if (!track) continue;
 
       if (filter) {

@@ -14,20 +14,24 @@
 #include <memory>
 
 class HcalTestHistoClass {
-
-public: 
-
-  HcalTestHistoClass(int i)     {}
+public:
+  HcalTestHistoClass(int i) {}
   explicit HcalTestHistoClass() {}
   virtual ~HcalTestHistoClass() {}
 
   void setCounters();
-  void fillLayers (double el[], double ho, double hbhe, double muxy[]);
-  void fillHits   (std::vector<CaloHit>&);
-  void fillQie    (int id, double esimtot, double eqietot, int nGroup,
-		   const std::vector<double>& longs,  const std::vector<double>& longq,
-		   int nTower, const std::vector<double>& latphi, 
-		   const std::vector<double>& latfs, const std::vector<double>& latfq);
+  void fillLayers(double el[], double ho, double hbhe, double muxy[]);
+  void fillHits(std::vector<CaloHit>&);
+  void fillQie(int id,
+               double esimtot,
+               double eqietot,
+               int nGroup,
+               const std::vector<double>& longs,
+               const std::vector<double>& longq,
+               int nTower,
+               const std::vector<double>& latphi,
+               const std::vector<double>& latfs,
+               const std::vector<double>& latfq);
 
   struct Layer {
     Layer() {}
@@ -37,8 +41,8 @@ public:
 
   struct Hit {
     Hit() {}
-    int   layer;
-    int   id;
+    int layer;
+    int id;
     float eta;
     float phi;
     float e;
@@ -50,25 +54,23 @@ public:
     QIE() {}
     float sim;
     float qie;
-    int   id;
+    int id;
     std::vector<float> lats, latq;
     std::vector<float> lngs, lngq;
-    std::vector<int>   tow;
+    std::vector<int> tow;
   };
 
 private:
-
-  const static int   nLayersMAX = 20;
-  int                nLayers;
+  const static int nLayersMAX = 20;
+  int nLayers;
   std::vector<Layer> layers;
-  float              eHO, eHBHE;
- 
-  int                nHits; 
-  std::vector<Hit>   hits;
+  float eHO, eHBHE;
 
-  int                nQIE, nTowerQIE, nGroupQIE;
-  std::vector<QIE>   qie;
+  int nHits;
+  std::vector<Hit> hits;
 
+  int nQIE, nTowerQIE, nGroupQIE;
+  std::vector<QIE> qie;
 };
 
 #endif

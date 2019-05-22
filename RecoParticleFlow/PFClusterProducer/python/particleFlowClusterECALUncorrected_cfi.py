@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 
-from particleFlowCaloResolution_cfi import _timeResolutionECALBarrel, _timeResolutionECALEndcap
+from .particleFlowCaloResolution_cfi import _timeResolutionECALBarrel, _timeResolutionECALEndcap
 
 #### PF CLUSTER ECAL ####
 

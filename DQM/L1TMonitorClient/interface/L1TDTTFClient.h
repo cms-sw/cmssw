@@ -17,34 +17,31 @@ class TH1F;
 class TH2F;
 class MonitorElement;
 
-
-class L1TDTTFClient: public DQMEDHarvester {
-
+class L1TDTTFClient : public DQMEDHarvester {
 public:
-
   /// Constructor
   L1TDTTFClient(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   ~L1TDTTFClient() override;
- 
+
 protected:
+  void dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
+                             DQMStore::IGetter&,
+                             edm::LuminosityBlock const&,
+                             edm::EventSetup const&) override;      //performed in the endLumi
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;  //performed in the endJob
 
-  void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) override;  //performed in the endLumi
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
-
-  void book(DQMStore::IBooker &ibooker);
-
+  void book(DQMStore::IBooker& ibooker);
 
 private:
-  
   std::string l1tdttffolder_;
   edm::InputTag dttfSource_;
   bool online_;
   bool verbose_;
   int resetafterlumi_;
-  int counterLS_;      ///counter
-  TH2F * occupancy_r_;
+  int counterLS_;  ///counter
+  TH2F* occupancy_r_;
 
   std::string wheel_[6];
   std::string wheelpath_[6];
@@ -102,71 +99,62 @@ private:
   MonitorElement* dttf_bx_wheel_summary_2ndTrack[6];
   MonitorElement* dttf_bx_wheel_integ_2ndTrack[6];
 
-  TH1F * getTH1F(DQMStore::IGetter &igetter, const char * hname);
-  TH2F * getTH2F(DQMStore::IGetter &igetter, const char * hname);
+  TH1F* getTH1F(DQMStore::IGetter& igetter, const char* hname);
+  TH2F* getTH2F(DQMStore::IGetter& igetter, const char* hname);
 
-  void setMapLabel(MonitorElement *me);
+  void setMapLabel(MonitorElement* me);
 
-  void buildHighQualityPlot( DQMStore::IGetter &igetter,TH2F * occupancySummary,
-			     MonitorElement * highQual_Summary,
-			     const std::string & path );
+  void buildHighQualityPlot(DQMStore::IGetter& igetter,
+                            TH2F* occupancySummary,
+                            MonitorElement* highQual_Summary,
+                            const std::string& path);
 
-  void buildPhiEtaPlotOFC( DQMStore::IGetter &igetter,
-			   MonitorElement * phi_eta_fine_integ,
-			   MonitorElement * phi_eta_coarse_integ,
-			   MonitorElement * phi_eta_integ,
-			   const std::string & path_fine,
-			   const std::string & path_coarse,
-			   int wh );
+  void buildPhiEtaPlotOFC(DQMStore::IGetter& igetter,
+                          MonitorElement* phi_eta_fine_integ,
+                          MonitorElement* phi_eta_coarse_integ,
+                          MonitorElement* phi_eta_integ,
+                          const std::string& path_fine,
+                          const std::string& path_coarse,
+                          int wh);
 
-  void buildPhiEtaPlotO( DQMStore::IGetter &igetter,
-			 MonitorElement * phi_eta_integ,
-			 const std::string & path,
-			 int wh );
+  void buildPhiEtaPlotO(DQMStore::IGetter& igetter, MonitorElement* phi_eta_integ, const std::string& path, int wh);
 
-/*  void buildPhiEtaPlot( MonitorElement * phi_eta_integ, */
-/* 			const std::string & path, */
-/* 			int wh ); */
+  /*  void buildPhiEtaPlot( MonitorElement * phi_eta_integ, */
+  /* 			const std::string & path, */
+  /* 			int wh ); */
 
-/*   void buildPhiEtaPlotFC( MonitorElement * phi_eta_fine_integ, */
-/* 			  MonitorElement * phi_eta_coarse_integ, */
-/* 			  MonitorElement * phi_eta_integ, */
-/* 			  const std::string & path_fine, */
-/* 			  const std::string & path_coarse, */
-/* 			  int wh ); */
+  /*   void buildPhiEtaPlotFC( MonitorElement * phi_eta_fine_integ, */
+  /* 			  MonitorElement * phi_eta_coarse_integ, */
+  /* 			  MonitorElement * phi_eta_integ, */
+  /* 			  const std::string & path_fine, */
+  /* 			  const std::string & path_coarse, */
+  /* 			  int wh ); */
 
-  void makeSummary(DQMStore::IGetter &igetter);
-  void buildSummaries(DQMStore::IGetter &igetter);
-  void setGMTsummary(DQMStore::IGetter &igetter);
+  void makeSummary(DQMStore::IGetter& igetter);
+  void buildSummaries(DQMStore::IGetter& igetter);
+  void setGMTsummary(DQMStore::IGetter& igetter);
 
-  void setWheelLabel(MonitorElement *me);
-  void setQualLabel(MonitorElement *me, int axis);
+  void setWheelLabel(MonitorElement* me);
+  void setQualLabel(MonitorElement* me, int axis);
 
-  template<typename T>
-    void normalize( T * me )
-    {
-      double scale = me->Integral();
-      if ( scale > 0 ) {
-	normalize( me, 1./scale, scale );
-      }
+  template <typename T>
+  void normalize(T* me) {
+    double scale = me->Integral();
+    if (scale > 0) {
+      normalize(me, 1. / scale, scale);
     }
+  }
 
-  template<typename T>
-    void normalize( T * me, const double & scale )
-    {
-      normalize( me, scale, me->Integral() );
-    }
+  template <typename T>
+  void normalize(T* me, const double& scale) {
+    normalize(me, scale, me->Integral());
+  }
 
-
-  template<typename T>
-    void normalize( T * me, const double & scale, const double & entries )
-    {
-      me->SetEntries( entries );
-      me->Scale( scale );
-    }
-
-
-
+  template <typename T>
+  void normalize(T* me, const double& scale, const double& entries) {
+    me->SetEntries(entries);
+    me->Scale(scale);
+  }
 };
 
 #endif

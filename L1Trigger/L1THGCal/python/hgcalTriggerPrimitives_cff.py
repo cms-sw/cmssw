@@ -1,18 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.L1THGCal.hgcalTriggerGeometryESProducer_cfi import *
-from L1Trigger.L1THGCal.hgcalVFEProducer_cfi import *
-from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import *
-from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import *
-from L1Trigger.L1THGCal.hgcalBackEndLayer2Producer_cfi import *
-from L1Trigger.L1THGCal.hgcalTowerMapProducer_cfi import *
-from L1Trigger.L1THGCal.hgcalTowerProducer_cfi import *
+from L1Trigger.L1THGCal.hgcalVFE_cff import *
+from L1Trigger.L1THGCal.hgcalConcentrator_cff import *
+from L1Trigger.L1THGCal.hgcalBackEndLayer1_cff import *
+from L1Trigger.L1THGCal.hgcalBackEndLayer2_cff import *
+from L1Trigger.L1THGCal.hgcalTowerMap_cff import *
+from L1Trigger.L1THGCal.hgcalTower_cff import *
 
 
-hgcalTriggerPrimitives = cms.Sequence(hgcalVFEProducer*hgcalConcentratorProducer*hgcalBackEndLayer1Producer*hgcalBackEndLayer2Producer*hgcalTowerMapProducer*hgcalTowerProducer)
+hgcalTriggerPrimitivesTask = cms.Task(hgcalVFE, hgcalConcentrator, hgcalBackEndLayer1, hgcalBackEndLayer2, hgcalTowerMap, hgcalTower)
+hgcalTriggerPrimitives = cms.Sequence(hgcalTriggerPrimitivesTask)
 
 from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V9
+from L1Trigger.L1THGCal.customCalibration import  custom_cluster_calibration_global
 modifyHgcalTriggerPrimitivesWithV9Geometry_ = phase2_hgcalV9.makeProcessModifier(custom_geometry_V9)
 
 from Configuration.ProcessModifiers.convertHGCalDigisSim_cff import convertHGCalDigisSim
@@ -21,5 +23,5 @@ from Configuration.ProcessModifiers.convertHGCalDigisSim_cff import convertHGCal
 def _fakeHGCalDigiAlias(process):
 	from EventFilter.HGCalRawToDigi.HGCDigiConverter_cfi import HGCDigiConverter as _HGCDigiConverter
 	process.simHGCalUnsuppressedDigis = _HGCDigiConverter.clone()
-	process.hgcalTriggerPrimitives.insert(0,process.simHGCalUnsuppressedDigis)
+	process.hgcalTriggerPrimitivesTask.add(process.simHGCalUnsuppressedDigis)
 doFakeHGCalDigiAlias = convertHGCalDigisSim.makeProcessModifier(_fakeHGCalDigiAlias)

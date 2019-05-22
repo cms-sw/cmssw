@@ -156,8 +156,8 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent,
 	  }
 	} else {
 	  ok = false;
-	  edm::LogVerbatim("HGCalValidation") << "HBHERecHitCollection Handle "
-					      << "does not exist !!!";
+	  edm::LogVerbatim("HGCalValidation") << "HBHERecHitCollection "
+					      << "Handle does not exist !!!";
 	}
       } else {
 	edm::Handle<HGChebRecHitCollection> hbhecoll;
@@ -216,9 +216,10 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent,
     }
   }
   if (ok) fillHitsInfo();
-  edm::LogVerbatim("HGCalValidation") << "Event " << iEvent.id().event()
-				      << " with " << ntot << " total and "
-				      << nused << " used recHits";
+  if (verbosity_>0) 
+    edm::LogVerbatim("HGCalValidation") << "Event " << iEvent.id().event()
+					<< " with " << ntot << " total and "
+					<< nused << " used recHits";
 }
 
 template<class T1, class T2>
@@ -323,7 +324,7 @@ void HGCalRecHitValidation::bookHistograms(DQMStore::IBooker& iB,
     EtaPhi_Minus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 31, -3.0, -1.45, 72, -CLHEP::pi, CLHEP::pi));
       
     histoname.str(""); histoname << "energy_layer_" << ilayer; 
-    energy_.push_back(iB.book1D(histoname.str().c_str(),"energy_",100,0,0.002));
+    energy_.push_back(iB.book1D(histoname.str().c_str(),"energy_",500,0,1));
   }//loop over layers ends here 
 
   histoname.str(""); histoname << "SUMOfRecHitOccupancy_Plus";

@@ -50,7 +50,6 @@
 // Parameter Set:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <vector>
@@ -74,7 +73,7 @@ class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
                           const std::vector<short>& badChannels,
                           edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) override { clusterizeDetUnitT(input, pixDet, tTopo, badChannels, output); }
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
  private:
 

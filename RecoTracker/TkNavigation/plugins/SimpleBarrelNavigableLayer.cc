@@ -3,7 +3,6 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
-#include "TrackingTools/DetLayers/src/DetBelowZ.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
@@ -11,7 +10,6 @@
 #include "TrackingTools/DetLayers/interface/TkLayerLess.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <functional>
 #include <algorithm>
 #include <map>
 #include <cmath>
@@ -204,7 +202,7 @@ void SimpleBarrelNavigableLayer::setInwardLinks(const BDLC& theBarrelv,
 
 
   ConstFDLI middle = find_if( theForwardv.begin(),theForwardv.end(),
-			      not1(DetBelowZ(0)));
+          [](const GeometricSearchDet* a){ return a->position().z() >= 0.0; });
   theInnerLeftForwardLayers=FDLC(theForwardv.begin(),middle);
   theInnerRightForwardLayers=FDLC(middle,theForwardv.end());
 

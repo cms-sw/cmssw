@@ -23,8 +23,7 @@ public:
     cleanBadConvBrems_(conf.existsAs<bool>("cleanBadConvertedBrems") ? conf.getParameter<bool>("cleanBadConvertedBrems") : false),
     debug_(conf.getUntrackedParameter<bool>("debug",false)) {
     
-    pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo());
-    pfmu_->setParameters(conf);
+    pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo(conf));
     
   }
   
@@ -53,17 +52,14 @@ void GeneralTracksImporterWithVeto::
 importToBlock( const edm::Event& e, 
 	       BlockElementImporterBase::ElementList& elems ) const {
   typedef BlockElementImporterBase::ElementList::value_type ElementType;  
-  edm::Handle<reco::PFRecTrackCollection> tracks;
-  e.getByToken(src_,tracks);
-  edm::Handle<reco::PFRecTrackCollection> vetosH;
-  e.getByToken(veto_,vetosH);
+  auto tracks = e.getHandle(src_);
+  auto vetosH = e.getHandle(veto_);
   const auto& vetos = *vetosH;
   std::unordered_set<unsigned> vetoed;
   for(unsigned i = 0; i < vetos.size(); ++i ) {
     vetoed.insert(vetos[i].trackRef().key());
   }
-  edm::Handle<reco::MuonCollection> muons;
-  e.getByToken(muons_,muons);
+  auto muons = e.getHandle(muons_);
   elems.reserve(elems.size() + tracks->size());
   std::vector<bool> mask(tracks->size(),true);
   reco::MuonRef muonref;

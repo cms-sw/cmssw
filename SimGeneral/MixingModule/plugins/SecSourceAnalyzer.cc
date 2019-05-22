@@ -125,7 +125,7 @@ SecSourceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	     << " bunch." << std::endl;
 }
 
-void  SecSourceAnalyzer::getBranches(EventPrincipal const &ep,
+bool  SecSourceAnalyzer::getBranches(EventPrincipal const &ep,
                                      ModuleCallingContext const* mcc)
   { 
     InternalContext internalContext(ep.id(), mcc);
@@ -168,6 +168,7 @@ void  SecSourceAnalyzer::getBranches(EventPrincipal const &ep,
 	
     }
  
+    return true;
   }
 
 

@@ -20,7 +20,8 @@ namespace HcalPhase1FlagLabels
         /*  0 */ HFLongShort = HcalCaloFlagLabels::HFLongShort,
         /*  3 */ HFS8S1Ratio = HcalCaloFlagLabels::HFS8S1Ratio,
         /*  4 */ HFPET = HcalCaloFlagLabels::HFPET,
-        /*  5 */ HFSignalAsymmetry = 5
+        /*  5 */ HFSignalAsymmetry = 5,
+        /*  6 */ HFAnomalousHit = 6
     };
 
     enum CommonFlag {

@@ -17,6 +17,7 @@ RecoEgammaFEVT = cms.PSet(
         'keep *_egmPhotonIDs_*_*',
         'keep *_conversions_*_*',
         'keep *_mustacheConversions_*_*',
+        'keep *_gsfTracksOpenConversions_*_*',
         'drop *_conversions_uncleanedConversions_*',
         'keep *_gedPhotonCore_*_*',
         'keep *_gedPhotonsTmp_*_*',
@@ -40,7 +41,15 @@ RecoEgammaFEVT = cms.PSet(
         'keep *_hfRecoEcalCandidate_*_*',
         'keep *_hfEMClusters_*_*',
         'keep *_gedGsfElectronCores_*_*',
-        'keep *_gedGsfElectrons_*_*'
+        'keep *_gedGsfElectrons_*_*',
+        'keep recoCaloClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep recoGsfElectrons_lowPtGsfElectrons_*_*',
+        'keep recoGsfElectronCores_lowPtGsfElectronCores_*_*',
+        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*',
+        'keep *_lowPtGsfToTrackLinks_*_*',
+        'keep recoSuperClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronID_*_*',
   )                                                                 
 )
 
@@ -73,6 +82,7 @@ RecoEgammaRECO = cms.PSet(
         'keep recoPhotonCores_photonCore_*_*', 
         'keep recoConversions_conversions_*_*',
         'keep recoConversions_mustacheConversions_*_*', 
+        'keep *_gsfTracksOpenConversions_*_*',
         'drop *_conversions_uncleanedConversions_*',
         'drop *_gedPhotonsTmp_valMapPFEgammaCandToPhoton_*',
         'keep recoConversions_allConversions_*_*',
@@ -96,7 +106,15 @@ RecoEgammaRECO = cms.PSet(
         'keep recoRecoEcalCandidates_hfRecoEcalCandidate_*_*',
         'keep *_hfEMClusters_*_*',
         'keep *_gedGsfElectronCores_*_*',
-        'keep *_gedGsfElectrons_*_*'
+        'keep *_gedGsfElectrons_*_*',
+        'keep recoCaloClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep recoGsfElectrons_lowPtGsfElectrons_*_*',
+        'keep recoGsfElectronCores_lowPtGsfElectronCores_*_*',
+        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*',
+        'keep *_lowPtGsfToTrackLinks_*_*',
+        'keep recoSuperClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronID_*_*',
   )                                                                 
 )
 
@@ -127,6 +145,7 @@ RecoEgammaAOD = cms.PSet(
         'keep recoPhotons_ootPhotons_*_*',
         'keep recoConversions_conversions_*_*',
         'keep recoConversions_mustacheConversions_*_*',
+        'keep *_gsfTracksOpenConversions_*_*',
         'drop *_conversions_uncleanedConversions_*',
         'keep recoConversions_allConversions_*_*',
         'keep recoConversions_allConversionsOldEG_*_*',
@@ -141,7 +160,15 @@ RecoEgammaAOD = cms.PSet(
         'keep recoRecoEcalCandidates_hfRecoEcalCandidate_*_*',
         'keep *_hfEMClusters_*_*',
         'keep *_gedGsfElectronCores_*_*',
-        'keep *_gedGsfElectrons_*_*'
+        'keep *_gedGsfElectrons_*_*',
+        'keep recoCaloClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep recoGsfElectrons_lowPtGsfElectrons_*_*',
+        'keep recoGsfElectronCores_lowPtGsfElectronCores_*_*',
+        'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*',
+        'keep *_lowPtGsfToTrackLinks_*_*',
+        'keep recoSuperClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
+        'keep floatedmValueMap_lowPtGsfElectronID_*_*',
   )                                                                 
 )
 

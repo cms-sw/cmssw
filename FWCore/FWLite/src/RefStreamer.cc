@@ -11,4 +11,4 @@ namespace fwlite {
   edm::EDProductGetter const* setRefStreamer(edm::EDProductGetter const* ep) {
     return edm::EDProductGetter::switchProductGetter(ep);
   }
-}
+}  // namespace fwlite

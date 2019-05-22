@@ -829,6 +829,66 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #===================================================================================
         # energy shifts
         #===================================================================================
+        # PFMuons, PFElectrons, PFPhotons, and PFTaus will be used 
+        # to calculate MET Uncertainties.
+        #===================================================================================
+        #--------------
+        # PFElectrons :
+        #--------------
+        pfElectrons = cms.EDFilter("CandPtrSelector",
+                                   src = electronCollection,
+                                   cut = cms.string("pt > 5 && isPF && gsfTrack.isAvailable() && gsfTrack.hitPattern().numberOfLostHits(\'MISSING_INNER_HITS\') < 2")
+                                   )
+        addToProcessAndTask("pfElectrons"+postfix, pfElectrons, process, task)
+        metUncSequence += getattr(process, "pfElectrons"+postfix)
+        #--------------------------------------------------------------------
+        # PFTaus :
+        #---------
+        pfTaus = cms.EDFilter("PATTauRefSelector",
+                              src = tauCollection,
+                              cut = cms.string('pt > 18.0 & abs(eta) < 2.6 & tauID("decayModeFinding") > 0.5 & isPFTau')
+                              )
+        addToProcessAndTask("pfTaus"+postfix, pfTaus, process, task)
+        metUncSequence += getattr(process, "pfTaus"+postfix)
+        #---------------------------------------------------------------------
+        # PFMuons :
+        #----------
+        pfMuons = cms.EDFilter("CandPtrSelector",
+                               src = muonCollection,
+                               cut = cms.string("pt > 5.0 && isPFMuon && abs(eta) < 2.4")
+                               )
+        addToProcessAndTask("pfMuons"+postfix, pfMuons, process, task)
+        metUncSequence += getattr(process, "pfMuons"+postfix)
+        #---------------------------------------------------------------------
+        # PFPhotons :
+        #------------
+        if self._parameters["Puppi"].value or not self._parameters["onMiniAOD"].value:
+            cutforpfNoPileUp = cms.string("")
+        else:
+            cutforpfNoPileUp = cms.string("fromPV > 1")
+
+        pfNoPileUp = cms.EDFilter("CandPtrSelector",
+                                  src = pfCandCollection,
+                                  cut = cutforpfNoPileUp
+                                  )
+        addToProcessAndTask("pfNoPileUp"+postfix, pfNoPileUp, process, task)
+        metUncSequence += getattr(process, "pfNoPileUp"+postfix)
+
+        pfPhotons = cms.EDFilter("CandPtrSelector",
+                                 src = cms.InputTag("pfNoPileUp"+postfix),
+                                 cut = cms.string("abs(pdgId) = 22")
+                                 )
+        addToProcessAndTask("pfPhotons"+postfix, pfPhotons, process, task)
+        metUncSequence += getattr(process, "pfPhotons"+postfix)
+        #-------------------------------------------------------------------------
+        # Collections which have only PF Objects for calculating MET uncertainties
+        #-------------------------------------------------------------------------
+        electronCollection = cms.InputTag("pfElectrons"+postfix)
+        muonCollection     = cms.InputTag("pfMuons"+postfix)
+        tauCollection      = cms.InputTag("pfTaus"+postfix)
+        photonCollection   = cms.InputTag("pfPhotons"+postfix)
+
+        
         objectCollections = { "Jet":jetCollection,
                               "Electron":electronCollection,
                               "Photon":photonCollection,
@@ -993,10 +1053,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             }
 
         getattr(process, "patPFMetTxyCorr"+postfix).parameters = xyTags[corScheme+"_25ns"] 
-        ##for automatic switch to 50ns / 25ns corrections ==> does not work...
-        #from Configuration.StandardSequences.Eras import eras
-        #eras.run2_50ns_specific.toModify( getattr(process, "patPFMetTxyCorr"+postfix) , parameters=xyTags[corScheme+"_50ns"] )
-        #eras.run2_25ns_specific.toModify( getattr(process, "patPFMetTxyCorr"+postfix) , parameters=xyTags[corScheme+"_25ns"] )
 
 
 #====================================================================================================

@@ -300,41 +300,41 @@ bool MillePedeMonitor::init(TDirectory *directory)
                                     51, -TMath::Pi(), TMath::Pi(), 101, -14., 14.));
   
 //   myResidHists2D.push_back(new TProfile2D("residXProfXy",
-// 					  "mean |residuum| (u);x [cm];y [cm];#LT|residuum|#GT",
-// 					  25, -110., 110., 25, -110., 110.));
+//                                        "mean |residuum| (u);x [cm];y [cm];#LT|residuum|#GT",
+//                                        25, -110., 110., 25, -110., 110.));
 //   myResidHists2D.push_back(new TProfile2D("residXProfZr",
-// 					  "mean |residuum| (u);z [cm];r_{#pm} [cm];#LT|residuum|#GT",
-// 					  25, -275., 275., 25, -110., 110.));
+//                                        "mean |residuum| (u);z [cm];r_{#pm} [cm];#LT|residuum|#GT",
+//                                        25, -275., 275., 25, -110., 110.));
 //   myResidHists2D.push_back(new TProfile2D("residYProfXy",
-// 					  "mean |residuum| (v);x [cm];y [cm];#LT|residuum|#GT",
-// 					  25, -110., 110., 25, -110., 110.));
+//                                        "mean |residuum| (v);x [cm];y [cm];#LT|residuum|#GT",
+//                                        25, -110., 110., 25, -110., 110.));
 //   myResidHists2D.push_back(new TProfile2D("residYProfZr",
-// 					  "mean |residuum| (v);z [cm];r_{#pm} [cm];#LT|residuum|#GT",
-// 					  25, -275., 275., 25, -110., 110.));
+//                                        "mean |residuum| (v);z [cm];r_{#pm} [cm];#LT|residuum|#GT",
+//                                        25, -275., 275., 25, -110., 110.));
 //   myResidHists2D.push_back(new TProfile2D("reduResidXProfXy",
-// 					  "mean |residuum/#sigma| (u);x [cm];y [cm];#LT|res./#sigma|#GT",
-// 					  25, -110., 110., 25, -110., 110.));
+//                                        "mean |residuum/#sigma| (u);x [cm];y [cm];#LT|res./#sigma|#GT",
+//                                        25, -110., 110., 25, -110., 110.));
 //   myResidHists2D.push_back(new TProfile2D("reduResidXProfZr",
-// 					  "mean |residuum/#sigma| (u);z [cm];r_{#pm} [cm];#LT|res./#sigma|#GT",
-// 					  25, -275., 275., 25, -110., 110.));
+//                                        "mean |residuum/#sigma| (u);z [cm];r_{#pm} [cm];#LT|res./#sigma|#GT",
+//                                        25, -275., 275., 25, -110., 110.));
 //   myResidHists2D.push_back(new TProfile2D("reduResidYProfXy",
-// 					  "mean |residuum/#sigma| (v);x [cm];y [cm];#LT|res./#sigma|#GT",
-// 					  25, -110., 110., 25, -110., 110.));
+//                                        "mean |residuum/#sigma| (v);x [cm];y [cm];#LT|res./#sigma|#GT",
+//                                        25, -110., 110., 25, -110., 110.));
 //   myResidHists2D.push_back(new TProfile2D("reduResidYProfZr",
-// 					  "mean |residuum/#sigma| (v);z [cm];r_{#pm} [cm];#LT|res./#sigma|#GT",
-// 					  25, -275., 275., 25, -110., 110.));
+//                                        "mean |residuum/#sigma| (v);z [cm];r_{#pm} [cm];#LT|res./#sigma|#GT",
+//                                        25, -275., 275., 25, -110., 110.));
 //   myResidHists2D.push_back(new TProfile2D("sigmaXProfXy",
-// 					  "mean sigma (u);x [cm];y [cm];#LT#sigma#GT",
-// 					  25, -110., 110., 25, -110., 110.));
+//                                        "mean sigma (u);x [cm];y [cm];#LT#sigma#GT",
+//                                        25, -110., 110., 25, -110., 110.));
 //   myResidHists2D.push_back(new TProfile2D("sigmaXProfZr",
-// 					  "mean sigma (u);z [cm];r_{#pm} [cm];#LT#sigma#GT",
-// 					  25, -275., 275., 25, -110., 110.));
+//                                        "mean sigma (u);z [cm];r_{#pm} [cm];#LT#sigma#GT",
+//                                        25, -275., 275., 25, -110., 110.));
 //   myResidHists2D.push_back(new TProfile2D("sigmaYProfXy",
-// 					  "mean sigma (v);x [cm];y [cm];#LT#sigma#GT",
-// 					  25, -110., 110., 25, -110., 110.));
+//                                        "mean sigma (v);x [cm];y [cm];#LT#sigma#GT",
+//                                        25, -110., 110., 25, -110., 110.));
 //   myResidHists2D.push_back(new TProfile2D("sigmaYProfZr",
-// 					  "mean sigma (v);z [cm];r_{#pm} [cm];#LT#sigma#GT",
-// 					  25, -275., 275., 25, -110., 110.));
+//                                        "mean sigma (v);z [cm];r_{#pm} [cm];#LT#sigma#GT",
+//                                        25, -275., 275., 25, -110., 110.));
   
   TDirectory *dirResid = directory->mkdir("residuals", "hit residuals, sigma,...");
   this->addToDirectory(myResidHists2D, dirResid);
@@ -571,12 +571,12 @@ void MillePedeMonitor::fillTrack(const reco::Track *track, std::vector<TH1*> &tr
   int nhitinTECplus = 0, nhitinTECminus = 0;
   unsigned int thishit = 0;
 
-  for (trackingRecHit_iterator iHit = track->recHitsBegin(); iHit != track->recHitsEnd(); ++iHit) {
+  for(auto const& hit : track->recHits()) {
     thishit++;
-    const DetId detId((*iHit)->geographicalId());
+    const DetId detId(hit->geographicalId());
     const int subdetId = detId.subdetId(); 
 
-    if (!(*iHit)->isValid()) continue; // only real hits count as in track->numberOfValidHits()
+    if (!hit->isValid()) continue; // only real hits count as in track->numberOfValidHits()
     if (detId.det() != DetId::Tracker) {
       edm::LogError("DetectorMismatch") << "@SUB=MillePedeMonitor::fillTrack"
                                         << "DetId.det() != DetId::Tracker (=" << DetId::Tracker

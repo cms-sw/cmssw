@@ -66,13 +66,9 @@ pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet & iConfig) :
         for (const edm::InputTag &tag : pf2pc) pf2pc_.push_back(consumes<edm::Association<pat::PackedCandidateCollection>>(tag));
     }
 
-    edm::ConsumesCollector sumes(consumesCollector());
     if( modifyMuon_ ) {
       const edm::ParameterSet& mod_config = iConfig.getParameter<edm::ParameterSet>("modifierConfig");
-      muonModifier_.reset(new pat::ObjectModifier<pat::Muon>(mod_config) );
-      muonModifier_->setConsumes(sumes);
-    } else {
-      muonModifier_.reset(nullptr);
+      muonModifier_ = std::make_unique<pat::ObjectModifier<pat::Muon>>(mod_config, consumesCollector());
     }
     produces<std::vector<pat::Muon> >();
     if( saveSegments_ ) {

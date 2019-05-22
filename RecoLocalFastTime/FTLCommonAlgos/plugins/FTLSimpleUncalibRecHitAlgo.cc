@@ -45,7 +45,8 @@ FTLSimpleUncalibRecHitAlgo::makeRecHit(const FTLDataFrame& dataFrame ) const {
                                      << ' ' << toaLSBToNS_ << ' ' << std::endl;    
   LogDebug("FTLSimpleUncalibRecHit") << "Final uncalibrated amplitude : " << amplitude << std::endl;
   
-  return FTLUncalibratedRecHit( dataFrame.id(), amplitude, time, timeError_, flag);
+  return FTLUncalibratedRecHit( dataFrame.id(), std::make_pair(amplitude,0.),
+				std::make_pair(time,0.), timeError_, flag);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

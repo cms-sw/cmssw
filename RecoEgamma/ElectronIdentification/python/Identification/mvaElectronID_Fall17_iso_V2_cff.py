@@ -9,23 +9,14 @@ mvaTag = "Fall17IsoV2"
 
 weightFileDir = "RecoEgamma/ElectronIdentification/data/MVAWeightFiles/Fall17IsoV2"
 
-mvaWeightFiles = cms.vstring(
+mvaWeightFiles = [
      path.join(weightFileDir, "EB1_5.weights.xml.gz"), # EB1_5
      path.join(weightFileDir, "EB2_5.weights.xml.gz"), # EB2_5
      path.join(weightFileDir, "EE_5.weights.xml.gz"), # EE_5
      path.join(weightFileDir, "EB1_10.weights.xml.gz"), # EB1_10
      path.join(weightFileDir, "EB2_10.weights.xml.gz"), # EB2_10
      path.join(weightFileDir, "EE_10.weights.xml.gz"), # EE_10
-     )
-
-categoryCuts = cms.vstring(
-     "pt < 10. && abs(superCluster.eta) < 0.800", # EB1_5
-     "pt < 10. && abs(superCluster.eta) >= 0.800 && abs(superCluster.eta) < 1.479", # EB2_5
-     "pt < 10. && abs(superCluster.eta) >= 1.479", # EE_5
-     "pt >= 10. && abs(superCluster.eta) < 0.800", # EB1_10
-     "pt >= 10. && abs(superCluster.eta) >= 0.800 && abs(superCluster.eta) < 1.479", # EB2_10
-     "pt >= 10. && abs(superCluster.eta) >= 1.479", # EE_10
-     )
+     ]
 
 mvaEleID_Fall17_iso_V2_wpHZZ_container = EleMVARaw_WP(
     idName = "mvaEleID-Fall17-iso-V2-wpHZZ", mvaTag = mvaTag,
@@ -68,12 +59,19 @@ mvaEleID_Fall17_iso_V2_wp90_container = EleMVARaw_WP(
     )
 
 
+workingPoints = dict(
+    wpHZZ = mvaEleID_Fall17_iso_V2_wpHZZ_container,
+    wp80 = mvaEleID_Fall17_iso_V2_wp80_container,
+    wpLoose = mvaEleID_Fall17_iso_V2_wpLoose_container,
+    wp90 = mvaEleID_Fall17_iso_V2_wp90_container
+)
+
 mvaEleID_Fall17_iso_V2_producer_config = cms.PSet(
     mvaName             = cms.string(mvaClassName),
     mvaTag              = cms.string(mvaTag),
     nCategories         = cms.int32(6),
-    categoryCuts        = categoryCuts,
-    weightFileNames     = mvaWeightFiles,
+    categoryCuts        = cms.vstring(*EleMVA_6CategoriesCuts),
+    weightFileNames     = cms.vstring(*mvaWeightFiles),
     variableDefinition  = cms.string(mvaVariablesFile)
     )
 

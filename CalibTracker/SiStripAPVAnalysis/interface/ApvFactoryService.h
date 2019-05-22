@@ -1,7 +1,7 @@
-#ifndef  ApvAnalysis_ApvFactoryService_H
-#define  ApvAnalysis_ApvFactoryService_H
+#ifndef ApvAnalysis_ApvFactoryService_H
+#define ApvAnalysis_ApvFactoryService_H
 
-#define DATABASE //@@ necessary?
+#define DATABASE  //@@ necessary?
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -10,7 +10,6 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CalibTracker/SiStripAPVAnalysis/interface/ApvAnalysisFactory.h"
-
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -32,43 +31,35 @@
 */
 
 class ApvFactoryService {
-  
- public:
-  
+public:
   // -------------------- Constructors, destructors --------------------
-  
+
   /** Constructor when using the "service" mode, which takes as an
       argument a ParameterSet (containing the database connection
       parameters). */
-  ApvFactoryService( const edm::ParameterSet&,
-		     edm::ActivityRegistry& );
+  ApvFactoryService(const edm::ParameterSet&, edm::ActivityRegistry&);
 
   /** Default destructor. */
   ~ApvFactoryService();
-  
+
   int getEventInitNumber();
- 
-  ApvAnalysisFactory* const getApvFactory() const ;
-   
-   // -------------------- Structs and enums --------------------
+
+  ApvAnalysisFactory* const getApvFactory() const;
+
+  // -------------------- Structs and enums --------------------
 
   void postProcessEvent(const edm::Event& ie, const edm::EventSetup& ies);
-  
+
   /** Class that holds addresses that uniquely identify a hardware
       component within the control system. */
-  
- private:
 
-  
+private:
   // -------------------- Miscellaneous private methods --------------------
 
   /** Instance of struct that holds all DB connection parameters. */
   ApvAnalysisFactory* apvFactory_;
 
   bool gotPed;
-
 };
 
-
-#endif // ApvFactoryService_H
-
+#endif  // ApvFactoryService_H

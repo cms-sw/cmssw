@@ -20,7 +20,11 @@ class TH1F;
 class TH2F;
 class TH3F;
 
-class QcdLowPtDQM : public DQMEDAnalyzer {
+namespace qlpd {
+  struct Cache { };
+}
+
+class QcdLowPtDQM : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<qlpd::Cache>> {
  public:
   class Pixel {
    public:
@@ -123,8 +127,10 @@ class QcdLowPtDQM : public DQMEDAnalyzer {
   void bookHistograms(DQMStore::IBooker&, edm::Run const&,
                       edm::EventSetup const&) override;
   void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
-  void endLuminosityBlock(const edm::LuminosityBlock &l,
-                          const edm::EventSetup &iSetup) override;
+  std::shared_ptr<qlpd::Cache> globalBeginLuminosityBlock(const edm::LuminosityBlock&,
+                                                          const edm::EventSetup&) const override;
+  void globalEndLuminosityBlock(const edm::LuminosityBlock &l,
+                               const edm::EventSetup &iSetup) override;
   void endRun(const edm::Run &r, const edm::EventSetup &iSetup) override;
 
  private:
@@ -234,7 +240,6 @@ class QcdLowPtDQM : public DQMEDAnalyzer {
   TH3F *AlphaTracklets23_;                  // alpha correction for tracklets 23
   HLTConfigProvider hltConfig_;
   const TrackerGeometry *tgeo_;                  // tracker geometry
-  DQMStore *theDbe_;                             // dqm store
   MonitorElement *repSumMap_;                    // report summary map
   MonitorElement *repSummary_;                   // report summary
   MonitorElement *h2TrigCorr_;                   // trigger correlation plot

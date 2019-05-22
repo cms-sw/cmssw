@@ -44,18 +44,16 @@ importToBlock( const edm::Event& e,
 	       BlockElementImporterBase::ElementList& elems ) const {
   typedef BlockElementImporterBase::ElementList::value_type ElementType;  
   
-  edm::Handle<edm::ValueMap<float> > timeH, timeErrH, timeGsfH, timeErrGsfH;
-  
-  e.getByToken(srcTime_, timeH);
-  e.getByToken(srcTimeError_, timeErrH);
-  e.getByToken(srcTimeGsf_, timeGsfH);
-  e.getByToken(srcTimeErrorGsf_, timeErrGsfH);
+  auto const& time = e.get(srcTime_);
+  auto const& timeErr = e.get(srcTimeError_);
+  auto const& timeGsf = e.get(srcTimeGsf_);
+  auto const& timeErrGsf = e.get(srcTimeErrorGsf_);
   
   for( auto& elem : elems ) {
     if( reco::PFBlockElement::TRACK == elem->type() ) {
       const auto& ref = elem->trackRef();
-      if (timeH->contains(ref.id())) {
-	elem->setTime( (*timeH)[ref], (*timeErrH)[ref] );
+      if (time.contains(ref.id())) {
+	elem->setTime( time[ref], timeErr[ref] );
       }
       if( debug_ ) {
 	edm::LogInfo("TrackTimingImporter") 
@@ -64,8 +62,8 @@ importToBlock( const edm::Event& e,
       }
     } else if ( reco::PFBlockElement::GSF == elem->type() ) {
       const auto& ref = static_cast<const reco::PFBlockElementGsfTrack*>(elem.get())->GsftrackRef();
-      if (timeGsfH->contains(ref.id())) {
-	elem->setTime( (*timeGsfH)[ref], (*timeErrGsfH)[ref] );
+      if (timeGsf.contains(ref.id())) {
+	elem->setTime( timeGsf[ref], timeErrGsf[ref] );
       }
       if( debug_ ) {
 	edm::LogInfo("TrackTimingImporter") 

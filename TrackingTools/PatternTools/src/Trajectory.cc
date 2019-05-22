@@ -175,16 +175,15 @@ bool Trajectory::isBad( const TrackingRecHit& hit)
 }
 
 bool Trajectory::pixel(const TrackingRecHit& hit) {
-  if (trackerHitRTTI::isUndef(hit))
+  if (!trackerHitRTTI::isFromDetOrFast(hit))
     return false;
   auto const * thit = static_cast<const BaseTrackerRecHit*>( hit.hit() );
   return thit->isPixel();
 }
 
 bool Trajectory::badForCCC(const TrajectoryMeasurement &tm) {
-  if (trackerHitRTTI::isUndef(*tm.recHit()) |
-      trackerHitRTTI::isFast(*tm.recHit())
-     ) return false;
+  if (!trackerHitRTTI::isFromDet(*tm.recHit())) 
+    return false;
   auto const * thit = static_cast<const BaseTrackerRecHit*>( tm.recHit()->hit() );
   if (!thit)
     return false;

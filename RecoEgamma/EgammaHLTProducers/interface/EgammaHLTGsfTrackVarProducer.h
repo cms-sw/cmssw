@@ -47,7 +47,6 @@ class EgammaHLTGsfTrackVarProducer : public edm::stream::EDProducer<> {
     edm::ESHandle<MagneticField> magField_;
     edm::ESHandle<TrackerGeometry> trackerHandle_;
     
-    MultiTrajectoryStateMode mtsMode_; 
     const MultiTrajectoryStateTransform * mtsTransform_; //we own it
     
   public:
@@ -63,7 +62,6 @@ class EgammaHLTGsfTrackVarProducer : public edm::stream::EDProducer<> {
     
     edm::ESHandle<TrackerGeometry> trackerGeomHandle()const{return trackerHandle_;}
     const MultiTrajectoryStateTransform * mtsTransform()const{return mtsTransform_;}
-    const MultiTrajectoryStateMode* mtsMode()const{return &mtsMode_;}
   };
   
  public:

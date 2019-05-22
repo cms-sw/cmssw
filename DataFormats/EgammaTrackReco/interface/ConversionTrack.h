@@ -20,10 +20,10 @@ namespace reco
   class ConversionTrack
   {
     public:
-      ConversionTrack() : isTrackerOnly_(false), isArbitratedEcalSeeded_(false), isArbitratedMerged_(false),
+      ConversionTrack() : isTrackerOnly_(false), isGsfTrackOpen_(false), isArbitratedEcalSeeded_(false), isArbitratedMerged_(false),
                           isArbitratedMergedEcalGeneral_(false) {}
       ConversionTrack(const TrackBaseRef &trk) : 
-        track_(trk), isTrackerOnly_(false), isArbitratedEcalSeeded_(false), isArbitratedMerged_(false),
+    track_(trk), isTrackerOnly_(false),isGsfTrackOpen_(false), isArbitratedEcalSeeded_(false), isArbitratedMerged_(false),
         isArbitratedMergedEcalGeneral_(false) {}
       virtual ~ConversionTrack() {}
     
@@ -32,6 +32,7 @@ namespace reco
       const edm::Ref<std::vector<Trajectory> > &trajRef()       const { return traj_;                }
       void                    setTrajRef(edm::Ref<std::vector<Trajectory> > tr) { traj_ = tr;        }
       void                    setIsTrackerOnly(bool b)                { isTrackerOnly_ = b;          }
+      void                    setIsGsfTrackOpen(bool b)               { isGsfTrackOpen_ = b;         }
       void                    setIsArbitratedEcalSeeded(bool b)       { isArbitratedEcalSeeded_ = b; }      
       void                    setIsArbitratedMerged(bool b)           { isArbitratedMerged_ = b;     }
       void                    setIsArbitratedMergedEcalGeneral(bool b) { isArbitratedMergedEcalGeneral_ = b; }      
@@ -39,7 +40,7 @@ namespace reco
       bool                    isArbitratedEcalSeeded() const          { return isArbitratedEcalSeeded_;}
       bool                    isArbitratedMerged() const              { return isArbitratedMerged_;}
       bool                    isArbitratedMergedEcalGeneral() const   { return isArbitratedMergedEcalGeneral_;}
-
+      bool                    isGsfTrackOpen() const                  { return isGsfTrackOpen_;}
 
 
 
@@ -47,6 +48,7 @@ namespace reco
       TrackBaseRef        track_; //ptr to track
       edm::Ref<std::vector<Trajectory> > traj_;  //reference to a trajectory
       bool                isTrackerOnly_; //from general tracks collection
+      bool                isGsfTrackOpen_; //from gsf track open sequence for low pt electrons for B
       bool                isArbitratedEcalSeeded_; //from in out or out-in ecal-seeded collections (arbitrated)
       bool                isArbitratedMerged_; //is arbitrated among all input collections
       bool                isArbitratedMergedEcalGeneral_; //is arbitrated among ecal-seeded and generalTracks     

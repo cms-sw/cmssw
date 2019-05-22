@@ -6,8 +6,8 @@
 </ConstantsSection>
 
 <SolidSection label="cms.xml">
-  <Tubs name="OCMS" rMin="0.0*fm" rMax="2.0*m" dz="15.0*m" startPhi="0*deg" deltaPhi="360*deg"/>
-  <Tubs name="CMSE" rMin="0.0*fm" rMax="2.0*m" dz="15.0*m" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="OCMS" rMin="0.0*fm" rMax="2.0*m" dz="30.0*m" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="CMSE" rMin="0.0*fm" rMax="2.0*m" dz="30.0*m" startPhi="0*deg" deltaPhi="360*deg"/>
 </SolidSection>
 
 <LogicalPartSection label="cms.xml">

@@ -5,18 +5,13 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include <map>
 
-class CaloMiscalibMap{
+class CaloMiscalibMap {
+public:
+  CaloMiscalibMap() {}
+  virtual ~CaloMiscalibMap() {}
 
 public:
-CaloMiscalibMap(){}
-virtual ~CaloMiscalibMap(){}
-
-public:
-
-
-virtual void addCell(const DetId &cell, float scaling_factor)=0;
-
+  virtual void addCell(const DetId &cell, float scaling_factor) = 0;
 };
-
 
 #endif

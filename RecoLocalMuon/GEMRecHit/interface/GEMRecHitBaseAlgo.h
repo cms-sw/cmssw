@@ -1,5 +1,5 @@
-#ifndef RecoLocalMuon_GEMRecHitBaseAlgo_H
-#define RecoLocalMuon_GEMRecHitBaseAlgo_H
+#ifndef RecoLocalMuon_GEMRecHit_GEMRecHitBaseAlgo_H
+#define RecoLocalMuon_GEMRecHit_GEMRecHitBaseAlgo_H
 
 /** \class GEMRecHitBaseAlgo
  *  Abstract algorithmic class to compute Rec Hit
@@ -8,7 +8,6 @@
  *  \author M. Maggi -- INFN Bari
  */
 
-
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -16,8 +15,8 @@
 #include "DataFormats/GEMRecHit/interface/GEMRecHit.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
-#include "RecoLocalMuon/GEMRecHit/src/GEMEtaPartitionMask.h"
-#include "RecoLocalMuon/GEMRecHit/src/GEMMaskReClusterizer.h"
+#include "RecoLocalMuon/GEMRecHit/interface/GEMEtaPartitionMask.h"
+#include "RecoLocalMuon/GEMRecHit/interface/GEMMaskReClusterizer.h"
 
 class GEMCluster;
 class GEMEtaPartition;

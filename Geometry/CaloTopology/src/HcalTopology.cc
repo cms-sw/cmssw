@@ -7,7 +7,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
+
+using namespace geant_units;
+using namespace geant_units::operators;
 
 static const int IPHI_MAX=72;
 
@@ -38,7 +41,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons,
   for (auto & i : etaBinsHE_) {
     if (firstHERing_ > i.ieta) firstHERing_ = i.ieta;
     if (lastHERing_  < i.ieta) lastHERing_  = i.ieta;
-    int unit = (int)((i.dphi+0.01)/(5.0*CLHEP::deg));
+    int unit = static_cast<int>((i.dphi / 5.0_deg) + 0.01);
     if (unit == 2 && firstHEDoublePhiRing_ > i.ieta)
       firstHEDoublePhiRing_ = i.ieta;
     if (unit == 4 && firstHEQuadPhiRing_ > i.ieta)
@@ -46,7 +49,12 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons,
     if (i.layer.size() > 2 && firstHETripleDepthRing_ > i.ieta) 
       firstHETripleDepthRing_ = i.ieta;
   }
-  nEtaHE_     = (lastHERing_ - firstHERing_ + 1);
+  if (firstHERing_ > lastHERing_) {
+    firstHERing_ = lastHERing_ = firstHEDoublePhiRing_ = firstHEQuadPhiRing_ =
+      firstHETripleDepthRing_ = nEtaHE_ = 0;
+  } else {
+    nEtaHE_     = (lastHERing_ - firstHERing_ + 1);
+  }
   if (mode_==HcalTopologyMode::LHC) {
     topoVersion_=0; //DL
     HBSize_     = kHBSizePreLS1; // qie-per-fiber * fiber/rm * rm/rbx * rbx/barrel * barrel/hcal
@@ -82,23 +90,25 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons,
   dPhiTable   = hcons_->getPhiTable();
   phioff      = hcons_->getPhiOffs();
   std::pair<int,int>  ietaHF = hcons_->getEtaRange(2);
-  double eta  = etaBinsHE_[etaBinsHE_.size()-1].etaMax;
   etaHE2HF_   = firstHFRing_;
-  for (unsigned int i=1; i<etaTableHF.size(); ++i) {
-    if (eta < etaTableHF[i]) {
-      etaHE2HF_ = ietaHF.first + i - 1;
-      break;
-    }
-  }
-  eta         = etaTableHF[0];
   etaHF2HE_   = lastHERing_;
-  for (auto & i : etaBinsHE_) {
-    if (eta < i.etaMax) {
-      etaHF2HE_ = i.ieta;
-      break;
+  if (etaBinsHE_.size() > 1) {
+    double eta  = etaBinsHE_[etaBinsHE_.size()-1].etaMax;
+    for (unsigned int i=1; i<etaTableHF.size(); ++i) {
+      if (eta < etaTableHF[i]) {
+	etaHE2HF_ = ietaHF.first + i - 1;
+	break;
+      }
+    }
+    eta         = etaTableHF[0];
+    for (auto & i : etaBinsHE_) {
+      if (eta < i.etaMax) {
+	etaHF2HE_ = i.ieta;
+	break;
+      }
     }
   }
-  const double fiveDegInRad = 2*M_PI/72;
+  const double fiveDegInRad = 5.0_deg;
   for (double k : dPhiTable) {
     int units = (int)(k/fiveDegInRad+0.5);
     unitPhi.emplace_back(units);
@@ -204,7 +214,10 @@ bool HcalTopology::validDetId(HcalSubdetector subdet, int ieta, int iphi,
 bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
 
   if (id.iphi()<1 || id.iphi()>IPHI_MAX || id.ieta()==0)  return false;
-  if (id.depth() != 0)                              return false;
+  if (id.depth() != 0)                                    return false;
+  if (maxDepthHE_ == 0) {
+    if (id.ietaAbs() > lastHBRing_ && id.ietaAbs() < firstHFRing_) return false;
+  }
   if (id.version()==0) {
     if (id.ietaAbs() > 28) {
        if (triggerMode_ >= HcalTopologyMode::TriggerMode_2017) return false;
@@ -804,26 +817,32 @@ bool HcalTopology::decrementDepth(HcalDetId & detId) const {
 
 int HcalTopology::nPhiBins(int etaRing) const {
   int lastPhiBin=singlePhiBins_;
-  if      (etaRing>= firstHFQuadPhiRing())   lastPhiBin=doublePhiBins_/2;
-  else if (etaRing>= firstHEQuadPhiRing())   lastPhiBin=doublePhiBins_/2;
-  else if (etaRing>= firstHEDoublePhiRing()) lastPhiBin=doublePhiBins_;
-  if (hcons_) {
-    if (etaRing>=hcons_->getEtaRange(1).first && 
-	etaRing<=hcons_->getEtaRange(1).second)
-      lastPhiBin = (int)((2*M_PI+0.001)/dPhiTable[etaRing-firstHBRing_]);
+  if      (etaRing >= firstHFQuadPhiRing() || etaRing >= firstHEQuadPhiRing()) lastPhiBin=doublePhiBins_/2;
+  else if (etaRing >= firstHEDoublePhiRing())                                  lastPhiBin=doublePhiBins_;
+  if (hcons_ && etaRing >= hcons_->getEtaRange(1).first && 
+	etaRing <= hcons_->getEtaRange(1).second)  {
+		return nPhiBins(HcalBarrel, etaRing);
   }
   return lastPhiBin;
 }
 
 int HcalTopology::nPhiBins(HcalSubdetector bc, int etaRing) const {
-  static const double twopi = M_PI+M_PI;
-  int lastPhiBin;
+  double phiTableVal;
   if (bc == HcalForward) {
-    lastPhiBin = (int)((twopi+0.001)/dPhiTableHF[etaRing-firstHFRing_]);
+    phiTableVal = dPhiTableHF[etaRing-firstHFRing_];
   } else {
-    lastPhiBin = (int)((twopi+0.001)/dPhiTable[etaRing-firstHBRing_]);
+    phiTableVal = dPhiTable[etaRing-firstHBRing_];
   }
+  int lastPhiBin = 0;
+  if (phiTableVal != 0.0)
+    lastPhiBin = static_cast<int>((2._pi / phiTableVal) + 0.001);
   return lastPhiBin;
+}
+
+int HcalTopology::maxDepth() const {
+  int maxd1 = std::max(maxDepthHB_,maxDepthHE_);
+  int maxd2 = std::max(maxDepthHF_,minMaxDepth_);
+  return std::max(maxd1,maxd2);
 }
 
 int HcalTopology::maxDepth(HcalSubdetector bc) const {
@@ -856,7 +875,6 @@ int HcalTopology::etaRing(HcalSubdetector bc, double abseta) const {
 }
 
 int HcalTopology::phiBin(HcalSubdetector bc, int etaring, double phi) const {
-  static const double twopi = M_PI+M_PI;
   //put phi in correct range (0->2pi)
   int index(0);
   if (bc == HcalBarrel) {
@@ -867,13 +885,15 @@ int HcalTopology::phiBin(HcalSubdetector bc, int etaring, double phi) const {
     phi  -= phioff[1];
   } else if (bc == HcalForward) {
     index = (etaring-firstHFRing_);
-    if (index < (int)(dPhiTableHF.size())) {
-      if (unitPhiHF[index] > 2) phi -= phioff[4];
-      else                      phi -= phioff[2];
+    if (index < static_cast<int>(dPhiTableHF.size())) {
+      if (index >= 0 && unitPhiHF[index] > 2) phi -= phioff[4];
+      else                                    phi -= phioff[2];
     }
   }
-  if (phi<0.0)   phi += twopi;
-  if (phi>twopi) phi -= twopi;
+	if (index < 0)
+		index = 0;
+  if (phi < 0.0)   phi += 2._pi;
+  else if (phi > 2._pi) phi -= 2._pi;
   int phibin(1), unit(1);
   if (bc == HcalForward) {
     if (index < (int)(dPhiTableHF.size())) {

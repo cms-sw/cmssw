@@ -4,6 +4,3 @@
 #include "Validation/RecoMuon/plugins/MuonTrackValidator.h"
 
 DEFINE_FWK_MODULE(MuonTrackValidator);
-
-
-

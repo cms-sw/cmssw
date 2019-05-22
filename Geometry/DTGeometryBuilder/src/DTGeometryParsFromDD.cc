@@ -16,18 +16,15 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
-
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <string>
 
 using namespace std;
 
-#include <string>
-
-using namespace std;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 DTGeometryParsFromDD::DTGeometryParsFromDD() {}
 
@@ -212,16 +209,12 @@ DTGeometryParsFromDD::plane(const DDFilteredView& fv) const {
   const DDTranslation & trans(fv.translation());
 
   std::vector<double> gtran( 3 );
-  gtran[0] = (float) 1.0 * (trans.x() / cm);
-  gtran[1] = (float) 1.0 * (trans.y() / cm);
-  gtran[2] = (float) 1.0 * (trans.z() / cm);
+  gtran[0] = convertMmToCm( trans.x() );
+  gtran[1] = convertMmToCm( trans.y() );
+  gtran[2] = convertMmToCm( trans.z() );
 
   // now the rotation
-  //  DDRotationMatrix tmp = fv.rotation();
-  // === DDD uses 'active' rotations - see CLHEP user guide ===
-  //     ORCA uses 'passive' rotation. 
   //     'active' and 'passive' rotations are inverse to each other
-  //  DDRotationMatrix tmp = fv.rotation();
   const DDRotationMatrix& rotation = fv.rotation();//REMOVED .Inverse();
   DD3Vector x, y, z;
   rotation.GetComponents(x,y,z);
@@ -232,17 +225,17 @@ DTGeometryParsFromDD::plane(const DDFilteredView& fv) const {
 // 	    << z.X() << ", " << z.Y() << ", " << z.Z() << std::endl;
 
   std::vector<double> grmat( 9 );
-  grmat[0] = (float) 1.0 * x.X();
-  grmat[1] = (float) 1.0 * x.Y();
-  grmat[2] = (float) 1.0 * x.Z();
+  grmat[0] = x.X();
+  grmat[1] = x.Y();
+  grmat[2] = x.Z();
 
-  grmat[3] = (float) 1.0 * y.X();
-  grmat[4] = (float) 1.0 * y.Y();
-  grmat[5] = (float) 1.0 * y.Z();
+  grmat[3] = y.X();
+  grmat[4] = y.Y();
+  grmat[5] = y.Z();
 
-  grmat[6] = (float) 1.0 * z.X();
-  grmat[7] = (float) 1.0 * z.Y();
-  grmat[8] = (float) 1.0 * z.Z();
+  grmat[6] = z.X();
+  grmat[7] = z.Y();
+  grmat[8] = z.Z();
 
 //   std::cout << "rotation by its own operator: "<< tmp << std::endl;
 //   DD3Vector tx, ty,tz;

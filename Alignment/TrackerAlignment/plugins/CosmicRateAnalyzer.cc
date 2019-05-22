@@ -269,12 +269,12 @@ CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       int nhitinTIDplus = 0;
       int countHit 	= 0;
 
-      for(trackingRecHit_iterator iHit1 = itTrack1->recHitsBegin(); iHit1 != itTrack1->recHitsEnd(); ++iHit1)
+      for(auto const& hit1 : itTrack1->recHits())
       {
 
-         const DetId detId1((*iHit1)->geographicalId());
+         const DetId detId1(hit1->geographicalId());
          const int subdetId1 = detId1.subdetId();
-         if (!(*iHit1)->isValid()) continue; // only real hits count as in itTrack1->numberOfValidHits()
+         if (!hit1->isValid()) continue; // only real hits count as in itTrack1->numberOfValidHits()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // 			 Hit information in PixelBarrel                          		 //

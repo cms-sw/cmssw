@@ -5,9 +5,6 @@
 #include "CoralKernel/Service.h"
 
 #define DEFINE_CORALSERVICE(type,name) \
-  DEFINE_EDM_PLUGIN (cond::CoralServicePluginFactory,type,name)
-
-#define DEFINE_CORALSERVICE(type,name) \
-  DEFINE_EDM_PLUGIN (cond::CoralServicePluginFactory,type,name)
+  DEFINE_EDM_PLUGIN (cond::CoralServicePluginFactory,cond::CoralServiceWrapper<type>,name)
 
 #endif

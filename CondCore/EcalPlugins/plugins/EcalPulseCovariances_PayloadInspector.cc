@@ -331,9 +331,9 @@ namespace {
     void grid(TH2F* matrix) {
       matrix->Draw("COLZ1");
       TLine* lh = new TLine(1., 0., 1., 1.);
-      lh->SetLineWidth(0.2);
+      lh->SetLineWidth(2);
       TLine* lv = new TLine(1., 0., 1., 1.);
-      lv->SetLineWidth(0.2);
+      lv->SetLineWidth(2);
       //      double max = (double)TEMPLATESAMPLES;
       for(int i = 1; i < TEMPLATESAMPLES; i++) {
 	//	double x = (double)i;

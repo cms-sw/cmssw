@@ -10,7 +10,7 @@ ALCARECOHcalCalIsoTrkFilterHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLe
 
 )
 
-from Calibration.HcalAlCaRecoProducers.alcaIsoTracksFilter_cfi import *
+from Calibration.HcalAlCaRecoProducers.alcaIsoTracksFilter_cff import *
 
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 TkAlIsoProdFilter = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()

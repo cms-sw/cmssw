@@ -6,12 +6,10 @@
 namespace edmtest {
   namespace test_acquire {
 
-    void
-    WaitingServer::requestValuesAsync(unsigned int dataID,
-                                      std::vector<int> const* iIn,
-                                      std::vector<int>* iOut,
-                                      edm::WaitingTaskWithArenaHolder holder) {
-
+    void WaitingServer::requestValuesAsync(unsigned int dataID,
+                                           std::vector<int> const* iIn,
+                                           std::vector<int>* iOut,
+                                           edm::WaitingTaskWithArenaHolder holder) {
       auto& streamData = m_perStream.at(dataID);
 
       streamData.in_ = iIn;
@@ -21,11 +19,11 @@ namespace edmtest {
         std::lock_guard<std::mutex> guard(m_mutex);
         m_waitingStreams.push_back(dataID);
       }
-      m_cond.notify_one(); //wakes up the server thread
+      m_cond.notify_one();  //wakes up the server thread
     }
 
     void WaitingServer::start() {
-      m_thread = std::make_unique<std::thread>([this]() { serverDoWork(); } );
+      m_thread = std::make_unique<std::thread>([this]() { serverDoWork(); });
     }
 
     void WaitingServer::stop() {
@@ -36,9 +34,7 @@ namespace edmtest {
       }
     }
 
-    bool WaitingServer::readyForWork() const {
-      return m_waitingStreams.size() >= m_minNumStreamsBeforeDoingWork;
-    }
+    bool WaitingServer::readyForWork() const { return m_waitingStreams.size() >= m_minNumStreamsBeforeDoingWork; }
 
     void WaitingServer::serverDoWork() {
       while (not m_shouldStop) {
@@ -46,12 +42,7 @@ namespace edmtest {
         {
           std::unique_lock<std::mutex> lk(m_mutex);
 
-          m_cond.wait_for(lk,
-                          std::chrono::seconds(m_secondsToWait),
-                          [this] ()->bool
-          {
-            return readyForWork();
-          });
+          m_cond.wait_for(lk, std::chrono::seconds(m_secondsToWait), [this]() -> bool { return readyForWork(); });
 
           // Once we know which streams have given us data
           // we can release the lock and let other streams
@@ -62,20 +53,20 @@ namespace edmtest {
 
         // Here is the work that the server does for the modules
         // it will just add 1 to each value it has been given
-        for(auto index: streamsToUse){
-          auto & streamData = m_perStream.at(index);
+        for (auto index : streamsToUse) {
+          auto& streamData = m_perStream.at(index);
 
           std::exception_ptr exceptionPtr;
           try {
-            for (auto v: *streamData.in_) {
-              streamData.out_->push_back(v+1);
+            for (auto v : *streamData.in_) {
+              streamData.out_->push_back(v + 1);
             }
-          } catch(...) {
+          } catch (...) {
             exceptionPtr = std::current_exception();
           }
           streamData.holder_.doneWaiting(exceptionPtr);
         }
       }
     }
-  }
-}
+  }  // namespace test_acquire
+}  // namespace edmtest

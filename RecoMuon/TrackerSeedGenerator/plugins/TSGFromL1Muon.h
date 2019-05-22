@@ -25,7 +25,6 @@ class TSGFromL1Muon : public edm::stream::EDProducer<> {
 public:
   TSGFromL1Muon(const edm::ParameterSet& cfg);
   ~TSGFromL1Muon() override;
-  void beginRun(const edm::Run & run, const edm::EventSetup&es) override;
   void produce(edm::Event& ev, const edm::EventSetup& es) override;
 private:
  
@@ -36,9 +35,9 @@ private:
   edm::EDGetTokenT<PixelTrackFilter> theFilterToken;
 
   std::unique_ptr<L1MuonRegionProducer> theRegionProducer;
-  OrderedHitsGenerator * theHitGenerator;
+  std::unique_ptr<OrderedHitsGenerator> theHitGenerator;
   std::unique_ptr<L1MuonPixelTrackFitter> theFitter;
-  L1MuonSeedsMerger * theMerger;
+  std::unique_ptr<L1MuonSeedsMerger> theMerger;
 
 };
 #endif

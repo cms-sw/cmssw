@@ -33,18 +33,15 @@ using namespace edm;
 using namespace std;
 
 DTTTrigCorrection::DTTTrigCorrection(const ParameterSet& pset): 
-  dbLabel_( pset.getUntrackedParameter<string>("dbLabel", "") ) {
-
+  dbLabel_( pset.getUntrackedParameter<string>("dbLabel", "") ),
+  correctionAlgo_{DTTTrigCorrectionFactory::get()->create(pset.getParameter<string>("correctionAlgo"),
+                                                          pset.getParameter<ParameterSet>("correctionAlgoConfig"))}
+{
   LogVerbatim("Calibration") << "[DTTTrigCorrection] Constructor called" << endl;
-
-  // Get the concrete algo from the factory
-  string theAlgoName = pset.getParameter<string>("correctionAlgo");
-  correctionAlgo_ = DTTTrigCorrectionFactory::get()->create(theAlgoName,pset.getParameter<ParameterSet>("correctionAlgoConfig"));
 }
 
 DTTTrigCorrection::~DTTTrigCorrection(){
   LogVerbatim("Calibration") << "[DTTTrigCorrection] Destructor called" << endl;
-  delete correctionAlgo_;
 }
 
 void DTTTrigCorrection::beginRun( const edm::Run& run, const edm::EventSetup& setup ) {

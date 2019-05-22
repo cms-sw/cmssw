@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from RecoTracker.IterativeTracking.TobTecStep_cff import *
-from HIPixelTripletSeeds_cff import *
-from HIPixel3PrimTracks_cfi import *
+from .HIPixelTripletSeeds_cff import *
+from .HIPixel3PrimTracks_cfi import *
 
 #######################################################################
 # Very large impact parameter tracking using TOB + TEC ring 5 seeding #

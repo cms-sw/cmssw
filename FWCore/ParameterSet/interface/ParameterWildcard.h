@@ -19,62 +19,56 @@ namespace edm {
   class ParameterSetDescription;
   class DocFormatHelper;
 
-  template<class T>
+  template <class T>
   class ParameterWildcard : public ParameterWildcardBase {
-
   public:
-
-    ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked) :
-      ParameterWildcardBase(ParameterTypeToEnum::toEnum<T>(), isTracked, criteria) {
+    ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked)
+        : ParameterWildcardBase(ParameterTypeToEnum::toEnum<T>(), isTracked, criteria) {
       throwIfInvalidPattern(pattern);
     }
 
-    ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked) :
-      ParameterWildcardBase(ParameterTypeToEnum::toEnum<T>(), isTracked, criteria) {
+    ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked)
+        : ParameterWildcardBase(ParameterTypeToEnum::toEnum<T>(), isTracked, criteria) {
       throwIfInvalidPattern(pattern);
     }
 
-    ~ParameterWildcard() override { }
+    ~ParameterWildcard() override {}
 
-    ParameterDescriptionNode* clone() const override {
-      return new ParameterWildcard(*this);
-    }
+    ParameterDescriptionNode* clone() const override { return new ParameterWildcard(*this); }
 
   private:
-   
-    void validate_(ParameterSet & pset,
-                   std::set<std::string> & validatedLabels,
-                   bool optional) const override {
-
-      std::vector<std::string> parameterNames  = pset.getParameterNamesForType<T>(isTracked());
+    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override {
+      std::vector<std::string> parameterNames = pset.getParameterNamesForType<T>(isTracked());
       validateMatchingNames(parameterNames, validatedLabels, optional);
-
     }
 
     bool exists_(ParameterSet const& pset) const override {
+      if (criteria() == RequireZeroOrMore)
+        return true;
 
-      if (criteria() == RequireZeroOrMore) return true;
+      std::vector<std::string> parameterNames = pset.getParameterNamesForType<T>(isTracked());
 
-      std::vector<std::string> parameterNames  = pset.getParameterNamesForType<T>(isTracked());
-
-      if (criteria() == RequireAtLeastOne) return !parameterNames.empty();
+      if (criteria() == RequireAtLeastOne)
+        return !parameterNames.empty();
       return parameterNames.size() == 1U;
     }
 
     // In the future may need to add a data member of type T to hold a default value
   };
 
-  template<>
+  template <>
   class ParameterWildcard<ParameterSetDescription> : public ParameterWildcardBase {
-
   public:
-
     ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked);
     ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked);
 
-    ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked,
+    ParameterWildcard(std::string const& pattern,
+                      WildcardValidationCriteria criteria,
+                      bool isTracked,
                       ParameterSetDescription const& desc);
-    ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked,
+    ParameterWildcard(char const* pattern,
+                      WildcardValidationCriteria criteria,
+                      bool isTracked,
                       ParameterSetDescription const& desc);
 
     ~ParameterWildcard() override;
@@ -82,35 +76,32 @@ namespace edm {
     ParameterDescriptionNode* clone() const override;
 
   private:
-   
-    void validate_(ParameterSet & pset,
-                   std::set<std::string> & validatedLabels,
-                   bool optional) const override;
+    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override;
 
     bool hasNestedContent_() const override;
 
-    void printNestedContent_(std::ostream & os,
-                             bool optional,
-                             DocFormatHelper & helper) const override;
+    void printNestedContent_(std::ostream& os, bool optional, DocFormatHelper& helper) const override;
 
     bool exists_(ParameterSet const& pset) const override;
 
-    void validateDescription(std::string const& parameterName, ParameterSet & pset) const;
+    void validateDescription(std::string const& parameterName, ParameterSet& pset) const;
 
     value_ptr<ParameterSetDescription> psetDesc_;
   };
 
-  template<>
+  template <>
   class ParameterWildcard<std::vector<ParameterSet> > : public ParameterWildcardBase {
-
   public:
-
     ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked);
     ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked);
 
-    ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked,
+    ParameterWildcard(std::string const& pattern,
+                      WildcardValidationCriteria criteria,
+                      bool isTracked,
                       ParameterSetDescription const& desc);
-    ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked,
+    ParameterWildcard(char const* pattern,
+                      WildcardValidationCriteria criteria,
+                      bool isTracked,
                       ParameterSetDescription const& desc);
 
     ~ParameterWildcard() override;
@@ -118,22 +109,17 @@ namespace edm {
     ParameterDescriptionNode* clone() const override;
 
   private:
-   
-    void validate_(ParameterSet & pset,
-                   std::set<std::string> & validatedLabels,
-                   bool optional) const override;
+    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override;
 
     bool hasNestedContent_() const override;
 
-    void printNestedContent_(std::ostream & os,
-                             bool optional,
-                             DocFormatHelper & dfh) const override;
+    void printNestedContent_(std::ostream& os, bool optional, DocFormatHelper& dfh) const override;
 
     bool exists_(ParameterSet const& pset) const override;
 
-    void validatePSetVector(std::string const& parameterName, ParameterSet & pset) const;
+    void validatePSetVector(std::string const& parameterName, ParameterSet& pset) const;
 
     value_ptr<ParameterSetDescription> psetDesc_;
   };
-}
+}  // namespace edm
 #endif

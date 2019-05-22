@@ -51,7 +51,7 @@ from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HEColla
     producers = {0 : dict(qualityTests = {0 : dict(cuts = {1 : dict(threshold = _thresholdsHEphase1) } ) } ) },
 )
 
-# offline 2019
+# offline 2021
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 run3_HB.toModify(particleFlowRecHitHBHE,
     producers = {0 : dict(qualityTests = {0 : dict(cuts = {0 : dict(threshold = _thresholdsHBphase1) } ) } ) },

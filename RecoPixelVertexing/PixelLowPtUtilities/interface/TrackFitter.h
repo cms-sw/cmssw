@@ -17,13 +17,13 @@ class MagneticField;
 class TrackFitter : public PixelFitterBase
 {
 public:
-  TrackFitter(const edm::EventSetup *es, const TrackerGeometry *tracker,
+  TrackFitter(const TrackerGeometry *tracker,
               const MagneticField *field, const TransientTrackingRecHitBuilder *ttrhBuilder):
-    theES(es), theTracker(tracker), theField(field), theTTRecHitBuilder(ttrhBuilder)
+    theTracker(tracker), theField(field), theTTRecHitBuilder(ttrhBuilder)
   {}
   ~TrackFitter() override { }
 
-  std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits, const TrackingRegion& region) const override;
+  std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits, const TrackingRegion& region, const edm::EventSetup& setup) const override;
 
 private:
   float getCotThetaAndUpdateZip
@@ -35,7 +35,6 @@ private:
   void getErrTipAndErrZip(float pt, float eta,
                           float & errZip, float & errTip) const;
 
-  const edm::EventSetup *theES;
   const TrackerGeometry * theTracker;
   const MagneticField * theField;
   const TransientTrackingRecHitBuilder * theTTRecHitBuilder;

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('HGCGeomAnalysis',eras.Phase2C4)
+from Configuration.Eras.Era_Phase2C4_cff import Phase2C4
+process = cms.Process('HGCGeomAnalysis',Phase2C4)
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')    

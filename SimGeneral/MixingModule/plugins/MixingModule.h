@@ -83,7 +83,7 @@ namespace edm {
       void checkSignal(const edm::Event &e) override;
       void addSignals(const edm::Event &e, const edm::EventSetup& es) override; 
       void doPileUp(edm::Event &e, const edm::EventSetup& es) override;
-      void pileAllWorkers(EventPrincipal const& ep, ModuleCallingContext const*, int bcr, int id, int& offset,
+      bool pileAllWorkers(EventPrincipal const& ep, ModuleCallingContext const*, int bcr, int id, int& offset,
 			  const edm::EventSetup& setup, edm::StreamID const&);
       void createDigiAccumulators(const edm::ParameterSet& mixingPSet, edm::ConsumesCollector& iC);
 

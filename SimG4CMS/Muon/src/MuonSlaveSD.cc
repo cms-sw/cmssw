@@ -6,86 +6,51 @@
 
 #include <iostream>
 
-
-MuonSlaveSD::MuonSlaveSD(MuonSubDetector* d,
-			 const SimTrackManager* manager): 
-  TrackingSlaveSD(d->name() ), m_trackManager(manager)
-{
-  detector=d;
+MuonSlaveSD::MuonSlaveSD(MuonSubDetector* d, const SimTrackManager* manager)
+    : TrackingSlaveSD(d->name()), m_trackManager(manager) {
+  detector = d;
 }
 
-MuonSlaveSD::~MuonSlaveSD() { 
-}
+MuonSlaveSD::~MuonSlaveSD() {}
 
-void MuonSlaveSD::clearHits()
-{
-  LogDebug("MuonSimDebug") << " MuonSlaveSD::clearHits "<< detector->name() << std::endl;
+void MuonSlaveSD::clearHits() {
+  LogDebug("MuonSimDebug") << " MuonSlaveSD::clearHits " << detector->name() << std::endl;
   hits_.clear();
 }
 
-bool MuonSlaveSD::format()
-{
-  LogDebug("MuonSimDebug") << " MuonSlaveSD "<<detector->name()<<" formatting " << hits_.size() <<" hits."<< std::endl;
+bool MuonSlaveSD::format() {
+  LogDebug("MuonSimDebug") << " MuonSlaveSD " << detector->name() << " formatting " << hits_.size() << " hits."
+                           << std::endl;
   if (detector->isBarrel()) {
-    sort(hits_.begin(),hits_.end(), FormatBarrelHits());
+    sort(hits_.begin(), hits_.end(), FormatBarrelHits());
   } else if (detector->isEndcap()) {
-    sort(hits_.begin(),hits_.end(), FormatEndcapHits());
+    sort(hits_.begin(), hits_.end(), FormatEndcapHits());
   } else if (detector->isRPC()) {
-    sort(hits_.begin(),hits_.end(), FormatRpcHits());
+    sort(hits_.begin(), hits_.end(), FormatRpcHits());
   } else if (detector->isGEM()) {
-    sort(hits_.begin(),hits_.end(), FormatGemHits());
+    sort(hits_.begin(), hits_.end(), FormatGemHits());
   } else if (detector->isME0()) {
-    sort(hits_.begin(),hits_.end(), FormatMe0Hits());
-  } 
+    sort(hits_.begin(), hits_.end(), FormatMe0Hits());
+  }
   return true;
 }
 
-bool FormatBarrelHits::operator() (const PSimHit & a, const PSimHit & b)
-{
-  return (sortId(a)<sortId(b));
-}
+bool FormatBarrelHits::operator()(const PSimHit& a, const PSimHit& b) { return (sortId(a) < sortId(b)); }
 
-int FormatBarrelHits::sortId(const PSimHit & a)  const 
-{
-  return a.detUnitId();
-}
+int FormatBarrelHits::sortId(const PSimHit& a) const { return a.detUnitId(); }
 
-bool FormatEndcapHits::operator() (const PSimHit & a, const PSimHit & b)
-{
-  return (sortId(a)<sortId(b));
-}
+bool FormatEndcapHits::operator()(const PSimHit& a, const PSimHit& b) { return (sortId(a) < sortId(b)); }
 
-int FormatEndcapHits::sortId(const PSimHit & a)  const 
-{
-  return a.detUnitId();
-}
+int FormatEndcapHits::sortId(const PSimHit& a) const { return a.detUnitId(); }
 
-bool FormatRpcHits::operator() (const PSimHit & a, const PSimHit & b)
-{
-  return (sortId(a)<sortId(b));
-}
+bool FormatRpcHits::operator()(const PSimHit& a, const PSimHit& b) { return (sortId(a) < sortId(b)); }
 
-int FormatRpcHits::sortId(const PSimHit & a)  const 
-{
-  return a.detUnitId();
-}
+int FormatRpcHits::sortId(const PSimHit& a) const { return a.detUnitId(); }
 
-bool FormatGemHits::operator() (const PSimHit & a, const PSimHit & b)
-{
-  return (sortId(a)<sortId(b));
-}
+bool FormatGemHits::operator()(const PSimHit& a, const PSimHit& b) { return (sortId(a) < sortId(b)); }
 
-int FormatGemHits::sortId(const PSimHit & a)  const 
-{
-  return a.detUnitId();
-}
+int FormatGemHits::sortId(const PSimHit& a) const { return a.detUnitId(); }
 
-bool FormatMe0Hits::operator() (const PSimHit & a, const PSimHit & b)
-{
-  return (sortId(a)<sortId(b));
-}
+bool FormatMe0Hits::operator()(const PSimHit& a, const PSimHit& b) { return (sortId(a) < sortId(b)); }
 
-int FormatMe0Hits::sortId(const PSimHit & a)  const 
-{
-  return a.detUnitId();
-}
+int FormatMe0Hits::sortId(const PSimHit& a) const { return a.detUnitId(); }

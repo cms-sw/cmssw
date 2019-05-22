@@ -12,6 +12,7 @@ TrackerKinkFinderParametersBlock = cms.PSet(
         TrackerRecHitBuilder = cms.string('WithAngleAndTemplate'),
         Smoother = cms.string('KFSmootherForRefitInsideOut'),
         MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
+        MTDRecHitBuilder = cms.string('MTDRecHitBuilder'),
         RefitDirection = cms.string('alongMomentum'),
         RefitRPCHits = cms.bool(True),
         Propagator = cms.string('SmartPropagatorAnyRKOpposite'),

@@ -65,18 +65,14 @@ updateEventSetup(const edm::EventSetup& es) {
 void SuperClusterImporter::
 importToBlock( const edm::Event& e, 
 	       BlockElementImporterBase::ElementList& elems ) const {
-  typedef BlockElementImporterBase::ElementList::value_type ElementType;  
-  edm::Handle<reco::SuperClusterCollection> eb_scs;
-  e.getByToken(_srcEB,eb_scs);
-  edm::Handle<reco::SuperClusterCollection> ee_scs;
-  e.getByToken(_srcEE,ee_scs);
-  edm::Handle<CaloTowerCollection> towers;
-  e.getByToken(_srcTowers,towers);
+  auto eb_scs = e.getHandle(_srcEB);
+  auto ee_scs = e.getHandle(_srcEE);
+  auto towers = e.getHandle(_srcTowers);
   _hadTower->setTowerCollection(towers.product());
   elems.reserve(elems.size()+eb_scs->size()+ee_scs->size());
   // setup our elements so that all the SCs are grouped together
   auto SCs_end = std::partition(elems.begin(),elems.end(),
-				[](const ElementType& a){
+				[](auto const& a){
 				  return a->type() == reco::PFBlockElement::SC;
 				});  
   // add eb superclusters
@@ -96,7 +92,7 @@ importToBlock( const edm::Event& e,
 	(scpT > _pTbyPass || HoverE < _maxHoverE) ) {	
       scbe = new reco::PFBlockElementSuperCluster(scref);      
       scbe->setFromPFSuperCluster(_superClustersArePF);
-      SCs_end = elems.insert(SCs_end,ElementType(scbe));
+      SCs_end = elems.emplace(SCs_end, scbe);
       ++SCs_end; // point to element *after* the new one
     }    
   }// loop on eb superclusters
@@ -115,7 +111,7 @@ importToBlock( const edm::Event& e,
 	(scpT > _pTbyPass || HoverE < _maxHoverE)) {	
       scbe = new reco::PFBlockElementSuperCluster(scref);  
       scbe->setFromPFSuperCluster(_superClustersArePF);
-      SCs_end = elems.insert(SCs_end,ElementType(scbe));
+      SCs_end = elems.emplace(SCs_end, scbe);
       ++SCs_end; // point to element *after* the new one
     }    
   }// loop on ee superclusters

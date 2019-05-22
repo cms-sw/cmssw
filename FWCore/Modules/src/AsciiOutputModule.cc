@@ -38,28 +38,29 @@ namespace edm {
     int counter_;
   };
 
-  AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset) :
-    global::OutputModuleBase(pset),
-    global::OutputModule<>(pset),
-    prescale_(pset.getUntrackedParameter<unsigned int>("prescale")),
-    verbosity_(pset.getUntrackedParameter<unsigned int>("verbosity")),
-    counter_(0) {
-     if (prescale_ == 0) prescale_ = 1;
+  AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset)
+      : global::OutputModuleBase(pset),
+        global::OutputModule<>(pset),
+        prescale_(pset.getUntrackedParameter<unsigned int>("prescale")),
+        verbosity_(pset.getUntrackedParameter<unsigned int>("verbosity")),
+        counter_(0) {
+    if (prescale_ == 0)
+      prescale_ = 1;
   }
 
   AsciiOutputModule::~AsciiOutputModule() {
     LogAbsolute("AsciiOut") << ">>> processed " << counter_ << " events" << std::endl;
   }
 
-  void
-  AsciiOutputModule::write(EventForOutput const& e) {
-
-    if ((++counter_ % prescale_) != 0 || verbosity_ <= 0) return;
+  void AsciiOutputModule::write(EventForOutput const& e) {
+    if ((++counter_ % prescale_) != 0 || verbosity_ <= 0)
+      return;
 
     // RunForOutput const& run = evt.getRun(); // this is still unused
-    LogAbsolute("AsciiOut")<< ">>> processing event # " << e.id() << " time " << e.time().value() << std::endl;
+    LogAbsolute("AsciiOut") << ">>> processing event # " << e.id() << " time " << e.time().value() << std::endl;
 
-    if (verbosity_ <= 1) return;
+    if (verbosity_ <= 1)
+      return;
 
     // Write out non-EDProduct contents...
 
@@ -73,17 +74,17 @@ namespace edm {
 
     // Loop over products, and write some output for each...
     Service<ConstProductRegistry> reg;
-    for(auto const& prod: reg->productList()) {
+    for (auto const& prod : reg->productList()) {
       BranchDescription const& desc = prod.second;
-      if(selected(desc)) {
-        if(desc.isAlias()) {
+      if (selected(desc)) {
+        if (desc.isAlias()) {
           LogAbsolute("AsciiOut") << "ModuleLabel " << desc.moduleLabel() << " is an alias for";
         }
 
         auto const& prov = e.getProvenance(desc.originalBranchID());
         LogAbsolute("AsciiOut") << prov;
 
-        if(verbosity_ > 2) {
+        if (verbosity_ > 2) {
           BranchDescription const& desc2 = prov.branchDescription();
           std::string const& process = desc2.processName();
           std::string const& label = desc2.moduleLabel();
@@ -96,7 +97,7 @@ namespace edm {
                 pset::Registry const* psetRegistry = pset::Registry::instance();
                 ParameterSet const* processPset = psetRegistry->getMapped(psetID);
                 if (processPset) {
-                  if(desc.isAlias()) {
+                  if (desc.isAlias()) {
                     LogAbsolute("AsciiOut") << "Alias PSet\n" << processPset->getParameterSet(desc.moduleLabel());
                   }
                   LogAbsolute("AsciiOut") << processPset->getParameterSet(label) << "\n";
@@ -109,21 +110,20 @@ namespace edm {
     }
   }
 
-  void
-  AsciiOutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
+  void AsciiOutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     desc.setComment("Outputs event information into text file.");
-    desc.addUntracked("prescale", 1U)
-        ->setComment("prescale factor");
+    desc.addUntracked("prescale", 1U)->setComment("prescale factor");
     desc.addUntracked("verbosity", 1U)
-        ->setComment("0: no output\n"
-                     "1: event ID and timestamp only\n"
-                     "2: provenance for each kept product\n"
-                     ">2: PSet and provenance for each kept product");
+        ->setComment(
+            "0: no output\n"
+            "1: event ID and timestamp only\n"
+            "2: provenance for each kept product\n"
+            ">2: PSet and provenance for each kept product");
     OutputModule::fillDescription(desc);
     descriptions.add("asciiOutput", desc);
   }
-}
+}  // namespace edm
 
 using edm::AsciiOutputModule;
 DEFINE_FWK_MODULE(AsciiOutputModule);

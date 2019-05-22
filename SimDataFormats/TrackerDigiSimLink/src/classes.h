@@ -9,23 +9,4 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripCompactDigiSimLinks.h"
 
-namespace SimDataFormats_TrackerDigiSimLink {
-  struct dictionary {
-   edm::Wrapper<PixelDigiSimLink> PixelLink1;
-    edm::Wrapper< std::vector<PixelDigiSimLink>  > PixelLink2;
-    edm::Wrapper< edm::DetSet<PixelDigiSimLink> > PixelLink3;
-    edm::Wrapper< std::vector<edm::DetSet<PixelDigiSimLink> > > PixelLink4;
-    edm::Wrapper< edm::DetSetVector<PixelDigiSimLink> > PixelLink5;
-
-    edm::Wrapper< std::vector<StripDigiSimLink>  > StripDigiSimLinkVector;
-    edm::Wrapper< std::vector<edm::DetSet<StripDigiSimLink> > > StripDigiSimLinkVectorDetSet; 
-    edm::Wrapper<StripDigiSimLink> StripDigiSimLinkWrapper;
-    edm::Wrapper< edm::DetSet<StripDigiSimLink> > StripDigiSimLinkDetSetWrapper;
-    edm::Wrapper< edm::DetSetVector<StripDigiSimLink> > StripDigiSimLinkDetSetVectorWrapper;
-
-    edm::Wrapper<StripCompactDigiSimLinks> StripCompactDigiSimLinksWrapper_;
-  };
-}
-
-#endif // TRACKERDIGISIMLINK_CLASSES_H
-
+#endif  // TRACKERDIGISIMLINK_CLASSES_H

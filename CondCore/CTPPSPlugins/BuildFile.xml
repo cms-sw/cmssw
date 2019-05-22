@@ -3,6 +3,7 @@
 <use   name="CondCore/ESSources"/>
 <use   name="CondFormats/CTPPSReadoutObjects"/>
 <use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/AlignmentRecord"/>
 <use   name="CondFormats/Serialization"/>
 <use   name="root"/>
 <use   name="boost"/>

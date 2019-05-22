@@ -25,7 +25,6 @@ namespace {
   constexpr int PXID_bits = 8;
   constexpr int ADC_bits  = 8;
   constexpr int OMIT_ERR_bits = 1;
-  constexpr int AUTO_MASK_bits = 1;
   
   constexpr int CRC_shift = 2;
   constexpr int ADC_shift  = 0;
@@ -34,7 +33,6 @@ namespace {
   constexpr int ROC_shift  = DCOL_shift + DCOL_bits;
   constexpr int LINK_shift = ROC_shift + ROC_bits;
   constexpr int OMIT_ERR_shift = 20;
-  constexpr int AUTO_MASK_shift = 20;
   
   constexpr cms_uint32_t dummyDetId = 0xffffffff;
   

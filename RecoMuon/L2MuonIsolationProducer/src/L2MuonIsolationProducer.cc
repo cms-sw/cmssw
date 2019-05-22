@@ -34,9 +34,7 @@ using namespace muonisolation;
 
 /// constructor with config
 L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
-  theSACollectionLabel(par.getParameter<edm::InputTag>("StandAloneCollectionLabel")),
-  theExtractor(nullptr),
-  theDepositIsolator(nullptr)
+  theSACollectionLabel(par.getParameter<edm::InputTag>("StandAloneCollectionLabel"))
 {
   LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")<<" L2MuonIsolationProducer constructor called";
 
@@ -47,7 +45,7 @@ L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
   //
   edm::ParameterSet extractorPSet = par.getParameter<edm::ParameterSet>("ExtractorPSet");
   std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
+  theExtractor = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector())};
 
 
   edm::ParameterSet isolatorPSet = par.getParameter<edm::ParameterSet>("IsolatorPSet");
@@ -55,7 +53,7 @@ L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
   optOutputDecision = haveIsolator;
   if (optOutputDecision){
     std::string type = isolatorPSet.getParameter<std::string>("ComponentName");
-    theDepositIsolator = MuonIsolatorFactory::get()->create(type, isolatorPSet, consumesCollector());
+    theDepositIsolator = std::unique_ptr<muonisolation::MuIsoBaseIsolator>{MuonIsolatorFactory::get()->create(type, isolatorPSet, consumesCollector())};
   }
   if (optOutputDecision) produces<edm::ValueMap<bool> >();
   produces<reco::IsoDepositMap>();
@@ -69,7 +67,6 @@ L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
 /// destructor
 L2MuonIsolationProducer::~L2MuonIsolationProducer(){
   LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")<<" L2MuonIsolationProducer destructor called";
-  if (theExtractor) delete theExtractor;
 }
 
 /// ParameterSet descriptions

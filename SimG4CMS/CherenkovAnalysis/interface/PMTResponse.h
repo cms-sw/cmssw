@@ -2,24 +2,14 @@
 #define SimG4CMS_PMTResponse_h
 ///
 ///  \class PMTResponse
-///  
+///
 ///   Encodes the PMT response function
 ///
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 class PMTResponse {
-
-public:    
-
-  /// Default constructor
-  PMTResponse() {}
-
+public:
   /// Return efficiency for given photon wavelength (in nm)
-  static const double  getEfficiency( const double& waveLengthNm );
-
-private:    
-
+  static double getEfficiency(const double &waveLengthNm);
 };
 
-#endif // DreamSD_h
+#endif  // DreamSD_h

@@ -5,7 +5,7 @@
 //
 // Package:    HZZ4lFilter
 // Class:      HZZ4lFilter
-// 
+//
 /**\class HZZ4lFilter HZZ4lFilter.cc IOMC/HZZ4lFilter/src/HZZ4lFilter.cc
 
  Description: <one line class summary>
@@ -18,7 +18,6 @@
 //         Created:  Wed Apr 18 12:52:31 CEST 2007
 //
 //
-
 
 // system include files
 #include <memory>
@@ -40,21 +39,20 @@ namespace edm {
 }
 
 class HZZ4lFilter : public edm::EDFilter {
-   public:
-      explicit HZZ4lFilter(const edm::ParameterSet&);
-      ~HZZ4lFilter() override;
+public:
+  explicit HZZ4lFilter(const edm::ParameterSet&);
+  ~HZZ4lFilter() override;
 
-   private:
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      // virtual void endJob() ;
-      
-      // ----------member data ---------------------------
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  // virtual void endJob() ;
 
-       edm::EDGetTokenT<edm::HepMCProduct> token_;
-       
-       double minPtElectronMuon;
-       double maxEtaElectronMuon;
+  // ----------member data ---------------------------
 
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
+
+  double minPtElectronMuon;
+  double maxEtaElectronMuon;
 };
 
 #endif

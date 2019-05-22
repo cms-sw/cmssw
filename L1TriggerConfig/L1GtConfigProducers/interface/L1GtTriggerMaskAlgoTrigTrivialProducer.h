@@ -33,28 +33,21 @@
 class L1GtTriggerMaskAlgoTrigRcd;
 
 // class declaration
-class L1GtTriggerMaskAlgoTrigTrivialProducer : public edm::ESProducer
-{
-
+class L1GtTriggerMaskAlgoTrigTrivialProducer : public edm::ESProducer {
 public:
+  /// constructor
+  L1GtTriggerMaskAlgoTrigTrivialProducer(const edm::ParameterSet&);
 
-    /// constructor
-    L1GtTriggerMaskAlgoTrigTrivialProducer(const edm::ParameterSet&);
+  /// destructor
+  ~L1GtTriggerMaskAlgoTrigTrivialProducer() override;
 
-    /// destructor
-    ~L1GtTriggerMaskAlgoTrigTrivialProducer() override;
+  /// public methods
 
-
-    /// public methods
-
-    std::unique_ptr<L1GtTriggerMask> produceTriggerMask(
-        const L1GtTriggerMaskAlgoTrigRcd&);
+  std::unique_ptr<L1GtTriggerMask> produceTriggerMask(const L1GtTriggerMaskAlgoTrigRcd&);
 
 private:
-
-    /// trigger mask
-    std::vector<unsigned int> m_triggerMask;
-
+  /// trigger mask
+  std::vector<unsigned int> m_triggerMask;
 };
 
 #endif

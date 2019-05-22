@@ -13,27 +13,28 @@ POOL container to store Gain values 4xCapId
 #include "CondFormats/CastorObjects/interface/CastorRawGain.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-// 
+//
 class CastorRawGains {
- public:
+public:
   CastorRawGains();
   ~CastorRawGains();
-  /// get value 
-  const CastorRawGain* getValues (DetId fId) const;
+  /// get value
+  const CastorRawGain* getValues(DetId fId) const;
   /// get list of all available channels
-  std::vector<DetId> getAllChannels () const;
+  std::vector<DetId> getAllChannels() const;
   /// check if data are sorted
-  bool sorted () const {return mSorted;}
+  bool sorted() const { return mSorted; }
   /// add new (empty) item
-  CastorRawGain* addItem (DetId fId);
+  CastorRawGain* addItem(DetId fId);
   /// fill values
-  void addValues (DetId fId, const CastorRawGain& fValues);
-  /// sort values by channelId  
-  void sort ();
+  void addValues(DetId fId, const CastorRawGain& fValues);
+  /// sort values by channelId
+  void sort();
   // helper typedefs
   typedef CastorRawGain Item;
-  typedef std::vector <Item> Container;
- private:
+  typedef std::vector<Item> Container;
+
+private:
   Container mItems;
   bool mSorted;
 };

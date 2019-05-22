@@ -6,7 +6,6 @@
 *
 ****************************************************************************/
 
-
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,17 +32,16 @@
 /**
  *\brief Prints the DAQ mapping loaded by TotemDAQMappingESSourceXML.
  **/
-class WriteCTPPSPixelDAQMapping : public edm::one::EDAnalyzer<>
-{
-  public:
-    WriteCTPPSPixelDAQMapping(const edm::ParameterSet &ps);
-    ~WriteCTPPSPixelDAQMapping() override {}
+class WriteCTPPSPixelDAQMapping : public edm::one::EDAnalyzer<> {
+public:
+  WriteCTPPSPixelDAQMapping(const edm::ParameterSet &ps);
+  ~WriteCTPPSPixelDAQMapping() override {}
 
-  private:
-    void analyze(const edm::Event &e, const edm::EventSetup &es) override;
-    cond::Time_t daqmappingiov_;
-    std::string record_;
-    std::string label_;
+private:
+  void analyze(const edm::Event &e, const edm::EventSetup &es) override;
+  cond::Time_t daqmappingiov_;
+  std::string record_;
+  std::string label_;
 };
 
 using namespace std;
@@ -51,16 +49,12 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-WriteCTPPSPixelDAQMapping::WriteCTPPSPixelDAQMapping(const edm::ParameterSet &ps) :
-daqmappingiov_(ps.getParameter<unsigned long long>("daqmappingiov")),
-record_(ps.getParameter<string>("record")),
-label_(ps.getParameter<string>("label"))
-{}
+WriteCTPPSPixelDAQMapping::WriteCTPPSPixelDAQMapping(const edm::ParameterSet &ps)
+    : daqmappingiov_(ps.getParameter<unsigned long long>("daqmappingiov")),
+      record_(ps.getParameter<string>("record")),
+      label_(ps.getParameter<string>("label")) {}
 
-
-void WriteCTPPSPixelDAQMapping::analyze(const edm::Event&, edm::EventSetup const& es)
-{
-
+void WriteCTPPSPixelDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es) {
   // get DAQ mapping
   edm::ESHandle<CTPPSPixelDAQMapping> mapping;
   es.get<CTPPSPixelDAQMappingRcd>().get(label_, mapping);
@@ -72,13 +66,11 @@ void WriteCTPPSPixelDAQMapping::analyze(const edm::Event&, edm::EventSetup const
   */
 
   // Write DAQ Mapping to sqlite file:
-  const CTPPSPixelDAQMapping* pCTPPSPixelDAQMapping = mapping.product(); // DAQ Mapping
+  const CTPPSPixelDAQMapping *pCTPPSPixelDAQMapping = mapping.product();  // DAQ Mapping
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if( poolDbService.isAvailable() ){
-    poolDbService->writeOne( pCTPPSPixelDAQMapping, daqmappingiov_, /*m_record*/ record_  );
+  if (poolDbService.isAvailable()) {
+    poolDbService->writeOne(pCTPPSPixelDAQMapping, daqmappingiov_, /*m_record*/ record_);
   }
-
-
 }
 
 //----------------------------------------------------------------------------------------------------

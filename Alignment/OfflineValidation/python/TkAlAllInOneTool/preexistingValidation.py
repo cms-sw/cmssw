@@ -1,14 +1,15 @@
+from __future__ import absolute_import
 import os
-from genericValidation import GenericValidation, GenericValidationData
-from geometryComparison import GeometryComparison
-from helperFunctions import boolfromstring, getCommandOutput2, parsecolor, parsestyle
-from monteCarloValidation import MonteCarloValidation
-from offlineValidation import OfflineValidation
-from primaryVertexValidation import PrimaryVertexValidation
-from plottingOptions import PlottingOptions
-from TkAlExceptions import AllInOneError
-from trackSplittingValidation import TrackSplittingValidation
-from zMuMuValidation import ZMuMuValidation
+from .genericValidation import GenericValidation, GenericValidationData
+from .geometryComparison import GeometryComparison
+from .helperFunctions import boolfromstring, getCommandOutput2, parsecolor, parsestyle
+from .monteCarloValidation import MonteCarloValidation
+from .offlineValidation import OfflineValidation
+from .primaryVertexValidation import PrimaryVertexValidation
+from .plottingOptions import PlottingOptions
+from .TkAlExceptions import AllInOneError
+from .trackSplittingValidation import TrackSplittingValidation
+from .zMuMuValidation import ZMuMuValidation
 
 class PreexistingValidation(GenericValidation):
     """

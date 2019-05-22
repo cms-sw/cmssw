@@ -16,7 +16,9 @@ SiStripMatchedRecHit2D::sharesInput( const TrackingRecHit* other,
   }
    
   if (what==all)  return false;
-  // what about multi???
+  // what about multi ???
+  if (!trackerHitRTTI::isFromDet(*other) ) return false;
+
   auto const & otherClus = reinterpret_cast<const BaseTrackerRecHit *>(other)->firstClusterRef();
   return (otherClus==stereoClusterRef())  ||  (otherClus==monoClusterRef());
   

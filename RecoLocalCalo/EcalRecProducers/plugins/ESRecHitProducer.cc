@@ -14,18 +14,13 @@
 
 ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps) :
   digiToken_( consumes<ESDigiCollection>(ps.getParameter<edm::InputTag>("ESdigiCollection")) ),
-  rechitCollection_( ps.getParameter<std::string>("ESrechitCollection") )
+  rechitCollection_( ps.getParameter<std::string>("ESrechitCollection") ),
+  worker_{ESRecHitWorkerFactory::get()->create(ps.getParameter<std::string>("algo"), ps )}
 {
   produces<ESRecHitCollection>(rechitCollection_);
-  
-  std::string const & componentType = ps.getParameter<std::string>("algo");
-  worker_ = ESRecHitWorkerFactory::get()->create( componentType, ps );
 }
 
-ESRecHitProducer::~ESRecHitProducer() {
-
-  delete worker_;
-}
+ESRecHitProducer::~ESRecHitProducer()  = default;
 
 void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 

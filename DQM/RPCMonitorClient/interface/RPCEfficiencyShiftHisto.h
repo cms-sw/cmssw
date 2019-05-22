@@ -11,39 +11,35 @@
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include <string>
 
-
 class DQMStore;
 class RPCDetId;
 
-
-class RPCEfficiencyShiftHisto:public DQMEDHarvester{
+class RPCEfficiencyShiftHisto : public DQMEDHarvester {
 public:
-
   /// Constructor
-  RPCEfficiencyShiftHisto(const edm::ParameterSet& iConfig);
-  
+  RPCEfficiencyShiftHisto(const edm::ParameterSet &iConfig);
+
   /// Destructor
   ~RPCEfficiencyShiftHisto() override;
 
- protected:
+protected:
   void beginJob() override;
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) override; //performed in the endLumi
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;       //performed in the endLumi
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
-  
- private:
+private:
+  MonitorElement *EffBarrelRoll;
+  MonitorElement *EffEndcapPlusRoll;
+  MonitorElement *EffEndcapMinusRoll;
+  MonitorElement *RollPercentage;
 
-
-  MonitorElement * EffBarrelRoll;
-  MonitorElement * EffEndcapPlusRoll;
-  MonitorElement * EffEndcapMinusRoll;
-  MonitorElement * RollPercentage;
-  
-  int  numberOfDisks_;
+  int numberOfDisks_;
   int effCut_;
 
   std::string globalFolder_;
-
 };
 
 #endif

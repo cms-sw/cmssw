@@ -3,14 +3,16 @@
 Classes to check that a set of ROOT files are OK and publish a report
 """
 from __future__ import print_function
+from __future__ import absolute_import
 
+from builtins import range
 import datetime, fnmatch, json, os, shutil, sys, tempfile, time
 import subprocess
 
-import eostools as castortools
-from timeout import timed_out, TimedOutExc
-from castorBaseDir import castorBaseDir
-from dataset import CMSDataset
+from . import eostools as castortools
+from .timeout import timed_out, TimedOutExc
+from .castorBaseDir import castorBaseDir
+from .dataset import CMSDataset
 import six
 
 class PublishToFileSystem(object):
@@ -89,7 +91,7 @@ class IntegrityCheck(object):
     
     def query(self):
         """Query DAS to find out how many events are in the dataset"""
-        from production_tasks import BaseDataset
+        from .production_tasks import BaseDataset
         base = BaseDataset(self.dataset, self.options.user, self.options)
 
         data = None
@@ -144,7 +146,7 @@ class IntegrityCheck(object):
         good_duplicates = {}
         bad_jobs = set()
         sum_dup = 0
-        for i in xrange(mmin, mmax+1):
+        for i in range(mmin, mmax+1):
             if i in files:
                 duplicates = sorted(files[i])
 

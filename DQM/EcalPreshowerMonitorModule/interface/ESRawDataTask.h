@@ -13,42 +13,37 @@
 class MonitorElement;
 
 class ESRawDataTask : public DQMEDAnalyzer {
+public:
+  ESRawDataTask(const edm::ParameterSet& ps);
+  ~ESRawDataTask() override {}
 
-   public:
+protected:
+  /// Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-      ESRawDataTask(const edm::ParameterSet& ps);
-      ~ESRawDataTask() override {}
+  /// EndJob
+  void endJob(void) override;
 
-   protected:
+  /// Setup
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-      /// Analyze
-      void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+private:
+  int ievt_;
 
-      /// EndJob
-      void endJob(void) override;
+  std::string prefixME_;
 
-      /// Setup
-      void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  edm::EDGetTokenT<ESRawDataCollection> dccCollections_;
+  edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_;
 
-   private:
+  //MonitorElement* meRunNumberErrors_;
+  MonitorElement* meL1ADCCErrors_;
+  MonitorElement* meBXDCCErrors_;
+  MonitorElement* meOrbitNumberDCCErrors_;
+  MonitorElement* meL1ADiff_;
+  MonitorElement* meBXDiff_;
+  MonitorElement* meOrbitNumberDiff_;
 
-      int ievt_;
-
-      std::string prefixME_;
-
-      edm::EDGetTokenT<ESRawDataCollection> dccCollections_;
-      edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_;
-
-      //MonitorElement* meRunNumberErrors_;
-      MonitorElement* meL1ADCCErrors_;
-      MonitorElement* meBXDCCErrors_;
-      MonitorElement* meOrbitNumberDCCErrors_;
-      MonitorElement* meL1ADiff_;
-      MonitorElement* meBXDiff_;
-      MonitorElement* meOrbitNumberDiff_;
-
-      int runNum_;
-
+  int runNum_;
 };
 
 #endif

@@ -2,7 +2,7 @@
 //
 // Package:     PluginManager
 // Class  :     DummyFactory
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -17,6 +17,6 @@
 
 namespace testedmplugin {
   DummyBase::~DummyBase() {}
-}
+}  // namespace testedmplugin
 
-EDM_REGISTER_PLUGINFACTORY(testedmplugin::DummyFactory,"Test Dummy");
+EDM_REGISTER_PLUGINFACTORY(testedmplugin::DummyFactory, "Test Dummy");

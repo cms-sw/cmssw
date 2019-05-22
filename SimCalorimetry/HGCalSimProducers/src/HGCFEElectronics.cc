@@ -9,11 +9,24 @@ using namespace hgc_digi;
 //
 template<class DFr>
 HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
-  toaMode_(WEIGHTEDBYE)
+  fwVersion_{ps.getParameter< uint32_t >("fwVersion")},
+  adcPulse_{},
+  pulseAvgT_{},
+  tdcForToAOnset_fC_{},
+  adcSaturation_fC_{-1.0},
+  adcLSB_fC_{}, 
+  tdcLSB_fC_{}, 
+  tdcSaturation_fC_{-1.0},
+  adcThreshold_fC_{}, 
+  tdcOnset_fC_{}, 
+  toaLSB_ns_{}, 
+  tdcResolutionInNs_{1e-9},// set time resolution very small by default
+  jitterNoise2_ns_{}, 
+  jitterConstant2_ns_{},
+  noise_fC_{},
+  toaMode_(WEIGHTEDBYE),
+  thresholdFollowsMIP_ {ps.getParameter< bool >("thresholdFollowsMIP")}
 {
-  tdcResolutionInNs_ = 1e-9; // set time resolution very small by default
-  thresholdFollowsMIP_ = ps.getParameter< bool >("thresholdFollowsMIP");
-  fwVersion_                      = ps.getParameter< uint32_t >("fwVersion");
   edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] running with version " << fwVersion_ << std::endl;
   if( ps.exists("adcPulse") )                       
     {
@@ -30,7 +43,6 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
         pulseAvgT_[i] = (float)temp[i];
       }
     }
-  adcSaturation_fC_=-1.0;
   if( ps.exists("adcNbits") )
     {
       uint32_t adcNbits = ps.getParameter<uint32_t>("adcNbits");
@@ -42,7 +54,6 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
 	 << " saturation to occur @ " << adcSaturation_fC_ << std::endl;
     }
 
-  tdcSaturation_fC_=-1.0;
   if( ps.exists("tdcNbits") )
     {
       uint32_t tdcNbits = ps.getParameter<uint32_t>("tdcNbits");

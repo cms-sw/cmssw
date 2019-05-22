@@ -19,32 +19,28 @@
 
 #include "IOMC/ParticleGuns/interface/BaseFlatGunProducer.h"
 
-namespace edm
-{
+namespace edm {
 
-    class FlatRandomPtAndDxyGunProducer : public BaseFlatGunProducer
-    {
+  class FlatRandomPtAndDxyGunProducer : public BaseFlatGunProducer {
+  public:
+    FlatRandomPtAndDxyGunProducer(const ParameterSet& pset);
+    ~FlatRandomPtAndDxyGunProducer() override;
 
-    public:
-        FlatRandomPtAndDxyGunProducer(const ParameterSet & pset);
-        ~FlatRandomPtAndDxyGunProducer() override;
+    void produce(Event& e, const EventSetup& es) override;
 
-        void produce(Event & e, const EventSetup& es) override;
+  private:
+    // data members
 
-    private:
-
-        // data members
-
-        double            fMinPt   ;
-        double            fMaxPt   ;
-        double            dxyMin_   ;
-        double            dxyMax_   ;
-        double            lxyMax_   ;
-	double 		  lzMax_   ;
-        double            ConeRadius_ ;
-	double 		  ConeH_    ;
-	double	 	  DistanceToAPEX_; 
-    };
-}
+    double fMinPt;
+    double fMaxPt;
+    double dxyMin_;
+    double dxyMax_;
+    double lxyMax_;
+    double lzMax_;
+    double ConeRadius_;
+    double ConeH_;
+    double DistanceToAPEX_;
+  };
+}  // namespace edm
 
 #endif

@@ -272,6 +272,22 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& detid) const {
   return glob;
 }
 
+double HGCalGeometry::getArea(const DetId& detid) const {
+
+  HGCalGeometry::CornersVec corners = getNewCorners(detid);
+  double area(0);
+  if (corners.size() > 1) {
+    int n = corners.size()-1;
+    int j = n-1;
+    for (int i=0; i<n; ++i) {
+      area += ((corners[j].x()+corners[i].x())*
+	       (corners[i].y()-corners[j].y()));
+      j     = i;
+    }
+  }
+  return (0.5*area);
+}
+
 HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& detid) const {
 
   unsigned int ncorner = ((m_det == DetId::HGCalHSc) ? FlatTrd::ncorner_ :
@@ -282,7 +298,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& detid) const {
   if      (cellIndex <  m_cellVec2.size() && m_det == DetId::HGCalHSc) {
     GlobalPoint v = getPosition(detid);
     std::pair<double,double> rr = m_topology.dddConstants().cellSizeTrap(id.iType,id.iSec1);
-    float dr = 0.5*(rr.second-rr.first);
+    float dr = k_half*(rr.second-rr.first);
     float dfi= m_cellVec2[cellIndex].param()[FlatTrd::k_Cell];
     float dz = id.zSide*m_cellVec2[cellIndex].param()[FlatTrd::k_dZ];
     float r  = v.perp();
@@ -300,19 +316,29 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& detid) const {
     if ((mode_ == HGCalGeometryMode::Hexagon) ||
 	(mode_ == HGCalGeometryMode::HexagonFull)) {
       xy = m_topology.dddConstants().locateCellHex(id.iCell1,id.iSec1,true);
+      float dx = m_cellVec[cellIndex].param()[FlatHexagon::k_r];
+      float dy = k_half*m_cellVec[cellIndex].param()[FlatHexagon::k_R];
+      float dz = m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
+      static const int signx[] = {0,-1,-1,0,1,1,0,-1,-1,0,1,1};
+      static const int signy[] = {-2,-1,1,2,1,-1,-2,-1,1,2,1,-1};
+      static const int signz[] = {-1,-1,-1,-1,-1,-1,1,1,1,1,1,1};
+      for (unsigned int i = 0; i < ncorner; ++i) {
+	const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,xy.second+signy[i]*dy,signz[i]*dz);
+	co[i] = m_cellVec[cellIndex].getPosition(lcoord);
+      }
     } else {
       xy = m_topology.dddConstants().locateCell(id.iLay,id.iSec1,id.iSec2,
 						id.iCell1,id.iCell2,true,false);
-    }
-    float dx = m_cellVec[cellIndex].param()[FlatHexagon::k_r];
-    float dy = m_cellVec[cellIndex].param()[FlatHexagon::k_R];
-    float dz = m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
-    static const int signx[] = {0,-1,-1,0,1,1,0,-1,-1,0,1,1};
-    static const int signy[] = {-2,-1,1,2,1,-1,-2,-1,1,2,1,-1};
-    static const int signz[] = {-1,-1,-1,-1,-1,-1,1,1,1,1,1,1};
-    for (unsigned int i = 0; i < ncorner; ++i) {
-      const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,xy.second+signy[i]*dy,signz[i]*dz);
-      co[i] = m_cellVec[cellIndex].getPosition(lcoord);
+      float dx = k_fac2*m_cellVec[cellIndex].param()[FlatHexagon::k_r];
+      float dy = k_fac1*m_cellVec[cellIndex].param()[FlatHexagon::k_R];
+      float dz =-id.zSide*m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
+      static const int signx[] = {1,-1,-2,-1, 1,2,1,-1,-2,-1, 1,2};
+      static const int signy[] = {1, 1, 0,-1,-1,0,1, 1, 0,-1,-1,0};
+      static const int signz[] = {-1,-1,-1,-1,-1,-1,1,1,1,1,1,1};
+      for (unsigned int i = 0; i < ncorner; ++i) {
+	const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,xy.second+signy[i]*dy,signz[i]*dz);
+	co[i] = m_cellVec[cellIndex].getPosition(lcoord);
+      }
     }
   }
   return co;
@@ -327,7 +353,7 @@ HGCalGeometry::CornersVec HGCalGeometry::get8Corners(const DetId& detid) const {
   if      (cellIndex <  m_cellVec2.size() && m_det == DetId::HGCalHSc) {
     GlobalPoint v = getPosition(detid);
     std::pair<double,double> rr = m_topology.dddConstants().cellSizeTrap(id.iType,id.iSec1);
-    float dr = 0.5*(rr.second-rr.first);
+    float dr = k_half*(rr.second-rr.first);
     float dfi= m_cellVec2[cellIndex].param()[FlatTrd::k_Cell];
     float dz = id.zSide*m_cellVec2[cellIndex].param()[FlatTrd::k_dZ];
     float r  = v.perp();
@@ -342,17 +368,19 @@ HGCalGeometry::CornersVec HGCalGeometry::get8Corners(const DetId& detid) const {
     }
   } else if (cellIndex <  m_cellVec.size() && m_det != DetId::HGCalHSc) {
     std::pair<float,float> xy;
+    float                  dx(0);
     if ((mode_ == HGCalGeometryMode::Hexagon) ||
 	(mode_ == HGCalGeometryMode::HexagonFull)) {
       xy = m_topology.dddConstants().locateCellHex(id.iCell1,id.iSec1,true);
+      dx = m_cellVec[cellIndex].param()[FlatHexagon::k_r];
     } else {
       xy = m_topology.dddConstants().locateCell(id.iLay,id.iSec1,id.iSec2,
 						id.iCell1,id.iCell2,true,false);
+      dx = k_fac2*m_cellVec[cellIndex].param()[FlatHexagon::k_r];
     }
     static const int signx[] = {-1,-1,1,1,-1,-1,1,1};
     static const int signy[] = {-1,1,1,-1,-1,1,1,-1};
     static const int signz[] = {-1,-1,-1,-1,1,1,1,1};
-    float dx = m_cellVec[cellIndex].param()[FlatHexagon::k_r];
     float dz = m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
     for (unsigned int i = 0; i < ncorner; ++i) {
       const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,
@@ -372,7 +400,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getNewCorners(const DetId& detid) const
   if (cellIndex <  m_cellVec2.size() && m_det == DetId::HGCalHSc) {
     GlobalPoint v = getPosition(detid);
     std::pair<double,double> rr = m_topology.dddConstants().cellSizeTrap(id.iType,id.iSec1);
-    float dr = 0.5*(rr.second-rr.first);
+    float dr = k_half*(rr.second-rr.first);
     float dfi= m_cellVec2[cellIndex].param()[FlatTrd::k_Cell];
     float dz =-id.zSide*m_cellVec2[cellIndex].param()[FlatTrd::k_dZ];
     float r  = v.perp();
@@ -394,11 +422,11 @@ HGCalGeometry::CornersVec HGCalGeometry::getNewCorners(const DetId& detid) const
       xy = m_topology.dddConstants().locateCell(id.iLay,id.iSec1,id.iSec2,
 						id.iCell1,id.iCell2,true,false);
     }
-    float dx = m_cellVec[cellIndex].param()[FlatHexagon::k_r];
-    float dy = m_cellVec[cellIndex].param()[FlatHexagon::k_R];
+    float dx = k_fac2*m_cellVec[cellIndex].param()[FlatHexagon::k_r];
+    float dy = k_fac1*m_cellVec[cellIndex].param()[FlatHexagon::k_R];
     float dz =-id.zSide*m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
-    static const int signx[] = {0,-1,-1,0,1,1};
-    static const int signy[] = {-2,-1,1,2,1,-1};
+    static const int signx[] = {1,-1,-2,-1, 1,2};
+    static const int signy[] = {1, 1, 0,-1,-1,0};
     for (unsigned int i = 0; i < ncorner-1; ++i) {
       const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,xy.second+signy[i]*dy,dz);
       co[i] = m_cellVec[cellIndex].getPosition(lcoord);
@@ -428,11 +456,15 @@ DetId HGCalGeometry::neighborZ(const DetId& idin,
     GlobalPoint v = getPosition(idin);
     double      z = id.zSide*m_topology.dddConstants().waferZ(lay,true); 
     double   grad = (z - v.z())/momentum.z();
-    GlobalPoint r(v.x()+grad*momentum.x(),v.y()+grad*momentum.y(),z);
-    idnew         = getClosestCell(r);
+    GlobalPoint p(v.x()+grad*momentum.x(),v.y()+grad*momentum.y(),z);
+    double      r = p.perp();
+    auto rlimit   = topology().dddConstants().rangeR(z,true);
+    if (r >= rlimit.first && r <= rlimit.second) idnew = getClosestCell(p);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "neighborz1:: Position " << v << " New Z "
-				<< z << ":" << grad << " new position " << r;
+				<< z << ":" << grad << " new position " << p
+				<< " r-limit " << rlimit.first << ":" 
+				<< rlimit.second;
 #endif
   }
   return idnew;
@@ -463,15 +495,18 @@ DetId HGCalGeometry::neighborZ(const DetId& idin,
 					      Plane::RotationType());
     AnalyticalPropagator myAP (bField, alongMomentum, 2*M_PI);
     TrajectoryStateOnSurface tsos = myAP.propagate(fts, *nPlane);
-    GlobalPoint r;
+    GlobalPoint p;
+    auto rlimit   = topology().dddConstants().rangeR(z,true);
     if (tsos.isValid()) {
-      r      = tsos.globalPosition();
-      idnew  = getClosestCell(r);
+      p      = tsos.globalPosition();
+      double      r = p.perp();
+      if (r >= rlimit.first && r <= rlimit.second) idnew = getClosestCell(p);
     }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "neighborz2:: Position " << v << " New Z "
 				<< z << ":" << charge << ":" << tsos.isValid()
-				<< " new position " << r;
+				<< " new position " << p << " r limits "
+				<< rlimit.first << ":" << rlimit.second;
 #endif
   }
   return idnew;
@@ -704,7 +739,7 @@ void HGCalGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
 	  ParmVec params( numberOfParametersPerShape, 0 );
 	  params[FlatHexagon::k_dZ] = vol.dz;
 	  params[FlatHexagon::k_r]  = vol.cellSize;
-	  params[FlatHexagon::k_R]  = twoBysqrt3_*params[1];
+	  params[FlatHexagon::k_R]  = twoBysqrt3_*params[FlatHexagon::k_r];
 	  dimVector.insert( dimVector.end(), params.begin(), params.end());
 	}
       }
@@ -731,7 +766,7 @@ void HGCalGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
 	  ParmVec params( numberOfParametersPerShape, 0 );
 	  params[FlatHexagon::k_dZ] = vol.dz;
 	  params[FlatHexagon::k_r]  = vol.cellSize;
-	  params[FlatHexagon::k_R]  = twoBysqrt3_*params[1];
+	  params[FlatHexagon::k_R]  = twoBysqrt3_*params[FlatHexagon::k_r];
 	  dimVector.insert( dimVector.end(), params.begin(), params.end());
 	}
       }

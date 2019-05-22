@@ -28,7 +28,7 @@ int main(int argc, char *argv[]){
   }catch(oracle::occi::SQLException &e)
   {
     cout <<"Caught oracle::occi::SQLException exception with error code: "<<e.getErrorCode()<<endl;
-    cout <<"Exception Message:"<<getOraMessage(&e)<<endl;
+    cout <<"Exception Message:"<< e.getMessage()<<endl;
     if (e.getErrorCode()==errCode){
       cout << "OK: Expected exception found:" << errCode << endl;
     }

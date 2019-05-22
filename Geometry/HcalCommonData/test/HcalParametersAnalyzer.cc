@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
 #include "Geometry/Records/interface/HcalParametersRcd.h"
@@ -11,19 +10,20 @@ public:
   explicit HcalParametersAnalyzer( const edm::ParameterSet& );
   ~HcalParametersAnalyzer( void ) override;
   
-  void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}    
+
+private:
+  edm::ESGetToken<HcalParameters, HcalParametersRcd> parToken_;
 };
 
-HcalParametersAnalyzer::HcalParametersAnalyzer( const edm::ParameterSet& ) {}
+HcalParametersAnalyzer::HcalParametersAnalyzer( const edm::ParameterSet& )
+  : parToken_{esConsumes<HcalParameters, HcalParametersRcd>(edm::ESInputTag{})} {}
 
 HcalParametersAnalyzer::~HcalParametersAnalyzer( void ) {}
 
 void HcalParametersAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup ) {
-  edm::ESHandle<HcalParameters> parHandle;
-  iSetup.get<HcalParametersRcd>().get( parHandle );
-  const HcalParameters* pars ( parHandle.product());
+  const auto& parR = iSetup.getData(parToken_);
+  const HcalParameters* pars = &parR;
 
   std::cout << "rHB: ";
   for( const auto& it : pars->rHB ) {

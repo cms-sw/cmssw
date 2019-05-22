@@ -9,6 +9,7 @@
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitBaseAlgo.h"
 
 #include "Geometry/DTGeometry/interface/DTLayer.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -16,10 +17,10 @@ using namespace std;
 using namespace edm;
 
 
-DTRecHitBaseAlgo::DTRecHitBaseAlgo(const ParameterSet& config) {
-  theSync = DTTTrigSyncFactory::get()->create(config.getParameter<string>("tTrigMode"),
-					      config.getParameter<ParameterSet>("tTrigModeConfig"));
-}
+DTRecHitBaseAlgo::DTRecHitBaseAlgo(const ParameterSet& config):
+  theSync{DTTTrigSyncFactory::get()->create(config.getParameter<string>("tTrigMode"),
+                                            config.getParameter<ParameterSet>("tTrigModeConfig"))}
+{}
 
 DTRecHitBaseAlgo::~DTRecHitBaseAlgo(){}
 
@@ -44,13 +45,13 @@ OwnVector<DTRecHit1DPair> DTRecHitBaseAlgo::reconstruct(const DTLayer* layer,
     if (!OK) continue;
 
     // Build a new pair of 1D rechit    
-    DTRecHit1DPair*  recHitPair = new DTRecHit1DPair(wireId, *digi);
+    auto recHitPair = std::make_unique<DTRecHit1DPair>(wireId, *digi);
 
     // Set the position and the error of the 1D rechits
     recHitPair->setPositionAndError(DTEnums::Left, lpoint, tmpErr);
     recHitPair->setPositionAndError(DTEnums::Right, rpoint, tmpErr);        
 
-    result.push_back(recHitPair);
+    result.push_back(std::move(recHitPair));
   }
   return result;
 }

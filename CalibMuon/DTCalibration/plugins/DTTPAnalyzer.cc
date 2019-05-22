@@ -36,7 +36,7 @@ private:
   TFile* rootFile_;
   //const DTT0* tZeroMap_;
   edm::ESHandle<DTGeometry> dtGeom_;
-  DTTTrigBaseSync* tTrigSync_;
+  std::unique_ptr<DTTTrigBaseSync> tTrigSync_;
 
   // Map of the t0 and sigma histos by layer
   std::map<DTWireId, int> nDigisPerWire_;
@@ -67,16 +67,15 @@ private:
 
 DTTPAnalyzer::DTTPAnalyzer(const edm::ParameterSet& pset):
   subtractT0_(pset.getParameter<bool>("subtractT0")),
-  digiLabel_(pset.getParameter<edm::InputTag>("digiLabel")),
-  tTrigSync_(nullptr) {
+  digiLabel_(pset.getParameter<edm::InputTag>("digiLabel")) {
 
   std::string rootFileName = pset.getUntrackedParameter<std::string>("rootFileName");
   rootFile_ = new TFile(rootFileName.c_str(), "RECREATE");
   rootFile_->cd();
 
   if(subtractT0_) 
-     tTrigSync_ = DTTTrigSyncFactory::get()->create(pset.getParameter<std::string>("tTrigMode"),
-                                                    pset.getParameter<edm::ParameterSet>("tTrigModeConfig"));
+    tTrigSync_ = std::unique_ptr<DTTTrigBaseSync>{DTTTrigSyncFactory::get()->create(pset.getParameter<std::string>("tTrigMode"),
+                                                                                    pset.getParameter<edm::ParameterSet>("tTrigModeConfig"))};
 
 }
  

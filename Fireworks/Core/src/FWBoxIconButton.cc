@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWBoxIconButton
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -27,15 +27,10 @@
 //
 // constructors and destructor
 //
-FWBoxIconButton::FWBoxIconButton(const TGWindow* iParent,
-                                 FWBoxIconBase* iBase,
-                                 Int_t iID,
-                                 GContext_t norm ,
-                                 UInt_t option):
-TGButton(iParent,iID,norm,option),
-m_iconBase(iBase)
-{
-   Resize(m_iconBase->edgeLength(),m_iconBase->edgeLength());
+FWBoxIconButton::FWBoxIconButton(
+    const TGWindow* iParent, FWBoxIconBase* iBase, Int_t iID, GContext_t norm, UInt_t option)
+    : TGButton(iParent, iID, norm, option), m_iconBase(iBase) {
+  Resize(m_iconBase->edgeLength(), m_iconBase->edgeLength());
 }
 
 // FWBoxIconButton::FWBoxIconButton(const FWBoxIconButton& rhs)
@@ -43,10 +38,7 @@ m_iconBase(iBase)
 //    // do actual copying here;
 // }
 
-FWBoxIconButton::~FWBoxIconButton()
-{
-   delete m_iconBase;
-}
+FWBoxIconButton::~FWBoxIconButton() { delete m_iconBase; }
 
 //
 // assignment operators
@@ -63,16 +55,9 @@ FWBoxIconButton::~FWBoxIconButton()
 //
 // member functions
 //
-void 
-FWBoxIconButton::DoRedraw()
-{
-   m_iconBase->draw(fId,fNormGC,0,0);
-}
+void FWBoxIconButton::DoRedraw() { m_iconBase->draw(fId, fNormGC, 0, 0); }
 
-void FWBoxIconButton::setNormCG(GContext_t iContext)
-{
-   fNormGC = iContext;
-}
+void FWBoxIconButton::setNormCG(GContext_t iContext) { fNormGC = iContext; }
 
 //
 // const member functions

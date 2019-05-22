@@ -25,92 +25,85 @@
 
 //using namespace std;
 
-int main(int argc , char *argv[]) {
-
-  if(argc==2) {
-    char* cfile = argv[1];
+int main(int argc, char *argv[]) {
+  if (argc == 2) {
+    char *cfile = argv[1];
 
     std::cout << "ready to check file " << cfile << std::endl;
 
     int returncode = check_runcomplete(cfile);
-    if(returncode==0) std::cout << "DQM file is ok" << std::endl;
+    if (returncode == 0)
+      std::cout << "DQM file is ok" << std::endl;
 
-    return  returncode;
+    return returncode;
 
+  } else {
+    std::cout << "Too few arguments: " << argc << std::endl;
+    return -1;
   }
-  else {std::cout << "Too few arguments: " << argc << std::endl; return -1; }
 
   return -9;
-
 }
 
-int check_runcomplete (std::string filename )
-{
-  int runflag = read_runflag ( filename );
-  if ( runflag == 1 )
-    {
-      printf("************************************\n");
-      printf("**\n");
-      printf("** W A R N I N G: the DQM file %s does not exist" , filename.c_str() );
-      printf("**\n");
-      printf("************************************\n");
-    }
-  else if ( runflag == 2 )
-    {
-      printf("************************************\n");
-      printf("**\n");
-      printf("** W A R N I N G: the DQM file %s is incomplete" , filename.c_str() );
-      printf("**\n");
-      printf("************************************\n");
-    }
-  else if ( runflag != 0 )
-    {
-      printf("************************************\n");
-      printf("**\n");
-      printf("** W A R N I N G: problems found in the DQM file %s"  , filename.c_str() );
-      printf("**\n");
-      printf("************************************\n");
-    }
+int check_runcomplete(std::string filename) {
+  int runflag = read_runflag(filename);
+  if (runflag == 1) {
+    printf("************************************\n");
+    printf("**\n");
+    printf("** W A R N I N G: the DQM file %s does not exist", filename.c_str());
+    printf("**\n");
+    printf("************************************\n");
+  } else if (runflag == 2) {
+    printf("************************************\n");
+    printf("**\n");
+    printf("** W A R N I N G: the DQM file %s is incomplete", filename.c_str());
+    printf("**\n");
+    printf("************************************\n");
+  } else if (runflag != 0) {
+    printf("************************************\n");
+    printf("**\n");
+    printf("** W A R N I N G: problems found in the DQM file %s", filename.c_str());
+    printf("**\n");
+    printf("************************************\n");
+  }
   return runflag;
 }
 
-int read_runflag (std::string filename )
-{
-  std::string nrun = filename.substr ( filename.find( "_R000" ) + 5 , 6 );
+int read_runflag(std::string filename) {
+  std::string nrun = filename.substr(filename.find("_R000") + 5, 6);
 
-  TFile *dqmfile = TFile::Open ( filename.c_str() , "READ" );
+  TFile *dqmfile = TFile::Open(filename.c_str(), "READ");
 
-  if(dqmfile==nullptr) return 1;
+  if (dqmfile == nullptr)
+    return 1;
 
   std::string infodir = "DQMData/Run " + nrun + "/Info/Run summary/ProvInfo";
   gDirectory->cd(infodir.c_str());
 
-  TIter next ( gDirectory->GetListOfKeys() );
+  TIter next(gDirectory->GetListOfKeys());
   TKey *key;
 
   int isruncomplete = -1;
 
-  while  ( ( key = dynamic_cast<TKey*> ( next() ) ) ) 
-    {
-      std::string svar = key->GetName();
-      if ( svar.empty() ) continue;
-      
-      if ( svar.find( "runIsComplete" ) != std::string::npos )
-	{
-	  std::string statusflag = svar.substr ( svar.rfind ( "<" ) -1 , 1 );
-	  isruncomplete = atoi ( statusflag.c_str() );
-	}
+  while ((key = dynamic_cast<TKey *>(next()))) {
+    std::string svar = key->GetName();
+    if (svar.empty())
+      continue;
+
+    if (svar.find("runIsComplete") != std::string::npos) {
+      std::string statusflag = svar.substr(svar.rfind("<") - 1, 1);
+      isruncomplete = atoi(statusflag.c_str());
     }
+  }
 
   dqmfile->Close();
 
-  if(isruncomplete == -1) return 3;
-  if(isruncomplete == 0) return 2;
-  if(isruncomplete == 1) return 0;
+  if (isruncomplete == -1)
+    return 3;
+  if (isruncomplete == 0)
+    return 2;
+  if (isruncomplete == 1)
+    return 0;
 
   return -8;
 }
-
-
-
-

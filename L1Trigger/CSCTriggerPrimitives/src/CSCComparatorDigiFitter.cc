@@ -1,4 +1,4 @@
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCComparatorDigiFitter.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCComparatorDigiFitter.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 #include "DataFormats/Math/interface/normalizedPhi.h"
 

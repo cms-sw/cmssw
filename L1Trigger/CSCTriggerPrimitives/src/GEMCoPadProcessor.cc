@@ -1,4 +1,4 @@
-#include "L1Trigger/CSCTriggerPrimitives/src/GEMCoPadProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/GEMCoPadProcessor.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>

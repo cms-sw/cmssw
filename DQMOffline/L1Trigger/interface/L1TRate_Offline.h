@@ -43,7 +43,7 @@
 // class declaration
 //
 
-class L1TRate_Offline : public DQMEDAnalyzer {
+class L1TRate_Offline : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 
 public:
 

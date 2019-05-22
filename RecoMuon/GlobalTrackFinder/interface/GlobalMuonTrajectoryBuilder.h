@@ -30,6 +30,8 @@ class GlobalMuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
     /// destructor
     ~GlobalMuonTrajectoryBuilder() override;
 
+    using GlobalTrajectoryBuilderBase::trajectories;
+
     /// reconstruct trajectories from standalone and tracker only Tracks    
     MuonTrajectoryBuilder::CandidateContainer trajectories(const TrackCand&) override;
 

@@ -62,8 +62,10 @@ PATMuonHeavyObjectCache::PATMuonHeavyObjectCache(const edm::ParameterSet& iConfi
 
   if (iConfig.getParameter<bool>("computeMuonMVA")) {
     edm::FileInPath mvaTrainingFile = iConfig.getParameter<edm::FileInPath>("mvaTrainingFile");
+    edm::FileInPath mvaLowPtTrainingFile = iConfig.getParameter<edm::FileInPath>("lowPtmvaTrainingFile");
     float mvaDrMax = iConfig.getParameter<double>("mvaDrMax");
     muonMvaEstimator_ = std::make_unique<MuonMvaEstimator>(mvaTrainingFile, mvaDrMax);
+    muonLowPtMvaEstimator_ = std::make_unique<MuonMvaEstimator>(mvaLowPtTrainingFile, mvaDrMax);
   }
 
   if (iConfig.getParameter<bool>("computeSoftMuonMVA")) {
@@ -154,11 +156,15 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig, PATMuonHeavy
   //for mini-isolation calculation
   computeMiniIso_ = iConfig.getParameter<bool>("computeMiniIso");
 
+  computePuppiCombinedIso_ = iConfig.getParameter<bool>("computePuppiCombinedIso");
+
+  effectiveAreaVec_ = iConfig.getParameter<std::vector<double> >("effectiveAreaVec");
+
   miniIsoParams_ = iConfig.getParameter<std::vector<double> >("miniIsoParams");
   if(computeMiniIso_ && miniIsoParams_.size() != 9){
       throw cms::Exception("ParameterError") << "miniIsoParams must have exactly 9 elements.\n";
   }
-  if(computeMiniIso_)
+  if(computeMiniIso_ || computePuppiCombinedIso_)
       pcToken_ = consumes<pat::PackedCandidateCollection >(iConfig.getParameter<edm::InputTag>("pfCandsForMiniIso"));
 
   // standard selectors
@@ -302,7 +308,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
   
   edm::Handle<pat::PackedCandidateCollection> pc;
-  if(computeMiniIso_)
+  if(computeMiniIso_ || computePuppiCombinedIso_)
       iEvent.getByToken(pcToken_, pc);
 
   // get the ESHandle for the transient track builder,
@@ -603,11 +609,13 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	aMuon.setSimPdgId(msi.pdgId);
 	aMuon.setSimMotherPdgId(msi.motherPdgId);
 	aMuon.setSimBX(msi.tpBX);
+	aMuon.setSimTpEvent(msi.tpEvent);
 	aMuon.setSimProdRho(msi.vertex.Rho());
 	aMuon.setSimProdZ(msi.vertex.Z());
 	aMuon.setSimPt(msi.p4.pt());
 	aMuon.setSimEta(msi.p4.eta());
 	aMuon.setSimPhi(msi.p4.phi());
+	aMuon.setSimMatchQuality(msi.tpAssoQuality);
       }
       patMuons->push_back(aMuon);
     }
@@ -645,49 +653,83 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     if (recomputeBasicSelectors_){
       muon.setSelectors(0);
       bool isRun2016BCDEF = (272728 <= iEvent.run() && iEvent.run() <= 278808);
-      muon::setCutBasedSelectorFlags(muon, pv, isRun2016BCDEF);
+      muon.setSelectors(muon::makeSelectorBitset(muon, pv, isRun2016BCDEF));
     }
-    double miniIsoValue = -1;
+    float miniIsoValue = -1;
     if (computeMiniIso_){
       // MiniIsolation working points
-      double miniIsoValue = getRelMiniIsoPUCorrected(muon,*rho);
+
+      miniIsoValue = getRelMiniIsoPUCorrected(muon,*rho, effectiveAreaVec_);
+
       muon.setSelector(reco::Muon::MiniIsoLoose,     miniIsoValue<0.40);
       muon.setSelector(reco::Muon::MiniIsoMedium,    miniIsoValue<0.20);
       muon.setSelector(reco::Muon::MiniIsoTight,     miniIsoValue<0.10);
       muon.setSelector(reco::Muon::MiniIsoVeryTight, miniIsoValue<0.05);
     }
+
+    double puppiCombinedIsolationPAT = -1;
+    if(computePuppiCombinedIso_){
+
+      puppiCombinedIsolationPAT=puppiCombinedIsolation(muon, pc.product());
+      muon.setSelector(reco::Muon::PuppiIsoLoose, puppiCombinedIsolationPAT<0.27);
+      muon.setSelector(reco::Muon::PuppiIsoMedium, puppiCombinedIsolationPAT<0.22);
+      muon.setSelector(reco::Muon::PuppiIsoTight, puppiCombinedIsolationPAT<0.12);
+    }
+
     float jetPtRatio = 0.0;
     float jetPtRel = 0.0;
     float mva = 0.0;
-    if (computeMuonMVA_ && primaryVertexIsValid){
-      if (mvaUseJec_)
+    float mva_lowpt = 0.0;
+    if (computeMuonMVA_ && primaryVertexIsValid && computeMiniIso_){
+      if (mvaUseJec_){
         mva = globalCache()->muonMvaEstimator()->computeMva(muon,
                                                             primaryVertex,
                                                             *(mvaBTagCollectionTag.product()),
                                                             jetPtRatio,
                                                             jetPtRel,
+							    miniIsoValue,
                                                             &*mvaL1Corrector,
-                                                            &*mvaL1L2L3ResCorrector);
-      else
+                                                            &*mvaL1L2L3ResCorrector
+							    );
+        mva_lowpt = globalCache()->muonLowPtMvaEstimator()->computeMva(muon,
+								       primaryVertex,
+								       *(mvaBTagCollectionTag.product()),
+								       jetPtRatio,
+								       jetPtRel,
+								       miniIsoValue,
+								       &*mvaL1Corrector,
+								       &*mvaL1L2L3ResCorrector
+								       );
+	
+      }
+      else{
 	mva = globalCache()->muonMvaEstimator()->computeMva(muon,
                                                             primaryVertex,
                                                             *(mvaBTagCollectionTag.product()),
                                                             jetPtRatio,
-                                                            jetPtRel);
+                                                            jetPtRel,
+							    miniIsoValue);
+	mva_lowpt = globalCache()->muonLowPtMvaEstimator()->computeMva(muon,
+								       primaryVertex,
+								       *(mvaBTagCollectionTag.product()),
+								       jetPtRatio,
+								       jetPtRel,
+								       miniIsoValue);
+      }
 
       muon.setMvaValue(mva);
+      muon.setLowPtMvaValue(mva_lowpt);
       muon.setJetPtRatio(jetPtRatio);
       muon.setJetPtRel(jetPtRel);
 
       // multi-isolation
       if (computeMiniIso_){
-	muon.setSelector(reco::Muon::MultiIsoLoose,  miniIsoValue<0.40 && (muon.jetPtRatio() > 0.80 || muon.jetPtRel() > 7.2) );
-	muon.setSelector(reco::Muon::MultiIsoMedium, miniIsoValue<0.16 && (muon.jetPtRatio() > 0.76 || muon.jetPtRel() > 7.2) );
+	muon.setSelector(reco::Muon::MultiIsoMedium, miniIsoValue<0.11 && (muon.jetPtRatio() > 0.74 || muon.jetPtRel() > 6.8) );
       }
 
       // MVA working points
       // https://twiki.cern.ch/twiki/bin/viewauth/CMS/LeptonMVA
-      double dB2D  = fabs(muon.dB(pat::Muon::BS2D));
+      double dB2D  = fabs(muon.dB(pat::Muon::PV2D));
       double dB3D  = fabs(muon.dB(pat::Muon::PV3D));
       double edB3D = fabs(muon.edB(pat::Muon::PV3D));
       double sip3D = edB3D>0?dB3D/edB3D:0.0; 
@@ -700,9 +742,16 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	muon.setSelector(reco::Muon::MvaLoose,  muon.mvaValue()>-0.60);
 	muon.setSelector(reco::Muon::MvaMedium, muon.mvaValue()>-0.20);
 	muon.setSelector(reco::Muon::MvaTight,  muon.mvaValue()> 0.15);
+	muon.setSelector(reco::Muon::MvaVTight,  muon.mvaValue()> 0.45);
+	muon.setSelector(reco::Muon::MvaVVTight,  muon.mvaValue()> 0.9);
+      }
+      if (muon.pt()>5 and muon.isLooseMuon() and
+	  sip3D<4 and dB2D < 0.5 and dz < 1){
+	muon.setSelector(reco::Muon::LowPtMvaLoose,  muon.lowptMvaValue()>-0.60);
+	muon.setSelector(reco::Muon::LowPtMvaMedium, muon.lowptMvaValue()>-0.20);
       }
     }
-
+    
     //SOFT MVA
     if (computeSoftMuonMVA_){
       float mva = globalCache()->softMuonMvaEstimator()->computeMva(muon);
@@ -806,13 +855,76 @@ void PATMuonProducer::setMuonMiniIso(Muon& aMuon, const PackedCandidateCollectio
   aMuon.setMiniPFIsolation(miniiso);
 }
 
-double PATMuonProducer::getRelMiniIsoPUCorrected(const pat::Muon& muon, float rho)
+double PATMuonProducer::getRelMiniIsoPUCorrected(const pat::Muon& muon, double rho, const std::vector<double> &area)
 {
-  float mindr(miniIsoParams_[0]);
-  float maxdr(miniIsoParams_[1]);
-  float kt_scale(miniIsoParams_[2]);
-  float drcut = pat::miniIsoDr(muon.p4(),mindr,maxdr,kt_scale);
-  return pat::muonRelMiniIsoPUCorrected(muon.miniPFIsolation(), muon.p4(), drcut, rho);
+  double mindr(miniIsoParams_[0]);
+  double maxdr(miniIsoParams_[1]);
+  double kt_scale(miniIsoParams_[2]);
+  double drcut = pat::miniIsoDr(muon.p4(),mindr,maxdr,kt_scale);
+  return pat::muonRelMiniIsoPUCorrected(muon.miniPFIsolation(), muon.p4(), drcut, rho, area);
+}
+
+
+double PATMuonProducer::puppiCombinedIsolation(const pat::Muon& muon, const pat::PackedCandidateCollection *pc)
+{
+  double dR_threshold = 0.4;
+  double dR2_threshold = dR_threshold * dR_threshold;
+  double mix_fraction = 0.5;
+  enum particleType{
+      CH = 0,
+      NH = 1,
+      PH = 2,
+      OTHER = 100000
+    };
+  double val_PuppiWithLep = 0.0;
+  double val_PuppiWithoutLep = 0.0;  
+
+  for(const auto & cand : *pc){//pat::pat::PackedCandidate loop start
+
+     const particleType pType =
+        isChargedHadron( cand.pdgId() ) ? CH :
+        isNeutralHadron( cand.pdgId() ) ? NH :
+        isPhoton( cand.pdgId() ) ? PH : OTHER;
+     if( pType == OTHER ){
+        if( cand.pdgId() != 1 && cand.pdgId() != 2
+        && abs( cand.pdgId() ) != 11
+        && abs( cand.pdgId() ) != 13){
+        LogTrace("PATMuonProducer") <<"candidate with PDGID = " << cand.pdgId() << " is not CH/NH/PH/e/mu or 1/2 (and this is removed from isolation calculation)" << std::endl;
+       }
+       continue;
+     }
+     double d_eta = std::abs( cand.eta() - muon.eta() );
+     if( d_eta > dR_threshold ) continue;
+
+     double d_phi = std::abs(reco::deltaPhi(cand.phi(),muon.phi()));
+     if( d_phi > dR_threshold ) continue ;
+
+     double dR2=reco::deltaR2(cand, muon);
+     if( dR2  > dR2_threshold ) continue;
+     if( pType == CH && dR2 < 0.0001*0.0001 ) continue;
+     if( pType == NH && dR2 < 0.01  *0.01   ) continue;
+     if( pType == PH && dR2 < 0.01  *0.01   ) continue;
+     val_PuppiWithLep += cand.pt() * cand.puppiWeight();
+     val_PuppiWithoutLep += cand.pt() * cand.puppiWeightNoLep();
+
+  }//pat::pat::PackedCandidate loop end
+
+  double reliso_Puppi_withLep    = val_PuppiWithLep/muon.pt();
+  double reliso_Puppi_withoutlep = val_PuppiWithoutLep/muon.pt();
+  double reliso_Puppi_combined = mix_fraction * reliso_Puppi_withLep + ( 1.0 - mix_fraction) * reliso_Puppi_withoutlep;
+  return reliso_Puppi_combined;
+}
+
+bool PATMuonProducer::isNeutralHadron( long pdgid ){
+ return std::abs(pdgid) == 130;
+}
+
+bool PATMuonProducer::isChargedHadron( long pdgid ){
+ return std::abs(pdgid) == 211;
+}
+
+bool PATMuonProducer::isPhoton( long pdgid ){
+ return pdgid==22;
 }
 
 // ParameterSet description for module
@@ -857,6 +969,8 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
 
   // mini-iso
   iDesc.add<bool>("computeMiniIso", false)->setComment("whether or not to compute and store electron mini-isolation");
+  iDesc.add<bool>("computePuppiCombinedIso",false)->setComment("whether or not to compute and store puppi combined isolation");
+
   iDesc.add<edm::InputTag>("pfCandsForMiniIso", edm::InputTag("packedPFCandidates"))->setComment("collection to use to compute mini-iso");
   iDesc.add<std::vector<double> >("miniIsoParams", std::vector<double>())->setComment("mini-iso parameters to use for muons");
 

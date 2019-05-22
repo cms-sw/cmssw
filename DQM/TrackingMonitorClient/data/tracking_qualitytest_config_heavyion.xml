@@ -28,6 +28,20 @@
      <PARAM name="xmax">100.0</PARAM> 
 </QTEST>
 
+<LINK name="*TrackParameters/GeneralProperties/NumberOfTracks_GenTk">
+  <TestName activate="true">XrangeWithin:NumberOfTracks</TestName>
+</LINK>
+<LINK name="*TrackParameters/HitProperties/NumberOfRecHitsPerTrack_GenTk">
+  <TestName activate="true">XrangeWithin:NumberOfRecHitsPerTrk</TestName>
+</LINK>
+<LINK name="*TrackParameters/GeneralProperties/Chi2oNDF_GenTk">
+  <TestName activate="true">XrangeWithin:Chi2overDoF</TestName>
+</LINK>
+<LINK name="*TrackParameters/GeneralProperties/TrackPt_ImpactPoint_GenTk">
+  <TestName activate="true">XrangeWithin:TrackPt</TestName>
+</LINK>
+
+<!--
 <LINK name="*TrackParameters/GeneralProperties/NumberOfTracks_HeavyIonTk">
   <TestName activate="true">XrangeWithin:NumberOfTracks</TestName>
 </LINK>
@@ -40,4 +54,6 @@
 <LINK name="*TrackParameters/GeneralProperties/TrackPt_ImpactPoint_HeavyIonTk">
   <TestName activate="true">XrangeWithin:TrackPt</TestName>
 </LINK>
+-->
+
 </TESTCONFIGURATION>

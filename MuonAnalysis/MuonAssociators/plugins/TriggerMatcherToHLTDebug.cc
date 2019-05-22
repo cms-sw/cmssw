@@ -245,7 +245,6 @@ void TriggerMatcherToHLTDebug::produce(Event &event, const EventSetup &eventSetu
     double etaTk = stateAtMB2.globalPosition().eta();
     double phiTk = stateAtMB2.globalPosition().phi();
     l1extra::L1MuonParticleCollection::const_iterator it;
-    vector<l1extra::L1MuonParticleRef>::const_iterator itMu3;
     L2MuonTrajectorySeedCollection::const_iterator iSeed;
     L3MuonTrajectorySeedCollection::const_iterator iSeedL3;
     RecoChargedCandidateCollection::const_iterator iL2Muon;

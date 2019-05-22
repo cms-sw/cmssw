@@ -34,7 +34,7 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons,
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     det_        = (DetId::Detector)(det);
     subdet_     = ForwardEmpty;
-    kHGeomHalf_ = sectors_*layers_*cells_;
+    kHGeomHalf_ = sectors_*layers_*cellMax_;
     types_      = 2;
   } else {
     det_        = (DetId::Detector)(det);
@@ -70,7 +70,7 @@ std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Type:WaferU:WaferV " << id.iType << ":"
 				  << id.iCell1 << ":" << id.iCell2 
-				  << " CellType " << celltype;
+				  << " CellType " << static_cast<std::underlying_type<HGCalDDDConstants::CellType>::type>(celltype);
 #endif
     switch (celltype) {
     case(HGCalDDDConstants::CellType::CentralType): {

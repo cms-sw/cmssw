@@ -31,22 +31,19 @@ using namespace std;
 using namespace edm;
 
 DTVDriftWriter::DTVDriftWriter(const ParameterSet& pset):
-  granularity_( pset.getUntrackedParameter<string>("calibGranularity","bySL") ) {
+  granularity_( pset.getUntrackedParameter<string>("calibGranularity","bySL") ),
+  vDriftAlgo_{DTVDriftPluginFactory::get()->create(pset.getParameter<string>("vDriftAlgo"),
+                                                   pset.getParameter<ParameterSet>("vDriftAlgoConfig"))}
+ {
 
   LogVerbatim("Calibration") << "[DTVDriftWriter]Constructor called!";
 
   if(granularity_ != "bySL")
      throw cms::Exception("Configuration") << "[DTVDriftWriter] Check parameter calibGranularity: " << granularity_ << " option not available.";
-
-  // Get the concrete algo from the factory
-  string algoName = pset.getParameter<string>("vDriftAlgo");
-  ParameterSet algoPSet = pset.getParameter<ParameterSet>("vDriftAlgoConfig");
-  vDriftAlgo_ = DTVDriftPluginFactory::get()->create(algoName,algoPSet);
 }
 
 DTVDriftWriter::~DTVDriftWriter(){
   LogVerbatim("Calibration") << "[DTVDriftWriter]Destructor called!";
-  delete vDriftAlgo_;
 }
 
 void DTVDriftWriter::beginRun(const edm::Run& run, const edm::EventSetup& setup) {

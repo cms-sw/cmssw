@@ -356,9 +356,9 @@ GsfTrackProducerBase::computeModeAtTM (const TrajectoryMeasurement& tm,
   //
   // states
   //
-  TrajectoryStateOnSurface fwdState = tm.forwardPredictedState();
-  TrajectoryStateOnSurface bwdState = tm.backwardPredictedState();
-  TrajectoryStateOnSurface upState  = tm.updatedState();
+  TrajectoryStateOnSurface const& fwdState = tm.forwardPredictedState();
+  TrajectoryStateOnSurface const& bwdState = tm.backwardPredictedState();
+  TrajectoryStateOnSurface const& upState  = tm.updatedState();
 
 
   if ( !fwdState.isValid() || !bwdState.isValid() || !upState.isValid() ) {
@@ -370,9 +370,8 @@ GsfTrackProducerBase::computeModeAtTM (const TrajectoryMeasurement& tm,
   //
   GlobalPoint pos = upState.globalPosition();
   position = reco::GsfTrackExtra::Point(pos.x(),pos.y(),pos.z());
-  MultiTrajectoryStateMode mts;
   GlobalVector mom;
-  bool result = mts.momentumFromModeCartesian(upState,mom);
+  bool result = multiTrajectoryStateMode::momentumFromModeCartesian(upState,mom);
   if ( !result ) {
 //     std::cout << "momentumFromModeCartesian failed" << std::endl;
     return false;

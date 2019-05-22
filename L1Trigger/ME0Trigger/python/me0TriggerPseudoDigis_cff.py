@@ -22,13 +22,13 @@ me0TriggerPseudoDigis = me0Segments.clone(
 ## 1.2 is to make the matching window safely the two nearest strips
 ## 0.35 is the size of an ME0 chamber in radians
 ## nStrips is divided by 2 since we use 2-strip trigger pads
-nStrips = simMuonME0PseudoReDigisCoarse.numberOfStrips.value()/2
+nStrips = simMuonME0PseudoReDigisCoarse.numberOfStrips.value()//2
 maxPhi = 1.2*0.35/nStrips
 me0TriggerPseudoDigis.algo_psets[1].algo_pset.maxPhiAdditional = cms.double(maxPhi)
 me0TriggerPseudoDigis.algo_psets[1].algo_pset.maxPhiSeeds = cms.double(maxPhi)
 
-me0TriggerPseudoDigiSequence = cms.Sequence(
-    simMuonME0PseudoReDigisCoarse *
-    me0RecHitsCoarse *
+me0TriggerPseudoDigiTask = cms.Task(
+    simMuonME0PseudoReDigisCoarse,
+    me0RecHitsCoarse,
     me0TriggerPseudoDigis
 )

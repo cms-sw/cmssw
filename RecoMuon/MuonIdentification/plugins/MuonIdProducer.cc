@@ -33,8 +33,7 @@
 
 #include "RecoMuon/MuonIdentification/interface/MuonKinkFinder.h"
 
-MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
-muIsoExtractorCalo_(nullptr),muIsoExtractorTrack_(nullptr),muIsoExtractorJet_(nullptr)
+MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
 {
   
   LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: Constructor called";
@@ -57,8 +56,10 @@ muIsoExtractorCalo_(nullptr),muIsoExtractorTrack_(nullptr),muIsoExtractorJet_(nu
    maxAbsPullY_             = iConfig.getParameter<double>("maxAbsPullY");
    fillCaloCompatibility_   = iConfig.getParameter<bool>("fillCaloCompatibility");
    fillEnergy_              = iConfig.getParameter<bool>("fillEnergy");
+   storeCrossedHcalRecHits_ = iConfig.getParameter<bool>("storeCrossedHcalRecHits");
    fillMatching_            = iConfig.getParameter<bool>("fillMatching");
    fillIsolation_           = iConfig.getParameter<bool>("fillIsolation");
+   fillShowerDigis_         = iConfig.getParameter<bool>("fillShowerDigis");
    writeIsoDeposits_        = iConfig.getParameter<bool>("writeIsoDeposits");
    fillGlobalTrackQuality_  = iConfig.getParameter<bool>("fillGlobalTrackQuality");
    fillGlobalTrackRefits_   = iConfig.getParameter<bool>("fillGlobalTrackRefits");
@@ -79,8 +80,14 @@ muIsoExtractorCalo_(nullptr),muIsoExtractorTrack_(nullptr),muIsoExtractorJet_(nu
 
    // Load parameters for the TimingFiller
    edm::ParameterSet timingParameters = iConfig.getParameter<edm::ParameterSet>("TimingFillerParameters");
-   theTimingFiller_ = new MuonTimingFiller(timingParameters,consumesCollector());
-   
+   theTimingFiller_ = std::make_unique<MuonTimingFiller>(timingParameters,consumesCollector());
+
+   // Load parameters for the ShowerDigiFiller
+   if (fillShowerDigis_ && fillMatching_)
+     {
+       edm::ParameterSet showerDigiParameters = iConfig.getParameter<edm::ParameterSet>("ShowerDigiFillerParameters");
+       theShowerDigiFiller_ = std::make_unique<MuonShowerDigiFiller>(showerDigiParameters,consumesCollector());
+     }
 
    if (fillCaloCompatibility_){
       // Load MuonCaloCompatibility parameters
@@ -92,15 +99,15 @@ muIsoExtractorCalo_(nullptr),muIsoExtractorTrack_(nullptr),muIsoExtractorJet_(nu
       // Load MuIsoExtractor parameters
       edm::ParameterSet caloExtractorPSet = iConfig.getParameter<edm::ParameterSet>("CaloExtractorPSet");
       std::string caloExtractorName = caloExtractorPSet.getParameter<std::string>("ComponentName");
-      muIsoExtractorCalo_ = IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet,consumesCollector());
+      muIsoExtractorCalo_ = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet,consumesCollector())};
 
       edm::ParameterSet trackExtractorPSet = iConfig.getParameter<edm::ParameterSet>("TrackExtractorPSet");
       std::string trackExtractorName = trackExtractorPSet.getParameter<std::string>("ComponentName");
-      muIsoExtractorTrack_ = IsoDepositExtractorFactory::get()->create( trackExtractorName, trackExtractorPSet,consumesCollector());
+      muIsoExtractorTrack_ = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{IsoDepositExtractorFactory::get()->create( trackExtractorName, trackExtractorPSet,consumesCollector())};
 
       edm::ParameterSet jetExtractorPSet = iConfig.getParameter<edm::ParameterSet>("JetExtractorPSet");
       std::string jetExtractorName = jetExtractorPSet.getParameter<std::string>("ComponentName");
-      muIsoExtractorJet_ = IsoDepositExtractorFactory::get()->create( jetExtractorName, jetExtractorPSet,consumesCollector());
+      muIsoExtractorJet_ = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{IsoDepositExtractorFactory::get()->create( jetExtractorName, jetExtractorPSet,consumesCollector())};
    }
    if (fillIsolation_ && writeIsoDeposits_){
      trackDepositName_ = iConfig.getParameter<std::string>("trackDepositName");
@@ -138,7 +145,7 @@ muIsoExtractorCalo_(nullptr),muIsoExtractorTrack_(nullptr),muIsoExtractorJet_(nu
    }
 
    //create mesh holder
-   meshAlgo_ = new MuonMesh(iConfig.getParameter<edm::ParameterSet>("arbitrationCleanerOptions"));
+   meshAlgo_ = std::make_unique<MuonMesh>(iConfig.getParameter<edm::ParameterSet>("arbitrationCleanerOptions"));
 
 
    edm::InputTag rpcHitTag("rpcRecHits");
@@ -181,11 +188,6 @@ muIsoExtractorCalo_(nullptr),muIsoExtractorTrack_(nullptr),muIsoExtractorJet_(nu
 
 MuonIdProducer::~MuonIdProducer()
 {
-   if (muIsoExtractorCalo_) delete muIsoExtractorCalo_;
-   if (muIsoExtractorTrack_) delete muIsoExtractorTrack_;
-   if (muIsoExtractorJet_) delete muIsoExtractorJet_;
-   if (theTimingFiller_) delete theTimingFiller_;
-   if (meshAlgo_) delete meshAlgo_;
    // TimingReport::current()->dump(std::cout);
 }
 
@@ -431,6 +433,8 @@ void MuonIdProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 
   meshAlgo_->setCSCGeometry(geomHandle.product());
 
+  if (fillShowerDigis_ && fillMatching_)
+    theShowerDigiFiller_->getES(iSetup);
 }
 
 bool validateGlobalMuonPair( const reco::MuonTrackLinks& goodMuon,
@@ -454,6 +458,9 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    auto caloMuons = std::make_unique<reco::CaloMuonCollection>();
 
    init(iEvent, iSetup);
+
+  if (fillShowerDigis_ && fillMatching_)
+      theShowerDigiFiller_->getDigis(iEvent);
 
    // loop over input collections
 
@@ -819,6 +826,17 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
       muonEnergy.hadS9   = info.nXnEnergy(TrackDetMatchInfo::HcalRecHits,1); // 3x3 energy
       muonEnergy.hoS9    = info.nXnEnergy(TrackDetMatchInfo::HORecHits,1);   // 3x3 energy
       muonEnergy.towerS9 = info.nXnEnergy(TrackDetMatchInfo::TowerTotal,1);  // 3x3 energy
+      if (storeCrossedHcalRecHits_) {
+	muonEnergy.crossedHadRecHits.clear();
+	for (auto hit: info.crossedHcalRecHits){
+	  reco::HcalMuonRecHit mhit;
+	  mhit.energy = hit->energy();
+	  mhit.chi2   = hit->chi2();
+	  mhit.time   = hit->time();
+	  mhit.detId  = hit->id();
+	  muonEnergy.crossedHadRecHits.push_back(mhit);
+	}
+      }
       muonEnergy.ecal_position = info.trkGlobPosAtEcal;
       muonEnergy.hcal_position = info.trkGlobPosAtHcal;
       if (! info.crossedEcalIds.empty() ) muonEnergy.ecal_id = info.crossedEcalIds.front();
@@ -870,6 +888,14 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
      matchedChamber.edgeY = chamber.localDistanceY;
 
      matchedChamber.id = chamber.id;
+
+     if (fillShowerDigis_) {
+       theShowerDigiFiller_->fill(matchedChamber);
+     }
+     else {
+       theShowerDigiFiller_->fillDefault(matchedChamber);
+     }
+
      if ( ! chamber.segments.empty() ) ++nubmerOfMatchesAccordingToTrackAssociator;
 
      // fill segments
@@ -951,6 +977,8 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 
        matchedChamber.edgeX = chamber.localDistanceX;
        matchedChamber.edgeY = chamber.localDistanceY;
+
+       theShowerDigiFiller_->fillDefault(matchedChamber);
 
        matchedChamber.id = chamber.id;
 
@@ -1317,6 +1345,8 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.setAllowAnything();
   
   desc.add<bool>("arbitrateTrackerMuons",false);
+  desc.add<bool>("storeCrossedHcalRecHits",false);
+  desc.add<bool>("fillShowerDigis",false);
 
   edm::ParameterSetDescription descTrkAsoPar;
   descTrkAsoPar.add<edm::InputTag>("GEMSegmentCollectionLabel",edm::InputTag("gemSegments"));

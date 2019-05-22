@@ -51,20 +51,13 @@ CSCSegmentBuilder::CSCSegmentBuilder(const edm::ParameterSet& ps) : geom_(nullpt
     // Ask factory to build this algorithm, giving it appropriate ParameterSet
             
     for (size_t j=0; j<chType.size(); ++j) {
-        algoMap[chType[j]] = CSCSegmentBuilderPluginFactory::get()->
-                create(algoName, segAlgoPSet[algoToType[j]-1]);
+        algoMap.emplace(chType[j], CSCSegmentBuilderPluginFactory::get()->
+                        create(algoName, segAlgoPSet[algoToType[j]-1]));
 	edm::LogVerbatim("CSCSegment|CSC")<< "using algorithm #" << algoToType[j] << " for chamber type " << chType[j];
     }
 }
 
-CSCSegmentBuilder::~CSCSegmentBuilder() {
-  //
-  // loop on algomap and delete them
-  //
-  for (std::map<std::string, CSCSegmentAlgorithm*>::iterator it = algoMap.begin();it != algoMap.end(); it++){
-    delete ((*it).second);
-  }
-}
+CSCSegmentBuilder::~CSCSegmentBuilder() = default;
 
 void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits, CSCSegmentCollection& oc) {
   	

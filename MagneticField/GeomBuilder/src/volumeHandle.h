@@ -173,14 +173,14 @@ private:
 // Extractors for precomputed_value_sort() (safe sorting)
 
 // To sort volumes in Z
-struct MagGeoBuilderFromDDD::ExtractZ : public uFcn {
+struct MagGeoBuilderFromDDD::ExtractZ {
   double operator()(const volumeHandle* v) const {
     return v->center().z();
   }
 };
 
 // To sort volumes in abs(Z)
-struct MagGeoBuilderFromDDD::ExtractAbsZ : public uFcn {
+struct MagGeoBuilderFromDDD::ExtractAbsZ {
   double operator()(const volumeHandle* v) const {
     return fabs(v->center().z());
   }
@@ -188,7 +188,7 @@ struct MagGeoBuilderFromDDD::ExtractAbsZ : public uFcn {
 
 
 // To sort volumes in phi (from -pi to pi).
-struct MagGeoBuilderFromDDD::ExtractPhi : public uFcn {
+struct MagGeoBuilderFromDDD::ExtractPhi {
   double operator()(const volumeHandle* v) const {
     // note that Geom::Phi is implicitly converted to double.
     // Periodicity is guaranteed.
@@ -197,7 +197,7 @@ struct MagGeoBuilderFromDDD::ExtractPhi : public uFcn {
 };
 
 // To sort volumes based on max phi(from -pi to pi).
-struct MagGeoBuilderFromDDD::ExtractPhiMax : public uFcn {
+struct MagGeoBuilderFromDDD::ExtractPhiMax {
   double operator()(const volumeHandle* v) const {
     // note that Geom::Phi is implicitly converted to double.
     // Periodicity is guaranteed.
@@ -206,14 +206,14 @@ struct MagGeoBuilderFromDDD::ExtractPhiMax : public uFcn {
 };
 
 // To sort volumes in R
-struct MagGeoBuilderFromDDD::ExtractR : public uFcn {
+struct MagGeoBuilderFromDDD::ExtractR {
   double operator()(const volumeHandle* v) const {
     return v->center().perp();
   }
 };
 
 // To sort volumes in RN (distance of (x,y) plane from origin)
-  struct MagGeoBuilderFromDDD::ExtractRN : public uFcn {
+struct MagGeoBuilderFromDDD::ExtractRN {
   double operator()(const volumeHandle* v) const {
     return v->RN();
   }
@@ -224,7 +224,7 @@ struct MagGeoBuilderFromDDD::ExtractR : public uFcn {
 // even if the angles cross the pi boundary.
 // CAVEAT: // The result is undefined if the input values cover a 
 // range larger than pi!!!
-struct MagGeoBuilderFromDDD::LessDPhi{
+struct MagGeoBuilderFromDDD::LessDPhi {
   bool operator()(double phi1, double phi2) const {
     // handle periodicity
     return ((Geom::Phi<float>(phi2)-Geom::Phi<float>(phi1))>0.);
@@ -234,7 +234,7 @@ struct MagGeoBuilderFromDDD::LessDPhi{
 // Compare the Z of volumes.
 // Should be used ONLY for std::max_element and std::min_element 
 // and NEVER for sorting (use precomputed_value_sort with ExtractZ instead)
-struct MagGeoBuilderFromDDD::LessZ{
+struct MagGeoBuilderFromDDD::LessZ {
   bool operator()(const volumeHandle * v1, const volumeHandle * v2) const
   {
     if (v1->center().z() < v2->center().z()) return true;

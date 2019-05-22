@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from builtins import range
 from itertools import groupby
 from operator import attrgetter,itemgetter
 import sys
@@ -50,7 +51,7 @@ To Use: Add the StallMonitor Service to the cmsRun job you want to check for
   There are problems associated with this and it is not recommended.'''
     return s
 
-kStallThreshold=100 #in milliseconds
+kStallThreshold=100000 #in microseconds
 kTracerInput=False
 
 #Stream states
@@ -180,7 +181,7 @@ def getTime(line):
     time = line.split(" ")[1]
     time = time.split(":")
     time = int(time[0])*60*60+int(time[1])*60+float(time[2])
-    time = int(1000*time) # convert to milliseconds
+    time = int(1000000*time) # convert to microseconds
     return time
 
 #----------------------------------------------
@@ -317,7 +318,7 @@ def findStalledModules(processingSteps, numStreams):
     streamTime = [0]*numStreams
     streamState = [0]*numStreams
     stalledModules = {}
-    modulesActiveOnStream = [{} for x in xrange(numStreams)]
+    modulesActiveOnStream = [{} for x in range(numStreams)]
     for n,trans,s,time,isEvent in processingSteps:
 
         waitTime = None
@@ -347,30 +348,32 @@ def findStalledModules(processingSteps, numStreams):
 
 
 def createModuleTiming(processingSteps, numStreams):
-    import yaml 
+    import json 
     streamTime = [0]*numStreams
     streamState = [0]*numStreams
     moduleTimings = defaultdict(list)
-    modulesActiveOnStream = [defaultdict(int) for x in xrange(numStreams)]
+    modulesActiveOnStream = [defaultdict(int) for x in range(numStreams)]
     for n,trans,s,time,isEvent in processingSteps:
         waitTime = None
         modulesOnStream = modulesActiveOnStream[s]
-        if trans == kStarted:
-            streamState[s] = 1
-            modulesOnStream[n]=time
-        elif trans == kFinished:
-            waitTime = time - modulesOnStream[n]
-            modulesOnStream.pop(n, None)
-            streamState[s] = 0
-            moduleTimings[n].append(float(waitTime/1000.))
-    with open('module-timings.yaml', 'w') as outfile:
-        outfile.write(yaml.dump(moduleTimings, default_flow_style=True))
+        if isEvent:
+            if trans == kStarted:
+                streamState[s] = 1
+                modulesOnStream[n]=time
+            elif trans == kFinished:
+                waitTime = time - modulesOnStream[n]
+                modulesOnStream.pop(n, None)
+                streamState[s] = 0
+                moduleTimings[n].append(float(waitTime/1000.))
+
+    with open('module-timings.json', 'w') as outfile:
+        outfile.write(json.dumps(moduleTimings, indent=4))
 
 #----------------------------------------------
 def createAsciiImage(processingSteps, numStreams, maxNameSize):
     streamTime = [0]*numStreams
     streamState = [0]*numStreams
-    modulesActiveOnStreams = [{} for x in xrange(numStreams)]
+    modulesActiveOnStreams = [{} for x in range(numStreams)]
     for n,trans,s,time,isEvent in processingSteps:
         waitTime = None
         modulesActiveOnStream = modulesActiveOnStreams[s]
@@ -503,9 +506,9 @@ class StreamInfoElement:
 # drastically reduces the size of the pdf file.
 def consolidateContiguousBlocks(numStreams, streamInfo):
     oldStreamInfo = streamInfo
-    streamInfo = [[] for x in xrange(numStreams)]
+    streamInfo = [[] for x in range(numStreams)]
 
-    for s in xrange(numStreams):
+    for s in range(numStreams):
         if oldStreamInfo[s]:
             lastStartTime,lastTimeLength,lastColor = oldStreamInfo[s][0].unpack()
             for info in oldStreamInfo[s][1:]:
@@ -578,23 +581,23 @@ def plotPerStreamAboveFirstAndPrepareStack(points, allStackTimes, ax, stream, he
 def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledModuleInfo, displayExternalWork, checkOrder):
 
     stalledModuleNames = set([x for x in stalledModuleInfo.iterkeys()])
-    streamLowestRow = [[] for x in xrange(numStreams)]
-    modulesActiveOnStreams = [set() for x in xrange(numStreams)]
-    acquireActiveOnStreams = [set() for x in xrange(numStreams)]
-    externalWorkOnStreams  = [set() for x in xrange(numStreams)]
-    previousFinishTime = [None for x in xrange(numStreams)]
-    streamRunningTimes = [[] for x in xrange(numStreams)]
-    streamExternalWorkRunningTimes = [[] for x in xrange(numStreams)]
+    streamLowestRow = [[] for x in range(numStreams)]
+    modulesActiveOnStreams = [set() for x in range(numStreams)]
+    acquireActiveOnStreams = [set() for x in range(numStreams)]
+    externalWorkOnStreams  = [set() for x in range(numStreams)]
+    previousFinishTime = [None for x in range(numStreams)]
+    streamRunningTimes = [[] for x in range(numStreams)]
+    streamExternalWorkRunningTimes = [[] for x in range(numStreams)]
     maxNumberOfConcurrentModulesOnAStream = 1
     externalWorkModulesInJob = False
-    previousTime = [0 for x in xrange(numStreams)]
+    previousTime = [0 for x in range(numStreams)]
 
     # The next five variables are only used to check for out of order transitions
-    finishBeforeStart = [set() for x in xrange(numStreams)]
-    finishAcquireBeforeStart = [set() for x in xrange(numStreams)]
-    countSource = [0 for x in xrange(numStreams)]
-    countDelayedSource = [0 for x in xrange(numStreams)]
-    countExternalWork = [defaultdict(int) for x in xrange(numStreams)]
+    finishBeforeStart = [set() for x in range(numStreams)]
+    finishAcquireBeforeStart = [set() for x in range(numStreams)]
+    countSource = [0 for x in range(numStreams)]
+    countDelayedSource = [0 for x in range(numStreams)]
+    countExternalWork = [defaultdict(int) for x in range(numStreams)]
 
     timeOffset = None
     for n,trans,s,time,isEvent in processingSteps:
@@ -728,7 +731,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     ax.set_xlabel("Time (sec)")
     ax.set_ylabel("Stream ID")
     ax.set_ylim(-0.5,numStreams-0.5)
-    ax.yaxis.set_ticks(xrange(numStreams))
+    ax.yaxis.set_ticks(range(numStreams))
 
     height = 0.8/maxNumberOfConcurrentModulesOnAStream
     allStackTimes={'green': [],'limegreen':[], 'red': [], 'blue': [], 'orange': [], 'darkviolet': []}
@@ -848,7 +851,7 @@ if __name__=="__main__":
                         help='''Enable checks for and repair of transitions in the input that are in the wrong order (for example a finish transition before a corresponding start). This is always enabled for Tracer input, but is usually an unnecessary waste of CPU time and memory with StallMonitor input and by default not enabled.''')
     parser.add_argument('-t', '--timings',
                         action='store_true',
-                        help='''Create a dictionary of module labels and their timings from the stall monitor log. Write the dictionary filea as a yaml file modules-timings.yaml.''')
+                        help='''Create a dictionary of module labels and their timings from the stall monitor log. Write the dictionary filea as a json file modules-timings.json.''')
     args = parser.parse_args()
 
     # Process parsed options
@@ -903,5 +906,5 @@ if __name__=="__main__":
         createPDFImage(pdfFile, shownStacks, reader.processingSteps(), reader.numStreams, stalledModules, displayExternalWork, checkOrder)
     printStalledModulesInOrder(stalledModules)
     if doModuleTimings:
-        sys.stderr.write(">creating module-timings.yaml\n")
+        sys.stderr.write(">creating module-timings.json\n")
         createModuleTiming(reader.processingSteps(), reader.numStreams)

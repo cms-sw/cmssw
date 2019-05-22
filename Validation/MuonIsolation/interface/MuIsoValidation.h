@@ -2,7 +2,7 @@
 // MuIsoValidation.h
 // Package:    Muon Isolation Validation
 // Class:      MuIsoValidation
-// 
+//
 /*
 
  Description: Muon Isolation Validation class
@@ -62,30 +62,28 @@ class MuIsoValidation : public DQMEDAnalyzer {
   typedef edm::RefToBase<reco::Muon> MuonBaseRef;
   typedef edm::Handle<reco::IsoDepositMap> MuIsoDepHandle;
   typedef const reco::IsoDeposit MuIsoDepRef;
-  
+
 public:
   //---------methods----------------------------
   explicit MuIsoValidation(const edm::ParameterSet&);
   ~MuIsoValidation() override;
-  
-  
+
 private:
   //---------methods----------------------------
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void InitStatics();
-  void RecordData(MuonIterator muon);//Fills Histograms with info from single muon
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void RecordData(MuonIterator muon);  //Fills Histograms with info from single muon
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   void MakeLogBinsForProfile(Double_t* bin_edges, const double min, const double max);
-  void FillHistos();//Fills histograms with data
-  void NormalizeHistos(); //Normalize to number of muons
+  void FillHistos();       //Fills histograms with data
+  void NormalizeHistos();  //Normalize to number of muons
   TH1* GetTH1FromMonitorElement(MonitorElement* me);
   TH2* GetTH2FromMonitorElement(MonitorElement* me);
   TProfile* GetTProfileFromMonitorElement(MonitorElement* me);
-  
-  
+
   //----------Static Variables---------------
-  
+
   //Collection labels
   edm::InputTag Muon_Tag;
   edm::EDGetTokenT<edm::View<reco::Muon> > Muon_Token;
@@ -93,7 +91,7 @@ private:
   edm::InputTag hcalIsoDeposit_Tag;
   edm::InputTag ecalIsoDeposit_Tag;
   edm::InputTag hoIsoDeposit_Tag;
-  
+
   //root file name
   std::string rootfilename;
   // Directories within the rootfile
@@ -104,47 +102,45 @@ private:
 
   //Histogram parameters
   static const int NUM_VARS = 21;
-  double L_BIN_WIDTH;//large bins
-  double S_BIN_WIDTH;//small bins
-  int LOG_BINNING_ENABLED;//pseudo log binning for profile plots
+  double L_BIN_WIDTH;       //large bins
+  double S_BIN_WIDTH;       //small bins
+  int LOG_BINNING_ENABLED;  //pseudo log binning for profile plots
   int NUM_LOG_BINS;
   double LOG_BINNING_RATIO;
   bool requireCombinedMuon;
-  
+
   std::string title_sam;
   std::string title_cone;
   std::string title_cd;
-  
-  std::vector<std::string> main_titles;//[NUM_VARS]
-  std::vector<std::string> axis_titles;//[NUM_VARS]
-  std::vector<std::string> names;//[NUM_VARS]
-  std::vector< std::vector<double> > param;//[NUM_VARS][3]
-  std::vector<int> isContinuous;//[NUM_VARS]
-  std::vector<int> cdCompNeeded;//[NUM_VARS]
-  
-  //---------------Dynamic Variables---------------------
-  
-  //MonitorElement
-  DQMStore* dbe;
 
-  edm::ParameterSet iConfig;  
+  std::vector<std::string> main_titles;     //[NUM_VARS]
+  std::vector<std::string> axis_titles;     //[NUM_VARS]
+  std::vector<std::string> names;           //[NUM_VARS]
+  std::vector<std::vector<double> > param;  //[NUM_VARS][3]
+  std::vector<int> isContinuous;            //[NUM_VARS]
+  std::vector<int> cdCompNeeded;            //[NUM_VARS]
+
+  //---------------Dynamic Variables---------------------
+
+  //MonitorElement
+
+  edm::ParameterSet iConfig;
   //The Data
-  int theMuonData;//[number of muons]
+  int theMuonData;  //[number of muons]
   double theData[NUM_VARS];
-  
+
   //Histograms
   MonitorElement* h_nMuons;
-  std::vector<MonitorElement*> h_1D;//[NUM_VARS]
-  std::vector<MonitorElement*> cd_plots;//[NUM_VARS]
+  std::vector<MonitorElement*> h_1D;      //[NUM_VARS]
+  std::vector<MonitorElement*> cd_plots;  //[NUM_VARS]
   //  std::vector< std::vector<MonitorElement*> > h_2D;//[NUM_VARS][NUM_VARS]
-  std::vector< std::vector<MonitorElement*> > p_2D;//[NUM_VARS][NUM_VARS]
-  
+  std::vector<std::vector<MonitorElement*> > p_2D;  //[NUM_VARS][NUM_VARS]
+
   //Counters
   int nEvents;
   int nIncMuons;
   //  int nCombinedMuons;
-  
-  //enums for monitorElement
-  enum {NOAXIS,XAXIS,YAXIS,ZAXIS};
-};
 
+  //enums for monitorElement
+  enum { NOAXIS, XAXIS, YAXIS, ZAXIS };
+};

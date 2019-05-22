@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("testHGCalRecoLocal",eras.Phase2)
+from Configuration.Eras.Era_Phase2_cff import Phase2
+process = cms.Process("testHGCalRecoLocal",Phase2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -32,6 +32,10 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.categories.append('ValidHGCal')
+    process.MessageLogger.categories.append('HGCalGeom')
+
 # Input source
 process.source = cms.Source("EmptySource")
 
@@ -54,7 +58,7 @@ process.output = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'keep *_*hbhe*_*_*',
 	'keep *_g4SimHits_*_*',
-        'keep *_mix_*_*',
+#       'keep *_mix_*_*',
 	'keep *_*HGC*_*_*',
         ),
     fileName = cms.untracked.string('file:testHGCalSimWatcherV8.root'),
@@ -65,17 +69,6 @@ process.output = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('generation_step')
     )
-)
-
-process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-#        ValidHGCal = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-    ),
-#    categories = cms.untracked.vstring('ValidHGCal'),
-    destinations = cms.untracked.vstring('cout','cerr')
 )
 
 # Additional output definition

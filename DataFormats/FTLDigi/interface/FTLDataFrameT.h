@@ -10,26 +10,36 @@
    @short Readout digi for HGC
 */
 
-template <class D, class S>
-class FTLDataFrameT {
-public:
-
+template <class D, class S, class DECODE>
+  class FTLDataFrameT {
+ public:
+  
   /**
      @short key to sort the collection
-   */
+  */
   typedef D key_type; 
-
+  
   /**
      @short CTOR
   */
   FTLDataFrameT() : id_(0), maxSampleSize_(15)             { data_.resize(maxSampleSize_); }
   FTLDataFrameT(const D& id) : id_(id), maxSampleSize_(15) { data_.resize(maxSampleSize_); }
   FTLDataFrameT(const FTLDataFrameT& o) : data_(o.data_), id_(o.id_), maxSampleSize_(o.maxSampleSize_) { }
-
+  
   /**
     @short det id
   */
   const D& id() const { return id_; }
+
+  /**
+   @short row
+   */
+   const int row() const { return DECODE::row(id_,data_); }
+
+  /**
+   @short column
+   */
+   const int column() const { return DECODE::col(id_,data_); }
     
   /** 
     @short total number of samples in the digi 

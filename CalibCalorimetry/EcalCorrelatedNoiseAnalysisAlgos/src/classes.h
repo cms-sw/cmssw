@@ -22,6 +22,5 @@
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaGui.h"
 
 namespace CalibCalorimetry_EcalCorrelatedNoiseAnalysisAlgos {
-  struct dictionary {
-  };
-}
+  struct dictionary {};
+}  // namespace CalibCalorimetry_EcalCorrelatedNoiseAnalysisAlgos

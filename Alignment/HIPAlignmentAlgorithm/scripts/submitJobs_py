@@ -160,8 +160,8 @@ while ($i <= $iter)
   rm -rf $odir/job*/IOUserVariables.root
   rm -rf $odir/job*/DONE1
   rm -rf $odir/main/runControl*.txt
-  gzip $odir/job*/*.out
-  gzip $odir/main/*.out
+  gzip -f $odir/job*/*.out
+  gzip -f $odir/main/*.out
 
   @ i++
 end

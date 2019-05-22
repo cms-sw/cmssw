@@ -24,7 +24,6 @@ PixelHitMatcher::PixelHitMatcher
  : //zmin1 and zmax1 are dummy at this moment, set from beamspot later
    meas1stBLayer(phi1min,phi1max,0.,0.), meas2ndBLayer(phi2minB,phi2maxB,z2minB,z2maxB),
    meas1stFLayer(phi1min,phi1max,0.,0.), meas2ndFLayer(phi2minF,phi2maxF,r2minF,r2maxF),
-   startLayers(),
    prop1stLayer(nullptr), prop2ndLayer(nullptr),theGeometricSearchTracker(nullptr),theTrackerEvent(nullptr),theTracker(nullptr),vertex_(0.),
    searchInTIDTEC_(searchInTIDTEC), useRecoVertex_(false)
  {
@@ -73,7 +72,6 @@ void PixelHitMatcher::setES
    {
     theTracker = theMeasurementTracker;
     theGeometricSearchTracker=theMeasurementTracker->geometricSearchTracker() ;
-    startLayers.setup(theGeometricSearchTracker) ;
    }
 
   theMagField = magField ;
@@ -263,8 +261,7 @@ PixelHitMatcher::compatibleHits
   pred1Meas.clear();
   pred2Meas.clear();
 
-  typedef vector<const BarrelDetLayer*>::const_iterator BarrelLayerIterator;
-  BarrelLayerIterator firstLayer = startLayers.firstBLayer();
+  auto firstLayer = theGeometricSearchTracker->pixelBarrelLayers().begin(); 
 
   FreeTrajectoryState fts = FTSFromVertexToPointFactory::get(*theMagField,xmeas, vprim, energy, charge);
 
@@ -279,7 +276,7 @@ PixelHitMatcher::compatibleHits
     LogDebug("") <<"[PixelHitMatcher::compatibleHits] nbr of hits compatible with extrapolation to first layer: " << pixelMeasurements.size();
     for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++){
      if (m->recHit()->isValid()) {
-       float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi()) ;
+       float localDphi = normalizedPhi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi()) ;
        if(std::abs(localDphi)>2.5)continue;
 	CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 			      m->forwardPredictedState().globalPosition().y(),
@@ -309,7 +306,7 @@ PixelHitMatcher::compatibleHits
 
     for (aMeas m=pixel2Measurements.begin(); m!=pixel2Measurements.end(); m++){
       if (m->recHit()->isValid()) {
-	float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi()) ;
+	float localDphi = normalizedPhi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi()) ;
 	if(std::abs(localDphi)>2.5)continue;
         CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 			      m->forwardPredictedState().globalPosition().y(),
@@ -332,14 +329,13 @@ PixelHitMatcher::compatibleHits
 
 
   // check if there are compatible 1st hits the forward disks
-  typedef vector<const ForwardDetLayer*>::const_iterator ForwardLayerIterator;
-  ForwardLayerIterator flayer;
 
   TrajectoryStateOnSurface tsosfwd(fts, *bpb(fts.position(), fts.momentum()));
   if (tsosfwd.isValid()) {
 
     for (int i=0; i<2; i++) {
-      i == 0 ? flayer = startLayers.pos1stFLayer() : flayer = startLayers.neg1stFLayer();
+      auto flayer = i == 0 ? theGeometricSearchTracker->posPixelForwardLayers().begin()
+                           : theGeometricSearchTracker->negPixelForwardLayers().begin();
 
       if (i==0 && xmeas.z() < -100. ) continue;
       if (i==1 && xmeas.z() > 100. ) continue;
@@ -350,7 +346,7 @@ PixelHitMatcher::compatibleHits
 
       for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++){
 	if (m->recHit()->isValid()) {
-	  float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi());
+	  float localDphi = normalizedPhi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi());
 	  if(std::abs(localDphi)>2.5)continue;
 	  CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 				m->forwardPredictedState().globalPosition().y(),
@@ -371,7 +367,7 @@ PixelHitMatcher::compatibleHits
 
 	for (aMeas m=pixel2Measurements.begin(); m!=pixel2Measurements.end(); m++){
 	  if (m->recHit()->isValid()) {
-	    float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi()) ;
+	    float localDphi = normalizedPhi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi()) ;
 	    if(std::abs(localDphi)>2.5)continue;
 	    CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 				  m->forwardPredictedState().globalPosition().y(),
@@ -436,7 +432,7 @@ PixelHitMatcher::compatibleHits
     if(!secondHit.measurementsInNextLayers().empty()){
       for(unsigned int shit=0; shit<secondHit.measurementsInNextLayers().size(); shit++)
       	{
-	  float dphi = normalized_phi(pred1Meas[i].phi()-validMeasurements[i].recHit()->globalPosition().barePhi()) ;
+	  float dphi = normalizedPhi(pred1Meas[i].phi()-validMeasurements[i].recHit()->globalPosition().barePhi()) ;
 	  if (std::abs(dphi)<2.5)
 	    {
 	      ConstRecHitPointer pxrh = validMeasurements[i].recHit();

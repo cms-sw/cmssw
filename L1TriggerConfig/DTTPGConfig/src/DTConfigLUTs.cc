@@ -124,8 +124,8 @@ DTConfigLUTs::DSPtoIEEE32(short DSPmantissa, short DSPexp, float *f) const
 void
 DTConfigLUTs::IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp) const
 {
-  long int *pl=nullptr, lm;
-  bool sign=false;
+  long int pl=0;
+  static_assert(sizeof(decltype(pl)) >= sizeof(float));
 
   DSPmantissa = 0;
   DSPexp = 0;
@@ -133,13 +133,14 @@ DTConfigLUTs::IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp) 
   if( f!=0.0 )
   {
         //pl = (long *)&f;
-	memcpy(pl,&f,sizeof(float));
-        if((*pl & 0x80000000)!=0)
+	memcpy(&pl,&f,sizeof(float));
+        bool sign=false;
+        if((pl & 0x80000000)!=0)
                 sign=true;
-        lm = ( 0x800000 | (*pl & 0x7FFFFF)); // [1][23bit mantissa]
+        long int lm = ( 0x800000 | (pl & 0x7FFFFF)); // [1][23bit mantissa]
         lm >>= 9; //reduce to 15bits
         lm &= 0x7FFF;
-        DSPexp = ((*pl>>23)&0xFF)-126;
+        DSPexp = ((pl>>23)&0xFF)-126;
         DSPmantissa = (short)lm;
         if(sign)
                 DSPmantissa = - DSPmantissa;  // convert negative value in 2.s complement

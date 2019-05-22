@@ -284,8 +284,8 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 	   TSOS UpdatedState= theUpdator->update( prSt, *tmphitbestdet);
 	   if (UpdatedState.isValid()){
 
-	     traj.push(std::move(TM(prSt,UpdatedState,RHBuilder->build(Hits[ibestdet])
-			  , chi2min)));
+	     traj.push(TM(prSt,UpdatedState,RHBuilder->build(Hits[ibestdet])
+			  , chi2min));
 	     LogDebug("CosmicTrackFinder") <<
 	       "STATE UPDATED WITH HIT AT POSITION "
 					   <<tmphitbestdet->globalPosition()

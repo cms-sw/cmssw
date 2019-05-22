@@ -46,6 +46,8 @@ public:
   int coarseEta() const;
   //Approximate Chi2 metric
   int approxChi2() const;
+  int trackCompatibility() const;
+
   //Approximate Chi2 metric
   int hitPattern() const;
   //step;
@@ -121,6 +123,7 @@ public:
 
   //Set chi2 like metric
   void setApproxChi2(int);
+  void setTrackCompatibility(int);
 
   //Set floating point coordinates for studies
   void setPtEtaPhi(double,double,double);
@@ -172,6 +175,7 @@ public:
 
   //Approximate Chi2 metric
   int approxChi2_;
+  int trackCompatibility_;
 
   //phi bitmask
   int hitPattern_;

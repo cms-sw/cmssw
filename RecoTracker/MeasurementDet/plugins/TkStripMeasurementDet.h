@@ -183,7 +183,7 @@ public:
     std::pair<bool,double> diffEst = est.estimate(ltp, recHit);
     LogDebug("TkStripMeasurementDet")<<" chi2=" << diffEst.second;
     if ( diffEst.first ) {
-      result.push_back(std::move(std::make_shared<SiStripRecHit2D>(recHit)));
+      result.push_back(std::make_shared<SiStripRecHit2D>(recHit));
       diffs.push_back(diffEst.second);
     }
     return diffEst.first;

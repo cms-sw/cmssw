@@ -255,6 +255,146 @@ bool fastmatch::match(std::string const& s) const
 }
 
 //IBooker methods
+MonitorElement* DQMStore::IBooker::bookInt(TString const& name)
+{
+  return owner_->bookInt(name);
+}
+
+MonitorElement* DQMStore::IBooker::bookFloat(TString const& name)
+{
+  return owner_->bookFloat(name);
+}
+
+MonitorElement* DQMStore::IBooker::bookString(TString const& name, TString const& value)
+{
+  return owner_->bookString(name, value);
+}
+
+MonitorElement* DQMStore::IBooker::book1D(TString const& name, TString const& title, int const nchX, double const lowX, double const highX)
+{
+  return owner_->book1D(name, title, nchX, lowX, highX);
+}
+
+MonitorElement* DQMStore::IBooker::book1D(TString const& name, TString const& title, int nchX, float const* xbinsize)
+{
+  return owner_->book1D(name, title, nchX, xbinsize);
+};
+
+MonitorElement* DQMStore::IBooker::book1D(TString const& name, TH1F* object)
+{
+  return owner_->book1D(name, object);
+}
+
+MonitorElement* DQMStore::IBooker::book1S(TString const& name, TString const& title, int nchX, double lowX, double highX)
+{
+  return owner_->book1S(name, title, nchX, lowX, highX);
+}
+
+MonitorElement* DQMStore::IBooker::book1S(TString const& name, TH1S* object)
+{
+  return owner_->book1S(name, object);
+}
+
+MonitorElement* DQMStore::IBooker::book1DD(TString const& name, TString const& title, int nchX, double lowX, double highX)
+{
+  return owner_->book1DD(name, title, nchX, lowX, highX);
+}
+
+MonitorElement* DQMStore::IBooker::book1DD(TString const& name, TH1D* object)
+{
+  return owner_->book1DD(name, object);
+}
+
+MonitorElement* DQMStore::IBooker::book2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
+{
+  return owner_->book2D(name, title, nchX, lowX, highX, nchY, lowY, highY);
+}
+
+MonitorElement* DQMStore::IBooker::book2D(TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize)
+{
+  return owner_->book2D(name, title, nchX, xbinsize, nchY, ybinsize);
+}
+
+MonitorElement* DQMStore::IBooker::book2D(TString const& name, TH2F* object)
+{
+  return owner_->book2D(name, object);
+}
+
+MonitorElement* DQMStore::IBooker::book2S(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
+{
+  return owner_->book2S(name, title, nchX, lowX, highX, nchY, lowY, highY);
+}
+
+MonitorElement* DQMStore::IBooker::book2S(TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize)
+{
+  return owner_->book2S(name, title, nchX, xbinsize, nchY, ybinsize);
+}
+
+MonitorElement* DQMStore::IBooker::book2S(TString const& name, TH2S* object)
+{
+  return owner_->book2S(name, object);
+}
+
+MonitorElement* DQMStore::IBooker::book2DD(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
+{
+  return owner_->book2DD(name, title, nchX, lowX, highX, nchY, lowY, highY);
+}
+
+MonitorElement* DQMStore::IBooker::book2DD(TString const& name, TH2D* object)
+{
+  return owner_->book2DD(name, object);
+}
+
+MonitorElement* DQMStore::IBooker::book3D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ)
+{
+  return owner_->book3D(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ);
+}
+
+MonitorElement* DQMStore::IBooker::book3D(TString const& name, TH3F* object)
+{
+  return owner_->book3D(name, object);
+}
+
+MonitorElement* DQMStore::IBooker::bookProfile(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, char const* option)
+{
+  return owner_->bookProfile(name, title, nchX, lowX, highX, nchY, lowY, highY, option);
+}
+
+MonitorElement* DQMStore::IBooker::bookProfile(TString const& name, TString const& title, int nchX, double lowX, double highX, double lowY, double highY, char const* option)
+{
+  return owner_->bookProfile(name, title, nchX, lowX, highX, lowY, highY, option);
+}
+
+MonitorElement* DQMStore::IBooker::bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, int nchY, double lowY, double highY, char const* option)
+{
+  return owner_->bookProfile(name, title, nchX, xbinsize, nchY, lowY, highY, option);
+}
+
+MonitorElement* DQMStore::IBooker::bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, double lowY, double highY, char const* option)
+{
+  return owner_->bookProfile(name, title, nchX, xbinsize, lowY, highY, option);
+}
+
+MonitorElement* DQMStore::IBooker::bookProfile(TString const& name, TProfile* object)
+{
+  return owner_->bookProfile(name, object);
+}
+
+MonitorElement* DQMStore::IBooker::bookProfile2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, double lowZ, double highZ, char const* option)
+{
+  return owner_->bookProfile2D(name, title, nchX, lowX, highX, nchY, lowY, highY, lowZ, highZ, option);
+}
+
+MonitorElement* DQMStore::IBooker::bookProfile2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ, char const* option)
+{
+  return owner_->bookProfile2D(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ, option);
+}
+
+MonitorElement* DQMStore::IBooker::bookProfile2D(TString const& name, TProfile2D* object)
+{
+  return owner_->bookProfile2D(name, object);
+}
+
 void DQMStore::IBooker::cd()
 {
   owner_->cd();
@@ -363,6 +503,169 @@ DQMStore::IGetter::setCurrentFolder(std::string const& fullpath)
   owner_->setCurrentFolder(fullpath);
 }
 
+// ConcurrentBooker methods
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookInt(TString const& name)
+{
+  MonitorElement* me = IBooker::bookInt(name);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookFloat(TString const& name)
+{
+  MonitorElement* me = IBooker::bookFloat(name);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookString(TString const& name, TString const& value)
+{
+  MonitorElement* me = IBooker::bookString(name, value);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book1D(TString const& name, TString const& title, int const nchX, double const lowX, double const highX)
+{
+  MonitorElement* me = IBooker::book1D(name, title, nchX, lowX, highX);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book1D(TString const& name, TString const& title, int nchX, float const* xbinsize)
+{
+  MonitorElement* me = IBooker::book1D(name, title, nchX, xbinsize);
+  return ConcurrentMonitorElement(me);
+};
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book1D(TString const& name, TH1F* object)
+{
+  MonitorElement* me = IBooker::book1D(name, object);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book1S(TString const& name, TString const& title, int nchX, double lowX, double highX)
+{
+  MonitorElement* me = IBooker::book1S(name, title, nchX, lowX, highX);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book1S(TString const& name, TH1S* object)
+{
+  MonitorElement* me = IBooker::book1S(name, object);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book1DD(TString const& name, TString const& title, int nchX, double lowX, double highX)
+{
+  MonitorElement* me = IBooker::book1DD(name, title, nchX, lowX, highX);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book1DD(TString const& name, TH1D* object)
+{
+  MonitorElement* me = IBooker::book1DD(name, object);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
+{
+  MonitorElement* me = IBooker::book2D(name, title, nchX, lowX, highX, nchY, lowY, highY);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book2D(TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize)
+{
+  MonitorElement* me = IBooker::book2D(name, title, nchX, xbinsize, nchY, ybinsize);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book2D(TString const& name, TH2F* object)
+{
+  MonitorElement* me = IBooker::book2D(name, object);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book2S(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
+{
+  MonitorElement* me = IBooker::book2S(name, title, nchX, lowX, highX, nchY, lowY, highY);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book2S(TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize)
+{
+  MonitorElement* me = IBooker::book2S(name, title, nchX, xbinsize, nchY, ybinsize);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book2S(TString const& name, TH2S* object)
+{
+  MonitorElement* me = IBooker::book2S(name, object);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book2DD(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
+{
+  MonitorElement* me = IBooker::book2DD(name, title, nchX, lowX, highX, nchY, lowY, highY);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book2DD(TString const& name, TH2D* object)
+{
+  MonitorElement* me = IBooker::book2DD(name, object);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book3D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ)
+{
+  MonitorElement* me = IBooker::book3D(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::book3D(TString const& name, TH3F* object)
+{
+  MonitorElement* me = IBooker::book3D(name, object);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookProfile(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, char const* option)
+{
+  MonitorElement* me = IBooker::bookProfile(name, title, nchX, lowX, highX, nchY, lowY, highY, option);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookProfile(TString const& name, TString const& title, int nchX, double lowX, double highX, double lowY, double highY, char const* option)
+{
+  MonitorElement* me = IBooker::bookProfile(name, title, nchX, (double)lowX, highX, lowY, highY, option);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, int nchY, double lowY, double highY, char const* option)
+{
+  MonitorElement* me = IBooker::bookProfile(name, title, nchX, xbinsize, nchY, lowY, highY, option);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, double lowY, double highY, char const* option)
+{
+  MonitorElement* me = IBooker::bookProfile(name, title, nchX, xbinsize, lowY, highY, option);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookProfile(TString const& name, TProfile* object)
+{
+  MonitorElement* me = IBooker::bookProfile(name, object);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookProfile2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, double lowZ, double highZ, char const* option)
+{
+  MonitorElement* me = IBooker::bookProfile2D(name, title, nchX, lowX, highX, nchY, lowY, highY, lowZ, highZ, option);
+  return ConcurrentMonitorElement(me);
+}
+
+ConcurrentMonitorElement DQMStore::ConcurrentBooker::bookProfile2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ, char const* option)
+{
+  MonitorElement* me = IBooker::bookProfile2D(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ, option);
+  return ConcurrentMonitorElement(me);
+}
+
 //////////////////////////////////////////////////////////////////////
 DQMStore::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry& ar)
   : DQMStore{pset}
@@ -376,8 +679,10 @@ DQMStore::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry& ar)
     ar.watchPostSourceRun([this](edm::RunIndex){ forceReset(); });
   }
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginLumi",false) && enableMultiThread_ == false) {
+#if !WITHOUT_CMS_FRAMEWORK
     forceResetOnBeginLumi_ = true;
-    ar.watchPostSourceLumi([this](edm::LuminosityBlockIndex){ forceReset(); });
+    ar.watchPreSourceLumi([this](edm::LuminosityBlockIndex){ forceReset(); });
+#endif
   }
   ar.watchPostGlobalBeginLumi(this, &DQMStore::postGlobalBeginLumi);
 }
@@ -422,6 +727,10 @@ DQMStore::initializeFrom(edm::ParameterSet const& pset)
   LSbasedMode_ = pset.getUntrackedParameter<bool>("LSbasedMode", false);
   if (LSbasedMode_)
     std::cout << "DQMStore: LSbasedMode option is enabled\n";
+
+  doSaveByLumi_ = pset.getUntrackedParameter<bool>("saveByLumi", false);
+  if (doSaveByLumi_)
+    std::cout << "DQMStore: saveByLumi option is enabled\n";
 
   std::string ref = pset.getUntrackedParameter<std::string>("referenceFileName", "");
   if (! ref.empty()) {
@@ -934,6 +1243,10 @@ DQMStore::book_(std::string const& dir,
     // Create and initialise core object.
     assert(dirs_.count(dir));
     MonitorElement proto(&*dirs_.find(dir), name, run_, moduleId_);
+    if (doSaveByLumi_ && canSaveByLumi_) {
+      // for legacy (not DQMEDAnalyzer) this is not save.
+      proto.setLumiFlag(); // default to per-lumi mode for all non-legacy MEs.
+    }
     me = const_cast<MonitorElement&>(*data_.insert(std::move(proto)).first)
       .initialise((MonitorElement::Kind)kind, h);
 
@@ -992,6 +1305,8 @@ DQMStore::book_(std::string const& dir,
     // Create it and return for initialisation.
     assert(dirs_.count(dir));
     MonitorElement proto(&*dirs_.find(dir), name, run_, moduleId_);
+    // this is used only for Int/String/Float. We don't save these by lumi by
+    // default, since we can't merge them properly.
     return &const_cast<MonitorElement&>(*data_.insert(std::move(proto)).first);
   }
 }
@@ -1921,7 +2236,12 @@ DQMStore::cloneLumiHistograms(uint32_t const run, uint32_t const lumi, uint32_t 
   std::string null_str("");
   auto i = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId));
   auto e = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId + 1));
+  // we will later modify data_, so better do two passes.
+  auto tobehandled = std::vector<MonitorElement const*>();
   for (; i != e; ++i) {
+    tobehandled.push_back(&*i);
+  }
+  for (auto i : tobehandled) {
     // handle only lumisection-based histograms
     if (not LSbasedMode_ and not i->getLumiFlag())
       continue;
@@ -1958,7 +2278,12 @@ DQMStore::cloneRunHistograms(uint32_t const run, uint32_t const moduleId)
   std::string null_str("");
   auto i = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId));
   auto e = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId + 1));
+  // we will later modify data_, so better do two passes.
+  auto tobehandled = std::vector<MonitorElement const*>();
   for (; i != e; ++i) {
+    tobehandled.push_back(&*i);
+  }
+  for (auto i : tobehandled) {
     // handle only non lumisection-based histograms
     if (LSbasedMode_ or i->getLumiFlag())
       continue;

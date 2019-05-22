@@ -5,7 +5,7 @@
 //
 // Package:    DTSurveyConvert
 // Class:      DTSurveyConvert
-// 
+//
 /**\class DTSurveyConvert DTSurveyConvert.cc Alignment/DTSurveyConvert/src/DTSurveyConvert.cc
 
  Description: Reads survey information, process it and outputs a text file with results
@@ -23,32 +23,30 @@
 
 class DTSurvey;
 
-class DTSurveyConvert : public edm::EDAnalyzer
-{
-   public:
-      explicit DTSurveyConvert(const edm::ParameterSet&);
+class DTSurveyConvert : public edm::EDAnalyzer {
+public:
+  explicit DTSurveyConvert(const edm::ParameterSet &);
 
-   private:
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      std::vector<DTSurvey *> wheelList;
-      std::string nameWheel_m2; 
-      std::string nameWheel_m1; 
-      std::string nameWheel_0; 
-      std::string nameWheel_p1; 
-      std::string nameWheel_p2;
-      std::string nameChambers_m2;
-      std::string nameChambers_m1;
-      std::string nameChambers_0;
-      std::string nameChambers_p1;
-      std::string nameChambers_p2;
-      std::string outputFileName;
-      bool wheel_m2;
-      bool wheel_m1;
-      bool wheel_0;
-      bool wheel_p1;
-      bool wheel_p2;
-      bool WriteToDB;
+private:
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  std::vector<DTSurvey *> wheelList;
+  std::string nameWheel_m2;
+  std::string nameWheel_m1;
+  std::string nameWheel_0;
+  std::string nameWheel_p1;
+  std::string nameWheel_p2;
+  std::string nameChambers_m2;
+  std::string nameChambers_m1;
+  std::string nameChambers_0;
+  std::string nameChambers_p1;
+  std::string nameChambers_p2;
+  std::string outputFileName;
+  bool wheel_m2;
+  bool wheel_m1;
+  bool wheel_0;
+  bool wheel_p1;
+  bool wheel_p2;
+  bool WriteToDB;
 };
 
 #endif
-

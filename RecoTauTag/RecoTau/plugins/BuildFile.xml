@@ -35,6 +35,7 @@
   <use   name="Geometry/Records"/>
   <use   name="MagneticField/Engine"/>
   <use   name="MagneticField/Records"/>
-  <use   name="FastSimulation/BaseParticlePropagator"/>
+  <use   name="CommonTools/BaseParticlePropagator"/>
+  <use   name="PhysicsTools/TensorFlow"/>
   <use   name="root"/>
 </library>

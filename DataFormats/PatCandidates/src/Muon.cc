@@ -33,6 +33,7 @@ Muon::Muon() :
     jetPtRatio_(0),
     jetPtRel_(0),
     mvaValue_(0),
+    lowptMvaValue_(0),
     softMvaValue_(0)
 {
   initImpactParameters();
@@ -62,6 +63,7 @@ Muon::Muon(const reco::Muon & aMuon) :
     jetPtRatio_(0),
     jetPtRel_(0),
     mvaValue_(0),
+    lowptMvaValue_(0),
     softMvaValue_(0)
 {
   initImpactParameters();
@@ -91,6 +93,7 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     jetPtRatio_(0),
     jetPtRel_(0),
     mvaValue_(0),
+    lowptMvaValue_(0),
     softMvaValue_(0)
 {
   initImpactParameters();
@@ -120,6 +123,7 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     jetPtRatio_(0),
     jetPtRel_(0),
     mvaValue_(0),
+    lowptMvaValue_(0),
     softMvaValue_(0)
 {
   initImpactParameters();

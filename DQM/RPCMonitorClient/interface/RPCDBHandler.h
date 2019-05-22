@@ -22,22 +22,19 @@
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include "DQM/RPCMonitorDigi/interface/utils.h"
 
-
-class RPCDBHandler : public popcon::PopConSourceHandler<RPCDQMObject>
-{
-      
+class RPCDBHandler : public popcon::PopConSourceHandler<RPCDQMObject> {
 public:
   void getNewObjects() override;
   std::string id() const override { return m_name; }
-  ~RPCDBHandler() override; 
+  ~RPCDBHandler() override;
   RPCDBHandler(const edm::ParameterSet& pset);
-     
+
   void initObject(RPCDQMObject*);
- 
+
 private:
   std::string m_name;
   unsigned int sinceTime;
-  RPCDQMObject * rpcDQMObject;
+  RPCDQMObject* rpcDQMObject;
 };
 
 #endif

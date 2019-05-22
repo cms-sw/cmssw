@@ -11,6 +11,6 @@ namespace edm {
   class BranchDescription;
   typedef std::vector<std::pair<BranchDescription const *, EDGetToken>> SelectedProducts;
   typedef std::array<SelectedProducts, NumBranchTypes> SelectedProductsForBranchType;
-}
+}  // namespace edm
 
 #endif

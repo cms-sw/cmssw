@@ -7,25 +7,22 @@
 
 namespace edm {
 
-  LuminosityBlockForOutput::LuminosityBlockForOutput(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
-                                   ModuleCallingContext const* moduleCallingContext, bool isAtEnd) :
-        OccurrenceForOutput(lbp, md, moduleCallingContext, isAtEnd),
+  LuminosityBlockForOutput::LuminosityBlockForOutput(LuminosityBlockPrincipal const& lbp,
+                                                     ModuleDescription const& md,
+                                                     ModuleCallingContext const* moduleCallingContext,
+                                                     bool isAtEnd)
+      : OccurrenceForOutput(lbp, md, moduleCallingContext, isAtEnd),
         aux_(lbp.aux()),
-        run_(new RunForOutput(lbp.runPrincipal(), md, moduleCallingContext, false)) {
-  }
+        run_(new RunForOutput(lbp.runPrincipal(), md, moduleCallingContext, false)) {}
 
-  LuminosityBlockForOutput::~LuminosityBlockForOutput() {
-  }
+  LuminosityBlockForOutput::~LuminosityBlockForOutput() {}
 
-  LuminosityBlockPrincipal const&
-  LuminosityBlockForOutput::luminosityBlockPrincipal() const {
+  LuminosityBlockPrincipal const& LuminosityBlockForOutput::luminosityBlockPrincipal() const {
     return dynamic_cast<LuminosityBlockPrincipal const&>(principal());
   }
-  
+
   /**\return Reusable index which can be used to separate data for different simultaneous LuminosityBlocks.
    */
-  LuminosityBlockIndex LuminosityBlockForOutput::index() const {
-    return luminosityBlockPrincipal().index();
-  }
+  LuminosityBlockIndex LuminosityBlockForOutput::index() const { return luminosityBlockPrincipal().index(); }
 
-}
+}  // namespace edm

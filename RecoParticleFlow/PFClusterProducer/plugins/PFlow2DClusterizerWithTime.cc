@@ -64,40 +64,32 @@ PFlow2DClusterizerWithTime(const edm::ParameterSet& conf) :
     _recHitEnergyNorms.emplace(_layerMap.find(det)->second,rhE_norm);
   }
   
-  _allCellsPosCalc.reset(nullptr);
   if( conf.exists("allCellsPositionCalc") ) {
     const edm::ParameterSet& acConf = 
       conf.getParameterSet("allCellsPositionCalc");
     const std::string& algoac = 
       acConf.getParameter<std::string>("algoName");
-    PosCalc* accalc = 
-      PFCPositionCalculatorFactory::get()->create(algoac, acConf);
-    _allCellsPosCalc.reset(accalc);
+    _allCellsPosCalc = std::unique_ptr<PFCPositionCalculatorBase>{PFCPositionCalculatorFactory::get()->create(algoac, acConf)};
   }
   // if necessary a third pos calc for convergence testing
-  _convergencePosCalc.reset(nullptr);
   if( conf.exists("positionCalcForConvergence") ) {
     const edm::ParameterSet& convConf = 
       conf.getParameterSet("positionCalcForConvergence");
     const std::string& algoconv = 
       convConf.getParameter<std::string>("algoName");
-    PosCalc* convcalc = 
-      PFCPositionCalculatorFactory::get()->create(algoconv, convConf);
-    _convergencePosCalc.reset(convcalc);
+    _convergencePosCalc = std::unique_ptr<PFCPositionCalculatorBase>{PFCPositionCalculatorFactory::get()->create(algoconv, convConf)};
   }
-  _timeResolutionCalcBarrel.reset(nullptr);
   if( conf.exists("timeResolutionCalcBarrel") ) {
     const edm::ParameterSet& timeResConf = 
       conf.getParameterSet("timeResolutionCalcBarrel");
-      _timeResolutionCalcBarrel.reset(new CaloRecHitResolutionProvider(
-        timeResConf));
+    _timeResolutionCalcBarrel = std::make_unique<CaloRecHitResolutionProvider>(
+        timeResConf);
   }
-  _timeResolutionCalcEndcap.reset(nullptr);
   if( conf.exists("timeResolutionCalcEndcap") ) {
     const edm::ParameterSet& timeResConf = 
       conf.getParameterSet("timeResolutionCalcEndcap");
-      _timeResolutionCalcEndcap.reset(new CaloRecHitResolutionProvider(
-        timeResConf));
+    _timeResolutionCalcEndcap = std::make_unique<CaloRecHitResolutionProvider>(
+        timeResConf);
   }
 }
 

@@ -12,17 +12,6 @@
 typedef std::vector<int> Payload;
 
 
-namespace {
-
-  inline std::string toa(int i) {
-    std::ostringstream ss;
-    ss << i;
-    return ss.str();
-
-  }
-
-}
-
 class writeInt : public edm::EDAnalyzer {
  public:
   explicit writeInt(const edm::ParameterSet& iConfig );

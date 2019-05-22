@@ -47,13 +47,6 @@ class TrajectoryFilterAnalyzer : public edm::EDAnalyzer {
     std::vector<std::unique_ptr<TrajectoryFilter>> filters;
 };
 
-namespace {
-  // only to convert ConsumesCollector&& to ConsumesCollector&
-  TrajectoryFilter *createTrajectoryFilter(const std::string& type, const edm::ParameterSet& pset, edm::ConsumesCollector&& iC) {
-    return TrajectoryFilterFactory::get()->create(type, pset, iC);
-  }
-}
-
 TrajectoryFilterAnalyzer::TrajectoryFilterAnalyzer(const edm::ParameterSet& iConfig)
 {
   using VPSet = std::vector<edm::ParameterSet>;
@@ -62,7 +55,8 @@ TrajectoryFilterAnalyzer::TrajectoryFilterAnalyzer(const edm::ParameterSet& iCon
                                           <<" TrajectoryFilter from TrajectoryFilterFactory";
   for(const auto& pset: filterPSets) {
     const std::string& type = pset.getParameter<std::string>("ComponentType");
-    filters.emplace_back(createTrajectoryFilter(type, pset, consumesCollector()));
+    edm::ConsumesCollector&& iC = consumesCollector();
+    filters.emplace_back(TrajectoryFilterFactory::get()->create(type, pset, iC));
     edm::LogInfo("TrajectoryFilterAnalyzer")<<"I was able to create: "<< type
                                             <<"\nof type: "<<filters.back()->name();
   }

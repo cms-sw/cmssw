@@ -13,7 +13,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 namespace reco {
-  class PFCandidateWithSrcPtrFactory : public std::unary_function<reco::PFCandidate, edm::FwdPtr<reco::PFCandidate> > {
+  class PFCandidateWithSrcPtrFactory {
   public :
     reco::PFCandidate operator()( edm::FwdPtr<reco::PFCandidate> const & input ) const {
       reco::PFCandidate output( *input );

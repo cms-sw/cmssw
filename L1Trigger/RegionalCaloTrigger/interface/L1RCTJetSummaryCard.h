@@ -5,16 +5,14 @@
 
 class L1RCTLookupTables;
 
-class L1RCTJetSummaryCard
-{
- public:
-  
-  //There is no default constructor.
-  //It is required to have a crate number attached to it
-  //for bookeeping purposes.  
-  L1RCTJetSummaryCard(int crtNo, const L1RCTLookupTables* rctLookupTables);
-  
-  int crateNumber() {return crtNo;}
+class L1RCTJetSummaryCard {
+public:
+  // There is no default constructor.
+  // It is required to have a crate number attached to it
+  // for bookeeping purposes.
+  L1RCTJetSummaryCard(int crtNo, const L1RCTLookupTables *rctLookupTables);
+
+  int crateNumber() { return crtNo; }
 
   // eGamma Objects
   // The object is defined by a 6 bit rank (temporarily set to 7 bit linear ET)
@@ -24,9 +22,9 @@ class L1RCTJetSummaryCard
   // although, in the case of the emulator they may always be in
   // the descending order of rank
 
-  std::vector<unsigned short> getIsolatedEGObjects() {return isolatedEGObjects;}
-  std::vector<unsigned short> getNonisolatedEGObjects() {return nonisolatedEGObjects;}
-  
+  std::vector<unsigned short> getIsolatedEGObjects() { return isolatedEGObjects; }
+  std::vector<unsigned short> getNonisolatedEGObjects() { return nonisolatedEGObjects; }
+
   // Region sums 10-bit energy (bits 0-9),overflow (bit 10)
   // bit 11 is tau bit
 
@@ -50,9 +48,9 @@ class L1RCTJetSummaryCard
   // that the eta decreases from -5 to 0 for crates 0-8
   // and increases from 0 to +5 for crates 9-17
 
-  std::vector<unsigned short> getJetRegions() {return jetRegions;}
-  std::vector<unsigned short> getBarrelRegions() {return barrelRegions;}
-  std::vector<unsigned short> getHFRegions() {return HFRegions;}
+  std::vector<unsigned short> getJetRegions() { return jetRegions; }
+  std::vector<unsigned short> getBarrelRegions() { return barrelRegions; }
+  std::vector<unsigned short> getHFRegions() { return HFRegions; }
 
   // Muon bits consist of 14 quiet bits and 14 MIP bits
   // These are packed into one unsigned short each
@@ -63,41 +61,40 @@ class L1RCTJetSummaryCard
   // (crdNo6, rgnNo0), (crdNo6, rgnNo1)
   // The same ordering is true for Quiet bits also
 
-  unsigned short getMIPBits() {return mipBits;}
-  unsigned short getQuietBits() {return quietBits;}
+  unsigned short getMIPBits() { return mipBits; }
+  unsigned short getQuietBits() { return quietBits; }
 
-  unsigned short getTauBits() {return tauBits;}
-  unsigned short getOverFlowBits() {return overFlowBits;}
+  unsigned short getTauBits() { return tauBits; }
+  unsigned short getOverFlowBits() { return overFlowBits; }
 
-  std::vector<unsigned short> getHFFineGrainBits() {return hfFineGrainBits;}
+  std::vector<unsigned short> getHFFineGrainBits() { return hfFineGrainBits; }
 
-  void fillHFRegionSums(const std::vector<unsigned short>& hfRegionSums);
-  void fillRegionSums(const std::vector<unsigned short>& regSums){
-    barrelRegions = regSums;
-  }
+  void fillHFRegionSums(const std::vector<unsigned short> &hfRegionSums);
+  void fillRegionSums(const std::vector<unsigned short> &regSums) { barrelRegions = regSums; }
   void fillJetRegions();
 
-  void fillIsolatedEGObjects(const std::vector<unsigned short>& isoElectrons);
-  void fillNonIsolatedEGObjects(const std::vector<unsigned short>& nonIsoElectrons);
+  void fillIsolatedEGObjects(const std::vector<unsigned short> &isoElectrons);
+  void fillNonIsolatedEGObjects(const std::vector<unsigned short> &nonIsoElectrons);
 
-  void fillMIPBits(const std::vector<unsigned short>& mip);
-  void fillTauBits(const std::vector<unsigned short>& tau);
-  void fillOverFlowBits(const std::vector<unsigned short>& overflow);
+  void fillMIPBits(const std::vector<unsigned short> &mip);
+  void fillTauBits(const std::vector<unsigned short> &tau);
+  void fillOverFlowBits(const std::vector<unsigned short> &overflow);
   void fillQuietBits();
 
   void print();
- private:
 
+private:
   int crtNo;
 
-  const L1RCTLookupTables* rctLookupTables_;
+  const L1RCTLookupTables *rctLookupTables_;
 
   std::vector<unsigned short> isolatedEGObjects;
   std::vector<unsigned short> nonisolatedEGObjects;
   std::vector<unsigned short> jetRegions;
 
-  std::vector<unsigned short> HFRegions;  // 8-bit et + fine grain?
-  std::vector<unsigned short> barrelRegions;  // no, this is 10-bit et, not (activityBit)(etIn9Bits)(HE_FGBit)(etIn7Bits)
+  std::vector<unsigned short> HFRegions;      // 8-bit et + fine grain?
+  std::vector<unsigned short> barrelRegions;  // no, this is 10-bit et, not
+                                              // (activityBit)(etIn9Bits)(HE_FGBit)(etIn7Bits)
 
   unsigned short mipBits;
   unsigned short quietBits;
@@ -106,12 +103,12 @@ class L1RCTJetSummaryCard
 
   std::vector<unsigned short> hfFineGrainBits;
 
-  //unsigned quietThreshold;
+  // unsigned quietThreshold;
   unsigned quietThresholdBarrel;
   unsigned quietThresholdEndcap;
 
-  void asicSort(std::vector<unsigned short>& electrons);
-  void asicCompare(std::vector<unsigned short>& array);
+  void asicSort(std::vector<unsigned short> &electrons);
+  void asicCompare(std::vector<unsigned short> &array);
 
   // Disabled constructors and operators
 

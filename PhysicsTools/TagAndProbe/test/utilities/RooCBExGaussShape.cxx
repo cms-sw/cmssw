@@ -18,7 +18,7 @@
  #include "RooAbsReal.h" 
  #include "RooAbsCategory.h" 
 
- ClassImp(RooCBExGaussShape) 
+ ClassImp(RooCBExGaussShape); 
 
  RooCBExGaussShape::RooCBExGaussShape(const char *name, const char *title, 
 				      RooAbsReal& _m, //x

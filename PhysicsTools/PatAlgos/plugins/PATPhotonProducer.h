@@ -43,7 +43,6 @@
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
-#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -132,7 +131,6 @@ namespace pat {
       
       const CaloTopology * ecalTopology_;
       const CaloGeometry * ecalGeometry_;
-      EcalClusterLocal ecl_;
 
       bool saveRegressionData_;
 

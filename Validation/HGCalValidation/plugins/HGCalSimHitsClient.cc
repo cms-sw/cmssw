@@ -202,7 +202,7 @@ int HGCalSimHitsClient::simHitsEndjob(const std::vector<MonitorElement*>& hgcalM
   for (unsigned int ih=0; ih<hgcalMEs.size(); ih++) {
     if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0) {
       MeanHitOccupancy_Plus_ = hgcalMEs[ih];
-      for (int ilayer=0; ilayer < (int)layers_; ++ilayer) {
+      for (int ilayer=0; ilayer < static_cast<int>(layers_); ++ilayer) {
 	double meanVal = HitOccupancy_Plus_.at(ilayer)->getMean();
 	MeanHitOccupancy_Plus_->setBinContent(ilayer+1, meanVal);
       }
@@ -214,7 +214,7 @@ int HGCalSimHitsClient::simHitsEndjob(const std::vector<MonitorElement*>& hgcalM
   for(unsigned int ih=0; ih<hgcalMEs.size(); ih++){
     if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0) {
       MeanHitOccupancy_Minus_ = hgcalMEs[ih];
-      for (int ilayer=0; ilayer < (int)layers_; ++ilayer) {
+      for (int ilayer=0; ilayer < static_cast<int>(layers_); ++ilayer) {
 	double meanVal = HitOccupancy_Minus_.at(ilayer)->getMean();
 	MeanHitOccupancy_Minus_->setBinContent(ilayer+1, meanVal);
       }

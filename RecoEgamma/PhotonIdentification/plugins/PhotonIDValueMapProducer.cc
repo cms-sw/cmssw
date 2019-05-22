@@ -145,11 +145,11 @@ const std::string names[nVars_] = {
 };
 
 // options and bitflags
-constexpr float coneSizeDR = 0.3;
+constexpr float coneSizeDR2 = 0.3*0.3;
 constexpr float dxyMax = 0.1;
 constexpr float dzMax = 0.2;
-constexpr float dRvetoBarrel = 0.02;
-constexpr float dRvetoEndcap = 0.02;
+constexpr float dRveto2Barrel = 0.02*0.02;
+constexpr float dRveto2Endcap = 0.02*0.02;
 constexpr float ptMin = 0.1;
 
 const unsigned char PV_CONSTRAINT  = 0x1;
@@ -194,15 +194,10 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
     }
 
     // Configure Lazy Tools, which will compute 5x5 quantities
-    std::unique_ptr<noZS::EcalClusterLazyTools> lazyToolnoZS;
-
-    if (usesES_) {
-        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(
-            iEvent, iSetup, ebRecHits_.get(iEvent), eeRecHits_.get(iEvent), esRecHits_.get(iEvent));
-    } else {
-        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(
-            iEvent, iSetup, ebRecHits_.get(iEvent), eeRecHits_.get(iEvent));
-    }
+    auto lazyToolnoZS = usesES_ ? noZS::EcalClusterLazyTools(iEvent, iSetup,
+                                        ebRecHits_.get(iEvent), eeRecHits_.get(iEvent), esRecHits_.get(iEvent))
+                                : noZS::EcalClusterLazyTools(iEvent, iSetup,
+                                        ebRecHits_.get(iEvent), eeRecHits_.get(iEvent));
 
     // Get PV
     if (vertices->empty())
@@ -212,29 +207,28 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
     std::vector<float> vars[nVars_];
 
     // reco::Photon::superCluster() is virtual so we can exploit polymorphism
-    for (unsigned i = 0; i < src->size(); ++i) {
-        const auto& iPho = src->ptrAt(i);
-
+    for(auto const& iPho : src->ptrs())
+    {
         //
         // Compute full 5x5 quantities
         //
-        const auto& theseed = *(iPho->superCluster()->seed());
+        const auto& seed = *(iPho->superCluster()->seed());
 
         // For full5x5_sigmaIetaIeta, for 720 we use: lazy tools for AOD,
         // and userFloats or lazy tools for miniAOD. From some point in 72X and on, one can
         // retrieve the full5x5 directly from the object with ->full5x5_sigmaIetaIeta()
         // for both formats.
-        std::vector<float> vCov = lazyToolnoZS->localCovariances(theseed);
+        std::vector<float> vCov = lazyToolnoZS.localCovariances(seed);
         vars[0].push_back(edm::isNotFinite(vCov[0]) ? 0. : sqrt(vCov[0]));
         vars[1].push_back(vCov[1]);
-        vars[2].push_back(lazyToolnoZS->e1x3(theseed));
-        vars[3].push_back(lazyToolnoZS->e2x2(theseed));
-        vars[4].push_back(lazyToolnoZS->e2x5Max(theseed));
-        vars[5].push_back(lazyToolnoZS->e5x5(theseed));
-        vars[6].push_back(lazyToolnoZS->eseffsirir(*(iPho->superCluster())));
-        vars[7].push_back(vars[2][i] / vars[5][i]);
-        vars[8].push_back(vars[3][i] / vars[5][i]);
-        vars[9].push_back(vars[4][i] / vars[5][i]);
+        vars[2].push_back(lazyToolnoZS.e1x3(seed));
+        vars[3].push_back(lazyToolnoZS.e2x2(seed));
+        vars[4].push_back(lazyToolnoZS.e2x5Max(seed));
+        vars[5].push_back(lazyToolnoZS.e5x5(seed));
+        vars[6].push_back(lazyToolnoZS.eseffsirir(*(iPho->superCluster())));
+        vars[7].push_back(vars[2].back() / vars[5].back());
+        vars[8].push_back(vars[3].back() / vars[5].back());
+        vars[9].push_back(vars[4].back() / vars[5].back());
 
         //
         // Compute absolute uncorrected isolations with footprint removal
@@ -250,11 +244,10 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
         float photonIsoSum = 0.;
 
         // Loop over all PF candidates
-        for (unsigned int idxcand = 0; idxcand < pfCandsHandle->size(); ++idxcand) {
-
+        for(auto const& iCand : pfCandsHandle->ptrs())
+        {
             // Here, the type will be a simple reco::Candidate. We cast it
             // for full PFCandidate or PackedCandidate below as necessary
-            const auto& iCand = pfCandsHandle->ptrAt(idxcand);
 
             // One would think that we should check that this iCand from the
             // generic PF collection is not identical to the iPho photon for
@@ -274,7 +267,7 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
 
             // Check if this candidate is within the isolation cone
             float dR2 = deltaR2(phoWrtVtx.Eta(), phoWrtVtx.Phi(), iCand->eta(), iCand->phi());
-            if (dR2 > coneSizeDR * coneSizeDR)
+            if (dR2 > coneSizeDR2)
                 continue;
 
             // Check if this candidate is not in the footprint
@@ -282,7 +275,7 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
                 if(isInFootprint((*particleBasedIsolationMap)[iPho], iCand))
                     continue;
             } else {
-                edm::Ptr<pat::Photon> patPhotonPtr(src->ptrAt(i));
+                edm::Ptr<pat::Photon> patPhotonPtr(iPho);
                 if(isInFootprint(patPhotonPtr->associatedPackedPFCandidates(), iCand))
                     continue;
             }
@@ -335,7 +328,7 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
             vars[17].push_back(0.f);
             vars[18].push_back(0.f);
         } else {
-            edm::Ptr<pat::Photon> patPhotonPtr{ src->ptrAt(i) };
+            edm::Ptr<pat::Photon> patPhotonPtr{ iPho };
             vars[17].push_back(patPhotonPtr->hcalPFClusterIso());
             vars[18].push_back(patPhotonPtr->ecalPFClusterIso());
         }
@@ -374,7 +367,7 @@ float PhotonIDValueMapProducer::computeWorstPFChargedIsolation(const reco::Photo
 {
     float worstIsolation = 0.0;
 
-    const float dRveto = photon.isEB() ? dRvetoBarrel : dRvetoEndcap;
+    const float dRveto2 = photon.isEB() ? dRveto2Barrel : dRveto2Endcap;
 
     std::vector<CachingPtrCandidate> chargedCands;
     chargedCands.reserve(pfCands.size());
@@ -399,11 +392,20 @@ float PhotonIDValueMapProducer::computeWorstPFChargedIsolation(const reco::Photo
         math::XYZVector phoWrtVtx(photon.superCluster()->x() - vtx->x(),
             photon.superCluster()->y() - vtx->y(), photon.superCluster()->z() - vtx->z());
 
+	const float phoWrtVtxPhi = phoWrtVtx.phi();
+	const float phoWrtVtxEta = phoWrtVtx.eta();
+
         float sum = 0;
         // Loop over the PFCandidates
         for (auto const& aCCand : chargedCands) {
 
-            float dxy = -999;
+            auto iCand = aCCand.candidate;
+            float dR2 = deltaR2(phoWrtVtxEta, phoWrtVtxPhi, iCand->eta(), iCand->phi());
+            if (dR2 > coneSizeDR2  ||
+                    (options & DR_VETO && dR2 < dRveto2))
+                continue;
+
+	    float dxy = -999;
             float dz = -999;
             if (options & PV_CONSTRAINT)
                 getImpactParameters(aCCand, pv, dxy, dz);
@@ -413,11 +415,6 @@ float PhotonIDValueMapProducer::computeWorstPFChargedIsolation(const reco::Photo
             if (fabs(dxy) > dxyMax || fabs(dz) > dzMax)
                 continue;
 
-            auto iCand = aCCand.candidate;
-            float dR2 = deltaR2(phoWrtVtx.Eta(), phoWrtVtx.Phi(), iCand->eta(), iCand->phi());
-            if (dR2 > coneSizeDR * coneSizeDR ||
-                    (options & DR_VETO && dR2 < dRveto * dRveto))
-                continue;
 
             sum += iCand->pt();
         }

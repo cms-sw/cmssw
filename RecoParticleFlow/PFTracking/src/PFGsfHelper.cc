@@ -15,7 +15,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-//#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+//#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 // Add by Daniele

@@ -75,15 +75,15 @@ AlgebraicMatrix KFBasedPixelFitter::MyBeamSpotHit::projectionMatrix() const
 }
 
 
-KFBasedPixelFitter::KFBasedPixelFitter(const edm::EventSetup *es, const Propagator *propagator, const Propagator *opropagator,
+KFBasedPixelFitter::KFBasedPixelFitter(const Propagator *propagator, const Propagator *opropagator,
                                        const TransientTrackingRecHitBuilder *ttrhBuilder,
                                        const TrackerGeometry *tracker, const MagneticField *field,
                                        const reco::BeamSpot *beamSpot):
-  theES(es), thePropagator(propagator), theOPropagator(opropagator), theTTRHBuilder(ttrhBuilder),
+  thePropagator(propagator), theOPropagator(opropagator), theTTRHBuilder(ttrhBuilder),
   theTracker(tracker), theField(field), theBeamSpot(beamSpot)
 {}
 
-std::unique_ptr<reco::Track> KFBasedPixelFitter::run(const std::vector<const TrackingRecHit *>& hits, const TrackingRegion& region) const {
+std::unique_ptr<reco::Track> KFBasedPixelFitter::run(const std::vector<const TrackingRecHit *>& hits, const TrackingRegion& region, const edm::EventSetup& setup) const {
   std::unique_ptr<reco::Track> ret;
 
   int nhits = hits.size();
@@ -108,7 +108,7 @@ std::unique_ptr<reco::Track> KFBasedPixelFitter::run(const std::vector<const Tra
   float theta;
   CircleFromThreePoints circle(points[0], points[1], points[2]);
   if (circle.curvature() > 1.e-4) {
-    float invPt = PixelRecoUtilities::inversePt( circle.curvature(), *theES);
+    float invPt = PixelRecoUtilities::inversePt( circle.curvature(), setup);
     float valPt = 1.f/invPt;
     float chargeTmp =    (points[1].x()-points[0].x())*(points[2].y()-points[1].y())
                        - (points[1].y()-points[0].y())*(points[2].x()-points[1].x()); 

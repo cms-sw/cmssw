@@ -13,40 +13,40 @@
 
 #include "DQM/HcalCommon/interface/Container1D.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
-namespace hcaldqm
-{
-  class ContainerProf1D : public Container1D
-  {
+namespace hcaldqm {
+  class ContainerProf1D : public Container1D {
   public:
     ContainerProf1D();
-    ContainerProf1D(std::string const& folder,
-                    hashfunctions::HashType,
-                    quantity::Quantity *, quantity::Quantity*);
+    ContainerProf1D(std::string const &folder, hashfunctions::HashType, quantity::Quantity *, quantity::Quantity *);
     ~ContainerProf1D() override {}
 
-    void initialize(std::string const& folder,
+    void initialize(std::string const &folder,
                     hashfunctions::HashType,
-                    quantity::Quantity*, quantity::Quantity*,
-                    int debug=0) override;
+                    quantity::Quantity *,
+                    quantity::Quantity *,
+                    int debug = 0) override;
 
-    void initialize(std::string const& folder,
-                    std::string const& qname,
+    void initialize(std::string const &folder,
+                    std::string const &qname,
                     hashfunctions::HashType,
-                    quantity::Quantity*, quantity::Quantity*,
-                    int debug=0) override;
+                    quantity::Quantity *,
+                    quantity::Quantity *,
+                    int debug = 0) override;
 
     //  booking
-    void book(DQMStore::IBooker&,
-              HcalElectronicsMap const*,
-              std::string subsystem="Hcal", std::string aux="") override;
-    void book(DQMStore::IBooker&,
-              HcalElectronicsMap const*, filter::HashFilter const&,
-              std::string subsystem="Hcal", std::string aux="") override;
+    void book(DQMStore::IBooker &,
+              HcalElectronicsMap const *,
+              std::string subsystem = "Hcal",
+              std::string aux = "") override;
+    void book(DQMStore::IBooker &,
+              HcalElectronicsMap const *,
+              filter::HashFilter const &,
+              std::string subsystem = "Hcal",
+              std::string aux = "") override;
   };
-}
-
+}  // namespace hcaldqm
 
 #endif

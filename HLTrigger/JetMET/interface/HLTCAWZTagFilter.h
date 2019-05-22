@@ -22,7 +22,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <Math/VectorUtil.h>
 
-class CAWZJetHelperUser : public std::unary_function<reco::Jet, reco::CATopJetProperties> {
+class CAWZJetHelperUser {
  public:
 
   CAWZJetHelperUser(double massdropcut) :
@@ -35,16 +35,6 @@ class CAWZJetHelperUser : public std::unary_function<reco::Jet, reco::CATopJetPr
     double      massdropcut_;
 
 };
-
-
-
-struct GreaterByPtCandPtrUser {
-  bool operator()( const edm::Ptr<reco::Candidate> & t1, const edm::Ptr<reco::Candidate> & t2 ) const {
-    return t1->pt() > t2->pt();
-  }
-};
-
-
 
 //
 // class declaration
@@ -82,7 +72,7 @@ reco::CATopJetProperties CAWZJetHelperUser::operator()( reco::Jet const & ihardJ
 
   if (properties.nSubJets == 2) {
  
-    sort ( subjets.begin(), subjets.end(), GreaterByPtCandPtrUser() );
+    sort ( subjets.begin(), subjets.end(), [](auto const& t1, auto const& t2){ return t1->pt() > t2->pt(); } );
 
     reco::Jet::Constituent icandJet = subjets[0];
 

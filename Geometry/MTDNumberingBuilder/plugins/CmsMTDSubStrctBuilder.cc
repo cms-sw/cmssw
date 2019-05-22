@@ -9,10 +9,6 @@
 
 #include <bitset>
 
-namespace {
-  constexpr std::array<const char*,2> sides{ { "PositiveZ","NegativeZ" } };
-}
-
 CmsMTDSubStrctBuilder::CmsMTDSubStrctBuilder()
 {}
 

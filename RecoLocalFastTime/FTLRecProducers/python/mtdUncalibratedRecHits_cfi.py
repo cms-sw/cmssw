@@ -9,9 +9,9 @@ _barrelAlgo = cms.PSet(
     adcSaturation = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.adcSaturation_MIP,
     toaLSB_ns = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.toaLSB_ns,
     timeResolutionInNs = cms.double(0.025),
-    timeCorr_p0 = cms.double(24.8997),
-    timeCorr_p1 = cms.double(-0.911385),
-    timeCorr_p2 = cms.double( 3.3744717)
+    timeCorr_p0 = cms.double( 2.21103),
+    timeCorr_p1 = cms.double(-0.933552),
+    timeCorr_p2 = cms.double( 0.)
 )
 
 
@@ -33,4 +33,10 @@ mtdUncalibratedRecHits = cms.EDProducer(
     endcapDigis = cms.InputTag('mix:FTLEndcap'),
     BarrelHitsName = cms.string('FTLBarrel'),
     EndcapHitsName = cms.string('FTLEndcap')
+)
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(mtdUncalibratedRecHits,
+    barrelDigis = 'mixData:FTLBarrel',
+    endcapDigis = 'mixData:FTLEndcap',
 )

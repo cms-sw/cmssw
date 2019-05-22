@@ -57,7 +57,7 @@ class GetLumi;
 class TProfile;
 class GenericTriggerEventFlag;
 
-class TrackingMonitor : public DQMEDAnalyzer 
+class TrackingMonitor : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements>
 {
     public:
         using MVACollection = std::vector<float>;

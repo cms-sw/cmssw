@@ -138,19 +138,23 @@ void HGCalSimHitValidation::analyze(const edm::Event& iEvent,
 				    const edm::EventSetup& iSetup) {
 
   //Generator input
-  edm::Handle<edm::HepMCProduct> evtMC;
-  iEvent.getByToken(tok_hepMC_,evtMC); 
-  if (!evtMC.isValid()) {
-    edm::LogVerbatim("HGCalValidation") << "no HepMCProduct found";
-  } else { 
-    const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
-    unsigned int k(0);
-    for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
-	 p != myGenEvent->particles_end(); ++p, ++k) {
-      edm::LogVerbatim("HGCalValidation") << "Particle[" << k << "] with pt "
-					  << (*p)->momentum().perp() << " eta "
-					  << (*p)->momentum().eta() << " phi "
-					  << (*p)->momentum().phi();
+  if (verbosity_ > 0) {
+    edm::Handle<edm::HepMCProduct> evtMC;
+    iEvent.getByToken(tok_hepMC_,evtMC); 
+    if (!evtMC.isValid()) {
+      edm::LogVerbatim("HGCalValidation") << "no HepMCProduct found";
+    } else { 
+      const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
+      unsigned int k(0);
+      for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
+	   p != myGenEvent->particles_end(); ++p, ++k) {
+	edm::LogVerbatim("HGCalValidation") << "Particle[" << k << "] with pt "
+					    << (*p)->momentum().perp()
+					    << " eta "
+					    << (*p)->momentum().eta() 
+					    << " phi "
+					    << (*p)->momentum().phi();
+      }
     }
   }
 
@@ -302,7 +306,7 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
       hinfo.sector = sector;
       hinfo.sector2= subsector;
       hinfo.cell   = cell;
-      hinfo.cell2  = cell;
+      hinfo.cell2  = cell2;
       hinfo.type   = type;
       hinfo.layer  = layer-firstLayer_;
       hinfo.phi    = gcoord.getPhi();
@@ -340,9 +344,10 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
     if (eta > 0.0) fillOccupancyMap(OccupancyMap_plus, layer);
     else           fillOccupancyMap(OccupancyMap_minus,layer);
   }
-  edm::LogVerbatim("HGCalValidation") << "With map:used:total " << hits.size()
-				      << "|" << nused << "|" << map_hits.size()
-				      << " hits";
+  if (verbosity_ > 0)
+    edm::LogVerbatim("HGCalValidation") << "With map:used:total "
+					<< hits.size() << "|" << nused << "|"
+					<< map_hits.size() << " hits";
 
   for (auto const & itr : OccupancyMap_plus) {
     int layer     = itr.first;
@@ -408,7 +413,7 @@ bool HGCalSimHitValidation::defineGeometry(edm::ESTransientHandle<DDCompactView>
       int isd = (name.find(nameDetector_) == std::string::npos) ? -1 : 1;
       if (isd > 0) {
 	std::vector<int> copy = fv.copyNumbers();
-	int nsiz = (int)(copy.size());
+	int nsiz = static_cast<int>(copy.size());
 	int lay  = (nsiz > 0) ? copy[nsiz-1] : -1;
 	int sec  = (nsiz > 1) ? copy[nsiz-2] : -1;
 	int zp   = (nsiz > 3) ? copy[nsiz-4] : -1;
@@ -475,7 +480,7 @@ void HGCalSimHitValidation::bookHistograms(DQMStore::IBooker& iB,
     
   std::ostringstream histoname;
   for (unsigned int il=0; il < layers_; ++il) {
-    int ilayer = firstLayer_ + (int)(il);
+    int ilayer = firstLayer_ + static_cast<int>(il);
     histoname.str(""); histoname << "HitOccupancy_Plus_layer_" << ilayer;
     HitOccupancy_Plus_.push_back(iB.book1D(histoname.str().c_str(), "HitOccupancy_Plus", 501, -0.5, 500.5));
     histoname.str(""); histoname << "HitOccupancy_Minus_layer_" << ilayer;

@@ -25,18 +25,15 @@ class DQMStore;
 class MonitorElement;
 class DTReadOutMapping;
 
-class DTDataIntegrityTest: public DQMEDHarvester{
-
+class DTDataIntegrityTest : public DQMEDHarvester {
 public:
-
   /// Constructor
-  DTDataIntegrityTest(const edm::ParameterSet& ps);
+  DTDataIntegrityTest(const edm::ParameterSet &ps);
 
- /// Destructor
- ~DTDataIntegrityTest() override;
+  /// Destructor
+  ~DTDataIntegrityTest() override;
 
 protected:
-
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// Get the ME name
@@ -46,10 +43,13 @@ protected:
   void bookHistos(DQMStore::IBooker &, std::string histoType, int dduId);
 
   /// DQM Client Diagnostic
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;
 
 private:
-  int readOutToGeometry(int dduId, int rosNumber, int& wheel, int& sector);
+  int readOutToGeometry(int dduId, int rosNumber, int &wheel, int &sector);
   int getROS(int uROS, int link);
 
   //Number of onUpdates
@@ -72,17 +72,17 @@ private:
   bool bookingdone;
 
   edm::ESHandle<DTReadOutMapping> mapping;
-  
-  // Monitor Elements
-  std::map<std::string, std::map<int, MonitorElement*> > dduHistos;  
-  std::map<std::string, std::map<int, std::vector <MonitorElement*> > > dduVectorHistos;
 
-  std::map<std::string, std::map<int, MonitorElement*> > fedHistos;
-  std::map<std::string, std::map<int, std::vector <MonitorElement*> > > fedVectorHistos;
+  // Monitor Elements
+  std::map<std::string, std::map<int, MonitorElement *> > dduHistos;
+  std::map<std::string, std::map<int, std::vector<MonitorElement *> > > dduVectorHistos;
+
+  std::map<std::string, std::map<int, MonitorElement *> > fedHistos;
+  std::map<std::string, std::map<int, std::vector<MonitorElement *> > > fedVectorHistos;
 
   MonitorElement *summaryHisto;
   MonitorElement *summaryTDCHisto;
   MonitorElement *glbSummaryHisto;
- };
+};
 
 #endif

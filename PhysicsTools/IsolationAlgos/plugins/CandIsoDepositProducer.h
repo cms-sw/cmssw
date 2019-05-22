@@ -34,7 +34,7 @@ private:
   TrackType     theTrackType;
   std::vector<std::string> theDepositNames;
   bool theMultipleDepositsFlag;
-  reco::isodeposit::IsoDepositExtractor * theExtractor;
+  std::unique_ptr<reco::isodeposit::IsoDepositExtractor> theExtractor;
 
 };
 #endif

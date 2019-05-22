@@ -15,15 +15,13 @@ HGCalUncalibRecHitProducer::HGCalUncalibRecHitProducer(const edm::ParameterSet& 
   hebDigiCollection_( consumes<HGCalDigiCollection>( ps.getParameter<edm::InputTag>("HGCHEBdigiCollection") ) ),
   eeHitCollection_( ps.getParameter<std::string>("HGCEEhitCollection") ),
   hefHitCollection_( ps.getParameter<std::string>("HGCHEFhitCollection") ),
-  hebHitCollection_( ps.getParameter<std::string>("HGCHEBhitCollection") )
+  hebHitCollection_( ps.getParameter<std::string>("HGCHEBhitCollection") ),
+  worker_{ HGCalUncalibRecHitWorkerFactory::get()->create(ps.getParameter<std::string>("algo"), ps) }
 {
 
   produces< HGCeeUncalibratedRecHitCollection >(eeHitCollection_);
   produces< HGChefUncalibratedRecHitCollection >(hefHitCollection_);
   produces< HGChebUncalibratedRecHitCollection >(hebHitCollection_);
-  
-  const std::string& componentType = ps.getParameter<std::string>("algo");
-  worker_.reset( HGCalUncalibRecHitWorkerFactory::get()->create(componentType, ps) );
 
 }
 

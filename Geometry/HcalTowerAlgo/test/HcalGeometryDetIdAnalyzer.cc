@@ -60,6 +60,7 @@ HcalGeometryDetIdAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::Eve
 	      << hid << " == " << rhid << std::endl;
     assert(hid == rhid);
   }
+  std::cout << "No error found among " << counter << " HCAL valid ID's\n";
 }
 
 DEFINE_FWK_MODULE(HcalGeometryDetIdAnalyzer);

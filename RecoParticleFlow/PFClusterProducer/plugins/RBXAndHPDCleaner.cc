@@ -64,11 +64,6 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
   }
   // loop on the rbx's we found and clean RBX's with tons of rechits
   // and lots of energy
-  double totalEta = 0., totalEtaW = 0., totalPhi = 0., totalPhiW = 0., 
-    totalEnergy = 0.;
-  double totalEta2 = 1E-9, totalEta2W = 1E-9, totalPhi2 = 1E-9, 
-    totalPhi2W = 1E-9, totalEnergy2 = 1E-9;
-  unsigned nSeeds = 0, nSeeds0 = 0;
   std::unordered_map<int, std::vector<unsigned> > theHPDs;
   std::unordered_multimap<double, unsigned> theEnergies;
   for( const auto& itrbx : _rbxs ) {
@@ -77,9 +72,7 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
       const std::vector<unsigned>& rechits = itrbx.second;
       theHPDs.clear();
       theEnergies.clear();
-      totalEta = totalEtaW = totalPhi = totalPhiW = totalEnergy = 0.;
-      totalEta2 = totalEta2W = totalPhi2 = totalPhi2W = totalEnergy2 = 1e-9;
-      nSeeds = nSeeds0 = rechits.size();
+      int nSeeds0 = rechits.size();
       for( unsigned jh = 0; jh < rechits.size(); ++jh ) {
 	const reco::PFRecHit&  rechit = (*input)[jh];
 	// check if rechit is a seed
@@ -89,7 +82,7 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
 	for( auto k : neighbours4 ) {
           auto const & neighbour = (*input)[k]; 
 	  if( neighbour.energy() > rechit.energy() ) {	    
-	    --nSeeds; --nSeeds0;
+	    --nSeeds0;
 	    isASeed = false;
 	    break;
 	  } else {
@@ -111,37 +104,8 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
 	  break;
 	}
 	const double rhenergy = rechit.energy();
-	const double rhphi = rechit.position().phi();
-	const double rhphi2 = rhphi*rhphi;
-	const double rheta = rechit.position().eta();
-	const double rheta2 = rheta*rheta;
 	theEnergies.emplace(rhenergy,rechits[jh]);
-	totalEnergy += rhenergy;
-	totalPhi += std::abs(rhphi);
-	totalPhiW += std::abs(rhphi)*rhenergy;
-	totalEta += rheta;
-	totalEtaW += rheta*rhenergy;
-	totalEnergy2 += rhenergy*rhenergy;
-	totalPhi2 += rhphi2;
-	totalPhi2W += rhphi2*rhenergy;
-	totalEta2 += rheta2;
-	totalEta2W += rheta2*rhenergy;
       }
-      totalPhi /= rechits.size();
-      totalEta /= rechits.size();
-      totalPhiW /= totalEnergy;
-      totalEtaW /= totalEnergy;
-      totalPhi2 /= rechits.size();
-      totalEta2 /= rechits.size();
-      totalPhi2W /= totalEnergy;
-      totalEta2W /= totalEnergy;
-      totalPhi2 = std::sqrt(totalPhi2 - totalPhi*totalPhi);
-      totalEta2 = std::sqrt(totalEta2 - totalEta*totalEta);
-      totalPhi2W = std::sqrt(totalPhi2W - totalPhiW*totalPhi2);
-      totalEta2W = std::sqrt(totalEta2W - totalEtaW*totalEtaW);
-      totalEnergy /= rechits.size();
-      totalEnergy2 /= rechits.size();
-      totalEnergy2 = std::sqrt(totalEnergy2 - totalEnergy*totalEnergy);
       if( nSeeds0 > 6 ) {
 	unsigned nHPD15 = 0;
 	for( const auto& itHPD : theHPDs ) {
@@ -178,18 +142,10 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
   for( const auto& ithpd : _hpds ) {
     const std::vector<unsigned>& rechits = ithpd.second;
     theEnergies.clear();
-    totalEnergy = 0;
-    totalEnergy2 = 1e-9;
     for( const unsigned rhidx : rechits ) {
       const reco::PFRecHit & rechit = input->at(rhidx);
-      const double e = rechit.energy();
-      totalEnergy += e;
-      totalEnergy2 += e*e;
       theEnergies.emplace(rechit.energy(),rhidx); 
     }
-    totalEnergy /= rechits.size();
-    totalEnergy2 /= rechits.size();
-    totalEnergy2 = std::sqrt(totalEnergy2 - totalEnergy*totalEnergy);
    
     const int thehpd = ithpd.first;
     switch( std::abs(thehpd) ) {

@@ -26,42 +26,39 @@ class G4HCofThisEvent;
 class FiberSD : public SensitiveCaloDetector,
                 public Observer<const BeginOfJob *>,
                 public Observer<const BeginOfRun *>,
-		public Observer<const BeginOfEvent*>,
-		public Observer<const EndOfEvent*> {
-
+                public Observer<const BeginOfEvent *>,
+                public Observer<const EndOfEvent *> {
 public:
-
-  explicit FiberSD(const std::string&, const DDCompactView&, 
-		   const SensitiveDetectorCatalog&,
-		   edm::ParameterSet const &, const SimTrackManager*);
+  explicit FiberSD(const std::string &,
+                   const DDCompactView &,
+                   const SensitiveDetectorCatalog &,
+                   edm::ParameterSet const &,
+                   const SimTrackManager *);
   ~FiberSD() override;
 
-  void     Initialize(G4HCofThisEvent*HCE) override;
-  G4bool   ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist) override;
-  void     EndOfEvent(G4HCofThisEvent* HCE) override;
-  void     clear() override;
-  void     DrawAll() override;
-  void     PrintAll() override;
+  void Initialize(G4HCofThisEvent *HCE) override;
+  G4bool ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) override;
+  void EndOfEvent(G4HCofThisEvent *HCE) override;
+  void clear() override;
+  void DrawAll() override;
+  void PrintAll() override;
 
-  void     clearHits() override;
-  uint32_t setDetUnitId(const G4Step*) override;
-  void     fillHits(edm::PCaloHitContainer&, const std::string&) override;
+  void clearHits() override;
+  uint32_t setDetUnitId(const G4Step *) override;
+  void fillHits(edm::PCaloHitContainer &, const std::string &) override;
 
 protected:
-
-  void     update(const BeginOfJob *) override;
-  void     update(const BeginOfRun *) override;
-  void     update(const BeginOfEvent *) override;
-  void     update(const ::EndOfEvent *) override;
+  void update(const BeginOfJob *) override;
+  void update(const BeginOfRun *) override;
+  void update(const BeginOfEvent *) override;
+  void update(const ::EndOfEvent *) override;
 
 private:
+  const SimTrackManager *m_trackManager;
+  HFShower *theShower;
 
-  const SimTrackManager* m_trackManager;
-  HFShower*              theShower;
-
-  G4int                  theHCID;
-  FiberG4HitsCollection* theHC;
+  G4int theHCID;
+  FiberG4HitsCollection *theHC;
 };
 
 #endif
-

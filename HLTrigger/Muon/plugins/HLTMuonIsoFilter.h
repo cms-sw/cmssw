@@ -40,7 +40,7 @@ class HLTMuonIsoFilter : public HLTFilter {
       std::vector<edm::EDGetTokenT<edm::ValueMap<reco::IsoDeposit> > > depToken_; // tokens identifying deposit maps
       edm::EDGetTokenT<edm::ValueMap<bool> > decMapToken_; // bool decision map
 
-      const muonisolation::MuIsoBaseIsolator * theDepositIsolator;
+      std::unique_ptr<const muonisolation::MuIsoBaseIsolator> theDepositIsolator;
 
       int    min_N_;          // minimum number of muons to fire the trigger
 };

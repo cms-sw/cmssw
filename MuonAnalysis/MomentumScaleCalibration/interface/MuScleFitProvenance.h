@@ -21,6 +21,6 @@ class MuScleFitProvenance : public TObject
 
   ClassDef(MuScleFitProvenance, 1)
 };
-ClassImp(MuScleFitProvenance)
+ClassImp(MuScleFitProvenance);
 
 #endif

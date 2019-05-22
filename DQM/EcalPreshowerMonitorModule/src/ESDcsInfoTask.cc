@@ -18,111 +18,94 @@ using namespace edm;
 using namespace std;
 
 ESDcsInfoTask::ESDcsInfoTask(const ParameterSet& ps) {
+  dqmStore_ = Service<DQMStore>().operator->();
 
-   dqmStore_ = Service<DQMStore>().operator->();
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
-   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
-   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+  dcsStatustoken_ = consumes<DcsStatusCollection>(ps.getParameter<InputTag>("DcsStatusLabel"));
 
-   dcsStatustoken_ = consumes<DcsStatusCollection>(ps.getParameter<InputTag>("DcsStatusLabel"));
-
-   meESDcsFraction_ = nullptr;
-   meESDcsActiveMap_ = nullptr;
-
+  meESDcsFraction_ = nullptr;
+  meESDcsActiveMap_ = nullptr;
 }
 
-ESDcsInfoTask::~ESDcsInfoTask() {
+ESDcsInfoTask::~ESDcsInfoTask() {}
 
-}
+void ESDcsInfoTask::beginJob(void) {
+  char histo[200];
 
-void ESDcsInfoTask::beginJob(void){
+  if (dqmStore_) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-   char histo[200];
+    sprintf(histo, "DCSSummary");
+    meESDcsFraction_ = dqmStore_->bookFloat(histo);
+    meESDcsFraction_->Fill(-1.0);
 
-   if ( dqmStore_ ) {
-
-      dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
-
-      sprintf(histo, "DCSSummary");
-      meESDcsFraction_ = dqmStore_->bookFloat(histo);
-      meESDcsFraction_->Fill(-1.0);
-
-      sprintf(histo, "DCSSummaryMap");
-      meESDcsActiveMap_ = dqmStore_->book1D(histo,histo, 2, 0., 2.);
-      meESDcsActiveMap_->setAxisTitle("(ES+/ES-)", 1);
-
-
-   }
-
+    sprintf(histo, "DCSSummaryMap");
+    meESDcsActiveMap_ = dqmStore_->book1D(histo, histo, 2, 0., 2.);
+    meESDcsActiveMap_->setAxisTitle("(ES+/ES-)", 1);
+  }
 }
 
 void ESDcsInfoTask::endJob(void) {
-
-   if ( enableCleanup_ ) this->cleanup();
-
+  if (enableCleanup_)
+    this->cleanup();
 }
 
-void ESDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
+void ESDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) {
+  this->reset();
 
-   this->reset();
-
-   for( int i = 0; i < 2; i++) {
-      meESDcsActiveMap_->setBinContent(i+1 , -1.0);
-   }	    
-
+  for (int i = 0; i < 2; i++) {
+    meESDcsActiveMap_->setBinContent(i + 1, -1.0);
+  }
 }
-
 
 void ESDcsInfoTask::reset(void) {
+  if (meESDcsFraction_)
+    meESDcsFraction_->Reset();
 
-   if ( meESDcsFraction_ ) meESDcsFraction_->Reset();
-
-   if ( meESDcsActiveMap_ ) meESDcsActiveMap_->Reset();
-
+  if (meESDcsActiveMap_)
+    meESDcsActiveMap_->Reset();
 }
 
+void ESDcsInfoTask::cleanup(void) {
+  if (dqmStore_) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-void ESDcsInfoTask::cleanup(void){
+    if (meESDcsFraction_)
+      dqmStore_->removeElement(meESDcsFraction_->getName());
 
-   if ( dqmStore_ ) {
-
-      dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
-
-      if ( meESDcsFraction_ ) dqmStore_->removeElement( meESDcsFraction_->getName() );
-
-      if ( meESDcsActiveMap_ ) dqmStore_->removeElement( meESDcsActiveMap_->getName() );
-
-   }
-
+    if (meESDcsActiveMap_)
+      dqmStore_->removeElement(meESDcsActiveMap_->getName());
+  }
 }
 
-void ESDcsInfoTask::analyze(const Event& e, const EventSetup& c){ 
+void ESDcsInfoTask::analyze(const Event& e, const EventSetup& c) {
+  ievt_++;
 
-   ievt_++;
+  float ESpDcsStatus = 0;
+  float ESmDcsStatus = 0;
 
-   float ESpDcsStatus = 0;
-   float ESmDcsStatus = 0;
+  Handle<DcsStatusCollection> dcsStatus;
+  e.getByToken(dcsStatustoken_, dcsStatus);
+  if (dcsStatus.isValid()) {
+    for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); dcsStatusItr != dcsStatus->end();
+         ++dcsStatusItr) {
+      ESpDcsStatus = dcsStatusItr->ready(DcsStatus::ESp);
+      ESmDcsStatus = dcsStatusItr->ready(DcsStatus::ESm);
+    }
 
-   Handle<DcsStatusCollection> dcsStatus;
-   e.getByToken(dcsStatustoken_, dcsStatus);
-   if (dcsStatus.isValid()) {
-     for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
-       ESpDcsStatus = dcsStatusItr->ready(DcsStatus::ESp);
-       ESmDcsStatus = dcsStatusItr->ready(DcsStatus::ESm);
-     }
+    ESpDcsStatus = (ESpDcsStatus + float(ievt_ - 1) * meESDcsActiveMap_->getBinContent(1)) / float(ievt_);
+    ESmDcsStatus = (ESmDcsStatus + float(ievt_ - 1) * meESDcsActiveMap_->getBinContent(2)) / float(ievt_);
+  }
 
-     ESpDcsStatus = (ESpDcsStatus + float(ievt_-1)*meESDcsActiveMap_->getBinContent(1))/float(ievt_);	
-     ESmDcsStatus = (ESmDcsStatus + float(ievt_-1)*meESDcsActiveMap_->getBinContent(2))/float(ievt_);
-   }
+  meESDcsActiveMap_->setBinContent(1, ESpDcsStatus);
+  meESDcsActiveMap_->setBinContent(2, ESmDcsStatus);
 
-   meESDcsActiveMap_->setBinContent(1, ESpDcsStatus);	
-   meESDcsActiveMap_->setBinContent(2, ESmDcsStatus);
-
-   meESDcsFraction_->Fill( (ESpDcsStatus + ESmDcsStatus)/2. );
-
+  meESDcsFraction_->Fill((ESpDcsStatus + ESmDcsStatus) / 2.);
 }
 
 //define this as a plug-in

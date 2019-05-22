@@ -23,8 +23,8 @@ Publish_rootfile=False
 # + Location of the AFS place where to put the PDFs
 WebRepository = '/eos/user/c/cmsmupog/www/Validation/'
 
-# User enabled to write in the afs area
-User='giovanni'
+# User enabled to write in the official repository
+User='cprieels'
 
 #
 # Information about the new release
@@ -34,28 +34,24 @@ NewParams = dict(
     Type='New',
     
     # Releases to compare
-    Release='CMSSW_10_1_0_pre1',
+    Release='CMSSW_10_5_0_pre2',
 
     # Conditions of the sample
-    #
-    #    FullSim in CMSSW_10_1_0_pre1 
-    Condition='100X_upgrade2018_realistic_v10',
-    #
-    #    FastSim in CMSSW_10_1_0_pre1
+    Condition='105X_upgrade2018_realistic_v2',
     #Condition='100X_mcRun2_asymptotic_v2',
 
     # 'no' if no pileup, otherwise set BX spacing
-    PileUp='25ns',
+    PileUp='no',
+    #PileUp='25ns',
     #PileUp='',      # for HeavyIons
-    #PileUp='no',
 
     Version='v1',
 
     Format='DQMIO',
 
     # If True use Fastsim, else use Fullsim
+    #FastSim=False,
     FastSim=False,
-    #FastSim=True,
 
     # for HeavyIons samples (few folders are not there) 
     HeavyIons=False,
@@ -91,7 +87,7 @@ RefParams = dict(
     # Type of parameters
     Type='Ref',
 
-    Release='CMSSW_10_0_0',
+    Release='CMSSW_10_5_0_pre1',
 
     # Conditions for Special RelVals in CMSSW_10_0_0
     #
@@ -100,8 +96,9 @@ RefParams = dict(
     #Condition='100X_upgrade2018_realistic_v6_mahiON', #standard RelVals (v1 and v2)
     #
     #    FullSim PU25ns in CMSSW_10_0_0
-    Condition='100X_upgrade2018_realistic_v6_muVal_resubwith4cores',
+    Condition='103X_upgrade2018_realistic_v8',
     #
+
     #    FastSim in CMSSW_10_0_0
     #Condition='100X_mcRun2_asymptotic_v2_muVal',
     #Condition='100X_mcRun2_asymptotic_v2', #standard RelVals (v1)
@@ -132,6 +129,7 @@ ValidateDQM  = True
 
 # For FullSim PU 25ns
 samples = ['RelValZMM_13', 'RelValTTbar_13']
+#samples = ['RelValTTbar_13']
 
 # For HeavyIons FullSim
 #samples = ['RelValZEEMM_13_HI']

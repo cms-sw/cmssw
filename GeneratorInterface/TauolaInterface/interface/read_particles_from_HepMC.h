@@ -8,7 +8,7 @@
 
 #include "TauSpinner/SimpleParticle.h"
 #include <vector>
- 
+
 /** Read HepMC::GenEvent.
 
   Read HepMC event from data file
@@ -28,12 +28,17 @@
   1 - empty event or no decay found in the event
 */
 
-int readParticlesFromHepMC(const HepMC::GenEvent *event, TauSpinner::SimpleParticle &X, TauSpinner::SimpleParticle &tau, TauSpinner::SimpleParticle &tau2, std::vector<TauSpinner::SimpleParticle> &tau_daughters, std::vector<TauSpinner::SimpleParticle> &tau2_daughters);
+int readParticlesFromHepMC(const HepMC::GenEvent *event,
+                           TauSpinner::SimpleParticle &X,
+                           TauSpinner::SimpleParticle &tau,
+                           TauSpinner::SimpleParticle &tau2,
+                           std::vector<TauSpinner::SimpleParticle> &tau_daughters,
+                           std::vector<TauSpinner::SimpleParticle> &tau2_daughters);
 
-// Get daughters of HepMC::GenParticle Recursively searches for final-state daughters of 'x' 
-  std::vector<TauSpinner::SimpleParticle> *getDaughters(HepMC::GenParticle *x);
+// Get daughters of HepMC::GenParticle Recursively searches for final-state daughters of 'x'
+std::vector<TauSpinner::SimpleParticle> *getDaughters(HepMC::GenParticle *x);
 
-// Find last self Recursively finds the last particle with the same PDG ID on the list of its decay products 
+// Find last self Recursively finds the last particle with the same PDG ID on the list of its decay products
 HepMC::GenParticle *findLastSelf(HepMC::GenParticle *x);
 bool isFirst(HepMC::GenParticle *x);
 #endif

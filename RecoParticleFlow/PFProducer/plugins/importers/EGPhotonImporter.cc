@@ -68,8 +68,7 @@ void EGPhotonImporter::
 importToBlock( const edm::Event& e, 
 	       BlockElementImporterBase::ElementList& elems ) const {
   typedef BlockElementImporterBase::ElementList::value_type ElementType;  
-  edm::Handle<reco::PhotonCollection> photons;
-  e.getByToken(_src,photons);
+  auto photons = e.getHandle(_src);
   elems.reserve(elems.size()+photons->size());
   // setup our elements so that all the SCs are grouped together
   auto SCs_end = std::partition(elems.begin(),elems.end(),

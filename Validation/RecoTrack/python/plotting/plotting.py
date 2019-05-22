@@ -1,4 +1,6 @@
 from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
 import os
 import sys
 import math
@@ -12,7 +14,7 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-import html
+from . import html
 
 verbose=False
 _ratioYTitle = "Ratio"
@@ -98,7 +100,7 @@ def _getDirectory(*args, **kwargs):
 
 def _th1ToOrderedDict(th1, renameBin=None):
     values = collections.OrderedDict()
-    for i in xrange(1, th1.GetNbinsX()+1):
+    for i in range(1, th1.GetNbinsX()+1):
         binLabel = th1.GetXaxis().GetBinLabel(i)
         if renameBin is not None:
             binLabel = renameBin(binLabel)
@@ -197,7 +199,7 @@ def _calculateRatios(histos, ratioUncertainty=False):
             xaxis = th1.GetXaxis()
             xaxis_arr = xaxis.GetXbins()
             if xaxis_arr.GetSize() > 0: # unequal binning
-                lst = [xaxis_arr[i] for i in xrange(0, xaxis_arr.GetSize())]
+                lst = [xaxis_arr[i] for i in range(0, xaxis_arr.GetSize())]
                 arr = array.array("d", lst)
                 self._ratio = ROOT.TH1F("foo", "foo", xaxis.GetNbins(), arr)
             else:
@@ -319,11 +321,11 @@ def _calculateRatios(histos, ratioUncertainty=False):
     ref = wrappers[0]
 
     wrappers_bins = []
-    ref_bins = [ref.xvalues(b) for b in xrange(ref.begin(), ref.end())]
+    ref_bins = [ref.xvalues(b) for b in range(ref.begin(), ref.end())]
     for w in wrappers:
         wrappers_bins.append(findBins(w, ref_bins))
 
-    for i, bin in enumerate(xrange(ref.begin(), ref.end())):
+    for i, bin in enumerate(range(ref.begin(), ref.end())):
         (scale, ylow, yhigh) = ref.yvalues(bin)
         for w, bins in zip(wrappers, wrappers_bins):
             if bins[i] is None:
@@ -340,7 +342,7 @@ def _getXmin(obj, limitToNonZeroContent=False):
     if isinstance(obj, ROOT.TH1):
         xaxis = obj.GetXaxis()
         if limitToNonZeroContent:
-            for i in xrange(1, obj.GetNbinsX()+1):
+            for i in range(1, obj.GetNbinsX()+1):
                 if obj.GetBinContent(i) != 0:
                     return xaxis.GetBinLowEdge(i)
             # None for all bins being zero
@@ -348,7 +350,7 @@ def _getXmin(obj, limitToNonZeroContent=False):
         else:
             return xaxis.GetBinLowEdge(xaxis.GetFirst())
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        m = min([obj.GetX()[i] for i in xrange(0, obj.GetN())])
+        m = min([obj.GetX()[i] for i in range(0, obj.GetN())])
         return m*0.9 if m > 0 else m*1.1
     raise Exception("Unsupported type %s" % str(obj))
 
@@ -356,7 +358,7 @@ def _getXmax(obj, limitToNonZeroContent=False):
     if isinstance(obj, ROOT.TH1):
         xaxis = obj.GetXaxis()
         if limitToNonZeroContent:
-            for i in xrange(obj.GetNbinsX(), 0, -1):
+            for i in range(obj.GetNbinsX(), 0, -1):
                 if obj.GetBinContent(i) != 0:
                     return xaxis.GetBinUpEdge(i)
             # None for all bins being zero
@@ -364,7 +366,7 @@ def _getXmax(obj, limitToNonZeroContent=False):
         else:
             return xaxis.GetBinUpEdge(xaxis.GetLast())
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        m = max([obj.GetX()[i] for i in xrange(0, obj.GetN())])
+        m = max([obj.GetX()[i] for i in range(0, obj.GetN())])
         return m*1.1 if m > 0 else m*0.9
     raise Exception("Unsupported type %s" % str(obj))
 
@@ -374,12 +376,12 @@ def _getYmin(obj, limitToNonZeroContent=False):
         return yaxis.GetBinLowEdge(yaxis.GetFirst())
     elif isinstance(obj, ROOT.TH1):
         if limitToNonZeroContent:
-            lst = [obj.GetBinContent(i) for i in xrange(1, obj.GetNbinsX()+1) if obj.GetBinContent(i) != 0 ]
+            lst = [obj.GetBinContent(i) for i in range(1, obj.GetNbinsX()+1) if obj.GetBinContent(i) != 0 ]
             return min(lst) if len(lst) != 0 else 0
         else:
             return obj.GetMinimum()
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        m = min([obj.GetY()[i] for i in xrange(0, obj.GetN())])
+        m = min([obj.GetY()[i] for i in range(0, obj.GetN())])
         return m*0.9 if m > 0 else m*1.1
     raise Exception("Unsupported type %s" % str(obj))
 
@@ -389,20 +391,20 @@ def _getYmax(obj, limitToNonZeroContent=False):
         return yaxis.GetBinUpEdge(yaxis.GetLast())
     elif isinstance(obj, ROOT.TH1):
         if limitToNonZeroContent:
-            lst = [obj.GetBinContent(i) for i in xrange(1, obj.GetNbinsX()+1) if obj.GetBinContent(i) != 0 ]
+            lst = [obj.GetBinContent(i) for i in range(1, obj.GetNbinsX()+1) if obj.GetBinContent(i) != 0 ]
             return max(lst) if len(lst) != 0 else 0
         else:
             return obj.GetMaximum()
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        m = max([obj.GetY()[i] for i in xrange(0, obj.GetN())])
+        m = max([obj.GetY()[i] for i in range(0, obj.GetN())])
         return m*1.1 if m > 0 else m*0.9
     raise Exception("Unsupported type %s" % str(obj))
 
 def _getYmaxWithError(th1):
-    return max([th1.GetBinContent(i)+th1.GetBinError(i) for i in xrange(1, th1.GetNbinsX()+1)])
+    return max([th1.GetBinContent(i)+th1.GetBinError(i) for i in range(1, th1.GetNbinsX()+1)])
 
 def _getYminIgnoreOutlier(th1):
-    yvals = sorted([n for n in [th1.GetBinContent(i) for i in xrange(1, th1.GetNbinsX()+1)] if n>0])
+    yvals = sorted([n for n in [th1.GetBinContent(i) for i in range(1, th1.GetNbinsX()+1)] if n>0])
     if len(yvals) == 0:
         return th1.GetMinimum()
     if len(yvals) == 1:
@@ -411,7 +413,7 @@ def _getYminIgnoreOutlier(th1):
     # Define outlier as being x10 less than minimum of the 95 % of the non-zero largest values
     ind_min = len(yvals)-1 - int(len(yvals)*0.95)
     min_val = yvals[ind_min]
-    for i in xrange(0, ind_min):
+    for i in range(0, ind_min):
         if yvals[i] > 0.1*min_val:
             return yvals[i]
 
@@ -425,10 +427,10 @@ def _getYminMaxAroundMedian(obj, coverage, coverageRange=None):
         inRange2 = lambda xmin,xmax: coverageRange[0] <= xmin and xmax <= coverageRange[1]
 
     if isinstance(obj, ROOT.TH1):
-        yvals = [obj.GetBinContent(i) for i in xrange(1, obj.GetNbinsX()+1) if inRange2(obj.GetXaxis().GetBinLowEdge(i), obj.GetXaxis().GetBinUpEdge(i))]
+        yvals = [obj.GetBinContent(i) for i in range(1, obj.GetNbinsX()+1) if inRange2(obj.GetXaxis().GetBinLowEdge(i), obj.GetXaxis().GetBinUpEdge(i))]
         yvals = [x for x in yvals if x != 0]
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        yvals = [obj.GetY()[i] for i in xrange(0, obj.GetN()) if inRange(obj.GetX()[i])]
+        yvals = [obj.GetY()[i] for i in range(0, obj.GetN()) if inRange(obj.GetX()[i])]
     else:
         raise Exception("Unsupported type %s" % str(obj))
     if len(yvals) == 0:
@@ -532,7 +534,7 @@ def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None, coverageRange=
     ymin -- Minimum y value; if None, take the minimum of TH1s
     ymax -- Maximum y value; if None, take the maximum of TH1s
     coverage -- If set, use only values within the 'coverage' part around the median are used for min/max (useful for ratio)
-    coverageRange -- If coverage and this are set, use only the x axis specified by an (xmin,xmax) pair for the coverage 
+    coverageRange -- If coverage and this are set, use only the x axis specified by an (xmin,xmax) pair for the coverage
     """
     if coverage is not None or isinstance(th1s[0], ROOT.TH2):
         # the only use case for coverage for now is ratio, for which
@@ -603,7 +605,7 @@ def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None, coverageRange=
 
 def _th1RemoveEmptyBins(histos, xbinlabels):
     binsToRemove = set()
-    for b in xrange(1, histos[0].GetNbinsX()+1):
+    for b in range(1, histos[0].GetNbinsX()+1):
         binEmpty = True
         for h in histos:
             if h.GetBinContent(b) > 0:
@@ -615,7 +617,7 @@ def _th1RemoveEmptyBins(histos, xbinlabels):
     if len(binsToRemove) > 0:
         # filter xbinlabels
         xbinlab_new = []
-        for i in xrange(len(xbinlabels)):
+        for i in range(len(xbinlabels)):
             if (i+1) not in binsToRemove:
                 xbinlab_new.append(xbinlabels[i])
         xbinlabels = xbinlab_new
@@ -624,7 +626,7 @@ def _th1RemoveEmptyBins(histos, xbinlabels):
         histos_new = []
         for h in histos:
             values = []
-            for b in xrange(1, h.GetNbinsX()+1):
+            for b in range(1, h.GetNbinsX()+1):
                 if b not in binsToRemove:
                     values.append( (h.GetXaxis().GetBinLabel(b), h.GetBinContent(b), h.GetBinError(b)) )
 
@@ -645,9 +647,9 @@ def _th2RemoveEmptyBins(histos, xbinlabels, ybinlabels):
     xbinsToRemove = set()
     ybinsToRemove = set()
     for ih, h in enumerate(histos):
-        for bx in xrange(1, h.GetNbinsX()+1):
+        for bx in range(1, h.GetNbinsX()+1):
             binEmpty = True
-            for by in xrange(1, h.GetNbinsY()+1):
+            for by in range(1, h.GetNbinsY()+1):
                 if h.GetBinContent(bx, by) > 0:
                     binEmpty = False
                     break
@@ -656,9 +658,9 @@ def _th2RemoveEmptyBins(histos, xbinlabels, ybinlabels):
             elif ih > 0:
                 xbinsToRemove.discard(bx)
 
-        for by in xrange(1, h.GetNbinsY()+1):
+        for by in range(1, h.GetNbinsY()+1):
             binEmpty = True
-            for bx in xrange(1, h.GetNbinsX()+1):
+            for bx in range(1, h.GetNbinsX()+1):
                 if h.GetBinContent(bx, by) > 0:
                     binEmpty = False
                     break
@@ -670,14 +672,14 @@ def _th2RemoveEmptyBins(histos, xbinlabels, ybinlabels):
     if len(xbinsToRemove) > 0 or len(ybinsToRemove) > 0:
         xbinlabels_new = []
         xbins = []
-        for b in xrange(1, len(xbinlabels)+1):
+        for b in range(1, len(xbinlabels)+1):
             if b not in xbinsToRemove:
                 xbinlabels_new.append(histos[0].GetXaxis().GetBinLabel(b))
                 xbins.append(b)
         xbinlabels = xbinlabels_new
         ybinlabels_new = []
         ybins = []
-        for b in xrange(1, len(ybinlabels)+1):
+        for b in range(1, len(ybinlabels)+1):
             if b not in ybinsToRemove:
                 ybinlabels.append(histos[0].GetYaxis().GetBinLabel(b))
                 ybins.append(b)
@@ -702,10 +704,10 @@ def _th2RemoveEmptyBins(histos, xbinlabels, ybinlabels):
     return (histos, xbinlabels, ybinlabels)
 
 def _mergeBinLabelsX(histos):
-    return _mergeBinLabels([[h.GetXaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsX()+1)] for h in histos])
+    return _mergeBinLabels([[h.GetXaxis().GetBinLabel(i) for i in range(1, h.GetNbinsX()+1)] for h in histos])
 
 def _mergeBinLabelsY(histos):
-    return _mergeBinLabels([[h.GetYaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsY()+1)] for h in histos])
+    return _mergeBinLabels([[h.GetYaxis().GetBinLabel(i) for i in range(1, h.GetNbinsY()+1)] for h in histos])
 
 def _mergeBinLabels(labelsAll):
     labels_merged = labelsAll[0]
@@ -796,7 +798,7 @@ class Subtract:
         # effects downstream
         ret.SetCanExtend(False)
 
-        for i in xrange(0, histoA.GetNbinsX()+2): # include under- and overflow too
+        for i in range(0, histoA.GetNbinsX()+2): # include under- and overflow too
             val = histoA.GetBinContent(i)-histoB.GetBinContent(i)
             ret.SetBinContent(i, val)
             ret.SetBinError(i, math.sqrt(val))
@@ -836,7 +838,7 @@ class Transform:
         # effects downstream
         ret.SetCanExtend(False)
 
-        for i in xrange(0, histo.GetNbinsX()+2):
+        for i in range(0, histo.GetNbinsX()+2):
             ret.SetBinContent(i, self._func(histo.GetBinContent(i)))
         return ret
 
@@ -880,7 +882,7 @@ class FakeDuplicate:
         hfakedup = hreco.Clone(self._name)
         hfakedup.SetTitle(self._title)
 
-        for i in xrange(1, hassoc.GetNbinsX()+1):
+        for i in range(1, hassoc.GetNbinsX()+1):
             numerVal = hassoc.GetBinContent(i) - hdup.GetBinContent(i)
             denomVal = hreco.GetBinContent(i)
 
@@ -934,7 +936,7 @@ class CutEfficiency:
         ret.SetTitle(self._title)
 
         # calculate efficiency
-        for i in xrange(1, histo.GetNbinsX()+1):
+        for i in range(1, histo.GetNbinsX()+1):
             n = histo.GetBinContent(i)
             val = n/n_tot
             errVal = math.sqrt(val*(1-val)/n_tot)
@@ -1025,7 +1027,7 @@ class AggregateBins:
             binIndexOrder.sort(key=lambda t: t[0])
             tmpVal = []
             tmpLab = []
-            for i in xrange(0, len(binValues)):
+            for i in range(0, len(binValues)):
                 fromIndex = binIndexOrder[i][1]
                 tmpVal.append(binValues[fromIndex])
                 tmpLab.append(binLabels[fromIndex])
@@ -1152,7 +1154,7 @@ class ROC:
         yerrdown = []
         z = []
 
-        for i in xrange(1, xhisto.GetNbinsX()+1):
+        for i in range(1, xhisto.GetNbinsX()+1):
             x.append(xhisto.GetBinContent(i))
             xerrup.append(xhisto.GetBinError(i))
             xerrdown.append(xhisto.GetBinError(i))
@@ -1215,7 +1217,7 @@ def _drawFrame(pad, bounds, zmax=None, xbinlabels=None, xbinlabelsize=None, xbin
         frame.Draw("")
 
         xaxis = frame.GetXaxis()
-        for i in xrange(nbins):
+        for i in range(nbins):
             xaxis.SetBinLabel(i+1, xbinlabels[i])
         if xbinlabelsize is not None:
             xaxis.SetLabelSize(xbinlabelsize)
@@ -1889,7 +1891,7 @@ class Plot:
 
         if self._fallback is not None:
             profileX = [self._profileX]*len(self._histograms)
-            for i in xrange(0, len(self._histograms)):
+            for i in range(0, len(self._histograms)):
                 if self._histograms[i] is None:
                     self._histograms[i] = self._createOne(self._fallback["name"], i, tdirNEvents[i][0], tdirNEvents[i][1])
                     profileX[i] = self._fallback.get("profileX", self._profileX)
@@ -2073,7 +2075,7 @@ class Plot:
             print(self._name)
             width = max([len(l) for l in xbinlabels])
             tmp = "%%-%ds " % width
-            for b in xrange(1, histos[0].GetNbinsX()+1):
+            for b in range(1, histos[0].GetNbinsX()+1):
                 s = tmp % xbinlabels[b-1]
                 for h in histos:
                     s += "%.3f " % h.GetBinContent(b)
@@ -2531,6 +2533,7 @@ class PlotOnSideGroup(PlotGroup):
     def draw(self, *args, **kwargs):
         kargs = copy.copy(kwargs)
         kargs["ratio"] = False
+        kargs["separate"] = False
         return super(PlotOnSideGroup, self).draw(*args, **kargs)
 
 class PlotFolder:
@@ -2671,7 +2674,7 @@ class PlotFolder:
         """Return True if this subfolder should be processed
 
         Arguments:
-        limitOnlyTo            -- List/set/similar containing the translatedDqmSubFolder 
+        limitOnlyTo            -- List/set/similar containing the translatedDqmSubFolder
         translatedDqmSubFolder -- Return value of translateSubFolder
         """
         return translatedDqmSubFolder in limitOnlyTo
@@ -2945,7 +2948,7 @@ class PlotterTableItem:
             return None
 
         # Replace all None columns with lists of column length
-        for i in xrange(len(tbl)):
+        for i in range(len(tbl)):
             if tbl[i] is None:
                 tbl[i] = [None]*colLen
 

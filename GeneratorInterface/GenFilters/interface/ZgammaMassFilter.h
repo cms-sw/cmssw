@@ -4,7 +4,7 @@
 //
 // Package:    ZgammaMassFilter
 // Class:      ZgammaMassFilter
-// 
+//
 /* 
 
  Description: filter events based on the Pythia particle information
@@ -19,7 +19,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -32,7 +31,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 //
 // class decleration
 //
@@ -41,31 +39,30 @@ namespace edm {
 }
 
 class ZgammaMassFilter : public edm::EDFilter {
-   public:
-      explicit ZgammaMassFilter(const edm::ParameterSet&);
-      ~ZgammaMassFilter() override;
+public:
+  explicit ZgammaMassFilter(const edm::ParameterSet&);
+  ~ZgammaMassFilter() override;
 
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-   private:
-      // ----------memeber function----------------------
-       int charge(const int& Id);
+private:
+  // ----------memeber function----------------------
+  int charge(const int& Id);
 
-      // ----------member data ---------------------------
-      
-       edm::EDGetTokenT<edm::HepMCProduct> token_;
+  // ----------member data ---------------------------
 
-       double minPhotonPt;
-       double minLeptonPt;
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
 
-       double minPhotonEta;
-       double minLeptonEta;
+  double minPhotonPt;
+  double minLeptonPt;
 
-       double maxPhotonEta;
-       double maxLeptonEta;
+  double minPhotonEta;
+  double minLeptonEta;
 
-       double minDileptonMass;
-       double minZgMass;
+  double maxPhotonEta;
+  double maxLeptonEta;
 
+  double minDileptonMass;
+  double minZgMass;
 };
 #endif

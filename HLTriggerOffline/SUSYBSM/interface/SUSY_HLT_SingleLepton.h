@@ -1,56 +1,54 @@
 #ifndef SUSY_HLT_SingleLepton_H
 #define SUSY_HLT_SingleLepton_H
 
-//event
+// event
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-//DQM
+// DQM
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-//Electron
+// Electron
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
-//Muon
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
+// Muon
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-//MET
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETCollection.h"
+// MET
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
 
-//Jets
-#include "DataFormats/JetReco/interface/PFJet.h"
+// Jets
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 
-//Trigger
+// Trigger
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
-#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-//Vertices
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
+// Vertices
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-//Conversions
-#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+// Conversions
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 
-//Beam spot
+// Beam spot
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-class SUSY_HLT_SingleLepton: public DQMEDAnalyzer{
-
+class SUSY_HLT_SingleLepton : public DQMEDAnalyzer {
 public:
-  SUSY_HLT_SingleLepton(const edm::ParameterSet& ps);
+  SUSY_HLT_SingleLepton(const edm::ParameterSet &ps);
   ~SUSY_HLT_SingleLepton() override;
 
 protected:
@@ -60,7 +58,7 @@ protected:
   void endRun(const edm::Run &run, const edm::EventSetup &eSetup) override;
 
 private:
-  //variables from config file
+  // variables from config file
   edm::InputTag theElectronTag_;
   edm::EDGetTokenT<reco::GsfElectronCollection> theElectronCollection_;
   edm::InputTag theMuonTag_;
@@ -117,22 +115,22 @@ private:
   double csv_threshold_;
 
   // Histograms
-  MonitorElement* h_triggerLepPt_;
-  MonitorElement* h_triggerLepEta_;
-  MonitorElement* h_triggerLepPhi_;
-  MonitorElement* h_HT_;
-  MonitorElement* h_MET_;
-  MonitorElement* h_maxCSV_;
-  MonitorElement* h_leptonTurnOn_num_;
-  MonitorElement* h_leptonTurnOn_den_;
-  MonitorElement* h_pfHTTurnOn_num_;
-  MonitorElement* h_pfHTTurnOn_den_;
-  MonitorElement* h_pfMetTurnOn_num_;
-  MonitorElement* h_pfMetTurnOn_den_;
-  MonitorElement* h_CSVTurnOn_num_;
-  MonitorElement* h_CSVTurnOn_den_;
-  MonitorElement* h_btagTurnOn_num_;
-  MonitorElement* h_btagTurnOn_den_;
+  MonitorElement *h_triggerLepPt_;
+  MonitorElement *h_triggerLepEta_;
+  MonitorElement *h_triggerLepPhi_;
+  MonitorElement *h_HT_;
+  MonitorElement *h_MET_;
+  MonitorElement *h_maxCSV_;
+  MonitorElement *h_leptonTurnOn_num_;
+  MonitorElement *h_leptonTurnOn_den_;
+  MonitorElement *h_pfHTTurnOn_num_;
+  MonitorElement *h_pfHTTurnOn_den_;
+  MonitorElement *h_pfMetTurnOn_num_;
+  MonitorElement *h_pfMetTurnOn_den_;
+  MonitorElement *h_CSVTurnOn_num_;
+  MonitorElement *h_CSVTurnOn_den_;
+  MonitorElement *h_btagTurnOn_num_;
+  MonitorElement *h_btagTurnOn_den_;
 };
 
 #endif
