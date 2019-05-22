@@ -160,6 +160,8 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
        partonMode_="Herwig6";
      else if( moduleName.find("ThePEG")!=std::string::npos )
        partonMode_="Herwig++";
+     else if( moduleName.find("Herwig7")!=std::string::npos )
+       partonMode_="Herwig++";
      else if( moduleName.find("Sherpa")!=std::string::npos )
        partonMode_="Sherpa";
      else
