@@ -21,27 +21,22 @@ Toy EDProducers and EDProducts for testing purposes only.
 
 using namespace std;
 
-namespace edmtest
-{
-  class CSCPedestalReadAnalyzer : public edm::EDAnalyzer
-  {
+namespace edmtest {
+  class CSCPedestalReadAnalyzer : public edm::EDAnalyzer {
   public:
-    explicit  CSCPedestalReadAnalyzer(edm::ParameterSet const& p) 
-    { }
-    explicit  CSCPedestalReadAnalyzer(int i) 
-    { }
-    virtual ~ CSCPedestalReadAnalyzer() { }
+    explicit CSCPedestalReadAnalyzer(edm::ParameterSet const& p) {}
+    explicit CSCPedestalReadAnalyzer(int i) {}
+    virtual ~CSCPedestalReadAnalyzer() {}
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+
   private:
   };
-  
-  void
-   CSCPedestalReadAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
-  {
+
+  void CSCPedestalReadAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
     // Context is not used.
-    std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
-    std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
+    std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
+    std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
     edm::ESHandle<CSCPedestals> pPeds;
     context.get<CSCPedestalsRcd>().get(pPeds);
 
@@ -62,17 +57,15 @@ namespace edmtest
       }
     }
     */
-    const CSCPedestals* myped=pPeds.product();
-    std::map<int,std::vector<CSCPedestals::Item> >::const_iterator it;
-    for( it=myped->pedestals.begin();it!=myped->pedestals.end(); ++it ){
-      std::cout<<"layer id found "<<it->first<<std::endl;
+    const CSCPedestals* myped = pPeds.product();
+    std::map<int, std::vector<CSCPedestals::Item> >::const_iterator it;
+    for (it = myped->pedestals.begin(); it != myped->pedestals.end(); ++it) {
+      std::cout << "layer id found " << it->first << std::endl;
       std::vector<CSCPedestals::Item>::const_iterator pedit;
-      for( pedit=it->second.begin(); pedit!=it->second.end(); ++pedit ){
-	std::cout << "  ped:  " <<pedit->ped << " rms: " << pedit->rms
-		  << std::endl;
+      for (pedit = it->second.begin(); pedit != it->second.end(); ++pedit) {
+        std::cout << "  ped:  " << pedit->ped << " rms: " << pedit->rms << std::endl;
       }
     }
   }
   DEFINE_FWK_MODULE(CSCPedestalReadAnalyzer);
-}
-
+}  // namespace edmtest

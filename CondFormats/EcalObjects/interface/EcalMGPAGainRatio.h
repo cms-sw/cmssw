@@ -6,30 +6,29 @@
  * $Id: $
  **/
 
-
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iostream>
 
 class EcalMGPAGainRatio {
-  public:
-    EcalMGPAGainRatio();
-    EcalMGPAGainRatio(const EcalMGPAGainRatio & ratio);
-    ~EcalMGPAGainRatio();
+public:
+  EcalMGPAGainRatio();
+  EcalMGPAGainRatio(const EcalMGPAGainRatio& ratio);
+  ~EcalMGPAGainRatio();
 
-    float gain12Over6() const { return gain12Over6_; }
-    float gain6Over1() const { return gain6Over1_; }
+  float gain12Over6() const { return gain12Over6_; }
+  float gain6Over1() const { return gain6Over1_; }
 
-    void setGain12Over6(const float& g) { gain12Over6_ = g; }
-    void setGain6Over1(const float& g)  { gain6Over1_ = g; }
+  void setGain12Over6(const float& g) { gain12Over6_ = g; }
+  void setGain6Over1(const float& g) { gain6Over1_ = g; }
 
-    void print(std::ostream& s) const { s << "gain 12/6: " << gain12Over6_ << " gain 6/1: " << gain6Over1_; }
+  void print(std::ostream& s) const { s << "gain 12/6: " << gain12Over6_ << " gain 6/1: " << gain6Over1_; }
 
-    EcalMGPAGainRatio& operator=(const EcalMGPAGainRatio& rhs);
+  EcalMGPAGainRatio& operator=(const EcalMGPAGainRatio& rhs);
 
-  private:
-    float gain12Over6_;
-    float gain6Over1_;
+private:
+  float gain12Over6_;
+  float gain6Over1_;
 
   COND_SERIALIZABLE;
 };
