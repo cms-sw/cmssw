@@ -115,16 +115,14 @@ class HGCalTriggerValidator : public DQMEDAnalyzer {
     HGCalTriggerTools triggerTools_;
 };
 
-HGCalTriggerValidator::HGCalTriggerValidator(const edm::ParameterSet& iConfig){
-
-  trigger_cells_token_ = consumes<l1t::HGCalTriggerCellBxCollection>(iConfig.getParameter<edm::InputTag>("TriggerCells"));
-  clusters_token_ = consumes<l1t::HGCalClusterBxCollection>(iConfig.getParameter<edm::InputTag>("Clusters"));
-  multiclusters_token_ = consumes<l1t::HGCalMulticlusterBxCollection>(iConfig.getParameter<edm::InputTag>("Multiclusters"));
-  towers_token_ = consumes<l1t::HGCalTowerBxCollection>(iConfig.getParameter<edm::InputTag>("Towers"));
+HGCalTriggerValidator::HGCalTriggerValidator(const edm::ParameterSet& iConfig)
+  : trigger_cells_token_{consumes<l1t::HGCalTriggerCellBxCollection>(iConfig.getParameter<edm::InputTag>("TriggerCells"))},
+  clusters_token_{consumes<l1t::HGCalClusterBxCollection>(iConfig.getParameter<edm::InputTag>("Clusters"))},
+  multiclusters_token_{consumes<l1t::HGCalMulticlusterBxCollection>(iConfig.getParameter<edm::InputTag>("Multiclusters"))},
+  towers_token_{consumes<l1t::HGCalTowerBxCollection>(iConfig.getParameter<edm::InputTag>("Towers"))},
+  id_{HGCalTriggerClusterIdentificationFactory::get()->create("HGCalTriggerClusterIdentificationBDT")} {
   
-  id_.reset( HGCalTriggerClusterIdentificationFactory::get()->create("HGCalTriggerClusterIdentificationBDT") );
   id_->initialize(iConfig.getParameter<edm::ParameterSet>("EGIdentification"));
-
 }
 
 HGCalTriggerValidator::~HGCalTriggerValidator(){
