@@ -89,6 +89,10 @@ class PrimaryVertexResolution: public DQMEDAnalyzer{
       minNvertices_(iConfig.getUntrackedParameter<double>("minNvertices")),
       maxNvertices_(iConfig.getUntrackedParameter<double>("maxNvertices")),
       binsNvertices_(iConfig.getUntrackedParameter<int>("binsNvertices")),
+      maxXY_(iConfig.getUntrackedParameter<double>("maxXY")),
+      binsXY_(iConfig.getUntrackedParameter<int>("binsXY")),
+      maxZ_(iConfig.getUntrackedParameter<double>("maxZ")),
+      binsZ_(iConfig.getUntrackedParameter<int>("binsZ")),
       minPt_(iConfig.getUntrackedParameter<double>("minPt")),
       maxPt_(iConfig.getUntrackedParameter<double>("maxPt")),
       minLumi_(iConfig.getUntrackedParameter<double>("minLumi")),
@@ -101,6 +105,10 @@ class PrimaryVertexResolution: public DQMEDAnalyzer{
     const int minNvertices_;
     const int maxNvertices_;
     const int binsNvertices_;
+    const double maxXY_;
+    const int binsXY_;
+    const double maxZ_;
+    const int binsZ_;
     const double minPt_;
     const double maxPt_;
     const double minLumi_;
@@ -211,6 +219,9 @@ class PrimaryVertexResolution: public DQMEDAnalyzer{
       hDiff_Ntracks_("ntracks", binY),
       hDiff_sumPt_("sumpt", binY),
       hDiff_Nvertices_("nvertices", binY),
+      hDiff_X_("X",binY),
+      hDiff_Y_("Y",binY),
+      hDiff_Z_("Z",binY),
       hDiff_instLumiScal_("instLumiScal", binY)
     {}
 
@@ -229,6 +240,9 @@ class PrimaryVertexResolution: public DQMEDAnalyzer{
 
       hDiff_Ntracks_.book(iBooker, binningX_.binsNtracks_, binningX_.minNtracks_, binningX_.maxNtracks_);
       hDiff_Nvertices_.book(iBooker, binningX_.binsNvertices_, binningX_.minNvertices_, binningX_.maxNvertices_);
+      hDiff_X_.book(iBooker, binningX_.binsXY_,-binningX_.maxXY_,binningX_.maxXY_);
+      hDiff_Y_.book(iBooker, binningX_.binsXY_,-binningX_.maxXY_,binningX_.maxXY_);
+      hDiff_Z_.book(iBooker, binningX_.binsZ_,-binningX_.maxZ_,binningX_.maxZ_);
 
       constexpr int binsPt = 30;
       hDiff_sumPt_.bookLogX(iBooker, makeLogBins<float, binsPt>(binningX_.minPt_, binningX_.maxPt_));
@@ -257,6 +271,9 @@ class PrimaryVertexResolution: public DQMEDAnalyzer{
     DiffPlots hDiff_Ntracks_;
     DiffPlots hDiff_sumPt_;
     DiffPlots hDiff_Nvertices_;
+    DiffPlots hDiff_X_;
+    DiffPlots hDiff_Y_;
+    DiffPlots hDiff_Z_;
     DiffPlots hDiff_instLumiScal_;
   };
 
@@ -308,6 +325,12 @@ void PrimaryVertexResolution::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.addUntracked<double>("minNvertices", -0.5);
   desc.addUntracked<double>("maxNvertices", 199.5);
   desc.addUntracked<int>("binsNvertices", 100);
+
+  desc.addUntracked<double>("maxXY",  0.15);
+  desc.addUntracked<int>("binsXY", 100);
+
+  desc.addUntracked<double>("maxZ", 30.);
+  desc.addUntracked<int>("binsZ", 100);
 
   desc.addUntracked<double>("minPt", 1);
   desc.addUntracked<double>("maxPt", 1e3);
@@ -430,6 +453,10 @@ void PrimaryVertexResolution::Plots::calculateAndFillResolution(const std::vecto
   hDiff_Ntracks_.fill(res, set1.size());
   hDiff_sumPt_.fill(res, (sumpt1+sumpt2)/2.0); // taking average is probably the best we can do, anyway they should be close to each other
   hDiff_Nvertices_.fill(res, nvertices);
+
+  hDiff_X_.fill(res,(vertex1.position().x()+vertex2.position().x())/2.);
+  hDiff_Y_.fill(res,(vertex1.position().y()+vertex2.position().y())/2.);
+  hDiff_Z_.fill(res,(vertex1.position().z()+vertex2.position().z())/2.);
 
   if(!lumiScalers.empty()) {
     hDiff_instLumiScal_.fill(res, lumiScalers.front().instantLumi());
