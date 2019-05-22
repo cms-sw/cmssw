@@ -12,13 +12,13 @@
 
 // the data format of the condition to be inspected
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
-#include "DataFormats/DetId/interface/DetId.h"                     
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"   
-#include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"  
-#include "FWCore/MessageLogger/interface/MessageLogger.h"      
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // needed for the tracker map
-#include "CommonTools/TrackerMap/interface/TrackerMap.h"   
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
 // auxilliary functions
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
@@ -30,7 +30,7 @@
 #include <sstream>
 #include <iostream>
 
-// include ROOT 
+// include ROOT
 #include "TH2F.h"
 #include "TLegend.h"
 #include "TCanvas.h"
@@ -49,36 +49,34 @@ namespace {
   *************************************************/
 
   class SiStripThresholdTest : public cond::payloadInspector::Histogram1D<SiStripThreshold> {
-
   public:
-    SiStripThresholdTest() : cond::payloadInspector::Histogram1D<SiStripThreshold>("SiStrip Threshold test",
-										   "SiStrip Threshold test", 10,0.0,10.0),
-			     m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} 
-    {
-      Base::setSingleIov( true );
+    SiStripThresholdTest()
+        : cond::payloadInspector::Histogram1D<SiStripThreshold>(
+              "SiStrip Threshold test", "SiStrip Threshold test", 10, 0.0, 10.0),
+          m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
+      Base::setSingleIov(true);
     }
-    
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{ 
-      for ( auto const & iov: iovs) {
-	std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload( std::get<1>(iov) ); 
-	if( payload.get() ){
-	 
-	  fillWithValue(1.);
-	 
-	  std::stringstream ss;
-	  ss << "Summary of strips threshold:" << std::endl;
 
-	  payload->printSummary(ss,&m_trackerTopo);
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
+        std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          fillWithValue(1.);
 
-	  std::vector<uint32_t> detid;
-	  payload->getDetIds(detid);
-	  	  
-	  std::cout<<ss.str()<<std::endl;
- 
-	}
+          std::stringstream ss;
+          ss << "Summary of strips threshold:" << std::endl;
+
+          payload->printSummary(ss, &m_trackerTopo);
+
+          std::vector<uint32_t> detid;
+          payload->getDetIds(detid);
+
+          std::cout << ss.str() << std::endl;
+        }
       }
       return true;
-    }// fill
+    }  // fill
   private:
     TrackerTopology m_trackerTopo;
   };
@@ -88,38 +86,39 @@ namespace {
   *************************************************************/
 
   class SiStripThresholdValueHigh : public cond::payloadInspector::Histogram1D<SiStripThreshold> {
-    
   public:
-    SiStripThresholdValueHigh() : cond::payloadInspector::Histogram1D<SiStripThreshold>("SiStrip High threshold values (checked per APV)",
-										    "SiStrip High threshold values (cheched per APV)", 10,0.0,10){
-      Base::setSingleIov( true );
+    SiStripThresholdValueHigh()
+        : cond::payloadInspector::Histogram1D<SiStripThreshold>("SiStrip High threshold values (checked per APV)",
+                                                                "SiStrip High threshold values (cheched per APV)",
+                                                                10,
+                                                                0.0,
+                                                                10) {
+      Base::setSingleIov(true);
     }
-    
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
-      for ( auto const & iov: iovs) {
-	std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload( std::get<1>(iov) );
-	if( payload.get() ){
-	  std::vector<uint32_t> detid;
-	  payload->getDetIds(detid);
+      for (auto const& iov : iovs) {
+        std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          std::vector<uint32_t> detid;
+          payload->getDetIds(detid);
 
-	  for (const auto & d : detid) {
-	    //std::cout<<d<<std::endl;
-	    SiStripThreshold::Range range=payload->getRange(d);
+          for (const auto& d : detid) {
+            //std::cout<<d<<std::endl;
+            SiStripThreshold::Range range = payload->getRange(d);
 
-	    int nAPVs = reader->getNumberOfApvsAndStripLength(d).first;
-	    
-	    for( int it=0; it<nAPVs; ++it ){
+            int nAPVs = reader->getNumberOfApvsAndStripLength(d).first;
 
-	      auto hth = payload->getData(it*128,range).getHth();
-	      //std::cout<<hth<<std::endl;
-	      fillWithValue(hth);
-	    }
-	  }
-	}
+            for (int it = 0; it < nAPVs; ++it) {
+              auto hth = payload->getData(it * 128, range).getHth();
+              //std::cout<<hth<<std::endl;
+              fillWithValue(hth);
+            }
+          }
+        }
       }
 
       delete reader;
@@ -132,38 +131,39 @@ namespace {
   *************************************************************/
 
   class SiStripThresholdValueLow : public cond::payloadInspector::Histogram1D<SiStripThreshold> {
-    
   public:
-    SiStripThresholdValueLow() : cond::payloadInspector::Histogram1D<SiStripThreshold>("SiStrip Low threshold values (checked per APV)",
-											"SiStrip Low threshold values (cheched per APV)", 10,0.0,10){
-      Base::setSingleIov( true );
+    SiStripThresholdValueLow()
+        : cond::payloadInspector::Histogram1D<SiStripThreshold>("SiStrip Low threshold values (checked per APV)",
+                                                                "SiStrip Low threshold values (cheched per APV)",
+                                                                10,
+                                                                0.0,
+                                                                10) {
+      Base::setSingleIov(true);
     }
-    
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
-      for ( auto const & iov: iovs) {
-	std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload( std::get<1>(iov) );
-	if( payload.get() ){
-	  std::vector<uint32_t> detid;
-	  payload->getDetIds(detid);
+      for (auto const& iov : iovs) {
+        std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          std::vector<uint32_t> detid;
+          payload->getDetIds(detid);
 
-	  for (const auto & d : detid) {
-	    //std::cout<<d<<std::endl;
-	    SiStripThreshold::Range range=payload->getRange(d);
+          for (const auto& d : detid) {
+            //std::cout<<d<<std::endl;
+            SiStripThreshold::Range range = payload->getRange(d);
 
-	    int nAPVs = reader->getNumberOfApvsAndStripLength(d).first;
-	        
-	    for( int it=0; it<nAPVs; ++it ){
+            int nAPVs = reader->getNumberOfApvsAndStripLength(d).first;
 
-	      auto lth = payload->getData(it*128,range).getLth();
-	      //std::cout<<hth<<std::endl;
-	      fillWithValue(lth);
-	    }
-	  }
-	}
+            for (int it = 0; it < nAPVs; ++it) {
+              auto lth = payload->getData(it * 128, range).getLth();
+              //std::cout<<hth<<std::endl;
+              fillWithValue(lth);
+            }
+          }
+        }
       }
 
       delete reader;
@@ -171,15 +171,10 @@ namespace {
     }
   };
 
+}  // namespace
 
-
-
-
-} 
-
-PAYLOAD_INSPECTOR_MODULE(SiStripThreshold){
+PAYLOAD_INSPECTOR_MODULE(SiStripThreshold) {
   PAYLOAD_INSPECTOR_CLASS(SiStripThresholdTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripThresholdValueHigh);
   PAYLOAD_INSPECTOR_CLASS(SiStripThresholdValueLow);
-
 }
