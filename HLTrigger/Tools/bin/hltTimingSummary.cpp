@@ -11,12 +11,12 @@
 #include <THStack.h>
 
 #include <boost/program_options.hpp>
-#include <iostream>
-#include <fstream>
-#include <string>
 #include <cmath>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <string>
 
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
@@ -925,7 +925,7 @@ int main(int argc, char ** argv) {
   
   std::cout << "Opening file " << filename << std::endl ;
   TFile* file = TFile::Open(filename.c_str());
-  if (file == 0) {
+  if (file == nullptr) {
     std::cout << "*** Error opening file: " << filename << " ***" << std::endl;
     std::cout << "\n\n" << desc << usage <<  std::endl ;
     return 1 ;
@@ -950,7 +950,7 @@ int main(int argc, char ** argv) {
   
   assert(TBPerfInfo);
   // Additions suggested by Chris Jones and Dan Riley
-  edm::Wrapper<HLTPerformanceInfo>* HLTPerformanceWrapper = 0 ;
+  edm::Wrapper<HLTPerformanceInfo>* HLTPerformanceWrapper = nullptr ;
   TBPerfInfo->SetAddress((void *) & HLTPerformanceWrapper) ;
 
   //--- Additions necessary to get the actual run/event number ---//
@@ -1069,7 +1069,7 @@ int main(int argc, char ** argv) {
         HLTPerformanceInfo::Path p = (*HLTPerformanceWrapper)->getPath(piter) ;
 	if (usePath.at(pCtr)) {
 	  // Determine the index of the filter modules in each path
-	  if (squareOne.size() > 0) {
+	  if (!squareOne.empty()) {
 	    mCtr = 0 ; mIdx = 0 ; 
 	    // loop over modules on path
 	    for (size_t i = 0; i < (*HLTPerformanceWrapper)->getPath(piter).numberOfModules(); 
@@ -1782,13 +1782,13 @@ int main(int argc, char ** argv) {
       sumfile << std::endl ; 
       sumfile << std::endl ; 
     }
-    if (skipTimingMod.size() > 0) {
+    if (!skipTimingMod.empty()) {
       sumfile << "Not including any information from the following excluded modules: " << std::endl ;
       for (unsigned int i=0; i<skipTimingMod.size(); i++) sumfile << skipTimingMod.at(i) << std::endl ;
       sumfile << std::endl ;
     }
         
-    if (squareOne.size() > 0) {
+    if (!squareOne.empty()) {
       sumfile << "The following module(s) were defined as filters by the user: " << std::endl ;
       for (unsigned int i=0; i<squareOne.size(); i++) {
 	sumfile << squareOne.at(i) << ", found in path(s) " ;
@@ -1809,7 +1809,7 @@ int main(int argc, char ** argv) {
       sumfile << std::endl ;        
     }
 
-    if (slowEventSummaryVector.size() > 0) {
+    if (!slowEventSummaryVector.empty()) {
       sumfile << "The following " << slowEventSummaryVector.size() ;
       if (slowEventSummaryVector.size() == 1) sumfile << " event " ;
       else sumfile << " events " ;
@@ -1825,7 +1825,7 @@ int main(int argc, char ** argv) {
       sumfile << std::endl ; 
     }
     
-    if (slowPathSummaryVector.size() > 0) {
+    if (!slowPathSummaryVector.empty()) {
       sumfile << "The following " << slowPathSummaryVector.size() ;
       if (slowPathSummaryVector.size() == 1) sumfile << " event " ;
       else sumfile << " events " ;
@@ -1843,7 +1843,7 @@ int main(int argc, char ** argv) {
       sumfile << std::endl ; 
     }
     
-    if (slowModuleSummaryVector.size() > 0) {
+    if (!slowModuleSummaryVector.empty()) {
       sumfile << "The following " << slowModuleSummaryVector.size() ;
       if (slowModuleSummaryVector.size() == 1) sumfile << " event " ;
       else sumfile << " events " ;
@@ -1859,7 +1859,7 @@ int main(int argc, char ** argv) {
       sumfile << std::endl ; 
     }
 
-    if (slowModInterestedVector.size() > 0) {
+    if (!slowModInterestedVector.empty()) {
   
       for (unsigned i=0; i<slowModInterestedVector.size(); i++) {
 
