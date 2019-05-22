@@ -14,8 +14,8 @@ namespace cond {
   class ImportUtilities : public cond::Utilities {
     public:
       ImportUtilities();
-      ~ImportUtilities();
-      int execute();
+      ~ImportUtilities() override;
+      int execute() override;
   };
 }
 

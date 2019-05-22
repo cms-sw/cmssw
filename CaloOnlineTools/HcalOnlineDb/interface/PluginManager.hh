@@ -82,10 +82,10 @@ namespace hcal {
   class PluginFactoryTemplate : public AbstractPluginFactory {
   public:
     PluginFactoryTemplate(const char* bc, const char* dc) : m_baseClass(bc), m_derivedClass(dc) { PluginManager::registerFactory(bc,dc,this); }
-    virtual ~PluginFactoryTemplate() = default;
-    virtual Pluggable* newInstance() { return new T; }
-    virtual const char* getBaseClass() const { return m_baseClass; }
-    virtual const char* getDerivedClass() const { return m_derivedClass; }
+    ~PluginFactoryTemplate() override = default;
+    Pluggable* newInstance() override { return new T; }
+    const char* getBaseClass() const override { return m_baseClass; }
+    const char* getDerivedClass() const override { return m_derivedClass; }
   private:
     const char* m_baseClass;
     const char* m_derivedClass;

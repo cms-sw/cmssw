@@ -8,7 +8,7 @@ namespace cond {
   class ToLumiIdUtilities : public Utilities {
     public:
       ToLumiIdUtilities();
-      ~ToLumiIdUtilities();
+      ~ToLumiIdUtilities() override;
       int execute() override;
   };
 }

@@ -14,8 +14,8 @@ namespace cond {
   class EditTagUtilities : public cond::Utilities {
     public:
       EditTagUtilities();
-      ~EditTagUtilities();
-      int execute();
+      ~EditTagUtilities() override;
+      int execute() override;
   };
 }
 

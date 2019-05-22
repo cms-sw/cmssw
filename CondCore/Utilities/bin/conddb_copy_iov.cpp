@@ -14,8 +14,8 @@ namespace cond {
   class CopyIovUtilities : public cond::Utilities {
     public:
       CopyIovUtilities();
-      ~CopyIovUtilities();
-      int execute();
+      ~CopyIovUtilities() override;
+      int execute() override;
   };
 }
 
