@@ -42,21 +42,24 @@ DDTestSpecParsFilter::analyze(const Event&, const EventSetup& iEventSetup)
   LogVerbatim("Geometry") << "DD SpecPar Registry size: " << registry->specpars.size();
 
   DDSpecParRefs myReg;
-  registry->filter(myReg, m_attribute, m_value);
-
+  if(m_value.empty())
+    registry->filter(myReg, m_attribute);
+  else
+    registry->filter(myReg, m_attribute, m_value);
+  
   LogVerbatim("Geometry").log([&myReg](auto& log) {
-      log << "Filtered DD SpecPar Registry size: " << myReg.size();
+      log << "Filtered DD SpecPar Registry size: " << myReg.size() << "\n";
       for(const auto& t: myReg) {
-	log << " = { ";
+	log << "\nRegExps { ";
 	for(const auto& ki : t->paths)
-	  log << ki << ", ";
-	log << " };\n ";
+	  log << ki << " ";
+	log << "};\n ";
 	for(const auto& kl : t->spars) {
-	  log << kl.first << " = { ";
+	  log << kl.first << " = ";
 	  for(const auto& kil : kl.second) {
-	    log << kil << ", ";
+	    log << kil << " ";
 	  }
-	log << " };\n ";
+	log << "\n ";
 	}
       }
     });
