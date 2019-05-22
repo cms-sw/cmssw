@@ -70,7 +70,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   edm::ConsumesCollector  iC = consumesCollector();
   string typeOfBuilder = parameterSet.existsAs<string>("MuonTrajectoryBuilder") ? 
     parameterSet.getParameter<string>("MuonTrajectoryBuilder") : "StandAloneMuonTrajectoryBuilder";
-  if(typeOfBuilder == "StandAloneMuonTrajectoryBuilder" || typeOfBuilder == "")
+  if(typeOfBuilder == "StandAloneMuonTrajectoryBuilder" || typeOfBuilder.empty())
     trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService,iC);
   else if(typeOfBuilder == "Exhaustive")
     trajectoryBuilder = new ExhaustiveMuonTrajectoryBuilder(trajectoryBuilderParameters,theService,iC);
