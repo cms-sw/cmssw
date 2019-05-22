@@ -53,7 +53,7 @@ L3MuonCandidateProducer::L3MuonCandidateProducer(const ParameterSet& parameterSe
   if (theUseLinks) {
     theL3LinksLabel = parameterSet.getParameter<InputTag>("InputLinksObjects");
     linkToken_ = consumes<reco::MuonTrackLinksCollection>(theL3LinksLabel);
-    if (theL3LinksLabel.label() == "" or theL3LinksLabel.label() == "unused")
+    if (theL3LinksLabel.label().empty() or theL3LinksLabel.label() == "unused")
       theUseLinks = false;
   }
 
