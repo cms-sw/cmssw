@@ -22,20 +22,6 @@
 
 class SiPixelStatusHarvester : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks>, private HistogramManagerHolder {
     enum {
-      BADROCp001,
-      GOODROCp001,
-      BADROCp005,
-      GOODROCp005,
-      BADROCp01,
-      GOODROCp01,
-      BADROCp05,
-      GOODROCp05,
-      BADROCp1,
-      GOODROCp1,
-      BADROCp2,
-      GOODROCp2,
-      BADROCp5,
-      GOODROCp5,
       BADROC,
       PERMANENTBADROC,
       FEDERRORROC,
@@ -111,20 +97,6 @@ class SiPixelStatusHarvester : public one::DQMEDAnalyzer<edm::one::WatchLuminosi
                     edm::Service<cond::service::PoolDBOutputService>& poolDbService,
                     std::string tagName,
                     edm::Run& iRun);
-
-  // for testing threshold
-  bool emptyRun;
-  TFile * histoFile;
-  std::map<std::string, TH1F*> p001, p005, p01, p05, p1, p2, p5;
-  std::map<std::string, TTree*> digiTrees;
-  int _digiTotal, _digiLossp001, _digiLossp005, _digiLossp01, _digiLossp05, _digiLossp1, _digiLossp2, _digiLossp5;
-  int _digiLossp02, _digiLossp06, _digiLossp07, _digiLossp08, _digiLossp09;
-
-  int _nLossp001, _nLossp005, _nLossp01, _nLossp05, _nLossp1, _nLossp2, _nLossp5;
-  int _nLossp02, _nLossp06, _nLossp07, _nLossp08, _nLossp09;
-  int _interval;
-
-  std::map<unsigned int,float> instLumi;
 
 };
 
