@@ -38,6 +38,19 @@ class PFSCEnergyCalibration;
 class PFEnergyCalibrationHF;
 class PFMuonAlgo;
 
+class ElementIndices {
+public:
+  std::vector<unsigned> hcalIs;
+  std::vector<unsigned> hoIs;
+  std::vector<unsigned> ecalIs;
+  std::vector<unsigned> trackIs;
+  std::vector<unsigned> ps1Is;
+  std::vector<unsigned> ps2Is;
+
+  std::vector<unsigned> hfEmIs;
+  std::vector<unsigned> hfHadIs;
+};
+
 class PFAlgo {
 
  public:
@@ -129,6 +142,12 @@ class PFAlgo {
 
   /// process one block. can be reimplemented in more sophisticated 
   /// algorithms
+  
+  void egammaFilters(const reco::PFBlockRef &blockref, std::vector<bool>& active, PFEGammaFilters const* pfegamma);
+  void conversionAlgo(const edm::OwnVector<reco::PFBlockElement> &elements, std::vector<bool>& active);
+  void elementLoop(const reco::PFBlock &block, reco::PFBlock::LinkData& linkData, const edm::OwnVector<reco::PFBlockElement> &elements, std::vector<bool>& active, const reco::PFBlockRef &blockref, ElementIndices& inds, std::vector<bool> &deadArea);
+  int decideType(const edm::OwnVector<reco::PFBlockElement> &elements, const reco::PFBlockElement::Type type, std::vector<bool>& active, ElementIndices& inds, std::vector<bool> &deadArea, unsigned int iEle);
+
   void processBlock( const reco::PFBlockRef& blockref,
                              std::list<reco::PFBlockRef>& hcalBlockRefs, 
                              std::list<reco::PFBlockRef>& ecalBlockRefs, PFEGammaFilters const* pfegamma );
