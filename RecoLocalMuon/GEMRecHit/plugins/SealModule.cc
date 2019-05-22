@@ -8,11 +8,10 @@
 DEFINE_FWK_MODULE(GEMRecHitProducer);
 
 #include "RecoLocalMuon/GEMRecHit/plugins/GEMRecHitStandardAlgo.h"
-DEFINE_EDM_PLUGIN (GEMRecHitAlgoFactory, GEMRecHitStandardAlgo, "GEMRecHitStandardAlgo");
+DEFINE_EDM_PLUGIN(GEMRecHitAlgoFactory, GEMRecHitStandardAlgo, "GEMRecHitStandardAlgo");
 
 #include "RecoLocalMuon/GEMRecHit/plugins/ME0RecHitProducer.h"
 DEFINE_FWK_MODULE(ME0RecHitProducer);
 
 #include "RecoLocalMuon/GEMRecHit/plugins/ME0RecHitStandardAlgo.h"
-DEFINE_EDM_PLUGIN (ME0RecHitAlgoFactory, ME0RecHitStandardAlgo, "ME0RecHitStandardAlgo");
-
+DEFINE_EDM_PLUGIN(ME0RecHitAlgoFactory, ME0RecHitStandardAlgo, "ME0RecHitStandardAlgo");
