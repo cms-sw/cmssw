@@ -138,7 +138,8 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 					    SL3metaPrimitive->wi1,SL3metaPrimitive->tdc1,
 					    SL3metaPrimitive->wi2,SL3metaPrimitive->tdc2,
 					    SL3metaPrimitive->wi3,SL3metaPrimitive->tdc3,
-					    SL3metaPrimitive->wi4,SL3metaPrimitive->tdc4
+					    SL3metaPrimitive->wi4,SL3metaPrimitive->tdc4,
+					    -1
 					    }));
 			    at_least_one_correlation=true;
 			}
@@ -213,7 +214,8 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 					    wi1,tdc1,
 					    wi2,tdc2,
 					    wi3,tdc3,
-					    wi4,tdc4
+					    wi4,tdc4,
+					    -1
 					    }));
 			    at_least_one_correlation=true;
 			}
@@ -301,7 +303,8 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 					    SL3metaPrimitive->wi1,SL3metaPrimitive->tdc1,
 					    SL3metaPrimitive->wi2,SL3metaPrimitive->tdc2,
 					    SL3metaPrimitive->wi3,SL3metaPrimitive->tdc3,
-					    SL3metaPrimitive->wi4,SL3metaPrimitive->tdc4
+					    SL3metaPrimitive->wi4,SL3metaPrimitive->tdc4,
+					    -1
 					    }));
 			    at_least_one_correlation=true;
 			}
@@ -323,7 +326,8 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 					-1,-1,
 					-1,-1,
 					-1,-1,
-					-1,-1
+					-1,-1,
+					-1
 					}));
 		    }
 		    for (auto SL3metaPrimitive = SL3metaPrimitives.begin(); SL3metaPrimitive != SL3metaPrimitives.end(); ++SL3metaPrimitive){
@@ -337,7 +341,8 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 					SL3metaPrimitive->wi1,SL3metaPrimitive->tdc1,
 					SL3metaPrimitive->wi2,SL3metaPrimitive->tdc2,
 					SL3metaPrimitive->wi3,SL3metaPrimitive->tdc3,
-					SL3metaPrimitive->wi4,SL3metaPrimitive->tdc4
+					SL3metaPrimitive->wi4,SL3metaPrimitive->tdc4,
+					-1
 					}));
 		    }
 		}

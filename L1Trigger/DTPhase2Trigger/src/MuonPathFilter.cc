@@ -52,14 +52,14 @@ void MuonPathFilter::run(edm::Event& iEvent, const edm::EventSetup& iEventSetup,
     
     if (debug) cout <<"MuonPathFilter: run" << endl;  
 
-    std::vector<metaPrimitive> buff1; 
-    std::vector<metaPrimitive> buff2; 
+    std::vector<metaPrimitive> buff; 
   
-    filterCousins(inMPaths,outMPaths); 
-    //filterTanPhi(buff1,buff2);
-    //filterUnique(buff2,outMPaths);
+    filterCousins(inMPaths,buff); 
+    filterUnique(buff,outMPaths);
+
+    buff.clear();
+    buff.erase(buff.begin(),buff.end());
     
-      
     if (debug) cout <<"MuonPathFilter: done" << endl;
 }
 
