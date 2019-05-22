@@ -23,6 +23,34 @@ MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL(const ParameterSet& pset) :
 
     tanPhiTh = pset.getUntrackedParameter<double>("tanPhiTh");  
 
+    /*
+    std::cout<<"building up wireIds"<<std::endl;
+
+    for(int wh=-2;wh<=2;wh++)
+        for(int st=1;st<=4;st++)
+            for(int se=1;se<=14;se++){
+                if(se>=13&&st!=4)continue;
+                DTChamberId theChId(wh,st,se);
+                for(int sl=1;sl<=3;sl++){
+                    if(st==4&&sl==2)continue;
+                    for(int la=1;la<=4;la++){
+			
+                        if(theLayId){
+                            int fC =dtGeo->layer(theLayId)->specificTopology().firstChannel();
+                            int lC =dtGeo->layer(theLayId)->specificTopology().lastChannel();
+                            for(int wi=fC;wi<=lC;wi++){
+                                DTWireId wireId(wh,st,se,sl,la,wi);
+                                LocalPoint wireInChamberFrame = (dtGeo->chamber(theChId)->toLocal(dtGeo->layer(wireId)->toGlobal(Local3DPoint(dtGeo->layer(wireId)->specificTopology().wirePosition(wi), 0., 0.))));
+				std::cout<<"\t DTinfo:wire "<<wireId<<" "<<wireId.rawId()<<" "<<" "<<wireInChamberFrame<<std::endl;
+				int rawId=wireId.rawId();
+				zinfo[rawId]=wireInChamberFrame.z();
+				shiftinfo[rawId]=wireInChamberFrame.x();
+                            }
+                        }
+                    }
+                }
+            }
+    */
 
     //z
     int rawId;
