@@ -20,7 +20,7 @@
 class TFile;
 class TH1F;
 
-class HLTMuonTurnOnAnalyzer: public edm::EDAnalyzer {
+class HLTMuonTurnOnAnalyzer : public edm::EDAnalyzer {
 public:
   /// Constructor
   HLTMuonTurnOnAnalyzer(const edm::ParameterSet& pset);
@@ -30,10 +30,10 @@ public:
 
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
 
-  virtual void beginJob() ;
-  virtual void endJob() ;
+  virtual void beginJob();
+  virtual void endJob();
 
 private:
   // Input from cfg file
@@ -43,7 +43,7 @@ private:
   std::vector<edm::InputTag> theHLTCollectionLabels;
   edm::EDGetTokenT<edm::HepMCProduct> theGenToken;
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> theL1CollectionToken;
-  std::vector<edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> >  theHLTCollectionTokens;
+  std::vector<edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> > theHLTCollectionTokens;
   double theReferenceThreshold;
   double thePtMin;
   double thePtMax;
@@ -55,12 +55,11 @@ private:
 
   // Histograms
   TH1F* hL1eff;
-  std::vector <TH1F*> hHLTeff;
+  std::vector<TH1F*> hHLTeff;
   TH1F* hL1nor;
-  std::vector <TH1F*> hHLTnor;
+  std::vector<TH1F*> hHLTnor;
 
   // Counter of events (weighted in general)
   double theNumberOfEvents;
-  
 };
 #endif

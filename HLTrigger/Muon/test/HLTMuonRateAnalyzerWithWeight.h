@@ -20,7 +20,7 @@
 class TFile;
 class TH1F;
 
-class HLTMuonRateAnalyzerWithWeight: public edm::EDAnalyzer {
+class HLTMuonRateAnalyzerWithWeight : public edm::EDAnalyzer {
 public:
   /// Constructor
   HLTMuonRateAnalyzerWithWeight(const edm::ParameterSet& pset);
@@ -30,12 +30,12 @@ public:
 
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
 
-  virtual void beginJob() ;
-  virtual void endJob() ;
-  virtual bool isbc(HepMC::GenEvent const & evt) ;
-  virtual double parentWeight(HepMC::GenEvent const & evt) ;
+  virtual void beginJob();
+  virtual void endJob();
+  virtual bool isbc(HepMC::GenEvent const& evt);
+  virtual double parentWeight(HepMC::GenEvent const& evt);
 
 private:
   // Input from cfg file
@@ -44,7 +44,7 @@ private:
   std::vector<edm::InputTag> theHLTCollectionLabels;
   edm::EDGetTokenT<edm::HepMCProduct> theGenToken;
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> theL1CollectionToken;
-  std::vector<edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> >  theHLTCollectionTokens;
+  std::vector<edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> > theHLTCollectionTokens;
   double theL1ReferenceThreshold;
   std::vector<double> theNSigmas;
   unsigned int theNumberOfObjects;
@@ -63,16 +63,15 @@ private:
   TH1F* hBCL1eff;
   TH1F* hNumEvents;
   TH1F* hBCL1rate;
-  std::vector <TH1F*> hBCHLTeff;
-  std::vector <TH1F*> hBCHLTrate;
+  std::vector<TH1F*> hBCHLTeff;
+  std::vector<TH1F*> hBCHLTrate;
   TH1F* hLightL1eff;
   TH1F* hLightL1rate;
-  std::vector <TH1F*> hLightHLTeff;
-  std::vector <TH1F*> hLightHLTrate;
+  std::vector<TH1F*> hLightHLTeff;
+  std::vector<TH1F*> hLightHLTrate;
 
   // Counter of events (weighted in general)
   double theNumberOfLightEvents;
   double theNumberOfBCEvents;
-  
 };
 #endif

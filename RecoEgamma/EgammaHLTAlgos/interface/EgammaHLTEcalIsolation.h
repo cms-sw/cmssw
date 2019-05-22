@@ -4,7 +4,7 @@
 //
 // Package:     EgammaHLTAlgos
 // Class  :     EgammaHLTEcalIsolation
-// 
+//
 /**\class EgammaHLTEcalIsolation EgammaHLTEcalIsolation.h RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTEcalIsolation.h
 
  Description: sum Et of all island basic clusters in cone around candidate
@@ -22,44 +22,36 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
-class EgammaHLTEcalIsolation
-{
-
-   public:
-
-  //EgammaHLTEcalIsolation(float egEcalIso_Photon_EtMin = 0., float egEcalIso_Photon_ConeSize = 0.3) : 
-  EgammaHLTEcalIsolation(double egEcalIso_EtMin, double egEcalIso_ConeSize, int SC_algo_type) : 
-    etMin(egEcalIso_EtMin), conesize(egEcalIso_ConeSize), algoType_(SC_algo_type) {
-      /*
+class EgammaHLTEcalIsolation {
+public:
+  //EgammaHLTEcalIsolation(float egEcalIso_Photon_EtMin = 0., float egEcalIso_Photon_ConeSize = 0.3) :
+  EgammaHLTEcalIsolation(double egEcalIso_EtMin, double egEcalIso_ConeSize, int SC_algo_type)
+      : etMin(egEcalIso_EtMin), conesize(egEcalIso_ConeSize), algoType_(SC_algo_type) {
+    /*
       std::cout << "EgammaHLTEcalIsolation instance:"
       << " ptMin=" << etMin
       << " conesize=" << conesize
       << std::endl;
       */
+  }
 
-    }
-  
-  float isolPtSum(const reco::RecoCandidate *recocandidate, 
-		  const std::vector<const reco::SuperCluster*>& sclusters,
-		  const std::vector<const reco::BasicCluster*>& bclusters) const;
+  float isolPtSum(const reco::RecoCandidate* recocandidate,
+                  const std::vector<const reco::SuperCluster*>& sclusters,
+                  const std::vector<const reco::BasicCluster*>& bclusters) const;
 
   /// Get Et cut for ecal hits
   float getetMin() const { return etMin; }
-  /// Get isolation cone size. 
+  /// Get isolation cone size.
   float getConeSize() const { return conesize; }
 
- private:
-  
+private:
   // ---------- member data --------------------------------
-  
-  // Parameters of isolation cone geometry. 
+
+  // Parameters of isolation cone geometry.
   // Photon case
   double etMin;
   double conesize;
   int algoType_;
-
 };
-
 
 #endif
