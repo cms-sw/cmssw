@@ -30,8 +30,8 @@
 #include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 // LHCinfo
-#include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+//#include "CondFormats/RunInfo/interface/LHCInfo.h"
+//#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 
 // CondOutput
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -82,82 +82,6 @@ SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig)
   endLumiBlock_ = 0;
   countLumi_ = 0;
 
-  // For threshold check
-  emptyRun = true;
-  
-  // pixel substructure
-  substructures.push_back("BpixLYR1");
-  substructures.push_back("BpixLYR2");
-  substructures.push_back("BpixLYR3");
-  substructures.push_back("BpixLYR4");
-  ///
-  substructures.push_back("FpixRNG1");
-  substructures.push_back("FpixRNG2");
-
-  p001.clear(); p005.clear();
-  p01.clear();  p05.clear();
-  p1.clear();   p2.clear();  p5.clear();
-
-  _digiTotal = 0;
-  _digiLossp001 = 0; _digiLossp005 = 0;
-  _digiLossp01 = 0; _digiLossp05 = 0; _digiLossp1 = 0;
-  _digiLossp02 = 0; _digiLossp06 = 0; _digiLossp07 = 0; _digiLossp08 = 0; _digiLossp09 = 0;
-  _digiLossp2 = 0; _digiLossp5 = 0;
-
-  _nLossp001 = 0; _nLossp005 = 0;
-  _nLossp01 = 0; _nLossp05 = 0; _nLossp1 = 0;
-  _nLossp02 = 0; _nLossp06 = 0; _nLossp07 = 0; _nLossp08 = 0; _nLossp09 = 0;
-  _nLossp2 = 0; _nLossp5 = 0;
-
-  _interval = 0;
-
-  for(unsigned int s = 0; s<substructures.size(); s++){
-
-         TString subTs = TString(substructures[s]);
-
-         digiTrees[substructures[s]] = new TTree(subTs,subTs);
-         digiTrees[substructures[s]]->Branch("digiTotal",&_digiTotal,"digiTotal/I");
-         digiTrees[substructures[s]]->Branch("digiLossp001",&_digiLossp001,"digiLossp001/I");
-         digiTrees[substructures[s]]->Branch("digiLossp005",&_digiLossp005,"digiLossp005/I");
-         digiTrees[substructures[s]]->Branch("digiLossp01",&_digiLossp01,"digiLossp01/I");
-         digiTrees[substructures[s]]->Branch("digiLossp02",&_digiLossp02,"digiLossp02/I");
-         digiTrees[substructures[s]]->Branch("digiLossp05",&_digiLossp05,"digiLossp05/I");
-         digiTrees[substructures[s]]->Branch("digiLossp06",&_digiLossp06,"digiLossp06/I");
-         digiTrees[substructures[s]]->Branch("digiLossp07",&_digiLossp07,"digiLossp07/I");
-         digiTrees[substructures[s]]->Branch("digiLossp08",&_digiLossp08,"digiLossp08/I");
-         digiTrees[substructures[s]]->Branch("digiLossp09",&_digiLossp09,"digiLossp09/I");
-         digiTrees[substructures[s]]->Branch("digiLossp1",&_digiLossp1,"digiLossp1/I");
-         digiTrees[substructures[s]]->Branch("digiLossp2",&_digiLossp2,"digiLossp2/I");
-         digiTrees[substructures[s]]->Branch("digiLossp5",&_digiLossp5,"digiLossp5/I");
-
-         digiTrees[substructures[s]]->Branch("nLossp001",&_nLossp001,"nLossp001/I");
-         digiTrees[substructures[s]]->Branch("nLossp005",&_nLossp005,"nLossp005/I");
-         digiTrees[substructures[s]]->Branch("nLossp01",&_nLossp01,"nLossp01/I");
-         digiTrees[substructures[s]]->Branch("nLossp02",&_nLossp02,"nLossp02/I");
-         digiTrees[substructures[s]]->Branch("nLossp05",&_nLossp05,"nLossp05/I");
-         digiTrees[substructures[s]]->Branch("nLossp06",&_nLossp06,"nLossp06/I");
-         digiTrees[substructures[s]]->Branch("nLossp07",&_nLossp07,"nLossp07/I");
-         digiTrees[substructures[s]]->Branch("nLossp08",&_nLossp08,"nLossp08/I");
-         digiTrees[substructures[s]]->Branch("nLossp09",&_nLossp09,"nLossp09/I");
-         digiTrees[substructures[s]]->Branch("nLossp1",&_nLossp1,"nLossp1/I");
-         digiTrees[substructures[s]]->Branch("nLossp2",&_nLossp2,"nLossp2/I");
-         digiTrees[substructures[s]]->Branch("nLossp5",&_nLossp5,"nLossp5/I");
-
-         digiTrees[substructures[s]]->Branch("interval",&_interval,"interval/I");
-
-         //instLumi
-         //digiTrees[substructures[s]]->Branch("instLumi",&instLumis);
-
-         p001[substructures[s]] = new TH1F(subTs+"p001","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{raw IOVs}",300,-6,0);
-         p005[substructures[s]] = new TH1F(subTs+"p005","Digi Loss Fraction;log_{10}(frac_{Digioss});N_{raw IOVs}",300,-6,0);
-         p01[substructures[s]]  = new TH1F(subTs+"p01","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{raw IOVs}",300,-6,0);
-         p05[substructures[s]]  = new TH1F(subTs+"p05","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{raw IOVs}",300,-6,0);
-         p1[substructures[s]]   = new TH1F(subTs+"p1","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{raw IOVs}",300,-6,0);
-         p2[substructures[s]]   = new TH1F(subTs+"p2","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{raw IOVs}",300,-6,0);
-         p5[substructures[s]]   = new TH1F(subTs+"p5","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{raw IOVs}",350,-6,0);
-
-  }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,35 +93,6 @@ void SiPixelStatusHarvester::beginJob() {
 
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::endJob() {
-
-     if(!emptyRun){
-
-       histoFile->cd();
-
-       for(unsigned int s = 0; s<substructures.size(); s++){
-
-           p001[substructures[s]]->Write();
-           p005[substructures[s]]->Write();
-           p01[substructures[s]]->Write();
-           p05[substructures[s]]->Write();
-           p1[substructures[s]]->Write();
-           p2[substructures[s]]->Write();
-           p5[substructures[s]]->Write();
-
-           digiTrees[substructures[s]]->Write();
-
-       }
-
-       histoFile->Close();
-       
-       digiTrees.clear();
-
-       p001.clear(); p005.clear(); 
-       p01.clear();  p05.clear(); 
-       p1.clear();   p2.clear();  p5.clear(); 
-
-    }
-
 }  
 
 //--------------------------------------------------------------------------------------------------
@@ -216,9 +111,6 @@ void SiPixelStatusHarvester::analyze(const edm::Event& iEvent, const edm::EventS
 
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup& iSetup){
-
-  // The run is not empty (after lumi json filter) otherwise the job can't reach here
-  emptyRun = false;
 
   // tracker geometry and cabling map to convert offline row/column (module) to online row/column
   edm::ESHandle<TrackerGeometry> tmpTkGeometry;
@@ -652,13 +544,13 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
         SiPixelQuality* lastPrompt = siPixelQualityPrompt_Tag[itIOV->first];
         SiPixelQuality* lastOther  = siPixelQualityOther_Tag[itIOV->first];
 
-        // add permanent bad components to last lumi+1 if the last payload of prompt is not equal to permanent bad components
+        // add permanent bad components to last lumi+1 IF AND ONLY IF the last payload of prompt is not equal to permanent bad components
         edm::LuminosityBlockID lu(iRun.id().run(),endLumiBlock_+1);
         cond::Time_t thisIOV = (cond::Time_t)(lu.value());
         if(!SiPixelStatusHarvester::equal(lastPrompt,siPixelQualityPermBad))
            poolDbService->writeOne<SiPixelQuality>(siPixelQualityPermBad, thisIOV, recordName_+"_prompt");
 
-        // add empty bad components to last lumi+1 if the last payload of other is not equal to empty
+        // add empty bad components to last lumi+1 IF AND ONLY IF the last payload of other is not equal to empty
         SiPixelQuality* siPixelQualityDummy = new SiPixelQuality();
         if(!SiPixelStatusHarvester::equal(lastOther,siPixelQualityDummy))
            poolDbService->writeOne<SiPixelQuality>(siPixelQualityDummy, thisIOV, recordName_+"_other");
@@ -668,260 +560,6 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
 
      delete siPixelQualityPermBad;
 
-    // file to host hists for threshold checking
-    std::string runString = std::to_string(iRun.run());
-    histoFile = new TFile("PixelDigiHisto_Run"+TString(runString)+".root","RECREATE");
-
-     // Loop over PCL IOVs for threshold checking
-     for(itIOV=pclIOV.begin();itIOV!=pclIOV.end();itIOV++){
-
-         int interval = 0;
-         std::map<edm::LuminosityBlockNumber_t, edm::LuminosityBlockNumber_t>::iterator nextItIOV = std::next(itIOV);
-         if(nextItIOV!=pclIOV.end()) interval = int(nextItIOV->first - itIOV->first);
-         else interval = int(endLumiBlock_ - itIOV->first + 1);
-
-         edm::LuminosityBlockNumber_t lumiPCL = itIOV->first;
-         SiPixelDetectorStatus tmpSiPixelStatus = siPixelStatusMap[lumiPCL];
-         double DetAverage = tmpSiPixelStatus.perRocDigiOcc();
-
-         if(DetAverage<aveDigiOcc_) break; // if the first IOV has not enough statistics, it means the WHOLE RUN lacks of statistics
-
-         unsigned long int Nevents = tmpSiPixelStatus.getNevents();
-
-         std::map<string, unsigned int> digiTotal;
-         std::map<string, unsigned int> digiLossp001, digiLossp005;
-         std::map<string, unsigned int> digiLossp01, digiLossp05, digiLossp1, digiLossp2, digiLossp5;
-         std::map<string, unsigned int> digiLossp02, digiLossp06, digiLossp07, digiLossp08, digiLossp09;
-
-         std::map<string, unsigned int> nLossp001, nLossp005;
-         std::map<string, unsigned int> nLossp01, nLossp05, nLossp1, nLossp2, nLossp5;
-         std::map<string, unsigned int> nLossp02, nLossp06, nLossp07, nLossp08, nLossp09;
-
-         // loop over modules
-         std::map<int, SiPixelModuleStatus> detectorStatus = tmpSiPixelStatus.getDetectorStatus();
-         std::map<int, SiPixelModuleStatus>::iterator itModEnd = detectorStatus.end();
-         for (std::map<int, SiPixelModuleStatus>::iterator itMod = detectorStatus.begin(); itMod != itModEnd; ++itMod) {
-
-              int detid = itMod->first;
-              uint32_t detId = uint32_t(detid);
-              double DetAverage_local = SiPixelStatusHarvester::perLayerRingAverage(detid,tmpSiPixelStatus);
-
-              // name of the pixel detector substructure
-              string substructure = SiPixelStatusHarvester::substructure(detid);
-
-              SiPixelModuleStatus modStatus = itMod->second;
-              std::map<int, std::pair<int,int> > rocToOfflinePixel = pixelO2O_[detid];
-              for (int iroc = 0; iroc < modStatus.nrocs(); ++iroc) {
-
-                   unsigned int rocOccupancy = modStatus.digiOccROC(iroc);
-
-                   int row = rocToOfflinePixel[iroc].first;
-                   int column = rocToOfflinePixel[iroc].second;
-
-                   digiTotal[substructure] += rocOccupancy;
-
-                   double permDead = -10;
-                   if(rocOccupancy<0.001*DetAverage_local){
-                      digiLossp001[substructure] += rocOccupancy;
-                      nLossp001[substructure] += 1;
-                      for (int iLumi = 0; iLumi<interval;iLumi++){
-                          if(rocOccupancy>0){
-                            histo[BADROCp001].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
-                          else{
-                            histo[BADROCp001].fill(permDead,detId, nullptr, column, row);}
-                      }
-                   }
-                   else{
-                        for (int iLumi = 0; iLumi<interval;iLumi++){
-                            histo[GOODROCp001].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
-                        }
-                   }
-
-                   if(rocOccupancy<0.005*DetAverage_local){
-                      digiLossp005[substructure] += rocOccupancy;
-                      nLossp005[substructure] += 1;
-                      for (int iLumi = 0; iLumi<interval;iLumi++){
-                          if(rocOccupancy>0){
-                            histo[BADROCp005].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
-                          else{
-                            histo[BADROCp005].fill(permDead,detId, nullptr, column, row);}
-                      }
-                   }
-                   else{
-                        for (int iLumi = 0; iLumi<interval;iLumi++){
-                            histo[GOODROCp005].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
-                        }
-                   }
-
-                   if(rocOccupancy<0.01*DetAverage_local){
-                      digiLossp01[substructure] += rocOccupancy;
-                      nLossp01[substructure] += 1;
-                      for (int iLumi = 0; iLumi<interval;iLumi++){
-                          if(rocOccupancy>0){
-                            histo[BADROCp01].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
-                          else{
-                            histo[BADROCp01].fill(permDead,detId, nullptr, column, row);}
-                      }
-                   }
-                   else{
-                        for (int iLumi = 0; iLumi<interval;iLumi++){
-                            histo[GOODROCp01].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
-                        }
-                   }
-
-                   if(rocOccupancy<0.05*DetAverage_local){
-                      digiLossp05[substructure] += rocOccupancy;
-                      nLossp05[substructure] += 1;
-                      for (int iLumi = 0; iLumi<interval;iLumi++){
-                          if(rocOccupancy>0){
-                            histo[BADROCp05].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
-                          else{
-                            histo[BADROCp05].fill(permDead,detId, nullptr, column, row);}
-                      }
-                   }
-                   else{
-                        for (int iLumi = 0; iLumi<interval;iLumi++){
-                            histo[GOODROCp05].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
-                        }
-                   }
-
-                   if(rocOccupancy<0.1*DetAverage_local){
-                      digiLossp1[substructure] += rocOccupancy;
-                      nLossp1[substructure] += 1;
-                      for (int iLumi = 0; iLumi<interval;iLumi++){
-                          if(rocOccupancy>0){
-                              histo[BADROCp1].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
-                          else{
-                              histo[BADROCp1].fill(permDead,detId, nullptr, column, row);}
-                      }
-                   }
-                   else{
-                        for (int iLumi = 0; iLumi<interval;iLumi++){
-                            histo[GOODROCp1].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
-                        }
-                   }
-
-                   if(rocOccupancy<0.2*DetAverage_local){
-                      digiLossp2[substructure] += rocOccupancy;
-                      nLossp2[substructure] += 1;
-                      for (int iLumi = 0; iLumi<interval;iLumi++){
-                          if(rocOccupancy>0){
-                              histo[BADROCp2].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
-                          else{
-                              histo[BADROCp2].fill(permDead,detId, nullptr, column, row);}
-                      }
-                   }
-                   else{
-                        for (int iLumi = 0; iLumi<interval;iLumi++){
-                            histo[GOODROCp2].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
-                        }
-                   }
-
-                   if(rocOccupancy<0.5*DetAverage_local){
-                      digiLossp5[substructure] += rocOccupancy;
-                      nLossp5[substructure] += 1;
-                      for (int iLumi = 0; iLumi<interval;iLumi++){
-                          if(rocOccupancy>0){
-                            histo[BADROCp5].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
-                          else{
-                            histo[BADROCp5].fill(permDead,detId, nullptr, column, row);}
-                      }
-                   }
-                   else{
-                        for (int iLumi = 0; iLumi<interval;iLumi++){
-                            histo[GOODROCp5].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
-                        }
-                   }
-
-                   if(rocOccupancy<0.02*DetAverage_local){
-                      digiLossp02[substructure] += rocOccupancy;
-                      nLossp02[substructure] += 1;
-                   }
-                   if(rocOccupancy<0.06*DetAverage_local){
-                      digiLossp06[substructure] += rocOccupancy;
-                      nLossp06[substructure] += 1;
-                   }
-                   if(rocOccupancy<0.07*DetAverage_local){
-                      digiLossp07[substructure] += rocOccupancy;
-                      nLossp07[substructure] += 1;
-                   }
-                   if(rocOccupancy<0.08*DetAverage_local){
-                      digiLossp08[substructure] += rocOccupancy;
-                      nLossp08[substructure] += 1;
-                   }
-                   if(rocOccupancy<0.09*DetAverage_local){
-                      digiLossp09[substructure] += rocOccupancy;
-                      nLossp09[substructure] += 1;
-                   }
-
-               } // loop over ROCs of a given module
-
-          }// loop over modules
-
-          for(unsigned int s = 0; s<substructures.size(); s++){
-
-              _digiTotal = digiTotal[substructures[s]];
-              _digiLossp001 = digiLossp001[substructures[s]];
-              _digiLossp005 = digiLossp005[substructures[s]];
-              _digiLossp01 = digiLossp01[substructures[s]];
-              _digiLossp02 = digiLossp01[substructures[s]];
-              _digiLossp05 = digiLossp05[substructures[s]];
-              _digiLossp06 = digiLossp06[substructures[s]];
-              _digiLossp07 = digiLossp07[substructures[s]];
-              _digiLossp08 = digiLossp08[substructures[s]];
-              _digiLossp09 = digiLossp09[substructures[s]];
-              _digiLossp1 = digiLossp1[substructures[s]];
-              _digiLossp2 = digiLossp2[substructures[s]];
-              _digiLossp5 = digiLossp5[substructures[s]];
-
-              _nLossp001 = nLossp001[substructures[s]];
-              _nLossp005 = nLossp005[substructures[s]];
-              _nLossp01 = nLossp01[substructures[s]];
-              _nLossp02 = nLossp01[substructures[s]];
-              _nLossp05 = nLossp05[substructures[s]];
-              _nLossp06 = nLossp06[substructures[s]];
-              _nLossp07 = nLossp07[substructures[s]];
-              _nLossp08 = nLossp08[substructures[s]];
-              _nLossp09 = nLossp09[substructures[s]];
-              _nLossp1 = nLossp1[substructures[s]];
-              _nLossp2 = nLossp2[substructures[s]];
-              _nLossp5 = nLossp5[substructures[s]];
-
-              _interval = interval;
-
-              digiTrees[substructures[s]]->Fill();
-
-              if(_digiLossp001>0){
-                p001[substructures[s]]->Fill(log(1.0*_digiLossp001/_digiTotal)/log(10));
-              }
-
-              if(_digiLossp005>0){
-                p005[substructures[s]]->Fill(log(1.0*_digiLossp005/_digiTotal)/log(10));
-              }
-
-              if(_digiLossp01>0){
-                p01[substructures[s]]->Fill(log(1.0*_digiLossp01/_digiTotal)/log(10));
-              }
-
-              if(_digiLossp05>0){
-                p05[substructures[s]]->Fill(log(1.0*_digiLossp05/_digiTotal)/log(10));
-              }
-
-              if(_digiLossp1>0){
-                p1[substructures[s]]->Fill(log(1.0*_digiLossp1/_digiTotal)/log(10));
-              }
-
-              if(_digiLossp2>0){
-                p2[substructures[s]]->Fill(log(1.0*_digiLossp2/_digiTotal)/log(10));
-              }
-
-              if(_digiLossp5>0){
-                p5[substructures[s]]->Fill(log(1.0*_digiLossp5/_digiTotal)/log(10));
-              }
-
-           } // loop over different pixel substructures
-
-      }// Loop over PCL IOVs for threshold checking
 
   } // end of if(poolDbService.isAvailable() )
 
@@ -930,9 +568,6 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iEventSetup) { 
      countLumi_++;
-     //edm::ESHandle<LHCInfo> hLHCInfo;
-     //iEventSetup.get<LHCInfoRcd>().get("", hLHCInfo);
-     //instLumi[iLumi.luminosityBlock()] = hLHCInfo->instLumi()/10; //instLumi is in unit 10^33 cm-2 sec-1
 }
 
 
