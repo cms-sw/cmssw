@@ -11,7 +11,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
- 
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -21,22 +21,19 @@
 #include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h"
 
-
-class CastorChannelQualityHandler : public popcon::PopConSourceHandler<CastorChannelQuality>
-{
- public:
+class CastorChannelQualityHandler : public popcon::PopConSourceHandler<CastorChannelQuality> {
+public:
   void getNewObjects() override;
-  std::string id() const override { return m_name;}
+  std::string id() const override { return m_name; }
   ~CastorChannelQualityHandler() override;
-  CastorChannelQualityHandler(edm::ParameterSet const &);
+  CastorChannelQualityHandler(edm::ParameterSet const&);
 
   void initObject(CastorChannelQuality*);
 
- private:
+private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
   CastorChannelQuality* myDBObject;
   std::string m_name;
-
 };
 #endif

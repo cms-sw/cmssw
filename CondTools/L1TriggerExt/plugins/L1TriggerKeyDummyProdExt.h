@@ -12,17 +12,17 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
 
 class L1TriggerKeyDummyProdExt : public edm::ESProducer {
-   public:
-      L1TriggerKeyDummyProdExt(const edm::ParameterSet&);
-      ~L1TriggerKeyDummyProdExt() override;
+public:
+  L1TriggerKeyDummyProdExt(const edm::ParameterSet&);
+  ~L1TriggerKeyDummyProdExt() override;
 
-      using ReturnType = std::unique_ptr<L1TriggerKeyExt>;
+  using ReturnType = std::unique_ptr<L1TriggerKeyExt>;
 
-      ReturnType produce(const L1TriggerKeyExtRcd&);
-   private:
-      // ----------member data ---------------------------
-      L1TriggerKeyExt m_key ;
+  ReturnType produce(const L1TriggerKeyExtRcd&);
+
+private:
+  // ----------member data ---------------------------
+  L1TriggerKeyExt m_key;
 };
-
 
 #endif

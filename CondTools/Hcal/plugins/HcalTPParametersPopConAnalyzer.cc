@@ -2,15 +2,14 @@
 #include "CondTools/Hcal/interface/HcalTPParametersHandler.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
-class HcalTPParametersPopConAnalyzer: public popcon::PopConAnalyzer<HcalTPParametersHandler> {
+class HcalTPParametersPopConAnalyzer : public popcon::PopConAnalyzer<HcalTPParametersHandler> {
 public:
   typedef HcalTPParametersHandler SourceHandler;
 
-  HcalTPParametersPopConAnalyzer(const edm::ParameterSet& pset): 
-    popcon::PopConAnalyzer<HcalTPParametersHandler>(pset),
-    m_populator(pset),
-    m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+  HcalTPParametersPopConAnalyzer(const edm::ParameterSet& pset)
+      : popcon::PopConAnalyzer<HcalTPParametersHandler>(pset),
+        m_populator(pset),
+        m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
 
 private:
   void endJob() override {
@@ -23,7 +22,7 @@ private:
 
     edm::ESHandle<HcalTPParameters> objecthandle;
     esetup.get<HcalTPParametersRcd>().get(objecthandle);
-    myDBObject = new HcalTPParameters(*objecthandle.product() );
+    myDBObject = new HcalTPParameters(*objecthandle.product());
   }
 
   void write() { m_populator.write(m_source); }

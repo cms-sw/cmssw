@@ -17,19 +17,20 @@
 // forward declarations
 
 class L1ObjectKeysOnlineProdBaseExt : public edm::ESProducer {
-   public:
-      L1ObjectKeysOnlineProdBaseExt(const edm::ParameterSet&);
-      ~L1ObjectKeysOnlineProdBaseExt() override;
+public:
+  L1ObjectKeysOnlineProdBaseExt(const edm::ParameterSet&);
+  ~L1ObjectKeysOnlineProdBaseExt() override;
 
-      using ReturnType = std::unique_ptr<L1TriggerKeyExt>;
+  using ReturnType = std::unique_ptr<L1TriggerKeyExt>;
 
-      ReturnType produce(const L1TriggerKeyExtRcd&);
+  ReturnType produce(const L1TriggerKeyExtRcd&);
 
-      virtual void fillObjectKeys( L1TriggerKeyExt* pL1TriggerKey ) = 0 ;
-   private:
-      // ----------member data ---------------------------
- protected:
-      l1t::OMDSReader m_omdsReader ;
+  virtual void fillObjectKeys(L1TriggerKeyExt* pL1TriggerKey) = 0;
+
+private:
+  // ----------member data ---------------------------
+protected:
+  l1t::OMDSReader m_omdsReader;
 };
 
 #endif

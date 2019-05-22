@@ -3,7 +3,6 @@
 
 // Jake Anderson, 20.10.2009
 
-
 #include <string>
 #include <iostream>
 #include <typeinfo>
@@ -11,7 +10,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
- 
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -21,22 +20,19 @@
 #include "CondFormats/DataRecord/interface/HcalDcsRcd.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
-
-class HcalDcsValuesHandler : public popcon::PopConSourceHandler<HcalDcsValues>
-{
- public:
+class HcalDcsValuesHandler : public popcon::PopConSourceHandler<HcalDcsValues> {
+public:
   void getNewObjects() override;
-  std::string id() const override { return m_name;}
+  std::string id() const override { return m_name; }
   ~HcalDcsValuesHandler() override;
-  HcalDcsValuesHandler(edm::ParameterSet const &);
+  HcalDcsValuesHandler(edm::ParameterSet const&);
 
   void initObject(HcalDcsValues*);
 
- private:
+private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
   HcalDcsValues* myDBObject;
   std::string m_name;
-
 };
 #endif
