@@ -5,7 +5,8 @@
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "boost/mpl/vector.hpp"
 
-class DDSpecParRegistryRcd : public edm::eventsetup::DependentRecordImplementation<
-DDSpecParRegistryRcd, boost::mpl::vector<GeometryFileRcd>> {};
+class DDSpecParRegistryRcd
+    : public edm::eventsetup::DependentRecordImplementation<DDSpecParRegistryRcd, boost::mpl::vector<GeometryFileRcd>> {
+};
 
 #endif

@@ -4,7 +4,7 @@
 //
 // Package:     Record
 // Class  :     HcalSimNumberingRecord
-// 
+//
 /**\class HcalSimNumberingRecord HcalSimNumberingRecord.h Geometry/Record/interface/HcalSimNumberingRecord.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Thu Dec 24 16:41:02 PDT 2013
 //
 
@@ -22,6 +22,9 @@
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 
-class HcalSimNumberingRecord : public edm::eventsetup::DependentRecordImplementation<HcalSimNumberingRecord, boost::mpl::vector<IdealGeometryRecord, HcalParametersRcd> > {};
+class HcalSimNumberingRecord
+    : public edm::eventsetup::DependentRecordImplementation<HcalSimNumberingRecord,
+                                                            boost::mpl::vector<IdealGeometryRecord, HcalParametersRcd> > {
+};
 
 #endif

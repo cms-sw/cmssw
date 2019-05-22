@@ -20,59 +20,46 @@
 using namespace edm;
 using namespace std;
 
-DTGeometryESModule::DTGeometryESModule(const edm::ParameterSet & p)
-  : alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
-    myLabel_(p.getParameter<std::string>("appendToDataLabel")),
-    fromDDD_(p.getParameter<bool>("fromDDD"))
-{
-
+DTGeometryESModule::DTGeometryESModule(const edm::ParameterSet& p)
+    : alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
+      myLabel_(p.getParameter<std::string>("appendToDataLabel")),
+      fromDDD_(p.getParameter<bool>("fromDDD")) {
   applyAlignment_ = p.getParameter<bool>("applyAlignment");
 
   auto cc = setWhatProduced(this);
-  if(applyAlignment_) {
+  if (applyAlignment_) {
     globalPositionToken_ = cc.consumesFrom<Alignments, GlobalPositionRcd>(edm::ESInputTag{"", alignmentsLabel_});
     alignmentsToken_ = cc.consumesFrom<Alignments, DTAlignmentRcd>(edm::ESInputTag{"", alignmentsLabel_});
-    alignmentErrorsToken_ = cc.consumesFrom<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd>(edm::ESInputTag{"", alignmentsLabel_});
+    alignmentErrorsToken_ =
+        cc.consumesFrom<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd>(edm::ESInputTag{"", alignmentsLabel_});
   }
-  if(fromDDD_) {
+  if (fromDDD_) {
     mdcToken_ = cc.consumesFrom<MuonDDDConstants, MuonNumberingRecord>(edm::ESInputTag{});
     cpvToken_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{});
-  }
-  else {
+  } else {
     rigToken_ = cc.consumesFrom<RecoIdealGeometry, DTRecoGeometryRcd>(edm::ESInputTag{});
   }
 
   edm::LogInfo("Geometry") << "@SUB=DTGeometryESModule"
-    << "Label '" << myLabel_ << "' "
-    << (applyAlignment_ ? "looking for" : "IGNORING")
-    << " alignment labels '" << alignmentsLabel_ << "'.";
+                           << "Label '" << myLabel_ << "' " << (applyAlignment_ ? "looking for" : "IGNORING")
+                           << " alignment labels '" << alignmentsLabel_ << "'.";
 }
 
-DTGeometryESModule::~DTGeometryESModule(){}
+DTGeometryESModule::~DTGeometryESModule() {}
 
-std::shared_ptr<DTGeometry> 
-DTGeometryESModule::produce(const MuonGeometryRecord & record) {
+std::shared_ptr<DTGeometry> DTGeometryESModule::produce(const MuonGeometryRecord& record) {
+  auto host = holder_.makeOrGet([]() { return new HostType; });
 
-  auto host = holder_.makeOrGet([]() {
-    return new HostType;
-  });
-
-  if(fromDDD_) {
-    host->ifRecordChanges<MuonNumberingRecord>(record,
-                                               [this, &host](auto const& rec) {
-      setupGeometry(rec, host);
-    });
+  if (fromDDD_) {
+    host->ifRecordChanges<MuonNumberingRecord>(record, [this, &host](auto const& rec) { setupGeometry(rec, host); });
   } else {
-    host->ifRecordChanges<DTRecoGeometryRcd>(record,
-                                             [this, &host](auto const& rec) {
-      setupDBGeometry(rec, host);
-    });
+    host->ifRecordChanges<DTRecoGeometryRcd>(record, [this, &host](auto const& rec) { setupDBGeometry(rec, host); });
   }
   //
   // Called whenever the alignments or alignment errors change
-  //  
-  if ( applyAlignment_ ) {
-    // applyAlignment_ is scheduled for removal. 
+  //
+  if (applyAlignment_) {
+    // applyAlignment_ is scheduled for removal.
     // Ideal geometry obtained by using 'fake alignment' (with applyAlignment_ = true)
     const auto& globalPosition = record.get(globalPositionToken_);
     const auto& alignments = record.get(alignmentsToken_);
@@ -80,23 +67,20 @@ DTGeometryESModule::produce(const MuonGeometryRecord & record) {
     // Only apply alignment if values exist
     if (alignments.empty() && alignmentErrors.empty() && globalPosition.empty()) {
       edm::LogInfo("Config") << "@SUB=DTGeometryRecord::produce"
-        << "Alignment(Error)s and global position (label '"
-        << alignmentsLabel_ << "') empty: Geometry producer (label "
-        << "'" << myLabel_ << "') assumes fake and does not apply.";
+                             << "Alignment(Error)s and global position (label '" << alignmentsLabel_
+                             << "') empty: Geometry producer (label "
+                             << "'" << myLabel_ << "') assumes fake and does not apply.";
     } else {
       GeometryAligner aligner;
-      aligner.applyAlignments<DTGeometry>( &(*host),
-                                           &alignments, &alignmentErrors,
-                                           align::DetectorGlobalPosition(globalPosition, DetId(DetId::Muon)));
+      aligner.applyAlignments<DTGeometry>(
+          &(*host), &alignments, &alignmentErrors, align::DetectorGlobalPosition(globalPosition, DetId(DetId::Muon)));
     }
   }
 
-  return host; // automatically converts to std::shared_ptr<DTGeometry>
-
+  return host;  // automatically converts to std::shared_ptr<DTGeometry>
 }
 
-void DTGeometryESModule::setupGeometry( const MuonNumberingRecord& record,
-                                        std::shared_ptr<HostType>& host) {
+void DTGeometryESModule::setupGeometry(const MuonNumberingRecord& record, std::shared_ptr<HostType>& host) {
   //
   // Called whenever the muon numbering (or ideal geometry) changes
   //
@@ -110,8 +94,7 @@ void DTGeometryESModule::setupGeometry( const MuonNumberingRecord& record,
   builder.build(*host, cpv.product(), mdc);
 }
 
-void DTGeometryESModule::setupDBGeometry( const DTRecoGeometryRcd& record,
-                                          std::shared_ptr<HostType>& host ) {
+void DTGeometryESModule::setupDBGeometry(const DTRecoGeometryRcd& record, std::shared_ptr<HostType>& host) {
   //
   // Called whenever the muon numbering (or ideal geometry) changes
   //
@@ -119,7 +102,7 @@ void DTGeometryESModule::setupDBGeometry( const DTRecoGeometryRcd& record,
   host->clear();
 
   const auto& rig = record.get(rigToken_);
-  
+
   DTGeometryBuilderFromCondDB builder;
   builder.build(host, rig);
 }
