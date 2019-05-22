@@ -141,7 +141,7 @@ process.options = cms.untracked.PSet(
 
 process.genParticles = cms.EDProducer("GenParticleProducer",
     saveBarCodes = cms.untracked.bool(True),
-    src = cms.InputTag("generator:unsmeared"),
+    src = cms.InputTag("generator"),
     abortOnUnknownPDGCode = cms.untracked.bool(False)
 )
 process.printTree1 = cms.EDAnalyzer("ParticleListDrawer",
@@ -149,14 +149,5 @@ process.printTree1 = cms.EDAnalyzer("ParticleListDrawer",
     maxEventsToPrint  = cms.untracked.int32(10)
 )
 
-process.load("GeneratorInterface.RivetInterface.particleLevel_cfi")
-process.particleLevel.src = cms.InputTag("generator:unsmeared")
-process.particleLevel.lepConeSize = 0.1
-
-process.load("GeneratorInterface.RivetInterface.rivetAnalyzer_cfi")
-process.rivetAnalyzer.HepMCCollection = cms.InputTag("generator:unsmeared")
-process.rivetAnalyzer.AnalysisNames = cms.vstring('CMS_2015_I1346843', 'MC_ZINC_MU', 'MC_ZINC_MU_BARE', 'MC_ZINC_EL', 'MC_ZINC_EL_BARE', 'MC_PHOTONS', 'MC_MUONS', 'MC_ELECTRONS')
-process.rivetAnalyzer.OutputFile = cms.string('run.yoda')
-
-process.path = cms.Path(process.generator*process.rivetAnalyzer)#*process.particleLevel*process.genParticles*process.printTree1)
+process.path = cms.Path(process.generator*process.genParticles*process.printTree1)
 
