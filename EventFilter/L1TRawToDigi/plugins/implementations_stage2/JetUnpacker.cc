@@ -9,72 +9,68 @@
 #include "JetUnpacker.h"
 
 namespace l1t {
-namespace stage2 {
-   JetUnpacker::JetUnpacker() : JetCopy_(0)
-   {
-   }
+  namespace stage2 {
+    JetUnpacker::JetUnpacker() : JetCopy_(0) {}
 
-   bool
-   JetUnpacker::unpack(const Block& block, UnpackerCollections *coll)
-   {
+    bool JetUnpacker::unpack(const Block& block, UnpackerCollections* coll) {
+      using namespace l1t::stage2::layer2;
 
-     using namespace l1t::stage2::layer2;
+      LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
-     LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
+      int nBX = int(ceil(block.header().getSize() / (double)demux::nOutputFramePerBX));  // 6 frames per BX
 
-     int nBX = int(ceil(block.header().getSize() / (double) demux::nOutputFramePerBX )); // 6 frames per BX
+      // Find the first and last BXs
+      int firstBX = -(ceil((double)nBX / 2.) - 1);
+      int lastBX;
+      if (nBX % 2 == 0) {
+        lastBX = ceil((double)nBX / 2.);
+      } else {
+        lastBX = ceil((double)nBX / 2.) - 1;
+      }
 
-     // Find the first and last BXs
-     int firstBX = -(ceil((double)nBX/2.)-1);
-     int lastBX;
-     if (nBX % 2 == 0) {
-       lastBX = ceil((double)nBX/2.);
-     } else {
-       lastBX = ceil((double)nBX/2.)-1;
-     }
+      auto res_ = static_cast<L1TObjectCollections*>(coll)->getJets(JetCopy_);
+      res_->setBXRange(firstBX, lastBX);
 
-     auto res_ = static_cast<L1TObjectCollections*>(coll)->getJets(JetCopy_);
-     res_->setBXRange(firstBX, lastBX);
+      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
-     LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
+      // Loop over multiple BX and then number of jets filling jet collection
+      for (int bx = firstBX; bx <= lastBX; bx++) {
+        for (unsigned iJet = 0; iJet < demux::nJetPerLink && iJet < block.header().getSize(); iJet++) {
+          int iFrame = (bx - firstBX) * demux::nOutputFramePerBX + iJet;
+          uint32_t raw_data = block.payload().at(iFrame);
 
-     // Loop over multiple BX and then number of jets filling jet collection
-     for (int bx=firstBX; bx<=lastBX; bx++){
-       for (unsigned iJet=0; iJet < demux::nJetPerLink && iJet < block.header().getSize(); iJet++){
-
-	 int iFrame = (bx-firstBX)*demux::nOutputFramePerBX + iJet;
-         uint32_t raw_data = block.payload().at(iFrame);
-
-         if (raw_data == 0)
+          if (raw_data == 0)
             continue;
 
-         l1t::Jet jet = l1t::Jet();
+          l1t::Jet jet = l1t::Jet();
 
-         jet.setHwPt(raw_data & 0x7FF);
+          jet.setHwPt(raw_data & 0x7FF);
 
-	 if (jet.hwPt()==0) continue;
-         
-         int abs_eta = (raw_data >> 11) & 0x7F;
-         if ((raw_data >> 18) & 0x1) {
-           jet.setHwEta(-1 * (128-abs_eta));
-         } else {
-           jet.setHwEta(abs_eta);
-         }
+          if (jet.hwPt() == 0)
+            continue;
 
-	 jet.setHwPhi((raw_data >> 19) & 0xFF);
-         jet.setHwQual((raw_data >> 27) & 0x7); // Assume 3 bits for now? Leaves 2 bits spare
+          int abs_eta = (raw_data >> 11) & 0x7F;
+          if ((raw_data >> 18) & 0x1) {
+            jet.setHwEta(-1 * (128 - abs_eta));
+          } else {
+            jet.setHwEta(abs_eta);
+          }
 
-         LogDebug("L1T") << "Jet: eta " << jet.hwEta() << " phi " << jet.hwPhi() << " pT " << jet.hwPt() << " qual " << jet.hwQual() << " bx " << bx;
+          jet.setHwPhi((raw_data >> 19) & 0xFF);
+          jet.setHwQual((raw_data >> 27) & 0x7);  // Assume 3 bits for now? Leaves 2 bits spare
 
-	 jet.setP4( l1t::CaloTools::p4Demux(&jet) );
+          LogDebug("L1T") << "Jet: eta " << jet.hwEta() << " phi " << jet.hwPhi() << " pT " << jet.hwPt() << " qual "
+                          << jet.hwQual() << " bx " << bx;
 
-         res_->push_back(bx, jet);
-       }
-     }
+          jet.setP4(l1t::CaloTools::p4Demux(&jet));
 
-     return true;
-   }
-}
-}
+          res_->push_back(bx, jet);
+        }
+      }
+
+      return true;
+    }
+  }  // namespace stage2
+}  // namespace l1t
 
 DEFINE_L1T_UNPACKER(l1t::stage2::JetUnpacker);

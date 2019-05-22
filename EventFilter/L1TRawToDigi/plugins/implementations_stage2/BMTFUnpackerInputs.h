@@ -3,30 +3,29 @@
 
 #include "BMTFCollections.h"
 
-namespace l1t{
-	namespace stage2{
-		struct qualityHits
-		{
-			int linkNo;
-			int hits[3][7];
-		};
-		class BMTFUnpackerInputsOldQual : public Unpacker
-		{
-			public:
-				bool unpack(const Block& block, UnpackerCollections *coll) override;
-			private:
-				qualityHits linkAndQual_;
-				//std::map<int, qualityHits> linkAndQual_;
-		};
+namespace l1t {
+  namespace stage2 {
+    struct qualityHits {
+      int linkNo;
+      int hits[3][7];
+    };
+    class BMTFUnpackerInputsOldQual : public Unpacker {
+    public:
+      bool unpack(const Block& block, UnpackerCollections* coll) override;
 
-		class BMTFUnpackerInputsNewQual : public Unpacker
-		{
-			public:
-				bool unpack(const Block& block, UnpackerCollections *coll) override;
-			private:
-				qualityHits linkAndQual_;
-				//std::map<int, qualityHits> linkAndQual_;
-		};
+    private:
+      qualityHits linkAndQual_;
+      //std::map<int, qualityHits> linkAndQual_;
+    };
 
-	}
-}
+    class BMTFUnpackerInputsNewQual : public Unpacker {
+    public:
+      bool unpack(const Block& block, UnpackerCollections* coll) override;
+
+    private:
+      qualityHits linkAndQual_;
+      //std::map<int, qualityHits> linkAndQual_;
+    };
+
+  }  // namespace stage2
+}  // namespace l1t

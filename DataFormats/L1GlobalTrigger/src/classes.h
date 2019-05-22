@@ -21,5 +21,3 @@
 
 #include <vector>
 #include <map>
-
-
