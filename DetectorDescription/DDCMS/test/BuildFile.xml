@@ -1,12 +1,20 @@
 <use   name="cppunit"/>
-<bin   name="testDDFilteredView" file="DDFilteredView.cppunit.cc,testRunner.cpp">
+<bin   name="testDD4hepFilteredView" file="DDFilteredView.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
   <use name="dd4hep"/>
 </bin>
-<bin   name="testFilter" file="Filter.cppunit.cc,testRunner.cpp">
+<bin   name="testDD4hepExpandedView" file="DDExpandedView.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="dd4hep"/>
+</bin>
+<bin   name="testDD4hepCompactView" file="DDCompactView.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="dd4hep"/>
+</bin>
+<bin   name="testDD4hepFilter" file="Filter.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
 </bin>
-<bin   name="testExpandedNodes" file="ExpandedNodes.cppunit.cc,testRunner.cpp">
+<bin   name="testDD4hepExpandedNodes" file="ExpandedNodes.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
 </bin>
 <bin file="dummyMain.cpp" name="DetectorDescriptionDDCMSTestDriver">

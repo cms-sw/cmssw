@@ -3,7 +3,7 @@
 
 // -*- C++ -*-
 //
-// Package:    DetectorDescription/DDFilteredView
+// Package:    DetectorDescription/Core
 // Class:      DDFilteredView
 // 
 /**\class DDFilteredView
