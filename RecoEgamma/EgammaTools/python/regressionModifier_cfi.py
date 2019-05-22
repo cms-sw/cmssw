@@ -1,6 +1,60 @@
 import FWCore.ParameterSet.Config as cms
 
-regressionModifier = \
+regressionModifier = cms.PSet(
+    modifierName = cms.string('EGRegressionModifierV3'),       
+    rhoTag = cms.InputTag('fixedGridRhoFastjetAllTmp'),
+    useClosestToCentreSeedCrysDef = cms.bool(True),
+    eleRegs = cms.PSet(
+        ecalOnlyMean = cms.PSet(
+            rangeMin = cms.double(-1.),
+            rangeMax = cms.double(3.0),
+            forceHighEnergyTrainingIfSaturated = cms.bool(True),
+            lowEtHighEtBoundary = cms.double(999999.),
+            ebLowEtForestName = cms.string("electron_eb_ECALonly_lowpt"),
+            ebHighEtForestName = cms.string("electron_eb_ECALonly"),
+            eeLowEtForestName = cms.string("electron_ee_ECALonly_lowpt"),
+            eeHighEtForestName = cms.string("electron_ee_ECALonly"),
+            ),
+        ecalOnlySigma = cms.PSet(
+            rangeMin = cms.double(0.0002),
+            rangeMax = cms.double(0.5),
+            forceHighEnergyTrainingIfSaturated = cms.bool(True),
+            lowEtHighEtBoundary = cms.double(999999.),
+            ebLowEtForestName = cms.string("electron_eb_ECALonly_lowpt_var"),
+            ebHighEtForestName = cms.string("electron_eb_ECALonly_var"),
+            eeLowEtForestName = cms.string("electron_ee_ECALonly_lowpt_var"),
+            eeHighEtForestName = cms.string("electron_ee_ECALonly_var"),
+            ),
+        epComb = cms.PSet(
+            ecalTrkRegressionConfig = cms.PSet(
+                rangeMin = cms.double(-1.),
+                rangeMax = cms.double(3.0),
+                lowEtHighEtBoundary = cms.double(50.),
+                forceHighEnergyTrainingIfSaturated = cms.bool(False),
+                ebLowEtForestName = cms.string('electron_eb_ECALTRK_lowpt'),
+                ebHighEtForestName = cms.string('electron_eb_ECALTRK'),
+                eeLowEtForestName = cms.string('electron_ee_ECALTRK_lowpt'),
+                eeHighEtForestName = cms.string('electron_ee_ECALTRK')
+                ),
+            ecalTrkRegressionUncertConfig = cms.PSet(
+                rangeMin = cms.double(0.0002),
+                rangeMax = cms.double(0.5),
+                lowEtHighEtBoundary = cms.double(50.),  
+                forceHighEnergyTrainingIfSaturated = cms.bool(False),
+                ebLowEtForestName = cms.string('electron_eb_ECALTRK_lowpt_var'),
+                ebHighEtForestName = cms.string('electron_eb_ECALTRK_var'),
+                eeLowEtForestName = cms.string('electron_ee_ECALTRK_lowpt_var'),
+                eeHighEtForestName = cms.string('electron_ee_ECALTRK_var')
+                ),
+            maxEcalEnergyForComb=cms.double(200.),
+            minEOverPForComb=cms.double(0.025),
+            maxEPDiffInSigmaForComb=cms.double(15.),
+            maxRelTrkMomErrForComb=cms.double(10.),                
+            )
+        )
+)
+
+regressionModifier94X = \
     cms.PSet( modifierName    = cms.string('EGRegressionModifierV2'),  
 
               rhoCollection = cms.InputTag('fixedGridRhoFastjetAll'),
@@ -26,7 +80,6 @@ regressionModifier = \
               forceHighEnergyEcalTrainingIfSaturated = cms.bool(True)
 
               )
-    
 
 
 regressionModifier80X = \
