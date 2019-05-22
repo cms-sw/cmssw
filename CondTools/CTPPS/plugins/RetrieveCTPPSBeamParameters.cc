@@ -31,31 +31,27 @@
 
 #include <cstdint>
 
-class RetrieveCTPPSBeamParameters : public edm::one::EDAnalyzer<>
-{
-  public:
-    explicit RetrieveCTPPSBeamParameters(const edm::ParameterSet&);
-    ~RetrieveCTPPSBeamParameters() override = default;
+class RetrieveCTPPSBeamParameters : public edm::one::EDAnalyzer<> {
+public:
+  explicit RetrieveCTPPSBeamParameters(const edm::ParameterSet&);
+  ~RetrieveCTPPSBeamParameters() override = default;
 
-  private:
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
-    std::string label_;
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  std::string label_;
 };
 
 //---------------------------------------------------------------------------------------
 
-RetrieveCTPPSBeamParameters::RetrieveCTPPSBeamParameters(const edm::ParameterSet& iConfig)
-{}
+RetrieveCTPPSBeamParameters::RetrieveCTPPSBeamParameters(const edm::ParameterSet& iConfig) {}
 
-void RetrieveCTPPSBeamParameters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void RetrieveCTPPSBeamParameters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<CTPPSBeamParameters> pSetup;
   iSetup.get<CTPPSBeamParametersRcd>().get(label_, pSetup);
 
   const CTPPSBeamParameters* pInfo = pSetup.product();
 
-  edm::LogInfo("CTPPSBeamParameters") << "\n" << *pInfo << "\n" ;
+  edm::LogInfo("CTPPSBeamParameters") << "\n" << *pInfo << "\n";
 }
 
 DEFINE_FWK_MODULE(RetrieveCTPPSBeamParameters);
-
