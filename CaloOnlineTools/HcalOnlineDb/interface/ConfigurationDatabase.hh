@@ -1,12 +1,12 @@
 #ifndef hcal_ConfigurationDatabase_hh_included
 #define hcal_ConfigurationDatabase_hh_included 1
 
-#include <string>
-#include <map>
-#include <vector>
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseException.hh"
 #include "xercesc/dom/DOMDocument.hpp"
-#include <stdint.h>
+#include <cstdint>
+#include <map>
+#include <string>
+#include <vector>
 
 #ifdef HAVE_XDAQ
 #include "log4cplus/logger.h"

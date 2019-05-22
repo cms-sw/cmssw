@@ -91,7 +91,7 @@ namespace popcon{
       std::stringstream ss_logdb, ss;
 
       //get log information from previous upload
-      if (this->logDBEntry().usertext!="")
+      if (!this->logDBEntry().usertext.empty())
 	ss_logdb << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_first_of("@"));
       else
 	ss_logdb << "";
