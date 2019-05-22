@@ -14,7 +14,6 @@
 
 class HGCalLayerTiles {
 public:
-  HGCalLayerTiles() { tiles_.resize(hgcaltilesconstants::nColumns * hgcaltilesconstants::nRows); }
 
   void fill(const std::vector<float>& x, const std::vector<float>& y) {
     auto cellsSize = x.size();
@@ -33,6 +32,7 @@ public:
   }
 
   int getYBin(float y) const {
+    assert(std::abs(y) < hgcaltilesconstants::maxY);
     constexpr float yRange = hgcaltilesconstants::maxY - hgcaltilesconstants::minY;
     static_assert(yRange >= 0.);
     constexpr float r = hgcaltilesconstants::nRows / yRange;
@@ -61,7 +61,7 @@ public:
   const std::vector<int>& operator[](int globalBinId) const { return tiles_[globalBinId]; }
 
 private:
-  std::vector<std::vector<int> > tiles_;
+  std::array<std::vector<int>, hgcaltilesconstants::nColumns * hgcaltilesconstants::nRows  > tiles_;
 };
 
 #endif
