@@ -9,7 +9,6 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
-
 namespace edm {
   class ConfigurationDescriptions;
 }
@@ -18,25 +17,26 @@ namespace edm {
 //
 
 class HLTSingleVertexPixelTrackFilter : public HLTFilter {
+public:
+  explicit HLTSingleVertexPixelTrackFilter(const edm::ParameterSet&);
+  ~HLTSingleVertexPixelTrackFilter() override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   public:
-      explicit HLTSingleVertexPixelTrackFilter(const edm::ParameterSet&);
-      ~HLTSingleVertexPixelTrackFilter() override;
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+private:
+  edm::InputTag pixelVerticesTag_;  // input tag identifying product containing Pixel-vertices
+  edm::InputTag pixelTracksTag_;    // input tag identifying product containing Pixel-tracks
+  edm::EDGetTokenT<reco::VertexCollection> pixelVerticesToken_;
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> pixelTracksToken_;
 
-   private:
-      edm::InputTag pixelVerticesTag_;  // input tag identifying product containing Pixel-vertices
-      edm::InputTag pixelTracksTag_;  // input tag identifying product containing Pixel-tracks
-      edm::EDGetTokenT<reco::VertexCollection> pixelVerticesToken_;
-      edm::EDGetTokenT<reco::RecoChargedCandidateCollection> pixelTracksToken_;
-
-      double min_Pt_;          // min pt cut
-      double max_Pt_;          // max pt cut
-      double max_Eta_;          // max eta cut
-      double max_Vz_;          // max vz cut
-      int min_trks_;  // minimum number of tracks from one vertex
-      float min_sep_;          // minimum separation of two tracks in phi-eta
+  double min_Pt_;   // min pt cut
+  double max_Pt_;   // max pt cut
+  double max_Eta_;  // max eta cut
+  double max_Vz_;   // max vz cut
+  int min_trks_;    // minimum number of tracks from one vertex
+  float min_sep_;   // minimum separation of two tracks in phi-eta
 };
 
-#endif //HLTSingleVertexPixelTrackFilter_h
+#endif  //HLTSingleVertexPixelTrackFilter_h

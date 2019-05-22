@@ -23,64 +23,67 @@
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 class HLTMuonL1Filter : public HLTFilter {
+public:
+  explicit HLTMuonL1Filter(const edm::ParameterSet&);
+  ~HLTMuonL1Filter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
-  public:
-    explicit HLTMuonL1Filter(const edm::ParameterSet&);
-    ~HLTMuonL1Filter() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+private:
+  /// input tag identifying the product containing muons
+  edm::InputTag candTag_;
+  edm::EDGetTokenT<l1extra::L1MuonParticleCollection> candToken_;
 
-  private:
-    /// input tag identifying the product containing muons
-    edm::InputTag                                       candTag_;
-    edm::EDGetTokenT<l1extra::L1MuonParticleCollection> candToken_;
+  /// input tag identifying the product containing refs to muons passing the previous level
+  edm::InputTag previousCandTag_;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
 
-    /// input tag identifying the product containing refs to muons passing the previous level
-    edm::InputTag                                          previousCandTag_;
-    edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
+  /// max Eta cut
+  double maxEta_;
 
-    /// max Eta cut
-    double maxEta_;
+  /// pT threshold
+  double minPt_;
 
-    /// pT threshold
-    double minPt_;
+  /// Quality codes:
+  ///
+  /// 0  .. no muon
+  /// 1  .. beam halo muon (CSC)
+  /// 2  .. very low quality level 1 (e.g. ignore in single and di-muon trigger)
+  /// 3  .. very low quality level 2 (e.g. ignore in single muon trigger use in di-muon trigger)
+  /// 4  .. very low quality level 3 (e.g. ignore in di-muon trigger, use in single-muon trigger)
+  /// 5  .. unmatched RPC
+  /// 6  .. unmatched DT or CSC
+  /// 7  .. matched DT-RPC or CSC-RPC
+  ///
+  /// attention: try not to rely on quality codes in analysis: they may change again
+  ///
+  /// Quality bit mask:
+  ///
+  /// the eight lowest order or least significant bits correspond to the qulity codes above;
+  /// if a bit is 1, that code is accepted, otherwise not;
+  /// example: 11101000 accepts qualities 3, 5, 6, 7
+  int qualityBitMask_;
 
-    /// Quality codes:
-    ///
-    /// 0  .. no muon
-    /// 1  .. beam halo muon (CSC)
-    /// 2  .. very low quality level 1 (e.g. ignore in single and di-muon trigger)
-    /// 3  .. very low quality level 2 (e.g. ignore in single muon trigger use in di-muon trigger)
-    /// 4  .. very low quality level 3 (e.g. ignore in di-muon trigger, use in single-muon trigger)
-    /// 5  .. unmatched RPC
-    /// 6  .. unmatched DT or CSC
-    /// 7  .. matched DT-RPC or CSC-RPC
-    ///
-    /// attention: try not to rely on quality codes in analysis: they may change again
-    ///
-    /// Quality bit mask:
-    ///
-    /// the eight lowest order or least significant bits correspond to the qulity codes above;
-    /// if a bit is 1, that code is accepted, otherwise not;
-    /// example: 11101000 accepts qualities 3, 5, 6, 7
-    int qualityBitMask_;
+  /// required number of passing candidates to pass the filter
+  int minN_;
 
-    /// required number of passing candidates to pass the filter
-    int minN_;
+  /// should we exclude single-segment CSC trigger objects from our counting?
+  bool excludeSingleSegmentCSC_;
 
-    /// should we exclude single-segment CSC trigger objects from our counting?
-    bool excludeSingleSegmentCSC_;
+  /// checks if the passed L1MuExtraParticle is a single segment CSC
+  bool isSingleSegmentCSC(const l1extra::L1MuonParticleRef& muon,
+                          L1CSCTrackCollection const& csctfTracks,
+                          L1MuTriggerScales const& scales) const;
 
-    /// checks if the passed L1MuExtraParticle is a single segment CSC
-    bool isSingleSegmentCSC(const l1extra::L1MuonParticleRef & muon, L1CSCTrackCollection const & csctfTracks, L1MuTriggerScales const & scales) const;
-
-    /// input tag identifying the product containing CSCTF tracks
-    edm::InputTag                          csctfTag_;
-    edm::EDGetTokenT<L1CSCTrackCollection> csctfToken_;
+  /// input tag identifying the product containing CSCTF tracks
+  edm::InputTag csctfTag_;
+  edm::EDGetTokenT<L1CSCTrackCollection> csctfToken_;
 };
 
-#endif //HLTMuonL1Filter_h
+#endif  //HLTMuonL1Filter_h
