@@ -251,18 +251,20 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
        leptons->push_back( reco::GenParticleRef( particles, it - particles->begin() ) );
    }
 
-   // select partons
+   // select algorithmic partons
    if ( partonMode_!="Undefined" ) {
      partonSelector_->run(particles,partons);
-     for(reco::GenParticleCollection::const_iterator it = particles->begin(); it != particles->end(); ++it)
-     {
-      if(!fullChainPhysPartons_)
-      {
-         if( !(it->status()==3 || (( partonMode_=="Pythia8" ) && (it->status()==23)))) continue;
-      }
-       if( !CandMCTagUtils::isParton( *it ) ) continue;  // skip particle if not a parton
-       physicsPartons->push_back( reco::GenParticleRef( particles, it - particles->begin() ) );
-     }
+   }
+
+   // select physics partons
+   for(reco::GenParticleCollection::const_iterator it = particles->begin(); it != particles->end(); ++it)
+   {
+    if(!fullChainPhysPartons_)
+    {
+       if( !(it->status()==3 || (( partonMode_=="Pythia8" ) && (it->status()==23)))) continue;
+    }
+     if( !CandMCTagUtils::isParton( *it ) ) continue;  // skip particle if not a parton
+     physicsPartons->push_back( reco::GenParticleRef( particles, it - particles->begin() ) );
    }
 
    iEvent.put(std::move(bHadrons), "bHadrons" );
