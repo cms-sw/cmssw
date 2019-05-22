@@ -15,12 +15,14 @@ MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL(const ParameterSet& pset) :
     minQuality(LOWQGHOST),
     chiSquareThreshold(50)
 {
-    // Obtention of parameters
-    debug         = pset.getUntrackedParameter<Bool_t>("debug");
+    debug = pset.getUntrackedParameter<Bool_t>("debug");
     if (debug) cout <<"MuonPathAnalyzer: constructor" << endl;
-
+    
     chi2Th = pset.getUntrackedParameter<double>("chi2Th");  
     setChiSquareThreshold(chi2Th*100.); 
+
+    tanPhiTh = pset.getUntrackedParameter<double>("tanPhiTh");  
+
 
     //z
     int rawId;
@@ -247,14 +249,13 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath,std::vector<metaPrimitive>
 			if(chi2<best_chi2){
 			    chi2_jm_tanPhi=jm_tanPhi;
 			    chi2_jm_x=(mpAux->getHorizPos()/10.)+shiftinfo[wireId.rawId()]; 
-			    //chi2_jm_x=chi2_jm_x-(zinfo[wireId.rawId()]-0.65)*chi2_jm_tanPhi; //from SL to CH no needed for co
 			    chi2_jm_t0=mpAux->getBxTimeValue();		      
 			    chi2_phi=phi;
 			    chi2_phiB=phiB;
 			    chi2_chi2=chi2;
 			    chi2_quality= mpAux->getQuality();
 			}
-		    }else{//write the metaprimitive in case no HIGHQ or HIGHQGHOST
+		    }else if(fabs(jm_tanPhi)<=tanPhiTh){//write the metaprimitive in case no HIGHQ or HIGHQGHOST and tanPhi range
 			if(debug) std::cout<<"DTp2:analyze \t\t\t\t\t\t\t\t  pushing back metaprimitive no HIGHQ or HIGHQGHOST"<<std::endl;
 			metaPrimitives.push_back(metaPrimitive({MuonPathSLId.rawId(),jm_t0,jm_x,jm_tanPhi,phi,phiB,chi2,quality,
 					wi[0],tdc[0],
@@ -275,7 +276,7 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath,std::vector<metaPrimitive>
 		if(debug) std::cout<<"DTp2:analyze \t\t\t\t\t\t\t\t  latQuality[i].valid and (((mPath->getQuality()==HIGHQ or mPath->getQuality()==HIGHQGHOST) and latQuality[i].quality==HIGHQ) or  ((mPath->getQuality() == LOWQ or mPath->getQuality()==LOWQGHOST) and latQuality[i].quality==LOWQ)) not passed"<<std::endl;
 	    }
 	}
-	if(chi2_jm_tanPhi!=999){//
+	if(chi2_jm_tanPhi!=999 and fabs(chi2_jm_tanPhi)<tanPhiTh){//
 	    if(debug) std::cout<<"DTp2:analyze \t\t\t\t\t\t\t\t  pushing back best chi2 metaPrimitive"<<std::endl;
 	    metaPrimitives.push_back(metaPrimitive({MuonPathSLId.rawId(),chi2_jm_t0,chi2_jm_x,chi2_jm_tanPhi,chi2_phi,chi2_phiB,chi2_chi2,chi2_quality,
 			    wi[0],tdc[0],

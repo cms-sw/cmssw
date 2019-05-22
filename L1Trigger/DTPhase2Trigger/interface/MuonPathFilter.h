@@ -66,12 +66,11 @@ class MuonPathFilter {
   // Private methods
   void filterCousins(std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath);
   void filterTanPhi(std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath);
-
-  
+  void filterUnique(std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath);
+ 
   // Private attributes
   Bool_t debug;
   bool filter_cousins;
-  double tanPhiTh;
 };
 
 

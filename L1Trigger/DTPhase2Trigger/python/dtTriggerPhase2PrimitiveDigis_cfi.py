@@ -5,7 +5,7 @@ from L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfigFromDB_cff import *
 dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                digiTag = cms.InputTag("CalibratedDigis"),
                                                trigger_with_sl = cms.untracked.int32(4),
-                                               tanPhiTh = cms.untracked.double(10.),
+                                               tanPhiTh = cms.untracked.double(1.),
                                                chi2Th = cms.untracked.double(0.01), #in cm^2
                                                do_correlation = cms.untracked.bool(True),
                                                dT0_correlate_TP = cms.untracked.double(25.),

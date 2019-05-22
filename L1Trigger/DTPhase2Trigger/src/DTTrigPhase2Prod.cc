@@ -184,16 +184,11 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
     mpathanalyzer->run(iEvent, iEventSetup,  muonpaths, metaPrimitives);  // New grouping implementation
     
     if (dump) {
-      for (unsigned int i=0; i<metaPrimitives.size(); i++){
-	cout << iEvent.id().event() << " mp " << i << ": "
-	     << metaPrimitives.at(i).t0 << " "
-	     << metaPrimitives.at(i).x << " "
-	     << metaPrimitives.at(i).tanPhi << " "
-	     << metaPrimitives.at(i).phi << " "
-	     << metaPrimitives.at(i).phiB << " "
-	     << metaPrimitives.at(i).quality << " "
-	     << endl;
-      }
+	for (unsigned int i=0; i<metaPrimitives.size(); i++){
+	    cout << iEvent.id().event() << " mp " << i << ": ";
+	    printmP(metaPrimitives.at(i));
+	    cout<<endl;
+	}
     }
     if(debug) std::cout<<"filling NmetaPrimtives"<<std::endl;
     
@@ -215,14 +210,9 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
     
     if (dump) {
       for (unsigned int i=0; i<filteredMetaPrimitives.size(); i++){
-	cout << iEvent.id().event() << " filtered mp " << i << ": "
-	     << filteredMetaPrimitives.at(i).t0 << " "
-	     << filteredMetaPrimitives.at(i).x << " "
-	     << filteredMetaPrimitives.at(i).tanPhi << " "
-	     << filteredMetaPrimitives.at(i).phi << " "
-	     << filteredMetaPrimitives.at(i).phiB << " "
-	     << filteredMetaPrimitives.at(i).quality << " "
-	     << endl;
+	  cout << iEvent.id().event() << " filtered mp " << i << ": ";
+	  printmP(metaPrimitives.at(i));
+	  cout<<endl;
       }
     }
     
@@ -245,14 +235,9 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 
     if (dump) {
       for (unsigned int i=0; i<correlatedMetaPrimitives.size(); i++){
-	cout << iEvent.id().event() << " correlated mp " << i << ": "
-	     << correlatedMetaPrimitives.at(i).t0 << " "
-	     << correlatedMetaPrimitives.at(i).x << " "
-	     << correlatedMetaPrimitives.at(i).tanPhi << " "
-	     << correlatedMetaPrimitives.at(i).phi << " "
-	     << correlatedMetaPrimitives.at(i).phiB << " "
-	     << correlatedMetaPrimitives.at(i).quality << " "
-	     << endl;
+	  cout << iEvent.id().event() << " correlated mp " << i << ": ";
+	  printmP(metaPrimitives.at(i));
+	  cout<<endl;
       }
     }
     
@@ -288,7 +273,7 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 					     (*metaPrimitiveIt).quality,  // uqua (m_qualityCode)
 					     0,  // uind (m_segmentIndex)
 					     (int)round((*metaPrimitiveIt).t0),  // ut0 (m_t0Segment)
-					     (int)round((*metaPrimitiveIt).chi2),  // uchi2 (m_chi2Segment)
+					     (int)round((*metaPrimitiveIt).chi2*1000000),  // uchi2 (m_chi2Segment)
 					     -10    // urpc (m_rpcFlag)
 					     ));
 	
@@ -328,5 +313,28 @@ bool DTTrigPhase2Prod::hasPosRF(int wh,int sec){
     return  wh>0 || (wh==0 && sec%4>1);
 }
 
+void DTTrigPhase2Prod::printmP(metaPrimitive mP){
+    DTSuperLayerId slId(mP.rawId);
+    std::cout<<slId<<"\t"
+             <<" "<<setw(2)<<left<<mP.wi1
+             <<" "<<setw(2)<<left<<mP.wi2
+             <<" "<<setw(2)<<left<<mP.wi3
+             <<" "<<setw(2)<<left<<mP.wi4
+             <<" "<<setw(5)<<left<<mP.tdc1
+             <<" "<<setw(5)<<left<<mP.tdc2
+             <<" "<<setw(5)<<left<<mP.tdc3
+             <<" "<<setw(5)<<left<<mP.tdc4
+             <<" "<<setw(10)<<right<<mP.x
+             <<" "<<setw(9)<<left<<mP.tanPhi
+             <<" "<<setw(5)<<left<<mP.t0
+             <<" "<<setw(13)<<left<<mP.chi2
+             <<" r:"<<rango(mP);
+}
+
+int DTTrigPhase2Prod::rango(metaPrimitive mp) {
+    if(mp.quality==1 or mp.quality==2) return 3;
+    if(mp.quality==3 or mp.quality==4) return 4;
+    return 0;
+}
 
 

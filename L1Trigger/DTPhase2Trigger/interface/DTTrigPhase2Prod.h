@@ -70,8 +70,9 @@ class DTTrigPhase2Prod: public edm::EDProducer{
 
     std::vector<std::pair<int,MuonPath>> primitives;
 
-    bool outer(metaPrimitive primera);
-    bool inner(metaPrimitive primera);
+    int rango(metaPrimitive mp);
+    bool outer(metaPrimitive mp);
+    bool inner(metaPrimitive mp);
     void printmP(metaPrimitive mP);
 
     double trigPos(metaPrimitive mP);
