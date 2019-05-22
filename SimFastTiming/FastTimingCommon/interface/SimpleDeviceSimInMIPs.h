@@ -8,18 +8,16 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 class SimpleDeviceSimInMIPs {
- public:
+public:
   SimpleDeviceSimInMIPs(const edm::ParameterSet& pset);
-  
-  void getEvent(const edm::Event& evt) { }
 
-  void getEventSetup(const edm::EventSetup& evt) { }
+  void getEvent(const edm::Event& evt) {}
 
-  float getChargeForHit(const PSimHit& hit) const {
-    return 1000.f*hit.energyLoss()*MIPPerMeV_;
-  }
+  void getEventSetup(const edm::EventSetup& evt) {}
 
- private:
+  float getChargeForHit(const PSimHit& hit) const { return 1000.f * hit.energyLoss() * MIPPerMeV_; }
+
+private:
   float MIPPerMeV_;
 };
 

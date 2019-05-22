@@ -9,10 +9,7 @@
 
 #include <set>
 
-
-ME0PadDigiProducer::ME0PadDigiProducer(const edm::ParameterSet& ps)
-: geometry_(nullptr)
-{
+ME0PadDigiProducer::ME0PadDigiProducer(const edm::ParameterSet& ps) : geometry_(nullptr) {
   digis_ = ps.getParameter<edm::InputTag>("InputCollection");
 
   digi_token_ = consumes<ME0DigiCollection>(digis_);
@@ -20,21 +17,15 @@ ME0PadDigiProducer::ME0PadDigiProducer(const edm::ParameterSet& ps)
   produces<ME0PadDigiCollection>();
 }
 
+ME0PadDigiProducer::~ME0PadDigiProducer() {}
 
-ME0PadDigiProducer::~ME0PadDigiProducer()
-{}
-
-
-void ME0PadDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup)
-{
+void ME0PadDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
   edm::ESHandle<ME0Geometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get(hGeom);
   geometry_ = &*hGeom;
 }
 
-
-void ME0PadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
-{
+void ME0PadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   edm::Handle<ME0DigiCollection> hdigis;
   e.getByToken(digi_token_, hdigis);
 
@@ -48,26 +39,21 @@ void ME0PadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
   e.put(std::move(pPads));
 }
 
-
-void ME0PadDigiProducer::buildPads(const ME0DigiCollection &det_digis, ME0PadDigiCollection &out_pads) const
-{
-  for(const auto& p: geometry_->etaPartitions())
-  {
+void ME0PadDigiProducer::buildPads(const ME0DigiCollection& det_digis, ME0PadDigiCollection& out_pads) const {
+  for (const auto& p : geometry_->etaPartitions()) {
     // set of <pad, bx> pairs, sorted first by pad then by bx
     std::set<std::pair<int, int> > proto_pads;
 
     // walk over digis in this partition,
     // and stuff them into a set of unique pads (equivalent of OR operation)
     auto digis = det_digis.get(p->id());
-    for (auto d = digis.first; d != digis.second; ++d)
-    {
-      int pad_num = 1 + static_cast<int>( p->padOfStrip(d->strip()) );
+    for (auto d = digis.first; d != digis.second; ++d) {
+      int pad_num = 1 + static_cast<int>(p->padOfStrip(d->strip()));
       proto_pads.emplace(pad_num, d->bx());
     }
 
     // fill the output collections
-    for (const auto & d: proto_pads)
-    {
+    for (const auto& d : proto_pads) {
       ME0PadDigi pad_digi(d.first, d.second);
       out_pads.insertDigi(p->id(), pad_digi);
     }

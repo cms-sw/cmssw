@@ -12,13 +12,9 @@ public:
   class DetIdSize {
   public:
     DetIdSize() {}
-    DetIdSize(unsigned int detId, unsigned char row, unsigned char col):
-      detId_(detId), row_(row), column_(col)
-    {}
+    DetIdSize(unsigned int detId, unsigned char row, unsigned char col) : detId_(detId), row_(row), column_(col) {}
 
-    void increaseSize() {
-      ++size_;
-    }
+    void increaseSize() { ++size_; }
 
     unsigned int detId() const { return detId_; }
     unsigned char row() const { return row_; }
@@ -40,10 +36,9 @@ public:
     constexpr static unsigned dataOffset = 0;
     constexpr static unsigned dataMask = 0x7ff;
 
-    Data(): data_(0) {}
-    Data(unsigned short ei, unsigned short si, unsigned short d):
-      data_((ei << energyOffset) | (si << sampleOffset) | d)
-    {}
+    Data() : data_(0) {}
+    Data(unsigned short ei, unsigned short si, unsigned short d)
+        : data_((ei << energyOffset) | (si << sampleOffset) | d) {}
 
     unsigned int energyIndex() const { return data_ >> energyOffset; }
     unsigned int sampleIndex() const { return (data_ >> sampleOffset) & sampleMask; }
@@ -73,8 +68,14 @@ public:
    * sampleIndex, and data fit in the space reserved for them in the
    * Data bitfield above.
    */
-  void emplace_back(unsigned int detId, unsigned char row, unsigned char column, unsigned short energyIndex, unsigned short sampleIndex, unsigned short data) {
-    if(detIdSize_.empty() || detIdSize_.back().detId() != detId || detIdSize_.back().row() != row || detIdSize_.back().column() != column) {
+  void emplace_back(unsigned int detId,
+                    unsigned char row,
+                    unsigned char column,
+                    unsigned short energyIndex,
+                    unsigned short sampleIndex,
+                    unsigned short data) {
+    if (detIdSize_.empty() || detIdSize_.back().detId() != detId || detIdSize_.back().row() != row ||
+        detIdSize_.back().column() != column) {
       detIdSize_.emplace_back(detId, row, column);
     }
     data_.emplace_back(energyIndex, sampleIndex, data);
@@ -83,9 +84,8 @@ public:
 
   class TmpElem {
   public:
-    TmpElem(unsigned int detId, unsigned char row, unsigned char column, Data data):
-      detId_(detId), data_(data), row_(row), column_(column)
-    {}
+    TmpElem(unsigned int detId, unsigned char row, unsigned char column, Data data)
+        : detId_(detId), data_(data), row_(row), column_(column) {}
 
     unsigned int detId() const { return detId_; }
     unsigned char row() const { return row_; }
@@ -93,6 +93,7 @@ public:
     unsigned short energyIndex() const { return data_.energyIndex(); }
     unsigned short sampleIndex() const { return data_.sampleIndex(); }
     unsigned short data() const { return data_.data(); }
+
   private:
     unsigned int detId_;
     Data data_;
@@ -103,25 +104,18 @@ public:
   class const_iterator {
   public:
     // begin
-    const_iterator(const PMTDSimAccumulator *acc):
-      acc_(acc), iDet_(0), iData_(0),
-      endData_(acc->detIdSize_.empty() ? 0 : acc->detIdSize_.front().size())
-    {}
+    const_iterator(const PMTDSimAccumulator* acc)
+        : acc_(acc), iDet_(0), iData_(0), endData_(acc->detIdSize_.empty() ? 0 : acc->detIdSize_.front().size()) {}
 
     // end
-    const_iterator(const PMTDSimAccumulator *acc, unsigned int detSize, unsigned int dataSize):
-      acc_(acc), iDet_(detSize), iData_(dataSize), endData_(0)
-    {}
+    const_iterator(const PMTDSimAccumulator* acc, unsigned int detSize, unsigned int dataSize)
+        : acc_(acc), iDet_(detSize), iData_(dataSize), endData_(0) {}
 
-    bool operator==(const const_iterator& other) const {
-      return iDet_ == other.iDet_ && iData_ == other.iData_;
-    }
-    bool operator!=(const const_iterator& other) const {
-      return !operator==(other);
-    }
+    bool operator==(const const_iterator& other) const { return iDet_ == other.iDet_ && iData_ == other.iData_; }
+    bool operator!=(const const_iterator& other) const { return !operator==(other); }
     const_iterator& operator++() {
       ++iData_;
-      if(iData_ == endData_) {
+      if (iData_ == endData_) {
         ++iDet_;
         endData_ += (iDet_ == acc_->detIdSize_.size()) ? 0 : acc_->detIdSize_[iDet_].size();
       }
@@ -134,12 +128,11 @@ public:
     }
     TmpElem operator*() {
       const auto& id = acc_->detIdSize_[iDet_];
-      return TmpElem(id.detId(), id.row(), id.column(),
-                     acc_->data_[iData_]);
+      return TmpElem(id.detId(), id.row(), id.column(), acc_->data_[iData_]);
     }
 
   private:
-    const PMTDSimAccumulator *acc_;
+    const PMTDSimAccumulator* acc_;
     unsigned int iDet_;
     unsigned int iData_;
     unsigned int endData_;
@@ -147,8 +140,7 @@ public:
 
   TmpElem back() const {
     const auto& id = detIdSize_.back();
-    return TmpElem(id.detId(), id.row(), id.column(),
-                   data_.back());
+    return TmpElem(id.detId(), id.row(), id.column(), data_.back());
   }
 
   const_iterator cbegin() const { return const_iterator(this); }

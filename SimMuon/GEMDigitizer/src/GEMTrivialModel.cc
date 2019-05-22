@@ -10,37 +10,31 @@
 #include <utility>
 #include <map>
 
+GEMTrivialModel::GEMTrivialModel(const edm::ParameterSet& config) : GEMDigiModel(config) {}
 
-GEMTrivialModel::GEMTrivialModel(const edm::ParameterSet& config) 
-  : GEMDigiModel(config)
-{
-}
-
-void 
-GEMTrivialModel::simulateSignal(const GEMEtaPartition* roll,
-				const edm::PSimHitContainer& simHits, CLHEP::HepRandomEngine* engine)
-{
+void GEMTrivialModel::simulateSignal(const GEMEtaPartition* roll,
+                                     const edm::PSimHitContainer& simHits,
+                                     CLHEP::HepRandomEngine* engine) {
   stripDigiSimLinks_.clear();
   detectorHitMap_.clear();
   stripDigiSimLinks_ = StripDigiSimLinks(roll->id().rawId());
 
   const Topology& topology(roll->specs()->topology());
 
-  for (const auto & hit: simHits)
-  {
-    if (std::abs(hit.particleType()) != 13) continue;
+  for (const auto& hit : simHits) {
+    if (std::abs(hit.particleType()) != 13)
+      continue;
     auto entry = hit.entryPoint();
-     // please keep hit time always 0 for this model
+    // please keep hit time always 0 for this model
     std::pair<int, int> digi(topology.channel(entry) + 1, 0);
     detectorHitMap_.insert(DetectorHitMap::value_type(digi, &hit));
     strips_.emplace(digi);
   }
 }
 
-
-std::vector<std::pair<int,int> > 
-GEMTrivialModel::simulateClustering(const GEMEtaPartition* roll, const PSimHit* simHit, const int bx, CLHEP::HepRandomEngine* engine)
-{
-  return std::vector<std::pair<int,int> >();
+std::vector<std::pair<int, int> > GEMTrivialModel::simulateClustering(const GEMEtaPartition* roll,
+                                                                      const PSimHit* simHit,
+                                                                      const int bx,
+                                                                      CLHEP::HepRandomEngine* engine) {
+  return std::vector<std::pair<int, int> >();
 }
-

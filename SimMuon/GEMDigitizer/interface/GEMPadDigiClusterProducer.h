@@ -23,20 +23,17 @@
 
 class GEMGeometry;
 
-class GEMPadDigiClusterProducer : public edm::stream::EDProducer<>
-{
+class GEMPadDigiClusterProducer : public edm::stream::EDProducer<> {
 public:
-
-  explicit GEMPadDigiClusterProducer(const edm::ParameterSet& ps);
+  explicit GEMPadDigiClusterProducer(const edm::ParameterSet &ps);
 
   ~GEMPadDigiClusterProducer() override;
 
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
 private:
-
   void buildClusters(const GEMPadDigiCollection &pads, GEMPadDigiClusterCollection &out_clusters);
 
   /// Name of input digi Collection
@@ -46,8 +43,7 @@ private:
   unsigned int maxClusters_;
   unsigned int maxClusterSize_;
 
-  const GEMGeometry * geometry_;
+  const GEMGeometry *geometry_;
 };
 
 #endif
-
