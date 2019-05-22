@@ -1,5 +1,8 @@
       PROGRAM AllMaterialMixtures
 C     ========================
+C     Usage example:
+C     $ make
+C     $ ./mixture $CMSSW_BASE/src/Geometry/TrackerCommonData/data/Materials/pixel_fwd
 
       IMPLICIT NONE
 
@@ -48,9 +51,9 @@ C     ========================
 C...Common Block .................................................
       Integer MaxDiv
       Parameter (MaxDiv=30)
-      Character*100 MixtureName, GMIXName
-      Character*100 Command
-      Character*100 Comment(MaxDiv),Material(MaxDiv)
+      Character*40 MixtureName, GMIXName
+      Character*80 Command
+      Character*60 Comment(MaxDiv),Material(MaxDiv)
       Character*3 Type(MaxDiv)
       Real Volume(MaxDiv), Mult(MaxDiv),
      +     Density(MaxDiv),Radl(MaxDiv),MCVolume,MCArea
@@ -198,13 +201,13 @@ C     ========================
       Integer MaxPure
       Parameter (MaxPure=350)
       Integer NPure,match
-      CHARACTER*40 PureName(MaxPure)
+      CHARACTER*25 PureName(MaxPure)
       REAL Pureweight(MaxPure), Purenumber(MaxPure), Puredens(MaxPure),
      +     PureX0(MaxPure), PureL0(MaxPure)
       SAVE NPure, Pureweight, Purenumber, Puredens, PureX0, PureL0,
      +     Purename
 
-      Character*120 string,teststring
+      Character*60 string,teststring
 
       Logical DEBUG,FIRST
       DATA FIRST /.TRUE./
@@ -217,9 +220,8 @@ C     ========================
 C...Common Block .................................................
       Integer MaxDiv
       Parameter (MaxDiv=30)
-      Character*100 MixtureName, GMIXName
-      Character*100 Command
-      Character*100 Comment(MaxDiv),Material(MaxDiv)
+      Character*40 MixtureName, GMIXName
+      Character*60 Comment(MaxDiv),Material(MaxDiv)
       Character*3 Type(MaxDiv)
       Real Volume(MaxDiv), Mult(MaxDiv),
      +     Density(MaxDiv),Radl(MaxDiv),MCVolume,MCArea
@@ -230,12 +232,16 @@ C.................................................................
 
 
 C... read in pure material file
-
+      Character MatDir*150
+      Character MixFile*150
+      Character PureFile*150
+      call getenv("CMSSW_BASE", MatDir)
+      MatDir = MatDir(:lnblnk(MatDir)) // "/src/"
+     +     // "Geometry/TrackerCommonData/data/Materials/"
       if (FIRST) then
-
-         open(unit=22,file="pure_materials.input",status="OLD",
-     +        IOSTAT=istat)
-         
+         PureFile = MatDir(:lnblnk(MatDir)) // "pure_materials.input"
+         open(unit=22,file= PureFile(:lnblnk(PureFile)),
+     +        status="OLD", IOSTAT=istat)
          if(istat.ne.0) then
             write(*,*) "Pure Materials input file could not be opened",
      +           " - I quit"
@@ -253,10 +259,10 @@ C... read in pure material file
          close(22)
 
 C... read in mixed material file
+         MixFile = MatDir(:lnblnk(MatDir)) // "mixed_materials.input"
+         open(unit=22, file= MixFile(:lnblnk(MixFile)),
+     +        status="OLD", IOSTAT=istat)
 
-         open(unit=22,file="mixed_materials.input",status="OLD",
-     +        IOSTAT=istat)
-         
          if(istat.ne.0) then
             write(*,*) "Mixed Materials input file could not be opened",
      +           " - I quit"
@@ -343,9 +349,8 @@ C     =====================================
 C...Common Block .................................................
       Integer MaxDiv
       Parameter (MaxDiv=30)
-      Character*100 MixtureName, GMIXName
-      Character*100 Command
-      Character*100 Comment(MaxDiv),Material(MaxDiv)
+      Character*40 MixtureName, GMIXName
+      Character*60 Comment(MaxDiv),Material(MaxDiv)
       Character*3 Type(MaxDiv)
       Real Volume(MaxDiv), Mult(MaxDiv),
      +     Density(MaxDiv),Radl(MaxDiv),MCVolume,MCArea
@@ -656,14 +661,14 @@ C.. see if there's a match
          do j = 1, Ntz
             if(Material(i)(1:LENOCC(Material(i))).eq.
      +           TZName(j)(1:LENOCC(TZName(j))) ) then
-               TZVol(j) = TZVol(j) + PWeight(i)
+               TZVol(j) = TZVol(j) + PVol(i)
                go to 500
             endif
          enddo
          Ntz = Ntz + 1
          TZName(Ntz) = material(i)
 C         write(*,*) "Ntz increased: ",NTz, TZName(Ntz)
-         TZVol(Ntz)  = PWeight(i)
+         TZVol(Ntz)  = PVol(i)
  500  continue
 
       TZVolTot = 0.
@@ -686,7 +691,7 @@ C      enddo
          write(LUNTZ,1011) tzstring, -100.*TZVol(j)
       enddo
 
- 1010 Format(7X,A35,I3,4X,F8.3)
+ 1010 Format(7X,A20,I3,4X,F12.6)
  1011 Format(10X,A22,F8.3)
 
 C--> and x0 contributions into a separate file
@@ -730,9 +735,8 @@ C     ----------------------
 C...Common Block .................................................
       Integer MaxDiv
       Parameter (MaxDiv=30)
-      Character*100 MixtureName, GMIXName
-      Character*100 Command
-      Character*100 Comment(MaxDiv),Material(MaxDiv)
+      Character*40 MixtureName, GMIXName
+      Character*60 Comment(MaxDiv),Material(MaxDiv)
       Character*3 Type(MaxDiv)
       Real Volume(MaxDiv), Mult(MaxDiv),
      +     Density(MaxDiv),Radl(MaxDiv),MCVolume,MCArea
@@ -826,16 +830,3 @@ c     write(*,*) k,stringname,stringtemp
 c     write(*,*) k,stringname,stringtemp
       return
       end
-C     
-      
-
-
-
-
-
-
-
-
-
-
-
