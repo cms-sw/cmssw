@@ -4,30 +4,27 @@
 
 //typedef popcon::PopConAnalyzer<CastorSaturationCorrsHandler> CastorSaturationCorrsPopConAnalyzer;
 
-class CastorSaturationCorrsPopConAnalyzer: public popcon::PopConAnalyzer<CastorSaturationCorrsHandler>
-{
+class CastorSaturationCorrsPopConAnalyzer : public popcon::PopConAnalyzer<CastorSaturationCorrsHandler> {
 public:
   typedef CastorSaturationCorrsHandler SourceHandler;
 
-  CastorSaturationCorrsPopConAnalyzer(const edm::ParameterSet& pset): 
-    popcon::PopConAnalyzer<CastorSaturationCorrsHandler>(pset),
-    m_populator(pset),
-    m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+  CastorSaturationCorrsPopConAnalyzer(const edm::ParameterSet& pset)
+      : popcon::PopConAnalyzer<CastorSaturationCorrsHandler>(pset),
+        m_populator(pset),
+        m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
 
 private:
-  void endJob() override 
-  {
+  void endJob() override {
     m_source.initObject(myDBObject);
     write();
   }
 
-  void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override
-  {
+  void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override {
     //Using ES to get the data:
 
     edm::ESHandle<CastorSaturationCorrs> objecthandle;
     esetup.get<CastorSaturationCorrsRcd>().get(objecthandle);
-    myDBObject = new CastorSaturationCorrs(*objecthandle.product() );
+    myDBObject = new CastorSaturationCorrs(*objecthandle.product());
   }
 
   void write() { m_populator.write(m_source); }

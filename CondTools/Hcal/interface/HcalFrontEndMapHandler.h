@@ -8,7 +8,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
- 
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -18,22 +18,19 @@
 #include "CondFormats/DataRecord/interface/HcalFrontEndMapRcd.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
-
-class HcalFrontEndMapHandler : public popcon::PopConSourceHandler<HcalFrontEndMap>
-{
- public:
+class HcalFrontEndMapHandler : public popcon::PopConSourceHandler<HcalFrontEndMap> {
+public:
   void getNewObjects() override;
-  std::string id() const override { return m_name;}
+  std::string id() const override { return m_name; }
   ~HcalFrontEndMapHandler() override;
-  HcalFrontEndMapHandler(edm::ParameterSet const &);
+  HcalFrontEndMapHandler(edm::ParameterSet const&);
 
   void initObject(HcalFrontEndMap*);
 
- private:
+private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
   HcalFrontEndMap* myDBObject;
   std::string m_name;
-
 };
 #endif
