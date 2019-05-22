@@ -19,59 +19,57 @@
 using namespace edm;
 using namespace std;
 
-namespace test{
+namespace test {
 
-  class DumpFEDRawDataProduct: public EDAnalyzer{
+  class DumpFEDRawDataProduct : public EDAnalyzer {
   private:
     std::set<int> FEDids_;
     std::string label_;
     bool dumpPayload_;
+
   public:
-    DumpFEDRawDataProduct(const ParameterSet& pset){
+    DumpFEDRawDataProduct(const ParameterSet& pset) {
       std::vector<int> ids;
-      label_ = pset.getUntrackedParameter<std::string>("label","source");
+      label_ = pset.getUntrackedParameter<std::string>("label", "source");
       consumes<FEDRawDataCollection>(label_);
-      ids=pset.getUntrackedParameter<std::vector<int> >("feds",std::vector<int>());
-      dumpPayload_=pset.getUntrackedParameter<bool>("dumpPayload",false);
-      for (std::vector<int>::iterator i=ids.begin(); i!=ids.end(); i++) 
-	FEDids_.insert(*i);
+      ids = pset.getUntrackedParameter<std::vector<int> >("feds", std::vector<int>());
+      dumpPayload_ = pset.getUntrackedParameter<bool>("dumpPayload", false);
+      for (std::vector<int>::iterator i = ids.begin(); i != ids.end(); i++)
+        FEDids_.insert(*i);
     }
 
- 
-    void analyze(const Event & e, const EventSetup& c){
-      cout << "--- Run: " << e.id().run()
-	   << " Event: " << e.id().event() << endl;
+    void analyze(const Event& e, const EventSetup& c) {
+      cout << "--- Run: " << e.id().run() << " Event: " << e.id().event() << endl;
       Handle<FEDRawDataCollection> rawdata;
-      e.getByLabel(label_,rawdata);
-      for (int i = 0; i<=FEDNumbering::lastFEDId(); i++){
-	const FEDRawData& data = rawdata->FEDData(i);
-	size_t size=data.size();
+      e.getByLabel(label_, rawdata);
+      for (int i = 0; i <= FEDNumbering::lastFEDId(); i++) {
+        const FEDRawData& data = rawdata->FEDData(i);
+        size_t size = data.size();
 
-	if (size>0 && (FEDids_.empty() || FEDids_.find(i)!=FEDids_.end())) {
-	  cout << "FED# " << setw(4) << i << " " << setw(8) << size << " bytes " ;
-	  
- 	  FEDHeader header(data.data());
- 	  FEDTrailer trailer(data.data()+size-8);
+        if (size > 0 && (FEDids_.empty() || FEDids_.find(i) != FEDids_.end())) {
+          cout << "FED# " << setw(4) << i << " " << setw(8) << size << " bytes ";
 
-	  cout << " L1Id: " << setw(8) << header.lvl1ID();
-	  cout << " BXId: " << setw(4) << header.bxID();
-	  cout << endl;
-	  
-	  if (dumpPayload_) {
-	    const uint64_t* payload=(uint64_t*)(data.data());
-	    cout << hex << setfill('0');
-	    for (unsigned int i=0; i<data.size()/sizeof(uint64_t); i++) {
-	      cout << setw(4) << i << "  " << setw(16) << payload[i] << endl;
-	    }
-	    cout << dec << setfill(' ');
-	  }
+          FEDHeader header(data.data());
+          FEDTrailer trailer(data.data() + size - 8);
 
-// 	  CPPUNIT_ASSERT(trailer.check()==true);
-// 	  CPPUNIT_ASSERT(trailer.lenght()==(int)data.size()/8);
-	}
+          cout << " L1Id: " << setw(8) << header.lvl1ID();
+          cout << " BXId: " << setw(4) << header.bxID();
+          cout << endl;
+
+          if (dumpPayload_) {
+            const uint64_t* payload = (uint64_t*)(data.data());
+            cout << hex << setfill('0');
+            for (unsigned int i = 0; i < data.size() / sizeof(uint64_t); i++) {
+              cout << setw(4) << i << "  " << setw(16) << payload[i] << endl;
+            }
+            cout << dec << setfill(' ');
+          }
+
+          // 	  CPPUNIT_ASSERT(trailer.check()==true);
+          // 	  CPPUNIT_ASSERT(trailer.lenght()==(int)data.size()/8);
+        }
       }
     }
   };
-DEFINE_FWK_MODULE(DumpFEDRawDataProduct);
-}
-
+  DEFINE_FWK_MODULE(DumpFEDRawDataProduct);
+}  // namespace test
