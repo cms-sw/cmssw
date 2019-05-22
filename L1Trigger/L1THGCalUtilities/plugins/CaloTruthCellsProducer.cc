@@ -95,14 +95,8 @@ void CaloTruthCellsProducer::produce(edm::Event& event, edm::EventSetup const& s
 
   for (auto const& he : hitToEnergy) {
     DetId hitId(he.first);
-    uint32_t tcId;
-    try {
-      tcId = geometry.getTriggerCellFromCell(hitId);
-    } catch (cms::Exception const& ex) {
-      edm::LogError("CaloTruthCellsProducer") << ex.what();
-      continue;
-    }
-
+    // this line will throw if (for whatever reason) hitId is not mapped to a trigger cell id
+    uint32_t tcId(geometry.getTriggerCellFromCell(hitId));
     tcToEnergies[tcId].first += he.second;
   }
 
