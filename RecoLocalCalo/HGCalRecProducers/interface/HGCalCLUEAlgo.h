@@ -7,10 +7,6 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -21,7 +17,6 @@
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerTiles.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/KDTreeLinkerAlgoT.h"
 
 // C/C++ headers
 #include <set>
