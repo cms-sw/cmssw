@@ -270,12 +270,19 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
       if(sectorTP==14) sectorTP=10;
       sectorTP=sectorTP-1;
       
+      int sl=0;
+      if((*metaPrimitiveIt).quality < 6 || (*metaPrimitiveIt).quality == 7){
+	  if(inner((*metaPrimitiveIt))) sl=1;
+	  else sl=3;
+      }
+      
       if(p2_df==2){
 	if(debug)std::cout<<"pushing back phase-2 dataformat carlo-federica dataformat"<<std::endl;
 	outP2Ph.push_back(L1Phase2MuDTPhDigi((int)round((*metaPrimitiveIt).t0/25.),   // ubx (m_bx) //bx en la orbita
 					     chId.wheel(),   // uwh (m_wheel)     // FIXME: It is not clear who provides this?
 					     sectorTP,   // usc (m_sector)    // FIXME: It is not clear who provides this?
 					     chId.station(),   // ust (m_station)
+					     sl,   // ust (m_station)
 					     (int)round((*metaPrimitiveIt).phi*65536./0.8), // uphi (_phiAngle)
 					     (int)round((*metaPrimitiveIt).phiB*2048./1.4), // uphib (m_phiBending)
 					     (*metaPrimitiveIt).quality,  // uqua (m_qualityCode)
@@ -305,16 +312,17 @@ void DTTrigPhase2Prod::endRun(edm::Run const& iRun, const edm::EventSetup& iEven
 };
 
 
-bool DTTrigPhase2Prod::outer(metaPrimitive primera){
-    if(primera.wi1==-1 and primera.wi2==-1 and primera.wi3==-1 and primera.wi4==-1)
+bool DTTrigPhase2Prod::outer(metaPrimitive mp){
+    if(mp.wi1==-1 and mp.wi2==-1 and mp.wi3==-1 and mp.wi4==-1)
 	return true;
     return false;
 }
 
-bool DTTrigPhase2Prod::inner(metaPrimitive primera){
-    return !outer(primera);
+bool DTTrigPhase2Prod::inner(metaPrimitive mp){
+    if(mp.wi5==-1 and mp.wi6==-1 and mp.wi7==-1 and mp.wi8==-1)
+        return true;
+    return false;
 }
-
 
 bool DTTrigPhase2Prod::hasPosRF(int wh,int sec){
     return  wh>0 || (wh==0 && sec%4>1);

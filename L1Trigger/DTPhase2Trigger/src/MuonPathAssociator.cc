@@ -119,8 +119,10 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 			       or (SL1metaPrimitive->quality >= 3 && SL3metaPrimitive->quality <=2) ) quality=8;
 	      
 			    if(SL3metaPrimitive->quality >= 3 && SL1metaPrimitive->quality >=3) quality=9;
-	      
-			    GlobalPoint jm_x_cmssw_global = dtGeo->chamber(ChId)->toGlobal(LocalPoint(MeanPos,0.,0.));//jm_x is already extrapolated to the middle of the SL
+			    
+			    double z=0;
+			    if(ChId.station()>=3)z=1.8;
+			    GlobalPoint jm_x_cmssw_global = dtGeo->chamber(ChId)->toGlobal(LocalPoint(MeanPos,0.,z));//Jm_x is already extrapolated to the middle of the SL
 			    int thisec = ChId.sector();
 			    if(se==13) thisec = 4;
 			    if(se==14) thisec = 10;

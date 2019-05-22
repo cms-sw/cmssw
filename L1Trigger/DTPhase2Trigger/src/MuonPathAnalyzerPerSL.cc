@@ -229,11 +229,10 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath,std::vector<metaPrimitive>
 			z1=9.95;
 			z3=-13.55;
 		    }
-	  
 		    if(MuonPathSLId.superLayer()==1) z=z1;
 		    if(MuonPathSLId.superLayer()==3) z=z3;
 	  
-		    GlobalPoint jm_x_cmssw_global = dtGeo->chamber(MuonPathSLId)->toGlobal(LocalPoint(jm_x,0.,z));
+		    GlobalPoint jm_x_cmssw_global = dtGeo->chamber(ChId)->toGlobal(LocalPoint(jm_x,0.,z));
 		    int thisec = MuonPathSLId.sector();
 		    if(thisec==13) thisec = 4;
 		    if(thisec==14) thisec = 10;
