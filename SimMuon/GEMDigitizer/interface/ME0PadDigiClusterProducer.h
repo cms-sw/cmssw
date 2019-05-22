@@ -22,20 +22,17 @@
 
 class ME0Geometry;
 
-class ME0PadDigiClusterProducer : public edm::stream::EDProducer<>
-{
+class ME0PadDigiClusterProducer : public edm::stream::EDProducer<> {
 public:
-
-  explicit ME0PadDigiClusterProducer(const edm::ParameterSet& ps);
+  explicit ME0PadDigiClusterProducer(const edm::ParameterSet &ps);
 
   ~ME0PadDigiClusterProducer() override;
 
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
 private:
-
   void buildClusters(const ME0PadDigiCollection &pads, ME0PadDigiClusterCollection &out_clusters);
 
   /// Name of input digi Collection
@@ -45,8 +42,7 @@ private:
   unsigned int maxClusters_;
   unsigned int maxClusterSize_;
 
-  const ME0Geometry * geometry_;
+  const ME0Geometry *geometry_;
 };
 
 #endif
-

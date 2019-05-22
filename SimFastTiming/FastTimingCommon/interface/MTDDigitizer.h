@@ -31,70 +31,75 @@
 #include <memory>
 #include <tuple>
 
-
 namespace mtd_digitizer {
-  
+
   namespace MTDHelpers {
     // index , det id, time
-    typedef std::tuple<int,uint32_t,float> MTDCaloHitTuple_t;
-    
-    bool orderByDetIdThenTime(const MTDCaloHitTuple_t &a, const MTDCaloHitTuple_t &b)
-    {
+    typedef std::tuple<int, uint32_t, float> MTDCaloHitTuple_t;
+
+    bool orderByDetIdThenTime(const MTDCaloHitTuple_t& a, const MTDCaloHitTuple_t& b) {
       unsigned int detId_a(std::get<1>(a)), detId_b(std::get<1>(b));
-      
-      if(detId_a<detId_b) return true;
-      if(detId_a>detId_b) return false;
-      
+
+      if (detId_a < detId_b)
+        return true;
+      if (detId_a > detId_b)
+        return false;
+
       double time_a(std::get<2>(a)), time_b(std::get<2>(b));
-      if(time_a<time_b) return true;
-      
+      if (time_a < time_b)
+        return true;
+
       return false;
     }
-  }
+  }  // namespace MTDHelpers
 
-  inline
-  void saveSimHitAccumulator(PMTDSimAccumulator& simResult, const MTDSimHitDataAccumulator&  simData, const float minCharge, const float maxCharge) {
+  inline void saveSimHitAccumulator(PMTDSimAccumulator& simResult,
+                                    const MTDSimHitDataAccumulator& simData,
+                                    const float minCharge,
+                                    const float maxCharge) {
     constexpr auto nEnergies = std::tuple_size<decltype(MTDCellInfo().hit_info)>::value;
-    static_assert(nEnergies <= PMTDSimAccumulator::Data::energyMask+1, "PMTDSimAccumulator bit pattern needs to updated");
-    static_assert(nSamples <= PMTDSimAccumulator::Data::sampleMask+1, "PMTDSimAccumulator bit pattern needs to updated");
+    static_assert(nEnergies <= PMTDSimAccumulator::Data::energyMask + 1,
+                  "PMTDSimAccumulator bit pattern needs to updated");
+    static_assert(nSamples <= PMTDSimAccumulator::Data::sampleMask + 1,
+                  "PMTDSimAccumulator bit pattern needs to updated");
 
     const float minPackChargeLog = minCharge > 0.f ? std::log(minCharge) : -2;
     const float maxPackChargeLog = std::log(maxCharge);
-    constexpr uint16_t base = 1<<PMTDSimAccumulator::Data::sampleOffset;
+    constexpr uint16_t base = 1 << PMTDSimAccumulator::Data::sampleOffset;
 
     simResult.reserve(simData.size());
     // mimicing the digitization
-    for(const auto& elem: simData) {
+    for (const auto& elem : simData) {
       // store only non-zero
-      for(size_t iEn = 0; iEn < nEnergies; ++iEn) {
+      for (size_t iEn = 0; iEn < nEnergies; ++iEn) {
         const auto& samples = elem.second.hit_info[iEn];
-        for(size_t iSample = 0; iSample < nSamples; ++iSample) {
-          if(samples[iSample] > minCharge) {
+        for (size_t iSample = 0; iSample < nSamples; ++iSample) {
+          if (samples[iSample] > minCharge) {
             unsigned short packed;
-            if(iEn == 1) {
+            if (iEn == 1) {
               // assuming linear range for tof of 0..26
-              packed = samples[iSample]/PREMIX_MAX_TOF * base;
-            }
-            else {
+              packed = samples[iSample] / PREMIX_MAX_TOF * base;
+            } else {
               packed = logintpack::pack16log(samples[iSample], minPackChargeLog, maxPackChargeLog, base);
             }
-            simResult.emplace_back(elem.first.detid_, elem.first.row_, elem.first.column_,
-                                   iEn, iSample, packed);
+            simResult.emplace_back(elem.first.detid_, elem.first.row_, elem.first.column_, iEn, iSample, packed);
           }
         }
       }
     }
   }
 
-  inline
-  void loadSimHitAccumulator(MTDSimHitDataAccumulator& simData, const PMTDSimAccumulator& simAccumulator, const float minCharge, const float maxCharge) {
+  inline void loadSimHitAccumulator(MTDSimHitDataAccumulator& simData,
+                                    const PMTDSimAccumulator& simAccumulator,
+                                    const float minCharge,
+                                    const float maxCharge) {
     const float minPackChargeLog = minCharge > 0.f ? std::log(minCharge) : -2;
     const float maxPackChargeLog = std::log(maxCharge);
-    constexpr uint16_t base = 1<<PMTDSimAccumulator::Data::sampleOffset;
+    constexpr uint16_t base = 1 << PMTDSimAccumulator::Data::sampleOffset;
 
-    for(const auto& detIdIndexHitInfo: simAccumulator) {
-      auto foo = simData.emplace(MTDCellId(detIdIndexHitInfo.detId(), detIdIndexHitInfo.row(), detIdIndexHitInfo.column()),
-                                 MTDCellInfo());
+    for (const auto& detIdIndexHitInfo : simAccumulator) {
+      auto foo = simData.emplace(
+          MTDCellId(detIdIndexHitInfo.detId(), detIdIndexHitInfo.row(), detIdIndexHitInfo.column()), MTDCellInfo());
       auto simIt = foo.first;
       auto& hit_info = simIt->second.hit_info;
 
@@ -102,49 +107,45 @@ namespace mtd_digitizer {
       size_t iSample = detIdIndexHitInfo.sampleIndex();
 
       float value;
-      if(iEn == 1) {
-        value = static_cast<float>(detIdIndexHitInfo.data())/base*PREMIX_MAX_TOF;
-      }
-      else {
+      if (iEn == 1) {
+        value = static_cast<float>(detIdIndexHitInfo.data()) / base * PREMIX_MAX_TOF;
+      } else {
         value = logintpack::unpack16log(detIdIndexHitInfo.data(), minPackChargeLog, maxPackChargeLog, base);
       }
 
-      if(iEn == 0) {
+      if (iEn == 0) {
         hit_info[iEn][iSample] += value;
-      }
-      else if(hit_info[iEn][iSample] == 0) {
+      } else if (hit_info[iEn][iSample] == 0) {
         // For iEn==1 the digitizers just set the TOF of the first SimHit
         hit_info[iEn][iSample] = value;
       }
     }
   }
 
-  template<class Traits>
-  class MTDDigitizer : public MTDDigitizerBase
-  {
+  template <class Traits>
+  class MTDDigitizer : public MTDDigitizerBase {
   public:
+    typedef typename Traits::DeviceSim DeviceSim;
+    typedef typename Traits::ElectronicsSim ElectronicsSim;
+    typedef typename Traits::DigiCollection DigiCollection;
 
-  typedef typename Traits::DeviceSim      DeviceSim ;
-  typedef typename Traits::ElectronicsSim ElectronicsSim;
-  typedef typename Traits::DigiCollection DigiCollection;
+    MTDDigitizer(const edm::ParameterSet& config, edm::ConsumesCollector& iC, edm::ProducerBase& parent)
+        : MTDDigitizerBase(config, iC, parent),
+          geom_(nullptr),
+          deviceSim_(config.getParameterSet("DeviceSimulation")),
+          electronicsSim_(config.getParameterSet("ElectronicsSimulation")),
+          maxSimHitsAccTime_(config.getParameter<uint32_t>("maxSimHitsAccTime")) {}
 
-  MTDDigitizer(const edm::ParameterSet& config, 
-	       edm::ConsumesCollector& iC,
-	       edm::ProducerBase& parent) :
-    MTDDigitizerBase(config,iC,parent),
-    geom_(nullptr),
-    deviceSim_( config.getParameterSet("DeviceSimulation") ),
-    electronicsSim_( config.getParameterSet("ElectronicsSimulation") ),        
-    maxSimHitsAccTime_( config.getParameter< uint32_t >("maxSimHitsAccTime") ) { }
-    
-    ~MTDDigitizer() override { }
-    
+    ~MTDDigitizer() override {}
+
     /**
        @short handle SimHit accumulation
     */
     void accumulate(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre) override;
     void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre) override;
-    void accumulate(edm::Handle<edm::PSimHitContainer> const &hits, int bxCrossing, CLHEP::HepRandomEngine* hre) override;
+    void accumulate(edm::Handle<edm::PSimHitContainer> const& hits,
+                    int bxCrossing,
+                    CLHEP::HepRandomEngine* hre) override;
     // for premixing
     void accumulate(const PMTDSimAccumulator& simAccumulator) override;
 
@@ -153,126 +154,114 @@ namespace mtd_digitizer {
     */
     void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
     void finalizeEvent(edm::Event& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre) override;
-    
+
     /**
        @short actions at the start/end of run
     */
-    void beginRun(const edm::EventSetup & es) override; 
+    void beginRun(const edm::EventSetup& es) override;
     void endRun() override {}
-    
-  private :
 
-    void resetSimHitDataAccumulator() {
-      MTDSimHitDataAccumulator().swap(simHitAccumulator_);
-    }
-    
+  private:
+    void resetSimHitDataAccumulator() { MTDSimHitDataAccumulator().swap(simHitAccumulator_); }
+
     const MTDGeometry* geom_;
 
     // implementations
-    DeviceSim deviceSim_;           // processes a given simhit into an entry in a MTDSimHitDataAccumulator
-    ElectronicsSim electronicsSim_; // processes a MTDSimHitDataAccumulator into a BTLDigiCollection/ETLDigiCollection
-        
+    DeviceSim deviceSim_;            // processes a given simhit into an entry in a MTDSimHitDataAccumulator
+    ElectronicsSim electronicsSim_;  // processes a MTDSimHitDataAccumulator into a BTLDigiCollection/ETLDigiCollection
+
     //handle sim hits
     const int maxSimHitsAccTime_;
-    MTDSimHitDataAccumulator simHitAccumulator_;  
-        
+    MTDSimHitDataAccumulator simHitAccumulator_;
   };
 
-  template<class Traits>
-  void MTDDigitizer<Traits>::accumulate(edm::Event const& e, 
-					edm::EventSetup const& c, 
-					CLHEP::HepRandomEngine* hre) {
+  template <class Traits>
+  void MTDDigitizer<Traits>::accumulate(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre) {
     edm::Handle<edm::PSimHitContainer> simHits;
     e.getByLabel(inputSimHits_, simHits);
-    accumulate(simHits,0,hre);
+    accumulate(simHits, 0, hre);
   }
 
-  template<class Traits>
-  void MTDDigitizer<Traits>::accumulate(PileUpEventPrincipal const& e, 
-					edm::EventSetup const& c, 
-					CLHEP::HepRandomEngine* hre){
+  template <class Traits>
+  void MTDDigitizer<Traits>::accumulate(PileUpEventPrincipal const& e,
+                                        edm::EventSetup const& c,
+                                        CLHEP::HepRandomEngine* hre) {
     edm::Handle<edm::PSimHitContainer> simHits;
     e.getByLabel(inputSimHits_, simHits);
-    accumulate(simHits,e.bunchCrossing(),hre);
+    accumulate(simHits, e.bunchCrossing(), hre);
   }
 
-  template<class Traits>
-  void MTDDigitizer<Traits>::accumulate(edm::Handle<edm::PSimHitContainer> const &hits, 
-					int bxCrossing, 
-					CLHEP::HepRandomEngine* hre) {
+  template <class Traits>
+  void MTDDigitizer<Traits>::accumulate(edm::Handle<edm::PSimHitContainer> const& hits,
+                                        int bxCrossing,
+                                        CLHEP::HepRandomEngine* hre) {
     using namespace MTDHelpers;
-    
+
     //create list of tuples (pos in container, RECO DetId, time) to be sorted first
-    int nchits=(int)hits->size();  
-    std::vector< MTDCaloHitTuple_t > hitRefs;
+    int nchits = (int)hits->size();
+    std::vector<MTDCaloHitTuple_t> hitRefs;
     hitRefs.reserve(nchits);
-    for(int i=0; i<nchits; ++i) {
-      const auto& the_hit = hits->at(i);    
-      
+    for (int i = 0; i < nchits; ++i) {
+      const auto& the_hit = hits->at(i);
+
       DetId id = the_hit.detUnitId();
-      
-      if (verbosity_>0) {	
-	edm::LogInfo("MTDDigitizer") << " i/p " << std::hex << the_hit.detUnitId() << std::dec 
-				     << " o/p " << id.rawId() << std::endl;
+
+      if (verbosity_ > 0) {
+        edm::LogInfo("MTDDigitizer") << " i/p " << std::hex << the_hit.detUnitId() << std::dec << " o/p " << id.rawId()
+                                     << std::endl;
       }
-      
-      if( 0 != id.rawId() ) {      
-	hitRefs.emplace_back( i, id.rawId(), the_hit.tof() );
+
+      if (0 != id.rawId()) {
+        hitRefs.emplace_back(i, id.rawId(), the_hit.tof());
       }
     }
-    std::sort(hitRefs.begin(),hitRefs.end(),MTDHelpers::orderByDetIdThenTime);
-    
+    std::sort(hitRefs.begin(), hitRefs.end(), MTDHelpers::orderByDetIdThenTime);
+
     deviceSim_.getHitsResponse(hitRefs, hits, &simHitAccumulator_, hre);
 
     hitRefs.clear();
-
   }
 
-  template<class Traits>
+  template <class Traits>
   void MTDDigitizer<Traits>::accumulate(const PMTDSimAccumulator& simAccumulator) {
     loadSimHitAccumulator(simHitAccumulator_, simAccumulator, premixStage1MinCharge_, premixStage1MaxCharge_);
   }
-  
-  template<class Traits>
+
+  template <class Traits>
   void MTDDigitizer<Traits>::initializeEvent(edm::Event const& e, edm::EventSetup const& c) {
     deviceSim_.getEvent(e);
-    if(not premixStage1_) {
+    if (not premixStage1_) {
       electronicsSim_.getEvent(e);
     }
   }
-  
-  template<class Traits>
-  void MTDDigitizer<Traits>::finalizeEvent(edm::Event& e, edm::EventSetup const& c, 
-					   CLHEP::HepRandomEngine* hre) {
-    if(premixStage1_) {
+
+  template <class Traits>
+  void MTDDigitizer<Traits>::finalizeEvent(edm::Event& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre) {
+    if (premixStage1_) {
       auto simResult = std::make_unique<PMTDSimAccumulator>();
       saveSimHitAccumulator(*simResult, simHitAccumulator_, premixStage1MinCharge_, premixStage1MaxCharge_);
       e.put(std::move(simResult), digiCollection_);
-    }
-    else {
+    } else {
       auto digiCollection = std::make_unique<DigiCollection>();
-      electronicsSim_.run(simHitAccumulator_,*digiCollection, hre);
-      e.put(std::move(digiCollection),digiCollection_);
+      electronicsSim_.run(simHitAccumulator_, *digiCollection, hre);
+      e.put(std::move(digiCollection), digiCollection_);
     }
-    
+
     //release memory for next event
     resetSimHitDataAccumulator();
   }
-    
 
-  template<class Traits>
-  void MTDDigitizer<Traits>::beginRun(const edm::EventSetup & es) {    
-
+  template <class Traits>
+  void MTDDigitizer<Traits>::beginRun(const edm::EventSetup& es) {
     edm::ESHandle<MTDGeometry> geom;
     es.get<MTDDigiGeometryRecord>().get(geom);
     geom_ = geom.product();
 
     deviceSim_.getEventSetup(es);
-    if(not premixStage1_) {
+    if (not premixStage1_) {
       electronicsSim_.getEventSetup(es);
     }
-
   }
-}
+}  // namespace mtd_digitizer
 
 #endif
