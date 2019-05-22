@@ -61,12 +61,19 @@ def get_file_pairs(base_dir, pr_dir):
     return [value for value in base_files if value in pr_files]
 
 def upload_to_gui(output_dir, num_procs):
+    print('Output directory content:')
+    print(os.listdir(os.path.join(output_dir, 'base')))
+    print(os.listdir(os.path.join(output_dir, 'pr')))
+    
     base_files = glob.glob(os.path.join(output_dir, 'base/*.root'))
     pr_files = glob.glob(os.path.join(output_dir, 'pr/*.root'))
 
     files = base_files + pr_files
+
+    print('Files to be uploaded:')
+    print(files)
     
-    for _ in range(num_procs):
+    for _ in range(min(num_procs, len(files))):
         thread = Thread(target=upload, args=(files,))
         thread.start()
     
@@ -80,14 +87,16 @@ def upload(files):
             
             subprocess.call(command)
             print('')
-        except:
-            pass
+        except Exception as ex:
+            # This might throw when another thread pops the last filename immediately after this one
+            # started the loop. In this case this exception can be safely ignored.
+            print('Exception uploading a file: %s' % ex)
 
-def generate_summary_html(output_dir, pr_number, summary_dir):
+def generate_summary_html(output_dir, pr_list, summary_dir):
     template_file = open(os.path.join(os.path.dirname(__file__), 'dqm-histo-comparison-summary-template.html'), 'r')
     result = template_file.read()
 
-    result = result.replace('$PR_NUMBER$', pr_number)
+    result = result.replace('$PR_LIST$', pr_list)
 
     table_items = ''
     total_changes = 0
@@ -134,12 +143,16 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--pr-dir', help='PR directory', default='prdata/')
     parser.add_argument('-o', '--output-dir', help='Comparison root files output directory', default='dqmHistoComparisonOutput')
     parser.add_argument('-j', '--nprocs', help='Number of processes', default=1, type=int)
-    parser.add_argument('-n', '--pr-number', help='PR number under test', required=True)
+    parser.add_argument('-n', '--pr-number', help='This is obsolete and should NOT be used.', required=False)
     parser.add_argument('-t', '--test-number', help='Unique test number to distinguish different comparisons of the same PR.', default='1')
     parser.add_argument('-r', '--release-format', help='Release format in this format: CMSSW_10_5_X_2019-02-17-0000', required=True)
     parser.add_argument('-s', '--summary-dir', help='Directory where summary with all links will be saved', default='')
+    parser.add_argument('-l', '--pr-list', help='A list of PRs participating in the comparison', default='')
     args = parser.parse_args()
-	
-    collect_and_compare_files(args.base_dir, args.pr_dir, args.output_dir, args.nprocs, args.pr_number, args.test_number, args.release_format)
+
+    # Get the repository and a number of the PR which triggered the comparison
+    pr_number = args.pr_list.split(' ')[0].split('/')[1].replace('#', '_')
+
+    collect_and_compare_files(args.base_dir, args.pr_dir, args.output_dir, args.nprocs, pr_number, args.test_number, args.release_format)
     upload_to_gui(args.output_dir, args.nprocs)
-    generate_summary_html(args.output_dir, args.pr_number, args.summary_dir)
+    generate_summary_html(args.output_dir, args.pr_list, args.summary_dir)
