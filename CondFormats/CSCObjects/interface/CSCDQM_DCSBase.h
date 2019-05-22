@@ -32,18 +32,12 @@ namespace cscdqm {
   typedef long long TimeType;
 
   /** Enumeration of Board Types */
-  enum DCSBoardType {
-    ANY  = 0,
-    ALCT = 1,
-    CFEB = 2,
-    DMB  = 3
-  };
+  enum DCSBoardType { ANY = 0, ALCT = 1, CFEB = 2, DMB = 3 };
 
   /** DCSBoardType utility object type */
   struct DCSBoardUtility {
-    
     DCSBoardType boardType;
-    DCSBoardUtility(const DCSBoardType boardType_) : boardType(boardType_) { }
+    DCSBoardUtility(const DCSBoardType boardType_) : boardType(boardType_) {}
 
     /**
      * @brief  Get DCSBoardType from string
@@ -51,9 +45,12 @@ namespace cscdqm {
      * @return DCSBoardType for the string given
      */
     static DCSBoardType getDCSBoard(const std::string board) {
-      if (board.compare("ALCT")) return ALCT;
-      if (board.compare("CFEB")) return CFEB;
-      if (board.compare("DMB"))  return DMB;
+      if (board.compare("ALCT"))
+        return ALCT;
+      if (board.compare("CFEB"))
+        return CFEB;
+      if (board.compare("DMB"))
+        return DMB;
       return ANY;
     }
 
@@ -70,14 +67,12 @@ namespace cscdqm {
       }
       return out << "?";
     }
-
   };
 
   /**
    * DCS Address Type to store and manipulate DCS-related address
    */
   struct DCSAddressType {
-
     /** Endcap: 1 - plus, 2 - minus */
     unsigned short iendcap;
 
@@ -88,12 +83,10 @@ namespace cscdqm {
     unsigned short iring;
 
     /** Chamber number */
-    unsigned int   ichamber;
+    unsigned int ichamber;
 
     /** Get CSC Detector Id object from the address */
-    CSCDetId getDetId() const {
-      return CSCDetId(iendcap, istation, iring, ichamber);
-    }
+    CSCDetId getDetId() const { return CSCDetId(iendcap, istation, iring, ichamber); }
 
     /** Assignment operator */
     DCSAddressType& operator=(const DCSAddressType& a) {
@@ -114,10 +107,9 @@ namespace cscdqm {
       return out << os.str();
     }
 
-  
-  COND_SERIALIZABLE;
-};
+    COND_SERIALIZABLE;
+  };
 
-}
+}  // namespace cscdqm
 
 #endif
