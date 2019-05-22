@@ -83,7 +83,7 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
 
 
   auto pluginPSet = ps.getParameter<edm::ParameterSet>("plugin");
-  algo.reset(HGCalLayerClusterAlgoFactory::get()->create(pluginPSet.getParameter<std::string>("type"), pluginPSet));
+  algo = std::unique_ptr<HGCalClusteringAlgoBase>{HGCalLayerClusterAlgoFactory::get()->create(pluginPSet.getParameter<std::string>("type"), pluginPSet)};
   algo->setAlgoId(algoId);
 
   produces<std::vector<reco::BasicCluster> >();
