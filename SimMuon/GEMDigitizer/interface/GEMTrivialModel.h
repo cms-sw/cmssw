@@ -13,10 +13,8 @@
 
 class GEMGeometry;
 
-class GEMTrivialModel: public GEMDigiModel
-{
+class GEMTrivialModel : public GEMDigiModel {
 public:
-
   GEMTrivialModel(const edm::ParameterSet&);
 
   ~GEMTrivialModel() override {}
@@ -25,8 +23,10 @@ public:
 
   void simulateNoise(const GEMEtaPartition*, CLHEP::HepRandomEngine* engine) override {}
 
-  std::vector<std::pair<int,int> > 
-    simulateClustering(const GEMEtaPartition*, const PSimHit*, const int, CLHEP::HepRandomEngine* engine) override;
+  std::vector<std::pair<int, int> > simulateClustering(const GEMEtaPartition*,
+                                                       const PSimHit*,
+                                                       const int,
+                                                       CLHEP::HepRandomEngine* engine) override;
 
   void setup() override {}
 

@@ -27,18 +27,17 @@ namespace CLHEP {
 }
 
 GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
-  : gemDigiModel_{GEMDigiModelFactory::get()->create("GEM" + ps.getParameter<std::string>("digiModelString") + "Model",
-                                                     ps)}
-{
+    : gemDigiModel_{
+          GEMDigiModelFactory::get()->create("GEM" + ps.getParameter<std::string>("digiModelString") + "Model", ps)} {
   produces<GEMDigiCollection>();
   produces<StripDigiSimLinks>("GEM");
   produces<GEMDigiSimLinks>("GEM");
 
   edm::Service<edm::RandomNumberGenerator> rng;
-  if (!rng.isAvailable()){
+  if (!rng.isAvailable()) {
     throw cms::Exception("Configuration")
-      << "GEMDigiProducer::GEMDigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
-      << "Add the service in the configuration file or remove the modules that require it.";
+        << "GEMDigiProducer::GEMDigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
+        << "Add the service in the configuration file or remove the modules that require it.";
   }
 
   LogDebug("GEMDigiProducer") << "Using GEM" + ps.getParameter<std::string>("digiModelString") + "Model";
@@ -49,21 +48,16 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
   cf_token = consumes<CrossingFrame<PSimHit> >(edm::InputTag(mix_, collection_));
 }
 
-
 GEMDigiProducer::~GEMDigiProducer() = default;
 
-
-void GEMDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup)
-{
+void GEMDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup) {
   edm::ESHandle<GEMGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get(hGeom);
   gemDigiModel_->setGeometry(&*hGeom);
   gemDigiModel_->setup();
 }
 
-
-void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
-{
+void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
@@ -79,20 +73,19 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 
   // arrange the hits by eta partition
   std::map<uint32_t, edm::PSimHitContainer> hitMap;
-  for (const auto& hit: hits){
+  for (const auto& hit : hits) {
     hitMap[hit.detUnitId()].emplace_back(hit);
   }
 
   // simulate signal and noise for each eta partition
-  const auto & etaPartitions(gemDigiModel_->getGeometry()->etaPartitions());
+  const auto& etaPartitions(gemDigiModel_->getGeometry()->etaPartitions());
 
-  for (const auto& roll: etaPartitions){
+  for (const auto& roll : etaPartitions) {
     const GEMDetId detId(roll->id());
     const uint32_t rawId(detId.rawId());
-    const auto & simHits(hitMap[rawId]);
+    const auto& simHits(hitMap[rawId]);
 
-    LogDebug("GEMDigiProducer")
-      << "GEMDigiProducer: found " << simHits.size() << " hit(s) in eta partition" << rawId;
+    LogDebug("GEMDigiProducer") << "GEMDigiProducer: found " << simHits.size() << " hit(s) in eta partition" << rawId;
 
     gemDigiModel_->simulateSignal(roll, simHits, engine);
     gemDigiModel_->simulateNoise(roll, engine);
@@ -103,7 +96,6 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 
   // store them in the event
   e.put(std::move(digis));
-  e.put(std::move(stripDigiSimLinks),"GEM");
-  e.put(std::move(gemDigiSimLinks),"GEM");
+  e.put(std::move(stripDigiSimLinks), "GEM");
+  e.put(std::move(gemDigiSimLinks), "GEM");
 }
-

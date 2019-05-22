@@ -11,10 +11,8 @@
 
 class ME0Geometry;
 
-class ME0PreRecoNoSmearModel: public ME0DigiPreRecoModel
-{
+class ME0PreRecoNoSmearModel : public ME0DigiPreRecoModel {
 public:
-
   ME0PreRecoNoSmearModel(const edm::ParameterSet&);
 
   ~ME0PreRecoNoSmearModel() override {}

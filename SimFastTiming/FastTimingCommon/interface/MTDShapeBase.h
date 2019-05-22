@@ -5,53 +5,42 @@
 #include <array>
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
-  
 
-class MTDShapeBase : public CaloVShape
-{
-   public:
+class MTDShapeBase : public CaloVShape {
+public:
+  typedef std::vector<double> DVec;
 
-      typedef std::vector<double> DVec ;
-  
-      MTDShapeBase() ;
+  MTDShapeBase();
 
-      ~MTDShapeBase() override ;
+  ~MTDShapeBase() override;
 
-      double operator() ( double aTime ) const override ;
+  double operator()(double aTime) const override;
 
-      unsigned int indexOfMax() const;
-      double       timeOfMax()  const;
-      double       timeToRise() const override { return 0.; }
+  unsigned int indexOfMax() const;
+  double timeOfMax() const;
+  double timeToRise() const override { return 0.; }
 
-      std::array<float,3> timeAtThr(const float scale, 
-				    const float threshold1, 
-				    const float threshold2) const;
+  std::array<float, 3> timeAtThr(const float scale, const float threshold1, const float threshold2) const;
 
-      static constexpr unsigned int kReadoutTimeInterval = 28;    // in nsec
-      static constexpr unsigned int kNBinsPerNSec        = 100;   // granularity of internal array
-      static constexpr unsigned int k1NSecBinsTotal      = kReadoutTimeInterval*kNBinsPerNSec;
+  static constexpr unsigned int kReadoutTimeInterval = 28;  // in nsec
+  static constexpr unsigned int kNBinsPerNSec = 100;        // granularity of internal array
+  static constexpr unsigned int k1NSecBinsTotal = kReadoutTimeInterval * kNBinsPerNSec;
 
+protected:
+  unsigned int timeIndex(double aTime) const;
 
-   protected:
+  void buildMe();
 
-      unsigned int timeIndex( double aTime ) const;
+  virtual void fillShape(DVec& aVec) const = 0;
 
-      void buildMe() ;
+private:
+  double linear_interpolation(
+      const double& y, const double& x1, const double& x2, const double& y1, const double& y2) const;
 
-      virtual void fillShape( DVec& aVec ) const = 0;
-
-
-   private:
-      
-      double linear_interpolation(const double& y,
-				  const double& x1, const double& x2,
-				  const double& y1, const double& y2) const;
-
-      const double qNSecPerBin_;
-      unsigned int indexOfMax_;
-      double       timeOfMax_ ;
-      DVec         shape_;
-
+  const double qNSecPerBin_;
+  unsigned int indexOfMax_;
+  double timeOfMax_;
+  DVec shape_;
 };
 
 #endif

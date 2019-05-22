@@ -13,36 +13,32 @@
 namespace ftl = ftl_digitizer;
 
 class SimpleElectronicsSimInMIPs {
- public:
+public:
   SimpleElectronicsSimInMIPs(const edm::ParameterSet& pset);
-  
-  void getEvent(const edm::Event& evt) { }
 
-  void getEventSetup(const edm::EventSetup& evt) { }
+  void getEvent(const edm::Event& evt) {}
 
-  void run(const ftl::FTLSimHitDataAccumulator& input,
-	   FTLDigiCollection& output) const;
+  void getEventSetup(const edm::EventSetup& evt) {}
 
-  void runTrivialShaper(FTLDataFrame &dataFrame, 
-			const ftl::FTLSimHitData& chargeColl,
-			const ftl::FTLSimHitData& toa) const;
+  void run(const ftl::FTLSimHitDataAccumulator& input, FTLDigiCollection& output) const;
 
-  void updateOutput(FTLDigiCollection &coll,
-		    const FTLDataFrame& rawDataFrame) const;
+  void runTrivialShaper(FTLDataFrame& dataFrame,
+                        const ftl::FTLSimHitData& chargeColl,
+                        const ftl::FTLSimHitData& toa) const;
 
- private:
+  void updateOutput(FTLDigiCollection& coll, const FTLDataFrame& rawDataFrame) const;
 
+private:
   const bool debug_;
 
   // adc/tdc bitwidths
-  const uint32_t adcNbits_, tdcNbits_; 
+  const uint32_t adcNbits_, tdcNbits_;
 
   // synthesized adc/tdc information
   const float adcSaturation_MIP_;
   const float adcLSB_MIP_;
   const float adcThreshold_MIP_;
   const float toaLSB_ns_;
-
 };
 
 #endif

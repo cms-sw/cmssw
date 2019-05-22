@@ -9,22 +9,19 @@
 #include <functional>
 
 class HGCSiliconDetIdToROC {
-
 public:
-
   /** This translated TriggerDetId to ROC and viceversa for HGCSilicon*/
   HGCSiliconDetIdToROC();
-   
+
   int getROCNumber(HGCalTriggerDetId const& id) const {
-    return getROCNumber(id.triggerCellU(),id.triggerCellV(),id.type());
+    return getROCNumber(id.triggerCellU(), id.triggerCellV(), id.type());
   }
   int getROCNumber(int triggerCellU, int triggerCellV, int type) const;
-  std::vector<std::pair<int,int> > getTriggerId(int roc, int type) const;
+  std::vector<std::pair<int, int> > getTriggerId(int roc, int type) const;
   void print() const;
-    
-private:
 
-  std::map<std::pair<int,int>,int>                triggerIdToROC_;
-  std::map<int,std::vector<std::pair<int,int> > > triggerIdFromROC_;
+private:
+  std::map<std::pair<int, int>, int> triggerIdToROC_;
+  std::map<int, std::vector<std::pair<int, int> > > triggerIdFromROC_;
 };
 #endif
