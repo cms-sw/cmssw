@@ -133,6 +133,11 @@ class PrimaryVertexResolution: public DQMEDAnalyzer{
       pullx_ = diffx / std::sqrt(sqr(vertex1.xError()) + sqr(vertex2.xError()));
       pully_ = diffy / std::sqrt(sqr(vertex1.yError()) + sqr(vertex2.yError()));
       pullz_ = diffz / std::sqrt(sqr(vertex1.zError()) + sqr(vertex2.zError()));
+
+      avgx_ = (vertex1.x()+vertex2.x())/2.;
+      avgy_ = (vertex1.y()+vertex2.y())/2.;
+      avgz_ = (vertex1.z()+vertex2.z())/2.;
+
     }
 
     double resx() const { return resx_; }
@@ -143,6 +148,10 @@ class PrimaryVertexResolution: public DQMEDAnalyzer{
     double pully() const { return pully_; }
     double pullz() const { return pullz_; }
 
+    double avgx() const { return avgx_; }
+    double avgy() const { return avgy_; }
+    double avgz() const { return avgz_; }
+
   private:
     double resx_;
     double resy_;
@@ -150,6 +159,9 @@ class PrimaryVertexResolution: public DQMEDAnalyzer{
     double pullx_;
     double pully_;
     double pullz_;
+    double avgx_; 
+    double avgy_; 
+    double avgz_; 
   };
 
   class DiffPlots {
@@ -454,9 +466,15 @@ void PrimaryVertexResolution::Plots::calculateAndFillResolution(const std::vecto
   hDiff_sumPt_.fill(res, (sumpt1+sumpt2)/2.0); // taking average is probably the best we can do, anyway they should be close to each other
   hDiff_Nvertices_.fill(res, nvertices);
 
-  hDiff_X_.fill(res,(vertex1.position().x()+vertex2.position().x())/2.);
-  hDiff_Y_.fill(res,(vertex1.position().y()+vertex2.position().y())/2.);
-  hDiff_Z_.fill(res,(vertex1.position().z()+vertex2.position().z())/2.);
+  if(vertex1.isValid() && vertex2.isValid()){
+    
+    hDiff_X_.fill(res,res.avgx());
+    hDiff_Y_.fill(res,res.avgy());
+    hDiff_Z_.fill(res,res.avgz());
+
+  }
+
+    
 
   if(!lumiScalers.empty()) {
     hDiff_instLumiScal_.fill(res, lumiScalers.front().instantLumi());
