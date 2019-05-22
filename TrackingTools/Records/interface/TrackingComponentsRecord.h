@@ -5,13 +5,12 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 //#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"                
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "boost/mpl/vector.hpp"
 
+class TrackingComponentsRecord : public edm::eventsetup::DependentRecordImplementation<
+                                     TrackingComponentsRecord,
+                                     boost::mpl::vector<IdealMagneticFieldRecord, GlobalTrackingGeometryRecord> > {};
 
-class  TrackingComponentsRecord: public edm::eventsetup::DependentRecordImplementation<TrackingComponentsRecord,
-  boost::mpl::vector<IdealMagneticFieldRecord, GlobalTrackingGeometryRecord> > {};
-
-#endif 
-
+#endif

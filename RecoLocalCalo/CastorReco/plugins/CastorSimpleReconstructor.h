@@ -12,23 +12,24 @@
 #include "RecoLocalCalo/CastorReco/interface/CastorSimpleRecAlgo.h"
 
 class CastorSimpleReconstructor : public edm::stream::EDProducer<> {
-    public:
-      explicit CastorSimpleReconstructor(const edm::ParameterSet& ps);
-      ~CastorSimpleReconstructor() override;
-      void produce(edm::Event& e, const edm::EventSetup& c) override;
-    private:      
-      CastorSimpleRecAlgo reco_;
-      DetId::Detector det_;
-      int subdet_;
-      //      HcalOtherSubdetector subdetOther_;
-      edm::EDGetTokenT<CastorDigiCollection> tok_input_;
-      
-      int firstSample_;
-      int samplesToAdd_;
-      int maxADCvalue_;
-      bool tsFromDB_;
-      bool setSaturationFlag_;
-      bool doSaturationCorr_;
+public:
+  explicit CastorSimpleReconstructor(const edm::ParameterSet& ps);
+  ~CastorSimpleReconstructor() override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+private:
+  CastorSimpleRecAlgo reco_;
+  DetId::Detector det_;
+  int subdet_;
+  //      HcalOtherSubdetector subdetOther_;
+  edm::EDGetTokenT<CastorDigiCollection> tok_input_;
+
+  int firstSample_;
+  int samplesToAdd_;
+  int maxADCvalue_;
+  bool tsFromDB_;
+  bool setSaturationFlag_;
+  bool doSaturationCorr_;
 };
 
 #endif

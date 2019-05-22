@@ -59,66 +59,61 @@ using namespace std;
 using namespace edm;
 
 class CosmicMuonValidator : public edm::EDAnalyzer {
-   public:
-      explicit CosmicMuonValidator(const edm::ParameterSet&);
-      ~CosmicMuonValidator();
+public:
+  explicit CosmicMuonValidator(const edm::ParameterSet&);
+  ~CosmicMuonValidator();
 
-   private:
+private:
+  virtual void beginJob();
 
-      virtual void beginJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
 
-      virtual void endJob();
+  reco::Track bestTrack(const reco::TrackCollection&) const;
 
-      reco::Track bestTrack(const reco::TrackCollection&) const;
+  PSimHitContainer matchedHit(const GlobalPoint&, const PSimHitContainer&) const;
 
-      PSimHitContainer matchedHit(const GlobalPoint&, const PSimHitContainer&) const;
+  TrajectoryStateOnSurface updatedState(const TrajectoryStateOnSurface&, const PSimHit&) const;
 
-      TrajectoryStateOnSurface updatedState(const TrajectoryStateOnSurface&, const PSimHit&) const;
+  edm::ESHandle<Propagator> propagator() const;
 
-      edm::ESHandle<Propagator> propagator() const;
+  edm::InputTag trackLabel_;
+  edm::InputTag simTrackLabel_;
 
-      edm::InputTag trackLabel_;
-      edm::InputTag simTrackLabel_;
+  MuonServiceProxy* theService;
 
-      MuonServiceProxy* theService;
+  int theDrawOption;
 
-      int theDrawOption;
+  int nEvent;
+  int successR;
+  int nNoSignal;
 
-      int nEvent;
-      int successR;
-      int nNoSignal;
+  TH2F* h_innerPosXY;
+  TH2F* h_innerPosEP;
 
-      TH2F* h_innerPosXY;
-      TH2F* h_innerPosEP;
+  TH2F* h_outerPosXY;
+  TH2F* h_outerPosEP;
 
-      TH2F* h_outerPosXY;
-      TH2F* h_outerPosEP;
+  TH1F* h_res;
+  TH1F* h_theta;
+  TH1F* h_phi;
+  TH1F* h_pt_rec_sim;
+  TH1F* h_phi_rec_sim;
+  TH1F* h_theta_rec_sim;
+  TH1F* h_Pres_inv_sim;
+  TH1F* h_pt_sim;
+  TH1F* h_pt_rec;
+  TH1F* hnhit;
 
-      TH1F* h_res;
-      TH1F* h_theta;
-      TH1F* h_phi;
-      TH1F* h_pt_rec_sim; 
-      TH1F* h_phi_rec_sim;
-      TH1F* h_theta_rec_sim;
-      TH1F* h_Pres_inv_sim;
-      TH1F* h_pt_sim;
-      TH1F* h_pt_rec;
-      TH1F* hnhit;
-
-      TH1F* htotal4D;
-      TH1F* htotalSeg;
-
-
+  TH1F* htotal4D;
+  TH1F* htotalSeg;
 };
 
-CosmicMuonValidator::CosmicMuonValidator(const edm::ParameterSet& iConfig)
-{
-
+CosmicMuonValidator::CosmicMuonValidator(const edm::ParameterSet& iConfig) {
   trackLabel_ = iConfig.getParameter<edm::InputTag>("TrackLabel");
   simTrackLabel_ = iConfig.getParameter<edm::InputTag>("SimTrackLabel");
-  theDrawOption = iConfig.getUntrackedParameter<int>("DrawOption", 1); 
+  theDrawOption = iConfig.getUntrackedParameter<int>("DrawOption", 1);
 
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
@@ -128,201 +123,199 @@ CosmicMuonValidator::CosmicMuonValidator(const edm::ParameterSet& iConfig)
   nEvent = 0;
   successR = 0;
   nNoSignal = 0;
-  
 }
 
-
-CosmicMuonValidator::~CosmicMuonValidator()
-{
-  if (theService) delete theService;
-
+CosmicMuonValidator::~CosmicMuonValidator() {
+  if (theService)
+    delete theService;
 }
 
+void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  theService->update(iSetup);
 
-void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+  nEvent++;
+  std::cout << "reading event " << nEvent << std::endl;
 
-   theService->update(iSetup);
+  Handle<reco::TrackCollection> muons;
+  iEvent.getByLabel(trackLabel_, muons);
+  cout << "cosmic Muon: " << muons->size() << endl;
 
-   nEvent++;
-   std::cout << "reading event " << nEvent << std::endl;
+  //  if (muons->empty()) return;
+  if (!muons->empty())
+    successR++;
 
-   Handle<reco::TrackCollection> muons;
-   iEvent.getByLabel(trackLabel_,muons);
-   cout << "cosmic Muon: " <<muons->size() <<endl;
+  float ptsim = 0;
+  float simC = 0;
+  float thetasim = 0;
+  float phisim = 0;
 
- //  if (muons->empty()) return;
-   if ( !muons->empty())  successR++;
-   
-   float ptsim = 0; 
-   float simC = 0; 
-   float thetasim = 0;
-   float phisim = 0;
+  Handle<edm::SimTrackContainer> simTracks;
+  iEvent.getByLabel(simTrackLabel_, simTracks);
+  cout << "simTracks: " << simTracks->size() << endl;
 
-   Handle<edm::SimTrackContainer> simTracks;
-   iEvent.getByLabel(simTrackLabel_,simTracks);
-   cout << "simTracks: " <<simTracks->size() <<endl;
-
-   for (SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
+  for (SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
     if (abs((*simTrack).type()) == 13) {
-       cout << "MC Muon: mom (" << simTrack->momentum().x() << "," << simTrack->momentum().y() << "," <<simTrack->momentum().z()
- << ")"<<endl;
-       thetasim = simTrack->momentum().theta();
-       phisim = simTrack->momentum().phi();
+      cout << "MC Muon: mom (" << simTrack->momentum().x() << "," << simTrack->momentum().y() << ","
+           << simTrack->momentum().z() << ")" << endl;
+      thetasim = simTrack->momentum().theta();
+      phisim = simTrack->momentum().phi();
 
-       simC = - simTrack->type()/13.;
-       ptsim = simTrack->momentum().pt();
+      simC = -simTrack->type() / 13.;
+      ptsim = simTrack->momentum().pt();
     }
   }
 
-   // Get Segment collections from the Event
-   edm::Handle<DTRecSegment4DCollection> dtSegments;
-   iEvent.getByLabel("dt4DSegments", dtSegments);
+  // Get Segment collections from the Event
+  edm::Handle<DTRecSegment4DCollection> dtSegments;
+  iEvent.getByLabel("dt4DSegments", dtSegments);
 
-   edm::Handle<CSCSegmentCollection> cscSegments;
-   iEvent.getByLabel("cscSegments", cscSegments);
+  edm::Handle<CSCSegmentCollection> cscSegments;
+  iEvent.getByLabel("cscSegments", cscSegments);
 
-   int nSeg = dtSegments->size() + cscSegments->size();
-   cout<<"cscSegments: "<<cscSegments->size()<<endl;
+  int nSeg = dtSegments->size() + cscSegments->size();
+  cout << "cscSegments: " << cscSegments->size() << endl;
 
-   htotalSeg->Fill(nSeg);
+  htotalSeg->Fill(nSeg);
 
-   int n4D = 0;
+  int n4D = 0;
 
-   for (DTRecSegment4DCollection::const_iterator idt = dtSegments->begin();
-        idt != dtSegments->end(); ++idt) {
-        if (idt->dimension() < 4) continue;
-        bool sameChamber = false;
-        DetId thisId = idt->geographicalId();
+  for (DTRecSegment4DCollection::const_iterator idt = dtSegments->begin(); idt != dtSegments->end(); ++idt) {
+    if (idt->dimension() < 4)
+      continue;
+    bool sameChamber = false;
+    DetId thisId = idt->geographicalId();
 
-        for (DTRecSegment4DCollection::const_iterator idt2 = dtSegments->begin();
-             idt2 != idt; ++idt2) {
-               if (idt2->geographicalId() == thisId )   sameChamber = true;   
-        }
-        if (!sameChamber) n4D++;
-   }
+    for (DTRecSegment4DCollection::const_iterator idt2 = dtSegments->begin(); idt2 != idt; ++idt2) {
+      if (idt2->geographicalId() == thisId)
+        sameChamber = true;
+    }
+    if (!sameChamber)
+      n4D++;
+  }
 
-   for (CSCSegmentCollection::const_iterator icsc = cscSegments->begin();
-        icsc != cscSegments->end(); ++icsc) {
-        if (icsc->dimension() < 4) continue;
-        bool sameChamber = false;
-        DetId thisId = icsc->geographicalId();
+  for (CSCSegmentCollection::const_iterator icsc = cscSegments->begin(); icsc != cscSegments->end(); ++icsc) {
+    if (icsc->dimension() < 4)
+      continue;
+    bool sameChamber = false;
+    DetId thisId = icsc->geographicalId();
 
-        for (CSCSegmentCollection::const_iterator icsc2 = cscSegments->begin();
-             icsc2 != icsc; ++icsc2) {
-               if (icsc2->geographicalId() == thisId )   sameChamber = true;
-        }
+    for (CSCSegmentCollection::const_iterator icsc2 = cscSegments->begin(); icsc2 != icsc; ++icsc2) {
+      if (icsc2->geographicalId() == thisId)
+        sameChamber = true;
+    }
 
-        if (!sameChamber) n4D++;
-   }  
+    if (!sameChamber)
+      n4D++;
+  }
 
-   htotal4D->Fill(n4D);
-   if ( n4D < 2 ) nNoSignal++;
+  htotal4D->Fill(n4D);
+  if (n4D < 2)
+    nNoSignal++;
 
-   if (muons->empty())  return;
-   reco::Track muon = bestTrack(*muons);
+  if (muons->empty())
+    return;
+  reco::Track muon = bestTrack(*muons);
 
-   cout << "cosmic Muon Track: " 
-        << " mom: (" << muon.px() << "," << muon.py() << "," << muon.pz()
-        << ")"<<endl;
+  cout << "cosmic Muon Track: "
+       << " mom: (" << muon.px() << "," << muon.py() << "," << muon.pz() << ")" << endl;
 
-   if ( fabs(muon.p()) < 1e-5 ) return; //prevent those failed to extrapolation to vertex
+  if (fabs(muon.p()) < 1e-5)
+    return;  //prevent those failed to extrapolation to vertex
 
-   math::XYZVector innerMo = muon.innerMomentum();
+  math::XYZVector innerMo = muon.innerMomentum();
 
-   float ptreco = muon.pt();
-   int qreco = muon.charge();
- 
-   h_pt_rec->Fill(ptreco);
-   hnhit->Fill(muon.recHitsSize());
+  float ptreco = muon.pt();
+  int qreco = muon.charge();
 
-   cout<<"resolution "<<(qreco/ptreco-simC/ptsim)*ptsim/simC<<endl;
+  h_pt_rec->Fill(ptreco);
+  hnhit->Fill(muon.recHitsSize());
 
-   h_res->Fill((qreco/ptreco-simC/ptsim)*ptsim/simC);
+  cout << "resolution " << (qreco / ptreco - simC / ptsim) * ptsim / simC << endl;
 
-   GlobalVector im(innerMo.x(),innerMo.y(),innerMo.z());
-   float thetareco = im.theta();
-   float phireco = im.phi();
-   h_theta->Fill(Geom::Theta<float>(thetareco-thetasim));
-   h_phi->Fill(Geom::Phi<float>(phireco-phisim));
+  h_res->Fill((qreco / ptreco - simC / ptsim) * ptsim / simC);
 
-   math::XYZPoint innerPo = muon.innerPosition();
-   GlobalPoint ip(innerPo.x(), innerPo.y(),innerPo.z());
+  GlobalVector im(innerMo.x(), innerMo.y(), innerMo.z());
+  float thetareco = im.theta();
+  float phireco = im.phi();
+  h_theta->Fill(Geom::Theta<float>(thetareco - thetasim));
+  h_phi->Fill(Geom::Phi<float>(phireco - phisim));
 
-   h_innerPosXY->Fill(ip.x(), ip.y());
-   h_innerPosEP->Fill(ip.eta(), Geom::Phi<float>(ip.phi()));
+  math::XYZPoint innerPo = muon.innerPosition();
+  GlobalPoint ip(innerPo.x(), innerPo.y(), innerPo.z());
 
-   math::XYZPoint outerPo = muon.outerPosition();
-   GlobalPoint op(outerPo.x(), outerPo.y(),outerPo.z());
+  h_innerPosXY->Fill(ip.x(), ip.y());
+  h_innerPosEP->Fill(ip.eta(), Geom::Phi<float>(ip.phi()));
 
-   h_outerPosXY->Fill(op.x(), op.y());
-   h_outerPosEP->Fill(op.eta(), Geom::Phi<float>(op.phi()));
+  math::XYZPoint outerPo = muon.outerPosition();
+  GlobalPoint op(outerPo.x(), outerPo.y(), outerPo.z());
+
+  h_outerPosXY->Fill(op.x(), op.y());
+  h_outerPosEP->Fill(op.eta(), Geom::Phi<float>(op.phi()));
 
   //Now compare innermost state with associated sim hit
 
-  Handle<PSimHitContainer>  dtSimHits;
-  Handle<PSimHitContainer>  cscSimHits;
-  Handle<PSimHitContainer>  rpcSimHits;
+  Handle<PSimHitContainer> dtSimHits;
+  Handle<PSimHitContainer> cscSimHits;
+  Handle<PSimHitContainer> rpcSimHits;
 
-  iEvent.getByLabel("g4SimHits","MuonDTHits", dtSimHits);
-  iEvent.getByLabel("g4SimHits","MuonCSCHits", cscSimHits);
-  iEvent.getByLabel("g4SimHits","MuonRPCHits", rpcSimHits);
+  iEvent.getByLabel("g4SimHits", "MuonDTHits", dtSimHits);
+  iEvent.getByLabel("g4SimHits", "MuonCSCHits", cscSimHits);
+  iEvent.getByLabel("g4SimHits", "MuonRPCHits", rpcSimHits);
 
-  cout<<"DT simHits collections: "<<dtSimHits->size()<<endl;
-  cout<<"CSC simHits collections: "<<cscSimHits->size()<<endl;
-  cout<<"RPC simHits collections: "<<rpcSimHits->size()<<endl;
+  cout << "DT simHits collections: " << dtSimHits->size() << endl;
+  cout << "CSC simHits collections: " << cscSimHits->size() << endl;
+  cout << "RPC simHits collections: " << rpcSimHits->size() << endl;
 
   PSimHitContainer allSimHits = *dtSimHits;
-  allSimHits.insert(allSimHits.end(),(cscSimHits)->begin(), (cscSimHits)->end());
-  allSimHits.insert(allSimHits.end(),(rpcSimHits)->begin(), (rpcSimHits)->end());
+  allSimHits.insert(allSimHits.end(), (cscSimHits)->begin(), (cscSimHits)->end());
+  allSimHits.insert(allSimHits.end(), (rpcSimHits)->begin(), (rpcSimHits)->end());
 
-   cout<<"allSimHits "<<allSimHits.size()<<endl;
+  cout << "allSimHits " << allSimHits.size() << endl;
 
-   if ( allSimHits.empty() ) return;
+  if (allSimHits.empty())
+    return;
 
-   PSimHitContainer  msimh = matchedHit(ip, allSimHits);
+  PSimHitContainer msimh = matchedHit(ip, allSimHits);
 
-   if ( !msimh.empty() ) {
+  if (!msimh.empty()) {
+    DetId idSim(msimh.front().detUnitId());
 
-     DetId idSim( msimh.front().detUnitId() );
+    GlobalVector simmom =
+        theService->trackingGeometry()->idToDet(idSim)->surface().toGlobal(msimh.front().momentumAtEntry());
 
-     GlobalVector simmom = theService->trackingGeometry()->idToDet(idSim)->surface().toGlobal(msimh.front().momentumAtEntry());
+    TrajectoryStateOnSurface innerTSOS = trajectoryStateTransform::innerStateOnSurface(
+        muon, *theService->trackingGeometry(), &*theService->magneticField());
 
-     
+    TrajectoryStateOnSurface stateAH = updatedState(innerTSOS, msimh.front());
+    if (!stateAH.isValid())
+      return;
+    im = stateAH.globalMomentum();
 
-     TrajectoryStateOnSurface innerTSOS = trajectoryStateTransform::innerStateOnSurface(muon,*theService->trackingGeometry(),&*theService->magneticField());
-  
-     TrajectoryStateOnSurface stateAH = updatedState(innerTSOS,msimh.front());
-     if (!stateAH.isValid()) return;
-     im = stateAH.globalMomentum();
+    cout << "sim Momentum: " << simmom << endl;
+    cout << "track Mom here: " << im << endl;
 
-     cout<<"sim Momentum: "<<simmom<<endl;
-     cout<<"track Mom here: "<<im<<endl;
+    h_pt_rec_sim->Fill(((double)simmom.perp()) - im.perp());
+    h_phi_rec_sim->Fill(((Geom::Phi<float>(simmom.phi())) - Geom::Phi<float>(im.phi())) * 180 / acos(-1.));
 
-     h_pt_rec_sim->Fill( ((double)simmom.perp()) - im.perp());
-     h_phi_rec_sim->Fill( ( (Geom::Phi<float>(simmom.phi())) - Geom::Phi<float>(im.phi())) * 180/acos(-1.));
+    h_Pres_inv_sim->Fill((1 / im.perp() - 1 / ((double)simmom.perp())) / (1 / ((double)simmom.perp())));
 
-     h_Pres_inv_sim->Fill( (1/im.perp() - 1/((double)simmom.perp())) / (1/((double)simmom.perp())));
+    h_pt_sim->Fill(((double)simmom.perp()));
 
-     h_pt_sim->Fill(((double)simmom.perp()));
-
-     h_theta_rec_sim->Fill( ( ((double)simmom.theta())-im.theta()) * 180/acos(-1.));
-
-    }
+    h_theta_rec_sim->Fill((((double)simmom.theta()) - im.theta()) * 180 / acos(-1.));
+  }
 }
 
-void CosmicMuonValidator::beginJob()
-{
-
-  cout<<"Prepare histograms "<<"\n";
+void CosmicMuonValidator::beginJob() {
+  cout << "Prepare histograms "
+       << "\n";
   edm::Service<TFileService> fs;
 
-  h_res = fs->make<TH1F>("h_res","resolution of P_{T}",50,-5.0,5.0);
+  h_res = fs->make<TH1F>("h_res", "resolution of P_{T}", 50, -5.0, 5.0);
 
-  h_theta = fs->make<TH1F>("h_theta","theta angle ",50,-0.1,0.1);
-  h_phi = fs->make<TH1F>("h_phi","phi angle ",50,-2.0,2.0);
+  h_theta = fs->make<TH1F>("h_theta", "theta angle ", 50, -0.1, 0.1);
+  h_phi = fs->make<TH1F>("h_phi", "phi angle ", 50, -2.0, 2.0);
 
-  hnhit = fs->make<TH1F>("hnhit","Number of Hits in Track by Cos",60,0.0,60.0);
+  hnhit = fs->make<TH1F>("hnhit", "Number of Hits in Track by Cos", 60, 0.0, 60.0);
 
   h_innerPosXY = fs->make<TH2F>("h_innerPosXY", "inner x-y", 100, -700.0, 700.0, 100, -700.0, 700.0);
   h_innerPosEP = fs->make<TH2F>("h_innerPosEP", "inner #eta-#phi", 100, -2.4, 2.4, 100, -3.3, 3.3);
@@ -330,27 +323,25 @@ void CosmicMuonValidator::beginJob()
   h_outerPosXY = fs->make<TH2F>("h_outerPosXY", "outer x-y", 100, -700.0, 700.0, 100, -700.0, 700.0);
   h_outerPosEP = fs->make<TH2F>("h_outerPosEP", "outer #eta-#phi", 100, -2.4, 2.4, 100, -3.3, 3.3);
 
-  h_pt_rec_sim = fs->make<TH1F>("h_pt_res_sim","diff of P_{T} at SimHit",50,-2.0,2.0);
-  h_phi_rec_sim = fs->make<TH1F>("h_phi_res_sim","diff of #phi at SimHit",50,-2.0,2.0);
-  h_theta_rec_sim = fs->make<TH1F>("h_theta_res_sim","diff of #theta at SimHit",50,-2.0,2.0);
-  h_Pres_inv_sim = fs->make<TH1F>("h_Pres_inv_sim","resolution of P_{T} at SimHit",70,-1.0,1.0);
+  h_pt_rec_sim = fs->make<TH1F>("h_pt_res_sim", "diff of P_{T} at SimHit", 50, -2.0, 2.0);
+  h_phi_rec_sim = fs->make<TH1F>("h_phi_res_sim", "diff of #phi at SimHit", 50, -2.0, 2.0);
+  h_theta_rec_sim = fs->make<TH1F>("h_theta_res_sim", "diff of #theta at SimHit", 50, -2.0, 2.0);
+  h_Pres_inv_sim = fs->make<TH1F>("h_Pres_inv_sim", "resolution of P_{T} at SimHit", 70, -1.0, 1.0);
 
-  h_pt_sim = fs->make<TH1F>("h_pt_sim","distribution of P_{T} at SimHit",100,0.0,100.0);
-  h_pt_rec = fs->make<TH1F>("h_pt_rec","distribution of P_{T} at SimHit",100,0.0,100.0);
-  htotal4D = fs->make<TH1F>("htotal4D","# of Segments",15,0.0,15.0);
-  htotalSeg = fs->make<TH1F>("htotalSeg","# of Segments",15,0.0,15.0);
-
+  h_pt_sim = fs->make<TH1F>("h_pt_sim", "distribution of P_{T} at SimHit", 100, 0.0, 100.0);
+  h_pt_rec = fs->make<TH1F>("h_pt_rec", "distribution of P_{T} at SimHit", 100, 0.0, 100.0);
+  htotal4D = fs->make<TH1F>("htotal4D", "# of Segments", 15, 0.0, 15.0);
+  htotalSeg = fs->make<TH1F>("htotalSeg", "# of Segments", 15, 0.0, 15.0);
 }
 
 void CosmicMuonValidator::endJob() {
-
-  float eff = (float)successR/((float)nEvent-(float)nNoSignal) * 100 ;
+  float eff = (float)successR / ((float)nEvent - (float)nNoSignal) * 100;
 
   std::cout << "++++++++++++++++++++++++++++++++++++++++" << std::endl;
   std::cout << "Analyzed " << nEvent << " events, " << std::endl;
-  std::cout << successR<< " events are successfully reconstructed. "<< std::endl;
-  std::cout << nNoSignal<< " events do not have good enough signals. "<< std::endl;
-  std::cout << "Reconstruction efficiency is approximately "<< eff << "%. "<< std::endl;
+  std::cout << successR << " events are successfully reconstructed. " << std::endl;
+  std::cout << nNoSignal << " events do not have good enough signals. " << std::endl;
+  std::cout << "Reconstruction efficiency is approximately " << eff << "%. " << std::endl;
   std::cout << "++++++++++++++++++++++++++++++++++++++++" << std::endl;
 
   h_innerPosXY->SetXTitle("X");
@@ -387,7 +378,6 @@ void CosmicMuonValidator::endJob() {
   h_phi->SetLineWidth(2);
   h_phi->SetLineColor(2);
   h_phi->SetLineStyle(1);
-
 
   h_pt_rec_sim->SetXTitle("P^{simHit}_{T}-P^{reco}_{T}");
   h_pt_rec_sim->SetLineWidth(2);
@@ -434,8 +424,8 @@ void CosmicMuonValidator::endJob() {
 
   int theDrawOption = 1;
 
-  if ( theDrawOption == 0 ) {
-    TCanvas* c2 = new TCanvas("innerTSOSXY","XY",10,10,800,600);
+  if (theDrawOption == 0) {
+    TCanvas* c2 = new TCanvas("innerTSOSXY", "XY", 10, 10, 800, 600);
     c2->SetFillColor(0);
     c2->SetGrid(1);
     c2->SetRightMargin(0.03);
@@ -445,7 +435,7 @@ void CosmicMuonValidator::endJob() {
     c2->Update();
     c2->Write();
 
-    TCanvas* c2a = new TCanvas("outerTSOSXY","Outer XY",10,10,800,600);
+    TCanvas* c2a = new TCanvas("outerTSOSXY", "Outer XY", 10, 10, 800, 600);
     c2a->SetFillColor(0);
     c2a->SetGrid(1);
     c2a->SetRightMargin(0.03);
@@ -455,8 +445,7 @@ void CosmicMuonValidator::endJob() {
     c2a->Update();
     c2a->Write();
 
-
-    TCanvas* c3 = new TCanvas("innerEtaPhi","Inner #eta #phi",10,10,800,600);
+    TCanvas* c3 = new TCanvas("innerEtaPhi", "Inner #eta #phi", 10, 10, 800, 600);
     c3->SetFillColor(0);
     c3->SetGrid(1);
     c3->SetRightMargin(0.03);
@@ -466,7 +455,7 @@ void CosmicMuonValidator::endJob() {
     c3->Update();
     c3->Write();
 
-    TCanvas* c3a = new TCanvas("outerEtaPhi","Outer #eta #phi",10,10,800,600);
+    TCanvas* c3a = new TCanvas("outerEtaPhi", "Outer #eta #phi", 10, 10, 800, 600);
     c3a->SetFillColor(0);
     c3a->SetGrid(1);
     c3a->SetRightMargin(0.03);
@@ -476,8 +465,7 @@ void CosmicMuonValidator::endJob() {
     c3a->Update();
     c3a->Write();
 
-
-    TCanvas* cRes1 = new TCanvas("TrackPtRes","Resolution of P_{T} wrt SimTrack",10,10,800,600);
+    TCanvas* cRes1 = new TCanvas("TrackPtRes", "Resolution of P_{T} wrt SimTrack", 10, 10, 800, 600);
     cRes1->SetFillColor(0);
     cRes1->SetGrid(1);
     cRes1->SetRightMargin(0.03);
@@ -487,7 +475,7 @@ void CosmicMuonValidator::endJob() {
     cRes1->Update();
     cRes1->Write();
 
-    TCanvas* cRes2 = new TCanvas("TrackTheta","Resolution of Theta wrt SimTrack",10,10,800,600);
+    TCanvas* cRes2 = new TCanvas("TrackTheta", "Resolution of Theta wrt SimTrack", 10, 10, 800, 600);
     cRes2->SetFillColor(0);
     cRes2->SetGrid(1);
     cRes2->SetRightMargin(0.03);
@@ -497,7 +485,7 @@ void CosmicMuonValidator::endJob() {
     cRes2->Update();
     cRes2->Write();
 
-    TCanvas* cRes3 = new TCanvas("TrackPhi","Resolution of phi wrt SimTrack",10,10,800,600);
+    TCanvas* cRes3 = new TCanvas("TrackPhi", "Resolution of phi wrt SimTrack", 10, 10, 800, 600);
     cRes3->SetFillColor(0);
     cRes3->SetGrid(1);
     cRes3->SetRightMargin(0.03);
@@ -507,7 +495,7 @@ void CosmicMuonValidator::endJob() {
     cRes3->Update();
     cRes3->Write();
 
-    TCanvas* cRes4 = new TCanvas("inTsosPtDiff","Resolution of P_{T} at SimHit",10,10,800,600);
+    TCanvas* cRes4 = new TCanvas("inTsosPtDiff", "Resolution of P_{T} at SimHit", 10, 10, 800, 600);
     cRes4->SetFillColor(0);
     cRes4->SetGrid(1);
     cRes4->SetRightMargin(0.03);
@@ -517,7 +505,7 @@ void CosmicMuonValidator::endJob() {
     cRes4->Update();
     cRes4->Write();
 
-    TCanvas* cRes5 = new TCanvas("inTsosPhi","Resolution of Phi at SimHit",10,10,800,600);
+    TCanvas* cRes5 = new TCanvas("inTsosPhi", "Resolution of Phi at SimHit", 10, 10, 800, 600);
     cRes5->SetFillColor(0);
     cRes5->SetGrid(1);
     cRes5->SetRightMargin(0.03);
@@ -527,7 +515,7 @@ void CosmicMuonValidator::endJob() {
     cRes5->Update();
     cRes5->Write();
 
-    TCanvas* cRes6 = new TCanvas("inTsosTheta","Resolution of #theta at SimHit",10,10,800,600);
+    TCanvas* cRes6 = new TCanvas("inTsosTheta", "Resolution of #theta at SimHit", 10, 10, 800, 600);
     cRes6->SetFillColor(0);
     cRes6->SetGrid(1);
     cRes6->SetRightMargin(0.03);
@@ -537,21 +525,21 @@ void CosmicMuonValidator::endJob() {
     cRes6->Update();
     cRes6->Write();
 
-    TCanvas* cRes7 = new TCanvas("inTsosPtRes","Resolution of P_{T} at SimHit",10,10,800,600);
+    TCanvas* cRes7 = new TCanvas("inTsosPtRes", "Resolution of P_{T} at SimHit", 10, 10, 800, 600);
     cRes7->SetFillColor(0);
     cRes7->SetGrid(1);
     cRes7->SetRightMargin(0.03);
     cRes7->SetTopMargin(0.02);
     cRes7->cd();
     h_Pres_inv_sim->DrawCopy("HE");
-    TF1* g2 = new TF1("g2","gaus",-0.5,0.5);
+    TF1* g2 = new TF1("g2", "gaus", -0.5, 0.5);
     g2->SetLineColor(4);
-    h_Pres_inv_sim->Fit("g2","R");
+    h_Pres_inv_sim->Fit("g2", "R");
 
     cRes7->Update();
     cRes7->Write();
 
-    TCanvas* c7 = new TCanvas("nHits","Number of RecHits in Track",10,10,800,600);
+    TCanvas* c7 = new TCanvas("nHits", "Number of RecHits in Track", 10, 10, 800, 600);
     c7->SetFillColor(0);
     c7->SetGrid(1);
     c7->SetRightMargin(0.03);
@@ -561,7 +549,7 @@ void CosmicMuonValidator::endJob() {
     c7->Update();
     c7->Write();
 
-    TCanvas* cRes8 = new TCanvas("PtDis","Distribution of P_{T} at SimHit",10,10,800,600);
+    TCanvas* cRes8 = new TCanvas("PtDis", "Distribution of P_{T} at SimHit", 10, 10, 800, 600);
     cRes8->SetFillColor(0);
     cRes8->SetGrid(1);
     cRes8->SetRightMargin(0.03);
@@ -570,17 +558,17 @@ void CosmicMuonValidator::endJob() {
 
     h_pt_sim->DrawCopy("HE");
     h_pt_rec->DrawCopy("HEsame");
-    TLegend* legend8 = new TLegend(0.7,0.6,0.9,0.8);
+    TLegend* legend8 = new TLegend(0.7, 0.6, 0.9, 0.8);
     legend8->SetTextAlign(32);
     legend8->SetTextColor(1);
     legend8->SetTextSize(0.04);
-    legend8->AddEntry("h_pt_sim","By Sim","l");
-    legend8->AddEntry("h_pt_rec","By Cos","l");
+    legend8->AddEntry("h_pt_sim", "By Sim", "l");
+    legend8->AddEntry("h_pt_rec", "By Cos", "l");
     legend8->Draw();
     cRes8->Update();
     cRes8->Write();
 
-    TCanvas* csegs = new TCanvas("csegs","Total & 4D Segments",10,10,800,600);
+    TCanvas* csegs = new TCanvas("csegs", "Total & 4D Segments", 10, 10, 800, 600);
 
     csegs->SetFillColor(0);
     csegs->SetGrid(1);
@@ -591,28 +579,27 @@ void CosmicMuonValidator::endJob() {
     htotal4D->DrawCopy("HE");
     htotalSeg->DrawCopy("HEsame");
 
-    TLegend* legendseg = new TLegend(0.6,0.2,0.9,0.4);
+    TLegend* legendseg = new TLegend(0.6, 0.2, 0.9, 0.4);
     legendseg->SetTextAlign(32);
     legendseg->SetTextColor(1);
     legendseg->SetTextSize(0.04);
-    legendseg->AddEntry("htotal4D","4D Segments","l");
-    legendseg->AddEntry("htotalSeg","total Segments","l");
+    legendseg->AddEntry("htotal4D", "4D Segments", "l");
+    legendseg->AddEntry("htotalSeg", "total Segments", "l");
     legendseg->Draw();
 
     csegs->Update();
     csegs->Write();
 
   } else {
-
-    TCanvas *cpdf = new TCanvas("cpdf", "", 0, 1, 500, 700);
+    TCanvas* cpdf = new TCanvas("cpdf", "", 0, 1, 500, 700);
     cpdf->SetTicks();
 
     TPostScript* pdf = new TPostScript("cosmicValidation.ps", 111);
 
     const int NUM_PAGES = 7;
-    TPad *pad[NUM_PAGES];
-    for (int i_page=0; i_page<NUM_PAGES; i_page++)
-      pad[i_page] = new TPad("","", .05, .05, .95, .93);
+    TPad* pad[NUM_PAGES];
+    for (int i_page = 0; i_page < NUM_PAGES; i_page++)
+      pad[i_page] = new TPad("", "", .05, .05, .95, .93);
 
     ostringstream page_print;
     int page = 0;
@@ -623,13 +610,14 @@ void CosmicMuonValidator::endJob() {
     cpdf->Clear();
     cpdf->cd(0);
     ttl.DrawLatex(.4, .95, "inner and outer state (x,y) ");
-    page_print.str(""); page_print << page + 1;
+    page_print.str("");
+    page_print << page + 1;
     ttl.DrawLatex(.9, .02, page_print.str().c_str());
     pad[page]->Draw();
     pad[page]->Divide(1, 2);
     pad[page]->cd(1);
     h_innerPosXY->Draw("SCAT");
-    pad[page]->cd(2); 
+    pad[page]->cd(2);
     h_outerPosXY->Draw("SCAT");
 
     page++;
@@ -639,7 +627,8 @@ void CosmicMuonValidator::endJob() {
     cpdf->Clear();
     cpdf->cd(0);
     ttl.DrawLatex(.4, .95, "inner and outer state (eta, phi) ");
-    page_print.str(""); page_print << page + 1;
+    page_print.str("");
+    page_print << page + 1;
     ttl.DrawLatex(.9, .02, page_print.str().c_str());
     pad[page]->Draw();
     pad[page]->Divide(1, 2);
@@ -656,7 +645,8 @@ void CosmicMuonValidator::endJob() {
     cpdf->cd(0);
 
     ttl.DrawLatex(.4, .95, "resolution wrt simTrack (pt, theta, phi) ");
-    page_print.str(""); page_print << page + 1;
+    page_print.str("");
+    page_print << page + 1;
     ttl.DrawLatex(.9, .02, page_print.str().c_str());
 
     pad[page]->Draw();
@@ -670,7 +660,6 @@ void CosmicMuonValidator::endJob() {
     pad[page]->cd(3);
     h_phi->Draw("HE");
 
-
     page++;
     cpdf->Update();
 
@@ -679,7 +668,8 @@ void CosmicMuonValidator::endJob() {
     cpdf->cd(0);
 
     ttl.DrawLatex(.4, .95, "resolution wrt simHit at innermost (pt, theta, phi) ");
-    page_print.str(""); page_print << page + 1;
+    page_print.str("");
+    page_print << page + 1;
     ttl.DrawLatex(.9, .02, page_print.str().c_str());
     pad[page]->Draw();
     pad[page]->Divide(1, 3);
@@ -698,7 +688,8 @@ void CosmicMuonValidator::endJob() {
     cpdf->cd(0);
 
     ttl.DrawLatex(.4, .95, "number of hits ");
-    page_print.str(""); page_print << page + 1;
+    page_print.str("");
+    page_print << page + 1;
     ttl.DrawLatex(.9, .02, page_print.str().c_str());
     pad[page]->Draw();
     pad[page]->cd();
@@ -712,7 +703,8 @@ void CosmicMuonValidator::endJob() {
     cpdf->cd(0);
 
     ttl.DrawLatex(.4, .95, "pt distribution ");
-    page_print.str(""); page_print << page + 1;
+    page_print.str("");
+    page_print << page + 1;
     ttl.DrawLatex(.9, .02, page_print.str().c_str());
     pad[page]->Draw();
     pad[page]->Divide(1, 2);
@@ -729,7 +721,8 @@ void CosmicMuonValidator::endJob() {
     cpdf->cd(0);
 
     ttl.DrawLatex(.4, .95, "Number of hits ");
-    page_print.str(""); page_print << page + 1;
+    page_print.str("");
+    page_print << page + 1;
     ttl.DrawLatex(.9, .02, page_print.str().c_str());
     pad[page]->Draw();
     pad[page]->Divide(1, 2);
@@ -738,73 +731,66 @@ void CosmicMuonValidator::endJob() {
     pad[page]->cd(2);
     htotalSeg->Draw("HE");
 
-    pdf->Close(); 
+    pdf->Close();
   }
-
 }
 
-reco::Track 
-CosmicMuonValidator::bestTrack(const reco::TrackCollection& muons) const {
+reco::Track CosmicMuonValidator::bestTrack(const reco::TrackCollection& muons) const {
+  reco::Track bestOne = muons.front();
 
-   reco::Track bestOne = muons.front();
-
-   for(reco::TrackCollection::const_iterator muon = muons.begin()+1; muon != muons.end(); ++ muon ) {
-
-    if (( (*muon).found() > bestOne.found() ) ||
-       (((*muon).found() == bestOne.found()) && ((*muon).chi2() < bestOne.chi2())) )
-       bestOne = (*muon);
-   }
-   return bestOne;
-
+  for (reco::TrackCollection::const_iterator muon = muons.begin() + 1; muon != muons.end(); ++muon) {
+    if (((*muon).found() > bestOne.found()) ||
+        (((*muon).found() == bestOne.found()) && ((*muon).chi2() < bestOne.chi2())))
+      bestOne = (*muon);
+  }
+  return bestOne;
 }
-
 
 PSimHitContainer CosmicMuonValidator::matchedHit(const GlobalPoint& tp, const PSimHitContainer& simHs) const {
+  float dcut = 3.0;
+  PSimHitContainer result;
+  PSimHit rs = simHs.front();
+  bool hasMatched = false;
 
-      float dcut = 3.0;
-      PSimHitContainer result;
-      PSimHit rs = simHs.front();
-      bool hasMatched = false;
+  if (simHs.empty())
+    return result;
 
-      if (simHs.empty()) return result;
+  for (PSimHitContainer::const_iterator ish = simHs.begin(); ish != simHs.end(); ish++) {
+    if (abs((*ish).particleType()) != 13)
+      continue;
 
-      for (PSimHitContainer::const_iterator ish = simHs.begin();
-           ish != simHs.end(); ish++ ) {
+    DetId idsim((*ish).detUnitId());
 
-            if (abs( (*ish).particleType() ) != 13 ) continue;
-
-            DetId idsim( (*ish).detUnitId() );
-
-            GlobalPoint sp = theService->trackingGeometry()->idToDet(idsim)->surface().toGlobal(ish->entryPoint()); //entryPoint or localPosition??
-            GlobalVector dist = sp - tp;
-            float d = fabs(dist.y());
-            if ( d < dcut ) {
-               rs = (*ish);
-               dcut = d;
-               hasMatched = true;
-             }
-       }
-      if ( hasMatched ) { 
-            result.push_back(rs);
-            DetId idsim( rs.detUnitId() );
-            cout<<"selected simhit: "<< theService->trackingGeometry()->idToDet(idsim)->surface().toGlobal(rs.entryPoint())<<endl;
-            cout<<"matched with   : "<< tp <<endl;
-
-      }
-      return result;
-
+    GlobalPoint sp = theService->trackingGeometry()->idToDet(idsim)->surface().toGlobal(
+        ish->entryPoint());  //entryPoint or localPosition??
+    GlobalVector dist = sp - tp;
+    float d = fabs(dist.y());
+    if (d < dcut) {
+      rs = (*ish);
+      dcut = d;
+      hasMatched = true;
+    }
+  }
+  if (hasMatched) {
+    result.push_back(rs);
+    DetId idsim(rs.detUnitId());
+    cout << "selected simhit: " << theService->trackingGeometry()->idToDet(idsim)->surface().toGlobal(rs.entryPoint())
+         << endl;
+    cout << "matched with   : " << tp << endl;
+  }
+  return result;
 }
 
-TrajectoryStateOnSurface CosmicMuonValidator::updatedState(const TrajectoryStateOnSurface& tsos,const PSimHit& hit) const{
+TrajectoryStateOnSurface CosmicMuonValidator::updatedState(const TrajectoryStateOnSurface& tsos,
+                                                           const PSimHit& hit) const {
+  DetId idsim(hit.detUnitId());
 
-    DetId idsim( hit.detUnitId() );
+  TrajectoryStateOnSurface result =
+      propagator()->propagate(tsos, theService->trackingGeometry()->idToDet(idsim)->surface());
 
-    TrajectoryStateOnSurface  result = propagator()->propagate(tsos,theService->trackingGeometry()->idToDet(idsim)->surface());
-
-    return result;
+  return result;
 }
 
 edm::ESHandle<Propagator> CosmicMuonValidator::propagator() const {
-   return theService->propagator("SteppingHelixPropagatorAny");
+  return theService->propagator("SteppingHelixPropagatorAny");
 }
-

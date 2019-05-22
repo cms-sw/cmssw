@@ -11,7 +11,11 @@
 
 #include "boost/mpl/vector.hpp"
 
-class TransientRecHitRecord : public edm::eventsetup::DependentRecordImplementation<TransientRecHitRecord,
-			      boost::mpl::vector<CaloGeometryRecord,TrackerDigiGeometryRecord,TkStripCPERecord,TkPixelCPERecord,GlobalTrackingGeometryRecord> > {};
-#endif 
-
+class TransientRecHitRecord
+    : public edm::eventsetup::DependentRecordImplementation<TransientRecHitRecord,
+                                                            boost::mpl::vector<CaloGeometryRecord,
+                                                                               TrackerDigiGeometryRecord,
+                                                                               TkStripCPERecord,
+                                                                               TkPixelCPERecord,
+                                                                               GlobalTrackingGeometryRecord> > {};
+#endif
