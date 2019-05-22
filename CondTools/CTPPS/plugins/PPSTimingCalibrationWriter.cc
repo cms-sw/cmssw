@@ -23,31 +23,27 @@
 
 #include <memory>
 
-class PPSTimingCalibrationWriter : public edm::one::EDAnalyzer<>
-{
-  public:
-    explicit PPSTimingCalibrationWriter( const edm::ParameterSet& ) {}
+class PPSTimingCalibrationWriter : public edm::one::EDAnalyzer<> {
+public:
+  explicit PPSTimingCalibrationWriter(const edm::ParameterSet&) {}
 
-  private:
-    void beginJob() override {}
-    void analyze( const edm::Event&, const edm::EventSetup& ) override;
-    void endJob() override {}
+private:
+  void beginJob() override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 };
 
-void
-PPSTimingCalibrationWriter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
+void PPSTimingCalibrationWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get timing calibration parameters
   edm::ESHandle<PPSTimingCalibration> hTimingCalib;
-  iSetup.get<PPSTimingCalibrationRcd>().get( hTimingCalib );
+  iSetup.get<PPSTimingCalibrationRcd>().get(hTimingCalib);
 
   // store the calibration into a DB object
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if ( poolDbService.isAvailable() )
-    poolDbService->writeOne( hTimingCalib.product(), poolDbService->currentTime(), "PPSTimingCalibrationRcd" );
+  if (poolDbService.isAvailable())
+    poolDbService->writeOne(hTimingCalib.product(), poolDbService->currentTime(), "PPSTimingCalibrationRcd");
   else
     throw cms::Exception("PPSTimingCalibrationWriter") << "PoolDBService required.";
 }
 
-DEFINE_FWK_MODULE( PPSTimingCalibrationWriter );
-
+DEFINE_FWK_MODULE(PPSTimingCalibrationWriter);

@@ -2,5 +2,4 @@
 #include "CondFormats/SiPhase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMap.h"
 #include "CondFormats/DataRecord/interface/TrackerDetToDTCELinkCablingMapRcd.h"
 
-REGISTER_PLUGIN(TrackerDetToDTCELinkCablingMapRcd,TrackerDetToDTCELinkCablingMap);
-
+REGISTER_PLUGIN(TrackerDetToDTCELinkCablingMapRcd, TrackerDetToDTCELinkCablingMap);
