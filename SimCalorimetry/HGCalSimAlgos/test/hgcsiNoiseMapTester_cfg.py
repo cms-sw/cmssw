@@ -18,13 +18,22 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 process.source = cms.Source("EmptySource")
 
-process.plotter = cms.EDAnalyzer("HGCSiNoiseMapAnalyzer",
-                                 doseMap          = cms.string( options.doseMap ),
-                                 ePerMipPerMicron = cms.double(73)
-                             )
+process.plotter_eol = cms.EDAnalyzer("HGCSiNoiseMapAnalyzer",
+                                     doseMap            = cms.string( options.doseMap ),
+                                     aimMIPtoADC        = cms.int32(10),
+                                     ignoreGainSettings = cms.bool(False),
+                                     ignoreFluence      = cms.bool(False)
+                                 )
+
+process.plotter_eol_nogain = process.plotter_eol.clone( ignoreGainSettings = cms.bool(True) )
+
+process.plotter_start = process.plotter_eol.clone( ignoreFluence = cms.bool(True) )
+
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("dosemap_output.root")
 )
 
-process.p = cms.Path(process.plotter)
+process.p = cms.Path(process.plotter_eol
+                     *process.plotter_eol_nogain
+                     *process.plotter_start)
