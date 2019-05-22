@@ -64,7 +64,6 @@ process.MessageLogger = cms.Service(
 if options.label not in _ALLOWED_LABELS:
     print("\n*** Error, '%s' not registered as a valid components to monitor." % options.label)
     print("Allowed components:", _ALLOWED_LABELS)
-    print()
     raise RuntimeError("Unknown label")
 
 _components = _LABELS2COMPS[options.label]
@@ -89,7 +88,7 @@ if re.match('.*2016.*', options.geom):
           _components[i] = _adaptToRun2(_components[i])
   else:
       _components = _adaptToRun2(_components)
-    
+
 #
 #Magnetic Field
 #
