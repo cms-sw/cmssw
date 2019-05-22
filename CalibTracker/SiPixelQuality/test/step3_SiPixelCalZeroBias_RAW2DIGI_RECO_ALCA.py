@@ -5,9 +5,8 @@
 # with command line options: step3_SiPixelCalZeroBias -s RAW2DIGI,RECO,ALCA:SiPixelCalZeroBias+PromptCalibProdSiPixel --nThreads 8 --data --era Run2_2017 --scenario pp --conditions auto:run2_data_relval --eventcontent ALCARECO --datatier ALCARECO --dasquery=file dataset=/ZeroBias/Run2017F-v1/RAW run=305064 --customise_commands=process.MessageLogger.cerr.FwkReport.reportEvery = 1000 -n 100 --no_exec
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
-
-process = cms.Process('RECO',eras.Run2_2017)
+from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+process = cms.Process('ALCAHARVEST',Run2_2017)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
