@@ -6,10 +6,10 @@
 #define LUMISTRUCTURES_HH
 
 // The string and stream definitions
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <stdint.h>
 
 #define HCAL_HLX_MAX_BUNCHES 4096
 #define HCAL_HLX_MAX_HLXS 36
