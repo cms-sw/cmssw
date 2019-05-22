@@ -1,5 +1,5 @@
 #ifndef CondCommon_Hash64_h
-#define CondCommon_Hash64_h 
+#define CondCommon_Hash64_h
 
 namespace cond {
 
@@ -11,8 +11,7 @@ namespace cond {
     You can use this free for any purpose.  It has no warranty.
     --------------------------------------------------------------------
   */
-  
-  
+
   /*
     --------------------------------------------------------------------
     hash() -- hash a variable-length key into a 64-bit value
@@ -49,9 +48,8 @@ namespace cond {
     chips or all VAXen.  It gives wrong results on big-endian machines.
     --------------------------------------------------------------------
   */
-  
-  unsigned long  long hash64( unsigned char * k, unsigned long  long length, unsigned long  long level);
-  
-  
-}
+
+  unsigned long long hash64(unsigned char* k, unsigned long long length, unsigned long long level);
+
+}  // namespace cond
 #endif

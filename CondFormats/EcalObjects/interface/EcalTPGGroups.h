@@ -14,25 +14,21 @@ this class is used to define groups which associate a rawId to an objectId where
 P.P.
 */
 
+class EcalTPGGroups {
+public:
+  typedef std::map<uint32_t, uint32_t> EcalTPGGroupsMap;
+  typedef std::map<uint32_t, uint32_t>::const_iterator EcalTPGGroupsMapItr;
 
+  EcalTPGGroups();
+  ~EcalTPGGroups();
 
-class EcalTPGGroups 
-{
- public:
-  typedef std::map<uint32_t, uint32_t> EcalTPGGroupsMap ;
-  typedef std::map<uint32_t, uint32_t>::const_iterator EcalTPGGroupsMapItr ;
+  const EcalTPGGroupsMap& getMap() const { return map_; }
+  void setValue(const uint32_t& rawId, const uint32_t& ObjectId);
 
-  EcalTPGGroups() ;
-  ~EcalTPGGroups() ;
+protected:
+  EcalTPGGroupsMap map_;
 
-  const EcalTPGGroupsMap & getMap() const { return map_; }
-  void  setValue(const uint32_t & rawId, const   uint32_t & ObjectId) ;
-
- protected:
-  EcalTPGGroupsMap map_ ;
-
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

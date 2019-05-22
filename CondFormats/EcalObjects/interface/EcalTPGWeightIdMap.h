@@ -7,23 +7,21 @@
 #include <boost/cstdint.hpp>
 #include "CondFormats/EcalObjects/interface/EcalTPGWeights.h"
 
-class EcalTPGWeightIdMap
-{
- public:
-  typedef std::map<uint32_t, EcalTPGWeights> EcalTPGWeightMap ;
-  typedef std::map<uint32_t, EcalTPGWeights>::const_iterator EcalTPGWeightMapItr ;
+class EcalTPGWeightIdMap {
+public:
+  typedef std::map<uint32_t, EcalTPGWeights> EcalTPGWeightMap;
+  typedef std::map<uint32_t, EcalTPGWeights>::const_iterator EcalTPGWeightMapItr;
 
-  EcalTPGWeightIdMap() ;
-  ~EcalTPGWeightIdMap() ;
+  EcalTPGWeightIdMap();
+  ~EcalTPGWeightIdMap();
 
-  const EcalTPGWeightMap & getMap() const { return map_; }
-  void  setValue(const uint32_t & id, const  EcalTPGWeights & value) ;
+  const EcalTPGWeightMap& getMap() const { return map_; }
+  void setValue(const uint32_t& id, const EcalTPGWeights& value);
 
- private:
-  EcalTPGWeightMap map_ ;
+private:
+  EcalTPGWeightMap map_;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

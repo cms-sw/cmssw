@@ -11,30 +11,24 @@ namespace cond {
   */
   class GenericSummary : public Summary {
   public:
-    
     GenericSummary();
     ~GenericSummary() override;
-    
+
     //
-    explicit GenericSummary(std::string const & s);
-    
+    explicit GenericSummary(std::string const& s);
+
     // short message (just content to be used in a table)
-    void shortMessage(std::ostream & os) const override;
-    
+    void shortMessage(std::ostream& os) const override;
+
     // long message (to be used in pop-up, single views)
-    void longMessage(std::ostream & os) const override;
-    
-    
+    void longMessage(std::ostream& os) const override;
+
   private:
-    
     std::string m_me;
-    
-  
-  COND_SERIALIZABLE;
-};
-  
 
-}
+    COND_SERIALIZABLE;
+  };
 
+}  // namespace cond
 
 #endif

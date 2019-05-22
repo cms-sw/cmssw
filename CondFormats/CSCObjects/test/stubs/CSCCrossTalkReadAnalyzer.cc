@@ -21,40 +21,35 @@ Toy EDProducers and EDProducts for testing purposes only.
 
 using namespace std;
 
-namespace edmtest
-{
-  class CSCCrossTalkReadAnalyzer : public edm::EDAnalyzer
-  {
+namespace edmtest {
+  class CSCCrossTalkReadAnalyzer : public edm::EDAnalyzer {
   public:
-    explicit  CSCCrossTalkReadAnalyzer(edm::ParameterSet const& p) 
-    { }
-    explicit  CSCCrossTalkReadAnalyzer(int i) 
-    { }
-    virtual ~ CSCCrossTalkReadAnalyzer() { }
+    explicit CSCCrossTalkReadAnalyzer(edm::ParameterSet const& p) {}
+    explicit CSCCrossTalkReadAnalyzer(int i) {}
+    virtual ~CSCCrossTalkReadAnalyzer() {}
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+
   private:
   };
-  
-  void
-   CSCCrossTalkReadAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
-  {
+
+  void CSCCrossTalkReadAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
     // Context is not used.
-    std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
-    std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
+    std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
+    std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
     edm::ESHandle<CSCcrosstalk> pcrosstalk;
     context.get<CSCcrosstalkRcd>().get(pcrosstalk);
 
-    const CSCcrosstalk* mycrosstalk=pcrosstalk.product();
-    std::map<int,std::vector<CSCcrosstalk::Item> >::const_iterator it;
-    for( it=mycrosstalk->crosstalk.begin();it!=mycrosstalk->crosstalk.end(); ++it ){
-      std::cout<<"layer id found "<<it->first<<std::endl;
+    const CSCcrosstalk* mycrosstalk = pcrosstalk.product();
+    std::map<int, std::vector<CSCcrosstalk::Item> >::const_iterator it;
+    for (it = mycrosstalk->crosstalk.begin(); it != mycrosstalk->crosstalk.end(); ++it) {
+      std::cout << "layer id found " << it->first << std::endl;
       std::vector<CSCcrosstalk::Item>::const_iterator crosstalkit;
-      for( crosstalkit=it->second.begin(); crosstalkit!=it->second.end(); ++crosstalkit ){
-	std::cout << "  crosstalk_slope_right:  " <<crosstalkit->xtalk_slope_right << " crosstalk_intercept_right: " << crosstalkit->xtalk_intercept_right << std::endl;
+      for (crosstalkit = it->second.begin(); crosstalkit != it->second.end(); ++crosstalkit) {
+        std::cout << "  crosstalk_slope_right:  " << crosstalkit->xtalk_slope_right
+                  << " crosstalk_intercept_right: " << crosstalkit->xtalk_intercept_right << std::endl;
       }
     }
   }
   DEFINE_FWK_MODULE(CSCCrossTalkReadAnalyzer);
-}
-
+}  // namespace edmtest
