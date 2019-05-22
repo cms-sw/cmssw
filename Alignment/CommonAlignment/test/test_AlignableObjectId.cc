@@ -2,8 +2,7 @@
 #include <cassert>
 #include <cstring>
 
-int main(int argc, char**argv)
-{
+int main(int argc, char** argv) {
   using namespace align;
 
   AlignableObjectId alignableObjectId{AlignableObjectId::Geometry::General};
@@ -123,5 +122,5 @@ int main(int argc, char**argv)
   assert(!strcmp(alignableObjectId.idToString(align::AlignableCSCLayer), "CSCLayer"));
   assert(!strcmp(alignableObjectId.idToString(align::AlignableMuon), "Muon"));
   assert(!strcmp(alignableObjectId.idToString(align::BeamSpot), "BeamSpot"));
- // assert(notfound== alignableObjectId.stringToId(0));
+  // assert(notfound== alignableObjectId.stringToId(0));
 }
