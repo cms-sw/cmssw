@@ -16,52 +16,47 @@
 #include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsSetCollection.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
 
+class CTPPSInterpolatedOpticalFunctionsESSource : public edm::ESProducer {
+public:
+  CTPPSInterpolatedOpticalFunctionsESSource(const edm::ParameterSet &);
+  ~CTPPSInterpolatedOpticalFunctionsESSource() override {}
 
-class CTPPSInterpolatedOpticalFunctionsESSource : public edm::ESProducer
-{
-  public:
-    CTPPSInterpolatedOpticalFunctionsESSource(const edm::ParameterSet&);
-    ~CTPPSInterpolatedOpticalFunctionsESSource() override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
-    static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> produce(const CTPPSInterpolatedOpticsRcd &);
 
-    std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> produce(const CTPPSInterpolatedOpticsRcd&);
+private:
+  std::string lhcInfoLabel_;
 
-  private:
-    std::string lhcInfoLabel_;
-
-    float currentCrossingAngle_;
-    bool currentDataValid_;
-    std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> currentData_;
+  float currentCrossingAngle_;
+  bool currentDataValid_;
+  std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> currentData_;
 };
 
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 
-CTPPSInterpolatedOpticalFunctionsESSource::CTPPSInterpolatedOpticalFunctionsESSource(const edm::ParameterSet& iConfig) :
-  lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
-  currentCrossingAngle_(-1.),
-  currentDataValid_(false)
-{
+CTPPSInterpolatedOpticalFunctionsESSource::CTPPSInterpolatedOpticalFunctionsESSource(const edm::ParameterSet &iConfig)
+    : lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
+      currentCrossingAngle_(-1.),
+      currentDataValid_(false) {
   setWhatProduced(this, &CTPPSInterpolatedOpticalFunctionsESSource::produce);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSInterpolatedOpticalFunctionsESSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
-{
+void CTPPSInterpolatedOpticalFunctionsESSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<std::string>("lhcInfoLabel", "")
-    ->setComment("label of the LHCInfo record");
+  desc.add<std::string>("lhcInfoLabel", "")->setComment("label of the LHCInfo record");
 
   descriptions.add("ctppsInterpolatedOpticalFunctionsESSource", desc);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSInterpolatedOpticalFunctionsESSource::produce(const CTPPSInterpolatedOpticsRcd& iRecord)
-{
+std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSInterpolatedOpticalFunctionsESSource::produce(
+    const CTPPSInterpolatedOpticsRcd &iRecord) {
   // get the input data
   edm::ESHandle<LHCOpticalFunctionsSetCollection> hOFColl;
   iRecord.getRecord<CTPPSOpticsRcd>().get(hOFColl);
@@ -74,9 +69,9 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSInterpolatedO
     return currentData_;
 
   // is crossing angle reasonable (LHCInfo is correctly filled in DB)?
-  if (hLHCInfo->crossingAngle() == 0.)
-  {
-    edm::LogInfo("CTPPSInterpolatedOpticalFunctionsESSource") << "Invalid crossing angle, no optical functions produced.";
+  if (hLHCInfo->crossingAngle() == 0.) {
+    edm::LogInfo("CTPPSInterpolatedOpticalFunctionsESSource")
+        << "Invalid crossing angle, no optical functions produced.";
 
     currentDataValid_ = false;
     currentCrossingAngle_ = -1;
@@ -87,12 +82,13 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSInterpolatedO
 
   // set new crossing angle
   currentCrossingAngle_ = hLHCInfo->crossingAngle();
-  edm::LogInfo("CTPPSInterpolatedOpticalFunctionsESSource") << "Crossing angle has changed to " << currentCrossingAngle_ << ".";
+  edm::LogInfo("CTPPSInterpolatedOpticalFunctionsESSource")
+      << "Crossing angle has changed to " << currentCrossingAngle_ << ".";
 
   // is input optics available ?
-  if (hOFColl->empty())
-  {
-    edm::LogInfo("CTPPSInterpolatedOpticalFunctionsESSource") << "No input optics available, no optical functions produced.";
+  if (hOFColl->empty()) {
+    edm::LogInfo("CTPPSInterpolatedOpticalFunctionsESSource")
+        << "No input optics available, no optical functions produced.";
 
     currentDataValid_ = false;
     currentData_ = std::make_shared<LHCInterpolatedOpticalFunctionsSetCollection>();
@@ -101,18 +97,17 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSInterpolatedO
   }
 
   // regular case with single-xangle input
-  if (hOFColl->size() == 1)
-  {
+  if (hOFColl->size() == 1) {
     const auto &it = hOFColl->begin();
 
     // does the input xangle correspond to the actual one?
     if (fabs(currentCrossingAngle_ - it->first) > 1e-6)
-      throw cms::Exception("CTPPSInterpolatedOpticalFunctionsESSource") << "Cannot interpolate: input given only for xangle "
-        << it->first << " while interpolation requested for " << currentCrossingAngle_ << ".";
+      throw cms::Exception("CTPPSInterpolatedOpticalFunctionsESSource")
+          << "Cannot interpolate: input given only for xangle " << it->first << " while interpolation requested for "
+          << currentCrossingAngle_ << ".";
 
     currentData_ = std::make_shared<LHCInterpolatedOpticalFunctionsSetCollection>();
-    for (const auto &rp_p : it->second)
-    {
+    for (const auto &rp_p : it->second) {
       const auto rpId = rp_p.first;
       LHCInterpolatedOpticalFunctionsSet iof(rp_p.second);
       iof.initializeSplines();
@@ -123,20 +118,16 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSInterpolatedO
   }
 
   // regular case with multi-xangle input
-  if (hOFColl->size() > 1)
-  {
+  if (hOFColl->size() > 1) {
     // find the closest xangle points for interpolation
     auto it1 = hOFColl->begin();
     auto it2 = std::next(it1);
 
-    if (currentCrossingAngle_ > it1->first)
-    {
-      for (; it1 != hOFColl->end(); ++it1)
-      {
+    if (currentCrossingAngle_ > it1->first) {
+      for (; it1 != hOFColl->end(); ++it1) {
         it2 = std::next(it1);
 
-        if (it2 == hOFColl->end())
-        {
+        if (it2 == hOFColl->end()) {
           it2 = it1;
           it1 = std::prev(it1);
           break;
@@ -155,8 +146,7 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSInterpolatedO
 
     // do the interpoaltion RP by RP
     currentData_ = std::make_shared<LHCInterpolatedOpticalFunctionsSetCollection>();
-    for (const auto &rp_p : ofs1)
-    {
+    for (const auto &rp_p : ofs1) {
       const auto rpId = rp_p.first;
       const auto &rp_it2 = ofs2.find(rpId);
       if (rp_it2 == ofs2.end())
@@ -178,12 +168,10 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSInterpolatedO
       iof.m_fcn_values.resize(LHCInterpolatedOpticalFunctionsSet::nFunctions);
       iof.m_xi_values.resize(num_xi_vals);
 
-      for (size_t fi = 0; fi < of1.getFcnValues().size(); ++fi)
-      {
+      for (size_t fi = 0; fi < of1.getFcnValues().size(); ++fi) {
         iof.m_fcn_values[fi].resize(num_xi_vals);
 
-        for (size_t pi = 0; pi < num_xi_vals; ++pi)
-        {
+        for (size_t pi = 0; pi < num_xi_vals; ++pi) {
           double xi = of1.getXiValues()[pi];
           double xi_control = of2.getXiValues()[pi];
 

@@ -12,26 +12,28 @@
 #include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
-namespace edm{
+namespace edm {
   class ConfigurationDescriptions;
 }
 
 class HcalTimeSlewEP : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
-  public:
-    HcalTimeSlewEP(const edm::ParameterSet&);
-    ~HcalTimeSlewEP();
-    
-    typedef std::unique_ptr<HcalTimeSlew> ReturnType;
+public:
+  HcalTimeSlewEP(const edm::ParameterSet&);
+  ~HcalTimeSlewEP() override;
 
-    static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
- 
-    ReturnType produce(const HcalTimeSlewRecord&);
+  typedef std::unique_ptr<HcalTimeSlew> ReturnType;
 
- protected:
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-    const edm::ParameterSet& pset_;
+  ReturnType produce(const HcalTimeSlewRecord&);
+
+protected:
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue&,
+                      edm::ValidityInterval&) override;
+
+private:
+  const edm::ParameterSet& pset_;
 };
 
 #endif
