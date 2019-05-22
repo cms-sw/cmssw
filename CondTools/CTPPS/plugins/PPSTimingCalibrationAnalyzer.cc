@@ -24,32 +24,26 @@
 
 #include <memory>
 
-class PPSTimingCalibrationAnalyzer : public edm::one::EDAnalyzer<>
-{
-  public:
-    explicit PPSTimingCalibrationAnalyzer( const edm::ParameterSet& ) {}
+class PPSTimingCalibrationAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  explicit PPSTimingCalibrationAnalyzer(const edm::ParameterSet&) {}
 
-  private:
-    void beginJob() override {}
-    void analyze( const edm::Event&, const edm::EventSetup& ) override;
-    void endJob() override {}
+private:
+  void beginJob() override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
-    edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
+  edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
 };
 
-void
-PPSTimingCalibrationAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
+void PPSTimingCalibrationAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get timing calibration parameters
   edm::ESHandle<PPSTimingCalibration> hTimingCalib;
-  if ( calibWatcher_.check( iSetup ) ) {
-    iSetup.get<PPSTimingCalibrationRcd>().get( hTimingCalib );
+  if (calibWatcher_.check(iSetup)) {
+    iSetup.get<PPSTimingCalibrationRcd>().get(hTimingCalib);
 
-    edm::LogInfo("PPSTimingCalibrationAnalyzer")
-      << "Calibrations retrieved:\n"
-      << *hTimingCalib;
+    edm::LogInfo("PPSTimingCalibrationAnalyzer") << "Calibrations retrieved:\n" << *hTimingCalib;
   }
 }
 
-DEFINE_FWK_MODULE( PPSTimingCalibrationAnalyzer );
-
+DEFINE_FWK_MODULE(PPSTimingCalibrationAnalyzer);

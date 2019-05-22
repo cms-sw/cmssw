@@ -1,5 +1,5 @@
-#include<iostream>
-#include<sstream>
+#include <iostream>
+#include <sstream>
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/Utilities/plugins/BasicP_PayloadInspector.cc"
 
@@ -9,7 +9,6 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 int main(int argc, char** argv) {
-  
   if (argc < 3) {
     std::cout << "Not enough arguments given." << std::endl;
     return 0;
@@ -20,7 +19,7 @@ int main(int argc, char** argv) {
 
   std::vector<edm::ParameterSet> psets;
   edm::ParameterSet pSet;
-  pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
+  pSet.addParameter("@service_type", std::string("SiteLocalConfigService"));
   psets.push_back(pSet);
   edm::ServiceToken servToken(edm::ServiceRegistry::createSet(psets));
   edm::ServiceRegistry::Operate operate(servToken);
@@ -31,10 +30,9 @@ int main(int argc, char** argv) {
   std::string runTimeType = cond::time::timeTypeName(cond::runnumber);
   cond::Time_t since = boost::lexical_cast<unsigned long long>(argv[2]);
 
-  std::cout <<"## PNG Histo"<<std::endl;
-  
-  BasicPayload_data6 histo1;
-  histo1.process( connectionString, tag, runTimeType, since, since );
-  std::cout <<histo1.data()<<std::endl;
+  std::cout << "## PNG Histo" << std::endl;
 
+  BasicPayload_data6 histo1;
+  histo1.process(connectionString, tag, runTimeType, since, since);
+  std::cout << histo1.data() << std::endl;
 }
