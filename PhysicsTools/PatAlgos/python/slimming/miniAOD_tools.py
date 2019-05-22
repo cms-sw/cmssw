@@ -25,12 +25,20 @@ def miniAOD_customizeCommon(process):
     process.patMuons.puppiNoLeptonsIsolationNeutralHadrons = cms.InputTag("muonPUPPINoLeptonsIsolation","h0-DR040-ThresholdVeto000-ConeVeto001")
     process.patMuons.puppiNoLeptonsIsolationPhotons        = cms.InputTag("muonPUPPINoLeptonsIsolation","gamma-DR040-ThresholdVeto000-ConeVeto001")
 
-    process.patMuons.computeMiniIso = cms.bool(True)
-    process.patMuons.computeMuonMVA = cms.bool(True)
-    process.patMuons.computeSoftMuonMVA = cms.bool(True)
+    process.patMuons.computeMiniIso = True
+    process.patMuons.computeMuonMVA = True
+    process.patMuons.computeSoftMuonMVA = True
 
     process.patMuons.addTriggerMatching = True
+    from Configuration.Eras.Modifier_run2_muon_2016_cff import run2_muon_2016
+    from Configuration.Eras.Modifier_run2_muon_2017_cff import run2_muon_2017
+    from Configuration.Eras.Modifier_run2_muon_2018_cff import run2_muon_2018
+    run2_muon_2016.toModify( process.patMuons, effectiveAreaVec = [0.0735,0.0619,0.0465,0.0433,0.0577])
+    run2_muon_2017.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
+    run2_muon_2018.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
+    run2_muon_2016.toModify( process.patMuons, mvaTrainingFile = "RecoMuon/MuonIdentification/data/mu_2016_BDTG.weights.xml")
 
+    process.patMuons.computePuppiCombinedIso = True
     #
     # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
     process.patElectrons.embedGsfElectronCore = False  ## process.patElectrons.embed in AOD externally stored gsf electron core
@@ -280,6 +288,7 @@ def miniAOD_customizeCommon(process):
     #VID Electron IDs
     process.patElectrons.addElectronID = cms.bool(True)
     electron_ids = ['RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV71_cff',
                     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff', 
@@ -293,47 +302,22 @@ def miniAOD_customizeCommon(process):
     switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD, task)
     process.egmGsfElectronIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
-    process.electronMVAVariableHelper.src = \
-        cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
     process.electronMVAValueMapProducer.src = \
         cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
     for idmod in electron_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False,task)
-        
-    #heepIDVarValueMaps only exists if HEEP V6.1 or HEEP 7.0 ID has already been loaded
-    if hasattr(process,'heepIDVarValueMaps'):
-        process.heepIDVarValueMaps.elesMiniAOD = cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
-        #force HEEP to use miniAOD (otherwise it'll detect the AOD)
-        process.heepIDVarValueMaps.dataFormat = cms.int32(2)
-  
-        #add the HEEP trk isol to the slimmed electron, add it to the first FromFloatValMap modifier
-        for pset in process.slimmedElectrons.modifierConfig.modifications:
-            if pset.hasParameter("modifierName") and pset.modifierName == cms.string('EGExtraInfoModifierFromFloatValueMaps'):
-                pset.electron_config.heepTrkPtIso = cms.InputTag("heepIDVarValueMaps","eleTrkPtIso")
-                break
-               
 
     #VID Photon IDs
     process.patPhotons.addPhotonID = cms.bool(True)
     photon_ids = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V1_TrueVtx_cff',
                   'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V2_cff',
-                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1_cff', 
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1p1_cff', 
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cff',
                   'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff',
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff']
     switchOnVIDPhotonIdProducer(process,DataFormat.AOD, task) 
-    process.egmPhotonIsolation.srcToIsolate = \
-        cms.InputTag("reducedEgamma","reducedGedPhotons")  
-    for iPSet in process.egmPhotonIsolation.isolationConeDefinitions:
-        iPSet.particleBasedIsolation = cms.InputTag("reducedEgamma","reducedPhotonPfCandMap")    
-
     process.egmPhotonIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedPhotons")
-    process.photonIDValueMapProducer.src = \
-        cms.InputTag("reducedEgamma","reducedGedPhotons")
-    process.photonIDValueMapProducer.particleBasedIsolation = \
-        cms.InputTag("reducedEgamma","reducedPhotonPfCandMap")
     process.photonMVAValueMapProducer.src = \
         cms.InputTag('reducedEgamma','reducedGedPhotons')
     for idmod in photon_ids:
@@ -456,6 +440,14 @@ def miniAOD_customizeCommon(process):
     process.load("RecoEgamma.EgammaTools.slimmedEgammaFromMultiCl_cff")
     phase2_hgcal.toModify(task, func=lambda t: t.add(process.slimmedEgammaFromMultiClTask))
 
+    # L1 pre-firing weights for 2016 and 2017
+    from Configuration.Eras.Modifier_run2_L1prefiring_cff import run2_L1prefiring
+    from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
+    from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
+    process.load("PhysicsTools.PatUtils.L1ECALPrefiringWeightProducer_cff")
+    stage1L1Trigger.toModify(process.prefiringweight, DataEra = "2016BtoH")
+    stage2L1Trigger_2017.toModify(process.prefiringweight, DataEra = "2017BtoF")
+    run2_L1prefiring.toModify(task, func=lambda t: t.add(process.prefiringweight))
 
 def miniAOD_customizeMC(process):
     task = getPatAlgosToolsTask(process)
@@ -514,8 +506,12 @@ def miniAOD_customizeData(process):
     from PhysicsTools.PatAlgos.tools.coreTools import runOnData
     runOnData( process, outputModules = [] )
     process.load("RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cff")
+    process.load("RecoCTPPS.ProtonReconstruction.ctppsProtons_cff")
+    process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
     task = getPatAlgosToolsTask(process)
-    task.add(process.ctppsLocalTrackLiteProducer)
+    from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+    ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsLocalTrackLiteProducer))
+    ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsProtons))
 
 def miniAOD_customizeAllData(process):
     miniAOD_customizeCommon(process)

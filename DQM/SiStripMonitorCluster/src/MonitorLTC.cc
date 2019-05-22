@@ -14,21 +14,16 @@
 #include "DQM/SiStripMonitorCluster/interface/MonitorLTC.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-MonitorLTC::MonitorLTC(
-    const edm::ParameterSet&
-        iConfig)  // :
-                  //  ltcDigiCollectionTag_(iConfig.getParameter<edm::InputTag>("ltcDigiCollectionTag"))
+MonitorLTC::MonitorLTC(const edm::ParameterSet& iConfig)  // :
+//  ltcDigiCollectionTag_(iConfig.getParameter<edm::InputTag>("ltcDigiCollectionTag"))
 {
   HLTDirectory = "HLTResults";
-  dqmStore_ = edm::Service<DQMStore>().operator->();
   conf_ = iConfig;
 
-  ltcDigiCollectionTagToken_ = consumes<LTCDigiCollection>(
-      conf_.getParameter<edm::InputTag>("ltcDigiCollectionTag"));
+  ltcDigiCollectionTagToken_ = consumes<LTCDigiCollection>(conf_.getParameter<edm::InputTag>("ltcDigiCollectionTag"));
 }
 
-void MonitorLTC::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run,
-                                const edm::EventSetup& es) {
+void MonitorLTC::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& es) {
   ibooker.setCurrentFolder(HLTDirectory);
   // 0 DT
   // 1 CSC
@@ -48,8 +43,7 @@ void MonitorLTC::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run,
   LTCTriggerDecision_all->setBinLabel(5, "RPCTB");
 }
 
-void MonitorLTC::analyze(const edm::Event& iEvent,
-                         const edm::EventSetup& iSetup) {
+void MonitorLTC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<LTCDigiCollection> ltcdigis;
   iEvent.getByToken(ltcDigiCollectionTagToken_, ltcdigis);
   //  unsigned int ltc_run;
@@ -60,8 +54,7 @@ void MonitorLTC::analyze(const edm::Event& iEvent,
   //  unsigned int ltc_orbit;
   //  unsigned int ltc_bunch;
   //  unsigned int ltc_inhibit;
-  for (LTCDigiCollection::const_iterator ltcdigiItr = ltcdigis->begin();
-       ltcdigiItr != ltcdigis->end(); ++ltcdigiItr) {
+  for (LTCDigiCollection::const_iterator ltcdigiItr = ltcdigis->begin(); ltcdigiItr != ltcdigis->end(); ++ltcdigiItr) {
     //    ltc_run = ltcdigiItr->runNumber();
     //    ltc_event = ltcdigiItr->eventNumber();
     //    ltc_triggerNumber = ltcdigiItr->eventID();

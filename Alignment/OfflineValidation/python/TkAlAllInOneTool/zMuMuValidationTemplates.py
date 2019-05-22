@@ -155,8 +155,8 @@ process.looper = cms.Looper(
 
     ########## TO BE ENABLED ################################
     # Set the cuts on muons to be used in the fit
-    MinMuonPt = cms.untracked.double(0.),
-    MaxMuonPt = cms.untracked.double(1000.),
+    MinMuonPt = cms.untracked.double(.oO[minpt]Oo.),
+    MaxMuonPt = cms.untracked.double(.oO[maxpt]Oo.),
     MinMuonEtaFirstRange = cms.untracked.double(.oO[etaminneg]Oo.),
     MaxMuonEtaFirstRange = cms.untracked.double(.oO[etamaxneg]Oo.),
     MinMuonEtaSecondRange = cms.untracked.double(.oO[etaminpos]Oo.),

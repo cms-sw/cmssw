@@ -32,14 +32,14 @@ bool
 MultiTrajectoryStateTransform::outerMomentumFromMode (const reco::GsfTrack& tk,
 						      GlobalVector& momentum) const
 {
-  return MultiTrajectoryStateMode().momentumFromModeCartesian(outerStateOnSurface(tk),momentum);
+  return multiTrajectoryStateMode::momentumFromModeCartesian(outerStateOnSurface(tk),momentum);
 }
 
 bool
 MultiTrajectoryStateTransform::innerMomentumFromMode (const reco::GsfTrack& tk,
 						      GlobalVector& momentum) const
 {
-  return MultiTrajectoryStateMode().momentumFromModeCartesian(outerStateOnSurface(tk),momentum);
+  return multiTrajectoryStateMode::momentumFromModeCartesian(outerStateOnSurface(tk),momentum);
 }
 
 TrajectoryStateOnSurface 

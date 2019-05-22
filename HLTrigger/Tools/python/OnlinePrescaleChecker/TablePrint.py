@@ -1,6 +1,7 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import sys
-from colors import *
+from .colors import *
 write = sys.stdout.write
 
 def PrettyPrintTable(Headers,Data,ColWidths,WarningCol=[],border='*'):

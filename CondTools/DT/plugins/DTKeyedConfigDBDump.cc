@@ -31,58 +31,50 @@
 // Initializations --
 //-------------------
 
-
 //----------------
 // Constructors --
 //----------------
-DTKeyedConfigDBDump::DTKeyedConfigDBDump( const edm::ParameterSet& ps ) {
-}
+DTKeyedConfigDBDump::DTKeyedConfigDBDump(const edm::ParameterSet& ps) {}
 
 //--------------
 // Destructor --
 //--------------
-DTKeyedConfigDBDump::~DTKeyedConfigDBDump() {
-}
+DTKeyedConfigDBDump::~DTKeyedConfigDBDump() {}
 
 //--------------
 // Operations --
 //--------------
-void DTKeyedConfigDBDump::beginJob() {
+void DTKeyedConfigDBDump::beginJob() { return; }
 
-  return;
-
-}
-
-
-void DTKeyedConfigDBDump::analyze( const edm::Event& e,
-                                   const edm::EventSetup& c ) {
-  edm::eventsetup::EventSetupRecordKey
-    recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("DTKeyedConfigListRcd"));
-  if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
+void DTKeyedConfigDBDump::analyze(const edm::Event& e, const edm::EventSetup& c) {
+  edm::eventsetup::EventSetupRecordKey recordKey(
+      edm::eventsetup::EventSetupRecordKey::TypeTag::findType("DTKeyedConfigListRcd"));
+  if (recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
     //record not found
-    std::cout <<"Record \"DTKeyedConfigListRcd "<<"\" does not exist "<<std::endl;
+    std::cout << "Record \"DTKeyedConfigListRcd "
+              << "\" does not exist " << std::endl;
   }
   edm::ESHandle<cond::persistency::KeyList> klh;
-  std::cout<<"got eshandle"<<std::endl;
+  std::cout << "got eshandle" << std::endl;
   c.get<DTKeyedConfigListRcd>().get(klh);
-  std::cout<<"got context"<<std::endl;
-  cond::persistency::KeyList const &  kl= *klh.product();
-  cond::persistency::KeyList* kp = const_cast<cond::persistency::KeyList*>( &kl );
+  std::cout << "got context" << std::endl;
+  cond::persistency::KeyList const& kl = *klh.product();
+  cond::persistency::KeyList* kp = const_cast<cond::persistency::KeyList*>(&kl);
   std::vector<unsigned long long> nkeys;
-  nkeys.push_back( 999999999 );
+  nkeys.push_back(999999999);
   std::cout << "now load" << std::endl;
-  kp->load( nkeys );
+  kp->load(nkeys);
   std::cout << "now get" << std::endl;
   std::shared_ptr<DTKeyedConfig> pkc = kp->get<DTKeyedConfig>(0);
   std::cout << "now check" << std::endl;
-  if ( pkc.get() ) std::cout << pkc->getId() << " "
-                            << *( pkc->dataBegin() ) << std::endl;
-  else            std::cout << "not found" << std::endl;
+  if (pkc.get())
+    std::cout << pkc->getId() << " " << *(pkc->dataBegin()) << std::endl;
+  else
+    std::cout << "not found" << std::endl;
   std::cout << std::endl;
   std::vector<unsigned long long> nvoid;
-  kp->load( nvoid );
+  kp->load(nvoid);
   return;
 }
 
 DEFINE_FWK_MODULE(DTKeyedConfigDBDump);
-

@@ -8,17 +8,14 @@
 #include <memory>
 #include <string>
 
-class FastSimGeometryESProducer: public edm::ESProducer{
-    public:
-    FastSimGeometryESProducer(const edm::ParameterSet & p);
-    ~FastSimGeometryESProducer() override; 
-    std::unique_ptr<fastsim::Geometry> produce(const GeometryRecord &);
-    private:
-    edm::ParameterSet theTrackerMaterial;
+class FastSimGeometryESProducer : public edm::ESProducer {
+public:
+  FastSimGeometryESProducer(const edm::ParameterSet &p);
+  ~FastSimGeometryESProducer() override;
+  std::unique_ptr<fastsim::Geometry> produce(const GeometryRecord &);
+
+private:
+  edm::ParameterSet theTrackerMaterial;
 };
 
-
 #endif
-
-
-

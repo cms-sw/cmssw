@@ -43,6 +43,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
+#include "TH1D.h"
 #include "TH2D.h"
 
 class HGCalSimHitStudy : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
@@ -88,6 +89,7 @@ private:
   //histogram related stuff
   std::vector<TH2D*>                    h_RZ_, h_EtaPhi_, h_EtFiZp_, h_EtFiZm_;
   std::vector<TH1D*>                    h_E_, h_T_, h_LayerZp_, h_LayerZm_;
+  std::vector<TH1D*>                    h_W1_, h_W2_, h_C1_, h_C2_, h_Ly_;
 };
 
 HGCalSimHitStudy::HGCalSimHitStudy(const edm::ParameterSet& iConfig) :
@@ -156,7 +158,7 @@ void HGCalSimHitStudy::analyze(const edm::Event& iEvent,
 	for (auto const& hit : *(theCaloHitContainers.product()) ) {
 	  unsigned int id = hit.id();
 	  HcalDetId hid = HcalHitRelabeller::relabel(id,hcons_);
-	  if (hid.subdet()!=int(HcalEndcap)) {
+	  if (hid.subdet()!=static_cast<int>(HcalEndcap)) {
 	    caloHits.emplace_back(hit);
 	    caloHits.back().setID(hid.rawId());
 	    if (verbosity_>0)
@@ -228,10 +230,13 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name,
 	zside    = detId.zside();
 	xy       = hgcons_[ih]->locateCell(layer,sector,sector2,cell,cell2,
 					   false,true);
+	h_W2_[ih]->Fill(sector2);
+	h_C2_[ih]->Fill(cell2);
+
       } else if ((hgcons_[ih]->geomMode() == HGCalGeometryMode::Hexagon8) ||
 		 (hgcons_[ih]->geomMode() == HGCalGeometryMode::Hexagon8Full)){
 	HGCSiliconDetId detId = HGCSiliconDetId(id);
-	subdet   = (int)(detId.det());
+	subdet   = static_cast<int>(detId.det());
 	cell     = detId.cellU();
 	cell2    = detId.cellV();
 	sector   = detId.waferU();
@@ -241,10 +246,12 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name,
 	zside    = detId.zside();
 	xy       = hgcons_[ih]->locateCell(layer,sector,sector2,cell,cell2,
 					   false,true);
+	h_W2_[ih]->Fill(sector2);
+	h_C2_[ih]->Fill(cell2);
       } else if (hgcons_[ih]->geomMode() == HGCalGeometryMode::Trapezoid) {
 	HGCScintillatorDetId detId = HGCScintillatorDetId(id);
-	subdet   = (int)(detId.det());
-	sector   = detId.ietaAbs();
+	subdet   = static_cast<int>(detId.det());
+	sector   = detId.ieta();
 	cell     = detId.iphi();
 	type     = detId.type();
 	layer    = detId.layer();
@@ -298,6 +305,9 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name,
     h_RZ_[ih+1]->Fill(std::abs(gcoord.z()),gcoord.rho());
     h_EtaPhi_[0]   ->Fill(std::abs(hinfo.eta),hinfo.phi);
     h_EtaPhi_[ih+1]->Fill(std::abs(hinfo.eta),hinfo.phi);
+    h_Ly_[ih]->Fill(layer);
+    h_W1_[ih]->Fill(sector);
+    h_C1_[ih]->Fill(cell);
   }
   if (verbosity_>0) 
     edm::LogVerbatim("HGCalValidation") << name << " with " << map_hits.size()
@@ -455,6 +465,48 @@ void HGCalSimHitStudy::beginJob() {
     }
     h_T_.emplace_back(fs->make<TH1D>(name.str().c_str(), title.str().c_str(),
 				     1000,0.0,200.0));
+  }
+
+  for (unsigned int ih=0; ih<nameDetectors_.size(); ++ih) {
+    name.str(""); title.str("");
+    name  << "LY_" << nameDetectors_[ih];
+    title << "Layer number for " << nameDetectors_[ih];
+    h_Ly_.emplace_back(fs->make<TH1D>(name.str().c_str(), 
+					title.str().c_str(),200,0,100));
+    if ((nameDetectors_[ih]=="HGCalHEScintillatorSensitive") ||
+	heRebuild_[ih]) {
+      name.str(""); title.str("");
+      name  << "IR_" << nameDetectors_[ih];
+      title << "Radius index for " << nameDetectors_[ih];
+      h_W1_.emplace_back(fs->make<TH1D>(name.str().c_str(), 
+					title.str().c_str(),200,-50,50));
+      name.str(""); title.str("");
+      name  << "FI_" << nameDetectors_[ih];
+      title << "#phi index for " << nameDetectors_[ih];
+      h_C1_.emplace_back(fs->make<TH1D>(name.str().c_str(), 
+					title.str().c_str(),720,0,360));
+    } else {
+      name.str(""); title.str("");
+      name  << "WU_" << nameDetectors_[ih];
+      title << "u index of wafers for " << nameDetectors_[ih];
+      h_W1_.emplace_back(fs->make<TH1D>(name.str().c_str(), 
+					title.str().c_str(),200,-50,50));
+      name.str(""); title.str("");
+      name  << "WV_" << nameDetectors_[ih];
+      title << "v index of wafers for " << nameDetectors_[ih];
+      h_W2_.emplace_back(fs->make<TH1D>(name.str().c_str(), 
+					title.str().c_str(),100,-50,50));
+      name.str(""); title.str("");
+      name  << "CU_" << nameDetectors_[ih];
+      title << "u index of cells for " << nameDetectors_[ih];
+      h_C1_.emplace_back(fs->make<TH1D>(name.str().c_str(), 
+					title.str().c_str(),100,0,50));
+      name.str(""); title.str("");
+      name  << "CV_" << nameDetectors_[ih];
+      title << "v index of cells for " << nameDetectors_[ih];
+      h_C2_.emplace_back(fs->make<TH1D>(name.str().c_str(), 
+					title.str().c_str(),100,0,50));
+    }
   }
 }
 

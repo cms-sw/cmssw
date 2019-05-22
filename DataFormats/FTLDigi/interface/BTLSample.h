@@ -23,9 +23,9 @@ public:
   /**
      @short CTOR
   */
- BTLSample() : value_(0), flag_(0) { }
- BTLSample(uint32_t value, uint16_t flag) : value_(value), flag_(flag) { }
- BTLSample( const BTLSample& o ) : value_(o.value_), flag_(o.flag_) { }
+ BTLSample() : value_(0), flag_(0), row_(0), col_(0) { }
+ BTLSample(uint32_t value, uint16_t flag, uint8_t row, uint8_t col) : value_(value), flag_(flag), row_(row), col_(col) { }
+ BTLSample( const BTLSample& o ) : value_(o.value_), flag_(o.flag_), row_(o.row_), col_(o.col_) { }
   
   /**
      @short setters
@@ -35,7 +35,7 @@ public:
   void setToA(uint16_t toa)             { setDataWord(toa,  kToAMask,    kToAShift);    }
   void setToA2(uint16_t toa2)           { setDataWord(toa2, kToA2Mask,   kToA2Shift);   }
   void setData(uint16_t data)           { setDataWord(data, kDataMask,   kDataShift);   }
-  void set(bool thr, bool mode, uint16_t toa2, uint16_t toa, uint16_t data) 
+  void set(bool thr, bool mode, uint16_t toa2, uint16_t toa, uint16_t data, uint8_t row, uint8_t col) 
   { 
     flag_  = ( ( (uint16_t)thr  & kThreshMask ) << kThreshShift | 
                ( (uint16_t)mode & kModeMask   ) << kModeShift     );    
@@ -43,6 +43,8 @@ public:
     value_ = ( ( (uint32_t)toa2 & kToA2Mask   ) << kToA2Shift   | 
                ( (uint32_t)toa  & kToAMask    ) << kToAShift    | 
                ( (uint32_t)data & kDataMask   ) << kDataShift     );    
+    row_ = row;
+    col_ = col;
   }  
   void print(std::ostream &out=std::cout)
   {
@@ -51,8 +53,11 @@ public:
 	<< " ToA2: " << toa2() 
 	<< " ToA: " << toa() 
 	<< " Data: " << data() 
+	<< " Row: " << (uint32_t)row() 
+	<< " Column: " << (uint32_t)column() 
 	<< " Raw Flag=0x" << std::hex << raw_flag() << std::dec
 	<< " Raw Data=0x" << std::hex << raw_data() << std::dec << std::endl;  
+        
   }
 
   /**
@@ -65,6 +70,8 @@ public:
   uint32_t toa()  const      { return ( (value_ >> kToAShift)    & kToAMask    ); }
   uint32_t toa2() const      { return ( (value_ >> kToA2Shift)   & kToA2Mask   ); }
   uint32_t data() const      { return ( (value_ >> kDataShift)   & kDataMask   ); }
+  uint8_t row() const { return row_; } 
+  uint8_t column() const { return col_; }
   
 private:
 
@@ -89,6 +96,7 @@ private:
   // bit-words for data and flags
   uint32_t value_;
   uint16_t flag_;
+  uint8_t row_,col_;
 };
 
   

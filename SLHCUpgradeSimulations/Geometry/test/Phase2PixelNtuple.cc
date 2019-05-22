@@ -54,6 +54,10 @@
 #include <string>
 #include <iostream>
 
+// CLHEP (for speed of light)
+#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
 //#define EDM_ML_DEBUG
 
 using namespace std;
@@ -130,7 +134,7 @@ private:
     int disk,blade,panel,side;  // FPix
     int nsimhit;
     int spreadx,spready;
-    float hx, hy;
+    float hx, hy, ht;
     float hrow, hcol;
     float tx, ty, tz;
     float theta, phi;
@@ -214,6 +218,7 @@ void Phase2PixelNtuple::beginJob()
   pixeltree_->Branch("spready",	&recHit_.spready	 ,"spready/I");	   
   pixeltree_->Branch("hx",	&recHit_.hx		 ,"hx/F");	   
   pixeltree_->Branch("hy",	&recHit_.hy		 ,"hy/F");	   
+  pixeltree_->Branch("ht",	&recHit_.ht		 ,"ht/F");	   
   pixeltree_->Branch("hrow",	&recHit_.hrow   	 ,"hrow/F");		   
   pixeltree_->Branch("hcol",	&recHit_.hcol   	 ,"hcol/F");	
   pixeltree_->Branch("tx",	&recHit_.tx		 ,"tx/F");	   
@@ -264,6 +269,7 @@ void Phase2PixelNtuple::beginJob()
   pixeltreeOnTrack_->Branch("spready",&recHit_.spready	 ,"spready/I");	   
   pixeltreeOnTrack_->Branch("hx",	&recHit_.hx		 ,"hx/F");	   
   pixeltreeOnTrack_->Branch("hy",	&recHit_.hy		 ,"hy/F");
+  pixeltreeOnTrack_->Branch("ht",	&recHit_.ht		 ,"ht/F");
   pixeltreeOnTrack_->Branch("hrow",	&recHit_.hrow   	 ,"hrow/F");		   
   pixeltreeOnTrack_->Branch("hcol",	&recHit_.hcol   	 ,"hcol/F");
   pixeltreeOnTrack_->Branch("tx",	&recHit_.tx		 ,"tx/F");	   
@@ -579,6 +585,9 @@ void Phase2PixelNtuple::fillPRecHit(const int detid_db, const int subid,
     float sim_y2 = closest_simhit->exitPoint().y();
     recHit_.hy = 0.5*(sim_y1+sim_y2);
 
+    float time_to_detid_ns = GP0.mag()/(CLHEP::c_light*CLHEP::ns/CLHEP::cm); // speed of light in ns
+    recHit_.ht = closest_simhit->timeOfFlight() - time_to_detid_ns;    
+
     recHit_.tx = closest_simhit->localDirection().x();
     recHit_.ty = closest_simhit->localDirection().y();
     recHit_.tz = closest_simhit->localDirection().z();
@@ -699,6 +708,10 @@ void Phase2PixelNtuple::fillPRecHit(const int detid_db, const int subid,
     float sim_y2 = closest_simhit->exitPoint().y();
     recHit_.hy = 0.5*(sim_y1+sim_y2);
 
+    float time_to_detid_ns = GP0.mag()/(CLHEP::c_light*CLHEP::ns/CLHEP::cm); // speed of light in ns
+    recHit_.ht = closest_simhit->timeOfFlight() - time_to_detid_ns;    
+
+
     recHit_.tx = closest_simhit->localDirection().x();
     recHit_.ty = closest_simhit->localDirection().y();
     recHit_.tz = closest_simhit->localDirection().z();
@@ -767,6 +780,7 @@ void Phase2PixelNtuple::RecHit::init()
   spready=0;
   hx = dummy_float;
   hy = dummy_float;
+  ht = dummy_float;
   tx = dummy_float;
   ty = dummy_float;
   tz = dummy_float;

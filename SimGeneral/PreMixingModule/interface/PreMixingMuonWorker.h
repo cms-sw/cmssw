@@ -12,34 +12,40 @@
 #include "SimGeneral/PreMixingModule/interface/PreMixingWorker.h"
 
 template <typename DigiCollection>
-class PreMixingMuonWorker: public PreMixingWorker {
+class PreMixingMuonWorker : public PreMixingWorker {
 public:
-  PreMixingMuonWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC): PreMixingMuonWorker(ps, producer, iC) {}
+  PreMixingMuonWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC)
+      : PreMixingMuonWorker(ps, producer, iC) {}
   PreMixingMuonWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector& iC);
   ~PreMixingMuonWorker() override = default;
 
   void initializeEvent(edm::Event const& iEvent, edm::EventSetup const& iSetup) override {}
   void addSignals(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
   void addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& iSetup) override;
-  void put(edm::Event& iEvent, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> const& ps, int bunchSpacing) override {
+  void put(edm::Event& iEvent,
+           edm::EventSetup const& iSetup,
+           std::vector<PileupSummaryInfo> const& ps,
+           int bunchSpacing) override {
     put(iEvent);
   }
 
   void put(edm::Event& iEvent);
+
 private:
   edm::EDGetTokenT<DigiCollection> signalToken_;
   edm::InputTag pileupTag_;
-  std::string collectionDM_; // secondary name to be given to new digis
+  std::string collectionDM_;  // secondary name to be given to new digis
 
   std::unique_ptr<DigiCollection> accumulated_;
 };
 
 template <typename DigiCollection>
-PreMixingMuonWorker<DigiCollection>::PreMixingMuonWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector& iC):
-  signalToken_(iC.consumes<DigiCollection>(ps.getParameter<edm::InputTag>("digiTagSig"))),
-  pileupTag_(ps.getParameter<edm::InputTag>("pileInputTag")),
-  collectionDM_(ps.getParameter<std::string>("collectionDM"))
-{
+PreMixingMuonWorker<DigiCollection>::PreMixingMuonWorker(const edm::ParameterSet& ps,
+                                                         edm::ProducerBase& producer,
+                                                         edm::ConsumesCollector& iC)
+    : signalToken_(iC.consumes<DigiCollection>(ps.getParameter<edm::InputTag>("digiTagSig"))),
+      pileupTag_(ps.getParameter<edm::InputTag>("pileInputTag")),
+      collectionDM_(ps.getParameter<std::string>("collectionDM")) {
   producer.produces<DigiCollection>(collectionDM_);
 }
 
@@ -48,14 +54,14 @@ void PreMixingMuonWorker<DigiCollection>::addSignals(edm::Event const& iEvent, e
   edm::Handle<DigiCollection> digis;
   iEvent.getByToken(signalToken_, digis);
 
-  accumulated_ = std::make_unique<DigiCollection>(*digis); // for signal we can just copy
+  accumulated_ = std::make_unique<DigiCollection>(*digis);  // for signal we can just copy
 }
 
 template <typename DigiCollection>
 void PreMixingMuonWorker<DigiCollection>::addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& iSetup) {
   edm::Handle<DigiCollection> digis;
   pep.getByLabel(pileupTag_, digis);
-  for(const auto& elem: *digis) {
+  for (const auto& elem : *digis) {
     accumulated_->put(elem.second, elem.first);
   }
 }

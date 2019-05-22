@@ -24,17 +24,15 @@ class DDLElementRegistry;
  *                                                                         
 **/
 
-class DDLBooleanSolid final : public DDLSolid
-{
- public:
+class DDLBooleanSolid final : public DDLSolid {
+public:
+  DDLBooleanSolid(DDLElementRegistry* myreg);
 
-  DDLBooleanSolid( DDLElementRegistry* myreg );
+  void preProcessElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
-
- private:
-  std::string dumpBooleanSolid (const std::string& name, const std::string& nmspace); 
+private:
+  std::string dumpBooleanSolid(const std::string& name, const std::string& nmspace);
 };
 
 #endif

@@ -155,11 +155,14 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( Tran
     //ORCA: float p = ((mymap[counter].second)/total_sum > 0.01 ? (mymap[counter].second)/total_sum : 1.e-6);
 
 
-    LogTrace("SiTrackerMultiRecHitUpdator")<< "  Component hit type " << typeid(*mymap[counter].first).name()
-                                           << " and dim:" << mymap[counter].first->dimension()
-                                           << " position (PRECISE!!!)" << mymap[counter].first->localPosition()
-                                           << " error " << mymap[counter].first->localPositionError()
+#ifdef EDM_ML_DEBUG
+    auto const& tmp = *mymap[counter].first;
+    LogTrace("SiTrackerMultiRecHitUpdator")<< "  Component hit type " << typeid(tmp).name()
+                                           << " and dim:" << tmp.dimension()
+                                           << " position (PRECISE!!!)" << tmp.localPosition()
+                                           << " error " << tmp.localPositionError()
                                            << " with weight " << p ;
+#endif
 
     if( p > 10e-6 ){
       invalid = false;

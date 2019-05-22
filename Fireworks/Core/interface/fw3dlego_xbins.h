@@ -18,12 +18,11 @@
 //         Created:  Wed Dec  3 13:55:42 EST 2008
 //
 
-namespace fw3dlego
-{
-   extern const int    xbins_n;
-   extern const double xbins[];
-   extern const int    xbins_hf_n;
-   extern const double xbins_hf[];
-}
+namespace fw3dlego {
+  extern const int xbins_n;
+  extern const double xbins[];
+  extern const int xbins_hf_n;
+  extern const double xbins_hf[];
+}  // namespace fw3dlego
 
 #endif

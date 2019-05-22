@@ -119,7 +119,7 @@ int main() {
     go<5>();
     go<7>();
     go<9>();
-  } catch(cuda::runtime_error ex) {
+  } catch(cuda::runtime_error &ex) {
     std::cerr << "CUDA error: " << ex.what() << std::endl;
     exit(EXIT_FAILURE);
   } catch(...) {

@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 import unittest
 from ROOT import TFile
-from tree import Tree
+from .tree import Tree
 
 class TreeTestCase(unittest.TestCase):
 

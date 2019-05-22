@@ -10,32 +10,30 @@
  */
 
 // system include files
+#include <fstream>
 #include <memory>
 #include <string>
-#include <fstream>
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
-
 class RawToText : public edm::EDAnalyzer {
- public:
-  explicit RawToText(const edm::ParameterSet&);
+public:
+  explicit RawToText(const edm::ParameterSet &);
   ~RawToText() override;
-  
- private:
+
+private:
   void beginJob() override;
-  void analyze (const edm::Event&, const edm::EventSetup&) override;
-  void endJob  () override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
 
- private:
-
+private:
   // FED collection label
-  edm::InputTag inputLabel_;  
+  edm::InputTag inputLabel_;
 
   // ID of the FED to emulate
   int fedId_;

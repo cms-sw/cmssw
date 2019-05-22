@@ -22,26 +22,30 @@
 
 class TrajectoryStateOnSurface;
 
-class BowedSurfaceAlignmentDerivatives 
-{
+class BowedSurfaceAlignmentDerivatives {
 public:
-  
   enum AlignmentParameterName {
-    dx = 0, dy, dz,
-    dslopeX, // NOTE: slope(u) -> k*tan(beta), 
-    dslopeY, //       slope(v) -> k*tan(alpha)
-    drotZ,   // rotation around w axis, scaled by gammaScale
-    dsagittaX, dsagittaXY, dsagittaY,
+    dx = 0,
+    dy,
+    dz,
+    dslopeX,  // NOTE: slope(u) -> k*tan(beta),
+    dslopeY,  //       slope(v) -> k*tan(alpha)
+    drotZ,    // rotation around w axis, scaled by gammaScale
+    dsagittaX,
+    dsagittaXY,
+    dsagittaY,
     N_PARAM
   };
 
   /// Returns 9x2 jacobian matrix
   AlgebraicMatrix operator()(const TrajectoryStateOnSurface &tsos,
-			     double uWidth, double vLength,
-			     bool doSplit = false, double ySplit = 0.) const;
+                             double uWidth,
+                             double vLength,
+                             bool doSplit = false,
+                             double ySplit = 0.) const;
 
   /// scale to apply to convert drotZ to karimaki-gamma,
-  /// depending on module width and length (the latter after splitting!)  
+  /// depending on module width and length (the latter after splitting!)
   static double gammaScale(double width, double splitLength);
 };
 

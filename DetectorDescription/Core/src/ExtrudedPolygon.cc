@@ -1,5 +1,5 @@
 #include "DetectorDescription/Core/src/ExtrudedPolygon.h" 
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/src/Solid.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -8,7 +8,7 @@
 #include <cassert>
 
 using DDI::ExtrudedPolygon;
-using namespace dd::operators;
+using namespace geant_units::operators;
 
 ExtrudedPolygon::ExtrudedPolygon( const std::vector<double> & x,
 				  const std::vector<double> & y,
@@ -46,14 +46,14 @@ DDI::ExtrudedPolygon::stream( std::ostream & os ) const
   auto xysize = ( unsigned int )(( p_.size() - 4*p_[0]) * 0.5 );
   os << " XY Points[cm]=";
   for( unsigned int k = 1; k <= xysize; ++k )
-    os << CONVERT_TO( p_[k], cm ) << ", " <<  CONVERT_TO( p_[k + xysize], cm ) << "; ";
+    os << convertMmToCm( p_[k] ) << ", " <<  convertMmToCm( p_[k + xysize] ) << "; ";
   os << " with " << p_[0] << " Z sections:";
   unsigned int m0 = p_.size() - 4*p_[0];
   for( unsigned int m = m0; m < m0 + p_[0]; ++m )
   {
-    os << " z[cm]=" << CONVERT_TO( p_[m], cm );
-    os << ", x[cm]=" << CONVERT_TO( p_[m+p_[0]], cm );
-    os << ", y[cm]="  << CONVERT_TO( p_[m+2*p_[0]], cm );
-    os << ", scale[cm]="  << CONVERT_TO( p_[m+3*p_[0]], cm ) << ";";
+    os << " z[cm]=" << convertMmToCm( p_[m] );
+    os << ", x[cm]=" << convertMmToCm( p_[m+p_[0]] );
+    os << ", y[cm]="  << convertMmToCm( p_[m+2*p_[0]] );
+    os << ", scale[cm]="  << convertMmToCm( p_[m+3*p_[0]] ) << ";";
   }
 }

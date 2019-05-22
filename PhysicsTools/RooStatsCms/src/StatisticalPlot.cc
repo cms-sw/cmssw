@@ -10,7 +10,7 @@
 
 //For Cint
 #if (defined (STANDALONE) or defined (__CINT__) )
-ClassImp(StatisticalPlot)
+ClassImp(StatisticalPlot);
 #endif
 /*----------------------------------------------------------------------------*/
 

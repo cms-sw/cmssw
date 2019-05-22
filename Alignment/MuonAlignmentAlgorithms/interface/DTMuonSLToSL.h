@@ -16,25 +16,22 @@
 #include <cmath>
 
 class DTMuonSLToSL : public DTMuonLocalAlignment {
-  
-  public:
-
+public:
   DTMuonSLToSL(std::string, int, float, float, TFile *);
 
-  ~DTMuonSLToSL(); 
+  ~DTMuonSLToSL();
 
   void calculationSLToSL();
 
   TMatrixD returnCSLMatrix(float, float, float);
-  
+
   TMatrixD returnbSLMatrix(float, float, float);
 
   void setBranchTree();
 
-  private:
-
+private:
   //Variables for the output tree
-  //------------------------------------- 
+  //-------------------------------------
   int whC, stC, srC;
   float dx, dz, phiy;
   float cov[3][3];
@@ -43,7 +40,6 @@ class DTMuonSLToSL : public DTMuonLocalAlignment {
   float ptMax, ptMin;
 
   TTree *ttreeOutput;
-
 };
 
 #endif

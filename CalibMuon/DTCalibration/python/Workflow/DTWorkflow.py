@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import os,sys
 import glob
 import logging
@@ -8,9 +9,9 @@ import time, datetime
 import urllib2
 import json
 
-import tools
-from CLIHelper import CLIHelper
-from CrabHelper import CrabHelper
+from . import tools
+from .CLIHelper import CLIHelper
+from .CrabHelper import CrabHelper
 import FWCore.ParameterSet.Config as cms
 log = logging.getLogger(__name__)
 

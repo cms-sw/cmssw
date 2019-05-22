@@ -13,5 +13,4 @@
 #define CPP11_is_pointer std::tr1::is_pointer
 #endif
 
-#endif // GENERS_CPP11_TYPE_TRAITS_HH_
-
+#endif  // GENERS_CPP11_TYPE_TRAITS_HH_

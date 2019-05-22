@@ -15,19 +15,17 @@
 // Original Author:  Sunanda Banerjee
 //         Created:  Thu May 18 10:14:34 CEST 2006
 //
-  
+
 // system include files
- 
+
 // user include files
 #include "Geometry/EcalCommonData/interface/EcalNumberingScheme.h"
 
 class HcalTB04XtalNumberingScheme : public EcalNumberingScheme {
-
 public:
   HcalTB04XtalNumberingScheme();
   ~HcalTB04XtalNumberingScheme() override;
-  uint32_t getUnitID(const EcalBaseNumber& baseNumber) const override ;
-
+  uint32_t getUnitID(const EcalBaseNumber& baseNumber) const override;
 };
 
 #endif

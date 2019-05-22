@@ -90,8 +90,8 @@ namespace cond {
 	static std::string fullyQualifiedName(){ 
 	  return "MIN("+SINCE::fullyQualifiedName()+")";	  
 	} 
-	static std::string group(){
-	  std::string sgroupSize = std::to_string(cond::time::SINCE_GROUP_SIZE);
+	static std::string group( unsigned long long groupSize ){
+	  std::string sgroupSize = std::to_string(groupSize);
 	  return "CAST("+SINCE::fullyQualifiedName()+"/"+sgroupSize+" AS INT )*"+sgroupSize;
 	}
       };
@@ -129,7 +129,7 @@ namespace cond {
 	~Table() override{}
 	bool exists() override;
 	void create() override;
-	size_t getGroups( const std::string& tag, const boost::posix_time::ptime& snapshotTime, 
+	size_t getGroups( const std::string& tag, const boost::posix_time::ptime& snapshotTime, unsigned long long groupSize,
 			  std::vector<cond::Time_t>& groups ) override;
 	size_t select( const std::string& tag, cond::Time_t lowerGroup, cond::Time_t upperGroup, 
 		       const boost::posix_time::ptime& snapshotTime, 

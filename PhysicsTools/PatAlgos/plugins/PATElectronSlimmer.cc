@@ -72,13 +72,9 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
     reducedEndcapRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection"))),
     modifyElectron_(iConfig.getParameter<bool>("modifyElectrons"))
 {
-    edm::ConsumesCollector sumes(consumesCollector());
     if( modifyElectron_ ) {
       const edm::ParameterSet& mod_config = iConfig.getParameter<edm::ParameterSet>("modifierConfig");
-      electronModifier_.reset(new pat::ObjectModifier<pat::Electron>(mod_config) );
-      electronModifier_->setConsumes(sumes);
-    } else {
-      electronModifier_.reset(nullptr);
+      electronModifier_ = std::make_unique<pat::ObjectModifier<pat::Electron>>(mod_config, consumesCollector());
     }
 
     mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));

@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 import unittest
 
-from diclist import diclist
+from .diclist import diclist
 
 class DiclistTestCase(unittest.TestCase):
 

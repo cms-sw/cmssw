@@ -64,41 +64,105 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug=false){
   return id;
 }
 
-double puFactor(int type, int ieta, double pmom, double eHcal, double ediff) {
+double puFactor(int type, int ieta, double pmom, double eHcal, double ediff,
+		bool debug=false) {
 
   double fac(1.0);
-  double frac = (type == 1) ? 0.02 : 0.03;
-  if (pmom > 0 && ediff >  frac*pmom) {
-    double a1(0), a2(0);
-    if (type == 1) {
-      a1 = -0.35; a2 = -0.65;
-      if (std::abs(ieta) == 25) {
-	a2 = -0.30;
-      } else if (std::abs(ieta) > 25) {
-	a1 = -0.45; a2 = -0.10;
+  if (debug) std::cout << "Input Type " << type << " ieta " << ieta
+		       << " pmon " << pmom << " E " << eHcal << ":" << ediff;
+  if (type <=2) {
+    double frac = (type == 1) ? 0.02 : 0.03;
+    if (pmom > 0 && ediff >  frac*pmom) {
+      double a1(0), a2(0);
+      if (type == 1) {
+	a1 = -0.35; a2 = -0.65;
+	if (std::abs(ieta) == 25) {
+	  a2 = -0.30;
+	} else if (std::abs(ieta) > 25) {
+	  a1 = -0.45; a2 = -0.10;
+	}
+      } else {
+	a1 = -0.39; a2 = -0.59;
+	if (std::abs(ieta) >= 25) {
+	  a1 = -0.283; a2 = -0.272;
+	} else if (std::abs(ieta) > 22) {
+	  a1 = -0.238; a2 = -0.241;
+	}
       }
-    } else {
-      a1 = -0.39; a2 = -0.59;
-      if (std::abs(ieta) >= 25) {
-	a1 = -0.283; a2 = -0.272;
-      } else if (std::abs(ieta) > 22) {
-	a1 = -0.238; a2 = -0.241;
-      }
+      fac = (1.0+a1*(eHcal/pmom)*(ediff/pmom)*(1+a2*(ediff/pmom)));
+      if (debug) std::cout << " coeff " << a1 << ":" << a2 << " Fac " << fac;
     }
-    fac = (1.0+a1*(eHcal/pmom)*(ediff/pmom)*(1+a2*(ediff/pmom)));
+  } else {
+    int    jeta = std::abs(ieta);
+    double d2p  = (ediff/pmom);
+    const double DELTA_CUT = 0.03;
+    const int    PU_IETA_3 = 25;
+    if (type == 3) {           // 16pu
+      const double CONST_COR_COEF[4]  = { 0.971, 1.008,  0.985,  1.086 };
+      const double LINEAR_COR_COEF[4] = { 0,    -0.359, -0.251, -0.535 };
+      const double SQUARE_COR_COEF[4] = { 0,     0,      0.048,  0.143 };
+      const int    PU_IETA_1          = 9;
+      const int    PU_IETA_2          = 16;
+      unsigned icor = (unsigned(jeta >= PU_IETA_1) + 
+		       unsigned(jeta >= PU_IETA_2) +
+		       unsigned(jeta >= PU_IETA_3));
+      if (d2p > DELTA_CUT) fac = (CONST_COR_COEF[icor] + 
+				  LINEAR_COR_COEF[icor]*d2p + 
+				  SQUARE_COR_COEF[icor]*d2p*d2p);
+      if (debug) std::cout << " d2p " << d2p << ":"  << DELTA_CUT << " coeff " 
+			   << icor << ":"  << CONST_COR_COEF[icor] << ":" 
+			   << LINEAR_COR_COEF[icor] << ":"
+			   << SQUARE_COR_COEF[icor] << " Fac " << fac;
+    } else if (type == 4) {    // 17pu
+      const double CONST_COR_COEF[4]  = { 0.974, 1.023,  0.989,  1.077 };
+      const double LINEAR_COR_COEF[4] = { 0,    -0.524, -0.268, -0.584 };
+      const double SQUARE_COR_COEF[4] = { 0,     0,      0.053,  0.170 };
+      const int PU_IETA_1             = 9;
+      const int PU_IETA_2             = 18;
+      unsigned icor = (unsigned(jeta >= PU_IETA_1) + 
+		       unsigned(jeta >= PU_IETA_2) +
+		       unsigned(jeta >= PU_IETA_3));
+      if (d2p > DELTA_CUT) fac = (CONST_COR_COEF[icor] + 
+				  LINEAR_COR_COEF[icor]*d2p + 
+				  SQUARE_COR_COEF[icor]*d2p*d2p);
+      if (debug) std::cout << " d2p " << d2p << ":"  << DELTA_CUT << " coeff " 
+			   << icor << ":"  << CONST_COR_COEF[icor] << ":" 
+			   << LINEAR_COR_COEF[icor] << ":"
+			   << SQUARE_COR_COEF[icor] << " Fac " << fac;
+    } else {                   // 18pu
+      const double CONST_COR_COEF[4]  = { 0.973, 0.998,  0.992,  0.965 };
+      const double LINEAR_COR_COEF[4] = { 0,    -0.318, -0.261, -0.406 };
+      const double SQUARE_COR_COEF[4] = { 0,     0,      0.047,  0.089 };
+      const int PU_IETA_1      = 7;
+      const int PU_IETA_2      = 16;
+      unsigned icor = (unsigned(jeta >= PU_IETA_1) + 
+		       unsigned(jeta >= PU_IETA_2) +
+		       unsigned(jeta >= PU_IETA_3));
+      if (d2p > DELTA_CUT) fac = (CONST_COR_COEF[icor] + 
+				  LINEAR_COR_COEF[icor]*d2p + 
+				  SQUARE_COR_COEF[icor]*d2p*d2p);
+      if (debug) std::cout << " d2p " << d2p << ":"  << DELTA_CUT << " coeff " 
+			   << icor << ":"  << CONST_COR_COEF[icor] << ":" 
+			   << LINEAR_COR_COEF[icor] << ":"
+			   << SQUARE_COR_COEF[icor] << " Fac " << fac;
+    }
   }
+  if (fac < 0 || fac > 1) fac = 0;
+  if (debug) std::cout << " Final factor " << fac << std::endl;
   return fac;
 }
 
 double puFactorRho(int type, int ieta, double rho, double eHcal) {
   // type = 1: 2017 Data;  2: 2017 MC; 3: 2018 MC; 4: 2018AB; 5: 2018BC
-  double par[30] = {0.0205395,-43.0914,2.67115,0.239674,-0.0228009,0.000476963,
-		    0.129097,-105.831,9.58076,0.156392,-0.034671,0.000809736,
-		    0.202391,-145.962,12.1489,0.329384,-0.0511365,0.00113219,
+  //        6: 2016 MC;
+  double par[36] = {0.0205395,-43.0914,2.67115,0.239674,-0.0228009,0.000476963,
+		    0.137566,-32.8386,3.25886,0.0863636,-0.0165639,0.000413894,
+		    0.206168,-145.828,10.3191,0.531418,-0.0578416,0.00118905,
 		    0.175356,-175.543,14.3414,0.294718,-0.049836,0.00106228,
-		    0.134314,-175.809,13.5307,0.395943,-0.0539062,0.00111573};
+		    0.134314,-175.809,13.5307,0.395943,-0.0539062,0.00111573,
+		    0.145342,-98.1904,8.14001,0.205526,-0.0327818,0.000726059};
   double energy(eHcal);
-  if (type >= 1 && type <= 5) {
+  if (type >= 1 && type <= 6) {
     int    eta = std::abs(ieta);
     int    it  = 6*(type-1);
     double ea  = (eta < 20) ? par[it] : ((((par[it+5]*eta+par[it+4])*eta+par[it+3])*eta+par[it+2])*eta+par[it+1]);

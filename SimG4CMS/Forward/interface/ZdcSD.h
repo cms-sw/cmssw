@@ -11,34 +11,33 @@
 #include "SimG4CMS/Forward/interface/ZdcNumberingScheme.h"
 
 class ZdcSD : public CaloSD {
+public:
+  ZdcSD(const std::string &,
+        const DDCompactView &,
+        const SensitiveDetectorCatalog &,
+        edm::ParameterSet const &,
+        const SimTrackManager *);
 
-public:    
-  ZdcSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
-        edm::ParameterSet const &,const SimTrackManager*);
- 
   ~ZdcSD() override = default;
 
-  uint32_t setDetUnitId(const G4Step* step) override;
- 
-  void setNumberingScheme(ZdcNumberingScheme* scheme);
- 
+  uint32_t setDetUnitId(const G4Step *step) override;
+
+  void setNumberingScheme(ZdcNumberingScheme *scheme);
+
 protected:
+  double getEnergyDeposit(const G4Step *) override;
+  bool getFromLibrary(const G4Step *) override;
+  void initRun() override;
 
-  double getEnergyDeposit(const G4Step*) override;
-  bool   getFromLibrary(const G4Step*) override;
-  void   initRun() override;
-
-private:    
-
+private:
   int verbosity;
-  bool  useShowerLibrary,useShowerHits; 
+  bool useShowerLibrary, useShowerHits;
   double thFibDir;
   double zdcHitEnergyCut;
 
-  std::unique_ptr<ZdcShowerLibrary>   showerLibrary;
+  std::unique_ptr<ZdcShowerLibrary> showerLibrary;
   std::unique_ptr<ZdcNumberingScheme> numberingScheme;
   std::vector<ZdcShowerLibrary::Hit> hits;
-
 };
 
-#endif // ZdcSD_h
+#endif  // ZdcSD_h

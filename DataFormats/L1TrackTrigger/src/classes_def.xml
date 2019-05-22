@@ -1,26 +1,25 @@
 <lcgdict>
-  <class name="Ref_Phase2TrackerDigi_" />
-  <class name="std::vector<Ref_Phase2TrackerDigi_>" />
-  <class pattern="TTCluster<*>" />
-  <class pattern="std::vector<TTCluster<*>>" />
-  <class pattern="edm::Wrapper<std::vector<TTCluster<*>>>" />
-  <class pattern="edmNew::DetSetVector<TTCluster<*>>" />
-  <class pattern="edm::Wrapper<edmNew::DetSetVector<TTCluster<*>>>" />
-  <class pattern="edm::Ref<edmNew::DetSetVector<TTCluster<*>>,TTCluster<*>,edmNew::DetSetVector<TTCluster<*>>::FindForDetSetVector>" />
-  <class pattern="edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTCluster<*>>,TTCluster<*>,edmNew::DetSetVector<TTCluster<*>>::FindForDetSetVector>>" />
-  <class pattern="TTStub<*>" />
-  <class pattern="std::vector<TTStub<*>>" />
-  <class pattern="edm::Wrapper<std::vector<TTStub<*>>>" />
-  <class pattern="edmNew::DetSetVector<TTStub<*>>" />
-  <class pattern="edm::Wrapper<edmNew::DetSetVector<TTStub<*>>>" />
-  <class pattern="edm::Ref<edmNew::DetSetVector<TTStub<*>>,TTStub<*>,edmNew::DetSetVector<TTStub<*>>::FindForDetSetVector>" />
-  <class pattern="edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTStub<*>>,TTStub<*>,edmNew::DetSetVector<TTStub<*>>::FindForDetSetVector>>" />
-  <class pattern="TTTrack<*>" />
-  <class pattern="std::vector<TTTrack<*>>" />
-  <class pattern="edm::Wrapper<std::vector<TTTrack<*>>>" />
-  <class pattern="edmNew::DetSetVector<TTTrack<*>>" />
-  <class pattern="edm::Wrapper<edmNew::DetSetVector<TTTrack<*>>>" />
-  <class pattern="edm::Ref<edmNew::DetSetVector<TTTrack<*>>,TTTrack<*>,edmNew::DetSetVector<TTTrack<*>>::FindForDetSetVector>" />
-  <class pattern="edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTTrack<*>>,TTTrack<*>,edmNew::DetSetVector<TTTrack<*>>::FindForDetSetVector>>" />
+  <class name="TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >" />
+  <class name="TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >" />
+  <class name="TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >" />
+  <class name="edm::Ref<edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >,TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >,edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector>" />
+  <class name="edm::Ref<edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >,TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >,edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector>" />
+  <class name="edm::Ref<edmNew::DetSetVector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >,TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >,edmNew::DetSetVector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector>" />
+  <class name="edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >,TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >,edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector> >" />
+  <class name="edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >,TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >,edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector> >" />
+  <class name="edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >,TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >,edmNew::DetSetVector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector> >" />
+  <class name="edm::Wrapper<edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > >" />
+  <class name="edm::Wrapper<edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > >" />
+  <class name="edm::Wrapper<edmNew::DetSetVector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > >" />
+  <class name="edm::Wrapper<vector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > >" />
+  <class name="edm::Wrapper<vector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > >" />
+  <class name="edm::Wrapper<vector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > >" />
+  <class name="edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
+  <class name="edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
+  <class name="edmNew::DetSetVector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
+  <class name="vector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
+  <class name="vector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
+  <class name="vector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
+
 </lcgdict>
 

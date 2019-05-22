@@ -20,18 +20,15 @@
 #include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
 #include "CondFormats/DataRecord/interface/L1MuDTEtaPatternLutRcd.h"
 
-
 class DTEtaPatternLutTester : public edm::EDAnalyzer {
- public:
-
+public:
   DTEtaPatternLutTester(const edm::ParameterSet& ps);
 
   ~DTEtaPatternLutTester() override;
-  
+
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
- private:
-
+private:
 };
 
 #endif

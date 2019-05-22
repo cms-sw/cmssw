@@ -34,9 +34,7 @@ using namespace muonisolation;
 
 //! constructor with config
 MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
-  theConfig(par),
-  theDepositNames(std::vector<std::string>(1,std::string())),
-  theExtractor(nullptr)
+  theDepositNames(std::vector<std::string>(1,std::string()))
 {
   static const std::string metname = "RecoMuon|MuonIsolationProducers|MuIsoDepositProducer";
   LogDebug(metname)<<" MuIsoDepositProducer CTOR";
@@ -70,25 +68,20 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
   }
 
   for (unsigned int i = 0; i < theDepositNames.size(); ++i){
-    std::string alias = theConfig.getParameter<std::string>("@module_label");
-    if (theDepositNames[i] != "") alias += "_" + theDepositNames[i];
+    std::string alias = par.getParameter<std::string>("@module_label");
+    if (!theDepositNames[i].empty()) alias += "_" + theDepositNames[i];
     produces<reco::IsoDepositMap>(theDepositNames[i]).setBranchAlias(alias);
   }
 
-  if (!theExtractor) {
-    edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
-    std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-    theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
-    LogDebug(metname)<<" Load extractor..."<<extractorName;
-  }
-
-
+  edm::ParameterSet extractorPSet = par.getParameter<edm::ParameterSet>("ExtractorPSet");
+  std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
+  theExtractor = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector())};
+  LogDebug(metname)<<" Load extractor..."<<extractorName;
 }
 
 //! destructor
 MuIsoDepositProducer::~MuIsoDepositProducer(){
   LogDebug("RecoMuon/MuIsoDepositProducer")<<" MuIsoDepositProducer DTOR";
-  delete theExtractor;
 }
 
 //! build deposits

@@ -34,10 +34,8 @@ void SpecialClusterImporter<T>::
 importToBlock( const edm::Event& e, 
 	       BlockElementImporterBase::ElementList& elems ) const {
   BlockElementImporterBase::ElementList ecals;
-  edm::Handle<reco::PFClusterCollection> clusters;
-  edm::Handle<edm::ValueMap<reco::CaloClusterPtr> > assoc;
-  e.getByToken(_src,clusters);
-  e.getByToken(_assoc,assoc);
+  auto clusters = e.getHandle(_src);
+  auto assoc = e.getHandle(_assoc);
   auto bclus = clusters->cbegin();
   auto eclus = clusters->cend();
   // get all the SCs in the element list

@@ -24,6 +24,5 @@ namespace cms {
       std::unique_lock<std::mutex> l(g_xerces_mutex);
       XMLPlatformUtils::Terminate();
     }
-  }
-}
-
+  }  // namespace concurrency
+}  // namespace cms

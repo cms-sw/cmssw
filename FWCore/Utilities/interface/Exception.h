@@ -48,42 +48,36 @@ namespace cms {
     // member template needed to support streaming output to an object
     // of type cms::Exception, or a subclass of cms::Exception.
 
-    template <typename T, bool b> struct Desired;
-    template <typename T> struct Desired<T, true> { typedef T type; };
-
+    template <typename T, bool b>
+    struct Desired;
+    template <typename T>
+    struct Desired<T, true> {
+      typedef T type;
+    };
 
     // The following struct template is a metafunction which combines
     // two of the boost type_traits metafunctions.
 
     template <typename BASE, typename DERIVED>
     struct is_derived_or_same {
-      static bool const value = 
-	std::is_base_of<BASE,DERIVED>::value || std::is_same<BASE,DERIVED>::value;
+      static bool const value = std::is_base_of<BASE, DERIVED>::value || std::is_same<BASE, DERIVED>::value;
     };
 
-  }
-
+  }  // namespace detail
 
   class dso_export Exception : public std::exception {
   public:
-
     explicit Exception(std::string const& aCategory);
-    explicit Exception(char const*        aCategory);
+    explicit Exception(char const* aCategory);
 
-    Exception(std::string const& aCategory,
-	      std::string const& message);
-    Exception(char const*        aCategory,
-	      std::string const& message);
-    Exception(std::string const& aCategory,
-	      char const*        message);
-    Exception(char const*        aCategory,
-	      char const*        message);
+    Exception(std::string const& aCategory, std::string const& message);
+    Exception(char const* aCategory, std::string const& message);
+    Exception(std::string const& aCategory, char const* message);
+    Exception(char const* aCategory, char const* message);
 
-    Exception(std::string const& aCategory,
-              std::string const& message,
-              Exception const& another);
+    Exception(std::string const& aCategory, std::string const& message, Exception const& another);
 
-    Exception(Exception const& other); 
+    Exception(Exception const& other);
     ~Exception() noexcept override;
 
     void swap(Exception& other);
@@ -101,7 +95,7 @@ namespace cms {
     std::list<std::string> const& additionalInfo() const;
     int returnCode() const;
 
-    void raise() {rethrow();}
+    void raise() { rethrow(); }
 
     void append(Exception const& another);
     void append(std::string const& more_information);
@@ -112,10 +106,10 @@ namespace cms {
     void clearAdditionalInfo();
 
     void addContext(std::string const& context);
-    void addContext(char const*        context);
+    void addContext(char const* context);
 
     void addAdditionalInfo(std::string const& info);
-    void addAdditionalInfo(char const*        info);
+    void addAdditionalInfo(char const* info);
 
     void setContext(std::list<std::string> const& context);
     void setAdditionalInfo(std::list<std::string> const& info);
@@ -146,20 +140,16 @@ namespace cms {
     // object is a real danger.
 
     template <typename E, typename T>
-    friend
-    typename detail::Desired<E, detail::is_derived_or_same<Exception,std::remove_reference_t<E>>::value>::type &
+    friend typename detail::Desired<E, detail::is_derived_or_same<Exception, std::remove_reference_t<E>>::value>::type&
     operator<<(E&& e, T const& stuff);
 
     template <typename E>
-    friend
-    typename detail::Desired<E, detail::is_derived_or_same<Exception,std::remove_reference_t<E>>::value>::type &
-    operator<<(E&& e, std::ostream&(*f)(std::ostream&));
+    friend typename detail::Desired<E, detail::is_derived_or_same<Exception, std::remove_reference_t<E>>::value>::type&
+    operator<<(E&& e, std::ostream& (*f)(std::ostream&));
 
-  
     template <typename E>
-    friend
-    typename detail::Desired<E, detail::is_derived_or_same<Exception,std::remove_reference_t<E>>::value>::type &
-    operator<<(E&& e, std::ios_base&(*f)(std::ios_base&));
+    friend typename detail::Desired<E, detail::is_derived_or_same<Exception, std::remove_reference_t<E>>::value>::type&
+    operator<<(E&& e, std::ios_base& (*f)(std::ios_base&));
 
     // The following two function templates should be included, to help
     // reduce the number of function templates instantiated. However,
@@ -171,7 +161,7 @@ namespace cms {
     //     typename detail::Desired<E, (std::is_base_of<Exception,E>::value ||
     // 				 std::is_same<Exception,E>::value)>::type &
     //     operator<<(E& e, const char*);
-  
+
     //    template <typename E>
     //    friend
     //    typename detail::Desired<E, (std::is_base_of<Exception,E>::value ||
@@ -183,7 +173,6 @@ namespace cms {
     std::list<std::string> history() const;
 
   private:
-
     void init(std::string const& message);
     virtual void rethrow();
     virtual int returnCode_() const;
@@ -197,10 +186,7 @@ namespace cms {
     bool alreadyPrinted_;
   };
 
-  inline 
-  std::ostream& 
-  operator<<(std::ostream& ost, Exception const& e)
-  {
+  inline std::ostream& operator<<(std::ostream& ost, Exception const& e) {
     ost << e.explainSelf();
     return ost;
   }
@@ -208,32 +194,25 @@ namespace cms {
   // -------- implementation ---------
 
   template <typename E, typename T>
-  inline
-  typename detail::Desired<E, detail::is_derived_or_same<Exception,std::remove_reference_t<E>>::value>::type &
-  operator<<(E&& e, T const& stuff)
-  {
+  inline typename detail::Desired<E, detail::is_derived_or_same<Exception, std::remove_reference_t<E>>::value>::type&
+  operator<<(E&& e, T const& stuff) {
     e.ost_ << stuff;
     return e;
   }
 
   template <typename E>
-  inline 
-  typename detail::Desired<E, detail::is_derived_or_same<Exception,std::remove_reference_t<E>>::value>::type &
-  operator<<(E&& e, std::ostream&(*f)(std::ostream&))
-  {
+  inline typename detail::Desired<E, detail::is_derived_or_same<Exception, std::remove_reference_t<E>>::value>::type&
+  operator<<(E&& e, std::ostream& (*f)(std::ostream&)) {
     f(e.ost_);
     return e;
   }
 
   template <typename E>
-  inline
-  typename detail::Desired<E, detail::is_derived_or_same<Exception,std::remove_reference_t<E>>::value>::type &
-  operator<<(E&& e, std::ios_base&(*f)(std::ios_base&))
-  {
+  inline typename detail::Desired<E, detail::is_derived_or_same<Exception, std::remove_reference_t<E>>::value>::type&
+  operator<<(E&& e, std::ios_base& (*f)(std::ios_base&)) {
     f(e.ost_);
     return e;
   }
-
 
   // The following four function templates should be included, to help
   // reduce the number of function templates instantiated. However,
@@ -241,8 +220,8 @@ namespace cms {
   // instantiating these functions.
 
   // template <typename E>
-  // inline 
-  // typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type & 
+  // inline
+  // typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
   // operator<<(E& e, char const* c)
   // {
   //   e.ost_ << c;
@@ -250,8 +229,8 @@ namespace cms {
   // }
 
   // template <typename E>
-  // inline 
-  // typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const& 
+  // inline
+  // typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
   // operator<<(E const& e, char const* c)
   // {
   //   E& ref = const_cast<E&>(e);
@@ -260,8 +239,8 @@ namespace cms {
   // }
 
   //  template <typename E>
-  //  inline 
-  //  typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type & 
+  //  inline
+  //  typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
   //  operator<<(E& e, char* c)
   //  {
   //    e.ost_ << c;
@@ -269,14 +248,14 @@ namespace cms {
   //  }
 
   //  template <typename E>
-  //  inline 
-  //  typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const& 
+  //  inline
+  //  typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
   //  operator<<(E const& e, char* c)
   //  {
   //    E& ref = const_cast<E&>(e);
   //    ref.ost_ << c;
   //    return e;
   //  }
-}
+}  // namespace cms
 
 #endif

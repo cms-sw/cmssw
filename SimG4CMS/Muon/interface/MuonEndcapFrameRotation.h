@@ -16,11 +16,11 @@
 #include "G4Step.hh"
 
 class MuonEndcapFrameRotation : public MuonFrameRotation {
- public:
-  ~MuonEndcapFrameRotation() override {};
-  Local3DPoint transformPoint(const Local3DPoint &,const G4Step *) const override;
- private:
-};
+public:
+  ~MuonEndcapFrameRotation() override{};
+  Local3DPoint transformPoint(const Local3DPoint &, const G4Step *) const override;
 
+private:
+};
 
 #endif

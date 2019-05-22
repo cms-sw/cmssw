@@ -45,7 +45,7 @@ private:
   double optOutputIsoDeposits;
 
   // MuIsoExtractor
-  reco::isodeposit::IsoDepositExtractor * theExtractor;
+  std::unique_ptr<reco::isodeposit::IsoDepositExtractor> theExtractor;
 
   //! pt cut to consider track in sumPt after extracting iso deposit
   //! better split this off into a filter

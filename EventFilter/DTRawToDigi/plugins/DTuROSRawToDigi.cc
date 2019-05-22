@@ -77,7 +77,7 @@ bool DTuROSRawToDigi::fillRawData(edm::Event& e, const edm::EventSetup& c,
   for (int w_i = 0; w_i < nfeds_; ++w_i) {
     DTuROSFEDData fwords;
     process(feds_[w_i], data, mapping, digis, fwords);
-    words.push_back(fwords);
+    if (fwords.getfed() >= 0) words.push_back(fwords);
   }
   
   return true;

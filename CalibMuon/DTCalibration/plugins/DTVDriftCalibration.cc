@@ -19,7 +19,6 @@
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
@@ -45,10 +44,18 @@ using namespace edm;
 using namespace dttmaxenums;
 
 
-DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset): select_(pset) {
+DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) :
+  // Get the synchronizer
+  theSync{DTTTrigSyncFactory::get()->create(pset.getParameter<string>("tTrigMode"),
+                                            pset.getParameter<ParameterSet>("tTrigModeConfig"))}
+
+{
+
+  edm::ConsumesCollector collector(consumesCollector());
+  select_ = std::make_unique<DTSegmentSelector>(pset,collector);
 
   // The name of the 4D rec hits collection
-  theRecHits4DLabel = pset.getParameter<InputTag>("recHits4DLabel");
+  theRecHits4DToken = (consumes<DTRecSegment4DCollection>(pset.getParameter<InputTag>("recHits4DLabel")));
 
   // The root file which will contain the histos
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName");
@@ -57,7 +64,7 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset): select_(pset
 
   debug = pset.getUntrackedParameter<bool>("debug", false);
 
-  theFitter = new DTMeanTimerFitter(theFile);
+  theFitter = std::make_unique<DTMeanTimerFitter>(theFile);
   if(debug)
     theFitter->setVerbosity(1);
 
@@ -74,10 +81,6 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset): select_(pset
 
   // the txt file which will contain the calibrated constants
   theVDriftOutputFile = pset.getUntrackedParameter<string>("vDriftFileName");
-
-  // Get the synchronizer
-  theSync = DTTTrigSyncFactory::get()->create(pset.getParameter<string>("tTrigMode"),
-                                              pset.getParameter<ParameterSet>("tTrigModeConfig"));
 
   // get parameter set for DTCalibrationMap constructor
   theCalibFilePar =  pset.getUntrackedParameter<ParameterSet>("calibFileConfig");
@@ -106,7 +109,6 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset): select_(pset
 
 DTVDriftCalibration::~DTVDriftCalibration(){
   theFile->Close();
-  delete theFitter;
   LogVerbatim("Calibration") << "[DTVDriftCalibration]Destructor called!";
 }
 
@@ -131,7 +133,7 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
 
   // Get the rechit collection from the event
   Handle<DTRecSegment4DCollection> all4DSegments;
-  event.getByLabel(theRecHits4DLabel, all4DSegments); 
+  event.getByToken(theRecHits4DToken, all4DSegments);
 
   // Get the map of noisy channels
   /*ESHandle<DTStatusFlag> statusMap;
@@ -171,7 +173,7 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
       LogTrace("Calibration") << "Segment local pos (in chamber RF): " << (*segment).localPosition()
                               << "\nSegment global pos: " << chamber->toGlobal((*segment).localPosition());
 
-      if( !select_(*segment, event, eventSetup) ) continue;
+      if( !((*select_)(*segment, event, eventSetup)) ) continue;
 
       LocalPoint phiSeg2DPosInCham;  
       LocalVector phiSeg2DDirInCham;
@@ -227,7 +229,7 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
         DTSuperLayerId slId = slIdAndHits->first;
 
         // Create the DTTMax, that computes the 4 TMax
-        DTTMax slSeg(slIdAndHits->second, *(chamber->superLayer(slIdAndHits->first)),chamber->toGlobal((*segment).localDirection()), chamber->toGlobal((*segment).localPosition()), theSync);
+        DTTMax slSeg(slIdAndHits->second, *(chamber->superLayer(slIdAndHits->first)),chamber->toGlobal((*segment).localDirection()), chamber->toGlobal((*segment).localPosition()), *theSync);
 
         if(theGranularity == bySL) {
           vector<const TMax*> tMaxes = slSeg.getTMax(slId);

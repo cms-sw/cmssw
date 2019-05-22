@@ -3,35 +3,32 @@
 
 // user include files
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include <DQMServices/Core/interface/DQMStore.h>
 #include <DQMServices/Core/interface/MonitorElement.h>
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Validation/CSCRecHits/src/CSCRecHit2DValidation.h"
 #include "Validation/CSCRecHits/src/CSCSegmentValidation.h"
 
-
-
 class CSCRecHitValidation : public DQMEDAnalyzer {
 public:
-  explicit CSCRecHitValidation(const edm::ParameterSet&);
+  explicit CSCRecHitValidation(const edm::ParameterSet &);
   ~CSCRecHitValidation() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
- private:
+private:
   PSimHitMap theSimHitMap;
-  const CSCGeometry * theCSCGeometry;
+  const CSCGeometry *theCSCGeometry;
 
-  CSCRecHit2DValidation * the2DValidation;
-  CSCSegmentValidation * theSegmentValidation;
+  CSCRecHit2DValidation *the2DValidation;
+  CSCSegmentValidation *theSegmentValidation;
 };
 
 #endif
-

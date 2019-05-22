@@ -4,53 +4,50 @@ import sys
 #
 # Legacy Trigger:
 #
-from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
-from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
 # -  RCT (Regional Calorimeter Trigger) emulator
-    import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
-    simRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()
-    simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'simEcalTriggerPrimitiveDigis' ) )
-    simRctDigis.hcalDigis = cms.VInputTag( cms.InputTag( 'simHcalTriggerPrimitiveDigis' ) )
+import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
+simRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone(
+    ecalDigis = ['simEcalTriggerPrimitiveDigis'],
+    hcalDigis = ['simHcalTriggerPrimitiveDigis']
+)
 # - GCT (Global Calorimeter Trigger) emulator
-    import L1Trigger.GlobalCaloTrigger.gctDigis_cfi
-    simGctDigis = L1Trigger.GlobalCaloTrigger.gctDigis_cfi.gctDigis.clone()
-    simGctDigis.inputLabel = 'simRctDigis'
-    SimL1TCalorimeter = cms.Sequence(simRctDigis + simGctDigis)
+import L1Trigger.GlobalCaloTrigger.gctDigis_cfi
+simGctDigis = L1Trigger.GlobalCaloTrigger.gctDigis_cfi.gctDigis.clone(
+    inputLabel = 'simRctDigis'
+)
+SimL1TCalorimeterTask = cms.Task(simRctDigis, simGctDigis)
+SimL1TCalorimeter = cms.Sequence(SimL1TCalorimeterTask)
 
 #
 # Stage-1 Trigger
 #
-if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
-#
-# -  RCT (Regional Calorimeter Trigger) emulator
-#
-    import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
-    simRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()
-    simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'simEcalTriggerPrimitiveDigis' ) )
-    simRctDigis.hcalDigis = cms.VInputTag( cms.InputTag( 'simHcalTriggerPrimitiveDigis' ) )
 #
 # - Stage-1 Layer-2 Calorimeter Trigger Emulator, with required converters (Stage-1 mixes legacy and upgrade) 
 #
-    from L1Trigger.L1TCalorimeter.simRctUpgradeFormatDigis_cfi import *
-    from L1Trigger.L1TCalorimeter.simCaloStage1Digis_cfi import *
-    from L1Trigger.L1TCalorimeter.simCaloStage1FinalDigis_cfi import *
-    from L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi import *
-    from L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi import *
-    SimL1TCalorimeter = cms.Sequence(simRctDigis + simRctUpgradeFormatDigis + simCaloStage1Digis + simCaloStage1FinalDigis + simCaloStage1LegacyFormatDigis)
+from L1Trigger.L1TCalorimeter.simRctUpgradeFormatDigis_cfi import *
+from L1Trigger.L1TCalorimeter.simCaloStage1Digis_cfi import *
+from L1Trigger.L1TCalorimeter.simCaloStage1FinalDigis_cfi import *
+from L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi import *
+from L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi import *
+from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+(stage1L1Trigger & ~stage2L1Trigger).toReplaceWith(SimL1TCalorimeterTask, cms.Task(simRctDigis, simRctUpgradeFormatDigis, simCaloStage1Digis, simCaloStage1FinalDigis, simCaloStage1LegacyFormatDigis))
+
 #
 # Stage-2 Trigger
 #
-if stage2L1Trigger.isChosen():
-    # select one of the following two options:
-    # - layer1 from L1Trigger/L1TCalorimeter package
-    #from L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis
-    # - layer1 from L1Trigger/L1TCaloLayer1 package
-    from L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis
-    from L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi import simCaloStage2Digis
+# select one of the following two options:
+# - layer1 from L1Trigger/L1TCalorimeter package
+#from L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis
+# - layer1 from L1Trigger/L1TCaloLayer1 package
+from L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis
+from L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi import simCaloStage2Digis
+stage2L1Trigger.toReplaceWith(SimL1TCalorimeterTask, cms.Task( simCaloStage2Layer1Digis, simCaloStage2Digis ))
+
+def _modifyStage2L1TriggerCaloParams(process):
     from CondCore.CondDB.CondDB_cfi import CondDB
     CondDB.connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-    l1conddb = cms.ESSource("PoolDBESSource",
+    process.l1conddb = cms.ESSource("PoolDBESSource",
        CondDB,
        toGet   = cms.VPSet(
             cms.PSet(
@@ -59,6 +56,4 @@ if stage2L1Trigger.isChosen():
             )
        )
     )
-    SimL1TCalorimeter = cms.Sequence( simCaloStage2Layer1Digis + simCaloStage2Digis )
-
-    
+modifySimDigis_stage2L1TriggerCaloPArams = stage2L1Trigger.makeProcessModifier(_modifyStage2L1TriggerCaloParams)

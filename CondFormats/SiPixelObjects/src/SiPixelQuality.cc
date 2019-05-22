@@ -149,7 +149,6 @@ short SiPixelQuality::getBadRocs(const uint32_t& detid) const{
 
 const std::vector<LocalPoint> SiPixelQuality::getBadRocPositions(const uint32_t & detid, const TrackerGeometry& theTracker, const SiPixelFedCabling* map) const{
   std::vector<LocalPoint> badrocpositions (0);
-  std::pair<uint8_t, uint8_t> coord(1,1);
    for(unsigned int i = 0; i < 16; i++){
      if (IsRocBad(detid, i) == true){
     std::vector<CablingPathToDetUnit> path = map->pathToDetUnit(detid);

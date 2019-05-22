@@ -5,8 +5,9 @@
 //
 // Package:     DTTPGConfigProducers
 // Class:       DTConfigDBProducer
-// 
-/**\class  DTConfigDBProducer  DTConfigDBProducer.h L1TriggerConfig/DTTPGConfigProducers/interface/DTConfigDBProducer.h
+//
+/**\class  DTConfigDBProducer  DTConfigDBProducer.h
+ L1TriggerConfig/DTTPGConfigProducers/interface/DTConfigDBProducer.h
 
  Description: A Producer for the DT config, data retrieved from DB
 
@@ -19,14 +20,13 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -43,45 +43,42 @@
 // class declaration
 //
 
-class DTConfigDBProducer : public edm::ESProducer{
-
- public :
-
+class DTConfigDBProducer : public edm::ESProducer {
+public:
   //! Constructor
-  DTConfigDBProducer(const edm::ParameterSet&);
+  DTConfigDBProducer(const edm::ParameterSet &);
 
   //! Destructor
   ~DTConfigDBProducer() override;
-  
-  //! ES produce method
-  std::unique_ptr<DTConfigManager> produce(const DTConfigManagerRcd&);
-  
- private :
 
+  //! ES produce method
+  std::unique_ptr<DTConfigManager> produce(const DTConfigManagerRcd &);
+
+private:
   //! Read DTTPG pedestal configuration
-  void readDBPedestalsConfig(const DTConfigManagerRcd& iRecord, DTConfigManager & dttpgConfig);
-  
+  void readDBPedestalsConfig(const DTConfigManagerRcd &iRecord, DTConfigManager &dttpgConfig);
+
   //! Read CCB string configuration
-  int readDTCCBConfig(const DTConfigManagerRcd& iRecord, DTConfigManager & dttpgConfig);
+  int readDTCCBConfig(const DTConfigManagerRcd &iRecord, DTConfigManager &dttpgConfig);
 
   //! SV for debugging purpose ONLY
-  void configFromCfg(DTConfigManager & dttpgConfig);
+  void configFromCfg(DTConfigManager &dttpgConfig);
 
   //! SV for debugging purpose ONLY
   DTConfigPedestals buildTrivialPedestals();
 
   //! 110629 SV function for CCB configuration check
-  int checkDTCCBConfig(DTConfigManager & dttpgConfig);
+  int checkDTCCBConfig(DTConfigManager &dttpgConfig);
 
-  std::string mapEntryName(const DTChamberId & chambid) const;
+  std::string mapEntryName(const DTChamberId &chambid) const;
 
   // ----------member data ---------------------------
   edm::ParameterSet m_ps;
-  
+
   // debug flags
-  bool m_debugDB; 
-  int  m_debugBti;
-  int  m_debugTraco;
+  bool m_debugDB;
+  int m_debugBti;
+  int m_debugTraco;
   bool m_debugTSP;
   bool m_debugTST;
   bool m_debugTU;
@@ -94,7 +91,7 @@ class DTConfigDBProducer : public edm::ESProducer{
 
   bool cfgConfig;
 
-  bool flagDBBti, flagDBTraco, flagDBTSS, flagDBTSM, flagDBLUTS;  
+  bool flagDBBti, flagDBTraco, flagDBTSS, flagDBTSM, flagDBLUTS;
 
   DTKeyedConfigCache cfgCache;
 };

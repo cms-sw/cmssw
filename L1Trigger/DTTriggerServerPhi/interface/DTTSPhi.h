@@ -33,8 +33,8 @@ class DTTrigGeom;
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
 #include "L1Trigger/DTUtilities/interface/DTGeomSupplier.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTSPhi.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTSPhi.h"
 
 #include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
 
@@ -48,79 +48,76 @@ class DTTrigGeom;
 //              ---------------------
 
 typedef std::vector<DTChambPhSegm> DTChambPhVector;
-typedef DTCache < DTChambPhSegm, DTChambPhVector > DTTSPhiManager;
+typedef DTCache<DTChambPhSegm, DTChambPhVector> DTTSPhiManager;
 
 class DTTSPhi : public DTTSPhiManager, public DTGeomSupplier {
-  
- public:
-  
+public:
   /// Constructor
-  DTTSPhi(DTTrigGeom*, DTTracoCard*);
+  DTTSPhi(DTTrigGeom *, DTTracoCard *);
 
-  /// Destructor 
+  /// Destructor
   ~DTTSPhi() override;
 
   /// Return the configuration class
-  inline const DTConfigTSPhi* config() const {return _config; }
+  inline const DTConfigTSPhi *config() const { return _config; }
 
   /// Set configuration
   void setConfig(const DTConfigManager *conf);
-  
-  /// Return number of DTTSPhi segments  
-  int nSegm(int step);
-  
-  /// Return the requested DTTSPhi segment
-  const DTChambPhSegm* segment(int step, unsigned n);
-  
-  /// Local position in chamber of a trigger-data object
-  LocalPoint localPosition(const DTTrigData*) const override;
-  
-  /// Local direction in chamber of a trigger-data object
-  LocalVector localDirection(const DTTrigData*) const override;
-  
-  /// Load TRACO triggers and run TSPhi algorithm
-  void reconstruct() override { loadTSPhi(); runTSPhi(); }
 
- private:
-  
+  /// Return number of DTTSPhi segments
+  int nSegm(int step);
+
+  /// Return the requested DTTSPhi segment
+  const DTChambPhSegm *segment(int step, unsigned n);
+
+  /// Local position in chamber of a trigger-data object
+  LocalPoint localPosition(const DTTrigData *) const override;
+
+  /// Local direction in chamber of a trigger-data object
+  LocalVector localDirection(const DTTrigData *) const override;
+
+  /// Load TRACO triggers and run TSPhi algorithm
+  void reconstruct() override {
+    loadTSPhi();
+    runTSPhi();
+  }
+
+private:
   /// store DTTracoChip triggers in the DTTSS's
   void loadTSPhi();
-  
+
   /// run DTTSPhi algorithm (DTTSS+DTTSM)
   void runTSPhi();
-  
-  /// Add a DTTracoChip trigger to the DTTSPhi, ifs is track number (first or second)
-  void addTracoT(int step, const DTTracoTrigData* tracotrig, int ifs);
-  
+
+  /// Add a DTTracoChip trigger to the DTTSPhi, ifs is track number (first or
+  /// second)
+  void addTracoT(int step, const DTTracoTrigData *tracotrig, int ifs);
+
   /// Set a flag to ignore second tracks (if first track at following BX)
   void ignoreSecondTrack(int step, int tracon);
-  
+
   /// Clear
   void localClear();
-  
+
   // Return a DTTSS
-  DTTSS* getDTTSS(int step, unsigned n) const;
-  
+  DTTSS *getDTTSS(int step, unsigned n) const;
+
   // SM double TSM
   // Return a DTTSM
-  DTTSM* getDTTSM(int step, unsigned n) const;
-  
+  DTTSM *getDTTSM(int step, unsigned n) const;
 
-  
- private:
-  
-  DTTracoCard* _tracocard;
+private:
+  DTTracoCard *_tracocard;
 
-  const DTConfigTSPhi* _config;
-  
+  const DTConfigTSPhi *_config;
+
   // Components
-  std::vector<DTTSS*> _tss[DTConfigTSPhi::NSTEPL-DTConfigTSPhi::NSTEPF+1];
+  std::vector<DTTSS *> _tss[DTConfigTSPhi::NSTEPL - DTConfigTSPhi::NSTEPF + 1];
   // DBSM-doubleTSM
-  std::vector<DTTSM*> _tsm[DTConfigTSPhi::NSTEPL-DTConfigTSPhi::NSTEPF+1];
-  
+  std::vector<DTTSM *> _tsm[DTConfigTSPhi::NSTEPL - DTConfigTSPhi::NSTEPF + 1];
+
   // Input data
-  std::vector<DTTSCand*> _tctrig[DTConfigTSPhi::NSTEPL-DTConfigTSPhi::NSTEPF+1];
-  
+  std::vector<DTTSCand *> _tctrig[DTConfigTSPhi::NSTEPL - DTConfigTSPhi::NSTEPF + 1];
 };
 
 #endif

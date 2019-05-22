@@ -159,9 +159,13 @@ int RawDataUnpacker::processOptoRxFrameSerial(const word *buf, unsigned int fram
         dataPtrs.push_back( fc->InsertEmptyFrame(fp)->getData() );
       }
 
-      LogDebug( "Totem" )
-        << "transposing GOH block at prefix: " << ( optoRxId*192+goh*16 ) << ", dataPtrs = " << dataPtrs;
 
+      LogDebug( "Totem" ).log( [&] (auto& l) {
+          l << "transposing GOH block at prefix: " << ( optoRxId*192+goh*16 ) << ", dataPtrs = ";
+          for(auto p: dataPtrs) {
+            l<< p<<" ";
+          }
+        });
       // deserialization
       for (int i = 0; i < 192; i++)
       {

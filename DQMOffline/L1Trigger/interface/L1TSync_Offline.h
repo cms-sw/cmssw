@@ -60,7 +60,12 @@
 // Forward declarations
 
 // Class declaration
-class L1TSync_Offline : public DQMEDAnalyzer {
+namespace ltso {
+  struct LSValid {
+    bool lsIsValid = true;
+  };
+}
+class L1TSync_Offline : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<ltso::LSValid>> {
 
   public:
 
@@ -108,10 +113,10 @@ class L1TSync_Offline : public DQMEDAnalyzer {
   protected:
 
   void analyze (const edm::Event& e, const edm::EventSetup& c) override;  // Analyze
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+  std::shared_ptr<ltso::LSValid> globalBeginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) const final;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) final {}
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-// no lumi block //    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
 
 
   // Private Methods
@@ -127,17 +132,11 @@ class L1TSync_Offline : public DQMEDAnalyzer {
     // Input parameters
     edm::ParameterSet                      m_parameters;
 
-    // ROOT output filename
-    std::string                            m_outputFile;        
-
     // bool
     bool                                   m_verbose;
-    bool                                   m_currentLSValid;
-    bool*                                  m_processedLS;                      
 
     // Int
     int                                    m_refPrescaleSet;
-    unsigned int                           m_currentLS;            // Current LS
     //unsigned int                         m_eventLS;
     unsigned int                           m_lhcFill;             //
 

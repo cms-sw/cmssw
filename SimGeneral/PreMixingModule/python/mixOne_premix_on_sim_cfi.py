@@ -13,6 +13,7 @@ from SimGeneral.MixingModule.SiPixelSimParameters_cfi import SiPixelSimBlock
 from SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi import phase2TrackerDigitizer, _premixStage1ModifyDict as _phase2TrackerPremixStage1ModifyDict
 from SimGeneral.MixingModule.ecalDigitizer_cfi import ecalDigitizer
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer, hfnoseDigitizer
+from SimFastTiming.FastTimingCommon.mtdDigitizer_cfi import mtdDigitizer
 
 hcalSimBlock.HcalPreMixStage2 = cms.bool(True)
 
@@ -25,7 +26,8 @@ mixData = cms.EDProducer("PreMixingModule",
         seed = cms.int32(1234567),
         type = cms.string('fixed'),
         sequential = cms.untracked.bool(False), # set to true for sequential reading of pileup
-        fileNames = cms.untracked.vstring('file:DMPreProcess_RAW2DIGI.root')
+        fileNames = cms.untracked.vstring('file:DMPreProcess_RAW2DIGI.root'),
+        consecutiveRejectionsLimit = cms.untracked.uint32(100) # should be sufficiently large to allow enough tails
     ),
     # Mixing Module parameters
     bunchspace = cms.int32(25),
@@ -33,6 +35,8 @@ mixData = cms.EDProducer("PreMixingModule",
     maxBunch = cms.int32(0),
     mixProdStep1 = cms.bool(False),
     mixProdStep2 = cms.bool(False),
+    # Optionally adjust the pileup distribution
+    adjustPileupDistribution = cms.VPSet(),
     # Workers
     workers = cms.PSet(
         pileup = cms.PSet(
@@ -198,6 +202,8 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
+from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
@@ -234,6 +240,23 @@ phase2_tracker.toModify(mixData,
     ),
 )
 
+# MTD
+(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify(mixData,
+    workers = dict(
+        mtdBarrel = cms.PSet(
+            mtdDigitizer.barrelDigitizer,
+            workerType = cms.string("PreMixingMTDWorker"),
+            digiTagSig = cms.InputTag("mix", "FTLBarrel"),
+            pileInputTag = cms.InputTag("mix", "FTLBarrel"),
+        ),
+        mtdEndcap = cms.PSet(
+            mtdDigitizer.endcapDigitizer,
+            workerType = cms.string("PreMixingMTDWorker"),
+            digiTagSig = cms.InputTag("mix", "FTLEndcap"),
+            pileInputTag = cms.InputTag("mix", "FTLEndcap"),
+        ),
+    )
+)
 # ECAL
 phase2_common.toModify (mixData, workers=dict(ecal=dict(doES=False)))
 phase2_hgcal.toModify(mixData, workers=dict(ecal=dict(doEE=False)))

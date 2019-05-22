@@ -3,6 +3,5 @@
 #include "IORawData/HcalTBInputService/src/CDFEventInfo.h"
 
 namespace IORawData_HcalTBInputService {
-  struct dictionary {
-  };
-}
+  struct dictionary {};
+}  // namespace IORawData_HcalTBInputService

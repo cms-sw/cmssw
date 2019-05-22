@@ -14,7 +14,6 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 class GBRForest;
@@ -42,8 +41,6 @@ class EGEnergyCorrector {
     Bool_t fIsInitialized;
     Bool_t fOwnsForests;
     Float_t *fVals;
-
-    EcalClusterLocal _ecalLocal;
 
     };
 

@@ -8,24 +8,11 @@
 class PFElectronExtraEqual {
  public:
   PFElectronExtraEqual(const reco::GsfTrackRef & gsfTrackRef):ref_(gsfTrackRef) {;}
-    ~PFElectronExtraEqual(){;}
     inline bool operator() (const reco::PFCandidateElectronExtra & extra) {
       return (ref_==extra.gsfTrackRef());
     }
  private:
     reco::GsfTrackRef ref_;
 };
-
-class PFElectronExtraKfEqual {
- public:
-  PFElectronExtraKfEqual(const reco::TrackRef & trackRef):ref_(trackRef) {;}
-    ~PFElectronExtraKfEqual(){;}
-    inline bool operator() (const reco::PFCandidateElectronExtra & extra) {
-      return (ref_==extra.kfTrackRef());
-    }
- private:
-    reco::TrackRef ref_;
-};
-
 
 #endif

@@ -59,16 +59,16 @@ void PixelTripletNoTipGenerator::hitTriplets(
 
   if (pairs.empty()) return;
 
+  const DetLayer * firstLayer = thePairGenerator->innerLayer(pairLayers).detLayer();
+  const DetLayer * secondLayer = thePairGenerator->outerLayer(pairLayers).detLayer();
+  if (!firstLayer || !secondLayer) return;
+
   int size = thirdLayers.size();
 
   const RecHitsSortedInPhi **thirdHitMap = new const RecHitsSortedInPhi*[size];
   for (int il=0; il <=size-1; il++) {
      thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, es);
   }
-
-  const DetLayer * firstLayer = thePairGenerator->innerLayer(pairLayers).detLayer();
-  const DetLayer * secondLayer = thePairGenerator->outerLayer(pairLayers).detLayer();
-  if (!firstLayer || !secondLayer) return;
 
   MultipleScatteringParametrisation sigma1RPhi( firstLayer, es);
   MultipleScatteringParametrisation sigma2RPhi( secondLayer, es);

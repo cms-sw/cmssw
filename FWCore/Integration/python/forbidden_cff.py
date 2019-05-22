@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 
-import restricted_cff
+from . import restricted_cff

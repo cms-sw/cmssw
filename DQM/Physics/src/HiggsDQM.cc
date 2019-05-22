@@ -154,7 +154,6 @@ HiggsDQM::HiggsDQM(const edm::ParameterSet& ps) {
   ptThrMu1_ = ps.getUntrackedParameter<double>("PtThrMu1");
   ptThrMu2_ = ps.getUntrackedParameter<double>("PtThrMu2");
 
-  nLumiSecs_ = 0;
   nEvents_ = 0;
   pi = 3.14159265;
   // cout<<"...leaving  HiggsDQM::HiggsDQM. "<<endl;
@@ -552,27 +551,6 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
     LogDebug("HiggsDQM") << "WARNING: " << nMu + nEle
                          << " leptons in this event: run=" << e.id().run()
                          << ", event=" << e.id().event() << "\n";
-}
-//
-// -- End Luminosity Block
-//
-void HiggsDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                                  edm::EventSetup const& eSetup) {
-  //  cout<<"Entering HiggsDQM::endLuminosityBlock: "<<endl;
-
-  edm::LogInfo("HiggsDQM") << "[HiggsDQM]: End of LS transition, performing "
-                              "the DQM client operation";
-
-  nLumiSecs_++;
-  // cout << "nLumiSecs_: "<< nLumiSecs_ << endl;
-
-  edm::LogInfo("HiggsDQM")
-      << "====================================================== " << endl
-      << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock()
-      << endl
-      << "====================================================== " << endl;
-
-  //  cout<<"...leaving HiggsDQM::endLuminosityBlock. "<<endl;
 }
 //
 // -- End Run

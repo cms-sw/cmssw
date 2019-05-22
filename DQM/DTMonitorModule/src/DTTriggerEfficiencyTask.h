@@ -42,42 +42,43 @@ class DTGeometry;
 class DTChamberId;
 class DTTrigGeomUtils;
 
-class DTTriggerEfficiencyTask: public DQMEDAnalyzer{
-
- public:
-
+class DTTriggerEfficiencyTask : public DQMEDAnalyzer {
+public:
   /// Constructor
-  DTTriggerEfficiencyTask(const edm::ParameterSet& ps );
+  DTTriggerEfficiencyTask(const edm::ParameterSet& ps);
 
   /// Destructor
   ~DTTriggerEfficiencyTask() override;
 
- protected:
-
+protected:
   /// BeginRun
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   /// Book chamber granularity histograms
-  void bookChamberHistos(DQMStore::IBooker & ibooker,const DTChamberId& dtCh, std::string histoTag, std::string folder="");
+  void bookChamberHistos(DQMStore::IBooker& ibooker,
+                         const DTChamberId& dtCh,
+                         std::string histoTag,
+                         std::string folder = "");
 
   /// Book wheel granularity histograms
-  void bookWheelHistos(DQMStore::IBooker & ibooker,int wheel, std::string histoTag, std::string folder="");
+  void bookWheelHistos(DQMStore::IBooker& ibooker, int wheel, std::string histoTag, std::string folder = "");
 
   /// checks for RPC Triggers
   bool hasRPCTriggers(const edm::Event& e);
 
   /// return the top folder
-  std::string topFolder(std::string source) { return source=="TM" ? "DT/03-LocalTrigger-TM/" : "DT/04-LocalTrigger-DDU/"; }
+  std::string topFolder(std::string source) {
+    return source == "TM" ? "DT/03-LocalTrigger-TM/" : "DT/04-LocalTrigger-DDU/";
+  }
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   /// To reset the MEs
 
- private:
-
+private:
   int nevents;
 
   std::string SegmArbitration;
@@ -100,7 +101,6 @@ class DTTriggerEfficiencyTask: public DQMEDAnalyzer{
   DTTrigGeomUtils* trigGeomUtils;
   std::map<uint32_t, std::map<std::string, MonitorElement*> > chamberHistos;
   std::map<int, std::map<std::string, MonitorElement*> > wheelHistos;
-
 };
 
 #endif

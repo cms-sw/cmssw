@@ -48,13 +48,12 @@ HGCalRecHitProducer::HGCalRecHitProducer(const edm::ParameterSet& ps) :
   hebUncalibRecHitCollection_( consumes<HGChebUncalibratedRecHitCollection>( ps.getParameter<edm::InputTag>("HGCHEBuncalibRecHitCollection") ) ),
   eeRechitCollection_( ps.getParameter<std::string>("HGCEErechitCollection") ),
   hefRechitCollection_( ps.getParameter<std::string>("HGCHEFrechitCollection") ),
-  hebRechitCollection_( ps.getParameter<std::string>("HGCHEBrechitCollection") ) {  
+  hebRechitCollection_( ps.getParameter<std::string>("HGCHEBrechitCollection") ),
+  worker_{ HGCalRecHitWorkerFactory::get()->create(ps.getParameter<std::string>("algo"), ps) }
+{
   produces< HGCeeRecHitCollection >(eeRechitCollection_);
   produces< HGChefRecHitCollection >(hefRechitCollection_);
   produces< HGChebRecHitCollection >(hebRechitCollection_);
-  
-  const std::string& componentType = ps.getParameter<std::string>("algo");
-  worker_.reset( HGCalRecHitWorkerFactory::get()->create(componentType, ps) );
 }
 
 HGCalRecHitProducer::~HGCalRecHitProducer() {

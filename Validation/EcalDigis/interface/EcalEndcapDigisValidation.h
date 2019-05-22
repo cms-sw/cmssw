@@ -32,66 +32,61 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class EcalEndcapDigisValidation: public DQMEDAnalyzer{
-
-    typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
+class EcalEndcapDigisValidation : public DQMEDAnalyzer {
+  typedef std::map<uint32_t, float, std::less<uint32_t> > MapType;
 
 public:
+  /// Constructor
+  EcalEndcapDigisValidation(const edm::ParameterSet& ps);
 
-/// Constructor
-EcalEndcapDigisValidation(const edm::ParameterSet& ps);
+  /// Destructor
+  ~EcalEndcapDigisValidation() override;
 
-/// Destructor
-~EcalEndcapDigisValidation() override;
-
-void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) override;
 
 protected:
+  /// Analyze
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
-/// Analyze
-void analyze(edm::Event const & e, edm::EventSetup const & c) override;
-
-void checkCalibrations(edm::EventSetup const & c);
+  void checkCalibrations(edm::EventSetup const& c);
 
 private:
+  bool verbose_;
 
- bool verbose_;
- 
- std::string outputFile_;
- 
- edm::EDGetTokenT<EEDigiCollection> EEdigiCollectionToken_;
+  std::string outputFile_;
 
- std::map<int, double, std::less<int> > gainConv_;
+  edm::EDGetTokenT<EEDigiCollection> EEdigiCollectionToken_;
 
- double barrelADCtoGeV_;
- double endcapADCtoGeV_;
- 
- MonitorElement* meEEDigiOccupancyzp_;
- MonitorElement* meEEDigiOccupancyzm_;
- 
- MonitorElement* meEEDigiMultiplicityzp_;
- MonitorElement* meEEDigiMultiplicityzm_;
+  std::map<int, double, std::less<int> > gainConv_;
 
- MonitorElement* meEEDigiADCGlobal_;
+  double barrelADCtoGeV_;
+  double endcapADCtoGeV_;
 
- MonitorElement* meEEDigiADCAnalog_[10];
+  MonitorElement* meEEDigiOccupancyzp_;
+  MonitorElement* meEEDigiOccupancyzm_;
 
- MonitorElement* meEEDigiADCgS_[10];
- MonitorElement* meEEDigiADCg1_[10];
- MonitorElement* meEEDigiADCg6_[10];
- MonitorElement* meEEDigiADCg12_[10];
+  MonitorElement* meEEDigiMultiplicityzp_;
+  MonitorElement* meEEDigiMultiplicityzm_;
 
- MonitorElement* meEEDigiGain_[10];
+  MonitorElement* meEEDigiADCGlobal_;
 
- MonitorElement* meEEPedestal_;
+  MonitorElement* meEEDigiADCAnalog_[10];
 
- MonitorElement* meEEMaximumgt100ADC_; 
+  MonitorElement* meEEDigiADCgS_[10];
+  MonitorElement* meEEDigiADCg1_[10];
+  MonitorElement* meEEDigiADCg6_[10];
+  MonitorElement* meEEDigiADCg12_[10];
 
- MonitorElement* meEEMaximumgt20ADC_; 
+  MonitorElement* meEEDigiGain_[10];
 
- MonitorElement* meEEnADCafterSwitch_;
+  MonitorElement* meEEPedestal_;
 
+  MonitorElement* meEEMaximumgt100ADC_;
+
+  MonitorElement* meEEMaximumgt20ADC_;
+
+  MonitorElement* meEEnADCafterSwitch_;
 };
 
 #endif

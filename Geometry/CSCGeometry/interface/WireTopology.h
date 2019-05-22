@@ -14,17 +14,17 @@
 #include "Geometry/CommonTopologies/interface/Topology.h"
 
 class WireTopology : public Topology {
- public:
+public:
   ~WireTopology() override {}
- 
+
   /**
    * How many wires
-   */               
+   */
   virtual int numberOfWires() const = 0;
 
   /**
    * The angle (in radians) of (any) wire wrt local x-axis.
-   */  
+   */
   virtual float wireAngle() const = 0;
 
   /**
@@ -37,8 +37,7 @@ class WireTopology : public Topology {
    */
   virtual int nearestWire(const LocalPoint &) const = 0;
 
- private:
-
+private:
 };
 
 #endif

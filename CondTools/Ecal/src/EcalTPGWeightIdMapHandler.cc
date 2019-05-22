@@ -269,19 +269,25 @@ void  popcon::EcalTPGWeightIdMapHandler::readtxtFile() {
   EcalTPGWeights w;		
   EcalTPGWeightIdMap* weightMap = new EcalTPGWeightIdMap;
   int igroups = 0;
-  for (int ifirst = 0; ifirst < 2; ifirst++) {
-    for (int isecond = 0; isecond < 5; isecond++)
-      fInput >> wloc[isecond];
-    w.setValues(wloc[0], wloc[1], wloc[2], wloc[3], wloc[4]);
-    weightMap->setValue(igroups, w);
-    igroups++;
+  std::string line;
+  while (!fInput.eof()) {
+    getline (fInput, line);
+    if(!line.empty()) {
+      std::stringstream ss;     
+      ss << line; 
+      ss >> wloc[0] >> wloc[1] >> wloc[2] >> wloc[3] >> wloc[4];
+      //      edm::LogInfo(" Weights: ") << wloc[0] << " " <<  wloc[1] << " " <<  wloc[2] << " " <<  wloc[3] << " " <<  wloc[4];
+      w.setValues(wloc[0], wloc[1], wloc[2], wloc[3], wloc[4]);
+      weightMap->setValue(igroups, w);
+      igroups++;
+    }
   }
-  edm::LogInfo("EcalTPGWeightIdMapHandler") << "found " << igroups << "Weight groups";
+  edm::LogInfo("EcalTPGWeightIdMapHandler") << "found " << igroups << " Weight groups";
   try{ 
     Time_t snc= (Time_t) m_firstRun; 	      
     m_to_transfer.push_back(std::make_pair((EcalTPGWeightIdMap*)weightMap, snc));
   } catch (std::exception &e) { 
-    edm::LogInfo("EcalTPGWeightIdMapHandler::readtxtFile error : ") << e.what() << std::endl;
+    edm::LogInfo("EcalTPGWeightIdMapHandler::readtxtFile error : ") << e.what();
   }
 }
 
@@ -300,53 +306,38 @@ void  popcon::EcalTPGWeightIdMapHandler::readxmlFile() {
   int ngroups, igroups;
   edm::LogInfo("EcalTPGWeightIdMapHandler") << "found " << igroups << "Weight groups";
   for(int i = 0; i < 5; i++) std::getline(fxml, dummyLine);   // skip first lines
+    // get the Weight group number
   fxml >> bid;
   std::string stt = bid.substr(7, 1);
   std::istringstream sc(stt);
   sc >> ngroups;
-  if(ngroups != 2) {
-    edm::LogInfo(" line : ") << bid << " ngroups " << ngroups;
-    exit(-1);
-  }
-  for(int i = 0; i < 3; i++) std::getline(fxml, dummyLine);
-  fxml >> bid;
-  stt = bid.substr(7, 1);
-  std::istringstream sg1(stt);
-  sg1 >> igroups;
-  if(igroups != 0) {
-    edm::LogInfo(" group 1: ") << bid << " igroups " << igroups;
-    exit(-1);
-  }
-  for(int i = 0; i < 2; i++) std::getline(fxml, dummyLine);
-  for(int i = 0; i < 5; i++) {
-    fxml >> bid;
+  edm::LogInfo("EcalTPGWeightIdMapHandler") << "found " << ngroups << " Weight groups";
+  for(int i = 0; i < 2; i++) std::getline(fxml, dummyLine);    //    <item_version>0</item_version>
+  for(int i = 0; i < ngroups; i++) {
+    std::getline(fxml, dummyLine);  //    <item
+    //    edm::LogInfo(" group ") << i << " first line " << dummyLine;
+    fxml >> bid;                    //    <first
     std::size_t found = bid.find("</");
-    stt = bid.substr(5, found - 5);
-    std::istringstream w(stt);
-    w >> wloc[i];
+    stt = bid.substr(7, found - 7);
+    std::istringstream sg1(stt);
+    sg1 >> igroups;
+    if(igroups != i) {
+      edm::LogInfo(" group ") << i << ": " << bid << " igroups " << igroups;
+      exit(-1);
+    }
+    for(int i = 0; i < 2; i++) std::getline(fxml, dummyLine);   // < second
+    for(int i = 0; i < 5; i++) {
+      fxml >> bid;
+      found = bid.find("</");
+      stt = bid.substr(5, found - 5);
+      std::istringstream w(stt);
+      w >> wloc[i];
+    }
+    w.setValues(wloc[0], wloc[1], wloc[2], wloc[3], wloc[4]);
+    weightMap->setValue(igroups, w);
+    for(int i = 0; i < 3; i++) std::getline(fxml, dummyLine);    //    </item>
+    //    edm::LogInfo(" group ") << i << " last line " << dummyLine;
   }
-  w.setValues(wloc[0], wloc[1], wloc[2], wloc[3], wloc[4]);
-  weightMap->setValue(igroups, w);
-  // second group
-  for(int i = 0; i < 4; i++) std::getline(fxml, dummyLine);
-  fxml >> bid;
-  stt = bid.substr(7, 1);
-  std::istringstream sg2(stt);
-  sg2 >> igroups;
-  if(igroups != 1) {
-    edm::LogInfo(" group 2 : ") << bid << " igroups " << igroups;
-    exit(-1);
-  }
-  for(int i = 0; i < 2; i++) std::getline(fxml, dummyLine);
-  for(int i = 0; i < 5; i++) {
-    fxml >> bid;
-    std::size_t found = bid.find("</");
-    stt = bid.substr(5, found - 5);
-    std::istringstream w(stt);
-    w >> wloc[i];
-  }
-  w.setValues(wloc[0], wloc[1], wloc[2], wloc[3], wloc[4]);
-  weightMap->setValue(igroups, w);
   try{ 
     Time_t snc= (Time_t) m_firstRun; 	      
     m_to_transfer.push_back(std::make_pair((EcalTPGWeightIdMap*)weightMap, snc));

@@ -98,6 +98,7 @@ class MahiDebugger : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   HcalTimeSlew::BiasSetting slewFlavor_;
   double tsDelay1GeV_=0;
 
+  bool calculateArrivalTime_;
   float meanTime_;
   float timeSigmaHPD_; 
   float timeSigmaSiPM_;
@@ -180,6 +181,7 @@ MahiDebugger::MahiDebugger(const edm::ParameterSet& iConfig)
     ts4Thresh_(iConfig.getParameter<double> ("ts4Thresh")), 
     chiSqSwitch_(iConfig.getParameter<double> ("chiSqSwitch")),
     applyTimeSlew_(iConfig.getParameter<bool> ("applyTimeSlew")),
+    calculateArrivalTime_(iConfig.getParameter<bool> ("calculateArrivalTime")),
     meanTime_(iConfig.getParameter<double> ("meanTime")),
     timeSigmaHPD_(iConfig.getParameter<double> ("timeSigmaHPD")),
     timeSigmaSiPM_(iConfig.getParameter<double> ("timeSigmaSiPM")),
@@ -195,7 +197,7 @@ MahiDebugger::MahiDebugger(const edm::ParameterSet& iConfig)
   mahi_ = std::make_unique<MahiFit>();
 
   mahi_ -> setParameters(dynamicPed_, ts4Thresh_, chiSqSwitch_, applyTimeSlew_, HcalTimeSlew::Medium,
-			 meanTime_, timeSigmaHPD_, timeSigmaSiPM_,
+			 calculateArrivalTime_, meanTime_, timeSigmaHPD_, timeSigmaSiPM_,
 			 activeBXs_, nMaxItersMin_, nMaxItersNNLS_,
 			 deltaChiSqThresh_, nnlsThresh_);
 

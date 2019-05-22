@@ -47,6 +47,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
   class dso_hidden SiPixelClusterProducer final : public edm::stream::EDProducer<> {
@@ -54,6 +55,8 @@
     //--- Constructor, virtual destructor (just in case)
     explicit SiPixelClusterProducer(const edm::ParameterSet& conf);
     ~SiPixelClusterProducer() override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     void setupClusterizer(const edm::ParameterSet& conf);
 
@@ -69,17 +72,15 @@
   private:
     edm::EDGetTokenT<SiPixelClusterCollectionNew>  tPixelClusters;
     edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi;
+    edm::EDPutTokenT<SiPixelClusterCollectionNew>  tPutPixelClusters;
     // TO DO: maybe allow a map of pointers?
-    SiPixelGainCalibrationServiceBase * theSiPixelGainCalibration_;
+    std::unique_ptr<SiPixelGainCalibrationServiceBase> theSiPixelGainCalibration_;
     const std::string clusterMode_;         // user's choice of the clusterizer
-    PixelClusterizerBase * clusterizer_;    // what we got (for now, one ptr to base class)
-    bool readyToCluster_;                   // needed clusterizers valid => good to go!
+    std::unique_ptr<PixelClusterizerBase> clusterizer_;    // what we got (for now, one ptr to base class)
     const TrackerTopology* tTopo_;          // needed to get correct layer number
 
     //! Optional limit on the total number of clusters
     const int32_t maxTotalClusters_;
-
-    const std::string payloadType_;
   };
 
 

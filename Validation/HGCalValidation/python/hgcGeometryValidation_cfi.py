@@ -22,4 +22,5 @@ hgcGeomAnalysis = DQMEDAnalyzer('HGCGeometryValidation',
         'HGCalHESiliconSensitive',
         'Hcal'),
                                  g4Source = cms.InputTag("g4SimHits","HGCalInfoLayer"),
+                                 verbosity= cms.int32(0),
                                  )

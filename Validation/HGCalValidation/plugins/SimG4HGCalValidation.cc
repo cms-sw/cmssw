@@ -116,15 +116,17 @@ SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet &p):
 
   produces<PHGCalValidInfo>(labelLayer_);
 
-  edm::LogVerbatim("ValidHGCal") << "HGCalTestAnalysis:: Initialised as "
-				 << "observer of begin events and of G4step "
-				 << "with Parameter values: \n\tLabel : " 
-				 << labelLayer_ << " and with " 
-				 << names_.size() << " detectors";
-  for (unsigned int k=0; k<names_.size(); ++k)
-    edm::LogVerbatim("ValidHGCal") << " [" << k << "] " << names_[k] 
-				   << " Type " << types_[k] << " DetType "
-				   << detTypes_[k];
+  if (verbosity_ > 0) {
+    edm::LogVerbatim("ValidHGCal") << "HGCalTestAnalysis:: Initialised as "
+				   << "observer of begin events and of G4step "
+				   << "with Parameter values: \n\tLabel : " 
+				   << labelLayer_ << " and with " 
+				   << names_.size() << " detectors";
+    for (unsigned int k=0; k<names_.size(); ++k)
+      edm::LogVerbatim("ValidHGCal") << " [" << k << "] " << names_[k] 
+				     << " Type " << types_[k] << " DetType "
+				     << detTypes_[k];
+  }
 } 
    
 SimG4HGCalValidation::~SimG4HGCalValidation() {
@@ -208,10 +210,11 @@ void SimG4HGCalValidation::update(const BeginOfJob * job) {
     } else                   {
       for (int i=0; i<layers; ++i) hgcHEBedep_.push_back(0);
     }
-    edm::LogVerbatim("ValidHGCal") << "[" << type << "]: " << nameX << " det "
-				   << dets_[type] << " subdet " 
-				   << subdet_[type] << " with " << layers 
-				   << " layers";
+    if (verbosity_ > 0)
+      edm::LogVerbatim("ValidHGCal") << "[" << type << "]: " << nameX 
+				     << " det " << dets_[type] << " subdet " 
+				     << subdet_[type] << " with " << layers 
+				     << " layers";
   }
 }
 
@@ -303,7 +306,10 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
 	  int depth = (touchable->GetReplicaNumber(0))%10 + 1;
 	  int lay   = (touchable->GetReplicaNumber(0)/10)%100 + 1;
 	  int det   = (touchable->GetReplicaNumber(1))/1000;
-	  HcalNumberingFromDDD::HcalID tmp = numberingFromDDD_->unitID(det, hitPoint, depth, lay);
+	  HcalNumberingFromDDD::HcalID tmp = 
+	    numberingFromDDD_->unitID(det, 
+				      math::XYZVectorD(hitPoint.x(),hitPoint.y(),
+						       hitPoint.z()), depth, lay);
 	  index = HcalTestNumbering::packHcalIndex(tmp.subdet,tmp.zside,tmp.depth,tmp.etaR,tmp.phis,tmp.lay);
 	  layer = tmp.lay;
 	  if (verbosity_ > 1)

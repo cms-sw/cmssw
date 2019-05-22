@@ -32,7 +32,10 @@ using namespace std;
 
 DTRecHitProducer::DTRecHitProducer(const ParameterSet& config) :
   // Set verbose output
-  debug(config.getUntrackedParameter<bool>("debug", false))
+  debug(config.getUntrackedParameter<bool>("debug", false)),
+  // Get the concrete reconstruction algo from the factory
+  theAlgo{DTRecHitAlgoFactory::get()->create(config.getParameter<string>("recAlgo"),
+                                             config.getParameter<ParameterSet>("recAlgoConfig"))}
 {
   if(debug)
     cout << "[DTRecHitProducer] Constructor called" << endl;
@@ -40,17 +43,11 @@ DTRecHitProducer::DTRecHitProducer(const ParameterSet& config) :
   produces<DTRecHitCollection>();
 
   DTDigiToken_ = consumes<DTDigiCollection>(config.getParameter<InputTag>("dtDigiLabel"));
-
-  // Get the concrete reconstruction algo from the factory
-  string theAlgoName = config.getParameter<string>("recAlgo");
-  theAlgo = DTRecHitAlgoFactory::get()->create(theAlgoName,
-					       config.getParameter<ParameterSet>("recAlgoConfig"));
 }
 
 DTRecHitProducer::~DTRecHitProducer(){
   if(debug)
     cout << "[DTRecHitProducer] Destructor called" << endl;
-  delete theAlgo;
 }
 
 

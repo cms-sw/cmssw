@@ -11,11 +11,11 @@
 #include <DetectorDescription/Core/interface/DDFilter.h>
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
 #include <DetectorDescription/Core/interface/DDSolid.h>
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
@@ -23,6 +23,8 @@
 #include <string>
 
 using namespace std;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 #include <string>
 #include <utility>
@@ -55,7 +57,6 @@ void DTGeometryBuilderFromDDD::build(DTGeometry& theGeometry,
 void DTGeometryBuilderFromDDD::buildGeometry(DTGeometry& theGeometry,
                                              DDFilteredView& fv,
                                              const MuonDDDConstants& muonConstants) const {
-
   bool doChamber = fv.firstChild();
 
   // Loop on chambers
@@ -113,16 +114,13 @@ DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
   // FIXME: some trouble for boolean solids?
   vector<double> par = extractParameters(fv);
 
-  float width = par[0]/cm;     // r-phi  dimension - different in different chambers
-  float length = par[1]/cm;    // z      dimension - constant 125.55 cm
-  float thickness = par[2]/cm; // radial thickness - almost constant about 18 cm
-
   ///SL the definition of length, width, thickness depends on the local reference frame of the Det
-  // width is along local X
-  // length is along local Y
-  // thickness is long local Z
+  // width is along local X. r-phi  dimension - different in different chambers
+  // length is along local Y. z      dimension - constant 125.55 cm
+  // thickness is long local Z. radial thickness - almost constant about 18 cm
 
-  RCPPlane surf(plane(fv, new RectangularPlaneBounds(width, length, thickness) ));
+
+  RCPPlane surf(plane(fv, dtGeometryBuilder::getRecPlaneBounds(par.begin())));
 
   DTChamber* chamber = new DTChamber(detId, surf);
 
@@ -142,12 +140,12 @@ DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
   // Slayer specific parameter (size)
   vector<double> par = extractParameters(fv);
 
-  float width = par[0]/cm;     // r-phi  dimension - changes in different chambers
-  float length = par[1]/cm;    // z      dimension - constant 126.8 cm
-  float thickness = par[2]/cm; // radial thickness - almost constant about 20 cm
+  // r-phi  dimension - different in different chambers
+  // z      dimension - constant 126.8 cm
+  // radial thickness - almost constant about 20 cm
 
-  // Ok this is the slayer position...
-  RCPPlane surf(plane(fv, new RectangularPlaneBounds(width, length, thickness) ));
+  // Ok this is the s-layer position...
+  RCPPlane surf(plane(fv, dtGeometryBuilder::getRecPlaneBounds(par.begin())));
 
   DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
 
@@ -172,18 +170,18 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
 
   // Layer specific parameter (size)
   vector<double> par = extractParameters(fv);
-  float width = par[0]/cm;     // r-phi  dimension - changes in different chambers
-  float length = par[1]/cm;    // z      dimension - constant 126.8 cm
-  float thickness = par[2]/cm; // radial thickness - almost constant about 20 cm
+  // width -- r-phi  dimension - different in different chambers
+  // length -- z      dimension - constant 126.8 cm
+  // thickness -- radial thickness - almost constant about 20 cm
 
-  RCPPlane surf(plane(fv, new RectangularPlaneBounds(width, length, thickness) ));
+  RCPPlane surf(plane(fv, dtGeometryBuilder::getRecPlaneBounds(par.begin())));
 
   // Loop on wires
   bool doWire = fv.firstChild();
   int WCounter=0;
   int firstWire=fv.copyno();
   par = extractParameters(fv);
-  float wireLength = par[1]/cm;
+  float wireLength = convertMmToCm( par[1] );
   while (doWire) {
     WCounter++;
     doWire = fv.nextSibling(); // next wire
@@ -222,15 +220,13 @@ DTGeometryBuilderFromDDD::plane(const DDFilteredView& fv,
   // extract the position
   const DDTranslation & trans(fv.translation());
 
-  const Surface::PositionType posResult(float(trans.x()/cm), 
-                                        float(trans.y()/cm), 
-                                        float(trans.z()/cm));
+  const Surface::PositionType posResult(float(convertMmToCm( trans.x() )), 
+                                        float(convertMmToCm( trans.y() )), 
+                                        float(convertMmToCm( trans.z() ))); 
+  LogTrace("DTGeometryBuilderFromDDD") << "DTGeometryBuilderFromDDD::plane " <<" posResult: "
+		<< posResult << std::endl;
   // now the rotation
-  //  DDRotationMatrix tmp = fv.rotation();
-  // === DDD uses 'active' rotations - see CLHEP user guide ===
-  //     ORCA uses 'passive' rotation. 
   //     'active' and 'passive' rotations are inverse to each other
-  //  DDRotationMatrix tmp = fv.rotation();
   const DDRotationMatrix& rotation = fv.rotation();//REMOVED .Inverse();
   DD3Vector x, y, z;
   rotation.GetComponents(x,y,z);

@@ -37,7 +37,6 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
   theConfig(par),
   theMuonCollectionLabel(par.getParameter<InputTag>("inputMuonCollection")),
   optOutputIsoDeposits(par.getParameter<bool>("OutputMuIsoDeposits")),
-  theExtractor(nullptr),
   theTrackPt_Min(-1)
   {
   LogDebug("RecoMuon|L3MuonIsolationProducer")<<" L3MuonIsolationProducer CTOR";
@@ -54,7 +53,7 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
   //! get min pt for the track to go into sumPt
   theTrackPt_Min = theConfig.getParameter<double>("TrackPt_Min");
   std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
+  theExtractor = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector())};
   std::string depositType = extractorPSet.getUntrackedParameter<std::string>("DepositLabel");
 
   //
@@ -88,7 +87,6 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
 /// destructor
 L3MuonIsolationProducer::~L3MuonIsolationProducer(){
   LogDebug("RecoMuon|L3MuonIsolationProducer")<<" L3MuonIsolationProducer DTOR";
-  if (theExtractor) delete theExtractor;
 }
 
 void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup){

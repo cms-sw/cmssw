@@ -585,9 +585,6 @@ DQMRootSource::readRun_(edm::RunPrincipal& rpCache)
       edm::Service<DQMStore> store;
       std::vector<MonitorElement*> allMEs = (*store).getAllContents("");
       for(auto const& ME : allMEs) {
-        // We do not want to reset here Lumi products, since a dedicated
-        // resetting is done at every lumi transition.
-        if (ME->getLumiFlag()) continue;
 	if ( !(*store).isCollate() )
 	  ME->Reset();
       }
@@ -627,12 +624,12 @@ DQMRootSource::readLuminosityBlock_( edm::LuminosityBlockPrincipal& lbCache)
     
     edm::Service<DQMStore> store;
     std::vector<MonitorElement*> allMEs = (*store).getAllContents("");
-    for(auto const& ME : allMEs) {
-      // We do not want to reset Run Products here!
-      if (ME->getLumiFlag()) {
-	ME->Reset();
-      }
-    }
+    //for(auto const& ME : allMEs) {
+    //  // We do not want to reset Run Products here!
+    //  if (ME->getLumiFlag()) {
+    //    ME->Reset();
+    //  }
+    //}
     m_lastSeenReducedPHID2 = m_reducedHistoryIDs.at(runLumiRange.m_historyIDIndex);
     m_lastSeenRun2 = runLumiRange.m_run;
     m_lastSeenLumi2 = runLumiRange.m_lumi;

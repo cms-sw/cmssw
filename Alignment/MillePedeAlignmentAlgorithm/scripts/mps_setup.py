@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+from builtins import range
 import os
 import re
 import sys
@@ -86,7 +87,9 @@ if not os.access("mps.db", os.R_OK): args.append = False
 allowed_mille_classes = ("lxplus", "cmscaf1nh", "cmscaf1nd", "cmscaf1nw",
                          "cmscafspec1nh", "cmscafspec1nd", "cmscafspec1nw",
                          "8nm", "1nh", "8nh", "1nd", "2nd", "1nw", "2nw",
-                         "cmsexpress")
+                         "cmsexpress","htcondor_espresso","htcondor_microcentury",
+                         "htcondor_longlunch","htcondor_workday","htcondor_tomorrow",
+                         "htcondor_testmatch","htcondor_nextweek")
 if lib.get_class("mille") not in allowed_mille_classes:
     print("Bad job class for mille in class", args.job_class)
     print("Allowed classes:")
@@ -164,7 +167,7 @@ if nJobExist == 0 or nJobExist <=0 or nJobExist > 999: # quite rude method... ->
     os.makedirs("jobData")
     nJobExist = 0;
 
-for j in xrange(1, args.n_jobs + 1):
+for j in range(1, args.n_jobs + 1):
     i = j+nJobExist
     jobdir = "job{0:03d}".format(i)
     print("jobdir", jobdir)
@@ -214,7 +217,7 @@ if args.append:
 
 
 # Create (update) the local database
-for j in xrange(1, args.n_jobs + 1):
+for j in range(1, args.n_jobs + 1):
     i = j+nJobExist
     jobdir = "job{0:03d}".format(i)
     lib.JOBDIR.append(jobdir)

@@ -87,39 +87,33 @@ const unsigned int TPETABINS = 65;
 const float TPETAMIN = -32.5;
 const float TPETAMAX = 32.5;
 
-
-L1TCompare::L1TCompare(const ParameterSet & ps) :
-   rctSourceEm_token_( consumes<L1CaloEmCollection>(ps.getParameter< InputTag >("rctSource") ))
-  ,rctSourceRctEmRgn_token_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("rctSource") ))
-  ,rctSource_( ps.getParameter< InputTag >("rctSource") )
-  ,gctSource_( ps.getParameter< InputTag >("gctSource") )
-  ,ecalTpgSource_(ps.getParameter<edm::InputTag>("ecalTpgSource"))
-  ,ecalTpgSource_token_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTpgSource")))
+L1TCompare::L1TCompare(const ParameterSet& ps)
+    : rctSourceEm_token_(consumes<L1CaloEmCollection>(ps.getParameter<InputTag>("rctSource"))),
+      rctSourceRctEmRgn_token_(consumes<L1CaloRegionCollection>(ps.getParameter<InputTag>("rctSource"))),
+      rctSource_(ps.getParameter<InputTag>("rctSource")),
+      gctSource_(ps.getParameter<InputTag>("gctSource")),
+      ecalTpgSource_(ps.getParameter<edm::InputTag>("ecalTpgSource")),
+      ecalTpgSource_token_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTpgSource")))
 
 {
-
   // verbosity switch
-  verbose_ = ps.getUntrackedParameter < bool > ("verbose", false);
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   if (verbose())
     std::cout << "L1TCompare: constructor...." << std::endl;
 
-  outputFile_ =
-      ps.getUntrackedParameter < std::string > ("outputFile", "");
+  outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
   if (!outputFile_.empty()) {
-    std::
-	cout << "L1T Monitoring histograms will be saved to " <<
-	outputFile_.c_str() << std::endl;
+    std::cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << std::endl;
   }
 
-  bool disable =
-      ps.getUntrackedParameter < bool > ("disableROOToutput", false);
+  bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
   if (disable) {
     outputFile_ = "";
   }
 
   //set Token(-s)
-  edm::InputTag gctCenJetsTag_(gctSource_.label(),"cenJets");
+  edm::InputTag gctCenJetsTag_(gctSource_.label(), "cenJets");
   edm::InputTag gctIsoEmCandsTag_(gctSource_.label(), "isoEm");
   edm::InputTag gctNonIsoEmCandsTag_(gctSource_.label(), "nonIsoEm");
 
@@ -128,184 +122,154 @@ L1TCompare::L1TCompare(const ParameterSet & ps) :
   gctNonIsoEmCandsToken_ = consumes<L1GctEmCandCollection>(gctNonIsoEmCandsTag_);
 }
 
-L1TCompare::~L1TCompare()
-{
-}
+L1TCompare::~L1TCompare() {}
 
-void L1TCompare::dqmBeginRun(edm::Run const&, edm::EventSetup const&){
+void L1TCompare::dqmBeginRun(edm::Run const&, edm::EventSetup const&) {
   //
 }
 
-void L1TCompare::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) 
-{
+void L1TCompare::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
   nev_ = 0;
-  
+
   ibooker.setCurrentFolder("L1T/Compare");
-    
-    // -------------------------------------------
-    // RCT-GCT
-    // -------------------------------------------
-    // Isolated
-  rctGctLeadingIsoEmRank_ = ibooker.book2D("rctGctLeadingIsoEmRank",
-				       "RCT-GCT: rank", R6BINS, R6MIN, R6MAX,
-				       R6BINS, R6MIN, R6MAX);
+
+  // -------------------------------------------
+  // RCT-GCT
+  // -------------------------------------------
+  // Isolated
+  rctGctLeadingIsoEmRank_ =
+      ibooker.book2D("rctGctLeadingIsoEmRank", "RCT-GCT: rank", R6BINS, R6MIN, R6MAX, R6BINS, R6MIN, R6MAX);
   rctGctLeadingIsoEmRank_->setAxisTitle(std::string("gct"), 1);
   rctGctLeadingIsoEmRank_->setAxisTitle(std::string("rct"), 2);
-  rctGctLeadingIsoEmEta_ = ibooker.book2D("rctGctLeadingIsoEmEta",
-				      "RCT-GCT: #eta", ETABINS, ETAMIN, ETAMAX,
-				       ETABINS, ETAMIN, ETAMAX);
+  rctGctLeadingIsoEmEta_ =
+      ibooker.book2D("rctGctLeadingIsoEmEta", "RCT-GCT: #eta", ETABINS, ETAMIN, ETAMAX, ETABINS, ETAMIN, ETAMAX);
   rctGctLeadingIsoEmEta_->setAxisTitle(std::string("gct"), 1);
   rctGctLeadingIsoEmEta_->setAxisTitle(std::string("rct"), 2);
 
-  rctGctLeadingIsoEmPhi_ = ibooker.book2D("rctGctLeadingIsoEmPhi",
-				      "RCT-GCT: #phi", PHIBINS, PHIMIN, PHIMAX,
-				       PHIBINS, PHIMIN, PHIMAX);
+  rctGctLeadingIsoEmPhi_ =
+      ibooker.book2D("rctGctLeadingIsoEmPhi", "RCT-GCT: #phi", PHIBINS, PHIMIN, PHIMAX, PHIBINS, PHIMIN, PHIMAX);
   rctGctLeadingIsoEmPhi_->setAxisTitle(std::string("gct"), 1);
   rctGctLeadingIsoEmPhi_->setAxisTitle(std::string("rct"), 2);
-    // non-Isolated
-  rctGctLeadingNonIsoEmRank_ = ibooker.book2D("rctGctLeadingNonIsoEmRank",
-				       "RCT-GCT: rank", R6BINS, R6MIN, R6MAX,
-				       R6BINS, R6MIN, R6MAX);
+  // non-Isolated
+  rctGctLeadingNonIsoEmRank_ =
+      ibooker.book2D("rctGctLeadingNonIsoEmRank", "RCT-GCT: rank", R6BINS, R6MIN, R6MAX, R6BINS, R6MIN, R6MAX);
   rctGctLeadingNonIsoEmRank_->setAxisTitle(std::string("gct"), 1);
   rctGctLeadingNonIsoEmRank_->setAxisTitle(std::string("rct"), 2);
 
-  rctGctLeadingNonIsoEmEta_ = ibooker.book2D("rctGctLeadingNonIsoEmEta",
-				      "RCT-GCT: #eta", ETABINS, ETAMIN, ETAMAX,
-				       ETABINS, ETAMIN, ETAMAX);
+  rctGctLeadingNonIsoEmEta_ =
+      ibooker.book2D("rctGctLeadingNonIsoEmEta", "RCT-GCT: #eta", ETABINS, ETAMIN, ETAMAX, ETABINS, ETAMIN, ETAMAX);
   rctGctLeadingNonIsoEmEta_->setAxisTitle(std::string("gct"), 1);
   rctGctLeadingNonIsoEmEta_->setAxisTitle(std::string("rct"), 2);
 
-  rctGctLeadingNonIsoEmPhi_ = ibooker.book2D("rctGctLeadingNonIsoEmPhi",
-				      "RCT-GCT: #phi", PHIBINS, PHIMIN, PHIMAX,
-				       PHIBINS, PHIMIN, PHIMAX);
+  rctGctLeadingNonIsoEmPhi_ =
+      ibooker.book2D("rctGctLeadingNonIsoEmPhi", "RCT-GCT: #phi", PHIBINS, PHIMIN, PHIMAX, PHIBINS, PHIMIN, PHIMAX);
   rctGctLeadingNonIsoEmPhi_->setAxisTitle(std::string("gct"), 1);
   rctGctLeadingNonIsoEmPhi_->setAxisTitle(std::string("rct"), 2);
-    // -------------------------------------------
-    // ECAL TPG - RCT
-    // -------------------------------------------
-  ecalTpgRctLeadingEmRank_ = ibooker.book2D("ecalTpgRctLeadingEmRank",
-					   "ECAL TPG-RCT: rank", 
-					   R6BINS, R6MIN, R6MAX,
-					   R6BINS, R6MIN, R6MAX);
+  // -------------------------------------------
+  // ECAL TPG - RCT
+  // -------------------------------------------
+  ecalTpgRctLeadingEmRank_ =
+      ibooker.book2D("ecalTpgRctLeadingEmRank", "ECAL TPG-RCT: rank", R6BINS, R6MIN, R6MAX, R6BINS, R6MIN, R6MAX);
   ecalTpgRctLeadingEmRank_->setAxisTitle(std::string("rct"), 1);
   ecalTpgRctLeadingEmRank_->setAxisTitle(std::string("ecal tp"), 2);
 
-  ecalTpgRctLeadingEmEta_ = ibooker.book2D("ecalTpgRctLeadingEmEta",
-					  "ECAL TPG-RCT: #eta", 
-					  15, -0.5, 14.5,
-					  TPETABINS, TPETAMIN, TPETAMAX);
+  ecalTpgRctLeadingEmEta_ =
+      ibooker.book2D("ecalTpgRctLeadingEmEta", "ECAL TPG-RCT: #eta", 15, -0.5, 14.5, TPETABINS, TPETAMIN, TPETAMAX);
   ecalTpgRctLeadingEmEta_->setAxisTitle(std::string("rct"), 1);
   ecalTpgRctLeadingEmEta_->setAxisTitle(std::string("ecal tp"), 2);
-  ecalTpgRctLeadingEmEta2_ = ibooker.book2D("ecalTpgRctLeadingEmEta2",
-					   "ECAL TPG-RCT: #eta (2)", 
-					   13, -6.5, 6.5,
-					   TPETABINS, TPETAMIN, TPETAMAX);
+  ecalTpgRctLeadingEmEta2_ =
+      ibooker.book2D("ecalTpgRctLeadingEmEta2", "ECAL TPG-RCT: #eta (2)", 13, -6.5, 6.5, TPETABINS, TPETAMIN, TPETAMAX);
   ecalTpgRctLeadingEmEta2_->setAxisTitle(std::string("rct"), 1);
   ecalTpgRctLeadingEmEta2_->setAxisTitle(std::string("ecal tp"), 2);
-  ecalTpgRctLeadingEmPhi_ = ibooker.book2D("ecalTpgRctLeadingEmPhi",
-					  "ECAL TPG-RCT: #phi", 
-					  PHIBINS, PHIMIN, PHIMAX,
-					  TPPHIBINS, TPPHIMIN, TPPHIMAX);
+  ecalTpgRctLeadingEmPhi_ = ibooker.book2D(
+      "ecalTpgRctLeadingEmPhi", "ECAL TPG-RCT: #phi", PHIBINS, PHIMIN, PHIMAX, TPPHIBINS, TPPHIMIN, TPPHIMAX);
   ecalTpgRctLeadingEmPhi_->setAxisTitle(std::string("rct"), 1);
   ecalTpgRctLeadingEmPhi_->setAxisTitle(std::string("ecal tp"), 2);
   //}
 }
 
-void L1TCompare::analyze(const Event & e, const EventSetup & c)
-{
+void L1TCompare::analyze(const Event& e, const EventSetup& c) {
   ++nev_;
   if (verbose()) {
     std::cout << "L1TCompare: analyze...." << std::endl;
   }
 
-  // L1E 
-  edm::Handle < L1EmParticleCollection > l1eIsoEm;
-  edm::Handle < L1EmParticleCollection > l1eNonIsoEm;
-  edm::Handle < L1JetParticleCollection > l1eCenJets;
-  edm::Handle < L1JetParticleCollection > l1eForJets;
-  edm::Handle < L1JetParticleCollection > l1eTauJets;
+  // L1E
+  edm::Handle<L1EmParticleCollection> l1eIsoEm;
+  edm::Handle<L1EmParticleCollection> l1eNonIsoEm;
+  edm::Handle<L1JetParticleCollection> l1eCenJets;
+  edm::Handle<L1JetParticleCollection> l1eForJets;
+  edm::Handle<L1JetParticleCollection> l1eTauJets;
   //  edm::Handle < L1EtMissParticle > l1eEtMiss;
-  edm::Handle < L1EtMissParticleCollection > l1eEtMiss;
+  edm::Handle<L1EtMissParticleCollection> l1eEtMiss;
   // RCT
-  edm::Handle < L1CaloEmCollection > em; // collection of L1CaloEmCands
-  edm::Handle < L1CaloRegionCollection > rctEmRgn;
+  edm::Handle<L1CaloEmCollection> em;  // collection of L1CaloEmCands
+  edm::Handle<L1CaloRegionCollection> rctEmRgn;
 
   // GCT
-  edm::Handle <L1GctJetCandCollection> gctCenJets;
-  edm::Handle <L1GctEmCandCollection> gctIsoEmCands;
-  edm::Handle <L1GctEmCandCollection> gctNonIsoEmCands;
+  edm::Handle<L1GctJetCandCollection> gctCenJets;
+  edm::Handle<L1GctEmCandCollection> gctIsoEmCands;
+  edm::Handle<L1GctEmCandCollection> gctNonIsoEmCands;
 
-  
-  e.getByToken(rctSourceEm_token_,em);
-  
+  e.getByToken(rctSourceEm_token_, em);
+
   if (!em.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection with label "
-			       << rctSource_.label() ;
+    edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection with label " << rctSource_.label();
     return;
   }
 
-  
-  e.getByToken(rctSourceRctEmRgn_token_,rctEmRgn);
-  
+  e.getByToken(rctSourceRctEmRgn_token_, rctEmRgn);
+
   if (!rctEmRgn.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find "
-			       << "L1CaloRegionCollection with label "
-			       << rctSource_.label() ;
+                                 << "L1CaloRegionCollection with label " << rctSource_.label();
     return;
   }
 
   e.getByToken(gctCenJetsToken_, gctCenJets);
   e.getByToken(gctIsoEmCandsToken_, gctIsoEmCands);
   e.getByToken(gctNonIsoEmCandsToken_, gctNonIsoEmCands);
-  
+
   if (!gctCenJets.isValid()) {
     std::cerr << "L1TGCT: could not find one of the classes?" << std::endl;
     return;
   }
- if (!gctIsoEmCands.isValid()) {
+  if (!gctIsoEmCands.isValid()) {
     std::cerr << "L1TGCT: could not find one of the classes?" << std::endl;
     return;
   }
- if (!gctNonIsoEmCands.isValid()) {
+  if (!gctNonIsoEmCands.isValid()) {
     std::cerr << "L1TGCT: could not find one of the classes?" << std::endl;
     return;
   }
- 
 
   // GCT
-  if ( verbose() ) {
-    for ( L1GctEmCandCollection::const_iterator iem = gctIsoEmCands->begin();
-	  iem != gctIsoEmCands->end(); ++iem) {
-      if ( !iem->empty() ) 
-	std::cout << "GCT EM: " << iem->rank() 
-		  << ", " 
-		  << iem->etaIndex() << "("
-	  //<< int(iem->etaIndex()&0x3)*((iem->etaIndex()&0x4)?1:-1)
-		  << "), " 
-		  << iem->phiIndex()
-		  << std::endl;
+  if (verbose()) {
+    for (L1GctEmCandCollection::const_iterator iem = gctIsoEmCands->begin(); iem != gctIsoEmCands->end(); ++iem) {
+      if (!iem->empty())
+        std::cout << "GCT EM: " << iem->rank() << ", " << iem->etaIndex()
+                  << "("
+                  //<< int(iem->etaIndex()&0x3)*((iem->etaIndex()&0x4)?1:-1)
+                  << "), " << iem->phiIndex() << std::endl;
     }
   }
   // rct phi: 0-17
   // rct eta: 0-21
 
-
   // Fill the RCT histograms
 
   // Regions
   RctObjectCollection rcj, rcj_iso, rcj_non_iso;
-  for (L1CaloEmCollection::const_iterator iem = em->begin();
-       iem != em->end(); ++iem) { 
-    //   L1CaloRegionDetId id(false, iem->rctCrate(), iem->rctCard(), 
+  for (L1CaloEmCollection::const_iterator iem = em->begin(); iem != em->end(); ++iem) {
+    //   L1CaloRegionDetId id(false, iem->rctCrate(), iem->rctCard(),
     //			 iem->rctRegion());
-       L1CaloRegionDetId id(iem->rctCrate(), iem->rctCard(), 
-    			 iem->rctRegion());
+    L1CaloRegionDetId id(iem->rctCrate(), iem->rctCard(), iem->rctRegion());
 
-       // RctObject h(id.gctEta(), id.gctPhi(), iem->rank());
+    // RctObject h(id.gctEta(), id.gctPhi(), iem->rank());
     RctObject h(id.rctEta(), id.rctPhi(), iem->rank());
-    if ( !iem->isolated() ) 
+    if (!iem->isolated())
       rcj_non_iso.push_back(h);
-    else 
+    else
       rcj_iso.push_back(h);
     rcj.push_back(h);
   }
@@ -313,107 +277,78 @@ void L1TCompare::analyze(const Event & e, const EventSetup & c)
   std::sort(rcj.begin(), rcj.end(), rctObjectComp);
   std::sort(rcj_non_iso.begin(), rcj_non_iso.end(), rctObjectComp);
   std::sort(rcj_iso.begin(), rcj_iso.end(), rctObjectComp);
-  if ( verbose() ) {
+  if (verbose()) {
     for (RctObjectCollection::reverse_iterator ij = rcj_iso.rbegin();
-	 ij != rcj_iso.rend() && ij != rcj_iso.rbegin()+8; ++ij) {
-      std::cout << "RCT cj: " 
-		<< ij->rank_ << ", " << ij->eta_ << ", " << ij->phi_
-		<< std::endl;
+         ij != rcj_iso.rend() && ij != rcj_iso.rbegin() + 8;
+         ++ij) {
+      std::cout << "RCT cj: " << ij->rank_ << ", " << ij->eta_ << ", " << ij->phi_ << std::endl;
     }
   }
   L1GctEmCandCollection::const_iterator lead_em = gctIsoEmCands->begin();
-  if ( !lead_em->empty() ) { // equivalent to rank == 0
+  if (!lead_em->empty()) {  // equivalent to rank == 0
     rctGctLeadingIsoEmEta_->Fill(lead_em->etaIndex(), rcj_iso.rbegin()->eta_);
     rctGctLeadingIsoEmPhi_->Fill(lead_em->phiIndex(), rcj_iso.rbegin()->phi_);
     rctGctLeadingIsoEmRank_->Fill(lead_em->rank(), rcj_iso.rbegin()->rank_);
   }
 
   // non-isolated
-  if ( verbose() ) {
-    for ( L1GctEmCandCollection::const_iterator iem 
-	    = gctNonIsoEmCands->begin(); iem != gctNonIsoEmCands->end(); 
-	  ++iem) {
-      if ( ! iem->empty() ) 
-	std::cout << "GCT EM non: " << iem->rank() 
-		  << ", " 
-		  << iem->etaIndex() //<< "("
-	  //<< int(iem->etaIndex()&0x3)*((iem->etaIndex()&0x4)?1:-1)
-		  //<< ")" 
-		  << ", " 
-		  << iem->phiIndex()
-		  << std::endl;
+  if (verbose()) {
+    for (L1GctEmCandCollection::const_iterator iem = gctNonIsoEmCands->begin(); iem != gctNonIsoEmCands->end(); ++iem) {
+      if (!iem->empty())
+        std::cout << "GCT EM non: " << iem->rank() << ", "
+                  << iem->etaIndex()  //<< "("
+                                      //<< int(iem->etaIndex()&0x3)*((iem->etaIndex()&0x4)?1:-1)
+                  //<< ")"
+                  << ", " << iem->phiIndex() << std::endl;
     }
   }
-  if ( verbose() ) {
+  if (verbose()) {
     for (RctObjectCollection::reverse_iterator ij = rcj_non_iso.rbegin();
-	 ij != rcj_non_iso.rend() && ij != rcj_non_iso.rbegin()+8; ++ij) {
-      std::cout << "RCT cj non: " 
-		<< ij->rank_ << ", " << ij->eta_ << ", " << ij->phi_
-		<< std::endl;
+         ij != rcj_non_iso.rend() && ij != rcj_non_iso.rbegin() + 8;
+         ++ij) {
+      std::cout << "RCT cj non: " << ij->rank_ << ", " << ij->eta_ << ", " << ij->phi_ << std::endl;
     }
   }
   lead_em = gctNonIsoEmCands->begin();
-  if ( !lead_em->empty() ) { // equivalent to rank != 0
-    rctGctLeadingNonIsoEmEta_->Fill(lead_em->etaIndex(), 
-				    rcj_non_iso.rbegin()->eta_);
-    rctGctLeadingNonIsoEmPhi_->Fill(lead_em->phiIndex(), 
-				    rcj_non_iso.rbegin()->phi_);
-    rctGctLeadingNonIsoEmRank_->Fill(lead_em->rank(), 
-				     rcj_non_iso.rbegin()->rank_);
+  if (!lead_em->empty()) {  // equivalent to rank != 0
+    rctGctLeadingNonIsoEmEta_->Fill(lead_em->etaIndex(), rcj_non_iso.rbegin()->eta_);
+    rctGctLeadingNonIsoEmPhi_->Fill(lead_em->phiIndex(), rcj_non_iso.rbegin()->phi_);
+    rctGctLeadingNonIsoEmRank_->Fill(lead_em->rank(), rcj_non_iso.rbegin()->rank_);
   }
 
-  // ECAL TPG's to RCT EM 
-  edm::Handle < EcalTrigPrimDigiCollection > eTP;
-  e.getByToken(ecalTpgSource_token_,eTP);
-  
+  // ECAL TPG's to RCT EM
+  edm::Handle<EcalTrigPrimDigiCollection> eTP;
+  e.getByToken(ecalTpgSource_token_, eTP);
+
   if (!eTP.isValid()) {
-    edm::LogInfo("DataNotFound") 
-      << "can't find EcalTrigPrimCollection with label "
-      << ecalTpgSource_.label() ;
+    edm::LogInfo("DataNotFound") << "can't find EcalTrigPrimCollection with label " << ecalTpgSource_.label();
     return;
   }
   RctObjectCollection ecalobs;
-  for (EcalTrigPrimDigiCollection::const_iterator ieTP = eTP->begin();
-       ieTP != eTP->end(); ieTP++) {
-    ecalobs.push_back(RctObject(ieTP->id().ieta(),
-				 ieTP->id().iphi(), 
-				 ieTP->compressedEt()));
+  for (EcalTrigPrimDigiCollection::const_iterator ieTP = eTP->begin(); ieTP != eTP->end(); ieTP++) {
+    ecalobs.push_back(RctObject(ieTP->id().ieta(), ieTP->id().iphi(), ieTP->compressedEt()));
   }
   std::sort(ecalobs.begin(), ecalobs.end(), rctObjectComp);
-  if ( verbose() ) {
+  if (verbose()) {
     for (RctObjectCollection::reverse_iterator ij = ecalobs.rbegin();
-	 ij != ecalobs.rend() && ij != ecalobs.rbegin()+8; ++ij) {
-      std::cout << "ECAL cj : " 
-		<< ij->rank_ << ", " << ij->eta_ << ", " << ij->phi_
-		<< std::endl;
+         ij != ecalobs.rend() && ij != ecalobs.rbegin() + 8;
+         ++ij) {
+      std::cout << "ECAL cj : " << ij->rank_ << ", " << ij->eta_ << ", " << ij->phi_ << std::endl;
     }
   }
   // abritrary cut
-  if ( rcj.rbegin()->rank_ > 4 ) {
-    ecalTpgRctLeadingEmEta_->Fill(rcj.rbegin()->eta_,
-				  ecalobs.rbegin()->eta_);
-    int e2 = (rcj.rbegin()->eta_&0x7UL)* ((rcj.rbegin()->eta_&0x8UL)?1:-1);
+  if (rcj.rbegin()->rank_ > 4) {
+    ecalTpgRctLeadingEmEta_->Fill(rcj.rbegin()->eta_, ecalobs.rbegin()->eta_);
+    int e2 = (rcj.rbegin()->eta_ & 0x7UL) * ((rcj.rbegin()->eta_ & 0x8UL) ? 1 : -1);
     ecalTpgRctLeadingEmEta2_->Fill(e2, ecalobs.rbegin()->eta_);
     ecalTpgRctLeadingEmPhi_->Fill(rcj.rbegin()->phi_, ecalobs.rbegin()->phi_);
-    ecalTpgRctLeadingEmRank_->Fill(rcj.rbegin()->rank_,
-				   ecalobs.rbegin()->rank_);
+    ecalTpgRctLeadingEmRank_->Fill(rcj.rbegin()->rank_, ecalobs.rbegin()->rank_);
   }
-  if ( verbose() ) {
+  if (verbose()) {
     int seta = rcj.rbegin()->eta_;
-    seta = (seta&0x7UL)*(seta&0x8?-1:1);
-    std::cout << "ZZ: " 
-	      << rcj.rbegin()->eta_ << " "
-	      << rcj.rbegin()->phi_ << " "
-	      << rcj.rbegin()->rank_ << " "
-	      << (++rcj.rbegin())->rank_<< " "
-	      << ecalobs.rbegin()->eta_ << " "
-	      << ecalobs.rbegin()->phi_ << " "
-	      << ecalobs.rbegin()->rank_ << " "
-	      << (++ecalobs.rbegin())->rank_<< " "
-	      << seta << " "
-	      << std::endl;
+    seta = (seta & 0x7UL) * (seta & 0x8 ? -1 : 1);
+    std::cout << "ZZ: " << rcj.rbegin()->eta_ << " " << rcj.rbegin()->phi_ << " " << rcj.rbegin()->rank_ << " "
+              << (++rcj.rbegin())->rank_ << " " << ecalobs.rbegin()->eta_ << " " << ecalobs.rbegin()->phi_ << " "
+              << ecalobs.rbegin()->rank_ << " " << (++ecalobs.rbegin())->rank_ << " " << seta << " " << std::endl;
   }
-
-
-
 }

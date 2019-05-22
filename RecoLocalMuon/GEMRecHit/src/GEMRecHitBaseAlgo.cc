@@ -3,27 +3,17 @@
  *
  *  \author M. Maggi -- INFN Bari
  */
-
-
-
 #include "RecoLocalMuon/GEMRecHit/interface/GEMRecHitBaseAlgo.h"
-#include "RecoLocalMuon/GEMRecHit/src/GEMClusterContainer.h"
-#include "RecoLocalMuon/GEMRecHit/src/GEMCluster.h"
-#include "RecoLocalMuon/GEMRecHit/src/GEMClusterizer.h"
-#include "RecoLocalMuon/GEMRecHit/src/GEMMaskReClusterizer.h"
+#include "RecoLocalMuon/GEMRecHit/interface/GEMClusterizer.h"
+#include "RecoLocalMuon/GEMRecHit/interface/GEMMaskReClusterizer.h"
 
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
-GEMRecHitBaseAlgo::GEMRecHitBaseAlgo(const edm::ParameterSet& config) {
-  //  theSync = GEMTTrigSyncFactory::get()->create(config.getParameter<string>("tTrigMode"),
-  //config.getParameter<ParameterSet>("tTrigModeConfig"));
-}
+GEMRecHitBaseAlgo::GEMRecHitBaseAlgo(const edm::ParameterSet& config) {}
 
 GEMRecHitBaseAlgo::~GEMRecHitBaseAlgo(){}
-
 
 // Build all hits in the range associated to the layerId, at the 1st step.
 edm::OwnVector<GEMRecHit> GEMRecHitBaseAlgo::reconstruct(const GEMEtaPartition& roll,
@@ -32,15 +22,13 @@ edm::OwnVector<GEMRecHit> GEMRecHitBaseAlgo::reconstruct(const GEMEtaPartition& 
                                                          const EtaPartitionMask& mask) {
   edm::OwnVector<GEMRecHit> result; 
 
-
   GEMClusterizer clizer;
   GEMClusterContainer tcls = clizer.doAction(digiRange);
   GEMMaskReClusterizer mrclizer;
   GEMClusterContainer cls = mrclizer.doAction(gemId,tcls,mask);
 
-
   for (GEMClusterContainer::const_iterator cl = cls.begin();
-       cl != cls.end(); cl++){
+       cl != cls.end(); cl++) {
     
     LocalError tmpErr;
     LocalPoint point;
@@ -52,7 +40,6 @@ edm::OwnVector<GEMRecHit> GEMRecHitBaseAlgo::reconstruct(const GEMEtaPartition& 
     int firstClustStrip= cl->firstStrip();
     int clusterSize=cl->clusterSize(); 
     GEMRecHit*  recHit = new GEMRecHit(gemId,cl->bx(),firstClustStrip,clusterSize,point,tmpErr);
-
 
     result.push_back(recHit);
   }

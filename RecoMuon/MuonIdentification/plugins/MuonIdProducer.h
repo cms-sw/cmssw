@@ -47,8 +47,9 @@
 #include "RecoMuon/MuonIdentification/interface/MuonTimingFiller.h"
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
-// RPC-Muon stuffs
+#include "RecoMuon/MuonIdentification/interface/MuonShowerDigiFiller.h"
 
+// RPC-Muon stuffs
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/MuonReco/interface/MuonRPCHitMatch.h"
@@ -175,7 +176,9 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    std::vector<edm::InputTag> inputCollectionLabels_;
    std::vector<ICTypes::ICTypeKey> inputCollectionTypes_;
 
-   MuonTimingFiller* theTimingFiller_;
+  std::unique_ptr<MuonTimingFiller> theTimingFiller_;
+
+  std::unique_ptr<MuonShowerDigiFiller> theShowerDigiFiller_;
 
    // selections
    double minPt_;
@@ -194,7 +197,9 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    // what information to fill
    bool fillCaloCompatibility_;
    bool fillEnergy_;
+   bool storeCrossedHcalRecHits_;
    bool fillMatching_;
+   bool fillShowerDigis_;
    bool fillIsolation_;
    bool writeIsoDeposits_;
    double ptThresholdToFillCandidateP4WithGlobalFit_;
@@ -227,9 +232,9 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    edm::Handle<edm::ValueMap<reco::MuonQuality> > glbQualHandle_;
    
    MuonCaloCompatibility muonCaloCompatibility_;
-   reco::isodeposit::IsoDepositExtractor* muIsoExtractorCalo_;
-   reco::isodeposit::IsoDepositExtractor* muIsoExtractorTrack_;
-   reco::isodeposit::IsoDepositExtractor* muIsoExtractorJet_;
+   std::unique_ptr<reco::isodeposit::IsoDepositExtractor> muIsoExtractorCalo_;
+   std::unique_ptr<reco::isodeposit::IsoDepositExtractor> muIsoExtractorTrack_;
+   std::unique_ptr<reco::isodeposit::IsoDepositExtractor> muIsoExtractorJet_;
    std::string trackDepositName_;
    std::string ecalDepositName_;
    std::string hcalDepositName_;
@@ -246,7 +251,7 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    double caloCut_;
    
    bool arbClean_;
-   MuonMesh* meshAlgo_;
+   std::unique_ptr<MuonMesh> meshAlgo_;
 
 };
 #endif

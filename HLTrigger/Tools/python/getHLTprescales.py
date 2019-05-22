@@ -1,5 +1,6 @@
 #!/usr/bin/env python 
 from __future__ import print_function
+from __future__ import absolute_import
 from sys import stderr, exit
 import commands
 
@@ -30,7 +31,7 @@ def getPrescalesFromKey(key):
                 psCols.append(res_split[uu])
     return psCols
 
-from queryRR import queryRR
+from .queryRR import queryRR
 
 def readIndex():
     asciiFile=open("columns.txt","read")

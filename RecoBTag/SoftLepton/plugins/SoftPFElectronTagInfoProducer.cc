@@ -8,7 +8,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "RecoParticleFlow/PFProducer/interface/Utils.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -85,7 +84,7 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 				if(!patelec->passConversionVeto()) continue;
 			}
 			else{
-				if(ConversionTools::hasMatchedConversion(*(recoelectron),hConversions,beamspot.position())) continue;
+				if(ConversionTools::hasMatchedConversion(*(recoelectron),*hConversions,beamspot.position())) continue;
 			}
 			//Make sure that the electron is inside the jet
 			if(reco::deltaR2((*recoelectron),(*jetRef))>DeltaRElectronJet*DeltaRElectronJet) continue;

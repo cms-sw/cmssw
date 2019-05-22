@@ -6,20 +6,4 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include <vector>
 
-namespace DataFormats_SiPixelRawData {
-  struct dictionary {
-    std::vector<SiPixelRawDataError> err0;
-    std::map<int, std::vector<SiPixelRawDataError> > err1;
-    edm::DetSet<SiPixelRawDataError> err2;
-    std::vector<edm::DetSet<SiPixelRawDataError> > err3;
-    edm::DetSetVector<SiPixelRawDataError> err4;
-    edm::Wrapper< std::vector<SiPixelRawDataError>  > err5;
-    edm::Wrapper< std::map<int, std::vector<SiPixelRawDataError> > > err6;
-    edm::Wrapper< edm::DetSet<SiPixelRawDataError>  > err7;
-    edm::Wrapper< std::vector<edm::DetSet<SiPixelRawDataError> > > err8;
-    edm::Wrapper< edm::DetSetVector<SiPixelRawDataError> > err9;
-  };
-}
-
-#endif // SIPIXELRAWDATA_CLASSES_H
-
+#endif  // SIPIXELRAWDATA_CLASSES_H

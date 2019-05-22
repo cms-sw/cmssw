@@ -11,18 +11,20 @@
 //STL
 #include <vector>
 
-namespace reco {class Track;}
-namespace edm {class Event; class EventSetup;}
+namespace reco {
+  class Track;
+}
+namespace edm {
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
-class AlignmentGlobalTrackSelector
-{
-
- public:
-
-  typedef std::vector<const reco::Track*> Tracks; 
+class AlignmentGlobalTrackSelector {
+public:
+  typedef std::vector<const reco::Track*> Tracks;
 
   /// constructor
-  AlignmentGlobalTrackSelector(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
+  AlignmentGlobalTrackSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   /// destructor
   ~AlignmentGlobalTrackSelector();
@@ -31,15 +33,14 @@ class AlignmentGlobalTrackSelector
   Tracks select(const Tracks& tracks, const edm::Event& iEvent, const edm::EventSetup& eSetup);
   ///returns if any of the Filters is used.
   bool useThisFilter();
- 
- private:
-  
+
+private:
   ///returns [tracks] if there are less than theMaxCount Jets with theMinJetPt and an empty set if not
-  Tracks checkJetCount(const Tracks& cands,const edm::Event& iEvent)const;
+  Tracks checkJetCount(const Tracks& cands, const edm::Event& iEvent) const;
   ///returns only isolated tracks in [cands]
-  Tracks checkIsolation(const Tracks& cands,const edm::Event& iEvent)const;
+  Tracks checkIsolation(const Tracks& cands, const edm::Event& iEvent) const;
   ///filter for Tracks that match the Track of a global Muon
-  Tracks findMuons(const Tracks& tracks,const edm::Event& iEvent)const;
+  Tracks findMuons(const Tracks& tracks, const edm::Event& iEvent) const;
 
   /// private data members
   edm::ParameterSet theConf;
@@ -75,4 +76,3 @@ class AlignmentGlobalTrackSelector
 };
 
 #endif
-

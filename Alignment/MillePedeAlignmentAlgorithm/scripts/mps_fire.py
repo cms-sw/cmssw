@@ -13,6 +13,7 @@
 #  mps_fire.py -h
 
 from __future__ import print_function
+from builtins import range
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
 import os
@@ -39,7 +40,7 @@ def forward_proxy(rundir):
     shutil.copyfile(local_proxy, os.path.join(rundir,".user_proxy"))
 
 
-def write_HTCondor_submit_file(path, script, config, lib):
+def write_HTCondor_submit_file_pede(path, script, config, lib):
     """Writes 'job.submit' file in `path`.
 
     Arguments:
@@ -118,6 +119,44 @@ periodic_remove       = !regexp("group_u_CMS.e_cms_caf_bigmem", AccountingGroup)
 
     return job_submit_file
 
+def write_HTCondor_submit_file_mille(path, script, lib, proxy_path=None):
+    """Writes 'job.submit' file in `path`.
+
+    Arguments:
+    - `path`: job directory
+    - `script`: script to be executed
+    - `lib`: MPS lib object
+    - `proxy_path`: path to proxy (only used in case of requested proxy forward)
+    """
+
+    resources = lib.get_class("mille").split("_")[1:] # strip off 'htcondor'
+    job_flavour = resources[-1]
+
+    job_submit_template="""\
+universe              = vanilla
+executable            = {script:s}
+output                = {jobm:s}/STDOUT
+error                 = {jobm:s}/STDOUT
+log                   = {jobm:s}/HTCJOB
+notification          = Always
+transfer_output_files = ""
+
++JobFlavour           = "{flavour:s}"
+"""
+    if proxy_path is not None:
+        job_submit_template += """\
++x509userproxy        = "{proxy:s}"
+"""
+    job_submit_template += "\nqueue\n"
+
+    job_submit_file = os.path.join(Path, "job.submit")
+    with open(job_submit_file, "w") as f:
+        f.write(job_submit_template.format(script = os.path.abspath(script),
+                                           jobm = os.path.abspath(path),
+                                           flavour = job_flavour,
+                                           proxy = proxy_path))
+
+    return job_submit_file
 
 
 
@@ -218,7 +257,7 @@ if not args.fireMerge:
         resources = '-q '+resources
 
     nSub = 0 # number of submitted Jobs
-    for i in xrange(lib.nJobs):
+    for i in range(lib.nJobs):
         if lib.JOBDIR[i] not in job_mask: continue
         if lib.JOBSTATUS[i] == 'SETUP':
             if nSub < args.maxJobs:
@@ -227,8 +266,18 @@ if not args.fireMerge:
 
                 # submit a new job with 'bsub -J ...' and check output
                 # for some reasons LSF wants script with full path
-                submission = 'bsub -J %s %s %s/%s/theScript.sh' % \
-                      (theJobName, resources, theJobData, lib.JOBDIR[i])
+                if fire_htcondor:
+                    Path = os.path.join(theJobData,lib.JOBDIR[i])
+                    scriptPath = os.path.join(Path, "theScript.sh")
+                    if args.forwardProxy:
+                        job_submit_file = write_HTCondor_submit_file_mille(Path, scriptPath, lib,os.path.join(Path,".user_proxy"))
+                    else:
+                        job_submit_file = write_HTCondor_submit_file_mille(Path, scriptPath, lib)
+                    submission = "condor_submit -batch-name %s %s"%\
+                          (theJobName, job_submit_file)
+                else:
+                    submission = 'bsub -J %s %s %s/%s/theScript.sh' % \
+                          (theJobName, resources, theJobData, lib.JOBDIR[i])
                 print(submission)
                 try:
                     result = subprocess.check_output(submission,
@@ -240,11 +289,15 @@ if not args.fireMerge:
                 result = result.strip()
 
                 # check if job was submitted and updating jobdatabase
-                match = re.search('Job <(\d+)> is submitted', result)
+                if fire_htcondor:
+                    match = re.search(r"1 job\(s\) submitted to cluster (\d+)\.", result)
+                else:
+                    match = re.search('Job <(\d+)> is submitted', result)
                 if match:
                     # need standard format for job number
                     lib.JOBSTATUS[i] = 'SUBTD'
                     lib.JOBID[i] = match.group(1)
+                    if fire_htcondor: lib.JOBID[i] += ".0"
                 else:
                     print('Submission of %03d seems to have failed: %s' % (lib.JOBNUMBER[i],result), end=' ')
                 nSub +=1
@@ -267,7 +320,7 @@ else:
 
     # check whether all other jobs are OK
     mergeOK = True
-    for i in xrange(lib.nJobs):
+    for i in range(lib.nJobs):
         if lib.JOBSTATUS[i] != 'OK':
             if 'DISABLED' not in lib.JOBSTATUS[i]:
                 mergeOK = False
@@ -306,7 +359,7 @@ else:
                 mergeCfg = mergeCfg.strip()
 
                 if fire_htcondor:
-                    job_submit_file = write_HTCondor_submit_file(Path, scriptPath, mergeCfg, lib)
+                    job_submit_file = write_HTCondor_submit_file_pede(Path, scriptPath, mergeCfg, lib)
 
                 # make a backup copy of the cfg
                 backupCfgPath  = os.path.join(Path, mergeCfg+".bak")
@@ -348,7 +401,7 @@ else:
                 mergeCfg = mergeCfg.replace('\n','')
 
                 if fire_htcondor:
-                    job_submit_file = write_HTCondor_submit_file(Path, scriptPath, mergeCfg, lib)
+                    job_submit_file = write_HTCondor_submit_file_pede(Path, scriptPath, mergeCfg, lib)
 
                 # restore the backup copy of the cfg
                 backupCfgPath  = Path+'/%s.bak' % mergeCfg
@@ -368,7 +421,7 @@ else:
                               job_submit_file]
             else:
                 submission = ["bsub", "-J", curJobName, resources, scriptPath]
-            for _ in xrange(5):
+            for _ in range(5):
                 try:
                     result = subprocess.check_output(submission, stderr=subprocess.STDOUT)
                     break

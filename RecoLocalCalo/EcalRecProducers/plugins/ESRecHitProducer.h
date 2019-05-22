@@ -27,6 +27,6 @@ class ESRecHitProducer : public edm::stream::EDProducer<> {
   const edm::EDGetTokenT<ESDigiCollection> digiToken_;
   const std::string rechitCollection_; // secondary name to be given to collection of hits
 
-  ESRecHitWorkerBaseClass * worker_;
+  std::unique_ptr<ESRecHitWorkerBaseClass> worker_;
 };
 #endif

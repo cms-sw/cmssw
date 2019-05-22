@@ -8,9 +8,8 @@
  *  $Revision: 1.0 $
  *  \author Jim Pivarski - Texas A&M University
  */
- 
- 
-#include <iosfwd> 
+
+#include <iosfwd>
 #include <iostream>
 #include <vector>
 
@@ -22,9 +21,9 @@
 
 /// A muon DT SuperLayer ( an AlignableDet )
 
-class AlignableDTSuperLayer: public AlignableDet {
- public:
-  friend std::ostream& operator<< (std::ostream&, const AlignableDTSuperLayer &);
+class AlignableDTSuperLayer : public AlignableDet {
+public:
+  friend std::ostream &operator<<(std::ostream &, const AlignableDTSuperLayer &);
 
   /// Constructor
   AlignableDTSuperLayer(const GeomDet *geomDet);

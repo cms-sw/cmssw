@@ -44,6 +44,7 @@ void PFTauElecRejectionBenchmark::write() {
     
 } 
 
+
 void PFTauElecRejectionBenchmark::setup(
 					string Filename,
 					string benchmarkLabel,
@@ -256,10 +257,11 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt, 
       if ((*thePFTau).et() > minRecoPt_ && std::abs((*thePFTau).eta()) < maxRecoAbsEta_) {
 
 	// Check if track goes to Ecal crack
-	TrackRef myleadTk;
-	if(thePFTau->leadPFChargedHadrCand().isNonnull()){
-	  myleadTk=thePFTau->leadPFChargedHadrCand()->trackRef();
-	  myleadTkEcalPos = thePFTau->leadPFChargedHadrCand()->positionAtECALEntrance();
+	reco::TrackRef myleadTk;
+	const reco::PFCandidatePtr& pflch = thePFTau->leadPFChargedHadrCand();
+	if(pflch.isNonnull()){
+	  myleadTk=pflch->trackRef();
+	  myleadTkEcalPos = pflch->positionAtECALEntrance();
 	  
 	  if(myleadTk.isNonnull()){ 
 	    if (applyEcalCrackCut_ && isInEcalCrack(std::abs((double)myleadTkEcalPos.eta()))) {
@@ -321,14 +323,17 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt, 
 		}
 
 		// Loop over all PFCands for cluster plots  
-		std::vector<PFCandidatePtr> myPFCands=(*thePFTau).pfTauTagInfoRef()->PFCands();
+		std::vector<CandidatePtr> myPFCands=(*thePFTau).pfTauTagInfoRef()->PFCands();
 		for(int i=0;i<(int)myPFCands.size();i++){
-
+		  const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate*>(myPFCands[i].get());
+		  if (pfCand == nullptr)
+		    continue;
+		  
 		  math::XYZPointF candPos;
-		  if (myPFCands[i]->particleId()==1 || myPFCands[i]->particleId()==2) // if charged hadron or electron
-		    candPos = myPFCands[i]->positionAtECALEntrance();
+		  if (std::abs(pfCand->pdgId()) == 211 || std::abs(pfCand->pdgId()) == 11) // if charged hadron or electron
+		    candPos = pfCand->positionAtECALEntrance();
 		  else
-		    candPos = math::XYZPointF(myPFCands[i]->px(),myPFCands[i]->py(),myPFCands[i]->pz());
+		    candPos = math::XYZPointF(pfCand->px(),pfCand->py(),pfCand->pz());
 
 		  //double deltaR   = ROOT::Math::VectorUtil::DeltaR(myleadTkEcalPos,candPos);
 		  double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myleadTkEcalPos,candPos);
@@ -336,9 +341,9 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt, 
 		  double deltaPhiOverQ = deltaPhi/(double)myleadTk->charge();
 		  
 		  hpfcand_deltaEta->Fill(deltaEta);
-		  hpfcand_deltaEta_weightE->Fill(deltaEta*myPFCands[i]->ecalEnergy());
+		  hpfcand_deltaEta_weightE->Fill(deltaEta*pfCand->ecalEnergy());
 		  hpfcand_deltaPhiOverQ->Fill(deltaPhiOverQ);
-		  hpfcand_deltaPhiOverQ_weightE->Fill(deltaPhiOverQ*myPFCands[i]->ecalEnergy());	
+		  hpfcand_deltaPhiOverQ_weightE->Fill(deltaPhiOverQ*pfCand->ecalEnergy());	
 		  
 		}
 

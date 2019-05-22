@@ -118,6 +118,14 @@ testFormulaEvaluator::checkFormulaEvaluator() {
   }
 
   {
+    reco::FormulaEvaluator f(" 3 + 2 ");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 5. );
+  }
+
+  {
     reco::FormulaEvaluator f("3-2");
     
     std::vector<double> emptyV;
@@ -147,6 +155,37 @@ testFormulaEvaluator::checkFormulaEvaluator() {
     std::vector<double> emptyV;
 
     CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 9. );
+  }
+
+  {
+    reco::FormulaEvaluator f("4*3^2");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 36. );
+  }
+  {
+    reco::FormulaEvaluator f("3^2*4");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 36. );
+  }
+
+  {
+    reco::FormulaEvaluator f("1+2*3^4+5*2+6*2");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 1+2*(3*3*3*3)+5*2+6*2);
+  }
+
+  {
+    reco::FormulaEvaluator f("1+3^4*2+5*2+6*2");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 1+2*(3*3*3*3)+5*2+6*2);
   }
 
   {
@@ -979,6 +1018,24 @@ testFormulaEvaluator::checkFormulaEvaluator() {
   }
 
   {
+    //This was previously evaluated wrong
+    std::array<double,3> xs = {{224., 225., 226.}};
+    std::vector<double> x = {0.};
+    std::vector<double> v = {-3., -3., -3., -3., -3., -3.};
+
+    reco::FormulaEvaluator f("([0]+[1]*x+[2]*x^2)*(x<225)+([0]+[1]*225+[2]*225^2+[3]*(x-225)+[4]*(x-225)^2+[5]*(x-225)^3)*(x>225)");
+
+    auto func = [&v](double x) { 
+      return (v[0]+v[1]*x+v[2]*(x*x))*(x<225)+(v[0]+v[1]*225+v[2]*(225*225)+v[3]*(x-225)+v[4]*((x-225)*(x-225))+v[5]*((x-225)*(x-225)*(x-225)))*(x>225);
+    };
+
+    for(auto x_i : xs) {
+      x[0] = x_i;
+      CPPUNIT_ASSERT( compare( f.evaluate(x,v), func(x[0]) ) );
+    }
+  }
+
+  {
     auto t = [] () {
       reco::FormulaEvaluator f("doesNotExist(2)");
     };
@@ -1035,4 +1092,15 @@ testFormulaEvaluator::checkFormulaEvaluator() {
     CPPUNIT_ASSERT_THROW( t(), cms::Exception );
   }
 
+  {
+    //Make sure spaces are shown in exception message
+    try {
+      reco::FormulaEvaluator f("1 + 2#");
+    } catch(cms::Exception const& e) {
+      auto r = "An exception of category 'FormulaEvaluatorParseError' occurred.\n"
+        "Exception Message:\n"
+        "While parsing '1 + 2#' could not parse beyond '1 + 2'\n";
+      CPPUNIT_ASSERT(std::string(r) == e.what());
+    }
+  }
 }

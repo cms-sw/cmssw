@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="eregalgo.xml" eval="true">
+  <Constant name="z3CabEC"             value="3.10606*m"/>
+  <Constant name="z4CabEC"             value="3.28850*m"/>
+  <Constant name="rMin2Cab"            value="1.72150*m"/>
+  <Constant name="ESFrontZ"            value="2955*mm"/>
+  <Constant name="ESRearZ"             value="3170*mm"/>
+  <Constant name="ESMidZ"              value="[z3CabEC]"/>
+  <Constant name="R_MIN"               value="1365*mm"/>
+  <Constant name="R_MAX"               value="1510*mm"/>
+  <Constant name="EBRMin"              value="1238.0*mm"/>
+  <Constant name="EBRMax"              value="1775.0*mm"/>
+  <Constant name="EEIRECR"             value="115*mm"/>
+</ConstantsSection>
+  
+<SolidSection label="eregalgo.xml">
+  <Polycone name="ECAL" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="-[z4CabEC]"     rMin="[rMin2Cab]"         rMax="[EBRMax]"/>
+    <ZSection z="-[ESRearZ]"     rMin="[rMin2Cab]"         rMax="[EBRMax]"/>
+    <ZSection z="-[ESRearZ]"     rMin="[R_MIN]"            rMax="[EBRMax]"/>
+    <ZSection z="-[ESFrontZ]"    rMin="[EBRMin]"           rMax="[EBRMax]"/>
+    <ZSection z=" [ESFrontZ]"    rMin="[EBRMin]"           rMax="[EBRMax]"/>
+    <ZSection z=" [ESRearZ]"     rMin="[R_MIN]"            rMax="[EBRMax]"/>
+    <ZSection z=" [ESRearZ]"     rMin="[rMin2Cab]"         rMax="[EBRMax]"/>
+    <ZSection z=" [z4CabEC]"     rMin="[rMin2Cab]"         rMax="[EBRMax]"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="eregalgo.xml">
+  <LogicalPart name="ECAL" category="unspecified">
+    <rSolid name="ECAL"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="eregalgo.xml">
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="eregalgo:ECAL"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>

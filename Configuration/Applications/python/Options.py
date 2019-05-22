@@ -388,3 +388,13 @@ expertSettings.add_option("--nThreads",
                           default="1",
                           dest='nThreads'
                           )
+expertSettings.add_option("--nStreams",
+                          help="How many streams should CMSSW use (default is 0 which makes it same as nThreads)",
+                          default="0",
+                          dest='nStreams'
+                          )
+expertSettings.add_option("--nConcurrentLumis",
+                          help="How many concurrent LuminosityBlocks should CMSSW use (default is 1)",
+                          default="1",
+                          dest='nConcurrentLumis'
+                          )

@@ -16,19 +16,14 @@ PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf)
       phoIsoCutoff_ = conf.getParameter<double>("phoIsoCutoff");
   }
 
-  const std::vector <std::string> weightFileNames
-    = conf.getParameter<std::vector<std::string> >("weightFileNames");
-
-  const std::vector <std::string> categoryCutStrings
-    = conf.getParameter<std::vector<std::string> >("categoryCuts");
+  const auto weightFileNames = conf.getParameter<std::vector<std::string> >("weightFileNames");
+  const auto categoryCutStrings = conf.getParameter<std::vector<std::string> >("categoryCuts");
 
   if( (int)(categoryCutStrings.size()) != getNCategories() )
     throw cms::Exception("MVA config failure: ")
       << "wrong number of category cuts in PhotonMVAEstimator" << getTag() << std::endl;
 
-  for (int i = 0; i < getNCategories(); ++i) {
-      categoryFunctions_.emplace_back(categoryCutStrings[i]);
-  }
+  for (auto const& cut : categoryCutStrings) categoryFunctions_.emplace_back(cut);
 
   // Initialize GBRForests
   if( static_cast<int>(weightFileNames.size()) != getNCategories() )
@@ -63,10 +58,10 @@ PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf)
 }
 
 float PhotonMVAEstimator::
-mvaValue(const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase& iEvent, int &iCategory) const {
+mvaValue(const reco::Candidate* candPtr, std::vector<float> const& auxVars, int &iCategory) const {
 
-  const edm::Ptr<reco::Photon> phoPtr{ candPtr };
-  if( phoPtr.get() == nullptr) {
+  const reco::Photon* phoPtr = dynamic_cast<const reco::Photon*>(candPtr);
+  if( phoPtr == nullptr) {
     throw cms::Exception("MVA failure: ")
       << " given particle is expected to be reco::Photon or pat::Photon," << std::endl
       << " but appears to be neither" << std::endl;
@@ -77,7 +72,7 @@ mvaValue(const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase& iEvent,
   std::vector<float> vars;
 
   for (int i = 0; i < nVariables_[iCategory]; ++i) {
-      vars.push_back(mvaVarMngr_.getValue(variables_[iCategory][i], phoPtr, iEvent));
+      vars.push_back(mvaVarMngr_.getValue(variables_[iCategory][i], *phoPtr, auxVars));
   }
 
   // Special case for Spring16!
@@ -106,37 +101,31 @@ mvaValue(const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase& iEvent,
   return response;
 }
 
-int PhotonMVAEstimator::findCategory( const edm::Ptr<reco::Candidate>& candPtr) const {
+int PhotonMVAEstimator::findCategory( const reco::Candidate* candPtr) const {
 
-  const edm::Ptr<reco::Photon> phoPtr{ candPtr };
-  if( phoPtr.get() == nullptr ) {
+  const reco::Photon* phoPtr = dynamic_cast<const reco::Photon*>(candPtr);
+  if( phoPtr == nullptr ) {
     throw cms::Exception("MVA failure: ")
       << " given particle is expected to be reco::Photon or pat::Photon," << std::endl
       << " but appears to be neither" << std::endl;
   }
 
-  return findCategory(phoPtr);
+  return findCategory(*phoPtr);
 
 }
 
-int PhotonMVAEstimator::findCategory( const edm::Ptr<reco::Photon>& phoPtr) const {
+int PhotonMVAEstimator::findCategory(reco::Photon const& photon) const {
 
   for (int i = 0; i < getNCategories(); ++i) {
-      if (categoryFunctions_[i](*phoPtr)) return i;
+      if (categoryFunctions_[i](photon)) return i;
   }
 
   edm::LogWarning  ("MVA warning") <<
-      "category not defined for particle with pt " << phoPtr->pt() << " GeV, eta " <<
-          phoPtr->superCluster()->eta() << " in PhotonMVAEstimator" << getTag();
+      "category not defined for particle with pt " << photon.pt() << " GeV, eta " <<
+          photon.superCluster()->eta() << " in PhotonMVAEstimator" << getTag();
 
   return -1;
 
-}
-
-void PhotonMVAEstimator::setConsumes(edm::ConsumesCollector&& cc) {
-  // All tokens for event content needed by this MVA
-  // Tags from the variable helper
-  mvaVarMngr_.setConsumes(std::move(cc));
 }
 
 DEFINE_EDM_PLUGIN(AnyMVAEstimatorRun2Factory,

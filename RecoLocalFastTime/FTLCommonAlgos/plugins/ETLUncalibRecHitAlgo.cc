@@ -51,7 +51,8 @@ ETLUncalibRecHitAlgo::makeRecHit(const ETLDataFrame& dataFrame ) const {
 			       << ' ' << toaLSBToNS_ << ' ' << std::endl;
   LogDebug("ETLUncalibRecHit") << "Final uncalibrated amplitude : " << amplitude << std::endl;
   
-  return FTLUncalibratedRecHit( dataFrame.id(), amplitude, time, timeError_, flag);
+  return FTLUncalibratedRecHit( dataFrame.id(), dataFrame.row(), dataFrame.column(),
+				{amplitude, 0.f}, {time, 0.f}, timeError_, flag);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

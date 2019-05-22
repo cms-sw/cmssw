@@ -12,7 +12,6 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="geant4core"/>
-<use   name="boost"/>
 <use   name="root"/>
 <use   name="hepmc"/>
 <use   name="rootmath"/>

@@ -65,7 +65,6 @@ L1TriggerKeyListDummyProd::~L1TriggerKeyListDummyProd()
 L1TriggerKeyListDummyProd::ReturnType
 L1TriggerKeyListDummyProd::produce(const L1TriggerKeyListRcd& iRecord)
 {
-   using namespace edm::es;
    std::unique_ptr<L1TriggerKeyList> pL1TriggerKeyList ;
    pL1TriggerKeyList = std::make_unique< L1TriggerKeyList >() ;
    return pL1TriggerKeyList ;

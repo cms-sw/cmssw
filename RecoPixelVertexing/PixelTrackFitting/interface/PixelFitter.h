@@ -12,8 +12,8 @@ public:
 
   void swap(PixelFitter& o) { std::swap(fitter_, o.fitter_); }
 
-  std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits, const TrackingRegion& region) const {
-    return fitter_->run(hits, region);
+  std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits, const TrackingRegion& region, const edm::EventSetup& setup) const {
+    return fitter_->run(hits, region, setup);
   }
 
 private:

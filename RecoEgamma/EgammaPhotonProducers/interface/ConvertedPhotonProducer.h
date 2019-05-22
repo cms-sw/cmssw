@@ -59,7 +59,7 @@ class ConvertedPhotonProducer : public edm::stream::EDProducer<> {
 			 const edm::OrphanHandle<reco::ConversionCollection> & conversionHandle,
 			 reco::ConversionCollection & outputCollection);
 			   
-  std::vector<reco::ConversionRef> solveAmbiguity( const edm::OrphanHandle<reco::ConversionCollection> & conversionHandle, reco::CaloClusterPtr& sc);
+  std::vector<reco::ConversionRef> solveAmbiguity( const edm::OrphanHandle<reco::ConversionCollection> & conversionHandle, reco::CaloClusterPtr const& sc);
 
   float calculateMinApproachDistance ( const reco::TrackRef& track1, const reco::TrackRef& track2);
   void getCircleCenter(const reco::TrackRef& tk, double r, double& x0, double& y0);

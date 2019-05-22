@@ -10,11 +10,9 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <iostream>
-
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -41,18 +39,17 @@
 //
 
 class ZeeAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit ZeeAnalyzer(const edm::ParameterSet&);
-      ~ZeeAnalyzer();
+public:
+  explicit ZeeAnalyzer(const edm::ParameterSet&);
+  ~ZeeAnalyzer();
 
+private:
+  virtual void beginJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
 
-   private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+  // ----------member data ---------------------------
 
-      // ----------member data ---------------------------
-      
   std::string outputFilename;
   TH1D* weight_histo;
   TH1D* invmass_histo;
@@ -69,109 +66,91 @@ class ZeeAnalyzer : public edm::EDAnalyzer {
   edm::InputTag genEventInfoProductTag_;
 };
 
+ZeeAnalyzer::ZeeAnalyzer(const edm::ParameterSet& iConfig)
+    : hepMCProductTag_(iConfig.getParameter<edm::InputTag>("hepMCProductTag")),
+      genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag")) {
+  outputFilename = iConfig.getUntrackedParameter<std::string>("OutputFilename", "dummy.root");
 
-ZeeAnalyzer::ZeeAnalyzer(const edm::ParameterSet& iConfig) :
-  hepMCProductTag_(iConfig.getParameter<edm::InputTag>("hepMCProductTag")),
-  genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag"))
-{
+  sumWeights = 0.0;
 
-  outputFilename=iConfig.getUntrackedParameter<std::string>("OutputFilename","dummy.root");
-
-  sumWeights=0.0;
-
-
-  weight_histo  = new TH1D("weight_histo","weight_histo",20,-10,10);
-  invmass_histo = new TH1D("invmass_histo","invmass_histo",160,70,110);
-  Zpt = new TH1D("Zpt","Zpt",200,0,200);
-  hardpt = new TH1D("hardpt","hardpt",200,0,200);
-  softpt = new TH1D("softpt","softpt",200,0,200);
-  hardeta = new TH1D("hardeta","hardeta",200,-5,5);
-  softeta = new TH1D("softeta","softeta",200,-5,5);
+  weight_histo = new TH1D("weight_histo", "weight_histo", 20, -10, 10);
+  invmass_histo = new TH1D("invmass_histo", "invmass_histo", 160, 70, 110);
+  Zpt = new TH1D("Zpt", "Zpt", 200, 0, 200);
+  hardpt = new TH1D("hardpt", "hardpt", 200, 0, 200);
+  softpt = new TH1D("softpt", "softpt", 200, 0, 200);
+  hardeta = new TH1D("hardeta", "hardeta", 200, -5, 5);
+  softeta = new TH1D("softeta", "softeta", 200, -5, 5);
 }
 
-
-ZeeAnalyzer::~ZeeAnalyzer()
-{
- 
-}
-
+ZeeAnalyzer::~ZeeAnalyzer() {}
 
 // ------------ method called to for each event  ------------
-void ZeeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void ZeeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   using namespace edm;
-  
+  // get HepMC::GenEvent ...
+  Handle<HepMCProduct> evt_h;
+  iEvent.getByLabel(hepMCProductTag_, evt_h);
+  HepMC::GenEvent* evt = new HepMC::GenEvent(*(evt_h->GetEvent()));
 
-   // get HepMC::GenEvent ...
-   Handle<HepMCProduct> evt_h;
-   iEvent.getByLabel(hepMCProductTag_, evt_h);
-   HepMC::GenEvent* evt = new  HepMC::GenEvent(*(evt_h->GetEvent()));
+  Handle<GenEventInfoProduct> evt_info;
+  iEvent.getByLabel(genEventInfoProductTag_, evt_info);
 
-   Handle<GenEventInfoProduct> evt_info;
-   iEvent.getByLabel(genEventInfoProductTag_, evt_info);
+  double weight = evt_info->weight();
+  if (weight)
+    weight_histo->Fill(weight);
 
+  // look for stable electrons/positrons
+  std::vector<HepMC::GenParticle*> electrons;
+  for (HepMC::GenEvent::particle_iterator it = evt->particles_begin(); it != evt->particles_end(); ++it) {
+    if (abs((*it)->pdg_id()) == 11 && (*it)->status() == 1)
+      electrons.push_back(*it);
+  }
 
-   double weight = evt_info->weight();
-   if(weight) weight_histo->Fill(weight);
-   
-   // look for stable electrons/positrons
-   std::vector<HepMC::GenParticle*> electrons;   
-   for(HepMC::GenEvent::particle_iterator it = evt->particles_begin(); it != evt->particles_end(); ++it) {
-     if(abs((*it)->pdg_id())==11 && (*it)->status()==1)
-       electrons.push_back(*it);
-   }
-   
-   // if there are at least two electrons/positrons, 
-   // calculate invarant mass of first two and fill it into histogram
+  // if there are at least two electrons/positrons,
+  // calculate invarant mass of first two and fill it into histogram
 
-   double inv_mass = 0.0;
-   double Zpt_ = 0.0;
-   if(electrons.size()>1) {
-     math::XYZTLorentzVector tot_momentum(electrons[0]->momentum());
-     math::XYZTLorentzVector mom2(electrons[1]->momentum());
-     tot_momentum += mom2;
-     inv_mass = sqrt(tot_momentum.mass2());
-     Zpt_=tot_momentum.pt();
-     
-     // IMPORTANT: use the weight of the event ...
-     
-     double weight_sign = (weight > 0) ? 1. : -1.;
-     invmass_histo->Fill(inv_mass,weight_sign);
-     Zpt->Fill(Zpt_,weight_sign);
-     if(electrons[0]->momentum().perp()>electrons[1]->momentum().perp()) {
-       hardpt->Fill(electrons[0]->momentum().perp(),weight_sign);
-       softpt->Fill(electrons[1]->momentum().perp(),weight_sign);
-       hardeta->Fill(electrons[0]->momentum().eta(),weight_sign);
-       softeta->Fill(electrons[1]->momentum().eta(),weight_sign);
-     } else {
-       hardpt->Fill(electrons[1]->momentum().perp(),weight_sign);
-       softpt->Fill(electrons[0]->momentum().perp(),weight_sign);       
-       hardeta->Fill(electrons[1]->momentum().eta(),weight_sign);
-       softeta->Fill(electrons[0]->momentum().eta(),weight_sign);
-     }
+  double inv_mass = 0.0;
+  double Zpt_ = 0.0;
+  if (electrons.size() > 1) {
+    math::XYZTLorentzVector tot_momentum(electrons[0]->momentum());
+    math::XYZTLorentzVector mom2(electrons[1]->momentum());
+    tot_momentum += mom2;
+    inv_mass = sqrt(tot_momentum.mass2());
+    Zpt_ = tot_momentum.pt();
 
-     sumWeights+=weight_sign;
-   }
+    // IMPORTANT: use the weight of the event ...
 
-   delete evt;
+    double weight_sign = (weight > 0) ? 1. : -1.;
+    invmass_histo->Fill(inv_mass, weight_sign);
+    Zpt->Fill(Zpt_, weight_sign);
+    if (electrons[0]->momentum().perp() > electrons[1]->momentum().perp()) {
+      hardpt->Fill(electrons[0]->momentum().perp(), weight_sign);
+      softpt->Fill(electrons[1]->momentum().perp(), weight_sign);
+      hardeta->Fill(electrons[0]->momentum().eta(), weight_sign);
+      softeta->Fill(electrons[1]->momentum().eta(), weight_sign);
+    } else {
+      hardpt->Fill(electrons[1]->momentum().perp(), weight_sign);
+      softpt->Fill(electrons[0]->momentum().perp(), weight_sign);
+      hardeta->Fill(electrons[1]->momentum().eta(), weight_sign);
+      softeta->Fill(electrons[0]->momentum().eta(), weight_sign);
+    }
+
+    sumWeights += weight_sign;
+  }
+
+  delete evt;
 }
-
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-ZeeAnalyzer::beginJob()
-{
-}
+void ZeeAnalyzer::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-ZeeAnalyzer::endJob() {
-
-  std::cout<<" total sum wieghts = "<<sumWeights<<std::endl;
+void ZeeAnalyzer::endJob() {
+  std::cout << " total sum wieghts = " << sumWeights << std::endl;
 
   // save histograms into file
-  TFile file(outputFilename.c_str(),"RECREATE");
+  TFile file(outputFilename.c_str(), "RECREATE");
   weight_histo->Write();
   invmass_histo->Write();
   Zpt->Write();
@@ -180,7 +159,6 @@ ZeeAnalyzer::endJob() {
   hardeta->Write();
   softeta->Write();
   file.Close();
-
 }
 
 //define this as a plug-in

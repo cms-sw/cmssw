@@ -46,7 +46,6 @@
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -105,6 +104,8 @@ private:
   void endJob() override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, 
+                            const edm::EventSetup&) override; 
   virtual void envSet(const edm::EventSetup&);
 
   // ----------member data ---------------------------
@@ -134,12 +135,10 @@ private:
 
 // Channel status related
   edm::ESHandle<EcalChannelStatus>  ecalStatus; // these come from EventSetup
-  edm::ESHandle<HcalChannelQuality> hcalStatus;
+  edm::ESHandle<HcalChannelQuality> hcalStatus; // these may come per LS
   edm::ESHandle<CaloGeometry>       geometry;
 
   edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap_;
-
-  EcalTPGScale ecalScale_;
 
   const int maskedEcalChannelStatusThreshold_;
   const int chnStatusToBeEvaluated_;
@@ -269,15 +268,12 @@ void EcalDeadCellDeltaRFilter::envSet(const edm::EventSetup& iSetup) {
 
   if (debug_) std::cout << "***envSet***" << std::endl;
 
-  ecalScale_.setEventSetup( iSetup );
   iSetup.get<IdealGeometryRecord>().get(ttMap_);
 
   iSetup.get<EcalChannelStatusRcd> ().get(ecalStatus);
-  iSetup.get<HcalChannelQualityRcd>().get("withTopo",hcalStatus);
   iSetup.get<CaloGeometryRecord>   ().get(geometry);
 
   if( !ecalStatus.isValid() )  throw "Failed to get ECAL channel status!";
-  if( !hcalStatus.isValid() )  throw "Failed to get HCAL channel status!";
   if( !geometry.isValid()   )  throw "Failed to get the geometry!";
 
 }
@@ -362,6 +358,14 @@ void EcalDeadCellDeltaRFilter::endRun(const edm::Run &run, const edm::EventSetup
   return;
 }
 
+// ------------ method called at lumi block start
+void EcalDeadCellDeltaRFilter::beginLuminosityBlock(const edm::LuminosityBlock& iLSblock, const edm::EventSetup& iSetup) {
+
+  // needs per-LS access, if used at all
+  iSetup.get<HcalChannelQualityRcd>().get("withTopo",hcalStatus);
+  if( !hcalStatus.isValid() )  throw "Failed to get HCAL channel status!";
+  return; 
+}
 
 int EcalDeadCellDeltaRFilter::etaToBoundary(const std::vector<reco::Jet> &jetTVec){
 

@@ -19,54 +19,44 @@
 #include "XrdSource.h"
 
 namespace XrdCl {
-    class File;
+  class File;
 }
-
 
 namespace XrdAdaptor {
 
-struct SourceHash {
-    using Key =std::shared_ptr<Source>;
-    size_t operator()(const Key& iKey) const {
-      return tbb::tbb_hasher(iKey.get());
-    }
+  struct SourceHash {
+    using Key = std::shared_ptr<Source>;
+    size_t operator()(const Key &iKey) const { return tbb::tbb_hasher(iKey.get()); }
   };
 
-  
-class XrootdException : public edm::Exception {
+  class XrootdException : public edm::Exception {
+  public:
+    XrootdException(XrdCl::Status &xrootd_status, edm::Exception::Code code)
+        : Exception(code), m_code(xrootd_status.code) {}
 
-public:
-
-    XrootdException(XrdCl::Status & xrootd_status, edm::Exception::Code code)
-      : Exception(code), m_code(xrootd_status.code)
-    {}
-
-    ~XrootdException() noexcept override {};
+    ~XrootdException() noexcept override{};
 
     uint16_t getCode() { return m_code; }
 
-private:
-
+  private:
     uint16_t m_code;
-};
+  };
 
-class RequestManager : boost::noncopyable {
-
-public:
-    static const unsigned int XRD_DEFAULT_TIMEOUT = 3*60;
+  class RequestManager : boost::noncopyable {
+  public:
+    static const unsigned int XRD_DEFAULT_TIMEOUT = 3 * 60;
 
     virtual ~RequestManager() = default;
 
     /**
      * Interface for handling a client request.
      */
-    std::future<IOSize> handle(void * into, IOSize size, IOOffset off)
-    {
-        auto c_ptr = std::make_shared<XrdAdaptor::ClientRequest>(*this, into, size, off);
-        return handle(c_ptr);
+    std::future<IOSize> handle(void *into, IOSize size, IOOffset off) {
+      auto c_ptr = std::make_shared<XrdAdaptor::ClientRequest>(*this, into, size, off);
+      return handle(c_ptr);
     }
 
-    std::future<IOSize> handle(std::shared_ptr<std::vector<IOPosBuffer> > iolist);
+    std::future<IOSize> handle(std::shared_ptr<std::vector<IOPosBuffer>> iolist);
 
     /**
      * Handle a client request.
@@ -85,14 +75,14 @@ public:
      * Retrieve the names of the active sources
      * (primarily meant to enable meaningful log messages).
      */
-    void getActiveSourceNames(std::vector<std::string> & sources) const;
-    void getPrettyActiveSourceNames(std::vector<std::string> & sources) const;
+    void getActiveSourceNames(std::vector<std::string> &sources) const;
+    void getPrettyActiveSourceNames(std::vector<std::string> &sources) const;
 
     /**
      * Retrieve the names of the disabled sources
      * (primarily meant to enable meaningful log messages).
      */
-    void getDisabledSourceNames(std::vector<std::string> & sources) const;
+    void getDisabledSourceNames(std::vector<std::string> &sources) const;
 
     /**
      * Return a pointer to an active file.  Useful for metadata
@@ -108,7 +98,7 @@ public:
     /**
      * Return current filename
      */
-    const std::string & getFilename() const {return m_name;}
+    const std::string &getFilename() const { return m_name; }
 
     /**
      * Some of the callback handlers need a weak_ptr reference to the RequestManager.
@@ -117,17 +107,16 @@ public:
      *
      * Hence, all instances need to be created through this factory function.
      */
-    static std::shared_ptr<RequestManager>
-    getInstance(const std::string &filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms)
-    {
-        std::shared_ptr<RequestManager> instance(new RequestManager(filename, flags, perms));
-        instance->initialize(instance);
-        return instance;
+    static std::shared_ptr<RequestManager> getInstance(const std::string &filename,
+                                                       XrdCl::OpenFlags::Flags flags,
+                                                       XrdCl::Access::Mode perms) {
+      std::shared_ptr<RequestManager> instance(new RequestManager(filename, flags, perms));
+      instance->initialize(instance);
+      return instance;
     }
 
-private:
-
-    RequestManager(const std::string & filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms);
+  private:
+    RequestManager(const std::string &filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms);
 
     /**
      * Some of the callback handlers (particularly, file-open one) will want to call back into
@@ -146,8 +135,9 @@ private:
      * Given a client request, split it into two requests lists.
      */
     void splitClientRequest(const std::vector<IOPosBuffer> &iolist,
-                            std::vector<IOPosBuffer> &req1, std::vector<IOPosBuffer> &req2,
-                            std::vector<std::shared_ptr<Source>> const& activeSources) const;
+                            std::vector<IOPosBuffer> &req1,
+                            std::vector<IOPosBuffer> &req2,
+                            std::vector<std::shared_ptr<Source>> const &activeSources) const;
 
     /**
      * Given a request, broadcast it to all sources.
@@ -162,12 +152,14 @@ private:
      * The source check is somewhat expensive so it is only done once every
      * second.
      */
-    void checkSources(timespec &now, IOSize requestSize,
-                      std::vector<std::shared_ptr<Source>>& activeSources,
-                      std::vector<std::shared_ptr<Source>>& inactiveSources); // TODO: inline
-    void checkSourcesImpl(timespec &now, IOSize requestSize,
-                          std::vector<std::shared_ptr<Source>>& activeSources,
-                          std::vector<std::shared_ptr<Source>>& inactiveSources);
+    void checkSources(timespec &now,
+                      IOSize requestSize,
+                      std::vector<std::shared_ptr<Source>> &activeSources,
+                      std::vector<std::shared_ptr<Source>> &inactiveSources);  // TODO: inline
+    void checkSourcesImpl(timespec &now,
+                          IOSize requestSize,
+                          std::vector<std::shared_ptr<Source>> &activeSources,
+                          std::vector<std::shared_ptr<Source>> &inactiveSources);
     /**
      * Helper function for checkSources; compares the quality of source A
      * versus source B; if source A is significantly worse, remove it from
@@ -176,17 +168,19 @@ private:
      * NOTE: assumes two sources are active and the caller must already hold
      * m_source_mutex
      */
-    bool compareSources(const timespec &now, unsigned a, unsigned b,
-                        std::vector<std::shared_ptr<Source>>& activeSources,
-                        std::vector<std::shared_ptr<Source>>& inactiveSources) const;
+    bool compareSources(const timespec &now,
+                        unsigned a,
+                        unsigned b,
+                        std::vector<std::shared_ptr<Source>> &activeSources,
+                        std::vector<std::shared_ptr<Source>> &inactiveSources) const;
 
     /**
      * Anytime we potentially switch sources, update the internal site source list;
      * alert the user if necessary.
      */
-    void reportSiteChange(std::vector<std::shared_ptr<Source> > const& iOld,
-                        std::vector<std::shared_ptr<Source> > const& iNew,
-                        std::string orig_site=std::string{}) const;
+    void reportSiteChange(std::vector<std::shared_ptr<Source>> const &iOld,
+                          std::vector<std::shared_ptr<Source>> const &iNew,
+                          std::string orig_site = std::string{}) const;
 
     /**
      * Update the StatisticsSenderService, if necessary, with the current server.
@@ -209,16 +203,16 @@ private:
      * Note these member variables can only be accessed when the source mutex
      * is held.
      */
-    std::vector<std::shared_ptr<Source> > m_activeSources;
-    std::vector<std::shared_ptr<Source> > m_inactiveSources;
-  
+    std::vector<std::shared_ptr<Source>> m_activeSources;
+    std::vector<std::shared_ptr<Source>> m_inactiveSources;
+
     tbb::concurrent_unordered_set<std::string> m_disabledSourceStrings;
     tbb::concurrent_unordered_set<std::string> m_disabledExcludeStrings;
     tbb::concurrent_unordered_set<std::shared_ptr<Source>, SourceHash> m_disabledSources;
 
     // StatisticsSenderService wants to know what our current server is;
     // this holds last-successfully-opened server name
-    std::atomic<std::string*> m_serverToAdvertise;
+    std::atomic<std::string *> m_serverToAdvertise;
 
     timespec m_lastSourceCheck;
     int m_timeout;
@@ -239,25 +233,24 @@ private:
     std::atomic<unsigned> m_excluded_active_count;
 
     class OpenHandler : boost::noncopyable, public XrdCl::ResponseHandler {
-
     public:
+      static std::shared_ptr<OpenHandler> getInstance(std::weak_ptr<RequestManager> manager) {
+        OpenHandler *instance_ptr = new OpenHandler(manager);
+        std::shared_ptr<OpenHandler> instance(instance_ptr);
+        instance_ptr->m_self_weak = instance;
+        return instance;
+      }
 
-        static std::shared_ptr<OpenHandler> getInstance(std::weak_ptr<RequestManager> manager)
-        {
-            OpenHandler *instance_ptr = new OpenHandler(manager);
-            std::shared_ptr<OpenHandler> instance(instance_ptr);
-            instance_ptr->m_self_weak = instance;
-            return instance;
-        }
+      ~OpenHandler() override;
 
-        ~OpenHandler() override;
-
-        /**
+      /**
          * Handle the file-open response
          */
-        void HandleResponseWithHosts(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response, XrdCl::HostList *hostList) override;
+      void HandleResponseWithHosts(XrdCl::XRootDStatus *status,
+                                   XrdCl::AnyObject *response,
+                                   XrdCl::HostList *hostList) override;
 
-        /**
+      /**
          * Future-based version of the handler
          * If called while a file-open is in progress, we will not start a new file-open.
          * Instead, the callback will be fired for the ongoing open.
@@ -266,37 +259,36 @@ private:
          * The caller must ensure it is not called from multiple threads at once
          * for this object.
          */
-        std::shared_future<std::shared_ptr<Source> > open();
+      std::shared_future<std::shared_ptr<Source>> open();
 
-        /**
+      /**
          * Returns the current source server name.  Useful primarily for debugging.
          */
-        std::string current_source();
+      std::string current_source();
 
     private:
+      OpenHandler(std::weak_ptr<RequestManager> manager);
+      std::shared_future<std::shared_ptr<Source>> m_shared_future;
+      std::promise<std::shared_ptr<Source>> m_promise;
+      // Set to true only when there is an outstanding open request; not
+      // protected by m_mutex, so the caller is required to know it is in a
+      // thread-safe context.
+      std::atomic<bool> m_outstanding_open{false};
+      // Can only be touched when m_mutex is held.
+      std::unique_ptr<XrdCl::File> m_file;
+      std::recursive_mutex m_mutex;
+      std::shared_ptr<OpenHandler> m_self;
 
-        OpenHandler(std::weak_ptr<RequestManager> manager);
-        std::shared_future<std::shared_ptr<Source> > m_shared_future;
-        std::promise<std::shared_ptr<Source> > m_promise;
-        // Set to true only when there is an outstanding open request; not
-        // protected by m_mutex, so the caller is required to know it is in a
-        // thread-safe context.
-        std::atomic<bool> m_outstanding_open {false};
-        // Can only be touched when m_mutex is held.
-        std::unique_ptr<XrdCl::File> m_file;
-        std::recursive_mutex m_mutex;
-        std::shared_ptr<OpenHandler> m_self;
-
-        // Always maintain a weak self-reference; when the open is in-progress,
-        // this is upgraded to a strong reference to prevent this object from
-        // deletion as long as XrdCl has not performed the callback.
-        std::weak_ptr<OpenHandler> m_self_weak;
-        std::weak_ptr<RequestManager> m_manager;
+      // Always maintain a weak self-reference; when the open is in-progress,
+      // this is upgraded to a strong reference to prevent this object from
+      // deletion as long as XrdCl has not performed the callback.
+      std::weak_ptr<OpenHandler> m_self_weak;
+      std::weak_ptr<RequestManager> m_manager;
     };
 
     std::shared_ptr<OpenHandler> m_open_handler;
-};
+  };
 
-}
+}  // namespace XrdAdaptor
 
 #endif

@@ -72,8 +72,8 @@ addJetCollection(
    jetCorrections = ('AK8PFPuppi', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
    btagDiscriminators = [
       'pfBoostedDoubleSecondaryVertexAK8BJetTags',
-      'pfDeepDoubleBJetTags:probQ', 
-      'pfDeepDoubleBJetTags:probH', 
+      'pfDeepDoubleBvLJetTags:probQCD', 
+      'pfDeepDoubleBvLJetTags:probHbb', 
       ]
    )
 
@@ -111,7 +111,7 @@ process.out.outputCommands.append('keep *_inclusiveCandidateSecondaryVertices*_*
 process.out.outputCommands.append('keep *_selectedPatJets*_*_*')
 process.out.outputCommands.append('keep *_selectedUpdatedPatJets*_*_*')
 process.out.outputCommands.append('keep *_pfBoostedDoubleSVAK8TagInfos*_*_*')
-process.out.outputCommands.append('keep *_pfDeepDoubleBTagInfos*_*_*')
+process.out.outputCommands.append('keep *_pfDeepDoubleXTagInfos*_*_*')
 process.out.outputCommands.append('keep *_updatedPatJets*_*_*')
 
 print(process.out.outputCommands)

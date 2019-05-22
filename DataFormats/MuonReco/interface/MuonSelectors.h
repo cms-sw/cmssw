@@ -119,8 +119,8 @@ namespace muon {
    int sharedSegments( const reco::Muon& muon1, const reco::Muon& muon2, 
                        unsigned int segmentArbitrationMask = reco::MuonSegmentMatch::BestInChamberByDR ) ;
 
-   void setCutBasedSelectorFlags(reco::Muon& muon,
-				 const reco::Vertex* vertex=nullptr,
-				 bool run2016_hip_mitigation=false);
+   reco::Muon::Selector makeSelectorBitset( reco::Muon const& muon,
+                                            reco::Vertex const* vertex=nullptr,
+                                            bool run2016_hip_mitigation=false );
 }
 #endif

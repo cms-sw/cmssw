@@ -3,6 +3,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "TLorentzVector.h"
@@ -14,7 +15,7 @@
 class LHETablesProducer : public edm::global::EDProducer<> {
     public:
         LHETablesProducer( edm::ParameterSet const & params ) :
-            lheTag_(consumes<LHEEventProduct>(params.getParameter<edm::InputTag>("lheInfo"))),
+            lheTag_(edm::vector_transform(params.getParameter<std::vector<edm::InputTag>>("lheInfo"), [this](const edm::InputTag & tag) { return mayConsume<LHEEventProduct>(tag); })),
             precision_( params.getParameter<int>("precision") ),
             storeLHEParticles_( params.getParameter<bool>("storeLHEParticles") )
         {
@@ -30,7 +31,13 @@ class LHETablesProducer : public edm::global::EDProducer<> {
             auto lheTab  = std::make_unique<nanoaod::FlatTable>(1, "LHE", true);
 
             edm::Handle<LHEEventProduct> lheInfo;
-            if (iEvent.getByToken(lheTag_, lheInfo)) {
+            for (const auto & lheTag: lheTag_) {
+              iEvent.getByToken(lheTag, lheInfo);
+              if (lheInfo.isValid()) {
+                break;
+              }
+            }
+            if (lheInfo.isValid()) {
               auto lhePartTab = fillLHEObjectTable(*lheInfo, *lheTab);
               if (storeLHEParticles_) iEvent.put(std::move(lhePartTab), "LHEPart");
             } else {
@@ -122,14 +129,14 @@ class LHETablesProducer : public edm::global::EDProducer<> {
 
         static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
             edm::ParameterSetDescription desc;
-            desc.add<edm::InputTag>("lheInfo", edm::InputTag("externalLHEProducer"))->setComment("tag for the LHE information (LHEEventProduct)");
+            desc.add<std::vector<edm::InputTag>>("lheInfo", std::vector<edm::InputTag>{{"externalLHEProducer"},{"source"}})->setComment("tag(s) for the LHE information (LHEEventProduct)");
             desc.add<int>("precision", -1)->setComment("precision on the 4-momenta of the LHE particles");
             desc.add<bool>("storeLHEParticles", false)->setComment("Whether we want to store the 4-momenta of the status 1 particles at LHE level");
             descriptions.add("lheInfoTable", desc);
         }
 
     protected:
-        const edm::EDGetTokenT<LHEEventProduct> lheTag_;
+        const std::vector<edm::EDGetTokenT<LHEEventProduct>> lheTag_;
         const unsigned int precision_;
         const bool storeLHEParticles_;
 };

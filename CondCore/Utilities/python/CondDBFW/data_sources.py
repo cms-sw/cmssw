@@ -4,6 +4,7 @@ This file contains the base DataSource class, and all sub classes that implement
 
 """
 from __future__ import print_function
+from __future__ import absolute_import
 
 import json
 
@@ -260,17 +261,17 @@ class json_list(json_data_node):
 			print("\nNo data to draw table with.\n")
 			return
 
-		import models
+		from . import models
 		models_dict = models.generate()
 
 		# if the list contains ORM objects, then convert them all to dictionaries,
 		# otherwise, leave the list as it is - assume it is already a list of dictionaries
 		if self.get(0).data().__class__.__name__ in ["GlobalTag", "GlobalTagMap", "GlobalTagMapRequest", "Tag", "IOV", "Payload"]:
 
-			from data_formats import _objects_to_dicts
+			from .data_formats import _objects_to_dicts
 			data = _objects_to_dicts(self.data()).data()
 
-			from querying import connection
+			from .querying import connection
 			table_name = models.class_name_to_column(self.get(0).data().__class__).upper()
 			# set headers to those found in ORM models
 			# do it like this so we copy the headers

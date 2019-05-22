@@ -58,7 +58,7 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
     thePhase2KinkADC( conf.getParameter<int>("Phase2KinkADC") ),
     theNumOfRows(0), theNumOfCols(0), theDetid(0),
     // Get the constants for the miss-calibration studies
-    doMissCalibrate( conf.getUntrackedParameter<bool>("MissCalibrate",true) ),
+    doMissCalibrate( conf.getParameter<bool>("MissCalibrate") ),
     doSplitClusters( conf.getParameter<bool>("SplitClusters") )
 {
   theBuffer.setSize( theNumOfRows, theNumOfCols );
@@ -69,28 +69,22 @@ PixelThresholdClusterizer::~PixelThresholdClusterizer() {}
 
 // Configuration descriptions
 void
-PixelThresholdClusterizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // siPixelClusters
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("src", edm::InputTag("siPixelDigis"));
+PixelThresholdClusterizer::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<int>("ChannelThreshold", 1000);
-  desc.addUntracked<bool>("MissCalibrate", true);
+  desc.add<bool>("MissCalibrate", true);
   desc.add<bool>("SplitClusters", false);
   desc.add<int>("VCaltoElectronGain", 65);
   desc.add<int>("VCaltoElectronGain_L1", 65);
   desc.add<int>("VCaltoElectronOffset", -414);
   desc.add<int>("VCaltoElectronOffset_L1", -414);
-  desc.add<std::string>("payloadType", "Offline");
   desc.add<int>("SeedThreshold", 1000);
   desc.add<int>("ClusterThreshold_L1", 4000);
   desc.add<int>("ClusterThreshold", 4000);
-  desc.add<int>("maxNumberOfClusters", -1);
   desc.add<double>("ElectronPerADCGain", 135.);
   desc.add<bool>("Phase2Calibration", false);
   desc.add<int>("Phase2ReadoutMode", -1);
   desc.add<double>("Phase2DigiBaseline", 1200.);
   desc.add<int>("Phase2KinkADC", 8);
-  descriptions.add("siClustersFromPixelThresholdClusterizer", desc);
 }
 
 //----------------------------------------------------------------------------

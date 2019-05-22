@@ -158,7 +158,7 @@ CTPPSGeometryInfo::printGeometry( const CTPPSGeometry& geometry, const edm::Even
         << "    ce: RP center in global coordinates, in mm\n";
 
     for ( auto it = geometry.beginRP(); it != geometry.endRP(); ++it ) {
-      const DDTranslation &t = it->second->translation();
+      const DetGeomDesc::Translation &t = it->second->translation();
 
       oss << formatDetId( CTPPSDetId( it->first ), false )
         << std::fixed << std::setprecision( 3 ) << std::showpos

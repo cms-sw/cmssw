@@ -5,11 +5,4 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace DataFormats_TrackCandidate {
-  struct dictionary {
-    TrackCandidate tc;
-    TrackCandidateCollection coll;
-    edm::Wrapper<TrackCandidateCollection> TrackCandidateCollectionWrapper;
-  };
-}
 

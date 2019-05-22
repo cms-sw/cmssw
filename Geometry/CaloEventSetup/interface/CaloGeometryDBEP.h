@@ -7,8 +7,7 @@
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
@@ -31,6 +30,56 @@
 // class declaration
 //
 
+namespace calogeometryDBEPimpl {
+  // For U::writeFlag() == true
+  template <typename T, bool>
+  struct GeometryTraits {
+    using TokenType = edm::ESGetToken<CaloSubdetectorGeometry, typename T::AlignedRecord>;
+
+    static TokenType makeToken(edm::ESConsumesCollectorT<typename T::AlignedRecord>& cc) {
+      return cc.template consumes<CaloSubdetectorGeometry>(edm::ESInputTag{"", T::producerTag() + std::string("_master")});
+    }
+  };
+
+  template <typename T>
+  struct GeometryTraits<T, false> {
+    using TokenType = edm::ESGetToken<PCaloGeometry, typename T::PGeometryRecord>;
+
+    static TokenType makeToken(edm::ESConsumesCollectorT<typename T::AlignedRecord>& cc) {
+      return cc.template consumesFrom<PCaloGeometry, typename T::PGeometryRecord>(edm::ESInputTag{});
+    }
+  };
+
+  // For the case of non-existent AlignmentRecord
+  //
+  // SFINAE tricks to detect if T::AlignmentRecord exists. Note that
+  // the declarations of the following are sufficient.
+  template <typename T> std::false_type has_AlignmentRecord(...);
+  template <typename T> std::true_type has_AlignmentRecord(typename T::AlignmentRecord *);
+
+  template <typename T>
+  struct HasAlignmentRecord {
+    static constexpr bool value = std::is_same<decltype(has_AlignmentRecord<T>(nullptr)), std::true_type>::value;
+  };
+
+
+  // Then define tokens from alignment record
+  template <typename T, bool = HasAlignmentRecord<T>::value>
+  struct AlignmentTokens {
+    edm::ESGetToken<Alignments, typename T::AlignmentRecord> alignments;
+    edm::ESGetToken<Alignments, GlobalPositionRcd> globals;
+  };
+  template <typename T>
+  struct AlignmentTokens<T, false> {};
+
+
+  // Some partial specializations need additional tokens...
+  template <typename T>
+  struct AdditionalTokens {
+    void makeTokens(edm::ESConsumesCollectorT<typename T::AlignedRecord>& cc) {}
+  };
+}
+
 template <class T, class U>
 class CaloGeometryDBEP : public edm::ESProducer 
 {
@@ -47,61 +96,49 @@ class CaloGeometryDBEP : public edm::ESProducer
       typedef CaloSubdetectorGeometry::IVec   IVec       ;
       
       CaloGeometryDBEP<T,U>( const edm::ParameterSet& ps ) :
-	  m_applyAlignment ( ps.getParameter<bool>("applyAlignment") ),
-	  m_pSet( ps )
-
+	  applyAlignment_ ( ps.getParameter<bool>("applyAlignment") )
       {
-	 setWhatProduced( this,
-			  &CaloGeometryDBEP<T,U>::produceAligned,
-			  edm::es::Label( T::producerTag() ) ) ;//+std::string("TEST") ) ) ;
+         auto cc = setWhatProduced( this,
+                                    &CaloGeometryDBEP<T,U>::produceAligned,
+                                    edm::es::Label( T::producerTag() ) ) ;//+std::string("TEST") ) ) ;
+
+         if constexpr (calogeometryDBEPimpl::HasAlignmentRecord<T>::value) {
+           if( applyAlignment_ ) {
+             alignmentTokens_.alignments = cc.template consumesFrom<Alignments, typename T::AlignmentRecord>(edm::ESInputTag{});
+             alignmentTokens_.globals = cc.template consumesFrom<Alignments, GlobalPositionRcd>(edm::ESInputTag{});
+           }
+         }
+         geometryToken_ = calogeometryDBEPimpl::GeometryTraits<T, U::writeFlag()>::makeToken(cc);
+
+         additionalTokens_.makeTokens(cc);
       }
 
       ~CaloGeometryDBEP<T,U>() override {}
     
       PtrType produceAligned( const typename T::AlignedRecord& iRecord ) 
       {
-	 const Alignments* alignPtr  ( nullptr ) ;
-	 const Alignments* globalPtr ( nullptr ) ;
-	 if( m_applyAlignment ) // get ptr if necessary
-	 {
-	    edm::ESHandle< Alignments >                                      alignments ;
-	    iRecord.template getRecord< typename T::AlignmentRecord >().get( alignments ) ;
-
-	    assert( alignments.isValid() && // require valid alignments and expected size
-		    ( alignments->m_align.size() == T::numberOfAlignments() ) ) ;
-	    alignPtr = alignments.product() ;
-
-	    edm::ESHandle< Alignments >                          globals   ;
-	    iRecord.template getRecord<GlobalPositionRcd>().get( globals ) ;
-
-	    assert( globals.isValid() ) ;
-	    globalPtr = globals.product() ;
-	 }
+	 const auto [alignPtr, globalPtr] = getAlignGlobal(iRecord);
 
 	 TrVec  tvec ;
 	 DimVec dvec ;
 	 IVec   ivec ;
 	 std::vector<uint32_t> dins;
 
-	 if( U::writeFlag() )
+	 if constexpr ( U::writeFlag() )
 	 {
-	    edm::ESHandle<CaloSubdetectorGeometry> pG ;
-	    iRecord.get( T::producerTag() + std::string("_master"), pG ) ; 
+	    const auto& pG = iRecord.get( geometryToken_ ) ;
 
-	    const CaloSubdetectorGeometry* pGptr ( pG.product() ) ;
-
-	    pGptr->getSummary( tvec, ivec, dvec, dins ) ;
+	    pG.getSummary( tvec, ivec, dvec, dins ) ;
 
 	    U::write( tvec, dvec, ivec, T::dbString() ) ;
 	 }
 	 else
 	 {
-	    edm::ESHandle<PCaloGeometry> pG ;
-	    iRecord.template getRecord<typename T::PGeometryRecord >().get( pG ) ; 
+	    const auto& pG = iRecord.get( geometryToken_ ) ;
 
-	    tvec = pG->getTranslation() ;
-	    dvec = pG->getDimension() ;
-	    ivec = pG->getIndexes() ;
+	    tvec = pG.getTranslation() ;
+	    dvec = pG.getDimension() ;
+	    ivec = pG.getIndexes() ;
 	 }	 
 //*********************************************************************************************
 
@@ -207,9 +244,28 @@ class CaloGeometryDBEP : public edm::ESProducer
       }
     
 private:
+      std::tuple<const Alignments *, const Alignments *> getAlignGlobal(const typename T::AlignedRecord& iRecord) const {
+	 const Alignments* alignPtr  ( nullptr ) ;
+	 const Alignments* globalPtr ( nullptr ) ;
+         if constexpr (calogeometryDBEPimpl::HasAlignmentRecord<T>::value) {
+	    if( applyAlignment_ ) // get ptr if necessary
+	    {
+	       const auto& alignments = iRecord.get( alignmentTokens_.alignments ) ;
+	       // require expected size
+	       assert( alignments.m_align.size() == T::numberOfAlignments() ) ;
+	       alignPtr = &alignments ;
 
-    bool        m_applyAlignment ;
-    const edm::ParameterSet m_pSet;
+	       const auto& globals = iRecord.get( alignmentTokens_.globals ) ;
+	       globalPtr = &globals ;
+	    }
+	 }
+         return std::make_tuple(alignPtr, globalPtr);
+      }
+
+    typename calogeometryDBEPimpl::AlignmentTokens<T> alignmentTokens_;
+    typename calogeometryDBEPimpl::GeometryTraits<T, U::writeFlag()>::TokenType geometryToken_;
+    typename calogeometryDBEPimpl::AdditionalTokens<T> additionalTokens_;
+    bool        applyAlignment_ ;
 };
 
 #endif

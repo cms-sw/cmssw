@@ -28,6 +28,9 @@ This is a short description of the content of the ntuple produced by Phase2Pixel
         `hx` [-0.83,+0.83] cm  for 1x2 modules             </br>
         `hx` [-1.67,+1.67] cm  for 2x2 modules             </br>
         `hy` [-2.24,+2.24] cm                  
+		
+* ToF of the `SimHit` corrected for the time-to-det (added in CMSSW 10.5.X</br> 
+        `ht` in ns
 
 * Charge and ADC </br>
         `q` = charge of `RecHit` in e               </br>

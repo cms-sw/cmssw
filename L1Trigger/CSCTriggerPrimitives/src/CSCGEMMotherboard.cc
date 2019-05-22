@@ -1,4 +1,4 @@
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCGEMMotherboard.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMotherboard.h"
 
 CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap, unsigned station,
                                      unsigned sector, unsigned subsector,
@@ -20,9 +20,9 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap, unsigned station,
 				      conf.getParameter<edm::ParameterSet>("copadParamGE21"));
   coPadProcessor.reset( new GEMCoPadProcessor(endcap, station, chamber, coPadParams) );
 
-  maxDeltaPadL1_ = (par ? tmbParams_.getParameter<int>("maxDeltaPadL1Even") :
+  maxDeltaPadL1_ = (theParity ? tmbParams_.getParameter<int>("maxDeltaPadL1Even") :
 		    tmbParams_.getParameter<int>("maxDeltaPadL1Odd") );
-  maxDeltaPadL2_ = (par ? tmbParams_.getParameter<int>("maxDeltaPadL2Even") :
+  maxDeltaPadL2_ = (theParity ? tmbParams_.getParameter<int>("maxDeltaPadL2Even") :
 		    tmbParams_.getParameter<int>("maxDeltaPadL2Odd") );
 }
 
@@ -120,7 +120,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
                                                          const GEMCoPadDigi& gem2,
                                                          int trknmb) const
 {
-  int pattern = 0, quality = 0, bx = 0, keyStrip = 0, keyWG = 0, bend = 0;
+  int pattern = 0, quality = 0, bx = 0, keyStrip = 0, keyWG = 0, bend = 0, valid = 0;
 
   // make a new LCT
   CSCCorrelatedLCTDigi thisLCT;
@@ -163,15 +163,32 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     //in overlap region, firstly try a match in ME1b
 
     auto p(getCSCPart(-1));//use -1 as fake halfstrip, it returns ME11 if station==1 && (ring==1 or ring==4)
-    if (p == CSCPart::ME11 and alct.getKeyWG() <= 15)
-      p = CSCPart::ME1B;
-    const auto& mymap1 = getLUT()->get_gem_pad_to_csc_hs(par, p);
+    if (p == CSCPart::ME11){
+      if (alct.getKeyWG() >= 10)
+        p = CSCPart::ME1B;
+      else 
+	p = CSCPart::ME1A;
+    }
+
+    const auto& mymap1 = getLUT()->get_gem_pad_to_csc_hs(theParity, p);
+    // GEM pad number is counting from 1
+    // keyStrip from mymap:  for ME1b 0-127 and for ME1a 0-95
+    // keyStrip for CLCT: for ME1b 0-127 and for ME1a 128-223
+    keyStrip = mymap1[gem2.pad(2) - 1];
+    if (p == CSCPart::ME1A and keyStrip <= CSCConstants::MAX_HALF_STRIP_ME1B)
+      keyStrip += CSCConstants::MAX_HALF_STRIP_ME1B + 1;
+    keyWG = alct.getKeyWG();
+
+    if ((not doesWiregroupCrossStrip(keyWG, keyStrip)) and p == CSCPart::ME1B and keyWG <= 15){
+      //try ME1A as strip and WG do not cross
+      p = CSCPart::ME1A;
+      const auto& mymap2 = getLUT()->get_gem_pad_to_csc_hs(theParity, p);
+      keyStrip = mymap2[gem2.pad(2) - 1] + CSCConstants::MAX_HALF_STRIP_ME1B + 1;
+    }
+
     pattern = promoteALCTGEMpattern_ ? 10 : 0;
     quality = promoteALCTGEMquality_ ? 15 : 11;
     bx = alct.getBX();
-    // GEM pad number is counting from 1
-    keyStrip = mymap1[gem2.pad(2) - 1];
-    keyWG = alct.getKeyWG();
     thisLCT.setALCT(getBXShiftedALCT(alct));
     thisLCT.setGEM1(gem2.first());
     thisLCT.setGEM2(gem2.second());
@@ -179,7 +196,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
   }
   else if (clct.isValid() and gem2.isValid() and not alct.isValid()) {
     auto p(getCSCPart(clct.getKeyStrip()));
-    const auto& mymap2 = getLUT()->get_gem_roll_to_csc_wg(par, p);
+    const auto& mymap2 = getLUT()->get_gem_roll_to_csc_wg(theParity, p);
     pattern = encodePattern(clct.getPattern());
     quality = promoteCLCTGEMquality_ ? 15 : 11;
     bx = gem2.bx(1) + CSCConstants::LCT_CENTRAL_BX;
@@ -193,9 +210,14 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     thisLCT.setType(CSCCorrelatedLCTDigi::CLCT2GEM);
   }
 
+  valid = doesWiregroupCrossStrip(keyWG, keyStrip) ? 1 : 0;
+  if (valid == 0)
+       LogTrace("CSCGEMCMotherboard") << "Warning!!! wiregroup and strip pair are not crossing each other"
+	   <<" detid "<<cscId_ <<" with wiregroup "<< keyWG << "keyStrip "<< keyStrip <<" \n";
+
   // fill the rest of the properties
   thisLCT.setTrknmb(trknmb);
-  thisLCT.setValid(1);
+  thisLCT.setValid(valid);
   thisLCT.setQuality(quality);
   thisLCT.setWireGroup(keyWG);
   thisLCT.setStrip(keyStrip);
@@ -218,7 +240,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
 bool CSCGEMMotherboard::isPadInOverlap(int roll) const
 {
   // this only works for ME1A!
-  const auto& mymap = (getLUT()->get_csc_wg_to_gem_roll(par));
+  const auto& mymap = (getLUT()->get_csc_wg_to_gem_roll(theParity));
   for (unsigned i=0; i<mymap.size(); i++) {
     // overlap region are WGs 10-15
     if ((i < 10) or (i > 15)) continue;
@@ -255,7 +277,7 @@ int CSCGEMMotherboard::getRoll(const GEMCoPadDigiId& p) const
 
 int CSCGEMMotherboard::getRoll(const CSCALCTDigi& alct) const
 {
-  return (getLUT()->get_csc_wg_to_gem_roll(par))[alct.getKeyWG()].first;
+  return (getLUT()->get_csc_wg_to_gem_roll(theParity))[alct.getKeyWG()].first;
 }
 
 float CSCGEMMotherboard::getPad(const GEMPadDigi& p) const
@@ -271,8 +293,13 @@ float CSCGEMMotherboard::getPad(const GEMCoPadDigi& p) const
 
 float CSCGEMMotherboard::getPad(const CSCCLCTDigi& clct, enum CSCPart part) const
 {
-  const auto& mymap = (getLUT()->get_csc_hs_to_gem_pad(par, part));
-  return 0.5*(mymap[clct.getKeyStrip()].first + mymap[clct.getKeyStrip()].second);
+  const auto& mymap = (getLUT()->get_csc_hs_to_gem_pad(theParity, part));
+  int keyStrip = clct.getKeyStrip();
+  //ME1A part, convert halfstrip from 128-223 to 0-95
+  if (part == CSCPart::ME1A and keyStrip > CSCConstants::MAX_HALF_STRIP_ME1B) 
+      keyStrip = keyStrip -  CSCConstants::MAX_HALF_STRIP_ME1B -1;
+  return 0.5*(mymap[keyStrip].first + mymap[keyStrip].second);
+
 }
 
 void CSCGEMMotherboard::setupGeometry()

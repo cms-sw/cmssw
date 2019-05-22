@@ -68,7 +68,7 @@ namespace cms
     std::string theNavigationSchoolName;
     const NavigationSchool*       theNavigationSchool;
     
-    RedundantSeedCleaner*  theSeedCleaner;
+    std::unique_ptr<RedundantSeedCleaner>  theSeedCleaner;
 
     unsigned int maxSeedsBeforeCleaning_;
     

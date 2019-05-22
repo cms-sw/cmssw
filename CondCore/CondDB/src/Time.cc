@@ -48,6 +48,13 @@ namespace cond {
       }
     }
 
+    Time_t sinceGroupSize( TimeType tp ){
+      if( tp == TIMESTAMP ) return SINCE_TIME_GROUP_SIZE;
+      if( tp == LUMIID ) return SINCE_LUMI_GROUP_SIZE;
+      if( tp == HASH ) return SINCE_HASH_GROUP_SIZE;
+      return SINCE_RUN_GROUP_SIZE;
+    }
+
     // framework conversions
     edm::IOVSyncValue toIOVSyncValue( Time_t time, TimeType timetype, bool startOrStop) {
       switch (timetype) {

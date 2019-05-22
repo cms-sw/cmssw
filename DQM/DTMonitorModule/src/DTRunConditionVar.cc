@@ -43,62 +43,47 @@
 using namespace std;
 using namespace edm;
 
-DTRunConditionVar::DTRunConditionVar(const ParameterSet& pSet):
-  // Get the debug parameter for verbose output
-  debug(pSet.getUntrackedParameter<bool>("debug",false)),
-  nMinHitsPhi(pSet.getUntrackedParameter<int>("nMinHitsPhi")),
-  maxAnglePhiSegm(pSet.getUntrackedParameter<double>("maxAnglePhiSegm")),
-  dt4DSegmentsToken_(consumes<DTRecSegment4DCollection>(
-      pSet.getParameter<InputTag>("recoSegments")))
-{
+DTRunConditionVar::DTRunConditionVar(const ParameterSet& pSet)
+    :  // Get the debug parameter for verbose output
+      debug(pSet.getUntrackedParameter<bool>("debug", false)),
+      nMinHitsPhi(pSet.getUntrackedParameter<int>("nMinHitsPhi")),
+      maxAnglePhiSegm(pSet.getUntrackedParameter<double>("maxAnglePhiSegm")),
+      dt4DSegmentsToken_(consumes<DTRecSegment4DCollection>(pSet.getParameter<InputTag>("recoSegments"))) {}
 
-}
-
-DTRunConditionVar::~DTRunConditionVar()
-{
-  LogTrace("DTDQM|DTMonitorModule|DTRunConditionVar")
-    << "DTRunConditionVar: destructor called";
+DTRunConditionVar::~DTRunConditionVar() {
+  LogTrace("DTDQM|DTMonitorModule|DTRunConditionVar") << "DTRunConditionVar: destructor called";
 
   // free memory
 }
 
-void DTRunConditionVar::bookHistograms(DQMStore::IBooker & ibooker,
-                                             edm::Run const & iRun,
-                                             edm::EventSetup const & /* iSetup */) {
+void DTRunConditionVar::bookHistograms(DQMStore::IBooker& ibooker,
+                                       edm::Run const& iRun,
+                                       edm::EventSetup const& /* iSetup */) {
+  LogTrace("DTDQM|DTMonitorModule|DTRunConditionVar") << "DTRunConditionVar: bookHistograms";
 
-  LogTrace("DTDQM|DTMonitorModule|DTRunConditionVar")
-    << "DTRunConditionVar: bookHistograms";
-
-  for(int wheel=-2;wheel<=2;wheel++){
-    for(int sec=1; sec<=14; sec++) {
-      for(int stat=1; stat<=4; stat++) {
-
-        bookChamberHistos(ibooker,DTChamberId(wheel,stat,sec),"VDrift_FromSegm",100,0.0043,0.0065);
-        bookChamberHistos(ibooker,DTChamberId(wheel,stat,sec),"T0_FromSegm",100,-25.,25.);
-
+  for (int wheel = -2; wheel <= 2; wheel++) {
+    for (int sec = 1; sec <= 14; sec++) {
+      for (int stat = 1; stat <= 4; stat++) {
+        bookChamberHistos(ibooker, DTChamberId(wheel, stat, sec), "VDrift_FromSegm", 100, 0.0043, 0.0065);
+        bookChamberHistos(ibooker, DTChamberId(wheel, stat, sec), "T0_FromSegm", 100, -25., 25.);
       }
     }
   }
 
-
   return;
 }
 
-void DTRunConditionVar::dqmBeginRun(const Run& run, const EventSetup& setup)
-{
+void DTRunConditionVar::dqmBeginRun(const Run& run, const EventSetup& setup) {
   // Get the DT Geometry
   setup.get<MuonGeometryRecord>().get(dtGeom);
 
   return;
 }
 
-void DTRunConditionVar::analyze(const Event & event,
-    const EventSetup& eventSetup)
-{
-
-  LogTrace("DTDQM|DTMonitorModule|DTRunConditionVar") <<
-    "--- [DTRunConditionVar] Event analysed #Run: " <<
-    event.id().run() << " #Event: " << event.id().event() << endl;
+void DTRunConditionVar::analyze(const Event& event, const EventSetup& eventSetup) {
+  LogTrace("DTDQM|DTMonitorModule|DTRunConditionVar")
+      << "--- [DTRunConditionVar] Event analysed #Run: " << event.id().run() << " #Event: " << event.id().event()
+      << endl;
 
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
@@ -113,80 +98,77 @@ void DTRunConditionVar::analyze(const Event & event,
   event.getByToken(dt4DSegmentsToken_, all4DSegments);
 
   // Loop over the segments
-  for(DTRecSegment4DCollection::const_iterator segment  = all4DSegments->begin();
-      segment != all4DSegments->end(); ++segment){
-
+  for (DTRecSegment4DCollection::const_iterator segment = all4DSegments->begin(); segment != all4DSegments->end();
+       ++segment) {
     // Get the chamber from the setup
-    DTChamberId DTid = (DTChamberId) segment->chamberId();
+    DTChamberId DTid = (DTChamberId)segment->chamberId();
     uint32_t indexCh = DTid.rawId();
 
     // Fill v-drift values
-    if( (*segment).hasPhi() ) {
-
-      int nHitsPhi = (*segment).phiSegment()->degreesOfFreedom()+2;
+    if ((*segment).hasPhi()) {
+      int nHitsPhi = (*segment).phiSegment()->degreesOfFreedom() + 2;
       double xdir = (*segment).phiSegment()->localDirection().x();
       double zdir = (*segment).phiSegment()->localDirection().z();
 
-      double anglePhiSegm = fabs(atan(xdir/zdir))*180./TMath::Pi();
+      double anglePhiSegm = fabs(atan(xdir / zdir)) * 180. / TMath::Pi();
 
-      if( nHitsPhi >= nMinHitsPhi && anglePhiSegm <= maxAnglePhiSegm ) {
-
+      if (nHitsPhi >= nMinHitsPhi && anglePhiSegm <= maxAnglePhiSegm) {
         double segmentVDrift = segment->phiSegment()->vDrift();
 
-
-        DTSuperLayerId indexSLPhi1(DTid,1);
-        DTSuperLayerId indexSLPhi2(DTid,3);
+        DTSuperLayerId indexSLPhi1(DTid, 1);
+        DTSuperLayerId indexSLPhi2(DTid, 3);
 
         float vDriftPhi1(0.), vDriftPhi2(0.);
         float ResPhi1(0.), ResPhi2(0.);
-        int status1 = mTimeMap_->get(indexSLPhi1,vDriftPhi1,ResPhi1,DTVelocityUnits::cm_per_ns);
-        int status2 = mTimeMap_->get(indexSLPhi2,vDriftPhi2,ResPhi2,DTVelocityUnits::cm_per_ns);
+        int status1 = mTimeMap_->get(indexSLPhi1, vDriftPhi1, ResPhi1, DTVelocityUnits::cm_per_ns);
+        int status2 = mTimeMap_->get(indexSLPhi2, vDriftPhi2, ResPhi2, DTVelocityUnits::cm_per_ns);
 
-        if(status1 != 0 || status2 != 0) {
+        if (status1 != 0 || status2 != 0) {
           DTSuperLayerId sl = (status1 != 0) ? indexSLPhi1 : indexSLPhi2;
-          throw cms::Exception("DTRunConditionVarClient") << "Could not find vDrift entry in DB for"
-            << sl << endl;
+          throw cms::Exception("DTRunConditionVarClient") << "Could not find vDrift entry in DB for" << sl << endl;
         }
 
         float vDriftMed = (vDriftPhi1 + vDriftPhi2) / 2.;
 
-        segmentVDrift = vDriftMed*(1. - segmentVDrift);
+        segmentVDrift = vDriftMed * (1. - segmentVDrift);
 
         double segmentT0 = segment->phiSegment()->t0();
 
-        if( segment->phiSegment()->ist0Valid() ) (chamberHistos[indexCh])["T0_FromSegm"]->Fill(segmentT0);
-        if( segmentVDrift != vDriftMed ) (chamberHistos[indexCh])["VDrift_FromSegm"]->Fill(segmentVDrift);
-
+        if (segment->phiSegment()->ist0Valid())
+          (chamberHistos[indexCh])["T0_FromSegm"]->Fill(segmentT0);
+        if (segmentVDrift != vDriftMed)
+          (chamberHistos[indexCh])["VDrift_FromSegm"]->Fill(segmentVDrift);
       }
     }
 
-  } //end loop on segment
+  }  //end loop on segment
 
-} //end analyze
+}  //end analyze
 
-void DTRunConditionVar::bookChamberHistos(DQMStore::IBooker & ibooker,const DTChamberId& dtCh, string histoType, int nbins, float min, float max) {
-
+void DTRunConditionVar::bookChamberHistos(
+    DQMStore::IBooker& ibooker, const DTChamberId& dtCh, string histoType, int nbins, float min, float max) {
   int wh = dtCh.wheel();
   int sc = dtCh.sector();
   int st = dtCh.station();
-  stringstream wheel; wheel << wh;
-  stringstream station; station << st;
-  stringstream sector; sector << sc;
+  stringstream wheel;
+  wheel << wh;
+  stringstream station;
+  station << st;
+  stringstream sector;
+  sector << sc;
 
   string bookingFolder = "DT/02-Segments/Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str();
-  string histoTag      = "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
+  string histoTag = "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
   ibooker.setCurrentFolder(bookingFolder);
 
-  LogTrace ("DTDQM|DTMonitorModule|DTRunConditionVar")
-    << "[DTRunConditionVar]: booking histos in " << bookingFolder << endl;
+  LogTrace("DTDQM|DTMonitorModule|DTRunConditionVar")
+      << "[DTRunConditionVar]: booking histos in " << bookingFolder << endl;
 
-  string histoName = histoType  +  histoTag;
+  string histoName = histoType + histoTag;
   string histoLabel = histoType;
 
-  (chamberHistos[dtCh.rawId()])[histoType] =
-    ibooker.book1D(histoName,histoLabel,nbins,min,max);
-
+  (chamberHistos[dtCh.rawId()])[histoType] = ibooker.book1D(histoName, histoLabel, nbins, min, max);
 }
 
 // Local Variables:

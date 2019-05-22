@@ -40,6 +40,7 @@ class BPHVertexSelect {
    */
   virtual ~BPHVertexSelect();
 
+  using AcceptArg = BPHDecayVertex;
   /** Operations
    */
   /// accept function

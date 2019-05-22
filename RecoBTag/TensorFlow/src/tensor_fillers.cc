@@ -40,7 +40,7 @@ namespace btagbtvdeep {
 
   void db_tensor_filler(tensorflow::Tensor & tensor,
                          std::size_t jet_n,
-                         const btagbtvdeep::DeepDoubleBFeatures & features) {
+                         const btagbtvdeep::DeepDoubleXFeatures & features) {
 
     float* ptr = &tensor.tensor<float, 3>()(jet_n, 0, 0);
 

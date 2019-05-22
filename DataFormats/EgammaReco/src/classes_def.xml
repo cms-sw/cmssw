@@ -137,11 +137,24 @@
   </class>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SuperCluster> >, edm::RefProd<std::vector<reco::HFEMClusterShape> > >"/>
 
-  <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
-  <class pattern="edm::Ref<edm::AssociationMap<*>" />
-  <class pattern="edm::RefProd<edm::AssociationMap<*>" />
-  <class pattern="edm::RefVector<edm::AssociationMap<*>" />
-  <class pattern="edm::Wrapper<edm::RefVector<edm::AssociationMap<*>" />
+  <!-- <class pattern="edm::Wrapper<edm::AssociationMap<*>" /> -->
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<vector<reco::CaloCluster>,vector<reco::ClusterShape>,unsigned int> > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<vector<reco::SuperCluster>,vector<reco::HFEMClusterShape>,unsigned int> > >" />
+
+  <!-- <class pattern="edm::Ref<edm::AssociationMap<*>" /> -->
+  <class name="edm::Ref<edm::AssociationMap<edm::OneToOne<vector<reco::CaloCluster>,vector<reco::ClusterShape>,unsigned int> >,edm::helpers::KeyVal<edm::Ref<vector<reco::CaloCluster>,reco::CaloCluster,edm::refhelper::FindUsingAdvance<vector<reco::CaloCluster>,reco::CaloCluster> >,edm::Ref<vector<reco::ClusterShape>,reco::ClusterShape,edm::refhelper::FindUsingAdvance<vector<reco::ClusterShape>,reco::ClusterShape> > >,edm::AssociationMap<edm::OneToOne<vector<reco::CaloCluster>,vector<reco::ClusterShape>,unsigned int> >::Find>" />
+  <class name="edm::Ref<edm::AssociationMap<edm::OneToOne<vector<reco::SuperCluster>,vector<reco::HFEMClusterShape>,unsigned int> >,edm::helpers::KeyVal<edm::Ref<vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<vector<reco::SuperCluster>,reco::SuperCluster> >,edm::Ref<vector<reco::HFEMClusterShape>,reco::HFEMClusterShape,edm::refhelper::FindUsingAdvance<vector<reco::HFEMClusterShape>,reco::HFEMClusterShape> > >,edm::AssociationMap<edm::OneToOne<vector<reco::SuperCluster>,vector<reco::HFEMClusterShape>,unsigned int> >::Find>" />
+
+  <!-- <class pattern="edm::RefProd<edm::AssociationMap<*>" /> -->
+  <class name="edm::RefProd<edm::AssociationMap<edm::OneToOne<vector<reco::CaloCluster>,vector<reco::ClusterShape>,unsigned int> > >" />
+  <class name="edm::RefProd<edm::AssociationMap<edm::OneToOne<vector<reco::SuperCluster>,vector<reco::HFEMClusterShape>,unsigned int> > >" />
+
+  <!-- <class pattern="edm::RefVector<edm::AssociationMap<*>" /> -->
+  <class name="edm::RefVector<edm::AssociationMap<edm::OneToOne<vector<reco::CaloCluster>,vector<reco::ClusterShape>,unsigned int> >,edm::helpers::KeyVal<edm::Ref<vector<reco::CaloCluster>,reco::CaloCluster,edm::refhelper::FindUsingAdvance<vector<reco::CaloCluster>,reco::CaloCluster> >,edm::Ref<vector<reco::ClusterShape>,reco::ClusterShape,edm::refhelper::FindUsingAdvance<vector<reco::ClusterShape>,reco::ClusterShape> > >,edm::AssociationMap<edm::OneToOne<vector<reco::CaloCluster>,vector<reco::ClusterShape>,unsigned int> >::Find>" />
+  <class name="edm::RefVector<edm::AssociationMap<edm::OneToOne<vector<reco::SuperCluster>,vector<reco::HFEMClusterShape>,unsigned int> >,edm::helpers::KeyVal<edm::Ref<vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<vector<reco::SuperCluster>,reco::SuperCluster> >,edm::Ref<vector<reco::HFEMClusterShape>,reco::HFEMClusterShape,edm::refhelper::FindUsingAdvance<vector<reco::HFEMClusterShape>,reco::HFEMClusterShape> > >,edm::AssociationMap<edm::OneToOne<vector<reco::SuperCluster>,vector<reco::HFEMClusterShape>,unsigned int> >::Find>" />
+  <!-- <class pattern="edm::Wrapper<edm::RefVector<edm::AssociationMap<*>" /> -->
+  <class name="edm::Wrapper<edm::RefVector<edm::AssociationMap<edm::OneToOne<vector<reco::CaloCluster>,vector<reco::ClusterShape>,unsigned int> >,edm::helpers::KeyVal<edm::Ref<vector<reco::CaloCluster>,reco::CaloCluster,edm::refhelper::FindUsingAdvance<vector<reco::CaloCluster>,reco::CaloCluster> >,edm::Ref<vector<reco::ClusterShape>,reco::ClusterShape,edm::refhelper::FindUsingAdvance<vector<reco::ClusterShape>,reco::ClusterShape> > >,edm::AssociationMap<edm::OneToOne<vector<reco::CaloCluster>,vector<reco::ClusterShape>,unsigned int> >::Find> >" />
+  <class name="edm::Wrapper<edm::RefVector<edm::AssociationMap<edm::OneToOne<vector<reco::SuperCluster>,vector<reco::HFEMClusterShape>,unsigned int> >,edm::helpers::KeyVal<edm::Ref<vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<vector<reco::SuperCluster>,reco::SuperCluster> >,edm::Ref<vector<reco::HFEMClusterShape>,reco::HFEMClusterShape,edm::refhelper::FindUsingAdvance<vector<reco::HFEMClusterShape>,reco::HFEMClusterShape> > >,edm::AssociationMap<edm::OneToOne<vector<reco::SuperCluster>,vector<reco::HFEMClusterShape>,unsigned int> >::Find> >" />
 
 </lcgdict>
 

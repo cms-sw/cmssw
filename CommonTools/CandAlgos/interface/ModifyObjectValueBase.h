@@ -17,14 +17,13 @@
 
 class ModifyObjectValueBase {
  public:
- ModifyObjectValueBase(const edm::ParameterSet& conf) : 
+  ModifyObjectValueBase(const edm::ParameterSet& conf) :
   name_( conf.getParameter<std::string>("modifierName") ) {}
 
   virtual ~ModifyObjectValueBase() {}
 
   virtual void setEvent(const edm::Event&) {}
   virtual void setEventContent(const edm::EventSetup&) {}
-  virtual void setConsumes(edm::ConsumesCollector&) {}
   
   virtual void modifyObject(reco::GsfElectron&) const { 
     throw cms::Exception("InvalidConfiguration") 
@@ -76,7 +75,7 @@ class ModifyObjectValueBase {
 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< ModifyObjectValueBase* (const edm::ParameterSet&) > ModifyObjectValueFactory;
+typedef edmplugin::PluginFactory< ModifyObjectValueBase* (const edm::ParameterSet&, edm::ConsumesCollector&) > ModifyObjectValueFactory;
 #endif
 
 #endif

@@ -31,29 +31,22 @@
 class L1GtPsbSetupRcd;
 
 // class declaration
-class L1GtPsbSetupTrivialProducer : public edm::ESProducer
-{
-
+class L1GtPsbSetupTrivialProducer : public edm::ESProducer {
 public:
+  /// constructor
+  L1GtPsbSetupTrivialProducer(const edm::ParameterSet&);
 
-    /// constructor
-    L1GtPsbSetupTrivialProducer(const edm::ParameterSet&);
+  /// destructor
+  ~L1GtPsbSetupTrivialProducer() override;
 
-    /// destructor
-    ~L1GtPsbSetupTrivialProducer() override;
+  /// public methods
 
-
-    /// public methods
-
-    /// produce the setup for L1 GT PSB boards
-    std::unique_ptr<L1GtPsbSetup> producePsbSetup(
-        const L1GtPsbSetupRcd&);
+  /// produce the setup for L1 GT PSB boards
+  std::unique_ptr<L1GtPsbSetup> producePsbSetup(const L1GtPsbSetupRcd&);
 
 private:
-
-    /// L1 GT PSB boards and their setup
-    std::vector<L1GtPsbConfig> m_gtPsbSetup;
-
+  /// L1 GT PSB boards and their setup
+  std::vector<L1GtPsbConfig> m_gtPsbSetup;
 };
 
 #endif

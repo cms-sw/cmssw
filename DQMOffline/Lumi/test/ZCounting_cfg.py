@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('RECODQM')
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process('RECODQM', Run2_2018)
 
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
@@ -18,7 +19,9 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-process.GlobalTag.globaltag = '92X_dataRun2_Prompt_v4'
+process.GlobalTag.globaltag = '101X_dataRun2_Prompt_v9'
+#process.GlobalTag.globaltag = '92X_dataRun2_Prompt_v4'
+
 
 # trigger filter
 process.load('HLTrigger/HLTfilters/hltHighLevel_cfi')
@@ -28,10 +31,11 @@ process.hltHighLevel.HLTPaths = cms.vstring()
 
 from CondCore.CondDB.CondDB_cfi import *
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 process.source = cms.Source("PoolSource",
                                 fileNames = cms.untracked.vstring(
-'/store/data/Run2017B/SingleMuon/RECO/PromptReco-v1/000/297/218/00000/14C84999-6457-E711-AAE4-02163E0136E0.root'
+#'/store/data/Run2017B/SingleMuon/RECO/PromptReco-v1/000/297/218/00000/14C84999-6457-E711-AAE4-02163E0136E0.root'
+'file:/eos/cms/store/data/Run2018D/SingleMuon/AOD/22Jan2019-v2/110000/104D2C01-12D2-0742-BE61-897755323EDE.root'
                                 )
                                 )
 
@@ -41,61 +45,17 @@ process.source.inputCommands = cms.untracked.vstring("keep *",
 process.options = cms.untracked.PSet(
   wantSummary = cms.untracked.bool(False),
   Rethrow     = cms.untracked.vstring('ProductNotFound'),
-  fileMode    = cms.untracked.string('NOMERGE')
+  fileMode    = cms.untracked.string('FULLMERGE')
   )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-process.zcounting = DQMEDAnalyzer('ZCounting',
-                                 TriggerEvent    = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
-                                 TriggerResults  = cms.InputTag('TriggerResults','','HLT'),
-				 edmPVName       = cms.untracked.string('offlinePrimaryVertices'),
-                                 edmName       = cms.untracked.string('muons'),
-                                 edmTrackName = cms.untracked.string('generalTracks'),
 
-                                 edmGsfEleName = cms.untracked.string('gedGsfElectrons'),
-                                 edmSCName = cms.untracked.string('particleFlowEGamma'),
+from DQMOffline.Lumi.ZCounting_cff import zcounting
 
-                                 effAreasConfigFile = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_80X.txt"),
+process.load("DQMOffline.Lumi.ZCounting_cff") 
 
-                                 rhoname = cms.InputTag('fixedGridRhoFastjetAll'),
-                                 beamspotName = cms.InputTag('offlineBeamSpot'),
-                                 conversionsName = cms.InputTag('conversions'),
-
-                                 IDType   = cms.untracked.string("Tight"),# Tight, Medium, Loose
-                                 IsoType  = cms.untracked.string("NULL"),  # Tracker-based, PF-based
-                                 IsoCut   = cms.untracked.double(0.),     # {0.05, 0.10} for Tracker-based, {0.15, 0.25} for PF-based
-
-                                 PtCutL1  = cms.untracked.double(30.0),
-                                 PtCutL2  = cms.untracked.double(30.0),
-                                 EtaCutL1 = cms.untracked.double(2.4),
-                                 EtaCutL2 = cms.untracked.double(2.4),
-
-                                 PtCutEleTag = cms.untracked.double(40.0),
-                                 PtCutEleProbe = cms.untracked.double(35.0),
-                                 EtaCutEleTag = cms.untracked.double(2.5),
-                                 EtaCutEleProbe = cms.untracked.double(2.5),
-                                 MassCutEleLow = cms.untracked.double(80.0),
-                                 MassCutEleHigh = cms.untracked.double(100.0),
-
-                                 ElectronIDType = cms.untracked.string("TIGHT"),
-
-                                 MassBin  = cms.untracked.int32(50),
-                                 MassMin  = cms.untracked.double(66.0),
-                                 MassMax  = cms.untracked.double(116.0),
-
-                                 LumiBin  = cms.untracked.int32(2500),
-                                 LumiMin  = cms.untracked.double(0.0),
-                                 LumiMax  = cms.untracked.double(2500.0),
-
-                                 PVBin    = cms.untracked.int32(60),
-                                 PVMin    = cms.untracked.double(0.0),
-                                 PVMax    = cms.untracked.double(60.0),
-
-                                 VtxNTracksFitMin = cms.untracked.double(0.),
-                                 VtxNdofMin       = cms.untracked.double(4.),
-                                 VtxAbsZMax       = cms.untracked.double(24.),
-                                 VtxRhoMax        = cms.untracked.double(2.)
-                                 )
+#process.zcounting.MuonTriggerNames = cms.vstring("HLT_IsoMu27_v*","HLT_IsoMu24_v*")
+#process.zcounting.MuonTriggerObjectNames = cms.vstring("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07",
+#                                                      "hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07")
 
 process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
                                      fileName = cms.untracked.string("OUT_step1.root"))

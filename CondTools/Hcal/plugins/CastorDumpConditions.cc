@@ -27,12 +27,15 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/DataRecord/interface/CastorPedestalsRcd.h"
@@ -51,10 +54,9 @@
 // class decleration
 //
 
-class CastorDumpConditions : public edm::EDAnalyzer {
+class CastorDumpConditions : public edm::one::EDAnalyzer<> {
    public:
       explicit CastorDumpConditions(const edm::ParameterSet&);
-      ~CastorDumpConditions() override;
 
        template<class S, class SRcd> void dumpIt(const std::vector<std::string>& mDumpRequest,
                                                  const edm::Event& e,
@@ -64,9 +66,7 @@ class CastorDumpConditions : public edm::EDAnalyzer {
    private:
       std::string file_prefix;
       std::vector<std::string> mDumpRequest;
-      virtual void beginJob(const edm::EventSetup&) ;
       void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
 
       // ----------member data ---------------------------
 };
@@ -88,18 +88,8 @@ CastorDumpConditions::CastorDumpConditions(const edm::ParameterSet& iConfig)
    file_prefix = iConfig.getUntrackedParameter<std::string>("outFilePrefix","Dump");
    mDumpRequest= iConfig.getUntrackedParameter<std::vector<std::string> >("dump",std::vector<std::string>());
    if (mDumpRequest.empty()) {
-      std::cout << "CastorDumpConditions: No record to dump. Exiting." << std::endl;
-      exit(0);
+     throw cms::Exception("Bad Config") << "CastorDumpConditions: No record to dump.";
    }
-
-}
-
-
-CastorDumpConditions::~CastorDumpConditions()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
 
 }
 
@@ -114,24 +104,18 @@ CastorDumpConditions::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 {
    using namespace edm;
 
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-#endif
-   
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
-   std::cout << "I AM IN THE RUN " << iEvent.id().run() << std::endl;
-   std::cout << "What to dump? "<< std::endl;
-   if (mDumpRequest.empty()) {
-      std::cout<< "CastorDumpConditions: Empty request" << std::endl;
-      return;
+   {
+     edm::LogAbsolute log("CastorDumpConditions");
+     log << "I AM IN THE RUN " << iEvent.id().run() << "\n";
+     log << "What to dump? "<< std::endl;
+     if (mDumpRequest.empty()) {
+       log<< "CastorDumpConditions: Empty request \n";
+       return;
+     }
    }
 
    for(std::vector<std::string>::const_iterator it=mDumpRequest.begin();it!=mDumpRequest.end();it++)
-      std::cout << *it << std::endl;
+     LogAbsolute("CastorDumpConditions") << *it << "\n";
 
    // dumpIt called for all possible ValueMaps. The function checks if the dump is actually requested.
    dumpIt<CastorElectronicsMap , CastorElectronicsMapRcd> (mDumpRequest, iEvent,iSetup,"ElectronicsMap" );
@@ -145,17 +129,6 @@ CastorDumpConditions::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    dumpIt<CastorSaturationCorrs, CastorSaturationCorrsRcd>(mDumpRequest, iEvent,iSetup,"SaturationCorrs");
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-CastorDumpConditions::beginJob(const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-CastorDumpConditions::endJob() {
-}
 
 template<class S, class SRcd>
 void CastorDumpConditions::dumpIt(const std::vector<std::string>& mDumpRequest,

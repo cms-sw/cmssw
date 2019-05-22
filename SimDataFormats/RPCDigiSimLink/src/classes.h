@@ -9,20 +9,6 @@
 #include <vector>
 #include <map>
 
-
 #include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
 
-namespace SimDataFormats_RPCDigiSimLink {
-  struct dictionary {
-    edm::Wrapper<RPCDigiSimLink> RPCDigiSimLinkWrapper;
-    edm::Wrapper< std::vector<RPCDigiSimLink>  > RPCDigiSimLinkVector;
-
-    edm::Wrapper< edm::DetSet<RPCDigiSimLink> > RPCDigiSimLinkDetSetWrapper;
-    edm::Wrapper< std::vector<edm::DetSet<RPCDigiSimLink> > > RPCDigiSimLinkVectorDetSet; 
-    edm::Wrapper< edm::DetSetVector<RPCDigiSimLink> > RPCDigiSimLinkDetSetVectorWrapper;
-  };
-}
-
-#endif // RPCDIGISIMLINK_CLASSES_H
-
-
+#endif  // RPCDIGISIMLINK_CLASSES_H

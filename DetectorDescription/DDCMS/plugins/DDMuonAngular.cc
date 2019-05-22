@@ -1,10 +1,12 @@
 #include "DD4hep/DetFactoryHelper.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
+using namespace geant_units::operators;
 
 static long algorithm( Detector& /* description */,
 		       cms::DDParsingContext& context,
@@ -29,8 +31,8 @@ static long algorithm( Detector& /* description */,
 
   LogDebug("DDAlgorithm") << "debug: Parameters for positioning:: n "
 			  << n << " Start, Step " 
-			  << ConvertTo( startAngle, deg ) << " " 
-			  << ConvertTo( stepAngle, deg ) << " " 
+			  << convertRadToDeg( startAngle ) << " " 
+			  << convertRadToDeg( stepAngle ) << " " 
 			  << ", zoffset " << zoffset << " "
 			  << ", RotNameSpace " << rotns.c_str();
   LogDebug("DDAlgorithm") << "debug: Parent " << mother.name() 

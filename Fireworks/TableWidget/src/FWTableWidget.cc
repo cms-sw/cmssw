@@ -532,4 +532,4 @@ FWTableWidget::DoRedraw()
 // static member functions
 //
 
-ClassImp(FWTableWidget)
+ClassImp(FWTableWidget);

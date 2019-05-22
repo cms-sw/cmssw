@@ -25,7 +25,7 @@ namespace cms {
 
   private:
     virtual TrajectorySeedCollection::const_iterator 
-      lastSeed(TrajectorySeedCollection& theSeedColl){return theSeedColl.begin()+1;}
+      lastSeed(TrajectorySeedCollection const& theSeedColl) override {return theSeedColl.begin()+1;}
 
     void initDebugger(edm::EventSetup const & es){
       dbg = new CkfDebugger(es, consumesCollector());

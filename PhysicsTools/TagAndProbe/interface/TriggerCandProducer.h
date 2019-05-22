@@ -58,5 +58,5 @@ class TriggerCandProducer : public edm::EDProducer
   bool skipEvent_;
   bool matchUnprescaledTriggerOnly_;
 };
-#include "PhysicsTools/TagAndProbe//src/TriggerCandProducer.icc"
+#include "PhysicsTools/TagAndProbe/src/TriggerCandProducer.icc"
 #endif

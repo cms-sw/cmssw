@@ -60,7 +60,6 @@ private:
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "TrackingTools/DetLayers/src/DetBelowZ.h"
 #include "TrackingTools/DetLayers/src/DetLessZ.h"
 
 #include <functional>
@@ -119,7 +118,7 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
   }
 
   FDLI middle = find_if( theForwardLayers.begin(), theForwardLayers.end(),
-                         not1(DetBelowZ(0)));
+          [](auto const* a){ return a->position().z() >= 0.0; });
   theLeftLayers  = FDLC( theForwardLayers.begin(), middle);
   theRightLayers = FDLC( middle, theForwardLayers.end());
 

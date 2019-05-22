@@ -53,7 +53,7 @@ private:
   container selected_;
   selector select_;
   RefAdder addRef_;
-  friend class reco::modules::AssociatedVariableCollectionSelectorEventSetupInit<AssociatedVariableCollectionSelector>;
+  friend struct reco::modules::AssociatedVariableCollectionSelectorEventSetupInit<AssociatedVariableCollectionSelector>;
 };
 
 

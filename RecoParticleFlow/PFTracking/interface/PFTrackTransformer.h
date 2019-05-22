@@ -66,7 +66,6 @@ class PFTrackTransformer{
  private:
   ///B field
    math::XYZVector B_;
-   const MultiTrajectoryStateMode *mtsMode_;
    PFGeometry pfGeometry_;
 };
 

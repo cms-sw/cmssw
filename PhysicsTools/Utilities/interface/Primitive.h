@@ -6,7 +6,7 @@
 #include "PhysicsTools/Utilities/interface/Derivative.h"
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 #include "PhysicsTools/Utilities/interface/Identity.h"
-#include <boost/type_traits.hpp>
+#include <type_traits>
 
 #include "PhysicsTools/Utilities/interface/Simplify_begin.h"
 
@@ -156,8 +156,8 @@ namespace funct {
   //  /
   
   template <TYPXT2,
-    bool bint = not ::boost::is_same<PRIMIT(X, B), UndefinedIntegral>::value,
-    bool aint = not ::boost::is_same<PRIMIT(X, A), UndefinedIntegral>::value>
+    bool bint = not ::std::is_same<PRIMIT(X, B), UndefinedIntegral>::value,
+    bool aint = not ::std::is_same<PRIMIT(X, A), UndefinedIntegral>::value>
     struct PartIntegral {
       typedef UndefinedIntegral type;
       GET(PROD_S(A, B), type());
@@ -217,8 +217,8 @@ namespace funct {
   //  /
   
   template <TYPXT2,
-    bool bint = not ::boost::is_same<PRIMIT(X, RATIO(NUM(1), B)), UndefinedIntegral>::value,
-    bool aint = not ::boost::is_same<PRIMIT(X, A), UndefinedIntegral>::value>
+    bool bint = not ::std::is_same<PRIMIT(X, RATIO(NUM(1), B)), UndefinedIntegral>::value,
+    bool aint = not ::std::is_same<PRIMIT(X, A), UndefinedIntegral>::value>
     struct PartIntegral2 {
       typedef UndefinedIntegral type;
       GET(RATIO_S(A, B), type());

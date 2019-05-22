@@ -2,8 +2,7 @@
 #define Gen_TauolaInterface_TauSpinnerFilter_H
 
 // I. M. Nugent
-// Filter on TauSpinner polarization weights to make unweighted polarized MC 
-
+// Filter on TauSpinner polarization weights to make unweighted polarized MC
 
 // system include files
 #include <memory>
@@ -21,14 +20,14 @@
 #include "CLHEP/Random/RandomEngine.h"
 
 class TauSpinnerFilter : public edm::EDFilter {
- public:
+public:
   TauSpinnerFilter(const edm::ParameterSet&);
   ~TauSpinnerFilter() override{};
 
   bool filter(edm::Event& e, edm::EventSetup const& es) override;
   void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }
 
- private:
+private:
   edm::InputTag src_;
   CLHEP::HepRandomEngine* fRandomEngine;
   double ntaus_;

@@ -38,8 +38,7 @@ private:
   //Name of Collection used for create the XF 
   edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token; 
   
-  std::string me0digiModelString_;
-  ME0DigiModel* ME0DigiModel_;
+  std::unique_ptr<ME0DigiModel> ME0DigiModel_;
 };
 
 #endif

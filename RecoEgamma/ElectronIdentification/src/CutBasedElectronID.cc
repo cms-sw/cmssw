@@ -1,7 +1,6 @@
 #include "RecoEgamma/ElectronIdentification/interface/CutBasedElectronID.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-//#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include <algorithm>
@@ -26,7 +25,7 @@ void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
     newCategories_ = conf.getParameter<bool>("additionalCategories");
   }
 
-  if (type_ == "classbased" and (version_ == "V03" or version_ == "V04" or version_ == "V05" or version_ == "")) {
+  if (type_ == "classbased" and (version_ == "V03" or version_ == "V04" or version_ == "V05" or version_.empty())) {
     wantBinning_ = conf.getParameter<bool>("etBinning");
     newCategories_ = conf.getParameter<bool>("additionalCategories");
   }
@@ -329,7 +328,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
     return result;
   }
 
-  if (type_ == "classbased" && (version_ == "V06" || version_ == "")) { 
+  if (type_ == "classbased" && (version_ == "V06" || version_.empty())) { 
     std::vector<double> cutIsoSum      = cuts_.getParameter<std::vector<double> >("cutiso_sum");
     std::vector<double> cutIsoSumCorr  = cuts_.getParameter<std::vector<double> >("cutiso_sumoet");
     std::vector<double> cuthoe         = cuts_.getParameter<std::vector<double> >("cuthoe");

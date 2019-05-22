@@ -231,16 +231,20 @@ PixelCPEBase::setTheClu( DetParam const & theDetParam, ClusterParam & theCluster
    maxInX = theClusterParam.theCluster->maxPixelRow();
    maxInY = theClusterParam.theCluster->maxPixelCol();
 
-   if      ( theDetParam.theRecTopol->isItEdgePixelInX(minInX) )
+   int min_row(0), min_col(0);
+   int max_row = theDetParam.theRecTopol->nrows() - 1;
+   int max_col = theDetParam.theRecTopol->ncolumns() - 1;
+
+   if (minInX == min_row)
      theClusterParam.edgeTypeX_ = 1;
-   else if ( theDetParam.theRecTopol->isItEdgePixelInX(maxInX) )
+   else if (maxInX == max_row)
      theClusterParam.edgeTypeX_ = 2;
    else
      theClusterParam.edgeTypeX_ = 0;
      
-   if      ( theDetParam.theRecTopol->isItEdgePixelInY(minInY) )
+   if(minInY == min_col)
      theClusterParam.edgeTypeY_ = 1;
-   else if ( theDetParam.theRecTopol->isItEdgePixelInY(maxInY) )
+   else if (maxInY == max_col)
      theClusterParam.edgeTypeY_ = 2;
    else
      theClusterParam.edgeTypeY_ = 0;

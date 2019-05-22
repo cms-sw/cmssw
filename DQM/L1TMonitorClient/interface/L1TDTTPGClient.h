@@ -19,48 +19,43 @@
 #include <TH2F.h>
 #include <TProfile2D.h>
 
-class L1TDTTPGClient: public DQMEDHarvester {
-
+class L1TDTTPGClient : public DQMEDHarvester {
 public:
-
   /// Constructor
-  L1TDTTPGClient(const edm::ParameterSet& ps);
-  
+  L1TDTTPGClient(const edm::ParameterSet &ps);
+
   /// Destructor
   ~L1TDTTPGClient() override;
- 
-protected:
 
+protected:
   void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
 
 private:
-
   void initialize();
-  void makeRatioHisto(DQMStore::IGetter &igetter,MonitorElement *ratioME, std::string &nName, std::string &dName); 
+  void makeRatioHisto(DQMStore::IGetter &igetter, MonitorElement *ratioME, std::string &nName, std::string &dName);
   void setMapPhLabel(MonitorElement *me);
   void setMapThLabel(MonitorElement *me);
-  TH1F * get1DHisto(std::string meName, DQMStore::IGetter &igetter);
-  TH2F * get2DHisto(std::string meName, DQMStore::IGetter &igetter);
-  TProfile2D * get2DProfile(std::string meName, DQMStore::IGetter &igetter);
-  TProfile * get1DProfile(std::string meName, DQMStore::IGetter &igetter);
-  
+  TH1F *get1DHisto(std::string meName, DQMStore::IGetter &igetter);
+  TH2F *get2DHisto(std::string meName, DQMStore::IGetter &igetter);
+  TProfile2D *get2DProfile(std::string meName, DQMStore::IGetter &igetter);
+  TProfile *get1DProfile(std::string meName, DQMStore::IGetter &igetter);
+
   edm::ParameterSet parameters_;
   std::string monitorName_;
   std::string input_dir_;
   std::string output_dir_;
-  int counterLS_;      ///counter
-  int counterEvt_;     ///counter
-  int prescaleLS_;     ///units of lumi sections
-  int prescaleEvt_;    ///prescale on number of events
+  int counterLS_;    ///counter
+  int counterEvt_;   ///counter
+  int prescaleLS_;   ///units of lumi sections
+  int prescaleEvt_;  ///prescale on number of events
 
   // -------- member data --------
-//  MonitorElement * clientHisto;
+  //  MonitorElement * clientHisto;
   MonitorElement *dttpgphmapcorrf;
   MonitorElement *dttpgphmap2ndf;
   MonitorElement *dttpgphmapbxf[3];
   MonitorElement *dttpgthmaphf;
   MonitorElement *dttpgthmapbxf[3];
-
 };
 
 #endif

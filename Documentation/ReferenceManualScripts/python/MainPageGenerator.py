@@ -1,6 +1,7 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import json, urllib2, os, sys
-from BeautifulSoup import *
+from .BeautifulSoup import *
 
 ## MainPageGenerator class is used for generating main page that contains domain trees (Analysis, Calibration and Alignment, Core, DAQ etc.) 
 class MainPageGenerator:

@@ -4,4 +4,5 @@
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/BeamSpotObjects"/>
 <use name="CommonTools/UtilAlgos"/>
+<use name="CondCore/CondDB"/>
 <flags EDM_PLUGIN="1"/>

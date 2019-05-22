@@ -16,5 +16,6 @@ pfRecoTauDiscriminationAgainstElectronDeadECAL = cms.EDProducer(
     minStatus = cms.uint32(12),
 
     # region around dead/masked ECAL crystals that is to be cut                                                               
-    dR = cms.double(0.08)
+    dR = cms.double(0.08),
+    verbosity = cms.int32(0)
 )

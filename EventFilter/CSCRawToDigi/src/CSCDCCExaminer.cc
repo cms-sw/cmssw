@@ -273,17 +273,13 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length)
 
 
   /// Check for presence of data blocks inside TMB data
-  bool fTMB_Scope_Start = false;
   bool fTMB_MiniScope_Start = false;
   bool fTMB_RPC_Start = false;
   bool fTMB_BlockedCFEBs_Start = false;
 
-  bool fTMB_Scope = false;
   bool fTMB_MiniScope = false;
   bool fTMB_RPC = false;
   bool fTMB_BlockedCFEBs = false;
-
-  fTMB_Scope = fTMB_Scope && true; // WARNING in 5_0_X
 
   while( length>0 )
     {
@@ -633,12 +629,10 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length)
           uniqueALCT   = true;
           uniqueTMB    = true;
 
-          fTMB_Scope_Start = false;
           fTMB_MiniScope_Start = false;
           fTMB_RPC_Start = false;
           fTMB_BlockedCFEBs_Start = false;
 
-          fTMB_Scope = false;
           fTMB_MiniScope = false;
           fTMB_RPC = false;
           fTMB_BlockedCFEBs = false;
@@ -1031,12 +1025,6 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length)
           fTMB_RPC_Start = true;
         }
 
-      // Check for Scope data
-      if ( fTMB_Header && (scanbuf(buf0,4, 0x6B05)>=0) )
-        {
-          fTMB_Scope_Start = true;
-        }
-
       // Check for Mini-Scope data
       if ( fTMB_Header && (scanbuf(buf0,4, 0x6B07)>=0) )
         {
@@ -1055,13 +1043,6 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length)
            && (scanbuf(buf0,4, 0x6E04)>=0) )
         {
           fTMB_RPC = true;
-        }
-
-      // Check for end of Scope data
-      if ( fTMB_Header && fTMB_Scope_Start
-           && (scanbuf(buf0,4, 0x6E05)>=0) )
-        {
-          fTMB_Scope = true;
         }
 
       // Check for end of Mini-Scope data

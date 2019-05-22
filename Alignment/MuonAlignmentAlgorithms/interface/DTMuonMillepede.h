@@ -16,41 +16,37 @@
 #include "TChain.h"
 #include <cmath>
 
-
 class DTMuonMillepede : public DTMuonLocalAlignment {
-  
-  public:
-
+public:
   DTMuonMillepede(std::string, int, float, float, int, int, int, int);
 
-  ~DTMuonMillepede(); 
+  ~DTMuonMillepede();
 
   void calculationMillepede(int);
 
   TMatrixD getCcsMatrix(int, int, int);
-  
+
   TMatrixD getbcsMatrix(int, int, int);
 
-  TMatrixD getMatrixFromFile(const TString& Code, int , int, int, int);
+  TMatrixD getMatrixFromFile(const TString &Code, int, int, int, int);
 
   TMatrixD getCqcMatrix(int, int, int);
-  
+
   TMatrixD getbqcMatrix(int, int, int);
-  
+
   TMatrixD getCsurveyMatrix(int, int, int);
-  
+
   TMatrixD getbsurveyMatrix(int, int, int);
 
   TMatrixD getLagMatrix(int, int, int);
-  
+
   TMatrixD prepareForLagrange(const TMatrixD &);
 
   void setBranchTree();
 
-  private:
-
+private:
   ReadPGInfo *myPG;
-  
+
   TFile *f;
   TTree *ttreeOutput;
 
@@ -65,7 +61,6 @@ class DTMuonMillepede : public DTMuonLocalAlignment {
   float dx[12], dy[12], dz[12], phix[12], phiy[12], phiz[12];
   float cov[60][60];
   //---------------------------------------------------------
-   
 };
 
 #endif

@@ -36,9 +36,11 @@ def _modifyPixelDigitizerForPhase1Pixel( digitizer ) :
     digitizer.ElectronsPerVcal_Offset    = cms.double(-60)  # L2-4: -60 +- 130
     digitizer.ElectronsPerVcal_L1_Offset = cms.double(-670) # L1:   -670 +- 220
     digitizer.UseReweighting = cms.bool(True)
-
+    digitizer.KillBadFEDChannels = cms.bool(True)
 
 SiPixelSimBlock = cms.PSet(
+    SiPixelQualityLabel = cms.string(''),
+    KillBadFEDChannels = cms.bool(False),
     UseReweighting = cms.bool(False),
     PrintClusters = cms.bool(False),
     PrintTemplates = cms.bool(False),
@@ -102,11 +104,18 @@ SiPixelSimBlock = cms.PSet(
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify( SiPixelSimBlock, func=_modifyPixelDigitizerForPhase1Pixel )
 
+# use Label 'forDigitizer' for years >= 2018
+from CalibTracker.SiPixelESProducers.SiPixelQualityESProducer_cfi import siPixelQualityESProducer
+from Configuration.Eras.Modifier_run2_SiPixel_2018_cff import run2_SiPixel_2018
+run2_SiPixel_2018.toModify(siPixelQualityESProducer,siPixelQualityLabel = 'forDigitizer',)
+run2_SiPixel_2018.toModify(SiPixelSimBlock, SiPixelQualityLabel = 'forDigitizer',)
+
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toModify(SiPixelSimBlock,
     AddNoise = True,
     AddNoisyPixels = False,
     AddPixelInefficiency = False, #done in second step
+    KillBadFEDChannels = False, #done in second step
 )
 
 # Threshold in electrons are the Official CRAFT09 numbers:

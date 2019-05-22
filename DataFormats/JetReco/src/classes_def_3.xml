@@ -44,7 +44,13 @@
   <class name="edm::ValueMap<StoredPileupJetIdentifier>"/>
   <class name="edm::Wrapper<edm::ValueMap<StoredPileupJetIdentifier> >"/>
   
-  <class pattern="edm::AssociationVector<*>">
+  <class name="edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
+    <field name="transientVector_" transient="true"/>
+  </class>
+  <class name="edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>" >
+    <field name="transientVector_" transient="true"/>
+  </class>
+  <class name="edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<reco::JetExtendedAssociation::JetExtendedData>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>">
     <field name="transientVector_" transient="true"/>
   </class>
 
@@ -118,4 +124,10 @@
   <class name="edm::reftobase::RefHolder<reco::PFClusterJetRef>" />
   <class name="edm::reftobase::Holder<reco::Jet, reco::JPTJetRef>" />
   <class name="edm::reftobase::RefHolder<reco::JPTJetRef>" />
+
+  <class name="edm::AssociationMap<edm::OneToOne<edm::View<reco::Jet>,edm::View<reco::Jet>,unsigned int> >">
+      <field name="transientMap_" transient="true" />
+  </class>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<edm::View<reco::Jet>,edm::View<reco::Jet>,unsigned int> > >"/>
+  <class name="edm::helpers::KeyVal<edm::RefToBaseProd<reco::Jet>,edm::RefToBaseProd<reco::Jet> >"/>
 </lcgdict>

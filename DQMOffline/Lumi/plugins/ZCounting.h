@@ -81,8 +81,14 @@ private:
   edm::EDGetTokenT<edm::TriggerResults> fHLTTag_token;
   std::string fPVName;
   edm::EDGetTokenT<reco::VertexCollection> fPVName_token;
+
+  // Muons
   std::string fMuonName;
   edm::EDGetTokenT<reco::MuonCollection> fMuonName_token;
+  std::vector<std::string> fMuonHLTNames;
+  std::vector<std::string> fMuonHLTObjectNames;
+
+  // Tracks
   std::string fTrackName;
   edm::EDGetTokenT<reco::TrackCollection> fTrackName_token;
 
@@ -167,13 +173,14 @@ private:
   MonitorElement* h_mass_SIT_fail_central;
   MonitorElement* h_mass_SIT_fail_forward;
 
-  MonitorElement* h_mass_Sta_pass_central;
-  MonitorElement* h_mass_Sta_pass_forward;
-  MonitorElement* h_mass_Sta_fail_central;
-  MonitorElement* h_mass_Sta_fail_forward;
+  MonitorElement* h_mass_Glo_pass_central;
+  MonitorElement* h_mass_Glo_pass_forward;
+  MonitorElement* h_mass_Glo_fail_central;
+  MonitorElement* h_mass_Glo_fail_forward;
 
   MonitorElement* h_npv;
-  MonitorElement* h_yield_Z;
+  MonitorElement* h_npv_yield_Z;
+  MonitorElement* h_mass_yield_Z;
   MonitorElement* h_yieldBB_Z;
   MonitorElement* h_yieldEE_Z;
 

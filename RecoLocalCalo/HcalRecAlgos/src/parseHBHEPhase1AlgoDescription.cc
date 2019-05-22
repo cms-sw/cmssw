@@ -20,6 +20,7 @@ parseHBHEMahiDescription(const edm::ParameterSet& conf)
 
   const bool iApplyTimeSlew   = conf.getParameter<bool>   ("applyTimeSlew");
 
+  const bool iCalculateArrivalTime   = conf.getParameter<bool>   ("calculateArrivalTime");
   const double iMeanTime      = conf.getParameter<double> ("meanTime");
   const double iTimeSigmaHPD  = conf.getParameter<double> ("timeSigmaHPD");
   const double iTimeSigmaSiPM = conf.getParameter<double> ("timeSigmaSiPM");
@@ -33,7 +34,7 @@ parseHBHEMahiDescription(const edm::ParameterSet& conf)
   std::unique_ptr<MahiFit> corr = std::make_unique<MahiFit>();
 
   corr->setParameters(iDynamicPed, iTS4Thresh, chiSqSwitch, iApplyTimeSlew, HcalTimeSlew::Medium,
-		      iMeanTime, iTimeSigmaHPD, iTimeSigmaSiPM,
+		      iCalculateArrivalTime, iMeanTime, iTimeSigmaHPD, iTimeSigmaSiPM,
 		      iActiveBXs, iNMaxItersMin, iNMaxItersNNLS,
 		      iDeltaChiSqThresh, iNnlsThresh);
 
@@ -125,9 +126,31 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
                                      ps.getParameter<double>("correctionPhaseNS"),
                                      ps.getParameter<double>("tdcTimeShift"),
                                      ps.getParameter<bool>  ("correctForPhaseContainment"),
+                                     ps.getParameter<bool>  ("applyLegacyHBMCorrection"),
                                      std::move(m2), std::move(detFit), std::move(mahi))
             );
     }
 
     return algo;
+}
+
+
+edm::ParameterSetDescription fillDescriptionForParseHBHEPhase1Algo()
+{
+    edm::ParameterSetDescription desc;
+
+    desc.setAllowAnything();
+    desc.add<std::string>("Class", "SimpleHBHEPhase1Algo");
+    desc.add<bool>("useM2", false);
+    desc.add<bool>("useM3", true);
+    desc.add<bool>("useMahi", true);
+    desc.add<int>("firstSampleShift", 0);
+    desc.add<int>("samplesToAdd", 2);
+    desc.add<double>("correctionPhaseNS", 6.0);
+    desc.add<double>("tdcTimeShift", 0.0);
+    desc.add<bool>("correctForPhaseContainment", true);
+    desc.add<bool>("applyLegacyHBMCorrection", true);
+    desc.add<bool>("calculateArrivalTime", true);
+
+    return desc;
 }

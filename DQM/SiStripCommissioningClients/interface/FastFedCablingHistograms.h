@@ -6,19 +6,15 @@
 class DQMStore;
 
 class FastFedCablingHistograms : public virtual CommissioningHistograms {
-
- public:
-  
-  FastFedCablingHistograms( const edm::ParameterSet& pset, DQMStore* );
+public:
+  FastFedCablingHistograms(const edm::ParameterSet& pset, DQMStore*);
   ~FastFedCablingHistograms() override;
-  
-  void histoAnalysis( bool debug ) override;
 
-  void printAnalyses() override; // override
+  void histoAnalysis(bool debug) override;
 
-  void printSummary() override; // override
+  void printAnalyses() override;  // override
 
+  void printSummary() override;  // override
 };
 
-#endif // DQM_SiStripCommissioningClients_FastFedCablingHistograms_H
-
+#endif  // DQM_SiStripCommissioningClients_FastFedCablingHistograms_H

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+from __future__ import absolute_import
 from datetime import datetime
 from optparse import OptionParser
 
@@ -10,7 +11,7 @@ import re
 import pprint
 import time
 
-import eostools as castortools
+from . import eostools as castortools
 
 class BatchManager:
     """

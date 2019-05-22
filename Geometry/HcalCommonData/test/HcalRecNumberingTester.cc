@@ -45,24 +45,26 @@ public:
   explicit HcalRecNumberingTester( const edm::ParameterSet& );
   ~HcalRecNumberingTester() override;
 
-  void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}
+
+private:
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> token_;
 };
 
-HcalRecNumberingTester::HcalRecNumberingTester(const edm::ParameterSet& ) {}
+HcalRecNumberingTester::HcalRecNumberingTester(const edm::ParameterSet& ):
+  token_{esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>(edm::ESInputTag{})} {}
 
 HcalRecNumberingTester::~HcalRecNumberingTester() {}
 
 // ------------ method called to produce the data  ------------
 void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
 
-  edm::ESHandle<HcalDDDRecConstants> pHSNDC;
-  iSetup.get<HcalRecNumberingRecord>().get(pHSNDC);
-
-  if (pHSNDC.isValid()) {
+  if (auto pHSNDC = iSetup.getHandle(token_)) {
     edm::LogVerbatim("HcalGeom") << "about to de-reference the edm::ESHandle<HcalDDDRecConstants> pHSNDC";
-    const HcalDDDRecConstants hdc (*pHSNDC);
+    const HcalDDDRecConstants& hdc (*pHSNDC);
+    for (int i=0; i<4; ++i) 
+      edm::LogVerbatim("HcalGeom") << "MaxDepth[" << i << "] = "
+				   << hdc.getMaxDepth(i);
     edm::LogVerbatim("HcalGeom") << "about to getPhiOff and getPhiBin for 0..2";
     int neta = hdc.getNEta();
     edm::LogVerbatim("HcalGeom") << neta << " eta bins with phi off set for "

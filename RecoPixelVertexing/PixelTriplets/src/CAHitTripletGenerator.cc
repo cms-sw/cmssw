@@ -40,9 +40,8 @@ CAHitTripletGenerator::CAHitTripletGenerator(const edm::ParameterSet& cfg,
 	std::string comparitorName = comparitorPSet.getParameter < std::string > ("ComponentName");
 	if (comparitorName != "none")
 	{
-		theComparitor.reset(
-				SeedComparitorFactory::get()->create(comparitorName,
-						comparitorPSet, iC));
+          theComparitor = std::unique_ptr<SeedComparitor>{SeedComparitorFactory::get()->create(comparitorName,
+                                                                                               comparitorPSet, iC)};
 	}
 }
 

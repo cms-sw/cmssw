@@ -19,13 +19,13 @@
 
 HcalGeomParameters::HcalGeomParameters() {
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalGeomParameters::HcalGeomParameters ( const DDCompactView& cpv ) constructor" << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HcalGeomParameters::HcalGeomParameters ( const DDCompactView& cpv ) constructor";
 #endif
 }
 
 HcalGeomParameters::~HcalGeomParameters() { 
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalGeomParameters::destructed!!!" << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HcalGeomParameters::destructed!!!";
 #endif
 }
 
@@ -63,8 +63,8 @@ double HcalGeomParameters::getEta(double r, double z) const {
   double tmp = 0;
   if (z != 0) tmp = -log(tan(0.5*atan(r/z)));
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalGeomParameters::getEta " << r << " " << z  << " ==> " 
-	    << tmp << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HcalGeomParameters::getEta " << r << " " 
+			       << z  << " ==> " << tmp;
 #endif
   return tmp;
 }
@@ -122,8 +122,9 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
     if (idet == 3) {
       // HB
 #ifdef EDM_ML_DEBUG
-      std::cout << "HB " << sol.name() << " Shape " << sol.shape()
-		<< " Layer " << lay << " R " << t.Rho() << std::endl;
+      edm::LogVerbatim("HCalGeom") << "HB " << sol.name() << " Shape " 
+				   << sol.shape() << " Layer " << lay << " R "
+				   << t.Rho();
 #endif
       if (lay >=0 && lay < 20) {
 	ib[lay]++;
@@ -193,16 +194,18 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
 	    php.zHO.emplace_back(z2);
 	  }
 #ifdef EDM_ML_DEBUG
-	  std::cout << "Detector " << idet << " Lay " << lay << " fi " << ifi 
-		    << " " << ich << " z " << z1 << " " << z2 << std::endl;
+	  edm::LogVerbatim("HCalGeom") << "Detector " << idet << " Lay " 
+				       << lay << " fi " << ifi << " " << ich
+				       << " z " << z1 << " " << z2;
 #endif
 	}
       }
     } else if (idet == 4) {
       // HE
 #ifdef EDM_ML_DEBUG
-      std::cout << "HE " << sol.name() << " Shape " << sol.shape()
-		<< " Layer " << lay << " Z " << t.z() << std::endl;
+      edm::LogVerbatim("HCalGeom") << "HE " << sol.name() << " Shape " 
+				   << sol.shape() << " Layer " << lay << " Z "
+				   << t.z();
 #endif
       if (lay >=0 && lay < 20) {
 	ie[lay]++;
@@ -245,11 +248,13 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
       if (!hf) {
 	const std::vector<double> & paras = sol.parameters();
 #ifdef EDM_ML_DEBUG
-	std::cout << "HF " << sol.name() << " Shape " << sol.shape()
-		  << " Z " << t.z() << " with " << paras.size()
-		  << " Parameters" << std::endl;
+	edm::LogVerbatim("HCalGeom") << "HF " << sol.name() << " Shape "
+				     << sol.shape() << " Z " << t.z() 
+				     << " with " << paras.size()
+				     << " Parameters";
 	for (unsigned j=0; j<paras.size(); j++)
-	  std::cout << "HF Parameter[" << j << "] = " << paras[j] << std::endl;
+	  edm::LogVerbatim("HCalGeom") << "HF Parameter[" << j << "] = "
+				       << paras[j];
 #endif
 	if (sol.shape() == DDSolidShape::ddpolycone_rrz) {
 	  int nz  = (int)(paras.size())-3;
@@ -262,9 +267,9 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
       }
 #ifdef EDM_ML_DEBUG
     } else {
-      std::cout << "Unknown Detector " << idet << " for " << sol.name() 
-		<< " Shape " << sol.shape() << " R " << t.Rho() << " Z " 
-		<< t.z() << std::endl;
+      edm::LogVerbatim("HCalGeom") << "Unknown Detector " << idet << " for "
+				   << sol.name() << " Shape " << sol.shape() 
+				   << " R " << t.Rho() << " Z " << t.z();
 #endif
     }
     dodet = fv.next();
@@ -285,9 +290,10 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
       rminHE[i] /= (double)(ie[i]);
       rmaxHE[i] /= (double)(ie[i]);
     }
-    std::cout << "Index " << i << " Barrel " << ib[i] << " "
-	      << rb[i] << " Endcap " << ie[i] << " " << ze[i] << ":"
-	      << rminHE[i] << ":" << rmaxHE[i] << std::endl;
+    edm::LogVerbatim("HCalGeom") << "Index " << i << " Barrel " << ib[i] << " "
+				 << rb[i] << " Endcap " << ie[i] << " " 
+				 << ze[i] << ":" << rminHE[i] << ":"
+				 << rmaxHE[i];
 #endif
   }
   for (int i = 4; i >= 0; i--) {
@@ -295,18 +301,26 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
     if (ie[i] == 0) {ze[i] = ze[i+1]; thke[i] = thke[i+1];}
 #ifdef EDM_ML_DEBUG
     if (ib[i] == 0 || ie[i] == 0)
-      std::cout << "Index " << i << " Barrel " << ib[i] << " "
-		<< rb[i] << " Endcap " << ie[i] << " " << ze[i] << std::endl;
+      edm::LogVerbatim("HCalGeom") << "Index " << i << " Barrel " << ib[i] 
+				   << " " << rb[i] << " Endcap " << ie[i]
+				   << " " << ze[i];
 #endif
   }
 
 #ifdef EDM_ML_DEBUG
   for (unsigned int k=0; k<php.layHB.size(); ++k)
-    std::cout << "HB: " << php.layHB[k] << " R " << rxb[k] << " " << php.rhoxHB[k] << " Z " << php.zxHB[k] << " DY " << php.dyHB[k] << " DZ " << php.dxHB[k] << "\n";
+    edm::LogVerbatim("HCalGeom") << "HB: " << php.layHB[k] << " R " << rxb[k]
+				 << " " << php.rhoxHB[k] << " Z " 
+				 << php.zxHB[k] << " DY " << php.dyHB[k]
+				 << " DZ " << php.dxHB[k];
   for (unsigned int k=0; k<php.layHE.size(); ++k) 
-    std::cout << "HE: " << php.layHE[k] << " R " << php.rhoxHE[k] << " Z " << php.zxHE[k] << " X1|X2 " << php.dx1HE[k] << "|" << php.dx2HE[k] << " DY " << php.dyHE[k] << "\n";
-  std::cout << "HcalGeomParameters: Maximum Layer for HB " << ibmx << " for HE "
-	    << iemx << " extent " << dzVcal << std::endl;
+    edm::LogVerbatim("HCalGeom") << "HE: " << php.layHE[k] << " R "
+				 << php.rhoxHE[k] << " Z " << php.zxHE[k]
+				 << " X1|X2 " << php.dx1HE[k] << "|"
+				 << php.dx2HE[k] << " DY " << php.dyHE[k];
+  edm::LogVerbatim("HCalGeom") << "HcalGeomParameters: Maximum Layer for HB "
+			       << ibmx << " for HE " << iemx << " extent "
+			       << dzVcal;
 #endif
 
   if (ibmx > 0) {
@@ -316,8 +330,9 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
       php.rHB[i]  = rb[i];
       php.drHB[i] = thkb[i];
 #ifdef EDM_ML_DEBUG
-      std::cout << "HcalGeomParameters: php.rHB[" << i << "] = " << php.rHB[i] 
-		<< " php.drHB[" << i << "] = " << php.drHB[i] << std::endl;
+      edm::LogVerbatim("HCalGeom") << "HcalGeomParameters: php.rHB[" << i 
+				   << "] = " << php.rHB[i] << " php.drHB["
+				   << i << "] = " << php.drHB[i];
 #endif
     }
   }
@@ -328,8 +343,9 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
       php.zHE[i]  = ze[i];
       php.dzHE[i] = thke[i];
 #ifdef EDM_ML_DEBUG
-      std::cout << "HcalGeomParameters: php.zHE[" << i << "] = " << php.zHE[i] 
-		<< " php.dzHE[" << i << "] = " << php.dzHE[i] << std::endl;
+      edm::LogVerbatim("HCalGeom") << "HcalGeomParameters: php.zHE[" << i 
+				   << "] = " << php.zHE[i] << " php.dzHE["
+				   << i << "] = " << php.dzHE[i];
 #endif
     }
   }
@@ -337,33 +353,37 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
   nzHB   = (int)(izb.size());
   nmodHB = (int)(phib.size());
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalGeomParameters::loadGeometry: " << nzHB
-	    << " barrel half-sectors" << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HcalGeomParameters::loadGeometry: " << nzHB
+			       << " barrel half-sectors";
   for (int i=0; i<nzHB; i++)
-    std::cout << "Section " << i << " Copy number " << izb[i] << std::endl;
-  std::cout << "HcalGeomParameters::loadGeometry: " << nmodHB
-	    << " barrel modules" << std::endl;
+    edm::LogVerbatim("HCalGeom") << "Section " << i << " Copy number " 
+				 << izb[i];
+  edm::LogVerbatim("HCalGeom") << "HcalGeomParameters::loadGeometry: " 
+			       << nmodHB << " barrel modules";
   for (int i=0; i<nmodHB; i++)
-    std::cout << "Module " << i << " Copy number " << phib[i] << std::endl;
+    edm::LogVerbatim("HCalGeom") << "Module " << i << " Copy number " 
+				 << phib[i];
 #endif
 
   nzHE   = (int)(ize.size());
   nmodHE = (int)(phie.size());
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalGeomParameters::loadGeometry: " << nzHE
-	    << " endcap half-sectors" << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HcalGeomParameters::loadGeometry: " << nzHE
+			       << " endcap half-sectors";
   for (int i=0; i<nzHE; i++)
-    std::cout << "Section " << i << " Copy number " << ize[i] << std::endl;
-  std::cout << "HcalGeomParameters::loadGeometry: " << nmodHE
-	    << " endcap modules" << std::endl;
+    edm::LogVerbatim("HCalGeom") << "Section " << i << " Copy number " 
+				 << ize[i];
+  edm::LogVerbatim("HCalGeom") << "HcalGeomParameters::loadGeometry: " 
+			       << nmodHE << " endcap modules";
   for (int i=0; i<nmodHE; i++)
-    std::cout << "Module " << i << " Copy number " << phie[i] << std::endl;
+    edm::LogVerbatim("HCalGeom") << "Module " << i << " Copy number " 
+				 << phie[i];
 #endif
 
 #ifdef EDM_ML_DEBUG
-  std::cout << "HO has Z of size " << php.zHO.size() << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HO has Z of size " << php.zHO.size();
   for (unsigned int kk=0; kk<php.zHO.size(); kk++)
-    std::cout << "ZHO[" << kk << "] = " << php.zHO[kk] << std::endl;
+    edm::LogVerbatim("HCalGeom") << "ZHO[" << kk << "] = " << php.zHO[kk];
 #endif
   if (ibmx > 17 && php.zHO.size() > 4) {
     rminHO   = php.rHB[17]-100.0;
@@ -376,11 +396,12 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
     etaHO[0] = etaHO[1] = etaHO[2] = etaHO[3] = 0;
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "HO Eta boundaries " << etaHO[0] << " " << etaHO[1]
-	    << " " << etaHO[2] << " " << etaHO[3] << std::endl;
-  std::cout << "HO Parameters " << rminHO << " " << php.zHO.size();
-  for (int i=0; i<4; ++i) std::cout << " eta[" << i << "] = " << etaHO[i];
-  for (unsigned int i=0; i<php.zHO.size(); ++i) std::cout << " zho[" << i << "] = " << php.zHO[i];
-  std::cout << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HO Eta boundaries " << etaHO[0] << " " 
+			       << etaHO[1] << " " << etaHO[2] << " " 
+			       << etaHO[3];
+  edm::LogVerbatim("HCalGeom") << "HO Parameters " << rminHO << " " 
+			       << php.zHO.size();
+  for (unsigned int i=0; i<php.zHO.size(); ++i) 
+    edm::LogVerbatim("HCalGeom") << " zho[" << i << "] = " << php.zHO[i];
 #endif
 }

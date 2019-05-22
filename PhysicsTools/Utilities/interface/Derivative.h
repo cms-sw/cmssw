@@ -3,7 +3,7 @@
 
 #include "PhysicsTools/Utilities/interface/Functions.h"
 #include "PhysicsTools/Utilities/interface/Fraction.h"
-#include <boost/type_traits.hpp>
+#include <type_traits>
 
 #include "PhysicsTools/Utilities/interface/Simplify_begin.h"
 
@@ -20,7 +20,7 @@ namespace funct {
   }
 
   TEMPL(XT1) struct Independent : 
-    public ::boost::is_same<DERIV(X, A), NUM(0)> { };
+    public ::std::is_same<DERIV(X, A), NUM(0)> { };
   
   // dx / dx = 1 
   DERIV_RULE(TYPX, X, NUM(1), num<1>());

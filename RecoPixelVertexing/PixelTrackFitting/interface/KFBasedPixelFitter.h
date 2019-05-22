@@ -21,13 +21,13 @@ class Propagator;
 
 class KFBasedPixelFitter : public PixelFitterBase {
 public:
-  KFBasedPixelFitter(const edm::EventSetup *es, const Propagator *propagator, const Propagator *opropagator,
+  KFBasedPixelFitter(const Propagator *propagator, const Propagator *opropagator,
                      const TransientTrackingRecHitBuilder *ttrhBuilder,
                      const TrackerGeometry *tracker, const MagneticField *field,
                      const reco::BeamSpot *beamSpot);
   ~KFBasedPixelFitter() override {}
 
-  std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits, const TrackingRegion& region) const override;
+  std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits, const TrackingRegion& region, const edm::EventSetup& setup) const override;
 
 private:
 
@@ -58,7 +58,6 @@ private:
     MyBeamSpotHit * clone() const override { return new MyBeamSpotHit(*this); }
   };
 
-  const edm::EventSetup *theES;
   const Propagator *thePropagator;
   const Propagator *theOPropagator;
   const TransientTrackingRecHitBuilder *theTTRHBuilder;

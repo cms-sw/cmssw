@@ -1,6 +1,5 @@
 // Test of the DictionaryTools functions.
 
-
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -13,7 +12,7 @@
 #include <map>
 #include <vector>
 
-class TestDictionaries: public CppUnit::TestFixture {
+class TestDictionaries : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestDictionaries);
   CPPUNIT_TEST(default_is_invalid);
   CPPUNIT_TEST(no_dictionary_is_invalid);
@@ -21,7 +20,7 @@ class TestDictionaries: public CppUnit::TestFixture {
   CPPUNIT_TEST(demangling);
   CPPUNIT_TEST_SUITE_END();
 
- public:
+public:
   TestDictionaries() {}
   ~TestDictionaries() {}
   void setUp() {}
@@ -32,7 +31,7 @@ class TestDictionaries: public CppUnit::TestFixture {
   void not_a_template_instance();
   void demangling();
 
- private:
+private:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestDictionaries);
@@ -41,7 +40,6 @@ void TestDictionaries::default_is_invalid() {
   edm::TypeWithDict t;
   CPPUNIT_ASSERT(!t);
 }
-
 
 void TestDictionaries::no_dictionary_is_invalid() {
   edm::TypeWithDict t(edm::TypeWithDict::byName("ThereIsNoTypeWithThisName"));
@@ -56,11 +54,11 @@ void TestDictionaries::not_a_template_instance() {
 }
 
 namespace {
-  template<typename T>
+  template <typename T>
   void checkIt() {
     edm::TypeWithDict type(typeid(T));
     // Test only if class has dictionary
-    if(bool(type)) {
+    if (bool(type)) {
       std::string demangledName(edm::typeDemangle(typeid(T).name()));
       CPPUNIT_ASSERT(type.name() == demangledName);
 
@@ -76,7 +74,7 @@ namespace {
     }
   }
 
-  template<typename T>
+  template <typename T>
   void checkDemangling() {
     checkIt<std::vector<T> >();
     checkIt<edm::Wrapper<T> >();
@@ -84,7 +82,7 @@ namespace {
     checkIt<T>();
     checkIt<T[1]>();
   }
-}
+}  // namespace
 
 void TestDictionaries::demangling() {
   checkDemangling<int>();
@@ -103,4 +101,3 @@ void TestDictionaries::demangling() {
   checkDemangling<bool>();
   checkDemangling<std::string>();
 }
-

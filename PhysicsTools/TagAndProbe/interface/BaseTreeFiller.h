@@ -185,9 +185,6 @@ class BaseTreeFiller : boost::noncopyable {
 	edm::EDGetTokenT<pat::METCollection>    pfmetTokenMiniAOD_;
 	edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupInfoToken_;
 
-        /// Ignore exceptions when evaluating variables
-        bool ignoreExceptions_;
-
         /// Add branches with run and lumisection number
         bool addRunLumiInfo_;
 

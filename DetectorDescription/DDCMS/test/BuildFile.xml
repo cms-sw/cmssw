@@ -1,8 +1,15 @@
 <use   name="cppunit"/>
-<bin   name="testDDUnits" file="DDUnits.cppunit.cc,testRunner.cpp"/>
-<bin   name="testDDSingleton" file="DDSingleton.cppunit.cc,testRunner.cpp"/>
-<bin   name="testSingleton" file="testDDSingleton.cpp"/>
-<bin   name="testSingletonInit" file="testDDSingletonInit.cpp"/>
-<bin   name="testSingletonBenchmark" file="testDDSingletonBenchmark.cpp">
-  <flags CXXFLAGS="-DBENCHMARK_ON"/>
+<bin   name="testDDFilteredView" file="DDFilteredView.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="dd4hep"/>
+</bin>
+<bin   name="testFilter" file="Filter.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+</bin>
+<bin   name="testExpandedNodes" file="ExpandedNodes.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+</bin>
+<bin file="dummyMain.cpp" name="DetectorDescriptionDDCMSTestDriver">
+  <use   name="FWCore/Utilities"/>
+  <flags   TEST_RUNNER_ARGS="/bin/bash DetectorDescription/DDCMS/test runTest.sh"/>
 </bin>

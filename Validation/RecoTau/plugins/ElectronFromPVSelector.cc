@@ -23,13 +23,11 @@
 #include <memory>
 #include <vector>
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
 class GsfElectronFromPVSelector : public edm::global::EDProducer<> {
 public:
-
   explicit GsfElectronFromPVSelector(edm::ParameterSet const&);
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
@@ -40,17 +38,16 @@ private:
   edm::EDGetTokenT<std::vector<reco::GsfElectron>> v_recoGsfElectronToken_;
 };
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // construction
 ////////////////////////////////////////////////////////////////////////////////
 
 GsfElectronFromPVSelector::GsfElectronFromPVSelector(edm::ParameterSet const& iConfig)
-  : max_dxy_{iConfig.getParameter<double>("max_dxy")}
-  , max_dz_{iConfig.getParameter<double>("max_dz")}
-  , v_recoVertexToken_{consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("srcVertex"))}
-  , v_recoGsfElectronToken_{consumes<std::vector<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("srcElectron"))}
-{
+    : max_dxy_{iConfig.getParameter<double>("max_dxy")},
+      max_dz_{iConfig.getParameter<double>("max_dz")},
+      v_recoVertexToken_{consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("srcVertex"))},
+      v_recoGsfElectronToken_{
+          consumes<std::vector<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("srcElectron"))} {
   produces<std::vector<reco::GsfElectron>>();
 }
 
@@ -58,8 +55,7 @@ GsfElectronFromPVSelector::GsfElectronFromPVSelector(edm::ParameterSet const& iC
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
 
-void GsfElectronFromPVSelector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
-{
+void GsfElectronFromPVSelector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
   edm::Handle<std::vector<reco::Vertex>> vertices;
   iEvent.getByToken(v_recoVertexToken_, vertices);
 
@@ -70,10 +66,12 @@ void GsfElectronFromPVSelector::produce(edm::StreamID, edm::Event& iEvent, edm::
 
   if (!vertices->empty() && !gsfElectrons->empty()) {
     auto const& pv = vertices->front();
-    std::copy_if(std::cbegin(*gsfElectrons), std::cend(*gsfElectrons), std::back_inserter(*goodGsfElectrons),
+    std::copy_if(std::cbegin(*gsfElectrons),
+                 std::cend(*gsfElectrons),
+                 std::back_inserter(*goodGsfElectrons),
                  [this, &pv](auto const& GsfElectron) {
                    return std::abs(GsfElectron.gsfTrack()->dxy(pv.position())) < max_dxy_ &&
-                          std::abs(GsfElectron.gsfTrack()->dz(pv.position()))  < max_dz_;
+                          std::abs(GsfElectron.gsfTrack()->dz(pv.position())) < max_dz_;
                  });
   }
 

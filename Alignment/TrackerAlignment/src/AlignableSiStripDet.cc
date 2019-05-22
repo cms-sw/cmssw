@@ -112,8 +112,8 @@ void AlignableSiStripDet::consistifyAlignments()
 
 //   if (movement.mag2()) { // > 1.e-10) { 
 //     edm::LogWarning("Alignment") << "@SUB=consistifyAlignments" 
-//  				 << "Delta: " << movement.x() << " " << movement.y() << " " << movement.z()
-// 				 << "\nPos: " << oldPos.perp() << " " << oldPos.phi() << " " << oldPos.z();
+//                                  << "Delta: " << movement.x() << " " << movement.y() << " " << movement.z()
+//                                  << "\nPos: " << oldPos.perp() << " " << oldPos.phi() << " " << oldPos.z();
 //   }
 
 }

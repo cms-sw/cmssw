@@ -44,8 +44,7 @@ namespace edm {
 
   class OccurrenceForOutput {
   public:
-    OccurrenceForOutput(Principal const& ep, ModuleDescription const& md,
-          ModuleCallingContext const*, bool isAtEnd);
+    OccurrenceForOutput(Principal const& ep, ModuleDescription const& md, ModuleCallingContext const*, bool isAtEnd);
     virtual ~OccurrenceForOutput();
 
     //Used in conjunction with EDGetToken
@@ -53,37 +52,32 @@ namespace edm {
 
     ProcessHistoryID const& processHistoryID() const;
 
-    bool
-    getByToken(EDGetToken token, TypeID const& typeID, BasicHandle& result) const;
+    BasicHandle getByToken(EDGetToken token, TypeID const& typeID) const;
 
-    template<typename PROD>
-    bool
-    getByToken(EDGetToken token, Handle<PROD>& result) const;
+    template <typename PROD>
+    bool getByToken(EDGetToken token, Handle<PROD>& result) const;
 
-    template<typename PROD>
-    bool
-    getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const;
+    template <typename PROD>
+    bool getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const;
 
-    Provenance
-    getProvenance(BranchID const& theID) const;
+    template <typename PROD>
+    Handle<PROD> getHandle(EDGetTokenT<PROD> token) const;
 
-    void
-    getAllProvenance(std::vector<Provenance const*>& provenances) const;
+    Provenance getProvenance(BranchID const& theID) const;
 
-    void
-    getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
+    void getAllProvenance(std::vector<Provenance const*>& provenances) const;
 
-    virtual ProcessHistory const&
-    processHistory() const;
+    void getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
+
+    virtual ProcessHistory const& processHistory() const;
 
     size_t size() const;
 
   protected:
-    Principal const&
-    principal() const;
+    Principal const& principal() const;
 
   private:
-    friend class edmtest::TestOutputModule; // For testing
+    friend class edmtest::TestOutputModule;  // For testing
     ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
 
     PrincipalGetAdapter provRecorder_;
@@ -91,36 +85,40 @@ namespace edm {
     ModuleCallingContext const* moduleCallingContext_;
   };
 
-  template<typename PROD>
-  bool
-  OccurrenceForOutput::getByToken(EDGetToken token, Handle<PROD>& result) const {
-    if(!provRecorder_.checkIfComplete<PROD>()) {
+  template <typename PROD>
+  bool OccurrenceForOutput::getByToken(EDGetToken token, Handle<PROD>& result) const {
+    if (!provRecorder_.checkIfComplete<PROD>()) {
       principal_get_adapter_detail::throwOnPrematureRead("RunOrLumi", TypeID(typeid(PROD)), token);
     }
-    result.clear();
-    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    convert_handle(std::move(bh), result);  // throws on conversion error
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)), PRODUCT_TYPE, token, moduleCallingContext_);
+    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }
     return true;
   }
 
-  template<typename PROD>
-  bool
-  OccurrenceForOutput::getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const {
-    if(!provRecorder_.checkIfComplete<PROD>()) {
+  template <typename PROD>
+  bool OccurrenceForOutput::getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const {
+    if (!provRecorder_.checkIfComplete<PROD>()) {
       principal_get_adapter_detail::throwOnPrematureRead("RunOrLumi", TypeID(typeid(PROD)), token);
     }
-    result.clear();
-    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    convert_handle(std::move(bh), result);  // throws on conversion error
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)), PRODUCT_TYPE, token, moduleCallingContext_);
+    result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
     if (result.failedToGet()) {
       return false;
     }
     return true;
   }
 
-}
+  template <typename PROD>
+  Handle<PROD> OccurrenceForOutput::getHandle(EDGetTokenT<PROD> token) const {
+    if (!provRecorder_.checkIfComplete<PROD>()) {
+      principal_get_adapter_detail::throwOnPrematureRead("RunOrLumi", TypeID(typeid(PROD)), token);
+    }
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)), PRODUCT_TYPE, token, moduleCallingContext_);
+    return convert_handle<PROD>(std::move(bh));  // throws on conversion error
+  }
+
+}  // namespace edm
 #endif
-

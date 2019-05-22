@@ -11,18 +11,14 @@
 using namespace edm;
 using namespace edm::pset;
 
-void
-writePythonForm(std::string const& config, std::ostream& out)
-{
+void writePythonForm(std::string const& config, std::ostream& out) {
   edm::pset::ParseTree parsetree(config);
-  
+
   PythonFormWriter writer;
   writer.write(parsetree, out);
 }
 
-
-int main()
-{
+int main() {
   // Read input from cin into configstring..
   std::string configstring;
   edm::read_from_cin(configstring);
@@ -31,18 +27,13 @@ int main()
   // standard out.
 
   int rc = 1;  // failure
-  try  
-    { 
-      writePythonForm(configstring, std::cout);
-      rc = 0; // success
-    }
-  catch ( edm::Exception const& x )
-    {
-      std::cerr << x << '\n';
-    }
-  catch ( ... )
-    {
-      std::cerr << "Unidentified exception caught\n";	
-    }
-  return rc;  
+  try {
+    writePythonForm(configstring, std::cout);
+    rc = 0;  // success
+  } catch (edm::Exception const& x) {
+    std::cerr << x << '\n';
+  } catch (...) {
+    std::cerr << "Unidentified exception caught\n";
+  }
+  return rc;
 }

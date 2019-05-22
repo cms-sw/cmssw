@@ -31,13 +31,10 @@ private:
 
 using namespace cms;
 
-DDDCmsMTDConstruction::DDDCmsMTDConstruction( void )
-{}
-
-const GeometricTimingDet*
-DDDCmsMTDConstruction::construct( const DDCompactView* cpv, std::vector<int> detidShifts)
+std::unique_ptr<GeometricTimingDet>
+DDDCmsMTDConstruction::construct( const DDCompactView& cpv, std::vector<int> detidShifts)
 {
-  attribute = std::string("CMSCutsRegion");
+  std::string attribute{"CMSCutsRegion"};
   DDNameFilter filter;
   filter.add("mtd:");
   filter.add("btl:");
@@ -52,7 +49,9 @@ DDDCmsMTDConstruction::construct( const DDCompactView* cpv, std::vector<int> det
   filter.veto("SupportPlate");
   filter.veto("Shield");
   
-  DDFilteredView fv( *cpv, filter ); 
+  DDFilteredView fv( cpv, filter ); 
+
+  CmsMTDStringToEnum theCmsMTDStringToEnum;
   auto check_root = theCmsMTDStringToEnum.type( ExtractStringFromDDD::getString(attribute,&fv));
   if( check_root != GeometricTimingDet::MTD )
   {
@@ -66,9 +65,9 @@ DDDCmsMTDConstruction::construct( const DDCompactView* cpv, std::vector<int> det
     fv.parent();
   }
   
-  GeometricTimingDet* mtd = new GeometricTimingDet( &fv, GeometricTimingDet::MTD );
+  auto  mtd = std::make_unique<GeometricTimingDet>( &fv, GeometricTimingDet::MTD );
   CmsMTDBuilder theCmsMTDBuilder;
-  theCmsMTDBuilder.build( fv, mtd, attribute );
+  theCmsMTDBuilder.build( fv, mtd.get(), attribute );
   
   return mtd;
 }

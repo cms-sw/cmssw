@@ -9,10 +9,11 @@
 class CaloNumberingScheme {
 public:
   /// Constructor with optional verbosity control
-  CaloNumberingScheme(int iv=0);
+  CaloNumberingScheme(int iv = 0);
   virtual ~CaloNumberingScheme(){};
   /// Verbosity setting
-  void    setVerbosity(int);	 
+  void setVerbosity(int);
+
 protected:
   /// Verbosity field: Zero = quiet, increasing integers mean more output
   int verbosity;

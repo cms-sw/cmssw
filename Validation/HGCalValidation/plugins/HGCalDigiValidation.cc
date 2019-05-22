@@ -59,9 +59,11 @@ public:
     digiInfo() {
       x = y = z = charge = 0.0;
       layer = adc = 0;
+      mode = threshold = false; 
     }
     double x, y, z, charge;
     int layer, adc;
+    bool mode, threshold; //tot mode and zero supression
   };
 
   explicit HGCalDigiValidation(const edm::ParameterSet&);
@@ -78,7 +80,7 @@ private:
   void fillOccupancyMap(std::map<int, int>& OccupancyMap, int layer);
   template<class T1, class T2> 
   void digiValidation(const T1& detId, const T2* geom, int layer, 
-		      uint16_t adc, double charge);
+		      uint16_t adc, double charge, bool mode, bool threshold);
   
   // ----------member data ---------------------------
   std::string       nameDetector_;
@@ -90,9 +92,10 @@ private:
   std::map<int, int> OccupancyMap_plus_;
   std::map<int, int> OccupancyMap_minus_;
 
-  std::vector<MonitorElement*> charge_;
+  std::vector<MonitorElement*> TOA_;
   std::vector<MonitorElement*> DigiOccupancy_XY_;
   std::vector<MonitorElement*> ADC_;
+  std::vector<MonitorElement*> TOT_;
   std::vector<MonitorElement*> DigiOccupancy_Plus_;
   std::vector<MonitorElement*> DigiOccupancy_Minus_;
   MonitorElement* MeanDigiOccupancy_Plus_;
@@ -132,7 +135,7 @@ void HGCalDigiValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<bool>("ifNose",false);
   desc.add<bool>("ifHCAL",false);
   desc.addUntracked<int>("Verbosity",0);
-  desc.addUntracked<int>("SampleIndx",0);
+  desc.addUntracked<int>("SampleIndx",2); // central bx
   descriptions.add("hgcalDigiValidationEEDefault",desc);
 }
 
@@ -188,8 +191,10 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	const HGCSample&  hgcSample = it.sample(SampleIndx_);
 	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
-	double     charge    = adc*gain;
-	digiValidation(detId, geom0, layer, adc, charge);
+	double     charge    = gain;
+	bool       totmode   = hgcSample.mode();
+	bool   zerothreshold = hgcSample.threshold();
+	digiValidation(detId, geom0, layer, adc, charge, totmode, zerothreshold);
       }
       fillDigiInfo();
     } else {
@@ -215,8 +220,10 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	const HGCSample&  hgcSample = it.sample(SampleIndx_);
 	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
-	double     charge    = adc*gain;
-	digiValidation(detId, geom0, layer, adc, charge);
+	double     charge    = gain;
+	bool       totmode   = hgcSample.mode();
+	bool   zerothreshold = hgcSample.threshold();
+	digiValidation(detId, geom0, layer, adc, charge, totmode, zerothreshold);
       }
       fillDigiInfo();
     } else {
@@ -239,8 +246,10 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	const HGCSample&  hgcSample = it.sample(SampleIndx_);
 	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
-	double     charge    = adc*gain;
-	digiValidation(detId, geom1, layer, adc, charge);
+	double     charge    = gain;
+	bool       totmode   = hgcSample.mode();
+	bool   zerothreshold = hgcSample.threshold();
+	digiValidation(detId, geom1, layer, adc, charge, totmode, zerothreshold);
       }
       fillDigiInfo();
     } else {
@@ -271,11 +280,13 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	  HcalCoderDb coder(*channelCoder, *shape);
 	  CaloSamples tool;
 	  coder.adc2fC(df, tool);
-	  int       layer  = detId.depth();
-	  uint16_t  adc    = (df)[SampleIndx_].adc();
-	  int       capid  = (df)[SampleIndx_].capid();
-	  double    charge = (tool[SampleIndx_] - calibrations.pedestal(capid));
-	  digiValidation(detId, geom1, layer, adc, charge);
+	  int       layer      = detId.depth();
+	  uint16_t  adc        = (df)[SampleIndx_].adc();
+	  int       capid      = (df)[SampleIndx_].capid();
+	  double    charge     = (tool[SampleIndx_] - calibrations.pedestal(capid));
+	  bool      totmode    = false;
+	  bool   zerothreshold = false;
+	  digiValidation(detId, geom1, layer, adc, charge, totmode, zerothreshold);
 	}
       }
       fillDigiInfo();
@@ -287,43 +298,47 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
     edm::LogWarning("HGCalValidation") << "invalid detector name !! " 
 				       << nameDetector_;
   }
-  edm::LogVerbatim("HGCalValidation") << "Event " << iEvent.id().event()
-				      << " with " << ntot << " total and "
-				      << nused << " used digis";
+  if (verbosity_>0)
+    edm::LogVerbatim("HGCalValidation") << "Event " << iEvent.id().event()
+					<< " with " << ntot << " total and "
+					<< nused << " used digis";
 }
 
 template<class T1, class T2>
 void HGCalDigiValidation::digiValidation(const T1& detId, const T2* geom, 
 					 int layer, uint16_t adc, 
-					 double charge) {
+					 double charge, bool mode, bool threshold) {
   
   if (verbosity_>1) edm::LogVerbatim("HGCalValidation") << std::hex 
 							<< detId.rawId()
-							<< std::dec;
+							<< std::dec
+							<< " " << detId.rawId();
   DetId id1 = DetId(detId.rawId());
   const GlobalPoint& global1 = geom->getPosition(id1);
   
   if (verbosity_>1) 
-    edm::LogVerbatim("HGCalValidation") << " adc = "         <<  adc
-					<< " charge = "      <<  charge;
+    edm::LogVerbatim("HGCalValidation") << " adc = "      <<  adc
+					<< " toa = "      <<  charge;
   
   digiInfo   hinfo; 
-  hinfo.x       =  global1.x();
-  hinfo.y       =  global1.y();
-  hinfo.z       =  global1.z();
-  hinfo.adc     =  adc;
-  hinfo.charge  =  charge;
-  hinfo.layer   =  layer-firstLayer_;
+  hinfo.x         =  global1.x();
+  hinfo.y         =  global1.y();
+  hinfo.z         =  global1.z();
+  hinfo.adc       =  adc;
+  hinfo.charge    =  charge;
+  hinfo.layer     =  layer-firstLayer_;
+  hinfo.mode      =  mode;
+  hinfo.threshold =  threshold;
   
   if (verbosity_>1) 
     edm::LogVerbatim("HGCalValidation") << "gx =  "  << hinfo.x
 					<< " gy = "  << hinfo.y
 					<< " gz = "  << hinfo.z;
-  
-  fillDigiInfo(hinfo);
 
   if (global1.eta() > 0)  fillOccupancyMap(OccupancyMap_plus_,  hinfo.layer);
   else                    fillOccupancyMap(OccupancyMap_minus_, hinfo.layer);
+
+  fillDigiInfo(hinfo);
   
 }
 
@@ -335,9 +350,16 @@ void HGCalDigiValidation::fillOccupancyMap(std::map<int, int>& OccupancyMap,
 
 void HGCalDigiValidation::fillDigiInfo(digiInfo& hinfo) {
   int ilayer = hinfo.layer;
-  charge_.at(ilayer)->Fill(hinfo.charge);
-  DigiOccupancy_XY_.at(ilayer)->Fill(hinfo.x, hinfo.y);
-  ADC_.at(ilayer)->Fill(hinfo.adc);
+  TOA_.at(ilayer)->Fill(hinfo.charge);
+    
+  if (hinfo.mode) {
+    TOT_.at(ilayer)->Fill(hinfo.adc);
+  }
+
+  if (!hinfo.mode && hinfo.threshold) {
+    ADC_.at(ilayer)->Fill(hinfo.adc);
+    DigiOccupancy_XY_.at(ilayer)->Fill(hinfo.x, hinfo.y);
+  }
 }
 
 void HGCalDigiValidation::fillDigiInfo() {
@@ -385,11 +407,14 @@ void HGCalDigiValidation::bookHistograms(DQMStore::IBooker& iB,
   std::ostringstream histoname;
   for (int il = 0; il < layers_; ++il) {
     int ilayer = firstLayer_ + il;
-    histoname.str(""); histoname << "charge_"<< "layer_" << ilayer;
-    charge_.push_back(iB.book1D(histoname.str().c_str(),"charge_",100,-25,25));
+    histoname.str(""); histoname << "TOA_"<< "layer_" << ilayer;
+    TOA_.push_back(iB.book1D(histoname.str().c_str(),"toa_",1024,0,1024));
       
     histoname.str(""); histoname << "ADC_" << "layer_" << ilayer;
-    ADC_.push_back(iB.book1D(histoname.str().c_str(), "DigiOccupancy",200,0,1000));
+    ADC_.push_back(iB.book1D(histoname.str().c_str(), "ADCDigiOccupancy",1024,0,1024));
+
+    histoname.str(""); histoname << "TOT_" << "layer_" << ilayer;
+    TOT_.push_back(iB.book1D(histoname.str().c_str(), "TOTDigiOccupancy",4096,0,4096));
       
     histoname.str(""); histoname << "DigiOccupancy_XY_" << "layer_" << ilayer;
     DigiOccupancy_XY_.push_back(iB.book2D(histoname.str().c_str(), "DigiOccupancy", 50, -500, 500, 50, -500, 500));

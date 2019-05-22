@@ -148,7 +148,6 @@ bool ClusterTools::getWidths(const reco::CaloCluster & clus,double & sigmaetaeta
     const DetId & id = (clus.hitsAndFractions())[ih].first;
     if ((clus.hitsAndFractions())[ih].second==0.) continue;
 
-    HGCRecHitCollection::const_iterator theHit;
     if ((id.det() == DetId::HGCalEE) ||
 	(id.det()==DetId::Forward && id.subdetId()==HGCEE)) {
       const HGCRecHit * theHit = &(*eerh_->find(id));

@@ -10,8 +10,8 @@ November. 2, 2006
 
 #include "GeneratorInterface/Hydjet2Interface/interface/EquationSolver.h"
 
-template <class Function> 
-NAEquationSolver<Function>::NAEquationSolver(const NAEquationSolver & right) {
+template <class Function>
+NAEquationSolver<Function>::NAEquationSolver(const NAEquationSolver& right) {
   fMaxIter = right.GetMaxIterations();
   fTolerance = right.GetTolerance();
   fA = right.GetIntervalLowerLimit();
@@ -20,8 +20,8 @@ NAEquationSolver<Function>::NAEquationSolver(const NAEquationSolver & right) {
 }
 
 // operators
-template <class Function> 
-NAEquationSolver<Function> & NAEquationSolver<Function>::operator=(const NAEquationSolver & right) {
+template <class Function>
+NAEquationSolver<Function>& NAEquationSolver<Function>::operator=(const NAEquationSolver& right) {
   fMaxIter = right.GetMaxIterations();
   fTolerance = right.GetTolerance();
   fA = right.GetIntervalLowerLimit();
@@ -30,14 +30,15 @@ NAEquationSolver<Function> & NAEquationSolver<Function>::operator=(const NAEquat
   return *this;
 }
 
-template <class Function> 
-bool NAEquationSolver<Function>::operator==(const NAEquationSolver & right) const {
-  if (this == &right) return true;
-  else return false;
+template <class Function>
+bool NAEquationSolver<Function>::operator==(const NAEquationSolver& right) const {
+  if (this == &right)
+    return true;
+  else
+    return false;
 }
 
-template <class Function> 
-bool NAEquationSolver<Function>::operator!=(const NAEquationSolver & right) const {
+template <class Function>
+bool NAEquationSolver<Function>::operator!=(const NAEquationSolver& right) const {
   return !operator==(right);
 }
-

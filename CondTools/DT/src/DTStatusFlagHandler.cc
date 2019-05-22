@@ -27,38 +27,34 @@
 // Initializations --
 //-------------------
 
-
 //----------------
 // Constructors --
 //----------------
-DTStatusFlagHandler::DTStatusFlagHandler( const edm::ParameterSet& ps ):
- dataTag(   ps.getParameter<std::string>  (  "tag" ) ),
- fileName(  ps.getParameter<std::string>  ( "file" ) ),
- runNumber( ps.getParameter<unsigned int> (  "run" ) ) {
-}
+DTStatusFlagHandler::DTStatusFlagHandler(const edm::ParameterSet& ps)
+    : dataTag(ps.getParameter<std::string>("tag")),
+      fileName(ps.getParameter<std::string>("file")),
+      runNumber(ps.getParameter<unsigned int>("run")) {}
 
 //--------------
 // Destructor --
 //--------------
-DTStatusFlagHandler::~DTStatusFlagHandler() {
-}
+DTStatusFlagHandler::~DTStatusFlagHandler() {}
 
 //--------------
 // Operations --
 //--------------
 void DTStatusFlagHandler::getNewObjects() {
-
   //to access the information on the tag inside the offline database:
-  cond::TagInfo const & ti = tagInfo();
+  cond::TagInfo const& ti = tagInfo();
   unsigned int last = ti.lastInterval.first;
 
   //to access the information on last successful log entry for this tag:
-//  cond::LogDBEntry const & lde = logDBEntry();     
+  //  cond::LogDBEntry const & lde = logDBEntry();
 
   //to access the lastest payload (Ref is a smart pointer)
-//  Ref payload = lastPayload();
+  //  Ref payload = lastPayload();
 
-/*
+  /*
   int irun = event.id().run();
   int ievt = event.id().event();
   std::cout << "================ "
@@ -81,10 +77,10 @@ void DTStatusFlagHandler::getNewObjects() {
     mp.find( dataTag );
 */
 
-  DTStatusFlag* stFlag = new DTStatusFlag( dataTag );
+  DTStatusFlag* stFlag = new DTStatusFlag(dataTag);
 
   int status = 0;
-  std::ifstream ifile( fileName.c_str() );
+  std::ifstream ifile(fileName.c_str());
   int whe;
   int sta;
   int sec;
@@ -92,46 +88,31 @@ void DTStatusFlagHandler::getNewObjects() {
   int lay;
   int cel;
   int noiseFlag;
-  int    feMask;
-  int   tdcMask;
-  int  trigMask;
-  int  deadFlag;
-  int  nohvFlag;
-  while ( ifile >> whe
-                >> sta
-                >> sec
-                >> qua
-                >> lay
-                >> cel
-                >> noiseFlag
-                >> feMask
-                >> tdcMask
-                >> trigMask
-                >> deadFlag
-                >> nohvFlag ) {
-    status = stFlag->set( whe, sta, sec, qua, lay, cel,
-                          noiseFlag != 0,
-                             feMask != 0,
-                            tdcMask != 0,
-                           trigMask != 0,
-                           deadFlag != 0,
-                           nohvFlag != 0 );
-    std::cout << whe << " "
-              << sta << " "
-              << sec << " "
-              << qua << " "
-              << lay << " "
-              << cel << " "
-              << noiseFlag << " "
-              <<    feMask << " "
-              <<   tdcMask << " "
-              <<  trigMask << " "
-              <<  deadFlag << " "
-              <<  nohvFlag << "  -> ";                
+  int feMask;
+  int tdcMask;
+  int trigMask;
+  int deadFlag;
+  int nohvFlag;
+  while (ifile >> whe >> sta >> sec >> qua >> lay >> cel >> noiseFlag >> feMask >> tdcMask >> trigMask >> deadFlag >>
+         nohvFlag) {
+    status = stFlag->set(whe,
+                         sta,
+                         sec,
+                         qua,
+                         lay,
+                         cel,
+                         noiseFlag != 0,
+                         feMask != 0,
+                         tdcMask != 0,
+                         trigMask != 0,
+                         deadFlag != 0,
+                         nohvFlag != 0);
+    std::cout << whe << " " << sta << " " << sec << " " << qua << " " << lay << " " << cel << " " << noiseFlag << " "
+              << feMask << " " << tdcMask << " " << trigMask << " " << deadFlag << " " << nohvFlag << "  -> ";
     std::cout << "insert status: " << status << std::endl;
   }
 
-/*
+  /*
   unsigned int runf = irun;
   unsigned int runl = 0xffffffff;
   popcon::IOVPair iop = { runf, runl };
@@ -142,18 +123,12 @@ void DTStatusFlagHandler::getNewObjects() {
 
   //for each payload provide IOV information (say in this case we use since)
   cond::Time_t snc = runNumber;
-  if ( runNumber > last )
-       m_to_transfer.push_back( std::make_pair( stFlag, snc ) );
+  if (runNumber > last)
+    m_to_transfer.push_back(std::make_pair(stFlag, snc));
   else
-       std::cout << "More recent data already present - skipped" << std::endl;
+    std::cout << "More recent data already present - skipped" << std::endl;
 
   return;
-
 }
 
-
-std::string DTStatusFlagHandler::id() const {
-  return dataTag;
-}
-
-
+std::string DTStatusFlagHandler::id() const { return dataTag; }

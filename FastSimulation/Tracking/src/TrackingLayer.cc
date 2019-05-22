@@ -279,13 +279,13 @@ std::string TrackingLayer::toString() const
             break;
     }
     
-    return std::move(ss.str());
+    return ss.str();
 }
 
 std::string TrackingLayer::toIdString() const
 {
     std::stringstream ss;
     ss<<getSubDetNumber()<<":"<<getLayerNumber()<<":"<<getSideNumber();
-    return std::move(ss.str());
+    return ss.str();
 }
 

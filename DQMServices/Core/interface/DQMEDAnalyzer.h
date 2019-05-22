@@ -3,6 +3,6 @@
 
 #include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
 
-using DQMEDAnalyzer = one::DQMEDAnalyzer<one::DQMLuminosityBlockElements>;
+using DQMEDAnalyzer = one::DQMEDAnalyzer<>;
 
 #endif // DQMServices_Core_DQMEDAnalyzer_h

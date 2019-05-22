@@ -1,5 +1,6 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="RecoLocalFastTime/FTLCommonAlgos"/>
+<use   name="RecoLocalFastTime/Records"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/HGCDigi"/>

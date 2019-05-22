@@ -29,7 +29,24 @@ using namespace edm;
 
 EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::ParameterSet&  ps)
 {
-  // initilize parameters used to produce cond DB objects
+  std::string path="CalibCalorimetry/EcalTrivialCondModules/data/";
+
+  /*since CMSSW_10_6_0, this path points to https://github.com/cms-data/CalibCalorimetry-EcalTrivialCondModules  (extra package). 
+To modify the default values :
+$ git clone https://github.com/cms-data/CalibCalorimetry-EcalTrivialCondModules.git
+$ cd CalibCalorimetry-EcalTrivialCondModules
+$ modify what you want
+$ git commit -a
+$ git remote add ModifyCalibCalorimetryExtraPackage  git@github.com:yourName/CalibCalorimetry-EcalTrivialCondModules
+$ git push ModifyCalibCalorimetryExtraPackage master:building-calibCalorimetry-extra-package
+
+other solution : change this path name to work directly in afs, ex. :
+
+  std::string path="CalibCalorimetry/EcalTrivialCondModules/data_test/";
+
+ */
+
+  // initialize parameters used to produce cond DB objects
   totLumi_=ps.getUntrackedParameter<double>("TotLumi",0.0);
   instLumi_ = ps.getUntrackedParameter<double>("InstLumi",0.0);
 
@@ -71,6 +88,11 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
 
   laserAPDPNMean_ = ps.getUntrackedParameter<double>("laserAPDPNMean",1.0);
   laserAPDPNSigma_ = ps.getUntrackedParameter<double>("laserAPDPNSigma",0.0);
+
+  pfRecHitThresholdsNSigmas_ = ps.getUntrackedParameter<double>("EcalPFRecHitThresholdNSigmas", 1.0 );
+  pfRecHitThresholdsNSigmasHEta_ = ps.getUntrackedParameter<double>("EcalPFRecHitThresholdNSigmasHEta", 1.0 );
+  pfRecHitThresholdsEB_ = ps.getUntrackedParameter<double>("EcalPFRecHitThresholdEB", 0.0 );
+  pfRecHitThresholdsEE_ = ps.getUntrackedParameter<double>("EcalPFRecHitThresholdEE", 0.0 );
 
   localContCorrParameters_ = ps.getUntrackedParameter< std::vector<double> >("localContCorrParameters", std::vector<double>(0) );
   crackCorrParameters_ = ps.getUntrackedParameter< std::vector<double> >("crackCorrParameters", std::vector<double>(0) );
@@ -123,14 +145,14 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
 
   weightsForAsynchronousRunning_ = ps.getUntrackedParameter<bool>("weightsForTB",false);
 
-  std::cout << " EcalTrivialConditionRetriever " << std::endl;
+  edm::LogInfo(" EcalTrivialConditionRetriever ");
 
 
 
   if(totLumi_ > 0 ) {
 
-    std::cout << " EcalTrivialConditionRetriever going to create conditions based on the damage deu to "<<totLumi_<<
-      " fb-1 integrated luminosity" << std::endl;
+    edm::LogInfo(" EcalTrivialConditionRetriever going to create conditions based on the damage due to ")<<totLumi_<<
+      " fb-1 integrated luminosity";
 
   }
 
@@ -141,7 +163,6 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
       nTDCbins_ = 50; //modif Alex-21-07-2006
     }
 
-  std::string path="CalibCalorimetry/EcalTrivialCondModules/data/";
   std::string weightType;
   std::ostringstream str;
 
@@ -323,6 +344,22 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
     findingRecord<EcalSimPulseShapeRcd> () ;
   }
 
+   producedEcalPFRecHitThresholds_ = ps.getUntrackedParameter<bool>("producedEcalPFRecHitThresholds", false);
+
+   // new for PFRecHit Thresholds
+  pfRecHitFile_ = ps.getUntrackedParameter<std::string>("pFRecHitFile",path+"EB_thresholds_-1.txt");
+  pfRecHitFileEE_ = ps.getUntrackedParameter<std::string>("pFRecHitFileEE",path+"EE_thresholds_-1.txt");
+ 
+ 
+   if (producedEcalPFRecHitThresholds_) { // user asks to produce constants
+     if(!pfRecHitFile_.empty()) {  // if file provided read constants
+         setWhatProduced (this, &EcalTrivialConditionRetriever::getPFRecHitThresholdsFromConfiguration ) ;
+     } else { // set all constants to 0
+         setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalPFRecHitThresholds ) ;
+     }
+     findingRecord<EcalPFRecHitThresholdsRcd> () ;
+   }
+
 
   // cluster corrections
   producedEcalClusterLocalContCorrParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterLocalContCorrParameters", false);
@@ -352,7 +389,7 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   }
 
   // laser correction
-  producedEcalLaserCorrection_ = ps.getUntrackedParameter<bool>("producedEcalLaserCorrection",true);
+  producedEcalLaserCorrection_ = ps.getUntrackedParameter<bool>("producedEcalLaserCorrection",false);
   if (producedEcalLaserCorrection_) { // user asks to produce constants
     // set all constants to 1. or smear as specified by user
     setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalLaserAlphas ) ;
@@ -361,10 +398,10 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
     getLaserAlphaFromFileEE_ = ps.getUntrackedParameter<bool>("getLaserAlphaFromFileEE",false);
     getLaserAlphaFromTypeEB_ = ps.getUntrackedParameter<bool>("getLaserAlphaFromTypeEB",false);
     getLaserAlphaFromTypeEE_ = ps.getUntrackedParameter<bool>("getLaserAlphaFromTypeEE",false);
-    std::cout << " getLaserAlphaFromFileEB_ " <<  getLaserAlphaFromFileEB_ << std::endl;
-    std::cout << " getLaserAlphaFromFileEE_ " <<  getLaserAlphaFromFileEE_ << std::endl;
-    std::cout << " getLaserAlphaFromTypeEB_ " <<  getLaserAlphaFromTypeEB_ << std::endl;
-    std::cout << " getLaserAlphaFromTypeEE_ " <<  getLaserAlphaFromTypeEE_ << std::endl;
+    edm::LogInfo(" getLaserAlphaFromFileEB_ ") <<  getLaserAlphaFromFileEB_;
+    edm::LogInfo(" getLaserAlphaFromFileEE_ ") <<  getLaserAlphaFromFileEE_;
+    edm::LogInfo(" getLaserAlphaFromTypeEB_ ") <<  getLaserAlphaFromTypeEB_;
+    edm::LogInfo(" getLaserAlphaFromTypeEE_ ") <<  getLaserAlphaFromTypeEE_;
     if(getLaserAlphaFromFileEB_) {
       EBLaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EBLaserAlphaFile",path+"EBLaserAlpha.txt"); // file is used to read the alphas
     }
@@ -377,9 +414,12 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
       EBLaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EBLaserAlphaFile",path+"EBLaserAlpha.txt"); // file to find out which one is russian/chinese
     }
     if(getLaserAlphaFromTypeEE_) {
-      laserAlphaMeanEER_  = ps.getUntrackedParameter<double>("laserAlphaMeanEER",1.16); // alpha russian crystals in EE
-      laserAlphaMeanEEC_  = ps.getUntrackedParameter<double>("laserAlphaMeanEEC",1.00); // alpha chinese crystals in EE
-      EELaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EELaserAlphaFile",path+"EELaserAlpha.txt"); // file is used to find out which one is russian or chinese
+      laserAlphaMeanEEC_higheta_  = ps.getUntrackedParameter<double>("laserAlphaMeanEEC_higheta",1.00); // alpha chinese crystals in EE for eta>2.5                         
+      laserAlphaMeanEER_higheta_  = ps.getUntrackedParameter<double>("laserAlphaMeanEER_higheta",1.16); // alpha russian crystals in EE for eta>2                           
+      laserAlphaMeanEER_  = ps.getUntrackedParameter<double>("laserAlphaMeanEER",1.16); // alpha russian crystals in EE                                                     
+      laserAlphaMeanEEC_  = ps.getUntrackedParameter<double>("laserAlphaMeanEEC",1.00); // alpha chinese crystals in EE                                                     
+      EELaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EELaserAlphaFile",path+"EELaserAlpha.txt"); // file is used to find out which one is russian or chinese    
+      EELaserAlphaFile2_ = ps.getUntrackedParameter<std::string>("EELaserAlphaFile2",path+"EELaserAlpha2.txt"); // file is used to read the alphas                          
     }
     setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatiosRef ) ;
     findingRecord<EcalLaserAPDPNRatiosRefRcd> () ;
@@ -498,7 +538,7 @@ EcalTrivialConditionRetriever::setIntervalFor( const edm::eventsetup::EventSetup
                                                const edm::IOVSyncValue& iTime,
                                                edm::ValidityInterval& oValidity)
 {
-  if(verbose_>=1) std::cout << "EcalTrivialConditionRetriever::setIntervalFor(): record key = " << rk.name() << "\ttime: " << iTime.time().value() << std::endl;
+  if(verbose_>=1) edm::LogInfo("EcalTrivialConditionRetriever::setIntervalFor(): record key = ") << rk.name() << "\ttime: " << iTime.time().value();
   //For right now, we will just use an infinite interval of validity
   oValidity = edm::ValidityInterval( edm::IOVSyncValue::beginOfTime(),edm::IOVSyncValue::endOfTime() );
 }
@@ -544,7 +584,7 @@ EcalTrivialConditionRetriever::produceEcalPedestals( const EcalPedestalsRcd& ) {
       EBitem.rms_x1   = EBpedRMSX1_*noisefactor;
       EBitem.rms_x6   = EBpedRMSX6_*noisefactor;
       EBitem.rms_x12  = EBpedRMSX12_*noisefactor;
-      std::cout << "rms ped at eta:"<< eta<<" ="<< EBitem.rms_x12 << std::endl;
+      edm::LogInfo("rms ped at eta:")<< eta<<" ="<< EBitem.rms_x12;
     }
 
 
@@ -689,6 +729,47 @@ EcalTrivialConditionRetriever::produceEcalLinearCorrections( const EcalLinearCor
   return ical;
 
 }
+
+// new for the PF Rec Hit Thresholds                                                                                                                                        
+
+std::unique_ptr<EcalPFRecHitThresholds>
+EcalTrivialConditionRetriever::produceEcalPFRecHitThresholds( const EcalPFRecHitThresholdsRcd& )
+{
+  auto ical = std::make_unique<EcalPFRecHitThresholds>();
+
+  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA ;++ieta) {
+    if(ieta==0) continue;
+    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+      // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals                                                                             
+      if (EBDetId::validDetId(ieta,iphi))
+        {
+          EBDetId ebid(ieta,iphi);
+          ical->setValue( ebid.rawId(), pfRecHitThresholdsEB_  );
+        }
+    }
+  }
+
+  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals                                                                             
+      if (EEDetId::validDetId(iX,iY,1))
+        {
+          EEDetId eedetidpos(iX,iY,1);
+          ical->setValue( eedetidpos.rawId(), pfRecHitThresholdsEE_ );
+        }
+      if(EEDetId::validDetId(iX,iY,-1))
+        {
+          EEDetId eedetidneg(iX,iY,-1);
+          ical->setValue( eedetidneg.rawId(), pfRecHitThresholdsEE_ );
+        }
+    }
+  }
+
+  return ical;
+}
+
+
+
 
 //------------------------------
 
@@ -884,8 +965,8 @@ EcalTrivialConditionRetriever::produceEcalTimeCalibErrors( const EcalTimeCalibEr
 std::unique_ptr<EcalTimeOffsetConstant>
 EcalTrivialConditionRetriever::produceEcalTimeOffsetConstant( const EcalTimeOffsetConstantRcd& )
 {
-  std::cout << " produceEcalTimeOffsetConstant: " << std::endl;
-  std::cout << "  EB " << timeOffsetEBConstant_ << " EE " <<  timeOffsetEEConstant_<< std::endl;
+  edm::LogInfo(" produceEcalTimeOffsetConstant: ");
+  edm::LogInfo("  EB ") << timeOffsetEBConstant_ << " EE " <<  timeOffsetEEConstant_;
   return std::make_unique<EcalTimeOffsetConstant>(timeOffsetEBConstant_,timeOffsetEEConstant_);
 }
 
@@ -1070,6 +1151,7 @@ EcalTrivialConditionRetriever::produceEcalClusterEnergyCorrectionObjectSpecificP
 }
 
 
+/* 
 // laser records
 std::unique_ptr<EcalLaserAlphas>
 EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd& )
@@ -1244,6 +1326,273 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
   
   return ical;
 }
+*/ 
+
+// laser alphas                                                                                                                                                             
+std::unique_ptr<EcalLaserAlphas>
+EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd& )
+{
+
+  edm::LogInfo(" produceEcalLaserAlphas ");
+  auto ical = std::make_unique<EcalLaserAlphas>();
+
+  // get Barrel alpha from type                                                                                                                                             
+  if(getLaserAlphaFromTypeEB_) {
+    std::ifstream fEB(edm::FileInPath(EBLaserAlphaFile_).fullPath().c_str());
+    int SMpos[36] = {-10, 4, -7, -16, 6, -9, 11, -17, 5, 18, 3, -8, 1, -3, -13, 14, -6, 2,
+                     15, -18, 8, 17, -2, 9, -1, 10, -5, 7, -12, -11, 16, -4, -15, -14, 12, 13};
+    // check!                                                                                                                                                               
+    int SMCal[36] = {12,17,10, 1, 8, 4,27,20,23,25, 6,34,35,15,18,30,21, 9,
+                     24,22,13,31,26,16, 2,11, 5, 0,29,28,14,33,32, 3, 7,19};
+
+    for(int SMcons = 0; SMcons < 36; SMcons++) {
+      int SM = SMpos[SMcons];
+      if(SM < 0) SM = 17 + abs(SM);
+      else SM--;
+      if(SMCal[SM] != SMcons)
+	edm::LogInfo(" SM pb : read SM ") <<  SMcons<< " SMpos " << SM
+                   << " SMCal " << SMCal[SM];
+    }
+
+    std::string type, batch;
+    int readSM, pos, bar, bar2;
+    float alpha = 0;
+    for(int SMcons = 0; SMcons < 36; SMcons++) {
+      int SM = SMpos[SMcons];
+      for(int ic = 0; ic < 1700; ic++) {
+        fEB >> readSM >> pos >> bar >>  bar2 >> type >> batch;
+
+        if(readSM != SMcons || pos != ic + 1)
+          edm::LogInfo(" barrel read pb read SM ") << readSM << " const SM " << SMcons
+                    << " read pos " << pos << " ic " << ic ;
+        if(SM < 0) SM = 18 + abs(SM);
+        EBDetId ebdetid(SM, pos, EBDetId::SMCRYSTALMODE);
+        if(bar == 33101 || bar == 30301 )
+          alpha = laserAlphaMeanEBR_;
+        else if(bar == 33106) {
+          if(bar2 <= 2000)
+            alpha = laserAlphaMeanEBC_;
+          else {
+            edm::LogInfo(" problem with barcode first ") << bar << " last " << bar2
+                      << " read SM " << readSM << " read pos " << pos ;
+            alpha = laserAlphaMeanEBR_;
+          }
+        }
+        ical->setValue( ebdetid, alpha );
+        
+	if (ic==1650 ) {
+          edm::LogInfo(" ic/alpha ")<<ic<<"/"<<alpha;
+        }
+
+      }
+    }  // loop over SMcons                                                                                                                                                  
+    fEB.close();
+    // end laserAlpha from type                                                                                                                                             
+  }    else if(getLaserAlphaFromFileEB_) {
+    // laser alpha from file                                                                                                                                                
+    edm::LogInfo("Laser alpha for EB will be taken from File");
+    int ieta, iphi;
+    float alpha;
+    std::ifstream fEB(edm::FileInPath(EBLaserAlphaFile_).fullPath().c_str());
+    //    std::ifstream fEB(EBLaserAlphaFile_.c_str());                                                                                                                     
+    for(int ic = 0; ic < 61200; ic++) {
+      fEB >> ieta>> iphi>>alpha;
+
+      if (EBDetId::validDetId(ieta,iphi)) {
+        EBDetId ebid(ieta,iphi);
+        ical->setValue( ebid, alpha );
+        //std::cout << " ieta/iphi/alpha "<<ieta<<"/"<<iphi<<"/"<<alpha<<std::endl;                                                                                         
+      }
+      if (ieta==10) {
+        edm::LogInfo("I will print some alphas from the file... ieta/iphi/alpha ")<<ieta<<"/"<<iphi<<"/"<<alpha;
+      }
+    }
+    fEB.close();
+
+  } else {
+    edm::LogInfo("laser alphas from default values");
+
+    // laser alpha from mean and smearing                                                                                                                                   
+    for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
+      if(ieta==0) continue;
+      for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+        if (EBDetId::validDetId(ieta,iphi)) {
+          EBDetId ebid(ieta,iphi);
+          double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+          ical->setValue( ebid, laserAlphaMean_ + r*laserAlphaSigma_ );
+        }
+      }  // loop over iphi                                                                                                                                                  
+    }  // loop over ieta                                                                                                                                                    
+  }   // do not read a file                                                                                                                                                 
+
+  edm::LogInfo(" produceEcalLaserAlphas EE");
+  // read mean laser per ring per year                                                                                                                                        
+
+  int itype, iring, iyear;
+  float laser=0;
+  float las[2][140][6];
+
+  if(getLaserAlphaFromTypeEE_) {
+    edm::LogInfo(" EE laser alphas from type");
+
+  std::ifstream fRing(edm::FileInPath(EELaserAlphaFile2_).fullPath().c_str());
+  for(int i = 0; i<1681; i++){
+
+    fRing >> itype>> iring>> iyear>> laser;
+    edm::LogInfo(" ") <<itype<<" "<<iring<<" "<<iyear<<" "<<laser<<std::endl;
+    las[itype][iring][iyear]=laser;
+  }
+  fRing.close();
+
+
+    std::ifstream fEE(edm::FileInPath(EELaserAlphaFile_).fullPath().c_str());
+    int nxt=0;
+    for(int crystal = 0; crystal < 14648; crystal++) {
+      int x, y ,z, bid, bar, bar2;
+      float LY, alpha = 0;
+      fEE >> z >> x >> y >> LY >> bid >> bar >> bar2;
+      if(x < 1 || x > 100 || y < 1 || y > 100)
+        edm::LogInfo(" wrong coordinates for barcode ") << bar
+                  << " x " << x << " y " << y << " z " << z;
+      else {
+        int iyear=4;
+        int iring = (int)(sqrt( ((float)x-50.5)*((float)x-50.5)
+                                  +((float)y-50.5)*((float)y-50.5))+85);
+
+
+        double eta= -log(tan(0.5*atan(sqrt((x-50.5)
+                                           *(x-50.5)+
+                                           (y-50.5)*
+                                           (y-50.5))
+                                      *2.98/328.)));
+
+
+        if(bar == 33201 || (bar == 30399 && bar2 < 568)){
+          // russian                                                                                                                                                          
+            alpha = laserAlphaMeanEER_;
+
+            double raggio=50.5-sqrt(((float)x-50.5)*((float)x-50.5)+
+                               ((float)y-50.5)*((float)y-50.5));
+
+
+            if(raggio>=25){
+              alpha =1.07;
+            }
+            /*                                                                                                                                                                
+            if(raggio>=34){                                                                                                                                                   
+                                                                                                                                                                              
+              if(eta>2.0) {                                                                                                                                                   
+                itype=0;                                                                                                                                                      
+                if(las[itype][iring][iyear]!=999){                                                                                                                            
+                  alpha=0.8044+0.3555*las[itype][iring][iyear];                                                                                                               
+                }                                                                                                                                                             
+              }                                                                                                                                                               
+                                                                                                                                                                              
+            }                                                                                                                                                                 
+            */
+
+            if(x==50) edm::LogInfo("R=")<<raggio<< " x " << x << " y " << y << " z " << z <<"eta="<<eta<<" alpha="<<alpha<<" R";
+
+        } else if((bar == 33106 && bar2 > 2000 && bar2 < 4669)
+                  || (bar == 30399 && bar2 > 567)) {
+          // SIC                                                                                                                                                              
+          itype=1;
+          alpha = laserAlphaMeanEEC_;
+
+
+          double raggio=50.5-sqrt(((float)x-50.5)*((float)x-50.5)+
+                                  ((float)y-50.5)*((float)y-50.5));
+
+
+          if(raggio>=25){
+            alpha =0.80;
+          }
+          if(raggio>=34){
+            float r=sqrt((x-50.5)*(x-50.5)+(y-50.5)*(y-50.5));
+            if(r<21){
+              nxt=nxt+1;
+              // inner SIC crystals                                                                                                                                           
+
+              if(las[itype][iring][iyear]!=999){
+                alpha=0.7312+0.2688*las[itype][iring][iyear];
+              }
+            }
+          }
+          if(x==50) edm::LogInfo("R=")<<raggio<< " x " << x << " y " << y << " z " << z <<"eta="<<eta<<" alpha="<<alpha<<" C";
+
+
+        } else {
+          edm::LogInfo(" problem with barcode ") << bar << " " << bar2
+                    << " x " << x << " y " << y << " z " << z;
+          alpha = laserAlphaMeanEER_;
+        }
+
+
+      }
+
+
+      if (EEDetId::validDetId(x, y, z)) {
+        EEDetId eedetidpos(x, y, z);
+        ical->setValue( eedetidpos, alpha );
+        if(x==50) edm::LogInfo (" x ") << x << " y " << y << " alpha " << alpha ;
+      }
+      else // should not occur                                                                                                                                                
+        edm::LogInfo(" problem with EEDetId ") << " x " << x << " y " << y << " z " << z ;
+    }
+    fEE.close();
+    edm::LogInfo("Number of inner SIC crystals with different alpha= ")<<nxt;
+    // end laserAlpha from type EE                                                                                                                                            
+
+  } else if (getLaserAlphaFromFileEE_) {
+    edm::LogInfo(" EE laser alphas from file");
+
+    std::ifstream fEE(edm::FileInPath(EELaserAlphaFile_).fullPath().c_str());
+
+    for(int crystal = 0; crystal < 14648; crystal++) {
+      int x, y ,z;
+      float alpha = 1;
+      fEE >> z >> x >> y >> alpha;
+      if(x < 1 || x > 100 || y < 1 || y > 100 || z==0 || z>1 || z<-1 ) {
+        edm::LogInfo("ERROR: wrong coordinates for crystal ")
+                  << " x " << x << " y " << y << " z " << z ;
+        edm::LogInfo(" the format of the file should be z x y alpha ");
+      } else {
+        if (EEDetId::validDetId(x, y, z)) {
+          EEDetId eedetidpos(x, y, z);
+          ical->setValue( eedetidpos, alpha );
+        }
+        else // should not occur                                                                                                                                              
+          edm::LogInfo(" problem with EEDetId ") << " x " << x << " y " << y << " z " << z ;
+      }
+    }
+    fEE.close();
+
+    // end laser alpha from file EE                                                                                                                                           
+  }  else {
+    // alphas from python config file                                                                                                                                         
+    edm::LogInfo(" EE laser alphas from default values");
+    for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+      for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+        // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals                                                                             
+        if (EEDetId::validDetId(iX,iY,1)) {
+          double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+          EEDetId eedetidpos(iX,iY,1);
+          ical->setValue( eedetidpos, laserAlphaMean_ + r*laserAlphaSigma_ );
+        }
+        if (EEDetId::validDetId(iX,iY,-1)) {
+          double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
+          EEDetId eedetidneg(iX,iY,-1);
+          ical->setValue( eedetidneg, laserAlphaMean_ + r1*laserAlphaSigma_ );
+        }
+      } // loop over iY                                                                                                                                                       
+    } // loop over iX                                                                                                                                                         
+  }
+
+  return ical;
+
+}
+
+
 
 
 std::unique_ptr<EcalLaserAPDPNRatiosRef>
@@ -1300,7 +1649,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
     
     eta = fabs(eta);
     double drop=ageing.calcampDropTotal(eta);
-    std::cout<<"EB at eta="<<eta<<" dropping by "<<drop<<std::endl;
+    // edm::LogInfo("EB at eta=")<<eta<<" dropping by "<<drop;
     
     for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
       if (EBDetId::validDetId(ieta,iphi)) {
@@ -1317,7 +1666,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
   }
 
 
-  std::cout<<"----- EE -----"<<std::endl;
+  edm::LogInfo("----- EE -----");
 
    for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
      for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
@@ -1335,7 +1684,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
 					*2.98/328.)));
 	  eta = fabs(eta);
 	  double drop=ageing.calcampDropTotal(eta);
-	  if(iX==50) std::cout<<"EE at eta="<<eta<<" dropping by "<<drop<<std::endl;
+	  // if(iX==50) edm::LogInfo("EE at eta=")<<eta<<" dropping by "<<drop;
 	  
 
  	  EcalLaserAPDPNRatios::EcalLaserAPDPNpair pairAPDPN;
@@ -1352,7 +1701,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
 	  double eta= -log(tan(0.5*atan(sqrt((iX-50.0)*(iX-50.0)+(iY-50.0)*(iY-50.0))*2.98/328.)));
 	  eta = fabs(eta);
 	  double drop=ageing.calcampDropTotal(eta);
-	  if(iX==50) std::cout<<"EE at eta="<<eta<<" dropping by "<<drop<<std::endl;
+	  // if(iX==50) edm::LogInfo("EE at eta=")<<eta<<" dropping by "<<drop;
 
 
  	  EcalLaserAPDPNRatios::EcalLaserAPDPNpair pairAPDPN;
@@ -2420,7 +2769,7 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
 
   if(intercalibConstantsFile_.find(".xml")!= std::string::npos) {
 
-    std::cout<<"generating Intercalib from xml file"<<std::endl; 
+    edm::LogInfo("generating Intercalib from xml file"); 
   
     EcalCondHeader h;
     EcalIntercalibConstants * rcd = new EcalIntercalibConstants;
@@ -2428,19 +2777,19 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
     
 
     if(totLumi_ !=0 || instLumi_!=0) {
-      std::cout<<"implementing ageing for intercalib"<<std::endl; 
+      edm::LogInfo("implementing ageing for intercalib"); 
 
       EcalIntercalibConstantsMC * rcdMC = new EcalIntercalibConstantsMC;
 
       if(intercalibConstantsMCFile_.find(".xml")!= std::string::npos) {
 
-	std::cout<<"generating IntercalibMC from xml file"<<std::endl; 
+	edm::LogInfo("generating IntercalibMC from xml file"); 
   
 	EcalCondHeader h;
 	EcalIntercalibConstantsMCXMLTranslator::readXML(intercalibConstantsMCFile_,h,*rcdMC);
 
       } else {
-	std::cout<<"please provide the xml file of the EcalIntercalibConstantsMC"<<std::endl;
+	edm::LogInfo("please provide the xml file of the EcalIntercalibConstantsMC");
       }
 
 
@@ -2460,7 +2809,7 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
 	double eta=EBDetId::approxEta(EBDetId(ieta,1));
 	eta = fabs(eta);
 	double constantTerm= ageing.calcresolutitonConstantTerm(eta);
-	std::cout<<"EB at eta="<<eta<<" constant term is "<<constantTerm<<std::endl;
+	edm::LogInfo("EB at eta=")<<eta<<" constant term is "<<constantTerm;
 	
 	for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
 	  // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
@@ -2477,15 +2826,15 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
 	      
 	      double r = gRandom->Gaus(0,constantTerm); 
 
-	      if(iphi==10) std::cout<<"EB at eta="<<eta<<" IC="<<icalconstant<<" ICMC="<<icalconstantMC<<" smear="<<r<<" ";
+	      if(iphi==10) edm::LogInfo ("EB at eta=")<<eta<<" IC="<<icalconstant<<" ICMC="<<icalconstantMC<<" smear="<<r<<" ";
 
 	      icalconstant = icalconstant + r*1.29*icalconstantMC;
 	      rcd->setValue( ebid.rawId(), icalconstant );
 
-	      if(iphi==10) std::cout<<"newIC="<<icalconstant<<std::endl;
+	      if(iphi==10) edm::LogInfo("newIC=")<<icalconstant;
 
 	      EcalIntercalibConstant icalconstant2=(*idref);
-	      if(icalconstant !=icalconstant2) std::cout<<">>>> error in smearing intercalib"<<std::endl;
+	      if(icalconstant !=icalconstant2) edm::LogInfo(">>>> error in smearing intercalib");
 	    }
 	}
       }
@@ -2500,7 +2849,7 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
 	      double eta= -log(tan(0.5*atan(sqrt((iX-50.0)*(iX-50.0)+(iY-50.0)*(iY-50.0))*2.98/328.)));
 	      eta = fabs(eta);
 	      double constantTerm=ageing.calcresolutitonConstantTerm(eta);
-	      if(iX==50) std::cout<<"EE at eta="<<eta<<" constant term is "<<constantTerm<<std::endl;
+	      if(iX==50) edm::LogInfo ("EE at eta=")<<eta<<" constant term is "<<constantTerm;
 
 
 
@@ -2515,10 +2864,10 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
 	      
 	      double r = gRandom->Gaus(0,constantTerm); 
 
-	      if(iX==10) std::cout<<"EE at eta="<<eta<<" IC="<<icalconstant<<" ICMC="<<icalconstantMC<<" smear="<<r<<" ";
+	      if(iX==10) edm::LogInfo("EE at eta=")<<eta<<" IC="<<icalconstant<<" ICMC="<<icalconstantMC<<" smear="<<r<<" ";
 	      icalconstant = icalconstant + r*1.29*icalconstantMC;
 	      rcd->setValue( eedetidpos.rawId(), icalconstant );
-	      if(iX==10) std::cout<<"newIC="<<icalconstant<<std::endl;
+	      if(iX==10) edm::LogInfo("newIC=")<<icalconstant;
 
 
 	      
@@ -2593,7 +2942,7 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
     
     edm::LogInfo("EcalTrivialConditionRetriever")
       << "[PIETRO] Intercalibration file - " 
-      << str.str () << std::endl ;
+      << str.str ();
     
     float calib[1700]={1} ;
     int calib_status[1700]={0} ;
@@ -2663,6 +3012,100 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
 
 }
 
+
+
+
+// new for the PF rec hit thresholds                                                                                                                                          
+
+std::unique_ptr<EcalPFRecHitThresholds>
+EcalTrivialConditionRetriever::getPFRecHitThresholdsFromConfiguration
+( const EcalPFRecHitThresholdsRcd& )
+{
+  std::unique_ptr<EcalPFRecHitThresholds> ical;
+
+  // Reads the values from a txt file                                                                                                                                          
+   edm::LogInfo("EcalTrivialConditionRetriever") << "Reading PF RecHit Thresholds from file " << edm::FileInPath(pfRecHitFile_).fullPath().c_str() ;
+  
+  std::ifstream PFRecHitsFile(edm::FileInPath(pfRecHitFile_).fullPath().c_str());
+
+  ical = std::make_unique<EcalPFRecHitThresholds>();
+  
+  // char line[50];
+
+  int nxt=0;
+  
+  edm::LogInfo ("Going to multiply the sigmas by ")<<pfRecHitThresholdsNSigmas_;
+  edm::LogInfo ("We will print some values ");
+
+  while (!PFRecHitsFile.eof()) {
+    //  while (fgets(line,50,inpFile)) {
+    float thresh;
+    int eta=0;
+    int phi=0;
+    int zeta=0;
+    PFRecHitsFile >> eta >> phi >> zeta >> thresh;
+    //    sscanf(line, "%d %d %d %f", &eta, &phi, &zeta, &thresh);
+    
+    thresh=thresh*pfRecHitThresholdsNSigmas_;
+    
+    if(phi==50) edm::LogInfo ("EB ")<< std::dec<<eta <<"/"<< std::dec<<phi <<"/"<<std::dec<<zeta<<" thresh: " <<thresh ;
+    nxt=nxt+1;
+    
+    EBDetId ebid(eta, phi);
+    ical->setValue( ebid, thresh );
+  }
+  PFRecHitsFile.close();
+  // fclose(inpFile);
+  
+  edm::LogInfo ("Read number of EB crystals: ")<<nxt;
+
+  //******************************************************
+  edm::LogInfo ("Now reading the EE file ... ");
+  edm::LogInfo ("We will multiply the sigma in EE by ")<<pfRecHitThresholdsNSigmas_;
+  edm::LogInfo ("We will multiply the sigma in EE at high eta by")<<pfRecHitThresholdsNSigmasHEta_;
+  edm::LogInfo ("We will print some values ");
+  
+
+                                                                                  edm::LogInfo("EcalTrivialConditionRetriever") << "Reading PF RecHit Thresholds EE from file " << edm::FileInPath(pfRecHitFileEE_).fullPath().c_str() ;
+  std::ifstream PFRecHitsFileEE(edm::FileInPath(pfRecHitFileEE_).fullPath().c_str());
+              
+  nxt=0;
+  
+  while (!PFRecHitsFileEE.eof()) {
+    //  while (fgets(line,40,inpFileEE)) {
+    float thresh;
+    int ix=0;
+    int iy=0;
+    int iz=0;
+    PFRecHitsFileEE >> ix >> iy >> iz >> thresh;
+    //    sscanf(line, "%d %d %d %f", &ix, &iy,&iz, &thresh);
+
+    double eta= -log(tan(0.5*atan(sqrt((ix-50.5)*(ix-50.5)+
+                                       (iy-50.5)*(iy-50.5))*2.98/328.))); // approx eta 
+
+    if(eta>2.5) {
+      thresh=thresh*pfRecHitThresholdsNSigmasHEta_;
+    } else {
+      thresh=thresh*pfRecHitThresholdsNSigmas_;
+    }
+
+    if(ix==50) edm::LogInfo ("EE ")<<std::dec<<ix<<"/"<<std::dec<<iy<<"/"<<std::dec<<iz<<" thresh: " <<thresh <<" eta="<<eta;
+
+    EEDetId eeid(ix,iy,iz);
+    ical->setValue( eeid, thresh );
+    nxt=nxt+1;
+  }
+
+  PFRecHitsFileEE.close();
+  //  fclose(inpFileEE);
+  edm::LogInfo ("Read number of EE crystals: ")<<nxt;
+  edm::LogInfo ("end PF Rec Hits ... ");
+
+  return ical;
+
+}
+
+
 std::unique_ptr<EcalIntercalibConstantsMC> 
 EcalTrivialConditionRetriever::getIntercalibConstantsMCFromConfiguration 
 ( const EcalIntercalibConstantsMCRcd& )
@@ -2678,7 +3121,7 @@ EcalTrivialConditionRetriever::getIntercalibConstantsMCFromConfiguration
 
   if(intercalibConstantsMCFile_.find(".xml")!= std::string::npos) {
 
-    std::cout<<"generating Intercalib MC from xml file"<<std::endl; 
+    edm::LogInfo ("generating Intercalib MC from xml file"); 
   
     EcalCondHeader h;
     EcalIntercalibConstantsMC * rcd = new EcalIntercalibConstantsMC;
@@ -2688,13 +3131,18 @@ EcalTrivialConditionRetriever::getIntercalibConstantsMCFromConfiguration
 
   } else {
 
-    std::cout <<"ERROR>>> please provide a xml file"<<std::endl;
+    edm::LogInfo ("ERROR>>> please provide a xml file");
   }
 
 
   return ical;
 
 }
+
+
+
+
+
 
 
 std::unique_ptr<EcalIntercalibErrors> 
@@ -3122,8 +3570,8 @@ EcalTrivialConditionRetriever::produceEcalAlignmentEB( const EBAlignmentRcd& ) {
     EBDetId ebdetId(ieta,iphi);
     if(getEBAlignmentFromFile_) {
       f >> myeuler[0] >> myeuler[1] >> myeuler[2] >> mytrans[0] >> mytrans[1] >> mytrans[2];
-      std::cout << " translation " << mytrans[0] << " " << mytrans[1] << " " << mytrans[2] << "\n" 
-	   << " euler " << myeuler[0] << " " << myeuler[1] << " " << myeuler[2] << std::endl;
+      edm::LogInfo (" translation ") << mytrans[0] << " " << mytrans[1] << " " << mytrans[2] << "\n" 
+	   << " euler " << myeuler[0] << " " << myeuler[1] << " " << myeuler[2] ;
     }
     CLHEP::Hep3Vector translation( mytrans[0], mytrans[1], mytrans[2]);
     CLHEP::HepEulerAngles euler( myeuler[0], myeuler[1], myeuler[2]);
@@ -3178,8 +3626,8 @@ EcalTrivialConditionRetriever::produceEcalAlignmentEE( const EEAlignmentRcd& ) {
     EEDetId eedetId(ix, iy, side);
     if(getEEAlignmentFromFile_) {
       f >> myeuler[0] >> myeuler[1] >> myeuler[2] >> mytrans[0] >> mytrans[1] >> mytrans[2];
-      std::cout << " translation " << mytrans[0] << " " << mytrans[1] << " " << mytrans[2] << "\n" 
-	   << " euler " << myeuler[0] << " " << myeuler[1] << " " << myeuler[2] << std::endl;
+      edm::LogInfo (" translation ") << mytrans[0] << " " << mytrans[1] << " " << mytrans[2] << "\n" 
+	   << " euler " << myeuler[0] << " " << myeuler[1] << " " << myeuler[2] ;
     }
     CLHEP::Hep3Vector translation( mytrans[0], mytrans[1], mytrans[2]);
     CLHEP::HepEulerAngles euler( myeuler[0], myeuler[1], myeuler[2]);
@@ -3212,8 +3660,8 @@ EcalTrivialConditionRetriever::produceEcalAlignmentES( const ESAlignmentRcd& ) {
     ESDetId esdetId(strip, ix, iy, plane, side);
     if(getESAlignmentFromFile_) {
       f >> myeuler[0] >> myeuler[1] >> myeuler[2] >> mytrans[0] >> mytrans[1] >> mytrans[2];
-      std::cout << " translation " << mytrans[0] << " " << mytrans[1] << " " << mytrans[2] << "\n" 
-		<< " euler " << myeuler[0] << " " << myeuler[1] << " " << myeuler[2] << std::endl;
+      edm::LogInfo (" translation ") << mytrans[0] << " " << mytrans[1] << " " << mytrans[2] << "\n" 
+		<< " euler " << myeuler[0] << " " << myeuler[1] << " " << myeuler[2];
     }
     CLHEP::Hep3Vector translation( mytrans[0], mytrans[1], mytrans[2]);
     CLHEP::HepEulerAngles euler( myeuler[0], myeuler[1], myeuler[2]);

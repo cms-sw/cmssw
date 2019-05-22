@@ -2,7 +2,7 @@
 //Id:  EntryLengthAffAngles.C
 //CAT: Model
 //
-//   History: v1.0 
+//   History: v1.0
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/EntryAngleAffAngles.h"
@@ -10,117 +10,103 @@
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-EntryAngleAffAngles::EntryAngleAffAngles( const ALIstring& type )
-  : EntryAngle( type )
-{
-}
-
+EntryAngleAffAngles::EntryAngleAffAngles(const ALIstring& type) : EntryAngle(type) {}
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void EntryAngleAffAngles::FillName( const ALIstring& name )
-{
+void EntryAngleAffAngles::FillName(const ALIstring& name) {
   ALIstring nn = "Angles ";
   nn += name;
-  setName( nn );
+  setName(nn);
 }
 
-
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-//@@ 
+//@@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void EntryAngleAffAngles::displace( ALIdouble disp )
-{
+void EntryAngleAffAngles::displace(ALIdouble disp) {
   XYZcoor coor = XCoor;
-  ALIint namelength = name().length()-1;
+  ALIint namelength = name().length() - 1;
   //-  std::cout << this << "ENtryAnglesAffAngle" << name_ << namelength <<std::endl;
-  if ( name_[namelength] == 'X' ) {
+  if (name_[namelength] == 'X') {
     coor = XCoor;
-  } else if ( name_[namelength] == 'Y' ) {
+  } else if (name_[namelength] == 'Y') {
     coor = YCoor;
-  } else if ( name_[namelength] == 'Z' ) {
+  } else if (name_[namelength] == 'Z') {
     coor = ZCoor;
   }
 
   GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
-  if(gomgr->GlobalOptions()["rotateAroundLocal"] == 0) {
-    OptOCurrent()->displaceRmGlobAroundGlobal( OptOCurrent(), coor, disp );
-  }else {
-    OptOCurrent()->displaceRmGlobAroundLocal( OptOCurrent(), coor, disp );
+  if (gomgr->GlobalOptions()["rotateAroundLocal"] == 0) {
+    OptOCurrent()->displaceRmGlobAroundGlobal(OptOCurrent(), coor, disp);
+  } else {
+    OptOCurrent()->displaceRmGlobAroundLocal(OptOCurrent(), coor, disp);
   }
- 
 }
 
-
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void EntryAngleAffAngles::displaceOriginal( ALIdouble disp )
-{
-  ALIint namelength = name().length()-1;
+void EntryAngleAffAngles::displaceOriginal(ALIdouble disp) {
+  ALIint namelength = name().length() - 1;
   //-  std::cout << this << "ENtryAnglesAffAngle" << name_ << namelength <<std::endl;
-  if ( name_[namelength] == 'X' ) {
+  if (name_[namelength] == 'X') {
     //-    std::cout << "displaX";
-      OptOCurrent()->displaceRmGlobOriginal( OptOCurrent(), XCoor, disp );
-  } else if ( name_[namelength] == 'Y' ) {
+    OptOCurrent()->displaceRmGlobOriginal(OptOCurrent(), XCoor, disp);
+  } else if (name_[namelength] == 'Y') {
     //-    std::cout << "displaY";
-      OptOCurrent()->displaceRmGlobOriginal( OptOCurrent(), YCoor, disp );
-  } else if ( name_[namelength] == 'Z' ) {
-      OptOCurrent()->displaceRmGlobOriginal( OptOCurrent(), ZCoor, disp );
+    OptOCurrent()->displaceRmGlobOriginal(OptOCurrent(), YCoor, disp);
+  } else if (name_[namelength] == 'Z') {
+    OptOCurrent()->displaceRmGlobOriginal(OptOCurrent(), ZCoor, disp);
   }
- 
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void EntryAngleAffAngles::displaceOriginalOriginal( ALIdouble disp )
-{
-  ALIint namelength = name().length()-1;
-  if(ALIUtils::debug >= 5) std::cout << this << "ENtryAnglesAffAngle displaceOriginalOriginal" << name_ <<std::endl;
-  if ( name_[namelength] == 'X' ) {
+void EntryAngleAffAngles::displaceOriginalOriginal(ALIdouble disp) {
+  ALIint namelength = name().length() - 1;
+  if (ALIUtils::debug >= 5)
+    std::cout << this << "ENtryAnglesAffAngle displaceOriginalOriginal" << name_ << std::endl;
+  if (name_[namelength] == 'X') {
     //-    std::cout << "displaX";
-      OptOCurrent()->displaceRmGlobOriginalOriginal( OptOCurrent(), XCoor, disp );
-  } else if ( name_[namelength] == 'Y' ) {
+    OptOCurrent()->displaceRmGlobOriginalOriginal(OptOCurrent(), XCoor, disp);
+  } else if (name_[namelength] == 'Y') {
     //-    std::cout << "displaY";
-      OptOCurrent()->displaceRmGlobOriginalOriginal( OptOCurrent(), YCoor, disp );
-  } else if ( name_[namelength] == 'Z' ) {
-      OptOCurrent()->displaceRmGlobOriginalOriginal( OptOCurrent(), ZCoor, disp );
+    OptOCurrent()->displaceRmGlobOriginalOriginal(OptOCurrent(), YCoor, disp);
+  } else if (name_[namelength] == 'Z') {
+    OptOCurrent()->displaceRmGlobOriginalOriginal(OptOCurrent(), ZCoor, disp);
   }
- 
 }
-
-
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-ALIdouble EntryAngleAffAngles::valueDisplaced() const
-{
-
+ALIdouble EntryAngleAffAngles::valueDisplaced() const {
   //  std::cout << "  EntryAngleAffAngles::valueDisplaced() parent " << OptOCurrent()->parent()->name() << std::endl;
   //  ALIUtils::dumprm( OptOCurrent()->parent()->rmGlob() , " parent RmGlob ");
-  if(ALIUtils::debug >= 5) {
-    std::cout << "  EntryAngleAffAngles::valueDisplaced() parent opto  " << OptOCurrent()->parent()->name() << std::endl;
-    ALIUtils::dumprm( OptOCurrent()->rmGlob() , " RmGlob ");
-    ALIUtils::dumprm( OptOCurrent()->rmGlobOriginal() , " RmGlobOriginal ");
-    ALIUtils::dumprm( OptOCurrent()->parent()->rmGlobOriginal() , " parent RmGlobOriginal ");
+  if (ALIUtils::debug >= 5) {
+    std::cout << "  EntryAngleAffAngles::valueDisplaced() parent opto  " << OptOCurrent()->parent()->name()
+              << std::endl;
+    ALIUtils::dumprm(OptOCurrent()->rmGlob(), " RmGlob ");
+    ALIUtils::dumprm(OptOCurrent()->rmGlobOriginal(), " RmGlobOriginal ");
+    ALIUtils::dumprm(OptOCurrent()->parent()->rmGlobOriginal(), " parent RmGlobOriginal ");
   }
 
-  CLHEP::HepRotation diffRm =  OptOCurrent()->rmGlob() * OptOCurrent()->rmGlobOriginal().inverse();
+  CLHEP::HepRotation diffRm = OptOCurrent()->rmGlob() * OptOCurrent()->rmGlobOriginal().inverse();
   CLHEP::HepRotation rmLocal = diffRm * OptOCurrent()->parent()->rmGlobOriginal().inverse();
-  std::vector<double> localrot = OptOCurrent()->getRotationAnglesFromMatrix( rmLocal, OptOCurrent()->CoordinateEntryList() );
-  if(ALIUtils::debug >= 5) {
-    ALIUtils::dumprm( diffRm , " diffRm ");
-    ALIUtils::dumprm( rmLocal , " rmLocal ");
+  std::vector<double> localrot =
+      OptOCurrent()->getRotationAnglesFromMatrix(rmLocal, OptOCurrent()->CoordinateEntryList());
+  if (ALIUtils::debug >= 5) {
+    ALIUtils::dumprm(diffRm, " diffRm ");
+    ALIUtils::dumprm(rmLocal, " rmLocal ");
     std::cout << " localrot " << localrot[0] << " " << localrot[1] << " " << localrot[2] << std::endl;
   }
 
-  if( name() == "angles_X" ) {
+  if (name() == "angles_X") {
     return localrot[0];
-  }else if( name() == "angles_Y" ) {
+  } else if (name() == "angles_Y") {
     return localrot[1];
-  }else if( name() == "angles_Z" ) {
+  } else if (name() == "angles_Z") {
     return localrot[2];
   }
 
   /*
   CLHEP::HepRotation rmLocalOrig = OptOCurrent()->parent()->rmGlobOriginal().inverse() *  OptOCurrent()->rmGlobOriginal();
-  
-  CLHEP::HepRotation rmLocal = OptOCurrent()->parent()->rmGlob().inverse() *  OptOCurrent()->rmGlob();
+
+  CLHEP::HepRotation rmLocal = OptOCurrent()->parent()->rmGlob().inverse() * OptOCurrent()->rmGlob();
   std::vector<double> localrot = OptOCurrent()->getRotationAnglesFromMatrix(  rmLocal, OptOCurrent()->CoordinateEntryList() );
 
   std::cout << " localrot " << localrot[0] << " " << localrot[1] << " " << localrot[2] << std::endl;
@@ -139,52 +125,51 @@ ALIdouble EntryAngleAffAngles::valueDisplaced() const
     Yaxis = OptOCurrent()->parent()->rmGlob() * Yaxis;
     CLHEP::Hep3Vector YaxisOrig(0.,1.,0.);
     YaxisOrig = OptOCurrent()->parent()->rmGlobOriginal() * YaxisOrig;
-    
+
     diff = fabs( checkDiff( Yaxis, YaxisOrig, localrot, localrotorig ) );
   }
 
   return diff;
   */
 
-  return 0.; // to avoid warning
+  return 0.;  // to avoid warning
 }
 
-
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-ALIdouble EntryAngleAffAngles::checkDiff( const CLHEP::Hep3Vector& _axis, const CLHEP::Hep3Vector& _axisOrig, const std::vector<double>& localrot, const std::vector<double>& localrotorig ) const
-{
+ALIdouble EntryAngleAffAngles::checkDiff(const CLHEP::Hep3Vector& _axis,
+                                         const CLHEP::Hep3Vector& _axisOrig,
+                                         const std::vector<double>& localrot,
+                                         const std::vector<double>& localrotorig) const {
   CLHEP::Hep3Vector axis = _axis;
   CLHEP::Hep3Vector axisOrig = _axisOrig;
   int inam = 0;
-  if( name() == "angles_X" ) {
+  if (name() == "angles_X") {
     inam = 1;
-  }else if( name() == "angles_Y" ) {
+  } else if (name() == "angles_Y") {
     inam = 2;
-  }else if( name() == "angles_Z" ) {
+  } else if (name() == "angles_Z") {
     inam = 3;
   }
-  switch( inam ){
-  case 1:
-    axis.rotateX( localrot[0] );
-    axisOrig.rotateX( localrotorig[0] );
-  case 2:
-    axis.rotateY( localrot[1] );
-    axisOrig.rotateY( localrotorig[1] );
-  case 3:
-    axis.rotateZ( localrot[2] );
-    axisOrig.rotateZ( localrotorig[2] );
-    break;
+  switch (inam) {
+    case 1:
+      axis.rotateX(localrot[0]);
+      axisOrig.rotateX(localrotorig[0]);
+    case 2:
+      axis.rotateY(localrot[1]);
+      axisOrig.rotateY(localrotorig[1]);
+    case 3:
+      axis.rotateZ(localrot[2]);
+      axisOrig.rotateZ(localrotorig[2]);
+      break;
   }
 
-  ALIdouble ang = axis.angle( axisOrig );
- 
-    /*  }else if( name() == "angles_Y" ) {
+  ALIdouble ang = axis.angle(axisOrig);
+
+  /*  }else if( name() == "angles_Y" ) {
     return localrot[1] - localrotorig[1];
   }else if( name() == "angles_Z" ) {
     return localrot[2] - localrotorig[2];
     }*/
-  
+
   return ang;
 }
-
- 

@@ -44,55 +44,56 @@ namespace edm {
   class EventSetup;
 }
 
-namespace popcon
-{
+namespace popcon {
 
+  class EcalTPGWeightGroupHandler : public popcon::PopConSourceHandler<EcalTPGWeightGroup> {
+  public:
+    EcalTPGWeightGroupHandler(edm::ParameterSet const & );
+    ~EcalTPGWeightGroupHandler() override; 
+			
+    std::map<std::string, int> makeStripId();
+			
+    void getNewObjects() override;
+			
+    std::string id() const override { return m_name;}
+			
+    void readtxtFile() ;
+    void readxmlFile();
 
-	class EcalTPGWeightGroupHandler : public popcon::PopConSourceHandler<EcalTPGWeightGroup>
-	{
+    void readFromFile(const char* inputFile) ;
+    void writeFile(const char* inputFile);
+			
+    EcalCondDBInterface* econn;
 
-		public:
-                        EcalTPGWeightGroupHandler(edm::ParameterSet const & );
-			~EcalTPGWeightGroupHandler() override; 
-			
-			std::map<std::string, int> makeStripId();
-			
-			void getNewObjects() override;
-			
-			std::string id() const override { return m_name;}
-			
-			void readFromFile(const char* inputFile) ;
-			void writeFile(const char* inputFile);
-			
-			EcalCondDBInterface* econn;
+  private:
+    std::string to_string( char value[]) {
+      std::ostringstream streamOut;
+      streamOut << value;
+      return streamOut.str();
+    }
 
-		private:
-			std::string to_string( char value[]) {
- 	    		  std::ostringstream streamOut;
-	    		  streamOut << value;
-	    		  return streamOut.str();
-	  		}
-
-			unsigned int m_firstRun ;
-			unsigned int m_lastRun ;
+    unsigned int m_firstRun ;
+    unsigned int m_lastRun ;
 			
-			std::map<std::string, int> correspId;
+    std::map<std::string, int> correspId;
 			
-			const EcalElectronicsMapping* ecalMapping_;
-			std::string m_location;
-			std::string m_gentag;
-			std::string m_sid;
-			std::string m_user;
-			std::string m_pass;
-                        std::string m_locationsource;
-                        std::string m_name;
-			unsigned int m_runnr;
-			std::string m_runtype;
-			std::string m_i_tag;
-			int m_i_version;
-			unsigned int m_i_run_number;
-			int m_i_weightGroup;
-	};
+    const EcalElectronicsMapping* ecalMapping_;
+    std::string m_location;
+    std::string m_gentag;
+    std::string m_sid;
+    std::string m_user;
+    std::string m_pass;
+    std::string m_locationsource;
+    std::string m_name;
+    unsigned int m_runnr;
+    std::string m_runtype;
+    std::string m_i_tag;
+    std::string m_file_type;
+    std::string m_file_name;
+   int m_i_version;
+    unsigned int m_i_run_number;
+    int m_i_weightGroup;
+  };
 }
 #endif
 

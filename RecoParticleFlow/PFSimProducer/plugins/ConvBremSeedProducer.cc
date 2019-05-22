@@ -1,6 +1,8 @@
 #include "RecoParticleFlow/PFSimProducer/plugins/ConvBremSeedProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "TMath.h"
+
 ///RECORD NEEDED
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -33,7 +35,7 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/TangentPlane.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "FastSimulation/ParticlePropagator/src/ParticlePropagator.cc"
+#include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "FastSimulation/TrajectoryManager/interface/InsideBoundsMeasurementEstimator.h"
 #include "FastSimulation/TrajectoryManager/interface/LocalMagneticField.h"
@@ -132,9 +134,8 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 						pft->gsfTrackRef()->outerPosition().y(),
 						pft->gsfTrackRef()->outerPosition().z(),
 						0.);
-    BaseParticlePropagator theOutParticle=BaseParticlePropagator( RawParticle(mom,pos),
+    BaseParticlePropagator theOutParticle=BaseParticlePropagator( RawParticle(mom,pos, pft->gsfTrackRef()->charge()),
 								  0,0,B_.z());
-    theOutParticle.setCharge(pft->gsfTrackRef()->charge());
 
     ///FIND THE CLUSTER ASSOCIATED TO THE GSF TRACK
     gc.push_back(GoodCluster(theOutParticle,PPP,0.5));
@@ -165,12 +166,11 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       
 
 
-      BaseParticlePropagator p( RawParticle(mom,pos),
+      BaseParticlePropagator p( RawParticle(mom,pos,0.),
 				0,0,B_.z());
-      p.setCharge(0);
       gc.push_back(GoodCluster(p,PPP,0.2));
 
-      ParticlePropagator PP(p,fieldMap_);
+      ParticlePropagator PP(p,fieldMap_, nullptr);
 
       ///LOOP OVER TRACKER LAYER
       list<TrackerLayer>::const_iterator cyliter= geometry_->cylinderBegin();
@@ -186,7 +186,7 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
        LocalMagneticField mf(PP.getMagneticField());
        AnalyticalPropagator alongProp(&mf, anyDirection);
        InsideBoundsMeasurementEstimator est;
-       const DetLayer* tkLayer = detLayer(*cyliter,PP.Z());
+       const DetLayer* tkLayer = detLayer(*cyliter,PP.particle().Z());
        if (&(*tkLayer)==nullptr) continue;
        TrajectoryStateOnSurface trajState = makeTrajectoryState( tkLayer, PP, &mf);
 	    
@@ -310,8 +310,7 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 	    XYZTLorentzVector mom = XYZTLorentzVector(gv.x(),gv.y(),gv_corr.z(),ene);
 	    XYZTLorentzVector pos = XYZTLorentzVector(gp.x(),gp.y(),gp.z(),0.);
-	    BaseParticlePropagator theOutParticle(RawParticle(mom,pos),0,0,B_.z());
-	    theOutParticle.setCharge(ch);
+	    BaseParticlePropagator theOutParticle(RawParticle(mom,pos,ch),0,0,B_.z());
 	    int bgc=GoodCluster(theOutParticle,PPP,0.3,true);
 
 	    if (gv.perp()<0.5) continue;
@@ -540,24 +539,19 @@ ConvBremSeedProducer::makeTrajectoryState( const DetLayer* layer,
 			       const MagneticField* field) const
 {
 
-  GlobalPoint  pos( pp.X(), pp.Y(), pp.Z());
-  GlobalVector mom( pp.Px(), pp.Py(), pp.Pz());
+  GlobalPoint  pos( pp.particle().X(), pp.particle().Y(), pp.particle().Z());
+  GlobalVector mom( pp.particle().Px(), pp.particle().Py(), pp.particle().Pz());
 
   auto plane = layer->surface().tangentPlane(pos);
 
   return TrajectoryStateOnSurface
-    (GlobalTrajectoryParameters( pos, mom, TrackCharge( pp.charge()), field), *plane);
+    (GlobalTrajectoryParameters( pos, mom, TrackCharge( pp.particle().charge()), field), *plane);
 }
 bool ConvBremSeedProducer::isGsfTrack(const reco::Track & tkv, const TrackingRecHit *h ){
-  auto ib=tkv.recHitsBegin();
-  auto ie=tkv.recHitsEnd();
   bool istaken=false;
-  //  for (;ib!=ie-2;++ib){
-    for (;ib!=ie;++ib){
-    if (istaken) continue;
-    if (!((*ib)->isValid())) continue;
- 
-    istaken = (*ib)->sharesInput(h,TrackingRecHit::all);
+  for(auto const& hit : tkv.recHits()) {
+    if (istaken || !hit->isValid()) continue;
+    istaken = hit->sharesInput(h,TrackingRecHit::all);
   }
   return istaken;
 }
@@ -623,10 +617,10 @@ int ConvBremSeedProducer::GoodCluster(const BaseParticlePropagator& ubpg, const 
   if(bpg.getSuccess()!=0){
 
     for (unsigned int i =0; i<pfc.size();i++ ){
-      float tmp_ep=pfc[i].energy()/bpg.momentum().e();
-      float tmp_phi=fabs(pfc[i].position().phi()-bpg.vertex().phi());
+      float tmp_ep=pfc[i].energy()/bpg.particle().momentum().e();
+      float tmp_phi=fabs(pfc[i].position().phi()-bpg.particle().vertex().phi());
       if (tmp_phi>TMath::TwoPi()) tmp_phi-= TMath::TwoPi(); 
-      float tmp_eta=fabs(pfc[i].position().eta()-bpg.vertex().eta());
+      float tmp_eta=fabs(pfc[i].position().eta()-bpg.particle().vertex().eta());
       float tmp_dr=sqrt(pow(tmp_phi,2)+pow(tmp_eta,2));
       bool isBet=(tmp_dr<dr);
       if (sec) isBet=(tmp_phi<df);

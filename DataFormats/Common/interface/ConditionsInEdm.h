@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_ConditionsInEdm_h 
-#define DataFormats_Common_ConditionsInEdm_h 
+#ifndef DataFormats_Common_ConditionsInEdm_h
+#define DataFormats_Common_ConditionsInEdm_h
 
 #include <boost/cstdint.hpp>
 
@@ -12,7 +12,7 @@ namespace edm {
 
     bool isProductEqual(ConditionsInLumiBlock const& newThing) const {
       return ((totalIntensityBeam1 == newThing.totalIntensityBeam1) &&
-	      (totalIntensityBeam2 == newThing.totalIntensityBeam2));
+              (totalIntensityBeam2 == newThing.totalIntensityBeam2));
     }
   };
 
@@ -31,11 +31,10 @@ namespace edm {
     }
   };
 
-  
   class ConditionsInEventBlock {
   public:
     boost::uint16_t bstMasterStatus;
     boost::uint32_t turnCountNumber;
   };
-}
+}  // namespace edm
 #endif

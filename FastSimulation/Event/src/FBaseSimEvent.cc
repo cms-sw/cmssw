@@ -11,11 +11,13 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 //FAMOS Headers
+#include "FastSimulation/Particle/interface/pdg_functions.h"
+#include "FastSimulation/Particle/interface/makeParticle.h"
 #include "FastSimulation/Event/interface/FBaseSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 
 #include "FastSimDataFormats/NuclearInteractions/interface/FSimVertexType.h"
 
@@ -211,9 +213,8 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
       // The next 3 lines to be then replaced by the previous line
       XYZTLorentzVector momentum(track.momentum().px(),track.momentum().py(),
 				 track.momentum().pz(),track.momentum().e());
-      RawParticle part(momentum,position);
+      RawParticle part = makeParticle(theTable(),track.type(),momentum,position);
       //
-      part.setID(track.type()); 
       //std::cout << "Ctau  = " << part.PDGcTau() << std::endl;
       // Don't save tracks that have decayed immediately but for which no daughters
       // were saved (probably due to cuts on E, pT and eta)
@@ -292,47 +293,46 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
 
     if ( mom.T() >  0. ) {  
       // The particle to be propagated
-      myPart = BaseParticlePropagator(RawParticle(mom,pos),0.,0.,4.);
-      myPart.setCharge(myTrack.charge());
+      myPart = BaseParticlePropagator(RawParticle(mom,pos,myTrack.charge()),0.,0.,4.);
       
       // Propagate to Preshower layer 1
       myPart.propagateToPreshowerLayer1(false);
-      if ( myTrack.notYetToEndVertex(myPart.vertex()) && myPart.getSuccess()>0 )
-	myTrack.setLayer1(myPart,myPart.getSuccess());
+      if ( myTrack.notYetToEndVertex(myPart.particle().vertex()) && myPart.getSuccess()>0 )
+	myTrack.setLayer1(myPart.particle(),myPart.getSuccess());
       
       // Propagate to Preshower Layer 2 
       myPart.propagateToPreshowerLayer2(false);
-      if ( myTrack.notYetToEndVertex(myPart.vertex()) && myPart.getSuccess()>0 )
-	myTrack.setLayer2(myPart,myPart.getSuccess());
+      if ( myTrack.notYetToEndVertex(myPart.particle().vertex()) && myPart.getSuccess()>0 )
+	myTrack.setLayer2(myPart.particle(),myPart.getSuccess());
       
       // Propagate to Ecal Endcap
       myPart.propagateToEcalEntrance(false);
-      if ( myTrack.notYetToEndVertex(myPart.vertex()) )
-	myTrack.setEcal(myPart,myPart.getSuccess());
+      if ( myTrack.notYetToEndVertex(myPart.particle().vertex()) )
+	myTrack.setEcal(myPart.particle(),myPart.getSuccess());
       
       // Propagate to HCAL entrance
       myPart.propagateToHcalEntrance(false);
-      if ( myTrack.notYetToEndVertex(myPart.vertex()) )
-	myTrack.setHcal(myPart,myPart.getSuccess());
+      if ( myTrack.notYetToEndVertex(myPart.particle().vertex()) )
+	myTrack.setHcal(myPart.particle(),myPart.getSuccess());
       
       // Attempt propagation to HF for low pt and high eta 
-      if ( myPart.cos2ThetaV()>0.8 || mom.T() < 3. ) {
+      if ( myPart.particle().cos2ThetaV()>0.8 || mom.T() < 3. ) {
 	// Propagate to VFCAL entrance
 	myPart.propagateToVFcalEntrance(false);
-	if ( myTrack.notYetToEndVertex(myPart.vertex()) )
- 	myTrack.setVFcal(myPart,myPart.getSuccess());
+	if ( myTrack.notYetToEndVertex(myPart.particle().vertex()) )
+ 	myTrack.setVFcal(myPart.particle(),myPart.getSuccess());
 	
 	// Otherwise propagate to the HCAL exit and HO.
       } else { 
 	// Propagate to HCAL exit
 	myPart.propagateToHcalExit(false);
-	if ( myTrack.notYetToEndVertex(myPart.vertex()) )
-	  myTrack.setHcalExit(myPart,myPart.getSuccess());     
+	if ( myTrack.notYetToEndVertex(myPart.particle().vertex()) )
+	  myTrack.setHcalExit(myPart.particle(),myPart.getSuccess());     
 	// Propagate to HOLayer entrance
 	myPart.setMagneticField(0);
 	myPart.propagateToHOLayer(false);
-	if ( myTrack.notYetToEndVertex(myPart.vertex()) )
-	  myTrack.setHO(myPart,myPart.getSuccess());
+	if ( myTrack.notYetToEndVertex(myPart.particle().vertex()) )
+	  myTrack.setHO(myPart.particle(),myPart.getSuccess());
       } 
     }
   }
@@ -489,8 +489,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 				 p->momentum().py(),
 				 p->momentum().pz(),
 				 p->momentum().e());
-      RawParticle part(momentum, vertex(originVertex).position());
-      part.setID(p->pdg_id());
+      RawParticle part= makeParticle(theTable(),p->pdg_id(),momentum, vertex(originVertex).position());
 
       // Add the particle to the event and to the various lists
       
@@ -526,7 +525,6 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
 }
 
-
 int 
 FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig, 
 			   const HepMC::GenVertex* ev) { 
@@ -558,7 +556,7 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig,
     // A proper decay time is scheduled
     FSimTrack(p,iv,ig,trackId,this,
 	      ev->position().t()/10.
-	      * p->PDGmass()
+	      * pdg::mass(p->pid(), theTable())
 	      / std::sqrt(p->momentum().Vect().Mag2())) : 
     // No proper decay time is scheduled
     FSimTrack(p,iv,ig,trackId,this);

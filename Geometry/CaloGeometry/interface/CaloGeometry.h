@@ -20,60 +20,52 @@ $Revision: 1.7 $
 \author J. Mans and P. Meridiani
 */
 
-class CaloGeometry 
-{
-   public:
+class CaloGeometry {
+public:
+  CaloGeometry();
 
-      CaloGeometry() ;
-    
-      /// Register a subdetector geometry
-      void setSubdetGeometry( DetId::Detector                det    , 
-			      int                            subdet , 
-			      const CaloSubdetectorGeometry* geom    ) ;
-    
-      /// Get the position of a given detector id
-      GlobalPoint getPosition( const DetId& id ) const;
+  /// Register a subdetector geometry
+  void setSubdetGeometry(DetId::Detector det, int subdet, const CaloSubdetectorGeometry* geom);
 
-      /// Get the cell geometry of a given detector id
-      std::shared_ptr<const CaloCellGeometry> getGeometry( const DetId& id ) const;
+  /// Get the position of a given detector id
+  GlobalPoint getPosition(const DetId& id) const;
 
-      /// Get the list of all valid detector ids
-      std::vector<DetId> getValidDetIds() const ;
-    
-      /// Get the list of valid detector ids for the given subdetector
-      const std::vector<DetId>& getValidDetIds( DetId::Detector det, int subdet ) const;
+  /// Get the cell geometry of a given detector id
+  std::shared_ptr<const CaloCellGeometry> getGeometry(const DetId& id) const;
 
-      /// is this detid present in the geometry?
-      bool present( const DetId& id ) const;
+  /// Get the list of all valid detector ids
+  std::vector<DetId> getValidDetIds() const;
 
-      /// access the subdetector geometry for the given subdetector directly
-      const CaloSubdetectorGeometry* getSubdetectorGeometry( const DetId& id ) const ;
-    
-      /// access the subdetector geometry for the given subdetector directly
-      const CaloSubdetectorGeometry* getSubdetectorGeometry( DetId::Detector det    , 
-							     int             subdet   ) const ;
+  /// Get the list of valid detector ids for the given subdetector
+  const std::vector<DetId>& getValidDetIds(DetId::Detector det, int subdet) const;
 
-      // Get closest cell, etc...
-//not implemented      const DetId getClosestCell( const GlobalPoint& r ) const ;
+  /// is this detid present in the geometry?
+  bool present(const DetId& id) const;
 
-   private:
+  /// access the subdetector geometry for the given subdetector directly
+  const CaloSubdetectorGeometry* getSubdetectorGeometry(const DetId& id) const;
 
-      static const std::vector<DetId> k_emptyVec ;
+  /// access the subdetector geometry for the given subdetector directly
+  const CaloSubdetectorGeometry* getSubdetectorGeometry(DetId::Detector det, int subdet) const;
 
-      std::vector< const CaloSubdetectorGeometry* > m_geos ;
+  // Get closest cell, etc...
+  //not implemented      const DetId getClosestCell( const GlobalPoint& r ) const ;
 
-      unsigned int makeIndex( DetId::Detector det,
-			      int             subdet,
-			      bool&           ok      ) const ;
+private:
+  static const std::vector<DetId> k_emptyVec;
 
-      enum { kMaxDet = 10 ,
-	     kMinDet = 3 ,
-	     kNDets  = kMaxDet - kMinDet + 1 ,
-	     kMaxSub = 6 ,
-	     kNSubDets = kMaxSub + 1 ,
-	     kLength = kNDets*kNSubDets } ;
+  std::vector<const CaloSubdetectorGeometry*> m_geos;
+
+  unsigned int makeIndex(DetId::Detector det, int subdet, bool& ok) const;
+
+  enum {
+    kMaxDet = 10,
+    kMinDet = 3,
+    kNDets = kMaxDet - kMinDet + 1,
+    kMaxSub = 6,
+    kNSubDets = kMaxSub + 1,
+    kLength = kNDets * kNSubDets
+  };
 };
-
-
 
 #endif

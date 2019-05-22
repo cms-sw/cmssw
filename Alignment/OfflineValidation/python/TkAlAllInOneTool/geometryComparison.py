@@ -1,9 +1,10 @@
+from __future__ import absolute_import
 import os
 import ConfigParser # needed for exceptions in this module
-import configTemplates
-from genericValidation import GenericValidation
-from helperFunctions import replaceByMap, getCommandOutput2, cppboolstring, pythonboolstring, clean_name
-from TkAlExceptions import AllInOneError
+from . import configTemplates
+from .genericValidation import GenericValidation
+from .helperFunctions import replaceByMap, getCommandOutput2, cppboolstring, pythonboolstring, clean_name
+from .TkAlExceptions import AllInOneError
 
 
 class GeometryComparison(GenericValidation):

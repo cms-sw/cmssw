@@ -27,7 +27,8 @@ namespace CLHEP {
 }
 
 ME0DigiProducer::ME0DigiProducer(const edm::ParameterSet& ps)
-  : me0digiModelString_(ps.getParameter<std::string>("digiModelString"))
+  : ME0DigiModel_{ME0DigiModelFactory::get()->create("ME0" + ps.getParameter<std::string>("digiModelString") + "Model",
+                                                     ps)}
 {
   produces<ME0DigiCollection>();
   produces<StripDigiSimLinks>("ME0");
@@ -39,8 +40,8 @@ ME0DigiProducer::ME0DigiProducer(const edm::ParameterSet& ps)
       << "ME0DigiProducer::ME0DigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
       << "Add the service in the configuration file or remove the modules that require it.";
   }
-  ME0DigiModel_ = ME0DigiModelFactory::get()->create("ME0" + me0digiModelString_ + "Model", ps);
-  LogDebug("ME0DigiProducer") << "Using ME0" + me0digiModelString_ + "Model";
+
+  LogDebug("ME0DigiProducer") << "Using ME0" + ps.getParameter<std::string>("digiModelString") + "Model";
 
   std::string mix_(ps.getParameter<std::string>("mixLabel"));
   std::string collection_(ps.getParameter<std::string>("inputCollection"));
@@ -49,10 +50,7 @@ ME0DigiProducer::ME0DigiProducer(const edm::ParameterSet& ps)
 }
 
 
-ME0DigiProducer::~ME0DigiProducer()
-{
-  delete ME0DigiModel_;
-}
+ME0DigiProducer::~ME0DigiProducer() = default;
 
 
 void ME0DigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup)
@@ -72,16 +70,16 @@ void ME0DigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   edm::Handle<CrossingFrame<PSimHit> > cf;
   e.getByToken(cf_token, cf);
 
-  std::unique_ptr<MixCollection<PSimHit> > hits(new MixCollection<PSimHit>(cf.product()));
+  MixCollection<PSimHit> hits{cf.product()};
 
   // Create empty output
-  std::unique_ptr<ME0DigiCollection> digis(new ME0DigiCollection());
-  std::unique_ptr<StripDigiSimLinks> stripDigiSimLinks(new StripDigiSimLinks() );
-  std::unique_ptr<ME0DigiSimLinks> me0DigiSimLinks(new ME0DigiSimLinks() );
+  auto digis = std::make_unique<ME0DigiCollection>();
+  auto stripDigiSimLinks = std::make_unique<StripDigiSimLinks>();
+  auto me0DigiSimLinks = std::make_unique<ME0DigiSimLinks>();
 
   // arrange the hits by eta partition
   std::map<uint32_t, edm::PSimHitContainer> hitMap;
-  for (const auto& hit: *hits){
+  for (const auto& hit: hits){
     hitMap[hit.detUnitId()].emplace_back(hit);
   }
 

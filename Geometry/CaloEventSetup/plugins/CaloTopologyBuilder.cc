@@ -3,20 +3,12 @@
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 
-CaloTopologyBuilder::CaloTopologyBuilder( const edm::ParameterSet& /*iConfig*/ )
-{
-   //the following line is needed to tell the framework what
-   // data is being produced
-
-// disable
-//   setWhatProduced( this, &CaloTopologyBuilder::produceIdeal );
-   setWhatProduced( this, &CaloTopologyBuilder::produceCalo  );
-}
-
+CaloTopologyBuilder::CaloTopologyBuilder( const edm::ParameterSet& /*iConfig*/ ):
+  geometryToken_{setWhatProduced(this, &CaloTopologyBuilder::produceCalo).consumesFrom<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})}
+{}
 
 CaloTopologyBuilder::~CaloTopologyBuilder()
 { 
@@ -31,19 +23,18 @@ CaloTopologyBuilder::~CaloTopologyBuilder()
 CaloTopologyBuilder::ReturnType
 CaloTopologyBuilder::produceCalo( const CaloTopologyRecord& iRecord )
 {
-   edm::ESHandle<CaloGeometry>                  theGeometry   ;
-   iRecord.getRecord<CaloGeometryRecord>().get( theGeometry ) ;
+   const auto& geometry = iRecord.get(geometryToken_);
 
    ReturnType ct = std::make_unique<CaloTopology>();
    //ECAL parts      
    ct->setSubdetTopology( DetId::Ecal,
 			  EcalBarrel,
-			  new EcalBarrelTopology( theGeometry ) ) ;
+			  std::make_unique<EcalBarrelTopology>( geometry ) ) ;
    ct->setSubdetTopology( DetId::Ecal,
 			  EcalEndcap,
-			  new EcalEndcapTopology( theGeometry ) ) ;
+			  std::make_unique<EcalEndcapTopology>( geometry ) ) ;
    ct->setSubdetTopology( DetId::Ecal,
 			  EcalPreshower,
-			  new EcalPreshowerTopology(theGeometry));
+			  std::make_unique<EcalPreshowerTopology>());
    return ct ;
 }

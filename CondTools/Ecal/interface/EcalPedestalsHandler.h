@@ -60,6 +60,7 @@ namespace popcon {
     void getNewObjectsP5();
     void getNewObjectsH2();
     void readPedestalFile();
+    void readPedestalMC();
     void readPedestalTree();
     void readPedestalTimestamp();
     void readPedestal2017();
@@ -82,6 +83,7 @@ namespace popcon {
     std::string m_name;
     std::string m_filename;
     int m_runtype;
+    bool m_corrected;
 
   };
 }

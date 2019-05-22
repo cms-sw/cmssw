@@ -15,8 +15,6 @@ $Revision: 1.3 $
 namespace {
   // pack range/capId in the plain index
   inline unsigned index (unsigned fRange, unsigned fCapId) {return fCapId * 4 + fRange;}
-  inline unsigned range (unsigned fIndex) {return fIndex % 4;}
-  inline unsigned capId (unsigned fIndex) {return fIndex / 4;}
 }
 
 float HcalQIECoder::charge (const HcalQIEShape& fShape, unsigned fAdc, unsigned fCapId) const {

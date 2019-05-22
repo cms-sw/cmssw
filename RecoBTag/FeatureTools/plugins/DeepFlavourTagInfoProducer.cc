@@ -152,6 +152,15 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   edm::Handle<ShallowTagInfoCollection> shallow_tag_infos;
   iEvent.getByToken(shallow_tag_info_token_, shallow_tag_infos);
+  double negative_cut = 0;//used only with flip_
+  if (flip_){//FIXME: Check if can do even less often than once per event
+    const edm::Provenance *prov = shallow_tag_infos.provenance();
+    const edm::ParameterSet& psetFromProvenance = edm::parameterSet(*prov);
+    negative_cut = ( ( psetFromProvenance.getParameter<edm::ParameterSet>("computer")
+                       ).getParameter<edm::ParameterSet>("trackSelection")
+                     ).getParameter<double>("sip3dSigMax");
+  }
+
 
   edm::Handle<edm::ValueMap<float>> puppi_value_map;
   if (use_puppi_value_map_) {
@@ -273,12 +282,6 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     features.n_pf_features.clear();
     features.n_pf_features.resize(n_sorted.size());
 
-
-    const edm::Provenance *prov = shallow_tag_infos.provenance();
-    const edm::ParameterSet& psetFromProvenance = edm::parameterSet(*prov);
-    double negative_cut = ( ( psetFromProvenance.getParameter<edm::ParameterSet>("computer")
-			      ).getParameter<edm::ParameterSet>("trackSelection")
-			    ).getParameter<double>("sip3dSigMax");
 
   for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
 

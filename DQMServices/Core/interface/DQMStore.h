@@ -89,31 +89,34 @@ public:
   public:
     friend class DQMStore;
 
-#define IBOOKER_FUNCTION_WITH_SUFFIX(suffix)                            \
-    template <typename... Args>                                         \
-    MonitorElement* book##suffix(Args&&... args)                        \
-    {                                                                   \
-      return owner_->book##suffix(std::forward<Args>(args)...);         \
-    }
-
-    // For the supported interface, see the DQMStore function that
-    // starts with "book" and ends with the supplied suffix.  For
-    // example, giving an argument of "String" generates a function
-    // that interfaces with DQMStore::bookString.
-    IBOOKER_FUNCTION_WITH_SUFFIX(String);
-    IBOOKER_FUNCTION_WITH_SUFFIX(Int);
-    IBOOKER_FUNCTION_WITH_SUFFIX(Float);
-    IBOOKER_FUNCTION_WITH_SUFFIX(1D);
-    IBOOKER_FUNCTION_WITH_SUFFIX(1S);
-    IBOOKER_FUNCTION_WITH_SUFFIX(1DD);
-    IBOOKER_FUNCTION_WITH_SUFFIX(2D);
-    IBOOKER_FUNCTION_WITH_SUFFIX(2S);
-    IBOOKER_FUNCTION_WITH_SUFFIX(2DD);
-    IBOOKER_FUNCTION_WITH_SUFFIX(3D);
-    IBOOKER_FUNCTION_WITH_SUFFIX(Profile);
-    IBOOKER_FUNCTION_WITH_SUFFIX(Profile2D);
-
-#undef IBOOKER_FUNCTION_WITH_SUFFIX
+    MonitorElement* bookInt(TString const& name);
+    MonitorElement* bookFloat(TString const& name);
+    MonitorElement* bookString(TString const& name, TString const& value);
+    MonitorElement* book1D(TString const& name, TString const& title, int const nchX, double const lowX, double const highX);
+    MonitorElement* book1D(TString const& name, TString const& title, int nchX, float const* xbinsize);
+    MonitorElement* book1D(TString const& name, TH1F* object);
+    MonitorElement* book1S(TString const& name, TString const& title, int nchX, double lowX, double highX);
+    MonitorElement* book1S(TString const& name, TH1S* object);
+    MonitorElement* book1DD(TString const& name, TString const& title, int nchX, double lowX, double highX);
+    MonitorElement* book1DD(TString const& name, TH1D* object);
+    MonitorElement* book2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
+    MonitorElement* book2D(TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize);
+    MonitorElement* book2D(TString const& name, TH2F* object);
+    MonitorElement* book2S(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
+    MonitorElement* book2S(TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize);
+    MonitorElement* book2S(TString const& name, TH2S* object);
+    MonitorElement* book2DD(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
+    MonitorElement* book2DD(TString const& name, TH2D* object);
+    MonitorElement* book3D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ);
+    MonitorElement* book3D(TString const& name, TH3F* object);
+    MonitorElement* bookProfile(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, char const* option = "s");
+    MonitorElement* bookProfile(TString const& name, TString const& title, int nchX, double lowX, double highX, double lowY, double highY, char const* option = "s");
+    MonitorElement* bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, int nchY, double lowY, double highY, char const* option = "s");
+    MonitorElement* bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, double lowY, double highY, char const* option = "s");
+    MonitorElement* bookProfile(TString const& name, TProfile* object);
+    MonitorElement* bookProfile2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, double lowZ, double highZ, char const* option = "s");
+    MonitorElement* bookProfile2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ, char const* option = "s");
+    MonitorElement* bookProfile2D(TString const& name, TProfile2D* object);
 
     void cd();
     void cd(std::string const& dir);
@@ -142,32 +145,34 @@ public:
   public:
     friend class DQMStore;
 
-#define CONCURRENTBOOKER_FUNCTION_WITH_SUFFIX(suffix)                   \
-    template <typename... Args>                                         \
-    ConcurrentMonitorElement book##suffix(Args&&... args)               \
-    {                                                                   \
-      MonitorElement* me = IBooker::book##suffix(std::forward<Args>(args)...); \
-      return ConcurrentMonitorElement(me);                              \
-    }
-
-    // For the supported interface, see the DQMStore function that
-    // starts with "book" and ends with the supplied suffix.  For
-    // example, giving an argument of "String" generates a function
-    // that interfaces with DQMStore::bookString.
-    CONCURRENTBOOKER_FUNCTION_WITH_SUFFIX(String);
-    CONCURRENTBOOKER_FUNCTION_WITH_SUFFIX(Int);
-    CONCURRENTBOOKER_FUNCTION_WITH_SUFFIX(Float);
-    CONCURRENTBOOKER_FUNCTION_WITH_SUFFIX(1D);
-    CONCURRENTBOOKER_FUNCTION_WITH_SUFFIX(1S);
-    CONCURRENTBOOKER_FUNCTION_WITH_SUFFIX(1DD);
-    CONCURRENTBOOKER_FUNCTION_WITH_SUFFIX(2D);
-    CONCURRENTBOOKER_FUNCTION_WITH_SUFFIX(2S);
-    CONCURRENTBOOKER_FUNCTION_WITH_SUFFIX(2DD);
-    CONCURRENTBOOKER_FUNCTION_WITH_SUFFIX(3D);
-    CONCURRENTBOOKER_FUNCTION_WITH_SUFFIX(Profile);
-    CONCURRENTBOOKER_FUNCTION_WITH_SUFFIX(Profile2D);
-
-#undef CONCURRENTBOOKER_FUNCTION_WITH_SUFFIX
+    ConcurrentMonitorElement bookInt(TString const& name);
+    ConcurrentMonitorElement bookFloat(TString const& name);
+    ConcurrentMonitorElement bookString(TString const& name, TString const& value);
+    ConcurrentMonitorElement book1D(TString const& name, TString const& title, int const nchX, double const lowX, double const highX);
+    ConcurrentMonitorElement book1D(TString const& name, TString const& title, int nchX, float const* xbinsize);
+    ConcurrentMonitorElement book1D(TString const& name, TH1F* object);
+    ConcurrentMonitorElement book1S(TString const& name, TString const& title, int nchX, double lowX, double highX);
+    ConcurrentMonitorElement book1S(TString const& name, TH1S* object);
+    ConcurrentMonitorElement book1DD(TString const& name, TString const& title, int nchX, double lowX, double highX);
+    ConcurrentMonitorElement book1DD(TString const& name, TH1D* object);
+    ConcurrentMonitorElement book2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
+    ConcurrentMonitorElement book2D(TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize);
+    ConcurrentMonitorElement book2D(TString const& name, TH2F* object);
+    ConcurrentMonitorElement book2S(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
+    ConcurrentMonitorElement book2S(TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize);
+    ConcurrentMonitorElement book2S(TString const& name, TH2S* object);
+    ConcurrentMonitorElement book2DD(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
+    ConcurrentMonitorElement book2DD(TString const& name, TH2D* object);
+    ConcurrentMonitorElement book3D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ);
+    ConcurrentMonitorElement book3D(TString const& name, TH3F* object);
+    ConcurrentMonitorElement bookProfile(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, char const* option = "s");
+    ConcurrentMonitorElement bookProfile(TString const& name, TString const& title, int nchX, double lowX, double highX, double lowY, double highY, char const* option = "s");
+    ConcurrentMonitorElement bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, int nchY, double lowY, double highY, char const* option = "s");
+    ConcurrentMonitorElement bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, double lowY, double highY, char const* option = "s");
+    ConcurrentMonitorElement bookProfile(TString const& name, TProfile* object);
+    ConcurrentMonitorElement bookProfile2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, double lowZ, double highZ, char const* option = "s");
+    ConcurrentMonitorElement bookProfile2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ, char const* option = "s");
+    ConcurrentMonitorElement bookProfile2D(TString const& name, TProfile2D* object);
 
     ConcurrentBooker() = delete;
     ConcurrentBooker(ConcurrentBooker const&) = delete;
@@ -240,13 +245,14 @@ public:
   // into the DQMStore via a public API. The central mutex is acquired
   // *before* invoking and automatically released upon returns.
   template <typename iFunc>
-  void bookTransaction(iFunc f, uint32_t run, uint32_t moduleId)
+  void bookTransaction(iFunc f, uint32_t run, uint32_t moduleId, bool canSaveByLumi)
   {
     std::lock_guard<std::mutex> guard(book_mutex_);
     /* Set the run number and module id only if multithreading is enabled */
     if (enableMultiThread_) {
       run_ = run;
       moduleId_ = moduleId;
+      canSaveByLumi_ = canSaveByLumi;
     }
     IBooker booker{this};
     f(booker);
@@ -255,6 +261,7 @@ public:
     if (enableMultiThread_) {
       run_ = 0;
       moduleId_ = 0;
+      canSaveByLumi_ = false;
     }
   }
 
@@ -339,16 +346,10 @@ public:
   MonitorElement* book1S(char_string const& name,
                          char_string const& title,
                          int nchX, double lowX, double highX);
-  MonitorElement* book1S(char_string const& name,
-                         char_string const& title,
-                         int nchX, float const* xbinsize);
   MonitorElement* book1S(char_string const& name, TH1S* h);
   MonitorElement* book1DD(char_string const& name,
                           char_string const& title,
                           int nchX, double lowX, double highX);
-  MonitorElement* book1DD(char_string const& name,
-                          char_string const& title,
-                          int nchX, float const* xbinsize);
   MonitorElement* book1DD(char_string const& name, TH1D* h);
   MonitorElement* book2D(char_string const& name,
                          char_string const& title,
@@ -372,10 +373,6 @@ public:
                           char_string const& title,
                           int nchX, double lowX, double highX,
                           int nchY, double lowY, double highY);
-  MonitorElement* book2DD(char_string const& name,
-                          char_string const& title,
-                          int nchX, float const* xbinsize,
-                          int nchY, float const* ybinsize);
   MonitorElement* book2DD(char_string const& name, TH2D* h);
   MonitorElement* book3D(char_string const& name,
                          char_string const& title,
@@ -638,6 +635,10 @@ private:
   std::string readSelectedDirectory_{};
   uint32_t run_{};
   uint32_t moduleId_{};
+  // set to true in the transaction if module supports per-lumi saving.
+  bool canSaveByLumi_{false};
+  // set to true in configuration if per-lumi saving is requested.
+  bool doSaveByLumi_{false};
   std::unique_ptr<std::ostream> stream_{nullptr};
 
   std::string pwd_{};

@@ -3,7 +3,7 @@
 #if (defined (STANDALONE) or defined (__CINT__) )
 #include "ClopperPearsonBinomialInterval.h"
 
-ClassImp(ClopperPearsonBinomialInterval)
+ClassImp(ClopperPearsonBinomialInterval);
 #else
 #include "PhysicsTools/RooStatsCms/interface/ClopperPearsonBinomialInterval.h"
 #endif

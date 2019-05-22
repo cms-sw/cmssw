@@ -1,10 +1,12 @@
 #include "DD4hep/DetFactoryHelper.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
+using namespace geant_units::operators;
 
 static long algorithm( Detector& /* description */,
 		       cms::DDParsingContext& context,
@@ -98,7 +100,7 @@ static long algorithm( Detector& /* description */,
       << " Rib Material " << ribMat << " at " << ribW.size() << " positions with width/phi";
   for (unsigned int i = 0; i < ribW.size(); i++)  {
     LogDebug("TIBGeom") << "\tribW[" << i << "] = " <<  ribW[i] 
-			<< "\tribPhi[" << i << "] = " << ConvertTo( ribPhi[i], deg );
+			<< "\tribPhi[" << i << "] = " << convertRadToDeg( ribPhi[i] );
   }
   LogDebug("TIBGeom") << "DOHM Primary " << " Material " << dohmPrimMaterial << " Length " << dohmPrimL;
   LogDebug("TIBGeom") << "DOHM Aux     " << " Material " << dohmAuxMaterial << " Length " << dohmAuxL;
@@ -140,7 +142,7 @@ static long algorithm( Detector& /* description */,
   double rmax = MFRingOutR;
   Solid  solid = ns.addSolidNS(idName,Tube(rmin, rmax, 0.5*layerL));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
-		      << genMat << " from 0 to " << ConvertTo( 2_pi, deg )
+		      << genMat << " from 0 to " << convertRadToDeg( 2_pi )
 		      << " with Rin " << rmin << " Rout " << rmax << " ZHalf " << 0.5*layerL;
   Volume layer = ns.addVolumeNS(Volume(idName, solid, ns.material(genMat)));
 
@@ -151,7 +153,7 @@ static long algorithm( Detector& /* description */,
   string name = idName + "Down";
   solid = ns.addSolidNS(name,Tube(rin, rout, 0.5*layerL));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
-		      << genMat << " from 0 to " << ConvertTo( 2_pi, deg ) 
+		      << genMat << " from 0 to " << convertRadToDeg( 2_pi ) 
 		      << " with Rin " << rin << " Rout " << rout 
 		      << " ZHalf " << 0.5*layerL;
   Volume layerIn = ns.addVolumeNS(Volume(name, solid, ns.material(genMat)));
@@ -181,7 +183,7 @@ static long algorithm( Detector& /* description */,
   name = idName + "Up";
   solid = ns.addSolidNS(name,Tube(rin, rout, 0.5*layerL));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
-		      << genMat << " from 0 to " << ConvertTo( 2_pi, deg )
+		      << genMat << " from 0 to " << convertRadToDeg( 2_pi )
 		      << " with Rin " << rin << " Rout " << rout
 		      << " ZHalf " << 0.5*layerL;
   Volume layerOut = ns.addVolumeNS(Volume(name, solid, ns.material(genMat)));
@@ -217,7 +219,7 @@ static long algorithm( Detector& /* description */,
   solid = ns.addSolidNS(name, Tube(rin, rout, 0.5*layerL));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
       << cylinderMat << " from 0 to " 
-		      << ConvertTo( 2_pi, deg ) << " with Rin " << rin 
+		      << convertRadToDeg( 2_pi ) << " with Rin " << rin 
       << " Rout " << rout << " ZHalf " << 0.5*layerL;
   Volume cylinder = ns.addVolumeNS(Volume(name, solid, ns.material(cylinderMat)));
   layer.placeVolume(cylinder, 1); // CopyNr = 1
@@ -232,7 +234,7 @@ static long algorithm( Detector& /* description */,
   name  = idName + "CylinderIn";
   solid = ns.addSolidNS(name, Tube(rin, rout, 0.5*layerL));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of "
-		      << genMat << " from 0 to " << ConvertTo( 2_pi, deg ) 
+		      << genMat << " from 0 to " << convertRadToDeg( 2_pi ) 
       << " with Rin " << rin << " Rout " << rout 
       << " ZHalf " << 0.5*layerL;
   Volume cylinderIn = ns.addVolumeNS(Volume(name, solid, ns.material(genMat)));
@@ -247,7 +249,7 @@ static long algorithm( Detector& /* description */,
   solid = ns.addSolidNS(name,Tube(rin, rout, fillerDz));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
       << fillerMat << " from " << 0. << " to "
-		      << ConvertTo( 2_pi, deg ) << " with Rin " << rin 
+		      << convertRadToDeg( 2_pi ) << " with Rin " << rin 
       << " Rout " << rout << " ZHalf "  << fillerDz;
   Volume cylinderFiller = ns.addVolumeNS(Volume(name,solid,ns.material(fillerMat)));
   cylinderIn.placeVolume(cylinderFiller, 1, Position(0.0, 0.0, 0.5*layerL-fillerDz)); // copyNr 1
@@ -269,8 +271,8 @@ static long algorithm( Detector& /* description */,
     double _rma  = std::max(rin+0.5_mm,rout-0.5_mm);
     solid = ns.addSolidNS(name,Tube(_rmi,_rma,dz,-0.5*width, width));
     LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
-			<< ribMat << " from " << -0.5*ConvertTo( width, deg ) <<" to "
-			<< 0.5*ConvertTo( width, deg ) << " with Rin " 
+			<< ribMat << " from " << -0.5*convertRadToDeg( width ) <<" to "
+			<< 0.5*convertRadToDeg( width ) << " with Rin " 
         << rin+0.5_mm << " Rout " 
         << rout-0.5_mm << " ZHalf "  << dz;
     Volume cylinderRib = ns.addVolumeNS(Volume(name, solid, matrib));
@@ -295,7 +297,7 @@ static long algorithm( Detector& /* description */,
   solid = ns.addSolidNS(name,Tube(rin, rout, MFRingDz));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
       << MFIntRingMat << " from 0 to " 
-		      << ConvertTo( 2_pi, deg ) << " with Rin " << rin 
+		      << convertRadToDeg( 2_pi ) << " with Rin " << rin 
       << " Rout " << rout << " ZHalf " << MFRingDz;
   Volume inmfr = ns.addVolumeNS(Volume(name, solid, ns.material(MFIntRingMat)));
   layer.placeVolume(inmfr, 1, Position(0.0, 0.0, -0.5*layerL+MFRingDz)); // Copy Nr=1
@@ -311,7 +313,7 @@ static long algorithm( Detector& /* description */,
   solid= ns.addSolidNS(name,Tube(rin, rout, MFRingDz));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
       << MFExtRingMat << " from 0 to " 
-		      << ConvertTo( 2_pi, deg ) << " with Rin " << rin 
+		      << convertRadToDeg( 2_pi ) << " with Rin " << rin 
       << " Rout " << rout << " ZHalf " << MFRingDz;
 
   Volume outmfr = ns.addVolumeNS(Volume(name, solid, ns.material(MFExtRingMat)));
@@ -333,7 +335,7 @@ static long algorithm( Detector& /* description */,
   solid = ns.addSolidNS(name,Tube(rin, rout, centDz));
 
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
-		      << centMat << " from 0 to " << ConvertTo( 2_pi, deg )
+		      << centMat << " from 0 to " << convertRadToDeg( 2_pi )
 		      << " with Rin " << rin << " Rout " << rout 
 		      << " ZHalf " << centDz;
 
@@ -349,7 +351,7 @@ static long algorithm( Detector& /* description */,
   name = idName + "CentRing2";
   solid = ns.addSolidNS(name, Tube(rin, rout, centDz));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
-		      << centMat << " from 0 to " << ConvertTo( 2_pi, deg )
+		      << centMat << " from 0 to " << convertRadToDeg( 2_pi )
       << " with Rin " << rin << " Rout " << rout 
       << " ZHalf " << centDz;
 

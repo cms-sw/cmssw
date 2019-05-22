@@ -43,7 +43,7 @@ namespace reco {
   //
   // RefHBHERecHitEnergyComparison is a class functor to compare energies between Ref<HBHERecHitCollection>
   //
-  class RefHBHERecHitEnergyComparison : public std::binary_function<HBHERecHit,HBHERecHit,bool> {
+  class RefHBHERecHitEnergyComparison {
   public:
     bool operator()(const edm::Ref<HBHERecHitCollection>& x, const edm::Ref<HBHERecHitCollection>& y) const
     { return x->energy()>y->energy(); }

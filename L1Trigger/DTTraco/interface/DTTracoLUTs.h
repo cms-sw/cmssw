@@ -17,13 +17,12 @@
 // C++ Headers --
 //---------------
 
+#include <string>
 #include <vector>
-#include <string> 
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
 
 //              ---------------------
 //              -- Class Interface --
@@ -31,45 +30,42 @@
 
 typedef std::vector<unsigned short int> LUT;
 
-class DTTracoLUTs{
+class DTTracoLUTs {
+public:
+  //    typedef static std::vector<unsigned short int> LUT;
 
-  public:
-//    typedef static std::vector<unsigned short int> LUT;
- 
-    /// constructor
-    DTTracoLUTs(std::string filename);
+  /// constructor
+  DTTracoLUTs(std::string filename);
 
-    /// destructor
-    virtual ~DTTracoLUTs();
+  /// destructor
+  virtual ~DTTracoLUTs();
 
-    /// reset look-up tables
-    void reset();
-    
-    /// load look-up tables
-    int load();
+  /// reset look-up tables
+  void reset();
 
-    /// print look-up tables
-    void print() const;
+  /// load look-up tables
+  int load();
 
-    /// get radial angle from traco position and flag: 0=outer, 1=inner, 2=correl.
-    unsigned short int getPhiRad(int pos, int qualflag) const;
+  /// print look-up tables
+  void print() const;
 
-    /// get psi angle from traco k parameter
-    unsigned short int getPsi(int ang) const;
+  /// get radial angle from traco position and flag: 0=outer, 1=inner, 2=correl.
+  unsigned short int getPhiRad(int pos, int qualflag) const;
 
-    /// return bending angle from pos and ang
-    unsigned short int getBendAng(int pos, int ang, int qualflag) const;
+  /// get psi angle from traco k parameter
+  unsigned short int getPsi(int ang) const;
 
-    /// return number of entries in the LUT
-    inline int size_psiLUT() const { return psi_lut.size(); }
-    inline int size_phiLUT(int i) const { return phi_lut[i].size(); }
+  /// return bending angle from pos and ang
+  unsigned short int getBendAng(int pos, int ang, int qualflag) const;
 
-  private:
+  /// return number of entries in the LUT
+  inline int size_psiLUT() const { return psi_lut.size(); }
+  inline int size_phiLUT(int i) const { return phi_lut[i].size(); }
 
-    LUT phi_lut[3];  // phi rad: elem.0: inner; elem.1: outer; elem.2: corr.
-    LUT psi_lut;     // psi 
-    std::string _testfile;
-
+private:
+  LUT phi_lut[3];  // phi rad: elem.0: inner; elem.1: outer; elem.2: corr.
+  LUT psi_lut;     // psi
+  std::string _testfile;
 };
 
 #endif

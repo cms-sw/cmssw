@@ -41,7 +41,8 @@ int getCharge
 /*****************************************************************************/
 std::unique_ptr<reco::Track> TrackFitter::run
   (const std::vector<const TrackingRecHit *> & hits,
-   const TrackingRegion & region) const
+   const TrackingRegion & region,
+   const edm::EventSetup& setup) const
 {
   std::unique_ptr<reco::Track> ret;
 
@@ -70,7 +71,7 @@ std::unique_ptr<reco::Track> TrackFitter::run
   float curvature = circle.curvature();
 
   // pt
-  float invPt = PixelRecoUtilities::inversePt(curvature, *theES);
+  float invPt = PixelRecoUtilities::inversePt(curvature, setup);
   float valPt = (invPt > 1.e-4) ? 1./invPt : 1.e4;
   float errPt = 0.055*valPt + 0.017*valPt*valPt;
 

@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 import csv,os,sys,coral,array
 from RecoLuminosity.LumiDB import argparse,sessionManager,CommonUtil,idDealer,dbUtil,dataDML,revisionDML
 beamenergy=4.0e03
@@ -12,7 +13,7 @@ beam2intensity=8932813306.0
 def convertlist(l):
     '''yield successive pairs for l
     '''
-    for i in xrange(0,len(l),2):
+    for i in range(0,len(l),2):
         idx=int(l[i])
         val=float(l[i+1])
         yield (idx,val)

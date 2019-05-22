@@ -41,6 +41,7 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
     vertexSrc = PFTauQualityCuts.primaryVertexSrc,
     # This must correspond to the cone size of the algorithm which built the
     # tau. (or if customOuterCone option is used, the custom cone size)
+    customOuterCone = cms.double(-1.), # propagated this default from .cc, it probably corresponds to not using customOuterCone
     isoConeSizeForDeltaBeta = cms.double(0.5),
     # The delta beta factor maps the expected neutral contribution in the
     # isolation cone from the observed PU charged contribution.  This factor can
@@ -50,8 +51,8 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
     # By default, the pt threshold for tracks used to compute the DeltaBeta
     # correction is taken as the gamma Et threshold from the isolation quality
     # cuts.
-    # Uncommenting the parameter below allows this threshold to be overridden.
-    #deltaBetaPUTrackPtCutOverride = cms.double(1.5),
+    deltaBetaPUTrackPtCutOverride     = cms.bool(False),  # Set the boolean = True to override.
+    deltaBetaPUTrackPtCutOverride_val = cms.double(-1.5), # Set the value for new value.
 
     # Tau footprint correction
     applyFootprintCorrection = cms.bool(False),
@@ -84,6 +85,13 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
     rhoConeSize = cms.double(0.5),
     rhoUEOffsetCorrection = cms.double(1.0),
     UseAllPFCandsForWeights = cms.bool(False),
-    verbosity = cms.int32(0)
-                                                   
+
+    # moved these from .cc ifExists structures
+    storeRawOccupancy                     = cms.bool(False),
+    storeRawSumPt                         = cms.bool(False),
+    storeRawPUsumPt                       = cms.bool(False),
+    storeRawFootprintCorrection           = cms.bool(False),
+    storeRawPhotonSumPt_outsideSignalCone = cms.bool(False),
+
+    verbosity = cms.int32(0),
 )

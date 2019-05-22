@@ -98,11 +98,13 @@ MEtoEDMConverter::beginJob()
 void
 MEtoEDMConverter::endJob() {}
 
-void
-MEtoEDMConverter::beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup) {}
+std::shared_ptr<meedm::Void>
+MEtoEDMConverter::globalBeginRun(edm::Run const& iRun, const edm::EventSetup& iSetup) const {
+  return std::shared_ptr<meedm::Void>();
+}
 
 void
-MEtoEDMConverter::endRun(edm::Run const& iRun, const edm::EventSetup& iSetup) {}
+MEtoEDMConverter::globalEndRun(edm::Run const& iRun, const edm::EventSetup& iSetup) {}
 
 void
 MEtoEDMConverter::endRunProduce(edm::Run& iRun, const edm::EventSetup& iSetup)
@@ -112,6 +114,11 @@ MEtoEDMConverter::endRunProduce(edm::Run& iRun, const edm::EventSetup& iSetup)
     store->scaleElements();
     putData(g, iRun, false, iRun.run(), 0);
   });
+}
+
+std::shared_ptr<meedm::Void>  
+MEtoEDMConverter::globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const {
+  return std::shared_ptr<meedm::Void>();
 }
 
 void

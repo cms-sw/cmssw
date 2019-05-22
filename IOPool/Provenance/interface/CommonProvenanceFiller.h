@@ -9,4 +9,4 @@ namespace edm {
   void fillProcessHistoryBranch(TTree* metaDataTree,
                                 int basketSize,
                                 ProcessHistoryRegistry const& processHistoryRegistry);
-}
+}  // namespace edm

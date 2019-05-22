@@ -106,8 +106,6 @@ private:
 
   edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap_;
 
-  EcalTPGScale ecalScale_;
-
   const int maskedEcalChannelStatusThreshold_;
 
 // XXX: All the following can be built at the beginning of a job
@@ -131,7 +129,7 @@ private:
 // chnStatus > 0, then exclusive, i.e., only consider status == chnStatus
 // chnStatus < 0, then inclusive, i.e., consider status >= abs(chnStatus)
 // Return value:  + : positive zside  - : negative zside
-  int setEvtTPstatus(const EcalTrigPrimDigiCollection& , const double &tpCntCut, const int &chnStatus);
+  int setEvtTPstatus(const EcalTrigPrimDigiCollection& , const double &tpCntCut, const int &chnStatus, EcalTPGScale& );
 
   const bool useTTsum_; //If set to true, the filter will compare the sum of the 5x5 tower to the provided energy threshold
   const bool usekTPSaturated_; //If set to true, the filter will check the kTPSaturated flag
@@ -244,7 +242,6 @@ void EcalDeadCellTriggerPrimitiveFilter::envSet(const edm::EventSetup& iSetup) {
 
   if (debug_ && verbose_ >=2) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter") << "***envSet***";
 
-  ecalScale_.setEventSetup( iSetup );
   iSetup.get<IdealGeometryRecord>().get(ttMap_);
 
   iSetup.get<EcalChannelStatusRcd> ().get(ecalStatus);
@@ -266,10 +263,14 @@ bool EcalDeadCellTriggerPrimitiveFilter::filter(edm::Event& iEvent, const edm::E
 
   int evtTagged = 0;
 
+
   if( useTPmethod_ ){
      edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
      loadEcalDigis(iEvent, pTPDigis);
-     evtTagged = setEvtTPstatus(*pTPDigis, etValToBeFlagged_, 13);
+
+     EcalTPGScale ecalScale;
+     ecalScale.setEventSetup(iSetup);
+     evtTagged = setEvtTPstatus(*pTPDigis, etValToBeFlagged_, 13, ecalScale);
   }
 
   if( useHITmethod_ ){
@@ -504,7 +505,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
 }
 
 
-int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(EcalTrigPrimDigiCollection const& tpDigis, const double &tpValCut, const int &chnStatus) {
+int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(EcalTrigPrimDigiCollection const& tpDigis, const double &tpValCut, const int &chnStatus, EcalTPGScale& ecalScale) {
 
   if( debug_ && verbose_ >=2) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"***begin setEvtTPstatus***";
 
@@ -533,7 +534,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(EcalTrigPrimDigiCollectio
 
         EcalTrigPrimDigiCollection::const_iterator tp = tpDigis.find( ttDetId );
         if( tp != tpDigis.end() ){
-           double tpEt = ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() );
+           double tpEt = ecalScale.getTPGInGeV( tp->compressedEt(), tp->id() );
            if(tpEt >= tpValCut ){ isPassCut = 1; isPassCut *= ttzside; }
         }
      }

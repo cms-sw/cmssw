@@ -28,15 +28,13 @@ using namespace std;
 
 RPCRecHitProducer::RPCRecHitProducer(const ParameterSet& config):
   theRPCDigiLabel(consumes<RPCDigiCollection>(config.getParameter<InputTag>("rpcDigiLabel"))),
+  // Get the concrete reconstruction algo from the factory
+  theAlgo{RPCRecHitAlgoFactory::get()->create(config.getParameter<string>("recAlgo"),
+                                              config.getParameter<ParameterSet>("recAlgoConfig"))},
   maskSource_(MaskSource::EventSetup), deadSource_(MaskSource::EventSetup)
 {
   // Set verbose output
   produces<RPCRecHitCollection>();
-
-  // Get the concrete reconstruction algo from the factory
-  const string theAlgoName = config.getParameter<string>("recAlgo");
-  theAlgo.reset(RPCRecHitAlgoFactory::get()->create(theAlgoName,
-                config.getParameter<ParameterSet>("recAlgoConfig")));
 
   // Get masked- and dead-strip information
   theRPCMaskedStripsObj = std::make_unique<RPCMaskedStrips>();

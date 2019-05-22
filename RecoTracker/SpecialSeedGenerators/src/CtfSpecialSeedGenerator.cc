@@ -25,12 +25,10 @@ CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf):
   	useScintillatorsConstraint = conf_.getParameter<bool>("UseScintillatorsConstraint");
   	edm::LogVerbatim("CtfSpecialSeedGenerator") << "Constructing CtfSpecialSeedGenerator";
   	produces<TrajectorySeedCollection>();
-	theSeedBuilder =nullptr; 
-	theRegionProducer =nullptr;
 
 	edm::ParameterSet regfactoryPSet = conf_.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   	std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  	theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector());
+  	theRegionProducer = std::unique_ptr<TrackingRegionProducer>{TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector())};
 
 	std::vector<edm::ParameterSet> pSets = conf_.getParameter<std::vector<edm::ParameterSet> >("OrderedHitsFactoryPSets");
 	std::vector<edm::ParameterSet>::const_iterator iPSet;
@@ -41,12 +39,10 @@ CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf):
         }
 }
 
-CtfSpecialSeedGenerator::~CtfSpecialSeedGenerator(){
-    if (theRegionProducer) { delete theRegionProducer; theRegionProducer = nullptr; }
-}
+CtfSpecialSeedGenerator::~CtfSpecialSeedGenerator() = default;
 
 void CtfSpecialSeedGenerator::endRun(edm::Run const&, edm::EventSetup const&){
-    if (theSeedBuilder)    { delete theSeedBuilder;    theSeedBuilder = nullptr; }
+    theSeedBuilder.reset();
 }
 
 void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& iSetup){
@@ -105,7 +101,7 @@ void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& i
 	if (setMomentum){
 	 	charges = conf_.getParameter<std::vector<int> >("Charges");
 	}
-	theSeedBuilder = new SeedFromGenericPairOrTriplet(theMagfield.product(), 
+	theSeedBuilder = std::make_unique<SeedFromGenericPairOrTriplet>(theMagfield.product(),
 							  theTracker.product(), 
 							  theBuilder.product(),
 							  propagatorAlongHandle.product(),

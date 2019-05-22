@@ -15,27 +15,27 @@
 class SimProducer;
 class RunManagerMTWorker;
 
-class OscarMTProducer : public edm::stream::EDProducer<
-  edm::GlobalCache<OscarMTMasterThread>,
-  edm::RunCache<int> // for some reason void doesn't compile
->
-{
+class OscarMTProducer : public edm::stream::EDProducer<edm::GlobalCache<OscarMTMasterThread>,
+                                                       edm::RunCache<int>  // for some reason void doesn't compile
+                                                       > {
 public:
   typedef std::vector<std::shared_ptr<SimProducer> > Producers;
 
-  explicit OscarMTProducer(edm::ParameterSet const & p, const OscarMTMasterThread *);
+  explicit OscarMTProducer(edm::ParameterSet const& p, const OscarMTMasterThread*);
   ~OscarMTProducer() override;
 
   static std::unique_ptr<OscarMTMasterThread> initializeGlobalCache(const edm::ParameterSet& iConfig);
-  static std::shared_ptr<int> globalBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const OscarMTMasterThread *masterThread);
-  static void globalEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const RunContext *iContext);
-  static void globalEndJob(OscarMTMasterThread *masterThread);
+  static std::shared_ptr<int> globalBeginRun(const edm::Run& iRun,
+                                             const edm::EventSetup& iSetup,
+                                             const OscarMTMasterThread* masterThread);
+  static void globalEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const RunContext* iContext);
+  static void globalEndJob(OscarMTMasterThread* masterThread);
 
-  void endRun(const edm::Run & r,const edm::EventSetup& c) override;
-  void produce(edm::Event & e, const edm::EventSetup& c) override;
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-  Producers     m_producers;
+  Producers m_producers;
   std::unique_ptr<RunManagerMTWorker> m_runManagerWorker;
 };
 

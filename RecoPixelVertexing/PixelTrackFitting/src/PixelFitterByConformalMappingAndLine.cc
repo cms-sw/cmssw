@@ -32,13 +32,11 @@ using namespace std;
 template <class T> T sqr( T t) {return t*t;}
 
 
-PixelFitterByConformalMappingAndLine::PixelFitterByConformalMappingAndLine(const edm::EventSetup *es,
-                                                                           const TransientTrackingRecHitBuilder *ttrhBuilder,
+PixelFitterByConformalMappingAndLine::PixelFitterByConformalMappingAndLine(const TransientTrackingRecHitBuilder *ttrhBuilder,
                                                                            const TrackerGeometry *tracker,
                                                                            const MagneticField *field,
                                                                            double fixImpactParameter,
                                                                            bool useFixImpactParameter):
-  theES(es),
   theTTRHBuilder(ttrhBuilder),
   theTracker(tracker),
   theField(field),
@@ -48,7 +46,8 @@ PixelFitterByConformalMappingAndLine::PixelFitterByConformalMappingAndLine(const
 
 std::unique_ptr<reco::Track> PixelFitterByConformalMappingAndLine::run(
     const std::vector<const TrackingRecHit * > & hits,
-    const TrackingRegion & region) const
+    const TrackingRegion & region,
+    const edm::EventSetup& setup) const
 {
 
   int nhits = hits.size();
@@ -89,9 +88,9 @@ std::unique_ptr<reco::Track> PixelFitterByConformalMappingAndLine::run(
  
 
   Measurement1D curv = parabola.curvature();
-  float invPt = PixelRecoUtilities::inversePt( curv.value(), *theES);
+  float invPt = PixelRecoUtilities::inversePt( curv.value(), setup);
   float valPt =  (invPt > 1.e-4) ? 1./invPt : 1.e4;
-  float errPt =PixelRecoUtilities::inversePt(curv.error(), *theES) * sqr(valPt);
+  float errPt =PixelRecoUtilities::inversePt(curv.error(), setup) * sqr(valPt);
   Measurement1D pt (valPt,errPt);
   Measurement1D phi = parabola.directionPhi();
   Measurement1D tip = parabola.impactParameter();
@@ -105,7 +104,7 @@ std::unique_ptr<reco::Track> PixelFitterByConformalMappingAndLine::run(
     const GlobalPoint & point = points[i]; 
     const GlobalError & error = errors[i];
     r[i] = sqrt( sqr(point.x()-region.origin().x()) + sqr(point.y()-region.origin().y()) );
-    r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt.value(), *theES)(r[i]);
+    r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt.value(), setup)(r[i]);
     z[i] = point.z()-region.origin().z();  
     errZ[i] =  (isBarrel[i]) ? sqrt(error.czz()) : sqrt( error.rerr(point) )*simpleCot;
   }

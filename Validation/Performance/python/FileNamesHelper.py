@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from __future__ import absolute_import
 import re, os
-import parsingRulesHelper
+from . import parsingRulesHelper
 
 """ a lambda fucntion which checks only two first parts of tuple: candle and step of the JobID"""
 f_candle_and_step_inJobID = lambda candle, step, x: x[0] == candle and x[1] == step

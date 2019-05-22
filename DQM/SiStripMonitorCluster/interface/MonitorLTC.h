@@ -24,15 +24,13 @@ class DQMStore;
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
 class MonitorLTC : public DQMEDAnalyzer {
- public:
+public:
   explicit MonitorLTC(const edm::ParameterSet &);
   ~MonitorLTC() override{};
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
- private:
-  DQMStore *dqmStore_;
+private:
   edm::ParameterSet conf_;
   // trigger decision from LTC digis
   MonitorElement *LTCTriggerDecision_all;

@@ -15,5 +15,5 @@ StringToEnumParser<HcalTopologyMode::TriggerMode>::StringToEnumParser() {
   enumMap["HcalTopologyMode::TriggerMode_2017"] = HcalTopologyMode::TriggerMode_2017;
   enumMap["HcalTopologyMode::TriggerMode_2017plan1"] = HcalTopologyMode::TriggerMode_2017plan1;
   enumMap["HcalTopologyMode::TriggerMode_2018"] = HcalTopologyMode::TriggerMode_2018;
-  enumMap["HcalTopologyMode::TriggerMode_2019"] = HcalTopologyMode::TriggerMode_2019;
+  enumMap["HcalTopologyMode::TriggerMode_2021"] = HcalTopologyMode::TriggerMode_2021;
 }

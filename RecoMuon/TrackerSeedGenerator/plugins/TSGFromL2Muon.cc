@@ -6,36 +6,35 @@
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedCleaner.h"
 
-TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
-  : theConfig(cfg), theService(nullptr), theRegionBuilder(nullptr), theTkSeedGenerator(nullptr), theSeedCleaner(nullptr){
+TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg) {
   produces<L3MuonTrajectorySeedCollection>();
 
   edm::ConsumesCollector iC  = consumesCollector();
 
   edm::ParameterSet serviceParameters = cfg.getParameter<edm::ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters);
 
   //Pt and P cuts
   thePtCut = cfg.getParameter<double>("PtCut");
   thePCut = cfg.getParameter<double>("PCut");
 
   //Region builder
-  edm::ParameterSet regionBuilderPSet = theConfig.getParameter<edm::ParameterSet>("MuonTrackingRegionBuilder");
+  edm::ParameterSet regionBuilderPSet = cfg.getParameter<edm::ParameterSet>("MuonTrackingRegionBuilder");
   //ability to no define a region
   if (!regionBuilderPSet.empty()){
-    theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet, iC);
+    theRegionBuilder = std::make_unique<MuonTrackingRegionBuilder>(regionBuilderPSet, iC);
   }
 
   //Seed generator
-  edm::ParameterSet seedGenPSet = theConfig.getParameter<edm::ParameterSet>("TkSeedGenerator");
+  edm::ParameterSet seedGenPSet = cfg.getParameter<edm::ParameterSet>("TkSeedGenerator");
   std::string seedGenName = seedGenPSet.getParameter<std::string>("ComponentName");
-  theTkSeedGenerator = TrackerSeedGeneratorFactory::get()->create(seedGenName, seedGenPSet,iC);  
+  theTkSeedGenerator = std::unique_ptr<TrackerSeedGenerator>{TrackerSeedGeneratorFactory::get()->create(seedGenName, seedGenPSet,iC)};
   
   //Seed cleaner
-  edm::ParameterSet trackerSeedCleanerPSet = theConfig.getParameter<edm::ParameterSet>("TrackerSeedCleaner");
+  edm::ParameterSet trackerSeedCleanerPSet = cfg.getParameter<edm::ParameterSet>("TrackerSeedCleaner");
   //To activate or not the cleaner
   if (!trackerSeedCleanerPSet.empty()){
-    theSeedCleaner = new TrackerSeedCleaner(trackerSeedCleanerPSet,iC);
+    theSeedCleaner = std::make_unique<TrackerSeedCleaner>(trackerSeedCleanerPSet,iC);
   }
 
   //L2 collection
@@ -44,19 +43,14 @@ TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
 }
 
 
-TSGFromL2Muon::~TSGFromL2Muon(){
-  delete theService;
-  if (theSeedCleaner) delete theSeedCleaner;
-  delete theTkSeedGenerator;
-  if (theRegionBuilder) delete theRegionBuilder;
-}
+TSGFromL2Muon::~TSGFromL2Muon() = default;
 
 
 void TSGFromL2Muon::beginRun(const edm::Run & run, const edm::EventSetup&es){
   //update muon proxy service
   theService->update(es);
-  theTkSeedGenerator->init(theService);
-  if (theSeedCleaner) theSeedCleaner->init(theService);
+  theTkSeedGenerator->init(theService.get());
+  if (theSeedCleaner) theSeedCleaner->init(theService.get());
 }
 
 

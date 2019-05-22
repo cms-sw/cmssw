@@ -13,7 +13,6 @@
  *
  ************************************************************/
 
-
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
@@ -21,10 +20,8 @@
 
 #include <iostream>
 
-class CrossingFramePlaybackInfoExtended 
-{ 
-
- public:
+class CrossingFramePlaybackInfoExtended {
+public:
   // con- and destructors
 
   CrossingFramePlaybackInfoExtended() {}
@@ -32,22 +29,22 @@ class CrossingFramePlaybackInfoExtended
 
   // no setters needed, as this class is just used for backward compatibility
   // getters
-  std::vector<edm::EventID> getStartEventId(const unsigned int s,const int bcr) const {return (idFirstPileup_[s])[bcr-minBunch_];}
-  
-  void getEventStartInfo(std::vector<std::vector<edm::EventID> > &ids, const unsigned int s) const {
-    ids=idFirstPileup_[s];
+  std::vector<edm::EventID> getStartEventId(const unsigned int s, const int bcr) const {
+    return (idFirstPileup_[s])[bcr - minBunch_];
   }
-  
- private:
 
+  void getEventStartInfo(std::vector<std::vector<edm::EventID> > &ids, const unsigned int s) const {
+    ids = idFirstPileup_[s];
+  }
+
+private:
   // we need the same info for each bunchcrossing
   unsigned int maxNbSources_;
-  
+
   std::vector<std::vector<std::vector<edm::EventID> > > idFirstPileup_;
- 
+
   int nBcrossings_;
   int minBunch_;
 };
 
-
-#endif 
+#endif

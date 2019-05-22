@@ -121,7 +121,6 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
     }
 
   edm::ParameterSet rpset = conf.getParameter<edm::ParameterSet>("RegionPSet");
-  filterVtxTag_ = consumes<std::vector<reco::Vertex> >(rpset.getParameter<edm::InputTag> ("VertexProducer"));
 
   ElectronSeedGenerator::Tokens esg_tokens;
   esg_tokens.token_bs = beamSpotTag_;
@@ -150,7 +149,8 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   if (prefilteredSeeds_) {
     SeedFilter::Tokens sf_tokens;
     sf_tokens.token_bs  = beamSpotTag_;
-    sf_tokens.token_vtx = filterVtxTag_;
+    sf_tokens.token_vtx = consumes<std::vector<reco::Vertex> >(rpset.getParameter<edm::InputTag> ("VertexProducer"));
+
     edm::ConsumesCollector iC = consumesCollector();
     seedFilter_.reset(new SeedFilter(conf, sf_tokens, iC));
   }

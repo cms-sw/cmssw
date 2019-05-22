@@ -1,26 +1,25 @@
 #ifndef StatusManager_H
 #define StatusManager_H
 
-#include <iostream>
 #include <cstdint>
-#include <vector>
+#include <iostream>
 #include <map>
+#include <vector>
 
 #include "CondFormats/EcalObjects/interface/EcalDQMChannelStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalDQMTowerStatus.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
 
   class StatusManager {
   public:
     StatusManager();
     ~StatusManager() {}
 
-    void readFromStream(std::istream&);
-    void readFromObj(EcalDQMChannelStatus const&, EcalDQMTowerStatus const&);
-    void writeToStream(std::ostream&) const;
-    void writeToObj(EcalDQMChannelStatus&, EcalDQMTowerStatus&) const;
+    void readFromStream(std::istream &);
+    void readFromObj(EcalDQMChannelStatus const &, EcalDQMTowerStatus const &);
+    void writeToStream(std::ostream &) const;
+    void writeToObj(EcalDQMChannelStatus &, EcalDQMTowerStatus &) const;
 
     uint32_t getStatus(uint32_t) const;
 
@@ -29,6 +28,6 @@ namespace ecaldqm
     std::map<uint32_t, uint32_t> status_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif

@@ -43,7 +43,7 @@ private:
   const DTTtrig* tTrigMap_;
   edm::ESHandle<DTGeometry> muonGeom_;
 
-  dtCalibration::DTTTrigBaseCorrection* correctionAlgo_;
+  std::unique_ptr<dtCalibration::DTTTrigBaseCorrection> correctionAlgo_;
 };
 #endif
 

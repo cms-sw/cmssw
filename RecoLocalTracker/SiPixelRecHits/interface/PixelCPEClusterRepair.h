@@ -80,6 +80,17 @@ private:
 			ClusterParamTemplate & theClusterParam, 
 			SiPixelTemplateReco2D::ClusMatrix & clusterPayload,
 			int ID, LocalPoint & lp ) const;
+
+   //Helper function to see if 2D reco should be run
+   void checkRecommend2D( DetParam const & theDetParam, 
+			ClusterParamTemplate & theClusterParam, 
+			SiPixelTemplateReco::ClusMatrix & clusterPayload,
+			int ID) const;
+
+   //Fill IDs for 2D template
+   void fill2DTemplIDs();
+
+
    
 
    // Template storage
@@ -95,13 +106,40 @@ private:
    int forwardTemplateID_ ;
    std::string templateDir_ ;
 
+   const SiPixel2DTemplateDBObject * templateDBobject2D_;
+
    // Configure 2D reco.
-   float minProbY_ ;
-   int   maxSizeMismatchInY_ ;
+   float minChargeRatio_;
+   float maxSizeMismatchInY_ ;
    
    //bool DoCosmics_;
    //bool LoadTemplatesFromDB_;
-   
+
+   // read sub-detectors to recommend 2D
+   class Rule {
+   public:
+     // parse a rule from a string
+     Rule(const std::string &str) ;
+     // check this DetId to recommend 2D or not (default false)
+     bool recommend(DetId detid, const TrackerTopology &tTopo) const {
+       // check detector
+       if (detid.subdetId() == subdet_) {
+	 // check layer
+	 if ( (layer_ == 0) || (layer_ == int(tTopo.layer(detid))) ) {
+	   return true;
+	 }
+	 else return false;
+       }
+       else return false;
+     }
+   private:
+     int  subdet_;
+     int  layer_;
+   };
+   std::vector<Rule> recommend2D_;
+
+   // run on damaged hits or not
+   bool runDamagedClusters_;
 };
 
 #endif

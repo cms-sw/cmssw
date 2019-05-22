@@ -28,31 +28,32 @@ public:
   ~HitTripletProducer();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 private:
-  void init(const edm::EventSetup& es);
-  edm::ParameterSet theConfig;
-  OrderedHitsGenerator * theGenerator;
-  TrackingRegionProducer* theRegionProducer;
+  std::unique_ptr<OrderedHitsGenerator> theGenerator;
+  std::unique_ptr<TrackingRegionProducer> theRegionProducer;
   TH1D *hCPU, *hNum;
 };
 
 HitTripletProducer::HitTripletProducer(const edm::ParameterSet& conf) 
-  : theConfig(conf), theGenerator(0)
 {
   edm::LogInfo("HitTripletProducer")<<" CTOR";
   hCPU = new TH1D ("hCPU","hCPU",140,0.,0.070);
   hNum = new TH1D ("hNum","hNum",250,0.,500.);
 
   edm::ParameterSet orderedPSet =
-      theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
+      conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string orderedName = orderedPSet.getParameter<std::string>("ComponentName");
   edm::ConsumesCollector iC = consumesCollector();
-  theGenerator = OrderedHitsGeneratorFactory::get()->create( orderedName, orderedPSet, iC);
+  theGenerator = std::unique_ptr<OrderedHitsGenerator>{OrderedHitsGeneratorFactory::get()->create( orderedName, orderedPSet, iC)};
+
+  edm::ParameterSet regfactoryPSet =
+      conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
+  std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
+  theRegionProducer = std::unique_ptr<TrackingRegionProducer>{TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet,consumesCollector())};
 }
 
 HitTripletProducer::~HitTripletProducer() 
 { 
   edm::LogInfo("HitTripletProducer")<<" DTOR";
-  delete theGenerator;
 
   TFile rootFile("analysis.root", "RECREATE", "my histograms");
   hCPU->Write();
@@ -60,27 +61,9 @@ HitTripletProducer::~HitTripletProducer()
   rootFile.Close();
 }
 
-void HitTripletProducer::init(const edm::EventSetup& es)
-{
-  std::cout << "INIT called" << std::endl;
-  edm::ParameterSet regfactoryPSet =
-      theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet");
-  std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet,consumesCollector());
-
-}
-
 void HitTripletProducer::analyze(
     const edm::Event& ev, const edm::EventSetup& es)
 {
-  static unsigned int lastRun=0;
-  if (ev.id().run() != lastRun) { lastRun=ev.id().run(); init(es); }
-
-//   static edm::ESWatcher<TrackerDigiGeometryRecord> recordWatcher; 
-//   if (recordWatcher.check(es)) init(es);
-
-//  GlobalTrackingRegion region;
-
   typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
   Regions regions = theRegionProducer->regions(ev,es);
   const TrackingRegion & region = *regions[0];

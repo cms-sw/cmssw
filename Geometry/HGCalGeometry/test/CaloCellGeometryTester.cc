@@ -1,7 +1,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -17,21 +16,25 @@ public:
   explicit CaloCellGeometryTester( const edm::ParameterSet& );
   ~CaloCellGeometryTester( void ) override {}
     
-  void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
-  void endJob() override {}
+private:
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloToken_;
+  std::array<edm::ESGetToken<FastTimeGeometry, IdealGeometryRecord>, 2> fastTimeTokens_;
 };
 
-CaloCellGeometryTester::CaloCellGeometryTester(const edm::ParameterSet&) { }
+CaloCellGeometryTester::CaloCellGeometryTester(const edm::ParameterSet&):
+  caloToken_{esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})},
+  fastTimeTokens_{{esConsumes<FastTimeGeometry, IdealGeometryRecord>(edm::ESInputTag{"", "FastTimeBarrel"}),
+                   esConsumes<FastTimeGeometry, IdealGeometryRecord>(edm::ESInputTag{"", "SFBX"})}}
+ { }
 
 void CaloCellGeometryTester::analyze(const edm::Event& /*iEvent*/, 
 				     const edm::EventSetup& iSetup) {
 
 
   // get handles to calogeometry and calotopology
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
+  const auto& pG = iSetup.getData(caloToken_);
+  const CaloGeometry* geo = &pG;
 
   int         dets[9] = {3,3,3,4,4,4,4,6,6};
   int         subd[9] = {1,2,3,1,2,4,3,3,4};
@@ -47,14 +50,11 @@ void CaloCellGeometryTester::analyze(const edm::Event& /*iEvent*/,
     }
   }
 
-  std::string named1[2] = {"FastTimeBarrel","SFBX"};
-  std::string named2[2] = {"FTBarrel","FTEndcap"};
+  std::string named[2] = {"FTBarrel","FTEndcap"};
   for (int k=0; k<2; ++k) {
-    edm::ESHandle<FastTimeGeometry> fgeom;
-    iSetup.get<IdealGeometryRecord>().get(named1[k],fgeom);
-    if (fgeom.isValid()) {
+    if (auto fgeom = iSetup.getHandle(fastTimeTokens_[k])) {
       const FastTimeGeometry* geom = (fgeom.product());
-      std::cout << named2[k] << " has " << geom->getValidDetIds().size() << " valid cells" << std::endl;
+      std::cout << named[k] << " has " << geom->getValidDetIds().size() << " valid cells" << std::endl;
       std::cout << "Number of valid GeomID " 
 		<< geom->getValidGeomDetIds().size() << std::endl;
     }

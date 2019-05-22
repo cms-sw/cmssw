@@ -27,6 +27,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
@@ -36,7 +38,7 @@
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 #include "DataFormats/TauReco/interface/JetPiZeroAssociation.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
 #include "DataFormats/Common/interface/Association.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -46,12 +48,14 @@ class RecoTauProducer : public edm::stream::EDProducer<>
  public:
   typedef reco::tau::RecoTauBuilderPlugin Builder;
   typedef reco::tau::RecoTauModifierPlugin Modifier;
-  typedef boost::ptr_vector<Builder> BuilderList;
-  typedef boost::ptr_vector<Modifier> ModifierList;
+  typedef std::vector<std::unique_ptr<Builder>> BuilderList;
+  typedef std::vector<std::unique_ptr<Modifier>> ModifierList;
 
   explicit RecoTauProducer(const edm::ParameterSet& pset);
   ~RecoTauProducer() override {}
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
   edm::InputTag jetSrc_;
@@ -62,8 +66,8 @@ class RecoTauProducer : public edm::stream::EDProducer<>
   double minJetPt_;
   double maxJetAbsEta_;
  //token definition
-  edm::EDGetTokenT<reco::CandidateView> jet_token;
-  edm::EDGetTokenT<edm::Association<reco::PFJetCollection> > jetRegion_token;
+  edm::EDGetTokenT<reco::JetView> jet_token;
+  edm::EDGetTokenT<edm::AssociationMap<edm::OneToOne<reco::JetView, reco::JetView> > > jetRegion_token;
   edm::EDGetTokenT<reco::PFJetChargedHadronAssociation> chargedHadron_token;
   edm::EDGetTokenT<reco::JetPiZeroAssociation> piZero_token;
 
@@ -84,11 +88,11 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
   chargedHadronSrc_ = pset.getParameter<edm::InputTag>("chargedHadronSrc");
   piZeroSrc_ = pset.getParameter<edm::InputTag>("piZeroSrc");
   
-  minJetPt_ = ( pset.exists("minJetPt") ) ? pset.getParameter<double>("minJetPt") : -1.0;
-  maxJetAbsEta_ = ( pset.exists("maxJetAbsEta") ) ? pset.getParameter<double>("maxJetAbsEta") : 99.0;
+  minJetPt_ = pset.getParameter<double>("minJetPt");
+  maxJetAbsEta_ = pset.getParameter<double>("maxJetAbsEta");
   //consumes definition
-  jet_token=consumes<reco::CandidateView>(jetSrc_);
-  jetRegion_token = consumes<edm::Association<reco::PFJetCollection> >(jetRegionSrc_);
+  jet_token=consumes<reco::JetView>(jetSrc_);
+  jetRegion_token = consumes<edm::AssociationMap<edm::OneToOne<reco::JetView, reco::JetView> > >(jetRegionSrc_);
   chargedHadron_token = consumes<reco::PFJetChargedHadronAssociation>(chargedHadronSrc_); 
   piZero_token = consumes<reco::JetPiZeroAssociation>(piZeroSrc_);
 
@@ -100,7 +104,7 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
     // Get plugin name
     const std::string& pluginType = builderPSet->getParameter<std::string>("plugin");
     // Build the plugin
-    builders_.push_back(RecoTauBuilderPluginFactory::get()->create(pluginType, *builderPSet, consumesCollector()));
+    builders_.emplace_back(RecoTauBuilderPluginFactory::get()->create(pluginType, *builderPSet, consumesCollector()));
   }
 
   const VPSet& modfiers = pset.getParameter<VPSet>("modifiers");
@@ -109,17 +113,13 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
     // Get plugin name
     const std::string& pluginType = modfierPSet->getParameter<std::string>("plugin");
     // Build the plugin
-    reco::tau::RecoTauModifierPlugin* plugin = nullptr;
-    plugin = RecoTauModifierPluginFactory::get()->create(pluginType, *modfierPSet, consumesCollector());
-    modifiers_.push_back(plugin);
+    modifiers_.emplace_back(RecoTauModifierPluginFactory::get()->create(pluginType, *modfierPSet, consumesCollector()));
   }
 
   // Check if we want to apply a final output selection
-  if ( pset.exists("outputSelection") ) {
-    std::string selection = pset.getParameter<std::string>("outputSelection");
-    if ( !selection.empty() ) {
-      outputSelector_.reset(new StringCutObjectSelector<reco::PFTau>(selection));
-    }
+  std::string selection = pset.getParameter<std::string>("outputSelection");
+  if ( !selection.empty() ) {
+    outputSelector_.reset(new StringCutObjectSelector<reco::PFTau>(selection));
   }
   buildNullTaus_ = pset.getParameter<bool>("buildNullTaus");
 
@@ -129,14 +129,11 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
 void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 {
   // Get the jet input collection via a view of Candidates
-  edm::Handle<reco::CandidateView> jetView;
+  edm::Handle<reco::JetView> jetView;
   evt.getByToken(jet_token, jetView);
-  
-  // Convert to a vector of PFJetRefs
-  reco::PFJetRefVector jets = reco::tau::castView<reco::PFJetRefVector>(jetView);
-  
+    
   // Get the jet region producer
-  edm::Handle<edm::Association<reco::PFJetCollection> > jetRegionHandle;
+  edm::Handle<edm::AssociationMap<edm::OneToOne<reco::JetView, reco::JetView> > > jetRegionHandle;
   evt.getByToken(jetRegion_token, jetRegionHandle);
   
   // Get the charged hadron input collection
@@ -148,37 +145,36 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   evt.getByToken(piZero_token, piZeroAssoc);
 
   // Update all our builders and modifiers with the event info
-  for (BuilderList::iterator builder = builders_.begin();
-      builder != builders_.end(); ++builder) {
+  for (auto& builder: builders_) {
     builder->setup(evt, es);
   }
-  for (ModifierList::iterator modifier = modifiers_.begin();
-      modifier != modifiers_.end(); ++modifier) {
+  for (auto& modifier: modifiers_) {
     modifier->setup(evt, es);
   }
 
   // Create output collection
   auto output = std::make_unique<reco::PFTauCollection>();
-  output->reserve(jets.size());
+  output->reserve(jetView->size());
   
   // Loop over the jets and build the taus for each jet
-  for(auto const& jetRef : jets ) {
+  for (size_t i_j = 0; i_j < jetView->size(); ++i_j) {
+    const auto& jetRef = jetView->refAt(i_j);
     // Get the jet with extra constituents from an area around the jet
     if(jetRef->pt() - minJetPt_ < 1e-5) continue;
     if(std::abs(jetRef->eta()) - maxJetAbsEta_ > -1e-5) continue;
-    reco::PFJetRef jetRegionRef = (*jetRegionHandle)[jetRef];
+    reco::JetBaseRef jetRegionRef = (*jetRegionHandle)[jetRef];
     if ( jetRegionRef.isNull() ) {
       throw cms::Exception("BadJetRegionRef") 
 	<< "No jet region can be found for the current jet: " << jetRef.id();
     }
     // Remove all the jet constituents from the jet extras
-    std::vector<reco::PFCandidatePtr> jetCands = jetRef->getPFConstituents();
-    std::vector<reco::PFCandidatePtr> allRegionalCands = jetRegionRef->getPFConstituents();
+    std::vector<reco::CandidatePtr> jetCands = jetRef->daughterPtrVector();
+    std::vector<reco::CandidatePtr> allRegionalCands = jetRegionRef->daughterPtrVector();
     // Sort both by ref key
     std::sort(jetCands.begin(), jetCands.end());
     std::sort(allRegionalCands.begin(), allRegionalCands.end());
     // Get the regional junk candidates not in the jet.
-    std::vector<reco::PFCandidatePtr> uniqueRegionalCands;
+    std::vector<reco::CandidatePtr> uniqueRegionalCands;
 
     // This can actually be less than zero, if the jet has really crazy soft
     // stuff really far away from the jet axis.
@@ -198,12 +194,12 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     const std::vector<reco::RecoTauPiZero>& piZeros = (*piZeroAssoc)[jetRef];
     // Loop over our builders and create the set of taus for this jet
     unsigned int nTausBuilt = 0;
-    for ( BuilderList::const_iterator builder = builders_.begin();
-	  builder != builders_.end(); ++builder) {
+    for ( const auto& builder: builders_ ) {
       // Get a ptr_vector of taus from the builder
       reco::tau::RecoTauBuilderPlugin::output_type taus((*builder)(jetRef, chargedHadrons, piZeros, uniqueRegionalCands));
+
       // Make sure all taus have their jetref set correctly
-      std::for_each(taus.begin(), taus.end(), boost::bind(&reco::PFTau::setjetRef, _1, jetRef));
+      std::for_each(taus.begin(), taus.end(), boost::bind(&reco::PFTau::setjetRef, _1, reco::JetBaseRef(jetRef)));
       // Copy without selection
       if ( !outputSelector_.get() ) {
         output->insert(output->end(), taus.begin(), taus.end());
@@ -223,7 +219,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     // jet.
     if ( !nTausBuilt && buildNullTaus_ ) {
       reco::PFTau nullTau(std::numeric_limits<int>::quiet_NaN(), jetRef->p4());
-      nullTau.setjetRef(jetRef);
+      nullTau.setjetRef(reco::JetBaseRef(jetRef));
       output->push_back(nullTau);
     }
   }
@@ -231,18 +227,150 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   // Loop over the taus we have created and apply our modifiers to the taus
   for ( reco::PFTauCollection::iterator tau = output->begin();
 	tau != output->end(); ++tau ) {
-    for ( ModifierList::const_iterator modifier = modifiers_.begin();
-	  modifier != modifiers_.end(); ++modifier ) {
+    for ( const auto& modifier: modifiers_ ) {
       (*modifier)(*tau);
     }
   }
   
-  for ( ModifierList::iterator modifier = modifiers_.begin();
-        modifier != modifiers_.end(); ++modifier ) {
+  for ( auto& modifier: modifiers_ ) {
     modifier->endEvent();
   }
   
   evt.put(std::move(output));
+}
+
+void
+RecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // combinatoricRecoTaus
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("piZeroSrc", edm::InputTag("ak4PFJetsRecoTauPiZeros"));
+
+  edm::ParameterSetDescription pset_signalQualityCuts;
+  pset_signalQualityCuts.add<double>("maxDeltaZ", 0.4);
+  pset_signalQualityCuts.add<double>("minTrackPt", 0.5);
+  pset_signalQualityCuts.add<double>("minTrackVertexWeight", -1.0);
+  pset_signalQualityCuts.add<double>("maxTrackChi2", 100.0);
+  pset_signalQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
+  pset_signalQualityCuts.add<double>("minGammaEt", 1.0);
+  pset_signalQualityCuts.add<unsigned int>("minTrackHits", 3);
+  pset_signalQualityCuts.add<double>("minNeutralHadronEt", 30.0);
+  pset_signalQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
+  pset_signalQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
+
+  edm::ParameterSetDescription pset_vxAssocQualityCuts;
+  pset_vxAssocQualityCuts.add<double>("minTrackPt", 0.5);
+  pset_vxAssocQualityCuts.add<double>("minTrackVertexWeight", -1.0);
+  pset_vxAssocQualityCuts.add<double>("maxTrackChi2", 100.0);
+  pset_vxAssocQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
+  pset_vxAssocQualityCuts.add<double>("minGammaEt", 1.0);
+  pset_vxAssocQualityCuts.add<unsigned int>("minTrackHits", 3);
+  pset_vxAssocQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
+  pset_vxAssocQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
+
+  edm::ParameterSetDescription pset_isolationQualityCuts;
+  pset_isolationQualityCuts.add<double>("maxDeltaZ", 0.2);
+  pset_isolationQualityCuts.add<double>("minTrackPt", 1.0);
+  pset_isolationQualityCuts.add<double>("minTrackVertexWeight", -1.0);
+  pset_isolationQualityCuts.add<double>("maxTrackChi2", 100.0);
+  pset_isolationQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
+  pset_isolationQualityCuts.add<double>("minGammaEt", 1.5);
+  pset_isolationQualityCuts.add<unsigned int>("minTrackHits", 8);
+  pset_isolationQualityCuts.add<double>("maxTransverseImpactParameter", 0.03);
+  pset_isolationQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
+
+  edm::ParameterSetDescription pset_qualityCuts;
+  pset_qualityCuts.add<edm::ParameterSetDescription>("signalQualityCuts",    pset_signalQualityCuts);
+  pset_qualityCuts.add<edm::ParameterSetDescription>("vxAssocQualityCuts",   pset_vxAssocQualityCuts);
+  pset_qualityCuts.add<edm::ParameterSetDescription>("isolationQualityCuts", pset_isolationQualityCuts);
+  pset_qualityCuts.add<std::string>("leadingTrkOrPFCandOption", "leadPFCand");
+  pset_qualityCuts.add<std::string>("pvFindingAlgo", "closestInDeltaZ");
+  pset_qualityCuts.add<edm::InputTag>("primaryVertexSrc", edm::InputTag("offlinePrimaryVertices"));
+  pset_qualityCuts.add<bool>("vertexTrackFiltering", false);
+  pset_qualityCuts.add<bool>("recoverLeadingTrk", false);
+
+  {
+    edm::ParameterSetDescription vpsd_modifiers;
+    vpsd_modifiers.add<std::string>("name");
+    vpsd_modifiers.add<std::string>("plugin");
+    vpsd_modifiers.add<int>("verbosity", 0);
+
+    vpsd_modifiers.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
+    vpsd_modifiers.addOptional<edm::InputTag>("ElectronPreIDProducer");
+    vpsd_modifiers.addOptional<std::string>("DataType");
+    vpsd_modifiers.addOptional<double>("maximumForElectrionPreIDOutput");
+    vpsd_modifiers.addOptional<double>("ElecPreIDLeadTkMatch_maxDR");
+    vpsd_modifiers.addOptional<double>("EcalStripSumE_minClusEnergy");
+    vpsd_modifiers.addOptional<double>("EcalStripSumE_deltaPhiOverQ_minValue");
+    vpsd_modifiers.addOptional<double>("EcalStripSumE_deltaPhiOverQ_maxValue");
+    vpsd_modifiers.addOptional<double>("EcalStripSumE_deltaEta");
+    vpsd_modifiers.addOptional<double>("dRaddNeutralHadron");
+    vpsd_modifiers.addOptional<double>("minGammaEt");
+    vpsd_modifiers.addOptional<double>("dRaddPhoton");
+    vpsd_modifiers.addOptional<double>("minNeutralHadronEt");
+    vpsd_modifiers.addOptional<edm::InputTag>("pfTauTagInfoSrc");
+
+    desc.addVPSet("modifiers", vpsd_modifiers);
+  }
+
+  desc.add<edm::InputTag>("jetRegionSrc", edm::InputTag("recoTauAK4PFJets08Region"));
+  desc.add<double>("maxJetAbsEta", 2.5);
+  desc.add<std::string>("outputSelection", "leadPFChargedHadrCand().isNonnull()");
+  desc.add<edm::InputTag>("chargedHadronSrc", edm::InputTag("ak4PFJetsRecoTauChargedHadrons"));
+  desc.add<double>("minJetPt", 14.0);
+  desc.add<edm::InputTag>("jetSrc", edm::InputTag("ak4PFJets"));
+
+  {
+    edm::ParameterSetDescription desc_builders;
+    desc_builders.add<std::string>("name");
+    desc_builders.add<std::string>("plugin");
+    desc_builders.add<int>("verbosity", 0);
+
+    desc_builders.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
+    {
+      edm::ParameterSetDescription desc_decayModes;
+      desc_decayModes.add<unsigned int>("nPiZeros", 0);
+      desc_decayModes.add<unsigned int>("maxPiZeros", 0);
+      desc_decayModes.add<unsigned int>("nCharged", 1);
+      desc_decayModes.add<unsigned int>("maxTracks", 6);
+      desc_builders.addVPSetOptional("decayModes", desc_decayModes);
+    }
+    desc_builders.add<double>("minAbsPhotonSumPt_insideSignalCone", 2.5);
+    desc_builders.add<double>("minRelPhotonSumPt_insideSignalCone", 0.1);
+    desc_builders.add<edm::InputTag>("pfCandSrc", edm::InputTag("particleFlow"));
+    
+    desc_builders.addOptional<std::string>("signalConeSize");
+    desc_builders.addOptional<double>("isolationConeSize");
+    desc_builders.addOptional<double>("minAbsPhotonSumPt_outsideSignalCone");
+    desc_builders.addOptional<double>("minRelPhotonSumPt_outsideSignalCone");
+    desc_builders.addOptional<std::string>("isoConeChargedHadrons");
+    desc_builders.addOptional<std::string>("isoConeNeutralHadrons");
+    desc_builders.addOptional<std::string>("isoConePiZeros");
+    desc_builders.addOptional<double>("leadObjectPt");
+    desc_builders.addOptional<std::string>("matchingCone");
+    desc_builders.addOptional<int>("maxSignalConeChargedHadrons");
+    desc_builders.addOptional<std::string>("signalConeChargedHadrons");
+    desc_builders.addOptional<std::string>("signalConeNeutralHadrons");
+    desc_builders.addOptional<std::string>("signalConePiZeros");
+    desc_builders.addOptional<bool>("usePFLeptons");
+
+    std::vector<edm::ParameterSet> vpset_default;
+    {
+      edm::ParameterSet pset_default_builders;
+      pset_default_builders.addParameter<std::string>("name","");
+      pset_default_builders.addParameter<std::string>("plugin","");
+      pset_default_builders.addParameter<int>("verbosity",0);
+      pset_default_builders.addParameter<double>("minAbsPhotonSumPt_insideSignalCone", 2.5);
+      pset_default_builders.addParameter<double>("minRelPhotonSumPt_insideSignalCone", 0.1);
+      pset_default_builders.addParameter<edm::InputTag>("pfCandSrc", edm::InputTag("particleFlow"));
+      vpset_default.push_back(pset_default_builders);
+    }
+    desc.addVPSet("builders", desc_builders, vpset_default);
+
+  }
+
+  desc.add<bool>("buildNullTaus", false);
+  desc.add<int>("verbosity", 0);
+  descriptions.add("combinatoricRecoTaus", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

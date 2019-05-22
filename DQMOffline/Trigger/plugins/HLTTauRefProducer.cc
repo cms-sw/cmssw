@@ -10,8 +10,6 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 // MUON includes
@@ -51,10 +49,6 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
     auto const& electrons = iConfig.getUntrackedParameter<edm::ParameterSet>("Electrons");
     Electrons_ = consumes<reco::GsfElectronCollection>(electrons.getUntrackedParameter<InputTag>("ElectronCollection"));
     doElectrons_ = electrons.getUntrackedParameter<bool>("doElectrons",false);
-    e_doID_ = electrons.getUntrackedParameter<bool>("doID",false);
-    if(e_doID_) {
-      e_idAssocProd_ = consumes<reco::ElectronIDAssociationCollection>(electrons.getUntrackedParameter<InputTag>("IdCollection"));
-    }
     e_ctfTrackCollectionSrc_ = electrons.getUntrackedParameter<InputTag>("TrackCollection");
     e_ctfTrackCollection_ = consumes<reco::TrackCollection>(e_ctfTrackCollectionSrc_);
     ptMinElectron_= electrons.getUntrackedParameter<double>("ptMin",15.);
@@ -179,15 +173,6 @@ HLTTauRefProducer::doElectrons(edm::Event& iEvent) const
 {
   auto product_Electrons = make_unique<LorentzVectorCollection>();
 
-  edm::Handle<reco::ElectronIDAssociationCollection> pEleID;
-  bool doID {e_doID_};
-  if (doID) {//UGLY HACK UNTIL GET ELETRON ID WORKING IN 210
-    if (!iEvent.getByToken(e_idAssocProd_, pEleID)) {
-      edm::LogInfo("") << "Error! Can't get electronIDAssocProducer by label. ";
-      doID = false;
-    }
-  }
-
   edm::Handle<reco::TrackCollection> pCtfTracks;
   if (!iEvent.getByToken(e_ctfTrackCollection_, pCtfTracks)) {
     edm::LogInfo("") << "Error! Can't get " << e_ctfTrackCollectionSrc_.label() << " by label. ";
@@ -199,18 +184,8 @@ HLTTauRefProducer::doElectrons(edm::Event& iEvent) const
   if (iEvent.getByToken(Electrons_,electrons)) {
     for (size_t i=0 ; i<electrons->size(); ++i) {
       edm::Ref<reco::GsfElectronCollection> electronRef (electrons,i);
-      bool idDec {false};
-      if (doID) {
-        reco::ElectronIDAssociationCollection::const_iterator tagIDAssocItr;
-        tagIDAssocItr = pEleID->find(electronRef);
-        const reco::ElectronIDRef& id_tag = tagIDAssocItr->val;
-        idDec=id_tag->cutBasedDecision();
-      }
-      else {
-        idDec=true;
-      }
       auto const& electron = (*electrons)[i];
-      if (electron.pt()>ptMinElectron_&&fabs(electron.eta())<etaMax_&&idDec) {
+      if (electron.pt()>ptMinElectron_&&fabs(electron.eta())<etaMax_) {
         if (e_doTrackIso_) {
           double sum_of_pt_ele {};
           for (auto const& tr : *pCtfTracks) {

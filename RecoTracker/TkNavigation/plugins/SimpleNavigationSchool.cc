@@ -9,7 +9,6 @@
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "TrackingTools/DetLayers/src/DetBelowZ.h"
 #include "TrackingTools/DetLayers/src/DetLessZ.h"
 
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
@@ -41,7 +40,7 @@ void SimpleNavigationSchool::init()
   }
   
   FDLI middle = find_if( theForwardLayers.begin(), theForwardLayers.end(),
-			 not1(DetBelowZ(0)));
+          [](const GeometricSearchDet* a){ return a->position().z() >= 0.0; });
   theLeftLayers  = FDLC( theForwardLayers.begin(), middle);
   theRightLayers = FDLC( middle, theForwardLayers.end());
   
@@ -267,7 +266,7 @@ void SimpleNavigationSchool::linkOuterGroup( const ForwardDetLayer* fl,
   // insert N layers with Z grater than fl
 
   ConstFDLI first = find_if( group.begin(), group.end(), 
-			     not1( DetBelowZ( fl->position().z())));
+          [fl](const GeometricSearchDet* a){ return a->position().z() >= fl->position().z(); });
   if ( first != group.end()) {
 
     // Hard-wired constant!!!!!!

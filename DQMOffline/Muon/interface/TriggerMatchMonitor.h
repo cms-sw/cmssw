@@ -20,7 +20,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -35,26 +35,22 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
-
 class TriggerMatchMonitor : public DQMEDAnalyzer {
- public:
-  
+public:
   /// Constructor
   TriggerMatchMonitor(const edm::ParameterSet& pSet);
-  
+
   /// Destructor
   ~TriggerMatchMonitor() override;
-  
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
- private:
-  
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+
+private:
   // ----------member data ---------------------------
-  MuonServiceProxy *theService;
-  DQMStore* theDbe;
+  MuonServiceProxy* theService;
   edm::ParameterSet parameters;
- 
+
   // triggerNames to be passed from config
   std::string triggerPathName1_;
   std::string triggerHistName1_;
@@ -64,27 +60,27 @@ class TriggerMatchMonitor : public DQMEDAnalyzer {
   double triggerPtThresholdPath2_;
 
   //Vertex requirements
-  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
-  edm::EDGetTokenT<edm::View<pat::Muon> >   thePATMuonCollectionLabel_;
+  edm::EDGetTokenT<edm::View<reco::Muon>> theMuonCollectionLabel_;
+  edm::EDGetTokenT<edm::View<pat::Muon>> thePATMuonCollectionLabel_;
   edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
-  edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
-  edm::EDGetTokenT<edm::TriggerResults > triggerResultsToken_;
+  edm::EDGetTokenT<reco::BeamSpot> theBeamSpotLabel_;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
   edm::EDGetTokenT<std::vector<pat::TriggerObjectStandAlone>> triggerObjects_;
 
-  edm::EDGetTokenT<reco::BeamSpot > beamSpotToken_;
-  edm::EDGetTokenT<std::vector<reco::Vertex> > primaryVerticesToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  edm::EDGetTokenT<std::vector<reco::Vertex>> primaryVerticesToken_;
 
   // histograms
   std::vector<MonitorElement*> matchHists;
   MonitorElement* h_passHLTPath1_eta_Tight;
   MonitorElement* h_passHLTPath1_pt_Tight;
-  MonitorElement* h_passHLTPath1_phi_Tight; 
-  MonitorElement* h_totalHLTPath1_eta_Tight; 
-  MonitorElement* h_totalHLTPath1_pt_Tight; 
+  MonitorElement* h_passHLTPath1_phi_Tight;
+  MonitorElement* h_totalHLTPath1_eta_Tight;
+  MonitorElement* h_totalHLTPath1_pt_Tight;
   MonitorElement* h_totalHLTPath1_phi_Tight;
 
-  MonitorElement* h_passHLTPath2_eta_Tight; 
-  MonitorElement* h_passHLTPath2_pt_Tight; 
+  MonitorElement* h_passHLTPath2_eta_Tight;
+  MonitorElement* h_passHLTPath2_pt_Tight;
   MonitorElement* h_passHLTPath2_phi_Tight;
   MonitorElement* h_totalHLTPath2_eta_Tight;
   MonitorElement* h_totalHLTPath2_pt_Tight;

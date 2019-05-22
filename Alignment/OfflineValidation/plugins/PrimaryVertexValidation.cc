@@ -615,7 +615,6 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	int nhitinTEC  = hits.numberOfValidStripTECHits();
 	int nhitinBPIX = hits.numberOfValidPixelBarrelHits();
 	int nhitinFPIX = hits.numberOfValidPixelEndcapHits();
-	
 	for (trackingRecHit_iterator iHit = theTTrack.recHitsBegin(); iHit != theTTrack.recHitsEnd(); ++iHit) {
 	  if((*iHit)->isValid()) {	
 	    
@@ -820,11 +819,11 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      int module_num = -1.;
 	      int L1BPixHitCount = 0;
 
-	      for (trackingRecHit_iterator iHit = theTrack.recHitsBegin(); iHit != theTrack.recHitsEnd(); ++iHit) {
-		const DetId& detId = (*iHit)->geographicalId();
+          for(auto const& hit : theTrack.recHits()) {
+		const DetId& detId = hit->geographicalId();
 		unsigned int subid = detId.subdetId();
 		
-		if((*iHit)->isValid() && ( subid == PixelSubdetector::PixelBarrel ) ) {
+		if(hit->isValid() && ( subid == PixelSubdetector::PixelBarrel ) ) {
 		  int layer = tTopo->pxbLayer(detId);
 		  if(layer==1){
 		    L1BPixHitCount+=1;
@@ -2819,12 +2818,12 @@ void PrimaryVertexValidation::fillTrackHistos(std::map<std::string, TH1*> & h, c
   
   //
   int longesthit=0, nbarrel=0;
-  for(trackingRecHit_iterator hit=tt->track().recHitsBegin(); hit!=tt->track().recHitsEnd(); hit++){
-    if ((**hit).isValid() && (**hit).geographicalId().det() == DetId::Tracker ){
-      bool barrel = DetId((**hit).geographicalId()).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
-      //bool endcap = DetId::DetId((**hit).geographicalId()).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
+  for(auto const& hit : tt->track().recHits()) {
+    if (hit->isValid() && hit->geographicalId().det() == DetId::Tracker ){
+      bool barrel = DetId(hit->geographicalId()).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
+      //bool endcap = DetId::DetId(hit->geographicalId()).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
       if (barrel){
-	const SiPixelRecHit *pixhit = dynamic_cast<const SiPixelRecHit*>( &(**hit));
+	const SiPixelRecHit *pixhit = dynamic_cast<const SiPixelRecHit*>( &(*hit));
 	edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = (*pixhit).cluster();
 	if (clust.isNonnull()) {
 	  nbarrel++;

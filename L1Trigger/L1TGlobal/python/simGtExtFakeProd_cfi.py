@@ -8,5 +8,7 @@ simGtExtFakeProd = cms.EDProducer("L1TExtCondProducer",
                                   setBptxPlus = cms.bool(True),
                                   setBptxMinus = cms.bool(True),
                                   setBptxOR = cms.bool(True),
+                                  tcdsRecordLabel= cms.InputTag("")
+                                  ## tcdsRecordLabel= cms.InputTag("tcdsDigis","tcdsRecord") ## use this tag to trigger fetching the tcds record and set the Prefire veto bit
 )
 

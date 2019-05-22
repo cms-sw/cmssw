@@ -2,6 +2,7 @@
 #define DataFormats_ForwardDetId_HGCScintillatorDetId_H 1
 
 #include <iosfwd>
+#include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
@@ -9,7 +10,8 @@
    [0:8]   iphi index wrt x-axis on +z side
    [9:16]  |radius| index (starting from a minimum radius depending on type)
    [17:21] Layer #
-   [22:24] Reserved for future extension
+   [22]    Trigger(1)/Detector(0) cell
+   [23:24] Reserved for future extension
    [25:25] z-side (0 for +z; 1 for -z)
    [26:27] Type (0 fine divisions of scintillators;
                  1 coarse divisions of scintillators)
@@ -25,14 +27,15 @@ public:
   /** Create cellid from raw id (0=invalid tower id) */
   HGCScintillatorDetId(uint32_t rawid);
   /** Constructor from subdetector, zplus, layer, module, cell numbers */
-  HGCScintillatorDetId(int type, int layer, int iradius, int iphi);
+  HGCScintillatorDetId(int type, int layer, int iradius, int iphi, 
+		       bool trigger=false);
   /** Constructor from a generic cell id */
   HGCScintillatorDetId(const DetId& id);
   /** Assignment from a generic cell id */
   HGCScintillatorDetId& operator=(const DetId& id);
   
   /** Converter for a geometry cell id */
-  HGCScintillatorDetId geometryCell () const {return HGCScintillatorDetId (0, layer(), iradius(), iphi());}
+  HGCScintillatorDetId geometryCell () const;
 
   /// get the subdetector
   DetId::Detector subdet() const { return det(); }
@@ -47,15 +50,22 @@ public:
   int layer() const { return (id_>>kHGCalLayerOffset)&kHGCalLayerMask; }
 
   /// get the eta index
-  int iradiusAbs() const { return (id_>>kHGCalRadiusOffset)&kHGCalRadiusMask; }
+  int iradiusAbs() const;
   int iradius()    const { return zside()*iradiusAbs(); }
-  int ietaAbs()    const { return (id_>>kHGCalRadiusOffset)&kHGCalRadiusMask; }
+  int ietaAbs()    const { return iradiusAbs(); }
   int ieta()       const { return zside()*ietaAbs(); }
 
   /// get the phi index
-  int iphi() const { return (id_>>kHGCalPhiOffset)&kHGCalPhiMask; }
+  int iphi() const;
   std::pair<int,int> ietaphi() const { return std::pair<int,int>(ieta(),iphi()); }
   std::pair<int,int> iradiusphi() const { return std::pair<int,int>(iradius(),iphi()); }
+
+  /// trigger or detector cell
+  std::vector<HGCScintillatorDetId> detectorCells() const;
+  bool trigger() const { 
+    return (((id_>>kHGCalTriggerOffset)&kHGCalTriggerMask) == 1);
+  }
+  HGCScintillatorDetId triggerCell() const;
 
   /// consistency check : no bits left => no overhead
   bool isEE()      const { return false; }
@@ -72,10 +82,16 @@ public:
   static const int kHGCalRadiusMask     = 0xFF;
   static const int kHGCalLayerOffset    = 17;
   static const int kHGCalLayerMask      = 0x1F;
+  static const int kHGCalTriggerOffset  = 22;
+  static const int kHGCalTriggerMask    = 0x1;
   static const int kHGCalZsideOffset    = 25;
   static const int kHGCalZsideMask      = 0x1;
   static const int kHGCalTypeOffset     = 26;
   static const int kHGCalTypeMask       = 0x3;
+
+  int iradiusTriggerAbs() const;
+  int iradiusTrigger() const { return zside()*iradiusTriggerAbs(); }
+  int iphiTrigger() const;  
 };
 
 std::ostream& operator<<(std::ostream&,const HGCScintillatorDetId& id);

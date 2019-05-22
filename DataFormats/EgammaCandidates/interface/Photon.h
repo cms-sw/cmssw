@@ -166,6 +166,9 @@ namespace reco {
       float e2x5Right;
       float e2x5Top;
       float e2x5Bottom;
+      float smMajor;
+      float smMinor;
+      float smAlpha;
       ShowerShape()
 	: sigmaEtaEta(std::numeric_limits<float>::max()),
 	   sigmaIetaIeta(std::numeric_limits<float>::max()),
@@ -193,7 +196,10 @@ namespace reco {
           e2x5Left(0.f),
           e2x5Right(0.f),
           e2x5Top(0.f),
-          e2x5Bottom(0.f)	   
+          e2x5Bottom(0.f),
+	  smMajor(0.f),
+	  smMinor(0.f),
+	  smAlpha(0.f)
       {}
     } ;
     const ShowerShape& showerShapeVariables() const { return showerShapeBlock_; }
@@ -460,30 +466,24 @@ namespace reco {
     struct PflowIsolationVariables
     {
 
-      float chargedHadronIso; //  equivalent to sumChargedHadronPt in  DataFormats/MuonReco/interface/MuonPFIsolation.h
-      float chargedHadronIsoWrongVtx; //  equivalent to sumChargedHadronPt in  DataFormats/MuonReco/interface/MuonPFIsolation.h
-      float neutralHadronIso; //  equivalent to sumNeutralHadronPt in  DataFormats/MuonReco/interface/MuonPFIsolation.h
-      float photonIso ;       //  equivalent to sumPhotonPt in  DataFormats/MuonReco/interface/MuonPFIsolation.h
-      float modFrixione ;      
-      float sumChargedParticlePt; //!< sum-pt of charged Particles(inludes e/mu) 
-      float sumNeutralHadronEtHighThreshold;  //!< sum pt of neutral hadrons with a higher threshold
-      float sumPhotonEtHighThreshold;  //!< sum pt of PF photons with a higher threshold
-      float sumPUPt;  //!< sum pt of charged Particles not from PV  (for Pu corrections)
+      float chargedHadronIso; //charged hadron isolation with dxy,dz match to pv
+      float chargedHadronWorstVtxIso;  //max charged hadron isolation when dxy/dz matching to given vtx
+      float chargedHadronWorstVtxGeomVetoIso; //as chargedHadronWorstVtxIso but an additional geometry based veto cone
+      float chargedHadronPFPVIso; //only considers particles assigned to the primary vertex (PV) by particle flow, corresponds to <10_6 chargedHadronIso
+      float neutralHadronIso; 
+      float photonIso;       
       float sumEcalClusterEt; //sum pt of ecal clusters, vetoing clusters part of photon
       float sumHcalClusterEt; //sum pt of hcal clusters, vetoing clusters part of photon
       PflowIsolationVariables():
 	
-	chargedHadronIso(0),
-	chargedHadronIsoWrongVtx(0),
-	neutralHadronIso(0),
-	photonIso(0),
-        modFrixione(0),
-	sumChargedParticlePt(0),
-      	sumNeutralHadronEtHighThreshold(0),
-	sumPhotonEtHighThreshold(0),
-	sumPUPt(0),
-	sumEcalClusterEt(0),
-	sumHcalClusterEt(0)
+	chargedHadronIso(0.),
+	chargedHadronWorstVtxIso(0.),
+	chargedHadronWorstVtxGeomVetoIso(0.),
+	chargedHadronPFPVIso(0.),
+	neutralHadronIso(0.),
+	photonIso(0.),
+	sumEcalClusterEt(0.),
+	sumHcalClusterEt(0.)
       {}
       
       
@@ -491,13 +491,12 @@ namespace reco {
 
     /// Accessors for Particle Flow Isolation variables 
     float chargedHadronIso() const {return  pfIsolation_.chargedHadronIso;}
-    float chargedHadronIsoWrongVtx() const {return  pfIsolation_.chargedHadronIsoWrongVtx;}
+    float chargedHadronWorstVtxIso() const {return  pfIsolation_.chargedHadronWorstVtxIso;}
+    float chargedHadronWorstVtxGeomVetoIso() const {return  pfIsolation_.chargedHadronWorstVtxGeomVetoIso;}
+    float chargedHadronPFPVIso() const {return  pfIsolation_.chargedHadronPFPVIso;}
     float neutralHadronIso() const {return  pfIsolation_.neutralHadronIso;}
     float photonIso() const {return  pfIsolation_.photonIso;}
-    float sumChargedParticlePt() const {return pfIsolation_.sumChargedParticlePt;}
-    float sumNeutralHadronEtHighThreshold() const {return pfIsolation_.sumNeutralHadronEtHighThreshold;}
-    float sumPhotonEtHighThreshold() const {return pfIsolation_.sumPhotonEtHighThreshold;}
-    float sumPUPt() const {return pfIsolation_.sumPUPt;} 
+    
     
     //backwards compat functions for pat::Photon
     float ecalPFClusterIso() const { return pfIsolation_.sumEcalClusterEt; };

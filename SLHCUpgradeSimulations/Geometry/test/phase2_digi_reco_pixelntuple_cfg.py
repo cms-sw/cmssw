@@ -5,9 +5,9 @@
 # with command line options: step2 --conditions auto:phase2_realistic -s DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:@fake2,RAW2DIGI,L1Reco,RECO --datatier GEN-SIM-RECO -n 10 --geometry Extended2023D21 --era Phase2 --eventcontent FEVTDEBUGHLT --filein file:SingleMuPt1000_pythia8_cfi_GEN_SIM.root --runUnscheduled --no_exec
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('Phase2PixelNtuple',eras.Phase2)
+from Configuration.Eras.Era_Phase2_cff import Phase2
+process = cms.Process('Phase2PixelNtuple',Phase2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -15,6 +15,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+#process.load('SimGeneral.MixingModule.mix_POISSON_average_cfi')
 process.load('Configuration.Geometry.GeometryExtended2023D21Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
@@ -49,6 +50,10 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
+
+# MC vertice analyzer
+process.load("Validation.RecoVertex.mcverticesanalyzer_cfi")
+process.mcverticesanalyzer.pileupSummaryCollection = cms.InputTag("addPileupInfo","","HLT")
 
 # Output definition
 
@@ -86,10 +91,15 @@ process.mix.digitizers = cms.PSet(process.theDigitizersValid)
 
 # This pset is specific for producing simulated events for the designers of the PROC (InnerTracker)
 # They need pixel RecHits where the charge is stored with high-granularity and large dinamic range
+
+# digitizer
 process.mix.digitizers.pixel.PixelDigitizerAlgorithm.AdcFullScale   = cms.int32(255)
 process.mix.digitizers.pixel.PixelDigitizerAlgorithm.ElectronPerAdc = cms.double(135.)
-process.siPixelClusters.ElectronPerADCGain=cms.double(135.)
-process.siPixelClustersPreSplitting.ElectronPerADCGain=cms.double(135.)
+process.mix.digitizers.pixel.PixelDigitizerAlgorithm.AddXTalk = cms.bool(False)
+
+# clusterizer
+process.siPixelClusters.ElectronPerADCGain  = cms.double(135.)
+process.siPixelClustersPreSplitting.ElectronPerADCGain  = cms.double(135.)
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
@@ -102,7 +112,7 @@ process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction)
-process.user_step 		= cms.Path(process.ReadLocalMeasurement)
+process.user_step = cms.Path(process.ReadLocalMeasurement + process.mcverticesanalyzer)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 #process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
@@ -140,5 +150,4 @@ process = customiseEarlyDelete(process)
 process.TFileService = cms.Service('TFileService',
 fileName = cms.string("pixelntuple.root")
 )
-
 

@@ -1,10 +1,12 @@
 #include "DD4hep/DetFactoryHelper.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
+using namespace geant_units::operators;
 
 static long algorithm(Detector& /* description */,
                       cms::DDParsingContext& ctxt,
@@ -79,7 +81,7 @@ static long algorithm(Detector& /* description */,
       << " Detector Planes " << detectorN;
 
   LogDebug("TIDGeom") << "ModuleThick " 
-		      << moduleThick << " Detector Tilt " << ConvertTo( detTilt, deg )
+		      << moduleThick << " Detector Tilt " << convertRadToDeg( detTilt )
 		      << " Height " << fullHeight << " dl(Top) " << dlTop
 		      << " dl(Bottom) " << dlBottom << " dl(Hybrid) "
 		      << dlHybrid << " doComponents " << doComponents;
@@ -435,7 +437,7 @@ static long algorithm(Detector& /* description */,
         solid   = ns.addSolidNS(name,Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0));
         LogDebug("TIDGeom") << solid.name() 
 			    << " Trap made of " << pitchMat << " of "
-			    << "dimensions " << dz << ", " << ConvertTo( thet, deg )
+			    << "dimensions " << dz << ", " << convertRadToDeg( thet )
 			    << ", 0, " << h1 << ", " << bl1 << ", " << bl1 
 			    << ", 0, " << h1 << ", " << bl2 << ", " << bl2 
 			    << ", 0";

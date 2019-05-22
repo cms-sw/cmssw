@@ -15,10 +15,11 @@
 // Commented for now (3/10/17) until we figure out how to resuscitate 2D template splitter
 /// #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateSplit.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 #include "boost/multi_array.hpp"
+#include <boost/regex.hpp>
+#include <map>
 
 #include <iostream>
 
@@ -59,8 +60,8 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
       // Initialize template store to the selected ID [Morris, 6/25/08]
       if ( !SiPixelTemplate2D::pushfile( *templateDBobject2D , thePixelTemp2D_) )
          throw cms::Exception("PixelCPEClusterRepair")
-         << "\nERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
-         << (*templateDBobject_).version() << "\n\n";
+         << "\nERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject2D version "
+         << (*templateDBobject2D).version() << "\n\n";
    }
    else
    {
@@ -80,6 +81,8 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
 	 << "\nERROR: Template ID " << forwardTemplateID_ << " not loaded correctly from text file. Reconstruction will fail.\n\n";
    }
    
+   templateDBobject2D_ = templateDBobject2D;
+   fill2DTemplIDs();
    speed_ = conf.getParameter<int>( "speed");
    LogDebug("PixelCPEClusterRepair::PixelCPEClusterRepair:") <<
    "Template speed = " << speed_ << "\n";
@@ -87,16 +90,58 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
    UseClusterSplitter_ = conf.getParameter<bool>("UseClusterSplitter");   
 
 
-   //--- Configure 2D reco.
-   if ( conf.exists("MinProbY") )
-     minProbY_ = conf.getParameter<double>("MinProbY");
-   else
-     minProbY_ = 0.001;           // probabilityY < 0.001
 
-   if ( conf.exists("MaxSizeMismatchInY") )
-     maxSizeMismatchInY_ = conf.getParameter<int>("MaxSizeMismatchInY");
-   else
-     maxSizeMismatchInY_ = 1;     // ( templ.clsleny() - nypix > 1)
+   maxSizeMismatchInY_ = conf.getParameter<double>("MaxSizeMismatchInY");
+   minChargeRatio_ = conf.getParameter<double>("MinChargeRatio");
+
+   // read sub-detectors and apply rule to recommend 2D 
+   // can be: 
+   //     XYX (XYZ = PXB, PXE)
+   //     XYZ n (XYZ as above, n = layer, wheel or disk = 1 .. 6 ;)
+   std::vector<std::string> str_recommend2D = conf.getParameter<std::vector<std::string> >("Recommend2D");
+   recommend2D_.reserve(str_recommend2D.size());
+   for (auto & str: str_recommend2D){
+     recommend2D_.push_back(str);
+   }
+
+   // run CR on damaged clusters (and not only on edge hits)
+   runDamagedClusters_ = conf.getParameter<bool>("RunDamagedClusters");
+}
+
+//-----------------------------------------------------------------------------
+//  Fill all 2D template IDs
+//-----------------------------------------------------------------------------
+void PixelCPEClusterRepair::fill2DTemplIDs()
+{
+   auto const & dus = geom_.detUnits();
+   unsigned m_detectors = dus.size();
+   for(unsigned int i=1;i<7;++i) {
+      LogDebug("PixelCPEClusterRepair:: LookingForFirstStrip") << "Subdetector " << i
+      << " GeomDetEnumerator " << GeomDetEnumerators::tkDetEnum[i]
+      << " offset " << geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])
+      << " is it strip? " << (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size() ?
+                              dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip() : false);
+      if(geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size() &&
+         dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip()) {
+         if(geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) < m_detectors) m_detectors = geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]);
+      }
+   }
+   LogDebug("LookingForFirstStrip") << " Chosen offset: " << m_detectors;
+   
+   
+   m_DetParams.resize(m_detectors);
+   LogDebug("PixelCPEClusterRepair::fillDetParams():") <<"caching "<<m_detectors<<" pixel detectors"<<endl;
+   //Loop through detectors and store 2D template ID
+   bool printed_info = false;
+   for (unsigned i=0; i!=m_detectors;++i) {
+      auto & p=m_DetParams[i];
+
+      p.detTemplateId2D = templateDBobject2D_->getTemplateID(p.theDet->geographicalId());
+      if(p.detTemplateId != p.detTemplateId2D && !printed_info){
+          edm::LogWarning("PixelCPEClusterRepair") << "different template ID between 1D and 2D " << p.detTemplateId << " " << p.detTemplateId2D << endl;
+          printed_info = true;
+      }
+   }
 
 }
 
@@ -135,19 +180,19 @@ PixelCPEClusterRepair::localPosition(DetParam const & theDetParam, ClusterParam 
    if(!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
       throw cms::Exception("PixelCPEClusterRepair::localPosition :")
       << "A non-pixel detector type in here?";
+
    
-   int ID = -9999;
+   int ID1 = -9999;
+   int ID2 = -9999;
    if ( LoadTemplatesFromDB_ ) {
-      int ID0 = templateDBobject_->getTemplateID(theDetParam.theDet->geographicalId()); // just to comapre
-      ID = theDetParam.detTemplateId;
-      if(ID0!=ID) edm::LogError("PixelCPEClusterRepair") <<" different id"<< ID<<" "<<ID0<<endl;
+      ID1 = theDetParam.detTemplateId;
+      ID2 = theDetParam.detTemplateId2D;
    } else { // from asci file
       if ( ! GeomDetEnumerators::isEndcap(theDetParam.thePart) )
-	ID = barrelTemplateID_  ; // barrel
+	ID1 = ID2 = barrelTemplateID_  ; // barrel
       else
-	ID = forwardTemplateID_ ; // forward
+	ID1 = ID2 = forwardTemplateID_ ; // forward
    }
-   //cout << "PixelCPEClusterRepair : ID = " << ID << endl;
 
    // &&& PM, note for later: PixelCPEBase calculates minInX,Y, and maxInX,Y
    //     Why can't we simply use that and save time with row_offset, col_offset
@@ -237,26 +282,17 @@ PixelCPEClusterRepair::localPosition(DetParam const & theDetParam, ClusterParam 
 
 
 
-   //--- Are we on edge?
-   if ( theClusterParam.isOnEdge_ ) {
-     //--- Call the Template Reco 2d with cluster repair.0
+   //--- Should we run the 2D reco?
+   checkRecommend2D(theDetParam, theClusterParam, clusterPayload, ID1);
+   if ( theClusterParam.recommended2D_ ) {
+     //--- Call the Template Reco 2d with cluster repair
      filled_from_2d = true;
-     callTempReco2D( theDetParam, theClusterParam, clusterPayload2d, ID, lp );
+     callTempReco2D( theDetParam, theClusterParam, clusterPayload2d, ID2, lp );
    }
    else {
-     theClusterParam.recommended2D_ = false;
      //--- Call the vanilla Template Reco
-     callTempReco1D( theDetParam, theClusterParam, clusterPayload, ID, lp );
-
-     //--- Did we find a cluster which has bad probability and not enough charge?
-     if ( theClusterParam.recommended2D_ ) {
-       //--- Yes. So run Template Reco 2d with cluster repair.
-
-       //--- Call the Template Reco 2d with cluster repair
-       callTempReco2D( theDetParam, theClusterParam, clusterPayload2d, ID, lp );
-       filled_from_2d = true;
-     }
-
+     callTempReco1D( theDetParam, theClusterParam, clusterPayload, ID1, lp );
+     filled_from_2d = false;
    }
 
    //--- Make sure cluster repair returns all info about the hit back up to caller
@@ -361,15 +397,12 @@ PixelCPEClusterRepair::callTempReco1D( DetParam const & theDetParam,
    }   
    else 
    {
-      //--- Template Reco succeeded.  The probabilities are filled.
-      theClusterParam.hasFilledProb_ = true;
+       //--- Template Reco succeeded.  The probabilities are filled.
+       theClusterParam.hasFilledProb_ = true;
 
-      //--- templ.clsleny() is the expected length of the cluster along y axis.
-      if ( (theClusterParam.probabilityY_ < minProbY_ ) && (templ.clsleny() - nypix > 1) ) {
-	     theClusterParam.recommended2D_ = true;
-      }
-      
-      //--- Go from microns to centimeters
+       
+
+           //--- Go from microns to centimeters
       theClusterParam.templXrec_ *= micronsToCm;
       theClusterParam.templYrec_ *= micronsToCm;
       
@@ -423,16 +456,13 @@ PixelCPEClusterRepair::callTempReco2D( DetParam const & theDetParam,
    //   deltay - (output) template y-length - cluster length [when > 0, possibly missing end]
    //   npixels - ???     &&& Ask Morris
 
-   float edgeTypeY = theClusterParam.edgeTypeY_ ;  // the default, from PixelCPEBase
-   if ( theClusterParam.recommended2D_ ) {
-     //  Cluster is not on edge, but instead the normal TemplateReco discovered that it is
-     //  shorter than expected.  So let the 2D algorithm try extending it on both sides, in case
-     //  there is a dead double-column on either side.  (We don't know which.)
-     edgeTypeY = 3;
-   }
 
    float deltay = 0;    // return param
    int npixels = 0;     // return param
+
+
+   //For now, turn off edgeX_ flags
+   theClusterParam.edgeTypeX_ = 0;
 
    if(clusterPayload.mrow > 4){
        // The cluster is too big, the 2D reco will perform horribly.
@@ -444,7 +474,7 @@ PixelCPEClusterRepair::callTempReco2D( DetParam const & theDetParam,
        theClusterParam.ierr2 =
        PixelTempReco2D( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
                        locBz, locBx,
-                       edgeTypeY , theClusterParam.edgeTypeX_ ,
+                       theClusterParam.edgeTypeY_ , theClusterParam.edgeTypeX_ ,
                        clusterPayload,
                        templ2d,
                        theClusterParam.templYrec_, theClusterParam.templSigmaY_, 
@@ -502,6 +532,95 @@ PixelCPEClusterRepair::callTempReco2D( DetParam const & theDetParam,
       theClusterParam.templYrec_ += lp.y();
    }
    return;
+}
+//---------------------------------------------------------------------------------
+// Helper function to see if we should recommend 2D reco to be run on this
+// cluster
+// ---------------------------------------------------------------------------------
+void PixelCPEClusterRepair::checkRecommend2D( DetParam const & theDetParam, ClusterParamTemplate & theClusterParam, 
+			SiPixelTemplateReco::ClusMatrix & clusterPayload, int ID ) const
+
+{
+    // recommend2D is false by default
+    theClusterParam.recommended2D_  = false;
+  
+    DetId id = (theDetParam.theDet->geographicalId());
+
+    bool recommend = false;
+    for (auto & rec: recommend2D_){
+        recommend = rec.recommend(id, ttopo_);
+        if(recommend) break;
+    }
+
+    // only run on those layers recommended by configuration
+    if(!recommend) {
+        theClusterParam.recommended2D_ = false;
+        return;
+    }
+
+    if(theClusterParam.edgeTypeY_){
+        // For clusters that have edges in Y, run 2d reco.
+        // Flags already set by CPEBase
+        theClusterParam.recommended2D_ = true;
+        return;
+    }
+    // The 1d pixel template
+    SiPixelTemplate templ(thePixelTemp_);
+    if(!templ.interpolate(ID, theClusterParam.cotalpha, theClusterParam.cotbeta, theDetParam.bz, theDetParam.bx)){
+        //error setting up template, return false
+        theClusterParam.recommended2D_ = false;
+        return;
+    }
+
+
+    //length of the cluster taking into account double sized pixels
+    float nypix = clusterPayload.mcol;
+    for(int i=0; i<clusterPayload.mcol; i++){
+        if(clusterPayload.ydouble[i]) nypix+=1.;
+    }
+
+    // templ.clsleny() is the expected length of the cluster along y axis.
+    // templ.qavg() is the expected total charge of the cluster
+    // theClusterParam.theCluster->charge() is the total charge of this cluster
+    float nydiff = templ.clsleny() - nypix;
+    float qratio = theClusterParam.theCluster->charge()/templ.qavg();
+
+    if ( nydiff > maxSizeMismatchInY_  && qratio < minChargeRatio_){
+        // If the cluster is shorter than expected and has less charge, likely
+        // due to truncated cluster, try 2D reco
+        
+        theClusterParam.recommended2D_ = true;
+        theClusterParam.hasBadPixels_ = true;
+
+	// if not RunDamagedClusters flag, don't try to fix any clusters
+	if(!runDamagedClusters_) {
+	    theClusterParam.recommended2D_ = false;
+	}
+
+        // Figure out what edge flags to set for truncated cluster
+        // Truncated clusters usually come from dead double columns
+        // 
+        // If cluster is of even length,  either both of or neither of beginning and ending
+        // edge are on a double column, so we cannot figure out the likely edge of
+        // truncation, let the 2D algorithm try extending on both sides (option 3)
+        if(theClusterParam.theCluster->sizeY() % 2 == 0) theClusterParam.edgeTypeY_ = 3;
+        else{
+            //If the cluster is of odd length, only one of the edges can end on
+            //a double column, this is the likely edge of truncation
+            //Double columns always start on even indexes
+            int min_col = theClusterParam.theCluster->minPixelCol();
+            if(min_col %2 ==0){
+                //begining edge is at a double column (end edge cannot be,
+                //because odd length) so likely truncated at small y (option 1) 
+                theClusterParam.edgeTypeY_ = 1;
+            }
+            else{ 
+                //end edge is at a double column (beginning edge cannot be,
+                //because odd length) so likely truncated at large y (option 2) 
+                theClusterParam.edgeTypeY_ = 2;
+            }
+        }
+    }
 }
 
 
@@ -585,3 +704,24 @@ PixelCPEClusterRepair::localError(DetParam const & theDetParam,  ClusterParam & 
    return LocalError(xerr*xerr, 0, yerr*yerr);
 }
 
+PixelCPEClusterRepair::Rule::Rule(const std::string &str) {
+  static const boost::regex rule("([A-Z]+)(\\s+(\\d+))?");
+  boost::cmatch match;
+  // match and check it works
+  if (!regex_match(str.c_str(), match, rule)) 
+    throw cms::Exception("Configuration") << "Rule '" << str << "' not understood.\n";
+
+  // subdet
+  subdet_ = -1;
+  if      (strncmp(match[1].first, "PXB", 3) == 0) subdet_ = PixelSubdetector::PixelBarrel;
+  else if (strncmp(match[1].first, "PXE", 3) == 0) subdet_ = PixelSubdetector::PixelEndcap;
+  if (subdet_ == -1) {
+    throw cms::Exception("PixelCPEClusterRepair::Configuration") << "Detector '" << match[1].first << "' not understood. Should be PXB, PXE.\n";
+  }
+  // layer (if present)
+  if (match[3].first != match[3].second) {
+    layer_ = atoi(match[3].first);
+  } else {
+    layer_ = 0;
+  }
+}//end Rule::Rule

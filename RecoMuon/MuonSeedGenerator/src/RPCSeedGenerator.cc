@@ -241,6 +241,7 @@ RPCSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     // Start from filling layers to filling seeds
     LayerFinder.fill();
+    Overlapper.setEventSetup(iSetup);
     Overlapper.run();
 
     // Save seeds to event

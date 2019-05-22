@@ -30,19 +30,17 @@
 
 class PixelVTXMonitor : public edm::EDAnalyzer {
 public:
-  PixelVTXMonitor( const edm::ParameterSet& );
+  PixelVTXMonitor(const edm::ParameterSet&);
   ~PixelVTXMonitor() override;
 
 protected:
-
   void beginJob() override;
   void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
-  void endRun(edm::Run const& iRun,  edm::EventSetup const& iSetup) override;
+  void endRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void endJob() override;
 
 private:
-
   void bookHistograms();
 
   edm::ParameterSet parameters_;
@@ -57,10 +55,10 @@ private:
   edm::InputTag hltInputTag_;
   float minVtxDoF_;
 
-  DQMStore * dbe_;
+  DQMStore* dbe_;
   HLTConfigProvider hltConfig_;
 
-  struct PixelMEs{
+  struct PixelMEs {
     MonitorElement* clusME;
     MonitorElement* vtxME;
   };
@@ -68,7 +66,7 @@ private:
   std::map<std::string, PixelMEs> histoMap_;
 };
 
-#endif // PIXELVTXMONITOR_H
+#endif  // PIXELVTXMONITOR_H
 
 // Local Variables:
 // show-trailing-whitespace: t

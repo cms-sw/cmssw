@@ -1,7 +1,9 @@
 from __future__ import print_function
+from __future__ import absolute_import
 # idea stolen from:
 # http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/
 #        PhysicsTools/PatAlgos/python/tools/cmsswVersionTools.py
+from builtins import range
 import bisect
 import datetime
 import json
@@ -12,8 +14,8 @@ import sys
 import Utilities.General.cmssw_das_client as das_client
 from FWCore.PythonUtilities.LumiList import LumiList
 
-from helperFunctions import cache
-from TkAlExceptions import AllInOneError
+from .helperFunctions import cache
+from .TkAlExceptions import AllInOneError
 
 class Dataset(object):
     def __init__( self, datasetName, dasLimit = 0, tryPredefinedFirst = True,
@@ -87,7 +89,7 @@ class Dataset(object):
     def __chunks( self, theList, n ):
         """ Yield successive n-sized chunks from theList.
         """
-        for i in xrange( 0, len( theList ), n ):
+        for i in range( 0, len( theList ), n ):
             yield theList[i:i+n]
 
     __source_template= ("%(header)s"

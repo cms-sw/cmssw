@@ -4,7 +4,7 @@
 //
 // Package:     RandomEngine
 // Class  :     RandomEngineState
-// 
+//
 /**\class RandomEngineState RandomEngineState.h SimDataFormats/RandomEngine/interface/RandomEngineState.h
 
  Description: Holds the state of a CLHEP random number engine
@@ -23,11 +23,8 @@ service.
 #include <string>
 #include <boost/cstdint.hpp>
 
-
 class RandomEngineState {
-
-  public:
-
+public:
   RandomEngineState();
 
   ~RandomEngineState();
@@ -50,8 +47,7 @@ class RandomEngineState {
 
   bool operator<(RandomEngineState const& rhs) const { return label_ < rhs.label_; }
 
-  private:
-
+private:
   std::string label_;
   std::vector<uint32_t> state_;
   std::vector<uint32_t> seed_;

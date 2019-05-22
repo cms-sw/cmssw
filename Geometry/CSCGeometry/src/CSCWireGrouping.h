@@ -10,9 +10,9 @@
  */
 
 class CSCWireGrouping {
- public:
+public:
   virtual ~CSCWireGrouping() {}
-  
+
   /**
    * Total number of (virtual) wires.
    * Some wires may not be implemented in the hardware.
@@ -29,7 +29,7 @@ class CSCWireGrouping {
   /**
    * How many wires in a wiregroup
    */
-  virtual int numberOfWiresPerGroup( int wireGroup ) const = 0;
+  virtual int numberOfWiresPerGroup(int wireGroup) const = 0;
 
   /**
    * Wire group containing a given wire
@@ -42,13 +42,12 @@ class CSCWireGrouping {
    * This is a pseudo-wire no. for a group with an even no. of wires.
    * Accordingly, it is non-integer.
    */
-  virtual float middleWireOfGroup( int wireGroup ) const = 0;
+  virtual float middleWireOfGroup(int wireGroup) const = 0;
 
   /**
    * Allow proper copying of derived classes via base pointer
    */
   virtual CSCWireGrouping* clone() const = 0;
-
 };
 
 #endif

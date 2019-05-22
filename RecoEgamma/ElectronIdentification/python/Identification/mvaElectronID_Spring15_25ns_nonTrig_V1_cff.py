@@ -84,7 +84,7 @@ mvaEleID_Spring15_25ns_nonTrig_V1_producer_config = cms.PSet(
     #
     # Category parameters
     nCategories         = cms.int32(6),
-    categoryCuts        = EleMVA_6CategoriesCuts,
+    categoryCuts        = cms.vstring(*EleMVA_6CategoriesCuts),
     # Weight files and variable definitions
     weightFileNames    = mvaSpring15NonTrigWeightFiles_V1,
     variableDefinition  = cms.string(mvaVariablesFile)

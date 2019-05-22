@@ -1,10 +1,9 @@
 #ifndef Fireworks_Core_FWJobMetadataUpdateRequest
 #define Fireworks_Core_FWJobMetadataUpdateRequest
 
-class FWJobMetadataUpdateRequest
-{
+class FWJobMetadataUpdateRequest {
 public:
-   virtual ~FWJobMetadataUpdateRequest() {};
+  virtual ~FWJobMetadataUpdateRequest(){};
 };
 
 #endif

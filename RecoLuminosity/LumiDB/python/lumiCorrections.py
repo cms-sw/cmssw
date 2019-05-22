@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import os,coral,re
 from RecoLuminosity.LumiDB import nameDealer
 
@@ -397,7 +398,7 @@ def pixelcorrectionsForRange(schema,inputRange):
     return result
 
 if __name__ == "__main__":
-    import sessionManager
+    from . import sessionManager
     #myconstr='oracle://cms_orcoff_prod/cms_lumi_prod'
     myconstr='oracle://cms_orcoff_prep/cms_lumi_dev_offline'
     svc=sessionManager.sessionManager(myconstr,authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)

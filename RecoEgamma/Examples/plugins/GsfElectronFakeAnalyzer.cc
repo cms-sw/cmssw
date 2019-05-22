@@ -1388,8 +1388,8 @@ GsfElectronFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         histSclEt_->Fill(sclRef->energy()*(Rt/R));
         histSclEtVsEta_->Fill(sclRef->eta(),sclRef->energy()*(Rt/R));
         histSclEtVsPhi_->Fill(sclRef->phi(),sclRef->energy()*(Rt/R));
-        if (bestGsfElectron.classification() < 100)  histSclEoEmatchingObject_barrel->Fill(sclRef->energy()/moIter->energy());
-        if (bestGsfElectron.classification() >= 100)  histSclEoEmatchingObject_endcaps->Fill(sclRef->energy()/moIter->energy());
+        if (bestGsfElectron.isEB())  histSclEoEmatchingObject_barrel->Fill(sclRef->energy()/moIter->energy());
+        if (bestGsfElectron.isEE())  histSclEoEmatchingObject_endcaps->Fill(sclRef->energy()/moIter->energy());
         histSclEta_->Fill(sclRef->eta());
         histSclEtaVsPhi_->Fill(sclRef->phi(),sclRef->eta());
         histSclPhi_->Fill(sclRef->phi());

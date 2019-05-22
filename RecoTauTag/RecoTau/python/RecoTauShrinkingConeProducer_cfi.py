@@ -27,7 +27,8 @@ _shrinkingConeRecoTausConfig = cms.PSet(
     isoConeNeutralHadrons = cms.string('0.4'),
     maxSignalConeChargedHadrons = cms.int32(-1), # CV: upper limit on number of signalConeChargedHadrons disabled per default
     minAbsPhotonSumPt_insideSignalCone = cms.double(2.5),
-    minRelPhotonSumPt_insideSignalCone = cms.double(0.10)
+    minRelPhotonSumPt_insideSignalCone = cms.double(0.10),
+    verbosity = cms.int32(0)
 )
 
 shrinkingConeRecoTaus = combinatoricRecoTaus.clone(

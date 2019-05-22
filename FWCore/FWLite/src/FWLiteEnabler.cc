@@ -30,73 +30,71 @@
 // static data member definitions
 //
 
-  bool FWLiteEnabler::enabled_(false);
-
+bool FWLiteEnabler::enabled_(false);
 
 //
 // constructors and destructor
 //
 // Note: this ctor will never be invoked.
 // All data and functions are static
-  FWLiteEnabler::FWLiteEnabler() {
-  }
-
+FWLiteEnabler::FWLiteEnabler() {}
 
 //
 // member functions
 //
 
-  void
-  FWLiteEnabler::enable() {
-   if (enabled_) { return; }
-   enabled_ = true;
+void FWLiteEnabler::enable() {
+  if (enabled_) {
+    return;
+  }
+  enabled_ = true;
 
-   edmplugin::PluginManager::configure(edmplugin::standard::config());
-   static BareRootProductGetter s_getter;
-   //this function must be called
-   // so that the TClass we need will be available
-   fwlite::setRefStreamer(&s_getter);
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
+  static BareRootProductGetter s_getter;
+  //this function must be called
+  // so that the TClass we need will be available
+  fwlite::setRefStreamer(&s_getter);
 
-   //Make it easy to load our headers
-   TInterpreter* intrp= gROOT->GetInterpreter();
-   char const* env = getenv("CMSSW_FWLITE_INCLUDE_PATH");
-   if(nullptr != env) {
-     //this is a comma separated list
-     char const* start = env;
-     char const* end;
-     do {
-       //find end
-       for(end=start; *end!=0 and *end != ':';++end);
-       std::string dir(start, end);
-       intrp->AddIncludePath(dir.c_str());
-       start = end+1;
-     } while(*end != 0);
-   }
-
-   bool foundCMSIncludes = false;
-   env = getenv("CMSSW_BASE");
-   if(nullptr != env) {
-     foundCMSIncludes = true;
-     std::string dir(env);
-     dir += "/src";
-     intrp->AddIncludePath(dir.c_str());
-   }
-
-   env = getenv("CMSSW_RELEASE_BASE");
-   if(nullptr != env) {
-     foundCMSIncludes = true;
-     std::string dir(env);
-     dir += "/src";
-     intrp->AddIncludePath(dir.c_str());
-   }
-   if(not foundCMSIncludes) {
-     std::cerr <<"Could not find the environment variables \n"
-     <<"  CMSSW_BASE or\n"
-     <<"  CMSSW_RELEASE_BASE\n"
-     <<" therefore attempting to '#include' any CMS headers will not work"<<std::endl;
-   }
-   if (nullptr != gApplication) {
-     gApplication->InitializeGraphics();
-   }
+  //Make it easy to load our headers
+  TInterpreter* intrp = gROOT->GetInterpreter();
+  char const* env = getenv("CMSSW_FWLITE_INCLUDE_PATH");
+  if (nullptr != env) {
+    //this is a comma separated list
+    char const* start = env;
+    char const* end;
+    do {
+      //find end
+      for (end = start; *end != 0 and *end != ':'; ++end)
+        ;
+      std::string dir(start, end);
+      intrp->AddIncludePath(dir.c_str());
+      start = end + 1;
+    } while (*end != 0);
   }
 
+  bool foundCMSIncludes = false;
+  env = getenv("CMSSW_BASE");
+  if (nullptr != env) {
+    foundCMSIncludes = true;
+    std::string dir(env);
+    dir += "/src";
+    intrp->AddIncludePath(dir.c_str());
+  }
+
+  env = getenv("CMSSW_RELEASE_BASE");
+  if (nullptr != env) {
+    foundCMSIncludes = true;
+    std::string dir(env);
+    dir += "/src";
+    intrp->AddIncludePath(dir.c_str());
+  }
+  if (not foundCMSIncludes) {
+    std::cerr << "Could not find the environment variables \n"
+              << "  CMSSW_BASE or\n"
+              << "  CMSSW_RELEASE_BASE\n"
+              << " therefore attempting to '#include' any CMS headers will not work" << std::endl;
+  }
+  if (nullptr != gApplication) {
+    gApplication->InitializeGraphics();
+  }
+}

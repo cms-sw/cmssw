@@ -18,7 +18,7 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include <vector>
 
-namespace reco { namespace tau { namespace disc {
+namespace reco::tau::disc {
 
 // Save typing
 typedef const PFTau& Tau;
@@ -26,7 +26,7 @@ typedef std::vector<double> VDouble;
 
 /// For three prong events, take the track that has charge opposite to the
 /// composite charge.
-PFCandidatePtr mainTrack(const PFTau& tau);
+CandidatePtr mainTrack(const PFTau& tau);
 
 // HPStanc variables
 double JetPt(Tau tau);
@@ -122,5 +122,5 @@ VDouble InvariantMassOfSignalWithFiltered(Tau);
 VDouble InvariantMass(Tau);
 VDouble OutlierMass(Tau);
 
-}}} // end namespace reco::tau::disc
+} // end namespace reco::tau::disc
 #endif

@@ -2,12 +2,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
+#include <cmath>
 
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelIndices.h"
 #include "TMath.h"
-#include <cmath>
-#include <algorithm>
+
+#include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrackRecoInfo.h"
 
 //------------------------------------------------------------------------------------------------//
 
@@ -26,8 +28,6 @@ RPixPlaneCombinatoryTracking::RPixPlaneCombinatoryTracking(edm::ParameterSet con
                                                          << "tracking is not possible with " 
                                                          << trackMinNumberOfPoints_ << " hits";
   }
- 
-  
 }
 
 //------------------------------------------------------------------------------------------------//
@@ -38,7 +38,7 @@ RPixPlaneCombinatoryTracking::~RPixPlaneCombinatoryTracking() {
 
 //------------------------------------------------------------------------------------------------//
 
-void RPixPlaneCombinatoryTracking::initialize(){
+void RPixPlaneCombinatoryTracking::initialize() {
  
   uint32_t numberOfCombinations = factorial(numberOfPlanesPerPot_)/
                                   (factorial(numberOfPlanesPerPot_-trackMinNumberOfPoints_)
@@ -56,7 +56,6 @@ void RPixPlaneCombinatoryTracking::initialize(){
       edm::LogInfo("RPixPlaneCombinatoryTracking");
     }
   }
-
 }
 
 //------------------------------------------------------------------------------------------------//
@@ -118,7 +117,7 @@ RPixPlaneCombinatoryTracking::produceAllHitCombination(PlaneCombinations inputPl
   PointAndReferenceMap mapOfAllPoints;
   CTPPSPixelDetId tmpRpId = romanPotId_; //in order to avoid to modify the data member
   
-  if(verbosity_>2) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Searching for all combinations...";
+  if(verbosity_>=2) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Searching for all combinations...";
   //Loop on all the plane combinations
   for( const auto & planeCombination : inputPlaneCombination){
 
@@ -132,7 +131,7 @@ RPixPlaneCombinatoryTracking::produceAllHitCombination(PlaneCombinations inputPl
       tmpRpId.setPlane(plane);
       CTPPSPixelDetId planeDetId = tmpRpId;
       if(hitMap_->find(planeDetId) == hitMap_->end()){
-        if(verbosity_>2) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"No data on arm "<<planeDetId.arm()<<" station "<<planeDetId.station()
+        if(verbosity_>=2) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"No data on arm "<<planeDetId.arm()<<" station "<<planeDetId.station()
                                   <<" rp " <<planeDetId.rp()<<" plane "<<planeDetId.plane();
         allPlaneAsHits = false;
         break;
@@ -151,7 +150,7 @@ RPixPlaneCombinatoryTracking::produceAllHitCombination(PlaneCombinations inputPl
     HitReferences tmpHitPlaneMap; //empty map of plane id and hit number needed the getHitCombinations algorithm
     PointInPlaneList tmpHitVector; //empty vector of hits needed for the getHitCombinations algorithm
     getHitCombinations(selectedCombinationHitOnPlane,mapIterator,tmpHitPlaneMap,tmpHitVector,mapOfAllPoints);
-    if(verbosity_>2) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Number of possible tracks "<<mapOfAllPoints.size();
+    if(verbosity_>=2) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Number of possible tracks "<<mapOfAllPoints.size();
 
   } //end of loops on all the combinations
 
@@ -161,7 +160,7 @@ RPixPlaneCombinatoryTracking::produceAllHitCombination(PlaneCombinations inputPl
 
 //------------------------------------------------------------------------------------------------//
 
-void RPixPlaneCombinatoryTracking::findTracks(){
+void RPixPlaneCombinatoryTracking::findTracks(int run){
 
   //The loop search for all the possible tracks starting from the one with the smallest chiSquare/NDF
   //The loop stops when the number of planes with recorded hits is less than the minimum number of planes required
@@ -180,7 +179,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
     //and the key keeps the reference of which planes and which hit numbers form the combination
     PointAndReferenceMap mapOfAllMinRequiredPoint;
     //I produce the map for all cominations of all hits with all trackMinNumberOfPoints_ plane combinations
-    mapOfAllMinRequiredPoint =produceAllHitCombination(possiblePlaneCombinations_);
+    mapOfAllMinRequiredPoint = produceAllHitCombination(possiblePlaneCombinations_);
 
     //Fit all the possible combinations with minimum number of planes required and find the track with minimum chi2
     double theMinChiSquaredOverNDF = maximumChi2OverNDF_+1.; //in order to break the loop in case no track is found;
@@ -188,7 +187,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
     PointInPlaneList pointsWithMinChiSquared;
     CTPPSPixelLocalTrack bestTrack;
 
-    if(verbosity_>2) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Number of combinations of trackMinNumberOfPoints_ planes "
+    if(verbosity_>=2) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Number of combinations of trackMinNumberOfPoints_ planes "
                               <<mapOfAllMinRequiredPoint.size();
     for(const auto & pointsAndRef : mapOfAllMinRequiredPoint){
       CTPPSPixelLocalTrack tmpTrack = fitTrack(pointsAndRef.second);
@@ -285,9 +284,9 @@ void RPixPlaneCombinatoryTracking::findTracks(){
 
     //search for hit on the other planes which may belong to the same track
     //even if they did not contributed to the track
-    // in case of multiple hit, the closest one to the track will be considered
-    //If an hit is found these will not be erased from the list of all hits
-    //If not hit is found, the point on the plane intersecting the track will be saved by a CTPPSPixelFittedRecHit 
+    //in case of multiple hit, the closest one to the track will be considered
+    //If a hit is found these will not be erased from the list of all hits
+    //If no hit is found, the point on the plane intersecting the track will be saved by a CTPPSPixelFittedRecHit 
     //with the isRealHit_ flag set to false
     for(const auto & plane : listOfPlaneNotUsedForFit){
       CTPPSPixelDetId tmpPlaneId = romanPotId_; //in order to avoid to modify the data member
@@ -303,7 +302,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
         //This avoids to convert the global plane-line intersection in order not to call the the geometry 
         math::Vector<3>::type maxGlobalPointDistance(maximumXLocalDistanceFromTrack_,maximumYLocalDistanceFromTrack_,0.);
         
-        DDRotationMatrix theRotationMatrix = geometry_->getSensor(tmpPlaneId)->rotation();
+        DetGeomDesc::RotationMatrix theRotationMatrix = geometry_->getSensor(tmpPlaneId)->rotation();
         AlgebraicMatrix33 tmpPlaneRotationMatrixMap;
         theRotationMatrix.GetComponents(tmpPlaneRotationMatrixMap(0, 0), tmpPlaneRotationMatrixMap(0, 1), tmpPlaneRotationMatrixMap(0, 2),
                                         tmpPlaneRotationMatrixMap(1, 0), tmpPlaneRotationMatrixMap(1, 1), tmpPlaneRotationMatrixMap(1, 2),
@@ -356,8 +355,123 @@ void RPixPlaneCombinatoryTracking::findTracks(){
                << pointOnTrack<<" points belonging to the track\n";
     }
 
+
+    
   } //close of the while loop on all the hits
 
+
+  // recoInfo_ calculation
+  // Hardcoded shift periods: 
+  // Before run 300802: No shift
+  // Starting from run 300802: Sec45 St2 Rp3 Pl 0,2,3 ROC 0 shifted.
+  // Starting from run 303338: No shift.
+  // Starting from run 305169: Sec45 St2 Rp3 Pl 1,3,5 ROC 0 shifted.
+  // Starting from run 305965: Sec45 St2 Rp3 Pl 1,3,5 ROC 0 shifted & Sec56 St2 Rp3 Pl 2,4,5 ROC 5 shifted.
+  // Starting from run 307083: No shift
+
+  // These variables hold the information of the runs when the detector was taking data in 3+3 Mode and which planes were bx-shifted
+  // These values will never be changed and the 3+3 Mode will never be used again in the future
+  const CTPPSPixelDetId rpId_arm0_st2 = CTPPSPixelDetId(0,2,3);
+  const CTPPSPixelDetId rpId_arm1_st2 = CTPPSPixelDetId(1,2,3);
+  static const std::map< unsigned int, std::map< CTPPSPixelDetId,std::vector<bool> > > isPlaneShifted =
+  {
+    {
+      0,{
+        {rpId_arm0_st2,{false,false,false,false,false,false}}, // Shift Period 0 Sec45
+        {rpId_arm1_st2,{false,false,false,false,false,false}}  // Shift Period 1 Sec56
+      }
+    },
+    {
+      300802,{
+        {rpId_arm0_st2,{true,false,true,true,false,false}}, // Shift Period 1 Sec45
+        {rpId_arm1_st2,{false,false,false,false,false,false}}  // Shift Period 1 Sec56
+      }
+    },
+    {
+      303338,{
+        {rpId_arm0_st2,{false,false,false,false,false,false}}, // Shift Period 2 Sec45
+        {rpId_arm1_st2,{false,false,false,false,false,false}}  // Shift Period 2 Sec56
+      }
+    },
+    {
+      305169,{
+        {rpId_arm0_st2,{false,true,false,true,false,true}}, // Shift Period 3 Sec45
+        {rpId_arm1_st2,{false,false,false,false,false,false}}  // Shift Period 3 Sec56
+      }
+    },
+    {
+      305965,{
+        {rpId_arm0_st2,{false,true,false,true,false,true}}, // Shift Period 4 Sec45
+        {rpId_arm1_st2,{false,false,true,false,true,true}}  // Shift Period 4 Sec56
+      }
+    },
+    {
+      307083,{
+        {rpId_arm0_st2,{false,false,false,false,false,false}}, // Shift Period 0 Sec45
+        {rpId_arm1_st2,{false,false,false,false,false,false}}  // Shift Period 1 Sec56
+      }
+    }
+  }; // map< shiftedPeriod, map<DetID,shiftScheme> >
+  const auto& shiftStatusInitialRun = std::prev(isPlaneShifted.upper_bound(run));
+  unsigned short shiftedROC = 10;
+  CTPPSPixelIndices pixelIndices;
+
+  // Selecting the shifted ROC
+  if(romanPotId_.arm() == 0) shiftedROC = 0;
+  if(romanPotId_.arm() == 1) shiftedROC = 5;
+
+  // Loop over found tracks to set recoInfo_
+  for(auto & track : localTrackVector_){
+    if(romanPotId_ != rpId_arm0_st2 && romanPotId_ != rpId_arm1_st2){
+      track.setRecoInfo(CTPPSpixelLocalTrackReconstructionInfo::notShiftedRun);
+      if(verbosity_>=2) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Analyzing run: "<<run
+        <<"\nTrack belongs to Arm "<<romanPotId_.arm()<<" Station "
+        <<romanPotId_.station();
+
+      continue;
+    }
+    unsigned short bxShiftedPlanesUsed = 0;
+    unsigned short bxNonShiftedPlanesUsed = 0;
+    unsigned short hitInShiftedROC = 0;
+
+    auto const& fittedHits = track.getHits();
+    auto const& planeFlags = (shiftStatusInitialRun->second).at(romanPotId_);
+
+    for(const auto & planeHits : fittedHits){
+      unsigned short plane = CTPPSPixelDetId(planeHits.detId()).plane();
+      for(const auto & hit : planeHits){
+        if(hit.getIsUsedForFit()){
+          if(pixelIndices.getROCId(hit.minPixelCol(),hit.minPixelRow()) == shiftedROC) hitInShiftedROC++; // Count how many hits are in the shifted ROC
+          if(planeFlags.at(plane)) bxShiftedPlanesUsed++; // Count how many bx-shifted planes are used
+          else if(planeFlags != std::vector<bool>(6,false)) bxNonShiftedPlanesUsed++; // Count how many non-bx-shifted planes are used, only if there are shifted planes 
+        }
+      }
+    }
+
+    // Set recoInfo_ value
+    track.setRecoInfo(CTPPSpixelLocalTrackReconstructionInfo::invalid); // Initially setting it as invalid. It has to match one of the following options.
+    if(hitInShiftedROC < 3) track.setRecoInfo(CTPPSpixelLocalTrackReconstructionInfo::notShiftedRun);
+    else{
+      if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 0) track.setRecoInfo(CTPPSpixelLocalTrackReconstructionInfo::notShiftedRun);    // Default value for runs without bx-shift
+      if(bxShiftedPlanesUsed == 3 && bxNonShiftedPlanesUsed == 0) track.setRecoInfo(CTPPSpixelLocalTrackReconstructionInfo::allShiftedPlanes); // Track reconstructed in a shifted ROC, only with bx-shifted planes
+      if(bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 3) track.setRecoInfo(CTPPSpixelLocalTrackReconstructionInfo::noShiftedPlanes);  // Track reconstructed in a shifted ROC, only with non-bx-shifted planes
+      if(bxShiftedPlanesUsed >  0 && bxNonShiftedPlanesUsed >  0) track.setRecoInfo(CTPPSpixelLocalTrackReconstructionInfo::mixedPlanes);      // Track reconstructed in a shifted ROC, with mixed planes
+    }
+    if(bxShiftedPlanesUsed + bxNonShiftedPlanesUsed > 6){
+      throw cms::Exception("RPixPlaneCombinatoryTracking")<<"Error in RPixPlaneCombinatoryTracking::findTracks -> " << "More than six points found for a track, skipping.";
+      continue;
+    }
+    if(track.getRecoInfo() == CTPPSpixelLocalTrackReconstructionInfo::invalid){
+      throw cms::Exception("RPixPlaneCombinatoryTracking")<<"Error in RPixPlaneCombinatoryTracking::findTracks -> " << "recoInfo has not been set properly.";
+    }
+
+    if(verbosity_>=2){
+      edm::LogInfo("RPixPlaneCombinatoryTracking")<<" Track belongs to Arm "<<romanPotId_.arm()<<" Station "<<romanPotId_.station()<<"\nFirst run with this bx-shift configuration: "
+      << shiftStatusInitialRun->first<<"\nTrack reconstructed with: "<<bxShiftedPlanesUsed<<" bx-shifted planes, "<<bxNonShiftedPlanesUsed<<" non-bx-shifted planes, "<<hitInShiftedROC
+      <<" hits in the bx-shifted ROC"<<"\nrecoInfo = "<<(unsigned short)track.getRecoInfo();
+      if(planeFlags != std::vector<bool>(6,false)) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"The shifted ROC is ROC"<<shiftedROC;
+    }
+  }
   return;
 
 }
@@ -456,7 +570,8 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
 
 //The method calculates the hit pointed by the track on the detector plane
 bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack *track, CTPPSPixelDetId planeId,
-                                                            GlobalPoint &planeLineIntercept){
+                                                            GlobalPoint &planeLineIntercept)
+{
   double z0 = track->getZ0();
   CTPPSPixelLocalTrack::ParameterVector parameters = track->getParameterVector();
 
@@ -470,7 +585,7 @@ bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack
   math::Vector<3>::type pointOnPlane(tmpPointOnPlane.x(), tmpPointOnPlane.y(), tmpPointOnPlane.z());
   math::Vector<3>::type planeUnitVector(0.,0.,1.);
 
-  DDRotationMatrix theRotationMatrix = geometry_->getSensor(planeId)->rotation();
+  DetGeomDesc::RotationMatrix theRotationMatrix = geometry_->getSensor(planeId)->rotation();
   AlgebraicMatrix33 tmpPlaneRotationMatrixMap;
   theRotationMatrix.GetComponents(tmpPlaneRotationMatrixMap(0, 0), tmpPlaneRotationMatrixMap(0, 1), tmpPlaneRotationMatrixMap(0, 2),
                                   tmpPlaneRotationMatrixMap(1, 0), tmpPlaneRotationMatrixMap(1, 1), tmpPlaneRotationMatrixMap(1, 2),
@@ -507,6 +622,4 @@ std::vector<RPixPlaneCombinatoryTracking::PointAndReferencePair >
   return sortedVector;
 
 }
-
-
-
+//------------------------------------------------------------------------------------------------//

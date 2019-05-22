@@ -10,6 +10,7 @@
  */
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
 #include <vector>
 
@@ -21,6 +22,11 @@ class DTSuperLayer;
 class DTLayer;
 class Bounds;
 class MuonDDDConstants;
+
+namespace dtGeometryBuilder {
+	// Helper function from DTGeometryBuilderFromCondDB.cc
+  RectangularPlaneBounds* getRecPlaneBounds( const std::vector<double>::const_iterator &shapeStart );
+}
 
 class DTGeometryBuilderFromDDD {
   public:

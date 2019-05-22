@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.Electron import Electron
@@ -543,7 +544,7 @@ class LeptonAnalyzer( Analyzer ):
             lep.mcLep=gen
 
     def isFromB(self,particle,bid=5, done={}):
-        for i in xrange( particle.numberOfMothers() ): 
+        for i in range( particle.numberOfMothers() ): 
             mom  = particle.mother(i)
             momid = abs(mom.pdgId())
             if momid / 1000 == bid or momid / 100 == bid or momid == bid: 

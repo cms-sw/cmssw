@@ -1,7 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/TrackerGeometricDetExtraESModule.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/DDDCmsTrackerContruction.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
-#include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -24,23 +23,26 @@ using namespace edm;
 TrackerGeometricDetExtraESModule::TrackerGeometricDetExtraESModule(const edm::ParameterSet & p) 
   : fromDDD_(p.getParameter<bool>("fromDDD")) 
 {
-  setWhatProduced(this);
+  auto c = setWhatProduced(this);
+  geometricDetToken_ = c.consumes<GeometricDet>(edm::ESInputTag());
+  if(fromDDD_) {
+    ddToken_ = c.consumes<DDCompactView>(edm::ESInputTag());
+  } else {
+    pgToken_ = c.consumesFrom<PGeometricDetExtra, PGeometricDetExtraRcd>(edm::ESInputTag());
+  }
 }
 
-TrackerGeometricDetExtraESModule::~TrackerGeometricDetExtraESModule() {}
 
 std::unique_ptr<std::vector<GeometricDetExtra> >
 TrackerGeometricDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
   auto gde = std::make_unique<std::vector<GeometricDetExtra> >();
   // get the GeometricDet which has a nav_type
-  edm::ESHandle<GeometricDet> gd;
-  iRecord.get ( gd );
+  GeometricDet const& gd = iRecord.get ( geometricDetToken_ );
   if (fromDDD_) {
   // traverse all components from the tracker down;
   // read the DD if from DD
-    const GeometricDet* tracker = &(*gd);
-    edm::ESTransientHandle<DDCompactView> cpv;
-    iRecord.get( cpv );
+    const GeometricDet* tracker = &(gd);
+    edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle( ddToken_ );
     DDExpandedView ev(*cpv);
     ev.goTo(tracker->navType());
     putOne((*gde), tracker, ev, 0);
@@ -119,11 +121,10 @@ TrackerGeometricDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
     }
   }else{
     // if it is not from the DD, then just get the GDE from ES and match w/ GD.
-    edm::ESHandle<PGeometricDetExtra> pgde;
-    iRecord.getRecord<PGeometricDetExtraRcd>().get(pgde);
+    PGeometricDetExtra const& pgde = iRecord.getRecord<PGeometricDetExtraRcd>().get(pgToken_);
     std::map<uint32_t, const GeometricDet*> helperMap;
-    const GeometricDet* tracker = &(*gd);
-    helperMap[gd->geographicalID()] = tracker;
+    const GeometricDet* tracker = &gd;
+    helperMap[gd.geographicalID()] = tracker;
     std::vector<const GeometricDet*> tc = tracker->components();
     std::vector<const GeometricDet*>::const_iterator git = tc.begin();
     std::vector<const GeometricDet*>::const_iterator egit = tc.end();
@@ -164,7 +165,7 @@ TrackerGeometricDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
       } // level 2
     }
   
-    const std::vector<PGeometricDetExtra::Item>& pgdes = pgde->pgdes_;
+    const std::vector<PGeometricDetExtra::Item>& pgdes = pgde.pgdes_;
     gde->reserve(pgdes.size());
     std::vector<DDExpandedNode> evs; //EMPTY
     std::string nm; //EMPTY

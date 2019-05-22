@@ -1,0 +1,6 @@
+from RecoBTag.TensorFlow.pfDeepDoubleBvLJetTags_cfi import pfDeepDoubleBvLJetTags
+from RecoBTag.TensorFlow.pfDeepDoubleCvBJetTags_cfi import pfDeepDoubleCvBJetTags
+from RecoBTag.TensorFlow.pfDeepDoubleCvLJetTags_cfi import pfDeepDoubleCvLJetTags
+
+from RecoBTag.TensorFlow.pfMassIndependentDeepDoubleXJetTags_cff import *
+

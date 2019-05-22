@@ -143,7 +143,7 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker & iBooker){
     summaryMap_["Grand"]->setAxisTitle("Subdetector",1);
     for (unsigned int i = 0; i < xAxisLabelsReduced_.size(); i++){
       summaryMap_["Grand"]->setBinLabel(i+1,xAxisLabelsReduced_[i]);
-      for (unsigned int j = 0; j < 4; j++){ summaryMap_["Grand"]->setBinContent(i,j,-1);}
+      for (unsigned int j = 0; j < 4; j++){ summaryMap_["Grand"]->Fill(i,j,-1);}
     }
   }
   else{
@@ -201,8 +201,8 @@ void SiPixelPhase1Summary::bookTrendPlots(DQMStore::IBooker & iBooker){
     }
   }
   else {
-    deadROCTrends_[offline] = iBooker.bookProfile("deadRocTotal","N dead ROCs",6,0,6,0.,8192,"");
-    ineffROCTrends_[offline] = iBooker.bookProfile("ineffRocTotal","N inefficient ROCs",6,0,6,0.,8192,""); 
+    deadROCTrends_[offline] = iBooker.bookProfile("deadRocTotal","N dead ROCs",6,0.,6,0.,8192,"");
+    ineffROCTrends_[offline] = iBooker.bookProfile("ineffRocTotal","N inefficient ROCs",6,0.,6,0.,8192,"");
     deadROCTrends_[offline]->setAxisTitle("Subdetector",1);
     ineffROCTrends_[offline]->setAxisTitle("Subdetector",1);
     for (unsigned int i = 1; i <= binAxisLabels.size(); i++){

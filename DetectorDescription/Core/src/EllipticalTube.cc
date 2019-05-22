@@ -1,15 +1,15 @@
 #include "DetectorDescription/Core/src/EllipticalTube.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <ostream>
 
-using namespace dd::operators;
+using namespace geant_units::operators;
 
 void DDI::EllipticalTube::stream(std::ostream & os) const
 {
-  os << " xSemiAxis[cm]=" << CONVERT_TO( p_[0], cm )
-     << " ySemiAxis[cm]=" << CONVERT_TO( p_[1], cm )
-     << " zHeight[cm]=" << CONVERT_TO( p_[2], cm );
+  os << " xSemiAxis[cm]=" << convertMmToCm( p_[0] )
+     << " ySemiAxis[cm]=" << convertMmToCm( p_[1] )
+     << " zHeight[cm]=" << convertMmToCm( p_[2] );
 }
 
 double DDI::EllipticalTube::volume() const { 

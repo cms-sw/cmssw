@@ -338,6 +338,10 @@ void OffHelper::fillHLTData(const reco::GsfElectron& ele,OffEle::HLTData& hltDat
   }
 
   //Now get HLT p4 from triggerobject
+  //reset the position first
+  hltData.HLTeta = 999;
+  hltData.HLTphi = 999;
+  hltData.HLTenergy = -999;
   trigTools::fillHLTposition(ele,hltData,hltFiltersUsed_,trigEvt_.product(),hltTag_);
   //trigTools::fillHLTposition(phos(),hltFiltersUsed_,l1PreAndSeedFilters_,evtTrigBits,trigEvt_.product(),hltTag_); 
 }
@@ -346,6 +350,10 @@ void OffHelper::fillHLTData(const reco::GsfElectron& ele,OffEle::HLTData& hltDat
 void OffHelper::fillHLTDataPho(const reco::Photon& pho,OffPho::HLTData& hltData)
 {
   //Now get HLT p4 from triggerobject
+  //reset the position first
+  hltData.HLTeta = 999;
+  hltData.HLTphi = 999;
+  hltData.HLTenergy = -999;
   trigTools::fillHLTposition(pho,hltData, hltFiltersUsed_,trigEvt_.product(),hltTag_);
   //trigTools::fillHLTposition(phos(),hltFiltersUsed_,l1PreAndSeedFilters_,evtTrigBits,trigEvt_.product(),hltTag_); 
 }

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from builtins import range
 import os
 import re
 import subprocess
@@ -46,7 +47,7 @@ lib = mpslib.jobdatabase()
 lib.read_db()
 
 submitted_jobs = {}
-for i in xrange(len(lib.JOBID)):
+for i in range(len(lib.JOBID)):
     submitted = True
     for status in ("SETUP", "OK", "DONE", "FETCH", "ABEND", "WARN", "FAIL"):
         if status in lib.JOBSTATUS[i]:
@@ -61,7 +62,7 @@ print("submitted jobs:", len(submitted_jobs))
 # deal with submitted jobs by looking into output of shell (bjobs/condor_q)
 if len(submitted_jobs) > 0:
     job_status = {}
-    if "htcondor" in lib.get_class("pede"):
+    if "htcondor" in lib.get_class("pede") or "htcondor" in lib.get_class("mille"):
         condor_q = subprocess.check_output(["condor_q", "-af:j",
                                             "JobStatus", "RemoteSysCpu"],
                                            stderr = subprocess.STDOUT)
@@ -128,7 +129,7 @@ for job_id, mps_index in submitted_jobs.items(): # IMPORTANT to copy here (no it
         continue
 
     # check if it is a HTCondor job already moved to "history"
-    elif "htcondor" in lib.get_class("pede"):
+    elif "htcondor" in lib.get_class("pede") or "htcondor" in lib.get_class("mille"):
         userlog = os.path.join("jobData", lib.JOBDIR[mps_index], "HTCJOB")
         condor_h = subprocess.check_output(["condor_history", job_id, "-limit", "1",
                                             "-userlog", userlog,

@@ -10,34 +10,39 @@
 
 #include "GenericDigi.h"
 
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
 #include <SimDataFormats/Track/interface/SimTrackContainer.h>
 #include <SimDataFormats/Vertex/interface/SimVertexContainer.h>
 
-#include <vector>
 #include <map>
 #include <set>
+#include <vector>
 
 class SimHitMatcher;
 class GEMGeometry;
-class GEMDigiMatcher 
-{
+class GEMDigiMatcher {
   using DigiContainer = matching::DigiContainer;
-public:
 
-  GEMDigiMatcher(const SimHitMatcher& sh, const edm::Event& , const GEMGeometry& geom, const edm::ParameterSet& cfg, edm::EDGetToken& ,edm::EDGetToken& ,edm::EDGetToken& );
-  
+public:
+  GEMDigiMatcher(const SimHitMatcher &sh,
+                 const edm::Event &,
+                 const GEMGeometry &geom,
+                 const edm::ParameterSet &cfg,
+                 edm::EDGetToken &,
+                 edm::EDGetToken &,
+                 edm::EDGetToken &);
+
   ~GEMDigiMatcher();
 
   // partition GEM detIds with digis
@@ -57,21 +62,19 @@ public:
   // partition detIds with coincidence pads
   std::set<unsigned int> detIdsWithCoPads() const;
 
-
-
   // GEM digis from a particular partition, chamber or superchamber
-  const DigiContainer& digisInDetId(unsigned int) const;
-  const DigiContainer& digisInChamber(unsigned int) const;
-  const DigiContainer& digisInSuperChamber(unsigned int) const;
+  const DigiContainer &digisInDetId(unsigned int) const;
+  const DigiContainer &digisInChamber(unsigned int) const;
+  const DigiContainer &digisInSuperChamber(unsigned int) const;
 
   // GEM pads from a particular partition, chamber or superchamber
-  const DigiContainer& padsInDetId(unsigned int) const;
-  const DigiContainer& padsInChamber(unsigned int) const;
-  const DigiContainer& padsInSuperChamber(unsigned int) const;
+  const DigiContainer &padsInDetId(unsigned int) const;
+  const DigiContainer &padsInChamber(unsigned int) const;
+  const DigiContainer &padsInSuperChamber(unsigned int) const;
 
   // GEM co-pads from a particular partition or superchamber
-  const DigiContainer& coPadsInDetId(unsigned int) const;
-  const DigiContainer& coPadsInSuperChamber(unsigned int) const;
+  const DigiContainer &coPadsInDetId(unsigned int) const;
+  const DigiContainer &coPadsInSuperChamber(unsigned int) const;
 
   // #layers with digis from this simtrack
   int nLayersWithDigisInSuperChamber(unsigned int) const;
@@ -92,19 +95,18 @@ public:
   std::set<int> partitionNumbersWithCoPads() const;
 
 private:
+  void init(const edm::Event &);
 
-  void init(const edm::Event& );
-
-  void matchDigisToSimTrack(const GEMDigiCollection& digis);
-  void matchPadsToSimTrack(const GEMPadDigiCollection& pads);
-  void matchCoPadsToSimTrack(const GEMCoPadDigiCollection& co_pads);
+  void matchDigisToSimTrack(const GEMDigiCollection &digis);
+  void matchPadsToSimTrack(const GEMPadDigiCollection &pads);
+  void matchCoPadsToSimTrack(const GEMCoPadDigiCollection &co_pads);
 
   edm::Handle<GEMDigiCollection> gem_digis_;
   edm::Handle<GEMPadDigiCollection> gem_pads_;
   edm::Handle<GEMCoPadDigiCollection> gem_co_pads_;
 
-  const SimHitMatcher& simhit_matcher_;
-  const GEMGeometry& gem_geo_;
+  const SimHitMatcher &simhit_matcher_;
+  const GEMGeometry &gem_geo_;
 
   int minBXGEM_, maxBXGEM_;
   bool verbose_;

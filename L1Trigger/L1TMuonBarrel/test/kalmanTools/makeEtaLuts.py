@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 etaLUT0=[8.946,7.508,6.279,6.399]
 etaLUT1=[-0.159,-0.116,-0.088,-0.128]
 
@@ -69,7 +70,7 @@ for wheel in [-2,-1,0,1,2]:
     
         print('const ap_int<8> etaLUT0_'+etaTag+"_"+str(station)+'[128]={'+','.join(d1)+'};\n')
         print('const ap_int<8> etaLUT1_'+etaTag+"_"+str(station)+'[128]={'+','.join(d2)+'};\n')
-        print('const ap_int<8> etaLUTQ_'+etaTag+"_"+str(station)+'[128]={'+','.join(d3)+'};\n')
+        print('const ap_uint<1> etaLUTQ_'+etaTag+"_"+str(station)+'[128]={'+','.join(d3)+'};\n')
         
 
             

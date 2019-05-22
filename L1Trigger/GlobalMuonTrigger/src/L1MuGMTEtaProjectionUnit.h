@@ -11,7 +11,7 @@
 //
 //
 //   Author :
-//   H. Sakulin            CERN EP 
+//   H. Sakulin            CERN EP
 //
 //   Migrated to CMSSW:
 //   I. Mikulec
@@ -31,7 +31,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -43,16 +42,12 @@
 class L1MuGMTMipIsoAU;
 class L1MuGMTCand;
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-
 class L1MuGMTEtaProjectionUnit {
-
- public:  
-
+public:
   /// constructor
   L1MuGMTEtaProjectionUnit(const L1MuGMTMipIsoAU& miau, int id);
 
@@ -61,37 +56,36 @@ class L1MuGMTEtaProjectionUnit {
 
   /// run eta projection unit
   void run();
-    
+
   /// clear eta projection unit
   void reset();
-        
+
   /// print results after eta projection
   void print() const;
-    
+
   /// return identifier
   inline int id() const { return m_id; }
-    	
+
   /// return eta select bit (idx: 0..13)
   inline bool isSelected(int idx) const { return m_eta_select[idx]; }
 
- private:
-
+private:
   void load();
 
- private:
+private:
   typedef std::bitset<14> TEtaBits;
 
   const L1MuGMTMipIsoAU& m_MIAU;
-    
+
   // index: (0..31: 16*isFWD + 8*isISO + 4* isRPC + nr )
-  int m_id; 
-    
+  int m_id;
+
   const L1MuRegionalCand* m_mu;
 
-  int m_ieta;   // region index of central region
-  float m_feta; // fine grain eta inside central region
-    
+  int m_ieta;    // region index of central region
+  float m_feta;  // fine grain eta inside central region
+
   TEtaBits m_eta_select;
 };
-  
+
 #endif

@@ -5,6 +5,7 @@
 #include <ostream>
 #include <memory>
 #include <cstring>
+#include <vector>
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "FWCore/Utilities/interface/Exception.h"
 

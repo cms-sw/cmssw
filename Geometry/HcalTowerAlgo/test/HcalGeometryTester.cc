@@ -111,15 +111,23 @@ void HcalGeometryTester::testClosestCells(CaloSubdetectorGeometry* g,
   // make sure each cell is its own closest cell
   HcalDetId barrelDet1(HcalBarrel, 1, 1, 1);
   HcalDetId barrelDet2(HcalBarrel, 16, 50, 1);
+  HcalDetId barrelDet3(HcalBarrel, -6, 20, 3);
+  HcalDetId barrelDet4(HcalBarrel, -12, 33, 4);
   HcalDetId endcapDet1(HcalEndcap, -17, 72, 1);
   HcalDetId endcapDet2(HcalEndcap, 29, 35, 1);
+  HcalDetId endcapDet3(HcalEndcap, 20, 51, 3);
+  HcalDetId endcapDet4(HcalEndcap, -24, 63, 5);
   HcalDetId forwardDet1(HcalForward, 30, 71, 1);
   HcalDetId forwardDet3(HcalForward, -40, 71, 1);
   
   if (topology.valid(barrelDet1))  testClosestCell(barrelDet1 , g);
   if (topology.valid(barrelDet2))  testClosestCell(barrelDet2 , g);
+  if (topology.valid(barrelDet3))  testClosestCell(barrelDet3 , g);
+  if (topology.valid(barrelDet4))  testClosestCell(barrelDet4 , g);
   if (topology.valid(endcapDet1))  testClosestCell(endcapDet1 , g);
   if (topology.valid(endcapDet2))  testClosestCell(endcapDet2 , g);
+  if (topology.valid(endcapDet3))  testClosestCell(endcapDet3 , g);
+  if (topology.valid(endcapDet4))  testClosestCell(endcapDet4 , g);
   if (topology.valid(forwardDet1)) testClosestCell(forwardDet1, g);
   if (topology.valid(forwardDet3)) testClosestCell(forwardDet3, g);
   

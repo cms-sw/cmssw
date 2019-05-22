@@ -2,9 +2,9 @@
 // File: BscSD.cc
 // Date: 02.2006
 // Description: Sensitive Detector class for Bsc
-// Modifications: 
+// Modifications:
 ///////////////////////////////////////////////////////////////////////////////
- 
+
 #include "SimG4CMS/Forward/interface/BscSD.h"
 #include "SimG4CMS/Forward/interface/BscG4Hit.h"
 #include "SimG4CMS/Forward/interface/BscG4HitCollection.h"
@@ -20,31 +20,30 @@
 
 #define debug
 //-------------------------------------------------------------------
-BscSD::BscSD(const std::string& name, const DDCompactView & cpv,
-	     const SensitiveDetectorCatalog & clg,
-	     edm::ParameterSet const & p, const SimTrackManager* manager) :
-  TimingSD(name, cpv, clg, p, manager), numberingScheme(nullptr) {
-    
+BscSD::BscSD(const std::string& name,
+             const DDCompactView& cpv,
+             const SensitiveDetectorCatalog& clg,
+             edm::ParameterSet const& p,
+             const SimTrackManager* manager)
+    : TimingSD(name, cpv, clg, p, manager), numberingScheme(nullptr) {
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("BscSD");
   int verbn = m_p.getUntrackedParameter<int>("Verbosity");
-    
+
   SetVerboseLevel(verbn);
-    
-  if(name == "BSCHits") {
+
+  if (name == "BSCHits") {
     if (verbn > 0) {
       edm::LogInfo("BscSim") << "name = BSCHits and  new BscNumberingSchem";
     }
-    numberingScheme = new BscNumberingScheme() ;
+    numberingScheme = new BscNumberingScheme();
   } else {
-    edm::LogWarning("BscSim") << "BscSD: ReadoutName "<<name<<" not supported";
+    edm::LogWarning("BscSim") << "BscSD: ReadoutName " << name << " not supported";
   }
 }
 
-BscSD::~BscSD() { 
-  delete numberingScheme;
-}
+BscSD::~BscSD() { delete numberingScheme; }
 
-uint32_t BscSD::setDetUnitId(const G4Step * aStep) { 
+uint32_t BscSD::setDetUnitId(const G4Step* aStep) {
   return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }

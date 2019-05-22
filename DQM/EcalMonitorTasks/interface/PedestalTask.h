@@ -12,13 +12,14 @@ namespace ecaldqm {
   class PedestalTask : public DQWorkerTask {
   public:
     PedestalTask();
-    ~PedestalTask() {}
+    ~PedestalTask() override {}
 
     bool filterRunType(short const*) override;
 
     bool analyze(void const*, Collections) override;
 
-    template<typename DigiCollection> void runOnDigis(DigiCollection const&);
+    template <typename DigiCollection>
+    void runOnDigis(DigiCollection const&);
     void runOnPnDigis(EcalPnDiodeDigiCollection const&);
 
   private:
@@ -30,27 +31,30 @@ namespace ecaldqm {
     bool enable_[nDCC];
   };
 
-  inline bool PedestalTask::analyze(void const* _p, Collections _collection){
-    switch(_collection){
-    case kEBDigi:
-      if(_p) runOnDigis(*static_cast<EBDigiCollection const*>(_p));
-      return true;
-      break;
-    case kEEDigi:
-      if(_p) runOnDigis(*static_cast<EEDigiCollection const*>(_p));
-      return true;
-      break;
-    case kPnDiodeDigi:
-      if(_p) runOnPnDigis(*static_cast<EcalPnDiodeDigiCollection const*>(_p));
-      return true;
-      break;
-    default:
-      break;
+  inline bool PedestalTask::analyze(void const* _p, Collections _collection) {
+    switch (_collection) {
+      case kEBDigi:
+        if (_p)
+          runOnDigis(*static_cast<EBDigiCollection const*>(_p));
+        return true;
+        break;
+      case kEEDigi:
+        if (_p)
+          runOnDigis(*static_cast<EEDigiCollection const*>(_p));
+        return true;
+        break;
+      case kPnDiodeDigi:
+        if (_p)
+          runOnPnDigis(*static_cast<EcalPnDiodeDigiCollection const*>(_p));
+        return true;
+        break;
+      default:
+        break;
     }
 
     return false;
   }
 
-}
+}  // namespace ecaldqm
 
 #endif

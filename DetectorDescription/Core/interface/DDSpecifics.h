@@ -14,7 +14,6 @@
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
 class DDExpandedView;
-class DDNodes;
 class DDPartSelection;
 class DDSpecifics;
 
