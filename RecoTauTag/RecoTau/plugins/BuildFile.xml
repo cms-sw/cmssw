@@ -20,7 +20,6 @@
   <use   name="CommonTools/UtilAlgos"/>
   <use   name="CommonTools/CandAlgos"/>
   <use   name="PhysicsTools/HepMCCandAlgos"/>
-  <use   name="RecoTauTag/TauTagTools"/>
   <use   name="RecoTauTag/RecoTau"/>
   <use   name="DataFormats/JetReco"/>
   <use   name="DataFormats/ParticleFlowReco"/>
