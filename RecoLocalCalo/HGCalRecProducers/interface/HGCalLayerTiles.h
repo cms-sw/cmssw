@@ -32,7 +32,6 @@ public:
   }
 
   int getYBin(float y) const {
-    assert(std::abs(y) < hgcaltilesconstants::maxY);
     constexpr float yRange = hgcaltilesconstants::maxY - hgcaltilesconstants::minY;
     static_assert(yRange >= 0.);
     constexpr float r = hgcaltilesconstants::nRows / yRange;
