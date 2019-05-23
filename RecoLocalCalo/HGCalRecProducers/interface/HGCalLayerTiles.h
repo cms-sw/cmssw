@@ -11,6 +11,7 @@
 #include <array>
 #include <cmath>
 #include <algorithm>
+#include <cassert>
 
 class HGCalLayerTiles {
 public:
