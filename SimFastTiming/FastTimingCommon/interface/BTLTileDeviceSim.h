@@ -19,22 +19,19 @@ namespace CLHEP {
 }
 
 class BTLTileDeviceSim {
-
- public:
-
+public:
   BTLTileDeviceSim(const edm::ParameterSet& pset);
-  
-  void getEvent(const edm::Event& evt) { }
+
+  void getEvent(const edm::Event& evt) {}
 
   void getEventSetup(const edm::EventSetup& evt);
 
-  void getHitsResponse(const std::vector<std::tuple<int,uint32_t,float> > &hitRefs, 
-		       const edm::Handle<edm::PSimHitContainer> &hits,
-		       mtd_digitizer::MTDSimHitDataAccumulator *simHitAccumulator,
-		       CLHEP::HepRandomEngine *hre);
-  
- private:
+  void getHitsResponse(const std::vector<std::tuple<int, uint32_t, float> >& hitRefs,
+                       const edm::Handle<edm::PSimHitContainer>& hits,
+                       mtd_digitizer::MTDSimHitDataAccumulator* simHitAccumulator,
+                       CLHEP::HepRandomEngine* hre);
 
+private:
   const MTDGeometry* geom_;
 
   const float bxTime_;
@@ -43,7 +40,6 @@ class BTLTileDeviceSim {
   const float LightCollTime_;
   const float smearLightCollTime_;
   const float PDE_;
-
 };
 
 #endif

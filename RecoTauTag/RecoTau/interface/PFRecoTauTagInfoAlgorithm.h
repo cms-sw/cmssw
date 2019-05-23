@@ -10,8 +10,6 @@
 
 #include "Math/GenVector/VectorUtil.h" 
 
-#include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
-
 class  PFRecoTauTagInfoAlgorithm  {
  public:
   PFRecoTauTagInfoAlgorithm(){}

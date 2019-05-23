@@ -31,6 +31,27 @@
 #include "CondFormats/AlignmentRecord/interface/GEMAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 
-class MuonGeometryRecord : public edm::eventsetup::DependentRecordImplementation<MuonGeometryRecord,boost::mpl::vector<IdealGeometryRecord, DDSpecParRegistryRcd, GeometryFileRcd, MuonNumberingRecord, DTAlignmentRcd, DTAlignmentErrorRcd, DTAlignmentErrorExtendedRcd, CSCAlignmentRcd, CSCAlignmentErrorRcd, CSCAlignmentErrorExtendedRcd, GEMAlignmentRcd, GEMAlignmentErrorRcd, GEMAlignmentErrorExtendedRcd, GlobalPositionRcd, ME0RecoGeometryRcd, GEMRecoGeometryRcd, RPCRecoGeometryRcd, DTRecoGeometryRcd, CSCRecoGeometryRcd, CSCRecoDigiParametersRcd> > {};
+class MuonGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<MuonGeometryRecord,
+                                                            boost::mpl::vector<IdealGeometryRecord,
+                                                                               DDSpecParRegistryRcd,
+                                                                               GeometryFileRcd,
+                                                                               MuonNumberingRecord,
+                                                                               DTAlignmentRcd,
+                                                                               DTAlignmentErrorRcd,
+                                                                               DTAlignmentErrorExtendedRcd,
+                                                                               CSCAlignmentRcd,
+                                                                               CSCAlignmentErrorRcd,
+                                                                               CSCAlignmentErrorExtendedRcd,
+                                                                               GEMAlignmentRcd,
+                                                                               GEMAlignmentErrorRcd,
+                                                                               GEMAlignmentErrorExtendedRcd,
+                                                                               GlobalPositionRcd,
+                                                                               ME0RecoGeometryRcd,
+                                                                               GEMRecoGeometryRcd,
+                                                                               RPCRecoGeometryRcd,
+                                                                               DTRecoGeometryRcd,
+                                                                               CSCRecoGeometryRcd,
+                                                                               CSCRecoDigiParametersRcd> > {};
 
 #endif

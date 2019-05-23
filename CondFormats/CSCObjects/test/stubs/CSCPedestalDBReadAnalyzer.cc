@@ -19,43 +19,38 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
 #include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 
-namespace edmtest
-{
-  class CSCPedestalDBReadAnalyzer : public edm::EDAnalyzer
-  {
+namespace edmtest {
+  class CSCPedestalDBReadAnalyzer : public edm::EDAnalyzer {
   public:
-    explicit  CSCPedestalDBReadAnalyzer(edm::ParameterSet const& p) 
-    { }
-    explicit  CSCPedestalDBReadAnalyzer(int i) 
-    { }
-    virtual ~ CSCPedestalDBReadAnalyzer() { }
+    explicit CSCPedestalDBReadAnalyzer(edm::ParameterSet const& p) {}
+    explicit CSCPedestalDBReadAnalyzer(int i) {}
+    virtual ~CSCPedestalDBReadAnalyzer() {}
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+
   private:
   };
-  
-  void
-  CSCPedestalDBReadAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
-  {
-    const float epsilon = 1.E-09; // some 'small' value to test for non-positive values.
+
+  void CSCPedestalDBReadAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
+    const float epsilon = 1.E-09;  // some 'small' value to test for non-positive values.
 
     using namespace edm::eventsetup;
-    std::ofstream DBPedestalFile("dbpeds.dat",std::ios::out);
-    int counter=0;
+    std::ofstream DBPedestalFile("dbpeds.dat", std::ios::out);
+    int counter = 0;
 
-    std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
-    std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
+    std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
+    std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
     edm::ESHandle<CSCDBPedestals> pPeds;
     context.get<CSCDBPedestalsRcd>().get(pPeds);
-    
-    const CSCDBPedestals* myped=pPeds.product();
+
+    const CSCDBPedestals* myped = pPeds.product();
     CSCDBPedestals::PedestalContainer::const_iterator it;
 
-    for( it=myped->pedestals.begin();it!=myped->pedestals.end(); ++it ){    
+    for (it = myped->pedestals.begin(); it != myped->pedestals.end(); ++it) {
       counter++;
-      DBPedestalFile<<counter<<"  "<<it->ped<<"  "<<it->rms<<std::endl;
-      if ( it->rms <= epsilon ) DBPedestalFile << " ERROR? pedestal width <= " << epsilon << std::endl;
+      DBPedestalFile << counter << "  " << it->ped << "  " << it->rms << std::endl;
+      if (it->rms <= epsilon)
+        DBPedestalFile << " ERROR? pedestal width <= " << epsilon << std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCPedestalDBReadAnalyzer);
-}
-
+}  // namespace edmtest

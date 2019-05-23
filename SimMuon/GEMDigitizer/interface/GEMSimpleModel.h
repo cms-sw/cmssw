@@ -14,15 +14,12 @@
 
 class GEMGeometry;
 
-namespace CLHEP
-{
+namespace CLHEP {
   class HepRandomEngine;
 }
 
-class GEMSimpleModel: public GEMDigiModel
-{
+class GEMSimpleModel : public GEMDigiModel {
 public:
-
   GEMSimpleModel(const edm::ParameterSet&);
 
   ~GEMSimpleModel() override;
@@ -35,11 +32,12 @@ public:
 
   void simulateNoise(const GEMEtaPartition*, CLHEP::HepRandomEngine*) override;
 
-  std::vector<std::pair<int,int> > 
-    simulateClustering(const GEMEtaPartition*, const PSimHit*, const int, CLHEP::HepRandomEngine*) override;
+  std::vector<std::pair<int, int> > simulateClustering(const GEMEtaPartition*,
+                                                       const PSimHit*,
+                                                       const int,
+                                                       CLHEP::HepRandomEngine*) override;
 
 private:
-
   double averageEfficiency_;
   double averageShapingTime_;
   double timeResolution_;
@@ -57,8 +55,8 @@ private:
   bool simulateElectronBkg_;
   double instLumi_;
   double rateFact_;
-  const double referenceInstLumi_; 
-  double resolutionX_; 
+  const double referenceInstLumi_;
+  double resolutionX_;
 
   //params for pol3 model of electron bkg for GE1/1 and GE2/1:
   double GE11ElecBkgParam0_;
@@ -74,8 +72,5 @@ private:
   double GE21ModNeuBkgParam0_;
   double GE21ModNeuBkgParam1_;
   double GE21ModNeuBkgParam2_;
-    
 };
 #endif
-
-

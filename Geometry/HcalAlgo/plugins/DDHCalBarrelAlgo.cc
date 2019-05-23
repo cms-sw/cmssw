@@ -17,17 +17,50 @@
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/HcalAlgo/plugins/DDHCalBarrelAlgo.h"
 
-//#define EDM_ML_DEBUG                                                         
+//#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
-DDHCalBarrelAlgo::DDHCalBarrelAlgo():
-  theta(0),rmax(0),zoff(0),ttheta(0),layerId(0),layerLabel(0),layerMat(0),
-  layerWidth(0),layerD1(0),layerD2(0),layerAlpha(0),layerT1(0),layerT2(0),
-  layerAbsorb(0),layerGap(0),absorbName(0),absorbMat(0),absorbD(0),absorbT(0),
-  midName(0),midMat(0),midW(0),midT(0),sideMat(0),sideD(0),sideT(0),
-  sideAbsName(0),sideAbsMat(0),sideAbsW(0),detType(0),detdP1(0),detdP2(0),
-  detT11(0),detT12(0),detTsc(0),detT21(0),detT22(0),detWidth1(0),detWidth2(0),
-  detPosY(0) {
+DDHCalBarrelAlgo::DDHCalBarrelAlgo()
+    : theta(0),
+      rmax(0),
+      zoff(0),
+      ttheta(0),
+      layerId(0),
+      layerLabel(0),
+      layerMat(0),
+      layerWidth(0),
+      layerD1(0),
+      layerD2(0),
+      layerAlpha(0),
+      layerT1(0),
+      layerT2(0),
+      layerAbsorb(0),
+      layerGap(0),
+      absorbName(0),
+      absorbMat(0),
+      absorbD(0),
+      absorbT(0),
+      midName(0),
+      midMat(0),
+      midW(0),
+      midT(0),
+      sideMat(0),
+      sideD(0),
+      sideT(0),
+      sideAbsName(0),
+      sideAbsMat(0),
+      sideAbsW(0),
+      detType(0),
+      detdP1(0),
+      detdP2(0),
+      detT11(0),
+      detT12(0),
+      detTsc(0),
+      detT21(0),
+      detT22(0),
+      detWidth1(0),
+      detWidth2(0),
+      detPosY(0) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Creating an instance";
 #endif
@@ -35,42 +68,37 @@ DDHCalBarrelAlgo::DDHCalBarrelAlgo():
 
 DDHCalBarrelAlgo::~DDHCalBarrelAlgo() {}
 
-void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
-				  const DDVectorArguments & vArgs,
-				  const DDMapArguments & ,
-				  const DDStringArguments & sArgs,
-				  const DDStringVectorArguments & vsArgs) {
-
+void DDHCalBarrelAlgo::initialize(const DDNumericArguments& nArgs,
+                                  const DDVectorArguments& vArgs,
+                                  const DDMapArguments&,
+                                  const DDStringArguments& sArgs,
+                                  const DDStringVectorArguments& vsArgs) {
   genMaterial = sArgs["MaterialName"];
-  nsectors    = int (nArgs["NSector"]);
-  nsectortot  = int (nArgs["NSectorTot"]);
-  nhalf       = int (nArgs["NHalf"]);
-  rin         = nArgs["RIn"];
-  rout        = nArgs["ROut"];
-  rzones      = int (nArgs["RZones"]);
-  rotHalf     = sArgs["RotHalf"];
-  rotns       = sArgs["RotNameSpace"];
+  nsectors = int(nArgs["NSector"]);
+  nsectortot = int(nArgs["NSectorTot"]);
+  nhalf = int(nArgs["NHalf"]);
+  rin = nArgs["RIn"];
+  rout = nArgs["ROut"];
+  rzones = int(nArgs["RZones"]);
+  rotHalf = sArgs["RotHalf"];
+  rotns = sArgs["RotNameSpace"];
 
-  theta       = vArgs["Theta"];
-  rmax        = vArgs["RMax"];
-  zoff        = vArgs["ZOff"];
+  theta = vArgs["Theta"];
+  rmax = vArgs["RMax"];
+  zoff = vArgs["ZOff"];
   for (int i = 0; i < rzones; i++) {
-    ttheta.emplace_back(tan(theta[i])); //*deg already done in XML
+    ttheta.emplace_back(tan(theta[i]));  //*deg already done in XML
   }
   if (rzones > 3)
     rmax[2] = (zoff[3] - zoff[2]) / ttheta[2];
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: General material " 
-			       << genMaterial << "\tSectors " << nsectors
-			       << ", "  << nsectortot <<"\tHalves "
-			       << nhalf << "\tRotation matrix " << rotns 
-			       << ":" << rotHalf << "\n\t\t" << rin << "\t" 
-			       << rout << "\t" << rzones;
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: General material " << genMaterial << "\tSectors " << nsectors
+                               << ", " << nsectortot << "\tHalves " << nhalf << "\tRotation matrix " << rotns << ":"
+                               << rotHalf << "\n\t\t" << rin << "\t" << rout << "\t" << rzones;
   for (int i = 0; i < rzones; i++)
-    edm::LogVerbatim("HCalGeom") << "\tTheta[" << i << "] = " << theta[i] 
-				 << "\trmax[" << i << "] = " << rmax[i]
-				 << "\tzoff[" << i << "] = " << zoff[i];
+    edm::LogVerbatim("HCalGeom") << "\tTheta[" << i << "] = " << theta[i] << "\trmax[" << i << "] = " << rmax[i]
+                                 << "\tzoff[" << i << "] = " << zoff[i];
 #endif
   ///////////////////////////////////////////////////////////////
   //Layers
@@ -78,123 +106,109 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Layer\t" << nLayers;
 #endif
-  layerId     = dbl_to_int (vArgs["Id"]);
-  layerLabel  = vsArgs["LayerLabel"];
-  layerMat    = vsArgs["LayerMat"];
-  layerWidth  = vArgs["LayerWidth"];
-  layerD1     = vArgs["D1"];
-  layerD2     = vArgs["D2"];
-  layerAlpha  = vArgs["Alpha2"]; 
-  layerT1     = vArgs["T1"];
-  layerT2     = vArgs["T2"];
+  layerId = dbl_to_int(vArgs["Id"]);
+  layerLabel = vsArgs["LayerLabel"];
+  layerMat = vsArgs["LayerMat"];
+  layerWidth = vArgs["LayerWidth"];
+  layerD1 = vArgs["D1"];
+  layerD2 = vArgs["D2"];
+  layerAlpha = vArgs["Alpha2"];
+  layerT1 = vArgs["T1"];
+  layerT2 = vArgs["T2"];
   layerAbsorb = dbl_to_int(vArgs["AbsL"]);
-  layerGap    = vArgs["Gap"];
+  layerGap = vArgs["Gap"];
 #ifdef EDM_ML_DEBUG
   for (int i = 0; i < nLayers; i++)
-    edm::LogVerbatim("HCalGeom") << layerLabel[i] << "\t" << layerId[i] << "\t"
-				 << layerMat[i] << "\t" << layerWidth[i] 
-				 << "\t" << layerD1[i] << "\t" << layerD2[i]
-				 << "\t" << layerAlpha[i] << "\t" << layerT1[i]
-				 << "\t" << layerT2[i] << "\t" 
-				 << layerAbsorb[i] << "\t" << layerGap[i];
+    edm::LogVerbatim("HCalGeom") << layerLabel[i] << "\t" << layerId[i] << "\t" << layerMat[i] << "\t" << layerWidth[i]
+                                 << "\t" << layerD1[i] << "\t" << layerD2[i] << "\t" << layerAlpha[i] << "\t"
+                                 << layerT1[i] << "\t" << layerT2[i] << "\t" << layerAbsorb[i] << "\t" << layerGap[i];
 #endif
-  
+
   ///////////////////////////////////////////////////////////////
   //Absorber Layers and middle part
-  absorbName  = vsArgs["AbsorbName"];
-  absorbMat   = vsArgs["AbsorbMat"];
-  absorbD     = vArgs["AbsorbD"];
-  absorbT     = vArgs["AbsorbT"];
-  nAbsorber   = absorbName.size();
+  absorbName = vsArgs["AbsorbName"];
+  absorbMat = vsArgs["AbsorbMat"];
+  absorbD = vArgs["AbsorbD"];
+  absorbT = vArgs["AbsorbT"];
+  nAbsorber = absorbName.size();
 #ifdef EDM_ML_DEBUG
   for (int i = 0; i < nAbsorber; i++)
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << absorbName[i]
-				 <<" Material " <<  absorbMat[i] << " d "
-				 << absorbD[i] << " t " <<absorbT[i];
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << absorbName[i] << " Material " << absorbMat[i] << " d "
+                                 << absorbD[i] << " t " << absorbT[i];
 #endif
-  middleMat   = sArgs["MiddleMat"];
-  middleD     = nArgs["MiddleD"];
-  middleW     = nArgs["MiddleW"];
+  middleMat = sArgs["MiddleMat"];
+  middleD = nArgs["MiddleD"];
+  middleW = nArgs["MiddleW"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Middle material " 
-			       << middleMat << " d " << middleD << " w "
-			       << middleW;
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Middle material " << middleMat << " d " << middleD << " w "
+                               << middleW;
 #endif
-  midName     = vsArgs["MidAbsName"];
-  midMat      = vsArgs["MidAbsMat"];
-  midW        = vArgs["MidAbsW"];
-  midT        = vArgs["MidAbsT"];
-  nMidAbs     = midName.size();
+  midName = vsArgs["MidAbsName"];
+  midMat = vsArgs["MidAbsMat"];
+  midW = vArgs["MidAbsW"];
+  midT = vArgs["MidAbsT"];
+  nMidAbs = midName.size();
 #ifdef EDM_ML_DEBUG
   for (int i = 0; i < nMidAbs; i++)
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << midName[i]
-				 << " Material " <<  midMat[i] << " W " 
-				 << midW[i] << " T " << midT[i];
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << midName[i] << " Material " << midMat[i] << " W " << midW[i]
+                                 << " T " << midT[i];
 #endif
 
   //Absorber layers in the side part
-  sideMat     = vsArgs["SideMat"];
-  sideD       = vArgs["SideD"];
-  sideT       = vArgs["SideT"];
+  sideMat = vsArgs["SideMat"];
+  sideD = vArgs["SideD"];
+  sideT = vArgs["SideT"];
 #ifdef EDM_ML_DEBUG
   for (unsigned int i = 0; i < sideMat.size(); i++)
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Side material " 
-				 << sideMat[i] << " d " << sideD[i] << " t "
-				 << sideT[i];
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Side material " << sideMat[i] << " d " << sideD[i] << " t "
+                                 << sideT[i];
 #endif
   sideAbsName = vsArgs["SideAbsName"];
-  sideAbsMat  = vsArgs["SideAbsMat"];
-  sideAbsW    = vArgs["SideAbsW"];
-  nSideAbs    = sideAbsName.size();
+  sideAbsMat = vsArgs["SideAbsMat"];
+  sideAbsW = vArgs["SideAbsW"];
+  nSideAbs = sideAbsName.size();
 #ifdef EDM_ML_DEBUG
   for (int i = 0; i < nSideAbs; i++)
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << sideAbsName[i]
-				 <<" Material " <<  sideAbsMat[i] << " W "
-				 << sideAbsW[i];
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << sideAbsName[i] << " Material " << sideAbsMat[i] << " W "
+                                 << sideAbsW[i];
 #endif
 
   ///////////////////////////////////////////////////////////////
   // Detectors
 
-  detMat   = sArgs["DetMat"];
-  detRot   = sArgs["DetRot"];
+  detMat = sArgs["DetMat"];
+  detRot = sArgs["DetRot"];
   detMatPl = sArgs["DetMatPl"];
   detMatSc = sArgs["DetMatSc"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Detector (" <<  nLayers 
-			       << ") Rotation matrix " << rotns << ":" 
-			       << detRot << "\n\t\t" << detMat << "\t" 
-			       << detMatPl  << "\t" << detMatSc;
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Detector (" << nLayers << ") Rotation matrix " << rotns << ":"
+                               << detRot << "\n\t\t" << detMat << "\t" << detMatPl << "\t" << detMatSc;
 #endif
-  detType   = dbl_to_int(vArgs["DetType"]);
-  detdP1    = vArgs["DetdP1"];
-  detdP2    = vArgs["DetdP2"];
-  detT11    = vArgs["DetT11"];
-  detT12    = vArgs["DetT12"];
-  detTsc    = vArgs["DetTsc"];
-  detT21    = vArgs["DetT21"];
-  detT22    = vArgs["DetT22"];
+  detType = dbl_to_int(vArgs["DetType"]);
+  detdP1 = vArgs["DetdP1"];
+  detdP2 = vArgs["DetdP2"];
+  detT11 = vArgs["DetT11"];
+  detT12 = vArgs["DetT12"];
+  detTsc = vArgs["DetTsc"];
+  detT21 = vArgs["DetT21"];
+  detT22 = vArgs["DetT22"];
   detWidth1 = vArgs["DetWidth1"];
   detWidth2 = vArgs["DetWidth2"];
-  detPosY   = dbl_to_int(vArgs["DetPosY"]);
+  detPosY = dbl_to_int(vArgs["DetPosY"]);
 #ifdef EDM_ML_DEBUG
-  for (int i = 0; i < nLayers; i ++) 
-    edm::LogVerbatim("HCalGeom") << i+1 << "\t" << detType[i] << "\t"
-				 << detdP1[i] << ", "  << detdP2[i] << "\t" 
-				 << detT11[i] << ", " << detT12[i] << "\t" 
-				 << detTsc[i] << "\t" << detT21[i] << ", "
-				 << detT22[i] << "\t" << detWidth1[i] << "\t" 
-				 << detWidth2[i] << "\t" << detPosY[i];
+  for (int i = 0; i < nLayers; i++)
+    edm::LogVerbatim("HCalGeom") << i + 1 << "\t" << detType[i] << "\t" << detdP1[i] << ", " << detdP2[i] << "\t"
+                                 << detT11[i] << ", " << detT12[i] << "\t" << detTsc[i] << "\t" << detT21[i] << ", "
+                                 << detT22[i] << "\t" << detWidth1[i] << "\t" << detWidth2[i] << "\t" << detPosY[i];
 #endif
 
   //  idName = parentName.name();
-  idName      = sArgs["MotherName"];
+  idName = sArgs["MotherName"];
   idNameSpace = DDCurrentNamespace::ns();
-  idOffset = int (nArgs["IdOffset"]); 
+  idOffset = int(nArgs["IdOffset"]);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Parent " <<parent().name()
-			       <<" idName " << idName << " NameSpace "
-			       << idNameSpace << " Offset " << idOffset;
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Parent " << parent().name() << " idName " << idName
+                               << " NameSpace " << idNameSpace << " Offset " << idOffset;
 #endif
 }
 
@@ -203,7 +217,6 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
 ////////////////////////////////////////////////////////////////////
 
 void DDHCalBarrelAlgo::execute(DDCompactView& cpv) {
-
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "==>> Constructing DDHCalBarrelAlgo...";
 #endif
@@ -216,16 +229,15 @@ void DDHCalBarrelAlgo::execute(DDCompactView& cpv) {
 //----------------------start here for DDD work!!! ---------------
 
 void DDHCalBarrelAlgo::constructGeneralVolume(DDCompactView& cpv) {
-  
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: General volume...";
 #endif
 
   DDRotation rot = DDRotation();
 
-  double alpha = (1._pi)/getNsectors();
-  double dphi  = getNsectortot()*(2._pi)/getNsectors();
-  int nsec, ntot=15;
+  double alpha = (1._pi) / getNsectors();
+  double dphi = getNsectortot() * (2._pi) / getNsectors();
+  int nsec, ntot = 15;
   if (getNhalf() == 1)
     nsec = 8;
   else
@@ -234,326 +246,305 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDCompactView& cpv) {
 
   //Calculate zmin... see HCalBarrel.hh picture. For polyhedra
   //Rmin and Rmax are distances to vertex
-  double zmax   = getZoff(3);
+  double zmax = getZoff(3);
   double zstep5 = getZoff(4);
-  double zstep4 =(getZoff(1) + getRmax(1)*getTanTheta(1));
-  if ((getZoff(2)+getRmax(1)*getTanTheta(2)) > zstep4)
-    zstep4 = (getZoff(2)+getRmax(1)*getTanTheta(2));
-  double zstep3 =(getZoff(1) + getRmax(0)*getTanTheta(1));
-  double zstep2 =(getZoff(0) + getRmax(0)*getTanTheta(0));
-  double zstep1 =(getZoff(0) + getRin()  *getTanTheta(0));
-  double rout   = getRout();
-  double rout1  = getRmax(3);
-  double rin    = getRin();
-  double rmid1  = getRmax(0);
-  double rmid2  = getRmax(1);
-  double rmid3  =(getZoff(4) - getZoff(2))/getTanTheta(2);
-  double rmid4  = getRmax(2);
+  double zstep4 = (getZoff(1) + getRmax(1) * getTanTheta(1));
+  if ((getZoff(2) + getRmax(1) * getTanTheta(2)) > zstep4)
+    zstep4 = (getZoff(2) + getRmax(1) * getTanTheta(2));
+  double zstep3 = (getZoff(1) + getRmax(0) * getTanTheta(1));
+  double zstep2 = (getZoff(0) + getRmax(0) * getTanTheta(0));
+  double zstep1 = (getZoff(0) + getRin() * getTanTheta(0));
+  double rout = getRout();
+  double rout1 = getRmax(3);
+  double rin = getRin();
+  double rmid1 = getRmax(0);
+  double rmid2 = getRmax(1);
+  double rmid3 = (getZoff(4) - getZoff(2)) / getTanTheta(2);
+  double rmid4 = getRmax(2);
 
-  std::vector<double> pgonZ = {-zmax,  -zstep5,-zstep5,-zstep4,-zstep3,
-			       -zstep2,-zstep1,      0, zstep1, zstep2, 
-			        zstep3, zstep4, zstep5, zstep5,   zmax};
+  std::vector<double> pgonZ = {-zmax,
+                               -zstep5,
+                               -zstep5,
+                               -zstep4,
+                               -zstep3,
+                               -zstep2,
+                               -zstep1,
+                               0,
+                               zstep1,
+                               zstep2,
+                               zstep3,
+                               zstep4,
+                               zstep5,
+                               zstep5,
+                               zmax};
 
-  std::vector<double> pgonRmin = {rmid4,rmid3,rmid3,rmid2,rmid1, 
-				  rmid1,  rin,  rin,  rin,rmid1, 
-				  rmid1,rmid2,rmid3,rmid3,rmid4};
+  std::vector<double> pgonRmin = {
+      rmid4, rmid3, rmid3, rmid2, rmid1, rmid1, rin, rin, rin, rmid1, rmid1, rmid2, rmid3, rmid3, rmid4};
 
-  std::vector<double> pgonRmax = {rout1,rout1,rout, rout, rout, rout, 
-				  rout, rout, rout, rout, rout, rout, 
-				  rout, rout1,rout1};
+  std::vector<double> pgonRmax = {
+      rout1, rout1, rout, rout, rout, rout, rout, rout, rout, rout, rout, rout, rout, rout1, rout1};
 
-  std::vector<double> pgonZHalf = {0,     zstep1,zstep2,zstep3,zstep4,zstep5, 
-				   zstep5,zmax};
+  std::vector<double> pgonZHalf = {0, zstep1, zstep2, zstep3, zstep4, zstep5, zstep5, zmax};
 
-  std::vector<double> pgonRminHalf = {rin,  rin,rmid1,rmid1,rmid2,rmid3, 
-				      rmid3,rmid4};
+  std::vector<double> pgonRminHalf = {rin, rin, rmid1, rmid1, rmid2, rmid3, rmid3, rmid4};
 
-  std::vector<double> pgonRmaxHalf = {rout, rout, rout, rout, rout, rout, 
-				      rout1,rout1};
+  std::vector<double> pgonRmaxHalf = {rout, rout, rout, rout, rout, rout, rout1, rout1};
 
   std::string name("Null");
   DDSolid solid;
-  if (nf == 0) { 
-    solid = DDSolidFactory::polyhedra(DDName(idName, idNameSpace),
-				      getNsectortot(), -alpha, dphi, pgonZ, 
-				      pgonRmin, pgonRmax);
+  if (nf == 0) {
+    solid = DDSolidFactory::polyhedra(
+        DDName(idName, idNameSpace), getNsectortot(), -alpha, dphi, pgonZ, pgonRmin, pgonRmax);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: "
-				 << DDName(idName, idNameSpace)
-				 << " Polyhedra made of " << getGenMaterial()
-				 << " with " << getNsectortot()
-				 << " sectors from " << convertRadToDeg(-alpha)
-				 << " to " << convertRadToDeg(-alpha+dphi)
-				 << " and with " << nsec << " sections ";
-    for (unsigned int i = 0; i <pgonZ.size(); i++)
-      edm::LogVerbatim("HCalGeom") << "\t" << "\tZ = " << pgonZ[i]
-				   << "\tRmin = " << pgonRmin[i] << "\tRmax = "
-				   << pgonRmax[i];
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << DDName(idName, idNameSpace) << " Polyhedra made of "
+                                 << getGenMaterial() << " with " << getNsectortot() << " sectors from "
+                                 << convertRadToDeg(-alpha) << " to " << convertRadToDeg(-alpha + dphi) << " and with "
+                                 << nsec << " sections ";
+    for (unsigned int i = 0; i < pgonZ.size(); i++)
+      edm::LogVerbatim("HCalGeom") << "\t"
+                                   << "\tZ = " << pgonZ[i] << "\tRmin = " << pgonRmin[i] << "\tRmax = " << pgonRmax[i];
 #endif
   } else {
-    solid = DDSolidFactory::polyhedra(DDName(idName, idNameSpace),
-				      getNsectortot(), -alpha, dphi, pgonZHalf,
-				      pgonRminHalf, pgonRmaxHalf);
+    solid = DDSolidFactory::polyhedra(
+        DDName(idName, idNameSpace), getNsectortot(), -alpha, dphi, pgonZHalf, pgonRminHalf, pgonRmaxHalf);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " 
-				 << DDName(idName, idNameSpace) 
-				 << " Polyhedra made of " << getGenMaterial()
-				 << " with " << getNsectortot()
-				 << " sectors from " << convertRadToDeg(-alpha)
-				 << " to " << convertRadToDeg(-alpha+dphi)
-				 << " and with " << nsec << " sections ";
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << DDName(idName, idNameSpace) << " Polyhedra made of "
+                                 << getGenMaterial() << " with " << getNsectortot() << " sectors from "
+                                 << convertRadToDeg(-alpha) << " to " << convertRadToDeg(-alpha + dphi) << " and with "
+                                 << nsec << " sections ";
     for (unsigned int i = 0; i < pgonZHalf.size(); i++)
-      edm::LogVerbatim("HCalGeom") << "\t" << "\tZ = " << pgonZHalf[i]
-				   << "\tRmin = " << pgonRminHalf[i] 
-				   << "\tRmax = " << pgonRmaxHalf[i];
+      edm::LogVerbatim("HCalGeom") << "\t"
+                                   << "\tZ = " << pgonZHalf[i] << "\tRmin = " << pgonRminHalf[i]
+                                   << "\tRmax = " << pgonRmaxHalf[i];
 #endif
-  }  
-  
+  }
 
   DDName matname(DDSplit(getGenMaterial()).first, DDSplit(getGenMaterial()).second);
   DDMaterial matter(matname);
   DDLogicalPart genlogic(DDName(idName, idNameSpace), matter, solid);
 
-  DDName parentName = parent().name(); 
-  DDTranslation r0(0,0,0);
+  DDName parentName = parent().name();
+  DDTranslation r0(0, 0, 0);
   cpv.position(DDName(idName, idNameSpace), parentName, 1, r0, rot);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " 
-			       << DDName(idName, idNameSpace)
-			       << " number 1 positioned in " << parentName 
-			       << " at " << r0 << " with " << rot;
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << DDName(idName, idNameSpace) << " number 1 positioned in "
+                               << parentName << " at " << r0 << " with " << rot;
 #endif
   //Forward and backwards halfs
   name = idName + "Half";
-  nf   = (ntot+1)/2;
+  nf = (ntot + 1) / 2;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: "
-			       << DDName(name,idNameSpace)
-			       << " Polyhedra made of " << getGenMaterial()
-			       << " with " << getNsectortot() 
-			       << " sectors from " << convertRadToDeg(-alpha)
-			       << " to " << convertRadToDeg(-alpha+dphi) 
-			       << " and with " << nf << " sections "; 
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << DDName(name, idNameSpace) << " Polyhedra made of "
+                               << getGenMaterial() << " with " << getNsectortot() << " sectors from "
+                               << convertRadToDeg(-alpha) << " to " << convertRadToDeg(-alpha + dphi) << " and with "
+                               << nf << " sections ";
   for (unsigned int i = 0; i < pgonZHalf.size(); i++)
-    edm::LogVerbatim("HCalGeom") << "\t" << "\tZ = " << pgonZHalf[i] 
-				 << "\tRmin = " << pgonRminHalf[i]
-				 << "\tRmax = " << pgonRmaxHalf[i];
+    edm::LogVerbatim("HCalGeom") << "\t"
+                                 << "\tZ = " << pgonZHalf[i] << "\tRmin = " << pgonRminHalf[i]
+                                 << "\tRmax = " << pgonRmaxHalf[i];
 #endif
 
-  solid =   DDSolidFactory::polyhedra(DDName(name, idNameSpace),
-				      getNsectortot(), -alpha, dphi, pgonZHalf,
-				      pgonRminHalf, pgonRmaxHalf);
+  solid = DDSolidFactory::polyhedra(
+      DDName(name, idNameSpace), getNsectortot(), -alpha, dphi, pgonZHalf, pgonRminHalf, pgonRmaxHalf);
   DDLogicalPart genlogich(DDName(name, idNameSpace), matter, solid);
 
   cpv.position(genlogich, genlogic, 1, r0, rot);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: "  << genlogich.name() 
-			       << " number 1 positioned in " << genlogic.name()
-			       << " at " << r0 << " with " << rot;
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << genlogich.name() << " number 1 positioned in "
+                               << genlogic.name() << " at " << r0 << " with " << rot;
 #endif
   if (getNhalf() != 1) {
     rot = DDRotation(DDName(rotHalf, rotns));
     cpv.position(genlogich, genlogic, 2, r0, rot);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << genlogich.name()
-				 << " number 2 positioned in " 
-				 << genlogic.name() << " at " << r0 
-				 << " with " << rot;
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << genlogich.name() << " number 2 positioned in "
+                                 << genlogic.name() << " at " << r0 << " with " << rot;
 #endif
-  } //end if (getNhalf...
-  
+  }  //end if (getNhalf...
+
   //Construct sector (from -alpha to +alpha)
   name = idName + "Module";
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: "
-			       << DDName(name,idNameSpace)
-			       << " Polyhedra made of " << getGenMaterial() 
-			       << " with 1 sector from "
-			       << convertRadToDeg(-alpha) << " to "
-			       << convertRadToDeg(alpha) << " and with " 
-			       << nf <<" sections";
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << DDName(name, idNameSpace) << " Polyhedra made of "
+                               << getGenMaterial() << " with 1 sector from " << convertRadToDeg(-alpha) << " to "
+                               << convertRadToDeg(alpha) << " and with " << nf << " sections";
   for (unsigned int i = 0; i < pgonZHalf.size(); i++)
-    edm::LogVerbatim("HCalGeom") << "\t" << "\tZ = " << pgonZHalf[i]
-				 << "\tRmin = " << pgonRminHalf[i]
-				 << "\tRmax = " << pgonRmaxHalf[i];
+    edm::LogVerbatim("HCalGeom") << "\t"
+                                 << "\tZ = " << pgonZHalf[i] << "\tRmin = " << pgonRminHalf[i]
+                                 << "\tRmax = " << pgonRmaxHalf[i];
 #endif
 
-  solid =   DDSolidFactory::polyhedra(DDName(name, idNameSpace),
-				      1, -alpha, 2*alpha, pgonZHalf,
-				      pgonRminHalf, pgonRmaxHalf);
+  solid =
+      DDSolidFactory::polyhedra(DDName(name, idNameSpace), 1, -alpha, 2 * alpha, pgonZHalf, pgonRminHalf, pgonRmaxHalf);
   DDLogicalPart seclogic(DDName(name, idNameSpace), matter, solid);
-  
+
   double theta = 90._deg;
-  for (int ii=0; ii<getNsectortot(); ii++) {
-    double phi    = ii*2*alpha;
-    double phiy   = phi + 90._deg;
-    
+  for (int ii = 0; ii < getNsectortot(); ii++) {
+    double phi = ii * 2 * alpha;
+    double phiy = phi + 90._deg;
+
     DDRotation rotation;
     std::string rotstr("NULL");
     if (phi != 0) {
       rotstr = "R" + formatAsDegreesInInteger(phi);
-      rotation = DDRotation(DDName(rotstr, rotns)); 
+      rotation = DDRotation(DDName(rotstr, rotns));
       if (!rotation) {
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Creating a new "
-				     << "rotation " << rotstr << "\t 90," 
-				     << convertRadToDeg(phi) << ",90," 
-				     << (90+convertRadToDeg(phi)) << ", 0, 0";
+        edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Creating a new "
+                                     << "rotation " << rotstr << "\t 90," << convertRadToDeg(phi) << ",90,"
+                                     << (90 + convertRadToDeg(phi)) << ", 0, 0";
 #endif
-	rotation = DDrot(DDName(rotstr, rotns), theta, phi, theta, phiy, 0, 0);
-      } //if !rotation
-    } //if phideg!=0
-  
-    cpv.position(seclogic, genlogich, ii+1, r0, rotation);
+        rotation = DDrot(DDName(rotstr, rotns), theta, phi, theta, phiy, 0, 0);
+      }  //if !rotation
+    }    //if phideg!=0
+
+    cpv.position(seclogic, genlogich, ii + 1, r0, rotation);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << seclogic.name() 
-				 << " number " << ii+1 << " positioned in " 
-				 << genlogich.name() << " at " << r0 
-				 << " with " << rotation;
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << seclogic.name() << " number " << ii + 1 << " positioned in "
+                                 << genlogich.name() << " at " << r0 << " with " << rotation;
 #endif
   }
-  
+
   //Construct the things inside the sector
   constructInsideSector(seclogic, cpv);
 }
 
-
 void DDHCalBarrelAlgo::constructInsideSector(const DDLogicalPart& sector, DDCompactView& cpv) {
-  
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Layers (" << getNLayers()
-			       << ") ...";
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Layers (" << getNLayers() << ") ...";
 #endif
-  double alpha = (1._pi)/getNsectors();
-  double rin   = getRin();
+  double alpha = (1._pi) / getNsectors();
+  double rin = getRin();
   for (int i = 0; i < getNLayers(); i++) {
-    std::string  name   = idName + getLayerLabel(i);
-    DDName matname(DDSplit(getLayerMaterial(i)).first, 
-		   DDSplit(getLayerMaterial(i)).second); //idNameSpace);
+    std::string name = idName + getLayerLabel(i);
+    DDName matname(DDSplit(getLayerMaterial(i)).first,
+                   DDSplit(getLayerMaterial(i)).second);  //idNameSpace);
     DDMaterial matter(matname);
 
     double width = getLayerWidth(i);
-    double rout  = rin + width;
+    double rout = rin + width;
 
-    int    in = 0, out = 0;
-    for (int j = 0; j < getRzones()-1; j++) {
-      if (rin >= getRmax(j)) in = j+1;
-      if (rout>  getRmax(j)) out= j+1;
+    int in = 0, out = 0;
+    for (int j = 0; j < getRzones() - 1; j++) {
+      if (rin >= getRmax(j))
+        in = j + 1;
+      if (rout > getRmax(j))
+        out = j + 1;
     }
-    double zout  = getZoff(in) + rin*getTanTheta(in);
+    double zout = getZoff(in) + rin * getTanTheta(in);
 
     //!!!!!!!!!!!!!!!!!Should be zero. And removed as soon as
     //vertical walls are allowed in SolidPolyhedra
     double deltaz = 0;
-    int    nsec=2;
+    int nsec = 2;
     std::vector<double> pgonZ, pgonRmin, pgonRmax;
     // index 0
     pgonZ.emplace_back(0);
-    pgonRmin.emplace_back(rin); 
+    pgonRmin.emplace_back(rin);
     pgonRmax.emplace_back(rout);
     // index 1
-    pgonZ.emplace_back(zout);  
-    pgonRmin.emplace_back(rin); 
+    pgonZ.emplace_back(zout);
+    pgonRmin.emplace_back(rin);
     pgonRmax.emplace_back(rout);
     if (in == out) {
       if (in <= 3) {
-	//index 2
-	pgonZ.emplace_back(getZoff(in) + rout*getTanTheta(in));
-	pgonRmin.emplace_back(pgonRmax[1]);
-	pgonRmax.emplace_back(pgonRmax[1]);
-	nsec++;
+        //index 2
+        pgonZ.emplace_back(getZoff(in) + rout * getTanTheta(in));
+        pgonRmin.emplace_back(pgonRmax[1]);
+        pgonRmax.emplace_back(pgonRmax[1]);
+        nsec++;
       }
     } else {
       if (in == 3) {
-	//redo index 1, add index 2
-	pgonZ[1]    =(getZoff(out) + getRmax(out)*getTanTheta(out));
-	pgonZ.emplace_back(pgonZ[1] + deltaz);
-	pgonRmin.emplace_back(pgonRmin[1]); 
-	pgonRmax.emplace_back(getRmax(in));
-	//index 3 
-	pgonZ.emplace_back(getZoff(in) + getRmax(in)*getTanTheta(in));
-	pgonRmin.emplace_back(pgonRmin[2]); 
-	pgonRmax.emplace_back(pgonRmax[2]);
-        nsec       += 2;
+        //redo index 1, add index 2
+        pgonZ[1] = (getZoff(out) + getRmax(out) * getTanTheta(out));
+        pgonZ.emplace_back(pgonZ[1] + deltaz);
+        pgonRmin.emplace_back(pgonRmin[1]);
+        pgonRmax.emplace_back(getRmax(in));
+        //index 3
+        pgonZ.emplace_back(getZoff(in) + getRmax(in) * getTanTheta(in));
+        pgonRmin.emplace_back(pgonRmin[2]);
+        pgonRmax.emplace_back(pgonRmax[2]);
+        nsec += 2;
       } else {
-	//index 2
-	pgonZ.emplace_back(getZoff(in) + getRmax(in)*getTanTheta(in));
-	pgonRmin.emplace_back(getRmax(in)); 
-	pgonRmax.emplace_back(pgonRmax[1]); 
-	nsec++;
-	if (in == 0) {
-	  pgonZ.emplace_back(getZoff(out) + getRmax(in)*getTanTheta(out));
-          pgonRmin.emplace_back(pgonRmin[2]); 
-	  pgonRmax.emplace_back(pgonRmax[2]);
-	  nsec++;
-	}
-	if (in <= 1) {
-	  pgonZ.emplace_back(getZoff(out) + rout*getTanTheta(out));
-	  pgonRmin.emplace_back(rout);
-	  pgonRmax.emplace_back(rout);
-	  nsec++;
-	}
+        //index 2
+        pgonZ.emplace_back(getZoff(in) + getRmax(in) * getTanTheta(in));
+        pgonRmin.emplace_back(getRmax(in));
+        pgonRmax.emplace_back(pgonRmax[1]);
+        nsec++;
+        if (in == 0) {
+          pgonZ.emplace_back(getZoff(out) + getRmax(in) * getTanTheta(out));
+          pgonRmin.emplace_back(pgonRmin[2]);
+          pgonRmax.emplace_back(pgonRmax[2]);
+          nsec++;
+        }
+        if (in <= 1) {
+          pgonZ.emplace_back(getZoff(out) + rout * getTanTheta(out));
+          pgonRmin.emplace_back(rout);
+          pgonRmax.emplace_back(rout);
+          nsec++;
+        }
       }
     }
     //Solid & volume
     DDSolid solid;
-    double  alpha1 = alpha;
-    if (getLayerGap(i)>1.e-6) {
-      double rmid  = 0.5*(rin+rout);
-      double width = rmid*tan(alpha) - getLayerGap(i);
-      alpha1 = atan(width/rmid);
+    double alpha1 = alpha;
+    if (getLayerGap(i) > 1.e-6) {
+      double rmid = 0.5 * (rin + rout);
+      double width = rmid * tan(alpha) - getLayerGap(i);
+      alpha1 = atan(width / rmid);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HCalGeom") << "\t" << "Alpha_1 modified from " 
-				   << convertRadToDeg(alpha) << " to " 
-				   << convertRadToDeg(alpha1) 
-				   << " Rmid " << rmid << " Reduced width "
-				   << width;
+      edm::LogVerbatim("HCalGeom") << "\t"
+                                   << "Alpha_1 modified from " << convertRadToDeg(alpha) << " to "
+                                   << convertRadToDeg(alpha1) << " Rmid " << rmid << " Reduced width " << width;
 #endif
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << name << " (Layer " 
-				 << i << ") Polyhedra made of " 
-				 << getLayerMaterial(i)
-				 << " with 1 sector from "
-				 << convertRadToDeg(-alpha1) << " to " 
-				 << convertRadToDeg(alpha1) << " and with " 
-				 << nsec << " sections";
-    for (unsigned int k=0; k<pgonZ.size(); k++)
-      edm::LogVerbatim("HCalGeom") << "\t" << "\t" << pgonZ[k] << "\t"
-				   << pgonRmin[k] << "\t" << pgonRmax[k];
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << name << " (Layer " << i << ") Polyhedra made of "
+                                 << getLayerMaterial(i) << " with 1 sector from " << convertRadToDeg(-alpha1) << " to "
+                                 << convertRadToDeg(alpha1) << " and with " << nsec << " sections";
+    for (unsigned int k = 0; k < pgonZ.size(); k++)
+      edm::LogVerbatim("HCalGeom") << "\t"
+                                   << "\t" << pgonZ[k] << "\t" << pgonRmin[k] << "\t" << pgonRmax[k];
 #endif
-    solid = DDSolidFactory::polyhedra(DDName(name, idNameSpace), 
-				      1, -alpha1, 2*alpha1,
-				      pgonZ, pgonRmin, pgonRmax);
+    solid = DDSolidFactory::polyhedra(DDName(name, idNameSpace), 1, -alpha1, 2 * alpha1, pgonZ, pgonRmin, pgonRmax);
     DDLogicalPart glog(DDName(name, idNameSpace), matter, solid);
 
-   cpv.position(glog, sector, getLayerId(i), DDTranslation(0.0, 0.0, 0.0), 
-		DDRotation());
+    cpv.position(glog, sector, getLayerId(i), DDTranslation(0.0, 0.0, 0.0), DDRotation());
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() 
-				 << " number " << getLayerId(i)
-				 << " positioned in " << sector.name()
-				 << " at (0,0,0) with no rotation";
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " number " << getLayerId(i)
+                                 << " positioned in " << sector.name() << " at (0,0,0) with no rotation";
 #endif
-    constructInsideLayers(glog, getLayerLabel(i), getLayerId(i), 
-			  getLayerAbsorb(i), rin,  getLayerD1(i), alpha1, 
-			  getLayerD2(i), getLayerAlpha(i), getLayerT1(i),
-			  getLayerT2(i), cpv);
+    constructInsideLayers(glog,
+                          getLayerLabel(i),
+                          getLayerId(i),
+                          getLayerAbsorb(i),
+                          rin,
+                          getLayerD1(i),
+                          alpha1,
+                          getLayerD2(i),
+                          getLayerAlpha(i),
+                          getLayerT1(i),
+                          getLayerT2(i),
+                          cpv);
     rin = rout;
   }
-  
 }
 
 void DDHCalBarrelAlgo::constructInsideLayers(const DDLogicalPart& laylog,
-					     const std::string& nm, int id,
-					     int nAbs, double rin, double d1, 
-					     double alpha1, double d2, 
-					     double alpha2, double t1,
-					     double t2, DDCompactView& cpv) {
-  
+                                             const std::string& nm,
+                                             int id,
+                                             int nAbs,
+                                             double rin,
+                                             double d1,
+                                             double alpha1,
+                                             double d2,
+                                             double alpha2,
+                                             double t1,
+                                             double t2,
+                                             DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: \t\tInside layer " << id 
-			       << "...";
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: \t\tInside layer " << id << "...";
 #endif
   ///////////////////////////////////////////////////////////////
   //Pointers to the Rotation Matrices and to the Materials
@@ -562,33 +553,32 @@ void DDHCalBarrelAlgo::constructInsideLayers(const DDLogicalPart& laylog,
   std::string nam0 = nm + "In";
   std::string name = idName + nam0;
   DDName matName(DDSplit(getDetMat()).first, DDSplit(getDetMat()).second);
-  DDMaterial matter (matName);
+  DDMaterial matter(matName);
 
-  DDSolid        solid;
-  DDLogicalPart  glog, mother;
-  double         rsi, dx, dy, dz, x, y;
-  int            i, in;
+  DDSolid solid;
+  DDLogicalPart glog, mother;
+  double rsi, dx, dy, dz, x, y;
+  int i, in;
   //Two lower volumes
   if (alpha1 > 0) {
     rsi = rin + d1;
-    in  = 0;
-    for (i = 0; i < getRzones()-1; i++) {
-      if (rsi >= getRmax(i)) in = i+1;
+    in = 0;
+    for (i = 0; i < getRzones() - 1; i++) {
+      if (rsi >= getRmax(i))
+        in = i + 1;
     }
-    dx = 0.5*t1;
-    dy = 0.5*rsi*(tan(alpha1)-tan(alpha2));
-    dz = 0.5*(getZoff(in) + rsi*getTanTheta(in));
-    x  = rsi + dx;
-    y  = 0.5*rsi*(tan(alpha1)+tan(alpha2));
+    dx = 0.5 * t1;
+    dy = 0.5 * rsi * (tan(alpha1) - tan(alpha2));
+    dz = 0.5 * (getZoff(in) + rsi * getTanTheta(in));
+    x = rsi + dx;
+    y = 0.5 * rsi * (tan(alpha1) + tan(alpha2));
     DDTranslation r11(x, y, dz);
     DDTranslation r12(x, -y, dz);
 
-    solid = DDSolidFactory::box(DDName(name+"1", idNameSpace), dx, dy, dz);
+    solid = DDSolidFactory::box(DDName(name + "1", idNameSpace), dx, dy, dz);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() 
-				 <<" Box made of " << getDetMat()
-				 << " of dimensions " << dx << ", " << dy 
-				 << ", " << dz;
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << getDetMat()
+                                 << " of dimensions " << dx << ", " << dy << ", " << dz;
 #endif
     glog = DDLogicalPart(solid.ddname(), matter, solid);
 
@@ -597,41 +587,36 @@ void DDHCalBarrelAlgo::constructInsideLayers(const DDLogicalPart& laylog,
     } else {
       mother = laylog;
     }
-    cpv.position(glog, mother, idOffset+1, r11, DDRotation());
-    cpv.position(glog, mother, idOffset+2, r12, rot);
+    cpv.position(glog, mother, idOffset + 1, r11, DDRotation());
+    cpv.position(glog, mother, idOffset + 2, r12, rot);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() 
-				 << " Number " << idOffset+1 
-				 << " positioned in " << mother.name() 
-				 << " at " << r11 << " with no rotation\n"
-				 << "DDHCalBarrelAlgo: " << glog.name() 
-				 << " Number " << idOffset+2 
-				 << " positioned in " << mother.name() 
-				 << " at " << r12 << " with " << rot;
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number " << idOffset + 1
+                                 << " positioned in " << mother.name() << " at " << r11 << " with no rotation\n"
+                                 << "DDHCalBarrelAlgo: " << glog.name() << " Number " << idOffset + 2
+                                 << " positioned in " << mother.name() << " at " << r12 << " with " << rot;
 #endif
     //Constructin the plastics and scintillators inside
-    constructInsideDetectors(glog, nam0+"1", id, dx, dy, dz, 1, cpv);
+    constructInsideDetectors(glog, nam0 + "1", id, dx, dy, dz, 1, cpv);
   }
 
   //Upper volume
   rsi = rin + d2;
-  in  = 0;
-  for (i = 0; i < getRzones()-1; i++) {
-    if (rsi >= getRmax(i)) in = i+1;
+  in = 0;
+  for (i = 0; i < getRzones() - 1; i++) {
+    if (rsi >= getRmax(i))
+      in = i + 1;
   }
-  dx  = 0.5*t2;
-  dy  = 0.5*rsi*tan(alpha2);
-  dz  = 0.5*(getZoff(in) + rsi*getTanTheta(in));
-  x   = rsi + dx;
+  dx = 0.5 * t2;
+  dy = 0.5 * rsi * tan(alpha2);
+  dz = 0.5 * (getZoff(in) + rsi * getTanTheta(in));
+  x = rsi + dx;
   DDTranslation r21(x, dy, dz);
   DDTranslation r22(x, -dy, dz);
-  
-  solid = DDSolidFactory::box(DDName(name+"2", idNameSpace), dx, dy, dz);
+
+  solid = DDSolidFactory::box(DDName(name + "2", idNameSpace), dx, dy, dz);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() 
-			       << " Box made of " << getDetMat()
-			       << " of dimensions " << dx << ", " << dy 
-			       << ", " << dz;
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << getDetMat()
+                               << " of dimensions " << dx << ", " << dy << ", " << dz;
 #endif
   glog = DDLogicalPart(solid.ddname(), matter, solid);
 
@@ -640,61 +625,51 @@ void DDHCalBarrelAlgo::constructInsideLayers(const DDLogicalPart& laylog,
   } else {
     mother = laylog;
   }
-  cpv.position(glog, mother, idOffset+3, r21, DDRotation());
-  cpv.position(glog, mother, idOffset+4, r22, rot);
+  cpv.position(glog, mother, idOffset + 3, r21, DDRotation());
+  cpv.position(glog, mother, idOffset + 4, r22, rot);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() 
-			       << " Number " << idOffset+3 << " positioned in "
-			       << mother.name() << " at " << r21 
-			       << " with no rotation\nDDHCalBarrelAlgo: "
-			       << glog.name() << " Number " << idOffset+4 
-			       << " positioned in " << mother.name() << " at " 
-			       << r22 << " with " << rot;
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number " << idOffset + 3 << " positioned in "
+                               << mother.name() << " at " << r21
+                               << " with no rotation\nDDHCalBarrelAlgo: " << glog.name() << " Number " << idOffset + 4
+                               << " positioned in " << mother.name() << " at " << r22 << " with " << rot;
 #endif
   //Constructin the plastics and scintillators inside
-  constructInsideDetectors(glog, nam0+"2", id, dx, dy, dz, 2, cpv);
+  constructInsideDetectors(glog, nam0 + "2", id, dx, dy, dz, 2, cpv);
 }
 
-DDLogicalPart DDHCalBarrelAlgo::constructSideLayer(const DDLogicalPart& laylog,
-						   const std::string& nm,
-						   int nAbs,  double rin,
-						   double alpha,
-						   DDCompactView& cpv) {
-
+DDLogicalPart DDHCalBarrelAlgo::constructSideLayer(
+    const DDLogicalPart& laylog, const std::string& nm, int nAbs, double rin, double alpha, DDCompactView& cpv) {
   //Extra absorber layer
   int k = abs(nAbs) - 1;
   std::string namek = nm + "Side";
-  double rsi   = rin + getSideD(k);
-  int    in  = 0;
-  for (int i = 0; i < getRzones()-1; i++) {
-    if (rsi >= getRmax(i)) in = i+1;
+  double rsi = rin + getSideD(k);
+  int in = 0;
+  for (int i = 0; i < getRzones() - 1; i++) {
+    if (rsi >= getRmax(i))
+      in = i + 1;
   }
   std::vector<double> pgonZ, pgonRmin, pgonRmax;
   // index 0
-  pgonZ.emplace_back(0.0);     
-  pgonRmin.emplace_back(rsi); 
-  pgonRmax.emplace_back(rsi+getSideT(k));
+  pgonZ.emplace_back(0.0);
+  pgonRmin.emplace_back(rsi);
+  pgonRmax.emplace_back(rsi + getSideT(k));
   // index 1
-  pgonZ.emplace_back(getZoff(in) + rsi*getTanTheta(in));  
-  pgonRmin.emplace_back(rsi); 
+  pgonZ.emplace_back(getZoff(in) + rsi * getTanTheta(in));
+  pgonRmin.emplace_back(rsi);
   pgonRmax.emplace_back(pgonRmax[0]);
   // index 2
-  pgonZ.emplace_back(getZoff(in) + pgonRmax[0]*getTanTheta(in));
+  pgonZ.emplace_back(getZoff(in) + pgonRmax[0] * getTanTheta(in));
   pgonRmin.emplace_back(pgonRmax[1]);
   pgonRmax.emplace_back(pgonRmax[1]);
-  DDSolid solid = DDSolidFactory::polyhedra(DDName(namek, idNameSpace), 1, 
-					    -alpha, 2*alpha, pgonZ, pgonRmin, 
-					    pgonRmax);
+  DDSolid solid =
+      DDSolidFactory::polyhedra(DDName(namek, idNameSpace), 1, -alpha, 2 * alpha, pgonZ, pgonRmin, pgonRmax);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() 
-			       << " Polyhedra made of " << getSideMat(k) 
-			       << " with 1 sector from "
-			       << convertRadToDeg(-alpha) << " to "
-			       << convertRadToDeg(alpha) << " and with "
-			       << pgonZ.size() << " sections";
-  for (unsigned int ii=0; ii<pgonZ.size(); ii++) 
-    edm::LogVerbatim("HCalGeom") << "\t\tZ = " << pgonZ[ii] << "\tRmin = " 
-				 << pgonRmin[ii] << "\tRmax = " <<pgonRmax[ii];
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Polyhedra made of " << getSideMat(k)
+                               << " with 1 sector from " << convertRadToDeg(-alpha) << " to " << convertRadToDeg(alpha)
+                               << " and with " << pgonZ.size() << " sections";
+  for (unsigned int ii = 0; ii < pgonZ.size(); ii++)
+    edm::LogVerbatim("HCalGeom") << "\t\tZ = " << pgonZ[ii] << "\tRmin = " << pgonRmin[ii]
+                                 << "\tRmax = " << pgonRmax[ii];
 #endif
 
   DDName matName(DDSplit(getSideMat(k)).first, DDSplit(getSideMat(k)).second);
@@ -703,94 +678,76 @@ DDLogicalPart DDHCalBarrelAlgo::constructSideLayer(const DDLogicalPart& laylog,
 
   cpv.position(glog, laylog, 1, DDTranslation(), DDRotation());
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() 
-			       << " Number 1 positioned in " << laylog.name()
-			       << " at (0,0,0) with no rotation";
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number 1 positioned in " << laylog.name()
+                               << " at (0,0,0) with no rotation";
 #endif
   if (nAbs < 0) {
     DDLogicalPart mother = glog;
-    double rmid  = pgonRmax[0];
+    double rmid = pgonRmax[0];
     for (int i = 0; i < getSideAbsorber(); i++) {
-      double alpha1 = atan(getSideAbsW(i)/rmid);  
+      double alpha1 = atan(getSideAbsW(i) / rmid);
       if (alpha1 > 0) {
-	std::string name   = namek + getSideAbsName(i);
-	solid = DDSolidFactory::polyhedra(DDName(name, idNameSpace), 1, 
-					  -alpha1, 2*alpha1, pgonZ, pgonRmin, 
-					  pgonRmax);
+        std::string name = namek + getSideAbsName(i);
+        solid = DDSolidFactory::polyhedra(DDName(name, idNameSpace), 1, -alpha1, 2 * alpha1, pgonZ, pgonRmin, pgonRmax);
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() 
-				     << " Polyhedra made of " 
-				     << getSideAbsMat(i) 
-				     << " with 1 sector from " 
-				     << convertRadToDeg(-alpha1) << " to "
-				     << convertRadToDeg(alpha1) << " and with "
-				     << pgonZ.size() << " sections";
-	for (unsigned int ii=0; ii<pgonZ.size(); ii++)
-	  edm::LogVerbatim("HCalGeom") << "\t\tZ = " << pgonZ[ii]
-				       << "\tRmin = " << pgonRmin[ii]
-				       << "\tRmax = " << pgonRmax[ii];
+        edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Polyhedra made of "
+                                     << getSideAbsMat(i) << " with 1 sector from " << convertRadToDeg(-alpha1) << " to "
+                                     << convertRadToDeg(alpha1) << " and with " << pgonZ.size() << " sections";
+        for (unsigned int ii = 0; ii < pgonZ.size(); ii++)
+          edm::LogVerbatim("HCalGeom") << "\t\tZ = " << pgonZ[ii] << "\tRmin = " << pgonRmin[ii]
+                                       << "\tRmax = " << pgonRmax[ii];
 #endif
 
-	DDName matName(DDSplit(getSideAbsMat(i)).first, 
-		       DDSplit(getSideAbsMat(i)).second);
-	DDMaterial matter(matName);
-	DDLogicalPart log = DDLogicalPart(solid.ddname(), matter, solid);
+        DDName matName(DDSplit(getSideAbsMat(i)).first, DDSplit(getSideAbsMat(i)).second);
+        DDMaterial matter(matName);
+        DDLogicalPart log = DDLogicalPart(solid.ddname(), matter, solid);
 
-	cpv.position(log, mother, 1, DDTranslation(), DDRotation());
+        cpv.position(log, mother, 1, DDTranslation(), DDRotation());
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << log.name() 
-				     << " Number 1 positioned in " 
-				     << mother.name()
-				     << " at (0,0,0) with no rotation";
+        edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << log.name() << " Number 1 positioned in "
+                                     << mother.name() << " at (0,0,0) with no rotation";
 #endif
-	mother = log;
+        mother = log;
       }
     }
   }
   return glog;
 }
 
-DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(const DDLogicalPart& laylog,
-						  const std::string& nm,
-						  double rin, double alpha,
-						  DDCompactView& cpv) {
-
-  DDSolid       solid;
+DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(
+    const DDLogicalPart& laylog, const std::string& nm, double rin, double alpha, DDCompactView& cpv) {
+  DDSolid solid;
   DDLogicalPart log, glog;
   std::string name = nm + "Mid";
-  for (int k=0; k < getAbsorberN(); k++) {
+  for (int k = 0; k < getAbsorberN(); k++) {
     std::string namek = name + getAbsorbName(k);
-    double rsi   = rin + getAbsorbD(k);
-    int    in  = 0;
-    for (int i = 0; i < getRzones()-1; i++) {
-      if (rsi >= getRmax(i)) in = i+1;
+    double rsi = rin + getAbsorbD(k);
+    int in = 0;
+    for (int i = 0; i < getRzones() - 1; i++) {
+      if (rsi >= getRmax(i))
+        in = i + 1;
     }
     std::vector<double> pgonZ, pgonRmin, pgonRmax;
     // index 0
-    pgonZ.emplace_back(0.0);     
-    pgonRmin.emplace_back(rsi); 
-    pgonRmax.emplace_back(rsi+getAbsorbT(k));
+    pgonZ.emplace_back(0.0);
+    pgonRmin.emplace_back(rsi);
+    pgonRmax.emplace_back(rsi + getAbsorbT(k));
     // index 1
-    pgonZ.emplace_back(getZoff(in) + rsi*getTanTheta(in));  
-    pgonRmin.emplace_back(rsi); 
+    pgonZ.emplace_back(getZoff(in) + rsi * getTanTheta(in));
+    pgonRmin.emplace_back(rsi);
     pgonRmax.emplace_back(pgonRmax[0]);
     // index 2
-    pgonZ.emplace_back(getZoff(in) + pgonRmax[0]*getTanTheta(in));
+    pgonZ.emplace_back(getZoff(in) + pgonRmax[0] * getTanTheta(in));
     pgonRmin.emplace_back(pgonRmax[1]);
     pgonRmax.emplace_back(pgonRmax[1]);
-    solid = DDSolidFactory::polyhedra(DDName(namek, idNameSpace), 1, -alpha, 
-				      2*alpha, pgonZ, pgonRmin, pgonRmax);
+    solid = DDSolidFactory::polyhedra(DDName(namek, idNameSpace), 1, -alpha, 2 * alpha, pgonZ, pgonRmin, pgonRmax);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() 
-				 << " Polyhedra made of " << getAbsorbMat(k) 
-				 << " with 1 sector from " 
-				 << convertRadToDeg(-alpha) << " to "
-				 << convertRadToDeg(alpha) << " and with "
-				 << pgonZ.size() << " sections";
-    for (unsigned int ii=0; ii<pgonZ.size(); ii++)
-      edm::LogVerbatim("HCalGeom") << "\t\tZ = " << pgonZ[ii] << "\tRmin = " 
-				   << pgonRmin[ii] << "\tRmax = "
-				   << pgonRmax[ii];
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Polyhedra made of " << getAbsorbMat(k)
+                                 << " with 1 sector from " << convertRadToDeg(-alpha) << " to "
+                                 << convertRadToDeg(alpha) << " and with " << pgonZ.size() << " sections";
+    for (unsigned int ii = 0; ii < pgonZ.size(); ii++)
+      edm::LogVerbatim("HCalGeom") << "\t\tZ = " << pgonZ[ii] << "\tRmin = " << pgonRmin[ii]
+                                   << "\tRmax = " << pgonRmax[ii];
 #endif
 
     DDName matName(DDSplit(getAbsorbMat(k)).first, DDSplit(getAbsorbMat(k)).second);
@@ -799,215 +756,188 @@ DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(const DDLogicalPart& laylog,
 
     cpv.position(log, laylog, 1, DDTranslation(), DDRotation());
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << log.name() 
-				 << " Number 1 positioned in " << laylog.name()
-				 << " at (0,0,0) with no rotation";
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << log.name() << " Number 1 positioned in " << laylog.name()
+                                 << " at (0,0,0) with no rotation";
 #endif
-    if (k==0) {
-      double rmin   = pgonRmin[0];
-      double rmax   = pgonRmax[0];
+    if (k == 0) {
+      double rmin = pgonRmin[0];
+      double rmax = pgonRmax[0];
       DDLogicalPart mother = log;
-      for (int i=0; i<1; i++) {
-	double alpha1 = atan(getMidAbsW(i)/rmin);
-	std::string namek  = name + getMidAbsName(i);
-	solid = DDSolidFactory::polyhedra(DDName(namek, idNameSpace), 1, 
-					  -alpha1, 2*alpha1, pgonZ, pgonRmin, 
-					  pgonRmax);
+      for (int i = 0; i < 1; i++) {
+        double alpha1 = atan(getMidAbsW(i) / rmin);
+        std::string namek = name + getMidAbsName(i);
+        solid =
+            DDSolidFactory::polyhedra(DDName(namek, idNameSpace), 1, -alpha1, 2 * alpha1, pgonZ, pgonRmin, pgonRmax);
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() 
-				     << " Polyhedra made of " <<getMidAbsMat(i)
-				     << " with 1 sector from " 
-				     << convertRadToDeg(-alpha1) << " to " 
-				     << convertRadToDeg(alpha1) << " and with "
-				     << pgonZ.size() << " sections";
-	for (unsigned int ii=0; ii<pgonZ.size(); ii++)
-	  edm::LogVerbatim("HCalGeom") << "\t\tZ = " << pgonZ[ii]
-				       << "\tRmin = " << pgonRmin[ii] 
-				       << "\tRmax = " << pgonRmax[ii];
+        edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Polyhedra made of " << getMidAbsMat(i)
+                                     << " with 1 sector from " << convertRadToDeg(-alpha1) << " to "
+                                     << convertRadToDeg(alpha1) << " and with " << pgonZ.size() << " sections";
+        for (unsigned int ii = 0; ii < pgonZ.size(); ii++)
+          edm::LogVerbatim("HCalGeom") << "\t\tZ = " << pgonZ[ii] << "\tRmin = " << pgonRmin[ii]
+                                       << "\tRmax = " << pgonRmax[ii];
 #endif
 
-	DDName matNam1(DDSplit(getMidAbsMat(i)).first, 
-		       DDSplit(getMidAbsMat(i)).second);
-	DDMaterial matter1(matNam1);
-	log = DDLogicalPart(solid.ddname(), matter1, solid);
+        DDName matNam1(DDSplit(getMidAbsMat(i)).first, DDSplit(getMidAbsMat(i)).second);
+        DDMaterial matter1(matNam1);
+        log = DDLogicalPart(solid.ddname(), matter1, solid);
 
-	cpv.position(log, mother, 1, DDTranslation(), DDRotation());
+        cpv.position(log, mother, 1, DDTranslation(), DDRotation());
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << log.name() 
-				     << " Number 1 positioned in "
-				     << mother.name()
-				     << " at (0,0,0) with no rotation";
+        edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << log.name() << " Number 1 positioned in "
+                                     << mother.name() << " at (0,0,0) with no rotation";
 #endif
-	mother = log;
+        mother = log;
       }
 
       // Now the layer with detectors
       double rmid = rmin + getMiddleD();
-      pgonRmin[0] = rmid; pgonRmax[0] = rmax;
-      pgonRmin[1] = rmid; pgonRmax[1] = rmax; pgonZ[1] = getZoff(in) + rmid*getTanTheta(in);
-      pgonRmin[2] = rmax; pgonRmax[2] = rmax; pgonZ[2] = getZoff(in) + rmax*getTanTheta(in);
-      double alpha1 = atan(getMiddleW()/rmin);
-      solid = DDSolidFactory::polyhedra(DDName(name, idNameSpace), 1, 
-					-alpha1, 2*alpha1, pgonZ, pgonRmin, 
-					pgonRmax);
+      pgonRmin[0] = rmid;
+      pgonRmax[0] = rmax;
+      pgonRmin[1] = rmid;
+      pgonRmax[1] = rmax;
+      pgonZ[1] = getZoff(in) + rmid * getTanTheta(in);
+      pgonRmin[2] = rmax;
+      pgonRmax[2] = rmax;
+      pgonZ[2] = getZoff(in) + rmax * getTanTheta(in);
+      double alpha1 = atan(getMiddleW() / rmin);
+      solid = DDSolidFactory::polyhedra(DDName(name, idNameSpace), 1, -alpha1, 2 * alpha1, pgonZ, pgonRmin, pgonRmax);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() 
-				   << " Polyhedra made of " << getMiddleMat() 
-				   << " with 1 sector from " 
-				   << convertRadToDeg(-alpha1) << " to "
-				   << convertRadToDeg(alpha1) << " and with "
-				   << pgonZ.size() << " sections";
-      for (unsigned int ii=0; ii<pgonZ.size(); ii++)
-	edm::LogVerbatim("HCalGeom") << "\t\tZ = " << pgonZ[ii] << "\tRmin = " 
-				     << pgonRmin[ii] << "\tRmax = "
-				     << pgonRmax[ii];
+      edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Polyhedra made of " << getMiddleMat()
+                                   << " with 1 sector from " << convertRadToDeg(-alpha1) << " to "
+                                   << convertRadToDeg(alpha1) << " and with " << pgonZ.size() << " sections";
+      for (unsigned int ii = 0; ii < pgonZ.size(); ii++)
+        edm::LogVerbatim("HCalGeom") << "\t\tZ = " << pgonZ[ii] << "\tRmin = " << pgonRmin[ii]
+                                     << "\tRmax = " << pgonRmax[ii];
 #endif
 
-      DDName matNam1(DDSplit(getMiddleMat()).first, 
-		     DDSplit(getMiddleMat()).second);
+      DDName matNam1(DDSplit(getMiddleMat()).first, DDSplit(getMiddleMat()).second);
       DDMaterial matter1(matNam1);
       glog = DDLogicalPart(solid.ddname(), matter1, solid);
 
       cpv.position(glog, mother, 1, DDTranslation(), DDRotation());
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() 
-				   << " Number 1 positioned in "
-				   << mother.name()
-				   << " at (0,0,0) with no rotation";
+      edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number 1 positioned in " << mother.name()
+                                   << " at (0,0,0) with no rotation";
 #endif
       // Now the remaining absorber layers
       for (int i = 1; i < getMidAbsorber(); i++) {
-	namek  = name + getMidAbsName(i);
-	rmid   = rmin + getMidAbsT(i);
-	pgonRmin[0] = rmin; pgonRmax[0] = rmid;
-	pgonRmin[1] = rmin; pgonRmax[1] = rmid; pgonZ[1] = getZoff(in) + rmin*getTanTheta(in);
-	pgonRmin[2] = rmid; pgonRmax[2] = rmid; pgonZ[2] = getZoff(in) + rmid*getTanTheta(in);
-	alpha1 = atan(getMidAbsW(i)/rmin);
-	solid = DDSolidFactory::polyhedra(DDName(namek, idNameSpace), 1, 
-					  -alpha1, 2*alpha1, pgonZ, pgonRmin, 
-					  pgonRmax);
+        namek = name + getMidAbsName(i);
+        rmid = rmin + getMidAbsT(i);
+        pgonRmin[0] = rmin;
+        pgonRmax[0] = rmid;
+        pgonRmin[1] = rmin;
+        pgonRmax[1] = rmid;
+        pgonZ[1] = getZoff(in) + rmin * getTanTheta(in);
+        pgonRmin[2] = rmid;
+        pgonRmax[2] = rmid;
+        pgonZ[2] = getZoff(in) + rmid * getTanTheta(in);
+        alpha1 = atan(getMidAbsW(i) / rmin);
+        solid =
+            DDSolidFactory::polyhedra(DDName(namek, idNameSpace), 1, -alpha1, 2 * alpha1, pgonZ, pgonRmin, pgonRmax);
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() 
-				     << " Polyhedra made of " 
-				     << getMidAbsMat(i) 
-				     << " with 1 sector from " 
-				     << convertRadToDeg(-alpha1) << " to "
-				     << convertRadToDeg(alpha1) << " and with "
-				     << pgonZ.size() << " sections";
-	for (unsigned int ii=0; ii<pgonZ.size(); ii++)
-	  edm::LogVerbatim("HCalGeom") << "\t\tZ = " << pgonZ[ii] 
-				       << "\tRmin = " << pgonRmin[ii]
-				       << "\tRmax = " << pgonRmax[ii];
+        edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Polyhedra made of " << getMidAbsMat(i)
+                                     << " with 1 sector from " << convertRadToDeg(-alpha1) << " to "
+                                     << convertRadToDeg(alpha1) << " and with " << pgonZ.size() << " sections";
+        for (unsigned int ii = 0; ii < pgonZ.size(); ii++)
+          edm::LogVerbatim("HCalGeom") << "\t\tZ = " << pgonZ[ii] << "\tRmin = " << pgonRmin[ii]
+                                       << "\tRmax = " << pgonRmax[ii];
 #endif
 
-	DDName matName2(DDSplit(getMidAbsMat(i)).first, 
-			DDSplit(getMidAbsMat(i)).second);
-	DDMaterial matter2(matName2);
-	log = DDLogicalPart(solid.ddname(), matter2, solid);
+        DDName matName2(DDSplit(getMidAbsMat(i)).first, DDSplit(getMidAbsMat(i)).second);
+        DDMaterial matter2(matName2);
+        log = DDLogicalPart(solid.ddname(), matter2, solid);
 
-	cpv.position(log, mother, i, DDTranslation(), DDRotation());
+        cpv.position(log, mother, i, DDTranslation(), DDRotation());
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << log.name() 
-				     << " Number " << i << " positioned in " 
-				     << mother.name() << " at (0,0,0) with no "
-				     << "rotation";
+        edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << log.name() << " Number " << i << " positioned in "
+                                     << mother.name() << " at (0,0,0) with no "
+                                     << "rotation";
 #endif
-	mother = log;
+        mother = log;
       }
     }
   }
   return glog;
 }
- 
-void DDHCalBarrelAlgo::constructInsideDetectors(const DDLogicalPart& detector,
-						const std::string& name,
-						int id, double dx,
-						double dy, double dz,
-						int type, DDCompactView& cpv) {
 
+void DDHCalBarrelAlgo::constructInsideDetectors(const DDLogicalPart& detector,
+                                                const std::string& name,
+                                                int id,
+                                                double dx,
+                                                double dy,
+                                                double dz,
+                                                int type,
+                                                DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: \t\tInside detector " 
-			       << id << "...";
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: \t\tInside detector " << id << "...";
 #endif
-  
+
   DDName plmatname(DDSplit(getDetMatPl()).first, DDSplit(getDetMatPl()).second);
   DDMaterial plmatter(plmatname);
   DDName scmatname(DDSplit(getDetMatSc()).first, DDSplit(getDetMatSc()).second);
   DDMaterial scmatter(scmatname);
-  
-  std::string plname = detector.name().name()+"Plastic_";
-  std::string scname = idName+"Scintillator"+name;
-  
+
+  std::string plname = detector.name().name() + "Plastic_";
+  std::string scname = idName + "Scintillator" + name;
+
   id--;
   DDSolid solid;
   DDLogicalPart glog;
-  double  wid, y=0;
-  double  dx1, dx2, shiftX;
+  double wid, y = 0;
+  double dx1, dx2, shiftX;
 
   if (type == 1) {
-    wid = 0.5*getDetWidth1(id);
-    if (getDetPosY(id)>0) y =-dy+wid;
-    dx1    = 0.5*getDetT11(id);
-    dx2    = 0.5*getDetT21(id);
+    wid = 0.5 * getDetWidth1(id);
+    if (getDetPosY(id) > 0)
+      y = -dy + wid;
+    dx1 = 0.5 * getDetT11(id);
+    dx2 = 0.5 * getDetT21(id);
     shiftX = getDetdP1(id);
   } else {
-    wid = 0.5*getDetWidth2(id);
-    dx1    = 0.5*getDetT12(id);
-    dx2    = 0.5*getDetT22(id);
+    wid = 0.5 * getDetWidth2(id);
+    dx1 = 0.5 * getDetT12(id);
+    dx2 = 0.5 * getDetT22(id);
     shiftX = getDetdP2(id);
   }
 
-  solid = DDSolidFactory::box(DDName(plname+"1", idNameSpace), dx1, wid, dz);
+  solid = DDSolidFactory::box(DDName(plname + "1", idNameSpace), dx1, wid, dz);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() 
-			       << " Box made of " << getDetMatPl() 
-			       << " of dimensions " << dx1 <<", " << wid 
-			       << ", "  << dz;
-#endif
-  glog = DDLogicalPart(solid.ddname(), plmatter, solid); 
-
-  double x = shiftX + dx1 - dx;
-  cpv.position(glog, detector, 1, DDTranslation(x,y,0), DDRotation());
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() 
-			       << " Number 1 positioned in " << detector.name()
-			       << " at (" << x << "," << y
-			       << ",0) with no rotation";
-#endif
-  solid = DDSolidFactory::box(DDName(scname, idNameSpace), 
-			      0.5*getDetTsc(id), wid, dz);
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() 
-			       << " Box made of " << getDetMatSc()
-			       << " of dimensions " << 0.5*getDetTsc(id)
-			       << ", " << wid << ", " << dz;
-#endif
-  glog = DDLogicalPart(solid.ddname(), scmatter, solid);
-
-  x += dx1 + 0.5*getDetTsc(id);
-  int copyNo = id*10 + getDetType(id);
-  cpv.position(glog, detector, copyNo, DDTranslation(x, y, 0), DDRotation());
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name()
-			       << " Number " << copyNo << " positioned in "
-			       << detector.name() << " at (" << x << "," << y 
-			       << ",0) with no rotation";
-#endif
-  solid = DDSolidFactory::box(DDName(plname+"2", idNameSpace), dx2, wid, dz);
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() 
-			       << " Box made of " << getDetMatPl() 
-			       << " of dimensions " << dx2 <<", " << wid 
-			       << ", "  << dz;
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << getDetMatPl()
+                               << " of dimensions " << dx1 << ", " << wid << ", " << dz;
 #endif
   glog = DDLogicalPart(solid.ddname(), plmatter, solid);
 
-  x+=0.5*getDetTsc(id) + dx2;
+  double x = shiftX + dx1 - dx;
   cpv.position(glog, detector, 1, DDTranslation(x, y, 0), DDRotation());
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() 
-			       << " Number 1 positioned in " << detector.name()
-			       << " at (" << x << "," << y 
-			       << ",0) with no rotation";
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number 1 positioned in " << detector.name()
+                               << " at (" << x << "," << y << ",0) with no rotation";
+#endif
+  solid = DDSolidFactory::box(DDName(scname, idNameSpace), 0.5 * getDetTsc(id), wid, dz);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << getDetMatSc()
+                               << " of dimensions " << 0.5 * getDetTsc(id) << ", " << wid << ", " << dz;
+#endif
+  glog = DDLogicalPart(solid.ddname(), scmatter, solid);
+
+  x += dx1 + 0.5 * getDetTsc(id);
+  int copyNo = id * 10 + getDetType(id);
+  cpv.position(glog, detector, copyNo, DDTranslation(x, y, 0), DDRotation());
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number " << copyNo << " positioned in "
+                               << detector.name() << " at (" << x << "," << y << ",0) with no rotation";
+#endif
+  solid = DDSolidFactory::box(DDName(plname + "2", idNameSpace), dx2, wid, dz);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << getDetMatPl()
+                               << " of dimensions " << dx2 << ", " << wid << ", " << dz;
+#endif
+  glog = DDLogicalPart(solid.ddname(), plmatter, solid);
+
+  x += 0.5 * getDetTsc(id) + dx2;
+  cpv.position(glog, detector, 1, DDTranslation(x, y, 0), DDRotation());
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number 1 positioned in " << detector.name()
+                               << " at (" << x << "," << y << ",0) with no rotation";
 #endif
 }

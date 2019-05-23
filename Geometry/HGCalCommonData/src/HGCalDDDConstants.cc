@@ -747,6 +747,11 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(int lay, int irad,
   return std::make_pair(x, y);
 }
 
+/*
+Masks each cell (or not) according to its wafer and cell position (detId) and to the user needs (corners).
+Each wafer has k_CornerSize corners which are defined in anti-clockwise order starting from the corner at the top, which is always #0. 'ncor' denotes the number of corners inside the physical region. 'fcor' is the defined to be the first corner that appears inside the detector's physical volume in anti-clockwise order. 
+The argument 'corners' controls the types of wafers the user wants: for instance, corners=3 masks all wafers that have at least 3 corners inside the physical region. 
+ */
 bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
   bool mask(false);
   if (corners > 2 && corners < (int)(HGCalParameters::k_CornerSize)) {
@@ -794,7 +799,7 @@ bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
                 break;
               }
               case (2): {
-                mask = (u <= v);
+                mask = (u > v);
                 break;
               }
               case (3): {
@@ -806,7 +811,7 @@ bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
                 break;
               }
               default: {
-                mask = (u > v);
+                mask = (u <= v);
                 break;
               }
             }

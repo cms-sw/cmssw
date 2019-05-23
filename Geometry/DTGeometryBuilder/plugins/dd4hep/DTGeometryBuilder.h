@@ -21,44 +21,35 @@ namespace cms {
   class DDFilteredView;
   class MuonNumbering;
   struct DDSpecPar;
-  
+
   class DTGeometryBuilder {
   public:
     DTGeometryBuilder() {}
     ~DTGeometryBuilder() {}
-    
+
     using Detector = dd4hep::Detector;
     using DDSpecParRefs = std::vector<const DDSpecPar*>;
 
-    void build(DTGeometry&,
-               const DDDetector*, 
-               const MuonNumbering&,
-	       const DDSpecParRefs&);
+    void build(DTGeometry&, const DDDetector*, const MuonNumbering&, const DDSpecParRefs&);
+
   private:
-    void buildGeometry(DDFilteredView&,
-		       DTGeometry&, const MuonNumbering&) const;
+    void buildGeometry(DDFilteredView&, DTGeometry&, const MuonNumbering&) const;
 
     /// create the chamber
-    DTChamber* buildChamber(const DDFilteredView&,
-                            const MuonNumbering&) const;
-    
+    DTChamber* buildChamber(const DDFilteredView&, const MuonNumbering&) const;
+
     /// create the SL
-    DTSuperLayer* buildSuperLayer(const DDFilteredView&,
-				  DTChamber*,
-				  const MuonNumbering&) const;
+    DTSuperLayer* buildSuperLayer(const DDFilteredView&, DTChamber*, const MuonNumbering&) const;
 
     /// create the layer
-    DTLayer* buildLayer(DDFilteredView&,
-			DTSuperLayer*,
-			const MuonNumbering&) const;
+    DTLayer* buildLayer(DDFilteredView&, DTSuperLayer*, const MuonNumbering&) const;
 
     using RCPPlane = ReferenceCountingPointer<Plane>;
 
-    RCPPlane plane(const DDFilteredView&,
-		   Bounds* bounds) const;
+    RCPPlane plane(const DDFilteredView&, Bounds* bounds) const;
 
     std::unique_ptr<cms::DTNumberingScheme> dtnum_ = nullptr;
   };
-}
+}  // namespace cms
 
 #endif

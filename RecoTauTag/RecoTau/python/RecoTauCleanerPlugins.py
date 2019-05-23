@@ -55,14 +55,6 @@ ptGt15 = cms.PSet(
     tolerance = tolerance_default,
 )
 
-# Prefer taus that have higher TaNC output values
-tanc = cms.PSet(
-    name = cms.string("TaNC"),
-    plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
-    src = cms.InputTag("DISCRIMINATOR_SRC"),
-    tolerance = tolerance_default,
-)
-
 leadPionFinding = cms.PSet(
     name = cms.string("LeadPion"),
     plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),

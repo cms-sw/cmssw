@@ -44,35 +44,33 @@
 // tested by themselves (which should be the case, since in the XML it was
 // required to write the "dependencies").
 template <typename T>
-void testSerialization()
-{
-    const std::string filename(std::string(typeid(T).name()) + ".bin");
+void testSerialization() {
+  const std::string filename(std::string(typeid(T).name()) + ".bin");
 
-    // C++ does not allow to construct const objects
-    // of non-POD types without user-provided default constructor
-    // (since it would be uninitialized), so we always create
-    // a non-const object.
-    T originalObject{};
-    const T & originalObjectRef = originalObject;
-    {
-        std::ofstream ofs(filename, std::ios::out | std::ios::binary);
-        cond::serialization::OutputArchive oa(ofs);
-        std::cout << "Serializing " << typeid(T).name() << " ..." << std::endl;
-        oa << originalObjectRef;
-    }
+  // C++ does not allow to construct const objects
+  // of non-POD types without user-provided default constructor
+  // (since it would be uninitialized), so we always create
+  // a non-const object.
+  T originalObject{};
+  const T& originalObjectRef = originalObject;
+  {
+    std::ofstream ofs(filename, std::ios::out | std::ios::binary);
+    cond::serialization::OutputArchive oa(ofs);
+    std::cout << "Serializing " << typeid(T).name() << " ..." << std::endl;
+    oa << originalObjectRef;
+  }
 
-    T deserializedObject;
-    {
-        std::ifstream ifs(filename, std::ios::in | std::ios::binary);
-        cond::serialization::InputArchive ia(ifs);
-        std::cout << "Deserializing " << typeid(T).name() << " ..." << std::endl;
-        ia >> deserializedObject;
-    }
+  T deserializedObject;
+  {
+    std::ifstream ifs(filename, std::ios::in | std::ios::binary);
+    cond::serialization::InputArchive ia(ifs);
+    std::cout << "Deserializing " << typeid(T).name() << " ..." << std::endl;
+    ia >> deserializedObject;
+  }
 
-    // TODO: First m,ake the Boost IO compile and run properly,
-    //       then focus again on the equal() functions.
-    //std::cout << "Checking " << typeid(T).name() << " ..." << std::endl;
-    //if (not cond::serialization::equal(originalObject, deserializedObject))
-    //    throw std::logic_error("Object is not equal.");
+  // TODO: First m,ake the Boost IO compile and run properly,
+  //       then focus again on the equal() functions.
+  //std::cout << "Checking " << typeid(T).name() << " ..." << std::endl;
+  //if (not cond::serialization::equal(originalObject, deserializedObject))
+  //    throw std::logic_error("Object is not equal.");
 }
-

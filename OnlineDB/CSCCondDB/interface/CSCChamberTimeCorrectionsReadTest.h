@@ -16,12 +16,12 @@
 #include "OnlineDB/CSCCondDB/interface/CSCCableRead.h"
 
 class CSCChamberTimeCorrectionsReadTest : public edm::EDAnalyzer {
- public:
+public:
   explicit CSCChamberTimeCorrectionsReadTest(const edm::ParameterSet&);
   ~CSCChamberTimeCorrectionsReadTest() override;
-  
- private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 };

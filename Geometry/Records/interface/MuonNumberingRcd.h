@@ -7,5 +7,6 @@
 #include "boost/mpl/vector.hpp"
 
 class MuonNumberingRcd : public edm::eventsetup::DependentRecordImplementation<
-MuonNumberingRcd, boost::mpl::vector<DDSpecParRegistryRcd, DetectorDescriptionRcd>> {};
+                             MuonNumberingRcd,
+                             boost::mpl::vector<DDSpecParRegistryRcd, DetectorDescriptionRcd>> {};
 #endif
