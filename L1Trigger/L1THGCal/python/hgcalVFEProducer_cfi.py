@@ -30,6 +30,12 @@ frontend_thickness_corrections = [c/c200 for c in frontend_thickness_corrections
 fCPerMIP_200 = fCPerMIPee[1]
 thicknessCorrection_200 = thicknessCorrection[1]
 
+# NOSE parameters
+fCPerMIPnose = recoparam.HGCalUncalibRecHit.HGCHFNoseConfig.fCPerMIP
+layerWeightsNose = recocalibparam.dEdX.weightsNose
+##thicknessCorrectionNose = recocalibparam.HGCalRecHit.thicknessNoseCorrection
+thicknessCorrectionNose = [0.759,0.760,0.773]
+
 # Parameters used in several places
 triggerCellLsbBeforeCompression = 100./1024.
 triggerCellTruncationBits = 0
@@ -55,9 +61,12 @@ vfe_proc = cms.PSet( ProcessorName = cms.string('HGCalVFEProcessorSums'),
                      rounding = cms.bool(True),
                      # Trigger cell calibration
                      fCperMIP = cms.double(fCPerMIP_200),
+                     fCperMIPnose = cms.vdouble(fCPerMIPnose),
                      dEdXweights = layerWeights,
+                     dEdXweightsNose = layerWeightsNose,
                      ThicknessCorrections = cms.vdouble(frontend_thickness_corrections),
-                     thickCorr = cms.double(thicknessCorrection_200)
+                     thickCorr = cms.double(thicknessCorrection_200),
+                     thickCorrNose = cms.vdouble(thicknessCorrectionNose),
                      )
 
 # isolate these refs in case they aren't available in some other WF
@@ -72,6 +81,7 @@ hgcalVFEProducer = cms.EDProducer(
         eeDigis = cms.InputTag('simHGCalUnsuppressedDigis:EE'),
         fhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEfront'),
         bhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEback'),
+        noseDigis = cms.InputTag('simHFNoseUnsuppressedDigis:HFNose'),
         ProcessorParameters = vfe_proc.clone()
        )
 
