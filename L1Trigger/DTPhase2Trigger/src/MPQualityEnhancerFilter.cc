@@ -133,9 +133,9 @@ void MPQualityEnhancerFilter::filterCousins(std::vector<metaPrimitive> &inMPaths
 void MPQualityEnhancerFilter::filterUnique(std::vector<metaPrimitive> &inMPaths,
 				  std::vector<metaPrimitive> &outMPaths)
 {
-    double xTh = 0;
-    double tPhiTh = 0; 
-    double t0Th = 0;
+    double xTh = 0.;
+    double tPhiTh = 0.; 
+    double t0Th = 0.;
     for (size_t i=0; i<inMPaths.size();i++){
 	bool visto = false; 
 	for (size_t j=i+1; j<inMPaths.size();j++){

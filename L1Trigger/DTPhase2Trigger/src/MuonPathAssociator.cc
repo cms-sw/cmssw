@@ -141,6 +141,8 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 
 	                    double newChi2 = (x1reco-x1)*(x1reco-x1)+(x2reco-x2)*(x2reco-x2)+(x3reco-x3)*(x3reco-x3)+(x4reco-x4)*(x4reco-x4)+(x5reco-x5)*(x5reco-x5)+(x6reco-x6)*(x6reco-x6)+(x7reco-x7)*(x7reco-x7)+(x8reco-x8)*(x8reco-x8);
 
+			    //if(newChi2>chi2corTh) continue;
+
 	                    int quality = 0;
 			    if(SL3metaPrimitive->quality <= 2 and SL1metaPrimitive->quality <=2) quality=6;
 	      
@@ -158,7 +160,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 			    double phi= jm_x_cmssw_global.phi()-0.5235988*(thisec-1);
 			    double psi=atan(NewSlope);
 			    double phiB=hasPosRF(ChId.wheel(),ChId.sector()) ? psi-phi :-psi-phi ;
-	      
+			    
 			    outMPaths.push_back(metaPrimitive({ChId.rawId(),MeanT0,MeanPos,NewSlope,phi,phiB,newChi2,quality,
 					    SL1metaPrimitive->wi1,SL1metaPrimitive->tdc1,SL1metaPrimitive->lat1,
 					    SL1metaPrimitive->wi2,SL1metaPrimitive->tdc2,SL1metaPrimitive->lat2,
@@ -248,7 +250,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 			    if(best_layer==2) {wi2=best_wire; tdc2=best_tdc; lat2=best_lat;}
 			    if(best_layer==3) {wi3=best_wire; tdc3=best_tdc; lat3=best_lat;}
 			    if(best_layer==4) {wi4=best_wire; tdc4=best_tdc; lat4=best_lat;}    
-	      
+			    
 			    outMPaths.push_back(metaPrimitive({ChId.rawId(),SL1metaPrimitive->t0,SL1metaPrimitive->x,SL1metaPrimitive->tanPhi,SL1metaPrimitive->phi,SL1metaPrimitive->phiB,SL1metaPrimitive->chi2,
 					    new_quality,
 					    SL1metaPrimitive->wi1,SL1metaPrimitive->tdc1,SL1metaPrimitive->lat1,
@@ -352,7 +354,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 			    if(best_layer==2) {wi2=best_wire; tdc2=best_tdc; lat2=best_lat;}
 			    if(best_layer==3) {wi3=best_wire; tdc3=best_tdc; lat3=best_lat;}
 			    if(best_layer==4) {wi4=best_wire; tdc4=best_tdc; lat4=best_lat;}    
-				   
+			    
 			    outMPaths.push_back(metaPrimitive({ChId.rawId(),SL3metaPrimitive->t0,SL3metaPrimitive->x,SL3metaPrimitive->tanPhi,SL3metaPrimitive->phi,SL3metaPrimitive->phiB,SL3metaPrimitive->chi2,
 					    new_quality,
 					    wi1,tdc1,lat1,
