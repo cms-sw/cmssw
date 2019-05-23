@@ -13,39 +13,38 @@
 
 using namespace edm;
 
-AnalyticalPropagatorESProducer::AnalyticalPropagatorESProducer(const edm::ParameterSet & p) 
-{
+AnalyticalPropagatorESProducer::AnalyticalPropagatorESProducer(const edm::ParameterSet& p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
   pset_ = p;
-  setWhatProduced(this,myname);
+  setWhatProduced(this, myname);
 }
 
 AnalyticalPropagatorESProducer::~AnalyticalPropagatorESProducer() {}
 
-std::unique_ptr<Propagator> 
-AnalyticalPropagatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
-//   if (_propagator){
-//     delete _propagator;
-//     _propagator = 0;
-//   }
+std::unique_ptr<Propagator> AnalyticalPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord) {
+  //   if (_propagator){
+  //     delete _propagator;
+  //     _propagator = 0;
+  //   }
   ESHandle<MagneticField> magfield;
   std::string mfName = "";
   if (pset_.exists("SimpleMagneticField"))
     mfName = pset_.getParameter<std::string>("SimpleMagneticField");
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfName,magfield);
+  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfName, magfield);
   //  edm::ESInputTag mfESInputTag(mfName);
   //  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,magfield);
 
   std::string pdir = pset_.getParameter<std::string>("PropagationDirection");
-  double dphiCut   = pset_.getParameter<double>("MaxDPhi");   
+  double dphiCut = pset_.getParameter<double>("MaxDPhi");
 
   PropagationDirection dir = alongMomentum;
-  
-  if (pdir == "oppositeToMomentum") dir = oppositeToMomentum;
-  if (pdir == "alongMomentum") dir = alongMomentum;
-  if (pdir == "anyDirection") dir = anyDirection;
-  
-  return std::make_unique<AnalyticalPropagator>(&(*magfield), dir,dphiCut);
+
+  if (pdir == "oppositeToMomentum")
+    dir = oppositeToMomentum;
+  if (pdir == "alongMomentum")
+    dir = alongMomentum;
+  if (pdir == "anyDirection")
+    dir = anyDirection;
+
+  return std::make_unique<AnalyticalPropagator>(&(*magfield), dir, dphiCut);
 }
-
-

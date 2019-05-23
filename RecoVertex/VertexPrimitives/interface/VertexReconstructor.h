@@ -11,25 +11,20 @@
  */
 
 class VertexReconstructor {
-
 public:
-
   VertexReconstructor() {}
   virtual ~VertexReconstructor() {}
 
   /** Reconstruct vertices
    */
-  virtual std::vector<TransientVertex> 
-    vertices(const std::vector<reco::TransientTrack> &) const = 0; 
+  virtual std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &) const = 0;
 
   /** Reconstruct vertices, exploiting the beamspot constraint
    *  for the primary vertex
    */
-  virtual std::vector<TransientVertex> 
-    vertices( const std::vector<reco::TransientTrack> & t, const 
-              reco::BeamSpot & ) const
-  {
-    return vertices ( t );
+  virtual std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &t,
+                                                const reco::BeamSpot &) const {
+    return vertices(t);
   }
 
   /** Reconstruct vertices, but exploit the fact that you know
@@ -41,16 +36,13 @@ public:
    *  tracks are subjected to pattern recognition.
    *  \paramname spot A beamspot constraint is mandatory in this method.
    */
-  virtual std::vector<TransientVertex>
-    vertices( const std::vector<reco::TransientTrack> & primaries,
-        const std::vector<reco::TransientTrack> & tracks,
-        const reco::BeamSpot & spot ) const 
-  {
-    return vertices ( tracks, spot );
+  virtual std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &primaries,
+                                                const std::vector<reco::TransientTrack> &tracks,
+                                                const reco::BeamSpot &spot) const {
+    return vertices(tracks, spot);
   }
 
-  virtual VertexReconstructor * clone() const = 0;
-
+  virtual VertexReconstructor *clone() const = 0;
 };
 
 #endif

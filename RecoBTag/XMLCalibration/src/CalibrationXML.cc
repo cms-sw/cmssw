@@ -15,126 +15,117 @@
 
 using namespace std;
 
-
 XERCES_CPP_NAMESPACE_USE
 
-CalibrationXML::CalibrationXML() : errHandler(nullptr), parser(nullptr)
-{
+CalibrationXML::CalibrationXML() : errHandler(nullptr), parser(nullptr) {}
 
+CalibrationXML::~CalibrationXML() {
+  //TODO: delete!!!!
+  if (errHandler)
+    delete errHandler;
+  if (parser) {
+    delete parser;
+    cms::concurrency::xercesTerminate();
+  }
 }
 
-CalibrationXML::~CalibrationXML()
-{
-//TODO: delete!!!!	
-if(errHandler) delete errHandler;
-if(parser)  { 
-              delete parser;
-              cms::concurrency::xercesTerminate();
-            }
+void CalibrationXML::openFile(const std::string& xmlFileName) {
+  if (errHandler)
+    delete errHandler;
+  if (parser) {
+    delete parser;
+    cms::concurrency::xercesTerminate();
+  }
+
+  m_xmlFileName = xmlFileName;
+  // std::cout << "Opening.." << std::endl;
+  // Initialize the XML4C2 system
+  try {
+    cms::concurrency::xercesInitialize();
+  } catch (const XMLException& toCatch) {
+    std::cerr << "Error during Xerces-c Initialization.\n"
+              << "  Exception message:" << XMLString::transcode(toCatch.getMessage()) << std::endl;
+    abort();
+    //FIXME		throw GenTerminate("Error during Xerces-c Initialization.");
+  }
+  parser = new XercesDOMParser;
+  parser->setValidationScheme(XercesDOMParser::Val_Auto);
+  parser->setDoNamespaces(false);
+  parser->setDoSchema(false);
+  parser->setValidationSchemaFullChecking(false);
+  errHandler = new HandlerBase;
+  parser->setErrorHandler(errHandler);
+  parser->setCreateEntityReferenceNodes(false);
+  //  Parse the XML file, catching any XML exceptions that might propogate out of it.
+  bool errorsOccured = false;
+  try {
+    edm::LogInfo("XMLCalibration") << "Calibration XML: parsing " << m_xmlFileName.c_str() << std::endl;
+    parser->parse(m_xmlFileName.c_str());
+    int errorCount = parser->getErrorCount();
+    if (errorCount > 0)
+      errorsOccured = true;
+  } catch (const XMLException& e) {
+    std::cerr << "A DOM error occured during parsing\n   DOMException code: " << (long unsigned int)e.getCode()
+              << std::endl;
+    errorsOccured = true;
+  }
+  // If the parse was successful, build the structure we want to have
+  if (errorsOccured) {
+    std::cerr << "An error occured during parsing\n"
+              << "Please check your input with SAXCount or a similar tool.\n Exiting!\n"
+              << std::endl;
+    abort();
+    //FIXME		throw GenTerminate("An error occured during parsing\n Please check your input with SAXCount or a similar tool.\n Exiting!\n");
+  }
+
+  doc = parser->getDocument();
+  DOMNode* n1 = doc->getFirstChild();
+
+  while (n1) {
+    if (n1->getNodeType() == DOMNode::ELEMENT_NODE)
+      break;
+    n1 = n1->getNextSibling();
+  }
+
+  if (n1 == nullptr || strcmp("Calibration", XMLString::transcode(n1->getNodeName())))
+    abort();
+  //FIXME		throw GenTerminate("The root element in the XML Calibration file is not a Calibration element.\n This should be forbidden at the DTD level.");
+  else {
+    edm::LogInfo("XMLCalibration") << "Calibration found";
+  }
+
+  m_calibrationDOM = (DOMElement*)n1;
 }
 
-void CalibrationXML::openFile(const std::string & xmlFileName) 
-{
-if(errHandler) delete errHandler;
-if(parser) { delete parser; cms::concurrency::xercesTerminate(); }
+void CalibrationXML::saveFile(const std::string& xmlFileName) {
+  DOMImplementation* theImpl = DOMImplementationRegistry::getDOMImplementation(XMLString::transcode("Core"));
+  DOMLSSerializer* theSerializer = ((DOMImplementation*)theImpl)->createLSSerializer();
+  DOMConfiguration* dc = theSerializer->getDomConfig();
+  dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
 
- m_xmlFileName = xmlFileName;
-// std::cout << "Opening.." << std::endl;
-	// Initialize the XML4C2 system
-	try
-        {
-	        cms::concurrency::xercesInitialize();
-        }
-	catch(const XMLException& toCatch)
-	{
-		std::cerr << "Error during Xerces-c Initialization.\n"
-		     << "  Exception message:"
-		     << XMLString::transcode(toCatch.getMessage()) << std::endl;
-   abort();
-//FIXME		throw GenTerminate("Error during Xerces-c Initialization.");
-	}
-	parser = new XercesDOMParser;
-	parser->setValidationScheme(XercesDOMParser::Val_Auto);
-	parser->setDoNamespaces(false);
-	parser->setDoSchema(false);
-	parser->setValidationSchemaFullChecking(false);
-	errHandler = new HandlerBase;
-	parser->setErrorHandler(errHandler);
-	parser->setCreateEntityReferenceNodes(false);
-	//  Parse the XML file, catching any XML exceptions that might propogate out of it.
-	bool errorsOccured = false;
-	try
-	{
-		  edm::LogInfo("XMLCalibration") << "Calibration XML: parsing " << m_xmlFileName.c_str() << std::endl;
-		parser->parse(m_xmlFileName.c_str());
-		int errorCount = parser->getErrorCount();
-		if (errorCount > 0) errorsOccured = true;
-	}
-	catch (const XMLException& e)
-	{
-		std::cerr << "A DOM error occured during parsing\n   DOMException code: "
-		     << (long unsigned int)e.getCode() << std::endl;
-		errorsOccured = true;
-	}
-	// If the parse was successful, build the structure we want to have
-	if(errorsOccured) { 
-		std::cerr << "An error occured during parsing\n"
-		     <<	"Please check your input with SAXCount or a similar tool.\n Exiting!\n" << std::endl; 
-abort();
-//FIXME		throw GenTerminate("An error occured during parsing\n Please check your input with SAXCount or a similar tool.\n Exiting!\n");
-	}
+  XMLFormatTarget* myFormTarget = new LocalFileFormatTarget(XMLString::transcode(xmlFileName.c_str()));
+  DOMLSOutput* outputDesc = ((DOMImplementationLS*)theImpl)->createLSOutput();
+  outputDesc->setByteStream(myFormTarget);
 
-	doc = parser->getDocument();
-	DOMNode* n1 = doc->getFirstChild();
-
-        while(n1)
-        {
-                if (n1->getNodeType() == DOMNode::ELEMENT_NODE   ) break;
-                n1 = n1->getNextSibling();
-        }
-	
-	if(n1 == nullptr || strcmp("Calibration",XMLString::transcode(n1->getNodeName())))
-abort();
-//FIXME		throw GenTerminate("The root element in the XML Calibration file is not a Calibration element.\n This should be forbidden at the DTD level.");
-	else {   edm::LogInfo("XMLCalibration")  << "Calibration found" ; }	
-
-	m_calibrationDOM = (DOMElement *) n1;
-    
-
-
+  theSerializer->write(doc, outputDesc);
+  delete myFormTarget;
 }
 
-void CalibrationXML::saveFile(const std::string & xmlFileName)
-{
-    DOMImplementation *	theImpl = DOMImplementationRegistry::getDOMImplementation(XMLString::transcode("Core"));
-    DOMLSSerializer *   theSerializer = ((DOMImplementation*)theImpl)->createLSSerializer();
-    DOMConfiguration* dc = theSerializer->getDomConfig();
-    dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+DOMElement* CalibrationXML::addChild(DOMNode* dom, const std::string& name) {
+  DOMNode* n1 = dom;
+  int level = 0;
+  std::string indent = "\n";
+  while (n1 && level < 100) {
+    level++;
+    indent += "  ";
+    n1 = n1->getParentNode();
+  }
+  assert(dom);
+  if (dom->getFirstChild() == nullptr)
+    dom->appendChild(dom->getOwnerDocument()->createTextNode(XMLString::transcode(indent.c_str())));
 
-    XMLFormatTarget* myFormTarget = new LocalFileFormatTarget(XMLString::transcode(xmlFileName.c_str()));
-    DOMLSOutput* outputDesc = ((DOMImplementationLS*)theImpl)->createLSOutput();
-    outputDesc->setByteStream(myFormTarget);
-
-    theSerializer->write(doc, outputDesc);
-     delete myFormTarget;	  
+  DOMElement* child =
+      (DOMElement*)dom->appendChild(dom->getOwnerDocument()->createElement(XMLString::transcode(name.c_str())));
+  dom->appendChild(dom->getOwnerDocument()->createTextNode(XMLString::transcode(indent.c_str())));
+  return child;
 }
-
-DOMElement * CalibrationXML::addChild(DOMNode *dom,const std::string & name)
-{ 
-	  DOMNode *n1 = dom;
-	  int level=0;
-	  std::string indent="\n";
-	  while(n1 && level < 100)
-	  {
-	   level++;
-	   indent+="  ";
-	   n1 = n1->getParentNode();
-	  }
-	  assert(dom); 
-	  if(dom->getFirstChild()==nullptr)
-             dom->appendChild(dom->getOwnerDocument()->createTextNode(XMLString::transcode(indent.c_str()))); 
-         
-	  DOMElement * child = (DOMElement *)dom->appendChild(dom->getOwnerDocument()->createElement(XMLString::transcode(name.c_str()))); 
-          dom->appendChild(dom->getOwnerDocument()->createTextNode(XMLString::transcode(indent.c_str())));           
-	  return child;
-}  

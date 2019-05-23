@@ -14,20 +14,18 @@
 #include <RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h>
 #include <memory>
 
-
-class  MuonDetLayerGeometryESProducer: public edm::ESProducer{
- public:
+class MuonDetLayerGeometryESProducer : public edm::ESProducer {
+public:
   /// Constructor
-  MuonDetLayerGeometryESProducer(const edm::ParameterSet & p);
+  MuonDetLayerGeometryESProducer(const edm::ParameterSet& p);
 
   /// Destructor
-  ~MuonDetLayerGeometryESProducer() override; 
+  ~MuonDetLayerGeometryESProducer() override;
 
   /// Produce MuonDeLayerGeometry.
-  std::unique_ptr<MuonDetLayerGeometry> produce(const MuonRecoGeometryRecord & record);
+  std::unique_ptr<MuonDetLayerGeometry> produce(const MuonRecoGeometryRecord& record);
 
- private:
+private:
 };
-
 
 #endif

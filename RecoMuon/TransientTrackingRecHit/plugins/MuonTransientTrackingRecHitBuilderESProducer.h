@@ -15,11 +15,13 @@
 
 #include <memory>
 
-namespace edm {class ParameterSet;}
+namespace edm {
+  class ParameterSet;
+}
 
 class TransientRecHitRecord;
 
-class MuonTransientTrackingRecHitBuilderESProducer: public edm::ESProducer {
+class MuonTransientTrackingRecHitBuilderESProducer : public edm::ESProducer {
 public:
   /// Constructor
   MuonTransientTrackingRecHitBuilderESProducer(const edm::ParameterSet&);
@@ -31,7 +33,6 @@ public:
   std::unique_ptr<TransientTrackingRecHitBuilder> produce(const TransientRecHitRecord&);
 
 protected:
-
 private:
 };
 #endif

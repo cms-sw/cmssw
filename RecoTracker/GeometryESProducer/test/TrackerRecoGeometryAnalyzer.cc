@@ -18,7 +18,7 @@ using namespace std;
 
 class TrackerRecoGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  TrackerRecoGeometryAnalyzer( const edm::ParameterSet& );
+  TrackerRecoGeometryAnalyzer(const edm::ParameterSet&);
   ~TrackerRecoGeometryAnalyzer();
 
   void beginJob() override {}
@@ -26,34 +26,28 @@ public:
   void endJob() override {}
 };
 
-TrackerRecoGeometryAnalyzer::TrackerRecoGeometryAnalyzer( const edm::ParameterSet& iConfig )
-{}
+TrackerRecoGeometryAnalyzer::TrackerRecoGeometryAnalyzer(const edm::ParameterSet& iConfig) {}
 
-TrackerRecoGeometryAnalyzer::~TrackerRecoGeometryAnalyzer()
-{}
+TrackerRecoGeometryAnalyzer::~TrackerRecoGeometryAnalyzer() {}
 
-void
-TrackerRecoGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
-   using namespace edm;
+void TrackerRecoGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   //
-   // get the GeometricSearchDet
-   //
-   edm::ESHandle<GeometricSearchTracker> track;
-   iSetup.get<TrackerRecoGeometryRecord>().get( track );     
-   
-   //---- testing access to barrelLayers ----
-   vector<const BarrelDetLayer*> theBarrelLayers = track->barrelLayers();
-   edm::LogInfo("TrackerRecoGeometryAnalyzer") << "number of BarrelLayers: " << theBarrelLayers.size() ;
+  //
+  // get the GeometricSearchDet
+  //
+  edm::ESHandle<GeometricSearchTracker> track;
+  iSetup.get<TrackerRecoGeometryRecord>().get(track);
 
-   for(unsigned int i=0; i<3; i++){
-     const BarrelDetLayer* theLayer = theBarrelLayers[i];   
-     edm::LogInfo("TrackerRecoGeometryAnalyzer") << "theLayer[" << i << "]->position().perp(): " 
-	  << theLayer->components().front()->surface().position().perp() ;     
-   }   
+  //---- testing access to barrelLayers ----
+  vector<const BarrelDetLayer*> theBarrelLayers = track->barrelLayers();
+  edm::LogInfo("TrackerRecoGeometryAnalyzer") << "number of BarrelLayers: " << theBarrelLayers.size();
+
+  for (unsigned int i = 0; i < 3; i++) {
+    const BarrelDetLayer* theLayer = theBarrelLayers[i];
+    edm::LogInfo("TrackerRecoGeometryAnalyzer")
+        << "theLayer[" << i << "]->position().perp(): " << theLayer->components().front()->surface().position().perp();
+  }
 }
 
 DEFINE_FWK_MODULE(TrackerRecoGeometryAnalyzer);
- 
- 

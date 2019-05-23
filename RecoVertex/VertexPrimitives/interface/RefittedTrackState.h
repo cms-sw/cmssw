@@ -19,17 +19,15 @@ class Propagator;
 
 template <unsigned int N>
 class RefittedTrackState : public ReferenceCounted {
-
 public:
+  //   typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > AlgebraicMatrixN3;
+  typedef ROOT::Math::SVector<double, N> AlgebraicVectorN;
+  typedef ROOT::Math::SVector<double, N - 2> AlgebraicVectorM;
+  //   typedef ROOT::Math::SMatrix<double,N,3,ROOT::Math::MatRepStd<double,N,3> > AlgebraicMatrixN3;
+  //   typedef ROOT::Math::SMatrix<double,N-2,3,ROOT::Math::MatRepStd<double,N-2,3> > AlgebraicMatrixM3;
+  typedef ROOT::Math::SMatrix<double, N, N, ROOT::Math::MatRepSym<double, N> > AlgebraicSymMatrixNN;
 
-//   typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > AlgebraicMatrixN3;
-  typedef ROOT::Math::SVector<double,N> AlgebraicVectorN;
-  typedef ROOT::Math::SVector<double,N-2> AlgebraicVectorM;
-//   typedef ROOT::Math::SMatrix<double,N,3,ROOT::Math::MatRepStd<double,N,3> > AlgebraicMatrixN3;
-//   typedef ROOT::Math::SMatrix<double,N-2,3,ROOT::Math::MatRepStd<double,N-2,3> > AlgebraicMatrixM3;
-  typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > AlgebraicSymMatrixNN;
-
-  ~RefittedTrackState() override{}
+  ~RefittedTrackState() override {}
 
   /**
    * Transformation into a FreeTrajectoryState
@@ -39,15 +37,14 @@ public:
   /**
    * Transformation into a TSOS at a given surface
    */
-  virtual TrajectoryStateOnSurface trajectoryStateOnSurface(
-  		const Surface & surface) const = 0;
+  virtual TrajectoryStateOnSurface trajectoryStateOnSurface(const Surface& surface) const = 0;
 
   /**
    * Transformation into a TSOS at a given surface, with a given propagator
    */
 
-  virtual TrajectoryStateOnSurface trajectoryStateOnSurface(
-		const Surface & surface, const Propagator & propagator) const = 0;
+  virtual TrajectoryStateOnSurface trajectoryStateOnSurface(const Surface& surface,
+                                                            const Propagator& propagator) const = 0;
 
   /**
    * Vector containing the refitted track parameters.
@@ -81,12 +78,10 @@ public:
    * The current state is unchanged.
    */
 
-  virtual ReferenceCountingPointer<RefittedTrackState> stateWithNewWeight
-  	(const double newWeight) const = 0;
+  virtual ReferenceCountingPointer<RefittedTrackState> stateWithNewWeight(const double newWeight) const = 0;
 
-  virtual std::vector< ReferenceCountingPointer<RefittedTrackState> > components() const = 0;
+  virtual std::vector<ReferenceCountingPointer<RefittedTrackState> > components() const = 0;
 
   virtual reco::TransientTrack transientTrack() const = 0;
-
 };
 #endif
