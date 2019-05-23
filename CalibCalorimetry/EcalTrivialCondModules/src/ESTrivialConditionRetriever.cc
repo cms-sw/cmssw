@@ -70,7 +70,7 @@ ESTrivialConditionRetriever::ESTrivialConditionRetriever( const edm::ParameterSe
   intercalibConstantsFile_ = ps.getUntrackedParameter<std::string>("intercalibConstantsFile","") ;
 
   if (producedESIntercalibConstants_) { // user asks to produce constants
-    if(intercalibConstantsFile_ == "") {  // if file provided read constants
+    if(intercalibConstantsFile_.empty()) {  // if file provided read constants
       //    setWhatProduced (this, &ESTrivialConditionRetriever::getIntercalibConstantsFromConfiguration ) ;
       //  } else { // set all constants to 1. or smear as specified by user
         setWhatProduced (this, &ESTrivialConditionRetriever::produceESIntercalibConstants ) ;
@@ -97,7 +97,7 @@ ESTrivialConditionRetriever::ESTrivialConditionRetriever( const edm::ParameterSe
   channelStatusFile_ = ps.getUntrackedParameter<std::string>("channelStatusFile","");
 
   if ( producedESChannelStatus_ ) {
-          if ( channelStatusFile_ != "" ) { // if file provided read channel map
+          if ( !channelStatusFile_.empty() ) { // if file provided read channel map
                   setWhatProduced( this, &ESTrivialConditionRetriever::getChannelStatusFromConfiguration );
           } else { // set all channels to working -- FIXME might be changed
                   setWhatProduced( this, &ESTrivialConditionRetriever::produceESChannelStatus );
