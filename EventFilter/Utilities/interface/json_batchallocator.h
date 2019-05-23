@@ -1,8 +1,8 @@
 #ifndef JSONCPP_BATCHALLOCATOR_H_INCLUDED
 # define JSONCPP_BATCHALLOCATOR_H_INCLUDED
 
-# include <stdlib.h>
-# include <assert.h>
+# include <cassert>
+# include <cstdlib>
 
 # ifndef JSONCPP_DOC_EXCLUDE_IMPLEMENTATION
 
@@ -95,8 +95,8 @@ private:
    };
 
    // disabled copy constructor and assignement operator.
-   BatchAllocator( const BatchAllocator & );
-   void operator =( const BatchAllocator &);
+   BatchAllocator( const BatchAllocator & ) = delete;
+   void operator =( const BatchAllocator &) = delete;
 
    static BatchInfo *allocateBatch( unsigned int objectsPerPage )
    {

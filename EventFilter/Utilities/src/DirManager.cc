@@ -46,7 +46,7 @@ namespace evf{
       if((unsigned int)atoi(dirnameNum.c_str()) ==run){tmpdir = buf->d_name; break;}
     }
     closedir(dir);
-    if(tmpdir=="") throw cms::Exception("LogicError") << "Run Directory for Run " << run << " Not Found";
+    if(tmpdir.empty()) throw cms::Exception("LogicError") << "Run Directory for Run " << run << " Not Found";
     retval += tmpdir;
     return retval;
   }
