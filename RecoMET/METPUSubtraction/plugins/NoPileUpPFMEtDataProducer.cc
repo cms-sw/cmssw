@@ -163,7 +163,7 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
   auto pfCandInfos = std::make_unique<reco::PUSubMETCandInfoCollection>();
  
   const JetCorrector* jetEnOffsetCorrector = nullptr;
-  if ( jetEnOffsetCorrLabel_ != "" ) {
+  if ( !jetEnOffsetCorrLabel_.empty() ) {
     jetEnOffsetCorrector = JetCorrector::getJetCorrector(jetEnOffsetCorrLabel_, es);
     if ( !jetEnOffsetCorrector )  
       throw cms::Exception("NoPileUpPFMEtDataProducer::produce")
