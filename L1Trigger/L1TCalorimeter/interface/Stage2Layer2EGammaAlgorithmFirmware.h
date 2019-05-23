@@ -16,41 +16,40 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2EGammaAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
-namespace l1t
-{
+namespace l1t {
 
   // Imp1 is for v1 and v2
-  class Stage2Layer2EGammaAlgorithmFirmwareImp1 : public Stage2Layer2EGammaAlgorithm
-  {
-    public:
-      Stage2Layer2EGammaAlgorithmFirmwareImp1(CaloParamsHelper const* params); //const CaloMainProcessorParams & dbPars);
-      ~Stage2Layer2EGammaAlgorithmFirmwareImp1() override =default;
-      void processEvent(const std::vector<CaloCluster>& clusters, const std::vector<CaloTower>& towers, std::vector<EGamma>& egammas) override;
+  class Stage2Layer2EGammaAlgorithmFirmwareImp1 : public Stage2Layer2EGammaAlgorithm {
+  public:
+    Stage2Layer2EGammaAlgorithmFirmwareImp1(CaloParamsHelper const* params);  //const CaloMainProcessorParams & dbPars);
+    ~Stage2Layer2EGammaAlgorithmFirmwareImp1() override = default;
+    void processEvent(const std::vector<CaloCluster>& clusters,
+                      const std::vector<CaloTower>& towers,
+                      std::vector<EGamma>& egammas) override;
 
-    private:
-      // trimming
-      l1t::CaloCluster trimCluster(const l1t::CaloCluster& clus);
-      unsigned int trimmingLutIndex(unsigned int shape, int iEta);
-      // shape
-      unsigned int returnShape(const l1t::CaloCluster& clus);
-      // shape
-      int returnHoE(const l1t::CaloTower& tow);
-      // identification
-      bool idShape(const l1t::CaloCluster& clus, int hwPt);
-      unsigned int idShapeLutIndex(int iEta, int E, int shape);
-      // isolation
-      int isoCalEgHwFootPrint(const l1t::CaloCluster&,const std::vector<l1t::CaloTower>&);
-      unsigned isoLutIndex(int iEta,unsigned int nrTowers,int E);
-      // calibration
-      int calibratedPt(const l1t::CaloCluster& clus, int hwPt);
-      unsigned int calibrationLutIndex(int iEta, int E, int shape);
-      bool idHoverE_ext(const l1t::CaloTower tow);
+  private:
+    // trimming
+    l1t::CaloCluster trimCluster(const l1t::CaloCluster& clus);
+    unsigned int trimmingLutIndex(unsigned int shape, int iEta);
+    // shape
+    unsigned int returnShape(const l1t::CaloCluster& clus);
+    // shape
+    int returnHoE(const l1t::CaloTower& tow);
+    // identification
+    bool idShape(const l1t::CaloCluster& clus, int hwPt);
+    unsigned int idShapeLutIndex(int iEta, int E, int shape);
+    // isolation
+    int isoCalEgHwFootPrint(const l1t::CaloCluster&, const std::vector<l1t::CaloTower>&);
+    unsigned isoLutIndex(int iEta, unsigned int nrTowers, int E);
+    // calibration
+    int calibratedPt(const l1t::CaloCluster& clus, int hwPt);
+    unsigned int calibrationLutIndex(int iEta, int E, int shape);
+    bool idHoverE_ext(const l1t::CaloTower tow);
 
-    private:
-      CaloParamsHelper const* params_;
-
+  private:
+    CaloParamsHelper const* params_;
   };
 
-}
+}  // namespace l1t
 
 #endif

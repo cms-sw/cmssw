@@ -17,29 +17,25 @@
 using namespace std;
 using namespace l1t;
 
-Stage1Layer2JetAlgorithmImpPP::Stage1Layer2JetAlgorithmImpPP(CaloParamsHelper const* params) : params_(params) {};
+Stage1Layer2JetAlgorithmImpPP::Stage1Layer2JetAlgorithmImpPP(CaloParamsHelper const* params) : params_(params){};
 
-
-void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegion> & regions,
-						 const std::vector<l1t::CaloEmCand> & EMCands,
-						 std::vector<l1t::Jet> * jets,
-						 std::vector<l1t::Jet> * preGtJets){
-
-
-  std::vector<l1t::CaloRegion>  subRegions;
-  std::vector<l1t::Jet>  uncalibjets;
-  std::vector<l1t::Jet>  unSortedJets;
-  std::vector<l1t::Jet>  preGtEtaJets;
+void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegion>& regions,
+                                                 const std::vector<l1t::CaloEmCand>& EMCands,
+                                                 std::vector<l1t::Jet>* jets,
+                                                 std::vector<l1t::Jet>* preGtJets) {
+  std::vector<l1t::CaloRegion> subRegions;
+  std::vector<l1t::Jet> uncalibjets;
+  std::vector<l1t::Jet> unSortedJets;
+  std::vector<l1t::Jet> preGtEtaJets;
 
   double towerLsb = params_->towerLsbSum();
-  int jetSeedThreshold = floor( params_->jetSeedThreshold()/towerLsb + 0.5);
+  int jetSeedThreshold = floor(params_->jetSeedThreshold() / towerLsb + 0.5);
   std::string jetCalibrationType = params_->jetCalibrationType();
   std::vector<double> jetCalibrationParams = params_->jetCalibrationParams();
 
   //Region Correction will return uncorrected subregions
   //if regionPUSType is set to None in the config
   RegionCorrection(regions, &subRegions, params_);
-
 
   slidingWindowJetFinder(jetSeedThreshold, &subRegions, &uncalibjets);
 
