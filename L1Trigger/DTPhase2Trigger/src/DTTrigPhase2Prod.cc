@@ -414,8 +414,14 @@ bool DTTrigPhase2Prod::hasPosRF(int wh,int sec){
 }
 
 void DTTrigPhase2Prod::printmP(metaPrimitive mP){
-    DTSuperLayerId slId(mP.rawId);
-    std::cout<<slId<<"\t"
+    DTChamberId chId(mP.rawId);
+    if(!chId){
+	std::cout<<"this is not a valid rawId: "<<mP.rawId<<std::endl; 
+    }
+    
+    assert(chId);
+    
+    std::cout<<chId<<"\t"
              <<" "<<setw(2)<<left<<mP.wi1
              <<" "<<setw(2)<<left<<mP.wi2
              <<" "<<setw(2)<<left<<mP.wi3
@@ -428,6 +434,7 @@ void DTTrigPhase2Prod::printmP(metaPrimitive mP){
              <<" "<<setw(9)<<left<<mP.tanPhi
              <<" "<<setw(5)<<left<<mP.t0
              <<" "<<setw(13)<<left<<mP.chi2
+             <<" "<<setw(2)<<left<<mP.index
              <<" r:"<<rango(mP);
 }
 

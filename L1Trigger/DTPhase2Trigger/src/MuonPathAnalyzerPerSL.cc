@@ -96,12 +96,9 @@ void MuonPathAnalyzerPerSL::initialise(const edm::EventSetup& iEventSetup) {
 
 void MuonPathAnalyzerPerSL::run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<MuonPath*> &muonpaths, std::vector<metaPrimitive> &metaPrimitives) {
     if (debug) cout <<"MuonPathAnalyzerPerSL: run" << endl;
-
-    // fit per SL (need to allow for multiple outputs for a single mpath)
     for(auto muonpath = muonpaths.begin();muonpath!=muonpaths.end();++muonpath) {
 	analyze(*muonpath, metaPrimitives);
     }
-
 }
 
 void MuonPathAnalyzerPerSL::finish() {

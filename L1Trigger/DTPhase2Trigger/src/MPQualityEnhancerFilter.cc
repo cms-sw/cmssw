@@ -147,8 +147,33 @@ void MPQualityEnhancerFilter::filterUnique(std::vector<metaPrimitive> &inMPaths,
 
 
 void MPQualityEnhancerFilter::printmP(metaPrimitive mP){
-    DTSuperLayerId slId(mP.rawId);
-    std::cout<<slId<<"\t"
+
+    std::cout<<"printing MP"<<std::endl;
+
+    std::cout<<" "<<setw(2)<<left<<mP.wi1
+	     <<" "<<setw(2)<<left<<mP.wi2
+	     <<" "<<setw(2)<<left<<mP.wi3
+	     <<" "<<setw(2)<<left<<mP.wi4
+	     <<" "<<setw(5)<<left<<mP.tdc1
+	     <<" "<<setw(5)<<left<<mP.tdc2
+	     <<" "<<setw(5)<<left<<mP.tdc3
+	     <<" "<<setw(5)<<left<<mP.tdc4
+	     <<" "<<setw(10)<<right<<mP.x
+	     <<" "<<setw(9)<<left<<mP.tanPhi
+	     <<" "<<setw(5)<<left<<mP.t0
+	     <<" "<<setw(13)<<left<<mP.chi2
+	     <<" "<<setw(13)<<left<<mP.index
+	     <<" "<<setw(13)<<left<<mP.rawId
+	     <<" r:"<<rango(mP);
+
+    return; //we are getting all null mP
+    
+    DTChamberId chId(mP.rawId);
+    if(!chId){
+	std::cout<<"this is not a valid rawId: "<<mP.rawId<<std::endl;
+    }
+    assert(chId);
+    std::cout<<chId<<"\t"
 	     <<" "<<setw(2)<<left<<mP.wi1
 	     <<" "<<setw(2)<<left<<mP.wi2
 	     <<" "<<setw(2)<<left<<mP.wi3
@@ -161,6 +186,8 @@ void MPQualityEnhancerFilter::printmP(metaPrimitive mP){
 	     <<" "<<setw(9)<<left<<mP.tanPhi
 	     <<" "<<setw(5)<<left<<mP.t0
 	     <<" "<<setw(13)<<left<<mP.chi2
+	     <<" "<<setw(13)<<left<<mP.index
+	     <<" "<<setw(13)<<left<<mP.rawId
 	     <<" r:"<<rango(mP);
 }
 
