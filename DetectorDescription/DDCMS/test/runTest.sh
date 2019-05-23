@@ -20,6 +20,7 @@ F15=${LOCAL_TEST_DIR}/python/testDDSpecParsFilterG4ProdCuts.py
 F16=${LOCAL_TEST_DIR}/python/testDDSpecParsFilter.py
 F17=${LOCAL_TEST_DIR}/python/testMuonNumbering.py
 F18=${LOCAL_TEST_DIR}/python/testDDHGCalCellAlgorithm.py
+F19=${LOCAL_TEST_DIR}/python/testDDGEMAngularAlgorithm.py
 
 echo " testing DetectorDescription/DDCMS"
 
@@ -61,4 +62,6 @@ echo "===== Test \"cmsRun testDDSpecParsFilter.py\" ===="
 echo "===== Test \"cmsRun testMuonNumbering.py\" ===="
 (cmsRun $F17) || die "Failure using cmsRun $F17" $?
 echo "===== Test \"cmsRun testDDHGCalCellAlgorithm.py\" ===="
-(cmsRun $F18) || die "Failure using cmsRun $F15" $?
+(cmsRun $F18) || die "Failure using cmsRun $F18" $?
+echo "===== Test \"cmsRun testDDGEMAngularAlgorithm.py\" ===="
+(cmsRun $F19) || die "Failure using cmsRun $F19" $?
