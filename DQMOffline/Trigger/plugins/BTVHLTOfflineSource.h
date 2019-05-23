@@ -116,7 +116,7 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
       {};
 
   public:
-    ~PathInfo() = default;;
+    ~PathInfo() override = default;;
     PathInfo(int prescaleUsed,
         std::string pathName,
         std::string filterName,
