@@ -85,9 +85,11 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset){
     grcode = pset.getUntrackedParameter<Int_t>("grouping_code");
     
     if (grcode == 0) grouping_obj = new InitialGrouping(pset);
+    if (grcode == 1) grouping_obj = new HoughGrouping(pset);
+    if (grcode == 2) grouping_obj = new PseudoBayesGrouping(pset);
     else {
-	if (debug) cout << "DTp2::constructor: Non-valid grouping code. Choosing InitialGrouping by default." << endl;
-	grouping_obj = new InitialGrouping(pset);
+        if (debug) cout << "DTp2::constructor: Non-valid grouping code. Choosing InitialGrouping by default." << endl;
+        grouping_obj = new InitialGrouping(pset);
     }
     
     mpathanalyzer        = new MuonPathAnalyzerPerSL(pset);
@@ -154,6 +156,7 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
 
 
 void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
+    if(debug) cout << "DTTrigPhase2Prod::produce " << iRun.id().run() << endl;
     edm::Handle<DTDigiCollection> dtdigis;
     iEvent.getByToken(dtDigisToken, dtdigis);
     
@@ -176,20 +179,26 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
     // generate a list muon paths for each event!!!
     std::vector<MuonPath*> muonpaths;
     for (std::vector<const DTChamber*>::const_iterator ich = dtGeo->chambers().begin(); ich != dtGeo->chambers().end(); ich++) {
-	const DTChamber* chamb  = (*ich);
-	DTChamberId chid        = chamb->id();
-	DTDigiMap_iterator dmit = digiMap.find(chid);
-    
-	if (dmit !=digiMap.end()) grouping_obj->run(iEvent, iEventSetup, (*dmit).second, &muonpaths);  // New grouping implementation
+        const DTChamber* chamb  = (*ich);
+        DTChamberId chid        = chamb->id();
+        DTDigiMap_iterator dmit = digiMap.find(chid);
+        
+        if (dmit !=digiMap.end()) grouping_obj->run(iEvent, iEventSetup, (*dmit).second, &muonpaths);  // New grouping implementation
     }
-
+    
     digiMap.clear();
-
+    
+    
+    if ((grcode != 0) && debug) {
+        cout << "DTTrigPhase2Prod::produce - WARNING: non-standard grouping chosen. Further execution still not functioning." << endl;
+        return
+    }
+  
     // FILTER GROUPING
     std::vector<MuonPath*> filteredmuonpaths;
     mpathredundantfilter->run(iEvent, iEventSetup, muonpaths,filteredmuonpaths);
 
-    if(debug) std::cout<<"deleting muonpaths"<<std::endl;    
+    if(debug) std::cout<<"deleting muonpaths"<<std::endl;
     for (unsigned int i=0; i<muonpaths.size(); i++){
       delete muonpaths[i];
     }
