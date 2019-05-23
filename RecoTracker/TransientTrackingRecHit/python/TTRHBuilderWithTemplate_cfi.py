@@ -12,6 +12,8 @@ from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU
 trackingPhase2PU140.toModify(TTRHBuilderAngleAndTemplate, Phase2StripCPE = cms.string('Phase2StripCPE'))
 
 # uncomment these two lines to turn on Cluster Repair CPE
-from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toModify(TTRHBuilderAngleAndTemplate, PixelCPE = cms.string('PixelCPEClusterRepair'))
+from Configuration.StandardSequences.MagneticField_cff import *
+if ParabolicParametrizedMagneticFieldProducer.valueOverride != 0:
+    from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+    phase1Pixel.toModify(TTRHBuilderAngleAndTemplate, PixelCPE = cms.string('PixelCPEClusterRepair'))
 
