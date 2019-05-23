@@ -14,6 +14,8 @@ MuonPathAssociator::MuonPathAssociator(const ParameterSet& pset) {
     debug            = pset.getUntrackedParameter<Bool_t>("debug");
     dT0_correlate_TP = pset.getUntrackedParameter<double>("dT0_correlate_TP");
     minx_match_2digis = pset.getUntrackedParameter<double>("minx_match_2digis");
+    chi2corTh = pset.getUntrackedParameter<double>("chi2corTh");
+
     if (debug) cout <<"MuonPathAssociator: constructor" << endl;
 
     //shift

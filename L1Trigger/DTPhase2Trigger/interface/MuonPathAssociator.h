@@ -71,6 +71,7 @@ private:
   // Private attributes
   double dT0_correlate_TP;
   double minx_match_2digis;
+  double chi2corTh;
   Bool_t debug;
 
   //shift

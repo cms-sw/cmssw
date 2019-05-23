@@ -80,6 +80,9 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset){
     rpcRecHitsLabel = consumes<RPCRecHitCollection>(pset.getUntrackedParameter < edm::InputTag > ("rpcRecHits"));
     useRPC = pset.getUntrackedParameter<bool>("useRPC");
   
+
+
+
     
     // Choosing grouping scheme:
     grcode = pset.getUntrackedParameter<Int_t>("grouping_code");
