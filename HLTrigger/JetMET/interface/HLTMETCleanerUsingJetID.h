@@ -24,40 +24,38 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
-
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 // Class declaration
 class HLTMETCleanerUsingJetID : public edm::stream::EDProducer<> {
-  public:
-    explicit HLTMETCleanerUsingJetID(const edm::ParameterSet & iConfig);
-    ~HLTMETCleanerUsingJetID() override;
+public:
+  explicit HLTMETCleanerUsingJetID(const edm::ParameterSet& iConfig);
+  ~HLTMETCleanerUsingJetID() override;
 
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    void produce(edm::Event& iEvent, const edm::EventSetup & iSetup) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  private:
+private:
+  /// Minimum pt requirement for jets
+  double minPt_;
 
-    /// Minimum pt requirement for jets
-    double          minPt_;
+  /// Maximum (abs) eta requirement for jets
+  double maxEta_;
 
-    /// Maximum (abs) eta requirement for jets
-    double          maxEta_;
+  /// Input tag for the MET collection
+  edm::InputTag metLabel_;
 
-    /// Input tag for the MET collection
-    edm::InputTag   metLabel_;
+  /// Input tag for the 'all jets' collection
+  edm::InputTag jetsLabel_;
 
-    /// Input tag for the 'all jets' collection
-    edm::InputTag   jetsLabel_;
+  /// Input tag for the 'good jets' collection
+  edm::InputTag goodJetsLabel_;
 
-    /// Input tag for the 'good jets' collection
-    edm::InputTag   goodJetsLabel_;
-
-    edm::EDGetTokenT<reco::CaloMETCollection> m_theMETToken;
-    edm::EDGetTokenT<reco::CaloJetCollection> m_theJetToken;
-    edm::EDGetTokenT<reco::CaloJetCollection> m_theGoodJetToken;
+  edm::EDGetTokenT<reco::CaloMETCollection> m_theMETToken;
+  edm::EDGetTokenT<reco::CaloJetCollection> m_theJetToken;
+  edm::EDGetTokenT<reco::CaloJetCollection> m_theGoodJetToken;
 };
 
 #endif  // HLTMETCleanerUsingJetID_h_
