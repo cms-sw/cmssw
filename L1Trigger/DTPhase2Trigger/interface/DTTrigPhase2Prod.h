@@ -22,8 +22,10 @@
 #include "L1Trigger/DTPhase2Trigger/interface/PseudoBayesGrouping.h"
 #include "L1Trigger/DTPhase2Trigger/interface/MuonPathAnalyzer.h"
 #include "L1Trigger/DTPhase2Trigger/interface/MuonPathAnalyzerPerSL.h"
-#include "L1Trigger/DTPhase2Trigger/interface/MuonPathFilter.h"
 #include "L1Trigger/DTPhase2Trigger/interface/MuonPathAssociator.h"
+#include "L1Trigger/DTPhase2Trigger/interface/MPFilter.h"
+#include "L1Trigger/DTPhase2Trigger/interface/MPQualityEnhancerFilter.h"
+#include "L1Trigger/DTPhase2Trigger/interface/MPRedundantFilter.h"
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
@@ -39,6 +41,7 @@
 //RPC TP
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
 
 #include <fstream>
@@ -64,15 +67,17 @@ class DTTrigPhase2Prod: public edm::EDProducer{
     //! Producer: process every event and generates trigger data
     void produce(edm::Event & iEvent, const edm::EventSetup& iEventSetup) override;
     
-    //! endRun: finish things
-    void endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
+//! endRun: finish things
+void endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
     
     edm::ESHandle<DTGeometry> dtGeo;
+    edm::ESHandle<RPCGeometry> rpcGeo;
 
     std::vector<std::pair<int,MuonPath>> primitives;
 
-    bool outer(metaPrimitive primera);
-    bool inner(metaPrimitive primera);
+    int rango(metaPrimitive mp);
+    bool outer(metaPrimitive mp);
+    bool inner(metaPrimitive mp);
     void printmP(metaPrimitive mP);
 
     double trigPos(metaPrimitive mP);
@@ -120,8 +125,13 @@ class DTTrigPhase2Prod: public edm::EDProducer{
     Int_t grcode; // Grouping code
     MotherGrouping* grouping_obj;
     MuonPathAnalyzer* mpathanalyzer;
-    MuonPathFilter* mpathfilter;
+    MPFilter*   mpathqualityenhancer;
+    MPFilter*   mpathredundantfilter;
     MuonPathAssociator* mpathassociator;
+
+    // RPC
+    bool useRPC;
+    GlobalPoint getRPCGlobalPosition(RPCDetId rpcId, const RPCRecHit& rpcIt) const;
     
 };
 

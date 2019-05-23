@@ -4,6 +4,28 @@
 #include "math.h"
 #include <iostream>
 
+MuonPath::MuonPath() {
+  //    std::cout<<"Creando un 'MuonPath'"<<std::endl;
+    
+    quality[0]       = NOPATH;
+    baseChannelId[0] = -1;
+
+    for (int i = 0; i <= 3; i++) {
+      prim[i] = new DTPrimitive();     
+    }
+    
+    nprimitives = 4;
+    bxTimeValue[0] = -1;
+    bxNumId[0]     = -1;
+    tanPhi[0]      = 0;
+    horizPos[0]    = 0;
+    chiSquare[0]   = 0;
+    for (int i = 0; i <= 3; i++) {
+      lateralComb[0][i] = LEFT;
+      setXCoorCell     ( 0, i );
+      setDriftDistance ( 0, i );
+    }
+}
 
 MuonPath::MuonPath(DTPrimitive *ptrPrimitive[4]) {
   //    std::cout<<"Creando un 'MuonPath'"<<std::endl;
@@ -210,7 +232,7 @@ bool MuonPath::isEqualTo(MuonPath *ptr) {
      * (valor "dummy") no tiene sentido considerarlos diferentes porque 
      * haya cambiado la lateralidad.
      */
-    for (int i = 0; i <= 7; i++) {
+  for (int i = 0; i < ptr->getNPrimitives(); i++) {
 	/* Ambas válidas: comprobamos diferencias entre 'hits' */
 	if (this->getPrimitive(i)->isValidTime() && ptr->getPrimitive(i)->isValidTime() )
 	    {

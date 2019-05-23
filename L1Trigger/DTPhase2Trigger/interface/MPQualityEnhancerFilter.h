@@ -1,5 +1,5 @@
-#ifndef Phase2L1Trigger_DTTrigger_MuonPathFilter_cc
-#define Phase2L1Trigger_DTTrigger_MuonPathFilter_cc
+#ifndef Phase2L1Trigger_DTTrigger_MPQualityEnhancerFilter_cc
+#define Phase2L1Trigger_DTTrigger_MPQualityEnhancerFilter_cc
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -15,18 +15,11 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 
 #include "L1Trigger/DTPhase2Trigger/interface/muonpath.h"
 #include "L1Trigger/DTPhase2Trigger/interface/analtypedefs.h"
 #include "L1Trigger/DTPhase2Trigger/interface/constants.h"
-#include "L1Trigger/DTPhase2Trigger/interface/MuonPathFilter.h"
-
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambDigi.h"
+#include "L1Trigger/DTPhase2Trigger/interface/MPFilter.h"
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
@@ -50,18 +43,19 @@
 // Class declarations
 // ===============================================================================
 
-class MuonPathFilter {
+class MPQualityEnhancerFilter : public MPFilter {
  public:
   // Constructors and destructor
-  MuonPathFilter(const edm::ParameterSet& pset);
-  virtual ~MuonPathFilter();
+  MPQualityEnhancerFilter(const edm::ParameterSet& pset);
+  virtual ~MPQualityEnhancerFilter();
     
   // Main methods
   void initialise(const edm::EventSetup& iEventSetup);
   void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath);
+  void run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, std::vector<MuonPath*> &inMPath, std::vector<MuonPath*> &outMPath){};
   
   void finish();
-    
+  
   // Other public methods
   
   // Public attributes
@@ -73,12 +67,11 @@ class MuonPathFilter {
   // Private methods
   void filterCousins(std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath);
   void filterTanPhi(std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath);
-
+  void filterUnique(std::vector<metaPrimitive> &inMPath, std::vector<metaPrimitive> &outMPath);
   
   // Private attributes
   Bool_t debug;
   bool filter_cousins;
-  double tanPhiTh;
 };
 
 
