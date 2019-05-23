@@ -314,22 +314,28 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 	  if(inner((*metaPrimitiveIt))) sl=1;
 	  else sl=3;
       }
+
+
+      double shift_back=0;
+      if (iEvent.eventAuxiliary().bunchCrossing() == -1) //FIX MC                                                                                                 
+	  shift_back = 400.;
+
       
       if(p2_df==2){
-	if(debug)std::cout<<"pushing back phase-2 dataformat carlo-federica dataformat"<<std::endl;
-	outP2Ph.push_back(L1Phase2MuDTPhDigi((int)round((*metaPrimitiveIt).t0/25.),   // ubx (m_bx) //bx en la orbita
-					     chId.wheel(),   // uwh (m_wheel)     // FIXME: It is not clear who provides this?
-					     sectorTP,   // usc (m_sector)    // FIXME: It is not clear who provides this?
-					     chId.station(),   // ust (m_station)
-					     sl,   // ust (m_station)
+	  if(debug)std::cout<<"pushing back phase-2 dataformat carlo-federica dataformat"<<std::endl;
+	  outP2Ph.push_back(L1Phase2MuDTPhDigi((int)round((*metaPrimitiveIt).t0/25.)-shift_back,   // ubx (m_bx) //bx en la orbita
+					       chId.wheel(),   // uwh (m_wheel)     // FIXME: It is not clear who provides this?
+					       sectorTP,   // usc (m_sector)    // FIXME: It is not clear who provides this?
+					       chId.station(),   // ust (m_station)
+					       sl,   // ust (m_station)
 					     (int)round((*metaPrimitiveIt).phi*65536./0.8), // uphi (_phiAngle)
-					     (int)round((*metaPrimitiveIt).phiB*2048./1.4), // uphib (m_phiBending)
+					       (int)round((*metaPrimitiveIt).phiB*2048./1.4), // uphib (m_phiBending)
 					     (*metaPrimitiveIt).quality,  // uqua (m_qualityCode)
-					     (*metaPrimitiveIt).index,  // uind (m_segmentIndex)
-					     (int)round((*metaPrimitiveIt).t0),  // ut0 (m_t0Segment)
-					     (int)round((*metaPrimitiveIt).chi2*1000000),  // uchi2 (m_chi2Segment)
-					     -10    // urpc (m_rpcFlag)
-					     ));
+					       (*metaPrimitiveIt).index,  // uind (m_segmentIndex)
+					       (int)round((*metaPrimitiveIt).t0)-shift_back*400,  // ut0 (m_t0Segment)
+					       (int)round((*metaPrimitiveIt).chi2*1000000),  // uchi2 (m_chi2Segment)
+					       -10    // urpc (m_rpcFlag)
+					       ));
 	
       }
     }
