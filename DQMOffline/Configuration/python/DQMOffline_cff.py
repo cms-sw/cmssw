@@ -77,8 +77,7 @@ DQMOfflinePOG = cms.Sequence( DQMOfflinePrePOG *
 HLTMonitoring = cms.Sequence( OfflineHLTMonitoring )
 HLTMonitoringPA = cms.Sequence( OfflineHLTMonitoringPA )
 
-DQMOffline = cms.Sequence( DQMOfflinePF*
-                           DQMOfflinePreDPG *
+DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            DQMOfflinePrePOG *
                            HLTMonitoring *
                            # dqmFastTimerServiceLuminosity *
@@ -178,7 +177,7 @@ DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
 
 from DQMOffline.Muon.miniAOD_cff import *
 
-DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*muonMonitors_miniAOD*MuonMiniAOD)
+DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*muonMonitors_miniAOD*MuonMiniAOD*DQMOfflinePF)
 
 #Post sequences are automatically placed in the EndPath by ConfigBuilder if PAT is run.
 #miniAOD DQM sequences need to access the filter results.
