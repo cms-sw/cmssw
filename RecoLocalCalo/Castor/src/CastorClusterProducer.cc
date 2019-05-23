@@ -120,7 +120,7 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   LogDebug("CastorClusterProducer")
     <<"3. entering CastorClusterProducer";
   
-  if ( input_ != "") {
+  if ( !input_.empty()) {
   
   // Produce CastorClusters from CastorTowers
   
@@ -150,7 +150,7 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   
   }
   
-  if ( basicjets_ != "") {
+  if ( !basicjets_.empty()) {
   
   	Handle<BasicJetCollection> bjCollection;
    	iEvent.getByToken(tok_jets_,bjCollection);
