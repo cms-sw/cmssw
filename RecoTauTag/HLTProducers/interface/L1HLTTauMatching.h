@@ -16,21 +16,18 @@
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
-
 #include <map>
 #include <vector>
-class L1HLTTauMatching: public edm::global::EDProducer<> {
- public:
+class L1HLTTauMatching : public edm::global::EDProducer<> {
+public:
   explicit L1HLTTauMatching(const edm::ParameterSet&);
   ~L1HLTTauMatching() override;
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-    
+private:
   const edm::EDGetTokenT<reco::PFTauCollection> jetSrc;
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tauTrigger;
   const double mEt_Min;
-
 };
 #endif
