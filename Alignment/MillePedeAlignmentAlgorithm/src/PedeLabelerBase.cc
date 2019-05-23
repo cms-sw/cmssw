@@ -20,23 +20,19 @@
 const unsigned int PedeLabelerBase::theMaxNumParam = RigidBodyAlignmentParameters::N_PARAM + 14;
 // NOTE: Changing the offset of '700000' makes older binary files unreadable...
 const unsigned int PedeLabelerBase::theParamInstanceOffset = 700000;
-const unsigned int PedeLabelerBase::theMinLabel = 1; // must be > 0
+const unsigned int PedeLabelerBase::theMinLabel = 1;  // must be > 0
 
-PedeLabelerBase::PedeLabelerBase(const TopLevelAlignables &alignables,
-				 const edm::ParameterSet &config) :
-  theOpenRunRange(std::make_pair<RunNumber,RunNumber>(RunNumber(cond::timeTypeSpecs[cond::runnumber].beginValue), // since we know we have a runnumber here, we can
-                                                      RunNumber(cond::timeTypeSpecs[cond::runnumber].endValue))), // simply convert the Time_t to make the compiler happy
-  topLevelAlignables_(alignables),
-  alignableObjectId_{AlignableObjectId::commonObjectIdProvider(alignables.aliTracker_,
-                                                               alignables.aliMuon_)}
-{
-  
-}
+PedeLabelerBase::PedeLabelerBase(const TopLevelAlignables &alignables, const edm::ParameterSet &config)
+    : theOpenRunRange(std::make_pair<RunNumber, RunNumber>(
+          RunNumber(cond::timeTypeSpecs[cond::runnumber].beginValue),  // since we know we have a runnumber here, we can
+          RunNumber(
+              cond::timeTypeSpecs[cond::runnumber].endValue))),  // simply convert the Time_t to make the compiler happy
+      topLevelAlignables_(alignables),
+      alignableObjectId_{AlignableObjectId::commonObjectIdProvider(alignables.aliTracker_, alignables.aliMuon_)} {}
 
 //___________________________________________________________________________
-std::pair<IntegratedCalibrationBase*, unsigned int>
-PedeLabelerBase::calibrationParamFromLabel(unsigned int label) const
-{
+std::pair<IntegratedCalibrationBase *, unsigned int> PedeLabelerBase::calibrationParamFromLabel(
+    unsigned int label) const {
   // Quick check whether label is in range of calibration labels:
   if (!theCalibrationLabels.empty() && label >= theCalibrationLabels.front().second) {
     // Loop on all known IntegratedCalibration's:
@@ -53,12 +49,11 @@ PedeLabelerBase::calibrationParamFromLabel(unsigned int label) const
   }
 
   // Return that nothing fits:
-  return std::pair<IntegratedCalibrationBase*, unsigned int>(nullptr,0);
+  return std::pair<IntegratedCalibrationBase *, unsigned int>(nullptr, 0);
 }
 
 //___________________________________________________________________________
-unsigned int PedeLabelerBase::firstFreeLabel() const
-{
+unsigned int PedeLabelerBase::firstFreeLabel() const {
   unsigned int nextId = this->firstNonAlignableLabel();
 
   for (auto iCal = theCalibrationLabels.begin(); iCal != theCalibrationLabels.end(); ++iCal) {
@@ -69,16 +64,12 @@ unsigned int PedeLabelerBase::firstFreeLabel() const
 }
 
 //___________________________________________________________________________
-unsigned int PedeLabelerBase::firstNonAlignableLabel() const
-{
-  
+unsigned int PedeLabelerBase::firstNonAlignableLabel() const {
   return this->parameterInstanceOffset() * this->maxNumberOfParameterInstances() + 1;
 }
 
 //___________________________________________________________________________
-unsigned int PedeLabelerBase::calibrationLabel(const IntegratedCalibrationBase* calib,
-                                               unsigned int paramNum) const
-{
+unsigned int PedeLabelerBase::calibrationLabel(const IntegratedCalibrationBase *calib, unsigned int paramNum) const {
   if (!calib) {
     throw cms::Exception("LogicError") << "PedeLabelerBase::calibrationLabel: "
                                        << "nullPtr passed!\n";
@@ -86,29 +77,26 @@ unsigned int PedeLabelerBase::calibrationLabel(const IntegratedCalibrationBase* 
 
   // loop on all known IntegratedCalibration's
   for (auto iCal = theCalibrationLabels.begin(); iCal != theCalibrationLabels.end(); ++iCal) {
-    if (iCal->first == calib) { // found IntegratedCalibrationBase
+    if (iCal->first == calib) {  // found IntegratedCalibrationBase
       if (paramNum < iCal->first->numParameters()) {
         return iCal->second + paramNum;
-      } else { // paramNum out of range!
-        edm::LogError("LogicError")
-          << "@SUB=PedeLabelerBase::calibrationLabel" << "IntegratedCalibration "
-          << calib->name() << " has only " << iCal->first->numParameters()
-          << " parameters, but " << paramNum << "requested!";
+      } else {  // paramNum out of range!
+        edm::LogError("LogicError") << "@SUB=PedeLabelerBase::calibrationLabel"
+                                    << "IntegratedCalibration " << calib->name() << " has only "
+                                    << iCal->first->numParameters() << " parameters, but " << paramNum << "requested!";
       }
     }
   }
-  
-  edm::LogError("LogicError")
-    << "@SUB=PedeLabelerBase::calibrationLabel" << "IntegratedCalibration "
-    << calib->name() << " not known or too few parameters.";
-  
+
+  edm::LogError("LogicError") << "@SUB=PedeLabelerBase::calibrationLabel"
+                              << "IntegratedCalibration " << calib->name() << " not known or too few parameters.";
+
   return 0;
 }
 
 //___________________________________________________________________________
-void PedeLabelerBase::addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals)
-{
-  unsigned int nextId = this->firstFreeLabel(); // so far next free label
+void PedeLabelerBase::addCalibrations(const std::vector<IntegratedCalibrationBase *> &iCals) {
+  unsigned int nextId = this->firstFreeLabel();  // so far next free label
 
   // Now foresee labels for new calibrations:
   for (auto iCal = iCals.begin(); iCal != iCals.end(); ++iCal) {
@@ -116,8 +104,8 @@ void PedeLabelerBase::addCalibrations(const std::vector<IntegratedCalibrationBas
       theCalibrationLabels.push_back(std::make_pair(*iCal, nextId));
       nextId += (*iCal)->numParameters();
     } else {
-      edm::LogError("LogicError")
-        << "@SUB=PedeLabelerBase::addCalibrations" << "Ignoring nullPtr.";
+      edm::LogError("LogicError") << "@SUB=PedeLabelerBase::addCalibrations"
+                                  << "Ignoring nullPtr.";
     }
   }
 }
