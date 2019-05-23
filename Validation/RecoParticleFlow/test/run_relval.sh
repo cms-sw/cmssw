@@ -18,17 +18,21 @@ if [ -z "$PERJOB" ]; then
     PERJOB=200
 fi
 
+#
 #set default conditions - 2017
-CONDITIONS=auto:phase1_2017_realistic
-ERA=Run2_2017,run2_nanoAOD_94XMiniAODv1
-#CONDITIONS=auto:phase1_2018_realistic
-#ERA=Run2_2018
+#CONDITIONS=auto:phase1_2017_realistic
+#ERA=Run2_2017,run2_nanoAOD_94XMiniAODv1
+#
+#set default conditions - 2018
+CONDITIONS=auto:phase1_2018_realistic
+ERA=Run2_2018
+#
 #Running with 2 threads allows to use more memory on grid
 NTHREADS=2
 
 #Argument parsing
 if [ "$#" -ne 3 ]; then
-    echo "Must pass exactly 3 arguments: run_relval.sh [QCD|QCDPU|ZMM|MinBias] [reco|dqm] [njob]"
+    echo "Must pass exactly 3 arguments: run_relval.sh [QCD|QCDPU|ZMM|MinBias|NuGunPU] [reco|dqm] [njob]"
     exit 0
 fi
 
@@ -52,23 +56,19 @@ fi
 
 ##RelVal samples
 if [ "$1" == "QCD" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/QCD_FlatPt_noPU/RelValQCD_FlatPt_15_3000HS_13__CMSSW_10_4_0_pre4-103X_mc2017_realistic_v2-v1__GEN-SIM-DIGI-RAW.txt
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/QCD_noPU.txt
     NAME=QCD
 elif [ "$1" == "QCDPU" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/QCD_FlatPt_PU25ns/RelValQCD_FlatPt_15_3000HS_13__CMSSW_10_4_0_pre4-PU25ns_103X_mc2017_realistic_v2-v1__GEN-SIM-DIGI-RAW.txt
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/QCD_PU.txt
     NAME=QCDPU
 elif [ "$1" == "ZMM" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/ZMM/RelValZMM_13__CMSSW_10_4_0_pre4-103X_mc2017_realistic_v2-v1__GEN-SIM-DIGI-RAW.txt
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/ZMM.txt
     NAME=ZMM
 elif [ "$1" == "MinBias" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/MinBias/RelValMinBias_13__CMSSW_10_4_0_pre4-103X_mc2017_realistic_v2-v1__GEN-SIM-DIGI-RAW.txt
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/MinBias.txt
     NAME=MinBias
 elif [ "$1" == "NuGunPU" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/NuGun_PU25ns/RelValNuGun__CMSSW_10_5_0_pre1-PU25ns_103X_mc2017_realistic_v2_HS-v1__GEN-SIM-DIGI-RAW.txt
-
-
-
-MinBias/RelValMinBias_13__CMSSW_10_4_0_pre4-103X_mc2017_realistic_v2-v1__GEN-SIM-DIGI-RAW.txt # temporary hack
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/NuGun_PU.txt
     NAME=NuGunPU
 else
     echo "Argument 1 must be [QCD|QCDPU|ZMM|MinBias|NuGunPU] but was $1"
@@ -108,7 +108,7 @@ if [ $STEP == "RECO" ]; then
     echo "FILENAME="$FILENAME
     #Run the actual CMS reco with particle flow.
     echo "Running step RECO" 
-    cmsDriver.py step3 --runUnscheduled  --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier RECOSIM,AODSIM,MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent RECOSIM,AODSIM,MINIAODSIM --filein file:$FILENAME --fileout file:step3.root | tee step3.log  2>&1
+    cmsDriver.py step3 --runUnscheduled  --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier RECOSIM,AODSIM,MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent RECOSIM,AODSIM,MINIAODSIM --filein $FILENAME --fileout file:step3.root | tee step3.log  2>&1
    
     #NanoAOD
     #On lxplus, this step takes about 1 minute / 1000 events

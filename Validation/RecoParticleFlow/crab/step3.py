@@ -2,12 +2,12 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: step3 --runUnscheduled --conditions auto:phase1_2017_realistic -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier RECOSIM,AODSIM,MINIAODSIM --nThreads 1 -n -1 --era Run2_2017,run2_nanoAOD_94XMiniAODv1 --eventcontent RECOSIM,AODSIM,MINIAODSIM --filein file:root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_4_0_pre4/RelValQCD_FlatPt_15_3000HS_13/GEN-SIM-DIGI-RAW/103X_mc2017_realistic_v2-v1/20000/E6912801-7DEE-6A4C-97F6-4A2FC7B15673.root --fileout file:step3.root
+# with command line options: step3 --runUnscheduled --conditions auto:phase1_2018_realistic -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier RECOSIM,AODSIM,MINIAODSIM --nThreads 2 -n -1 --era Run2_2018 --eventcontent RECOSIM,AODSIM,MINIAODSIM --filein /store/relval/CMSSW_10_6_0/RelValQCD_FlatPt_15_3000HS_13/GEN-SIM-DIGI-RAW/106X_upgrade2018_realistic_v4-v1/10000/B9C0D6C4-3A33-A64B-A764-4F012E12CD0C.root --fileout file:step3.root
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 
-process = cms.Process('RECO',eras.Run2_2017,eras.run2_nanoAOD_94XMiniAODv1)
+process = cms.Process('RECO',Run2_2018)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -33,12 +33,12 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_4_0_pre4/RelValQCD_FlatPt_15_3000HS_13/GEN-SIM-DIGI-RAW/103X_mc2017_realistic_v2-v1/20000/E6912801-7DEE-6A4C-97F6-4A2FC7B15673.root'),
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_10_6_0/RelValQCD_FlatPt_15_3000HS_13/GEN-SIM-DIGI-RAW/106X_upgrade2018_realistic_v4-v1/10000/B9C0D6C4-3A33-A64B-A764-4F012E12CD0C.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
 process.options = cms.untracked.PSet(
-    numberOfThreads = cms.untracked.uint32(2)
+
 )
 
 # Production Info
@@ -142,7 +142,7 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
@@ -187,6 +187,11 @@ process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,proces
 process.schedule.associate(process.patTask)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
+
+#Setup FWK for multithreaded
+process.options.numberOfThreads=cms.untracked.uint32(2)
+process.options.numberOfStreams=cms.untracked.uint32(0)
+process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(1)
 
 #do not add changes to your config after this point (unless you know what you are doing)
 from FWCore.ParameterSet.Utilities import convertToUnscheduled
