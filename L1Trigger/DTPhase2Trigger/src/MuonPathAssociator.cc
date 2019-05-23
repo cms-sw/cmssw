@@ -113,8 +113,35 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 			    double NewSlope=(PosSL1-PosSL3)/23.5;     
 			    double MeanT0=(SL1metaPrimitive->t0+SL3metaPrimitive->t0)/2;
 			    double MeanPos=(PosSL3+PosSL1)/2;
-			    double newChi2=(SL1metaPrimitive->chi2+SL3metaPrimitive->chi2)*0.5;//to be recalculated
-			    int quality = 0;
+			    //double newChi2=(SL1metaPrimitive->chi2+SL3metaPrimitive->chi2)*0.5;//to be recalculated
+			   
+			    DTSuperLayerId SLId1(SL1metaPrimitive->rawId);
+             		    DTSuperLayerId SLId3(SL3metaPrimitive->rawId);
+
+           		    DTWireId wireId1(SLId1,2,1);
+           	     	    DTWireId wireId3(SLId3,2,1);
+
+           		    double x1 = shiftinfo[wireId1.rawId()]+(42.*SL1metaPrimitive->wi1+21. + (21./386.74)*(SL1metaPrimitive->tdc1-MeanT0)*(-1+2*SL1metaPrimitive->lat1))/10;
+             		    double x2 = shiftinfo[wireId1.rawId()]+(42.*SL1metaPrimitive->wi2+(21./386.74)*(SL1metaPrimitive->tdc2-MeanT0)*(-1+2*SL1metaPrimitive->lat2))/10;
+           		    double x3 = shiftinfo[wireId1.rawId()]+(42.*SL1metaPrimitive->wi3+21. + (21./386.74)*(SL1metaPrimitive->tdc3-MeanT0)*(-1+2*SL1metaPrimitive->lat3))/10;
+             		    double x4 = shiftinfo[wireId1.rawId()]+(42.*SL1metaPrimitive->wi4+(21./386.74)*(SL1metaPrimitive->tdc4-MeanT0)*(-1+2*SL1metaPrimitive->lat4))/10;
+              		    double x5 = shiftinfo[wireId3.rawId()]+(42.*SL3metaPrimitive->wi1+21. + (21./386.74)*(SL3metaPrimitive->tdc1-MeanT0)*(-1+2*SL3metaPrimitive->lat1))/10;
+            		    double x6 = shiftinfo[wireId3.rawId()]+(42.*SL3metaPrimitive->wi2+(21./386.74)*(SL3metaPrimitive->tdc2-MeanT0)*(-1+2*SL3metaPrimitive->lat2))/10;
+              		    double x7 = shiftinfo[wireId3.rawId()]+(42.*SL3metaPrimitive->wi3+21. + (21./386.74)*(SL3metaPrimitive->tdc3-MeanT0)*(-1+2*SL3metaPrimitive->lat3))/10;
+             		    double x8 = shiftinfo[wireId3.rawId()]+(42.*SL3metaPrimitive->wi4+(21./386.74)*(SL3metaPrimitive->tdc4-MeanT0)*(-1+2*SL3metaPrimitive->lat4))/10;
+
+            		    double x1reco = MeanPos+(23.5/2 - (1-2.5)*1.3)*NewSlope;
+             		    double x2reco = MeanPos+(23.5/2 - (2-2.5)*1.3)*NewSlope;
+             		    double x3reco = MeanPos+(23.5/2 - (3-2.5)*1.3)*NewSlope;
+              		    double x4reco = MeanPos+(23.5/2 - (4-2.5)*1.3)*NewSlope;
+              		    double x5reco = MeanPos+(-23.5/2 - (1-2.5)*1.3)*NewSlope;
+            		    double x6reco = MeanPos+(-23.5/2 - (2-2.5)*1.3)*NewSlope;
+             		    double x7reco = MeanPos+(-23.5/2 - (3-2.5)*1.3)*NewSlope;
+            		    double x8reco = MeanPos+(-23.5/2 - (4-2.5)*1.3)*NewSlope;
+
+	                    double newChi2 = (x1reco-x1)*(x1reco-x1)+(x2reco-x2)*(x2reco-x2)+(x3reco-x3)*(x3reco-x3)+(x4reco-x4)*(x4reco-x4)+(x5reco-x5)*(x5reco-x5)+(x6reco-x6)*(x6reco-x6)+(x7reco-x7)*(x7reco-x7)+(x8reco-x8)*(x8reco-x8);
+
+	                    int quality = 0;
 			    if(SL3metaPrimitive->quality <= 2 and SL1metaPrimitive->quality <=2) quality=6;
 	      
 			    if((SL3metaPrimitive->quality >= 3 && SL1metaPrimitive->quality <=2)
@@ -133,14 +160,14 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 			    double phiB=hasPosRF(ChId.wheel(),ChId.sector()) ? psi-phi :-psi-phi ;
 	      
 			    outMPaths.push_back(metaPrimitive({ChId.rawId(),MeanT0,MeanPos,NewSlope,phi,phiB,newChi2,quality,
-					    SL1metaPrimitive->wi1,SL1metaPrimitive->tdc1,
-					    SL1metaPrimitive->wi2,SL1metaPrimitive->tdc2,
-					    SL1metaPrimitive->wi3,SL1metaPrimitive->tdc3,
-					    SL1metaPrimitive->wi4,SL1metaPrimitive->tdc4,
-					    SL3metaPrimitive->wi1,SL3metaPrimitive->tdc1,
-					    SL3metaPrimitive->wi2,SL3metaPrimitive->tdc2,
-					    SL3metaPrimitive->wi3,SL3metaPrimitive->tdc3,
-					    SL3metaPrimitive->wi4,SL3metaPrimitive->tdc4,
+					    SL1metaPrimitive->wi1,SL1metaPrimitive->tdc1,SL1metaPrimitive->lat1,
+					    SL1metaPrimitive->wi2,SL1metaPrimitive->tdc2,SL1metaPrimitive->lat2,
+					    SL1metaPrimitive->wi3,SL1metaPrimitive->tdc3,SL1metaPrimitive->lat3,
+					    SL1metaPrimitive->wi4,SL1metaPrimitive->tdc4,SL1metaPrimitive->lat4,
+					    SL3metaPrimitive->wi1,SL3metaPrimitive->tdc1,SL1metaPrimitive->lat5,
+					    SL3metaPrimitive->wi2,SL3metaPrimitive->tdc2,SL1metaPrimitive->lat6,
+					    SL3metaPrimitive->wi3,SL3metaPrimitive->tdc3,SL1metaPrimitive->lat7,
+					    SL3metaPrimitive->wi4,SL3metaPrimitive->tdc4,SL1metaPrimitive->lat8,
 					    -1
 					    }));
 			    at_least_one_correlation=true;
@@ -150,12 +177,16 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 		    if(at_least_one_correlation==false){//no correlation was found, trying with pairs of two digis in the other SL
 			int matched_digis=0;
 			double minx=minx_match_2digis;
+			double min2x=minx_match_2digis;
 			int best_tdc=-1;
 			int next_tdc=-1;
 			int best_wire=-1;
 			int next_wire=-1;
 			int best_layer=-1;
 			int next_layer=-1;
+			int best_lat=-1;
+			int next_lat=-1;
+			int lat=-1;
 	    
 			for (auto dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
 			    const DTLayerId dtLId = (*dtLayerId_It).first;
@@ -171,16 +202,29 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 				DTWireId wireId(dtLId,(*digiIt).wire());
 				int x_wire = shiftinfo[wireId.rawId()]+((*digiIt).time()-SL1metaPrimitive->t0)*0.00543; 
 				int x_wire_left = shiftinfo[wireId.rawId()]-((*digiIt).time()-SL1metaPrimitive->t0)*0.00543; 
-				if(fabs(x_inSL3-x_wire)>fabs(x_inSL3-x_wire_left)) x_wire=x_wire_left; //choose the closest laterality
+				lat=1;
+				if(fabs(x_inSL3-x_wire)>fabs(x_inSL3-x_wire_left)){
+				    x_wire=x_wire_left; //choose the closest laterality
+				    lat=0;
+				}
 				if(fabs(x_inSL3-x_wire)<minx){
 				    minx=fabs(x_inSL3-x_wire);
 				    next_wire=best_wire;
 				    next_tdc=best_tdc;
 				    next_layer=best_layer;
+				    next_lat=best_lat;
 		  
 				    best_wire=(*digiIt).wire();
 				    best_tdc=(*digiIt).time();
 				    best_layer=dtLId.layer();
+				    best_lat=lat;
+				    matched_digis++;
+				} else if ((fabs(x_inSL3-x_wire)>=minx)&&(fabs(x_inSL3-x_wire)<min2x)){
+				    min2x=fabs(x_inSL3-x_wire);
+                                    next_wire=(*digiIt).wire();
+                                    next_tdc=(*digiIt).time();
+                                    next_layer=dtLId.layer();
+                                    next_lat=lat;
 				    matched_digis++;
 				}
 			    }
@@ -190,33 +234,31 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 			    int new_quality=7;
 			    if(SL1metaPrimitive->quality<=2) new_quality=5;
 	      
-			    int wi1=-1;int tdc1=-1;
-			    int wi2=-1;int tdc2=-1;
-			    int wi3=-1;int tdc3=-1;
-			    int wi4=-1;int tdc4=-1;
+			    int wi1=-1;int tdc1=-1;int lat1=-1;
+			    int wi2=-1;int tdc2=-1;int lat2=-1;
+			    int wi3=-1;int tdc3=-1;int lat3=-1;
+			    int wi4=-1;int tdc4=-1;int lat4=-1;
 	      
-			    if(next_layer==1) {wi1=next_wire; tdc1=next_tdc; }
-			    if(next_layer==2) {wi2=next_wire; tdc2=next_tdc; }
-			    if(next_layer==3) {wi3=next_wire; tdc3=next_tdc; }
-			    if(next_layer==4) {wi4=next_wire; tdc4=next_tdc; }
+			    if(next_layer==1) {wi1=next_wire; tdc1=next_tdc; lat1=next_lat;}
+			    if(next_layer==2) {wi2=next_wire; tdc2=next_tdc; lat2=next_lat;}
+			    if(next_layer==3) {wi3=next_wire; tdc3=next_tdc; lat3=next_lat;}
+			    if(next_layer==4) {wi4=next_wire; tdc4=next_tdc; lat4=next_lat;}
 	      
-			    if(best_layer==1) {wi1=best_wire; tdc1=best_tdc; }
-			    if(best_layer==2) {wi2=best_wire; tdc2=best_tdc; }
-			    if(best_layer==3) {wi3=best_wire; tdc3=best_tdc; }
-			    if(best_layer==4) {wi4=best_wire; tdc4=best_tdc; } 
-	      
-	      
+			    if(best_layer==1) {wi1=best_wire; tdc1=best_tdc; lat1=best_lat;}
+			    if(best_layer==2) {wi2=best_wire; tdc2=best_tdc; lat2=best_lat;}
+			    if(best_layer==3) {wi3=best_wire; tdc3=best_tdc; lat3=best_lat;}
+			    if(best_layer==4) {wi4=best_wire; tdc4=best_tdc; lat4=best_lat;}    
 	      
 			    outMPaths.push_back(metaPrimitive({ChId.rawId(),SL1metaPrimitive->t0,SL1metaPrimitive->x,SL1metaPrimitive->tanPhi,SL1metaPrimitive->phi,SL1metaPrimitive->phiB,SL1metaPrimitive->chi2,
 					    new_quality,
-					    SL1metaPrimitive->wi1,SL1metaPrimitive->tdc1,
-					    SL1metaPrimitive->wi2,SL1metaPrimitive->tdc2,
-					    SL1metaPrimitive->wi3,SL1metaPrimitive->tdc3,
-					    SL1metaPrimitive->wi4,SL1metaPrimitive->tdc4,
-					    wi1,tdc1,
-					    wi2,tdc2,
-					    wi3,tdc3,
-					    wi4,tdc4,
+					    SL1metaPrimitive->wi1,SL1metaPrimitive->tdc1,SL1metaPrimitive->lat1,
+					    SL1metaPrimitive->wi2,SL1metaPrimitive->tdc2,SL1metaPrimitive->lat2,
+					    SL1metaPrimitive->wi3,SL1metaPrimitive->tdc3,SL1metaPrimitive->lat3,
+					    SL1metaPrimitive->wi4,SL1metaPrimitive->tdc4,SL1metaPrimitive->lat4,
+					    wi1,tdc1,lat1,
+					    wi2,tdc2,lat2,
+					    wi3,tdc3,lat3,
+					    wi4,tdc4,lat4,
 					    -1
 					    }));
 			    at_least_one_correlation=true;
@@ -239,12 +281,16 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 	    
 			int matched_digis=0;
 			double minx=minx_match_2digis;
+			double min2x=minx_match_2digis;
 			int best_tdc=-1;
 			int next_tdc=-1;
 			int best_wire=-1;
 			int next_wire=-1;
 			int best_layer=-1;
 			int next_layer=-1;
+			int best_lat=-1;
+			int next_lat=-1;
+			int lat=-1;
 			
 			for (auto dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
 			    const DTLayerId dtLId = (*dtLayerId_It).first;
@@ -260,16 +306,29 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 				DTWireId wireId(dtLId,(*digiIt).wire());
 				int x_wire = shiftinfo[wireId.rawId()]+((*digiIt).time()-SL3metaPrimitive->t0)*0.00543; 
 				int x_wire_left = shiftinfo[wireId.rawId()]-((*digiIt).time()-SL3metaPrimitive->t0)*0.00543; 
-				if(fabs(x_inSL1-x_wire)>fabs(x_inSL1-x_wire_left)) x_wire=x_wire_left; //choose the closest laterality
+				lat=1;
+				if(fabs(x_inSL1-x_wire)>fabs(x_inSL1-x_wire_left)){
+				    x_wire=x_wire_left; //choose the closest laterality
+				    lat=0;
+				}
 				if(fabs(x_inSL1-x_wire)<minx){
 				    minx=fabs(x_inSL1-x_wire);
 				    next_wire=best_wire;
 				    next_tdc=best_tdc;
 				    next_layer=best_layer;
+				    next_lat=best_lat;
 		  
 				    best_wire=(*digiIt).wire();
 				    best_tdc=(*digiIt).time();
 				    best_layer=dtLId.layer();
+				    best_lat=lat;
+				    matched_digis++;
+				} else if((fabs(x_inSL1-x_wire)>=minx)&&(fabs(x_inSL1-x_wire<min2x))){
+				    minx=fabs(x_inSL1-x_wire);
+                                    next_wire=(*digiIt).wire();
+                                    next_tdc=(*digiIt).time();
+                                    next_layer=dtLId.layer();
+                                    next_lat=lat;
 				    matched_digis++;
 				}
 			    }
@@ -279,33 +338,31 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 			    int new_quality=7;
 			    if(SL3metaPrimitive->quality<=2) new_quality=5;
 	      
-			    int wi1=-1;int tdc1=-1;
-			    int wi2=-1;int tdc2=-1;
-			    int wi3=-1;int tdc3=-1;
-			    int wi4=-1;int tdc4=-1;
+			    int wi1=-1;int tdc1=-1;int lat1=-1;
+			    int wi2=-1;int tdc2=-1;int lat2=-1;
+			    int wi3=-1;int tdc3=-1;int lat3=-1;
+			    int wi4=-1;int tdc4=-1;int lat4=-1;
 	      
-			    if(next_layer==1) {wi1=next_wire; tdc1=next_tdc; }
-			    if(next_layer==2) {wi2=next_wire; tdc2=next_tdc; }
-			    if(next_layer==3) {wi3=next_wire; tdc3=next_tdc; }
-			    if(next_layer==4) {wi4=next_wire; tdc4=next_tdc; }
+			    if(next_layer==1) {wi1=next_wire; tdc1=next_tdc; lat1=next_lat;}
+			    if(next_layer==2) {wi2=next_wire; tdc2=next_tdc; lat2=next_lat;}
+			    if(next_layer==3) {wi3=next_wire; tdc3=next_tdc; lat3=next_lat;}
+			    if(next_layer==4) {wi4=next_wire; tdc4=next_tdc; lat4=next_lat;}
 	      
-			    if(best_layer==1) {wi1=best_wire; tdc1=best_tdc; }
-			    if(best_layer==2) {wi2=best_wire; tdc2=best_tdc; }
-			    if(best_layer==3) {wi3=best_wire; tdc3=best_tdc; }
-			    if(best_layer==4) {wi4=best_wire; tdc4=best_tdc; } 
-	      
-	      
-				    
+			    if(best_layer==1) {wi1=best_wire; tdc1=best_tdc; lat1=best_lat;}
+			    if(best_layer==2) {wi2=best_wire; tdc2=best_tdc; lat2=best_lat;}
+			    if(best_layer==3) {wi3=best_wire; tdc3=best_tdc; lat3=best_lat;}
+			    if(best_layer==4) {wi4=best_wire; tdc4=best_tdc; lat4=best_lat;}    
+				   
 			    outMPaths.push_back(metaPrimitive({ChId.rawId(),SL3metaPrimitive->t0,SL3metaPrimitive->x,SL3metaPrimitive->tanPhi,SL3metaPrimitive->phi,SL3metaPrimitive->phiB,SL3metaPrimitive->chi2,
 					    new_quality,
-					    wi1,tdc1,
-					    wi2,tdc2,
-					    wi3,tdc3,
-					    wi4,tdc4,
-					    SL3metaPrimitive->wi1,SL3metaPrimitive->tdc1,
-					    SL3metaPrimitive->wi2,SL3metaPrimitive->tdc2,
-					    SL3metaPrimitive->wi3,SL3metaPrimitive->tdc3,
-					    SL3metaPrimitive->wi4,SL3metaPrimitive->tdc4,
+					    wi1,tdc1,lat1,
+					    wi2,tdc2,lat2,
+					    wi3,tdc3,lat3,
+					    wi4,tdc4,lat4,
+					    SL3metaPrimitive->wi1,SL3metaPrimitive->tdc1,SL3metaPrimitive->lat1,
+					    SL3metaPrimitive->wi2,SL3metaPrimitive->tdc2,SL3metaPrimitive->lat2,
+					    SL3metaPrimitive->wi3,SL3metaPrimitive->tdc3,SL3metaPrimitive->lat3,
+					    SL3metaPrimitive->wi4,SL3metaPrimitive->tdc4,SL3metaPrimitive->lat4,
 					    -1
 					    }));
 			    at_least_one_correlation=true;
@@ -321,14 +378,14 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 			DTSuperLayerId SLId(SL1metaPrimitive->rawId);
 			DTChamberId(SLId.wheel(),SLId.station(),SLId.sector());
 			outMPaths.push_back(metaPrimitive({ChId.rawId(),SL1metaPrimitive->t0,SL1metaPrimitive->x,SL1metaPrimitive->tanPhi,SL1metaPrimitive->phi,SL1metaPrimitive->phiB,SL1metaPrimitive->chi2,SL1metaPrimitive->quality,
-					SL1metaPrimitive->wi1,SL1metaPrimitive->tdc1,
-					SL1metaPrimitive->wi2,SL1metaPrimitive->tdc2,
-					SL1metaPrimitive->wi3,SL1metaPrimitive->tdc3,
-					SL1metaPrimitive->wi4,SL1metaPrimitive->tdc4,
-					-1,-1,
-					-1,-1,
-					-1,-1,
-					-1,-1,
+					SL1metaPrimitive->wi1,SL1metaPrimitive->tdc1,SL1metaPrimitive->lat1,
+					SL1metaPrimitive->wi2,SL1metaPrimitive->tdc2,SL1metaPrimitive->lat2,
+					SL1metaPrimitive->wi3,SL1metaPrimitive->tdc3,SL1metaPrimitive->lat3,
+					SL1metaPrimitive->wi4,SL1metaPrimitive->tdc4,SL1metaPrimitive->lat4,
+					-1,-1,-1,
+					-1,-1,-1,
+					-1,-1,-1,
+					-1,-1,-1,
 					-1
 					}));
 		    }
@@ -336,14 +393,14 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 			DTSuperLayerId SLId(SL3metaPrimitive->rawId);
 			DTChamberId(SLId.wheel(),SLId.station(),SLId.sector());
 			outMPaths.push_back(metaPrimitive({ChId.rawId(),SL3metaPrimitive->t0,SL3metaPrimitive->x,SL3metaPrimitive->tanPhi,SL3metaPrimitive->phi,SL3metaPrimitive->phiB,SL3metaPrimitive->chi2,SL3metaPrimitive->quality,
-					-1,-1,
-					-1,-1,
-					-1,-1,
-					-1,-1,
-					SL3metaPrimitive->wi1,SL3metaPrimitive->tdc1,
-					SL3metaPrimitive->wi2,SL3metaPrimitive->tdc2,
-					SL3metaPrimitive->wi3,SL3metaPrimitive->tdc3,
-					SL3metaPrimitive->wi4,SL3metaPrimitive->tdc4,
+					-1,-1,-1,
+					-1,-1,-1,
+					-1,-1,-1,
+					-1,-1,-1,
+					SL3metaPrimitive->wi1,SL3metaPrimitive->tdc1,SL3metaPrimitive->lat1,
+					SL3metaPrimitive->wi2,SL3metaPrimitive->tdc2,SL3metaPrimitive->lat2,
+					SL3metaPrimitive->wi3,SL3metaPrimitive->tdc3,SL3metaPrimitive->lat3,
+					SL3metaPrimitive->wi4,SL3metaPrimitive->tdc4,SL3metaPrimitive->lat4,
 					-1
 					}));
 		    }
