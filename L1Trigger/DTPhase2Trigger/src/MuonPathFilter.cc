@@ -9,16 +9,15 @@ using namespace std;
 // Constructors and destructor
 // ============================================================================
 MuonPathFilter::MuonPathFilter(const ParameterSet& pset) {
-  // Obtention of parameters
-  debug         = pset.getUntrackedParameter<Bool_t>("debug");
-  filter_cousins = pset.getUntrackedParameter<bool>("filter_cousins");
-  tanPhiTh      = pset.getUntrackedParameter<double>("tanPhiTh");
-  if (debug) cout <<"MuonPathFilter: constructor" << endl;
+    // Obtention of parameters
+    debug         = pset.getUntrackedParameter<Bool_t>("debug");
+    filter_cousins = pset.getUntrackedParameter<bool>("filter_cousins");
+    if (debug) cout <<"MuonPathFilter: constructor" << endl;
 }
 
 
 MuonPathFilter::~MuonPathFilter() {
-  if (debug) cout <<"MuonPathFilter: destructor" << endl;
+    if (debug) cout <<"MuonPathFilter: destructor" << endl;
 }
 
 
@@ -27,112 +26,119 @@ MuonPathFilter::~MuonPathFilter() {
 // Main methods (initialise, run, finish)
 // ============================================================================
 void MuonPathFilter::initialise(const edm::EventSetup& iEventSetup) {
-  if(debug) cout << "MuonPathFilter::initialiase" << endl;
+    if(debug) cout << "MuonPathFilter::initialiase" << endl;
 }
 
-int MuonPathFilter::areCousins(metaPrimitive primera, metaPrimitive segunda) {
-  if(primera.rawId!=segunda.rawId) return 0;
-  if(primera.wi1==segunda.wi1 and primera.tdc1==segunda.tdc1 and primera.wi1!=-1 and primera.tdc1!=-1) return 1;
-  if(primera.wi2==segunda.wi2 and primera.tdc2==segunda.tdc2 and primera.wi2!=-1 and primera.tdc2!=-1) return 2;
-  if(primera.wi3==segunda.wi3 and primera.tdc3==segunda.tdc3 and primera.wi3!=-1 and primera.tdc3!=-1) return 3;
-  if(primera.wi4==segunda.wi4 and primera.tdc4==segunda.tdc4 and primera.wi4!=-1 and primera.tdc4!=-1) return 4;
-  return 0;
+int MuonPathFilter::areCousins(metaPrimitive mp, metaPrimitive second_mp) {
+    if(mp.rawId!=second_mp.rawId) return 0;
+    if(mp.wi1==second_mp.wi1 and mp.tdc1==second_mp.tdc1 and mp.wi1!=-1 and mp.tdc1!=-1) return 1;
+    if(mp.wi2==second_mp.wi2 and mp.tdc2==second_mp.tdc2 and mp.wi2!=-1 and mp.tdc2!=-1) return 2;
+    if(mp.wi3==second_mp.wi3 and mp.tdc3==second_mp.tdc3 and mp.wi3!=-1 and mp.tdc3!=-1) return 3;
+    if(mp.wi4==second_mp.wi4 and mp.tdc4==second_mp.tdc4 and mp.wi4!=-1 and mp.tdc4!=-1) return 4;
+    return 0;
 }
-int MuonPathFilter::rango(metaPrimitive primera) {
-  int rango=0;
-  if(primera.wi1!=-1)rango++;
-  if(primera.wi2!=-1)rango++;
-  if(primera.wi3!=-1)rango++;
-  if(primera.wi4!=-1)rango++;
-  return rango;
+
+
+int MuonPathFilter::rango(metaPrimitive mp){
+    if(mp.quality==1 or mp.quality==2) return 3;
+    if(mp.quality==3 or mp.quality==4) return 4;
+    return 0;
 }
 
 void MuonPathFilter::run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, 
 			 std::vector<metaPrimitive> &inMPaths, 
 			 std::vector<metaPrimitive> &outMPaths) 
 {
+    
+    if (debug) cout <<"MuonPathFilter: run" << endl;  
+
+    std::vector<metaPrimitive> buff; 
   
-  if (debug) cout <<"MuonPathFilter: run" << endl;  
-  
-  if(filter_cousins) 
-    filterCousins(inMPaths,outMPaths); 
-  else 
-    filterTanPhi(inMPaths,outMPaths);
-  
-  if (debug) cout <<"MuonPathFilter: done" << endl;
+    filterCousins(inMPaths,buff); 
+    filterUnique(buff,outMPaths);
+
+    buff.clear();
+    buff.erase(buff.begin(),buff.end());
+    
+    if (debug) cout <<"MuonPathFilter: done" << endl;
 }
 
 void MuonPathFilter::filterCousins(std::vector<metaPrimitive> &inMPaths, 
-				  std::vector<metaPrimitive> &outMPaths) 
+				   std::vector<metaPrimitive> &outMPaths) 
 {
-  if(debug) std::cout<<"filtering: starting cousins filtering"<<std::endl;    
+    if(debug) std::cout<<"filtering: starting cousins filtering"<<std::endl;    
   
-  int primo_index=0;
-  bool oneof4=false;
+    int primo_index=0;
+    bool oneof4=false;
   
-  if(inMPaths.size()==1){
-    if(debug){
-      std::cout<<"filtering:";
-      printmP(inMPaths[0]);
-      std::cout<<" \t is:"<<0<<" "<<primo_index<<" "<<" "<<oneof4<<std::endl;
-    }
-    if(fabs(inMPaths[0].tanPhi)<tanPhiTh){
-      outMPaths.push_back(inMPaths[0]);
-      if(debug)std::cout<<"filtering: kept1 i="<<0<<std::endl;
-    }
-  }
-  else {
-    for(int i=1; i<int(inMPaths.size()); i++){ 
-      if(fabs(inMPaths[i].tanPhi)>tanPhiTh) continue;
-      if(rango(inMPaths[i])==4)oneof4=true;
-      if(debug){
-	std::cout<<"filtering:";
-	printmP(inMPaths[i]);
-	std::cout<<" \t is:"<<i<<" "<<primo_index<<" "<<" "<<oneof4<<std::endl;
-      }
-      if(areCousins(inMPaths[i],inMPaths[i-1])!=0  and areCousins(inMPaths[i],inMPaths[i-primo_index-1])!=0){
-	primo_index++;
-      }else{
-	if(primo_index==0){
-	  outMPaths.push_back(inMPaths[i]);
-	  if(debug)std::cout<<"filtering: kept2 i="<<i<<std::endl;
-	}else{
-	  if(oneof4){
-	    double minchi2=99999;
-	    int selected_i=0;
-	    for(int j=i-1;j>=i-primo_index-1;j--){
-	      if(rango(inMPaths[j])!=4) continue;
-	      if(minchi2>inMPaths[j].chi2){
-		minchi2=inMPaths[j].chi2;
-		selected_i=j;
-	      }
-	    }
-	    outMPaths.push_back(inMPaths[selected_i]);
-	    if(debug)std::cout<<"filtering: kept4 i="<<selected_i<<std::endl;
-	  }else{
-	    for(int j=i-1;j>=i-primo_index-1;j--){
-	      outMPaths.push_back(inMPaths[j]);
-	      if(debug)std::cout<<"filtering: kept3 i="<<j<<std::endl;
-	    }
-	  }
+    if(inMPaths.size()==1){
+	if(debug){
+	    std::cout<<"filtering:";
+	    printmP(inMPaths[0]);
+	    std::cout<<" \t is:"<<0<<" "<<primo_index<<" "<<" "<<oneof4<<std::endl;
 	}
-	primo_index=0;
-	oneof4=false;
-      }
+	outMPaths.push_back(inMPaths[0]);
+	if(debug)std::cout<<"filtering: kept0 i="<<0<<std::endl;
     }
-  }
-}
-void MuonPathFilter::filterTanPhi(std::vector<metaPrimitive> &inMPaths, 
-				  std::vector<metaPrimitive> &outMPaths) 
-{
-  for (size_t i=0; i<inMPaths.size(); i++){ 
-    if(fabs(inMPaths[i].tanPhi)>tanPhiTh) continue;
-    outMPaths.push_back(inMPaths[i]); 
-  }
+    else {
+	for(int i=1; i<=int(inMPaths.size()); i++){ 
+	    if(rango(inMPaths[i])==4)oneof4=true;
+	    if(debug){
+		std::cout<<"filtering:";
+		printmP(inMPaths[i]);
+		std::cout<<" \t is:"<<i<<" "<<primo_index<<" "<<" "<<oneof4<<std::endl;
+	    }
+	    if(areCousins(inMPaths[i],inMPaths[i-1])!=0  and areCousins(inMPaths[i],inMPaths[i-primo_index-1])!=0){
+		primo_index++;
+	    }else{
+		if(primo_index==0){
+		    outMPaths.push_back(inMPaths[i]);
+		    if(debug)std::cout<<"filtering: kept2 i="<<i<<std::endl;
+		}else{
+		    if(oneof4){
+			double minchi2=99999;
+			int selected_i=0;
+			for(int j=i-1;j>=i-primo_index-1;j--){
+			    if(rango(inMPaths[j])!=4) continue;
+			    if(minchi2>inMPaths[j].chi2){
+				minchi2=inMPaths[j].chi2;
+				selected_i=j;
+			    }
+			}
+			outMPaths.push_back(inMPaths[selected_i]);
+			if(debug)std::cout<<"filtering: kept4 i="<<selected_i<<std::endl;
+		    }else{
+			for(int j=i-1;j>=i-primo_index-1;j--){
+			    outMPaths.push_back(inMPaths[j]);
+			    if(debug)std::cout<<"filtering: kept3 i="<<j<<std::endl;
+			}
+		    }
+		}
+		primo_index=0;
+		oneof4=false;
+	    }
+	}
+    }
 }
 
+void MuonPathFilter::filterUnique(std::vector<metaPrimitive> &inMPaths,
+				  std::vector<metaPrimitive> &outMPaths)
+{
+    double xTh = 0;
+    double tPhiTh = 0; 
+    double t0Th = 0;
+    for (size_t i=0; i<inMPaths.size();i++){
+	bool visto = false; 
+	for (size_t j=i+1; j<inMPaths.size();j++){
+	    if ((fabs(inMPaths[i].x-inMPaths[j].x)<=xTh)&&(fabs(inMPaths[i].tanPhi-inMPaths[j].tanPhi)<=tPhiTh)&&(fabs(inMPaths[i].t0-inMPaths[j].t0)<=t0Th)) visto = true; 
+	}
+	if (!visto) outMPaths.push_back(inMPaths[i]);
+    }
+}
+
+
 void MuonPathFilter::finish() {
-  if (debug) cout <<"MuonPathFilter: finish" << endl;
+    if (debug) cout <<"MuonPathFilter: finish" << endl;
 };
 
 
