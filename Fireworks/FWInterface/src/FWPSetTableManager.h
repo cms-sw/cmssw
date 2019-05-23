@@ -4,7 +4,7 @@
 //
 // Package:     FWInterface
 // Class  :     FWPSetTableManager
-// 
+//
 /**\class FWPSetTableManager FWPSetTableManager.h Fireworks/FWInterface/interface/FWPSetTableManager.h
 
  Description: [one line class summary]
@@ -14,12 +14,11 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Mon Feb 28 17:06:50 CET 2011
 //
 
 // system include files
-
 
 #include <sigc++/sigc++.h>
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
@@ -27,174 +26,166 @@
 #include "Fireworks/TableWidget/interface/FWTextTreeCellRenderer.h"
 
 class FWPSetCellEditor;
-namespace edm 
-{
-   class ScheduleInfo;
+namespace edm {
+  class ScheduleInfo;
 }
 
+class FWPSetTableManager : public FWTableManagerBase {
+  friend class FWPathsPopup;
 
+public:
+  /** Custom structure for holding the table contents */
+  struct PSetData {
+    PSetData()
+        : level(-1),
+          tracked(false),
 
-class FWPSetTableManager : public FWTableManagerBase 
-{
-   friend class FWPathsPopup;
+          type(-1),
 
-public: 
-   /** Custom structure for holding the table contents */
-   struct PSetData
-   {
-      PSetData() :level(-1),
-         tracked(false),
+          parent(-1),
 
-         type(-1),
-   
-         parent(-1),
+          module(-1),
+          path(-1),
 
-         module(-1),
-         path(-1),
+          expandedUser(false),
+          expandedFilter(false),
 
-         expandedUser(false),
-         expandedFilter(false),
+          visible(false),
 
-         visible(false),
+          matches(false),
+          childMatches(false),
 
-         matches(false),
-         childMatches(false),
+          editable(false),
+          pset(nullptr) {}
 
-       editable(false) , pset(nullptr){}
+    std::string label;
+    std::string value;
 
-      std::string label;
-      std::string value;
+    int level;
+    bool tracked;
+    char type;
+    size_t parent;
 
-      int         level;
-      bool        tracked;
-      char        type;
-      size_t      parent;
-   
-      size_t      module;
-      size_t      path;
+    size_t module;
+    size_t path;
 
-      bool        expandedUser;
-      bool        expandedFilter;
+    bool expandedUser;
+    bool expandedFilter;
 
-      bool        visible;
-      bool        matches;
-      bool        childMatches;
-      bool        editable;
+    bool visible;
+    bool matches;
+    bool childMatches;
+    bool editable;
 
-      edm::ParameterSet *pset;
-   };
+    edm::ParameterSet *pset;
+  };
 
-   FWPSetTableManager();
-   ~FWPSetTableManager() override;
+  FWPSetTableManager();
+  ~FWPSetTableManager() override;
 
+  int unsortedRowNumber(int unsorted) const override;
+  int numberOfRows() const override;
+  int numberOfColumns() const override;
+  std::vector<std::string> getTitles() const override;
+  virtual const std::string title() const;
+  FWTableCellRendererBase *cellRenderer(int iSortedRowNumber, int iCol) const override;
 
-   int unsortedRowNumber(int unsorted) const override ;
-   int numberOfRows() const override;
-   int numberOfColumns() const override;
-   std::vector<std::string> getTitles() const override;
-   virtual const std::string title() const;
-   FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const override;
+  int selectedRow() const;
+  int selectedColumn() const;
+  virtual bool rowIsSelected(int row) const;
 
-   int selectedRow() const;
-   int selectedColumn() const;
-   virtual bool rowIsSelected(int row) const;
+  void implSort(int, bool) override;
+  bool cellDataIsSortable() const override { return false; }
 
-   void implSort(int, bool) override;
-   bool cellDataIsSortable() const override { return false ; }
+  virtual void updateFilter(const char *filter);
 
-   virtual void updateFilter(const char *filter);
+  std::vector<unsigned int> maxWidthForColumns() const override;
 
-   std::vector<unsigned int> maxWidthForColumns() const override;
+  std::vector<PSetData> &data() { return m_entries; }
+  std::vector<int> &rowToIndex() { return m_row_to_index; }
 
-   std::vector<PSetData> &data()  { return m_entries; }
-   std::vector<int> &rowToIndex() { return m_row_to_index; }
-  
-   //______________________________________________________________________________
+  //______________________________________________________________________________
 
 protected:
-   struct ModuleInfo
-   {
-      /** The path this info is associated to, as ordered in
+  struct ModuleInfo {
+    /** The path this info is associated to, as ordered in
           availablePath(); 
       */
-      size_t            pathIndex;
-      size_t            path;
-      size_t            entry;
-      bool              passed;
-      /** Whether or not the pset was modified since last time the 
+    size_t pathIndex;
+    size_t path;
+    size_t entry;
+    bool passed;
+    /** Whether or not the pset was modified since last time the 
           looper reloaded. 
       */
-      bool              dirty;
+    bool dirty;
 
-     edm::ParameterSet *orig_pset;
-     edm::ParameterSet *current_pset;
-   };
+    edm::ParameterSet *orig_pset;
+    edm::ParameterSet *current_pset;
+  };
 
-   /** Datum for updating the path status information */
-   struct PathUpdate
-   {
-      std::string pathName;
-      bool passed;
-      size_t  choiceMaker;
-   };
+  /** Datum for updating the path status information */
+  struct PathUpdate {
+    std::string pathName;
+    bool passed;
+    size_t choiceMaker;
+  };
 
+  void setExpanded(int row);
+  void updateSchedule(const edm::ScheduleInfo *info);
+  void update(std::vector<PathUpdate> &pathUpdates);
 
-   void setExpanded(int row);
-   void updateSchedule(const edm::ScheduleInfo *info);
-   void update(std::vector<PathUpdate> &pathUpdates);
+  bool applyEditor();
+  void cancelEditor();
 
-   bool applyEditor();
-   void cancelEditor();
+  std::vector<ModuleInfo> &modules() { return m_modules; }
+  std::vector<PSetData> &entries() { return m_entries; }
 
-   std::vector<ModuleInfo> &modules() { return m_modules; }
-   std::vector<PSetData>   &entries() { return m_entries; }
+  void setSelection(int row, int column, int mask);
+  //______________________________________________________________________________
 
-   void  setSelection (int row, int column, int mask);
-   //______________________________________________________________________________
+private:
+  /** Model for additional path information */
+  struct PathInfo {
+    std::string pathName;
+    size_t entryId;
+    int modulePassed;
+    size_t moduleStart;
+    size_t moduleEnd;
+    bool passed;
+  };
 
-private: 
+  FWPSetTableManager(const FWPSetTableManager &) = delete;                   // stop default
+  const FWPSetTableManager &operator=(const FWPSetTableManager &) = delete;  // stop default
 
-   /** Model for additional path information */
-   struct PathInfo
-   {
-      std::string pathName;
-      size_t      entryId;
-      int         modulePassed;
-      size_t      moduleStart;
-      size_t      moduleEnd;
-      bool        passed;
-   };
+  void recalculateVisibility();
 
-   FWPSetTableManager(const FWPSetTableManager&) = delete; // stop default
-   const FWPSetTableManager& operator=(const FWPSetTableManager&) = delete; // stop default
+  template <class T>
+  void createScalarString(PSetData &data, T v);
+  template <typename T>
+  void createVectorString(FWPSetTableManager::PSetData &data, const T &v, bool quotes);
 
-   void recalculateVisibility();
+  void setCellValueEditor(FWPSetCellEditor *editor);
 
-   template <class T> void createScalarString(PSetData &data, T v);
-   template <typename T> void createVectorString(FWPSetTableManager::PSetData &data, const T &v, bool quotes);
+  void handleEntry(const edm::Entry &entry, const std::string &key);
+  void handlePSetEntry(edm::ParameterSetEntry &entry, const std::string &key);
+  void handleVPSetEntry(edm::VParameterSetEntry &entry, const std::string &key);
+  void handlePSet(edm::ParameterSet *psp);
 
-   void setCellValueEditor(FWPSetCellEditor *editor);
+  std::vector<PSetData> m_entries;
+  /** Index in m_entries where to find paths */
+  std::vector<PathInfo> m_paths;
+  std::vector<ModuleInfo> m_modules;
+  std::map<std::string, size_t> m_pathIndex;
+  std::vector<size_t> m_parentStack;
+  std::vector<int> m_row_to_index;
+  int m_selectedRow;
+  int m_selectedColumn;
+  std::string m_filter;
+  FWPSetCellEditor *m_editor;
+  std::vector<std::string> m_availablePaths;
 
-   void handleEntry(const edm::Entry &entry,const std::string &key);
-   void handlePSetEntry(edm::ParameterSetEntry& entry, const std::string& key);
-   void handleVPSetEntry(edm::VParameterSetEntry& entry, const std::string& key);
-   void handlePSet(edm::ParameterSet *psp);
-
-   std::vector<PSetData>           m_entries;
-   /** Index in m_entries where to find paths */
-   std::vector<PathInfo>           m_paths;
-   std::vector<ModuleInfo>         m_modules;
-   std::map<std::string, size_t>   m_pathIndex;
-   std::vector<size_t>             m_parentStack;
-   std::vector<int>                m_row_to_index;
-   int                             m_selectedRow;
-   int                             m_selectedColumn;
-   std::string                     m_filter;
-   FWPSetCellEditor               *m_editor;
-   std::vector<std::string>        m_availablePaths;
-
-   mutable FWTextTreeCellRenderer m_renderer;  
+  mutable FWTextTreeCellRenderer m_renderer;
 };
-
 
 #endif

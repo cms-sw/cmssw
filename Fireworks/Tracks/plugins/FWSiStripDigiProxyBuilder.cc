@@ -20,68 +20,60 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-class FWSiStripDigiProxyBuilder : public FWProxyBuilderBase
-{
+class FWSiStripDigiProxyBuilder : public FWProxyBuilderBase {
 public:
-  FWSiStripDigiProxyBuilder( void ) {}
-  ~FWSiStripDigiProxyBuilder( void ) override {}
+  FWSiStripDigiProxyBuilder(void) {}
+  ~FWSiStripDigiProxyBuilder(void) override {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   using FWProxyBuilderBase::build;
-  void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
-  FWSiStripDigiProxyBuilder( const FWSiStripDigiProxyBuilder& ) = delete;    
-  const FWSiStripDigiProxyBuilder& operator=( const FWSiStripDigiProxyBuilder& ) = delete;
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+  FWSiStripDigiProxyBuilder(const FWSiStripDigiProxyBuilder&) = delete;
+  const FWSiStripDigiProxyBuilder& operator=(const FWSiStripDigiProxyBuilder&) = delete;
 };
 
-void
-FWSiStripDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )
-{
+void FWSiStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) {
   const edm::DetSetVector<SiStripDigi>* digis = nullptr;
 
-  iItem->get( digis );
+  iItem->get(digis);
 
-  if( ! digis )
-  {
+  if (!digis) {
     return;
   }
   const FWGeometry* geom = iItem->getGeom();
-   
-  for( edm::DetSetVector<SiStripDigi>::const_iterator it = digis->begin(), end = digis->end();
-       it != end; ++it )     
-  { 
+
+  for (edm::DetSetVector<SiStripDigi>::const_iterator it = digis->begin(), end = digis->end(); it != end; ++it) {
     edm::DetSet<SiStripDigi> ds = *it;
     const uint32_t& id = ds.id;
 
-    const float* pars = geom->getParameters( id );
-        
-    for( edm::DetSet<SiStripDigi>::const_iterator idigi = ds.data.begin(), idigiEnd = ds.data.end();
-	 idigi != idigiEnd; ++idigi )        
-    {
-      TEveStraightLineSet *lineSet = new TEveStraightLineSet;
-      setupAddElement( lineSet, product );
+    const float* pars = geom->getParameters(id);
 
-      if( ! geom->contains( id ))
-      {
-	fwLog( fwlog::kWarning ) 
-	  << "failed get geometry and topology of SiStripDigi with detid: "
-	  << id << std::endl;
-	continue;
+    for (edm::DetSet<SiStripDigi>::const_iterator idigi = ds.data.begin(), idigiEnd = ds.data.end(); idigi != idigiEnd;
+         ++idigi) {
+      TEveStraightLineSet* lineSet = new TEveStraightLineSet;
+      setupAddElement(lineSet, product);
+
+      if (!geom->contains(id)) {
+        fwLog(fwlog::kWarning) << "failed get geometry and topology of SiStripDigi with detid: " << id << std::endl;
+        continue;
       }
-      float localTop[3] = { 0.0, 0.0, 0.0 };
-      float localBottom[3] = { 0.0, 0.0, 0.0 };
+      float localTop[3] = {0.0, 0.0, 0.0};
+      float localBottom[3] = {0.0, 0.0, 0.0};
 
-      fireworks::localSiStrip(( *idigi ).strip(), localTop, localBottom, pars, id );
+      fireworks::localSiStrip((*idigi).strip(), localTop, localBottom, pars, id);
 
       float globalTop[3];
       float globalBottom[3];
-      geom->localToGlobal( id, localTop, globalTop, localBottom, globalBottom );
-  
-      lineSet->AddLine( globalTop[0], globalTop[1], globalTop[2],
-			globalBottom[0], globalBottom[1], globalBottom[2] );
-    } // end of iteration over digis  
-  } // end of iteration over the DetSetVector
+      geom->localToGlobal(id, localTop, globalTop, localBottom, globalBottom);
+
+      lineSet->AddLine(globalTop[0], globalTop[1], globalTop[2], globalBottom[0], globalBottom[1], globalBottom[2]);
+    }  // end of iteration over digis
+  }    // end of iteration over the DetSetVector
 }
 
-REGISTER_FWPROXYBUILDER( FWSiStripDigiProxyBuilder, edm::DetSetVector<SiStripDigi>, "SiStripDigi", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER(FWSiStripDigiProxyBuilder,
+                        edm::DetSetVector<SiStripDigi>,
+                        "SiStripDigi",
+                        FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
