@@ -25,20 +25,28 @@ struct metaPrimitive
     int quality;
     int wi1;
     int tdc1;
+    int lat1;
     int wi2;
     int tdc2;
+    int lat2;
     int wi3;
     int tdc3;
+    int lat3;
     int wi4;
     int tdc4;
+    int lat4;
     int wi5;
     int tdc5;
+    int lat5;
     int wi6;
     int tdc6;
+    int lat6;
     int wi7;
     int tdc7;
+    int lat7;
     int wi8;
     int tdc8;
+    int lat8;
     int index;
 };
 typedef struct {
