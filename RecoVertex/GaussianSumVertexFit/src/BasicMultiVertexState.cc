@@ -3,66 +3,53 @@
 
 using namespace std;
 
-BasicMultiVertexState::
-BasicMultiVertexState(const vector<VertexState>& vsComp) :
-  valid(true), theComponents(vsComp), theCombinedStateUp2Date( false) {}
+BasicMultiVertexState::BasicMultiVertexState(const vector<VertexState>& vsComp)
+    : valid(true), theComponents(vsComp), theCombinedStateUp2Date(false) {}
 
-
-GlobalPoint BasicMultiVertexState::position() const
-{
+GlobalPoint BasicMultiVertexState::position() const {
   checkCombinedState();
   return theCombinedState.position();
 }
 
-double BasicMultiVertexState::time() const
-{
+double BasicMultiVertexState::time() const {
   checkCombinedState();
   return theCombinedState.time();
 }
 
-
-GlobalError BasicMultiVertexState::error() const
-{
+GlobalError BasicMultiVertexState::error() const {
   checkCombinedState();
   return theCombinedState.error();
 }
 
-double BasicMultiVertexState::timeError() const
-{
+double BasicMultiVertexState::timeError() const {
   checkCombinedState();
   return theCombinedState.timeError();
 }
 
-GlobalError BasicMultiVertexState::error4D() const
-{
+GlobalError BasicMultiVertexState::error4D() const {
   checkCombinedState();
   return theCombinedState.error4D();
 }
 
-GlobalWeight BasicMultiVertexState::weight() const
-{
+GlobalWeight BasicMultiVertexState::weight() const {
   checkCombinedState();
   return theCombinedState.weight();
 }
 
-GlobalWeight BasicMultiVertexState::weight4D() const
-{
+GlobalWeight BasicMultiVertexState::weight4D() const {
   checkCombinedState();
   return theCombinedState.weight4D();
 }
 
-AlgebraicVector3 BasicMultiVertexState::weightTimesPosition() const
-{
+AlgebraicVector3 BasicMultiVertexState::weightTimesPosition() const {
   checkCombinedState();
   return theCombinedState.weightTimesPosition();
 }
 
-AlgebraicVector4 BasicMultiVertexState::weightTimesPosition4D() const
-{
+AlgebraicVector4 BasicMultiVertexState::weightTimesPosition4D() const {
   checkCombinedState();
   return theCombinedState.weightTimesPosition4D();
 }
-
 
 // RefCountedVertexSeed BasicMultiVertexState::seedWithoutTracks() const
 // {
@@ -71,7 +58,8 @@ AlgebraicVector4 BasicMultiVertexState::weightTimesPosition4D() const
 // }
 
 double BasicMultiVertexState::weightInMixture() const {
-  if (!valid) throw VertexException("BasicSingleVertexState::invalid");
+  if (!valid)
+    throw VertexException("BasicSingleVertexState::invalid");
   if (theComponents.empty()) {
     cout << "Asking for weight of empty MultiVertexState, returning zero!" << endl;
     throw VertexException("Asking for weight of empty MultiVertexState, returning zero!");
@@ -79,19 +67,18 @@ double BasicMultiVertexState::weightInMixture() const {
   }
 
   double weight = 0.;
-  for (vector<VertexState>::const_iterator it = theComponents.begin(); 
-  	it != theComponents.end(); it++) {
+  for (vector<VertexState>::const_iterator it = theComponents.begin(); it != theComponents.end(); it++) {
     weight += it->weightInMixture();
   }
   return weight;
 }
 
-void BasicMultiVertexState::checkCombinedState() const
-{
-  if (!valid) throw VertexException("BasicSingleVertexState::invalid");
-  if (theCombinedStateUp2Date) return;
+void BasicMultiVertexState::checkCombinedState() const {
+  if (!valid)
+    throw VertexException("BasicSingleVertexState::invalid");
+  if (theCombinedStateUp2Date)
+    return;
 
   theCombinedState = theCombiner.combine(theComponents);
   theCombinedStateUp2Date = true;
 }
-

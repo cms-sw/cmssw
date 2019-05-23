@@ -23,7 +23,6 @@
  * ME0s implementation.
  */
 
-
 #include "RecoMuon/Navigation/interface/MuonDetLayerMap.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
@@ -37,51 +36,50 @@ class BarrelDetLayer;
 class ForwardDetLayer;
 
 class MuonNavigationSchool : public NavigationSchool {
+public:
+  ///Constructor
+  MuonNavigationSchool(const MuonDetLayerGeometry*,
+                       bool enableRPC = true,
+                       bool enableCSC = true,
+                       bool enableGEM = false,
+                       bool enableME0 = false);
+  /// Destructor
+  ~MuonNavigationSchool() override;
+  /// return navigable layers, from base class
+  StateType navigableLayers() override;
 
-  public:
-    ///Constructor
-    MuonNavigationSchool(const MuonDetLayerGeometry *, bool enableRPC = true, bool enableCSC = true, bool enableGEM = false, bool enableME0 = false);
-    /// Destructor
-    ~MuonNavigationSchool() override;
-    /// return navigable layers, from base class
-    StateType navigableLayers() override;
-  private:
-    /// add barrel layer
-    void addBarrelLayer(const BarrelDetLayer*);
-    /// add endcap layer (backward and forward)
-    void addEndcapLayer(const ForwardDetLayer*);
-    /// link barrel layers
-    void linkBarrelLayers();
-    /// link endcap layers
-    void linkEndcapLayers(const MapE&,std::vector<MuonForwardNavigableLayer*>&);
-    /// establish inward links
-    void createInverseLinks();
-    float calculateEta(const float&, const float& ) const;
+private:
+  /// add barrel layer
+  void addBarrelLayer(const BarrelDetLayer*);
+  /// add endcap layer (backward and forward)
+  void addEndcapLayer(const ForwardDetLayer*);
+  /// link barrel layers
+  void linkBarrelLayers();
+  /// link endcap layers
+  void linkEndcapLayers(const MapE&, std::vector<MuonForwardNavigableLayer*>&);
+  /// establish inward links
+  void createInverseLinks();
+  float calculateEta(const float&, const float&) const;
 
-  private: 
-  
-    struct delete_layer
-    {
-      template <typename T>
-      void operator()(T*& p)
-      {
-        if( p)
-        {
-          delete p;
-          p = nullptr;
-        }
+private:
+  struct delete_layer {
+    template <typename T>
+    void operator()(T*& p) {
+      if (p) {
+        delete p;
+        p = nullptr;
       }
-    };
+    }
+  };
 
-    MapB theBarrelLayers;    /// barrel
-    MapE theForwardLayers;   /// +z endcap
-    MapE theBackwardLayers;  /// -z endcap 
+  MapB theBarrelLayers;    /// barrel
+  MapE theForwardLayers;   /// +z endcap
+  MapE theBackwardLayers;  /// -z endcap
 
-    std::vector<MuonBarrelNavigableLayer*> theBarrelNLC;
-    std::vector<MuonForwardNavigableLayer*> theForwardNLC;
-    std::vector<MuonForwardNavigableLayer*> theBackwardNLC;
+  std::vector<MuonBarrelNavigableLayer*> theBarrelNLC;
+  std::vector<MuonForwardNavigableLayer*> theForwardNLC;
+  std::vector<MuonForwardNavigableLayer*> theBackwardNLC;
 
-    const MuonDetLayerGeometry * theMuonDetLayerGeometry; 
-  
+  const MuonDetLayerGeometry* theMuonDetLayerGeometry;
 };
 #endif

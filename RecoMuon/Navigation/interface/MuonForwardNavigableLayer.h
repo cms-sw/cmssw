@@ -31,103 +31,83 @@ class ForwardDetLayer;
 /* Class MuonForwardNavigableLayer Interface */
 
 class MuonForwardNavigableLayer : public MuonNavigableLayer {
+public:
+  MuonForwardNavigableLayer(const ForwardDetLayer* fdl,
+                            const MapB& innerBarrel,
+                            const MapE& outerEndcap,
+                            const MapE& innerEndcap,
+                            const MapB& allInnerBarrel,
+                            const MapE& allOuterEndcap,
+                            const MapE& allInnerEndcap)
+      : theDetLayer(fdl),
+        theInnerBarrelLayers(innerBarrel),
+        theOuterEndcapLayers(outerEndcap),
+        theInnerEndcapLayers(innerEndcap),
+        theAllInnerBarrelLayers(allInnerBarrel),
+        theAllOuterEndcapLayers(allOuterEndcap),
+        theAllInnerEndcapLayers(allInnerEndcap) {}
 
-  public:
+  /// Constructor with outer layers only
+  MuonForwardNavigableLayer(const ForwardDetLayer* fdl, const MapE& outerEndcap)
+      : theDetLayer(fdl), theOuterEndcapLayers(outerEndcap) {}
+  /// Constructor with all outer layers only
+  MuonForwardNavigableLayer(const ForwardDetLayer* fdl, const MapE& outerEndcap, const MapE& allOuterEndcap)
+      : theDetLayer(fdl), theOuterEndcapLayers(outerEndcap), theAllOuterEndcapLayers(allOuterEndcap) {}
 
-    MuonForwardNavigableLayer(const ForwardDetLayer* fdl,
-                              const MapB& innerBarrel, 
-                              const MapE& outerEndcap,
-                              const MapE& innerEndcap,
-                              const MapB& allInnerBarrel,
-                              const MapE& allOuterEndcap,
-                              const MapE& allInnerEndcap) :
-      theDetLayer(fdl),
-      theInnerBarrelLayers(innerBarrel),
-      theOuterEndcapLayers(outerEndcap),
-      theInnerEndcapLayers(innerEndcap),
-      theAllInnerBarrelLayers(allInnerBarrel), 
-      theAllOuterEndcapLayers(allOuterEndcap),
-      theAllInnerEndcapLayers(allInnerEndcap)  {}
+  /// NavigableLayer interface
+  std::vector<const DetLayer*> nextLayers(NavigationDirection dir) const override;
 
-    /// Constructor with outer layers only
-    MuonForwardNavigableLayer(const ForwardDetLayer* fdl,
-                              const MapE& outerEndcap) :
-      theDetLayer(fdl),
-      theOuterEndcapLayers(outerEndcap) {}
-    /// Constructor with all outer layers only
-    MuonForwardNavigableLayer(const ForwardDetLayer* fdl,
-                              const MapE& outerEndcap, 
-                              const MapE& allOuterEndcap) :
-      theDetLayer(fdl),
-      theOuterEndcapLayers(outerEndcap),
-      theAllOuterEndcapLayers(allOuterEndcap) {}
+  /// NavigableLayer interface
+  std::vector<const DetLayer*> nextLayers(const FreeTrajectoryState& fts, PropagationDirection dir) const override;
 
+  std::vector<const DetLayer*> compatibleLayers(NavigationDirection dir) const override;
 
-    /// NavigableLayer interface
-    std::vector<const DetLayer*> nextLayers(NavigationDirection dir) const override;
+  /// NavigableLayer interface
+  std::vector<const DetLayer*> compatibleLayers(const FreeTrajectoryState& fts,
+                                                PropagationDirection dir) const override;
+  /// return DetLayer
+  const DetLayer* detLayer() const override;
 
-    /// NavigableLayer interface
-    std::vector<const DetLayer*> nextLayers(const FreeTrajectoryState& fts, 
-                                               PropagationDirection dir) const override;
+  /// set DetLayer
+  void setDetLayer(const DetLayer*) override;
 
-    std::vector<const DetLayer*> compatibleLayers(NavigationDirection dir) const override;
+  /// Operations
+  MapE getOuterEndcapLayers() const { return theOuterEndcapLayers; }
+  MapE getInnerEndcapLayers() const { return theInnerEndcapLayers; }
+  MapB getInnerBarrelLayers() const { return theInnerBarrelLayers; }
 
-    /// NavigableLayer interface
-    std::vector<const DetLayer*> compatibleLayers(const FreeTrajectoryState& fts,
-                                               PropagationDirection dir) const override;
-    /// return DetLayer
-    const DetLayer* detLayer() const override;
+  MapE getAllOuterEndcapLayers() const { return theAllOuterEndcapLayers; }
+  MapE getAllInnerEndcapLayers() const { return theAllInnerEndcapLayers; }
+  MapB getAllInnerBarrelLayers() const { return theAllInnerBarrelLayers; }
 
-    /// set DetLayer
-    void setDetLayer(const DetLayer*) override;
+  /// set inward links
+  void setInwardLinks(const MapB&, const MapE&);
+  void setInwardCompatibleLinks(const MapB&, const MapE&);
 
-    /// Operations
-    MapE getOuterEndcapLayers() const { return theOuterEndcapLayers; }
-    MapE getInnerEndcapLayers() const { return theInnerEndcapLayers; }
-    MapB getInnerBarrelLayers() const { return theInnerBarrelLayers; }
+private:
+  void pushResult(std::vector<const DetLayer*>& result, const MapB& map) const;
 
-    MapE getAllOuterEndcapLayers() const { return theAllOuterEndcapLayers; }
-    MapE getAllInnerEndcapLayers() const { return theAllInnerEndcapLayers; }
-    MapB getAllInnerBarrelLayers() const { return theAllInnerBarrelLayers; }
+  void pushResult(std::vector<const DetLayer*>& result, const MapE& map) const;
 
-    /// set inward links
-    void setInwardLinks(const MapB&, const MapE&);
-    void setInwardCompatibleLinks(const MapB&, const MapE&);
+  void pushResult(std::vector<const DetLayer*>& result, const MapB& map, const FreeTrajectoryState& fts) const;
 
-  private:
+  void pushResult(std::vector<const DetLayer*>& result, const MapE& map, const FreeTrajectoryState& fts) const;
 
-    void pushResult(std::vector<const DetLayer*>& result, 
-                    const MapB& map) const;
+  void pushCompatibleResult(std::vector<const DetLayer*>& result,
+                            const MapB& map,
+                            const FreeTrajectoryState& fts) const;
 
-    void pushResult(std::vector<const DetLayer*>& result,
-                     const MapE& map) const;
+  void pushCompatibleResult(std::vector<const DetLayer*>& result,
+                            const MapE& map,
+                            const FreeTrajectoryState& fts) const;
 
-    void pushResult(std::vector<const DetLayer*>& result, 
-                    const MapB& map, 
-                    const FreeTrajectoryState& fts) const;
-
-    void pushResult(std::vector<const DetLayer*>& result, 
-                    const MapE& map, const
-                    FreeTrajectoryState& fts) const;
-
-    void pushCompatibleResult(std::vector<const DetLayer*>& result,
-                    const MapB& map, const
-                    FreeTrajectoryState& fts) const;
-
-    void pushCompatibleResult(std::vector<const DetLayer*>& result,
-                    const MapE& map, const
-                    FreeTrajectoryState& fts) const;
-
-
-  private:
-
-    const ForwardDetLayer* theDetLayer;
-    MapB theInnerBarrelLayers;
-    MapE theOuterEndcapLayers;
-    MapE theInnerEndcapLayers;
-    MapB theAllInnerBarrelLayers;
-    MapE theAllOuterEndcapLayers;
-    MapE theAllInnerEndcapLayers;
-
+private:
+  const ForwardDetLayer* theDetLayer;
+  MapB theInnerBarrelLayers;
+  MapE theOuterEndcapLayers;
+  MapE theInnerEndcapLayers;
+  MapB theAllInnerBarrelLayers;
+  MapE theAllOuterEndcapLayers;
+  MapE theAllInnerEndcapLayers;
 };
 #endif

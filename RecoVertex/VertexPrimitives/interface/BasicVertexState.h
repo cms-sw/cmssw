@@ -15,19 +15,17 @@ class VertexState;
  */
 
 class BasicVertexState {
+public:
+  using Proxy = ProxyBase11<BasicVertexState>;
+  using pointer = Proxy::pointer;
 
 public:
-
-  using Proxy=ProxyBase11<BasicVertexState>;
-  using pointer=Proxy::pointer;
-
-public:
-
   virtual ~BasicVertexState() {}
 
-  template<typename T, typename... Args>
-    static std::shared_ptr<BasicVertexState> build(Args && ...args){ return std::make_shared<T>(std::forward<Args>(args)...);}
-
+  template <typename T, typename... Args>
+  static std::shared_ptr<BasicVertexState> build(Args&&... args) {
+    return std::make_shared<T>(std::forward<Args>(args)...);
+  }
 
   virtual pointer clone() const = 0;
 
@@ -46,7 +44,6 @@ public:
   virtual std::vector<VertexState> components() const;
   virtual bool isValid() const = 0;
   virtual bool is4D() const = 0;
-
 };
 
 #endif
