@@ -7,14 +7,9 @@
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollPhSegm.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollThSegm.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambDigi.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTPhDigi.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
+
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include "Geometry/DTGeometry/interface/DTLayer.h"
@@ -69,9 +64,6 @@ typedef SectCollThetaColl::const_iterator SectCollThetaColl_iterator;
 
 DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset){
     
-    produces<L1MuDTChambContainer>();
-    produces<L1MuDTChambPhContainer>();
-    produces<L1MuDTChambThContainer>();
     produces<L1Phase2MuDTPhContainer>();
     
     debug = pset.getUntrackedParameter<bool>("debug");
@@ -140,12 +132,12 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
     //trigGeomUtils = new DTTrigGeomUtils(dtGeo);
 
     //filling up zcn
-    for (int ist=1; ist<=4; ++ist) {
-	const DTChamberId chId(-2,ist,4);
+    for (int ist=0; ist<4; ++ist) {
+	const DTChamberId chId(-2,ist+1,4);
 	const DTChamber *chamb = dtGeo->chamber(chId);
 	const DTSuperLayer *sl1 = chamb->superLayer(DTSuperLayerId(chId,1));
 	const DTSuperLayer *sl3 = chamb->superLayer(DTSuperLayerId(chId,3));
-	zcn[ist-1] = .5*(chamb->surface().toLocal(sl1->position()).z() + chamb->surface().toLocal(sl3->position()).z());
+	zcn[ist] = .5*(chamb->surface().toLocal(sl1->position()).z() + chamb->surface().toLocal(sl3->position()).z());
     }
 
     const DTChamber* chamb   = dtGeo->chamber(DTChamberId(-2,4,13));
@@ -208,16 +200,11 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
     mpathanalyzer->run(iEvent, iEventSetup,  filteredmuonpaths, metaPrimitives);  // New grouping implementation
     
     if (dump) {
-      for (unsigned int i=0; i<metaPrimitives.size(); i++){
-	cout << iEvent.id().event() << " mp " << i << ": "
-	     << metaPrimitives.at(i).t0 << " "
-	     << metaPrimitives.at(i).x << " "
-	     << metaPrimitives.at(i).tanPhi << " "
-	     << metaPrimitives.at(i).phi << " "
-	     << metaPrimitives.at(i).phiB << " "
-	     << metaPrimitives.at(i).quality << " "
-	     << endl;
-      }
+	for (unsigned int i=0; i<metaPrimitives.size(); i++){
+	    cout << iEvent.id().event() << " mp " << i << ": ";
+	    printmP(metaPrimitives.at(i));
+	    cout<<endl;
+	}
     }
 
     for (unsigned int i=0; i<filteredmuonpaths.size(); i++){
@@ -238,14 +225,9 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
     
     if (dump) {
       for (unsigned int i=0; i<filteredMetaPrimitives.size(); i++){
-	cout << iEvent.id().event() << " filtered mp " << i << ": "
-	     << filteredMetaPrimitives.at(i).t0 << " "
-	     << filteredMetaPrimitives.at(i).x << " "
-	     << filteredMetaPrimitives.at(i).tanPhi << " "
-	     << filteredMetaPrimitives.at(i).phi << " "
-	     << filteredMetaPrimitives.at(i).phiB << " "
-	     << filteredMetaPrimitives.at(i).quality << " "
-	     << endl;
+	  cout << iEvent.id().event() << " filtered mp " << i << ": ";
+	  printmP(metaPrimitives.at(i));
+	  cout<<endl;
       }
     }
     
@@ -268,23 +250,48 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 
     if (dump) {
       for (unsigned int i=0; i<correlatedMetaPrimitives.size(); i++){
-	cout << iEvent.id().event() << " correlated mp " << i << ": "
-	     << correlatedMetaPrimitives.at(i).t0 << " "
-	     << correlatedMetaPrimitives.at(i).x << " "
-	     << correlatedMetaPrimitives.at(i).tanPhi << " "
-	     << correlatedMetaPrimitives.at(i).phi << " "
-	     << correlatedMetaPrimitives.at(i).phiB << " "
-	     << correlatedMetaPrimitives.at(i).quality << " "
-	     << endl;
+	  cout << iEvent.id().event() << " correlated mp " << i << ": ";
+	  printmP(metaPrimitives.at(i));
+	  cout<<endl;
       }
     }
     
-    ////////////////////////////////////////////////////////////////////////////////////
-    /// STORING RESULT: 
-    //////////////////////////////////////////
-    vector<L1MuDTChambPhDigi> outPhi;
-    vector<L1MuDTChambDigi> outP2;
+
+    /// STORING RESULTs 
+
     vector<L1Phase2MuDTPhDigi> outP2Ph;
+    
+    // First we asociate a new index to the metaprimitive depending on quality or phiB; 
+    uint32_t rawId = -1; 
+    int numP = -1;
+
+    for (auto metaPrimitiveIt = correlatedMetaPrimitives.begin(); metaPrimitiveIt != correlatedMetaPrimitives.end(); ++metaPrimitiveIt){
+	numP++;
+	rawId = (*metaPrimitiveIt).rawId;   
+
+	int inf = 0;
+	int numP2 = -1;  
+	for (auto metaPrimitiveItN = correlatedMetaPrimitives.begin(); metaPrimitiveItN != correlatedMetaPrimitives.end(); ++metaPrimitiveItN){
+	    numP2++;
+	    if (rawId != (*metaPrimitiveItN).rawId) continue; 
+	    if (numP2 == numP) {
+		(*metaPrimitiveIt).index = inf; 
+		break;  
+	    } else if ((*metaPrimitiveIt).quality < (*metaPrimitiveItN).quality) {
+		inf++;
+	    } else if ((*metaPrimitiveIt).quality > (*metaPrimitiveItN).quality) {
+		(*metaPrimitiveItN).index++;
+	    } else if ((*metaPrimitiveIt).quality == (*metaPrimitiveItN).quality) {
+		if (fabs((*metaPrimitiveIt).phiB) >= fabs((*metaPrimitiveItN).phiB) ){
+		    inf++;
+		} else if (fabs((*metaPrimitiveIt).phiB) < fabs((*metaPrimitiveItN).phiB) ){
+		    (*metaPrimitiveItN).index++;
+		}
+	    }
+	}
+
+    }
+
     
     for (auto metaPrimitiveIt = correlatedMetaPrimitives.begin(); metaPrimitiveIt != correlatedMetaPrimitives.end(); ++metaPrimitiveIt){
       DTChamberId chId((*metaPrimitiveIt).rawId);
@@ -295,66 +302,32 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
       if(sectorTP==14) sectorTP=10;
       sectorTP=sectorTP-1;
       
-      if(p2_df==0){
-	outPhi.push_back(L1MuDTChambPhDigi((*metaPrimitiveIt).t0,
-					   chId.wheel(),
-					   sectorTP,
-					   chId.station(),
-					   (int)round((*metaPrimitiveIt).phi*65536./0.8),
-					   (int)round((*metaPrimitiveIt).phiB*2048./1.4),
-					   (*metaPrimitiveIt).quality,
-					   1,
-					   0
-					   ));
+      int sl=0;
+      if((*metaPrimitiveIt).quality < 6 || (*metaPrimitiveIt).quality == 7){
+	  if(inner((*metaPrimitiveIt))) sl=1;
+	  else sl=3;
       }
-      else if(p2_df==1){
-	if(debug)std::cout<<"pushing back phase-2 dataformat agreement with Oscar for comparison with slice test"<<std::endl;
-	outP2.push_back(L1MuDTChambDigi((int)round((*metaPrimitiveIt).t0/25.),   // ubx (m_bx) //bx en la orbita
-					chId.wheel(),   // uwh (m_wheel)     
-					sectorTP,   // usc (m_sector)    
-					chId.station(),   // ust (m_station)
-					(int)round((*metaPrimitiveIt).x*1000),   // uphi (_phiAngle)
-					(int)round((*metaPrimitiveIt).tanPhi*4096),   // uphib (m_phiBending)
-					0,   // uz (m_zCoordinate)
-					0,   // uzsl (m_zSlope)
-					(*metaPrimitiveIt).quality,  // uqua (m_qualityCode)
-					0,  // uind (m_segmentIndex)
-					(int)round((*metaPrimitiveIt).t0),  // ut0 (m_t0Segment)
-					(int)round((*metaPrimitiveIt).chi2),  // uchi2 (m_chi2Segment)
-					-10    // urpc (m_rpcFlag)
-					));
-      }
-      else if(p2_df==2){
+      
+      if(p2_df==2){
 	if(debug)std::cout<<"pushing back phase-2 dataformat carlo-federica dataformat"<<std::endl;
 	outP2Ph.push_back(L1Phase2MuDTPhDigi((int)round((*metaPrimitiveIt).t0/25.),   // ubx (m_bx) //bx en la orbita
 					     chId.wheel(),   // uwh (m_wheel)     // FIXME: It is not clear who provides this?
 					     sectorTP,   // usc (m_sector)    // FIXME: It is not clear who provides this?
 					     chId.station(),   // ust (m_station)
+					     sl,   // ust (m_station)
 					     (int)round((*metaPrimitiveIt).phi*65536./0.8), // uphi (_phiAngle)
 					     (int)round((*metaPrimitiveIt).phiB*2048./1.4), // uphib (m_phiBending)
 					     (*metaPrimitiveIt).quality,  // uqua (m_qualityCode)
-					     0,  // uind (m_segmentIndex)
+					     (*metaPrimitiveIt).index,  // uind (m_segmentIndex)
 					     (int)round((*metaPrimitiveIt).t0),  // ut0 (m_t0Segment)
-					     (int)round((*metaPrimitiveIt).chi2),  // uchi2 (m_chi2Segment)
+					     (int)round((*metaPrimitiveIt).chi2*1000000),  // uchi2 (m_chi2Segment)
 					     -10    // urpc (m_rpcFlag)
 					     ));
 	
       }
     }
     
-    if(p2_df==0){
-      std::unique_ptr<L1MuDTChambPhContainer> resultPhi (new L1MuDTChambPhContainer);
-      resultPhi->setContainer(outPhi); iEvent.put(std::move(resultPhi));
-      outPhi.clear();
-      outPhi.erase(outPhi.begin(),outPhi.end());
-    }
-    else if(p2_df==1){
-      std::unique_ptr<L1MuDTChambContainer> resultP2 (new L1MuDTChambContainer);
-      resultP2->setContainer(outP2); iEvent.put(std::move(resultP2));
-      outP2.clear();
-      outP2.erase(outP2.begin(),outP2.end());
-    }
-    else if(p2_df==2){
+    if(p2_df==2){
       std::unique_ptr<L1Phase2MuDTPhContainer> resultP2Ph (new L1Phase2MuDTPhContainer);
       resultP2Ph->setContainer(outP2Ph); iEvent.put(std::move(resultP2Ph));
       outP2Ph.clear();
@@ -372,77 +345,44 @@ void DTTrigPhase2Prod::endRun(edm::Run const& iRun, const edm::EventSetup& iEven
 };
 
 
-bool DTTrigPhase2Prod::outer(metaPrimitive primera){
-    if(primera.wi1==-1 and primera.wi2==-1 and primera.wi3==-1 and primera.wi4==-1)
+bool DTTrigPhase2Prod::outer(metaPrimitive mp){
+    if(mp.wi1==-1 and mp.wi2==-1 and mp.wi3==-1 and mp.wi4==-1)
 	return true;
     return false;
 }
 
-bool DTTrigPhase2Prod::inner(metaPrimitive primera){
-    return !outer(primera);
+bool DTTrigPhase2Prod::inner(metaPrimitive mp){
+    if(mp.wi5==-1 and mp.wi6==-1 and mp.wi7==-1 and mp.wi8==-1)
+        return true;
+    return false;
 }
-
 
 bool DTTrigPhase2Prod::hasPosRF(int wh,int sec){
     return  wh>0 || (wh==0 && sec%4>1);
 }
 
-double DTTrigPhase2Prod::trigDir(metaPrimitive mp){
-    DTChamberId chId(mp.rawId);
-    int wh   = chId.wheel();
-    int sec  = chId.sector();
-    double phi  = mp.phi;
-    double phib  = mp.phiB;    
-    //double dir = (phib/512.+phi/4096.);
-    double dir = (phib+phi);
-    //change sign in case of negative wheels
-    if (!hasPosRF(wh,sec)) { dir = -dir; }
-    return dir;
+void DTTrigPhase2Prod::printmP(metaPrimitive mP){
+    DTSuperLayerId slId(mP.rawId);
+    std::cout<<slId<<"\t"
+             <<" "<<setw(2)<<left<<mP.wi1
+             <<" "<<setw(2)<<left<<mP.wi2
+             <<" "<<setw(2)<<left<<mP.wi3
+             <<" "<<setw(2)<<left<<mP.wi4
+             <<" "<<setw(5)<<left<<mP.tdc1
+             <<" "<<setw(5)<<left<<mP.tdc2
+             <<" "<<setw(5)<<left<<mP.tdc3
+             <<" "<<setw(5)<<left<<mP.tdc4
+             <<" "<<setw(10)<<right<<mP.x
+             <<" "<<setw(9)<<left<<mP.tanPhi
+             <<" "<<setw(5)<<left<<mP.t0
+             <<" "<<setw(13)<<left<<mP.chi2
+             <<" r:"<<rango(mP);
 }
 
-double DTTrigPhase2Prod::trigPos(metaPrimitive mp){
-    DTChamberId chId(mp.rawId);
-
-    if(debug) cout<<"back: chId="<<chId<<endl;
-    
-    int wh   = chId.wheel();
-    int sec  = chId.sector();
-    int st   = chId.station();
-    double phi  = mp.phi;
-    double phin = (sec-1)*Geom::pi()/6;
-    double phicenter = 0;
-    double r = 0;
-    double xcenter = 0;
-    
-    if (sec==4 && st==4) {
-	GlobalPoint gpos = phi>0 ? dtGeo->chamber(DTChamberId(wh,st,13))->position() : dtGeo->chamber(DTChamberId(wh,st,4))->position();
-	xcenter = phi>0 ? xCenter[0] : -xCenter[0];
-	phicenter =  gpos.phi();
-	r = gpos.perp();
-    } else if (sec==10 && st==4) {
-	GlobalPoint gpos = phi>0 ? dtGeo->chamber(DTChamberId(wh,st,14))->position() : dtGeo->chamber(DTChamberId(wh,st,10))->position();
-	xcenter = phi>0 ? xCenter[1] : -xCenter[1];
-	phicenter =  gpos.phi();
-	r = gpos.perp();
-    } else {
-	GlobalPoint gpos = dtGeo->chamber(DTChamberId(wh,st,sec))->position();
-	phicenter =  gpos.phi();
-	r = gpos.perp();
-    }
-
-    if(debug)cout<<"back: phicenter="<<phicenter<<" phin="<<phicenter<<endl;
-   
-    double deltaphi = phicenter-phin;
-    if(debug)cout<<"back: deltaphi="<<deltaphi<<endl;
-    //double x = (tan(phi/4096.)-tan(deltaphi))*(r*cos(deltaphi) - zcn[st-1]); //zcn is in local coordinates -> z invreases approching to vertex
-    double x = (tan(phi)-tan(deltaphi))*(r*cos(deltaphi) - zcn[st-1]); //zcn is in local coordinates -> z invreases approching to vertex
-    if(debug)cout<<"back: x="<<x<<endl;
-    if (hasPosRF(wh,sec)){ x = -x; } // change sign in case of positive wheels
-    if(debug)cout<<"back: hasPosRF="<<hasPosRF(wh,sec)<<endl;
-    if(debug)cout<<xcenter<<endl;
-    //x+=xcenter; this s the bug found by luigi
-    return x;
-    
+int DTTrigPhase2Prod::rango(metaPrimitive mp) {
+    if(mp.quality==1 or mp.quality==2) return 3;
+    if(mp.quality==3 or mp.quality==4) return 4;
+    return 0;
 }
 
 

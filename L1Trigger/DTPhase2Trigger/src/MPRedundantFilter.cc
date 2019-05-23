@@ -9,7 +9,7 @@ using namespace std;
 // Constructors and destructor
 // ============================================================================
 MPRedundantFilter::MPRedundantFilter(const ParameterSet& pset):
-  MuonPathFilter(pset),
+  MPFilter(pset),
   MaxBufferSize(8)
 {
   // Obtention of parameters

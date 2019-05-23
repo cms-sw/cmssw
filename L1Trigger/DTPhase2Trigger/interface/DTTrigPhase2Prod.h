@@ -22,7 +22,7 @@
 #include "L1Trigger/DTPhase2Trigger/interface/MuonPathAnalyzer.h"
 #include "L1Trigger/DTPhase2Trigger/interface/MuonPathAnalyzerPerSL.h"
 #include "L1Trigger/DTPhase2Trigger/interface/MuonPathAssociator.h"
-#include "L1Trigger/DTPhase2Trigger/interface/MuonPathFilter.h"
+#include "L1Trigger/DTPhase2Trigger/interface/MPFilter.h"
 #include "L1Trigger/DTPhase2Trigger/interface/MPQualityEnhancerFilter.h"
 #include "L1Trigger/DTPhase2Trigger/interface/MPRedundantFilter.h"
 
@@ -72,8 +72,9 @@ void endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
 
     std::vector<std::pair<int,MuonPath>> primitives;
 
-    bool outer(metaPrimitive primera);
-    bool inner(metaPrimitive primera);
+    int rango(metaPrimitive mp);
+    bool outer(metaPrimitive mp);
+    bool inner(metaPrimitive mp);
     void printmP(metaPrimitive mP);
 
     double trigPos(metaPrimitive mP);
@@ -121,8 +122,8 @@ void endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
     Int_t grcode; // Grouping code
     MotherGrouping* grouping_obj;
     MuonPathAnalyzer* mpathanalyzer;
-    MuonPathFilter*   mpathqualityenhancer;
-    MuonPathFilter*   mpathredundantfilter;
+    MPFilter*   mpathqualityenhancer;
+    MPFilter*   mpathredundantfilter;
     MuonPathAssociator* mpathassociator;
     
 };

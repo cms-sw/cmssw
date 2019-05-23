@@ -1,5 +1,5 @@
-#ifndef Phase2L1Trigger_DTTrigger_MuonPathFilter_cc
-#define Phase2L1Trigger_DTTrigger_MuonPathFilter_cc
+#ifndef Phase2L1Trigger_DTTrigger_MPFilter_cc
+#define Phase2L1Trigger_DTTrigger_MPFilter_cc
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -15,18 +15,11 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 
 #include "L1Trigger/DTPhase2Trigger/interface/muonpath.h"
 #include "L1Trigger/DTPhase2Trigger/interface/analtypedefs.h"
 #include "L1Trigger/DTPhase2Trigger/interface/constants.h"
-#include "L1Trigger/DTPhase2Trigger/interface/MuonPathFilter.h"
-
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambDigi.h"
+#include "L1Trigger/DTPhase2Trigger/interface/MPFilter.h"
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
@@ -50,11 +43,11 @@
 // Class declarations
 // ===============================================================================
 
-class MuonPathFilter {
+class MPFilter {
  public:
   // Constructors and destructor
-  MuonPathFilter(const edm::ParameterSet& pset);
-  virtual ~MuonPathFilter();
+  MPFilter(const edm::ParameterSet& pset);
+  virtual ~MPFilter();
   
   // Main methods
   virtual void initialise(const edm::EventSetup& iEventSetup)=0;
@@ -66,6 +59,7 @@ class MuonPathFilter {
   // Other public methods
   
  private:
+
   
   // Private attributes
   Bool_t debug;
