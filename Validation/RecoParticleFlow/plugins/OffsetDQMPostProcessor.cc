@@ -40,7 +40,6 @@ class OffsetDQMPostProcessor : public DQMEDHarvester {
   
 };
 
-// Some switches
 //
 // constructors and destructor
 //
