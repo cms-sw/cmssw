@@ -120,6 +120,12 @@ class PFEGammaAlgo {
     const reco::Vertex* primaryVtx;
   };
 
+  struct EgammaObjects {
+    reco::PFCandidateCollection candidates;
+    reco::PFCandidateEGammaExtraCollection candidateExtras;
+    reco::SuperClusterCollection refinedSuperClusters;
+  };
+
   //constructor
   PFEGammaAlgo(const PFEGConfigInfo&, GBRForests const& gbrForests);
 
@@ -137,28 +143,15 @@ class PFEGammaAlgo {
     cfg_.primaryVtx = & primary;
   }
 
-  //get PFCandidate collection
-  reco::PFCandidateCollection& getCandidates() {return outcands_;}
-
-  //get the PFCandidateExtra (for all candidates)
-  reco::PFCandidateEGammaExtraCollection& getEGExtra() {return outcandsextra_;}
-  
-  //get refined SCs
-  reco::SuperClusterCollection& getRefinedSCs() {return refinedscs_;}
-
   // this runs the functions below
-  void buildAndRefineEGObjects(const reco::PFBlockRef& block);
-  
+  EgammaObjects operator()(const reco::PFBlockRef& block);
+
 private: 
 
   GBRForests const& gbrForests_;
   
 
   // ------ rewritten basic processing pieces and cleaning algorithms
-  // the output collections
-  reco::PFCandidateCollection outcands_;
-  reco::PFCandidateEGammaExtraCollection outcandsextra_;
-  reco::SuperClusterCollection refinedscs_;
 
   // useful pre-cached mappings:
   // hopefully we get an enum that lets us just make an array in the future
@@ -173,14 +166,6 @@ private:
   bool isMuon(const reco::PFBlockElement&);
   // pre-processing of ECAL clusters near non-primary KF tracks
   void removeOrLinkECALClustersToKFTracks();
-
-  // candidate collections:
-  // this starts off as an inclusive list of prototype objects built from 
-  // supercluster/ecal-driven seeds and tracker driven seeds in a block
-  // it is then refined through by various cleanings, determining the energy 
-  // flow.
-  // use list for constant-time removals
-  std::list<ProtoEGObject> _refinableObjects;
 
   // functions:
 
@@ -239,9 +224,7 @@ private:
   
 
   // things for building the final candidate and refined SC collections    
-  void fillPFCandidates(const std::list<ProtoEGObject>&, 
-			reco::PFCandidateCollection&,
-			reco::PFCandidateEGammaExtraCollection&);
+  EgammaObjects fillPFCandidates(const std::list<ProtoEGObject>&);
   reco::SuperCluster buildRefinedSuperCluster(const ProtoEGObject&);
   
   // helper functions for that
@@ -260,8 +243,6 @@ private:
 		      const reco::PFBlockElementGsfTrack& GsfEl);  
 
   PFEGConfigInfo cfg_;
-
-  const char  *mvaWeightFile_;
 
   const ESChannelStatus* channelStatus_;
   

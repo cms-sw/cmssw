@@ -657,11 +657,20 @@ bool PFEGammaAlgo::isMuon(const reco::PFBlockElement& pfbe) {
   return false;
 }
 
-void PFEGammaAlgo::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
+PFEGammaAlgo::EgammaObjects PFEGammaAlgo::operator()(const reco::PFBlockRef& block) {
   LOGVERB("PFEGammaAlgo") 
     << "Resetting PFEGammaAlgo for new block and running!" << std::endl;
+
+  // candidate collections:
+  // this starts off as an inclusive list of prototype objects built from 
+  // supercluster/ecal-driven seeds and tracker driven seeds in a block
+  // it is then refined through by various cleanings, determining the energy 
+  // flow.
+  // use list for constant-time removals
+  std::list<ProtoEGObject> refinableObjects;
+
   _splayedblock.clear();
-  _refinableObjects.clear();
+  refinableObjects.clear();
   _splayedblock.resize(13); // make sure that we always have the HGCAL entry
 
   _currentblock = block;
@@ -695,9 +704,9 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
   // we don't allow clusters in super clusters to be locked out this way
   removeOrLinkECALClustersToKFTracks();
 
-  initializeProtoCands(_refinableObjects); 
+  initializeProtoCands(refinableObjects); 
   LOGDRESSED("PFEGammaAlgo") 
-    << "Initialized " << _refinableObjects.size() << " proto-EGamma objects"
+    << "Initialized " << refinableObjects.size() << " proto-EGamma objects"
     << std::endl;
   dumpCurrentRefinableObjects();
 
@@ -709,7 +718,7 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
   // --- Primary Linking Step ---
   // since this is particle flow and we try to work from the pixels out
   // we start by linking the tracks together and finding the ECAL clusters
-  for( auto& RO : _refinableObjects ) {
+  for( auto& RO : refinableObjects ) {
     // find the KF tracks associated to GSF primary tracks
     linkRefinableObjectGSFTracksToKFs(RO);
     // do the same for HCAL clusters associated to the GSF
@@ -729,7 +738,7 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
   dumpCurrentRefinableObjects();
 
   // merge objects after primary linking
-  mergeROsByAnyLink(_refinableObjects);
+  mergeROsByAnyLink(refinableObjects);
 
   LOGDRESSED("PFEGammaAlgo")
     << "Dumping after first merging operation : " << std::endl;
@@ -738,7 +747,7 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
   // --- Secondary Linking Step ---
   // after this we go through the ECAL clusters on the remaining tracks
   // and try to link those in...
-  for( auto& RO : _refinableObjects ) {    
+  for( auto& RO : refinableObjects ) {    
     // look for conversion legs
     linkRefinableObjectECALToSingleLegConv(RO);
     dumpCurrentRefinableObjects();
@@ -753,15 +762,15 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
   dumpCurrentRefinableObjects();
 
   // merge objects after primary linking
-  mergeROsByAnyLink(_refinableObjects);
+  mergeROsByAnyLink(refinableObjects);
 
   LOGDRESSED("PFEGammaAlgo")
-    << "There are " << _refinableObjects.size() 
+    << "There are " << refinableObjects.size() 
     << " after the 2nd merging step." << std::endl;
   dumpCurrentRefinableObjects();
 
   // -- unlinking and proto-object vetos, final sorting
-  for( auto& RO : _refinableObjects ) {
+  for( auto& RO : refinableObjects ) {
     // remove secondary KFs (and possibly ECALs) matched to HCAL clusters
     unlinkRefinableObjectKFandECALMatchedToHCAL(RO, false, false);
     // remove secondary KFs and ECALs linked to them that have bad E/p_in 
@@ -776,12 +785,12 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
   }
 
   LOGDRESSED("PFEGammaAlgo")
-    << "There are " << _refinableObjects.size() 
+    << "There are " << refinableObjects.size() 
     << " after the unlinking and vetos step." << std::endl;
   dumpCurrentRefinableObjects();
 
   // fill the PF candidates and then build the refined SC
-  fillPFCandidates(_refinableObjects,outcands_,outcandsextra_);
+  return fillPFCandidates(refinableObjects);
 
 }
 
@@ -807,8 +816,8 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
       unwrapSuperCluster(fromSC.parentSC,fromSC.ecalclusters,fromSC.ecal2ps);
     if( sc_success ) {
       /*
-      auto ins_pos = std::lower_bound(_refinableObjects.begin(),
-				      _refinableObjects.end(),
+      auto ins_pos = std::lower_bound(refinableObjects.begin(),
+				      refinableObjects.end(),
 				      fromSC,
 				      [&](const ProtoEGObject& a,
 					  const ProtoEGObject& b){
@@ -819,7 +828,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 					return a_en < b_en;
 				      });
       */
-      _refinableObjects.insert(_refinableObjects.end(),fromSC);
+      egobjs.insert(egobjs.end(),fromSC);
     }
   }
   // step 2: build GSF-seed-based proto-candidates
@@ -891,15 +900,15 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	 << " isNonnull: " << fromGSF.electronSeed.isNonnull() 
 	 << std::endl;           
        SeedMatchesToProtoObject sctoseedmatch(fromGSF.electronSeed);      
-       std::list<ProtoEGObject>::iterator objsbegin = _refinableObjects.begin();
-       std::list<ProtoEGObject>::iterator objsend   = _refinableObjects.end();
+       auto objsbegin = egobjs.begin();
+       auto objsend   = egobjs.end();
        // this auto is a std::list<ProtoEGObject>::iterator
        auto clusmatch = std::find_if(objsbegin,objsend,sctoseedmatch);
        if( clusmatch != objsend ) {
 	 fromGSF.parentSC = clusmatch->parentSC;
 	 fromGSF.ecalclusters = std::move(clusmatch->ecalclusters);
 	 fromGSF.ecal2ps  = std::move(clusmatch->ecal2ps);
-	 _refinableObjects.erase(clusmatch);	
+	 egobjs.erase(clusmatch);	
        } else if (fromGSF.electronSeed.isAvailable()  && 
 		  fromGSF.electronSeed.isNonnull()) {
 	 // link tests in the gap region can current split a gap electron
@@ -918,8 +927,8 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
        } // supercluster in block
      } // is ECAL driven seed?   
      /*
-     auto ins_pos = std::lower_bound(_refinableObjects.begin(),
-				     _refinableObjects.end(),
+     auto ins_pos = std::lower_bound(refinableObjects.begin(),
+				     refinableObjects.end(),
 				     fromGSF,
 				     [&](const ProtoEGObject& a,
 					 const ProtoEGObject& b){
@@ -932,7 +941,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 				       return a_en < b_en;
 				     });   
      */
-     _refinableObjects.insert(_refinableObjects.end(),fromGSF);
+     egobjs.insert(egobjs.end(),fromGSF);
    } // end loop on GSF elements of block
 }
 
@@ -1117,9 +1126,9 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
  #ifdef PFLOW_DEBUG
    edm::LogVerbatim("PFEGammaAlgo") 
      //<< "Dumping current block: " << std::endl << *_currentblock << std::endl
-     << "Dumping " << _refinableObjects.size()
+     << "Dumping " << refinableObjects.size()
      << " refinable objects for this block: " << std::endl;
-   for( const auto& ro : _refinableObjects ) {    
+   for( const auto& ro : refinableObjects ) {    
      std::stringstream info;
      info << "Refinable Object:" << std::endl;
      if( ro.parentSC ) {
@@ -1725,17 +1734,19 @@ linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject& RO) {
   }
 }
 
-void PFEGammaAlgo::
-fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
-		 reco::PFCandidateCollection& egcands,
-		 reco::PFCandidateEGammaExtraCollection& egxs) {
+PFEGammaAlgo::EgammaObjects PFEGammaAlgo::
+fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs) {
+
+  EgammaObjects output;
+  auto& egcands = output.candidates;
+  auto& egxs = output.candidateExtras;
   // reset output collections
   egcands.clear();
   egxs.clear();  
-  refinedscs_.clear();
+  output.refinedSuperClusters.clear();
   egcands.reserve(ROs.size());
   egxs.reserve(ROs.size());
-  refinedscs_.reserve(ROs.size());
+  output.refinedSuperClusters.reserve(ROs.size());
   for( auto& RO : ROs ) {    
     if( RO.ecalclusters.empty()  && 
 	!cfg_.produceEGCandsWithNoSuperCluster ) continue;
@@ -1809,7 +1820,7 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
     }
     
     // build the refined supercluster from those clusters left in the cand
-    refinedscs_.push_back(buildRefinedSuperCluster(RO));
+    output.refinedSuperClusters.push_back(buildRefinedSuperCluster(RO));
 
     //*TODO* cluster time is not reliable at the moment, so only use track timing
     float trkTime = 0, trkTimeErr = -1;
@@ -1824,7 +1835,7 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
       cand.setTime( trkTime, trkTimeErr );
     }
     
-    const reco::SuperCluster& the_sc = refinedscs_.back();
+    const reco::SuperCluster& the_sc = output.refinedSuperClusters.back();
     // with the refined SC in hand we build a naive candidate p4 
     // and set the candidate ECAL position to either the barycenter of the 
     // supercluster (if super-cluster present) or the seed of the
@@ -1865,6 +1876,8 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
     egcands.push_back(cand);
     egxs.push_back(xtra);    
   }
+
+  return output;
 }
 
 float PFEGammaAlgo::calculateEleMVA(const PFEGammaAlgo::ProtoEGObject& ro,

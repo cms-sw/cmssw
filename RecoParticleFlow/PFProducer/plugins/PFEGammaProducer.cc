@@ -81,7 +81,7 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
     primaryVertex_ = reco::Vertex(p, e, 0, 0, 0);  
   }  
   algo_config.primaryVtx = &primaryVertex_;  
-  pfeg_.reset(new PFEGammaAlgo(algo_config, *gbrForests));
+  pfeg_ = std::make_unique<PFEGammaAlgo>(algo_config, *gbrForests);
 
 }
 
@@ -197,39 +197,27 @@ PFEGammaProducer::produce(edm::Event& iEvent,
     // make a copy of the link data, which will be edited.
     //PFBlock::LinkData linkData =  block.linkData();
     
-    pfeg_->buildAndRefineEGObjects(blockref);
+    auto output = (*pfeg_)(blockref);
 
-    if( !pfeg_->getCandidates().empty() ) {
+    if( !output.candidates.empty() ) {
       LOGDRESSED("PFEGammaProducer")
       << "Block with " << elements.size() 
       << " elements produced " 
-      << pfeg_->getCandidates().size() 
+      << output.candidates.size() 
       << " e-g candidates!" << std::endl;      
     }
 
     const size_t egsize = egCandidates_->size();
-    egCandidates_->resize(egsize + pfeg_->getCandidates().size());
-    reco::PFCandidateCollection::iterator eginsertfrom = 
-      egCandidates_->begin() + egsize;
-    std::move(pfeg_->getCandidates().begin(),
-	      pfeg_->getCandidates().end(),
-	      eginsertfrom);
+    egCandidates_->resize(egsize + output.candidates.size());
+    std::move(output.candidates.begin(), output.candidates.end(), egCandidates_->begin() + egsize);
     
     const size_t egxsize = egExtra_->size();
-    egExtra_->resize(egxsize + pfeg_->getEGExtra().size());
-    reco::PFCandidateEGammaExtraCollection::iterator egxinsertfrom = 
-      egExtra_->begin() + egxsize;
-    std::move(pfeg_->getEGExtra().begin(),
-	      pfeg_->getEGExtra().end(),
-	      egxinsertfrom);
+    egExtra_->resize(egxsize + output.candidateExtras.size());
+    std::move(output.candidateExtras.begin(), output.candidateExtras.end(), egExtra_->begin() + egxsize);
 
     const size_t rscsize = sClusters_->size();
-    sClusters_->resize(rscsize + pfeg_->getRefinedSCs().size());
-    reco::SuperClusterCollection::iterator rscinsertfrom = 
-      sClusters_->begin() + rscsize;
-    std::move(pfeg_->getRefinedSCs().begin(),
-	      pfeg_->getRefinedSCs().end(),
-	      rscinsertfrom);    
+    sClusters_->resize(rscsize + output.refinedSuperClusters.size());
+    std::move(output.refinedSuperClusters.begin(), output.refinedSuperClusters.end(), sClusters_->begin() + rscsize);
   }
 
   LOGDRESSED("PFEGammaProducer")
