@@ -231,7 +231,7 @@ void CSCAnodeLCTAnalyzer::digiSimHitAssociator(CSCAnodeLayerInfo& info,
 	   prd != thisLayerDigis.end(); prd++) {
 	double deltaEtaMin = 999.;
 	double bestHitEta  = 999.;
-	PSimHit* bestHit   = 0;
+	PSimHit* bestHit   = nullptr;
 
 	int wiregroup = prd->getWireGroup(); // counted from 1
 	double digiEta = getWGEta(layerId, wiregroup-1);
@@ -286,7 +286,7 @@ int CSCAnodeLCTAnalyzer::nearestWG(
     // For ALCT search, the key layer is the 3rd one, counting from 1.
     if (pli->getId().layer() == CSCConstants::KEY_ALCT_LAYER) {
       vector<PSimHit> thisLayerHits = pli->getSimHits();
-      if (thisLayerHits.size() > 0) {
+      if (!thisLayerHits.empty()) {
 	// There can be only one RecDigi (and therefore only one SimHit)
 	// in a key layer.
 	if (thisLayerHits.size() != 1) {
@@ -310,7 +310,7 @@ int CSCAnodeLCTAnalyzer::nearestWG(
   if (!hit_found) {
     for (pli = allLayerInfo.begin(); pli != allLayerInfo.end(); pli++) {
       // if there is any occurrence of simHit size greater that zero, use this.
-      if ((pli->getRecDigis()).size() > 0 && (pli->getSimHits()).size() > 0) {
+      if (!(pli->getRecDigis()).empty() && !(pli->getSimHits()).empty()) {
 	// Always use the first SimHit for now.
 	vector<PSimHit> thisLayerHits = pli->getSimHits();
 	matchedHit = thisLayerHits[0];

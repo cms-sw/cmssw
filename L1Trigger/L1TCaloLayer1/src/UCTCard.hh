@@ -40,15 +40,15 @@ private:
 
   // No default constructor is needed
 
-  UCTCard();
+  UCTCard() = delete;
 
   // No copy constructor is needed
 
-  UCTCard(const UCTCard&);
+  UCTCard(const UCTCard&) = delete;
 
   // No equality operator is needed
 
-  const UCTCard& operator=(const UCTCard&);
+  const UCTCard& operator=(const UCTCard&) = delete;
 
   // Helper functions
 

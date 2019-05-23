@@ -289,7 +289,7 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info,
 	   prd != thisLayerDigis.end(); prd++) {
 	double deltaPhiMin = 999.;
 	double bestHitPhi  = 999.;
-	PSimHit* bestHit   = 0;
+	PSimHit* bestHit   = nullptr;
 
 	int strip = prd->getStrip();
 	double digiPhi = getStripPhi(layerId, strip-0.5);
@@ -353,7 +353,7 @@ int CSCCathodeLCTAnalyzer::nearestHS(
   for (pli = allLayerInfo.begin(); pli != allLayerInfo.end(); pli++) {
     if (pli->getId().layer() == key_layer) {
       vector<PSimHit> thisLayerHits = pli->getSimHits();
-      if (thisLayerHits.size() > 0) {
+      if (!thisLayerHits.empty()) {
 	// There can be one RecDigi (and therefore only one SimHit)
 	// in a keylayer.
 	if (thisLayerHits.size() != 1) {
@@ -376,7 +376,7 @@ int CSCCathodeLCTAnalyzer::nearestHS(
   if (hit_found == false) {
     for (pli = allLayerInfo.begin(); pli != allLayerInfo.end(); pli++) {
       // if there is any occurrence of simHit size greater that zero, use this.
-      if ((pli->getRecDigis()).size() > 0 && (pli->getSimHits()).size() > 0) {
+      if (!(pli->getRecDigis()).empty() && !(pli->getSimHits()).empty()) {
 	// Always use the first SimHit for now.
 	matchedHit = (pli->getSimHits())[0];
 	layerId = pli->getId();

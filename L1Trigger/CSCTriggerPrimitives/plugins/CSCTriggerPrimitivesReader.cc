@@ -2714,7 +2714,7 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
   ev.getManyByType(allhepmcp);
 
   //cout << "HepMC info: " << allhepmcp.size() << endl;
-  if (allhepmcp.size() > 0) {
+  if (!allhepmcp.empty()) {
     const HepMC::GenEvent& mc = allhepmcp[0]->getHepMCData();
     int i = 0;
     for (HepMC::GenEvent::particle_const_iterator p = mc.particles_begin();
@@ -3051,7 +3051,7 @@ void CSCTriggerPrimitivesReader::calcEfficiency(const CSCALCTDigiCollection* alc
       double hitEta = -999.;
       for (int ilayer = 2; ilayer < CSCConstants::NUM_LAYERS; ilayer++) {
         vector<PSimHit> layerSimHitsV = simHitsV[ilayer];
-        if (layerSimHitsV.size() > 0) {
+        if (!layerSimHitsV.empty()) {
           LocalPoint hitLP = layerSimHitsV[0].localPosition();
           CSCDetId layerId = (CSCDetId)(layerSimHitsV[0]).detUnitId();
           const CSCLayer* csclayer = geom_->layer(layerId);
