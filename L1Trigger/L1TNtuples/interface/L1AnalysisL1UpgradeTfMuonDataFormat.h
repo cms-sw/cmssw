@@ -46,7 +46,7 @@ namespace L1Analysis {
     std::vector<short int> tfMuonWh;
     std::vector<short int> tfMuonTrAdd;
     std::vector<std::map<std::string, int>> tfMuonDecodedTrAdd;
-    std::vector<int> tfMuonHwTrAdd;
+    std::vector<short int> tfMuonHwTrAdd;
   };
 }  // namespace L1Analysis
 #endif
