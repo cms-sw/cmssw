@@ -34,7 +34,7 @@
 #endif
 
 PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
-                                   const pfEGHelpers::HeavyObjectCache*)
+                                   const PFEGammaAlgo::GBRForests* gbrForests)
   : inputTagBlocks_        (consumes<reco::PFBlockCollection>(iConfig.getParameter<edm::InputTag>("blocks")))
   , eetopsSrc_             (consumes<reco::PFCluster::EEtoPSAssociation>(
                             iConfig.getParameter<edm::InputTag>("EEtoPS_source")))
@@ -71,7 +71,17 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
   algo_config.thePFEnergyCalibration.reset(new PFEnergyCalibration());
 
   //PFEGamma
-  setPFEGParameters(algo_config);  
+  //for MVA pass PV if there is one in the collection otherwise pass a dummy  
+  if(!useVerticesForNeutral_) { // create a dummy PV  
+    reco::Vertex::Error e;  
+    e(0, 0) = 0.0015 * 0.0015;  
+    e(1, 1) = 0.0015 * 0.0015;  
+    e(2, 2) = 15. * 15.;  
+    reco::Vertex::Point p(0, 0, 0);  
+    primaryVertex_ = reco::Vertex(p, e, 0, 0, 0);  
+  }  
+  algo_config.primaryVtx = &primaryVertex_;  
+  pfeg_.reset(new PFEGammaAlgo(algo_config, *gbrForests));
 
 }
 
@@ -187,7 +197,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
     // make a copy of the link data, which will be edited.
     //PFBlock::LinkData linkData =  block.linkData();
     
-    pfeg_->buildAndRefineEGObjects(globalCache(),blockref);
+    pfeg_->buildAndRefineEGObjects(blockref);
 
     if( !pfeg_->getCandidates().empty() ) {
       LOGDRESSED("PFEGammaProducer")
@@ -316,22 +326,6 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   iEvent.put(std::move(egCandidates_));
 }
 
-//PFEGammaAlgo: a new method added to set the parameters for electron and photon reconstruction. 
-void 
-PFEGammaProducer::setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo& cfg) {  
-  
-  //for MVA pass PV if there is one in the collection otherwise pass a dummy  
-  if(!useVerticesForNeutral_) { // create a dummy PV  
-    reco::Vertex::Error e;  
-    e(0, 0) = 0.0015 * 0.0015;  
-    e(1, 1) = 0.0015 * 0.0015;  
-    e(2, 2) = 15. * 15.;  
-    reco::Vertex::Point p(0, 0, 0);  
-    primaryVertex_ = reco::Vertex(p, e, 0, 0, 0);  
-  }  
-  cfg.primaryVtx = &primaryVertex_;  
-  pfeg_.reset(new PFEGammaAlgo(cfg));
-}
 
 void
 PFEGammaProducer::setPFVertexParameters(reco::VertexCollection const&  primaryVertices)
