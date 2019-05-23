@@ -14,14 +14,15 @@ namespace edm {
 }
 
 class HLTCSCRing2or3Filter : public HLTFilter {
-
- public:
+public:
   explicit HLTCSCRing2or3Filter(const edm::ParameterSet&);
   ~HLTCSCRing2or3Filter() override;
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
+private:
   edm::EDGetTokenT<CSCRecHit2DCollection> cscrechitsToken;
   edm::InputTag m_input;
   unsigned int m_minHits;
