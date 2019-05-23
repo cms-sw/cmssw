@@ -1,10 +1,10 @@
 #ifndef DQMSERVICES_COMPONENTS_DQMDaqInfo_H
-# define DQMSERVICES_COMPONENTS_DQMDaqInfo_H
+#define DQMSERVICES_COMPONENTS_DQMDaqInfo_H
 // -*- C++ -*-
 //
 // Package:    DQMDaqInfo
 // Class:      DQMDaqInfo
-// 
+//
 /**\class DQMDaqInfo DQMDaqInfo.cc CondCore/DQMDaqInfo/src/DQMDaqInfo.cc
    
  Description: <one line class summary>
@@ -43,39 +43,35 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-
-
 class DQMDaqInfo : public edm::EDAnalyzer {
 public:
   explicit DQMDaqInfo(const edm::ParameterSet&);
   ~DQMDaqInfo() override;
-  
 
 private:
-  void beginJob() override ;
-  void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) override;
+  void beginJob() override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
-  
-  DQMStore *dbe_;  
+  void endJob() override;
 
-  enum subDetList { Pixel, SiStrip, EcalBarrel, EcalEndcap, Hcal, DT, CSC, RPC, L1T };  
-  
-  MonitorElement*  DaqFraction[9];
+  DQMStore* dbe_;
 
-  std::pair<int,int> PixelRange;
-  std::pair<int,int> TrackerRange;
-  std::pair<int,int> CSCRange;
-  std::pair<int,int> RPCRange;
-  std::pair<int,int> DTRange;
-  std::pair<int,int> HcalRange;  
-  std::pair<int,int> ECALBarrRange;
-  std::pair<int,int> ECALEndcapRangeLow;
-  std::pair<int,int> ECALEndcapRangeHigh;
-  std::pair<int,int> L1TRange;
-  
-  float  NumberOfFeds[9];
- 
+  enum subDetList { Pixel, SiStrip, EcalBarrel, EcalEndcap, Hcal, DT, CSC, RPC, L1T };
+
+  MonitorElement* DaqFraction[9];
+
+  std::pair<int, int> PixelRange;
+  std::pair<int, int> TrackerRange;
+  std::pair<int, int> CSCRange;
+  std::pair<int, int> RPCRange;
+  std::pair<int, int> DTRange;
+  std::pair<int, int> HcalRange;
+  std::pair<int, int> ECALBarrRange;
+  std::pair<int, int> ECALEndcapRangeLow;
+  std::pair<int, int> ECALEndcapRangeHigh;
+  std::pair<int, int> L1TRange;
+
+  float NumberOfFeds[9];
 };
 
 #endif

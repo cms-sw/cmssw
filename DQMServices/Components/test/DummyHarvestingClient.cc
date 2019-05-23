@@ -53,154 +53,143 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-# define DEBUG 0
+#define DEBUG 0
 //
 // class declaration
 //
 namespace {
-class CumulatorBase {
- public:
-  virtual ~CumulatorBase()  = default;
-  virtual void cumulate(int lumi_section) = 0;
-  virtual void finalizeCumulate() = 0;
-};
+  class CumulatorBase {
+  public:
+    virtual ~CumulatorBase() = default;
+    virtual void cumulate(int lumi_section) = 0;
+    virtual void finalizeCumulate() = 0;
+  };
 
-class TH1FCumulator : public CumulatorBase {
- public:
-  TH1FCumulator(const edm::ParameterSet& iPSet,
-                DQMStore& iStore,
-                std::string folder,
-                bool iSetLumiFlag)
-      :store_(&iStore),
-       folder_(std::move(std::move(folder))) {
-    std::string extension;
-    if (iSetLumiFlag) {
-      extension = "_lumi";
-    }
-    name_ = iPSet.getUntrackedParameter<std::string>("name") + extension;
-  }
-
-  ~TH1FCumulator() override = default;
-
-  void cumulate(int ls) override {
-    MonitorElement *tmp = nullptr;
-    if (!(tmp = store_->get(folder_ + name_)))
-      throw cms::Exception("MissingHistogram") << name_ << std::endl;
-
-    entries_per_LS_[ls] = tmp->getTH1F()->GetEntries();
-    if (DEBUG)
-      std::cout << "Getting from " << folder_ << name_
-                << " entries: " << entries_per_LS_[ls]
-                << " in LS: " << ls << std::endl;
-  }
-
-  void finalizeCumulate() override {
-    if (DEBUG)
-      std::cout << "TH1FCumulator::finalizaCumulate()" << std::endl;
-
-    auto it = entries_per_LS_.begin();
-    auto ite = entries_per_LS_.end();
-    std::string extension("_cumulative");
-    store_->setCurrentFolder(folder_);
-    MonitorElement *tmp = store_->book1D(name_ + extension,
-                                         name_ + extension,
-                                         (--(entries_per_LS_.end()))->first,
-                                         0,
-                                         (--(entries_per_LS_.end()))->first);
-
-    int lastAccessed = 0;
-    for (; it != ite; it++) {
-      while (lastAccessed < (*it).first) {
-        tmp->Fill(lastAccessed, -1.);
-        lastAccessed++;
+  class TH1FCumulator : public CumulatorBase {
+  public:
+    TH1FCumulator(const edm::ParameterSet& iPSet, DQMStore& iStore, std::string folder, bool iSetLumiFlag)
+        : store_(&iStore), folder_(std::move(std::move(folder))) {
+      std::string extension;
+      if (iSetLumiFlag) {
+        extension = "_lumi";
       }
+      name_ = iPSet.getUntrackedParameter<std::string>("name") + extension;
+    }
+
+    ~TH1FCumulator() override = default;
+
+    void cumulate(int ls) override {
+      MonitorElement* tmp = nullptr;
+      if (!(tmp = store_->get(folder_ + name_)))
+        throw cms::Exception("MissingHistogram") << name_ << std::endl;
+
+      entries_per_LS_[ls] = tmp->getTH1F()->GetEntries();
       if (DEBUG)
-        std::cout << "TH1FCumulator::finalizaCumulate() fill "
-                  << (*it).first << " " << (*it).second<< std::endl;
-      tmp->Fill((*it).first, (*it).second);
-      lastAccessed = (*it).first + 1;
+        std::cout << "Getting from " << folder_ << name_ << " entries: " << entries_per_LS_[ls] << " in LS: " << ls
+                  << std::endl;
     }
-  }
 
- private:
-  DQMStore* store_;
-  std::string folder_;
-  std::string name_;
-  std::map<int, int> entries_per_LS_;
-};
+    void finalizeCumulate() override {
+      if (DEBUG)
+        std::cout << "TH1FCumulator::finalizaCumulate()" << std::endl;
 
-class TH2FCumulator : public CumulatorBase {
- public:
-  TH2FCumulator(const edm::ParameterSet& iPSet,
-                DQMStore& iStore,
-                std::string folder,
-                bool iSetLumiFlag)
-      :store_(&iStore),
-       folder_(std::move(std::move(folder))) {
-    std::string extension;
-    if (iSetLumiFlag) {
-      extension = "_lumi";
-    }
-    name_ = iPSet.getUntrackedParameter<std::string>("name")+extension;
-  }
+      auto it = entries_per_LS_.begin();
+      auto ite = entries_per_LS_.end();
+      std::string extension("_cumulative");
+      store_->setCurrentFolder(folder_);
+      MonitorElement* tmp = store_->book1D(name_ + extension,
+                                           name_ + extension,
+                                           (--(entries_per_LS_.end()))->first,
+                                           0,
+                                           (--(entries_per_LS_.end()))->first);
 
-  ~TH2FCumulator() override = default;
-
-  void cumulate(int ls) override {
-    MonitorElement *tmp = nullptr;
-    if (!(tmp = store_->get(folder_ + name_)))
-      throw cms::Exception("MissingHistogram") << name_ << std::endl;
-
-    entries_per_LS_[ls] = tmp->getTH2F()->GetEntries();
-  };
-
-  void finalizeCumulate() override {
-    auto it = entries_per_LS_.begin();
-    auto ite = entries_per_LS_.end();
-    std::string extension("_cumulative");
-    store_->setCurrentFolder(folder_);
-    MonitorElement *tmp = store_->book1D(name_ + extension,
-                                         name_ + extension,
-                                         (--(entries_per_LS_.end()))->first,
-                                         0,
-                                         (--(entries_per_LS_.end()))->first);
-
-    int lastAccessed = 0;
-    for (; it != ite; it++) {
-      while (lastAccessed < (*it).first) {
-        tmp->Fill(lastAccessed, -1.);
-        lastAccessed++;
+      int lastAccessed = 0;
+      for (; it != ite; it++) {
+        while (lastAccessed < (*it).first) {
+          tmp->Fill(lastAccessed, -1.);
+          lastAccessed++;
+        }
+        if (DEBUG)
+          std::cout << "TH1FCumulator::finalizaCumulate() fill " << (*it).first << " " << (*it).second << std::endl;
+        tmp->Fill((*it).first, (*it).second);
+        lastAccessed = (*it).first + 1;
       }
-      tmp->Fill((*it).first, (*it).second);
-      lastAccessed = (*it).first + 1;
     }
+
+  private:
+    DQMStore* store_;
+    std::string folder_;
+    std::string name_;
+    std::map<int, int> entries_per_LS_;
   };
 
- private:
-  DQMStore* store_;
-  std::string folder_;
-  std::string name_;
-  std::map<int, int> entries_per_LS_;
-};
-}
+  class TH2FCumulator : public CumulatorBase {
+  public:
+    TH2FCumulator(const edm::ParameterSet& iPSet, DQMStore& iStore, std::string folder, bool iSetLumiFlag)
+        : store_(&iStore), folder_(std::move(std::move(folder))) {
+      std::string extension;
+      if (iSetLumiFlag) {
+        extension = "_lumi";
+      }
+      name_ = iPSet.getUntrackedParameter<std::string>("name") + extension;
+    }
+
+    ~TH2FCumulator() override = default;
+
+    void cumulate(int ls) override {
+      MonitorElement* tmp = nullptr;
+      if (!(tmp = store_->get(folder_ + name_)))
+        throw cms::Exception("MissingHistogram") << name_ << std::endl;
+
+      entries_per_LS_[ls] = tmp->getTH2F()->GetEntries();
+    };
+
+    void finalizeCumulate() override {
+      auto it = entries_per_LS_.begin();
+      auto ite = entries_per_LS_.end();
+      std::string extension("_cumulative");
+      store_->setCurrentFolder(folder_);
+      MonitorElement* tmp = store_->book1D(name_ + extension,
+                                           name_ + extension,
+                                           (--(entries_per_LS_.end()))->first,
+                                           0,
+                                           (--(entries_per_LS_.end()))->first);
+
+      int lastAccessed = 0;
+      for (; it != ite; it++) {
+        while (lastAccessed < (*it).first) {
+          tmp->Fill(lastAccessed, -1.);
+          lastAccessed++;
+        }
+        tmp->Fill((*it).first, (*it).second);
+        lastAccessed = (*it).first + 1;
+      }
+    };
+
+  private:
+    DQMStore* store_;
+    std::string folder_;
+    std::string name_;
+    std::map<int, int> entries_per_LS_;
+  };
+}  // namespace
 
 class DummyHarvestingClient : public edm::EDAnalyzer {
- public:
+public:
   using PSets = std::vector<edm::ParameterSet>;
   explicit DummyHarvestingClient(const edm::ParameterSet&);
   ~DummyHarvestingClient() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
+private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override;
-  void endLuminosityBlock(edm::LuminosityBlock const&,
-                                  edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   void bookHistograms();
   // ----------member data ---------------------------
@@ -216,7 +205,6 @@ class DummyHarvestingClient : public edm::EDAnalyzer {
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -245,67 +233,51 @@ DummyHarvestingClient::DummyHarvestingClient(const edm::ParameterSet& iConfig)
     for (; it != ite; ++it) {
       switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
         case 1:
-          m_lumiCumulators.push_back(boost::shared_ptr<CumulatorBase>(
-              new TH1FCumulator(*it, *dstore, folder, true)));
+          m_lumiCumulators.push_back(boost::shared_ptr<CumulatorBase>(new TH1FCumulator(*it, *dstore, folder, true)));
           break;
         case 2:
-          m_lumiCumulators.push_back(boost::shared_ptr<CumulatorBase>(
-              new TH2FCumulator(*it, *dstore, folder, true)));
+          m_lumiCumulators.push_back(boost::shared_ptr<CumulatorBase>(new TH2FCumulator(*it, *dstore, folder, true)));
           break;
       }
     }
   }
 }
 
-void DummyHarvestingClient::bookHistograms() {
-}
-
+void DummyHarvestingClient::bookHistograms() {}
 
 DummyHarvestingClient::~DummyHarvestingClient() = default;
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-DummyHarvestingClient::analyze(edm::Event const& iEvent,
-                               edm::EventSetup const& iSetup) {
-  using namespace edm;
-}
+void DummyHarvestingClient::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) { using namespace edm; }
 
 // ------------ method called once each job just before starting event loop  ------------
-void
-DummyHarvestingClient::beginJob() {
+void DummyHarvestingClient::beginJob() {
   if (book_at_beginJob_)
     bookHistograms();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void
-DummyHarvestingClient::endJob() {
-}
+void DummyHarvestingClient::endJob() {}
 
 // ------------ method called when starting to processes a run  ------------
-void
-DummyHarvestingClient::beginRun(edm::Run const&, edm::EventSetup const&) {
+void DummyHarvestingClient::beginRun(edm::Run const&, edm::EventSetup const&) {
   if (book_at_beginRun_)
     bookHistograms();
 }
 
 // ------------ method called when ending the processing of a run  ------------
-void
-DummyHarvestingClient::endRun(edm::Run const&, edm::EventSetup const&) {
+void DummyHarvestingClient::endRun(edm::Run const&, edm::EventSetup const&) {
   auto it = m_lumiCumulators.begin();
   auto ite = m_lumiCumulators.end();
   for (; it != ite; ++it)
     (*it)->finalizeCumulate();
 }
 
-void
-DummyHarvestingClient::endLuminosityBlock(edm::LuminosityBlock const& iLumi,
-                                          edm::EventSetup const&) {
+void DummyHarvestingClient::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {
   auto it = m_lumiCumulators.begin();
   auto ite = m_lumiCumulators.end();
   for (; it != ite; ++it)
@@ -313,8 +285,7 @@ DummyHarvestingClient::endLuminosityBlock(edm::LuminosityBlock const& iLumi,
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-DummyHarvestingClient::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void DummyHarvestingClient::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

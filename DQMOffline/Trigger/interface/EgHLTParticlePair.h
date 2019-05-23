@@ -3,17 +3,16 @@
 
 //a useful struct for defining a pair of particles
 
-
 namespace egHLT {
-  template<class T> struct ParticlePair{
-    const T& part1; 
+  template <class T>
+  struct ParticlePair {
+    const T& part1;
     const T& part2;
-    
-    ParticlePair(const T& particle1,const T& particle2):part1(particle1),part2(particle2){}
-    ~ParticlePair()= default;
-    
-    float mass()const{return (part1.p4()+part2.p4()).mag();}
-    
+
+    ParticlePair(const T& particle1, const T& particle2) : part1(particle1), part2(particle2) {}
+    ~ParticlePair() = default;
+
+    float mass() const { return (part1.p4() + part2.p4()).mag(); }
   };
-}
+}  // namespace egHLT
 #endif

@@ -71,8 +71,8 @@
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h" 
-#include "DataFormats/RecoCandidate/interface/IsoDeposit.h" 
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -134,7 +134,6 @@
 #include "TLorentzVector.h"
 #include "TLegend.h"
 
-
 //Standard C++ classes
 #include <iostream>
 #include <ostream>
@@ -151,46 +150,45 @@
 
 class MuonServiceProxy;
 
-class BeamHaloAnalyzer: public DQMEDAnalyzer {
- public:
+class BeamHaloAnalyzer : public DQMEDAnalyzer {
+public:
   explicit BeamHaloAnalyzer(const edm::ParameterSet&);
   ~BeamHaloAnalyzer() override;
- 
- private:
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(const edm::Event& , const edm::EventSetup&) override;
+private:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   edm::InputTag IT_L1MuGMTReadout;
 
   //RecHit Level
-  edm::EDGetTokenT<CSCRecHit2DCollection > IT_CSCRecHit;
-  edm::EDGetTokenT<EBRecHitCollection > IT_EBRecHit;
-  edm::EDGetTokenT<EERecHitCollection > IT_EERecHit;
-  edm::EDGetTokenT<ESRecHitCollection > IT_ESRecHit;
-  edm::EDGetTokenT<HBHERecHitCollection > IT_HBHERecHit;
-  edm::EDGetTokenT<HORecHitCollection > IT_HORecHit;
-  edm::EDGetTokenT<HFRecHitCollection > IT_HFRecHit;
+  edm::EDGetTokenT<CSCRecHit2DCollection> IT_CSCRecHit;
+  edm::EDGetTokenT<EBRecHitCollection> IT_EBRecHit;
+  edm::EDGetTokenT<EERecHitCollection> IT_EERecHit;
+  edm::EDGetTokenT<ESRecHitCollection> IT_ESRecHit;
+  edm::EDGetTokenT<HBHERecHitCollection> IT_HBHERecHit;
+  edm::EDGetTokenT<HORecHitCollection> IT_HORecHit;
+  edm::EDGetTokenT<HFRecHitCollection> IT_HFRecHit;
 
   //Higher Level Reco
-  edm::EDGetTokenT<CSCSegmentCollection > IT_CSCSegment;
-  edm::EDGetTokenT<reco::MuonCollection > IT_CollisionMuon;
-  edm::EDGetTokenT<reco::MuonCollection > IT_CollisionStandAloneMuon;
-  edm::EDGetTokenT<reco::MuonCollection > IT_BeamHaloMuon;
-  edm::EDGetTokenT<reco::MuonCollection > IT_CosmicStandAloneMuon;
-  edm::EDGetTokenT<reco::CaloMETCollection > IT_met;
+  edm::EDGetTokenT<CSCSegmentCollection> IT_CSCSegment;
+  edm::EDGetTokenT<reco::MuonCollection> IT_CollisionMuon;
+  edm::EDGetTokenT<reco::MuonCollection> IT_CollisionStandAloneMuon;
+  edm::EDGetTokenT<reco::MuonCollection> IT_BeamHaloMuon;
+  edm::EDGetTokenT<reco::MuonCollection> IT_CosmicStandAloneMuon;
+  edm::EDGetTokenT<reco::CaloMETCollection> IT_met;
   edm::EDGetTokenT<edm::View<reco::Candidate> > IT_CaloTower;
-  edm::EDGetTokenT<reco::SuperClusterCollection > IT_SuperCluster;
-  edm::EDGetTokenT<reco::PhotonCollection > IT_Photon;
+  edm::EDGetTokenT<reco::SuperClusterCollection> IT_SuperCluster;
+  edm::EDGetTokenT<reco::PhotonCollection> IT_Photon;
 
   // Halo Data
-  edm::EDGetTokenT<reco::CSCHaloData > IT_CSCHaloData;
-  edm::EDGetTokenT<reco::EcalHaloData > IT_EcalHaloData;
-  edm::EDGetTokenT<reco::HcalHaloData > IT_HcalHaloData;
-  edm::EDGetTokenT<reco::GlobalHaloData > IT_GlobalHaloData;
-  edm::EDGetTokenT<reco::BeamHaloSummary > IT_BeamHaloSummary;
+  edm::EDGetTokenT<reco::CSCHaloData> IT_CSCHaloData;
+  edm::EDGetTokenT<reco::EcalHaloData> IT_EcalHaloData;
+  edm::EDGetTokenT<reco::HcalHaloData> IT_HcalHaloData;
+  edm::EDGetTokenT<reco::GlobalHaloData> IT_GlobalHaloData;
+  edm::EDGetTokenT<reco::BeamHaloSummary> IT_BeamHaloSummary;
 
-  edm::EDGetTokenT<reco::MuonTimeExtraMap > IT_CSCTimeMapToken;
+  edm::EDGetTokenT<reco::MuonTimeExtraMap> IT_CSCTimeMapToken;
 
   //Output File
   std::string OutputFileName;
@@ -199,15 +197,13 @@ class BeamHaloAnalyzer: public DQMEDAnalyzer {
 
   std::ofstream* out;
 
-
   double DumpMET;
 
   //Muon-Segment Matching
   MuonServiceProxy* TheService;
-  MuonSegmentMatcher *TheMatcher;
+  MuonSegmentMatcher* TheMatcher;
 
   bool StandardDQM;
-
 
   MonitorElement* hEcalHaloData_PhiWedgeMultiplicity;
   MonitorElement* hEcalHaloData_PhiWedgeConstituents;
@@ -215,7 +211,7 @@ class BeamHaloAnalyzer: public DQMEDAnalyzer {
   MonitorElement* hEcalHaloData_SuperClusterShowerShapes;
   MonitorElement* hEcalHaloData_SuperClusterEnergy;
   MonitorElement* hEcalHaloData_SuperClusterNHits;
-  
+
   MonitorElement* hEcalHaloData_PhiWedgeEnergy;
   MonitorElement* hEcalHaloData_PhiWedgeMinTime;
   MonitorElement* hEcalHaloData_PhiWedgeMaxTime;
@@ -223,11 +219,11 @@ class BeamHaloAnalyzer: public DQMEDAnalyzer {
   MonitorElement* hEcalHaloData_PhiWedgePlusZDirectionConfidence;
   MonitorElement* hEcalHaloData_PhiWedgeMinVsMaxTime;
   MonitorElement* hEcalHaloData_SuperClusterPhiVsEta;
-  
+
   MonitorElement* hHcalHaloData_PhiWedgeMultiplicity;
   MonitorElement* hHcalHaloData_PhiWedgeConstituents;
   MonitorElement* hHcalHaloData_PhiWedgeZDirectionConfidence;
-  
+
   MonitorElement* hHcalHaloData_PhiWedgeEnergy;
   MonitorElement* hHcalHaloData_PhiWedgeiPhi;
   MonitorElement* hHcalHaloData_PhiWedgeMinTime;
@@ -251,8 +247,8 @@ class BeamHaloAnalyzer: public DQMEDAnalyzer {
   MonitorElement* hCSCHaloData_NOutOfTimeHits;
   MonitorElement* hCSCHaloData_NTracksSmalldT;
   MonitorElement* hCSCHaloData_NTracksSmallBeta;
-  MonitorElement* hCSCHaloData_NTracksSmallBetaAndSmalldT; 
-  MonitorElement* hCSCHaloData_NTracksSmalldTvsNHaloTracks; 
+  MonitorElement* hCSCHaloData_NTracksSmallBetaAndSmalldT;
+  MonitorElement* hCSCHaloData_NTracksSmalldTvsNHaloTracks;
 
   MonitorElement* hCSCHaloData_InnerMostTrackHitXY;
   MonitorElement* hCSCHaloData_InnerMostTrackHitRPlusZ;
