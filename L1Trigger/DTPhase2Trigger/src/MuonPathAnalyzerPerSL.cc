@@ -156,7 +156,7 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath,std::vector<metaPrimitive>
   
     // Clonamos el objeto analizado.
     MuonPath *mPath = new MuonPath(inMPath);
-  
+
     if (mPath->isAnalyzable()) {
 	if(debug) std::cout<<"DTp2:analyze \t\t\t\t\t yes it is analyzable "<<mPath->isAnalyzable()<<std::endl;
 	setCellLayout( mPath->getCellHorizontalLayout() );
@@ -165,12 +165,12 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath,std::vector<metaPrimitive>
 	if(debug) std::cout<<"DTp2:analyze \t\t\t\t\t no it is NOT analyzable "<<mPath->isAnalyzable()<<std::endl;
     }
   
-    int wi[8],tdc[8];
+    int wi[8],tdc[8],lat[8];
     DTPrimitive Prim0(mPath->getPrimitive(0)); wi[0]=Prim0.getChannelId();tdc[0]=Prim0.getTDCTime();
     DTPrimitive Prim1(mPath->getPrimitive(1)); wi[1]=Prim1.getChannelId();tdc[1]=Prim1.getTDCTime();
     DTPrimitive Prim2(mPath->getPrimitive(2)); wi[2]=Prim2.getChannelId();tdc[2]=Prim2.getTDCTime();
     DTPrimitive Prim3(mPath->getPrimitive(3)); wi[3]=Prim3.getChannelId();tdc[3]=Prim3.getTDCTime();
-    for(int i=4;i<8;i++){wi[i]=-1;tdc[i]=-1;}
+    for(int i=4;i<8;i++){wi[i]=-1;tdc[i]=-1;lat[i]=-1;}
 
     DTWireId wireId(MuonPathSLId,2,1);
   
@@ -191,6 +191,8 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath,std::vector<metaPrimitive>
 	double chi2_phiB=-1;
 	double chi2_chi2=-1;
 	int chi2_quality=-1;
+	int bestLat[8]; 
+	for(int i=0;i<8;i++){bestLat[i]=-1;}
     
 	for (int i = 0; i < totalNumValLateralities; i++) {//here
 	    if(debug) std::cout<<"DTp2:analyze \t\t\t\t\t laterality #- "<<i<<std::endl;
@@ -211,7 +213,11 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath,std::vector<metaPrimitive>
 	
 		// Clonamos el objeto analizado.
 		MuonPath *mpAux = new MuonPath(mPath);
-	
+    		lat[0] = mpAux->getLateralComb()[0]; 
+		lat[1] = mpAux->getLateralComb()[1]; 
+    		lat[2] = mpAux->getLateralComb()[2]; 
+    		lat[3] = mpAux->getLateralComb()[3]; 
+		
 		int idxHitNotValid = latQuality[i].invalidateHitIdx;
 		if (idxHitNotValid >= 0) {
 		    delete mpAux->getPrimitive(idxHitNotValid);
@@ -282,18 +288,19 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath,std::vector<metaPrimitive>
 			    chi2_phiB=phiB;
 			    chi2_chi2=chi2;
 			    chi2_quality= mpAux->getQuality();
+    			    for(int i=0;i<4;i++){bestLat[i]=lat[i];}
 			}
 		    }else if(fabs(jm_tanPhi)<=tanPhiTh){//write the metaprimitive in case no HIGHQ or HIGHQGHOST and tanPhi range
 			if(debug) std::cout<<"DTp2:analyze \t\t\t\t\t\t\t\t  pushing back metaprimitive no HIGHQ or HIGHQGHOST"<<std::endl;
 			metaPrimitives.push_back(metaPrimitive({MuonPathSLId.rawId(),jm_t0,jm_x,jm_tanPhi,phi,phiB,chi2,quality,
-					wi[0],tdc[0],
-					wi[1],tdc[1],
-					wi[2],tdc[2],
-					wi[3],tdc[3],
-					wi[4],tdc[4],
-					wi[5],tdc[5],
-					wi[6],tdc[6],
-					wi[7],tdc[7],
+					wi[0],tdc[0],lat[0],
+					wi[1],tdc[1],lat[1],
+					wi[2],tdc[2],lat[2],
+					wi[3],tdc[3],lat[3],
+					wi[4],tdc[4],lat[4],
+					wi[5],tdc[5],lat[5],
+					wi[6],tdc[6],lat[6],
+					wi[7],tdc[7],lat[7],
 					-1
 					}));
 			if(debug) std::cout<<"DTp2:analyze \t\t\t\t\t\t\t\t  done pushing back metaprimitive no HIGHQ or HIGHQGHOST"<<std::endl;	
@@ -308,14 +315,14 @@ void MuonPathAnalyzerPerSL::analyze(MuonPath *inMPath,std::vector<metaPrimitive>
 	if(chi2_jm_tanPhi!=999 and fabs(chi2_jm_tanPhi)<tanPhiTh){//
 	    if(debug) std::cout<<"DTp2:analyze \t\t\t\t\t\t\t\t  pushing back best chi2 metaPrimitive"<<std::endl;
 	    metaPrimitives.push_back(metaPrimitive({MuonPathSLId.rawId(),chi2_jm_t0,chi2_jm_x,chi2_jm_tanPhi,chi2_phi,chi2_phiB,chi2_chi2,chi2_quality,
-			    wi[0],tdc[0],
-			    wi[1],tdc[1],
-			    wi[2],tdc[2],
-			    wi[3],tdc[3],
-			    wi[4],tdc[4],
-			    wi[5],tdc[5],
-			    wi[6],tdc[6],
-			    wi[7],tdc[7],
+			    wi[0],tdc[0],bestLat[0],
+			    wi[1],tdc[1],bestLat[1],
+			    wi[2],tdc[2],bestLat[2],
+			    wi[3],tdc[3],bestLat[3],
+			    wi[4],tdc[4],bestLat[4],
+			    wi[5],tdc[5],bestLat[5],
+			    wi[6],tdc[6],bestLat[6],
+			    wi[7],tdc[7],bestLat[7],
 			    -1
 			    }));
 	}
