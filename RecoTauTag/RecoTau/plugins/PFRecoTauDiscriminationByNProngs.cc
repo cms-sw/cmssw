@@ -144,3 +144,4 @@ PFRecoTauDiscriminationByNProngs::fillDescriptions(edm::ConfigurationDescription
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByNProngs);
+

@@ -36,7 +36,7 @@
 namespace edm {
   class ConsumesCollector;
   class ParameterSet;
-}
+}  // namespace edm
 
 typedef std::vector<std::string> MyStrings;
 
@@ -54,50 +54,45 @@ public:
   //HLTInfo();
 
   template <typename T>
-    HLTInfo(edm::ParameterSet const& pset,
-	    edm::ConsumesCollector&& iC,
-	    T& module);
-  
+  HLTInfo(edm::ParameterSet const& pset, edm::ConsumesCollector&& iC, T& module);
+
   template <typename T>
-    HLTInfo(edm::ParameterSet const& pset,
-	    edm::ConsumesCollector& iC,
-	    T& module);  
-  
+  HLTInfo(edm::ParameterSet const& pset, edm::ConsumesCollector& iC, T& module);
+
   void setup(const edm::ParameterSet& pSet, TTree* tree);
-  void beginRun(const edm::Run& , const edm::EventSetup& );
+  void beginRun(const edm::Run&, const edm::EventSetup&);
 
   /** Analyze the Data */
-  void analyze(const edm::Handle<edm::TriggerResults>                 & hltresults,
-	       const edm::Handle<GlobalAlgBlkBxCollection> & l1results,
-	       edm::EventSetup const& eventSetup,
-	       edm::Event const& iEvent,
-	       TTree* tree);
+  void analyze(const edm::Handle<edm::TriggerResults>& hltresults,
+               const edm::Handle<GlobalAlgBlkBxCollection>& l1results,
+               edm::EventSetup const& eventSetup,
+               edm::Event const& iEvent,
+               TTree* tree);
 
 private:
-
   HLTInfo();
 
   // Tree variables
   float *hltppt, *hltpeta;
-  int L1EvtCnt,HltEvtCnt,nhltpart;
+  int L1EvtCnt, HltEvtCnt, nhltpart;
 
   int *trigflag, *l1flag, *l1flag5Bx, *l1techflag;
-  int *trigPrescl, *l1Prescl, *l1techPrescl; 
+  int *trigPrescl, *l1Prescl, *l1techPrescl;
 
-  TString * algoBitToName;
-  TString * techBitToName;
+  TString* algoBitToName;
+  TString* techBitToName;
   std::vector<std::string> dummyBranches_;
 
-  //HLTConfigProvider hltConfig_; 
+  //HLTConfigProvider hltConfig_;
   //L1GtUtils m_l1GtUtils;
   std::unique_ptr<HLTPrescaleProvider> hltPrescaleProvider_;
   std::string processName_;
 
   bool _OR_BXes;
-  int UnpackBxInEvent; // save number of BXs unpacked in event
+  int UnpackBxInEvent;  // save number of BXs unpacked in event
 
   // input variables
-  
+
   // L1 uGT menu
   unsigned long long cache_id_;
 
@@ -107,23 +102,14 @@ private:
   const std::map<std::string, L1TUtmAlgorithm>* algorithmMap_;
   */
   bool _Debug;
-
-
 };
 
 template <typename T>
-HLTInfo::HLTInfo(edm::ParameterSet const& pset,
-		 edm::ConsumesCollector&& iC,
-		 T& module) :
-    HLTInfo(pset, iC, module) {
-}
- 
+HLTInfo::HLTInfo(edm::ParameterSet const& pset, edm::ConsumesCollector&& iC, T& module) : HLTInfo(pset, iC, module) {}
+
 template <typename T>
-HLTInfo::HLTInfo(edm::ParameterSet const& pset,
-		 edm::ConsumesCollector& iC,
-		 T& module) :
-    HLTInfo() {
-    hltPrescaleProvider_.reset(new HLTPrescaleProvider(pset, iC, module));
+HLTInfo::HLTInfo(edm::ParameterSet const& pset, edm::ConsumesCollector& iC, T& module) : HLTInfo() {
+  hltPrescaleProvider_.reset(new HLTPrescaleProvider(pset, iC, module));
 }
 
 #endif
