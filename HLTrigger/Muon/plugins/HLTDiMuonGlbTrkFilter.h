@@ -7,23 +7,25 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 class HLTDiMuonGlbTrkFilter : public HLTFilter {
- public:
+public:
   HLTDiMuonGlbTrkFilter(const edm::ParameterSet&);
-  ~HLTDiMuonGlbTrkFilter() override{}
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  ~HLTDiMuonGlbTrkFilter() override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
- private:
+private:
   // WARNING: two input collection represent should be aligned and represent
   // the same list of muons, just stored in different containers
-  edm::InputTag                                          m_muonsTag;   // input collection of muons
-  edm::EDGetTokenT<reco::MuonCollection>                 m_muonsToken; // input collection of muons
-  edm::InputTag                                          m_candsTag;   // input collection of candidates to be referenced
-  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> m_candsToken; // input collection of candidates to be referenced
+  edm::InputTag m_muonsTag;                             // input collection of muons
+  edm::EDGetTokenT<reco::MuonCollection> m_muonsToken;  // input collection of muons
+  edm::InputTag m_candsTag;                             // input collection of candidates to be referenced
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> m_candsToken;  // input collection of candidates to be referenced
   int m_minTrkHits;
   int m_minMuonHits;
   unsigned int m_allowedTypeMask;
@@ -41,7 +43,6 @@ class HLTDiMuonGlbTrkFilter : public HLTFilter {
   double m_maxdEtaMuMu;
   muon::SelectionType m_trkMuonId;
   bool m_saveTags;
-
 };
 
-#endif //HLTMuonDimuonFilter_h
+#endif  //HLTMuonDimuonFilter_h

@@ -47,14 +47,14 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
 
-
 //----------------
 // Constructors --
 //----------------
 L3MuonTrajectoryBuilder::L3MuonTrajectoryBuilder(const edm::ParameterSet& par,
-						 const MuonServiceProxy* service,
-						 edm::ConsumesCollector& iC) : GlobalTrajectoryBuilderBase(par, service, iC) {
-  theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
+                                                 const MuonServiceProxy* service,
+                                                 edm::ConsumesCollector& iC)
+    : GlobalTrajectoryBuilderBase(par, service, iC) {
+  theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();
   theTkCollName = par.getParameter<edm::InputTag>("tkTrajLabel");
   theBeamSpotInputTag = par.getParameter<edm::InputTag>("tkTrajBeamSpot");
   theMaxChi2 = par.getParameter<double>("tkTrajMaxChi2");
@@ -68,13 +68,14 @@ L3MuonTrajectoryBuilder::L3MuonTrajectoryBuilder(const edm::ParameterSet& par,
 // Destructor --
 //--------------
 L3MuonTrajectoryBuilder::~L3MuonTrajectoryBuilder() {
-  if (theTrajectoryCleaner) delete theTrajectoryCleaner;
+  if (theTrajectoryCleaner)
+    delete theTrajectoryCleaner;
 }
 
 void L3MuonTrajectoryBuilder::fillDescriptions(edm::ParameterSetDescription& desc) {
-   edm::ParameterSetDescription descTRB;
-   MuonTrackingRegionBuilder::fillDescriptionsHLT(descTRB);
-   desc.add("MuonTrackingRegionBuilder",descTRB);
+  edm::ParameterSetDescription descTRB;
+  MuonTrackingRegionBuilder::fillDescriptionsHLT(descTRB);
+  desc.add("MuonTrackingRegionBuilder", descTRB);
 }
 
 //
@@ -82,101 +83,101 @@ void L3MuonTrajectoryBuilder::fillDescriptions(edm::ParameterSetDescription& des
 //
 void L3MuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   const std::string category = "Muon|RecoMuon|L3MuonTrajectoryBuilder|setEvent";
-  
-  GlobalTrajectoryBuilderBase::setEvent(event);
-      
-  // get tracker TrackCollection from Event
-  event.getByToken(theTrackToken,allTrackerTracks);
-  LogDebug(category) 
-      << "Found " << allTrackerTracks->size() 
-      << " tracker Tracks with label "<< theTkCollName;  
 
-  if( theUseVertex ) {
+  GlobalTrajectoryBuilderBase::setEvent(event);
+
+  // get tracker TrackCollection from Event
+  event.getByToken(theTrackToken, allTrackerTracks);
+  LogDebug(category) << "Found " << allTrackerTracks->size() << " tracker Tracks with label " << theTkCollName;
+
+  if (theUseVertex) {
     // PV
     edm::Handle<reco::VertexCollection> pvHandle;
-    if ( pvHandle.isValid() ) {
+    if (pvHandle.isValid()) {
       vtx = pvHandle->front();
-    } 
-    else {
+    } else {
       edm::LogInfo(category) << "No Primary Vertex available from EventSetup \n";
     }
-  }
-  else {
+  } else {
     // BS
     event.getByLabel(theBeamSpotInputTag, beamSpotHandle);
-    if( beamSpotHandle.isValid() ) {
+    if (beamSpotHandle.isValid()) {
       beamSpot = *beamSpotHandle;
-    }
-    else {
+    } else {
       edm::LogInfo(category) << "No beam spot available from EventSetup \n";
     }
   }
 }
 
-
 //
 // reconstruct trajectories
 //
 MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
-
   const std::string category = "Muon|RecoMuon|L3MuonTrajectoryBuilder|trajectories";
-  
+
   // cut on muons with low momenta
-  if ( (staCandIn).second->pt() < thePtCut || (staCandIn).second->innerMomentum().Rho() < thePtCut || (staCandIn).second->innerMomentum().R() < 2.5 ) return CandidateContainer();
-  
+  if ((staCandIn).second->pt() < thePtCut || (staCandIn).second->innerMomentum().Rho() < thePtCut ||
+      (staCandIn).second->innerMomentum().R() < 2.5)
+    return CandidateContainer();
+
   // convert the STA track into a Trajectory if Trajectory not already present
   TrackCand staCand(staCandIn);
-  
+
   std::vector<TrackCand> trackerTracks;
-  
+
   std::vector<TrackCand> regionalTkTracks = makeTkCandCollection(staCand);
-  LogDebug(category) << "Found " << regionalTkTracks.size() << " tracks within region of interest";  
-  
+  LogDebug(category) << "Found " << regionalTkTracks.size() << " tracks within region of interest";
+
   // match tracker tracks to muon track
   trackerTracks = trackMatcher()->match(staCand, regionalTkTracks);
-  
+
   LogDebug(category) << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
-  if ( trackerTracks.empty() ) return CandidateContainer();
-  
+  if (trackerTracks.empty())
+    return CandidateContainer();
+
   // build a combined tracker-muon MuonCandidate
   // turn tkMatchedTracks into MuonCandidates
   LogDebug(category) << "turn tkMatchedTracks into MuonCandidates";
   CandidateContainer tkTrajs;
   for (std::vector<TrackCand>::const_iterator tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
     if ((*tkt).first != nullptr && (*tkt).first->isValid()) {
-      MuonCandidate* muonCand = new MuonCandidate( nullptr ,staCand.second,(*tkt).second, new Trajectory(*(*tkt).first));
+      MuonCandidate* muonCand =
+          new MuonCandidate(nullptr, staCand.second, (*tkt).second, new Trajectory(*(*tkt).first));
       tkTrajs.push_back(muonCand);
     } else {
-      MuonCandidate* muonCand = new MuonCandidate( nullptr ,staCand.second,(*tkt).second, nullptr);
+      MuonCandidate* muonCand = new MuonCandidate(nullptr, staCand.second, (*tkt).second, nullptr);
       tkTrajs.push_back(muonCand);
     }
   }
-    
-  if ( tkTrajs.empty() )  {
+
+  if (tkTrajs.empty()) {
     LogDebug(category) << "tkTrajs empty";
     return CandidateContainer();
   }
-  
-  CandidateContainer result = build(staCand, tkTrajs);  
-  LogDebug(category) << "Found "<< result.size() << " L3Muons from one L2Cand";
+
+  CandidateContainer result = build(staCand, tkTrajs);
+  LogDebug(category) << "Found " << result.size() << " L3Muons from one L2Cand";
 
   // free memory
-  if ( staCandIn.first == nullptr) delete staCand.first;
+  if (staCandIn.first == nullptr)
+    delete staCand.first;
 
-  for( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); ++it) {
-    if ( (*it)->trajectory() ) delete (*it)->trajectory();
-    if ( (*it)->trackerTrajectory() ) delete (*it)->trackerTrajectory();
-    if ( *it ) delete (*it);
+  for (CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); ++it) {
+    if ((*it)->trajectory())
+      delete (*it)->trajectory();
+    if ((*it)->trackerTrajectory())
+      delete (*it)->trackerTrajectory();
+    if (*it)
+      delete (*it);
   }
-  tkTrajs.clear();  
+  tkTrajs.clear();
 
-  for ( std::vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
-    delete (*is).first;   
+  for (std::vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
+    delete (*is).first;
   }
-  
+
   return result;
 }
-
 
 //
 // make a TrackCand collection using tracker Track, Trajectory information
@@ -185,47 +186,52 @@ std::vector<L3MuonTrajectoryBuilder::TrackCand> L3MuonTrajectoryBuilder::makeTkC
   const std::string category = "Muon|RecoMuon|L3MuonTrajectoryBuilder|makeTkCandCollection";
   std::vector<TrackCand> tkCandColl;
   std::vector<TrackCand> tkTrackCands;
-  
-//  for (auto&& tkTrack: allTrackerTracks){
-//    auto tkCand = TrackCand((Trajectory*)(0),tkTrack);
-  for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
-    reco::TrackRef tkTrackRef(allTrackerTracks,position);
-    TrackCand tkCand = TrackCand((Trajectory*)nullptr,tkTrackRef);
+
+  //  for (auto&& tkTrack: allTrackerTracks){
+  //    auto tkCand = TrackCand((Trajectory*)(0),tkTrack);
+  for (unsigned int position = 0; position != allTrackerTracks->size(); ++position) {
+    reco::TrackRef tkTrackRef(allTrackerTracks, position);
+    TrackCand tkCand = TrackCand((Trajectory*)nullptr, tkTrackRef);
     tkCandColl.push_back(tkCand);
   }
 
   //Loop over TrackCand collection made from allTrackerTracks in previous step
-  for (auto&& tkCand: tkCandColl){
-	  auto& tk = tkCand.second;
-	  bool canUseL3MTS = false;
-	  // check the seedRef is non-null first; and then
-	  if (tk->seedRef().isNonnull()){
-		  auto a = dynamic_cast<const L3MuonTrajectorySeed*>(tk->seedRef().get());
-		  canUseL3MTS = a != nullptr;
-	  }
-    if (canUseL3MTS){
-    	edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >() ;
-    	// May still need provenance here, so using trackref:
-    	reco::TrackRef staTrack = l3seedRef->l2Track();
-    	if( staTrack == (staCand.second) ) {
-    		// Apply filters (dxy, chi2 cut)
-    		double tk_vtx;
-    		if( theUseVertex ) tk_vtx = tk->dxy(vtx.position());
-    		else tk_vtx = tk->dxy(beamSpot.position());
-    		if( fabs(tk_vtx) > theDXYBeamSpot || tk->normalizedChi2() > theMaxChi2 ) continue;
-    		tkTrackCands.push_back(tkCand);
-    	}
+  for (auto&& tkCand : tkCandColl) {
+    auto& tk = tkCand.second;
+    bool canUseL3MTS = false;
+    // check the seedRef is non-null first; and then
+    if (tk->seedRef().isNonnull()) {
+      auto a = dynamic_cast<const L3MuonTrajectorySeed*>(tk->seedRef().get());
+      canUseL3MTS = a != nullptr;
     }
-    else{
-    	// We will try to match all tracker tracks with the muon:
+    if (canUseL3MTS) {
+      edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef =
+          tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
+      // May still need provenance here, so using trackref:
+      reco::TrackRef staTrack = l3seedRef->l2Track();
+      if (staTrack == (staCand.second)) {
+        // Apply filters (dxy, chi2 cut)
         double tk_vtx;
-        if( theUseVertex ) tk_vtx = tk->dxy(vtx.position());
-        else tk_vtx = tk->dxy(beamSpot.position());
-        if( fabs(tk_vtx) > theDXYBeamSpot || tk->normalizedChi2() > theMaxChi2 ) continue;
+        if (theUseVertex)
+          tk_vtx = tk->dxy(vtx.position());
+        else
+          tk_vtx = tk->dxy(beamSpot.position());
+        if (fabs(tk_vtx) > theDXYBeamSpot || tk->normalizedChi2() > theMaxChi2)
+          continue;
         tkTrackCands.push_back(tkCand);
+      }
+    } else {
+      // We will try to match all tracker tracks with the muon:
+      double tk_vtx;
+      if (theUseVertex)
+        tk_vtx = tk->dxy(vtx.position());
+      else
+        tk_vtx = tk->dxy(beamSpot.position());
+      if (fabs(tk_vtx) > theDXYBeamSpot || tk->normalizedChi2() > theMaxChi2)
+        continue;
+      tkTrackCands.push_back(tkCand);
     }
   }
 
   return tkTrackCands;
 }
-

@@ -26,32 +26,31 @@
 //
 
 class HLTFilter : public edm::global::EDFilter<> {
-
 public:
-  explicit HLTFilter(const edm::ParameterSet & config);
+  explicit HLTFilter(const edm::ParameterSet& config);
   static void makeHLTFilterDescription(edm::ParameterSetDescription& desc);
   ~HLTFilter() override;
 
 private:
-  bool filter(edm::StreamID, edm::Event & event, const edm::EventSetup & setup) const final;
+  bool filter(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const final;
 
   // declared pure virtual to enforce inheriting classes to implement it
-  virtual bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterobject) const = 0;
+  virtual bool hltFilter(edm::Event& event,
+                         const edm::EventSetup& setup,
+                         trigger::TriggerFilterObjectWithRefs& filterobject) const = 0;
 
 private:
   const bool saveTags_;
 
 public:
-  bool saveTags() const {
-    return saveTags_;
-  }
+  bool saveTags() const { return saveTags_; }
 
 public:
   int path(edm::Event const&) const;
   int module(edm::Event const&) const;
-  std::pair<int,int> pmid(edm::Event const&) const;
+  std::pair<int, int> pmid(edm::Event const&) const;
   const std::string* pathName(edm::Event const&) const;
   const std::string* moduleLabel() const;
 };
 
-#endif // HLTFilter_h
+#endif  // HLTFilter_h

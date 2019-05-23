@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-// Data Formats 
+// Data Formats
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -32,23 +32,24 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "HLTMuonL2ToL1TMap.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class HLTL1MuonNoL2Selector : public edm::global::EDProducer<> {
- 
- public:
-  
+public:
   /// Constructor
   explicit HLTL1MuonNoL2Selector(const edm::ParameterSet&);
 
   /// Destructor
   ~HLTL1MuonNoL2Selector() override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  
- private:
 
+private:
   edm::InputTag theL1Source_;
   const double theL1MinPt_;
   const double theL1MaxEta_;
@@ -56,13 +57,10 @@ class HLTL1MuonNoL2Selector : public edm::global::EDProducer<> {
   bool centralBxOnly_;
 
   edm::EDGetTokenT<l1t::MuonBxCollection> muCollToken_;
-  edm::InputTag                                          theL2CandTag_;   
+  edm::InputTag theL2CandTag_;
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> theL2CandToken_;
-  edm::InputTag             seedMapTag_;
+  edm::InputTag seedMapTag_;
   edm::EDGetTokenT<SeedMap> seedMapToken_;
-  
-
-
 };
 
 #endif

@@ -12,5 +12,3 @@
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
 
 #include "DataFormats/Common/interface/Ref.h"
-
-
