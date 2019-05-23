@@ -259,6 +259,13 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent,
   IfLogTrace(debug_ > 0, "HGCalHitCalibration")
     << "Number of caloParticles: " << caloParticles.size() << std::endl;
   for (const auto& it_caloPart : caloParticles) {
+    if (it_caloPart.g4Tracks()[0].eventId().event() != 0 or it_caloPart.g4Tracks()[0].eventId().bunchCrossing() != 0) {
+      LogDebug("HGCalHitCalibration") << "Excluding CaloParticles from event: "
+        << it_caloPart.g4Tracks()[0].eventId().event()
+        << " with BX: " << it_caloPart.g4Tracks()[0].eventId().bunchCrossing() << std::endl;
+        continue;
+    }
+
     const SimClusterRefVector& simClusterRefVector = it_caloPart.simClusters();
     Energy_layer_calib_.fill(0.);
     Energy_layer_calib_fraction_.fill(0.);
