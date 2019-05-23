@@ -10,7 +10,7 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                do_correlation = cms.untracked.bool(True),
                                                dT0_correlate_TP = cms.untracked.double(25.),
                                                minx_match_2digis = cms.untracked.double(2.1),
-                                               p2_df = cms.untracked.int32(2), #1 for phase-1, 2 for slice-test, 3 for phase-2 carlo-federica
+                                               p2_df = cms.untracked.int32(2), #0 for phase-1, 1 for slice-test, 2 for phase-2 carlo-federica
                                                filter_cousins = cms.untracked.bool(True),
                                                apply_txt_ttrig_bc0 = cms.untracked.bool(False),
                                                ttrig_filename = cms.untracked.string('/afs/cern.ch/user/c/carrillo/public/info/wire_rawId_ttrig.txt'),
@@ -23,5 +23,6 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                debug = cms.untracked.bool(False),
                                                dump  = cms.untracked.bool(False),
                                                #RPC
-                                               rpcRecHits = cms.untracked.InputTag("rpcRecHits")
+                                               rpcRecHits = cms.untracked.InputTag("rpcRecHits"),
+                                               useRPC = cms.untracked.bool(False)
                                                )

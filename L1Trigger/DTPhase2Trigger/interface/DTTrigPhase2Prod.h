@@ -40,6 +40,7 @@
 //RPC TP
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
 
 #include <fstream>
@@ -69,6 +70,7 @@ class DTTrigPhase2Prod: public edm::EDProducer{
 void endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
     
     edm::ESHandle<DTGeometry> dtGeo;
+    edm::ESHandle<RPCGeometry> rpcGeo;
 
     std::vector<std::pair<int,MuonPath>> primitives;
 
@@ -125,6 +127,10 @@ void endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
     MPFilter*   mpathqualityenhancer;
     MPFilter*   mpathredundantfilter;
     MuonPathAssociator* mpathassociator;
+
+    // RPC
+    bool useRPC;
+    GlobalPoint getRPCGlobalPosition(RPCDetId rpcId, const RPCRecHit& rpcIt) const;
     
 };
 
