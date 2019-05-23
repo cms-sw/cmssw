@@ -12,15 +12,17 @@ using namespace std;
 PseudoBayesGrouping::PseudoBayesGrouping(const ParameterSet& pset):
   MotherGrouping(pset) {
   // Obtention of parameters
-  debug               = pset.getUntrackedParameter<Bool_t>("debug");
-  pattern_filename    = pset.getUntrackedParameter<std::string>("pattern_filename");
-  minNLayerHits       = pset.getUntrackedParameter<Int_t>("minNLayerHits");
-  minSingleSLHitsMax  = pset.getUntrackedParameter<Int_t>("minSingleSLHitsMax");
-  minSingleSLHitsMin  = pset.getUntrackedParameter<Int_t>("minSingleSLHitsMin");
-  allowedVariance     = pset.getUntrackedParameter<Int_t>("allowedVariance");
-  allowDuplicates     = pset.getUntrackedParameter<Bool_t>("allowDuplicates");
-  saveOnPlace         = pset.getUntrackedParameter<Bool_t>("saveOnPlace");
-  setLateralities     = pset.getUntrackedParameter<Bool_t>("setLateralities");
+  debug                     = pset.getUntrackedParameter<Bool_t>("debug");
+  pattern_filename          = pset.getUntrackedParameter<std::string>("pattern_filename");
+  minNLayerHits             = pset.getUntrackedParameter<Int_t>("minNLayerHits");
+  minSingleSLHitsMax        = pset.getUntrackedParameter<Int_t>("minSingleSLHitsMax");
+  minSingleSLHitsMin        = pset.getUntrackedParameter<Int_t>("minSingleSLHitsMin");
+  allowedVariance           = pset.getUntrackedParameter<Int_t>("allowedVariance");
+  allowDuplicates           = pset.getUntrackedParameter<Bool_t>("allowDuplicates");
+  allowUncorrelatedPatterns = pset.getUntrackedParameter<Bool_t>("allowUncorrelatedPatterns");
+  minUncorrelatedHits       = pset.getUntrackedParameter<Int_t>("minUncorrelatedHits");
+  saveOnPlace               = pset.getUntrackedParameter<Bool_t>("saveOnPlace");
+  setLateralities           = pset.getUntrackedParameter<Bool_t>("setLateralities");
   if (debug) cout <<"PseudoBayesGrouping:: constructor" << endl;
 }
 
@@ -83,24 +85,43 @@ void PseudoBayesGrouping::LoadPattern(std::vector<std::vector<std::vector<int> >
     if (p->GetSL2() == 6) L0L6Patterns.push_back(p);
     if (p->GetSL2() == 5) L0L5Patterns.push_back(p);
     if (p->GetSL2() == 4) L0L4Patterns.push_back(p);
+    if (p->GetSL2() == 3) L0L3Patterns.push_back(p);
+    if (p->GetSL2() == 2) L0L2Patterns.push_back(p);
+    if (p->GetSL2() == 1) L0L1Patterns.push_back(p);
   }
   if (p->GetSL1() == 1){
     if (p->GetSL2() == 7) L1L7Patterns.push_back(p);
     if (p->GetSL2() == 6) L1L6Patterns.push_back(p);
     if (p->GetSL2() == 5) L1L5Patterns.push_back(p);
     if (p->GetSL2() == 4) L1L4Patterns.push_back(p);
+    if (p->GetSL2() == 3) L1L3Patterns.push_back(p);
+    if (p->GetSL2() == 2) L1L2Patterns.push_back(p);
   }
   if (p->GetSL1() == 2){
     if (p->GetSL2() == 7) L2L7Patterns.push_back(p);
     if (p->GetSL2() == 6) L2L6Patterns.push_back(p);
     if (p->GetSL2() == 5) L2L5Patterns.push_back(p);
     if (p->GetSL2() == 4) L2L4Patterns.push_back(p);
+    if (p->GetSL2() == 3) L2L3Patterns.push_back(p);
   }
   if (p->GetSL1() == 3){
     if (p->GetSL2() == 7) L3L7Patterns.push_back(p);
     if (p->GetSL2() == 6) L3L6Patterns.push_back(p);
     if (p->GetSL2() == 5) L3L5Patterns.push_back(p);
     if (p->GetSL2() == 4) L3L4Patterns.push_back(p);
+  }
+
+  if (p->GetSL1() == 4){
+    if (p->GetSL2() == 7) L4L7Patterns.push_back(p);
+    if (p->GetSL2() == 6) L4L6Patterns.push_back(p);
+    if (p->GetSL2() == 5) L4L5Patterns.push_back(p);
+  }
+  if (p->GetSL1() == 5){
+    if (p->GetSL2() == 7) L5L7Patterns.push_back(p);
+    if (p->GetSL2() == 6) L5L6Patterns.push_back(p);
+  }
+  if (p->GetSL1() == 6){
+    if (p->GetSL2() == 7) L6L7Patterns.push_back(p);
   }
   //Also creating a list of all patterns, needed later for deleting and avoid a memory leak
   allPatterns.push_back(p);
@@ -152,7 +173,7 @@ void PseudoBayesGrouping::FillMuonPaths(std::vector<MuonPath*> *mpaths){
       //Get the predicted laterality
       if (setLateralities){
         int predLat = (*itCand)->getPattern()->LatHitIn(layerHit, itDTP->getChannelId(), allowedVariance); 
-        if (predLat == -10 || predLat == 0){
+        if (predLat == -10 || predLat == 0 || !(allowDuplicates)){
           itDTP->setLaterality(NONE);
         }
         else if (predLat == -1){
@@ -215,11 +236,24 @@ void PseudoBayesGrouping::RecognisePatternsByLayerPairs(){
   RecognisePatterns(digisinL3, digisinL5, L3L5Patterns);
   //L3-L4
   RecognisePatterns(digisinL3, digisinL4, L3L4Patterns);
+  //Uncorrelated SL1
+  RecognisePatterns(digisinL0, digisinL1, L0L1Patterns);
+  RecognisePatterns(digisinL0, digisinL2, L0L2Patterns);
+  RecognisePatterns(digisinL0, digisinL3, L0L3Patterns);
+  RecognisePatterns(digisinL1, digisinL2, L1L2Patterns);
+  RecognisePatterns(digisinL1, digisinL3, L1L3Patterns);
+  RecognisePatterns(digisinL2, digisinL3, L2L3Patterns);
+  //Uncorrelated SL3
+  RecognisePatterns(digisinL4, digisinL5, L4L5Patterns);
+  RecognisePatterns(digisinL4, digisinL6, L4L6Patterns);
+  RecognisePatterns(digisinL4, digisinL7, L4L7Patterns);
+  RecognisePatterns(digisinL5, digisinL6, L5L6Patterns);
+  RecognisePatterns(digisinL5, digisinL7, L5L7Patterns);
+  RecognisePatterns(digisinL6, digisinL7, L6L7Patterns);
 }
 
 void PseudoBayesGrouping::RecognisePatterns(std::vector<DTPrimitive> digisinLDown, std::vector<DTPrimitive> digisinLUp, std::vector<Pattern*> patterns){
   //Loop over all hits and search for matching patterns (there will be four amongst ~60, accounting for possible lateralities)
-
   for (std::vector<DTPrimitive>::iterator dtPD_it = digisinLDown.begin(); dtPD_it != digisinLDown.end(); dtPD_it++){
     int LDown    = dtPD_it->getLayerId();
     int wireDown = dtPD_it->getChannelId();
@@ -243,7 +277,7 @@ void PseudoBayesGrouping::RecognisePatterns(std::vector<DTPrimitive> digisinLDow
               else cand->AddHit((*dtTest_it),dtTest_it->getLayerId(), true);
             }
         }
-        if (cand->getNhits() >= minNLayerHits && (cand->getNLayerUp() >= minSingleSLHitsMax || cand->getNLayerDown() >= minSingleSLHitsMax) && (cand->getNLayerUp() >= minSingleSLHitsMin && cand->getNLayerDown() >= minSingleSLHitsMin))
+        if ((cand->getNhits() >= minNLayerHits && (cand->getNLayerUp() >= minSingleSLHitsMax || cand->getNLayerDown() >= minSingleSLHitsMax) && (cand->getNLayerUp() >= minSingleSLHitsMin && cand->getNLayerDown() >= minSingleSLHitsMin)) || (allowUncorrelatedPatterns && ((cand->getNLayerUp() >=minUncorrelatedHits && cand->getNLayerDown()==0) || (cand->getNLayerDown() >=minUncorrelatedHits && cand->getNLayerUp()==0))) )
         {
           if (debug){
             cout << "PseudoBayesGrouping::RecognisePatterns Pattern found for pair in " << LDown << " ," << wireDown << " ," << LUp << " ," << wireUp << endl;
@@ -297,7 +331,7 @@ void PseudoBayesGrouping::FillDigisByLayer(DTDigiCollection *digis) {
 void PseudoBayesGrouping::ReCleanPatternsAndDigis(){
   //GhostbustPatterns that share hits and are of lower quality
   if(prelimMatches->size() == 0){return;};
-  while(prelimMatches->at(0)->getNLayerhits() >= minNLayerHits &&  (prelimMatches->at(0)->getNLayerUp() >= minSingleSLHitsMax || prelimMatches->at(0)->getNLayerDown() >= minSingleSLHitsMax) && (prelimMatches->at(0)->getNLayerUp() >= minSingleSLHitsMin && prelimMatches->at(0)->getNLayerDown() >= minSingleSLHitsMin) ){
+  while((prelimMatches->at(0)->getNLayerhits() >= minNLayerHits &&  (prelimMatches->at(0)->getNLayerUp() >= minSingleSLHitsMax || prelimMatches->at(0)->getNLayerDown() >= minSingleSLHitsMax) && (prelimMatches->at(0)->getNLayerUp() >= minSingleSLHitsMin && prelimMatches->at(0)->getNLayerDown() >= minSingleSLHitsMin)) || (allowUncorrelatedPatterns && ((prelimMatches->at(0)->getNLayerUp() >=minUncorrelatedHits && prelimMatches->at(0)->getNLayerDown()==0) || (prelimMatches->at(0)->getNLayerDown() >=minUncorrelatedHits && prelimMatches->at(0)->getNLayerUp()==0)))){
     finalMatches->push_back(prelimMatches->at(0));
     std::vector<CandidateGroup*>::iterator itSel = finalMatches->end() - 1;
     //std::cout << "Erasing vector: " << std::endl;
@@ -311,7 +345,7 @@ void PseudoBayesGrouping::ReCleanPatternsAndDigis(){
         (*cand_it)->RemoveHit((*dt_it));
       }
     }
-    //To Clean also the digis    
+    //To Clean also the digis use this
     /*if (alldigis.size() == 0){ return;}
     for (std::vector<DTPrimitive>::iterator dt_it = alldigis.begin(); dt_it != alldigis.end(); dt_it++){
       //std::cout << "Ghostbusting hits: " << std::endl;

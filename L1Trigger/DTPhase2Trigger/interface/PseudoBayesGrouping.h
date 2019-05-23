@@ -1,7 +1,7 @@
 #ifndef Phase2L1Trigger_DTTrigger_PseudoBayesGrouping_cc
 #define Phase2L1Trigger_DTTrigger_PseudoBayesGrouping_cc
 
-// TODO : clean includes (shamelessly copied from InitialGrouping)
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -29,6 +29,7 @@
 
 // #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambContainer.h"
 // #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambDigi.h"
+
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
@@ -94,10 +95,12 @@ class PseudoBayesGrouping : public MotherGrouping {
     int  minNLayerHits;
     int  allowedVariance;
     bool allowDuplicates;
+    bool allowUncorrelatedPatterns;
     bool setLateralities;
     bool saveOnPlace;
     int  minSingleSLHitsMax;
     int  minSingleSLHitsMin;
+    int  minUncorrelatedHits;
 
     //Classified digis
     std::vector<DTPrimitive> alldigis;
@@ -124,21 +127,37 @@ class PseudoBayesGrouping : public MotherGrouping {
     std::vector<Pattern*> L1L7Patterns;
     std::vector<Pattern*> L2L7Patterns;
     std::vector<Pattern*> L3L7Patterns;
+    std::vector<Pattern*> L4L7Patterns;
+    std::vector<Pattern*> L5L7Patterns;
+    std::vector<Pattern*> L6L7Patterns;
 
     std::vector<Pattern*> L0L6Patterns;
     std::vector<Pattern*> L1L6Patterns;
     std::vector<Pattern*> L2L6Patterns;
     std::vector<Pattern*> L3L6Patterns;
+    std::vector<Pattern*> L4L6Patterns;
+    std::vector<Pattern*> L5L6Patterns;
 
     std::vector<Pattern*> L0L5Patterns;
     std::vector<Pattern*> L1L5Patterns;
     std::vector<Pattern*> L2L5Patterns;
     std::vector<Pattern*> L3L5Patterns;
+    std::vector<Pattern*> L4L5Patterns;
 
     std::vector<Pattern*> L0L4Patterns;
     std::vector<Pattern*> L1L4Patterns;
     std::vector<Pattern*> L2L4Patterns;
     std::vector<Pattern*> L3L4Patterns;
+
+    std::vector<Pattern*> L0L3Patterns;
+    std::vector<Pattern*> L1L3Patterns;
+    std::vector<Pattern*> L2L3Patterns;
+
+    std::vector<Pattern*> L0L2Patterns;
+    std::vector<Pattern*> L1L2Patterns;
+
+    std::vector<Pattern*> L0L1Patterns;
+
     CandidateGroup *cand;
 };
 
