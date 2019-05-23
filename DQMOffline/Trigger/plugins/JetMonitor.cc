@@ -432,7 +432,7 @@ void JetMonitor::bookMESub(DQMStore::IBooker & Ibooker , JetME* a_me,const int l
    double maxbin_eta = jet_eta_binning_.xmax;
    double minbin_eta = jet_eta_binning_.xmin;
 
-   if (h_subOptName != ""){
+   if (!h_subOptName.empty()){
       hSubN = "_"+h_subOptName;
    }
 
