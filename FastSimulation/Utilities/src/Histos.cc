@@ -79,7 +79,7 @@ Histos::put(const std::string& file, std::string name) {
 
 
   HistoItr hh = theHistos.find(name);
-  if ( name == "" ) 
+  if ( name.empty() ) 
     for ( hh  = theHistos.begin(); 
 	  hh != theHistos.end(); 
 	  ++hh ) { 
