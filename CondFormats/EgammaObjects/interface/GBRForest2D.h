@@ -18,9 +18,9 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <vector>
 #include "GBRTree2D.h"
-#include <stdio.h>
+#include <cstdio>
+#include <vector>
 
   class GBRForest2D {
 
