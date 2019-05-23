@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
-from RecoTauTag.TauTagTools.PFTauSelector_cfi  import pfTauSelector
+from RecoTauTag.RecoTau.PFTauSelector_cfi  import pfTauSelector
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
 import RecoJets.JetProducers.ak4PFJets_cfi as jetConfig
 

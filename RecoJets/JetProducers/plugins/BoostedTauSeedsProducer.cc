@@ -89,9 +89,8 @@ namespace
     int    chargedMultiplicity = 0;
     int    neutralMultiplicity = 0;
     int    muonMultiplicity    = 0;
-    for ( reco::Jet::Constituents::const_iterator jetConstituent = jetConstituents.begin();
-	  jetConstituent != jetConstituents.end(); ++jetConstituent ) {
-      const reco::PFCandidate* pfCandidate = dynamic_cast<const reco::PFCandidate*>(jetConstituent->get());
+    for ( auto const & jetConstituent : jetConstituents) {
+      const reco::PFCandidate* pfCandidate = dynamic_cast<const reco::PFCandidate*>(jetConstituent.get());
       if ( pfCandidate ) {
 	switch ( pfCandidate->particleId() ) {
 	case reco::PFCandidate::h :          // charged hadron
@@ -125,7 +124,7 @@ namespace
 	}
       } else {
 	edm::LogWarning("convertToPFJet") 
-	  << "Jet constituent: Pt = " << pfCandidate->pt() << ", eta = " << pfCandidate->eta() << ", phi = " << pfCandidate->phi() 
+	  << "Jet constituent: Pt = " << jetConstituent->pt() << ", eta = " << jetConstituent->eta() << ", phi = " <<jetConstituent->phi() 
 	  << " is not of type PFCandidate !!" << std::endl;
       }
     }
@@ -148,13 +147,12 @@ namespace
   void getJetConstituents(const reco::Jet& jet, reco::Jet::Constituents& jet_and_subjetConstituents)
   {
     reco::Jet::Constituents jetConstituents = jet.getJetConstituents();
-    for ( reco::Jet::Constituents::const_iterator jetConstituent = jetConstituents.begin();
-	  jetConstituent != jetConstituents.end(); ++jetConstituent ) {
-      const reco::Jet* subjet = dynamic_cast<const reco::Jet*>(jetConstituent->get());
+    for ( auto const & jetConstituent : jetConstituents ) {
+      const reco::Jet* subjet = dynamic_cast<const reco::Jet*>(jetConstituent.get());
       if ( subjet ) {
 	getJetConstituents(*subjet, jet_and_subjetConstituents);
       } else { 
-	jet_and_subjetConstituents.push_back(*jetConstituent);
+	jet_and_subjetConstituents.push_back(jetConstituent);
       }
     }
   }
@@ -179,10 +177,9 @@ namespace
   void printJetConstituents(const std::string& label, const reco::Jet::Constituents& jetConstituents)
   {
     std::cout << "#" << label << " = " << jetConstituents.size() << ":" << std::endl;
-    int idx = 0;
-    for ( reco::Jet::Constituents::const_iterator jetConstituent = jetConstituents.begin();
-	  jetConstituent != jetConstituents.end(); ++jetConstituent ) {
-      std::cout << " jetConstituent #" << idx << ": Pt = " << (*jetConstituent)->pt() << ", eta = " << (*jetConstituent)->eta() << ", phi = " << (*jetConstituent)->phi() << std::endl;
+    unsigned idx = 0;
+    for ( auto const & jetConstituent : jetConstituents ) {
+      std::cout << " jetConstituent #" << idx << ": Pt = " << (*jetConstituent).pt() << ", eta = " << (*jetConstituent).eta() << ", phi = " << (*jetConstituent).phi() << std::endl;
       ++idx;
     }
   }

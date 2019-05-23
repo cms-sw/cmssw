@@ -15,7 +15,7 @@ def OVar(valtype, compression=None, doc=None, mcOnly=False,precision=-1):
                 compression = cms.string(compression if compression else "none"),
                 doc = cms.string(doc if doc else expr),
                 mcOnly = cms.bool(mcOnly),
-	        precision=cms.int32(precision)
+	        precision=cms.string(precision) if type(precision)==str else cms.int32(precision)
            )
 def Var(expr, valtype, compression=None, doc=None, mcOnly=False,precision=-1):
     """Create a PSet for a variable computed with the string parser

@@ -25,13 +25,12 @@
 #include <Geometry/Records/interface/HcalSimNumberingRecord.h>
 
 class HcalDDDSimConstantsESModule : public edm::ESProducer {
-
 public:
   HcalDDDSimConstantsESModule(const edm::ParameterSet&);
 
   using ReturnType = std::unique_ptr<HcalDDDSimConstants>;
 
-  static void fillDescriptions( edm::ConfigurationDescriptions & );
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   ReturnType produce(const HcalSimNumberingRecord&);
 
@@ -42,9 +41,9 @@ private:
 HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet&)
     : parToken_{setWhatProduced(this).consumesFrom<HcalParameters, HcalParametersRcd>(edm::ESInputTag{})} {}
 
-void HcalDDDSimConstantsESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) {
+void HcalDDDSimConstantsESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.add( "hcalDDDSimConstants", desc );
+  descriptions.add("hcalDDDSimConstants", desc);
 }
 
 // ------------ method called to produce the data  ------------

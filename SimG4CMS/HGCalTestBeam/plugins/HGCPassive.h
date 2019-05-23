@@ -38,13 +38,13 @@ class HGCPassive : public SimProducer,
                    public Observer<const BeginOfRun *>,
                    public Observer<const BeginOfEvent *>,
                    public Observer<const G4Step *> {
- public:
+public:
   HGCPassive(const edm::ParameterSet &p);
   ~HGCPassive() override;
 
   void produce(edm::Event &, const edm::EventSetup &) override;
 
- private:
+private:
   HGCPassive(const HGCPassive &) = delete;  // stop default
   const HGCPassive &operator=(const HGCPassive &) = delete;
 
@@ -56,15 +56,13 @@ class HGCPassive : public SimProducer,
   // void endOfEvent(edm::PassiveHitContainer &HGCEEAbsE);
   void endOfEvent(edm::PassiveHitContainer &hgcPH, unsigned int k);
 
-  typedef std::map<G4LogicalVolume *,
-                   std::pair<unsigned int, std::string>>::iterator
-      volumeIterator;
+  typedef std::map<G4LogicalVolume *, std::pair<unsigned int, std::string>>::iterator volumeIterator;
   G4VPhysicalVolume *getTopPV();
   volumeIterator findLV(G4LogicalVolume *plv);
-  void storeInfo(const volumeIterator itr, G4LogicalVolume *plv,
-                 unsigned int copy, double time, double energy, bool flag);
+  void storeInfo(
+      const volumeIterator itr, G4LogicalVolume *plv, unsigned int copy, double time, double energy, bool flag);
 
- private:
+private:
   std::vector<std::string> LVNames_;
   G4VPhysicalVolume *topPV_;
   G4LogicalVolume *topLV_;
@@ -74,6 +72,5 @@ class HGCPassive : public SimProducer,
   // some private members for ananlysis
   unsigned int count_;
   bool init_;
-  std::map<std::pair<G4LogicalVolume *, unsigned int>, std::array<double, 3>>
-      store_;
+  std::map<std::pair<G4LogicalVolume *, unsigned int>, std::array<double, 3>> store_;
 };

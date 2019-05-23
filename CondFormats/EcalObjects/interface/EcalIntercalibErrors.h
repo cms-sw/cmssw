@@ -11,5 +11,4 @@ typedef float EcalIntercalibError;
 typedef EcalFloatCondObjectContainer EcalIntercalibErrorMap;
 typedef EcalIntercalibErrorMap EcalIntercalibErrors;
 
-
 #endif

@@ -2,10 +2,9 @@
 
 #include "CondFormats/BeamSpotObjects/src/headers.h"
 
-int main()
-{
-    testSerialization<BeamSpotObjects>();
-    testSerialization<SimBeamSpotObjects>();
+int main() {
+  testSerialization<BeamSpotObjects>();
+  testSerialization<SimBeamSpotObjects>();
 
-    return 0;
+  return 0;
 }

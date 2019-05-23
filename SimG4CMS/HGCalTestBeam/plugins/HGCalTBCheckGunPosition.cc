@@ -40,23 +40,21 @@
 //
 
 class HGCalTBCheckGunPostion : public edm::stream::EDFilter<> {
- public:
+public:
   explicit HGCalTBCheckGunPostion(const edm::ParameterSet&);
   ~HGCalTBCheckGunPostion() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
+private:
   void beginStream(edm::StreamID) override {}
   bool filter(edm::Event&, const edm::EventSetup&) override;
   void endStream() override {}
 
   void beginRun(edm::Run const&, edm::EventSetup const&) override {}
   void endRun(edm::Run const&, edm::EventSetup const&) override {}
-  void beginLuminosityBlock(edm::LuminosityBlock const&,
-                            edm::EventSetup const&) override {}
-  void endLuminosityBlock(edm::LuminosityBlock const&,
-                          edm::EventSetup const&) override {}
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
 
   // ----------member data ---------------------------
 
@@ -76,8 +74,7 @@ class HGCalTBCheckGunPostion : public edm::stream::EDFilter<> {
 //
 // constructors and destructor
 //
-HGCalTBCheckGunPostion::HGCalTBCheckGunPostion(
-    const edm::ParameterSet& iConfig) {
+HGCalTBCheckGunPostion::HGCalTBCheckGunPostion(const edm::ParameterSet& iConfig) {
   // now do what ever initialization is needed
   edm::InputTag tmp0 = iConfig.getParameter<edm::InputTag>("HepMCProductLabel");
   verbosity_ = iConfig.getUntrackedParameter<bool>("Verbosity", false);
@@ -97,8 +94,7 @@ HGCalTBCheckGunPostion::~HGCalTBCheckGunPostion() {}
 //
 
 // ------------ method called on each new Event  ------------
-bool HGCalTBCheckGunPostion::filter(edm::Event& iEvent,
-                                    const edm::EventSetup& iSetup) {
+bool HGCalTBCheckGunPostion::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::HepMCProduct> hepmc;
   iEvent.getByToken(hepMCproductLabel_, hepmc);
 #ifdef DebugLog
@@ -114,17 +110,14 @@ bool HGCalTBCheckGunPostion::filter(edm::Event& iEvent,
     if (verbosity_)
       edm::LogVerbatim("HGCSim") << "vertex " << Evt->vertices_size();
 #endif
-    for (HepMC::GenEvent::vertex_const_iterator p = Evt->vertices_begin();
-         p != Evt->vertices_end(); ++p) {
+    for (HepMC::GenEvent::vertex_const_iterator p = Evt->vertices_begin(); p != Evt->vertices_end(); ++p) {
       x = (*p)->position().x() / 10.;  // in cm
       y = (*p)->position().y() / 10.;  // in cm
 #ifdef DebugLog
       z = (*p)->position().z() / 10.;  // in cm
       if (verbosity_)
-        edm::LogVerbatim("HGCSim")
-            << " x: " << (*p)->position().x() << ":" << x
-            << " y: " << (*p)->position().y() << ":" << y
-            << " z: " << (*p)->position().z() << ":" << z;
+        edm::LogVerbatim("HGCSim") << " x: " << (*p)->position().x() << ":" << x << " y: " << (*p)->position().y()
+                                   << ":" << y << " z: " << (*p)->position().z() << ":" << z;
 #endif
     }
   }  // if (genEventInfoHandle.isValid())
@@ -142,22 +135,21 @@ bool HGCalTBCheckGunPostion::filter(edm::Event& iEvent,
     double absx = std::abs(x);
     double absy = std::abs(y);
     if (absx <= hexwidth_ && absy <= hexside_) {
-      if (absy <= hexwidth_ * tan30deg_ ||
-          absx <= (2. * hexwidth_ - absy / tan30deg_))
+      if (absy <= hexwidth_ * tan30deg_ || absx <= (2. * hexwidth_ - absy / tan30deg_))
         flag = true;
     }
   }
 
 #ifdef DebugLog
-  if (verbosity_) edm::LogVerbatim("HGCSim") << "Selection Flag " << flag;
+  if (verbosity_)
+    edm::LogVerbatim("HGCSim") << "Selection Flag " << flag;
 #endif
   return flag;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the
 // module  ------------
-void HGCalTBCheckGunPostion::fillDescriptions(
-    edm::ConfigurationDescriptions& descriptions) {
+void HGCalTBCheckGunPostion::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // The following says we do not know what parameters are allowed so do no
   // validation
   // Please change this to state exactly what you do use, even if it is no

@@ -9,27 +9,20 @@
 #include "SimFastTiming/FastTimingCommon/interface/ETLDeviceSim.h"
 #include "SimFastTiming/FastTimingCommon/interface/ETLElectronicsSim.h"
 
-
-class BTLTileDigitizerTraits
-{
- public:
-   
+class BTLTileDigitizerTraits {
+public:
   // --- The BTL DIGI collection
   typedef BTLDigiCollection DigiCollection;
-      
+
   // --- The BTL sensor response simulation for the tile geometry
   typedef BTLTileDeviceSim DeviceSim;
-      
+
   // --- The BTL electronics simulation
   typedef BTLElectronicsSim ElectronicsSim;
-
 };
 
-
-class BTLBarDigitizerTraits
-{
- public:
-
+class BTLBarDigitizerTraits {
+public:
   // --- The BTL DIGI collection
   typedef BTLDigiCollection DigiCollection;
 
@@ -38,23 +31,18 @@ class BTLBarDigitizerTraits
 
   // --- The BTL electronics simulation
   typedef BTLElectronicsSim ElectronicsSim;
-
 };
 
-
-class ETLDigitizerTraits 
-{
- public:
-   
+class ETLDigitizerTraits {
+public:
   // --- The ETL DIGI collection
   typedef ETLDigiCollection DigiCollection;
-      
+
   // --- The ETL sensor response simulation
   typedef ETLDeviceSim DeviceSim;
-      
+
   // --- The ETL sensor response simulation
   typedef ETLElectronicsSim ElectronicsSim;
-
 };
 
 #endif

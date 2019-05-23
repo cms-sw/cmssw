@@ -29,72 +29,73 @@
 //
 // constructors and destructor
 //
-HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
-  candTag_( iConfig.getParameter<edm::InputTag>("CandTag") ),
-  candToken_( consumes<l1extra::L1MuonParticleCollection>(candTag_)),
-  previousCandTag_( iConfig.getParameter<edm::InputTag>("PreviousCandTag") ),
-  previousCandToken_( consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
-  maxEta_( iConfig.getParameter<double>("MaxEta") ),
-  minPt_( iConfig.getParameter<double>("MinPt") ),
-  minN_( iConfig.getParameter<int>("MinN") ),
-  excludeSingleSegmentCSC_( iConfig.getParameter<bool>("ExcludeSingleSegmentCSC") ),
-  csctfTag_( iConfig.getParameter<edm::InputTag>("CSCTFtag") ),
-  csctfToken_(excludeSingleSegmentCSC_ ? consumes<L1CSCTrackCollection>(csctfTag_) : edm::EDGetTokenT<L1CSCTrackCollection>{})
-{
+HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig)
+    : HLTFilter(iConfig),
+      candTag_(iConfig.getParameter<edm::InputTag>("CandTag")),
+      candToken_(consumes<l1extra::L1MuonParticleCollection>(candTag_)),
+      previousCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
+      previousCandToken_(consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
+      maxEta_(iConfig.getParameter<double>("MaxEta")),
+      minPt_(iConfig.getParameter<double>("MinPt")),
+      minN_(iConfig.getParameter<int>("MinN")),
+      excludeSingleSegmentCSC_(iConfig.getParameter<bool>("ExcludeSingleSegmentCSC")),
+      csctfTag_(iConfig.getParameter<edm::InputTag>("CSCTFtag")),
+      csctfToken_(excludeSingleSegmentCSC_ ? consumes<L1CSCTrackCollection>(csctfTag_)
+                                           : edm::EDGetTokenT<L1CSCTrackCollection>{}) {
   using namespace std;
 
   //set the quality bit mask
   qualityBitMask_ = 0;
   vector<int> selectQualities = iConfig.getParameter<vector<int> >("SelectQualities");
-  for(int selectQualitie : selectQualities){
-    if(selectQualitie > 7){
+  for (int selectQualitie : selectQualities) {
+    if (selectQualitie > 7) {
       throw edm::Exception(edm::errors::Configuration) << "QualityBits must be smaller than 8!";
     }
-    qualityBitMask_ |= 1<<selectQualitie;
+    qualityBitMask_ |= 1 << selectQualitie;
   }
 
   // dump parameters for debugging
-  if(edm::isDebugEnabled()){
+  if (edm::isDebugEnabled()) {
     ostringstream ss;
-    ss<<"Constructed with parameters:"<<endl;
-    ss<<"    CandTag = "<<candTag_.encode()<<endl;
-    ss<<"    PreviousCandTag = "<<previousCandTag_.encode()<<endl;
-    ss<<"    MaxEta = "<<maxEta_<<endl;
-    ss<<"    MinPt = "<<minPt_<<endl;
-    ss<<"    SelectQualities =";
-    for(size_t i=0; i<8; i++){
-      if((qualityBitMask_>>i) % 2) ss<<" "<<i;
+    ss << "Constructed with parameters:" << endl;
+    ss << "    CandTag = " << candTag_.encode() << endl;
+    ss << "    PreviousCandTag = " << previousCandTag_.encode() << endl;
+    ss << "    MaxEta = " << maxEta_ << endl;
+    ss << "    MinPt = " << minPt_ << endl;
+    ss << "    SelectQualities =";
+    for (size_t i = 0; i < 8; i++) {
+      if ((qualityBitMask_ >> i) % 2)
+        ss << " " << i;
     }
-    ss<<endl;
-    ss<<"    MinN = "<<minN_<<endl;
-    ss<<"    ExcludeSingleSegmentCSC = "<<excludeSingleSegmentCSC_<<endl;
-    ss<<"    CSCTFtag = "<<csctfTag_.encode()<<endl;
-    ss<<"    saveTags= "<<saveTags();
-    LogDebug("HLTMuonL1Filter")<<ss.str();
+    ss << endl;
+    ss << "    MinN = " << minN_ << endl;
+    ss << "    ExcludeSingleSegmentCSC = " << excludeSingleSegmentCSC_ << endl;
+    ss << "    CSCTFtag = " << csctfTag_.encode() << endl;
+    ss << "    saveTags= " << saveTags();
+    LogDebug("HLTMuonL1Filter") << ss.str();
   }
 }
 
 HLTMuonL1Filter::~HLTMuonL1Filter() = default;
 
-void
-HLTMuonL1Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTMuonL1Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL1extraParticles"));
+  desc.add<edm::InputTag>("CandTag", edm::InputTag("hltL1extraParticles"));
   //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltL1sL1DoubleMuOpen"));
-  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
-  desc.add<double>("MaxEta",2.5);
-  desc.add<double>("MinPt",0.0);
-  desc.add<int>("MinN",1);
-  desc.add<bool>("ExcludeSingleSegmentCSC",false);
+  desc.add<edm::InputTag>("PreviousCandTag", edm::InputTag(""));
+  desc.add<double>("MaxEta", 2.5);
+  desc.add<double>("MinPt", 0.0);
+  desc.add<int>("MinN", 1);
+  desc.add<bool>("ExcludeSingleSegmentCSC", false);
   //  desc.add<edm::InputTag>("CSCTFtag",edm::InputTag("unused"));
-  desc.add<edm::InputTag>("CSCTFtag",edm::InputTag("csctfDigis"));
+  desc.add<edm::InputTag>("CSCTFtag", edm::InputTag("csctfDigis"));
   {
     std::vector<int> temp1;
     temp1.reserve(0);
-    desc.add<std::vector<int> >("SelectQualities",temp1);
+    desc.add<std::vector<int> >("SelectQualities", temp1);
   }
-  descriptions.add("hltMuonL1Filter",desc);
+  descriptions.add("hltMuonL1Filter", desc);
 }
 
 //
@@ -102,7 +103,9 @@ HLTMuonL1Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTMuonL1Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
+bool HLTMuonL1Filter::hltFilter(edm::Event& iEvent,
+                                const edm::EventSetup& iSetup,
+                                trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   using namespace std;
   using namespace edm;
   using namespace trigger;
@@ -117,11 +120,11 @@ bool HLTMuonL1Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(candToken_, allMuons);
 
   /// handle for CSCTFtracks
-  const L1CSCTrackCollection * csctfTracks = nullptr;
-  const L1MuTriggerScales * l1MuTriggerScales = nullptr;
+  const L1CSCTrackCollection* csctfTracks = nullptr;
+  const L1MuTriggerScales* l1MuTriggerScales = nullptr;
 
   // get hold of CSCTF raw tracks
-  if( excludeSingleSegmentCSC_ ) {
+  if (excludeSingleSegmentCSC_) {
     edm::Handle<L1CSCTrackCollection> csctfTracksHandle;
     iEvent.getByToken(csctfToken_, csctfTracksHandle);
     csctfTracks = csctfTracksHandle.product();
@@ -140,62 +143,73 @@ bool HLTMuonL1Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // look at all muon candidates, check cuts and add to filter object
   int n = 0;
-  for(size_t i = 0; i < allMuons->size(); i++){
+  for (size_t i = 0; i < allMuons->size(); i++) {
     L1MuonParticleRef muon(allMuons, i);
 
     //check if triggered by the previous level
-    if(find(prevMuons.begin(), prevMuons.end(), muon) == prevMuons.end()) continue;
+    if (find(prevMuons.begin(), prevMuons.end(), muon) == prevMuons.end())
+      continue;
 
     //check maxEta cut
-    if(fabs(muon->eta()) > maxEta_) continue;
+    if (fabs(muon->eta()) > maxEta_)
+      continue;
 
     //check pT cut
-    if(muon->pt() < minPt_) continue;
+    if (muon->pt() < minPt_)
+      continue;
 
     //check quality cut
-    if(qualityBitMask_){
+    if (qualityBitMask_) {
       int quality = muon->gmtMuonCand().empty() ? 0 : (1 << muon->gmtMuonCand().quality());
-      if((quality & qualityBitMask_) == 0) continue;
+      if ((quality & qualityBitMask_) == 0)
+        continue;
     }
 
     // reject single-segment CSC objects if necessary
-    if (excludeSingleSegmentCSC_ and isSingleSegmentCSC(muon, * csctfTracks, * l1MuTriggerScales)) continue;
+    if (excludeSingleSegmentCSC_ and isSingleSegmentCSC(muon, *csctfTracks, *l1MuTriggerScales))
+      continue;
 
     //we have a good candidate
     n++;
-    filterproduct.addObject(TriggerL1Mu,muon);
+    filterproduct.addObject(TriggerL1Mu, muon);
   }
 
-  if (saveTags()) filterproduct.addCollectionTag(candTag_);
+  if (saveTags())
+    filterproduct.addCollectionTag(candTag_);
 
   // filter decision
   const bool accept(n >= minN_);
 
   // dump event for debugging
-  if(edm::isDebugEnabled()){
+  if (edm::isDebugEnabled()) {
     ostringstream ss;
     ss.precision(2);
-    ss<<"L1mu#"<<'\t'<<"q*pt"<<'\t'<<'\t'<<"eta"<<'\t'<<"phi"<<'\t'<<"quality"<<'\t'<<"isPrev"<<'\t'<<"isFired"<<'\t'<<"isSingleCSC"<<endl;
-    ss<<"--------------------------------------------------------------------------"<<endl;
+    ss << "L1mu#" << '\t' << "q*pt" << '\t' << '\t' << "eta" << '\t' << "phi" << '\t' << "quality" << '\t' << "isPrev"
+       << '\t' << "isFired" << '\t' << "isSingleCSC" << endl;
+    ss << "--------------------------------------------------------------------------" << endl;
 
     vector<L1MuonParticleRef> firedMuons;
     filterproduct.getObjects(TriggerL1Mu, firedMuons);
-    for(size_t i=0; i<allMuons->size(); i++){
+    for (size_t i = 0; i < allMuons->size(); i++) {
       L1MuonParticleRef mu(allMuons, i);
       int quality = mu->gmtMuonCand().empty() ? 0 : mu->gmtMuonCand().quality();
       bool isPrev = find(prevMuons.begin(), prevMuons.end(), mu) != prevMuons.end();
       bool isFired = find(firedMuons.begin(), firedMuons.end(), mu) != firedMuons.end();
-      bool isSingleCSC = excludeSingleSegmentCSC_ and isSingleSegmentCSC(mu, * csctfTracks, * l1MuTriggerScales);
-      ss<<i<<'\t'<<scientific<<mu->charge()*mu->pt()<<'\t'<<fixed<<mu->eta()<<'\t'<<mu->phi()<<'\t'<<quality<<'\t'<<isPrev<<'\t'<<isFired<<'\t'<<isSingleCSC<<endl;
+      bool isSingleCSC = excludeSingleSegmentCSC_ and isSingleSegmentCSC(mu, *csctfTracks, *l1MuTriggerScales);
+      ss << i << '\t' << scientific << mu->charge() * mu->pt() << '\t' << fixed << mu->eta() << '\t' << mu->phi()
+         << '\t' << quality << '\t' << isPrev << '\t' << isFired << '\t' << isSingleCSC << endl;
     }
-    ss<<"--------------------------------------------------------------------------"<<endl;
-    LogDebug("HLTMuonL1Filter")<<ss.str()<<"Decision of filter is "<<accept<<", number of muons passing = "<<filterproduct.l1muonSize();
+    ss << "--------------------------------------------------------------------------" << endl;
+    LogDebug("HLTMuonL1Filter") << ss.str() << "Decision of filter is " << accept
+                                << ", number of muons passing = " << filterproduct.l1muonSize();
   }
 
   return accept;
 }
 
-bool HLTMuonL1Filter::isSingleSegmentCSC(l1extra::L1MuonParticleRef const & muon, L1CSCTrackCollection const & csctfTracks, L1MuTriggerScales const & l1MuTriggerScales) const {
+bool HLTMuonL1Filter::isSingleSegmentCSC(l1extra::L1MuonParticleRef const& muon,
+                                         L1CSCTrackCollection const& csctfTracks,
+                                         L1MuTriggerScales const& l1MuTriggerScales) const {
   // is the muon matching a csctf track?
   //bool matched   = false;     // unused
   // which csctf track mode?
@@ -207,10 +221,9 @@ bool HLTMuonL1Filter::isSingleSegmentCSC(l1extra::L1MuonParticleRef const & muon
   int csctfMode = -999;
 
   // loop over the CSCTF tracks
-  for(auto trk = csctfTracks.begin(); trk < csctfTracks.end(); trk++){
-
-    int trEndcap = (trk->first.endcap()==2 ? trk->first.endcap()-3 : trk->first.endcap());
-    int trSector = 6*(trk->first.endcap()-1)+trk->first.sector();
+  for (auto trk = csctfTracks.begin(); trk < csctfTracks.end(); trk++) {
+    int trEndcap = (trk->first.endcap() == 2 ? trk->first.endcap() - 3 : trk->first.endcap());
+    int trSector = 6 * (trk->first.endcap() - 1) + trk->first.sector();
 
     //... in radians
     // Type 2 is CSC
@@ -219,17 +232,16 @@ bool HLTMuonL1Filter::isSingleSegmentCSC(l1extra::L1MuonParticleRef const & muon
 
     double trEta = trEtaScale * trEndcap;
     // there is no L1ExtraParticle below -2.375
-    if(trEta<-2.4) trEta=-2.375;
+    if (trEta < -2.4)
+      trEta = -2.375;
 
     // CSCTF has 6 sectors
     // sector 1 starts at 15 degrees
     // trPhiScale is defined inside a sector
-    float trPhi02PI = fmod(trPhiScale +
-                           ((trSector-1)*TMath::Pi()/3) +
-                           (TMath::Pi()/12) , 2*TMath::Pi());
+    float trPhi02PI = fmod(trPhiScale + ((trSector - 1) * TMath::Pi() / 3) + (TMath::Pi() / 12), 2 * TMath::Pi());
 
     // L1 information are given from [-Pi,Pi]
-    double trPhi = ( trPhi02PI<TMath::Pi()? trPhi02PI : trPhi02PI - 2*TMath::Pi() );
+    double trPhi = (trPhi02PI < TMath::Pi() ? trPhi02PI : trPhi02PI - 2 * TMath::Pi());
     /*
     std::cout << "\ntrEndcap="               << trEndcap                << std::endl;
     std::cout << "trSector="                 << trSector                << std::endl;
@@ -240,9 +252,7 @@ bool HLTMuonL1Filter::isSingleSegmentCSC(l1extra::L1MuonParticleRef const & muon
     std::cout << "trEta="      << trEta      << std::endl;
     std::cout << "trPhi="      << trPhi      << std::endl;
     */
-    if ( fabs (trEta-muon->eta()) < 0.03 &&
-         fabs (trPhi-muon->phi()) < 0.001  ) {
-
+    if (fabs(trEta - muon->eta()) < 0.03 && fabs(trPhi - muon->phi()) < 0.001) {
       //matched = true;
       ptadd thePtAddress(trk->first.ptLUTAddress());
       csctfMode = thePtAddress.track_mode;
@@ -258,7 +268,7 @@ bool HLTMuonL1Filter::isSingleSegmentCSC(l1extra::L1MuonParticleRef const & muon
   */
 
   // singles are mode 11 "CSCTF tracks"
-  return csctfMode==11;
+  return csctfMode == 11;
 }
 
 // declare this class as a framework plugin

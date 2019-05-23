@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+ <SolidSection label="mf.xml">
+  <Polycone name="ME1Ring" startPhi="0*deg" deltaPhi="360*deg">
+   <ZSection z="5.641*m  " rMin="1.15*m" rMax="2.8*m  "/>
+   <ZSection z="5.674*m  " rMin="1.15*m" rMax="2.8*m  "/>
+   <ZSection z="5.674*m  " rMin="85*cm " rMax="2.8*m  "/>
+   <ZSection z="6.345*m  " rMin="85*cm " rMax="2.8*m  "/>
+  </Polycone>
+ </SolidSection>
+
+ <LogicalPartSection label="mf.xml">
+  <LogicalPart name="ME1RingP" category="unspecified">
+   <rSolid name="ME1Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME1RingN" category="unspecified">
+   <rSolid name="ME1Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+ </LogicalPartSection>
+
+ <PosPartSection label="mf.xml">
+  <PosPart copyNumber="1">
+   <rParent name="cms:CMSE"/>
+   <rChild name="mf:ME1RingP"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="cms:CMSE"/>
+   <rChild name="mf:ME1RingN"/>
+   <rRotation name="rotations:180D"/>
+  </PosPart>
+ </PosPartSection>
+
+</DDDefinition>

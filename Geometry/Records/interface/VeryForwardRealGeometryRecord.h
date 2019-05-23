@@ -20,10 +20,9 @@
  * \ingroup TotemRPGeometry
  * \brief Event setup record containing the real (actual) geometry information.
  **/
-class VeryForwardRealGeometryRecord : public edm::eventsetup::DependentRecordImplementation
-						   <VeryForwardRealGeometryRecord, boost::mpl::vector<IdealGeometryRecord, RPRealAlignmentRecord /*, ... */> >
-{
+class VeryForwardRealGeometryRecord : public edm::eventsetup::DependentRecordImplementation<
+                                          VeryForwardRealGeometryRecord,
+                                          boost::mpl::vector<IdealGeometryRecord, RPRealAlignmentRecord /*, ... */> > {
 };
 
 #endif
-

@@ -3,15 +3,14 @@
 #include <fstream>
 #include <sstream>
 
-CSCReadoutMappingForSliceTest::CSCReadoutMappingForSliceTest(){}
+CSCReadoutMappingForSliceTest::CSCReadoutMappingForSliceTest() {}
 
-CSCReadoutMappingForSliceTest::~CSCReadoutMappingForSliceTest(){}
+CSCReadoutMappingForSliceTest::~CSCReadoutMappingForSliceTest() {}
 
-int CSCReadoutMappingForSliceTest::hwId( int endcap, int station, int vmecrate, int dmb, int tmb ) const {
- 
- int id = 0;
+int CSCReadoutMappingForSliceTest::hwId(int endcap, int station, int vmecrate, int dmb, int tmb) const {
+  int id = 0;
 
-  // This is ONLY for Slice Test Nov-2005 and onwards... 
+  // This is ONLY for Slice Test Nov-2005 and onwards...
 
   id = vmecrate * 16 + dmb;
 

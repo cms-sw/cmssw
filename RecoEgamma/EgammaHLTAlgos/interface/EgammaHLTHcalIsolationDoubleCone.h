@@ -4,7 +4,7 @@
 //
 // Package:     EgammaHLTAlgos
 // Class  :     EgammaHLTHcalIsolationDoubleCone
-// 
+//
 /**\class EgammaHLTHcalIsolationDoubleCone EgammaHLTHcalIsolationDoubleCone.h RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTHcalIsolationDoubleCone.h
 
  Description: sum pt hcal hits in cone around egamma candidate but exlude central cone
@@ -34,41 +34,36 @@
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
-class EgammaHLTHcalIsolationDoubleCone
-{
-
- public:
-  
-  EgammaHLTHcalIsolationDoubleCone(double egHcalIso_PtMin, double egHcalIso_ConeSize, double egHcalIso_Exclusion) :
-    ptMin(egHcalIso_PtMin),conesize(egHcalIso_ConeSize),exclusion(egHcalIso_Exclusion){
-      /* 
+class EgammaHLTHcalIsolationDoubleCone {
+public:
+  EgammaHLTHcalIsolationDoubleCone(double egHcalIso_PtMin, double egHcalIso_ConeSize, double egHcalIso_Exclusion)
+      : ptMin(egHcalIso_PtMin), conesize(egHcalIso_ConeSize), exclusion(egHcalIso_Exclusion) {
+    /* 
 	 std::cout << "EgammaHLTHcalIsolation instance:"
 	 << " ptMin=" << ptMin << "|" << ptMinG
 	 << " conesize="<< conesize << "|" << conesizeG
 	 << std::endl;
       */
-    }
+  }
 
-
-  float isolPtSum(const reco::RecoCandidate* recocandidate, const HBHERecHitCollection* hbhe, const HFRecHitCollection* hf, const CaloGeometry* geometry) const;
-
+  float isolPtSum(const reco::RecoCandidate* recocandidate,
+                  const HBHERecHitCollection* hbhe,
+                  const HFRecHitCollection* hf,
+                  const CaloGeometry* geometry) const;
 
   /// Get pt cut for hcal hits
   float getptMin() const { return ptMin; }
-  /// Get isolation cone size. 
+  /// Get isolation cone size.
   float getConeSize() const { return conesize; }
   /// Get exclusion region
   float getExclusion() const { return exclusion; }
-  
- private:
 
+private:
   // ---------- member data --------------------------------
-   // Parameters of isolation cone geometry. 
+  // Parameters of isolation cone geometry.
   const float ptMin;
   const float conesize;
   const float exclusion;
-  
 };
-
 
 #endif

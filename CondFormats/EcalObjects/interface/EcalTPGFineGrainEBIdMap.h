@@ -7,23 +7,21 @@
 #include <boost/cstdint.hpp>
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainConstEB.h"
 
-class EcalTPGFineGrainEBIdMap
-{
- public:
-  typedef std::map<uint32_t, EcalTPGFineGrainConstEB> EcalTPGFineGrainEBMap ;
-  typedef std::map<uint32_t, EcalTPGFineGrainConstEB>::const_iterator EcalTPGFineGrainEBMapItr ;
+class EcalTPGFineGrainEBIdMap {
+public:
+  typedef std::map<uint32_t, EcalTPGFineGrainConstEB> EcalTPGFineGrainEBMap;
+  typedef std::map<uint32_t, EcalTPGFineGrainConstEB>::const_iterator EcalTPGFineGrainEBMapItr;
 
-  EcalTPGFineGrainEBIdMap() ;
-  ~EcalTPGFineGrainEBIdMap() ;
+  EcalTPGFineGrainEBIdMap();
+  ~EcalTPGFineGrainEBIdMap();
 
-  const EcalTPGFineGrainEBMap & getMap() const { return map_; }
-  void  setValue(const uint32_t & id, const  EcalTPGFineGrainConstEB & value) ;
+  const EcalTPGFineGrainEBMap& getMap() const { return map_; }
+  void setValue(const uint32_t& id, const EcalTPGFineGrainConstEB& value);
 
- private:
-  EcalTPGFineGrainEBMap map_ ;
+private:
+  EcalTPGFineGrainEBMap map_;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

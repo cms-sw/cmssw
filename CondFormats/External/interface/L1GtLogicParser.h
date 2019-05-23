@@ -13,9 +13,9 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
 namespace boost {
-namespace serialization {
+  namespace serialization {
 
-/*
+    /*
  * Note regarding object tracking: all autos used here
  * must resolve to untracked types, since we use local
  * variables in the stack which could end up with the same
@@ -24,16 +24,14 @@ namespace serialization {
  * by Boost Serialization.
  */
 
+    // DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h
+    template <class Archive>
+    void serialize(Archive& ar, L1GtLogicParser::TokenRPN& obj, const unsigned int) {
+      ar& boost::serialization::make_nvp("operation", obj.operation);
+      ar& boost::serialization::make_nvp("operand", obj.operand);
+    }
 
-// DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h
-template<class Archive>
-void serialize(Archive & ar, L1GtLogicParser::TokenRPN & obj, const unsigned int)
-{
-    ar & boost::serialization::make_nvp("operation", obj.operation);
-    ar & boost::serialization::make_nvp("operand", obj.operand);
-}
-
-} // namespace serialization
-} // namespace boost
+  }  // namespace serialization
+}  // namespace boost
 
 #endif

@@ -6,7 +6,8 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "boost/mpl/vector.hpp"
 
-class PHGCalParametersRcd : public edm::eventsetup::DependentRecordImplementation<PHGCalParametersRcd,
-  boost::mpl::vector<IdealGeometryRecord> > {};
+class PHGCalParametersRcd
+    : public edm::eventsetup::DependentRecordImplementation<PHGCalParametersRcd,
+                                                            boost::mpl::vector<IdealGeometryRecord> > {};
 
-#endif // PHGCalParameters_H
+#endif  // PHGCalParameters_H

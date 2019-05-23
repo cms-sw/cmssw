@@ -10,664 +10,611 @@
 #define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
-enum {kHOSizePreLS1 = 2160, kHFSizePreLS1 = 1728} ;
+enum { kHOSizePreLS1 = 2160, kHFSizePreLS1 = 1728 };
 
-HcalDDDRecConstants::HcalDDDRecConstants(const HcalParameters* hp,
-					 const HcalDDDSimConstants& hc) : 
-  hpar(hp), hcons(hc) {
-
+HcalDDDRecConstants::HcalDDDRecConstants(const HcalParameters* hp, const HcalDDDSimConstants& hc)
+    : hpar(hp), hcons(hc) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants::HcalDDDRecConstants (const HcalParameters* hp) constructor";
 #endif
   initialize();
 }
 
-HcalDDDRecConstants::~HcalDDDRecConstants() { 
+HcalDDDRecConstants::~HcalDDDRecConstants() {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants::destructed!!!";
 #endif
 }
 
-std::vector<int> HcalDDDRecConstants::getDepth(const unsigned int& eta,
-					       const bool& extra) const {
-
+std::vector<int> HcalDDDRecConstants::getDepth(const unsigned int& eta, const bool& extra) const {
   if (!extra) {
     std::vector<HcalParameters::LayerItem>::const_iterator last = hpar->layerGroupEtaRec.begin();
-    for (std::vector<HcalParameters::LayerItem>::const_iterator it = hpar->layerGroupEtaRec.begin(); it != hpar->layerGroupEtaRec.end(); ++it) {
-      if (it->layer == eta + 1) return it->layerGroup;
-      if (it->layer > eta + 1 ) return last->layerGroup;
+    for (std::vector<HcalParameters::LayerItem>::const_iterator it = hpar->layerGroupEtaRec.begin();
+         it != hpar->layerGroupEtaRec.end();
+         ++it) {
+      if (it->layer == eta + 1)
+        return it->layerGroup;
+      if (it->layer > eta + 1)
+        return last->layerGroup;
       last = it;
     }
     return last->layerGroup;
   } else {
-    std::map<int,int> layers;
-    hcons.ldMap()->getLayerDepth(eta+1, layers);
+    std::map<int, int> layers;
+    hcons.ldMap()->getLayerDepth(eta + 1, layers);
     std::vector<int> depths;
-    for (unsigned int lay=0; lay < layers.size(); ++lay) 
-      depths.emplace_back(layers[lay+1]);
+    for (unsigned int lay = 0; lay < layers.size(); ++lay)
+      depths.emplace_back(layers[lay + 1]);
     return depths;
   }
 }
 
-std::vector<int> HcalDDDRecConstants::getDepth(const int& det, const int& phi, const int& zside, 
-					       const unsigned int& eta) const {
-  std::map<int,int> layers;
-  hcons.ldMap()->getLayerDepth(det, eta+1, phi, zside, layers);
+std::vector<int> HcalDDDRecConstants::getDepth(const int& det,
+                                               const int& phi,
+                                               const int& zside,
+                                               const unsigned int& eta) const {
+  std::map<int, int> layers;
+  hcons.ldMap()->getLayerDepth(det, eta + 1, phi, zside, layers);
   if (layers.empty()) {
     return getDepth(eta, false);
   } else {
     std::vector<int> depths;
-    for (unsigned int lay=0; lay < layers.size(); ++lay) 
-      depths.emplace_back(layers[lay+1]);
+    for (unsigned int lay = 0; lay < layers.size(); ++lay)
+      depths.emplace_back(layers[lay + 1]);
     return depths;
   }
 }
 
-std::vector<HcalDDDRecConstants::HcalEtaBin> 
-HcalDDDRecConstants::getEtaBins(const int& itype) const {
-
+std::vector<HcalDDDRecConstants::HcalEtaBin> HcalDDDRecConstants::getEtaBins(const int& itype) const {
   std::vector<HcalDDDRecConstants::HcalEtaBin> bins;
-  unsigned int     type     = (itype == 0) ? 0 : 1;
-  HcalSubdetector  subdet   = HcalSubdetector(type+1);
+  unsigned int type = (itype == 0) ? 0 : 1;
+  HcalSubdetector subdet = HcalSubdetector(type + 1);
   std::vector<int> phiSp;
-  HcalSubdetector  subdetSp = HcalSubdetector(hcons.ldMap()->validDet(phiSp));
-  std::map<int,int> layers;
-  for (int iz=0; iz<2; ++iz) {
-    int zside = 2*iz - 1;
+  HcalSubdetector subdetSp = HcalSubdetector(hcons.ldMap()->validDet(phiSp));
+  std::map<int, int> layers;
+  for (int iz = 0; iz < 2; ++iz) {
+    int zside = 2 * iz - 1;
     for (int ieta = iEtaMin[type]; ieta <= iEtaMax[type]; ++ieta) {
-      std::vector<std::pair<int,double> > phis = getPhis(subdet,ieta);
-      std::vector<std::pair<int,double> > phiUse;
-      getLayerDepth(ieta,layers);
+      std::vector<std::pair<int, double>> phis = getPhis(subdet, ieta);
+      std::vector<std::pair<int, double>> phiUse;
+      getLayerDepth(ieta, layers);
       if (subdet == subdetSp) {
-	for (auto & phi : phis) {
-	  if (std::find(phiSp.begin(),phiSp.end(),(zside*phi.first)) ==
-	      phiSp.end()){
-	    phiUse.emplace_back(phi);
-	  }
-	}
+        for (auto& phi : phis) {
+          if (std::find(phiSp.begin(), phiSp.end(), (zside * phi.first)) == phiSp.end()) {
+            phiUse.emplace_back(phi);
+          }
+        }
       } else {
-	phiUse.insert(phiUse.end(),phis.begin(),phis.end());
+        phiUse.insert(phiUse.end(), phis.begin(), phis.end());
       }
       if (!phiUse.empty())
-	getOneEtaBin(subdet,ieta,zside,phiUse,layers,false,bins);
+        getOneEtaBin(subdet, ieta, zside, phiUse, layers, false, bins);
     }
   }
   if (subdetSp == subdet) {
     for (int ieta = iEtaMin[type]; ieta <= iEtaMax[type]; ++ieta) {
-      std::vector<std::pair<int,double> > phis = getPhis(subdet,ieta);
-      for (int iz=0; iz<2; ++iz) {
-	int zside = 2*iz - 1;
-	std::vector<std::pair<int,double> > phiUse;
-	for (int i : phiSp) {
-	  for (auto & phi : phis) {
-	    if (i == zside*phi.first) {
-	      phiUse.emplace_back(phi);
-	      break;
-	    }
-	  }
-	}
-	if (!phiUse.empty()) {
-	  hcons.ldMap()->getLayerDepth(subdet,ieta,phiUse[0].first,zside,layers);
-	  getOneEtaBin(subdet,ieta,zside,phiUse,layers,true,bins);
-	}
+      std::vector<std::pair<int, double>> phis = getPhis(subdet, ieta);
+      for (int iz = 0; iz < 2; ++iz) {
+        int zside = 2 * iz - 1;
+        std::vector<std::pair<int, double>> phiUse;
+        for (int i : phiSp) {
+          for (auto& phi : phis) {
+            if (i == zside * phi.first) {
+              phiUse.emplace_back(phi);
+              break;
+            }
+          }
+        }
+        if (!phiUse.empty()) {
+          hcons.ldMap()->getLayerDepth(subdet, ieta, phiUse[0].first, zside, layers);
+          getOneEtaBin(subdet, ieta, zside, phiUse, layers, true, bins);
+        }
       }
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "Prepares " << bins.size() 
-			       << " eta bins for type " << type;
-  for (unsigned int i=0; i<bins.size(); ++i) {
-    edm::LogVerbatim("HcalGeom") << "Bin[" << i << "]: Eta = (" << bins[i].ieta
-				 << ":" << bins[i].etaMin << ":" 
-				 << bins[i].etaMax << "), Zside = " 
-				 << bins[i].zside << ", phis = ("
-				 << bins[i].phis.size() << ":" << bins[i].dphi
-				 << ") and " << bins[i].layer.size() 
-				 << " depths (start) " << bins[i].depthStart;
-    for (unsigned int k=0; k<bins[i].layer.size(); ++k)
-      edm::LogVerbatim("HcalGeom") << " [" << k << "] "<< bins[i].layer[k].first
-				   << ":" << bins[i].layer[k].second;
+  edm::LogVerbatim("HcalGeom") << "Prepares " << bins.size() << " eta bins for type " << type;
+  for (unsigned int i = 0; i < bins.size(); ++i) {
+    edm::LogVerbatim("HcalGeom") << "Bin[" << i << "]: Eta = (" << bins[i].ieta << ":" << bins[i].etaMin << ":"
+                                 << bins[i].etaMax << "), Zside = " << bins[i].zside << ", phis = ("
+                                 << bins[i].phis.size() << ":" << bins[i].dphi << ") and " << bins[i].layer.size()
+                                 << " depths (start) " << bins[i].depthStart;
+    for (unsigned int k = 0; k < bins[i].layer.size(); ++k)
+      edm::LogVerbatim("HcalGeom") << " [" << k << "] " << bins[i].layer[k].first << ":" << bins[i].layer[k].second;
     edm::LogVerbatim("HcalGeom") << "Phi sets";
-    for (unsigned int k=0; k<bins[i].phis.size(); ++k)
-      edm::LogVerbatim("HcalGeom") << "[" << k << "] " << bins[i].phis[k].first 
-				   << ":" <<bins[i].phis[k].second;
+    for (unsigned int k = 0; k < bins[i].phis.size(); ++k)
+      edm::LogVerbatim("HcalGeom") << "[" << k << "] " << bins[i].phis[k].first << ":" << bins[i].phis[k].second;
   }
 #endif
   return bins;
 }
 
-std::pair<double,double> 
-HcalDDDRecConstants::getEtaPhi(const int& subdet, const int& ieta, const int& iphi) const {
+std::pair<double, double> HcalDDDRecConstants::getEtaPhi(const int& subdet, const int& ieta, const int& iphi) const {
   int ietaAbs = (ieta > 0) ? ieta : -ieta;
   double eta(0), phi(0);
-  if ((subdet == static_cast<int>(HcalBarrel)) || 
-      (subdet == static_cast<int>(HcalEndcap)) ||
+  if ((subdet == static_cast<int>(HcalBarrel)) || (subdet == static_cast<int>(HcalEndcap)) ||
       (subdet == static_cast<int>(HcalOuter))) {  // Use Eta Table
-    int unit    = hcons.unitPhi(phibin[ietaAbs-1]);
-    int kphi    = (unit == 2) ? ((iphi-1)/2 + 1) : iphi;
+    int unit = hcons.unitPhi(phibin[ietaAbs - 1]);
+    int kphi = (unit == 2) ? ((iphi - 1) / 2 + 1) : iphi;
     double foff = (ietaAbs <= iEtaMax[0]) ? hpar->phioff[0] : hpar->phioff[1];
-    eta         = 0.5*(etaTable[ietaAbs-1]+etaTable[ietaAbs]);
-    phi         = foff + (kphi-0.5)*phibin[ietaAbs-1];
+    eta = 0.5 * (etaTable[ietaAbs - 1] + etaTable[ietaAbs]);
+    phi = foff + (kphi - 0.5) * phibin[ietaAbs - 1];
   } else {
-    ietaAbs    -= iEtaMin[2];
-    int unit    = hcons.unitPhi(hpar->phitable[ietaAbs-1]);
-    int kphi    = (unit == 4) ? ((iphi-3)/4 + 1) : ((iphi-1)/2 + 1);
+    ietaAbs -= iEtaMin[2];
+    int unit = hcons.unitPhi(hpar->phitable[ietaAbs - 1]);
+    int kphi = (unit == 4) ? ((iphi - 3) / 4 + 1) : ((iphi - 1) / 2 + 1);
     double foff = (unit > 2) ? hpar->phioff[4] : hpar->phioff[2];
-    eta         = 0.5*(hpar->etaTableHF[ietaAbs-1]+hpar->etaTableHF[ietaAbs]);
-    phi         = foff + (kphi-0.5)*hpar->phitable[ietaAbs-1];
+    eta = 0.5 * (hpar->etaTableHF[ietaAbs - 1] + hpar->etaTableHF[ietaAbs]);
+    phi = foff + (kphi - 0.5) * hpar->phitable[ietaAbs - 1];
   }
-  if (ieta < 0)   eta  = -eta;
-  if (phi > M_PI) phi -= (2*M_PI);
+  if (ieta < 0)
+    eta = -eta;
+  if (phi > M_PI)
+    phi -= (2 * M_PI);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "getEtaPhi: subdet|ieta|iphi " << subdet << "|"
-			       << ieta << "|" << iphi << " eta|phi " << eta 
-			       << "|" << phi;
+  edm::LogVerbatim("HcalGeom") << "getEtaPhi: subdet|ieta|iphi " << subdet << "|" << ieta << "|" << iphi << " eta|phi "
+                               << eta << "|" << phi;
 #endif
-  return std::pair<double,double>(eta,phi);
+  return std::pair<double, double>(eta, phi);
 }
 
-HcalDDDRecConstants::HcalID 
-HcalDDDRecConstants::getHCID(int subdet, int keta, int iphi, int lay,
-			     int idepth) const {
-
-  int    ieta = (keta > 0) ? keta : -keta;
-  int    zside= (keta > 0) ? 1 : -1;
-  int    eta(ieta), phi(iphi), depth(idepth);
+HcalDDDRecConstants::HcalID HcalDDDRecConstants::getHCID(int subdet, int keta, int iphi, int lay, int idepth) const {
+  int ieta = (keta > 0) ? keta : -keta;
+  int zside = (keta > 0) ? 1 : -1;
+  int eta(ieta), phi(iphi), depth(idepth);
   if ((subdet == static_cast<int>(HcalOuter)) ||
-      ((subdet == static_cast<int>(HcalBarrel)) && (lay > maxLayerHB_+1))) {
-    subdet= static_cast<int>(HcalOuter);
+      ((subdet == static_cast<int>(HcalBarrel)) && (lay > maxLayerHB_ + 1))) {
+    subdet = static_cast<int>(HcalOuter);
     depth = 4;
-  } else if (subdet == static_cast<int>(HcalBarrel) || 
-	     subdet == static_cast<int>(HcalEndcap)) {
-    eta      = ietaMap[ieta-1];
-    int unit = phiUnitS[ieta-1];
-    int phi0 = (iphi-1)/(hpar->phigroup[eta-1]);
+  } else if (subdet == static_cast<int>(HcalBarrel) || subdet == static_cast<int>(HcalEndcap)) {
+    eta = ietaMap[ieta - 1];
+    int unit = phiUnitS[ieta - 1];
+    int phi0 = (iphi - 1) / (hpar->phigroup[eta - 1]);
     if (unit == 2) {
-      phi0   = (iphi+1)/2;
-      phi0   = (phi0-1)/(hpar->phigroup[eta-1]);
+      phi0 = (iphi + 1) / 2;
+      phi0 = (phi0 - 1) / (hpar->phigroup[eta - 1]);
     } else if (unit == 4) {
-      phi0   = (iphi+1)/4;
-      phi0   = (phi0-1)/(hpar->phigroup[eta-1]);
+      phi0 = (iphi + 1) / 4;
+      phi0 = (phi0 - 1) / (hpar->phigroup[eta - 1]);
     }
     ++phi0;
-    unit     = hcons.unitPhi(phibin[eta-1]);
-    phi      = hcons.phiNumber(phi0,unit);
-    depth    = hcons.findDepth(subdet,eta,phi,zside,lay-1);
-    if (depth <= 0) depth = layerGroup(eta-1, lay-1);
+    unit = hcons.unitPhi(phibin[eta - 1]);
+    phi = hcons.phiNumber(phi0, unit);
+    depth = hcons.findDepth(subdet, eta, phi, zside, lay - 1);
+    if (depth <= 0)
+      depth = layerGroup(eta - 1, lay - 1);
     if (eta == iEtaMin[1]) {
       if (subdet == static_cast<int>(HcalBarrel)) {
-	if (depth > hcons.getDepthEta16(subdet,phi,zside))
-	  depth = hcons.getDepthEta16(subdet,phi,zside);
+        if (depth > hcons.getDepthEta16(subdet, phi, zside))
+          depth = hcons.getDepthEta16(subdet, phi, zside);
       } else {
-	if (depth < hcons.getDepthEta16(subdet,phi,zside)) 
-	  depth = hcons.getDepthEta16(subdet,phi,zside);
+        if (depth < hcons.getDepthEta16(subdet, phi, zside))
+          depth = hcons.getDepthEta16(subdet, phi, zside);
       }
     } else if (eta == hpar->noff[0] && lay > 1) {
-      int   kphi   = phi + int((hpar->phioff[3]+0.1)/phibin[eta-1]);
-      kphi         = (kphi-1)%4 + 1;
-      if (kphi == 2 || kphi == 3) depth = layerGroup(eta-1, lay-2);
-    } else if (eta == hpar->noff[1] && 
-	       depth > hcons.getDepthEta29(phi,zside,0)) { 
-      eta -= hcons.getDepthEta29(phi,zside,1);
+      int kphi = phi + int((hpar->phioff[3] + 0.1) / phibin[eta - 1]);
+      kphi = (kphi - 1) % 4 + 1;
+      if (kphi == 2 || kphi == 3)
+        depth = layerGroup(eta - 1, lay - 2);
+    } else if (eta == hpar->noff[1] && depth > hcons.getDepthEta29(phi, zside, 0)) {
+      eta -= hcons.getDepthEta29(phi, zside, 1);
     }
-  } 
+  }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "getHCID: input " << subdet << ":" << ieta 
-			       << ":" << iphi << ":" << idepth << ":" << lay 
-			       << " output " << eta << ":" << phi << ":" <<depth;
+  edm::LogVerbatim("HcalGeom") << "getHCID: input " << subdet << ":" << ieta << ":" << iphi << ":" << idepth << ":"
+                               << lay << " output " << eta << ":" << phi << ":" << depth;
 #endif
-  return HcalDDDRecConstants::HcalID(subdet,eta,phi,depth);
+  return HcalDDDRecConstants::HcalID(subdet, eta, phi, depth);
 }
 
-std::vector<HcalDDDRecConstants::HFCellParameters> 
-HcalDDDRecConstants::getHFCellParameters() const {
-
+std::vector<HcalDDDRecConstants::HFCellParameters> HcalDDDRecConstants::getHFCellParameters() const {
   std::vector<HcalDDDRecConstants::HFCellParameters> cells;
   unsigned int nEta = hcons.getPhiTableHF().size();
   if (maxDepth[2] > 0) {
-    for (unsigned int k=0; k<nEta; ++k) {
+    for (unsigned int k = 0; k < nEta; ++k) {
       int ieta = iEtaMin[2] + k;
-      int dphi = (int)(0.001 + hcons.getPhiTableHF()[k]/(5._deg));
+      int dphi = (int)(0.001 + hcons.getPhiTableHF()[k] / (5._deg));
       int iphi = (dphi == 4) ? 3 : 1;
-      int nphi = 72/dphi;
-      double rMin = hcons.getRTableHF()[nEta-k-1]/CLHEP::cm;
-      double rMax = hcons.getRTableHF()[nEta-k]/CLHEP::cm;
-      HcalDDDRecConstants::HFCellParameters cell1( ieta,1,iphi,dphi,nphi,rMin,rMax);
+      int nphi = 72 / dphi;
+      double rMin = hcons.getRTableHF()[nEta - k - 1] / CLHEP::cm;
+      double rMax = hcons.getRTableHF()[nEta - k] / CLHEP::cm;
+      HcalDDDRecConstants::HFCellParameters cell1(ieta, 1, iphi, dphi, nphi, rMin, rMax);
       cells.emplace_back(cell1);
-      HcalDDDRecConstants::HFCellParameters cell2(-ieta,1,iphi,dphi,nphi,rMin,rMax);
+      HcalDDDRecConstants::HFCellParameters cell2(-ieta, 1, iphi, dphi, nphi, rMin, rMax);
       cells.emplace_back(cell2);
     }
   }
   if (maxDepth[2] > 2) {
     if (!hcons.getIdHF2QIE().empty()) {
-      for (unsigned int k=0; k<hcons.getIdHF2QIE().size(); ++k) {
-	int ieta = hcons.getIdHF2QIE()[k].ieta();
-	int ind  = std::abs(ieta) - iEtaMin[2];
-	int dphi = (int)(0.001 + hcons.getPhiTableHF()[ind]/(5._deg));
-	int iphi = hcons.getIdHF2QIE()[k].iphi();
-	double rMin = hcons.getRTableHF()[nEta-ind-1]/CLHEP::cm;
-	double rMax = hcons.getRTableHF()[nEta-ind]/CLHEP::cm;
-	HcalDDDRecConstants::HFCellParameters cell1( ieta,3,iphi,dphi,1,rMin,rMax);
-	cells.emplace_back(cell1);
+      for (unsigned int k = 0; k < hcons.getIdHF2QIE().size(); ++k) {
+        int ieta = hcons.getIdHF2QIE()[k].ieta();
+        int ind = std::abs(ieta) - iEtaMin[2];
+        int dphi = (int)(0.001 + hcons.getPhiTableHF()[ind] / (5._deg));
+        int iphi = hcons.getIdHF2QIE()[k].iphi();
+        double rMin = hcons.getRTableHF()[nEta - ind - 1] / CLHEP::cm;
+        double rMax = hcons.getRTableHF()[nEta - ind] / CLHEP::cm;
+        HcalDDDRecConstants::HFCellParameters cell1(ieta, 3, iphi, dphi, 1, rMin, rMax);
+        cells.emplace_back(cell1);
       }
     } else {
-      for (unsigned int k=0; k<nEta; ++k) {
-	int ieta = iEtaMin[2] + k;
-	int dphi = (int)(0.001 + hcons.getPhiTableHF()[k]/(5._deg));
-	int iphi = (dphi == 4) ? 3 : 1;
-	int nphi = 72/dphi;
-	double rMin = hcons.getRTableHF()[nEta-k-1]/CLHEP::cm;
-	double rMax = hcons.getRTableHF()[nEta-k]/CLHEP::cm;
-	HcalDDDRecConstants::HFCellParameters cell1( ieta,3,iphi,dphi,nphi,rMin,rMax);
-	cells.emplace_back(cell1);
-	HcalDDDRecConstants::HFCellParameters cell2(-ieta,3,iphi,dphi,nphi,rMin,rMax);
-	cells.emplace_back(cell2);
+      for (unsigned int k = 0; k < nEta; ++k) {
+        int ieta = iEtaMin[2] + k;
+        int dphi = (int)(0.001 + hcons.getPhiTableHF()[k] / (5._deg));
+        int iphi = (dphi == 4) ? 3 : 1;
+        int nphi = 72 / dphi;
+        double rMin = hcons.getRTableHF()[nEta - k - 1] / CLHEP::cm;
+        double rMax = hcons.getRTableHF()[nEta - k] / CLHEP::cm;
+        HcalDDDRecConstants::HFCellParameters cell1(ieta, 3, iphi, dphi, nphi, rMin, rMax);
+        cells.emplace_back(cell1);
+        HcalDDDRecConstants::HFCellParameters cell2(-ieta, 3, iphi, dphi, nphi, rMin, rMax);
+        cells.emplace_back(cell2);
       }
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants returns " << cells.size() 
-			       << " HF cell parameters";
-  for (unsigned int k=0; k<cells.size(); ++k)
-    edm::LogVerbatim("HcalGeom") << "Cell[" << k <<"] : (" << cells[k].ieta 
-				 << ", " << cells[k].depth << ", " 
-				 << cells[k].firstPhi << ", " << cells[k].stepPhi
-				 << ", " << cells[k].nPhi << ", " <<cells[k].rMin
-				 << ", " << cells[k].rMax << ")";
+  edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants returns " << cells.size() << " HF cell parameters";
+  for (unsigned int k = 0; k < cells.size(); ++k)
+    edm::LogVerbatim("HcalGeom") << "Cell[" << k << "] : (" << cells[k].ieta << ", " << cells[k].depth << ", "
+                                 << cells[k].firstPhi << ", " << cells[k].stepPhi << ", " << cells[k].nPhi << ", "
+                                 << cells[k].rMin << ", " << cells[k].rMax << ")";
 #endif
   return cells;
 }
 
-void HcalDDDRecConstants::getLayerDepth(const int& ieta, std::map<int,int>& layers) const {
-
+void HcalDDDRecConstants::getLayerDepth(const int& ieta, std::map<int, int>& layers) const {
   layers.clear();
-  for (unsigned int l=0; l<layerGroupSize(ieta-1); ++l) {
+  for (unsigned int l = 0; l < layerGroupSize(ieta - 1); ++l) {
     int lay = l + 1;
-    layers[lay] = layerGroup(ieta-1,l);
+    layers[lay] = layerGroup(ieta - 1, l);
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "getLayerDepth::Input " << ieta << " Output " 
-			       << layers.size() << " entries";
-  for (std::map<int,int>::iterator itr=layers.begin(); itr != layers.end();
-       ++itr) 
+  edm::LogVerbatim("HcalGeom") << "getLayerDepth::Input " << ieta << " Output " << layers.size() << " entries";
+  for (std::map<int, int>::iterator itr = layers.begin(); itr != layers.end(); ++itr)
     edm::LogVerbatim("HcalGeom") << " [" << itr->first << "] " << itr->second;
 #endif
 }
 
-int HcalDDDRecConstants::getLayerBack(const int& idet, const int& ieta,
-				      const int& iphi, const int& depth) const{
-  int subdet   = (idet == 1) ? 1 : 2;
-  int zside    = (ieta > 0) ? 1 : -1;
-  int eta      = zside*ieta;
-  int layBack  = hcons.ldMap()->getLayerBack(subdet,eta,iphi,zside,depth);
-  int laymax   = hcons.getLastLayer(subdet, ieta);
+int HcalDDDRecConstants::getLayerBack(const int& idet, const int& ieta, const int& iphi, const int& depth) const {
+  int subdet = (idet == 1) ? 1 : 2;
+  int zside = (ieta > 0) ? 1 : -1;
+  int eta = zside * ieta;
+  int layBack = hcons.ldMap()->getLayerBack(subdet, eta, iphi, zside, depth);
+  int laymax = hcons.getLastLayer(subdet, ieta);
   if (layBack < 0 && eta <= hpar->etaMax[1]) {
-    for (unsigned int k=0; k<layerGroupSize(eta-1); ++k) {
-      if (depth+1 == (int)layerGroup(eta-1, k)) {
-	layBack = k - 1;
-	break;
+    for (unsigned int k = 0; k < layerGroupSize(eta - 1); ++k) {
+      if (depth + 1 == (int)layerGroup(eta - 1, k)) {
+        layBack = k - 1;
+        break;
       }
     }
-  } 
-  if (layBack < 0 || layBack > laymax) layBack = laymax;
+  }
+  if (layBack < 0 || layBack > laymax)
+    layBack = laymax;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "getLayerBack::Input " << idet << ":" << ieta 
-			       << ":" << iphi << ":" << depth << " Output " 
-			       << layBack;
+  edm::LogVerbatim("HcalGeom") << "getLayerBack::Input " << idet << ":" << ieta << ":" << iphi << ":" << depth
+                               << " Output " << layBack;
 #endif
   return layBack;
 }
 
-int HcalDDDRecConstants::getLayerFront(const int& idet, const int& ieta,
-				       const int& iphi, const int& depth) const {
-  int subdet   = (idet == 1) ? 1 : 2;
-  int zside    = (ieta > 0) ? 1 : -1;
-  int eta      = zside*ieta;
-  int layFront = hcons.ldMap()->getLayerFront(subdet,eta,iphi,zside,depth);
-  int laymin   = hcons.getFrontLayer(subdet, ieta);
-  if ((layFront < 0) || 
-      ((subdet == static_cast<int>(HcalEndcap)) && (eta == 16))) {
+int HcalDDDRecConstants::getLayerFront(const int& idet, const int& ieta, const int& iphi, const int& depth) const {
+  int subdet = (idet == 1) ? 1 : 2;
+  int zside = (ieta > 0) ? 1 : -1;
+  int eta = zside * ieta;
+  int layFront = hcons.ldMap()->getLayerFront(subdet, eta, iphi, zside, depth);
+  int laymin = hcons.getFrontLayer(subdet, ieta);
+  if ((layFront < 0) || ((subdet == static_cast<int>(HcalEndcap)) && (eta == 16))) {
     if ((subdet == static_cast<int>(HcalEndcap)) && (eta == 16)) {
       layFront = laymin;
     } else if (eta <= hpar->etaMax[1]) {
-      for (unsigned int k=0; k<layerGroupSize(eta-1); ++k) {
-	if (depth == (int)layerGroup(eta-1, k)) {
-	  if ((int)(k) >= laymin) {
-	    layFront = k;
-	    break;
-	  }
-	}
+      for (unsigned int k = 0; k < layerGroupSize(eta - 1); ++k) {
+        if (depth == (int)layerGroup(eta - 1, k)) {
+          if ((int)(k) >= laymin) {
+            layFront = k;
+            break;
+          }
+        }
       }
     }
   } else {
-    if (layFront < laymin) layFront = laymin;
+    if (layFront < laymin)
+      layFront = laymin;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "getLayerFront::Input " << idet << ":" << ieta 
-			       << ":" << iphi << ":" << depth << " Output "
-			       << layFront;
+  edm::LogVerbatim("HcalGeom") << "getLayerFront::Input " << idet << ":" << ieta << ":" << iphi << ":" << depth
+                               << " Output " << layFront;
 #endif
   return layFront;
 }
 
-int HcalDDDRecConstants::getMaxDepth (const int& itype, const int& ieta,
-				      const int& iphi,  const int& zside) const {
-  
-  unsigned int type  = (itype == 0) ? 0 : 1;
-  int lmax = hcons.getMaxDepth(type+1, ieta, iphi, zside, true);
+int HcalDDDRecConstants::getMaxDepth(const int& itype, const int& ieta, const int& iphi, const int& zside) const {
+  unsigned int type = (itype == 0) ? 0 : 1;
+  int lmax = hcons.getMaxDepth(type + 1, ieta, iphi, zside, true);
   if (lmax < 0) {
-    unsigned int lymax = (type == 0) ? maxLayerHB_+1 : maxLayer_+1;
+    unsigned int lymax = (type == 0) ? maxLayerHB_ + 1 : maxLayer_ + 1;
     lmax = 0;
-    if (layerGroupSize(ieta-1) > 0) {
-      if (layerGroupSize(ieta-1) < lymax) lymax = layerGroupSize(ieta-1);
-      lmax = (int)(layerGroup(ieta-1, lymax-1));
-      if (type == 0 && ieta == iEtaMax[type]) lmax = hcons.getDepthEta16M(1);
-      if (type == 1 && ieta >= hpar->noff[1]) lmax = hcons.getDepthEta29M(0,false);
+    if (layerGroupSize(ieta - 1) > 0) {
+      if (layerGroupSize(ieta - 1) < lymax)
+        lymax = layerGroupSize(ieta - 1);
+      lmax = (int)(layerGroup(ieta - 1, lymax - 1));
+      if (type == 0 && ieta == iEtaMax[type])
+        lmax = hcons.getDepthEta16M(1);
+      if (type == 1 && ieta >= hpar->noff[1])
+        lmax = hcons.getDepthEta29M(0, false);
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "getMaxDepth::Input " << itype << ":" << ieta
-			       << ":" << iphi << ":" << zside << " Output "
-			       << lmax;
+  edm::LogVerbatim("HcalGeom") << "getMaxDepth::Input " << itype << ":" << ieta << ":" << iphi << ":" << zside
+                               << " Output " << lmax;
 #endif
   return lmax;
 }
 
-int HcalDDDRecConstants::getMinDepth (const int& itype, const int& ieta,
-				      const int& iphi,  const int& zside) const {
-
-  int lmin = hcons.getMinDepth(itype+1, ieta, iphi, zside, true);
+int HcalDDDRecConstants::getMinDepth(const int& itype, const int& ieta, const int& iphi, const int& zside) const {
+  int lmin = hcons.getMinDepth(itype + 1, ieta, iphi, zside, true);
   if (lmin < 0) {
-    if (itype == 2) { // HFn
+    if (itype == 2) {  // HFn
       lmin = 1;
-    } else if (itype == 3) { //HO
+    } else if (itype == 3) {  //HO
       lmin = maxDepth[3];
     } else {
-      unsigned int type  = (itype == 0) ? 0 : 1;
-      if (layerGroupSize(ieta-1) > 0) {
-	if (type == 1 && ieta == iEtaMin[type])
-	  lmin = hcons.getDepthEta16M(2);
-	else
-	  lmin = (int)(layerGroup(ieta-1, 0));
+      unsigned int type = (itype == 0) ? 0 : 1;
+      if (layerGroupSize(ieta - 1) > 0) {
+        if (type == 1 && ieta == iEtaMin[type])
+          lmin = hcons.getDepthEta16M(2);
+        else
+          lmin = (int)(layerGroup(ieta - 1, 0));
       }
     }
   }
   return lmin;
 }
 
-std::vector<std::pair<int,double> >
-HcalDDDRecConstants::getPhis(const int& subdet, const int& ieta) const {
-
-  std::vector<std::pair<int,double> > phis;
+std::vector<std::pair<int, double>> HcalDDDRecConstants::getPhis(const int& subdet, const int& ieta) const {
+  std::vector<std::pair<int, double>> phis;
   int ietaAbs = (ieta > 0) ? ieta : -ieta;
-  int    keta  = (subdet != HcalForward) ? etaSimValu[ietaAbs-1].first : ietaAbs;
-  std::pair<double,double> ficons = hcons.getPhiCons(subdet, keta);
+  int keta = (subdet != HcalForward) ? etaSimValu[ietaAbs - 1].first : ietaAbs;
+  std::pair<double, double> ficons = hcons.getPhiCons(subdet, keta);
   double fioff = ficons.first;
-  double dphi  = (subdet != HcalForward) ? phibin[ietaAbs-1] : ficons.second;
-  int    nphi  = int((2._pi+0.1*dphi)/dphi);
-  int    units = hcons.unitPhi(subdet, keta);
+  double dphi = (subdet != HcalForward) ? phibin[ietaAbs - 1] : ficons.second;
+  int nphi = int((2._pi + 0.1 * dphi) / dphi);
+  int units = hcons.unitPhi(subdet, keta);
   for (int ifi = 0; ifi < nphi; ++ifi) {
-    double phi =-fioff + (ifi+0.5)*dphi;
-    int iphi   = hcons.phiNumber(ifi+1,units);
-    phis.emplace_back(std::pair<int,double>(iphi,phi));
+    double phi = -fioff + (ifi + 0.5) * dphi;
+    int iphi = hcons.phiNumber(ifi + 1, units);
+    phis.emplace_back(std::pair<int, double>(iphi, phi));
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "getEtaPhi: subdet|ieta|iphi " << subdet << "|"
-			       << ieta << " with " << phis.size() << " phi bins";
-  for (unsigned int k=0; k<phis.size(); ++k)
-    edm::LogVerbatim("HcalGeom") << "[" << k << "] iphi " << phis[k].first 
-				 << " phi " << convertRadToDeg(phis[k].second);
+  edm::LogVerbatim("HcalGeom") << "getEtaPhi: subdet|ieta|iphi " << subdet << "|" << ieta << " with " << phis.size()
+                               << " phi bins";
+  for (unsigned int k = 0; k < phis.size(); ++k)
+    edm::LogVerbatim("HcalGeom") << "[" << k << "] iphi " << phis[k].first << " phi "
+                                 << convertRadToDeg(phis[k].second);
 #endif
   return phis;
 }
 
-int HcalDDDRecConstants::getPhiZOne(std::vector<std::pair<int,int>>& phiz) const {
-
+int HcalDDDRecConstants::getPhiZOne(std::vector<std::pair<int, int>>& phiz) const {
   phiz.clear();
   int subdet = hcons.ldMap()->getSubdet();
   if (subdet > 0) {
     std::vector<int> phis = hcons.ldMap()->getPhis();
     for (int k : phis) {
       int zside = (k > 0) ? 1 : -1;
-      int phi   = (k > 0) ? k : -k;
-      phiz.emplace_back(std::pair<int,int>(phi,zside));
+      int phi = (k > 0) ? k : -k;
+      phiz.emplace_back(std::pair<int, int>(phi, zside));
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "Special RBX for detector " << subdet 
-			       << " with " << phiz.size() << " phi/z bins";
-  for (unsigned int k=0; k<phiz.size(); ++k)
-    edm::LogVerbatim("HcalGeom") << " [" << k << "] " << phiz[k].first << ":" 
-				 << phiz[k].second;
+  edm::LogVerbatim("HcalGeom") << "Special RBX for detector " << subdet << " with " << phiz.size() << " phi/z bins";
+  for (unsigned int k = 0; k < phiz.size(); ++k)
+    edm::LogVerbatim("HcalGeom") << " [" << k << "] " << phiz[k].first << ":" << phiz[k].second;
 #endif
   return subdet;
 }
 
-double HcalDDDRecConstants::getRZ(const int& subdet, const int& ieta, 
-				  const int& depth) const {
-
+double HcalDDDRecConstants::getRZ(const int& subdet, const int& ieta, const int& depth) const {
   return getRZ(subdet, ieta, 1, depth);
 }
 
-double HcalDDDRecConstants::getRZ(const int& subdet, const int& ieta, const int& iphi,
-				  const int& depth) const {
-  int    layf  = getLayerFront(subdet,ieta,iphi,depth);
-  double rz    = (layf < 0) ? 0.0 : 
-    ((subdet == static_cast<int>(HcalBarrel)) ? (gconsHB[layf].first) :
-     (gconsHE[layf].first));
+double HcalDDDRecConstants::getRZ(const int& subdet, const int& ieta, const int& iphi, const int& depth) const {
+  int layf = getLayerFront(subdet, ieta, iphi, depth);
+  double rz =
+      (layf < 0) ? 0.0 : ((subdet == static_cast<int>(HcalBarrel)) ? (gconsHB[layf].first) : (gconsHE[layf].first));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "getRZ: subdet|ieta|ipho|depth " << subdet 
-			       << "|" << ieta << "|" << iphi << "|" << depth 
-			       << " lay|rz " << layf << "|" << rz;
+  edm::LogVerbatim("HcalGeom") << "getRZ: subdet|ieta|ipho|depth " << subdet << "|" << ieta << "|" << iphi << "|"
+                               << depth << " lay|rz " << layf << "|" << rz;
 #endif
   return rz;
 }
 
 double HcalDDDRecConstants::getRZ(const int& subdet, const int& layer) const {
-
   double rz(0);
   if (layer > 0 && layer <= (int)(layerGroupSize(0)))
-    rz = ((subdet == static_cast<int>(HcalBarrel)) ? (gconsHB[layer-1].first) :
-	  (gconsHE[layer-1].first));
+    rz = ((subdet == static_cast<int>(HcalBarrel)) ? (gconsHB[layer - 1].first) : (gconsHE[layer - 1].first));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "getRZ: subdet|layer " << subdet << "|" 
-			       << layer << " rz " << rz;
+  edm::LogVerbatim("HcalGeom") << "getRZ: subdet|layer " << subdet << "|" << layer << " rz " << rz;
 #endif
   return rz;
 }
 
-std::pair<double,double> HcalDDDRecConstants::getRZ(const HcalDetId& id) const{
-  int    subdet = id.subdetId();
-  int    ieta   = id.ieta();
-  int    iphi   = id.iphi();
-  int    depth  = id.depth();
-  int    zside  = (subdet == static_cast<int>(HcalBarrel)) ? 1 : id.zside();
-  int    layf   = getLayerFront(subdet,ieta,iphi,depth);
-  double rzf    = (layf < 0) ? 0.0 : 
-    ((subdet == static_cast<int>(HcalBarrel)) ? 
-     zside*(gconsHB[layf].first-gconsHB[layf].second) :
-     zside*(gconsHE[layf].first-gconsHE[layf].second));
-  int    layb  = getLayerBack(subdet,ieta,iphi,depth);
-  double rzb   = (layb < 0) ? 0.0 : 
-    ((subdet == static_cast<int>(HcalBarrel)) ? 
-     zside*(gconsHB[layb].first+gconsHB[layb].second) :
-     zside*(gconsHE[layb].first+gconsHE[layb].second));
+std::pair<double, double> HcalDDDRecConstants::getRZ(const HcalDetId& id) const {
+  int subdet = id.subdetId();
+  int ieta = id.ieta();
+  int iphi = id.iphi();
+  int depth = id.depth();
+  int zside = (subdet == static_cast<int>(HcalBarrel)) ? 1 : id.zside();
+  int layf = getLayerFront(subdet, ieta, iphi, depth);
+  double rzf = (layf < 0)
+                   ? 0.0
+                   : ((subdet == static_cast<int>(HcalBarrel)) ? zside * (gconsHB[layf].first - gconsHB[layf].second)
+                                                               : zside * (gconsHE[layf].first - gconsHE[layf].second));
+  int layb = getLayerBack(subdet, ieta, iphi, depth);
+  double rzb = (layb < 0)
+                   ? 0.0
+                   : ((subdet == static_cast<int>(HcalBarrel)) ? zside * (gconsHB[layb].first + gconsHB[layb].second)
+                                                               : zside * (gconsHE[layb].first + gconsHE[layb].second));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "getRZ: subdet|ieta|ipho|depth " << subdet 
-			       << "|" << ieta << "|" << iphi << "|" << depth 
-			       << " lay|rz (front) " << layf << "|" << rzf
-			       << " lay|rz (back) " << layb << "|" << rzb;
+  edm::LogVerbatim("HcalGeom") << "getRZ: subdet|ieta|ipho|depth " << subdet << "|" << ieta << "|" << iphi << "|"
+                               << depth << " lay|rz (front) " << layf << "|" << rzf << " lay|rz (back) " << layb << "|"
+                               << rzb;
 #endif
-  return std::pair<double,double>(rzf,rzb);
+  return std::pair<double, double>(rzf, rzb);
 }
- 	
-std::vector<HcalDDDRecConstants::HcalActiveLength> 
-HcalDDDRecConstants::getThickActive(const int& type) const {
 
+std::vector<HcalDDDRecConstants::HcalActiveLength> HcalDDDRecConstants::getThickActive(const int& type) const {
   std::vector<HcalDDDRecConstants::HcalActiveLength> actives;
   std::vector<HcalDDDRecConstants::HcalEtaBin> bins = getEtaBins(type);
 #ifdef EDM_ML_DEBUG
   unsigned int kount(0);
 #endif
-  for (auto & bin : bins) {
-    int    ieta  = bin.ieta;
-    int    zside = bin.zside;
-    int    stype = (bin.phis.size() > 4) ? 0 : 1;
-    int    layf  = getLayerFront(type+1,zside*ieta,bin.phis[0].first,bin.depthStart) + 1;
-    int    layl  = hcons.getLastLayer(type+1,zside*ieta) + 1;
-    double eta   = 0.5*(bin.etaMin+bin.etaMax);
-    double theta = 2*atan(exp(-eta));
-    double scale = 1.0/((type == 0) ? sin(theta) : cos(theta));
-    int    depth = bin.depthStart;
+  for (auto& bin : bins) {
+    int ieta = bin.ieta;
+    int zside = bin.zside;
+    int stype = (bin.phis.size() > 4) ? 0 : 1;
+    int layf = getLayerFront(type + 1, zside * ieta, bin.phis[0].first, bin.depthStart) + 1;
+    int layl = hcons.getLastLayer(type + 1, zside * ieta) + 1;
+    double eta = 0.5 * (bin.etaMin + bin.etaMax);
+    double theta = 2 * atan(exp(-eta));
+    double scale = 1.0 / ((type == 0) ? sin(theta) : cos(theta));
+    int depth = bin.depthStart;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalGeom") << "Eta " << ieta << " zside " << zside 
-				 << " depth " << depth  << " Layers " << layf 
-				 << ":" << layl << ":" << bin.layer.size();
-    for (auto ll : bin.layer) 
+    edm::LogVerbatim("HcalGeom") << "Eta " << ieta << " zside " << zside << " depth " << depth << " Layers " << layf
+                                 << ":" << layl << ":" << bin.layer.size();
+    for (auto ll : bin.layer)
       edm::LogVerbatim("HcalGeom") << "Layer " << ll.first << ":" << ll.second;
-    for (auto phi : bin.phis) 
-      edm::LogVerbatim("HcalGeom") << "Phi " << phi.first << ":" 
-				   << convertRadToDeg(phi.second);
+    for (auto phi : bin.phis)
+      edm::LogVerbatim("HcalGeom") << "Phi " << phi.first << ":" << convertRadToDeg(phi.second);
 #endif
     for (unsigned int i = 0; i < bin.layer.size(); ++i) {
       double thick(0);
-      int lmin = (type == 1 && ieta == iEtaMin[1]) ? layf :
-	std::max(bin.layer[i].first,layf);
-      int lmax = std::min(bin.layer[i].second,layl);
+      int lmin = (type == 1 && ieta == iEtaMin[1]) ? layf : std::max(bin.layer[i].first, layf);
+      int lmax = std::min(bin.layer[i].second, layl);
       for (int j = lmin; j <= lmax; ++j) {
-	double t = ((type == 0) ? gconsHB[j-1].second : gconsHE[j-1].second);
-	if ((type == 1) && (ieta <= 18)) t = gconsHE[j].second;
-	if (t > 0) thick += t;
+        double t = ((type == 0) ? gconsHB[j - 1].second : gconsHE[j - 1].second);
+        if ((type == 1) && (ieta <= 18))
+          t = gconsHE[j].second;
+        if (t > 0)
+          thick += t;
       }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalGeom") << "Type " << type << " L " << lmin << ":" 
-				   << lmax << " T " << thick;
+      edm::LogVerbatim("HcalGeom") << "Type " << type << " L " << lmin << ":" << lmax << " T " << thick;
 #endif
-      thick *= (2.*scale);
-      HcalDDDRecConstants::HcalActiveLength active(ieta,depth,zside,stype,zside*eta,thick);
-      for (auto phi : bin.phis) 
-	active.iphis.emplace_back(phi.first);
+      thick *= (2. * scale);
+      HcalDDDRecConstants::HcalActiveLength active(ieta, depth, zside, stype, zside * eta, thick);
+      for (auto phi : bin.phis)
+        active.iphis.emplace_back(phi.first);
       actives.emplace_back(active);
       ++depth;
 #ifdef EDM_ML_DEBUG
       kount++;
-      edm::LogVerbatim("HcalGeom") << "getThickActive: [" << kount << "] eta:" 
-				   << active.ieta << ":" << active.eta 
-				   << " zside " << active.zside << " depth " 
-				   << active.depth << " type " << active.stype 
-				   << " thick "	<< active.thick;
+      edm::LogVerbatim("HcalGeom") << "getThickActive: [" << kount << "] eta:" << active.ieta << ":" << active.eta
+                                   << " zside " << active.zside << " depth " << active.depth << " type " << active.stype
+                                   << " thick " << active.thick;
 #endif
     }
   }
   return actives;
 }
 
-std::vector<HcalCellType> 
-HcalDDDRecConstants::HcalCellTypes(HcalSubdetector subdet) const {
-
+std::vector<HcalCellType> HcalDDDRecConstants::HcalCellTypes(HcalSubdetector subdet) const {
   if (subdet == HcalBarrel || subdet == HcalEndcap) {
     std::vector<HcalCellType> cells;
-    int isub   = (subdet == HcalBarrel) ? 0 : 1;
+    int isub = (subdet == HcalBarrel) ? 0 : 1;
     std::vector<HcalDDDRecConstants::HcalEtaBin> etabins = getEtaBins(isub);
     std::vector<int> missPhi;
     for (const auto& etabin : etabins) {
       std::vector<HcalCellType> temp;
-      std::vector<int>          count;
-      std::vector<double>       dmin, dmax;
-      for (unsigned int il=0; il<etabin.layer.size(); ++il) {
-	HcalCellType cell(subdet, etabin.ieta, etabin.zside, 0,
-			  HcalCellType::HcalCell());
-	temp.emplace_back(cell);
-	count.emplace_back(0);
-	dmin.emplace_back(0);
-	dmax.emplace_back(0);
+      std::vector<int> count;
+      std::vector<double> dmin, dmax;
+      for (unsigned int il = 0; il < etabin.layer.size(); ++il) {
+        HcalCellType cell(subdet, etabin.ieta, etabin.zside, 0, HcalCellType::HcalCell());
+        temp.emplace_back(cell);
+        count.emplace_back(0);
+        dmin.emplace_back(0);
+        dmax.emplace_back(0);
       }
       int ieta = etabin.ieta;
-      for (int keta=etaSimValu[ieta-1].first; keta<=etaSimValu[ieta-1].second;
-	   ++keta) {
-	std::vector<HcalCellType> cellsm = hcons.HcalCellTypes(subdet,keta,-1);
-	for (unsigned int il=0; il<etabin.layer.size(); ++il) {
-	  for (auto & ic : cellsm) {
-	    if (ic.depthSegment() >= etabin.layer[il].first &&
-		ic.depthSegment() <= etabin.layer[il].second &&
-		ic.etaBin() == temp[il].etaBin() && 
-		ic.zside()  == temp[il].zside()) {
-	      if (count[il] == 0) {
-		temp[il] = ic;
-		dmin[il] = ic.depthMin();
-		dmax[il] = ic.depthMax();
-	      }
-	      ++count[il];
-	      if (ic.depthMin() < dmin[il]) 
-		dmin[il] = ic.depthMin();
-	      if (ic.depthMax() > dmax[il]) 
-		dmax[il] = ic.depthMax();
-	    }
-	  }
-	}
+      for (int keta = etaSimValu[ieta - 1].first; keta <= etaSimValu[ieta - 1].second; ++keta) {
+        std::vector<HcalCellType> cellsm = hcons.HcalCellTypes(subdet, keta, -1);
+        for (unsigned int il = 0; il < etabin.layer.size(); ++il) {
+          for (auto& ic : cellsm) {
+            if (ic.depthSegment() >= etabin.layer[il].first && ic.depthSegment() <= etabin.layer[il].second &&
+                ic.etaBin() == temp[il].etaBin() && ic.zside() == temp[il].zside()) {
+              if (count[il] == 0) {
+                temp[il] = ic;
+                dmin[il] = ic.depthMin();
+                dmax[il] = ic.depthMax();
+              }
+              ++count[il];
+              if (ic.depthMin() < dmin[il])
+                dmin[il] = ic.depthMin();
+              if (ic.depthMax() > dmax[il])
+                dmax[il] = ic.depthMax();
+            }
+          }
+        }
       }
-      for (unsigned int il=0; il<etabin.layer.size(); ++il) {
-	int depth = etabin.depthStart + (int)(il);
-	temp[il].setEta(ieta,etabin.etaMin,etabin.etaMax);
-	temp[il].setDepth(depth,dmin[il],dmax[il]);
-	double foff = (etabin.ieta <= iEtaMax[0]) ? hpar->phioff[0] : hpar->phioff[1];
-	int unit    = hcons.unitPhi(etabin.dphi);
-	temp[il].setPhi(etabin.phis, missPhi, foff, etabin.dphi, unit);
-	cells.emplace_back(temp[il]);
+      for (unsigned int il = 0; il < etabin.layer.size(); ++il) {
+        int depth = etabin.depthStart + (int)(il);
+        temp[il].setEta(ieta, etabin.etaMin, etabin.etaMax);
+        temp[il].setDepth(depth, dmin[il], dmax[il]);
+        double foff = (etabin.ieta <= iEtaMax[0]) ? hpar->phioff[0] : hpar->phioff[1];
+        int unit = hcons.unitPhi(etabin.dphi);
+        temp[il].setPhi(etabin.phis, missPhi, foff, etabin.dphi, unit);
+        cells.emplace_back(temp[il]);
       }
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants: found " << cells.size()
-				 << " cells for sub-detector type " << isub;
-    for (unsigned int ic=0; ic<cells.size(); ++ic)
+    edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants: found " << cells.size() << " cells for sub-detector type "
+                                 << isub;
+    for (unsigned int ic = 0; ic < cells.size(); ++ic)
       edm::LogVerbatim("HcalGeom") << "Cell[" << ic << "] " << cells[ic];
 #endif
     return cells;
   } else {
-    return hcons.HcalCellTypes(subdet,-1,-1);
+    return hcons.HcalCellTypes(subdet, -1, -1);
   }
 }
 
 bool HcalDDDRecConstants::mergedDepthList29(int ieta, int iphi, int depth) const {
-  int eta   = std::abs(ieta);
+  int eta = std::abs(ieta);
   int zside = (ieta > 0) ? 1 : -1;
-  int etamin= iEtaMax[1]-hcons.getDepthEta29(iphi,zside,1);
+  int etamin = iEtaMax[1] - hcons.getDepthEta29(iphi, zside, 1);
   if ((eta >= etamin) && (eta <= iEtaMax[1])) {
     int depthMax = getMaxDepth(1, etamin, iphi, zside);
-    int depthMin = hcons.getDepthEta29(iphi,zside,0) + 1;
-    if (depth >= depthMin && depth <= depthMax) return true;
+    int depthMin = hcons.getDepthEta29(iphi, zside, 0) + 1;
+    if (depth >= depthMin && depth <= depthMax)
+      return true;
   }
   return false;
 }
 
 std::vector<int> HcalDDDRecConstants::mergedDepthList29(int ieta, int iphi) const {
   std::vector<int> depths;
-  int eta   = std::abs(ieta);
+  int eta = std::abs(ieta);
   int zside = (ieta > 0) ? 1 : -1;
-  int etamin= iEtaMax[1]-hcons.getDepthEta29(iphi,zside,1);
+  int etamin = iEtaMax[1] - hcons.getDepthEta29(iphi, zside, 1);
   if ((eta >= etamin) && (eta <= iEtaMax[1])) {
     int depthMax = getMaxDepth(1, etamin, iphi, zside);
-    int depthMin = hcons.getDepthEta29(iphi,zside,0) + 1;
-    depths.reserve(depthMax-depthMin+1);
-    for (int depth=depthMin; depth <= depthMax; ++depth)
+    int depthMin = hcons.getDepthEta29(iphi, zside, 0) + 1;
+    depths.reserve(depthMax - depthMin + 1);
+    for (int depth = depthMin; depth <= depthMax; ++depth)
       depths.emplace_back(depth);
   }
   return depths;
 }
 
-
 unsigned int HcalDDDRecConstants::numberOfCells(HcalSubdetector subdet) const {
-
   if (subdet == HcalBarrel || subdet == HcalEndcap) {
     unsigned int num = 0;
     std::vector<HcalCellType> cellTypes = HcalCellTypes(subdet);
-    for (auto & cellType : cellTypes) {
+    for (auto& cellType : cellTypes) {
       num += (unsigned int)(cellType.nPhiBins());
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogInfo ("HCalGeom") << "HcalDDDRecConstants:numberOfCells " 
-			      << cellTypes.size()  << " " << num 
-			      << " for subdetector " << subdet;
+    edm::LogInfo("HCalGeom") << "HcalDDDRecConstants:numberOfCells " << cellTypes.size() << " " << num
+                             << " for subdetector " << subdet;
 #endif
     return num;
   } else {
@@ -676,13 +623,12 @@ unsigned int HcalDDDRecConstants::numberOfCells(HcalSubdetector subdet) const {
 }
 
 unsigned int HcalDDDRecConstants::nCells(HcalSubdetector subdet) const {
-
   if (subdet == HcalBarrel || subdet == HcalEndcap) {
-    int isub   = (subdet == HcalBarrel) ? 0 : 1;
+    int isub = (subdet == HcalBarrel) ? 0 : 1;
     std::vector<HcalDDDRecConstants::HcalEtaBin> etabins = getEtaBins(isub);
     unsigned int ncell(0);
-    for (auto & etabin : etabins) {
-      ncell += ((etabin.phis.size())*(etabin.layer.size()));
+    for (auto& etabin : etabins) {
+      ncell += ((etabin.phis.size()) * (etabin.layer.size()));
     }
     return ncell;
   } else if (subdet == HcalOuter) {
@@ -695,208 +641,203 @@ unsigned int HcalDDDRecConstants::nCells(HcalSubdetector subdet) const {
 }
 
 unsigned int HcalDDDRecConstants::nCells() const {
-  return (nCells(HcalBarrel)+nCells(HcalEndcap)+nCells(HcalOuter)+nCells(HcalForward));
+  return (nCells(HcalBarrel) + nCells(HcalEndcap) + nCells(HcalOuter) + nCells(HcalForward));
 }
 
 HcalDetId HcalDDDRecConstants::mergedDepthDetId(const HcalDetId& id) const {
-
-  std::map<HcalDetId,HcalDetId>::const_iterator itr = detIdSp_.find(id);
-  if (itr == detIdSp_.end()) return id;
-  else                       return itr->second;
+  std::map<HcalDetId, HcalDetId>::const_iterator itr = detIdSp_.find(id);
+  if (itr == detIdSp_.end())
+    return id;
+  else
+    return itr->second;
 }
 
 HcalDetId HcalDDDRecConstants::idFront(const HcalDetId& id) const {
-
   HcalDetId hid(id);
-  std::map<HcalDetId,std::vector<HcalDetId>>::const_iterator itr = detIdSpR_.find(id);
+  std::map<HcalDetId, std::vector<HcalDetId>>::const_iterator itr = detIdSpR_.find(id);
   if (itr != detIdSpR_.end())
-    hid = HcalDetId(id.subdet(),id.ieta(),id.iphi(),(itr->second)[0].depth());
+    hid = HcalDetId(id.subdet(), id.ieta(), id.iphi(), (itr->second)[0].depth());
   return hid;
 }
 
 HcalDetId HcalDDDRecConstants::idBack(const HcalDetId& id) const {
-
   HcalDetId hid(id);
-  std::map<HcalDetId,std::vector<HcalDetId>>::const_iterator itr = detIdSpR_.find(id);
+  std::map<HcalDetId, std::vector<HcalDetId>>::const_iterator itr = detIdSpR_.find(id);
   if (itr != detIdSpR_.end())
-    hid = HcalDetId(id.subdet(),id.ieta(),id.iphi(),(itr->second).back().depth());
+    hid = HcalDetId(id.subdet(), id.ieta(), id.iphi(), (itr->second).back().depth());
   return hid;
 }
 
-void HcalDDDRecConstants::unmergeDepthDetId(const HcalDetId& id,
-					    std::vector<HcalDetId>& ids) const {
-
+void HcalDDDRecConstants::unmergeDepthDetId(const HcalDetId& id, std::vector<HcalDetId>& ids) const {
   ids.clear();
-  std::map<HcalDetId,std::vector<HcalDetId>>::const_iterator itr = detIdSpR_.find(id);
+  std::map<HcalDetId, std::vector<HcalDetId>>::const_iterator itr = detIdSpR_.find(id);
   if (itr == detIdSpR_.end()) {
     ids.emplace_back(id);
   } else {
     for (auto k : itr->second) {
-      HcalDetId hid(id.subdet(),id.ieta(),id.iphi(),k.depth());
+      HcalDetId hid(id.subdet(), id.ieta(), id.iphi(), k.depth());
       ids.emplace_back(hid);
     }
   }
 }
 
-void HcalDDDRecConstants::specialRBXHBHE(const std::vector<HcalDetId>& idsOld,
-					 std::vector<HcalDetId>& idsNew) const {
+void HcalDDDRecConstants::specialRBXHBHE(const std::vector<HcalDetId>& idsOld, std::vector<HcalDetId>& idsNew) const {
   for (auto k : idsOld) {
-    std::map<HcalDetId,HcalDetId>::const_iterator itr = detIdSp_.find(k);
-    if (itr == detIdSp_.end()) idsNew.emplace_back(k);
-    else                       idsNew.emplace_back(itr->second);
+    std::map<HcalDetId, HcalDetId>::const_iterator itr = detIdSp_.find(k);
+    if (itr == detIdSp_.end())
+      idsNew.emplace_back(k);
+    else
+      idsNew.emplace_back(itr->second);
   }
 }
 
-bool HcalDDDRecConstants::specialRBXHBHE(bool tobemerged,
-					 std::vector<HcalDetId>& ids) const {
+bool HcalDDDRecConstants::specialRBXHBHE(bool tobemerged, std::vector<HcalDetId>& ids) const {
   if (tobemerged) {
-    std::map<HcalDetId,HcalDetId>::const_iterator itr;
-    for (itr = detIdSp_.begin(); itr != detIdSp_.end(); ++itr) 
+    std::map<HcalDetId, HcalDetId>::const_iterator itr;
+    for (itr = detIdSp_.begin(); itr != detIdSp_.end(); ++itr)
       ids.emplace_back(itr->first);
-  } else{
-    std::map<HcalDetId,std::vector<HcalDetId>>::const_iterator itr;
-    for (itr = detIdSpR_.begin(); itr != detIdSpR_.end(); ++itr) 
+  } else {
+    std::map<HcalDetId, std::vector<HcalDetId>>::const_iterator itr;
+    for (itr = detIdSpR_.begin(); itr != detIdSpR_.end(); ++itr)
       ids.emplace_back(itr->first);
   }
   return (!ids.empty());
 }
 
-void HcalDDDRecConstants::getOneEtaBin(HcalSubdetector subdet, int ieta, int zside,
-				       std::vector<std::pair<int,double> >& phis,
-				       std::map<int,int>& layers, bool planOne,
-				       std::vector<HcalDDDRecConstants::HcalEtaBin>& bins) const {
-
-  unsigned int lymax = (subdet == HcalBarrel) ? maxLayerHB_+1 : maxLayer_+1;
-  int          type  = (subdet == HcalBarrel) ? 0 : 1;
-  double       dphi  = phibin[ieta-1];
-  HcalDDDRecConstants::HcalEtaBin etabin = HcalDDDRecConstants::HcalEtaBin(ieta,zside,dphi,etaTable[ieta-1],etaTable[ieta]);
-  etabin.phis.insert(etabin.phis.end(),phis.begin(),phis.end());
+void HcalDDDRecConstants::getOneEtaBin(HcalSubdetector subdet,
+                                       int ieta,
+                                       int zside,
+                                       std::vector<std::pair<int, double>>& phis,
+                                       std::map<int, int>& layers,
+                                       bool planOne,
+                                       std::vector<HcalDDDRecConstants::HcalEtaBin>& bins) const {
+  unsigned int lymax = (subdet == HcalBarrel) ? maxLayerHB_ + 1 : maxLayer_ + 1;
+  int type = (subdet == HcalBarrel) ? 0 : 1;
+  double dphi = phibin[ieta - 1];
+  HcalDDDRecConstants::HcalEtaBin etabin =
+      HcalDDDRecConstants::HcalEtaBin(ieta, zside, dphi, etaTable[ieta - 1], etaTable[ieta]);
+  etabin.phis.insert(etabin.phis.end(), phis.begin(), phis.end());
   int n = (ieta == iEtaMax[type]) ? 0 : 1;
-  HcalDDDRecConstants::HcalEtaBin etabin0= HcalDDDRecConstants::HcalEtaBin(ieta,zside,dphi,etaTable[ieta-1],etaTable[ieta+n]);
-  etabin0.depthStart = hcons.getDepthEta29(phis[0].first,zside,0)+1;
+  HcalDDDRecConstants::HcalEtaBin etabin0 =
+      HcalDDDRecConstants::HcalEtaBin(ieta, zside, dphi, etaTable[ieta - 1], etaTable[ieta + n]);
+  etabin0.depthStart = hcons.getDepthEta29(phis[0].first, zside, 0) + 1;
   int dstart = -1;
   int lmin(0), lmax(0);
 
-  std::map<int,int>::iterator itr=layers.begin();
+  std::map<int, int>::iterator itr = layers.begin();
   if (!layers.empty()) {
     int dep = itr->second;
-    if (subdet == HcalEndcap && ieta == iEtaMin[type]) 
-      dep = hcons.getDepthEta16(subdet,phis[0].first,zside);
+    if (subdet == HcalEndcap && ieta == iEtaMin[type])
+      dep = hcons.getDepthEta16(subdet, phis[0].first, zside);
     unsigned lymx0 = (layers.size() > lymax) ? lymax : layers.size();
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalGeom") << "Eta " << ieta << ":" << hpar->noff[1] 
-				 << " zside " << zside << " lymax " << lymx0 
-				 << ":" << lymax << " Depth " << dep << ":"
-				 << itr->second;
+    edm::LogVerbatim("HcalGeom") << "Eta " << ieta << ":" << hpar->noff[1] << " zside " << zside << " lymax " << lymx0
+                                 << ":" << lymax << " Depth " << dep << ":" << itr->second;
     unsigned int l(0);
-    for (itr = layers.begin(); itr != layers.end(); ++itr,++l)
-      edm::LogVerbatim("HcalGeom") << "Layer [" << l << "] " << itr->first 
-				   << ":" << itr->second;
-    edm::LogVerbatim("HcalGeom")  << "With " << phis.size() << " phis";
-    for (unsigned int l=0; l<phis.size(); ++l)
-      edm::LogVerbatim("HcalGeom") << "[" << l << "] " << phis[l].first << ":" 
-				   << convertRadToDeg(phis[l].second);
+    for (itr = layers.begin(); itr != layers.end(); ++itr, ++l)
+      edm::LogVerbatim("HcalGeom") << "Layer [" << l << "] " << itr->first << ":" << itr->second;
+    edm::LogVerbatim("HcalGeom") << "With " << phis.size() << " phis";
+    for (unsigned int l = 0; l < phis.size(); ++l)
+      edm::LogVerbatim("HcalGeom") << "[" << l << "] " << phis[l].first << ":" << convertRadToDeg(phis[l].second);
 #endif
     for (itr = layers.begin(); itr != layers.end(); ++itr) {
       if (itr->first <= (int)(lymx0)) {
-	if (itr->second == dep) {
-	  if (lmin == 0) lmin = itr->first;
-	  lmax = itr->first;
-	} else if (itr->second > dep) {
-	  if (dstart < 0) dstart = dep;
-	  int lmax0 = (lmax >= lmin) ? lmax : lmin;
-	  if (subdet == HcalEndcap && ieta+1 == hpar->noff[1] && 
-	      dep > hcons.getDepthEta29(phis[0].first,zside,0)) {
-	    etabin0.layer.emplace_back(std::pair<int,int>(lmin,lmax0));
-	  } else {
-	    etabin.layer.emplace_back(std::pair<int,int>(lmin,lmax0));
-	  }
-	  lmin = itr->first;
-	  lmax = lmin-1;
-	  dep  = itr->second;
-	}
-	if (subdet == HcalBarrel && ieta == iEtaMax[type] && 
-	    dep > hcons.getDepthEta16M(1)) break;
-	if (subdet == HcalEndcap && ieta == hpar->noff[1] &&
-	    dep > hcons.getDepthEta29M(0,planOne)) {
-	  lmax = lymx0;
-	  break;
-	}
-	if (itr->first == (int)(lymx0)) lmax = lymx0;
+        if (itr->second == dep) {
+          if (lmin == 0)
+            lmin = itr->first;
+          lmax = itr->first;
+        } else if (itr->second > dep) {
+          if (dstart < 0)
+            dstart = dep;
+          int lmax0 = (lmax >= lmin) ? lmax : lmin;
+          if (subdet == HcalEndcap && ieta + 1 == hpar->noff[1] && dep > hcons.getDepthEta29(phis[0].first, zside, 0)) {
+            etabin0.layer.emplace_back(std::pair<int, int>(lmin, lmax0));
+          } else {
+            etabin.layer.emplace_back(std::pair<int, int>(lmin, lmax0));
+          }
+          lmin = itr->first;
+          lmax = lmin - 1;
+          dep = itr->second;
+        }
+        if (subdet == HcalBarrel && ieta == iEtaMax[type] && dep > hcons.getDepthEta16M(1))
+          break;
+        if (subdet == HcalEndcap && ieta == hpar->noff[1] && dep > hcons.getDepthEta29M(0, planOne)) {
+          lmax = lymx0;
+          break;
+        }
+        if (itr->first == (int)(lymx0))
+          lmax = lymx0;
       }
     }
     if (lmax >= lmin) {
-      if (ieta+1 == hpar->noff[1]) {
-	etabin0.layer.emplace_back(std::pair<int,int>(lmin,lmax));
-	etabin0.phis.insert(etabin0.phis.end(),phis.begin(),phis.end());
-	bins.emplace_back(etabin0);
+      if (ieta + 1 == hpar->noff[1]) {
+        etabin0.layer.emplace_back(std::pair<int, int>(lmin, lmax));
+        etabin0.phis.insert(etabin0.phis.end(), phis.begin(), phis.end());
+        bins.emplace_back(etabin0);
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HcalGeom") << "etabin0: dStatrt " << etabin0.depthStart
-				     << " layers " << etabin0.layer.size() << ":"
-				     << lmin << ":" << lmax << " phis " 
-				     << phis.size();
-	for (unsigned int k=0; k<etabin0.layer.size(); ++k)
-	  edm::LogVerbatim("HcalGeom") << " [" << k << "] " 
-				       << etabin0.layer[k].first << ":"
-				       << etabin0.layer[k].second;
+        edm::LogVerbatim("HcalGeom") << "etabin0: dStatrt " << etabin0.depthStart << " layers " << etabin0.layer.size()
+                                     << ":" << lmin << ":" << lmax << " phis " << phis.size();
+        for (unsigned int k = 0; k < etabin0.layer.size(); ++k)
+          edm::LogVerbatim("HcalGeom") << " [" << k << "] " << etabin0.layer[k].first << ":" << etabin0.layer[k].second;
 #endif
       } else if (ieta == hpar->noff[1]) {
       } else {
-	etabin.layer.emplace_back(std::pair<int,int>(lmin,lmax));
-	if (dstart < 0) dstart = dep;
+        etabin.layer.emplace_back(std::pair<int, int>(lmin, lmax));
+        if (dstart < 0)
+          dstart = dep;
       }
     }
   }
   etabin.depthStart = dstart;
   bins.emplace_back(etabin);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "etabin: dStatrt " << etabin.depthStart 
-			       << " layers " << etabin.layer.size() << ":" 
-			       << lmin << ":" << lmax << " phis " 
-			       << etabin.phis.size();
-  for (unsigned int k=0; k<etabin.layer.size(); ++k)
-    edm::LogVerbatim("HcalGeom") << "[" << k << "] " << etabin.layer[k].first 
-				 << ":" << etabin.layer[k].second;
+  edm::LogVerbatim("HcalGeom") << "etabin: dStatrt " << etabin.depthStart << " layers " << etabin.layer.size() << ":"
+                               << lmin << ":" << lmax << " phis " << etabin.phis.size();
+  for (unsigned int k = 0; k < etabin.layer.size(); ++k)
+    edm::LogVerbatim("HcalGeom") << "[" << k << "] " << etabin.layer[k].first << ":" << etabin.layer[k].second;
 #endif
 }
 
 void HcalDDDRecConstants::initialize(void) {
-
   //Eta grouping
-  int nEta  = (int)(hpar->etagroup.size());
+  int nEta = (int)(hpar->etagroup.size());
   if (nEta != (int)(hpar->phigroup.size())) {
     edm::LogError("HCalGeom") << "HcalDDDRecConstants: sizes of the vectors "
-                              << " etaGroup (" << nEta << ") and phiGroup ("
-                              << hpar->phigroup.size() << ") do not match";
-    throw cms::Exception("DDException") << "HcalDDDRecConstants: inconsistent array sizes" << nEta << ":" << hpar->phigroup.size();
+                              << " etaGroup (" << nEta << ") and phiGroup (" << hpar->phigroup.size()
+                              << ") do not match";
+    throw cms::Exception("DDException") << "HcalDDDRecConstants: inconsistent array sizes" << nEta << ":"
+                                        << hpar->phigroup.size();
   }
 
   // First eta table
-  iEtaMin     = hpar->etaMin;
-  iEtaMax     = hpar->etaMax;
-  etaTable.clear(); ietaMap.clear(); etaSimValu.clear();
+  iEtaMin = hpar->etaMin;
+  iEtaMax = hpar->etaMax;
+  etaTable.clear();
+  ietaMap.clear();
+  etaSimValu.clear();
   int ieta(0), ietaHB(0), ietaHE(0), ietaHEM(0);
   etaTable.emplace_back(hpar->etaTable[ieta]);
-  for (int i=0; i<nEta; ++i) {
-    int ef = ieta+1;
-    ieta  += (hpar->etagroup[i]);
+  for (int i = 0; i < nEta; ++i) {
+    int ef = ieta + 1;
+    ieta += (hpar->etagroup[i]);
     if (ieta >= (int)(hpar->etaTable.size())) {
-      edm::LogError("HCalGeom") 
-	<< "HcalDDDRecConstants: Going beyond the array boundary "
-	<< hpar->etaTable.size() << " at index " << i 
-	<< " of etaTable from SimConstant";
-      throw cms::Exception("DDException") 
-	<< "HcalDDDRecConstants: Going beyond the array boundary "
-	<< hpar->etaTable.size() << " at index " << i 
-	<< " of etaTable from SimConstant";
+      edm::LogError("HCalGeom") << "HcalDDDRecConstants: Going beyond the array boundary " << hpar->etaTable.size()
+                                << " at index " << i << " of etaTable from SimConstant";
+      throw cms::Exception("DDException")
+          << "HcalDDDRecConstants: Going beyond the array boundary " << hpar->etaTable.size() << " at index " << i
+          << " of etaTable from SimConstant";
     } else {
       etaTable.emplace_back(hpar->etaTable[ieta]);
-      etaSimValu.emplace_back(std::pair<int,int>(ef,ieta));
+      etaSimValu.emplace_back(std::pair<int, int>(ef, ieta));
     }
-    for (int k=0; k<(hpar->etagroup[i]); ++k) ietaMap.emplace_back(i+1);
-    if (ieta <= hpar->etaMax[0]) ietaHB = i+1;
-    if (ieta <= hpar->etaMin[1]) ietaHE = i+1;
-    if (ieta <= hpar->etaMax[1]) ietaHEM= i+1;
+    for (int k = 0; k < (hpar->etagroup[i]); ++k)
+      ietaMap.emplace_back(i + 1);
+    if (ieta <= hpar->etaMax[0])
+      ietaHB = i + 1;
+    if (ieta <= hpar->etaMin[1])
+      ietaHE = i + 1;
+    if (ieta <= hpar->etaMax[1])
+      ietaHEM = i + 1;
   }
   iEtaMin[1] = ietaHE;
   iEtaMax[0] = ietaHB;
@@ -904,244 +845,232 @@ void HcalDDDRecConstants::initialize(void) {
 
   // Then Phi bins
   nPhiBins.clear();
-  for (unsigned int k=0; k<4; ++k) nPhiBins.emplace_back(0);
+  for (unsigned int k = 0; k < 4; ++k)
+    nPhiBins.emplace_back(0);
   ieta = 0;
-  phibin.clear(); phiUnitS.clear();
-  for (int i=0; i<nEta; ++i) {
-    double dphi = (hpar->phigroup[i])*(hpar->phibin[ieta]);
+  phibin.clear();
+  phiUnitS.clear();
+  for (int i = 0; i < nEta; ++i) {
+    double dphi = (hpar->phigroup[i]) * (hpar->phibin[ieta]);
     phibin.emplace_back(dphi);
-    int    nphi = (int)((2._pi + 0.001)/dphi);
+    int nphi = (int)((2._pi + 0.001) / dphi);
     if (ieta <= iEtaMax[0]) {
-      if (nphi > nPhiBins[0]) nPhiBins[3] = nPhiBins[0] = nphi;
+      if (nphi > nPhiBins[0])
+        nPhiBins[3] = nPhiBins[0] = nphi;
     }
     if (ieta >= iEtaMin[1]) {
-      if (nphi > nPhiBins[1]) nPhiBins[1] = nphi;
+      if (nphi > nPhiBins[1])
+        nPhiBins[1] = nphi;
     }
     ieta += (hpar->etagroup[i]);
   }
-  for (unsigned int i=1; i<hpar->etaTable.size(); ++i) {
-    int unit = hcons.unitPhi(hpar->phibin[i-1]);
+  for (unsigned int i = 1; i < hpar->etaTable.size(); ++i) {
+    int unit = hcons.unitPhi(hpar->phibin[i - 1]);
     phiUnitS.emplace_back(unit);
   }
-  for (double i : hpar->phitable)  {
-    int  nphi = (int)((2._pi + 0.001)/i);
-    if (nphi > nPhiBins[2]) nPhiBins[2] = nphi;
+  for (double i : hpar->phitable) {
+    int nphi = (int)((2._pi + 0.001) / i);
+    if (nphi > nPhiBins[2])
+      nPhiBins[2] = nphi;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") 
-    << "HcalDDDRecConstants: Modified eta/deltaphi table for " << nEta 
-    << " bins";
-  for (int i=0; i<nEta; ++i)
-    edm::LogVerbatim("HcalGeom") 
-      << "Eta[" << i << "] = " << etaTable[i] << ":" << etaTable[i+1] << ":" 
-      << etaSimValu[i].first << ":" << etaSimValu[i].second << " PhiBin[" << i 
-      << "] = " << convertRadToDeg(phibin[i]);
-  for (unsigned int i=0; i<phiUnitS.size(); ++i)
+  edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants: Modified eta/deltaphi table for " << nEta << " bins";
+  for (int i = 0; i < nEta; ++i)
+    edm::LogVerbatim("HcalGeom") << "Eta[" << i << "] = " << etaTable[i] << ":" << etaTable[i + 1] << ":"
+                                 << etaSimValu[i].first << ":" << etaSimValu[i].second << " PhiBin[" << i
+                                 << "] = " << convertRadToDeg(phibin[i]);
+  for (unsigned int i = 0; i < phiUnitS.size(); ++i)
     edm::LogVerbatim("HcalGeom") << " PhiUnitS[" << i << "] = " << phiUnitS[i];
-  for (unsigned int i=0; i<nPhiBins.size(); ++i)
+  for (unsigned int i = 0; i < nPhiBins.size(); ++i)
     edm::LogVerbatim("HcalGeom") << " nPhiBins[" << i << "] = " << nPhiBins[i];
-  for (unsigned int i=0; i<hpar->etaTableHF.size(); ++i)
+  for (unsigned int i = 0; i < hpar->etaTableHF.size(); ++i)
     edm::LogVerbatim("HcalGeom") << " EtaTableHF[" << i << "] = " << hpar->etaTableHF[i];
-  for (unsigned int i=0; i<hpar->phitable.size(); ++i)
+  for (unsigned int i = 0; i < hpar->phitable.size(); ++i)
     edm::LogVerbatim("HcalGeom") << " PhiBinHF[" << i << "] = " << hpar->phitable[i];
 #endif
 
   //Now the depths
-  maxDepth    = hpar->maxDepth;
+  maxDepth = hpar->maxDepth;
   maxDepth[0] = maxDepth[1] = 0;
-  for (int i=0; i<nEta; ++i) {
+  for (int i = 0; i < nEta; ++i) {
     unsigned int imx = layerGroupSize(i);
-    int laymax = (imx > 0) ? layerGroup(i,imx-1) : 0;
+    int laymax = (imx > 0) ? layerGroup(i, imx - 1) : 0;
     if (i < iEtaMax[0]) {
-      int laymax0 = (imx > 16) ? layerGroup(i,16) : laymax;
-      if (i+1 == iEtaMax[0]) laymax0 = hcons.getDepthEta16M(1);
+      int laymax0 = (imx > 16) ? layerGroup(i, 16) : laymax;
+      if (i + 1 == iEtaMax[0])
+        laymax0 = hcons.getDepthEta16M(1);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalGeom") 
-	<< "HcalDDDRecConstants:HB " << i << " " << imx << " " << laymax 
-	<< " " << laymax0;
+      edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants:HB " << i << " " << imx << " " << laymax << " " << laymax0;
 #endif
-      if (maxDepth[0] < laymax0) maxDepth[0] = laymax0;
+      if (maxDepth[0] < laymax0)
+        maxDepth[0] = laymax0;
     }
-    if (i >= iEtaMin[1]-1 && i < iEtaMax[1]) {
+    if (i >= iEtaMin[1] - 1 && i < iEtaMax[1]) {
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalGeom") 
-	<< "HcalDDDRecConstants:HE " << i << " " << imx << " " << laymax;
+      edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants:HE " << i << " " << imx << " " << laymax;
 #endif
-      if (maxDepth[1] < laymax) maxDepth[1] = laymax;
+      if (maxDepth[1] < laymax)
+        maxDepth[1] = laymax;
     }
   }
 #ifdef EDM_ML_DEBUG
-  for (int i=0; i<4; ++i) 
-    edm::LogVerbatim("HcalGeom") 
-      << "HcalDDDRecConstants:Detector Type[" << i << "] iEta " 
-      << iEtaMin[i] << ":" << iEtaMax[i] << " MaxDepth " << maxDepth[i];
+  for (int i = 0; i < 4; ++i)
+    edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants:Detector Type[" << i << "] iEta " << iEtaMin[i] << ":"
+                                 << iEtaMax[i] << " MaxDepth " << maxDepth[i];
 #endif
 
   //Now the geometry constants
   nModule[0] = hpar->modHB[0];
   nHalves[0] = hpar->modHB[1];
-  for (unsigned int i=0; i<hpar->rHB.size(); ++i) {
-    gconsHB.emplace_back(std::pair<double,double>(hpar->rHB[i]/CLHEP::cm,
-						  hpar->drHB[i]/CLHEP::cm));
+  for (unsigned int i = 0; i < hpar->rHB.size(); ++i) {
+    gconsHB.emplace_back(std::pair<double, double>(hpar->rHB[i] / CLHEP::cm, hpar->drHB[i] / CLHEP::cm));
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") 
-    << "HcalDDDRecConstants:HB with " << nModule[0] << " modules and " 
-    << nHalves[0] <<" halves and " << gconsHB.size() << " layers";
-  for (unsigned int i=0; i<gconsHB.size(); ++i) 
-    edm::LogVerbatim("HcalGeom") << "rHB[" << i << "] = " << gconsHB[i].first 
-				 << " +- " << gconsHB[i].second;
+  edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants:HB with " << nModule[0] << " modules and " << nHalves[0]
+                               << " halves and " << gconsHB.size() << " layers";
+  for (unsigned int i = 0; i < gconsHB.size(); ++i)
+    edm::LogVerbatim("HcalGeom") << "rHB[" << i << "] = " << gconsHB[i].first << " +- " << gconsHB[i].second;
 #endif
   nModule[1] = hpar->modHE[0];
   nHalves[1] = hpar->modHE[1];
-  for (unsigned int i=0; i<hpar->zHE.size(); ++i) {
-    gconsHE.emplace_back(std::pair<double,double>(hpar->zHE[i]/CLHEP::cm,
-						  hpar->dzHE[i]/CLHEP::cm));
+  for (unsigned int i = 0; i < hpar->zHE.size(); ++i) {
+    gconsHE.emplace_back(std::pair<double, double>(hpar->zHE[i] / CLHEP::cm, hpar->dzHE[i] / CLHEP::cm));
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") 
-    << "HcalDDDRecConstants:HE with " << nModule[1] << " modules and " 
-    << nHalves[1] <<" halves and " << gconsHE.size() 
-			       << " layers";
-  for (unsigned int i=0; i<gconsHE.size(); ++i) 
-    edm::LogVerbatim("HcalGeom") << "zHE[" << i << "] = " << gconsHE[i].first 
-				 << " +- " << gconsHE[i].second;
+  edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants:HE with " << nModule[1] << " modules and " << nHalves[1]
+                               << " halves and " << gconsHE.size() << " layers";
+  for (unsigned int i = 0; i < gconsHE.size(); ++i)
+    edm::LogVerbatim("HcalGeom") << "zHE[" << i << "] = " << gconsHE[i].first << " +- " << gconsHE[i].second;
 #endif
 
   //Special RBX
   depthMaxSp_ = hcons.getMaxDepthDet(0);
   if (depthMaxSp_.first == 0) {
-    depthMaxSp_ = depthMaxDf_ = std::pair<int,int>(2,maxDepth[1]);
+    depthMaxSp_ = depthMaxDf_ = std::pair<int, int>(2, maxDepth[1]);
   } else if (depthMaxSp_.first == 1) {
-    depthMaxDf_ = std::pair<int,int>(1,maxDepth[0]);
-    if (depthMaxSp_.second > maxDepth[0]) maxDepth[0] = depthMaxSp_.second;
+    depthMaxDf_ = std::pair<int, int>(1, maxDepth[0]);
+    if (depthMaxSp_.second > maxDepth[0])
+      maxDepth[0] = depthMaxSp_.second;
   } else {
-    depthMaxDf_ = std::pair<int,int>(2,maxDepth[1]);
-    if (depthMaxSp_.second > maxDepth[1]) maxDepth[1] = depthMaxSp_.second;
+    depthMaxDf_ = std::pair<int, int>(2, maxDepth[1]);
+    if (depthMaxSp_.second > maxDepth[1])
+      maxDepth[1] = depthMaxSp_.second;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") 
-    << "HcalDDDRecConstants:Detector type and maximum depth for all RBX " 
-    << depthMaxDf_.first << ":" << depthMaxDf_.second
-    << " and for special RBX " << depthMaxSp_.first 
-    << ":"  << depthMaxSp_.second;
+  edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants:Detector type and maximum depth for all RBX "
+                               << depthMaxDf_.first << ":" << depthMaxDf_.second << " and for special RBX "
+                               << depthMaxSp_.first << ":" << depthMaxSp_.second;
 #endif
 
   //Map of special DetId's
   std::vector<int> phis;
   HcalSubdetector subdet = HcalSubdetector(hcons.ldMap()->validDet(phis));
-  detIdSp_.clear(); detIdSpR_.clear();
+  detIdSp_.clear();
+  detIdSpR_.clear();
   if ((subdet == HcalBarrel) || (subdet == HcalEndcap)) {
-    int             phi    = (phis[0] > 0) ? phis[0] : -phis[0];
-    int             zside  = (phis[0] > 0) ? 1 : -1;
-    int lymax = (subdet == HcalBarrel) ? maxLayerHB_+1 : maxLayer_+1;
-    std::pair<int,int>etas = hcons.ldMap()->validEta();
-    for (int eta=etas.first; eta<=etas.second; ++eta) {
-      std::map<int,std::pair<int,int> > oldDep;
+    int phi = (phis[0] > 0) ? phis[0] : -phis[0];
+    int zside = (phis[0] > 0) ? 1 : -1;
+    int lymax = (subdet == HcalBarrel) ? maxLayerHB_ + 1 : maxLayer_ + 1;
+    std::pair<int, int> etas = hcons.ldMap()->validEta();
+    for (int eta = etas.first; eta <= etas.second; ++eta) {
+      std::map<int, std::pair<int, int>> oldDep;
       int depth(0);
-      int lmin = layerGroup(eta-1,0);
-      for (int lay=0; lay<lymax; ++lay) {
-	int depc = layerGroup(eta-1,lay);
-	if (depth != depc) {
-	  if (depth != 0) oldDep[depth] = std::pair<int,int>(lmin,lay-1);
-	  depth = depc;
-	  lmin  = lay;
-	}
+      int lmin = layerGroup(eta - 1, 0);
+      for (int lay = 0; lay < lymax; ++lay) {
+        int depc = layerGroup(eta - 1, lay);
+        if (depth != depc) {
+          if (depth != 0)
+            oldDep[depth] = std::pair<int, int>(lmin, lay - 1);
+          depth = depc;
+          lmin = lay;
+        }
       }
-      if (depth != 0) oldDep[depth] = std::pair<int,int>(lmin,lymax-1);
-#ifdef EDM_ML_DEBUG      
-      edm::LogVerbatim("HcalGeom") 
-	<< "HcalDDDRecConstants:Eta|Phi|Zside " << eta << ":" << phi 
-	<< ":" << zside << " with " << oldDep.size() << " old Depths";
+      if (depth != 0)
+        oldDep[depth] = std::pair<int, int>(lmin, lymax - 1);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants:Eta|Phi|Zside " << eta << ":" << phi << ":" << zside
+                                   << " with " << oldDep.size() << " old Depths";
       unsigned int kk(0);
-      for (std::map<int,std::pair<int,int> >::const_iterator itr=oldDep.begin(); itr != oldDep.end(); ++itr,++kk)
-	edm::LogVerbatim("HcalGeom") 
-	  << "[" << kk << "] " << itr->first <<" --> "
-	  << itr->second.first << ":" << itr->second.second;
+      for (std::map<int, std::pair<int, int>>::const_iterator itr = oldDep.begin(); itr != oldDep.end(); ++itr, ++kk)
+        edm::LogVerbatim("HcalGeom") << "[" << kk << "] " << itr->first << " --> " << itr->second.first << ":"
+                                     << itr->second.second;
 #endif
-      std::pair<int,int> depths = hcons.ldMap()->getDepths(eta);
-      for (int ndepth=depths.first; ndepth<=depths.second; ++ndepth) {
-	bool flag = ((subdet == HcalBarrel && eta == iEtaMax[0] && 
-		      ndepth > hcons.getDepthEta16(subdet,phi,zside)) ||
-		     (subdet == HcalEndcap && eta == iEtaMin[1] &&
-		      ndepth < hcons.getDepthEta16(subdet,phi,zside)));
-	if (!flag) {
-	  std::vector<int> count(oldDep.size(),0);
-	  int layFront = hcons.ldMap()->getLayerFront(subdet,eta,phi,zside,ndepth);
-	  int layBack  = hcons.ldMap()->getLayerBack(subdet,eta,phi,zside,ndepth);
-	  for (int lay=layFront; lay<=layBack; ++lay) {
-	    unsigned int l(0);
-	    for (std::map<int,std::pair<int,int> >::iterator itr=oldDep.begin();
-		 itr != oldDep.end(); ++itr,++l) {
-	      if (lay >= (itr->second).first && lay <= (itr->second).second) {
-		++count[l]; break;
-	      }
-	    }
-	  }
-	  int odepth(0), maxlay(0);
-	  unsigned int l(0);
-	  for (std::map<int,std::pair<int,int> >::iterator itr=oldDep.begin();
-	       itr != oldDep.end(); ++itr,++l) {
-	    if (count[l] > maxlay) {
-	      odepth = itr->first;
-	      maxlay = count[l];
-	    }
-	  }
-#ifdef EDM_ML_DEBUG      
-	  edm::LogVerbatim("HcalGeom") 
-	    << "HcalDDDRecConstants:New Depth " << ndepth << " old Depth "
-	    << odepth << " max " << maxlay;
+      std::pair<int, int> depths = hcons.ldMap()->getDepths(eta);
+      for (int ndepth = depths.first; ndepth <= depths.second; ++ndepth) {
+        bool flag = ((subdet == HcalBarrel && eta == iEtaMax[0] && ndepth > hcons.getDepthEta16(subdet, phi, zside)) ||
+                     (subdet == HcalEndcap && eta == iEtaMin[1] && ndepth < hcons.getDepthEta16(subdet, phi, zside)));
+        if (!flag) {
+          std::vector<int> count(oldDep.size(), 0);
+          int layFront = hcons.ldMap()->getLayerFront(subdet, eta, phi, zside, ndepth);
+          int layBack = hcons.ldMap()->getLayerBack(subdet, eta, phi, zside, ndepth);
+          for (int lay = layFront; lay <= layBack; ++lay) {
+            unsigned int l(0);
+            for (std::map<int, std::pair<int, int>>::iterator itr = oldDep.begin(); itr != oldDep.end(); ++itr, ++l) {
+              if (lay >= (itr->second).first && lay <= (itr->second).second) {
+                ++count[l];
+                break;
+              }
+            }
+          }
+          int odepth(0), maxlay(0);
+          unsigned int l(0);
+          for (std::map<int, std::pair<int, int>>::iterator itr = oldDep.begin(); itr != oldDep.end(); ++itr, ++l) {
+            if (count[l] > maxlay) {
+              odepth = itr->first;
+              maxlay = count[l];
+            }
+          }
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants:New Depth " << ndepth << " old Depth " << odepth
+                                       << " max " << maxlay;
 #endif
-	  for (int k : phis) {
-	    zside  = (k > 0) ? 1 : -1;
-	    phi    = (k > 0) ? k : -k;
-	    if (subdet == HcalEndcap && eta == hpar->noff[1] &&
-		ndepth > hcons.getDepthEta29M(0,true)) break;
-	    HcalDetId newId(subdet,zside*eta,phi,ndepth);
-	    HcalDetId oldId(subdet,zside*eta,phi,odepth);
-	    detIdSp_[newId] = oldId;
-	    std::vector<HcalDetId> ids;
-	    std::map<HcalDetId,std::vector<HcalDetId>>::iterator itr = detIdSpR_.find(oldId);
-	    if (itr != detIdSpR_.end()) ids = itr->second;
-	    ids.emplace_back(newId);
-	    detIdSpR_[oldId] = ids;
-	  }
-	}
+          for (int k : phis) {
+            zside = (k > 0) ? 1 : -1;
+            phi = (k > 0) ? k : -k;
+            if (subdet == HcalEndcap && eta == hpar->noff[1] && ndepth > hcons.getDepthEta29M(0, true))
+              break;
+            HcalDetId newId(subdet, zside * eta, phi, ndepth);
+            HcalDetId oldId(subdet, zside * eta, phi, odepth);
+            detIdSp_[newId] = oldId;
+            std::vector<HcalDetId> ids;
+            std::map<HcalDetId, std::vector<HcalDetId>>::iterator itr = detIdSpR_.find(oldId);
+            if (itr != detIdSpR_.end())
+              ids = itr->second;
+            ids.emplace_back(newId);
+            detIdSpR_[oldId] = ids;
+          }
+        }
       }
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalGeom") 
-      << "HcalDDDRecConstants:Map for merging new channels to old channel"
-      << " IDs with " << detIdSp_.size() <<" entries";
+    edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants:Map for merging new channels to old channel"
+                                 << " IDs with " << detIdSp_.size() << " entries";
     int l(0);
     for (auto itr : detIdSp_) {
-      edm::LogVerbatim("HcalGeom") << "[" << l << "] Special " << itr.first 
-				   << " Standard " << itr.second;
+      edm::LogVerbatim("HcalGeom") << "[" << l << "] Special " << itr.first << " Standard " << itr.second;
       ++l;
     }
-    edm::LogVerbatim("HcalGeom") 
-      << "HcalDDDRecConstants:Reverse Map for mapping old to new IDs with "
-      << detIdSpR_.size() << " entries";
+    edm::LogVerbatim("HcalGeom") << "HcalDDDRecConstants:Reverse Map for mapping old to new IDs with "
+                                 << detIdSpR_.size() << " entries";
     l = 0;
     for (auto itr : detIdSpR_) {
-      edm::LogVerbatim("HcalGeom") << "[" << l << "] Standard " << itr.first 
-				   << " Special";
-      for (auto itr1 : itr.second) 
-	edm::LogVerbatim("HcalGeom") << "ID " << (itr1);
+      edm::LogVerbatim("HcalGeom") << "[" << l << "] Standard " << itr.first << " Special";
+      for (auto itr1 : itr.second)
+        edm::LogVerbatim("HcalGeom") << "ID " << (itr1);
       ++l;
     }
 #endif
   }
-
 }
 
 unsigned int HcalDDDRecConstants::layerGroupSize(int eta) const {
   unsigned int k = 0;
-  for (auto const & it : hpar->layerGroupEtaRec) {
+  for (auto const& it : hpar->layerGroupEtaRec) {
     if (it.layer == (unsigned int)(eta + 1)) {
       return it.layerGroup.size();
     }
-    if (it.layer > (unsigned int)(eta + 1)) break;
+    if (it.layer > (unsigned int)(eta + 1))
+      break;
     k = it.layerGroup.size();
   }
   return k;
@@ -1149,11 +1078,12 @@ unsigned int HcalDDDRecConstants::layerGroupSize(int eta) const {
 
 unsigned int HcalDDDRecConstants::layerGroup(int eta, int i) const {
   unsigned int k = 0;
-  for (auto const & it :  hpar->layerGroupEtaRec) {
-    if (it.layer == (unsigned int)(eta + 1))  {
+  for (auto const& it : hpar->layerGroupEtaRec) {
+    if (it.layer == (unsigned int)(eta + 1)) {
       return it.layerGroup.at(i);
     }
-    if (it.layer > (unsigned int)(eta + 1)) break;
+    if (it.layer > (unsigned int)(eta + 1))
+      break;
     k = it.layerGroup.at(i);
   }
   return k;
