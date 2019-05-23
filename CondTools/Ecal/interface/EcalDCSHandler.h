@@ -11,7 +11,6 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -22,7 +21,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-
 
 #include "OnlineDB/EcalCondDB/interface/RunDCSHVDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunDCSLVDat.h"
@@ -43,47 +41,43 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-namespace popcon
-{
+namespace popcon {
 
+  class EcalDCSHandler : public popcon::PopConSourceHandler<EcalDCSTowerStatus> {
+  public:
+    EcalDCSHandler(edm::ParameterSet const&);
+    ~EcalDCSHandler() override;
+    void printHVDataSet(const std::map<EcalLogicID, RunDCSHVDat>* dataset, int) const;
+    void printLVDataSet(const std::map<EcalLogicID, RunDCSLVDat>* dataset, int) const;
+    uint16_t updateHV(RunDCSHVDat* hv, uint16_t dbStatus, int modo = 0) const;
+    uint16_t updateLV(RunDCSLVDat* lv, uint16_t dbStatus) const;
+    bool insertHVDataSetToOffline(const std::map<EcalLogicID, RunDCSHVDat>* dataset,
+                                  EcalDCSTowerStatus* dcs_temp) const;
+    bool insertLVDataSetToOffline(const std::map<EcalLogicID, RunDCSLVDat>* dataset,
+                                  EcalDCSTowerStatus* dcs_temp,
+                                  const std::vector<EcalLogicID>&) const;
 
-	class EcalDCSHandler : public popcon::PopConSourceHandler<EcalDCSTowerStatus>
-	{
+    void getNewObjects() override;
+    std::string id() const override { return m_name; }
+    EcalCondDBInterface* econn;
 
-		public:
-                        EcalDCSHandler(edm::ParameterSet const & );
-			~EcalDCSHandler() override; 
-			void printHVDataSet( const std::map<EcalLogicID, RunDCSHVDat>* dataset,int ) const;
-			void printLVDataSet( const std::map<EcalLogicID, RunDCSLVDat>* dataset,int ) const ;
-			uint16_t  updateHV( RunDCSHVDat* hv, uint16_t dbStatus, int modo=0) const ; 
-			uint16_t  updateLV( RunDCSLVDat* lv, uint16_t dbStatus) const ; 
-			bool  insertHVDataSetToOffline( const std::map<EcalLogicID, RunDCSHVDat>* dataset, EcalDCSTowerStatus* dcs_temp ) const;
-			bool  insertLVDataSetToOffline( const std::map<EcalLogicID, RunDCSLVDat>* dataset, EcalDCSTowerStatus* dcs_temp, const std::vector<EcalLogicID>& ) const;
+    int* HVLogicIDToDetID(int, int) const;
+    int* HVEELogicIDToDetID(int, int) const;
+    int* LVLogicIDToDetID(int, int) const;
 
-			void getNewObjects() override;
-			std::string id() const override { return m_name;}
-			EcalCondDBInterface* econn;
+    int detIDToLogicID(int, int, int);
+    uint16_t OffDBStatus(uint16_t dbStatus, int pos);
 
-			int * HVLogicIDToDetID(int, int) const;
-			int * HVEELogicIDToDetID(int, int) const;
-			int * LVLogicIDToDetID(int, int) const;
+  private:
+    unsigned long m_firstRun;
+    unsigned long m_lastRun;
 
-			int detIDToLogicID(int, int, int);
-			uint16_t OffDBStatus( uint16_t dbStatus , int pos ) ;
-
-		private:
-
-			unsigned long m_firstRun ;
-			unsigned long m_lastRun ;
-			
-			std::string m_sid;
-			std::string m_user;
-			std::string m_pass;
-			std::string m_name;
-			
-	};
-}
+    std::string m_sid;
+    std::string m_user;
+    std::string m_pass;
+    std::string m_name;
+  };
+}  // namespace popcon
 #endif
-

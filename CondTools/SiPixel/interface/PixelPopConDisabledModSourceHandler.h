@@ -15,13 +15,10 @@
 
 // class definition
 class PixelPopConDisabledModSourceHandler : public PixelPopConSourceHandler<SiPixelDisabledModules> {
+public:
+  PixelPopConDisabledModSourceHandler(edm::ParameterSet const &) { ; }
 
- public:
-  PixelPopConDisabledModSourceHandler(edm::ParameterSet const &) {;}
-
- private:
-
+private:
 };
-
 
 #endif

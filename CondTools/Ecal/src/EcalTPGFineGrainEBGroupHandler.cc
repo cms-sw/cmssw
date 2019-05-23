@@ -8,9 +8,8 @@
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include<iostream>
-#include<fstream>
-
+#include <iostream>
+#include <fstream>
 
 #include <ctime>
 #include <unistd.h>
@@ -20,186 +19,173 @@
 #include <typeinfo>
 #include <sstream>
 
-popcon::EcalTPGFineGrainEBGroupHandler::EcalTPGFineGrainEBGroupHandler(const edm::ParameterSet & ps)
-  :    m_name(ps.getUntrackedParameter<std::string>("name","EcalTPGFineGrainEBGroupHandler")) {
+popcon::EcalTPGFineGrainEBGroupHandler::EcalTPGFineGrainEBGroupHandler(const edm::ParameterSet &ps)
+    : m_name(ps.getUntrackedParameter<std::string>("name", "EcalTPGFineGrainEBGroupHandler")) {
+  edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "EcalTPGFineGrainEBGroup Source handler constructor.";
+  m_firstRun = static_cast<unsigned int>(atoi(ps.getParameter<std::string>("firstRun").c_str()));
+  m_lastRun = static_cast<unsigned int>(atoi(ps.getParameter<std::string>("lastRun").c_str()));
+  m_sid = ps.getParameter<std::string>("OnlineDBSID");
+  m_user = ps.getParameter<std::string>("OnlineDBUser");
+  m_pass = ps.getParameter<std::string>("OnlineDBPassword");
+  m_locationsource = ps.getParameter<std::string>("LocationSource");
+  m_location = ps.getParameter<std::string>("Location");
+  m_gentag = ps.getParameter<std::string>("GenTag");
+  m_runtype = ps.getParameter<std::string>("RunType");
 
-        edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "EcalTPGFineGrainEBGroup Source handler constructor.";
-        m_firstRun=static_cast<unsigned int>(atoi( ps.getParameter<std::string>("firstRun").c_str()));
-        m_lastRun=static_cast<unsigned int>(atoi( ps.getParameter<std::string>("lastRun").c_str()));
-        m_sid= ps.getParameter<std::string>("OnlineDBSID");
-        m_user= ps.getParameter<std::string>("OnlineDBUser");
-        m_pass= ps.getParameter<std::string>("OnlineDBPassword");
-        m_locationsource= ps.getParameter<std::string>("LocationSource");
-        m_location=ps.getParameter<std::string>("Location");
-        m_gentag=ps.getParameter<std::string>("GenTag");
-        m_runtype=ps.getParameter<std::string>("RunType");
-
-        edm::LogInfo("EcalTPGFineGrainEBGroupHandler")<< m_sid<<"/"<<m_user<<"/"<<m_location<<"/"<<m_gentag;
-
+  edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << m_sid << "/" << m_user << "/" << m_location << "/" << m_gentag;
 }
 
-popcon::EcalTPGFineGrainEBGroupHandler::~EcalTPGFineGrainEBGroupHandler()
-{
-}
+popcon::EcalTPGFineGrainEBGroupHandler::~EcalTPGFineGrainEBGroupHandler() {}
 
-void popcon::EcalTPGFineGrainEBGroupHandler::getNewObjects()
-{
+void popcon::EcalTPGFineGrainEBGroupHandler::getNewObjects() {
+  edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "Started GetNewObjects!!!";
 
-	edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "Started GetNewObjects!!!";
+  //check whats already inside of database
+  if (tagInfo().size) {
+    //check whats already inside of database
+    std::cout << "got offlineInfo = " << std::endl;
+    std::cout << "tag name = " << tagInfo().name << std::endl;
+    std::cout << "size = " << tagInfo().size << std::endl;
+  } else {
+    std::cout << " First object for this tag " << std::endl;
+  }
 
-	//check whats already inside of database
-	if (tagInfo().size){
-  	//check whats already inside of database
-    	std::cout << "got offlineInfo = " << std::endl;
-	std::cout << "tag name = " << tagInfo().name << std::endl;
-	std::cout << "size = " << tagInfo().size <<  std::endl;
-    	} else {
-    	std::cout << " First object for this tag " << std::endl;
-    	}
+  unsigned int max_since = 0;
+  max_since = static_cast<unsigned int>(tagInfo().lastInterval.first);
+  edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "max_since : " << max_since;
+  Ref fgrGroup_db = lastPayload();
 
-	unsigned int max_since=0;
-	max_since=static_cast<unsigned int>(tagInfo().lastInterval.first);
-	edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "max_since : "  << max_since;
-	Ref fgrGroup_db = lastPayload();
-	
-	edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "retrieved last payload ";
+  edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "retrieved last payload ";
 
-	// here we retrieve all the runs after the last from online DB 
-	edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "Retrieving run list from ONLINE DB ... ";
+  // here we retrieve all the runs after the last from online DB
+  edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "Retrieving run list from ONLINE DB ... ";
 
-	edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "Making connection...";
-	econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
-	edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "Done.";
-	
-	if (!econn)
-	  {
-	    std::cout << " connection parameters " <<m_sid <<"/"<<m_user<<std::endl;
-	    //	    cerr << e.what() << std::endl;
-	    throw cms::Exception("OMDS not available");
-	  } 
+  edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "Making connection...";
+  econn = new EcalCondDBInterface(m_sid, m_user, m_pass);
+  edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "Done.";
 
-	
-	LocationDef my_locdef;
-	my_locdef.setLocation(m_location); 
+  if (!econn) {
+    std::cout << " connection parameters " << m_sid << "/" << m_user << std::endl;
+    //	    cerr << e.what() << std::endl;
+    throw cms::Exception("OMDS not available");
+  }
 
-	RunTypeDef my_rundef;
-	my_rundef.setRunType(m_runtype); 
+  LocationDef my_locdef;
+  my_locdef.setLocation(m_location);
 
-	RunTag  my_runtag;
-	my_runtag.setLocationDef( my_locdef );
-	my_runtag.setRunTypeDef(  my_rundef );
-	my_runtag.setGeneralTag(m_gentag); 
+  RunTypeDef my_rundef;
+  my_rundef.setRunType(m_runtype);
 
-	readFromFile("last_tpg_fgrGroup_settings.txt");
+  RunTag my_runtag;
+  my_runtag.setLocationDef(my_locdef);
+  my_runtag.setRunTypeDef(my_rundef);
+  my_runtag.setGeneralTag(m_gentag);
 
+  readFromFile("last_tpg_fgrGroup_settings.txt");
 
- 	unsigned int min_run=m_i_run_number+1;
+  unsigned int min_run = m_i_run_number + 1;
 
-	if(m_firstRun<m_i_run_number) {
-	  min_run=m_i_run_number+1;
-	} else {
-	  min_run=m_firstRun;
-	}
-	if(min_run<max_since) {
-	  min_run=max_since+1; // we have to add 1 to the last transferred one
-	} 
+  if (m_firstRun < m_i_run_number) {
+    min_run = m_i_run_number + 1;
+  } else {
+    min_run = m_firstRun;
+  }
+  if (min_run < max_since) {
+    min_run = max_since + 1;  // we have to add 1 to the last transferred one
+  }
 
-	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< std::endl;
+  std::cout << "m_i_run_number" << m_i_run_number << "m_firstRun " << m_firstRun << "max_since " << max_since
+            << std::endl;
 
-	unsigned int max_run=m_lastRun;
-	edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "min_run= " << min_run << " max_run= " << max_run;
+  unsigned int max_run = m_lastRun;
+  edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "min_run= " << min_run << " max_run= " << max_run;
 
-	RunList my_list;
-	my_list=econn->fetchGlobalRunListByLocation(my_runtag, min_run, max_run, my_locdef);
-	//        my_list=econn->fetchRunListByLocation(my_runtag,min_run,max_run,my_locdef);
-	printf ("after fetchRunList\n");fflush(stdout);
-      
-	std::vector<RunIOV> run_vec=  my_list.getRuns();
-	size_t num_runs=run_vec.size();
+  RunList my_list;
+  my_list = econn->fetchGlobalRunListByLocation(my_runtag, min_run, max_run, my_locdef);
+  //        my_list=econn->fetchRunListByLocation(my_runtag,min_run,max_run,my_locdef);
+  printf("after fetchRunList\n");
+  fflush(stdout);
 
-	std::cout <<"number of runs is : "<< num_runs<< std::endl;
+  std::vector<RunIOV> run_vec = my_list.getRuns();
+  size_t num_runs = run_vec.size();
 
-	unsigned int irun;
-	if(num_runs>0){
+  std::cout << "number of runs is : " << num_runs << std::endl;
 
-	  for(size_t kr=0; kr<run_vec.size(); kr++){
+  unsigned int irun;
+  if (num_runs > 0) {
+    for (size_t kr = 0; kr < run_vec.size(); kr++) {
+      irun = static_cast<unsigned int>(run_vec[kr].getRunNumber());
 
-	    irun=static_cast<unsigned int>(run_vec[kr].getRunNumber());
+      std::cout << " **************** " << std::endl;
+      std::cout << " **************** " << std::endl;
+      std::cout << " run= " << irun << std::endl;
 
-	    std::cout<<" **************** "<<std::endl;
-	    std::cout<<" **************** "<<std::endl;
-	    std::cout<<" run= "<<irun<<std::endl;
+      // retrieve the data
+      std::map<EcalLogicID, RunTPGConfigDat> dataset;
+      econn->fetchDataSet(&dataset, &run_vec[kr]);
 
-	    // retrieve the data
-	    std::map<EcalLogicID, RunTPGConfigDat> dataset;
-	    econn->fetchDataSet(&dataset, &run_vec[kr]);
-	    
-	    std::string the_config_tag="";
-	    int the_config_version=0;
-	    
-	    std::map< EcalLogicID,  RunTPGConfigDat>::const_iterator it;
-	    
-	    int nr=0;
-	    for( it=dataset.begin(); it!=dataset.end(); it++ )
-	      {
-		++nr;
-		//EcalLogicID ecalid  = it->first;
-		RunTPGConfigDat  dat = it->second;
-		the_config_tag=dat.getConfigTag();		
-                the_config_version=dat.getVersion();
-	    }
+      std::string the_config_tag = "";
+      int the_config_version = 0;
 
-	    // it is all the same for all SM... get the last one 
+      std::map<EcalLogicID, RunTPGConfigDat>::const_iterator it;
 
+      int nr = 0;
+      for (it = dataset.begin(); it != dataset.end(); it++) {
+        ++nr;
+        //EcalLogicID ecalid  = it->first;
+        RunTPGConfigDat dat = it->second;
+        the_config_tag = dat.getConfigTag();
+        the_config_version = dat.getVersion();
+      }
 
-	    std::cout<<" run= "<<irun<<" tag "<<the_config_tag<<" version="<<the_config_version <<std::endl;
+      // it is all the same for all SM... get the last one
 
-	    // here we should check if it is the same as previous run.
+      std::cout << " run= " << irun << " tag " << the_config_tag << " version=" << the_config_version << std::endl;
 
+      // here we should check if it is the same as previous run.
 
-	    if((the_config_tag != m_i_tag || the_config_version != m_i_version ) && nr>0 ) {
-	      std::cout<<"the tag is different from last transferred run ... retrieving last config set from DB"<<std::endl;
+      if ((the_config_tag != m_i_tag || the_config_version != m_i_version) && nr > 0) {
+        std::cout << "the tag is different from last transferred run ... retrieving last config set from DB"
+                  << std::endl;
 
-	      FEConfigMainInfo fe_main_info;
-	      fe_main_info.setConfigTag(the_config_tag);
-	      fe_main_info.setVersion(the_config_version);
+        FEConfigMainInfo fe_main_info;
+        fe_main_info.setConfigTag(the_config_tag);
+        fe_main_info.setVersion(the_config_version);
 
-	      try{ 
-		std::cout << " before fetch config set" << std::endl;	    
-		econn-> fetchConfigSet(&fe_main_info);
-		std::cout << " after fetch config set" << std::endl;	    
+        try {
+          std::cout << " before fetch config set" << std::endl;
+          econn->fetchConfigSet(&fe_main_info);
+          std::cout << " after fetch config set" << std::endl;
 
+          // now get TPGFineGrainEBGroup
+          int fgrId = fe_main_info.getFgrId();
 
-	    	// now get TPGFineGrainEBGroup
-	    	int fgrId=fe_main_info.getFgrId();
-	    
-	    	if( fgrId != m_i_fgrGroup ) {
-	    
-	    	  FEConfigFgrInfo fe_fgr_info;
-	    	  fe_fgr_info.setId(fgrId);
-	    	  econn-> fetchConfigSet(&fe_fgr_info);
-	    	  std::map<EcalLogicID, FEConfigFgrDat> dataset_TpgFineGrainEB;
-	    	  econn->fetchDataSet(&dataset_TpgFineGrainEB, &fe_fgr_info);
-	    
-	    	  EcalTPGFineGrainEBGroup *fgrMap = new EcalTPGFineGrainEBGroup;
-	    	  typedef std::map<EcalLogicID, FEConfigFgrDat>::const_iterator CIfefgr;
-	    	  EcalLogicID ecid_xt;
-	    	  FEConfigFgrDat  rd_fgr;
-	    	  int itowers=0;
-	    
-	    	  for (CIfefgr p = dataset_TpgFineGrainEB.begin(); p != dataset_TpgFineGrainEB.end(); p++) {
-	      	    ecid_xt = p->first;
-	      	    rd_fgr  = p->second;
-	      
-	      	    std::string ecid_name=ecid_xt.getName();
-	      
-	      	    if (ecid_name=="EB_trigger_tower") {
-	        	// SM number
-	        	int smid=ecid_xt.getID1();
-	        	// TT number
-	        	int towerid=ecid_xt.getID2();
+          if (fgrId != m_i_fgrGroup) {
+            FEConfigFgrInfo fe_fgr_info;
+            fe_fgr_info.setId(fgrId);
+            econn->fetchConfigSet(&fe_fgr_info);
+            std::map<EcalLogicID, FEConfigFgrDat> dataset_TpgFineGrainEB;
+            econn->fetchDataSet(&dataset_TpgFineGrainEB, &fe_fgr_info);
 
-			/*                
+            EcalTPGFineGrainEBGroup *fgrMap = new EcalTPGFineGrainEBGroup;
+            typedef std::map<EcalLogicID, FEConfigFgrDat>::const_iterator CIfefgr;
+            EcalLogicID ecid_xt;
+            FEConfigFgrDat rd_fgr;
+            int itowers = 0;
+
+            for (CIfefgr p = dataset_TpgFineGrainEB.begin(); p != dataset_TpgFineGrainEB.end(); p++) {
+              ecid_xt = p->first;
+              rd_fgr = p->second;
+
+              std::string ecid_name = ecid_xt.getName();
+
+              if (ecid_name == "EB_trigger_tower") {
+                // SM number
+                int smid = ecid_xt.getID1();
+                // TT number
+                int towerid = ecid_xt.getID2();
+
+                /*                
 			char identTT[10];
 			sprintf(identTT,"%d%d", smid, towerid);
 	        
@@ -211,127 +197,117 @@ void popcon::EcalTPGFineGrainEBGroupHandler::getNewObjects()
 
 			*/
 
-			int tow_eta=(towerid-1)/4; 
-			int tow_phi=((towerid-1)-tow_eta*4);
+                int tow_eta = (towerid - 1) / 4;
+                int tow_phi = ((towerid - 1) - tow_eta * 4);
 
-			int axt=(tow_eta*5)*20 + tow_phi*5 +1 ;
+                int axt = (tow_eta * 5) * 20 + tow_phi * 5 + 1;
 
-			EBDetId id(smid, axt, EBDetId::SMCRYSTALMODE ) ;
-			const EcalTrigTowerDetId towid= id.tower();
-			
-				
-                	fgrMap->setValue(towid.rawId() , rd_fgr.getFgrGroupId());
-	        	++itowers;
-	      	     }
-	    	   }
-	    	
-	    	   Time_t snc= (Time_t) irun ;
-	      	      
-	    	   m_to_transfer.push_back(std::make_pair((EcalTPGFineGrainEBGroup *)fgrMap,snc));
-	    
-	           m_i_run_number=irun;
-		   m_i_tag=the_config_tag;
-		   m_i_version=the_config_version;
-		   m_i_fgrGroup=fgrId;
-		  
-		   writeFile("last_tpg_fgrGroup_settings.txt");
+                EBDetId id(smid, axt, EBDetId::SMCRYSTALMODE);
+                const EcalTrigTowerDetId towid = id.tower();
 
-		 } else {
+                fgrMap->setValue(towid.rawId(), rd_fgr.getFgrGroupId());
+                ++itowers;
+              }
+            }
 
-		   m_i_run_number=irun;
-		   m_i_tag=the_config_tag;
-		   m_i_version=the_config_version;
+            Time_t snc = (Time_t)irun;
 
-		   writeFile("last_tpg_fgrGroup_settings.txt");
+            m_to_transfer.push_back(std::make_pair((EcalTPGFineGrainEBGroup *)fgrMap, snc));
 
-		   std::cout<< " even if the tag/version is not the same, the fgrGroup id is the same -> no transfer needed "<< std::endl; 
+            m_i_run_number = irun;
+            m_i_tag = the_config_tag;
+            m_i_version = the_config_version;
+            m_i_fgrGroup = fgrId;
 
-		}
+            writeFile("last_tpg_fgrGroup_settings.txt");
 
-	      }       
-	      
-	      catch (std::exception &e) { 
-		std::cout << "ERROR: THIS CONFIG DOES NOT EXIST: tag=" <<the_config_tag
-			  <<" version="<<the_config_version<< std::endl;
-		std::cout << e.what() << std::endl;
-		m_i_run_number=irun;
+          } else {
+            m_i_run_number = irun;
+            m_i_tag = the_config_tag;
+            m_i_version = the_config_version;
 
-	      }
-	      std::cout<<" **************** "<<std::endl;
-	      
-	    } else if(nr==0) {
-	      m_i_run_number=irun;
-	      std::cout<< " no tag saved to RUN_TPGCONFIG_DAT by EcalSupervisor -> no transfer needed "<< std::endl; 
-	      std::cout<<" **************** "<<std::endl;
-	    } else {
-	      m_i_run_number=irun;
-	      m_i_tag=the_config_tag;
-	      m_i_version=the_config_version;
-	      std::cout<< " the tag/version is the same -> no transfer needed "<< std::endl; 
-	      std::cout<<" **************** "<<std::endl;
-	      writeFile("last_tpg_fgrGroup_settings.txt");
-	    }
+            writeFile("last_tpg_fgrGroup_settings.txt");
 
+            std::cout << " even if the tag/version is not the same, the fgrGroup id is the same -> no transfer needed "
+                      << std::endl;
+          }
 
-	  }
-	}
-	  
-        delete econn;
-	edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "Ecal - > end of getNewObjects -----------";
+        }
+
+        catch (std::exception &e) {
+          std::cout << "ERROR: THIS CONFIG DOES NOT EXIST: tag=" << the_config_tag << " version=" << the_config_version
+                    << std::endl;
+          std::cout << e.what() << std::endl;
+          m_i_run_number = irun;
+        }
+        std::cout << " **************** " << std::endl;
+
+      } else if (nr == 0) {
+        m_i_run_number = irun;
+        std::cout << " no tag saved to RUN_TPGCONFIG_DAT by EcalSupervisor -> no transfer needed " << std::endl;
+        std::cout << " **************** " << std::endl;
+      } else {
+        m_i_run_number = irun;
+        m_i_tag = the_config_tag;
+        m_i_version = the_config_version;
+        std::cout << " the tag/version is the same -> no transfer needed " << std::endl;
+        std::cout << " **************** " << std::endl;
+        writeFile("last_tpg_fgrGroup_settings.txt");
+      }
+    }
+  }
+
+  delete econn;
+  edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "Ecal - > end of getNewObjects -----------";
 }
 
-
-void  popcon::EcalTPGFineGrainEBGroupHandler::readFromFile(const char* inputFile) {
+void popcon::EcalTPGFineGrainEBGroupHandler::readFromFile(const char *inputFile) {
   //-------------------------------------------------------------
-  
-  m_i_tag="";
-  m_i_version=0;
-  m_i_run_number=0;
-  m_i_fgrGroup=0; 
 
-  FILE *inpFile; // input file
-  inpFile = fopen(inputFile,"r");
-  if(!inpFile) {
-    edm::LogError("EcalTPGFineGrainEBGroupHandler")<<"*** Can not open file: "<<inputFile;
+  m_i_tag = "";
+  m_i_version = 0;
+  m_i_run_number = 0;
+  m_i_fgrGroup = 0;
+
+  FILE *inpFile;  // input file
+  inpFile = fopen(inputFile, "r");
+  if (!inpFile) {
+    edm::LogError("EcalTPGFineGrainEBGroupHandler") << "*** Can not open file: " << inputFile;
     return;
   }
 
   char line[256];
-    
+
   std::ostringstream str;
 
-  fgets(line,255,inpFile);
-  m_i_tag=to_string(line);
-  str << "gen tag " << m_i_tag << std::endl ;  // should I use this? 
+  fgets(line, 255, inpFile);
+  m_i_tag = to_string(line);
+  str << "gen tag " << m_i_tag << std::endl;  // should I use this?
 
-  fgets(line,255,inpFile);
-  m_i_version=atoi(line);
-  str << "version= " << m_i_version << std::endl ;  
+  fgets(line, 255, inpFile);
+  m_i_version = atoi(line);
+  str << "version= " << m_i_version << std::endl;
 
-  fgets(line,255,inpFile);
-  m_i_run_number=atoi(line);
-  str << "run_number= " << m_i_run_number << std::endl ;  
+  fgets(line, 255, inpFile);
+  m_i_run_number = atoi(line);
+  str << "run_number= " << m_i_run_number << std::endl;
 
-  fgets(line,255,inpFile);
-  m_i_fgrGroup=atoi(line);
-  str << "fgrGroup_config= " << m_i_fgrGroup << std::endl ;  
+  fgets(line, 255, inpFile);
+  m_i_fgrGroup = atoi(line);
+  str << "fgrGroup_config= " << m_i_fgrGroup << std::endl;
 
-    
-  fclose(inpFile);           // close inp. file
-
+  fclose(inpFile);  // close inp. file
 }
 
-void  popcon::EcalTPGFineGrainEBGroupHandler::writeFile(const char* inputFile) {
+void popcon::EcalTPGFineGrainEBGroupHandler::writeFile(const char *inputFile) {
   //-------------------------------------------------------------
-  
-  
+
   std::ofstream myfile;
-  myfile.open (inputFile);
-  myfile << m_i_tag <<std::endl;
-  myfile << m_i_version <<std::endl;
-  myfile << m_i_run_number <<std::endl;
-  myfile << m_i_fgrGroup <<std::endl;
+  myfile.open(inputFile);
+  myfile << m_i_tag << std::endl;
+  myfile << m_i_version << std::endl;
+  myfile << m_i_run_number << std::endl;
+  myfile << m_i_fgrGroup << std::endl;
 
   myfile.close();
-
 }

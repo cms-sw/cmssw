@@ -14,20 +14,13 @@
 #include <string>
 
 class EcalGainRatiosXMLTranslator {
-
 public:
+  static int readXML(const std::string& filename, EcalCondHeader& header, EcalGainRatios& record);
 
+  static int writeXML(const std::string& filename, const EcalCondHeader& header, const EcalGainRatios& record);
 
-  static int readXML (const std::string& filename, 
-	              EcalCondHeader& header,
-	              EcalGainRatios& record);
-
-  static  int writeXML(const std::string& filename, 
-		       const EcalCondHeader& header,
-		       const EcalGainRatios& record);
 private:
-  static std::string dumpXML(const EcalCondHeader& header,
-			     const EcalGainRatios& record);
+  static std::string dumpXML(const EcalCondHeader& header, const EcalGainRatios& record);
 };
 
-#endif // __EcalGainRatiosXMLTranslator_h_
+#endif  // __EcalGainRatiosXMLTranslator_h_
