@@ -6,6 +6,7 @@ public:
 
   void initialize(const CaloGeometry*) final {}
   void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final {}
+  void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final {}
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerGeometryFactory, NullGeometry, "NullGeometry");
