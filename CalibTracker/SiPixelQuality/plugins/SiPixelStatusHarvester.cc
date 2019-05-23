@@ -102,8 +102,6 @@ void SiPixelStatusHarvester::bookHistograms( DQMStore::IBooker& iBooker, edm::Ru
        histoman.book( iBooker, iSetup );
      }
 
-    //std::map<std::string, MonitorElement*> p001, p005, p01, p05, p1, p2, p5;
-    //ibooker.setCurrentFolder("PixelPhase1/DigiLossFraction/");
 }
 
 //--------------------------------------------------------------------------------------------------
