@@ -84,9 +84,9 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset){
     // Choosing grouping scheme:
     grcode = pset.getUntrackedParameter<Int_t>("grouping_code");
     
-    if (grcode == 0) grouping_obj = new InitialGrouping(pset);
-    if (grcode == 1) grouping_obj = new HoughGrouping(pset);
-    if (grcode == 2) grouping_obj = new PseudoBayesGrouping(pset);
+    if      (grcode == 0) grouping_obj = new InitialGrouping(pset);
+    else if (grcode == 1) grouping_obj = new HoughGrouping(pset);
+    else if (grcode == 2) grouping_obj = new PseudoBayesGrouping(pset);
     else {
         if (debug) cout << "DTp2::constructor: Non-valid grouping code. Choosing InitialGrouping by default." << endl;
         grouping_obj = new InitialGrouping(pset);
@@ -156,7 +156,7 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
 
 
 void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
-    if(debug) cout << "DTTrigPhase2Prod::produce " << iRun.id().run() << endl;
+    if(debug) cout << "DTTrigPhase2Prod::produce " << endl;
     edm::Handle<DTDigiCollection> dtdigis;
     iEvent.getByToken(dtDigisToken, dtdigis);
     
@@ -183,15 +183,15 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
         DTChamberId chid        = chamb->id();
         DTDigiMap_iterator dmit = digiMap.find(chid);
         
-        if (dmit !=digiMap.end()) grouping_obj->run(iEvent, iEventSetup, (*dmit).second, &muonpaths);  // New grouping implementation
+        if (dmit !=digiMap.end()) grouping_obj->run(iEvent, iEventSetup, (*dmit).second, &muonpaths);
     }
     
     digiMap.clear();
     
     
-    if ((grcode != 0) && debug) {
-        cout << "DTTrigPhase2Prod::produce - WARNING: non-standard grouping chosen. Further execution still not functioning." << endl;
-        return
+    if ((grcode != 0)) {
+        if (debug) cout << "DTTrigPhase2Prod::produce - WARNING: non-standard grouping chosen. Further execution still not functioning." << endl;
+        return;
     }
   
     // FILTER GROUPING
