@@ -15,47 +15,42 @@
 #include "EventFilter/Utilities/plugins/FRDStreamSource.h"
 #include "EventFilter/Utilities/interface/crc32c.h"
 
-
-FRDStreamSource::FRDStreamSource(edm::ParameterSet const& pset,
-                                          edm::InputSourceDescription const& desc)
-  : ProducerSourceFromFiles(pset,desc,true),
-    verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
-    verifyChecksum_(pset.getUntrackedParameter<bool> ("verifyChecksum", true)),
-    useL1EventID_(pset.getUntrackedParameter<bool> ("useL1EventID", false))
-{
-  itFileName_=fileNames().begin();
+FRDStreamSource::FRDStreamSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc)
+    : ProducerSourceFromFiles(pset, desc, true),
+      verifyAdler32_(pset.getUntrackedParameter<bool>("verifyAdler32", true)),
+      verifyChecksum_(pset.getUntrackedParameter<bool>("verifyChecksum", true)),
+      useL1EventID_(pset.getUntrackedParameter<bool>("useL1EventID", false)) {
+  itFileName_ = fileNames().begin();
   openFile(*itFileName_);
   produces<FEDRawDataCollection>();
 }
 
-
-bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& theTime, edm::EventAuxiliary::ExperimentType& eType)
-{
-  if ( fin_.peek() == EOF ) {
-    if ( ++itFileName_==fileNames().end() ) {
+bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id,
+                                         edm::TimeValue_t& theTime,
+                                         edm::EventAuxiliary::ExperimentType& eType) {
+  if (fin_.peek() == EOF) {
+    if (++itFileName_ == fileNames().end()) {
       fin_.close();
       return false;
     }
-    if ( ! openFile(*itFileName_) ) {
-      throw cms::Exception("FRDStreamSource::setRunAndEventInfo") <<
-        "could not open file " << *itFileName_;
+    if (!openFile(*itFileName_)) {
+      throw cms::Exception("FRDStreamSource::setRunAndEventInfo") << "could not open file " << *itFileName_;
     }
   }
 
-  if ( detectedFRDversion_==0) {
-    fin_.read((char*)&detectedFRDversion_,sizeof(uint32_t));
-    assert(detectedFRDversion_>0 && detectedFRDversion_<=5);
-    if ( buffer_.size() < FRDHeaderVersionSize[detectedFRDversion_] )
+  if (detectedFRDversion_ == 0) {
+    fin_.read((char*)&detectedFRDversion_, sizeof(uint32_t));
+    assert(detectedFRDversion_ > 0 && detectedFRDversion_ <= 5);
+    if (buffer_.size() < FRDHeaderVersionSize[detectedFRDversion_])
       buffer_.resize(FRDHeaderVersionSize[detectedFRDversion_]);
-    *((uint32_t*)(&buffer_[0]))=detectedFRDversion_;
-    fin_.read(&buffer_[0] + sizeof(uint32_t),FRDHeaderVersionSize[detectedFRDversion_]-sizeof(uint32_t));
-    assert( fin_.gcount() == FRDHeaderVersionSize[detectedFRDversion_]-(unsigned int)(sizeof(uint32_t) ));
-  }
-  else {
-    if ( buffer_.size() < FRDHeaderVersionSize[detectedFRDversion_] )
+    *((uint32_t*)(&buffer_[0])) = detectedFRDversion_;
+    fin_.read(&buffer_[0] + sizeof(uint32_t), FRDHeaderVersionSize[detectedFRDversion_] - sizeof(uint32_t));
+    assert(fin_.gcount() == FRDHeaderVersionSize[detectedFRDversion_] - (unsigned int)(sizeof(uint32_t)));
+  } else {
+    if (buffer_.size() < FRDHeaderVersionSize[detectedFRDversion_])
       buffer_.resize(FRDHeaderVersionSize[detectedFRDversion_]);
-    fin_.read(&buffer_[0],FRDHeaderVersionSize[detectedFRDversion_]);
-    assert( fin_.gcount() == FRDHeaderVersionSize[detectedFRDversion_] );
+    fin_.read(&buffer_[0], FRDHeaderVersionSize[detectedFRDversion_]);
+    assert(fin_.gcount() == FRDHeaderVersionSize[detectedFRDversion_]);
   }
 
   std::unique_ptr<FRDEventMsgView> frdEventMsg(new FRDEventMsgView(&buffer_[0]));
@@ -63,37 +58,33 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
     id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), frdEventMsg->event());
 
   const uint32_t totalSize = frdEventMsg->size();
-  if ( totalSize > buffer_.size() ) {
+  if (totalSize > buffer_.size()) {
     buffer_.resize(totalSize);
   }
-  if ( totalSize > FRDHeaderVersionSize[detectedFRDversion_] ) {
-    fin_.read(&buffer_[0]+FRDHeaderVersionSize[detectedFRDversion_],totalSize-FRDHeaderVersionSize[detectedFRDversion_]);
-    if ( fin_.gcount() != totalSize-FRDHeaderVersionSize[detectedFRDversion_] ) {
-      throw cms::Exception("FRDStreamSource::setRunAndEventInfo") <<
-        "premature end of file " << *itFileName_;
+  if (totalSize > FRDHeaderVersionSize[detectedFRDversion_]) {
+    fin_.read(&buffer_[0] + FRDHeaderVersionSize[detectedFRDversion_],
+              totalSize - FRDHeaderVersionSize[detectedFRDversion_]);
+    if (fin_.gcount() != totalSize - FRDHeaderVersionSize[detectedFRDversion_]) {
+      throw cms::Exception("FRDStreamSource::setRunAndEventInfo") << "premature end of file " << *itFileName_;
     }
     frdEventMsg.reset(new FRDEventMsgView(&buffer_[0]));
   }
 
-  if ( verifyChecksum_ && frdEventMsg->version() >= 5 )
-  {
-    uint32_t crc=0;
-    crc = crc32c(crc,(const unsigned char*)frdEventMsg->payload(),frdEventMsg->eventSize());
-    if ( crc != frdEventMsg->crc32c() ) {
-      throw cms::Exception("FRDStreamSource::getNextEvent") <<
-        "Found a wrong crc32c checksum: expected 0x" << std::hex << frdEventMsg->crc32c() <<
-        " but calculated 0x" << crc;
+  if (verifyChecksum_ && frdEventMsg->version() >= 5) {
+    uint32_t crc = 0;
+    crc = crc32c(crc, (const unsigned char*)frdEventMsg->payload(), frdEventMsg->eventSize());
+    if (crc != frdEventMsg->crc32c()) {
+      throw cms::Exception("FRDStreamSource::getNextEvent") << "Found a wrong crc32c checksum: expected 0x" << std::hex
+                                                            << frdEventMsg->crc32c() << " but calculated 0x" << crc;
     }
-  }
-  else if ( verifyAdler32_ && frdEventMsg->version() >= 3 )
-  {
-    uint32_t adler = adler32(0L,Z_NULL,0);
-    adler = adler32(adler,(Bytef*)frdEventMsg->payload(),frdEventMsg->eventSize());
+  } else if (verifyAdler32_ && frdEventMsg->version() >= 3) {
+    uint32_t adler = adler32(0L, Z_NULL, 0);
+    adler = adler32(adler, (Bytef*)frdEventMsg->payload(), frdEventMsg->eventSize());
 
-    if ( adler != frdEventMsg->adler32() ) {
-      throw cms::Exception("FRDStreamSource::setRunAndEventInfo") <<
-        "Found a wrong Adler32 checksum: expected 0x" << std::hex << frdEventMsg->adler32() <<
-        " but calculated 0x" << adler;
+    if (adler != frdEventMsg->adler32()) {
+      throw cms::Exception("FRDStreamSource::setRunAndEventInfo")
+          << "Found a wrong Adler32 checksum: expected 0x" << std::hex << frdEventMsg->adler32() << " but calculated 0x"
+          << adler;
     }
   }
 
@@ -101,47 +92,43 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
 
   uint32_t eventSize = frdEventMsg->eventSize();
   unsigned char* event = (unsigned char*)frdEventMsg->payload();
-  bool foundTCDSFED=false;
-  bool foundGTPFED=false;
-
+  bool foundTCDSFED = false;
+  bool foundGTPFED = false;
 
   while (eventSize > 0) {
-    assert(eventSize>=FEDTrailer::length);
+    assert(eventSize >= FEDTrailer::length);
     eventSize -= FEDTrailer::length;
     const FEDTrailer fedTrailer(event + eventSize);
-    const uint32_t fedSize = fedTrailer.fragmentLength() << 3; //trailer length counts in 8 bytes
-    assert(eventSize>=fedSize - FEDHeader::length);
+    const uint32_t fedSize = fedTrailer.fragmentLength() << 3;  //trailer length counts in 8 bytes
+    assert(eventSize >= fedSize - FEDHeader::length);
     eventSize -= (fedSize - FEDHeader::length);
     const FEDHeader fedHeader(event + eventSize);
     const uint16_t fedId = fedHeader.sourceID();
-    if (fedId>FEDNumbering::MAXFEDID)
-    {
+    if (fedId > FEDNumbering::MAXFEDID) {
       throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection") << "Out of range FED ID : " << fedId;
     }
     if (fedId == FEDNumbering::MINTCDSuTCAFEDID) {
-      foundTCDSFED=true;
+      foundTCDSFED = true;
       tcds::Raw_v1 const* tcds = reinterpret_cast<tcds::Raw_v1 const*>(event + eventSize + FEDHeader::length);
-      id = edm::EventID(frdEventMsg->run(),tcds->header.lumiSection,tcds->header.eventNumber);
+      id = edm::EventID(frdEventMsg->run(), tcds->header.lumiSection, tcds->header.eventNumber);
       eType = static_cast<edm::EventAuxiliary::ExperimentType>(fedHeader.triggerType());
       theTime = static_cast<edm::TimeValue_t>(((uint64_t)tcds->bst.gpstimehigh << 32) | tcds->bst.gpstimelow);
     }
 
     if (fedId == FEDNumbering::MINTriggerGTPFEDID && !foundTCDSFED) {
-      foundGTPFED=true;
-      const bool GTPEvmBoardSense=evf::evtn::evm_board_sense(event + eventSize,fedSize);
+      foundGTPFED = true;
+      const bool GTPEvmBoardSense = evf::evtn::evm_board_sense(event + eventSize, fedSize);
       if (!useL1EventID_) {
         if (GTPEvmBoardSense)
-          id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::get(event + eventSize,true));
+          id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::get(event + eventSize, true));
         else
-          id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::get(event + eventSize,false));
+          id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::get(event + eventSize, false));
       }
       //evf::evtn::evm_board_setformat(fedSize);
       const uint64_t gpsl = evf::evtn::getgpslow(event + eventSize);
       const uint64_t gpsh = evf::evtn::getgpshigh(event + eventSize);
       theTime = static_cast<edm::TimeValue_t>((gpsh << 32) + gpsl);
     }
-
-
 
     //take event ID from GTPE FED
     if (fedId == FEDNumbering::MINTriggerEGTPFEDID && !foundGTPFED && !foundTCDSFED && !useL1EventID_) {
@@ -158,29 +145,24 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
   return true;
 }
 
+void FRDStreamSource::produce(edm::Event& e) { e.put(std::move(rawData_)); }
 
-void FRDStreamSource::produce(edm::Event& e) {
-  e.put(std::move(rawData_));
-}
-
-
-bool FRDStreamSource::openFile(const std::string& fileName)
-{
+bool FRDStreamSource::openFile(const std::string& fileName) {
   std::cout << " open file.. " << fileName << std::endl;
   fin_.close();
   fin_.clear();
   size_t pos = fileName.find(':');
-  if (pos!=std::string::npos) {
-    std::string prefix = fileName.substr(0,pos);
-    if (prefix!="file") return false;
+  if (pos != std::string::npos) {
+    std::string prefix = fileName.substr(0, pos);
+    if (prefix != "file")
+      return false;
     pos++;
-  }
-  else pos=0;
+  } else
+    pos = 0;
 
-  fin_.open(fileName.substr(pos).c_str(),std::ios::in|std::ios::binary);
+  fin_.open(fileName.substr(pos).c_str(), std::ios::in | std::ios::binary);
   return fin_.is_open();
 }
-
 
 //////////////////////////////////////////
 // define this class as an input source //
