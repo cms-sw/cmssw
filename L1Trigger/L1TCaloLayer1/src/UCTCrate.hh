@@ -9,15 +9,14 @@ class UCTCard;
 
 class UCTCrate {
 public:
-
   UCTCrate(uint32_t crt, int fwv);
 
   virtual ~UCTCrate();
 
   // To set up event data before processing
 
-  const std::vector<UCTCard*>& getCards() {return cards;}
-  const UCTCard* getCard(uint32_t crd) const {return cards[crd];}
+  const std::vector<UCTCard*>& getCards() { return cards; }
+  const UCTCard* getCard(uint32_t crd) const { return cards[crd]; }
   const UCTCard* getCard(UCTTowerIndex t) const;
   const UCTCard* getCard(UCTRegionIndex r) const {
     UCTGeometry g;
@@ -33,16 +32,14 @@ public:
 
   // More access functions
 
-  const uint32_t getCrate() const {return crate;}
-  const uint32_t getCrateSummary() const {return crateSummary;}
+  const uint32_t getCrate() const { return crate; }
+  const uint32_t getCrateSummary() const { return crateSummary; }
 
-
-  const uint32_t et() const {return crateSummary;}
+  const uint32_t et() const { return crateSummary; }
 
   friend std::ostream& operator<<(std::ostream&, const UCTCrate&);
 
 private:
-
   // No default constructor is needed
 
   UCTCrate() = delete;
@@ -55,7 +52,7 @@ private:
 
   const UCTCrate& operator=(const UCTCrate&) = delete;
 
-  // Owned crate level data 
+  // Owned crate level data
 
   uint32_t crate;
   std::vector<UCTCard*> cards;

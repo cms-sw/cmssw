@@ -13,7 +13,6 @@
 #ifndef Stage1Layer2MainProcessor_h
 #define Stage1Layer2MainProcessor_h
 
-
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 //#include "DataFormats/L1Trigger/interface/BXVector.h"
@@ -31,19 +30,19 @@ namespace l1t {
   class Stage1Layer2MainProcessor {
   public:
     virtual void processEvent(const std::vector<CaloEmCand> &,
-			      const std::vector<CaloRegion> &,
-			      std::vector<EGamma> * egammas,
-			      std::vector<Tau> * taus,
-			      std::vector<Tau> * isoTaus,
-			      std::vector<Jet> * jets,
-			      std::vector<Jet> * preGtJets,
-			      std::vector<EtSum> * etsums,
-			      CaloSpare * hfSums,
-			      CaloSpare *hfCounts) = 0;
+                              const std::vector<CaloRegion> &,
+                              std::vector<EGamma> *egammas,
+                              std::vector<Tau> *taus,
+                              std::vector<Tau> *isoTaus,
+                              std::vector<Jet> *jets,
+                              std::vector<Jet> *preGtJets,
+                              std::vector<EtSum> *etsums,
+                              CaloSpare *hfSums,
+                              CaloSpare *hfCounts) = 0;
 
     virtual ~Stage1Layer2MainProcessor(){};
   };
 
-}
+}  // namespace l1t
 
 #endif

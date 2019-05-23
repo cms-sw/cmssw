@@ -7,7 +7,6 @@
 /// \author: R. Alex Barbieri MIT
 ///
 
-
 #ifndef Stage2Layer2FirmwareFactory_h
 #define Stage2Layer2FirmwareFactory_h
 
@@ -19,7 +18,6 @@
 
 //#include "FWCore/Framework/interface/Event.h"
 
-
 namespace l1t {
 
   class Stage2Layer2FirmwareFactory {
@@ -27,9 +25,8 @@ namespace l1t {
     typedef std::unique_ptr<Stage2MainProcessor> ReturnType;
 
     ReturnType create(unsigned fwv, CaloParamsHelper const* params);
-
   };
 
-} // namespace
+}  // namespace l1t
 
 #endif

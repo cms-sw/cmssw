@@ -20,18 +20,17 @@
 
 #include <vector>
 
-
 namespace l1t {
-    
-  class Stage2Layer2TauAlgorithm { 
+
+  class Stage2Layer2TauAlgorithm {
   public:
-    virtual void processEvent(const std::vector<l1t::CaloCluster> & clusters,
-    						  const std::vector<l1t::CaloTower>& towers,
-			      			  std::vector<l1t::Tau> & taus) = 0;    
+    virtual void processEvent(const std::vector<l1t::CaloCluster>& clusters,
+                              const std::vector<l1t::CaloTower>& towers,
+                              std::vector<l1t::Tau>& taus) = 0;
 
     virtual ~Stage2Layer2TauAlgorithm(){};
-  }; 
-  
-} 
+  };
+
+}  // namespace l1t
 
 #endif

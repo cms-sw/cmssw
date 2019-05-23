@@ -18,16 +18,14 @@
 #include <vector>
 
 namespace l1t {
-    
-  class Stage2Layer2DemuxSumsAlgo { 
+
+  class Stage2Layer2DemuxSumsAlgo {
   public:
-    virtual void processEvent(const std::vector<l1t::EtSum> & inputSums,
-			      std::vector<l1t::EtSum> & outputSums) = 0;    
+    virtual void processEvent(const std::vector<l1t::EtSum>& inputSums, std::vector<l1t::EtSum>& outputSums) = 0;
 
     virtual ~Stage2Layer2DemuxSumsAlgo(){};
+  };
 
-  }; 
-  
-} 
+}  // namespace l1t
 
 #endif

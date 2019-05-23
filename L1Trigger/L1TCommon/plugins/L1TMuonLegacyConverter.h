@@ -4,7 +4,7 @@
 //
 // Package:     L1TCommon
 // Class  :     L1TMuonLegacyConverter
-// 
+//
 /**\class L1TMuonLegacyConverter \file L1TMuonLegacyConverter.h L1Trigger/L1TCommon/interface/L1TMuonLegacyConverter.h
 
  Description: conver L1T muons legacy format to stage2 format
@@ -36,54 +36,52 @@
 // #include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
-
 //include new muon data format
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
-
 // forward declarations
-class L1CaloGeometry ;
+class L1CaloGeometry;
 
 class L1TMuonLegacyConverter : public edm::stream::EDProducer<> {
-   public:
-      explicit L1TMuonLegacyConverter(const edm::ParameterSet&);
-      ~L1TMuonLegacyConverter() override;
+public:
+  explicit L1TMuonLegacyConverter(const edm::ParameterSet&);
+  ~L1TMuonLegacyConverter() override;
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      // //      math::XYZTLorentzVector gctLorentzVector( const double& et,
-      // math::PtEtaPhiMLorentzVector gctLorentzVector( const double& et,
-						//      const L1GctCand& cand,
-						//      const L1CaloGeometry* geom,
-						//      bool central ) ;
-      
-      // ----------member data ---------------------------
-      bool produceMuonParticles_ ;
-      edm::InputTag muonSource_InputTag ;
-      edm::EDGetTokenT<L1MuGMTReadoutCollection> muonSource_InputToken;
+  // //      math::XYZTLorentzVector gctLorentzVector( const double& et,
+  // math::PtEtaPhiMLorentzVector gctLorentzVector( const double& et,
+  //      const L1GctCand& cand,
+  //      const L1CaloGeometry* geom,
+  //      bool central ) ;
 
-      // bool produceCaloParticles_ ;
-      // edm::InputTag isoEmSource_ ;
-      // edm::InputTag nonIsoEmSource_ ;
-      // edm::InputTag cenJetSource_ ;
-      // edm::InputTag forJetSource_ ;
-      // edm::InputTag tauJetSource_ ;
-      // edm::InputTag isoTauJetSource_ ;
-      // edm::InputTag etTotSource_ ;
-      // edm::InputTag etHadSource_ ;
-      // edm::InputTag etMissSource_ ;
-      // edm::InputTag htMissSource_ ;
-      // edm::InputTag hfRingEtSumsSource_ ;
-      // edm::InputTag hfRingBitCountsSource_ ;
+  // ----------member data ---------------------------
+  bool produceMuonParticles_;
+  edm::InputTag muonSource_InputTag;
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> muonSource_InputToken;
 
-      static const double muonMassGeV_ ;
+  // bool produceCaloParticles_ ;
+  // edm::InputTag isoEmSource_ ;
+  // edm::InputTag nonIsoEmSource_ ;
+  // edm::InputTag cenJetSource_ ;
+  // edm::InputTag forJetSource_ ;
+  // edm::InputTag tauJetSource_ ;
+  // edm::InputTag isoTauJetSource_ ;
+  // edm::InputTag etTotSource_ ;
+  // edm::InputTag etHadSource_ ;
+  // edm::InputTag etMissSource_ ;
+  // edm::InputTag htMissSource_ ;
+  // edm::InputTag hfRingEtSumsSource_ ;
+  // edm::InputTag hfRingBitCountsSource_ ;
 
-      bool centralBxOnly_ ;
+  static const double muonMassGeV_;
 
-      // Set this to true when rerunning on RAW data where the GCT did not
-      // produce a L1GctHtMiss record.
-      bool ignoreHtMiss_ ;
+  bool centralBxOnly_;
+
+  // Set this to true when rerunning on RAW data where the GCT did not
+  // produce a L1GctHtMiss record.
+  bool ignoreHtMiss_;
 };
 
 #endif

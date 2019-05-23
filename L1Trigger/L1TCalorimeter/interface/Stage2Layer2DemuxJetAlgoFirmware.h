@@ -23,13 +23,11 @@ namespace l1t {
   public:
     Stage2Layer2DemuxJetAlgoFirmwareImp1(CaloParamsHelper const* params);
     ~Stage2Layer2DemuxJetAlgoFirmwareImp1() override = default;
-    void processEvent(const std::vector<l1t::Jet> & inputJets,
-			      std::vector<l1t::Jet> & outputJets) override;
+    void processEvent(const std::vector<l1t::Jet>& inputJets, std::vector<l1t::Jet>& outputJets) override;
 
   private:
-
   };
 
-}
+}  // namespace l1t
 
 #endif

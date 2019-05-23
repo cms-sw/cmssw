@@ -18,16 +18,16 @@ namespace l1t {
 
   class Stage1Layer2JetAlgorithm {
   public:
-    virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
-			      const std::vector<l1t::CaloEmCand> & EMCands,
-			      std::vector<l1t::Jet> * jets,
-			      std::vector<l1t::Jet> * preGtJets) = 0;
+    virtual void processEvent(const std::vector<l1t::CaloRegion>& regions,
+                              const std::vector<l1t::CaloEmCand>& EMCands,
+                              std::vector<l1t::Jet>* jets,
+                              std::vector<l1t::Jet>* preGtJets) = 0;
     virtual ~Stage1Layer2JetAlgorithm(){};
 
     /* private: */
     /*   double regionLSB_; // least significant bit value. Usually = 0.5 */
   };
 
-}
+}  // namespace l1t
 
 #endif
