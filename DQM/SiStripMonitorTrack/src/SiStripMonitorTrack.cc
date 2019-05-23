@@ -557,9 +557,9 @@ void SiStripMonitorTrack::bookLayerMEs(DQMStore::IBooker& ibooker, const uint32_
   hpar = "TH2ClusterPosTEC";
   if ( layer_id.find("TEC") != std::string::npos ){ 
     
-    int nbinR = 8;
-    float rval[9]= {0, 21.2, 30.8, 40.4, 50.0, 60.0, 75.0, 90.0, 110.0};
-    int nmodulesPhi = 40*6; //max number of APV  for a ring
+    static constexpr int   nbinR = 8;
+    static constexpr float rval[9]= {0, 21.2, 30.8, 40.4, 50.0, 60.0, 75.0, 90.0, 110.0};
+    static constexpr int   nmodulesPhi = 40*6; //max number of APV  for a ring
     float phival[nmodulesPhi];
     for(int i=0; i<nmodulesPhi; i++) phival[i] = -3.2+2*i*3.2/nmodulesPhi;
     
@@ -570,9 +570,9 @@ void SiStripMonitorTrack::bookLayerMEs(DQMStore::IBooker& ibooker, const uint32_
   hname = hidmanager.createHistoLayer("Summary_ClusterPosition2D", name, layer_id, "OnTrack");
   hpar = "TH2ClusterPosTID";
   if ( layer_id.find("TID") != std::string::npos ){
-    int nbinR = 4;
-    float rval[5]= {0, 21.2, 30.8, 40.4, 50.0};
-    int nmodulesPhi = 80*4;//max number of APV  for a ring
+    static constexpr int   nbinR = 4;
+    static constexpr float rval[5]= {0, 21.2, 30.8, 40.4, 50.0};
+    static constexpr int   nmodulesPhi = 80*4;//max number of APV  for a ring
     float phival[nmodulesPhi];
     for(int i=0; i<nmodulesPhi; i++) phival[i] = -3.2+i*2*3.2/nmodulesPhi;
     
