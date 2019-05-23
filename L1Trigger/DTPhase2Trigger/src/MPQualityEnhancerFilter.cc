@@ -1,4 +1,4 @@
-#include "L1Trigger/DTPhase2Trigger/interface/MuonPathFilter.h"
+#include "L1Trigger/DTPhase2Trigger/interface/MPQualityEnhancerFilter.h"
 
 using namespace edm;
 using namespace std;
@@ -8,16 +8,18 @@ using namespace std;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MuonPathFilter::MuonPathFilter(const ParameterSet& pset) {
-    // Obtention of parameters
-    debug         = pset.getUntrackedParameter<Bool_t>("debug");
-    filter_cousins = pset.getUntrackedParameter<bool>("filter_cousins");
-    if (debug) cout <<"MuonPathFilter: constructor" << endl;
+MPQualityEnhancerFilter::MPQualityEnhancerFilter(const ParameterSet& pset) :
+  MPFilter(pset)
+{
+  // Obtention of parameters
+  debug         = pset.getUntrackedParameter<Bool_t>("debug");
+  filter_cousins = pset.getUntrackedParameter<bool>("filter_cousins");
+  if (debug) cout <<"MPQualityEnhancerFilter: constructor" << endl;
 }
 
 
-MuonPathFilter::~MuonPathFilter() {
-    if (debug) cout <<"MuonPathFilter: destructor" << endl;
+MPQualityEnhancerFilter::~MPQualityEnhancerFilter() {
+  if (debug) cout <<"MPQualityEnhancerFilter: destructor" << endl;
 }
 
 
@@ -25,11 +27,35 @@ MuonPathFilter::~MuonPathFilter() {
 // ============================================================================
 // Main methods (initialise, run, finish)
 // ============================================================================
-void MuonPathFilter::initialise(const edm::EventSetup& iEventSetup) {
-    if(debug) cout << "MuonPathFilter::initialiase" << endl;
+void MPQualityEnhancerFilter::initialise(const edm::EventSetup& iEventSetup) {
+  if(debug) cout << "MPQualityEnhancerFilter::initialiase" << endl;
 }
 
-int MuonPathFilter::areCousins(metaPrimitive mp, metaPrimitive second_mp) {
+void MPQualityEnhancerFilter::run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, 
+			 std::vector<metaPrimitive> &inMPaths, 
+			 std::vector<metaPrimitive> &outMPaths) 
+{
+  
+  if (debug) cout <<"MPQualityEnhancerFilter: run" << endl;  
+  
+  std::vector<metaPrimitive> buff; 
+  
+  filterCousins(inMPaths,buff); 
+  filterUnique(buff,outMPaths);
+
+  buff.clear();
+  buff.erase(buff.begin(),buff.end());
+  
+  if (debug) cout <<"MPQualityEnhancerFilter: done" << endl;
+}
+
+void MPQualityEnhancerFilter::finish() {
+  if (debug) cout <<"MPQualityEnhancerFilter: finish" << endl;
+};
+
+///////////////////////////
+///  OTHER METHODS
+int MPQualityEnhancerFilter::areCousins(metaPrimitive mp, metaPrimitive second_mp) {
     if(mp.rawId!=second_mp.rawId) return 0;
     if(mp.wi1==second_mp.wi1 and mp.tdc1==second_mp.tdc1 and mp.wi1!=-1 and mp.tdc1!=-1) return 1;
     if(mp.wi2==second_mp.wi2 and mp.tdc2==second_mp.tdc2 and mp.wi2!=-1 and mp.tdc2!=-1) return 2;
@@ -39,31 +65,14 @@ int MuonPathFilter::areCousins(metaPrimitive mp, metaPrimitive second_mp) {
 }
 
 
-int MuonPathFilter::rango(metaPrimitive mp){
+int MPQualityEnhancerFilter::rango(metaPrimitive mp){
     if(mp.quality==1 or mp.quality==2) return 3;
     if(mp.quality==3 or mp.quality==4) return 4;
     return 0;
 }
 
-void MuonPathFilter::run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, 
-			 std::vector<metaPrimitive> &inMPaths, 
-			 std::vector<metaPrimitive> &outMPaths) 
-{
-    
-    if (debug) cout <<"MuonPathFilter: run" << endl;  
 
-    std::vector<metaPrimitive> buff; 
-  
-    filterCousins(inMPaths,buff); 
-    filterUnique(buff,outMPaths);
-
-    buff.clear();
-    buff.erase(buff.begin(),buff.end());
-    
-    if (debug) cout <<"MuonPathFilter: done" << endl;
-}
-
-void MuonPathFilter::filterCousins(std::vector<metaPrimitive> &inMPaths, 
+void MPQualityEnhancerFilter::filterCousins(std::vector<metaPrimitive> &inMPaths, 
 				   std::vector<metaPrimitive> &outMPaths) 
 {
     if(debug) std::cout<<"filtering: starting cousins filtering"<<std::endl;    
@@ -121,7 +130,7 @@ void MuonPathFilter::filterCousins(std::vector<metaPrimitive> &inMPaths,
     }
 }
 
-void MuonPathFilter::filterUnique(std::vector<metaPrimitive> &inMPaths,
+void MPQualityEnhancerFilter::filterUnique(std::vector<metaPrimitive> &inMPaths,
 				  std::vector<metaPrimitive> &outMPaths)
 {
     double xTh = 0;
@@ -137,12 +146,7 @@ void MuonPathFilter::filterUnique(std::vector<metaPrimitive> &inMPaths,
 }
 
 
-void MuonPathFilter::finish() {
-    if (debug) cout <<"MuonPathFilter: finish" << endl;
-};
-
-
-void MuonPathFilter::printmP(metaPrimitive mP){
+void MPQualityEnhancerFilter::printmP(metaPrimitive mP){
     DTSuperLayerId slId(mP.rawId);
     std::cout<<slId<<"\t"
 	     <<" "<<setw(2)<<left<<mP.wi1

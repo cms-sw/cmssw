@@ -89,9 +89,10 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset){
 	grouping_obj = new InitialGrouping(pset);
     }
     
-    mpathanalyzer   = new MuonPathAnalyzerPerSL(pset);
-    mpathfilter     = new MuonPathFilter(pset);
-    mpathassociator = new MuonPathAssociator(pset);
+    mpathanalyzer        = new MuonPathAnalyzerPerSL(pset);
+    mpathqualityenhancer = new MPQualityEnhancerFilter(pset);
+    mpathredundantfilter = new MPRedundantFilter(pset);
+    mpathassociator      = new MuonPathAssociator(pset);
       
    
     
@@ -106,7 +107,8 @@ DTTrigPhase2Prod::~DTTrigPhase2Prod(){
     
   delete grouping_obj; // Grouping destructor
   delete mpathanalyzer; // Analyzer destructor
-  delete mpathfilter; // Filter destructor
+  delete mpathqualityenhancer; // Filter destructor
+  delete mpathredundantfilter; // Filter destructor
   delete mpathassociator; // Associator destructor
 }
 
@@ -123,7 +125,8 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
 
   grouping_obj->initialise(iEventSetup); // Grouping object initialisation
   mpathanalyzer->initialise(iEventSetup); // Analyzer object initialisation
-  mpathfilter->initialise(iEventSetup); // Filter object initialisation
+  mpathqualityenhancer->initialise(iEventSetup); // Filter object initialisation
+  mpathredundantfilter->initialise(iEventSetup); // Filter object initialisation
   mpathassociator->initialise(iEventSetup); // Associator object initialisation
   
     //trigGeomUtils = new DTTrigGeomUtils(dtGeo);
@@ -177,11 +180,24 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
     }
 
     digiMap.clear();
-    // GROUPING ENDS
-    if (debug) cout << "MUON PATHS found: " << muonpaths.size() <<" in event"<<iEvent.id().event()<<endl;
 
+    // FILTER GROUPING
+    std::vector<MuonPath*> filteredmuonpaths;
+    mpathredundantfilter->run(iEvent, iEventSetup, muonpaths,filteredmuonpaths);
+
+    if(debug) std::cout<<"deleting muonpaths"<<std::endl;    
+    for (unsigned int i=0; i<muonpaths.size(); i++){
+      delete muonpaths[i];
+    }
+    muonpaths.clear();
+
+    // GROUPING ENDS
+    
+    
+    if (debug) cout << "MUON PATHS found: " << filteredmuonpaths.size() <<" in event"<<iEvent.id().event()<<endl;
+    if(debug) std::cout<<"filling NmetaPrimtives"<<std::endl;
     std::vector<metaPrimitive> metaPrimitives;
-    mpathanalyzer->run(iEvent, iEventSetup,  muonpaths, metaPrimitives);  // New grouping implementation
+    mpathanalyzer->run(iEvent, iEventSetup,  filteredmuonpaths, metaPrimitives);  // New grouping implementation
     
     if (dump) {
 	for (unsigned int i=0; i<metaPrimitives.size(); i++){
@@ -190,13 +206,12 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 	    cout<<endl;
 	}
     }
-    if(debug) std::cout<<"filling NmetaPrimtives"<<std::endl;
-    
-    if(debug) std::cout<<"deleting muonpaths"<<std::endl;    
-    for (unsigned int i=0; i<muonpaths.size(); i++){
-      delete muonpaths[i];
+
+    for (unsigned int i=0; i<filteredmuonpaths.size(); i++){
+      delete filteredmuonpaths[i];
     }
-    muonpaths.clear();
+    filteredmuonpaths.clear();
+    
     
     //FILTER SECTIONS:
     
@@ -206,7 +221,7 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
     if(debug) std::cout<<"declaring new vector for filtered"<<std::endl;    
 
     std::vector<metaPrimitive> filteredMetaPrimitives;
-    mpathfilter->run(iEvent, iEventSetup, metaPrimitives, filteredMetaPrimitives);  // New grouping implementation
+    mpathqualityenhancer->run(iEvent, iEventSetup, metaPrimitives, filteredMetaPrimitives);  // New grouping implementation
     
     if (dump) {
       for (unsigned int i=0; i<filteredMetaPrimitives.size(); i++){
@@ -324,7 +339,8 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 void DTTrigPhase2Prod::endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) {
   grouping_obj->finish();
   mpathanalyzer->finish();
-  mpathfilter->finish();
+  mpathqualityenhancer->finish();
+  mpathredundantfilter->finish();
   mpathassociator->finish();
 };
 
