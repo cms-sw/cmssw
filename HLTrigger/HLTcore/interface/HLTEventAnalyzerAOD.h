@@ -24,32 +24,29 @@ namespace edm {
 //
 // class declaration
 //
-class HLTEventAnalyzerAOD : public edm::stream::EDAnalyzer< > {
-  
- public:
-  explicit HLTEventAnalyzerAOD(const edm::ParameterSet&);
+class HLTEventAnalyzerAOD : public edm::stream::EDAnalyzer<> {
+public:
+  explicit HLTEventAnalyzerAOD(const edm::ParameterSet &);
   ~HLTEventAnalyzerAOD() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
-  void endRun(edm::Run const &, edm::EventSetup const&) override;
-  void beginRun(edm::Run const &, edm::EventSetup const&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void analyzeTrigger(const edm::Event&, const edm::EventSetup&, const std::string& triggerName);
+  void endRun(edm::Run const &, edm::EventSetup const &) override;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  virtual void analyzeTrigger(const edm::Event &, const edm::EventSetup &, const std::string &triggerName);
 
- private:
-
+private:
   /// module config parameters
-  const std::string   processName_;
-  const std::string   triggerName_;
-  const edm::InputTag                           triggerResultsTag_;
-  const edm::EDGetTokenT<edm::TriggerResults>   triggerResultsToken_;
-  const edm::InputTag                           triggerEventTag_;
+  const std::string processName_;
+  const std::string triggerName_;
+  const edm::InputTag triggerResultsTag_;
+  const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+  const edm::InputTag triggerEventTag_;
   const edm::EDGetTokenT<trigger::TriggerEvent> triggerEventToken_;
 
   /// additional class data memebers
-  edm::Handle<edm::TriggerResults>   triggerResultsHandle_;
+  edm::Handle<edm::TriggerResults> triggerResultsHandle_;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle_;
   HLTPrescaleProvider hltPrescaleProvider_;
-
 };
 #endif

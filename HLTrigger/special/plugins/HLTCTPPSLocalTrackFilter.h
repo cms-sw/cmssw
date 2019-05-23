@@ -7,7 +7,6 @@
 // HLT filter module to select events with tracks in the CTPPS detector
 // </description>
 
-
 // include files
 #include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -18,16 +17,15 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"     // pixel
-#include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"        // strip
-#include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"   // diamond
+#include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"    // pixel
+#include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"       // strip
+#include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"  // diamond
 
 //
 // class declaration
 //
 
-class HLTCTPPSLocalTrackFilter : public edm::global::EDFilter<>
-{
+class HLTCTPPSLocalTrackFilter : public edm::global::EDFilter<> {
 public:
   explicit HLTCTPPSLocalTrackFilter(const edm::ParameterSet&);
   ~HLTCTPPSLocalTrackFilter() override;
@@ -38,13 +36,13 @@ public:
 private:
   edm::ParameterSet param_;
 
-  edm::InputTag pixelLocalTrackInputTag_; // Input tag identifying the pixel detector
+  edm::InputTag pixelLocalTrackInputTag_;  // Input tag identifying the pixel detector
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelLocalTrack>> pixelLocalTrackToken_;
 
-  edm::InputTag stripLocalTrackInputTag_; // Input tag identifying the strip detector
+  edm::InputTag stripLocalTrackInputTag_;  // Input tag identifying the strip detector
   edm::EDGetTokenT<edm::DetSetVector<TotemRPLocalTrack>> stripLocalTrackToken_;
 
-  edm::InputTag diamondLocalTrackInputTag_; // Input tag identifying the diamond detector
+  edm::InputTag diamondLocalTrackInputTag_;  // Input tag identifying the diamond detector
   edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondLocalTrack>> diamondLocalTrackToken_;
 
   bool usePixel_;

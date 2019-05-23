@@ -28,26 +28,25 @@ Implementation:
 //
 // constructors and destructor
 //
-HLTCSCActivityFilter::HLTCSCActivityFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
-  m_cscStripDigiTag( iConfig.getParameter<edm::InputTag>("cscStripDigiTag")),
-  m_MESR(            iConfig.getParameter<bool>("skipStationRing")),
-  m_RingNumb(        iConfig.getParameter<int>("skipRingNumber")),
-  m_StationNumb(     iConfig.getParameter<int>("skipStationNumber"))
-{
+HLTCSCActivityFilter::HLTCSCActivityFilter(const edm::ParameterSet& iConfig)
+    : HLTFilter(iConfig),
+      m_cscStripDigiTag(iConfig.getParameter<edm::InputTag>("cscStripDigiTag")),
+      m_MESR(iConfig.getParameter<bool>("skipStationRing")),
+      m_RingNumb(iConfig.getParameter<int>("skipRingNumber")),
+      m_StationNumb(iConfig.getParameter<int>("skipStationNumber")) {
   m_cscStripDigiToken = consumes<CSCStripDigiCollection>(m_cscStripDigiTag);
 }
 
 HLTCSCActivityFilter::~HLTCSCActivityFilter() = default;
 
-void
-HLTCSCActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTCSCActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("cscStripDigiTag",edm::InputTag("hltMuonCSCDigis","MuonCSCStripDigi"));
-  desc.add<bool>("skipStationRing",true);
-  desc.add<int>("skipRingNumber",1);
-  desc.add<int>("skipStationNumber",4);
-  descriptions.add("hltCSCActivityFilter",desc);
+  desc.add<edm::InputTag>("cscStripDigiTag", edm::InputTag("hltMuonCSCDigis", "MuonCSCStripDigi"));
+  desc.add<bool>("skipStationRing", true);
+  desc.add<int>("skipRingNumber", 1);
+  desc.add<int>("skipStationNumber", 4);
+  descriptions.add("hltCSCActivityFilter", desc);
 }
 
 //
@@ -55,7 +54,9 @@ HLTCSCActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
 //
 
 // ------------ method called on each new Event  ------------
-bool HLTCSCActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
+bool HLTCSCActivityFilter::hltFilter(edm::Event& iEvent,
+                                     const edm::EventSetup& iSetup,
+                                     trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   using namespace edm;
   using namespace std;
   using namespace trigger;
@@ -65,17 +66,17 @@ bool HLTCSCActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& 
   edm::Handle<CSCStripDigiCollection> cscStrips;
   iEvent.getByToken(m_cscStripDigiToken, cscStrips);
 
-  for (auto && dSDiter : *cscStrips) {
+  for (auto&& dSDiter : *cscStrips) {
     CSCDetId id = (CSCDetId)dSDiter.first;
-    bool thisME = ((id.station()== m_StationNumb) && (id.ring()== m_RingNumb));
+    bool thisME = ((id.station() == m_StationNumb) && (id.ring() == m_RingNumb));
     if (m_MESR && thisME)
       continue;
 
     auto stripIter = dSDiter.second.first;
-    auto lStrip    = dSDiter.second.second;
-    for( ; stripIter != lStrip; ++stripIter) {
-      const std::vector<int> & myADCVals = stripIter->getADCCounts();
-      const float pedestal  = 0.5 * (float) (myADCVals[0] + myADCVals[1]);
+    auto lStrip = dSDiter.second.second;
+    for (; stripIter != lStrip; ++stripIter) {
+      const std::vector<int>& myADCVals = stripIter->getADCCounts();
+      const float pedestal = 0.5 * (float)(myADCVals[0] + myADCVals[1]);
       const float threshold = 20;
       const float cut = pedestal + threshold;
       for (unsigned int i = 2; i < myADCVals.size(); ++i)
