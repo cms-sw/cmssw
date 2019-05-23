@@ -53,3 +53,22 @@ DDSpecParRegistry::filter(DDSpecParRefs& refs,
     }
   });
 }
+
+void
+DDSpecParRegistry::filter(DDSpecParRefs& refs,
+			  string_view attribute) const {
+
+  bool found(false);
+  for_each(begin(specpars), end(specpars), [&refs, &attribute,
+					    &found](const auto& k) {
+    found = false;
+    for_each(begin(k.second.spars), end(k.second.spars), [&](const auto& l) {
+	if(l.first == attribute) {
+	  found = true;
+	}
+      });
+    if(found) {
+      refs.emplace_back(&k.second);
+    }
+  });
+}
