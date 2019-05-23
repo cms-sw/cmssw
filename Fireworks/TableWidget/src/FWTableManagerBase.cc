@@ -2,7 +2,7 @@
 //
 // Package:     TableWidget
 // Class  :     FWTableManagerBase
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -16,7 +16,6 @@
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
 #include "Fireworks/TableWidget/interface/FWTableCellRendererBase.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -28,20 +27,14 @@
 //
 // constructors and destructor
 //
-FWTableManagerBase::FWTableManagerBase():
-m_sortColumn(-1),
-m_sortOrder(false)
-{
-}
+FWTableManagerBase::FWTableManagerBase() : m_sortColumn(-1), m_sortOrder(false) {}
 
 // FWTableManagerBase::FWTableManagerBase(const FWTableManagerBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWTableManagerBase::~FWTableManagerBase()
-{
-}
+FWTableManagerBase::~FWTableManagerBase() {}
 
 //
 // assignment operators
@@ -58,89 +51,66 @@ FWTableManagerBase::~FWTableManagerBase()
 //
 // member functions
 //
-void 
-FWTableManagerBase::sort(int col, bool sortOrder)
-{
-   if(col <= numberOfColumns()) {
-      m_sortColumn = col;
-      m_sortOrder = sortOrder;
-      implSort(col,sortOrder);
-      visualPropertiesChanged();
-   }
+void FWTableManagerBase::sort(int col, bool sortOrder) {
+  if (col <= numberOfColumns()) {
+    m_sortColumn = col;
+    m_sortOrder = sortOrder;
+    implSort(col, sortOrder);
+    visualPropertiesChanged();
+  }
 }
 
-void FWTableManagerBase::dataChanged()
-{
-   if(-1 != m_sortColumn) {
-      implSort(m_sortColumn,m_sortOrder);
-   }
-   Emit("dataChanged()");
+void FWTableManagerBase::dataChanged() {
+  if (-1 != m_sortColumn) {
+    implSort(m_sortColumn, m_sortOrder);
+  }
+  Emit("dataChanged()");
 }
-      
-void FWTableManagerBase::visualPropertiesChanged()
-{
-   Emit("visualPropertiesChanged()");
-}
+
+void FWTableManagerBase::visualPropertiesChanged() { Emit("visualPropertiesChanged()"); }
 
 //
 // const member functions
 //
-unsigned int FWTableManagerBase::cellHeight() const
-{
-   FWTableCellRendererBase* cr = cellRenderer(0,0);
-   if(cr) {
+unsigned int FWTableManagerBase::cellHeight() const {
+  FWTableCellRendererBase* cr = cellRenderer(0, 0);
+  if (cr) {
+    return cr->height();
+  }
+  if (hasRowHeaders()) {
+    cr = rowHeader(0);
+    if (cr) {
       return cr->height();
-   }
-   if(hasRowHeaders()) {
-      cr = rowHeader(0);
-      if(cr) {
-         return cr->height();
+    }
+  }
+  return 0;
+}
+
+std::vector<unsigned int> FWTableManagerBase::maxWidthForColumns() const {
+  std::vector<unsigned int> returnValue;
+  returnValue.reserve(numberOfColumns());
+  const int numCols = numberOfColumns();
+  const int numRows = numberOfRows();
+  for (int col = 0; col < numCols; ++col) {
+    unsigned int max = 0;
+    for (int row = 0; row < numRows; ++row) {
+      unsigned int width = cellRenderer(row, col)->width();
+      if (width > max) {
+        max = width;
       }
-   }
-   return 0;
-}
-      
-std::vector<unsigned int> FWTableManagerBase::maxWidthForColumns() const
-{
-   std::vector<unsigned int> returnValue;
-   returnValue.reserve(numberOfColumns());
-   const int numCols= numberOfColumns();
-   const int numRows = numberOfRows();
-   for(int col = 0; col < numCols; ++col) {
-      unsigned int max = 0;
-      for(int row=0; row < numRows; ++row) {
-         unsigned int width = cellRenderer(row,col)->width();
-         if(width > max) {
-            max = width;
-         }
-      }
-      returnValue.push_back(max);
-   }
-   return returnValue;
+    }
+    returnValue.push_back(max);
+  }
+  return returnValue;
 }
 
-bool FWTableManagerBase::hasLabelHeaders() const
-{
-   return true;
-}
+bool FWTableManagerBase::hasLabelHeaders() const { return true; }
 
-bool FWTableManagerBase::hasRowHeaders() const
-{
-   return false;
-}
-FWTableCellRendererBase* FWTableManagerBase::rowHeader(int iRow) const
-{
-   return nullptr;
-}
+bool FWTableManagerBase::hasRowHeaders() const { return false; }
+FWTableCellRendererBase* FWTableManagerBase::rowHeader(int iRow) const { return nullptr; }
 
-void 
-FWTableManagerBase::buttonPressedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY)
-{
-}
-void 
-FWTableManagerBase::buttonReleasedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY)
-{
-}
+void FWTableManagerBase::buttonPressedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY) {}
+void FWTableManagerBase::buttonReleasedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY) {}
 
 //
 // static member functions

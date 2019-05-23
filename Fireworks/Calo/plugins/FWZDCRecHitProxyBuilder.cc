@@ -9,22 +9,19 @@
 #include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
 
-
-class FWZDCRecHitProxyBuilder :  public FWCaloRecHitDigitSetProxyBuilder
-{
+class FWZDCRecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder {
 public:
-   FWZDCRecHitProxyBuilder( void ) {}  
-   ~FWZDCRecHitProxyBuilder( void ) override {}
+  FWZDCRecHitProxyBuilder(void) {}
+  ~FWZDCRecHitProxyBuilder(void) override {}
 
-   REGISTER_PROXYBUILDER_METHODS();
+  REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWZDCRecHitProxyBuilder( const FWZDCRecHitProxyBuilder& ) = delete;
-   const FWZDCRecHitProxyBuilder& operator=( const FWZDCRecHitProxyBuilder& ) = delete;	
+  FWZDCRecHitProxyBuilder(const FWZDCRecHitProxyBuilder&) = delete;
+  const FWZDCRecHitProxyBuilder& operator=(const FWZDCRecHitProxyBuilder&) = delete;
 };
 
-
-REGISTER_FWPROXYBUILDER( FWZDCRecHitProxyBuilder,  edm::SortedCollection<ZDCRecHit> , "ZDC RecHit", FWViewType::kISpyBit );
+REGISTER_FWPROXYBUILDER(FWZDCRecHitProxyBuilder, edm::SortedCollection<ZDCRecHit>, "ZDC RecHit", FWViewType::kISpyBit);
 
 // AMT scale box round center. Scaling and e/et mode added now. Previusly used energyTower3DCorners().
 
