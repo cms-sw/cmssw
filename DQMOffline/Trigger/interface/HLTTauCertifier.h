@@ -4,7 +4,6 @@ University of Wisconsin-Madison
 bachtis@hep.wisc.edu
 */
 
- 
 #include <memory>
 #include <unistd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -20,7 +19,7 @@ bachtis@hep.wisc.edu
 
 class HLTTauCertifier : public DQMEDHarvester {
 public:
-  HLTTauCertifier( const edm::ParameterSet& );
+  HLTTauCertifier(const edm::ParameterSet &);
   ~HLTTauCertifier() override;
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
@@ -32,4 +31,3 @@ private:
   bool setBadRunOnWarnings_;
   bool setBadRunOnErrors_;
 };
-

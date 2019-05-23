@@ -47,68 +47,65 @@ Implementation:
 //
 
 class GeneralHLTOffline : public DQMEDAnalyzer {
- public:
-  explicit GeneralHLTOffline(const edm::ParameterSet&);
+public:
+  explicit GeneralHLTOffline(const edm::ParameterSet &);
   ~GeneralHLTOffline() override;
 
- private:
+private:
   // virtual void beginJob() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const & iRun,
-			      edm::EventSetup const & iSetup) override;
-  void dqmBeginRun(edm::Run const& iRun,edm::EventSetup const& iSetup) override;
-  virtual void setupHltMatrix(DQMStore::IBooker & iBooker, const std::string &, int);
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &iRun, edm::EventSetup const &iSetup) override;
+  void dqmBeginRun(edm::Run const &iRun, edm::EventSetup const &iSetup) override;
+  virtual void setupHltMatrix(DQMStore::IBooker &iBooker, const std::string &, int);
   virtual void fillHltMatrix(const std::string &,
                              const std::string &,
                              bool,
                              bool,
-			     edm::Handle<trigger::TriggerEventWithRefs>,
-			     edm::Handle<trigger::TriggerEvent>);
+                             edm::Handle<trigger::TriggerEventWithRefs>,
+                             edm::Handle<trigger::TriggerEvent>);
 
   // ----------member data ---------------------------
-
 
   bool debugPrint;
   bool outputPrint;
   bool streamA_found_;
   HLTConfigProvider hlt_config_;
 
-
   std::string plotDirectoryName;
   std::string hltTag;
   std::string hlt_menu_;
-  std::vector< std::vector<std::string> > PDsVectorPathsVector;
+  std::vector<std::vector<std::string> > PDsVectorPathsVector;
   std::vector<std::string> AddedDatasets;
   std::vector<std::string> DataSetNames;
-  std::map< std::string, std::vector<std::string> > PathModules;
-  edm::EDGetTokenT <edm::TriggerResults>   triggerResultsToken;
-  edm::EDGetTokenT <trigger::TriggerEventWithRefs> triggerSummaryTokenRAW;
-  edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryTokenAOD;
+  std::map<std::string, std::vector<std::string> > PathModules;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
+  edm::EDGetTokenT<trigger::TriggerEventWithRefs> triggerSummaryTokenRAW;
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryTokenAOD;
 
-  MonitorElement * cppath_;
-  std::map<std::string, MonitorElement*> cppath_mini_;
-  std::map<std::string, MonitorElement*> cpfilt_mini_;
-  std::map<std::string, TH1F*> hist_cpfilt_mini_;
-
+  MonitorElement *cppath_;
+  std::map<std::string, MonitorElement *> cppath_mini_;
+  std::map<std::string, MonitorElement *> cpfilt_mini_;
+  std::map<std::string, TH1F *> hist_cpfilt_mini_;
 };
 
 //
 // constructors and destructor
 //
-GeneralHLTOffline::GeneralHLTOffline(const edm::ParameterSet& ps):streamA_found_(false),
-                                                                  hlt_menu_(""),
-                                                                  cppath_(nullptr) {
-  debugPrint  = false;
+GeneralHLTOffline::GeneralHLTOffline(const edm::ParameterSet &ps)
+    : streamA_found_(false), hlt_menu_(""), cppath_(nullptr) {
+  debugPrint = false;
   outputPrint = false;
 
-  plotDirectoryName = ps.getUntrackedParameter<std::string>("dirname",
-                                                            "HLT/General");
+  plotDirectoryName = ps.getUntrackedParameter<std::string>("dirname", "HLT/General");
 
-  hltTag = ps.getParameter<std::string> ("HltProcessName");
+  hltTag = ps.getParameter<std::string>("HltProcessName");
 
-  triggerSummaryTokenRAW = consumes <trigger::TriggerEventWithRefs> (edm::InputTag(std::string("hltTriggerSummaryRAW"), std::string(""), hltTag));
-  triggerSummaryTokenAOD = consumes <trigger::TriggerEvent> (edm::InputTag(std::string("hltTriggerSummaryAOD"), std::string(""), hltTag));
-  triggerResultsToken = consumes <edm::TriggerResults>   (edm::InputTag(std::string("TriggerResults"), std::string(""), hltTag));
+  triggerSummaryTokenRAW = consumes<trigger::TriggerEventWithRefs>(
+      edm::InputTag(std::string("hltTriggerSummaryRAW"), std::string(""), hltTag));
+  triggerSummaryTokenAOD =
+      consumes<trigger::TriggerEvent>(edm::InputTag(std::string("hltTriggerSummaryAOD"), std::string(""), hltTag));
+  triggerResultsToken =
+      consumes<edm::TriggerResults>(edm::InputTag(std::string("TriggerResults"), std::string(""), hltTag));
 
   if (debugPrint) {
     std::cout << "Inside Constructor" << std::endl;
@@ -116,16 +113,12 @@ GeneralHLTOffline::GeneralHLTOffline(const edm::ParameterSet& ps):streamA_found_
   }
 }
 
-
 GeneralHLTOffline::~GeneralHLTOffline() = default;
 
 // ------------ method called for each event  ------------
-void
-GeneralHLTOffline::analyze(const edm::Event& iEvent,
-                           const edm::EventSetup& iSetup) {
+void GeneralHLTOffline::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   if (debugPrint)
-    std::cout << "Inside analyze - run, block, event "
-              << iEvent.id().run() << " , " << iEvent.id().luminosityBlock()
+    std::cout << "Inside analyze - run, block, event " << iEvent.id().run() << " , " << iEvent.id().luminosityBlock()
               << " , " << iEvent.id() << " , " << std::endl;
 
   // Access Trigger Results
@@ -148,49 +141,45 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
   iEvent.getByToken(triggerSummaryTokenAOD, aodTriggerEvent);
 
   bool hasRawTriggerEvent = true;
-  if( !rawTriggerEvent.isValid() ){
+  if (!rawTriggerEvent.isValid()) {
     hasRawTriggerEvent = false;
     if (debugPrint)
       std::cout << "No RAW trigger summary found! Returning...";
 
-    if( !aodTriggerEvent.isValid() ){
+    if (!aodTriggerEvent.isValid()) {
       if (debugPrint)
-	std::cout << "No AOD trigger summary found! Returning...";
+        std::cout << "No AOD trigger summary found! Returning...";
       return;
     }
   }
 
   if (streamA_found_) {
-    const std::vector<std::string> &datasetNames =  DataSetNames;
+    const std::vector<std::string> &datasetNames = DataSetNames;
     // Loop over PDs
     for (unsigned int iPD = 0; iPD < datasetNames.size(); iPD++) {
       // Loop over Paths in each PD
-      for (unsigned int iPath = 0;
-           iPath < PDsVectorPathsVector[iPD].size(); iPath++) {
+      for (unsigned int iPath = 0; iPath < PDsVectorPathsVector[iPD].size(); iPath++) {
         std::string &pathName = PDsVectorPathsVector[iPD][iPath];
         unsigned int index = hlt_config_.triggerIndex(pathName);
-	if (debugPrint) {
+        if (debugPrint) {
           std::cout << "Looking at path " << pathName << std::endl;
-          std::cout << "Index = " << index
-                    << " triggerResults->size() = " << triggerResults->size()
-                    << std::endl;
-	}
+          std::cout << "Index = " << index << " triggerResults->size() = " << triggerResults->size() << std::endl;
+        }
 
         // fill the histos with empty weights......
         const std::string &label = datasetNames[iPD];
-        std::string fullPathToCPP = "HLT/GeneralHLTOffline/"
-            + label + "/cppath_" + label + hlt_menu_;
-        MonitorElement * ME_mini_cppath = nullptr;
-        TH1F * hist_mini_cppath = nullptr;
-        if( cppath_mini_.find(fullPathToCPP)!=cppath_mini_.end() ){
-	  ME_mini_cppath = cppath_mini_[fullPathToCPP];
+        std::string fullPathToCPP = "HLT/GeneralHLTOffline/" + label + "/cppath_" + label + hlt_menu_;
+        MonitorElement *ME_mini_cppath = nullptr;
+        TH1F *hist_mini_cppath = nullptr;
+        if (cppath_mini_.find(fullPathToCPP) != cppath_mini_.end()) {
+          ME_mini_cppath = cppath_mini_[fullPathToCPP];
           hist_mini_cppath = ME_mini_cppath->getTH1F();
-	}
+        }
 
         if (hist_mini_cppath) {
-          TAxis * axis = hist_mini_cppath->GetXaxis();
+          TAxis *axis = hist_mini_cppath->GetXaxis();
           if (axis) {
-	    std::string pathNameNoVer = hlt_config_.removeVersion(PDsVectorPathsVector[iPD][iPath]);
+            std::string pathNameNoVer = hlt_config_.removeVersion(PDsVectorPathsVector[iPD][iPath]);
             int bin_num = axis->FindBin(pathNameNoVer.c_str());
             int bn = bin_num - 1;
             hist_mini_cppath->Fill(bn, 0);
@@ -198,27 +187,20 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
           }
         }
 
-        if( index < triggerResults->size() ) {
-	  bool accept = triggerResults->accept(index);
-	  if( accept ) cppath_->Fill(index, 1);
+        if (index < triggerResults->size()) {
+          bool accept = triggerResults->accept(index);
+          if (accept)
+            cppath_->Fill(index, 1);
 
-	  fillHltMatrix(datasetNames[iPD], pathName,
-			accept,
-			hasRawTriggerEvent,
-			rawTriggerEvent,
-			aodTriggerEvent);
+          fillHltMatrix(datasetNames[iPD], pathName, accept, hasRawTriggerEvent, rawTriggerEvent, aodTriggerEvent);
         }  // end if (index < triggerResults->size())
-      }  // end Loop over Paths in each PD
-    }  // end Loop over PDs
+      }    // end Loop over Paths in each PD
+    }      // end Loop over PDs
   }
 }
 
-
-
 // ------------ method called when starting to processes a run  ------------
-void
-GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
-			       edm::EventSetup const& iSetup) {
+void GeneralHLTOffline::dqmBeginRun(edm::Run const &iRun, edm::EventSetup const &iSetup) {
   if (debugPrint)
     std::cout << "Inside beginRun" << std::endl;
 
@@ -230,7 +212,6 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
   DataSetNames.clear();
   PathModules.clear();
 
-
   bool changed = true;
   if (!hlt_config_.init(iRun, iSetup, hltTag, changed)) {
     if (debugPrint) {
@@ -239,8 +220,7 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
     }
   } else {
     if (debugPrint)
-      std::cout << " HLTConfig processName " << hlt_config_.processName()
-                << " tableName " << hlt_config_.tableName()
+      std::cout << " HLTConfig processName " << hlt_config_.processName() << " tableName " << hlt_config_.tableName()
                 << " size " << hlt_config_.size() << std::endl;
   }
   hlt_menu_ = hlt_config_.tableName();
@@ -248,48 +228,45 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
     if (hlt_menu_[n] == '/' || hlt_menu_[n] == '.')
       hlt_menu_[n] = '_';
 
-
   const std::vector<std::string> &nameStreams = hlt_config_.streamNames();
   auto si = nameStreams.begin();
   auto se = nameStreams.end();
   std::vector<std::string> datasetNames;
 
-  for ( ; si != se; ++si) {
-    if (debugPrint) std::cout << "This is stream " << *si << std::endl;
+  for (; si != se; ++si) {
+    if (debugPrint)
+      std::cout << "This is stream " << *si << std::endl;
 
-    if ( ((*si).find("Physics") != std::string::npos) ||((*si).find("Scouting") != std::string::npos) ||((*si).find("Parking") != std::string::npos) || (*si) == "A") {
+    if (((*si).find("Physics") != std::string::npos) || ((*si).find("Scouting") != std::string::npos) ||
+        ((*si).find("Parking") != std::string::npos) || (*si) == "A") {
       streamA_found_ = true;
 
       std::vector<std::string> datasetperStream = hlt_config_.streamContent(*si);
-      
-      for (auto const & di: datasetperStream) {
-	datasetNames.push_back(di);
+
+      for (auto const &di : datasetperStream) {
+        datasetNames.push_back(di);
       }
     }
   }
 
-  if (debugPrint) std::cout << "Number of total  datasets " << datasetNames.size() << std::endl;
-
+  if (debugPrint)
+    std::cout << "Number of total  datasets " << datasetNames.size() << std::endl;
 
   if (streamA_found_) {
-   
     DataSetNames = datasetNames;
-    
+
     if (debugPrint)
-      std::cout << "Number of datasets to be monitored "
-                << datasetNames.size() << std::endl;
-    
-    for (auto const & datasetName : datasetNames) {
+      std::cout << "Number of datasets to be monitored " << datasetNames.size() << std::endl;
+
+    for (auto const &datasetName : datasetNames) {
       const std::vector<std::string> &datasetPaths = hlt_config_.datasetContent(datasetName);
       if (debugPrint) {
-        std::cout << "This is dataset " << datasetName
-                  << "datasetPaths.size() = " << datasetPaths.size() << std::endl;
-        for (auto const & datasetPath : datasetPaths) {
-          std::cout << "Paths in begin job "
-                    << datasetPath << std::endl;
+        std::cout << "This is dataset " << datasetName << "datasetPaths.size() = " << datasetPaths.size() << std::endl;
+        for (auto const &datasetPath : datasetPaths) {
+          std::cout << "Paths in begin job " << datasetPath << std::endl;
         }
       }
-      
+
       // Check if dataset has been added - if not add it
       // need to loop through AddedDatasets and compare
       bool foundDataset = false;
@@ -299,16 +276,14 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
           foundDataset = true;
           datasetNum = d;
           if (debugPrint)
-            std::cout << "Dataset " << datasetName
-                      << " found in AddedDatasets at position " << d << std::endl;
+            std::cout << "Dataset " << datasetName << " found in AddedDatasets at position " << d << std::endl;
           break;
         }
       }
-      
+
       if (!foundDataset) {
         if (debugPrint)
-          std::cout << " Fill trigger paths for dataset "
-                    << datasetName << std::endl;
+          std::cout << " Fill trigger paths for dataset " << datasetName << std::endl;
         PDsVectorPathsVector.push_back(datasetPaths);
         // store dataset pathname
         AddedDatasets.push_back(datasetName);
@@ -324,21 +299,20 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
                     << "trigger paths per dataset " << std::endl;
         // Loop over correct path of PDsVectorPathsVector
         bool found = false;
-	
+
         // Loop over triggers in the path
         for (unsigned int iTrig = 0; iTrig < datasetPaths.size(); iTrig++) {
           if (debugPrint)
-            std::cout << "Looping over trigger list in dataset "
-                      <<  iTrig <<  "  "
-                      << datasetPaths[iTrig] << std::endl;
+            std::cout << "Looping over trigger list in dataset " << iTrig << "  " << datasetPaths[iTrig] << std::endl;
           found = false;
           // Loop over triggers already on the list
           for (unsigned int od = 0; od < PDsVectorPathsVector[datasetNum].size(); od++) {
             if (debugPrint)
-              std::cout << "Looping over existing trigger list " << od
-                        <<  "  " << PDsVectorPathsVector[datasetNum][od] << std::endl;
+              std::cout << "Looping over existing trigger list " << od << "  " << PDsVectorPathsVector[datasetNum][od]
+                        << std::endl;
             // Compare, see if match is found
-            if (hlt_config_.removeVersion(datasetPaths[iTrig]) == hlt_config_.removeVersion(PDsVectorPathsVector[datasetNum][od])) {
+            if (hlt_config_.removeVersion(datasetPaths[iTrig]) ==
+                hlt_config_.removeVersion(PDsVectorPathsVector[datasetNum][od])) {
               found = true;
               if (debugPrint)
                 std::cout << " FOUND " << datasetPaths[iTrig] << std::endl;
@@ -349,92 +323,81 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
           if (!found)
             PDsVectorPathsVector[datasetNum].push_back(datasetPaths[iTrig]);
           if (debugPrint)
-            std::cout << datasetPaths[iTrig]
-                      << "  NOT FOUND - so we added it to the correct dataset "
-                      << datasetName << std::endl;
+            std::cout << datasetPaths[iTrig] << "  NOT FOUND - so we added it to the correct dataset " << datasetName
+                      << std::endl;
         }
       }
       // Let's check this whole big structure
       if (debugPrint) {
         for (unsigned int is = 0; is < PDsVectorPathsVector.size(); is++) {
-          std::cout << "   PDsVectorPathsVector[" << is << "] is "
-                    << PDsVectorPathsVector[is].size() << std::endl;
+          std::cout << "   PDsVectorPathsVector[" << is << "] is " << PDsVectorPathsVector[is].size() << std::endl;
           for (unsigned int ip = 0; ip < PDsVectorPathsVector[is].size(); ip++) {
-            std::cout << "    trigger " << ip << " path "
-                      << PDsVectorPathsVector[is][ip] << std::endl;
+            std::cout << "    trigger " << ip << " path " << PDsVectorPathsVector[is][ip] << std::endl;
           }
         }
       }
 
       if (debugPrint)
-        std::cout <<"Found PD: " << datasetName << std::endl;
+        std::cout << "Found PD: " << datasetName << std::endl;
     }  // end of loop over dataset names
-
-
 
     std::vector<std::string> triggerNames = hlt_config_.triggerNames();
 
-    for(auto pathName : triggerNames){
-      const std::vector<std::string>& moduleLabels = hlt_config_.moduleLabels(pathName);
-      auto NumModules = int( moduleLabels.size() );
+    for (auto pathName : triggerNames) {
+      const std::vector<std::string> &moduleLabels = hlt_config_.moduleLabels(pathName);
+      auto NumModules = int(moduleLabels.size());
 
-      if( !(pathName.find("HLT_") != std::string::npos) ) continue;
-      if( (pathName.find("HLT_Physics")!=std::string::npos) ||
-	  (pathName.find("HLT_Random")!=std::string::npos) ) continue;
+      if (!(pathName.find("HLT_") != std::string::npos))
+        continue;
+      if ((pathName.find("HLT_Physics") != std::string::npos) || (pathName.find("HLT_Random") != std::string::npos))
+        continue;
 
       std::string prefix("hltPre");
 
       std::vector<std::string> good_module_names;
       good_module_names.clear();
-      for( int iMod=0; iMod<NumModules; iMod++ ){
-	std::string moduleType = hlt_config_.moduleType(moduleLabels[iMod]);
-	std::string moduleEDMType = hlt_config_.moduleEDMType(moduleLabels[iMod]);
-	if( !(moduleEDMType == "EDFilter") ) continue;
-	if( moduleType.find("Selector")!= std::string::npos ) continue;
-	if( moduleType == "HLTTriggerTypeFilter" || 
-	    moduleType == "HLTBool" ||
-	    moduleType == "PrimaryVertexObjectFilter" ||
-	    moduleType == "JetVertexChecker" ||
-	    moduleType == "HLTRHemisphere" ||
-	    moduleType == "DetectorStateFilter" ) continue;
+      for (int iMod = 0; iMod < NumModules; iMod++) {
+        std::string moduleType = hlt_config_.moduleType(moduleLabels[iMod]);
+        std::string moduleEDMType = hlt_config_.moduleEDMType(moduleLabels[iMod]);
+        if (!(moduleEDMType == "EDFilter"))
+          continue;
+        if (moduleType.find("Selector") != std::string::npos)
+          continue;
+        if (moduleType == "HLTTriggerTypeFilter" || moduleType == "HLTBool" ||
+            moduleType == "PrimaryVertexObjectFilter" || moduleType == "JetVertexChecker" ||
+            moduleType == "HLTRHemisphere" || moduleType == "DetectorStateFilter")
+          continue;
 
-	if( moduleLabels[iMod].compare(0, prefix.length(), prefix) == 0 ) continue;
-	good_module_names.push_back(moduleLabels[iMod]);
+        if (moduleLabels[iMod].compare(0, prefix.length(), prefix) == 0)
+          continue;
+        good_module_names.push_back(moduleLabels[iMod]);
       }
       PathModules[pathName] = good_module_names;
-    } // loop over paths
+    }  // loop over paths
 
   }  // if stream A or Physics streams found
-
-
 }
 
-
 // ------------ method called to book histograms before starting event loop  ------------
-void GeneralHLTOffline::bookHistograms(DQMStore::IBooker & iBooker,
-				       edm::Run const & iRun,
-				       edm::EventSetup const & iSetup)
-{
-  iBooker.setCurrentFolder(plotDirectoryName) ;
+void GeneralHLTOffline::bookHistograms(DQMStore::IBooker &iBooker,
+                                       edm::Run const &iRun,
+                                       edm::EventSetup const &iSetup) {
+  iBooker.setCurrentFolder(plotDirectoryName);
 
   //////////// Book a simple ME
 
   iBooker.setCurrentFolder("HLT/GeneralHLTOffline/");
   iBooker.bookString("hltMenuName", hlt_menu_.c_str());
-  cppath_ = iBooker.book1D("cppath" + hlt_menu_,
-			   "Counts/Path",
-			   hlt_config_.size(), 0, hlt_config_.size());
+  cppath_ = iBooker.book1D("cppath" + hlt_menu_, "Counts/Path", hlt_config_.size(), 0, hlt_config_.size());
 
   if (streamA_found_) {
-
     for (unsigned int iPD = 0; iPD < DataSetNames.size(); iPD++)
       setupHltMatrix(iBooker, DataSetNames[iPD], iPD);
 
   }  // if stream A or Physics streams are found
 }  // end of bookHistograms
 
-
-void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::string & label, int iPD) {
+void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker &iBooker, const std::string &label, int iPD) {
   std::string h_name;
   std::string h_title;
   std::string pathName;
@@ -453,13 +416,9 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
 
   std::string dnamez = "cppath_" + label + "_" + hlt_menu_;
   int sizez = PDsVectorPathsVector[iPD].size();
-  TH1F * hist_mini_cppath = nullptr;
-  cppath_mini_[dnamez] = iBooker.book1D(dnamez.c_str(),
-					dnamez.c_str(),
-					sizez,
-					0,
-					sizez);
-  if( cppath_mini_[dnamez] )
+  TH1F *hist_mini_cppath = nullptr;
+  cppath_mini_[dnamez] = iBooker.book1D(dnamez.c_str(), dnamez.c_str(), sizez, 0, sizez);
+  if (cppath_mini_[dnamez])
     hist_mini_cppath = cppath_mini_[dnamez]->getTH1F();
 
   unsigned int jPath;
@@ -468,7 +427,7 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
     jPath = iPath + 1;
 
     if (hist_mini_cppath) {
-      TAxis * axis = hist_mini_cppath->GetXaxis();
+      TAxis *axis = hist_mini_cppath->GetXaxis();
       if (axis)
         axis->SetBinLabel(jPath, pathName.c_str());
     }
@@ -476,26 +435,24 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
     std::string pathNameVer = PDsVectorPathsVector[iPD][iPath];
 
     std::vector<std::string> moduleLabels = PathModules[pathNameVer];
-    auto NumModules = int( moduleLabels.size() );
+    auto NumModules = int(moduleLabels.size());
 
-    if( NumModules==0 ) continue;
+    if (NumModules == 0)
+      continue;
 
     std::string pathName_dataset = "cpfilt_" + label + "_" + pathName;
 
-    cpfilt_mini_[pathName_dataset] = iBooker.book1D(pathName_dataset.c_str(),
-							  pathName.c_str(),
-							  NumModules,
-							  0,
-							  NumModules);
+    cpfilt_mini_[pathName_dataset] =
+        iBooker.book1D(pathName_dataset.c_str(), pathName.c_str(), NumModules, 0, NumModules);
 
-    if( cpfilt_mini_[pathName_dataset] )
+    if (cpfilt_mini_[pathName_dataset])
       hist_cpfilt_mini_[pathName_dataset] = cpfilt_mini_[pathName_dataset]->getTH1F();
 
-    for( int iMod=0; iMod<NumModules; iMod++ ){
-      if( cpfilt_mini_[pathName_dataset] && hist_cpfilt_mini_[pathName_dataset] ){
-	TAxis * axis = hist_cpfilt_mini_[pathName_dataset]->GetXaxis();
-	if (axis)
-	  axis->SetBinLabel(iMod+1,moduleLabels[iMod].c_str());
+    for (int iMod = 0; iMod < NumModules; iMod++) {
+      if (cpfilt_mini_[pathName_dataset] && hist_cpfilt_mini_[pathName_dataset]) {
+        TAxis *axis = hist_cpfilt_mini_[pathName_dataset]->GetXaxis();
+        if (axis)
+          axis->SetBinLabel(iMod + 1, moduleLabels[iMod].c_str());
       }
     }
 
@@ -504,102 +461,99 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
   }
 
   if (debugPrint)
-    std::cout << "Success setupHltMatrix( " << label << " , "
-              << iPD << " )" << std::endl;
+    std::cout << "Success setupHltMatrix( " << label << " , " << iPD << " )" << std::endl;
 }  // End setupHltMatrix
 
-
-void GeneralHLTOffline::fillHltMatrix(const std::string & label,
-                                      const std::string & path,
+void GeneralHLTOffline::fillHltMatrix(const std::string &label,
+                                      const std::string &path,
                                       bool accept,
-				      bool hasRawTriggerEvent,
-				      edm::Handle<trigger::TriggerEventWithRefs> triggerEventRAW,
-				      edm::Handle<trigger::TriggerEvent> triggerEventAOD) {
+                                      bool hasRawTriggerEvent,
+                                      edm::Handle<trigger::TriggerEventWithRefs> triggerEventRAW,
+                                      edm::Handle<trigger::TriggerEvent> triggerEventAOD) {
   if (debugPrint)
-    std::cout << "Inside fillHltMatrix( " << label << " , "
-              << path << " ) " << std::endl;
+    std::cout << "Inside fillHltMatrix( " << label << " , " << path << " ) " << std::endl;
 
   std::string fullPathToCPP;
 
   fullPathToCPP = "HLT/GeneralHLTOffline/" + label + "/cppath_" + label + "_" + hlt_menu_;
-  
+
   std::string dnamez = "cppath_" + label + "_" + hlt_menu_;
 
-  TH1F * hist_mini_cppath = nullptr;
-  MonitorElement * ME_mini_cppath = nullptr;
-  if( cppath_mini_.find(dnamez)!=cppath_mini_.end() ){
+  TH1F *hist_mini_cppath = nullptr;
+  MonitorElement *ME_mini_cppath = nullptr;
+  if (cppath_mini_.find(dnamez) != cppath_mini_.end()) {
     ME_mini_cppath = cppath_mini_[dnamez];
     hist_mini_cppath = ME_mini_cppath->getTH1F();
   }
 
   std::string pathNameNoVer = hlt_config_.removeVersion(path);
 
-  if( (path.find("HLT_") != std::string::npos) && 
-      !(path.find("HLT_Physics")!=std::string::npos) && 
-      !(path.find("HLT_Random")!=std::string::npos) ){
-
+  if ((path.find("HLT_") != std::string::npos) && !(path.find("HLT_Physics") != std::string::npos) &&
+      !(path.find("HLT_Random") != std::string::npos)) {
     unsigned int triggerEventSize = 0;
-    if( hasRawTriggerEvent && triggerEventRAW.isValid() ) triggerEventSize = triggerEventRAW->size();
-    else if( triggerEventAOD.isValid() ) triggerEventSize = triggerEventAOD->sizeFilters();
+    if (hasRawTriggerEvent && triggerEventRAW.isValid())
+      triggerEventSize = triggerEventRAW->size();
+    else if (triggerEventAOD.isValid())
+      triggerEventSize = triggerEventAOD->sizeFilters();
 
     std::string pathName_dataset = "cpfilt_" + label + "_" + pathNameNoVer;
 
-    TH1F * hist_cpfilt_mini = nullptr;
-    MonitorElement * ME_cpfilt_mini = nullptr;
-    if( cpfilt_mini_.find(pathName_dataset)!=cpfilt_mini_.end() ){
+    TH1F *hist_cpfilt_mini = nullptr;
+    MonitorElement *ME_cpfilt_mini = nullptr;
+    if (cpfilt_mini_.find(pathName_dataset) != cpfilt_mini_.end()) {
       ME_cpfilt_mini = cpfilt_mini_[pathName_dataset];
       hist_cpfilt_mini = ME_cpfilt_mini->getTH1F();
     }
 
-
     std::vector<std::string> moduleLabels = PathModules[path];
-    auto NumModules = int( moduleLabels.size() );
+    auto NumModules = int(moduleLabels.size());
 
-    for( int iMod=0; iMod<NumModules; iMod++ ){
-      edm::InputTag moduleWhoseResultsWeWant(moduleLabels[iMod],
-					     "",
-					     hltTag);
+    for (int iMod = 0; iMod < NumModules; iMod++) {
+      edm::InputTag moduleWhoseResultsWeWant(moduleLabels[iMod], "", hltTag);
 
       unsigned int idx_module_trg = 0;
-      if( hasRawTriggerEvent && triggerEventRAW.isValid() ) idx_module_trg = triggerEventRAW->filterIndex(moduleWhoseResultsWeWant);
-      else if( triggerEventAOD.isValid() ) idx_module_trg = triggerEventAOD->filterIndex(moduleWhoseResultsWeWant);
-  
-      if( !(idx_module_trg < triggerEventSize) ) continue;
-      if( hist_cpfilt_mini ){
-	TAxis * axis = hist_cpfilt_mini->GetXaxis();
-	int bin_num = axis->FindBin(moduleLabels[iMod].c_str());
-	int bn = bin_num - 1;
+      if (hasRawTriggerEvent && triggerEventRAW.isValid())
+        idx_module_trg = triggerEventRAW->filterIndex(moduleWhoseResultsWeWant);
+      else if (triggerEventAOD.isValid())
+        idx_module_trg = triggerEventAOD->filterIndex(moduleWhoseResultsWeWant);
 
-	if( bin_num!=1 && hasRawTriggerEvent ){
-	  bool passPreviousFilters = true;
-	  for( int ibin = bin_num-1; ibin>0; ibin-- ){ 
-	    std::string previousFilter(axis->GetBinLabel(ibin));
-	    edm::InputTag previousModuleWhoseResultsWeWant(previousFilter,
-							   "",
-							   hltTag);
-	    unsigned int idx_previous_module_trg = 0;
-	    if( hasRawTriggerEvent && triggerEventRAW.isValid() ) idx_previous_module_trg = triggerEventRAW->filterIndex(previousModuleWhoseResultsWeWant);
-	    else if( triggerEventAOD.isValid() ) idx_previous_module_trg = triggerEventAOD->filterIndex(previousModuleWhoseResultsWeWant);
+      if (!(idx_module_trg < triggerEventSize))
+        continue;
+      if (hist_cpfilt_mini) {
+        TAxis *axis = hist_cpfilt_mini->GetXaxis();
+        int bin_num = axis->FindBin(moduleLabels[iMod].c_str());
+        int bn = bin_num - 1;
 
-	    if( !(idx_previous_module_trg < triggerEventSize) ){
-	      passPreviousFilters = false;
-	      break;
-	    }
-	  }
-	  // Only fill if previous filters have been passed
-	  if( passPreviousFilters ) hist_cpfilt_mini->Fill(bn, 1);
-	}
-	else hist_cpfilt_mini->Fill(bn, 1);
+        if (bin_num != 1 && hasRawTriggerEvent) {
+          bool passPreviousFilters = true;
+          for (int ibin = bin_num - 1; ibin > 0; ibin--) {
+            std::string previousFilter(axis->GetBinLabel(ibin));
+            edm::InputTag previousModuleWhoseResultsWeWant(previousFilter, "", hltTag);
+            unsigned int idx_previous_module_trg = 0;
+            if (hasRawTriggerEvent && triggerEventRAW.isValid())
+              idx_previous_module_trg = triggerEventRAW->filterIndex(previousModuleWhoseResultsWeWant);
+            else if (triggerEventAOD.isValid())
+              idx_previous_module_trg = triggerEventAOD->filterIndex(previousModuleWhoseResultsWeWant);
 
+            if (!(idx_previous_module_trg < triggerEventSize)) {
+              passPreviousFilters = false;
+              break;
+            }
+          }
+          // Only fill if previous filters have been passed
+          if (passPreviousFilters)
+            hist_cpfilt_mini->Fill(bn, 1);
+        } else
+          hist_cpfilt_mini->Fill(bn, 1);
       }
     }
-  }
-  else{
-    if (debugPrint) std::cout << "No AOD trigger summary found! Returning..." << std::endl;
+  } else {
+    if (debugPrint)
+      std::cout << "No AOD trigger summary found! Returning..." << std::endl;
   }
 
-  if( accept && hist_mini_cppath ){
-    TAxis * axis = hist_mini_cppath->GetXaxis();
+  if (accept && hist_mini_cppath) {
+    TAxis *axis = hist_mini_cppath->GetXaxis();
     int bin_num = axis->FindBin(pathNameNoVer.c_str());
     int bn = bin_num - 1;
     hist_mini_cppath->Fill(bn, 1);
@@ -608,6 +562,5 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
   if (debugPrint)
     std::cout << "hist->Fill" << std::endl;
 }  // End fillHltMatrix
-
 
 DEFINE_FWK_MODULE(GeneralHLTOffline);

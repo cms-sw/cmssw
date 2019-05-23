@@ -34,18 +34,14 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include<vector>
-#include<string>
-
+#include <vector>
+#include <string>
 
 //////////////////////////////////////////////////////////////////////////////
 ///Container Class Definition (this is what is used by the DQM module) ///////
 
-class HLTMuonMatchAndPlotContainer 
-{
-
- public:
-
+class HLTMuonMatchAndPlotContainer {
+public:
   /// Constructor
   HLTMuonMatchAndPlotContainer(edm::ConsumesCollector &&, const edm::ParameterSet &);
 
@@ -60,8 +56,7 @@ class HLTMuonMatchAndPlotContainer
   void analyze(const edm::Event &, const edm::EventSetup &);
   void endRun(const edm::Run &, const edm::EventSetup &);
 
- private:
-
+private:
   std::vector<HLTMuonMatchAndPlot> plotters_;
 
   edm::EDGetTokenT<reco::BeamSpot> bsToken_;
@@ -69,10 +64,7 @@ class HLTMuonMatchAndPlotContainer
   edm::EDGetTokenT<reco::VertexCollection> pvToken_;
 
   edm::EDGetTokenT<trigger::TriggerEvent> trigSummaryToken_;
-  edm::EDGetTokenT<edm::TriggerResults>   trigResultsToken_;
-  
+  edm::EDGetTokenT<edm::TriggerResults> trigResultsToken_;
 };
 
 #endif
- 
-
