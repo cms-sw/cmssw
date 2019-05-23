@@ -14,21 +14,17 @@ POOL object to store HcalChannelStatus
 
 //typedef HcalCondObjectContainer<HcalChannelStatus> HcalChannelQuality;
 
-class HcalChannelQuality: public HcalCondObjectContainer<HcalChannelStatus>
-{
- public:
+class HcalChannelQuality : public HcalCondObjectContainer<HcalChannelStatus> {
+public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalChannelQuality():HcalCondObjectContainer<HcalChannelStatus>(nullptr) {}
+  HcalChannelQuality() : HcalCondObjectContainer<HcalChannelStatus>(nullptr) {}
 #endif
-  HcalChannelQuality(const HcalTopology* topo):HcalCondObjectContainer<HcalChannelStatus>(topo) {}
+  HcalChannelQuality(const HcalTopology* topo) : HcalCondObjectContainer<HcalChannelStatus>(topo) {}
 
-  std::string myname() const override {return (std::string)"HcalChannelQuality";}
+  std::string myname() const override { return (std::string) "HcalChannelQuality"; }
 
- private:
-
- COND_SERIALIZABLE;
+private:
+  COND_SERIALIZABLE;
 };
 
-
 #endif
-

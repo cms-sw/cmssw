@@ -9,21 +9,20 @@
 contains the QIE Typese + corresponding DetId
 */
 
-class HcalQIEType
-{
- public:
-  HcalQIEType(): mId(0), mValue(0) {}
-  HcalQIEType(unsigned long fid, int value): mId(fid), mValue(value) {}
+class HcalQIEType {
+public:
+  HcalQIEType() : mId(0), mValue(0) {}
+  HcalQIEType(unsigned long fid, int value) : mId(fid), mValue(value) {}
 
-  uint32_t rawId() const {return mId;}
+  uint32_t rawId() const { return mId; }
 
-  int getValue() const {return mValue;}
+  int getValue() const { return mValue; }
 
- private:
+private:
   uint32_t mId;
   int mValue;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

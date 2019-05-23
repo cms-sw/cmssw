@@ -8,6 +8,5 @@ TYPELOOKUP_DATA_REG(PhysicsTools::Calibration::HistogramD);
 TYPELOOKUP_DATA_REG(PhysicsTools::Calibration::HistogramF2D);
 TYPELOOKUP_DATA_REG(PhysicsTools::Calibration::HistogramD2D);
 TYPELOOKUP_DATA_REG(PhysicsTools::Calibration::VHistogramD2D);
-TYPELOOKUP_DATA_REG(PhysicsTools::Calibration::HistogramF3D); 
+TYPELOOKUP_DATA_REG(PhysicsTools::Calibration::HistogramF3D);
 TYPELOOKUP_DATA_REG(PhysicsTools::Calibration::HistogramD3D);
-

@@ -13,18 +13,15 @@
 //#include "CLHEP/Random/RandFlat.h"
 //#include "CLHEP/Random/RandGauss.h"
 
-
 class SiStripDeDxMipBuilder : public edm::EDAnalyzer {
-
- public:
-
-  explicit SiStripDeDxMipBuilder( const edm::ParameterSet& iConfig);
+public:
+  explicit SiStripDeDxMipBuilder(const edm::ParameterSet& iConfig);
 
   ~SiStripDeDxMipBuilder(){};
 
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
- private:
+private:
   edm::FileInPath fp_;
   bool printdebug_;
 };
