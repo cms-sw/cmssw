@@ -38,7 +38,7 @@
 class DTGeometryESModule : public edm::ESProducer {
 public:
   /// Constructor
-  DTGeometryESModule(const edm::ParameterSet & p);
+  DTGeometryESModule(const edm::ParameterSet& p);
 
   /// Destructor
   ~DTGeometryESModule() override;
@@ -47,10 +47,7 @@ public:
   std::shared_ptr<DTGeometry> produce(const MuonGeometryRecord& record);
 
 private:
-
-  using HostType = edm::ESProductHost<DTGeometry,
-                                      MuonNumberingRecord,
-                                      DTRecoGeometryRcd>;
+  using HostType = edm::ESProductHost<DTGeometry, MuonNumberingRecord, DTRecoGeometryRcd>;
 
   void setupGeometry(MuonNumberingRecord const&, std::shared_ptr<HostType>&);
   void setupDBGeometry(DTRecoGeometryRcd const&, std::shared_ptr<HostType>&);
@@ -64,7 +61,7 @@ private:
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
   edm::ESGetToken<RecoIdealGeometry, DTRecoGeometryRcd> rigToken_;
 
-  bool applyAlignment_; // Switch to apply alignment corrections
+  bool applyAlignment_;  // Switch to apply alignment corrections
   const std::string alignmentsLabel_;
   const std::string myLabel_;
   bool fromDDD_;

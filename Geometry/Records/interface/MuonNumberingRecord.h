@@ -4,7 +4,7 @@
 //
 // Package:     MuonNumberingInitialization
 // Class  :     MuonNumberingRecord
-// 
+//
 /**\class MuonNumberingRecord MuonNumberingRecord.h Geometry/MuonNumberingInitialization/interface/MuonNumberingRecord.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Thu Sep 28 16:41:02 PDT 2006
 //
 
@@ -27,6 +27,13 @@
 #include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
 
-class MuonNumberingRecord : public edm::eventsetup::DependentRecordImplementation<MuonNumberingRecord, boost::mpl::vector<IdealGeometryRecord, CSCRecoDigiParametersRcd, CSCRecoGeometryRcd, DTRecoGeometryRcd, DDSpecParRegistryRcd, GeometryFileRcd> > {};
+class MuonNumberingRecord
+    : public edm::eventsetup::DependentRecordImplementation<MuonNumberingRecord,
+                                                            boost::mpl::vector<IdealGeometryRecord,
+                                                                               CSCRecoDigiParametersRcd,
+                                                                               CSCRecoGeometryRcd,
+                                                                               DTRecoGeometryRcd,
+                                                                               DDSpecParRegistryRcd,
+                                                                               GeometryFileRcd> > {};
 
 #endif
