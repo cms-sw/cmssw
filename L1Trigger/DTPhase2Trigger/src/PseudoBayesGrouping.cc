@@ -13,7 +13,7 @@ PseudoBayesGrouping::PseudoBayesGrouping(const ParameterSet& pset):
   MotherGrouping(pset) {
   // Obtention of parameters
   debug                     = pset.getUntrackedParameter<Bool_t>("debug");
-  pattern_filename          = pset.getUntrackedParameter<std::string>("pattern_filename");
+  pattern_filename          = pset.getUntrackedParameter<edm::FileInPath>("pattern_filename").fullPath(); 
   minNLayerHits             = pset.getUntrackedParameter<Int_t>("minNLayerHits");
   minSingleSLHitsMax        = pset.getUntrackedParameter<Int_t>("minSingleSLHitsMax");
   minSingleSLHitsMin        = pset.getUntrackedParameter<Int_t>("minSingleSLHitsMin");
