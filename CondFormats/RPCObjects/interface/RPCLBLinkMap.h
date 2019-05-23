@@ -8,31 +8,24 @@
 #include "CondFormats/RPCObjects/interface/RPCLBLink.h"
 #include "CondFormats/RPCObjects/interface/RPCFebConnector.h"
 
-class RPCLBLinkMap
-{
+class RPCLBLinkMap {
 public:
-    typedef std::map<RPCLBLink, RPCFebConnector> map_type;
+  typedef std::map<RPCLBLink, RPCFebConnector> map_type;
 
 public:
-    RPCLBLinkMap();
+  RPCLBLinkMap();
 
-    map_type & getMap();
-    map_type const & getMap() const;
+  map_type& getMap();
+  map_type const& getMap() const;
 
 protected:
-    map_type map_;
+  map_type map_;
 
-    COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-inline RPCLBLinkMap::map_type & RPCLBLinkMap::getMap()
-{
-    return map_;
-}
+inline RPCLBLinkMap::map_type& RPCLBLinkMap::getMap() { return map_; }
 
-inline RPCLBLinkMap::map_type const & RPCLBLinkMap::getMap() const
-{
-    return map_;
-}
+inline RPCLBLinkMap::map_type const& RPCLBLinkMap::getMap() const { return map_; }
 
-#endif // CondFormats_RPCObjects_RPCLBLinkMap_h
+#endif  // CondFormats_RPCObjects_RPCLBLinkMap_h

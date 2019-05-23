@@ -6,4 +6,4 @@
 
 typedef StorableDoubleMap<AbsOOTPileupCorrection> OOTPileupCorrectionMapColl;
 
-#endif // CondFormats_HcalObjects_OOTPileupCorrectionMapColl_h
+#endif  // CondFormats_HcalObjects_OOTPileupCorrectionMapColl_h
