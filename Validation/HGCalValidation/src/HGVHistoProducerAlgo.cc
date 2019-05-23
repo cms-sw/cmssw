@@ -191,7 +191,7 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::ConcurrentBooker& ibook, 
     if (ilayer < layers){
       istr2 = std::to_string(ilayer + 1) + " in z-";
     }else { //Then for the +z
-      istr2 = std::to_string(ilayer - 51) + " in z+";
+      istr2 = std::to_string(ilayer - (layers - 1) ) + " in z+";
     }
     histograms.h_clusternum_perlayer[ilayer] = ibook.book1D("totclusternum_layer_"+istr1,"total number of layer clusters for layer "+istr2,nintTotNClsperlay_,minTotNClsperlay_,maxTotNClsperlay_);
     histograms.h_energyclustered_perlayer[ilayer] = ibook.book1D("energyclustered_perlayer"+istr1,"percent of total energy clustered by layer clusters over caloparticles energy for layer "+istr2,nintEneClperlay_,minEneClperlay_,maxEneClperlay_);
@@ -247,7 +247,7 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::ConcurrentBooker& ibook, 
       if (ilayer < layers){
 	istr3 = std::to_string(ilayer + 1) + " in z- ";
       }else { //Then for the +z
-	istr3 = std::to_string(ilayer - 51) + " in z+ ";
+	istr3 = std::to_string(ilayer - (layers - 1) ) + " in z+ ";
       }
       //---
       histograms.h_cellsnum_perthickperlayer[istr] = ibook.book1D("cellsnum_perthick_perlayer_"+istr,"total number of cells for layer "+ istr3+" for thickness "+istr1,nintTotNcellsperthickperlayer_,minTotNcellsperthickperlayer_,maxTotNcellsperthickperlayer_);
