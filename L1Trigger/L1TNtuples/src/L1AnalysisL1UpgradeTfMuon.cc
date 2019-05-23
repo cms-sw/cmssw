@@ -61,7 +61,7 @@ void L1Analysis::L1AnalysisL1UpgradeTfMuon::SetTfMuon(const l1t::RegionalMuonCan
           decoded_track_address["kBX"] = it->trackSubAddress(l1t::RegionalMuonCand::kBX);
         }
         l1upgradetfmuon_.tfMuonDecodedTrAdd.push_back(decoded_track_address);
-        l1upgradetfmuon_.tfMuonRawTrAdd.push_back(l1t::RegionalMuonRawDigiTranslator::generateRawTrkAddress(*it));
+        l1upgradetfmuon_.tfMuonHwTrAdd.push_back(l1t::RegionalMuonRawDigiTranslator::generateRawTrkAddress(*it));
 
         l1upgradetfmuon_.nTfMuons++;
       }
