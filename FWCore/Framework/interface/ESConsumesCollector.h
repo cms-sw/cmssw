@@ -62,6 +62,29 @@ namespace edm {
       return ESGetToken<Product, Record>{m_transitionID, index, std::get<1>(m_consumer->back()).name().value()};
     }
 
+    template <typename Product, typename Record>
+    auto consumesFrom() {
+      using namespace edm::eventsetup;
+      ESTokenIndex index{static_cast<ESTokenIndex::Value_t>(m_consumer->size())};
+      m_consumer->emplace_back(
+          EventSetupRecordKey::makeKey<Record>(), DataKey(DataKey::makeTypeTag<Product>(), ""), "");
+      //even though m_consumer may expand, the address for
+      // name().value() remains the same since it is 'moved'.
+      return ESGetToken<Product, Record>{m_transitionID, index, std::get<1>(m_consumer->back()).name().value()};
+    }
+
+    template <typename Product, typename Record>
+    ESConsumesCollector& setConsumes(ESGetToken<Product, Record>& token, ESInputTag const& tag) {
+      token = consumesFrom<Product, Record>(tag);
+      return *this;
+    }
+
+    template <typename Product, typename Record>
+    ESConsumesCollector& setConsumes(ESGetToken<Product, Record>& token) {
+      token = consumesFrom<Product, Record>();
+      return *this;
+    }
+
   protected:
     explicit ESConsumesCollector(ESConsumesInfo* const iConsumer, unsigned int iTransitionID)
         : m_consumer{iConsumer}, m_transitionID{iTransitionID} {}
@@ -86,6 +109,11 @@ namespace edm {
     template <typename Product>
     auto consumes(ESInputTag const& tag) {
       return consumesFrom<Product, RECORD>(tag);
+    }
+
+    template <typename Product>
+    auto consumes() {
+      return consumesFrom<Product, RECORD>();
     }
 
   private:
