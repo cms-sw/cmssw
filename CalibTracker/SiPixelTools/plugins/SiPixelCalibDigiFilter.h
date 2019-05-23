@@ -2,7 +2,7 @@
 //
 // Package:    SiPixelCalibDigiFilter
 // Class:      SiPixelCalibDigiFilter
-// 
+//
 /**\class SiPixelCalibDigiFilter SiPixelCalibDigiFilter.cc CalibTracker/SiPixelTools/src/SiPixelCalibDigiFilter.cc
 
  Description: Filters events that contain no information after the digis are collected into patterns by SiPixelCalibDigiProducer
@@ -15,7 +15,6 @@
 //         Created:  Tue Nov  6 16:59:50 CET 2007
 //
 //
-
 
 // system include files
 #include <memory>
@@ -36,15 +35,15 @@
 //
 
 class SiPixelCalibDigiFilter : public edm::EDFilter {
-   public:
-      explicit SiPixelCalibDigiFilter(const edm::ParameterSet&);
-      ~SiPixelCalibDigiFilter() override;
+public:
+  explicit SiPixelCalibDigiFilter(const edm::ParameterSet&);
+  ~SiPixelCalibDigiFilter() override;
 
-   private:
-      void beginJob() override;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      
-      // ----------member data ---------------------------
-      edm::EDGetTokenT<edm::DetSetVector<SiPixelCalibDigi>> tPixelCalibDigi;
+private:
+  void beginJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<edm::DetSetVector<SiPixelCalibDigi>> tPixelCalibDigi;
 };

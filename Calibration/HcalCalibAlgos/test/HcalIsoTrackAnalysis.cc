@@ -84,38 +84,37 @@ private:
 };
 
 HcalIsoTrackAnalysis::HcalIsoTrackAnalysis(const edm::ParameterSet& iConfig)
-  : theTrackQuality_(iConfig.getParameter<std::string>("trackQuality")),
-    maxDxyPV_(iConfig.getParameter<std::vector<double> >("maxDxyPV")),
-    maxDzPV_(iConfig.getParameter<std::vector<double> >("maxDzPV")),
-    maxChi2_(iConfig.getParameter<std::vector<double> >("maxChi2")),
-    maxDpOverP_(iConfig.getParameter<std::vector<double> >("maxDpOverP")),
-    minOuterHit_(iConfig.getParameter<std::vector<int> >("minOuterHit")),
-    minLayerCrossed_(iConfig.getParameter<std::vector<int> >("minLayerCrossed")),
-    maxInMiss_(iConfig.getParameter<std::vector<int> >("maxInMiss")),
-    maxOutMiss_(iConfig.getParameter<std::vector<int>>("maxOutMiss")),
-    a_coneR_(iConfig.getParameter<double>("coneRadius")),
-    a_mipR_(iConfig.getParameter<double>("coneRadiusMIP")),
-    pTrackLow_(iConfig.getParameter<double>("momentumLow")),
-    pTrackHigh_(iConfig.getParameter<double>("momentumHigh")),
-    useRaw_(iConfig.getUntrackedParameter<int>("useRaw", 0)),
-    dataType_(iConfig.getUntrackedParameter<int>("dataType", 0)),
-    etaMin_(iConfig.getUntrackedParameter<int>("etaMin", -1)),
-    etaMax_(iConfig.getUntrackedParameter<int>("etaMax", 10)),
-    hitEthrEB_(iConfig.getParameter<double>("EBHitEnergyThreshold")),
-    hitEthrEE0_(iConfig.getParameter<double>("EEHitEnergyThreshold0")),
-    hitEthrEE1_(iConfig.getParameter<double>("EEHitEnergyThreshold1")),
-    hitEthrEE2_(iConfig.getParameter<double>("EEHitEnergyThreshold2")),
-    hitEthrEE3_(iConfig.getParameter<double>("EEHitEnergyThreshold3")),
-    hitEthrEELo_(iConfig.getParameter<double>("EEHitEnergyThresholdLow")),
-    hitEthrEEHi_(iConfig.getParameter<double>("EEHitEnergyThresholdHigh")),
-    labelGenTrack_(iConfig.getParameter<std::string>("labelTrack")),
-    labelRecVtx_(iConfig.getParameter<std::string>("labelVertex")),
-    labelEB_(iConfig.getParameter<std::string>("labelEBRecHit")),
-    labelEE_(iConfig.getParameter<std::string>("labelEERecHit")),
-    labelHBHE_(iConfig.getParameter<std::string>("labelHBHERecHit")) {
-     
+    : theTrackQuality_(iConfig.getParameter<std::string>("trackQuality")),
+      maxDxyPV_(iConfig.getParameter<std::vector<double>>("maxDxyPV")),
+      maxDzPV_(iConfig.getParameter<std::vector<double>>("maxDzPV")),
+      maxChi2_(iConfig.getParameter<std::vector<double>>("maxChi2")),
+      maxDpOverP_(iConfig.getParameter<std::vector<double>>("maxDpOverP")),
+      minOuterHit_(iConfig.getParameter<std::vector<int>>("minOuterHit")),
+      minLayerCrossed_(iConfig.getParameter<std::vector<int>>("minLayerCrossed")),
+      maxInMiss_(iConfig.getParameter<std::vector<int>>("maxInMiss")),
+      maxOutMiss_(iConfig.getParameter<std::vector<int>>("maxOutMiss")),
+      a_coneR_(iConfig.getParameter<double>("coneRadius")),
+      a_mipR_(iConfig.getParameter<double>("coneRadiusMIP")),
+      pTrackLow_(iConfig.getParameter<double>("momentumLow")),
+      pTrackHigh_(iConfig.getParameter<double>("momentumHigh")),
+      useRaw_(iConfig.getUntrackedParameter<int>("useRaw", 0)),
+      dataType_(iConfig.getUntrackedParameter<int>("dataType", 0)),
+      etaMin_(iConfig.getUntrackedParameter<int>("etaMin", -1)),
+      etaMax_(iConfig.getUntrackedParameter<int>("etaMax", 10)),
+      hitEthrEB_(iConfig.getParameter<double>("EBHitEnergyThreshold")),
+      hitEthrEE0_(iConfig.getParameter<double>("EEHitEnergyThreshold0")),
+      hitEthrEE1_(iConfig.getParameter<double>("EEHitEnergyThreshold1")),
+      hitEthrEE2_(iConfig.getParameter<double>("EEHitEnergyThreshold2")),
+      hitEthrEE3_(iConfig.getParameter<double>("EEHitEnergyThreshold3")),
+      hitEthrEELo_(iConfig.getParameter<double>("EEHitEnergyThresholdLow")),
+      hitEthrEEHi_(iConfig.getParameter<double>("EEHitEnergyThresholdHigh")),
+      labelGenTrack_(iConfig.getParameter<std::string>("labelTrack")),
+      labelRecVtx_(iConfig.getParameter<std::string>("labelVertex")),
+      labelEB_(iConfig.getParameter<std::string>("labelEBRecHit")),
+      labelEE_(iConfig.getParameter<std::string>("labelEERecHit")),
+      labelHBHE_(iConfig.getParameter<std::string>("labelHBHERecHit")) {
   usesResource(TFileService::kSharedResource);
-  
+
   //now do whatever initialization is needed
   const double isolationRadius(28.9);
   reco::TrackBase::TrackQuality trackQuality_ = reco::TrackBase::qualityByName(theTrackQuality_);
@@ -137,31 +136,28 @@ HcalIsoTrackAnalysis::HcalIsoTrackAnalysis(const edm::ParameterSet& iConfig)
   tok_EB_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEB_));
   tok_EE_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEE_));
   tok_hbhe_ = consumes<HBHERecHitCollection>(labelHBHE_);
-  edm::LogVerbatim("HcalIsoTrack") 
-    << "Labels used "  << labelBS << " " << labelRecVtx_ << " " 
-    << labelGenTrack_ << " " << edm::InputTag("ecalRecHit", labelEB_) << " "
-    << edm::InputTag("ecalRecHit", labelEE_) << " " << labelHBHE_;
-  
-  edm::LogVerbatim("HcalIsoTrack") 
-    << "Parameters read from config file \n"  << "\t minPt " 
-    << selectionParameter_.minPt << "\t theTrackQuality " << theTrackQuality_
-    << "\t a_coneR " << a_coneR_  << "\t a_charIsoR " << a_charIsoR_ 
-    << "\t a_mipR " << a_mipR_  << "\n\t momentumLow_ " << pTrackLow_ 
-    << "\t momentumHigh_ " << pTrackHigh_ << "\t useRaw_ " << useRaw_
-    << "\t dataType_      " << dataType_ << "\t etaLimit " << etaMin_ << ":"
-    << etaMax_ << "\nThreshold for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ 
-    << ":" << hitEthrEE1_ << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":"
-    << hitEthrEELo_ << ":" << hitEthrEEHi_;
+  edm::LogVerbatim("HcalIsoTrack") << "Labels used " << labelBS << " " << labelRecVtx_ << " " << labelGenTrack_ << " "
+                                   << edm::InputTag("ecalRecHit", labelEB_) << " "
+                                   << edm::InputTag("ecalRecHit", labelEE_) << " " << labelHBHE_;
+
+  edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n"
+                                   << "\t minPt " << selectionParameter_.minPt << "\t theTrackQuality "
+                                   << theTrackQuality_ << "\t a_coneR " << a_coneR_ << "\t a_charIsoR " << a_charIsoR_
+                                   << "\t a_mipR " << a_mipR_ << "\n\t momentumLow_ " << pTrackLow_
+                                   << "\t momentumHigh_ " << pTrackHigh_ << "\t useRaw_ " << useRaw_
+                                   << "\t dataType_      " << dataType_ << "\t etaLimit " << etaMin_ << ":" << etaMax_
+                                   << "\nThreshold for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_
+                                   << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":"
+                                   << hitEthrEEHi_;
 }
 
 void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalIsoTrack")
-    << "Run " << iEvent.id().run() << " Event " << iEvent.id().event()
-    << " type " << dataType_ << " Luminosity " << iEvent.luminosityBlock()
-    << " Bunch " << iEvent.bunchCrossing();
+  edm::LogVerbatim("HcalIsoTrack") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " type "
+                                   << dataType_ << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
+                                   << iEvent.bunchCrossing();
 #endif
-  //Get magnetic field 
+  //Get magnetic field
   edm::ESHandle<MagneticField> bFieldH;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
   const MagneticField* bField = bFieldH.product();
@@ -183,8 +179,7 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
   //event weight for FLAT sample
   edm::Handle<GenEventInfoProduct> genEventInfo;
   iEvent.getByToken(tok_ew_, genEventInfo);
-  double wt = ((genEventInfo.isValid()) ? 
-			genEventInfo->weight() : 1.0);
+  double wt = ((genEventInfo.isValid()) ? genEventInfo->weight() : 1.0);
 
   //Define the best vertex and the beamspot
   edm::Handle<reco::VertexCollection> recVtxs;
@@ -196,8 +191,9 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
   if (recVtxs.isValid() && !(recVtxs->empty())) {
     for (unsigned int k = 0; k < recVtxs->size(); ++k) {
       if (!((*recVtxs)[k].isFake()) && ((*recVtxs)[k].ndof() > 4)) {
-	leadPV = math::XYZPoint((*recVtxs)[k].x(), (*recVtxs)[k].y(), (*recVtxs)[k].z());
-        goodPV = true; break;
+        leadPV = math::XYZPoint((*recVtxs)[k].x(), (*recVtxs)[k].y(), (*recVtxs)[k].z());
+        goodPV = true;
+        break;
       }
     }
   }
@@ -241,170 +237,233 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
     std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
     unsigned int nTracks(0);
     for (trkDetItr = trkCaloDirections.begin(), nTracks = 0; trkDetItr != trkCaloDirections.end();
-	 trkDetItr++, nTracks++) {
+         trkDetItr++, nTracks++) {
       const reco::Track* pTrack = &(*(trkDetItr->trkItr));
       double p = pTrack->p();
       if (p >= pTrackLow_ && p <= pTrackHigh_ && (trkDetItr->okHCAL)) {
-	int ieta = (static_cast<HcalDetId>(trkDetItr->detIdHCAL)).ieta();
-	
-	////////////////////////////////-Energy in ECAL-//////////////////////////
-	std::vector<DetId> eIds;
-	std::vector<double> eHit;
-	double eMipDR = spr::eCone_ecal(geo,
-					barrelRecHitsHandle,
-					endcapRecHitsHandle,
-					trkDetItr->pointHCAL,
-					trkDetItr->pointECAL,
-					a_mipR_,
-					trkDetItr->directionECAL,
-					eIds,
-					eHit);
-	double eEcal(0);
-	for (unsigned int k = 0; k < eIds.size(); ++k) {
-	  const GlobalPoint& pos = geo->getPosition(eIds[k]);
-	  double eta = std::abs(pos.eta());
-	  double eThr(hitEthrEB_);
-	  if (eIds[k].subdetId() != EcalBarrel) {
-	    eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
-	    if (eThr < hitEthrEELo_)
-	      eThr = hitEthrEELo_;
-	    else if (eThr > hitEthrEEHi_)
-	      eThr = hitEthrEEHi_;
-	  }
-	  if (eHit[k] > eThr)
-	    eEcal += eHit[k];
-	}
+        int ieta = (static_cast<HcalDetId>(trkDetItr->detIdHCAL)).ieta();
+
+        ////////////////////////////////-Energy in ECAL-//////////////////////////
+        std::vector<DetId> eIds;
+        std::vector<double> eHit;
+        double eMipDR = spr::eCone_ecal(geo,
+                                        barrelRecHitsHandle,
+                                        endcapRecHitsHandle,
+                                        trkDetItr->pointHCAL,
+                                        trkDetItr->pointECAL,
+                                        a_mipR_,
+                                        trkDetItr->directionECAL,
+                                        eIds,
+                                        eHit);
+        double eEcal(0);
+        for (unsigned int k = 0; k < eIds.size(); ++k) {
+          const GlobalPoint& pos = geo->getPosition(eIds[k]);
+          double eta = std::abs(pos.eta());
+          double eThr(hitEthrEB_);
+          if (eIds[k].subdetId() != EcalBarrel) {
+            eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
+            if (eThr < hitEthrEELo_)
+              eThr = hitEthrEELo_;
+            else if (eThr > hitEthrEEHi_)
+              eThr = hitEthrEEHi_;
+          }
+          if (eHit[k] > eThr)
+            eEcal += eHit[k];
+        }
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << eMipDR << ":" << eEcal;
+        edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << eMipDR << ":" << eEcal;
 #endif
-      
-	////////////////////////////////-Energy in HCAL-//////////////////////////
-	int nRecHits(-999), nNearTRKs(0);
-	std::vector<DetId> ids;
-	std::vector<double> edet0;
-	double eHcal = spr::eCone_hcal(geo,
-				       hbhe,
-				       trkDetItr->pointHCAL,
-				       trkDetItr->pointECAL,
-				       a_coneR_,
-				       trkDetItr->directionHCAL,
-				       nRecHits,
-				       ids,
-				       edet0,
-				       useRaw_);
-	double ratio0 = eHcal/(p-eEcal);
-	double ratio1 = eHcal/(p-eMipDR);
-	double hmaxNearP = spr::chargeIsolationCone(nTracks, trkCaloDirections, a_charIsoR_, nNearTRKs, false);
-	static const double tightCut(2.0), looseCut(2.0);
-	bool tight = (hmaxNearP < tightCut);
-	bool loose = (hmaxNearP < looseCut);
+
+        ////////////////////////////////-Energy in HCAL-//////////////////////////
+        int nRecHits(-999), nNearTRKs(0);
+        std::vector<DetId> ids;
+        std::vector<double> edet0;
+        double eHcal = spr::eCone_hcal(geo,
+                                       hbhe,
+                                       trkDetItr->pointHCAL,
+                                       trkDetItr->pointECAL,
+                                       a_coneR_,
+                                       trkDetItr->directionHCAL,
+                                       nRecHits,
+                                       ids,
+                                       edet0,
+                                       useRaw_);
+        double ratio0 = eHcal / (p - eEcal);
+        double ratio1 = eHcal / (p - eMipDR);
+        double hmaxNearP = spr::chargeIsolationCone(nTracks, trkCaloDirections, a_charIsoR_, nNearTRKs, false);
+        static const double tightCut(2.0), looseCut(2.0);
+        bool tight = (hmaxNearP < tightCut);
+        bool loose = (hmaxNearP < looseCut);
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HcalIsoTrack") 
-	  << "eHcal and responses: " << eHcal << ":" << ratio0 << ":" << ratio1
-	  << " Isolation " << hmaxNearP << ":" << loose << ":" << tight;
+        edm::LogVerbatim("HcalIsoTrack") << "eHcal and responses: " << eHcal << ":" << ratio0 << ":" << ratio1
+                                         << " Isolation " << hmaxNearP << ":" << loose << ":" << tight;
 #endif
-	//Different criteria for selection of good tracks
-	if (std::abs(ieta) > etaMin_ && std::abs(ieta) < etaMax_) {
-	  unsigned id(0);
-	  h_eta_[id]->Fill(ieta,wt);
-	  h_rat0_[id]->Fill(ratio0,wt);
-	  h_rat1_[id]->Fill(ratio1,wt);
-	  if (loose) h_eta0_[id]->Fill(ieta,wt);
-	  if (tight) h_eta1_[id]->Fill(ieta,wt);
-	  for (unsigned int k1=0; k1<maxDxyPV_.size(); ++k1) {
-	    for (unsigned int k2=0; k2<maxDzPV_.size(); ++k2) {
-	      for (unsigned int k3=0; k3<maxChi2_.size(); ++k3) {
-		for (unsigned int k4=0; k4<maxDpOverP_.size(); ++k4) {
-		  for (unsigned int k5=0; k5<minOuterHit_.size(); ++k5) {
-		    for (unsigned int k6=0; k6<minLayerCrossed_.size(); ++k6) {
-		      for (unsigned int k7=0; k7<maxInMiss_.size(); ++k7) {
-			for (unsigned int k8=0; k8<maxOutMiss_.size(); ++k8) {
-			  ++id;
-			  selectionParameter_.maxDxyPV = maxDxyPV_[k1];
-			  selectionParameter_.maxDzPV = maxDzPV_[k2];
-			  selectionParameter_.maxChi2 = maxChi2_[k3];
-			  selectionParameter_.maxDpOverP = maxDpOverP_[k4];
-			  selectionParameter_.minOuterHit = minOuterHit_[k5];
-			  selectionParameter_.minLayerCrossed = minLayerCrossed_[k6];
-			  selectionParameter_.maxInMiss = maxInMiss_[k7];
-			  selectionParameter_.maxOutMiss = maxOutMiss_[k8];
-			  if (spr::goodTrack(pTrack, leadPV, selectionParameter_, false)) {
-			    h_eta_[id]->Fill(ieta,wt);
-			    h_rat0_[id]->Fill(ratio0,wt);
-			    h_rat1_[id]->Fill(ratio1,wt);
-			    if (loose) h_eta0_[id]->Fill(ieta,wt);
-			    if (tight) h_eta1_[id]->Fill(ieta,wt);
-			    const reco::HitPattern& hitp = pTrack->hitPattern();
-			    if ((k2+k3+k4+k5+k6+k7+k8==0) && (k1+1==maxDxyPV_.size())) h_Dxy_->Fill(pTrack->dxy(leadPV),wt);
-			    if ((k1+k3+k4+k5+k6+k7+k8==0) && (k2+1==maxDzPV_.size())) h_Dz_->Fill(pTrack->dz(leadPV),wt);
-			    if ((k1+k2+k4+k5+k6+k7+k8==0) && (k3+1==maxChi2_.size())) h_Chi2_->Fill(pTrack->normalizedChi2(),wt);
-			    if ((k1+k2+k3+k5+k6+k7+k8==0) && (k4+1==maxDpOverP_.size())) h_DpOverP_->Fill(std::abs(pTrack->qoverpError()/pTrack->qoverp()),wt);
-			    if ((k1+k2+k3+k4+k6+k7+k8==0) && (k5+1==minOuterHit_.size())) h_OutHit_->Fill((hitp.stripTOBLayersWithMeasurement()+hitp.stripTECLayersWithMeasurement()),wt);
-			    if ((k1+k2+k3+k4+k5+k7+k8==0) && (k6+1==minLayerCrossed_.size())) h_Layer_->Fill(hitp.trackerLayersWithMeasurement(),wt);
-			    if ((k1+k2+k3+k4+k5+k6+k8==0) && (k7+1==maxInMiss_.size())) h_InMiss_->Fill(hitp.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS),wt);
-			    if ((k1+k2+k3+k4+k5+k6+k7==0) && (k8+1==maxOutMiss_.size())) h_OutMiss_->Fill(hitp.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS),wt);
-			  }
-			}
-		      }
-		    }
-		  }
-		}
-	      }
-	    }
-	  }
-	}
+        //Different criteria for selection of good tracks
+        if (std::abs(ieta) > etaMin_ && std::abs(ieta) < etaMax_) {
+          unsigned id(0);
+          h_eta_[id]->Fill(ieta, wt);
+          h_rat0_[id]->Fill(ratio0, wt);
+          h_rat1_[id]->Fill(ratio1, wt);
+          if (loose)
+            h_eta0_[id]->Fill(ieta, wt);
+          if (tight)
+            h_eta1_[id]->Fill(ieta, wt);
+          for (unsigned int k1 = 0; k1 < maxDxyPV_.size(); ++k1) {
+            for (unsigned int k2 = 0; k2 < maxDzPV_.size(); ++k2) {
+              for (unsigned int k3 = 0; k3 < maxChi2_.size(); ++k3) {
+                for (unsigned int k4 = 0; k4 < maxDpOverP_.size(); ++k4) {
+                  for (unsigned int k5 = 0; k5 < minOuterHit_.size(); ++k5) {
+                    for (unsigned int k6 = 0; k6 < minLayerCrossed_.size(); ++k6) {
+                      for (unsigned int k7 = 0; k7 < maxInMiss_.size(); ++k7) {
+                        for (unsigned int k8 = 0; k8 < maxOutMiss_.size(); ++k8) {
+                          ++id;
+                          selectionParameter_.maxDxyPV = maxDxyPV_[k1];
+                          selectionParameter_.maxDzPV = maxDzPV_[k2];
+                          selectionParameter_.maxChi2 = maxChi2_[k3];
+                          selectionParameter_.maxDpOverP = maxDpOverP_[k4];
+                          selectionParameter_.minOuterHit = minOuterHit_[k5];
+                          selectionParameter_.minLayerCrossed = minLayerCrossed_[k6];
+                          selectionParameter_.maxInMiss = maxInMiss_[k7];
+                          selectionParameter_.maxOutMiss = maxOutMiss_[k8];
+                          if (spr::goodTrack(pTrack, leadPV, selectionParameter_, false)) {
+                            h_eta_[id]->Fill(ieta, wt);
+                            h_rat0_[id]->Fill(ratio0, wt);
+                            h_rat1_[id]->Fill(ratio1, wt);
+                            if (loose)
+                              h_eta0_[id]->Fill(ieta, wt);
+                            if (tight)
+                              h_eta1_[id]->Fill(ieta, wt);
+                            const reco::HitPattern& hitp = pTrack->hitPattern();
+                            if ((k2 + k3 + k4 + k5 + k6 + k7 + k8 == 0) && (k1 + 1 == maxDxyPV_.size()))
+                              h_Dxy_->Fill(pTrack->dxy(leadPV), wt);
+                            if ((k1 + k3 + k4 + k5 + k6 + k7 + k8 == 0) && (k2 + 1 == maxDzPV_.size()))
+                              h_Dz_->Fill(pTrack->dz(leadPV), wt);
+                            if ((k1 + k2 + k4 + k5 + k6 + k7 + k8 == 0) && (k3 + 1 == maxChi2_.size()))
+                              h_Chi2_->Fill(pTrack->normalizedChi2(), wt);
+                            if ((k1 + k2 + k3 + k5 + k6 + k7 + k8 == 0) && (k4 + 1 == maxDpOverP_.size()))
+                              h_DpOverP_->Fill(std::abs(pTrack->qoverpError() / pTrack->qoverp()), wt);
+                            if ((k1 + k2 + k3 + k4 + k6 + k7 + k8 == 0) && (k5 + 1 == minOuterHit_.size()))
+                              h_OutHit_->Fill(
+                                  (hitp.stripTOBLayersWithMeasurement() + hitp.stripTECLayersWithMeasurement()), wt);
+                            if ((k1 + k2 + k3 + k4 + k5 + k7 + k8 == 0) && (k6 + 1 == minLayerCrossed_.size()))
+                              h_Layer_->Fill(hitp.trackerLayersWithMeasurement(), wt);
+                            if ((k1 + k2 + k3 + k4 + k5 + k6 + k8 == 0) && (k7 + 1 == maxInMiss_.size()))
+                              h_InMiss_->Fill(
+                                  hitp.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS), wt);
+                            if ((k1 + k2 + k3 + k4 + k5 + k6 + k7 == 0) && (k8 + 1 == maxOutMiss_.size()))
+                              h_OutMiss_->Fill(
+                                  hitp.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS), wt);
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
 }
 
 void HcalIsoTrackAnalysis::beginJob() {
-
   char name[100], title[200];
-  h_eta_.emplace_back(fs_->make<TH1D>("eta","Track i#eta (All)",60,-30,30));
-  h_eta0_.emplace_back(fs_->make<TH1D>("eta","Track i#eta (All Loose Isolation)",60,-30,30));
-  h_eta1_.emplace_back(fs_->make<TH1D>("eta","Track i#eta (All Tight Isolation)",60,-30,30));
-  h_rat0_.emplace_back(fs_->make<TH1D>("rat0","Response 0",100,0.0,5.0));
-  h_rat1_.emplace_back(fs_->make<TH1D>("rat1","Response 1",100,0.0,5.0));
-  for (unsigned int k1=0; k1<maxDxyPV_.size(); ++k1) {
-    for (unsigned int k2=0; k2<maxDzPV_.size(); ++k2) {
-      for (unsigned int k3=0; k3<maxChi2_.size(); ++k3) {
-	for (unsigned int k4=0; k4<maxDpOverP_.size(); ++k4) {
-	  for (unsigned int k5=0; k5<minOuterHit_.size(); ++k5) {
-	    for (unsigned int k6=0; k6<minLayerCrossed_.size(); ++k6) {
-	      for (unsigned int k7=0; k7<maxInMiss_.size(); ++k7) {
-		for (unsigned int k8=0; k8<maxOutMiss_.size(); ++k8) {
-		  sprintf (name,"eta%d%d%d%d%d%d%d%d",k1,k2,k3,k4,k5,k6,k7,k8);
-		  sprintf (title,"i#eta (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, Layer=%d, Miss_{in}=%d, Miss_{out}=%d)",maxDxyPV_[k1],maxDzPV_[k2],maxChi2_[k3],maxDpOverP_[k4],minOuterHit_[k5],minLayerCrossed_[k6],maxInMiss_[k7],maxOutMiss_[k8]);
-		  h_eta_.emplace_back(fs_->make<TH1D>(name,title,60,-30,30));
-		  sprintf (name,"eta0%d%d%d%d%d%d%d%d",k1,k2,k3,k4,k5,k6,k7,k8);
-		  sprintf (title,"i#eta (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, Layer=%d, Miss_{in}=%d, Miss_{out}=%d, loose isolation)",maxDxyPV_[k1],maxDzPV_[k2],maxChi2_[k3],maxDpOverP_[k4],minOuterHit_[k5],minLayerCrossed_[k6],maxInMiss_[k7],maxOutMiss_[k8]);
-		  h_eta0_.emplace_back(fs_->make<TH1D>(name,title,60,-30,30));
-		  sprintf (name,"eta1%d%d%d%d%d%d%d%d",k1,k2,k3,k4,k5,k6,k7,k8);
-		  sprintf (title,"i#eta (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, Layer=%d, Miss_{in}=%d, Miss_{out}=%d, tight isolation)",maxDxyPV_[k1],maxDzPV_[k2],maxChi2_[k3],maxDpOverP_[k4],minOuterHit_[k5],minLayerCrossed_[k6],maxInMiss_[k7],maxOutMiss_[k8]);
-		  h_eta1_.emplace_back(fs_->make<TH1D>(name,title,60,-30,30));
-		  sprintf (name,"rat0%d%d%d%d%d%d%d%d",k1,k2,k3,k4,k5,k6,k7,k8);
-		  sprintf (title,"Response 0 (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, Layer=%d, Miss_{in}=%d, Miss_{out}=%d)",maxDxyPV_[k1],maxDzPV_[k2],maxChi2_[k3],maxDpOverP_[k4],minOuterHit_[k5],minLayerCrossed_[k6],maxInMiss_[k7],maxOutMiss_[k8]);
-		  h_rat0_.emplace_back(fs_->make<TH1D>(name,title,100,0.0,5.0));
-		  sprintf (name,"rat1%d%d%d%d%d%d%d%d",k1,k2,k3,k4,k5,k6,k7,k8);
-		  sprintf (title,"Response 1 (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, Layer=%d, Miss_{in}=%d, Miss_{out}=%d)",maxDxyPV_[k1],maxDzPV_[k2],maxChi2_[k3],maxDpOverP_[k4],minOuterHit_[k5],minLayerCrossed_[k6],maxInMiss_[k7],maxOutMiss_[k8]);
-		  h_rat1_.emplace_back(fs_->make<TH1D>(name,title,100,0.0,5.0));
-		}
-	      }
-	    }
-	  }
-	}
+  h_eta_.emplace_back(fs_->make<TH1D>("eta", "Track i#eta (All)", 60, -30, 30));
+  h_eta0_.emplace_back(fs_->make<TH1D>("eta", "Track i#eta (All Loose Isolation)", 60, -30, 30));
+  h_eta1_.emplace_back(fs_->make<TH1D>("eta", "Track i#eta (All Tight Isolation)", 60, -30, 30));
+  h_rat0_.emplace_back(fs_->make<TH1D>("rat0", "Response 0", 100, 0.0, 5.0));
+  h_rat1_.emplace_back(fs_->make<TH1D>("rat1", "Response 1", 100, 0.0, 5.0));
+  for (unsigned int k1 = 0; k1 < maxDxyPV_.size(); ++k1) {
+    for (unsigned int k2 = 0; k2 < maxDzPV_.size(); ++k2) {
+      for (unsigned int k3 = 0; k3 < maxChi2_.size(); ++k3) {
+        for (unsigned int k4 = 0; k4 < maxDpOverP_.size(); ++k4) {
+          for (unsigned int k5 = 0; k5 < minOuterHit_.size(); ++k5) {
+            for (unsigned int k6 = 0; k6 < minLayerCrossed_.size(); ++k6) {
+              for (unsigned int k7 = 0; k7 < maxInMiss_.size(); ++k7) {
+                for (unsigned int k8 = 0; k8 < maxOutMiss_.size(); ++k8) {
+                  sprintf(name, "eta%d%d%d%d%d%d%d%d", k1, k2, k3, k4, k5, k6, k7, k8);
+                  sprintf(title,
+                          "i#eta (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, "
+                          "Layer=%d, Miss_{in}=%d, Miss_{out}=%d)",
+                          maxDxyPV_[k1],
+                          maxDzPV_[k2],
+                          maxChi2_[k3],
+                          maxDpOverP_[k4],
+                          minOuterHit_[k5],
+                          minLayerCrossed_[k6],
+                          maxInMiss_[k7],
+                          maxOutMiss_[k8]);
+                  h_eta_.emplace_back(fs_->make<TH1D>(name, title, 60, -30, 30));
+                  sprintf(name, "eta0%d%d%d%d%d%d%d%d", k1, k2, k3, k4, k5, k6, k7, k8);
+                  sprintf(title,
+                          "i#eta (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, "
+                          "Layer=%d, Miss_{in}=%d, Miss_{out}=%d, loose isolation)",
+                          maxDxyPV_[k1],
+                          maxDzPV_[k2],
+                          maxChi2_[k3],
+                          maxDpOverP_[k4],
+                          minOuterHit_[k5],
+                          minLayerCrossed_[k6],
+                          maxInMiss_[k7],
+                          maxOutMiss_[k8]);
+                  h_eta0_.emplace_back(fs_->make<TH1D>(name, title, 60, -30, 30));
+                  sprintf(name, "eta1%d%d%d%d%d%d%d%d", k1, k2, k3, k4, k5, k6, k7, k8);
+                  sprintf(title,
+                          "i#eta (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, "
+                          "Layer=%d, Miss_{in}=%d, Miss_{out}=%d, tight isolation)",
+                          maxDxyPV_[k1],
+                          maxDzPV_[k2],
+                          maxChi2_[k3],
+                          maxDpOverP_[k4],
+                          minOuterHit_[k5],
+                          minLayerCrossed_[k6],
+                          maxInMiss_[k7],
+                          maxOutMiss_[k8]);
+                  h_eta1_.emplace_back(fs_->make<TH1D>(name, title, 60, -30, 30));
+                  sprintf(name, "rat0%d%d%d%d%d%d%d%d", k1, k2, k3, k4, k5, k6, k7, k8);
+                  sprintf(title,
+                          "Response 0 (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, "
+                          "Layer=%d, Miss_{in}=%d, Miss_{out}=%d)",
+                          maxDxyPV_[k1],
+                          maxDzPV_[k2],
+                          maxChi2_[k3],
+                          maxDpOverP_[k4],
+                          minOuterHit_[k5],
+                          minLayerCrossed_[k6],
+                          maxInMiss_[k7],
+                          maxOutMiss_[k8]);
+                  h_rat0_.emplace_back(fs_->make<TH1D>(name, title, 100, 0.0, 5.0));
+                  sprintf(name, "rat1%d%d%d%d%d%d%d%d", k1, k2, k3, k4, k5, k6, k7, k8);
+                  sprintf(title,
+                          "Response 1 (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, "
+                          "Layer=%d, Miss_{in}=%d, Miss_{out}=%d)",
+                          maxDxyPV_[k1],
+                          maxDzPV_[k2],
+                          maxChi2_[k3],
+                          maxDpOverP_[k4],
+                          minOuterHit_[k5],
+                          minLayerCrossed_[k6],
+                          maxInMiss_[k7],
+                          maxOutMiss_[k8]);
+                  h_rat1_.emplace_back(fs_->make<TH1D>(name, title, 100, 0.0, 5.0));
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
-  h_Dxy_ = fs_->make<TH1D>("Dxy","d_{xy}",100,0.0,1.0);
-  h_Dz_ = fs_->make<TH1D>("Dz","d_{z}",100,0.0,1.0);
-  h_Chi2_ = fs_->make<TH1D>("Chi2","#chi^{2}",100,0.0,20.0);
-  h_DpOverP_ = fs_->make<TH1D>("DpOverP","#frac{#Delta p}{p}",100,0.0,1.0);
-  h_Layer_ = fs_->make<TH1D>("Layer","Layers Crossed",50,0.0,50.0);
-  h_OutHit_ = fs_->make<TH1D>("OutHit","Outer Layers Hit",20,0.0,20.0);
-  h_InMiss_ = fs_->make<TH1D>("InMiss","Missed Inner Hits",20,0.0,20.0);
-  h_OutMiss_ = fs_->make<TH1D>("OutMiss","Missed Outer Hits",20,0.0,20.0);
+  h_Dxy_ = fs_->make<TH1D>("Dxy", "d_{xy}", 100, 0.0, 1.0);
+  h_Dz_ = fs_->make<TH1D>("Dz", "d_{z}", 100, 0.0, 1.0);
+  h_Chi2_ = fs_->make<TH1D>("Chi2", "#chi^{2}", 100, 0.0, 20.0);
+  h_DpOverP_ = fs_->make<TH1D>("DpOverP", "#frac{#Delta p}{p}", 100, 0.0, 1.0);
+  h_Layer_ = fs_->make<TH1D>("Layer", "Layers Crossed", 50, 0.0, 50.0);
+  h_OutHit_ = fs_->make<TH1D>("OutHit", "Outer Layers Hit", 20, 0.0, 20.0);
+  h_InMiss_ = fs_->make<TH1D>("InMiss", "Missed Inner Hits", 20, 0.0, 20.0);
+  h_OutMiss_ = fs_->make<TH1D>("OutMiss", "Missed Outer Hits", 20, 0.0, 20.0);
 }
 
 void HcalIsoTrackAnalysis::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -412,14 +471,14 @@ void HcalIsoTrackAnalysis::fillDescriptions(edm::ConfigurationDescriptions& desc
   // following 10 parameters are parameters to select good tracks
   desc.add<std::string>("trackQuality", "highPurity");
   desc.add<double>("minTrackPt", 1.0);
-  std::vector<double> maxdxy = {0.02,0.01,0.05,0.10};
-  std::vector<double> maxdz = {0.02,0.01,0.04,0.50};
-  std::vector<double> maxchi2 = {5.0,2.0,10.0,20.0};
-  std::vector<double> maxdpoverp = {0.1,0.02,0.05,0.4};
-  std::vector<int> minouterhit = {4,2,1,0};
-  std::vector<int> minlayercrossed = {8,4,2,0};
-  std::vector<int> maxinmiss = {0,1,2,4};
-  std::vector<int> maxoutmiss = {0,1,2,4};
+  std::vector<double> maxdxy = {0.02, 0.01, 0.05, 0.10};
+  std::vector<double> maxdz = {0.02, 0.01, 0.04, 0.50};
+  std::vector<double> maxchi2 = {5.0, 2.0, 10.0, 20.0};
+  std::vector<double> maxdpoverp = {0.1, 0.02, 0.05, 0.4};
+  std::vector<int> minouterhit = {4, 2, 1, 0};
+  std::vector<int> minlayercrossed = {8, 4, 2, 0};
+  std::vector<int> maxinmiss = {0, 1, 2, 4};
+  std::vector<int> maxoutmiss = {0, 1, 2, 4};
   desc.add<std::vector<double>>("maxDxyPV", maxdxy);
   desc.add<std::vector<double>>("maxDzPV", maxdz);
   desc.add<std::vector<double>>("maxChi2", maxchi2);
