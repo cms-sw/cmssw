@@ -53,7 +53,7 @@ class Herwig7Hadronizer : public Herwig7Interface, public gen::BaseHadronizer {
 	void finalizeEvent();
 
 	const char *classname() const { return "Herwig7Hadronizer"; }
-	GenLumiInfoHeader *getGenLumiInfoHeader() const override;
+	std::unique_ptr<GenLumiInfoHeader> getGenLumiInfoHeader() const override;
  	void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
  	void randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine);
 
@@ -189,8 +189,8 @@ bool Herwig7Hadronizer::residualDecay()
 	return true;
 }
 
-GenLumiInfoHeader *Herwig7Hadronizer::getGenLumiInfoHeader() const {
-  GenLumiInfoHeader *genLumiInfoHeader = BaseHadronizer::getGenLumiInfoHeader();
+std::unique_ptr<GenLumiInfoHeader> Herwig7Hadronizer::getGenLumiInfoHeader() const {
+  auto genLumiInfoHeader = BaseHadronizer::getGenLumiInfoHeader();
 
   if (thepegEvent)
   {
