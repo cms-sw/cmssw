@@ -9,7 +9,4 @@
 //
 // Created: M. Eads, Apr 2008
 
-
-
-
 #endif

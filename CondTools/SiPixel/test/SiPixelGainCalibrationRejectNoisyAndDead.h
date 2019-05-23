@@ -5,7 +5,6 @@
 #include <utility>
 #include <vector>
 
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -25,52 +24,47 @@
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationServiceBase.h"
 
-
 #include "TH2F.h"
 #include "TFile.h"
 #include "TDirectory.h"
 #include "TKey.h"
 #include "TString.h"
 #include "TList.h"
- 
-
 
 class SiPixelGainCalibrationRejectNoisyAndDead : public edm::EDAnalyzer {
-   public:
-      explicit SiPixelGainCalibrationRejectNoisyAndDead(const edm::ParameterSet&);
-      ~SiPixelGainCalibrationRejectNoisyAndDead();
+public:
+  explicit SiPixelGainCalibrationRejectNoisyAndDead(const edm::ParameterSet &);
+  ~SiPixelGainCalibrationRejectNoisyAndDead();
 
-   private:
-      edm::ParameterSet conf_;
-      SiPixelGainCalibrationOfflineService SiPixelGainCalibrationOfflineService_;
-      //SiPixelGainCalibrationForHLTService SiPixelGainCalibrationService_;
-      SiPixelGainCalibrationOffline *theGainCalibrationDbInputOffline_;
-      
-      SiPixelGainCalibrationForHLTService SiPixelGainCalibrationForHLTService_;
-      SiPixelGainCalibrationForHLT *theGainCalibrationDbInputForHLT_;
+private:
+  edm::ParameterSet conf_;
+  SiPixelGainCalibrationOfflineService SiPixelGainCalibrationOfflineService_;
+  //SiPixelGainCalibrationForHLTService SiPixelGainCalibrationService_;
+  SiPixelGainCalibrationOffline *theGainCalibrationDbInputOffline_;
 
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      
-      std::map < int,std::vector < std::pair < int,int > > > noisypixelkeeper;
-      std::map < int,std::vector < std::pair < int,int > > > insertednoisypixel;
-      int nnoisyininput;
-      
-      void fillDatabase(const edm::EventSetup&);
-      void getNoisyPixels();
-      void getDeadPixels();
+  SiPixelGainCalibrationForHLTService SiPixelGainCalibrationForHLTService_;
+  SiPixelGainCalibrationForHLT *theGainCalibrationDbInputForHLT_;
 
-      // ----------member data ---------------------------
-      
-      
-      std::string noisypixellist_;
-      int insertnoisypixelsindb_;
-      std::string record_;
-      bool DEBUG;
-      float pedlow_;
-      float pedhi_;
-      float gainlow_;
-      float gainhi_;
+  virtual void beginJob();
+  virtual void analyze(const edm::Event &, const edm::EventSetup &);
+  virtual void endJob();
 
+  std::map<int, std::vector<std::pair<int, int> > > noisypixelkeeper;
+  std::map<int, std::vector<std::pair<int, int> > > insertednoisypixel;
+  int nnoisyininput;
+
+  void fillDatabase(const edm::EventSetup &);
+  void getNoisyPixels();
+  void getDeadPixels();
+
+  // ----------member data ---------------------------
+
+  std::string noisypixellist_;
+  int insertnoisypixelsindb_;
+  std::string record_;
+  bool DEBUG;
+  float pedlow_;
+  float pedhi_;
+  float gainlow_;
+  float gainhi_;
 };

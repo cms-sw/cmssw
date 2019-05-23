@@ -26,56 +26,53 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
-namespace edm{
+namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 //
 // class decleration
 //
 
-class  StoreEcalCondition : public edm::EDAnalyzer {
- public:
+class StoreEcalCondition : public edm::EDAnalyzer {
+public:
+  EcalWeightXtalGroups* readEcalWeightXtalGroupsFromFile(const char*);
+  EcalTBWeights* readEcalTBWeightsFromFile(const char*);
+  EcalADCToGeVConstant* readEcalADCToGeVConstantFromFile(const char*);
+  EcalIntercalibConstants* readEcalIntercalibConstantsFromFile(const char*, const char*);
+  EcalPFRecHitThresholds* readEcalPFRecHitThresholdsFromFile(const char*, const char*);
+  EcalIntercalibConstantsMC* readEcalIntercalibConstantsMCFromFile(const char*, const char*);
+  EcalGainRatios* readEcalGainRatiosFromFile(const char*);
+  EcalChannelStatus* readEcalChannelStatusFromFile(const char*);
+  void writeToLogFile(std::string, std::string, unsigned long long);
+  void writeToLogFileResults(char*);
+  int convertFromConstructionSMToSlot(int, int);
 
-  EcalWeightXtalGroups* readEcalWeightXtalGroupsFromFile(const char *);
-  EcalTBWeights* readEcalTBWeightsFromFile(const char *);
-  EcalADCToGeVConstant* readEcalADCToGeVConstantFromFile(const char *);
-  EcalIntercalibConstants* readEcalIntercalibConstantsFromFile(const char *, const char *);
-  EcalPFRecHitThresholds* readEcalPFRecHitThresholdsFromFile(const char *, const char *);
-  EcalIntercalibConstantsMC* readEcalIntercalibConstantsMCFromFile(const char *, const char *);
-  EcalGainRatios* readEcalGainRatiosFromFile(const char *);
-  EcalChannelStatus* readEcalChannelStatusFromFile(const char *);
-  void writeToLogFile(std::string , std::string, unsigned long long) ;
-  void writeToLogFileResults(char* ) ;
-  int convertFromConstructionSMToSlot(int ,int );
-
-  explicit  StoreEcalCondition(const edm::ParameterSet& iConfig );
+  explicit StoreEcalCondition(const edm::ParameterSet& iConfig);
   ~StoreEcalCondition() override;
 
-  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
   void endJob() override;
 
- private:
-
+private:
   void fillHeader(char*);
 
-  std::vector< std::string > objectName_ ;
+  std::vector<std::string> objectName_;
   // it can be of type: EcalWeightXtalGroups, EcalTBWeights, EcalADCToGeVConstant, EcalIntercalibConstants, EcalGainRatios
-  std::vector< std::string > inpFileName_ ;
-  std::vector< std::string > inpFileNameEE_ ;
-  std::string prog_name_ ;
-  int sm_constr_;  // SM number from data file
-  int sm_slot_;  // SM slot to map data to
-  std::vector< unsigned long long > since_; // beginning IOV for objects
+  std::vector<std::string> inpFileName_;
+  std::vector<std::string> inpFileNameEE_;
+  std::string prog_name_;
+  int sm_constr_;                          // SM number from data file
+  int sm_slot_;                            // SM slot to map data to
+  std::vector<unsigned long long> since_;  // beginning IOV for objects
   std::string logfile_;
 
-  std::string to_string( char value[]) {
+  std::string to_string(char value[]) {
     std::ostringstream streamOut;
     streamOut << value;
     return streamOut.str();
   }
-
 };
 #endif

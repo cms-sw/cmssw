@@ -14,23 +14,17 @@
 #include <ext/hash_map>
 
 class SiPixelBadModuleByHandBuilder : public ConditionDBWriter<SiPixelQuality> {
-
 public:
-
   explicit SiPixelBadModuleByHandBuilder(const edm::ParameterSet&);
   ~SiPixelBadModuleByHandBuilder();
 
-
 private:
-
   std::unique_ptr<SiPixelQuality> getNewObject();
 
 private:
   bool printdebug_;
-  typedef std::vector< edm::ParameterSet > Parameters;
+  typedef std::vector<edm::ParameterSet> Parameters;
   Parameters BadModuleList_;
-
-
 };
 
 #endif

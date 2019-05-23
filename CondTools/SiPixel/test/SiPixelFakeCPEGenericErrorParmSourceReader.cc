@@ -6,34 +6,20 @@
 #include "CondFormats/DataRecord/interface/SiPixelCPEGenericErrorParmRcd.h"
 #include <iostream>
 
-SiPixelFakeCPEGenericErrorParmSourceReader::SiPixelFakeCPEGenericErrorParmSourceReader(const edm::ParameterSet& iConfig)
-{
+SiPixelFakeCPEGenericErrorParmSourceReader::SiPixelFakeCPEGenericErrorParmSourceReader(
+    const edm::ParameterSet& iConfig) {}
+
+SiPixelFakeCPEGenericErrorParmSourceReader::~SiPixelFakeCPEGenericErrorParmSourceReader() {}
+
+void SiPixelFakeCPEGenericErrorParmSourceReader::beginJob() {}
+
+void SiPixelFakeCPEGenericErrorParmSourceReader::analyze(const edm::Event& iEvent, const edm::EventSetup& setup) {
+  if (SiPixelCPEGenericErrorParmWatcher_.check(setup)) {
+    edm::ESHandle<SiPixelCPEGenericErrorParm> errorsH;
+    setup.get<SiPixelCPEGenericErrorParmRcd>().get(errorsH);
+
+    std::cout << *errorsH << std::endl;
+  }
 }
 
-
-SiPixelFakeCPEGenericErrorParmSourceReader::~SiPixelFakeCPEGenericErrorParmSourceReader()
-{
-}
-
-void 
-SiPixelFakeCPEGenericErrorParmSourceReader::beginJob()
-{
-}
-
-void
-SiPixelFakeCPEGenericErrorParmSourceReader::analyze(const edm::Event& iEvent, const edm::EventSetup& setup)
-{
-	if(SiPixelCPEGenericErrorParmWatcher_.check(setup)) {
-		
-		edm::ESHandle<SiPixelCPEGenericErrorParm> errorsH;
-		setup.get<SiPixelCPEGenericErrorParmRcd>().get(errorsH);
-
-		std::cout << *errorsH << std::endl;
-	}
-}
-
-void 
-SiPixelFakeCPEGenericErrorParmSourceReader::endJob()
-{
-}
-
+void SiPixelFakeCPEGenericErrorParmSourceReader::endJob() {}
