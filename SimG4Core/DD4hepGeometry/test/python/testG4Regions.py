@@ -42,11 +42,15 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml'),
                                             appendToDataLabel = cms.string('MUON')
                                             )
+
 process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",
                                                     appendToDataLabel = cms.string('MUON'))
 
-process.test = cms.EDAnalyzer("DD4hepTestG4Geometry",
-                              DDDetector = cms.ESInputTag('MUON','')
+process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
+                                                     appendToDataLabel = cms.string('MUON'))
+
+process.test = cms.EDAnalyzer("DD4hepTestDDDWorld",
+                              DDDetector = cms.ESInputTag('','MUON')
                               )
 
 process.p = cms.Path(process.test)

@@ -18,9 +18,9 @@ using namespace cms;
 using namespace edm;
 using namespace dd4hep;
 
-class DDTestG4Geometry : public one::EDAnalyzer<> {
+class DD4hepTestG4Geometry : public one::EDAnalyzer<> {
 public:
-  explicit DDTestG4Geometry(const ParameterSet&);
+  explicit DD4hepTestG4Geometry(const ParameterSet&);
 
   void beginJob() override {}
   void analyze(Event const& iEvent, EventSetup const&) override;
@@ -33,14 +33,14 @@ private:
 
 };
 
-DDTestG4Geometry::DDTestG4Geometry(const ParameterSet& iConfig)
+DD4hepTestG4Geometry::DD4hepTestG4Geometry(const ParameterSet& iConfig)
   : m_tag(iConfig.getParameter<ESInputTag>("DDDetector"))
 {}
 
 void
-DDTestG4Geometry::analyze(const Event&, const EventSetup& iEventSetup)
+DD4hepTestG4Geometry::analyze(const Event&, const EventSetup& iEventSetup)
 {
-  LogVerbatim("Geometry") << "\nDDTestG4Geometry::analyze: " << m_tag;
+  LogVerbatim("Geometry") << "\nDD4hepTestG4Geometry::analyze: " << m_tag;
 
   const DDVectorRegistryRcd& regRecord = iEventSetup.get<DDVectorRegistryRcd>();
   ESTransientHandle<DDVectorRegistry> reg;
@@ -62,4 +62,4 @@ DDTestG4Geometry::analyze(const Event&, const EventSetup& iEventSetup)
   LogVerbatim("Geometry") << "Done.";
 }
 
-DEFINE_FWK_MODULE(DDTestG4Geometry);
+DEFINE_FWK_MODULE(DD4hepTestG4Geometry);
