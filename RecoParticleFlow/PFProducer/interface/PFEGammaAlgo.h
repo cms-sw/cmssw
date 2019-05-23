@@ -48,10 +48,15 @@
 #include <forward_list>
 #include <unordered_map>
 
-#include "RecoParticleFlow/PFProducer/interface/PFEGammaHeavyObjectCache.h"
 #include "RecoParticleFlow/PFProducer/interface/FlaggedPtr.h"
 #include "RecoParticleFlow/PFProducer/interface/CommutativePairs.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
+
+#include <memory>
+
 
 class PFSCEnergyCalibration;
 class PFEnergyCalibration;
@@ -68,6 +73,17 @@ class PFEGammaAlgo {
   typedef std::unordered_map<const PFKFElement*, float > KFValMap;  
 
   using ClusterMap = std::unordered_map<PFClusterElement const*,std::vector<PFClusterElement const*>>;
+
+  class GBRForests {
+  public:
+    GBRForests(const edm::ParameterSet& conf)
+      : ele_       (createGBRForest(conf.getParameter<edm::FileInPath>("pf_electronID_mvaWeightFile")))
+      , singleLeg_ (createGBRForest(conf.getParameter<edm::FileInPath>("pf_convID_mvaWeightFile")))
+    {}
+
+    const std::unique_ptr<const GBRForest> ele_;
+    const std::unique_ptr<const GBRForest> singleLeg_;
+  };
     
   struct ProtoEGObject {
     reco::PFBlockRef parentBlock;
@@ -105,7 +121,7 @@ class PFEGammaAlgo {
   };
 
   //constructor
-  PFEGammaAlgo(const PFEGConfigInfo&);
+  PFEGammaAlgo(const PFEGConfigInfo&, GBRForests const& gbrForests);
 
   void setEEtoPSAssociation(EEtoPSAssociation const& eetops) { eetops_ = &eetops; }
 
@@ -131,10 +147,11 @@ class PFEGammaAlgo {
   reco::SuperClusterCollection& getRefinedSCs() {return refinedscs_;}
 
   // this runs the functions below
-  void buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* hoc,
-                               const reco::PFBlockRef& block);
+  void buildAndRefineEGObjects(const reco::PFBlockRef& block);
   
 private: 
+
+  GBRForests const& gbrForests_;
   
 
   // ------ rewritten basic processing pieces and cleaning algorithms
@@ -207,8 +224,7 @@ private:
   // refining steps doing the ECAL -> track piece
   // this is the factorization of the old PF photon algo stuff
   // which through arcane means I came to understand was conversion matching  
-  void linkRefinableObjectECALToSingleLegConv(const pfEGHelpers::HeavyObjectCache* hoc,
-                                              ProtoEGObject&);
+  void linkRefinableObjectECALToSingleLegConv(ProtoEGObject&);
 
   // wax off
 
@@ -223,16 +239,14 @@ private:
   
 
   // things for building the final candidate and refined SC collections    
-  void fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
-                        const std::list<ProtoEGObject>&, 
+  void fillPFCandidates(const std::list<ProtoEGObject>&, 
 			reco::PFCandidateCollection&,
 			reco::PFCandidateEGammaExtraCollection&);
   reco::SuperCluster buildRefinedSuperCluster(const ProtoEGObject&);
   
   // helper functions for that
 
-  float calculateEleMVA(const pfEGHelpers::HeavyObjectCache* hoc,
-                        const ProtoEGObject&,
+  float calculateEleMVA(const ProtoEGObject&,
                         reco::PFCandidateEGammaExtra&) const;
   void fillExtraInfo(const ProtoEGObject&,
 		       reco::PFCandidateEGammaExtra&);
@@ -251,8 +265,7 @@ private:
 
   const ESChannelStatus* channelStatus_;
   
-  float evaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
-                             const reco::PFBlockRef& blockref, 
+  float evaluateSingleLegMVA(const reco::PFBlockRef& blockref, 
                              const reco::Vertex& primaryVtx,
                              unsigned int trackIndex);
 };

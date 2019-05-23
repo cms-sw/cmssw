@@ -570,11 +570,11 @@ namespace {
 }
 
 PFEGammaAlgo::
-PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg) : cfg_(cfg)
+PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg, GBRForests const& gbrForests)
+    : gbrForests_(gbrForests) , cfg_(cfg)
 {}
 
-float PFEGammaAlgo::evaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
-                                         const reco::PFBlockRef& blockRef, 
+float PFEGammaAlgo::evaluateSingleLegMVA(const reco::PFBlockRef& blockRef, 
                                          const reco::Vertex& primaryVtx, 
                                          unsigned int trackIndex)
 {
@@ -627,7 +627,7 @@ float PFEGammaAlgo::evaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* ho
   float vars[] = { delPhi, nLayers, chi2, eOverPt,
                    hOverPt, trackPt, stip, nlost };
 
-  return hoc->gbrSingleLeg_->GetAdaBoostClassifier(vars);
+  return gbrForests_.singleLeg_->GetAdaBoostClassifier(vars);
 }
 
 bool PFEGammaAlgo::isMuon(const reco::PFBlockElement& pfbe) {
@@ -657,8 +657,7 @@ bool PFEGammaAlgo::isMuon(const reco::PFBlockElement& pfbe) {
   return false;
 }
 
-void PFEGammaAlgo::buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* hoc,
-                                           const reco::PFBlockRef& block) {
+void PFEGammaAlgo::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
   LOGVERB("PFEGammaAlgo") 
     << "Resetting PFEGammaAlgo for new block and running!" << std::endl;
   _splayedblock.clear();
@@ -741,7 +740,7 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* 
   // and try to link those in...
   for( auto& RO : _refinableObjects ) {    
     // look for conversion legs
-    linkRefinableObjectECALToSingleLegConv(hoc,RO);
+    linkRefinableObjectECALToSingleLegConv(RO);
     dumpCurrentRefinableObjects();
     // look for tracks that complement conversion legs
     linkRefinableObjectConvSecondaryKFsToSecondaryKFs(RO);
@@ -782,7 +781,7 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* 
   dumpCurrentRefinableObjects();
 
   // fill the PF candidates and then build the refined SC
-  fillPFCandidates(hoc,_refinableObjects,outcands_,outcandsextra_);
+  fillPFCandidates(_refinableObjects,outcands_,outcandsextra_);
 
 }
 
@@ -1668,8 +1667,7 @@ linkRefinableObjectConvSecondaryKFsToSecondaryKFs(ProtoEGObject& RO) {
 }
 
 void PFEGammaAlgo::
-linkRefinableObjectECALToSingleLegConv(const pfEGHelpers::HeavyObjectCache* hoc,
-                                       ProtoEGObject& RO) { 
+linkRefinableObjectECALToSingleLegConv(ProtoEGObject& RO) { 
   auto KFbegin = _splayedblock[reco::PFBlockElement::TRACK].begin();
   auto KFend = _splayedblock[reco::PFBlockElement::TRACK].end();  
   for( auto& ecal : RO.ecalclusters ) {
@@ -1689,7 +1687,7 @@ linkRefinableObjectECALToSingleLegConv(const pfEGHelpers::HeavyObjectCache* hoc,
     }
     // go through non-conv-identified kfs and check MVA to add conversions
     for( auto kf = notconvkf; kf != notmatchedkf; ++kf ) {
-      float mvaval = evaluateSingleLegMVA(hoc,_currentblock, 
+      float mvaval = evaluateSingleLegMVA(_currentblock, 
                                           *cfg_.primaryVtx, 
                                           (*kf)->index());
       if(mvaval > cfg_.mvaConvCut) {
@@ -1728,8 +1726,7 @@ linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject& RO) {
 }
 
 void PFEGammaAlgo::
-fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
-                 const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
+fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
 		 reco::PFCandidateCollection& egcands,
 		 reco::PFCandidateEGammaExtraCollection& egxs) {
   // reset output collections
@@ -1803,7 +1800,7 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
         //by storing 3.0 + mvaval
         float mvaval = ( mvavalmapped != RO.singleLegConversionMvaMap.end() ? 
                          mvavalmapped->second : 
-                         3.0 + evaluateSingleLegMVA(hoc,_currentblock,
+                         3.0 + evaluateSingleLegMVA(_currentblock,
                                                     *cfg_.primaryVtx, 
                                                     kf->index()) );
         
@@ -1860,7 +1857,7 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
       cand.setP4(p4);   
       cand.setPositionAtECALEntrance(kf->positionAtECALEntrance());
     }    
-    const float eleMVAValue = calculateEleMVA(hoc,RO,xtra);
+    const float eleMVAValue = calculateEleMVA(RO,xtra);
     fillExtraInfo(RO,xtra);
     //std::cout << "PFEG eleMVA: " << eleMVAValue << std::endl;
     xtra.setMVA(eleMVAValue);    
@@ -1870,8 +1867,7 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
   }
 }
 
-float PFEGammaAlgo::calculateEleMVA(const pfEGHelpers::HeavyObjectCache* hoc,
-                                    const PFEGammaAlgo::ProtoEGObject& ro,
+float PFEGammaAlgo::calculateEleMVA(const PFEGammaAlgo::ProtoEGObject& ro,
                                     reco::PFCandidateEGammaExtra& xtra) const
 {
   if( ro.primaryGSFs.empty() ) 
@@ -2031,7 +2027,7 @@ float PFEGammaAlgo::calculateEleMVA(const pfEGHelpers::HeavyObjectCache* hoc,
                        nHitKf, chi2Kf, eTotPinMode, eGsfPoutMode, eTotBremPinPoutMode,
                        dEtaGsfEcalClust, logSigmaEtaEta, hOverHe, lateBrem, firstBrem };
 
-      return hoc->gbrEle_->GetAdaBoostClassifier(vars);
+      return gbrForests_.ele_->GetAdaBoostClassifier(vars);
     }
   }
   return -2.0f;
