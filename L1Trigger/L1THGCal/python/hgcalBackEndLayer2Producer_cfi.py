@@ -74,7 +74,8 @@ histoMax_C3d_params = cms.PSet(type_multicluster=cms.string('HistoMaxC3d'),
                                threshold_histo_multicluster=cms.double(10.),
                                cluster_association=cms.string("NearestNeighbour"),
                                EGIdentification=egamma_identification_histomax.clone(),
-                               neighbour_weights=neighbour_weights_1stOrder
+                               neighbour_weights=neighbour_weights_1stOrder,
+                               seed_position=cms.string("BinCentre"),#BinCentre, TCWeighted
                                )
 # V9 samples have a different defintiion of the dEdx calibrations. To account for it
 # we reascale the thresholds of the clustering seeds

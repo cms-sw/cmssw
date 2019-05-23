@@ -24,14 +24,27 @@ public:
 
 private:
   enum SeedingType { HistoMaxC3d, HistoSecondaryMaxC3d, HistoThresholdC3d, HistoInterpolatedMaxC3d };
+  enum SeedingPosition { BinCentre, TCWeighted };
 
-  typedef std::map<std::array<int, 3>, float> Histogram;
+  struct Bin {
+    float sumMipPt;
+    float weighted_x;
+    float weighted_y;
+  };
+
+  typedef std::map<std::array<int, 3>, Bin> Histogram;
 
   Histogram fillHistoClusters(const std::vector<edm::Ptr<l1t::HGCalCluster>>& clustersPtrs);
 
   Histogram fillSmoothPhiHistoClusters(const Histogram& histoClusters, const vector<unsigned>& binSums);
 
   Histogram fillSmoothRPhiHistoClusters(const Histogram& histoClusters);
+
+  void setSeedEnergyAndPosition(std::vector<std::pair<GlobalPoint, double>>& seedPositionsEnergy,
+                                int z_side,
+                                int bin_R,
+                                int bin_phi,
+                                const Bin& histBin);
 
   std::vector<std::pair<GlobalPoint, double>> computeMaxSeeds(const Histogram& histoClusters);
 
@@ -43,6 +56,7 @@ private:
 
   std::string seedingAlgoType_;
   SeedingType seedingType_;
+  SeedingPosition seedingPosition_;
 
   unsigned nBinsRHisto_ = 36;
   unsigned nBinsPhiHisto_ = 216;
