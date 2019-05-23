@@ -24,17 +24,12 @@
 
 class RandomEngineAndDistribution;
 
-class BaseNumericalRandomGenerator
-{
- public:
-
+class BaseNumericalRandomGenerator {
+public:
   /// Constructor that perform the necessary integration and inversion steps
   /// xmin and xmax are the generation bounds, n is the internal table size
   /// and iter is the number of iterations for the numerical part.
-  BaseNumericalRandomGenerator(double xmin=0.,
-			       double xmax=1., 
-			       int n=1000, 
-			       int iter=6);
+  BaseNumericalRandomGenerator(double xmin = 0., double xmax = 1., int n = 1000, int iter = 6);
 
   /// Default destructor
   virtual ~BaseNumericalRandomGenerator() {}
@@ -54,22 +49,19 @@ class BaseNumericalRandomGenerator
   double generateLin(RandomEngineAndDistribution const*) const;
 
   // The probability density function, to be implemented in the real class
-  virtual double function(double x)=0;
+  virtual double function(double x) = 0;
 
   /// To shoot in a given interval
-  bool setSubInterval(double x1,double x2);
+  bool setSubInterval(double x1, double x2);
 
- protected:
-
+protected:
   std::vector<double> sampling;
   std::vector<double> f;
   double xmin, xmax;
   int n, iter;
   double rmin, deltar;
-  
- private:
 
+private:
   int m;
-
 };
 #endif
