@@ -318,7 +318,7 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 
       double shift_back=0;
       if (iEvent.eventAuxiliary().bunchCrossing() == -1) //FIX MC                                                                                                 
-	  shift_back = 400.;
+	  shift_back = 400;
 
       
       if(p2_df==2){
@@ -332,7 +332,7 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 					       (int)round((*metaPrimitiveIt).phiB*2048./1.4), // uphib (m_phiBending)
 					     (*metaPrimitiveIt).quality,  // uqua (m_qualityCode)
 					       (*metaPrimitiveIt).index,  // uind (m_segmentIndex)
-					       (int)round((*metaPrimitiveIt).t0)-shift_back*400,  // ut0 (m_t0Segment)
+					       (int)round((*metaPrimitiveIt).t0)-shift_back*25,  // ut0 (m_t0Segment)
 					       (int)round((*metaPrimitiveIt).chi2*1000000),  // uchi2 (m_chi2Segment)
 					       -10    // urpc (m_rpcFlag)
 					       ));
