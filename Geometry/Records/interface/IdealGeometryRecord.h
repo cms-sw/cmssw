@@ -4,7 +4,7 @@
 //
 // Package:     Records
 // Class  :     IdealGeometryRecord
-// 
+//
 /**\class IdealGeometryRecord IdealGeometryRecord.h Geometry/Records/interface/IdealGeometryRecord.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Mon Jul 25 11:05:09 EDT 2005
 //
 
@@ -24,8 +24,9 @@
 #include "Geometry/Records/interface/PGeometricTimingDetExtraRcd.h"
 #include "boost/mpl/vector.hpp"
 
-class IdealGeometryRecord : public edm::eventsetup::DependentRecordImplementation<
-IdealGeometryRecord, boost::mpl::vector<GeometryFileRcd, PGeometricDetExtraRcd, PGeometricTimingDetExtraRcd> > { };
+class IdealGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<
+          IdealGeometryRecord,
+          boost::mpl::vector<GeometryFileRcd, PGeometricDetExtraRcd, PGeometricTimingDetExtraRcd> > {};
 
 #endif /* RECORDS_IDEALGEOMETRYRECORD_H */
-

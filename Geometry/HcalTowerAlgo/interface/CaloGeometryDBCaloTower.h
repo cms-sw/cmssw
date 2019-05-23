@@ -12,6 +12,6 @@ namespace calogeometryDBEPimpl {
     }
     edm::ESGetToken<CaloTowerTopology, HcalRecNumberingRecord> topology;
   };
-}
+}  // namespace calogeometryDBEPimpl
 
 #endif

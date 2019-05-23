@@ -14,14 +14,14 @@
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalAngular,      "hcal:DDHCalAngular");
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalBarrelAlgo,   "hcal:DDHCalBarrelAlgo");
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalEndcapAlgo,   "hcal:DDHCalEndcapAlgo");
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalEndcapModuleAlgo,"hcal:DDHCalEndcapModuleAlgo");
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalForwardAlgo,  "hcal:DDHCalForwardAlgo");
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalFibreBundle,  "hcal:DDHCalFibreBundle");
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalLinearXY,     "hcal:DDHCalLinearXY");
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalTBCableAlgo,  "hcal:DDHCalTBCableAlgo");
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalTBZposAlgo,   "hcal:DDHCalTBZposAlgo");
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalTestBeamAlgo, "hcal:DDHCalTestBeamAlgo");
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalXtalAlgo,     "hcal:DDHCalXtalAlgo");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalAngular, "hcal:DDHCalAngular");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalBarrelAlgo, "hcal:DDHCalBarrelAlgo");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalEndcapAlgo, "hcal:DDHCalEndcapAlgo");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalEndcapModuleAlgo, "hcal:DDHCalEndcapModuleAlgo");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalForwardAlgo, "hcal:DDHCalForwardAlgo");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalFibreBundle, "hcal:DDHCalFibreBundle");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalLinearXY, "hcal:DDHCalLinearXY");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalTBCableAlgo, "hcal:DDHCalTBCableAlgo");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalTBZposAlgo, "hcal:DDHCalTBZposAlgo");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalTestBeamAlgo, "hcal:DDHCalTestBeamAlgo");
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalXtalAlgo, "hcal:DDHCalXtalAlgo");
