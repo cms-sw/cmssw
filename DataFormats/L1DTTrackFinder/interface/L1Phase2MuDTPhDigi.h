@@ -40,7 +40,7 @@ class L1Phase2MuDTPhDigi
   //  Constructors
   L1Phase2MuDTPhDigi();
   
-  L1Phase2MuDTPhDigi( int bx, int wh, int sc, int st, int phi, int phib,
+  L1Phase2MuDTPhDigi( int bx, int wh, int sc, int st, int sl, int phi, int phib,
 		      int qual, int idx, int t0, int chi2, int rpc=-10);
   
   // Operations
@@ -49,6 +49,7 @@ class L1Phase2MuDTPhDigi
   int whNum()       const;
   int scNum()       const;
   int stNum()       const;
+  int slNum()       const;
 
   int phi()         const;
   int phiBend()     const;
@@ -68,6 +69,8 @@ class L1Phase2MuDTPhDigi
   int m_wheel;
   int m_sector;
   int m_station;
+  int m_superlayer;
+
   int m_phiAngle;
   int m_phiBending;
 
