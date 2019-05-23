@@ -14,7 +14,7 @@
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
-#include "SimG4Core/Physics/interface/DDG4ProductionCuts.h"
+#include "SimG4Core/Geometry/interface/DDG4ProductionCuts.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 
