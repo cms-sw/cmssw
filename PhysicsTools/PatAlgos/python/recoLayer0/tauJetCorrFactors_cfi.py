@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoTauTag.TauTagTools.tauDecayModes_cfi import *
+from RecoTauTag.RecoTau.tauDecayModes_cfi import *
 
 # module to produce tau-jet energy correction factors
 patTauJetCorrFactors = cms.EDProducer("TauJetCorrFactorsProducer",

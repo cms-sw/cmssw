@@ -9,7 +9,6 @@
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="DataFormats/BTauReco"/>
-<use   name="RecoTauTag/TauTagTools"/>
 <use   name="TrackingTools/TrackAssociator"/>
 <use   name="RecoTauTag/RecoTau"/>
 

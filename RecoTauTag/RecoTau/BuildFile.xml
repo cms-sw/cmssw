@@ -17,7 +17,6 @@
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="TrackingTools/IPTools"/>
-<use   name="RecoTauTag/TauTagTools"/>
 <use   name="RecoVertex/KalmanVertexFit"/>
 <use   name="RecoVertex/AdaptiveVertexFit"/>
 <use   name="RecoParticleFlow/PFClusterTools"/>
