@@ -90,7 +90,7 @@ std::ostream& operator<< (std::ostream& output,
     }
   }
   std::vector<PSimHit> thisLayerHits = info.getSimHits();
-  if (thisLayerHits.size() > 0) {
+  if (!thisLayerHits.empty()) {
     output << "Layer: " << std::setw(1) << info.getId().layer();
     for (unsigned int i = 0; i < thisLayerHits.size(); i++) {
       output << " SimHit # " << i+1 << ": " << thisLayerHits[i] << '\t';

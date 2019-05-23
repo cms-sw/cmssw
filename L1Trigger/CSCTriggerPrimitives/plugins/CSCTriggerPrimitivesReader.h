@@ -126,13 +126,13 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   explicit CSCTriggerPrimitivesReader(const edm::ParameterSet& conf);
 
   /// Destructor
-  virtual ~CSCTriggerPrimitivesReader();
+  ~CSCTriggerPrimitivesReader() override;
 
   /// Does the job
-  void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
   /// Write to ROOT file, make plots, etc.
-  void endJob();
+  void endJob() override;
 
   int chamberSerial( CSCDetId id );
   int chamberIX( CSCDetId id );

@@ -228,7 +228,7 @@ void XmlConfigParser::readElement(const DOMElement* element, TriggerSystem& aTri
 void XmlConfigParser::readHwDescription(const DOMElement* element, TriggerSystem& aTriggerSystem, const std::string& sysId)
 {
   // if sysId == "" set the systemId of the trigsystem from the xml sytem id
-  if (sysId != ""){
+  if (!sysId.empty()){
     std::string sId = cms::xerces::toString(element->getAttribute(kAttrId));
     pruneString(sId);
     if( sId != sysId ) return;
@@ -390,7 +390,7 @@ void XmlConfigParser::readHwDescription(const DOMElement* element, TriggerSystem
 void XmlConfigParser::readContext(const DOMElement* element, const std::string& sysId, TriggerSystem& aTriggerSystem)
 {
   std::string systemId = sysId;
-  if (systemId == "") {
+  if (systemId.empty()) {
     systemId = aTriggerSystem.systemId();
   }
   if (cms::xerces::toString(element->getAttribute(kAttrId)) == systemId) {
