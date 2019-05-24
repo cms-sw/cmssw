@@ -162,7 +162,7 @@ CalibratedDigis::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if(flat_calib_!=0)
 	      newTime = digiTime - 325                     + 25.0*iEvent.eventAuxiliary().bunchCrossing() + float(timeOffset_);
 	  else {
-	      if (iEvent.eventAuxiliary().bunchCrossing() == -1) //FIX MC 
+	      if (iEvent.eventAuxiliary().run() == 1) //FIX MC 
 	          newTime = digiTime - theSync->offset(wireId) + 25.0*400 + float(timeOffset_);
 	      else 
 	          newTime = digiTime - theSync->offset(wireId) + 25.0*iEvent.eventAuxiliary().bunchCrossing() + float(timeOffset_); 
