@@ -112,12 +112,11 @@ void HoughGrouping::run(edm::Event& iEvent, const edm::EventSetup& iEventSetup, 
       }
       else {
         digimap[(*dtLayerIdIt).first.layer() - 1][(*digiIt).wire()] = DTPrimitive();
-        digimap[(*dtLayerIdIt).first.layer() + 1][(*digiIt).wire()].setTDCTime((*digiIt).time());
-        digimap[(*dtLayerIdIt).first.layer() + 1][(*digiIt).wire()].setChannelId((*digiIt).wire());
-        digimap[(*dtLayerIdIt).first.layer() + 1][(*digiIt).wire()].setLayerId((*dtLayerIdIt).first.layer());
-        digimap[(*dtLayerIdIt).first.layer() + 1][(*digiIt).wire()].setSuperLayerId((*dtLayerIdIt).first.superLayer());
-        cout << "cameraID: " << (*dtLayerIdIt).first.rawId() << endl;
-        digimap[(*dtLayerIdIt).first.layer() + 1][(*digiIt).wire()].setCameraId((*dtLayerIdIt).first.rawId());
+        digimap[(*dtLayerIdIt).first.layer() - 1][(*digiIt).wire()].setTDCTime((*digiIt).time());
+        digimap[(*dtLayerIdIt).first.layer() - 1][(*digiIt).wire()].setChannelId((*digiIt).wire());
+        digimap[(*dtLayerIdIt).first.layer() - 1][(*digiIt).wire()].setLayerId((*dtLayerIdIt).first.layer());
+        digimap[(*dtLayerIdIt).first.layer() - 1][(*digiIt).wire()].setSuperLayerId((*dtLayerIdIt).first.superLayer());
+        digimap[(*dtLayerIdIt).first.layer() - 1][(*digiIt).wire()].setCameraId((*dtLayerIdIt).first.rawId());
       }
       
       // Obtaining geometrical info of the chosen chamber
@@ -465,10 +464,13 @@ std::tuple<UShort_t, Bool_t*, Bool_t*, UShort_t, Double_t*, DTPrimitive*> HoughG
   // 4: absolute distance to all hits of the segment.
   // 5: DTPrimitive of the candidate.
   
+  if (debug) cout << "HoughGrouping::AssociateHits - Beginning SL loop" << endl;
   for (UShort_t sl = 1; sl < 3 + 1; sl++) {
     if (sl == 2) continue;
+    if (debug) cout << "HoughGrouping::AssociateHits - SL: " << sl << endl;
     
     for (UShort_t l = 1; l < 4 + 1; l++) {
+      if (debug) cout << "HoughGrouping::AssociateHits - L: " << l << endl;
       isleft = false; isright = false; lat = NONE; distleft = 0; distright = 0;
       if (sl == 1) abslay  = l - 1;
       else         abslay  = l + 3;
@@ -484,6 +486,8 @@ std::tuple<UShort_t, Bool_t*, Bool_t*, UShort_t, Double_t*, DTPrimitive*> HoughG
       
       thepoint = LocalPoint(tmpx, 0, AWireLocalCh.z());
       tmpwire  = thechamb->superLayer(sl)->layer(l)->specificTopology().channel(thepoint);
+      if (debug) cout << "HoughGrouping::AssociateHits - Wire number: "  << tmpwire << endl;
+      if (debug) cout << "HoughGrouping::AssociateHits - First channel in layer: "  << thechamb->superLayer(sl)->layer(l)->specificTopology().firstChannel() << endl;
       if ((digimap[abslay]).count(tmpwire)) {
         // OK, we have a digi, let's choose the laterality, if we can:
         tmpLocal   = LocalPoint(thechamb->superLayer(sl)->layer(l)->specificTopology().wirePosition(tmpwire), 0, 0);
@@ -506,8 +510,11 @@ std::tuple<UShort_t, Bool_t*, Bool_t*, UShort_t, Double_t*, DTPrimitive*> HoughG
         get<5>(returntuple)[abslay].setLaterality(lat);
       }
       else {
+        if (debug) cout << "HoughGrouping::AssociateHits - No hit in the crossing cell" << endl;
         if ((digimap[abslay]).count(tmpwire - 1)) isleft  = true;
         if ((digimap[abslay]).count(tmpwire + 1)) isright = true;
+        if (debug) cout << "HoughGrouping::AssociateHits - There is in the left: "  << (Int_t)isleft  << endl;
+        if (debug) cout << "HoughGrouping::AssociateHits - There is in the right: " << (Int_t)isright << endl;
         
         if ((isleft) && (!isright)) {
           tmpLocal   = LocalPoint(thechamb->superLayer(sl)->layer(l)->specificTopology().wirePosition(tmpwire - 1), 0, 0);
