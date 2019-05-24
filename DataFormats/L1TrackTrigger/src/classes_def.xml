@@ -148,6 +148,19 @@
   <class name="edm::Wrapper<std::vector<l1t::L1TkTauParticle> >"/>
   <class name="edm::Ref<std::vector<l1t::L1TkTauParticle>,l1t::L1TkTauParticle,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TkTauParticle>,l1t::L1TkTauParticle> >"/>
 
+  <class name="l1t::L1TkPhiCandidate" ClassVersion="-1">
+    <version ClassVersion="-1" checksum="206816256" />
+  </class>
+  <class name="std::vector<l1t::L1TkPhiCandidate>" />
+  <class name="edm::Wrapper<std::vector<l1t::L1TkPhiCandidate>>" />
+  <class name="edm::Ref<std::vector<l1t::L1TkPhiCandidate>, l1t::L1TkPhiCandidate, edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TkPhiCandidate>, l1t::L1TkPhiCandidate>>" />
+
+  <class name="l1t::L1TkBsCandidate" ClassVersion="-1">
+    <version ClassVersion="-1" checksum="1151008742" />
+  </class>
+  <class name="std::vector<l1t::L1TkBsCandidate>" />
+  <class name="edm::Wrapper<std::vector<l1t::L1TkBsCandidate>>" />
+  <class name="edm::Ref<std::vector<l1t::L1TkBsCandidate>, l1t::L1TkBsCandidate, edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TkBsCandidate>, l1t::L1TkBsCandidate>>" />
 
 </lcgdict>
 

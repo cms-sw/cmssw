@@ -45,6 +45,12 @@
 #include "DataFormats/L1TrackTrigger/interface/L1TkTauParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkTauParticleFwd.h"
 
+#include "DataFormats/L1TrackTrigger/interface/L1TkPhiCandidate.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkPhiCandidateFwd.h"
+
+#include "DataFormats/L1TrackTrigger/interface/L1TkBsCandidate.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkBsCandidateFwd.h"
+
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
@@ -180,10 +186,19 @@ namespace
     edm::Wrapper<l1t::L1TkTauParticleCollection> w_trktauColl;
     l1t::L1TkTauParticleRef reftrkTau ;
 
+    // L1TkPhiCandidate
+    l1t::L1TkPhiCandidateCollection trkPhiColl;
+    edm::Wrapper<l1t::L1TkPhiCandidateCollection> w_trkPhiColl;
+    l1t::L1TkPhiCandidateRef reftrkPhi;
+    //l1t::L1TkPhiCandidateRefProd refTkProdPhi;
+
+    // L1TkBsCandidate
+    l1t::L1TkBsCandidateCollection trkBsColl;
+    edm::Wrapper<l1t::L1TkBsCandidateCollection> w_trkBsColl;
+    l1t::L1TkBsCandidateRef reftrkBs;
+    //l1t::L1TkBsCandidateRefProd refTkProdBs;
     
   };
-
-
 }
 
 #endif

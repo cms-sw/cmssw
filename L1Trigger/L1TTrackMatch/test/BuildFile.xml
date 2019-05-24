@@ -41,4 +41,30 @@
     <use   name="root"/>
     <flags   CXXFLAGS="-g -O0"/>
   </library>
+  <library file="L1TkBsCandidateAnalyzer.cc" name="L1TkBsCandidateAnalyzer">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/Utilities"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="CommonTools/UtilAlgos"/>
+    <use name="DataFormats/L1Trigger"/>
+    <use name="L1Trigger/L1TTrackMatch"/>    
+    <use name="root"/>
+    <flags CXXFLAGS="-g0 -O3"/>
+  </library>
+  <library file="BsToPhiPhiTo4KFilter.cc" name="BsToPhiPhiTo4KFilter">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/Utilities"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="DataFormats/Candidate" />
+    <use name="CommonTools/UtilAlgos"/>
+    <use name="DataFormats/HepMCCandidate" />
+    <use name="root"/>
+    <flags CXXFLAGS="-g0 -O3"/>
+  </library>
 </environment>
