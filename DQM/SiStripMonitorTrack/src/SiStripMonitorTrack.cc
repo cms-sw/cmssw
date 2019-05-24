@@ -544,7 +544,6 @@ void SiStripMonitorTrack::bookLayerMEs(DQMStore::IBooker& ibooker, const uint32_
    
   //----------------------
   //add 2D z-phi map per layer
-
   hname = hidmanager.createHistoLayer("Summary_ClusterPosition2D", name, layer_id, "OnTrack");
   hpar = "TH2ClusterPosTOB";
   if ( layer_id.find("TOB") != std::string::npos )  theLayerMEs.ClusterPosOnTrack2D = ibooker.book2D(hname, hname, 12, -110, 110, 300, -3.2, 3.2);
@@ -1240,24 +1239,27 @@ void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit,
   es.get<SiStripQualityRcd>().get("", qualityHandle);
   const SiStripQuality* stripQuality = qualityHandle.product();
 
-  // edm::Handle<edm::DetSetVector<SiStripDigi>> digihandle;
-  // ev.getByToken( digiToken_, digihandle );
-
   //Get SiStripCluster from SiStripRecHit
-  if (tkrecHit != nullptr) {
+  if (tkrecHit != nullptr && tkrecHit->isValid()) {
     const DetId detid = tkrecHit->geographicalId();
     int subDet = detid.subdetId();
+    //std::cout << __LINE__ << std::endl;
     float clust_Pos1  = -1000;
     float clust_Pos2  = -1000;
+    
+    
+    GlobalPoint  theGlobalPos = tkgeom_->idToDet(tkrecHit->geographicalId())->surface().toGlobal(tkrecHit->localPosition());
     if(subDet == SiStripDetId::TIB || subDet == SiStripDetId::TOB ){
-      clust_Pos1 =  tkrecHit->globalPosition().z();
-      clust_Pos2 =  tkrecHit->globalPosition().phi();
+      clust_Pos1 =  theGlobalPos.z();
+      clust_Pos2 =  theGlobalPos.phi();
     }else{
-      clust_Pos1 =  pow(tkrecHit->globalPosition().x()*tkrecHit->globalPosition().x() + tkrecHit->globalPosition().y()*tkrecHit->globalPosition().y(), 0.5);
-      clust_Pos2 =  tkrecHit->globalPosition().phi();
+      clust_Pos1 =  pow(theGlobalPos.x()*theGlobalPos.x() + theGlobalPos.y()*theGlobalPos.y(), 0.5);
+      clust_Pos2 =  theGlobalPos.phi();
     }
+    
     const SiStripCluster* SiStripCluster_ = &*(tkrecHit->cluster());
     SiStripClusterInfo SiStripClusterInfo_(*SiStripCluster_, es, detid);
+
 
     const Det2MEs MEs = findMEs(tTopo, detid);
     if (clusterInfos(
@@ -1267,6 +1269,7 @@ void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit,
   } else {
     edm::LogError("SiStripMonitorTrack") << "NULL hit" << std::endl;
   }
+  
 }
 
 //------------------------------------------------------------------------
@@ -1539,12 +1542,14 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster,
     LogDebug("SiStripMonitorTrack") << "\n\t cosRZ " << cosRZ << std::endl;
   }
 
+
   // Filling SubDet/Layer Plots (on Track + off Track)
   float StoN = cluster->signalOverNoise();
   float noise = cluster->noiseRescaledByGain();
   uint16_t charge = cluster->charge();
   uint16_t width = cluster->width();
   float position = cluster->baryStrip();
+
 
   // Getting raw charge with strip gain.
   double chargeraw = 0;
@@ -1569,6 +1574,7 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster,
       }
     }
   }
+  
   clustergain /= double(cluster->stripCharges().size());  // calculating average gain inside cluster
 
   // new dE/dx (chargePerCM)
@@ -1608,8 +1614,10 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster,
       fillME(MEs.iLayer->ClusterNoiseOnTrack, noise);
       fillME(MEs.iLayer->ClusterWidthOnTrack, width);
       fillME(MEs.iLayer->ClusterPosOnTrack, position);
-      //auto clustgp = cluster->globalPosition(); 
+      //auto clustgp = cluster->globalPosition();
+      
       fillME(MEs.iLayer->ClusterPosOnTrack2D, valX, valY );
+      
       
       if (track_ok)
         fillME(MEs.iLayer->ClusterChargePerCMfromTrack, dQdx_fromTrack);
