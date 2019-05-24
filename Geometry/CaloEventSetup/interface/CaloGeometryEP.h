@@ -25,54 +25,49 @@
 //
 
 template <class T>
-class CaloGeometryEP : public edm::ESProducer 
-{
-   public:
+class CaloGeometryEP : public edm::ESProducer {
+public:
+  using LoaderType = CaloGeometryLoader<T>;
+  using PtrType = typename LoaderType::PtrType;
 
-      using LoaderType = CaloGeometryLoader<T>;
-      using PtrType = typename LoaderType::PtrType;
+  CaloGeometryEP<T>(const edm::ParameterSet& ps) : applyAlignment_(ps.getParameter<bool>("applyAlignment")) {
+    auto cc = setWhatProduced(this,
+                              &CaloGeometryEP<T>::produceAligned,
+                              //                                  dependsOn( &CaloGeometryEP<T>::idealRecordCallBack ),
+                              edm::es::Label(T::producerTag()));
 
-      CaloGeometryEP<T>( const edm::ParameterSet& ps ) :
-	 applyAlignment_ ( ps.getParameter<bool>("applyAlignment") )
-      {
-         auto cc = setWhatProduced( this,
-                                    &CaloGeometryEP<T>::produceAligned,
-//                                  dependsOn( &CaloGeometryEP<T>::idealRecordCallBack ),
-                                    edm::es::Label( T::producerTag() ) ) ;
+    if (applyAlignment_) {
+      alignmentsToken_ = cc.template consumesFrom<Alignments, typename T::AlignmentRecord>(edm::ESInputTag{});
+      globalsToken_ = cc.template consumesFrom<Alignments, GlobalPositionRcd>(edm::ESInputTag{});
+    }
+    cpvToken_ = cc.template consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{});
+  }
 
-         if(applyAlignment_) {
-           alignmentsToken_ = cc.template consumesFrom<Alignments, typename T::AlignmentRecord>(edm::ESInputTag{});
-           globalsToken_ = cc.template consumesFrom<Alignments, GlobalPositionRcd>(edm::ESInputTag{});
-         }
-         cpvToken_ = cc.template consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{});
-      }
+  ~CaloGeometryEP<T>() override {}
+  PtrType produceAligned(const typename T::AlignedRecord& iRecord) {
+    const Alignments* alignPtr(nullptr);
+    const Alignments* globalPtr(nullptr);
+    if (applyAlignment_)  // get ptr if necessary
+    {
+      const auto& alignments = iRecord.get(alignmentsToken_);
+      // require expected size
+      assert(alignments.m_align.size() == T::numberOfAlignments());
+      alignPtr = &alignments;
 
-      ~CaloGeometryEP<T>() override {}
-      PtrType produceAligned( const typename T::AlignedRecord& iRecord ) 
-      {
-	 const Alignments* alignPtr  ( nullptr ) ;
-	 const Alignments* globalPtr ( nullptr ) ;
-	 if( applyAlignment_ ) // get ptr if necessary
-	 {
-	    const auto& alignments = iRecord.get( alignmentsToken_ ) ;
-	    // require expected size
-	    assert( alignments.m_align.size() == T::numberOfAlignments() ) ;
-	    alignPtr = &alignments ;
+      const auto& globals = iRecord.get(globalsToken_);
+      globalPtr = &globals;
+    }
+    edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvToken_);
 
-	    const auto& globals = iRecord.get( globalsToken_ ) ;
-	    globalPtr = &globals ;
-	 }
-	 edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle( cpvToken_ ) ;
+    LoaderType loader;
+    return loader.load(cpv.product(), alignPtr, globalPtr);
+  }
 
-	 LoaderType loader ;
-	 return loader.load( cpv.product(), alignPtr, globalPtr );
-      }
-
-   private:
-      edm::ESGetToken<Alignments, typename T::AlignmentRecord> alignmentsToken_;
-      edm::ESGetToken<Alignments, GlobalPositionRcd> globalsToken_;
-      edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
-      bool        applyAlignment_ ;
+private:
+  edm::ESGetToken<Alignments, typename T::AlignmentRecord> alignmentsToken_;
+  edm::ESGetToken<Alignments, GlobalPositionRcd> globalsToken_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
+  bool applyAlignment_;
 };
 
 #endif
