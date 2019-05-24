@@ -171,7 +171,7 @@ KDTreeLinkerAlgo<DATA,DIM>::recSearch(const KDTreeNodeT<DATA,DIM> *current,
 	    ((current->left != 0) && (current->right == 0))));
   */
     
-  if ((current->left == nullptr) && (current->right == nullptr)) {//leaf case
+  if ((current->left == nullptr) || (current->right == nullptr)) {//leaf case
   
     // If point inside the rectangle/area
     bool isInside = true;
