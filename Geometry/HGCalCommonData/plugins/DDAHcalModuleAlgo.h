@@ -9,22 +9,23 @@
 #include "DetectorDescription/Core/interface/DDTypes.h"
 
 class DDAHcalModuleAlgo : public DDAlgorithm {
- public:
+public:
   // Constructor and Destructor
   DDAHcalModuleAlgo();  // const std::string & name);
   ~DDAHcalModuleAlgo() override;
 
   void initialize(const DDNumericArguments& nArgs,
-                  const DDVectorArguments& vArgs, const DDMapArguments& mArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
                   const DDStringArguments& sArgs,
                   const DDStringVectorArguments& vsArgs) override;
   void execute(DDCompactView& cpv) override;
 
- protected:
+protected:
   void constructLayers(const DDLogicalPart&, DDCompactView& cpv);
   void positionSensitive(DDLogicalPart& glog, DDCompactView& cpv);
 
- private:
+private:
   std::string tile;                    // Scintillator tile
   std::vector<std::string> materials;  // Materials
   std::vector<std::string> names;      // Names

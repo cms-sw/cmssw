@@ -7,7 +7,7 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 class FastTimeParameters {
- public:
+public:
   FastTimeParameters();
   ~FastTimeParameters();
 

@@ -6,5 +6,3 @@
 TYPELOOKUP_DATA_REG(GeometricTimingDet);
 TYPELOOKUP_DATA_REG(GeometricTimingDetExtra);
 TYPELOOKUP_DATA_REG(std::vector<GeometricTimingDetExtra>);
-
-

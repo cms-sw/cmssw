@@ -8,18 +8,19 @@
 #include "DetectorDescription/Core/interface/DDTypes.h"
 
 class DDHGCalWafer : public DDAlgorithm {
- public:
+public:
   // Constructor and Destructor
   DDHGCalWafer();
   ~DDHGCalWafer() override;
 
   void initialize(const DDNumericArguments& nArgs,
-                  const DDVectorArguments& vArgs, const DDMapArguments& mArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
                   const DDStringArguments& sArgs,
                   const DDStringVectorArguments& vsArgs) override;
   void execute(DDCompactView& cpv) override;
 
- private:
+private:
   double waferSize_;                     // Wafer Size
   int cellType_;                         // Type (1 fine; 2 coarse)
   int nColumns_;                         // Maximum number of columns

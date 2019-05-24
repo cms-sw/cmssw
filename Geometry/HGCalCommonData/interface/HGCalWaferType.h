@@ -17,20 +17,22 @@
 #include <vector>
 
 class HGCalWaferType {
- public:
+public:
   HGCalWaferType(const std::vector<double>& rad100,
-                 const std::vector<double>& rad200, double waferSize,
-                 double zMin, int choice, unsigned int cutValue,
+                 const std::vector<double>& rad200,
+                 double waferSize,
+                 double zMin,
+                 int choice,
+                 unsigned int cutValue,
                  double cutFracArea);
   ~HGCalWaferType();
   int getType(double xpos, double ypos, double zpos);
   std::pair<double, double> rLimits(double zpos);
 
- private:
+private:
   double areaPolygon(std::vector<double> const&, std::vector<double> const&);
-  std::pair<double, double> intersection(int, int, std::vector<double> const&,
-                                         std::vector<double> const&, double xp,
-                                         double yp, double rr);
+  std::pair<double, double> intersection(
+      int, int, std::vector<double> const&, std::vector<double> const&, double xp, double yp, double rr);
 
   const double sqrt3_ = 1.0 / std::sqrt(3.0);
   const std::vector<double> rad100_;

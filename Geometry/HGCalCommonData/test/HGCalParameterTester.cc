@@ -11,7 +11,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class HGCalParameterTester : public edm::one::EDAnalyzer<> {
- public:
+public:
   explicit HGCalParameterTester(const edm::ParameterSet&);
   ~HGCalParameterTester() override {}
 
@@ -19,13 +19,11 @@ class HGCalParameterTester : public edm::one::EDAnalyzer<> {
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
 
- private:
+private:
   template <typename T>
   void myPrint(std::string const& s, std::vector<T> const& obj, int n) const;
-  void myPrint(std::string const& s, std::vector<double> const& obj1,
-               std::vector<double> const& obj2, int n) const;
-  void myPrint(std::string const& s, HGCalParameters::wafer_map const& obj,
-               int n) const;
+  void myPrint(std::string const& s, std::vector<double> const& obj1, std::vector<double> const& obj2, int n) const;
+  void myPrint(std::string const& s, HGCalParameters::wafer_map const& obj, int n) const;
   void printTrform(HGCalParameters const*) const;
   void printWaferType(HGCalParameters const* phgp) const;
 
@@ -39,8 +37,7 @@ HGCalParameterTester::HGCalParameterTester(const edm::ParameterSet& ic)
       token_(esConsumes<HGCalParameters, IdealGeometryRecord>(edm::ESInputTag{"", name_})),
       mode_(ic.getUntrackedParameter<int>("Mode")) {}
 
-void HGCalParameterTester::analyze(const edm::Event& iEvent,
-                                   const edm::EventSetup& iSetup) {
+void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::LogVerbatim("HGCalGeomr") << "HGCalParameter::Here I am";
   auto start = std::chrono::high_resolution_clock::now();
 
@@ -116,11 +113,9 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
 
   } else if (mode_ == 1) {
     std::cout << "DetectorType: " << phgp->detectorType_ << "\n";
-    std::cout << "Wafer Parameters: " << phgp->waferSize_ << ":"
-              << phgp->waferR_ << ":" << phgp->waferThick_ << ":"
+    std::cout << "Wafer Parameters: " << phgp->waferSize_ << ":" << phgp->waferR_ << ":" << phgp->waferThick_ << ":"
               << phgp->sensorSeparation_ << ":" << phgp->mouseBite_ << "\n";
-    std::cout << "nCells_: " << phgp->nCellsFine_ << ":" << phgp->nCellsCoarse_
-              << "\n";
+    std::cout << "nCells_: " << phgp->nCellsFine_ << ":" << phgp->nCellsCoarse_ << "\n";
     std::cout << "nSectors_: " << phgp->nSectors_ << "\n";
     std::cout << "FirstLayer: " << phgp->firstLayer_ << "\n";
     std::cout << "FirstMixedLayer: " << phgp->firstMixedLayer_ << "\n";
@@ -131,9 +126,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     myPrint("CellThickness", phgp->cellThickness_, 10);
     myPrint("radius100to200", phgp->radius100to200_, 10);
     myPrint("radius200to300", phgp->radius200to300_, 10);
-    std::cout << "choiceType " << phgp->choiceType_ << "   nCornerCut "
-              << phgp->nCornerCut_ << "  fracAreaMin " << phgp->fracAreaMin_
-              << "  zMinForRad " << phgp->zMinForRad_ << "\n";
+    std::cout << "choiceType " << phgp->choiceType_ << "   nCornerCut " << phgp->nCornerCut_ << "  fracAreaMin "
+              << phgp->fracAreaMin_ << "  zMinForRad " << phgp->zMinForRad_ << "\n";
 
     myPrint("CellSize", phgp->cellSize_, 10);
     myPrint("radiusMixBoundary", phgp->radiusMixBoundary_, 10);
@@ -189,16 +183,14 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
 
   } else {
     std::cout << "DetectorType: " << phgp->detectorType_ << "\n";
-    std::cout << "nCells_: " << phgp->nCellsFine_ << ":" << phgp->nCellsCoarse_
-              << "\n";
+    std::cout << "nCells_: " << phgp->nCellsFine_ << ":" << phgp->nCellsCoarse_ << "\n";
     std::cout << "MinTileZize: " << phgp->minTileSize_ << "\n";
     std::cout << "FirstLayer: " << phgp->firstLayer_ << "\n";
     std::cout << "FirstMixedLayer: " << phgp->firstMixedLayer_ << "\n";
     std::cout << "mode_: " << phgp->mode_ << "\n";
     std::cout << "waferUVMax: " << phgp->waferUVMax_ << "\n";
     std::cout << "nSectors_: " << phgp->nSectors_ << "\n";
-    std::cout << "nCells_: " << phgp->nCellsFine_ << ":" << phgp->nCellsCoarse_
-              << "\n";
+    std::cout << "nCells_: " << phgp->nCellsFine_ << ":" << phgp->nCellsCoarse_ << "\n";
 
     myPrint("CellSize", phgp->cellSize_, 10);
     myPrint("radiusMixBoundary", phgp->radiusMixBoundary_, 10);
@@ -261,8 +253,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
 }
 
 template <typename T>
-void HGCalParameterTester::myPrint(std::string const& s,
-                                   std::vector<T> const& obj, int n) const {
+void HGCalParameterTester::myPrint(std::string const& s, std::vector<T> const& obj, int n) const {
   int k(0);
   std::cout << s << " with " << obj.size() << " elements\n";
   for (auto const& it : obj) {
@@ -273,7 +264,8 @@ void HGCalParameterTester::myPrint(std::string const& s,
       k = 0;
     }
   }
-  if (k > 0) std::cout << "\n";
+  if (k > 0)
+    std::cout << "\n";
 }
 
 void HGCalParameterTester::myPrint(std::string const& s,
@@ -290,12 +282,11 @@ void HGCalParameterTester::myPrint(std::string const& s,
       k = 0;
     }
   }
-  if (k > 0) std::cout << "\n";
+  if (k > 0)
+    std::cout << "\n";
 }
 
-void HGCalParameterTester::myPrint(std::string const& s,
-                                   HGCalParameters::wafer_map const& obj,
-                                   int n) const {
+void HGCalParameterTester::myPrint(std::string const& s, HGCalParameters::wafer_map const& obj, int n) const {
   int k(0);
   std::cout << s << " with " << obj.size() << " elements\n";
   for (auto const& it : obj) {
@@ -306,14 +297,13 @@ void HGCalParameterTester::myPrint(std::string const& s,
       k = 0;
     }
   }
-  if (k > 0) std::cout << "\n";
+  if (k > 0)
+    std::cout << "\n";
 }
 
-void HGCalParameterTester::printTrform(
-    HGCalParameters const* phgp) const {
+void HGCalParameterTester::printTrform(HGCalParameters const* phgp) const {
   int k(0);
-  std::cout << "TrformIndex with " << phgp->trformIndex_.size()
-            << " elements\n";
+  std::cout << "TrformIndex with " << phgp->trformIndex_.size() << " elements\n";
   for (unsigned int i = 0; i < phgp->trformIndex_.size(); ++i) {
     std::array<int, 4> id = phgp->getID(i);
     std::cout << id[0] << ":" << id[1] << ":" << id[2] << ":" << id[3] << ", ";
@@ -323,11 +313,11 @@ void HGCalParameterTester::printTrform(
       k = 0;
     }
   }
-  if (k > 0) std::cout << "\n";
+  if (k > 0)
+    std::cout << "\n";
 }
 
-void HGCalParameterTester::printWaferType(
-    HGCalParameters const* phgp) const {
+void HGCalParameterTester::printWaferType(HGCalParameters const* phgp) const {
   int k(0);
   std::cout << "waferTypes with " << phgp->waferTypes_.size() << " elements\n";
   std::map<std::pair<int, int>, int> kounts;
@@ -335,13 +325,11 @@ void HGCalParameterTester::printWaferType(
   for (auto const& it : phgp->waferTypes_) {
     std::cout << " [" << k << "] " << HGCalWaferIndex::waferLayer(it.first);
     if (HGCalWaferIndex::waferFormat(it.first)) {
-      std::cout << ":" << HGCalWaferIndex::waferU(it.first) << ":"
-                << HGCalWaferIndex::waferV(it.first);
+      std::cout << ":" << HGCalWaferIndex::waferU(it.first) << ":" << HGCalWaferIndex::waferV(it.first);
     } else {
       std::cout << ":" << HGCalWaferIndex::waferCopy(it.first);
     }
-    std::cout << " ==> (" << (it.second).first << ":" << (it.second).second
-              << ")" << std::endl;
+    std::cout << " ==> (" << (it.second).first << ":" << (it.second).second << ")" << std::endl;
     itr = kounts.find(it.second);
     if (itr == kounts.end())
       kounts[it.second] = 1;
@@ -352,8 +340,8 @@ void HGCalParameterTester::printWaferType(
   if (!kounts.empty()) {
     std::cout << "Summary of waferTypes ==========================\n";
     for (itr = kounts.begin(); itr != kounts.end(); ++itr)
-      std::cout << "Type (" << (itr->first).first << ":" << (itr->first).second
-                << ") Kount " << itr->second << std::endl;
+      std::cout << "Type (" << (itr->first).first << ":" << (itr->first).second << ") Kount " << itr->second
+                << std::endl;
   }
 }
 
