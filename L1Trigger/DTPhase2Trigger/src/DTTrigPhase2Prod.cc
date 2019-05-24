@@ -96,9 +96,6 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset){
     mpathqualityenhancer = new MPQualityEnhancerFilter(pset);
     mpathredundantfilter = new MPRedundantFilter(pset);
     mpathassociator      = new MuonPathAssociator(pset);
-      
-   
-    
 }
 
 DTTrigPhase2Prod::~DTTrigPhase2Prod(){
