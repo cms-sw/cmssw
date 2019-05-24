@@ -11,18 +11,16 @@
  *
  */
 
-
 /// \class L1GctEtHad
 /// \brief Persistable copy of total Ht measured at Level-1
 
 class L1GctEtHad {
- public:
-
+public:
   enum numberOfBits {
-    kEtHadNBits    = 12,
+    kEtHadNBits = 12,
     kEtHadOFlowBit = 1 << kEtHadNBits,
     kEtHadMaxValue = kEtHadOFlowBit - 1,
-    kRawCtorMask   = kEtHadOFlowBit | kEtHadMaxValue
+    kRawCtorMask = kEtHadOFlowBit | kEtHadMaxValue
   };
 
   L1GctEtHad();
@@ -45,22 +43,20 @@ class L1GctEtHad {
   unsigned et() const { return m_data & kEtHadMaxValue; }
 
   /// get the overflow
-  bool overFlow() const { return (m_data & kEtHadOFlowBit)!=0; }
+  bool overFlow() const { return (m_data & kEtHadOFlowBit) != 0; }
 
   /// get bunch-crossing index
   int16_t bx() const { return m_bx; }
 
   /// equality operator
-  int operator==(const L1GctEtHad& e) const { return m_data==e.raw(); }
+  int operator==(const L1GctEtHad& e) const { return m_data == e.raw(); }
 
   /// inequality operator
-  int operator!=(const L1GctEtHad& e) const { return m_data!=e.raw(); }
+  int operator!=(const L1GctEtHad& e) const { return m_data != e.raw(); }
 
- private:
-
+private:
   uint16_t m_data;
   int16_t m_bx;
-
 };
 
 /// Pretty-print operator for L1GctEtHad
