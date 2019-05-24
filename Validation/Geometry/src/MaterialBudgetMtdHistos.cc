@@ -14,146 +14,147 @@ MaterialBudgetMtdHistos::MaterialBudgetMtdHistos(std::shared_ptr<MaterialBudgetD
 void MaterialBudgetMtdHistos::book() {
   edm::LogInfo("MaterialBudget") << "MaterialBudgetMtdHistos: Booking user histos";
 
+  static constexpr double minEta = -5.;
+  static constexpr double maxEta = 5.;
+  static constexpr double minPhi = -3.1416;
+  static constexpr double maxPhi = 3.1416;        
+  static constexpr int nbinEta = 250;
+  static constexpr int nbinPhi = 180;
+
   // Material budget: radiation length
   // total X0
-  hmgr->addHistoProf1(new TProfile("10", "MB prof Eta [Total];#eta;x/X_{0} ", 250, -5., 5.));
-  hmgr->addHisto1(new TH1F("11", "Eta ", 501, -5., 5.));
-  hmgr->addHistoProf1(new TProfile("20", "MB prof Phi [Total];#varphi [rad];x/X_{0} ", 180, -3.1416, 3.1416));
-  hmgr->addHisto1(new TH1F("21", "Phi ", 180, -3.1416, 3.1416));
+  hmgr->addHistoProf1(new TProfile("10", "MB prof Eta [Total];#eta;x/X_{0} ", nbinEta, minEta, maxEta));
+  hmgr->addHisto1(new TH1F("11", "Eta ", nbinEta, minEta, maxEta));
+  hmgr->addHistoProf1(new TProfile("20", "MB prof Phi [Total];#varphi [rad];x/X_{0} ", nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto1(new TH1F("21", "Phi ", nbinPhi, minPhi, maxPhi));
   hmgr->addHistoProf2(
-      new TProfile2D("30", "MB prof Eta  Phi [Total];#eta;#varphi;x/X_{0} ", 250, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHisto2(new TH2F("31", "Eta vs Phi ", 501, -5., 5., 180, -3.1416, 3.1416));
+      new TProfile2D("30", "MB prof Eta  Phi [Total];#eta;#varphi;x/X_{0} ", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto2(new TH2F("31", "Eta vs Phi ", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
 
   // Support
-  hmgr->addHistoProf1(new TProfile("110", "MB prof Eta [Support];#eta;x/X_{0}", 250, -5.0, 5.0));
-  hmgr->addHisto1(new TH1F("111", "Eta [Support]", 501, -5., 5.));
-  hmgr->addHistoProf1(new TProfile("120", "MB prof Phi [Support];#varphi [rad];x/X_{0}", 180, -3.1416, 3.1416));
-  hmgr->addHisto1(new TH1F("121", "Phi [Support]", 180, -3.1416, 3.1416));
+  hmgr->addHistoProf1(new TProfile("110", "MB prof Eta [Support];#eta;x/X_{0}", nbinEta, minEta, maxEta));
+  hmgr->addHisto1(new TH1F("111", "Eta [Support]", nbinEta, minEta, maxEta));
+  hmgr->addHistoProf1(new TProfile("120", "MB prof Phi [Support];#varphi [rad];x/X_{0}", nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto1(new TH1F("121", "Phi [Support]", nbinPhi, minPhi, maxPhi));
   hmgr->addHistoProf2(
-      new TProfile2D("130", "MB prof Eta  Phi [Support];#eta;#varphi;x/X_{0}", 250, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHisto2(new TH2F("131", "Eta vs Phi [Support]", 501, -5., 5., 180, -3.1416, 3.1416));
+      new TProfile2D("130", "MB prof Eta  Phi [Support];#eta;#varphi;x/X_{0}", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto2(new TH2F("131", "Eta vs Phi [Support]", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
 
   // Sensitive
-  hmgr->addHistoProf1(new TProfile("210", "MB prof Eta [Sensitive];#eta;x/X_{0}", 250, -5.0, 5.0));
-  hmgr->addHisto1(new TH1F("211", "Eta [Sensitive]", 501, -5., 5.));
-  hmgr->addHistoProf1(new TProfile("220", "MB prof Phi [Sensitive];#varphi [rad];x/X_{0}", 180, -3.1416, 3.1416));
-  hmgr->addHisto1(new TH1F("221", "Phi [Sensitive]", 180, -3.1416, 3.1416));
+  hmgr->addHistoProf1(new TProfile("210", "MB prof Eta [Sensitive];#eta;x/X_{0}", nbinEta, minEta, maxEta));
+  hmgr->addHisto1(new TH1F("211", "Eta [Sensitive]", nbinEta, minEta, maxEta));
+  hmgr->addHistoProf1(new TProfile("220", "MB prof Phi [Sensitive];#varphi [rad];x/X_{0}", nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto1(new TH1F("221", "Phi [Sensitive]", nbinPhi, minPhi, maxPhi));
   hmgr->addHistoProf2(
-      new TProfile2D("230", "MB prof Eta  Phi [Sensitive];#eta;#varphi;x/X_{0}", 250, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHisto2(new TH2F("231", "Eta vs Phi [Sensitive]", 501, -5., 5., 180, -3.1416, 3.1416));
+      new TProfile2D("230", "MB prof Eta  Phi [Sensitive];#eta;#varphi;x/X_{0}", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto2(new TH2F("231", "Eta vs Phi [Sensitive]", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
 
   // Cables
-  hmgr->addHistoProf1(new TProfile("310", "MB prof Eta [Cables];#eta;x/X_{0}", 250, -5.0, 5.0));
-  hmgr->addHisto1(new TH1F("311", "Eta [Cables]", 501, -5., 5.));
-  hmgr->addHistoProf1(new TProfile("320", "MB prof Phi [Cables];#varphi [rad];x/X_{0}", 180, -3.1416, 3.1416));
-  hmgr->addHisto1(new TH1F("321", "Phi [Cables]", 180, -3.1416, 3.1416));
+  hmgr->addHistoProf1(new TProfile("310", "MB prof Eta [Cables];#eta;x/X_{0}", nbinEta, minEta, maxEta));
+  hmgr->addHisto1(new TH1F("311", "Eta [Cables]", nbinEta, minEta, maxEta));
+  hmgr->addHistoProf1(new TProfile("320", "MB prof Phi [Cables];#varphi [rad];x/X_{0}", nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto1(new TH1F("321", "Phi [Cables]", nbinPhi, minPhi, maxPhi));
   hmgr->addHistoProf2(
-      new TProfile2D("330", "MB prof Eta  Phi [Cables];#eta;#varphi;x/X_{0}", 250, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHisto2(new TH2F("331", "Eta vs Phi [Cables]", 501, -5., 5., 180, -3.1416, 3.1416));
+      new TProfile2D("330", "MB prof Eta  Phi [Cables];#eta;#varphi;x/X_{0}", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto2(new TH2F("331", "Eta vs Phi [Cables]", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
 
   // Cooling
-  hmgr->addHistoProf1(new TProfile("410", "MB prof Eta [Cooling];#eta;x/X_{0}", 250, -5.0, 5.0));
-  hmgr->addHisto1(new TH1F("411", "Eta [Cooling]", 501, -5., 5.));
-  hmgr->addHistoProf1(new TProfile("420", "MB prof Phi [Cooling];#varphi [rad];x/X_{0}", 180, -3.1416, 3.1416));
-  hmgr->addHisto1(new TH1F("421", "Phi [Cooling]", 180, -3.1416, 3.1416));
+  hmgr->addHistoProf1(new TProfile("410", "MB prof Eta [Cooling];#eta;x/X_{0}", nbinEta, minEta, maxEta));
+  hmgr->addHisto1(new TH1F("411", "Eta [Cooling]", nbinEta, minEta, maxEta));
+  hmgr->addHistoProf1(new TProfile("420", "MB prof Phi [Cooling];#varphi [rad];x/X_{0}", nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto1(new TH1F("421", "Phi [Cooling]", nbinPhi, minPhi, maxPhi));
   hmgr->addHistoProf2(
-      new TProfile2D("430", "MB prof Eta  Phi [Cooling];#eta;#varphi;x/X_{0}", 250, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHisto2(new TH2F("431", "Eta vs Phi [Cooling]", 501, -5., 5., 180, -3.1416, 3.1416));
+      new TProfile2D("430", "MB prof Eta  Phi [Cooling];#eta;#varphi;x/X_{0}", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto2(new TH2F("431", "Eta vs Phi [Cooling]", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
 
   // Electronics
-  hmgr->addHistoProf1(new TProfile("510", "MB prof Eta [Electronics];#eta;x/X_{0}", 250, -5.0, 5.0));
-  hmgr->addHisto1(new TH1F("511", "Eta [Electronics]", 501, -5., 5.));
-  hmgr->addHistoProf1(new TProfile("520", "MB prof Phi [Electronics];#varphi [rad];x/X_{0}", 180, -3.1416, 3.1416));
-  hmgr->addHisto1(new TH1F("521", "Phi [Electronics]", 180, -3.1416, 3.1416));
+  hmgr->addHistoProf1(new TProfile("510", "MB prof Eta [Electronics];#eta;x/X_{0}", nbinEta, minEta, maxEta));
+  hmgr->addHisto1(new TH1F("511", "Eta [Electronics]", nbinEta, minEta, maxEta));
+  hmgr->addHistoProf1(new TProfile("520", "MB prof Phi [Electronics];#varphi [rad];x/X_{0}", nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto1(new TH1F("521", "Phi [Electronics]", nbinPhi, minPhi, maxPhi));
   hmgr->addHistoProf2(
-      new TProfile2D("530", "MB prof Eta  Phi [Electronics];#eta;#varphi;x/X_{0}", 250, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHisto2(new TH2F("531", "Eta vs Phi [Electronics]", 501, -5., 5., 180, -3.1416, 3.1416));
+      new TProfile2D("530", "MB prof Eta  Phi [Electronics];#eta;#varphi;x/X_{0}", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto2(new TH2F("531", "Eta vs Phi [Electronics]", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
 
   // Other
-  hmgr->addHistoProf1(new TProfile("610", "MB prof Eta [Other];#eta;x/X_{0}", 250, -5.0, 5.0));
-  hmgr->addHisto1(new TH1F("611", "Eta [Other]", 501, -5., 5.));
-  hmgr->addHistoProf1(new TProfile("620", "MB prof Phi [Other];#varphi [rad];x/X_{0}", 180, -3.1416, 3.1416));
-  hmgr->addHisto1(new TH1F("621", "Phi [Other]", 180, -3.1416, 3.1416));
+  hmgr->addHistoProf1(new TProfile("610", "MB prof Eta [Other];#eta;x/X_{0}", nbinEta, minEta, maxEta));
+  hmgr->addHisto1(new TH1F("611", "Eta [Other]", nbinEta, minEta, maxEta));
+  hmgr->addHistoProf1(new TProfile("620", "MB prof Phi [Other];#varphi [rad];x/X_{0}", nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto1(new TH1F("621", "Phi [Other]", nbinPhi, minPhi, maxPhi));
   hmgr->addHistoProf2(
-      new TProfile2D("630", "MB prof Eta  Phi [Other];#eta;#varphi;x/X_{0}", 250, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHisto2(new TH2F("631", "Eta vs Phi [Other]", 501, -5., 5., 180, -3.1416, 3.1416));
+      new TProfile2D("630", "MB prof Eta  Phi [Other];#eta;#varphi;x/X_{0}", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto2(new TH2F("631", "Eta vs Phi [Other]", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
 
   // Material budget: interaction length
   // total Lambda0
-  hmgr->addHistoProf1(new TProfile("1010", "MB prof Eta [Total];#eta;#lambda/#lambda_{0} ", 250, -5., 5.));
-  hmgr->addHisto1(new TH1F("1011", "Eta ", 501, -5., 5.));
+  hmgr->addHistoProf1(new TProfile("1010", "MB prof Eta [Total];#eta;#lambda/#lambda_{0} ", nbinEta, minEta, maxEta));
+  hmgr->addHisto1(new TH1F("1011", "Eta ", nbinEta, minEta, maxEta));
   hmgr->addHistoProf1(
-      new TProfile("1020", "MB prof Phi [Total];#varphi [rad];#lambda/#lambda_{0} ", 180, -3.1416, 3.1416));
-  hmgr->addHisto1(new TH1F("1021", "Phi ", 180, -3.1416, 3.1416));
+      new TProfile("1020", "MB prof Phi [Total];#varphi [rad];#lambda/#lambda_{0} ", nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto1(new TH1F("1021", "Phi ", nbinPhi, minPhi, maxPhi));
   hmgr->addHistoProf2(new TProfile2D(
-      "1030", "MB prof Eta  Phi [Total];#eta;#varphi;#lambda/#lambda_{0} ", 250, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHisto2(new TH2F("1031", "Eta vs Phi ", 501, -5., 5., 180, -3.1416, 3.1416));
+      "1030", "MB prof Eta  Phi [Total];#eta;#varphi;#lambda/#lambda_{0} ", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto2(new TH2F("1031", "Eta vs Phi ", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
 
   // Support
-  hmgr->addHistoProf1(new TProfile("1110", "MB prof Eta [Support];#eta;#lambda/#lambda_{0}", 250, -5.0, 5.0));
-  hmgr->addHisto1(new TH1F("1111", "Eta [Support]", 501, -5., 5.));
+  hmgr->addHistoProf1(new TProfile("1110", "MB prof Eta [Support];#eta;#lambda/#lambda_{0}", nbinEta, minEta, maxEta));
+  hmgr->addHisto1(new TH1F("1111", "Eta [Support]", nbinEta, minEta, maxEta));
   hmgr->addHistoProf1(
-      new TProfile("1120", "MB prof Phi [Support];#varphi [rad];#lambda/#lambda_{0}", 180, -3.1416, 3.1416));
-  hmgr->addHisto1(new TH1F("1121", "Phi [Support]", 180, -3.1416, 3.1416));
+      new TProfile("1120", "MB prof Phi [Support];#varphi [rad];#lambda/#lambda_{0}", nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto1(new TH1F("1121", "Phi [Support]", nbinPhi, minPhi, maxPhi));
   hmgr->addHistoProf2(new TProfile2D(
-      "1130", "MB prof Eta  Phi [Support];#eta;#varphi;#lambda/#lambda_{0}", 250, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHisto2(new TH2F("1131", "Eta vs Phi [Support]", 501, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHistoProf1(new TProfile("1140", "MB prof R [Support];R [mm];#lambda/#lambda_{0}", 200, 0., 2000.));
+      "1130", "MB prof Eta  Phi [Support];#eta;#varphi;#lambda/#lambda_{0}", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto2(new TH2F("1131", "Eta vs Phi [Support]", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
 
   // Sensitive
-  hmgr->addHistoProf1(new TProfile("1210", "MB prof Eta [Sensitive];#eta;#lambda/#lambda_{0}", 250, -5.0, 5.0));
-  hmgr->addHisto1(new TH1F("1211", "Eta [Sensitive]", 501, -5., 5.));
+  hmgr->addHistoProf1(new TProfile("1210", "MB prof Eta [Sensitive];#eta;#lambda/#lambda_{0}", nbinEta, minEta, maxEta));
+  hmgr->addHisto1(new TH1F("1211", "Eta [Sensitive]", nbinEta, minEta, maxEta));
   hmgr->addHistoProf1(
-      new TProfile("1220", "MB prof Phi [Sensitive];#varphi [rad];#lambda/#lambda_{0}", 180, -3.1416, 3.1416));
-  hmgr->addHisto1(new TH1F("1221", "Phi [Sensitive]", 180, -3.1416, 3.1416));
+      new TProfile("1220", "MB prof Phi [Sensitive];#varphi [rad];#lambda/#lambda_{0}", nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto1(new TH1F("1221", "Phi [Sensitive]", nbinPhi, minPhi, maxPhi));
   hmgr->addHistoProf2(new TProfile2D(
-      "1230", "MB prof Eta  Phi [Sensitive];#eta;#varphi;#lambda/#lambda_{0}", 250, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHisto2(new TH2F("1231", "Eta vs Phi [Sensitive]", 501, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHistoProf1(new TProfile("1240", "MB prof R [Sensitive];R [mm];#lambda/#lambda_{0}", 200, 0., 2000.));
+      "1230", "MB prof Eta  Phi [Sensitive];#eta;#varphi;#lambda/#lambda_{0}", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto2(new TH2F("1231", "Eta vs Phi [Sensitive]", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
 
   // Cables
-  hmgr->addHistoProf1(new TProfile("1310", "MB prof Eta [Cables];#eta;#lambda/#lambda_{0}", 250, -5.0, 5.0));
-  hmgr->addHisto1(new TH1F("1311", "Eta [Cables]", 501, -5., 5.));
+  hmgr->addHistoProf1(new TProfile("1310", "MB prof Eta [Cables];#eta;#lambda/#lambda_{0}", nbinEta, minEta, maxEta));
+  hmgr->addHisto1(new TH1F("1311", "Eta [Cables]", nbinEta, minEta, maxEta));
   hmgr->addHistoProf1(
-      new TProfile("1320", "MB prof Phi [Cables];#varphi [rad];#lambda/#lambda_{0}", 180, -3.1416, 3.1416));
-  hmgr->addHisto1(new TH1F("1321", "Phi [Cables]", 180, -3.1416, 3.1416));
+      new TProfile("1320", "MB prof Phi [Cables];#varphi [rad];#lambda/#lambda_{0}", nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto1(new TH1F("1321", "Phi [Cables]", nbinPhi, minPhi, maxPhi));
   hmgr->addHistoProf2(new TProfile2D(
-      "1330", "MB prof Eta  Phi [Cables];#eta;#varphi;#lambda/#lambda_{0}", 250, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHisto2(new TH2F("1331", "Eta vs Phi [Cables]", 501, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHistoProf1(new TProfile("1340", "MB prof R [Cables];R [mm];#lambda/#lambda_{0}", 200, 0., 2000.));
+      "1330", "MB prof Eta  Phi [Cables];#eta;#varphi;#lambda/#lambda_{0}", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto2(new TH2F("1331", "Eta vs Phi [Cables]", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
 
   // Cooling
-  hmgr->addHistoProf1(new TProfile("1410", "MB prof Eta [Cooling];#eta;#lambda/#lambda_{0}", 250, -5.0, 5.0));
-  hmgr->addHisto1(new TH1F("1411", "Eta [Cooling]", 501, -5., 5.));
+  hmgr->addHistoProf1(new TProfile("1410", "MB prof Eta [Cooling];#eta;#lambda/#lambda_{0}", nbinEta, minEta, maxEta));
+  hmgr->addHisto1(new TH1F("1411", "Eta [Cooling]", nbinEta, minEta, maxEta));
   hmgr->addHistoProf1(
-      new TProfile("1420", "MB prof Phi [Cooling];#varphi [rad];#lambda/#lambda_{0}", 180, -3.1416, 3.1416));
-  hmgr->addHisto1(new TH1F("1421", "Phi [Cooling]", 180, -3.1416, 3.1416));
+      new TProfile("1420", "MB prof Phi [Cooling];#varphi [rad];#lambda/#lambda_{0}", nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto1(new TH1F("1421", "Phi [Cooling]", nbinPhi, minPhi, maxPhi));
   hmgr->addHistoProf2(new TProfile2D(
-      "1430", "MB prof Eta  Phi [Cooling];#eta;#varphi;#lambda/#lambda_{0}", 250, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHisto2(new TH2F("1431", "Eta vs Phi [Cooling]", 501, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHistoProf1(new TProfile("1440", "MB prof R [Cooling];R [mm];#lambda/#lambda_{0}", 200, 0., 2000.));
+      "1430", "MB prof Eta  Phi [Cooling];#eta;#varphi;#lambda/#lambda_{0}", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto2(new TH2F("1431", "Eta vs Phi [Cooling]", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
 
   // Electronics
-  hmgr->addHistoProf1(new TProfile("1510", "MB prof Eta [Electronics];#eta;#lambda/#lambda_{0}", 250, -5.0, 5.0));
-  hmgr->addHisto1(new TH1F("1511", "Eta [Electronics]", 501, -5., 5.));
+  hmgr->addHistoProf1(new TProfile("1510", "MB prof Eta [Electronics];#eta;#lambda/#lambda_{0}", nbinEta, minEta, maxEta));
+  hmgr->addHisto1(new TH1F("1511", "Eta [Electronics]", nbinEta, minEta, maxEta));
   hmgr->addHistoProf1(
-      new TProfile("1520", "MB prof Phi [Electronics];#varphi [rad];#lambda/#lambda_{0}", 180, -3.1416, 3.1416));
-  hmgr->addHisto1(new TH1F("1521", "Phi [Electronics]", 180, -3.1416, 3.1416));
+      new TProfile("1520", "MB prof Phi [Electronics];#varphi [rad];#lambda/#lambda_{0}", nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto1(new TH1F("1521", "Phi [Electronics]", nbinPhi, minPhi, maxPhi));
   hmgr->addHistoProf2(new TProfile2D(
-      "1530", "MB prof Eta  Phi [Electronics];#eta;#varphi;#lambda/#lambda_{0}", 250, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHisto2(new TH2F("1531", "Eta vs Phi [Electronics]", 501, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHistoProf1(new TProfile("1540", "MB prof R [Electronics];R [mm];#lambda/#lambda_{0}", 200, 0., 2000.));
+      "1530", "MB prof Eta  Phi [Electronics];#eta;#varphi;#lambda/#lambda_{0}", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto2(new TH2F("1531", "Eta vs Phi [Electronics]", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
 
   // Other
-  hmgr->addHistoProf1(new TProfile("1610", "MB prof Eta [Other];#eta;#lambda/#lambda_{0}", 250, -5.0, 5.0));
-  hmgr->addHisto1(new TH1F("1611", "Eta [Other]", 501, -5., 5.));
+  hmgr->addHistoProf1(new TProfile("1610", "MB prof Eta [Other];#eta;#lambda/#lambda_{0}", nbinEta, minEta, maxEta));
+  hmgr->addHisto1(new TH1F("1611", "Eta [Other]", nbinEta, minEta, maxEta));
   hmgr->addHistoProf1(
-      new TProfile("1620", "MB prof Phi [Other];#varphi [rad];#lambda/#lambda_{0}", 180, -3.1416, 3.1416));
-  hmgr->addHisto1(new TH1F("1621", "Phi [Other]", 180, -3.1416, 3.1416));
+      new TProfile("1620", "MB prof Phi [Other];#varphi [rad];#lambda/#lambda_{0}", nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto1(new TH1F("1621", "Phi [Other]", nbinPhi, minPhi, maxPhi));
   hmgr->addHistoProf2(new TProfile2D(
-      "1630", "MB prof Eta  Phi [Other];#eta;#varphi;#lambda/#lambda_{0}", 250, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHisto2(new TH2F("1631", "Eta vs Phi [Other]", 501, -5., 5., 180, -3.1416, 3.1416));
-  hmgr->addHistoProf1(new TProfile("1640", "MB prof R [Other];R [mm];#lambda/#lambda_{0}", 200, 0., 2000.));
+      "1630", "MB prof Eta  Phi [Other];#eta;#varphi;#lambda/#lambda_{0}", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
+  hmgr->addHisto2(new TH2F("1631", "Eta vs Phi [Other]", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
 
   edm::LogInfo("MaterialBudget") << "MaterialBudgetMtdHistos: booking user histos done";
 }
