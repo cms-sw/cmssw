@@ -1,5 +1,6 @@
 #include "L1Trigger/DTPhase2Trigger/interface/MuonPathAssociator.h"
 #include "L1Trigger/DTPhase2Trigger/interface/MuonPathAnalyzerPerSL.h"
+#include "L1Trigger/DTPhase2Trigger/interface/constants.h"
 
 using namespace edm;
 using namespace std;
@@ -121,27 +122,50 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
            		    DTWireId wireId1(SLId1,2,1);
            	     	    DTWireId wireId3(SLId3,2,1);
 
-           		    double x1 = shiftinfo[wireId1.rawId()]+(42.*SL1metaPrimitive->wi1+21. + (21./386.74)*(SL1metaPrimitive->tdc1-MeanT0)*(-1+2*SL1metaPrimitive->lat1))/10;
-             		    double x2 = shiftinfo[wireId1.rawId()]+(42.*SL1metaPrimitive->wi2+(21./386.74)*(SL1metaPrimitive->tdc2-MeanT0)*(-1+2*SL1metaPrimitive->lat2))/10;
-           		    double x3 = shiftinfo[wireId1.rawId()]+(42.*SL1metaPrimitive->wi3+21. + (21./386.74)*(SL1metaPrimitive->tdc3-MeanT0)*(-1+2*SL1metaPrimitive->lat3))/10;
-             		    double x4 = shiftinfo[wireId1.rawId()]+(42.*SL1metaPrimitive->wi4+(21./386.74)*(SL1metaPrimitive->tdc4-MeanT0)*(-1+2*SL1metaPrimitive->lat4))/10;
-              		    double x5 = shiftinfo[wireId3.rawId()]+(42.*SL3metaPrimitive->wi1+21. + (21./386.74)*(SL3metaPrimitive->tdc1-MeanT0)*(-1+2*SL3metaPrimitive->lat1))/10;
-            		    double x6 = shiftinfo[wireId3.rawId()]+(42.*SL3metaPrimitive->wi2+(21./386.74)*(SL3metaPrimitive->tdc2-MeanT0)*(-1+2*SL3metaPrimitive->lat2))/10;
-              		    double x7 = shiftinfo[wireId3.rawId()]+(42.*SL3metaPrimitive->wi3+21. + (21./386.74)*(SL3metaPrimitive->tdc3-MeanT0)*(-1+2*SL3metaPrimitive->lat3))/10;
-             		    double x8 = shiftinfo[wireId3.rawId()]+(42.*SL3metaPrimitive->wi4+(21./386.74)*(SL3metaPrimitive->tdc4-MeanT0)*(-1+2*SL3metaPrimitive->lat4))/10;
-
-            		    double x1reco = MeanPos+(23.5/2 - (1-2.5)*1.3)*NewSlope;
-             		    double x2reco = MeanPos+(23.5/2 - (2-2.5)*1.3)*NewSlope;
-             		    double x3reco = MeanPos+(23.5/2 - (3-2.5)*1.3)*NewSlope;
-              		    double x4reco = MeanPos+(23.5/2 - (4-2.5)*1.3)*NewSlope;
-              		    double x5reco = MeanPos+(-23.5/2 - (1-2.5)*1.3)*NewSlope;
-            		    double x6reco = MeanPos+(-23.5/2 - (2-2.5)*1.3)*NewSlope;
-             		    double x7reco = MeanPos+(-23.5/2 - (3-2.5)*1.3)*NewSlope;
-            		    double x8reco = MeanPos+(-23.5/2 - (4-2.5)*1.3)*NewSlope;
-
-	                    double newChi2 = (x1reco-x1)*(x1reco-x1)+(x2reco-x2)*(x2reco-x2)+(x3reco-x3)*(x3reco-x3)+(x4reco-x4)*(x4reco-x4)+(x5reco-x5)*(x5reco-x5)+(x6reco-x6)*(x6reco-x6)+(x7reco-x7)*(x7reco-x7)+(x8reco-x8)*(x8reco-x8);
-
-			    //if(newChi2>chi2corTh) continue;
+			    double xH[8], xReco[8];
+			    int  wi[8], tdc[8], lat[8];
+			    for (int i = 0; i<8; i++){ xH[i]=0; xReco[i]=0;} 
+			    wi[0]=SL1metaPrimitive->wi1;tdc[0]=SL1metaPrimitive->tdc1; lat[0]=SL1metaPrimitive->lat1;  
+			    wi[1]=SL1metaPrimitive->wi2;tdc[1]=SL1metaPrimitive->tdc2; lat[1]=SL1metaPrimitive->lat2;  
+			    wi[2]=SL1metaPrimitive->wi3;tdc[2]=SL1metaPrimitive->tdc3; lat[2]=SL1metaPrimitive->lat3;  
+			    wi[3]=SL1metaPrimitive->wi4;tdc[3]=SL1metaPrimitive->tdc4; lat[3]=SL1metaPrimitive->lat4;  
+			    wi[4]=SL3metaPrimitive->wi1;tdc[4]=SL3metaPrimitive->tdc1; lat[4]=SL3metaPrimitive->lat1;  
+			    wi[5]=SL3metaPrimitive->wi2;tdc[5]=SL3metaPrimitive->tdc2; lat[5]=SL3metaPrimitive->lat2;  
+			    wi[6]=SL3metaPrimitive->wi3;tdc[6]=SL3metaPrimitive->tdc3; lat[6]=SL3metaPrimitive->lat3;  
+			    wi[7]=SL3metaPrimitive->wi4;tdc[7]=SL3metaPrimitive->tdc4; lat[7]=SL3metaPrimitive->lat4;  
+			
+           		    for (int i=0; i<4; i++){
+				if (wi[i]!=-1) {
+				    if (i%2==0){
+					 xH[i] = shiftinfo[wireId1.rawId()]+(42.*(double)wi[i]+ 21. + DRIFT_SPEED*((double)tdc[i]-MeanT0)*(-1.+2.*(double)lat[i]))/10;
+					 xReco[i] = MeanPos + (23.5/2 - ((double)i-1.5)*1.3)*NewSlope;
+				    }
+				    if (i%2!=0){
+					 xH[i] = shiftinfo[wireId1.rawId()]+(42.*(double)wi[i]+     + DRIFT_SPEED*((double)tdc[i]-MeanT0)*(-1+2*(double)lat[i]))/10;
+					 xReco[i] = MeanPos + (23.5/2 - ((double)i-1.5)*1.3)*NewSlope;
+			            }
+			            //cout << xH[i] << " " << xReco[i] << " ";
+				}
+			    } 
+           		    for (int i=4; i<8; i++){
+				if (wi[i]!=-1) {
+				    if (i%2==0){
+					 xH[i] = shiftinfo[wireId3.rawId()]+(42.*(double)wi[i]+ 21. + DRIFT_SPEED*((double)tdc[i]-MeanT0)*(-1+2*(double)lat[i]))/10;
+					 xReco[i] = MeanPos + (-23.5/2 - ((double)i-4-1.5)*1.3)*NewSlope;
+				    }
+				    if (i%2!=0){
+					 xH[i] = shiftinfo[wireId3.rawId()]+(42.*(double)wi[i]+     + DRIFT_SPEED*((double)tdc[i]-MeanT0)*(-1+2*(double)lat[i]))/10;
+					 xReco[i] = MeanPos + (-23.5/2 - ((double)i-4-1.5)*1.3)*NewSlope;
+			            }
+			            //cout << xH[i] << " " << xReco[i] << " ";
+				}
+			    }
+			    cout << endl;  
+			    double newChi2 = 0; 
+			    for (int i = 0; i<8; i++){
+				newChi2 = newChi2 + (xH[i]-xReco[i])*(xH[i]-xReco[i]);
+			    } 
+			    if(newChi2>chi2corTh) continue;
 
 	                    int quality = 0;
 			    if(SL3metaPrimitive->quality <= 2 and SL1metaPrimitive->quality <=2) quality=6;
