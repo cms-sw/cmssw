@@ -9,24 +9,24 @@
 #include "DetectorDescription/Core/interface/DDTypes.h"
 
 class DDHGCalTBModule : public DDAlgorithm {
- public:
+public:
   // Constructor and Destructor
   DDHGCalTBModule();  // const std::string & name);
   ~DDHGCalTBModule() override;
 
   void initialize(const DDNumericArguments& nArgs,
-                  const DDVectorArguments& vArgs, const DDMapArguments& mArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
                   const DDStringArguments& sArgs,
                   const DDStringVectorArguments& vsArgs) override;
   void execute(DDCompactView& cpv) override;
 
- protected:
+protected:
   void constructLayers(const DDLogicalPart&, DDCompactView& cpv);
   double rMax(double z);
-  void positionSensitive(DDLogicalPart& glog, int type, double rin, double rout,
-                         DDCompactView& cpv);
+  void positionSensitive(DDLogicalPart& glog, int type, double rin, double rout, DDCompactView& cpv);
 
- private:
+private:
   std::vector<std::string> wafer_;      // Wafers
   std::vector<std::string> covers_;     // Insensitive layers of hexagonal size
   std::vector<std::string> materials_;  // Materials

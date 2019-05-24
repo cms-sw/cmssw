@@ -42,29 +42,27 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class FastTimeNumberingTester : public edm::one::EDAnalyzer<> {
- public:
+public:
   explicit FastTimeNumberingTester(const edm::ParameterSet&);
   ~FastTimeNumberingTester() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
+
 private:
   edm::ESGetToken<FastTimeDDDConstants, IdealGeometryRecord> token_;
 };
 
-FastTimeNumberingTester::FastTimeNumberingTester(const edm::ParameterSet&):
-  token_{esConsumes<FastTimeDDDConstants, IdealGeometryRecord>(edm::ESInputTag{})}
- {}
+FastTimeNumberingTester::FastTimeNumberingTester(const edm::ParameterSet&)
+    : token_{esConsumes<FastTimeDDDConstants, IdealGeometryRecord>(edm::ESInputTag{})} {}
 
 FastTimeNumberingTester::~FastTimeNumberingTester() {}
 
 // ------------ method called to produce the data  ------------
-void FastTimeNumberingTester::analyze(const edm::Event& iEvent,
-                                      const edm::EventSetup& iSetup) {
+void FastTimeNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const FastTimeDDDConstants& fTnDC = iSetup.getData(token_);
-  std::cout << "Fast timing device with " << fTnDC.getCells(1) << ":"
-            << fTnDC.getCells(2) << " cells"
+  std::cout << "Fast timing device with " << fTnDC.getCells(1) << ":" << fTnDC.getCells(2) << " cells"
             << " for barrel and endcap\n";
   for (int type = 1; type <= 2; ++type) {
     for (int ix = 0; ix < 400; ++ix) {

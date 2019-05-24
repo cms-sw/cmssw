@@ -29,7 +29,7 @@
 //#define EDM_ML_DEBUG
 
 class HGCalNumberingInitialization : public edm::ESProducer {
- public:
+public:
   HGCalNumberingInitialization(const edm::ParameterSet&);
   ~HGCalNumberingInitialization() override;
 
@@ -37,17 +37,15 @@ class HGCalNumberingInitialization : public edm::ESProducer {
 
   ReturnType produce(const IdealGeometryRecord&);
 
- private:
+private:
   edm::ESGetToken<HGCalParameters, IdealGeometryRecord> hgParToken_;
   std::string name_;
 };
 
-HGCalNumberingInitialization::HGCalNumberingInitialization(
-    const edm::ParameterSet& iConfig) {
+HGCalNumberingInitialization::HGCalNumberingInitialization(const edm::ParameterSet& iConfig) {
   name_ = iConfig.getUntrackedParameter<std::string>("Name");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom")
-    << "HGCalNumberingInitialization for " << name_;
+  edm::LogVerbatim("HGCalGeom") << "HGCalNumberingInitialization for " << name_;
 #endif
   auto cc = setWhatProduced(this, name_);
   hgParToken_ = cc.consumes<HGCalParameters>(edm::ESInputTag{"", name_});
@@ -56,8 +54,7 @@ HGCalNumberingInitialization::HGCalNumberingInitialization(
 HGCalNumberingInitialization::~HGCalNumberingInitialization() {}
 
 // ------------ method called to produce the data  ------------
-HGCalNumberingInitialization::ReturnType HGCalNumberingInitialization::produce(
-    const IdealGeometryRecord& iRecord) {
+HGCalNumberingInitialization::ReturnType HGCalNumberingInitialization::produce(const IdealGeometryRecord& iRecord) {
   edm::LogVerbatim("HGCalGeom") << "in HGCalNumberingInitialization::produce";
   const auto& pHGpar = iRecord.get(hgParToken_);
   return std::make_unique<HGCalDDDConstants>(&pHGpar, name_);
