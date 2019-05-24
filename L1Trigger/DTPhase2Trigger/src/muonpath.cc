@@ -89,29 +89,21 @@ MuonPath::MuonPath(DTPrimitive *ptrPrimitive[8], int nprimUp, int nprimDown) {
 
 MuonPath::MuonPath(MuonPath *ptr) {
   //  std::cout<<"Clonando un 'MuonPath'"<<std::endl;
-  
-
+  setQuality             ( ptr->getQuality()              );
+  setBaseChannelId       ( ptr->getBaseChannelId()        );
+  setCellHorizontalLayout( ptr->getCellHorizontalLayout() );
   setNPrimitives         ( ptr->getNPrimitives()          );
-  setNPrimitivesUp       ( ptr->getNPrimitivesUp()        );
-  setNPrimitivesDown     ( ptr->getNPrimitivesDown()      );
-  
-  for (int i=0; i<3; i++) {
-    setQuality             ( ptr->getQuality(i)              );
-    setBaseChannelId       ( ptr->getBaseChannelId(i)        );
-    setCellHorizontalLayout( ptr->getCellHorizontalLayout(i) );
-    
-    setLateralComb ( ptr->getLateralComb(i) );
-    setBxTimeValue ( ptr->getBxTimeValue(i) );
-    setTanPhi      ( ptr->getTanPhi(i)      );
-    setHorizPos    ( ptr->getHorizPos(i)    );
-    setChiSq       ( ptr->getChiSq(i)       );
-    setPhi         ( ptr->getPhi(i)         );
-    setPhiB        ( ptr->getPhiB(i)        );
-  }
-  
-  for (int i = 0; i < ptr->getNPrimitives(); i++){ 
+
+  for (int i = 0; i < ptr->getNPrimitives(); i++)
     setPrimitive( new DTPrimitive(ptr->getPrimitive(i)), i );
-    
+
+  setLateralComb ( ptr->getLateralComb() );
+  setBxTimeValue ( ptr->getBxTimeValue() );
+  setTanPhi      ( ptr->getTanPhi()      );
+  setHorizPos    ( ptr->getHorizPos()    );
+  setChiSq       ( ptr->getChiSq()       );
+
+  for (int i = 0; i <  ptr->getNPrimitives(); i++) {
     setXCoorCell     ( ptr->getXCoorCell(i), i     );
     setDriftDistance ( ptr->getDriftDistance(i), i );
   }
