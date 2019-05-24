@@ -39,16 +39,14 @@ protected:
   void _process(edm::Event const &, edm::EventSetup const &) override;
   void _resetMonitors(hcaldqm::UpdateFreq) override;
 
-  edm::InputTag _tagHBHE;
-  edm::InputTag _tagHE;
+  edm::InputTag _tagQIE11;
   edm::InputTag _tagHO;
-  edm::InputTag _tagHF;
-  edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
-  edm::EDGetTokenT<QIE11DigiCollection> _tokHE;
+  edm::InputTag _tagQIE10;
+  edm::EDGetTokenT<QIE11DigiCollection> _tokQIE11;
   edm::EDGetTokenT<HODigiCollection> _tokHO;
-  edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
+  edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
 
-  double _cutSumQ_HBHE, _cutSumQ_HE, _cutSumQ_HO, _cutSumQ_HF;
+  double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
   double _thresh_unihf;
 
   //	flag vector
@@ -70,7 +68,6 @@ protected:
   hcaldqm::filter::HashFilter _filter_FEDHF;
   hcaldqm::filter::HashFilter _filter_QIE1011;
   hcaldqm::filter::HashFilter _filter_QIE8;
-  hcaldqm::filter::HashFilter _filter_HEP17;
 
   /* hcaldqm::Containers */
   //	ADC, fC - Charge - just filling - no summary!
