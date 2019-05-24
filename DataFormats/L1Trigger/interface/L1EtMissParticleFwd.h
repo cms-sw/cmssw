@@ -4,7 +4,7 @@
 //
 // Package:     L1Trigger
 // Class  :     L1EtMissParticleFwd
-// 
+//
 /**\class L1EtMissParticleRef \file L1EtMissParticleFwd.h DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h \author Werner Sun
 
  Description: typedefs for L1EtMissParticleRef and associated containers.
@@ -23,18 +23,17 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
-
 namespace l1extra {
 
-   class L1EtMissParticle ;
+  class L1EtMissParticle;
 
-   typedef edm::RefProd< L1EtMissParticle > L1EtMissParticleRefProd ;
+  typedef edm::RefProd<L1EtMissParticle> L1EtMissParticleRefProd;
 
-   typedef std::vector< L1EtMissParticle > L1EtMissParticleCollection ;
+  typedef std::vector<L1EtMissParticle> L1EtMissParticleCollection;
 
-   typedef edm::Ref< L1EtMissParticleCollection > L1EtMissParticleRef ;
-   typedef edm::RefVector< L1EtMissParticleCollection > L1EtMissParticleRefVector ;
-   typedef std::vector< L1EtMissParticleRef > L1EtMissParticleVectorRef ;
-}
+  typedef edm::Ref<L1EtMissParticleCollection> L1EtMissParticleRef;
+  typedef edm::RefVector<L1EtMissParticleCollection> L1EtMissParticleRefVector;
+  typedef std::vector<L1EtMissParticleRef> L1EtMissParticleVectorRef;
+}  // namespace l1extra
 
 #endif

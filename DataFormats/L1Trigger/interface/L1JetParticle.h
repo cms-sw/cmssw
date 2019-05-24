@@ -4,7 +4,7 @@
 //
 // Package:     L1Trigger
 // Class  :     L1JetParticle
-// 
+//
 /**\class L1JetParticle \file L1JetParticle.h DataFormats/L1Trigger/interface/L1JetParticle.h \author Werner Sun
 
  Description: L1Extra particle class for jet objects.
@@ -25,75 +25,51 @@
 
 namespace l1extra {
 
-   class L1JetParticle : public reco::LeafCandidate
-   {
+  class L1JetParticle : public reco::LeafCandidate {
+  public:
+    enum JetType { kCentral, kForward, kTau, kUndefined, kNumOfJetTypes };
 
-      public:
-         enum JetType
-         {
-            kCentral,
-            kForward,
-            kTau,
-	    kUndefined,
-            kNumOfJetTypes
-         } ;
+    L1JetParticle();
 
-	 L1JetParticle();
+    L1JetParticle(const LorentzVector& p4, const edm::Ref<L1GctJetCandCollection>& aRef, int bx = 0);
 
-	 L1JetParticle( const LorentzVector& p4,
-			const edm::Ref< L1GctJetCandCollection >& aRef,
-			int bx = 0 ) ;
+    L1JetParticle(const PolarLorentzVector& p4, const edm::Ref<L1GctJetCandCollection>& aRef, int bx = 0);
 
-	 L1JetParticle( const PolarLorentzVector& p4,
-			const edm::Ref< L1GctJetCandCollection >& aRef,
-			int bx = 0 ) ;
+    // Creates null Ref.
+    L1JetParticle(const LorentzVector& p4, JetType type = kUndefined, int bx = 0);
 
-         // Creates null Ref.
-         L1JetParticle( const LorentzVector& p4,
-                        JetType type = kUndefined,
-			int bx = 0 ) ;
+    L1JetParticle(const PolarLorentzVector& p4, JetType type = kUndefined, int bx = 0);
 
-         L1JetParticle( const PolarLorentzVector& p4,
-                        JetType type = kUndefined,
-			int bx = 0 ) ;
+    ~L1JetParticle() override {}
 
-	 ~L1JetParticle() override {}
+    // ---------- const member functions ---------------------
+    JetType type() const { return type_; }
 
-	 // ---------- const member functions ---------------------
-         JetType type() const
-         { return type_ ; }
+    const edm::Ref<L1GctJetCandCollection>& gctJetCandRef() const { return ref_; }
 
-	 const edm::Ref< L1GctJetCandCollection >& gctJetCandRef() const
-	 { return ref_ ; }
+    const L1GctJetCand* gctJetCand() const { return ref_.get(); }
 
-	 const L1GctJetCand* gctJetCand() const
-	 { return ref_.get() ; }
+    L1JetParticle* clone() const override { return new L1JetParticle(*this); }
 
-         L1JetParticle* clone() const override
-         { return new L1JetParticle( *this ) ; }
+    int bx() const { return bx_; }
 
-	 int bx() const
-	 { return bx_ ; }
+    // ---------- static member functions --------------------
 
-	 // ---------- static member functions --------------------
+    // ---------- member functions ---------------------------
+    void setType(JetType type) { type_ = type; }
 
-	 // ---------- member functions ---------------------------
-	 void setType( JetType type )
-	 { type_ = type ; }
+    void setBx(int bx) { bx_ = bx; }
 
-	 void setBx( int bx )
-	 { bx_ = bx ; }
+  private:
+    // L1JetParticle(const L1JetParticle&); // stop default
 
-      private:
-	 // L1JetParticle(const L1JetParticle&); // stop default
+    // const L1JetParticle& operator=(const L1JetParticle&); // stop default
 
-	 // const L1JetParticle& operator=(const L1JetParticle&); // stop default
-
-	 // ---------- member data --------------------------------
-         JetType type_ ;
-	 edm::Ref< L1GctJetCandCollection > ref_ ;
-	 int bx_ ;
-   };
-}
+    // ---------- member data --------------------------------
+    JetType type_;
+    edm::Ref<L1GctJetCandCollection> ref_;
+    int bx_;
+  };
+}  // namespace l1extra
 
 #endif
