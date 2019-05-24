@@ -15,11 +15,10 @@ class DDCompactView;
  * then call subdet builders
  */
 
-class DDDCmsMTDConstruction
-{
+class DDDCmsMTDConstruction {
 public:
   DDDCmsMTDConstruction() = delete;
-  static std::unique_ptr<GeometricTimingDet> construct( const DDCompactView& cpv, std::vector<int> detidShifts);
+  static std::unique_ptr<GeometricTimingDet> construct(const DDCompactView& cpv, std::vector<int> detidShifts);
 };
 
 #endif

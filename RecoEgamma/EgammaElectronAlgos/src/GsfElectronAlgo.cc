@@ -302,8 +302,8 @@ GsfElectronAlgo::GsfElectronAlgo
    const ElectronHcalHelper::Configuration & hcalCfgPflow,
    const IsolationConfiguration & isoCfg,
    const EcalRecHitsConfiguration & recHitsCfg,
-   EcalClusterFunctionBaseClass * superClusterErrorFunction,
-   EcalClusterFunctionBaseClass * crackCorrectionFunction,
+   std::unique_ptr<EcalClusterFunctionBaseClass> superClusterErrorFunction,
+   std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction,
    const RegressionHelper::Configuration & regCfg,
    const edm::ParameterSet& tkIsol03Cfg,
    const edm::ParameterSet& tkIsol04Cfg,
@@ -311,7 +311,7 @@ GsfElectronAlgo::GsfElectronAlgo
    const edm::ParameterSet& tkIsolHEEP04Cfg
 
  )
-: generalData_{inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,isoCfg,recHitsCfg,hcalCfg,hcalCfgPflow,superClusterErrorFunction,crackCorrectionFunction,regCfg},
+: generalData_{inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,isoCfg,recHitsCfg,hcalCfg,hcalCfgPflow,std::move(superClusterErrorFunction),std::move(crackCorrectionFunction),regCfg},
    eventSetupData_{},
    tkIsol03Calc_(tkIsol03Cfg),tkIsol04Calc_(tkIsol04Cfg),
    tkIsolHEEP03Calc_(tkIsolHEEP03Cfg),tkIsolHEEP04Calc_(tkIsolHEEP04Cfg)
@@ -803,7 +803,7 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection & electrons, El
   theClassifier.classify(ele) ;
   theClassifier.refineWithPflow(ele) ;
   // ecal energy
-  ElectronEnergyCorrector theEnCorrector(generalData_.crackCorrectionFunction) ;
+  ElectronEnergyCorrector theEnCorrector(generalData_.crackCorrectionFunction.get()) ;
   if (generalData_.strategyCfg.useEcalRegression) // new 
     { 
       generalData_.regHelper.applyEcalRegression(ele,

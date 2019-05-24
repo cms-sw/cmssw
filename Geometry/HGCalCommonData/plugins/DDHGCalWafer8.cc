@@ -32,15 +32,13 @@ void DDHGCalWafer8::initialize(const DDNumericArguments &nArgs,
   cellNames_ = vsArgs["CellNames"];
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom")
-      << "DDHGCalWafer8: Wafer 2r " << waferSize_ << " T " << waferT_
-      << " Half Separation " << waferSepar_ << " Mouse bite radius "
-      << mouseBite_ << " Cells/Wafer " << nCells_ << " Cell Type " << cellType_
-      << " Material " << material_ << " Names " << parent().name()
-      << " NameSpace " << nameSpace_ << " # of cells " << cellNames_.size();
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: Wafer 2r " << waferSize_ << " T " << waferT_ << " Half Separation "
+                                << waferSepar_ << " Mouse bite radius " << mouseBite_ << " Cells/Wafer " << nCells_
+                                << " Cell Type " << cellType_ << " Material " << material_ << " Names "
+                                << parent().name() << " NameSpace " << nameSpace_ << " # of cells "
+                                << cellNames_.size();
   for (unsigned int k = 0; k < cellNames_.size(); ++k)
-    edm::LogVerbatim("HGCalGeom")
-        << "DDHGCalWafer8: Cell[" << k << "] " << cellNames_[k];
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: Cell[" << k << "] " << cellNames_[k];
 #endif
 }
 
@@ -61,17 +59,15 @@ void DDHGCalWafer8::execute(DDCompactView &cpv) {
   std::vector<double> zw = {-0.5 * waferT_, 0.5 * waferT_};
   std::vector<double> zx(2, 0), zy(2, 0), scale(2, 1.0);
   DDName parentName = parent().name();
-  DDSolid solid =
-      DDSolidFactory::extrudedpolygon(parentName, xM, yM, zw, zx, zy, scale);
+  DDSolid solid = DDSolidFactory::extrudedpolygon(parentName, xM, yM, zw, zx, zy, scale);
   DDName matName(DDSplit(material_).first, DDSplit(material_).second);
   DDMaterial matter(matName);
   DDLogicalPart glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom")
-      << "DDHGCalWafer8: " << solid.name() << " extruded polygon made of "
-      << matName << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0]
-      << ":" << scale[0] << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":"
-      << zy[1] << ":" << scale[1] << " and " << xM.size() << " edges";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: " << solid.name() << " extruded polygon made of " << matName
+                                << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
+                                << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
+                                << " and " << xM.size() << " edges";
   for (unsigned int k = 0; k < xM.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << xM[k] << ":" << yM[k];
 #endif
@@ -112,10 +108,8 @@ void DDHGCalWafer8::execute(DDCompactView &cpv) {
         int copy = (cellType_ * 100 + v) * 100 + u;
         cpv.position(DDName(cellNames_[cell]), glog, copy, tran, rot);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom")
-            << "DDHGCalWafer8: " << cellNames_[cell] << " number " << copy
-            << " position in " << glog.name() << " at " << tran << " with "
-            << rot;
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: " << cellNames_[cell] << " number " << copy << " position in "
+                                      << glog.name() << " at " << tran << " with " << rot;
 #endif
       }
     }

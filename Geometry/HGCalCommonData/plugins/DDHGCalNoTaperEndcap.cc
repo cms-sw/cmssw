@@ -14,8 +14,7 @@
 using namespace geant_units::operators;
 
 DDHGCalNoTaperEndcap::DDHGCalNoTaperEndcap() {
-  edm::LogVerbatim("HGCalGeom")
-      << "DDHGCalNoTaperEndcap test: Creating an instance";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalNoTaperEndcap test: Creating an instance";
 }
 
 DDHGCalNoTaperEndcap::~DDHGCalNoTaperEndcap() {}
@@ -36,9 +35,8 @@ void DDHGCalNoTaperEndcap::initialize(const DDNumericArguments& nArgs,
   m_incrCopyNo = int(nArgs["incrCopyNo"]);
   m_childName = sArgs["ChildName"];
   m_idNameSpace = DDCurrentNamespace::ns();
-  edm::LogVerbatim("HGCalGeom") 
-    << "DDHGCalNoTaperEndcap: NameSpace " << m_idNameSpace << "\tParent "
-    << parent().name();
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalNoTaperEndcap: NameSpace " << m_idNameSpace << "\tParent "
+                                << parent().name();
 }
 
 void DDHGCalNoTaperEndcap::execute(DDCompactView& cpv) {
@@ -49,8 +47,7 @@ void DDHGCalNoTaperEndcap::execute(DDCompactView& cpv) {
   createQuarter(cpv, 1, -1, lastCopyNo);
 }
 
-int DDHGCalNoTaperEndcap::createQuarter(DDCompactView& cpv, int xQuadrant,
-                                        int yQuadrant, int startCopyNo) {
+int DDHGCalNoTaperEndcap::createQuarter(DDCompactView& cpv, int xQuadrant, int yQuadrant, int startCopyNo) {
   int copyNo = startCopyNo;
   double tiltAngle = m_tiltAngle;
   double xphi = xQuadrant * tiltAngle;
@@ -77,22 +74,16 @@ int DDHGCalNoTaperEndcap::createQuarter(DDCompactView& cpv, int xQuadrant,
 #ifdef EDM_ML_DEBUG
       row++;
 #endif
-      double limit1 = sqrt((offsetX + 0.5 * xQuadrant * offsetXY) *
-                               (offsetX + 0.5 * xQuadrant * offsetXY) +
-                           (offsetY + 0.5 * yQuadrant * offsetXY) *
-                               (offsetY + 0.5 * yQuadrant * offsetXY));
-      double limit2 = sqrt((offsetX - 0.5 * xQuadrant * offsetXY) *
-                               (offsetX - 0.5 * xQuadrant * offsetXY) +
-                           (offsetY - 0.5 * yQuadrant * offsetXY) *
-                               (offsetY - 0.5 * yQuadrant * offsetXY));
+      double limit1 = sqrt((offsetX + 0.5 * xQuadrant * offsetXY) * (offsetX + 0.5 * xQuadrant * offsetXY) +
+                           (offsetY + 0.5 * yQuadrant * offsetXY) * (offsetY + 0.5 * yQuadrant * offsetXY));
+      double limit2 = sqrt((offsetX - 0.5 * xQuadrant * offsetXY) * (offsetX - 0.5 * xQuadrant * offsetXY) +
+                           (offsetY - 0.5 * yQuadrant * offsetXY) * (offsetY - 0.5 * yQuadrant * offsetXY));
       // Make sure we do not add supermodules in rMin area
       if (limit2 > m_rMin && limit1 < m_rMax) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom")
-	  << m_childName << " copyNo = " << copyNo << " (" << column
-	  << "," << row << "): offsetX,Y = " << offsetX << ","
-	  << offsetY << " limit=" << limit1 << ":" << limit2
-	  << " rMin, rMax = " << m_rMin << "," << m_rMax;
+        edm::LogVerbatim("HGCalGeom") << m_childName << " copyNo = " << copyNo << " (" << column << "," << row
+                                      << "): offsetX,Y = " << offsetX << "," << offsetY << " limit=" << limit1 << ":"
+                                      << limit2 << " rMin, rMax = " << m_rMin << "," << m_rMax;
 #endif
         DDRotation rotation;
         std::string rotstr("NULL");
@@ -102,19 +93,14 @@ int DDHGCalNoTaperEndcap::createQuarter(DDCompactView& cpv, int xQuadrant,
         rotstr += std::to_string(copyNo);
         rotation = DDRotation(DDName(rotstr));
         if (!rotation) {
-          rotation = DDrot(
-              DDName(rotstr, m_idNameSpace),
-              std::make_unique<DDRotationMatrix>(
-                  *DDcreateRotationMatrix(theta, phiX, theta + yphi, phiY,
-                                          -yphi, phiZ) *
-                  (*DDcreateRotationMatrix(theta + xphi, phiX, 90._deg,
-                                           90._deg, xphi, 0.0))));
+          rotation = DDrot(DDName(rotstr, m_idNameSpace),
+                           std::make_unique<DDRotationMatrix>(
+                               *DDcreateRotationMatrix(theta, phiX, theta + yphi, phiY, -yphi, phiZ) *
+                               (*DDcreateRotationMatrix(theta + xphi, phiX, 90._deg, 90._deg, xphi, 0.0))));
         }
 
         DDTranslation tran(offsetX, offsetY, offsetZ);
-        edm::LogVerbatim("HGCalGeom")
-            << "Module " << copyNo << ": location = " << tran << " Rotation "
-            << rotation;
+        edm::LogVerbatim("HGCalGeom") << "Module " << copyNo << ": location = " << tran << " Rotation " << rotation;
 
         DDName parentName = parent().name();
         cpv.position(DDName(m_childName), parentName, copyNo, tran, rotation);
@@ -122,10 +108,9 @@ int DDHGCalNoTaperEndcap::createQuarter(DDCompactView& cpv, int xQuadrant,
         copyNo += m_incrCopyNo;
       } else {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") 
-	  << " (" << column << "," << row << "): offsetX,Y = " << offsetX 
-	  << "," << offsetY << " is out of limit=" << limit1 << ":" << limit2
-	  << " rMin, rMax = " << m_rMin << "," << m_rMax;
+        edm::LogVerbatim("HGCalGeom") << " (" << column << "," << row << "): offsetX,Y = " << offsetX << "," << offsetY
+                                      << " is out of limit=" << limit1 << ":" << limit2 << " rMin, rMax = " << m_rMin
+                                      << "," << m_rMax;
 #endif
       }
 
@@ -133,7 +118,8 @@ int DDHGCalNoTaperEndcap::createQuarter(DDCompactView& cpv, int xQuadrant,
       offsetY += yQuadrant * offsetXY;
     }
 #ifdef EDM_ML_DEBUG
-    if (row > rowmax) rowmax = row;
+    if (row > rowmax)
+      rowmax = row;
 #endif
     xphi += xQuadrant * 2. * tiltAngle;
     yphi = yQuadrant * tiltAngle;
@@ -141,9 +127,8 @@ int DDHGCalNoTaperEndcap::createQuarter(DDCompactView& cpv, int xQuadrant,
     offsetX += xQuadrant * offsetXY;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom")
-    << rowmax << " rows and " << column << " columns in quadrant "
-    << xQuadrant << ":" << yQuadrant;
+  edm::LogVerbatim("HGCalGeom") << rowmax << " rows and " << column << " columns in quadrant " << xQuadrant << ":"
+                                << yQuadrant;
 #endif
   return copyNo;
 }

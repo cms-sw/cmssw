@@ -16,9 +16,9 @@ class PGeometricTimingDet;
  */
 
 class CondDBCmsMTDConstruction {
- public:
+public:
   CondDBCmsMTDConstruction() = delete;
-  static std::unique_ptr<GeometricTimingDet> construct( const PGeometricTimingDet& pgd );
+  static std::unique_ptr<GeometricTimingDet> construct(const PGeometricTimingDet& pgd);
 };
 
 #endif

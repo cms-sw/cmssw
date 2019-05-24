@@ -15,19 +15,18 @@
 
 #include <memory>
 
-class ME0GeometryESModule : public edm::ESProducer
-{
- public:
+class ME0GeometryESModule : public edm::ESProducer {
+public:
   /// Constructor
-  ME0GeometryESModule(const edm::ParameterSet & p);
+  ME0GeometryESModule(const edm::ParameterSet& p);
 
   /// Destructor
   ~ME0GeometryESModule() override;
 
   /// Produce ME0Geometry.
-  std::unique_ptr<ME0Geometry>  produce(const MuonGeometryRecord & record);
+  std::unique_ptr<ME0Geometry> produce(const MuonGeometryRecord& record);
 
- private:
+private:
   // use the DDD as Geometry source
   bool useDDD;
 };
