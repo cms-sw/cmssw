@@ -5,13 +5,11 @@ using namespace hcaldqm;
 using namespace hcaldqm::constants;
 PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
   //	tags
-  _tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE", edm::InputTag("hcalDigis"));
   _tagQIE11 = ps.getUntrackedParameter<edm::InputTag>("tagHE", edm::InputTag("hcalDigis"));
   _tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO", edm::InputTag("hcalDigis"));
   _tagQIE10 = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
   _tagTrigger = ps.getUntrackedParameter<edm::InputTag>("tagTrigger", edm::InputTag("tbunpacker"));
   _taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN", edm::InputTag("hcalDigis"));
-  _tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
   _tokQIE11 = consumes<QIE11DigiCollection>(_tagQIE11);
   _tokHO = consumes<HODigiCollection>(_tagHO);
   _tokQIE10 = consumes<QIE10DigiCollection>(_tagQIE10);
@@ -948,8 +946,8 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
 /* virtual */ void PedestalTask::_process(edm::Event const& e, edm::EventSetup const& es) {
   edm::Handle<HODigiCollection> c_ho;
-  edm::Handle<QIE10DigiCollection> c_qie10;
-  edm::Handle<QIE11DigiCollection> c_qie11;
+  edm::Handle<QIE10DigiCollection> c_QIE10;
+  edm::Handle<QIE11DigiCollection> c_QIE11;
 
   if (!e.getByToken(_tokHO, c_ho))
     _logger.dqmthrow("Collection HODigiCollection isn't available" + _tagHO.label() + " " + _tagHO.instance());

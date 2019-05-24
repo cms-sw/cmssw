@@ -407,22 +407,22 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
 /* virtual */ void LEDTask::_process(edm::Event const& e, edm::EventSetup const& es) {
   edm::Handle<HODigiCollection>   c_ho;
-  edm::Handle<QIE10DigiCollection>    c_qie10;
-  edm::Handle<QIE11DigiCollection>    c_qie11;
+  edm::Handle<QIE10DigiCollection>    c_QIE10;
+  edm::Handle<QIE11DigiCollection>    c_QIE11;
 
   if (!e.getByToken(_tokHO, c_ho))
     _logger.dqmthrow("Collection HODigiCollection isn't available "
       + _tagHO.label() + " " + _tagHO.instance());
-  if (!e.getByToken(_tokQIE10, c_qie10))
+  if (!e.getByToken(_tokQIE10, c_QIE10))
     _logger.dqmthrow("Collection QIE10DigiCollection isn't available "
       + _tagQIE10.label() + " " + _tagQIE10.instance());
-  if (!e.getByToken(_tokQIE11, c_qie11))
+  if (!e.getByToken(_tokQIE11, c_QIE11))
     _logger.dqmthrow("Collection QIE11DigiCollection isn't available "
       + _tagQIE11.label() + " " + _tagQIE11.instance());
 
   //	int currentEvent = e.eventAuxiliary().id().event();
 
-  for (QIE11DigiCollection::const_iterator it = c_qie11->begin(); it != c_qie11->end(); ++it) {
+  for (QIE11DigiCollection::const_iterator it = c_QIE11->begin(); it != c_QIE11->end(); ++it) {
     const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
     HcalDetId const& did = digi.detid();
     if ((did.subdet() != HcalBarrel) && (did.subdet() != HcalEndcap)) {
@@ -438,6 +438,16 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
               } else if (_ptype == fLocal) {
                 _LED_ADCvsEvn_Subdet.fill(
                     HcalDetId(HcalEndcap, 16, 1, 1), e.eventAuxiliary().id().event(), digi[i].adc());
+              }
+            }
+          } else if (std::find(_ledCalibrationChannels[HcalBarrel].begin(), _ledCalibrationChannels[HcalBarrel].end(), did) !=
+              _ledCalibrationChannels[HcalBarrel].end()) {
+            for (int i = 0; i < digi.samples(); i++) {
+              if (_ptype == fOnline) {
+                _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), e.bunchCrossing(), digi[i].adc());
+              } else if (_ptype == fLocal) {
+                _LED_ADCvsEvn_Subdet.fill(
+                    HcalDetId(HcalBarrel, 1, 1, 1), e.eventAuxiliary().id().event(), digi[i].adc());
               }
             }
           }
@@ -504,7 +514,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
       }
     }
   }
-  for (HODigiCollection::const_iterator it = cho->begin(); it != cho->end(); ++it) {
+  for (HODigiCollection::const_iterator it = c_ho->begin(); it != c_ho->end(); ++it) {
     const HODataFrame digi = (const HODataFrame)(*it);
     HcalDetId did = digi.id();
     HcalElectronicsId eid = digi.elecId();
@@ -539,7 +549,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
     }
   }
 
-  for (QIE10DigiCollection::const_iterator it = c_qie10->begin(); it != c_qie10->end(); ++it) {
+  for (QIE10DigiCollection::const_iterator it = c_QIE10->begin(); it != c_QIE10->end(); ++it) {
     const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
     HcalDetId did = digi.detid();
     if (did.subdet() != HcalForward) {
