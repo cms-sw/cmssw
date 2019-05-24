@@ -1,6 +1,5 @@
 // Author: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 09/2018
-// Copyright CERN
 
 #ifndef RecoHGCal_TICL_PatternRecognitionAlgoBase_H__
 #define RecoHGCal_TICL_PatternRecognitionAlgoBase_H__

@@ -1,6 +1,5 @@
 // Author: Felice Pantaleo, Marco Rovere - felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 11/2018
-// Copyright CERN
 #include <algorithm>
 #include <set>
 #include <vector>

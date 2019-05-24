@@ -1,6 +1,5 @@
 // Author: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 09/2018
-// Copyright CERN
 
 #ifndef __RecoHGCal_TICL_Trackster_H__
 #define __RecoHGCal_TICL_Trackster_H__

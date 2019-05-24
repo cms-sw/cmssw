@@ -1,6 +1,5 @@
 // Author: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 11/2018
-// Copyright CERN
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoHGCal/TICL/interface/Common.h"
 
