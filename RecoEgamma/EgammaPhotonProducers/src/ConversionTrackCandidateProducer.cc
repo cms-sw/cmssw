@@ -47,7 +47,7 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 namespace {
-  BaseCkfTrajectoryBuilder *createBaseCkfTrajectoryBuilder(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC) {
+  auto createBaseCkfTrajectoryBuilder(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC) {
     return BaseCkfTrajectoryBuilderFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC);
   }
 }
