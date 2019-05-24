@@ -1,7 +1,7 @@
 ///
 /// \class l1t::Stage2Layer2DemuxEGAlgo
 ///
-/// Description: demux EG algorithm 
+/// Description: demux EG algorithm
 ///
 /// Implementation:
 ///
@@ -15,20 +15,18 @@
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 
-
 #include <vector>
 
-
 namespace l1t {
-    
-  class Stage2Layer2DemuxEGAlgo { 
+
+  class Stage2Layer2DemuxEGAlgo {
   public:
-    virtual void processEvent(const std::vector<l1t::EGamma> & inputEgammas, 
-			      std::vector<l1t::EGamma> & outputEgammas) = 0;    
+    virtual void processEvent(const std::vector<l1t::EGamma>& inputEgammas,
+                              std::vector<l1t::EGamma>& outputEgammas) = 0;
 
     virtual ~Stage2Layer2DemuxEGAlgo(){};
-  }; 
-  
-} 
+  };
+
+}  // namespace l1t
 
 #endif

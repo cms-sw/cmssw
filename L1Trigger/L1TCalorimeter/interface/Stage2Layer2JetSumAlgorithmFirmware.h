@@ -23,8 +23,8 @@ namespace l1t {
   public:
     Stage2Layer2JetSumAlgorithmFirmwareImp1(CaloParamsHelper const* params);
     ~Stage2Layer2JetSumAlgorithmFirmwareImp1() override = default;
-    void processEvent(const std::vector<l1t::Jet> & alljets,
-			      std::vector<l1t::EtSum> & htsums) override;
+    void processEvent(const std::vector<l1t::Jet>& alljets, std::vector<l1t::EtSum>& htsums) override;
+
   private:
     int32_t mhtJetThresholdHw_;
     int32_t httJetThresholdHw_;
@@ -33,6 +33,6 @@ namespace l1t {
     int32_t mhtEtaMaxHF_;
     int32_t httEtaMaxHF_;
   };
-}
+}  // namespace l1t
 
 #endif

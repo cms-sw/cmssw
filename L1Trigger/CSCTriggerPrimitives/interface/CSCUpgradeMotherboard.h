@@ -15,26 +15,24 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeCathodeLCTProcessor.h"
 
 // generic container type
-namespace{
+namespace {
 
-// first: raw detid, second: digi
-template <class T>
-using match = std::pair<unsigned int, T>;
+  // first: raw detid, second: digi
+  template <class T>
+  using match = std::pair<unsigned int, T>;
 
-// vector of template above
-template <class T>
-using matches = std::vector<std::pair<unsigned int, T> >;
+  // vector of template above
+  template <class T>
+  using matches = std::vector<std::pair<unsigned int, T> >;
 
-// first: BX number, second: vector of template above
-template <class T>
-using matchesBX = std::map<int, std::vector<std::pair<unsigned int, T> > >;
+  // first: BX number, second: vector of template above
+  template <class T>
+  using matchesBX = std::map<int, std::vector<std::pair<unsigned int, T> > >;
 
-}
+}  // namespace
 
-class CSCUpgradeMotherboard : public CSCMotherboard
-{
+class CSCUpgradeMotherboard : public CSCMotherboard {
 public:
-
   /** for the case when more than 2 LCTs/BX are allowed;
       maximum match window = 15 */
   class LCTContainer {
@@ -59,18 +57,22 @@ public:
     // 1st index: depth of pipeline that stores the ALCT and CLCT
     // 2nd index: BX number of the ALCT-CLCT match in the matching window
     // 3rd index: LCT number in the time bin
-    CSCCorrelatedLCTDigi data[CSCConstants::MAX_LCT_TBINS][CSCConstants::MAX_MATCH_WINDOW_SIZE][CSCConstants::MAX_LCTS_PER_CSC];
+    CSCCorrelatedLCTDigi data[CSCConstants::MAX_LCT_TBINS][CSCConstants::MAX_MATCH_WINDOW_SIZE]
+                             [CSCConstants::MAX_LCTS_PER_CSC];
 
     // matching trigger window
     const unsigned int match_trig_window_size_;
   };
 
   // standard constructor
-  CSCUpgradeMotherboard(unsigned endcap, unsigned station, unsigned sector,
-                        unsigned subsector, unsigned chamber,
+  CSCUpgradeMotherboard(unsigned endcap,
+                        unsigned station,
+                        unsigned sector,
+                        unsigned subsector,
+                        unsigned chamber,
                         const edm::ParameterSet& conf);
 
-   //Default constructor for testing
+  //Default constructor for testing
   CSCUpgradeMotherboard();
 
   ~CSCUpgradeMotherboard() override;
@@ -89,15 +91,12 @@ public:
   void intersection(const S& d1, const S& d2, S& result) const;
 
   /** Methods to sort the LCTs */
-  static bool sortLCTsByQuality(const CSCCorrelatedLCTDigi&,
-                                const CSCCorrelatedLCTDigi&);
-  static bool sortLCTsByGEMDphi(const CSCCorrelatedLCTDigi&,
-                                const CSCCorrelatedLCTDigi&);
+  static bool sortLCTsByQuality(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&);
+  static bool sortLCTsByGEMDphi(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&);
   // generic sorting function
   // provide an LCT collection and a sorting function
   void sortLCTs(std::vector<CSCCorrelatedLCTDigi>& lcts,
-                bool (*sorter)(const CSCCorrelatedLCTDigi&,
-                               const CSCCorrelatedLCTDigi&)) const;
+                bool (*sorter)(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&)) const;
 
   /** get CSCPart from HS, station, ring number **/
   enum CSCPart getCSCPart(int keystrip) const;
@@ -107,17 +106,18 @@ public:
   void debugLUTs();
 
   // run TMB with GEM pad clusters as input
-  void run(const CSCWireDigiCollection* wiredc,
-           const CSCComparatorDigiCollection* compdc) override;
+  void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc) override;
 
   /* readout the two best LCTs in this CSC */
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const override;
 
- protected:
-
-  void correlateLCTs(const CSCALCTDigi& bestALCT, const CSCALCTDigi& secondALCT,
-                     const CSCCLCTDigi& bestCLCT, const CSCCLCTDigi& secondCLCT,
-                     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2) const;
+protected:
+  void correlateLCTs(const CSCALCTDigi& bestALCT,
+                     const CSCALCTDigi& secondALCT,
+                     const CSCCLCTDigi& bestCLCT,
+                     const CSCCLCTDigi& secondCLCT,
+                     CSCCorrelatedLCTDigi& lct1,
+                     CSCCorrelatedLCTDigi& lct2) const;
 
   Parity theParity;
 
@@ -149,21 +149,19 @@ public:
 };
 
 template <class S>
-bool CSCUpgradeMotherboard::compare(const S& p, const S& q) const
-{
+bool CSCUpgradeMotherboard::compare(const S& p, const S& q) const {
   return (p.first == q.first) and (p.second == q.second);
 }
 
 template <class S>
-void CSCUpgradeMotherboard::intersection(const S& d1, const S& d2, S& result) const
-{
-  for (const auto& p: d1){
-    for (const auto& q: d2){
-      if (compare(p,q)){
+void CSCUpgradeMotherboard::intersection(const S& d1, const S& d2, S& result) const {
+  for (const auto& p : d1) {
+    for (const auto& q : d2) {
+      if (compare(p, q)) {
         result.push_back(p);
       }
     }
   }
- }
+}
 
 #endif

@@ -11,41 +11,26 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
-l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::Stage2TowerDecompressAlgorithmFirmwareImp1(CaloParamsHelper const* params) :
-  params_(params)
-{
+l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::Stage2TowerDecompressAlgorithmFirmwareImp1(
+    CaloParamsHelper const* params)
+    : params_(params) {}
 
-}
+l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::~Stage2TowerDecompressAlgorithmFirmwareImp1() {}
 
-
-l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::~Stage2TowerDecompressAlgorithmFirmwareImp1() {
-
-
-}
-
-
-void l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::CaloTower> & inTowers,
-								   std::vector<l1t::CaloTower> & outTowers) {
-
-
-  for ( auto tow = inTowers.begin();
-	tow != inTowers.end();
-	++tow ) {
-
+void l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::CaloTower>& inTowers,
+                                                                   std::vector<l1t::CaloTower>& outTowers) {
+  for (auto tow = inTowers.begin(); tow != inTowers.end(); ++tow) {
     if (!params_->doTowerEncoding()) {
-
-      outTowers.push_back( *tow );
+      outTowers.push_back(*tow);
 
     }
 
     else {
-
-
-      int sum   = tow->hwPt();
+      int sum = tow->hwPt();
       int ratio = tow->hwEtRatio();
-      int qual  = tow->hwQual();
-      
-      int denomCoeff = int ( ( 128./ ( 1. + pow(2,ratio) ) ) + 0.5 );
+      int qual = tow->hwQual();
+
+      int denomCoeff = int((128. / (1. + pow(2, ratio))) + 0.5);
       int numCoeff = 128 - denomCoeff;
 
       // if ((qual & 0x1)==0) {
@@ -89,43 +74,42 @@ void l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::processEvent(const std::ve
       // 	denomCoeff = 0;
       // }
 
-      int em    = 0;
-      int had   = 0;
+      int em = 0;
+      int had = 0;
 
-      bool denomZeroFlag = ((qual&0x1) > 0);
-      bool eOverHFlag    = ((qual&0x2) > 0);
-      
-      if (denomZeroFlag && !eOverHFlag) had = sum;
+      bool denomZeroFlag = ((qual & 0x1) > 0);
+      bool eOverHFlag = ((qual & 0x2) > 0);
 
-      if (denomZeroFlag && eOverHFlag) em = sum;
+      if (denomZeroFlag && !eOverHFlag)
+        had = sum;
 
-      if (!denomZeroFlag && !eOverHFlag) { // H > E, ratio = log(H/E)
-        em  = (denomCoeff * sum) >> 7;
+      if (denomZeroFlag && eOverHFlag)
+        em = sum;
+
+      if (!denomZeroFlag && !eOverHFlag) {  // H > E, ratio = log(H/E)
+        em = (denomCoeff * sum) >> 7;
         had = (numCoeff * sum) >> 7;
       }
 
-      if (!denomZeroFlag && eOverHFlag) { // E >= H , so ratio==log(E/H)
-        em  = (numCoeff * sum) >> 7;
+      if (!denomZeroFlag && eOverHFlag) {  // E >= H , so ratio==log(E/H)
+        em = (numCoeff * sum) >> 7;
         had = (denomCoeff * sum) >> 7;
       }
 
-      em  &= params_->towerMaskE();
+      em &= params_->towerMaskE();
       had &= params_->towerMaskH();
 
       l1t::CaloTower newTow;
-      newTow.setHwEta( tow->hwEta() );
-      newTow.setHwPhi( tow->hwPhi() );
-      newTow.setHwEtEm( em );
-      newTow.setHwEtHad( had );
+      newTow.setHwEta(tow->hwEta());
+      newTow.setHwPhi(tow->hwPhi());
+      newTow.setHwEtEm(em);
+      newTow.setHwEtHad(had);
 
-      newTow.setHwPt( sum );
-      newTow.setHwEtRatio( ratio );
-      newTow.setHwQual( qual );
+      newTow.setHwPt(sum);
+      newTow.setHwEtRatio(ratio);
+      newTow.setHwQual(qual);
 
       outTowers.push_back(newTow);
-
     }
-
   }
-
 }

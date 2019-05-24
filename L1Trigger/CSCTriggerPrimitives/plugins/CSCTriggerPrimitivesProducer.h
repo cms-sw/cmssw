@@ -41,16 +41,14 @@
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCTriggerPrimitivesBuilder.h"
 
-class CSCTriggerPrimitivesProducer : public edm::global::EDProducer<edm::StreamCache<CSCTriggerPrimitivesBuilder>>
-{
- public:
+class CSCTriggerPrimitivesProducer : public edm::global::EDProducer<edm::StreamCache<CSCTriggerPrimitivesBuilder>> {
+public:
   explicit CSCTriggerPrimitivesProducer(const edm::ParameterSet&);
   ~CSCTriggerPrimitivesProducer() override;
 
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
- private:
-
+private:
   // master configuration
   edm::ParameterSet config_;
 
