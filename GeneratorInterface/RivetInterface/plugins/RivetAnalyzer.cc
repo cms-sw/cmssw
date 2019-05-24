@@ -47,15 +47,10 @@ RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset)
   _analysisHandler.addAnalyses(analysisNames);
 
   //go through the analyses and check those that need the cross section
-  const std::set<AnaHandle, CmpAnaHandle>& analyses = _analysisHandler.analyses();
-
-  std::set<AnaHandle, CmpAnaHandle>::const_iterator ibeg = analyses.begin();
-  std::set<AnaHandle, CmpAnaHandle>::const_iterator iend = analyses.end();
-  std::set<AnaHandle, CmpAnaHandle>::const_iterator iana;
   _xsection = pset.getParameter<double>("CrossSection");
-  for (iana = ibeg; iana != iend; ++iana) {
-    if ((*iana)->needsCrossSection())
-      (*iana)->setCrossSection(_xsection);
+  for (AnaHandle iana : _analysisHandler.analyses()) {
+    if (iana->needsCrossSection())
+      iana->setCrossSection(_xsection);
   }
   if (_produceDQM) {
     // book stuff needed for DQM
