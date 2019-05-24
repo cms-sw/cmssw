@@ -26,7 +26,7 @@ def compare(base_dir, pr_dir, output_dir, files, pr_number, test_number, release
     while files:
         try:
             file_name = files.pop()
-            command = ['python', os.path.join(os.path.dirname(__file__), 'compareHistograms.py'), '-b', os.path.join(base_dir, file_name), \
+            command = ['compareHistograms.py', '-b', os.path.join(base_dir, file_name), \
                 '-p', os.path.join(pr_dir, file_name), '-o', output_dir, '-n', pr_number, '-t', test_number, '-r', release_format]
             print('Running comparison:')
             print(' '.join(command))
@@ -45,8 +45,8 @@ def compare(base_dir, pr_dir, output_dir, files, pr_number, test_number, release
             
             COMPARISON_RESULTS.append({'workflow': workflow, 'base_dataset': base_dataset, 'pr_dataset': pr_dataset, 'run_nr': run_nr,\
                 'changed_elements': int(output_numbers[0]), 'removed_elements': int(output_numbers[1]), 'added_elements': int(output_numbers[2])})
-        except:
-            pass
+        except Exception as ex:
+            print('Exception comparing two root files: %s' % ex)
     
 def get_file_pairs(base_dir, pr_dir):
     base_files = glob.glob(os.path.join(base_dir, '*.*_*/DQM_*.root'))
@@ -81,7 +81,7 @@ def upload(files):
     while files:
         try:
             file = files.pop()
-            command = ['python', os.path.join(os.path.dirname(__file__), 'visDQMUpload.py'), 'https://cmsweb.cern.ch/dqm/dev', file]
+            command = ['visDQMUpload.py', 'https://cmsweb.cern.ch/dqm/dev', file]
             print('Uploading output:')
             print(' '.join(command))
             
