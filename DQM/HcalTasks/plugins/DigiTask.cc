@@ -779,15 +779,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
 }
 
 /* virtual */ void DigiTask::_process(edm::Event const& e, edm::EventSetup const&) {
-  edm::Handle<QIE11DigiCollection>     c_qie11;
+  edm::Handle<QIE11DigiCollection>     c_QIE11;
   edm::Handle<HODigiCollection>       c_ho;
-  edm::Handle<QIE10DigiCollection>       c_qie10;
+  edm::Handle<QIE10DigiCollection>       c_QIE10;
 
-  if (!e.getByToken(_tokQIE11, c_qie11))
+  if (!e.getByToken(_tokQIE11, c_QIE11))
     _logger.dqmthrow("Collection QIE11DigiCollection isn't available" + _tagQIE11.label() + " " + _tagQIE11.instance());
   if (!e.getByToken(_tokHO, c_ho))
     _logger.dqmthrow("Collection HODigiCollection isn't available" + _tagHO.label() + " " + _tagHO.instance());
-  if (!e.getByToken(_tokQIE10, c_qie10))
+  if (!e.getByToken(_tokQIE10, c_QIE10))
     _logger.dqmthrow("Collection QIE10DigiCollection isn't available" + _tagQIE10.label() + " " + _tagQIE10.instance());
 
   //	extract some info per event
@@ -807,7 +807,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
   int numChsCutHE = 0;
 
   // HB+HE QIE11 collection
-  for (QIE11DigiCollection::const_iterator it=c_qie11->begin(); it!=c_qie11->end();
+  for (QIE11DigiCollection::const_iterator it=c_QIE11->begin(); it!=c_QIE11->end(); ++it) {
     const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
 
     //	Explicit check on the DetIds present in the Collection
@@ -1146,7 +1146,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
   rawidValid = 0;
 
   //	HF collection
-  for (QIE10DigiCollection::const_iterator it = chf->begin(); it != chf->end(); ++it) {
+  for (QIE10DigiCollection::const_iterator it = c_QIE10->begin(); it != c_QIE10->end(); ++it) {
     const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
 
     //	Explicit check on the DetIds present in the Collection
