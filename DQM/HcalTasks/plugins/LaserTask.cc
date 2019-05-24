@@ -625,7 +625,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps) : DQTask(ps) {
     }
   }
 
-  for (QIE11DigiCollection::const_iterator it = cHE->begin(); it != cHE->end(); ++it) {
+  for (QIE11DigiCollection::const_iterator it = c_QIE11->begin(); it != c_QIE11->end(); ++it) {
     const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
     HcalDetId const& did = digi.detid();
     if ((did.subdet() != HcalBarrel) && (did.subdet() != HcalEndcap)) {
