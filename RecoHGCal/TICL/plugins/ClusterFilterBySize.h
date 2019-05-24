@@ -1,6 +1,5 @@
 // Author: Marco Rovere - marco.rovere@cern.ch
 // Date: 11/2018
-// Copyright CERN
 
 #ifndef RecoHGCal_TICL_ClusterFilterBySize_H__
 #define RecoHGCal_TICL_ClusterFilterBySize_H__

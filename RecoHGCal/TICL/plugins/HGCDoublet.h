@@ -1,6 +1,5 @@
 // Author: Felice Pantaleo,Marco Rovere - felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 11/2018
-// Copyright CERN
 
 #ifndef __RecoHGCal_TICL_HGCDoublet_H__
 #define __RecoHGCal_TICL_HGCDoublet_H__
