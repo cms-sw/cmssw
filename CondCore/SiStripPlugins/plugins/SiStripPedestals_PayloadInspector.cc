@@ -252,10 +252,7 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class: PlotImage
-<<<<<<< HEAD
 
-=======
->>>>>>> 0a12a105817... formatting
   template <SiStripPI::OpMode op_mode_>
   class SiStripPedestalDistributionComparisonBase : public cond::payloadInspector::PlotImage<SiStripPedestals> {
   public:
