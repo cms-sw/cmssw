@@ -304,11 +304,9 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 	}
 
     }
-
-    
     for (auto metaPrimitiveIt = correlatedMetaPrimitives.begin(); metaPrimitiveIt != correlatedMetaPrimitives.end(); ++metaPrimitiveIt){
       DTChamberId chId((*metaPrimitiveIt).rawId);
-      if(debug) std::cout<<"looping in final vector: SuperLayerId"<<chId<<" x="<<(*metaPrimitiveIt).x<<" quality="<<(*metaPrimitiveIt).quality<<std::endl;
+      if(debug) std::cout<<"looping in final vector: SuperLayerId"<<chId<<" x="<<(*metaPrimitiveIt).x<<" quality="<<(*metaPrimitiveIt).quality << " chi2="<< (*metaPrimitiveIt).chi2 <<std::endl;
       
       int sectorTP=chId.sector();
       if(sectorTP==13) sectorTP=4;
@@ -323,7 +321,7 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 
 
       double shift_back=0;
-      if (iEvent.eventAuxiliary().bunchCrossing() == -1) //FIX MC                                                                                                 
+      if (iEvent.eventAuxiliary().run() == 1) //FIX MC                                                                                                 
 	  shift_back = 400;
 
       
