@@ -22,24 +22,20 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 
-CaloTowerHardcodeGeometryEP::CaloTowerHardcodeGeometryEP(const edm::ParameterSet& iConfig)
-{
-   //the following line is needed to tell the framework what
-   // data is being produced
-  auto cc = setWhatProduced(this,
-                            &CaloTowerHardcodeGeometryEP::produce,
-                            edm::es::Label("TOWER"));
+CaloTowerHardcodeGeometryEP::CaloTowerHardcodeGeometryEP(const edm::ParameterSet& iConfig) {
+  //the following line is needed to tell the framework what
+  // data is being produced
+  auto cc = setWhatProduced(this, &CaloTowerHardcodeGeometryEP::produce, edm::es::Label("TOWER"));
   cttopoToken_ = cc.consumesFrom<CaloTowerTopology, HcalRecNumberingRecord>(edm::ESInputTag{});
   hcaltopoToken_ = cc.consumesFrom<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag{});
   consToken_ = cc.consumesFrom<HcalDDDRecConstants, HcalRecNumberingRecord>(edm::ESInputTag{});
 }
 
 // ------------ method called to produce the data  ------------
-CaloTowerHardcodeGeometryEP::ReturnType
-CaloTowerHardcodeGeometryEP::produce(const CaloTowerGeometryRecord& iRecord) {
+CaloTowerHardcodeGeometryEP::ReturnType CaloTowerHardcodeGeometryEP::produce(const CaloTowerGeometryRecord& iRecord) {
   const auto& cttopo = iRecord.get(cttopoToken_);
   const auto& hcaltopo = iRecord.get(hcaltopoToken_);
   const auto& cons = iRecord.get(consToken_);
 
-  return std::unique_ptr<CaloSubdetectorGeometry>( loader_.load( &cttopo, &hcaltopo, &cons ));
+  return std::unique_ptr<CaloSubdetectorGeometry>(loader_.load(&cttopo, &hcaltopo, &cons));
 }

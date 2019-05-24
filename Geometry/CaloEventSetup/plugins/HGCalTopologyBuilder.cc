@@ -2,7 +2,7 @@
 //
 // Package:    CaloEventSetup
 // Class:      HGCalTopologyBuilder
-// 
+//
 /**\class HGCalTopologyBuilder HGCalTopologyBuilder.h 
 
  Description: <one line class summary>
@@ -14,7 +14,6 @@
 // Original Author:  Sunanda Banerjee
 //
 //
-
 
 // system include files
 #include <memory>
@@ -41,10 +40,9 @@
 //
 
 class HGCalTopologyBuilder : public edm::ESProducer {
-
 public:
-  HGCalTopologyBuilder( const edm::ParameterSet& iP );
-  ~HGCalTopologyBuilder() override ;
+  HGCalTopologyBuilder(const edm::ParameterSet& iP);
+  ~HGCalTopologyBuilder() override;
 
   using ReturnType = std::unique_ptr<HGCalTopology>;
 
@@ -53,33 +51,27 @@ public:
 private:
   // ----------member data ---------------------------
   edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> hgcToken_;
-  int                det_;
+  int det_;
 };
 
-
 HGCalTopologyBuilder::HGCalTopologyBuilder(const edm::ParameterSet& iConfig) {
-
   auto name = iConfig.getParameter<std::string>("Name");
-  det_      = iConfig.getParameter<int>("Type");
+  det_ = iConfig.getParameter<int>("Type");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "constructing HGCalTopology for " << name
-				<< " and det " << det_;
+  edm::LogVerbatim("HGCalGeom") << "constructing HGCalTopology for " << name << " and det " << det_;
 #endif
   hgcToken_ = setWhatProduced(this, name).consumes<HGCalDDDConstants>(edm::ESInputTag{"", name});
 }
 
-
-HGCalTopologyBuilder::~HGCalTopologyBuilder() { }
+HGCalTopologyBuilder::~HGCalTopologyBuilder() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-HGCalTopologyBuilder::ReturnType
-HGCalTopologyBuilder::produce(const IdealGeometryRecord& iRecord ) {
-
-  const HGCalDDDConstants & hgdc = iRecord.get(hgcToken_);
+HGCalTopologyBuilder::ReturnType HGCalTopologyBuilder::produce(const IdealGeometryRecord& iRecord) {
+  const HGCalDDDConstants& hgdc = iRecord.get(hgcToken_);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Create HGCalTopology(hgdc,det)";

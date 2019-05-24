@@ -2,7 +2,7 @@
 //
 // Package:    CaloGeometryBuilder
 // Class:      CaloGeometryBuilder
-// 
+//
 /**\class CaloGeometryBuilder CaloGeometryBuilder.h tmp/CaloGeometryBuilder/interface/CaloGeometryBuilder.h
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
 //
 //
-
 
 // system include files
 #include <memory>
@@ -36,28 +35,25 @@
 // class decleration
 //
 
-class CaloGeometryBuilder : public edm::ESProducer 
-{
-   public:
+class CaloGeometryBuilder : public edm::ESProducer {
+public:
+  using ReturnType = std::unique_ptr<CaloGeometry>;
 
-      using ReturnType = std::unique_ptr<CaloGeometry>;
+  CaloGeometryBuilder(const edm::ParameterSet& iConfig);
 
-      CaloGeometryBuilder( const edm::ParameterSet& iConfig ) ;
+  ~CaloGeometryBuilder() override{};
 
-      ~CaloGeometryBuilder() override {} ;
+  ReturnType produceAligned(const CaloGeometryRecord& iRecord);
 
-      ReturnType produceAligned( const CaloGeometryRecord&  iRecord ) ;
+private:
+  // ----------member data ---------------------------
 
-   private:
-      // ----------member data ---------------------------
-      
-      edm::ESGetToken<CaloSubdetectorGeometry, HcalGeometryRecord> hcalToken_;
-      edm::ESGetToken<CaloSubdetectorGeometry, ZDCGeometryRecord> zdcToken_;
-      edm::ESGetToken<CaloSubdetectorGeometry, CastorGeometryRecord> castorToken_;
-      edm::ESGetToken<CaloSubdetectorGeometry, EcalBarrelGeometryRecord> ecalBarrelToken_;
-      edm::ESGetToken<CaloSubdetectorGeometry, EcalEndcapGeometryRecord> ecalEndcapToken_;
-      edm::ESGetToken<CaloSubdetectorGeometry, EcalPreshowerGeometryRecord> ecalPreshowerToken_;
-      edm::ESGetToken<CaloSubdetectorGeometry, CaloTowerGeometryRecord> caloTowerToken_;
-      std::vector<std::pair<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>, std::string>> hgcalTokens_;
+  edm::ESGetToken<CaloSubdetectorGeometry, HcalGeometryRecord> hcalToken_;
+  edm::ESGetToken<CaloSubdetectorGeometry, ZDCGeometryRecord> zdcToken_;
+  edm::ESGetToken<CaloSubdetectorGeometry, CastorGeometryRecord> castorToken_;
+  edm::ESGetToken<CaloSubdetectorGeometry, EcalBarrelGeometryRecord> ecalBarrelToken_;
+  edm::ESGetToken<CaloSubdetectorGeometry, EcalEndcapGeometryRecord> ecalEndcapToken_;
+  edm::ESGetToken<CaloSubdetectorGeometry, EcalPreshowerGeometryRecord> ecalPreshowerToken_;
+  edm::ESGetToken<CaloSubdetectorGeometry, CaloTowerGeometryRecord> caloTowerToken_;
+  std::vector<std::pair<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>, std::string>> hgcalTokens_;
 };
-

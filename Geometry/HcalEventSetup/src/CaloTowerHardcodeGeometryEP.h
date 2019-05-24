@@ -13,7 +13,6 @@
 class HcalRecNumberingRecord;
 class IdealGeometryRecord;
 
-
 class CaloTowerHardcodeGeometryEP : public edm::ESProducer {
 public:
   CaloTowerHardcodeGeometryEP(const edm::ParameterSet&);

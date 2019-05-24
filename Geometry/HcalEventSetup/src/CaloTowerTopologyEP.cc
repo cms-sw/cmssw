@@ -2,7 +2,7 @@
 //
 // Package:    CaloTowerTopologyEP
 // Class:      CaloTowerTopologyEP
-// 
+//
 /**\class CaloTowerTopologyEP CaloTowerTopologyEP.h tmp/CaloTowerTopologyEP/interface/CaloTowerTopologyEP.h
 
  Description: <one line class summary>
@@ -29,18 +29,15 @@
 // constructors and destructor
 //
 CaloTowerTopologyEP::CaloTowerTopologyEP(const edm::ParameterSet& conf)
-  : topoToken_{setWhatProduced(this).consumes<HcalTopology>(edm::ESInputTag{})}
-{
+    : topoToken_{setWhatProduced(this).consumes<HcalTopology>(edm::ESInputTag{})} {
   edm::LogInfo("HCAL") << "CaloTowerTopologyEP::CaloTowerTopologyEP";
 }
 
+CaloTowerTopologyEP::~CaloTowerTopologyEP() {}
 
-CaloTowerTopologyEP::~CaloTowerTopologyEP() { 
-}
-
-void CaloTowerTopologyEP::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) {
+void CaloTowerTopologyEP::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.add( "CaloTowerTopology", desc );
+  descriptions.add("CaloTowerTopology", desc);
 }
 
 //
@@ -48,13 +45,10 @@ void CaloTowerTopologyEP::fillDescriptions( edm::ConfigurationDescriptions & des
 //
 
 // ------------ method called to produce the data  ------------
-CaloTowerTopologyEP::ReturnType
-CaloTowerTopologyEP::produce(const HcalRecNumberingRecord& iRecord) {
+CaloTowerTopologyEP::ReturnType CaloTowerTopologyEP::produce(const HcalRecNumberingRecord& iRecord) {
   const auto& hcaltopo = iRecord.get(topoToken_);
 
   edm::LogInfo("HCAL") << "CaloTowerTopologyEP::produce(const HcalRecNumberingRecord& iRecord)";
 
   return std::make_unique<CaloTowerTopology>(&hcaltopo);
 }
-
-

@@ -2,7 +2,7 @@
 //
 // Package:    CaloTowerConstituentsMapBuilder
 // Class:      CaloTowerConstituentsMapBuilder
-// 
+//
 /**\class CaloTowerConstituentsMapBuilder CaloTowerConstituentsMapBuilder.h tmp/CaloTowerConstituentsMapBuilder/interface/CaloTowerConstituentsMapBuilder.h
 
  Description: <one line class summary>
@@ -29,10 +29,10 @@
 //
 // constructors and destructor
 //
-CaloTowerConstituentsMapBuilder::CaloTowerConstituentsMapBuilder(const edm::ParameterSet& iConfig) :
-  mapFile_(iConfig.getUntrackedParameter<std::string>("MapFile","")),
-  mapAuto_(iConfig.getUntrackedParameter<bool>("MapAuto",false)),
-  skipHE_(iConfig.getUntrackedParameter<bool>("SkipHE",false)) {
+CaloTowerConstituentsMapBuilder::CaloTowerConstituentsMapBuilder(const edm::ParameterSet& iConfig)
+    : mapFile_(iConfig.getUntrackedParameter<std::string>("MapFile", "")),
+      mapAuto_(iConfig.getUntrackedParameter<bool>("MapAuto", false)),
+      skipHE_(iConfig.getUntrackedParameter<bool>("SkipHE", false)) {
   //the following line is needed to tell the framework what
   // data is being produced
   auto cc = setWhatProduced(this);
@@ -41,101 +41,99 @@ CaloTowerConstituentsMapBuilder::CaloTowerConstituentsMapBuilder(const edm::Para
   cttopoToken_ = cc.consumesFrom<CaloTowerTopology, HcalRecNumberingRecord>(edm::ESInputTag{});
   geometryToken_ = cc.consumes<CaloGeometry>(edm::ESInputTag{});
 
-//now do what ever other initialization is needed
+  //now do what ever other initialization is needed
 }
 
-
 CaloTowerConstituentsMapBuilder::~CaloTowerConstituentsMapBuilder() {}
-
 
 //
 // member functions
 //
 
-void
-CaloTowerConstituentsMapBuilder::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
-{
+void CaloTowerConstituentsMapBuilder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::string>( "MapFile", "" );
-  desc.addUntracked<bool>( "MapAuto", false );
-  desc.addUntracked<bool>( "SkipHE", false );
-  descriptions.add( "caloTowerConstituents", desc );
+  desc.addUntracked<std::string>("MapFile", "");
+  desc.addUntracked<bool>("MapAuto", false);
+  desc.addUntracked<bool>("SkipHE", false);
+  descriptions.add("caloTowerConstituents", desc);
 }
 
 // ------------ method called to produce the data  ------------
-CaloTowerConstituentsMapBuilder::ReturnType
-CaloTowerConstituentsMapBuilder::produce(const CaloGeometryRecord& iRecord)
-{
+CaloTowerConstituentsMapBuilder::ReturnType CaloTowerConstituentsMapBuilder::produce(const CaloGeometryRecord& iRecord) {
   const auto& hcaltopo = iRecord.get(hcaltopoToken_);
   const auto& cttopo = iRecord.get(cttopoToken_);
 
-  auto prod = std::make_unique<CaloTowerConstituentsMap>( &hcaltopo, &cttopo );
+  auto prod = std::make_unique<CaloTowerConstituentsMap>(&hcaltopo, &cttopo);
 
-//auto prod = std::make_unique<CaloTowerConstituentsMap>( &hcaltopo );
+  //auto prod = std::make_unique<CaloTowerConstituentsMap>( &hcaltopo );
 
   //keep geometry pointer as member for alternate EE->HE mapping
   const CaloGeometry& geometry = iRecord.get(geometryToken_);
-   
+
   prod->useStandardHB(true);
-  if(!skipHE_) prod->useStandardHE(true);
+  if (!skipHE_)
+    prod->useStandardHE(true);
   prod->useStandardHF(true);
   prod->useStandardHO(true);
   prod->useStandardEB(true);
-   
+
   if (!mapFile_.empty()) {
-    parseTextMap(mapFile_,*prod);
+    parseTextMap(mapFile_, *prod);
   } else if (mapAuto_ && !skipHE_) {
     assignEEtoHE(&geometry, *prod, &cttopo);
   }
   prod->sort();
-  
+
   return prod;
 }
 
-void
-CaloTowerConstituentsMapBuilder::parseTextMap( const std::string& filename, CaloTowerConstituentsMap& theMap ) {
+void CaloTowerConstituentsMapBuilder::parseTextMap(const std::string& filename, CaloTowerConstituentsMap& theMap) {
+  edm::FileInPath eff(filename);
 
-  edm::FileInPath eff( filename );
+  gzFile gzed = gzopen(eff.fullPath().c_str(), "rb");
 
-  gzFile gzed = gzopen( eff.fullPath().c_str(), "rb" );
-  
-  while( !gzeof( gzed )) {
+  while (!gzeof(gzed)) {
     char line[1024];
     int ieta, iphi, rawid;
-    if( nullptr != gzgets( gzed, line, 1023 )) {
-      if( index( line, '#' ) != nullptr )*( index( line, '#' )) = 0;
-      int ct = sscanf( line, "%i %d %d", &rawid, &ieta, &iphi );
-      if( ct == 3 ) {
-	DetId detid( rawid );
-	CaloTowerDetId tid( ieta, iphi );
-	theMap.assign( detid, tid );
+    if (nullptr != gzgets(gzed, line, 1023)) {
+      if (index(line, '#') != nullptr)
+        *(index(line, '#')) = 0;
+      int ct = sscanf(line, "%i %d %d", &rawid, &ieta, &iphi);
+      if (ct == 3) {
+        DetId detid(rawid);
+        CaloTowerDetId tid(ieta, iphi);
+        theMap.assign(detid, tid);
       }
     }
   }
-  gzclose( gzed );
+  gzclose(gzed);
 }
 
 //algorithm to assign EE cells to HE towers if no text map is provided
-void CaloTowerConstituentsMapBuilder::assignEEtoHE(const CaloGeometry* geometry, CaloTowerConstituentsMap& theMap, const CaloTowerTopology * cttopo){
+void CaloTowerConstituentsMapBuilder::assignEEtoHE(const CaloGeometry* geometry,
+                                                   CaloTowerConstituentsMap& theMap,
+                                                   const CaloTowerTopology* cttopo) {
   //get EE and HE geometries
   const CaloSubdetectorGeometry* geomEE = geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  if(geomEE==nullptr) return; // if no EE is defined don't know where it is used  
+  if (geomEE == nullptr)
+    return;  // if no EE is defined don't know where it is used
 
   const CaloSubdetectorGeometry* geomHE = geometry->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
-  
+
   //get list of EE detids
   const std::vector<DetId>& vec(geomEE->getValidDetIds());
   //loop over EE detids
-  for(auto detId_itr : vec){
+  for (auto detId_itr : vec) {
     //get detid position
     auto cellGeometry = geomEE->getGeometry(detId_itr);
-    const GlobalPoint& gp (cellGeometry->getPosition()) ;
-    
+    const GlobalPoint& gp(cellGeometry->getPosition());
+
     //find closest HE cell
-    HcalDetId closestCell (geomHE->getClosestCell(gp)) ;
-    
+    HcalDetId closestCell(geomHE->getClosestCell(gp));
+
     //assign to appropriate CaloTower
-    CaloTowerDetId tid(cttopo->convertHcaltoCT(closestCell.ietaAbs(),closestCell.subdet())*closestCell.zside(), closestCell.iphi());
-    theMap.assign(detId_itr,tid);
+    CaloTowerDetId tid(cttopo->convertHcaltoCT(closestCell.ietaAbs(), closestCell.subdet()) * closestCell.zside(),
+                       closestCell.iphi());
+    theMap.assign(detId_itr, tid);
   }
 }
