@@ -162,6 +162,7 @@ class MuonPathAnalyzerPerSL : public MuonPathAnalyzer {
 
   Bool_t debug;
   double chi2Th;
+  double chi2corTh;
   double tanPhiTh;
   int bxTolerance;
   MP_QUALITY minQuality;
