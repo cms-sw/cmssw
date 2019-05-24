@@ -74,7 +74,7 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   // arrange the hits by eta partition
   std::map<uint32_t, edm::PSimHitContainer> hitMap;
   for (const auto& hit : hits) {
-    hitMap[hit.detUnitId()].emplace_back(hit);
+    hitMap[GEMDetId(hit.detUnitId()).rawId()].emplace_back(hit);
   }
 
   // simulate signal and noise for each eta partition
