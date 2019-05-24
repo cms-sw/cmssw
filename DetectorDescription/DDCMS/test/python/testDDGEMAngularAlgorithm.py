@@ -18,7 +18,7 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  DDDetector = cms.ESInputTag('TestDDGEMAngular')
+                                  DDDetector = cms.ESInputTag('','TestDDGEMAngular')
                                   )
 
 process.p = cms.Path(process.testDump)
