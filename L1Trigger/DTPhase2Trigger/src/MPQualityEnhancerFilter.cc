@@ -41,7 +41,20 @@ void MPQualityEnhancerFilter::run(edm::Event& iEvent, const edm::EventSetup& iEv
   std::vector<metaPrimitive> buff; 
   
   filterCousins(inMPaths,buff); 
+  if (debug){ cout <<"Ended Cousins Filter. The final primitives before UniqueFilter are: " << endl;
+    for (unsigned int i=0; i<buff.size(); i++){
+      printmP(buff[i]);cout<<endl;
+      cout << "Total Primitives = " << i+1<< endl;  
+    }
+  } 
   filterUnique(buff,outMPaths);
+
+  if (debug){ cout <<"Ended Unique Filter. The final primitives are: " << endl;
+    for (unsigned int i=0; i<outMPaths.size(); i++){
+      printmP(outMPaths[i]);cout<<endl; 
+      cout << "Total Primitives = " << i+1<< endl;  
+    }
+  } 
 
   buff.clear();
   buff.erase(buff.begin(),buff.end());
@@ -71,7 +84,7 @@ int MPQualityEnhancerFilter::rango(metaPrimitive mp){
     return 0;
 }
 
-
+/*
 void MPQualityEnhancerFilter::filterCousins(std::vector<metaPrimitive> &inMPaths, 
 				   std::vector<metaPrimitive> &outMPaths) 
 {
@@ -91,11 +104,14 @@ void MPQualityEnhancerFilter::filterCousins(std::vector<metaPrimitive> &inMPaths
     }
     else {
 	for(int i=1; i<=int(inMPaths.size()); i++){ 
+	//for(int i=1; i<=int(inMPaths.size()); i++){ 
 	    if(rango(inMPaths[i])==4)oneof4=true;
 	    if(debug){
 		std::cout<<"filtering:";
-		printmP(inMPaths[i]);
-		std::cout<<" \t is:"<<i<<" "<<primo_index<<" "<<" "<<oneof4<<std::endl;
+		if(i!=(int) inMPaths.size()){
+	          printmP(inMPaths[i]);
+		  std::cout<<" \t is:"<<i<<" "<<primo_index<<" "<<" "<<oneof4<<std::endl;
+		}
 	    }
 	    if(areCousins(inMPaths[i],inMPaths[i-1])!=0  and areCousins(inMPaths[i],inMPaths[i-primo_index-1])!=0){
 		primo_index++;
@@ -117,7 +133,7 @@ void MPQualityEnhancerFilter::filterCousins(std::vector<metaPrimitive> &inMPaths
 			outMPaths.push_back(inMPaths[selected_i]);
 			if(debug)std::cout<<"filtering: kept4 i="<<selected_i<<std::endl;
 		    }else{
-			for(int j=i-1;j>=i-primo_index-1;j--){
+			for(int j=i-1;j>=i-primo_index-1;j--){ //GUARDA EL PRIMERO COMO KEPT2 y KEPT3
 			    outMPaths.push_back(inMPaths[j]);
 			    if(debug)std::cout<<"filtering: kept3 i="<<j<<std::endl;
 			}
@@ -129,13 +145,69 @@ void MPQualityEnhancerFilter::filterCousins(std::vector<metaPrimitive> &inMPaths
 	}
     }
 }
+*/
+
+void MPQualityEnhancerFilter::filterCousins(std::vector<metaPrimitive> &inMPaths, 
+				   std::vector<metaPrimitive> &outMPaths) 
+{
+    if(debug) std::cout<<"filtering: starting cousins filtering"<<std::endl;    
+  
+    int primo_index=0;
+    bool oneof4=false;
+    int bestI = -1; 
+    double bestChi2 = 9999; 
+    if(inMPaths.size()==1){
+	if(debug){
+	    std::cout<<"filtering:";
+	    printmP(inMPaths[0]);
+	    std::cout<<" \t is:"<<0<<" "<<primo_index<<" "<<" "<<oneof4<<std::endl;
+	}
+	outMPaths.push_back(inMPaths[0]);
+	if(debug)std::cout<<"filtering: kept0 i="<<0<<std::endl;
+    }
+    else {
+	for(int i=0; i<int(inMPaths.size()); i++){ 
+	    if(debug){
+	        std::cout<<"filtering:";
+	        printmP(inMPaths[i]);
+	        std::cout<<" \t is:"<<i<<" "<<primo_index<<" "<<" "<<oneof4<<std::endl;
+	    }
+	    if(rango(inMPaths[i])==4){
+		oneof4=true;
+		if (bestChi2 > inMPaths[i].chi2){
+		    bestChi2 = inMPaths[i].chi2; 
+		    bestI = i;
+		}
+	    }
+	    if (areCousins(inMPaths[i],inMPaths[i+1])!=0) {
+		primo_index++;
+	    } else {
+		if (oneof4) {
+		   outMPaths.push_back(inMPaths[bestI]);
+		   if(debug)std::cout<<"filtering: kept4 i="<<bestI<<std::endl;
+		   bestI = -1; bestChi2 = 9999; oneof4=false; 
+		} else {
+		   for (int j = i-primo_index; j<=i; j++){
+		       outMPaths.push_back(inMPaths[j]);
+		       if(debug)std::cout<<"filtering: kept3 i="<<j<<std::endl;
+		   }
+		}
+		primo_index = 0; 
+	    }
+	}
+    }
+
+
+} //End filterCousins
+
+
 
 void MPQualityEnhancerFilter::filterUnique(std::vector<metaPrimitive> &inMPaths,
 				  std::vector<metaPrimitive> &outMPaths)
 {
-    double xTh = 0.;
-    double tPhiTh = 0.; 
-    double t0Th = 0.;
+    double xTh = 0.001;
+    double tPhiTh = 0.001; 
+    double t0Th = 0.001;
     for (size_t i=0; i<inMPaths.size();i++){
 	bool visto = false; 
 	for (size_t j=i+1; j<inMPaths.size();j++){
@@ -149,7 +221,7 @@ void MPQualityEnhancerFilter::filterUnique(std::vector<metaPrimitive> &inMPaths,
 void MPQualityEnhancerFilter::printmP(metaPrimitive mP){
     DTSuperLayerId slId(mP.rawId);
     std::cout<<slId<<"\t"
-	     <<" "<<setw(2)<<left<<mP.wi1
+             <<" "<<setw(2)<<left<<mP.wi1
 	     <<" "<<setw(2)<<left<<mP.wi2
 	     <<" "<<setw(2)<<left<<mP.wi3
 	     <<" "<<setw(2)<<left<<mP.wi4
