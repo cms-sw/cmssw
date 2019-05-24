@@ -17,18 +17,16 @@
 
 namespace l1t {
 
-  void HICaloRingSubtraction(const std::vector<l1t::CaloRegion> & regions,
-			     std::vector<l1t::CaloRegion> *subRegions,
-			     CaloParamsHelper const *params);
+  void HICaloRingSubtraction(const std::vector<l1t::CaloRegion> &regions,
+                             std::vector<l1t::CaloRegion> *subRegions,
+                             CaloParamsHelper const *params);
 
-  void simpleHWSubtraction(const std::vector<l1t::CaloRegion> & regions,
-			   std::vector<l1t::CaloRegion> *subRegions);
+  void simpleHWSubtraction(const std::vector<l1t::CaloRegion> &regions, std::vector<l1t::CaloRegion> *subRegions);
 
-  void RegionCorrection(const std::vector<l1t::CaloRegion> & regions,
-			std::vector<l1t::CaloRegion> *subRegions,
-			CaloParamsHelper const *params);
+  void RegionCorrection(const std::vector<l1t::CaloRegion> &regions,
+                        std::vector<l1t::CaloRegion> *subRegions,
+                        CaloParamsHelper const *params);
 
-
-}
+}  // namespace l1t
 
 #endif

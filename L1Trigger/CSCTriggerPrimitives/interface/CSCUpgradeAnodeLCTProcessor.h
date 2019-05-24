@@ -13,19 +13,21 @@
 
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCAnodeLCTProcessor.h"
 
-class CSCUpgradeAnodeLCTProcessor : public CSCAnodeLCTProcessor
-{
- public:
+class CSCUpgradeAnodeLCTProcessor : public CSCAnodeLCTProcessor {
+public:
   /** Normal constructor. */
-  CSCUpgradeAnodeLCTProcessor(unsigned endcap, unsigned station, unsigned sector,
-                       unsigned subsector, unsigned chamber,
-                       const edm::ParameterSet& conf);
+  CSCUpgradeAnodeLCTProcessor(unsigned endcap,
+                              unsigned station,
+                              unsigned sector,
+                              unsigned subsector,
+                              unsigned chamber,
+                              const edm::ParameterSet& conf);
 
   /** Default constructor. Used for testing. */
   CSCUpgradeAnodeLCTProcessor();
 
- private:
- /* This function looks for LCTs on the previous and next wires.  If one
+private:
+  /* This function looks for LCTs on the previous and next wires.  If one
      exists and it has a better quality and a bx_time up to 4 clocks earlier
      than the present, then the present LCT is cancelled.  The present LCT
      also gets cancelled if it has the same quality as the one on the

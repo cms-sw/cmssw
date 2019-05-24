@@ -10,7 +10,6 @@
 /// \author: Ivan Amos Cali MIT
 ///
 
-
 // system include files
 #include <memory>
 
@@ -41,8 +40,6 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
 #include <vector>
-
-
 
 //
 // class declaration

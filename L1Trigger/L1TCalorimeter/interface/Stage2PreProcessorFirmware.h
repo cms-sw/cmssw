@@ -25,20 +25,20 @@ namespace l1t {
   public:
     Stage2PreProcessorFirmwareImp1(unsigned fwv, CaloParamsHelper const* params);
 
-    void processEvent(const std::vector<l1t::CaloTower> & inTowers,
-			      std::vector<l1t::CaloTower> & outTowers) override;
+    void processEvent(const std::vector<l1t::CaloTower>& inTowers, std::vector<l1t::CaloTower>& outTowers) override;
 
     void print(std::ostream&) const;
 
-    friend std::ostream& operator<<(std::ostream& o, const Stage2PreProcessorFirmwareImp1 & p) { p.print(o); return o; }
+    friend std::ostream& operator<<(std::ostream& o, const Stage2PreProcessorFirmwareImp1& p) {
+      p.print(o);
+      return o;
+    }
 
   private:
-
     //FirmwareVersion const & m_fwv;
     std::unique_ptr<Stage2TowerCompressAlgorithm> m_towerAlgo;
-
   };
 
-}
+}  // namespace l1t
 
 #endif
