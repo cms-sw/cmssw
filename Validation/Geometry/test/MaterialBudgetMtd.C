@@ -1,115 +1,13 @@
 // include files
+
+#include "tdrStyle.C"
+#include "CMS_lumi.C"
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <cmath>
 #include "TStyle.h"
-
-void setTDRStyle() {
-
-  TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
-
-  // For the canvas:
-  tdrStyle->SetCanvasBorderMode(0);
-  tdrStyle->SetCanvasColor(kWhite);
-  tdrStyle->SetCanvasDefH(600); //Height of canvas
-  tdrStyle->SetCanvasDefW(600); //Width of canvas
-  tdrStyle->SetCanvasDefX(0);   //POsition on screen
-  tdrStyle->SetCanvasDefY(0);
-
-  // For the Pad:
-  tdrStyle->SetPadBorderMode(0);
-  tdrStyle->SetPadColor(kWhite);
-  tdrStyle->SetPadGridX(false);
-  tdrStyle->SetPadGridY(false);
-  tdrStyle->SetGridColor(0);
-  tdrStyle->SetGridStyle(3);
-  tdrStyle->SetGridWidth(1);
-
-  // For the frame:
-  tdrStyle->SetFrameBorderMode(0);
-  tdrStyle->SetFrameBorderSize(1);
-  tdrStyle->SetFrameFillColor(0);
-  tdrStyle->SetFrameFillStyle(0);
-  tdrStyle->SetFrameLineColor(1);
-  tdrStyle->SetFrameLineStyle(1);
-  tdrStyle->SetFrameLineWidth(1);
-
-  // For the histo:
-  tdrStyle->SetHistLineColor(1);
-  tdrStyle->SetHistLineStyle(0);
-  tdrStyle->SetHistLineWidth(1);
-  tdrStyle->SetEndErrorSize(2);
-  tdrStyle->SetErrorX(0.);
-  tdrStyle->SetMarkerStyle(20);
-
-  //For the fit/function:
-  tdrStyle->SetOptFit(1);
-  tdrStyle->SetFitFormat("5.4g");
-  tdrStyle->SetFuncColor(2);
-  tdrStyle->SetFuncStyle(1);
-  tdrStyle->SetFuncWidth(1);
-
-  //For the date:
-  tdrStyle->SetOptDate(0);
-
-  // For the statistics box:
-  tdrStyle->SetOptFile(0);
-  tdrStyle->SetOptStat(0); // To display the mean and RMS:   SetOptStat("mr");
-  tdrStyle->SetStatColor(kWhite);
-  tdrStyle->SetStatFont(42);
-  tdrStyle->SetStatFontSize(0.025);
-  tdrStyle->SetStatTextColor(1);
-  tdrStyle->SetStatFormat("6.4g");
-  tdrStyle->SetStatBorderSize(1);
-  tdrStyle->SetStatH(0.1);
-  tdrStyle->SetStatW(0.15);
-
-  // Margins:
-  tdrStyle->SetPadTopMargin(0.05);
-  tdrStyle->SetPadBottomMargin(0.13);
-  tdrStyle->SetPadLeftMargin(0.16);
-  tdrStyle->SetPadRightMargin(0.02);
-
-  // For the Global title:
-  tdrStyle->SetOptTitle(0);
-  tdrStyle->SetTitleFont(42);
-  tdrStyle->SetTitleColor(1);
-  tdrStyle->SetTitleTextColor(1);
-  tdrStyle->SetTitleFillColor(10);
-  tdrStyle->SetTitleFontSize(0.05);
-
-  // For the axis titles:
-  tdrStyle->SetTitleColor(1, "XYZ");
-  tdrStyle->SetTitleFont(42, "XYZ");
-  tdrStyle->SetTitleSize(0.06, "XYZ");
-  tdrStyle->SetTitleXOffset(0.9);
-  tdrStyle->SetTitleYOffset(1.25);
-
-  // For the axis labels:
-  tdrStyle->SetLabelColor(1, "XYZ");
-  tdrStyle->SetLabelFont(42, "XYZ");
-  tdrStyle->SetLabelOffset(0.007, "XYZ");
-  tdrStyle->SetLabelSize(0.05, "XYZ");
-
-  // For the axis:
-  tdrStyle->SetAxisColor(1, "XYZ");
-  tdrStyle->SetStripDecimals(kTRUE);
-  tdrStyle->SetTickLength(0.03, "XYZ");
-  tdrStyle->SetNdivisions(510, "XYZ");
-  tdrStyle->SetPadTickX(1);  // To get tick marks on the opposite side of the frame
-  tdrStyle->SetPadTickY(1);
-
-  // Change for log plots:
-  tdrStyle->SetOptLogx(0);
-  tdrStyle->SetOptLogy(0);
-  tdrStyle->SetOptLogz(0);
-
-  // Postscript options:
-  tdrStyle->SetPaperSize(20.,20.);
-
-  tdrStyle->cd();
-}
 
 // data dirs
 TString theDirName = "Figures";
@@ -278,9 +176,30 @@ void createPlots(TString plot){
   //
   
   // canvas
-  TCanvas can_Materials("can_Materials","can_Materials",800,800);
-  can_Materials.Range(0,0,25,25);
-  can_Materials.SetFillColor(kWhite);
+
+  int W = 800;
+  int H = 600;
+  int H_ref = 600; 
+  int W_ref = 800; 
+
+  // references for T, B, L, R
+  float T = 0.08*H_ref;
+  float B = 0.12*H_ref; 
+  float L = 0.12*W_ref;
+  float R = 0.04*W_ref;
+
+  TCanvas * can_Materials = new TCanvas("can_Materials","can_Materials",50,50,W,H);
+  can_Materials->Range(0,0,25,25);
+  can_Materials->SetFillColor(kWhite);
+  can_Materials->SetBorderMode(0);
+  can_Materials->SetFrameFillStyle(0);
+  can_Materials->SetFrameBorderMode(0);
+  can_Materials->SetLeftMargin( L/W );
+  can_Materials->SetRightMargin( R/W );
+  can_Materials->SetTopMargin( T/H );
+  can_Materials->SetBottomMargin( B/H );
+  can_Materials->SetTickx(0);
+  can_Materials->SetTicky(0);
   gStyle->SetOptStat(0);
   //
   
@@ -292,7 +211,8 @@ void createPlots(TString plot){
   //
   
   // Legenda
-  TLegend* theLegend_Materials = new TLegend(0.180,0.8,0.98,0.92); 
+  TLegend* theLegend_Materials = new TLegend(0.14,0.8,0.96,0.92); 
+  theLegend_Materials->SetTextAlign(22);
   theLegend_Materials->SetNColumns(3); 
   theLegend_Materials->SetFillColor(0); 
   theLegend_Materials->SetFillStyle(0); 
@@ -300,31 +220,39 @@ void createPlots(TString plot){
 
   theLegend_Materials->AddEntry(hist_x0_SEN, "Sensitive material", "f");
   theLegend_Materials->AddEntry(hist_x0_COL, "Support/cooling", "f");
-  theLegend_Materials->AddEntry(hist_x0_ELE, "Electronics", "f");
-
-  theLegend_Materials->AddEntry(hist_x0_CAB, "Services", "f");
+  theLegend_Materials->AddEntry(hist_x0_ELE, "Electronics/services", "f");
+  //  theLegend_Materials->AddEntry(hist_x0_CAB, "Services", "f");
   //  theLegend_Materials->AddEntry(hist_x0_SUP, "Support", "f");
   //  theLegend_Materials->AddEntry(hist_x0_OTH, "Other", "f");
   theLegend_Materials->Draw();
-  //
 
-  // text
-  TPaveText* text_Materials = new TPaveText(0.180,0.727,0.402,0.787,"NDC");
-  text_Materials->SetFillColor(0);
-  text_Materials->SetBorderSize(0);
-  text_Materials->AddText("CMS Simulation");
-  text_Materials->SetTextAlign(11);
-  text_Materials->Draw();
-  //
+  // writing the lumi information and the CMS "logo"
+  int iPeriod = 0;
+  writeExtraText = true;
+  extraText = "Simulation";
+
+  // second parameter in example_plot is iPos, which drives the position of the CMS logo in the plot
+  // iPos=11 : top-left, left-aligned
+  // iPos=33 : top-right, right-aligned
+  // iPos=22 : center, centered
+  // mode generally : 
+  //   iPos = 10*(alignement 1/2/3) + position (1/2/3 = left/center/right)
+  int iPos = 0;
+
+  CMS_lumi( can_Materials, iPeriod, iPos );
   
   // Store
-  can_Materials.Update();
-  // can_Materials.SaveAs( Form( "%s/Mtd_Materials_%s.eps",  theDirName.Data(), plot.Data() ) );
-  // can_Materials.SaveAs( Form( "%s/Mtd_Materials_%s.gif",  theDirName.Data(), plot.Data() ) );
-  can_Materials.SaveAs( Form( "%s/Mtd_Materials_%s.pdf",  theDirName.Data(), plot.Data() ) );
-  // can_Materials.SaveAs( Form( "%s/Mtd_Materials_%s.png",  theDirName.Data(), plot.Data() ) );
-  can_Materials.SaveAs( Form( "%s/Mtd_Materials_%s.root",  theDirName.Data(), plot.Data() ) );
-  // can_Materials.SaveAs( Form( "%s/Mtd_Materials_%s.C",  theDirName.Data(), plot.Data() ) );
+  can_Materials->Update();
+  can_Materials->RedrawAxis();
+  can_Materials->Draw();
+  // can_Materials->SaveAs( Form( "%s/Mtd_Materials_%s.eps",  theDirName.Data(), plot.Data() ) );
+  // can_Materials->SaveAs( Form( "%s/Mtd_Materials_%s.gif",  theDirName.Data(), plot.Data() ) );
+  can_Materials->SaveAs( Form( "%s/Mtd_Materials_%s.pdf",  theDirName.Data(), plot.Data() ) );
+  // can_Materials->SaveAs( Form( "%s/Mtd_Materials_%s.png",  theDirName.Data(), plot.Data() ) );
+  can_Materials->SaveAs( Form( "%s/Mtd_Materials_%s.root",  theDirName.Data(), plot.Data() ) );
+  // can_Materials->SaveAs( Form( "%s/Mtd_Materials_%s.C",  theDirName.Data(), plot.Data() ) );
   //
+
+  delete can_Materials;
   
 }
