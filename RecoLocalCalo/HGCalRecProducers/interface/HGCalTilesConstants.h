@@ -1,6 +1,5 @@
 // Authors: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 03/2019
-// Copyright CERN
 
 #ifndef RecoLocalCalo_HGCalRecAlgos_interface_HGCalTilesConstants_h
 #define RecoLocalCalo_HGCalRecAlgos_interface_HGCalTilesConstants_h

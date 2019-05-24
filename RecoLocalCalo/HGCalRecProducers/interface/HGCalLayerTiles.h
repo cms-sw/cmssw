@@ -1,6 +1,5 @@
 // Authors: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 03/2019
-// Copyright CERN
 
 #ifndef RecoLocalCalo_HGCalRecAlgos_HGCalLayerTiles
 #define RecoLocalCalo_HGCalRecAlgos_HGCalLayerTiles
