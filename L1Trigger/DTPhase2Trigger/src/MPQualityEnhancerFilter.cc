@@ -44,16 +44,16 @@ void MPQualityEnhancerFilter::run(edm::Event& iEvent, const edm::EventSetup& iEv
   if (debug){ cout <<"Ended Cousins Filter. The final primitives before UniqueFilter are: " << endl;
     for (unsigned int i=0; i<buff.size(); i++){
       printmP(buff[i]);cout<<endl;
-      cout << "Total Primitives = " << i+1<< endl;  
     }
+      cout << "Total Primitives = " << buff.size()<< endl;  
   } 
   filterUnique(buff,outMPaths);
 
   if (debug){ cout <<"Ended Unique Filter. The final primitives are: " << endl;
     for (unsigned int i=0; i<outMPaths.size(); i++){
       printmP(outMPaths[i]);cout<<endl; 
-      cout << "Total Primitives = " << i+1<< endl;  
     }
+      cout << "Total Primitives = " << outMPaths.size()<< endl;  
   } 
 
   buff.clear();
