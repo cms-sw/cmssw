@@ -18,21 +18,19 @@
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 
-
 #include <vector>
 
-
 namespace l1t {
-    
-  class Stage2Layer2EGammaAlgorithm { 
+
+  class Stage2Layer2EGammaAlgorithm {
   public:
-    virtual void processEvent(const std::vector<l1t::CaloCluster> & clusters, 
-			      const std::vector<CaloTower>& towers,
-			      std::vector<l1t::EGamma> & egammas) = 0;    
+    virtual void processEvent(const std::vector<l1t::CaloCluster>& clusters,
+                              const std::vector<CaloTower>& towers,
+                              std::vector<l1t::EGamma>& egammas) = 0;
 
     virtual ~Stage2Layer2EGammaAlgorithm(){};
-  }; 
-  
-} 
+  };
+
+}  // namespace l1t
 
 #endif
