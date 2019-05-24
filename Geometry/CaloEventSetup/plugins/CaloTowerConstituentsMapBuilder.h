@@ -2,7 +2,7 @@
 //
 // Package:    CaloTowerConstituentsMapBuilder
 // Class:      CaloTowerConstituentsMapBuilder
-// 
+//
 /**\class CaloTowerConstituentsMapBuilder CaloTowerConstituentsMapBuilder.h tmp/CaloTowerConstituentsMapBuilder/interface/CaloTowerConstituentsMapBuilder.h
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
 //
 //
-
 
 // system include files
 #include <memory>
@@ -48,15 +47,14 @@ public:
   typedef std::unique_ptr<CaloTowerConstituentsMap> ReturnType;
 
   ReturnType produce(const CaloGeometryRecord&);
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void parseTextMap(const std::string& filename,CaloTowerConstituentsMap& theMap);
-  void assignEEtoHE(const CaloGeometry* geometry, CaloTowerConstituentsMap& theMap, const CaloTowerTopology * cttopo);
+  void parseTextMap(const std::string& filename, CaloTowerConstituentsMap& theMap);
+  void assignEEtoHE(const CaloGeometry* geometry, CaloTowerConstituentsMap& theMap, const CaloTowerTopology* cttopo);
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcaltopoToken_;
   edm::ESGetToken<CaloTowerTopology, HcalRecNumberingRecord> cttopoToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
   std::string mapFile_;
   bool mapAuto_, skipHE_;
 };
-

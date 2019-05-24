@@ -2,7 +2,7 @@
 //
 // Package:    HcalDDDGeometryAnalyzer
 // Class:      HcalDDDGeometryAnalyzer
-// 
+//
 /**\class HcalDDDGeometryAnalyzer HcalDDDGeometryAnalyzer.cc test/HcalDDDGeometryAnalyzer/src/HcalDDDGeometryAnalyzer.cc
 
  Description: <one line class summary>
@@ -11,8 +11,6 @@
      <Notes on implementation>
 */
 //
-
-
 
 // system include files
 #include <memory>
@@ -41,11 +39,9 @@
 // class decleration
 //
 
-class HcalDDDGeometryAnalyzer : public edm::one::EDAnalyzer<>
-{
+class HcalDDDGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-
-  explicit HcalDDDGeometryAnalyzer( const edm::ParameterSet& );
+  explicit HcalDDDGeometryAnalyzer(const edm::ParameterSet&);
   ~HcalDDDGeometryAnalyzer() override;
 
   void beginJob() override {}
@@ -57,18 +53,15 @@ private:
   int pass_;
 };
 
-HcalDDDGeometryAnalyzer::HcalDDDGeometryAnalyzer(const edm::ParameterSet& )
-  : geometryToken_{esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})}
-{
-  pass_=0;
+HcalDDDGeometryAnalyzer::HcalDDDGeometryAnalyzer(const edm::ParameterSet&)
+    : geometryToken_{esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})} {
+  pass_ = 0;
 }
 
 HcalDDDGeometryAnalyzer::~HcalDDDGeometryAnalyzer() {}
 
 // ------------ method called to produce the data  ------------
-void HcalDDDGeometryAnalyzer::analyze(const edm::Event& , 
-				      const edm::EventSetup& iSetup) {
-
+void HcalDDDGeometryAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   LogDebug("HCalGeom") << "HcalDDDGeometryAnalyzer::analyze at pass " << pass_;
 
   const auto& geometryR = iSetup.getData(geometryToken_);
@@ -76,27 +69,20 @@ void HcalDDDGeometryAnalyzer::analyze(const edm::Event& ,
   //
   // get the ecal & hcal geometry
   //
-  if (pass_==0) {
-     const std::vector<DetId>& hbCells = geometry->getValidDetIds(DetId::Hcal, 
-								  HcalBarrel);
-     const std::vector<DetId>& heCells = geometry->getValidDetIds(DetId::Hcal, 
-								  HcalEndcap);
-     const std::vector<DetId>& hoCells = geometry->getValidDetIds(DetId::Hcal,
-								  HcalOuter);
-     const std::vector<DetId>& hfCells = geometry->getValidDetIds(DetId::Hcal,
-								  HcalForward);
-    LogDebug("HCalGeom") << "HcalDDDGeometryAnalyzer:: Hcal Barrel ("
-			 << HcalBarrel << ") with " << hbCells.size() 
-			 << " valid cells; Hcal Endcap (" << HcalEndcap
-			 << ") with " << heCells.size() << " valid cells; "
-			 << "Hcal Outer (" << HcalOuter << ") with "
-			 << hoCells.size() << " valid cells; and Hcal Forward"
-			 << " (" << HcalForward << ") with " << hfCells.size() 
-			 << " valid cells";
+  if (pass_ == 0) {
+    const std::vector<DetId>& hbCells = geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
+    const std::vector<DetId>& heCells = geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
+    const std::vector<DetId>& hoCells = geometry->getValidDetIds(DetId::Hcal, HcalOuter);
+    const std::vector<DetId>& hfCells = geometry->getValidDetIds(DetId::Hcal, HcalForward);
+    LogDebug("HCalGeom") << "HcalDDDGeometryAnalyzer:: Hcal Barrel (" << HcalBarrel << ") with " << hbCells.size()
+                         << " valid cells; Hcal Endcap (" << HcalEndcap << ") with " << heCells.size()
+                         << " valid cells; "
+                         << "Hcal Outer (" << HcalOuter << ") with " << hoCells.size()
+                         << " valid cells; and Hcal Forward"
+                         << " (" << HcalForward << ") with " << hfCells.size() << " valid cells";
   }
 
   pass_++;
-      
 }
 
 //define this as a plug-in
