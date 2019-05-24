@@ -5,7 +5,7 @@
 //
 // Package:     DataFormatsL1Trigger
 // Class  :     L1TriggerError
-// 
+//
 /**\class L1TriggerError \file L1TriggerError.h DataFormats/L1Trigger/interface/L1TriggerError.h \author Jim Brooke
 
  Description: Class for communicating errors between modules.
@@ -13,22 +13,20 @@
 */
 //
 // Original Author:  Jim Brooke
-//         Created:  
+//         Created:
 //
 
-
 class L1TriggerError {
- public:
-  
+public:
   /// construct from an error code
-  explicit L1TriggerError(unsigned short prodID=0, unsigned short code=0);
+  explicit L1TriggerError(unsigned short prodID = 0, unsigned short code = 0);
 
   /// dtor
   ~L1TriggerError();
 
   /// set error
   void setCode(int code) { code_ = code; }
-  
+
   /// get error
   unsigned code() { return code_; }
 
@@ -38,10 +36,8 @@ class L1TriggerError {
   /// producer error
   unsigned prodErr();
 
-  private:
-
-    unsigned code_;
-
+private:
+  unsigned code_;
 };
 
 #include <vector>

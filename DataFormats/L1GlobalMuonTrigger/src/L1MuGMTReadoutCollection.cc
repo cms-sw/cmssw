@@ -2,7 +2,7 @@
 //
 // Package:     DataFormats/L1GlobalMuonTrigger
 // Class  :     L1MuGMTReadoutCollection
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -18,12 +18,11 @@
 
 static tbb::concurrent_unordered_map<int, L1MuGMTReadoutRecord> s_empty_record_cache;
 
-L1MuGMTReadoutRecord const&
-L1MuGMTReadoutCollection::getDefaultFor(int bx) {
+L1MuGMTReadoutRecord const& L1MuGMTReadoutCollection::getDefaultFor(int bx) {
   // if bx not found return empty readout record
-  auto itFound = s_empty_record_cache.find(bx); 
-  if ( itFound == s_empty_record_cache.end()) {
-    auto foundPair = s_empty_record_cache.insert( std::make_pair(bx, L1MuGMTReadoutRecord(bx)) );
+  auto itFound = s_empty_record_cache.find(bx);
+  if (itFound == s_empty_record_cache.end()) {
+    auto foundPair = s_empty_record_cache.insert(std::make_pair(bx, L1MuGMTReadoutRecord(bx)));
     itFound = foundPair.first;
   }
   return itFound->second;
