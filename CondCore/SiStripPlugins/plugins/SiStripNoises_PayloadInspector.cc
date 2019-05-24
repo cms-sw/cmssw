@@ -59,8 +59,8 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      for (auto const &iov : iovs) {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
         std::shared_ptr<SiStripNoises> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           fillWithValue(1.);
@@ -107,14 +107,14 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      for (auto const &iov : iovs) {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
         std::shared_ptr<SiStripNoises> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           std::vector<uint32_t> detid;
           payload->getDetIds(detid);
 
-          for (const auto &d : detid) {
+          for (const auto& d : detid) {
             SiStripNoises::Range range = payload->getRange(d);
             for (int it = 0; it < (range.second - range.first) * 8 / 9; ++it) {
               auto noise = payload->getNoise(it, range);
@@ -140,7 +140,7 @@ namespace {
       setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       auto iov = iovs.front();
 
       TGaxis::SetMaxDigits(3);
@@ -167,7 +167,8 @@ namespace {
       payload->getDetIds(detids);
 
       // loop on payload
-      for (const auto &d : detids) {
+
+      for (const auto& d : detids) {
         SiStripNoises::Range range = payload->getRange(d);
 
         unsigned int istrip = 0;
@@ -216,7 +217,7 @@ namespace {
 
       canvas.Update();
 
-      TPaveStats *st = (TPaveStats *)hist.GetListOfFunctions()->FindObject("stats");
+      TPaveStats* st = (TPaveStats*)hist.GetListOfFunctions()->FindObject("stats");
       st->SetLineColor(kRed);
       st->SetTextColor(kRed);
       st->SetX1NDC(.75);
@@ -258,11 +259,11 @@ namespace {
     SiStripNoiseDistributionComparisonBase()
         : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise values comparison") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
 
       // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
         return std::get<0>(t1) < std::get<0>(t2);
       });
 
@@ -305,7 +306,7 @@ namespace {
       f_payload->getDetIds(f_detid);
 
       // loop on first payload
-      for (const auto &d : f_detid) {
+      for (const auto& d : f_detid) {
         SiStripNoises::Range range = f_payload->getRange(d);
 
         unsigned int istrip = 0;
@@ -344,7 +345,8 @@ namespace {
       l_payload->getDetIds(l_detid);
 
       // loop on first payload
-      for (const auto &d : l_detid) {
+
+      for (const auto& d : l_detid) {
         SiStripNoises::Range range = l_payload->getRange(d);
 
         unsigned int istrip = 0;
@@ -447,13 +449,20 @@ namespace {
     }
   };
 
-  typedef SiStripNoiseDistributionComparisonSingleTag<SiStripPI::STRIP_BASED>SiStripNoiseValueComparisonPerStripSingleTag;
-  typedef SiStripNoiseDistributionComparisonSingleTag<SiStripPI::APV_BASED> SiStripNoiseValueComparisonPerAPVSingleTag;
-  typedef SiStripNoiseDistributionComparisonSingleTag<SiStripPI::MODULE_BASED>SiStripNoiseValueComparisonPerModuleSingleTag;
 
-  typedef SiStripNoiseDistributionComparisonTwoTags<SiStripPI::STRIP_BASED> SiStripNoiseValueComparisonPerStripTwoTags;
-  typedef SiStripNoiseDistributionComparisonTwoTags<SiStripPI::APV_BASED> SiStripNoiseValueComparisonPerAPVTwoTags;
-  typedef SiStripNoiseDistributionComparisonTwoTags<SiStripPI::MODULE_BASED> SiStripNoiseValueComparisonPerModuleTwoTags;
+  typedef SiStripNoiseDistributionComparisonSingleTag<SiStripPI::STRIP_BASED>
+  SiStripNoiseValueComparisonPerStripSingleTag;
+  typedef SiStripNoiseDistributionComparisonSingleTag<SiStripPI::APV_BASED>
+  SiStripNoiseValueComparisonPerAPVSingleTag;
+  typedef SiStripNoiseDistributionComparisonSingleTag<SiStripPI::MODULE_BASED>
+  SiStripNoiseValueComparisonPerModuleSingleTag;
+
+  typedef SiStripNoiseDistributionComparisonTwoTags<SiStripPI::STRIP_BASED>
+  SiStripNoiseValueComparisonPerStripTwoTags;
+  typedef SiStripNoiseDistributionComparisonTwoTags<SiStripPI::APV_BASED>
+  SiStripNoiseValueComparisonPerAPVTwoTags;
+  typedef SiStripNoiseDistributionComparisonTwoTags<SiStripPI::MODULE_BASED>
+  SiStripNoiseValueComparisonPerModuleTwoTags;
 
   /************************************************
     1d histogram comparison of SiStripNoises of 1 IOV 
@@ -466,11 +475,11 @@ namespace {
     SiStripNoiseValueComparisonBase()
         : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise values comparison") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
 
       // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
         return std::get<0>(t1) < std::get<0>(t2);
       });
 
@@ -504,7 +513,7 @@ namespace {
       f_payload->getDetIds(f_detid);
 
       // loop on first payload
-      for (const auto &d : f_detid) {
+      for (const auto& d : f_detid) {
         SiStripNoises::Range range = f_payload->getRange(d);
         for (int it = 0; it < (range.second - range.first) * 8 / 9; ++it) {
           float noise = f_payload->getNoise(it, range);
@@ -517,7 +526,7 @@ namespace {
       l_payload->getDetIds(l_detid);
 
       // loop on first payload
-      for (const auto &d : l_detid) {
+      for (const auto& d : l_detid) {
         SiStripNoises::Range range = l_payload->getRange(d);
         for (int it = 0; it < (range.second - range.first) * 8 / 9; ++it) {
           float noise = l_payload->getNoise(it, range);
@@ -591,7 +600,7 @@ namespace {
       setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       auto iov = iovs.front();
       std::shared_ptr<SiStripNoises> payload = fetchPayload(std::get<1>(iov));
 
@@ -659,7 +668,7 @@ namespace {
       }
 
       // loop on the map
-      for (const auto &item : info_per_detid) {
+      for (const auto& item : info_per_detid) {
         tmap->fill(item.first, item.second);
       }
 
@@ -750,10 +759,10 @@ namespace {
       return info_per_detid;
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
 
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
         return std::get<0>(t1) < std::get<0>(t2);
       });
 
@@ -769,7 +778,6 @@ namespace {
       titleMap += "/ IOV:";
       titleMap += std::to_string(std::get<0>(lastiov));
       titleMap += ")";
-
       titleMap += +" " + std::to_string(nsigma) + " std. dev. saturation";
 
       std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripNoises"));
@@ -886,7 +894,7 @@ namespace {
       setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       auto iov = iovs.front();
       std::shared_ptr<SiStripNoises> payload = fetchPayload(std::get<1>(iov));
 
@@ -919,7 +927,7 @@ namespace {
       std::string detector;
       std::string currentDetector;
 
-      for (const auto &element : map) {
+      for (const auto& element : map) {
         iBin++;
         int count = element.second.count;
         double mean = (element.second.mean) / count;
@@ -968,7 +976,8 @@ namespace {
 
       TLine l[boundaries.size()];
       unsigned int i = 0;
-      for (const auto &line : boundaries) {
+
+      for (const auto& line : boundaries) {
         l[i] = TLine(h1->GetBinLowEdge(line), canvas.GetUymin(), h1->GetBinLowEdge(line), canvas.GetUymax());
         l[i].SetLineWidth(1);
         l[i].SetLineStyle(9);
@@ -1011,11 +1020,11 @@ namespace {
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
 
       // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
         return std::get<0>(t1) < std::get<0>(t2);
       });
 
@@ -1069,7 +1078,7 @@ namespace {
       std::string detector;
       std::string currentDetector;
 
-      for (const auto &element : f_map) {
+      for (const auto& element : f_map) {
         iBin++;
         int count = element.second.count;
         double mean = (element.second.mean) / count;
@@ -1112,7 +1121,8 @@ namespace {
       // second payload
       // reset the counter
       iBin = 0;
-      for (const auto &element : l_map) {
+
+      for (const auto& element : l_map) {
         iBin++;
         int count = element.second.count;
         double mean = (element.second.mean) / count;
@@ -1152,7 +1162,8 @@ namespace {
 
       TLine l[boundaries.size()];
       unsigned int i = 0;
-      for (const auto &line : boundaries) {
+
+      for (const auto& line : boundaries) {
         l[i] = TLine(hfirst->GetBinLowEdge(line), canvas.GetUymin(), hfirst->GetBinLowEdge(line), canvas.GetUymax());
         l[i].SetLineWidth(1);
         l[i].SetLineStyle(9);
@@ -1211,7 +1222,7 @@ namespace {
       setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       auto iov = iovs.front();
       std::shared_ptr<SiStripNoises> payload = fetchPayload(std::get<1>(iov));
 
@@ -1223,7 +1234,7 @@ namespace {
 
       std::map<float, std::tuple<int, float, float> > noisePerStripLength;
 
-      for (const auto &d : detid) {
+      for (const auto& d : detid) {
         SiStripNoises::Range range = payload->getRange(d);
         for (int it = 0; it < (range.second - range.first) * 8 / 9; ++it) {
           auto noise = payload->getNoise(it, range);
@@ -1247,7 +1258,7 @@ namespace {
       std::vector<float> ey;
       ey.reserve(noisePerStripLength.size());
 
-      for (const auto &element : noisePerStripLength) {
+      for (const auto& element : noisePerStripLength) {
         x.push_back(element.first);
         ex.push_back(0.);
         float sum = std::get<1>(element.second);
@@ -1291,7 +1302,7 @@ namespace {
       graph->Draw("AP");
       graph->Fit("pol1");
       //Access the fit resuts
-      TF1 *f1 = graph->GetFunction("pol1");
+      TF1* f1 = graph->GetFunction("pol1");
       f1->SetLineWidth(2);
       f1->SetLineColor(kBlue);
       f1->Draw("same");
@@ -1337,13 +1348,15 @@ namespace {
               "Average " + SiStripPI::getStringFromSubdet(sub) + " noise vs run number",
               "average " + SiStripPI::getStringFromSubdet(sub) + " Noise") {}
 
-    std::pair<double, double> getFromPayload(SiStripNoises &payload) override {
+
+    std::pair<double, double> getFromPayload(SiStripNoises& payload) override {
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
 
       int nStrips = 0;
       float sum = 0., sum2 = 0.;
-      for (const auto &d : detid) {
+
+      for (const auto& d : detid) {
         int subid = DetId(d).subdetId();
         if (subid != sub)
           continue;
@@ -1381,13 +1394,14 @@ namespace {
               "Average " + SiStripPI::getStringFromSubdet(sub) + " noise vs run number",
               "average " + SiStripPI::getStringFromSubdet(sub) + " Noise") {}
 
-    std::pair<double, double> getFromPayload(SiStripNoises &payload) override {
+    std::pair<double, double> getFromPayload(SiStripNoises& payload) override {
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
 
       int nStrips = 0;
       float sum = 0., sum2 = 0.;
-      for (const auto &d : detid) {
+
+      for (const auto& d : detid) {
         int subid = DetId(d).subdetId();
         if (subid != sub)
           continue;
@@ -1425,13 +1439,14 @@ namespace {
               "Average " + SiStripPI::getStringFromSubdet(sub) + " noise vs run number",
               "average " + SiStripPI::getStringFromSubdet(sub) + " Noise") {}
 
-    std::pair<double, double> getFromPayload(SiStripNoises &payload) override {
+    std::pair<double, double> getFromPayload(SiStripNoises& payload) override {
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
 
       int nStrips = 0;
       float sum = 0., sum2 = 0.;
-      for (const auto &d : detid) {
+
+      for (const auto& d : detid) {
         int subid = DetId(d).subdetId();
         if (subid != sub)
           continue;
@@ -1470,11 +1485,11 @@ namespace {
       setSingleIov(false);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
 
       // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
         return std::get<0>(t1) < std::get<0>(t2);
       });
 
@@ -1482,7 +1497,8 @@ namespace {
       std::unordered_map<int, std::vector<float> > noises_err;
       std::vector<float> runs;
       std::vector<float> runs_err;
-      for (auto const &iov : sorted_iovs) {
+
+      for (auto const& iov : sorted_iovs) {
         std::unordered_map<int, std::vector<float> > noises;  //map with noises per layer
 
         std::shared_ptr<SiStripNoises> payload = fetchPayload(std::get<1>(iov));
@@ -1494,7 +1510,7 @@ namespace {
           std::vector<uint32_t> detid;
           payload->getDetIds(detid);
 
-          for (const auto &d : detid) {
+          for (const auto& d : detid) {
             int subid = DetId(d).subdetId();
             int layer = -1;
             if (subid != sub)
@@ -1518,7 +1534,7 @@ namespace {
             }  // loop on strips
           }    // loop on detIds
 
-          for (auto &entry : noises) {
+          for (auto& entry : noises) {
             double sum = std::accumulate(entry.second.begin(), entry.second.end(), 0.0);
             double mean = sum / entry.second.size();
 
@@ -1551,7 +1567,8 @@ namespace {
       int colors[18] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 30, 40, 42, 46, 48, 32, 36, 38};
 
       int el = 0;
-      for (auto &entry : noises_avg) {
+
+      for (auto& entry : noises_avg) {
         graph[el] = std::unique_ptr<TGraphErrors>(
             new TGraphErrors(runs.size(), &runs[0], &(entry.second[0]), &runs_err[0], &(noises_err[entry.first][0])));
         char title[100];
