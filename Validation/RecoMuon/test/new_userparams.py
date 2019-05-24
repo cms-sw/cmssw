@@ -34,24 +34,26 @@ NewParams = dict(
     Type='New',
     
     # Releases to compare
-    Release='CMSSW_10_5_0_pre2',
+    Release='CMSSW_10_6_0',
 
     # Conditions of the sample
-    Condition='105X_upgrade2018_realistic_v2',
-    #Condition='100X_mcRun2_asymptotic_v2',
+    Condition='106X_upgrade2021_realistic_v4_rsb',
 
     # 'no' if no pileup, otherwise set BX spacing
     PileUp='no',
     #PileUp='25ns',
     #PileUp='',      # for HeavyIons
 
+    # 13 or 14TeV?
+    Energy = '14TeV',
+
     Version='v1',
 
     Format='DQMIO',
 
     # If True use Fastsim, else use Fullsim
-    #FastSim=False,
     FastSim=False,
+    #FastSim=True,
 
     # for HeavyIons samples (few folders are not there) 
     HeavyIons=False,
@@ -87,25 +89,11 @@ RefParams = dict(
     # Type of parameters
     Type='Ref',
 
-    Release='CMSSW_10_5_0_pre1',
-
-    # Conditions for Special RelVals in CMSSW_10_0_0
-    #
-    #    FullSim NoPU in CMSSW_10_0_0
-    #Condition='100X_upgrade2018_realistic_v6_muVal', 
-    #Condition='100X_upgrade2018_realistic_v6_mahiON', #standard RelVals (v1 and v2)
-    #
-    #    FullSim PU25ns in CMSSW_10_0_0
-    Condition='103X_upgrade2018_realistic_v8',
-    #
-
-    #    FastSim in CMSSW_10_0_0
-    #Condition='100X_mcRun2_asymptotic_v2_muVal',
-    #Condition='100X_mcRun2_asymptotic_v2', #standard RelVals (v1)
-
+    # Parameters for the reference
+    Release='CMSSW_10_6_0',
+    Condition='106X_upgrade2021_realistic_v4_rsb',
+    Energy = '13',
     Version='v1',
-    #Version='v2',
-
     Label=''
 )
 
@@ -123,21 +111,13 @@ ValidateDQM  = True
 
 # For FullSim No PU
 #samples = ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000',
-#           'RelValZMM_13', 'RelValWM_13', 'RelValJpsiMuMu_Pt-8', 'RelValTTbar_13',
-#           'RelValZpMM_13', 'RelValWpM_13',
-#           'RelValDisplacedSUSY_stopToBottom_M_300_1000mm_13']
+#           'RelValZMM', 'RelValWM', 'RelValJpsiMuMu_Pt-8', 'RelValTTbar',
+#           'RelValZpMM', 'RelValWpM',
+#           'RelValDisplacedSUSY_stopToBottom_M_300_1000mm']
 
-# For FullSim PU 25ns
-samples = ['RelValZMM_13', 'RelValTTbar_13']
-#samples = ['RelValTTbar_13']
+# For FastSim/FullSim PU 25ns
+samples = ['RelValTTbar']
+#samples = ['RelValZMM', 'RelValTTbar']
 
 # For HeavyIons FullSim
 #samples = ['RelValZEEMM_13_HI']
-
-# For FastSim No PU
-#samples = ['RelValSingleMuPt10_UP15', 'RelValSingleMuPt100_UP15',
-#           'RelValZMM_13','RelValTTbar_13']
-
-# For FastSim PU 25ns
-#samples = ['RelValZMM_13','RelValTTbar_13']
-
