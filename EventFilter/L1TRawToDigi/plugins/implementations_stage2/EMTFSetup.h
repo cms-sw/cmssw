@@ -20,7 +20,7 @@ namespace l1t {
       std::unique_ptr<UnpackerCollections> getCollections(edm::Event& e) override;
       UnpackerMap getUnpackers(int fed, int board, int amc, unsigned int fw) override;
     };
-  }
-}
+  }  // namespace stage2
+}  // namespace l1t
 
 #endif
