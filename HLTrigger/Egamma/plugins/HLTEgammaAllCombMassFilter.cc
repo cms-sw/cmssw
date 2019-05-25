@@ -105,8 +105,8 @@ void HLTEgammaAllCombMassFilter::getP4OfLegCands(
     for (auto& phoCand : phoCands) {
       p4s.push_back(phoCand->p4());
     }
-  } else if (!clusCands
-                  .empty()) {  //try trigger cluster (should never be this, at the time of writing (17/1/11) this would indicate an error)
+  } else if (!clusCands.empty()) {
+    //try trigger cluster (should never be this, at the time of writing (17/1/11) this would indicate an error)
     for (auto& clusCand : clusCands) {
       p4s.push_back(clusCand->p4());
     }
