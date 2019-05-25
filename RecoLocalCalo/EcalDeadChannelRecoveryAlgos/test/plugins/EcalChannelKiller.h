@@ -19,12 +19,13 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-template <typename DetIdT> class EcalChannelKiller : public edm::EDProducer {
- public:
+template <typename DetIdT>
+class EcalChannelKiller : public edm::EDProducer {
+public:
   explicit EcalChannelKiller(const edm::ParameterSet&);
   ~EcalChannelKiller();
 
- private:
+private:
   virtual void beginJob();
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob();
