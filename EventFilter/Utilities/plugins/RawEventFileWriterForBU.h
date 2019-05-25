@@ -15,34 +15,36 @@
 
 #include "boost/shared_array.hpp"
 
-
-class RawEventFileWriterForBU 
-{
- public:
-
+class RawEventFileWriterForBU {
+public:
   explicit RawEventFileWriterForBU(edm::ParameterSet const& ps);
   explicit RawEventFileWriterForBU(std::string const& fileName);
   ~RawEventFileWriterForBU();
 
   void doOutputEvent(FRDEventMsgView const& msg);
-  void doOutputEvent(boost::shared_array<unsigned char>& msg) {};
-  void doOutputEventFragment(unsigned char* dataPtr,
-                             unsigned long dataSize);
+  void doOutputEvent(boost::shared_array<unsigned char>& msg){};
+  void doOutputEventFragment(unsigned char* dataPtr, unsigned long dataSize);
   //void doFlushFile();
   uint32 adler32() const { return (adlerb_ << 16) | adlera_; }
 
-  void start(){}
+  void start() {}
   void stop();
   void initialize(std::string const& destinationDir, std::string const& name, int ls);
   void endOfLS(int ls);
-  bool sharedMode() const {return false;}
+  bool sharedMode() const { return false; }
   void makeRunPrefix(std::string const& destinationDir);
 
- private:
-
-  bool closefd(){if(outfd_>=0){close(outfd_); outfd_=-1; return true;} else return false;}
+private:
+  bool closefd() {
+    if (outfd_ >= 0) {
+      close(outfd_);
+      outfd_ = -1;
+      return true;
+    } else
+      return false;
+  }
   void finishFileWrite(int ls);
-  void writeJsds(); 
+  void writeJsds();
   int outfd_ = -1;
 
   int run_ = -1;
@@ -59,7 +61,6 @@ class RawEventFileWriterForBU
   jsoncollector::IntJ perLumiLostEventCount_;
   jsoncollector::IntJ perLumiSize_;
 
-
   jsoncollector::IntJ perFileEventCount_;
   jsoncollector::IntJ perFileSize_;
 
@@ -70,7 +71,7 @@ class RawEventFileWriterForBU
   jsoncollector::DataPointDefinition rawJsonDef_;
   jsoncollector::DataPointDefinition eolJsonDef_;
   jsoncollector::DataPointDefinition eorJsonDef_;
-  bool writtenJSDs_=false;
+  bool writtenJSDs_ = false;
 
   std::unique_ptr<std::ofstream> ost_;
   std::string fileName_;
@@ -83,6 +84,5 @@ class RawEventFileWriterForBU
 
   unsigned int lumiOpen_ = 0;
   unsigned int lumiClosed_ = 0;
-
 };
 #endif
