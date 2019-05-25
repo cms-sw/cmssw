@@ -82,7 +82,7 @@ const GEMStation* GEMGeometry::station(int re, int st) const{
 
 const GEMRing* GEMGeometry::ring(int re, int st, int ri) const{
   for (auto ring : allRings) {
-    if (re != ring->region() || st != ring->station() || ri != ring->ring()) continue;	
+    if ((re != ring->region()) || (st != ring->station()) || (ri != ring->ring())) continue;	
     return ring;
   }
   return nullptr;
