@@ -13,19 +13,18 @@
 
 namespace l1t {
   namespace stage2 {
-      class GTTokens : public CommonTokens {
-         public:
-            GTTokens(const edm::ParameterSet&, edm::ConsumesCollector&);
+    class GTTokens : public CommonTokens {
+    public:
+      GTTokens(const edm::ParameterSet&, edm::ConsumesCollector&);
 
-            inline const edm::EDGetTokenT<GlobalAlgBlkBxCollection>& getAlgToken() const { return algToken_; };
-            inline const edm::EDGetTokenT<GlobalExtBlkBxCollection>& getExtToken() const { return extToken_; };
+      inline const edm::EDGetTokenT<GlobalAlgBlkBxCollection>& getAlgToken() const { return algToken_; };
+      inline const edm::EDGetTokenT<GlobalExtBlkBxCollection>& getExtToken() const { return extToken_; };
 
-         private:
-
-            edm::EDGetTokenT<GlobalAlgBlkBxCollection> algToken_;
-            edm::EDGetTokenT<GlobalExtBlkBxCollection> extToken_;
-      };
-   }
-}
+    private:
+      edm::EDGetTokenT<GlobalAlgBlkBxCollection> algToken_;
+      edm::EDGetTokenT<GlobalExtBlkBxCollection> extToken_;
+    };
+  }  // namespace stage2
+}  // namespace l1t
 
 #endif

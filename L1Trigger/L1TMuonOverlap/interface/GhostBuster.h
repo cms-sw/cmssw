@@ -12,10 +12,9 @@
 #include "L1Trigger/L1TMuonOverlap/interface/IGhostBuster.h"
 #include "L1Trigger/L1TMuonOverlap/interface/AlgoMuon.h"
 
-class GhostBuster: public IGhostBuster {
+class GhostBuster : public IGhostBuster {
 public:
-  ~GhostBuster() override {};
-  std::vector<AlgoMuon> select(std::vector<AlgoMuon> refHitCands, int charge=0) override;
-
+  ~GhostBuster() override{};
+  std::vector<AlgoMuon> select(std::vector<AlgoMuon> refHitCands, int charge = 0) override;
 };
 #endif
