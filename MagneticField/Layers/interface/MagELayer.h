@@ -22,13 +22,13 @@ public:
   virtual ~MagELayer();
 
   /// Find the volume containing a point, with a given tolerance
-  const MagVolume * findVolume(const GlobalPoint & gp, double tolerance) const;
+  const MagVolume* findVolume(const GlobalPoint& gp, double tolerance) const;
 
   /// Lower Z bound
-  double minZ() const {return theZMin;}
+  double minZ() const { return theZMin; }
 
   /// Upper Z bound
-  double maxZ() const {return theZMax;}
+  double maxZ() const { return theZMax; }
 
 private:
   std::vector<MagVolume*> theVolumes;
@@ -36,4 +36,3 @@ private:
   double theZMax;
 };
 #endif
-

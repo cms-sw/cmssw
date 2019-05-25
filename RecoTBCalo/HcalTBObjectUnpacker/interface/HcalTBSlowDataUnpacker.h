@@ -30,17 +30,17 @@ namespace hcaltb {
   */
   class HcalTBSlowDataUnpacker {
   public:
-    HcalTBSlowDataUnpacker(void) { }
+    HcalTBSlowDataUnpacker(void) {}
 
-    void unpack(const FEDRawData&    raw,
-		HcalTBRunData&            htbrd,
-		HcalTBEventPosition&      htbep) const;
+    void unpack(const FEDRawData& raw, HcalTBRunData& htbrd, HcalTBEventPosition& htbep) const;
 
-    void unpackMaps(const FEDRawData&    raw, std::map<std::string,std::string>& strings, std::map<std::string,double>& numerics) const;
+    void unpackMaps(const FEDRawData& raw,
+                    std::map<std::string, std::string>& strings,
+                    std::map<std::string, double>& numerics) const;
 
-    static const int STANDARD_FED_ID=3;
-    static const int SIPM_CAL_FED_ID=11;
+    static const int STANDARD_FED_ID = 3;
+    static const int SIPM_CAL_FED_ID = 11;
   };
-}
+}  // namespace hcaltb
 
-#endif // HcalTBSlowDataUnpacker_h_included
+#endif  // HcalTBSlowDataUnpacker_h_included

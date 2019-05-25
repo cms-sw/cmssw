@@ -15,35 +15,27 @@
 
 using namespace std;
 
+MagELayer::MagELayer(const vector<MagVolume*>& volumes, double zMin, double zMax)
+    : theVolumes(volumes), theZMin(zMin), theZMax(zMax) {}
 
-MagELayer::MagELayer(const vector<MagVolume*>& volumes, double zMin, double zMax) :
-  theVolumes(volumes),
-  theZMin(zMin),
-  theZMax(zMax)
-{}
-
-MagELayer::~MagELayer(){
-  for (vector<MagVolume *>::const_iterator ivol = theVolumes.begin();
-       ivol != theVolumes.end(); ++ivol) {
+MagELayer::~MagELayer() {
+  for (vector<MagVolume*>::const_iterator ivol = theVolumes.begin(); ivol != theVolumes.end(); ++ivol) {
     delete (*ivol);
   }
 }
 
-
-const MagVolume * 
-MagELayer::findVolume(const GlobalPoint & gp, double tolerance) const {
-  for(vector<MagVolume*>::const_iterator ivol = theVolumes.begin();
-	ivol != theVolumes.end(); ++ivol) {
+const MagVolume* MagELayer::findVolume(const GlobalPoint& gp, double tolerance) const {
+  for (vector<MagVolume*>::const_iterator ivol = theVolumes.begin(); ivol != theVolumes.end(); ++ivol) {
     // FIXME : use a binfinder
 #ifdef MF_DEBUG
     {
-      MagVolume6Faces* mv = static_cast<MagVolume6Faces*> (*ivol);
+      MagVolume6Faces* mv = static_cast<MagVolume6Faces*>(*ivol);
       cout << "        Trying volume " << mv->volumeNo << " " << int(mv->copyno) << endl;
     }
 #endif
-    if ( (*ivol)->inside(gp,tolerance) ) return (*ivol);
+    if ((*ivol)->inside(gp, tolerance))
+      return (*ivol);
   }
 
   return nullptr;
 }
-
