@@ -143,8 +143,8 @@ void HLTEgammaDoubleLegCombFilter::getP3OfLegCands(
     for (auto& phoCand : phoCands) {
       p3s.push_back(phoCand->superCluster()->position());
     }
-  } else if (!clusCands
-                  .empty()) {  //try trigger cluster (should never be this, at the time of writing (17/1/11) this would indicate an error)
+  } else if (!clusCands.empty()) {
+    //try trigger cluster (should never be this, at the time of writing (17/1/11) this would indicate an error)
     for (auto& clusCand : clusCands) {
       p3s.push_back(clusCand->superCluster()->position());
     }
