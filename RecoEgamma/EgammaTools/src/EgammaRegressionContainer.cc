@@ -8,7 +8,8 @@
 #include "CondFormats/EgammaObjects/interface/GBRForestD.h"
 
 EgammaRegressionContainer::EgammaRegressionContainer(const edm::ParameterSet& iConfig):
-  outputTransformer_(iConfig.getParameter<double>("rangeMin"),iConfig.getParameter<double>("rangeMax")),
+  outputTransformerLowEt_(iConfig.getParameter<double>("rangeMinLowEt"),iConfig.getParameter<double>("rangeMaxLowEt")),
+  outputTransformerHighEt_(iConfig.getParameter<double>("rangeMinHighEt"),iConfig.getParameter<double>("rangeMaxHighEt")),
   forceHighEnergyTrainingIfSaturated_(iConfig.getParameter<bool>("forceHighEnergyTrainingIfSaturated")),
   lowEtHighEtBoundary_(iConfig.getParameter<double>("lowEtHighEtBoundary")),
   ebLowEtForestName_(iConfig.getParameter<std::string>("ebLowEtForestName")),
@@ -24,8 +25,10 @@ EgammaRegressionContainer::EgammaRegressionContainer(const edm::ParameterSet& iC
 edm::ParameterSetDescription EgammaRegressionContainer::makePSetDescription()
 {
   edm::ParameterSetDescription desc;
-  desc.add<double>("rangeMin",-1.);
-  desc.add<double>("rangeMax",3.0);
+  desc.add<double>("rangeMinLowEt",-1.);
+  desc.add<double>("rangeMaxLowEt",3.0);
+  desc.add<double>("rangeMinHighEt",-1.);
+  desc.add<double>("rangeMaxHighEt",3.0);
   desc.add<double>("lowEtHighEtBoundary",50.);
   desc.add<bool>("forceHighEnergyTrainingIfSaturated",false);
   desc.add<std::string>("ebLowEtForestName","electron_eb_ECALTRK_lowpt");
@@ -54,11 +57,11 @@ void EgammaRegressionContainer::setEventContent(const edm::EventSetup& iSetup)
 float EgammaRegressionContainer::operator()(const float et,const bool isEB,const bool isSaturated,const float* data)const
 {
   if(useLowEtBin(et,isSaturated)){
-    if(isEB) return outputTransformer_(ebLowEtForest_->GetResponse(data));
-    else return outputTransformer_(eeLowEtForest_->GetResponse(data));
+    if(isEB) return outputTransformerLowEt_(ebLowEtForest_->GetResponse(data));
+    else return outputTransformerLowEt_(eeLowEtForest_->GetResponse(data));
   }else{
-    if(isEB) return outputTransformer_(ebHighEtForest_->GetResponse(data));
-    else return outputTransformer_(eeHighEtForest_->GetResponse(data));
+    if(isEB) return outputTransformerHighEt_(ebHighEtForest_->GetResponse(data));
+    else return outputTransformerHighEt_(eeHighEtForest_->GetResponse(data));
   }
 }
  
