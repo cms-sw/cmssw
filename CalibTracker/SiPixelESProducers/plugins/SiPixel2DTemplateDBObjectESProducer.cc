@@ -39,19 +39,9 @@ std::shared_ptr<const SiPixel2DTemplateDBObject> SiPixel2DTemplateDBObjectESProd
 	GlobalPoint center(0.0, 0.0, 0.0);
 	float theMagField = magfield.product()->inTesla(center).mag();
 
-    std::string label = "numerator";   // The correct default
-	//  std::string label = "denominator"; // Outdated. Used for MC in older GT's
-	//  std::string label = "";      // Outdated. Old default 
+        std::string label = "numerator";   // The correct default
+	if(theMagField>=4.1 || theMagField<-0.1) edm::LogWarning("UnexpectedMagneticFieldUsingDefaultPixel2DTemplate") << "Magnetic field is " << theMagField;
 
-	if(     theMagField>=-0.1 && theMagField<1.0 ) label = "0T";
-	else if(theMagField>=1.0  && theMagField<2.5 ) label = "2T";
-	else if(theMagField>=2.5  && theMagField<3.25) label = "3T";
-	else if(theMagField>=3.25 && theMagField<3.65) label = "35T";
-	else if(theMagField>=3.9  && theMagField<4.1 ) label = "4T";
-	else {
-		//label = "3.8T";
-		if(theMagField>=4.1 || theMagField<-0.1) edm::LogWarning("UnexpectedMagneticFieldUsingDefaultPixel2DTemplate") << "Magnetic field is " << theMagField;
-	}
 	ESHandle<SiPixel2DTemplateDBObject> dbobject;
 	iRecord.getRecord<SiPixel2DTemplateDBObjectRcd>().get(label,dbobject);
 
