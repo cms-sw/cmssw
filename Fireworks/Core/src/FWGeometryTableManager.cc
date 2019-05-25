@@ -23,6 +23,7 @@
 #include "TGeoShape.h"
 #include "TGeoMatrix.h"
 #include "TGeoBBox.h"
+#include "TPRegexp.h"
 
 FWGeometryTableManager::FWGeometryTableManager(FWGeometryTableView* v)
     : FWGeometryTableManagerBase(), m_browser(v), m_filterOff(true) {}
@@ -174,34 +175,45 @@ void FWGeometryTableManager::checkChildMatches(TGeoVolume* vol, std::vector<TGeo
 //------------------------------------------------------------------------------
 // Callbacks
 //------------------------------------------------------------------------------
+namespace {
+int matchTPME(const char* w, TPMERegexp& regexp) {
+   TString s(w);
+   return regexp.Match(s);
+}
+}
 
 void FWGeometryTableManager::updateFilter(int iType) {
-  std::string filterExp = m_browser->getFilter();
-  m_filterOff = filterExp.empty();
-  printf("update filter %s  OFF %d volumes size %d\n", filterExp.c_str(), m_filterOff, (int)m_volumes.size());
+  std::string filterExp =  m_browser->getFilter();
+  m_filterOff =  filterExp.empty();
+  printf("update filter %s  OFF %d volumes size %d\n",filterExp.c_str(),  m_filterOff , (int)m_volumes.size());
 
   if (m_filterOff || m_entries.empty())
-    return;
+     return;
 
   // update volume-match entries
   int numMatched = 0;
-  for (Volumes_i i = m_volumes.begin(); i != m_volumes.end(); ++i) {
-    const char* res = nullptr;
+
+  TPMERegexp regexp(TString(filterExp.c_str()), "o");
+  for (Volumes_i i = m_volumes.begin(); i != m_volumes.end(); ++i)
+  {
+    int res = 0;
 
     if (iType == FWGeometryTableView::kFilterMaterialName) {
-      res = strcasestr(i->first->GetMaterial()->GetName(), filterExp.c_str());
-    } else if (iType == FWGeometryTableView::kFilterMaterialTitle) {
-      res = strcasestr(i->first->GetMaterial()->GetTitle(), filterExp.c_str());
-    } else if (iType == FWGeometryTableView::kFilterShapeName) {
-      res = strcasestr(i->first->GetShape()->GetName(), filterExp.c_str());
-    } else if (iType == FWGeometryTableView::kFilterShapeClassName) {
-      res = strcasestr(i->first->GetShape()->ClassName(), filterExp.c_str());
+      res = matchTPME( i->first->GetMaterial()->GetName() , regexp);
+    } else if (iType == FWGeometryTableView::kFilterMaterialTitle)
+    {
+      res = matchTPME( i->first->GetMaterial()->GetTitle() , regexp);
+    } else if (iType == FWGeometryTableView::kFilterShapeName) 
+    {
+      res = matchTPME( i->first->GetShape()->GetName() , regexp);
+    } else if (iType == FWGeometryTableView::kFilterShapeClassName) 
+    {
+      res = matchTPME( i->first->GetShape()->ClassName() , regexp);
     }
 
-    i->second.m_matches = (res != nullptr);
+    i->second.m_matches = (res > 0);
     i->second.m_childMatches = false;
-    if (res != nullptr)
-      numMatched++;
+    if (res) numMatched++;
   }
 
   printf("update filter [%d] volumes matched\n", numMatched);
