@@ -12,6 +12,43 @@
 #include "L1Trigger/L1THGCal/interface/backend/HGCalTriggerClusterIdentificationBase.h"
 
 class HGCalHistoSeedingImpl {
+private:
+  struct Bin {
+    float sumMipPt = 0.;
+    float weighted_x = 0.;
+    float weighted_y = 0.;
+  };
+  template <typename T>
+  class HistogramT {
+  public:
+    using Data = std::vector<T>;
+    using iterator = typename Data::iterator;
+    using const_iterator = typename Data::const_iterator;
+
+  public:
+    HistogramT(unsigned bins1, unsigned bins2)
+        : bins1_(bins1), bins2_(bins2), bins_(bins1 * bins2), histogram_(bins_ * kSides_) {}
+
+    T& at(int zside, unsigned x1, unsigned x2) { return histogram_[index(zside, x1, x2)]; }
+
+    const T& at(int zside, unsigned x1, unsigned x2) const { return histogram_.at(index(zside, x1, x2)); }
+
+    iterator begin() { return histogram_.begin(); }
+    const_iterator begin() const { return histogram_.begin(); }
+    iterator end() { return histogram_.end(); }
+    const_iterator end() const { return histogram_.end(); }
+
+  private:
+    static constexpr unsigned kSides_ = 2;
+    unsigned bins1_ = 0;
+    unsigned bins2_ = 0;
+    unsigned bins_ = 0;
+    Data histogram_;
+
+    unsigned index(int zside, unsigned x1, unsigned x2) const { return x2 + bins2_ * x1 + bins_ * (zside > 0 ? 1 : 0); }
+  };
+  using Histogram = HistogramT<Bin>;
+
 public:
   HGCalHistoSeedingImpl(const edm::ParameterSet& conf);
 
@@ -26,14 +63,6 @@ private:
   enum SeedingType { HistoMaxC3d, HistoSecondaryMaxC3d, HistoThresholdC3d, HistoInterpolatedMaxC3d };
   enum SeedingPosition { BinCentre, TCWeighted };
 
-  struct Bin {
-    float sumMipPt;
-    float weighted_x;
-    float weighted_y;
-  };
-
-  typedef std::map<std::array<int, 3>, Bin> Histogram;
-
   Histogram fillHistoClusters(const std::vector<edm::Ptr<l1t::HGCalCluster>>& clustersPtrs);
 
   Histogram fillSmoothPhiHistoClusters(const Histogram& histoClusters, const vector<unsigned>& binSums);
@@ -42,8 +71,8 @@ private:
 
   void setSeedEnergyAndPosition(std::vector<std::pair<GlobalPoint, double>>& seedPositionsEnergy,
                                 int z_side,
-                                int bin_R,
-                                int bin_phi,
+                                unsigned bin_R,
+                                unsigned bin_phi,
                                 const Bin& histBin);
 
   std::vector<std::pair<GlobalPoint, double>> computeMaxSeeds(const Histogram& histoClusters);
