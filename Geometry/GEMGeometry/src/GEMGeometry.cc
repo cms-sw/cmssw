@@ -36,7 +36,7 @@ const GeomDet* GEMGeometry::idToDetUnit(DetId id) const{
 
 
 const GeomDet* GEMGeometry::idToDet(DetId id) const{
-  mapIdToDet::const_iterator i = theMap.find(id);
+  mapIdToDet::const_iterator i = theMap.find(DetId(GEMDetId(id)));
   return (i != theMap.end()) ? i->second : nullptr;
 }
 
