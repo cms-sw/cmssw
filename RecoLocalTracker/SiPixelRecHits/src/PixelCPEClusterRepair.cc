@@ -81,14 +81,18 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
 	 << "\nERROR: Template ID " << forwardTemplateID_ << " not loaded correctly from text file. Reconstruction will fail.\n\n";
    }
    
-   templateDBobject2D_ = templateDBobject2D;
-   fill2DTemplIDs();
-   speed_ = conf.getParameter<int>( "speed");
-   LogDebug("PixelCPEClusterRepair::PixelCPEClusterRepair:") <<
-   "Template speed = " << speed_ << "\n";
-   
-   UseClusterSplitter_ = conf.getParameter<bool>("UseClusterSplitter");   
+   GlobalPoint center(0.0, 0.0, 0.0);
+   float theMagField = mag->inTesla(center).mag();
 
+   if(theMagField>=3.65 && theMagField<3.9){
+     templateDBobject2D_ = templateDBobject2D;
+     fill2DTemplIDs();
+     speed_ = conf.getParameter<int>( "speed");
+     LogDebug("PixelCPEClusterRepair::PixelCPEClusterRepair:") <<
+       "Template speed = " << speed_ << "\n";
+   }
+
+   UseClusterSplitter_ = conf.getParameter<bool>("UseClusterSplitter");   
 
 
    maxSizeMismatchInY_ = conf.getParameter<double>("MaxSizeMismatchInY");
@@ -102,6 +106,11 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
    recommend2D_.reserve(str_recommend2D.size());
    for (auto & str: str_recommend2D){
      recommend2D_.push_back(str);
+   }
+
+   // do not recommend 2D if theMagField!=3.8
+   if(theMagField>=3.65 && theMagField<3.9){
+     recommend2D_.clear();
    }
 
    // run CR on damaged clusters (and not only on edge hits)
