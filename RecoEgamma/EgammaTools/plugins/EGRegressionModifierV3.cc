@@ -63,7 +63,14 @@ private:
   bool useClosestToCentreSeedCrysDef_;
   edm::ESHandle<CaloGeometry> caloGeomHandle_;
 
+  //because we're using a direct comp to this value to detect if its a default value
+  //we need to ensure its using the exact same type as its declared as
+  using TrkFBremType = decltype(reco::GsfElectron::ClassificationVariables::trackFbrem);
+  static const TrkFBremType kDefaultTrackFbrem_;
 };
+
+const EGRegressionModifierV3::TrkFBremType EGRegressionModifierV3::
+kDefaultTrackFbrem_ = reco::GsfElectron::ClassificationVariables().trackFbrem;
 
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
 		  EGRegressionModifierV3,
@@ -111,12 +118,12 @@ void EGRegressionModifierV3::modifyObject(reco::GsfElectron& ele) const
   // skip HGCAL for now
   if( superClus->seed()->seed().det() == DetId::Forward ) return;
 
-  const int numberOfClusters =  superClus->clusters().size();
-  const bool missingClusters = !superClus->clusters()[numberOfClusters-1].isAvailable();
-  if( missingClusters ) return ; // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
+  // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
+  if(!superClus->clusters().isAvailable()) return; 
+
   //check if fbrem is filled as its needed for E/p combination so abort if its set to the default value 
   //this will be the case for <5 (or current cuts) for miniAOD electrons
-  if(ele.fbrem()==reco::GsfElectron::ClassificationVariables().trackFbrem) return;
+  if(ele.fbrem()==kDefaultTrackFbrem_) return;
   
   auto regData = getRegData(ele);
   const float rawEnergy = superClus->rawEnergy(); 
@@ -131,7 +138,7 @@ void EGRegressionModifierV3::modifyObject(reco::GsfElectron& ele) const
 
   const float corrEnergy = (rawEnergy + rawESEnergy)*ecalMeanCorr;
   const float corrEnergyErr = corrEnergy*ecalSigma;
-  
+
   ele.setCorrectedEcalEnergy(corrEnergy);
   ele.setCorrectedEcalEnergyError(corrEnergyErr);
 
@@ -156,10 +163,9 @@ void EGRegressionModifierV3::modifyObject(reco::Photon& pho) const
   // skip HGCAL for now
   if(superClus->seed()->seed().det() == DetId::Forward ) return;
 
-  const int numberOfClusters =  superClus->clusters().size();
-  const bool missingClusters = !superClus->clusters()[numberOfClusters-1].isAvailable();
-  if( missingClusters ) return ; // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
- 
+  // do not apply corrections in case of missing info (happens for some slimmed MiniAOD photons)
+  if(!superClus->clusters().isAvailable()) return; 
+
   auto regData = getRegData(pho); 
 
   const float rawEnergy = superClus->rawEnergy(); 
@@ -173,7 +179,7 @@ void EGRegressionModifierV3::modifyObject(reco::Photon& pho) const
     
   const double corrEnergy = (rawEnergy + rawESEnergy)*ecalMeanCorr;
   const double corrEnergyErr = corrEnergy*ecalSigma;
-  
+
   pho.setCorrectedEnergy(reco::Photon::P4type::regression2, corrEnergy, corrEnergyErr, true);     
 }
 
@@ -222,7 +228,6 @@ std::array<float,32> EGRegressionModifierV3::getRegData(const reco::GsfElectron&
   data[23]  = ssFull5x5.e2x5Bottom*e5x5Inverse;
   data[24]  = ele.nSaturatedXtals();
   data[25]  = std::max(0,numberOfClusters);
-
   
   if(isEB){
     int iEta,iPhi;
@@ -231,8 +236,10 @@ std::array<float,32> EGRegressionModifierV3::getRegData(const reco::GsfElectron&
     data[26] = iEta;
     data[27] = iPhi;
     data[28] = (iEta-signIEta)%5;
-    data[29] = (iPhi-1)%2;
-    data[30] = (std::abs(iEta)<=25)*((iEta-signIEta)) + (std::abs(iEta)>25)*((iEta-26*signIEta)%20);  
+    data[29] = (iPhi-1)%2; 
+    const int iEtaCorr = iEta - (iEta > 0 ? +1 : -1);
+    const int iEtaCorr26 = iEta - (iEta > 0 ? +26 : -26);
+    data[30] = std::abs(iEta)<=25 ? iEtaCorr%20 : iEtaCorr26%20;
     data[31] = (iPhi-1)%20;
   }else{
     int iX,iY;
@@ -241,6 +248,7 @@ std::array<float,32> EGRegressionModifierV3::getRegData(const reco::GsfElectron&
     data[27] = iY;
     data[28] = rawESEnergy/rawEnergy;
   }
+
   return data;
 }
 
@@ -264,12 +272,16 @@ std::array<float,32> EGRegressionModifierV3::getRegData(const reco::Photon& pho)
   data[2]  = superClus->phiWidth(); 
   data[3]  = superClus->seed()->energy()/rawEnergy;
   data[4]  = ssFull5x5.e5x5/rawEnergy;
+  //interestingly enough this differs from electrons where it uses cone based
+  //naively Sam would have thought using cone based is even worse than tower based
   data[5]  = pho.hadronicOverEm();
   data[6]  = rhoValue_;
   data[7]  = seedClus->eta() - superClus->position().Eta();
   data[8]  = reco::deltaPhi( seedClus->phi(),superClus->position().Phi());
   data[9]  = pho.full5x5_r9();
   data[10]  = ssFull5x5.sigmaIetaIeta;
+  //interestingly sigmaIEtaIPhi differs in defination here from 
+  //electron & sc definations of sigmaIEtaIPhi
   data[11]  = ssFull5x5.sigmaIetaIphi;
   data[12]  = ssFull5x5.sigmaIphiIphi;
   data[13]  = ssFull5x5.maxEnergyXtal*e5x5Inverse;
@@ -294,7 +306,9 @@ std::array<float,32> EGRegressionModifierV3::getRegData(const reco::Photon& pho)
     int signIEta = iEta > 0 ? +1 : -1;
     data[28] = (iEta-signIEta)%5;
     data[29] = (iPhi-1)%2;
-    data[30] = (std::abs(iEta)<=25)*((iEta-signIEta)) + (std::abs(iEta)>25)*((iEta-26*signIEta)%20);  
+    const int iEtaCorr = iEta - (iEta > 0 ? +1 : -1);
+    const int iEtaCorr26 = iEta - (iEta > 0 ? +26 : -26);
+    data[30] = std::abs(iEta)<=25 ? iEtaCorr%20 : iEtaCorr26%20;
     data[31] = (iPhi-1)%20;
   }else{
     int iX,iY;
@@ -303,6 +317,7 @@ std::array<float,32> EGRegressionModifierV3::getRegData(const reco::Photon& pho)
     data[27] = iY;
     data[28] = rawESEnergy/rawEnergy;
   }
+
   return data;
 }
 
