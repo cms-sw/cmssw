@@ -5,9 +5,6 @@
   <class pattern="ROOT::Math::RowOffsets<*>" />
   <class pattern="ROOT::Math::SVector<*>" />
   <class pattern="std::vector<ROOT::Math::SMatrix<*>>" />
-  <class pattern="std::vector<ROOT::Math::MatRepStd<*>>" />
-  <class pattern="std::vector<ROOT::Math::RowOffsets<*>>" />
-  <class pattern="std::vector<ROOT::Math::SVector<*>>" />
   <class pattern="edm::Wrapper<*>" />
   <class pattern="edm::RefVector<*>" />
   <class pattern="edm::ValueMap<*>" />
