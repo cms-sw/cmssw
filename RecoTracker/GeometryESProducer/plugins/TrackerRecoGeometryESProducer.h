@@ -8,18 +8,14 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include <memory>
 
-class  TrackerRecoGeometryESProducer: public edm::ESProducer{
- public:
-  TrackerRecoGeometryESProducer(const edm::ParameterSet & p);
-  ~TrackerRecoGeometryESProducer() override; 
+class TrackerRecoGeometryESProducer : public edm::ESProducer {
+public:
+  TrackerRecoGeometryESProducer(const edm::ParameterSet &p);
+  ~TrackerRecoGeometryESProducer() override;
   std::unique_ptr<GeometricSearchTracker> produce(const TrackerRecoGeometryRecord &);
- private:
- std::string geoLabel;
+
+private:
+  std::string geoLabel;
 };
 
-
 #endif
-
-
-
-

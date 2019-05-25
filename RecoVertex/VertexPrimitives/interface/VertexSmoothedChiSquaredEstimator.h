@@ -12,9 +12,7 @@
 
 template <unsigned int N>
 class VertexSmoothedChiSquaredEstimator {
-
 public:
-
   typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
   typedef typename std::pair<bool, double> BDpair;
 
@@ -22,10 +20,8 @@ public:
   virtual ~VertexSmoothedChiSquaredEstimator() {}
 
   virtual BDpair estimate(const CachingVertex<N> &) const = 0;
-  
-  virtual VertexSmoothedChiSquaredEstimator<N> * clone() const = 0; 
-  
 
+  virtual VertexSmoothedChiSquaredEstimator<N> *clone() const = 0;
 };
 
 #endif

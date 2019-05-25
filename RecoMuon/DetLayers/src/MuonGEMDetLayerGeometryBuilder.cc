@@ -17,136 +17,117 @@
 
 using namespace std;
 
-MuonGEMDetLayerGeometryBuilder::~MuonGEMDetLayerGeometryBuilder() {
-}
+MuonGEMDetLayerGeometryBuilder::~MuonGEMDetLayerGeometryBuilder() {}
 
 // Builds the forward (first) and backward (second) layers
 // Builds etaPartitions (for rechits)
-pair<vector<DetLayer*>, vector<DetLayer*> > 
-MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
-  
+pair<vector<DetLayer*>, vector<DetLayer*> > MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
   vector<DetLayer*> result[2];
-	
-  for (int endcap = -1; endcap<=1; endcap+=2) {
-    int iendcap = (endcap==1) ? 0 : 1; // +1: forward, -1: backward
-      
-    for(int station = GEMDetId::minStationId; station <= GEMDetId::maxStationId; ++station) {      
-      for(int layer = GEMDetId::minLayerId+1; layer <= GEMDetId::maxLayerId; ++layer) { 
 
-	vector<int> rolls, rings, chambers; 
-	for(int ring = GEMDetId::minRingId; ring <= GEMDetId::maxRingId; ++ring) rings.push_back(ring);
-	for(int chamber = GEMDetId::minChamberId+1; chamber <= GEMDetId::maxChamberId; chamber++ )
-	  chambers.push_back(chamber);
-	for(int roll = GEMDetId::minRollId+1; roll <= GEMDetId::maxRollId; ++roll)
-	  rolls.push_back(roll);
-	
-	MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, rings, station, layer, chambers, rolls, geo);          
+  for (int endcap = -1; endcap <= 1; endcap += 2) {
+    int iendcap = (endcap == 1) ? 0 : 1;  // +1: forward, -1: backward
 
-	if (ringLayer) result[iendcap].push_back(ringLayer);
+    for (int station = GEMDetId::minStationId; station <= GEMDetId::maxStationId; ++station) {
+      for (int layer = GEMDetId::minLayerId + 1; layer <= GEMDetId::maxLayerId; ++layer) {
+        vector<int> rolls, rings, chambers;
+        for (int ring = GEMDetId::minRingId; ring <= GEMDetId::maxRingId; ++ring)
+          rings.push_back(ring);
+        for (int chamber = GEMDetId::minChamberId + 1; chamber <= GEMDetId::maxChamberId; chamber++)
+          chambers.push_back(chamber);
+        for (int roll = GEMDetId::minRollId + 1; roll <= GEMDetId::maxRollId; ++roll)
+          rolls.push_back(roll);
+
+        MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, rings, station, layer, chambers, rolls, geo);
+
+        if (ringLayer)
+          result[iendcap].push_back(ringLayer);
       }
     }
   }
-  pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]); 
+  pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]);
 
   return res_pair;
 }
 
-MuRingForwardDoubleLayer* 
-MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int station,
-					   int layer,
-					   vector<int>& chambers,
-					   vector<int>& rolls,
-					   const GEMGeometry& geo) {
-
+MuRingForwardDoubleLayer* MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,
+                                                                     vector<int>& rings,
+                                                                     int station,
+                                                                     int layer,
+                                                                     vector<int>& chambers,
+                                                                     vector<int>& rolls,
+                                                                     const GEMGeometry& geo) {
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonGEMDetLayerGeometryBuilder";
-  MuRingForwardDoubleLayer * result = nullptr;
+  MuRingForwardDoubleLayer* result = nullptr;
   vector<const ForwardDetRing*> frontRings, backRings;
 
-
-  for (std::vector<int>::iterator ring=rings.begin(); ring!=rings.end()-2;ring++){ 
-
-    for (vector<int>::iterator roll = rolls.begin(); roll!=rolls.end(); roll++) {    
-
+  for (std::vector<int>::iterator ring = rings.begin(); ring != rings.end() - 2; ring++) {
+    for (vector<int>::iterator roll = rolls.begin(); roll != rolls.end(); roll++) {
       vector<const GeomDet*> frontDets, backDets;
-      
-      for(std::vector<int>::iterator chamber=chambers.begin(); chamber<chambers.end(); chamber++) {
-          GEMDetId gemId(endcap,(*ring), station,layer,(*chamber), (*roll));
 
- 	  const GeomDet* geomDet = geo.idToDet(gemId);
-	  
-	  if (geomDet !=nullptr) {
-	    bool isInFront = isFront(gemId);
-	    if(isInFront)
-            {
-              frontDets.push_back(geomDet);
-            }
-            else 
-            {
-              backDets.push_back(geomDet);
-            }
-	    LogTrace(metname) << "get GEM Endcap roll "
-			      << gemId
-                              << (isInFront ? "front" : "back ")
-			      << " at R=" << geomDet->position().perp()
-			      << ", phi=" << geomDet->position().phi()
-                              << ", Z=" << geomDet->position().z();
-	  }
+      for (std::vector<int>::iterator chamber = chambers.begin(); chamber < chambers.end(); chamber++) {
+        GEMDetId gemId(endcap, (*ring), station, layer, (*chamber), (*roll));
+
+        const GeomDet* geomDet = geo.idToDet(gemId);
+
+        if (geomDet != nullptr) {
+          bool isInFront = isFront(gemId);
+          if (isInFront) {
+            frontDets.push_back(geomDet);
+          } else {
+            backDets.push_back(geomDet);
+          }
+          LogTrace(metname) << "get GEM Endcap roll " << gemId << (isInFront ? "front" : "back ")
+                            << " at R=" << geomDet->position().perp() << ", phi=" << geomDet->position().phi()
+                            << ", Z=" << geomDet->position().z();
+        }
       }
 
       if (!frontDets.empty()) {
-	precomputed_value_sort(frontDets.begin(), frontDets.end(), geomsort::DetPhi());
-	frontRings.push_back(new MuDetRing(frontDets));
-	LogTrace(metname) << "New front ring with " << frontDets.size()
-			  << " chambers at z="<< frontRings.back()->position().z();
+        precomputed_value_sort(frontDets.begin(), frontDets.end(), geomsort::DetPhi());
+        frontRings.push_back(new MuDetRing(frontDets));
+        LogTrace(metname) << "New front ring with " << frontDets.size()
+                          << " chambers at z=" << frontRings.back()->position().z();
       }
       if (!backDets.empty()) {
         precomputed_value_sort(backDets.begin(), backDets.end(), geomsort::DetPhi());
         backRings.push_back(new MuDetRing(backDets));
         LogTrace(metname) << "New back ring with " << backDets.size()
-                          << " chambers at z="<< backRings.back()->position().z();
+                          << " chambers at z=" << backRings.back()->position().z();
       }
-
     }
-
   }
 
   // How should they be sorted?
-  //    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractZ<GeometricSearchDet,float>());                                   
-  if(!backRings.empty() && !frontRings.empty()) result = new MuRingForwardDoubleLayer(frontRings, backRings);
-    else result = nullptr;
-  if(result != nullptr){
-    LogTrace(metname) << "New MuRingForwardLayer with " << frontRings.size()
-		      << " and " << backRings.size()
-		      << " rings, at Z " << result->position().z()
-		      << " R1: " << result->specificSurface().innerRadius()
-		      << " R2: " << result->specificSurface().outerRadius();
+  //    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractZ<GeometricSearchDet,float>());
+  if (!backRings.empty() && !frontRings.empty())
+    result = new MuRingForwardDoubleLayer(frontRings, backRings);
+  else
+    result = nullptr;
+  if (result != nullptr) {
+    LogTrace(metname) << "New MuRingForwardLayer with " << frontRings.size() << " and " << backRings.size()
+                      << " rings, at Z " << result->position().z() << " R1: " << result->specificSurface().innerRadius()
+                      << " R2: " << result->specificSurface().outerRadius();
   }
   return result;
-
 }
 
-
-bool MuonGEMDetLayerGeometryBuilder::isFront(const GEMDetId & gemId)
-{
-
+bool MuonGEMDetLayerGeometryBuilder::isFront(const GEMDetId& gemId) {
   bool result = false;
   int chamber = gemId.chamber();
 
-    if(chamber%2 == 0) result = !result;
+  if (chamber % 2 == 0)
+    result = !result;
 
-    return result;
+  return result;
 }
 
-MuDetRing * MuonGEMDetLayerGeometryBuilder::makeDetRing(vector<const GeomDet*> & geomDets)
-{
-    const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonGEMDetLayerGeometryBuilder";
+MuDetRing* MuonGEMDetLayerGeometryBuilder::makeDetRing(vector<const GeomDet*>& geomDets) {
+  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonGEMDetLayerGeometryBuilder";
 
-
-    precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetPhi());
-    MuDetRing * result = new MuDetRing(geomDets);
-    LogTrace(metname) << "New MuDetRing with " << geomDets.size()
-                        << " chambers at z="<< result->position().z()
-                        << " R1: " << result->specificSurface().innerRadius()
-                        << " R2: " << result->specificSurface().outerRadius();
-    return result;
+  precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetPhi());
+  MuDetRing* result = new MuDetRing(geomDets);
+  LogTrace(metname) << "New MuDetRing with " << geomDets.size() << " chambers at z=" << result->position().z()
+                    << " R1: " << result->specificSurface().innerRadius()
+                    << " R2: " << result->specificSurface().outerRadius();
+  return result;
 }

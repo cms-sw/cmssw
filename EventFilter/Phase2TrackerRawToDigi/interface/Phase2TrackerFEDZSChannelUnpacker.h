@@ -1,4 +1,4 @@
-#ifndef EventFilter_Phase2TrackerRawToDigi_Phase2TrackerPhase2TrackerFEDZSChannelUnpacker_H // {
+#ifndef EventFilter_Phase2TrackerRawToDigi_Phase2TrackerPhase2TrackerFEDZSChannelUnpacker_H  // {
 #define EventFilter_Phase2TrackerRawToDigi_Phase2TrackerPhase2TrackerFEDZSChannelUnpacker_H
 
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDDAQHeader.h"
@@ -8,15 +8,15 @@
 
 namespace Phase2Tracker {
 
- class Phase2TrackerFEDZSChannelUnpacker
-  {
+  class Phase2TrackerFEDZSChannelUnpacker {
   public:
     Phase2TrackerFEDZSChannelUnpacker(const Phase2TrackerFEDChannel& channel);
-    uint8_t clusterIndex() const { return data_[currentOffset_^7]; }
-    uint8_t clusterLength() const {return data_[(currentOffset_+1)^7]; }
+    uint8_t clusterIndex() const { return data_[currentOffset_ ^ 7]; }
+    uint8_t clusterLength() const { return data_[(currentOffset_ + 1) ^ 7]; }
     bool hasData() const { return valuesLeft_; }
-    Phase2TrackerFEDZSChannelUnpacker& operator ++ ();
-    Phase2TrackerFEDZSChannelUnpacker& operator ++ (int);
+    Phase2TrackerFEDZSChannelUnpacker& operator++();
+    Phase2TrackerFEDZSChannelUnpacker& operator++(int);
+
   private:
     const uint8_t* data_;
     uint8_t currentOffset_;
@@ -25,25 +25,19 @@ namespace Phase2Tracker {
 
   // unpacker for ZS CBC data
   inline Phase2TrackerFEDZSChannelUnpacker::Phase2TrackerFEDZSChannelUnpacker(const Phase2TrackerFEDChannel& channel)
-    : data_(channel.data()),
-      currentOffset_(channel.offset()),
-      valuesLeft_(channel.length()/2)
-  {
-  }
+      : data_(channel.data()), currentOffset_(channel.offset()), valuesLeft_(channel.length() / 2) {}
 
-  inline Phase2TrackerFEDZSChannelUnpacker& Phase2TrackerFEDZSChannelUnpacker::operator ++ ()
-  {
-    currentOffset_ = currentOffset_+2;
+  inline Phase2TrackerFEDZSChannelUnpacker& Phase2TrackerFEDZSChannelUnpacker::operator++() {
+    currentOffset_ = currentOffset_ + 2;
     valuesLeft_--;
     return (*this);
   }
-  
-  inline Phase2TrackerFEDZSChannelUnpacker& Phase2TrackerFEDZSChannelUnpacker::operator ++ (int)
-  {
-    ++(*this); return *this;
+
+  inline Phase2TrackerFEDZSChannelUnpacker& Phase2TrackerFEDZSChannelUnpacker::operator++(int) {
+    ++(*this);
+    return *this;
   }
 
-} // end of Phase2Tracker namespace
+}  // namespace Phase2Tracker
 
-#endif // } end def EventFilter_Phase2TrackerRawToDigi_Phase2TrackerPhase2TrackerFEDZSChannelUnpacker_H
-
+#endif  // } end def EventFilter_Phase2TrackerRawToDigi_Phase2TrackerPhase2TrackerFEDZSChannelUnpacker_H
