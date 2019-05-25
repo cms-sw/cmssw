@@ -10,7 +10,9 @@
 
 #include "boost/mpl/vector.hpp"
 
-class DetIdAssociatorRecord : public edm::eventsetup::DependentRecordImplementation<DetIdAssociatorRecord,
-  boost::mpl::vector<CaloGeometryRecord, GlobalTrackingGeometryRecord, CSCBadChambersRcd> > {};
+class DetIdAssociatorRecord
+    : public edm::eventsetup::DependentRecordImplementation<
+          DetIdAssociatorRecord,
+          boost::mpl::vector<CaloGeometryRecord, GlobalTrackingGeometryRecord, CSCBadChambersRcd> > {};
 
 #endif

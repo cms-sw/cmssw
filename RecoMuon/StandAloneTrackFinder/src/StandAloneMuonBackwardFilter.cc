@@ -11,8 +11,6 @@
 
 using namespace edm;
 
-StandAloneMuonBackwardFilter::StandAloneMuonBackwardFilter(const ParameterSet& par,const MuonServiceProxy* service){
+StandAloneMuonBackwardFilter::StandAloneMuonBackwardFilter(const ParameterSet& par, const MuonServiceProxy* service) {}
 
-}
-
-void StandAloneMuonBackwardFilter::setEvent(const Event& event){}
+void StandAloneMuonBackwardFilter::setEvent(const Event& event) {}

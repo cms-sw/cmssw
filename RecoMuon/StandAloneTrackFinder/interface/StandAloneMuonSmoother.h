@@ -20,40 +20,41 @@ class TrajectorySmoother;
 
 #include <string>
 
-namespace edm {class ParameterSet; class Event;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+}  // namespace edm
 
 //class StandAloneMuonSmoother: public KFTrajectorySmoother {
-class StandAloneMuonSmoother{
+class StandAloneMuonSmoother {
+  typedef std::pair<bool, Trajectory> SmoothingResult;
 
-  typedef std::pair<bool,Trajectory> SmoothingResult;
-
- public:
+public:
   /// Constructor
-  StandAloneMuonSmoother(const edm::ParameterSet& par, const MuonServiceProxy* service);
+  StandAloneMuonSmoother(const edm::ParameterSet &par, const MuonServiceProxy *service);
 
   /// Destructor
   virtual ~StandAloneMuonSmoother();
-  
-  // Operations 
+
+  // Operations
 
   /// Smoothes the trajectories
-  SmoothingResult smooth(const Trajectory&);
-  
+  SmoothingResult smooth(const Trajectory &);
+
   /// return the KFUpdator
-  TrajectoryStateUpdator *updator() const {return theUpdator;}
+  TrajectoryStateUpdator *updator() const { return theUpdator; }
 
   /// access at the propagator
   const Propagator *propagator() const;
 
   /// access at the estimator
-  MeasurementEstimator *estimator() const {return theEstimator;}
-    
+  MeasurementEstimator *estimator() const { return theEstimator; }
+
   /// access to the smoother
-  TrajectorySmoother *smoother() const {return theSmoother;}
-  
- protected:
-  
- private:
+  TrajectorySmoother *smoother() const { return theSmoother; }
+
+protected:
+private:
   void renewTheSmoother();
 
   std::string thePropagatorName;
@@ -61,13 +62,13 @@ class StandAloneMuonSmoother{
   /// The max allowed chi2 to accept a rechit in the fit
   double theMaxChi2;
 
-  /// The errors of the trajectory state are multiplied by nSigma 
+  /// The errors of the trajectory state are multiplied by nSigma
   /// to define acceptance of BoundPlane and maximalLocalDisplacement
   double theNSigma;
 
   /// The estimator: makes the decision wheter a measure is good or not
   /// it isn't used by the updator which does the real fit. In fact, in principle,
-  /// a looser request onto the measure set can be requested 
+  /// a looser request onto the measure set can be requested
   /// (w.r.t. the request on the accept/reject measure in the fit)
   MeasurementEstimator *theEstimator;
 
@@ -75,10 +76,8 @@ class StandAloneMuonSmoother{
 
   TrajectoryStateUpdator *theUpdator;
 
-  const MuonServiceProxy* theService;
+  const MuonServiceProxy *theService;
 
   TrajectorySmoother *theSmoother;
-
 };
 #endif
-

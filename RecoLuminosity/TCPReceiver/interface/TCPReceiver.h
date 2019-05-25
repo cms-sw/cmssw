@@ -4,7 +4,6 @@
   Date:   2007-08-24
 */
 
-
 /* 
    Error Codes
        0: unknown failure
@@ -27,29 +26,28 @@ TODO: This should be changed to errno.
 #define HLXTCP_H
 
 #include <string>
-#include <netinet/in.h> // struct sockaddr_in
+#include <netinet/in.h>  // struct sockaddr_in
 
-namespace HCAL_HLX{
+namespace HCAL_HLX {
 
   struct LUMI_SECTION;
 
-  class TCPReceiver{
-
+  class TCPReceiver {
   public:
     TCPReceiver();
-    TCPReceiver(unsigned short int, std::string,  unsigned char);
+    TCPReceiver(unsigned short int, std::string, unsigned char);
     ~TCPReceiver();
     int Connect();
     int SetPort(unsigned short int);
     int SetMode(unsigned char);
     void SetIP(std::string IP);
-    int ReceiveLumiSection(HCAL_HLX::LUMI_SECTION & localSection);
+    int ReceiveLumiSection(HCAL_HLX::LUMI_SECTION& localSection);
     int Disconnect();
-    bool IsConnected();    
-    bool VerifyFakeData(HCAL_HLX::LUMI_SECTION & localSection);
+    bool IsConnected();
+    bool VerifyFakeData(HCAL_HLX::LUMI_SECTION& localSection);
 
-    void GenerateFakeData(HCAL_HLX::LUMI_SECTION & localSection);
-    void GenerateRandomData(HCAL_HLX::LUMI_SECTION & localSection);
+    void GenerateFakeData(HCAL_HLX::LUMI_SECTION& localSection);
+    void GenerateRandomData(HCAL_HLX::LUMI_SECTION& localSection);
 
   private:
     unsigned char acquireMode;
@@ -60,6 +58,6 @@ namespace HCAL_HLX{
     int tcpSocket;
     struct sockaddr_in servAddr;
   };
-}
+}  // namespace HCAL_HLX
 
 #endif

@@ -9,14 +9,14 @@
 
 #include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EcalDeadChannelRecoveryNN.h"
 
-template <typename DetIdT> class EcalDeadChannelRecoveryAlgos {
- public:
+template <typename DetIdT>
+class EcalDeadChannelRecoveryAlgos {
+public:
   void setCaloTopology(const CaloTopology *topology);
-  EcalRecHit correct(const DetIdT id,
-                     const EcalRecHitCollection &hit_collection,
-                     std::string algo, double Sum8Cut, bool *AccFlag);
+  EcalRecHit correct(
+      const DetIdT id, const EcalRecHitCollection &hit_collection, std::string algo, double Sum8Cut, bool *AccFlag);
 
- private:
+private:
   EcalDeadChannelRecoveryNN<DetIdT> nn;
 };
-#endif // RecoLocalCalo_EcalDeadChannelRecoveryAlgos_EcalDeadChannelRecoveryAlgos_HH
+#endif  // RecoLocalCalo_EcalDeadChannelRecoveryAlgos_EcalDeadChannelRecoveryAlgos_HH
