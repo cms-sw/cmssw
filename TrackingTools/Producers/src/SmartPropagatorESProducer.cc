@@ -18,49 +18,43 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-    
 using namespace edm;
 using namespace std;
-    
-SmartPropagatorESProducer::SmartPropagatorESProducer(const ParameterSet& parameterSet) 
-{
+
+SmartPropagatorESProducer::SmartPropagatorESProducer(const ParameterSet& parameterSet) {
   string myname = parameterSet.getParameter<string>("ComponentName");
 
   string propDir = parameterSet.getParameter<string>("PropagationDirection");
-  
-  if (propDir == "oppositeToMomentum") thePropagationDirection = oppositeToMomentum;
-  else if (propDir == "alongMomentum") thePropagationDirection = alongMomentum;
-  else if (propDir == "anyDirection") thePropagationDirection = anyDirection;
-  else
-    throw cms::Exception("SmartPropagatorESProducer") 
-      << "Wrong fit direction chosen in SmartPropagatorESProducer";
 
+  if (propDir == "oppositeToMomentum")
+    thePropagationDirection = oppositeToMomentum;
+  else if (propDir == "alongMomentum")
+    thePropagationDirection = alongMomentum;
+  else if (propDir == "anyDirection")
+    thePropagationDirection = anyDirection;
+  else
+    throw cms::Exception("SmartPropagatorESProducer") << "Wrong fit direction chosen in SmartPropagatorESProducer";
 
   theEpsilon = parameterSet.getParameter<double>("Epsilon");
-  
+
   theTrackerPropagatorName = parameterSet.getParameter<string>("TrackerPropagator");
   theMuonPropagatorName = parameterSet.getParameter<string>("MuonPropagator");
 
-  setWhatProduced(this,myname);
+  setWhatProduced(this, myname);
 }
 
 SmartPropagatorESProducer::~SmartPropagatorESProducer() {}
 
-std::unique_ptr<Propagator> 
-SmartPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord){ 
-
+std::unique_ptr<Propagator> SmartPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord) {
   ESHandle<MagneticField> magField;
   iRecord.getRecord<IdealMagneticFieldRecord>().get(magField);
-  
+
   ESHandle<Propagator> trackerPropagator;
-  iRecord.get(theTrackerPropagatorName,trackerPropagator);
+  iRecord.get(theTrackerPropagatorName, trackerPropagator);
 
   ESHandle<Propagator> muonPropagator;
-  iRecord.get(theMuonPropagatorName,muonPropagator);
-  
-  
-  return           std::make_unique<SmartPropagator>(*trackerPropagator, *muonPropagator,
-						     &*magField,
-						     thePropagationDirection, 
-						     theEpsilon);
+  iRecord.get(theMuonPropagatorName, muonPropagator);
+
+  return std::make_unique<SmartPropagator>(
+      *trackerPropagator, *muonPropagator, &*magField, thePropagationDirection, theEpsilon);
 }
