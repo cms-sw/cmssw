@@ -2,7 +2,7 @@
 //
 //   Class: DTConfigSectColl
 //
-//   Description: Configurable parameters and constants 
+//   Description: Configurable parameters and constants
 //   for Level1 Mu DT Trigger - Sector Collector chip
 //
 //
@@ -28,21 +28,18 @@
 //----------------
 // Constructors --
 //----------------
-DTConfigSectColl::DTConfigSectColl() { 
-
+DTConfigSectColl::DTConfigSectColl() {
   m_debug = false;
-  for (int i=1; i<4; i++)
-    setSCCarryFlag(false,i);
-  for (int i=1; i<5; i++)
-    setCoarseSync(0,i);
-
+  for (int i = 1; i < 4; i++)
+    setSCCarryFlag(false, i);
+  for (int i = 1; i < 5; i++)
+    setCoarseSync(0, i);
 }
 
-DTConfigSectColl::DTConfigSectColl(const edm::ParameterSet& ps) { 
-
+DTConfigSectColl::DTConfigSectColl(const edm::ParameterSet& ps) {
   setDefaults(ps);
-  if(debug()) print();
-
+  if (debug())
+    print();
 }
 
 //--------------
@@ -54,33 +51,27 @@ DTConfigSectColl::~DTConfigSectColl() {}
 // Operations --
 //--------------
 
-void
-DTConfigSectColl::setSCCarryFlag(bool scecf,int istat) {
-
-  if (istat<1 || istat>4){
-      throw cms::Exception("DTTPG") << "DTConfigSectColl::setSCCarryFlag: station number out of range: istat=" << istat << std::endl;
-    } 
-  m_scecf[istat-1] = scecf;
-
-}  
-
-void
-DTConfigSectColl::setCoarseSync(int sccsp, int istat) {
-
-  if (istat<1 || istat>5){
-    throw cms::Exception("DTTPG") << "DTConfigSectColl::setCoarseSync: station number out of range: istat=" << istat << std::endl;
+void DTConfigSectColl::setSCCarryFlag(bool scecf, int istat) {
+  if (istat < 1 || istat > 4) {
+    throw cms::Exception("DTTPG") << "DTConfigSectColl::setSCCarryFlag: station number out of range: istat=" << istat
+                                  << std::endl;
   }
-  if (sccsp<0 || sccsp>7){
-    throw cms::Exception("DTTPG") << "DTConfigSectColl::setCoarseSync: wrong SCCSP"<< istat << "  value!" << std::endl;
-  }
-  m_sccsp[istat-1] = sccsp;
-
+  m_scecf[istat - 1] = scecf;
 }
 
-void
-DTConfigSectColl::setDefaults(const edm::ParameterSet& ps) {
+void DTConfigSectColl::setCoarseSync(int sccsp, int istat) {
+  if (istat < 1 || istat > 5) {
+    throw cms::Exception("DTTPG") << "DTConfigSectColl::setCoarseSync: station number out of range: istat=" << istat
+                                  << std::endl;
+  }
+  if (sccsp < 0 || sccsp > 7) {
+    throw cms::Exception("DTTPG") << "DTConfigSectColl::setCoarseSync: wrong SCCSP" << istat << "  value!" << std::endl;
+  }
+  m_sccsp[istat - 1] = sccsp;
+}
 
-  // Debug flag 
+void DTConfigSectColl::setDefaults(const edm::ParameterSet& ps) {
+  // Debug flag
   m_debug = ps.getUntrackedParameter<bool>("Debug");
 
   //  Enabling Carry in Sector Collector for MB1 (1 means enabled, 0 disabled)
@@ -97,43 +88,39 @@ DTConfigSectColl::setDefaults(const edm::ParameterSet& ps) {
 
   // Progammable Coars Sync parameter in Sector Collector for MB1 (possible values [0-7])
   int mycsp = ps.getParameter<int>("SCCSP1");
-  setCoarseSync(mycsp,1);
+  setCoarseSync(mycsp, 1);
 
   // Progammable Coars Sync parameter in Sector Collector for MB2 (possible values [0-7])
   mycsp = ps.getParameter<int>("SCCSP2");
-  setCoarseSync(mycsp,2);
-  
+  setCoarseSync(mycsp, 2);
+
   // Progammable Coars Sync parameter in Sector Collector for MB3 (possible values [0-7])
   mycsp = ps.getParameter<int>("SCCSP3");
-  setCoarseSync(mycsp,3);
+  setCoarseSync(mycsp, 3);
 
   // Progammable Coars Sync parameter in Sector Collector for firts MB4 station (possible values [0-7])
   mycsp = ps.getParameter<int>("SCCSP4");
-  setCoarseSync(mycsp,4);
+  setCoarseSync(mycsp, 4);
 
   // Progammable Coars Sync parameter in Sector Collector for second MB4 station (sectors 4 & 10) (possible values [0-7])
   mycsp = ps.getParameter<int>("SCCSP5");
-  setCoarseSync(mycsp,5);
-
+  setCoarseSync(mycsp, 5);
 }
 
-void 
-DTConfigSectColl::print() const {
-
+void DTConfigSectColl::print() const {
   std::cout << "******************************************************************************" << std::endl;
   std::cout << "*              DTTrigger configuration : SectorCollector chips               *" << std::endl;
-  std::cout << "******************************************************************************" << std::endl << std::endl;
-  std::cout << "Debug flag : " <<  debug()     << std::endl;
+  std::cout << "******************************************************************************" << std::endl
+            << std::endl;
+  std::cout << "Debug flag : " << debug() << std::endl;
   std::cout << "SCECF1 :" << SCGetCarryFlag(1) << std::endl;
   std::cout << "SCECF2 :" << SCGetCarryFlag(2) << std::endl;
   std::cout << "SCECF3 :" << SCGetCarryFlag(3) << std::endl;
   std::cout << "SCECF4 :" << SCGetCarryFlag(4) << std::endl;
-  std::cout << "SCCSP1 :" << CoarseSync(1)     << std::endl;
-  std::cout << "SCCSP2 :" << CoarseSync(2)     << std::endl;
-  std::cout << "SCCSP3 :" << CoarseSync(3)     << std::endl;
-  std::cout << "SCCSP4 :" << CoarseSync(4)     << std::endl;
-  std::cout << "SCCSP5 :" << CoarseSync(5)     << std::endl;
+  std::cout << "SCCSP1 :" << CoarseSync(1) << std::endl;
+  std::cout << "SCCSP2 :" << CoarseSync(2) << std::endl;
+  std::cout << "SCCSP3 :" << CoarseSync(3) << std::endl;
+  std::cout << "SCCSP4 :" << CoarseSync(4) << std::endl;
+  std::cout << "SCCSP5 :" << CoarseSync(5) << std::endl;
   std::cout << "******************************************************************************" << std::endl;
-
 }
-
