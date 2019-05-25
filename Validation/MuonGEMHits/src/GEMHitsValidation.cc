@@ -28,7 +28,7 @@ void GEMHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
   
   LogDebug("MuonGEMHitsValidation")<<"+++ Region independant part.\n";
   // Region independant.
-  for( auto const& station : GEMGeometry_->regions()[0]->stations() ){
+  for( auto& station : GEMGeometry_->regions()[0]->stations() ){
     int st = station->station();
     // TOF and Energy loss part are indepent from Region.
     // Labeling TOF and Energy loss
