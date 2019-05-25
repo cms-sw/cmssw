@@ -534,7 +534,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles (const Histograms& his
           << "\t CP id: \t" << cpPair.first
           << "\t score \t" << cpPair.second
           << "\n";
-        histograms.h_score_layercl2caloparticle_perlayer.at(lcLayerId%layers+1).fill(cpPair.second);
+        histograms.h_score_layercl2caloparticle_perlayer.at(lcLayerId).fill(cpPair.second);
       }
       continue;
     }
