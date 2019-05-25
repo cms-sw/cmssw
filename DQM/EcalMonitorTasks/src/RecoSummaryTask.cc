@@ -50,7 +50,7 @@ namespace ecaldqm {
     MESet* meSwissCross(isBarrel ? &MEs_.at("SwissCross") : nullptr);
     MESet& meRecoFlag(MEs_.at("RecoFlagAll"));
 
-    double maxE[2] = {-1. - 1};
+    double maxE[2] = {-1., - 1};
     int subdet(isBarrel ? EcalBarrel : EcalEndcap);
 
     for (EcalRecHitCollection::const_iterator hitItr(_hits.begin()); hitItr != _hits.end(); ++hitItr) {

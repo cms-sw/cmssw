@@ -248,9 +248,9 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     GlobalPoint displacementFromPV = ( pv==nullptr ? GlobalPoint(-9.,-9.,0) : GlobalPoint( (pv->x() - v0.vx()), 
 											   (pv->y() - v0.vy()), 
 											   0. ) );
-    GlobalPoint displacementFromBS = ( bs==nullptr ? GlobalPoint(-9.-9.,0.) : GlobalPoint( -1*((bs->position().x() - v0.vx()) + (v0.vz() - bs->position().z()) * bs->dxdz()),
-											   -1*((bs->position().y() - v0.vy()) + (v0.vz() - bs->position().z()) * bs->dydz()), 
-											   0 ) );
+    GlobalPoint displacementFromBS = ( bs==nullptr ? GlobalPoint(-9.,-9.,0.) : GlobalPoint( -1*((bs->position().x() - v0.vx()) + (v0.vz() - bs->position().z()) * bs->dxdz()),
+											    -1*((bs->position().y() - v0.vy()) + (v0.vz() - bs->position().z()) * bs->dydz()), 
+											    0 ) );
     float lxy      = ( pv==nullptr ? -9. : displacementFromPV.perp() );
     float lxyWRTbs = ( bs==nullptr ? -9. : displacementFromBS.perp() );
 
