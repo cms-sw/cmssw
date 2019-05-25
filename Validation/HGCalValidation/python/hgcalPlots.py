@@ -24,6 +24,7 @@ import Validation.RecoTrack.plotting.html as html
 #while for V10 is: 
 #-z: 0->49
 #+z: 50->99
+'''
 layerscheme = { 'lastLayerEEzm': 0, 'lastLayerFHzm': 0, 'maxlayerzm': 0, 'lastLayerEEzp': 0, 'lastLayerFHzp': 0, 'maxlayerzp': 0 }
 
 #Let's take the relevant values of layerscheme from the dqm file.
@@ -62,6 +63,7 @@ print(layerscheme)
 #For V9:
 #layerscheme = { 'lastLayerEEzm': 28, 'lastLayerFHzm': 40, 'maxlayerzm': 52, 'lastLayerEEzp': 80, 'lastLayerFHzp': 92, 'maxlayerzp': 104 }
 #For V10:
+'''
 layerscheme = { 'lastLayerEEzm': 28, 'lastLayerFHzm': 40, 'maxlayerzm': 50, 'lastLayerEEzp': 78, 'lastLayerFHzp': 90, 'maxlayerzp': 100 }
 print(layerscheme)
 
