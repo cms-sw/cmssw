@@ -31,27 +31,21 @@
 
 using namespace edm;
 
-MuonDetLayerGeometryESProducer::MuonDetLayerGeometryESProducer(const edm::ParameterSet & p){
-  setWhatProduced(this);
-}
+MuonDetLayerGeometryESProducer::MuonDetLayerGeometryESProducer(const edm::ParameterSet& p) { setWhatProduced(this); }
 
+MuonDetLayerGeometryESProducer::~MuonDetLayerGeometryESProducer() {}
 
-MuonDetLayerGeometryESProducer::~MuonDetLayerGeometryESProducer(){}
-
-
-std::unique_ptr<MuonDetLayerGeometry>
-MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
-
+std::unique_ptr<MuonDetLayerGeometry> MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord& record) {
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonDetLayerGeometryESProducer";
   auto muonDetLayerGeometry = std::make_unique<MuonDetLayerGeometry>();
-  
-  // Build DT layers  
+
+  // Build DT layers
   edm::ESHandle<DTGeometry> dt;
   record.getRecord<MuonGeometryRecord>().get(dt);
   if (dt.isValid()) {
     muonDetLayerGeometry->addDTLayers(MuonDTDetLayerGeometryBuilder::buildLayers(*dt));
   } else {
-    LogInfo(metname) << "No DT geometry is available."; 
+    LogInfo(metname) << "No DT geometry is available.";
   }
 
   // Build CSC layers
@@ -67,11 +61,11 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
   edm::ESHandle<GEMGeometry> gem;
   record.getRecord<MuonGeometryRecord>().get(gem);
   if (gem.isValid()) {
-      muonDetLayerGeometry->addGEMLayers(MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(*gem));
+    muonDetLayerGeometry->addGEMLayers(MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(*gem));
   } else {
     LogInfo(metname) << "No GEM geometry is available.";
   }
-    
+
   // Build ME0 layers
   edm::ESHandle<ME0Geometry> me0;
   record.getRecord<MuonGeometryRecord>().get(me0);
@@ -81,16 +75,15 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
     LogDebug(metname) << "No ME0 geometry is available.";
   }
 
-
   // Build RPC layers
   edm::ESHandle<RPCGeometry> rpc;
   record.getRecord<MuonGeometryRecord>().get(rpc);
   if (rpc.isValid()) {
-    muonDetLayerGeometry->addRPCLayers(MuonRPCDetLayerGeometryBuilder::buildBarrelLayers(*rpc),MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(*rpc));
+    muonDetLayerGeometry->addRPCLayers(MuonRPCDetLayerGeometryBuilder::buildBarrelLayers(*rpc),
+                                       MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(*rpc));
   } else {
     LogInfo(metname) << "No RPC geometry is available.";
-  }  
-  
+  }
 
   // Sort layers properly
   muonDetLayerGeometry->sortLayers();

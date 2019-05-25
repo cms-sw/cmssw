@@ -7,18 +7,14 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include <memory>
 
-class  StraightLinePropagatorESProducer: public edm::ESProducer{
- public:
-  StraightLinePropagatorESProducer(const edm::ParameterSet & p);
-  ~StraightLinePropagatorESProducer() override; 
+class StraightLinePropagatorESProducer : public edm::ESProducer {
+public:
+  StraightLinePropagatorESProducer(const edm::ParameterSet &p);
+  ~StraightLinePropagatorESProducer() override;
   std::unique_ptr<Propagator> produce(const TrackingComponentsRecord &);
- private:
+
+private:
   edm::ParameterSet pset_;
 };
 
-
 #endif
-
-
-
-

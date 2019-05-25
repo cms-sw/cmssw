@@ -22,33 +22,21 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-TrackMix::TrackMix(const edm::ParameterSet& iConfig)
-  : theConfig(iConfig)
-{
+TrackMix::TrackMix(const edm::ParameterSet& iConfig) : theConfig(iConfig) {
   token_gsf = consumes<edm::View<reco::Track> >(iConfig.getParameter<string>("gsfTrackLabel"));
   token_ckf = consumes<edm::View<reco::Track> >(iConfig.getParameter<string>("ckfTrackLabel"));
 }
 
+TrackMix::~TrackMix() {}
 
-TrackMix::~TrackMix() {
-}
-
-void TrackMix::beginJob(){
-}
-
+void TrackMix::beginJob() {}
 
 void TrackMix::endJob() {}
 
-void
-TrackMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
-
-
+void TrackMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   try {
-    edm::LogInfo("RecoVertex/TrackMix") 
-      << "Reconstructing event number: " << iEvent.id() << "\n";
-    
+    edm::LogInfo("RecoVertex/TrackMix") << "Reconstructing event number: " << iEvent.id() << "\n";
+
     // get RECO tracks from the event
     // `tks` can be used as a ptr to a reco::TrackCollection
     edm::Handle<edm::View<reco::Track> > tks;
@@ -57,20 +45,21 @@ TrackMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(token_ckf, tks2);
 
     cout << "got " << (*tks).size() << " gsf tracks " << endl;
-    cout << "got " << (*tks2).size()<< " ckf tracks " << endl;
+    cout << "got " << (*tks2).size() << " ckf tracks " << endl;
 
     // Transform Track to TransientTrack
 
     //get the builder:
     edm::ESHandle<TransientTrackBuilder> theB;
-    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
     //do the conversion:
     vector<TransientTrack> t_tks = (*theB).build(tks);
     vector<TransientTrack> t_tks2 = (*theB).build(tks2);
     t_tks.insert(t_tks.end(), t_tks2.begin(), t_tks2.end());
 
-    cout  << "Total: " << t_tks.size() << " reconstructed tracks" << "\n";
-    
+    cout << "Total: " << t_tks.size() << " reconstructed tracks"
+         << "\n";
+
     // Call the KalmanVertexFitter if more than 1 track
     if (t_tks.size() > 1) {
       KalmanVertexFitter kvf(true);
@@ -81,24 +70,20 @@ TrackMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       reco::Vertex v1 = tv;
       reco::Vertex::trackRef_iterator v1TrackIter;
       reco::Vertex::trackRef_iterator v1TrackBegin = v1.tracks_begin();
-      reco::Vertex::trackRef_iterator v1TrackEnd   = v1.tracks_end();
-      cout << v1.position()<<v1.tracksSize()<<endl;
-            for (v1TrackIter = v1TrackBegin; v1TrackIter != v1TrackEnd; v1TrackIter++) {
-	    cout << "pt" << (**v1TrackIter).pt() <<endl;
-	    cout << " weight " << v1.trackWeight(*v1TrackIter)<<endl;
-	    cout << " ref " << v1.refittedTrack(*v1TrackIter).pt()<<endl;
+      reco::Vertex::trackRef_iterator v1TrackEnd = v1.tracks_end();
+      cout << v1.position() << v1.tracksSize() << endl;
+      for (v1TrackIter = v1TrackBegin; v1TrackIter != v1TrackEnd; v1TrackIter++) {
+        cout << "pt" << (**v1TrackIter).pt() << endl;
+        cout << " weight " << v1.trackWeight(*v1TrackIter) << endl;
+        cout << " ref " << v1.refittedTrack(*v1TrackIter).pt() << endl;
       }
-
-
     }
-    
+
   }
 
-  catch (std::exception & err) {
-    cout  << "Exception during event number: " << iEvent.id() 
-      << "\n" << err.what() << "\n";
+  catch (std::exception& err) {
+    cout << "Exception during event number: " << iEvent.id() << "\n" << err.what() << "\n";
   }
-
 }
 
 DEFINE_FWK_MODULE(TrackMix);

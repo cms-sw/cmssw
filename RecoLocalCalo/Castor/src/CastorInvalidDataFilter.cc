@@ -2,7 +2,7 @@
 //
 // Package:    CastorInvalidDataFilter
 // Class:      CastorInvalidDataFilter
-// 
+//
 /**\class CastorInvalidDataFilter CastorInvalidDataFilter.cc RecoLocalCalo/CastorInvalidDataFilter/src/CastorInvalidDataFilter.cc
 
  Description: [one line class summary]
@@ -15,7 +15,6 @@
 //         Created:  Thu Apr 21 11:36:52 CEST 2011
 //
 //
-
 
 // system include files
 #include <memory>
@@ -36,16 +35,16 @@
 //
 
 class CastorInvalidDataFilter : public edm::EDFilter {
-   public:
-      explicit CastorInvalidDataFilter(const edm::ParameterSet&);
-      ~CastorInvalidDataFilter() override;
+public:
+  explicit CastorInvalidDataFilter(const edm::ParameterSet&);
+  ~CastorInvalidDataFilter() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      
-   edm::EDGetTokenT<std::vector<edm::ErrorSummaryEntry> > tok_summary_;
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+
+  edm::EDGetTokenT<std::vector<edm::ErrorSummaryEntry> > tok_summary_;
 };
 
 //
@@ -59,57 +58,42 @@ class CastorInvalidDataFilter : public edm::EDFilter {
 //
 // constructors and destructor
 //
-CastorInvalidDataFilter::CastorInvalidDataFilter(const edm::ParameterSet& iConfig)
-{
-   //now do what ever initialization is needed
-   tok_summary_ = consumes<std::vector<edm::ErrorSummaryEntry> >(edm::InputTag("logErrorHarvester"));
-
+CastorInvalidDataFilter::CastorInvalidDataFilter(const edm::ParameterSet& iConfig) {
+  //now do what ever initialization is needed
+  tok_summary_ = consumes<std::vector<edm::ErrorSummaryEntry> >(edm::InputTag("logErrorHarvester"));
 }
 
-
-CastorInvalidDataFilter::~CastorInvalidDataFilter()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+CastorInvalidDataFilter::~CastorInvalidDataFilter() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool
-CastorInvalidDataFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   
-   edm::Handle<std::vector<ErrorSummaryEntry> > summary;
-   iEvent.getByToken(tok_summary_,summary);
+bool CastorInvalidDataFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   bool invalid = false;
-   //std::cout << " logError summary size = " << summary->size() << std::endl;
-   for (size_t i=0;i<summary->size();i++) {
-        ErrorSummaryEntry error = (*summary)[i];
-        //std::cout << " category = " << error.category << " module = " << error.module << " severity = "
-        //        << error.severity.getName() << " count = " << error.count << std::endl;
-	if (error.category == "Invalid Data" && error.module == "CastorRawToDigi:castorDigis") invalid = true;
+  edm::Handle<std::vector<ErrorSummaryEntry> > summary;
+  iEvent.getByToken(tok_summary_, summary);
 
-   }
+  bool invalid = false;
+  //std::cout << " logError summary size = " << summary->size() << std::endl;
+  for (size_t i = 0; i < summary->size(); i++) {
+    ErrorSummaryEntry error = (*summary)[i];
+    //std::cout << " category = " << error.category << " module = " << error.module << " severity = "
+    //        << error.severity.getName() << " count = " << error.count << std::endl;
+    if (error.category == "Invalid Data" && error.module == "CastorRawToDigi:castorDigis")
+      invalid = true;
+  }
 
-   return !invalid;
+  return !invalid;
 }
 
-
-
-
-
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-CastorInvalidDataFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void CastorInvalidDataFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
