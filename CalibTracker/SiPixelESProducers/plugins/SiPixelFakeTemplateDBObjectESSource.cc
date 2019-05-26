@@ -58,7 +58,8 @@ std::unique_ptr<SiPixelTemplateDBObject> SiPixelFakeTemplateDBObjectESSource::pr
 			if(iter == 79) {
 			  title_char[iter] ='\n';
 			} else  {
-			  for (unsigned int it=0; it!=3-(iter%4); it++) {
+			  unsigned int ilast =  3-(iter%4);
+			  for (unsigned int it=0; it!=ilast; it++) {
 			    title_char[iter] =' ';
 			    iter++;
 			  }
