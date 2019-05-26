@@ -59,10 +59,9 @@ std::unique_ptr<SiPixelGenErrorDBObject> SiPixelFakeGenErrorDBObjectESSource::pr
 			  title_char[iter] ='\n';
 			} else  {
 			  for (unsigned int it=0; it!=3-(iter%4); it++) {
-			    iter++;
 			    title_char[iter] =' ';
+			    iter++;
 			  }
-			  iter++;
 			  title_char[iter] ='\n';
 			}
 			
