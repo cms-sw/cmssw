@@ -1,0 +1,6 @@
+<use   name="DataFormats/HGCRecHit"/>
+<use   name="FWCore/PluginManager"/>
+
+<export>
+  <lib   name="1"/>
+</export>
