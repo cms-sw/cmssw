@@ -79,7 +79,6 @@ void GEMHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
     for( auto& region : GEMGeometry_->regions() ){
       for( auto& station : region->stations() ){    
         for( auto& ring : station->rings()){
-          GEMDetId id;
           if ( ring->ring() != 1 ) break ; // Only Ring1 is interesting.
           string name_suffix = getSuffixName(region->region(), station->station());
           string title_suffix= getSuffixTitle(region->region(), station->station());
