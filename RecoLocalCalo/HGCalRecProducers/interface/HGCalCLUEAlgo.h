@@ -7,10 +7,6 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -18,8 +14,9 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
+#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerTiles.h"
+
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/KDTreeLinkerAlgoT.h"
 
 // C/C++ headers
 #include <set>
@@ -36,7 +33,6 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
       (HGCalClusteringAlgoBase::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity",3),
       reco::CaloCluster::undefined),
      thresholdW0_(ps.getParameter<std::vector<double> >("thresholdW0")),
-     positionDeltaRho_c_(ps.getParameter<std::vector<double> >("positionDeltaRho_c")),
      vecDeltas_(ps.getParameter<std::vector<double> >("deltac")),
      kappa_(ps.getParameter<double>("kappa")),
      ecut_(ps.getParameter<double>("ecut")),
@@ -48,13 +44,14 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
      nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double> >("values")),
      noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("value")),
      initialized_(false),
-     points_(2*(maxlayer+1)),
-     minpos_(2*(maxlayer+1),{ {0.0f,0.0f} }),
-     maxpos_(2*(maxlayer+1),{ {0.0f,0.0f} }) {}
+     cells_(2*(maxlayer+1)),
+     numberOfClustersPerLayer_(2*(maxlayer+1),0)
+     {}
 
   ~HGCalCLUEAlgo() override {}
 
   void populate(const HGCRecHitCollection &hits) override;
+
   // this is the method that will start the clusterisation (it is possible to invoke this method
   // more than once - but make sure it is with different hit collections (or else use reset)
 
@@ -63,21 +60,16 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
   // this is the method to get the cluster collection out
   std::vector<reco::BasicCluster> getClusters(bool) override;
 
-  // use this if you want to reuse the same cluster object but don't want to accumulate clusters
-  // (hardly useful?)
   void reset() override {
     clusters_v_.clear();
-    layerClustersPerLayer_.clear();
-    for (auto &it : points_) {
-      it.clear();
-      std::vector<KDNode>().swap(it);
+    for(auto& cl: numberOfClustersPerLayer_)
+    {
+      cl = 0;
     }
-    for (unsigned int i = 0; i < minpos_.size(); i++) {
-      minpos_[i][0] = 0.;
-      minpos_[i][1] = 0.;
-      maxpos_[i][0] = 0.;
-      maxpos_[i][1] = 0.;
-    }
+
+    for(auto& cells : cells_)
+      cells.clear();
+    
   }
 
   Density getDensity() override;
@@ -89,11 +81,6 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
         2.9,
         2.9,
         2.9
-        });
-    iDesc.add<std::vector<double>>("positionDeltaRho_c", {
-        1.3,
-        1.3,
-        1.3
         });
     iDesc.add<std::vector<double>>("deltac", {
         1.3,
@@ -122,7 +109,6 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
  private:
   // To compute the cluster position
   std::vector<double> thresholdW0_;
-  std::vector<double> positionDeltaRho_c_;
 
   // The two parameters used to identify clusters
   std::vector<double> vecDeltas_;
@@ -149,96 +135,60 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
   // initialization bool
   bool initialized_;
 
-  struct Hexel {
-    double x;
-    double y;
-    double z;
-    bool isHalfCell;
-    double weight;
-    double fraction;
-    DetId detid;
-    double rho;
-    double delta;
-    int nearestHigher;
-    int clusterIndex;
-    float sigmaNoise;
-    float thickness;
-    const hgcal::RecHitTools *tools;
+  float outlierDeltaFactor_ = 2.f;
 
-    Hexel(const HGCRecHit &hit, DetId id_in, bool isHalf, float sigmaNoise_in, float thickness_in,
-          const hgcal::RecHitTools *tools_in)
-        : isHalfCell(isHalf),
-          weight(0.),
-          fraction(1.0),
-          detid(id_in),
-          rho(0.),
-          delta(0.),
-          nearestHigher(-1),
-          clusterIndex(-1),
-          sigmaNoise(sigmaNoise_in),
-          thickness(thickness_in),
-          tools(tools_in) {
-      const GlobalPoint position(tools->getPosition(detid));
-      weight = hit.energy();
-      x = position.x();
-      y = position.y();
-      z = position.z();
+  struct CellsOnLayer {
+    std::vector<DetId> detid;
+    std::vector<float> x; 
+    std::vector<float> y;
+
+    std::vector<float> weight; 
+    std::vector<float> rho;
+
+    std::vector<float> delta;
+    std::vector<int> nearestHigher;
+    std::vector<int> clusterIndex;
+    std::vector<float> sigmaNoise;
+    std::vector< std::vector <int> > followers;
+    std::vector<bool> isSeed;
+
+    void clear()
+    {
+      detid.clear();
+      x.clear();
+      y.clear();
+      weight.clear();
+      rho.clear();
+      delta.clear();
+      nearestHigher.clear();
+      clusterIndex.clear();
+      sigmaNoise.clear();
+      followers.clear();
+      isSeed.clear();
     }
-    Hexel()
-        : x(0.),
-          y(0.),
-          z(0.),
-          isHalfCell(false),
-          weight(0.),
-          fraction(1.0),
-          detid(),
-          rho(0.),
-          delta(0.),
-          nearestHigher(-1),
-          clusterIndex(-1),
-          sigmaNoise(0.),
-          thickness(0.),
-          tools(nullptr) {}
-    bool operator>(const Hexel &rhs) const { return (rho > rhs.rho); }
   };
+  
+  std::vector<CellsOnLayer> cells_;
+  
+  std::vector<int> numberOfClustersPerLayer_;
 
-  typedef KDTreeLinkerAlgo<Hexel, 2> KDTree;
-  typedef KDTreeNodeInfoT<Hexel, 2> KDNode;
-
-  std::vector<std::vector<std::vector<KDNode> > > layerClustersPerLayer_;
-
-  std::vector<size_t> sort_by_delta(const std::vector<KDNode> &v) const {
-    std::vector<size_t> idx(v.size());
-    std::iota(std::begin(idx), std::end(idx), 0);
-    sort(idx.begin(), idx.end(),
-         [&v](size_t i1, size_t i2) { return v[i1].data.delta > v[i2].data.delta; });
-    return idx;
-  }
-
-  std::vector<std::vector<KDNode> > points_;  // a vector of vectors of hexels, one for each layer
-  //@@EM todo: the number of layers should be obtained programmatically - the range is 1-n instead
-  //of 0-n-1...
-
-  std::vector<std::array<float, 2> > minpos_;
-  std::vector<std::array<float, 2> > maxpos_;
-
-  // these functions should be in a helper class.
-  inline double distance2(const Hexel &pt1, const Hexel &pt2) const {  // distance squared
-    const double dx = pt1.x - pt2.x;
-    const double dy = pt1.y - pt2.y;
+  inline float distance2(int cell1, int cell2, int layerId) const {  // distance squared
+    const float dx = cells_[layerId].x[cell1] - cells_[layerId].x[cell2];
+    const float dy = cells_[layerId].y[cell1] - cells_[layerId].y[cell2];
     return (dx * dx + dy * dy);
-  }  // distance squaredq
-  inline double distance(const Hexel &pt1,
-                         const Hexel &pt2) const {  // 2-d distance on the layer (x-y)
-    return std::sqrt(distance2(pt1, pt2));
+  }  
+
+  inline float distance(int cell1,
+                         int cell2, int layerId) const {  // 2-d distance on the layer (x-y)
+    return std::sqrt(distance2(cell1, cell2, layerId));
   }
-  double calculateLocalDensity(std::vector<KDNode> &, KDTree &,
-                               const unsigned int) const;  // return max density
-  double calculateDistanceToHigher(std::vector<KDNode> &) const;
-  int findAndAssignClusters(std::vector<KDNode> &, KDTree &, double, KDTreeBox &,
-                            const unsigned int, std::vector<std::vector<KDNode> > &) const;
-  math::XYZPoint calculatePosition(const std::vector<KDNode> &) const;
-  void setDensity(const std::vector<KDNode> &nd);
+  
+  void prepareDataStructures(const unsigned int layerId);
+  void calculateLocalDensity(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c);  // return max density
+  void calculateDistanceToHigher(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c);
+  int findAndAssignClusters(const unsigned int layerId, float delta_c);
+  math::XYZPoint calculatePosition(const std::vector<int> &v, const unsigned int layerId) const;
+  void setDensity(const unsigned int layerId);
 };
 
 #endif
