@@ -1,0 +1,17 @@
+<use   name="Geometry/CaloGeometry"/>
+<use   name="RecoLocalCalo/HGCalRecProducers"/>
+<use   name="RecoLocalCalo/HGCalRecAlgos"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="DataFormats/HGCDigi"/>
+<use   name="DataFormats/HGCRecHit"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/MessageService"/>
+<use   name="Geometry/HGCalGeometry"/>
+<use   name="RecoHGCal/TICL"/>
+
+<library   file="*.cc" name="RecoHGCalTICLPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

@@ -1,0 +1,10 @@
+
+<lcgdict>
+  <class name="Trackster" ClassVersion="3">
+   <version ClassVersion="3" checksum="1507284825"/>
+  </class>
+  <class name="std::vector<Trackster>" >
+  </class>
+  <class name="edm::Wrapper<std::vector<Trackster> >">
+  </class>
+</lcgdict>
