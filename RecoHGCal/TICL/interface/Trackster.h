@@ -16,6 +16,7 @@ struct Trackster {
   // The vertices of the DAG are the indices of the
   // 2d objects in the global collection
   std::vector<unsigned int> vertices;
+  std::vector<uint8_t> vertex_multiplicity;
 
   // The edges connect two vertices together in a directed doublet
   // ATTENTION: order matters!

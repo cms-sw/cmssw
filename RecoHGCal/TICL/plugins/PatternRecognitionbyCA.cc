@@ -60,6 +60,7 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev, const edm::Eve
   }
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
   fillHistogram(layerClusters, mask);
+  std::vector<uint8_t> layer_cluster_usage(layerClusters.size(), 0);
   theGraph_->makeAndConnectDoublets(tile_, patternbyca::nEtaBins, patternbyca::nPhiBins, layerClusters, 2, 2,
                                    min_cos_theta_, min_cos_pointing_, missing_layers_,
                                    rhtools_.lastLayerFH());
@@ -84,13 +85,28 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev, const edm::Eve
             << tracksterId << std::endl;
       }
     }
+    for (auto const i : effective_cluster_idx) {
+      layer_cluster_usage[i]++;
+      LogDebug("HGCPatterRecoByCA")
+        << "LayerID: " << i << " count: "
+        << (int)layer_cluster_usage[i] << std::endl;
+    }
     // Put back indices, in the form of a Trackster, into the results vector
     Trackster tmp;
     tmp.vertices.reserve(effective_cluster_idx.size());
+    tmp.vertex_multiplicity.resize(effective_cluster_idx.size(), 0);
     std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx),
               std::back_inserter(tmp.vertices));
     result.push_back(tmp);
     tracksterId++;
+  }
+  for (auto & trackster : result) {
+    for (size_t i = 0; i < trackster.vertices.size(); ++i) {
+      assert(i < trackster.vertex_multiplicity.size());
+      trackster.vertex_multiplicity[i] = layer_cluster_usage[trackster.vertices[i]];
+      LogDebug("HGCPatterRecoByCA") << "LayerIDXX: " << trackster.vertices[i]
+        << " count: " << (int)trackster.vertex_multiplicity[i] << std::endl;
+    }
   }
   //#endif
 }
