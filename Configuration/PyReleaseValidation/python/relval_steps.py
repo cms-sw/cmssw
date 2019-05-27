@@ -613,26 +613,26 @@ baseDataSetRelease=[
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1',              # 2 for fastsim id test
 #    'CMSSW_7_1_0_pre5-START71_V1-v2',                      # 3 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
-    'CMSSW_10_5_0_pre1-103X_mcRun2_asymptotic_v3-v1',              # 3 - GEN-SIM input for 13 TeV 2016 workfows
+    'CMSSW_10_6_0-106X_mcRun2_asymptotic_v3-v1',              # 3 - GEN-SIM input for 13 TeV 2016 workfows
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_10_4_0_pre1-PU25ns_103X_mcRun2_asymptotic_v1-v2',    # 5 - fullSim PU 25ns UP15 premix library
+    'CMSSW_10_6_0-PU25ns_106X_mcRun2_asymptotic_v3-v1',    # 5 - fullSim PU 25ns UP15 premix library
     'CMSSW_10_4_0_pre1-PU50ns_103X_mcRun2_startup_v1-v1',        # 6 - fullSim PU 50ns UP15 premix library
-    'CMSSW_10_4_0_pre1-103X_mcRun2_asymptotic_v1_FastSim-v1',    # 7 - fastSim MinBias for mixing UP16
-    'CMSSW_10_4_0_pre1-PU25ns_103X_mcRun2_asymptotic_v1_FastSim-v2',# 8 - fastSim premix library  UP16
-    'CMSSW_10_5_0_pre1-103X_upgrade2018_realistic_v8-v1',        # 9 - Run2 HI GEN-SIM for mixing
+    'CMSSW_10_6_0-106X_mcRun2_asymptotic_v3_FastSim-v1',    # 7 - fastSim MinBias for mixing UP16
+    'CMSSW_10_6_0-PU25ns_106X_mcRun2_asymptotic_v3_FastSim-v1',# 8 - fastSim premix library  UP16
+    'CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1',        # 9 - Run2 HI GEN-SIM for mixing
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                    # 10 - 13 TeV High Stats GEN-SIM
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',         # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM
     'CMSSW_8_1_0_pre9_Geant4102-81X_mcRun2cosmics_startup_peak_v2-v1', # 12 - GEN-SIM input for 1307 cosmics wf from 810_p2
-    'CMSSW_10_0_0_pre2-100X_mc2017_realistic_v1-v1',     # 13 - GENSIM input for 2017 fullSim premix workflows
-    'CMSSW_10_4_0_pre1-PU25ns_103X_mc2017_realistic_v1-v1',     # 14 - fullSim PU 25ns UP17 premix library
-    'CMSSW_10_5_0_pre1-103X_mc2017_realistic_v2_FastSim-v1',    # 15 - fastSim MinBias for mixing UP17
-    'CMSSW_10_5_0_pre1-PU25ns_103X_mc2017_realistic_v2_FastSim-v1',# 16 - fastSim premix library UP17 
-    'CMSSW_10_5_0_pre1-PU25ns_103X_upgrade2018_realistic_v8-v1',  # 17 - fullSim PU 25ns UP18 premix library
-    'CMSSW_10_5_0_pre1-103X_upgrade2018_realistic_v8-v1',  # 18 - GENSIM input for 2018 fullSim premix workflows
-    'CMSSW_10_5_0_pre1-103X_upgrade2018_realistic_v8_FastSim-v1',    # 19 - fastSim MinBias for mixing UP18
-    'CMSSW_10_5_0_pre1-PU25ns_103X_upgrade2018_realistic_v8_FastSim-v1',# 20 - fastSim premix library UP18 
-    'CMSSW_10_4_0-103X_mc2017_realistic_v2-v1',		# 21 - GEN-SIM inputs for LHE-GEN-SIM 2017 workflows
-    'CMSSW_10_4_0-103X_upgrade2018_realistic_v8-v1',		# 22 - GEN-SIM inputs for LHE-GEN-SIM 2018 workflows
+    'CMSSW_10_6_0-106X_mc2017_realistic_v3-v1',     # 13 - GENSIM input for 2017 fullSim premix workflows
+    'CMSSW_10_6_0-PU25ns_106X_mc2017_realistic_v3-v1',     # 14 - fullSim PU 25ns UP17 premix library
+    'CMSSW_10_6_0-106X_mc2017_realistic_v3_FastSim-v1',    # 15 - fastSim MinBias for mixing UP17
+    'CMSSW_10_6_0-PU25ns_106X_mc2017_realistic_v3_FastSim-v1',# 16 - fastSim premix library UP17
+    'CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4-v1',  # 17 - fullSim PU 25ns UP18 premix library
+    'CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1',  # 18 - GENSIM input for 2018 fullSim premix workflows
+    'CMSSW_10_6_0-106X_upgrade2018_realistic_v4_FastSim-v1',    # 19 - fastSim MinBias for mixing UP18
+    'CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4_FastSim-v1',# 20 - fastSim premix library UP18
+    'CMSSW_10_6_0-106X_mc2017_realistic_v3-v1',         # 21 - GEN-SIM inputs for LHE-GEN-SIM 2017 workflows
+    'CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1',            # 22 - GEN-SIM inputs for LHE-GEN-SIM 2018 workflows
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available
@@ -2950,11 +2950,11 @@ steps['NanoFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
-defaultDataSets['2017']='CMSSW_10_5_0_pre1-103X_mc2017_realistic_v2-v'
+defaultDataSets['2017']='CMSSW_10_6_0-106X_mc2017_realistic_v3-v'
 defaultDataSets['2017Design']='CMSSW_10_0_0_pre2-100X_mc2017_design_IdealBS_v1-v'
-defaultDataSets['2018']='CMSSW_10_5_0_pre1-103X_upgrade2018_realistic_v8-v'
-defaultDataSets['2018Design']='CMSSW_10_5_0_pre1-103X_upgrade2018_design_v4-v'
-defaultDataSets['2021']='CMSSW_10_6_0_pre3-105X_postLS2_realistic_v6-v'
+defaultDataSets['2018']='CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v'
+defaultDataSets['2018Design']='CMSSW_10_6_0-106X_upgrade2018_design_v3-v'
+defaultDataSets['2021']='CMSSW_10_6_0-106X_upgrade2021_realistic_v4_rsb-v'
 defaultDataSets['2021Design']='CMSSW_10_6_0_pre3-105X_postLS2_realistic_v6-v'
 defaultDataSets['2023D17']='CMSSW_10_2_0_pre2-101X_upgrade2023_realistic_v5_2023D17noPU-v'
 defaultDataSets['2023D19']=''
