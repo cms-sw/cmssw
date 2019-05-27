@@ -3,25 +3,22 @@
 
 #ifndef __RecoHGCal_TICL_PRbyCA_H__
 #define __RecoHGCal_TICL_PRbyCA_H__
+#include <memory>  // unique_ptr
 #include <algorithm>
 #include <iostream>
 #include "DataFormats/Math/interface/normalizedPhi.h"
 #include "PatternRecognitionbyCAConstants.h"
-#include "HGCDoublet.h"
-#include "HGCGraph.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoHGCal/TICL/interface/Common.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
+class HGCGraph;
+
 namespace ticl {
   class PatternRecognitionbyCA final : public PatternRecognitionAlgoBase {
     public:
-      PatternRecognitionbyCA(const edm::ParameterSet& conf) : PatternRecognitionAlgoBase(conf) {
-        min_cos_theta_ = (float)conf.getParameter<double>("min_cos_theta");
-        min_cos_pointing_ = (float)conf.getParameter<double>("min_cos_pointing");
-        missing_layers_ = conf.getParameter<int>("missing_layers");
-        min_clusters_per_ntuplet_ = conf.getParameter<int>("min_clusters_per_ntuplet");
-      }
+      PatternRecognitionbyCA(const edm::ParameterSet& conf);
+      ~PatternRecognitionbyCA();
 
       void fillHistogram(const std::vector<reco::CaloCluster>& layerClusters,
           const HgcalClusterFilterMask& mask);
@@ -61,7 +58,7 @@ namespace ticl {
 
       hgcal::RecHitTools rhtools_;
       patternbyca::Tile tile_;  // a histogram of layerClusters IDs per layer
-      HGCGraph theGraph_;
+      std::unique_ptr<HGCGraph> theGraph_;
       float min_cos_theta_;
       float min_cos_pointing_;
       int missing_layers_;
