@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     CastorGainsRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Mon Feb 11 12:16:54 CET 2008
 // $Id: CastorGainsRcd.cc,v 1.1 2008/02/15 15:53:55 mccauley Exp $
 

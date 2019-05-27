@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     SiPixelTemplateDBObject0TRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Mon Sep 28 15:40:32 CEST 2009
 // $Id$
 

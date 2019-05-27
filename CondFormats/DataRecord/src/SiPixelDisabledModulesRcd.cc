@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     SiPixelDisabledModulesRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Sat Apr 19 02:11:49 CDT 2008
 // $Id$
 

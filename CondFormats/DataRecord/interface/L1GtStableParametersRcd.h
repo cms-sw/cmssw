@@ -36,6 +36,9 @@
 //     // empty
 
 // };
-class L1GtStableParametersRcd : public edm::eventsetup::DependentRecordImplementation<L1GtStableParametersRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+class L1GtStableParametersRcd
+    : public edm::eventsetup::DependentRecordImplementation<L1GtStableParametersRcd,
+                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+};
 
 #endif

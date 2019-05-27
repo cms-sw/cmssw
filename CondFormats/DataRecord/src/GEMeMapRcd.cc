@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     GEMeMapRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
