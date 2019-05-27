@@ -11,8 +11,6 @@
  * @brief     DQM Plotter for PCL-Alignment
  */
 
-
-
 /*** system includes ***/
 #include <array>
 #include <memory>
@@ -38,58 +36,51 @@
 /*** MillePede ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeFileReader.h"
 
-
-
-
 class MillePedeDQMModule : public DQMEDHarvester {
-
   //========================== PUBLIC METHODS ==================================
-  public: //====================================================================
+public:  //====================================================================
+  MillePedeDQMModule(const edm::ParameterSet&);
+  ~MillePedeDQMModule() override;
 
-    MillePedeDQMModule(const edm::ParameterSet&);
-    ~MillePedeDQMModule() override;
-
-    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &)  override;
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
   //========================= PRIVATE METHODS ==================================
-  private: //===================================================================
+private:  //===================================================================
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&);
 
-    void bookHistograms(DQMStore::IBooker&);
+  void fillExpertHistos();
 
-    void fillExpertHistos();
+  void fillExpertHisto(MonitorElement* histo,
+                       const std::array<double, 6>& cut,
+                       const std::array<double, 6>& sigCut,
+                       const std::array<double, 6>& maxMoveCut,
+                       const std::array<double, 6>& maxErrorCut,
+                       const std::array<double, 6>& obs,
+                       const std::array<double, 6>& obsErr);
 
-    void fillExpertHisto(MonitorElement* histo,
-			 const std::array<double,6>& cut, 
-			 const std::array<double,6>& sigCut, 
-			 const std::array<double,6>& maxMoveCut, 
-			 const std::array<double,6>& maxErrorCut,
-                         const std::array<double,6>& obs,
-                         const std::array<double,6>& obsErr);
+  bool setupChanged(const edm::EventSetup&);
+  int getIndexFromString(const std::string& alignableId);
 
-    bool setupChanged(const edm::EventSetup&);
-    int getIndexFromString(const std::string& alignableId);
+  //========================== PRIVATE DATA ====================================
+  //============================================================================
 
-    //========================== PRIVATE DATA ====================================
-    //============================================================================
+  const edm::ParameterSet mpReaderConfig_;
+  std::unique_ptr<AlignableTracker> tracker_;
+  std::unique_ptr<MillePedeFileReader> mpReader_;
 
-    const edm::ParameterSet mpReaderConfig_;
-    std::unique_ptr<AlignableTracker> tracker_;
-    std::unique_ptr<MillePedeFileReader> mpReader_;
+  edm::ESWatcher<TrackerTopologyRcd> watchTrackerTopologyRcd_;
+  edm::ESWatcher<IdealGeometryRecord> watchIdealGeometryRcd_;
+  edm::ESWatcher<PTrackerParametersRcd> watchPTrackerParametersRcd_;
 
-    edm::ESWatcher<TrackerTopologyRcd> watchTrackerTopologyRcd_;
-    edm::ESWatcher<IdealGeometryRecord> watchIdealGeometryRcd_;
-    edm::ESWatcher<PTrackerParametersRcd> watchPTrackerParametersRcd_;
-
-    // Histograms
-    MonitorElement* h_xPos;
-    MonitorElement* h_xRot;
-    MonitorElement* h_yPos;
-    MonitorElement* h_yRot;
-    MonitorElement* h_zPos;
-    MonitorElement* h_zRot;
-
+  // Histograms
+  MonitorElement* h_xPos;
+  MonitorElement* h_xRot;
+  MonitorElement* h_yPos;
+  MonitorElement* h_yRot;
+  MonitorElement* h_zPos;
+  MonitorElement* h_zRot;
 };
 
 // define this as a plug-in

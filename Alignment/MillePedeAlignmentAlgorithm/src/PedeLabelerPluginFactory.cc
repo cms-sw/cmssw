@@ -10,6 +10,5 @@
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerPluginFactory.h"
- 
-EDM_REGISTER_PLUGINFACTORY( PedeLabelerPluginFactory,
-			    "PedeLabelerPluginFactory" );
+
+EDM_REGISTER_PLUGINFACTORY(PedeLabelerPluginFactory, "PedeLabelerPluginFactory");
