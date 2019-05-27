@@ -6,7 +6,7 @@
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-// #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "Alignment/SurveyAnalysis/interface/SurveyDataReader.h"
 

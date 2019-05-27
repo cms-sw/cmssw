@@ -13,6 +13,8 @@
 // for creation of TrackerTopology
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+
 // tracker-alignables aka AlignableTracker
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/TrackerAlignment/interface/AlignableSiStripDet.h"
