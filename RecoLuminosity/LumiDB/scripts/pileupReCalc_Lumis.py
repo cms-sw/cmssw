@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 VERSION='1.00'
 import os,sys,time
 import optparse
@@ -60,7 +61,7 @@ if __name__ == '__main__':
     try:
         (options, args) = parser.parse_args()
     except Exception as e:
-        print e
+        print(e)
 #    if not args:
 #        parser.print_usage()
 #        sys.exit()
@@ -72,9 +73,9 @@ if __name__ == '__main__':
 #    options=parser.parse_args()
 
     if options.verbose:
-        print 'General configuration'
-        print '\toutputfile: ',options.outputfile
-        print '\tinput selection file: ',options.inputfile
+        print('General configuration')
+        print('\toutputfile: ',options.outputfile)
+        print('\tinput selection file: ',options.inputfile)
 
 
     #inpf = open (options.inputfile, 'r')
@@ -96,7 +97,7 @@ if __name__ == '__main__':
 
     # loop over pileup JSON as source, since it should have more lumi sections
 
-    for (run, LSPUlist) in sorted (six.iteritems(inputPileupRange)) ):
+    for (run, LSPUlist) in sorted (six.iteritems(inputPileupRange)):
         # now, look for matching run, then match lumi sections
         #print "searching for run %d" % (run)
         if run in inputRange.keys():
@@ -116,7 +117,7 @@ if __name__ == '__main__':
                         scale=PixlumiInfo[1]/PUlumiInfo[0] # rescale to HLT recorded Lumi
 
                     if scale !=0 and (scale < 0.2 or scale > 5.0):
-                        print 'Run %d, LS %d, Scale (%f), PixL (%f), PUL (%f) big change - please check!' % (run, LSnumber, scale, PixlumiInfo[1],PUlumiInfo[0])
+                        print('Run %d, LS %d, Scale (%f), PixL (%f), PUL (%f) big change - please check!' % (run, LSnumber, scale, PixlumiInfo[1],PUlumiInfo[0]))
                     #    scale=1.01  # HLT integrated values are wrong, punt                        
 
                     newIntLumi = scale*PUlumiInfo[0]
@@ -127,7 +128,7 @@ if __name__ == '__main__':
                         newRmsLumi = PUlumiInfo[1]
                         newInstLumi = PUlumiInfo[2]
                                                      
-                        print 'Run %d, LS %d, Scale (%f), PixL (%f), PUL (%f) - 0 please check!' % (run, LSnumber, scale, PixlumiInfo[1],PUlumiInfo[0])
+                        print('Run %d, LS %d, Scale (%f), PixL (%f), PUL (%f) - 0 please check!' % (run, LSnumber, scale, PixlumiInfo[1],PUlumiInfo[0]))
                     LumiString = "[%d,%2.4e,%2.4e,%2.4e]," % (LSnumber, newIntLumi, newRmsLumi ,newInstLumi)
                     OUTPUTLINE += LumiString
 
@@ -150,7 +151,7 @@ if __name__ == '__main__':
             OUTPUTLINE += '], '
 
         else:  # trouble
-            print "Run %d not found in Lumi/Pileup input file.  Check your files!" % (run)
+            print("Run %d not found in Lumi/Pileup input file.  Check your files!" % (run))
 
 
 #            print run
