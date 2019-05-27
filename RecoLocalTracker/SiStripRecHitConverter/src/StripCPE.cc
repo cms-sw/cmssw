@@ -20,28 +20,28 @@ StripCPE::StripCPE(edm::ParameterSet& conf,
       magfield_(mag),
       LorentzAngleMap_(LorentzAngle),
       BackPlaneCorrectionMap_(BackPlaneCorrection) {
-  typedef std::map<std::string, SiStripDetId::ModuleGeometry> map_t;
+  typedef std::map<std::string, SiStripModuleGeometry> map_t;
   map_t modules;
-  modules["IB1"] = SiStripDetId::IB1;
-  modules["IB2"] = SiStripDetId::IB2;
-  modules["OB1"] = SiStripDetId::OB1;
-  modules["OB2"] = SiStripDetId::OB2;
-  modules["W1A"] = SiStripDetId::W1A;
-  modules["W2A"] = SiStripDetId::W2A;
-  modules["W3A"] = SiStripDetId::W3A;
-  modules["W1B"] = SiStripDetId::W1B;
-  modules["W2B"] = SiStripDetId::W2B;
-  modules["W3B"] = SiStripDetId::W3B;
-  modules["W4"] = SiStripDetId::W4;
-  modules["W5"] = SiStripDetId::W5;
-  modules["W6"] = SiStripDetId::W6;
-  modules["W7"] = SiStripDetId::W7;
+  modules["IB1"] = SiStripModuleGeometry::IB1;
+  modules["IB2"] = SiStripModuleGeometry::IB2;
+  modules["OB1"] = SiStripModuleGeometry::OB1;
+  modules["OB2"] = SiStripModuleGeometry::OB2;
+  modules["W1A"] = SiStripModuleGeometry::W1A;
+  modules["W2A"] = SiStripModuleGeometry::W2A;
+  modules["W3A"] = SiStripModuleGeometry::W3A;
+  modules["W1B"] = SiStripModuleGeometry::W1B;
+  modules["W2B"] = SiStripModuleGeometry::W2B;
+  modules["W3B"] = SiStripModuleGeometry::W3B;
+  modules["W4"] = SiStripModuleGeometry::W4;
+  modules["W5"] = SiStripModuleGeometry::W5;
+  modules["W6"] = SiStripModuleGeometry::W6;
+  modules["W7"] = SiStripModuleGeometry::W7;
 
-  const unsigned size = max_element(modules.begin(),
+  const unsigned size = static_cast<unsigned int>(max_element(modules.begin(),
                                     modules.end(),
                                     boost::bind(&map_t::value_type::second, boost::lambda::_1) <
                                         boost::bind(&map_t::value_type::second, boost::lambda::_2))
-                            ->second +
+                            ->second) +
                         1;
   xtalk1.resize(size);
   xtalk2.resize(size);
@@ -55,8 +55,8 @@ StripCPE::StripCPE(edm::ParameterSet& conf,
     if (!confObj.isParameter(xtalk2S))
       throw cms::Exception("SiStripConfObject does not contain: ") << xtalk2S;
 
-    xtalk1[it->second] = confObj.get<double>(xtalk1S);
-    xtalk2[it->second] = confObj.get<double>(xtalk2S);
+    xtalk1[static_cast<int>(it->second)] = confObj.get<double>(xtalk1S);
+    xtalk2[static_cast<int>(it->second)] = confObj.get<double>(xtalk2S);
   }
 
   fillParams();
