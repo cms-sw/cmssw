@@ -69,7 +69,7 @@ void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<bool>("simulateBkgNoise", false);
   desc.add<bool>("simulateNoiseCLS", true);
   desc.add<bool>("simulateElectronBkg", false);
-  desc.add<bool>("simulateIntrinsicNoise", true);
+  desc.add<bool>("simulateIntrinsicNoise", false);
 
   desc.add<double>("instLumi", 7.5);
   desc.add<double>("rateFact", 1.0);
