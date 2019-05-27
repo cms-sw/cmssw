@@ -1,4 +1,4 @@
-#include "SimG4Core/Physics/interface/DDG4ProductionCuts.h"
+#include "SimG4Core/Geometry/interface/DDG4ProductionCuts.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
