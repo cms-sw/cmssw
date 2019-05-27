@@ -21,9 +21,9 @@ TSGSmart::TSGSmart(const edm::ParameterSet &pset,edm::ConsumesCollector& iC)
     PairPSet.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string pairhitsfactoryName = pairhitsfactoryPSet.getParameter<std::string>("ComponentName");
 
-  thePairGenerator = std::make_unique<SeedGeneratorFromRegionHits>( OrderedHitsGeneratorFactory::get()->create( pairhitsfactoryName, pairhitsfactoryPSet, iC),
+  thePairGenerator = std::make_unique<SeedGeneratorFromRegionHits>( std::unique_ptr<OrderedHitsGenerator>{OrderedHitsGeneratorFactory::get()->create( pairhitsfactoryName, pairhitsfactoryPSet, iC)},
                                                                     nullptr,
-                                                                    SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+                                                                    std::unique_ptr<SeedCreator>{SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)}
                                                                     );
 
   edm::ParameterSet TripletPSet = pset.getParameter<edm::ParameterSet>("PixelTripletGeneratorSet"); 
@@ -31,9 +31,9 @@ TSGSmart::TSGSmart(const edm::ParameterSet &pset,edm::ConsumesCollector& iC)
     TripletPSet.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string triplethitsfactoryName = triplethitsfactoryPSet.getParameter<std::string>("ComponentName");
 
-  theTripletGenerator = std::make_unique<SeedGeneratorFromRegionHits>( OrderedHitsGeneratorFactory::get()->create( triplethitsfactoryName, triplethitsfactoryPSet, iC),
+  theTripletGenerator = std::make_unique<SeedGeneratorFromRegionHits>( std::unique_ptr<OrderedHitsGenerator>{OrderedHitsGeneratorFactory::get()->create( triplethitsfactoryName, triplethitsfactoryPSet, iC)},
                                                                        nullptr,
-                                                                       SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+                                                                       std::unique_ptr<SeedCreator>{SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)}
                                                                        );
 
   edm::ParameterSet MixedPSet = pset.getParameter<edm::ParameterSet>("MixedGeneratorSet");
@@ -41,9 +41,9 @@ TSGSmart::TSGSmart(const edm::ParameterSet &pset,edm::ConsumesCollector& iC)
     MixedPSet.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string mixedhitsfactoryName = mixedhitsfactoryPSet.getParameter<std::string>("ComponentName");
 
-  theMixedGenerator = std::make_unique<SeedGeneratorFromRegionHits>( OrderedHitsGeneratorFactory::get()->create( mixedhitsfactoryName, mixedhitsfactoryPSet, iC),
+  theMixedGenerator = std::make_unique<SeedGeneratorFromRegionHits>( std::unique_ptr<OrderedHitsGenerator>{OrderedHitsGeneratorFactory::get()->create( mixedhitsfactoryName, mixedhitsfactoryPSet, iC)},
                                                                      nullptr,
-                                                                     SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+                                                                     std::unique_ptr<SeedCreator>{SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)}
                                                                      );
 }
 
