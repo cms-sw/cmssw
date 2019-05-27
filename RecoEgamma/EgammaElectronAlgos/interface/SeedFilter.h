@@ -45,7 +45,7 @@ class SeedFilter {
   void seeds(edm::Event&, const edm::EventSetup&, const reco::SuperClusterRef &, TrajectorySeedCollection *);
 
  private:
-  SeedGeneratorFromRegionHits *combinatorialSeedGenerator;
+  std::unique_ptr<SeedGeneratorFromRegionHits> combinatorialSeedGenerator;
 
   // remove them FIXME
   double dr_, deta_, dphi_, pt_;
