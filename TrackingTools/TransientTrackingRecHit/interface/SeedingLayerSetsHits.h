@@ -1,7 +1,6 @@
 #ifndef TrackingTools_TransientTrackingRecHit_SeedingLayerSetsHits
 #define TrackingTools_TransientTrackingRecHit_SeedingLayerSetsHits
 
-
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
 
@@ -21,9 +20,9 @@ public:
   using TkHit = BaseTrackerRecHit;
   using TkHitRef = BaseTrackerRecHit const &;
   using HitPointer = mayown_ptr<BaseTrackerRecHit>;
-  using OwnedHits=std::vector<HitPointer>;
+  using OwnedHits = std::vector<HitPointer>;
 
-  using ConstRecHitPointer = BaseTrackerRecHit const*;
+  using ConstRecHitPointer = BaseTrackerRecHit const *;
   using Hits = std::vector<ConstRecHitPointer>;
 
   typedef unsigned short LayerSetIndex;
@@ -37,9 +36,8 @@ public:
    */
   class SeedingLayer {
   public:
-    SeedingLayer(): seedingLayerSets_(nullptr), index_(0) {}
-    SeedingLayer(const SeedingLayerSetsHits *sls, LayerIndex index):
-      seedingLayerSets_(sls), index_(index) {}
+    SeedingLayer() : seedingLayerSets_(nullptr), index_(0) {}
+    SeedingLayer(const SeedingLayerSetsHits *sls, LayerIndex index) : seedingLayerSets_(sls), index_(index) {}
 
     /**
      * Index of the SeedingLayer within SeedingLayerSetsHits.
@@ -48,7 +46,7 @@ public:
      * is the same for all SeedingLayers with the same name.
      */
     LayerIndex index() const { return index_; }
-    const std::string& name() const { return (*seedingLayerSets_->layerNames_)[index_]; }
+    const std::string &name() const { return (*seedingLayerSets_->layerNames_)[index_]; }
     const DetLayer *detLayer() const { return (*seedingLayerSets_->layerDets_)[index_]; }
     Hits hits() const { return seedingLayerSets_->hits(index_); }
 
@@ -72,32 +70,38 @@ public:
       typedef SeedingLayer value_type;
       typedef internal_iterator_type::difference_type difference_type;
 
-      const_iterator(): seedingLayerSets_(nullptr) {}
-      const_iterator(const SeedingLayerSetsHits *sls, internal_iterator_type iter): seedingLayerSets_(sls), iter_(iter) {}
+      const_iterator() : seedingLayerSets_(nullptr) {}
+      const_iterator(const SeedingLayerSetsHits *sls, internal_iterator_type iter)
+          : seedingLayerSets_(sls), iter_(iter) {}
 
       value_type operator*() const { return SeedingLayer(seedingLayerSets_, *iter_); }
 
-      const_iterator& operator++() { ++iter_; return *this; }
+      const_iterator &operator++() {
+        ++iter_;
+        return *this;
+      }
       const_iterator operator++(int) {
         const_iterator clone(*this);
         ++clone;
         return clone;
       }
 
-      bool operator==(const const_iterator& other) const { return iter_ == other.iter_; }
-      bool operator!=(const const_iterator& other) const { return !operator==(other); }
+      bool operator==(const const_iterator &other) const { return iter_ == other.iter_; }
+      bool operator!=(const const_iterator &other) const { return !operator==(other); }
 
     private:
       const SeedingLayerSetsHits *seedingLayerSets_;
       internal_iterator_type iter_;
     };
 
-    SeedingLayerSet(): seedingLayerSets_(nullptr) {}
-    SeedingLayerSet(const SeedingLayerSetsHits *sls, std::vector<LayerSetIndex>::const_iterator begin, std::vector<LayerSetIndex>::const_iterator end):
-      seedingLayerSets_(sls), begin_(begin), end_(end) {}
+    SeedingLayerSet() : seedingLayerSets_(nullptr) {}
+    SeedingLayerSet(const SeedingLayerSetsHits *sls,
+                    std::vector<LayerSetIndex>::const_iterator begin,
+                    std::vector<LayerSetIndex>::const_iterator end)
+        : seedingLayerSets_(sls), begin_(begin), end_(end) {}
 
     /// Number of layers in this set
-    LayerSetIndex size() const { return end_-begin_; }
+    LayerSetIndex size() const { return end_ - begin_; }
 
     /**
      * Slices the layer set
@@ -115,13 +119,11 @@ public:
       assert(begin < size());
       assert(0 < end && end <= size());
       assert(begin < end);
-      return SeedingLayerSet(seedingLayerSets_, begin_+begin, begin_+end);
+      return SeedingLayerSet(seedingLayerSets_, begin_ + begin, begin_ + end);
     }
 
     /// Get a given SeedingLayer (index is between 0 and size()-1)
-    SeedingLayer operator[](LayerSetIndex index) const {
-      return SeedingLayer(seedingLayerSets_, *(begin_+index));
-    }
+    SeedingLayer operator[](LayerSetIndex index) const { return SeedingLayer(seedingLayerSets_, *(begin_ + index)); }
 
     // iterators for range-for
     const_iterator begin() const { return const_iterator(seedingLayerSets_, begin_); }
@@ -131,8 +133,8 @@ public:
 
   private:
     const SeedingLayerSetsHits *seedingLayerSets_;
-    std::vector<LayerSetIndex>::const_iterator begin_; // Iterator to SeedingLayerSetsHits::layerSetIndices_, first layer
-    std::vector<LayerSetIndex>::const_iterator end_;   // Iterator to SeedingLayerSetsHits::layerSetIndices_, last+1 layer
+    std::vector<LayerSetIndex>::const_iterator begin_;  // Iterator to SeedingLayerSetsHits::layerSetIndices_, first layer
+    std::vector<LayerSetIndex>::const_iterator end_;  // Iterator to SeedingLayerSetsHits::layerSetIndices_, last+1 layer
   };
 
   class const_iterator {
@@ -141,26 +143,31 @@ public:
     typedef SeedingLayerSet value_type;
     typedef internal_iterator_type::difference_type difference_type;
 
-    const_iterator(): seedingLayerSets_(nullptr) {}
-    const_iterator(const SeedingLayerSetsHits *sls, internal_iterator_type iter): seedingLayerSets_(sls), iter_(iter) {}
+    const_iterator() : seedingLayerSets_(nullptr) {}
+    const_iterator(const SeedingLayerSetsHits *sls, internal_iterator_type iter)
+        : seedingLayerSets_(sls), iter_(iter) {}
 
-    value_type operator*() const { return SeedingLayerSet(seedingLayerSets_, iter_, iter_+seedingLayerSets_->nlayers_); }
+    value_type operator*() const {
+      return SeedingLayerSet(seedingLayerSets_, iter_, iter_ + seedingLayerSets_->nlayers_);
+    }
 
-    const_iterator& operator++() { std::advance(iter_, seedingLayerSets_->nlayers_); return *this; }
+    const_iterator &operator++() {
+      std::advance(iter_, seedingLayerSets_->nlayers_);
+      return *this;
+    }
     const_iterator operator++(int) {
       const_iterator clone(*this);
       ++(*this);
       return clone;
     }
 
-    bool operator==(const const_iterator& other) const { return iter_ == other.iter_; }
-    bool operator!=(const const_iterator& other) const { return !operator==(other); }
+    bool operator==(const const_iterator &other) const { return iter_ == other.iter_; }
+    bool operator!=(const const_iterator &other) const { return !operator==(other); }
 
   private:
     const SeedingLayerSetsHits *seedingLayerSets_;
     internal_iterator_type iter_;
   };
-
 
   SeedingLayerSetsHits() = default;
 
@@ -178,15 +185,13 @@ public:
                        const std::vector<const DetLayer *> *layerDets);
 
   ~SeedingLayerSetsHits() = default;
-  SeedingLayerSetsHits(SeedingLayerSetsHits const&)=delete;
-  SeedingLayerSetsHits& operator=(SeedingLayerSetsHits const&)=delete;
-  SeedingLayerSetsHits(SeedingLayerSetsHits &&)=default;
-  SeedingLayerSetsHits& operator=(SeedingLayerSetsHits &&)=default;
-
+  SeedingLayerSetsHits(SeedingLayerSetsHits const &) = delete;
+  SeedingLayerSetsHits &operator=(SeedingLayerSetsHits const &) = delete;
+  SeedingLayerSetsHits(SeedingLayerSetsHits &&) = default;
+  SeedingLayerSetsHits &operator=(SeedingLayerSetsHits &&) = default;
 
   void shrink_to_fit();
-  void addHits(LayerIndex layerIndex, OwnedHits&& hits);
-
+  void addHits(LayerIndex layerIndex, OwnedHits &&hits);
 
   /// Get number of layers in each SeedingLayerSets
   unsigned short numberOfLayersInSet() const { return nlayers_; }
@@ -195,8 +200,8 @@ public:
 
   /// Get the SeedingLayerSet at a given index
   SeedingLayerSet operator[](LayerSetIndex index) const {
-    std::vector<LayerSetIndex>::const_iterator begin = layerSetIndices_->begin()+nlayers_*index;
-    std::vector<LayerSetIndex>::const_iterator end = begin+nlayers_;
+    std::vector<LayerSetIndex>::const_iterator begin = layerSetIndices_->begin() + nlayers_ * index;
+    std::vector<LayerSetIndex>::const_iterator end = begin + nlayers_;
     return SeedingLayerSet(this, begin, end);
   }
 
@@ -207,7 +212,7 @@ public:
   const_iterator cend() const { return end(); }
 
   // for more efficient edm::Event::put()
-  void swap(SeedingLayerSetsHits& other) {
+  void swap(SeedingLayerSetsHits &other) {
     std::swap(nlayers_, other.nlayers_);
     std::swap(layerSetIndices_, other.layerSetIndices_);
     layerHitIndices_.swap(other.layerHitIndices_);
@@ -232,9 +237,9 @@ private:
   const std::vector<LayerSetIndex> *layerSetIndices_ = nullptr;
 
   // following are indexed by LayerIndex
-  std::vector<HitIndex> layerHitIndices_; // Indices to first hits in rechits_
-  const std::vector<std::string> *layerNames_ = nullptr; // Names of the layers
-  const std::vector<const DetLayer *> *layerDets_ = nullptr; // Pointers to corresponding DetLayer objects
+  std::vector<HitIndex> layerHitIndices_;                     // Indices to first hits in rechits_
+  const std::vector<std::string> *layerNames_ = nullptr;      // Names of the layers
+  const std::vector<const DetLayer *> *layerDets_ = nullptr;  // Pointers to corresponding DetLayer objects
 
   /**
    * List of RecHits of all SeedingLayers. Hits of each layer are

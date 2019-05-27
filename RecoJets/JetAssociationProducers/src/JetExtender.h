@@ -1,4 +1,4 @@
-// \class JetExtender JetExtender.cc 
+// \class JetExtender JetExtender.cc
 //
 // Combines different Jet associations into single compact object
 // which extends basic Jet information
@@ -17,19 +17,19 @@
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
 class JetExtender : public edm::stream::EDProducer<> {
-   public:
-      JetExtender(const edm::ParameterSet&);
-      ~JetExtender() override;
+public:
+  JetExtender(const edm::ParameterSet&);
+  ~JetExtender() override;
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-   private:
-     edm::EDGetTokenT<edm::View <reco::Jet>> token_mJets;
-     edm::EDGetTokenT<reco::JetTracksAssociation::Container > token_mJet2TracksAtVX;
-     edm::EDGetTokenT<reco::JetTracksAssociation::Container > token_mJet2TracksAtCALO;
-     edm::InputTag mJets;
-     edm::InputTag mJet2TracksAtVX;
-     edm::InputTag mJet2TracksAtCALO;
+private:
+  edm::EDGetTokenT<edm::View<reco::Jet>> token_mJets;
+  edm::EDGetTokenT<reco::JetTracksAssociation::Container> token_mJet2TracksAtVX;
+  edm::EDGetTokenT<reco::JetTracksAssociation::Container> token_mJet2TracksAtCALO;
+  edm::InputTag mJets;
+  edm::InputTag mJet2TracksAtVX;
+  edm::InputTag mJet2TracksAtCALO;
 };
 
 #endif

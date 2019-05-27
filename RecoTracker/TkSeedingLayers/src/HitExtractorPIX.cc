@@ -13,17 +13,19 @@
 using namespace ctfseeding;
 using namespace std;
 
-HitExtractorPIX::HitExtractorPIX(
-    TrackerDetSide side, int idLayer, const std::string & hitProducer, edm::ConsumesCollector& iC)
-  : theHitProducer(iC.consumes<SiPixelRecHitCollection>(hitProducer)), theSide(side), theIdLayer(idLayer)
-{ }
+HitExtractorPIX::HitExtractorPIX(TrackerDetSide side,
+                                 int idLayer,
+                                 const std::string& hitProducer,
+                                 edm::ConsumesCollector& iC)
+    : theHitProducer(iC.consumes<SiPixelRecHitCollection>(hitProducer)), theSide(side), theIdLayer(idLayer) {}
 
-void HitExtractorPIX::useSkipClusters_(const edm::InputTag & m, edm::ConsumesCollector& iC) {
+void HitExtractorPIX::useSkipClusters_(const edm::InputTag& m, edm::ConsumesCollector& iC) {
   theSkipClusters = iC.consumes<SkipClustersCollection>(m);
 }
 
-HitExtractor::Hits HitExtractorPIX::hits(const TkTransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& ev, const edm::EventSetup& es) const
-{
+HitExtractor::Hits HitExtractorPIX::hits(const TkTransientTrackingRecHitBuilder& ttrhBuilder,
+                                         const edm::Event& ev,
+                                         const edm::EventSetup& es) const {
   HitExtractor::Hits result;
 
   edm::ESHandle<TrackerTopology> httopo;
@@ -31,39 +33,38 @@ HitExtractor::Hits HitExtractorPIX::hits(const TkTransientTrackingRecHitBuilder 
   const TrackerTopology& ttopo = *httopo;
 
   edm::Handle<SiPixelRecHitCollection> pixelHits;
-  ev.getByToken( theHitProducer, pixelHits);
-  if (theSide==TrackerDetSide::Barrel) {
-    range2SeedingHits( *pixelHits, result, ttopo.pxbDetIdLayerComparator(theIdLayer));
+  ev.getByToken(theHitProducer, pixelHits);
+  if (theSide == TrackerDetSide::Barrel) {
+    range2SeedingHits(*pixelHits, result, ttopo.pxbDetIdLayerComparator(theIdLayer));
   } else {
-    range2SeedingHits( *pixelHits, result, ttopo.pxfDetIdDiskComparator(static_cast<unsigned int>(theSide),theIdLayer));
+    range2SeedingHits(*pixelHits, result, ttopo.pxfDetIdDiskComparator(static_cast<unsigned int>(theSide), theIdLayer));
   }
 
-
-  if (skipClusters){
-    LogDebug("HitExtractorPIX")<<"getting : "<<result.size()<<" pixel hits.";
+  if (skipClusters) {
+    LogDebug("HitExtractorPIX") << "getting : " << result.size() << " pixel hits.";
     //std::cout<<" skipping"<<std::endl;
     edm::Handle<SkipClustersCollection> pixelClusterMask;
-    ev.getByToken(theSkipClusters,pixelClusterMask);
-    unsigned int skipped=0;
-    for (unsigned int iH=0;iH!=result.size();++iH){
-      if (result[iH]->isValid()){  // can be NOT valid???
-        auto const & concrete = (SiPixelRecHit const&)(*result[iH]);
+    ev.getByToken(theSkipClusters, pixelClusterMask);
+    unsigned int skipped = 0;
+    for (unsigned int iH = 0; iH != result.size(); ++iH) {
+      if (result[iH]->isValid()) {  // can be NOT valid???
+        auto const& concrete = (SiPixelRecHit const&)(*result[iH]);
         assert(pixelClusterMask->refProd().id() == concrete.cluster().id());
-        if(pixelClusterMask->mask(concrete.cluster().key())) {
+        if (pixelClusterMask->mask(concrete.cluster().key())) {
           //too much debug LogDebug("HitExtractorPIX")<<"skipping a pixel hit on: "<< result[iH]->hit()->geographicalId().rawId()<<" key: "<<find(f->begin(),f->end(),concrete->cluster())->key();
           skipped++;
-	  result[iH].reset();
+          result[iH].reset();
         }
       }
     }
-    LogDebug("HitExtractorPIX")<<"skipped :"<<skipped<<" pixel clusters";
+    LogDebug("HitExtractorPIX") << "skipped :" << skipped << " pixel clusters";
     // std::cout << "HitExtractorPIX " <<"skipped :"<<skipped<<" pixel clusters out of " << result.size() << std::endl;
-    if (skipped>0) {
-      auto last = std::remove_if(result.begin(),result.end(),[]( HitPointer const & p) {return p.empty();});
-      result.resize(last-result.begin());
+    if (skipped > 0) {
+      auto last = std::remove_if(result.begin(), result.end(), [](HitPointer const& p) { return p.empty(); });
+      result.resize(last - result.begin());
     }
   }
-  LogDebug("HitExtractorPIX")<<"giving :"<<result.size()<<" rechits out";
+  LogDebug("HitExtractorPIX") << "giving :" << result.size() << " rechits out";
   // std::cout << "HitExtractorPIX "<<"giving :"<<result.size()<<" rechits out" << std::endl;
   return result;
 }

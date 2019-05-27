@@ -29,94 +29,86 @@
 class Cylinder;
 class Plane;
 
-
 /* Class SmartPropagator Interface */
 
 class SmartPropagator final : public Propagator {
+public:
+  /* Constructor */
+  ///Defines which propagator is used inside Tk and which outside
+  SmartPropagator(const Propagator* aTkProp,
+                  const Propagator* aGenProp,
+                  const MagneticField* field,
+                  PropagationDirection dir = alongMomentum,
+                  float epsilon = 5);
 
-  public:
+  ///Defines which propagator is used inside Tk and which outside
+  SmartPropagator(const Propagator& aTkProp,
+                  const Propagator& aGenProp,
+                  const MagneticField* field,
+                  PropagationDirection dir = alongMomentum,
+                  float epsilon = 5);
 
-    /* Constructor */
-    ///Defines which propagator is used inside Tk and which outside
-    SmartPropagator(const Propagator* aTkProp, const Propagator* aGenProp, const MagneticField* field,
-        PropagationDirection dir = alongMomentum, float epsilon = 5) ;
+  ///Copy constructor
+  SmartPropagator(const SmartPropagator&);
 
-    ///Defines which propagator is used inside Tk and which outside
-    SmartPropagator(const Propagator& aTkProp, const Propagator& aGenProp,const MagneticField* field,
-        PropagationDirection dir = alongMomentum, float epsilon = 5) ;
+  /** virtual destructor */
+  ~SmartPropagator() override;
 
-    ///Copy constructor
-    SmartPropagator( const SmartPropagator& );
+  ///Virtual constructor (using copy c'tor)
+  SmartPropagator* clone() const override {
+    return new SmartPropagator(getTkPropagator(), getGenPropagator(), magneticField());
+  }
 
-    /** virtual destructor */
-    ~SmartPropagator() override ;
+  ///setting the direction fo both components
+  void setPropagationDirection(PropagationDirection dir) override {
+    Propagator::setPropagationDirection(dir);
+    theTkProp->setPropagationDirection(dir);
+    theGenProp->setPropagationDirection(dir);
+  }
 
-    ///Virtual constructor (using copy c'tor)
-    SmartPropagator* clone() const override {
-      return new SmartPropagator(getTkPropagator(),getGenPropagator(),magneticField());
-    }
+  using Propagator::propagate;
+  using Propagator::propagateWithPath;
 
-    ///setting the direction fo both components
-    void setPropagationDirection (PropagationDirection dir) override
-    {
-      Propagator::setPropagationDirection (dir);
-      theTkProp->setPropagationDirection(dir);
-      theGenProp->setPropagationDirection(dir);
-    }
+private:
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const FreeTrajectoryState& fts,
+                                                                const Plane& plane) const override;
 
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const FreeTrajectoryState& fts,
+                                                                const Cylinder& cylinder) const override;
 
-    using Propagator::propagate;
-    using Propagator::propagateWithPath;
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const TrajectoryStateOnSurface& tsos,
+                                                                const Plane& sur) const override;
 
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const TrajectoryStateOnSurface& tsos,
+                                                                const Cylinder& sur) const override;
 
+public:
+  ///true if a fts is inside tracker volume
+  bool insideTkVol(const FreeTrajectoryState& fts) const;
+  ///true if a surface is inside tracker volume
+  bool insideTkVol(const Surface& surface) const;
+  ///true if a cylinder is inside tracker volume
+  bool insideTkVol(const Cylinder& cylin) const;
+  ///true if a plane is inside tracker volume
+  bool insideTkVol(const Plane& plane) const;
 
- private:
-    std::pair<TrajectoryStateOnSurface,double>
-      propagateWithPath(const FreeTrajectoryState& fts,
-                        const Plane& plane) const override;
-    
-    
-    std::pair<TrajectoryStateOnSurface,double>
-      propagateWithPath(const FreeTrajectoryState& fts,
-                        const Cylinder& cylinder) const override;
-    
-    std::pair< TrajectoryStateOnSurface, double>
-      propagateWithPath (const TrajectoryStateOnSurface& tsos, const Plane& sur) const override;
-    
-    std::pair< TrajectoryStateOnSurface, double>
-      propagateWithPath (const TrajectoryStateOnSurface& tsos, const Cylinder& sur) const override;
+  ///return the propagator used inside tracker
+  const Propagator* getTkPropagator() const;
+  ///return the propagator used outside tracker
+  const Propagator* getGenPropagator() const;
+  ///return the magneticField
+  const MagneticField* magneticField() const override { return theField; }
 
- public:
+private:
+  ///build the tracker volume
+  void initTkVolume(float epsilon);
 
-    ///true if a fts is inside tracker volume
-    bool insideTkVol(const FreeTrajectoryState& fts) const ;
-    ///true if a surface is inside tracker volume
-    bool insideTkVol(const Surface& surface) const ;
-    ///true if a cylinder is inside tracker volume
-    bool insideTkVol(const Cylinder& cylin)  const ;
-    ///true if a plane is inside tracker volume
-    bool insideTkVol(const Plane& plane)  const ;
+  Propagator* theTkProp;
+  Propagator* theGenProp;
+  const MagneticField* theField;
+  ReferenceCountingPointer<Cylinder> theTkVolume;
 
-    ///return the propagator used inside tracker
-    const Propagator* getTkPropagator() const ;
-    ///return the propagator used outside tracker
-    const Propagator* getGenPropagator() const ;
-    ///return the magneticField
-    const MagneticField* magneticField() const override {return theField;}
-
-  private:
-    ///build the tracker volume
-    void initTkVolume(float epsilon);
-
-    Propagator* theTkProp;
-    Propagator* theGenProp;
-    const MagneticField* theField;
-    ReferenceCountingPointer<Cylinder> theTkVolume;
-
-  protected:
-
+protected:
 };
 
-#endif // SMARTPROPAGATOR_H
-
-
+#endif  // SMARTPROPAGATOR_H

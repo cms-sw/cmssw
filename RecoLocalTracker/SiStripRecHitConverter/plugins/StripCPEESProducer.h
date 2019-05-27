@@ -11,24 +11,16 @@
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 #include "CalibTracker/SiStripESProducers/plugins/real/SiStripLorentzAngleDepESProducer.h"
 
-class  StripCPEESProducer: public edm::ESProducer {
-
- public:
-
+class StripCPEESProducer : public edm::ESProducer {
+public:
   StripCPEESProducer(const edm::ParameterSet&);
   std::unique_ptr<StripClusterParameterEstimator> produce(const TkStripCPERecord&);
 
- private:
-
+private:
   enum CPE_t { SIMPLE, TRACKANGLE, GEOMETRIC, FAKE };
-  std::map<std::string,CPE_t> enumMap; 
+  std::map<std::string, CPE_t> enumMap;
 
   CPE_t cpeNum;
   edm::ParameterSet parametersPSet;
-
 };
 #endif
-
-
-
-
