@@ -634,7 +634,7 @@ class TauIDEmbedder(object):
                     "VVTight": 0.9859
                 }
             }
-            file_name = 'RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb'
+            file_names = ['RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb']
             self.process.deepTau2017v1 = self.cms.EDProducer("DeepTauId",
                 electrons              = self.cms.InputTag('slimmedElectrons'),
                 muons                  = self.cms.InputTag('slimmedMuons'),
@@ -642,9 +642,9 @@ class TauIDEmbedder(object):
                 pfcands                = self.cms.InputTag('packedPFCandidates'),
                 vertices               = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
                 rho                    = self.cms.InputTag('fixedGridRhoAll'),
-                graph_file             = self.cms.string(file_name),
+                graph_file             = self.cms.vstring(file_names),
                 mem_mapped             = self.cms.bool(False),
-                version                = self.cms.uint32(self.getDeepTauVersion(file_name)[1])
+                version                = self.cms.uint32(self.getDeepTauVersion(file_names[0])[1])
             )
 
             self.processDeepProducer('deepTau2017v1', tauIDSources, workingPoints_)
@@ -683,7 +683,12 @@ class TauIDEmbedder(object):
                     "VVTight": 0.9733927,
                 },
             }
-            file_name = 'RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6.pb'
+            #file_names = ['RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6.pb']
+            file_names = [
+                'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_core.pb',
+                'inner:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_inner.pb',
+                'outer:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_outer.pb',
+            ]
             self.process.deepTau2017v2 = self.cms.EDProducer("DeepTauId",
                 electrons              = self.cms.InputTag('slimmedElectrons'),
                 muons                  = self.cms.InputTag('slimmedMuons'),
@@ -691,9 +696,9 @@ class TauIDEmbedder(object):
                 pfcands                = self.cms.InputTag('packedPFCandidates'),
                 vertices               = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
                 rho                    = self.cms.InputTag('fixedGridRhoAll'),
-                graph_file             = self.cms.string(file_name),
+                graph_file             = self.cms.vstring(file_names),
                 mem_mapped             = self.cms.bool(True),
-                version                = self.cms.uint32(self.getDeepTauVersion(file_name)[1]),
+                version                = self.cms.uint32(self.getDeepTauVersion(file_names[0])[1]),
                 debug_level            = self.cms.int32(0)
 
             )
@@ -720,13 +725,13 @@ class TauIDEmbedder(object):
                     #            (decayMode == 10) * (0.873958 - 0.0002328 * pt) "
                 }
             }
-            file_name = 'RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_quantized.pb'
+            file_names = [ 'RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_quantized.pb' ]
             self.process.dpfTau2016v0 = self.cms.EDProducer("DPFIsolation",
                 pfcands     = self.cms.InputTag('packedPFCandidates'),
                 taus        = self.cms.InputTag('slimmedTaus'),
                 vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
-                graph_file  = self.cms.string(file_name),
-                version     = self.cms.uint32(self.getDpfTauVersion(file_name)),
+                graph_file  = self.cms.vstring(file_names),
+                version     = self.cms.uint32(self.getDpfTauVersion(file_names[0])),
                 mem_mapped  = self.cms.bool(False)
             )
 
@@ -745,13 +750,13 @@ class TauIDEmbedder(object):
                 "all": {"Tight" : 0.123} #FIXME: define WP
             }
 
-            file_name = 'RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v1_quantized.pb'
+            file_names = [ 'RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v1_quantized.pb' ]
             self.process.dpfTau2016v1 = self.cms.EDProducer("DPFIsolation",
                 pfcands     = self.cms.InputTag('packedPFCandidates'),
                 taus        = self.cms.InputTag('slimmedTaus'),
                 vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
-                graph_file  = self.cms.string(file_name),
-                version     = self.cms.uint32(self.getDpfTauVersion(file_name)),
+                graph_file  = self.cms.vstring(file_names),
+                version     = self.cms.uint32(self.getDpfTauVersion(file_names[0])),
                 mem_mapped  = self.cms.bool(False)
             )
 
