@@ -3,22 +3,20 @@
 
 //-------------------------------------------------------------------------------
 // Created 20/04/2010 - E. Conte, A.C. Le Bihan
-// 
-// 
+//
+//
 // Original code : L1Trigger/L1TNtuples/L1NtupleProducer
 //-------------------------------------------------------------------------------
 
 #include <vector>
 
-namespace L1Analysis
-{
-  struct L1AnalysisGCTDataFormat
-  {
-    L1AnalysisGCTDataFormat(){Reset();};
+namespace L1Analysis {
+  struct L1AnalysisGCTDataFormat {
+    L1AnalysisGCTDataFormat() { Reset(); };
     ~L1AnalysisGCTDataFormat(){};
-    
-    void Reset() {    
-      IsoEmSize = 0;    
+
+    void Reset() {
+      IsoEmSize = 0;
       NonIsoEmSize = 0;
       CJetSize = 0;
       FJetSize = 0;
@@ -28,10 +26,9 @@ namespace L1Analysis
       HtMissSize = 0;
       EtHadSize = 0;
       EtTotSize = 0;
-      HFRingEtSumSize = 0; 
+      HFRingEtSumSize = 0;
       HFBitCountsSize = 0;
-      
-      
+
       IsoEmEta.clear();
       IsoEmPhi.clear();
       IsoEmRnk.clear();
@@ -42,7 +39,7 @@ namespace L1Analysis
       NonIsoEmBx.clear();
       CJetEta.clear();
       CJetPhi.clear();
-      CJetRnk.clear(); 
+      CJetRnk.clear();
       CJetBx.clear();
       FJetEta.clear();
       FJetPhi.clear();
@@ -50,12 +47,12 @@ namespace L1Analysis
       FJetBx.clear();
       TJetEta.clear();
       TJetPhi.clear();
-      TJetRnk.clear(); 
-      TJetBx.clear(); 
+      TJetRnk.clear();
+      TJetBx.clear();
       IsoTJetEta.clear();
       IsoTJetPhi.clear();
-      IsoTJetRnk.clear(); 
-      IsoTJetBx.clear(); 
+      IsoTJetRnk.clear();
+      IsoTJetBx.clear();
       EtMiss.clear();
       EtMissPhi.clear();
       EtMissBX.clear();
@@ -66,53 +63,53 @@ namespace L1Analysis
       EtHadBX.clear();
       EtTot.clear();
       EtTotBX.clear();
-      
+
       HFRingEtSumEta.clear();
-      HFBitCountsEta.clear(); 
+      HFBitCountsEta.clear();
     }
-    
+
     void Init() {
       // removed really really stupid stuff from this method - JB, 7 Aug 2012
     }
 
     // ---- L1AnalysisGCTDataFormat information.
-    
+
     int IsoEmSize;
     std::vector<float> IsoEmEta;
     std::vector<float> IsoEmPhi;
     std::vector<float> IsoEmRnk;
-    std::vector<int>   IsoEmBx;
-    
+    std::vector<int> IsoEmBx;
+
     int NonIsoEmSize;
     std::vector<float> NonIsoEmEta;
     std::vector<float> NonIsoEmPhi;
     std::vector<float> NonIsoEmRnk;
-    std::vector<int>   NonIsoEmBx;
-       
-    int CJetSize;    
+    std::vector<int> NonIsoEmBx;
+
+    int CJetSize;
     std::vector<float> CJetEta;
     std::vector<float> CJetPhi;
     std::vector<float> CJetRnk;
-    std::vector<int>   CJetBx;
-     
-    int FJetSize;    
+    std::vector<int> CJetBx;
+
+    int FJetSize;
     std::vector<float> FJetEta;
     std::vector<float> FJetPhi;
     std::vector<float> FJetRnk;
-    std::vector<int>   FJetBx;
- 
+    std::vector<int> FJetBx;
+
     int TJetSize;
     std::vector<float> TJetEta;
     std::vector<float> TJetPhi;
     std::vector<float> TJetRnk;
-    std::vector<int>   TJetBx;
+    std::vector<int> TJetBx;
 
     int IsoTJetSize;
     std::vector<float> IsoTJetEta;
     std::vector<float> IsoTJetPhi;
     std::vector<float> IsoTJetRnk;
-    std::vector<int>   IsoTJetBx;
-    
+    std::vector<int> IsoTJetBx;
+
     int EtMissSize;
     std::vector<float> EtMiss;
     std::vector<float> EtMissPhi;
@@ -130,16 +127,12 @@ namespace L1Analysis
     int EtTotSize;
     std::vector<float> EtTot;
     std::vector<float> EtTotBX;
-    
+
     int HFRingEtSumSize;
     std::vector<float> HFRingEtSumEta;
 
     float HFBitCountsSize;
     std::vector<float> HFBitCountsEta;
-    
-    
-  }; 
-} 
+  };
+}  // namespace L1Analysis
 #endif
-
-

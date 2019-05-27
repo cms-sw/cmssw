@@ -28,7 +28,6 @@ class DTBtiChip;
 #include "L1Trigger/DTUtilities/interface/DTTrigData.h"
 #include "L1Trigger/DTBti/interface/DTBtiTrigData.h"
 
-
 //---------------
 // C++ Headers --
 //---------------
@@ -39,9 +38,7 @@ class DTBtiChip;
 //              ---------------------
 
 class DTBtiTrig : public DTTrigData {
-
-  public:
-
+public:
   //! Constructor
   DTBtiTrig();
 
@@ -50,121 +47,82 @@ class DTBtiTrig : public DTTrigData {
 
   //! Constructor
   DTBtiTrig(DTBtiChip* tparent, int, int, int, int, int);
- 
+
   //! Constructor
   DTBtiTrig(DTBtiChip* tparent, int, int, int, int, int, int, float*);
 
   //! Constructor
   DTBtiTrig(DTBtiChip*, DTBtiTrigData);
-  
-  //! Destructor 
+
+  //! Destructor
   ~DTBtiTrig() override;
 
   //! Set the parent DTBtiChip
-  inline void setParent(DTBtiChip* parent) { 
-    _tparent = parent; 
-  }  
+  inline void setParent(DTBtiChip* parent) { _tparent = parent; }
 
   //! Add a digi to the list
-  inline void addDigi(const DTDigi* digi) { 
-    _digi.push_back(digi); 
-  }
+  inline void addDigi(const DTDigi* digi) { _digi.push_back(digi); }
 
   //! Set trigger step
-  inline void setStep(int step) {
-    _data.setStep(step);
-  }
+  inline void setStep(int step) { _data.setStep(step); }
 
   //! Set trigger code
-  inline void setCode(int code) {
-    _data.setCode(code);
-  }
+  inline void setCode(int code) { _data.setCode(code); }
 
   //! Set trigger K parameter
-  inline void setK(int k) {
-    _data.setK(k);
-  }
+  inline void setK(int k) { _data.setK(k); }
 
   //! Set trigger X parameter
-  inline void setX(int x) {
-    _data.setX(x);
-  }
+  inline void setX(int x) { _data.setX(x); }
 
   //! Set triggering equation
-  inline void setEq(int eq) {
-    _data.setEq(eq);
-  }
+  inline void setEq(int eq) { _data.setEq(eq); }
 
   //! Clear
   inline void clear() {
     _data.clear();
     _digi.clear();
-  }    
+  }
 
   // Const methods
 
   //! Return chamber identifier
-  inline DTChamberId ChamberId() const override {
-    return _data.ChamberId(); 
-  }
+  inline DTChamberId ChamberId() const override { return _data.ChamberId(); }
 
   //! Print
-  inline void print() const override { 
-    _data.print();
-  }
+  inline void print() const override { _data.print(); }
 
   //! Return parent BTI pointer
-  inline DTBtiChip* tParent() const { 
-    return _tparent; 
-  }
-  
+  inline DTBtiChip* tParent() const { return _tparent; }
+
   //! Return the data part
-  inline DTBtiTrigData data() const {
-    return _data;
-  }
+  inline DTBtiTrigData data() const { return _data; }
 
   //! Return parent BTI number
-  inline int btiNumber() const { 
-    return _data.btiNumber(); 
-  }
-  
+  inline int btiNumber() const { return _data.btiNumber(); }
+
   //! Return parent BTI superlayer
-  inline int btiSL() const { 
-    return _data.btiSL(); 
-  }
-  
+  inline int btiSL() const { return _data.btiSL(); }
+
   //! Return trigger step
-  inline int step() const { 
-    return _data.step(); 
-  }
+  inline int step() const { return _data.step(); }
 
   //! Return trigger code
-  inline int code() const { 
-    return _data.code(); 
-  }
-  
+  inline int code() const { return _data.code(); }
+
   //! Return trigger K parameter
-  inline int K() const { 
-    return _data.K(); 
-  }
-  
+  inline int K() const { return _data.K(); }
+
   //! Return trigger X parameter
-  inline int X() const { 
-    return _data.X(); 
-  }
+  inline int X() const { return _data.X(); }
 
   //! Return triggering equation
-  inline int eq() const { 
-    return _data.eq(); 
-  }
+  inline int eq() const { return _data.eq(); }
 
   //! Return the digi list
-  std::vector<const DTDigi*> digiList() const { 
-    return _digi; 
-  }
+  std::vector<const DTDigi*> digiList() const { return _digi; }
 
-  private:
-
+private:
   // Parent BTI
   DTBtiChip* _tparent;
 
@@ -173,6 +131,5 @@ class DTBtiTrig : public DTTrigData {
 
   // vector of digi in the cells of the DTBtiChip trigger
   std::vector<const DTDigi*> _digi;
-
 };
 #endif

@@ -16,7 +16,6 @@ class L1TPFMetNoMuProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1TPFMetNoMuProducer(const edm::ParameterSet &ps);
 
-
 private:
   void produce(edm::Event &event, const edm::EventSetup &eventSetup) override;
 
