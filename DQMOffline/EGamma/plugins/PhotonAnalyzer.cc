@@ -257,7 +257,7 @@ void PhotonAnalyzer::bookHistogramsInvMass(DQMStore::IBooker& iBooker) {
   h_invMassTwoWithTracks_ = bookHisto(
       iBooker, "invMassTwoWithTracks", "Two photon invariant mass: Both have tracks;M (GeV)", etBin_, etMin_, etMax_);
 
-  h_nRecoVtx_ = bookHisto(iBooker, "nOfflineVtx", "# of Offline Vertices", 80, -0.5, 79.5);
+  h_nRecoVtx_ = bookHisto(iBooker, "nOfflineVtx", "# of Offline Vertices", 200, -0.5, 199.5);
 }
 
 void PhotonAnalyzer::bookHistogramsPhotons(DQMStore::IBooker& iBooker) {
@@ -272,9 +272,9 @@ void PhotonAnalyzer::bookHistogramsPhotons(DQMStore::IBooker& iBooker) {
                     "Profile",
                     "phoSigmaEoverEvsNVtx",
                     "#sigma_{E}/E vs NVtx; N_{vtx}; #sigma_{E}/E",
-                    80,
+                    200,
                     -0.5,
-                    79.5,
+                    199.5,
                     100,
                     0.,
                     0.08);
