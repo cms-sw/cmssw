@@ -13,10 +13,13 @@
 
 namespace PVValHelper {
 
+  const double max_eta_phase0 = 2.5;
+  const double max_eta_phase1 = 2.7;
+
   // helper logarithmic bin generator
 
   template <typename T, size_t N>
-  std::array<T, N + 1> makeLogBins(const T min, const T max) {
+  std::array<T, N+1> makeLogBins(const T& min, const T& max) {
     const T minLog10 = std::log10(min);
     const T maxLog10 = std::log10(max);
     const T width = (maxLog10 - minLog10) / N;

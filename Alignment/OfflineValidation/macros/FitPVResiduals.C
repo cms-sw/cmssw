@@ -56,6 +56,7 @@ class PVValidationVariables {
 public:
   PVValidationVariables(TString fileName, TString baseDir, TString legName="", int color=1, int style=1);
   int getLineColor(){ return lineColor; }
+  int getMarkerStyle(){ return markerStyle; }
   int getLineStyle(){ return lineStyle; }
   TString getName(){ return legendName; }
   TFile* getFile(){ return file; }
@@ -64,6 +65,7 @@ private:
   TFile* file;
   int lineColor;
   int lineStyle;
+  int markerStyle;
   TString legendName;
   TString fname;
 };
@@ -72,7 +74,16 @@ PVValidationVariables::PVValidationVariables(TString fileName, TString baseDir, 
 {
   fname = fileName;
   lineColor = lColor;
-  lineStyle = lStyle % 100;
+
+  int ndigits = 1+std::floor(std::log10(lStyle));
+  if(ndigits==4){
+    lineStyle = lStyle % 100;
+    markerStyle = lStyle / 100;
+  } else {
+    lineStyle = 1;
+    markerStyle = lStyle;
+  }
+
   if (legName=="") {
     std::string s_fileName = fileName.Data();
     int start = 0;
@@ -377,6 +388,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 	       <<" |file:  " << std::setw(15) << (*it)->getFile()
 	       <<" |color: " << std::setw(5) << (*it)->getLineColor()
 	       <<" |style: " << std::setw(5) << (*it)->getLineStyle()
+ 	       <<" |marker:" << std::setw(5) << (*it)->getMarkerStyle()
 	       << std::endl;
     }
     std::cout << "======================================================" << std::endl;
@@ -434,7 +446,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
       colors[j]  = def_colors[j];
     } else {
       LegLabels[j] = sourceList[j]->getName();
-      markers[j] = sourceList[j]->getLineStyle();
+      markers[j] = sourceList[j]->getMarkerStyle();
       colors[j]  = sourceList[j]->getLineColor();
     }
     LegLabels[j].ReplaceAll("_"," ");
@@ -772,6 +784,22 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
       std::cout<<std::endl;
       std::cout<<"======================================================"<<std::endl;
     }
+  }
+
+  // check now that all the files have events
+  bool areAllFilesFull=true;
+  for(Int_t i=0;i<nFiles_;i++){
+    if(dxyRefit[i]->GetEntries()==0.){
+      areAllFilesFull=false;
+      break;
+    }
+  }
+
+  if(! areAllFilesFull){
+    std::cout<<"======================================================"<<std::endl;
+    std::cout<<"FitPVResiduals::FitPVResiduals(): not all the files have events"<<std::endl;
+    std::cout<<"exiting (...to prevent a segmentation fault)"<<std::endl;
+    return;
   }
 
   Double_t highedge=nBins_-0.5;
