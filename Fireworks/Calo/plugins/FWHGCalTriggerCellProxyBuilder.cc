@@ -1,5 +1,4 @@
-#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
-// #include "Fireworks/Calo/interface/FWHeatmapProxyBuilderTemplate.h"
+#include "Fireworks/Calo/plugins/FWL1THGCalProxyTemplate.cc"
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
@@ -13,7 +12,7 @@
 
 #include "TEveBoxSet.h"
 
-class FWHGCalTriggerCellProxyBuilder : public FWSimpleProxyBuilderTemplate<l1t::HGCalTriggerCell>
+class FWHGCalTriggerCellProxyBuilder : public FWL1THGCalProxyTemplate<l1t::HGCalTriggerCell>
 {
 public:
     FWHGCalTriggerCellProxyBuilder(void) {}
@@ -26,106 +25,48 @@ private:
     const FWHGCalTriggerCellProxyBuilder &operator=(const FWHGCalTriggerCellProxyBuilder &) = delete; // stop default
 
     void build(const l1t::HGCalTriggerCell &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *) override;
-
-    //https://github.com/cms-sw/cmssw/blob/master/L1Trigger/L1THGCal/plugins/geometries/HGCalTriggerGeometryV9Imp2.cc#L191
-    std::unordered_set<unsigned> getCellsFromTriggerCell(const unsigned trigger_cell_id) const;
-
-    // bool validCellId(unsigned subdet, unsigned cell_id) const;
 };
-
-/*
-bool 
-FWHGCalTriggerCellProxyBuilder::validCellId(unsigned subdet, unsigned cell_id) const {
-  bool is_valid = false;
-  switch (subdet) {
-    case DetId::HGCalEE:
-      is_valid = eeTopology().valid(cell_id);
-      break;
-    case DetId::HGCalHSi:
-      is_valid = hsiTopology().valid(cell_id);
-      break;
-    case DetId::HGCalHSc:
-      is_valid = hscTopology().valid(cell_id);
-      break;
-    default:
-      is_valid = false;
-      break;
-  }
-  return is_valid;
-}
-*/
-
-std::unordered_set<unsigned> 
-FWHGCalTriggerCellProxyBuilder::getCellsFromTriggerCell(const unsigned trigger_cell_id) const {
-  
-  constexpr unsigned hSc_triggercell_size_ = 2;
-  constexpr unsigned hSc_module_size_ = 12;  // in TC units (144 TC / panel = 36 e-links)
-  
-  
-  DetId trigger_cell_det_id(trigger_cell_id);
-  unsigned det = trigger_cell_det_id.det();
-  
-  std::unordered_set<unsigned> cell_det_ids;
-  
-  // Scintillator
-  if (det == DetId::HGCalHSc) {
-    HGCScintillatorDetId trigger_cell_sc_id(trigger_cell_id);
-    int ieta0 = (trigger_cell_sc_id.ietaAbs() - 1) * hSc_triggercell_size_ + 1;
-    int iphi0 = (trigger_cell_sc_id.iphi() - 1) * hSc_triggercell_size_ + 1;
-    for (int ietaAbs = ieta0; ietaAbs < ieta0 + (int)hSc_triggercell_size_; ietaAbs++) {
-      int ieta = ietaAbs * trigger_cell_sc_id.zside();
-      for (int iphi = iphi0; iphi < iphi0 + (int)hSc_triggercell_size_; iphi++) {
-        unsigned cell_id = HGCScintillatorDetId(trigger_cell_sc_id.type(), trigger_cell_sc_id.layer(), ieta, iphi);
-        #if 0
-        if (validCellId(DetId::HGCalHSc, cell_id))
-        #endif
-          cell_det_ids.emplace(cell_id);
-      }
-    }
-  }
-  // Silicon
-  else {
-    HGCalTriggerDetId trigger_cell_trig_id(trigger_cell_id);
-    unsigned subdet = trigger_cell_trig_id.subdet();
-    if (subdet == HGCalTriggerSubdetector::HGCalEETrigger || subdet == HGCalTriggerSubdetector::HGCalHSiTrigger) {
-      DetId::Detector cell_det = (subdet == HGCalTriggerSubdetector::HGCalEETrigger ? DetId::HGCalEE : DetId::HGCalHSi);
-      int layer = trigger_cell_trig_id.layer();
-      int zside = trigger_cell_trig_id.zside();
-      int type = trigger_cell_trig_id.type();
-      int waferu = trigger_cell_trig_id.waferU();
-      int waferv = trigger_cell_trig_id.waferV();
-      std::vector<int> cellus = trigger_cell_trig_id.cellU();
-      std::vector<int> cellvs = trigger_cell_trig_id.cellV();
-      for (unsigned ic = 0; ic < cellus.size(); ic++) {
-        HGCSiliconDetId cell_det_id(cell_det, zside, type, layer, waferu, waferv, cellus[ic], cellvs[ic]);
-        cell_det_ids.emplace(cell_det_id.rawId());
-      }
-    }
-  }
-  return cell_det_ids;
-}
 
 void FWHGCalTriggerCellProxyBuilder::build(const l1t::HGCalTriggerCell &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *)
 {
+    const long layer = item()->getConfig()->value<long>("Layer");
+    const double saturation_energy = item()->getConfig()->value<double>("EnergyCutOff");
+    const bool heatmap = item()->getConfig()->value<bool>("Heatmap");
+
+    const bool z_plus = item()->getConfig()->value<bool>("Z+");
+    const bool z_minus = item()->getConfig()->value<bool>("Z-");
+
     bool h_hex(false);
     TEveBoxSet *hex_boxset = new TEveBoxSet();
-    hex_boxset->UseSingleColor();
+    if (!heatmap)
+        hex_boxset->UseSingleColor();
     hex_boxset->SetPickable(true);
     hex_boxset->Reset(TEveBoxSet::kBT_Hex, true, 64);
     hex_boxset->SetAntiFlick(true);
 
     bool h_box(false);
     TEveBoxSet *boxset = new TEveBoxSet();
-    boxset->UseSingleColor();
+    if (!heatmap)
+        boxset->UseSingleColor();
     boxset->SetPickable(true);
     boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
     boxset->SetAntiFlick(true);
+
+    const float energy = fmin(10*iData.energy() / saturation_energy, 1.0);
 
     std::unordered_set<unsigned> cells = getCellsFromTriggerCell(iData.detId());
 
     for (std::unordered_set<unsigned>::const_iterator it = cells.begin(), itEnd = cells.end();
          it != itEnd; ++it)
     {
+        const bool z = (*it >> 25) & 0x1;
+
+        // discard everything thats not at the side that we are intersted in
+        if (
+            ((z_plus & z_minus) != 1) &&
+            (((z_plus | z_minus) == 0) || !(z == z_minus || z == !z_plus)))
+            continue;
+
         const float *corners = item()->getGeom()->getCorners(*it);
         const float *parameters = item()->getGeom()->getParameters(*it);
         const float *shapes = item()->getGeom()->getShapePars(*it);
@@ -136,6 +77,30 @@ void FWHGCalTriggerCellProxyBuilder::build(const l1t::HGCalTriggerCell &iData, u
 
         const int total_points = parameters[0];
         const bool isScintillator = (total_points == 4);
+        const uint8_t type = ((*it >> 28) & 0xF);
+
+        uint8_t ll = layer;
+        if (layer > 0)
+        {
+            if (layer > 28)
+            {
+                if (type == 8)
+                {
+                    continue;
+                }
+                ll -= 28;
+            }
+            else
+            {
+                if (type != 8)
+                {
+                    continue;
+                }
+            }
+
+            if (ll != ((*it >> (isScintillator ? 17 : 20)) & 0x1F))
+                continue;
+        }
 
         // Scintillator
         if (isScintillator)
@@ -154,6 +119,7 @@ void FWHGCalTriggerCellProxyBuilder::build(const l1t::HGCalTriggerCell &iData, u
                 pnts[(i * 3 + 2) + total_vertices] = corners[i * 3 + 2] + shapes[3];
             }
             boxset->AddBox(&pnts[0]);
+            boxset->DigitColor(energy*255, 0, 255 - energy*255);
 
             h_box = true;
         }
@@ -167,6 +133,7 @@ void FWHGCalTriggerCellProxyBuilder::build(const l1t::HGCalTriggerCell &iData, u
             float radius = fabs(corners[6] - corners[6 + offset]) / 2;
             hex_boxset->AddHex(TEveVector(centerX, centerY, corners[2]),
                                radius, 90.0, shapes[3]);
+            hex_boxset->DigitColor(energy*255, 0, 255 - energy*255);
 
             h_hex = true;
         }
@@ -177,10 +144,13 @@ void FWHGCalTriggerCellProxyBuilder::build(const l1t::HGCalTriggerCell &iData, u
         hex_boxset->RefitPlex();
 
         hex_boxset->CSCTakeAnyParentAsMaster();
-        hex_boxset->CSCApplyMainColorToMatchingChildren();
-        hex_boxset->CSCApplyMainTransparencyToMatchingChildren();
-        hex_boxset->SetMainColor(item()->modelInfo(iIndex).displayProperties().color());
-        hex_boxset->SetMainTransparency(item()->defaultDisplayProperties().transparency());
+        if (!heatmap)
+        {
+            hex_boxset->CSCApplyMainColorToMatchingChildren();
+            hex_boxset->CSCApplyMainTransparencyToMatchingChildren();
+            hex_boxset->SetMainColor(item()->modelInfo(iIndex).displayProperties().color());
+            hex_boxset->SetMainTransparency(item()->defaultDisplayProperties().transparency());
+        }
         oItemHolder.AddElement(hex_boxset);
     }
 
@@ -189,10 +159,13 @@ void FWHGCalTriggerCellProxyBuilder::build(const l1t::HGCalTriggerCell &iData, u
         boxset->RefitPlex();
 
         boxset->CSCTakeAnyParentAsMaster();
-        boxset->CSCApplyMainColorToMatchingChildren();
-        boxset->CSCApplyMainTransparencyToMatchingChildren();
-        boxset->SetMainColor(item()->modelInfo(iIndex).displayProperties().color());
-        boxset->SetMainTransparency(item()->defaultDisplayProperties().transparency());
+        if (!heatmap)
+        {
+            boxset->CSCApplyMainColorToMatchingChildren();
+            boxset->CSCApplyMainTransparencyToMatchingChildren();
+            boxset->SetMainColor(item()->modelInfo(iIndex).displayProperties().color());
+            boxset->SetMainTransparency(item()->defaultDisplayProperties().transparency());
+        }
         oItemHolder.AddElement(boxset);
     }
 }
