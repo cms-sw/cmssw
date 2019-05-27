@@ -67,6 +67,7 @@ histoMax_C3d_params = cms.PSet(type_multicluster=cms.string('HistoMaxC3d'),
                                dR_multicluster=cms.double(0.03),
                                dR_multicluster_byLayer_coefficientA=cms.vdouble(),
                                dR_multicluster_byLayer_coefficientB=cms.vdouble(),
+                               shape_threshold=cms.double(1.),
                                minPt_multicluster=cms.double(0.5),  # minimum pt of the multicluster (GeV)
                                nBins_R_histo_multicluster=cms.uint32(36),
                                nBins_Phi_histo_multicluster=cms.uint32(216),
