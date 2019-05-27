@@ -54,9 +54,9 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
 
   std::string creatorName = creatorPSet.getParameter<std::string>("ComponentName");
 
-  theGenerator = std::make_unique<SeedGeneratorFromRegionHits>(OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC),
+  theGenerator = std::make_unique<SeedGeneratorFromRegionHits>(std::unique_ptr<OrderedHitsGenerator>{OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC)},
                                                                std::move(aComparitor),
-                                                               SeedCreatorFactory::get()->create( creatorName, creatorPSet));
+                                                               std::unique_ptr<SeedCreator>{SeedCreatorFactory::get()->create( creatorName, creatorPSet)});
 
   produces<TrajectorySeedCollection>();
 }
