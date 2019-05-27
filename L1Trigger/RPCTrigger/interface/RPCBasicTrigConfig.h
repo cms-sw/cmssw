@@ -3,7 +3,7 @@
 
 #ifndef _STAND_ALONE
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#endif //_STAND_ALONE
+#endif  //_STAND_ALONE
 
 #include "L1Trigger/RPCTrigger/interface/RPCTriggerConfiguration.h"
 #include "L1Trigger/RPCTrigger/interface/RPCPacManager.h"
@@ -11,10 +11,10 @@
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 //#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 //---------------------------------------------------------------------------
-class RPCBasicTrigConfig: public RPCTriggerConfiguration {
+class RPCBasicTrigConfig : public RPCTriggerConfiguration {
 public:
   RPCBasicTrigConfig(RPCPacManager<RPCPacData>* pacManager);
-  
+
   RPCBasicTrigConfig();
 
   ///returns count of Trigger Crates in system.
@@ -55,7 +55,7 @@ private:
 
   static const int m_TB_IN_TC_CNT = 9;
 
-  static const int m_TOWER_ON_TB[2 * RPCConst::ITOW_MAX + 1 +1];
+  static const int m_TOWER_ON_TB[2 * RPCConst::ITOW_MAX + 1 + 1];
 
   static const int m_TOWERS_CNT_ON_TB[m_TB_IN_TC_CNT];
 

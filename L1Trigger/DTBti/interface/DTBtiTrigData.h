@@ -37,134 +37,91 @@
 typedef unsigned char myint8;
 
 class DTBtiTrigData : public DTTrigData {
-
- public:
-
+public:
   //! Constructor
   DTBtiTrigData() {}
-  
-  //! Destructor 
+
+  //! Destructor
   ~DTBtiTrigData() override {}
 
   //! Set the parent BTI identifier
-  inline void setParent(DTBtiId btiid) {
-    _btiid = btiid; 
-  }  
+  inline void setParent(DTBtiId btiid) { _btiid = btiid; }
 
   //! Set trigger step
-  inline void setStep(int step) {
-    _step = step;
-  }
+  inline void setStep(int step) { _step = step; }
 
   //! Set trigger code
-  inline void setCode(int code) {
-    _code = code;
-  }
+  inline void setCode(int code) { _code = code; }
 
   //! Set trigger K parameter
-  inline void setK(int k) {
-    _Kval = k; 
-  }
+  inline void setK(int k) { _Kval = k; }
 
   //! Set trigger X parameter
-  inline void setX(int x) {
-    _Xval = x;
-  }
+  inline void setX(int x) { _Xval = x; }
 
   //! Set triggering equation
-  inline void setEq(int eq) {
-    _eq = eq;
-  }
+  inline void setEq(int eq) { _eq = eq; }
 
   //! Set trigger strobe
-  inline void setStrobe(int str) {
-    _str = str;
-  }
+  inline void setStrobe(int str) { _str = str; }
 
   //! Set trigger _Keq
-  inline void setKeq(int num, float Keq) {
-    _Keq[num] = Keq;
-  }
+  inline void setKeq(int num, float Keq) { _Keq[num] = Keq; }
 
   //! Clear
   void clear() {
     _step = 0;
     _eq = 0;
-    _code = 0; 
-    _Kval = 9999; 
+    _code = 0;
+    _Kval = 9999;
     _Xval = 0;
     _str = -1;
-    for(int j=0;j<6;j++)
-	_Keq[j]=-1;
-  }  
+    for (int j = 0; j < 6; j++)
+      _Keq[j] = -1;
+  }
 
   //! Return chamber identifier
-  DTChamberId ChamberId() const override {
-    return DTChamberId(_btiid.wheel(),_btiid.station(),_btiid.sector()); 
-  }
+  DTChamberId ChamberId() const override { return DTChamberId(_btiid.wheel(), _btiid.station(), _btiid.sector()); }
 
   //! Print
   void print() const override;
 
   //! Return parent BTI identifier
-  inline DTBtiId parentId() const { 
-    return _btiid; 
-  }
-  
+  inline DTBtiId parentId() const { return _btiid; }
+
   //! Return superlayer identifier
-  inline DTSuperLayerId SLId() const {
-    return _btiid.SLId(); 
-  }
+  inline DTSuperLayerId SLId() const { return _btiid.SLId(); }
 
   //! Return parent BTI number
-  inline int btiNumber() const { 
-    return _btiid.bti(); 
-  }
-  
+  inline int btiNumber() const { return _btiid.bti(); }
+
   //! Return parent BTI superlayer
-  inline int btiSL() const { 
-    return _btiid.superlayer(); 
-  }
-  
+  inline int btiSL() const { return _btiid.superlayer(); }
+
   //! Return trigger step
-  inline int step() const { 
-    return _step; 
-  }
+  inline int step() const { return _step; }
 
   //! Return trigger code
-  inline int code() const { 
-    return _code; 
-  }
-  
+  inline int code() const { return _code; }
+
   //! Return trigger K parameter
-  inline int K() const { 
-    return _Kval; 
-  }
-  
+  inline int K() const { return _Kval; }
+
   //! Return trigger X parameter
-  inline int X() const { 
-    return _Xval; 
-  }
+  inline int X() const { return _Xval; }
 
   //! Return triggering equation
-  inline int eq() const { 
-    return _eq; 
-  }
+  inline int eq() const { return _eq; }
 
   //! Return trigger strobe
-  inline int Strobe() const{ 
-    return _str; 
-  }
+  inline int Strobe() const { return _str; }
 
   //! Return triggering K equations
-  inline float Keq(int i) const { 
-    return _Keq[i]; 
-  }
+  inline float Keq(int i) const { return _Keq[i]; }
 
- private:
-
+private:
   // Parent BTI identifier
-  DTBtiId _btiid; // this is 5 bytes
+  DTBtiId _btiid;  // this is 5 bytes
 
   // output values
   myint8 _code;
@@ -175,7 +132,6 @@ class DTBtiTrigData : public DTTrigData {
   myint8 _eq;
   int _str;
   float _Keq[6];
-
 };
 
 #endif

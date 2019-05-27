@@ -30,32 +30,27 @@
 #include "L1Trigger/RPCTrigger/interface/RPCStripsRing.h"
 
 class RPCConeBuilder : public edm::ESProducer {
-   public:
+public:
+  RPCConeBuilder(const edm::ParameterSet&);
 
-      RPCConeBuilder(const edm::ParameterSet&);
+  using ReturnType = std::unique_ptr<L1RPCConeBuilder>;
 
-      using ReturnType = std::unique_ptr<L1RPCConeBuilder>;
+  ReturnType produce(const L1RPCConeBuilderRcd&);
 
-      ReturnType produce(const L1RPCConeBuilderRcd&);
+private:
+  void buildCones(RPCGeometry const*, L1RPCConeDefinition const*, RPCStripsRing::TIdToRindMap&);
 
-   private:
+  void buildConnections(L1RPCConeDefinition const*, RPCStripsRing::TIdToRindMap&);
 
-      void buildCones(RPCGeometry const*,
-                      L1RPCConeDefinition const*,
-                      RPCStripsRing::TIdToRindMap&);
+  /// In the pair that is returned, the first element is the logplane number
+  /// for this connection (if not connected returns -1) and the second element
+  /// is lpSize.
+  std::pair<int, int> areConnected(RPCStripsRing::TIdToRindMap::iterator ref,
+                                   RPCStripsRing::TIdToRindMap::iterator other,
+                                   L1RPCConeDefinition const*);
 
-      void buildConnections(L1RPCConeDefinition const*,
-                            RPCStripsRing::TIdToRindMap&);
-
-      /// In the pair that is returned, the first element is the logplane number
-      /// for this connection (if not connected returns -1) and the second element
-      /// is lpSize.
-      std::pair<int, int> areConnected(RPCStripsRing::TIdToRindMap::iterator ref,
-                                       RPCStripsRing::TIdToRindMap::iterator other,
-                                       L1RPCConeDefinition const*);
-
-      // ----------member data ---------------------------
-      int m_towerBeg;
-      int m_towerEnd;
+  // ----------member data ---------------------------
+  int m_towerBeg;
+  int m_towerEnd;
 };
 #endif
