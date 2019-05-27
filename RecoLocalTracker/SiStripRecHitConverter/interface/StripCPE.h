@@ -37,7 +37,7 @@ public:
     float thickness, invThickness, pitch_rel_err2, maxLength;
     int nstrips;
     float backplanecorrection;
-    SiStripDetId::ModuleGeometry moduleGeom;
+    SiStripModuleGeometry moduleGeom;
     float coveredStrips(const LocalVector&, const LocalPoint&) const;
   };
 

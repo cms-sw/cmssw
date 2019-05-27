@@ -69,7 +69,7 @@ SiStripBackPlaneCorrectionFakeESSource::produce(const SiStripBackPlaneCorrection
 
   const edm::Service<SiStripDetInfoFileReader> reader;
   for ( const auto& detId : reader->getAllDetIds() ) {
-    unsigned int moduleGeometry = tTopo->moduleGeometry(DetId(detId))-1;
+    const auto moduleGeometry = static_cast<unsigned int>(tTopo->moduleGeometry(DetId(detId)))-1;
     if ( moduleGeometry > m_valuePerModuleGeometry.size() ) {
       edm::LogError("SiStripBackPlaneCorrectionGenerator") << " BackPlaneCorrection_PerModuleGeometry only contains " << m_valuePerModuleGeometry.size() << "elements and module is out of range";
     }

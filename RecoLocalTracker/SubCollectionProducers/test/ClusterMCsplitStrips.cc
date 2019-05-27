@@ -45,7 +45,7 @@ private:
   edm::ESHandle<TrackerTopology> tTopoHandle_;
 
   std::vector<std::string> moduleTypeStrings_;
-  std::vector<int> moduleTypeCodes_;
+  std::vector<SiStripModuleGeometry> moduleTypeCodes_;
 
 };
 
@@ -61,20 +61,20 @@ ClusterMCsplitStrips(const edm::ParameterSet& conf)
   stripdigisimlinkToken = consumes< edm::DetSetVector<StripDigiSimLink> >(edm::InputTag("simSiStripDigis"));
   moduleTypeStrings_ = confClusterRefiner_.getParameter<std::vector<std::string> >("moduleTypes");
   for (auto mod = moduleTypeStrings_.begin(); mod != moduleTypeStrings_.end(); ++mod) {
-    if (*mod == "IB1") moduleTypeCodes_.push_back(SiStripDetId::IB1);
-    if (*mod == "IB2") moduleTypeCodes_.push_back(SiStripDetId::IB2);
-    if (*mod == "OB1") moduleTypeCodes_.push_back(SiStripDetId::OB1);
-    if (*mod == "OB2") moduleTypeCodes_.push_back(SiStripDetId::OB2);
-    if (*mod == "W1A") moduleTypeCodes_.push_back(SiStripDetId::W1A);
-    if (*mod == "W2A") moduleTypeCodes_.push_back(SiStripDetId::W2A);
-    if (*mod == "W3A") moduleTypeCodes_.push_back(SiStripDetId::W3A);
-    if (*mod == "W1B") moduleTypeCodes_.push_back(SiStripDetId::W1B);
-    if (*mod == "W2B") moduleTypeCodes_.push_back(SiStripDetId::W2B);
-    if (*mod == "W3B") moduleTypeCodes_.push_back(SiStripDetId::W3B);
-    if (*mod == "W4") moduleTypeCodes_.push_back(SiStripDetId::W4);
-    if (*mod == "W5") moduleTypeCodes_.push_back(SiStripDetId::W5);
-    if (*mod == "W6") moduleTypeCodes_.push_back(SiStripDetId::W6);
-    if (*mod == "W7") moduleTypeCodes_.push_back(SiStripDetId::W7);
+    if (*mod == "IB1") moduleTypeCodes_.push_back(SiStripModuleGeometry::IB1);
+    if (*mod == "IB2") moduleTypeCodes_.push_back(SiStripModuleGeometry::IB2);
+    if (*mod == "OB1") moduleTypeCodes_.push_back(SiStripModuleGeometry::OB1);
+    if (*mod == "OB2") moduleTypeCodes_.push_back(SiStripModuleGeometry::OB2);
+    if (*mod == "W1A") moduleTypeCodes_.push_back(SiStripModuleGeometry::W1A);
+    if (*mod == "W2A") moduleTypeCodes_.push_back(SiStripModuleGeometry::W2A);
+    if (*mod == "W3A") moduleTypeCodes_.push_back(SiStripModuleGeometry::W3A);
+    if (*mod == "W1B") moduleTypeCodes_.push_back(SiStripModuleGeometry::W1B);
+    if (*mod == "W2B") moduleTypeCodes_.push_back(SiStripModuleGeometry::W2B);
+    if (*mod == "W3B") moduleTypeCodes_.push_back(SiStripModuleGeometry::W3B);
+    if (*mod == "W4") moduleTypeCodes_.push_back(SiStripModuleGeometry::W4);
+    if (*mod == "W5") moduleTypeCodes_.push_back(SiStripModuleGeometry::W5);
+    if (*mod == "W6") moduleTypeCodes_.push_back(SiStripModuleGeometry::W6);
+    if (*mod == "W7") moduleTypeCodes_.push_back(SiStripModuleGeometry::W7);
   }
 }
 
