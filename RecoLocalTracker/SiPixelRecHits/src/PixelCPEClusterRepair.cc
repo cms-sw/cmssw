@@ -81,15 +81,16 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
 	 << "\nERROR: Template ID " << forwardTemplateID_ << " not loaded correctly from text file. Reconstruction will fail.\n\n";
    }
    
+   speed_ = conf.getParameter<int>( "speed");
+   LogDebug("PixelCPEClusterRepair::PixelCPEClusterRepair:") <<
+   "Template speed = " << speed_ << "\n";
+
    GlobalPoint center(0.0, 0.0, 0.0);
    float theMagField = mag->inTesla(center).mag();
 
    if(theMagField>=3.65 && theMagField<3.9){
      templateDBobject2D_ = templateDBobject2D;
      fill2DTemplIDs();
-     speed_ = conf.getParameter<int>( "speed");
-     LogDebug("PixelCPEClusterRepair::PixelCPEClusterRepair:") <<
-       "Template speed = " << speed_ << "\n";
    }
 
    UseClusterSplitter_ = conf.getParameter<bool>("UseClusterSplitter");   
@@ -109,7 +110,7 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
    }
 
    // do not recommend 2D if theMagField!=3.8
-   if(theMagField>=3.65 && theMagField<3.9){
+   if(theMagField<3.65 || theMagField > 3.9){
      recommend2D_.clear();
    }
 
