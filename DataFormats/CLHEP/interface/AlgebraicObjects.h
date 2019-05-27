@@ -4,7 +4,8 @@
 #ifdef HEP_SHORT_NAMES
 #undef HEP_SHORT_NAMES
 #endif
-
+#include <vector>
+#include <ostream>
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/SymMatrix.h"
