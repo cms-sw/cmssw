@@ -1197,6 +1197,7 @@ step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
                          '--conditions':'auto:run2_mc_FULL'
                          },
                         step1Defaults])
+step1LHEGenDQM = merge([{'-s':'LHE,GEN,VALIDATION:genvalid','--datatier'    : 'GEN-SIM,LHE,DQMIO','--eventcontent': 'LHE,RAWSIM,DQM'},step1GenDefaults])
 
 step1HadronizerDefaults=merge([{'--datatier':'GEN-SIM,DQMIO',
                            '--relval':'200000,5000'
@@ -1352,7 +1353,7 @@ steps['sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER']=genvalid('sherpa_ZtoEE_0j_BlackHa
 steps['sherpa_ZtoEE_0j_OpenLoops_13TeV_MASTER']=genvalid('sherpa_ZtoEE_0j_OpenLoops_13TeV_MASTER_cff',step1GenDefaults)
 
 #Herwig7
-steps['TTbar_13TeV_Pow_herwig7']=genvalid('Configuration/Generator/python/TT_13TeV_Pow_Herwig7_cff',step1LHEGenSimDQM)
+steps['TTbar_13TeV_Pow_herwig7']=genvalid('Configuration/Generator/python/TT_13TeV_Pow_Herwig7_cff',step1LHEGenDQM)
 
 
 # Heavy Ion
