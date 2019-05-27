@@ -165,7 +165,7 @@ def flatten_file(file, run_nr):
    return result
 
 def traverse_till_end(node, dirs_list, result, run_nr):
-   new_dir_list = dirs_list + [get_node_name(node)]
+   new_dir_list = dirs_list + [node.GetName()]
    if hasattr(node, 'GetListOfKeys'): 
       for key in node.GetListOfKeys():
          traverse_till_end(key.ReadObj(), new_dir_list, result, run_nr)
@@ -173,13 +173,6 @@ def traverse_till_end(node, dirs_list, result, run_nr):
       path = tuple(new_dir_list)
       if path not in get_blacklist(run_nr):
          result[path] = node
-
-def get_node_name(node):
-   if node.InheritsFrom('TObjString'):
-      # Strip out just the name from a tag (<name>value</name>)
-      return node.GetName().split('>')[0][1:]
-   else:
-      return node.GetName()
 
 def save_paths(flat_dict, paths, result_file_path):
    if len(paths) == 0:
