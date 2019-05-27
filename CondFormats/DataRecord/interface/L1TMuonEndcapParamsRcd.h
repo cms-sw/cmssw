@@ -2,7 +2,7 @@
 // Required to satisfy current convention for "Record" in "Global Tag Entries"
 // https://cms-conddb-prod.cern.ch/cmsDbBrowser/search/Prod/L1TMuonEndCapParams
 
-// L1TMuonEndcapParamsRcd                                                                                            
+// L1TMuonEndcapParamsRcd
 // Description: Record for L1TMuonEndcapParams
 //
 // automatically generate by make_records.pl

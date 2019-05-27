@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     LHCInfoRcd
-// 
+//
 /**\class LHCInfoRcd LHCInfoRcd.h CondFormats/DataRecord/interface/LHCInfoRcd.h
 
  Description: [one line class summary]
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Mon Mar 5 2018
 // $Id$
 //

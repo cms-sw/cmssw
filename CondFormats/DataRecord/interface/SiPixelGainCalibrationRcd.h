@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     SiPixelGainCalibrationRcd
-// 
+//
 /**\class SiPixelGainCalibrationRcd SiPixelGainCalibrationRcd.h CondFormats/DataRecord/interface/SiPixelGainCalibrationRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Tue Oct  3 19:11:28 CEST 2006
 // $Id$
 //

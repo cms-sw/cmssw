@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     CTPPSBeamParametersRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

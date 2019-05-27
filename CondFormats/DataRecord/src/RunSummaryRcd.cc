@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     RunNumberRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Thus 25 Sep 11:20:27 CEST 2008
 // $Id: RunSummaryRcd.h,v 1.1 2008/09/25 17:01:00 degrutto Exp $
 

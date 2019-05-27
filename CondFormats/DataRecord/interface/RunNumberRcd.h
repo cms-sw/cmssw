@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     RunNumberRcd
-// 
+//
 /**\class RunNumberRcd RunNumberRcd.h CondFormats/DataRecord/interface/RunNumberRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Wed May 28 11:20:27 CEST 2008
 // $Id$
 //

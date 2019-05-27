@@ -4,7 +4,7 @@
 //
 // Package:     Records
 // Class  :     HcalAlignmentRcd
-// 
+//
 //
 // Author:      Brian Heltsley
 // Created:     Tue April 1, 2008
@@ -18,15 +18,8 @@
 #include "CondFormats/AlignmentRecord/interface/HFAlignmentRcd.h"
 #include "boost/mpl/vector.hpp"
 
-
-class HcalAlignmentRcd : 
-   public edm::eventsetup::DependentRecordImplementation<
-   HcalAlignmentRcd,
-		boost::mpl::vector<
-                HBAlignmentRcd,
-                HOAlignmentRcd,
-                HEAlignmentRcd,
-                HFAlignmentRcd      > > {};
+class HcalAlignmentRcd : public edm::eventsetup::DependentRecordImplementation<
+                             HcalAlignmentRcd,
+                             boost::mpl::vector<HBAlignmentRcd, HOAlignmentRcd, HEAlignmentRcd, HFAlignmentRcd> > {};
 
 #endif /* RECORDS_HCALALIGNMENTRCD_H */
-

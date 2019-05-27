@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     RPCObCondRcd
-// 
+//
 /**\class RPCObCondRcd RPCObCondRcd.h CondFormats/DataRecord/interface/RPCObCondRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Fri Oct 10 20:02:37 CEST 2008
 // $Id$
 //

@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     PhysicsTGraphPayloadRcd
-// 
+//
 /**\class PhysicsTGraphPayloadRcd PhysicsTGraphPayloadRcd.h CondFormats/DataRecord/interface/PhysicsTGraphPayloadRcd.h
 
  Description: [one line class summary]

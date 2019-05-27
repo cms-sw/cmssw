@@ -2,7 +2,7 @@
 //
 // Package:     ZDCGeometry
 // Class  :     ZDCAlignmentErrorRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

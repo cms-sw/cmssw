@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     PhysicsTFormulaPayloadRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

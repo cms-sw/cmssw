@@ -5,5 +5,4 @@
 
 class TrackerAlignmentErrorRcd : public edm::eventsetup::EventSetupRecordImplementation<TrackerAlignmentErrorRcd> {};
 
-#endif 
-
+#endif
