@@ -12,7 +12,8 @@ HGCalHistoClusteringImpl::HGCalHistoClusteringImpl(const edm::ParameterSet& conf
                                    ? conf.getParameter<std::vector<double>>("dR_multicluster_byLayer_coefficientB")
                                    : std::vector<double>()),
       ptC3dThreshold_(conf.getParameter<double>("minPt_multicluster")),
-      cluster_association_input_(conf.getParameter<string>("cluster_association")) {
+      cluster_association_input_(conf.getParameter<string>("cluster_association")),
+      shape_(conf) {
   if (cluster_association_input_ == "NearestNeighbour") {
     cluster_association_strategy_ = NearestNeighbour;
   } else if (cluster_association_input_ == "EnergySplit") {
