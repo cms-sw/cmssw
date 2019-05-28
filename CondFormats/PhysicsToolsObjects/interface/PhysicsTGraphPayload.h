@@ -19,9 +19,8 @@
 #include <string>
 #include <iostream>
 
-class PhysicsTGraphPayload 
-{
- public:
+class PhysicsTGraphPayload {
+public:
   /// default constructor
   PhysicsTGraphPayload();
 
@@ -30,11 +29,11 @@ class PhysicsTGraphPayload
 
   /// conversion to TGraph
   operator TGraph() const;
-  
+
   /// print points of TGraph object
   void print(std::ostream& stream) const;
-  
- protected:
+
+protected:
   std::string name_;
   int numPoints_;
   std::vector<float> x_;

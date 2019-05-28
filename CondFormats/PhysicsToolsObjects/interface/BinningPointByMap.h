@@ -1,13 +1,12 @@
 #ifndef BinningPointByMap_h
 #define BinningPointByMap_h
 
-
 #include "CondFormats/PhysicsToolsObjects/interface/BinningVariables.h"
 
 #include <map>
 
 class BinningPointByMap {
- public:
+public:
   //  enum  BinningPointType{Eta=1, JetEt=2, Phi=3, NTracks=4};
 
   typedef std::map<BinningVariables::BinningVariablesType, float> BinningPointTypeMap;
@@ -18,14 +17,12 @@ class BinningPointByMap {
 
   bool isKeyAvailable(BinningVariables::BinningVariablesType);
 
-  void reset() {map_.clear();}
+  void reset() { map_.clear(); }
 
-  const BinningPointTypeMap & map(){return map_;}
-  
+  const BinningPointTypeMap& map() { return map_; }
 
- private:
+private:
   BinningPointTypeMap map_;
 };
-
 
 #endif

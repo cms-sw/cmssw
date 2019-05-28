@@ -5,16 +5,15 @@
 #include "CondFormats/HcalObjects/interface/HcalSiPMParameter.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
-class HcalSiPMParameters: public HcalCondObjectContainer<HcalSiPMParameter> {
-
+class HcalSiPMParameters : public HcalCondObjectContainer<HcalSiPMParameter> {
 public:
-  //constructor definition: has to contain 
+  //constructor definition: has to contain
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalSiPMParameters():HcalCondObjectContainer<HcalSiPMParameter>(nullptr) {}
+  HcalSiPMParameters() : HcalCondObjectContainer<HcalSiPMParameter>(nullptr) {}
 #endif
-  HcalSiPMParameters(const HcalTopology* topo):HcalCondObjectContainer<HcalSiPMParameter>(topo) {}
+  HcalSiPMParameters(const HcalTopology* topo) : HcalCondObjectContainer<HcalSiPMParameter>(topo) {}
 
-  std::string myname() const override {return (std::string)"HcalSiPMParameters";}
+  std::string myname() const override { return (std::string) "HcalSiPMParameters"; }
 
   COND_SERIALIZABLE;
 };

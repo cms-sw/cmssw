@@ -7,8 +7,9 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include <vector>
 
-template<class Item> bool hcalEqualDetId(Item* cell, const DetId& fId) {
-  return hcalEqualDetId(cell->rawId(),fId);
+template <class Item>
+bool hcalEqualDetId(Item* cell, const DetId& fId) {
+  return hcalEqualDetId(cell->rawId(), fId);
 }
 
 bool hcalEqualDetId(uint32_t id, const DetId& fId);

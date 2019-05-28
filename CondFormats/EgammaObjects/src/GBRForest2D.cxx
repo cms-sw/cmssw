@@ -3,13 +3,5 @@
 #include "TMVA/DecisionTree.h"
 #include "TMVA/MethodBDT.h"
 
-
-
 //_______________________________________________________________________
-GBRForest2D::GBRForest2D() : 
-  fInitialResponseX(0.),
-  fInitialResponseY(0.)
-{
-
-}
-
+GBRForest2D::GBRForest2D() : fInitialResponseX(0.), fInitialResponseY(0.) {}

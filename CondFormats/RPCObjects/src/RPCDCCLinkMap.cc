@@ -1,4 +1,3 @@
 #include "CondFormats/RPCObjects/interface/RPCDCCLinkMap.h"
 
-RPCDCCLinkMap::RPCDCCLinkMap()
-{}
+RPCDCCLinkMap::RPCDCCLinkMap() {}

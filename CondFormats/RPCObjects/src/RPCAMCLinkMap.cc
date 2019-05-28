@@ -1,4 +1,3 @@
 #include "CondFormats/RPCObjects/interface/RPCAMCLinkMap.h"
 
-RPCAMCLinkMap::RPCAMCLinkMap()
-{}
+RPCAMCLinkMap::RPCAMCLinkMap() {}

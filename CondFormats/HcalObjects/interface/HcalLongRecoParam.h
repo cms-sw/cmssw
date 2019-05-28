@@ -13,23 +13,25 @@ POOL object to store timeslice reco values, long version (for ZDC)
 #include <vector>
 
 class HcalLongRecoParam {
- public:
-  HcalLongRecoParam():mId(0) {}
+public:
+  HcalLongRecoParam() : mId(0) {}
 
-  HcalLongRecoParam(unsigned long fId, const std::vector<unsigned int>& fSignalTS, const std::vector<unsigned int>& fNoiseTS):
-    mId(fId), mSignalTS(fSignalTS), mNoiseTS(fNoiseTS) {}
+  HcalLongRecoParam(unsigned long fId,
+                    const std::vector<unsigned int>& fSignalTS,
+                    const std::vector<unsigned int>& fNoiseTS)
+      : mId(fId), mSignalTS(fSignalTS), mNoiseTS(fNoiseTS) {}
 
-  uint32_t rawId () const {return mId;}
+  uint32_t rawId() const { return mId; }
 
-  std::vector<unsigned int> signalTS() const {return mSignalTS;}
-  std::vector<unsigned int> noiseTS() const {return mNoiseTS;}
+  std::vector<unsigned int> signalTS() const { return mSignalTS; }
+  std::vector<unsigned int> noiseTS() const { return mNoiseTS; }
 
- private:
+private:
   uint32_t mId;
   std::vector<uint32_t> mSignalTS;
   std::vector<uint32_t> mNoiseTS;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

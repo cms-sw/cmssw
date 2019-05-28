@@ -21,38 +21,35 @@ $Revision: 1.13 $
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-
-class HcalQIEData: public HcalCondObjectContainer<HcalQIECoder>
-{
- public:
+class HcalQIEData : public HcalCondObjectContainer<HcalQIECoder> {
+public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalQIEData():HcalCondObjectContainer<HcalQIECoder>(nullptr) {setupShape();}
+  HcalQIEData() : HcalCondObjectContainer<HcalQIECoder>(nullptr) { setupShape(); }
 #endif
   // constructor, destructor, and all methods stay the same
-  HcalQIEData(const HcalTopology* topo):HcalCondObjectContainer<HcalQIECoder>(topo) {setupShape();}
+  HcalQIEData(const HcalTopology* topo) : HcalCondObjectContainer<HcalQIECoder>(topo) { setupShape(); }
 
-  void setupShape();  
+  void setupShape();
   /// get basic shape
   //   const HcalQIEShape& getShape () const {return mShape;}
-   const HcalQIEShape& getShape (int qieType) const { return mShape[qieType];}
+  const HcalQIEShape& getShape(int qieType) const { return mShape[qieType]; }
   /// get QIE parameters
-  const HcalQIECoder* getCoder (DetId fId) const { return getValues(fId); }
+  const HcalQIECoder* getCoder(DetId fId) const { return getValues(fId); }
   // check if data are sorted - remove in the next version
-  bool sorted () const { return true; }
+  bool sorted() const { return true; }
   // fill values [capid][range]
-  bool addCoder (const HcalQIECoder& fCoder) { return addValues(fCoder); }
-  // sort values by channelId - remove in the next version  
-  void sort () {}
-  
-  std::string myname() const override {return (std::string)"HcalQIEData";}
+  bool addCoder(const HcalQIECoder& fCoder) { return addValues(fCoder); }
+  // sort values by channelId - remove in the next version
+  void sort() {}
+
+  std::string myname() const override { return (std::string) "HcalQIEData"; }
 
   //not needed/not used  HcalQIEData(const HcalQIEData&);
 
- private:
+private:
   HcalQIEShape mShape[2] COND_TRANSIENT;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif
