@@ -20,25 +20,23 @@
 #include <vector>
 
 class DQMProvInfo : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
- public:
+public:
   // Constructor
   DQMProvInfo(const edm::ParameterSet& ps);
   // Destructor
   ~DQMProvInfo() override;
 
- protected:
-  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override ;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock& l,
-                            const edm::EventSetup& c) override;
+protected:
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void endLuminosityBlock(const edm::LuminosityBlock& l,
-                          const edm::EventSetup& c) override;
+  void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
 
- private:
-  void bookHistogramsLhcInfo(DQMStore::IBooker &);
-  void bookHistogramsEventInfo(DQMStore::IBooker &);
-  void bookHistogramsProvInfo(DQMStore::IBooker &);
+private:
+  void bookHistogramsLhcInfo(DQMStore::IBooker&);
+  void bookHistogramsEventInfo(DQMStore::IBooker&);
+  void bookHistogramsProvInfo(DQMStore::IBooker&);
 
   void analyzeLhcInfo(const edm::Event& e);
   void analyzeEventInfo(const edm::Event& e);
@@ -142,7 +140,7 @@ class DQMProvInfo : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
   std::string hltKey_;
   MonitorElement* hostName_;
   MonitorElement* hIsCollisionsRun_;
-  MonitorElement* processId_; // The PID associated with this job
+  MonitorElement* processId_;  // The PID associated with this job
   MonitorElement* workingDir_;
 };
 

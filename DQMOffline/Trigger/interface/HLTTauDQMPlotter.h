@@ -32,21 +32,21 @@ struct HLTTauDQMOfflineObjects {
 //Virtual base class for HLT-Tau-DQM Plotters
 class HLTTauDQMPlotter {
 public:
-    HLTTauDQMPlotter(const edm::ParameterSet& pset, std::string  dqmBaseFolder);
-    HLTTauDQMPlotter(const std::string& dqmFolder, const std::string& dqmBaseFolder);
-    ~HLTTauDQMPlotter();
-    bool isValid() const { return configValid_; }
+  HLTTauDQMPlotter(const edm::ParameterSet& pset, std::string dqmBaseFolder);
+  HLTTauDQMPlotter(const std::string& dqmFolder, const std::string& dqmBaseFolder);
+  ~HLTTauDQMPlotter();
+  bool isValid() const { return configValid_; }
 
 protected:
-    //Helper functions
-    std::pair<bool,LV> match( const LV&, const LVColl&, double );    
-    const std::string& triggerTag() const { return dqmFullFolder_; }
-    
-    //DQM folders
-    std::string dqmFullFolder_;
-    std::string dqmFolder_;
-    
-    //Validity check
-    bool configValid_;
+  //Helper functions
+  std::pair<bool, LV> match(const LV&, const LVColl&, double);
+  const std::string& triggerTag() const { return dqmFullFolder_; }
+
+  //DQM folders
+  std::string dqmFullFolder_;
+  std::string dqmFolder_;
+
+  //Validity check
+  bool configValid_;
 };
 #endif

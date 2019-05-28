@@ -40,38 +40,35 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-
 class GenericTriggerEventFlag;
 
 //
 // class declaration
 //
 
-class METplusTrackMonitor : public DQMEDAnalyzer, public TriggerDQMBase
-{
+class METplusTrackMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
 public:
-
-  METplusTrackMonitor( const edm::ParameterSet& );
-  ~METplusTrackMonitor() noexcept(true) override { }
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  METplusTrackMonitor(const edm::ParameterSet &);
+  ~METplusTrackMonitor() noexcept(true) override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
-
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+  void analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) override;
 
 private:
-
-  bool getHLTObj(const edm::Handle<trigger::TriggerEvent> &trigSummary, const edm::InputTag& filterTag, trigger::TriggerObject &obj) const;
+  bool getHLTObj(const edm::Handle<trigger::TriggerEvent> &trigSummary,
+                 const edm::InputTag &filterTag,
+                 trigger::TriggerObject &obj) const;
 
   std::string folderName_;
   std::string histoSuffix_;
 
   edm::EDGetTokenT<reco::CaloMETCollection> metToken_;
-  edm::EDGetTokenT<reco::MuonCollection>    muonToken_;
-  edm::EDGetTokenT<reco::PFJetCollection>   jetToken_;
-  edm::EDGetTokenT<reco::VertexCollection>  vtxToken_;
-  edm::EDGetTokenT<trigger::TriggerEvent>   theTrigSummary_;
+  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> jetToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+  edm::EDGetTokenT<trigger::TriggerEvent> theTrigSummary_;
 
   edm::InputTag hltMetTag_;
   edm::InputTag hltMetCleanTag_;
@@ -103,9 +100,9 @@ private:
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
   StringCutObjectSelector<reco::CaloMET, true> metSelection_;
-  StringCutObjectSelector<reco::Muon, true>    muonSelection_;
-  StringCutObjectSelector<reco::PFJet, true>   jetSelection_;
-  StringCutObjectSelector<reco::Vertex, true>  vtxSelection_;
+  StringCutObjectSelector<reco::Muon, true> muonSelection_;
+  StringCutObjectSelector<reco::PFJet, true> jetSelection_;
+  StringCutObjectSelector<reco::Vertex, true> vtxSelection_;
 
   unsigned nmuons_;
   unsigned njets_;
@@ -114,8 +111,6 @@ private:
 
   bool requireLeadMatched_;
   double maxMatchDeltaR_;
-
 };
 
-#endif // DQMOFFLINE_TRIGGER_METPLUSTRACKMONITOR_H
-
+#endif  // DQMOFFLINE_TRIGGER_METPLUSTRACKMONITOR_H

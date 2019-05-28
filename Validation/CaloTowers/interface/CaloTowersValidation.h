@@ -1,6 +1,5 @@
 #ifndef CaloTowersValidation_H
 #define CaloTowersValidation_H
- 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -12,7 +11,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
@@ -31,19 +29,19 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 class CaloTowersValidation : public DQMEDAnalyzer {
- public:
-   CaloTowersValidation(edm::ParameterSet const& conf);
+public:
+  CaloTowersValidation(edm::ParameterSet const& conf);
   ~CaloTowersValidation() override;
   void analyze(edm::Event const& e, edm::EventSetup const& c) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
- private:
+private:
   double dR(double eta1, double phi1, double eta2, double phi2);
-   
+
   std::string outputFile_;
   std::string hcalselector_;
   std::string mc_;
-  bool        useAllHistos_;
+  bool useAllHistos_;
 
   typedef math::RhoEtaPhiVector Vector;
 
@@ -60,23 +58,23 @@ class CaloTowersValidation : public DQMEDAnalyzer {
   double etaMin[3];
 
   // ieta scan
-  MonitorElement*  emean_vs_ieta_E;
-  MonitorElement*  emean_vs_ieta_H;
-  MonitorElement*  emean_vs_ieta_EH;
+  MonitorElement* emean_vs_ieta_E;
+  MonitorElement* emean_vs_ieta_H;
+  MonitorElement* emean_vs_ieta_EH;
 
-  MonitorElement*  emean_vs_ieta_E1;
-  MonitorElement*  emean_vs_ieta_H1;
-  MonitorElement*  emean_vs_ieta_EH1;
+  MonitorElement* emean_vs_ieta_E1;
+  MonitorElement* emean_vs_ieta_H1;
+  MonitorElement* emean_vs_ieta_EH1;
 
   MonitorElement* Ntowers_vs_ieta;
   MonitorElement* occupancy_map;
   MonitorElement* occupancy_vs_ieta;
 
   // Global maps
-  MonitorElement*  mapEnergy_E;
-  MonitorElement*  mapEnergy_H;
-  MonitorElement*  mapEnergy_EH;
-  MonitorElement*  mapEnergy_N;
+  MonitorElement* mapEnergy_E;
+  MonitorElement* mapEnergy_H;
+  MonitorElement* mapEnergy_EH;
+  MonitorElement* mapEnergy_N;
 
   // for number of bad, recovered and problematic Ecal and Hcal cells
   MonitorElement* numBadCellsEcal_EB;
@@ -94,13 +92,13 @@ class CaloTowersValidation : public DQMEDAnalyzer {
   MonitorElement* numRcvCellsHcal_HF;
   MonitorElement* numPrbCellsHcal_HB;
   MonitorElement* numPrbCellsHcal_HE;
-  MonitorElement* numPrbCellsHcal_HF; 
+  MonitorElement* numPrbCellsHcal_HF;
 
   // HB
   MonitorElement* meEnergyHcalvsEcal_HB;
-  MonitorElement* meEnergyHO_HB; 
-  MonitorElement* meEnergyEcal_HB; 
-  MonitorElement* meEnergyHcal_HB; 
+  MonitorElement* meEnergyHO_HB;
+  MonitorElement* meEnergyEcal_HB;
+  MonitorElement* meEnergyHcal_HB;
   MonitorElement* meNumFiredTowers_HB;
 
   MonitorElement* meEnergyEcalTower_HB;
@@ -133,9 +131,9 @@ class CaloTowersValidation : public DQMEDAnalyzer {
 
   // HE
   MonitorElement* meEnergyHcalvsEcal_HE;
-  MonitorElement* meEnergyHO_HE; 
-  MonitorElement* meEnergyEcal_HE; 
-  MonitorElement* meEnergyHcal_HE; 
+  MonitorElement* meEnergyHO_HE;
+  MonitorElement* meEnergyEcal_HE;
+  MonitorElement* meEnergyHcal_HE;
   MonitorElement* meNumFiredTowers_HE;
 
   MonitorElement* meEnergyEcalTower_HE;
@@ -164,9 +162,9 @@ class CaloTowersValidation : public DQMEDAnalyzer {
 
   // HF
   MonitorElement* meEnergyHcalvsEcal_HF;
-  MonitorElement* meEnergyHO_HF; 
-  MonitorElement* meEnergyEcal_HF; 
-  MonitorElement* meEnergyHcal_HF; 
+  MonitorElement* meEnergyHO_HF;
+  MonitorElement* meEnergyEcal_HF;
+  MonitorElement* meEnergyHcal_HF;
   MonitorElement* meNumFiredTowers_HF;
 
   MonitorElement* meEnergyEcalTower_HF;
@@ -189,7 +187,6 @@ class CaloTowersValidation : public DQMEDAnalyzer {
   MonitorElement* hadEnergyTiming_HF;
   MonitorElement* hadEnergyTiming_profile_Low_HF;
   MonitorElement* hadEnergyTiming_profile_HF;
-
 };
 
 #endif

@@ -6,7 +6,7 @@
 // rejection.
 // Based on DQMOffline/Trigger/plugins/METMonitor.*
 //
-// ----------------------------- 
+// -----------------------------
 #ifndef DQMOFFLINE_TRIGGER_RAZORMONITOR_H
 #define DQMOFFLINE_TRIGGER_RAZORMONITOR_H
 
@@ -38,7 +38,7 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
-//Hemispheres                                                                                                                                                                  
+//Hemispheres
 #include "HLTrigger/JetMET/interface/HLTRHemisphere.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -54,37 +54,69 @@ struct RazorME {
 // class declaration
 //
 
-class RazorMonitor : public DQMEDAnalyzer 
-{
+class RazorMonitor : public DQMEDAnalyzer {
 public:
-  RazorMonitor( const edm::ParameterSet& );
+  RazorMonitor(const edm::ParameterSet&);
   ~RazorMonitor() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   static double CalcMR(const math::XYZTLorentzVector& ja, const math::XYZTLorentzVector& jb);
-  static double CalcR(double MR, const math::XYZTLorentzVector& ja, const math::XYZTLorentzVector& jb, const edm::Handle<std::vector<reco::PFMET> >& met);
+  static double CalcR(double MR,
+                      const math::XYZTLorentzVector& ja,
+                      const math::XYZTLorentzVector& jb,
+                      const edm::Handle<std::vector<reco::PFMET> >& met);
 
 protected:
-
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void bookME(DQMStore::IBooker &, RazorME& me, const std::string& histname, const std::string& histtitle, int nbins, double xmin, double xmax);
-  void bookME(DQMStore::IBooker &, RazorME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX);
-  void bookME(DQMStore::IBooker &, RazorME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax);
-  void bookME(DQMStore::IBooker &, RazorME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax);
-  void bookME(DQMStore::IBooker &, RazorME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX, const std::vector<double>& binningY);
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void bookME(DQMStore::IBooker&,
+              RazorME& me,
+              const std::string& histname,
+              const std::string& histtitle,
+              int nbins,
+              double xmin,
+              double xmax);
+  void bookME(DQMStore::IBooker&,
+              RazorME& me,
+              const std::string& histname,
+              const std::string& histtitle,
+              const std::vector<double>& binningX);
+  void bookME(DQMStore::IBooker&,
+              RazorME& me,
+              const std::string& histname,
+              const std::string& histtitle,
+              int nbinsX,
+              double xmin,
+              double xmax,
+              double ymin,
+              double ymax);
+  void bookME(DQMStore::IBooker&,
+              RazorME& me,
+              const std::string& histname,
+              const std::string& histtitle,
+              int nbinsX,
+              double xmin,
+              double xmax,
+              int nbinsY,
+              double ymin,
+              double ymax);
+  void bookME(DQMStore::IBooker&,
+              RazorME& me,
+              const std::string& histname,
+              const std::string& histtitle,
+              const std::vector<double>& binningX,
+              const std::vector<double>& binningY);
   void setMETitle(RazorME& me, const std::string& titleX, const std::string& titleY);
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
 private:
-
   std::string folderName_;
   std::string histoSuffix_;
 
-  edm::EDGetTokenT<reco::PFMETCollection>       metToken_;
-  edm::EDGetTokenT<reco::PFJetCollection>       jetToken_;
+  edm::EDGetTokenT<reco::PFMETCollection> metToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> jetToken_;
   edm::EDGetTokenT<std::vector<math::XYZTLorentzVector> > theHemispheres_;
-  
+
   std::vector<double> rsq_binning_;
   std::vector<double> mr_binning_;
   std::vector<double> dphiR_binning_;
@@ -97,12 +129,11 @@ private:
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
-  StringCutObjectSelector<reco::MET,true>      metSelection_;
-  StringCutObjectSelector<reco::PFJet,true >   jetSelection_;
+  StringCutObjectSelector<reco::MET, true> metSelection_;
+  StringCutObjectSelector<reco::PFJet, true> jetSelection_;
   unsigned int njets_;
   float rsqCut_;
   float mrCut_;
-
 };
 
-#endif // DQMOFFLINE_TRIGGER_RAZORMONITOR_H
+#endif  // DQMOFFLINE_TRIGGER_RAZORMONITOR_H
