@@ -51,3 +51,6 @@ premix_stage2.toModify(hgcalValidator,
     label_cp_effic = "mixData:MergedCaloTruth",
     label_cp_fake = "mixData:MergedCaloTruth"
 )
+
+from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
+phase2_hgcalV10.toModify(hgcalValidator, totallayers_to_monitor = cms.int32(50))
