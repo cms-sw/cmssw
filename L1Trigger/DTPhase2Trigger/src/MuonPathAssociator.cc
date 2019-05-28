@@ -144,7 +144,6 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 					 xH[i] = shiftinfo[wireId1.rawId()]+(42.*(double)wi[i]+     + DRIFT_SPEED*((double)tdc[i]-MeanT0)*(-1+2*(double)lat[i]))/10;
 					 xReco[i] = MeanPos + (23.5/2 - ((double)i-1.5)*1.3)*NewSlope;
 			            }
-			            //cout << xH[i] << " " << xReco[i] << " ";
 				}
 			    } 
            		    for (int i=4; i<8; i++){
@@ -157,10 +156,8 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 					 xH[i] = shiftinfo[wireId3.rawId()]+(42.*(double)wi[i]+     + DRIFT_SPEED*((double)tdc[i]-MeanT0)*(-1+2*(double)lat[i]))/10;
 					 xReco[i] = MeanPos + (-23.5/2 - ((double)i-4-1.5)*1.3)*NewSlope;
 			            }
-			            //cout << xH[i] << " " << xReco[i] << " ";
 				}
 			    }
-			    cout << endl;  
 			    double newChi2 = 0; 
 			    for (int i = 0; i<8; i++){
 				newChi2 = newChi2 + (xH[i]-xReco[i])*(xH[i]-xReco[i]);
