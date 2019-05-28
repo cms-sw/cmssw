@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     L1TriggerScalerRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Thu Aug 21 11:47:50 CEST 2008
 // $Id$
 

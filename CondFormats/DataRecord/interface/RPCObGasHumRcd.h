@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     RPCObGasHumRcd
-// 
+//
 /**\class RPCObGasHumRcd RPCObGasHumRcd.h CondFormats/DataRecord/interface/RPCObGasHumRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Fri Oct 10 09:56:32 CEST 2008
 // $Id: RPCObGasMixRcd.h,v 1.1 2009/12/13 10:05:23 dpagano Exp $
 //

@@ -1,4 +1,4 @@
-// L1TMuonEndCapParamsRcd                                                                                            
+// L1TMuonEndCapParamsRcd
 // Description: Record for L1TMuonEndCapParams
 //
 // automatically generate by make_records.pl

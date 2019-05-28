@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     FillInfoRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
-// Author:      
+// Author:
 // Created:     Tue Apr 10 19:38:43 CEST 2012
 // $Id$
 

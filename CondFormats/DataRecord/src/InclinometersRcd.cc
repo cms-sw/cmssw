@@ -2,11 +2,11 @@
 //
 // Package:     OptAlignObjects
 // Class  :     InclinometersRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Thu Jul 20 14:30:27 CEST 2006
 // $Id$
 

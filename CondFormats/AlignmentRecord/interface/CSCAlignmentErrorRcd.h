@@ -5,5 +5,4 @@
 
 class CSCAlignmentErrorRcd : public edm::eventsetup::EventSetupRecordImplementation<CSCAlignmentErrorRcd> {};
 
-#endif 
-
+#endif

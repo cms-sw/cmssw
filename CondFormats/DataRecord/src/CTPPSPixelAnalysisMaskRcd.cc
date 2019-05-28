@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     CTPPSPixelAnalysisMaskRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

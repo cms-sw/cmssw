@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     GEMeMapRcd
-// 
+//
 /**\class GEMeMapRcd GEMeMapRcd.h CondFormats/DataRecord/interface/GEMeMapRcd.h
 
  Description: [one line class summary]

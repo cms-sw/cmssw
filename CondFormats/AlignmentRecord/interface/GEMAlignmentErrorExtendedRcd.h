@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class GEMAlignmentErrorExtendedRcd : public edm::eventsetup::EventSetupRecordImplementation<GEMAlignmentErrorExtendedRcd> {};
+class GEMAlignmentErrorExtendedRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<GEMAlignmentErrorExtendedRcd> {};
 
 #endif

@@ -1,4 +1,4 @@
-// L1TGlobalPrescalesVetosRcd                                                                                            
+// L1TGlobalPrescalesVetosRcd
 // Description: Record for L1TGlobalPrescalesVetos
 //
 // automatically generate by make_records.pl
@@ -8,7 +8,8 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class L1TGlobalPrescalesVetosRcd : public edm::eventsetup::EventSetupRecordImplementation<L1TGlobalPrescalesVetosRcd> {};
+class L1TGlobalPrescalesVetosRcd : public edm::eventsetup::EventSetupRecordImplementation<L1TGlobalPrescalesVetosRcd> {
+};
 
 // Dependent record implmentation:
 //#include "FWCore/Framework/interface/DependentRecordImplementation.h"
