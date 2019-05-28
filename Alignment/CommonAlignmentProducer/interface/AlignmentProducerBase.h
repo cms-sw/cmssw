@@ -213,13 +213,13 @@ private:
   /*** Alignment data ***/
 
   std::unique_ptr<AlignmentAlgorithmBase> alignmentAlgo_;
-  Calibrations calibrations_;
+  CalibrationsOwner calibrations_;
   AlignmentMonitors monitors_;
 
-  AlignmentParameterStore* alignmentParameterStore_{nullptr};
-  AlignableTracker* alignableTracker_{nullptr};
-  AlignableMuon* alignableMuon_{nullptr};
-  AlignableExtras* alignableExtras_{nullptr};
+  std::unique_ptr<AlignmentParameterStore> alignmentParameterStore_;
+  std::unique_ptr<AlignableTracker> alignableTracker_;
+  std::unique_ptr<AlignableMuon> alignableMuon_;
+  std::unique_ptr<AlignableExtras> alignableExtras_;
 
   edm::Handle<reco::BeamSpot> beamSpot_;
   /// GlobalPositions that might be read from DB, nullptr otherwise

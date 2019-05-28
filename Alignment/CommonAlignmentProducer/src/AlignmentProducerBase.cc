@@ -80,15 +80,7 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config)
 }
 
 //------------------------------------------------------------------------------
-AlignmentProducerBase::~AlignmentProducerBase() noexcept(false) {
-  for (auto& iCal : calibrations_)
-    delete iCal;
-
-  delete alignmentParameterStore_;
-  delete alignableExtras_;
-  delete alignableTracker_;
-  delete alignableMuon_;
-}
+AlignmentProducerBase::~AlignmentProducerBase() noexcept(false) {}
 
 //------------------------------------------------------------------------------
 void AlignmentProducerBase::startProcessing() {
@@ -301,7 +293,7 @@ void AlignmentProducerBase::createMonitors() {
 void AlignmentProducerBase::createCalibrations() {
   const auto& calibrations = config_.getParameter<edm::VParameterSet>("calibrations");
   for (const auto& iCalib : calibrations) {
-    calibrations_.push_back(
+    calibrations_.emplace_back(
         IntegratedCalibrationPluginFactory::get()->create(iCalib.getParameter<std::string>("calibrationName"), iCalib));
   }
 }
@@ -382,7 +374,8 @@ void AlignmentProducerBase::initAlignmentAlgorithm(const edm::EventSetup& setup,
   // latter to algorithm
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducerBase::initAlignmentAlgorithm"
                             << "Initializing alignment algorithm.";
-  alignmentAlgo_->initialize(setup, alignableTracker_, alignableMuon_, alignableExtras_, alignmentParameterStore_);
+  alignmentAlgo_->initialize(
+      setup, alignableTracker_.get(), alignableMuon_.get(), alignableExtras_.get(), alignmentParameterStore_.get());
 
   // Not all algorithms support calibrations - so do not pass empty vector
   // and throw if non-empty and not supported:
@@ -402,10 +395,10 @@ void AlignmentProducerBase::initAlignmentAlgorithm(const edm::EventSetup& setup,
 
   if (!isTrueUpdate) {  // only needed the first time
     for (const auto& iCal : calibrations_) {
-      iCal->beginOfJob(alignableTracker_, alignableMuon_, alignableExtras_);
+      iCal->beginOfJob(alignableTracker_.get(), alignableMuon_.get(), alignableExtras_.get());
     }
     for (const auto& monitor : monitors_) {
-      monitor->beginOfJob(alignableTracker_, alignableMuon_, alignmentParameterStore_);
+      monitor->beginOfJob(alignableTracker_.get(), alignableMuon_.get(), alignmentParameterStore_.get());
     }
   }
   startProcessing();  // needed if derived class is non-EDLooper-based
@@ -490,7 +483,7 @@ void AlignmentProducerBase::createAlignables(const TrackerTopology* tTopo, bool 
     if (update) {
       alignableTracker_->update(trackerGeometry_.get(), tTopo);
     } else {
-      alignableTracker_ = new AlignableTracker(trackerGeometry_.get(), tTopo);
+      alignableTracker_ = std::make_unique<AlignableTracker>(trackerGeometry_.get(), tTopo);
     }
   }
 
@@ -498,7 +491,7 @@ void AlignmentProducerBase::createAlignables(const TrackerTopology* tTopo, bool 
     if (update) {
       alignableMuon_->update(muonDTGeometry_.get(), muonCSCGeometry_.get());
     } else {
-      alignableMuon_ = new AlignableMuon(muonDTGeometry_.get(), muonCSCGeometry_.get());
+      alignableMuon_ = std::make_unique<AlignableMuon>(muonDTGeometry_.get(), muonCSCGeometry_.get());
     }
   }
 
@@ -506,7 +499,7 @@ void AlignmentProducerBase::createAlignables(const TrackerTopology* tTopo, bool 
     if (update) {
       // FIXME: Requires further code changes to track beam spot condition changes
     } else {
-      alignableExtras_ = new AlignableExtras();
+      alignableExtras_ = std::make_unique<AlignableExtras>();
     }
   }
 }
@@ -521,7 +514,7 @@ void AlignmentProducerBase::buildParameterStore() {
   const auto& alParamStoreCfg = config_.getParameter<edm::ParameterSet>("ParameterStore");
 
   AlignmentParameterBuilder alignmentParameterBuilder{
-      alignableTracker_, alignableMuon_, alignableExtras_, alParamBuildCfg};
+      alignableTracker_.get(), alignableMuon_.get(), alignableExtras_.get(), alParamBuildCfg};
 
   // Fix alignables if requested
   if (stNFixAlignables_ > 0) {
@@ -534,7 +527,7 @@ void AlignmentProducerBase::buildParameterStore() {
                             << "got " << alignables.size() << " alignables";
 
   // Create AlignmentParameterStore
-  alignmentParameterStore_ = new AlignmentParameterStore(alignables, alParamStoreCfg);
+  alignmentParameterStore_ = std::make_unique<AlignmentParameterStore>(alignables, alParamStoreCfg);
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducerBase::buildParameterStore"
                             << "AlignmentParameterStore created!";
 }
@@ -552,11 +545,11 @@ void AlignmentProducerBase::applyMisalignment() {
     const auto& scenarioConfig = config_.getParameterSet("MisalignmentScenario");
 
     if (doTracker_) {
-      TrackerScenarioBuilder scenarioBuilder(alignableTracker_);
+      TrackerScenarioBuilder scenarioBuilder(alignableTracker_.get());
       scenarioBuilder.applyScenario(scenarioConfig);
     }
     if (doMuon_) {
-      MuonScenarioBuilder muonScenarioBuilder(alignableMuon_);
+      MuonScenarioBuilder muonScenarioBuilder(alignableMuon_.get());
       muonScenarioBuilder.applyScenario(scenarioConfig);
     }
 
@@ -702,7 +695,7 @@ void AlignmentProducerBase::readInSurveyRcds(const edm::EventSetup& iSetup) {
       surveyIndex_ = 0;
       surveyValues_ = &*surveys;
       surveyErrors_ = &*surveyErrors;
-      addSurveyInfo(alignableTracker_);
+      addSurveyInfo(alignableTracker_.get());
     }
   }
 
