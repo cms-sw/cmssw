@@ -44,52 +44,49 @@
 #include "DQMOffline/Trigger/plugins/HTDQM.h"
 #include "DQMOffline/Trigger/plugins/HMesonGammaDQM.h"
 
-
 class GenericTriggerEventFlag;
 
 //
 // class declaration
 //
 
-class ObjMonitor : public DQMEDAnalyzer 
-{
+class ObjMonitor : public DQMEDAnalyzer {
 public:
-  ObjMonitor( const edm::ParameterSet& );
+  ObjMonitor(const edm::ParameterSet&);
   ~ObjMonitor() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
 private:
+  bool looseJetId(const double& abseta,
+                  const double& NHF,
+                  const double& NEMF,
+                  const double& CHF,
+                  const double& CEMF,
+                  const unsigned& NumNeutralParticles,
+                  const unsigned& CHM);
 
-  bool looseJetId(const double & abseta,
-		  const double & NHF,
-		  const double & NEMF,
-		  const double & CHF,
-		  const double & CEMF,
-		  const unsigned & NumNeutralParticles,
-		  const unsigned  & CHM);
-  
-  bool tightJetId(const double & abseta,
-		  const double & NHF,
-		  const double & NEMF,
-		  const double & CHF,
-		  const double & CEMF,
-		  const unsigned & NumNeutralParticles,
-		  const unsigned  & CHM);
-  
+  bool tightJetId(const double& abseta,
+                  const double& NHF,
+                  const double& NEMF,
+                  const double& CHF,
+                  const double& CEMF,
+                  const unsigned& NumNeutralParticles,
+                  const unsigned& CHM);
+
   std::string folderName_;
   std::string histoSuffix_;
 
-  edm::EDGetTokenT<reco::PFMETCollection>       metToken_;
-  edm::EDGetTokenT<reco::PFJetCollection>       jetToken_;
+  edm::EDGetTokenT<reco::PFMETCollection> metToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> jetToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
-  edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
-  edm::EDGetTokenT<reco::PhotonCollection>      phoToken_;
-  edm::EDGetTokenT<reco::TrackCollection>       trkToken_;
+  edm::EDGetTokenT<reco::MuonCollection> muoToken_;
+  edm::EDGetTokenT<reco::PhotonCollection> phoToken_;
+  edm::EDGetTokenT<reco::TrackCollection> trkToken_;
 
   //objects to plot
   //add your own with corresponding switch
@@ -102,25 +99,23 @@ private:
   bool do_hmg_;
   HMesonGammaDQM hmgDQM_;
 
-
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
-  StringCutObjectSelector<reco::MET,true>         metSelection_;
-  StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
+  StringCutObjectSelector<reco::MET, true> metSelection_;
+  StringCutObjectSelector<reco::PFJet, true> jetSelection_;
   std::string jetId_;
-  StringCutObjectSelector<reco::PFJet,true   >    htjetSelection_;
-  StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
-  StringCutObjectSelector<reco::Muon,true>        muoSelection_;
-  StringCutObjectSelector<reco::Photon,true>      phoSelection_;
-  StringCutObjectSelector<reco::Track,true>       trkSelection_;
+  StringCutObjectSelector<reco::PFJet, true> htjetSelection_;
+  StringCutObjectSelector<reco::GsfElectron, true> eleSelection_;
+  StringCutObjectSelector<reco::Muon, true> muoSelection_;
+  StringCutObjectSelector<reco::Photon, true> phoSelection_;
+  StringCutObjectSelector<reco::Track, true> trkSelection_;
 
   unsigned njets_;
   unsigned nelectrons_;
   unsigned nmuons_;
   unsigned nphotons_;
   unsigned nmesons_;
-
 };
 
-#endif // OBJMONITOR_H
+#endif  // OBJMONITOR_H

@@ -30,20 +30,18 @@
 
 class DQMLumiMonitor : public edm::EDAnalyzer {
 public:
-  DQMLumiMonitor( const edm::ParameterSet& );
+  DQMLumiMonitor(const edm::ParameterSet&);
   ~DQMLumiMonitor() override;
 
 protected:
-
   void beginJob() override;
   void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
-  void endRun(edm::Run const& iRun,  edm::EventSetup const& iSetup) override;
+  void endRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void endJob() override;
 
 private:
-
   void bookHistograms();
 
   edm::ParameterSet parameters_;
@@ -52,17 +50,17 @@ private:
   std::string folderName_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusterInputTag_;
   edm::EDGetTokenT<LumiSummary> lumiRecordName_;
-  
-  DQMStore * dbe_;
- 
+
+  DQMStore* dbe_;
+
   MonitorElement* nClusME_;
   MonitorElement* intLumiVsLSME_;
   MonitorElement* nClusVsLSME_;
-  MonitorElement* corrIntLumiAndClusVsLSME_; 
+  MonitorElement* corrIntLumiAndClusVsLSME_;
 
   float intLumi_;
   int nLumi_;
   unsigned long long m_cacheID_;
 };
 
-#endif // DQMLUMIMONITOR_H
+#endif  // DQMLUMIMONITOR_H

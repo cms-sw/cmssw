@@ -1,7 +1,6 @@
 #ifndef JetAnalyzer_H
 #define JetAnalyzer_H
 
-
 /** \class JetMETAnalyzer
  *
  *  DQM jetMET analysis monitoring
@@ -15,7 +14,6 @@
  *          R. Schoefbeck
  *          V. Sordini
  */
-
 
 #include <memory>
 #include <fstream>
@@ -63,7 +61,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "DataFormats/Scalers/interface/DcsStatus.h" 
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
@@ -78,71 +76,65 @@
 
 //namespace jetAnalysis {
 //class TrackPropagatorToCalo;
-  //class StripSignalOverNoiseCalculator;
+//class StripSignalOverNoiseCalculator;
 //}
 
 class JetAnalyzer : public DQMEDAnalyzer {
- public:
-
+public:
   /// Constructor
   JetAnalyzer(const edm::ParameterSet&);
-  
+
   /// Destructor
   ~JetAnalyzer() override;
-  
-/// Inizialize parameters for histo binning
-//  void beginJob(void);
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  /// Get the analysis
- void analyze(const edm::Event&, const edm::EventSetup&) override;
 
+  /// Inizialize parameters for histo binning
+  //  void beginJob(void);
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  /// Get the analysis
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   /// Initialize run-based parameters
-  void dqmBeginRun(const edm::Run&,  const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// Finish up a run
-  void endRun(const edm::Run&,  const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
-
- private:
+private:
   // ----------member data ---------------------------
-  static bool jetSortingRule(reco::Jet x, reco::Jet y) {return x.pt() > y.pt();}
+  static bool jetSortingRule(reco::Jet x, reco::Jet y) { return x.pt() > y.pt(); }
 
   //try to put one collection as start
   edm::InputTag mInputCollection_;
   edm::InputTag theTriggerResultsLabel_;
 
+  std::string jetType_;
 
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+  edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection> caloJetsToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
 
-  std::string  jetType_;
+  edm::EDGetTokenT<reco::PFMETCollection> pfMetToken_;
+  edm::EDGetTokenT<reco::CaloMETCollection> caloMetToken_;
+  edm::EDGetTokenT<pat::METCollection> patMetToken_;
 
-  edm::EDGetTokenT<edm::TriggerResults>           triggerResultsToken_;
-  edm::EDGetTokenT<std::vector<reco::Vertex>>     vertexToken_;
-  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>  gtToken_;
-  edm::EDGetTokenT<reco::CaloJetCollection>       caloJetsToken_;
-  edm::EDGetTokenT<reco::PFJetCollection>         pfJetsToken_;
+  edm::EDGetTokenT<reco::MuonCollection> MuonsToken_;
+  edm::EDGetTokenT<pat::JetCollection> patJetsToken_;
+  edm::EDGetTokenT<edm::ValueMap<float>> mvaFullPUDiscriminantToken_;
+  edm::EDGetTokenT<edm::ValueMap<float>> cutBasedPUDiscriminantToken_;
+  edm::EDGetTokenT<edm::ValueMap<int>> cutBasedPUIDToken_;
+  edm::EDGetTokenT<edm::ValueMap<int>> mvaPUIDToken_;
 
-  edm::EDGetTokenT<reco::PFMETCollection>         pfMetToken_;
-  edm::EDGetTokenT<reco::CaloMETCollection>       caloMetToken_;
-  edm::EDGetTokenT<pat::METCollection>           patMetToken_; 
-
-  edm::EDGetTokenT<reco::MuonCollection>         MuonsToken_;
-  edm::EDGetTokenT<pat::JetCollection>         patJetsToken_;
-  edm::EDGetTokenT< edm::ValueMap<float> > mvaFullPUDiscriminantToken_;
-  edm::EDGetTokenT< edm::ValueMap<float> >cutBasedPUDiscriminantToken_ ;
-  edm::EDGetTokenT< edm::ValueMap<int> >cutBasedPUIDToken_;
-  edm::EDGetTokenT< edm::ValueMap<int> >mvaPUIDToken_;
-
-  edm::EDGetTokenT< edm::ValueMap<int> > qgMultiplicityToken_;
-  edm::EDGetTokenT< edm::ValueMap<float> > qgLikelihoodToken_;
-  edm::EDGetTokenT< edm::ValueMap<float> > qgptDToken_;
-  edm::EDGetTokenT< edm::ValueMap<float> > qgaxis2Token_;
-
+  edm::EDGetTokenT<edm::ValueMap<int>> qgMultiplicityToken_;
+  edm::EDGetTokenT<edm::ValueMap<float>> qgLikelihoodToken_;
+  edm::EDGetTokenT<edm::ValueMap<float>> qgptDToken_;
+  edm::EDGetTokenT<edm::ValueMap<float>> qgaxis2Token_;
 
   //edm::EDGetTokenT<reco::JPTJetCollection>        jptJetsToken_;
 
   edm::InputTag inputJetIDValueMap;
-  edm::EDGetTokenT<edm::ValueMap <reco::JetID> >jetID_ValueMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<reco::JetID>> jetID_ValueMapToken_;
 
   //Cleaning parameters
   edm::ParameterSet cleaningParameters_;
@@ -171,39 +163,39 @@ class JetAnalyzer : public DQMEDAnalyzer {
   std::string DirName;
 
   // Book MonitorElements
-  void bookMESetSelection(std::string,DQMStore::IBooker &);
+  void bookMESetSelection(std::string, DQMStore::IBooker&);
   //void bookMonitorElement(std::string, bool);
 
-  int    verbose_;
+  int verbose_;
   //histo binning parameters -> these are PART of ALL analyzers - move it up
-  int    etaBin_;
+  int etaBin_;
   double etaMin_;
   double etaMax_;
 
-  int    phiBin_;
+  int phiBin_;
   double phiMin_;
   double phiMax_;
 
-  int    ptBin_;
+  int ptBin_;
   double ptMin_;
   double ptMax_;
 
-  int    eBin_;
+  int eBin_;
   double eMin_;
   double eMax_;
 
-  int    pBin_;
+  int pBin_;
   double pMin_;
   double pMax_;
 
-  int     nbinsPV_;
-  double  nPVlow_; 
-  double  nPVhigh_;
+  int nbinsPV_;
+  double nPVlow_;
+  double nPVhigh_;
 
-  //variables which are present both in 
-  int    jetLoPass_;
-  int    jetHiPass_;
-  int    leadJetFlag_;
+  //variables which are present both in
+  int jetLoPass_;
+  int jetHiPass_;
+  int leadJetFlag_;
   double ptThreshold_;
   double ptThresholdUnc_;
   double asymmetryThirdJetCut_;
@@ -256,7 +248,6 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mHFrac_Forward;
   MonitorElement* mEFrac_Forward;
 
-
   MonitorElement* mPt_Barrel_Hi;
   MonitorElement* mPhi_Barrel_Hi;
   MonitorElement* mConstituents_Barrel_Hi;
@@ -280,7 +271,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mPhiFirst;
   MonitorElement* mPtFirst;
 
- // Events passing the jet triggers
+  // Events passing the jet triggers
   MonitorElement* mPhi_Lo;
   MonitorElement* mPt_Lo;
 
@@ -291,7 +282,6 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mLooseJIDPassFractionVSeta;
   MonitorElement* mLooseJIDPassFractionVSpt;
   MonitorElement* mLooseJIDPassFractionVSptNoHF;
-
 
   MonitorElement* mLooseMVAPUJIDPassFractionVSeta;
   MonitorElement* mLooseMVAPUJIDPassFractionVSpt;
@@ -325,7 +315,6 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mCutPUJIDDiscriminant_highPt_EndCap;
   MonitorElement* mCutPUJIDDiscriminant_highPt_Forward;
 
-
   //dijet analysis quantities
   MonitorElement* mDijetBalance;
   MonitorElement* mDijetAsymmetry;
@@ -350,8 +339,8 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* cleanupME;
   MonitorElement* verticesME;
 
-  GenericTriggerEventFlag * highPtJetEventFlag_;
-  GenericTriggerEventFlag * lowPtJetEventFlag_;
+  GenericTriggerEventFlag* highPtJetEventFlag_;
+  GenericTriggerEventFlag* lowPtJetEventFlag_;
 
   std::vector<std::string> highPtJetExpr_;
   std::vector<std::string> lowPtJetExpr_;
@@ -362,8 +351,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
 
   bool runcosmics_;
 
-//  bool energycorrected;
- 
+  //  bool energycorrected;
 
   // CaloJet specific
   MonitorElement* mMaxEInEmTowers;
@@ -416,24 +404,24 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mNeutMultiplicity_highPt_Barrel;
   MonitorElement* mMuMultiplicity_highPt_Barrel;
 
-  MonitorElement*  mCHFracVSpT_Barrel;
-  MonitorElement*  mNHFracVSpT_Barrel;
-  MonitorElement*  mPhFracVSpT_Barrel;
-  MonitorElement*  mCHFracVSpT_EndCap;
-  MonitorElement*  mNHFracVSpT_EndCap;
-  MonitorElement*  mPhFracVSpT_EndCap;
-  MonitorElement*  mHFHFracVSpT_Forward;
-  MonitorElement*  mHFEFracVSpT_Forward;
+  MonitorElement* mCHFracVSpT_Barrel;
+  MonitorElement* mNHFracVSpT_Barrel;
+  MonitorElement* mPhFracVSpT_Barrel;
+  MonitorElement* mCHFracVSpT_EndCap;
+  MonitorElement* mNHFracVSpT_EndCap;
+  MonitorElement* mPhFracVSpT_EndCap;
+  MonitorElement* mHFHFracVSpT_Forward;
+  MonitorElement* mHFEFracVSpT_Forward;
 
-  MonitorElement*  mCHFracVSeta_lowPt;
-  MonitorElement*  mNHFracVSeta_lowPt;
-  MonitorElement*  mPhFracVSeta_lowPt;
-  MonitorElement*  mCHFracVSeta_mediumPt;
-  MonitorElement*  mNHFracVSeta_mediumPt;
-  MonitorElement*  mPhFracVSeta_mediumPt;
-  MonitorElement*  mCHFracVSeta_highPt;
-  MonitorElement*  mNHFracVSeta_highPt;
-  MonitorElement*  mPhFracVSeta_highPt;
+  MonitorElement* mCHFracVSeta_lowPt;
+  MonitorElement* mNHFracVSeta_lowPt;
+  MonitorElement* mPhFracVSeta_lowPt;
+  MonitorElement* mCHFracVSeta_mediumPt;
+  MonitorElement* mNHFracVSeta_mediumPt;
+  MonitorElement* mPhFracVSeta_mediumPt;
+  MonitorElement* mCHFracVSeta_highPt;
+  MonitorElement* mNHFracVSeta_highPt;
+  MonitorElement* mPhFracVSeta_highPt;
 
   MonitorElement* mCHFrac_lowPt_EndCap;
   MonitorElement* mNHFrac_lowPt_EndCap;
@@ -470,32 +458,31 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mMass_highPt_EndCap;
   MonitorElement* mMass_highPt_Forward;
 
-  MonitorElement*   mChMultiplicity_lowPt_EndCap;
-  MonitorElement*   mNeutMultiplicity_lowPt_EndCap;
-  MonitorElement*   mMuMultiplicity_lowPt_EndCap;
-  MonitorElement*   mChMultiplicity_mediumPt_EndCap;
-  MonitorElement*   mNeutMultiplicity_mediumPt_EndCap;
-  MonitorElement*   mMuMultiplicity_mediumPt_EndCap;
-  MonitorElement*   mChMultiplicity_highPt_EndCap;
-  MonitorElement*   mNeutMultiplicity_highPt_EndCap;
-  MonitorElement*   mMuMultiplicity_highPt_EndCap;
+  MonitorElement* mChMultiplicity_lowPt_EndCap;
+  MonitorElement* mNeutMultiplicity_lowPt_EndCap;
+  MonitorElement* mMuMultiplicity_lowPt_EndCap;
+  MonitorElement* mChMultiplicity_mediumPt_EndCap;
+  MonitorElement* mNeutMultiplicity_mediumPt_EndCap;
+  MonitorElement* mMuMultiplicity_mediumPt_EndCap;
+  MonitorElement* mChMultiplicity_highPt_EndCap;
+  MonitorElement* mNeutMultiplicity_highPt_EndCap;
+  MonitorElement* mMuMultiplicity_highPt_EndCap;
 
-
-  MonitorElement*   mHFEFrac_lowPt_Forward;
-  MonitorElement*   mHFHFrac_lowPt_Forward;
-  MonitorElement*   mHFEFrac_mediumPt_Forward;
-  MonitorElement*   mHFHFrac_mediumPt_Forward;
-  MonitorElement*   mHFEFrac_highPt_Forward;
-  MonitorElement*   mHFHFrac_highPt_Forward;
-  MonitorElement*   mHFEEn_lowPt_Forward;
-  MonitorElement*   mHFHEn_lowPt_Forward;
-  MonitorElement*   mHFEEn_mediumPt_Forward;
-  MonitorElement*   mHFHEn_mediumPt_Forward;
-  MonitorElement*   mHFEEn_highPt_Forward;
-  MonitorElement*   mHFHEn_highPt_Forward;
-  MonitorElement*   mNeutMultiplicity_lowPt_Forward;
-  MonitorElement*   mNeutMultiplicity_mediumPt_Forward;
-  MonitorElement*   mNeutMultiplicity_highPt_Forward;
+  MonitorElement* mHFEFrac_lowPt_Forward;
+  MonitorElement* mHFHFrac_lowPt_Forward;
+  MonitorElement* mHFEFrac_mediumPt_Forward;
+  MonitorElement* mHFHFrac_mediumPt_Forward;
+  MonitorElement* mHFEFrac_highPt_Forward;
+  MonitorElement* mHFHFrac_highPt_Forward;
+  MonitorElement* mHFEEn_lowPt_Forward;
+  MonitorElement* mHFHEn_lowPt_Forward;
+  MonitorElement* mHFEEn_mediumPt_Forward;
+  MonitorElement* mHFHEn_mediumPt_Forward;
+  MonitorElement* mHFEEn_highPt_Forward;
+  MonitorElement* mHFHEn_highPt_Forward;
+  MonitorElement* mNeutMultiplicity_lowPt_Forward;
+  MonitorElement* mNeutMultiplicity_mediumPt_Forward;
+  MonitorElement* mNeutMultiplicity_highPt_Forward;
 
   MonitorElement* mChargedHadronEnergy;
   MonitorElement* mNeutralHadronEnergy;
@@ -545,7 +532,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mpTD_highPt_Forward;
   MonitorElement* mMultiplicityQG_highPt_Forward;
   MonitorElement* mqgLikelihood_highPt_Forward;
-  
+
   //new Plots with Res./ Eff. as function of neutral, charged &  em fraction
 
   MonitorElement* mNeutralFraction;
@@ -579,8 +566,8 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mHFEMFrac_profile;
   MonitorElement* mHFHFrac_profile;
 
-  JetMETDQMDCSFilter * DCSFilterForJetMonitoring_;
-  JetMETDQMDCSFilter * DCSFilterForDCSMonitoring_;
+  JetMETDQMDCSFilter* DCSFilterForJetMonitoring_;
+  JetMETDQMDCSFilter* DCSFilterForDCSMonitoring_;
   /*
   MonitorElement* mePhFracBarrel_BXm2BXm1Empty;
   MonitorElement* meNHFracBarrel_BXm2BXm1Empty;
@@ -663,82 +650,82 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meEta_BXm1Filled;
 
   //miniaod specific variables, especially for substructure
-  MonitorElement* mSoftDropMass; 
-  MonitorElement* mPrunedMass; 
-  MonitorElement* mTrimmedMass; 
-  MonitorElement* mFilteredMass; 
-  MonitorElement* mtau2_over_tau1; 
-  MonitorElement* mtau3_over_tau2; 
+  MonitorElement* mSoftDropMass;
+  MonitorElement* mPrunedMass;
+  MonitorElement* mTrimmedMass;
+  MonitorElement* mFilteredMass;
+  MonitorElement* mtau2_over_tau1;
+  MonitorElement* mtau3_over_tau2;
   MonitorElement* mCATopTag_topMass;
-  MonitorElement* mCATopTag_minMass; 
-  MonitorElement* mCATopTag_nSubJets; 
+  MonitorElement* mCATopTag_minMass;
+  MonitorElement* mCATopTag_nSubJets;
 
-  MonitorElement* mnSubJetsCMSTopTag; 
-  MonitorElement* mSubJet1_CMSTopTag_pt; 
-  MonitorElement* mSubJet1_CMSTopTag_eta; 
-  MonitorElement* mSubJet1_CMSTopTag_phi; 
-  MonitorElement* mSubJet1_CMSTopTag_mass; 
-  MonitorElement* mSubJet2_CMSTopTag_pt; 
-  MonitorElement* mSubJet2_CMSTopTag_eta; 
-  MonitorElement* mSubJet2_CMSTopTag_phi; 
-  MonitorElement* mSubJet2_CMSTopTag_mass; 
-  MonitorElement* mSubJet3_CMSTopTag_pt; 
-  MonitorElement* mSubJet3_CMSTopTag_eta; 
-  MonitorElement* mSubJet3_CMSTopTag_phi; 
-  MonitorElement* mSubJet3_CMSTopTag_mass; 
-  MonitorElement* mSubJet4_CMSTopTag_pt; 
-  MonitorElement* mSubJet4_CMSTopTag_eta; 
-  MonitorElement* mSubJet4_CMSTopTag_phi; 
-  MonitorElement* mSubJet4_CMSTopTag_mass; 
+  MonitorElement* mnSubJetsCMSTopTag;
+  MonitorElement* mSubJet1_CMSTopTag_pt;
+  MonitorElement* mSubJet1_CMSTopTag_eta;
+  MonitorElement* mSubJet1_CMSTopTag_phi;
+  MonitorElement* mSubJet1_CMSTopTag_mass;
+  MonitorElement* mSubJet2_CMSTopTag_pt;
+  MonitorElement* mSubJet2_CMSTopTag_eta;
+  MonitorElement* mSubJet2_CMSTopTag_phi;
+  MonitorElement* mSubJet2_CMSTopTag_mass;
+  MonitorElement* mSubJet3_CMSTopTag_pt;
+  MonitorElement* mSubJet3_CMSTopTag_eta;
+  MonitorElement* mSubJet3_CMSTopTag_phi;
+  MonitorElement* mSubJet3_CMSTopTag_mass;
+  MonitorElement* mSubJet4_CMSTopTag_pt;
+  MonitorElement* mSubJet4_CMSTopTag_eta;
+  MonitorElement* mSubJet4_CMSTopTag_phi;
+  MonitorElement* mSubJet4_CMSTopTag_mass;
 
-  MonitorElement* mnSubJetsSoftDrop; 
-  MonitorElement* mSubJet1_SoftDrop_pt; 
-  MonitorElement* mSubJet1_SoftDrop_eta; 
-  MonitorElement* mSubJet1_SoftDrop_phi; 
-  MonitorElement* mSubJet1_SoftDrop_mass; 
-  MonitorElement* mSubJet2_SoftDrop_pt; 
-  MonitorElement* mSubJet2_SoftDrop_eta; 
-  MonitorElement* mSubJet2_SoftDrop_phi; 
-  MonitorElement* mSubJet2_SoftDrop_mass; 
+  MonitorElement* mnSubJetsSoftDrop;
+  MonitorElement* mSubJet1_SoftDrop_pt;
+  MonitorElement* mSubJet1_SoftDrop_eta;
+  MonitorElement* mSubJet1_SoftDrop_phi;
+  MonitorElement* mSubJet1_SoftDrop_mass;
+  MonitorElement* mSubJet2_SoftDrop_pt;
+  MonitorElement* mSubJet2_SoftDrop_eta;
+  MonitorElement* mSubJet2_SoftDrop_phi;
+  MonitorElement* mSubJet2_SoftDrop_mass;
 
   //miniaod specific variables, especially for substructure for a boosted regime
-  MonitorElement* mSoftDropMass_boosted; 
-  MonitorElement* mPrunedMass_boosted; 
-  MonitorElement* mTrimmedMass_boosted; 
-  MonitorElement* mFilteredMass_boosted; 
-  MonitorElement* mtau2_over_tau1_boosted; 
-  MonitorElement* mtau3_over_tau2_boosted; 
+  MonitorElement* mSoftDropMass_boosted;
+  MonitorElement* mPrunedMass_boosted;
+  MonitorElement* mTrimmedMass_boosted;
+  MonitorElement* mFilteredMass_boosted;
+  MonitorElement* mtau2_over_tau1_boosted;
+  MonitorElement* mtau3_over_tau2_boosted;
   MonitorElement* mCATopTag_topMass_boosted;
-  MonitorElement* mCATopTag_minMass_boosted; 
-  MonitorElement* mCATopTag_nSubJets_boosted; 
+  MonitorElement* mCATopTag_minMass_boosted;
+  MonitorElement* mCATopTag_nSubJets_boosted;
 
-  MonitorElement* mnSubJetsCMSTopTag_boosted; 
-  MonitorElement* mSubJet1_CMSTopTag_pt_boosted; 
-  MonitorElement* mSubJet1_CMSTopTag_eta_boosted; 
-  MonitorElement* mSubJet1_CMSTopTag_phi_boosted; 
-  MonitorElement* mSubJet1_CMSTopTag_mass_boosted; 
-  MonitorElement* mSubJet2_CMSTopTag_pt_boosted; 
-  MonitorElement* mSubJet2_CMSTopTag_eta_boosted; 
-  MonitorElement* mSubJet2_CMSTopTag_phi_boosted; 
-  MonitorElement* mSubJet2_CMSTopTag_mass_boosted; 
-  MonitorElement* mSubJet3_CMSTopTag_pt_boosted; 
-  MonitorElement* mSubJet3_CMSTopTag_eta_boosted; 
-  MonitorElement* mSubJet3_CMSTopTag_phi_boosted; 
-  MonitorElement* mSubJet3_CMSTopTag_mass_boosted; 
-  MonitorElement* mSubJet4_CMSTopTag_pt_boosted; 
-  MonitorElement* mSubJet4_CMSTopTag_eta_boosted; 
-  MonitorElement* mSubJet4_CMSTopTag_phi_boosted; 
-  MonitorElement* mSubJet4_CMSTopTag_mass_boosted; 
+  MonitorElement* mnSubJetsCMSTopTag_boosted;
+  MonitorElement* mSubJet1_CMSTopTag_pt_boosted;
+  MonitorElement* mSubJet1_CMSTopTag_eta_boosted;
+  MonitorElement* mSubJet1_CMSTopTag_phi_boosted;
+  MonitorElement* mSubJet1_CMSTopTag_mass_boosted;
+  MonitorElement* mSubJet2_CMSTopTag_pt_boosted;
+  MonitorElement* mSubJet2_CMSTopTag_eta_boosted;
+  MonitorElement* mSubJet2_CMSTopTag_phi_boosted;
+  MonitorElement* mSubJet2_CMSTopTag_mass_boosted;
+  MonitorElement* mSubJet3_CMSTopTag_pt_boosted;
+  MonitorElement* mSubJet3_CMSTopTag_eta_boosted;
+  MonitorElement* mSubJet3_CMSTopTag_phi_boosted;
+  MonitorElement* mSubJet3_CMSTopTag_mass_boosted;
+  MonitorElement* mSubJet4_CMSTopTag_pt_boosted;
+  MonitorElement* mSubJet4_CMSTopTag_eta_boosted;
+  MonitorElement* mSubJet4_CMSTopTag_phi_boosted;
+  MonitorElement* mSubJet4_CMSTopTag_mass_boosted;
 
-  MonitorElement* mnSubJetsSoftDrop_boosted; 
-  MonitorElement* mSubJet1_SoftDrop_pt_boosted; 
-  MonitorElement* mSubJet1_SoftDrop_eta_boosted; 
-  MonitorElement* mSubJet1_SoftDrop_phi_boosted; 
-  MonitorElement* mSubJet1_SoftDrop_mass_boosted; 
-  MonitorElement* mSubJet2_SoftDrop_pt_boosted; 
-  MonitorElement* mSubJet2_SoftDrop_eta_boosted; 
-  MonitorElement* mSubJet2_SoftDrop_phi_boosted; 
-  MonitorElement* mSubJet2_SoftDrop_mass_boosted; 
+  MonitorElement* mnSubJetsSoftDrop_boosted;
+  MonitorElement* mSubJet1_SoftDrop_pt_boosted;
+  MonitorElement* mSubJet1_SoftDrop_eta_boosted;
+  MonitorElement* mSubJet1_SoftDrop_phi_boosted;
+  MonitorElement* mSubJet1_SoftDrop_mass_boosted;
+  MonitorElement* mSubJet2_SoftDrop_pt_boosted;
+  MonitorElement* mSubJet2_SoftDrop_eta_boosted;
+  MonitorElement* mSubJet2_SoftDrop_phi_boosted;
+  MonitorElement* mSubJet2_SoftDrop_mass_boosted;
 
   //miniaod only variables
   MonitorElement* mPt_CaloJet;
@@ -748,57 +735,57 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mMass_Forward;
 
   //now ZJets plots
-  MonitorElement*  mDPhiZJet;
-  MonitorElement*  mZMass;
-  MonitorElement*  mZJetAsymmetry;
-  MonitorElement*  mJetZBalance_lowZPt_J_Barrel;
-  MonitorElement*  mJetZBalance_mediumZPt_J_Barrel;
-  MonitorElement*  mJetZBalance_highZPt_J_Barrel;
-  MonitorElement*  mJetZBalance_lowZPt_J_EndCap;
-  MonitorElement*  mJetZBalance_mediumZPt_J_EndCap;
-  MonitorElement*  mJetZBalance_highZPt_J_EndCap;
-  MonitorElement*  mJetZBalance_lowZPt_J_Forward;
-  MonitorElement*  mJetZBalance_mediumZPt_J_Forward;
-  MonitorElement*  mJetZBalance_highZPt_J_Forward;
-  MonitorElement*  mJ1Pt_over_ZPt_J_Barrel;
-  MonitorElement*  mJ1Pt_over_ZPt_J_EndCap;
-  MonitorElement*  mJ1Pt_over_ZPt_J_Forward;
-  MonitorElement*  mMPF_J_Barrel;
-  MonitorElement*  mMPF_J_EndCap;
-  MonitorElement*  mMPF_J_Forward;
-  MonitorElement*  mJ1Pt_over_ZPt_lowZPt_J_Barrel;
-  MonitorElement*  mJ1Pt_over_ZPt_mediumZPt_J_Barrel;
-  MonitorElement*  mJ1Pt_over_ZPt_highZPt_J_Barrel;
-  MonitorElement*  mJ1Pt_over_ZPt_lowZPt_J_EndCap;
-  MonitorElement*  mJ1Pt_over_ZPt_mediumZPt_J_EndCap;
-  MonitorElement*  mJ1Pt_over_ZPt_highZPt_J_EndCap;
-  MonitorElement*  mJ1Pt_over_ZPt_lowZPt_J_Forward;
-  MonitorElement*  mJ1Pt_over_ZPt_mediumZPt_J_Forward;
-  MonitorElement*  mJ1Pt_over_ZPt_highZPt_J_Forward;
-  MonitorElement*  mMPF_lowZPt_J_Barrel;
-  MonitorElement*  mMPF_mediumZPt_J_Barrel;
-  MonitorElement*  mMPF_highZPt_J_Barrel;
-  MonitorElement*  mMPF_lowZPt_J_EndCap;
-  MonitorElement*  mMPF_mediumZPt_J_EndCap;
-  MonitorElement*  mMPF_highZPt_J_EndCap;
-  MonitorElement*  mMPF_lowZPt_J_Forward;
-  MonitorElement*  mMPF_mediumZPt_J_Forward;
-  MonitorElement*  mMPF_highZPt_J_Forward;
-  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_30_55_J_Barrel;
-  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_55_75_J_Barrel;
-  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_75_150_J_Barrel;
-  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_150_290_J_Barrel;
-  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_290_J_Barrel;
-  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_30_55_J_EndCap;
-  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_55_75_J_EndCap;
-  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_75_150_J_EndCap;
-  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_150_290_J_EndCap;
-  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_290_J_EndCap;
-  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_30_55_J_Forward;
-  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_55_100_J_Forward;
-  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_100_J_Forward;
-  
-  std::map< std::string,MonitorElement* >map_of_MEs;
+  MonitorElement* mDPhiZJet;
+  MonitorElement* mZMass;
+  MonitorElement* mZJetAsymmetry;
+  MonitorElement* mJetZBalance_lowZPt_J_Barrel;
+  MonitorElement* mJetZBalance_mediumZPt_J_Barrel;
+  MonitorElement* mJetZBalance_highZPt_J_Barrel;
+  MonitorElement* mJetZBalance_lowZPt_J_EndCap;
+  MonitorElement* mJetZBalance_mediumZPt_J_EndCap;
+  MonitorElement* mJetZBalance_highZPt_J_EndCap;
+  MonitorElement* mJetZBalance_lowZPt_J_Forward;
+  MonitorElement* mJetZBalance_mediumZPt_J_Forward;
+  MonitorElement* mJetZBalance_highZPt_J_Forward;
+  MonitorElement* mJ1Pt_over_ZPt_J_Barrel;
+  MonitorElement* mJ1Pt_over_ZPt_J_EndCap;
+  MonitorElement* mJ1Pt_over_ZPt_J_Forward;
+  MonitorElement* mMPF_J_Barrel;
+  MonitorElement* mMPF_J_EndCap;
+  MonitorElement* mMPF_J_Forward;
+  MonitorElement* mJ1Pt_over_ZPt_lowZPt_J_Barrel;
+  MonitorElement* mJ1Pt_over_ZPt_mediumZPt_J_Barrel;
+  MonitorElement* mJ1Pt_over_ZPt_highZPt_J_Barrel;
+  MonitorElement* mJ1Pt_over_ZPt_lowZPt_J_EndCap;
+  MonitorElement* mJ1Pt_over_ZPt_mediumZPt_J_EndCap;
+  MonitorElement* mJ1Pt_over_ZPt_highZPt_J_EndCap;
+  MonitorElement* mJ1Pt_over_ZPt_lowZPt_J_Forward;
+  MonitorElement* mJ1Pt_over_ZPt_mediumZPt_J_Forward;
+  MonitorElement* mJ1Pt_over_ZPt_highZPt_J_Forward;
+  MonitorElement* mMPF_lowZPt_J_Barrel;
+  MonitorElement* mMPF_mediumZPt_J_Barrel;
+  MonitorElement* mMPF_highZPt_J_Barrel;
+  MonitorElement* mMPF_lowZPt_J_EndCap;
+  MonitorElement* mMPF_mediumZPt_J_EndCap;
+  MonitorElement* mMPF_highZPt_J_EndCap;
+  MonitorElement* mMPF_lowZPt_J_Forward;
+  MonitorElement* mMPF_mediumZPt_J_Forward;
+  MonitorElement* mMPF_highZPt_J_Forward;
+  MonitorElement* mDeltaPt_Z_j1_over_ZPt_30_55_J_Barrel;
+  MonitorElement* mDeltaPt_Z_j1_over_ZPt_55_75_J_Barrel;
+  MonitorElement* mDeltaPt_Z_j1_over_ZPt_75_150_J_Barrel;
+  MonitorElement* mDeltaPt_Z_j1_over_ZPt_150_290_J_Barrel;
+  MonitorElement* mDeltaPt_Z_j1_over_ZPt_290_J_Barrel;
+  MonitorElement* mDeltaPt_Z_j1_over_ZPt_30_55_J_EndCap;
+  MonitorElement* mDeltaPt_Z_j1_over_ZPt_55_75_J_EndCap;
+  MonitorElement* mDeltaPt_Z_j1_over_ZPt_75_150_J_EndCap;
+  MonitorElement* mDeltaPt_Z_j1_over_ZPt_150_290_J_EndCap;
+  MonitorElement* mDeltaPt_Z_j1_over_ZPt_290_J_EndCap;
+  MonitorElement* mDeltaPt_Z_j1_over_ZPt_30_55_J_Forward;
+  MonitorElement* mDeltaPt_Z_j1_over_ZPt_55_100_J_Forward;
+  MonitorElement* mDeltaPt_Z_j1_over_ZPt_100_J_Forward;
+
+  std::map<std::string, MonitorElement*> map_of_MEs;
 
   bool isCaloJet_;
   bool isPFJet_;
@@ -807,6 +794,5 @@ class JetAnalyzer : public DQMEDAnalyzer {
   bool fill_jet_high_level_histo;
 
   bool fill_CHS_histos;
-
 };
-#endif  
+#endif

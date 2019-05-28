@@ -29,33 +29,27 @@
 class DQMStore;
 class QTestHandle;
 
-
-class QualityTester: public edm::EDAnalyzer{
-
+class QualityTester : public edm::EDAnalyzer {
 public:
-
   /// Constructor
   QualityTester(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   ~QualityTester() override;
 
 protected:
-
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   /// perform the actual quality tests
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c) override;
-  void beginRun(const edm::Run&, const edm::EventSetup&) override ;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run& r, const edm::EventSetup& c) override;
   void endJob() override;
 
 private:
-
-
   void performTests();
-  
+
   int nEvents;
   int prescaleFactor;
   bool getQualityTestsFromFile;
@@ -67,9 +61,9 @@ private:
   std::string reportThreshold;
   bool verboseQT;
 
-  DQMStore * bei;
+  DQMStore* bei;
 
-  QTestHandle * qtHandler;
+  QTestHandle* qtHandler;
 };
 
 #endif

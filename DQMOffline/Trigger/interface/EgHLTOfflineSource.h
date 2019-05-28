@@ -5,7 +5,7 @@
 //
 // Package:    EgammaHLTOffline
 // Class:      EgammaHLTOffline
-// 
+//
 /*
  Description: This is a DQM source meant to plot high-level HLT trigger 
  quantities as stored in the HLT results object TriggerResults for the Egamma triggers
@@ -20,7 +20,7 @@
 //
 // Original Author:  Sam Harper
 //         Created:  June 2008
-// 
+//
 //
 //
 
@@ -48,7 +48,7 @@ class HLTConfigProvider;
 namespace egHLT {
   class EleHLTFilterMon;
   class PhoHLTFilterMon;
-}
+}  // namespace egHLT
 
 // namespace trigger{
 //   class TriggerObject;
@@ -56,34 +56,37 @@ namespace egHLT {
 // }
 
 class EgHLTOfflineSource : public DQMEDAnalyzer {
- 
- private:
-  MonitorElement* dqmErrsMonElem_; //monitors DQM errors (ie failing to get trigger info, etc)
-  MonitorElement* nrEventsProcessedMonElem_; //number of events processed mon elem
-  int nrEventsProcessed_; //number of events processed 
+private:
+  MonitorElement* dqmErrsMonElem_;            //monitors DQM errors (ie failing to get trigger info, etc)
+  MonitorElement* nrEventsProcessedMonElem_;  //number of events processed mon elem
+  int nrEventsProcessed_;                     //number of events processed
 
-  std::vector<egHLT::EleHLTFilterMon*> eleFilterMonHists_; //monitoring histograms for different trigger paths, we own them
-  std::vector<egHLT::PhoHLTFilterMon*> phoFilterMonHists_; //monitoring histograms for different trigger paths, we own them
-  std::vector<egHLT::MonElemContainer<egHLT::OffEle>*> eleMonElems_; //mon elements for monitoring electrons, we own them
-  std::vector<egHLT::MonElemContainer<egHLT::OffPho>*> phoMonElems_; //mon elements for monitoring photons, we own them
- 
+  std::vector<egHLT::EleHLTFilterMon*>
+      eleFilterMonHists_;  //monitoring histograms for different trigger paths, we own them
+  std::vector<egHLT::PhoHLTFilterMon*>
+      phoFilterMonHists_;  //monitoring histograms for different trigger paths, we own them
+  std::vector<egHLT::MonElemContainer<egHLT::OffEle>*> eleMonElems_;  //mon elements for monitoring electrons, we own them
+  std::vector<egHLT::MonElemContainer<egHLT::OffPho>*> phoMonElems_;  //mon elements for monitoring photons, we own them
+
   std::string dirName_;
   std::string subdirName_;
-  bool dohep_;    
+  bool dohep_;
   egHLT::OffEvt offEvt_;
-  egHLT::OffHelper offEvtHelper_;// this is where up wrap up nasty code which will be replaced by offical tools at some point
-  std::unique_ptr<egHLT::TrigCodes> trigCodes; // the only place instantiate them
-  
+  egHLT::OffHelper
+      offEvtHelper_;  // this is where up wrap up nasty code which will be replaced by offical tools at some point
+  std::unique_ptr<egHLT::TrigCodes> trigCodes;  // the only place instantiate them
+
   //note ele,pho does not refer to whether the trigger is electron or photon, it refers to what type
-  //of object passing the trigger will be monitored, eg ele = offline gsf electrons 
-  std::vector<std::string> eleHLTFilterNames_;//names of the filter names to use for offline ele
-  std::vector<std::string> phoHLTFilterNames_;//names of the filter names to use for offline pho
-  std::vector<std::string> eleHLTFilterNames2Leg_;//names of the first leg of 2Leg filter names to use for offline ele in form filter1::filter2
-  std::vector<std::string> eleTightLooseTrigNames_; // list of 'tightTrig:looseTrig' pairs for ele
-  std::vector<std::string> phoTightLooseTrigNames_; // list of 'tightTrig:looseTrig' pairs for pho 
+  //of object passing the trigger will be monitored, eg ele = offline gsf electrons
+  std::vector<std::string> eleHLTFilterNames_;  //names of the filter names to use for offline ele
+  std::vector<std::string> phoHLTFilterNames_;  //names of the filter names to use for offline pho
+  std::vector<std::string>
+      eleHLTFilterNames2Leg_;  //names of the first leg of 2Leg filter names to use for offline ele in form filter1::filter2
+  std::vector<std::string> eleTightLooseTrigNames_;    // list of 'tightTrig:looseTrig' pairs for ele
+  std::vector<std::string> phoTightLooseTrigNames_;    // list of 'tightTrig:looseTrig' pairs for pho
   std::vector<std::string> diEleTightLooseTrigNames_;  // list of 'tightTrig:looseTrig' pairs for di-ele triggers
   std::vector<std::string> diPhoTightLooseTrigNames_;  // list of 'tightTrig:looseTrig' pairs for di-pho triggers
- 
+
   egHLT::BinData binData_;
   egHLT::CutMasks cutMasks_;
 
@@ -94,19 +97,17 @@ class EgHLTOfflineSource : public DQMEDAnalyzer {
   EgHLTOfflineSource(const EgHLTOfflineSource& rhs) = delete;
   EgHLTOfflineSource& operator=(const EgHLTOfflineSource& rhs) = delete;
 
- public:
-  explicit EgHLTOfflineSource(const edm::ParameterSet& );
+public:
+  explicit EgHLTOfflineSource(const edm::ParameterSet&);
   ~EgHLTOfflineSource() override;
-  
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-  void addEleTrigPath(egHLT::MonElemFuncs& monElemFuncs,const std::string& name);
-  void addPhoTrigPath(egHLT::MonElemFuncs& monElemFuncs,const std::string& name);
-  void getHLTFilterNamesUsed(std::vector<std::string>& filterNames)const;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  void addEleTrigPath(egHLT::MonElemFuncs& monElemFuncs, const std::string& name);
+  void addPhoTrigPath(egHLT::MonElemFuncs& monElemFuncs, const std::string& name);
+  void getHLTFilterNamesUsed(std::vector<std::string>& filterNames) const;
   void filterTriggers(const HLTConfigProvider& hltConfig);
 };
- 
-
 
 #endif

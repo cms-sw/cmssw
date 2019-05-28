@@ -43,74 +43,68 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 
-//ATHER                                                                                                                                                                                                            
+//ATHER
 #include "DataFormats/Common/interface/ValueMap.h"
 
 class GenericTriggerEventFlag;
-
 
 //
 // class declaration
 //
 
-class TopMonitor : public DQMEDAnalyzer, public TriggerDQMBase
-{
+class TopMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
 public:
-  TopMonitor( const edm::ParameterSet& );
+  TopMonitor(const edm::ParameterSet &);
   ~TopMonitor() throw() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
-
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+  void analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) override;
 
   // Marina
   struct JetRefCompare {
-    inline bool operator () (const edm::RefToBase<reco::Jet> &j1, const edm::RefToBase<reco::Jet> &j2)
-      const {return j1.id() < j2.id() || (j1.id() == j2.id() && j1.key() < j2.key());}
+    inline bool operator()(const edm::RefToBase<reco::Jet> &j1, const edm::RefToBase<reco::Jet> &j2) const {
+      return j1.id() < j2.id() || (j1.id() == j2.id() && j1.key() < j2.key());
+    }
   };
   // Marina
   typedef std::map<edm::RefToBase<reco::Jet>, float, JetRefCompare> JetTagMap;
 
-
-
 private:
-
   std::string folderName_;
   std::string histoSuffix_;
 
-  edm::EDGetTokenT<reco::PFMETCollection>         metToken_;
-  edm::EDGetTokenT<reco::PFJetCollection>         jetToken_;
+  edm::EDGetTokenT<reco::PFMETCollection> metToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> jetToken_;
   edm::EDGetTokenT<edm::View<reco::GsfElectron> > eleToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> >          elecIDToken_; //ATHER   
-  edm::EDGetTokenT<reco::MuonCollection>          muoToken_;
-  edm::EDGetTokenT<reco::PhotonCollection>        phoToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > elecIDToken_;  //ATHER
+  edm::EDGetTokenT<reco::MuonCollection> muoToken_;
+  edm::EDGetTokenT<reco::PhotonCollection> phoToken_;
   // Marina
-  edm::EDGetTokenT<reco::JetTagCollection>        jetTagToken_ ;
-  edm::EDGetTokenT<reco::JetTagCollection>        jetbbTagToken_ ; 
+  edm::EDGetTokenT<reco::JetTagCollection> jetTagToken_;
+  edm::EDGetTokenT<reco::JetTagCollection> jetbbTagToken_;
   //Suvankar
-  edm::EDGetTokenT<reco::VertexCollection>        vtxToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
 
- //Suvankar
+  //Suvankar
   struct PVcut {
-      double dxy;
-      double dz;
+    double dxy;
+    double dz;
   };
 
-  MEbinning           met_binning_;
-  MEbinning           ls_binning_;
-  MEbinning           phi_binning_;
-  MEbinning           pt_binning_;
-  MEbinning           eta_binning_;
-  MEbinning           HT_binning_;
-  MEbinning           DR_binning_;
+  MEbinning met_binning_;
+  MEbinning ls_binning_;
+  MEbinning phi_binning_;
+  MEbinning pt_binning_;
+  MEbinning eta_binning_;
+  MEbinning HT_binning_;
+  MEbinning DR_binning_;
   // Marina
-  MEbinning           csv_binning_;
+  MEbinning csv_binning_;
   //george
-  MEbinning           invMass_mumu_binning_;
-  MEbinning           MHT_binning_;
-
+  MEbinning invMass_mumu_binning_;
+  MEbinning MHT_binning_;
 
   std::vector<double> met_variable_binning_;
   std::vector<double> HT_variable_binning_;
@@ -120,7 +114,7 @@ private:
   std::vector<double> jetEta_variable_binning_;
   std::vector<double> muEta_variable_binning_;
   std::vector<double> eleEta_variable_binning_;
-   //george
+  //george
   std::vector<double> invMass_mumu_variable_binning_;
   std::vector<double> MHT_variable_binning_;
 
@@ -143,18 +137,18 @@ private:
   ObjME jetVsLS_;
   ObjME muVsLS_;
   ObjME eleVsLS_;
-	//Menglei
+  //Menglei
   ObjME phoVsLS_;
   // Marina
   ObjME bjetVsLS_;
   ObjME htVsLS_;
 
-  ObjME jetEtaPhi_HEP17_; // for HEP17 monitoring
+  ObjME jetEtaPhi_HEP17_;  // for HEP17 monitoring
 
   ObjME jetMulti_;
   ObjME eleMulti_;
   ObjME muMulti_;
-	//Menglei
+  //Menglei
   ObjME phoMulti_;
   // Marina
   ObjME bjetMulti_;
@@ -170,10 +164,10 @@ private:
   ObjME eleEta_muEta_;
   //george
   ObjME invMass_mumu_;
-  ObjME eventMHT_;  
+  ObjME eventMHT_;
   ObjME invMass_mumu_variableBinning_;
   ObjME eventMHT_variableBinning_;
-	//Menglei
+  //Menglei
   ObjME muPt_phoPt_;
   ObjME muEta_phoEta_;
 
@@ -182,7 +176,7 @@ private:
 
   ObjME eventHT_;
   ObjME eventHT_variableBinning_;
-  
+
   std::vector<ObjME> muPhi_;
   std::vector<ObjME> muEta_;
   std::vector<ObjME> muPt_;
@@ -198,7 +192,6 @@ private:
   std::vector<ObjME> phoPhi_;
   std::vector<ObjME> phoEta_;
   std::vector<ObjME> phoPt_;
-
 
   // Marina
   std::vector<ObjME> bjetPhi_;
@@ -216,7 +209,6 @@ private:
   std::vector<ObjME> jetEta_variableBinning_;
   // Marina
   std::vector<ObjME> bjetEta_variableBinning_;
-  
 
   //2D distributions
   std::vector<ObjME> jetPtEta_;
@@ -225,7 +217,7 @@ private:
   std::vector<ObjME> eleEtaPhi_;
   std::vector<ObjME> muPtEta_;
   std::vector<ObjME> muEtaPhi_;
-	//Menglei
+  //Menglei
   std::vector<ObjME> phoPtEta_;
   std::vector<ObjME> phoEtaPhi_;
   // Marina
@@ -236,17 +228,17 @@ private:
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
-  StringCutObjectSelector<reco::MET,true>         metSelection_;
-  StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
-  StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
-  StringCutObjectSelector<reco::Muon,true>        muoSelection_;
-  StringCutObjectSelector<reco::Photon, true>     phoSelection_;
-  StringCutObjectSelector<reco::PFJet,true   >    HTdefinition_;
-  
+  StringCutObjectSelector<reco::MET, true> metSelection_;
+  StringCutObjectSelector<reco::PFJet, true> jetSelection_;
+  StringCutObjectSelector<reco::GsfElectron, true> eleSelection_;
+  StringCutObjectSelector<reco::Muon, true> muoSelection_;
+  StringCutObjectSelector<reco::Photon, true> phoSelection_;
+  StringCutObjectSelector<reco::PFJet, true> HTdefinition_;
+
   //Suvankar
-  StringCutObjectSelector<reco::Vertex,true>      vtxSelection_;
-  
-  StringCutObjectSelector<reco::Jet,true   >      bjetSelection_;
+  StringCutObjectSelector<reco::Vertex, true> vtxSelection_;
+
+  StringCutObjectSelector<reco::Jet, true> bjetSelection_;
   unsigned int njets_;
   unsigned int nelectrons_;
   unsigned int nmuons_;
@@ -260,27 +252,26 @@ private:
   double workingpoint_;
   std::string btagalgoName_;
   //Suvankar
-  PVcut  lepPVcuts_;
+  PVcut lepPVcuts_;
   bool usePVcuts_;
 
-  bool applyMETcut_ = false;  
+  bool applyMETcut_ = false;
 
   //george
   double invMassUppercut_;
   double invMassLowercut_;
   bool opsign_;
-  StringCutObjectSelector<reco::PFJet,true   >    MHTdefinition_;
+  StringCutObjectSelector<reco::PFJet, true> MHTdefinition_;
   double MHTcut_;
   double mll;
-  int   sign;
-bool invMassCutInAllMuPairs_;  
+  int sign;
+  bool invMassCutInAllMuPairs_;
 
   //Menglei
   bool enablePhotonPlot_;
 
   //Mateusz
   bool enableMETplot_;
-  
 };
 
-#endif // DQMOffline_Trigger_TopMonitor_h
+#endif  // DQMOffline_Trigger_TopMonitor_h

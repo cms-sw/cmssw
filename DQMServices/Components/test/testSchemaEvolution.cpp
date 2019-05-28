@@ -1,4 +1,4 @@
-#include "Utilities/Testing/interface/CppUnit_testdriver.icpp" //gives main
+#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"  //gives main
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "TClass.h"
@@ -10,8 +10,8 @@
 #include <iostream>
 #include <cassert>
 
-using std::unordered_map;
 using std::string;
+using std::unordered_map;
 
 class TestSchemaEvolution : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestSchemaEvolution);
@@ -33,13 +33,11 @@ private:
   void loopOnBases(TClass *);
   void analyseClass(TClass *);
 
-
   unordered_map<string, short> unique_classes_;
   unordered_map<string, short> unique_classes_current_;
-
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestSchemaEvolution );
+CPPUNIT_TEST_SUITE_REGISTRATION(TestSchemaEvolution);
 
 void TestSchemaEvolution::fillBaseline() {
   unique_classes_current_.insert(std::make_pair("vector<double>", 6));
@@ -94,17 +92,25 @@ void TestSchemaEvolution::checkVersions() {
 }
 
 void TestSchemaEvolution::gatherAllClasses() {
-  static const char *classes[] =
-  {
-    "TH1F", "TH1S", "TH1D", "TH1I",
-    "TH2F", "TH2S", "TH2D", "TH2I",
-    "TH3F", "TH3S", "TH3D", "TH3I",
-    "TProfile", "TProfile2D", "TF1", 0
-  };
+  static const char *classes[] = {"TH1F",
+                                  "TH1S",
+                                  "TH1D",
+                                  "TH1I",
+                                  "TH2F",
+                                  "TH2S",
+                                  "TH2D",
+                                  "TH2I",
+                                  "TH3F",
+                                  "TH3S",
+                                  "TH3D",
+                                  "TH3I",
+                                  "TProfile",
+                                  "TProfile2D",
+                                  "TF1",
+                                  0};
 
   int i = 0;
-  while (classes[i])
-  {
+  while (classes[i]) {
     TClass *tcl = TClass::GetClass(classes[i]);
     if (!tcl)
       continue;
@@ -114,8 +120,7 @@ void TestSchemaEvolution::gatherAllClasses() {
   }
 }
 
-void TestSchemaEvolution::loopOnDataMembers(TClass *tcl)
-{
+void TestSchemaEvolution::loopOnDataMembers(TClass *tcl) {
   TList *dms = tcl->GetListOfDataMembers();
   TIter next(dms);
   while (TObject *obj = next()) {
@@ -127,9 +132,7 @@ void TestSchemaEvolution::loopOnDataMembers(TClass *tcl)
   }
 }
 
-
-void TestSchemaEvolution::loopOnBases(TClass *tcl)
-{
+void TestSchemaEvolution::loopOnBases(TClass *tcl) {
   TList *bases = tcl->GetListOfBases();
   TIter next(bases);
   while (TObject *obj = next()) {
@@ -141,10 +144,7 @@ void TestSchemaEvolution::loopOnBases(TClass *tcl)
   }
 }
 
-
-void TestSchemaEvolution::analyseClass(TClass *cl)
-{
+void TestSchemaEvolution::analyseClass(TClass *cl) {
   loopOnBases(cl);
   loopOnDataMembers(cl);
 }
-

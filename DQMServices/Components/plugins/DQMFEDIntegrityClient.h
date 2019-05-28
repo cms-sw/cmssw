@@ -25,44 +25,42 @@
 
 class DQMFEDIntegrityClient : public edm::EDAnalyzer {
 public:
-  DQMFEDIntegrityClient( const edm::ParameterSet& );
+  DQMFEDIntegrityClient(const edm::ParameterSet&);
   ~DQMFEDIntegrityClient() override;
 
 protected:
-
   void beginJob() override;
   void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  void endLuminosityBlock(const edm::LuminosityBlock& l, const  edm::EventSetup& c) override;
+  void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
 
   void endRun(const edm::Run& r, const edm::EventSetup& c) override;
   void endJob() override;
 
 private:
-
   void initialize();
   void fillHistograms();
-   
+
   edm::ParameterSet parameters_;
 
-  DQMStore * dbe_;
+  DQMStore* dbe_;
 
   // ---------- member data ----------
 
-  int   NBINS;
+  int NBINS;
   float XMIN, XMAX;
   float SummaryContent[10];
 
-  MonitorElement * FedEntries;
-  MonitorElement * FedFatal;
-  MonitorElement * FedNonFatal;
+  MonitorElement* FedEntries;
+  MonitorElement* FedFatal;
+  MonitorElement* FedNonFatal;
 
-  MonitorElement * reportSummary;
-  MonitorElement * reportSummaryContent[10];
-  MonitorElement * reportSummaryMap;
+  MonitorElement* reportSummary;
+  MonitorElement* reportSummaryContent[10];
+  MonitorElement* reportSummaryMap;
 
   bool fillInEventloop;
   bool fillOnEndRun;
@@ -70,7 +68,6 @@ private:
   bool fillOnEndLumi;
   std::string moduleName;
   std::string fedFolderName;
-
 };
 
 #endif
