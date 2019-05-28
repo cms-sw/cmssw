@@ -16,74 +16,64 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
 #include "CondTools/SiPixel/test/SiPixelPerformanceSummaryBuilder.h"
 
-
 using namespace cms;
-
 
 SiPixelPerformanceSummaryBuilder::SiPixelPerformanceSummaryBuilder(const edm::ParameterSet& iConfig) {}
 
-
 SiPixelPerformanceSummaryBuilder::~SiPixelPerformanceSummaryBuilder() {}
-
 
 void SiPixelPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  edm::LogInfo("SiPixelPerformanceSummaryBuilder") << pDD->detUnits().size() <<" detectors" << std::endl;
+  edm::LogInfo("SiPixelPerformanceSummaryBuilder") << pDD->detUnits().size() << " detectors" << std::endl;
 
-  for ( const auto& it : pDD->detUnits()) {
-    if (dynamic_cast<PixelGeomDetUnit const*>(it)!=0) {
+  for (const auto& it : pDD->detUnits()) {
+    if (dynamic_cast<PixelGeomDetUnit const*>(it) != 0) {
       detectorModules_.push_back(it->geographicalId().rawId());
     }
   }
-  edm::LogInfo("Modules") << "detectorModules_.size() = "<< detectorModules_.size();
+  edm::LogInfo("Modules") << "detectorModules_.size() = " << detectorModules_.size();
 
   SiPixelPerformanceSummary* performanceSummary = new SiPixelPerformanceSummary();
-  
-  for (std::vector<uint32_t>::const_iterator iDet=detectorModules_.begin(); // fill object
-       iDet!=detectorModules_.end(); ++iDet) {
-    float nDigisMean = (float)CLHEP::RandGauss::shoot(50.,20.); // generate random values for each detId
-    float nDigisRMS = (float)CLHEP::RandGauss::shoot(20.,4.);
-    float emptyFraction = (float)CLHEP::RandGauss::shoot(.5,.2);
-    
-    performanceSummary->setNumberOfDigis(*iDet, nDigisMean, nDigisRMS, emptyFraction); // set values
+
+  for (std::vector<uint32_t>::const_iterator iDet = detectorModules_.begin();  // fill object
+       iDet != detectorModules_.end();
+       ++iDet) {
+    float nDigisMean = (float)CLHEP::RandGauss::shoot(50., 20.);  // generate random values for each detId
+    float nDigisRMS = (float)CLHEP::RandGauss::shoot(20., 4.);
+    float emptyFraction = (float)CLHEP::RandGauss::shoot(.5, .2);
+
+    performanceSummary->setNumberOfDigis(*iDet, nDigisMean, nDigisRMS, emptyFraction);  // set values
   }
   clock_t presentTime = clock();
   performanceSummary->setTimeStamp((unsigned long long)presentTime);
   performanceSummary->print();
-  
-  edm::Service<cond::service::PoolDBOutputService> poolDBService; // write to DB
+
+  edm::Service<cond::service::PoolDBOutputService> poolDBService;  // write to DB
   if (poolDBService.isAvailable()) {
     try {
       if (poolDBService->isNewTagRequest("SiPixelPerformanceSummaryRcd")) {
-        edm::LogInfo("Tag") <<" is a new tag request.";
-        poolDBService->createNewIOV<SiPixelPerformanceSummary>(performanceSummary, 
-							       poolDBService->beginOfTime(),
-	                                                       poolDBService->endOfTime(),
-							      "SiPixelPerformanceSummaryRcd");
+        edm::LogInfo("Tag") << " is a new tag request.";
+        poolDBService->createNewIOV<SiPixelPerformanceSummary>(performanceSummary,
+                                                               poolDBService->beginOfTime(),
+                                                               poolDBService->endOfTime(),
+                                                               "SiPixelPerformanceSummaryRcd");
+      } else {
+        edm::LogInfo("Tag") << " tag exists already";
+        poolDBService->appendSinceTime<SiPixelPerformanceSummary>(
+            performanceSummary, poolDBService->currentTime(), "SiPixelPerformanceSummaryRcd");
       }
-      else {
-        edm::LogInfo("Tag") <<" tag exists already";
-        poolDBService->appendSinceTime<SiPixelPerformanceSummary>(performanceSummary, 
-	                                                          poolDBService->currentTime(),
-								 "SiPixelPerformanceSummaryRcd");
-      }
-    }
-    catch (const cond::Exception& err) {
+    } catch (const cond::Exception& err) {
       edm::LogError("DBWriting") << err.what() << std::endl;
-    }
-    catch (const std::exception& err) {
-      edm::LogError("DBWriting") << "caught std::exception "<< err.what() << std::endl;
-    }
-    catch (...) {
+    } catch (const std::exception& err) {
+      edm::LogError("DBWriting") << "caught std::exception " << err.what() << std::endl;
+    } catch (...) {
       edm::LogError("DBWriting") << "unknown error" << std::endl;
     }
-  }
-  else edm::LogError("PoolDBOutputService") << "service unavailable" << std::endl; 
+  } else
+    edm::LogError("PoolDBOutputService") << "service unavailable" << std::endl;
 }
 
-
 void SiPixelPerformanceSummaryBuilder::beginJob() {}
-
 
 void SiPixelPerformanceSummaryBuilder::endJob() {}

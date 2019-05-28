@@ -17,23 +17,19 @@ using namespace XERCES_CPP_NAMESPACE;
 using namespace xuti;
 using namespace std;
 
-int  
-EcalClusterLocalContCorrXMLTranslator::readXML(
-           const string& filename,
-	   EcalCondHeader& header,
-	   EcalFunParams& record){
-
+int EcalClusterLocalContCorrXMLTranslator::readXML(const string& filename,
+                                                   EcalCondHeader& header,
+                                                   EcalFunParams& record) {
   cms::concurrency::xercesInitialize();
 
   XercesDOMParser* parser = new XercesDOMParser;
-  parser->setValidationScheme( XercesDOMParser::Val_Never );
-  parser->setDoNamespaces( false );
-  parser->setDoSchema( false );
-  
+  parser->setValidationScheme(XercesDOMParser::Val_Never);
+  parser->setDoNamespaces(false);
+  parser->setDoSchema(false);
+
   parser->parse(filename.c_str());
 
   DOMDocument* xmlDoc = parser->getDocument();
-  
 
   if (!xmlDoc) {
     std::cout << "EcalClusterLocalContCorrXMLTranslator::Error parsing document" << std::endl;
@@ -51,32 +47,28 @@ EcalClusterLocalContCorrXMLTranslator::readXML(
   return 0;
 }
 
-std::string 
-EcalClusterLocalContCorrXMLTranslator::dumpXML( const EcalCondHeader& header,
-						const EcalFunParams& record ) {
-    
-  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation( cms::xerces::uStr("LS").ptr()));
-  
-  DOMLSSerializer* writer = impl->createLSSerializer();
-  if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
-    writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
-  
-  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), nullptr, nullptr );
+std::string EcalClusterLocalContCorrXMLTranslator::dumpXML(const EcalCondHeader& header, const EcalFunParams& record) {
+  unique_ptr<DOMImplementation> impl(DOMImplementationRegistry::getDOMImplementation(cms::xerces::uStr("LS").ptr()));
 
-  DOMDocument* doc = impl->createDocument( nullptr, cms::xerces::uStr("EcalClusterLocalContCorr").ptr(), doctype );
-  
+  DOMLSSerializer* writer = impl->createLSSerializer();
+  if (writer->getDomConfig()->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+    writer->getDomConfig()->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+
+  DOMDocumentType* doctype = impl->createDocumentType(cms::xerces::uStr("XML").ptr(), nullptr, nullptr);
+
+  DOMDocument* doc = impl->createDocument(nullptr, cms::xerces::uStr("EcalClusterLocalContCorr").ptr(), doctype);
+
   DOMElement* root = doc->getDocumentElement();
   xuti::writeHeader(root, header);
 
-  for( auto it : record.params()) {
-    DOMElement* ECEC = 
-      root->getOwnerDocument()->createElement( cms::xerces::uStr("ClusterLocal").ptr());
+  for (auto it : record.params()) {
+    DOMElement* ECEC = root->getOwnerDocument()->createElement(cms::xerces::uStr("ClusterLocal").ptr());
     root->appendChild(ECEC);
 
-    WriteNodeWithValue(ECEC,Value_tag,it);
+    WriteNodeWithValue(ECEC, Value_tag, it);
   }
 
-  std::string dump = cms::xerces::toString( writer->writeToString( root ));
+  std::string dump = cms::xerces::toString(writer->writeToString(root));
   doc->release();
   doctype->release();
   writer->release();
@@ -84,18 +76,15 @@ EcalClusterLocalContCorrXMLTranslator::dumpXML( const EcalCondHeader& header,
   return dump;
 }
 
-int 
-EcalClusterLocalContCorrXMLTranslator::writeXML(
-               const std::string& filename,         
-	       const EcalCondHeader& header,
-	       const EcalFunParams& record) {
-
+int EcalClusterLocalContCorrXMLTranslator::writeXML(const std::string& filename,
+                                                    const EcalCondHeader& header,
+                                                    const EcalFunParams& record) {
   cms::concurrency::xercesInitialize();
 
-  std::fstream fs(filename.c_str(),ios::out);
-  fs<< dumpXML(header,record);
+  std::fstream fs(filename.c_str(), ios::out);
+  fs << dumpXML(header, record);
 
   cms::concurrency::xercesTerminate();
 
-  return 0;  
+  return 0;
 }
