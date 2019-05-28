@@ -112,9 +112,7 @@ void Herwig7Interface::initRepository(const edm::ParameterSet &pset)
         else
             runModeTemp.erase(0, pos+1);
 
-		// construct HerwigUIProvider object and return it as global object
-		if(HwUI_) delete HwUI_;
-		HwUI_ = new Herwig::HerwigUIProvider(pset, dumpConfig_, Herwig::RunMode::READ);
+		HwUI_.reset(new Herwig::HerwigUIProvider(pset, dumpConfig_, Herwig::RunMode::READ));
 		edm::LogInfo("Herwig7Interface") << "HerwigUIProvider object with run mode " << HwUI_->runMode() << " created.\n";
 
 
