@@ -15,8 +15,8 @@ public:
   /// dummy
   LinkBoardSpec() : theMaster(false) {}
 
-  /// real ctor specifyig LB if this LB is master, 
-  /// its number in link, and which chamber it is serving  
+  /// real ctor specifyig LB if this LB is master,
+  /// its number in link, and which chamber it is serving
   LinkBoardSpec(bool master, int linkBoardNumInLin, int lbCode);
 
   /// true if master LB (is it of any use?)
@@ -29,19 +29,19 @@ public:
   std::string linkBoardName() const;
 
   /// attach feb
-  void add(const FebConnectorSpec & feb); 
+  void add(const FebConnectorSpec& feb);
 
   /// get Feb by its connection number to this board
-  const FebConnectorSpec * feb(int febInputNum) const;
-  const  std::vector<FebConnectorSpec> & febs() const { return theFebs; }
+  const FebConnectorSpec* feb(int febInputNum) const;
+  const std::vector<FebConnectorSpec>& febs() const { return theFebs; }
 
   /// debud printout
-  std::string print(int depth=0) const;
+  std::string print(int depth = 0) const;
 
-private: 
+private:
   bool theMaster;
-  int theLinkBoardNumInLink; 
-  int theCode; 
+  int theLinkBoardNumInLink;
+  int theCode;
   std::vector<FebConnectorSpec> theFebs;
 
   COND_SERIALIZABLE;

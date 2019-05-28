@@ -1,7 +1,5 @@
 // $Id: $
-// Include files 
-
-
+// Include files
 
 // local
 #include "CondFormats/RPCObjects/interface/RBCBoardSpecs.h"
@@ -15,14 +13,10 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-RBCBoardSpecs::RBCBoardSpecs(  ) {
-  
-}
+RBCBoardSpecs::RBCBoardSpecs() {}
 //=============================================================================
 // Destructor
 //=============================================================================
-RBCBoardSpecs::~RBCBoardSpecs() {
-  v_boardspecs.clear();
-} 
+RBCBoardSpecs::~RBCBoardSpecs() { v_boardspecs.clear(); }
 
 //=============================================================================

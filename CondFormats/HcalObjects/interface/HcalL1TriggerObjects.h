@@ -1,7 +1,6 @@
 #ifndef HcalL1TriggerObjects_h
 #define HcalL1TriggerObjects_h
 
-
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <cstring>
@@ -12,13 +11,12 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-class HcalL1TriggerObjects: public HcalCondObjectContainer<HcalL1TriggerObject>
-{
- public:
+class HcalL1TriggerObjects : public HcalCondObjectContainer<HcalL1TriggerObject> {
+public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
- HcalL1TriggerObjects():HcalCondObjectContainer<HcalL1TriggerObject>(nullptr) { }
+  HcalL1TriggerObjects() : HcalCondObjectContainer<HcalL1TriggerObject>(nullptr) {}
 #endif
-  HcalL1TriggerObjects(const HcalTopology* topo):HcalCondObjectContainer<HcalL1TriggerObject>(topo) {}
+  HcalL1TriggerObjects(const HcalTopology* topo) : HcalCondObjectContainer<HcalL1TriggerObject>(topo) {}
 
   //fill the chars and read them
   void setTagString(std::string const& fTag) {
@@ -43,13 +41,11 @@ class HcalL1TriggerObjects: public HcalCondObjectContainer<HcalL1TriggerObject>
   std::string getAlgoString() const { return mAlgo; }
   std::string myname() const override { return "HcalL1TriggerObjects"; }
 
- private:
-
+private:
   static constexpr std::size_t charArraySize = 128;
   char mTag[charArraySize];
   char mAlgo[charArraySize];
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 #endif

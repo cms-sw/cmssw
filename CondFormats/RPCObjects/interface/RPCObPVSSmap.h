@@ -13,28 +13,26 @@
 #include <vector>
 #include <string>
 
-
 class RPCObPVSSmap {
-    public:
-      struct Item {
-        int since;
-        int dpid;
-        int region;
-        int ring;
-        int station;
-        int sector;
-        int layer;
-        int subsector;
-        int suptype;
-    
+public:
+  struct Item {
+    int since;
+    int dpid;
+    int region;
+    int ring;
+    int station;
+    int sector;
+    int layer;
+    int subsector;
+    int suptype;
+
     COND_SERIALIZABLE;
-};
-    RPCObPVSSmap(){}
-    virtual ~RPCObPVSSmap(){}
-    std::vector<Item> ObIDMap_rpc;
-   
-   COND_SERIALIZABLE;
+  };
+  RPCObPVSSmap() {}
+  virtual ~RPCObPVSSmap() {}
+  std::vector<Item> ObIDMap_rpc;
+
+  COND_SERIALIZABLE;
 };
 
 #endif
-

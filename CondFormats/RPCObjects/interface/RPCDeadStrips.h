@@ -3,32 +3,28 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include<vector>
-#include<iostream>
-#include<boost/cstdint.hpp>
-
+#include <vector>
+#include <iostream>
+#include <boost/cstdint.hpp>
 
 class RPCDeadStrips {
-
- public:
-
+public:
   struct DeadItem {
     int rawId;
     int strip;
-  
-  COND_SERIALIZABLE;
-};
-  
-  RPCDeadStrips(){}
 
-  ~RPCDeadStrips(){}
+    COND_SERIALIZABLE;
+  };
 
-  std::vector<DeadItem> const & getDeadVec() const {return DeadVec;}
+  RPCDeadStrips() {}
+
+  ~RPCDeadStrips() {}
+
+  std::vector<DeadItem> const& getDeadVec() const { return DeadVec; }
 
   std::vector<DeadItem> DeadVec;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

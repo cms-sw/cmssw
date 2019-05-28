@@ -7,7 +7,7 @@
 // GBRForestD                                                           //
 //                                                                      //
 // A fast minimal implementation of Gradient-Boosted Regression Trees   //
-// which has been especially optimized for size on disk and in memory.  //                                                                  
+// which has been especially optimized for size on disk and in memory.  //
 //                                                                      //
 // Designed to be built from the output of GBRLikelihood,               //
 // but could also be  generalized to otherwise-trained trees            //
@@ -25,50 +25,50 @@
 #include "Rtypes.h"
 
 class GBRForestD {
-  public:
-    typedef GBRTreeD TreeT;
-    
-    GBRForestD();
-    template<typename InputForestT> GBRForestD(const InputForestT &forest);
-    virtual ~GBRForestD();
+public:
+  typedef GBRTreeD TreeT;
 
-    double GetResponse(const float* vector) const;
+  GBRForestD();
+  template <typename InputForestT>
+  GBRForestD(const InputForestT &forest);
+  virtual ~GBRForestD();
 
-    double InitialResponse() const { return fInitialResponse; }
-    void SetInitialResponse(double response) { fInitialResponse = response; }
+  double GetResponse(const float *vector) const;
 
-    std::vector<GBRTreeD> &Trees() { return fTrees; }
-    const std::vector<GBRTreeD> &Trees() const { return fTrees; }
+  double InitialResponse() const { return fInitialResponse; }
+  void SetInitialResponse(double response) { fInitialResponse = response; }
 
-  protected:
-    double fInitialResponse;
-    std::vector<GBRTreeD> fTrees;  
-  
-  COND_SERIALIZABLE;  
+  std::vector<GBRTreeD> &Trees() { return fTrees; }
+  const std::vector<GBRTreeD> &Trees() const { return fTrees; }
+
+protected:
+  double fInitialResponse;
+  std::vector<GBRTreeD> fTrees;
+
+  COND_SERIALIZABLE;
 };
 
 //_______________________________________________________________________
-inline double GBRForestD::GetResponse(const float* vector) const {
+inline double GBRForestD::GetResponse(const float *vector) const {
   double response = fInitialResponse;
-  for (std::vector<GBRTreeD>::const_iterator it=fTrees.begin(); it!=fTrees.end(); ++it) {
+  for (std::vector<GBRTreeD>::const_iterator it = fTrees.begin(); it != fTrees.end(); ++it) {
     int termidx = it->TerminalIndex(vector);
     response += it->GetResponse(termidx);
-  }    
+  }
   return response;
 }
 
 //_______________________________________________________________________
-template<typename InputForestT> GBRForestD::GBRForestD(const InputForestT &forest) : 
- fInitialResponse(forest.InitialResponse()) {
+template <typename InputForestT>
+GBRForestD::GBRForestD(const InputForestT &forest) : fInitialResponse(forest.InitialResponse()) {
   //templated constructor to allow construction from Forest classes in GBRLikelihood
   //without creating an explicit dependency
-  
-  for (typename std::vector<typename InputForestT::TreeT>::const_iterator treeit = forest.Trees().begin(); treeit!=forest.Trees().end(); ++treeit) {
+
+  for (typename std::vector<typename InputForestT::TreeT>::const_iterator treeit = forest.Trees().begin();
+       treeit != forest.Trees().end();
+       ++treeit) {
     fTrees.push_back(GBRTreeD(*treeit));
   }
-  
 }
-
-
 
 #endif

@@ -14,28 +14,26 @@ POOL container to store Pedestal values 4xCapId, using template
 
 //typedef HcalCondObjectContainer<HcalPedestal> HcalPedestals;
 
-class HcalPedestals: public HcalCondObjectContainer<HcalPedestal>
-{
- public:
-  //constructor definition: has to contain 
+class HcalPedestals : public HcalCondObjectContainer<HcalPedestal> {
+public:
+  //constructor definition: has to contain
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalPedestals():HcalCondObjectContainer<HcalPedestal>(nullptr), unitIsADC(false) {}
+  HcalPedestals() : HcalCondObjectContainer<HcalPedestal>(nullptr), unitIsADC(false) {}
 #endif
-  HcalPedestals(const HcalTopology* topo):HcalCondObjectContainer<HcalPedestal>(topo), unitIsADC(false) {}
-  HcalPedestals(const HcalTopology* topo, bool isADC):HcalCondObjectContainer<HcalPedestal>(topo), unitIsADC(isADC) {}
+  HcalPedestals(const HcalTopology* topo) : HcalCondObjectContainer<HcalPedestal>(topo), unitIsADC(false) {}
+  HcalPedestals(const HcalTopology* topo, bool isADC) : HcalCondObjectContainer<HcalPedestal>(topo), unitIsADC(isADC) {}
 
   // are the units ADC ? (true=ADC, false=fC)
-  bool isADC() const {return unitIsADC;} 
+  bool isADC() const { return unitIsADC; }
   // set unit boolean
-  void setUnitADC(bool isADC) {unitIsADC = isADC;}
+  void setUnitADC(bool isADC) { unitIsADC = isADC; }
 
-  std::string myname() const override {return (std::string)"HcalPedestals";}
+  std::string myname() const override { return (std::string) "HcalPedestals"; }
 
- private:
+private:
   bool unitIsADC;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif
