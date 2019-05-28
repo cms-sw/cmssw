@@ -616,12 +616,15 @@ public:
                     tensorflow::TensorShape{1, 1, 1, dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs});
                 convTensor_[is_inner] = std::make_shared<tensorflow::Tensor>(tensorflow::DT_FLOAT,
                     tensorflow::TensorShape{1, n_cells, n_cells, dnn_inputs_2017_v2::number_of_conv_features});
-                zeroOutputTensor_[is_inner] = std::make_shared<tensorflow::Tensor>();
+                zeroOutputTensor_[is_inner] = std::make_shared<tensorflow::Tensor>(tensorflow::DT_FLOAT,
+                    tensorflow::TensorShape{1, 1, 1, dnn_inputs_2017_v2::number_of_conv_features});
+
 
                 eGammaTensor_[is_inner]->flat<float>().setZero();
                 muonTensor_[is_inner]->flat<float>().setZero();
                 hadronsTensor_[is_inner]->flat<float>().setZero();
-                getPartialPredictions(*zeroOutputTensor_[is_inner], is_inner);
+                getPartialPredictions(*zeroOutputTensor_[is_inner], is_inner, 0, 0);
+
             }
         } else {
             throw cms::Exception("DeepTauId") << "version " << version << " is not supported.";
@@ -767,8 +770,9 @@ private:
         fillGrids(tau, muons, inner_grid, outer_grid);
         fillGrids(tau, pfCands, inner_grid, outer_grid);
 
+        createTauBlockInputs(tau, pv, rho);
         createConvFeatures(tau, pv, rho, electrons, muons, pfCands, inner_grid, true);
-        createConvFeatures(tau, pv, rho, electrons, muons, pfCands, inner_grid, false);
+        createConvFeatures(tau, pv, rho, electrons, muons, pfCands, outer_grid, false);
 
         tensorflow::run(&(cache_->getSession("core")),
             { { "input_tau", *tauBlockTensor_ },
@@ -813,7 +817,7 @@ private:
         }
     }
 
-    void getPartialPredictions(tensorflow::Tensor& outputFeatures, bool is_inner)
+    void getPartialPredictions(tensorflow::Tensor& convTensor, bool is_inner, int eta_index, int phi_index)
     {
         std::vector<tensorflow::Tensor> pred_vector;
         if(is_inner) {
@@ -829,7 +833,7 @@ private:
                   { "input_outer_hadrons", *hadronsTensor_.at(is_inner) }, },
                 { "outer_all_dropout_4/Identity" }, &pred_vector);
         }
-        outputFeatures = pred_vector.at(0);
+        setCellConvFeatures(convTensor, pred_vector.at(0), eta_index, phi_index);
     }
 
     void createConvFeatures(const TauType& tau, const reco::Vertex& pv, double rho,
@@ -849,9 +853,7 @@ private:
                     createEgammaBlockInputs(tau, pv, rho, electrons, pfCands, cell, is_inner);
                     createMuonBlockInputs(tau, pv, rho, muons, pfCands, cell, is_inner);
                     createHadronsBlockInputs(tau, pv, rho, pfCands, cell, is_inner);
-                    tensorflow::Tensor convFeatures;
-                    getPartialPredictions(convFeatures, is_inner);
-                    setCellConvFeatures(convTensor, convFeatures, eta_index, phi_index);
+                    getPartialPredictions(convTensor, is_inner, eta_index, phi_index);
                 } else {
                     setCellConvFeatures(convTensor, *zeroOutputTensor_[is_inner], eta_index, phi_index);
                 }
@@ -860,11 +862,10 @@ private:
     }
 
     void setCellConvFeatures(tensorflow::Tensor& convTensor, const tensorflow::Tensor& features,
-                         int eta_index, int phi_index)
+                             int eta_index, int phi_index)
     {
-        for(int n = 0; n < dnn_inputs_2017_v2::number_of_conv_features; ++n) {
+        for(int n = 0; n < dnn_inputs_2017_v2::number_of_conv_features; ++n)
             convTensor.tensor<float, 4>()(0, eta_index, phi_index, n) = features.tensor<float, 4>()(0, 0, 0, n);
-        }
     }
 
     void createTauBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho)
@@ -1129,8 +1130,7 @@ private:
                 get(dnn::ele_closestCtfTrack_numberOfValidHits) = getValueNorm(closestCtfTrack->numberOfValidHits(), 15.16f, 5.26f);
             }
         }
-        // checkInputs(inputs, is_inner ? "egamma_inner_block" : "egamma_outer_block", dnn::NumberOfInputs, grid.nCellsEta,
-        //     grid.nCellsPhi);
+        checkInputs(inputs, is_inner ? "egamma_inner_block" : "egamma_outer_block", dnn::NumberOfInputs);
     }
 
     void createMuonBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
@@ -1258,8 +1258,7 @@ private:
                 }
             }
         }
-        // checkInputs(inputs, is_inner ? "muon_inner_block" : "muon_outer_block", dnn::NumberOfInputs, grid.nCellsEta,
-        //     grid.nCellsPhi);
+        checkInputs(inputs, is_inner ? "muon_inner_block" : "muon_outer_block", dnn::NumberOfInputs);
     }
 
     void createHadronsBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
@@ -1347,8 +1346,7 @@ private:
             get(dnn::pfCand_nHad_puppiWeightNoLep) = getValue(pfCands.at(index_nH).puppiWeightNoLep());
             get(dnn::pfCand_nHad_hcalFraction) = getValue(pfCands.at(index_nH).hcalFraction());
         }
-        // checkInputs(inputs, is_inner ? "hadron_inner_block" : "hadron_outer_block", dnn::NumberOfInputs, grid.nCellsEta,
-        //     grid.nCellsPhi);
+        checkInputs(inputs, is_inner ? "hadron_inner_block" : "hadron_outer_block", dnn::NumberOfInputs);
     }
 
     template<typename dnn>
