@@ -1,4 +1,4 @@
-// \class JetTracksAssociatorAtCaloFace JetTracksAssociatorAtCaloFace.cc 
+// \class JetTracksAssociatorAtCaloFace JetTracksAssociatorAtCaloFace.cc
 // Associate jet with tracks extrapolated to CALO face
 // Accommodated for Jet Package by: Fedor Ratnikov Sep.7, 2007
 //
@@ -19,22 +19,21 @@
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
 class JetTracksAssociatorAtCaloFace : public edm::stream::EDProducer<> {
-   public:
-      JetTracksAssociatorAtCaloFace(const edm::ParameterSet&);
-      ~JetTracksAssociatorAtCaloFace() override {}
+public:
+  JetTracksAssociatorAtCaloFace(const edm::ParameterSet&);
+  ~JetTracksAssociatorAtCaloFace() override {}
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-   private:
-      
-     JetTracksAssociatorAtCaloFace(){}
-      
-     edm::EDGetTokenT<edm::View <reco::Jet>> mJets;
-     edm::EDGetTokenT<std::vector<reco::TrackExtrapolation> > mExtrapolations;
-     JetTracksAssociationXtrpCalo mAssociator;
-     edm::ESHandle<CaloGeometry> pGeo;
-     bool firstRun;
-     double dR_;
+private:
+  JetTracksAssociatorAtCaloFace() {}
+
+  edm::EDGetTokenT<edm::View<reco::Jet>> mJets;
+  edm::EDGetTokenT<std::vector<reco::TrackExtrapolation>> mExtrapolations;
+  JetTracksAssociationXtrpCalo mAssociator;
+  edm::ESHandle<CaloGeometry> pGeo;
+  bool firstRun;
+  double dR_;
 };
 
 #endif
