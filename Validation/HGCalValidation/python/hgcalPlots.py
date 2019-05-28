@@ -21,6 +21,10 @@ import Validation.RecoTrack.plotting.html as html
 #that spans from 0 to 103 for hgcal_v9 geometry. The mapping for hgcal_v9 is: 
 #-z: 0->51
 #+z: 52->103
+#while for V10 is: 
+#-z: 0->49
+#+z: 50->99
+'''
 layerscheme = { 'lastLayerEEzm': 0, 'lastLayerFHzm': 0, 'maxlayerzm': 0, 'lastLayerEEzp': 0, 'lastLayerFHzp': 0, 'maxlayerzp': 0 }
 
 #Let's take the relevant values of layerscheme from the dqm file.
@@ -56,7 +60,11 @@ print(layerscheme)
 #For now values returned for 
 # 'lastLayerFHzp': '104', 'lastLayerFHzm': '52' 
 #are not the one expected. Will come back to this when there will be info in CMSSW to put in DQM file.  
-layerscheme = { 'lastLayerEEzm': 28, 'lastLayerFHzm': 40, 'maxlayerzm': 52, 'lastLayerEEzp': 80, 'lastLayerFHzp': 92, 'maxlayerzp': 104 }
+#For V9:
+#layerscheme = { 'lastLayerEEzm': 28, 'lastLayerFHzm': 40, 'maxlayerzm': 52, 'lastLayerEEzp': 80, 'lastLayerFHzp': 92, 'maxlayerzp': 104 }
+#For V10:
+'''
+layerscheme = { 'lastLayerEEzm': 28, 'lastLayerFHzm': 40, 'maxlayerzm': 50, 'lastLayerEEzp': 78, 'lastLayerFHzp': 90, 'maxlayerzp': 100 }
 print(layerscheme)
 
 lastLayerEEzm = layerscheme['lastLayerEEzm']  # last layer of EE -z
@@ -1036,9 +1044,10 @@ _cell_association_table_zminus = PlotGroup("cellAssociation_table_zminus", [
 
 _bin_count = 0
 _xbinlabels = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
-_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_eff = {"stat": False, "legend": False}
 _effplots_zminus = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
 _effplots_zminus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)])
+_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _common_eff["xmin"] = 0.
 _bin_count += maxlayerzm
 _common_eff["xmax"] =_bin_count
@@ -1046,18 +1055,20 @@ _effplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies 
 _efficiencies_zminus = PlotGroup("Efficiencies_zminus", _effplots_zminus, ncols=8)
 
 
-_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_dup = {"stat": False, "legend": False}
 _dupplots_zminus = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
 _dupplots_zminus.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)])
+_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _common_dup["xmin"] = _bin_count+maxlayerzm+1
 _bin_count += maxlayerzp
 _common_dup["xmax"] = _bin_count
 _dupplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Duplicates in z-", **_common_dup)])
 _duplicates_zminus = PlotGroup("Duplicates_zminus", _dupplots_zminus, ncols=8)
 
-_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_fake = {"stat": False, "legend": False}
 _fakeplots_zminus = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
 _fakeplots_zminus.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)])
+_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _common_fake["xmin"] = _bin_count+maxlayerzm+1
 _bin_count += maxlayerzp
 _common_fake["xmax"] = _bin_count
@@ -1066,9 +1077,10 @@ _common_fake["xbinlabelsize"] = 10.
 _fakeplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate in z-", **_common_fake)])
 _fakes_zminus = PlotGroup("FakeRate_zminus", _fakeplots_zminus, ncols=8)
 
-_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_merge = {"stat": False, "legend": False}
 _mergeplots_zminus = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
 _mergeplots_zminus.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)])
+_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _common_merge["xmin"] = _bin_count+maxlayerzm+1
 _bin_count += maxlayerzp
 _common_merge["xmax"] = _bin_count
@@ -1157,9 +1169,10 @@ _cell_association_table_zplus = PlotGroup("cellAssociation_table_zplus", [
         ], ncols=8 )
 
 _bin_count = 0
-_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_eff = {"stat": False, "legend": False}
 _effplots_zplus = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
 _effplots_zplus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)])
+_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _common_eff["xmin"] = maxlayerzm  
 _bin_count += maxlayerzp
 _common_eff["xmax"] =_bin_count
@@ -1167,27 +1180,30 @@ _effplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies i
 _efficiencies_zplus = PlotGroup("Efficiencies_zplus", _effplots_zplus, ncols=8)
 
 
-_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_dup = {"stat": False, "legend": False}
 _dupplots_zplus = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
 _dupplots_zplus.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)])
+_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _common_dup["xmin"] = _bin_count+maxlayerzm+1
 _bin_count += maxlayerzp
 _common_dup["xmax"] = _bin_count
 _dupplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Duplicates in z+", **_common_dup)])
 _duplicates_zplus = PlotGroup("Duplicates_zplus", _dupplots_zplus, ncols=8)
 
-_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_fake = {"stat": False, "legend": False}
 _fakeplots_zplus = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
 _fakeplots_zplus.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)])
+_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _common_fake["xmin"] = _bin_count+maxlayerzm+1
 _bin_count += maxlayerzp
 _common_fake["xmax"] = _bin_count
 _fakeplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate in z+", **_common_fake)])
 _fakes_zplus = PlotGroup("FakeRate_zplus", _fakeplots_zplus, ncols=8)
 
-_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_merge = {"stat": False, "legend": False}
 _mergeplots_zplus = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
 _mergeplots_zplus.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)])
+_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
 _common_merge["xmin"] = _bin_count+maxlayerzm+1
 _bin_count += maxlayerzp
 _common_merge["xmax"] = _bin_count
