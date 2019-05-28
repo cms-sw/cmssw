@@ -1,7 +1,7 @@
 #ifndef DataFormats_FTLRecHit_FTLClusterCollections_H
 #define DataFormats_FTLRecHit_FTLClusterCollections_H
 
-#include "DataFormats/Common/interface/DetSetVector.h" 
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/DetSetRefVector.h"
 #include "DataFormats/Common/interface/Ref.h"

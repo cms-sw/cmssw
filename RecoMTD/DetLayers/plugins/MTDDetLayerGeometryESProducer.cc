@@ -21,34 +21,27 @@
 #include <memory>
 #include <iostream>
 
-
 using namespace edm;
 
-MTDDetLayerGeometryESProducer::MTDDetLayerGeometryESProducer(const edm::ParameterSet & p){
-  setWhatProduced(this);
-}
+MTDDetLayerGeometryESProducer::MTDDetLayerGeometryESProducer(const edm::ParameterSet& p) { setWhatProduced(this); }
 
+MTDDetLayerGeometryESProducer::~MTDDetLayerGeometryESProducer() {}
 
-MTDDetLayerGeometryESProducer::~MTDDetLayerGeometryESProducer(){}
-
-
-std::unique_ptr<MTDDetLayerGeometry>
-MTDDetLayerGeometryESProducer::produce(const MTDRecoGeometryRecord & record) {
-
+std::unique_ptr<MTDDetLayerGeometry> MTDDetLayerGeometryESProducer::produce(const MTDRecoGeometryRecord& record) {
   const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDDetLayerGeometryESProducer";
   auto mtdDetLayerGeometry = std::make_unique<MTDDetLayerGeometry>();
-  
+
   edm::ESHandle<MTDGeometry> mtd;
   record.getRecord<MTDDigiGeometryRecord>().get(mtd);
   if (mtd.isValid()) {
-    // Build BTL layers  
+    // Build BTL layers
     mtdDetLayerGeometry->addBTLLayers(BTLDetLayerGeometryBuilder::buildLayers(*mtd));
-    // Build ETL layers  
+    // Build ETL layers
     mtdDetLayerGeometry->addETLLayers(ETLDetLayerGeometryBuilder::buildLayers(*mtd));
   } else {
-    LogInfo(metname) << "No MTD geometry is available."; 
+    LogInfo(metname) << "No MTD geometry is available.";
   }
-  
+
   // Sort layers properly
   mtdDetLayerGeometry->sortLayers();
 

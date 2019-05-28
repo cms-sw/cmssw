@@ -10,42 +10,34 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 class Phase2StripCPE final : public ClusterParameterEstimator<Phase2TrackerCluster1D> {
 public:
-
-    // currently (?) use Pixel classes for GeomDetUnit and Topology
-    using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
-    using Phase2TrackerTopology = PixelTopology ;
+  // currently (?) use Pixel classes for GeomDetUnit and Topology
+  using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
+  using Phase2TrackerTopology = PixelTopology;
 
   struct Param {
     Param() : topology(nullptr) {}
-    Phase2TrackerTopology const * topology;
+    Phase2TrackerTopology const* topology;
     LocalError localErr;
     float coveredStrips;
-    
   };
 
-
 public:
-
-    Phase2StripCPE(edm::ParameterSet & conf, const MagneticField &,const TrackerGeometry&);
-    LocalValues localParameters(const Phase2TrackerCluster1D & cluster, const GeomDetUnit & det) const override;
-    LocalVector driftDirection(const Phase2TrackerGeomDetUnit & det) const;
+  Phase2StripCPE(edm::ParameterSet& conf, const MagneticField&, const TrackerGeometry&);
+  LocalValues localParameters(const Phase2TrackerCluster1D& cluster, const GeomDetUnit& det) const override;
+  LocalVector driftDirection(const Phase2TrackerGeomDetUnit& det) const;
 
 private:
+  void fillParam();
+  std::vector<Param> m_Params;
 
-    void fillParam();
-    std::vector<Param> m_Params;
+  const MagneticField& magfield_;
+  const TrackerGeometry& geom_;
+  float tanLorentzAnglePerTesla_;
+  unsigned int m_off;
 
-    const MagneticField & magfield_;
-    const TrackerGeometry& geom_;
-    float tanLorentzAnglePerTesla_;
-    unsigned int m_off;
-
-    bool use_LorentzAngle_DB_;
-
+  bool use_LorentzAngle_DB_;
 };
-
 
 #endif

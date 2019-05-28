@@ -2,10 +2,10 @@
 #define RecoLocalMuon_GEMRecHit_GEMCluster_h
 #include <boost/cstdint.hpp>
 
-class GEMCluster{
- public:
+class GEMCluster {
+public:
   GEMCluster();
-  GEMCluster(int fs,int ls, int bx);
+  GEMCluster(int fs, int ls, int bx);
   ~GEMCluster();
 
   int firstStrip() const;
@@ -19,7 +19,7 @@ class GEMCluster{
   bool operator==(const GEMCluster& cl) const;
   bool isAdjacent(const GEMCluster& cl) const;
 
- private:
+private:
   uint16_t fstrip;
   uint16_t lstrip;
   int16_t bunchx;

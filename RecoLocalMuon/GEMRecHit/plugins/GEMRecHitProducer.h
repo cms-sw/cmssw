@@ -21,24 +21,22 @@
 #include "RecoLocalMuon/GEMRecHit/interface/GEMRecHitBaseAlgo.h"
 
 class GEMRecHitProducer : public edm::stream::EDProducer<> {
-
- public:
+public:
   /// Constructor
   GEMRecHitProducer(const edm::ParameterSet& config);
 
   /// Destructor
   ~GEMRecHitProducer() override;
-  
+
   // Method that access the EventSetup for each run
-  void beginRun(const edm::Run&, const edm::EventSetup& ) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// The method which produces the rechits
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
- private:
 
+private:
   // The token to be used to retrieve GEM digis from the event
   edm::EDGetTokenT<GEMDigiCollection> theGEMDigiToken;
 
@@ -56,9 +54,8 @@ class GEMRecHitProducer : public edm::stream::EDProducer<> {
   edm::ESHandle<GEMGeometry> gemGeom_;
 
   // map of mask and dead strips
-  std::map<GEMDetId,EtaPartitionMask> gemMask_;
+  std::map<GEMDetId, EtaPartitionMask> gemMask_;
 
   bool applyMasking_;
-  
 };
 #endif

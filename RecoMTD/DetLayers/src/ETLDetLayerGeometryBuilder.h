@@ -16,22 +16,21 @@ class MTDRingForwardDoubleLayer;
 class MTDDetRing;
 
 class ETLDetLayerGeometryBuilder {
- public:
-
+public:
   /// return.first=forward (+Z), return.second=backward (-Z)
   /// both vectors are sorted inside-out
   static std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > buildLayers(const MTDGeometry& geo);
- private:
+
+private:
   // Disable constructor - only static access is allowed.
-  ETLDetLayerGeometryBuilder(){}
+  ETLDetLayerGeometryBuilder() {}
 
   static MTDRingForwardDoubleLayer* buildLayer(int endcap,
                                                int layer,
                                                std::vector<unsigned>& rings,
                                                const MTDGeometry& geo);
-  
-  static MTDDetRing * makeDetRing(std::vector<const GeomDet*> & geomDets);
+
+  static MTDDetRing* makeDetRing(std::vector<const GeomDet*>& geomDets);
   static bool isFront(int layer, int ring, int module);
 };
 #endif
-
