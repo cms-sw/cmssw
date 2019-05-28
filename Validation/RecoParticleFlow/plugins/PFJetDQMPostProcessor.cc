@@ -3,7 +3,7 @@
 // Package:    Validation/RecoParticleFlow
 // Class:      PFJetDQMPostProcessor.cc
 // 
-// Main Developer:  "Juska Pekkanen"
+// Main Developer:   "Juska Pekkanen"
 // Original Author:  "Kenichi Hatakeyama"
 //
 
@@ -17,6 +17,9 @@
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "TCanvas.h"
+
+
 //
 // class decleration
 //
@@ -28,8 +31,8 @@ class PFJetDQMPostProcessor : public DQMEDHarvester {
 
    private:
       void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
-      void fitResponse(TH1F* hreso, TH1F* h_genjet_pt, double ptlow, double recoptcut,
-		       double& resp, double& resp_err, double& reso, double& reso_err);
+      void fitResponse(TH1F* hreso, TH1F* h_genjet_pt, int ptbinlow, double recoptcut,
+            double& resp, double& resp_err, double& reso, double& reso_err);
   
       std::string jetResponseDir;
       std::string genjetDir;
@@ -117,7 +120,7 @@ PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& i
     sprintf(ctitle,"Jet pT resolution using RMS, %4.1f<|#eta|<%4.1f",etaBins[ieta],etaBins[ieta+1]);
     TH1F *h_preso_rms = new TH1F(stitle.c_str(),ctitle,nPtBins,ptBinsArray);
 
-    for(unsigned int ipt = 0; ipt < ptBins.size()-1; ++ipt) {
+    for(unsigned int ipt = 1; ipt < ptBins.size()-1; ++ipt) { // skipping the very first pt bin which is difficult to fit
 
       stitle = jetResponseDir + "reso_dist_" + spt(ptBins[ipt],ptBins[ipt+1]) + "_eta" + seta(etaBins[ieta]); 
       me=iget_.get(stitle);
@@ -125,7 +128,7 @@ PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& i
 
       // Fit-based
       double resp=1.0, resp_err=0.0, reso=0.0, reso_err=0.0;
-      fitResponse(h_resp, h_genjet_pt, ptBins[ipt], recoptcut,
+      fitResponse(h_resp, h_genjet_pt, ipt, recoptcut,
 		  resp, resp_err, reso, reso_err);
       
       h_presponse->SetBinContent(ipt+1,resp);
@@ -182,27 +185,88 @@ PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& i
   }
   
 }
+
 void 
-PFJetDQMPostProcessor::fitResponse(TH1F* hreso, TH1F* h_genjet_pt, double ptlow, double recoptcut,
-				   double& resp, double& resp_err, double& reso, double& reso_err)
+PFJetDQMPostProcessor::fitResponse(TH1F* hreso, TH1F* h_genjet_pt, int ptbinlow,
+    double recoptcut, double& resp, double& resp_err, double& reso, double& reso_err)
 {
 
-  double rmswidth = hreso->GetStdDev();
-  double rmsmean = hreso->GetMean();
+// This 'smartfitter' is converted from the original Python smart_fit() -function
+// implemented in test/helperFunctions.py. See that file for more commentary.
+// Juska 23 May 2019
+
+// Only do plots if needed for debugging
+// NOTE a directory called 'debug' should be created in the working directory
+// before enabling doPlots.
+// NOTE plot saving does not work at the moment due to problems with CMSSW
+   bool doPlots = false;
    
-  double fitlow = rmsmean-1.5*rmswidth;   
-  fitlow = TMath::Max(recoptcut/ptlow,fitlow);
-  double fithigh = rmsmean+1.5*rmswidth;
+   double ptlow = ptBins[ptbinlow];
+   double pthigh = ptBins[ptbinlow+1];
 
-  TF1 *fg = new TF1("fg","gaus",fitlow,fithigh);
-  
-  hreso->Fit("fg","RQ");
+   // Take range by Mikko's advice: -1.5 and + 1.5 * RMS width
+   
+   double rmswidth = hreso->GetStdDev();
+   double rmsmean = hreso->GetMean();
+   double fitlow = rmsmean-1.5*rmswidth;
+   fitlow = TMath::Max(recoptcut/ptlow,fitlow);
+   double fithigh = rmsmean+1.5*rmswidth;
 
-  resp     = fg->GetParameter(1);
-  resp_err = fg->GetParError(1);
-  reso     = fg->GetParameter(2);
-  reso_err = fg->GetParError(2);
-  
+   TF1 *fg  = new TF1("mygaus","gaus",fitlow,fithigh);
+   TF1 *fg2 = new TF1("fg2","TMath::Gaus(x,[0],[1],true)*[2]",fitlow,fithigh);
+
+   hreso->Fit("mygaus", "RQN");
+   
+   fg2->SetParameter(0,fg->GetParameter(1));
+   fg2->SetParameter(1,fg->GetParameter(2));
+
+   // Extract ngenjet in the current pT bin from the genjet histo
+   float ngenjet = h_genjet_pt->GetBinContent(ptbinlow+1);
+   
+   // Here the fit is forced to take the area of ngenjets.
+   // The area is further normalized for the response histogram x-axis length
+   // (3) and number of bins (100)
+   fg2->FixParameter(2,ngenjet*3./100.);
+   
+   hreso->Fit("fg2","RQN");
+   
+   fitlow = fg2->GetParameter(0)-1.5*fg2->GetParameter(1);
+   fitlow = TMath::Max(15./ptlow,fitlow);
+   fithigh = fg2->GetParameter(0)+1.5*fg2->GetParameter(1);
+      
+   fg2->SetRange(fitlow,fithigh);
+   
+   hreso->Fit("fg2","RQN");
+   
+   fg->SetRange(0,3);
+   fg2->SetRange(0,3);
+   fg->SetLineWidth(2);
+   fg2->SetLineColor(kGreen+2);
+   
+   hreso->GetXaxis()->SetRangeUser(0,2);
+   
+   // Save plots to a subdirectory if asked (debug-directory must exist!)
+   if (doPlots & (hreso->GetEntries()>0)){
+      TCanvas *cfit = new TCanvas(Form("respofit_%i",int(ptlow)),"respofit", 600, 600);
+      hreso->Draw("ehist");
+      fg->Draw("same");
+      fg2->Draw("same");
+      cfit->SaveAs(Form("debug/respo_smartfit_%04d_%i_eta??.pdf",
+        (int)ptlow, (int)pthigh));
+      //FIXME add eta bin handling!
+   }
+            
+   resp = fg2->GetParameter(0);
+   resp_err = fg2->GetParError(0);
+   
+   // Scale resolution by response. Avoid division by zero.
+   if (0 == resp) reso = 0;
+   else reso = fg2->GetParameter(1)/resp;
+
+   reso_err = fg2->GetParError(1);
+   
+   // TODO: add proper resolution error calculation
+   
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
