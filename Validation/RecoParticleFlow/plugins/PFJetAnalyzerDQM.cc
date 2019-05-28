@@ -151,6 +151,7 @@ private:
     void fillJetResponse(edm::View<reco::Jet>& recoJetCollection, edm::View<reco::Jet>& genJetCollection);
     void prepareJetResponsePlots(const std::vector<edm::ParameterSet>& genjet_plots_pset);
     void prepareGenJetPlots(const std::vector<edm::ParameterSet>& genjet_plots_pset);
+
 };
 
 void PFJetAnalyzerDQM::prepareJetResponsePlots(const std::vector<edm::ParameterSet>& response_plots) {

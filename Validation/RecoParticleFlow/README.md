@@ -20,7 +20,7 @@ cd $CMSSW_BASE/src/Validation/RecoParticleFlow
 voms-proxy-init -voms cms
 
 #RECO step, about 30 minutes
-#Necessary if you are 
+#Necessary if you need to re-reco events to test introduced changes to PF reco.
 make QCD_reco
 
 #DQM step, a few minutes
@@ -55,19 +55,27 @@ Take note that the CMSSW python configuration for running the RECO sequence is d
 
 ~~~
 
-# For example (for 2017):
-CONDITIONS=auto:phase1_2017_realistic
-ERA=Run2_2017
+# For example (for 2018):
+#CONDITIONS=auto:phase1_2017_realistic
+#ERA=Run2_2017
+CONDITIONS=auto:phase1_2018_realistic
+ERA=Run2_2018
 #Running with 2 threads allows to use more memory on grid
 NTHREADS=2
 TMPDIR=tmp
 
 cd $CMSSW_BASE/src/Validation/RecoParticleFlow
-cd tmp/QCD
+make -p tmp/QCD; cd tmp/QCD
+#(or
+make -p tmp/QCDPU; cd tmp/QCDPU
+make -p tmp/NuGunPU; cd tmp/NuGunPU
+#)
 
 # make a text file for input files
-dasgoclient --query="file dataset=/RelValNuGun/CMSSW_10_5_0_pre1-PU25ns_103X_upgrade2018_realistic_v8-v1/MINIAODSIM" > step3_filelist.txt
+dasgoclient --query="file dataset=/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1/MINIAODSIM" > step3_filelist.txt
+dasgoclient --query="file dataset=/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4-v1/MINIAODSIM" > step3_filelist.txt
+dasgoclient --query="file dataset=/RelValNuGun/CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4-v1/MINIAODSIM" > step3_filelist.txt
 cat step3_filelist.txt
 
-cmsDriver.py step5 --conditions $CONDITIONS -s DQM:@pfDQM --datatier DQMIO --nThreads $NTHREADS --era $ERA --eventcontent DQM --filein filelist:step3_filelist.txt --fileout file:step5.root -n -1 2>&1 | tee step5.log
+cmsDriver.py step5 --conditions $CONDITIONS -s DQM:@pfDQM --datatier DQMIO --nThreads $NTHREADS --era $ERA --eventcontent DQM --filein filelist:step3_filelist.txt --fileout file:step5.root -n -1 2>&1 | tee step5.log 
 cmsDriver.py step6 --conditions $CONDITIONS -s HARVESTING:@pfDQM --era $ERA --filetype DQM --filein file:step5.root --fileout file:step6.root
