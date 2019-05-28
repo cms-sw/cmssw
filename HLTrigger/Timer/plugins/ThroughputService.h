@@ -29,31 +29,31 @@
 
 class ThroughputService {
 public:
-  ThroughputService(const edm::ParameterSet &, edm::ActivityRegistry & );
+  ThroughputService(const edm::ParameterSet&, edm::ActivityRegistry&);
   ~ThroughputService();
 
 private:
   void preallocate(edm::service::SystemBounds const& bounds);
   void preGlobalBeginRun(edm::GlobalContext const& gc);
   void preSourceEvent(edm::StreamID sid);
-  void postEvent(edm::StreamContext const & sc);
+  void postEvent(edm::StreamContext const& sc);
 
 public:
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  ConcurrentMonitorElement              m_sourced_events;
-  ConcurrentMonitorElement              m_retired_events;
+  ConcurrentMonitorElement m_sourced_events;
+  ConcurrentMonitorElement m_retired_events;
 
   std::chrono::steady_clock::time_point m_startup;
 
   // histogram-related data members
-  const double                          m_time_range;
-  const double                          m_time_resolution;
+  const double m_time_range;
+  const double m_time_resolution;
 
   // DQM service-related data members
-  std::string                           m_dqm_path;
-  const bool                            m_dqm_bynproc;
+  std::string m_dqm_path;
+  const bool m_dqm_bynproc;
 };
 
-#endif // ! ThroughputService_h
+#endif  // ! ThroughputService_h
