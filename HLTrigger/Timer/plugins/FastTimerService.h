@@ -41,17 +41,15 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "HLTrigger/Timer/interface/ProcessCallGraph.h"
 
-
 /*
 procesing time is divided into
  - source
  - event processing, sum of the time spent in all the modules
 */
 
-class FastTimerService : public tbb::task_scheduler_observer
-{
+class FastTimerService : public tbb::task_scheduler_observer {
 public:
-  FastTimerService(const edm::ParameterSet &, edm::ActivityRegistry & );
+  FastTimerService(const edm::ParameterSet&, edm::ActivityRegistry&);
   ~FastTimerService() override = default;
 
 private:
@@ -176,7 +174,7 @@ private:
   void on_scheduler_exit(bool worker) final;
 
 public:
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   // forward declarations
@@ -190,26 +188,26 @@ private:
     // take per-thread measurements
     void measure() noexcept;
     // take per-thread measurements, compute the delta with respect to the previous measurement, and store them in the argument
-    void measure_and_store(Resources & store) noexcept;
+    void measure_and_store(Resources& store) noexcept;
     // take per-thread measurements, compute the delta with respect to the previous measurement, and add them to the argument
-    void measure_and_accumulate(Resources & store) noexcept;
-    void measure_and_accumulate(AtomicResources & store) noexcept;
+    void measure_and_accumulate(Resources& store) noexcept;
+    void measure_and_accumulate(AtomicResources& store) noexcept;
 
   public:
-    #ifdef DEBUG_THREAD_CONCURRENCY
-    std::thread::id                                  id;
-    #endif // DEBUG_THREAD_CONCURRENCY
-    boost::chrono::thread_clock::time_point          time_thread;
+#ifdef DEBUG_THREAD_CONCURRENCY
+    std::thread::id id;
+#endif  // DEBUG_THREAD_CONCURRENCY
+    boost::chrono::thread_clock::time_point time_thread;
     boost::chrono::high_resolution_clock::time_point time_real;
-    uint64_t                                         allocated;
-    uint64_t                                         deallocated;
+    uint64_t allocated;
+    uint64_t deallocated;
   };
 
   // highlight a group of modules
   struct GroupOfModules {
   public:
-    std::string                 label;
-    std::vector<unsigned int>   modules;
+    std::string label;
+    std::vector<unsigned int> modules;
   };
 
   // resources being monitored by the service
@@ -217,14 +215,14 @@ private:
   public:
     Resources();
     void reset();
-    Resources & operator+=(Resources const& other);
+    Resources& operator+=(Resources const& other);
     Resources operator+(Resources const& other) const;
 
   public:
     boost::chrono::nanoseconds time_thread;
     boost::chrono::nanoseconds time_real;
-    uint64_t                   allocated;
-    uint64_t                   deallocated;
+    uint64_t allocated;
+    uint64_t deallocated;
   };
 
   // atomic version of Resources
@@ -234,8 +232,8 @@ private:
     AtomicResources(AtomicResources const& other);
     void reset();
 
-    AtomicResources & operator=(AtomicResources const& other);
-    AtomicResources & operator+=(AtomicResources const& other);
+    AtomicResources& operator=(AtomicResources const& other);
+    AtomicResources& operator+=(AtomicResources const& other);
     AtomicResources operator+(AtomicResources const& other) const;
 
   public:
@@ -249,37 +247,37 @@ private:
   public:
     ResourcesPerModule() noexcept;
     void reset() noexcept;
-    ResourcesPerModule & operator+=(ResourcesPerModule const& other);
+    ResourcesPerModule& operator+=(ResourcesPerModule const& other);
     ResourcesPerModule operator+(ResourcesPerModule const& other) const;
 
   public:
     Resources total;
-    unsigned  events;
-    bool      has_acquire;  // whether this module has an acquire() method
+    unsigned events;
+    bool has_acquire;  // whether this module has an acquire() method
   };
 
   struct ResourcesPerPath {
   public:
     void reset();
-    ResourcesPerPath & operator+=(ResourcesPerPath const& other);
+    ResourcesPerPath& operator+=(ResourcesPerPath const& other);
     ResourcesPerPath operator+(ResourcesPerPath const& other) const;
 
   public:
-    Resources active;       // resources used by all modules on this path
-    Resources total;        // resources used by all modules on this path, and their dependencies
-    unsigned  last;         // one-past-the last module that ran on this path
-    bool      status;       // whether the path accepted or rejected the event
+    Resources active;  // resources used by all modules on this path
+    Resources total;   // resources used by all modules on this path, and their dependencies
+    unsigned last;     // one-past-the last module that ran on this path
+    bool status;       // whether the path accepted or rejected the event
   };
 
   struct ResourcesPerProcess {
   public:
     ResourcesPerProcess(ProcessCallGraph::ProcessType const& process);
     void reset();
-    ResourcesPerProcess & operator+=(ResourcesPerProcess const& other);
+    ResourcesPerProcess& operator+=(ResourcesPerProcess const& other);
     ResourcesPerProcess operator+(ResourcesPerProcess const& other) const;
 
   public:
-    Resources                     total;
+    Resources total;
     std::vector<ResourcesPerPath> paths;
     std::vector<ResourcesPerPath> endpaths;
   };
@@ -289,18 +287,18 @@ private:
     ResourcesPerJob() = default;
     ResourcesPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups);
     void reset();
-    ResourcesPerJob & operator+=(ResourcesPerJob const& other);
+    ResourcesPerJob& operator+=(ResourcesPerJob const& other);
     ResourcesPerJob operator+(ResourcesPerJob const& other) const;
 
   public:
-    Resources                        total;
-    AtomicResources                  overhead;
-    Resources                        event;                 // total time etc. spent between preSourceEvent and postEvent
-    Measurement                      event_measurement;
-    std::vector<Resources>           highlight;
-    std::vector<ResourcesPerModule>  modules;
+    Resources total;
+    AtomicResources overhead;
+    Resources event;  // total time etc. spent between preSourceEvent and postEvent
+    Measurement event_measurement;
+    std::vector<Resources> highlight;
+    std::vector<ResourcesPerModule> modules;
     std::vector<ResourcesPerProcess> processes;
-    unsigned                         events;
+    unsigned events;
   };
 
   // plot ranges and resolution
@@ -315,29 +313,43 @@ private:
   class PlotsPerElement {
   public:
     PlotsPerElement() = default;
-    void book(DQMStore::ConcurrentBooker &, std::string const& name, std::string const& title, PlotRanges const& ranges, unsigned int lumisections, bool byls);
+    void book(DQMStore::ConcurrentBooker&,
+              std::string const& name,
+              std::string const& title,
+              PlotRanges const& ranges,
+              unsigned int lumisections,
+              bool byls);
     void fill(Resources const&, unsigned int lumisection);
     void fill(AtomicResources const&, unsigned int lumisection);
     void fill_fraction(Resources const&, Resources const&, unsigned int lumisection);
 
   private:
     // resources spent in the module
-    ConcurrentMonitorElement time_thread_;          // TH1F
-    ConcurrentMonitorElement time_thread_byls_;     // TProfile
-    ConcurrentMonitorElement time_real_;            // TH1F
-    ConcurrentMonitorElement time_real_byls_;       // TProfile
-    ConcurrentMonitorElement allocated_;            // TH1F
-    ConcurrentMonitorElement allocated_byls_;       // TProfile
-    ConcurrentMonitorElement deallocated_;          // TH1F
-    ConcurrentMonitorElement deallocated_byls_;     // TProfile
+    ConcurrentMonitorElement time_thread_;       // TH1F
+    ConcurrentMonitorElement time_thread_byls_;  // TProfile
+    ConcurrentMonitorElement time_real_;         // TH1F
+    ConcurrentMonitorElement time_real_byls_;    // TProfile
+    ConcurrentMonitorElement allocated_;         // TH1F
+    ConcurrentMonitorElement allocated_byls_;    // TProfile
+    ConcurrentMonitorElement deallocated_;       // TH1F
+    ConcurrentMonitorElement deallocated_byls_;  // TProfile
   };
 
   // plots associated to each path or endpath
   class PlotsPerPath {
   public:
     PlotsPerPath() = default;
-    void book(DQMStore::ConcurrentBooker &, std::string const &, ProcessCallGraph const&, ProcessCallGraph::PathType const&, PlotRanges const& ranges, unsigned int lumisections, bool byls);
-    void fill(ProcessCallGraph::PathType const&, ResourcesPerJob const&, ResourcesPerPath const&, unsigned int lumisection);
+    void book(DQMStore::ConcurrentBooker&,
+              std::string const&,
+              ProcessCallGraph const&,
+              ProcessCallGraph::PathType const&,
+              PlotRanges const& ranges,
+              unsigned int lumisections,
+              bool byls);
+    void fill(ProcessCallGraph::PathType const&,
+              ResourcesPerJob const&,
+              ResourcesPerPath const&,
+              unsigned int lumisection);
 
   private:
     // resources spent in all the modules in the path, including their dependencies
@@ -349,25 +361,30 @@ private:
     //   be better suited than a double, but there is no "TH1L" in ROOT.
 
     // how many times each module and their dependencies has run
-    ConcurrentMonitorElement module_counter_;               // TH1D
+    ConcurrentMonitorElement module_counter_;  // TH1D
     // resources spent in each module and their dependencies
-    ConcurrentMonitorElement module_time_thread_total_;     // TH1D
-    ConcurrentMonitorElement module_time_real_total_;       // TH1D
-    ConcurrentMonitorElement module_allocated_total_;       // TH1D
-    ConcurrentMonitorElement module_deallocated_total_;     // TH1D
+    ConcurrentMonitorElement module_time_thread_total_;  // TH1D
+    ConcurrentMonitorElement module_time_real_total_;    // TH1D
+    ConcurrentMonitorElement module_allocated_total_;    // TH1D
+    ConcurrentMonitorElement module_deallocated_total_;  // TH1D
   };
 
   class PlotsPerProcess {
   public:
     PlotsPerProcess(ProcessCallGraph::ProcessType const&);
-    void book(DQMStore::ConcurrentBooker &, ProcessCallGraph const&, ProcessCallGraph::ProcessType const&,
-        PlotRanges const& event_ranges, PlotRanges const& path_ranges,
-        unsigned int lumisections, bool bypath, bool byls);
+    void book(DQMStore::ConcurrentBooker&,
+              ProcessCallGraph const&,
+              ProcessCallGraph::ProcessType const&,
+              PlotRanges const& event_ranges,
+              PlotRanges const& path_ranges,
+              unsigned int lumisections,
+              bool bypath,
+              bool byls);
     void fill(ProcessCallGraph::ProcessType const&, ResourcesPerJob const&, ResourcesPerProcess const&, unsigned int ls);
 
   private:
     // resources spent in all the modules of the (sub)process
-    PlotsPerElement           event_;
+    PlotsPerElement event_;
     // resources spent in each path and endpath
     std::vector<PlotsPerPath> paths_;
     std::vector<PlotsPerPath> endpaths_;
@@ -376,22 +393,29 @@ private:
   class PlotsPerJob {
   public:
     PlotsPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups);
-    void book(DQMStore::ConcurrentBooker &, ProcessCallGraph const&, std::vector<GroupOfModules> const&,
-        PlotRanges const&  event_ranges, PlotRanges const&  path_ranges,
-        PlotRanges const&  module_ranges, unsigned int lumisections,
-        bool bymodule, bool bypath, bool byls, bool transitions);
+    void book(DQMStore::ConcurrentBooker&,
+              ProcessCallGraph const&,
+              std::vector<GroupOfModules> const&,
+              PlotRanges const& event_ranges,
+              PlotRanges const& path_ranges,
+              PlotRanges const& module_ranges,
+              unsigned int lumisections,
+              bool bymodule,
+              bool bypath,
+              bool byls,
+              bool transitions);
     void fill(ProcessCallGraph const&, ResourcesPerJob const&, unsigned int ls);
     void fill_run(AtomicResources const&);
     void fill_lumi(AtomicResources const&, unsigned int lumisection);
 
   private:
     // resources spent in all the modules of the job
-    PlotsPerElement              event_;
-    PlotsPerElement              event_ex_;
-    PlotsPerElement              overhead_;
+    PlotsPerElement event_;
+    PlotsPerElement event_ex_;
+    PlotsPerElement overhead_;
     // resources spent in the modules' lumi and run transitions
-    PlotsPerElement              lumi_;
-    PlotsPerElement              run_;
+    PlotsPerElement lumi_;
+    PlotsPerElement run_;
     // resources spent in the highlighted modules
     std::vector<PlotsPerElement> highlight_;
     // resources spent in each module
@@ -400,29 +424,28 @@ private:
     std::vector<PlotsPerProcess> processes_;
   };
 
-
   // keep track of the dependencies among modules
   ProcessCallGraph callgraph_;
 
   // per-stream information
-  std::vector<ResourcesPerJob>  streams_;
+  std::vector<ResourcesPerJob> streams_;
 
   // concurrent histograms and profiles
-  std::unique_ptr<PlotsPerJob>  plots_;
+  std::unique_ptr<PlotsPerJob> plots_;
 
   // per-lumi and per-run information
-  std::vector<AtomicResources>  lumi_transition_;               // resources spent in the modules' global and stream lumi transitions
-  std::vector<AtomicResources>  run_transition_;                // resources spent in the modules' global and stream run transitions
-  AtomicResources               overhead_;                      // resources spent outside of the modules' transitions
+  std::vector<AtomicResources> lumi_transition_;  // resources spent in the modules' global and stream lumi transitions
+  std::vector<AtomicResources> run_transition_;   // resources spent in the modules' global and stream run transitions
+  AtomicResources overhead_;                      // resources spent outside of the modules' transitions
 
   // summary data
-  ResourcesPerJob               job_summary_;                   // whole event time accounting per-job
-  std::vector<ResourcesPerJob>  run_summary_;                   // whole event time accounting per-run
-  std::mutex                    summary_mutex_;                 // synchronise access to the summary objects across different threads
+  ResourcesPerJob job_summary_;               // whole event time accounting per-job
+  std::vector<ResourcesPerJob> run_summary_;  // whole event time accounting per-run
+  std::mutex summary_mutex_;                  // synchronise access to the summary objects across different threads
 
   // per-thread quantities, lazily allocated
   tbb::enumerable_thread_specific<Measurement, tbb::cache_aligned_allocator<Measurement>, tbb::ets_key_per_instance>
-                                threads_;
+      threads_;
 
   // atomic variables to keep track of the completion of each step, process by process
   std::unique_ptr<std::atomic<unsigned int>[]> subprocess_event_check_;
@@ -430,61 +453,60 @@ private:
   std::unique_ptr<std::atomic<unsigned int>[]> subprocess_global_run_check_;
 
   // retrieve the current thread's per-thread quantities
-  Measurement & thread();
+  Measurement& thread();
 
   // job configuration
-  unsigned int                  concurrent_lumis_;
-  unsigned int                  concurrent_runs_;
-  unsigned int                  concurrent_streams_;
-  unsigned int                  concurrent_threads_;
+  unsigned int concurrent_lumis_;
+  unsigned int concurrent_runs_;
+  unsigned int concurrent_streams_;
+  unsigned int concurrent_threads_;
 
   // logging configuration
-  const bool                    print_event_summary_;           // print the time spent in each process, path and module after every event
-  const bool                    print_run_summary_;             // print the time spent in each process, path and module for each run
-  const bool                    print_job_summary_;             // print the time spent in each process, path and module for the whole job
+  const bool print_event_summary_;  // print the time spent in each process, path and module after every event
+  const bool print_run_summary_;    // print the time spent in each process, path and module for each run
+  const bool print_job_summary_;    // print the time spent in each process, path and module for the whole job
 
   // dqm configuration
-  bool                          enable_dqm_;                    // non const, depends on the availability of the DQMStore
-  const bool                    enable_dqm_bymodule_;
-  const bool                    enable_dqm_bypath_;
-  const bool                    enable_dqm_byls_;
-  const bool                    enable_dqm_bynproc_;
-  const bool                    enable_dqm_transitions_;
+  bool enable_dqm_;  // non const, depends on the availability of the DQMStore
+  const bool enable_dqm_bymodule_;
+  const bool enable_dqm_bypath_;
+  const bool enable_dqm_byls_;
+  const bool enable_dqm_bynproc_;
+  const bool enable_dqm_transitions_;
 
-  const PlotRanges              dqm_event_ranges_;
-  const PlotRanges              dqm_path_ranges_;
-  const PlotRanges              dqm_module_ranges_;
-  const unsigned int            dqm_lumisections_range_;
-  std::string                   dqm_path_;
+  const PlotRanges dqm_event_ranges_;
+  const PlotRanges dqm_path_ranges_;
+  const PlotRanges dqm_module_ranges_;
+  const unsigned int dqm_lumisections_range_;
+  std::string dqm_path_;
 
-  std::vector<edm::ParameterSet>
-                                highlight_module_psets_;        // non-const, cleared in postBeginJob()
-  std::vector<GroupOfModules>   highlight_modules_;             // non-const, filled in postBeginJob()
+  std::vector<edm::ParameterSet> highlight_module_psets_;  // non-const, cleared in postBeginJob()
+  std::vector<GroupOfModules> highlight_modules_;          // non-const, filled in postBeginJob()
 
   // log unsupported signals
-  mutable tbb::concurrent_unordered_set<std::string> unsupported_signals_;      // keep track of unsupported signals received
+  mutable tbb::concurrent_unordered_set<std::string> unsupported_signals_;  // keep track of unsupported signals received
 
   // print the resource usage summary for en event, a run, or the while job
   template <typename T>
-  void printHeader(T& out, std::string const & label) const;
+  void printHeader(T& out, std::string const& label) const;
 
   template <typename T>
-  void printEventHeader(T& out, std::string const & label) const;
+  void printEventHeader(T& out, std::string const& label) const;
 
   template <typename T>
-  void printEventLine(T& out, Resources const& data, std::string const & label) const;
+  void printEventLine(T& out, Resources const& data, std::string const& label) const;
 
   template <typename T>
-  void printEventLine(T& out, AtomicResources const& data, std::string const & label) const;
+  void printEventLine(T& out, AtomicResources const& data, std::string const& label) const;
 
   template <typename T>
   void printEvent(T& out, ResourcesPerJob const&) const;
 
   template <typename T>
-  void printSummaryHeader(T& out, std::string const & label, bool detailed) const;
+  void printSummaryHeader(T& out, std::string const& label, bool detailed) const;
 
   template <typename T>
-  void printPathSummaryHeader(T& out, std::string const & label) const;
+  void printPathSummaryHeader(T& out, std::string const& label) const;
 
   template <typename T>
   void printSummaryLine(T& out, Resources const& data, uint64_t events, std::string const& label) const;
@@ -493,7 +515,8 @@ private:
   void printSummaryLine(T& out, Resources const& data, uint64_t events, uint64_t active, std::string const& label) const;
 
   template <typename T>
-  void printPathSummaryLine(T& out, Resources const& data, Resources const& total, uint64_t events, std::string const& label) const;
+  void printPathSummaryLine(
+      T& out, Resources const& data, Resources const& total, uint64_t events, std::string const& label) const;
 
   template <typename T>
   void printSummary(T& out, ResourcesPerJob const& data, std::string const& label) const;
@@ -509,4 +532,4 @@ private:
   bool isLastSubprocess(std::atomic<unsigned int>& check);
 };
 
-#endif // ! FastTimerService_h
+#endif  // ! FastTimerService_h
