@@ -1,8 +1,6 @@
 # RPCTriggerPrimitives
 
-This is the first version of the RPCTriggerPrimitives for the RPC detector. Which uses as a input the RPCDigis as an input and the RPCRecHits (New collection) as a output.
-The output of this module is an edm branch named RPCPrimitivesDigis, following the RPCRecHit format already committed in CMSSW_10_6_0_pre1.
-We apply the cluster size cut and emulate max two clusters per link board. The module can be tuned by the parameters LinkBoardCut and ClusterSizeCut. 
+This is the first version of the RPCTriggerPrimitives for the RPC detector. Which uses as an input the RPCDigis as an input and the RPCRecHits (New collection) as an output. The output of this module is an edm branch named RPCPrimitivesDigis, following the RPCRecHit format already committed in CMSSW_10_6_0. We apply the cluster size cut and emulate max two clusters per link board. The module can be tuned by the parameters LinkBoardCut and ClusterSizeCut for phaseII. 
 
 #  Out of the box instructions
 
