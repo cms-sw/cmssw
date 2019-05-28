@@ -8,11 +8,7 @@
 #include "CondTools/Ecal/interface/EcalMappingElectronicsHandler.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
-
-typedef popcon::PopConAnalyzer<EcalMappingElectronicsHandler>  
-                                         EcalMappingElectronicsAnalyzer;
-
+typedef popcon::PopConAnalyzer<EcalMappingElectronicsHandler> EcalMappingElectronicsAnalyzer;
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(EcalMappingElectronicsAnalyzer);

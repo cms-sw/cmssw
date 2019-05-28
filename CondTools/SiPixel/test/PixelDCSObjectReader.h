@@ -20,22 +20,17 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 template <class Record>
-class PixelDCSObjectReader:
-  public edm::EDAnalyzer
-{
+class PixelDCSObjectReader : public edm::EDAnalyzer {
   typedef typename Record::Object Object;
 
-  public:
+public:
+  PixelDCSObjectReader(const edm::ParameterSet&) {}
 
-  PixelDCSObjectReader( const edm::ParameterSet& ) {}
-
-  void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup&);
 };
 
 template <class Record>
-void PixelDCSObjectReader<Record>::analyze(const edm::Event&,
-                                           const edm::EventSetup& setup)
-{
+void PixelDCSObjectReader<Record>::analyze(const edm::Event&, const edm::EventSetup& setup) {
   edm::ESHandle<Object> handle;
 
   setup.get<Record>().get(handle);

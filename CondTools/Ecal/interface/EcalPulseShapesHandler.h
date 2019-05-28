@@ -11,7 +11,6 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -34,33 +33,29 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-namespace popcon
-{
+namespace popcon {
 
-  class EcalPulseShapesHandler : public popcon::PopConSourceHandler<EcalPulseShapes>
-    {
-      
-    public:
-      EcalPulseShapesHandler(edm::ParameterSet const & );
-      ~EcalPulseShapesHandler() override;
-      bool checkPulseShape(EcalPulseShapes::Item* item);
-      void fillSimPulseShape(EcalPulseShapes::Item* item, bool isbarrel);
-      void getNewObjects() override;
-      std::string id() const override { return m_name;}
+  class EcalPulseShapesHandler : public popcon::PopConSourceHandler<EcalPulseShapes> {
+  public:
+    EcalPulseShapesHandler(edm::ParameterSet const&);
+    ~EcalPulseShapesHandler() override;
+    bool checkPulseShape(EcalPulseShapes::Item* item);
+    void fillSimPulseShape(EcalPulseShapes::Item* item, bool isbarrel);
+    void getNewObjects() override;
+    std::string id() const override { return m_name; }
 
-    private:
-      const EcalPulseShapes * mypulseshapes;
+  private:
+    const EcalPulseShapes* mypulseshapes;
 
-      unsigned int m_firstRun ;
-      unsigned int m_lastRun ;
-      
-      std::string m_gentag;
-      std::string m_filename;
-      std::string m_name;      
-      std::vector<double> m_EBPulseShapeTemplate, m_EEPulseShapeTemplate;
+    unsigned int m_firstRun;
+    unsigned int m_lastRun;
 
-    };
-}
+    std::string m_gentag;
+    std::string m_filename;
+    std::string m_name;
+    std::vector<double> m_EBPulseShapeTemplate, m_EEPulseShapeTemplate;
+  };
+}  // namespace popcon
 #endif

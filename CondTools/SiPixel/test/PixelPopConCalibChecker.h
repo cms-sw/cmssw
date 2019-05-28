@@ -5,7 +5,7 @@
 //
 // Package:    PixelPopConCalibChecker
 // Class:      PixelPopConCalibChecker
-// 
+//
 /**\class PixelPopConCalibChecker PixelPopConCalibChecker.h SiPixel/test/PixelPopConCalibChecker.h
 
  Description: Test analyzer for checking calib configuration objects written to db
@@ -36,23 +36,20 @@
 // class decleration
 //
 class PixelPopConCalibChecker : public edm::EDAnalyzer {
-   public:
-      explicit PixelPopConCalibChecker(const edm::ParameterSet&);
-      ~PixelPopConCalibChecker();
+public:
+  explicit PixelPopConCalibChecker(const edm::ParameterSet&);
+  ~PixelPopConCalibChecker();
 
+private:
+  //virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
 
-   private:
-      //virtual void beginJob(const edm::EventSetup&) ;
-      virtual void beginJob();
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      
-      std::string _filename;
-      int _messageLevel;
+  std::string _filename;
+  int _messageLevel;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 };
-
-
 
 #endif
