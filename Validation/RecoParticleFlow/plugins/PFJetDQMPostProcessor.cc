@@ -31,7 +31,7 @@ class PFJetDQMPostProcessor : public DQMEDHarvester {
 
    private:
       void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
-      void fitResponse(TH1F* hreso, TH1F* h_genjet_pt, int ptbinlow, double recoptcut,
+      void fitResponse(TH1F* hreso, TH1F* h_genjet_pt, int ptbinlow, int ietahigh, double recoptcut,
             double& resp, double& resp_err, double& reso, double& reso_err);
   
       std::string jetResponseDir;
@@ -128,7 +128,7 @@ PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& i
 
       // Fit-based
       double resp=1.0, resp_err=0.0, reso=0.0, reso_err=0.0;
-      fitResponse(h_resp, h_genjet_pt, ipt, recoptcut,
+      fitResponse(h_resp, h_genjet_pt, ipt, ieta, recoptcut,
 		  resp, resp_err, reso, reso_err);
       
       h_presponse->SetBinContent(ipt+1,resp);
@@ -187,7 +187,7 @@ PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& i
 }
 
 void 
-PFJetDQMPostProcessor::fitResponse(TH1F* hreso, TH1F* h_genjet_pt, int ptbinlow,
+PFJetDQMPostProcessor::fitResponse(TH1F* hreso, TH1F* h_genjet_pt, int ptbinlow, int ietahigh,
     double recoptcut, double& resp, double& resp_err, double& reso, double& reso_err)
 {
 
@@ -235,8 +235,9 @@ PFJetDQMPostProcessor::fitResponse(TH1F* hreso, TH1F* h_genjet_pt, int ptbinlow,
    fithigh = fg2->GetParameter(0)+1.5*fg2->GetParameter(1);
       
    fg2->SetRange(fitlow,fithigh);
-   
-   hreso->Fit("fg2","RQN");
+
+   if (doPlots) hreso->Fit("fg2","RQ");
+   else hreso->Fit("fg2","RQN");
    
    fg->SetRange(0,3);
    fg2->SetRange(0,3);
@@ -251,9 +252,8 @@ PFJetDQMPostProcessor::fitResponse(TH1F* hreso, TH1F* h_genjet_pt, int ptbinlow,
       hreso->Draw("ehist");
       fg->Draw("same");
       fg2->Draw("same");
-      cfit->SaveAs(Form("debug/respo_smartfit_%04d_%i_eta??.pdf",
-        (int)ptlow, (int)pthigh));
-      //FIXME add eta bin handling!
+      cfit->SaveAs(Form("debug/respo_smartfit_%04d_%i_eta%s.pdf",
+			(int)ptlow, (int)pthigh, seta(etaBins[ietahigh]).c_str()));
    }
             
    resp = fg2->GetParameter(0);
