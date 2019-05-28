@@ -11,34 +11,27 @@
 
 class HelixBarrelPlaneCrossing2OrderLocal {
 public:
+  typedef Surface::GlobalPoint GlobalPoint;
+  typedef Surface::GlobalVector GlobalVector;
+  typedef Surface::LocalPoint LocalPoint;
+  typedef Surface::LocalVector LocalVector;
 
-  typedef Surface::GlobalPoint    GlobalPoint;
-  typedef Surface::GlobalVector   GlobalVector;
-  typedef Surface::LocalPoint     LocalPoint;
-  typedef Surface::LocalVector    LocalVector;
+  HelixBarrelPlaneCrossing2OrderLocal(const GlobalPoint& startingPos,
+                                      const GlobalVector& startingDir,
+                                      float rho,
+                                      const Plane& plane);
 
-  HelixBarrelPlaneCrossing2OrderLocal( const GlobalPoint& startingPos,
-				       const GlobalVector& startingDir,
-				       float rho, 
-				       const Plane& plane);
-
-  LocalPoint  position() const { return thePos;}
-  LocalVector direction() const { return theDir;}
+  LocalPoint position() const { return thePos; }
+  LocalVector direction() const { return theDir; }
 
   static LocalPoint positionOnly(const GlobalPoint& startingPos,
-				 const GlobalVector& startingDir,
-				 float rho, 
-				 const Plane& plane);
+                                 const GlobalVector& startingDir,
+                                 float rho,
+                                 const Plane& plane);
 
 private:
- 
-  LocalPoint  thePos;
+  LocalPoint thePos;
   LocalVector theDir;
-
 };
-
-
-
-
 
 #endif

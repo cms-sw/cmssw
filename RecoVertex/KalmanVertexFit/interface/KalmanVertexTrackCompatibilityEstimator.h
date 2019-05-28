@@ -1,7 +1,6 @@
 #ifndef KalmanVertexTrackCompatibilityEstimator_H
 #define KalmanVertexTrackCompatibilityEstimator_H
 
-
 #include "RecoVertex/VertexPrimitives/interface/VertexTrackCompatibilityEstimator.h"
 //#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexTrack.h"
@@ -11,7 +10,7 @@
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
 #include "RecoVertex/KalmanVertexFit/interface/KVFHelper.h"
 
-  /**
+/**
    * Calculates the compatiblity of a track with respect to a vertex 
    * using the Kalman filter algorithms. 
    * The compatibility is computed from the squared standardized residuals 
@@ -22,19 +21,16 @@
    */
 
 template <unsigned int N>
-class KalmanVertexTrackCompatibilityEstimator : public VertexTrackCompatibilityEstimator<N>
-{
-
+class KalmanVertexTrackCompatibilityEstimator : public VertexTrackCompatibilityEstimator<N> {
 public:
-
   typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
   typedef typename VertexTrack<N>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
   typedef typename VertexTrack<N>::RefCountedRefittedTrackState RefCountedRefittedTrackState;
   typedef typename std::pair<bool, double> BDpair;
 
-  KalmanVertexTrackCompatibilityEstimator(){}
+  KalmanVertexTrackCompatibilityEstimator() {}
 
-  ~KalmanVertexTrackCompatibilityEstimator() override{}
+  ~KalmanVertexTrackCompatibilityEstimator() override {}
 
   /**
    * Track-to-vertex compatibility. 
@@ -44,33 +40,30 @@ public:
    * \return The chi**2.
    */
 
-  BDpair estimate(const CachingVertex<N> & vrt, const RefCountedVertexTrack track,
-			  unsigned int hint=UINT_MAX) const override;
+  BDpair estimate(const CachingVertex<N>& vrt,
+                  const RefCountedVertexTrack track,
+                  unsigned int hint = UINT_MAX) const override;
 
-  BDpair estimate(const CachingVertex<N> & v, 
-			  const RefCountedLinearizedTrackState track,
-			  unsigned int hint=UINT_MAX) const override;
+  BDpair estimate(const CachingVertex<N>& v,
+                  const RefCountedLinearizedTrackState track,
+                  unsigned int hint = UINT_MAX) const override;
 
-  BDpair estimate(const reco::Vertex & vertex, 
-			 const reco::TransientTrack & track) const override;
+  BDpair estimate(const reco::Vertex& vertex, const reco::TransientTrack& track) const override;
 
-  KalmanVertexTrackCompatibilityEstimator<N> * clone() const override
-  {
-    return new KalmanVertexTrackCompatibilityEstimator(* this);
+  KalmanVertexTrackCompatibilityEstimator<N>* clone() const override {
+    return new KalmanVertexTrackCompatibilityEstimator(*this);
   }
 
-
 private:
-
-  BDpair estimateFittedTrack(const CachingVertex<N> & v, const RefCountedVertexTrack track) const;
-  BDpair estimateNFittedTrack(const CachingVertex<N> & v, const RefCountedVertexTrack track) const;  
-  BDpair estimateDifference(const CachingVertex<N> & more, const CachingVertex<N> & less, 
-                                                       const RefCountedVertexTrack track) const;
+  BDpair estimateFittedTrack(const CachingVertex<N>& v, const RefCountedVertexTrack track) const;
+  BDpair estimateNFittedTrack(const CachingVertex<N>& v, const RefCountedVertexTrack track) const;
+  BDpair estimateDifference(const CachingVertex<N>& more,
+                            const CachingVertex<N>& less,
+                            const RefCountedVertexTrack track) const;
   KalmanVertexUpdator<N> updator;
   KalmanVertexTrackUpdator<N> trackUpdator;
   VertexTrackFactory<N> vTrackFactory;
   KVFHelper<N> helper;
-
 };
 
 #endif
