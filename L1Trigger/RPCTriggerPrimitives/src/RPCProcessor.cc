@@ -173,7 +173,7 @@ void RPCProcessor::Process(const edm::Event& iEvent,
     } //loop over temporal recHit vector
     
     
-    if (recHit_output.size() != 0){// Just to make sure
+    if (!recHit_output.empty()){// Just to make sure
       // clustersize cut: 
       recHit_output=ApplyClusterSizeCut(recHit_output, ClusterSizeCut); 
       primitivedigi.put(rpcId, recHit_output.begin(), recHit_output.end());
