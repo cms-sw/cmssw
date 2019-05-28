@@ -365,7 +365,6 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
             int rpc_phiB = std::numeric_limits<int>::min(); // single hit has no phiB and 0 is legal value for DT phiB
             int rpc_quality = -1; // to be decided
             int rpc_index = 0;
-            int rpc_BxCnt = 0;
             int rpc_flag = 3; // only single hit for now
             if(p2_df == 2){
                 if(debug)std::cout<<"pushing back phase-2 dataformat carlo-federica dataformat"<<std::endl;
