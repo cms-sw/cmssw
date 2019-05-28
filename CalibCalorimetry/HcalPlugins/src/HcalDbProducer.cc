@@ -170,16 +170,14 @@ HcalDbProducer::~HcalDbProducer() {
 std::shared_ptr<HcalDbService> HcalDbProducer::produce(const HcalDbRecord& record) {
   auto host = holder_.makeOrGet([]() { return new HostType; });
 
-  bool pedestalWidthsChanged = false;
-  host->ifRecordChanges<HcalPedestalWidthsRcd>(record, [this, h = host.get(), &pedestalWidthsChanged](auto const& rec) {
+  host->ifRecordChanges<HcalPedestalWidthsRcd>(record, [this, h = host.get()](auto const& rec) {
     setupEffectivePedestalWidths(rec, *h);
-    pedestalWidthsChanged = true;
+    setupPedestalWidths(rec, *h);
   });
 
-  bool pedestalsChanged = false;
-  host->ifRecordChanges<HcalPedestalsRcd>(record, [this, h = host.get(), &pedestalsChanged](auto const& rec) {
+  host->ifRecordChanges<HcalPedestalsRcd>(record, [this, h = host.get()](auto const& rec) {
     setupEffectivePedestals(rec, *h);
-    pedestalsChanged = true;
+    setupPedestals(rec, *h);
   });
 
   setupHcalDbService<HcalRecoParams, HcalRecoParamsRcd>(
@@ -233,16 +231,6 @@ std::shared_ptr<HcalDbService> HcalDbProducer::produce(const HcalDbRecord& recor
   setupHcalDbService<HcalGains, HcalGainsRcd>(*host, record, "withTopo", "Gains", "New HCAL Gains set");
 
   setupHcalDbService<HcalRespCorrs, HcalRespCorrsRcd>(*host, record, "withTopo", "RespCorrs", "New HCAL RespCorrs set");
-
-  if (pedestalWidthsChanged) {
-    HcalPedestalWidthsRcd const& rec = record.getRecord<HcalPedestalWidthsRcd>();
-    setupPedestalWidths(rec, *host);
-  }
-
-  if (pedestalsChanged) {
-    HcalPedestalsRcd const& rec = record.getRecord<HcalPedestalsRcd>();
-    setupPedestals(rec, *host);
-  }
 
   return host;
 }
