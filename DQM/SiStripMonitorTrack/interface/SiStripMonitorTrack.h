@@ -44,9 +44,9 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
-//******** Single include for the TkMap *************
+//******** Single include for the TkMap *************/
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
-//***************************************************
+//***************************************************/
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
@@ -122,7 +122,9 @@ private:
                     const TrackerTopology* tTopo,
                     const SiStripGain* stripGain,
                     const SiStripQuality* stripQuality,
-                    const edm::DetSetVector<SiStripDigi>& digilist);
+                    const edm::DetSetVector<SiStripDigi>& digilist,
+		    float clustZ,
+		    float clustPhi);
   template <class T>
   void RecHitInfo(const T* tkrecHit,
                   LocalVector LV,
@@ -166,13 +168,13 @@ private:
 
   std::string topFolderName_;
 
-  //******* TkHistoMaps
+  //******* TkHistoMaps*/
   std::unique_ptr<TkHistoMap> tkhisto_StoNCorrOnTrack, tkhisto_NumOnTrack, tkhisto_NumOffTrack;
   std::unique_ptr<TkHistoMap> tkhisto_ClChPerCMfromOrigin, tkhisto_ClChPerCMfromTrack;
   std::unique_ptr<TkHistoMap> tkhisto_NumMissingHits, tkhisto_NumberInactiveHits, tkhisto_NumberValidHits;
   std::unique_ptr<TkHistoMap> tkhisto_NoiseOnTrack, tkhisto_NoiseOffTrack, tkhisto_ClusterWidthOnTrack,
       tkhisto_ClusterWidthOffTrack;
-  //******** TkHistoMaps
+  //******** TkHistoMaps*/
   int numTracks;
 
   struct ModMEs {
@@ -201,6 +203,7 @@ private:
     MonitorElement* ClusterWidthOnTrack = nullptr;
     MonitorElement* ClusterWidthOffTrack = nullptr;
     MonitorElement* ClusterPosOnTrack = nullptr;
+    MonitorElement* ClusterPosOnTrack2D = nullptr;
     MonitorElement* ClusterPosOffTrack = nullptr;
     MonitorElement* ClusterChargePerCMfromTrack = nullptr;
     MonitorElement* ClusterChargePerCMfromOriginOnTrack = nullptr;
@@ -219,6 +222,7 @@ private:
     MonitorElement* ClusterWidthOnTrack = nullptr;
     MonitorElement* ClusterWidthOffTrack = nullptr;
     MonitorElement* ClusterPosOnTrack = nullptr;
+    MonitorElement* ClusterPosOnTrack2D = nullptr;
     MonitorElement* ClusterPosOffTrack = nullptr;
     MonitorElement* ClusterChargePerCMfromTrack = nullptr;
     MonitorElement* ClusterChargePerCMfromOriginOnTrack = nullptr;

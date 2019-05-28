@@ -23,6 +23,10 @@
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "TMath.h"
 
+
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
+#include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
+
 SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf)
     : conf_(conf),
       tracksCollection_in_EventTree(true),
@@ -536,6 +540,47 @@ void SiStripMonitorTrack::bookLayerMEs(DQMStore::IBooker& ibooker, const uint32_
   if (layer_id.find("TIB") != std::string::npos || layer_id.find("TOB") != std::string::npos ||
       (conf_.getParameter<edm::ParameterSet>(hpar.c_str())).getParameter<bool>(view.c_str()))
     theLayerMEs.ClusterPosOnTrack = ibooker.book1D(hname, hname, total_nr_strips, 0.5, total_nr_strips + 0.5);
+
+   
+  //----------------------
+  //add 2D z-phi map per layer
+  hname = hidmanager.createHistoLayer("Summary_ClusterPosition2D", name, layer_id, "OnTrack");
+  hpar = "TH2ClusterPosTOB";
+  if ( layer_id.find("TOB") != std::string::npos )  theLayerMEs.ClusterPosOnTrack2D = ibooker.book2D(hname, hname, 12, -110, 110, 300, -3.2, 3.2);
+  
+  hname = hidmanager.createHistoLayer("Summary_ClusterPosition2D", name, layer_id, "OnTrack");
+  hpar = "TH2ClusterPosTIB";
+  if ( layer_id.find("TIB") != std::string::npos )  theLayerMEs.ClusterPosOnTrack2D = ibooker.book2D(hname, hname, 12, -65, 65, 450, -3.2, 3.2);
+ 
+  hname = hidmanager.createHistoLayer("Summary_ClusterPosition2D", name, layer_id, "OnTrack");
+  hpar = "TH2ClusterPosTEC";
+  if ( layer_id.find("TEC") != std::string::npos ){ 
+    
+    static constexpr int   nbinR = 8;
+    static constexpr float rval[9]= {0, 21.2, 30.8, 40.4, 50.0, 60.0, 75.0, 90.0, 110.0};
+    static constexpr int   nmodulesPhi = 40*6; //max number of APV  for a ring
+    float phival[nmodulesPhi];
+    for(int i=0; i<nmodulesPhi; i++) phival[i] = -3.2+2*i*3.2/nmodulesPhi;
+    
+    TH2F * temp = new TH2F("tmp", "tmp", nbinR, rval, nmodulesPhi-1, phival); 
+    theLayerMEs.ClusterPosOnTrack2D = ibooker.book2D(hname, temp);
+  }
+ 
+  hname = hidmanager.createHistoLayer("Summary_ClusterPosition2D", name, layer_id, "OnTrack");
+  hpar = "TH2ClusterPosTID";
+  if ( layer_id.find("TID") != std::string::npos ){
+    static constexpr int   nbinR = 4;
+    static constexpr float rval[5]= {0, 21.2, 30.8, 40.4, 50.0};
+    static constexpr int   nmodulesPhi = 80*4;//max number of APV  for a ring
+    float phival[nmodulesPhi];
+    for(int i=0; i<nmodulesPhi; i++) phival[i] = -3.2+i*2*3.2/nmodulesPhi;
+    
+    TH2F * temp = new TH2F("tmp", "tmp", nbinR, rval, nmodulesPhi-1, phival); 
+    theLayerMEs.ClusterPosOnTrack2D = ibooker.book2D(hname, temp);
+  }
+ 
+
+ 
 
   hname = hidmanager.createHistoLayer("Summary_ClusterPosition", name, layer_id, "OffTrack");
   hpar = "TH1ClusterPos";
@@ -1194,22 +1239,37 @@ void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit,
   es.get<SiStripQualityRcd>().get("", qualityHandle);
   const SiStripQuality* stripQuality = qualityHandle.product();
 
-  // edm::Handle<edm::DetSetVector<SiStripDigi>> digihandle;
-  // ev.getByToken( digiToken_, digihandle );
-
   //Get SiStripCluster from SiStripRecHit
-  if (tkrecHit != nullptr) {
+  if (tkrecHit != nullptr && tkrecHit->isValid()) {
+    const DetId detid = tkrecHit->geographicalId();
+    int subDet = detid.subdetId();
+    //std::cout << __LINE__ << std::endl;
+    float clust_Pos1  = -1000;
+    float clust_Pos2  = -1000;
+    
+    
+    GlobalPoint  theGlobalPos = tkgeom_->idToDet(tkrecHit->geographicalId())->surface().toGlobal(tkrecHit->localPosition());
+    if(subDet == SiStripDetId::TIB || subDet == SiStripDetId::TOB ){
+      clust_Pos1 =  theGlobalPos.z();
+      clust_Pos2 =  theGlobalPos.phi();
+    }else{
+      clust_Pos1 =  pow(theGlobalPos.x()*theGlobalPos.x() + theGlobalPos.y()*theGlobalPos.y(), 0.5);
+      clust_Pos2 =  theGlobalPos.phi();
+    }
+    
     const SiStripCluster* SiStripCluster_ = &*(tkrecHit->cluster());
     SiStripClusterInfo SiStripClusterInfo_(*SiStripCluster_, es, detid);
 
+
     const Det2MEs MEs = findMEs(tTopo, detid);
     if (clusterInfos(
-            &SiStripClusterInfo_, detid, OnTrack, track_ok, LV, MEs, tTopo, stripGain, stripQuality, digilist)) {
+            &SiStripClusterInfo_, detid, OnTrack, track_ok, LV, MEs, tTopo, stripGain, stripQuality, digilist, clust_Pos1, clust_Pos2)) {
       vPSiStripCluster.insert(SiStripCluster_);
     }
   } else {
     edm::LogError("SiStripMonitorTrack") << "NULL hit" << std::endl;
   }
+  
 }
 
 //------------------------------------------------------------------------
@@ -1218,6 +1278,10 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
   edm::ESHandle<TrackerTopology> tTopoHandle;
   es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
+  
+  /*edm::ESHandle<TrackerGeometry> tracker;
+  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  const TrackerGeometry *tkgeom = &(*tracker); */
 
   edm::ESHandle<SiStripGain> gainHandle;
   es.get<SiStripGainRcd>().get(gainHandle);
@@ -1235,6 +1299,12 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
 
   edm::Handle<edmNew::DetSetVector<SiStripCluster>> siStripClusterHandle;
   ev.getByToken(clusterToken_, siStripClusterHandle);
+  
+  
+  /*edm::ESHandle<StripClusterParameterEstimator> parameterestimator;
+  es.get<TkStripCPERecord>().get("StripCPEfromTrackAngle", parameterestimator); 
+  const StripClusterParameterEstimator &stripcpe(*parameterestimator);*/
+  
   if (siStripClusterHandle.isValid()) {
     //Loop on Dets
     for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter = siStripClusterHandle->begin(),
@@ -1252,6 +1322,13 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
            ++ClusIter) {
         if (vPSiStripCluster.find(&*ClusIter) == vPSiStripCluster.end()) {
           SiStripClusterInfo SiStripClusterInfo_(*ClusIter, es, detid);
+	  
+	  /*const StripGeomDetUnit * stripdet = (const StripGeomDetUnit*) tkgeom->idToDetUnit(detid);
+    	  StripClusterParameterEstimator::LocalValues parameters=stripcpe.localParameters(*ClusIter, *stripdet);
+    	  LocalPoint lp = parameters.first;
+	  const Surface& surface = tracker->idToDet(detid)->surface();
+	  GlobalPoint gp = surface.toGlobal(lp);*/
+	  
           clusterInfos(&SiStripClusterInfo_,
                        detid,
                        OffTrack,
@@ -1261,7 +1338,9 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
                        tTopo,
                        stripGain,
                        stripQuality,
-                       digilist);
+                       digilist,
+		       0,
+		       0);
         }
       }
     }
@@ -1443,7 +1522,9 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster,
                                        const TrackerTopology* tTopo,
                                        const SiStripGain* stripGain,
                                        const SiStripQuality* stripQuality,
-                                       const edm::DetSetVector<SiStripDigi>& digilist) {
+                                       const edm::DetSetVector<SiStripDigi>& digilist,
+				       float valX,
+				       float valY) {
   if (cluster == nullptr)
     return false;
   // if one imposes a cut on the clusters, apply it
@@ -1461,12 +1542,14 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster,
     LogDebug("SiStripMonitorTrack") << "\n\t cosRZ " << cosRZ << std::endl;
   }
 
+
   // Filling SubDet/Layer Plots (on Track + off Track)
   float StoN = cluster->signalOverNoise();
   float noise = cluster->noiseRescaledByGain();
   uint16_t charge = cluster->charge();
   uint16_t width = cluster->width();
   float position = cluster->baryStrip();
+
 
   // Getting raw charge with strip gain.
   double chargeraw = 0;
@@ -1491,6 +1574,7 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster,
       }
     }
   }
+  
   clustergain /= double(cluster->stripCharges().size());  // calculating average gain inside cluster
 
   // new dE/dx (chargePerCM)
@@ -1530,6 +1614,11 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster,
       fillME(MEs.iLayer->ClusterNoiseOnTrack, noise);
       fillME(MEs.iLayer->ClusterWidthOnTrack, width);
       fillME(MEs.iLayer->ClusterPosOnTrack, position);
+      //auto clustgp = cluster->globalPosition();
+      
+      fillME(MEs.iLayer->ClusterPosOnTrack2D, valX, valY );
+      
+      
       if (track_ok)
         fillME(MEs.iLayer->ClusterChargePerCMfromTrack, dQdx_fromTrack);
       if (track_ok)
