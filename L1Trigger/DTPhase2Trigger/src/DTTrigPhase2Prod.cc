@@ -264,7 +264,7 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
     if (dump) {
       for (unsigned int i=0; i<correlatedMetaPrimitives.size(); i++){
 	  cout << iEvent.id().event() << " correlated mp " << i << ": ";
-	  printmP(metaPrimitives.at(i));
+	  printmP(correlatedMetaPrimitives.at(i));
 	  cout<<endl;
       }
     }
