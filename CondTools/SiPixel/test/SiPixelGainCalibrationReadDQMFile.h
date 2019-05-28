@@ -2,7 +2,7 @@
 //
 // Package:    SiPixelGainCalibrationReadDQMFile
 // Class:      SiPixelGainCalibrationReadDQMFile
-// 
+//
 /**\class SiPixelGainCalibrationReadDQMFile SiPixelGainCalibrationReadDQMFile.cc CalibTracker/SiPixelGainCalibrationReadDQMFile/src/SiPixelGainCalibrationReadDQMFile.cc
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 // $Id: SiPixelGainCalibrationReadDQMFile.h,v 1.2 2009/05/28 22:12:55 dlange Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -37,7 +36,6 @@
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-
 #include "TH2F.h"
 #include "TFile.h"
 #include "TDirectory.h"
@@ -50,19 +48,18 @@
 //
 
 class SiPixelGainCalibrationReadDQMFile : public edm::one::EDAnalyzer<edm::one::SharedResources> {
-   public:
-      explicit SiPixelGainCalibrationReadDQMFile(const edm::ParameterSet&);
+public:
+  explicit SiPixelGainCalibrationReadDQMFile(const edm::ParameterSet&);
 
-
-   private:
-      void analyze(const edm::Event&, const edm::EventSetup&) final;
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&) final;
   // functions added by F.B.
   void fillDatabase(const edm::EventSetup& iSetup, TFile*);
   std::unique_ptr<TFile> getHistograms();
-      // ----------member data ---------------------------
-  std::map<uint32_t,std::map<std::string,TString> > bookkeeper_;
-  std::map<uint32_t,std::map<double,double> > Meankeeper_;
-  std::map<uint32_t,std::vector< std::map<int,int> > > noisyPixelsKeeper_;
+  // ----------member data ---------------------------
+  std::map<uint32_t, std::map<std::string, TString> > bookkeeper_;
+  std::map<uint32_t, std::map<double, double> > Meankeeper_;
+  std::map<uint32_t, std::vector<std::map<int, int> > > noisyPixelsKeeper_;
 
   bool appendMode_;
   SiPixelGainCalibrationService theGainCalibrationDbInputService_;
@@ -86,5 +83,4 @@ class SiPixelGainCalibrationReadDQMFile : public edm::one::EDAnalyzer<edm::one::
   double badchi2_;
   size_t nmaxcols;
   size_t nmaxrows;
-  
 };

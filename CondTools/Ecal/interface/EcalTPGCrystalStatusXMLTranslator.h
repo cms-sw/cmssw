@@ -12,19 +12,13 @@
 #include <string>
 
 class EcalTPGCrystalStatusXMLTranslator {
-
 public:
+  static int writeXML(const std::string& filename, const EcalCondHeader& header, const EcalTPGCrystalStatus& record);
 
-  static  int writeXML(const std::string& filename, 
-		       const EcalCondHeader& header,
-		       const EcalTPGCrystalStatus& record);
-
- private:
-
-  static std::string dumpXML(const EcalCondHeader& header,
-			     const EcalTPGCrystalStatus& record);
+private:
+  static std::string dumpXML(const EcalCondHeader& header, const EcalTPGCrystalStatus& record);
 
   static void plot(std::string, const EcalTPGCrystalStatus& record);
 };
 
-#endif // __EcalTPGCrystalStatusXMLTranslator_h_
+#endif  // __EcalTPGCrystalStatusXMLTranslator_h_

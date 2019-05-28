@@ -15,18 +15,16 @@
 #include "CondFormats/DataRecord/interface/SiPixelTemplateDBObjectRcd.h"
 
 class SiPixelFakeTemplateDBSourceReader : public edm::EDAnalyzer {
-   public:
-      explicit SiPixelFakeTemplateDBSourceReader(const edm::ParameterSet&);
-      ~SiPixelFakeTemplateDBSourceReader();
+public:
+  explicit SiPixelFakeTemplateDBSourceReader(const edm::ParameterSet&);
+  ~SiPixelFakeTemplateDBSourceReader();
 
+private:
+  virtual void beginJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
 
-   private:
-      virtual void beginJob() ;
-			virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-			
-			edm::ESWatcher<SiPixelTemplateDBObjectRcd> SiPixelTemplateDBObjectWatcher_;
-
+  edm::ESWatcher<SiPixelTemplateDBObjectRcd> SiPixelTemplateDBObjectWatcher_;
 };
 
 #endif

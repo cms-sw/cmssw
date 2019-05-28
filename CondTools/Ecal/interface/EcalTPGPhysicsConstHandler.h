@@ -11,7 +11,6 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -22,8 +21,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-
-
 
 #include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
 #include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
@@ -40,59 +37,51 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-namespace popcon
-{
+namespace popcon {
 
+  class EcalTPGPhysicsConstHandler : public popcon::PopConSourceHandler<EcalTPGPhysicsConst> {
+  public:
+    EcalTPGPhysicsConstHandler(edm::ParameterSet const&);
+    ~EcalTPGPhysicsConstHandler() override;
 
-	class EcalTPGPhysicsConstHandler : public popcon::PopConSourceHandler<EcalTPGPhysicsConst>
-	{
+    void getNewObjects() override;
 
-		public:
-                        EcalTPGPhysicsConstHandler(edm::ParameterSet const & );
-			~EcalTPGPhysicsConstHandler() override; 
-			
-			void getNewObjects() override;
-			
-			std::string id() const override { return m_name;}
-			
-			void readFromFile(const char* inputFile) ;
-			void writeFile(const char* inputFile);
+    std::string id() const override { return m_name; }
 
-			
-			EcalCondDBInterface* econn;
+    void readFromFile(const char* inputFile);
+    void writeFile(const char* inputFile);
 
-		private:
-		
-		        std::string to_string( char value[]) {
-	    		std::ostringstream streamOut;
-	    		streamOut << value;
-	    		return streamOut.str();
-	  		}
-	  
-			const EcalTPGPhysicsConst * m_physicsConst;
+    EcalCondDBInterface* econn;
 
-			unsigned int m_firstRun ;
-			unsigned int m_lastRun ;
-			
-			std::string m_location;
-			std::string m_gentag;
-			std::string m_sid;
-			std::string m_user;
-			std::string m_pass;
-                        std::string m_locationsource;
-                        std::string m_name;
-			unsigned int m_runnr;
-			std::string m_runtype;
-			std::string m_i_tag;
-			int m_i_version;
-			unsigned int m_i_run_number;
-			int m_i_physClin;
-			int m_i_physClut;
-			int m_i_physCfgr;
-			
-	};
-}
+  private:
+    std::string to_string(char value[]) {
+      std::ostringstream streamOut;
+      streamOut << value;
+      return streamOut.str();
+    }
+
+    const EcalTPGPhysicsConst* m_physicsConst;
+
+    unsigned int m_firstRun;
+    unsigned int m_lastRun;
+
+    std::string m_location;
+    std::string m_gentag;
+    std::string m_sid;
+    std::string m_user;
+    std::string m_pass;
+    std::string m_locationsource;
+    std::string m_name;
+    unsigned int m_runnr;
+    std::string m_runtype;
+    std::string m_i_tag;
+    int m_i_version;
+    unsigned int m_i_run_number;
+    int m_i_physClin;
+    int m_i_physClut;
+    int m_i_physCfgr;
+  };
+}  // namespace popcon
 #endif
-
