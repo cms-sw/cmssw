@@ -7,37 +7,27 @@
 // the two conventions.
 
 
-#include <cmath>
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 
 namespace geant_units {
   
-  constexpr long double piRadians(M_PI);
-  constexpr long double degPerRad = 180. / piRadians; // Degrees per radian
+  using angle_units::piRadians;                  // Needed by files the include this file
   constexpr long double joule(6.24150e+12);
   constexpr long double seconds(1.e+9);
   constexpr long double nanoseconds(1.);
   
   namespace operators {
 
-    // Angle
-    constexpr long double operator "" _pi( long double x ) 
-    { return x * piRadians; }
-    constexpr long double operator "" _pi( unsigned long long int x ) 
-    { return x * piRadians; }
-    constexpr long double operator"" _deg( long double deg )
-    {
-      return deg / degPerRad;
-    }
-    constexpr long double operator"" _deg( unsigned long long int deg )
-    {
-      return deg / degPerRad;
-    }
-    constexpr long double operator"" _rad( long double rad )
-    {
-      return rad*1.;
-    }
-    
+    // The following are needed by files that include this header
+    // Since "using namespace" is prohibited in header files, each
+    // name is individually imported with a "using" statement.
+    using angle_units::operators::operator""_deg;
+    using angle_units::operators::operator""_pi;
+    using angle_units::operators::operator""_rad;
+    using angle_units::operators::convertRadToDeg;
+    using angle_units::operators::convertDegToRad;
+
     // Length 
     constexpr long double operator"" _mm( long double length )
     {
@@ -93,18 +83,6 @@ namespace geant_units {
     { return density * 1._g / 1._cm3; }
     constexpr long double operator"" _g_per_mole( long double mass )
     { return mass * 1._g / 1._mole; }
-
-    template <class NumType>
-    inline constexpr NumType convertRadToDeg(NumType radians) // Radians -> degrees
-    {
-      return (radians * degPerRad);
-    }
-
-    template <class NumType>
-    inline constexpr long double convertDegToRad(NumType degrees) // Degrees -> radians
-    {
-      return (degrees / degPerRad);
-    }
 
     template <class NumType>
     inline constexpr NumType convertMmToCm(NumType millimeters) // Millimeters -> centimeters

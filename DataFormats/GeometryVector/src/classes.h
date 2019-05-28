@@ -1,3 +1,9 @@
+#include "DataFormats/GeometryVector/interface/Phi.h"
+namespace {
+  Geom::Phi<double, Geom::MinusPiToPi> dummy;
+  Geom::Phi<float, Geom::MinusPiToPi> dummy1;
+}
+
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 //
 
