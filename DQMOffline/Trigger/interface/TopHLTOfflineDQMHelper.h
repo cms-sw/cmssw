@@ -22,37 +22,36 @@
    a given TriggerPath(s).
 */
 
-inline bool 
-acceptHLT(const edm::Event& event, const edm::TriggerResults& triggerTable, const std::string& triggerPath)
-{
-  bool passed=false;
+inline bool acceptHLT(const edm::Event& event,
+                      const edm::TriggerResults& triggerTable,
+                      const std::string& triggerPath) {
+  bool passed = false;
   const edm::TriggerNames& triggerNames = event.triggerNames(triggerTable);
-  for(unsigned int i=0; i<triggerNames.triggerNames().size(); ++i){
+  for (unsigned int i = 0; i < triggerNames.triggerNames().size(); ++i) {
     TString name = triggerNames.triggerNames()[i].c_str();
     //std::cout << name << " " << triggerTable.accept(i) << std::endl;
-    if(name.Contains(TString(triggerPath.c_str()), TString::kIgnoreCase)) {
-      if(triggerTable.accept(i)){
-	      passed=true;
-	      break;
+    if (name.Contains(TString(triggerPath.c_str()), TString::kIgnoreCase)) {
+      if (triggerTable.accept(i)) {
+        passed = true;
+        break;
       }
     }
   }
   return passed;
 }
 
-inline bool 
-acceptHLT(const edm::Event& event, const edm::TriggerResults& triggerTable, const std::vector<std::string>& triggerPaths)
-{
-  bool passed=false;
-  for(const auto & triggerPath : triggerPaths){
-    if(acceptHLT(event, triggerTable, triggerPath)){
-      passed=true;
+inline bool acceptHLT(const edm::Event& event,
+                      const edm::TriggerResults& triggerTable,
+                      const std::vector<std::string>& triggerPaths) {
+  bool passed = false;
+  for (const auto& triggerPath : triggerPaths) {
+    if (acceptHLT(event, triggerTable, triggerPath)) {
+      passed = true;
       break;
     }
   }
   return passed;
 }
-
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -70,18 +69,19 @@ acceptHLT(const edm::Event& event, const edm::TriggerResults& triggerTable, cons
 */
 
 class CalculateHLT {
- public:
+public:
   /// default constructor
   CalculateHLT(int maxNJets, double wMass);
   /// default destructor
-  ~CalculateHLT()= default;;
-     
+  ~CalculateHLT() = default;
+  ;
+
   /// calculate W boson mass estimate
   double massWBoson(const std::vector<reco::Jet>& jets);
   /// calculate top quark mass estimate
-  double massTopQuark(const std::vector<reco::Jet>& jets); 
+  double massTopQuark(const std::vector<reco::Jet>& jets);
   /// calculate W boson transverse mass estimate
-/*  double tmassWBoson(const T& mu, const reco::CaloMET& met, const reco::Jet& b);
+  /*  double tmassWBoson(const T& mu, const reco::CaloMET& met, const reco::Jet& b);
   /// calculate top quark transverse mass estimate
   double tmassTopQuark(const T& mu, const reco::CaloMET& met, const reco::Jet& b);
   /// calculate mlb estimate
@@ -93,17 +93,18 @@ class CalculateHLT {
   double tmassTopQuark(reco::RecoCandidate* mu, const reco::MET& met, const reco::Jet& b);
   /// calculate mlb estimate
   double masslb(reco::RecoCandidate* mu, const reco::MET& met, const reco::Jet& b);
-  
- private:
-  /// do the calculation; this is called only once per event by the first 
-  /// function call to return a mass estimate. The once calculated values 
+
+private:
+  /// do the calculation; this is called only once per event by the first
+  /// function call to return a mass estimate. The once calculated values
   /// are cached afterwards
   void operator()(const std::vector<reco::Jet>& jets);
   void operator()(const reco::Jet& bJet, reco::RecoCandidate* lepton, const reco::MET& met);
- private:
+
+private:
   /// indicate failed associations
   bool failed_;
-  /// max. number of jets to be considered 
+  /// max. number of jets to be considered
   int maxNJets_;
   /// paramater of the w boson mass
   double wMass_;
@@ -117,10 +118,7 @@ class CalculateHLT {
   double tmassTopQuark_;
   /// cache of mlb estimate
   double mlb_;
-
-
 };
-
 
 #include "DataFormats/JetReco/interface/JetID.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -174,20 +172,18 @@ class CalculateHLT {
    type1 or muon corrections are supported on reco candidates.
 */
 class SelectionStepHLTBase {
-  public:
-    virtual ~SelectionStepHLTBase() = default;
-    virtual bool select(const edm::Event& event) {
-      return false;
-    };
+public:
+  virtual ~SelectionStepHLTBase() = default;
+  virtual bool select(const edm::Event& event) { return false; };
 
-    virtual bool select(const edm::Event& event, const edm::EventSetup& setup) {
-      assert(false);
-      return false;
-    };
+  virtual bool select(const edm::Event& event, const edm::EventSetup& setup) {
+    assert(false);
+    return false;
+  };
 };
 
-template <typename Object> 
-class SelectionStepHLT: public SelectionStepHLTBase {
+template <typename Object>
+class SelectionStepHLT : public SelectionStepHLTBase {
 public:
   /// default constructor
   SelectionStepHLT(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
@@ -197,15 +193,16 @@ public:
   /// apply selection
   bool select(const edm::Event& event) override;
   /// apply selection override for jets
-  bool select(const edm::Event& event, const edm::EventSetup& setup) override; 
+  bool select(const edm::Event& event, const edm::EventSetup& setup) override;
   bool selectVertex(const edm::Event& event);
+
 private:
   /// input collection
-  edm::EDGetTokenT< edm::View<Object> > src_;
+  edm::EDGetTokenT<edm::View<Object> > src_;
   /// min/max for object multiplicity
-  int min_, max_; 
+  int min_, max_;
   /// electronId label as extra selection type
-  edm::EDGetTokenT< edm::ValueMap<float> > electronId_;
+  edm::EDGetTokenT<edm::ValueMap<float> > electronId_;
   /// electronId pattern we expect the following pattern:
   ///  0: fails
   ///  1: passes electron ID only
@@ -220,13 +217,13 @@ private:
   /// jet corrector as extra selection type
   std::string jetCorrector_;
   /// choice for b-tag as extra selection type
-  edm::EDGetTokenT< reco::JetTagCollection > btagLabel_;
+  edm::EDGetTokenT<reco::JetTagCollection> btagLabel_;
   /// choice of b-tag working point as extra selection type
   double btagWorkingPoint_;
-  /// jetID as an extra selection type 
-  edm::EDGetTokenT< reco::JetIDValueMap > jetIDLabel_;
+  /// jetID as an extra selection type
+  edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
 
-  edm::EDGetTokenT< edm::View<reco::Vertex> > pvs_; 
+  edm::EDGetTokenT<edm::View<reco::Vertex> > pvs_;
 
   /// string cut selector
   StringCutObjectSelector<Object> select_;
@@ -235,96 +232,100 @@ private:
 };
 
 /// default constructor
-template <typename Object> 
-SelectionStepHLT<Object>::SelectionStepHLT(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) :
-  src_( iC.consumes< edm::View<Object> >(cfg.getParameter<edm::InputTag>( "src"   ))),
-  select_( cfg.getParameter<std::string>("select")),
-  jetIDSelect_(nullptr)
-{
+template <typename Object>
+SelectionStepHLT<Object>::SelectionStepHLT(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
+    : src_(iC.consumes<edm::View<Object> >(cfg.getParameter<edm::InputTag>("src"))),
+      select_(cfg.getParameter<std::string>("select")),
+      jetIDSelect_(nullptr) {
   // construct min/max if the corresponding params
   // exist otherwise they are initialized with -1
-  cfg.exists("min") ? min_= cfg.getParameter<int>("min") : min_= -1;
-  cfg.exists("max") ? max_= cfg.getParameter<int>("max") : max_= -1;
+  cfg.exists("min") ? min_ = cfg.getParameter<int>("min") : min_ = -1;
+  cfg.exists("max") ? max_ = cfg.getParameter<int>("max") : max_ = -1;
   // read electron extras if they exist
-  if(cfg.existsAs<edm::ParameterSet>("electronId")){ 
-    edm::ParameterSet elecId=cfg.getParameter<edm::ParameterSet>("electronId");
-    electronId_= iC.consumes< edm::ValueMap<float> >(elecId.getParameter<edm::InputTag>("src"));
-    eidPattern_= elecId.getParameter<int>("pattern");
+  if (cfg.existsAs<edm::ParameterSet>("electronId")) {
+    edm::ParameterSet elecId = cfg.getParameter<edm::ParameterSet>("electronId");
+    electronId_ = iC.consumes<edm::ValueMap<float> >(elecId.getParameter<edm::InputTag>("src"));
+    eidPattern_ = elecId.getParameter<int>("pattern");
   }
   // read jet corrector label if it exists
-  if(cfg.exists("jetCorrector")){ jetCorrector_= cfg.getParameter<std::string>("jetCorrector"); }
+  if (cfg.exists("jetCorrector")) {
+    jetCorrector_ = cfg.getParameter<std::string>("jetCorrector");
+  }
   // read btag information if it exists
-  if(cfg.existsAs<edm::ParameterSet>("jetBTagger")){
-    edm::ParameterSet jetBTagger=cfg.getParameter<edm::ParameterSet>("jetBTagger");
-    btagLabel_= iC.consumes< reco::JetTagCollection >(jetBTagger.getParameter<edm::InputTag>("label"));
-    btagWorkingPoint_=jetBTagger.getParameter<double>("workingPoint");
+  if (cfg.existsAs<edm::ParameterSet>("jetBTagger")) {
+    edm::ParameterSet jetBTagger = cfg.getParameter<edm::ParameterSet>("jetBTagger");
+    btagLabel_ = iC.consumes<reco::JetTagCollection>(jetBTagger.getParameter<edm::InputTag>("label"));
+    btagWorkingPoint_ = jetBTagger.getParameter<double>("workingPoint");
   }
   // read jetID information if it exists
-  if(cfg.existsAs<edm::ParameterSet>("jetID")){
-    edm::ParameterSet jetID=cfg.getParameter<edm::ParameterSet>("jetID");
-    jetIDLabel_ = iC.consumes< reco::JetIDValueMap >(jetID.getParameter<edm::InputTag>("label"));
-    jetIDSelect_= new StringCutObjectSelector<reco::JetID>(jetID.getParameter<std::string>("select"));
+  if (cfg.existsAs<edm::ParameterSet>("jetID")) {
+    edm::ParameterSet jetID = cfg.getParameter<edm::ParameterSet>("jetID");
+    jetIDLabel_ = iC.consumes<reco::JetIDValueMap>(jetID.getParameter<edm::InputTag>("label"));
+    jetIDSelect_ = new StringCutObjectSelector<reco::JetID>(jetID.getParameter<std::string>("select"));
   }
 }
 
 /// apply selection
-template <typename Object> 
-bool SelectionStepHLT<Object>::select(const edm::Event& event)
-{
+template <typename Object>
+bool SelectionStepHLT<Object>::select(const edm::Event& event) {
   // fetch input collection
-  edm::Handle<edm::View<Object> > src; 
-  if( !event.getByToken(src_, src) ) return false;
+  edm::Handle<edm::View<Object> > src;
+  if (!event.getByToken(src_, src))
+    return false;
 
   // load electronId value map if configured such
   edm::Handle<edm::ValueMap<float> > electronId;
-  if(!electronId_.isUninitialized()) {
-    if( !event.getByToken(electronId_, electronId) ) return false;
+  if (!electronId_.isUninitialized()) {
+    if (!event.getByToken(electronId_, electronId))
+      return false;
   }
 
   // determine multiplicity of selected objects
-  int n=0;
-  for(typename edm::View<Object>::const_iterator obj=src->begin(); obj!=src->end(); ++obj){
+  int n = 0;
+  for (typename edm::View<Object>::const_iterator obj = src->begin(); obj != src->end(); ++obj) {
     // special treatment for electrons
-    if(dynamic_cast<const reco::GsfElectron*>(&*obj)){
-      unsigned int idx = obj-src->begin();
-      if( electronId_.isUninitialized() ? true : ((int)(*electronId)[src->refAt(idx)] & eidPattern_) ){   
-	if(select_(*obj))++n;
+    if (dynamic_cast<const reco::GsfElectron*>(&*obj)) {
+      unsigned int idx = obj - src->begin();
+      if (electronId_.isUninitialized() ? true : ((int)(*electronId)[src->refAt(idx)] & eidPattern_)) {
+        if (select_(*obj))
+          ++n;
       }
     }
     // normal treatment
-    else{
-      if(select_(*obj))++n;
+    else {
+      if (select_(*obj))
+        ++n;
     }
   }
-  bool accept=(min_>=0 ? n>=min_:true) && (max_>=0 ? n<=max_:true);
-  return (min_<0 && max_<0) ? (n>0):accept;
+  bool accept = (min_ >= 0 ? n >= min_ : true) && (max_ >= 0 ? n <= max_ : true);
+  return (min_ < 0 && max_ < 0) ? (n > 0) : accept;
 }
-template <typename Object> 
-bool SelectionStepHLT<Object>::selectVertex(const edm::Event& event)
-{
+template <typename Object>
+bool SelectionStepHLT<Object>::selectVertex(const edm::Event& event) {
   // fetch input collection
-  edm::Handle<edm::View<Object> > src; 
-  if( !event.getByToken(src_, src) ) return false;
+  edm::Handle<edm::View<Object> > src;
+  if (!event.getByToken(src_, src))
+    return false;
 
   // load electronId value map if configured such
   edm::Handle<edm::ValueMap<float> > electronId;
-  if(!electronId_.isUninitialized()) {
-    if( !event.getByToken(electronId_, electronId) ) return false;
+  if (!electronId_.isUninitialized()) {
+    if (!event.getByToken(electronId_, electronId))
+      return false;
   }
 
   // determine multiplicity of selected objects
-  int n=0;
-  for(typename edm::View<Object>::const_iterator obj=src->begin(); obj!=src->end(); ++obj){
-   
-      if(select_(*obj))++n;
+  int n = 0;
+  for (typename edm::View<Object>::const_iterator obj = src->begin(); obj != src->end(); ++obj) {
+    if (select_(*obj))
+      ++n;
   }
-  bool accept=(min_>=0 ? n>=min_:true) && (max_>=0 ? n<=max_:true);
-  return (min_<0 && max_<0) ? (n>0):accept;
+  bool accept = (min_ >= 0 ? n >= min_ : true) && (max_ >= 0 ? n <= max_ : true);
+  return (min_ < 0 && max_ < 0) ? (n > 0) : accept;
 }
 
-template <typename Object> 
-bool SelectionStepHLT<Object>::select(const edm::Event& event, const edm::EventSetup& setup)
-{
+template <typename Object>
+bool SelectionStepHLT<Object>::select(const edm::Event& event, const edm::EventSetup& setup) {
   throw cms::Exception("SelectionStepHLT") << "you fail" << std::endl;
   return false;
 }

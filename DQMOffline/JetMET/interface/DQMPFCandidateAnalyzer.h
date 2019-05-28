@@ -1,7 +1,6 @@
 #ifndef DQMPFCandidateAnalyzer_H
 #define DQMPFCandidateAnalyzer_H
 
-
 /** \class JetMETAnalyzer
  *
  *  DQM jetMET analysis monitoring
@@ -15,7 +14,6 @@
  *          R. Schoefbeck
  *          V. Sordini
  */
-
 
 #include <memory>
 #include <fstream>
@@ -40,7 +38,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "DataFormats/Scalers/interface/DcsStatus.h" 
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
@@ -60,72 +58,69 @@
 
 //namespace jetAnalysis {
 //class TrackPropagatorToCalo;
-  //class StripSignalOverNoiseCalculator;
+//class StripSignalOverNoiseCalculator;
 //}
 
 class DQMPFCandidateAnalyzer : public DQMEDAnalyzer {
- public:
-
+public:
   /// Constructor
   DQMPFCandidateAnalyzer(const edm::ParameterSet&);
-  
+
   /// Destructor
   ~DQMPFCandidateAnalyzer() override;
-  
-/// Inizialize parameters for histo binning
-//  void beginJob(void);
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  /// Get the analysis
- void analyze(const edm::Event&, const edm::EventSetup&) override;
 
+  /// Inizialize parameters for histo binning
+  //  void beginJob(void);
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  /// Get the analysis
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   /// Initialize run-based parameters
-  void dqmBeginRun(const edm::Run&,  const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// Finish up a run
-  void endRun(const edm::Run&,  const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
-
- private:
+private:
   // ----------member data ---------------------------
-  static bool jetSortingRule(reco::Jet x, reco::Jet y) {return x.pt() > y.pt();}
+  static bool jetSortingRule(reco::Jet x, reco::Jet y) { return x.pt() > y.pt(); }
 
   //try to put one collection as start
 
   edm::InputTag vertexTag_;
-  edm::EDGetTokenT<std::vector<reco::Vertex>>     vertexToken_;
+  edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken_;
 
   edm::InputTag mInputCollection_;
   edm::InputTag theTriggerResultsLabel_;
   edm::InputTag hbheNoiseFilterResultTag_;
-  edm::EDGetTokenT<bool>    hbheNoiseFilterResultToken_;
+  edm::EDGetTokenT<bool> hbheNoiseFilterResultToken_;
   std::string HBHENoiseStringMiniAOD;
 
   HLTConfigProvider FilterhltConfig_;
   edm::InputTag METFilterMiniAODLabel_;
   edm::EDGetTokenT<edm::TriggerResults> METFilterMiniAODToken_;
-  edm::InputTag METFilterMiniAODLabel2_;//needed for RECO and reRECO differntiation
+  edm::InputTag METFilterMiniAODLabel2_;  //needed for RECO and reRECO differntiation
   edm::EDGetTokenT<edm::TriggerResults> METFilterMiniAODToken2_;
 
-  bool hbhenoifilterdecision;//we only care about HBHENoiseFilter here
-  int miniaodfilterindex;//-1 if not found/RECO, else put to a number >=0
+  bool hbhenoifilterdecision;  //we only care about HBHENoiseFilter here
+  int miniaodfilterindex;      //-1 if not found/RECO, else put to a number >=0
   //needed to decide which filterresults are supposed to be called
-  int miniaodfilterdec;//if RECO set to 0, if reRECO set to 1, else to -1
+  int miniaodfilterdec;  //if RECO set to 0, if reRECO set to 1, else to -1
 
-  edm::EDGetTokenT<std::vector<reco::PFCandidate> > pflowToken_;
-  edm::EDGetTokenT<std::vector<pat::PackedCandidate> > pflowPackedToken_;
+  edm::EDGetTokenT<std::vector<reco::PFCandidate>> pflowToken_;
+  edm::EDGetTokenT<std::vector<pat::PackedCandidate>> pflowPackedToken_;
 
   std::string candidateType_;
 
   bool isMiniAO_;
 
   // DCS filter
-  JetMETDQMDCSFilter *DCSFilter_;
+  JetMETDQMDCSFilter* DCSFilter_;
 
   edm::ParameterSet cleaningParameters_;
   std::vector<edm::ParameterSet> diagnosticsParameters_;
 
-  double ptMinCand_;//pt min of candidates
+  double ptMinCand_;  //pt min of candidates
   // Smallest raw HCAL energy linked to the track
   double hcalMin_;
 
@@ -164,31 +159,30 @@ class DQMPFCandidateAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mProfileIsoPFChHad_TrackOccupancy;
 
   //PFcandidate maps
-  std::vector<MonitorElement* >occupancyPFCand_,ptPFCand_,multiplicityPFCand_;
-  std::vector<std::string> occupancyPFCand_name_,ptPFCand_name_,multiplicityPFCand_name_;
-  std::vector<MonitorElement* > occupancyPFCand_puppiNolepWeight_,ptPFCand_puppiNolepWeight_;
-  std::vector<std::string> occupancyPFCand_name_puppiNolepWeight_,ptPFCand_name_puppiNolepWeight_;
+  std::vector<MonitorElement*> occupancyPFCand_, ptPFCand_, multiplicityPFCand_;
+  std::vector<std::string> occupancyPFCand_name_, ptPFCand_name_, multiplicityPFCand_name_;
+  std::vector<MonitorElement*> occupancyPFCand_puppiNolepWeight_, ptPFCand_puppiNolepWeight_;
+  std::vector<std::string> occupancyPFCand_name_puppiNolepWeight_, ptPFCand_name_puppiNolepWeight_;
   std::vector<double> etaMinPFCand_, etaMaxPFCand_;
   std::vector<int> typePFCand_, countsPFCand_;
 
   //PFcandidate maps
-  std::vector<MonitorElement* >occupancyPFCandRECO_,ptPFCandRECO_,multiplicityPFCandRECO_;
-  std::vector<std::string> occupancyPFCand_nameRECO_,ptPFCand_nameRECO_,multiplicityPFCand_nameRECO_;
+  std::vector<MonitorElement*> occupancyPFCandRECO_, ptPFCandRECO_, multiplicityPFCandRECO_;
+  std::vector<std::string> occupancyPFCand_nameRECO_, ptPFCand_nameRECO_, multiplicityPFCand_nameRECO_;
   std::vector<double> etaMinPFCandRECO_, etaMaxPFCandRECO_;
   std::vector<int> typePFCandRECO_, countsPFCandRECO_;
 
   int numPV_;
-  int    verbose_;
+  int verbose_;
 
   int LSBegin_;
   int LSEnd_;
 
   bool bypassAllPVChecks_;
   bool bypassAllDCSChecks_;
-  
-  std::map< std::string,MonitorElement* >map_of_MEs;
+
+  std::map<std::string, MonitorElement*> map_of_MEs;
 
   bool isMiniAOD_;
-
 };
-#endif  
+#endif

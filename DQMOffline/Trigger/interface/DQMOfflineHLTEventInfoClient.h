@@ -18,18 +18,15 @@
 #include <TH2F.h>
 #include <TProfile2D.h>
 
-class DQMOfflineHLTEventInfoClient: public edm::EDAnalyzer {
-
+class DQMOfflineHLTEventInfoClient : public edm::EDAnalyzer {
 public:
-
   /// Constructor
   DQMOfflineHLTEventInfoClient(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   ~DQMOfflineHLTEventInfoClient() override;
- 
-protected:
 
+protected:
   /// BeginJob
   void beginJob() override;
 
@@ -37,7 +34,7 @@ protected:
   void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   /// Fake Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   /// EndRun
   void endRun(const edm::Run& r, const edm::EventSetup& c) override;
@@ -46,28 +43,24 @@ protected:
   void endJob() override;
 
 private:
-
   void initialize();
   edm::ParameterSet parameters_;
 
-  DQMStore* dbe_;  
+  DQMStore* dbe_;
   bool verbose_;
-  int counterLS_;      ///counter
-  int counterEvt_;     ///counter
-  int prescaleLS_;     ///units of lumi sections
-  int prescaleEvt_;    ///prescale on number of events
+  int counterLS_;    ///counter
+  int counterEvt_;   ///counter
+  int prescaleLS_;   ///units of lumi sections
+  int prescaleEvt_;  ///prescale on number of events
   // -------- member data --------
 
-  MonitorElement * reportSummary_;
+  MonitorElement* reportSummary_;
   std::vector<MonitorElement*> reportSummaryContent_;
-  MonitorElement * reportSummaryMap_;
+  MonitorElement* reportSummaryMap_;
 
-  MonitorElement * CertificationSummary_;
+  MonitorElement* CertificationSummary_;
   std::vector<MonitorElement*> CertificationSummaryContent_;
-  MonitorElement * CertificationSummaryMap_;
-
-
+  MonitorElement* CertificationSummaryMap_;
 };
-
 
 #endif
