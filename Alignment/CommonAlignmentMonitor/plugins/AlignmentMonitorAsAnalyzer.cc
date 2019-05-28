@@ -65,7 +65,7 @@
 class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
 public:
   explicit AlignmentMonitorAsAnalyzer(const edm::ParameterSet&);
-  ~AlignmentMonitorAsAnalyzer() override;
+  ~AlignmentMonitorAsAnalyzer() override = default;
 
   typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair;
   typedef std::vector<ConstTrajTrackPair> ConstTrajTrackPairCollection;
@@ -79,11 +79,11 @@ private:
   edm::InputTag m_tjTag;
   edm::ParameterSet m_aliParamStoreCfg;
 
-  AlignableTracker* m_alignableTracker;
-  AlignableMuon* m_alignableMuon;
-  AlignmentParameterStore* m_alignmentParameterStore;
+  std::unique_ptr<AlignableTracker> m_alignableTracker;
+  std::unique_ptr<AlignableMuon> m_alignableMuon;
+  std::unique_ptr<AlignmentParameterStore> m_alignmentParameterStore;
 
-  std::vector<AlignmentMonitorBase*> m_monitors;
+  std::vector<std::unique_ptr<AlignmentMonitorBase>> m_monitors;
 
   bool m_firstEvent;
 };
@@ -101,27 +101,13 @@ private:
 //
 AlignmentMonitorAsAnalyzer::AlignmentMonitorAsAnalyzer(const edm::ParameterSet& iConfig)
     : m_tjTag(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag")),
-      m_aliParamStoreCfg(iConfig.getParameter<edm::ParameterSet>("ParameterStore")),
-      m_alignableTracker(nullptr),
-      m_alignableMuon(nullptr),
-      m_alignmentParameterStore(nullptr) {
-  std::vector<std::string> monitors = iConfig.getUntrackedParameter<std::vector<std::string> >("monitors");
+      m_aliParamStoreCfg(iConfig.getParameter<edm::ParameterSet>("ParameterStore")) {
+  std::vector<std::string> monitors = iConfig.getUntrackedParameter<std::vector<std::string>>("monitors");
 
-  for (std::vector<std::string>::const_iterator miter = monitors.begin(); miter != monitors.end(); ++miter) {
-    AlignmentMonitorBase* newMonitor =
-        AlignmentMonitorPluginFactory::get()->create(*miter, iConfig.getUntrackedParameter<edm::ParameterSet>(*miter));
-
-    if (!newMonitor)
-      throw cms::Exception("BadConfig") << "Couldn't find monitor named " << *miter;
-
-    m_monitors.push_back(newMonitor);
+  for (auto const& mon : monitors) {
+    m_monitors.emplace_back(
+        AlignmentMonitorPluginFactory::get()->create(mon, iConfig.getUntrackedParameter<edm::ParameterSet>(mon)));
   }
-}
-
-AlignmentMonitorAsAnalyzer::~AlignmentMonitorAsAnalyzer() {
-  delete m_alignableTracker;
-  delete m_alignableMuon;
-  delete m_alignmentParameterStore;
 }
 
 //
@@ -190,17 +176,15 @@ void AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     // within an analyzer, modules can't expect to see any selected alignables!
     align::Alignables empty_alignables;
 
-    m_alignableTracker = new AlignableTracker(&(*theTracker), tTopo);
-    m_alignableMuon = new AlignableMuon(&(*theMuonDT), &(*theMuonCSC));
-    m_alignmentParameterStore = new AlignmentParameterStore(empty_alignables, m_aliParamStoreCfg);
+    m_alignableTracker = std::make_unique<AlignableTracker>(&(*theTracker), tTopo);
+    m_alignableMuon = std::make_unique<AlignableMuon>(&(*theMuonDT), &(*theMuonCSC));
+    m_alignmentParameterStore = std::make_unique<AlignmentParameterStore>(empty_alignables, m_aliParamStoreCfg);
 
-    for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin(); monitor != m_monitors.end();
-         ++monitor) {
-      (*monitor)->beginOfJob(m_alignableTracker, m_alignableMuon, m_alignmentParameterStore);
+    for (auto const& monitor : m_monitors) {
+      monitor->beginOfJob(m_alignableTracker.get(), m_alignableMuon.get(), m_alignmentParameterStore.get());
     }
-    for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin(); monitor != m_monitors.end();
-         ++monitor) {
-      (*monitor)->startingNewLoop();
+    for (auto const& monitor : m_monitors) {
+      monitor->startingNewLoop();
     }
 
     m_firstEvent = false;
@@ -212,15 +196,13 @@ void AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 
   // Form pairs of trajectories and tracks
   ConstTrajTrackPairCollection trajTracks;
-  for (TrajTrackAssociationCollection::const_iterator iPair = trajTracksMap->begin(); iPair != trajTracksMap->end();
-       ++iPair) {
-    trajTracks.push_back(ConstTrajTrackPair(&(*(*iPair).key), &(*(*iPair).val)));
+  for (const auto& iPair : *trajTracksMap) {
+    trajTracks.push_back(ConstTrajTrackPair(&(*iPair.key), &(*iPair.val)));
   }
 
   // Run the monitors
-  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin(); monitor != m_monitors.end();
-       ++monitor) {
-    (*monitor)->duringLoop(iEvent, iSetup, trajTracks);
+  for (const auto& monitor : m_monitors) {
+    monitor->duringLoop(iEvent, iSetup, trajTracks);
   }
 }
 
@@ -229,13 +211,11 @@ void AlignmentMonitorAsAnalyzer::beginJob() { m_firstEvent = true; }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void AlignmentMonitorAsAnalyzer::endJob() {
-  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin(); monitor != m_monitors.end();
-       ++monitor) {
-    (*monitor)->endOfLoop();
+  for (auto const& monitor : m_monitors) {
+    monitor->endOfLoop();
   }
-  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin(); monitor != m_monitors.end();
-       ++monitor) {
-    (*monitor)->endOfJob();
+  for (auto const& monitor : m_monitors) {
+    monitor->endOfJob();
   }
 }
 

@@ -38,7 +38,15 @@ public:
   CombinedTrajectoryFactory *clone() const override { return new CombinedTrajectoryFactory(*this); }
 
 private:
-  std::vector<TrajectoryFactoryBase *> theFactories;
+  CombinedTrajectoryFactory(const CombinedTrajectoryFactory &other)
+      : TrajectoryFactoryBase(other), theUseAllFactories{other.theUseAllFactories} {
+    theFactories.reserve(other.theFactories.size());
+    for (const auto &f : other.theFactories) {
+      theFactories.emplace_back(f->clone());
+    }
+  }
+
+  std::vector<std::unique_ptr<TrajectoryFactoryBase>> theFactories;
   bool theUseAllFactories;  /// use not only the first 'successful'?
 };
 
@@ -50,18 +58,17 @@ using namespace std;
 
 CombinedTrajectoryFactory::CombinedTrajectoryFactory(const edm::ParameterSet &config)
     : TrajectoryFactoryBase(config), theUseAllFactories(config.getParameter<bool>("useAllFactories")) {
-  vector<string> factoryNames = config.getParameter<vector<string> >("TrajectoryFactoryNames");
-  vector<string>::iterator itFactoryName;
-  for (itFactoryName = factoryNames.begin(); itFactoryName != factoryNames.end(); ++itFactoryName) {
+  vector<string> factoryNames = config.getParameter<vector<string>>("TrajectoryFactoryNames");
+  for (auto const &factoryName : factoryNames) {
     // auto_ptr to avoid missing a delete due to throw...
-    std::unique_ptr<TObjArray> namePset(TString((*itFactoryName).c_str()).Tokenize(","));
+    std::unique_ptr<TObjArray> namePset(TString(factoryName.c_str()).Tokenize(","));
     if (namePset->GetEntriesFast() != 2) {
       throw cms::Exception("BadConfig") << "@SUB=CombinedTrajectoryFactory"
                                         << "TrajectoryFactoryNames must contain 2 comma "
-                                        << "separated strings, but is '" << *itFactoryName << "'";
+                                        << "separated strings, but is '" << factoryName << "'";
     }
     const edm::ParameterSet factoryCfg = config.getParameter<edm::ParameterSet>(namePset->At(1)->GetName());
-    theFactories.push_back(TrajectoryFactoryPlugin::get()->create(namePset->At(0)->GetName(), factoryCfg));
+    theFactories.emplace_back(TrajectoryFactoryPlugin::get()->create(namePset->At(0)->GetName(), factoryCfg));
   }
 }
 
@@ -72,9 +79,8 @@ const CombinedTrajectoryFactory::ReferenceTrajectoryCollection CombinedTrajector
   ReferenceTrajectoryCollection trajectories;
   ReferenceTrajectoryCollection tmpTrajectories;  // outside loop for efficiency
 
-  vector<TrajectoryFactoryBase *>::const_iterator itFactory;
-  for (itFactory = theFactories.begin(); itFactory != theFactories.end(); ++itFactory) {
-    tmpTrajectories = (*itFactory)->trajectories(setup, tracks, beamSpot);
+  for (auto const &factory : theFactories) {
+    tmpTrajectories = factory->trajectories(setup, tracks, beamSpot);
     trajectories.insert(trajectories.end(), tmpTrajectories.begin(), tmpTrajectories.end());
 
     if (!theUseAllFactories && !trajectories.empty())
@@ -92,9 +98,8 @@ const CombinedTrajectoryFactory::ReferenceTrajectoryCollection CombinedTrajector
   ReferenceTrajectoryCollection trajectories;
   ReferenceTrajectoryCollection tmpTrajectories;  // outside loop for efficiency
 
-  vector<TrajectoryFactoryBase *>::const_iterator itFactory;
-  for (itFactory = theFactories.begin(); itFactory != theFactories.end(); ++itFactory) {
-    tmpTrajectories = (*itFactory)->trajectories(setup, tracks, external, beamSpot);
+  for (auto const &factory : theFactories) {
+    tmpTrajectories = factory->trajectories(setup, tracks, external, beamSpot);
     trajectories.insert(trajectories.end(), tmpTrajectories.begin(), tmpTrajectories.end());
 
     if (!theUseAllFactories && !trajectories.empty())
