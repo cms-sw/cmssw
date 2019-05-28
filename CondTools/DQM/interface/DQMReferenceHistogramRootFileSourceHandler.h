@@ -9,12 +9,13 @@
 
 namespace popcon {
   class DQMReferenceHistogramRootFileSourceHandler : public popcon::PopConSourceHandler<FileBlob> {
-   public:
-    DQMReferenceHistogramRootFileSourceHandler(const edm::ParameterSet & pset);
+  public:
+    DQMReferenceHistogramRootFileSourceHandler(const edm::ParameterSet& pset);
     ~DQMReferenceHistogramRootFileSourceHandler() override;
     void getNewObjects() override;
     std::string id() const override;
-   private:
+
+  private:
     std::string m_name;
     std::string m_file;
     bool m_zip;
@@ -22,6 +23,6 @@ namespace popcon {
     unsigned long long m_since;
     bool m_debugMode;
   };
-}
+}  // namespace popcon
 
 #endif
