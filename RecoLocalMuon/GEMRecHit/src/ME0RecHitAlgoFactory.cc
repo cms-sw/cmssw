@@ -10,5 +10,4 @@
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-EDM_REGISTER_PLUGINFACTORY(ME0RecHitAlgoFactory,"ME0RecHitAlgoFactory");
-
+EDM_REGISTER_PLUGINFACTORY(ME0RecHitAlgoFactory, "ME0RecHitAlgoFactory");

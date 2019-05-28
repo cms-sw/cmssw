@@ -7,7 +7,6 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include <vector>
 
-
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerCommissioningDigi.h"
 
-#endif // PHASE2TRACKERDIGI_CLASSES_H
+#endif  // PHASE2TRACKERDIGI_CLASSES_H

@@ -7,7 +7,6 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
-
 typedef edm::SortedCollection<HGCRecHit> HGCRecHitCollection;
 typedef edm::Ref<HGCRecHitCollection> HGCRecHitRef;
 typedef edm::RefVector<HGCRecHitCollection> HGCRecHitRefs;

@@ -15,44 +15,35 @@
 
 using namespace edm;
 
-class  MTDCPEESProducer: public edm::ESProducer
-{
- public:
-  MTDCPEESProducer(const edm::ParameterSet & p);
-  ~MTDCPEESProducer() override = default; 
+class MTDCPEESProducer : public edm::ESProducer {
+public:
+  MTDCPEESProducer(const edm::ParameterSet& p);
+  ~MTDCPEESProducer() override = default;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  std::unique_ptr<MTDClusterParameterEstimator> produce(const MTDCPERecord &);
-  
- private:
+  std::unique_ptr<MTDClusterParameterEstimator> produce(const MTDCPERecord&);
+
+private:
   edm::ParameterSet pset_;
 };
 
-
-MTDCPEESProducer::MTDCPEESProducer(const edm::ParameterSet & p) 
-{
+MTDCPEESProducer::MTDCPEESProducer(const edm::ParameterSet& p) {
   pset_ = p;
-  setWhatProduced(this,"MTDCPEBase");
+  setWhatProduced(this, "MTDCPEBase");
 }
 
 // Configuration descriptions
-void
-MTDCPEESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void MTDCPEESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   descriptions.add("MTDCPEESProducer", desc);
 }
 
-std::unique_ptr<MTDClusterParameterEstimator>
-MTDCPEESProducer::produce(const MTDCPERecord & iRecord)
-{ 
+std::unique_ptr<MTDClusterParameterEstimator> MTDCPEESProducer::produce(const MTDCPERecord& iRecord) {
   edm::ESHandle<MTDGeometry> pDD;
-  iRecord.getRecord<MTDDigiGeometryRecord>().get( pDD );
-  
-  return std::make_unique<MTDCPEBase>(
-                         pset_,
-			 *pDD.product()
-				      );
+  iRecord.getRecord<MTDDigiGeometryRecord>().get(pDD);
+
+  return std::make_unique<MTDCPEBase>(pset_, *pDD.product());
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

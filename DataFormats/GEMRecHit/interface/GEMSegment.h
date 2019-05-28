@@ -17,78 +17,87 @@
 class GEMDetId;
 
 class GEMSegment GCC11_FINAL : public RecSegment {
-
 public:
+  /// Default constructor
+  GEMSegment() : theChi2(0.) {}
 
-    /// Default constructor
-    GEMSegment() : theChi2(0.){}
-	
-    /// Constructor
-    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint& origin, 
-	       const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2);
+  /// Constructor
+  GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
+             const LocalPoint& origin,
+             const LocalVector& direction,
+             const AlgebraicSymMatrix& errors,
+             double chi2);
 
-    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint& origin, 
-	       const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2, float bx);
+  GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
+             const LocalPoint& origin,
+             const LocalVector& direction,
+             const AlgebraicSymMatrix& errors,
+             double chi2,
+             float bx);
 
-    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint& origin, 
-	       const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2, double time, double timeErr);
-  
-    /// Destructor
-    ~GEMSegment() override;
+  GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
+             const LocalPoint& origin,
+             const LocalVector& direction,
+             const AlgebraicSymMatrix& errors,
+             double chi2,
+             double time,
+             double timeErr);
 
-    //--- Base class interface
-    GEMSegment* clone() const override { return new GEMSegment(*this); }
+  /// Destructor
+  ~GEMSegment() override;
 
-    LocalPoint localPosition() const override { return theOrigin; }
-    LocalError localPositionError() const override ;
-	
-    LocalVector localDirection() const override { return theLocalDirection; }
-    LocalError localDirectionError() const override ;
+  //--- Base class interface
+  GEMSegment* clone() const override { return new GEMSegment(*this); }
 
-    /// Parameters of the segment, for the track fit in the order (dx/dz, dy/dz, x, y )
-    AlgebraicVector parameters() const override;
+  LocalPoint localPosition() const override { return theOrigin; }
+  LocalError localPositionError() const override;
 
-    /// Covariance matrix of parameters()
-    AlgebraicSymMatrix parametersError() const override { return theCovMatrix; }
+  LocalVector localDirection() const override { return theLocalDirection; }
+  LocalError localDirectionError() const override;
 
-    /// The projection matrix relates the trajectory state parameters to the segment parameters().
-    AlgebraicMatrix projectionMatrix() const override;
+  /// Parameters of the segment, for the track fit in the order (dx/dz, dy/dz, x, y )
+  AlgebraicVector parameters() const override;
 
-    std::vector<const TrackingRecHit*> recHits() const override;
+  /// Covariance matrix of parameters()
+  AlgebraicSymMatrix parametersError() const override { return theCovMatrix; }
 
-    std::vector<TrackingRecHit*> recHits() override;
+  /// The projection matrix relates the trajectory state parameters to the segment parameters().
+  AlgebraicMatrix projectionMatrix() const override;
 
-    double chi2() const override { return theChi2; };
+  std::vector<const TrackingRecHit*> recHits() const override;
 
-    int dimension() const override { return 4; }
+  std::vector<TrackingRecHit*> recHits() override;
 
-    int degreesOfFreedom() const override { return 2*nRecHits() - 4;}	 
+  double chi2() const override { return theChi2; };
 
-    //--- Extension of the interface
-        
-    const std::vector<GEMRecHit>& specificRecHits() const { return theGEMRecHits; }
+  int dimension() const override { return 4; }
 
-    int nRecHits() const { return theGEMRecHits.size(); }        
+  int degreesOfFreedom() const override { return 2 * nRecHits() - 4; }
 
-    GEMDetId gemDetId() const { return  geographicalId(); }
+  //--- Extension of the interface
 
-    float time()    const { return theTimeValue; }
-    float timeErr() const { return theTimeUncrt; }
-    float bunchX()  const { return theBX; }
-    void  print()   const;		
-    
- private:
-    
-    std::vector<GEMRecHit> theGEMRecHits;
-    LocalPoint  theOrigin;           // in chamber frame - the GeomDet local coordinate system
-    LocalVector theLocalDirection;   // in chamber frame - the GeomDet local coordinate system
-    AlgebraicSymMatrix theCovMatrix; // the covariance matrix
-    double theChi2;                  // the Chi squared of the segment fit
-    double theTimeValue;             // the best time estimate of the segment
-    double theTimeUncrt;             // the uncertainty on the time estimation
-    float  theBX;                    // the bunch crossing
+  const std::vector<GEMRecHit>& specificRecHits() const { return theGEMRecHits; }
+
+  int nRecHits() const { return theGEMRecHits.size(); }
+
+  GEMDetId gemDetId() const { return geographicalId(); }
+
+  float time() const { return theTimeValue; }
+  float timeErr() const { return theTimeUncrt; }
+  float bunchX() const { return theBX; }
+  void print() const;
+
+private:
+  std::vector<GEMRecHit> theGEMRecHits;
+  LocalPoint theOrigin;             // in chamber frame - the GeomDet local coordinate system
+  LocalVector theLocalDirection;    // in chamber frame - the GeomDet local coordinate system
+  AlgebraicSymMatrix theCovMatrix;  // the covariance matrix
+  double theChi2;                   // the Chi squared of the segment fit
+  double theTimeValue;              // the best time estimate of the segment
+  double theTimeUncrt;              // the uncertainty on the time estimation
+  float theBX;                      // the bunch crossing
 };
 
 std::ostream& operator<<(std::ostream& os, const GEMSegment& seg);
 
-#endif 
+#endif
