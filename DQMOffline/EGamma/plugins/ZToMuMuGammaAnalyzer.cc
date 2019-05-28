@@ -124,7 +124,7 @@ void ZToMuMuGammaAnalyzer::bookHistograms(DQMStore::IBooker& iBooker,
 
   ////////////////START OF BOOKING FOR PHOTON-RELATED HISTOGRAMS////////////////
   //// 1D Histograms ////
-  h_nRecoVtx_ = iBooker.book1D("nOfflineVtx", "# of Offline Vertices", 80, -0.5, 79.5);
+  h_nRecoVtx_ = iBooker.book1D("nOfflineVtx", "# of Offline Vertices", 200, -0.5, 199.5);
 
   //ENERGY
   h_phoE_[0] = iBooker.book1D("phoE", "Energy;E (GeV)", eBin_, eMin_, eMax_);
@@ -595,18 +595,18 @@ void ZToMuMuGammaAnalyzer::bookHistograms(DQMStore::IBooker& iBooker,
     histname = "sigmaEoverEVsNVtx";
     p_phoSigmaEoverEVsNVtx_[1] = iBooker.bookProfile(histname + "Barrel",
                                                      "Photons #sigma_{E}/E vs N_{vtx}: Barrel; N_{vtx}; #sigma_{E}/E ",
-                                                     80,
+                                                     200,
                                                      -0.5,
-                                                     79.5,
+                                                     199.5,
                                                      100,
                                                      0.,
                                                      0.08,
                                                      "");
     p_phoSigmaEoverEVsNVtx_[2] = iBooker.bookProfile(histname + "Endcap",
                                                      "Photons #sigma_{E}/E vs N_{vtx}: Endcap;  N_{vtx}; #sigma_{E}/E",
-                                                     80,
+                                                     200,
                                                      -0.5,
-                                                     79.5,
+                                                     199.5,
                                                      100,
                                                      0.,
                                                      0.08,
