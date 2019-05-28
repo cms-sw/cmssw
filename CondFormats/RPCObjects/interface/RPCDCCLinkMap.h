@@ -8,31 +8,24 @@
 #include "CondFormats/RPCObjects/interface/RPCDCCLink.h"
 #include "CondFormats/RPCObjects/interface/RPCLBLink.h"
 
-class RPCDCCLinkMap
-{
+class RPCDCCLinkMap {
 public:
-    typedef std::map<RPCDCCLink, RPCLBLink> map_type;
+  typedef std::map<RPCDCCLink, RPCLBLink> map_type;
 
 public:
-    RPCDCCLinkMap();
+  RPCDCCLinkMap();
 
-    map_type & getMap();
-    map_type const & getMap() const;
+  map_type& getMap();
+  map_type const& getMap() const;
 
 protected:
-    map_type map_;
+  map_type map_;
 
-    COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-inline RPCDCCLinkMap::map_type & RPCDCCLinkMap::getMap()
-{
-    return map_;
-}
+inline RPCDCCLinkMap::map_type& RPCDCCLinkMap::getMap() { return map_; }
 
-inline RPCDCCLinkMap::map_type const & RPCDCCLinkMap::getMap() const
-{
-    return map_;
-}
+inline RPCDCCLinkMap::map_type const& RPCDCCLinkMap::getMap() const { return map_; }
 
-#endif // CondFormats_RPCObjects_RPCDCCLinkMap_h
+#endif  // CondFormats_RPCObjects_RPCDCCLinkMap_h

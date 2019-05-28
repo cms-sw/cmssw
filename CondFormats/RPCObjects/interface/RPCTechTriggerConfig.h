@@ -1,5 +1,5 @@
 // $Id: $
-#ifndef RPCTECHTRIGGERCONFIG_H 
+#ifndef RPCTECHTRIGGERCONFIG_H
 #define RPCTECHTRIGGERCONFIG_H 1
 
 // Include files
@@ -15,34 +15,28 @@
  *  @date   2008-12-07
  */
 class RPCTechTriggerConfig {
-public: 
+public:
   /// Standard constructor
-  RPCTechTriggerConfig( ) {
-    m_runId       = -1;
-    m_runType     = -1;
+  RPCTechTriggerConfig() {
+    m_runId = -1;
+    m_runType = -1;
     m_triggerMode = -1;
-    
-  }; 
-  
-  RPCTechTriggerConfig( int run, int runtype, int trigmode ) {
-    m_runId       = run;
-    m_runType     = runtype;
-    m_triggerMode = trigmode;
-    
   };
-  
-  
-  virtual ~RPCTechTriggerConfig( ) {}; ///< Destructor
-  
+
+  RPCTechTriggerConfig(int run, int runtype, int trigmode) {
+    m_runId = run;
+    m_runType = runtype;
+    m_triggerMode = trigmode;
+  };
+
+  virtual ~RPCTechTriggerConfig(){};  ///< Destructor
+
   int m_runId;
   int m_runType;
   int m_triggerMode;
-  
+
 protected:
-
 private:
-
-
   COND_SERIALIZABLE;
 };
-#endif // RPCTECHTRIGGERCONFIG_H
+#endif  // RPCTECHTRIGGERCONFIG_H

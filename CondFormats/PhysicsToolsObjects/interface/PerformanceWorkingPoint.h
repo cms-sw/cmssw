@@ -6,19 +6,22 @@
 #include "string"
 
 class PerformanceWorkingPoint {
- public:
-  PerformanceWorkingPoint(){}
-  PerformanceWorkingPoint(float c, std::string s) : cut_(c), dname_ (s) {}
-  float cut()const {return cut_;}
-  std::string discriminantName()const {return dname_;}
-  bool cutBased()const {if (cut_==-9999) return false; return true;}
+public:
+  PerformanceWorkingPoint() {}
+  PerformanceWorkingPoint(float c, std::string s) : cut_(c), dname_(s) {}
+  float cut() const { return cut_; }
+  std::string discriminantName() const { return dname_; }
+  bool cutBased() const {
+    if (cut_ == -9999)
+      return false;
+    return true;
+  }
 
- private: 
+private:
   float cut_;
   std::string dname_;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
-
 
 #endif

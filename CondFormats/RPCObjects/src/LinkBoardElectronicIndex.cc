@@ -3,14 +3,11 @@
 
 using namespace std;
 
-std::string LinkBoardElectronicIndex::print( int depth ) const
-{
+std::string LinkBoardElectronicIndex::print(int depth) const {
   ostringstream str;
-  if (depth >= 0) 
-      str << " ---> dccId: " << dccId
-          << " dccInputChannelNum: " << dccInputChannelNum
-          << " tbLinkInputNum: " << tbLinkInputNum
-          << " lbNumInLink: " << lbNumInLink;
+  if (depth >= 0)
+    str << " ---> dccId: " << dccId << " dccInputChannelNum: " << dccInputChannelNum
+        << " tbLinkInputNum: " << tbLinkInputNum << " lbNumInLink: " << lbNumInLink;
 
-  return str.str(); 
+  return str.str();
 }
