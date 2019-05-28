@@ -1,4 +1,4 @@
-// L1TUtmTriggerMenuRcd                                                                                            
+// L1TUtmTriggerMenuRcd
 // Description: Record for L1TUtmTriggerMenu
 //
 // automatically generate by make_records.pl
@@ -14,6 +14,8 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListExtRcd.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
-class L1TUtmTriggerMenuO2ORcd : public edm::eventsetup::DependentRecordImplementation<L1TUtmTriggerMenuO2ORcd, boost::mpl::vector<L1TriggerKeyListExtRcd,L1TriggerKeyExtRcd> > {};
+class L1TUtmTriggerMenuO2ORcd : public edm::eventsetup::DependentRecordImplementation<
+                                    L1TUtmTriggerMenuO2ORcd,
+                                    boost::mpl::vector<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd> > {};
 
 #endif

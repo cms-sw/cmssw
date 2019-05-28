@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     SiPixelGainCalibrationOfflineSimRcd
-// 
+//
 /**\class SiPixelGainCalibrationOfflineSimRcd SiPixelGainCalibrationOfflineSimRcd.h CondFormats/DataRecord/interface/SiPixelGainCalibrationOfflineSimRcd.h
 
  Description: <one line class summary>
@@ -14,13 +14,14 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Fri Mar 13 12:13:12 CET 2009
 // $Id$
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class SiPixelGainCalibrationOfflineSimRcd : public edm::eventsetup::EventSetupRecordImplementation<SiPixelGainCalibrationOfflineSimRcd> {};
+class SiPixelGainCalibrationOfflineSimRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<SiPixelGainCalibrationOfflineSimRcd> {};
 
 #endif

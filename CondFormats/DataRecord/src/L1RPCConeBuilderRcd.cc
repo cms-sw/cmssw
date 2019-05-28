@@ -2,11 +2,11 @@
 //
 // Package:     CondFormats
 // Class  :     L1RPCConeBuilderRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Fri Feb 22 12:15:57 CET 2008
 // $Id$
 

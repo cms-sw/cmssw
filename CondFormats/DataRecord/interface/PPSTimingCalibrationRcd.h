@@ -15,4 +15,3 @@
 class PPSTimingCalibrationRcd : public edm::eventsetup::EventSetupRecordImplementation<PPSTimingCalibrationRcd> {};
 
 #endif
-

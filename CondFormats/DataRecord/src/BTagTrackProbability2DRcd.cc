@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     BTagTrackProbability2DRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Thu Jan 11 09:36:33 CET 2007
 // $Id$
 

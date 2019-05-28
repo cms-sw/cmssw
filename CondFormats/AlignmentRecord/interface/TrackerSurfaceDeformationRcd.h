@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class TrackerSurfaceDeformationRcd : public edm::eventsetup::EventSetupRecordImplementation<TrackerSurfaceDeformationRcd> {};
+class TrackerSurfaceDeformationRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<TrackerSurfaceDeformationRcd> {};
 
-#endif 
+#endif

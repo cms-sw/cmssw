@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     HcalZDCLowGainFractionsRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

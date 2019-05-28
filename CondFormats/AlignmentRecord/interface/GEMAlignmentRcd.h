@@ -5,5 +5,4 @@
 
 class GEMAlignmentRcd : public edm::eventsetup::EventSetupRecordImplementation<GEMAlignmentRcd> {};
 
-#endif 
-
+#endif

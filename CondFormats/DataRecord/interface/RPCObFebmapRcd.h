@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     RPCObFebmapRcd
-// 
+//
 /**\class RPCObFebmapRcd RPCObFebmapRcd.h CondFormats/DataRecord/interface/RPCObFebmapRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Thu Feb 26 10:06:35 CET 2009
 // $Id$
 //

@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     L1TMuonOverlapParamsRcd
-// 
+//
 /**\class L1TMuonOverlapParamsRcd L1TMuonOverlapParamsRcd.h CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h
 
  Description: [one line class summary]

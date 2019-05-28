@@ -5,4 +5,4 @@
 
 class PerformanceWPRecord : public edm::eventsetup::EventSetupRecordImplementation<PerformanceWPRecord> {};
 
-#endif // Reco_Records_PerformanceWPRecord_h
+#endif  // Reco_Records_PerformanceWPRecord_h

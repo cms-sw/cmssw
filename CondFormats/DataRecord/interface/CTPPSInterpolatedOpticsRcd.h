@@ -10,8 +10,8 @@
 
 #include "boost/mpl/vector.hpp"
 
-class CTPPSInterpolatedOpticsRcd : public edm::eventsetup::DependentRecordImplementation<CTPPSInterpolatedOpticsRcd, boost::mpl::vector<CTPPSOpticsRcd, LHCInfoRcd>>
-{
-};
+class CTPPSInterpolatedOpticsRcd
+    : public edm::eventsetup::DependentRecordImplementation<CTPPSInterpolatedOpticsRcd,
+                                                            boost::mpl::vector<CTPPSOpticsRcd, LHCInfoRcd>> {};
 
 #endif

@@ -2,7 +2,7 @@
 //
 // Package:     GEMGeometry
 // Class  :     GEMAlignmentErrorRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

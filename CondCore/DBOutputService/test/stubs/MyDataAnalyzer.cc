@@ -13,54 +13,51 @@
 #include "MyDataAnalyzer.h"
 #include <cstdlib>
 #include <iostream>
-MyDataAnalyzer::MyDataAnalyzer(const edm::ParameterSet& iConfig ):
-  m_record(iConfig.getParameter< std::string >("record")),
-  m_LoggingOn(false){
-  m_LoggingOn=iConfig.getUntrackedParameter< bool >("loggingOn");
-  std::cout<<"MyDataAnalyzer::MyDataAnalyzer"<<std::endl;
+MyDataAnalyzer::MyDataAnalyzer(const edm::ParameterSet& iConfig)
+    : m_record(iConfig.getParameter<std::string>("record")), m_LoggingOn(false) {
+  m_LoggingOn = iConfig.getUntrackedParameter<bool>("loggingOn");
+  std::cout << "MyDataAnalyzer::MyDataAnalyzer" << std::endl;
 }
-MyDataAnalyzer::~MyDataAnalyzer(){
-  std::cout<<"MyDataAnalyzer::~MyDataAnalyzer"<<std::endl;
-}
-void MyDataAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup){
+MyDataAnalyzer::~MyDataAnalyzer() { std::cout << "MyDataAnalyzer::~MyDataAnalyzer" << std::endl; }
+void MyDataAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   //
 }
-void MyDataAnalyzer::endJob(){ 
-  std::cout<<"MyDataAnalyzer::endJob "<<std::endl;
+void MyDataAnalyzer::endJob() {
+  std::cout << "MyDataAnalyzer::endJob " << std::endl;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
-  if( !mydbservice.isAvailable() ){
-    std::cout<<"Service is unavailable"<<std::endl;
+  if (!mydbservice.isAvailable()) {
+    std::cout << "Service is unavailable" << std::endl;
     return;
   }
-  try{
-    std::string tag=mydbservice->tag(m_record);
-    Pedestals* myped=new Pedestals;
-    if( mydbservice->isNewTagRequest(m_record) ){
-      for(int ichannel=1; ichannel<=5; ++ichannel){
-	Pedestals::Item item;
-	item.m_mean=1.11*ichannel;
-	item.m_variance=1.12*ichannel;
-	myped->m_pedestals.push_back(item);
+  try {
+    std::string tag = mydbservice->tag(m_record);
+    Pedestals* myped = new Pedestals;
+    if (mydbservice->isNewTagRequest(m_record)) {
+      for (int ichannel = 1; ichannel <= 5; ++ichannel) {
+        Pedestals::Item item;
+        item.m_mean = 1.11 * ichannel;
+        item.m_variance = 1.12 * ichannel;
+        myped->m_pedestals.push_back(item);
       }
-      //create 
-      cond::Time_t firstTillTime=mydbservice->endOfTime();
-      cond::Time_t firstSinceTime=mydbservice->beginOfTime();
-      std::cout<<"firstSinceTime is begin of time "<<firstSinceTime<<std::endl;
-      std::cout<<"firstTillTime is end of time "<<firstTillTime<<std::endl;
-      mydbservice->writeOne(myped,firstSinceTime,m_record,m_LoggingOn);
-    }else{
-      //append 
-      std::cout<<"appending payload"<<std::endl;
-      for(int ichannel=1; ichannel<=5; ++ichannel){
-	Pedestals::Item item;
-	item.m_mean=0.15*ichannel;
-	item.m_variance=0.32*ichannel;
-	myped->m_pedestals.push_back(item);
+      //create
+      cond::Time_t firstTillTime = mydbservice->endOfTime();
+      cond::Time_t firstSinceTime = mydbservice->beginOfTime();
+      std::cout << "firstSinceTime is begin of time " << firstSinceTime << std::endl;
+      std::cout << "firstTillTime is end of time " << firstTillTime << std::endl;
+      mydbservice->writeOne(myped, firstSinceTime, m_record, m_LoggingOn);
+    } else {
+      //append
+      std::cout << "appending payload" << std::endl;
+      for (int ichannel = 1; ichannel <= 5; ++ichannel) {
+        Pedestals::Item item;
+        item.m_mean = 0.15 * ichannel;
+        item.m_variance = 0.32 * ichannel;
+        myped->m_pedestals.push_back(item);
       }
-      cond::Time_t thisPayload_valid_since=5;
-      std::cout<<"appeding since time "<<thisPayload_valid_since<<std::endl;
-      mydbservice->writeOne(myped,thisPayload_valid_since,m_record,m_LoggingOn);
-      std::cout<<"done"<<std::endl;
+      cond::Time_t thisPayload_valid_since = 5;
+      std::cout << "appeding since time " << thisPayload_valid_since << std::endl;
+      mydbservice->writeOne(myped, thisPayload_valid_since, m_record, m_LoggingOn);
+      std::cout << "done" << std::endl;
     }
     //example for log reading
     /**
@@ -95,12 +92,12 @@ void MyDataAnalyzer::endJob(){
     std::cout<<"size of items "<<myinstance->m_pedestals.size()<<std::endl;
     pooldb.transaction().commit();    
     **/
-  }catch(const cond::Exception& er){
-    throw cms::Exception("DBOutputServiceUnitTestFailure","failed MyDataAnalyzer",er);
+  } catch (const cond::Exception& er) {
+    throw cms::Exception("DBOutputServiceUnitTestFailure", "failed MyDataAnalyzer", er);
     //std::cout<<er.what()<<std::endl;
-  }catch(const cms::Exception& er){
-    throw cms::Exception("DBOutputServiceUnitTestFailure","failed MyDataAnalyzer",er);
-  }/*catch(const std::exception& er){
+  } catch (const cms::Exception& er) {
+    throw cms::Exception("DBOutputServiceUnitTestFailure", "failed MyDataAnalyzer", er);
+  } /*catch(const std::exception& er){
     std::cout<<"caught std::exception "<<er.what()<<std::endl;
   }catch(...){
     std::cout<<"Unknown error"<<std::endl;

@@ -5,23 +5,18 @@
 
 struct CaenChannel;
 
-template <class> struct PixelDCSObject;
+template <class>
+struct PixelDCSObject;
 
-struct PixelCaenChannelIsOnRcd:
-  public edm::eventsetup::EventSetupRecordImplementation<PixelCaenChannelIsOnRcd>
-{
+struct PixelCaenChannelIsOnRcd : public edm::eventsetup::EventSetupRecordImplementation<PixelCaenChannelIsOnRcd> {
   typedef PixelDCSObject<bool> Object;
 };
 
-struct PixelCaenChannelIMonRcd:
-  public edm::eventsetup::EventSetupRecordImplementation<PixelCaenChannelIMonRcd>
-{
+struct PixelCaenChannelIMonRcd : public edm::eventsetup::EventSetupRecordImplementation<PixelCaenChannelIMonRcd> {
   typedef PixelDCSObject<float> Object;
 };
 
-struct PixelCaenChannelRcd:
-  public edm::eventsetup::EventSetupRecordImplementation<PixelCaenChannelRcd>
-{
+struct PixelCaenChannelRcd : public edm::eventsetup::EventSetupRecordImplementation<PixelCaenChannelRcd> {
   typedef PixelDCSObject<CaenChannel> Object;
 };
 

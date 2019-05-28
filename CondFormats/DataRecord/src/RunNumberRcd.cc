@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     RunNumberRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Wed May 28 11:20:27 CEST 2008
 // $Id$
 

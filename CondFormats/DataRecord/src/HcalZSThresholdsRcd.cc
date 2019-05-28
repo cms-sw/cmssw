@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     HcalZSThresholdsRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Sat Nov 24 16:42:00 CET 2007
 // $Id$
 
