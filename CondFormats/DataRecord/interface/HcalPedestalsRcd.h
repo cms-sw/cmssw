@@ -6,5 +6,7 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class HcalPedestalsRcd : public edm::eventsetup::DependentRecordImplementation<HcalPedestalsRcd, boost::mpl::vector<HcalRecNumberingRecord,IdealGeometryRecord> > {};
+class HcalPedestalsRcd : public edm::eventsetup::DependentRecordImplementation<
+                             HcalPedestalsRcd,
+                             boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 #endif

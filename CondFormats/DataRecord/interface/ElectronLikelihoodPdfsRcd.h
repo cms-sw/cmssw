@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     ElectronLikelihoodPdfsRcd
-// 
+//
 /**\class ElectronLikelihoodPdfsRcd ElectronLikelihoodPdfsRcd.h CondFormats/DataRecord/interface/ElectronLikelihoodPdfsRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Wed Sep  5 16:36:25 CEST 2007
 // $Id$
 //

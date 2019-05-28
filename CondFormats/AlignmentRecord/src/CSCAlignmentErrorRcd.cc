@@ -2,7 +2,7 @@
 //
 // Package:     CSCGeometry
 // Class  :     CSCAlignmentErrorRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

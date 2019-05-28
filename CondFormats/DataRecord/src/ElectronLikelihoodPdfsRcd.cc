@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     ElectronLikelihoodPdfsRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Wed Sep  5 16:36:25 CEST 2007
 // $Id$
 

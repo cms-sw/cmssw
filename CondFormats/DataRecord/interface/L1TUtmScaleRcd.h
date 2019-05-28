@@ -1,4 +1,4 @@
-// L1TUtmScaleRcd                                                                                            
+// L1TUtmScaleRcd
 // Description: Record for L1TUtmScale
 //
 // automatically generate by make_records.pl

@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     CastorChannelQualityRcd
-// 
+//
 /**\class CastorChannelQualityRcd CastorChannelQualityRcd.h CondFormats/DataRecord/interface/CastorChannelQualityRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Mon Feb 11 12:15:32 CET 2008
 // $Id: CastorChannelQualityRcd.h,v 1.1 2008/02/15 15:53:03 mccauley Exp $
 //
