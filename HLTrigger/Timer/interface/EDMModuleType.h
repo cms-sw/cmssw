@@ -5,33 +5,24 @@
 
 namespace edm {
 
-enum class EDMModuleType {
-  kUnknown,
-  kSource,
-  kESSource,
-  kESProducer,
-  kEDAnalyzer,
-  kEDProducer,
-  kEDFilter,
-  kOutputModule
-};
+  enum class EDMModuleType {
+    kUnknown,
+    kSource,
+    kESSource,
+    kESProducer,
+    kEDAnalyzer,
+    kEDProducer,
+    kEDFilter,
+    kOutputModule
+  };
 
-constexpr
-const char * module_type_desc[] {
-  "Unknown",
-  "Source",
-  "ESSource",
-  "ESProducer",
-  "EDAnalyzer",
-  "EDProducer",
-  "EDFilter",
-  "OutputModule"
-};
+  constexpr const char* module_type_desc[]{
+      "Unknown", "Source", "ESSource", "ESProducer", "EDAnalyzer", "EDProducer", "EDFilter", "OutputModule"};
 
-EDMModuleType edmModuleTypeEnum(edm::ModuleDescription const & module);
+  EDMModuleType edmModuleTypeEnum(edm::ModuleDescription const& module);
 
-const char * edmModuleType(edm::ModuleDescription const & module);
+  const char* edmModuleType(edm::ModuleDescription const& module);
 
-} // namespace edm
+}  // namespace edm
 
-#endif // not defined HLTrigger_Timer_interface_EDMModuleType_h
+#endif  // not defined HLTrigger_Timer_interface_EDMModuleType_h

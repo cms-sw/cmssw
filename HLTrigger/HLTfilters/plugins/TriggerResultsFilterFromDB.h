@@ -35,31 +35,30 @@ namespace triggerExpression {
 // class declaration
 //
 
-class TriggerResultsFilterFromDB : public edm::stream::EDFilter<>
-{
+class TriggerResultsFilterFromDB : public edm::stream::EDFilter<> {
 public:
   explicit TriggerResultsFilterFromDB(const edm::ParameterSet &);
   ~TriggerResultsFilterFromDB() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   bool filter(edm::Event &, const edm::EventSetup &) override;
 
 private:
   /// read the triggerConditions from the database
-  void pathsFromSetup(const edm::Event &, const edm::EventSetup & setup);
+  void pathsFromSetup(const edm::Event &, const edm::EventSetup &setup);
 
   /// parse the logical expression into functionals
-  void parse(const std::string & expression);
-  void parse(const std::vector<std::string> & expressions);
+  void parse(const std::string &expression);
+  void parse(const std::vector<std::string> &expressions);
 
   /// read the triggerConditions from the database
   std::string m_eventSetupPathsKey;
   edm::ESWatcher<AlCaRecoTriggerBitsRcd> m_eventSetupWatcher;
 
   /// evaluator for the trigger condition
-  triggerExpression::Evaluator * m_expression;
+  triggerExpression::Evaluator *m_expression;
 
   /// cache some data from the Event for faster access by the m_expression
   triggerExpression::Data m_eventCache;
 };
 
-#endif //TriggerResultsFilterFromDB_h
+#endif  //TriggerResultsFilterFromDB_h
