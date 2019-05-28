@@ -40,14 +40,12 @@ class TTree;
 
 class SimpleVertexTree {
 public:
-
   /**
    * The constructor<br>
    * \param fitterName The name of the TTree, and of the associated histograms. 
    */
 
-  SimpleVertexTree(const char * fitterName = "VertexFitter",
-  		   const MagneticField * magField = nullptr);
+  SimpleVertexTree(const char* fitterName = "VertexFitter", const MagneticField* magField = nullptr);
   virtual ~SimpleVertexTree();
 
   /**
@@ -56,31 +54,31 @@ public:
    * Timing information for the fit can also be provided.
    */
 
-  void fill(const TransientVertex & recv, const TrackingVertex *simv = nullptr, 
-  	    reco::RecoToSimCollection *recSimColl = nullptr,
-  	    const float &time = 0.);
+  void fill(const TransientVertex& recv,
+            const TrackingVertex* simv = nullptr,
+            reco::RecoToSimCollection* recSimColl = nullptr,
+            const float& time = 0.);
 
-  void fill(const TransientVertex & recv, const TrackingVertex *simv = nullptr,
-  	    const float &time = 0.);
+  void fill(const TransientVertex& recv, const TrackingVertex* simv = nullptr, const float& time = 0.);
 
   /**
    * Entry for a RecVertex, without associated vertex.
    * Timing information for the fit can also be provided.
    */
 
-  void fill(const TransientVertex & recv, const float &time = 0.);
+  void fill(const TransientVertex& recv, const float& time = 0.);
 
   /**
    * Entry for a TkSimVertex, without RecVertex.
    */
 
-  void fill(const TrackingVertex *simv);
+  void fill(const TrackingVertex* simv);
 
-//   void fill(const TransientVertex & recVertex, const std::vector < RecTrack > & recTrackV,
-// 			const SimVertex * simv, const float &time);
-// 
-//   void fill(const std::vector < RecTrack > & recTrackV, const TkSimVertex * simv = 0, 
-//   			const float &time = 0.);
+  //   void fill(const TransientVertex & recVertex, const std::vector < RecTrack > & recTrackV,
+  // 			const SimVertex * simv, const float &time);
+  //
+  //   void fill(const std::vector < RecTrack > & recTrackV, const TkSimVertex * simv = 0,
+  //   			const float &time = 0.);
 
   /**
    * To be used if one wants to record "Failed Fits", e.g. to synchronise two Trees
@@ -88,10 +86,10 @@ public:
   void fill();
 
 private:
-
-  void defineTrackBranch(const TString& prefix, const TString& type,
-			const float* (VertexFitterResult::*pfunc)(const int) const,
-			const TString& index);
+  void defineTrackBranch(const TString& prefix,
+                         const TString& type,
+                         const float* (VertexFitterResult::*pfunc)(const int)const,
+                         const TString& index);
 
   float simPos[3];
   float recPos[3];
@@ -107,4 +105,3 @@ private:
   TString* parameterNames[5];
 };
 #endif
-
