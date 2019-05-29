@@ -4,7 +4,7 @@
 #define MATACQTBRAWEVENT_H
 
 #include <cinttypes>
-#include <time.h>
+#include <ctime>
 #include <vector>
 #if 0 //replace 1 by 0 to remove XDAQ dependency. In this case it is assumed
       //the machine is little endian.

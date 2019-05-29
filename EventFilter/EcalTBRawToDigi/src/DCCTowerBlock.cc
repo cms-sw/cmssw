@@ -145,7 +145,7 @@ void DCCTBTowerBlock::dataCheck(){
 		if(!res.first){ checkErrors += res.second; (errors_["FE::HEADER"])++; } 
 	}
 	
-	if( checkErrors !="" ){
+	if( !checkErrors.empty() ){
 		std::string myTowerId;
 		
 		errorString_ +="\n ======================================================================\n"; 

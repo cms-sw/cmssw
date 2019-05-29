@@ -251,7 +251,7 @@ void DCCTBEventBlock::dataCheck(){
 	/////////////////////////////////////////////////////////////////////////////
 		
 	
-	if(checkErrors!=""){
+	if(!checkErrors.empty()){
 		errorString_ +="\n ======================================================================\n"; 		
 		errorString_ += std::string(" ") + name_ + std::string(" data fields checks errors : ") ;
 		errorString_ += checkErrors ;
@@ -520,7 +520,7 @@ std::string DCCTBEventBlock::eventErrorString(){
 			std::string temp;
 			for(it3 = xtalBlocks.begin();it3!=xtalBlocks.end();it3++){ temp += (*it3)->errorString();}
 		
-			if(temp!=""){
+			if(!temp.empty()){
 				ret += "\n Fine grain data Errors found ...";
 				ret += "\n(  Tower ID = " + parser_->getDecString( (*it2)->getDataField("TT/SC ID"));
 				ret += ", LV1 = " + parser_->getDecString( (*it2)->getDataField("LV1"));

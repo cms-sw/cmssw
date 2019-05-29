@@ -66,7 +66,7 @@ void DCCTBTCCBlock::dataCheck(){
   } 
   
   
-  if(checkErrors!=""){
+  if(!checkErrors.empty()){
   	 blockError_=true;
     errorString_ +="\n ======================================================================\n"; 
 	 errorString_ += std::string(" ") + name_ + std::string("( ID = ")+parser_->getDecString((uint32_t)(expectedId_))+std::string(" ) errors : ") ;

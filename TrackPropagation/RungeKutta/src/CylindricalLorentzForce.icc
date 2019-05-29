@@ -8,7 +8,7 @@
 class CylindricalLorentzForceException : public std::exception {
 public:
     CylindricalLorentzForceException() throw() {}
-    virtual ~CylindricalLorentzForceException() throw() {}
+    ~CylindricalLorentzForceException() throw() override {}
 };
 
 

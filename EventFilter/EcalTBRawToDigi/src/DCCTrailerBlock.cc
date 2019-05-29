@@ -46,7 +46,7 @@ void DCCTBTrailerBlock::dataCheck(){
 	
 	//checkErrors += checkDataField("CRC",expectedCRC_);
 	
-	if(checkErrors!=""){
+	if(!checkErrors.empty()){
 		errorString_ +="\n ======================================================================\n"; 		
 		errorString_ += std::string(" ") + name_ + std::string(" data fields checks errors : ") ;
 		errorString_ += checkErrors ;
