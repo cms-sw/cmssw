@@ -54,7 +54,7 @@ namespace {
   // - https://indico.cern.ch/event/238026/contributions/513928/attachments/400000/556192/mm_TkAlMeeting_28_03_2013.pdf
   // - https://twiki.cern.ch/twiki/bin/view/CMS/TkAlignmentPixelPosition
 
-  static const std::map<AlignmentPI::coordinate,float> hardcodeGPR = 
+  const std::map<AlignmentPI::coordinate,float> hardcodeGPR = 
     {{AlignmentPI::t_x,-9.00e-02},
      {AlignmentPI::t_y,-1.10e-01},
      {AlignmentPI::t_z,-1.70e-01}};
