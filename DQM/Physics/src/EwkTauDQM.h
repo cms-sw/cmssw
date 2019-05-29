@@ -25,16 +25,15 @@ class EwkElecTauHistManager;
 class EwkMuTauHistManager;
 
 class EwkTauDQM : public DQMEDAnalyzer {
- public:
+public:
   EwkTauDQM(const edm::ParameterSet&);
   ~EwkTauDQM() override;
 
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
-                      edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
 
- private:
+private:
   std::string dqmDirectory_;
   int maxNumWarnings_;
 
@@ -68,14 +67,14 @@ class EwkTauDQM : public DQMEDAnalyzer {
 #include <string>
 
 class EwkElecTauHistManager {
- public:
+public:
   EwkElecTauHistManager(const edm::ParameterSet&);
 
   void bookHistograms(DQMStore::IBooker&);
   void fillHistograms(const edm::Event&, const edm::EventSetup&);
   void finalizeHistograms();
 
- private:
+private:
   //--- labels of electron, tau-jet and MEt collections being used
   //    in event selection and when filling histograms
   edm::InputTag triggerResultsSource_;
@@ -216,14 +215,14 @@ class EwkElecTauHistManager {
 #include <string>
 
 class EwkMuTauHistManager {
- public:
+public:
   EwkMuTauHistManager(const edm::ParameterSet&);
 
   void bookHistograms(DQMStore::IBooker&);
   void fillHistograms(const edm::Event&, const edm::EventSetup&);
   void finalizeHistograms();
 
- private:
+private:
   //--- labels of muon, tau-jet and MEt collections being used
   //    in event selection and when filling histograms
   edm::InputTag triggerResultsSource_;
@@ -369,9 +368,13 @@ class EwkMuTauHistManager {
 enum { kAbsoluteIso, kRelativeIso, kUndefinedIso };
 
 template <typename T>
-void readEventData(const edm::Event& evt, const edm::InputTag& src,
-                   edm::Handle<T>& handle, long& numWarnings,
-                   int maxNumWarnings, bool& error, const char* errorMessage) {
+void readEventData(const edm::Event& evt,
+                   const edm::InputTag& src,
+                   edm::Handle<T>& handle,
+                   long& numWarnings,
+                   int maxNumWarnings,
+                   bool& error,
+                   const char* errorMessage) {
   if (!evt.getByLabel(src, handle)) {
     if (numWarnings < maxNumWarnings || maxNumWarnings == -1)
       edm::LogWarning("readEventData") << errorMessage << " !!";
@@ -384,17 +387,14 @@ int getIsoMode(const std::string&, int&);
 
 double calcDeltaPhi(double, double);
 double calcMt(double, double, double, double);
-double calcPzeta(const reco::Candidate::LorentzVector&,
-                 const reco::Candidate::LorentzVector&, double, double);
+double calcPzeta(const reco::Candidate::LorentzVector&, const reco::Candidate::LorentzVector&, double, double);
 
 bool passesElectronPreId(const reco::GsfElectron&);
 bool passesElectronId(const reco::GsfElectron&);
 
-const reco::GsfElectron* getTheElectron(const reco::GsfElectronCollection&,
-                                        double, double);
+const reco::GsfElectron* getTheElectron(const reco::GsfElectronCollection&, double, double);
 const reco::Muon* getTheMuon(const reco::MuonCollection&, double, double);
-const reco::PFTau* getTheTauJet(const reco::PFTauCollection&, double, double,
-                                int&);
+const reco::PFTau* getTheTauJet(const reco::PFTauCollection&, double, double, int&);
 
 double getVertexD0(const reco::Vertex&, const reco::BeamSpot&);
 
