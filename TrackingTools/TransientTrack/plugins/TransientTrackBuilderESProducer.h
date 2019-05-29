@@ -12,11 +12,14 @@
 class TransientTrackBuilderESProducer : public edm::ESProducer {
 public:
   TransientTrackBuilderESProducer(const edm::ParameterSet &p);
-  ~TransientTrackBuilderESProducer() override;
+
   std::unique_ptr<TransientTrackBuilder> produce(const TransientTrackRecord &);
 
 private:
-  edm::ParameterSet pset_;
+  TransientTrackBuilderESProducer(edm::ESConsumesCollector &&c);
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geomToken_;
 };
 
 #endif

@@ -11,19 +11,13 @@
 
 using namespace edm;
 
-TransientTrackBuilderESProducer::TransientTrackBuilderESProducer(const edm::ParameterSet& p) {
-  std::string myname = p.getParameter<std::string>("ComponentName");
-  pset_ = p;
-  setWhatProduced(this, myname);
-}
+TransientTrackBuilderESProducer::TransientTrackBuilderESProducer(const edm::ParameterSet& p)
+    : TransientTrackBuilderESProducer(setWhatProduced(this, p.getParameter<std::string>("ComponentName"))) {}
 
-TransientTrackBuilderESProducer::~TransientTrackBuilderESProducer() {}
+TransientTrackBuilderESProducer::TransientTrackBuilderESProducer(edm::ESConsumesCollector&& c)
+    : magToken_(c.consumesFrom<MagneticField, IdealMagneticFieldRecord>()),
+      geomToken_(c.consumesFrom<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()) {}
 
 std::unique_ptr<TransientTrackBuilder> TransientTrackBuilderESProducer::produce(const TransientTrackRecord& iRecord) {
-  edm::ESHandle<MagneticField> magfield;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  iRecord.getRecord<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-
-  return std::make_unique<TransientTrackBuilder>(magfield.product(), theTrackingGeometry);
+  return std::make_unique<TransientTrackBuilder>(&iRecord.get(magToken_), iRecord.getHandle(geomToken_));
 }
