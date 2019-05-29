@@ -17,6 +17,8 @@
 // class declaration
 //
 namespace {
+  using dqm::legacy::DQMStore;
+  using dqm::legacy::MonitorElement;
   class FillerBase {
   public:
     virtual ~FillerBase() = default;

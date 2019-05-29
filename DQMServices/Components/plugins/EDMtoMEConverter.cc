@@ -13,6 +13,8 @@
 #include "DataFormats/Histograms/interface/DQMToken.h"
 
 using namespace lat;
+using dqm::legacy::DQMStore;
+using dqm::legacy::MonitorElement;
 
 template <typename T>
 void EDMtoMEConverter::Tokens<T>::set(const edm::InputTag &runInputTag,

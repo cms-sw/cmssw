@@ -14,6 +14,7 @@
 
 class FitSlicesYTool {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
   FitSlicesYTool(MonitorElement*);
   /// Constructor: needs a TH2F
   /*   FitSlicesYTool(TH2F*); */

@@ -57,6 +57,8 @@
 // class declaration
 //
 namespace {
+  using dqm::harvesting::DQMStore;
+  using dqm::harvesting::MonitorElement;
   class CumulatorBase {
   public:
     virtual ~CumulatorBase() = default;

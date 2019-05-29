@@ -29,6 +29,8 @@
 
 class DQMLumiMonitor : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   DQMLumiMonitor(const edm::ParameterSet&);
   ~DQMLumiMonitor() override;
 
