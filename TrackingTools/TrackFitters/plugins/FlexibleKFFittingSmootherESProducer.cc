@@ -59,12 +59,10 @@ namespace {
   class FlexibleKFFittingSmootherESProducer : public edm::ESProducer {
   public:
     FlexibleKFFittingSmootherESProducer(const edm::ParameterSet& p) {
-      std::string myname = p.getParameter<std::string>("ComponentName");
-      pset_ = p;
-      setWhatProduced(this, myname);
+      setWhatProduced(this, p.getParameter<std::string>("ComponentName"))
+          .setConsumes(standardToken_, edm::ESInputTag("", p.getParameter<std::string>("standardFitter")))
+          .setConsumes(looperToken_, edm::ESInputTag("", p.getParameter<std::string>("looperFitter")));
     }
-
-    ~FlexibleKFFittingSmootherESProducer() override {}
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
@@ -75,18 +73,13 @@ namespace {
     }
 
     std::unique_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord& iRecord) {
-      edm::ESHandle<TrajectoryFitter> standardFitter;
-      edm::ESHandle<TrajectoryFitter> looperFitter;
-
-      iRecord.get(pset_.getParameter<std::string>("standardFitter"), standardFitter);
-      iRecord.get(pset_.getParameter<std::string>("looperFitter"), looperFitter);
-
       return std::unique_ptr<TrajectoryFitter>(
-          new FlexibleKFFittingSmoother(*standardFitter.product(), *looperFitter.product()));
+          new FlexibleKFFittingSmoother(iRecord.get(standardToken_), iRecord.get(looperToken_)));
     }
 
   private:
-    edm::ParameterSet pset_;
+    edm::ESGetToken<TrajectoryFitter, TrajectoryFitterRecord> standardToken_;
+    edm::ESGetToken<TrajectoryFitter, TrajectoryFitterRecord> looperToken_;
   };
 
 }  // namespace
