@@ -22,7 +22,6 @@ namespace {
   class KFTrajectoryFitterESProducer : public edm::ESProducer {
   public:
     KFTrajectoryFitterESProducer(const edm::ParameterSet& p);
-    ~KFTrajectoryFitterESProducer() override;
     std::unique_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord&);
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -37,35 +36,26 @@ namespace {
     }
 
   private:
-    edm::ParameterSet pset_;
+    edm::ESGetToken<Propagator, TrackingComponentsRecord> propToken_;
+    edm::ESGetToken<TrajectoryStateUpdator, TrackingComponentsRecord> updToken_;
+    edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> estToken_;
+    edm::ESGetToken<DetLayerGeometry, RecoGeometryRecord> geoToken_;
+    const int minHits_;
   };
 
-  KFTrajectoryFitterESProducer::KFTrajectoryFitterESProducer(const edm::ParameterSet& p) {
+  KFTrajectoryFitterESProducer::KFTrajectoryFitterESProducer(const edm::ParameterSet& p)
+      : minHits_{p.getParameter<int>("minHits")} {
     std::string myname = p.getParameter<std::string>("ComponentName");
-    pset_ = p;
-    setWhatProduced(this, myname);
+    setWhatProduced(this, myname)
+        .setConsumes(propToken_, edm::ESInputTag("", p.getParameter<std::string>("Propagator")))
+        .setConsumes(updToken_, edm::ESInputTag("", p.getParameter<std::string>("Updator")))
+        .setConsumes(estToken_, edm::ESInputTag("", p.getParameter<std::string>("Estimator")))
+        .setConsumes(geoToken_, edm::ESInputTag("", p.getParameter<std::string>("RecoGeometry")));
   }
 
-  KFTrajectoryFitterESProducer::~KFTrajectoryFitterESProducer() {}
-
   std::unique_ptr<TrajectoryFitter> KFTrajectoryFitterESProducer::produce(const TrajectoryFitterRecord& iRecord) {
-    std::string pname = pset_.getParameter<std::string>("Propagator");
-    std::string uname = pset_.getParameter<std::string>("Updator");
-    std::string ename = pset_.getParameter<std::string>("Estimator");
-    std::string gname = pset_.getParameter<std::string>("RecoGeometry");
-    int minHits = pset_.getParameter<int>("minHits");
-
-    edm::ESHandle<Propagator> prop;
-    edm::ESHandle<TrajectoryStateUpdator> upd;
-    edm::ESHandle<Chi2MeasurementEstimatorBase> est;
-    edm::ESHandle<DetLayerGeometry> geo;
-
-    iRecord.getRecord<TrackingComponentsRecord>().get(pname, prop);
-    iRecord.getRecord<TrackingComponentsRecord>().get(uname, upd);
-    iRecord.getRecord<TrackingComponentsRecord>().get(ename, est);
-    iRecord.getRecord<RecoGeometryRecord>().get(gname, geo);
-
-    return std::make_unique<KFTrajectoryFitter>(prop.product(), upd.product(), est.product(), minHits, geo.product());
+    return std::make_unique<KFTrajectoryFitter>(
+        &iRecord.get(propToken_), &iRecord.get(updToken_), &iRecord.get(estToken_), minHits_, &iRecord.get(geoToken_));
   }
 
 }  // namespace
