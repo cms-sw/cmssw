@@ -171,7 +171,7 @@ bool TTClusterAssociationMap< T >::isGenuine( edm::Ref< edmNew::DetSetVector< TT
   for ( const auto& tp : theseTrackingParticles )
   {
     /// Get the TrackingParticle
-    edm::Ptr< TrackingParticle > curTP = tp;
+    const edm::Ptr< TrackingParticle >& curTP = tp;
 
     /// Count the NULL TrackingParticles
     if ( curTP.isNull() )
