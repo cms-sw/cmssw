@@ -56,7 +56,6 @@ namespace hgcal {
     RecHitTools rhtools_;
     const edm::EDGetTokenT<HGCRecHitCollection> eetok, fhtok, bhtok;
     const HGCRecHitCollection *eerh_, *fhrh_, *bhrh_;
-    static const int lastLayerEE = 28;
   };
 }
 

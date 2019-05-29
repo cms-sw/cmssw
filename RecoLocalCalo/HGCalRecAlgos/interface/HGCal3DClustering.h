@@ -85,9 +85,6 @@ private:
   std::vector<float> zees; /*!< vector to contain z position of each layer. */
   std::unique_ptr<hgcal::ClusterTools> clusterTools; /*!< instance of tools to simplify cluster access. */
   hgcal::RecHitTools rhtools_; /*!< instance of tools to access RecHit information. */
-  static const unsigned int lastLayerEE = 28;
-  static const unsigned int lastLayerFH = 40;
-  static const unsigned int lastLayerBH = 52;
 
 };
 
