@@ -56,6 +56,10 @@ HGCalHistoSeedingImpl::Histogram HGCalHistoSeedingImpl::fillHistoClusters(
 
   for (auto& clu : clustersPtrs) {
     float ROverZ = sqrt(pow(clu->centreProj().x(), 2) + pow(clu->centreProj().y(), 2));
+    if (ROverZ < kROverZMin_ || ROverZ >= kROverZMax_) {
+      throw cms::Exception("OutOfBound") << "TC R/Z = " << ROverZ << " out of the seeding histogram bounds "
+                                         << kROverZMin_ << " - " << kROverZMax_;
+    }
     unsigned bin_R = unsigned((ROverZ - kROverZMin_) * nBinsRHisto_ / (kROverZMax_ - kROverZMin_));
     unsigned bin_phi = unsigned((reco::reduceRange(clu->phi()) + M_PI) * nBinsPhiHisto_ / (2 * M_PI));
 
