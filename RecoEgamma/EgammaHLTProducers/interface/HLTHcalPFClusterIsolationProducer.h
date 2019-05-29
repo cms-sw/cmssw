@@ -20,34 +20,31 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
-
 namespace edm {
   class ConfigurationDescriptions;
 }
 
-template<typename T1>
+template <typename T1>
 class HLTHcalPFClusterIsolationProducer : public edm::global::EDProducer<> {
-
   typedef std::vector<T1> T1Collection;
   typedef edm::Ref<T1Collection> T1Ref;
-  typedef edm::AssociationMap<edm::OneToValue<std::vector<T1>, float > > T1IsolationMap;
+  typedef edm::AssociationMap<edm::OneToValue<std::vector<T1>, float> > T1IsolationMap;
 
- public:
+public:
   explicit HLTHcalPFClusterIsolationProducer(const edm::ParameterSet&);
-  ~HLTHcalPFClusterIsolationProducer() override;    
-      
+  ~HLTHcalPFClusterIsolationProducer() override;
+
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
- 
- private:
 
+private:
   edm::EDGetTokenT<T1Collection> recoCandidateProducer_;
   const edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHCAL_;
   const edm::EDGetTokenT<double> rhoProducer_;
   const edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHFEM_;
   const edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHFHAD_;
 
-  const bool useHF_; 
+  const bool useHF_;
 
   const double drMax_;
   const double drVetoBarrel_;

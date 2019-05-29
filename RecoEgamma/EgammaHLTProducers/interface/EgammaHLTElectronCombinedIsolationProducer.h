@@ -2,7 +2,7 @@
 //
 // Package:    EgammaHLTProducers
 // Class:      EgammaHLTElectronCombinedIsolationProducer
-// 
+//
 /**\class EgammaHLTElectronCombinedIsolationProducer EgammaHLTElectronCombinedIsolationProducer.cc RecoEgamma/EgammaHLTProducers/interface/EgammaHLTElectronCombinedIsolationProducer.h
 */
 //
@@ -38,14 +38,12 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;
   std::vector<edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> > CaloIsolTag_;
   edm::EDGetTokenT<reco::ElectronIsolationMap> TrackIsolTag_;
-  
+
   std::vector<double> CaloIsolWeight_;
   double TrackIsolWeight_;
   edm::ParameterSet conf_;
 };
-

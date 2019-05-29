@@ -19,25 +19,27 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTTimeCleanedRechitProducer.h"
 
 EgammaHLTTimeCleanedRechitProducer::EgammaHLTTimeCleanedRechitProducer(const edm::ParameterSet& ps) {
-
   timeMax_ = ps.getParameter<double>("TimeMax");
   timeMin_ = ps.getParameter<double>("TimeMin");
-  hitLabels     = ps.getParameter<std::vector<edm::InputTag>>("ecalhitLabels");
+  hitLabels = ps.getParameter<std::vector<edm::InputTag>>("ecalhitLabels");
   productLabels = ps.getParameter<std::vector<std::string>>("productLabels");
 
-   if (!(hitLabels.size() == 2)) throw cms::Exception("ConfigError","ecalhitLabels should contain 2 labels: one for RecHits in barrel, the other for RecHits in endcaps");
-   if (!(productLabels.size() == 2)) throw cms::Exception("ConfigError","productLabels should contain 2 labels: one for RecHits in barrel, the other for RecHits in endcaps");
+  if (!(hitLabels.size() == 2))
+    throw cms::Exception(
+        "ConfigError",
+        "ecalhitLabels should contain 2 labels: one for RecHits in barrel, the other for RecHits in endcaps");
+  if (!(productLabels.size() == 2))
+    throw cms::Exception(
+        "ConfigError",
+        "productLabels should contain 2 labels: one for RecHits in barrel, the other for RecHits in endcaps");
 
-    
-  for (unsigned int i=0; i<hitLabels.size(); i++) { 
+  for (unsigned int i = 0; i < hitLabels.size(); i++) {
     hitTokens.push_back(consumes<EcalRecHitCollection>(hitLabels[i]));
-    produces<EcalRecHitCollection> (productLabels[i]);
+    produces<EcalRecHitCollection>(productLabels[i]);
   }
 }
 
-
-EgammaHLTTimeCleanedRechitProducer::~EgammaHLTTimeCleanedRechitProducer()
-{}
+EgammaHLTTimeCleanedRechitProducer::~EgammaHLTTimeCleanedRechitProducer() {}
 
 void EgammaHLTTimeCleanedRechitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -55,27 +57,25 @@ void EgammaHLTTimeCleanedRechitProducer::fillDescriptions(edm::ConfigurationDesc
 }
 
 void EgammaHLTTimeCleanedRechitProducer::produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const {
-
   edm::Handle<EcalRecHitCollection> rhcH[2];
-    
 
-  for (unsigned int i=0; i<hitLabels.size(); i++) {
+  for (unsigned int i = 0; i < hitLabels.size(); i++) {
     auto hits = std::make_unique<EcalRecHitCollection>();
-    
-    evt.getByToken(hitTokens[i], rhcH[i]);  
+
+    evt.getByToken(hitTokens[i], rhcH[i]);
     if (!(rhcH[i].isValid())) {
-      edm::LogError("ProductNotFound")<< "could not get a handle on the EcalRecHitCollection! (" << hitLabels[i].encode() << ")" << std::endl;
+      edm::LogError("ProductNotFound") << "could not get a handle on the EcalRecHitCollection! ("
+                                       << hitLabels[i].encode() << ")" << std::endl;
       return;
     }
     const EcalRecHitCollection* recHits = rhcH[i].product();
-      
-    EcalRecHitCollection::const_iterator it;	
-    for (it = recHits->begin(); it != recHits->end(); it++){
+
+    EcalRecHitCollection::const_iterator it;
+    for (it = recHits->begin(); it != recHits->end(); it++) {
       if (((*it).time() < timeMax_) && ((*it).time() > timeMin_))
-	hits->push_back(*it);
+        hits->push_back(*it);
     }
-    
+
     evt.put(std::move(hits), productLabels[i]);
   }
 }
-

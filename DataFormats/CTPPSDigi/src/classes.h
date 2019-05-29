@@ -22,4 +22,3 @@
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDataError.h"
 
 #include <vector>
-

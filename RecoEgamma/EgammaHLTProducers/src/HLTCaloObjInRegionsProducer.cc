@@ -6,23 +6,22 @@
 using HLTHcalDigisInRegionsProducer = HLTCaloObjInRegionsProducer<HBHEDataFrame>;
 DEFINE_FWK_MODULE(HLTHcalDigisInRegionsProducer);
 
-
 #include "DataFormats/HcalDigi/interface/QIE11DataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-using HLTHcalQIE11DigisInRegionsProducer = HLTCaloObjInRegionsProducer<QIE11DataFrame,QIE11DigiCollection>;
+using HLTHcalQIE11DigisInRegionsProducer = HLTCaloObjInRegionsProducer<QIE11DataFrame, QIE11DigiCollection>;
 DEFINE_FWK_MODULE(HLTHcalQIE11DigisInRegionsProducer);
 
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-using HLTHcalQIE10DigisInRegionsProducer = HLTCaloObjInRegionsProducer<QIE10DataFrame,QIE10DigiCollection>;
+using HLTHcalQIE10DigisInRegionsProducer = HLTCaloObjInRegionsProducer<QIE10DataFrame, QIE10DigiCollection>;
 DEFINE_FWK_MODULE(HLTHcalQIE10DigisInRegionsProducer);
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-using HLTEcalEBDigisInRegionsProducer = HLTCaloObjInRegionsProducer<EBDataFrame,EBDigiCollection>;
+using HLTEcalEBDigisInRegionsProducer = HLTCaloObjInRegionsProducer<EBDataFrame, EBDigiCollection>;
 DEFINE_FWK_MODULE(HLTEcalEBDigisInRegionsProducer);
-using HLTEcalEEDigisInRegionsProducer = HLTCaloObjInRegionsProducer<EEDataFrame,EEDigiCollection>;
+using HLTEcalEEDigisInRegionsProducer = HLTCaloObjInRegionsProducer<EEDataFrame, EEDigiCollection>;
 DEFINE_FWK_MODULE(HLTEcalEEDigisInRegionsProducer);
-using HLTEcalESDigisInRegionsProducer = HLTCaloObjInRegionsProducer<ESDataFrame,ESDigiCollection>;
+using HLTEcalESDigisInRegionsProducer = HLTCaloObjInRegionsProducer<ESDataFrame, ESDigiCollection>;
 DEFINE_FWK_MODULE(HLTEcalESDigisInRegionsProducer);
 
 //these two classes are intended to ultimately replace the EcalRecHit and EcalUncalibratedRecHit

@@ -39,36 +39,34 @@
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 
 class DDTrackerRingAlgo : public DDAlgorithm {
- 
 public:
   // Constructor and Destructor
-  DDTrackerRingAlgo(); 
+  DDTrackerRingAlgo();
   ~DDTrackerRingAlgo() override;
-  
-  void initialize(const DDNumericArguments & nArgs,
-		  const DDVectorArguments & vArgs,
-		  const DDMapArguments & mArgs,
-		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs) override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
 
   void execute(DDCompactView& cpv) override;
 
 private:
+  int n;                       //Number of copies
+  int startCopyNo;             //Start Copy number
+  int incrCopyNo;              //Increment in Copy number
+  double rangeAngle;           //Range in Phi angle
+  double startAngle;           //Start Phi angle
+  double radius;               //Radius
+  std::vector<double> center;  //Phi values
+  bool isZPlus;                //Is Z positive ?
+  double tiltAngle;            //Module's tilt angle (absolute value)
+  bool isFlipped;              //Is the module flipped ?
+  double delta;                //Increment in Phi
 
-  int           n;              //Number of copies
-  int           startCopyNo;    //Start Copy number
-  int           incrCopyNo;     //Increment in Copy number
-  double        rangeAngle;     //Range in Phi angle
-  double        startAngle;     //Start Phi angle
-  double        radius;         //Radius
-  std::vector<double> center;   //Phi values
-  bool          isZPlus;        //Is Z positive ?
-  double        tiltAngle;      //Module's tilt angle (absolute value)
-  bool          isFlipped;      //Is the module flipped ?
-  double        delta;          //Increment in Phi
-
-  std::string   idNameSpace;    //Namespace of this and ALL sub-parts
-  std::string   childName;      //Child name
+  std::string idNameSpace;  //Namespace of this and ALL sub-parts
+  std::string childName;    //Child name
 };
 
 #endif

@@ -2,7 +2,7 @@
 //
 // Package:    EgammaHLTProducers
 // Class:      EgammaHLTHcalIsolationProducersRegional
-// 
+//
 /**\class EgammaHLTHcalIsolationProducersRegional EgammaHLTHcalIsolationProducersRegional.cc RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHcalIsolationProducersRegional.h
 */
 //
@@ -11,7 +11,6 @@
 // $Id: EgammaHLTHcalIsolationProducersRegional.h,v 1.3 2011/12/19 11:17:28 sani Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -44,7 +43,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  
   const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   const edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitProducer_;
   const edm::EDGetTokenT<double> rhoProducer_;
@@ -56,6 +54,5 @@ private:
   const float effectiveAreaBarrel_;
   const float effectiveAreaEndcap_;
 
-  EgammaHLTHcalIsolation const * const isolAlgo_;
+  EgammaHLTHcalIsolation const* const isolAlgo_;
 };
-
