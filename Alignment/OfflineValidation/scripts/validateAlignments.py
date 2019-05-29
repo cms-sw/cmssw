@@ -19,7 +19,6 @@ import re
 import six
 import Alignment.OfflineValidation.TkAlAllInOneTool.configTemplates \
     as configTemplates
-import Alignment.OfflineValidation.TkAlAllInOneTool.crabWrapper as crabWrapper
 from Alignment.OfflineValidation.TkAlAllInOneTool.TkAlExceptions \
     import AllInOneError
 from Alignment.OfflineValidation.TkAlAllInOneTool.helperFunctions \
