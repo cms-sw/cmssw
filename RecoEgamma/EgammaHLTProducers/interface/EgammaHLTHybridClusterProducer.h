@@ -20,15 +20,14 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTHybridClusterProducer : public edm::stream::EDProducer<>  {
- public:
+class EgammaHLTHybridClusterProducer : public edm::stream::EDProducer<> {
+public:
   EgammaHLTHybridClusterProducer(const edm::ParameterSet& ps);
   ~EgammaHLTHybridClusterProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-  
+private:
   const std::string basicclusterCollection_;
   const std::string superclusterCollection_;
   const edm::EDGetTokenT<EcalRecHitCollection> hittoken_;
@@ -41,14 +40,11 @@ class EgammaHLTHybridClusterProducer : public edm::stream::EDProducer<>  {
   const double l1LowerThr_;
   const double l1UpperThr_;
   const double l1LowerThrIgnoreIsolation_;
-  
+
   const double regionEtaMargin_;
   const double regionPhiMargin_;
-  
-  const PositionCalc posCalculator_; // position calculation algorithm
-  HybridClusterAlgo * const hybrid_p; // clustering algorithm
-  
+
+  const PositionCalc posCalculator_;  // position calculation algorithm
+  HybridClusterAlgo* const hybrid_p;  // clustering algorithm
 };
 #endif
-
-

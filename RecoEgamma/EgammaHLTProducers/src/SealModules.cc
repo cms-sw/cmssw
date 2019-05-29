@@ -1,7 +1,6 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTElectronTrackIsolationProducers.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTCombinedIsolationProducer.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTElectronCombinedIsolationProducer.h"
@@ -70,11 +69,9 @@ DEFINE_FWK_MODULE(EgammaHLTNxNClusterProducer);
 DEFINE_FWK_MODULE(EgammaHLTCombinedIsolationProducer);
 DEFINE_FWK_MODULE(EgammaHLTElectronCombinedIsolationProducer);
 
-
 DEFINE_FWK_MODULE(EgammaHLTPFPhotonIsolationProducer);
 DEFINE_FWK_MODULE(EgammaHLTPFChargedIsolationProducer);
 DEFINE_FWK_MODULE(EgammaHLTPFNeutralIsolationProducer);
-
 
 DEFINE_FWK_MODULE(EgammaHLTCaloTowerProducer);
 
