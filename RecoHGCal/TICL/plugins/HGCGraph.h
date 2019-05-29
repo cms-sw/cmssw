@@ -5,14 +5,17 @@
 #define __RecoHGCal_TICL_HGCGraph_H__
 
 #include <vector>
-#include "PatternRecognitionbyCAConstants.h"
+#include "DataFormats/TICL/interface/Common.h"
+#include "DataFormats/TICL/interface/TICLLayerTile.h"
 #include "HGCDoublet.h"
 
 class HGCGraph {
  public:
-  void makeAndConnectDoublets(const ticl::patternbyca::Tile &h,
+  void makeAndConnectDoublets(const ticl::TICLLayerTiles& h,
                               int nEtaBins, int nPhiBins,
-                              const std::vector<reco::CaloCluster> &layerClusters, int deltaIEta,
+                              const std::vector<reco::CaloCluster> &layerClusters,
+                              const std::vector<float> &mask,
+                              int deltaIEta,
                               int deltaIPhi, float minCosThetai, float maxCosPointing,
                               int missing_layers, int maxNumberOfLayers);
 

@@ -46,6 +46,7 @@ FilteredLayerClustersProducer::FilteredLayerClustersProducer(const edm::Paramete
   iteration_label_ = ps.getParameter<std::string>("iteration_label");
 
   produces<ticl::HgcalClusterFilterMask>(iteration_label_);
+  produces<std::vector<float>>(iteration_label_);
 }
 
 void FilteredLayerClustersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -65,9 +66,16 @@ void FilteredLayerClustersProducer::produce(edm::Event& evt, const edm::EventSet
   edm::Handle<std::vector<reco::CaloCluster>> clusterHandle;
   edm::Handle<std::vector<float>> inputClustersMaskHandle;
   auto availableLayerClusters = std::make_unique<ticl::HgcalClusterFilterMask>();
+  auto layerClustersMask = std::make_unique<std::vector<float>>();
   evt.getByToken(clusters_token_, clusterHandle);
   evt.getByToken(clustersMask_token_, inputClustersMaskHandle);
   const auto& inputClusterMask = *inputClustersMaskHandle;
+
+  // Transfer input mask in output
+  layerClustersMask->reserve(inputClusterMask.size());
+  std::copy(std::begin(inputClusterMask),
+      std::end(inputClusterMask),
+      std::back_inserter(*layerClustersMask));
 
   const auto& layerClusters = *clusterHandle;
   auto numLayerClusters = layerClusters.size();
@@ -80,9 +88,10 @@ void FilteredLayerClustersProducer::produce(edm::Event& evt, const edm::EventSet
 
   std::unique_ptr<ticl::HgcalClusterFilterMask> filteredLayerClusters;
   if (theFilter_) {
-    filteredLayerClusters = theFilter_->filter(layerClusters, *availableLayerClusters);
+    filteredLayerClusters = theFilter_->filter(layerClusters, *availableLayerClusters, *layerClustersMask);
   } else {
     filteredLayerClusters = std::move(availableLayerClusters);
   }
   evt.put(std::move(filteredLayerClusters), iteration_label_);
+  evt.put(std::move(layerClustersMask), iteration_label_);
 }

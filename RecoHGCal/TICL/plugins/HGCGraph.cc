@@ -1,15 +1,15 @@
 // Author: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 11/2018
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "RecoHGCal/TICL/interface/Common.h"
-
+#include "DataFormats/TICL/interface/Common.h"
 #include "PatternRecognitionbyCA.h"
 #include "HGCDoublet.h"
 #include "HGCGraph.h"
 
-void HGCGraph::makeAndConnectDoublets(const ticl::patternbyca::Tile & histo,
+void HGCGraph::makeAndConnectDoublets(const ticl::TICLLayerTiles& histo,
                                       int nEtaBins, int nPhiBins,
                                       const std::vector<reco::CaloCluster> &layerClusters,
+                                      const std::vector<float> &mask,
                                       int deltaIEta, int deltaIPhi, float minCosTheta,
                                       float minCosPointing, int missing_layers, int maxNumberOfLayers) {
   isOuterClusterOfDoublets_.clear();
@@ -30,6 +30,8 @@ void HGCGraph::makeAndConnectDoublets(const ticl::patternbyca::Tile & histo,
           auto offset = oeta * nPhiBins;
           for (int ophi = 0; ophi < nPhiBins; ++ophi) {
             for (auto outerClusterId : outerLayerHisto[offset + ophi]) {
+              // Skip masked clusters
+              if (mask[outerClusterId] == 0.) continue;
               const auto etaRangeMin = std::max(0, oeta - deltaIEta);
               const auto etaRangeMax = std::min(oeta + deltaIEta, nEtaBins);
 
@@ -43,6 +45,8 @@ void HGCGraph::makeAndConnectDoublets(const ticl::patternbyca::Tile & histo,
                   // between a full nPhiBins slot.
                   auto iphi = ((ophi + phiRange - deltaIPhi) % nPhiBins + nPhiBins) % nPhiBins;
                   for (auto innerClusterId : innerLayerHisto[ieta * nPhiBins + iphi]) {
+                    // Skip masked clusters
+                    if (mask[innerClusterId] == 0.) continue;
                     auto doubletId = allDoublets_.size();
                     allDoublets_.emplace_back(innerClusterId, outerClusterId, doubletId,
                                               &layerClusters);

@@ -23,7 +23,8 @@ namespace ticl {
 
       void makeTracksters(const edm::Event& ev, const edm::EventSetup& es,
           const std::vector<reco::CaloCluster>& layerClusters,
-          const ticl::HgcalClusterFilterMask & mask,
+          const std::vector<float> & mask,
+          const ticl::TICLLayerTiles & tiles,
           std::vector<Trackster>& result) override;
   };
 }

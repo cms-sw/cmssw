@@ -20,49 +20,26 @@ PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf) : 
 
 PatternRecognitionbyCA::~PatternRecognitionbyCA(){};
 
-void PatternRecognitionbyCA::fillHistogram(const std::vector<reco::CaloCluster> &layerClusters,
-                                           const HgcalClusterFilterMask &mask) {
-  if (algo_verbosity_ > None) {
-    LogDebug("HGCPatterRecoByCA") << "filling eta/phi histogram per Layer" << std::endl;
-  }
-  for (auto &m : mask) {
-    auto lcId = m.first;
-    const auto &lc = layerClusters[lcId];
-    // getting the layer Id from the detId of the first hit of the layerCluster
-    const auto firstHitDetId = lc.hitsAndFractions()[0].first;
-    int layer = rhtools_.getLayerWithOffset(firstHitDetId) +
-                rhtools_.lastLayerFH() * ((rhtools_.zside(firstHitDetId) + 1) >> 1) - 1;
-    assert(layer >= 0);
-    auto etaBin = getEtaBin(lc.eta());
-    auto phiBin = getPhiBin(lc.phi());
-    tile_[layer][globalBin(etaBin, phiBin)].push_back(lcId);
-    if (algo_verbosity_ > Advanced) {
-      LogDebug("HGCPatterRecoByCA") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ " << etaBin << ", "
-                                    << phiBin << "] for layer: " << layer << std::endl;
-    }
-  }
-}
-
 void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
                                             const edm::EventSetup &es,
                                             const std::vector<reco::CaloCluster> &layerClusters,
-                                            const HgcalClusterFilterMask &mask,
+                                            const std::vector<float> &mask,
+                                            const ticl::TICLLayerTiles & tiles,
                                             std::vector<Trackster> &result) {
   rhtools_.getEventSetup(es);
 
-  clearHistogram();
   theGraph_->setVerbosity(algo_verbosity_);
   theGraph_->clear();
   if (algo_verbosity_ > None) {
     LogDebug("HGCPatterRecoByCA") << "Making Tracksters with CA" << std::endl;
   }
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
-  fillHistogram(layerClusters, mask);
   std::vector<uint8_t> layer_cluster_usage(layerClusters.size(), 0);
-  theGraph_->makeAndConnectDoublets(tile_,
-                                    patternbyca::nEtaBins,
-                                    patternbyca::nPhiBins,
+  theGraph_->makeAndConnectDoublets(tiles,
+                                    ticl::constants::nEtaBins,
+                                    ticl::constants::nPhiBins,
                                     layerClusters,
+                                    mask,
                                     2,
                                     2,
                                     min_cos_theta_,
@@ -105,9 +82,8 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
     for (size_t i = 0; i < trackster.vertices.size(); ++i) {
       assert(i < trackster.vertex_multiplicity.size());
       trackster.vertex_multiplicity[i] = layer_cluster_usage[trackster.vertices[i]];
-      LogDebug("HGCPatterRecoByCA") << "LayerIDXX: " << trackster.vertices[i]
+      LogDebug("HGCPatterRecoByCA") << "LayerID: " << trackster.vertices[i]
                                     << " count: " << (int)trackster.vertex_multiplicity[i] << std::endl;
     }
   }
-  //#endif
 }
