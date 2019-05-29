@@ -36,7 +36,6 @@ OMTFinputMaker::~OMTFinputMaker(){ }
 bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
     unsigned int iProcessor,
     l1t::tftype type){
-
   unsigned int aMin = config->getBarrelMin()[iProcessor];
   unsigned int aMax = config->getBarrelMax()[iProcessor];
   unsigned int aSector = 99;
@@ -241,6 +240,7 @@ void OMTFinputMaker::addDTphiDigi(MuonStubPtrs2D& muonStubsInLayers, const L1MuD
 
   DTChamberId detid(digi.whNum(), digi.stNum(), digi.scNum()+1);
 
+  //LogTrace("l1tMuBayesEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" OMTFinputMaker "<<" detid "<<detid<<endl;
   ///Check Trigger primitive quality
   ///Ts2Tag() == 0 - take only first track from DT Trigger Server
   ///BxCnt()  == 0 - ??
@@ -280,6 +280,7 @@ void OMTFinputMaker::addDTphiDigi(MuonStubPtrs2D& muonStubsInLayers, const L1MuD
   //stub.timing = digi.getTiming(); //TODO what about sub-bx timing, is is available?
 
   //stub.etaType = ?? TODO
+  stub.logicLayer = iLayer;
   stub.detId = detid;
 
   addStub(muonStubsInLayers, iLayer, iInput, stub);
@@ -309,6 +310,7 @@ void OMTFinputMaker::addCSCstubs(MuonStubPtrs2D& muonStubsInLayers, unsigned int
   //stub.timing = digi.getTiming(); //TODO what about sub-bx timing, is is available?
 
   //stub.etaType = ?? TODO
+  stub.logicLayer = iLayer;
   stub.detId = rawid;
 
   addStub(muonStubsInLayers, iLayer, iInput, stub);
@@ -352,6 +354,7 @@ void OMTFinputMaker::addRPCstub(MuonStubPtrs2D& muonStubsInLayers, const RPCDetI
   stub.timing = cluster.timing;
 
   //stub.etaType = ?? TODO
+  stub.logicLayer = iLayer;
   stub.detId = rawid;
 
   addStub(muonStubsInLayers, iLayer, iInput, stub);
@@ -376,7 +379,7 @@ void OMTFinputMaker::addRPCstub(MuonStubPtrs2D& muonStubsInLayers, const RPCDetI
 ////////////////////////////////////////////
 ////////////////////////////////////////////
 void OMTFinputMaker::addStub(MuonStubPtrs2D& muonStubsInLayers, unsigned int iLayer, unsigned int iInput, MuonStub& stub) {
-
+  LogTrace("l1tMuBayesEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" OMTFinputMaker adding stub to layer to iLayer"<<" iLayer "<<stub<<endl;
   //in principle it is possible that in the DAQ data the digis are duplicated,
   //since the same link is connected to two OMTF boards
   //in principle this dupliactes should be already reoomved in the OMTF uncpacer, but just in case...

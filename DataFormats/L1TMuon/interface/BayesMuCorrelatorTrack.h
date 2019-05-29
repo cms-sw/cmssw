@@ -16,6 +16,8 @@
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/L1Trigger/interface/L1TObjComparison.h"
 
+#include "DataFormats/L1Trigger/interface/L1Candidate.h"
+
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 
@@ -34,9 +36,17 @@ typedef BXVector<BayesMuCorrelatorTrack> BayesMuCorrTrackBxCollection;
 
 typedef std::vector<BayesMuCorrelatorTrack> BayesMuCorrTrackCollection;
 
-class BayesMuCorrelatorTrack {
+class BayesMuCorrelatorTrack: public L1Candidate {
 public:
+  //N.B. The same typedef is in the DataFormats/L1TrackTrigger/interface/L1TkMuonParticle.h, remove if base class is changed to L1TkMuonParticle
+  typedef TTTrack< Ref_Phase2TrackerDigi_ > L1TTTrackType;
+
   BayesMuCorrelatorTrack();
+
+  BayesMuCorrelatorTrack(const LorentzVector& p4);
+
+  BayesMuCorrelatorTrack(const edm::Ptr< L1TTTrackType > ttTrackPtr);
+
   virtual ~BayesMuCorrelatorTrack();
 
   enum CandidateType {
@@ -44,40 +54,11 @@ public:
     slowTrack  //less then 2 stubs in BX = 0, looks like HSCP
   };
 
-  inline void setHwPt(int hwPt) { this->hwPt_ = hwPt; };
-  //inline void setHwCharge(int charge) { hwCharge_ = charge; };
-  //inline void setHwChargeValid(int valid) { hwChargeValid_ = valid; };
-  //inline void setTfMuonIndex(int index) { tfMuonIndex_ = index; };
-//  inline void setHwTag(int tag) { hwTag_ = tag; };
   inline void setHwSign(int sign) { this->hwSign_ = sign; };
-  inline void setHwQual(int quality) { this->quality = quality; };
-
-
-  inline void setHwEtaAtVtx(int hwEtaAtVtx) { hwEtaAtVtx_ = hwEtaAtVtx; };
-  inline void setHwPhiAtVtx(int hwPhiAtVtx) { hwPhiAtVtx_ = hwPhiAtVtx; };
-  //inline void setEtaAtVtx(double etaAtVtx) { etaAtVtx_ = etaAtVtx; };
-  //inline void setPhiAtVtx(double phiAtVtx) { phiAtVtx_ = phiAtVtx; };
 
 // inline void setHwIsoSum(int isoSum) { hwIsoSum_ = isoSum; };
-//  inline void setHwDPhiExtra(int dPhi) { hwDPhiExtra_ = dPhi; };
-//  inline void setHwDEtaExtra(int dEta) { hwDEtaExtra_ = dEta; };
-//  inline void setHwRank(int rank) { hwRank_ = rank; };
 
-//  inline void setDebug(bool debug) { debug_ = debug; };
-
-  int hwPt() const { return hwPt_; }
-  inline int hwCharge() const { return hwCharge_; };
-  inline int hwChargeValid() const { return hwChargeValid_; };
   int hwSign() const { return hwSign_; }
-  //inline int tfMuonIndex() const { return tfMuonIndex_; };
-  //inline int hwTag() const { return hwTag_; };
-
-  inline int hwEtaAtVtx() const { return hwEtaAtVtx_; };
-  inline int hwPhiAtVtx() const { return hwPhiAtVtx_; };
-  //inline double etaAtVtx() const { return etaAtVtx_; };
-  //inline double phiAtVtx() const { return phiAtVtx_; }
-
-  int hwQual() const { return quality; }
 
   virtual void setBeta(float beta) { this->beta = beta; }
 
@@ -96,12 +77,8 @@ public:
   void setPdfSum(int pdfSum = 0) { this->pdfSum_ = pdfSum; }
 
 
-  const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> >& getTtTrackPtr() const {
+  const edm::Ptr<L1TTTrackType>& getTtTrackPtr() const {
     return ttTrackPtr;
-  }
-
-  void setTtTrackPtr(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> >& ttTrackPtr) {
-    this->ttTrackPtr = ttTrackPtr;
   }
 
   const edm::Ptr<SimTrack>& getSimTrackPtr() const {
@@ -121,31 +98,18 @@ public:
   }
 
   double getEta() const {
-    return eta;
-  }
-
-  void setEta(double eta = 0) {
-    this->eta = eta;
+    return eta();
   }
 
   //in radians
   double getPhi() const {
-    return phi;
+    return phi();
   }
 
-  //in radians
-  void setPhi(double phi = 0) {
-    this->phi = phi;
-  }
 
   //in GeV
   double getPt() const {
-    return pt;
-  }
-
-  //in GeV
-  void setPt(double pt = 0) {
-    this->pt = pt;
+    return pt();
   }
 
   CandidateType getCandidateType() const {
@@ -164,45 +128,11 @@ public:
     this->betaLikelihood = betaLikelihood;
   }
 
-//  inline int hwIsoSum() const { return hwIsoSum_; };
-//  inline int hwDPhiExtra() const { return hwDPhiExtra_; };
-//  inline int hwDEtaExtra() const { return hwDEtaExtra_; };
-//  inline int hwRank() const { return hwRank_; };
-
-//  inline bool debug() const { return debug_; };
-
 //  virtual bool operator==(const l1t::BayesMuCorrelatorTrack& rhs) const;
 //  virtual inline bool operator!=(const l1t::BayesMuCorrelatorTrack& rhs) const { return !(operator==(rhs)); };
 
 private:
-  int hwPt_ = 0;
-
-  // additional hardware quantities common to L1 global jet
-  int hwCharge_ = 0;
-  int hwChargeValid_ = 0;
-  int tfMuonIndex_ = 0;
-//  int hwTag_;
   int hwSign_ = 0;
-  int quality = 0;
-
-  // additional hardware quantities only available if debug flag is set
-//  bool debug_;
-//  int hwIsoSum_;
-//  int hwDPhiExtra_;
-//  int hwDEtaExtra_;
-//  int hwRank_;
-
-  // muon coordinates at the vertex
-  int hwEtaAtVtx_ = 0;
-  int hwPhiAtVtx_ = 0;
-  //double etaAtVtx_ = 0;
-  //double phiAtVtx_ = 0;
-
-  //original floating point coordinates and pt,
-  double phi = 0;
-  double eta = 0;
-  double pt = 0;
-  //int charge = 0;
 
   int hwBeta_ = 0;
   float beta = 0;
@@ -215,7 +145,7 @@ private:
 
   //the "pointers" the either sim Track ot ttTrack that was use to create this TrackingTriggerTrack, needed only for analysis
   edm::Ptr< SimTrack > simTrackPtr;
-  edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > ttTrackPtr;
+  edm::Ptr< L1TTTrackType > ttTrackPtr;
   edm::Ptr< TrackingParticle > trackPartPtr;
 
 };

@@ -26,11 +26,13 @@
 #include "L1Trigger/L1TMuonBayes/interface/MuCorrelator/PdfModuleWithStats.h"
 #include "L1Trigger/L1TMuonBayes/interface/MuTimingModuleWithStat.h"
 
-
 L1TMuonBayesMuCorrelatorTrackProducer::L1TMuonBayesMuCorrelatorTrackProducer(const edm::ParameterSet& cfg)
   :edmParameterSet(cfg), muCorrelatorConfig(std::make_shared<MuCorrelatorConfig>()) {
 
-  produces<l1t::BayesMuCorrTrackBxCollection >("BayesMuCorrTracks");
+  produces<l1t::BayesMuCorrTrackBxCollection >(allTracksProductName); //all tracks
+
+  produces<l1t::BayesMuCorrTrackBxCollection >(muonTracksProductName); //"fast" tracks, i.e. with at least two muon stubs in the same bx as ttRack (i.e. not HSCPs) and passing some cuts
+  produces<l1t::BayesMuCorrTrackBxCollection >(hscpTracksProductName); //"slow" tracks, i.e. exclusive versus the "fast" tracks and passing some cuts
 
   muStubsInputTokens.inputTokenDTPh = consumes<L1MuDTChambPhContainer>(edmParameterSet.getParameter<edm::InputTag>("srcDTPh"));
   muStubsInputTokens.inputTokenDTTh = consumes<L1MuDTChambThContainer>(edmParameterSet.getParameter<edm::InputTag>("srcDTTh"));
@@ -180,8 +182,14 @@ void L1TMuonBayesMuCorrelatorTrackProducer::beginRun(edm::Run const& run, edm::E
 void L1TMuonBayesMuCorrelatorTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup){
   inputMaker->loadAndFilterDigis(iEvent);
 
-  std::unique_ptr<l1t::BayesMuCorrTrackBxCollection> bayesMuCorrTracks(new l1t::BayesMuCorrTrackBxCollection);
-  bayesMuCorrTracks->setBXRange(bxRangeMin, bxRangeMax);
+  std::unique_ptr<l1t::BayesMuCorrTrackBxCollection> allTracks(new l1t::BayesMuCorrTrackBxCollection);
+  allTracks->setBXRange(bxRangeMin, bxRangeMax);
+
+  std::unique_ptr<l1t::BayesMuCorrTrackBxCollection> muonTracks(new l1t::BayesMuCorrTrackBxCollection);
+  muonTracks->setBXRange(bxRangeMin, bxRangeMax);
+
+  std::unique_ptr<l1t::BayesMuCorrTrackBxCollection> hscpTracks(new l1t::BayesMuCorrTrackBxCollection);
+  hscpTracks->setBXRange(bxRangeMin, bxRangeMax);
 
   //std::cout<<"\n"<<__FUNCTION__<<":"<<__LINE__<<" iEvent "<<iEvent.id().event()<<" #####################################################################"<<endl;
   for(int bx = bxRangeMin; bx <= bxRangeMax; bx++) {
@@ -204,14 +212,41 @@ void L1TMuonBayesMuCorrelatorTrackProducer::produce(edm::Event& iEvent, const ed
       //fill outgoing collection
       l1t::BayesMuCorrTrackCollection bayesMuCorrTracksInBx = muCorrelatorProcessor->getMuCorrTrackCollection(0, algoTTMuons);
       for (auto & muTrack :  bayesMuCorrTracksInBx) {
-        bayesMuCorrTracks->push_back(bx, muTrack);
+        allTracks->push_back(bx, muTrack);
+
+        int L1Tk_nPar = 4;
+
+        if( muTrack.hwQual() >= 12 &&
+            muTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+            ( (muTrack.getFiredLayerBits().count() == 2 && muTrack.pdfSum() > 1100) ||
+              (muTrack.getFiredLayerBits().count() == 3 && muTrack.pdfSum() > 1400) ||
+               muTrack.getFiredLayerBits().count() >= 4) &&
+            ( (muTrack.getTtTrackPtr().isNonnull() && muTrack.getTtTrackPtr()->getChi2Red(L1Tk_nPar) < 200 ) || muTrack.getTtTrackPtr().isNull() )
+        )
+        {
+          muonTracks->push_back(bx, muTrack);
+        }
+
+        if( muTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::slowTrack &&
+            muTrack.hwQual() >= 13 &&
+            ( (muTrack.getFiredLayerBits().count() == 2 && muTrack.pdfSum() > 1300 && muTrack.getBetaLikelihood() >= 6) ||
+              (muTrack.getFiredLayerBits().count() == 3 && muTrack.pdfSum() > 1700 && muTrack.getBetaLikelihood() >= 7) ||
+              (muTrack.getFiredLayerBits().count() == 4 && muTrack.pdfSum() > 2200 && muTrack.getBetaLikelihood() >= 9) ||
+              muTrack.getFiredLayerBits().count() >= 5) &&
+            ( (muTrack.getTtTrackPtr().isNonnull() && muTrack.getTtTrackPtr()->getChi2Red(L1Tk_nPar) < 200  ) || muTrack.getTtTrackPtr().isNull() ) //todo probably in firmware exactly like that will be not possible, rather cut of chi2 depending on the nStubs
+          )
+        {
+          hscpTracks->push_back(bx, muTrack);
+        }
       }
 
     }
 
   }
 
-  iEvent.put(std::move(bayesMuCorrTracks), "BayesMuCorrTracks");
+  iEvent.put(std::move(allTracks),  allTracksProductName);
+  iEvent.put(std::move(muonTracks), muonTracksProductName);
+  iEvent.put(std::move(hscpTracks),  hscpTracksProductName);
 }
 
 /////////////////////////////////////////////////////

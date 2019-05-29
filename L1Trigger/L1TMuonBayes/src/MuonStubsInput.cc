@@ -6,6 +6,7 @@
  */
 
 #include "L1Trigger/L1TMuonBayes/interface/MuonStubsInput.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 MuonStubsInput::MuonStubsInput(const ProcConfigurationBase* config): config(config), muonStubsInLayers(config->nLayers()) {
 
@@ -35,6 +36,6 @@ int MuonStubsInput::getPhiHw(unsigned int iLayer, unsigned int iInput) const {
   else {
     if(iInput >= muonStubsInLayers[iLayer].size())
       return MuonStub::EMTPY_PHI;
-    return  muonStubsInLayers[iLayer][iInput]->phiBHw;
+    return  muonStubsInLayers[iLayer][iInput]->phiHw;
   }
 }

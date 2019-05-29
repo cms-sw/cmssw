@@ -37,8 +37,10 @@ class L1TMuonBayesMuCorrelatorTrackProducer : public edm::EDProducer {
   
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  //simulates the trigger rules between the BXes and sets BayesMuCorrelatorTrack::setCanceledByTriggerRules
-  //void applyTriggerRules(std::unique_ptr<l1t::BayesMuCorrTrackBxCollection>& bayesMuCorrTracks);
+  static constexpr char allTracksProductName[] = "AllTracks"; //all tracks produced by the muon correlator, without additional cuts
+  static constexpr char muonTracksProductName[] = "MuonTracks"; //"fast" tracks, i.e. with at least two muon stubs in the same bx as ttRack (=> not HSCPs) and with some cuts reducing rate
+  static constexpr char hscpTracksProductName[] = "HscpTracks"; //"slow" tracks, i.e. exclusive versus the "fast" tracks and passing some cuts
+
  private:
 
 
@@ -81,3 +83,4 @@ class L1TMuonBayesMuCorrelatorTrackProducer : public edm::EDProducer {
 };
 
 #endif
+

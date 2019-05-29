@@ -320,19 +320,34 @@ l1t::BayesMuCorrTrackCollection MuCorrelatorProcessor::getMuCorrTrackCollection(
   l1t::BayesMuCorrTrackCollection candidates;
 
   for(auto& algoTTMuon: algoTTMuons) {
-    l1t::BayesMuCorrelatorTrack candidate;
-    candidate.setHwPt(algoTTMuon->getTTTrack()->getPtHw());
-    candidate.setHwEtaAtVtx(algoTTMuon->getTTTrack()->getEtaHw());
-    candidate.setHwPhiAtVtx(config->phiToGlobalHwPhi(algoTTMuon->getTTTrack()->getPhi())); //TODO use hw phi
+    if(algoTTMuon->getTTTrack()->getTTTrackPtr().isNonnull() ) {
+      candidates.emplace_back(algoTTMuon->getTTTrack()->getTTTrackPtr() );
+      //todo id needed set also setTrackPartPtr and setSimTrackPtr - but non the TrackingTriggerTrack can contain only one these 3 pointers
+      //    candidates.back().setSimTrackPtr(algoTTMuon->getTTTrack()->getSimTrackPtr());
+      //    candidates.back().setTrackPartPtr(algoTTMuon->getTTTrack()->getTrackingParticlePtr());
+    }
+    else if (algoTTMuon->getTTTrack()->getTrackingParticlePtr().isNonnull() ) {
+      candidates.emplace_back(algoTTMuon->getTTTrack()->getTrackingParticlePtr()->p4() );
+      candidates.back().setTrackPartPtr(algoTTMuon->getTTTrack()->getTrackingParticlePtr());
+    }
+    else if (algoTTMuon->getTTTrack()->getSimTrackPtr().isNonnull() ) {
+      candidates.emplace_back(algoTTMuon->getTTTrack()->getSimTrackPtr()->momentum() );
+      candidates.back().setSimTrackPtr(algoTTMuon->getTTTrack()->getSimTrackPtr());
+    }
+    else {
+      throw cms::Exception("MuCorrelatorProcessor::getMuCorrTrackCollection(): no pointer to construct l1t::BayesMuCorrelatorTrack");
+    }
 
-    candidate.setPt(algoTTMuon->getTTTrack()->getPt());
-    candidate.setEta(algoTTMuon->getTTTrack()->getEta());
-    candidate.setPhi(algoTTMuon->getTTTrack()->getPhi());
+    l1t::BayesMuCorrelatorTrack& candidate = candidates.back();
+    candidate.setHwPt(algoTTMuon->getTTTrack()->getPtHw());
+    candidate.setHwEta(algoTTMuon->getTTTrack()->getEtaHw());
+    candidate.setHwPhi(config->phiToGlobalHwPhi(algoTTMuon->getTTTrack()->getPhi())); //TODO use hw phi
 
     candidate.setHwQual(algoTTMuon->getQuality());
 
     candidate.setHwSign(algoTTMuon->getTTTrack()->getCharge() < 0 ? 1 : 0  );
     //candidate.setHwSignValid(1);
+    candidate.setCharge(algoTTMuon->getTTTrack()->getCharge());
 
     candidate.setFiredLayerBits(algoTTMuon->getFiredLayerBits() );
     candidate.setPdfSum(algoTTMuon->getPdfSum());
@@ -344,12 +359,6 @@ l1t::BayesMuCorrTrackCollection MuCorrelatorProcessor::getMuCorrTrackCollection(
 
     candidate.setBeta(algoTTMuon->getBeta());
     candidate.setBetaLikelihood(algoTTMuon->getBetaLikelihood());
-
-    candidate.setTtTrackPtr(algoTTMuon->getTTTrack()->getTTTrackPtr() );
-    candidate.setSimTrackPtr(algoTTMuon->getTTTrack()->getSimTrackPtr());
-    candidate.setTrackPartPtr(algoTTMuon->getTTTrack()->getTrackingParticlePtr());
-    if (candidate.hwPt() > 0)
-      candidates.push_back(candidate);
   }
   return candidates;
 }

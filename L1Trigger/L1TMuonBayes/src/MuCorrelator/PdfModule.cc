@@ -89,8 +89,8 @@ void PdfModule::processStubs(const MuonStubsInput& muonStubs, unsigned int layer
 
     //std::cout<<__FUNCTION__<<":"<<__LINE__<<" processed stub\n"<<(*stub)<<" pdfBin "<<pdfBin<<std::endl;
     /*
-     * TODO IMPORTANT NOTE: in the CSC when there are two segemtns in one chamber, the segments are duplicated in the next BX.
-     * So if below is <= the segemtn from the BX+1 is selctected and this may lead to clasifying the muon as HSCP and not normal muon
+     * TODO IMPORTANT NOTE: in the CSC when there are two segments in one chamber, the segments are duplicated in the next BX.
+     * So if below is <= the segment from the BX+1 is selected and this may lead to classifying the muon as HSCP and not normal muon
      * which results in the efficiency lost
      */
     if( abs(pdfBin) < abs(minPdfBin) ) {

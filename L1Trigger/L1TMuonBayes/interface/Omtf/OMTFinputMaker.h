@@ -89,7 +89,7 @@ private:
 
   const OMTFConfiguration* config =  nullptr;
 
-  int flag;
+  int flag = 0;
 
 };
 

@@ -24,13 +24,10 @@ public:
     //todo convert to physics scale
   };*/
 
-  TrackingTriggerTrack(const SimTrack& simMuon, unsigned int index);
 
   TrackingTriggerTrack(const edm::Ptr< SimTrack >& simTrackPtr);
 
   TrackingTriggerTrack(const edm::Ptr< TrackingParticle >& trackingParticlePtr);
-
-  TrackingTriggerTrack(const TTTrack< Ref_Phase2TrackerDigi_>& ttTrack, unsigned int index, int l1Tk_nPar);
 
   TrackingTriggerTrack(const edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >& ttTrackPtr, int l1Tk_nPar);
 
