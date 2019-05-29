@@ -21,22 +21,20 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTHcalIsolationDoubleConeProducers::EgammaHLTHcalIsolationDoubleConeProducers(const edm::ParameterSet& config)
-  : conf_(config)
-  , recoEcalCandidateProducer_  (consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer")))
-  , hbRecHitProducer_           (consumes<HBHERecHitCollection>(conf_.getParameter<edm::InputTag>("hbRecHitProducer")))
-  , hfRecHitProducer_           (consumes<HFRecHitCollection>(conf_.getParameter<edm::InputTag>("hfRecHitProducer")))
-  , egHcalIsoPtMin_             (conf_.getParameter<double>("egHcalIsoPtMin"))
-  , egHcalIsoConeSize_          (conf_.getParameter<double>("egHcalIsoConeSize"))
-  , egHcalExclusion_            (conf_.getParameter<double>("egHcalExclusion"))
-  , test_  (new EgammaHLTHcalIsolationDoubleCone(egHcalIsoPtMin_,egHcalIsoConeSize_,egHcalExclusion_))
-{
-
+    : conf_(config),
+      recoEcalCandidateProducer_(
+          consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
+      hbRecHitProducer_(consumes<HBHERecHitCollection>(conf_.getParameter<edm::InputTag>("hbRecHitProducer"))),
+      hfRecHitProducer_(consumes<HFRecHitCollection>(conf_.getParameter<edm::InputTag>("hfRecHitProducer"))),
+      egHcalIsoPtMin_(conf_.getParameter<double>("egHcalIsoPtMin")),
+      egHcalIsoConeSize_(conf_.getParameter<double>("egHcalIsoConeSize")),
+      egHcalExclusion_(conf_.getParameter<double>("egHcalExclusion")),
+      test_(new EgammaHLTHcalIsolationDoubleCone(egHcalIsoPtMin_, egHcalIsoConeSize_, egHcalExclusion_)) {
   //register your products
-  produces < reco::RecoEcalCandidateIsolationMap >();
+  produces<reco::RecoEcalCandidateIsolationMap>();
 }
 
-
-EgammaHLTHcalIsolationDoubleConeProducers::~EgammaHLTHcalIsolationDoubleConeProducers(){delete test_;}
+EgammaHLTHcalIsolationDoubleConeProducers::~EgammaHLTHcalIsolationDoubleConeProducers() { delete test_; }
 
 void EgammaHLTHcalIsolationDoubleConeProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -49,11 +47,13 @@ void EgammaHLTHcalIsolationDoubleConeProducers::fillDescriptions(edm::Configurat
   descriptions.add(("hltEgammaHLTHcalIsolationDoubleConeProducers"), desc);
 }
 
-void EgammaHLTHcalIsolationDoubleConeProducers::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void EgammaHLTHcalIsolationDoubleConeProducers::produce(edm::StreamID sid,
+                                                        edm::Event& iEvent,
+                                                        const edm::EventSetup& iSetup) const {
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
-  iEvent.getByToken(recoEcalCandidateProducer_,recoecalcandHandle);
-  
+  iEvent.getByToken(recoEcalCandidateProducer_, recoecalcandHandle);
+
   // Get the barrel hcal hits
   edm::Handle<HBHERecHitCollection> hhitBarrelHandle;
   iEvent.getByToken(hbRecHitProducer_, hhitBarrelHandle);
@@ -66,17 +66,15 @@ void EgammaHLTHcalIsolationDoubleConeProducers::produce(edm::StreamID sid, edm::
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry* caloGeom = pG.product();
-  
+
   reco::RecoEcalCandidateIsolationMap isoMap;
-  
-  for(unsigned int iRecoEcalCand=0; iRecoEcalCand<recoecalcandHandle->size(); iRecoEcalCand++) {
-    
+
+  for (unsigned int iRecoEcalCand = 0; iRecoEcalCand < recoecalcandHandle->size(); iRecoEcalCand++) {
     reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle, iRecoEcalCand);
-    float isol =  test_->isolPtSum(&(*recoecalcandref), hcalhitBarrelCollection, hcalhitEndcapCollection, caloGeom);
-    
+    float isol = test_->isolPtSum(&(*recoecalcandref), hcalhitBarrelCollection, hcalhitEndcapCollection, caloGeom);
+
     isoMap.insert(recoecalcandref, isol);
   }
 
   iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(isoMap));
-
 }

@@ -5,7 +5,7 @@
 //
 // Package:    EgammaHLTRemoveDuplicatedSC
 // Class:      EgammaHLTRemoveDuplicatedSC
-// 
+//
 // Description: Remove from the L1NonIso SCs those SCs that are already
 // there in the L1Iso SCs.
 //
@@ -29,19 +29,17 @@ namespace edm {
 }
 
 class EgammaHLTRemoveDuplicatedSC : public edm::global::EDProducer<> {
-  
- public:
+public:
   explicit EgammaHLTRemoveDuplicatedSC(const edm::ParameterSet&);
   ~EgammaHLTRemoveDuplicatedSC() override;
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
+private:
   // vars to get products
   edm::EDGetTokenT<reco::SuperClusterCollection> sCInputProducer_;
   edm::EDGetTokenT<reco::SuperClusterCollection> alreadyExistingSC_;
-  
+
   std::string outputCollection_;
-  
 };
 #endif
