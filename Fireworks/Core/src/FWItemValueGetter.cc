@@ -11,6 +11,7 @@
 //
 
 // system include files
+#include <iostream>
 #include <sstream>
 #include <cstdio>
 #include "TMath.h"
@@ -37,6 +38,7 @@ FWItemValueGetter::FWItemValueGetter(const edm::TypeWithDict& iType, const std::
    m_type(iType),
    m_titleWidth(0)
 {
+
    if (!strcmp(iType.name().c_str(), "CaloTower"))
    {
       if ( iPurpose == "ECal" )
@@ -87,6 +89,15 @@ FWItemValueGetter::FWItemValueGetter(const edm::TypeWithDict& iType, const std::
       addEntry("cscDetId().endcap()", 0, "ec");
       addEntry("cscDetId().station()", 0, "st");
       addEntry("cscDetId().ring()", 0, "rn");
+   }
+   else if(iPurpose == "HGCal Trigger Cell" ||
+      iPurpose == "HGCal Trigger Cluster")
+   {
+      // by the default  add pt, et, or energy
+      bool x = addEntry("pt", 1);
+      if (!x) x = addEntry("et", 1);
+      if (!x) addEntry("energy", 1);
+      addEntry("detId", 0);
    }
    else {
       // by the default  add pt, et, or energy
