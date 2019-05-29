@@ -8,6 +8,7 @@
 
 #include <list>
 
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
 
 class HGCalDepthPreClusterer
@@ -26,7 +27,10 @@ public:
   }
 
   void getEvent(const edm::Event& ev) { clusterTools->getEvent(ev); }
-  void getEventSetup(const edm::EventSetup& es) { clusterTools->getEventSetup(es); }
+  void getEventSetup(const edm::EventSetup& es) {
+    clusterTools->getEventSetup(es);
+    rhtools_.getEventSetup(es);
+  }
 
   typedef std::vector<reco::BasicCluster> ClusterCollection;
   //  typedef std::vector<reco::BasicCluster> MultiCluster;
@@ -39,10 +43,7 @@ private:
   bool realSpaceCone; /*!< flag to use cartesian space clustering. */
 
   std::unique_ptr<hgcal::ClusterTools> clusterTools;
-
-  static const unsigned int lastLayerEE = 28;
-  static const unsigned int lastLayerFH = 40;
-  static const unsigned int lastLayerBH = 52;
+  hgcal::RecHitTools rhtools_; /*!< instance of tools to access RecHit information. */
 
 };
 
