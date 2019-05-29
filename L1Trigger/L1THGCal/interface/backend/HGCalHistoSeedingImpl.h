@@ -45,7 +45,13 @@ private:
     unsigned bins_ = 0;
     Data histogram_;
 
-    unsigned index(int zside, unsigned x1, unsigned x2) const { return x2 + bins2_ * x1 + bins_ * (zside > 0 ? 1 : 0); }
+    unsigned index(int zside, unsigned x1, unsigned x2) const {
+      if (x1 >= bins1_ || x2 >= bins2_) {
+        throw cms::Exception("OutOfBound") << "Trying to access bin (" << x1 << "," << x2
+                                           << ") in seeding histogram of size (" << bins1_ << "," << bins2_ << ")";
+      }
+      return x2 + bins2_ * x1 + bins_ * (zside > 0 ? 1 : 0);
+    }
   };
   using Histogram = HistogramT<Bin>;
 
@@ -87,7 +93,7 @@ private:
   SeedingType seedingType_;
   SeedingPosition seedingPosition_;
 
-  unsigned nBinsRHisto_ = 36;
+  unsigned nBinsRHisto_ = 41;
   unsigned nBinsPhiHisto_ = 216;
   std::vector<unsigned> binsSumsHisto_;
   double histoThreshold_ = 20.;
@@ -97,7 +103,7 @@ private:
 
   static constexpr unsigned neighbour_weights_size_ = 9;
   static constexpr double kROverZMin_ = 0.09;
-  static constexpr double kROverZMax_ = 0.52;
+  static constexpr double kROverZMax_ = 0.58;
 };
 
 #endif
