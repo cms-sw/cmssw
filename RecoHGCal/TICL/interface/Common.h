@@ -5,8 +5,8 @@
 #include <cstdint>
 
 namespace ticl::constants {
-constexpr float minEta = 1.5f;
-constexpr float maxEta = 3.2f;
+  constexpr float minEta = 1.5f;
+  constexpr float maxEta = 3.2f;
 }  // namespace ticl::constants
 
 namespace ticl {

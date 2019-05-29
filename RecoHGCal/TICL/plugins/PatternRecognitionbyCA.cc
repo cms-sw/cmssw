@@ -9,9 +9,8 @@
 
 using namespace ticl;
 
-void PatternRecognitionbyCA::fillHistogram(
-    const std::vector<reco::CaloCluster> &layerClusters,
-    const HgcalClusterFilterMask &mask) {
+void PatternRecognitionbyCA::fillHistogram(const std::vector<reco::CaloCluster> &layerClusters,
+                                           const HgcalClusterFilterMask &mask) {
   if (algo_verbosity_ > None) {
     LogDebug("HGCPatterRecoByCA") << "filling eta/phi histogram per Layer" << std::endl;
   }
@@ -27,14 +26,14 @@ void PatternRecognitionbyCA::fillHistogram(
     auto phiBin = getPhiBin(lc.phi());
     tile_[layer][globalBin(etaBin, phiBin)].push_back(lcId);
     if (algo_verbosity_ > Advanced) {
-      LogDebug("HGCPatterRecoByCA")
-          << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ " << etaBin << ", "
-          << phiBin << "] for layer: " << layer << std::endl;
+      LogDebug("HGCPatterRecoByCA") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ " << etaBin << ", "
+                                    << phiBin << "] for layer: " << layer << std::endl;
     }
   }
 }
 
-void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev, const edm::EventSetup &es,
+void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
+                                            const edm::EventSetup &es,
                                             const std::vector<reco::CaloCluster> &layerClusters,
                                             const HgcalClusterFilterMask &mask,
                                             std::vector<Trackster> &result) {
@@ -48,8 +47,15 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev, const edm::Eve
   }
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
   fillHistogram(layerClusters, mask);
-  theGraph_.makeAndConnectDoublets(tile_, patternbyca::nEtaBins, patternbyca::nPhiBins, layerClusters, 2, 2,
-                                   min_cos_theta_, min_cos_pointing_, missing_layers_,
+  theGraph_.makeAndConnectDoublets(tile_,
+                                   patternbyca::nEtaBins,
+                                   patternbyca::nPhiBins,
+                                   layerClusters,
+                                   2,
+                                   2,
+                                   min_cos_theta_,
+                                   min_cos_pointing_,
+                                   missing_layers_,
                                    rhtools_.lastLayerFH());
   theGraph_.findNtuplets(foundNtuplets, min_clusters_per_ntuplet_);
   //#ifdef FP_DEBUG
@@ -63,20 +69,18 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev, const edm::Eve
       effective_cluster_idx.insert(innerCluster);
       effective_cluster_idx.insert(outerCluster);
       if (algo_verbosity_ > Advanced) {
-        LogDebug("HGCPatterRecoByCA")
-            << "New doublet " << doublet << " for trackster: " << result.size() << " InnerCl "
-            << innerCluster << " " << layerClusters[innerCluster].x() << " "
-            << layerClusters[innerCluster].y() << " " << layerClusters[innerCluster].z()
-            << " OuterCl " << outerCluster << " " << layerClusters[outerCluster].x() << " "
-            << layerClusters[outerCluster].y() << " " << layerClusters[outerCluster].z() << " "
-            << tracksterId << std::endl;
+        LogDebug("HGCPatterRecoByCA") << "New doublet " << doublet << " for trackster: " << result.size() << " InnerCl "
+                                      << innerCluster << " " << layerClusters[innerCluster].x() << " "
+                                      << layerClusters[innerCluster].y() << " " << layerClusters[innerCluster].z()
+                                      << " OuterCl " << outerCluster << " " << layerClusters[outerCluster].x() << " "
+                                      << layerClusters[outerCluster].y() << " " << layerClusters[outerCluster].z()
+                                      << " " << tracksterId << std::endl;
       }
     }
     // Put back indices, in the form of a Trackster, into the results vector
     Trackster tmp;
     tmp.vertices.reserve(effective_cluster_idx.size());
-    std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx),
-              std::back_inserter(tmp.vertices));
+    std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx), std::back_inserter(tmp.vertices));
     result.push_back(tmp);
     tracksterId++;
   }

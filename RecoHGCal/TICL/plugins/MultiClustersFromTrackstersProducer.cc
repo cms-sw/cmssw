@@ -16,14 +16,14 @@
 #include <vector>
 
 class MultiClustersFromTrackstersProducer : public edm::stream::EDProducer<> {
- public:
+public:
   MultiClustersFromTrackstersProducer(const edm::ParameterSet&);
   ~MultiClustersFromTrackstersProducer() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   std::string label_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> layer_clusters_token_;
   edm::EDGetTokenT<std::vector<Trackster>> tracksters_token_;
@@ -33,13 +33,12 @@ DEFINE_FWK_MODULE(MultiClustersFromTrackstersProducer);
 
 MultiClustersFromTrackstersProducer::MultiClustersFromTrackstersProducer(const edm::ParameterSet& ps)
     : label_(ps.getParameter<std::string>("label")),
-  layer_clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("LayerClusters"))),
-  tracksters_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("Tracksters"))) {
+      layer_clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("LayerClusters"))),
+      tracksters_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("Tracksters"))) {
   produces<std::vector<reco::HGCalMultiCluster>>(label_);
 }
 
-void MultiClustersFromTrackstersProducer::fillDescriptions(
-    edm::ConfigurationDescriptions& descriptions) {
+void MultiClustersFromTrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // hgcalMultiClusters
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("Tracksters", edm::InputTag("Tracksters", "TrackstersByCA"));
@@ -70,17 +69,18 @@ void MultiClustersFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
     std::array<double, 3> baricenter{{0., 0., 0.}};
     double total_weight = 0.;
     reco::HGCalMultiCluster temp;
-    std::for_each(std::begin(trackster.vertices), std::end(trackster.vertices),
-                  [&](unsigned int idx) {
-                    temp.push_back(clusterPtrs[idx]);
-                    auto weight = clusterPtrs[idx]->energy();
-                    total_weight += weight;
-                    baricenter[0] += clusterPtrs[idx]->x() * weight;
-                    baricenter[1] += clusterPtrs[idx]->y() * weight;
-                    baricenter[2] += clusterPtrs[idx]->z() * weight;
-                  });
-    std::transform(std::begin(baricenter), std::end(baricenter), std::begin(baricenter),
-                   [&total_weight](double val) -> double { return val / total_weight; });
+    std::for_each(std::begin(trackster.vertices), std::end(trackster.vertices), [&](unsigned int idx) {
+      temp.push_back(clusterPtrs[idx]);
+      auto weight = clusterPtrs[idx]->energy();
+      total_weight += weight;
+      baricenter[0] += clusterPtrs[idx]->x() * weight;
+      baricenter[1] += clusterPtrs[idx]->y() * weight;
+      baricenter[2] += clusterPtrs[idx]->z() * weight;
+    });
+    std::transform(
+        std::begin(baricenter), std::end(baricenter), std::begin(baricenter), [&total_weight](double val) -> double {
+          return val / total_weight;
+        });
     temp.setEnergy(total_weight);
     temp.setPosition(math::XYZPoint(baricenter[0], baricenter[1], baricenter[2]));
     temp.setAlgoId(reco::CaloCluster::hgcal_em);
@@ -89,4 +89,3 @@ void MultiClustersFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
 
   evt.put(std::move(multiclusters), label_);
 }
-

@@ -12,26 +12,27 @@
 #include "RecoHGCal/TICL/interface/Trackster.h"
 
 namespace edm {
-class Event;
-class EventSetup;
+  class Event;
+  class EventSetup;
 }  // namespace edm
 
 namespace ticl {
   class PatternRecognitionAlgoBase {
-    public:
-      PatternRecognitionAlgoBase(const edm::ParameterSet& conf)
+  public:
+    PatternRecognitionAlgoBase(const edm::ParameterSet& conf)
         : algo_verbosity_(conf.getParameter<int>("algo_verbosity")) {}
-      virtual ~PatternRecognitionAlgoBase(){};
+    virtual ~PatternRecognitionAlgoBase(){};
 
-      virtual void makeTracksters(const edm::Event& ev, const edm::EventSetup& es,
-          const std::vector<reco::CaloCluster>& layerClusters,
-          const HgcalClusterFilterMask& mask,
-          std::vector<Trackster>& result) = 0;
-      enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
+    virtual void makeTracksters(const edm::Event& ev,
+                                const edm::EventSetup& es,
+                                const std::vector<reco::CaloCluster>& layerClusters,
+                                const HgcalClusterFilterMask& mask,
+                                std::vector<Trackster>& result) = 0;
+    enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
 
-    protected:
-      int algo_verbosity_;
+  protected:
+    int algo_verbosity_;
   };
-}
+}  // namespace ticl
 
 #endif

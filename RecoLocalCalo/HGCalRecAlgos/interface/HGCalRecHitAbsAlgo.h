@@ -13,21 +13,18 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/HGCRecHit/interface/HGCUncalibratedRecHit.h"
 
-class HGCalRecHitAbsAlgo
-{
- public:
-
+class HGCalRecHitAbsAlgo {
+public:
   /// Constructor
   //HGCalRecHitAbsAlgo() { };
 
   /// Destructor
-  virtual ~HGCalRecHitAbsAlgo() { };
+  virtual ~HGCalRecHitAbsAlgo(){};
 
   /// make rechits from dataframes
-  virtual void setLayerWeights(const std::vector<float>& weights) {};
+  virtual void setLayerWeights(const std::vector<float>& weights){};
 
   virtual void setADCToGeVConstant(const float value) = 0;
-  virtual HGCRecHit makeRecHit(const HGCUncalibratedRecHit& uncalibRH, const uint32_t &flags) const = 0;
-
+  virtual HGCRecHit makeRecHit(const HGCUncalibratedRecHit& uncalibRH, const uint32_t& flags) const = 0;
 };
 #endif

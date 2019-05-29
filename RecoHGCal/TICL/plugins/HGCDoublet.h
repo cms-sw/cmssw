@@ -11,10 +11,12 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
 class HGCDoublet {
- public:
+public:
   using HGCntuplet = std::vector<unsigned int>;
 
-  HGCDoublet(const int innerClusterId, const int outerClusterId, const int doubletId,
+  HGCDoublet(const int innerClusterId,
+             const int outerClusterId,
+             const int doubletId,
              const std::vector<reco::CaloCluster> *layerClusters)
       : layerClusters_(layerClusters),
         theDoubletId_(doubletId),
@@ -54,16 +56,22 @@ class HGCDoublet {
 
   void tagAsInnerNeighbor(unsigned int otherDoublet) { innerNeighbors_.push_back(otherDoublet); }
 
-  bool checkCompatibilityAndTag(std::vector<HGCDoublet> &,
-                                const std::vector<int> &, float,
-                                float minCosPointing = 1., bool debug = false);
+  bool checkCompatibilityAndTag(
+      std::vector<HGCDoublet> &, const std::vector<int> &, float, float minCosPointing = 1., bool debug = false);
 
-  int areAligned(double xi, double yi, double zi, double xo, double yo, double zo,
-                 float minCosTheta, float minCosPointing, bool debug = false) const;
+  int areAligned(double xi,
+                 double yi,
+                 double zi,
+                 double xo,
+                 double yo,
+                 double zo,
+                 float minCosTheta,
+                 float minCosPointing,
+                 bool debug = false) const;
 
   void findNtuplets(std::vector<HGCDoublet> &, HGCntuplet &);
 
- private:
+private:
   const std::vector<reco::CaloCluster> *layerClusters_;
   std::vector<int> outerNeighbors_;
   std::vector<int> innerNeighbors_;

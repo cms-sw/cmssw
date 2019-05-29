@@ -12,7 +12,6 @@
 // layer clusters together in a 3D object.
 
 struct Trackster {
-
   // The vertices of the DAG are the indices of the
   // 2d objects in the global collection
   std::vector<unsigned int> vertices;
