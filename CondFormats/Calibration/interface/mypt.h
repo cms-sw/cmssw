@@ -3,12 +3,12 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/Calibration/interface/fixedArray.h"
-class mypt{
- public:
-  mypt(){}
+class mypt {
+public:
+  mypt() {}
   void fill();
-  fixedArray<unsigned short,2097> pt;
+  fixedArray<unsigned short, 2097> pt;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 #endif
