@@ -13,7 +13,7 @@ namespace coral {
 
   class AuthenticationCredentials;
   //class IAuthenticationCredentials;
-}
+}  // namespace coral
 
 namespace cond {
 
@@ -24,12 +24,10 @@ namespace cond {
      *
      * A simple class holding the roles and the credentials corresponding to a database service
      */
-    class DataSourceEntry
-    {
+    class DataSourceEntry {
     public:
       /// Constructor
-      DataSourceEntry( const std::string& serviceName,
-                       const std::string& connectionName );
+      DataSourceEntry(const std::string& serviceName, const std::string& connectionName);
 
       /// Destructor
       ~DataSourceEntry();
@@ -37,15 +35,12 @@ namespace cond {
       /**
        * Adds a credential item to the default role.
        */
-      void appendCredentialItem( const std::string& item,
-                                 const std::string& value );
+      void appendCredentialItem(const std::string& item, const std::string& value);
 
       /**
        * Adds a credential item to the default role.
        */
-      void appendCredentialItemForRole( const std::string& item,
-                                        const std::string& value,
-                                        const std::string& role );
+      void appendCredentialItemForRole(const std::string& item, const std::string& value, const std::string& role);
 
       /**
        * Returns a reference to the credentials object for the default role.
@@ -56,7 +51,7 @@ namespace cond {
        * Returns a reference to the credentials object for a given role.
        * If the role is not known to the service an UnknownRoleException is thrown.
        */
-      const coral::IAuthenticationCredentials& credentials( const std::string& role ) const;
+      const coral::IAuthenticationCredentials& credentials(const std::string& role) const;
 
     private:
       /// The service name
@@ -69,12 +64,12 @@ namespace cond {
       coral::AuthenticationCredentials* m_default;
 
       /// The structure with the authentication data for the various roles
-      std::map< std::string, coral::AuthenticationCredentials* > m_data;
+      std::map<std::string, coral::AuthenticationCredentials*> m_data;
 
     private:
       DataSourceEntry() = delete;
-      DataSourceEntry( const DataSourceEntry& ) = delete;
-      DataSourceEntry& operator=( const DataSourceEntry& ) = delete;
+      DataSourceEntry(const DataSourceEntry&) = delete;
+      DataSourceEntry& operator=(const DataSourceEntry&) = delete;
     };
 
     /**
@@ -82,13 +77,10 @@ namespace cond {
      *
      * A simple implementation of the IAuthenticationService interface based on reading an XMl file
      */
-    class XMLAuthenticationService : public coral::Service,
-                                     virtual public coral::IAuthenticationService
-    {
-
+    class XMLAuthenticationService : public coral::Service, virtual public coral::IAuthenticationService {
     public:
       /// Standard Constructor
-      explicit XMLAuthenticationService( const std::string& name );   
+      explicit XMLAuthenticationService(const std::string& name);
 
       /// Standard Destructor
       ~XMLAuthenticationService() override;
@@ -98,19 +90,19 @@ namespace cond {
        * Returns a reference to the credentials object for a given connection string.
        * If the connection string is not known to the service an UnknownConnectionException is thrown.
        */
-      const coral::IAuthenticationCredentials& credentials( const std::string& connectionString ) const override;
+      const coral::IAuthenticationCredentials& credentials(const std::string& connectionString) const override;
 
       /**
        * Returns a reference to the credentials object for a given connection string.
        * If the connection string is not known to the service an UnknownConnectionException is thrown.
        * If the role is not known to the service an UnknownRoleException is thrown.
        */
-      const coral::IAuthenticationCredentials& credentials( const std::string& connectionString,
-                                                            const std::string& role ) const override;
+      const coral::IAuthenticationCredentials& credentials(const std::string& connectionString,
+                                                           const std::string& role) const override;
 
     public:
-      /// Sets the input file name 
-      void setAuthenticationPath(  const std::string& inputPath );
+      /// Sets the input file name
+      void setAuthenticationPath(const std::string& inputPath);
 
     private:
       /// Service framework related initialization
@@ -120,10 +112,10 @@ namespace cond {
       void reset();
 
       /// Parses an xml file
-      bool processFile( const std::string& inputFileName );
+      bool processFile(const std::string& inputFileName);
 
       /// Verifies the existence of the authentication files
-      std::set< std::string > verifyFileName();
+      std::set<std::string> verifyFileName();
 
       /// Flag indicating whether the service has been initialized
       bool m_isInitialized;
@@ -132,7 +124,7 @@ namespace cond {
       std::string m_inputFileName;
 
       /// The structure with the authentication data
-      std::map< std::string, DataSourceEntry* > m_data;
+      std::map<std::string, DataSourceEntry*> m_data;
 
       /// the mutex lock
       mutable boost::mutex m_mutexLock;
@@ -140,8 +132,8 @@ namespace cond {
       coral::Property::CallbackID m_callbackID;
     };
 
-  }
+  }  // namespace XMLAuthenticationService
 
-}
+}  // namespace cond
 
 #endif
