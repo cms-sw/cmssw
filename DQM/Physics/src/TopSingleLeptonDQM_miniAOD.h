@@ -71,23 +71,23 @@ class MonitorEnsemble {
 
   /// check if histogram was booked
   bool booked(const std::string histName) const {
-    return hists_.find(histName.c_str()) != hists_.end();
+    return hists_.find(histName) != hists_.end();
   };
   /// fill histogram if it had been booked before
   void fill(const std::string histName, double value) const {
-    if (booked(histName.c_str()))
-      hists_.find(histName.c_str())->second->Fill(value);
+    if (booked(histName))
+      hists_.find(histName)->second->Fill(value);
   };
   /// fill histogram if it had been booked before (2-dim version)
   void fill(const std::string histName, double xValue, double yValue) const {
-    if (booked(histName.c_str()))
-      hists_.find(histName.c_str())->second->Fill(xValue, yValue);
+    if (booked(histName))
+      hists_.find(histName)->second->Fill(xValue, yValue);
   };
   /// fill histogram if it had been booked before (2-dim version)
   void fill(const std::string histName, double xValue, double yValue,
             double zValue) const {
-    if (booked(histName.c_str()))
-      hists_.find(histName.c_str())->second->Fill(xValue, yValue, zValue);
+    if (booked(histName))
+      hists_.find(histName)->second->Fill(xValue, yValue, zValue);
   };
 
  private:
@@ -162,9 +162,9 @@ class MonitorEnsemble {
 inline void MonitorEnsemble::triggerBinLabels(
     std::string channel, const std::vector<std::string> labels) {
   for (unsigned int idx = 0; idx < labels.size(); ++idx) {
-    hists_[(channel + "Mon_").c_str()]
+    hists_[channel + "Mon_"]
         ->setBinLabel(idx + 1, "[" + monitorPath(labels[idx]) + "]", 1);
-    hists_[(channel + "Eff_").c_str()]
+    hists_[channel + "Eff_"]
         ->setBinLabel(idx + 1, "[" + selectionPath(labels[idx]) + "]|[" +
                                    monitorPath(labels[idx]) + "]",
                       1);
@@ -177,14 +177,14 @@ inline void MonitorEnsemble::fill(const edm::Event& event,
                                   const std::vector<std::string> labels) const {
   for (unsigned int idx = 0; idx < labels.size(); ++idx) {
     if (accept(event, triggerTable, monitorPath(labels[idx]))) {
-      fill((channel + "Mon_").c_str(), idx + 0.5);
+      fill(channel + "Mon_", idx + 0.5);
       // take care to fill triggerMon_ before evts is being called
-      int evts = hists_.find((channel + "Mon_").c_str())
+      int evts = hists_.find(channel + "Mon_")
                      ->second->getBinContent(idx + 1);
-      double value = hists_.find((channel + "Eff_").c_str())
+      double value = hists_.find(channel + "Eff_")
                          ->second->getBinContent(idx + 1);
       fill(
-          (channel + "Eff_").c_str(), idx + 0.5,
+          channel + "Eff_", idx + 0.5,
           1. / evts * (accept(event, triggerTable, selectionPath(labels[idx])) -
                        value));
     }
@@ -211,10 +211,10 @@ class TopSingleLeptonDQM_miniAOD : public DQMEDAnalyzer {
   /// default constructor
   TopSingleLeptonDQM_miniAOD(const edm::ParameterSet& cfg);
   /// default destructor
-  ~TopSingleLeptonDQM_miniAOD() {};
+  ~TopSingleLeptonDQM_miniAOD() override {};
 
   /// do this during the event loop
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
  
  protected:
   //Book histograms
