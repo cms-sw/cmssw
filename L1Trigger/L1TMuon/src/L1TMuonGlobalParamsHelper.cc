@@ -128,7 +128,7 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TriggerSystem& trgSys, const
 {
   std::string procId = processorId;
   // if the procId is an empty string use the one from the TrigSystem (the uGMT only has one processor)
-  if (procId == "" ) {
+  if (procId.empty() ) {
     const std::map<std::string, std::string>& procRoleMap = trgSys.getProcToRoleAssignment();
     if (procRoleMap.size() != 1) {
       if (procRoleMap.empty()) {
