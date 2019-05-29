@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfigFromDB_cff import *
+from L1Trigger.DTPhase2Trigger.PseudoBayesGrouping_cfi import PseudoBayesPattern
 
 dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                digiTag = cms.InputTag("CalibratedDigis"),
@@ -17,7 +18,7 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                ttrig_filename = cms.untracked.string('/afs/cern.ch/user/c/carrillo/public/info/wire_rawId_ttrig.txt'),
                                                z_filename = cms.untracked.string('/afs/cern.ch/user/c/carrillo/public/info/wire_rawId_z.txt'),
                                                shift_filename = cms.untracked.string('/afs/cern.ch/user/c/carrillo/public/info/wire_rawId_x.txt'),
-                                               grouping_code = cms.untracked.int32(0),       # 0 = initial grouping, 1 = Hough transform
+                                               grouping_code = cms.untracked.int32(0),       # 0 = initial grouping, 1 = Hough transform, 2 = PseudoBayes Approach
                                                min_phinhits_match_segment = cms.untracked.int32(8),
                                                min_dT0_match_segment = cms.untracked.double(12.5),
                                                #debugging
@@ -27,3 +28,5 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                rpcRecHits = cms.untracked.InputTag("rpcRecHits"),
                                                useRPC = cms.untracked.bool(False)
                                                )
+
+dtTriggerPhase2PrimitiveDigis.PseudoBayesPattern = PseudoBayesPattern
