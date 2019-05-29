@@ -263,9 +263,16 @@ public:
 //   ${dir}template_summary_zp${filenum}.out
 #ifdef SI_PIXEL_TEMPLATE_STANDALONE
    static bool pushfile(int filenum, std::vector< SiPixelTemplateStore > & pixelTemp , std::string dir = "");
+
+   // For calibrations only: load precalculated values -- no interpolation.
+   void sideload(SiPixelTemplateEntry* entry, int iDtype, float locBx, float locBz, float lorwdy, float lorwdx, float q50, float fbin[3], float xsize, float ysize, float zsize);
+
 #else   
-   static bool pushfile(int filenum, std::vector< SiPixelTemplateStore > & pixelTemp , std::string dir = "CalibTracker/SiPixelESProducers/data/");   // *&^%$#@!  Different default dir -- remove once FastSim is updated.
-   static bool pushfile(const SiPixelTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore > & pixelTemp);     // load the private store with info from db
+   static bool pushfile(int filenum, std::vector< SiPixelTemplateStore > & pixelTemp , std::string dir = "CalibTracker/SiPixelESProducers/data/");
+
+   // Load from the DB (the default in CMSSW):
+   static bool pushfile(const SiPixelTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore > & pixelTemp);
+
 #endif
    
    // initialize the rest;
@@ -646,11 +653,13 @@ private:
    float fracxtwo_;          //!< The simulated fraction of single double-size pixel x-clusters 
    boost::multi_array<float,2> temp2dy_; //!< 2d-primitive for spltting 3-d template
    boost::multi_array<float,2> temp2dx_; //!< 2d-primitive for spltting 3-d template
-   
+   const SiPixelTemplateEntry* entry00_; // Pointer to presently interpolated point [iy,ix]
+   const SiPixelTemplateEntry* entry10_; // Pointer to presently interpolated point [iy+1,ix]
+   const SiPixelTemplateEntry* entry01_; // Pointer to presently interpolated point [iy,ix+1]
    
    // The actual template store is a std::vector container
-   
    const std::vector< SiPixelTemplateStore > & thePixelTemp_;
+
 } ;
 
 

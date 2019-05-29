@@ -837,7 +837,7 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
 //! \param      sizey - (input) pixel y-size
 //! \param      sizez - (input) pixel z-size
 // *************************************************************************************************************************************
-
+#ifdef SI_PIXEL_TEMPLATE_STANDALONE
 void SiPixelTemplate2D::sideload(SiPixelTemplateEntry2D* entry, int iDtype, float locBx, float locBz, float lorwdy, float lorwdx, float q50, float fbin[3], float xsize, float ysize, float zsize)
 {
    // Set class variables to the input parameters
@@ -913,11 +913,11 @@ void SiPixelTemplate2D::sideload(SiPixelTemplateEntry2D* entry, int iDtype, floa
          }
          break;
       default:
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-         throw cms::Exception("DataCorrupt") << "SiPixelTemplate2D::illegal subdetector ID = " << iDtype << std::endl;
-#else
-         std::cout << "SiPixelTemplate:2D:illegal subdetector ID = " << iDtype << std::endl;
-#endif
+	// #ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	//         throw cms::Exception("DataCorrupt") << "SiPixelTemplate2D::illegal subdetector ID = " << iDtype << std::endl;
+	//#else
+         std::cout << "SiPixelTemplate2D:illegal subdetector ID = " << iDtype << std::endl;
+	 //#endif
    }
    
    //  Calculate signed quantities
@@ -944,7 +944,8 @@ void SiPixelTemplate2D::sideload(SiPixelTemplateEntry2D* entry, int iDtype, floa
       }
    }
    return;
-}
+} // sideload
+#endif
 
 
 // *************************************************************************************************************************************

@@ -1525,6 +1525,127 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
 }
 
 
+
+// *************************************************************************************************************************************
+//! Load template info for single angle point to invoke template reco for template generation
+//! \param      entry - (input) pointer to template entry
+//! \param      sizex - (input) pixel x-size
+//! \param      sizey - (input) pixel y-size
+//! \param      sizez - (input) pixel z-size
+// *************************************************************************************************************************************
+#ifdef SI_PIXEL_TEMPLATE_STANDALONE
+void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float locBx, float locBz, float lorwdy, float lorwdx, float q50, float fbin[3], float xsize, float ysize, float zsize)
+{
+   // Set class variables to the input parameters
+   
+   entry00_ = entry;
+   entry01_ = entry;
+   entry10_ = entry;
+   Dtype_ = iDtype;
+   lorywidth_ = lorwdy;
+   lorxwidth_ = lorwdx;
+   xsize_ = xsize;
+   ysize_ = ysize;
+   zsize_ = zsize;
+   s50_ = q50;
+   qscale_ = 1.f;
+   for(int i=0; i<3; ++i) {fbin_[i] = fbin[i];}
+   
+   // Set other class variables
+   
+   adcota_ = 0.f;
+   adcotb_ = 0.f;
+   
+   // Interpolate things in cot(alpha)-cot(beta)
+   
+   qavg_ = entry00_->qavg;
+   
+   pixmax_ = entry00_->pixmax;
+   
+   sxymax_ = entry00_->sxymax;
+   
+   clsleny_ = entry00_->clsleny;
+   
+   clslenx_ = entry00_->clslenx;
+   
+   scaleyavg_ = 1.f;
+   
+   scalexavg_ = 1.f;
+   
+   delyavg_ = 0.f;
+   
+   delysig_ = 0.f;
+   
+   for(int i=0; i<4 ; ++i) {
+      scalex_[i] = 1.f;
+      scaley_[i] = 1.f;
+      offsetx_[i] = 0.f;
+      offsety_[i] = 0.f;
+   }
+   
+   // This works only for IP-related tracks
+   
+   flip_x_ = false;
+   flip_y_ = false;
+   float cotbeta = entry00_->cotbeta;
+   switch(Dtype_) {
+      case 0:
+         if(cotbeta < 0.f) {flip_y_ = true;}
+         break;
+      case 1:
+         if(locBz > 0.f) {
+            flip_y_ = true;
+         }
+         break;
+      case 2:
+      case 3:
+      case 4:
+      case 5:
+         if(locBx*locBz < 0.f) {
+            flip_x_ = true;
+         }
+         if(locBx < 0.f) {
+            flip_y_ = true;
+         }
+         break;
+      default:
+	// #ifndef SI_PIXEL_TEMPLATE_STANDALONE
+	//         throw cms::Exception("DataCorrupt") << "SiPixelTemplate2D::illegal subdetector ID = " << iDtype << std::endl;
+	//#else
+         std::cout << "SiPixelTemplate:illegal subdetector ID = " << iDtype << std::endl;
+	 //#endif
+   }
+   
+   //  Calculate signed quantities
+   
+   lorydrift_ = lorywidth_/2.;
+   if(flip_y_) lorydrift_ = -lorydrift_;
+   lorxdrift_ = lorxwidth_/2.;
+   if(flip_x_) lorxdrift_ = -lorxdrift_;
+   
+   for(int i=0; i<2 ; ++i) {
+      for(int j=0; j<5 ; ++j) {
+         // Charge loss switches sides when cot(beta) changes sign
+         if(flip_y_) {
+            xypary0x0_[1-i][j] = (float)entry00_->xypar[i][j];
+            xypary1x0_[1-i][j] = (float)entry00_->xypar[i][j];
+            xypary0x1_[1-i][j] = (float)entry00_->xypar[i][j];
+            lanpar_[1-i][j] = entry00_->lanpar[i][j];
+         } else {
+            xypary0x0_[i][j] = (float)entry00_->xypar[i][j];
+            xypary1x0_[i][j] = (float)entry00_->xypar[i][j];
+            xypary0x1_[i][j] = (float)entry00_->xypar[i][j];
+            lanpar_[i][j] = entry00_->lanpar[i][j];
+         }
+      }
+   }
+   return;
+} // sideload
+#endif
+
+
+
+
 // ************************************************************************************************************
 //! Return vector of y errors (squared) for an input vector of projected signals
 //! Add large Q scaling for use in cluster splitting.
