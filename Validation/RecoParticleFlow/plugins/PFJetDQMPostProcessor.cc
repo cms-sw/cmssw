@@ -237,7 +237,7 @@ PFJetDQMPostProcessor::fitResponse(TH1F* hreso, TH1F* h_genjet_pt, int ptbinlow,
    fg2->SetRange(fitlow,fithigh);
 
    if (doPlots) hreso->Fit("fg2","RQ");
-   else hreso->Fit("fg2","RQN");
+   else         hreso->Fit("fg2","RQN");
    
    fg->SetRange(0,3);
    fg2->SetRange(0,3);
