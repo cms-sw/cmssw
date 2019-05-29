@@ -11,6 +11,8 @@
 
 class DQMMessageLoggerClient : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   // Constructor
   DQMMessageLoggerClient(const edm::ParameterSet &);
   // Destructor

@@ -62,6 +62,9 @@ class MEtoEDMConverter : public edm::one::EDProducer<edm::RunCache<meedm::Void>,
                                                      edm::EndRunProducer,
                                                      edm::one::SharedResources> {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit MEtoEDMConverter(const edm::ParameterSet&);
   ~MEtoEDMConverter() override;
   void beginJob() override;

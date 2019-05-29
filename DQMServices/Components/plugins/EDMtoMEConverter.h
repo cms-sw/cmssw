@@ -54,6 +54,9 @@ class EDMtoMEConverter : public edm::one::EDProducer<edm::one::WatchRuns,
                                                      edm::EndLuminosityBlockProducer,
                                                      edm::EndRunProducer> {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit EDMtoMEConverter(const edm::ParameterSet&);
   ~EDMtoMEConverter() override;
 

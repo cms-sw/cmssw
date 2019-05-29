@@ -149,14 +149,14 @@ void DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi
   }
 }
 
-static void doSaveForOnline(DQMStore *store,
+static void doSaveForOnline(DQMFileSaver::DQMStore *store,
                             int run,
                             bool enableMultiThread,
                             const std::string &filename,
                             const std::string &directory,
                             const std::string &rxpat,
                             const std::string &rewrite,
-                            DQMStore::SaveReferenceTag saveref,
+                            DQMFileSaver::DQMStore::SaveReferenceTag saveref,
                             int saveRefQMin,
                             const std::string &filterName,
                             DQMFileSaver::FileFormat fileFormat) {

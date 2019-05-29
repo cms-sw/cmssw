@@ -18,6 +18,8 @@ namespace saverDetails {
 class DQMFileSaver : public edm::global::EDAnalyzer<edm::RunCache<saverDetails::NoCache>,
                                                     edm::LuminosityBlockCache<saverDetails::NoCache> > {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   DQMFileSaver(const edm::ParameterSet &ps);
 
   static boost::property_tree::ptree fillJson(int run,

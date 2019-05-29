@@ -26,7 +26,7 @@
 using namespace std;
 using namespace edm;
 
-typedef MonitorElement ME;
+typedef DQMGenericClient::MonitorElement ME;
 
 TPRegexp metacharacters("[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]");
 TPRegexp nonPerlWildcard("\\w\\*|^\\*");

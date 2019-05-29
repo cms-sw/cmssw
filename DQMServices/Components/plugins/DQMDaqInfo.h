@@ -44,6 +44,8 @@
 
 class DQMDaqInfo : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   explicit DQMDaqInfo(const edm::ParameterSet&);
   ~DQMDaqInfo() override;
 

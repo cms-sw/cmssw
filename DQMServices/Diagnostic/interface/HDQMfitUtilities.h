@@ -27,6 +27,8 @@ namespace HDQMUtil {
 
 class HDQMfitUtilities {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+
   HDQMfitUtilities();
   ~HDQMfitUtilities();
 

@@ -22,6 +22,8 @@
 
 class DQMFileReader : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   explicit DQMFileReader(const edm::ParameterSet &);
   ~DQMFileReader() override;
 

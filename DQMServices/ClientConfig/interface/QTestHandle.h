@@ -19,6 +19,8 @@ class QTestStatusChecker;
 
 class QTestHandle {
 public:
+  typedef dqm::harvesting::DQMStore DQMStore;
+  typedef dqm::harvesting::MonitorElement MonitorElement;
   ///Creator
   QTestHandle();
   ///Destructor
