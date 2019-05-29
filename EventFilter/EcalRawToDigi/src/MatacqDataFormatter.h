@@ -13,28 +13,25 @@ class FEDRawData;
  * This class is used by the MatacqProducer module.
  *  @author: Ph. Gras (CEA/Saclay)
  */
-class MatacqDataFormatter{
+class MatacqDataFormatter {
 public:
-  MatacqDataFormatter() {};
-  
+  MatacqDataFormatter(){};
+
   /** Callback method for decoding raw data
    * @param data raw data
    * @param matacqDigiCollection [out] digi collection object to fill with
    * the decoded data
    */
-  void interpretRawData(const FEDRawData & data,
-			EcalMatacqDigiCollection& matacqDigiCollection);
-  
+  void interpretRawData(const FEDRawData& data, EcalMatacqDigiCollection& matacqDigiCollection);
+
   /** Callback method for decoding raw data
    * @param data raw data
    * @param matacqDigiCollection [out] digi collection object to fill with
    * the decoded data
    */
-  void interpretRawData(const MatacqRawEvent& data,
-			EcalMatacqDigiCollection& matacqDigiCollection);
-  
+  void interpretRawData(const MatacqRawEvent& data, EcalMatacqDigiCollection& matacqDigiCollection);
+
 private:
   void printData(std::ostream& out, const MatacqRawEvent& event) const;
 };
 #endif
-

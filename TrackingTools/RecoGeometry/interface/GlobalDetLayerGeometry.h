@@ -17,19 +17,18 @@
 
 class DetLayer;
 
-class GlobalDetLayerGeometry: public DetLayerGeometry {
- public:
-  GlobalDetLayerGeometry(const GeometricSearchTracker* tracker,
-			const MuonDetLayerGeometry* muon):
-  tracker_(tracker),muon_(muon),mtd_(nullptr){};
+class GlobalDetLayerGeometry : public DetLayerGeometry {
+public:
+  GlobalDetLayerGeometry(const GeometricSearchTracker* tracker, const MuonDetLayerGeometry* muon)
+      : tracker_(tracker), muon_(muon), mtd_(nullptr){};
 
   GlobalDetLayerGeometry(const GeometricSearchTracker* tracker,
-			 const MuonDetLayerGeometry* muon,
-			 const MTDDetLayerGeometry* mtd):
-  tracker_(tracker),muon_(muon),mtd_(mtd){};
-	
-	~GlobalDetLayerGeometry() override {}
-  
+                         const MuonDetLayerGeometry* muon,
+                         const MTDDetLayerGeometry* mtd)
+      : tracker_(tracker), muon_(muon), mtd_(mtd){};
+
+  ~GlobalDetLayerGeometry() override {}
+
   /*
   const std::vector<DetLayer*>& allLayers() const =0;
   const std::vector<DetLayer*>& barrelLayers() const =0;
@@ -37,15 +36,13 @@ class GlobalDetLayerGeometry: public DetLayerGeometry {
   const std::vector<DetLayer*>& posForwardLayers() const =0;
   */
 
-
   /// Give the DetId of a module, returns the pointer to the corresponding DetLayer
   const DetLayer* idToLayer(const DetId& detId) const override;
- 
- private:
+
+private:
   const GeometricSearchTracker* tracker_;
   const MuonDetLayerGeometry* muon_;
   const MTDDetLayerGeometry* mtd_;
 };
-
 
 #endif
