@@ -133,11 +133,11 @@ std::array<double, 8> HGCHEbackSignalScaler::computeRadius(const HGCScintillator
   double radius2 = std::pow(global.x(), 2) + std::pow(global.y(), 2); //in cm
   double radius4 = std::pow(radius2, 2);
   double radius = sqrt(radius2);
-  double radius3 = std::pow(radius, 3);
+  double radius3 = radius2*radius;
 
   double radius_m100 = radius-100;
   double radius_m100_2 = std::pow(radius_m100, 2);
-  double radius_m100_3 = std::pow(radius_m100, 3);
+  double radius_m100_3 = radius_m100_2*radius_m100;
   double radius_m100_4 = std::pow(radius_m100_2, 2);
 
   std::array<double, 8> radii { {radius, radius2, radius3, radius4, radius_m100, radius_m100_2, radius_m100_3, radius_m100_4} };
