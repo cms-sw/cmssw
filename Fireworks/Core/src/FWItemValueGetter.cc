@@ -92,17 +92,10 @@ FWItemValueGetter::FWItemValueGetter(const edm::TypeWithDict& iType, const std::
    else if(iPurpose == "HGCal Trigger Cell" ||
       iPurpose == "HGCal Trigger Cluster")
    {
-      // by the default  add pt, et, or energy
-      bool x = addEntry("pt", 1);
-      if (!x) x = addEntry("et", 1);
-      if (!x) addEntry("energy", 1);
       addEntry("detId", 0);
    }
    else {
-      // by the default  add pt, et, or energy
-      bool x = addEntry("pt", 1);
-      if (!x) x = addEntry("et", 1);
-      if (!x) addEntry("energy", 1);
+      addEntry("energy", 1);
    }
 
    if (addEntry("eta", 2))
