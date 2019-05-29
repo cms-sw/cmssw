@@ -48,7 +48,7 @@ void DCCTBXtalBlock::dataCheck(){
 		res = checkDataField("STRIP ID",expectedStripID_);
 		if(!res.first){ checkErrors += res.second; (errors_["XTAL::HEADER"])++; } 
 	}
-	if(checkErrors!=""){
+	if(!checkErrors.empty()){
 		errorString_ +="\n ======================================================================\n"; 		
 		errorString_ += std::string(" ") + name_ + std::string(" data fields checks errors : ") ;
 		errorString_ += checkErrors ;

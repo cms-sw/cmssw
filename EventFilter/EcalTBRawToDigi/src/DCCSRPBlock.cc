@@ -48,7 +48,7 @@ void DCCTBSRPBlock::dataCheck(){
 	if(!res.first){ checkErrors += res.second; (errors_["SRP::HEADER"])++; } 
 	
 	
-	if(checkErrors!=""){
+	if(!checkErrors.empty()){
 		errorString_ +="\n ======================================================================\n"; 		
 		errorString_ += std::string(" ") + name_ + std::string(" data fields checks errors : ") ;
 		errorString_ += checkErrors ;

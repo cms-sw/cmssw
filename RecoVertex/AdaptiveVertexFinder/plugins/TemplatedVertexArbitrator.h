@@ -88,7 +88,7 @@ class TemplatedVertexArbitrator : public edm::stream::EDProducer<> {
           }
 	}
 
-	virtual void produce(edm::Event &event, const edm::EventSetup &es) override ;
+	void produce(edm::Event &event, const edm::EventSetup &es) override ;
 
     private:
 	bool trackFilter(const reco::TrackRef &track) const;
@@ -125,7 +125,7 @@ void TemplatedVertexArbitrator<InputContainer,VTX>::produce(edm::Event &event, c
 	event.getByToken(token_primaryVertex, primaryVertices);
 
 	auto recoVertices = std::make_unique<Product>();
-	if(primaryVertices->size()!=0){ 
+	if(!primaryVertices->empty()){ 
 		const reco::Vertex &pv = (*primaryVertices)[0];
 
 		edm::Handle<InputContainer> tracks;

@@ -99,7 +99,7 @@ class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
           }
 	}
 
-	virtual void produce(edm::Event &event, const edm::EventSetup &es) override;
+	void produce(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
 	bool trackFilter(const reco::Track &track) const;
@@ -192,7 +192,7 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 
 
         auto recoVertices = std::make_unique<Product>();
-        if(primaryVertices->size()!=0) {
+        if(!primaryVertices->empty()) {
      
 	const reco::Vertex &pv = (*primaryVertices)[0];
 	GlobalPoint ppv(pv.position().x(),pv.position().y(),pv.position().z());
