@@ -7,12 +7,11 @@
 namespace edm {
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class L1TMuonEndCapParams;
 class L1TMuonEndCapForest;
 class PtAssignmentEngine;
-
 
 // class declaration
 class ConditionHelper {
@@ -40,6 +39,5 @@ private:
   edm::ESHandle<L1TMuonEndCapParams> params_;
   edm::ESHandle<L1TMuonEndCapForest> forest_;
 };
-
 
 #endif

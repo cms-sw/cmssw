@@ -29,16 +29,13 @@ class EnergySumTemplate;
 
 namespace l1t {
 
-class L1Candidate;
+  class L1Candidate;
 
-class GlobalBoard;
+  class GlobalBoard;
 
-// class declaration
-class EnergySumCondition : public ConditionEvaluation
-{
-
-public:
-
+  // class declaration
+  class EnergySumCondition : public ConditionEvaluation {
+  public:
     /// constructors
     ///     default
     EnergySumCondition();
@@ -55,44 +52,35 @@ public:
     // assign operator
     EnergySumCondition& operator=(const EnergySumCondition&);
 
-public:
-
+  public:
     /// the core function to check if the condition matches
     const bool evaluateCondition(const int bxEval) const override;
 
     /// print condition
-     void print(std::ostream& myCout) const override;
+    void print(std::ostream& myCout) const override;
 
-public:
-
+  public:
     ///   get / set the pointer to a L1GtCondition
-    inline const EnergySumTemplate* gtEnergySumTemplate() const {
-        return m_gtEnergySumTemplate;
-    }
+    inline const EnergySumTemplate* gtEnergySumTemplate() const { return m_gtEnergySumTemplate; }
 
     void setGtEnergySumTemplate(const EnergySumTemplate*);
 
     ///   get / set the pointer to uGt GlobalBoard
-    inline const GlobalBoard* getuGtB() const {
-        return m_uGtB;
-    }
+    inline const GlobalBoard* getuGtB() const { return m_uGtB; }
 
     void setuGtB(const GlobalBoard*);
 
-private:
-
+  private:
     /// copy function for copy constructor and operator=
     void copy(const EnergySumCondition& cp);
 
-private:
-
+  private:
     /// pointer to a EnergySumTemplate
     const EnergySumTemplate* m_gtEnergySumTemplate;
 
     /// pointer to uGt GlobalBoard, to be able to get the trigger objects
     const GlobalBoard* m_uGtB;
+  };
 
-};
-
-}
+}  // namespace l1t
 #endif

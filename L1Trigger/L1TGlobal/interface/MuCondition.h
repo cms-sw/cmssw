@@ -29,24 +29,19 @@ class MuonTemplate;
 
 namespace l1t {
 
-class L1MuGMTCand;
+  class L1MuGMTCand;
 
-class GlobalBoard;
+  class GlobalBoard;
 
-// class declaration
-class MuCondition : public ConditionEvaluation
-{
-
-public:
-
+  // class declaration
+  class MuCondition : public ConditionEvaluation {
+  public:
     /// constructors
     ///     default
     MuCondition();
 
     ///     from base template condition (from event setup usually)
-    MuCondition(const GlobalCondition*, const GlobalBoard*,
-            const int nrL1Mu,
-            const int ifMuEtaNumberBits);
+    MuCondition(const GlobalCondition*, const GlobalBoard*, const int nrL1Mu, const int ifMuEtaNumberBits);
 
     // copy constructor
     MuCondition(const MuCondition&);
@@ -57,49 +52,35 @@ public:
     // assign operator
     MuCondition& operator=(const MuCondition&);
 
-public:
-
+  public:
     /// the core function to check if the condition matches
     const bool evaluateCondition(const int bxEval) const override;
 
     /// print condition
     void print(std::ostream& myCout) const override;
 
-public:
-
+  public:
     ///   get / set the pointer to a Condition
-    inline const MuonTemplate* gtMuonTemplate() const {
-        return m_gtMuonTemplate;
-    }
+    inline const MuonTemplate* gtMuonTemplate() const { return m_gtMuonTemplate; }
 
     void setGtMuonTemplate(const MuonTemplate*);
 
     ///   get / set the pointer to GTL
-    inline const GlobalBoard* gtGTL() const {
-        return m_gtGTL;
-    }
+    inline const GlobalBoard* gtGTL() const { return m_gtGTL; }
 
     void setGtGTL(const GlobalBoard*);
 
-
     ///   get / set the number of bits for eta of muon objects
-    inline const int gtIfMuEtaNumberBits() const {
-        return m_ifMuEtaNumberBits;
-    }
+    inline const int gtIfMuEtaNumberBits() const { return m_ifMuEtaNumberBits; }
 
     void setGtIfMuEtaNumberBits(const int&);
 
-
     ///   get / set maximum number of bins for the delta phi scales
-    inline const int gtCorrParDeltaPhiNrBins() const {
-        return m_corrParDeltaPhiNrBins;
-    }
+    inline const int gtCorrParDeltaPhiNrBins() const { return m_corrParDeltaPhiNrBins; }
 
     void setGtCorrParDeltaPhiNrBins(const int&);
 
-
-private:
-
+  private:
     /// copy function for copy constructor and operator=
     void copy(const MuCondition& cp);
 
@@ -107,11 +88,9 @@ private:
     const l1t::Muon* getCandidate(const int bx, const int indexCand) const;
 
     /// function to check a single object if it matches a condition
-    const bool checkObjectParameter(const int iCondition,
-        const l1t::Muon& cand, const unsigned int index) const;
+    const bool checkObjectParameter(const int iCondition, const l1t::Muon& cand, const unsigned int index) const;
 
-private:
-
+  private:
     /// pointer to a MuonTemplate
     const MuonTemplate* m_gtMuonTemplate;
 
@@ -123,10 +102,7 @@ private:
 
     // maximum number of bins for the delta phi scales
     unsigned int m_corrParDeltaPhiNrBins;
+  };
 
-
-
-};
-
-}
+}  // namespace l1t
 #endif

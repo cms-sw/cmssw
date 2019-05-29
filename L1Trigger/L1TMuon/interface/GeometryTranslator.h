@@ -19,7 +19,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <memory>
 
-
 // forwards
 namespace edm {
   class EventSetup;
@@ -53,7 +52,7 @@ namespace L1TMuon {
     const GEMGeometry& getGEMGeometry() const { return *_geogem; }
     const RPCGeometry& getRPCGeometry() const { return *_georpc; }
     const CSCGeometry& getCSCGeometry() const { return *_geocsc; }
-    const DTGeometry&  getDTGeometry()  const { return *_geodt;  }
+    const DTGeometry& getDTGeometry() const { return *_geodt; }
 
     const MagneticField& getMagneticField() const { return *_magfield; }
 
@@ -64,7 +63,7 @@ namespace L1TMuon {
     edm::ESHandle<GEMGeometry> _geogem;
     edm::ESHandle<RPCGeometry> _georpc;
     edm::ESHandle<CSCGeometry> _geocsc;
-    edm::ESHandle<DTGeometry>  _geodt;
+    edm::ESHandle<DTGeometry> _geodt;
 
     unsigned long long _magfield_cache_id;
     edm::ESHandle<MagneticField> _magfield;
@@ -90,6 +89,6 @@ namespace L1TMuon {
     double calcDTSpecificPhi(const TriggerPrimitive&) const;
     double calcDTSpecificBend(const TriggerPrimitive&) const;
   };
-}
+}  // namespace L1TMuon
 
 #endif
