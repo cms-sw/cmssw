@@ -7,6 +7,9 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
 #include <memory>
 
 class TransientTrackBuilderESProducer : public edm::ESProducer {
@@ -14,6 +17,8 @@ public:
   TransientTrackBuilderESProducer(const edm::ParameterSet &p);
 
   std::unique_ptr<TransientTrackBuilder> produce(const TransientTrackRecord &);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   TransientTrackBuilderESProducer(edm::ESConsumesCollector &&c);
