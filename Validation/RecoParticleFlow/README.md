@@ -73,8 +73,10 @@ make -p tmp/NuGunPU; cd tmp/NuGunPU
 
 # make a text file for input files
 dasgoclient --query="file dataset=/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1/MINIAODSIM" > step3_filelist.txt
+#(or
 dasgoclient --query="file dataset=/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4-v1/MINIAODSIM" > step3_filelist.txt
 dasgoclient --query="file dataset=/RelValNuGun/CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4-v1/MINIAODSIM" > step3_filelist.txt
+#)
 cat step3_filelist.txt
 
 cmsDriver.py step5 --conditions $CONDITIONS -s DQM:@pfDQM --datatier DQMIO --nThreads $NTHREADS --era $ERA --eventcontent DQM --filein filelist:step3_filelist.txt --fileout file:step5.root -n -1 2>&1 | tee step5.log 

@@ -83,6 +83,7 @@ private:
     edm::EDGetTokenT< edm::View<reco::Vertex> > pvToken;
     edm::EDGetTokenT< edm::View<PileupSummaryInfo> > muToken;
     edm::EDGetTokenT< edm::View<pat::PackedCandidate> > pfToken;
+
 };
 
 OffsetAnalyzerDQM::OffsetAnalyzerDQM(const edm::ParameterSet& iConfig)

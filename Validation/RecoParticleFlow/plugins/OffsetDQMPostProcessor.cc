@@ -89,7 +89,7 @@ OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
     stitle=offsetDir+(*i);
     mtmp=iget_.get(stitle);
     int navg = int( mtmp->getMean()+0.5 ); // in order to get the rounding correctly
-    if (navg<0) navg=0;                                  // checking lower bound
+    if (navg<=0) navg=1;                                 // checking lower bound (avoid division by zero)
     if      (*i=="npv" && navg>=npvHigh) navg=npvHigh-1; // checking upper bound
     else if (*i=="mu"  && navg>=muHigh)  navg=muHigh-1;  // 
     
