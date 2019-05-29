@@ -21,10 +21,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  TransientTrackBuilderESProducer(edm::ESConsumesCollector &&c);
-
-  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magToken_;
-  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geomToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magToken_;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geomToken_;
 };
 
 #endif

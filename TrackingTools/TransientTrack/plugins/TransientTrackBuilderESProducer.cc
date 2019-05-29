@@ -11,12 +11,9 @@
 
 using namespace edm;
 
-TransientTrackBuilderESProducer::TransientTrackBuilderESProducer(const edm::ParameterSet& p)
-    : TransientTrackBuilderESProducer(setWhatProduced(this, p.getParameter<std::string>("ComponentName"))) {}
-
-TransientTrackBuilderESProducer::TransientTrackBuilderESProducer(edm::ESConsumesCollector&& c)
-    : magToken_(c.consumesFrom<MagneticField, IdealMagneticFieldRecord>()),
-      geomToken_(c.consumesFrom<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()) {}
+TransientTrackBuilderESProducer::TransientTrackBuilderESProducer(const edm::ParameterSet& p) {
+  setWhatProduced(this, p.getParameter<std::string>("ComponentName")).setConsumes(magToken_).setConsumes(geomToken_);
+}
 
 std::unique_ptr<TransientTrackBuilder> TransientTrackBuilderESProducer::produce(const TransientTrackRecord& iRecord) {
   return std::make_unique<TransientTrackBuilder>(&iRecord.get(magToken_), iRecord.getHandle(geomToken_));
