@@ -17,34 +17,30 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-
-DDTECCoolAlgo::DDTECCoolAlgo(): phiPosition(0),coolInsert(0) {
+DDTECCoolAlgo::DDTECCoolAlgo() : phiPosition(0), coolInsert(0) {
   LogDebug("TECGeom") << "DDTECCoolAlgo info: Creating an instance";
 }
 
 DDTECCoolAlgo::~DDTECCoolAlgo() {}
 
-void DDTECCoolAlgo::initialize(const DDNumericArguments & nArgs,
-			       const DDVectorArguments & vArgs,
-			       const DDMapArguments & ,
-			       const DDStringArguments & sArgs,
-			       const DDStringVectorArguments & vsArgs) {
+void DDTECCoolAlgo::initialize(const DDNumericArguments& nArgs,
+                               const DDVectorArguments& vArgs,
+                               const DDMapArguments&,
+                               const DDStringArguments& sArgs,
+                               const DDStringVectorArguments& vsArgs) {
+  idNameSpace = DDCurrentNamespace::ns();
+  startCopyNo = int(nArgs["StartCopyNo"]);
 
-  idNameSpace    = DDCurrentNamespace::ns();
-  startCopyNo    = int(nArgs["StartCopyNo"]);
-
-  DDName parentName = parent().name(); 
-  rPosition       = nArgs["RPosition"];
-  LogDebug("TECGeom") << "DDTECCoolAlgo debug: Parent " << parentName 
-		      <<" NameSpace " << idNameSpace << " at radial Position " 
-		      << rPosition ;
-  phiPosition    = vArgs["PhiPosition"]; 
-  coolInsert     = vsArgs["CoolInsert"];
+  DDName parentName = parent().name();
+  rPosition = nArgs["RPosition"];
+  LogDebug("TECGeom") << "DDTECCoolAlgo debug: Parent " << parentName << " NameSpace " << idNameSpace
+                      << " at radial Position " << rPosition;
+  phiPosition = vArgs["PhiPosition"];
+  coolInsert = vsArgs["CoolInsert"];
   if (phiPosition.size() == coolInsert.size()) {
-    for (int i=0; i<(int)(phiPosition.size()); i++) 
-      LogDebug("TECGeom") << "DDTECCoolAlgo debug: Insert[" << i << "]: "
-			  << coolInsert.at(i) << " at Phi " 
-			  << phiPosition.at(i)/CLHEP::deg;
+    for (int i = 0; i < (int)(phiPosition.size()); i++)
+      LogDebug("TECGeom") << "DDTECCoolAlgo debug: Insert[" << i << "]: " << coolInsert.at(i) << " at Phi "
+                          << phiPosition.at(i) / CLHEP::deg;
   } else {
     LogDebug("TECGeom") << "ERROR: Number of inserts does not match the numer of PhiPositions!";
   }
@@ -53,25 +49,22 @@ void DDTECCoolAlgo::initialize(const DDNumericArguments & nArgs,
 
 void DDTECCoolAlgo::execute(DDCompactView& cpv) {
   LogDebug("TECGeom") << "==>> Constructing DDTECCoolAlgo...";
-  int copyNo  = startCopyNo;
+  int copyNo = startCopyNo;
   // loop over the inserts to be placed
   for (int i = 0; i < (int)(coolInsert.size()); i++) {
     // get objects
-    DDName child  = DDName(DDSplit(coolInsert.at(i)).first, 
-			   DDSplit(coolInsert.at(i)).second);
+    DDName child = DDName(DDSplit(coolInsert.at(i)).first, DDSplit(coolInsert.at(i)).second);
     DDName mother = parent().name();
     // get positions
-    double xpos = rPosition*cos(phiPosition.at(i));
-    double ypos = -rPosition*sin(phiPosition.at(i));
+    double xpos = rPosition * cos(phiPosition.at(i));
+    double ypos = -rPosition * sin(phiPosition.at(i));
     // place inserts
     DDTranslation tran(xpos, ypos, 0.0);
     DDRotation rotation;
-   cpv.position(child, mother, copyNo, tran, rotation);
-    LogDebug("TECGeom") << "DDTECCoolAlgo test " << child << "["  
-			<< copyNo << "] positioned in " << mother 
-			<< " at " << tran  << " with " << rotation 
-			<< " phi " << phiPosition.at(i)/CLHEP::deg << " r " 
-			<< rPosition;
+    cpv.position(child, mother, copyNo, tran, rotation);
+    LogDebug("TECGeom") << "DDTECCoolAlgo test " << child << "[" << copyNo << "] positioned in " << mother << " at "
+                        << tran << " with " << rotation << " phi " << phiPosition.at(i) / CLHEP::deg << " r "
+                        << rPosition;
     copyNo++;
   }
   LogDebug("TECGeom") << "<<== End of DDTECCoolAlgo construction ...";

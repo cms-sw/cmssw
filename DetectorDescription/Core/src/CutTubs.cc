@@ -10,14 +10,18 @@
 using namespace geant_units;
 using namespace geant_units::operators;
 
-DDI::CutTubs::CutTubs( double zhalf,
-		       double rIn, double rOut,	      	      
-		       double startPhi, 
-		       double deltaPhi,
-		       double lx, double ly, double lz,
-		       double tx, double ty, double tz )
-  : Solid(DDSolidShape::ddcuttubs)
-{
+DDI::CutTubs::CutTubs(double zhalf,
+                      double rIn,
+                      double rOut,
+                      double startPhi,
+                      double deltaPhi,
+                      double lx,
+                      double ly,
+                      double lz,
+                      double tx,
+                      double ty,
+                      double tz)
+    : Solid(DDSolidShape::ddcuttubs) {
   p_.emplace_back(zhalf);
   p_.emplace_back(rIn);
   p_.emplace_back(rOut);
@@ -31,13 +35,9 @@ DDI::CutTubs::CutTubs( double zhalf,
   p_.emplace_back(tz);
 }
 
-void DDI::CutTubs::stream(std::ostream & os) const
-{
-  os << " zhalf=" << convertMmToCm( p_[0] )
-     << " rIn=" << convertMmToCm( p_[1] )
-     << " rOut=" << convertMmToCm( p_[2] )
-     << " startPhi=" << convertRadToDeg( p_[3] )
-     << " deltaPhi=" << convertRadToDeg( p_[4] )
-     << " Outside Normal at -z (" << p_[5] << "," << p_[6] << "," << p_[7] << ")"
-     << " Outside Normal at +z (" << p_[8] << "," << p_[9] << "," << p_[10] << ")";		
+void DDI::CutTubs::stream(std::ostream& os) const {
+  os << " zhalf=" << convertMmToCm(p_[0]) << " rIn=" << convertMmToCm(p_[1]) << " rOut=" << convertMmToCm(p_[2])
+     << " startPhi=" << convertRadToDeg(p_[3]) << " deltaPhi=" << convertRadToDeg(p_[4]) << " Outside Normal at -z ("
+     << p_[5] << "," << p_[6] << "," << p_[7] << ")"
+     << " Outside Normal at +z (" << p_[8] << "," << p_[9] << "," << p_[10] << ")";
 }

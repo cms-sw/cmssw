@@ -5,22 +5,21 @@
 #include "Solid.h"
 
 namespace DDI {
- 
-  class Cons : public DDI::Solid
-  {
+
+  class Cons : public DDI::Solid {
   public:
     Cons(double zhalf,
-	 double rInMinusZ,
-	 double rOutMinusZ,
-	 double rInPlusZ,
-	 double rOutPlusZ,
-	 double startPhi,
-	 double deltaPhi);
-   
-    double volume() const override ;
-    void stream(std::ostream &) const override;	 
+         double rInMinusZ,
+         double rOutMinusZ,
+         double rInPlusZ,
+         double rOutPlusZ,
+         double startPhi,
+         double deltaPhi);
+
+    double volume() const override;
+    void stream(std::ostream &) const override;
   };
 
-}
+}  // namespace DDI
 
 #endif
