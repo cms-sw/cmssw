@@ -498,7 +498,7 @@ namespace {
 
       //=========================
 	 
-      if(surfDefMap.size()==0){
+      if(surfDefMap.empty()){
 	edm::LogWarning("TrackerSurfaceDeformations_PayloadInspector") << "No common DetIds have been found!!! ";
 	tmap->fillc_all_blank ();
 	tmap->setTitle("NO COMMON DETIDS (IOV : "+std::to_string(std::get<0>(lastiov))+"- "+std::to_string(std::get<0>(firstiov))+")");

@@ -52,7 +52,7 @@ namespace cond {
 
     inline std::string getUserName(){
       struct passwd* user_creds = getpwuid(getuid());
-      if (user_creds==NULL) return std::string("USER_NOT_AVAILABLE");
+      if (user_creds==nullptr) return std::string("USER_NOT_AVAILABLE");
       return std::string(user_creds->pw_name);
     }
 
