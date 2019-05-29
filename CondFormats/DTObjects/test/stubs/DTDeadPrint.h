@@ -12,13 +12,13 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edmtest {
-  class DTDeadPrint : public edm::EDAnalyzer
-  {
+  class DTDeadPrint : public edm::EDAnalyzer {
   public:
-    explicit  DTDeadPrint(edm::ParameterSet const& p);
-    explicit  DTDeadPrint(int i) ;
-    virtual ~ DTDeadPrint();
+    explicit DTDeadPrint(edm::ParameterSet const& p);
+    explicit DTDeadPrint(int i);
+    virtual ~DTDeadPrint();
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+
   private:
   };
-}
+}  // namespace edmtest

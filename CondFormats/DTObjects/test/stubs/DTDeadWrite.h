@@ -14,18 +14,18 @@ Toy EDAnalyzer for testing purposes only.
 class DTDeadFlag;
 
 namespace edmtest {
-  class DTDeadWrite : public edm::EDAnalyzer
-  {
+  class DTDeadWrite : public edm::EDAnalyzer {
   public:
-    explicit  DTDeadWrite(edm::ParameterSet const& p);
-    explicit  DTDeadWrite(int i) ;
-    virtual ~ DTDeadWrite();
+    explicit DTDeadWrite(edm::ParameterSet const& p);
+    explicit DTDeadWrite(int i);
+    virtual ~DTDeadWrite();
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
     virtual void endJob();
+
   private:
-    void fill_dead_HV( const char* file, DTDeadFlag* deadList );
-    void fill_dead_TP( const char* file, DTDeadFlag* deadList );
-    void fill_dead_RO( const char* file, DTDeadFlag* deadList );
-    void fill_discCat( const char* file, DTDeadFlag* deadList );
+    void fill_dead_HV(const char* file, DTDeadFlag* deadList);
+    void fill_dead_TP(const char* file, DTDeadFlag* deadList);
+    void fill_dead_RO(const char* file, DTDeadFlag* deadList);
+    void fill_discCat(const char* file, DTDeadFlag* deadList);
   };
-}
+}  // namespace edmtest
