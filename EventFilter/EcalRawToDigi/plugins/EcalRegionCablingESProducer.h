@@ -4,7 +4,7 @@
 //
 // Package:    EcalRegionCablingESProducer
 // Class:      EcalRegionCablingESProducer
-// 
+//
 /**\class EcalRegionCablingESProducer EcalRegionCablingESProducer.h EventFilter/EcalRegionCablingESProducer/src/EcalRegionCablingESProducer.cc
 
  Description: <one line class summary>
@@ -18,7 +18,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -31,12 +30,13 @@
 
 class EcalRegionCablingESProducer : public edm::ESProducer {
 public:
-      EcalRegionCablingESProducer(const edm::ParameterSet&);
+  EcalRegionCablingESProducer(const edm::ParameterSet&);
   ~EcalRegionCablingESProducer() override;
 
   typedef std::unique_ptr<EcalRegionCabling> ReturnType;
 
   ReturnType produce(const EcalRegionCablingRecord&);
+
 private:
   edm::ParameterSet conf_;
 };

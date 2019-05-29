@@ -13,88 +13,66 @@
 
 using namespace reco;
 
-TrackKinematics::TrackKinematics() :
-	n(0), sumWeights(0)
-{
+TrackKinematics::TrackKinematics() : n(0), sumWeights(0) {}
+
+TrackKinematics::TrackKinematics(const std::vector<Track> &tracks) : n(0), sumWeights(0) {
+  for (std::vector<Track>::const_iterator iter = tracks.begin(); iter != tracks.end(); iter++)
+    add(*iter);
 }
 
-TrackKinematics::TrackKinematics(const std::vector<Track> &tracks) :
-	n(0), sumWeights(0)
-{
-	for(std::vector<Track>::const_iterator iter = tracks.begin();
-	    iter != tracks.end(); iter++)
-		add(*iter);
+TrackKinematics::TrackKinematics(const TrackRefVector &tracks) : n(0), sumWeights(0) {
+  for (TrackRefVector::const_iterator iter = tracks.begin(); iter != tracks.end(); iter++)
+    add(**iter);
 }
 
-TrackKinematics::TrackKinematics(const TrackRefVector &tracks) :
-	n(0), sumWeights(0)
-{
-	for(TrackRefVector::const_iterator iter = tracks.begin();
-	    iter != tracks.end(); iter++)
-		add(**iter);
+TrackKinematics::TrackKinematics(const std::vector<CandidatePtr> &tracks) : n(0), sumWeights(0) {
+  for (std::vector<CandidatePtr>::const_iterator iter = tracks.begin(); iter != tracks.end(); iter++)
+    add(*iter);
 }
 
-TrackKinematics::TrackKinematics(const std::vector<CandidatePtr> &tracks) :
-	n(0), sumWeights(0)
-{
-	for(std::vector<CandidatePtr>::const_iterator iter = tracks.begin();
-	    iter != tracks.end(); iter++)
-		add(*iter);
+TrackKinematics::TrackKinematics(const CandidatePtrVector &tracks) : n(0), sumWeights(0) {
+  for (CandidatePtrVector::const_iterator iter = tracks.begin(); iter != tracks.end(); iter++)
+    add(*iter);
 }
 
-TrackKinematics::TrackKinematics(const CandidatePtrVector &tracks) :
-	n(0), sumWeights(0)
-{
-	for(CandidatePtrVector::const_iterator iter = tracks.begin();
-	    iter != tracks.end(); iter++)
-		add(*iter);
+TrackKinematics::TrackKinematics(const Vertex &vertex) : n(0), sumWeights(0) {
+  bool hasRefittedTracks = vertex.hasRefittedTracks();
+  for (Vertex::trackRef_iterator iter = vertex.tracks_begin(); iter != vertex.tracks_end(); ++iter) {
+    if (hasRefittedTracks)
+      add(vertex.refittedTrack(*iter), vertex.trackWeight(*iter));
+    else
+      add(**iter, vertex.trackWeight(*iter));
+  }
 }
 
-TrackKinematics::TrackKinematics(const Vertex &vertex) :
-	n(0), sumWeights(0)
-{
-	bool hasRefittedTracks = vertex.hasRefittedTracks();
-	for(Vertex::trackRef_iterator iter = vertex.tracks_begin();
-	    iter != vertex.tracks_end(); ++iter) {
-		if (hasRefittedTracks)
-			add(vertex.refittedTrack(*iter),
-			    vertex.trackWeight(*iter));
-		else
-			add(**iter, vertex.trackWeight(*iter));
-	}
+TrackKinematics &TrackKinematics::operator+=(const TrackKinematics &other) {
+  n += other.n;
+  sumWeights += other.sumWeights;
+  sum += other.sum;
+  weightedSum += other.weightedSum;
+
+  return *this;
 }
 
-TrackKinematics &TrackKinematics::operator += (const TrackKinematics &other)
-{
-	n += other.n;
-	sumWeights += other.sumWeights;
-	sum += other.sum;
-	weightedSum += other.weightedSum;
+void TrackKinematics::add(const Track &track, double weight) {
+  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > vec;
 
-	return *this;
+  vec.SetPx(track.px());
+  vec.SetPy(track.py());
+  vec.SetPz(track.pz());
+  vec.SetM(ParticleMasses::piPlus);
+
+  n++;
+  sumWeights += weight;
+  sum += vec;
+  weightedSum += weight * vec;
 }
 
-void TrackKinematics::add(const Track &track, double weight)
-{
-	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > vec;
+void TrackKinematics::add(const CandidatePtr &track) {
+  double weight = 1.0;
 
-	vec.SetPx(track.px());
-	vec.SetPy(track.py());
-	vec.SetPz(track.pz());
-	vec.SetM(ParticleMasses::piPlus);
-
-	n++;
-	sumWeights += weight;
-	sum += vec;
-	weightedSum += weight * vec;
-}
-
-void TrackKinematics::add(const CandidatePtr &track)
-{
-	double weight = 1.0;
-
-	n++;
-	sumWeights += weight;
-	sum += track->p4();
-	weightedSum += weight * track->p4();
+  n++;
+  sumWeights += weight;
+  sum += track->p4();
+  weightedSum += weight * track->p4();
 }
