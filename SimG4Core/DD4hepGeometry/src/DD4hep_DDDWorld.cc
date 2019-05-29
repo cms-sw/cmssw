@@ -64,7 +64,7 @@ DDDWorld::setAsWorld(G4VPhysicalVolume * pv) {
   if(kernel)
     kernel->DefineWorldVolume(pv);
   else
-    edm::LogError("SimG4CoreGeometry") << "No G4RunManagerKernel?";
+    edm::LogError("SimG4CoreGeometry") << "cms::DDDWorld::setAsWorld: No G4RunManagerKernel?";
 
   edm::LogInfo("SimG4CoreGeometry") << " World volume defined ";
 }
@@ -80,7 +80,7 @@ DDDWorld::workerSetAsWorld(G4VPhysicalVolume * pv) {
     transM->SetWorldForTracking(pv);
   }
   else
-    edm::LogError("SimG4CoreGeometry") << "No G4RunManagerKernel?";
+    edm::LogError("SimG4CoreGeometry") << "cms::DDDWorld::workerSetAsWorld: No G4RunManagerKernel?";
 
   edm::LogInfo("SimG4CoreGeometry") << " World volume defined (for worker) ";
 }
