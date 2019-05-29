@@ -15,28 +15,27 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTEcalIsolationProducersRegional::EgammaHLTEcalIsolationProducersRegional(const edm::ParameterSet& config)
-  : conf_(config)
-  , recoEcalCandidateProducer_  (consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer")))
-  , bcBarrelProducer_           (consumes<reco::BasicClusterCollection>(conf_.getParameter<edm::InputTag>("bcBarrelProducer")))
-  , bcEndcapProducer_           (consumes<reco::BasicClusterCollection>(conf_.getParameter<edm::InputTag>("bcEndcapProducer")))
-  , scIslandBarrelProducer_     (consumes<reco::SuperClusterCollection>(conf_.getParameter<edm::InputTag>("scIslandBarrelProducer")))
-  , scIslandEndcapProducer_     (consumes<reco::SuperClusterCollection>(conf_.getParameter<edm::InputTag>("scIslandEndcapProducer")))
-  , egEcalIsoEtMin_    (conf_.getParameter<double>("egEcalIsoEtMin"))
-  , egEcalIsoConeSize_ (conf_.getParameter<double>("egEcalIsoConeSize"))
-  , algoType_          (conf_.getParameter<int>("SCAlgoType"))
-  , test_ (new EgammaHLTEcalIsolation(egEcalIsoEtMin_,egEcalIsoConeSize_,algoType_))
-{
-  
+    : conf_(config),
+      recoEcalCandidateProducer_(
+          consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
+      bcBarrelProducer_(consumes<reco::BasicClusterCollection>(conf_.getParameter<edm::InputTag>("bcBarrelProducer"))),
+      bcEndcapProducer_(consumes<reco::BasicClusterCollection>(conf_.getParameter<edm::InputTag>("bcEndcapProducer"))),
+      scIslandBarrelProducer_(
+          consumes<reco::SuperClusterCollection>(conf_.getParameter<edm::InputTag>("scIslandBarrelProducer"))),
+      scIslandEndcapProducer_(
+          consumes<reco::SuperClusterCollection>(conf_.getParameter<edm::InputTag>("scIslandEndcapProducer"))),
+      egEcalIsoEtMin_(conf_.getParameter<double>("egEcalIsoEtMin")),
+      egEcalIsoConeSize_(conf_.getParameter<double>("egEcalIsoConeSize")),
+      algoType_(conf_.getParameter<int>("SCAlgoType")),
+      test_(new EgammaHLTEcalIsolation(egEcalIsoEtMin_, egEcalIsoConeSize_, algoType_)) {
   //register your products
-  produces < reco::RecoEcalCandidateIsolationMap >();
+  produces<reco::RecoEcalCandidateIsolationMap>();
 }
 
-EgammaHLTEcalIsolationProducersRegional::~EgammaHLTEcalIsolationProducersRegional() {
-  delete test_;
-}
+EgammaHLTEcalIsolationProducersRegional::~EgammaHLTEcalIsolationProducersRegional() { delete test_; }
 
 void EgammaHLTEcalIsolationProducersRegional::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc; 
+  edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("bcBarrelProducer", edm::InputTag(""));
   desc.add<edm::InputTag>("bcEndcapProducer", edm::InputTag(""));
   desc.add<edm::InputTag>("scIslandBarrelProducer", edm::InputTag(""));
@@ -45,12 +44,12 @@ void EgammaHLTEcalIsolationProducersRegional::fillDescriptions(edm::Configuratio
   desc.add<double>("egEcalIsoEtMin", 0.);
   desc.add<double>("egEcalIsoConeSize", 0.3);
   desc.add<int>("SCAlgoType", 1);
-  descriptions.add("hltEgammaHLTEcalIsolationProducersRegional", desc);  
+  descriptions.add("hltEgammaHLTEcalIsolationProducersRegional", desc);
 }
 
-  
-void EgammaHLTEcalIsolationProducersRegional::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-
+void EgammaHLTEcalIsolationProducersRegional::produce(edm::StreamID sid,
+                                                      edm::Event& iEvent,
+                                                      const edm::EventSetup& iSetup) const {
   // Get the basic cluster collection in the Barrel
   edm::Handle<reco::BasicClusterCollection> bcBarrelHandle;
   iEvent.getByToken(bcBarrelProducer_, bcBarrelHandle);
@@ -61,44 +60,52 @@ void EgammaHLTEcalIsolationProducersRegional::produce(edm::StreamID sid, edm::Ev
   const reco::BasicClusterCollection* clusterEndcapCollection = (bcEndcapHandle.product());
   // Get the  Barrel Super Cluster collection
   edm::Handle<reco::SuperClusterCollection> scBarrelHandle;
-  iEvent.getByToken(scIslandBarrelProducer_,scBarrelHandle);
+  iEvent.getByToken(scIslandBarrelProducer_, scBarrelHandle);
   const reco::SuperClusterCollection* scBarrelCollection = (scBarrelHandle.product());
   // Get the  Endcap Super Cluster collection
   edm::Handle<reco::SuperClusterCollection> scEndcapHandle;
-  iEvent.getByToken(scIslandEndcapProducer_,scEndcapHandle);
+  iEvent.getByToken(scIslandEndcapProducer_, scEndcapHandle);
   const reco::SuperClusterCollection* scEndcapCollection = (scEndcapHandle.product());
   // Get the RecoEcalCandidate Collection
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
-  iEvent.getByToken(recoEcalCandidateProducer_,recoecalcandHandle);
+  iEvent.getByToken(recoEcalCandidateProducer_, recoecalcandHandle);
 
   std::vector<const reco::BasicCluster*> clusterCollection;
-  for (reco::BasicClusterCollection::const_iterator ibc = clusterBarrelCollection->begin(); 
-       ibc < clusterBarrelCollection->end(); ibc++ ){clusterCollection.push_back(&(*ibc));}
-  for (reco::BasicClusterCollection::const_iterator iec = clusterEndcapCollection->begin(); 
-       iec < clusterEndcapCollection->end(); iec++ ){clusterCollection.push_back(&(*iec));}
+  for (reco::BasicClusterCollection::const_iterator ibc = clusterBarrelCollection->begin();
+       ibc < clusterBarrelCollection->end();
+       ibc++) {
+    clusterCollection.push_back(&(*ibc));
+  }
+  for (reco::BasicClusterCollection::const_iterator iec = clusterEndcapCollection->begin();
+       iec < clusterEndcapCollection->end();
+       iec++) {
+    clusterCollection.push_back(&(*iec));
+  }
   std::vector<const reco::SuperCluster*> scCollection;
-  for (reco::SuperClusterCollection::const_iterator ibsc = scBarrelCollection->begin(); 
-       ibsc < scBarrelCollection->end(); ibsc++ ){scCollection.push_back(&(*ibsc));}
-  for (reco::SuperClusterCollection::const_iterator iesc = scEndcapCollection->begin(); 
-       iesc < scEndcapCollection->end(); iesc++ ){scCollection.push_back(&(*iesc));}
+  for (reco::SuperClusterCollection::const_iterator ibsc = scBarrelCollection->begin();
+       ibsc < scBarrelCollection->end();
+       ibsc++) {
+    scCollection.push_back(&(*ibsc));
+  }
+  for (reco::SuperClusterCollection::const_iterator iesc = scEndcapCollection->begin();
+       iesc < scEndcapCollection->end();
+       iesc++) {
+    scCollection.push_back(&(*iesc));
+  }
 
   reco::RecoEcalCandidateIsolationMap isoMap;
 
+  for (reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand = recoecalcandHandle->begin();
+       iRecoEcalCand != recoecalcandHandle->end();
+       iRecoEcalCand++) {
+    reco::RecoEcalCandidateRef recoecalcandref(
+        reco::RecoEcalCandidateRef(recoecalcandHandle, iRecoEcalCand - recoecalcandHandle->begin()));
 
-
- for (reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand= recoecalcandHandle->begin(); iRecoEcalCand!=recoecalcandHandle->end(); iRecoEcalCand++) {
-
-
-    reco::RecoEcalCandidateRef recoecalcandref(reco::RecoEcalCandidateRef(recoecalcandHandle,iRecoEcalCand -recoecalcandHandle ->begin()));
-
-    
-    const reco::RecoCandidate *tempiRecoEcalCand = &(*recoecalcandref);
-    float isol =  test_->isolPtSum(tempiRecoEcalCand,scCollection, clusterCollection);
+    const reco::RecoCandidate* tempiRecoEcalCand = &(*recoecalcandref);
+    float isol = test_->isolPtSum(tempiRecoEcalCand, scCollection, clusterCollection);
 
     isoMap.insert(recoecalcandref, isol);
-
   }
 
   iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(isoMap));
-
 }

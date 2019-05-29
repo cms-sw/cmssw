@@ -2,7 +2,7 @@
 //
 // Package:    EgammaHLTProducers
 // Class:      EgammaHLTElectronTrackIsolationProducers
-// 
+//
 /**\class EgammaHLTElectronTrackIsolationProducers EgammaHLTElectronTrackIsolationProducers.cc RecoEgamma/EgammaHLTProducers/interface/EgammaHLTElectronTrackIsolationProducers.h
 */
 //
@@ -11,7 +11,6 @@
 // $Id: EgammaHLTElectronTrackIsolationProducers.h,v 1.3 2011/12/19 11:16:45 sani Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -50,13 +49,12 @@ private:
   const bool useGsfTrack_;
   const bool useSCRefs_;
 
-  const double egTrkIsoPtMin_; 
+  const double egTrkIsoPtMin_;
   const double egTrkIsoConeSize_;
-  const double egTrkIsoZSpan_;   
-  const double egTrkIsoRSpan_;  
+  const double egTrkIsoZSpan_;
+  const double egTrkIsoRSpan_;
   const double egTrkIsoVetoConeSizeBarrel_;
   const double egTrkIsoVetoConeSizeEndcap_;
   const double egTrkIsoStripBarrel_;
   const double egTrkIsoStripEndcap_;
 };
-

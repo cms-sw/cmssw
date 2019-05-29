@@ -25,14 +25,13 @@ namespace edm {
 }
 
 class EgammaHLTMulti5x5ClusterProducer : public edm::stream::EDProducer<> {
- public:
+public:
   EgammaHLTMulti5x5ClusterProducer(const edm::ParameterSet& ps);
   ~EgammaHLTMulti5x5ClusterProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-
+private:
   bool doBarrel_;
   bool doEndcaps_;
   bool doIsolated_;
@@ -43,31 +42,30 @@ class EgammaHLTMulti5x5ClusterProducer : public edm::stream::EDProducer<> {
   edm::InputTag endcapHitCollection_;
   edm::EDGetTokenT<EcalRecHitCollection> barrelHitToken_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapHitToken_;
-  
+
   std::string barrelClusterCollection_;
   std::string endcapClusterCollection_;
 
   double l1LowerThr_;
   double l1UpperThr_;
   double l1LowerThrIgnoreIsolation_;
-  
+
   double regionEtaMargin_;
   double regionPhiMargin_;
-  
-  PositionCalc posCalculator_; // position calculation algorithm
-  Multi5x5ClusterAlgo * Multi5x5_p;
 
-  const EcalRecHitCollection * getCollection(edm::Event& evt,
-					     const edm::EDGetTokenT<EcalRecHitCollection>& hitToken) const ;
-  
-  
-  void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-			  const edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
-			  const std::string& clusterCollection,
-			  const std::vector<RectangularEtaPhiRegion>& regions,
-			  const reco::CaloID::Detectors detector) const ;
+  PositionCalc posCalculator_;  // position calculation algorithm
+  Multi5x5ClusterAlgo* Multi5x5_p;
 
-  void outputValidationInfo(reco::CaloClusterPtrVector &clusterPtrVector);
+  const EcalRecHitCollection* getCollection(edm::Event& evt,
+                                            const edm::EDGetTokenT<EcalRecHitCollection>& hitToken) const;
 
+  void clusterizeECALPart(edm::Event& evt,
+                          const edm::EventSetup& es,
+                          const edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
+                          const std::string& clusterCollection,
+                          const std::vector<RectangularEtaPhiRegion>& regions,
+                          const reco::CaloID::Detectors detector) const;
+
+  void outputValidationInfo(reco::CaloClusterPtrVector& clusterPtrVector);
 };
 #endif
