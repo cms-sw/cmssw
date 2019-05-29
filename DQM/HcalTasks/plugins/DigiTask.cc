@@ -94,7 +94,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
   // Filters for QIE8 vs QIE10/11
   std::vector<uint32_t> vhashQIE8;
   vhashQIE8.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalOuter, 1,1,4)));  
-  _filter_QIE8.initialize(filter::fFilter, hcaldqm::hashfunctions::fSubdet,
+  _filter_QIE8.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdet,
     vhashQIE8);
 
   std::vector<uint32_t> vhashQIE1011; 
@@ -1234,6 +1234,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
     //if (!_filter_QIE1011.filter(did)) {
     _cSumQ_SubdetPM_QIE1011.fill(did, sumQ);
     //}
+    
     _cOccupancy_depth.fill(did);
     if (_ptype == fOnline) {
       _xNChs.get(eid)++;
