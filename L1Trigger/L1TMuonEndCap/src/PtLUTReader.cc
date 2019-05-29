@@ -4,22 +4,15 @@
 #include <iostream>
 #include <stdexcept>
 
-#define PTLUT_SIZE (1<<30)
+#define PTLUT_SIZE (1 << 30)
 
-PtLUTReader::PtLUTReader() :
-    ptlut_(),
-    version_(4),
-    ok_(false)
-{
+PtLUTReader::PtLUTReader() : ptlut_(), version_(4), ok_(false) {}
 
-}
-
-PtLUTReader::~PtLUTReader() {
-
-}
+PtLUTReader::~PtLUTReader() {}
 
 void PtLUTReader::read(const std::string& lut_full_path) {
-  if (ok_)  return;
+  if (ok_)
+    return;
 
   std::cout << "EMTF emulator: attempting to read pT LUT binary file from local area" << std::endl;
   std::cout << lut_full_path << std::endl;
@@ -41,10 +34,10 @@ void PtLUTReader::read(const std::string& lut_full_path) {
   full_word_t sub_word[4] = {0, 0, 0, 0};
 
   while (infile.read(reinterpret_cast<char*>(&full_word), sizeof(full_word_t))) {
-    sub_word[0] = (full_word>>0)      & 0x1FF;  // 9-bit
-    sub_word[1] = (full_word>>9)      & 0x1FF;
-    sub_word[2] = (full_word>>32)     & 0x1FF;
-    sub_word[3] = (full_word>>(32+9)) & 0x1FF;
+    sub_word[0] = (full_word >> 0) & 0x1FF;  // 9-bit
+    sub_word[1] = (full_word >> 9) & 0x1FF;
+    sub_word[2] = (full_word >> 32) & 0x1FF;
+    sub_word[3] = (full_word >> (32 + 9)) & 0x1FF;
 
     ptlut_.push_back(sub_word[0]);
     ptlut_.push_back(sub_word[1]);
@@ -64,6 +57,4 @@ void PtLUTReader::read(const std::string& lut_full_path) {
   return;
 }
 
-PtLUTReader::content_t PtLUTReader::lookup(const address_t& address) const {
-  return ptlut_.at(address);
-}
+PtLUTReader::content_t PtLUTReader::lookup(const address_t& address) const { return ptlut_.at(address); }
