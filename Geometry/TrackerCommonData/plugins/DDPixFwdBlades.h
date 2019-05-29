@@ -62,38 +62,35 @@
 #include "CLHEP/Vector/Rotation.h"
 
 class DDPixFwdBlades : public DDAlgorithm {
- 
 public:
-
   // Constructors & Destructor :  --------------------------------------------------------
 
-  DDPixFwdBlades(); 
+  DDPixFwdBlades();
   ~DDPixFwdBlades() override;
-  
+
   // Initialization & Execution :  -------------------------------------------------------
-  
-  void initialize(const DDNumericArguments & nArgs,
-		  const DDVectorArguments & vArgs,
-		  const DDMapArguments & mArgs,
-		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs) override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
 
   void execute(DDCompactView& cpv) override;
-  
+
   // -------------------------------------------------------------------------------------
 
 private:
-
   // -- Input geometry parameters :  -----------------------------------------------------
- 
-  int     nBlades;            // Number of blades
-  double  bladeAngle;    // Angle of blade rotation around axis perpendicular to beam
-  double  zPlane;             // Common shift in Z for all blades (with respect to disk center plane)
-  double  bladeZShift;     // Shift in Z between the axes of two adjacent blades
-  
-  double  ancorRadius; // Distance from beam line to ancor point defining center of "blade frame"
-  
-      // Coordinates of Nipple ancor points J and K in "blade frame" :
+
+  int nBlades;         // Number of blades
+  double bladeAngle;   // Angle of blade rotation around axis perpendicular to beam
+  double zPlane;       // Common shift in Z for all blades (with respect to disk center plane)
+  double bladeZShift;  // Shift in Z between the axes of two adjacent blades
+
+  double ancorRadius;  // Distance from beam line to ancor point defining center of "blade frame"
+
+  // Coordinates of Nipple ancor points J and K in "blade frame" :
 
   double jX;
   double jY;
@@ -104,34 +101,33 @@ private:
 
   // -- Algorithm parameters :  ----------------------------------------------------------
 
-  double        endcap;          // +1 for Z Plus endcap disks, -1 for Z Minus endcap disks
+  double endcap;  // +1 for Z Plus endcap disks, -1 for Z Minus endcap disks
 
-  std::string   flagString;         // String of flags
-  std::string   flagSelector;       // Character that means "yes" in flagString
-  
-  std::string   childName;          // Child volume name
-  
-  std::vector<double> childTranslationVector; // Child translation with respect to "blade frame"
-  std::string   childRotationName;            // Child rotation with respect to "blade frame"
+  std::string flagString;    // String of flags
+  std::string flagSelector;  // Character that means "yes" in flagString
+
+  std::string childName;  // Child volume name
+
+  std::vector<double> childTranslationVector;  // Child translation with respect to "blade frame"
+  std::string childRotationName;               // Child rotation with respect to "blade frame"
 
   // -------------------------------------------------------------------------------------
 
-  std::string   idNameSpace;    //Namespace of this and ALL sub-parts
-  
+  std::string idNameSpace;  //Namespace of this and ALL sub-parts
+
   std::map<std::string, int> copyNumbers;
-  
+
   CLHEP::HepRotation* nippleRotationZPlus;
   CLHEP::HepRotation* nippleRotationZMinus;
   double nippleTranslationX, nippleTranslationY, nippleTranslationZ;
 
   // -- Helper functions :  --------------------------------------------------------------
-  
-  int issueCopyNumber();
-  
-  void computeNippleParameters(double endcap);
-  
-  // -------------------------------------------------------------------------------------
 
+  int issueCopyNumber();
+
+  void computeNippleParameters(double endcap);
+
+  // -------------------------------------------------------------------------------------
 };
 
 #endif

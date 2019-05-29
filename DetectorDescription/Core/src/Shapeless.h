@@ -6,13 +6,11 @@
 
 namespace DDI {
 
-  class Shapeless : public Solid
-  {
+  class Shapeless : public Solid {
   public:
-    Shapeless() : Solid(DDSolidShape::ddshapeless) { }
+    Shapeless() : Solid(DDSolidShape::ddshapeless) {}
     double volume() const override { return 0; }
-    void stream(std::ostream & os) const override 
-     { os << " shapeless"; }
+    void stream(std::ostream& os) const override { os << " shapeless"; }
   };
-}
+}  // namespace DDI
 #endif

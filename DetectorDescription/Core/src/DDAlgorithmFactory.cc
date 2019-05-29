@@ -1,3 +1,3 @@
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
-EDM_REGISTER_PLUGINFACTORY(DDAlgorithmFactory, "DDAlgorithm"); 
+EDM_REGISTER_PLUGINFACTORY(DDAlgorithmFactory, "DDAlgorithm");

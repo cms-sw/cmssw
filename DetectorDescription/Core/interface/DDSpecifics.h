@@ -21,8 +21,8 @@ namespace DDI {
   class Specific;
 }
 
-std::ostream & operator<<( std::ostream &, const std::vector<std::string> & );
-std::ostream & operator<<( std::ostream &, const DDSpecifics & );
+std::ostream &operator<<(std::ostream &, const std::vector<std::string> &);
+std::ostream &operator<<(std::ostream &, const DDSpecifics &);
 
 /**
   used to attach specific (user defined) data to nodes in the expanded view.
@@ -38,14 +38,13 @@ std::ostream & operator<<( std::ostream &, const DDSpecifics & );
     DDSpecifics are lightweighted reference-objects. For further information concerning
     reference-objects refere to the documentation of DDLogicalPart. 
 */
-class DDSpecifics : public DDBase< DDName, std::unique_ptr<DDI::Specific> >
-{
-  friend std::ostream & operator<<( std::ostream  &, const DDSpecifics &);
+class DDSpecifics : public DDBase<DDName, std::unique_ptr<DDI::Specific> > {
+  friend std::ostream &operator<<(std::ostream &, const DDSpecifics &);
 
 public:
   //! Creates a uninitialized reference-object (see DDLogicalPart documentation for details on reference objects)
   DDSpecifics();
-     
+
   //! Creates a initialized reference-object or a reference to an allready defined specifcs.
   /** If a DDSpecifics with \a name was already defined, this constructor creates a 
       lightweighted reference-object to it. Otherwise a (default) initialized reference-object
@@ -53,8 +52,8 @@ public:
       For further details concerning the usage of reference-objects refere
       to the documentation of DDLogicalPart.
   */
-  DDSpecifics(const DDName & name); 
-  
+  DDSpecifics(const DDName &name);
+
   //! Creates a defined reference-object or replaces a already defined reference-object named \a name
   /**
       \arg \c name unique name 
@@ -64,19 +63,19 @@ public:
       <h3> Syntax of the selection std::string </h3>
       bla, bla, bla
   */
-  DDSpecifics(const DDName & name,
-              const std::vector<std::string> & partSelections,
-	      const DDsvalues_type & svalues,
-	      bool doRegex=true);
-  
+  DDSpecifics(const DDName &name,
+              const std::vector<std::string> &partSelections,
+              const DDsvalues_type &svalues,
+              bool doRegex = true);
+
   //! Gives a reference to the collection of part-selections
-  const std::vector<DDPartSelection> & selection() const;
-  
+  const std::vector<DDPartSelection> &selection() const;
+
   //! Reference to the user-data attached to all nodes selected by the selections-strings given through selection
-  const DDsvalues_type & specifics() const;
-  
+  const DDsvalues_type &specifics() const;
+
   //! Calculates the geometrical history of a fully specified PartSelector
-  std::pair<bool,DDExpandedView> node() const;
+  std::pair<bool, DDExpandedView> node() const;
 };
 
 #endif
