@@ -2,7 +2,7 @@
 //
 // Package:    HGCalGeometry
 // Class:      HGCalGeometryESProducer
-// 
+//
 /**\class HGCalGeometryESProducer HGCalGeometryESProducer.h 
 
  Description: <one line class summary>
@@ -14,7 +14,6 @@
 // Original Author:  Sunanda Banerjee
 //
 //
-
 
 // system include files
 #include <memory>
@@ -36,10 +35,9 @@
 //
 
 class HGCalGeometryESProducer : public edm::ESProducer {
-
 public:
-  HGCalGeometryESProducer( const edm::ParameterSet& iP );
-  ~HGCalGeometryESProducer() override ;
+  HGCalGeometryESProducer(const edm::ParameterSet& iP);
+  ~HGCalGeometryESProducer() override;
 
   using ReturnType = std::unique_ptr<HGCalGeometry>;
 
@@ -50,10 +48,8 @@ private:
   edm::ESGetToken<HGCalTopology, IdealGeometryRecord> topologyToken_;
 };
 
-
 HGCalGeometryESProducer::HGCalGeometryESProducer(const edm::ParameterSet& iConfig) {
-
-  auto name     = iConfig.getUntrackedParameter<std::string>("Name");
+  auto name = iConfig.getUntrackedParameter<std::string>("Name");
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Constructing HGCalGeometry for " << name;
 #endif
@@ -61,18 +57,14 @@ HGCalGeometryESProducer::HGCalGeometryESProducer(const edm::ParameterSet& iConfi
   topologyToken_ = cc.consumes<HGCalTopology>(edm::ESInputTag{"", name});
 }
 
-
-HGCalGeometryESProducer::~HGCalGeometryESProducer() { }
-
+HGCalGeometryESProducer::~HGCalGeometryESProducer() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-HGCalGeometryESProducer::ReturnType
-HGCalGeometryESProducer::produce(const IdealGeometryRecord& iRecord ) {
-
+HGCalGeometryESProducer::ReturnType HGCalGeometryESProducer::produce(const IdealGeometryRecord& iRecord) {
   const auto& topo = iRecord.get(topologyToken_);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Create HGCalGeometry (*topo)";

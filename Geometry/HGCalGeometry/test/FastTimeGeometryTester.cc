@@ -18,17 +18,17 @@
 
 class FastTimeGeometryTester : public edm::one::EDAnalyzer<> {
 public:
-  explicit FastTimeGeometryTester(const edm::ParameterSet& );
+  explicit FastTimeGeometryTester(const edm::ParameterSet&);
   ~FastTimeGeometryTester() override;
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  
+
 private:
   void doTest(const FastTimeGeometry* geom, ForwardSubdetector subdet);
 
   edm::ESGetToken<FastTimeGeometry, IdealGeometryRecord> geomToken_;
-  std::string    name_;
-  int            type_;
+  std::string name_;
+  int type_;
 };
 
 FastTimeGeometryTester::FastTimeGeometryTester(const edm::ParameterSet& iC) {
@@ -37,12 +37,9 @@ FastTimeGeometryTester::FastTimeGeometryTester(const edm::ParameterSet& iC) {
   geomToken_ = esConsumes<FastTimeGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_});
 }
 
-
 FastTimeGeometryTester::~FastTimeGeometryTester() {}
 
-void FastTimeGeometryTester::analyze(const edm::Event& , 
-				     const edm::EventSetup& iSetup ) {
-
+void FastTimeGeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   ForwardSubdetector subdet = FastTime;
 
   const auto& geomR = iSetup.getData(geomToken_);
@@ -51,28 +48,25 @@ void FastTimeGeometryTester::analyze(const edm::Event& ,
   doTest(geom, subdet);
 }
 
-void FastTimeGeometryTester::doTest(const FastTimeGeometry* geom, 
-				    ForwardSubdetector subdet) {
-  
+void FastTimeGeometryTester::doTest(const FastTimeGeometry* geom, ForwardSubdetector subdet) {
   const std::vector<DetId>& ids = geom->getValidDetIds();
-  std::cout << ids.size() << " valid ids for " << geom->cellElement() 
-	    << std::endl;
+  std::cout << ids.size() << " valid ids for " << geom->cellElement() << std::endl;
 
-  int iEtaZ[]  = {1, 7, 13};
-  int iPhis[]  = {1, 5, 10};
+  int iEtaZ[] = {1, 7, 13};
+  int iPhis[] = {1, 5, 10};
   int zsides[] = {1, -1};
   for (int zside : zsides) {
     for (int etaZ : iEtaZ) {
       for (int phi : iPhis) {
-	DetId id1 = (DetId)(FastTimeDetId(type_,etaZ,phi,zside));
-	auto icell1 = geom->getGeometry(id1);
-	GlobalPoint global1 = geom->getPosition(id1);
-	DetId       idc1    = geom->getClosestCell(global1);
-	std::cout << "Input " << FastTimeDetId(id1) << " geometry " << icell1
-		  << " position (" << global1.x() << ", " << global1.y() 
-		  << ", " << global1.z() << " Output " << FastTimeDetId(idc1);
-	if (id1.rawId() != idc1.rawId()) std::cout << "  ***** ERROR *****";
-	std::cout << std::endl;
+        DetId id1 = (DetId)(FastTimeDetId(type_, etaZ, phi, zside));
+        auto icell1 = geom->getGeometry(id1);
+        GlobalPoint global1 = geom->getPosition(id1);
+        DetId idc1 = geom->getClosestCell(global1);
+        std::cout << "Input " << FastTimeDetId(id1) << " geometry " << icell1 << " position (" << global1.x() << ", "
+                  << global1.y() << ", " << global1.z() << " Output " << FastTimeDetId(idc1);
+        if (id1.rawId() != idc1.rawId())
+          std::cout << "  ***** ERROR *****";
+        std::cout << std::endl;
       }
     }
   }
