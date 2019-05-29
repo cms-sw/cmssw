@@ -1684,6 +1684,7 @@ private:
     std::shared_ptr<tensorflow::Tensor> tauBlockTensor_;
     std::array<std::shared_ptr<tensorflow::Tensor>, 2> eGammaTensor_, muonTensor_, hadronsTensor_,
                                                        convTensor_, zeroOutputTensor_;
+    TauIdMVAAuxiliaries clusterVariables;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
