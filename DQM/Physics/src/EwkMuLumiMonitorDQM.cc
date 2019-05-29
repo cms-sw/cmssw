@@ -34,24 +34,16 @@ using namespace reco;
 using namespace isodeposit;
 
 EwkMuLumiMonitorDQM::EwkMuLumiMonitorDQM(const ParameterSet& cfg)
-    :
-      // Input collections
-      trigTag_(cfg.getUntrackedParameter<edm::InputTag>(
-          "TrigTag", edm::InputTag("TriggerResults::HLT"))),
+    :  // Input collections
+      trigTag_(cfg.getUntrackedParameter<edm::InputTag>("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       trigToken_(consumes<edm::TriggerResults>(trigTag_)),
-      trigEvToken_(consumes<trigger::TriggerEvent>(
-          cfg.getUntrackedParameter<edm::InputTag>("triggerEvent"))),
-      beamSpotToken_(
-          consumes<reco::BeamSpot>(cfg.getUntrackedParameter<edm::InputTag>(
-              "offlineBeamSpot", edm::InputTag("offlineBeamSpot")))),
-      muonToken_(consumes<edm::View<reco::Muon> >(
-          cfg.getUntrackedParameter<edm::InputTag>("muons"))),
-      trackToken_(consumes<reco::TrackCollection>(
-          cfg.getUntrackedParameter<edm::InputTag>("tracks"))),
-      caloTowerToken_(consumes<CaloTowerCollection>(
-          cfg.getUntrackedParameter<edm::InputTag>("calotower"))),
-      metToken_(consumes<edm::View<reco::MET> >(
-          cfg.getUntrackedParameter<edm::InputTag>("metTag"))),
+      trigEvToken_(consumes<trigger::TriggerEvent>(cfg.getUntrackedParameter<edm::InputTag>("triggerEvent"))),
+      beamSpotToken_(consumes<reco::BeamSpot>(
+          cfg.getUntrackedParameter<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot")))),
+      muonToken_(consumes<edm::View<reco::Muon> >(cfg.getUntrackedParameter<edm::InputTag>("muons"))),
+      trackToken_(consumes<reco::TrackCollection>(cfg.getUntrackedParameter<edm::InputTag>("tracks"))),
+      caloTowerToken_(consumes<CaloTowerCollection>(cfg.getUntrackedParameter<edm::InputTag>("calotower"))),
+      metToken_(consumes<edm::View<reco::MET> >(cfg.getUntrackedParameter<edm::InputTag>("metTag"))),
       metIncludesMuons_(cfg.getUntrackedParameter<bool>("METIncludesMuons")),
       // Main cuts
       // massMin_(cfg.getUntrackedParameter<double>("MtMin", 20.)),
@@ -75,7 +67,6 @@ EwkMuLumiMonitorDQM::EwkMuLumiMonitorDQM(const ParameterSet& cfg)
       dxyCut_(cfg.getUntrackedParameter<double>("DxyCut")) {
   // just to initialize
   isValidHltConfig_ = false;
-
 }
 
 void EwkMuLumiMonitorDQM::dqmBeginRun(const Run& r, const EventSetup& iSetup) {
@@ -97,15 +88,12 @@ void EwkMuLumiMonitorDQM::dqmBeginRun(const Run& r, const EventSetup& iSetup) {
   bool isConfigChanged = false;
 
   // isValidHltConfig_ used to short-circuit analyze() in case of problems
-  isValidHltConfig_ =
-      hltConfigProvider_.init(r, iSetup, trigTag_.process(), isConfigChanged);
+  isValidHltConfig_ = hltConfigProvider_.init(r, iSetup, trigTag_.process(), isConfigChanged);
   // std::cout << "hlt config trigger is valid??" << isValidHltConfig_ <<
   // std::endl;
 }
 
-void EwkMuLumiMonitorDQM::bookHistograms(DQMStore::IBooker & ibooker,
-  edm::Run const &, edm::EventSetup const & ){
-
+void EwkMuLumiMonitorDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
   ibooker.setCurrentFolder("Physics/EwkMuLumiMonitorDQM");
 
   mass2HLT_ = ibooker.book1D("Z_2HLT_MASS", "Z mass [GeV/c^{2}]", 200, 0., 200.);
@@ -113,21 +101,15 @@ void EwkMuLumiMonitorDQM::bookHistograms(DQMStore::IBooker & ibooker,
   massNotIso_ = ibooker.book1D("Z_NOTISO_MASS", "Z mass [GeV/c^{2}]", 200, 0., 200.);
   massGlbSta_ = ibooker.book1D("Z_GLBSTA_MASS", "Z mass [GeV/c^{2}]", 200, 0., 200.);
   massGlbTrk_ = ibooker.book1D("Z_GLBTRK_MASS", "Z mass [GeV/c^{2}]", 200, 0., 200.);
-  massIsBothGlbTrkThanW_ = ibooker.book1D("Z_ISBOTHGLBTRKTHANW_MASS",
-      "Z mass [GeV/c^{2}]", 200, 0., 200.);
+  massIsBothGlbTrkThanW_ = ibooker.book1D("Z_ISBOTHGLBTRKTHANW_MASS", "Z mass [GeV/c^{2}]", 200, 0., 200.);
 
-  highMass2HLT_ = ibooker.book1D("Z_2HLT_HIGHMASS",
-      "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
-  highMass1HLT_ = ibooker.book1D("Z_1HLT_HIGHMASS",
-      "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
-  highMassNotIso_ = ibooker.book1D("Z_NOTISO_HIGHMASS",
-      "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
-  highMassGlbSta_ = ibooker.book1D("Z_GLBSTA_HIGHMASS",
-      "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
-  highMassGlbTrk_ = ibooker.book1D("Z_GLBTRK_HIGHMASS",
-      "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
-  highMassIsBothGlbTrkThanW_ = ibooker.book1D("Z_ISBOTHGLBTRKTHANW_HIGHMASS",
-      "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
+  highMass2HLT_ = ibooker.book1D("Z_2HLT_HIGHMASS", "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
+  highMass1HLT_ = ibooker.book1D("Z_1HLT_HIGHMASS", "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
+  highMassNotIso_ = ibooker.book1D("Z_NOTISO_HIGHMASS", "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
+  highMassGlbSta_ = ibooker.book1D("Z_GLBSTA_HIGHMASS", "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
+  highMassGlbTrk_ = ibooker.book1D("Z_GLBTRK_HIGHMASS", "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
+  highMassIsBothGlbTrkThanW_ =
+      ibooker.book1D("Z_ISBOTHGLBTRKTHANW_HIGHMASS", "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
 
   TMass_ = ibooker.book1D("TMASS", "Transverse mass [GeV]", 300, 0., 300.);
 }
@@ -138,7 +120,8 @@ double EwkMuLumiMonitorDQM::muIso(const reco::Muon& mu) {
     isovar += mu.isolationR03().emEt;
     isovar += mu.isolationR03().hadEt;
   }
-  if (isRelativeIso_) isovar /= mu.pt();
+  if (isRelativeIso_)
+    isovar /= mu.pt();
   return isovar;
 }
 
@@ -154,40 +137,46 @@ double EwkMuLumiMonitorDQM::tkIso(const reco::Track& tk,
     double elemVx = elem.vx();
     double elemVy = elem.vy();
     double elemD0 = sqrt(elemVx * elemVx + elemVy * elemVy);
-    if (elemD0 > 0.2) continue;
+    if (elemD0 > 0.2)
+      continue;
     double dz = fabs(elem.vz() - tk.vz());
-    if (dz > 0.1) continue;
+    if (dz > 0.1)
+      continue;
     // evaluate only for tracks with pt>ptTreshold
-    if (elemPt < ptThreshold_) continue;
+    if (elemPt < ptThreshold_)
+      continue;
     double dR = deltaR(elem.eta(), elem.phi(), tk.eta(), tk.phi());
     // isolation in a cone with dR=0.3, and vetoing the track itself
-    if ((dR < 0.01) || (dR > 0.3)) continue;
+    if ((dR < 0.01) || (dR > 0.3))
+      continue;
     ptSum += elemPt;
   }
   if (isCombinedIso_) {
     // loop on clusters....
-    for (CaloTowerCollection::const_iterator it = calotower->begin();
-         it != calotower->end(); ++it) {
+    for (CaloTowerCollection::const_iterator it = calotower->begin(); it != calotower->end(); ++it) {
       double dR = deltaR(it->eta(), it->phi(), tk.outerEta(), tk.outerPhi());
       // veto value is 0.1 for towers....
-      if ((dR < 0.1) || (dR > 0.3)) continue;
+      if ((dR < 0.1) || (dR > 0.3))
+        continue;
       ptSum += it->emEnergy();
       ptSum += it->hadEnergy();
     }
   }
-  if (isRelativeIso_) ptSum /= tk.pt();
+  if (isRelativeIso_)
+    ptSum /= tk.pt();
   return ptSum;
 }
 
-bool EwkMuLumiMonitorDQM::IsMuMatchedToHLTMu(
-    const reco::Muon& mu, const std::vector<reco::Particle>& HLTMu, double DR,
-    double DPtRel) {
+bool EwkMuLumiMonitorDQM::IsMuMatchedToHLTMu(const reco::Muon& mu,
+                                             const std::vector<reco::Particle>& HLTMu,
+                                             double DR,
+                                             double DPtRel) {
   size_t dim = HLTMu.size();
   size_t nPass = 0;
-  if (dim == 0) return false;
+  if (dim == 0)
+    return false;
   for (size_t k = 0; k < dim; k++) {
-    if ((deltaR(HLTMu[k], mu) < DR) &&
-        (fabs(HLTMu[k].pt() - mu.pt()) / HLTMu[k].pt() < DPtRel)) {
+    if ((deltaR(HLTMu[k], mu) < DR) && (fabs(HLTMu[k].pt() - mu.pt()) / HLTMu[k].pt() < DPtRel)) {
       nPass++;
     }
   }
@@ -195,20 +184,15 @@ bool EwkMuLumiMonitorDQM::IsMuMatchedToHLTMu(
 }
 
 void EwkMuLumiMonitorDQM::endRun(const Run& r, const EventSetup&) {
-
   LogVerbatim("") << "\n>>>>>> Z/W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
   LogVerbatim("") << "Total numer of events analyzed: " << nall << " [events]";
   LogVerbatim("") << "Total numer of events selected: " << nsel << " [events]";
 
   LogVerbatim("") << "Passing HLT criteria:           " << nhlt << " [events] ";
-  LogVerbatim("") << "Passing 2 HLT match criteria:           " << n2hlt
-                  << " [events] ";
-  LogVerbatim("") << "Passing 1 HLT match criteria:           " << n1hlt
-                  << " [events] ";
-  LogVerbatim("") << "Passing Not Iso criteria:           " << nNotIso
-                  << " [events] ";
-  LogVerbatim("") << "Passing GlbSta criteria:           " << nGlbSta
-                  << " [events] ";
+  LogVerbatim("") << "Passing 2 HLT match criteria:           " << n2hlt << " [events] ";
+  LogVerbatim("") << "Passing 1 HLT match criteria:           " << n1hlt << " [events] ";
+  LogVerbatim("") << "Passing Not Iso criteria:           " << nNotIso << " [events] ";
+  LogVerbatim("") << "Passing GlbSta criteria:           " << nGlbSta << " [events] ";
   LogVerbatim("") << "Passing W criteria:           " << nTMass << " [events] ";
   LogVerbatim("") << ">>>>>> Z/W SELECTION SUMMARY END   >>>>>>>>>>>>>>>\n";
 }
@@ -255,8 +239,7 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
   // see the trigger single muon which are present
   string lowestMuonUnprescaledTrig = "";
   bool lowestMuonUnprescaledTrigFound = false;
-  const std::vector<std::string>& triggerNames =
-      hltConfigProvider_.triggerNames();
+  const std::vector<std::string>& triggerNames = hltConfigProvider_.triggerNames();
   for (size_t ts = 0; ts < triggerNames.size(); ts++) {
     string trig = triggerNames[ts];
     size_t f = trig.find("HLT_Mu");
@@ -267,9 +250,9 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
       bool prescaled = false;
       const unsigned int prescaleSize = hltConfigProvider_.prescaleSize();
       for (unsigned int ps = 0; ps < prescaleSize; ps++) {
-        const unsigned int prescaleValue =
-            hltConfigProvider_.prescaleValue(ps, trig);
-        if (prescaleValue != 1) prescaled = true;
+        const unsigned int prescaleValue = hltConfigProvider_.prescaleValue(ps, trig);
+        if (prescaleValue != 1)
+          prescaled = true;
         //	std::cout<< " prescaleValue[" << ps << "] =" << prescaleValue
         //<<std::endl;
       }
@@ -290,21 +273,29 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
             oout << v;
             std::string ss = oout.str();
             lowestTrig.append(ss);
-            if (trig == lowestTrig) lowestMuonUnprescaledTrig = trig;
-            if (trig == lowestTrig) lowestMuonUnprescaledTrigFound = true;
-            if (trig == lowestTrig) break;
+            if (trig == lowestTrig)
+              lowestMuonUnprescaledTrig = trig;
+            if (trig == lowestTrig)
+              lowestMuonUnprescaledTrigFound = true;
+            if (trig == lowestTrig)
+              break;
           }
-          if (lowestMuonUnprescaledTrigFound) break;
+          if (lowestMuonUnprescaledTrigFound)
+            break;
 
           lowestTrig = lowestTrigv0;
-          if (trig == lowestTrig) lowestMuonUnprescaledTrig = trig;
+          if (trig == lowestTrig)
+            lowestMuonUnprescaledTrig = trig;
           //      if (trig==lowestTrig) {std::cout << " before break, lowestTrig
           // lowest single muon trigger present unprescaled: " << lowestTrig <<
           // std::endl; }
-          if (trig == lowestTrig) lowestMuonUnprescaledTrigFound = true;
-          if (trig == lowestTrig) break;
+          if (trig == lowestTrig)
+            lowestMuonUnprescaledTrigFound = true;
+          if (trig == lowestTrig)
+            break;
         }
-        if (lowestMuonUnprescaledTrigFound) break;
+        if (lowestMuonUnprescaledTrigFound)
+          break;
       }
     }
   }
@@ -320,8 +311,7 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
     trigger_fired = triggerResults->accept(triggerIndex);
   std::string L3FilterName_ = "";
   if (trigger_fired) {
-    const std::vector<std::string>& moduleLabs =
-        hltConfigProvider_.moduleLabels(hltPath_);
+    const std::vector<std::string>& moduleLabs = hltConfigProvider_.moduleLabels(hltPath_);
     /*for (size_t k =0; k < moduleLabs.size()-1 ; k++){
       std::cout << "moduleLabs[" << k << "] == " << moduleLabs[k] << std::endl;
     }
@@ -335,8 +325,7 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
   }
 
   edm::Handle<trigger::TriggerEvent> handleTriggerEvent;
-  LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << hltPath_
-               << ")";
+  LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << hltPath_ << ")";
   if (!ev.getByToken(trigEvToken_, handleTriggerEvent)) {
     // LogWarning( "errorTriggerEventValid" ) << "trigger::TriggerEvent product
     // with InputTag " << trigEv_.encode() << " not in event";
@@ -399,12 +388,15 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
       if (mu.isGlobalMuon()) {
         // check the dxy....
         double dxy = mu.innerTrack()->dxy(beamSpotHandle->position());
-        if (fabs(dxy) > dxyCut_) continue;
+        if (fabs(dxy) > dxyCut_)
+          continue;
         highPtGlbMuons.push_back(mu);
       }
-      if (mu.isGlobalMuon()) continue;
+      if (mu.isGlobalMuon())
+        continue;
       // if is not, look if it is a standalone....
-      if (mu.isStandAloneMuon()) highPtStaMuons.push_back(mu);
+      if (mu.isStandAloneMuon())
+        highPtStaMuons.push_back(mu);
       nEvWithHighPtMu++;
     }
   }
@@ -425,7 +417,8 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
           reco::Muon muon2 = highPtGlbMuons[j];
           const math::XYZTLorentzVector& mu2(muon2.p4());
           // double pt2= muon2.pt();
-          if (muon1.charge() == muon2.charge()) continue;
+          if (muon1.charge() == muon2.charge())
+            continue;
           math::XYZTLorentzVector pair = mu1 + mu2;
           double mass = pair.M();
           // checking isolation and hlt maching
@@ -433,13 +426,11 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
           iso2 = muIso(muon2);
           isMu1Iso = (iso1 < isoCut03_);
           isMu2Iso = (iso2 < isoCut03_);
-          singleTrigFlag1 =
-              IsMuMatchedToHLTMu(muon1, HLTMuMatched, maxDeltaR_, maxDPtRel_);
-          singleTrigFlag2 =
-              IsMuMatchedToHLTMu(muon2, HLTMuMatched, maxDeltaR_, maxDPtRel_);
-          if (singleTrigFlag1 && singleTrigFlag2) isZGolden2HLT_ = true;
-          if ((singleTrigFlag1 && !singleTrigFlag2) ||
-              (!singleTrigFlag1 && singleTrigFlag2))
+          singleTrigFlag1 = IsMuMatchedToHLTMu(muon1, HLTMuMatched, maxDeltaR_, maxDPtRel_);
+          singleTrigFlag2 = IsMuMatchedToHLTMu(muon2, HLTMuMatched, maxDeltaR_, maxDPtRel_);
+          if (singleTrigFlag1 && singleTrigFlag2)
+            isZGolden2HLT_ = true;
+          if ((singleTrigFlag1 && !singleTrigFlag2) || (!singleTrigFlag1 && singleTrigFlag2))
             isZGolden1HLT_ = true;
           // Z Golden passing all criteria, with 2 or 1 muon matched to an HLT
           // muon. Using the two cathegories as a control sample for the HLT
@@ -488,8 +479,7 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
               // at least one HLT matched, used as control sample for the
               // isolation efficiency
               // filling events with one muon not isolated and both hlt mathced
-              if (((isMu1Iso && !isMu2Iso) || (!isMu1Iso && isMu2Iso)) &&
-                  (isZGolden2HLT_ && isZGolden1HLT_)) {
+              if (((isMu1Iso && !isMu2Iso) || (!isMu1Iso && isMu2Iso)) && (isZGolden2HLT_ && isZGolden1HLT_)) {
                 isZGoldenNoIso_ = true;
                 nNotIso++;
                 massNotIso_->Fill(mass);
@@ -536,11 +526,12 @@ if (!quality) continue;
         // isolation cut and hlt maching
         iso1 = muIso(muon1);
         isMu1Iso = (iso1 < isoCut03_);
-        if (!isMu1Iso) continue;
+        if (!isMu1Iso)
+          continue;
         // checking if muon is matched to any HLT muon....
-        singleTrigFlag1 =
-            IsMuMatchedToHLTMu(muon1, HLTMuMatched, maxDeltaR_, maxDPtRel_);
-        if (!singleTrigFlag1) continue;
+        singleTrigFlag1 = IsMuMatchedToHLTMu(muon1, HLTMuMatched, maxDeltaR_, maxDPtRel_);
+        if (!singleTrigFlag1)
+          continue;
         // std::cout << " is GlobMu macthecd to HLT: " << singleTrigFlag1 <<
         // std::endl;
         // MT cuts
@@ -555,8 +546,7 @@ if (!quality) continue;
           }
         }
         double met_et = met.pt();  // sqrt(met_px*met_px+met_py*met_py);
-        LogTrace("") << ">>> MET, MET_px, MET_py: " << met_et << ", " << met_px
-                     << ", " << met_py << " [GeV]";
+        LogTrace("") << ">>> MET, MET_px, MET_py: " << met_et << ", " << met_px << ", " << met_py << " [GeV]";
         double w_et = met_et + muon1.pt();
         double w_px = met_px + muon1.px();
         double w_py = met_py + muon1.py();
@@ -567,9 +557,11 @@ if (!quality) continue;
         double acop = M_PI - fabs(deltaphi.value());
         // std::cout << " is acp of W candidate less then cut: " << (acop<
         // acopCut_) << std::endl;
-        if (acop > acopCut_) continue;  // Cut in 2.0
+        if (acop > acopCut_)
+          continue;  // Cut in 2.0
         TMass_->Fill(massT);
-        if (massT < mtMin_ || massT > mtMax_) continue;  // Cut in (50,200) GeV
+        if (massT < mtMin_ || massT > mtMax_)
+          continue;  // Cut in (50,200) GeV
         // we give the number of W only in the tMass selected but we have a look
         // at mass tails to check the QCD background
         isW_ = true;
@@ -586,14 +578,15 @@ if (!quality) continue;
         const math::XYZTLorentzVector& mu1(glbMuon.p4());
         // double pt1= glbMuon.pt();
         // checking that the global muon is hlt matched otherwise skip the event
-        singleTrigFlag1 =
-            IsMuMatchedToHLTMu(glbMuon, HLTMuMatched, maxDeltaR_, maxDPtRel_);
-        if (!singleTrigFlag1) continue;
+        singleTrigFlag1 = IsMuMatchedToHLTMu(glbMuon, HLTMuMatched, maxDeltaR_, maxDPtRel_);
+        if (!singleTrigFlag1)
+          continue;
         // checking that the global muon is isolated matched otherwise skip the
         // event
         iso1 = muIso(glbMuon);
         isMu1Iso = (iso1 < isoCut03_);
-        if (!isMu1Iso) continue;
+        if (!isMu1Iso)
+          continue;
         // look at the standalone muon ....
         // stop the loop after 10 cicles....
         (nHighPtStaMu > 10) ? nHighPtStaMu = 10 : 1;
@@ -601,15 +594,14 @@ if (!quality) continue;
           reco::Muon staMuon = highPtStaMuons[j];
           const math::XYZTLorentzVector& mu2(staMuon.p4());
           // double pt2= staMuon.pt();
-          if (glbMuon.charge() == staMuon.charge()) continue;
+          if (glbMuon.charge() == staMuon.charge())
+            continue;
           math::XYZTLorentzVector pair = mu1 + mu2;
           double mass = pair.M();
           iso2 = muIso(staMuon);
           isMu2Iso = (iso2 < isoCut03_);
-          LogTrace("") << "\t... isolation value" << iso1 << ", isolated? "
-                       << isMu1Iso;
-          LogTrace("") << "\t... isolation value" << iso2 << ", isolated? "
-                       << isMu2Iso;
+          LogTrace("") << "\t... isolation value" << iso1 << ", isolated? " << isMu1Iso;
+          LogTrace("") << "\t... isolation value" << iso2 << ", isolated? " << isMu2Iso;
           // requiring theat the global mu is mathed to the HLT  and both are
           // isolated
           if (isMu2Iso) {
@@ -646,16 +638,15 @@ if (!quality) continue;
         (nTrk > 5000) ? nTrk = 5000 : 1;
         for (unsigned int j = 0; j < nTrk; j++) {
           const reco::Track& tk = tracks->at(j);
-          if (glbMuon.charge() == tk.charge()) continue;
+          if (glbMuon.charge() == tk.charge())
+            continue;
           double pt2 = tk.pt();
           double eta = tk.eta();
           double dxy = tk.dxy(beamSpotHandle->position());
           if (pt2 < ptMuCut_ || fabs(eta) > etaMuCut_ || fabs(dxy) > dxyCut_)
             continue;
           // assuming that the track is a mu....
-          math::XYZTLorentzVector mu2(
-              tk.px(), tk.py(), tk.pz(),
-              sqrt((tk.p() * tk.p()) + (0.10566 * 0.10566)));
+          math::XYZTLorentzVector mu2(tk.px(), tk.py(), tk.pz(), sqrt((tk.p() * tk.p()) + (0.10566 * 0.10566)));
           math::XYZTLorentzVector pair = mu1 + mu2;
           double mass = pair.M();
           // now requiring that the tracks is isolated.......
@@ -668,7 +659,8 @@ if (!quality) continue;
             nGlbTrk++;
             massGlbTrk_->Fill(mass);
             highMassGlbTrk_->Fill(mass);
-            if (!isW_) continue;
+            if (!isW_)
+              continue;
             massIsBothGlbTrkThanW_->Fill(mass);
             highMassIsBothGlbTrkThanW_->Fill(mass);
             /*
@@ -685,8 +677,7 @@ if (!quality) continue;
       }
     }
   }
-  if ((hlt_sel || isZGolden2HLT_ || isZGolden1HLT_ || isZGoldenNoIso_ ||
-       isZGlbSta_ || isZGlbTrk_ || isW_)) {
+  if ((hlt_sel || isZGolden2HLT_ || isZGolden1HLT_ || isZGoldenNoIso_ || isZGlbSta_ || isZGlbTrk_ || isW_)) {
     nsel++;
     LogTrace("") << ">>>> Event ACCEPTED";
   } else {
