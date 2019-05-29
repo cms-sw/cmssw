@@ -29,147 +29,145 @@
 #include <TH1D.h>
 #include <TH2D.h>
 
-class AnalyzerClusterStub : public edm::EDAnalyzer
-{
+class AnalyzerClusterStub : public edm::EDAnalyzer {
   /// Public methods
-  public:
-    /// Constructor/destructor
-    explicit AnalyzerClusterStub(const edm::ParameterSet& iConfig);
-    virtual ~AnalyzerClusterStub();
-    // Typical methods used on Loops over events
-    virtual void beginJob();
-    virtual void endJob();
-    virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+public:
+  /// Constructor/destructor
+  explicit AnalyzerClusterStub(const edm::ParameterSet& iConfig);
+  virtual ~AnalyzerClusterStub();
+  // Typical methods used on Loops over events
+  virtual void beginJob();
+  virtual void endJob();
+  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   /// Private methods and variables
-  private:
+private:
+  /// TrackingParticle and TrackingVertex
+  TH2D* hSimVtx_XY;
+  TH2D* hSimVtx_RZ;
 
-    /// TrackingParticle and TrackingVertex
-    TH2D* hSimVtx_XY;
-    TH2D* hSimVtx_RZ;
+  TH1D* hTPart_Pt;
+  TH1D* hTPart_Eta_Pt10;
+  TH1D* hTPart_Phi_Pt10;
 
-    TH1D* hTPart_Pt;
-    TH1D* hTPart_Eta_Pt10;
-    TH1D* hTPart_Phi_Pt10;
+  /// Global positions of TTClusters
+  TH2D* hCluster_Barrel_XY;
+  TH2D* hCluster_Barrel_XY_Zoom;
+  TH2D* hCluster_Endcap_Fw_XY;
+  TH2D* hCluster_Endcap_Bw_XY;
+  TH2D* hCluster_RZ;
+  TH2D* hCluster_Endcap_Fw_RZ_Zoom;
+  TH2D* hCluster_Endcap_Bw_RZ_Zoom;
 
-    /// Global positions of TTClusters
-    TH2D* hCluster_Barrel_XY;
-    TH2D* hCluster_Barrel_XY_Zoom;
-    TH2D* hCluster_Endcap_Fw_XY;
-    TH2D* hCluster_Endcap_Bw_XY;
-    TH2D* hCluster_RZ;
-    TH2D* hCluster_Endcap_Fw_RZ_Zoom;
-    TH2D* hCluster_Endcap_Bw_RZ_Zoom;
+  TH1D* hCluster_IMem_Barrel;
+  TH1D* hCluster_IMem_Endcap;
+  TH1D* hCluster_OMem_Barrel;
+  TH1D* hCluster_OMem_Endcap;
 
-    TH1D* hCluster_IMem_Barrel;
-    TH1D* hCluster_IMem_Endcap;
-    TH1D* hCluster_OMem_Barrel;
-    TH1D* hCluster_OMem_Endcap;
+  TH1D* hCluster_Gen_Barrel;
+  TH1D* hCluster_Unkn_Barrel;
+  TH1D* hCluster_Comb_Barrel;
+  TH1D* hCluster_Gen_Endcap;
+  TH1D* hCluster_Unkn_Endcap;
+  TH1D* hCluster_Comb_Endcap;
 
-    TH1D* hCluster_Gen_Barrel;
-    TH1D* hCluster_Unkn_Barrel;
-    TH1D* hCluster_Comb_Barrel;
-    TH1D* hCluster_Gen_Endcap;
-    TH1D* hCluster_Unkn_Endcap;
-    TH1D* hCluster_Comb_Endcap;
+  TH1D* hCluster_Gen_Eta;
+  TH1D* hCluster_Unkn_Eta;
+  TH1D* hCluster_Comb_Eta;
 
-    TH1D* hCluster_Gen_Eta;
-    TH1D* hCluster_Unkn_Eta;
-    TH1D* hCluster_Comb_Eta;
+  TH2D* hCluster_PID;
+  TH2D* hCluster_W;
 
-    TH2D* hCluster_PID;
-    TH2D* hCluster_W;
+  TH1D* hTPart_Eta_INormalization;
+  TH1D* hTPart_Eta_ICW_1;
+  TH1D* hTPart_Eta_ICW_2;
+  TH1D* hTPart_Eta_ICW_3;
+  TH1D* hTPart_Eta_ONormalization;
+  TH1D* hTPart_Eta_OCW_1;
+  TH1D* hTPart_Eta_OCW_2;
+  TH1D* hTPart_Eta_OCW_3;
 
-    TH1D* hTPart_Eta_INormalization;
-    TH1D* hTPart_Eta_ICW_1;
-    TH1D* hTPart_Eta_ICW_2;
-    TH1D* hTPart_Eta_ICW_3;
-    TH1D* hTPart_Eta_ONormalization;
-    TH1D* hTPart_Eta_OCW_1;
-    TH1D* hTPart_Eta_OCW_2;
-    TH1D* hTPart_Eta_OCW_3;
+  /// Global positions of TTStubs
+  TH2D* hStub_Barrel_XY;
+  TH2D* hStub_Barrel_XY_Zoom;
+  TH2D* hStub_Endcap_Fw_XY;
+  TH2D* hStub_Endcap_Bw_XY;
+  TH2D* hStub_RZ;
+  TH2D* hStub_Endcap_Fw_RZ_Zoom;
+  TH2D* hStub_Endcap_Bw_RZ_Zoom;
 
-    /// Global positions of TTStubs
-    TH2D* hStub_Barrel_XY;
-    TH2D* hStub_Barrel_XY_Zoom;
-    TH2D* hStub_Endcap_Fw_XY;
-    TH2D* hStub_Endcap_Bw_XY;
-    TH2D* hStub_RZ;
-    TH2D* hStub_Endcap_Fw_RZ_Zoom;
-    TH2D* hStub_Endcap_Bw_RZ_Zoom;
+  TH1D* hStub_Barrel;
+  TH1D* hStub_Endcap;
 
-    TH1D* hStub_Barrel;
-    TH1D* hStub_Endcap;
+  TH1D* hStub_Gen_Barrel;
+  TH1D* hStub_Unkn_Barrel;
+  TH1D* hStub_Comb_Barrel;
+  TH1D* hStub_Gen_Endcap;
+  TH1D* hStub_Unkn_Endcap;
+  TH1D* hStub_Comb_Endcap;
 
-    TH1D* hStub_Gen_Barrel;
-    TH1D* hStub_Unkn_Barrel;
-    TH1D* hStub_Comb_Barrel;
-    TH1D* hStub_Gen_Endcap;
-    TH1D* hStub_Unkn_Endcap;
-    TH1D* hStub_Comb_Endcap;
+  TH1D* hStub_Gen_Eta;
+  TH1D* hStub_Unkn_Eta;
+  TH1D* hStub_Comb_Eta;
 
-    TH1D* hStub_Gen_Eta;
-    TH1D* hStub_Unkn_Eta;
-    TH1D* hStub_Comb_Eta;
+  TH1D* hStub_PID;
+  TH2D* hStub_Barrel_W;
+  TH2D* hStub_Barrel_O;
+  TH2D* hStub_Endcap_W;
+  TH2D* hStub_Endcap_O;
 
-    TH1D* hStub_PID;
-    TH2D* hStub_Barrel_W;
-    TH2D* hStub_Barrel_O;
-    TH2D* hStub_Endcap_W;
-    TH2D* hStub_Endcap_O;
+  /// Stub finding coverage
+  TH1D* hTPart_Eta_Pt10_Normalization;
+  TH1D* hTPart_Eta_Pt10_NumPS;
+  TH1D* hTPart_Eta_Pt10_Num2S;
 
-    /// Stub finding coverage
-    TH1D* hTPart_Eta_Pt10_Normalization;
-    TH1D* hTPart_Eta_Pt10_NumPS;
-    TH1D* hTPart_Eta_Pt10_Num2S;
+  /// Denominator for Stub Prod Eff
+  std::map<unsigned int, TH1D*> mapCluLayer_hTPart_Pt;
+  std::map<unsigned int, TH1D*> mapCluLayer_hTPart_Eta_Pt10;
+  std::map<unsigned int, TH1D*> mapCluLayer_hTPart_Phi_Pt10;
+  std::map<unsigned int, TH1D*> mapCluDisk_hTPart_Pt;
+  std::map<unsigned int, TH1D*> mapCluDisk_hTPart_Eta_Pt10;
+  std::map<unsigned int, TH1D*> mapCluDisk_hTPart_Phi_Pt10;
+  /// Numerator for Stub Prod Eff
+  std::map<unsigned int, TH1D*> mapStubLayer_hTPart_Pt;
+  std::map<unsigned int, TH1D*> mapStubLayer_hTPart_Eta_Pt10;
+  std::map<unsigned int, TH1D*> mapStubLayer_hTPart_Phi_Pt10;
+  std::map<unsigned int, TH1D*> mapStubDisk_hTPart_Pt;
+  std::map<unsigned int, TH1D*> mapStubDisk_hTPart_Eta_Pt10;
+  std::map<unsigned int, TH1D*> mapStubDisk_hTPart_Phi_Pt10;
 
-    /// Denominator for Stub Prod Eff
-    std::map< unsigned int, TH1D* > mapCluLayer_hTPart_Pt;
-    std::map< unsigned int, TH1D* > mapCluLayer_hTPart_Eta_Pt10;
-    std::map< unsigned int, TH1D* > mapCluLayer_hTPart_Phi_Pt10;
-    std::map< unsigned int, TH1D* > mapCluDisk_hTPart_Pt;
-    std::map< unsigned int, TH1D* > mapCluDisk_hTPart_Eta_Pt10;
-    std::map< unsigned int, TH1D* > mapCluDisk_hTPart_Phi_Pt10;
-    /// Numerator for Stub Prod Eff
-    std::map< unsigned int, TH1D* > mapStubLayer_hTPart_Pt;
-    std::map< unsigned int, TH1D* > mapStubLayer_hTPart_Eta_Pt10;
-    std::map< unsigned int, TH1D* > mapStubLayer_hTPart_Phi_Pt10;
-    std::map< unsigned int, TH1D* > mapStubDisk_hTPart_Pt;
-    std::map< unsigned int, TH1D* > mapStubDisk_hTPart_Eta_Pt10;
-    std::map< unsigned int, TH1D* > mapStubDisk_hTPart_Phi_Pt10;
+  /// Comparison of Stubs to TrackingParticles
+  std::map<unsigned int, TH2D*> mapStubLayer_hStub_InvPt_TPart_InvPt;
+  std::map<unsigned int, TH2D*> mapStubLayer_hStub_Pt_TPart_Pt;
+  std::map<unsigned int, TH2D*> mapStubLayer_hStub_Eta_TPart_Eta;
+  std::map<unsigned int, TH2D*> mapStubLayer_hStub_Phi_TPart_Phi;
+  std::map<unsigned int, TH2D*> mapStubDisk_hStub_InvPt_TPart_InvPt;
+  std::map<unsigned int, TH2D*> mapStubDisk_hStub_Pt_TPart_Pt;
+  std::map<unsigned int, TH2D*> mapStubDisk_hStub_Eta_TPart_Eta;
+  std::map<unsigned int, TH2D*> mapStubDisk_hStub_Phi_TPart_Phi;
 
-    /// Comparison of Stubs to TrackingParticles
-    std::map< unsigned int, TH2D* > mapStubLayer_hStub_InvPt_TPart_InvPt;
-    std::map< unsigned int, TH2D* > mapStubLayer_hStub_Pt_TPart_Pt;
-    std::map< unsigned int, TH2D* > mapStubLayer_hStub_Eta_TPart_Eta;
-    std::map< unsigned int, TH2D* > mapStubLayer_hStub_Phi_TPart_Phi;
-    std::map< unsigned int, TH2D* > mapStubDisk_hStub_InvPt_TPart_InvPt;
-    std::map< unsigned int, TH2D* > mapStubDisk_hStub_Pt_TPart_Pt;
-    std::map< unsigned int, TH2D* > mapStubDisk_hStub_Eta_TPart_Eta;
-    std::map< unsigned int, TH2D* > mapStubDisk_hStub_Phi_TPart_Phi;
+  /// Residuals
+  std::map<unsigned int, TH2D*> mapStubLayer_hStub_InvPtRes_TPart_Eta;
+  std::map<unsigned int, TH2D*> mapStubLayer_hStub_PtRes_TPart_Eta;
+  std::map<unsigned int, TH2D*> mapStubLayer_hStub_EtaRes_TPart_Eta;
+  std::map<unsigned int, TH2D*> mapStubLayer_hStub_PhiRes_TPart_Eta;
+  std::map<unsigned int, TH2D*> mapStubDisk_hStub_InvPtRes_TPart_Eta;
+  std::map<unsigned int, TH2D*> mapStubDisk_hStub_PtRes_TPart_Eta;
+  std::map<unsigned int, TH2D*> mapStubDisk_hStub_EtaRes_TPart_Eta;
+  std::map<unsigned int, TH2D*> mapStubDisk_hStub_PhiRes_TPart_Eta;
 
-    /// Residuals
-    std::map< unsigned int, TH2D* > mapStubLayer_hStub_InvPtRes_TPart_Eta;
-    std::map< unsigned int, TH2D* > mapStubLayer_hStub_PtRes_TPart_Eta;
-    std::map< unsigned int, TH2D* > mapStubLayer_hStub_EtaRes_TPart_Eta;
-    std::map< unsigned int, TH2D* > mapStubLayer_hStub_PhiRes_TPart_Eta;
-    std::map< unsigned int, TH2D* > mapStubDisk_hStub_InvPtRes_TPart_Eta;
-    std::map< unsigned int, TH2D* > mapStubDisk_hStub_PtRes_TPart_Eta;
-    std::map< unsigned int, TH2D* > mapStubDisk_hStub_EtaRes_TPart_Eta;
-    std::map< unsigned int, TH2D* > mapStubDisk_hStub_PhiRes_TPart_Eta;
+  /// Stub Width vs Pt
+  std::map<unsigned int, TH2D*> mapStubLayer_hStub_W_TPart_Pt;
+  std::map<unsigned int, TH2D*> mapStubLayer_hStub_W_TPart_InvPt;
+  std::map<unsigned int, TH2D*> mapStubDisk_hStub_W_TPart_Pt;
+  std::map<unsigned int, TH2D*> mapStubDisk_hStub_W_TPart_InvPt;
 
-    /// Stub Width vs Pt
-    std::map< unsigned int, TH2D* > mapStubLayer_hStub_W_TPart_Pt;
-    std::map< unsigned int, TH2D* > mapStubLayer_hStub_W_TPart_InvPt;
-    std::map< unsigned int, TH2D* > mapStubDisk_hStub_W_TPart_Pt;
-    std::map< unsigned int, TH2D* > mapStubDisk_hStub_W_TPart_InvPt;
+  /// Containers of parameters passed by python
+  /// configuration file
+  edm::ParameterSet config;
 
-    /// Containers of parameters passed by python
-    /// configuration file
-    edm::ParameterSet config;
-
-    bool testedGeometry;
-    bool DebugMode;
+  bool testedGeometry;
+  bool DebugMode;
 };
 
 //////////////////////////////////
@@ -180,24 +178,21 @@ class AnalyzerClusterStub : public edm::EDAnalyzer
 
 //////////////
 // CONSTRUCTOR
-AnalyzerClusterStub::AnalyzerClusterStub(edm::ParameterSet const& iConfig) : 
-  config(iConfig)
-{
+AnalyzerClusterStub::AnalyzerClusterStub(edm::ParameterSet const& iConfig) : config(iConfig) {
   /// Insert here what you need to initialize
-  DebugMode = iConfig.getParameter< bool >("DebugMode");
+  DebugMode = iConfig.getParameter<bool>("DebugMode");
 }
 
 /////////////
 // DESTRUCTOR
-AnalyzerClusterStub::~AnalyzerClusterStub()
-{
+AnalyzerClusterStub::~AnalyzerClusterStub() {
   /// Insert here what you need to delete
   /// when you close the class instance
-}  
+}
 
 //////////
 // END JOB
-void AnalyzerClusterStub::endJob()//edm::Run& run, const edm::EventSetup& iSetup
+void AnalyzerClusterStub::endJob()  //edm::Run& run, const edm::EventSetup& iSetup
 {
   /// Things to be done at the exit of the event Loop
   std::cerr << " AnalyzerClusterStub::endJob" << std::endl;
@@ -206,8 +201,7 @@ void AnalyzerClusterStub::endJob()//edm::Run& run, const edm::EventSetup& iSetup
 
 ////////////
 // BEGIN JOB
-void AnalyzerClusterStub::beginJob()
-{
+void AnalyzerClusterStub::beginJob() {
   /// Initialize all slave variables
   /// mainly histogram ranges and resolution
   testedGeometry = false;
@@ -226,34 +220,38 @@ void AnalyzerClusterStub::beginJob()
   double MinPt = 0.0;
   double MaxPt = 100.0;
 
-  double* BinVec = new double[NumBins+1];
-  for ( int iBin = 0; iBin < NumBins + 1; iBin++ )
-  {
-    double temp = pow( 10, (- NumBins + iBin)/(MaxPt - MinPt)  );
-    BinVec[ iBin ] = temp;
+  double* BinVec = new double[NumBins + 1];
+  for (int iBin = 0; iBin < NumBins + 1; iBin++) {
+    double temp = pow(10, (-NumBins + iBin) / (MaxPt - MinPt));
+    BinVec[iBin] = temp;
   }
 
   /// TrackingParticle and TrackingVertex
-  hSimVtx_XY      = fs->make<TH2D>( "hSimVtx_XY", "SimVtx y vs. x",    200, -0.4, 0.4, 200, -0.4, 0.4 );
-  hSimVtx_RZ      = fs->make<TH2D>( "hSimVtx_RZ", "SimVtx #rho vs. z", 200,  -50,  50, 200,    0, 0.4 );
+  hSimVtx_XY = fs->make<TH2D>("hSimVtx_XY", "SimVtx y vs. x", 200, -0.4, 0.4, 200, -0.4, 0.4);
+  hSimVtx_RZ = fs->make<TH2D>("hSimVtx_RZ", "SimVtx #rho vs. z", 200, -50, 50, 200, 0, 0.4);
   hSimVtx_XY->Sumw2();
   hSimVtx_RZ->Sumw2();
 
-  hTPart_Pt       = fs->make<TH1D>( "hTPart_Pt",       "TPart p_{T}",                   200,     0,   50 );
-  hTPart_Eta_Pt10 = fs->make<TH1D>( "hTPart_Eta_Pt10", "TPart #eta (p_{T} > 10 GeV/c)", 180, -M_PI, M_PI );
-  hTPart_Phi_Pt10 = fs->make<TH1D>( "hTPart_Phi_Pt10", "TPart #phi (p_{T} > 10 GeV/c)", 180, -M_PI, M_PI );
+  hTPart_Pt = fs->make<TH1D>("hTPart_Pt", "TPart p_{T}", 200, 0, 50);
+  hTPart_Eta_Pt10 = fs->make<TH1D>("hTPart_Eta_Pt10", "TPart #eta (p_{T} > 10 GeV/c)", 180, -M_PI, M_PI);
+  hTPart_Phi_Pt10 = fs->make<TH1D>("hTPart_Phi_Pt10", "TPart #phi (p_{T} > 10 GeV/c)", 180, -M_PI, M_PI);
   hTPart_Pt->Sumw2();
   hTPart_Eta_Pt10->Sumw2();
   hTPart_Phi_Pt10->Sumw2();
 
   /// Global position of TTCluster
-  hCluster_Barrel_XY          = fs->make<TH2D>( "hCluster_Barrel_XY",         "TTCluster Barrel y vs. x",              960, -120,  120, 960, -120, 120 );
-  hCluster_Barrel_XY_Zoom     = fs->make<TH2D>( "hCluster_Barrel_XY_Zoom",    "TTCluster Barrel y vs. x",              960,   30,   60, 960,  -15,  15 );
-  hCluster_Endcap_Fw_XY       = fs->make<TH2D>( "hCluster_Endcap_Fw_XY",      "TTCluster Forward Endcap y vs. x",      960, -120,  120, 960, -120, 120 );
-  hCluster_Endcap_Bw_XY       = fs->make<TH2D>( "hCluster_Endcap_Bw_XY",      "TTCluster Backward Endcap y vs. x",     960, -120,  120, 960, -120, 120 );
-  hCluster_RZ                 = fs->make<TH2D>( "hCluster_RZ",                "TTCluster #rho vs. z",                  900, -300,  300, 480,    0, 120 );
-  hCluster_Endcap_Fw_RZ_Zoom  = fs->make<TH2D>( "hCluster_Endcap_Fw_RZ_Zoom", "TTCluster Forward Endcap #rho vs. z",   960,  140,  170, 960,   30,  60 );
-  hCluster_Endcap_Bw_RZ_Zoom  = fs->make<TH2D>( "hCluster_Endcap_Bw_RZ_Zoom", "TTCluster Backward Endcap #rho vs. z",  960, -170, -140, 960,   70, 100 );
+  hCluster_Barrel_XY = fs->make<TH2D>("hCluster_Barrel_XY", "TTCluster Barrel y vs. x", 960, -120, 120, 960, -120, 120);
+  hCluster_Barrel_XY_Zoom =
+      fs->make<TH2D>("hCluster_Barrel_XY_Zoom", "TTCluster Barrel y vs. x", 960, 30, 60, 960, -15, 15);
+  hCluster_Endcap_Fw_XY =
+      fs->make<TH2D>("hCluster_Endcap_Fw_XY", "TTCluster Forward Endcap y vs. x", 960, -120, 120, 960, -120, 120);
+  hCluster_Endcap_Bw_XY =
+      fs->make<TH2D>("hCluster_Endcap_Bw_XY", "TTCluster Backward Endcap y vs. x", 960, -120, 120, 960, -120, 120);
+  hCluster_RZ = fs->make<TH2D>("hCluster_RZ", "TTCluster #rho vs. z", 900, -300, 300, 480, 0, 120);
+  hCluster_Endcap_Fw_RZ_Zoom =
+      fs->make<TH2D>("hCluster_Endcap_Fw_RZ_Zoom", "TTCluster Forward Endcap #rho vs. z", 960, 140, 170, 960, 30, 60);
+  hCluster_Endcap_Bw_RZ_Zoom = fs->make<TH2D>(
+      "hCluster_Endcap_Bw_RZ_Zoom", "TTCluster Backward Endcap #rho vs. z", 960, -170, -140, 960, 70, 100);
   hCluster_Barrel_XY->Sumw2();
   hCluster_Barrel_XY_Zoom->Sumw2();
   hCluster_Endcap_Fw_XY->Sumw2();
@@ -262,21 +260,21 @@ void AnalyzerClusterStub::beginJob()
   hCluster_Endcap_Fw_RZ_Zoom->Sumw2();
   hCluster_Endcap_Bw_RZ_Zoom->Sumw2();
 
-  hCluster_IMem_Barrel = fs->make<TH1D>("hCluster_IMem_Barrel", "Inner TTCluster Stack", 12, -0.5, 11.5 );
-  hCluster_IMem_Endcap = fs->make<TH1D>("hCluster_IMem_Endcap", "Inner TTCluster Stack", 12, -0.5, 11.5 );
-  hCluster_OMem_Barrel = fs->make<TH1D>("hCluster_OMem_Barrel", "Outer TTCluster Stack", 12, -0.5, 11.5 );
-  hCluster_OMem_Endcap = fs->make<TH1D>("hCluster_OMem_Endcap", "Outer TTCluster Stack", 12, -0.5, 11.5 );
+  hCluster_IMem_Barrel = fs->make<TH1D>("hCluster_IMem_Barrel", "Inner TTCluster Stack", 12, -0.5, 11.5);
+  hCluster_IMem_Endcap = fs->make<TH1D>("hCluster_IMem_Endcap", "Inner TTCluster Stack", 12, -0.5, 11.5);
+  hCluster_OMem_Barrel = fs->make<TH1D>("hCluster_OMem_Barrel", "Outer TTCluster Stack", 12, -0.5, 11.5);
+  hCluster_OMem_Endcap = fs->make<TH1D>("hCluster_OMem_Endcap", "Outer TTCluster Stack", 12, -0.5, 11.5);
   hCluster_IMem_Barrel->Sumw2();
   hCluster_IMem_Endcap->Sumw2();
   hCluster_OMem_Barrel->Sumw2();
   hCluster_OMem_Endcap->Sumw2();
 
-  hCluster_Gen_Barrel  = fs->make<TH1D>("hCluster_Gen_Barrel",  "Genuine TTCluster Stack",       12, -0.5, 11.5 ); 
-  hCluster_Unkn_Barrel = fs->make<TH1D>("hCluster_Unkn_Barrel", "Unknown TTCluster Stack",       12, -0.5, 11.5 ); 
-  hCluster_Comb_Barrel = fs->make<TH1D>("hCluster_Comb_Barrel", "Combinatorial TTCluster Stack", 12, -0.5, 11.5 ); 
-  hCluster_Gen_Endcap  = fs->make<TH1D>("hCluster_Gen_Endcap",  "Genuine TTCluster Stack",       12, -0.5, 11.5 ); 
-  hCluster_Unkn_Endcap = fs->make<TH1D>("hCluster_Unkn_Endcap", "Unknown TTCluster Stack",       12, -0.5, 11.5 ); 
-  hCluster_Comb_Endcap = fs->make<TH1D>("hCluster_Comb_Endcap", "Combinatorial TTCluster Stack", 12, -0.5, 11.5 ); 
+  hCluster_Gen_Barrel = fs->make<TH1D>("hCluster_Gen_Barrel", "Genuine TTCluster Stack", 12, -0.5, 11.5);
+  hCluster_Unkn_Barrel = fs->make<TH1D>("hCluster_Unkn_Barrel", "Unknown TTCluster Stack", 12, -0.5, 11.5);
+  hCluster_Comb_Barrel = fs->make<TH1D>("hCluster_Comb_Barrel", "Combinatorial TTCluster Stack", 12, -0.5, 11.5);
+  hCluster_Gen_Endcap = fs->make<TH1D>("hCluster_Gen_Endcap", "Genuine TTCluster Stack", 12, -0.5, 11.5);
+  hCluster_Unkn_Endcap = fs->make<TH1D>("hCluster_Unkn_Endcap", "Unknown TTCluster Stack", 12, -0.5, 11.5);
+  hCluster_Comb_Endcap = fs->make<TH1D>("hCluster_Comb_Endcap", "Combinatorial TTCluster Stack", 12, -0.5, 11.5);
   hCluster_Gen_Barrel->Sumw2();
   hCluster_Unkn_Barrel->Sumw2();
   hCluster_Comb_Barrel->Sumw2();
@@ -284,44 +282,48 @@ void AnalyzerClusterStub::beginJob()
   hCluster_Unkn_Endcap->Sumw2();
   hCluster_Comb_Endcap->Sumw2();
 
-  hCluster_Gen_Eta  = fs->make<TH1D>("hCluster_Gen_Eta",  "Genuine TTCluster #eta",       90, 0, M_PI );
-  hCluster_Unkn_Eta = fs->make<TH1D>("hCluster_Unkn_Eta", "Unknown TTCluster #eta",       90, 0, M_PI );
-  hCluster_Comb_Eta = fs->make<TH1D>("hCluster_Comb_Eta", "Combinatorial TTCluster #eta", 90, 0, M_PI );
+  hCluster_Gen_Eta = fs->make<TH1D>("hCluster_Gen_Eta", "Genuine TTCluster #eta", 90, 0, M_PI);
+  hCluster_Unkn_Eta = fs->make<TH1D>("hCluster_Unkn_Eta", "Unknown TTCluster #eta", 90, 0, M_PI);
+  hCluster_Comb_Eta = fs->make<TH1D>("hCluster_Comb_Eta", "Combinatorial TTCluster #eta", 90, 0, M_PI);
   hCluster_Gen_Eta->Sumw2();
   hCluster_Unkn_Eta->Sumw2();
   hCluster_Comb_Eta->Sumw2();
 
-  hCluster_PID   = fs->make<TH2D>("hCluster_PID", "TTCluster PID (Member)", 501, -250.5, 250.5, 2, -0.5, 1.5 );
-  hCluster_W     = fs->make<TH2D>("hCluster_W", "TTCluster Width (Member)",  10,   -0.5,   9.5, 2, -0.5, 1.5 );
+  hCluster_PID = fs->make<TH2D>("hCluster_PID", "TTCluster PID (Member)", 501, -250.5, 250.5, 2, -0.5, 1.5);
+  hCluster_W = fs->make<TH2D>("hCluster_W", "TTCluster Width (Member)", 10, -0.5, 9.5, 2, -0.5, 1.5);
   hCluster_PID->Sumw2();
   hCluster_W->Sumw2();
 
-  hTPart_Eta_INormalization = fs->make<TH1D>("hTPart_Eta_INormalization", "TParticles vs. TPart #eta", 90, 0, M_PI );
-  hTPart_Eta_ICW_1          = fs->make<TH1D>("hTPart_Eta_ICW_1",          "CW 1 vs. TPart #eta", 90, 0, M_PI );
-  hTPart_Eta_ICW_2          = fs->make<TH1D>("hTPart_Eta_ICW_2",          "CW 2 vs. TPart #eta", 90, 0, M_PI );
-  hTPart_Eta_ICW_3          = fs->make<TH1D>("hTPart_Eta_ICW_3",          "CW 3 or more vs. TPart #eta", 90, 0, M_PI );
+  hTPart_Eta_INormalization = fs->make<TH1D>("hTPart_Eta_INormalization", "TParticles vs. TPart #eta", 90, 0, M_PI);
+  hTPart_Eta_ICW_1 = fs->make<TH1D>("hTPart_Eta_ICW_1", "CW 1 vs. TPart #eta", 90, 0, M_PI);
+  hTPart_Eta_ICW_2 = fs->make<TH1D>("hTPart_Eta_ICW_2", "CW 2 vs. TPart #eta", 90, 0, M_PI);
+  hTPart_Eta_ICW_3 = fs->make<TH1D>("hTPart_Eta_ICW_3", "CW 3 or more vs. TPart #eta", 90, 0, M_PI);
   hTPart_Eta_INormalization->Sumw2();
   hTPart_Eta_ICW_1->Sumw2();
   hTPart_Eta_ICW_2->Sumw2();
   hTPart_Eta_ICW_3->Sumw2();
 
-  hTPart_Eta_ONormalization = fs->make<TH1D>("hTPart_Eta_ONormalization", "TParticles vs. TPart #eta", 90, 0, M_PI );
-  hTPart_Eta_OCW_1          = fs->make<TH1D>("hTPart_Eta_OCW_1",          "CW 1 vs. TPart #eta", 90, 0, M_PI );
-  hTPart_Eta_OCW_2          = fs->make<TH1D>("hTPart_Eta_OCW_2",          "CW 2 vs. TPart #eta", 90, 0, M_PI );
-  hTPart_Eta_OCW_3          = fs->make<TH1D>("hTPart_Eta_OCW_3",          "CW 3 or more vs. TPart #eta", 90, 0, M_PI );
+  hTPart_Eta_ONormalization = fs->make<TH1D>("hTPart_Eta_ONormalization", "TParticles vs. TPart #eta", 90, 0, M_PI);
+  hTPart_Eta_OCW_1 = fs->make<TH1D>("hTPart_Eta_OCW_1", "CW 1 vs. TPart #eta", 90, 0, M_PI);
+  hTPart_Eta_OCW_2 = fs->make<TH1D>("hTPart_Eta_OCW_2", "CW 2 vs. TPart #eta", 90, 0, M_PI);
+  hTPart_Eta_OCW_3 = fs->make<TH1D>("hTPart_Eta_OCW_3", "CW 3 or more vs. TPart #eta", 90, 0, M_PI);
   hTPart_Eta_ONormalization->Sumw2();
   hTPart_Eta_OCW_1->Sumw2();
   hTPart_Eta_OCW_2->Sumw2();
   hTPart_Eta_OCW_3->Sumw2();
 
   /// Global position of TTStub
-  hStub_Barrel_XY          = fs->make<TH2D>( "hStub_Barrel_XY",         "TTStub Barrel y vs. x",              960, -120,  120, 960, -120, 120 );
-  hStub_Barrel_XY_Zoom     = fs->make<TH2D>( "hStub_Barrel_XY_Zoom",    "TTStub Barrel y vs. x",              960,   30,   60, 960,  -15,  15 );
-  hStub_Endcap_Fw_XY       = fs->make<TH2D>( "hStub_Endcap_Fw_XY",      "TTStub Forward Endcap y vs. x",      960, -120,  120, 960, -120, 120 );
-  hStub_Endcap_Bw_XY       = fs->make<TH2D>( "hStub_Endcap_Bw_XY",      "TTStub Backward Endcap y vs. x",     960, -120,  120, 960, -120, 120 );
-  hStub_RZ                 = fs->make<TH2D>( "hStub_RZ",                "TTStub #rho vs. z",                  900, -300,  300, 480,    0, 120 );
-  hStub_Endcap_Fw_RZ_Zoom  = fs->make<TH2D>( "hStub_Endcap_Fw_RZ_Zoom", "TTStub Forward Endcap #rho vs. z",   960,  140,  170, 960,   30,  60 );
-  hStub_Endcap_Bw_RZ_Zoom  = fs->make<TH2D>( "hStub_Endcap_Bw_RZ_Zoom", "TTStub Backward Endcap #rho vs. z",  960, -170, -140, 960,   70, 100 );
+  hStub_Barrel_XY = fs->make<TH2D>("hStub_Barrel_XY", "TTStub Barrel y vs. x", 960, -120, 120, 960, -120, 120);
+  hStub_Barrel_XY_Zoom = fs->make<TH2D>("hStub_Barrel_XY_Zoom", "TTStub Barrel y vs. x", 960, 30, 60, 960, -15, 15);
+  hStub_Endcap_Fw_XY =
+      fs->make<TH2D>("hStub_Endcap_Fw_XY", "TTStub Forward Endcap y vs. x", 960, -120, 120, 960, -120, 120);
+  hStub_Endcap_Bw_XY =
+      fs->make<TH2D>("hStub_Endcap_Bw_XY", "TTStub Backward Endcap y vs. x", 960, -120, 120, 960, -120, 120);
+  hStub_RZ = fs->make<TH2D>("hStub_RZ", "TTStub #rho vs. z", 900, -300, 300, 480, 0, 120);
+  hStub_Endcap_Fw_RZ_Zoom =
+      fs->make<TH2D>("hStub_Endcap_Fw_RZ_Zoom", "TTStub Forward Endcap #rho vs. z", 960, 140, 170, 960, 30, 60);
+  hStub_Endcap_Bw_RZ_Zoom =
+      fs->make<TH2D>("hStub_Endcap_Bw_RZ_Zoom", "TTStub Backward Endcap #rho vs. z", 960, -170, -140, 960, 70, 100);
   hStub_Barrel_XY->Sumw2();
   hStub_Barrel_XY_Zoom->Sumw2();
   hStub_Endcap_Fw_XY->Sumw2();
@@ -330,17 +332,17 @@ void AnalyzerClusterStub::beginJob()
   hStub_Endcap_Fw_RZ_Zoom->Sumw2();
   hStub_Endcap_Bw_RZ_Zoom->Sumw2();
 
-  hStub_Barrel     = fs->make<TH1D>("hStub_Barrel", "TTStub Stack", 12, -0.5, 11.5 );
-  hStub_Endcap     = fs->make<TH1D>("hStub_Endcap", "TTStub Stack", 12, -0.5, 11.5 );
+  hStub_Barrel = fs->make<TH1D>("hStub_Barrel", "TTStub Stack", 12, -0.5, 11.5);
+  hStub_Endcap = fs->make<TH1D>("hStub_Endcap", "TTStub Stack", 12, -0.5, 11.5);
   hStub_Barrel->Sumw2();
   hStub_Endcap->Sumw2();
 
-  hStub_Gen_Barrel  = fs->make<TH1D>("hStub_Gen_Barrel",  "Genuine TTStub Stack",       12, -0.5, 11.5 ); 
-  hStub_Unkn_Barrel = fs->make<TH1D>("hStub_Unkn_Barrel", "Unknown  TTStub Stack",      12, -0.5, 11.5 ); 
-  hStub_Comb_Barrel = fs->make<TH1D>("hStub_Comb_Barrel", "Combinatorial TTStub Stack", 12, -0.5, 11.5 ); 
-  hStub_Gen_Endcap  = fs->make<TH1D>("hStub_Gen_Endcap",  "Genuine TTStub Stack",       12, -0.5, 11.5 ); 
-  hStub_Unkn_Endcap = fs->make<TH1D>("hStub_Unkn_Endcap", "Unknown  TTStub Stack",      12, -0.5, 11.5 ); 
-  hStub_Comb_Endcap = fs->make<TH1D>("hStub_Comb_Endcap", "Combinatorial TTStub Stack", 12, -0.5, 11.5 ); 
+  hStub_Gen_Barrel = fs->make<TH1D>("hStub_Gen_Barrel", "Genuine TTStub Stack", 12, -0.5, 11.5);
+  hStub_Unkn_Barrel = fs->make<TH1D>("hStub_Unkn_Barrel", "Unknown  TTStub Stack", 12, -0.5, 11.5);
+  hStub_Comb_Barrel = fs->make<TH1D>("hStub_Comb_Barrel", "Combinatorial TTStub Stack", 12, -0.5, 11.5);
+  hStub_Gen_Endcap = fs->make<TH1D>("hStub_Gen_Endcap", "Genuine TTStub Stack", 12, -0.5, 11.5);
+  hStub_Unkn_Endcap = fs->make<TH1D>("hStub_Unkn_Endcap", "Unknown  TTStub Stack", 12, -0.5, 11.5);
+  hStub_Comb_Endcap = fs->make<TH1D>("hStub_Comb_Endcap", "Combinatorial TTStub Stack", 12, -0.5, 11.5);
   hStub_Gen_Barrel->Sumw2();
   hStub_Unkn_Barrel->Sumw2();
   hStub_Comb_Barrel->Sumw2();
@@ -348,18 +350,20 @@ void AnalyzerClusterStub::beginJob()
   hStub_Unkn_Endcap->Sumw2();
   hStub_Comb_Endcap->Sumw2();
 
-  hStub_Gen_Eta  = fs->make<TH1D>("hStub_Gen_Eta",  "Genuine TTStub #eta",       90, 0, M_PI );
-  hStub_Unkn_Eta = fs->make<TH1D>("hStub_Unkn_Eta", "Unknown TTStub #eta",       90, 0, M_PI );
-  hStub_Comb_Eta = fs->make<TH1D>("hStub_Comb_Eta", "Combinatorial TTStub #eta", 90, 0, M_PI );
+  hStub_Gen_Eta = fs->make<TH1D>("hStub_Gen_Eta", "Genuine TTStub #eta", 90, 0, M_PI);
+  hStub_Unkn_Eta = fs->make<TH1D>("hStub_Unkn_Eta", "Unknown TTStub #eta", 90, 0, M_PI);
+  hStub_Comb_Eta = fs->make<TH1D>("hStub_Comb_Eta", "Combinatorial TTStub #eta", 90, 0, M_PI);
   hStub_Gen_Eta->Sumw2();
   hStub_Unkn_Eta->Sumw2();
   hStub_Comb_Eta->Sumw2();
 
-  hStub_PID      = fs->make<TH1D>("hStub_PID",      "TTStub PID",                            501, -250.5, 250.5 );
-  hStub_Barrel_W = fs->make<TH2D>("hStub_Barrel_W", "TTStub Post-Corr Displacement (Layer)",  12, -0.5, 11.5, 43, -10.75, 10.75 );
-  hStub_Barrel_O = fs->make<TH2D>("hStub_Barrel_O", "TTStub Offset (Layer)",                  12, -0.5, 11.5, 43, -10.75, 10.75 );
-  hStub_Endcap_W = fs->make<TH2D>("hStub_Endcap_W", "TTStub Post-Corr Displacement (Layer)",  12, -0.5, 11.5, 43, -10.75, 10.75 );
-  hStub_Endcap_O = fs->make<TH2D>("hStub_Endcap_O", "TTStub Offset (Layer)",                  12, -0.5, 11.5, 43, -10.75, 10.75 );
+  hStub_PID = fs->make<TH1D>("hStub_PID", "TTStub PID", 501, -250.5, 250.5);
+  hStub_Barrel_W =
+      fs->make<TH2D>("hStub_Barrel_W", "TTStub Post-Corr Displacement (Layer)", 12, -0.5, 11.5, 43, -10.75, 10.75);
+  hStub_Barrel_O = fs->make<TH2D>("hStub_Barrel_O", "TTStub Offset (Layer)", 12, -0.5, 11.5, 43, -10.75, 10.75);
+  hStub_Endcap_W =
+      fs->make<TH2D>("hStub_Endcap_W", "TTStub Post-Corr Displacement (Layer)", 12, -0.5, 11.5, 43, -10.75, 10.75);
+  hStub_Endcap_O = fs->make<TH2D>("hStub_Endcap_O", "TTStub Offset (Layer)", 12, -0.5, 11.5, 43, -10.75, 10.75);
 
   hStub_PID->Sumw2();
   hStub_Barrel_W->Sumw2();
@@ -367,239 +371,279 @@ void AnalyzerClusterStub::beginJob()
   hStub_Endcap_W->Sumw2();
   hStub_Endcap_O->Sumw2();
 
-  hTPart_Eta_Pt10_Normalization = fs->make<TH1D>("hTPart_Eta_Pt10_Normalization", "TParticles vs. TPart #eta", 90, 0, M_PI );
-  hTPart_Eta_Pt10_NumPS         = fs->make<TH1D>("hTPart_Eta_Pt10_NumPS"        , "PS Stubs vs. TPart #eta"  , 90, 0, M_PI );
-  hTPart_Eta_Pt10_Num2S         = fs->make<TH1D>("hTPart_Eta_Pt10_Num2S"        , "2S Stubs vs. TPart #eta"  , 90, 0, M_PI );
+  hTPart_Eta_Pt10_Normalization =
+      fs->make<TH1D>("hTPart_Eta_Pt10_Normalization", "TParticles vs. TPart #eta", 90, 0, M_PI);
+  hTPart_Eta_Pt10_NumPS = fs->make<TH1D>("hTPart_Eta_Pt10_NumPS", "PS Stubs vs. TPart #eta", 90, 0, M_PI);
+  hTPart_Eta_Pt10_Num2S = fs->make<TH1D>("hTPart_Eta_Pt10_Num2S", "2S Stubs vs. TPart #eta", 90, 0, M_PI);
   hTPart_Eta_Pt10_Normalization->Sumw2();
   hTPart_Eta_Pt10_NumPS->Sumw2();
   hTPart_Eta_Pt10_Num2S->Sumw2();
 
   /// Stub Production Efficiency and comparison to TrackingParticle
-  for ( unsigned int stackIdx = 0; stackIdx < 12; stackIdx++ )
-  {
+  for (unsigned int stackIdx = 0; stackIdx < 12; stackIdx++) {
     /// BARREL
 
     /// Denominators
-    histoName.str("");  histoName << "hTPart_Pt_Clu_L" << stackIdx;
-    histoTitle.str(""); histoTitle << "TPart p_{T}, Cluster, Barrel Stack " << stackIdx;
-    mapCluLayer_hTPart_Pt[ stackIdx ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                        200, 0, 50 );
-    histoName.str("");  histoName << "hTPart_Eta_Pt10_Clu_L" << stackIdx;
-    histoTitle.str(""); histoTitle << "TPart #eta (p_{T} > 10 GeV/c), Cluster, Barrel Stack " << stackIdx;
-    mapCluLayer_hTPart_Eta_Pt10[ stackIdx ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                              180, -M_PI, M_PI );
-    histoName.str("");  histoName << "hTPart_Phi_Pt10_Clu_L" << stackIdx;
-    histoTitle.str(""); histoTitle << "TPart #phi (p_{T} > 10 GeV/c), Cluster, Barrel Stack " << stackIdx;
-    mapCluLayer_hTPart_Phi_Pt10[ stackIdx ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                              180, -M_PI, M_PI );
-    mapCluLayer_hTPart_Pt[ stackIdx ]->Sumw2();
-    mapCluLayer_hTPart_Eta_Pt10[ stackIdx ]->Sumw2();
-    mapCluLayer_hTPart_Phi_Pt10[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hTPart_Pt_Clu_L" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "TPart p_{T}, Cluster, Barrel Stack " << stackIdx;
+    mapCluLayer_hTPart_Pt[stackIdx] = fs->make<TH1D>(histoName.str().c_str(), histoTitle.str().c_str(), 200, 0, 50);
+    histoName.str("");
+    histoName << "hTPart_Eta_Pt10_Clu_L" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "TPart #eta (p_{T} > 10 GeV/c), Cluster, Barrel Stack " << stackIdx;
+    mapCluLayer_hTPart_Eta_Pt10[stackIdx] =
+        fs->make<TH1D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI);
+    histoName.str("");
+    histoName << "hTPart_Phi_Pt10_Clu_L" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "TPart #phi (p_{T} > 10 GeV/c), Cluster, Barrel Stack " << stackIdx;
+    mapCluLayer_hTPart_Phi_Pt10[stackIdx] =
+        fs->make<TH1D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI);
+    mapCluLayer_hTPart_Pt[stackIdx]->Sumw2();
+    mapCluLayer_hTPart_Eta_Pt10[stackIdx]->Sumw2();
+    mapCluLayer_hTPart_Phi_Pt10[stackIdx]->Sumw2();
 
     /// Numerators GeV/c
-    histoName.str("");  histoName << "hTPart_Pt_Stub_L" << stackIdx;
-    histoTitle.str(""); histoTitle << "TPart p_{T}, Stub, Barrel Stack " << stackIdx;
-    mapStubLayer_hTPart_Pt[ stackIdx ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                         200, 0, 50 );
-    histoName.str("");  histoName << "hTPart_Eta_Pt10_Stub_L" << stackIdx;
-    histoTitle.str(""); histoTitle << "TPart #eta (p_{T} > 10 GeV/c), Stub, Barrel Stack " << stackIdx;
-    mapStubLayer_hTPart_Eta_Pt10[ stackIdx ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                               180, -M_PI, M_PI );
-    histoName.str("");  histoName << "hTPart_Phi_Pt10_Stub_L" << stackIdx;
-    histoTitle.str(""); histoTitle << "TPart #phi (p_{T} > 10 GeV/c), Stub, Barrel Stack " << stackIdx;
-    mapStubLayer_hTPart_Phi_Pt10[ stackIdx ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                               180, -M_PI, M_PI );
-    mapStubLayer_hTPart_Pt[ stackIdx ]->Sumw2();
-    mapStubLayer_hTPart_Eta_Pt10[ stackIdx ]->Sumw2();
-    mapStubLayer_hTPart_Phi_Pt10[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hTPart_Pt_Stub_L" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "TPart p_{T}, Stub, Barrel Stack " << stackIdx;
+    mapStubLayer_hTPart_Pt[stackIdx] = fs->make<TH1D>(histoName.str().c_str(), histoTitle.str().c_str(), 200, 0, 50);
+    histoName.str("");
+    histoName << "hTPart_Eta_Pt10_Stub_L" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "TPart #eta (p_{T} > 10 GeV/c), Stub, Barrel Stack " << stackIdx;
+    mapStubLayer_hTPart_Eta_Pt10[stackIdx] =
+        fs->make<TH1D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI);
+    histoName.str("");
+    histoName << "hTPart_Phi_Pt10_Stub_L" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "TPart #phi (p_{T} > 10 GeV/c), Stub, Barrel Stack " << stackIdx;
+    mapStubLayer_hTPart_Phi_Pt10[stackIdx] =
+        fs->make<TH1D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI);
+    mapStubLayer_hTPart_Pt[stackIdx]->Sumw2();
+    mapStubLayer_hTPart_Eta_Pt10[stackIdx]->Sumw2();
+    mapStubLayer_hTPart_Phi_Pt10[stackIdx]->Sumw2();
 
     /// Comparison to TrackingParticle
-    histoName.str("");  histoName << "hStub_InvPt_TPart_InvPt_L" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub p_{T}^{-1} vs. TPart p_{T}^{-1}, Barrel Stack " << stackIdx;
-    mapStubLayer_hStub_InvPt_TPart_InvPt[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                       200, 0.0, 0.8,
-                                                                       200, 0.0, 0.8 );
-    mapStubLayer_hStub_InvPt_TPart_InvPt[ stackIdx ]->GetXaxis()->Set( NumBins, BinVec );
-    mapStubLayer_hStub_InvPt_TPart_InvPt[ stackIdx ]->GetYaxis()->Set( NumBins, BinVec );
-    mapStubLayer_hStub_InvPt_TPart_InvPt[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_InvPt_TPart_InvPt_L" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub p_{T}^{-1} vs. TPart p_{T}^{-1}, Barrel Stack " << stackIdx;
+    mapStubLayer_hStub_InvPt_TPart_InvPt[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 200, 0.0, 0.8, 200, 0.0, 0.8);
+    mapStubLayer_hStub_InvPt_TPart_InvPt[stackIdx]->GetXaxis()->Set(NumBins, BinVec);
+    mapStubLayer_hStub_InvPt_TPart_InvPt[stackIdx]->GetYaxis()->Set(NumBins, BinVec);
+    mapStubLayer_hStub_InvPt_TPart_InvPt[stackIdx]->Sumw2();
 
-    histoName.str("");  histoName << "hStub_Pt_TPart_Pt_L" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub p_{T} vs. TPart p_{T}, Barrel Stack " << stackIdx;
-    mapStubLayer_hStub_Pt_TPart_Pt[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                 100, 0, 50,
-                                                                 100, 0, 50 );
-    mapStubLayer_hStub_Pt_TPart_Pt[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_Pt_TPart_Pt_L" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub p_{T} vs. TPart p_{T}, Barrel Stack " << stackIdx;
+    mapStubLayer_hStub_Pt_TPart_Pt[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 100, 0, 50, 100, 0, 50);
+    mapStubLayer_hStub_Pt_TPart_Pt[stackIdx]->Sumw2();
 
-    histoName.str("");  histoName << "hStub_Eta_TPart_Eta_L" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub #eta vs. TPart #eta, Barrel Stack " << stackIdx;
-    mapStubLayer_hStub_Eta_TPart_Eta[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                   180, -M_PI, M_PI,
-                                                                   180, -M_PI, M_PI );
-    mapStubLayer_hStub_Eta_TPart_Eta[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_Eta_TPart_Eta_L" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub #eta vs. TPart #eta, Barrel Stack " << stackIdx;
+    mapStubLayer_hStub_Eta_TPart_Eta[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI, 180, -M_PI, M_PI);
+    mapStubLayer_hStub_Eta_TPart_Eta[stackIdx]->Sumw2();
 
-    histoName.str("");  histoName << "hStub_Phi_TPart_Phi_L" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub #phi vs. TPart #phi, Barrel Stack " << stackIdx;
-    mapStubLayer_hStub_Phi_TPart_Phi[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                   180, -M_PI, M_PI,
-                                                                   180, -M_PI, M_PI );
-    mapStubLayer_hStub_Phi_TPart_Phi[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_Phi_TPart_Phi_L" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub #phi vs. TPart #phi, Barrel Stack " << stackIdx;
+    mapStubLayer_hStub_Phi_TPart_Phi[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI, 180, -M_PI, M_PI);
+    mapStubLayer_hStub_Phi_TPart_Phi[stackIdx]->Sumw2();
 
     /// Residuals
-    histoName.str("");  histoName << "hStub_InvPtRes_TPart_Eta_L" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub p_{T}^{-1} - TPart p_{T}^{-1} vs. TPart #eta, Barrel Stack " << stackIdx;
-    mapStubLayer_hStub_InvPtRes_TPart_Eta[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                        180, -M_PI, M_PI,
-                                                                        100, -2.0, 2.0 );
-    mapStubLayer_hStub_InvPtRes_TPart_Eta[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_InvPtRes_TPart_Eta_L" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub p_{T}^{-1} - TPart p_{T}^{-1} vs. TPart #eta, Barrel Stack " << stackIdx;
+    mapStubLayer_hStub_InvPtRes_TPart_Eta[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI, 100, -2.0, 2.0);
+    mapStubLayer_hStub_InvPtRes_TPart_Eta[stackIdx]->Sumw2();
 
-    histoName.str("");  histoName << "hStub_PtRes_TPart_Eta_L" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub p_{T} - TPart p_{T} vs. TPart #eta, Barrel Stack " << stackIdx;
-    mapStubLayer_hStub_PtRes_TPart_Eta[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                     180, -M_PI, M_PI,
-                                                                     100, -40, 40 );
-    mapStubLayer_hStub_PtRes_TPart_Eta[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_PtRes_TPart_Eta_L" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub p_{T} - TPart p_{T} vs. TPart #eta, Barrel Stack " << stackIdx;
+    mapStubLayer_hStub_PtRes_TPart_Eta[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI, 100, -40, 40);
+    mapStubLayer_hStub_PtRes_TPart_Eta[stackIdx]->Sumw2();
 
-    histoName.str("");  histoName << "hStub_EtaRes_TPart_Eta_L" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub #eta - TPart #eta vs. TPart #eta, Barrel Stack " << stackIdx;
-    mapStubLayer_hStub_EtaRes_TPart_Eta[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                      180, -M_PI, M_PI,
-                                                                      100, -2, 2 );
-    mapStubLayer_hStub_EtaRes_TPart_Eta[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_EtaRes_TPart_Eta_L" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub #eta - TPart #eta vs. TPart #eta, Barrel Stack " << stackIdx;
+    mapStubLayer_hStub_EtaRes_TPart_Eta[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI, 100, -2, 2);
+    mapStubLayer_hStub_EtaRes_TPart_Eta[stackIdx]->Sumw2();
 
-    histoName.str("");  histoName << "hStub_PhiRes_TPart_Eta_L" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub #phi - TPart #phi vs. TPart #eta, Barrel Stack " << stackIdx;
-    mapStubLayer_hStub_PhiRes_TPart_Eta[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                      180, -M_PI, M_PI,
-                                                                      100, -0.5, 0.5 );
-    mapStubLayer_hStub_PhiRes_TPart_Eta[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_PhiRes_TPart_Eta_L" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub #phi - TPart #phi vs. TPart #eta, Barrel Stack " << stackIdx;
+    mapStubLayer_hStub_PhiRes_TPart_Eta[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI, 100, -0.5, 0.5);
+    mapStubLayer_hStub_PhiRes_TPart_Eta[stackIdx]->Sumw2();
 
     /// Stub Width vs. Pt
-    histoName.str("");  histoName << "hStub_W_TPart_Pt_L" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub Width vs. TPart p_{T}, Barrel Stack " << stackIdx;
-    mapStubLayer_hStub_W_TPart_Pt[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                200, 0, 50,
-                                                                41, -10.25, 10.25 );
-    mapStubLayer_hStub_W_TPart_Pt[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_W_TPart_Pt_L" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub Width vs. TPart p_{T}, Barrel Stack " << stackIdx;
+    mapStubLayer_hStub_W_TPart_Pt[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 200, 0, 50, 41, -10.25, 10.25);
+    mapStubLayer_hStub_W_TPart_Pt[stackIdx]->Sumw2();
 
-    histoName.str("");  histoName << "hStub_W_TPart_InvPt_L" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub Width vs. TPart p_{T}^{-1}, Barrel Stack " << stackIdx;
-    mapStubLayer_hStub_W_TPart_InvPt[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                   200, 0, 0.8,
-                                                                   41, -10.25, 10.25 );
-    mapStubLayer_hStub_W_TPart_InvPt[ stackIdx ]->GetXaxis()->Set( NumBins, BinVec );
-    mapStubLayer_hStub_W_TPart_InvPt[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_W_TPart_InvPt_L" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub Width vs. TPart p_{T}^{-1}, Barrel Stack " << stackIdx;
+    mapStubLayer_hStub_W_TPart_InvPt[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 200, 0, 0.8, 41, -10.25, 10.25);
+    mapStubLayer_hStub_W_TPart_InvPt[stackIdx]->GetXaxis()->Set(NumBins, BinVec);
+    mapStubLayer_hStub_W_TPart_InvPt[stackIdx]->Sumw2();
 
     /// ENDCAP
 
     /// Denominators
-    histoName.str("");  histoName << "hTPart_Pt_Clu_D" << stackIdx;
-    histoTitle.str(""); histoTitle << "TPart p_{T}, Cluster, Endcap Stack " << stackIdx;
-    mapCluDisk_hTPart_Pt[ stackIdx ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                       200, 0, 50 );
-    histoName.str("");  histoName << "hTPart_Eta_Pt10_Clu_D" << stackIdx;
-    histoTitle.str(""); histoTitle << "TPart #eta (p_{T} > 10 GeV/c), Cluster, Endcap Stack " << stackIdx;
-    mapCluDisk_hTPart_Eta_Pt10[ stackIdx ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                             180, -M_PI, M_PI );
-    histoName.str("");  histoName << "hTPart_Phi_Pt10_Clu_D" << stackIdx;
-    histoTitle.str(""); histoTitle << "TPart #phi (p_{T} > 10 GeV/c), Cluster, Endcap Stack " << stackIdx;
-    mapCluDisk_hTPart_Phi_Pt10[ stackIdx ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                             180, -M_PI, M_PI );
-    mapCluDisk_hTPart_Pt[ stackIdx ]->Sumw2();
-    mapCluDisk_hTPart_Eta_Pt10[ stackIdx ]->Sumw2();
-    mapCluDisk_hTPart_Phi_Pt10[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hTPart_Pt_Clu_D" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "TPart p_{T}, Cluster, Endcap Stack " << stackIdx;
+    mapCluDisk_hTPart_Pt[stackIdx] = fs->make<TH1D>(histoName.str().c_str(), histoTitle.str().c_str(), 200, 0, 50);
+    histoName.str("");
+    histoName << "hTPart_Eta_Pt10_Clu_D" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "TPart #eta (p_{T} > 10 GeV/c), Cluster, Endcap Stack " << stackIdx;
+    mapCluDisk_hTPart_Eta_Pt10[stackIdx] =
+        fs->make<TH1D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI);
+    histoName.str("");
+    histoName << "hTPart_Phi_Pt10_Clu_D" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "TPart #phi (p_{T} > 10 GeV/c), Cluster, Endcap Stack " << stackIdx;
+    mapCluDisk_hTPart_Phi_Pt10[stackIdx] =
+        fs->make<TH1D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI);
+    mapCluDisk_hTPart_Pt[stackIdx]->Sumw2();
+    mapCluDisk_hTPart_Eta_Pt10[stackIdx]->Sumw2();
+    mapCluDisk_hTPart_Phi_Pt10[stackIdx]->Sumw2();
 
     /// Numerators GeV/c
-    histoName.str("");  histoName << "hTPart_Pt_Stub_D" << stackIdx;
-    histoTitle.str(""); histoTitle << "TPart p_{T}, Stub, Endcap Stack " << stackIdx;
-    mapStubDisk_hTPart_Pt[ stackIdx ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                        200, 0, 50 );
-    histoName.str("");  histoName << "hTPart_Eta_Pt10_Stub_D" << stackIdx;
-    histoTitle.str(""); histoTitle << "TPart #eta (p_{T} > 10 GeV/c), Stub, Endcap Stack " << stackIdx;
-    mapStubDisk_hTPart_Eta_Pt10[ stackIdx ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                              180, -M_PI, M_PI );
-    histoName.str("");  histoName << "hTPart_Phi_Pt10_Stub_D" << stackIdx;
-    histoTitle.str(""); histoTitle << "TPart #phi (p_{T} > 10 GeV/c), Stub, Endcap Stack " << stackIdx;
-    mapStubDisk_hTPart_Phi_Pt10[ stackIdx ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                              180, -M_PI, M_PI );
-    mapStubDisk_hTPart_Pt[ stackIdx ]->Sumw2();
-    mapStubDisk_hTPart_Eta_Pt10[ stackIdx ]->Sumw2();
-    mapStubDisk_hTPart_Phi_Pt10[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hTPart_Pt_Stub_D" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "TPart p_{T}, Stub, Endcap Stack " << stackIdx;
+    mapStubDisk_hTPart_Pt[stackIdx] = fs->make<TH1D>(histoName.str().c_str(), histoTitle.str().c_str(), 200, 0, 50);
+    histoName.str("");
+    histoName << "hTPart_Eta_Pt10_Stub_D" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "TPart #eta (p_{T} > 10 GeV/c), Stub, Endcap Stack " << stackIdx;
+    mapStubDisk_hTPart_Eta_Pt10[stackIdx] =
+        fs->make<TH1D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI);
+    histoName.str("");
+    histoName << "hTPart_Phi_Pt10_Stub_D" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "TPart #phi (p_{T} > 10 GeV/c), Stub, Endcap Stack " << stackIdx;
+    mapStubDisk_hTPart_Phi_Pt10[stackIdx] =
+        fs->make<TH1D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI);
+    mapStubDisk_hTPart_Pt[stackIdx]->Sumw2();
+    mapStubDisk_hTPart_Eta_Pt10[stackIdx]->Sumw2();
+    mapStubDisk_hTPart_Phi_Pt10[stackIdx]->Sumw2();
 
     /// Comparison to TrackingParticle
-    histoName.str("");  histoName << "hStub_InvPt_TPart_InvPt_D" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub p_{T}^{-1} vs. TPart p_{T}^{-1}, Endcap Stack " << stackIdx;
-    mapStubDisk_hStub_InvPt_TPart_InvPt[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                      200, 0.0, 0.8,
-                                                                      200, 0.0, 0.8 );
-    mapStubDisk_hStub_InvPt_TPart_InvPt[ stackIdx ]->GetXaxis()->Set( NumBins, BinVec );
-    mapStubDisk_hStub_InvPt_TPart_InvPt[ stackIdx ]->GetYaxis()->Set( NumBins, BinVec );
-    mapStubDisk_hStub_InvPt_TPart_InvPt[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_InvPt_TPart_InvPt_D" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub p_{T}^{-1} vs. TPart p_{T}^{-1}, Endcap Stack " << stackIdx;
+    mapStubDisk_hStub_InvPt_TPart_InvPt[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 200, 0.0, 0.8, 200, 0.0, 0.8);
+    mapStubDisk_hStub_InvPt_TPart_InvPt[stackIdx]->GetXaxis()->Set(NumBins, BinVec);
+    mapStubDisk_hStub_InvPt_TPart_InvPt[stackIdx]->GetYaxis()->Set(NumBins, BinVec);
+    mapStubDisk_hStub_InvPt_TPart_InvPt[stackIdx]->Sumw2();
 
-    histoName.str("");  histoName << "hStub_Pt_TPart_Pt_D" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub p_{T} vs. TPart p_{T}, Endcap Stack " << stackIdx;
-    mapStubDisk_hStub_Pt_TPart_Pt[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                100, 0, 50,
-                                                                100, 0, 50 );
-    mapStubDisk_hStub_Pt_TPart_Pt[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_Pt_TPart_Pt_D" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub p_{T} vs. TPart p_{T}, Endcap Stack " << stackIdx;
+    mapStubDisk_hStub_Pt_TPart_Pt[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 100, 0, 50, 100, 0, 50);
+    mapStubDisk_hStub_Pt_TPart_Pt[stackIdx]->Sumw2();
 
-    histoName.str("");  histoName << "hStub_Eta_TPart_Eta_D" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub #eta vs. TPart #eta, Endcap Stack " << stackIdx;
-    mapStubDisk_hStub_Eta_TPart_Eta[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                  180, -M_PI, M_PI,
-                                                                  180, -M_PI, M_PI );
-    mapStubDisk_hStub_Eta_TPart_Eta[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_Eta_TPart_Eta_D" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub #eta vs. TPart #eta, Endcap Stack " << stackIdx;
+    mapStubDisk_hStub_Eta_TPart_Eta[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI, 180, -M_PI, M_PI);
+    mapStubDisk_hStub_Eta_TPart_Eta[stackIdx]->Sumw2();
 
-    histoName.str("");  histoName << "hStub_Phi_TPart_Phi_D" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub #phi vs. TPart #phi, Endcap Stack " << stackIdx;
-    mapStubDisk_hStub_Phi_TPart_Phi[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                  180, -M_PI, M_PI,
-                                                                  180, -M_PI, M_PI );
-    mapStubDisk_hStub_Phi_TPart_Phi[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_Phi_TPart_Phi_D" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub #phi vs. TPart #phi, Endcap Stack " << stackIdx;
+    mapStubDisk_hStub_Phi_TPart_Phi[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI, 180, -M_PI, M_PI);
+    mapStubDisk_hStub_Phi_TPart_Phi[stackIdx]->Sumw2();
 
     /// Residuals
-    histoName.str("");  histoName << "hStub_InvPtRes_TPart_Eta_D" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub p_{T}^{-1} - TPart p_{T}^{-1} vs. TPart #eta, Endcap Stack " << stackIdx;
-    mapStubDisk_hStub_InvPtRes_TPart_Eta[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                       180, -M_PI, M_PI,
-                                                                       100, -2.0, 2.0 );
-    mapStubDisk_hStub_InvPtRes_TPart_Eta[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_InvPtRes_TPart_Eta_D" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub p_{T}^{-1} - TPart p_{T}^{-1} vs. TPart #eta, Endcap Stack " << stackIdx;
+    mapStubDisk_hStub_InvPtRes_TPart_Eta[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI, 100, -2.0, 2.0);
+    mapStubDisk_hStub_InvPtRes_TPart_Eta[stackIdx]->Sumw2();
 
-    histoName.str("");  histoName << "hStub_PtRes_TPart_Eta_D" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub p_{T} - TPart p_{T} vs. TPart #eta, Endcap Stack " << stackIdx;
-    mapStubDisk_hStub_PtRes_TPart_Eta[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                    180, -M_PI, M_PI,
-                                                                    100, -40, 40 );
-    mapStubDisk_hStub_PtRes_TPart_Eta[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_PtRes_TPart_Eta_D" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub p_{T} - TPart p_{T} vs. TPart #eta, Endcap Stack " << stackIdx;
+    mapStubDisk_hStub_PtRes_TPart_Eta[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI, 100, -40, 40);
+    mapStubDisk_hStub_PtRes_TPart_Eta[stackIdx]->Sumw2();
 
-    histoName.str("");  histoName << "hStub_EtaRes_TPart_Eta_D" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub #eta - TPart #eta vs. TPart #eta, Endcap Stack " << stackIdx;
-    mapStubDisk_hStub_EtaRes_TPart_Eta[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                     180, -M_PI, M_PI,
-                                                                     100, -2, 2 );
-    mapStubDisk_hStub_EtaRes_TPart_Eta[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_EtaRes_TPart_Eta_D" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub #eta - TPart #eta vs. TPart #eta, Endcap Stack " << stackIdx;
+    mapStubDisk_hStub_EtaRes_TPart_Eta[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI, 100, -2, 2);
+    mapStubDisk_hStub_EtaRes_TPart_Eta[stackIdx]->Sumw2();
 
-    histoName.str("");  histoName << "hStub_PhiRes_TPart_Eta_D" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub #phi - TPart #phi vs. TPart #eta, Endcap Stack " << stackIdx;
-    mapStubDisk_hStub_PhiRes_TPart_Eta[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                     180, -M_PI, M_PI,
-                                                                     100, -0.5, 0.5 );
-    mapStubDisk_hStub_PhiRes_TPart_Eta[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_PhiRes_TPart_Eta_D" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub #phi - TPart #phi vs. TPart #eta, Endcap Stack " << stackIdx;
+    mapStubDisk_hStub_PhiRes_TPart_Eta[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI, 100, -0.5, 0.5);
+    mapStubDisk_hStub_PhiRes_TPart_Eta[stackIdx]->Sumw2();
 
     /// Stub Width vs. Pt
-    histoName.str("");  histoName << "hStub_W_TPart_Pt_D" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub Width vs. TPart p_{T}, Endcap Stack " << stackIdx;
-    mapStubDisk_hStub_W_TPart_Pt[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                               200, 0, 50,
-                                                               41, -10.25, 10.25 );
-    mapStubDisk_hStub_W_TPart_Pt[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_W_TPart_Pt_D" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub Width vs. TPart p_{T}, Endcap Stack " << stackIdx;
+    mapStubDisk_hStub_W_TPart_Pt[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 200, 0, 50, 41, -10.25, 10.25);
+    mapStubDisk_hStub_W_TPart_Pt[stackIdx]->Sumw2();
 
-    histoName.str("");  histoName << "hStub_W_TPart_InvPt_D" << stackIdx;
-    histoTitle.str(""); histoTitle << "Stub Width vs. TPart p_{T}^{-1}, Endcap Stack " << stackIdx;
-    mapStubDisk_hStub_W_TPart_InvPt[ stackIdx ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                                  200, 0, 0.8,
-                                                                  41, -10.25, 10.25 );
-    mapStubDisk_hStub_W_TPart_InvPt[ stackIdx ]->GetXaxis()->Set( NumBins, BinVec );
-    mapStubDisk_hStub_W_TPart_InvPt[ stackIdx ]->Sumw2();
+    histoName.str("");
+    histoName << "hStub_W_TPart_InvPt_D" << stackIdx;
+    histoTitle.str("");
+    histoTitle << "Stub Width vs. TPart p_{T}^{-1}, Endcap Stack " << stackIdx;
+    mapStubDisk_hStub_W_TPart_InvPt[stackIdx] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 200, 0, 0.8, 41, -10.25, 10.25);
+    mapStubDisk_hStub_W_TPart_InvPt[stackIdx]->GetXaxis()->Set(NumBins, BinVec);
+    mapStubDisk_hStub_W_TPart_InvPt[stackIdx]->Sumw2();
   }
 
   /// End of things to be done before entering the event Loop
@@ -607,9 +651,8 @@ void AnalyzerClusterStub::beginJob()
 
 //////////
 // ANALYZE
-void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-/*
+void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  /*
   /// Geometry handles etc
   edm::ESHandle< TrackerGeometry >                GeometryHandle;
   edm::ESHandle< StackedTrackerGeometry >         StackedGeometryHandle;
@@ -1276,9 +1319,8 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
     } /// End of Loop over TrackingParticles
   } /// End of if ( TrackingParticleHandle->size() != 0 )
 */
-} /// End of analyze()
+}  /// End of analyze()
 
 ///////////////////////////
 // DEFINE THIS AS A PLUG-IN
 DEFINE_FWK_MODULE(AnalyzerClusterStub);
-

@@ -31,30 +31,30 @@
 #include <cstdlib>
 #include <map>
 
-template< typename T >
-class TTClusterAlgorithm_neighbor : public TTClusterAlgorithm< T >
-{
-  private:
-    /// Data members
-    /// Other stuff
-    
-  public:
-    /// Constructor
-    TTClusterAlgorithm_neighbor( )
-      : TTClusterAlgorithm< T >( __func__ ){}
+template <typename T>
+class TTClusterAlgorithm_neighbor : public TTClusterAlgorithm<T> {
+private:
+  /// Data members
+  /// Other stuff
 
-    /// Destructor
-    ~TTClusterAlgorithm_neighbor() override{}
+public:
+  /// Constructor
+  TTClusterAlgorithm_neighbor() : TTClusterAlgorithm<T>(__func__) {}
 
-    /// Clustering operations  
-    void Cluster( std::vector< std::vector< T > > &output,
-                  const std::vector< T > &input) const override;
+  /// Destructor
+  ~TTClusterAlgorithm_neighbor() override {}
 
-    /// Needed for neighbours
-    bool isANeighbor( const T& center, const T& mayNeigh) const;
-    void addNeighbors( std::vector< T >& cluster, const std::vector< T >& input, unsigned int start, std::vector<bool> &masked ) const;
+  /// Clustering operations
+  void Cluster(std::vector<std::vector<T> >& output, const std::vector<T>& input) const override;
 
-}; /// Close class
+  /// Needed for neighbours
+  bool isANeighbor(const T& center, const T& mayNeigh) const;
+  void addNeighbors(std::vector<T>& cluster,
+                    const std::vector<T>& input,
+                    unsigned int start,
+                    std::vector<bool>& masked) const;
+
+};  /// Close class
 
 /*! \brief   Implementation of methods
  *  \details Here, in the header file, the methods which do not depend
@@ -64,26 +64,21 @@ class TTClusterAlgorithm_neighbor : public TTClusterAlgorithm< T >
  */
 
 /// Clustering operations
-template< >
-void TTClusterAlgorithm_neighbor< Ref_Phase2TrackerDigi_ >::Cluster( std::vector<std::vector< Ref_Phase2TrackerDigi_ > > &output,
-                                                             const std::vector< Ref_Phase2TrackerDigi_ > &input ) const;
+template <>
+void TTClusterAlgorithm_neighbor<Ref_Phase2TrackerDigi_>::Cluster(
+    std::vector<std::vector<Ref_Phase2TrackerDigi_> >& output, const std::vector<Ref_Phase2TrackerDigi_>& input) const;
 
 /// Check if the hit is a neighbour
-template< >
-bool TTClusterAlgorithm_neighbor< Ref_Phase2TrackerDigi_ >::isANeighbor( const Ref_Phase2TrackerDigi_& center,
-                                                                 const Ref_Phase2TrackerDigi_& mayNeigh ) const;
+template <>
+bool TTClusterAlgorithm_neighbor<Ref_Phase2TrackerDigi_>::isANeighbor(const Ref_Phase2TrackerDigi_& center,
+                                                                      const Ref_Phase2TrackerDigi_& mayNeigh) const;
 
 /// Add neighbours to the cluster
-template< >
-void TTClusterAlgorithm_neighbor< Ref_Phase2TrackerDigi_ >::addNeighbors( std::vector< Ref_Phase2TrackerDigi_ >& cluster,
-                                                                  const std::vector< Ref_Phase2TrackerDigi_ >& input,
-				                                  unsigned int startVal,
-                                                                  std::vector< bool >& used) const;
-
-
-
-
-
+template <>
+void TTClusterAlgorithm_neighbor<Ref_Phase2TrackerDigi_>::addNeighbors(std::vector<Ref_Phase2TrackerDigi_>& cluster,
+                                                                       const std::vector<Ref_Phase2TrackerDigi_>& input,
+                                                                       unsigned int startVal,
+                                                                       std::vector<bool>& used) const;
 
 /*! \class   ES_TTClusterAlgorithm_neighbor
  *  \brief   Class to declare the algorithm to the framework
@@ -93,32 +88,25 @@ void TTClusterAlgorithm_neighbor< Ref_Phase2TrackerDigi_ >::addNeighbors( std::v
  *
  */
 
-template< typename T >
-class ES_TTClusterAlgorithm_neighbor : public edm::ESProducer
-{
-  private:
-    /// Data members
+template <typename T>
+class ES_TTClusterAlgorithm_neighbor : public edm::ESProducer {
+private:
+  /// Data members
 
-  public:
-    /// Constructor
-    ES_TTClusterAlgorithm_neighbor( const edm::ParameterSet & p )
-    {
-      setWhatProduced( this );
-    }
+public:
+  /// Constructor
+  ES_TTClusterAlgorithm_neighbor(const edm::ParameterSet& p) { setWhatProduced(this); }
 
-    /// Destructor
-    ~ES_TTClusterAlgorithm_neighbor() override{}
+  /// Destructor
+  ~ES_TTClusterAlgorithm_neighbor() override {}
 
-    /// Implement the producer
-    std::unique_ptr< TTClusterAlgorithm< T > > produce( const TTClusterAlgorithmRecord & record )
-    { 
-      TTClusterAlgorithm< T >* TTClusterAlgo =
-        new TTClusterAlgorithm_neighbor< T >( );
+  /// Implement the producer
+  std::unique_ptr<TTClusterAlgorithm<T> > produce(const TTClusterAlgorithmRecord& record) {
+    TTClusterAlgorithm<T>* TTClusterAlgo = new TTClusterAlgorithm_neighbor<T>();
 
-      return std::unique_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
-    }
+    return std::unique_ptr<TTClusterAlgorithm<T> >(TTClusterAlgo);
+  }
 
-}; /// Close class
+};  /// Close class
 
 #endif
-
