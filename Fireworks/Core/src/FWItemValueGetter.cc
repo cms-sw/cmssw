@@ -94,8 +94,15 @@ FWItemValueGetter::FWItemValueGetter(const edm::TypeWithDict& iType, const std::
    {
       addEntry("detId", 0);
    }
-   else {
+   else if(iPurpose == "CaloParticle")
+   {
       addEntry("energy", 1);
+   }
+   else {
+       // by the default  add pt, et, or energy	      addEntry("energy", 1);
+      bool x = addEntry("pt", 1);	
+      if (!x) x = addEntry("et", 1);	
+      if (!x) addEntry("energy", 1);
    }
 
    if (addEntry("eta", 2))
