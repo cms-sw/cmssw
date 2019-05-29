@@ -2,7 +2,7 @@
 //
 // Package:    EgammaHLTProducers
 // Class:      EgammaHLTClusterShapeProducer
-// 
+//
 /**\class EgammaHLTClusterShapeProducer EgammaHLTClusterShapeProducer.cc RecoEgamma/EgammaHLTProducers/interface/EgammaHLTClusterShapeProducer.h
 */
 //
@@ -32,17 +32,15 @@ class EgammaHLTClusterShapeProducer : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTClusterShapeProducer(const edm::ParameterSet&);
   ~EgammaHLTClusterShapeProducer() override;
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   // ----------member data ---------------------------
-  
+
   const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
-  const edm::EDGetTokenT<EcalRecHitCollection>  ecalRechitEBToken_;
-  const edm::EDGetTokenT<EcalRecHitCollection>  ecalRechitEEToken_;
+  const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEBToken_;
+  const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEEToken_;
   const bool EtaOrIeta_;
-
 };
-

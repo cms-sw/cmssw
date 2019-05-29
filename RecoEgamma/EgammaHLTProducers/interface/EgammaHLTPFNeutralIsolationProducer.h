@@ -30,15 +30,14 @@ namespace edm {
 }
 
 class EgammaHLTPFNeutralIsolationProducer : public edm::global::EDProducer<> {
- public:
+public:
   explicit EgammaHLTPFNeutralIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTPFNeutralIsolationProducer() override {};    
-      
+  ~EgammaHLTPFNeutralIsolationProducer() override{};
+
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
- 
- private:
 
+private:
   edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateProducer_;
@@ -60,7 +59,6 @@ class EgammaHLTPFNeutralIsolationProducer : public edm::global::EDProducer<> {
   bool doRhoCorrection_;
   float rhoScale_;
   float rhoMax_;
-
 };
 
 #endif

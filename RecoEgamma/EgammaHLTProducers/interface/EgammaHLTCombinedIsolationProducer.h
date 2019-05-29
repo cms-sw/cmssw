@@ -2,7 +2,7 @@
 //
 // Package:    EgammaHLTProducers
 // Class:      EgammaHLTCombinedIsolationProducer
-// 
+//
 /**\class EgammaHLTCombinedIsolationProducer EgammaHLTCombinedIsolationProducer.cc RecoEgamma/EgammaHLTProducers/interface/EgammaHLTCombinedIsolationProducer.h
 */
 //
@@ -31,16 +31,15 @@ class EgammaHLTCombinedIsolationProducer : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTCombinedIsolationProducer(const edm::ParameterSet&);
   ~EgammaHLTCombinedIsolationProducer() override;
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
 private:
   // ----------member data ---------------------------
-  
+
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   std::vector<edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> > IsolTag_;
   std::vector<double> IsolWeight_;
   const edm::ParameterSet conf_;
-
 };
-
