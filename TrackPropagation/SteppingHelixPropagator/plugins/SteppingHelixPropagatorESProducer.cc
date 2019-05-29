@@ -23,15 +23,22 @@ public:
   std::unique_ptr<Propagator> produce(const TrackingComponentsRecord&);
 
 private:
-  edm::ParameterSet pset_;
+  const edm::ParameterSet pset_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> vbMagToken_;
+  const bool setVBFPointer_;
 };
 
 using namespace edm;
 
-SteppingHelixPropagatorESProducer::SteppingHelixPropagatorESProducer(const edm::ParameterSet& p) {
+SteppingHelixPropagatorESProducer::SteppingHelixPropagatorESProducer(const edm::ParameterSet& p)
+    : pset_{p}, setVBFPointer_{pset_.getParameter<bool>("SetVBFPointer")} {
   std::string myname = p.getParameter<std::string>("ComponentName");
-  pset_ = p;
-  setWhatProduced(this, myname);
+  auto c = setWhatProduced(this, myname);
+  c.setConsumes(magToken_);
+  if (setVBFPointer_) {
+    c.setConsumes(vbMagToken_, edm::ESInputTag("", pset_.getParameter<std::string>("VBFName")));
+  }
 }
 
 SteppingHelixPropagatorESProducer::~SteppingHelixPropagatorESProducer() {}
@@ -41,8 +48,7 @@ std::unique_ptr<Propagator> SteppingHelixPropagatorESProducer::produce(const Tra
   //     delete _propagator;
   //     _propagator = 0;
   //   }
-  ESHandle<MagneticField> magfield;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
+  auto const& magfield = iRecord.get(magToken_);
 
   std::string pdir = pset_.getParameter<std::string>("PropagationDirection");
 
@@ -56,16 +62,15 @@ std::unique_ptr<Propagator> SteppingHelixPropagatorESProducer::produce(const Tra
     dir = anyDirection;
 
   std::unique_ptr<SteppingHelixPropagator> shProp;
-  shProp.reset(new SteppingHelixPropagator(&(*magfield), dir));
+  shProp.reset(new SteppingHelixPropagator(&magfield, dir));
 
   bool useInTeslaFromMagField = pset_.getParameter<bool>("useInTeslaFromMagField");
-  bool setVBFPointer = pset_.getParameter<bool>("SetVBFPointer");
   bool useMagVolumes = pset_.getParameter<bool>("useMagVolumes");
 
-  // if useMagVolumes == true and an alternate VBF field is not specified with setVBFPointer,
+  // if useMagVolumes == true and an alternate VBF field is not specified with setVBFPointer_,
   // Force "useInTeslaFromMagField=true" for a B=0 VBF map.
-  if (useMagVolumes == true && !useInTeslaFromMagField && !setVBFPointer && magfield->nominalValue() == 0) {
-    const VolumeBasedMagneticField* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&(*magfield));
+  if (useMagVolumes == true && !useInTeslaFromMagField && !setVBFPointer_ && magfield.nominalValue() == 0) {
+    const VolumeBasedMagneticField* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&magfield);
     if (vbfCPtr == nullptr) {
       edm::LogWarning("SteppingHelixPropagator")
           << "Config specifies useMagVolumes==True but no VBF field available: SHP has no access to yoke material "
@@ -80,13 +85,10 @@ std::unique_ptr<Propagator> SteppingHelixPropagatorESProducer::produce(const Tra
     }
   }
 
-  if (setVBFPointer) {
-    std::string vbfName = pset_.getParameter<std::string>("VBFName");
-    ESHandle<MagneticField> vbfField;
-    iRecord.getRecord<IdealMagneticFieldRecord>().get(vbfName, vbfField);
-    const VolumeBasedMagneticField* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&(*vbfField));
-    if (vbfField.isValid())
-      shProp->setVBFPointer(vbfCPtr);
+  if (setVBFPointer_) {
+    auto const& vbfField = iRecord.get(vbMagToken_);
+    const VolumeBasedMagneticField* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&vbfField);
+    shProp->setVBFPointer(vbfCPtr);
   }
 
   shProp->setUseInTeslaFromMagField(useInTeslaFromMagField);
