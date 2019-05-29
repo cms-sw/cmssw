@@ -3,10 +3,9 @@
 
 #include <string>
 
-class DDCurrentNamespace
-{
+class DDCurrentNamespace {
 public:
-  static std::string & ns();
+  static std::string& ns();
 };
 
 #endif

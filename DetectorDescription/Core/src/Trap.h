@@ -6,22 +6,25 @@
 
 namespace DDI {
 
-  class Trap : public Solid
-  {
+  class Trap : public Solid {
   public:
-    Trap(double pDz, 
+    Trap(double pDz,
          double pTheta,
          double pPhi,
-         double pDy1, double pDx1,double pDx2,
+         double pDy1,
+         double pDx1,
+         double pDx2,
          double pAlp1,
-         double pDy2, double pDx3, double pDx4,
+         double pDy2,
+         double pDx3,
+         double pDx4,
          double pAlp2);
-    
+
     double volume() const override;
-    
+
     void stream(std::ostream &) const override;
   };
 
-}
+}  // namespace DDI
 
 #endif
