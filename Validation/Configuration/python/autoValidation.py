@@ -1,19 +1,19 @@
 autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLiteTracking','validationHarvesting'],
                    'trackingOnlyValidation' : ['globalPrevalidationTrackingOnly','globalValidationTrackingOnly','postValidation_trackingOnly'],
                    'pixelTrackingOnlyValidation' : ['globalPrevalidationPixelTrackingOnly','globalValidationPixelTrackingOnly','postValidation_trackingOnly'],
-                   'trackingValidation': ['globalPrevalidationTracking','globalValidationTrackingOnly','postValidationTracking'], #
-                   'muonOnlyValidation' : ['globalPrevalidationMuons','globalValidationMuons','postValidation_muons'], #
-                   'bTagOnlyValidation' : ['prebTagSequenceMC','bTagPlotsMCbcl','bTagCollectorSequenceMCbcl'], #
-                   'JetMETOnlyValidation' : ['globalPrevalidationJetMETOnly','globalValidationJetMETonly','postValidation_JetMET'], #
-                   'electronOnlyValidation' : ['', 'electronValidationSequence', 'electronPostValidationSequence'], # OK
-                   'hcalOnlyValidation' : ['globalPrevalidationHCAL','globalValidationHCAL','postValidation_HCAL'], #
-                   'baseValidation' : ['baseCommonPreValidation','baseCommonValidation','postValidation_common'], #
+                   'trackingValidation': ['globalPrevalidationTracking','globalValidationTrackingOnly','postValidationTracking'],
+                   'muonOnlyValidation' : ['globalPrevalidationMuons','globalValidationMuons','postValidation_muons'],
+                   'bTagOnlyValidation' : ['prebTagSequenceMC','bTagPlotsMCbcl','bTagCollectorSequenceMCbcl'],
+                   'JetMETOnlyValidation' : ['globalPrevalidationJetMETOnly','globalValidationJetMETonly','postValidation_JetMET'],
+                   'electronOnlyValidation' : ['', 'electronValidationSequence', 'electronPostValidationSequence'],
+                   'hcalOnlyValidation' : ['globalPrevalidationHCAL','globalValidationHCAL','postValidation_HCAL'],
+                   'baseValidation' : ['baseCommonPreValidation','baseCommonValidation','postValidation_common'],
                    'miniAODValidation' : ['prevalidationMiniAOD','validationMiniAOD','validationHarvestingMiniAOD'],
-                   'standardValidation' : ['prevalidation','validation','validationHarvesting'], # pas bon
-                   'standardValidationNoHLT' : ['prevalidationNoHLT','validationNoHLT','validationHarvestingNoHLT'], # pas bon
-                   'HGCalValidation' : ['', 'globalValidationHGCal', 'hgcalValidatorPostProcessor'], #
-                   'MTDValidation' : ['', 'globalValidationMTD', ''], #
-                   'OuterTrackerValidation' : ['', 'globalValidationOuterTracker', 'postValidationOuterTracker'], #
+                   'standardValidation' : ['prevalidation','validation','validationHarvesting'],
+                   'standardValidationNoHLT' : ['prevalidationNoHLT','validationNoHLT','validationHarvestingNoHLT'],
+                   'HGCalValidation' : ['', 'globalValidationHGCal', 'hgcalValidatorPostProcessor'],
+                   'MTDValidation' : ['', 'globalValidationMTD', ''],
+                   'OuterTrackerValidation' : ['', 'globalValidationOuterTracker', 'postValidationOuterTracker'],
                  }
 
 _phase2_allowed = ['baseValidation','trackingValidation','muonOnlyValidation','JetMETOnlyValidation', 'electronOnlyValidation', 'bTagOnlyValidation','hcalOnlyValidation', 'HGCalValidation', 'MTDValidation', 'OuterTrackerValidation']
