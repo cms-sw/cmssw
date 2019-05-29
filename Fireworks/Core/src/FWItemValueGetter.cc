@@ -11,7 +11,6 @@
 //
 
 // system include files
-#include <iostream>
 #include <sstream>
 #include <cstdio>
 #include "TMath.h"
