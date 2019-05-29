@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/ParticleFlowReco/interface/HGCalMultiCluster.h"
-#include "RecoHGCal/TICL/interface/Trackster.h"
+#include "DataFormats/TICL/interface/Trackster.h"
 
 #include <algorithm>
 #include <array>

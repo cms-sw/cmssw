@@ -22,12 +22,16 @@ class ClusterFilterByAlgoOrSize final : public ClusterFilterBase {
 
   std::unique_ptr<HgcalClusterFilterMask> filter(
       const std::vector<reco::CaloCluster>& layerClusters,
-      const HgcalClusterFilterMask& availableLayerClusters) const override {
+      const HgcalClusterFilterMask& availableLayerClusters,
+      std::vector<float> & layerClustersMask) const override {
     auto filteredLayerClusters = std::make_unique<HgcalClusterFilterMask>();
     for (auto const& cl : availableLayerClusters) {
       if (layerClusters[cl.first].algo() == algo_number_ ||
-          layerClusters[cl.first].hitsAndFractions().size() <= max_cluster_size_)
+          layerClusters[cl.first].hitsAndFractions().size() <= max_cluster_size_) {
         filteredLayerClusters->emplace_back(cl);
+      } else {
+        layerClustersMask[cl.first] = 0.;
+      }
     }
     return filteredLayerClusters;
   }
