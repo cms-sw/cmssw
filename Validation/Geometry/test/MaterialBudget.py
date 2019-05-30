@@ -1055,13 +1055,14 @@ if __name__ == '__main__':
 
 
     if args.geometry is None:
-        print("Error, missing geometry")
+        print("Error, missing geometry. -g is Required")
         raise RuntimeError
 
     if args.geometry_comparison and args.geometry is None:
-        print("Error, geometry comparison requires two geometries")
+        print("Error, geometry comparison requires two geometries.")
+        print("use -gc option")
         raise RuntimeError
-    
+
     if args.geometry_comparison and args.geometry:
 
         # For the definition of the properties of these graphs
@@ -1089,7 +1090,7 @@ if __name__ == '__main__':
 
     if args.compare:
         if args.reco is None:
-            print("Error, missing inpur reco file")
+            print("Error, missing input reco file")
             raise RuntimeError
         if args.label is None:
             print("Error, missing label")
