@@ -74,7 +74,6 @@ namespace btagbtvdeep {
                 if (reco::deltaR(it.track(), jet) > 0.4) continue;
                 
                 std::pair<bool,Measurement1D> ip = IPTools::absoluteImpactParameter3D(it, pv);
-                std::pair<bool,Measurement1D> ip2d = IPTools::absoluteTransverseImpactParameter(it, pv);
                 std::pair<double, Measurement1D> jet_dist =IPTools::jetTrackDistance(it, jetdirection, pv); 
                 TrajectoryStateOnSurface closest = IPTools::closestApproachToJet(it.impactPointState(),pv, jetdirection,it.field());
                 float length=999;
@@ -94,7 +93,7 @@ namespace btagbtvdeep {
                 
                 
                 btagbtvdeep::SeedingTrackInfoBuilder seedInfo;
-                seedInfo.buildSeedingTrackInfo(&(it), pv, jet, masses[selTrackCount-1], probabilityEstimator, computeProbabilities);
+                seedInfo.buildSeedingTrackInfo(&(it), pv, jet, masses[selTrackCount-1], ip, jet_dist.second.value(), length, probabilityEstimator, computeProbabilities);
 
                 unsigned int neighbourTrackCount=0;
                 
@@ -102,11 +101,14 @@ namespace btagbtvdeep {
                     
                     neighbourTrackCount+=1;
 
-                    if(tt==it) continue;
+                    if(neighbourTrackCount==selTrackCount) continue;
                     if(std::fabs(pv.z()-tt.track().vz())>0.1) continue;
 
+                    std::pair<bool,Measurement1D> t_ip = IPTools::absoluteImpactParameter3D(tt,pv);
+                    std::pair<bool,Measurement1D> t_ip2d = IPTools::absoluteTransverseImpactParameter(tt,pv);
+
                     btagbtvdeep::TrackPairInfoBuilder trackPairInfo;
-                    trackPairInfo.buildTrackPairInfo(&(it),&(tt),pv,masses[neighbourTrackCount-1],jetdirection);
+                    trackPairInfo.buildTrackPairInfo(&(it),&(tt),pv,masses[neighbourTrackCount-1],jetdirection, t_ip, t_ip2d);
                     sortedNeighboursMap.insert(std::make_pair(trackPairInfo.pca_distance(), trackPairInfo));
                     
                 }
