@@ -22,12 +22,12 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 class HcalDetIdAssociator: public CaloDetIdAssociator{
  public:
-   HcalDetIdAssociator():CaloDetIdAssociator(72, 70 ,0.087){};
+   HcalDetIdAssociator():CaloDetIdAssociator(72, 70 ,0.087, nullptr){};
 
-   HcalDetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet)
-    ,hcalReg_(pSet.getParameter<int> ("hcalRegion"))
-    {};
-   
+   HcalDetIdAssociator(int hcalReg, int nPhi, int nEta, double etaBinSize, CaloGeometry const* geom):
+     CaloDetIdAssociator(nPhi, nEta, etaBinSize, geom),
+     hcalReg_{hcalReg}{}
+
    const char* name() const override { return "HCAL"; }
 
  protected:

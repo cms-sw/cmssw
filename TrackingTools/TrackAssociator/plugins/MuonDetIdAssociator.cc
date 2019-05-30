@@ -139,10 +139,3 @@ MuonDetIdAssociator::getDetIdPoints(const DetId& id, std::vector<GlobalPoint>& p
    
    return std::pair<const_iterator,const_iterator>(points.begin(),points.end());
 }
-
-void MuonDetIdAssociator::setGeometry(const DetIdAssociatorRecord& iRecord)
-{
-  edm::ESHandle<GlobalTrackingGeometry> geometryH;
-  iRecord.getRecord<GlobalTrackingGeometryRecord>().get(geometryH);
-  setGeometry(geometryH.product());
-}
