@@ -36,7 +36,7 @@ namespace btagbtvdeep{
 
 
     void SeedingTrackInfoBuilder::buildSeedingTrackInfo(const reco::TransientTrack * it , const reco::Vertex & pv,  const reco::Jet & jet,/*GlobalVector jetdirection,*/ float mass, 
-                              HistogramProbabilityEstimator* m_probabilityEstimator, bool m_computeProbabilities=false){
+                              std::pair<bool,Measurement1D> ip, float jet_distance, float jaxis_dlength, HistogramProbabilityEstimator* m_probabilityEstimator, bool m_computeProbabilities=false ){
         
         GlobalPoint pvp(pv.x(),pv.y(),pv.z());
         GlobalVector jetdirection(jet.px(),jet.py(),jet.pz());
@@ -51,8 +51,7 @@ namespace btagbtvdeep{
         mass_=mass;        
         
         std::pair<bool,Measurement1D> ipSigned = IPTools::signedImpactParameter3D(*it,jetdirection, pv);        
-        std::pair<bool,Measurement1D> ip2dSigned = IPTools::signedTransverseImpactParameter(*it,jetdirection, pv);  
-        std::pair<bool,Measurement1D> ip = IPTools::absoluteImpactParameter3D(*it, pv);        
+        std::pair<bool,Measurement1D> ip2dSigned = IPTools::signedTransverseImpactParameter(*it,jetdirection, pv);         
         std::pair<bool,Measurement1D> ip2d = IPTools::absoluteTransverseImpactParameter(*it, pv);        
         
         ip3D_=ip.second.value();
@@ -68,12 +67,8 @@ namespace btagbtvdeep{
         nPixelHits_=aTrack.hitPattern().numberOfValidPixelHits();
         nHits_=aTrack.hitPattern().numberOfValidHits();
         
-        std::pair<double, Measurement1D> jet_distance =IPTools::jetTrackDistance(*it, jetdirection, pv);
-        jetAxisDistance_=std::fabs(jet_distance.second.value());
-
-        TrajectoryStateOnSurface closest = IPTools::closestApproachToJet(it->impactPointState(),pv,jetdirection,it->field());
-        if (closest.isValid()) jetAxisDlength_=(closest.globalPosition() - pvp).mag(); 
-        else jetAxisDlength_=-99;
+        jetAxisDistance_=std::fabs(jet_distance);
+        jetAxisDlength_=jaxis_dlength;
         
         trackProbability3D_=0.5;
         trackProbability2D_=0.5;
