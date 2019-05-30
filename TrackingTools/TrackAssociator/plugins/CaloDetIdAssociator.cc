@@ -184,13 +184,6 @@ bool CaloDetIdAssociator::crossedElement(const GlobalPoint& point1,
    return false;
 }
 
-void CaloDetIdAssociator::setGeometry(const DetIdAssociatorRecord& iRecord)
-{
-  edm::ESHandle<CaloGeometry> geometryH;
-  iRecord.getRecord<CaloGeometryRecord>().get(geometryH);
-  setGeometry(geometryH.product());
-}
-
 void CaloDetIdAssociator::check_setup() const
 {
   DetIdAssociator::check_setup();

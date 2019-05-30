@@ -5,17 +5,17 @@
 
 
 #include "DetIdAssociatorFactory.h"
-#include "EcalDetIdAssociator.h"
-#include "HcalDetIdAssociator.h"
-#include "HODetIdAssociator.h"
-#include "CaloDetIdAssociator.h"
-#include "MuonDetIdAssociator.h"
-#include "PreshowerDetIdAssociator.h"
+#include "EcalDetIdAssociatorMaker.h"
+#include "HcalDetIdAssociatorMaker.h"
+#include "HODetIdAssociatorMaker.h"
+#include "CaloDetIdAssociatorMaker.h"
+#include "MuonDetIdAssociatorMaker.h"
+#include "PreshowerDetIdAssociatorMaker.h"
 
-DEFINE_EDM_PLUGIN(DetIdAssociatorFactory, EcalDetIdAssociator, "EcalDetIdAssociator");
-DEFINE_EDM_PLUGIN(DetIdAssociatorFactory, HcalDetIdAssociator, "HcalDetIdAssociator");
-DEFINE_EDM_PLUGIN(DetIdAssociatorFactory, HODetIdAssociator, "HODetIdAssociator");
-DEFINE_EDM_PLUGIN(DetIdAssociatorFactory, CaloDetIdAssociator, "CaloDetIdAssociator");
-DEFINE_EDM_PLUGIN(DetIdAssociatorFactory, MuonDetIdAssociator, "MuonDetIdAssociator");
-DEFINE_EDM_PLUGIN(DetIdAssociatorFactory, PreshowerDetIdAssociator, "PreshowerDetIdAssociator");
+DEFINE_EDM_PLUGIN(DetIdAssociatorFactory, EcalDetIdAssociatorMaker, "EcalDetIdAssociator");
+DEFINE_EDM_PLUGIN(DetIdAssociatorFactory, HcalDetIdAssociatorMaker, "HcalDetIdAssociator");
+DEFINE_EDM_PLUGIN(DetIdAssociatorFactory, HODetIdAssociatorMaker, "HODetIdAssociator");
+DEFINE_EDM_PLUGIN(DetIdAssociatorFactory, CaloDetIdAssociatorMaker, "CaloDetIdAssociator");
+DEFINE_EDM_PLUGIN(DetIdAssociatorFactory, MuonDetIdAssociatorMaker, "MuonDetIdAssociator");
+DEFINE_EDM_PLUGIN(DetIdAssociatorFactory, PreshowerDetIdAssociatorMaker, "PreshowerDetIdAssociator");
 

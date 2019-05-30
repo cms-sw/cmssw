@@ -19,28 +19,17 @@
 //
 
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class CaloDetIdAssociator: public DetIdAssociator{
  public:
    CaloDetIdAssociator():DetIdAssociator(72, 70 ,0.087),geometry_(nullptr){};
-   CaloDetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
-     :DetIdAssociator(nPhi, nEta, etaBinSize),geometry_(nullptr){};
-
-   CaloDetIdAssociator(const edm::ParameterSet& pSet)
-     :DetIdAssociator(pSet.getParameter<int>("nPhi"),pSet.getParameter<int>("nEta"),pSet.getParameter<double>("etaBinSize")),geometry_(nullptr){};
-   
-   virtual void setGeometry(const CaloGeometry* ptr) { geometry_ = ptr; };
-
-   void setGeometry(const DetIdAssociatorRecord& iRecord) override;
+ CaloDetIdAssociator(const int nPhi, const int nEta, const double etaBinSize, CaloGeometry const* geom)
+     :DetIdAssociator(nPhi, nEta, etaBinSize),geometry_(geom){};
 
    const GeomDet* getGeomDet(const DetId& id) const override { return nullptr; };
 

@@ -26,30 +26,21 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
 class MuonDetIdAssociator: public DetIdAssociator{
  public:
    MuonDetIdAssociator():DetIdAssociator(48, 48 , 0.125),geometry_(nullptr),cscbadchambers_(nullptr),includeBadChambers_(false){};
    MuonDetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
      :DetIdAssociator(nPhi, nEta, etaBinSize),geometry_(nullptr),cscbadchambers_(nullptr),includeBadChambers_(false){};
 
-   MuonDetIdAssociator(const edm::ParameterSet& pSet)
-     :DetIdAssociator(pSet.getParameter<int>("nPhi"),pSet.getParameter<int>("nEta"),pSet.getParameter<double>("etaBinSize")),geometry_(nullptr),cscbadchambers_(nullptr),includeBadChambers_(pSet.getParameter<bool>("includeBadChambers")),includeGEM_(pSet.getParameter<bool>("includeGEM")),includeME0_(pSet.getParameter<bool>("includeME0")){};
-   
+ MuonDetIdAssociator(int nPhi, int nEta, double etaBinSize, const GlobalTrackingGeometry* geom,
+                     const CSCBadChambers* badChambers, 
+                     bool includeBadChambers, bool includeGEM, bool includeME0)
+     :DetIdAssociator(nPhi, nEta, etaBinSize),geometry_(geom),cscbadchambers_(badChambers),
+    includeBadChambers_(includeBadChambers), includeGEM_(includeGEM), includeME0_(includeME0) {};
+
    virtual void setGeometry(const GlobalTrackingGeometry* ptr) { geometry_ = ptr; }
 
-   void setGeometry(const DetIdAssociatorRecord& iRecord) override;
-
    virtual void setCSCBadChambers(const CSCBadChambers* ptr) { cscbadchambers_ = ptr; }
-
-   void setConditions(const DetIdAssociatorRecord& iRecord) override{
-      edm::ESHandle<CSCBadChambers> cscbadchambersH;
-      iRecord.getRecord<CSCBadChambersRcd>().get(cscbadchambersH);
-      setCSCBadChambers(cscbadchambersH.product());
-   };
 
    const GeomDet* getGeomDet( const DetId& id ) const override;
 

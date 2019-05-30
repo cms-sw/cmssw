@@ -39,7 +39,6 @@
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 #include "TrackingTools/TrackAssociator/interface/FiducialVolume.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 #include <set>
 #include <vector>
 
@@ -116,10 +115,7 @@ class DetIdAssociator{
    /// get active detector volume
    const FiducialVolume& volume() const;
 
-   virtual void setGeometry(const DetIdAssociatorRecord&) = 0;
    virtual const GeomDet* getGeomDet(const DetId&) const = 0;
-
-   virtual void setConditions(const DetIdAssociatorRecord&) {};
 
    virtual const char* name() const = 0;
    
