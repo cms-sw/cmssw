@@ -33,8 +33,8 @@ class OffsetDQMPostProcessor : public DQMEDHarvester {
       float offsetR;
       std::vector<std::string> pftypes;
       std::vector<std::string> offsetVariableTypes;
-      double muHigh;
-      double npvHigh;
+      int muHigh;
+      int npvHigh;
   
       bool debug=false;
   
@@ -88,17 +88,21 @@ OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
     //
     stitle=offsetDir+(*i);
     mtmp=iget_.get(stitle);
-    int navg = int( mtmp->getMean()+0.5 ); // in order to get the rounding correctly
-    if (navg<=0) navg=1;                                 // checking lower bound (avoid division by zero)
-    if      (*i=="npv" && navg>=npvHigh) navg=npvHigh-1; // checking upper bound
-    else if (*i=="mu"  && navg>=muHigh)  navg=muHigh-1;  // 
+    float avg=mtmp->getMean();
+    int iavg = int( avg+0.5 ); // integer version for identifying correcping ME, in order to get the rounding correctly
+
+    if (avg<1.) avg=1.; // protection against this value going too low
+
+    if (iavg<0) iavg=0;                                  // checking lower bound (avoid division by zero)
+    if      (*i=="npv" && iavg>=npvHigh) iavg=npvHigh-1; // checking upper bound
+    else if (*i=="mu"  && iavg>=muHigh)  iavg=muHigh-1;  // 
     
     //
     // storing the value
     //
     stitle=(*i)+"_mean";
-    MonitorElement *MEmean = ibook_.bookInt(stitle);
-    MEmean->Fill(navg);
+    MonitorElement *MEmean = ibook_.bookFloat(stitle);
+    MEmean->Fill(avg);
     vME.push_back(MEmean);
 
     //
@@ -107,7 +111,7 @@ OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
     for(std::vector<std::string>::const_iterator j = pftypes.begin(); j != pftypes.end(); ++j) {
 
       // accessing profiles
-      std::string str_base=*i+std::to_string(navg);
+      std::string str_base=*i+std::to_string(iavg);
       if      ((*i)=="npv") stitle=offsetDir+"npvPlots/"+str_base+"/"+offsetPlotBaseName+"_"+str_base+"_"+(*j);
       else if ((*i)=="mu")  stitle=offsetDir+"muPlots/"+str_base+"/"+offsetPlotBaseName+"_"+str_base+"_"+(*j);
       else return;
@@ -118,9 +122,9 @@ OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
       htmp = (TH1F*)hproftmp->ProjectionX();
       TAxis *xaxis = (TAxis*)htmp->GetXaxis();
       stitle = offsetPlotBaseName + "_" + str_base + "_" + *j;
-      hscaled = new TH1F(stitle.c_str(),stitle.c_str(),xaxis->GetNbins(),xaxis->GetXmin(),xaxis->GetXmax());
+      hscaled = new TH1F(stitle.c_str(),stitle.c_str(),xaxis->GetNbins(),xaxis->GetXbins()->GetArray());
 
-      htmp->Scale(pow(offsetR,2)/2./float(navg));         // pi*R^2 / (deltaEta*2pi) / <mu or NPV>
+      htmp->Scale(pow(offsetR,2)/2./float(avg));            // pi*R^2 / (deltaEta*2pi) / <mu or NPV>
       for (int ibin=1; ibin<=hscaled->GetNbinsX(); ibin++){ // 1/deltaEta part
 	hscaled->SetBinContent(ibin,htmp->GetBinContent(ibin)/htmp->GetBinWidth(ibin));
 	hscaled->SetBinError(ibin,htmp->GetBinError(ibin)/htmp->GetBinWidth(ibin));
