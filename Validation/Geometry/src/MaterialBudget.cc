@@ -99,19 +99,19 @@ void MaterialBudget::update(const BeginOfTrack* trk) {
   const G4Track* aTrack = (*trk)();  // recover G4 pointer if wanted
   const G4ThreeVector& mom = aTrack->GetMomentum();
   if (mom.theta() != 0) {
-    eta = mom.eta();
+    eta_ = mom.eta();
   } else {
-    eta = -99;
+    eta_ = -99;
   }
-  phi = mom.phi();
+  phi_ = mom.phi();
   stepT = 0;
 
 #ifdef DebugLog
   double theEnergy = aTrack->GetTotalEnergy();
   int theID = (int)(aTrack->GetDefinition()->GetPDGEncoding());
   edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Track " << aTrack->GetTrackID() << " Code " << theID
-                                 << " Energy " << theEnergy / CLHEP::GeV << " GeV; Eta " << eta << " Phi "
-                                 << phi / CLHEP::deg << " PT " << mom.perp() / CLHEP::GeV << " GeV *****";
+                                 << " Energy " << theEnergy / CLHEP::GeV << " GeV; Eta " << eta_ << " Phi "
+                                 << phi_ / CLHEP::deg << " PT " << mom.perp() / CLHEP::GeV << " GeV *****";
 #endif
 }
 
@@ -179,17 +179,17 @@ void MaterialBudget::update(const EndOfTrack* trk) {
   }
 
   for (unsigned int ii = 0; ii <= detTypes.size(); ++ii) {
-    me100[ii]->Fill(eta, radLen[ii]);
-    me200[ii]->Fill(eta, intLen[ii]);
-    me300[ii]->Fill(eta, stepLen[ii]);
-    me400[ii]->Fill(phi, radLen[ii]);
-    me500[ii]->Fill(phi, intLen[ii]);
-    me600[ii]->Fill(phi, stepLen[ii]);
+    me100[ii]->Fill(eta_, radLen[ii]);
+    me200[ii]->Fill(eta_, intLen[ii]);
+    me300[ii]->Fill(eta_, stepLen[ii]);
+    me400[ii]->Fill(phi_, radLen[ii]);
+    me500[ii]->Fill(phi_, intLen[ii]);
+    me600[ii]->Fill(phi_, stepLen[ii]);
 #ifdef DebugLog
     std::string name("Unknown");
     if (ii < detTypes.size())
       name = detTypes[ii];
-    edm::LogInfo("MaterialBudget") << "MaterialBudget::Volume[" << ii << "]: " << name << " eta " << eta << " == Step "
+    edm::LogInfo("MaterialBudget") << "MaterialBudget::Volume[" << ii << "]: " << name << " eta " << eta_ << " == Step "
                                    << stepLen[ii] << " RadL " << radLen[ii] << " IntL " << intLen[ii];
 #endif
   }
@@ -254,10 +254,10 @@ bool MaterialBudget::stopAfter(const G4Step* aStep) {
   bool flag(false);
   for (unsigned int ii = 0; ii < etaRegions.size(); ++ii) {
 #ifdef DebugLog
-    edm::LogInfo("MaterialBudget") << " MaterialBudget::Eta " << eta << " in Region[" << ii << "] with "
+    edm::LogInfo("MaterialBudget") << " MaterialBudget::Eta " << eta_ << " in Region[" << ii << "] with "
                                    << etaRegions[ii] << " type " << regionTypes[ii] << "|" << boundaries[ii];
 #endif
-    if (fabs(eta) < etaRegions[ii]) {
+    if (fabs(eta_) < etaRegions[ii]) {
       if (regionTypes[ii] == 0) {
         if (rr >= boundaries[ii] - 0.001)
           flag = true;

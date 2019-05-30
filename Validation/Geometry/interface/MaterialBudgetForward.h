@@ -28,11 +28,12 @@ class MaterialBudgetForward : public SimWatcher,
                               public Observer<const EndOfTrack *> {
 public:
   MaterialBudgetForward(const edm::ParameterSet &);
+  MaterialBudgetForward(const MaterialBudgetForward &) = delete;                   // stop default
   ~MaterialBudgetForward() override;
 
-private:
-  MaterialBudgetForward(const MaterialBudgetForward &) = delete;                   // stop default
   const MaterialBudgetForward &operator=(const MaterialBudgetForward &) = delete;  // ...
+
+private:
 
   void update(const BeginOfRun *) override;
   void update(const BeginOfTrack *) override;
@@ -52,7 +53,7 @@ private:
   TProfile *me100[maxSet], *me200[maxSet], *me300[maxSet];
   TProfile2D *me500[maxSet], *me600[maxSet], *me700[maxSet];
   std::vector<double> stepLen, radLen, intLen;
-  double eta, phi, stepT;
+  double eta_, phi_, stepT;
 };
 
 #endif

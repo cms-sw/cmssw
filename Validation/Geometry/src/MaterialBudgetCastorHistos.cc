@@ -41,11 +41,11 @@ void MaterialBudgetCastorHistos::fillStartTrack(const G4Track* aTrack) {
 
   const G4ThreeVector& dir = aTrack->GetMomentum();
   if (dir.theta() != 0) {
-    eta = dir.eta();
+    eta_ = dir.eta();
   } else {
-    eta = -99;
+    eta_ = -99;
   }
-  phi = dir.phi();
+  phi_ = dir.phi();
   double theEnergy = aTrack->GetTotalEnergy();
   int theID = (int)(aTrack->GetDefinition()->GetPDGEncoding());
 
@@ -57,7 +57,7 @@ void MaterialBudgetCastorHistos::fillStartTrack(const G4Track* aTrack) {
   }
 
   edm::LogInfo("MaterialBudget") << "MaterialBudgetCastorHistos: Track " << aTrack->GetTrackID() << " Code " << theID
-                                 << " Energy " << theEnergy / GeV << " GeV; Eta " << eta << " Phi " << phi / deg
+                                 << " Energy " << theEnergy / GeV << " GeV; Eta " << eta_ << " Phi " << phi_ / deg
                                  << " PT " << dir.perp() / GeV << " GeV *****";
 }
 
@@ -255,29 +255,29 @@ void MaterialBudgetCastorHistos::book() {
 
 void MaterialBudgetCastorHistos::fillHisto(int id, int ix) {
   int ii = 2 * (id - 1) + ix;
-  double etaAbs = eta;
-  if (eta < 0) {
-    etaAbs = -eta;
+  double etaAbs = eta_;
+  if (eta_ < 0) {
+    etaAbs = -eta_;
     ii += 10;
   }
   LogDebug("MaterialBudget") << "MaterialBudgetCastorHistos:FillHisto "
-                             << "called with index " << id << ":" << ix << ":" << ii << " eta " << etaAbs << " (" << eta
+                             << "called with index " << id << ":" << ix << ":" << ii << " eta " << etaAbs << " (" << eta_
                              << ") integrated  step " << stepLen << " X0 " << radLen << " Lamda " << intLen;
 
-  me100[ii]->Fill(eta, radLen);
-  me200[ii]->Fill(eta, intLen);
-  me300[ii]->Fill(eta, stepLen);
-  me400[ii]->Fill(eta);
+  me100[ii]->Fill(eta_, radLen);
+  me200[ii]->Fill(eta_, intLen);
+  me300[ii]->Fill(eta_, stepLen);
+  me400[ii]->Fill(eta_);
 
   if (etaAbs >= etaLow && etaAbs <= etaHigh) {
-    me500[ii]->Fill(phi, radLen);
-    me600[ii]->Fill(phi, intLen);
-    me700[ii]->Fill(phi, stepLen);
-    me800[ii]->Fill(phi);
+    me500[ii]->Fill(phi_, radLen);
+    me600[ii]->Fill(phi_, intLen);
+    me700[ii]->Fill(phi_, stepLen);
+    me800[ii]->Fill(phi_);
   }
 
-  me900[ii]->Fill(eta, phi, radLen);
-  me1000[ii]->Fill(eta, phi, intLen);
-  me1100[ii]->Fill(eta, phi, stepLen);
-  me1200[ii]->Fill(eta, phi);
+  me900[ii]->Fill(eta_, phi_, radLen);
+  me1000[ii]->Fill(eta_, phi_, intLen);
+  me1100[ii]->Fill(eta_, phi_, stepLen);
+  me1200[ii]->Fill(eta_, phi_);
 }

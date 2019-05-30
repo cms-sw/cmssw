@@ -41,7 +41,7 @@ private:
   TProfile2D *me900[maxSet], *me1000[maxSet], *me1100[maxSet];
   int id1, id2, steps;
   double radLen, intLen, stepLen;
-  double eta, phi;
+  double eta_, phi_;
 };
 
 #endif
