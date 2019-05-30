@@ -80,6 +80,9 @@ private:
     std::vector<std::string> pftypes;
     std::vector<double> etabins;
 
+    int muHigh;
+    int npvHigh;
+  
     edm::EDGetTokenT< edm::View<reco::Vertex> > pvToken;
     edm::EDGetTokenT< edm::View<PileupSummaryInfo> > muToken;
     edm::EDGetTokenT< edm::View<pat::PackedCandidate> > pfToken;
@@ -97,6 +100,9 @@ OffsetAnalyzerDQM::OffsetAnalyzerDQM(const edm::ParameterSet& iConfig)
     etabins = iConfig.getParameter< std::vector<double> >("etabins");
     pftypes = iConfig.getParameter< std::vector<std::string> >("pftypes");
 
+    muHigh = iConfig.getUntrackedParameter< int >("muHigh");
+    npvHigh = iConfig.getUntrackedParameter< int >("npvHigh");
+    
     //initialize offset plots
     const auto& offset_psets = iConfig.getParameter<std::vector<edm::ParameterSet>>("offsetPlots");
     for (auto& pset : offset_psets) {
@@ -142,6 +148,7 @@ void OffsetAnalyzerDQM::bookHistograms(DQMStore::IBooker & booker, edm::Run cons
 
 void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&)
 {
+
     //npv//
     edm::Handle< edm::View<reco::Vertex> > vertexHandle;
     iEvent.getByToken(pvToken, vertexHandle);
@@ -158,17 +165,31 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
         }
     }
     th1dPlots["npv"].fill( npv );
+    int npv_in_range = npv;
+    if      (npv_in_range<0) npv_in_range=0;
+    else if (npv_in_range>=npvHigh) npv_in_range=npvHigh-1; // make sure int_mu won't lead to non-existing ME
 
     //mu//
     int int_mu = -1;
     edm::Handle< edm::View<PileupSummaryInfo> > muHandle;
     if ( iEvent.getByToken(muToken, muHandle) ) {
 
-      int bx = muHandle->size()==1 ? 0 : 12; //12 is in time BX
-      float mu = muHandle->at(bx).getTrueNumInteractions();
-      th1dPlots["mu"].fill( mu );
-      int_mu = mu + 0.5;
+      const auto& summary = *muHandle;
+      auto it = std::find_if(summary.begin(), summary.end(), [](const auto& s) { return s.getBunchCrossing() == 0; });
+
+      if (it->getBunchCrossing() != 0) {
+	edm::LogError("OffsetAnalyzerDQM") << "Cannot find the in-time pileup info " << it->getBunchCrossing();
+      } else {
+	//int bx = muHandle->size()==1 ? 0 : 12; //12 is in time BX
+	//float mu = muHandle->at(bx).getTrueNumInteractions();
+	float mu = it->getTrueNumInteractions();
+	//std::cout << "getTrueNumInt,bx,size: " << it->getTrueNumInteractions() << " " << it->getBunchCrossing() << " " << muHandle->size() << std::endl;
+	//std::cout << "mu,getTrueNumInt,bx,size: " << mu << " " << it->getTrueNumInteractions() << " " << it->getBunchCrossing() << " " << muHandle->size() << std::endl;
+	th1dPlots["mu"].fill( mu );
+	int_mu = mu + 0.5;
+      }
     }
+    if (int_mu>=muHigh) int_mu=muHigh-1; // make sure int_mu won't lead to non-existing ME
 
     //create map of pftypes vs total energy / eta
     std::map<std::string, std::vector<double>> m_pftype_etaE;
@@ -221,8 +242,8 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
         std::string pftype = pair.first;
         std::vector<double> etaE = pair.second;
 
-        std::string offset_name_npv = offsetPlotBaseName + "_npv" + std::to_string(npv) + "_" + pftype;
-        if (offsetPlots.find(offset_name_npv)==offsetPlots.end()) return; //npv is out of range
+        std::string offset_name_npv = offsetPlotBaseName + "_npv" + std::to_string(npv_in_range) + "_" + pftype;
+        if (offsetPlots.find(offset_name_npv)==offsetPlots.end()) return; //npv is out of range ()
 
         for (int i=0; i<nEta; i++) {
             double eta = 0.5*(etabins[i] + etabins[i+1]);
@@ -239,6 +260,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
             }
         }
     }
+
 }
 
 int OffsetAnalyzerDQM::getEtaIndex( float eta ) {
