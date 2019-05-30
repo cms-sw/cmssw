@@ -7,6 +7,7 @@
 // #include "TrackingTools/TrackAssociator/interface/MuonDetIdAssociator.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
+#include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
