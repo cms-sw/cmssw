@@ -18,14 +18,12 @@ class RandomEngineAndDistribution;
 class TH1;
 class TAxis;
 
-class SimpleHistogramGenerator
-{
- public:
-
+class SimpleHistogramGenerator {
+public:
   /// Constructor that perform the necessary integration and inversion steps
   /// xmin and xmax are the generation bounds, n is the internal table size
   /// and iter is the number of iterations for the numerical part.
-  SimpleHistogramGenerator(TH1 * histo);
+  SimpleHistogramGenerator(TH1* histo);
 
   /// Default destructor
   virtual ~SimpleHistogramGenerator() {}
@@ -33,21 +31,18 @@ class SimpleHistogramGenerator
   /// The random generation
   double generate(RandomEngineAndDistribution const*) const;
 
-  int binarySearch(const int& n, 
-		   const std::vector<float>& array, 
-		   const double& value) const;
+  int binarySearch(const int& n, const std::vector<float>& array, const double& value) const;
 
- private:
-
+private:
   /// Pointer to the histogram
   //TH1 * myHisto;
 
-   /// the axis
+  /// the axis
   //TAxis * theXaxis;
 
   /// Number of bins
   int nBins;
- 
+
   // Limits of integration
   double xMin, xMax;
 
@@ -59,6 +54,5 @@ class SimpleHistogramGenerator
 
   /// Number of entries
   double nEntries;
-
 };
 #endif

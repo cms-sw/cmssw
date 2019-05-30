@@ -37,13 +37,10 @@ namespace HepMC {
   class GenEvent;
   class GenParticle;
   class GenVertex;
-}
+}  // namespace HepMC
 
-class FBaseSimEvent  
-{
-
+class FBaseSimEvent {
 public:
-
   /// Default constructor
   FBaseSimEvent(const edm::ParameterSet& kine);
 
@@ -54,9 +51,7 @@ public:
   void initializePdt(const HepPDT::ParticleDataTable* aPdt);
 
   /// Get the pointer to the particle data table
-  inline const HepPDT::ParticleDataTable* theTable() const { 
-    return pdt;
-  }
+  inline const HepPDT::ParticleDataTable* theTable() const { return pdt; }
 
   /// fill the FBaseSimEvent from the current HepMC::GenEvent
   void fill(const HepMC::GenEvent& hev);
@@ -76,83 +71,66 @@ public:
   /// clear the FBaseSimEvent content before the next event
   void clear();
 
-
   /// Add an id in the vector of charged tracks id's
   void addChargedTrack(int id);
 
   /// Number of tracks
-  inline unsigned int nTracks() const {
-    return nSimTracks;
-  }
+  inline unsigned int nTracks() const { return nSimTracks; }
 
   /// Number of vertices
-  inline unsigned int nVertices() const { 
-    return nSimVertices;
-  }
+  inline unsigned int nVertices() const { return nSimVertices; }
 
   /// Number of generator particles
-  inline unsigned int nGenParts() const {
-    return nGenParticles;
-  }
+  inline unsigned int nGenParts() const { return nGenParticles; }
 
   /// Number of "reconstructed" charged tracks
-  inline unsigned int nChargedTracks() const {
-    return nChargedParticleTracks;
-  }
+  inline unsigned int nChargedTracks() const { return nChargedParticleTracks; }
 
-  /// Return track with given Id 
+  /// Return track with given Id
   inline FSimTrack& track(int id) const;
 
-  /// Return vertex with given Id 
+  /// Return vertex with given Id
   inline FSimVertex& vertex(int id) const;
 
-  /// Return vertex with given Id 
+  /// Return vertex with given Id
   inline FSimVertexType& vertexType(int id) const;
 
   /// return "reconstructed" charged tracks index.
   int chargedTrack(int id) const;
 
   /// return embedded track with given id
-  inline const SimTrack & embdTrack(int i) const;
+  inline const SimTrack& embdTrack(int i) const;
 
   /// return embedded vertex with given id
-  inline const SimVertex & embdVertex(int i) const;
+  inline const SimVertex& embdVertex(int i) const;
 
   /// return embedded vertex type with given id
-  inline const FSimVertexType & embdVertexType(int i) const;
+  inline const FSimVertexType& embdVertexType(int i) const;
 
   /// return MC track with a given id
   const HepMC::GenParticle* embdGenpart(int i) const;
 
   /// Add a new track to the Event and to the various lists
-  int addSimTrack(const RawParticle* p, int iv, int ig=-1, 
-		  const HepMC::GenVertex* ev=nullptr);
+  int addSimTrack(const RawParticle* p, int iv, int ig = -1, const HepMC::GenVertex* ev = nullptr);
 
   /// Add a new vertex to the Event and to the various lists
-  int addSimVertex(const XYZTLorentzVector& decayVertex, int im=-1,
-		   FSimVertexType::VertexType type = FSimVertexType::ANY);
+  int addSimVertex(const XYZTLorentzVector& decayVertex,
+                   int im = -1,
+                   FSimVertexType::VertexType type = FSimVertexType::ANY);
 
-  const KineParticleFilter& filter() const { return *myFilter; } 
+  const KineParticleFilter& filter() const { return *myFilter; }
 
- protected:
+protected:
+  /// The pointer to the vector of FSimTrack's
+  inline std::vector<FSimTrack>* tracks() const { return theSimTracks; }
 
-  /// The pointer to the vector of FSimTrack's 
-  inline std::vector<FSimTrack>* tracks() const { 
-    return theSimTracks; 
-  }
+  /// The pointer to the vector of FSimVertex's
+  inline std::vector<FSimVertex>* vertices() const { return theSimVertices; }
 
-  /// The pointer to the vector of FSimVertex's 
-  inline std::vector<FSimVertex>* vertices() const { 
-    return theSimVertices; 
-  }
+  /// The pointer to the vector of GenParticle's
+  inline std::vector<HepMC::GenParticle*>* genparts() const { return theGenParticles; }
 
-  /// The pointer to the vector of GenParticle's 
-  inline std::vector<HepMC::GenParticle*>* genparts() const { 
-    return theGenParticles; 
-  }
-
- private:
-
+private:
   std::vector<FSimTrack>* theSimTracks;
   std::vector<FSimVertex>* theSimVertices;
   FSimVertexTypeCollection* theFSimVerticesType;
@@ -178,14 +156,13 @@ public:
   double sigmaVerteY;
   double sigmaVerteZ;
 
-  const ParticleDataTable * pdt;
+  const ParticleDataTable* pdt;
 
   double lateVertexPosition;
 
   //  Histos* myHistos;
-
 };
 
 #include "FastSimulation/Event/interface/FBaseSimEvent.icc"
 
-#endif // FBaseSimEvent_H
+#endif  // FBaseSimEvent_H
