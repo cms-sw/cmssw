@@ -380,8 +380,8 @@ bool ME0SegAlgoRU::areHitsCloseInEta(const float maxETA,
   edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegAlgoRU::areHitsCloseInEta] gp1 = " << h1 << " in eta part = " << h1.eta()
                                    << " and gp2 = " << h2 << " in eta part = " << h2.eta() << " ==> dEta = " << diff
                                    << " ==> return " << (diff < 0.1) << std::endl;
-  return ( diff < std::max( maxETA, 0.01f));
-//temp for floating point comparision...maxEta is the difference between partitions, so x1.5 to take into account non-circle geom.
+  //temp for floating point comparision...maxEta is the difference between partitions, so x1.5 to take into account non-circle geom.
+  return (diff < std::max(maxETA, 0.01f));
 }
 
 bool ME0SegAlgoRU::areHitsCloseInGlobalPhi(const float maxPHI,
