@@ -380,12 +380,8 @@ bool ME0SegAlgoRU::areHitsCloseInEta(const float maxETA,
   edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegAlgoRU::areHitsCloseInEta] gp1 = " << h1 << " in eta part = " << h1.eta()
                                    << " and gp2 = " << h2 << " in eta part = " << h2.eta() << " ==> dEta = " << diff
                                    << " ==> return " << (diff < 0.1) << std::endl;
-  return (
-      diff <
-      std::max(
-          maxETA,
-          float(
-              0.01)));  //temp for floating point comparision...maxEta is the difference between partitions, so x1.5 to take into account non-circle geom.
+  return ( diff < std::max( maxETA, 0.01f));
+//temp for floating point comparision...maxEta is the difference between partitions, so x1.5 to take into account non-circle geom.
 }
 
 bool ME0SegAlgoRU::areHitsCloseInGlobalPhi(const float maxPHI,
@@ -395,7 +391,7 @@ bool ME0SegAlgoRU::areHitsCloseInGlobalPhi(const float maxPHI,
   float dphi12 = deltaPhi(h1.barePhi(), h2.barePhi());
   edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegAlgoRU::areHitsCloseInGlobalPhi] gp1 = " << h1 << " and gp2 = " << h2
                                    << " ==> dPhi = " << dphi12 << " ==> return "
-                                   << (fabs(dphi12) < std::max(maxPHI, float(0.02))) << std::endl;
+                                   << (fabs(dphi12) < std::max(maxPHI, 0.02f)) << std::endl;
   return fabs(dphi12) < std::max(maxPHI, float(float(nLayDisp) * 0.004));
 }
 
@@ -406,16 +402,16 @@ bool ME0SegAlgoRU::isHitNearSegment(const float maxETA,
                                     const HitAndPosition& h) const {
   //Get average eta, based on the two seeds...asssumes that we have not started pruning yet!
   const float avgETA = (proto_segment[1]->gp.eta() + proto_segment[0]->gp.eta()) / 2.;
-  //	edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegAlgoRU::isHitNearSegment] average eta = "<<avgETA<<" additionalHit eta = "<<h.gp.eta() <<" ==> dEta = "<<std::fabs(h.gp.eta() - avgETA) <<" ==> return "<<(std::fabs(h.gp.eta() - avgETA) < std::max(maxETA,float(0.01) ))<<std::endl;
-  if (std::fabs(h.gp.eta() - avgETA) > std::max(maxETA, float(0.01)))
+  //	edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegAlgoRU::isHitNearSegment] average eta = "<<avgETA<<" additionalHit eta = "<<h.gp.eta() <<" ==> dEta = "<<std::fabs(h.gp.eta() - avgETA) <<" ==> return "<<(std::fabs(h.gp.eta() - avgETA) < std::max(maxETA,0.01f ))<<std::endl;
+  if (std::fabs(h.gp.eta() - avgETA) > std::max(maxETA, 0.01f))
     return false;
 
   //Now check the dPhi based on the segment fit
   GlobalPoint globIntercept = globalAtZ(fit, h.lp.z());
   float dPhi = deltaPhi(h.gp.barePhi(), globIntercept.phi());
   //check to see if it is inbetween the two rolls of the outer and inner hits
-  //	edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegAlgoRU::isHitNearSegment] projected phi = "<<globIntercept.phi()<<" additionalHit phi = "<<h.gp.barePhi() <<" ==> dPhi = "<<dPhi <<" ==> return "<<(std::fabs(dPhi) <  std::max(maxPHI,float(0.001)))<<std::endl;
-  return (std::fabs(dPhi) < std::max(maxPHI, float(0.001)));
+  //	edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegAlgoRU::isHitNearSegment] projected phi = "<<globIntercept.phi()<<" additionalHit phi = "<<h.gp.barePhi() <<" ==> dPhi = "<<dPhi <<" ==> return "<<(std::fabs(dPhi) <  std::max(maxPHI,0.001f))<<std::endl;
+  return (std::fabs(dPhi) < std::max(maxPHI, 0.001f));
 }
 
 bool ME0SegAlgoRU::areHitsConsistentInTime(const float maxTOF,
