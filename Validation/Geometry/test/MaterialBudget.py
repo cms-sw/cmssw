@@ -1032,6 +1032,11 @@ if __name__ == '__main__':
                         help='Compare simulation and reco materials',
                         action='store_true',
                         default=False)
+    parser.add_argument('-sw','--subdetector-wise',
+                        help="Subdetector-wise categorization. Individual ROOT " \
+                        "files for each subdetector are required.",
+                        action="store_true",
+                        default=False)
     parser.add_argument('-s', '--single',
                         help='Material budget for single detector from simulation',
                         action='store_true',
@@ -1107,3 +1112,10 @@ if __name__ == '__main__':
             createCompoundPlots(args.detector, p, args.geometry)
         for p in required_ratio_plots:
             createRatioPlots(args.detector, p, args.geometry)
+
+    if args.subdetector_wise and args.geometry:
+        required_plots = ["x_vs_eta","l_vs_eta"]
+
+        for p in required_plots:
+            createPlots_(p, args.geometry)
+
