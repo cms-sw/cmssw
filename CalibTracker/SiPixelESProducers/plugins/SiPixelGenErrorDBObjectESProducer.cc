@@ -16,7 +16,6 @@
 //
 
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
@@ -38,11 +37,28 @@ public:
   SiPixelGenErrorDBObjectESProducer(const edm::ParameterSet& iConfig);
   ~SiPixelGenErrorDBObjectESProducer() override;
   std::shared_ptr<const SiPixelGenErrorDBObject> produce(const SiPixelGenErrorDBObjectESProducerRcd &);
+
+private:
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+  edm::ESGetToken<SiPixelGenErrorDBObject, SiPixelGenErrorDBObjectRcd> dbTokenDefault_;
+  edm::ESGetToken<SiPixelGenErrorDBObject, SiPixelGenErrorDBObjectRcd> dbToken0T_;
+  edm::ESGetToken<SiPixelGenErrorDBObject, SiPixelGenErrorDBObjectRcd> dbToken2T_;
+  edm::ESGetToken<SiPixelGenErrorDBObject, SiPixelGenErrorDBObjectRcd> dbToken3T_;
+  edm::ESGetToken<SiPixelGenErrorDBObject, SiPixelGenErrorDBObjectRcd> dbToken35T_;
+  edm::ESGetToken<SiPixelGenErrorDBObject, SiPixelGenErrorDBObjectRcd> dbToken4T_;
 };
 
 
 SiPixelGenErrorDBObjectESProducer::SiPixelGenErrorDBObjectESProducer(const edm::ParameterSet& iConfig) {
-	setWhatProduced(this);
+  setWhatProduced(this)
+    .setConsumes(magfieldToken_)
+    .setConsumes(dbTokenDefault_, edm::ESInputTag{"", ""})
+    .setConsumes(dbToken0T_, edm::ESInputTag{"", "0T"})
+    .setConsumes(dbToken2T_, edm::ESInputTag{"", "2T"})
+    .setConsumes(dbToken3T_, edm::ESInputTag{"", "3T"})
+    .setConsumes(dbToken35T_, edm::ESInputTag{"", "35T"})
+    .setConsumes(dbToken4T_, edm::ESInputTag{"", "4T"});
+;
 }
 
 
@@ -53,31 +69,28 @@ SiPixelGenErrorDBObjectESProducer::~SiPixelGenErrorDBObjectESProducer(){
 
 
 std::shared_ptr<const SiPixelGenErrorDBObject> SiPixelGenErrorDBObjectESProducer::produce(const SiPixelGenErrorDBObjectESProducerRcd & iRecord) {
-	
-	ESHandle<MagneticField> magfield;
-	iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
+	const auto& magfield = iRecord.get(magfieldToken_);
 
 	GlobalPoint center(0.0, 0.0, 0.0);
-	float theMagField = magfield.product()->inTesla(center).mag();
+	float theMagField = magfield.inTesla(center).mag();
 
-	std::string label = "";
-	
-	if(     theMagField>=-0.1 && theMagField<1.0 ) label = "0T";
-	else if(theMagField>=1.0  && theMagField<2.5 ) label = "2T";
-	else if(theMagField>=2.5  && theMagField<3.25) label = "3T";
-	else if(theMagField>=3.25 && theMagField<3.65) label = "35T";
-	else if(theMagField>=3.9  && theMagField<4.1 ) label = "4T";
+        const auto *tokenPtr = &dbTokenDefault_;
+
+	if(     theMagField>=-0.1 && theMagField<1.0 ) tokenPtr = &dbToken0T_;
+	else if(theMagField>=1.0  && theMagField<2.5 ) tokenPtr = &dbToken2T_;
+	else if(theMagField>=2.5  && theMagField<3.25) tokenPtr = &dbToken3T_;
+	else if(theMagField>=3.25 && theMagField<3.65) tokenPtr = &dbToken35T_;
+	else if(theMagField>=3.9  && theMagField<4.1 ) tokenPtr = &dbToken4T_;
 	else {
 		//label = "3.8T";
 		if(theMagField>=4.1 || theMagField<-0.1) edm::LogWarning("UnexpectedMagneticFieldUsingDefaultPixelGenError") << "Magnetic field is " << theMagField;
 	}
-	ESHandle<SiPixelGenErrorDBObject> dbobject;
-	iRecord.getRecord<SiPixelGenErrorDBObjectRcd>().get(label,dbobject);
+	const auto& dbobject = iRecord.get(*tokenPtr);
 
-	if(std::fabs(theMagField-dbobject->sVector()[22])>0.1)
-		edm::LogWarning("UnexpectedMagneticFieldUsingNonIdealPixelGenError") << "Magnetic field is " << theMagField << " GenError Magnetic field is " << dbobject->sVector()[22];
+	if(std::fabs(theMagField-dbobject.sVector()[22])>0.1)
+		edm::LogWarning("UnexpectedMagneticFieldUsingNonIdealPixelGenError") << "Magnetic field is " << theMagField << " GenError Magnetic field is " << dbobject.sVector()[22];
 	
-	return std::shared_ptr<const SiPixelGenErrorDBObject>(&(*dbobject), edm::do_nothing_deleter());
+	return std::shared_ptr<const SiPixelGenErrorDBObject>(&dbobject, edm::do_nothing_deleter());
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiPixelGenErrorDBObjectESProducer);
