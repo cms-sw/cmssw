@@ -102,6 +102,9 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
     unsigned long long calibrationCacheId2D_; 
     unsigned long long calibrationCacheId3D_;
     
+    const double min_jet_pt_;
+    const double max_jet_eta_;
+    
 
 };
 
@@ -119,7 +122,9 @@ DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& 
   fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight")),
   fallback_vertex_association_(iConfig.getParameter<bool>("fallback_vertex_association")),
   run_deepVertex_(iConfig.getParameter<bool>("run_deepVertex")),
-  compute_probabilities_(iConfig.getParameter<bool>("compute_probabilities"))
+  compute_probabilities_(iConfig.getParameter<bool>("compute_probabilities")),
+  min_jet_pt_(iConfig.getParameter<double>("min_jet_pt")),
+  max_jet_eta_(iConfig.getParameter<double>("max_jet_eta"))
 {
   produces<DeepFlavourTagInfoCollection>();
 
@@ -161,6 +166,8 @@ void DeepFlavourTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<bool>("fallback_vertex_association", false);
   desc.add<bool>("run_deepVertex", false);
   desc.add<bool>("compute_probabilities", false);
+  desc.add<double>("min_jet_pt", 15.0);
+  desc.add<double>("max_jet_eta", 2.5);
   descriptions.add("pfDeepFlavourTagInfos", desc);
 }
 
@@ -409,7 +416,8 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   
   if (run_deepVertex_)
   {
-      btagbtvdeep::seedingTracksToFeatures(tracks, jet, pv, track_builder, probabilityEstimator_.get(), compute_probabilities_, features.seed_features);     
+      if (jet.pt()>min_jet_pt_ && std::fabs(jet.eta())<max_jet_eta_) //jet thresholds
+          btagbtvdeep::seedingTracksToFeatures(tracks, jet, pv, track_builder, probabilityEstimator_.get(), compute_probabilities_, features.seed_features);     
   }
    
   output_tag_infos->emplace_back(features, jet_ref);
