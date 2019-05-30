@@ -22,11 +22,12 @@ class MaterialBudgetHcal : public SimWatcher,
                            public Observer<const EndOfTrack*> {
 public:
   MaterialBudgetHcal(const edm::ParameterSet&);
+  MaterialBudgetHcal(const MaterialBudgetHcal&) = delete;                   // stop default
   ~MaterialBudgetHcal() override;
 
-private:
-  MaterialBudgetHcal(const MaterialBudgetHcal&) = delete;                   // stop default
   const MaterialBudgetHcal& operator=(const MaterialBudgetHcal&) = delete;  // stop default
+
+private:
 
   void update(const BeginOfJob*) override;
   void update(const BeginOfTrack*) override;

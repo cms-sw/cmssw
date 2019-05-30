@@ -28,11 +28,12 @@ class MaterialBudget : public SimWatcher,
                        public Observer<const EndOfTrack*> {
 public:
   MaterialBudget(const edm::ParameterSet&);
+  MaterialBudget(const MaterialBudget&) = delete;                   // stop default
   ~MaterialBudget() override;
 
-private:
-  MaterialBudget(const MaterialBudget&) = delete;                   // stop default
   const MaterialBudget& operator=(const MaterialBudget&) = delete;  // ...
+
+private:
 
   void update(const BeginOfRun*) override;
   void update(const BeginOfTrack*) override;
@@ -48,7 +49,7 @@ private:
   std::vector<G4LogicalVolume*> logVolumes;
   std::vector<TProfile*> me100, me200, me300, me400, me500, me600;
   std::vector<double> stepLen, radLen, intLen;
-  double eta, phi, stepT;
+  double eta_, phi_, stepT;
 };
 
 #endif
