@@ -12,23 +12,23 @@
 
 class FWHistSliceSelector;
 
-class FWHGCalMultiClusterLegoProxyBuilder : public FWCaloDataHistProxyBuilder
-{
- public:
-   FWHGCalMultiClusterLegoProxyBuilder();
-   ~FWHGCalMultiClusterLegoProxyBuilder() override;
+class FWHGCalMultiClusterLegoProxyBuilder : public FWCaloDataHistProxyBuilder {
+public:
+  FWHGCalMultiClusterLegoProxyBuilder();
+  ~FWHGCalMultiClusterLegoProxyBuilder() override;
 
-   REGISTER_PROXYBUILDER_METHODS();
+  REGISTER_PROXYBUILDER_METHODS();
 
- private:
-   void fillCaloData() override;
-   FWHistSliceSelector *instantiateSliceSelector() override;
-   void build(const FWEventItem *iItem, TEveElementList *product, const FWViewContext *) override;
+private:
+  void fillCaloData() override;
+  FWHistSliceSelector *instantiateSliceSelector() override;
+  void build(const FWEventItem *iItem, TEveElementList *product, const FWViewContext *) override;
 
-   FWHGCalMultiClusterLegoProxyBuilder(const FWHGCalMultiClusterLegoProxyBuilder &) = delete;                  // stop default
-   const FWHGCalMultiClusterLegoProxyBuilder &operator=(const FWHGCalMultiClusterLegoProxyBuilder &) = delete; // stop default
+  FWHGCalMultiClusterLegoProxyBuilder(const FWHGCalMultiClusterLegoProxyBuilder &) = delete;  // stop default
+  const FWHGCalMultiClusterLegoProxyBuilder &operator=(const FWHGCalMultiClusterLegoProxyBuilder &) =
+      delete;  // stop default
 
-   const std::vector<reco::HGCalMultiCluster> *m_towers;
+  const std::vector<reco::HGCalMultiCluster> *m_towers;
 };
 
 #endif
