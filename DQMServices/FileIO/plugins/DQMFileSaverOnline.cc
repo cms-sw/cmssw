@@ -28,8 +28,7 @@
 
 using namespace dqm;
 
-DQMFileSaverOnline::DQMFileSaverOnline(const edm::ParameterSet& ps)
-    : DQMFileSaverBase(ps) {
+DQMFileSaverOnline::DQMFileSaverOnline(const edm::ParameterSet& ps) : DQMFileSaverBase(ps) {
   backupLumiCount_ = ps.getUntrackedParameter<int>("backupLumiCount", 1);
   keepBackupLumi_ = ps.getUntrackedParameter<bool>("keepBackupLumi", false);
 }
@@ -45,12 +44,9 @@ void DQMFileSaverOnline::saveLumi(const FileParameters& fp) const {
   }
 }
 
-void DQMFileSaverOnline::saveRun(const FileParameters& fp) const {
-  makeSnapshot(fp, true);
-}
+void DQMFileSaverOnline::saveRun(const FileParameters& fp) const { makeSnapshot(fp, true); }
 
-void DQMFileSaverOnline::makeSnapshot(const FileParameters& fp,
-                                      bool final) const {
+void DQMFileSaverOnline::makeSnapshot(const FileParameters& fp, bool final) const {
   int pid = getpid();
   char hostname[64];
   gethostname(hostname, 64);
@@ -97,10 +93,8 @@ void DQMFileSaverOnline::makeSnapshot(const FileParameters& fp,
   meta_fd << fillOrigin(tmp_root_fp, root_fp);
   meta_fd.close();
 
-  checkError("Rename failed: ", root_fp,
-             ::rename(tmp_root_fp.c_str(), root_fp.c_str()));
-  checkError("Rename failed: ", meta_fp,
-             ::rename(tmp_meta_fp.c_str(), meta_fp.c_str()));
+  checkError("Rename failed: ", root_fp, ::rename(tmp_root_fp.c_str(), root_fp.c_str()));
+  checkError("Rename failed: ", meta_fp, ::rename(tmp_meta_fp.c_str(), meta_fp.c_str()));
 
   SnapshotFiles files = {root_fp, meta_fp};
   if (final) {
@@ -135,8 +129,7 @@ void DQMFileSaverOnline::appendSnapshot(SnapshotFiles f) const {
   }
 }
 
-void DQMFileSaverOnline::checkError(const char* msg, const std::string& file,
-                                    int status) const {
+void DQMFileSaverOnline::checkError(const char* msg, const std::string& file, int status) const {
   if (status != 0) {
     std::string actual_msg = msg;
     actual_msg += std::strerror(status);
@@ -144,8 +137,7 @@ void DQMFileSaverOnline::checkError(const char* msg, const std::string& file,
   }
 }
 
-const std::string DQMFileSaverOnline::fillOrigin(
-    const std::string& filename, const std::string& final_filename) {
+const std::string DQMFileSaverOnline::fillOrigin(const std::string& filename, const std::string& final_filename) {
   // format.origin (one line):
   //   md5:d566a34b27f48d507150a332b189398b 294835 final_filename.root
 
@@ -156,7 +148,7 @@ const std::string DQMFileSaverOnline::fillOrigin(
   MD5((unsigned char*)fp.data(), fp.size(), md5);
 
   std::ostringstream hash;
-  for (unsigned char & i : md5) {
+  for (unsigned char& i : md5) {
     hash << std::hex << std::setfill('0') << std::setw(2) << (int)i;
   }
 
@@ -165,8 +157,7 @@ const std::string DQMFileSaverOnline::fillOrigin(
   return out.str();
 }
 
-void DQMFileSaverOnline::fillDescriptions(
-    edm::ConfigurationDescriptions& descriptions) {
+void DQMFileSaverOnline::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setComment("Saves histograms from DQM store, online workflow.");
 

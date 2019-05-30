@@ -12,31 +12,34 @@
 
 namespace dqm {
 
-class DQMFileSaverPB : public DQMFileSaverBase {
- public:
-  DQMFileSaverPB(const edm::ParameterSet &ps);
-  ~DQMFileSaverPB() override;
+  class DQMFileSaverPB : public DQMFileSaverBase {
+  public:
+    DQMFileSaverPB(const edm::ParameterSet& ps);
+    ~DQMFileSaverPB() override;
 
-  // used by the JsonWritingTimedPoolOutputModule,
-  // fms will be nullptr in such case
-  static boost::property_tree::ptree fillJson(
-      int run, int lumi, const std::string &dataFilePathName, const std::string& transferDestinationStr,
-      const std::string& mergeTypeStr, evf::FastMonitoringService *fms);
+    // used by the JsonWritingTimedPoolOutputModule,
+    // fms will be nullptr in such case
+    static boost::property_tree::ptree fillJson(int run,
+                                                int lumi,
+                                                const std::string& dataFilePathName,
+                                                const std::string& transferDestinationStr,
+                                                const std::string& mergeTypeStr,
+                                                evf::FastMonitoringService* fms);
 
- protected:
-  void initRun() const override;
-  void saveLumi(const FileParameters& fp) const override;
-  void saveRun(const FileParameters& fp) const override;
+  protected:
+    void initRun() const override;
+    void saveLumi(const FileParameters& fp) const override;
+    void saveRun(const FileParameters& fp) const override;
 
-  bool fakeFilterUnitMode_;
-  std::string streamLabel_;
-  mutable std::string transferDestination_;
-  mutable std::string mergeType_;
+    bool fakeFilterUnitMode_;
+    std::string streamLabel_;
+    mutable std::string transferDestination_;
+    mutable std::string mergeType_;
 
- public:
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-};
+  public:
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  };
 
-}  // dqm namespace
+}  // namespace dqm
 
 #endif  // DQMSERVICES_COMPONENTS_DQMFILESAVERPB_H
