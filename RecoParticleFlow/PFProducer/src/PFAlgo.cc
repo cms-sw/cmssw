@@ -446,7 +446,9 @@ void PFAlgo::conversionAlgo(const edm::OwnVector<reco::PFBlockElement> &elements
   }
 }
 
-void PFAlgo::elementLoop(const reco::PFBlock &block, reco::PFBlock::LinkData& linkData, const edm::OwnVector<reco::PFBlockElement> &elements, std::vector<bool>& active, const reco::PFBlockRef &blockref, ElementIndices& inds, std::vector<bool> &deadArea) {
+void PFAlgo::elementLoop(const reco::PFBlock &block, reco::PFBlock::LinkData& linkData,
+  const edm::OwnVector<reco::PFBlockElement> &elements, std::vector<bool>& active,
+  const reco::PFBlockRef &blockref, ElementIndices& inds, std::vector<bool> &deadArea) {
   for(unsigned iEle=0; iEle<elements.size(); iEle++) {
     PFBlockElement::Type type = elements[iEle].type();
 
@@ -495,7 +497,9 @@ void PFAlgo::elementLoop(const reco::PFBlock &block, reco::PFBlock::LinkData& li
     assert( !trackRef.isNull() );
 
     if (debug_ ) {
-      cout <<"PFAlgo:processBlock "<<" "<< inds.trackIs.size()<<" "<< inds.ecalIs.size()<<" "<< inds.hcalIs.size()<<" "<< inds.hoIs.size()<<endl;
+      cout <<"PFAlgo:processBlock "<<" "<< inds.trackIs.size()<<" "
+        << inds.ecalIs.size()<<" "<< inds.hcalIs.size()<<" "
+        << inds.hoIs.size()<<endl;
     }
 
     // look for associated elements of all types
@@ -1211,7 +1215,9 @@ void PFAlgo::elementLoop(const reco::PFBlock &block, reco::PFBlock::LinkData& li
   } // end of loop 1 on elements iEle of any type
 }
 
-int PFAlgo::decideType(const edm::OwnVector<reco::PFBlockElement> &elements, const reco::PFBlockElement::Type type, std::vector<bool>& active, ElementIndices& inds, std::vector<bool> &deadArea, unsigned int iEle) {
+int PFAlgo::decideType(const edm::OwnVector<reco::PFBlockElement> &elements,
+  const reco::PFBlockElement::Type type, std::vector<bool>& active,
+  ElementIndices& inds, std::vector<bool> &deadArea, unsigned int iEle) {
   switch( type ) {
   case PFBlockElement::TRACK:
     if ( active[iEle] ) {
