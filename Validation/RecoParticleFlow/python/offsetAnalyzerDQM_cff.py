@@ -75,7 +75,10 @@ offsetAnalyzerDQM = DQMEDAnalyzer("OffsetAnalyzerDQM",
     th1dPlots = cms.VPSet( createTH1DVPSet() ),
 
     pftypes = cms.vstring( default.candidateType ),
-    etabins = cms.vdouble( default.etaBinsOffset )
+    etabins = cms.vdouble( default.etaBinsOffset ),
+    muHigh = cms.untracked.int32( default.muHighOffset ),
+    npvHigh = cms.untracked.int32( default.npvHighOffset )                                        
+
 )
 
 offsetDQMPostProcessor = DQMEDHarvester("OffsetDQMPostProcessor",

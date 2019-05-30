@@ -33,6 +33,7 @@ class PFJetDQMPostProcessor : public DQMEDHarvester {
       void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
       void fitResponse(TH1F* hreso, TH1F* h_genjet_pt, int ptbinlow, int ietahigh, double recoptcut,
             double& resp, double& resp_err, double& reso, double& reso_err);
+      double getRespUnc(double width, double width_err, double mean, double mean_err);
   
       std::string jetResponseDir;
       std::string genjetDir;
@@ -109,18 +110,18 @@ PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& i
     h_genjet_pt = (TH1F*) me->getTH1F();
           
     stitle = "presponse_eta"+seta(etaBins[ieta]);
-    sprintf(ctitle,"Jet pT response, %4.1f<|#eta|<%4.1f",etaBins[ieta],etaBins[ieta+1]);
+    sprintf(ctitle,"Jet pT response, %4.1f<|#eta|<%4.1f",etaBins[ieta-1],etaBins[ieta]);
     TH1F *h_presponse = new TH1F(stitle.c_str(),ctitle,nPtBins,ptBinsArray);
 
     stitle = "preso_eta"+seta(etaBins[ieta]);
-    sprintf(ctitle,"Jet pT resolution, %4.1f<|#eta|<%4.1f",etaBins[ieta],etaBins[ieta+1]);
+    sprintf(ctitle,"Jet pT resolution, %4.1f<|#eta|<%4.1f",etaBins[ieta-1],etaBins[ieta]);
     TH1F *h_preso = new TH1F(stitle.c_str(),ctitle,nPtBins,ptBinsArray);
 
     stitle = "preso_eta"+seta(etaBins[ieta])+"_rms";
-    sprintf(ctitle,"Jet pT resolution using RMS, %4.1f<|#eta|<%4.1f",etaBins[ieta],etaBins[ieta+1]);
+    sprintf(ctitle,"Jet pT resolution using RMS, %4.1f<|#eta|<%4.1f",etaBins[ieta-1],etaBins[ieta]);
     TH1F *h_preso_rms = new TH1F(stitle.c_str(),ctitle,nPtBins,ptBinsArray);
 
-    for(unsigned int ipt = 1; ipt < ptBins.size()-1; ++ipt) { // skipping the very first pt bin which is difficult to fit
+    for(unsigned int ipt = 0; ipt < ptBins.size()-1; ++ipt) { 
 
       stitle = jetResponseDir + "reso_dist_" + spt(ptBins[ipt],ptBins[ipt+1]) + "_eta" + seta(etaBins[ieta]); 
       me=iget_.get(stitle);
@@ -262,12 +263,19 @@ PFJetDQMPostProcessor::fitResponse(TH1F* hreso, TH1F* h_genjet_pt, int ptbinlow,
    // Scale resolution by response. Avoid division by zero.
    if (0 == resp) reso = 0;
    else reso = fg2->GetParameter(1)/resp;
+   reso_err = fg2->GetParError(1)/resp;   
 
-   reso_err = fg2->GetParError(1);
-   
+   reso_err = getRespUnc(reso,reso_err,resp,resp_err);
    // TODO: add proper resolution error calculation
    
 }
+
+// Calculate resolution uncertainty   
+double PFJetDQMPostProcessor::getRespUnc(double width, double width_err, double mean, double mean_err){
+  if (0==width || 0==mean) return 0;
+  return TMath::Sqrt(pow(width_err,2)/pow(width,2)+pow(mean_err,2)/pow(mean,2))*width;
+}
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFJetDQMPostProcessor);
