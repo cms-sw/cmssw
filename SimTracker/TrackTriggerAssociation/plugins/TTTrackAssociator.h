@@ -36,37 +36,35 @@
 #include <map>
 #include <vector>
 
-template< typename T >
-class TTTrackAssociator : public edm::stream::EDProducer<>
-{
+template <typename T>
+class TTTrackAssociator : public edm::stream::EDProducer<> {
   /// NOTE since pattern hit correlation must be performed within a stacked module, one must store
   /// Clusters in a proper way, providing easy access to them in a detector/member-wise way
-  public:
-    /// Constructors
-    explicit TTTrackAssociator( const edm::ParameterSet& iConfig );
+public:
+  /// Constructors
+  explicit TTTrackAssociator(const edm::ParameterSet& iConfig);
 
-    /// Destructor
-    ~TTTrackAssociator() override;
+  /// Destructor
+  ~TTTrackAssociator() override;
 
-  private:
-    /// Data members
-    std::vector< edm::InputTag > TTTracksInputTags;
+private:
+  /// Data members
+  std::vector<edm::InputTag> TTTracksInputTags;
 
+  std::vector<edm::EDGetTokenT<std::vector<TTTrack<T> > > > TTTracksTokens;
 
-    std::vector<edm::EDGetTokenT< std::vector< TTTrack< T > > > > TTTracksTokens;
+  edm::EDGetTokenT<TTStubAssociationMap<T> > TTStubTruthToken;
+  edm::EDGetTokenT<TTClusterAssociationMap<T> > TTClusterTruthToken;
 
-    edm::EDGetTokenT< TTStubAssociationMap< T > > TTStubTruthToken;
-    edm::EDGetTokenT< TTClusterAssociationMap< T > > TTClusterTruthToken;
+  //    edm::InputTag TTClusterTruthInputTag;
+  //    edm::InputTag TTStubTruthInputTag;
 
-    //    edm::InputTag TTClusterTruthInputTag;
-    //    edm::InputTag TTStubTruthInputTag;
+  /// Mandatory methods
+  void beginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
+  void endRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-    /// Mandatory methods
-    void beginRun( const edm::Run& run, const edm::EventSetup& iSetup ) override;
-    void endRun( const edm::Run& run, const edm::EventSetup& iSetup ) override;
-    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
-
-}; /// Close class
+};  /// Close class
 
 /*! \brief   Implementation of methods
  *  \details Here, in the header file, the methods which do not depend
@@ -76,40 +74,36 @@ class TTTrackAssociator : public edm::stream::EDProducer<>
  */
 
 /// Constructors
-template< typename T >
-TTTrackAssociator< T >::TTTrackAssociator( const edm::ParameterSet& iConfig )
-{
-  TTTracksInputTags   = iConfig.getParameter< std::vector< edm::InputTag > >( "TTTracks" );
-  TTClusterTruthToken = consumes< TTClusterAssociationMap< T > >(iConfig.getParameter< edm::InputTag >( "TTClusterTruth" ));
-  TTStubTruthToken    = consumes< TTStubAssociationMap< T > >(iConfig.getParameter< edm::InputTag >( "TTStubTruth" ));
+template <typename T>
+TTTrackAssociator<T>::TTTrackAssociator(const edm::ParameterSet& iConfig) {
+  TTTracksInputTags = iConfig.getParameter<std::vector<edm::InputTag> >("TTTracks");
+  TTClusterTruthToken = consumes<TTClusterAssociationMap<T> >(iConfig.getParameter<edm::InputTag>("TTClusterTruth"));
+  TTStubTruthToken = consumes<TTStubAssociationMap<T> >(iConfig.getParameter<edm::InputTag>("TTStubTruth"));
 
-  for ( auto iTag =  TTTracksInputTags.begin(); iTag!=  TTTracksInputTags.end(); iTag++ )
-  {
-    TTTracksTokens.push_back(consumes< std::vector< TTTrack< T > > >(*iTag));
+  for (auto iTag = TTTracksInputTags.begin(); iTag != TTTracksInputTags.end(); iTag++) {
+    TTTracksTokens.push_back(consumes<std::vector<TTTrack<T> > >(*iTag));
 
-    produces< TTTrackAssociationMap< T > >( (*iTag).instance() );
+    produces<TTTrackAssociationMap<T> >((*iTag).instance());
   }
 }
 
 /// Destructor
-template< typename T >
-TTTrackAssociator< T >::~TTTrackAssociator(){}
+template <typename T>
+TTTrackAssociator<T>::~TTTrackAssociator() {}
 
 /// Begin run
-template< typename T >
-void TTTrackAssociator< T >::beginRun( const edm::Run& run, const edm::EventSetup& iSetup )
-{
+template <typename T>
+void TTTrackAssociator<T>::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
   /// Print some information when loaded
-  edm::LogInfo("TTStubAssociator< ") << "TTTrackAssociator< " << templateNameFinder< T >() << " > loaded.";
+  edm::LogInfo("TTStubAssociator< ") << "TTTrackAssociator< " << templateNameFinder<T>() << " > loaded.";
 }
 
 /// End run
-template< typename T >
-void TTTrackAssociator< T >::endRun( const edm::Run& run, const edm::EventSetup& iSetup ){}
+template <typename T>
+void TTTrackAssociator<T>::endRun(const edm::Run& run, const edm::EventSetup& iSetup) {}
 
 /// Implement the producer
-template< >
-void TTTrackAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+template <>
+void TTTrackAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 #endif
-
