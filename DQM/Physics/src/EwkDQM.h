@@ -21,14 +21,14 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 namespace reco {
-class Jet;
-class MET;
-}
+  class Jet;
+  class MET;
+}  // namespace reco
 class DQMStore;
 class MonitorElement;
 
 class EwkDQM : public DQMEDAnalyzer {
- public:
+public:
   /// Constructor
   EwkDQM(const edm::ParameterSet&);
 
@@ -37,8 +37,7 @@ class EwkDQM : public DQMEDAnalyzer {
 
   ///
   //Book histograms
-  void bookHistograms(DQMStore::IBooker &,
-    edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// Get the analysis
@@ -46,7 +45,7 @@ class EwkDQM : public DQMEDAnalyzer {
 
   double calcDeltaPhi(double phi1, double phi2);
 
- private:
+private:
   // ----------member data ---------------------------
 
   // Switch for verbosity

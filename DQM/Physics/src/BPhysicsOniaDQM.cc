@@ -28,12 +28,9 @@ using namespace reco;
 
 BPhysicsOniaDQM::BPhysicsOniaDQM(const ParameterSet &parameters) {
   // Muon Collection Label
-  vertex_ = consumes<reco::VertexCollection>(
-      parameters.getParameter<InputTag>("vertex"));
-  theMuonCollectionLabel_ = consumes<reco::MuonCollection>(
-      parameters.getParameter<InputTag>("MuonCollection"));
-  lumiSummaryToken_ = consumes<LumiSummary, edm::InLumi>(
-      parameters.getParameter<InputTag>("lumiSummary"));
+  vertex_ = consumes<reco::VertexCollection>(parameters.getParameter<InputTag>("vertex"));
+  theMuonCollectionLabel_ = consumes<reco::MuonCollection>(parameters.getParameter<InputTag>("MuonCollection"));
+  lumiSummaryToken_ = consumes<LumiSummary, edm::InLumi>(parameters.getParameter<InputTag>("lumiSummary"));
 
   global_background = nullptr;
   diMuonMass_global = nullptr;
@@ -57,47 +54,29 @@ BPhysicsOniaDQM::BPhysicsOniaDQM(const ParameterSet &parameters) {
 
 BPhysicsOniaDQM::~BPhysicsOniaDQM() {}
 
-void BPhysicsOniaDQM::bookHistograms(DQMStore::IBooker &iBooker,
-                                     edm::Run const &,
-                                     edm::EventSetup const &) {
+void BPhysicsOniaDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
   iBooker.setCurrentFolder("Physics/BPhysics");  // Use folder with name of PAG
 
-  global_background = iBooker.book1D(
-      "global_background", "Same-sign global-global dimuon mass", 750, 0, 15);
-  diMuonMass_global =
-      iBooker.book1D("diMuonMass_global",
-                     "Opposite-sign global-global dimuon mass", 750, 0, 15);
-  tracker_background = iBooker.book1D(
-      "tracker_background",
-      "Same-sign tracker-tracker (arbitrated) dimuon mass", 750, 0, 15);
-  diMuonMass_tracker = iBooker.book1D(
-      "diMuonMass_tracker",
-      "Opposite-sign tracker-tracker (arbitrated) dimuon mass", 750, 0, 15);
+  global_background = iBooker.book1D("global_background", "Same-sign global-global dimuon mass", 750, 0, 15);
+  diMuonMass_global = iBooker.book1D("diMuonMass_global", "Opposite-sign global-global dimuon mass", 750, 0, 15);
+  tracker_background =
+      iBooker.book1D("tracker_background", "Same-sign tracker-tracker (arbitrated) dimuon mass", 750, 0, 15);
+  diMuonMass_tracker =
+      iBooker.book1D("diMuonMass_tracker", "Opposite-sign tracker-tracker (arbitrated) dimuon mass", 750, 0, 15);
   standalone_background =
-      iBooker.book1D("standalone_background",
-                     "Same-sign standalone-standalone dimuon mass", 500, 0, 15);
-  diMuonMass_standalone = iBooker.book1D(
-      "diMuonMass_standalone",
-      "Opposite-sign standalone-standalone dimuon mass", 500, 0, 15);
+      iBooker.book1D("standalone_background", "Same-sign standalone-standalone dimuon mass", 500, 0, 15);
+  diMuonMass_standalone =
+      iBooker.book1D("diMuonMass_standalone", "Opposite-sign standalone-standalone dimuon mass", 500, 0, 15);
 
-  glbSigCut = iBooker.book1D("glbSigCut", "Opposite-sign glb-glb dimuon mass",
-                             650, 0, 130);
-  glbSigNoCut = iBooker.book1D(
-      "glbSigNoCut", "Opposite-sign glb-glb dimuon mass (no cut)", 650, 0, 130);
-  glbBkgNoCut = iBooker.book1D(
-      "glbBkgNoCut", "Same-sign glb-glb dimuon mass (no cut)", 650, 0, 130);
-  staSigCut = iBooker.book1D("staSigCut", "Opposite-sign sta-sta dimuon mass",
-                             430, 0, 129);
-  staSigNoCut = iBooker.book1D(
-      "staSigNoCut", "Opposite-sign sta-sta dimuon mass (no cut)", 430, 0, 129);
-  staBkgNoCut = iBooker.book1D(
-      "staBkgNoCut", "Same-sign sta-sta dimuon mass (no cut)", 430, 0, 129);
-  trkSigCut = iBooker.book1D("trkSigCut", "Opposite-sign trk-trk dimuon mass",
-                             650, 0, 130);
-  trkSigNoCut = iBooker.book1D(
-      "trkSigNoCut", "Opposite-sign trk-trk dimuon mass (no cut)", 650, 0, 130);
-  trkBkgNoCut = iBooker.book1D(
-      "trkBkgNoCutt", "Same-sign trk-trk dimuon mass (no cut)", 650, 0, 130);
+  glbSigCut = iBooker.book1D("glbSigCut", "Opposite-sign glb-glb dimuon mass", 650, 0, 130);
+  glbSigNoCut = iBooker.book1D("glbSigNoCut", "Opposite-sign glb-glb dimuon mass (no cut)", 650, 0, 130);
+  glbBkgNoCut = iBooker.book1D("glbBkgNoCut", "Same-sign glb-glb dimuon mass (no cut)", 650, 0, 130);
+  staSigCut = iBooker.book1D("staSigCut", "Opposite-sign sta-sta dimuon mass", 430, 0, 129);
+  staSigNoCut = iBooker.book1D("staSigNoCut", "Opposite-sign sta-sta dimuon mass (no cut)", 430, 0, 129);
+  staBkgNoCut = iBooker.book1D("staBkgNoCut", "Same-sign sta-sta dimuon mass (no cut)", 430, 0, 129);
+  trkSigCut = iBooker.book1D("trkSigCut", "Opposite-sign trk-trk dimuon mass", 650, 0, 130);
+  trkSigNoCut = iBooker.book1D("trkSigNoCut", "Opposite-sign trk-trk dimuon mass (no cut)", 650, 0, 130);
+  trkBkgNoCut = iBooker.book1D("trkBkgNoCutt", "Same-sign trk-trk dimuon mass (no cut)", 650, 0, 130);
 }
 
 void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
@@ -119,13 +98,10 @@ void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
   }
 
   if (muons.isValid()) {
-    for (MuonCollection::const_iterator recoMu1 = muons->begin();
-         recoMu1 != muons->end(); ++recoMu1) {
+    for (MuonCollection::const_iterator recoMu1 = muons->begin(); recoMu1 != muons->end(); ++recoMu1) {
       // only loop over the remaining muons if recoMu1 is one of the following
-      if (recoMu1->isGlobalMuon() || recoMu1->isTrackerMuon() ||
-          recoMu1->isStandAloneMuon()) {
-        for (MuonCollection::const_iterator recoMu2 = recoMu1 + 1;
-             recoMu2 != muons->end(); ++recoMu2) {
+      if (recoMu1->isGlobalMuon() || recoMu1->isTrackerMuon() || recoMu1->isStandAloneMuon()) {
+        for (MuonCollection::const_iterator recoMu2 = recoMu1 + 1; recoMu2 != muons->end(); ++recoMu2) {
           // fill the relevant histograms if recoMu2 satisfies one of the
           // following
           if (recoMu1->isGlobalMuon() && recoMu2->isGlobalMuon()) {
@@ -142,7 +118,8 @@ void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
               if (glbSigNoCut != nullptr) {
                 glbSigNoCut->Fill(massJPsi);
                 if (selGlobalMuon(*recoMu1) && selGlobalMuon(*recoMu2)) {
-                  if (glbSigCut != nullptr) glbSigCut->Fill(massJPsi);
+                  if (glbSigCut != nullptr)
+                    glbSigCut->Fill(massJPsi);
                 }
               }
             } else {
@@ -156,10 +133,8 @@ void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
             }
           }
 
-          if (recoMu1->isStandAloneMuon() && recoMu2->isStandAloneMuon() &&
-              fabs(recoMu1->outerTrack()->d0()) < 5 &&
-              fabs(recoMu1->outerTrack()->dz()) < 30 &&
-              fabs(recoMu2->outerTrack()->d0()) < 5 &&
+          if (recoMu1->isStandAloneMuon() && recoMu2->isStandAloneMuon() && fabs(recoMu1->outerTrack()->d0()) < 5 &&
+              fabs(recoMu1->outerTrack()->dz()) < 30 && fabs(recoMu2->outerTrack()->d0()) < 5 &&
               fabs(recoMu2->outerTrack()->dz()) < 30) {
             math::XYZVector vec1 = recoMu1->outerTrack()->momentum();
             math::XYZVector vec2 = recoMu2->outerTrack()->momentum();
@@ -201,7 +176,8 @@ void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
               if (trkSigNoCut != nullptr) {
                 trkSigNoCut->Fill(massJPsi);
                 if (selTrackerMuon(*recoMu1) && selTrackerMuon(*recoMu2)) {
-                  if (trkSigCut != nullptr) trkSigCut->Fill(massJPsi);
+                  if (trkSigCut != nullptr)
+                    trkSigCut->Fill(massJPsi);
                 }
               }
             } else {
@@ -220,8 +196,7 @@ void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
   }        // Is this MuonCollection vaild?
 }
 
-float BPhysicsOniaDQM::computeMass(const math::XYZVector &vec1,
-                                   const math::XYZVector &vec2) {
+float BPhysicsOniaDQM::computeMass(const math::XYZVector &vec1, const math::XYZVector &vec2) {
   // mass of muon
   float massMu = 0.10566;
   float eMu1 = -999;
@@ -232,7 +207,8 @@ float BPhysicsOniaDQM::computeMass(const math::XYZVector &vec1,
     eMu2 = sqrt(massMu * massMu + vec2.Mag2());
 
   float pJPsi = -999;
-  if ((vec1 + vec2).Mag2() > 0) pJPsi = sqrt((vec1 + vec2).Mag2());
+  if ((vec1 + vec2).Mag2() > 0)
+    pJPsi = sqrt((vec1 + vec2).Mag2());
   float eJPsi = eMu1 + eMu2;
 
   float massJPsi = -999;
@@ -243,11 +219,9 @@ float BPhysicsOniaDQM::computeMass(const math::XYZVector &vec1,
 }
 
 bool BPhysicsOniaDQM::isMuonInAccept(const reco::Muon &recoMu) {
-  return (fabs(recoMu.eta()) < 2.4 &&
-          ((fabs(recoMu.eta()) < 1.3 && recoMu.pt() > 3.3) ||
-           (fabs(recoMu.eta()) > 1.3 && fabs(recoMu.eta()) < 2.2 &&
-            recoMu.p() > 2.9) ||
-           (fabs(recoMu.eta()) > 2.2 && recoMu.pt() > 0.8)));
+  return (fabs(recoMu.eta()) < 2.4 && ((fabs(recoMu.eta()) < 1.3 && recoMu.pt() > 3.3) ||
+                                       (fabs(recoMu.eta()) > 1.3 && fabs(recoMu.eta()) < 2.2 && recoMu.p() > 2.9) ||
+                                       (fabs(recoMu.eta()) > 2.2 && recoMu.pt() > 0.8)));
 }
 
 bool BPhysicsOniaDQM::selGlobalMuon(const reco::Muon &recoMu) {
@@ -257,26 +231,21 @@ bool BPhysicsOniaDQM::selGlobalMuon(const reco::Muon &recoMu) {
   TrackRef gTrack = recoMu.globalTrack();
   const reco::HitPattern &q = gTrack->hitPattern();
 
-  return (isMuonInAccept(recoMu) && iTrack->found() > 11 &&
-          gTrack->chi2() / gTrack->ndof() < 20.0 &&
-          q.numberOfValidMuonHits() > 0 &&
-          iTrack->chi2() / iTrack->ndof() < 4.0 &&
+  return (isMuonInAccept(recoMu) && iTrack->found() > 11 && gTrack->chi2() / gTrack->ndof() < 20.0 &&
+          q.numberOfValidMuonHits() > 0 && iTrack->chi2() / iTrack->ndof() < 4.0 &&
           // recoMu.muonID("TrackerMuonArbitrated") &&
           // recoMu.muonID("TMLastStationAngTight") &&
-          p.pixelLayersWithMeasurement() > 1 &&
-          fabs(iTrack->dxy(RefVtx)) < 3.0 && fabs(iTrack->dz(RefVtx)) < 15.0);
+          p.pixelLayersWithMeasurement() > 1 && fabs(iTrack->dxy(RefVtx)) < 3.0 && fabs(iTrack->dz(RefVtx)) < 15.0);
 }
 
 bool BPhysicsOniaDQM::selTrackerMuon(const reco::Muon &recoMu) {
   TrackRef iTrack = recoMu.innerTrack();
   const reco::HitPattern &p = iTrack->hitPattern();
 
-  return (isMuonInAccept(recoMu) && iTrack->found() > 11 &&
-          iTrack->chi2() / iTrack->ndof() < 4.0 &&
+  return (isMuonInAccept(recoMu) && iTrack->found() > 11 && iTrack->chi2() / iTrack->ndof() < 4.0 &&
           // recoMu.muonID("TrackerMuonArbitrated") &&
           // recoMu.muonID("TMLastStationAngTight") &&
-          p.pixelLayersWithMeasurement() > 1 &&
-          fabs(iTrack->dxy(RefVtx)) < 3.0 && fabs(iTrack->dz(RefVtx)) < 15.0);
+          p.pixelLayersWithMeasurement() > 1 && fabs(iTrack->dxy(RefVtx)) < 3.0 && fabs(iTrack->dz(RefVtx)) < 15.0);
 }
 
 // Local Variables:

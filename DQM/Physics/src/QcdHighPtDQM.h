@@ -21,14 +21,13 @@ class DQMStore;
 class MonitorElement;
 
 class QcdHighPtDQM : public DQMEDAnalyzer {
- public:
+public:
   QcdHighPtDQM(const edm::ParameterSet&);
   ~QcdHighPtDQM() override;
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
-                      edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   // input tags/Tokens for Jets/MET
   edm::EDGetTokenT<reco::CaloJetCollection> jetToken_;
   edm::EDGetTokenT<reco::CaloMETCollection> metToken1_;
