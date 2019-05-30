@@ -5,6 +5,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -144,11 +145,11 @@ private:
 
     edm::InputTag recoJetsLabel;
     edm::InputTag genJetsLabel;
-    edm::EDGetTokenT<edm::View<reco::Jet>> recoJetsToken;
+    edm::EDGetTokenT<edm::View<pat::Jet>> recoJetsToken;
     edm::EDGetTokenT<edm::View<reco::Jet>> genJetsToken;
     edm::EDGetTokenT<reco::CandViewMatchMap> srcRefToJetMap;
 
-    void fillJetResponse(edm::View<reco::Jet>& recoJetCollection, edm::View<reco::Jet>& genJetCollection);
+    void fillJetResponse(edm::View<pat::Jet>& recoJetCollection, edm::View<reco::Jet>& genJetCollection);
     void prepareJetResponsePlots(const std::vector<edm::ParameterSet>& genjet_plots_pset);
     void prepareGenJetPlots(const std::vector<edm::ParameterSet>& genjet_plots_pset);
 
@@ -224,16 +225,18 @@ PFJetAnalyzerDQM::PFJetAnalyzerDQM(const edm::ParameterSet& iConfig)
     const auto& genjet_plots = iConfig.getParameter<std::vector<edm::ParameterSet>>("genJetPlots");
     prepareGenJetPlots(genjet_plots);
 
-    recoJetsToken = consumes<edm::View<reco::Jet>>(recoJetsLabel);
+    recoJetsToken = consumes<edm::View<pat::Jet>>(recoJetsLabel);
     genJetsToken = consumes<edm::View<reco::Jet>>(genJetsLabel);
 
 }
 
 void PFJetAnalyzerDQM::fillJetResponse(
-    edm::View<reco::Jet>& recoJetCollection,
+    edm::View<pat::Jet>& recoJetCollection,
     edm::View<reco::Jet>& genJetCollection)
 {
 
+    bool use_rawpt=false;
+  
     //match gen jets to reco jets, require minimum jetDeltaR, choose closest, do not try to match charge
     std::vector<int> matchIndices;
     PFB::match(genJetCollection, recoJetCollection, matchIndices, false, jetDeltaR);
@@ -255,7 +258,8 @@ void PFJetAnalyzerDQM::fillJetResponse(
         //If gen jet had a matched reco jet
         if (iMatch != -1) {
             const auto& recoJet = recoJetCollection[iMatch];
-            const auto pt_reco = recoJet.pt();
+            auto pt_reco = recoJet.pt();
+	    if (use_rawpt) pt_reco *= recoJet.jecFactor("Uncorrected");
             const auto response = pt_reco / pt_gen;
 
             //Loop linearly through all plots and check if they match the pt and eta bin
@@ -287,7 +291,7 @@ void PFJetAnalyzerDQM::bookHistograms(DQMStore::IBooker & booker, edm::Run const
 void PFJetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&)
 {
 
-    edm::Handle<edm::View<reco::Jet>> recoJetCollectionHandle;
+    edm::Handle<edm::View<pat::Jet>> recoJetCollectionHandle;
     iEvent.getByToken(recoJetsToken, recoJetCollectionHandle);
     auto recoJetCollection = *recoJetCollectionHandle;
 
