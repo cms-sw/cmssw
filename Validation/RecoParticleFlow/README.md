@@ -55,11 +55,13 @@ Take note that the CMSSW python configuration for running the RECO sequence is d
 
 ~~~
 
-# For example (for 2018):
+# For example (default for 2018):
 #CONDITIONS=auto:phase1_2017_realistic
 #ERA=Run2_2017
 CONDITIONS=auto:phase1_2018_realistic
 ERA=Run2_2018
+#CONDITIONS=auto:phase2_realistic
+#ERA=Phase2C8_timing_layer_bar
 #Running with 2 threads allows to use more memory on grid
 NTHREADS=2
 TMPDIR=tmp
@@ -76,6 +78,9 @@ dasgoclient --query="file dataset=/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_6_0-10
 #(or
 dasgoclient --query="file dataset=/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4-v1/MINIAODSIM" > step3_filelist.txt
 dasgoclient --query="file dataset=/RelValNuGun/CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4-v1/MINIAODSIM" > step3_filelist.txt
+dasgoclient --query="file dataset=/RelValQCD_Pt-15To7000_Flat_14TeV/CMSSW_10_6_0-106X_upgrade2023_realistic_v2_2023D41noPU-v2/MINIAODSIM" > step3_filelist.txt
+dasgoclient --query="file dataset=/RelValQCD_Pt-15To7000_Flat_14TeV/CMSSW_10_6_0-PU25ns_106X_upgrade2023_realistic_v2_2023D41PU200-v1/MINIAODSIM" > step3_filelist.txt
+dasgoclient --query="file dataset=/RelValNuGun/CMSSW_10_6_0-PU25ns_106X_upgrade2023_realistic_v2_2023D41PU200-v1/MINIAODSIM"  > step3_filelist.txt
 #)
 cat step3_filelist.txt
 

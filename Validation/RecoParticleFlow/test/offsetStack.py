@@ -138,6 +138,7 @@ def getHists( file, var, var_val, r ) :
     for i in range(1, p.GetNbinsX()+1) :
       dict[pf].SetBinContent( i, dict[pf].GetBinContent(i) / (xbins[i]-xbins[i-1]) )
       dict[pf].SetBinError( i, dict[pf].GetBinError(i) / (xbins[i]-xbins[i-1]) )
+
   return dict
 
 def setStack( stack, hists ) :
