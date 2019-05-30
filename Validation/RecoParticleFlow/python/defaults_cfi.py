@@ -33,9 +33,9 @@ muHighOffset = 100
 npvLowOffset = 0
 npvHighOffset = 100
 
-eBinsOffset = 100
+eBinsOffset = 1000
 eLowOffset = 0
-eHighOffset = 50
+eHighOffset = 1000
 
 '''
 Defined in PFCandidate.cc

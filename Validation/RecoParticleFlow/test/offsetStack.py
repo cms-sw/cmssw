@@ -3,7 +3,7 @@
 import argparse
 import ROOT
 
-from Validation.RecoParticleFlow.defaults_cfi import candidateType
+from Validation.RecoParticleFlow.defaults_cfi import candidateType,muHighOffset,npvHighOffset
 
 ROOT.gROOT.SetBatch(True)
 
@@ -126,9 +126,14 @@ def offsetStack( files, var, r, outdir ) :
 
 def getHists( file, var, var_val, r ) :
   dict = {}
+
+  var_val_range=var_val;
+  if var=="mu" and var_val>=muHighOffset: var_val_range=muHighOffset-1
+  if var=="npv" and var_val>=npvHighOffset: var_val_range=npvHighOffset-1
+  
   for pf in candidateType :
 
-    name = "p_offset_eta_{}{}_{}".format( var, var_val, pf )
+    name = "p_offset_eta_{}{}_{}".format( var, var_val_range, pf )
     p = file.FindObjectAny(name)
     if p == None : raise Exception( "Could not find {} profile in {}!".format(name, file.GetName()) )
     dict[pf] = p.ProjectionX( pf )
