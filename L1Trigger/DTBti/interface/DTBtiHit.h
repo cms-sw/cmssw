@@ -33,43 +33,39 @@ class DTDigi;
 //---------------
 // C++ Headers --
 //---------------
-#include<cmath>
-#include<string>
-
+#include <cmath>
+#include <string>
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-
 class DTBtiHit {
-
-  public:
-
+public:
   /// Constructor
   DTBtiHit(const DTDigi*, DTConfigBti*);
 
   /// Constructor from clock times
-  DTBtiHit(int clockTime , DTConfigBti*);
-		      
+  DTBtiHit(int clockTime, DTConfigBti*);
+
   /// Copy constructor
   DTBtiHit(const DTBtiHit&);
-  
-  /// Destructor 
+
+  /// Destructor
   ~DTBtiHit();
 
   /// Assignment operator
-  DTBtiHit & operator=(const DTBtiHit&);
-  
+  DTBtiHit& operator=(const DTBtiHit&);
+
   /// Move the hit forward in time one step
-  inline void stepDownTime() { //_curTime-=_stepTime; 
-                               _clockTime-=1; 
-                              }
+  inline void stepDownTime() {  //_curTime-=_stepTime;
+    _clockTime -= 1;
+  }
 
   /// Return the associated DTDigi
   inline const DTDigi* hitDigi() const { return _hitdigi; }
 
-  /// Return the current time 
+  /// Return the current time
   /*! hits with curTime >0 correspond to avalanches drifting to wires
                         <0      "     "  signals already in the registers
   SV curTime=4000 if digis are given in clock units....
@@ -78,22 +74,22 @@ class DTBtiHit {
   inline int clockTime() const { return _clockTime; }
 
   //! true if avalanche is still drifting
-  inline int isDrifting() const { //return _curTime>=0 && _curTime<4000; 
-                                  return _clockTime>1 && _clockTime<400; 
+  inline int isDrifting() const {  //return _curTime>=0 && _curTime<4000;
+    return _clockTime > 1 && _clockTime < 400;
   }
 
   //! true if signal is in the registers
   //SV jtrig()=_config->ST() added: is for tdrift==0
   inline int isInsideReg() const {
     //return _curTime<0 && jtrig()<=_config->ST();
-    return ( _clockTime<=0 && jtrig()<=_config->ST() );      //SV bug fix 17XII03
+    return (_clockTime <= 0 && jtrig() <= _config->ST());  //SV bug fix 17XII03
   }
 
   //! position in registers
-  inline int jtrig() const { 
-                             //return (int)(fabs(_curTime)/_stepTime); 
-                              return -_clockTime;
-                            }
+  inline int jtrig() const {
+    //return (int)(fabs(_curTime)/_stepTime);
+    return -_clockTime;
+  }
   //inline float jtrig() const { return fabs(_curTime)/_stepTime; } //prova SV
   //SV 13/XI/02 half-int simulation added
   /*inline float jtrig() const {  

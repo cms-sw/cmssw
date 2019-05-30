@@ -12,25 +12,22 @@
 #include "CondFormats/L1TObjects/interface/RPCPattern.h"
 //------------------------------------------------------------------------------
 
-class RPCPacMuon: public RPCMuon {
+class RPCPacMuon : public RPCMuon {
 public:
-  
   RPCPacMuon();
-  
+
   RPCPacMuon(const RPCPattern& pattern, int quality, unsigned short firedPlanes);
 
   void setAll(const RPCPattern& pattern, int quality, unsigned short firedPlanes);
 
   void setPatternNum(int patternNum);
 
-  bool operator < (const RPCPacMuon& pacMuon) const;
+  bool operator<(const RPCPacMuon& pacMuon) const;
 
-  bool operator > (const RPCPacMuon& pacMuon) const;
+  bool operator>(const RPCPacMuon& pacMuon) const;
 
-  bool operator == (const RPCPacMuon& pacMuon) const;
+  bool operator==(const RPCPacMuon& pacMuon) const;
 
 private:
 };
 #endif
-
-

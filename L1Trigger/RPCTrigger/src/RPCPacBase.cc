@@ -23,9 +23,7 @@ RPCPacBase::RPCPacBase(int m_tower, int logSector, int logSegment) {
  *Constructor. m_ConeCrdnts and  m_CurrConeCrdnts are set.
  *
  */
-RPCPacBase::RPCPacBase(RPCConst::l1RpcConeCrdnts coneCrdnts): 
-    m_ConeCrdnts(coneCrdnts), 
-    m_CurrConeCrdnts(coneCrdnts) {}
+RPCPacBase::RPCPacBase(RPCConst::l1RpcConeCrdnts coneCrdnts) : m_ConeCrdnts(coneCrdnts), m_CurrConeCrdnts(coneCrdnts) {}
 
 /**
  *
@@ -43,6 +41,4 @@ void RPCPacBase::setCurrentPosition(int m_tower, int logSector, int logSegment) 
  *m_CurrConeCrdnts are set. Called by RPCPacManager in getPac.
  *
  */
-void RPCPacBase::setCurrentPosition(RPCConst::l1RpcConeCrdnts coneCrdnts) {
-  m_CurrConeCrdnts = coneCrdnts;
-}
+void RPCPacBase::setCurrentPosition(RPCConst::l1RpcConeCrdnts coneCrdnts) { m_CurrConeCrdnts = coneCrdnts; }
