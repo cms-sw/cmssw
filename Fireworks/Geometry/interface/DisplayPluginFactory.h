@@ -4,7 +4,7 @@
 //
 // Package:     Geometry
 // Class  :     DisplayPluginFactory
-// 
+//
 /**\class DisplayPluginFactory DisplayPluginFactory.h Fireworks/Geometry/interface/DisplayPluginFactory.h
 
  Description: [one line class summary]
@@ -14,7 +14,7 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Mar 18 04:08:40 CDT 2010
 //
 
@@ -29,10 +29,9 @@ namespace fireworks {
   namespace geometry {
     typedef edmplugin::PluginFactory<DisplayPlugin*(void)> DisplayPluginFactory;
   }
-}
+}  // namespace fireworks
 
 #define DEFINE_FIREWORKS_GEOM_DISPLAY(type) \
-static fireworks::geometry::DisplayPluginFactory::PMaker<type > EDM_PLUGIN_SYM(s_display , __LINE__ ) (#type)
-
+  static fireworks::geometry::DisplayPluginFactory::PMaker<type> EDM_PLUGIN_SYM(s_display, __LINE__)(#type)
 
 #endif

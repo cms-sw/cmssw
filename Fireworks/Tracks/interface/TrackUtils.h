@@ -11,9 +11,8 @@
 #include <set>
 
 // forward declarations
-namespace reco 
-{
-   class Track;
+namespace reco {
+  class Track;
 }
 class RecSegment;
 
@@ -30,62 +29,61 @@ class SiStripCluster;
 class TrackingRecHit;
 
 namespace fireworks {
-  
-struct State {
-   TEveVector position;
-   TEveVector momentum;
-   bool valid;
-   State() : valid(false) {
-   }
-   State(const TEveVector& pos) :
-      position(pos), valid(false) {
-   }
-   State(const TEveVector& pos, const TEveVector& mom) :
-      position(pos), momentum(mom), valid(true) {
-   }
-};
 
-class StateOrdering {
-   TEveVector m_direction;
-public:
-   StateOrdering( const TEveVector& momentum ) {
+  struct State {
+    TEveVector position;
+    TEveVector momentum;
+    bool valid;
+    State() : valid(false) {}
+    State(const TEveVector& pos) : position(pos), valid(false) {}
+    State(const TEveVector& pos, const TEveVector& mom) : position(pos), momentum(mom), valid(true) {}
+  };
+
+  class StateOrdering {
+    TEveVector m_direction;
+
+  public:
+    StateOrdering(const TEveVector& momentum) {
       m_direction = momentum;
       m_direction.Normalize();
-   }
-   bool operator() ( const State& state1,
-                     const State& state2 ) const {
-      double product1 = state1.position.Perp()*(state1.position.fX*m_direction.fX + state1.position.fY*m_direction.fY>0 ? 1 : -1);
-      double product2 = state2.position.Perp()*(state2.position.fX*m_direction.fX + state2.position.fY*m_direction.fY>0 ? 1 : -1);
+    }
+    bool operator()(const State& state1, const State& state2) const {
+      double product1 = state1.position.Perp() *
+                        (state1.position.fX * m_direction.fX + state1.position.fY * m_direction.fY > 0 ? 1 : -1);
+      double product2 = state2.position.Perp() *
+                        (state2.position.fX * m_direction.fX + state2.position.fY * m_direction.fY > 0 ? 1 : -1);
       return product1 < product2;
-   }
-};
+    }
+  };
 
-TEveTrack* prepareTrack( const reco::Track& track,
-                         TEveTrackPropagator* propagator,
-                         const std::vector<TEveVector>& extraRefPoints = std::vector<TEveVector>() );
- 
-float pixelLocalX( const double mpx, const float* );
-float pixelLocalY( const double mpy, const float* );
+  TEveTrack* prepareTrack(const reco::Track& track,
+                          TEveTrackPropagator* propagator,
+                          const std::vector<TEveVector>& extraRefPoints = std::vector<TEveVector>());
 
-float phase2PixelLocalX( const double mpx, const float*, const float* );
-float phase2PixelLocalY( const double mpy, const float*, const float* );
+  float pixelLocalX(const double mpx, const float*);
+  float pixelLocalY(const double mpy, const float*);
 
-void localSiStrip( short strip, float* localTop, float* localBottom, const float* pars, unsigned int id );
+  float phase2PixelLocalX(const double mpx, const float*, const float*);
+  float phase2PixelLocalY(const double mpy, const float*, const float*);
 
-void pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t );   
-void pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t );   
-void pushPixelCluster( std::vector<TVector3> &pixelPoints, const FWGeometry &geom, DetId id, const SiPixelCluster &c, const float* pars ); 
+  void localSiStrip(short strip, float* localTop, float* localBottom, const float* pars, unsigned int id);
 
-void addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveElement *tList, bool addNearbyClusters, bool master );
+  void pushPixelHits(std::vector<TVector3>& pixelPoints, const FWEventItem& iItem, const reco::Track& t);
+  void pushNearbyPixelHits(std::vector<TVector3>& pixelPoints, const FWEventItem& iItem, const reco::Track& t);
+  void pushPixelCluster(
+      std::vector<TVector3>& pixelPoints, const FWGeometry& geom, DetId id, const SiPixelCluster& c, const float* pars);
 
-// Helpers for data extraction
-const SiStripCluster* extractClusterFromTrackingRecHit( const TrackingRecHit* rh );
+  void addSiStripClusters(
+      const FWEventItem* iItem, const reco::Track& t, class TEveElement* tList, bool addNearbyClusters, bool master);
 
-// Helper functions to get human readable informationa about given DetId
-// (copied from TrackingTools/TrackAssociator)
-std::string info( const DetId& );
-std::string info( const std::set<DetId>& );
-std::string info( const std::vector<DetId>& );
-}
+  // Helpers for data extraction
+  const SiStripCluster* extractClusterFromTrackingRecHit(const TrackingRecHit* rh);
 
-#endif // Fireworks_Tracks_TrackUtils_h
+  // Helper functions to get human readable informationa about given DetId
+  // (copied from TrackingTools/TrackAssociator)
+  std::string info(const DetId&);
+  std::string info(const std::set<DetId>&);
+  std::string info(const std::vector<DetId>&);
+}  // namespace fireworks
+
+#endif  // Fireworks_Tracks_TrackUtils_h

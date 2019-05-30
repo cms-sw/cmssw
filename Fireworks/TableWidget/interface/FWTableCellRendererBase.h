@@ -4,7 +4,7 @@
 //
 // Package:     TableWidget
 // Class  :     FWTableCellRendererBase
-// 
+//
 /**\class FWTableCellRendererBase FWTableCellRendererBase.h Fireworks/TableWidget/interface/FWTableCellRendererBase.h
 
  Description: base class for classes which handle drawing and interaction with cells in the table
@@ -41,44 +41,40 @@
 
 // forward declarations
 
-class FWTableCellRendererBase
-{
+class FWTableCellRendererBase {
+public:
+  FWTableCellRendererBase();
+  virtual ~FWTableCellRendererBase();
 
-   public:
-      FWTableCellRendererBase();
-      virtual ~FWTableCellRendererBase();
+  // ---------- const member functions ---------------------
+  ///returns the minimum width of the cell to which the renderer is representing
+  virtual UInt_t width() const = 0;
+  ///returns the minimum height of the cell to which the renderer is representing
+  virtual UInt_t height() const = 0;
 
-      // ---------- const member functions ---------------------
-      ///returns the minimum width of the cell to which the renderer is representing
-      virtual UInt_t width() const= 0;
-      ///returns the minimum height of the cell to which the renderer is representing
-      virtual UInt_t height() const = 0;
-      
-      /** Called to draw a particular cell: arguments
+  /** Called to draw a particular cell: arguments
       iID: the id for the drawable in the window. Needed in order to do calls to gVirtualX or to TGFont
       iX: screen x position that the cell drawing area starts
       iY: screen y position that the cell drawing area starts
       iWidth: width (x dimension) of cell drawing area.  May be larger than value returned from width()
       iHeight: height (x dimension) of cell drawing area. May be larger than value returned from height()
       */
-      virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight)=0;
+  virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) = 0;
 
-      // ---------- member functions ---------------------------
-      /** Called when a mouse button event occurs when the cursor is over a particular cell: arguments
+  // ---------- member functions ---------------------------
+  /** Called when a mouse button event occurs when the cursor is over a particular cell: arguments
       iClickEvent: the ROOT GUI event caused by the mouse button
       iRelClickX: the x position of the cursor click relative to the start of the cell drawing area
       iRelClickY: the y position of the cursor click relative to the start of the cell drawing area
       */
-      virtual void buttonEvent(Event_t* iClickEvent, int iRelClickX, int iRelClickY);
+  virtual void buttonEvent(Event_t* iClickEvent, int iRelClickX, int iRelClickY);
 
-   private:
-      FWTableCellRendererBase(const FWTableCellRendererBase&) = delete; // stop default
+private:
+  FWTableCellRendererBase(const FWTableCellRendererBase&) = delete;  // stop default
 
-      const FWTableCellRendererBase& operator=(const FWTableCellRendererBase&) = delete; // stop default
+  const FWTableCellRendererBase& operator=(const FWTableCellRendererBase&) = delete;  // stop default
 
-      // ---------- member data --------------------------------
-
+  // ---------- member data --------------------------------
 };
-
 
 #endif

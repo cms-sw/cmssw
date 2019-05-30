@@ -4,7 +4,7 @@
 //
 // Package:     TableWidget
 // Class  :     FWAdapterRowHeaderTableManager
-// 
+//
 /**\class FWAdapterRowHeaderTableManager FWAdapterRowHeaderTableManager.h Fireworks/TableWidget/interface/FWAdapterRowHeaderTableManager.h
 
  Description: a TableManager used to pass the row header info of another table as the body of this table
@@ -28,34 +28,30 @@
 
 // forward declarations
 
-class FWAdapterRowHeaderTableManager : public FWTableManagerBase 
-{
+class FWAdapterRowHeaderTableManager : public FWTableManagerBase {
+public:
+  FWAdapterRowHeaderTableManager(FWTableManagerBase*);
+  ~FWAdapterRowHeaderTableManager() override;
 
-   public:
-      FWAdapterRowHeaderTableManager(FWTableManagerBase*);
-      ~FWAdapterRowHeaderTableManager() override;
+  // ---------- const member functions ---------------------
+  int numberOfRows() const override;
+  int numberOfColumns() const override;
+  std::vector<std::string> getTitles() const override;
+  FWTableCellRendererBase* cellRenderer(int iRow, int iCol) const override;
+  int unsortedRowNumber(int) const override;
 
-      // ---------- const member functions ---------------------
-       int numberOfRows() const override ;
-       int numberOfColumns() const override ;
-      std::vector<std::string> getTitles() const override;
-      FWTableCellRendererBase* cellRenderer(int iRow, int iCol) const override;
-      int unsortedRowNumber(int) const override;
+  // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
+  // ---------- member functions ---------------------------
+  void implSort(int col, bool sortOrder) override;
 
-      // ---------- member functions ---------------------------
-      void implSort(int col, bool sortOrder) override ;
+private:
+  FWAdapterRowHeaderTableManager(const FWAdapterRowHeaderTableManager&) = delete;  // stop default
 
-   private:
-      FWAdapterRowHeaderTableManager(const FWAdapterRowHeaderTableManager&) = delete; // stop default
+  const FWAdapterRowHeaderTableManager& operator=(const FWAdapterRowHeaderTableManager&) = delete;  // stop default
 
-      const FWAdapterRowHeaderTableManager& operator=(const FWAdapterRowHeaderTableManager&) = delete; // stop default
-
-      // ---------- member data --------------------------------
-      const FWTableManagerBase* m_table;
-
+  // ---------- member data --------------------------------
+  const FWTableManagerBase* m_table;
 };
-
 
 #endif

@@ -9,34 +9,31 @@
 #include "Fireworks/Calo/plugins/FWCaloRecHitDigitSetProxyBuilder.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-class FWEcalRecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder
-{
+class FWEcalRecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder {
 public:
-   FWEcalRecHitProxyBuilder() {}
-   ~FWEcalRecHitProxyBuilder() override {}
- 
-   void viewContextBoxScale( const float* corners, float scale, bool plotEt, std::vector<float>& scaledCorners, const CaloRecHit*) override;
-	
-   REGISTER_PROXYBUILDER_METHODS();
-	
+  FWEcalRecHitProxyBuilder() {}
+  ~FWEcalRecHitProxyBuilder() override {}
+
+  void viewContextBoxScale(
+      const float* corners, float scale, bool plotEt, std::vector<float>& scaledCorners, const CaloRecHit*) override;
+
+  REGISTER_PROXYBUILDER_METHODS();
+
 private:
-   FWEcalRecHitProxyBuilder( const FWEcalRecHitProxyBuilder& ) = delete;
-   const FWEcalRecHitProxyBuilder& operator=( const FWEcalRecHitProxyBuilder& ) = delete;
+  FWEcalRecHitProxyBuilder(const FWEcalRecHitProxyBuilder&) = delete;
+  const FWEcalRecHitProxyBuilder& operator=(const FWEcalRecHitProxyBuilder&) = delete;
 };
 
-
-void FWEcalRecHitProxyBuilder::viewContextBoxScale( const float* corners, float scale, bool plotEt, std::vector<float>& scaledCorners, const CaloRecHit* hit)
-{ 
-   invertBox((EcalSubdetector( hit->detid().subdetId() ) == EcalPreshower) && (corners[2] < 0));
-   FWCaloRecHitDigitSetProxyBuilder::viewContextBoxScale(corners, scale, plotEt, scaledCorners, hit );
+void FWEcalRecHitProxyBuilder::viewContextBoxScale(
+    const float* corners, float scale, bool plotEt, std::vector<float>& scaledCorners, const CaloRecHit* hit) {
+  invertBox((EcalSubdetector(hit->detid().subdetId()) == EcalPreshower) && (corners[2] < 0));
+  FWCaloRecHitDigitSetProxyBuilder::viewContextBoxScale(corners, scale, plotEt, scaledCorners, hit);
 }
 
-
-REGISTER_FWPROXYBUILDER( FWEcalRecHitProxyBuilder, EcalRecHitCollection, "Ecal RecHit", FWViewType::kISpyBit );
+REGISTER_FWPROXYBUILDER(FWEcalRecHitProxyBuilder, EcalRecHitCollection, "Ecal RecHit", FWViewType::kISpyBit);
 
 // AMT: Scale box round cener. Prviousy used fireworks::energyTower3DCorners().
 // Why differnt scale factor in  EcalPreShower ???
-
 
 /*
 void FWEcalRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc)
