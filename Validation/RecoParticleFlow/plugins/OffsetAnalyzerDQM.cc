@@ -180,11 +180,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
       if (it->getBunchCrossing() != 0) {
 	edm::LogError("OffsetAnalyzerDQM") << "Cannot find the in-time pileup info " << it->getBunchCrossing();
       } else {
-	//int bx = muHandle->size()==1 ? 0 : 12; //12 is in time BX
-	//float mu = muHandle->at(bx).getTrueNumInteractions();
 	float mu = it->getTrueNumInteractions();
-	//std::cout << "getTrueNumInt,bx,size: " << it->getTrueNumInteractions() << " " << it->getBunchCrossing() << " " << muHandle->size() << std::endl;
-	//std::cout << "mu,getTrueNumInt,bx,size: " << mu << " " << it->getTrueNumInteractions() << " " << it->getBunchCrossing() << " " << muHandle->size() << std::endl;
 	th1dPlots["mu"].fill( mu );
 	int_mu = mu + 0.5;
       }
