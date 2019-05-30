@@ -56,7 +56,9 @@ namespace btagbtvdeep{
 }
 
 
-    void TrackPairInfoBuilder::buildTrackPairInfo(const reco::TransientTrack * it , const reco::TransientTrack * tt, const reco::Vertex & pv, float mass, GlobalVector jetdirection ){
+    void TrackPairInfoBuilder::buildTrackPairInfo(const reco::TransientTrack * it , const reco::TransientTrack * tt, const reco::Vertex & pv, float mass, GlobalVector jetdirection, 
+                                                  std::pair<bool,Measurement1D> t_ip, std::pair<bool,Measurement1D> t_ip2d  )
+    {
         
         GlobalPoint pvp(pv.x(),pv.y(),pv.z());
         
@@ -91,9 +93,6 @@ namespace btagbtvdeep{
 
             float dotprodTrack = (ttPoint-pvp).unit().dot(tImpactState.globalDirection().unit());
             float dotprodSeed = (seedPosition-pvp).unit().dot(iImpactState.globalDirection().unit());
-    
-            std::pair<bool,Measurement1D> t_ip = IPTools::absoluteImpactParameter3D(*tt,pv);        
-            std::pair<bool,Measurement1D> t_ip2d = IPTools::absoluteTransverseImpactParameter(*tt,pv);             
 
             Line::PositionType pos(pvp);
             Line::DirectionType dir(jetdirection);
