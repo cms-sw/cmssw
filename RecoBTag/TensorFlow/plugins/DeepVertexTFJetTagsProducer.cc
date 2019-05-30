@@ -143,7 +143,6 @@ void DeepVertexTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescription
 {
 
   // pfDeepVertexJetTags
-    std::cout << "fill descriptions  #############################" << std::endl;
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("pfDeepFlavourTagInfos"));
   desc.add<std::vector<std::string>>("input_names", 
@@ -195,10 +194,9 @@ void DeepVertexTFJetTagsProducer::globalEndJob(const DeepVertexTFCache* cache)
 
 void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-    std::cout << "produce?  #############################" << std::endl;
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
-  std::cout << "produce?  #############################" << std::endl;
+
   // initialize output collection
   std::vector<std::unique_ptr<JetTagCollection>> output_tags;
   for (std::size_t i=0; i < flav_pairs_.size(); i++) {
@@ -253,8 +251,6 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
   }  
     
   std::size_t n_batches = n_jets/n_batch_jets; // either 1 or n_jets
-  
-  std::cout <<" NNN   " << n_batches <<" " << n_jets<<" " <<n_batch_jets << std::endl;
   
   for (std::size_t batch_n=0; batch_n < n_batches; batch_n++) {      
       
@@ -322,7 +318,6 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
       iEvent.put(std::move(output_tags[i]), flav_pairs_.at(i).first);
   }
 
-  std::cout << "produced?  #############################" << std::endl;
 }
 
 
