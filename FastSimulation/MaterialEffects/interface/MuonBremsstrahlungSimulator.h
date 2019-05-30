@@ -17,41 +17,34 @@
  *
  * \author Patrick Janot
  * $Date: 25-Dec-2003
- */ 
-
+ */
 
 #include <string>
 
-
-class TF1; 
+class TF1;
 
 class ParticlePropagator;
 class RandomEngineAndDistribution;
 
-class MuonBremsstrahlungSimulator : public MaterialEffectsSimulator
-{
- public:
-
+class MuonBremsstrahlungSimulator : public MaterialEffectsSimulator {
+public:
   /// Constructor
-  MuonBremsstrahlungSimulator(double A, double Z, double density,
-                              double radLen,double photonEnergyCut,double photonFractECut); 
+  MuonBremsstrahlungSimulator(
+      double A, double Z, double density, double radLen, double photonEnergyCut, double photonFractECut);
 
   /// Default destructor
   ~MuonBremsstrahlungSimulator() override {}
 
+  // Returns the actual Muon brem Energy
+  inline const XYZTLorentzVector& deltaP_BremMuon() const { return deltaPMuon; }
 
-// Returns the actual Muon brem Energy
-  inline const XYZTLorentzVector& deltaP_BremMuon() const { return deltaPMuon ; }
+  // Returns the actual photon brem Energy
+  inline const XYZTLorentzVector& deltaP_BremPhoton() const { return brem_photon; }
 
-// Returns the actual photon brem Energy
-  inline const XYZTLorentzVector& deltaP_BremPhoton() const { return brem_photon ; }
+private:
+  TF1* f1;
 
-
- private:
-
-  TF1* f1 ;
-
-  int npar ;
+  int npar;
 
   /// The minimum photon energy to be radiated, in GeV
   double photonEnergy;
@@ -60,27 +53,24 @@ class MuonBremsstrahlungSimulator : public MaterialEffectsSimulator
   double photonFractE;
 
   /// The fractional photon energy cut (determined from the above two)
-  double xmin,xmax,rand;
-  double d; //distance
- 
+  double xmin, xmax, rand;
+  double d;  //distance
+
   /// Generate numbers according to a Poisson distribution of mean ymu.
   unsigned int poisson(double ymu);
 
   /// Generate Bremsstrahlung photons
-  void compute(ParticlePropagator &Particle, RandomEngineAndDistribution const*) override;
+  void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*) override;
 
   /// Compute Brem photon energy and angles, if any.
-  XYZTLorentzVector brem(ParticlePropagator& p, RandomEngineAndDistribution const*)const;
+  XYZTLorentzVector brem(ParticlePropagator& p, RandomEngineAndDistribution const*) const;
 
   /// A universal angular distribution - still from GEANT.
-  double gbteth(const double ener,
-		const double partm,
-		const double efrac,
-                RandomEngineAndDistribution const*) const;
+  double gbteth(const double ener, const double partm, const double efrac, RandomEngineAndDistribution const*) const;
 
   // The actual Muon Brem
-   XYZTLorentzVector deltaPMuon;
-   //The photon brem
-   XYZTLorentzVector brem_photon;
+  XYZTLorentzVector deltaPMuon;
+  //The photon brem
+  XYZTLorentzVector brem_photon;
 };
 #endif

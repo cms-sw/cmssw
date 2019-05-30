@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////
-// PETRUKHINMODEL_h 
+// PETRUKHINMODEL_h
 //
 // Improvements: Function of Muom Brem using  nuclear screening correction
 // Description: Muon bremsstrahlung using the Petrukhin's model in FASTSIM
@@ -13,8 +13,6 @@
 #include "TMath.h"
 #include "TF1.h"
 
-
-double PetrukhinFunc (double *x, double *p );
-
+double PetrukhinFunc(double *x, double *p);
 
 #endif
