@@ -1,21 +1,19 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "Fireworks/Calo/plugins/FWCaloRecHitDigitSetProxyBuilder.h"
 
-class FWHFRecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder
-{
+class FWHFRecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder {
 public:
-   FWHFRecHitProxyBuilder( void ) {invertBox(true); }
-   ~FWHFRecHitProxyBuilder( void ) override {}
+  FWHFRecHitProxyBuilder(void) { invertBox(true); }
+  ~FWHFRecHitProxyBuilder(void) override {}
 
-   REGISTER_PROXYBUILDER_METHODS();
+  REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWHFRecHitProxyBuilder( const FWHFRecHitProxyBuilder& ) = delete;
-   const FWHFRecHitProxyBuilder& operator=( const FWHFRecHitProxyBuilder& ) = delete;
+  FWHFRecHitProxyBuilder(const FWHFRecHitProxyBuilder&) = delete;
+  const FWHFRecHitProxyBuilder& operator=(const FWHFRecHitProxyBuilder&) = delete;
 };
 
-
-REGISTER_FWPROXYBUILDER( FWHFRecHitProxyBuilder, HFRecHitCollection, "HF RecHit", FWViewType::kISpyBit );
+REGISTER_FWPROXYBUILDER(FWHFRecHitProxyBuilder, HFRecHitCollection, "HF RecHit", FWViewType::kISpyBit);
 
 // AMT: Reflect box. Previously used energyScaledBox3DCorners(). Scaling and e/et mode added now.
 

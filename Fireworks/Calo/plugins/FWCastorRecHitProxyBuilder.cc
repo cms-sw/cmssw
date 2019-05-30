@@ -8,23 +8,21 @@
 #include "Fireworks/Calo/plugins/FWCaloRecHitDigitSetProxyBuilder.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-class FWCastorRecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder
-{
+class FWCastorRecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder {
 public:
-   FWCastorRecHitProxyBuilder( void ) {}  
-   ~FWCastorRecHitProxyBuilder( void ) override {}
+  FWCastorRecHitProxyBuilder(void) {}
+  ~FWCastorRecHitProxyBuilder(void) override {}
 
+  float scaleFactor(const FWViewContext* vc) override { return 10 * FWCaloRecHitDigitSetProxyBuilder::scaleFactor(vc); }
 
-   float scaleFactor(const FWViewContext* vc) override { return 10 * FWCaloRecHitDigitSetProxyBuilder::scaleFactor(vc); } 
-
-   REGISTER_PROXYBUILDER_METHODS();
+  REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWCastorRecHitProxyBuilder( const FWCastorRecHitProxyBuilder& ) = delete;
-   const FWCastorRecHitProxyBuilder& operator=( const FWCastorRecHitProxyBuilder& ) = delete;
+  FWCastorRecHitProxyBuilder(const FWCastorRecHitProxyBuilder&) = delete;
+  const FWCastorRecHitProxyBuilder& operator=(const FWCastorRecHitProxyBuilder&) = delete;
 };
 
-REGISTER_FWPROXYBUILDER( FWCastorRecHitProxyBuilder, CastorRecHitCollection, "Castor RecHit", FWViewType::kISpyBit );
+REGISTER_FWPROXYBUILDER(FWCastorRecHitProxyBuilder, CastorRecHitCollection, "Castor RecHit", FWViewType::kISpyBit);
 
 // AMT:: scale box round center. Scaleing and e/et added now. Previously used fireworks::energyTower3DCorners();
 
