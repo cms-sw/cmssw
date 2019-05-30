@@ -59,6 +59,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons,
     HESize_     = kHESizePreLS1; // qie-per-fiber * fiber/rm * rm/rbx * rbx/endcap * endcap/hcal
     HOSize_     = kHOSizePreLS1; // ieta * iphi * 2
     HFSize_     = kHFSizePreLS1;  // ieta * iphi * depth * 2
+    CALIBSize_  = kCALIBSizePreLS1;
     numberOfShapes_ = 87;
   } else if (mode_==HcalTopologyMode::SLHC) { // need to know more eventually
     topoVersion_=10;
@@ -66,6 +67,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons,
     HESize_     = nEtaHE_*maxPhiHE_*maxDepthHE_*2;
     HOSize_     = (lastHORing_-firstHORing_+1)*IPHI_MAX*2; // ieta * iphi * 2
     HFSize_     = (lastHFRing_-firstHFRing_+1)*IPHI_MAX*maxDepthHF_*2;  // ieta * iphi * depth * 2
+    CALIBSize_  = kOffCalibHFX_;
     numberOfShapes_ = (maxPhiHE_ > 72) ? 1200 : 500;
   }
   maxEta_ = (lastHERing_ > lastHFRing_) ? lastHERing_ : lastHFRing_;
@@ -77,8 +79,8 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons,
 
 #ifdef EDM_ML_DEBUG
   std::cout << "Topo sizes " << HBSize_ << ":" << HESize_ << ":" << HOSize_
-	    << ":" << HFSize_ << ":" << HTSize_ << " for mode " << mode_ 
-	    << ":" << triggerMode_ << std::endl;
+	    << ":" << HFSize_ << ":" << HTSize_ << ":" << CALIBSize_ 
+	    << " for mode " << mode_ << ":" << triggerMode_ << std::endl;
 #endif
 
   //The transition between HE/HF in eta
@@ -168,6 +170,7 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
   HOSize_(kHOSizePreLS1),
   HFSize_(kHFSizePreLS1),
   HTSize_(kHTSizePreLS1),
+  CALIBSize_(kCALIBSizePreLS1),
   numberOfShapes_(( mode==HcalTopologyMode::SLHC ) ? 500 : 87 ) {
 
   if (mode_==HcalTopologyMode::LHC) {
@@ -181,6 +184,7 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
     HESize_= maxDepthHE*(29-16+1)*maxPhiHE_*2;
     HOSize_= 15*IPHI_MAX*2; // ieta * iphi * 2
     HFSize_= IPHI_MAX*13*maxDepthHF_*2; // phi * eta * depth * pm 
+    CALIBSize_= kOffCalibHFX_;
     topoVersion_=10;
   }
   nEtaHB_ = (lastHBRing_-firstHBRing_+1);
@@ -1381,7 +1385,7 @@ unsigned int HcalTopology::detId2denseId(const DetId& id) const {
       if (hid.ieta()>0) retval+=maxDepthHF_*IPHI_MAX*(hid.ieta()-29);
       else              retval+=maxDepthHF_*IPHI_MAX*((41+13)+hid.ieta());
     } else {
-      return 0xFFFFFFFu;
+      retval = 0xFFFFFFFu;
     }
   }
 #ifdef EDM_ML_DEBUG
