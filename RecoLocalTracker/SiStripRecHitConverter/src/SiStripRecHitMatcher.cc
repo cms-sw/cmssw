@@ -96,7 +96,7 @@ void SiStripRecHitMatcher::match(const SiStripRecHit2D* monoRH,
   // position of the initial and final point of the strip in local coordinates (mono det)
   StripPosition stripmono = StripPosition(topol.localPosition(RPHIpointini), topol.localPosition(RPHIpointend));
 
-// in case of no track hypothesis assume a track from the origin through the center of the strip
+  // in case of no track hypothesis assume a track from the origin through the center of the strip
   if (trackdirection.mag2() < FLT_MIN) {
     const LocalPoint& lcenterofstrip = monoRH->localPositionFast();
     GlobalPoint gcenterofstrip = (stripdet->surface()).toGlobal(lcenterofstrip);
@@ -254,7 +254,7 @@ std::unique_ptr<SiStripMatchedRecHit2D> SiStripRecHitMatcher::match(const SiStri
   // position of the initial and final point of the strip in local coordinates (mono det)
   StripPosition stripmono = StripPosition(topol.localPosition(RPHIpointini), topol.localPosition(RPHIpointend));
 
-// in case of no track hypothesis assume a track from the origin through the center of the strip
+  // in case of no track hypothesis assume a track from the origin through the center of the strip
   if (trackdirection.mag2() < FLT_MIN) {
     const LocalPoint& lcenterofstrip = monoRH->localPositionFast();
     GlobalPoint gcenterofstrip = (stripdet->surface()).toGlobal(lcenterofstrip);
