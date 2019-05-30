@@ -79,6 +79,10 @@ class DeepVertexTFJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCa
     // flag to evaluate model batch or jet by jet
     bool batch_eval_;
     
+    const double min_jet_pt_;  
+    const double max_jet_eta_;
+    
+    
 };
 
 
@@ -89,7 +93,10 @@ DeepVertexTFJetTagsProducer::DeepVertexTFJetTagsProducer(const edm::ParameterSet
   output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")),
   lp_names_(iConfig.getParameter<std::vector<std::string>>("lp_names")),
   session_(nullptr),
-  batch_eval_(iConfig.getParameter<bool>("batch_eval"))
+  batch_eval_(iConfig.getParameter<bool>("batch_eval")),
+  min_jet_pt_(iConfig.getParameter<double>("min_jet_pt")),
+  max_jet_eta_(iConfig.getParameter<double>("max_jet_eta"))
+  
 {
   // get threading config and build session options
   size_t nThreads = iConfig.getParameter<unsigned int>("nThreads");
@@ -136,6 +143,7 @@ void DeepVertexTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescription
 {
 
   // pfDeepVertexJetTags
+    std::cout << "fill descriptions  #############################" << std::endl;
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("pfDeepFlavourTagInfos"));
   desc.add<std::vector<std::string>>("input_names", 
@@ -153,7 +161,8 @@ void DeepVertexTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescription
   }
 
   desc.add<bool>("batch_eval", false);
-
+  desc.add<double>("min_jet_pt", 15.0);
+  desc.add<double>("max_jet_eta", 2.5);
   desc.add<unsigned int>("nThreads", 1);
   desc.add<std::string>("singleThreadPool", "no_threads");
 
@@ -186,10 +195,10 @@ void DeepVertexTFJetTagsProducer::globalEndJob(const DeepVertexTFCache* cache)
 
 void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
+    std::cout << "produce?  #############################" << std::endl;
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
-  
+  std::cout << "produce?  #############################" << std::endl;
   // initialize output collection
   std::vector<std::unique_ptr<JetTagCollection>> output_tags;
   for (std::size_t i=0; i < flav_pairs_.size(); i++) {
@@ -200,7 +209,7 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
     } else {
       output_tags.emplace_back(std::make_unique<JetTagCollection>());
     }
-}
+  }
 
    //changes wrt to DeepFlavour from here
    
@@ -244,8 +253,13 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
   }  
     
   std::size_t n_batches = n_jets/n_batch_jets; // either 1 or n_jets
-  for (std::size_t batch_n=0; batch_n < n_batches; batch_n++) {
-
+  
+  std::cout <<" NNN   " << n_batches <<" " << n_jets<<" " <<n_batch_jets << std::endl;
+  
+  for (std::size_t batch_n=0; batch_n < n_batches; batch_n++) {      
+      
+    bool run_session=true; //run session can be skipped for unintersting jets only when n_batch_jets==1
+      
     // tensors have to be zeroed before filling per batch
     for (std::size_t i=0; i < input_sizes.size(); i++) {
       input_tensors[i].second.flat<float>().setZero();
@@ -259,6 +273,9 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
 
       // jet and other global features
       const auto & features = tag_infos->at(jet_n).features();   
+            
+      //check if jet needs btag with n_batch_jets==1
+      if ((features.jet_features.pt<min_jet_pt_ || std::fabs(features.jet_features.eta)>max_jet_eta_) && n_batch_jets==1) { run_session=false; continue;  }
 
       jet4vec_tensor_filler(input_tensors.at(kGlobal).second, jet_bn, features);
 
@@ -279,7 +296,7 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
     // run the session
     std::vector<tensorflow::Tensor> outputs;
     // std::cout <<"Input size" <<  input_tensors.size() << std::endl;
-    tensorflow::run(session_, input_tensors, output_names_, &outputs);
+    if (run_session) tensorflow::run(session_, input_tensors, output_names_, &outputs);
 
     // set output values for flavour probs
     for (std::size_t jet_bn=0; jet_bn < (std::size_t) n_batch_jets; jet_bn++) {
@@ -292,7 +309,8 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
         const auto & flav_pair = flav_pairs_.at(flav_n);
         float o_sum = 0.;
         for (const unsigned int & ind : flav_pair.second) {
-          o_sum += outputs.at(kJetFlavour).matrix<float>()(jet_bn, ind);
+          if (run_session) o_sum += outputs.at(kJetFlavour).matrix<float>()(jet_bn, ind);
+          else o_sum=-2;
         }
         (*(output_tags.at(flav_n)))[jet_ref] = o_sum;
       }
@@ -304,6 +322,7 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
       iEvent.put(std::move(output_tags[i]), flav_pairs_.at(i).first);
   }
 
+  std::cout << "produced?  #############################" << std::endl;
 }
 
 
