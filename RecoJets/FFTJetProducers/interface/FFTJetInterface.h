@@ -2,7 +2,7 @@
 //
 // Package:    FFTJetProducers
 // Class:      FFTJetInterface
-// 
+//
 /**\class FFTJetInterface FFTJetInterface.h RecoJets/FFTJetProducers/interface/FFTJetInterface.hh
 
  Description: common facilities for the FFTJet interface code
@@ -49,19 +49,17 @@
 // class declaration
 //
 namespace fftjetcms {
-  class FFTJetInterface : public edm::EDProducer
-  {
+  class FFTJetInterface : public edm::EDProducer {
   public:
     ~FFTJetInterface() override {}
 
   protected:
     explicit FFTJetInterface(const edm::ParameterSet&);
 
-    template<class Ptr>
-    void checkConfig(const Ptr& ptr, const char* message)
-    {
+    template <class Ptr>
+    void checkConfig(const Ptr& ptr, const char* message) {
       if (ptr.get() == nullptr)
-	throw cms::Exception("FFTJetBadConfig") << message << std::endl;
+        throw cms::Exception("FFTJetBadConfig") << message << std::endl;
     }
 
     void loadInputCollection(const edm::Event&);
@@ -69,7 +67,7 @@ namespace fftjetcms {
     double getEventScale() const;
     bool storeInSinglePrecision() const;
 
-    const reco::Particle::Point& vertexUsed() const {return vertex_;}
+    const reco::Particle::Point& vertexUsed() const { return vertex_; }
 
     // Label for the input collection
     const edm::InputTag inputLabel;
@@ -117,6 +115,6 @@ namespace fftjetcms {
     edm::EDGetTokenT<reco::CandidateView> inputToken;
     edm::EDGetTokenT<reco::VertexCollection> srcPVsToken;
   };
-}
+}  // namespace fftjetcms
 
-#endif // RecoJets_FFTJetProducers_FFTJetInterface_h
+#endif  // RecoJets_FFTJetProducers_FFTJetInterface_h

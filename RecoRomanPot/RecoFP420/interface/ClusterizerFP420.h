@@ -21,35 +21,26 @@
 
 #include <CLHEP/Vector/ThreeVector.h>
 #include <string>
-#include<vector>
-#include<map>
-#include<iostream>
+#include <vector>
+#include <map>
+#include <iostream>
 
-
-
-
-namespace cms
-{
-  class ClusterizerFP420: public edm::EDProducer
-  {
+namespace cms {
+  class ClusterizerFP420 : public edm::EDProducer {
   public:
-    
     explicit ClusterizerFP420(const edm::ParameterSet& conf);
-    
+
     ~ClusterizerFP420() override;
-    
+
     void beginJob() override;
-    
+
     //  virtual void produce(DigiCollectionFP420*, ClusterCollectionFP420 &);
     // virtual void produce(DigiCollectionFP420 &, ClusterCollectionFP420 &);
-    
+
     void produce(edm::Event& e, const edm::EventSetup& c) override;
-    
+
   private:
     typedef std::vector<std::string> vstring;
-
-
-
 
     edm::ParameterSet conf_;
     vstring trackerContainers;
@@ -57,11 +48,11 @@ namespace cms
     FP420ClusterMain* sClusterizerFP420_;
 
     ClusterCollectionFP420* soutput;
-   
+
     std::vector<ClusterNoiseFP420> noise;
     bool UseNoiseBadElectrodeFlagFromDB_;
     int sn0, pn0, dn0, rn0;
     int verbosity;
   };
-}
+}  // namespace cms
 #endif

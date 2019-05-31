@@ -33,40 +33,36 @@ class CSCLayer;
 class CSCLayerGeometry;
 class CSCDetId;
 
-
-class CSCHitFromWireOnly 
-{
- public:
-
+class CSCHitFromWireOnly {
+public:
   typedef std::vector<int> ChannelContainer;
 
-  
-  explicit CSCHitFromWireOnly( const edm::ParameterSet& ps );
-  
+  explicit CSCHitFromWireOnly(const edm::ParameterSet& ps);
+
   ~CSCHitFromWireOnly();
-  
-  std::vector<CSCWireHit> runWire( const CSCDetId& id, const CSCLayer* layer, const CSCWireDigiCollection::Range& rwired ); 
-  void setConditions( const CSCRecoConditions* reco ) {
-    recoConditions_ = reco;
-  }
+
+  std::vector<CSCWireHit> runWire(const CSCDetId& id,
+                                  const CSCLayer* layer,
+                                  const CSCWireDigiCollection::Range& rwired);
+  void setConditions(const CSCRecoConditions* reco) { recoConditions_ = reco; }
   void makeWireCluster(const CSCWireDigi& digi);
-  bool addToCluster(const CSCWireDigi& digi); 
+  bool addToCluster(const CSCWireDigi& digi);
   float findWireHitPosition();
 
-  CSCDetId id_;    
-  const CSCLayer * layer_;
-  const CSCLayerGeometry * layergeom_;
-  
- private:
-  bool isDeadWG(const CSCDetId& id, int WG); 
+  CSCDetId id_;
+  const CSCLayer* layer_;
+  const CSCLayerGeometry* layergeom_;
+
+private:
+  bool isDeadWG(const CSCDetId& id, int WG);
 
   std::vector<CSCWireDigi> wire_cluster;
   std::vector<int> wire_in_cluster;
   std::vector<float> wire_spacing;
   int theTime;
   int theLastChannel;
-  std::vector<int> wire_in_clusterAndBX; /// To fill BX + wiregroup in CSCWireHit
-  
+  std::vector<int> wire_in_clusterAndBX;  /// To fill BX + wiregroup in CSCWireHit
+
   int deltaT;
   bool useReducedWireTime;
   int wireTimeWindow_low;
@@ -78,5 +74,3 @@ class CSCHitFromWireOnly
 };
 
 #endif
-
-
