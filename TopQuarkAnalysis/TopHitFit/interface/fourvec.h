@@ -46,24 +46,22 @@
 
 #include "CLHEP/Vector/LorentzVector.h"
 
-
 namespace hitfit {
 
-
-// Define the types that we want to use.
-/**
+  // Define the types that we want to use.
+  /**
     @brief Typedef for a HepLorentzVector.
  */
-typedef CLHEP::HepLorentzVector Fourvec;
+  typedef CLHEP::HepLorentzVector Fourvec;
 
-/**
+  /**
     @brief Typedef for a Hep3Vector.
  */
-typedef CLHEP::Hep3Vector Threevec;
+  typedef CLHEP::Hep3Vector Threevec;
 
-// Adjust the 3-vector part of V (leaving the energy unchanged) so that
-// it has mass MASS.
-/**
+  // Adjust the 3-vector part of V (leaving the energy unchanged) so that
+  // it has mass MASS.
+  /**
     @brief Adjust the three-vector part of v, leaving the energy unchanged,
 
     so that the four-vector has mass as specified in the argument.
@@ -75,11 +73,11 @@ typedef CLHEP::Hep3Vector Threevec;
     @par Output:
     <i>v</i> The scaled four-vector.
  */
-void adjust_p_for_mass (Fourvec& v, double mass);
+  void adjust_p_for_mass(Fourvec& v, double mass);
 
-// Adjust the energy component of V (leaving the 3-vector part unchanged)
-// so that it has mass MASS.
-/**
+  // Adjust the energy component of V (leaving the 3-vector part unchanged)
+  // so that it has mass MASS.
+  /**
     @brief Adjust the energy component of four-vector v (leaving the three-vector
     part unchanged) so that the four-vector has mass as specified in the
     argument.
@@ -91,10 +89,10 @@ void adjust_p_for_mass (Fourvec& v, double mass);
     @par Output:
     <i>v</i> The scaled four-vector.
  */
-void adjust_e_for_mass (Fourvec& v, double mass);
+  void adjust_e_for_mass(Fourvec& v, double mass);
 
-// Rotate V through polar angle THETA.
-/**
+  // Rotate V through polar angle THETA.
+  /**
     @brief Rotate four-vector v through a polar angle.
 
     @param v The four-vector to rotate.
@@ -104,10 +102,10 @@ void adjust_e_for_mass (Fourvec& v, double mass);
     @par Output:
     <i>v</i> The rotated vector.
  */
-void rottheta (Fourvec& v, double theta);
+  void rottheta(Fourvec& v, double theta);
 
-// Rotate V through a polar angle such that its pseudorapidity changes by ETA.
-/**
+  // Rotate V through a polar angle such that its pseudorapidity changes by ETA.
+  /**
     @brief Rotate four-vector v through a polar angle such that the four-vector
     pseudorapidity changes by a desired value.
 
@@ -118,24 +116,24 @@ void rottheta (Fourvec& v, double theta);
     @par Output:
     <i>v</i> The rotated four-vector.
  */
-void roteta (Fourvec& v,   double eta);
+  void roteta(Fourvec& v, double eta);
 
-// Conversions between pseudorapidity and polar angle.
-/**
+  // Conversions between pseudorapidity and polar angle.
+  /**
     @brief Convert pseudorapidity to polar angle.
 
     @param eta The value of pseudorapidity to convert.
  */
-double eta_to_theta (double eta);
-/**
+  double eta_to_theta(double eta);
+  /**
     @brief Convert polar angle to pseudorapidity.
 
     @param theta The polar angle to convert.
  */
-double theta_to_eta (double theta);
+  double theta_to_eta(double theta);
 
-// Get the detector eta (D0-specific).  Needs a Z-vertex.
-/**
+  // Get the detector eta (D0-specific).  Needs a Z-vertex.
+  /**
     @brief NOT USED ANYMORE: Get the detector \f$\eta\f$ (D0-specific),
 	requires z-vertex.
 
@@ -143,27 +141,24 @@ double theta_to_eta (double theta);
 
     @param zvert z-vertex of the event.
 */
-double deteta (const Fourvec& v, double zvert);  // XXX
+  double deteta(const Fourvec& v, double zvert);  // XXX
 
-//  Handle wraparound for a difference in azimuthal angles.
-/**
+  //  Handle wraparound for a difference in azimuthal angles.
+  /**
     @brief Normalized difference in azimuthal angles to a range
     between \f$[-\pi \dot \pi]\f$.
 
     @param phi The azimuthal to be normalized.
  */
-double phidiff (double phi);
+  double phidiff(double phi);
 
-// Find the distance in R between two four-vectors.
-/**
+  // Find the distance in R between two four-vectors.
+  /**
     @brief Find the distance between two four-vectors in the two-dimensional
     space \f$\eta-\phi\f$.
  */
-double delta_r (const Fourvec& a, const Fourvec& b);
+  double delta_r(const Fourvec& a, const Fourvec& b);
 
+}  // namespace hitfit
 
-} // namespace hitfit
-
-
-#endif // not HITFIT_FOURVEC_H
-
+#endif  // not HITFIT_FOURVEC_H

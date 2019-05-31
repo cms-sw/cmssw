@@ -9,26 +9,25 @@
 
 namespace fwlite {
 
-class TFileService : public TFileDirectory {
- public:
-  /// constructor
-  TFileService(const std::string& fileName);
+  class TFileService : public TFileDirectory {
+  public:
+    /// constructor
+    TFileService(const std::string& fileName);
 
-  /// constructor with external TFile
-  TFileService(TFile * aFile);
+    /// constructor with external TFile
+    TFileService(TFile* aFile);
 
-  /// destructor
-  ~TFileService() override;
+    /// destructor
+    ~TFileService() override;
 
-  /// return opened TFile
-  TFile & file() const { return * file_; }
+    /// return opened TFile
+    TFile& file() const { return *file_; }
 
- private:
-  /// pointer to opened TFile
-  TFile * file_;
-  std::string fileName_;
+  private:
+    /// pointer to opened TFile
+    TFile* file_;
+    std::string fileName_;
+  };
 
-};
-
-}
+}  // namespace fwlite
 #endif
