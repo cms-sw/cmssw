@@ -87,7 +87,7 @@ SiPixelQualityESProducer::SiPixelQualityESProducer(const edm::ParameterSet& conf
   throwIfNotFound("SiPixelQualityFromDbRcd");
 
   auto label = conf_.exists("siPixelQualityLabel")?conf_.getParameter<std::string>("siPixelQualityLabel"):std::string{};
-  auto setConsumes = [this](edm::ESConsumesCollector&& cc, Tokens& tokens, const std::string& label) {
+  auto setConsumes = [](edm::ESConsumesCollector&& cc, Tokens& tokens, const std::string& label) {
     cc.setConsumes(tokens.voffToken_).setConsumes(tokens.dbobjectToken_, edm::ESInputTag{"", label});
   };
 
