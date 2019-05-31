@@ -12,18 +12,14 @@
  * a single component ionization- or radiation model (== "KF") or a multi-component
  * Bethe-Heitler model. */
 
-class  GsfMaterialEffectsESProducer: public edm::ESProducer{
- public:
-  GsfMaterialEffectsESProducer(const edm::ParameterSet & p);
-  ~GsfMaterialEffectsESProducer() override; 
+class GsfMaterialEffectsESProducer : public edm::ESProducer {
+public:
+  GsfMaterialEffectsESProducer(const edm::ParameterSet &p);
+  ~GsfMaterialEffectsESProducer() override;
   std::unique_ptr<GsfMaterialEffectsUpdator> produce(const TrackingComponentsRecord &);
- private:
+
+private:
   edm::ParameterSet pset_;
 };
 
-
 #endif
-
-
-
-
