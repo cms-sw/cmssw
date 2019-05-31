@@ -32,9 +32,7 @@ HGCalHistoClusteringImpl::HGCalHistoClusteringImpl(const edm::ParameterSet& conf
 }
 
 float HGCalHistoClusteringImpl::dR(const l1t::HGCalCluster& clu, const GlobalPoint& seed) const {
-  Basic3DVector<float> seed_3dv(seed);
-  GlobalPoint seed_proj(seed_3dv / seed.z());
-  return (seed_proj - clu.centreProj()).mag();
+  return (seed - clu.centreProj()).mag();
 }
 
 std::vector<l1t::HGCalMulticluster> HGCalHistoClusteringImpl::clusterSeedMulticluster(
