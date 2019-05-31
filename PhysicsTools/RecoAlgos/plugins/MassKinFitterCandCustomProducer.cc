@@ -8,8 +8,9 @@
 
 class CustomKinFitter : public CandMassKinFitter {
 public:
-  CustomKinFitter(double mass) : CandMassKinFitter(mass) { }
+  CustomKinFitter(double mass) : CandMassKinFitter(mass) {}
   virtual ~CustomKinFitter() = default;
+
 private:
   virtual double errEt(double et, double eta) const { return 0.2; }
   virtual double errEta(double et, double eta) const { return 0.2; }
@@ -18,11 +19,10 @@ private:
 
 class MassKinFitterCandCustomProducer : public MassKinFitterCandProducer {
 public:
-  explicit MassKinFitterCandCustomProducer(const edm::ParameterSet& cfg) :
-    MassKinFitterCandProducer(cfg, new CustomKinFitter(cfg.getParameter<double>("mass"))) { }
+  explicit MassKinFitterCandCustomProducer(const edm::ParameterSet& cfg)
+      : MassKinFitterCandProducer(cfg, new CustomKinFitter(cfg.getParameter<double>("mass"))) {}
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( MassKinFitterCandCustomProducer );
-
+DEFINE_FWK_MODULE(MassKinFitterCandCustomProducer);

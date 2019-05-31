@@ -29,17 +29,15 @@
 #include "TString.h"
 
 class TtSemiLRJetCombCalc {
-
- public:
-  
+public:
   TtSemiLRJetCombCalc();
-  TtSemiLRJetCombCalc(const TString&,const std::vector<int>&);
-  ~TtSemiLRJetCombCalc();	
-  
-  void  operator()(TtSemiEvtSolution&);
-  
- private:
-  LRHelpFunctions * myLR;
+  TtSemiLRJetCombCalc(const TString&, const std::vector<int>&);
+  ~TtSemiLRJetCombCalc();
+
+  void operator()(TtSemiEvtSolution&);
+
+private:
+  LRHelpFunctions* myLR;
   bool addPurity;
 };
 
