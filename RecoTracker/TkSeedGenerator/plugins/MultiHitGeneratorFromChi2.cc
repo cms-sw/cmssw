@@ -12,7 +12,6 @@
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
-#include "CommonTools/RecoAlgos/interface/KDTreeLinkerTools.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
@@ -241,7 +240,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 
 
   //gc: initialize a KDTree per each 3rd layer
-  std::vector<KDTreeNodeInfo<RecHitsSortedInPhi::HitIter> > layerTree; // re-used throughout
+  std::vector<KDTreeNodeInfo<RecHitsSortedInPhi::HitIter,2> > layerTree; // re-used throughout
   std::vector<RecHitsSortedInPhi::HitIter> foundNodes; // re-used thoughout
   foundNodes.reserve(100);
   declareDynArray(KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter>,nThirdLayers, hitTree);
@@ -286,10 +285,10 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 	    if (myz < minz) { minz = myz;} else { if (myz > maxz) {maxz = myz;}}
 	    auto myerr = layer3.dv[i];
 	    if (myerr > maxErr) { maxErr = myerr;}
-	    layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle, myz)); // save it
+	    layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter,2>(hi, angle, myz)); // save it
             // populate side-bands
-            if (angle>safePhi) layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle-Geom::twoPi(), myz));
-            else if (angle<-safePhi) layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle+Geom::twoPi(), myz));
+            if (angle>safePhi) layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter,2>(hi, float(angle-Geom::twoPi()), float(myz)));
+            else if (angle<-safePhi) layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter,2>(hi, float(angle+Geom::twoPi()), float(myz)));
 	  }
       }
     KDTreeBox phiZ(minphi, maxphi, minz-0.01f, maxz+0.01f);  // declare our bounds
@@ -492,8 +491,8 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 
       if (barrelLayer) {
 	KDTreeBox phiZ(prmin-extraPhiKDBox, prmax+extraPhiKDBox,
-		       rzRange.min()-fnSigmaRZ*rzError[il]-extraZKDBox,
-		       rzRange.max()+fnSigmaRZ*rzError[il]+extraZKDBox);
+		       float(rzRange.min()-fnSigmaRZ*rzError[il]-extraZKDBox),
+		       float(rzRange.max()+fnSigmaRZ*rzError[il]+extraZKDBox));
 	hitTree[il].search(phiZ, foundNodes);
 
 	IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "kd tree box bounds, phi: " << prmin-extraPhiKDBox <<","<< prmax+extraPhiKDBox
@@ -502,8 +501,8 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 
       } else {
 	KDTreeBox phiR(prmin-extraPhiKDBox, prmax+extraPhiKDBox,
-		       rzRange.min()-fnSigmaRZ*rzError[il]-extraRKDBox,
-		       rzRange.max()+fnSigmaRZ*rzError[il]+extraRKDBox);
+		       float(rzRange.min()-fnSigmaRZ*rzError[il]-extraRKDBox),
+		       float(rzRange.max()+fnSigmaRZ*rzError[il]+extraRKDBox));
 	hitTree[il].search(phiR, foundNodes);
 
 	IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "kd tree box bounds, phi: " << prmin-extraPhiKDBox <<","<< prmax+extraPhiKDBox

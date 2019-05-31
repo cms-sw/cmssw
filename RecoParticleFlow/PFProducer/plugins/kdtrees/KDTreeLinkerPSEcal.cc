@@ -1,7 +1,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerBase.h"
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
-#include "CommonTools/RecoAlgos/interface/KDTreeLinkerTools.h"
 
 #include "TMath.h"
 
@@ -121,19 +120,19 @@ void KDTreeLinkerPSEcal::buildTree() {
 
 void KDTreeLinkerPSEcal::buildTree(const RecHitSet &rechitsSet, KDTreeLinkerAlgo<reco::PFRecHit const *> &tree) {
   // List of pseudo-rechits that will be used to create the KDTree
-  std::vector<KDTreeNodeInfo<reco::PFRecHit const *>> eltList;
+  std::vector<KDTreeNodeInfo<reco::PFRecHit const*,2>> eltList;
 
   // Filling of this eltList
   for (RecHitSet::const_iterator it = rechitsSet.begin(); it != rechitsSet.end(); it++) {
     const reco::PFRecHit *rh = *it;
     const auto &posxyz = rh->position();
 
-    KDTreeNodeInfo rhinfo{rh, posxyz.x(), posxyz.y()};
+    KDTreeNodeInfo<reco::PFRecHit const*,2> rhinfo {rh, posxyz.x(), posxyz.y()};
     eltList.push_back(rhinfo);
   }
 
   // xmin-xmax, ymain-ymax
-  KDTreeBox region{-150., 150., -150., 150.};
+  KDTreeBox region{-150.f, 150.f, -150.f, 150.f};
 
   // We may now build the KDTree
   tree.build(eltList, region);
@@ -157,8 +156,8 @@ void KDTreeLinkerPSEcal::searchLinks() {
     double etaPS = fabs(clusterPS.positionREP().eta());
     double deltaX = 0.;
     double deltaY = 0.;
-    double xPSonEcal = xPS;
-    double yPSonEcal = yPS;
+    float xPSonEcal = xPS;
+    float yPSonEcal = yPS;
 
     if (clusterPS.layer() == PFLayer::PS1) {  // PS1
 
@@ -184,8 +183,8 @@ void KDTreeLinkerPSEcal::searchLinks() {
 
     // The inflation factor includes the approximate projection from Preshower to ECAL
     double inflation = 2.4 - (etaPS - 1.6);
-    double rangeX = maxEcalRadius * (1 + (0.05 + 1.0 / maxEcalRadius * deltaX / 2.)) * inflation;
-    double rangeY = maxEcalRadius * (1 + (0.05 + 1.0 / maxEcalRadius * deltaY / 2.)) * inflation;
+    float rangeX = maxEcalRadius * (1 + (0.05 + 1.0 / maxEcalRadius * deltaX / 2.)) * inflation;
+    float rangeY = maxEcalRadius * (1 + (0.05 + 1.0 / maxEcalRadius * deltaY / 2.)) * inflation;
 
     // We search for all candidate recHits, ie all recHits contained in the maximal size envelope.
     std::vector<reco::PFRecHit const *> recHits;
