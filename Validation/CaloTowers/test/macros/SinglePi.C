@@ -135,7 +135,7 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    f1_hist1[2] = (TH1*)td->Get("CaloTowersTask_number_of_fired_towers_HF");
    
    
-   td =fileDirectory(&f1, "PFClustersTask");
+   td =fileDirectory(&f1, "PFClusterV");
    f1_prof[14] = (TProfile*)td->Get("emean_vs_eta_E");
    f1_prof[15] = (TProfile*)td->Get("emean_vs_eta_H");
    f1_prof[16] = (TProfile*)td->Get("emean_vs_eta_EH");
@@ -204,7 +204,7 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    f2_hist1[2] = (TH1*)td->Get("CaloTowersTask_number_of_fired_towers_HF");
    
    
-   td = fileDirectory(&f2, "PFClustersTask");
+   td = fileDirectory(&f2, "PFClusterV");
    f2_prof[14] = (TProfile*)td->Get("emean_vs_eta_E");
    f2_prof[15] = (TProfile*)td->Get("emean_vs_eta_H");
    f2_prof[16] = (TProfile*)td->Get("emean_vs_eta_EH");
