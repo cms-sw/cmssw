@@ -9,7 +9,6 @@
 // Imported to CMSSW by Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>
 //
 
-
 /**
     @file Top_Decaykin.h
 
@@ -40,28 +39,25 @@
 #include "TopQuarkAnalysis/TopHitFit/interface/fourvec.h"
 #include <iosfwd>
 
-
 namespace hitfit {
 
+  class Lepjets_Event;
 
-class Lepjets_Event;
-
-
-/**
+  /**
     @brief A class to hold functions to calculate kinematic quantities
     of interest in  \f$ t\bar{t} \to \ell + 4 \mathrm{jets} \f$  events.
     This class has no state, only static member functions.
  */
-class Top_Decaykin
-//
-// Purpose: Calculate some kinematic quantities for ttbar events.
-//          This class has no state --- just static member functions.
-//
-{
-public:
-  // Solve for the longitudinal z-momentum that makes the leptonic
-  // top have mass TMASS.
-  /**
+  class Top_Decaykin
+  //
+  // Purpose: Calculate some kinematic quantities for ttbar events.
+  //          This class has no state --- just static member functions.
+  //
+  {
+  public:
+    // Solve for the longitudinal z-momentum that makes the leptonic
+    // top have mass TMASS.
+    /**
      @brief Solve for the neutrino longitudinal  \f$ z- \f$ momentum
      that makes the leptonic top have a certain value of mass.  Returns
      <b>TRUE</b> if there were real solutions.  Returns <b>FALSE</b> if there
@@ -76,12 +72,11 @@ public:
 
      @param nuz2 Output: The second solution.
    */
-  static bool solve_nu_tmass (const Lepjets_Event& ev, double tmass,
-                              double& nuz1, double& nuz2);
+    static bool solve_nu_tmass(const Lepjets_Event& ev, double tmass, double& nuz1, double& nuz2);
 
-  // Solve for the longitudinal z-momentum that makes the leptonic
-  // top have mass TMASS, with imaginary component returned.
-  /**
+    // Solve for the longitudinal z-momentum that makes the leptonic
+    // top have mass TMASS, with imaginary component returned.
+    /**
      @brief Solve for the neutrino longitudinal  \f$ z- \f$ momentum
      that makes the leptonic top have a certain value of mass.  The
      complex component of the solutions are also given.
@@ -106,13 +101,12 @@ public:
      @param im_nuz2 Output: Imaginary component of the second solution.
 
    */
-  static bool solve_nu_tmass (const Lepjets_Event& ev, double tmass,
-                              double& re_nuz1, double& im_nuz1,
-                              double& re_nuz2, double& im_nuz2);
+    static bool solve_nu_tmass(
+        const Lepjets_Event& ev, double tmass, double& re_nuz1, double& im_nuz1, double& re_nuz2, double& im_nuz2);
 
-  // Solve for the longitudinal z-momentum that makes the leptonic
-  // W have mass WMASS.
-  /**
+    // Solve for the longitudinal z-momentum that makes the leptonic
+    // W have mass WMASS.
+    /**
      @brief Solve for the longitudinal  \f$ z- \f$ momentum that makes the
      leptonic  \f$ W \f$ -boson to have a certain value of mass.  Returns
      <b>TRUE</b> if there were real solutions.  Returns <b>FALSE</b> if there
@@ -129,12 +123,11 @@ public:
      @param nuz2 Output: Second solution.
 
    */
-  static bool solve_nu (const Lepjets_Event& ev, double wmass,
-                        double& nuz1, double& nuz2);
+    static bool solve_nu(const Lepjets_Event& ev, double wmass, double& nuz1, double& nuz2);
 
-  // Solve for the longitudinal z-momentum that makes the leptonic
-  // W have mass WMASS, with imaginary component returned.
-  /**
+    // Solve for the longitudinal z-momentum that makes the leptonic
+    // W have mass WMASS, with imaginary component returned.
+    /**
      @brief Solve for the longitudinal  \f$ z- \f$ momentum that makes the
      leptonic  \f$ W \f$ -boson to have a certain value of mass.  The
      complex component of the solutions are also given.
@@ -159,76 +152,75 @@ public:
      @param im_nuz2 Output: Imaginary component of the second solution.
 
    */
-  static bool solve_nu (const Lepjets_Event& ev, double wmass,
-                        double& re_nuz1, double& im_nuz1,
-                        double& re_nuz2, double& im_nuz2);
+    static bool solve_nu(
+        const Lepjets_Event& ev, double wmass, double& re_nuz1, double& im_nuz1, double& re_nuz2, double& im_nuz2);
 
-  // Sum up the appropriate 4-vectors to find the hadronic W.
-  /**
+    // Sum up the appropriate 4-vectors to find the hadronic W.
+    /**
      @brief Sum up the appropriate four-momenta to find the hadronic
       \f$ W- \f$ boson.
 
      @param ev The event.
    */
-  static Fourvec hadw (const Lepjets_Event& ev);
+    static Fourvec hadw(const Lepjets_Event& ev);
 
-  // Find the higher pT jet from hadronic W
-  /**
+    // Find the higher pT jet from hadronic W
+    /**
      @brief Return the hadronic  \f$ W- \f$ boson jet which have higher
       \f$ p_{T} \f$ .
 
      @param ev The event.
    */
-  static Fourvec hadw1 (const Lepjets_Event& ev);
+    static Fourvec hadw1(const Lepjets_Event& ev);
 
-  // Find the lower pT jet from hadronic W
-  /**
+    // Find the lower pT jet from hadronic W
+    /**
      @brief Return the hadronic  \f$ W- \f$ boson jet which have lower
       \f$ p_{T} \f$ .
 
      @param ev The event.
    */
-  static Fourvec hadw2 (const Lepjets_Event& ev);
+    static Fourvec hadw2(const Lepjets_Event& ev);
 
-  // Sum up the appropriate 4-vectors to find the leptonic W.
-  /**
+    // Sum up the appropriate 4-vectors to find the leptonic W.
+    /**
      @brief Sum up the appropriate four-momenta to find the leptonic
       \f$ W- \f$ boson.
 
      @param ev The event.
    */
-  static Fourvec lepw (const Lepjets_Event& ev);
+    static Fourvec lepw(const Lepjets_Event& ev);
 
-  // Sum up the appropriate 4-vectors to find the hadronic t.
-  /**
+    // Sum up the appropriate 4-vectors to find the hadronic t.
+    /**
      @brief Sum up the appropriate four-momenta to find the hadronic
      top quark.
 
      @param ev The event.
    */
-  static Fourvec hadt (const Lepjets_Event& ev);
+    static Fourvec hadt(const Lepjets_Event& ev);
 
-  // Sum up the appropriate 4-vectors to find the leptonic t.
-  /**
+    // Sum up the appropriate 4-vectors to find the leptonic t.
+    /**
      @brief Sum up the appropriate four-momenta to find the leptonic
      top quark.
 
      @param ev The event.
    */
-  static Fourvec lept (const Lepjets_Event& ev);
+    static Fourvec lept(const Lepjets_Event& ev);
 
-  // Print kinematic information for EV.
-  /**
+    // Print kinematic information for EV.
+    /**
      @brief Print the kinematic information for an event.
 
      @param s The stream of which to write.
 
      @param ev The event to be printed.
    */
-  static std::ostream& dump_ev (std::ostream& s, const Lepjets_Event& ev);
+    static std::ostream& dump_ev(std::ostream& s, const Lepjets_Event& ev);
 
-  // Solve cos theta star
-  /**
+    // Solve cos theta star
+    /**
      @brief Calculate  \f$ \cos \theta^{*} \f$  in top quark decay.
 
      @param fermion The four-momentum of fermion from  \f$ W- \f$ boson
@@ -238,30 +230,28 @@ public:
 
      @param top The four-momentum of top.
    */
-  static double cos_theta_star(const Fourvec& fermion,
-                               const Fourvec& W,
-                               const Fourvec& top);
+    static double cos_theta_star(const Fourvec& fermion, const Fourvec& W, const Fourvec& top);
 
-  // Solve cos theta star in lepton side of lepton+jets event
-  /**
+    // Solve cos theta star in lepton side of lepton+jets event
+    /**
      @brief Calculate the lepton  \f$ \cos \theta^{*} \f$  in top
      quark leptonic decay.
 
      @param ev The event to solve.
    */
-  static double cos_theta_star(const Lepjets_Event& ev);
+    static double cos_theta_star(const Lepjets_Event& ev);
 
-  // Solve cos theta star in lepton side of lepton+jets event
-  /**
+    // Solve cos theta star in lepton side of lepton+jets event
+    /**
      @brief Calculate the lepton  \f$ \cos \theta^{*} \f$  in top
      quark leptonic decay.
 
      @param ev The event to solve.
    */
-  static double cos_theta_star_lept(const Lepjets_Event& ev);
+    static double cos_theta_star_lept(const Lepjets_Event& ev);
 
-  // Solve cos theta star in hadronic side of lepton+jets event
-  /**
+    // Solve cos theta star in hadronic side of lepton+jets event
+    /**
      @brief Calculate the hadronic  \f$ \cos \theta^{*} \f$  in top
      quark leptonic decay.  As there is no information on the weak
      isospin component of the fermion, the absolute value of
@@ -271,14 +261,9 @@ public:
 
      @param ev The event to solve.
    */
-  static double cos_theta_star_hadt(const Lepjets_Event& ev);
+    static double cos_theta_star_hadt(const Lepjets_Event& ev);
+  };
 
+}  // namespace hitfit
 
-};
-
-
-} // namespace hitfit
-
-
-#endif // not HITFIT_TOP_DECAYKIN_H
-
+#endif  // not HITFIT_TOP_DECAYKIN_H

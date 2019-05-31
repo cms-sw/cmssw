@@ -30,77 +30,66 @@
 //
 // constructors and destructor
 //
-PFCand_AssoMap::PFCand_AssoMap(const edm::ParameterSet& iConfig):PFCand_AssoMapAlgos(iConfig, consumesCollector())
-{
+PFCand_AssoMap::PFCand_AssoMap(const edm::ParameterSet& iConfig) : PFCand_AssoMapAlgos(iConfig, consumesCollector()) {
+  //now do what ever other initialization is needed
 
-   //now do what ever other initialization is needed
+  input_AssociationType_ = iConfig.getParameter<edm::InputTag>("AssociationType");
 
-  	input_AssociationType_ = iConfig.getParameter<edm::InputTag>("AssociationType");
+  token_PFCandidates_ =
+      consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("PFCandidateCollection"));
 
-  	token_PFCandidates_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("PFCandidateCollection"));
+  //register your products
 
-   //register your products
-
-	if ( input_AssociationType_.label() == "PFCandsToVertex" ) {
-  	  produces<PFCandToVertexAssMap>();
-	} else {
-	  if ( input_AssociationType_.label() == "VertexToPFCands" ) {
-  	    produces<VertexToPFCandAssMap>();
-	  } else {
-	    if ( input_AssociationType_.label() == "Both" ) {
-  	      produces<PFCandToVertexAssMap>();
-  	      produces<VertexToPFCandAssMap>();
-	    } else {
-	      std::cout << "No correct InputTag for AssociationType!" << std::endl;
-	      std::cout << "Won't produce any AssociationMap!" << std::endl;
-	    }
-	  }
-	}
-
+  if (input_AssociationType_.label() == "PFCandsToVertex") {
+    produces<PFCandToVertexAssMap>();
+  } else {
+    if (input_AssociationType_.label() == "VertexToPFCands") {
+      produces<VertexToPFCandAssMap>();
+    } else {
+      if (input_AssociationType_.label() == "Both") {
+        produces<PFCandToVertexAssMap>();
+        produces<VertexToPFCandAssMap>();
+      } else {
+        std::cout << "No correct InputTag for AssociationType!" << std::endl;
+        std::cout << "Won't produce any AssociationMap!" << std::endl;
+      }
+    }
+  }
 }
 
-
-PFCand_AssoMap::~PFCand_AssoMap()
-{
-}
-
+PFCand_AssoMap::~PFCand_AssoMap() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-PFCand_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
+void PFCand_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   using namespace std;
   using namespace reco;
 
-	//get the input pfCandidateCollection
-  	Handle<PFCandidateCollection> pfCandH;
-  	iEvent.getByToken(token_PFCandidates_,pfCandH);
+  //get the input pfCandidateCollection
+  Handle<PFCandidateCollection> pfCandH;
+  iEvent.getByToken(token_PFCandidates_, pfCandH);
 
-	string asstype = input_AssociationType_.label();
+  string asstype = input_AssociationType_.label();
 
-	PFCand_AssoMapAlgos::GetInputCollections(iEvent,iSetup);
+  PFCand_AssoMapAlgos::GetInputCollections(iEvent, iSetup);
 
-        if (asstype == "PFCandsToVertex" || asstype == "VertexToPFCands" || asstype == "Both") {
-          auto mappings = createMappings(pfCandH, iSetup);
-          if (asstype == "PFCandsToVertex" || asstype == "Both") {
-            iEvent.put( SortPFCandAssociationMap( &(*mappings.first), &iEvent.productGetter() ) );
-          }
-          if (asstype == "VertexToPFCands" || asstype == "Both") {
-            iEvent.put( std::move(mappings.second));
-          }          
-        }
-
+  if (asstype == "PFCandsToVertex" || asstype == "VertexToPFCands" || asstype == "Both") {
+    auto mappings = createMappings(pfCandH, iSetup);
+    if (asstype == "PFCandsToVertex" || asstype == "Both") {
+      iEvent.put(SortPFCandAssociationMap(&(*mappings.first), &iEvent.productGetter()));
+    }
+    if (asstype == "VertexToPFCands" || asstype == "Both") {
+      iEvent.put(std::move(mappings.second));
+    }
+  }
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-PFCand_AssoMap::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void PFCand_AssoMap::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

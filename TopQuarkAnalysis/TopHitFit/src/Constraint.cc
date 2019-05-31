@@ -9,7 +9,6 @@
 // Imported to CMSSW by Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>
 //
 
-
 /**
     @file Constraint.cc
 
@@ -37,119 +36,107 @@
 #include <iostream>
 #include <cassert>
 
-
-using std::unique_ptr;
 using std::ostream;
 using std::string;
+using std::unique_ptr;
 
 namespace hitfit {
 
+  Constraint::Constraint(const Constraint& c)
+      //
+      // Purpose: Copy constructor.
+      //
+      // Inputs:
+      //   c -           The instance to copy.
+      //
+      : _lhs(c._lhs->clone()), _rhs(c._rhs->clone()) {}
 
-Constraint::Constraint (const Constraint& c)
-//
-// Purpose: Copy constructor.
-//
-// Inputs:
-//   c -           The instance to copy.
-//
-  : _lhs (c._lhs->clone ()),
-    _rhs (c._rhs->clone ())
-{
-}
-
-
-Constraint& Constraint::operator= (const Constraint& c)
-//
-// Purpose: Assignment.
-//
-// Inputs:
-//   c -           The instance to copy.
-//
-// Returns:
-//   This instance.
-//
-{
+  Constraint& Constraint::operator=(const Constraint& c)
+  //
+  // Purpose: Assignment.
+  //
+  // Inputs:
+  //   c -           The instance to copy.
+  //
+  // Returns:
+  //   This instance.
+  //
   {
-    unique_ptr<Constraint_Intermed> ci = c._lhs->clone ();
-    _lhs = std::move(ci);
-  }
-  {
-    unique_ptr<Constraint_Intermed> ci = c._rhs->clone ();
-    _rhs = std::move(ci);
+    {
+      unique_ptr<Constraint_Intermed> ci = c._lhs->clone();
+      _lhs = std::move(ci);
+    }
+    {
+      unique_ptr<Constraint_Intermed> ci = c._rhs->clone();
+      _rhs = std::move(ci);
+    }
+
+    return *this;
   }
 
-  return *this;
-}
-
-
-Constraint::Constraint (std::string s)
-//
-// Purpose: Constructor.
-//          Build a constraint from the string describing it.
-//
-// Inputs:
-//   s -           The string describing the constraint.
-//
-{
-  // Split it at the equals sign.
-  string::size_type i = s.find ('=');
-  assert (i != string::npos);
-
-  // And then build the two halves.
+  Constraint::Constraint(std::string s)
+  //
+  // Purpose: Constructor.
+  //          Build a constraint from the string describing it.
+  //
+  // Inputs:
+  //   s -           The string describing the constraint.
+  //
   {
-    unique_ptr<Constraint_Intermed> ci =
-      make_constraint_intermed (s.substr (0, i));
-    _lhs = std::move(ci);
+    // Split it at the equals sign.
+    string::size_type i = s.find('=');
+    assert(i != string::npos);
+
+    // And then build the two halves.
+    {
+      unique_ptr<Constraint_Intermed> ci = make_constraint_intermed(s.substr(0, i));
+      _lhs = std::move(ci);
+    }
+    {
+      unique_ptr<Constraint_Intermed> ci = make_constraint_intermed(s.substr(i + 1));
+      _rhs = std::move(ci);
+    }
   }
+
+  int Constraint::has_labels(int ilabel, int jlabel) const
+  //
+  // Purpose: See if this guy references both labels ILABEL and JLABEL
+  //          on a single side of the constraint equation.
+  //
+  // Inputs:
+  //   ilabel -      The first label to test.
+  //   jlabel -      The second label to test.
+  //
+  // Returns:
+  //   +1 if the LHS references both.
+  //   -1 if the RHS references both.
+  //    0 if neither reference both.
+  //
   {
-    unique_ptr<Constraint_Intermed> ci =
-      make_constraint_intermed (s.substr (i+1));
-    _rhs = std::move(ci);
+    if (_lhs->has_labels(ilabel, jlabel))
+      return 1;
+    else if (_rhs->has_labels(ilabel, jlabel))
+      return -1;
+    else
+      return 0;
   }
-}
 
+  double Constraint::sum_mass_terms(const Fourvec_Event& ev) const
+  //
+  // Purpose: Evaluate the mass constraint, using the data in EV.
+  //          Return m(lhs)^2/2 - m(rhs)^2/2.
+  //
+  // Inputs:
+  //   ev -          The event for which the constraint should be evaluated.
+  //
+  // Returns:
+  //   m(lhs)^2/2 - m(rhs)^2/2.
+  //
+  {
+    return _lhs->sum_mass_terms(ev) - _rhs->sum_mass_terms(ev);
+  }
 
-int Constraint::has_labels (int ilabel, int jlabel) const
-//
-// Purpose: See if this guy references both labels ILABEL and JLABEL
-//          on a single side of the constraint equation.
-//
-// Inputs:
-//   ilabel -      The first label to test.
-//   jlabel -      The second label to test.
-//
-// Returns:
-//   +1 if the LHS references both.
-//   -1 if the RHS references both.
-//    0 if neither reference both.
-//
-{
-  if (_lhs->has_labels (ilabel, jlabel))
-    return 1;
-  else if (_rhs->has_labels (ilabel, jlabel))
-    return -1;
-  else
-    return 0;
-}
-
-
-double Constraint::sum_mass_terms (const Fourvec_Event& ev) const
-//
-// Purpose: Evaluate the mass constraint, using the data in EV.
-//          Return m(lhs)^2/2 - m(rhs)^2/2.
-//
-// Inputs:
-//   ev -          The event for which the constraint should be evaluated.
-//
-// Returns:
-//   m(lhs)^2/2 - m(rhs)^2/2.
-//
-{
-  return _lhs->sum_mass_terms (ev) - _rhs->sum_mass_terms (ev);
-}
-
-
-/**
+  /**
 
     @brief Output stream operator, print the content of this Constraint to
     an output stream.
@@ -159,21 +146,20 @@ double Constraint::sum_mass_terms (const Fourvec_Event& ev) const
     @param c The instance of Constraint to be printed.
 
 */
-std::ostream& operator<< (std::ostream& s, const Constraint& c)
-//
-// Purpose: Print the object to S.
-//
-// Inputs:
-//   s -           The stream to which to write.
-//   c -           The object to write.
-//
-// Returns:
-//   The stream S.
-//
-{
-  s << *c._lhs.get() << " = " << *c._rhs.get();
-  return s;
-}
+  std::ostream& operator<<(std::ostream& s, const Constraint& c)
+  //
+  // Purpose: Print the object to S.
+  //
+  // Inputs:
+  //   s -           The stream to which to write.
+  //   c -           The object to write.
+  //
+  // Returns:
+  //   The stream S.
+  //
+  {
+    s << *c._lhs.get() << " = " << *c._rhs.get();
+    return s;
+  }
 
-
-} // namespace hitfit
+}  // namespace hitfit

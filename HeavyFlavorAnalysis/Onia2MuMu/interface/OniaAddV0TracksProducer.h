@@ -20,14 +20,12 @@
  */
 
 class OniaAddV0TracksProducer : public edm::EDProducer {
-
- public:
+public:
   explicit OniaAddV0TracksProducer(const edm::ParameterSet& ps);
- 
- private:
 
+private:
   void produce(edm::Event& event, const edm::EventSetup& esetup) override;
-  void endJob() override ;
+  void endJob() override;
 
   edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> LambdaCollectionToken_;
   edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> KShortCollectionToken_;
@@ -36,7 +34,6 @@ class OniaAddV0TracksProducer : public edm::EDProducer {
   int total_v0;
   int total_lambda;
   int total_kshort;
-
 };
 
 #endif
