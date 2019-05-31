@@ -15,37 +15,33 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 class Strip1DMeasurementTransformator {
-
 private:
-
   typedef TrajectoryStateOnSurface TSOS;
   typedef AlgebraicSymMatrix55 ASM55;
   typedef AlgebraicMatrix15 AM15;
   typedef AlgebraicVector5 AV5;
 
 public:
-
   Strip1DMeasurementTransformator(const TSOS& aTsos, const TrackingRecHit& aHit);
-  
+
   ~Strip1DMeasurementTransformator() {}
 
   double hitParameters() const;
   AV5 trajectoryParameters() const;
   double projectedTrajectoryParameters() const;
   double hitError() const;
-  const ASM55 & trajectoryError() const;
+  const ASM55& trajectoryError() const;
   double projectedTrajectoryError() const;
   AM15 projectionMatrix() const;
 
-  const TrackingRecHit& hit() const {return theRecHit;}
-  const TSOS& state() const {return theState;}
+  const TrackingRecHit& hit() const { return theRecHit; }
+  const TSOS& state() const { return theState; }
   /// return ideal topology, as if the sensor were flat
-  const StripTopology* idealTopology() const {return theIdealTopology;}
+  const StripTopology* idealTopology() const { return theIdealTopology; }
   /// return real topology, taking sensor deformations into account
-  const StripTopology* topology() const {return theTopology;}
+  const StripTopology* topology() const { return theTopology; }
 
 private:
-
   const TrackingRecHit& theRecHit;
   TSOS theState;
   const StripTopology *theTopology, *theIdealTopology;
@@ -53,4 +49,4 @@ private:
   void init();
 };
 
-#endif //CD_Strip1DMeasurementTransformator_H_
+#endif  //CD_Strip1DMeasurementTransformator_H_

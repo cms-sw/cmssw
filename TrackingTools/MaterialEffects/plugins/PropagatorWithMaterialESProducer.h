@@ -13,18 +13,14 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include <memory>
 
-class  PropagatorWithMaterialESProducer: public edm::ESProducer{
- public:
-  PropagatorWithMaterialESProducer(const edm::ParameterSet & p);
-  ~PropagatorWithMaterialESProducer() override; 
+class PropagatorWithMaterialESProducer : public edm::ESProducer {
+public:
+  PropagatorWithMaterialESProducer(const edm::ParameterSet &p);
+  ~PropagatorWithMaterialESProducer() override;
   std::unique_ptr<Propagator> produce(const TrackingComponentsRecord &);
- private:
+
+private:
   edm::ParameterSet pset_;
 };
 
-
 #endif
-
-
-
-

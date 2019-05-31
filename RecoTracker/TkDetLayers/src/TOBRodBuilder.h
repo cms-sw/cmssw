@@ -1,7 +1,6 @@
 #ifndef TkDetLayers_TOBRodBuilder_h
 #define TkDetLayers_TOBRodBuilder_h
 
-
 #include "TOBRod.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,16 +11,12 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TOBRodBuilder {  
- public:
+class TOBRodBuilder {
+public:
   TOBRodBuilder(){};
-  TOBRod* build(const GeometricDet* negTOBRod,
-		const GeometricDet* posTOBRod,
-		const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
-
-  
+  TOBRod* build(const GeometricDet* negTOBRod, const GeometricDet* posTOBRod, const TrackerGeometry* theGeomDetGeometry)
+      __attribute__((cold));
 };
 
-
 #pragma GCC visibility pop
-#endif 
+#endif

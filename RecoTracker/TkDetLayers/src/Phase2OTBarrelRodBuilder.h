@@ -1,7 +1,6 @@
 #ifndef TkDetLayers_Phase2OTBarrelRodBuilder_h
 #define TkDetLayers_Phase2OTBarrelRodBuilder_h
 
-
 #include "Phase2OTBarrelRod.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,15 +11,12 @@
  */
 
 #pragma GCC visibility push(hidden)
-class Phase2OTBarrelRodBuilder {  
- public:
+class Phase2OTBarrelRodBuilder {
+public:
   Phase2OTBarrelRodBuilder(){};
-  Phase2OTBarrelRod* build(const GeometricDet* thePhase2OTBarrelRod,
-			   const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
-
-  
+  Phase2OTBarrelRod* build(const GeometricDet* thePhase2OTBarrelRod, const TrackerGeometry* theGeomDetGeometry)
+      __attribute__((cold));
 };
 
-
 #pragma GCC visibility pop
-#endif 
+#endif

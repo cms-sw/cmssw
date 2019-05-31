@@ -1,9 +1,7 @@
 #include "TrackingTools/KalmanUpdators/interface/KFStrip1DUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/Strip1DMeasurementTransformator.h"
 
-TrajectoryStateOnSurface 
-KFStrip1DUpdator::update(const TSOS& aTsos, const TrackingRecHit& aHit) const {
-
+TrajectoryStateOnSurface KFStrip1DUpdator::update(const TSOS& aTsos, const TrackingRecHit& aHit) const {
   double pzSign = aTsos.localParameters().pzSign();
 
   Strip1DMeasurementTransformator myTrafo(aTsos, aHit);
@@ -11,14 +9,14 @@ KFStrip1DUpdator::update(const TSOS& aTsos, const TrackingRecHit& aHit) const {
   double m = myTrafo.hitParameters();
   AlgebraicVector5 x(myTrafo.trajectoryParameters());
   double px = myTrafo.projectedTrajectoryParameters();
-  
+
   AlgebraicMatrix15 H(myTrafo.projectionMatrix());
   double V = myTrafo.hitError();
   const AlgebraicSymMatrix55& C(myTrafo.trajectoryError());
   double pC = myTrafo.projectedTrajectoryError();
 
-  double R = 1./(V + pC);
-  
+  double R = 1. / (V + pC);
+
   // Compute Kalman gain matrix
   AlgebraicMatrix51 K(R * (C * ROOT::Math::Transpose(H)));
 
@@ -28,14 +26,10 @@ KFStrip1DUpdator::update(const TSOS& aTsos, const TrackingRecHit& aHit) const {
   // Compute covariance matrix of local filtered state vector
   AlgebraicSymMatrix55 I = AlgebraicMatrixID();
   AlgebraicMatrix55 M = I - K * H;
-  AlgebraicSymMatrix55 fse = ROOT::Math::Similarity(M, C) +  ROOT::Math::Similarity(K, AlgebraicSymMatrix11(V) );
-//   AlgebraicMatrix M((I - K * H)*C);            // already commented when CLHEP was in use
-//   AlgebraicSymMatrix fse(5,0); fse.assign(M);  // already commented when CLHEP was in use
+  AlgebraicSymMatrix55 fse = ROOT::Math::Similarity(M, C) + ROOT::Math::Similarity(K, AlgebraicSymMatrix11(V));
+  //   AlgebraicMatrix M((I - K * H)*C);            // already commented when CLHEP was in use
+  //   AlgebraicSymMatrix fse(5,0); fse.assign(M);  // already commented when CLHEP was in use
 
-  return TSOS( LTP(fsv, pzSign), LTE(fse), aTsos.surface(), &(aTsos.globalParameters().magneticField()), aTsos.surfaceSide() );  
+  return TSOS(
+      LTP(fsv, pzSign), LTE(fse), aTsos.surface(), &(aTsos.globalParameters().magneticField()), aTsos.surfaceSide());
 }
-
-
-
-
-

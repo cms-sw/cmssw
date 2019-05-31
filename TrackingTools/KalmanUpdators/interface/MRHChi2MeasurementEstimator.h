@@ -7,28 +7,20 @@ class SiTrackerMultiRecHitUpdator;
 
 class MRHChi2MeasurementEstimator final : public Chi2MeasurementEstimatorBase {
 public:
-
   /** Construct with cuts on chi2 and nSigma.
    *  The cut on Chi2 is used to define the acceptance of RecHits.
    *  The errors of the trajectory state are multiplied by nSigma 
    *  to define acceptance of Plane and maximalLocalDisplacement.
    */
 
-  explicit MRHChi2MeasurementEstimator(double maxChi2, double nSigma = 3.) : 
-    Chi2MeasurementEstimatorBase( maxChi2, nSigma) {}
+  explicit MRHChi2MeasurementEstimator(double maxChi2, double nSigma = 3.)
+      : Chi2MeasurementEstimatorBase(maxChi2, nSigma) {}
 
-  std::pair<bool, double> estimate(const TrajectoryStateOnSurface& tsos,
-                                   const TrackingRecHit& aRecHit) const override ;
+  std::pair<bool, double> estimate(const TrajectoryStateOnSurface& tsos, const TrackingRecHit& aRecHit) const override;
   template <unsigned int N>
-  std::pair<bool, double> estimate(const TrajectoryStateOnSurface& tsos,
-                                                const TrackingRecHit& aRecHit) const ;
+  std::pair<bool, double> estimate(const TrajectoryStateOnSurface& tsos, const TrackingRecHit& aRecHit) const;
 
-
-  MRHChi2MeasurementEstimator* clone() const override {
-    return new MRHChi2MeasurementEstimator(*this);
-  }
-  
-
+  MRHChi2MeasurementEstimator* clone() const override { return new MRHChi2MeasurementEstimator(*this); }
 };
 
 #endif
