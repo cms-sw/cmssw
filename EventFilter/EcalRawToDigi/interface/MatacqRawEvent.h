@@ -7,8 +7,8 @@
 #include <cstddef>
 #include <vector>
 
-#if 0                          //replace 1 by 0 to remove XDAQ dependency. In this case it is assumed the \
-                               //machine is little endian.
+//replace 1 by 0 to remove XDAQ dependency. In this case it is assumed the machine is little endian.
+#if 0
 #include "i2o/utils/endian.h"  //from XDAQ
 #define UINT32_FROM_LE i2odecodel
 #define UINT16_FROM_LE i2odecodes
