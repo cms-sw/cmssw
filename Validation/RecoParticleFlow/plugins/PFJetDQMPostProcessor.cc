@@ -21,7 +21,7 @@
 
 
 //
-// class decleration
+// class declaration
 //
 
 class PFJetDQMPostProcessor : public DQMEDHarvester {
@@ -150,7 +150,7 @@ PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& i
 	mean = h_resp->GetMean();
 	mean_error = h_resp->GetMeanError();
 
-	// Scale resolution by response. Avoid division by zero.
+	// Scale resolution by response.
 	std /= mean;
 	std_error /= mean;
 	
@@ -201,9 +201,8 @@ PFJetDQMPostProcessor::fitResponse(TH1F* hreso, TH1F* h_genjet_pt, int ptbinlow,
 // Juska 23 May 2019
 
 // Only do plots if needed for debugging
-// NOTE a directory called 'debug' should be created in the working directory
-// before enabling doPlots.
-// NOTE plot saving does not work at the moment due to problems with CMSSW
+// NOTE a directory called 'debug' must exist in the working directory
+//
    bool doPlots = false;
    
    double ptlow = ptBins[ptbinlow];
@@ -269,7 +268,6 @@ PFJetDQMPostProcessor::fitResponse(TH1F* hreso, TH1F* h_genjet_pt, int ptbinlow,
    reso_err = fg2->GetParError(1)/resp;   
 
    reso_err = getRespUnc(reso,reso_err,resp,resp_err);
-   // TODO: add proper resolution error calculation
    
 }
 
