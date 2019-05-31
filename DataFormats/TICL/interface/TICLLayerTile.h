@@ -52,6 +52,10 @@ namespace ticl {
 
   class TICLLayerTiles {
   public:
+    // This class represents a collection of Tiles, one for each layer in
+    // HGCAL. The layer numbering should account for both sides of HGCAL and is
+    // not handled internally. It is the user's responsibility to properly
+    // number the layers and consistently access them here.
     const TICLLayerTile& operator[](int layer) const { return tiles_[layer]; }
     void fill(int layer, double eta, double phi, unsigned int layerClusterId) {
       tiles_[layer].fill(eta, phi, layerClusterId);
