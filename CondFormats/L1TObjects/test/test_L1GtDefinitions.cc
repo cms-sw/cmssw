@@ -1,9 +1,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtDefinitions.h"
 #include <cassert>
 
-int
-main(int argc, char **)
-{
+int main(int argc, char **) {
   assert(l1GtBoardTypeStringToEnum("GTFE") == GTFE);
   assert(l1GtBoardTypeStringToEnum("FDL") == FDL);
   assert(l1GtBoardTypeStringToEnum("PSB") == PSB);
