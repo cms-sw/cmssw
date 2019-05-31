@@ -18,4 +18,3 @@ REGISTER_PLUGIN(L1RPCHsbConfigRcd, L1RPCHsbConfig);
 #include "CondFormats/DataRecord/interface/L1RPCBxOrConfigRcd.h"
 
 REGISTER_PLUGIN(L1RPCBxOrConfigRcd, L1RPCBxOrConfig);
-

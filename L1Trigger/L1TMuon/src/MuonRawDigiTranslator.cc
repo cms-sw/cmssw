@@ -1,9 +1,8 @@
 #include "TMath.h"
 #include "L1Trigger/L1TMuon/interface/MuonRawDigiTranslator.h"
 
-void
-l1t::MuonRawDigiTranslator::fillMuon(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63, int fed, unsigned int fw)
-{
+void l1t::MuonRawDigiTranslator::fillMuon(
+    Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63, int fed, unsigned int fw) {
   int hwPt = (raw_data_00_31 >> ptShift_) & ptMask_;
   if (hwPt > 0) {
     mu.setHwPt(hwPt);
@@ -48,10 +47,11 @@ l1t::MuonRawDigiTranslator::fillMuon(Muon& mu, uint32_t raw_data_00_31, uint32_t
       mu.setHwDPhiExtra(dPhi);
     }
 
-    math::PtEtaPhiMLorentzVector vec{(mu.hwPt()-1)*0.5, mu.hwEta()*0.010875, mu.hwPhi()*0.010908, 0.0};
+    math::PtEtaPhiMLorentzVector vec{(mu.hwPt() - 1) * 0.5, mu.hwEta() * 0.010875, mu.hwPhi() * 0.010908, 0.0};
     mu.setP4(vec);
     // generate a muon at the vertex to extract the physical eta and phi coordinates
-    math::PtEtaPhiMLorentzVector vecAtVtx{(mu.hwPt()-1)*0.5, mu.hwEtaAtVtx()*0.010875, mu.hwPhiAtVtx()*0.010908, 0.0};
+    math::PtEtaPhiMLorentzVector vecAtVtx{
+        (mu.hwPt() - 1) * 0.5, mu.hwEtaAtVtx() * 0.010875, mu.hwPhiAtVtx() * 0.010908, 0.0};
     Muon muAtVtx;
     muAtVtx.setP4(vecAtVtx);
     mu.setEtaAtVtx(muAtVtx.eta());
@@ -64,15 +64,13 @@ l1t::MuonRawDigiTranslator::fillMuon(Muon& mu, uint32_t raw_data_00_31, uint32_t
   }
 }
 
-void
-l1t::MuonRawDigiTranslator::fillMuon(Muon& mu, uint64_t dataword, int fed, unsigned int fw)
-{
+void l1t::MuonRawDigiTranslator::fillMuon(Muon& mu, uint64_t dataword, int fed, unsigned int fw) {
   fillMuon(mu, (uint32_t)(dataword & 0xFFFFFFFF), (uint32_t)((dataword >> 32) & 0xFFFFFFFF), fed, fw);
 }
 
-void
-l1t::MuonRawDigiTranslator::generatePackedDataWords(const Muon& mu, uint32_t &raw_data_00_31, uint32_t &raw_data_32_63)
-{
+void l1t::MuonRawDigiTranslator::generatePackedDataWords(const Muon& mu,
+                                                         uint32_t& raw_data_00_31,
+                                                         uint32_t& raw_data_32_63) {
   int abs_eta = mu.hwEta();
   if (abs_eta < 0) {
     abs_eta += (1 << (etaSignShift_ - absEtaShift_));
@@ -81,24 +79,17 @@ l1t::MuonRawDigiTranslator::generatePackedDataWords(const Muon& mu, uint32_t &ra
   if (abs_eta_at_vtx < 0) {
     abs_eta_at_vtx += (1 << (etaAtVtxSignShift_ - absEtaAtVtxShift_));
   }
-  raw_data_00_31 = (mu.hwPt() & ptMask_) << ptShift_
-                 | (mu.hwQual() & qualMask_) << qualShift_
-                 | (abs_eta_at_vtx & absEtaMask_) << absEtaAtVtxShift_
-                 | (mu.hwEtaAtVtx() < 0) << etaAtVtxSignShift_
-                 | (mu.hwPhiAtVtx() & phiMask_) << phiAtVtxShift_;
+  raw_data_00_31 = (mu.hwPt() & ptMask_) << ptShift_ | (mu.hwQual() & qualMask_) << qualShift_ |
+                   (abs_eta_at_vtx & absEtaMask_) << absEtaAtVtxShift_ | (mu.hwEtaAtVtx() < 0) << etaAtVtxSignShift_ |
+                   (mu.hwPhiAtVtx() & phiMask_) << phiAtVtxShift_;
 
-  raw_data_32_63 = mu.hwCharge() << chargeShift_
-                 | mu.hwChargeValid() << chargeValidShift_
-                 | (mu.tfMuonIndex() & tfMuonIndexMask_) << tfMuonIndexShift_
-                 | (mu.hwIso() & isoMask_) << isoShift_
-                 | (abs_eta & absEtaMask_) << absEtaShift_
-                 | (mu.hwEta() < 0) << etaSignShift_
-                 | (mu.hwPhi() & phiMask_) << phiShift_;
+  raw_data_32_63 = mu.hwCharge() << chargeShift_ | mu.hwChargeValid() << chargeValidShift_ |
+                   (mu.tfMuonIndex() & tfMuonIndexMask_) << tfMuonIndexShift_ | (mu.hwIso() & isoMask_) << isoShift_ |
+                   (abs_eta & absEtaMask_) << absEtaShift_ | (mu.hwEta() < 0) << etaSignShift_ |
+                   (mu.hwPhi() & phiMask_) << phiShift_;
 }
 
-uint64_t 
-l1t::MuonRawDigiTranslator::generate64bitDataWord(const Muon& mu)
-{
+uint64_t l1t::MuonRawDigiTranslator::generate64bitDataWord(const Muon& mu) {
   uint32_t lsw;
   uint32_t msw;
 
@@ -106,15 +97,14 @@ l1t::MuonRawDigiTranslator::generate64bitDataWord(const Muon& mu)
   return (((uint64_t)msw) << 32) + lsw;
 }
 
-int
-l1t::MuonRawDigiTranslator::calcHwEta(const uint32_t& raw, const unsigned absEtaShift, const unsigned etaSignShift)
-{
+int l1t::MuonRawDigiTranslator::calcHwEta(const uint32_t& raw,
+                                          const unsigned absEtaShift,
+                                          const unsigned etaSignShift) {
   // eta is coded as two's complement
   int abs_eta = (raw >> absEtaShift) & absEtaMask_;
   if ((raw >> etaSignShift) & 0x1) {
-     return abs_eta - (1 << (etaSignShift - absEtaShift));
+    return abs_eta - (1 << (etaSignShift - absEtaShift));
   } else {
-     return abs_eta;
+    return abs_eta;
   }
 }
-

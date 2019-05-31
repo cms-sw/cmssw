@@ -8,4 +8,3 @@ REGISTER_PLUGIN(L1MuGMTParametersRcd, L1MuGMTParameters);
 #include "CondFormats/DataRecord/interface/L1MuGMTChannelMaskRcd.h"
 
 REGISTER_PLUGIN(L1MuGMTChannelMaskRcd, L1MuGMTChannelMask);
-

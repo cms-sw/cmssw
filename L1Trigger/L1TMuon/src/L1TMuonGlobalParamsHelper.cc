@@ -5,16 +5,14 @@
 #include "L1Trigger/L1TCommon/interface/ConvertToLUT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-L1TMuonGlobalParamsHelper::L1TMuonGlobalParamsHelper(const L1TMuonGlobalParams & p) : L1TMuonGlobalParams_PUBLIC(cast_to_L1TMuonGlobalParams_PUBLIC(p))
-{
+L1TMuonGlobalParamsHelper::L1TMuonGlobalParamsHelper(const L1TMuonGlobalParams &p)
+    : L1TMuonGlobalParams_PUBLIC(cast_to_L1TMuonGlobalParams_PUBLIC(p)) {
   if (pnodes_.size() != NUM_GMTPARAMNODES) {
     pnodes_.resize(NUM_GMTPARAMNODES);
   }
 }
 
-
-std::bitset<72> L1TMuonGlobalParamsHelper::inputFlags(const int &nodeIdx) const
-{
+std::bitset<72> L1TMuonGlobalParamsHelper::inputFlags(const int &nodeIdx) const {
   std::bitset<72> inputFlags;
   if (pnodes_[nodeIdx].uparams_.size() != 4) {
     return inputFlags;
@@ -39,9 +37,7 @@ std::bitset<72> L1TMuonGlobalParamsHelper::inputFlags(const int &nodeIdx) const
   return inputFlags;
 }
 
-
-std::bitset<28> L1TMuonGlobalParamsHelper::caloInputFlags(const int &nodeIdx) const
-{
+std::bitset<28> L1TMuonGlobalParamsHelper::caloInputFlags(const int &nodeIdx) const {
   if (pnodes_[nodeIdx].uparams_.size() == 4) {
     return std::bitset<28>(pnodes_[nodeIdx].uparams_[CALOINPUTS]);
   } else {
@@ -49,9 +45,7 @@ std::bitset<28> L1TMuonGlobalParamsHelper::caloInputFlags(const int &nodeIdx) co
   }
 }
 
-
-std::bitset<12> L1TMuonGlobalParamsHelper::tfInputFlags(const int &nodeIdx, const int &tfIdx) const
-{
+std::bitset<12> L1TMuonGlobalParamsHelper::tfInputFlags(const int &nodeIdx, const int &tfIdx) const {
   if (pnodes_[nodeIdx].uparams_.size() == 4) {
     return std::bitset<12>(pnodes_[nodeIdx].uparams_[tfIdx]);
   } else {
@@ -59,9 +53,9 @@ std::bitset<12> L1TMuonGlobalParamsHelper::tfInputFlags(const int &nodeIdx, cons
   }
 }
 
-
-std::bitset<6> L1TMuonGlobalParamsHelper::eomtfInputFlags(const int &nodeIdx, const size_t &startIdx, const int &tfIdx) const
-{
+std::bitset<6> L1TMuonGlobalParamsHelper::eomtfInputFlags(const int &nodeIdx,
+                                                          const size_t &startIdx,
+                                                          const int &tfIdx) const {
   std::bitset<6> inputFlags;
   if (pnodes_[nodeIdx].uparams_.size() == 4) {
     for (size_t i = 0; i < 6; ++i) {
@@ -71,16 +65,12 @@ std::bitset<6> L1TMuonGlobalParamsHelper::eomtfInputFlags(const int &nodeIdx, co
   return inputFlags;
 }
 
-
-void L1TMuonGlobalParamsHelper::setFwVersion(unsigned fwVersion)
-{
+void L1TMuonGlobalParamsHelper::setFwVersion(unsigned fwVersion) {
   pnodes_[FWVERSION].uparams_.resize(1);
   pnodes_[FWVERSION].uparams_[FWVERSION_IDX] = fwVersion;
 }
 
-
-void L1TMuonGlobalParamsHelper::setInputFlags(const int &nodeIdx, const std::bitset<72> &inputFlags)
-{
+void L1TMuonGlobalParamsHelper::setInputFlags(const int &nodeIdx, const std::bitset<72> &inputFlags) {
   pnodes_[nodeIdx].uparams_.resize(4);
   for (size_t i = 0; i < 28; ++i) {
     pnodes_[nodeIdx].uparams_[CALOINPUTS] += (inputFlags.test(CALOLINK1 + i) << i);
@@ -96,40 +86,37 @@ void L1TMuonGlobalParamsHelper::setInputFlags(const int &nodeIdx, const std::bit
   }
 }
 
-
-void L1TMuonGlobalParamsHelper::setCaloInputFlags(const int &nodeIdx, const std::bitset<28> &inputFlags)
-{
+void L1TMuonGlobalParamsHelper::setCaloInputFlags(const int &nodeIdx, const std::bitset<28> &inputFlags) {
   pnodes_[nodeIdx].uparams_.resize(4);
   for (size_t i = 0; i < 28; ++i) {
     pnodes_[nodeIdx].uparams_[CALOINPUTS] += (inputFlags.test(i) << i);
   }
 }
 
-
-void L1TMuonGlobalParamsHelper::setTfInputFlags(const int &nodeIdx, const int &tfIdx, const std::bitset<12> &inputFlags)
-{
+void L1TMuonGlobalParamsHelper::setTfInputFlags(const int &nodeIdx,
+                                                const int &tfIdx,
+                                                const std::bitset<12> &inputFlags) {
   pnodes_[nodeIdx].uparams_.resize(4);
   for (size_t i = 0; i < 12; ++i) {
     pnodes_[nodeIdx].uparams_[tfIdx] += (inputFlags.test(i) << i);
   }
 }
 
-
-void L1TMuonGlobalParamsHelper::setEOmtfInputFlags(const int &nodeIdx, const size_t &startIdx, const int &tfIdx, const std::bitset<6> &inputFlags)
-{
+void L1TMuonGlobalParamsHelper::setEOmtfInputFlags(const int &nodeIdx,
+                                                   const size_t &startIdx,
+                                                   const int &tfIdx,
+                                                   const std::bitset<6> &inputFlags) {
   pnodes_[nodeIdx].uparams_.resize(4);
   for (size_t i = 0; i < 6; ++i) {
     pnodes_[nodeIdx].uparams_[tfIdx] += (inputFlags.test(i) << (i + startIdx));
   }
 }
 
-
-void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TriggerSystem& trgSys, const std::string& processorId)
-{
+void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TriggerSystem &trgSys, const std::string &processorId) {
   std::string procId = processorId;
   // if the procId is an empty string use the one from the TrigSystem (the uGMT only has one processor)
-  if (procId == "" ) {
-    const std::map<std::string, std::string>& procRoleMap = trgSys.getProcToRoleAssignment();
+  if (procId.empty()) {
+    const std::map<std::string, std::string> &procRoleMap = trgSys.getProcToRoleAssignment();
     if (procRoleMap.size() != 1) {
       if (procRoleMap.empty()) {
         edm::LogError("uGMT config from online") << "No processor id found for uGMT HW configuration.";
@@ -169,38 +156,38 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TriggerSystem& trgSys, const
   std::vector<unsigned> emtfInputsToDisable(12, 0);
   // translate the bool and the strings to the vectors
   for (unsigned i = 0; i < 12; ++i) {
-     ss.str("");
-     ss << "BMTF" << i+1;
-     if (bmtfInputsToDisableStr.find(ss.str()) != std::string::npos) {
-        bmtfInputsToDisable[i] = 1;
-     }
-     ss.str("");
-     ss << "OMTF";
-     if (i < 6) {
-        ss << "p" << i+1;
-     } else {
-        ss << "n" << i-5;
-     }
-     if (omtfInputsToDisableStr.find(ss.str()) != std::string::npos) {
-        omtfInputsToDisable[i] = 1;
-     }
-     ss.str("");
-     ss << "EMTF";
-     if (i < 6) {
-        ss << "p" << i+1;
-     } else {
-        ss << "n" << i-5;
-     }
-     if (emtfInputsToDisableStr.find(ss.str()) != std::string::npos) {
-        emtfInputsToDisable[i] = 1;
-     }
+    ss.str("");
+    ss << "BMTF" << i + 1;
+    if (bmtfInputsToDisableStr.find(ss.str()) != std::string::npos) {
+      bmtfInputsToDisable[i] = 1;
+    }
+    ss.str("");
+    ss << "OMTF";
+    if (i < 6) {
+      ss << "p" << i + 1;
+    } else {
+      ss << "n" << i - 5;
+    }
+    if (omtfInputsToDisableStr.find(ss.str()) != std::string::npos) {
+      omtfInputsToDisable[i] = 1;
+    }
+    ss.str("");
+    ss << "EMTF";
+    if (i < 6) {
+      ss << "p" << i + 1;
+    } else {
+      ss << "n" << i - 5;
+    }
+    if (emtfInputsToDisableStr.find(ss.str()) != std::string::npos) {
+      emtfInputsToDisable[i] = 1;
+    }
   }
 
   // set the condFormats parameters for uGMT disabled inputs
   if (disableCaloInputs) {
-     setCaloInputsToDisable(std::bitset<28>(0xFFFFFFF));
+    setCaloInputsToDisable(std::bitset<28>(0xFFFFFFF));
   } else {
-     setCaloInputsToDisable(std::bitset<28>());
+    setCaloInputsToDisable(std::bitset<28>());
   }
 
   std::bitset<12> bmtfDisables;
@@ -215,7 +202,7 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TriggerSystem& trgSys, const
     if (i < 6) {
       omtfpDisables.set(i, omtfInputsToDisable[i] > 0);
     } else {
-      omtfnDisables.set(i-6, omtfInputsToDisable[i] > 0);
+      omtfnDisables.set(i - 6, omtfInputsToDisable[i] > 0);
     }
   }
   setOmtfpInputsToDisable(omtfpDisables);
@@ -227,7 +214,7 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TriggerSystem& trgSys, const
     if (i < 6) {
       emtfpDisables.set(i, emtfInputsToDisable[i] > 0);
     } else {
-      emtfnDisables.set(i-6, emtfInputsToDisable[i] > 0);
+      emtfnDisables.set(i - 6, emtfInputsToDisable[i] > 0);
     }
   }
   setEmtfpInputsToDisable(emtfpDisables);
@@ -241,47 +228,47 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TriggerSystem& trgSys, const
   ss << std::setfill('0');
   // translate the bool and the strings to the vectors
   for (unsigned i = 0; i < 28; ++i) {
-     ss.str("");
-     ss << "inputPorts.CaloL2_" << std::setw(2) << i+1;
-     // for now set as unmasked if one input is not masked
-     if (!trgSys.isMasked(procId.c_str(), ss.str().c_str())) {
-        caloInputsMasked = false;
-     }
-     if (i < 12) {
-        ss.str("");
-        ss << "inputPorts.BMTF_" << std::setw(2) << i+1;
-        if (trgSys.isMasked(procId.c_str(), ss.str().c_str())) {
-           maskedBmtfInputs[i] = 1;
-        }
-        ss.str("");
-        ss << "inputPorts.OMTF";
-        if (i < 6) {
-           ss << "+_" << std::setw(2) << i+1;
-        } else {
-           ss << "-_" << std::setw(2) << i-5;
-        }
-        if (trgSys.isMasked(procId.c_str(), ss.str().c_str())) {
-           maskedOmtfInputs[i] = 1;
-        }
-        ss.str("");
-        ss << "inputPorts.EMTF";
-        if (i < 6) {
-           ss << "+_" << std::setw(2) << i+1;
-        } else {
-           ss << "-_" << std::setw(2) << i-5;
-        }
-        if (trgSys.isMasked(procId.c_str(), ss.str().c_str())) {
-           maskedEmtfInputs[i] = 1;
-        }
-     }
+    ss.str("");
+    ss << "inputPorts.CaloL2_" << std::setw(2) << i + 1;
+    // for now set as unmasked if one input is not masked
+    if (!trgSys.isMasked(procId.c_str(), ss.str().c_str())) {
+      caloInputsMasked = false;
+    }
+    if (i < 12) {
+      ss.str("");
+      ss << "inputPorts.BMTF_" << std::setw(2) << i + 1;
+      if (trgSys.isMasked(procId.c_str(), ss.str().c_str())) {
+        maskedBmtfInputs[i] = 1;
+      }
+      ss.str("");
+      ss << "inputPorts.OMTF";
+      if (i < 6) {
+        ss << "+_" << std::setw(2) << i + 1;
+      } else {
+        ss << "-_" << std::setw(2) << i - 5;
+      }
+      if (trgSys.isMasked(procId.c_str(), ss.str().c_str())) {
+        maskedOmtfInputs[i] = 1;
+      }
+      ss.str("");
+      ss << "inputPorts.EMTF";
+      if (i < 6) {
+        ss << "+_" << std::setw(2) << i + 1;
+      } else {
+        ss << "-_" << std::setw(2) << i - 5;
+      }
+      if (trgSys.isMasked(procId.c_str(), ss.str().c_str())) {
+        maskedEmtfInputs[i] = 1;
+      }
+    }
   }
   ss << std::setfill(' ');
 
   // set the condFormats parameters for uGMT masked inputs
   if (caloInputsMasked) {
-     setMaskedCaloInputs(std::bitset<28>(0xFFFFFFF));
+    setMaskedCaloInputs(std::bitset<28>(0xFFFFFFF));
   } else {
-     setMaskedCaloInputs(std::bitset<28>());
+    setMaskedCaloInputs(std::bitset<28>());
   }
 
   std::bitset<12> bmtfMasked;
@@ -296,7 +283,7 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TriggerSystem& trgSys, const
     if (i < 6) {
       omtfpMasked.set(i, maskedOmtfInputs[i] > 0);
     } else {
-      omtfnMasked.set(i-6, maskedOmtfInputs[i] > 0);
+      omtfnMasked.set(i - 6, maskedOmtfInputs[i] > 0);
     }
   }
   setMaskedOmtfpInputs(omtfpMasked);
@@ -308,7 +295,7 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TriggerSystem& trgSys, const
     if (i < 6) {
       emtfpMasked.set(i, maskedEmtfInputs[i] > 0);
     } else {
-      emtfnMasked.set(i-6, maskedEmtfInputs[i] > 0);
+      emtfnMasked.set(i - 6, maskedEmtfInputs[i] > 0);
     }
   }
   setMaskedEmtfpInputs(emtfpMasked);
@@ -336,82 +323,70 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TriggerSystem& trgSys, const
   setSortRankLUT(l1t::convertToLUT(settings["SortRank"].getVector<unsigned int>()));
 }
 
-
 // setters for cancel out LUT parameters
-void L1TMuonGlobalParamsHelper::setFwdPosSingleMatchQualLUTMaxDR (double maxDR, double fEta, double fPhi)
-{
+void L1TMuonGlobalParamsHelper::setFwdPosSingleMatchQualLUTMaxDR(double maxDR, double fEta, double fPhi) {
   pnodes_[fwdPosSingleMatchQual].dparams_.push_back(maxDR);
   pnodes_[fwdPosSingleMatchQual].dparams_.push_back(fEta);
   pnodes_[fwdPosSingleMatchQual].dparams_.push_back(fEta);
   pnodes_[fwdPosSingleMatchQual].dparams_.push_back(fPhi);
 }
 
-
-void L1TMuonGlobalParamsHelper::setFwdNegSingleMatchQualLUTMaxDR (double maxDR, double fEta, double fPhi)
-{
+void L1TMuonGlobalParamsHelper::setFwdNegSingleMatchQualLUTMaxDR(double maxDR, double fEta, double fPhi) {
   pnodes_[fwdNegSingleMatchQual].dparams_.push_back(maxDR);
   pnodes_[fwdNegSingleMatchQual].dparams_.push_back(fEta);
   pnodes_[fwdNegSingleMatchQual].dparams_.push_back(fEta);
   pnodes_[fwdNegSingleMatchQual].dparams_.push_back(fPhi);
 }
 
-
-void L1TMuonGlobalParamsHelper::setOvlPosSingleMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
-{
+void L1TMuonGlobalParamsHelper::setOvlPosSingleMatchQualLUTMaxDR(double maxDR,
+                                                                 double fEta,
+                                                                 double fEtaCoarse,
+                                                                 double fPhi) {
   pnodes_[ovlPosSingleMatchQual].dparams_.push_back(maxDR);
   pnodes_[ovlPosSingleMatchQual].dparams_.push_back(fEta);
   pnodes_[ovlPosSingleMatchQual].dparams_.push_back(fEtaCoarse);
   pnodes_[ovlPosSingleMatchQual].dparams_.push_back(fPhi);
 }
 
-
-void L1TMuonGlobalParamsHelper::setOvlNegSingleMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
-{
+void L1TMuonGlobalParamsHelper::setOvlNegSingleMatchQualLUTMaxDR(double maxDR,
+                                                                 double fEta,
+                                                                 double fEtaCoarse,
+                                                                 double fPhi) {
   pnodes_[ovlNegSingleMatchQual].dparams_.push_back(maxDR);
   pnodes_[ovlNegSingleMatchQual].dparams_.push_back(fEta);
   pnodes_[ovlNegSingleMatchQual].dparams_.push_back(fEtaCoarse);
   pnodes_[ovlNegSingleMatchQual].dparams_.push_back(fPhi);
 }
 
-
-void L1TMuonGlobalParamsHelper::setBOPosMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
-{
+void L1TMuonGlobalParamsHelper::setBOPosMatchQualLUTMaxDR(double maxDR, double fEta, double fEtaCoarse, double fPhi) {
   pnodes_[bOPosMatchQual].dparams_.push_back(maxDR);
   pnodes_[bOPosMatchQual].dparams_.push_back(fEta);
   pnodes_[bOPosMatchQual].dparams_.push_back(fEtaCoarse);
   pnodes_[bOPosMatchQual].dparams_.push_back(fPhi);
 }
 
-
-void L1TMuonGlobalParamsHelper::setBONegMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
-{
+void L1TMuonGlobalParamsHelper::setBONegMatchQualLUTMaxDR(double maxDR, double fEta, double fEtaCoarse, double fPhi) {
   pnodes_[bONegMatchQual].dparams_.push_back(maxDR);
   pnodes_[bONegMatchQual].dparams_.push_back(fEta);
   pnodes_[bONegMatchQual].dparams_.push_back(fEtaCoarse);
   pnodes_[bONegMatchQual].dparams_.push_back(fPhi);
 }
 
-
-void L1TMuonGlobalParamsHelper::setFOPosMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
-{
+void L1TMuonGlobalParamsHelper::setFOPosMatchQualLUTMaxDR(double maxDR, double fEta, double fEtaCoarse, double fPhi) {
   pnodes_[fOPosMatchQual].dparams_.push_back(maxDR);
   pnodes_[fOPosMatchQual].dparams_.push_back(fEta);
   pnodes_[fOPosMatchQual].dparams_.push_back(fEtaCoarse);
   pnodes_[fOPosMatchQual].dparams_.push_back(fPhi);
 }
 
-
-void L1TMuonGlobalParamsHelper::setFONegMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
-{
+void L1TMuonGlobalParamsHelper::setFONegMatchQualLUTMaxDR(double maxDR, double fEta, double fEtaCoarse, double fPhi) {
   pnodes_[fONegMatchQual].dparams_.push_back(maxDR);
   pnodes_[fONegMatchQual].dparams_.push_back(fEta);
   pnodes_[fONegMatchQual].dparams_.push_back(fEtaCoarse);
   pnodes_[fONegMatchQual].dparams_.push_back(fPhi);
 }
 
-
-void L1TMuonGlobalParamsHelper::print(std::ostream& out) const {
-
+void L1TMuonGlobalParamsHelper::print(std::ostream &out) const {
   out << "L1 MicroGMT Parameters" << std::endl;
 
   out << "Firmware version: " << this->fwVersion() << std::endl;
@@ -423,23 +398,39 @@ void L1TMuonGlobalParamsHelper::print(std::ostream& out) const {
   out << "                 EMTF-|OMTF-|   BMTF    |OMTF+|EMTF+|            CALO           |  res  0" << std::endl;
 
   out << "LUT paths (LUTs are generated analytically if path is empty)" << std::endl;
-  out << " Abs isolation checkMem LUT path: "        << this->absIsoCheckMemLUTPath() << std::endl;
-  out << " Rel isolation checkMem LUT path: "        << this->relIsoCheckMemLUTPath() << std::endl;
-  out << " Index selMem phi LUT path: "              << this->idxSelMemPhiLUTPath() << std::endl;
-  out << " Index selMem eta LUT path: "              << this->idxSelMemEtaLUTPath() << std::endl;
-  out << " Forward pos MatchQual LUT path: "         << this->fwdPosSingleMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->fwdPosSingleMatchQualLUTMaxDR() << std::endl;
-  out << " Forward neg MatchQual LUT path: "         << this->fwdNegSingleMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->fwdNegSingleMatchQualLUTMaxDR() << std::endl;
-  out << " Overlap pos MatchQual LUT path: "         << this->ovlPosSingleMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->ovlPosSingleMatchQualLUTMaxDR() << std::endl;
-  out << " Overlap neg MatchQual LUT path: "         << this->ovlNegSingleMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->ovlNegSingleMatchQualLUTMaxDR() << std::endl;
-  out << " Barrel-Overlap pos MatchQual LUT path: "  << this->bOPosMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->bOPosMatchQualLUTMaxDR() << ", fEta: " << this->bOPosMatchQualLUTfEta() << ", fEta when eta-fine bit isn't set: " << this->bOPosMatchQualLUTfEtaCoarse() << ", fPhi: " << this->bOPosMatchQualLUTfEta() << std::endl;
-  out << " Barrel-Overlap neg MatchQual LUT path: "  << this->bONegMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->bONegMatchQualLUTMaxDR() << ", fEta: " << this->bONegMatchQualLUTfEta() << ", fEta when eta-fine bit isn't set: " << this->bONegMatchQualLUTfEtaCoarse() << ", fPhi: " << this->bONegMatchQualLUTfPhi() << std::endl;
-  out << " Forward-Overlap pos MatchQual LUT path: " << this->fOPosMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->fOPosMatchQualLUTMaxDR() << std::endl;
-  out << " Forward-Overlap neg MatchQual LUT path: " << this->fONegMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->fONegMatchQualLUTMaxDR() << std::endl;
-  out << " Barrel phi extrapolation LUT path: "      << this->bPhiExtrapolationLUTPath() << std::endl;
-  out << " Overlap phi extrapolation LUT path: "     << this->oPhiExtrapolationLUTPath() << std::endl;
-  out << " Forward phi extrapolation LUT path: "     << this->fPhiExtrapolationLUTPath() << std::endl;
-  out << " Barrel eta extrapolation LUT path: "      << this->bEtaExtrapolationLUTPath() << std::endl;
-  out << " Overlap eta extrapolation LUT path: "     << this->oEtaExtrapolationLUTPath() << std::endl;
-  out << " Forward eta extrapolation LUT path: "     << this->fEtaExtrapolationLUTPath() << std::endl;
-  out << " Sort rank LUT path: "                     << this->sortRankLUTPath() << ", pT and quality factors (Used when LUT path empty): pT factor: " << this->sortRankLUTPtFactor() << ", quality factor: " << this->sortRankLUTQualFactor() << std::endl;
+  out << " Abs isolation checkMem LUT path: " << this->absIsoCheckMemLUTPath() << std::endl;
+  out << " Rel isolation checkMem LUT path: " << this->relIsoCheckMemLUTPath() << std::endl;
+  out << " Index selMem phi LUT path: " << this->idxSelMemPhiLUTPath() << std::endl;
+  out << " Index selMem eta LUT path: " << this->idxSelMemEtaLUTPath() << std::endl;
+  out << " Forward pos MatchQual LUT path: " << this->fwdPosSingleMatchQualLUTPath()
+      << ", max dR (Used when LUT path empty): " << this->fwdPosSingleMatchQualLUTMaxDR() << std::endl;
+  out << " Forward neg MatchQual LUT path: " << this->fwdNegSingleMatchQualLUTPath()
+      << ", max dR (Used when LUT path empty): " << this->fwdNegSingleMatchQualLUTMaxDR() << std::endl;
+  out << " Overlap pos MatchQual LUT path: " << this->ovlPosSingleMatchQualLUTPath()
+      << ", max dR (Used when LUT path empty): " << this->ovlPosSingleMatchQualLUTMaxDR() << std::endl;
+  out << " Overlap neg MatchQual LUT path: " << this->ovlNegSingleMatchQualLUTPath()
+      << ", max dR (Used when LUT path empty): " << this->ovlNegSingleMatchQualLUTMaxDR() << std::endl;
+  out << " Barrel-Overlap pos MatchQual LUT path: " << this->bOPosMatchQualLUTPath()
+      << ", max dR (Used when LUT path empty): " << this->bOPosMatchQualLUTMaxDR()
+      << ", fEta: " << this->bOPosMatchQualLUTfEta()
+      << ", fEta when eta-fine bit isn't set: " << this->bOPosMatchQualLUTfEtaCoarse()
+      << ", fPhi: " << this->bOPosMatchQualLUTfEta() << std::endl;
+  out << " Barrel-Overlap neg MatchQual LUT path: " << this->bONegMatchQualLUTPath()
+      << ", max dR (Used when LUT path empty): " << this->bONegMatchQualLUTMaxDR()
+      << ", fEta: " << this->bONegMatchQualLUTfEta()
+      << ", fEta when eta-fine bit isn't set: " << this->bONegMatchQualLUTfEtaCoarse()
+      << ", fPhi: " << this->bONegMatchQualLUTfPhi() << std::endl;
+  out << " Forward-Overlap pos MatchQual LUT path: " << this->fOPosMatchQualLUTPath()
+      << ", max dR (Used when LUT path empty): " << this->fOPosMatchQualLUTMaxDR() << std::endl;
+  out << " Forward-Overlap neg MatchQual LUT path: " << this->fONegMatchQualLUTPath()
+      << ", max dR (Used when LUT path empty): " << this->fONegMatchQualLUTMaxDR() << std::endl;
+  out << " Barrel phi extrapolation LUT path: " << this->bPhiExtrapolationLUTPath() << std::endl;
+  out << " Overlap phi extrapolation LUT path: " << this->oPhiExtrapolationLUTPath() << std::endl;
+  out << " Forward phi extrapolation LUT path: " << this->fPhiExtrapolationLUTPath() << std::endl;
+  out << " Barrel eta extrapolation LUT path: " << this->bEtaExtrapolationLUTPath() << std::endl;
+  out << " Overlap eta extrapolation LUT path: " << this->oEtaExtrapolationLUTPath() << std::endl;
+  out << " Forward eta extrapolation LUT path: " << this->fEtaExtrapolationLUTPath() << std::endl;
+  out << " Sort rank LUT path: " << this->sortRankLUTPath()
+      << ", pT and quality factors (Used when LUT path empty): pT factor: " << this->sortRankLUTPtFactor()
+      << ", quality factor: " << this->sortRankLUTQualFactor() << std::endl;
 }

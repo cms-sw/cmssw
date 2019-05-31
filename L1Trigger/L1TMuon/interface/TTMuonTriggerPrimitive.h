@@ -17,18 +17,17 @@
 // Track trigger data formats
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
-
 namespace L1TMuon {
 
   class TTTriggerPrimitive {
   public:
     // Define the subsystems that we have available (none at the moment).
     // Start at 20 for TTMuonTriggerPrimitive to avoid collision with MuonTriggerPrimitive
-    enum subsystem_type{kTT = 20, kNSubsystems};
+    enum subsystem_type { kTT = 20, kNSubsystems };
 
     // Rename these
-    typedef TTStub<Ref_Phase2TrackerDigi_>  TTDigi;
-    typedef DetId                           TTDetId;
+    typedef TTStub<Ref_Phase2TrackerDigi_> TTDigi;
+    typedef DetId TTDetId;
 
     // Define the raw data
     struct TTData {
@@ -40,7 +39,7 @@ namespace L1TMuon {
     };
 
     // Persistency
-    TTTriggerPrimitive(): _subsystem(kNSubsystems) {}
+    TTTriggerPrimitive() : _subsystem(kNSubsystems) {}
 
     // Constructor from track trigger digi
     TTTriggerPrimitive(const TTDetId& detid, const TTDigi& digi);
@@ -62,17 +61,16 @@ namespace L1TMuon {
 
     // Global coordinates
     const double getCMSGlobalEta() const { return _eta; }
-    void         setCMSGlobalEta(const double eta) { _eta = eta; }
+    void setCMSGlobalEta(const double eta) { _eta = eta; }
     const double getCMSGlobalPhi() const { return _phi; }
-    void         setCMSGlobalPhi(const double phi) { _phi = phi; }
+    void setCMSGlobalPhi(const double phi) { _phi = phi; }
     const double getCMSGlobalRho() const { return _rho; }
-    void         setCMSGlobalRho(const double rho) { _rho = rho; }
+    void setCMSGlobalRho(const double rho) { _rho = rho; }
 
     const GlobalPoint getCMSGlobalPoint() const {
-      double theta = 2. * atan( exp(-_eta) );
-      return GlobalPoint( GlobalPoint::Cylindrical( _rho, _phi, _rho/tan(theta)) );
+      double theta = 2. * atan(exp(-_eta));
+      return GlobalPoint(GlobalPoint::Cylindrical(_rho, _phi, _rho / tan(theta)));
     };
-
 
     // Detector id
     TTDetId detId() const { return _id; }
@@ -82,9 +80,9 @@ namespace L1TMuon {
     // Accessors to raw data
     void setTTData(const TTData& data) { _data = data; }
 
-    const TTData  getTTData()  const { return _data; }
+    const TTData getTTData() const { return _data; }
 
-    TTData&  accessTTData()  { return _data; }
+    TTData& accessTTData() { return _data; }
 
     // Accessors to common information
     const int getStrip() const;
@@ -100,9 +98,7 @@ namespace L1TMuon {
   private:
     // Translate to 'global' position information at the level of 60
     // degree sectors. Use CSC sectors as a template
-    void calculateTTGlobalSector(const TTDetId& detid,
-                                 unsigned& globalsector,
-                                 unsigned& subsector );
+    void calculateTTGlobalSector(const TTDetId& detid, unsigned& globalsector, unsigned& subsector);
 
     TTData _data;
 
@@ -110,10 +106,10 @@ namespace L1TMuon {
 
     subsystem_type _subsystem;
 
-    unsigned _globalsector; // [1,6] in 60 degree sectors
-    unsigned _subsector; // [1,2] in 30 degree partitions of a sector
+    unsigned _globalsector;   // [1,6] in 60 degree sectors
+    unsigned _subsector;      // [1,2] in 30 degree partitions of a sector
     double _eta, _phi, _rho;  // global pseudorapidity, phi, rho
-    double _theta; // bend angle with respect to ray from (0,0,0). // NOT USED
+    double _theta;            // bend angle with respect to ray from (0,0,0). // NOT USED
   };
 
 }  // namespace L1TMuon
