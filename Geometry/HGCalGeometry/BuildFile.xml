@@ -1,3 +1,4 @@
+#test message
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/ForwardDetId"/>
 <use   name="DataFormats/Common"/>
