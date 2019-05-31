@@ -32,22 +32,22 @@ public:
 	
 	PrunedRecombiner(const RecombinationScheme scheme,
 	                 const double & zcut = 0.1, const double & Rcut = 0.5) :
-		_zcut(zcut), _Rcut(Rcut), _recombiner(0), _default_recombiner(scheme) {
+		_zcut(zcut), _Rcut(Rcut), _recombiner(nullptr), _default_recombiner(scheme) {
 		_recombiner = &_default_recombiner;
 	}
 
-	virtual std::string description() const;
+	std::string description() const override;
 	
 	// recombine pa and pb and put result into pab
-	virtual void recombine(const PseudoJet & pa, const PseudoJet & pb, 
-	                       PseudoJet & pab) const;
+	void recombine(const PseudoJet & pa, const PseudoJet & pb, 
+	                       PseudoJet & pab) const override;
 
 	std::vector<int> pruned_pseudojets() { return _pruned_pseudojets; }
 
 	// resets pruned_pseudojets vector, parameters
 	void reset(const double & zcut, const double & Rcut);
 
-	virtual ~PrunedRecombiner() {}
+	~PrunedRecombiner() override {}
 		
 private:
 	// tests whether pa and pb should be recombined or vetoed
