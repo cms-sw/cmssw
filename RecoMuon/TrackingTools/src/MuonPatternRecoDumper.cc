@@ -1,5 +1,5 @@
 
-// This Class Header 
+// This Class Header
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
 // Collaborating Class Header
@@ -19,81 +19,71 @@
 
 using namespace std;
 
-// Constructor 
-MuonPatternRecoDumper::MuonPatternRecoDumper() {
-}
+// Constructor
+MuonPatternRecoDumper::MuonPatternRecoDumper() {}
 
 // Destructor
-MuonPatternRecoDumper::~MuonPatternRecoDumper() {
-}
+MuonPatternRecoDumper::~MuonPatternRecoDumper() {}
 
 // Operations
 
 string MuonPatternRecoDumper::dumpLayer(const DetLayer* layer) const {
   stringstream output;
-  
-  const BoundSurface* sur=nullptr;
-  const BoundCylinder* bc=nullptr;
-  const BoundDisk* bd=nullptr;
+
+  const BoundSurface* sur = nullptr;
+  const BoundCylinder* bc = nullptr;
+  const BoundDisk* bd = nullptr;
 
   sur = &(layer->surface());
-  if ( (bc = dynamic_cast<const BoundCylinder*>(sur)) ) {
+  if ((bc = dynamic_cast<const BoundCylinder*>(sur))) {
     output << "  Cylinder of radius: " << bc->radius() << endl;
-  }
-  else if ( (bd = dynamic_cast<const BoundDisk*>(sur)) ) {
-    output << "  Disk at: " <<  bd->position().z() << endl;
+  } else if ((bd = dynamic_cast<const BoundDisk*>(sur))) {
+    output << "  Disk at: " << bd->position().z() << endl;
   }
   return output.str();
 }
 
 string MuonPatternRecoDumper::dumpFTS(const FreeTrajectoryState& fts) const {
   stringstream output;
-  
-  output  << 
-    " pos: " << fts.position() << 
-    " radius: " << fts.position().perp() << endl << 
-    " charge*pt: " << fts.momentum().perp()*fts.parameters().charge() <<
-    " eta: " << fts.momentum().eta() <<
-    " phi: " << fts.momentum().phi() << endl;
+
+  output << " pos: " << fts.position() << " radius: " << fts.position().perp() << endl
+         << " charge*pt: " << fts.momentum().perp() * fts.parameters().charge() << " eta: " << fts.momentum().eta()
+         << " phi: " << fts.momentum().phi() << endl;
 
   return output.str();
 }
 
-string MuonPatternRecoDumper::dumpTSOS(const TrajectoryStateOnSurface& tsos) const{
+string MuonPatternRecoDumper::dumpTSOS(const TrajectoryStateOnSurface& tsos) const {
   stringstream output;
-  
-  output<<tsos<<endl;
-  output<<"dir: "<<tsos.globalDirection()<<endl;
-  output<<dumpFTS(*tsos.freeTrajectoryState());
+
+  output << tsos << endl;
+  output << "dir: " << tsos.globalDirection() << endl;
+  output << dumpFTS(*tsos.freeTrajectoryState());
 
   return output.str();
 }
 
-string MuonPatternRecoDumper::dumpMuonId(const DetId &id) const{
+string MuonPatternRecoDumper::dumpMuonId(const DetId& id) const {
   stringstream output;
-  
-  if(id.subdetId() == MuonSubdetId::DT ){
+
+  if (id.subdetId() == MuonSubdetId::DT) {
     DTWireId wireId(id.rawId());
 
-    output<<"(DT): "<<wireId<<endl;  
-  }
-  else if(id.subdetId() == MuonSubdetId::CSC){
+    output << "(DT): " << wireId << endl;
+  } else if (id.subdetId() == MuonSubdetId::CSC) {
     CSCDetId chamberId(id.rawId());
-    output<<"(CSC): "<<chamberId<<endl;  
-  }
-  else if(id.subdetId() == MuonSubdetId::GEM){
+    output << "(CSC): " << chamberId << endl;
+  } else if (id.subdetId() == MuonSubdetId::GEM) {
     GEMDetId chamberId(id.rawId());
-    output<<"(GEM): "<<chamberId<<endl;  
-  }
-  else if(id.subdetId() == MuonSubdetId::ME0){
+    output << "(GEM): " << chamberId << endl;
+  } else if (id.subdetId() == MuonSubdetId::ME0) {
     ME0DetId chamberId(id.rawId());
-    output<<"(ME0): "<<chamberId<<endl;  
-  }
-  else if(id.subdetId() == MuonSubdetId::RPC){
+    output << "(ME0): " << chamberId << endl;
+  } else if (id.subdetId() == MuonSubdetId::RPC) {
     RPCDetId chamberId(id.rawId());
-    output<<"(RPC): "<<chamberId<<endl;  
-  }
-  else output<<"The DetLayer is not a valid Muon DetLayer. ";
+    output << "(RPC): " << chamberId << endl;
+  } else
+    output << "The DetLayer is not a valid Muon DetLayer. ";
 
   return output.str();
 }

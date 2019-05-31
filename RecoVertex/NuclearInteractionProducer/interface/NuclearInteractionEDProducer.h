@@ -18,7 +18,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -47,35 +46,33 @@ class NuclearVertexBuilder;
 class NuclearLikelihood;
 
 class NuclearInteractionEDProducer : public edm::stream::EDProducer<> {
-
 public:
-      typedef edm::RefVector<TrajectorySeedCollection> TrajectorySeedRefVector;
+  typedef edm::RefVector<TrajectorySeedCollection> TrajectorySeedRefVector;
 
-      explicit NuclearInteractionEDProducer(const edm::ParameterSet&);
-      ~NuclearInteractionEDProducer() override;
+  explicit NuclearInteractionEDProducer(const edm::ParameterSet&);
+  ~NuclearInteractionEDProducer() override;
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      static bool isInside( const reco::TrackRef& track, const TrajectorySeedRefVector& seeds);
-      void findAdditionalSecondaryTracks( reco::NuclearInteraction& nucl,
-                                          const edm::Handle<reco::TrackCollection>& additionalSecTracks) const;
+  static bool isInside(const reco::TrackRef& track, const TrajectorySeedRefVector& seeds);
+  void findAdditionalSecondaryTracks(reco::NuclearInteraction& nucl,
+                                     const edm::Handle<reco::TrackCollection>& additionalSecTracks) const;
 
-      // ----------member data ---------------------------
-      edm::ParameterSet conf_;
-      edm::EDGetTokenT<reco::TrackCollection>	 token_primaryTrack; 
-      edm::EDGetTokenT<reco::TrackCollection>	 token_secondaryTrack; 
-      edm::EDGetTokenT<reco::TrackCollection>	 token_additionalSecTracks; 
-      edm::EDGetTokenT<TrajectoryCollection> token_primaryTrajectory; 
-      edm::EDGetTokenT<TrajTrackAssociationCollection> token_refMapH; 
-      edm::EDGetTokenT<TrajectoryToSeedsMap> token_nuclMapH; 
+  // ----------member data ---------------------------
+  edm::ParameterSet conf_;
+  edm::EDGetTokenT<reco::TrackCollection> token_primaryTrack;
+  edm::EDGetTokenT<reco::TrackCollection> token_secondaryTrack;
+  edm::EDGetTokenT<reco::TrackCollection> token_additionalSecTracks;
+  edm::EDGetTokenT<TrajectoryCollection> token_primaryTrajectory;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> token_refMapH;
+  edm::EDGetTokenT<TrajectoryToSeedsMap> token_nuclMapH;
 
-      std::unique_ptr< NuclearVertexBuilder >  vertexBuilder;
-      std::unique_ptr< NuclearLikelihood >     likelihoodCalculator;
+  std::unique_ptr<NuclearVertexBuilder> vertexBuilder;
+  std::unique_ptr<NuclearLikelihood> likelihoodCalculator;
 
   edm::ESWatcher<IdealMagneticFieldRecord> magFieldWatcher_;
   edm::ESWatcher<TransientTrackRecord> transientTrackWatcher_;
-
 };
 
 #endif

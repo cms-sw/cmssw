@@ -12,7 +12,6 @@
 // -*- C++ -*-
 //
 
-
 // system include files
 #include <memory>
 
@@ -32,14 +31,14 @@
 //
 
 class EgammaTowerIsolationProducer : public edm::stream::EDProducer<> {
-   public:
-      explicit EgammaTowerIsolationProducer(const edm::ParameterSet&);
-      ~EgammaTowerIsolationProducer() override;
+public:
+  explicit EgammaTowerIsolationProducer(const edm::ParameterSet&);
+  ~EgammaTowerIsolationProducer() override;
 
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
-   private:
-      // ----------member data ---------------------------
+private:
+  // ----------member data ---------------------------
 
   edm::InputTag emObjectProducer_;
   edm::InputTag towerProducer_;
@@ -50,7 +49,6 @@ class EgammaTowerIsolationProducer : public edm::stream::EDProducer<> {
   signed int egHcalDepth_;
 
   edm::ParameterSet conf_;
-
 };
 
 #endif
