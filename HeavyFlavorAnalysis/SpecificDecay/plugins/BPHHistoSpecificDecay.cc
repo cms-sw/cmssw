@@ -361,12 +361,12 @@ class BPHFittedVertexSelect: public BPHHistoSpecificDecay::CandidateSelect {
 
 BPHHistoSpecificDecay::BPHHistoSpecificDecay( const edm::ParameterSet& ps ) {
 
-  useOnia = ( SET_LABEL( oniaCandsLabel, ps ) != "" );
-  useSd   = ( SET_LABEL(   sdCandsLabel, ps ) != "" );
-  useSs   = ( SET_LABEL(   ssCandsLabel, ps ) != "" );
-  useBu   = ( SET_LABEL(   buCandsLabel, ps ) != "" );
-  useBd   = ( SET_LABEL(   bdCandsLabel, ps ) != "" );
-  useBs   = ( SET_LABEL(   bsCandsLabel, ps ) != "" );
+  useOnia = ( ! SET_LABEL( oniaCandsLabel, ps ).empty() );
+  useSd   = ( ! SET_LABEL(   sdCandsLabel, ps ).empty() );
+  useSs   = ( ! SET_LABEL(   ssCandsLabel, ps ).empty() );
+  useBu   = ( ! SET_LABEL(   buCandsLabel, ps ).empty() );
+  useBd   = ( ! SET_LABEL(   bdCandsLabel, ps ).empty() );
+  useBs   = ( ! SET_LABEL(   bsCandsLabel, ps ).empty() );
   if ( useOnia ) consume< vector<pat::CompositeCandidate> >( oniaCandsToken,
                                                              oniaCandsLabel );
   if ( useSd   ) consume< vector<pat::CompositeCandidate> >(   sdCandsToken,

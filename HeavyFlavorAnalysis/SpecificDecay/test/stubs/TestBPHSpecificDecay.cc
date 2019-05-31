@@ -49,11 +49,11 @@ using namespace std;
 
 TestBPHSpecificDecay::TestBPHSpecificDecay( const edm::ParameterSet& ps ) {
 
-  usePM = ( SET_LABEL( patMuonLabel, ps ) != "" );
-  useCC = ( SET_LABEL( ccCandsLabel, ps ) != "" );
-  usePF = ( SET_LABEL( pfCandsLabel, ps ) != "" );
-  usePC = ( SET_LABEL( pcCandsLabel, ps ) != "" );
-  useGP = ( SET_LABEL( gpCandsLabel, ps ) != "" );
+  usePM = ( ! SET_LABEL( patMuonLabel, ps ).empty() );
+  useCC = ( ! SET_LABEL( ccCandsLabel, ps ).empty() );
+  usePF = ( ! SET_LABEL( pfCandsLabel, ps ).empty() );
+  usePC = ( ! SET_LABEL( pcCandsLabel, ps ).empty() );
+  useGP = ( ! SET_LABEL( gpCandsLabel, ps ).empty() );
 
   if ( usePM ) consume< pat::MuonCollection                  >( patMuonToken,
                                                                 patMuonLabel );
