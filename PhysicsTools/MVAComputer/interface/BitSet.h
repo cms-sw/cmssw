@@ -17,7 +17,7 @@
 
 namespace PhysicsTools {
 
-/** \class BitSet
+  /** \class BitSet
  *
  * \short A compact container for storing single bits.
  *
@@ -26,15 +26,15 @@ namespace PhysicsTools {
  * Also an iterator is provided that can iterate over all set bits.
  *
  ************************************************************/
-class BitSet {
-    public:
-	typedef std::size_t size_t;
+  class BitSet {
+  public:
+    typedef std::size_t size_t;
 
-    protected:
-	typedef unsigned int Word_t;
+  protected:
+    typedef unsigned int Word_t;
 
-    public:
-	/** \class Manipulator
+  public:
+    /** \class Manipulator
 	 *
 	 * \short Opaque structure for transparent write access to individual bits.
 	 *
@@ -43,161 +43,158 @@ class BitSet {
 	 * individual bit, i.e. represents some sort of bit reference type.
 	 *
 	 ************************************************************/
-	struct Manipulator {
-	    public:
-		inline Manipulator(const Manipulator &orig) :
-			word(orig.word), mask(orig.mask) {}
-		inline ~Manipulator() {}
+    struct Manipulator {
+    public:
+      inline Manipulator(const Manipulator &orig) : word(orig.word), mask(orig.mask) {}
+      inline ~Manipulator() {}
 
-		/// implicit cast to pointed-at boolean bit value
-		inline operator bool() const { return *word & mask; }
+      /// implicit cast to pointed-at boolean bit value
+      inline operator bool() const { return *word & mask; }
 
-		/// bit assignment operator
-		inline bool operator = (bool bit)
-		{ *word = (*word & ~mask) | (bit ? mask : 0); return bit; }
+      /// bit assignment operator
+      inline bool operator=(bool bit) {
+        *word = (*word & ~mask) | (bit ? mask : 0);
+        return bit;
+      }
 
-	    protected:
-		friend class BitSet;
+    protected:
+      friend class BitSet;
 
-		inline Manipulator(Word_t *word, unsigned int bit) :
-			word(word), mask((Word_t)1 << bit) {}
+      inline Manipulator(Word_t *word, unsigned int bit) : word(word), mask((Word_t)1 << bit) {}
 
-	    private:
-		Word_t		*word;
-		Word_t		mask;
-	};
+    private:
+      Word_t *word;
+      Word_t mask;
+    };
 
-	/** \class Iterator
+    /** \class Iterator
 	 *
 	 * \short Iterates over all set bits of a BitSet.
 	 *
 	 * This structure is used to iterate over all set bits in a BitSet.
 	 *
 	 ************************************************************/
-	struct Iterator {
-	    public:
-		/// boolean test for the end of the BitSet
-		inline operator bool() const { return store < end; }
+    struct Iterator {
+    public:
+      /// boolean test for the end of the BitSet
+      inline operator bool() const { return store < end; }
 
-		/// returns the index of the currently pointed-at bit
-		inline size_t operator () () const
-		{ return (store - begin) * wordSize + pos; }
+      /// returns the index of the currently pointed-at bit
+      inline size_t operator()() const { return (store - begin) * wordSize + pos; }
 
-		/// increment iterator to point at the next set bit
-		Iterator &operator ++ ()
-		{
-			if (++pos < wordSize) {
-				Word_t word = *store & -(1 << pos);
-				if (word) {
-					pos = ffs(word) - 1;
-					return *this;
-				}
-			}
+      /// increment iterator to point at the next set bit
+      Iterator &operator++() {
+        if (++pos < wordSize) {
+          Word_t word = *store & -(1 << pos);
+          if (word) {
+            pos = ffs(word) - 1;
+            return *this;
+          }
+        }
 
-			pos = 0;
-			for(;;) {
-				if (++store >= end)
-					break;
-				else if (*store) {
-					pos = ffs(*store) - 1;
-					break;
-				}
-			}
+        pos = 0;
+        for (;;) {
+          if (++store >= end)
+            break;
+          else if (*store) {
+            pos = ffs(*store) - 1;
+            break;
+          }
+        }
 
-			return *this;
-		}
+        return *this;
+      }
 
-		/// increment iterator to point at the next set bit
-		inline Iterator operator ++ (int dummy)
-		{ Iterator orig = *this; ++*this; return orig; }
+      /// increment iterator to point at the next set bit
+      inline Iterator operator++(int dummy) {
+        Iterator orig = *this;
+        ++*this;
+        return orig;
+      }
 
-	    protected:
-		friend class BitSet;
+    protected:
+      friend class BitSet;
 
-		Iterator(Word_t *begin, Word_t *end) :
-			begin(begin), store(begin), end(end), pos(0)
-		{ if (store < end && !(*store & 1)) ++*this; }
-
-	    private:
-		Word_t		*begin, *store, *end;
-		unsigned int	pos;
-	};
-
-	BitSet() : store(nullptr), bits_(0) {}
-
-	BitSet(const BitSet &orig) : bits_(orig.bits_)
-	{
-		std::size_t words = bitsToWords(bits_);
-		if (words) {
-			store = new Word_t[words];
-			std::memcpy(store, orig.store, words * sizeof(Word_t));
-		} else
-			store = nullptr;
-	}
-
-	/// construct BitSet with a fixed size of \a bits bits
-	BitSet(size_t bits) : bits_(bits)
-	{
-		std::size_t words = bitsToWords(bits);
-		if (words) {
-			store = new Word_t[words];
-			std::memset(store, 0, sizeof(Word_t) * words);
-		} else
-			store = nullptr;
-	}
-
-	inline ~BitSet() { delete[] store; }
-
-	BitSet &operator = (const BitSet &orig)
-	{
-		delete[] store;
-		bits_ = orig.bits_;
-		std::size_t words = bitsToWords(bits_);
-		if (words) {
-			store = new Word_t[words];
-			std::memcpy(store, orig.store, words * sizeof(Word_t));
-		} else
-			store = nullptr;
-		return *this;
-	}
-
-	/// provide read/write access to bit with index \a bit via reference
-	inline Manipulator operator [] (size_t bit)
-	{ return Manipulator(&store[bit / wordSize], bit % wordSize); }
-
-	/// provide read access to bit with index \a bit via reference
-	inline const Manipulator operator [] (size_t bit) const
-	{ return Manipulator(&store[bit / wordSize], bit % wordSize); }
-
-	/// returns the number of all bits in the container
-	inline size_t size() const { return bits_; }
-
-	/// returns the number of set bits in the container
-	size_t bits() const;
-
-	/// create iterator over all set bits
-	inline Iterator iter() const
-	{ return Iterator(store, store + bitsToWords(bits_)); }
+      Iterator(Word_t *begin, Word_t *end) : begin(begin), store(begin), end(end), pos(0) {
+        if (store < end && !(*store & 1))
+          ++*this;
+      }
 
     private:
-	static inline size_t bitsToWords(std::size_t bits)
-	{ return (bits + wordSize - 1) / wordSize; }
+      Word_t *begin, *store, *end;
+      unsigned int pos;
+    };
 
-	static const unsigned int wordSize = sizeof(Word_t) * 8;
+    BitSet() : store(nullptr), bits_(0) {}
 
-	Word_t	*store;
-	size_t	bits_;
-};
+    BitSet(const BitSet &orig) : bits_(orig.bits_) {
+      std::size_t words = bitsToWords(bits_);
+      if (words) {
+        store = new Word_t[words];
+        std::memcpy(store, orig.store, words * sizeof(Word_t));
+      } else
+        store = nullptr;
+    }
 
-namespace Calibration {
-	class BitSet;
+    /// construct BitSet with a fixed size of \a bits bits
+    BitSet(size_t bits) : bits_(bits) {
+      std::size_t words = bitsToWords(bits);
+      if (words) {
+        store = new Word_t[words];
+        std::memset(store, 0, sizeof(Word_t) * words);
+      } else
+        store = nullptr;
+    }
 
-	/// constructs BitSet container from persistent representation
-	PhysicsTools::BitSet convert(const BitSet &bitSet);
-	/// convert BitSet container into persistent representation
-	BitSet convert(const PhysicsTools::BitSet &bitSet);
-}
+    inline ~BitSet() { delete[] store; }
 
-} // namespace PhysicsTools
+    BitSet &operator=(const BitSet &orig) {
+      delete[] store;
+      bits_ = orig.bits_;
+      std::size_t words = bitsToWords(bits_);
+      if (words) {
+        store = new Word_t[words];
+        std::memcpy(store, orig.store, words * sizeof(Word_t));
+      } else
+        store = nullptr;
+      return *this;
+    }
 
-#endif // PhysicsTools_MVAComputer_BitSet_h
+    /// provide read/write access to bit with index \a bit via reference
+    inline Manipulator operator[](size_t bit) { return Manipulator(&store[bit / wordSize], bit % wordSize); }
+
+    /// provide read access to bit with index \a bit via reference
+    inline const Manipulator operator[](size_t bit) const {
+      return Manipulator(&store[bit / wordSize], bit % wordSize);
+    }
+
+    /// returns the number of all bits in the container
+    inline size_t size() const { return bits_; }
+
+    /// returns the number of set bits in the container
+    size_t bits() const;
+
+    /// create iterator over all set bits
+    inline Iterator iter() const { return Iterator(store, store + bitsToWords(bits_)); }
+
+  private:
+    static inline size_t bitsToWords(std::size_t bits) { return (bits + wordSize - 1) / wordSize; }
+
+    static const unsigned int wordSize = sizeof(Word_t) * 8;
+
+    Word_t *store;
+    size_t bits_;
+  };
+
+  namespace Calibration {
+    class BitSet;
+
+    /// constructs BitSet container from persistent representation
+    PhysicsTools::BitSet convert(const BitSet &bitSet);
+    /// convert BitSet container into persistent representation
+    BitSet convert(const PhysicsTools::BitSet &bitSet);
+  }  // namespace Calibration
+
+}  // namespace PhysicsTools
+
+#endif  // PhysicsTools_MVAComputer_BitSet_h

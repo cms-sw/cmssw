@@ -14,29 +14,27 @@
 
 namespace PhysicsTools {
 
-class MVATrainerFileSave : public edm::EDAnalyzer {
-    public:
-	explicit MVATrainerFileSave(const edm::ParameterSet &params);
+  class MVATrainerFileSave : public edm::EDAnalyzer {
+  public:
+    explicit MVATrainerFileSave(const edm::ParameterSet& params);
 
-	void analyze(const edm::Event& iEvent,
-	                     const edm::EventSetup& iSetup) override;
+    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-	void endJob() override;
+    void endJob() override;
 
-    protected:
-	virtual const Calibration::MVAComputerContainer *
-	getToPut(const edm::EventSetup& es) const = 0;
+  protected:
+    virtual const Calibration::MVAComputerContainer* getToPut(const edm::EventSetup& es) const = 0;
 
-	bool							trained;
+    bool trained;
 
-    private:
-	typedef std::map<std::string, std::string> LabelFileMap;
+  private:
+    typedef std::map<std::string, std::string> LabelFileMap;
 
-	LabelFileMap						toPut;
-	std::unique_ptr<Calibration::MVAComputerContainer>	calib;
-	bool							saved;
-};
+    LabelFileMap toPut;
+    std::unique_ptr<Calibration::MVAComputerContainer> calib;
+    bool saved;
+  };
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools
 
-#endif // PhysicsTools_MVATrainer_MVATrainerFileSave_h
+#endif  // PhysicsTools_MVATrainer_MVATrainerFileSave_h
