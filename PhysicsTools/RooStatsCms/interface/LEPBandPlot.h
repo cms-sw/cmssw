@@ -28,10 +28,10 @@ plot are:
 
 #include <iostream>
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "StatisticalPlot.h"
+#if (defined(STANDALONE) or defined(__CINT__))
+#include "StatisticalPlot.h"
 #else
-   #include "PhysicsTools/RooStatsCms/interface/StatisticalPlot.h"
+#include "PhysicsTools/RooStatsCms/interface/StatisticalPlot.h"
 #endif
 
 #include "TGraphErrors.h"
@@ -39,80 +39,74 @@ plot are:
 #include "TLegend.h"
 
 class LEPBandPlot : public StatisticalPlot {
+public:
+  /// Constructor
+  LEPBandPlot(const char* name,
+              const char* title,
+              const int n_points,
+              double* x_vals,
+              double* sb_vals,
+              double* b_vals,
+              double* b_rms,
+              double* exp_vals = nullptr);
+  /// Constructor
+  LEPBandPlot(const char* name,
+              const char* title,
+              const int n_points,
+              double* x_vals,
+              double* sb_vals,
+              double* b_vals,
+              double* b_up_bars1,
+              double* b_down_bars1,
+              double* b_up_bars2,
+              double* b_down_bars2,
+              double* exp_vals = nullptr);
 
-  public:
+  /// Set the title of the x axis
+  void setXaxisTitle(const char* title);
 
-    /// Constructor
-    LEPBandPlot(const char* name,
-                const char* title,
-                const int n_points,
-                double* x_vals,
-                double* sb_vals,
-                double* b_vals,
-                double* b_rms,
-                double* exp_vals=nullptr);
-    /// Constructor
-    LEPBandPlot(const char* name,
-                const char* title,
-                const int n_points,
-                double* x_vals,
-                double* sb_vals,
-                double* b_vals,
-                double* b_up_bars1,
-                double* b_down_bars1,
-                double* b_up_bars2,
-                double* b_down_bars2,
-                double* exp_vals=nullptr);
+  /// Set the title of the plot
+  void setTitle(const char* title);
 
-    /// Set the title of the x axis
-    void setXaxisTitle(const char* title);
+  /// Destructor
+  ~LEPBandPlot() override;
 
-    /// Set the title of the plot
-    void setTitle(const char* title);
+  /// Draw on canvas
+  void draw(const char* options = "") override;
 
-    /// Destructor
-    ~LEPBandPlot() override;
+  /// Print the relevant information
+  void print(const char* options = "") override;
 
-    /// Draw on canvas
-    void draw (const char* options="") override;
+  /// All the objects are written to rootfile
+  void dumpToFile(const char* RootFileName, const char* options) override;
 
-    /// Print the relevant information
-    void print (const char* options="") override;
+private:
+  /// The data line
+  TGraph* m_data_line_graph;
 
-    /// All the objects are written to rootfile
-    void dumpToFile (const char* RootFileName, const char* options) override;
+  /// The b line
+  TGraph* m_b_line_graph;
 
-  private:
+  /// The b band 1 sigma
+  TGraph* m_b_band_graph_1sigma;
 
+  /// The b band 2 sigma
+  TGraph* m_b_band_graph_2sigma;
 
-    /// The data line
-    TGraph* m_data_line_graph;
+  /// The sb line
+  TGraph* m_sb_line_graph;
 
-    /// The b line
-    TGraph* m_b_line_graph;
+  /// The line at 0
+  TLine* m_zero_line;
 
-    /// The b band 1 sigma
-    TGraph* m_b_band_graph_1sigma;
+  /// The legend
+  TLegend* m_legend;
 
-    /// The b band 2 sigma
-    TGraph* m_b_band_graph_2sigma;
-
-    /// The sb line
-    TGraph* m_sb_line_graph;
-
-    /// The line at 0
-    TLine* m_zero_line;
-
-    /// The legend
-    TLegend* m_legend;
-
-
-
-//For Cint
-// #if (defined (STANDALONE) or defined (__CINT__) )
-ClassDefOverride(LEPBandPlot,1)
-// #endif
- };
+  //For Cint
+  // #if (defined (STANDALONE) or defined (__CINT__) )
+  ClassDefOverride(LEPBandPlot, 1)
+  // #endif
+};
 
 #endif
 // Automatically converted from the standalone version Wed Apr 15 11:36:33 2009
