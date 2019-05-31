@@ -249,7 +249,7 @@ unsigned int CaloTPGTranscoderULUT::getOutputLUTSize(const HcalTrigTowerDetId& i
       else
         return QIE10_OUTPUT_LUT_SIZE;
     case HcalTopologyMode::TriggerMode_2021:
-      if (id.ietaAbs() <= theTopology->lastHERing())
+      if (id.ietaAbs() <= theTopology->lastHBHERing())
         return QIE11_OUTPUT_LUT_SIZE;
       else
         return QIE10_OUTPUT_LUT_SIZE;
