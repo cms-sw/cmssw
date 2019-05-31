@@ -2,7 +2,7 @@
 //
 // Package:    DetectorDescription/Core
 // Class:      DDCompactViewESProducer
-// 
+//
 /**\class DDCompactViewESProducer
 
  Description: Produce DDCompactView
@@ -35,14 +35,13 @@ using namespace cms;
 
 class DDCompactViewESProducer : public edm::ESProducer {
 public:
-
   DDCompactViewESProducer(const edm::ParameterSet&);
   ~DDCompactViewESProducer() override;
-  
+
   using ReturnType = unique_ptr<DDCompactView>;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
-  
+
   ReturnType produce(const IdealGeometryRecord&);
 
 private:
@@ -50,25 +49,18 @@ private:
 };
 
 DDCompactViewESProducer::DDCompactViewESProducer(const edm::ParameterSet& iConfig)
-  : m_label(iConfig.getParameter<std::string>("appendToDataLabel"))
-{
+    : m_label(iConfig.getParameter<std::string>("appendToDataLabel")) {
   setWhatProduced(this);
 }
 
-DDCompactViewESProducer::~DDCompactViewESProducer()
-{
-}
+DDCompactViewESProducer::~DDCompactViewESProducer() {}
 
-void
-DDCompactViewESProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
-{
+void DDCompactViewESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   descriptions.addDefault(desc);
 }
 
-DDCompactViewESProducer::ReturnType
-DDCompactViewESProducer::produce(const IdealGeometryRecord& iRecord)
-{  
+DDCompactViewESProducer::ReturnType DDCompactViewESProducer::produce(const IdealGeometryRecord& iRecord) {
   edm::ESHandle<DDDetector> det;
   iRecord.getRecord<GeometryFileRcd>().get(m_label, det);
 
