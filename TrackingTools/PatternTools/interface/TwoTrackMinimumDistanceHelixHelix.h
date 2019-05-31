@@ -16,31 +16,26 @@
 class GlobalTrajectoryParameters;
 
 class TwoTrackMinimumDistanceHelixHelix {
-
 public:
   TwoTrackMinimumDistanceHelixHelix();
   ~TwoTrackMinimumDistanceHelixHelix();
 
-  bool calculate( const GlobalTrajectoryParameters &,
-      const GlobalTrajectoryParameters &,
-      const float qual=.001 ); // retval=true? error occured.
+  bool calculate(const GlobalTrajectoryParameters &,
+                 const GlobalTrajectoryParameters &,
+                 const float qual = .001);  // retval=true? error occured.
 
-  std::pair <GlobalPoint, GlobalPoint> points() const {
-    return std::pair<GlobalPoint, GlobalPoint> (pointG, pointH);
-  }
+  std::pair<GlobalPoint, GlobalPoint> points() const { return std::pair<GlobalPoint, GlobalPoint>(pointG, pointH); }
 
-  std::pair <double, double> pathLength() const {
-    return std::pair <double, double> ( pathG, pathH);
-  }
+  std::pair<double, double> pathLength() const { return std::pair<double, double>(pathG, pathH); }
 
-  double firstAngle() const {return thepG;}
-  double secondAngle() const {return thepH;}
+  double firstAngle() const { return thepG; }
+  double secondAngle() const { return thepH; }
 
 private:
-  bool updateCoeffs( const GlobalPoint & , const GlobalPoint & );
-  bool oneIteration ( double &, double & ) ;
+  bool updateCoeffs(const GlobalPoint &, const GlobalPoint &);
+  bool oneIteration(double &, double &);
 
-// bool parallelTracks () const;
+  // bool parallelTracks () const;
   void finalPoints();
 
 private:
@@ -64,6 +59,5 @@ private:
 
   double themaxjump, thesingjacI;
   int themaxiter;
-
 };
 #endif
