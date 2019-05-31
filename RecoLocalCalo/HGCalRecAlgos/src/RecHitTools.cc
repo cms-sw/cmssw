@@ -263,6 +263,12 @@ unsigned int RecHitTools::getLayer(const ForwardSubdetector type) const {
       layer       = (geomEE->topology().dddConstants()).layers(true);
       auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
       layer      += (geomFH->topology().dddConstants()).layers(true);
+      auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
+      if (geomBH)
+	layer    += (geomBH->topology().dddConstants())->getMaxDepth(1);
+      auto geomBH2= static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEB));
+      if (geomBH2)
+	layer    += (geomBH2->topology().dddConstants()).layers(true);
       break;
     }
     case(ForwardSubdetector::HFNose): {
