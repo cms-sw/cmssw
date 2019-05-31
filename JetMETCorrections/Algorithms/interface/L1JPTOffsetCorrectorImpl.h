@@ -9,53 +9,52 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 //----- classes declaration -----------------------------------
-namespace edm 
-{
+namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
   class ConsumesCollector;
   class ConfigurationDescriptions;
-}
+}  // namespace edm
 
 namespace reco {
   class JetCorrector;
 }
 
 class L1JPTOffsetCorrectorImplMaker : public JetCorrectorImplMakerBase {
- public:
+public:
   L1JPTOffsetCorrectorImplMaker(edm::ParameterSet const&, edm::ConsumesCollector);
   std::unique_ptr<reco::JetCorrectorImpl> make(edm::Event const&, edm::EventSetup const&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& iDescriptions);
- private:
+
+private:
   edm::EDGetTokenT<reco::JetCorrector> offsetCorrectorToken_;
   bool useOffset_;
 };
 
 //----- LXXXCorrector interface -------------------------------
-class L1JPTOffsetCorrectorImpl : public reco::JetCorrectorImpl 
-{
-  public:
+class L1JPTOffsetCorrectorImpl : public reco::JetCorrectorImpl {
+public:
   typedef L1JPTOffsetCorrectorImplMaker Maker;
 
-    //----- constructors---------------------------------------
+  //----- constructors---------------------------------------
   L1JPTOffsetCorrectorImpl(std::shared_ptr<FactorizedJetCorrectorCalculator const> corrector,
-			   const reco::JetCorrector* offsetService);   
+                           const reco::JetCorrector* offsetService);
 
-    //----- apply correction using Jet information only -------
-    double correction(const LorentzVector& fJet) const override;
+  //----- apply correction using Jet information only -------
+  double correction(const LorentzVector& fJet) const override;
 
-    //----- apply correction using Jet information only -------
-    double correction(const reco::Jet& fJet) const override;
+  //----- apply correction using Jet information only -------
+  double correction(const reco::Jet& fJet) const override;
 
-    //----- if correction needs event information -------------
-    bool refRequired() const override {return false;}
+  //----- if correction needs event information -------------
+  bool refRequired() const override { return false; }
 
-  private:
-    //----- member data ---------------------------------------
-    const reco::JetCorrector* offsetService_;
-    std::shared_ptr<FactorizedJetCorrectorCalculator const> corrector_;
+private:
+  //----- member data ---------------------------------------
+  const reco::JetCorrector* offsetService_;
+  std::shared_ptr<FactorizedJetCorrectorCalculator const> corrector_;
 };
 
 #endif

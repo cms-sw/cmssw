@@ -10,37 +10,36 @@
 
 namespace susybsm {
 
- class MuonSegment
- {
- public:
-   MuonSegment() {};
-   //bool isDT()  const { return DT;}
-   //bool isCSC() const { return CSC;}
+  class MuonSegment {
+  public:
+    MuonSegment(){};
+    //bool isDT()  const { return DT;}
+    //bool isCSC() const { return CSC;}
 
-   //void setDT(const bool type) {DT = type;}
-   //void setCSC(const bool type) {CSC = type;}
+    //void setDT(const bool type) {DT = type;}
+    //void setCSC(const bool type) {CSC = type;}
 
-   void setDTSegmentRef(const DTRecSegment4DRef segment) { DTSegmentRef_ = segment;}
-   void setCSCSegmentRef(const CSCSegmentRef segment) { CSCSegmentRef_ = segment;}
+    void setDTSegmentRef(const DTRecSegment4DRef segment) { DTSegmentRef_ = segment; }
+    void setCSCSegmentRef(const CSCSegmentRef segment) { CSCSegmentRef_ = segment; }
 
-   void setGP(const GlobalPoint point) { gp=point;}
+    void setGP(const GlobalPoint point) { gp = point; }
 
-   GlobalPoint getGP() const {return gp;}
+    GlobalPoint getGP() const { return gp; }
 
-   DTRecSegment4DRef getDTSegmentRef() const {return DTSegmentRef_;}
-   CSCSegmentRef getCSCSegmentRef() const {return CSCSegmentRef_;}
+    DTRecSegment4DRef getDTSegmentRef() const { return DTSegmentRef_; }
+    CSCSegmentRef getCSCSegmentRef() const { return CSCSegmentRef_; }
 
- private:
-   GlobalPoint gp;
+  private:
+    GlobalPoint gp;
 
-   DTRecSegment4DRef DTSegmentRef_;
-   CSCSegmentRef CSCSegmentRef_;
- };
+    DTRecSegment4DRef DTSegmentRef_;
+    CSCSegmentRef CSCSegmentRef_;
+  };
 
-  typedef  std::vector<MuonSegment> MuonSegmentCollection;
-  typedef  edm::Ref<MuonSegmentCollection> MuonSegmentRef;
-  typedef  edm::RefProd<MuonSegmentCollection> MuonSegmentRefProd;
-  typedef  edm::RefVector<MuonSegmentCollection> MuonSegmentRefVector;
-}
+  typedef std::vector<MuonSegment> MuonSegmentCollection;
+  typedef edm::Ref<MuonSegmentCollection> MuonSegmentRef;
+  typedef edm::RefProd<MuonSegmentCollection> MuonSegmentRefProd;
+  typedef edm::RefVector<MuonSegmentCollection> MuonSegmentRefVector;
+}  // namespace susybsm
 
 #endif
