@@ -140,18 +140,22 @@ PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& i
       // RMS-based
       double std = h_resp->GetStdDev();
       double std_error = h_resp->GetStdDevError();
-
+      
       // Scale each bin with mean response
       double mean = 1.0;
       double mean_error = 0.0;
       double err = 0.0;
       if (h_resp->GetMean()>0){
+
 	mean = h_resp->GetMean();
 	mean_error = h_resp->GetMeanError();
-        if (std > 0.0 && mean > 0.0)
-	  err = std/mean * sqrt(pow(std_error,2) / pow(std,2) + pow(mean_error,2) / pow(mean,2));
-	if (mean > 0.0)
-	  std /= mean;
+
+	// Scale resolution by response. Avoid division by zero.
+	std /= mean;
+	std_error /= mean;
+	
+	err = getRespUnc(std,std_error,mean,mean_error);
+
       }
 
       h_preso_rms->SetBinContent(ipt+1,std);
@@ -237,8 +241,7 @@ PFJetDQMPostProcessor::fitResponse(TH1F* hreso, TH1F* h_genjet_pt, int ptbinlow,
       
    fg2->SetRange(fitlow,fithigh);
 
-   if (doPlots) hreso->Fit("fg2","RQ");
-   else         hreso->Fit("fg2","RQN");
+   hreso->Fit("fg2","RQ");
    
    fg->SetRange(0,3);
    fg2->SetRange(0,3);
