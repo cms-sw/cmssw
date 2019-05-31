@@ -4,7 +4,10 @@
  *  \author Jean-Roch VLIMANT UCSB
  */
 
-#include "TrackingTools/Producers/interface/BeamHaloPropagatorESProducer.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+
+#include "TrackingTools/GeomPropagators/interface/BeamHaloPropagator.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -19,6 +22,26 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <memory>
+
+class BeamHaloPropagatorESProducer : public edm::ESProducer {
+public:
+  /// Constructor
+  BeamHaloPropagatorESProducer(const edm::ParameterSet &);
+
+  /// Destructor
+  ~BeamHaloPropagatorESProducer() override;
+
+  // Operations
+  std::unique_ptr<Propagator> produce(const TrackingComponentsRecord &);
+
+private:
+  PropagationDirection thePropagationDirection;
+  std::string myname;
+  std::string theEndCapTrackerPropagatorName;
+  std::string theCrossingTrackerPropagatorName;
+};
 
 using namespace edm;
 using namespace std;
@@ -62,3 +85,5 @@ std::unique_ptr<Propagator> BeamHaloPropagatorESProducer::produce(const Tracking
 
   return std::make_unique<BeamHaloPropagator>(*endcapPropagator, *crossPropagator, &*magField, thePropagationDirection);
 }
+
+DEFINE_FWK_EVENTSETUP_MODULE(BeamHaloPropagatorESProducer);
