@@ -26,19 +26,20 @@
 class SmartPropagatorESProducer : public edm::ESProducer {
 public:
   /// Constructor
-  SmartPropagatorESProducer(const edm::ParameterSet &);
+  SmartPropagatorESProducer(const edm::ParameterSet&);
 
   /// Destructor
   ~SmartPropagatorESProducer() override;
 
   // Operations
-  std::unique_ptr<Propagator> produce(const TrackingComponentsRecord &);
+  std::unique_ptr<Propagator> produce(const TrackingComponentsRecord&);
 
 private:
   PropagationDirection thePropagationDirection;
-  std::string theTrackerPropagatorName;
-  std::string theMuonPropagatorName;
   double theEpsilon;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> trackerToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> muonToken_;
 };
 
 using namespace edm;
@@ -60,26 +61,17 @@ SmartPropagatorESProducer::SmartPropagatorESProducer(const ParameterSet& paramet
 
   theEpsilon = parameterSet.getParameter<double>("Epsilon");
 
-  theTrackerPropagatorName = parameterSet.getParameter<string>("TrackerPropagator");
-  theMuonPropagatorName = parameterSet.getParameter<string>("MuonPropagator");
-
-  setWhatProduced(this, myname);
+  setWhatProduced(this, myname)
+      .setConsumes(magToken_)
+      .setConsumes(trackerToken_, edm::ESInputTag("", parameterSet.getParameter<string>("TrackerPropagator")))
+      .setConsumes(muonToken_, edm::ESInputTag("", parameterSet.getParameter<string>("MuonPropagator")));
 }
 
 SmartPropagatorESProducer::~SmartPropagatorESProducer() {}
 
 std::unique_ptr<Propagator> SmartPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord) {
-  ESHandle<MagneticField> magField;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(magField);
-
-  ESHandle<Propagator> trackerPropagator;
-  iRecord.get(theTrackerPropagatorName, trackerPropagator);
-
-  ESHandle<Propagator> muonPropagator;
-  iRecord.get(theMuonPropagatorName, muonPropagator);
-
   return std::make_unique<SmartPropagator>(
-      *trackerPropagator, *muonPropagator, &*magField, thePropagationDirection, theEpsilon);
+      iRecord.get(trackerToken_), iRecord.get(muonToken_), &iRecord.get(magToken_), thePropagationDirection, theEpsilon);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SmartPropagatorESProducer);
