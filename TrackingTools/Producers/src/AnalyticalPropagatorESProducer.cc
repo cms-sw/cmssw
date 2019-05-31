@@ -26,13 +26,15 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& oDesc);
 
 private:
-  const std::string simpleMagField_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magToken_;
   const double dphiCut_;
   const PropagationDirection dir_;
 };
 
 AnalyticalPropagatorESProducer::AnalyticalPropagatorESProducer(const edm::ParameterSet& p)
-    : simpleMagField_{p.getParameter<std::string>("SimpleMagneticField")},
+    : magToken_{setWhatProduced(this, p.getParameter<std::string>("ComponentName"))
+                    .consumesFrom<MagneticField, IdealMagneticFieldRecord>(
+                        edm::ESInputTag("", p.getParameter<std::string>("SimpleMagneticField")))},
       dphiCut_{p.getParameter<double>("MaxDPhi")},
       dir_{[](std::string const& pdir) {
         if (pdir == "oppositeToMomentum")
@@ -42,10 +44,7 @@ AnalyticalPropagatorESProducer::AnalyticalPropagatorESProducer(const edm::Parame
         if (pdir == "anyDirection")
           return anyDirection;
         return alongMomentum;
-      }(p.getParameter<std::string>("PropagationDirection"))} {
-  std::string myname = p.getParameter<std::string>("ComponentName");
-  setWhatProduced(this, myname);
-}
+      }(p.getParameter<std::string>("PropagationDirection"))} {}
 
 void AnalyticalPropagatorESProducer::fillDescriptions(edm::ConfigurationDescriptions& oDesc) {
   edm::ParameterSetDescription desc;
@@ -58,16 +57,7 @@ void AnalyticalPropagatorESProducer::fillDescriptions(edm::ConfigurationDescript
 }
 
 std::unique_ptr<Propagator> AnalyticalPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord) {
-  //   if (_propagator){
-  //     delete _propagator;
-  //     _propagator = 0;
-  //   }
-  ESHandle<MagneticField> magfield;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(simpleMagField_, magfield);
-  //  edm::ESInputTag mfESInputTag(mfName);
-  //  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,magfield);
-
-  return std::make_unique<AnalyticalPropagator>(&(*magfield), dir_, dphiCut_);
+  return std::make_unique<AnalyticalPropagator>(&iRecord.get(magToken_), dir_, dphiCut_);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(AnalyticalPropagatorESProducer);
