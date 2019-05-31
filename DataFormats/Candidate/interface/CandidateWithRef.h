@@ -8,7 +8,6 @@
  *
  *
  */
-#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Common/interface/RefToBase.h"
