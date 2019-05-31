@@ -16,10 +16,10 @@ the Tevatron Higgs WG.
 
 #include <iostream>
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "StatisticalPlot.h"
+#if (defined(STANDALONE) or defined(__CINT__))
+#include "StatisticalPlot.h"
 #else
-   #include "PhysicsTools/RooStatsCms/interface/StatisticalPlot.h"
+#include "PhysicsTools/RooStatsCms/interface/StatisticalPlot.h"
 #endif
 
 #include "TGraphErrors.h"
@@ -27,65 +27,60 @@ the Tevatron Higgs WG.
 #include "TLegend.h"
 
 class ExclusionBandPlot : public StatisticalPlot {
+public:
+  /// Constructor
+  ExclusionBandPlot(const char* name,
+                    const char* title,
+                    const int n_points,
+                    double* x_vals,
+                    double* y_vals,
+                    double* y_up_bars1,
+                    double* y_down_bars1,
+                    double* y_up_bars2,
+                    double* y_down_bars2);
 
-  public:
+  /// Set the title of the x axis
+  void setXaxisTitle(const char* title);
 
-    /// Constructor
-    ExclusionBandPlot(const char* name,
-                      const char* title,
-                      const int n_points,
-                      double* x_vals,
-                      double* y_vals,
-                      double* y_up_bars1,
-                      double* y_down_bars1,
-                      double* y_up_bars2,
-                      double* y_down_bars2);
+  /// Set the title of the x axis
+  void setYaxisTitle(const char* title);
 
-    /// Set the title of the x axis
-    void setXaxisTitle(const char* title);
+  /// Set the title of the plot
+  void setTitle(const char* title);
 
-    /// Set the title of the x axis
-    void setYaxisTitle(const char* title);
+  /// Destructor
+  ~ExclusionBandPlot() override;
 
-    /// Set the title of the plot
-    void setTitle(const char* title);
+  /// Draw on canvas
+  void draw(const char* options = "") override;
 
-    /// Destructor
-    ~ExclusionBandPlot() override;
+  /// Print the relevant information
+  void print(const char* options = "") override;
 
-    /// Draw on canvas
-    void draw (const char* options="") override;
+  /// All the objects are written to rootfile
+  void dumpToFile(const char* RootFileName, const char* options) override;
 
-    /// Print the relevant information
-    void print (const char* options="") override;
+private:
+  /// The line
+  TGraph* m_y_line_graph;
 
-    /// All the objects are written to rootfile
-    void dumpToFile (const char* RootFileName, const char* options) override;
+  /// The band 1 sigma
+  TGraph* m_y_band_graph_1sigma;
 
-  private:
+  /// The band 2 sigma
+  TGraph* m_y_band_graph_2sigma;
 
-    /// The line
-    TGraph* m_y_line_graph;
+  /// The line at 1
+  TLine* m_one_line;
 
-    /// The band 1 sigma
-    TGraph* m_y_band_graph_1sigma;
+  /// The legend
+  TLegend* m_legend;
 
-    /// The band 2 sigma
-    TGraph* m_y_band_graph_2sigma;
-
-    /// The line at 1
-    TLine* m_one_line;
-
-    /// The legend
-    TLegend* m_legend;
-
-
-
-//For Cint/**/
-// #if (defined (STANDALONE) or defined (__CINT__) )
-ClassDefOverride(ExclusionBandPlot,1)
-// #endif
- };
+  //For Cint/**/
+  // #if (defined (STANDALONE) or defined (__CINT__) )
+  ClassDefOverride(ExclusionBandPlot, 1)
+  // #endif
+};
 
 #endif
 // Automatically converted from the standalone version Wed Apr 15 11:36:33 2009

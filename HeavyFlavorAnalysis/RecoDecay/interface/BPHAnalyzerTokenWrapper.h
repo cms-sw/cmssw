@@ -14,7 +14,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -35,41 +34,35 @@
 //              ---------------------
 
 class BPHModuleWrapper {
- public:
-  typedef edm::   one::EDAnalyzer<>    one_analyzer;
-  typedef edm::   one::EDProducer<>    one_producer;
+public:
+  typedef edm::one::EDAnalyzer<> one_analyzer;
+  typedef edm::one::EDProducer<> one_producer;
   typedef edm::stream::EDAnalyzer<> stream_analyzer;
   typedef edm::stream::EDProducer<> stream_producer;
 };
 
-template<class Obj>
+template <class Obj>
 class BPHTokenWrapper {
- public:
+public:
   typedef typename edm::EDGetTokenT<Obj> type;
-  bool get( const edm::Event& ev,
-            edm::Handle<Obj>& obj ) {
-    return ev.getByToken( token, obj );
-  }
+  bool get(const edm::Event& ev, edm::Handle<Obj>& obj) { return ev.getByToken(token, obj); }
   type token;
 };
 
-template<class T>
-class BPHAnalyzerWrapper: public T {
- protected:
-  template<class Obj>
-  void consume( BPHTokenWrapper<Obj>& tw,
-                const std::string& label ) {
-    edm::InputTag tag( label );
-    tw.token = this->template consumes<Obj>( tag );
+template <class T>
+class BPHAnalyzerWrapper : public T {
+protected:
+  template <class Obj>
+  void consume(BPHTokenWrapper<Obj>& tw, const std::string& label) {
+    edm::InputTag tag(label);
+    tw.token = this->template consumes<Obj>(tag);
     return;
   }
-  template<class Obj>
-  void consume( BPHTokenWrapper<Obj>& tw,
-                const edm::InputTag& tag ) {
-    tw.token = this->template consumes<Obj>( tag );
+  template <class Obj>
+  void consume(BPHTokenWrapper<Obj>& tw, const edm::InputTag& tag) {
+    tw.token = this->template consumes<Obj>(tag);
     return;
   }
 };
 
 #endif
-

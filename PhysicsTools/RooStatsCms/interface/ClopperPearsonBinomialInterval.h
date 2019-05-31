@@ -8,7 +8,7 @@
  *
  */
 
-#if (defined (STANDALONE) or defined (__CINT__) )
+#if (defined(STANDALONE) or defined(__CINT__))
 #include "BinomialInterval.h"
 #else
 #include "PhysicsTools/RooStatsCms/interface/BinomialInterval.h"
@@ -19,11 +19,11 @@
 // implement calculate() appropriately.
 
 class ClopperPearsonBinomialInterval : public BinomialInterval {
- public:
+public:
   void calculate(const double successes, const double trials) override;
   const char* name() const override { return "Clopper-Pearson"; }
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassDef(ClopperPearsonBinomialInterval,1)
+#if (defined(STANDALONE) or defined(__CINT__))
+  ClassDef(ClopperPearsonBinomialInterval, 1)
 #endif
 };
 
