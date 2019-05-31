@@ -31,73 +31,64 @@ public:
   explicit PSMonitorClient(edm::ParameterSet const &);
   ~PSMonitorClient() override = default;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  static void fillMePSetDescription(edm::ParameterSetDescription & pset);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillMePSetDescription(edm::ParameterSetDescription &pset);
 
 private:
-
   static MEPSet getHistoPSet(edm::ParameterSet pset);
 
   std::string m_dqm_path;
 
-  void dqmEndLuminosityBlock(DQMStore::IBooker & booker, DQMStore::IGetter & getter, edm::LuminosityBlock const &, edm::EventSetup const&) override;
-  void dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter & getter) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &booker,
+                             DQMStore::IGetter &getter,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;
+  void dqmEndJob(DQMStore::IBooker &booker, DQMStore::IGetter &getter) override;
 
-  void check(DQMStore::IBooker & booker, DQMStore::IGetter & getter);
+  void check(DQMStore::IBooker &booker, DQMStore::IGetter &getter);
 
   MEPSet psColumnVSlumiPSet;
 };
 
+PSMonitorClient::PSMonitorClient(edm::ParameterSet const &config)
+    : m_dqm_path(config.getUntrackedParameter<std::string>("dqmPath")),
+      psColumnVSlumiPSet(getHistoPSet(config.getParameter<edm::ParameterSet>("me"))) {}
 
-PSMonitorClient::PSMonitorClient(edm::ParameterSet const & config) :
-  m_dqm_path( config.getUntrackedParameter<std::string>( "dqmPath" ) )
-  , psColumnVSlumiPSet ( getHistoPSet(config.getParameter<edm::ParameterSet>("me")) )
-{
-}
-
-MEPSet PSMonitorClient::getHistoPSet(edm::ParameterSet pset)
-{
+MEPSet PSMonitorClient::getHistoPSet(edm::ParameterSet pset) {
   return MEPSet{
-    pset.getParameter<std::string>("name"),
+      pset.getParameter<std::string>("name"),
       pset.getParameter<std::string>("folder"),
   };
 }
 
-void PSMonitorClient::fillMePSetDescription(edm::ParameterSetDescription & pset)
-{
-  pset.add<std::string>("folder","HLT/PSMonitoring");
-  pset.add<std::string>("name","psColumnVSlumi");
+void PSMonitorClient::fillMePSetDescription(edm::ParameterSetDescription &pset) {
+  pset.add<std::string>("folder", "HLT/PSMonitoring");
+  pset.add<std::string>("name", "psColumnVSlumi");
 }
 
+void PSMonitorClient::dqmEndJob(DQMStore::IBooker &booker, DQMStore::IGetter &getter) { check(booker, getter); }
 
-void
-PSMonitorClient::dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter & getter)
-{
-  check(booker, getter);
-}
-
-void
-PSMonitorClient::dqmEndLuminosityBlock(DQMStore::IBooker & booker, DQMStore::IGetter & getter, edm::LuminosityBlock const & lumi, edm::EventSetup const & setup)
-{
+void PSMonitorClient::dqmEndLuminosityBlock(DQMStore::IBooker &booker,
+                                            DQMStore::IGetter &getter,
+                                            edm::LuminosityBlock const &lumi,
+                                            edm::EventSetup const &setup) {
   check(booker, getter);
 }
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-void
-PSMonitorClient::check(DQMStore::IBooker & booker, DQMStore::IGetter & getter)
-{
-
+void PSMonitorClient::check(DQMStore::IBooker &booker, DQMStore::IGetter &getter) {
   std::string folder = psColumnVSlumiPSet.folder;
-  std::string name   = psColumnVSlumiPSet.name;
+  std::string name = psColumnVSlumiPSet.name;
 
   getter.setCurrentFolder(folder);
-  MonitorElement* psColumnVSlumi = getter.get(psColumnVSlumiPSet.folder+"/"+psColumnVSlumiPSet.name);
+  MonitorElement *psColumnVSlumi = getter.get(psColumnVSlumiPSet.folder + "/" + psColumnVSlumiPSet.name);
   // if no ME available, return
-  if ( !psColumnVSlumi ) {
-    edm::LogWarning("PSMonitorClient") << "no " << psColumnVSlumiPSet.name << " ME is available in " << psColumnVSlumiPSet.folder << std::endl;
+  if (!psColumnVSlumi) {
+    edm::LogWarning("PSMonitorClient") << "no " << psColumnVSlumiPSet.name << " ME is available in "
+                                       << psColumnVSlumiPSet.folder << std::endl;
     return;
   }
-  
+
   /*
   TH2F* h = psColumnVSlumi->getTH2F();
   size_t nbinsX = psColumnVSlumi->getNbinsX();
@@ -109,15 +100,13 @@ PSMonitorClient::check(DQMStore::IBooker & booker, DQMStore::IGetter & getter)
       if ( psColumnVSlumi->getBinContent(ibinX) )
 	std::cout << "ibinX: " << psColumnVSlumi->getBinContent(ibinX) << std::endl;
   */
-
 }
 
-void
-PSMonitorClient::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+void PSMonitorClient::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   // The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::string>( "dqmPath", "HLT/PSMonitoring");
+  desc.addUntracked<std::string>("dqmPath", "HLT/PSMonitoring");
 
   edm::ParameterSetDescription mePSet;
   fillMePSetDescription(mePSet);
