@@ -12,7 +12,7 @@ cd CMSSW_10_6_0
 cmsenv
 
 #get the code
-git cms-checkout-topic jpata:pfvalidation-10_5_0_pre1-master
+git cms-checkout-topic jpata:pfvalidation-10_6_X-master
 scram b -j4
 cd $CMSSW_BASE/src/Validation/RecoParticleFlow
 
