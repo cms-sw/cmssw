@@ -1,7 +1,7 @@
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
-#include <string>
 #include <memory>
+#include <string>
 
 #include <TString.h>
 #include <TBranch.h>
@@ -37,10 +37,10 @@ TTree *getTree(const std::string &arg)
 	if (!file) {
 		std::cerr << "ROOT file \"" << fileName << "\" could not be "
 		             "opened for reading." << std::endl;
-		return 0;
+		return nullptr;
 	}
 
-	TTree *tree = 0;
+	TTree *tree = nullptr;
 	if (pos == std::string::npos) {
 		TIter next(file->GetListOfKeys());
 		TObject *obj;
@@ -56,7 +56,7 @@ TTree *getTree(const std::string &arg)
 				          << "\" contains more than one tree. "
 				             "Please use <tree>@<file> syntax."
 				          << std::endl;
-				return 0;
+				return nullptr;
 			}
 
 			tree = cur;
@@ -70,7 +70,7 @@ TTree *getTree(const std::string &arg)
 			std::cerr << "ROOT file \"" << fileName << "\" does "
 			             "not contain a tree named \"" << name
 			          << "\"." << std::endl;
-			return 0;
+			return nullptr;
 		}
 	}
 
@@ -119,8 +119,8 @@ int main(int argc, char **argv)
 		                  << std::endl;
 			return 1;
 		}
-		TTree *outTree = 0;
-		TBranch *discrBranch = 0;
+		TTree *outTree = nullptr;
+		TBranch *discrBranch = nullptr;
 		double discr = 0.;
 
 		for(std::vector<TTree*>::const_iterator iter = trees.begin();

@@ -1,8 +1,8 @@
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
-#include <memory>
 
 #include <TString.h>
 #include <TFile.h>
@@ -35,10 +35,10 @@ TTree *getTree(const std::string &arg)
 	if (!file) {
 		std::cerr << "ROOT file \"" << fileName << "\" could not be "
 		             "opened for reading." << std::endl;
-		return 0;
+		return nullptr;
 	}
 
-	TTree *tree = 0;
+	TTree *tree = nullptr;
 	if (pos == std::string::npos) {
 		TIter next(file->GetListOfKeys());
 		TObject *obj;
@@ -54,7 +54,7 @@ TTree *getTree(const std::string &arg)
 				          << "\" contains more than one tree. "
 				             "Please use <tree>@<file> syntax."
 				          << std::endl;
-				return 0;
+				return nullptr;
 			}
 
 			tree = cur;
@@ -68,7 +68,7 @@ TTree *getTree(const std::string &arg)
 			std::cerr << "ROOT file \"" << fileName << "\" does "
 			             "not contain a tree named \"" << name
 			          << "\"." << std::endl;
-			return 0;
+			return nullptr;
 		}
 	}
 
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 	bool weights = true;
 	bool useXSLT = false;
 	double crossValidation = -1.0;
-	const char *styleSheet = 0;
+	const char *styleSheet = nullptr;
 	char **args = argv + 1;
 	argc--;
 	while(argc > 0 && **args == '-') {

@@ -30,7 +30,7 @@ tbb::concurrent_unordered_map<std::string, const ProcessRegistry<Base_t, CalibBa
 {
 	CMS_THREAD_SAFE static struct Sentinel {
 		Sentinel() : instance(new RegistryMap) {}
-		~Sentinel() { delete instance; instance = 0; }
+		~Sentinel() { delete instance; instance = nullptr; }
 
 		RegistryMap	*instance;
 	} sentinel;
@@ -45,7 +45,7 @@ Base_t *ProcessRegistry<Base_t, CalibBase_t, Parent_t>::create(
 	typename RegistryMap::iterator pos = getRegistry()->find(name);
 
 	if (pos == getRegistry()->end())
-		return 0;
+		return nullptr;
 
 	return pos->second->instance(name, calib, parent);
 }
