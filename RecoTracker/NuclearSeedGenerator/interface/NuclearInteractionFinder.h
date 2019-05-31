@@ -38,72 +38,69 @@
 
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
-
 #include <boost/shared_ptr.hpp>
 
 class NuclearInteractionFinder {
 private:
-
   typedef TrajectoryStateOnSurface TSOS;
   typedef FreeTrajectoryState FTS;
   typedef TrajectoryMeasurement TM;
   typedef std::vector<Trajectory> TrajectoryContainer;
-  typedef TrajectoryMeasurement::ConstRecHitPointer    ConstRecHitPointer;
+  typedef TrajectoryMeasurement::ConstRecHitPointer ConstRecHitPointer;
 
   /// get the seeds at the interaction point
-  void fillSeeds( const std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> >& tmPairs );
+  void fillSeeds(const std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> >& tmPairs);
 
   /// Find compatible TM of a TM with error rescaled by rescaleFactor
-  std::vector<TrajectoryMeasurement>
-         findCompatibleMeasurements( const TM& lastMeas, double rescaleFactor, const LayerMeasurements & layerMeasurements) const;
+  std::vector<TrajectoryMeasurement> findCompatibleMeasurements(const TM& lastMeas,
+                                                                double rescaleFactor,
+                                                                const LayerMeasurements& layerMeasurements) const;
 
-  std::vector<TrajectoryMeasurement>
-         findMeasurementsFromTSOS(const TSOS& currentState, DetId detid, const LayerMeasurements & layerMeasurements) const;
+  std::vector<TrajectoryMeasurement> findMeasurementsFromTSOS(const TSOS& currentState,
+                                                              DetId detid,
+                                                              const LayerMeasurements& layerMeasurements) const;
 
   /// Calculate the parameters of the circle representing the primary track at the interaction point
   void definePrimaryHelix(std::vector<TrajectoryMeasurement>::const_iterator it_meas);
 
 public:
-
-  NuclearInteractionFinder(){}
+  NuclearInteractionFinder() {}
 
   NuclearInteractionFinder(const edm::EventSetup& es, const edm::ParameterSet& iConfig);
 
   virtual ~NuclearInteractionFinder();
 
   /// Run the Finder
-  bool  run(const Trajectory& traj, const MeasurementTrackerEvent &event );
+  bool run(const Trajectory& traj, const MeasurementTrackerEvent& event);
 
   /// Improve the seeds with a third RecHit
-  void  improveSeeds( const MeasurementTrackerEvent &event );
+  void improveSeeds(const MeasurementTrackerEvent& event);
 
   /// Fill 'output' with persistent nuclear seeds
-  std::unique_ptr<TrajectorySeedCollection>  getPersistentSeeds();
+  std::unique_ptr<TrajectorySeedCollection> getPersistentSeeds();
 
   TrajectoryStateOnSurface rescaleError(float rescale, const TSOS& state) const;
 
   const NavigationSchool* nav() const { return theNavigationSchool; }
 
 private:
+  const Propagator* thePropagator;
+  const MeasurementEstimator* theEstimator;
+  const MeasurementTracker* theMeasurementTracker;
+  const GeometricSearchTracker* theGeomSearchTracker;
+  const NavigationSchool* theNavigationSchool;
+  edm::ESHandle<MagneticField> theMagField;
 
-  const Propagator*               thePropagator;
-  const MeasurementEstimator*     theEstimator;
-  const MeasurementTracker*       theMeasurementTracker;
-  const GeometricSearchTracker*   theGeomSearchTracker;
-  const NavigationSchool*         theNavigationSchool;
-  edm::ESHandle<MagneticField>    theMagField;
-
-  NuclearTester*                             nuclTester;
-  SeedFromNuclearInteraction                   *currentSeed;
-  std::vector< SeedFromNuclearInteraction >    allSeeds;
-  TangentHelix*                              thePrimaryHelix;
+  NuclearTester* nuclTester;
+  SeedFromNuclearInteraction* currentSeed;
+  std::vector<SeedFromNuclearInteraction> allSeeds;
+  TangentHelix* thePrimaryHelix;
 
   // parameters
-  double        ptMin;
-  unsigned int  maxHits;
-  double        rescaleErrorFactor;
-  bool          checkCompletedTrack; /**< If set to true check all the tracks, even those reaching the edge of the tracker */
-  std::string   navigationSchoolName;
-
+  double ptMin;
+  unsigned int maxHits;
+  double rescaleErrorFactor;
+  bool checkCompletedTrack; /**< If set to true check all the tracks, even those reaching the edge of the tracker */
+  std::string navigationSchoolName;
 };
 #endif

@@ -10,6 +10,6 @@
 class DetRod;
 class MeasurementEstimator;
 
-using RodBarrelLayer=BarrelDetLayer;
+using RodBarrelLayer = BarrelDetLayer;
 
 #endif

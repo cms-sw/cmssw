@@ -10,33 +10,32 @@
 #include "RecoBTau/JetTagComputer/interface/GenericMVAComputer.h"
 
 class GenericMVAComputerCache {
-    public:
-	GenericMVAComputerCache(const std::vector<std::string> &labels);
-	~GenericMVAComputerCache();
+public:
+  GenericMVAComputerCache(const std::vector<std::string> &labels);
+  ~GenericMVAComputerCache();
 
-	bool
-	update(const PhysicsTools::Calibration::MVAComputerContainer *calib);
+  bool update(const PhysicsTools::Calibration::MVAComputerContainer *calib);
 
-	GenericMVAComputer const* getComputer(int index) const;
+  GenericMVAComputer const *getComputer(int index) const;
 
-	bool isEmpty() const;
+  bool isEmpty() const;
 
-    private:
-	struct IndividualComputer {
-		IndividualComputer();
-		IndividualComputer(const IndividualComputer &orig);
-		~IndividualComputer();
+private:
+  struct IndividualComputer {
+    IndividualComputer();
+    IndividualComputer(const IndividualComputer &orig);
+    ~IndividualComputer();
 
-		std::string						label;
-		std::unique_ptr<GenericMVAComputer>			computer;
-		PhysicsTools::Calibration::MVAComputer::CacheId		cacheId;
-	};
+    std::string label;
+    std::unique_ptr<GenericMVAComputer> computer;
+    PhysicsTools::Calibration::MVAComputer::CacheId cacheId;
+  };
 
-	std::vector<IndividualComputer>					computers;
-	PhysicsTools::Calibration::MVAComputerContainer::CacheId	cacheId;
-	bool								initialized;
-	bool								empty;
-        std::string errorUpdatingLabel;
+  std::vector<IndividualComputer> computers;
+  PhysicsTools::Calibration::MVAComputerContainer::CacheId cacheId;
+  bool initialized;
+  bool empty;
+  std::string errorUpdatingLabel;
 };
 
-#endif // RecoBTau_JetTagComputer_GenericMVAComputerCache_h
+#endif  // RecoBTau_JetTagComputer_GenericMVAComputerCache_h
