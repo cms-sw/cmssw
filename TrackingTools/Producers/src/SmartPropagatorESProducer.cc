@@ -4,7 +4,10 @@
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
-#include "TrackingTools/Producers/interface/SmartPropagatorESProducer.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+
+#include "TrackingTools/GeomPropagators/interface/SmartPropagator.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -17,6 +20,26 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include <memory>
+
+class SmartPropagatorESProducer : public edm::ESProducer {
+public:
+  /// Constructor
+  SmartPropagatorESProducer(const edm::ParameterSet &);
+
+  /// Destructor
+  ~SmartPropagatorESProducer() override;
+
+  // Operations
+  std::unique_ptr<Propagator> produce(const TrackingComponentsRecord &);
+
+private:
+  PropagationDirection thePropagationDirection;
+  std::string theTrackerPropagatorName;
+  std::string theMuonPropagatorName;
+  double theEpsilon;
+};
 
 using namespace edm;
 using namespace std;
@@ -58,3 +81,5 @@ std::unique_ptr<Propagator> SmartPropagatorESProducer::produce(const TrackingCom
   return std::make_unique<SmartPropagator>(
       *trackerPropagator, *muonPropagator, &*magField, thePropagationDirection, theEpsilon);
 }
+
+DEFINE_FWK_EVENTSETUP_MODULE(SmartPropagatorESProducer);

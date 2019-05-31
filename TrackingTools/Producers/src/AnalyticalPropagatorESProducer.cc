@@ -1,4 +1,8 @@
-#include "TrackingTools/Producers/interface/AnalyticalPropagatorESProducer.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -12,6 +16,16 @@
 #include <memory>
 
 using namespace edm;
+
+class AnalyticalPropagatorESProducer : public edm::ESProducer {
+public:
+  AnalyticalPropagatorESProducer(const edm::ParameterSet &p);
+  ~AnalyticalPropagatorESProducer() override;
+  std::unique_ptr<Propagator> produce(const TrackingComponentsRecord &);
+
+private:
+  edm::ParameterSet pset_;
+};
 
 AnalyticalPropagatorESProducer::AnalyticalPropagatorESProducer(const edm::ParameterSet& p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
@@ -48,3 +62,5 @@ std::unique_ptr<Propagator> AnalyticalPropagatorESProducer::produce(const Tracki
 
   return std::make_unique<AnalyticalPropagator>(&(*magfield), dir, dphiCut);
 }
+
+DEFINE_FWK_EVENTSETUP_MODULE(AnalyticalPropagatorESProducer);
