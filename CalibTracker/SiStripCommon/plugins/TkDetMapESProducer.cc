@@ -18,11 +18,14 @@ public:
   ~TkDetMapESProducer() override {}
 
   std::unique_ptr<TkDetMap> produce(const TrackerTopologyRcd&);
+
+private:
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 };
 
 TkDetMapESProducer::TkDetMapESProducer(const edm::ParameterSet&)
 {
-  setWhatProduced(this);
+  setWhatProduced(this).setConsumes(tTopoToken_);
 }
 
 namespace {
@@ -169,16 +172,13 @@ std::unique_ptr<TkDetMap> TkDetMapESProducer::produce(const TrackerTopologyRcd& 
   SiStripDetInfoFileReader* fr = edm::Service<SiStripDetInfoFileReader>().operator->();
   const std::vector<uint32_t>& TkDetIdList = fr->getAllDetIds();
 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  tTopoRcd.get(tTopoHandle);
-  const TrackerTopology* tTopo = tTopoHandle.product();
-
-  auto tkDetMap = std::make_unique<TkDetMap>(tTopo);
+  const auto& tTopo = tTopoRcd.get(tTopoToken_);
+  auto tkDetMap = std::make_unique<TkDetMap>(&tTopo);
 
   LogTrace("TkDetMap") <<"TkDetMap::constructor ";
   //Create TkLayerMap for each layer declared in the TkLayerEnum
   for ( int layer=1 ; layer < TkLayerMap::NUMLAYERS; ++layer ) {
-    tkDetMap->setLayerMap(layer, makeTkLayerMap(layer, tTopo, TkDetIdList));
+    tkDetMap->setLayerMap(layer, makeTkLayerMap(layer, &tTopo, TkDetIdList));
   }
 
   return tkDetMap;
