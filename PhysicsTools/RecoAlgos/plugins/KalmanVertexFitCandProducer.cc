@@ -6,6 +6,4 @@ typedef ConstrainedFitCandProducer<CandCommonVertexFitter<KalmanVertexFitter> > 
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( KalmanVertexFitCandProducer );
-
-
+DEFINE_FWK_MODULE(KalmanVertexFitCandProducer);

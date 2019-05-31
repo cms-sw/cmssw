@@ -19,14 +19,11 @@ MVA_COMPUTER_CONTAINER_DEFINE(TtSemiLepSignalSelMVA);  // defines TopSemiLepLepS
 #endif
 
 class TtSemiLepSignalSelMVAComputer : public edm::EDProducer {
-
- public:
-
+public:
   explicit TtSemiLepSignalSelMVAComputer(const edm::ParameterSet&);
   ~TtSemiLepSignalSelMVAComputer() override;
 
- private:
-
+private:
   void beginJob() override;
   void produce(edm::Event& evt, const edm::EventSetup& setup) override;
   void endJob() override;
@@ -34,15 +31,14 @@ class TtSemiLepSignalSelMVAComputer : public edm::EDProducer {
   double DeltaPhi(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2);
   double DeltaR(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2);
 
-  edm::EDGetTokenT< edm::View<pat::Muon> > muonsToken_;
-  edm::EDGetTokenT< std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT<edm::View<pat::Muon> > muonsToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
   edm::EDGetTokenT<edm::View<pat::MET> > METsToken_;
-  edm::EDGetTokenT< edm::View<pat::Electron> > electronsToken_;
+  edm::EDGetTokenT<edm::View<pat::Electron> > electronsToken_;
 
   PhysicsTools::MVAComputerCache mvaComputer;
 
   double DiscSel;
-
 };
 
 #endif

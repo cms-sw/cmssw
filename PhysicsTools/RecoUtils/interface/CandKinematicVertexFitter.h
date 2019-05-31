@@ -18,32 +18,33 @@
 #include "boost/shared_ptr.hpp"
 
 class MagneticField;
-namespace reco { class VertexCompositeCandidate; }
+namespace reco {
+  class VertexCompositeCandidate;
+}
 
 class CandKinematicVertexFitter {
 public:
   typedef reco::Vertex::CovarianceMatrix CovarianceMatrix;
-  CandKinematicVertexFitter(const edm::ParameterSet & cfg) :  
-    bField_(nullptr), pdt_(nullptr), fitter_(), fitters_(new std::vector<CandKinematicVertexFitter>) { 
-  }
-  CandKinematicVertexFitter(const CandKinematicVertexFitter& o) :
-    bField_(o.bField_), pdt_(o.pdt_), fitter_(), fitters_(new std::vector<CandKinematicVertexFitter>) {
-  }
-  void set(const MagneticField * bField) { bField_ = bField; }
-  void set(const ParticleDataTable * pdt) { pdt_ = pdt; }
+  CandKinematicVertexFitter(const edm::ParameterSet &cfg)
+      : bField_(nullptr), pdt_(nullptr), fitter_(), fitters_(new std::vector<CandKinematicVertexFitter>) {}
+  CandKinematicVertexFitter(const CandKinematicVertexFitter &o)
+      : bField_(o.bField_), pdt_(o.pdt_), fitter_(), fitters_(new std::vector<CandKinematicVertexFitter>) {}
+  void set(const MagneticField *bField) { bField_ = bField; }
+  void set(const ParticleDataTable *pdt) { pdt_ = pdt; }
   void set(reco::VertexCompositeCandidate &) const;
-  bool fit(const std::vector<RefCountedKinematicParticle> & tracks) const;
+  bool fit(const std::vector<RefCountedKinematicParticle> &tracks) const;
   RefCountedKinematicParticle currentParticle() const {
     tree_->movePointerToTheTop();
     return tree_->currentParticle();
   }
+
 private:
-  const MagneticField * bField_;
-  const ParticleDataTable * pdt_;
+  const MagneticField *bField_;
+  const ParticleDataTable *pdt_;
   void fill(std::vector<RefCountedKinematicParticle> &,
-	    std::vector<reco::Candidate *> &,
-	    std::vector<reco::RecoCandidate::TrackType> &,
-	    reco::Candidate &) const;
+            std::vector<reco::Candidate *> &,
+            std::vector<reco::RecoCandidate::TrackType> &,
+            reco::Candidate &) const;
   /// fitter
   KinematicParticleVertexFitter fitter_;
   /// fit tree

@@ -9,38 +9,33 @@
 
 #include "DataFormats/PatCandidates/interface/Flags.h"
 
+TtFullHadSignalSelMVATrainer::TtFullHadSignalSelMVATrainer(const edm::ParameterSet& cfg)
+    : jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
+      genEvtToken_(consumes<TtGenEvent>(edm::InputTag("genEvt"))),
+      whatData_(cfg.getParameter<int>("whatData")),
+      maxEv_(cfg.getParameter<int>("maxEv")),
+      weight_(cfg.getParameter<double>("weight")) {}
 
-TtFullHadSignalSelMVATrainer::TtFullHadSignalSelMVATrainer(const edm::ParameterSet& cfg):
-  jetsToken_      (consumes< std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
-  genEvtToken_      (consumes<TtGenEvent>(edm::InputTag("genEvt"))),
-  whatData_  (cfg.getParameter<int>("whatData")),
-  maxEv_     (cfg.getParameter<int>("maxEv")),
-  weight_    (cfg.getParameter<double>("weight"))
-{
-}
+TtFullHadSignalSelMVATrainer::~TtFullHadSignalSelMVATrainer() {}
 
-TtFullHadSignalSelMVATrainer::~TtFullHadSignalSelMVATrainer()
-{
-}
-
-void
-TtFullHadSignalSelMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
-{
+void TtFullHadSignalSelMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& setup) {
   //communication with CMSSW CondDB
   mvaComputer.update<TtFullHadSignalSelMVARcd>("trainer", setup, "traintreeSaver");
 
   // can occur in the last iteration when the
   // MVATrainer is about to save the result
-  if(!mvaComputer) return;
+  if (!mvaComputer)
+    return;
 
   // get the jets out of the event
-  edm::Handle< std::vector<pat::Jet> > jets;
+  edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByToken(jetsToken_, jets);
 
   //count the number of selected events
   selEv++;
   //skip event if enough events are already selected
-  if(selEv>maxEv_ && maxEv_!=-1) return;
+  if (selEv > maxEv_ && maxEv_ != -1)
+    return;
 
   //calculation of InputVariables
   //see TopQuarkAnalysis/TopTools/interface/TtFullHadSignalSel.h
@@ -50,38 +45,37 @@ TtFullHadSignalSelMVATrainer::analyze(const edm::Event& evt, const edm::EventSet
 
   TtFullHadSignalSel selection(*jets);
 
-  if(whatData_==-1) {
+  if (whatData_ == -1) {
     //your training-file contains both, signal and background events
 
     edm::Handle<TtGenEvent> genEvt;
     evt.getByToken(genEvtToken_, genEvt);
 
     bool isSignal = false;
-    if(genEvt->isTtBar()){
-      if(genEvt->isFullHadronic()) isSignal = true;
+    if (genEvt->isTtBar()) {
+      if (genEvt->isFullHadronic())
+        isSignal = true;
     }
     evaluateTtFullHadSignalSel(mvaComputer, selection, weight_, true, isSignal);
-  }
-  else {
-
-    if(whatData_==1){
+  } else {
+    if (whatData_ == 1) {
       //your tree contains only signal events
 
       evaluateTtFullHadSignalSel(mvaComputer, selection, weight_, true, true);
-    }
-    else if(whatData_==0){
+    } else if (whatData_ == 0) {
       //your tree contains only background events
 
       evaluateTtFullHadSignalSel(mvaComputer, selection, weight_, true, false);
-    }
-    else std::cout<<"Config File Error!! Please check <whatData> in TtFullHadSignalSelMVATrainer_cfi";
+    } else
+      std::cout << "Config File Error!! Please check <whatData> in TtFullHadSignalSelMVATrainer_cfi";
   }
 }
 
-void TtFullHadSignalSelMVATrainer::beginJob(){
+void TtFullHadSignalSelMVATrainer::beginJob() {
   selEv = 0;
-  if(whatData_!=-1 && whatData_!=0 && whatData_!=1){
-    std::cout<<"Config File Error!! Please check <whatData> in TtFullHadSignalSelMVATrainer_cfi"<<std::endl;;
+  if (whatData_ != -1 && whatData_ != 0 && whatData_ != 1) {
+    std::cout << "Config File Error!! Please check <whatData> in TtFullHadSignalSelMVATrainer_cfi" << std::endl;
+    ;
     return;
   }
 }

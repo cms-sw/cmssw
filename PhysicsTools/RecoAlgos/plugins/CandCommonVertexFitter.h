@@ -8,22 +8,20 @@
 
 namespace reco {
   namespace modules {
-    template<typename Fitter>
+    template <typename Fitter>
     struct CandVertexFitterEventSetupInit {
-      static void init(CandCommonVertexFitter<Fitter> & fitter, 
-		       const edm::Event & evt,
-		       const edm::EventSetup& es) { 
-	edm::ESHandle<MagneticField> h;
-	es.get<IdealMagneticFieldRecord>().get(h);
-	fitter.set(h.product());
+      static void init(CandCommonVertexFitter<Fitter>& fitter, const edm::Event& evt, const edm::EventSetup& es) {
+        edm::ESHandle<MagneticField> h;
+        es.get<IdealMagneticFieldRecord>().get(h);
+        fitter.set(h.product());
       }
     };
 
-    template<typename Fitter>
+    template <typename Fitter>
     struct EventSetupInit<CandCommonVertexFitter<Fitter> > {
       typedef CandVertexFitterEventSetupInit<Fitter> type;
     };
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif
