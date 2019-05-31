@@ -9,10 +9,10 @@
  *
  */
 
-#include <map>
-#include <assert.h>
-#include "TGraph.h"
 #include "TArrayD.h"
+#include "TGraph.h"
+#include <cassert>
+#include <map>
 
 class BTagPerformance {
 
