@@ -30,7 +30,7 @@ class FFTSpecificScaleCalculatorFactory :
 {
     typedef DefaultFFTJetObjectFactory<AbsFFTSpecificScaleCalculator> Base;
     friend class StaticFFTJetObjectFactory<FFTSpecificScaleCalculatorFactory>;
-    FFTSpecificScaleCalculatorFactory();
+    FFTSpecificScaleCalculatorFactory(); //NOLINT
 };
 
 typedef StaticFFTJetObjectFactory<FFTSpecificScaleCalculatorFactory>
