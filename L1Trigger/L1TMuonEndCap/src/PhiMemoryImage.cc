@@ -7,24 +7,17 @@
 
 #define UINT64_BITS 64
 
+PhiMemoryImage::PhiMemoryImage() { reset(); }
 
-PhiMemoryImage::PhiMemoryImage() {
-  reset();
-}
-
-PhiMemoryImage::~PhiMemoryImage() {
-
-}
+PhiMemoryImage::~PhiMemoryImage() {}
 
 PhiMemoryImage::PhiMemoryImage(const PhiMemoryImage& other) {
-  std::copy(&(other._buffer[0][0]), &(other._buffer[0][0]) + (_layers*_units), &(_buffer[0][0]));
+  std::copy(&(other._buffer[0][0]), &(other._buffer[0][0]) + (_layers * _units), &(_buffer[0][0]));
 
   _straightness = other._straightness;
 }
 
-PhiMemoryImage::PhiMemoryImage(PhiMemoryImage&& other) noexcept : PhiMemoryImage() {
-  swap(other);
-}
+PhiMemoryImage::PhiMemoryImage(PhiMemoryImage&& other) noexcept : PhiMemoryImage() { swap(other); }
 
 // Copy-and-swap idiom
 PhiMemoryImage& PhiMemoryImage::operator=(PhiMemoryImage other) {
@@ -33,13 +26,13 @@ PhiMemoryImage& PhiMemoryImage::operator=(PhiMemoryImage other) {
 }
 
 void PhiMemoryImage::swap(PhiMemoryImage& other) {
-  std::swap_ranges(&(other._buffer[0][0]), &(other._buffer[0][0]) + (_layers*_units), &(_buffer[0][0]));
+  std::swap_ranges(&(other._buffer[0][0]), &(other._buffer[0][0]) + (_layers * _units), &(_buffer[0][0]));
 
   std::swap(other._straightness, _straightness);
 }
 
 void PhiMemoryImage::reset() {
-  std::fill(&(_buffer[0][0]), &(_buffer[0][0]) + (_layers*_units), 0);
+  std::fill(&(_buffer[0][0]), &(_buffer[0][0]) + (_layers * _units), 0);
 
   _straightness = 0;
 }
@@ -66,12 +59,12 @@ bool PhiMemoryImage::test_bit(unsigned int layer, unsigned int bit) const {
 }
 
 void PhiMemoryImage::set_word(unsigned int layer, unsigned int unit, value_type value) {
-  check_input(layer, unit*UINT64_BITS);
+  check_input(layer, unit * UINT64_BITS);
   _buffer[layer][unit] = value;
 }
 
 PhiMemoryImage::value_type PhiMemoryImage::get_word(unsigned int layer, unsigned int unit) const {
-  check_input(layer, unit*UINT64_BITS);
+  check_input(layer, unit * UINT64_BITS);
   return _buffer[layer][unit];
 }
 
@@ -93,16 +86,16 @@ void PhiMemoryImage::check_input(unsigned int layer, unsigned int bit) const {
 // See https://en.wikipedia.org/wiki/Circular_shift#Implementing_circular_shifts
 // return (val << len) | ((unsigned) val >> (-len & (sizeof(INT) * CHAR_BIT - 1)));
 void PhiMemoryImage::rotl(unsigned int n) {
-  if (n >= _units*UINT64_BITS)
+  if (n >= _units * UINT64_BITS)
     return;
 
   value_type tmp[_layers][_units];
-  std::copy(&(_buffer[0][0]), &(_buffer[0][0]) + (_layers*_units), &(tmp[0][0]));
+  std::copy(&(_buffer[0][0]), &(_buffer[0][0]) + (_layers * _units), &(tmp[0][0]));
 
   const unsigned int mask = UINT64_BITS - 1;
   const unsigned int n1 = n % UINT64_BITS;
   const unsigned int n2 = _units - (n / UINT64_BITS);
-  const unsigned int n3 = (n1 == 0) ? n2+1 : n2;
+  const unsigned int n3 = (n1 == 0) ? n2 + 1 : n2;
 
   unsigned int i = 0, j = 0, j_curr = 0, j_next = 0;
   for (i = 0; i < _layers; ++i) {
@@ -113,24 +106,24 @@ void PhiMemoryImage::rotl(unsigned int n) {
       // if n2 == 1:
       //   j_curr = 2, 0, 1
       //   j_next = 1, 2, 0
-      j_curr = (n2+j) % _units;
-      j_next = (n3+j+_units-1) % _units;
+      j_curr = (n2 + j) % _units;
+      j_next = (n3 + j + _units - 1) % _units;
       _buffer[i][j] = (tmp[i][j_curr] << n1) | (tmp[i][j_next] >> (-n1 & mask));
     }
   }
 }
 
 void PhiMemoryImage::rotr(unsigned int n) {
-  if (n >= _units*UINT64_BITS)
+  if (n >= _units * UINT64_BITS)
     return;
 
   value_type tmp[_layers][_units];
-  std::copy(&(_buffer[0][0]), &(_buffer[0][0]) + (_layers*_units), &(tmp[0][0]));
+  std::copy(&(_buffer[0][0]), &(_buffer[0][0]) + (_layers * _units), &(tmp[0][0]));
 
   const unsigned int mask = UINT64_BITS - 1;
   const unsigned int n1 = n % UINT64_BITS;
   const unsigned int n2 = n / UINT64_BITS;
-  const unsigned int n3 = (n1 == 0) ? n2+_units-1 : n2;
+  const unsigned int n3 = (n1 == 0) ? n2 + _units - 1 : n2;
 
   unsigned int i = 0, j = 0, j_curr = 0, j_next = 0;
   for (i = 0; i < _layers; ++i) {
@@ -141,29 +134,27 @@ void PhiMemoryImage::rotr(unsigned int n) {
       // if n2 == 1:
       //   j_curr = 2, 0, 1
       //   j_next = 0, 1, 2
-      j_curr = (n2+j)% _units;
-      j_next = (n3+j+1) % _units;
+      j_curr = (n2 + j) % _units;
+      j_next = (n3 + j + 1) % _units;
       _buffer[i][j] = (tmp[i][j_curr] >> n1) | (tmp[i][j_next] << (-n1 & mask));
     }
   }
 }
 
 unsigned int PhiMemoryImage::op_and(const PhiMemoryImage& other) const {
-  if (not(_layers == 4 && _units == 3))
-    { edm::LogError("L1T") << "_layers = " << _layers << ", _units = " << _units; return 0; }
+  if (not(_layers == 4 && _units == 3)) {
+    edm::LogError("L1T") << "_layers = " << _layers << ", _units = " << _units;
+    return 0;
+  }
 
   // Unroll
-  bool b_st1 = (_buffer[0][0] & other._buffer[0][0]) ||
-               (_buffer[0][1] & other._buffer[0][1]) ||
+  bool b_st1 = (_buffer[0][0] & other._buffer[0][0]) || (_buffer[0][1] & other._buffer[0][1]) ||
                (_buffer[0][2] & other._buffer[0][2]);
-  bool b_st2 = (_buffer[1][0] & other._buffer[1][0]) ||
-               (_buffer[1][1] & other._buffer[1][1]) ||
+  bool b_st2 = (_buffer[1][0] & other._buffer[1][0]) || (_buffer[1][1] & other._buffer[1][1]) ||
                (_buffer[1][2] & other._buffer[1][2]);
-  bool b_st3 = (_buffer[2][0] & other._buffer[2][0]) ||
-               (_buffer[2][1] & other._buffer[2][1]) ||
+  bool b_st3 = (_buffer[2][0] & other._buffer[2][0]) || (_buffer[2][1] & other._buffer[2][1]) ||
                (_buffer[2][2] & other._buffer[2][2]);
-  bool b_st4 = (_buffer[3][0] & other._buffer[3][0]) ||
-               (_buffer[3][1] & other._buffer[3][1]) ||
+  bool b_st4 = (_buffer[3][0] & other._buffer[3][0]) || (_buffer[3][1] & other._buffer[3][1]) ||
                (_buffer[3][2] & other._buffer[3][2]);
 
   //   bit 0: st3 or st4 hit
@@ -175,10 +166,13 @@ unsigned int PhiMemoryImage::op_and(const PhiMemoryImage& other) const {
 
 void PhiMemoryImage::print(std::ostream& out) const {
   constexpr int N = 160;
-  out << std::bitset<N-128>(_buffer[3][2]) << std::bitset<128-64>(_buffer[3][1]) << std::bitset<64>(_buffer[3][0]) << std::endl;
-  out << std::bitset<N-128>(_buffer[2][2]) << std::bitset<128-64>(_buffer[2][1]) << std::bitset<64>(_buffer[2][0]) << std::endl;
-  out << std::bitset<N-128>(_buffer[1][2]) << std::bitset<128-64>(_buffer[1][1]) << std::bitset<64>(_buffer[1][0]) << std::endl;
-  out << std::bitset<N-128>(_buffer[0][2]) << std::bitset<128-64>(_buffer[0][1]) << std::bitset<64>(_buffer[0][0]);
+  out << std::bitset<N - 128>(_buffer[3][2]) << std::bitset<128 - 64>(_buffer[3][1]) << std::bitset<64>(_buffer[3][0])
+      << std::endl;
+  out << std::bitset<N - 128>(_buffer[2][2]) << std::bitset<128 - 64>(_buffer[2][1]) << std::bitset<64>(_buffer[2][0])
+      << std::endl;
+  out << std::bitset<N - 128>(_buffer[1][2]) << std::bitset<128 - 64>(_buffer[1][1]) << std::bitset<64>(_buffer[1][0])
+      << std::endl;
+  out << std::bitset<N - 128>(_buffer[0][2]) << std::bitset<128 - 64>(_buffer[0][1]) << std::bitset<64>(_buffer[0][0]);
 }
 
 // _____________________________________________________________________________

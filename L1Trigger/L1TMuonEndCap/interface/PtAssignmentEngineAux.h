@@ -7,7 +7,6 @@
 #include <cmath>
 #include <vector>
 
-
 class PtAssignmentEngineAux {
 public:
   // Functions for GMT quantities
@@ -22,8 +21,7 @@ public:
 
   int getGMTQuality(int mode, int theta, bool promoteMode7, int version) const;
 
-  std::pair<int,int> getGMTCharge(int mode, const std::vector<int>& phidiffs) const;
-
+  std::pair<int, int> getGMTCharge(int mode, const std::vector<int>& phidiffs) const;
 };
 
 #endif

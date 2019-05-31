@@ -31,21 +31,29 @@ public:
     std::vector<unsigned> uparams_;
     std::vector<int> iparams_;
     std::vector<std::string> sparams_;
-    Node(){ type_="unspecified"; version_=0; }
+    Node() {
+      type_ = "unspecified";
+      version_ = 0;
+    }
     COND_SERIALIZABLE;
   };
   unsigned version_;
-  unsigned fwVersion_; //obsolete
-  
+  unsigned fwVersion_;  //obsolete
+
   int bxMin_;  //obsolete
   int bxMax_;  //obsolete
   std::vector<Node> pnodes_;
 
-  L1TMuonGlobalParams_PUBLIC(){ version_=Version; fwVersion_ = 0; bxMin_ = 0; bxMax_ = 0; }
+  L1TMuonGlobalParams_PUBLIC() {
+    version_ = Version;
+    fwVersion_ = 0;
+    bxMin_ = 0;
+    bxMax_ = 0;
+  }
 };
 
-const L1TMuonGlobalParams_PUBLIC & cast_to_L1TMuonGlobalParams_PUBLIC(const L1TMuonGlobalParams & x);
+const L1TMuonGlobalParams_PUBLIC& cast_to_L1TMuonGlobalParams_PUBLIC(const L1TMuonGlobalParams& x);
 
-const L1TMuonGlobalParams & cast_to_L1TMuonGlobalParams(const L1TMuonGlobalParams_PUBLIC & x);
+const L1TMuonGlobalParams& cast_to_L1TMuonGlobalParams(const L1TMuonGlobalParams_PUBLIC& x);
 
 #endif

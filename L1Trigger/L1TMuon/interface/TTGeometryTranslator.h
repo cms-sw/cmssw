@@ -11,7 +11,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <memory>
 
-
 // forwards
 namespace edm {
   class EventSetup;
@@ -31,12 +30,12 @@ namespace L1TMuon {
     ~TTGeometryTranslator();
 
     // Things you have to do to just get simple det id info...
-    bool isBarrel  (const TTTriggerPrimitive&) const;
+    bool isBarrel(const TTTriggerPrimitive&) const;
     bool isPSModule(const TTTriggerPrimitive&) const;
-    int  region    (const TTTriggerPrimitive&) const;  // 0 for Barrel, +/-1 for +/- Endcap
-    int  layer     (const TTTriggerPrimitive&) const;
-    int  ring      (const TTTriggerPrimitive&) const;
-    int  module    (const TTTriggerPrimitive&) const;
+    int region(const TTTriggerPrimitive&) const;  // 0 for Barrel, +/-1 for +/- Endcap
+    int layer(const TTTriggerPrimitive&) const;
+    int ring(const TTTriggerPrimitive&) const;
+    int module(const TTTriggerPrimitive&) const;
 
     // The translations
     double calculateGlobalEta(const TTTriggerPrimitive&) const;
@@ -69,6 +68,6 @@ namespace L1TMuon {
     double calcTTSpecificPhi(const TTTriggerPrimitive&) const;
     double calcTTSpecificBend(const TTTriggerPrimitive&) const;
   };
-}
+}  // namespace L1TMuon
 
 #endif

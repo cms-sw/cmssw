@@ -4,7 +4,7 @@
 /// \author: Thomas Reis
 ///
 //
-// This class implements the RankPtQualLUT factory. Based on the firmware 
+// This class implements the RankPtQualLUT factory. Based on the firmware
 // version it selects the appropriate concrete implementation.
 //
 
@@ -15,27 +15,30 @@
 using namespace edm;
 
 namespace l1t {
-  MicroGMTRankPtQualLUTFactory::ReturnType
-  MicroGMTRankPtQualLUTFactory::create(const std::string& filename, const int fwVersion, const unsigned ptFactor, const unsigned qualFactor) {
+  MicroGMTRankPtQualLUTFactory::ReturnType MicroGMTRankPtQualLUTFactory::create(const std::string& filename,
+                                                                                const int fwVersion,
+                                                                                const unsigned ptFactor,
+                                                                                const unsigned qualFactor) {
     ReturnType p;
 
     if (fwVersion >= 1) {
       p = std::make_shared<l1t::MicroGMTRankPtQualLUT>(filename, ptFactor, qualFactor);
     } else {
-      LogError("MicroGMTRankPtQualLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
+      LogError("MicroGMTRankPtQualLUTFactory")
+          << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }
     return p;
   }
 
-  MicroGMTRankPtQualLUTFactory::ReturnType
-  MicroGMTRankPtQualLUTFactory::create(l1t::LUT* lut, const int fwVersion) {
+  MicroGMTRankPtQualLUTFactory::ReturnType MicroGMTRankPtQualLUTFactory::create(l1t::LUT* lut, const int fwVersion) {
     ReturnType p;
 
     if (fwVersion >= 1) {
       p = std::make_shared<l1t::MicroGMTRankPtQualLUT>(lut);
     } else {
-      LogError("MicroGMTRankPtQualLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
+      LogError("MicroGMTRankPtQualLUTFactory")
+          << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }
     return p;
   }
-}
+}  // namespace l1t
