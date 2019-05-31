@@ -80,6 +80,7 @@ private:
   float moduleY_;
   float moduleZ_;
   int moduleTC_N_;
+  int moduleLinks_;
   std::shared_ptr<int> moduleTC_id_;
   std::shared_ptr<int> moduleTC_zside_;
   std::shared_ptr<int> moduleTC_subdet_;
@@ -202,6 +203,7 @@ HGCalTriggerGeomTesterV9Imp2::HGCalTriggerGeomTesterV9Imp2(const edm::ParameterS
   treeModules_->Branch("ieta", &moduleIEta_, "ieta/I");
   treeModules_->Branch("iphi", &moduleIPhi_, "iphi/I");
   treeModules_->Branch("module", &module_, "module/I");
+  treeModules_->Branch("links", &moduleLinks_, "links/I");
   treeModules_->Branch("x", &moduleX_, "x/F");
   treeModules_->Branch("y", &moduleY_, "y/F");
   treeModules_->Branch("z", &moduleZ_, "z/F");
@@ -862,6 +864,11 @@ void HGCalTriggerGeomTesterV9Imp2::fillTriggerGeometry()
       module_ = si_id.wafer();
     }
     moduleTC_N_ = module_triggercells.second.size();
+    if (triggerGeometry_->disconnectedModule(id)) {
+      moduleLinks_ = 0;
+    } else {
+      moduleLinks_ = triggerGeometry_->getLinksInModule(id);
+    }
     //
     setTreeModuleSize(moduleTC_N_);
     size_t itc = 0;
