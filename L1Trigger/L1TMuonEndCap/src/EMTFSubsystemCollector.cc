@@ -5,55 +5,53 @@
 
 #include "helper.h"  // adjacent_cluster
 
-
 // Specialized for CSC
-template<>
+template <>
 void EMTFSubsystemCollector::extractPrimitives(
-    CSCTag tag, // Defined in interface/EMTFSubsystemTag.h, maps to CSCCorrelatedLCTDigi
+    CSCTag tag,  // Defined in interface/EMTFSubsystemTag.h, maps to CSCCorrelatedLCTDigi
     const edm::Event& iEvent,
     const edm::EDGetToken& token,
-    TriggerPrimitiveCollection& out
-) const {
+    TriggerPrimitiveCollection& out) const {
   edm::Handle<CSCTag::digi_collection> cscDigis;
   iEvent.getByToken(token, cscDigis);
 
   auto chamber = cscDigis->begin();
-  auto chend   = cscDigis->end();
-  for( ; chamber != chend; ++chamber ) {
+  auto chend = cscDigis->end();
+  for (; chamber != chend; ++chamber) {
     auto digi = (*chamber).second.first;
     auto dend = (*chamber).second.second;
-    for( ; digi != dend; ++digi ) {
+    for (; digi != dend; ++digi) {
       // emplace_back does the same thing as push_back: appends to the end of the vector
-      out.emplace_back((*chamber).first,*digi);
+      out.emplace_back((*chamber).first, *digi);
     }
   }
   return;
 }
 
 // Specialized for RPC
-template<>
-void EMTFSubsystemCollector::extractPrimitives(
-    RPCTag tag, // Defined in interface/EMTFSubsystemTag.h, maps to RPCDigi
-    const edm::Event& iEvent,
-    const edm::EDGetToken& token,
-    TriggerPrimitiveCollection& out
-) const {
+template <>
+void EMTFSubsystemCollector::extractPrimitives(RPCTag tag,  // Defined in interface/EMTFSubsystemTag.h, maps to RPCDigi
+                                               const edm::Event& iEvent,
+                                               const edm::EDGetToken& token,
+                                               TriggerPrimitiveCollection& out) const {
   edm::Handle<RPCTag::digi_collection> rpcDigis;
   iEvent.getByToken(token, rpcDigis);
 
   TriggerPrimitiveCollection muon_primitives;
 
   auto chamber = rpcDigis->begin();
-  auto chend   = rpcDigis->end();
-  for( ; chamber != chend; ++chamber ) {
+  auto chend = rpcDigis->end();
+  for (; chamber != chend; ++chamber) {
     auto digi = (*chamber).second.first;
     auto dend = (*chamber).second.second;
-    for( ; digi != dend; ++digi ) {
+    for (; digi != dend; ++digi) {
       if ((*chamber).first.region() != 0) {  // 0 is barrel
-        if ((*chamber).first.station() <= 2 && (*chamber).first.ring() == 3)  continue;  // do not include RE1/3, RE2/3
-        if ((*chamber).first.station() >= 3 && (*chamber).first.ring() == 1)  continue;  // do not include RE3/1, RE4/1
+        if ((*chamber).first.station() <= 2 && (*chamber).first.ring() == 3)
+          continue;  // do not include RE1/3, RE2/3
+        if ((*chamber).first.station() >= 3 && (*chamber).first.ring() == 1)
+          continue;  // do not include RE3/1, RE4/1
 
-        muon_primitives.emplace_back((*chamber).first,*digi);
+        muon_primitives.emplace_back((*chamber).first, *digi);
       }
     }
   }
@@ -68,13 +66,12 @@ void EMTFSubsystemCollector::extractPrimitives(
 }
 
 // Specialized for CPPF
-template<>
+template <>
 void EMTFSubsystemCollector::extractPrimitives(
-    emtf::CPPFTag tag, // Defined in interface/EMTFSubsystemTag.h, maps to CPPFDigi
+    emtf::CPPFTag tag,  // Defined in interface/EMTFSubsystemTag.h, maps to CPPFDigi
     const edm::Event& iEvent,
     const edm::EDGetToken& token,
-    TriggerPrimitiveCollection& out
-) const {
+    TriggerPrimitiveCollection& out) const {
   edm::Handle<emtf::CPPFTag::digi_collection> cppfDigis;
   iEvent.getByToken(token, cppfDigis);
 
@@ -87,25 +84,24 @@ void EMTFSubsystemCollector::extractPrimitives(
 }
 
 // Specialized for GEM
-template<>
+template <>
 void EMTFSubsystemCollector::extractPrimitives(
-    GEMTag tag, // Defined in interface/EMTFSubsystemTag.h, maps to GEMPadDigi
+    GEMTag tag,  // Defined in interface/EMTFSubsystemTag.h, maps to GEMPadDigi
     const edm::Event& iEvent,
     const edm::EDGetToken& token,
-    TriggerPrimitiveCollection& out
-) const {
+    TriggerPrimitiveCollection& out) const {
   edm::Handle<GEMTag::digi_collection> gemDigis;
   iEvent.getByToken(token, gemDigis);
 
   TriggerPrimitiveCollection muon_primitives;
 
   auto chamber = gemDigis->begin();
-  auto chend   = gemDigis->end();
-  for( ; chamber != chend; ++chamber ) {
+  auto chend = gemDigis->end();
+  for (; chamber != chend; ++chamber) {
     auto digi = (*chamber).second.first;
     auto dend = (*chamber).second.second;
-    for( ; digi != dend; ++digi ) {
-      muon_primitives.emplace_back((*chamber).first,*digi);
+    for (; digi != dend; ++digi) {
+      muon_primitives.emplace_back((*chamber).first, *digi);
     }
   }
 
@@ -121,16 +117,14 @@ void EMTFSubsystemCollector::extractPrimitives(
   return;
 }
 
-
 // _____________________________________________________________________________
 // RPC functions
-void EMTFSubsystemCollector::cluster_rpc(const TriggerPrimitiveCollection& muon_primitives, TriggerPrimitiveCollection& clus_muon_primitives) const {
+void EMTFSubsystemCollector::cluster_rpc(const TriggerPrimitiveCollection& muon_primitives,
+                                         TriggerPrimitiveCollection& clus_muon_primitives) const {
   // Define operator to select RPC digis
   struct {
     typedef TriggerPrimitive value_type;
-    bool operator()(const value_type& x) const {
-      return (x.subsystem() == TriggerPrimitive::kRPC);
-    }
+    bool operator()(const value_type& x) const { return (x.subsystem() == TriggerPrimitive::kRPC); }
   } rpc_digi_select;
 
   // Define operator to sort the RPC digis prior to clustering.
@@ -140,10 +134,8 @@ void EMTFSubsystemCollector::cluster_rpc(const TriggerPrimitiveCollection& muon_
   struct {
     typedef TriggerPrimitive value_type;
     bool operator()(const value_type& lhs, const value_type& rhs) const {
-      bool cmp = (
-          std::make_pair(std::make_pair(lhs.rawId(), lhs.getRPCData().bx), lhs.getRPCData().strip) <
-          std::make_pair(std::make_pair(rhs.rawId(), rhs.getRPCData().bx), rhs.getRPCData().strip)
-      );
+      bool cmp = (std::make_pair(std::make_pair(lhs.rawId(), lhs.getRPCData().bx), lhs.getRPCData().strip) <
+                  std::make_pair(std::make_pair(rhs.rawId(), rhs.getRPCData().bx), rhs.getRPCData().strip));
       return cmp;
     }
   } rpc_digi_less;
@@ -151,10 +143,8 @@ void EMTFSubsystemCollector::cluster_rpc(const TriggerPrimitiveCollection& muon_
   struct {
     typedef TriggerPrimitive value_type;
     bool operator()(const value_type& lhs, const value_type& rhs) const {
-      bool cmp = (
-          std::make_pair(std::make_pair(lhs.rawId(), lhs.getRPCData().bx), lhs.getRPCData().strip) ==
-          std::make_pair(std::make_pair(rhs.rawId(), rhs.getRPCData().bx), rhs.getRPCData().strip)
-      );
+      bool cmp = (std::make_pair(std::make_pair(lhs.rawId(), lhs.getRPCData().bx), lhs.getRPCData().strip) ==
+                  std::make_pair(std::make_pair(rhs.rawId(), rhs.getRPCData().bx), rhs.getRPCData().strip));
       return cmp;
     }
   } rpc_digi_equal;
@@ -165,11 +155,8 @@ void EMTFSubsystemCollector::cluster_rpc(const TriggerPrimitiveCollection& muon_
   struct {
     typedef TriggerPrimitive value_type;
     bool operator()(const value_type& lhs, const value_type& rhs) const {
-      bool cmp = (
-          (lhs.rawId() == rhs.rawId()) &&
-          (lhs.getRPCData().bx == rhs.getRPCData().bx) &&
-          (lhs.getRPCData().strip_hi+1 == rhs.getRPCData().strip_low)
-      );
+      bool cmp = ((lhs.rawId() == rhs.rawId()) && (lhs.getRPCData().bx == rhs.getRPCData().bx) &&
+                  (lhs.getRPCData().strip_hi + 1 == rhs.getRPCData().strip_low));
       return cmp;
     }
   } rpc_digi_adjacent;
@@ -185,28 +172,26 @@ void EMTFSubsystemCollector::cluster_rpc(const TriggerPrimitiveCollection& muon_
   // Do clustering using C++ <algorithm> functions
 
   // 1. Select RPC digis
-  std::copy_if(muon_primitives.begin(), muon_primitives.end(), std::back_inserter(clus_muon_primitives), rpc_digi_select);
+  std::copy_if(
+      muon_primitives.begin(), muon_primitives.end(), std::back_inserter(clus_muon_primitives), rpc_digi_select);
 
   // 2. Sort
   std::stable_sort(clus_muon_primitives.begin(), clus_muon_primitives.end(), rpc_digi_less);
 
   // 3. Remove duplicates
-  clus_muon_primitives.erase(
-      std::unique(clus_muon_primitives.begin(), clus_muon_primitives.end(), rpc_digi_equal),
-      clus_muon_primitives.end()
-  );
+  clus_muon_primitives.erase(std::unique(clus_muon_primitives.begin(), clus_muon_primitives.end(), rpc_digi_equal),
+                             clus_muon_primitives.end());
 
   // 4. Cluster adjacent digis
   clus_muon_primitives.erase(
       adjacent_cluster(clus_muon_primitives.begin(), clus_muon_primitives.end(), rpc_digi_adjacent, rpc_digi_cluster),
-      clus_muon_primitives.end()
-  );
+      clus_muon_primitives.end());
 }
-
 
 // _____________________________________________________________________________
 // GEM functions
-void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& muon_primitives, TriggerPrimitiveCollection& copad_muon_primitives) const {
+void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& muon_primitives,
+                                            TriggerPrimitiveCollection& copad_muon_primitives) const {
   // Use the inner layer (layer 1) hit coordinates as output, and the outer
   // layer (layer 2) as coincidence
   // Copied from: L1Trigger/CSCTriggerPrimitives/src/GEMCoPadProcessor.cc
@@ -217,7 +202,7 @@ void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& mu
 
   std::map<int, TriggerPrimitiveCollection> in_pads_layer1, in_pads_layer2;
 
-  TriggerPrimitiveCollection::const_iterator tp_it  = muon_primitives.begin();
+  TriggerPrimitiveCollection::const_iterator tp_it = muon_primitives.begin();
   TriggerPrimitiveCollection::const_iterator tp_end = muon_primitives.end();
 
   for (; tp_it != tp_end; ++tp_it) {
@@ -253,7 +238,7 @@ void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& mu
     }
   }
 
-  std::map<int, TriggerPrimitiveCollection>::iterator map_tp_it  = in_pads_layer1.begin();
+  std::map<int, TriggerPrimitiveCollection>::iterator map_tp_it = in_pads_layer1.begin();
   std::map<int, TriggerPrimitiveCollection>::iterator map_tp_end = in_pads_layer1.end();
 
   for (; map_tp_it != map_tp_end; ++map_tp_it) {
@@ -266,7 +251,8 @@ void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& mu
 
     // empty range = no possible coincidence pads
     auto found = in_pads_layer2.find(co_id);
-    if (found == in_pads_layer2.end())  continue;
+    if (found == in_pads_layer2.end())
+      continue;
 
     // now let's correlate the pads in two layers of this partition
     const TriggerPrimitiveCollection& co_pads = found->second;
@@ -290,13 +276,12 @@ void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& mu
   }
 }
 
-void EMTFSubsystemCollector::cluster_gem(const TriggerPrimitiveCollection& muon_primitives, TriggerPrimitiveCollection& clus_muon_primitives) const {
+void EMTFSubsystemCollector::cluster_gem(const TriggerPrimitiveCollection& muon_primitives,
+                                         TriggerPrimitiveCollection& clus_muon_primitives) const {
   // Define operator to select GEM digis
   struct {
     typedef TriggerPrimitive value_type;
-    bool operator()(const value_type& x) const {
-      return (x.subsystem() == TriggerPrimitive::kGEM);
-    }
+    bool operator()(const value_type& x) const { return (x.subsystem() == TriggerPrimitive::kGEM); }
   } gem_digi_select;
 
   // Define operator to sort the GEM digis prior to clustering.
@@ -306,10 +291,8 @@ void EMTFSubsystemCollector::cluster_gem(const TriggerPrimitiveCollection& muon_
   struct {
     typedef TriggerPrimitive value_type;
     bool operator()(const value_type& lhs, const value_type& rhs) const {
-      bool cmp = (
-          std::make_pair(std::make_pair(lhs.rawId(), lhs.getGEMData().bx), lhs.getGEMData().pad) <
-          std::make_pair(std::make_pair(rhs.rawId(), rhs.getGEMData().bx), rhs.getGEMData().pad)
-      );
+      bool cmp = (std::make_pair(std::make_pair(lhs.rawId(), lhs.getGEMData().bx), lhs.getGEMData().pad) <
+                  std::make_pair(std::make_pair(rhs.rawId(), rhs.getGEMData().bx), rhs.getGEMData().pad));
       return cmp;
     }
   } gem_digi_less;
@@ -317,10 +300,8 @@ void EMTFSubsystemCollector::cluster_gem(const TriggerPrimitiveCollection& muon_
   struct {
     typedef TriggerPrimitive value_type;
     bool operator()(const value_type& lhs, const value_type& rhs) const {
-      bool cmp = (
-          std::make_pair(std::make_pair(lhs.rawId(), lhs.getGEMData().bx), lhs.getGEMData().pad) ==
-          std::make_pair(std::make_pair(rhs.rawId(), rhs.getGEMData().bx), rhs.getGEMData().pad)
-      );
+      bool cmp = (std::make_pair(std::make_pair(lhs.rawId(), lhs.getGEMData().bx), lhs.getGEMData().pad) ==
+                  std::make_pair(std::make_pair(rhs.rawId(), rhs.getGEMData().bx), rhs.getGEMData().pad));
       return cmp;
     }
   } gem_digi_equal;
@@ -331,11 +312,8 @@ void EMTFSubsystemCollector::cluster_gem(const TriggerPrimitiveCollection& muon_
   struct {
     typedef TriggerPrimitive value_type;
     bool operator()(const value_type& lhs, const value_type& rhs) const {
-      bool cmp = (
-          (lhs.rawId() == rhs.rawId()) &&
-          (lhs.getGEMData().bx == rhs.getGEMData().bx) &&
-          (lhs.getGEMData().pad_hi+1 == rhs.getGEMData().pad_low)
-      );
+      bool cmp = ((lhs.rawId() == rhs.rawId()) && (lhs.getGEMData().bx == rhs.getGEMData().bx) &&
+                  (lhs.getGEMData().pad_hi + 1 == rhs.getGEMData().pad_low));
       return cmp;
     }
   } gem_digi_adjacent;
@@ -351,20 +329,18 @@ void EMTFSubsystemCollector::cluster_gem(const TriggerPrimitiveCollection& muon_
   // Do clustering using C++ <algorithm> functions
 
   // 1. Select GEM digis
-  std::copy_if(muon_primitives.begin(), muon_primitives.end(), std::back_inserter(clus_muon_primitives), gem_digi_select);
+  std::copy_if(
+      muon_primitives.begin(), muon_primitives.end(), std::back_inserter(clus_muon_primitives), gem_digi_select);
 
   // 2. Sort
   std::stable_sort(clus_muon_primitives.begin(), clus_muon_primitives.end(), gem_digi_less);
 
   // 3. Remove duplicates
-  clus_muon_primitives.erase(
-      std::unique(clus_muon_primitives.begin(), clus_muon_primitives.end(), gem_digi_equal),
-      clus_muon_primitives.end()
-  );
+  clus_muon_primitives.erase(std::unique(clus_muon_primitives.begin(), clus_muon_primitives.end(), gem_digi_equal),
+                             clus_muon_primitives.end());
 
   // 4. Cluster adjacent digis
   clus_muon_primitives.erase(
       adjacent_cluster(clus_muon_primitives.begin(), clus_muon_primitives.end(), gem_digi_adjacent, gem_digi_cluster),
-      clus_muon_primitives.end()
-  );
+      clus_muon_primitives.end());
 }

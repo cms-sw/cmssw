@@ -6,21 +6,21 @@
 
 namespace l1t {
   class MicroGMTCaloIndexSelectionLUT : public MicroGMTLUT {
-    public: 
-      MicroGMTCaloIndexSelectionLUT() {};
-      explicit MicroGMTCaloIndexSelectionLUT (const std::string& fname, int type);
-      explicit MicroGMTCaloIndexSelectionLUT (l1t::LUT* lut, int type);
-      ~MicroGMTCaloIndexSelectionLUT() override {};
+  public:
+    MicroGMTCaloIndexSelectionLUT(){};
+    explicit MicroGMTCaloIndexSelectionLUT(const std::string& fname, int type);
+    explicit MicroGMTCaloIndexSelectionLUT(l1t::LUT* lut, int type);
+    ~MicroGMTCaloIndexSelectionLUT() override{};
 
-      // returns the index corresponding to the calo tower sum 
-      int lookup(int angle) const;
-      
-      int hashInput(int angle) const { return angle; };
-      void unHashInput(int input, int &angle) const { angle = input; }
-    private:
-      int m_angleInWidth; 
+    // returns the index corresponding to the calo tower sum
+    int lookup(int angle) const;
 
+    int hashInput(int angle) const { return angle; };
+    void unHashInput(int input, int& angle) const { angle = input; }
+
+  private:
+    int m_angleInWidth;
   };
-}
+}  // namespace l1t
 
 #endif /* defined(__l1microgmtcaloindexselectionlut_h) */
