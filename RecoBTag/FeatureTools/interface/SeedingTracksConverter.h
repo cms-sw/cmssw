@@ -29,7 +29,8 @@ namespace btagbtvdeep {
                                         bool computeProbabilities,
                                         std::vector<btagbtvdeep::SeedingTrackFeatures> & seedingT_features_vector
                                         ) ;
-    
+        
+        float logWithOffset(float v, float logOffset=0) {if (v==0.) return 0.; return logOffset + log(std::fabs(v))*std::copysign(1.f, v);};
 }
 
 #endif //RecoBTag_FeatureTools_SeedingTracksConverter_h
