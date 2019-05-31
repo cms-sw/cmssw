@@ -20,6 +20,7 @@ public:
 
 private:
   const PropagationDirection dir_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magToken_;
 };
 
 using namespace edm;
@@ -31,21 +32,16 @@ StraightLinePropagatorESProducer::StraightLinePropagatorESProducer(const edm::Pa
         else if (pdir == "anyDirection")
           return anyDirection;
         return alongMomentum;
-      }(p.getParameter<std::string>("PropagationDirection"))} {
-  std::string myname = p.getParameter<std::string>("ComponentName");
-  setWhatProduced(this, myname);
-}
+      }(p.getParameter<std::string>("PropagationDirection"))},
+      magToken_{setWhatProduced(this, p.getParameter<std::string>("ComponentName"))
+                    .consumesFrom<MagneticField, IdealMagneticFieldRecord>()}
+
+{}
 
 StraightLinePropagatorESProducer::~StraightLinePropagatorESProducer() {}
 
 std::unique_ptr<Propagator> StraightLinePropagatorESProducer::produce(const TrackingComponentsRecord& iRecord) {
-  //   if (_propagator){
-  //     delete _propagator;
-  //     _propagator = 0;
-  //   }
-  ESHandle<MagneticField> magfield;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
-  return std::make_unique<StraightLinePropagator>(&(*magfield), dir_);
+  return std::make_unique<StraightLinePropagator>(&iRecord.get(magToken_), dir_);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(StraightLinePropagatorESProducer);
