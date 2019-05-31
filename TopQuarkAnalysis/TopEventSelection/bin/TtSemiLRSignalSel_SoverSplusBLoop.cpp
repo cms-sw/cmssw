@@ -251,10 +251,10 @@ for (int nrDir =0; nrDir < signal_nrDir; nrDir++){
     if (!gSystem->AccessPathName(signal_ft)) {
       TFile *signal_file = TFile::Open(signal_ft);
       TTree *signal_events = dynamic_cast<TTree*>( signal_file->Get( "Events" ) );
-      assert( signal_events != 0 );
+      assert( signal_events != nullptr );
 
       TBranch * signal_solsbranch  = signal_events->GetBranch( "TtSemiEvtSolutions_solutions__TEST.obj" );
-      assert(   signal_solsbranch != 0 );
+      assert(   signal_solsbranch != nullptr );
       std::vector<TtSemiEvtSolution> signal_sols;
       //signal_solsbranch->SetAddress( & signal_sols );
 
@@ -318,10 +318,10 @@ for (int nrDir =0; nrDir < bckgd_nrDir; nrDir++){
     if (!gSystem->AccessPathName(bckgd_ft)) {
       TFile *bckgd_file = TFile::Open(bckgd_ft);
       TTree *bckgd_events = dynamic_cast<TTree*>( bckgd_file->Get( "Events" ) );
-      assert( bckgd_events != 0 );
+      assert( bckgd_events != nullptr );
 
       TBranch * bckgd_solsbranch  = bckgd_events->GetBranch( "TtSemiEvtSolutions_solutions__TEST.obj" );
-      assert(   bckgd_solsbranch != 0 );
+      assert(   bckgd_solsbranch != nullptr );
       std::vector<TtSemiEvtSolution> bckgd_sols;
       //bckgd_solsbranch->SetAddress( & bckgd_sols );
 

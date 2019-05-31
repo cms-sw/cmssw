@@ -333,34 +333,34 @@ bool CommandLine::parse_file(const std::string& file_name)
   ss>>token;
   while (!ss.eof()) {
     if (token=="=") {
-      if (key!=""&&value!="") _options[key] = std::make_pair(value,false);
+      if (!key.empty()&&!value.empty()) _options[key] = std::make_pair(value,false);
       key=last_token;
       last_token="";
       value="";
     }
-    else if (last_token!="") {
+    else if (!last_token.empty()) {
       if (last_token.find("\"")==0) {
 	if (last_token.rfind("\"")==last_token.length()-1) {
 	  last_token=last_token.substr(1,last_token.length()-2);
-	  value+=(value!="")?","+last_token:last_token;
+	  value+=(!value.empty())?","+last_token:last_token;
 	  last_token=token;
 	}
 	else last_token+=" "+token;
       }
       else {
-	value+=(value!="")?","+last_token:last_token;
+	value+=(!value.empty())?","+last_token:last_token;
 	last_token=(token=="=")?"":token;
       }
     }
     else last_token=(token=="=")?"":token;
     ss>>token;
   }
-  if (last_token!="") {
+  if (!last_token.empty()) {
     if (last_token.find("\"")==0&&last_token.rfind("\"")==last_token.length()-1)
       last_token=last_token.substr(1,last_token.length()-2);
-    value+=(value!="")?","+last_token:last_token;
+    value+=(!value.empty())?","+last_token:last_token;
   }
-  if (key!=""&&value!="") _options[key] = std::make_pair(value,false);
+  if (!key.empty()&&!value.empty()) _options[key] = std::make_pair(value,false);
 
   return true;
 }

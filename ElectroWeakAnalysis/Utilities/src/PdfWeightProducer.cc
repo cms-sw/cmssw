@@ -60,7 +60,7 @@ PdfWeightProducer::PdfWeightProducer(const edm::ParameterSet& pset) :
  pdfInfoToken_(consumes<GenEventInfoProduct>(pdfInfoTag_)),
  pdfSetNames_(pset.getUntrackedParameter<std::vector<std::string> > ("PdfSetNames"))
 {
-      if (fixPOWHEG_ != "") pdfSetNames_.insert(pdfSetNames_.begin(),fixPOWHEG_);
+      if (!fixPOWHEG_.empty()) pdfSetNames_.insert(pdfSetNames_.begin(),fixPOWHEG_);
 
       if (pdfSetNames_.size()>3) {
             edm::LogWarning("") << pdfSetNames_.size() << " PDF sets requested on input. Using only the first 3 sets and ignoring the rest!!";
@@ -119,7 +119,7 @@ void PdfWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       }
 
       // Ad-hoc fix for POWHEG
-      if (fixPOWHEG_!="") {
+      if (!fixPOWHEG_.empty()) {
             edm::Handle<reco::GenParticleCollection> genParticles;
             if (!iEvent.getByToken(genToken_, genParticles)) {
                   edm::LogError("PDFWeightProducer") << ">>> genParticles  not found: " << genTag_.encode() << " !!!";
