@@ -19,7 +19,7 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/KDTreeLinkerAlgoT.h"
+#include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
 
 // C/C++ headers
 #include <string>
@@ -209,8 +209,8 @@ struct Hexel {
 
 };
 
-typedef KDTreeLinkerAlgo<Hexel,2> KDTree;
-typedef KDTreeNodeInfoT<Hexel,2> KDNode;
+typedef KDTreeLinkerAlgo<Hexel> KDTree;
+typedef KDTreeNodeInfo<Hexel> KDNode;
 
 
 std::vector<std::vector<std::vector< KDNode> > > layerClustersPerLayer_;
@@ -243,7 +243,7 @@ inline double distance(const Hexel &pt1, const Hexel &pt2) const{   //2-d distan
 }
 double calculateLocalDensity(std::vector<KDNode> &, KDTree &, const unsigned int) const;   //return max density
 double calculateDistanceToHigher(std::vector<KDNode> &) const;
-int findAndAssignClusters(std::vector<KDNode> &, KDTree &, double, KDTreeBox &, const unsigned int, std::vector<std::vector<KDNode> >&) const;
+int findAndAssignClusters(std::vector<KDNode> &, KDTree &, double, KDTreeBox<2> &, const unsigned int, std::vector<std::vector<KDNode> >&) const;
 math::XYZPoint calculatePosition(std::vector<KDNode> &) const;
 
 //For keeping the density information

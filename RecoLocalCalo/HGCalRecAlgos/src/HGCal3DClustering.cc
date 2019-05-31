@@ -86,14 +86,14 @@ std::vector<reco::HGCalMultiCluster> HGCal3DClustering::makeClusters(const reco:
         float radius2 = radius*radius;
 	KDTreeBox search_box(float(to[0])-radius,float(to[0])+radius,
 			     float(to[1])-radius,float(to[1])+radius);
-	std::vector<KDNode> found;
+	std::vector<ClusterRef> found;
 	// at layer j in box float(to[0])+/-radius - float(to[1])+/-radius
 	hit_kdtree[j].search(search_box,found);
 	// found found.size() clusters within box
 	for(unsigned int k = 0; k < found.size(); k++){
-	  if(vused[found[k].data.ind]==0 && distReal2(thecls[es[found[k].data.ind]],to)<radius2){
-	    temp.push_back(thecls[es[found[k].data.ind]]);
-	    vused[found[k].data.ind]=vused[i];
+	  if(vused[found[k].ind]==0 && distReal2(thecls[es[found[k].ind]],to)<radius2){
+	    temp.push_back(thecls[es[found[k].ind]]);
+	    vused[found[k].ind]=vused[i];
 	    ++used;
 	  }
 	}
