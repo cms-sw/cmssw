@@ -10,23 +10,22 @@
 #include <vector>
 
 namespace edm {
-class ParameterSet;
+  class ParameterSet;
 }
 namespace reco {
-class CaloCluster;
+  class CaloCluster;
 }
 
 namespace ticl {
   class ClusterFilterBase {
-    public:
-      explicit ClusterFilterBase(const edm::ParameterSet&){};
-      virtual ~ClusterFilterBase(){};
+  public:
+    explicit ClusterFilterBase(const edm::ParameterSet&){};
+    virtual ~ClusterFilterBase(){};
 
-      virtual std::unique_ptr<HgcalClusterFilterMask> filter(
-          const std::vector<reco::CaloCluster>& layerClusters,
-          const HgcalClusterFilterMask& mask,
-          std::vector<float> & layerClustersMask) const = 0;
+    virtual std::unique_ptr<HgcalClusterFilterMask> filter(const std::vector<reco::CaloCluster>& layerClusters,
+                                                           const HgcalClusterFilterMask& mask,
+                                                           std::vector<float>& layerClustersMask) const = 0;
   };
-}
+}  // namespace ticl
 
 #endif

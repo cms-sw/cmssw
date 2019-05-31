@@ -12,30 +12,29 @@
 
 // Filter clusters that belong to a specific algorithm
 namespace ticl {
-class ClusterFilterByAlgo final : public ClusterFilterBase {
- public:
-  ClusterFilterByAlgo(const edm::ParameterSet& ps)
-      : ClusterFilterBase(ps), algo_number_(ps.getParameter<int>("algo_number")) {}
-  ~ClusterFilterByAlgo() override {};
+  class ClusterFilterByAlgo final : public ClusterFilterBase {
+  public:
+    ClusterFilterByAlgo(const edm::ParameterSet& ps)
+        : ClusterFilterBase(ps), algo_number_(ps.getParameter<int>("algo_number")) {}
+    ~ClusterFilterByAlgo() override{};
 
-  std::unique_ptr<HgcalClusterFilterMask> filter(
-      const std::vector<reco::CaloCluster>& layerClusters,
-      const HgcalClusterFilterMask& availableLayerClusters,
-      std::vector<float> & layerClustersMask) const override {
-    auto filteredLayerClusters = std::make_unique<HgcalClusterFilterMask>();
-    for (auto const& cl : availableLayerClusters) {
-      if (layerClusters[cl.first].algo() == algo_number_) {
-        filteredLayerClusters->emplace_back(cl);
-      } else {
-        layerClustersMask[cl.first] = 0.;
+    std::unique_ptr<HgcalClusterFilterMask> filter(const std::vector<reco::CaloCluster>& layerClusters,
+                                                   const HgcalClusterFilterMask& availableLayerClusters,
+                                                   std::vector<float>& layerClustersMask) const override {
+      auto filteredLayerClusters = std::make_unique<HgcalClusterFilterMask>();
+      for (auto const& cl : availableLayerClusters) {
+        if (layerClusters[cl.first].algo() == algo_number_) {
+          filteredLayerClusters->emplace_back(cl);
+        } else {
+          layerClustersMask[cl.first] = 0.;
+        }
       }
+      return filteredLayerClusters;
     }
-    return filteredLayerClusters;
-  }
 
- private:
-  int algo_number_;
-};
-}
+  private:
+    int algo_number_;
+  };
+}  // namespace ticl
 
 #endif

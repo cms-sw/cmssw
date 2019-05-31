@@ -11,31 +11,30 @@
 #include <utility>
 
 // Filter clusters that belong to a specific algorithm
-namespace ticl{
-class ClusterFilterBySize final : public ClusterFilterBase {
- public:
-  ClusterFilterBySize(const edm::ParameterSet& ps)
-      : ClusterFilterBase(ps), max_cluster_size_(ps.getParameter<int>("max_cluster_size")) {}
-  ~ClusterFilterBySize() override {};
+namespace ticl {
+  class ClusterFilterBySize final : public ClusterFilterBase {
+  public:
+    ClusterFilterBySize(const edm::ParameterSet& ps)
+        : ClusterFilterBase(ps), max_cluster_size_(ps.getParameter<int>("max_cluster_size")) {}
+    ~ClusterFilterBySize() override{};
 
-  std::unique_ptr<HgcalClusterFilterMask> filter(
-      const std::vector<reco::CaloCluster>& layerClusters,
-      const HgcalClusterFilterMask& availableLayerClusters,
-      std::vector<float> & layerClustersMask) const override {
-    auto filteredLayerClusters = std::make_unique<HgcalClusterFilterMask>();
-    for (auto const& cl : availableLayerClusters) {
-      if (layerClusters[cl.first].hitsAndFractions().size() <= max_cluster_size_) {
-        filteredLayerClusters->emplace_back(cl);
-      } else {
-        layerClustersMask[cl.first] = 0.;
+    std::unique_ptr<HgcalClusterFilterMask> filter(const std::vector<reco::CaloCluster>& layerClusters,
+                                                   const HgcalClusterFilterMask& availableLayerClusters,
+                                                   std::vector<float>& layerClustersMask) const override {
+      auto filteredLayerClusters = std::make_unique<HgcalClusterFilterMask>();
+      for (auto const& cl : availableLayerClusters) {
+        if (layerClusters[cl.first].hitsAndFractions().size() <= max_cluster_size_) {
+          filteredLayerClusters->emplace_back(cl);
+        } else {
+          layerClustersMask[cl.first] = 0.;
+        }
       }
+      return filteredLayerClusters;
     }
-    return filteredLayerClusters;
-  }
 
- private:
-  unsigned int max_cluster_size_;
-};
-}
+  private:
+    unsigned int max_cluster_size_;
+  };
+}  // namespace ticl
 
 #endif
