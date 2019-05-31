@@ -11,9 +11,8 @@ class GeometricTimingDet;
 class PlaneBuilderFromGeometricTimingDet {
 public:
   using ResultType = ReferenceCountingPointer<BoundPlane>;
-  
-  ResultType plane( const GeometricTimingDet* gd) const;
-  
+
+  ResultType plane(const GeometricTimingDet* gd) const;
 };
 
 #endif

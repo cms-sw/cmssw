@@ -91,6 +91,7 @@ namespace l1t {
     double mipPt() const { return mipPt_; }
     double seedMipPt() const { return seedMipPt_; }
     uint32_t detId() const { return detId_.rawId(); }
+    void setDetId(uint32_t id) { detId_ = id; }
     void setPt(double pt) { setP4(math::PtEtaPhiMLorentzVector(pt, eta(), phi(), mass())); }
     double sumPt() const { return sumPt_; }
     /* distance in 'cm' */

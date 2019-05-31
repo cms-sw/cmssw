@@ -49,19 +49,28 @@ void HGCalTriggerNtupleHGCClusters::initialize(TTree& tree,
   multiclusters_token_ =
       collector.consumes<l1t::HGCalMulticlusterBxCollection>(conf.getParameter<edm::InputTag>("Multiclusters"));
 
-  tree.Branch("cl_n", &cl_n_, "cl_n/I");
-  tree.Branch("cl_id", &cl_id_);
-  tree.Branch("cl_mipPt", &cl_mipPt_);
-  tree.Branch("cl_pt", &cl_pt_);
-  tree.Branch("cl_energy", &cl_energy_);
-  tree.Branch("cl_eta", &cl_eta_);
-  tree.Branch("cl_phi", &cl_phi_);
-  tree.Branch("cl_layer", &cl_layer_);
-  tree.Branch("cl_subdet", &cl_subdet_);
-  tree.Branch("cl_cells_n", &cl_cells_n_);
-  tree.Branch("cl_cells_id", &cl_cells_id_);
-  tree.Branch("cl_multicluster_id", &cl_multicluster_id_);
-  tree.Branch("cl_multicluster_pt", &cl_multicluster_pt_);
+  std::string prefix(conf.getUntrackedParameter<std::string>("Prefix", "cl"));
+
+  std::string bname;
+  auto withPrefix([&prefix, &bname](char const* vname) -> char const* {
+    bname = prefix + "_" + vname;
+    return bname.c_str();
+  });
+
+  // note: can't use withPrefix() twice within a same statement because bname gets overwritten
+  tree.Branch(withPrefix("n"), &cl_n_, (prefix + "_n/I").c_str());
+  tree.Branch(withPrefix("id"), &cl_id_);
+  tree.Branch(withPrefix("mipPt"), &cl_mipPt_);
+  tree.Branch(withPrefix("pt"), &cl_pt_);
+  tree.Branch(withPrefix("energy"), &cl_energy_);
+  tree.Branch(withPrefix("eta"), &cl_eta_);
+  tree.Branch(withPrefix("phi"), &cl_phi_);
+  tree.Branch(withPrefix("layer"), &cl_layer_);
+  tree.Branch(withPrefix("subdet"), &cl_subdet_);
+  tree.Branch(withPrefix("cells_n"), &cl_cells_n_);
+  tree.Branch(withPrefix("cells_id"), &cl_cells_id_);
+  tree.Branch(withPrefix("multicluster_id"), &cl_multicluster_id_);
+  tree.Branch(withPrefix("multicluster_pt"), &cl_multicluster_pt_);
 }
 
 void HGCalTriggerNtupleHGCClusters::fill(const edm::Event& e, const edm::EventSetup& es) {
