@@ -15,7 +15,7 @@ namespace ticl::constants {
 
 namespace ticl {
   typedef std::vector<std::pair<unsigned int, float> > HgcalClusterFilterMask;
-  typedef std::array<std::vector<unsigned int>, constants::nEtaBins*constants::nPhiBins> Tile;
-}
+  typedef std::array<std::vector<unsigned int>, constants::nEtaBins * constants::nPhiBins> Tile;
+}  // namespace ticl
 
 #endif  // RecoHGCal_TICL_interface_Common_h

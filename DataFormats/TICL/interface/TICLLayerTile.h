@@ -7,11 +7,10 @@
 #include "DataFormats/TICL/interface/Common.h"
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
-namespace ticl{
-class TICLLayerTile {
+namespace ticl {
+  class TICLLayerTile {
   public:
-
-    void fill (double eta, double phi, unsigned int layerClusterId) {
+    void fill(double eta, double phi, unsigned int layerClusterId) {
       tile_[getGlobalBin(eta, phi)].push_back(layerClusterId);
     }
 
@@ -32,9 +31,7 @@ class TICLLayerTile {
       return phiBin;
     }
 
-    int getGlobalBin(int etaBin, int phiBin) const {
-      return phiBin + etaBin * ticl::constants::nPhiBins;
-    }
+    int getGlobalBin(int etaBin, int phiBin) const { return phiBin + etaBin * ticl::constants::nPhiBins; }
 
     int getGlobalBin(double eta, double phi) const {
       return getPhiBin(phi) + getEtaBin(eta) * ticl::constants::nPhiBins;
@@ -46,23 +43,23 @@ class TICLLayerTile {
         tile_[j].clear();
     }
 
-  const std::vector<unsigned int>& operator[](int globalBinId) const { return tile_[globalBinId]; }
+    const std::vector<unsigned int>& operator[](int globalBinId) const { return tile_[globalBinId]; }
 
   private:
     Tile tile_;
-};
-typedef std::array<TICLLayerTile, ticl::constants::nLayers> Tiles;
+  };
+  typedef std::array<TICLLayerTile, ticl::constants::nLayers> Tiles;
 
-class TICLLayerTiles {
+  class TICLLayerTiles {
   public:
-    const TICLLayerTile & operator[](int layer) const {return tiles_[layer];}
-    void fill (int layer, double eta, double phi, unsigned int layerClusterId) {
+    const TICLLayerTile& operator[](int layer) const { return tiles_[layer]; }
+    void fill(int layer, double eta, double phi, unsigned int layerClusterId) {
       tiles_[layer].fill(eta, phi, layerClusterId);
     }
- private:
-   Tiles tiles_;
-};
-}
 
+  private:
+    Tiles tiles_;
+  };
+}  // namespace ticl
 
 #endif
