@@ -5,22 +5,24 @@
 
 namespace funct {
 
-  template<typename T>
+  template <typename T>
   struct CosStruct {
-    CosStruct(const T& t) : _(t) { }
+    CosStruct(const T& t) : _(t) {}
     inline double operator()() const { return ::cos(_()); }
-    T _; 
+    T _;
   };
 
-  template<typename T>
+  template <typename T>
   struct Cos {
     typedef CosStruct<T> type;
     inline static type compose(const T& t) { return type(t); }
   };
 
-  template<typename T>
-  inline typename Cos<T>::type cos(const T & t) { return Cos<T>::compose(t); }
+  template <typename T>
+  inline typename Cos<T>::type cos(const T& t) {
+    return Cos<T>::compose(t);
+  }
 
-}
+}  // namespace funct
 
 #endif

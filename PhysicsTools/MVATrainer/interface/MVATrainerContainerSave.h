@@ -14,31 +14,28 @@
 
 namespace PhysicsTools {
 
-class MVATrainerContainerSave : public edm::EDAnalyzer {
-    public:
-	explicit MVATrainerContainerSave(const edm::ParameterSet &params);
+  class MVATrainerContainerSave : public edm::EDAnalyzer {
+  public:
+    explicit MVATrainerContainerSave(const edm::ParameterSet& params);
 
-	void analyze(const edm::Event& iEvent,
-	                     const edm::EventSetup& iSetup) override;
+    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-	void endJob() override;
+    void endJob() override;
 
-    protected:
-	virtual const Calibration::MVAComputerContainer *
-	getToPut(const edm::EventSetup& es) const = 0;
+  protected:
+    virtual const Calibration::MVAComputerContainer* getToPut(const edm::EventSetup& es) const = 0;
 
-	virtual const Calibration::MVAComputerContainer *
-	getToCopy(const edm::EventSetup& es) const = 0;
+    virtual const Calibration::MVAComputerContainer* getToCopy(const edm::EventSetup& es) const = 0;
 
-	virtual std::string getRecordName() const = 0;
+    virtual std::string getRecordName() const = 0;
 
-    private:
-	std::vector<std::string>				toPut;
-	std::vector<std::string>				toCopy;
-	std::unique_ptr<Calibration::MVAComputerContainer>	calib;
-	bool							saved;
-};
+  private:
+    std::vector<std::string> toPut;
+    std::vector<std::string> toCopy;
+    std::unique_ptr<Calibration::MVAComputerContainer> calib;
+    bool saved;
+  };
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools
 
-#endif // PhysicsTools_MVATrainer_MVATrainerContainerSave_h
+#endif  // PhysicsTools_MVATrainer_MVATrainerContainerSave_h

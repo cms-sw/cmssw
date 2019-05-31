@@ -2,7 +2,7 @@
 //
 // Package:     MVAComputer
 // Class  :     ProcSort
-// 
+//
 
 // Implementation:
 //     Sorts the input variables. Each input variable must appear in the
@@ -26,142 +26,122 @@
 
 using namespace PhysicsTools;
 
-namespace { // anonymous
+namespace {  // anonymous
 
-class ProcSort : public VarProcessor {
-    public:
-	typedef VarProcessor::Registry::Registry<ProcSort,
-					Calibration::ProcSort> Registry;
+  class ProcSort : public VarProcessor {
+  public:
+    typedef VarProcessor::Registry::Registry<ProcSort, Calibration::ProcSort> Registry;
 
-	ProcSort(const char *name,
-	         const Calibration::ProcSort *calib,
-	         const MVAComputer *computer);
-	~ProcSort() override {}
+    ProcSort(const char *name, const Calibration::ProcSort *calib, const MVAComputer *computer);
+    ~ProcSort() override {}
 
-	void configure(ConfIterator iter, unsigned int n) override;
-	void eval(ValueIterator iter, unsigned int n) const override;
-	std::vector<double> deriv(
-				ValueIterator iter, unsigned int n) const override;
+    void configure(ConfIterator iter, unsigned int n) override;
+    void eval(ValueIterator iter, unsigned int n) const override;
+    std::vector<double> deriv(ValueIterator iter, unsigned int n) const override;
 
-    private:
-	unsigned int	leader;
-	bool		descending;
-};
+  private:
+    unsigned int leader;
+    bool descending;
+  };
 
-ProcSort::Registry registry("ProcSort");
+  ProcSort::Registry registry("ProcSort");
 
-ProcSort::ProcSort(const char *name,
-                   const Calibration::ProcSort *calib,
-                   const MVAComputer *computer) :
-	VarProcessor(name, calib, computer),
-	leader(calib->sortByIndex),
-	descending(calib->descending)
-{
-}
+  ProcSort::ProcSort(const char *name, const Calibration::ProcSort *calib, const MVAComputer *computer)
+      : VarProcessor(name, calib, computer), leader(calib->sortByIndex), descending(calib->descending) {}
 
-void ProcSort::configure(ConfIterator iter, unsigned int n)
-{
-	if (leader >= n)
-		return;
+  void ProcSort::configure(ConfIterator iter, unsigned int n) {
+    if (leader >= n)
+      return;
 
-	iter << iter;
-	while(iter)
-		iter << iter++(Variable::FLAG_ALL);
-}
+    iter << iter;
+    while (iter)
+      iter << iter++(Variable::FLAG_ALL);
+  }
 
-namespace { // anonymous
-	struct LeaderLookup {
-		inline LeaderLookup() {}
-		inline LeaderLookup(const double *values) : values(values) {}
+  namespace {  // anonymous
+    struct LeaderLookup {
+      inline LeaderLookup() {}
+      inline LeaderLookup(const double *values) : values(values) {}
 
-		inline double operator () (int index) const
-		{ return values[index]; }
+      inline double operator()(int index) const { return values[index]; }
 
-		const double	*values;
-	};
-} // anonymous namespace
+      const double *values;
+    };
+  }  // anonymous namespace
 
-void ProcSort::eval(ValueIterator iter, unsigned int n) const
-{
-	ValueIterator leaderIter = iter;
-	for(unsigned int i = 0; i < leader; i++, leaderIter++);
-	unsigned int size = leaderIter.size();
-	LeaderLookup lookup(leaderIter.begin());
+  void ProcSort::eval(ValueIterator iter, unsigned int n) const {
+    ValueIterator leaderIter = iter;
+    for (unsigned int i = 0; i < leader; i++, leaderIter++)
+      ;
+    unsigned int size = leaderIter.size();
+    LeaderLookup lookup(leaderIter.begin());
 
-	int *sort = (int*)alloca(size * sizeof(int));
-	for(unsigned int i = 0; i < size; i++)
-		sort[i] = (int)i;
+    int *sort = (int *)alloca(size * sizeof(int));
+    for (unsigned int i = 0; i < size; i++)
+      sort[i] = (int)i;
 
-	boost::transform_iterator<LeaderLookup, int*> begin(sort, lookup);
-	boost::transform_iterator<LeaderLookup, int*> end = begin;
+    boost::transform_iterator<LeaderLookup, int *> begin(sort, lookup);
+    boost::transform_iterator<LeaderLookup, int *> end = begin;
 
-	for(unsigned int i = 0; i < size; i++, end++) {
-		unsigned int pos = std::lower_bound(begin, end,
-		                                    leaderIter[i]) - begin;   
-		std::memmove(sort + (pos + 1), sort + pos,
-		             (i - pos) * sizeof(*sort));
-		sort[pos] = i;
-	}
+    for (unsigned int i = 0; i < size; i++, end++) {
+      unsigned int pos = std::lower_bound(begin, end, leaderIter[i]) - begin;
+      std::memmove(sort + (pos + 1), sort + pos, (i - pos) * sizeof(*sort));
+      sort[pos] = i;
+    }
 
-	if (descending)
-		std::reverse(sort, sort + size);
+    if (descending)
+      std::reverse(sort, sort + size);
 
-	for(unsigned int i = 0; i < size; i++)
-		iter << (double)sort[i];
-	iter();
+    for (unsigned int i = 0; i < size; i++)
+      iter << (double)sort[i];
+    iter();
 
-	while(iter) {
-		for(unsigned int i = 0; i < size; i++)
-			iter << iter[sort[i]];
-		iter();
-		iter++;
-	}
-}
+    while (iter) {
+      for (unsigned int i = 0; i < size; i++)
+        iter << iter[sort[i]];
+      iter();
+      iter++;
+    }
+  }
 
-std::vector<double> ProcSort::deriv(ValueIterator iter, unsigned int n) const
-{
-	unsigned int in = 0;
-	for(ValueIterator iter2 = iter; iter2; ++iter2)
-		in += iter2.size();
+  std::vector<double> ProcSort::deriv(ValueIterator iter, unsigned int n) const {
+    unsigned int in = 0;
+    for (ValueIterator iter2 = iter; iter2; ++iter2)
+      in += iter2.size();
 
-	ValueIterator leaderIter = iter;
-	for(unsigned int i = 0; i < leader; i++, leaderIter++);
-	unsigned int size = leaderIter.size();
-	LeaderLookup lookup(leaderIter.begin());
+    ValueIterator leaderIter = iter;
+    for (unsigned int i = 0; i < leader; i++, leaderIter++)
+      ;
+    unsigned int size = leaderIter.size();
+    LeaderLookup lookup(leaderIter.begin());
 
-	std::vector<int> sort;
-	for(unsigned int i = 0; i < size; i++)
-		sort.push_back((int)i);
+    std::vector<int> sort;
+    for (unsigned int i = 0; i < size; i++)
+      sort.push_back((int)i);
 
-	boost::transform_iterator<LeaderLookup,
-	                          std::vector<int>::const_iterator > begin(
-							sort.begin(), lookup);
-	boost::transform_iterator<LeaderLookup,
-	                          std::vector<int>::const_iterator > end =
-									begin;
+    boost::transform_iterator<LeaderLookup, std::vector<int>::const_iterator> begin(sort.begin(), lookup);
+    boost::transform_iterator<LeaderLookup, std::vector<int>::const_iterator> end = begin;
 
-	for(unsigned int i = 0; i < size; i++, end++) {
-		unsigned int pos = std::lower_bound(begin, end,
-		                                    leaderIter[i]) - begin;
-		std::memmove(&sort.front() + (pos + 1), &sort.front() + pos,
-		             (i - pos) * sizeof(sort.front()));
-		sort[pos] = i;
-	}
+    for (unsigned int i = 0; i < size; i++, end++) {
+      unsigned int pos = std::lower_bound(begin, end, leaderIter[i]) - begin;
+      std::memmove(&sort.front() + (pos + 1), &sort.front() + pos, (i - pos) * sizeof(sort.front()));
+      sort[pos] = i;
+    }
 
-	if (descending)
-		std::reverse(sort.begin(), sort.end());
+    if (descending)
+      std::reverse(sort.begin(), sort.end());
 
-	std::vector<double> result(size * in, 0.0);
+    std::vector<double> result(size * in, 0.0);
 
-	for(unsigned int pos = 0; iter; pos += (iter++).size()) {
-		for(unsigned int i = 0; i < size; i++) {
-			unsigned int row = result.size();
-			result.resize(row + in);
-			result[row + pos + sort[i]] = 1.0;
-		}
-	}
+    for (unsigned int pos = 0; iter; pos += (iter++).size()) {
+      for (unsigned int i = 0; i < size; i++) {
+        unsigned int row = result.size();
+        result.resize(row + in);
+        result[row + pos + sort[i]] = 1.0;
+      }
+    }
 
-	return result;
-}
+    return result;
+  }
 
-} // anonymous namespace
+}  // anonymous namespace
