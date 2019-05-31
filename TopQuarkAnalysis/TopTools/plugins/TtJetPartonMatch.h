@@ -42,9 +42,7 @@
 
 template <typename C>
 class TtJetPartonMatch : public edm::EDProducer {
-
- public:
-
+public:
   /// default conructor
   explicit TtJetPartonMatch(const edm::ParameterSet&);
   /// default destructor
@@ -52,8 +50,7 @@ class TtJetPartonMatch : public edm::EDProducer {
   /// write jet parton match objects into the event
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   /// convert string for algorithm into corresponding enumerator type
   JetPartonMatching::algorithms readAlgorithm(const std::string& str);
 
@@ -83,19 +80,18 @@ class TtJetPartonMatch : public edm::EDProducer {
   int verbosity_;
 };
 
-template<typename C>
-TtJetPartonMatch<C>::TtJetPartonMatch(const edm::ParameterSet& cfg):
-  partons_   (cfg.getParameter<std::vector<std::string> >("partonsToIgnore")),
-  genEvt_    (consumes<TtGenEvent>(edm::InputTag("genEvt"))),
-  jets_      (consumes<edm::View<reco::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
-  maxNJets_  (cfg.getParameter<int>                      ("maxNJets"       )),
-  maxNComb_  (cfg.getParameter<int>                      ("maxNComb"       )),
-  algorithm_ (readAlgorithm(cfg.getParameter<std::string>("algorithm"      ))),
-  useDeltaR_ (cfg.getParameter<bool>                     ("useDeltaR"      )),
-  useMaxDist_(cfg.getParameter<bool>                     ("useMaxDist"     )),
-  maxDist_   (cfg.getParameter<double>                   ("maxDist"        )),
-  verbosity_ (cfg.getParameter<int>                      ("verbosity"      ))
-{
+template <typename C>
+TtJetPartonMatch<C>::TtJetPartonMatch(const edm::ParameterSet& cfg)
+    : partons_(cfg.getParameter<std::vector<std::string> >("partonsToIgnore")),
+      genEvt_(consumes<TtGenEvent>(edm::InputTag("genEvt"))),
+      jets_(consumes<edm::View<reco::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
+      maxNJets_(cfg.getParameter<int>("maxNJets")),
+      maxNComb_(cfg.getParameter<int>("maxNComb")),
+      algorithm_(readAlgorithm(cfg.getParameter<std::string>("algorithm"))),
+      useDeltaR_(cfg.getParameter<bool>("useDeltaR")),
+      useMaxDist_(cfg.getParameter<bool>("useMaxDist")),
+      maxDist_(cfg.getParameter<double>("maxDist")),
+      verbosity_(cfg.getParameter<int>("verbosity")) {
   // produces a vector of jet/lepton indices in the order of
   //  * TtSemiLepEvtPartons
   //  * TtFullHadEvtPartons
@@ -107,15 +103,11 @@ TtJetPartonMatch<C>::TtJetPartonMatch(const edm::ParameterSet& cfg):
   produces<int>("NumberOfConsideredJets");
 }
 
-template<typename C>
-TtJetPartonMatch<C>::~TtJetPartonMatch()
-{
-}
+template <typename C>
+TtJetPartonMatch<C>::~TtJetPartonMatch() {}
 
-template<typename C>
-void
-TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
-{
+template <typename C>
+void TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup) {
   // will write
   // * parton match
   // * sumPt
@@ -141,20 +133,21 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   // prepare vector of jets
   std::vector<const reco::Candidate*> jets;
-  for(unsigned int ij=0; ij<topJets->size(); ++ij) {
+  for (unsigned int ij = 0; ij < topJets->size(); ++ij) {
     // take all jets if maxNJets_ == -1; otherwise use
     // maxNJets_ if maxNJets_ is big enough or use same
     // number of jets as partons if maxNJets_ < number
     // of partons
-    if(maxNJets_!=-1) {
-      if(maxNJets_>=(int)partons.size()) {
-	if((int)ij==maxNJets_) break;
-      }
-      else {
-	if(ij==partons.size()) break;
+    if (maxNJets_ != -1) {
+      if (maxNJets_ >= (int)partons.size()) {
+        if ((int)ij == maxNJets_)
+          break;
+      } else {
+        if (ij == partons.size())
+          break;
       }
     }
-    jets.push_back( (const reco::Candidate*) &(*topJets)[ij] );
+    jets.push_back((const reco::Candidate*)&(*topJets)[ij]);
   }
   *pJetsConsidered = jets.size();
 
@@ -163,16 +156,17 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   // print some info for each event
   // if corresponding verbosity level set
-  if(verbosity_>0)
+  if (verbosity_ > 0)
     jetPartonMatch.print();
 
-  for(unsigned int ic=0; ic<jetPartonMatch.getNumberOfAvailableCombinations(); ++ic) {
-    if((int)ic>=maxNComb_ && maxNComb_>=0) break;
+  for (unsigned int ic = 0; ic < jetPartonMatch.getNumberOfAvailableCombinations(); ++ic) {
+    if ((int)ic >= maxNComb_ && maxNComb_ >= 0)
+      break;
     std::vector<int> matches = jetPartonMatch.getMatchesForPartons(ic);
-    partons_.expand(matches); // insert dummy indices for partons that were chosen to be ignored
-    match->push_back( matches );
-    sumPt->push_back( jetPartonMatch.getSumDeltaPt(ic) );
-    sumDR->push_back( jetPartonMatch.getSumDeltaR (ic) );
+    partons_.expand(matches);  // insert dummy indices for partons that were chosen to be ignored
+    match->push_back(matches);
+    sumPt->push_back(jetPartonMatch.getSumDeltaPt(ic));
+    sumDR->push_back(jetPartonMatch.getSumDeltaR(ic));
   }
   evt.put(std::move(match));
   evt.put(std::move(sumPt), "SumPt");
@@ -180,16 +174,18 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   evt.put(std::move(pJetsConsidered), "NumberOfConsideredJets");
 }
 
-template<typename C>
-JetPartonMatching::algorithms
-TtJetPartonMatch<C>::readAlgorithm(const std::string& str)
-{
-  if     (str == "totalMinDist"    ) return JetPartonMatching::totalMinDist;
-  else if(str == "minSumDist"      ) return JetPartonMatching::minSumDist;
-  else if(str == "ptOrderedMinDist") return JetPartonMatching::ptOrderedMinDist;
-  else if(str == "unambiguousOnly" ) return JetPartonMatching::unambiguousOnly;
-  else throw cms::Exception("Configuration")
-    << "Chosen algorithm is not supported: " << str << "\n";
+template <typename C>
+JetPartonMatching::algorithms TtJetPartonMatch<C>::readAlgorithm(const std::string& str) {
+  if (str == "totalMinDist")
+    return JetPartonMatching::totalMinDist;
+  else if (str == "minSumDist")
+    return JetPartonMatching::minSumDist;
+  else if (str == "ptOrderedMinDist")
+    return JetPartonMatching::ptOrderedMinDist;
+  else if (str == "unambiguousOnly")
+    return JetPartonMatching::unambiguousOnly;
+  else
+    throw cms::Exception("Configuration") << "Chosen algorithm is not supported: " << str << "\n";
 }
 
 #endif

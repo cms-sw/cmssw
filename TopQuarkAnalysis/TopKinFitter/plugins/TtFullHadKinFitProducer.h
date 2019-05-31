@@ -20,18 +20,17 @@
 **/
 
 class TtFullHadKinFitProducer : public edm::EDProducer {
-
- public:
+public:
   /// default constructor
   explicit TtFullHadKinFitProducer(const edm::ParameterSet& cfg);
   /// default destructor
   ~TtFullHadKinFitProducer() override;
 
- private:
+private:
   /// produce fitted object collections and meta data describing fit quality
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
- private:
+private:
   /// input tag for jets
   edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
   /// input tag for matches (in case the fit should be performed on certain matches)
@@ -75,11 +74,9 @@ class TtFullHadKinFitProducer : public edm::EDProducer {
   std::vector<double> jetEnergyResolutionScaleFactors_;
   std::vector<double> jetEnergyResolutionEtaBinning_;
 
- public:
-
+public:
   /// kinematic fit interface
   TtFullHadKinFitter::KinFit* kinFitter;
-
 };
 
 #endif
