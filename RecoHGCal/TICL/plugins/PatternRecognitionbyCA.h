@@ -13,7 +13,7 @@ namespace ticl {
   class PatternRecognitionbyCA final : public PatternRecognitionAlgoBase {
   public:
     PatternRecognitionbyCA(const edm::ParameterSet& conf);
-    ~PatternRecognitionbyCA();
+    ~PatternRecognitionbyCA() override;
 
     void makeTracksters(const edm::Event& ev,
                         const edm::EventSetup& es,
