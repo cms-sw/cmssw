@@ -926,21 +926,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	   << gsf_err.str() << std::endl;
        } // supercluster in block
      } // is ECAL driven seed?   
-     /*
-     auto ins_pos = std::lower_bound(refinableObjects.begin(),
-				     refinableObjects.end(),
-				     fromGSF,
-				     [&](const ProtoEGObject& a,
-					 const ProtoEGObject& b){
-				       const double a_en = ( a.parentSC ?
-							     a.parentSC->superClusterRef()->energy() :
-							     a.primaryGSFs[0]->GsftrackRef()->pt() );
-				       const double b_en = ( b.parentSC ?
-							     b.parentSC->superClusterRef()->energy() :
-							     b.primaryGSFs[0]->GsftrackRef()->pt() );
-				       return a_en < b_en;
-				     });   
-     */
+
      egobjs.insert(egobjs.end(),fromGSF);
    } // end loop on GSF elements of block
 }
@@ -1738,15 +1724,12 @@ PFEGammaAlgo::EgammaObjects PFEGammaAlgo::
 fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs) {
 
   EgammaObjects output;
-  auto& egcands = output.candidates;
-  auto& egxs = output.candidateExtras;
-  // reset output collections
-  egcands.clear();
-  egxs.clear();  
-  output.refinedSuperClusters.clear();
-  egcands.reserve(ROs.size());
-  egxs.reserve(ROs.size());
+
+  // reserve output collections
+  output.candidates.reserve(ROs.size());
+  output.candidateExtras.reserve(ROs.size());
   output.refinedSuperClusters.reserve(ROs.size());
+
   for( auto& RO : ROs ) {    
     if( RO.ecalclusters.empty()  && 
 	!cfg_.produceEGCandsWithNoSuperCluster ) continue;
@@ -1873,8 +1856,8 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs) {
     //std::cout << "PFEG eleMVA: " << eleMVAValue << std::endl;
     xtra.setMVA(eleMVAValue);    
     cand.set_mva_e_pi(eleMVAValue);
-    egcands.push_back(cand);
-    egxs.push_back(xtra);    
+    output.candidates.push_back(cand);
+    output.candidateExtras.push_back(xtra);    
   }
 
   return output;
