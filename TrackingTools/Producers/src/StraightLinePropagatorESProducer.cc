@@ -14,20 +14,25 @@
 
 class StraightLinePropagatorESProducer : public edm::ESProducer {
 public:
-  StraightLinePropagatorESProducer(const edm::ParameterSet &p);
+  StraightLinePropagatorESProducer(const edm::ParameterSet& p);
   ~StraightLinePropagatorESProducer() override;
-  std::unique_ptr<Propagator> produce(const TrackingComponentsRecord &);
+  std::unique_ptr<Propagator> produce(const TrackingComponentsRecord&);
 
 private:
-  edm::ParameterSet pset_;
+  const PropagationDirection dir_;
 };
-
 
 using namespace edm;
 
-StraightLinePropagatorESProducer::StraightLinePropagatorESProducer(const edm::ParameterSet& p) {
+StraightLinePropagatorESProducer::StraightLinePropagatorESProducer(const edm::ParameterSet& p)
+    : dir_{[](std::string const& pdir) {
+        if (pdir == "oppositeToMomentum")
+          return oppositeToMomentum;
+        else if (pdir == "anyDirection")
+          return anyDirection;
+        return alongMomentum;
+      }(p.getParameter<std::string>("PropagationDirection"))} {
   std::string myname = p.getParameter<std::string>("ComponentName");
-  pset_ = p;
   setWhatProduced(this, myname);
 }
 
@@ -40,15 +45,7 @@ std::unique_ptr<Propagator> StraightLinePropagatorESProducer::produce(const Trac
   //   }
   ESHandle<MagneticField> magfield;
   iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
-  std::string pdir = pset_.getParameter<std::string>("PropagationDirection");
-
-  PropagationDirection dir = alongMomentum;
-
-  if (pdir == "oppositeToMomentum")
-    dir = oppositeToMomentum;
-  else if (pdir == "anyDirection")
-    dir = anyDirection;
-  return std::make_unique<StraightLinePropagator>(&(*magfield), dir);
+  return std::make_unique<StraightLinePropagator>(&(*magfield), dir_);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(StraightLinePropagatorESProducer);
