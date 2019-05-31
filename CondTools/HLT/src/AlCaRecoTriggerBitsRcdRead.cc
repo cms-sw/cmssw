@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////
 ///
 /// Module to read trigger bit mappings (AlCaRecoTriggerBits) from
-/// DB and put out as text. 
+/// DB and put out as text.
 /// Several output formats can be configured via parameter 'outputType':
 /// - simple text ('text'),
 /// - text in format of a Twiki table for cut and paste ('twiki')
@@ -36,30 +36,27 @@
 #include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
 #include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 
-
-class  AlCaRecoTriggerBitsRcdRead : public edm::EDAnalyzer {
+class AlCaRecoTriggerBitsRcdRead : public edm::EDAnalyzer {
 public:
-  explicit  AlCaRecoTriggerBitsRcdRead(const edm::ParameterSet &cfg);
+  explicit AlCaRecoTriggerBitsRcdRead(const edm::ParameterSet &cfg);
   ~AlCaRecoTriggerBitsRcdRead() override {}
-  
+
   void analyze(const edm::Event &evt, const edm::EventSetup &evtSetup) override {}
   void beginRun(const edm::Run &run, const edm::EventSetup &evtSetup) override;
   void endJob() override;
 
-  
 private:
   // types
-  enum OutputType {kText, kTwiki, kPython}; //kHtml};
+  enum OutputType { kText, kTwiki, kPython };  //kHtml};
 
   // methods
   OutputType stringToEnum(const std::string &outputType) const;
-  void printMap(edm::RunNumber_t firstRun, edm::RunNumber_t lastRun,
-		const AlCaRecoTriggerBits &triggerMap) const;
+  void printMap(edm::RunNumber_t firstRun, edm::RunNumber_t lastRun, const AlCaRecoTriggerBits &triggerMap) const;
 
   // members
   const OutputType outputType_;
   edm::ESWatcher<AlCaRecoTriggerBitsRcd> watcher_;
-  edm::RunNumber_t firstRun_; 
+  edm::RunNumber_t firstRun_;
   edm::RunNumber_t lastRun_;
   AlCaRecoTriggerBits lastTriggerBits_;
   std::unique_ptr<std::ofstream> output_;
@@ -69,18 +66,22 @@ private:
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
 
-AlCaRecoTriggerBitsRcdRead::AlCaRecoTriggerBitsRcdRead(const edm::ParameterSet& cfg)
-  : outputType_(this->stringToEnum(cfg.getUntrackedParameter<std::string>("outputType"))),
-    firstRun_(0), lastRun_(0)
-{
-  //   edm::LogInfo("") << "@SUB=AlCaRecoTriggerBitsRcdRead" 
+AlCaRecoTriggerBitsRcdRead::AlCaRecoTriggerBitsRcdRead(const edm::ParameterSet &cfg)
+    : outputType_(this->stringToEnum(cfg.getUntrackedParameter<std::string>("outputType"))), firstRun_(0), lastRun_(0) {
+  //   edm::LogInfo("") << "@SUB=AlCaRecoTriggerBitsRcdRead"
   // 		   << cfg.getParameter<std::string>("@module_label");
 
   std::string fileName(cfg.getUntrackedParameter<std::string>("rawFileName"));
-  switch (outputType_) { // now append suffix
-  case kText:   fileName += ".txt";   break;
-  case kPython: fileName += ".py";    break;
-  case kTwiki:  fileName += ".twiki"; break;
+  switch (outputType_) {  // now append suffix
+    case kText:
+      fileName += ".txt";
+      break;
+    case kPython:
+      fileName += ".py";
+      break;
+    case kTwiki:
+      fileName += ".twiki";
+      break;
   }
   if (!fileName.empty()) {
     output_.reset(new std::ofstream(fileName.c_str()));
@@ -89,54 +90,52 @@ AlCaRecoTriggerBitsRcdRead::AlCaRecoTriggerBitsRcdRead(const edm::ParameterSet& 
       output_.reset();
     }
   }
-
 }
 
 ///////////////////////////////////////////////////////////////////////
-AlCaRecoTriggerBitsRcdRead::OutputType
-AlCaRecoTriggerBitsRcdRead::stringToEnum(const std::string &outputTypeStr) const
-{
-  if (outputTypeStr == "text") return kText;
-  if (outputTypeStr == "twiki") return kTwiki;
-  if (outputTypeStr == "python") return kPython;
+AlCaRecoTriggerBitsRcdRead::OutputType AlCaRecoTriggerBitsRcdRead::stringToEnum(const std::string &outputTypeStr) const {
+  if (outputTypeStr == "text")
+    return kText;
+  if (outputTypeStr == "twiki")
+    return kTwiki;
+  if (outputTypeStr == "python")
+    return kPython;
   // if (outputTypeStr == "html") return kHtml;
 
   throw cms::Exception("BadConfig") << "AlCaRecoTriggerBitsRcdRead: "
- 				    << "outputType '" << outputTypeStr << "' not known,"
- 				    << " use 'text', 'twiki' or 'python'\n";
+                                    << "outputType '" << outputTypeStr << "' not known,"
+                                    << " use 'text', 'twiki' or 'python'\n";
 
-  return kTwiki; // never reached, to please compiler
+  return kTwiki;  // never reached, to please compiler
 }
 
 ///////////////////////////////////////////////////////////////////////
-void AlCaRecoTriggerBitsRcdRead::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
-{
-  if (watcher_.check(iSetup)) { // new IOV for this run
+void AlCaRecoTriggerBitsRcdRead::beginRun(const edm::Run &run, const edm::EventSetup &iSetup) {
+  if (watcher_.check(iSetup)) {  // new IOV for this run
     // Print last IOV - if there has already been one:
-    if (lastRun_ != 0) this->printMap(firstRun_, lastRun_, lastTriggerBits_);
-  
+    if (lastRun_ != 0)
+      this->printMap(firstRun_, lastRun_, lastTriggerBits_);
+
     // Get AlCaRecoTriggerBits from EventSetup:
     edm::ESHandle<AlCaRecoTriggerBits> triggerBits;
     iSetup.get<AlCaRecoTriggerBitsRcd>().get(triggerBits);
-    lastTriggerBits_ = *triggerBits; // copy for later use
-    firstRun_ = run.run();           // keep track where it started
+    lastTriggerBits_ = *triggerBits;  // copy for later use
+    firstRun_ = run.run();            // keep track where it started
   }
 
-  lastRun_ = run.run(); // keep track of last visited run
+  lastRun_ = run.run();  // keep track of last visited run
 }
 
 ///////////////////////////////////////////////////////////////////////
-void AlCaRecoTriggerBitsRcdRead::endJob()
-{
+void AlCaRecoTriggerBitsRcdRead::endJob() {
   // Print for very last IOV, not treated yet in beginRun(..):
   this->printMap(firstRun_, lastRun_, lastTriggerBits_);
 }
 
 ///////////////////////////////////////////////////////////////////////
 void AlCaRecoTriggerBitsRcdRead::printMap(edm::RunNumber_t firstRun,
-					  edm::RunNumber_t lastRun, 
-					  const AlCaRecoTriggerBits &triggerBits) const
-{
+                                          edm::RunNumber_t lastRun,
+                                          const AlCaRecoTriggerBits &triggerBits) const {
   // Get map of strings to concatenated list of names of HLT paths:
   typedef std::map<std::string, std::string> TriggerMap;
   const TriggerMap &triggerMap = triggerBits.m_alcarecoToTrig;
@@ -145,76 +144,77 @@ void AlCaRecoTriggerBitsRcdRead::printMap(edm::RunNumber_t firstRun,
   // Format depends on outputType_ configuration.
   std::ostringstream output;
   switch (outputType_) {
-  case kPython:
-    output << "  triggerLists = cms.VPSet(\n";
-    // no 'break;'!
-  case kText:
-    output << "#\n# AlCaRecoTriggerBits settings for IOV "
-	   << firstRun << "-" << lastRun << ":\n#\n";
-    break;
-  case kTwiki:
-    output << "---+++++ *IOV*: " << firstRun << "-" << lastRun << "\n"
-	   << "| *TriggerBits list key* | *HLT paths* |\n";
-    break;
+    case kPython:
+      output << "  triggerLists = cms.VPSet(\n";
+      // no 'break;'!
+    case kText:
+      output << "#\n# AlCaRecoTriggerBits settings for IOV " << firstRun << "-" << lastRun << ":\n#\n";
+      break;
+    case kTwiki:
+      output << "---+++++ *IOV*: " << firstRun << "-" << lastRun << "\n"
+             << "| *TriggerBits list key* | *HLT paths* |\n";
+      break;
   }
 
   //  if (outputType_ == kPython) output << "  triggerLists = cms.VPSet(\n";
 
   // loop over entries in map
   for (TriggerMap::const_iterator i = triggerMap.begin(); i != triggerMap.end(); ++i) {
-
-    if (outputType_ == kPython && i != triggerMap.begin()) output << ",\n";
+    if (outputType_ == kPython && i != triggerMap.begin())
+      output << ",\n";
 
     switch (outputType_) {
-    case kPython:
-      output << "      cms.PSet(listName = cms.string('" << i->first << "'),\n"
-	     << "               hltPaths = cms.vstring(";
-      break;
-    case kText:
-      output << "trigger list key: '" << i->first << "'\npaths:\n";
-      break;
-    case kTwiki:
-      output << "| '" << i->first << "' | ";
+      case kPython:
+        output << "      cms.PSet(listName = cms.string('" << i->first << "'),\n"
+               << "               hltPaths = cms.vstring(";
+        break;
+      case kText:
+        output << "trigger list key: '" << i->first << "'\npaths:\n";
+        break;
+      case kTwiki:
+        output << "| '" << i->first << "' | ";
     }
     // We must avoid a map<string,vector<string> > in DB for performance reason,
     // so the paths are mapped into one string separated by ';':
     const std::vector<std::string> paths = triggerBits.decompose(i->second);
     for (unsigned int iPath = 0; iPath < paths.size(); ++iPath) {
       if (iPath != 0) {
-	output << ", "; // next path
-	switch (outputType_) {
-	case kPython: // only 2 per line
-	case kText:   // only 4 per line
-	  if (0 == (iPath % (outputType_ == kPython ? 2 : 4))) {
-	    output << "\n";
-	    if (outputType_ == kPython) output << "                                      ";
-	  }
-	  break;
-	case kTwiki: // Twiki will handle that
-	  break;
-	}
+        output << ", ";  // next path
+        switch (outputType_) {
+          case kPython:  // only 2 per line
+          case kText:    // only 4 per line
+            if (0 == (iPath % (outputType_ == kPython ? 2 : 4))) {
+              output << "\n";
+              if (outputType_ == kPython)
+                output << "                                      ";
+            }
+            break;
+          case kTwiki:  // Twiki will handle that
+            break;
+        }
       }
       output << "'" << paths[iPath] << "'";
     }
     switch (outputType_) {
-    case kPython:
-      output << ")\n              )";
-      break;
-    case kText:
-      output << "\n#\n";
-      break;
-    case kTwiki:
-      output << " |\n";
+      case kPython:
+        output << ")\n              )";
+        break;
+      case kText:
+        output << "\n#\n";
+        break;
+      case kTwiki:
+        output << " |\n";
     }
   }
-  if (outputType_ == kPython) output << "\n      ) # closing of VPSet triggerLists\n"; 
-  
+  if (outputType_ == kPython)
+    output << "\n      ) # closing of VPSet triggerLists\n";
+
   // Final output - either message logger or output file:
-  if (output_.get()) *output_ << output.str();
-  else edm::LogInfo("") << output.str();
+  if (output_.get())
+    *output_ << output.str();
+  else
+    edm::LogInfo("") << output.str();
 }
-
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(AlCaRecoTriggerBitsRcdRead);
