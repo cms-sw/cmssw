@@ -391,11 +391,11 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
                                                         VertexState(p2, e2));
            trackIP.ghostTrackWeight = pos->weight();
          } else {
-           trackIP.distanceToGhostTrack = Measurement1D(-1. -1.);
+           trackIP.distanceToGhostTrack = Measurement1D(0., -1.);
            trackIP.ghostTrackWeight = 0.;
          }
        } else {
-         trackIP.distanceToGhostTrack = Measurement1D(-1. -1.);
+         trackIP.distanceToGhostTrack = Measurement1D(0., -1.);
          trackIP.ghostTrackWeight = 1.;
        }
 
