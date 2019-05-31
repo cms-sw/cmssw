@@ -12,23 +12,20 @@
 
 using namespace edm;
 
-KFSwitching1DUpdatorESProducer::KFSwitching1DUpdatorESProducer(const edm::ParameterSet & p) 
-{
+KFSwitching1DUpdatorESProducer::KFSwitching1DUpdatorESProducer(const edm::ParameterSet& p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
   pset_ = p;
-  setWhatProduced(this,myname);
+  setWhatProduced(this, myname);
 }
 
 KFSwitching1DUpdatorESProducer::~KFSwitching1DUpdatorESProducer() {}
 
-std::unique_ptr<TrajectoryStateUpdator> 
-KFSwitching1DUpdatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
-//   if (_updator){
-//     delete _updator;
-//     _updator = 0;
-//   }
-  
+std::unique_ptr<TrajectoryStateUpdator> KFSwitching1DUpdatorESProducer::produce(
+    const TrackingComponentsRecord& iRecord) {
+  //   if (_updator){
+  //     delete _updator;
+  //     _updator = 0;
+  //   }
+
   return std::make_unique<KFSwitching1DUpdator>(&pset_);
 }
-
-

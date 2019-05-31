@@ -1,7 +1,6 @@
 #ifndef TkDetLayers_TECWedgeBuilder_h
 #define TkDetLayers_TECWedgeBuilder_h
 
-
 #include "TECWedge.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,15 +11,11 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TECWedgeBuilder {  
- public:
+class TECWedgeBuilder {
+public:
   TECWedgeBuilder(){};
-  TECWedge* build(const GeometricDet* aTECWedge,
-	      const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
-
-  
+  TECWedge* build(const GeometricDet* aTECWedge, const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
 };
 
-
 #pragma GCC visibility pop
-#endif 
+#endif
