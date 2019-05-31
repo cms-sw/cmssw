@@ -2,7 +2,7 @@
 //
 // Package:    V0Producer
 // Class:      V0Producer
-// 
+//
 /**\class V0Producer V0Producer.cc MyProducers/V0Producer/src/V0Producer.cc
 
  Description: <one line class summary>
@@ -15,8 +15,6 @@
 //         Created:  Fri May 18 22:57:40 CEST 2007
 //
 //
-
-
 
 #include <memory>
 
@@ -44,20 +42,15 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  V0Fitter theVees;      
+  V0Fitter theVees;
 };
 
-
 // Constructor
-V0Producer::V0Producer(const edm::ParameterSet& iConfig) :
-  theVees(iConfig, consumesCollector())
-{
-  produces< reco::VertexCompositeCandidateCollection >("Kshort");
-  produces< reco::VertexCompositeCandidateCollection >("Lambda");
+V0Producer::V0Producer(const edm::ParameterSet& iConfig) : theVees(iConfig, consumesCollector()) {
+  produces<reco::VertexCompositeCandidateCollection>("Kshort");
+  produces<reco::VertexCompositeCandidateCollection>("Lambda");
   //produces< reco::VertexCompositeCandidateCollection >("LambdaBar");
-
 }
-
 
 //
 // Methods
@@ -65,25 +58,23 @@ V0Producer::V0Producer(const edm::ParameterSet& iConfig) :
 
 // Producer Method
 void V0Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-   using namespace edm;
+  using namespace edm;
 
+  // Create auto_ptr for each collection to be stored in the Event
+  auto kShortCandidates = std::make_unique<reco::VertexCompositeCandidateCollection>();
 
-   // Create auto_ptr for each collection to be stored in the Event
-   auto kShortCandidates = std::make_unique<reco::VertexCompositeCandidateCollection>();
-
-   auto lambdaCandidates = std::make_unique<reco::VertexCompositeCandidateCollection>();
+  auto lambdaCandidates = std::make_unique<reco::VertexCompositeCandidateCollection>();
 
   // invoke the fitter which reconstructs the vertices and fills,
-   //  collections of Kshorts, Lambda0s
-   theVees.fitAll(iEvent, iSetup, *kShortCandidates, *lambdaCandidates);
+  //  collections of Kshorts, Lambda0s
+  theVees.fitAll(iEvent, iSetup, *kShortCandidates, *lambdaCandidates);
 
-
-   // Write the collections to the Event
-   kShortCandidates->shrink_to_fit(); iEvent.put(std::move(kShortCandidates), std::string("Kshort") );
-   lambdaCandidates->shrink_to_fit(); iEvent.put(std::move(lambdaCandidates), std::string("Lambda") );
-
+  // Write the collections to the Event
+  kShortCandidates->shrink_to_fit();
+  iEvent.put(std::move(kShortCandidates), std::string("Kshort"));
+  lambdaCandidates->shrink_to_fit();
+  iEvent.put(std::move(lambdaCandidates), std::string("Lambda"));
 }
-
 
 //define this as a plug-in
 #include "FWCore/PluginManager/interface/ModuleDef.h"

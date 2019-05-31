@@ -10,35 +10,26 @@ class LayerWithHits;
 class DetLayer;
 class TrackingRegion;
 
-
 /** \class CosmicHitPairGenerator
  * Hides set of HitPairGeneratorFromLayerPair generators.
  */
 
 class CosmicHitPairGenerator {
-
-  typedef std::vector<std::unique_ptr<CosmicHitPairGeneratorFromLayerPair> >   Container;
+  typedef std::vector<std::unique_ptr<CosmicHitPairGeneratorFromLayerPair> > Container;
 
 public:
   CosmicHitPairGenerator(SeedLayerPairs& layers, const edm::EventSetup& iSetup);
   CosmicHitPairGenerator(SeedLayerPairs& layers);
 
-
   ~CosmicHitPairGenerator();
 
   /// add generators based on layers
-    //  void  add(const DetLayer* inner, const DetLayer* outer);
-    void  add(const LayerWithHits* inner, 
-	      const LayerWithHits* outer,
-	      const edm::EventSetup& iSetup);
+  //  void  add(const DetLayer* inner, const DetLayer* outer);
+  void add(const LayerWithHits* inner, const LayerWithHits* outer, const edm::EventSetup& iSetup);
   /// form base class
-  void hitPairs( const TrackingRegion& reg,
-		 OrderedHitPairs & prs,
-		 const edm::EventSetup& iSetup);
+  void hitPairs(const TrackingRegion& reg, OrderedHitPairs& prs, const edm::EventSetup& iSetup);
+
 private:
-
-
-  Container        theGenerators;
-
+  Container theGenerators;
 };
 #endif
