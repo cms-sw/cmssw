@@ -1,5 +1,11 @@
-#include "RecoParticleFlow/PFProducer/plugins/PFEGammaProducer.h"
+/**\class PFEGammaProducer
+\brief Producer for particle flow reconstructed particles (PFCandidates)
 
+This producer makes use of PFAlgo, the particle flow algorithm.
+
+\author Colin Bernet
+\date   July 2006
+*/
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -16,16 +22,82 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
-
 #include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
-
 #include "DataFormats/Common/interface/RefToPtr.h"
-#include <sstream>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
+#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "RecoParticleFlow/PFProducer/interface/PFEGammaAlgo.h"
 
-//#define PFLOW_DEBUG
+#include <sstream>
+#include <string>
+#include <memory>
+
+class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<PFEGammaAlgo::GBRForests> > {
+
+ public:
+  explicit PFEGammaProducer(const edm::ParameterSet&, const PFEGammaAlgo::GBRForests* );
+
+  static std::unique_ptr<PFEGammaAlgo::GBRForests>
+    initializeGlobalCache( const edm::ParameterSet& conf ) {
+       return std::unique_ptr<PFEGammaAlgo::GBRForests>(new PFEGammaAlgo::GBRForests(conf));
+   }
+
+  static void globalEndJob(PFEGammaAlgo::GBRForests const* ) {}
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+ private:
+
+  void setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo&);
+
+  void setPFVertexParameters(reco::VertexCollection const&  primaryVertices);
+
+  void createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras,
+                                  reco::ConversionCollection &oneLegConversions,
+                                  const edm::RefProd<reco::ConversionCollection> &convProd);
+
+
+  const edm::EDGetTokenT<reco::PFBlockCollection>            inputTagBlocks_;
+  const edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation> eetopsSrc_;
+  const edm::EDGetTokenT<reco::VertexCollection>             vertices_;
+
+  // Use vertices for Neutral particles ?
+  const bool useVerticesForNeutral_;
+
+  /// Variables for PFEGamma
+
+  reco::Vertex primaryVertex_;
+
+  /// particle flow algorithm
+  std::unique_ptr<PFEGammaAlgo> pfeg_;
+
+  const std::string ebeeClustersCollection_;
+  const std::string esClustersCollection_;
+
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFEGammaProducer);
 
 #ifdef PFLOW_DEBUG
 #define LOGDRESSED(x)  edm::LogInfo(x)
