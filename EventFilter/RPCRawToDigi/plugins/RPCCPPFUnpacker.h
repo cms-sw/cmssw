@@ -25,9 +25,9 @@ class RPCCPPFUnpacker
 public:
     RPCCPPFUnpacker(edm::stream::EDProducerBase & producer, edm::ParameterSet const & config);
 
-    void beginRun(edm::Run const & run, edm::EventSetup const & setup);
+    void beginRun(edm::Run const & run, edm::EventSetup const & setup) override;
     void produce(edm::Event & event, edm::EventSetup const & setup
-                 , std::map<RPCAMCLink, rpcamc13::AMCPayload> const & amc_payload);
+                 , std::map<RPCAMCLink, rpcamc13::AMCPayload> const & amc_payload) override;
 
 protected:
     bool processCPPF(RPCAMCLink const & link, rpcamc13::AMCPayload const & payload

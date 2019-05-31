@@ -23,7 +23,7 @@ class RPCAMCRawToDigi
 {
 public:
     RPCAMCRawToDigi(edm::ParameterSet const & config);
-    ~RPCAMCRawToDigi();
+    ~RPCAMCRawToDigi() override;
 
     static void compute_crc16_64bit(std::uint16_t & crc, std::uint64_t const & word);
 

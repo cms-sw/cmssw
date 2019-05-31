@@ -28,9 +28,9 @@ public:
            , unsigned int orbit_counter
            , unsigned int board_id
            , unsigned int event_type = l1a_type_);
-    ~Header();
+    ~Header() override;
 
-    void reset();
+    void reset() override;
 
     unsigned int getEventType() const;
 
