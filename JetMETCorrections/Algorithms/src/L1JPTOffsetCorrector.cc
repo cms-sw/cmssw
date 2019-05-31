@@ -25,7 +25,7 @@ L1JPTOffsetCorrector::L1JPTOffsetCorrector(const JetCorrectorParameters& fParam,
 {
   mOffsetService = fConfig.getParameter<std::string>("offsetService");
   mIsOffsetSet = false;
-  if (mOffsetService != "")
+  if (!mOffsetService.empty())
     mIsOffsetSet = true;
   if (fParam.definitions().level() != "L1JPTOffset")
     throw cms::Exception("L1OffsetCorrector")<<" correction level: "<<fParam.definitions().level()<<" is not L1JPTOffset"; 
