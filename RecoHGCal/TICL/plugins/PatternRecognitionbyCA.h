@@ -19,11 +19,10 @@ namespace ticl {
                         const edm::EventSetup& es,
                         const std::vector<reco::CaloCluster>& layerClusters,
                         const std::vector<float>& mask,
-                        const ticl::TICLLayerTiles & tiles,
+                        const ticl::TICLLayerTiles& tiles,
                         std::vector<Trackster>& result) override;
 
   private:
-
     hgcal::RecHitTools rhtools_;
     std::unique_ptr<HGCGraph> theGraph_;
     float min_cos_theta_;

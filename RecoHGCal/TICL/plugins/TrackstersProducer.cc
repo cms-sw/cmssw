@@ -25,14 +25,14 @@
 using namespace ticl;
 
 class TrackstersProducer : public edm::stream::EDProducer<> {
- public:
-  TrackstersProducer(const edm::ParameterSet &);
+public:
+  TrackstersProducer(const edm::ParameterSet&);
   ~TrackstersProducer() override {}
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   edm::EDGetTokenT<std::vector<float>> filtered_layerclusters_mask_token_;
   edm::EDGetTokenT<std::vector<float>> original_layerclusters_mask_token_;
@@ -44,14 +44,10 @@ DEFINE_FWK_MODULE(TrackstersProducer);
 
 TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps)
     : myAlgo_(std::make_unique<PatternRecognitionbyCA>(ps)) {
-  clusters_token_ = consumes<std::vector<reco::CaloCluster>>(
-      ps.getParameter<edm::InputTag>("layer_clusters"));
-  filtered_layerclusters_mask_token_ = consumes<std::vector<float>>(
-      ps.getParameter<edm::InputTag>("filtered_mask"));
-  original_layerclusters_mask_token_ =
-    consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"));
-  layer_clusters_tiles_token_ =
-    consumes<ticl::TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"));
+  clusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"));
+  filtered_layerclusters_mask_token_ = consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"));
+  original_layerclusters_mask_token_ = consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"));
+  layer_clusters_tiles_token_ = consumes<ticl::TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"));
   produces<std::vector<Trackster>>();
   produces<std::vector<float>>();  // Mask to be applied at the next iteration
 }
@@ -60,10 +56,8 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   // hgcalMultiClusters
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalLayerClusters"));
-  desc.add<edm::InputTag>("filtered_mask",
-                          edm::InputTag("FilteredLayerClusters", "iterationLabelGoesHere"));
-  desc.add<edm::InputTag>("original_mask",
-                          edm::InputTag("hgcalLayerClusters", "InitialLayerClustersMask"));
+  desc.add<edm::InputTag>("filtered_mask", edm::InputTag("FilteredLayerClusters", "iterationLabelGoesHere"));
+  desc.add<edm::InputTag>("original_mask", edm::InputTag("hgcalLayerClusters", "InitialLayerClustersMask"));
   desc.add<edm::InputTag>("layer_clusters_tiles", edm::InputTag("TICLLayerTileProducer"));
   desc.add<int>("algo_verbosity", 0);
   desc.add<double>("min_cos_theta", 0.915);
@@ -90,13 +84,13 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   const auto& layerClusters = *cluster_h;
   const auto& inputClusterMask = *filtered_layerclusters_mask_h;
   const auto& layer_clusters_tiles = *layer_clusters_tiles_h;
-  myAlgo_->makeTracksters(evt, es, layerClusters, inputClusterMask,
-      layer_clusters_tiles, *result);
+  myAlgo_->makeTracksters(evt, es, layerClusters, inputClusterMask, layer_clusters_tiles, *result);
 
   // Now update the global mask and put it into the event
   output_mask->reserve(original_layerclusters_mask_h->size());
   // Copy over the previous state
-  std::copy(std::begin(*original_layerclusters_mask_h), std::end(*original_layerclusters_mask_h),
+  std::copy(std::begin(*original_layerclusters_mask_h),
+            std::end(*original_layerclusters_mask_h),
             std::back_inserter(*output_mask));
   // Mask the used elements, accordingly
   for (auto const& trackster : *result) {
