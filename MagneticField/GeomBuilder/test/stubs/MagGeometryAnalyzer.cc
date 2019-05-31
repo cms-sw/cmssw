@@ -22,33 +22,30 @@
 using namespace std;
 
 class testMagGeometryAnalyzer : public edm::EDAnalyzer {
- public:
+public:
   /// Constructor
-  testMagGeometryAnalyzer(const edm::ParameterSet& pset) {};
+  testMagGeometryAnalyzer(const edm::ParameterSet& pset){};
 
   /// Destructor
-  virtual ~testMagGeometryAnalyzer() {};
+  virtual ~testMagGeometryAnalyzer(){};
 
   /// Perform the real analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
 
-  virtual void endJob() {
-  }
-  
- private:
-  void testGrids( const vector<MagVolume6Faces const*>& bvol);
+  virtual void endJob() {}
+
+private:
+  void testGrids(const vector<MagVolume6Faces const*>& bvol);
 };
 
 using namespace edm;
 
-void testMagGeometryAnalyzer::analyze(const edm::Event & event, const edm::EventSetup& eventSetup) {
-
+void testMagGeometryAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   ESHandle<MagneticField> magfield;
   eventSetup.get<IdealMagneticFieldRecord>().get(magfield);
 
   const MagGeometry* field = (dynamic_cast<const VolumeBasedMagneticField*>(magfield.product()))->field;
-  
-  
+
   // Test that findVolume succeeds for random points
   MagGeometryExerciser exe(field);
 
@@ -56,41 +53,39 @@ void testMagGeometryAnalyzer::analyze(const edm::Event & event, const edm::Event
   exe.testFindVolume(10000000);
 
   // Test that random points are inside one and only one volume
-  // exe.testInside(100000,0.03); 
+  // exe.testInside(100000,0.03);
 
-  
   // Test that each grid point is inside its own volume
   if (false) {
     cout << "***TEST GRIDS: barrel volumes: " << field->barrelVolumes().size() << endl;
-    testGrids( field->barrelVolumes());
-    
+    testGrids(field->barrelVolumes());
+
     cout << "***TEST GRIDS: endcap volumes: " << field->endcapVolumes().size() << endl;
-    testGrids( field->endcapVolumes());
+    testGrids(field->endcapVolumes());
   }
 }
-
 
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "VolumeGridTester.h"
 
-
 void testMagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces const*>& bvol) {
-  static map<string,int> nameCalls;
+  static map<string, int> nameCalls;
 
-  for (vector<MagVolume6Faces const*>::const_iterator i=bvol.begin();
-       i!=bvol.end(); i++) {
+  for (vector<MagVolume6Faces const*>::const_iterator i = bvol.begin(); i != bvol.end(); i++) {
     if ((*i)->copyno != 1) {
       continue;
     }
 
     const MagProviderInterpol* prov = (**i).provider();
     if (prov == 0) {
-      cout << (*i)->volumeNo << " No interpolator; skipping " <<  endl;
+      cout << (*i)->volumeNo << " No interpolator; skipping " << endl;
       continue;
     }
     VolumeGridTester tester(*i, prov);
-    if (tester.testInside()) cout << "testGrids: success: " << (**i).volumeNo << endl;
-    else cout << "testGrids: ERROR: " << (**i).volumeNo << endl;
+    if (tester.testInside())
+      cout << "testGrids: success: " << (**i).volumeNo << endl;
+    else
+      cout << "testGrids: ERROR: " << (**i).volumeNo << endl;
   }
 }
 

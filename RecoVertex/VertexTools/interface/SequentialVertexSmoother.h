@@ -1,7 +1,6 @@
 #ifndef _SequentialVertexSmoother_H_
 #define _SequentialVertexSmoother_H_
 
-
 #include "RecoVertex/VertexPrimitives/interface/VertexSmoother.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexTrackUpdator.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexSmoothedChiSquaredEstimator.h"
@@ -14,9 +13,7 @@
 
 template <unsigned int N>
 class SequentialVertexSmoother : public VertexSmoother<N> {
-
 public:
-
   typedef ReferenceCountingPointer<RefittedTrackState<N> > RefCountedRefittedTrackState;
   typedef ReferenceCountingPointer<VertexTrack<N> > RefCountedVertexTrack;
   typedef ReferenceCountingPointer<LinearizedTrackState<N> > RefCountedLinearizedTrackState;
@@ -28,16 +25,16 @@ public:
    *  \return covCalc The algorithm the track-to-track covariance matrix. 
    *  If this option is not required, this pointer should be 0.
    */
-  SequentialVertexSmoother(const VertexTrackUpdator<N> & vtu, 
-			   const VertexSmoothedChiSquaredEstimator<N> & vse, 
-			   const TrackToTrackCovCalculator<N> & covCalc);
+  SequentialVertexSmoother(const VertexTrackUpdator<N>& vtu,
+                           const VertexSmoothedChiSquaredEstimator<N>& vse,
+                           const TrackToTrackCovCalculator<N>& covCalc);
 
   ~SequentialVertexSmoother() override;
 
   /**
    *  Special copy constructor cloning the private data
    */
-  SequentialVertexSmoother(const SequentialVertexSmoother<N> & smoother);
+  SequentialVertexSmoother(const SequentialVertexSmoother<N>& smoother);
 
   /**
    *  Methode which will refit the tracks with the vertex constraint, 
@@ -49,30 +46,26 @@ public:
    *	last update.
    *  \return the final vertex estimate, with all the supplementary information
    */
-  CachingVertex<N> smooth(const CachingVertex<N> & vertex) const override;
+  CachingVertex<N> smooth(const CachingVertex<N>& vertex) const override;
 
   /**
    *  Access methods
    */
-  const VertexTrackUpdator<N> * vertexTrackUpdator() const
-    { return theVertexTrackUpdator; }
-  const VertexSmoothedChiSquaredEstimator<N> * vertexSmoothedChiSquaredEstimator() const
-    { return theVertexSmoothedChiSquaredEstimator; }
-  const TrackToTrackCovCalculator<N> * trackToTrackCovCalculator() const
-    { return theTrackToTrackCovCalculator; }
+  const VertexTrackUpdator<N>* vertexTrackUpdator() const { return theVertexTrackUpdator; }
+  const VertexSmoothedChiSquaredEstimator<N>* vertexSmoothedChiSquaredEstimator() const {
+    return theVertexSmoothedChiSquaredEstimator;
+  }
+  const TrackToTrackCovCalculator<N>* trackToTrackCovCalculator() const { return theTrackToTrackCovCalculator; }
 
   /**
    * Clone method 
    */
-  SequentialVertexSmoother<N> * clone() const override 
-  {
-    return new SequentialVertexSmoother(* this);
-  }
-  
+  SequentialVertexSmoother<N>* clone() const override { return new SequentialVertexSmoother(*this); }
+
 private:
-   VertexTrackUpdator<N> * theVertexTrackUpdator;       
-   VertexSmoothedChiSquaredEstimator<N> * theVertexSmoothedChiSquaredEstimator;
-   TrackToTrackCovCalculator<N> * theTrackToTrackCovCalculator;
+  VertexTrackUpdator<N>* theVertexTrackUpdator;
+  VertexSmoothedChiSquaredEstimator<N>* theVertexSmoothedChiSquaredEstimator;
+  TrackToTrackCovCalculator<N>* theTrackToTrackCovCalculator;
 };
 
 #endif

@@ -11,8 +11,8 @@
  */
 class HsmModeFinder3d : public ModeFinder3d {
 public:
-  GlobalPoint operator () ( const std::vector< PointAndDistance> & ) const override;
-  HsmModeFinder3d * clone() const override;
+  GlobalPoint operator()(const std::vector<PointAndDistance>&) const override;
+  HsmModeFinder3d* clone() const override;
 };
 
 #endif
