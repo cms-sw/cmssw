@@ -34,55 +34,53 @@
 
 #include "Validation/EventGenerator/interface/WeightManager.h"
 
-class BasicGenParticleValidation : public DQMEDAnalyzer{
-    public:
-	explicit BasicGenParticleValidation(const edm::ParameterSet&);
-	~BasicGenParticleValidation() override;
+class BasicGenParticleValidation : public DQMEDAnalyzer {
+public:
+  explicit BasicGenParticleValidation(const edm::ParameterSet &);
+  ~BasicGenParticleValidation() override;
 
-	void analyze(const edm::Event&, const edm::EventSetup&) override;
-	void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
 
-    bool matchParticles(const HepMC::GenParticle*&, const reco::GenParticle*&); 
+  bool matchParticles(const HepMC::GenParticle *&, const reco::GenParticle *&);
 
-    private:
-    WeightManager wmanager_;
-    edm::InputTag hepmcCollection_;
-    edm::InputTag genparticleCollection_;
-    edm::InputTag genjetCollection_;
-    double matchPr_;	
+private:
+  WeightManager wmanager_;
+  edm::InputTag hepmcCollection_;
+  edm::InputTag genparticleCollection_;
+  edm::InputTag genjetCollection_;
+  double matchPr_;
 
-    unsigned int verbosity_;
+  unsigned int verbosity_;
 
+  MonitorElement *nEvt;
 
-    MonitorElement *nEvt;
+  // Basic reco::GenParticle test
 
-    // Basic reco::GenParticle test
-  
-    MonitorElement *genPMultiplicity;
-    MonitorElement *genMatched;
-    MonitorElement *multipleMatching;
-    MonitorElement *matchedResolution;
+  MonitorElement *genPMultiplicity;
+  MonitorElement *genMatched;
+  MonitorElement *multipleMatching;
+  MonitorElement *matchedResolution;
 
-    // Basci GenJets analysis
+  // Basci GenJets analysis
 
-    MonitorElement *genJetMult;
-    MonitorElement *genJetEnergy;
-    MonitorElement *genJetPt;
-    MonitorElement *genJetEta;
-    MonitorElement *genJetPhi;
-    MonitorElement *genJetDeltaEtaMin;
+  MonitorElement *genJetMult;
+  MonitorElement *genJetEnergy;
+  MonitorElement *genJetPt;
+  MonitorElement *genJetEta;
+  MonitorElement *genJetPhi;
+  MonitorElement *genJetDeltaEtaMin;
 
-    MonitorElement *genJetPto1;
-    MonitorElement *genJetPto10;
-    MonitorElement *genJetPto100;
-    MonitorElement *genJetCentral;
+  MonitorElement *genJetPto1;
+  MonitorElement *genJetPto10;
+  MonitorElement *genJetPto100;
+  MonitorElement *genJetCentral;
 
-    MonitorElement *genJetTotPt;
+  MonitorElement *genJetTotPt;
 
-    edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
-    edm::EDGetTokenT<reco::GenParticleCollection> genparticleCollectionToken_;
-    edm::EDGetTokenT<reco::GenJetCollection> genjetCollectionToken_;
-
+  edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> genparticleCollectionToken_;
+  edm::EDGetTokenT<reco::GenJetCollection> genjetCollectionToken_;
 };
 
 #endif

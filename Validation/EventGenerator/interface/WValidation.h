@@ -31,28 +31,26 @@
 
 #include "Validation/EventGenerator/interface/WeightManager.h"
 
+class WValidation : public DQMEDAnalyzer {
+public:
+  explicit WValidation(const edm::ParameterSet &);
+  ~WValidation() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(const edm::Run &r, const edm::EventSetup &c) override;
 
-class WValidation : public DQMEDAnalyzer{
-  public:
-	explicit WValidation(const edm::ParameterSet&);
-	~WValidation() override;
-	void analyze(const edm::Event&, const edm::EventSetup&) override;
-        void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-        void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
-
-  private:
-
-	WeightManager wmanager_;
-	edm::InputTag hepmcCollection_;
+private:
+  WeightManager wmanager_;
+  edm::InputTag hepmcCollection_;
 
   /// PDT table
-  edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
-  
-  MonitorElement *nEvt;  
-  MonitorElement *Wmass, *WmassPeak, /* *WmT, *WmTPeak, */  *Wpt, *WptLog, *Wrap, *Wdaughters;
+  edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable;
+
+  MonitorElement *nEvt;
+  MonitorElement *Wmass, *WmassPeak, /* *WmT, *WmTPeak, */ *Wpt, *WptLog, *Wrap, *Wdaughters;
   MonitorElement *lepmet_mT, *lepmet_mTPeak, *lepmet_pt, *lepmet_ptLog, *lepmet_rap;
   MonitorElement *leppt, *met, *lepeta;
-  MonitorElement *gamma_energy, *cos_theta_gamma_lepton; 
+  MonitorElement *gamma_energy, *cos_theta_gamma_lepton;
 
   /// decay flavor
   int _flavor;
