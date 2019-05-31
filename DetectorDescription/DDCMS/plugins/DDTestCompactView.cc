@@ -14,21 +14,17 @@ using namespace edm;
 
 class DDTestCompactView : public one::EDAnalyzer<> {
 public:
-  explicit DDTestCompactView(const ParameterSet& iConfig)
-    : m_tag(iConfig.getParameter<ESInputTag>("DDDetector"))
-  {}
+  explicit DDTestCompactView(const ParameterSet& iConfig) : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")) {}
 
   void beginJob() override {}
   void analyze(Event const& iEvent, EventSetup const&) override;
   void endJob() override {}
 
-private:  
+private:
   const ESInputTag m_tag;
 };
 
-void
-DDTestCompactView::analyze(const Event&, const EventSetup& iEventSetup)
-{
+void DDTestCompactView::analyze(const Event&, const EventSetup& iEventSetup) {
   LogVerbatim("Geometry") << "DDTestCompactView::analyze: " << m_tag;
   ESTransientHandle<DDCompactView> cpv;
   iEventSetup.get<IdealGeometryRecord>().get(m_tag, cpv);

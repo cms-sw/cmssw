@@ -5,7 +5,7 @@
 //
 // Package:    DetectorDescription/Core
 // Class:      DDCompactView
-// 
+//
 /**\class DDCompactView
 
  Description: DD Compact View Facade
@@ -23,17 +23,15 @@
 
 namespace cms {
 
-class DDDetector;
+  class DDDetector;
 
-class DDCompactView {
- public:
-  
- DDCompactView(const cms::DDDetector& det)
- : m_det(det) {}
-  
- private:
-  const cms::DDDetector& m_det;
-};
-}
+  class DDCompactView {
+  public:
+    DDCompactView(const cms::DDDetector& det) : m_det(det) {}
+
+  private:
+    const cms::DDDetector& m_det;
+  };
+}  // namespace cms
 
 #endif

@@ -15,19 +15,16 @@ using namespace cms;
 using namespace std;
 
 class testDDCompactView : public CppUnit::TestFixture {
-
   CPPUNIT_TEST_SUITE(testDDCompactView);
   CPPUNIT_TEST(checkCompactView);
   CPPUNIT_TEST_SUITE_END();
 
 public:
-
   void setUp() override;
   void tearDown() override {}
   void checkCompactView();
 
 private:
-
   string fileName_;
 };
 
@@ -37,8 +34,7 @@ void testDDCompactView::setUp() {
   fileName_ = edm::FileInPath("DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml").fullPath();
 }
 
-void testDDCompactView::checkCompactView()
-{
+void testDDCompactView::checkCompactView() {
   const DDDetector det("DUMMY", fileName_);
   DDCompactView cpview(det);
 }
