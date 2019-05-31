@@ -9,15 +9,15 @@
 
 #include "helper.h"  // merge_map_into_map, assert_no_abort
 
-#define NUM_CSC_CHAMBERS \
-  6 * 9  // 18 in ME1; 9x3 in ME2,3,4; 9 from neighbor sector. \
-         // Arranged in FW as 6 stations, 9 chambers per station.
-#define NUM_RPC_CHAMBERS \
-  7 * 8  // 6x2 in RE1,2; 12x2 in RE3,4; 6 from neighbor sector. \
-         // Arranged in FW as 7 stations, 6 chambers per station. (8 with iRPC)
-#define NUM_GEM_CHAMBERS \
-  6 * 9  // 6 in GE1/1; 3 in GE2/1; 2 from neighbor sector. \
-         // Arranged in FW as 6 stations, 9 chambers per station, mimicking CSC. (unconfirmed!)
+// 18 in ME1; 9x3 in ME2,3,4; 9 from neighbor sector. 
+// Arranged in FW as 6 stations, 9 chambers per station.
+#define NUM_CSC_CHAMBERS 6*9
+// 6x2 in RE1,2; 12x2 in RE3,4; 6 from neighbor sector.
+// Arranged in FW as 7 stations, 6 chambers per station. (8 with iRPC)
+#define NUM_RPC_CHAMBERS 7*8
+// 6 in GE1/1; 3 in GE2/1; 2 from neighbor sector. 
+// Arranged in FW as 6 stations, 9 chambers per station, mimicking CSC. (unconfirmed!)
+#define NUM_GEM_CHAMBERS 6*9
 
 void PrimitiveSelection::configure(int verbose,
                                    int endcap,
