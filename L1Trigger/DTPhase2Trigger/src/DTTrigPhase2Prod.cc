@@ -345,11 +345,12 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
     }
     
     // Store RPC hits
-    if(useRPC){
+    if(useRPC) {
+        int dt_phi_granularity = 65536/0.8;
         for (RPCRecHitCollection::const_iterator rpcIt = rpcHits->begin(); rpcIt != rpcHits->end(); rpcIt++) {
             // Retrieve RPC info and translate it to DT convention if needed
-            int rpc_bx = rpcIt->BunchX(); // FIXME how to get bx w.r.t. orbit start?
-            int rpc_time = int(rpcIt->time());// FIXME need to follow DT convention
+            int rpc_bx = rpcIt->BunchX();
+            int rpc_time = int(rpcIt->time());
             RPCDetId rpcDetId = (RPCDetId)(*rpcIt).rpcId();
             if(debug) std::cout << "Getting RPC info from : " << rpcDetId << std::endl;
             int rpc_region = rpcDetId.region();
@@ -357,21 +358,21 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
             int rpc_wheel = rpcDetId.ring(); // In barrel, wheel is accessed via ring() method ([-2,+2])
             int rpc_dt_sector = rpcDetId.sector()-1; // DT sector:[0,11] while RPC sector:[1,12]
             int rpc_station = rpcDetId.station();
+            int rpc_layer = rpcDetId.layer();
 
             if(debug) std::cout << "Getting RPC global point and translating to DT local coordinates" << std::endl;
             GlobalPoint rpc_gp = getRPCGlobalPosition(rpcDetId, *rpcIt);
-            int rpc_global_phi = rpc_gp.phi();
+            double rpc_global_phi = rpc_gp.phi();
             int rpc_localDT_phi = std::numeric_limits<int>::min();
-            // FIXME Adaptation of L1Trigger/L1TTwinMux/src/RPCtoDTTranslator.cc radialAngle function, should maybe be updated
-            if (rpcDetId.sector() == 1) rpc_localDT_phi = int(rpc_global_phi * 1024);
+            // Adaptation of https://github.com/cms-sw/cmssw/blob/master/L1Trigger/L1TTwinMux/src/RPCtoDTTranslator.cc#L349
+            if (rpcDetId.sector() == 1) rpc_localDT_phi = int(rpc_global_phi * dt_phi_granularity);
             else {
-                if (rpc_global_phi >= 0) rpc_localDT_phi = int((rpc_localDT_phi - rpc_dt_sector * Geom::pi() / 6.) * 1024);
-                else rpc_localDT_phi = int((rpc_global_phi + (13 - rpcDetId.sector()) * Geom::pi() / 6.) * 1024);
+                if (rpc_global_phi >= 0) rpc_localDT_phi = int((rpc_global_phi - (rpcDetId.sector() - 1) * Geom::pi() / 6.) * dt_phi_granularity);
+                else rpc_localDT_phi = int((rpc_global_phi + (13 - rpcDetId.sector()) * Geom::pi() / 6.) * dt_phi_granularity);
             }
-            int rpc_phiB = std::numeric_limits<int>::min(); // single hit has no phiB and 0 is legal value for DT phiB
+            int rpc_phiB = -100000; // single hit has no phiB, DT phiB ranges approx from -1500 to 1500
             int rpc_quality = -1; // to be decided
             int rpc_index = 0;
-            int rpc_BxCnt = 0;
             int rpc_flag = 3; // only single hit for now
             if(p2_df == 2){
                 if(debug)std::cout<<"pushing back phase-2 dataformat carlo-federica dataformat"<<std::endl;
@@ -379,7 +380,7 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
                             rpc_wheel,
                             rpc_dt_sector,
                             rpc_station,
-                            0, //this would be the layer in the new dataformat
+                            rpc_layer, //this would be the layer in the new dataformat
                             rpc_localDT_phi,
                             rpc_phiB,
                             rpc_quality,
