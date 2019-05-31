@@ -18,7 +18,7 @@ public:
   /// Delimeter for composing paths to one string in DB:
   static const std::string::value_type delimeter_;
 
-  std::map<std::string,std::string> m_alcarecoToTrig;
+  std::map<std::string, std::string> m_alcarecoToTrig;
 
   COND_SERIALIZABLE;
 };
