@@ -58,7 +58,6 @@ SiPixelGenErrorDBObjectESProducer::SiPixelGenErrorDBObjectESProducer(const edm::
     .setConsumes(dbToken3T_, edm::ESInputTag{"", "3T"})
     .setConsumes(dbToken35T_, edm::ESInputTag{"", "35T"})
     .setConsumes(dbToken4T_, edm::ESInputTag{"", "4T"});
-;
 }
 
 
