@@ -7,33 +7,58 @@ import commands
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1)
-process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
+verbose = True
+
+if verbose: 
+    process.MessageLogger = cms.Service("MessageLogger",
+       #suppressInfo       = cms.untracked.vstring('AfterSource', 'PostModule'),
+       destinations   = cms.untracked.vstring(
+                                               #'detailedInfo',
+                                               #'critical',
+                                               #'cout',
+                                               #'cerr',
+                                               'muCorrelatorEventPrint'
+                    ),
+       categories        = cms.untracked.vstring('l1tMuBayesEventPrint'),
+       muCorrelatorEventPrint = cms.untracked.PSet(    
+                         extension = cms.untracked.string('.txt'),                
+                         threshold = cms.untracked.string('DEBUG'),
+                         default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
+                         #INFO   =  cms.untracked.int32(0),
+                         #DEBUG   = cms.untracked.int32(0),
+                         l1tMuBayesEventPrint = cms.untracked.PSet( limit = cms.untracked.int32(100000000) )
+                       ),
+       debugModules = cms.untracked.vstring('L1TMuonBayesMuCorrelatorTrackProducer', 'OmtfTTAnalyzer', 'simOmtfDigis', 'omtfTTAnalyzer', 'simBayesMuCorrelatorTrackProducer') 
+       #debugModules = cms.untracked.vstring('*')
+    )
+
+    #process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
+if not verbose:
+    process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
+    process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False), 
+                                         #SkipEvent = cms.untracked.vstring('ProductNotFound') 
+                                     )
+
 
 #######################################TTTracks################################################
 GEOMETRY = "D17"
 
+# import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
-
-if GEOMETRY == "D17":
-    print "using geometry " + GEOMETRY + " (tilted)"
-    process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
-    process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
-elif GEOMETRY == "TkOnly":
-    print "using geometry " + GEOMETRY + " (tilted)"
-    process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff')
-else:
-    print "this is not a valid geometry!!!"
-
+process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
+from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '103X_upgrade2023_realistic_v2', '') 
 
 ############################################################
 # input and output
@@ -43,11 +68,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 if GEOMETRY == "D17":
     Source_Files = cms.untracked.vstring(
-#        "/store/relval/CMSSW_10_0_0_pre1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/94X_upgrade2023_realistic_v2_2023D17noPU-v2/10000/06C888F3-CFCE-E711-8928-0CC47A4D764C.root"
-         #"/store/relval/CMSSW_9_3_2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/93X_upgrade2023_realistic_v2_2023D17noPU-v1/10000/0681719F-AFA6-E711-87C9-0CC47A4C8E14.root"
-         "file:///eos/user/k/kbunkow/cms_data/0681719F-AFA6-E711-87C9-0CC47A4C8E14.root"
-         #"file:///eos/cms/store/group/upgrade/sandhya/SMP-PhaseIIFall17D-00001.root"
-         #'file:///afs/cern.ch/work/k/kbunkow/private/omtf_data/SingleMu_15_p_1_1_qtl.root' 
+          'file:///eos/user/k/kbunkow/cms_data/mc/PhaseIIFall17D/ZMM_EE29AF8E-51AF-E811-A2BD-484D7E8DF0D3_dump1000Events.root' 
 )
 elif GEOMETRY == "TkOnly":
     Source_Files = cms.untracked.vstring(
@@ -66,7 +87,7 @@ process.source = cms.Source("PoolSource", fileNames = Source_Files,
         'drop l1tEMTFTrack2016s_simEmtfDigis__HLT')
 )
 
-#process.TFileService = cms.Service("TFileService", fileName = cms.string('TTbar_'+GEOMETRY+'_PU0.root'), closeFileFast = cms.untracked.bool(True))
+#process.TFileService = cms.Service("TFileService", fileName = cms.string('muCorrelatorTTAnalysis1.root'), closeFileFast = cms.untracked.bool(True))
 
 
 ############################################################
@@ -129,7 +150,7 @@ process.TTTracksWithTruth = cms.Path(process.L1TrackletTracksWithAssociators)
 process.load('L1Trigger.L1TMuonBayes.simBayesMuCorrelatorTrackProducer_cfi')
 
 process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("L1_TRACKER")
-process.simBayesMuCorrelatorTrackProducer.pdfModuleFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModule.xml")
+#process.simBayesMuCorrelatorTrackProducer.pdfModuleFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModule.xml")
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
@@ -154,7 +175,8 @@ process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 #process.schedule = cms.Schedule(process.TTClusterStub,process.TTClusterStubTruth,process.TTTracksWithTruth,process.ana)
 
 # use this if cluster/stub associators not available 
-process.schedule = cms.Schedule(process.TTClusterStubTruth, process.TTTracksWithTruth, process.L1TMuonPath)
+#process.schedule = cms.Schedule(process.TTClusterStubTruth, process.TTTracksWithTruth, process.L1TMuonPath)
+process.schedule = cms.Schedule(process.TTTracksWithTruth, process.L1TMuonPath)
 
 # use this to only run tracking + track associator
 #process.schedule = cms.Schedule(process.TTTracksWithTruth,process.ana)
