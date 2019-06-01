@@ -1,7 +1,6 @@
 #ifndef HiJetBackground_HiFJGridEmptyAreaCalculator_h
 #define HiJetBackground_HiFJGridEmptyAreaCalculator_h
 
-
 // system include files
 #include <memory>
 #include <sstream>
@@ -23,17 +22,17 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 class HiFJGridEmptyAreaCalculator : public edm::stream::EDProducer<> {
-   public:
-      explicit HiFJGridEmptyAreaCalculator(const edm::ParameterSet&);
-      ~HiFJGridEmptyAreaCalculator() override;
+public:
+  explicit HiFJGridEmptyAreaCalculator(const edm::ParameterSet&);
+  ~HiFJGridEmptyAreaCalculator() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      void beginStream(edm::StreamID) override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endStream() override;
-      
+private:
+  void beginStream(edm::StreamID) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endStream() override;
+
   /// @name setting a new event
   //\{
   //----------------------------------------------------------------
@@ -41,30 +40,28 @@ class HiFJGridEmptyAreaCalculator : public edm::stream::EDProducer<> {
   /// tell the background estimator that it has a new event, composed
   /// of the specified particles.
 
-
 private:
-
   /// configure the grid
   void setupGrid(double eta_min, double eta_max);
-  void setupGridJet(const reco::Jet *jet);
+  void setupGridJet(const reco::Jet* jet);
 
   /// retrieve the grid cell index for a given PseudoJet
-  int tileIndexJet(const reco::PFCandidate *pfCand);
-  int tileIndexEta(const reco::PFCandidate *pfCand);
-  int tileIndexEtaJet(const reco::PFCandidate *pfCand);
-  int tileIndexPhi(const reco::PFCandidate *pfCand);
-  
+  int tileIndexJet(const reco::PFCandidate* pfCand);
+  int tileIndexEta(const reco::PFCandidate* pfCand);
+  int tileIndexEtaJet(const reco::PFCandidate* pfCand);
+  int tileIndexPhi(const reco::PFCandidate* pfCand);
+
   ///number of grid cells that overlap with jet constituents filling in the in between area
-  int numJetGridCells( std::vector<std::pair<int, int> >& indices );
-  
-  /// calculates the area of jets that fall within the eta 
+  int numJetGridCells(std::vector<std::pair<int, int>>& indices);
+
+  /// calculates the area of jets that fall within the eta
   /// range by scaling kt areas using grid areas
   void calculateAreaFractionOfJets(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void calculateGridRho(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  
+
   /// information about the grid
-  const double twopi_ = 2*M_PI;
-  
+  const double twopi_ = 2 * M_PI;
+
   ///internal parameters for grid
 
   //parameters of grid covering the full acceptance
@@ -92,31 +89,29 @@ private:
   //for the grid calculation around each jet
   int ntotalJet_;
   int nyJet_;
-  
+
   ///input parameters
   double gridWidth_;
   double band_;
   int hiBinCut_;
   bool doCentrality_;
   bool keepGridInfo_;
-  
+
   std::vector<double> rhoVsEta_;
   std::vector<double> meanRhoVsEta_;
   std::vector<double> etaMaxGrid_;
   std::vector<double> etaMinGrid_;
-  
-  int n_tiles()  {return ntotal_;}
-  
+
+  int n_tiles() { return ntotal_; }
+
   /// input tokens
-  edm::EDGetTokenT<edm::View<reco::Jet>>                 jetsToken_;
-  edm::EDGetTokenT<reco::PFCandidateCollection>          pfCandsToken_;
-  edm::EDGetTokenT<std::vector<double>>                  mapEtaToken_;
-  edm::EDGetTokenT<std::vector<double>>                  mapRhoToken_;
-  edm::EDGetTokenT<std::vector<double>>                  mapRhoMToken_;
+  edm::EDGetTokenT<edm::View<reco::Jet>> jetsToken_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandsToken_;
+  edm::EDGetTokenT<std::vector<double>> mapEtaToken_;
+  edm::EDGetTokenT<std::vector<double>> mapRhoToken_;
+  edm::EDGetTokenT<std::vector<double>> mapRhoMToken_;
 
   edm::EDGetTokenT<int> centralityBinToken_;
-  
 };
 
 #endif
-

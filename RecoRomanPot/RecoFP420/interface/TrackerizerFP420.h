@@ -18,29 +18,23 @@
 #include "DataFormats/FP420Cluster/interface/TrackCollectionFP420.h"
 
 #include <string>
-#include<vector>
-#include<map>
-#include<iostream>
+#include <vector>
+#include <map>
+#include <iostream>
 
-
-
-
-namespace cms
-{
-  class TrackerizerFP420: public edm::EDProducer
-  {
+namespace cms {
+  class TrackerizerFP420 : public edm::EDProducer {
   public:
-    
     explicit TrackerizerFP420(const edm::ParameterSet& conf);
     //TrackerizerFP420();
-    
+
     ~TrackerizerFP420() override;
-    
+
     void beginJob() override;
-    
+
     //  virtual void produce(ClusterCollectionFP420 &, TrackCollectionFP420 &);
     void produce(edm::Event& e, const edm::EventSetup& c) override;
-    
+
   private:
     typedef std::vector<std::string> vstring;
     edm::ParameterSet conf_;
@@ -51,5 +45,5 @@ namespace cms
     //bool UseNoiseBadElectrodeFlagFromDB_;
     int verbosity;
   };
-}
+}  // namespace cms
 #endif
