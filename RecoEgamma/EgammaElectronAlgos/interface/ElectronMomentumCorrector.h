@@ -16,18 +16,16 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-class ElectronMomentumCorrector
-{
- public:
-
+class ElectronMomentumCorrector {
+public:
   //  ElectronMomentumCorrector(){newMomentum_=CLHEP::HepLorentzVector();}
-   // ElectronMomentumCorrector(){ newMomentum_= math::XYZTLorentzVector();}
-   ElectronMomentumCorrector() {}
-   //virtual
-   ~ElectronMomentumCorrector(){}
+  // ElectronMomentumCorrector(){ newMomentum_= math::XYZTLorentzVector();}
+  ElectronMomentumCorrector() {}
+  //virtual
+  ~ElectronMomentumCorrector() {}
 
-   //virtual
-   void correct(reco::GsfElectron &, TrajectoryStateOnSurface &);
+  //virtual
+  void correct(reco::GsfElectron &, TrajectoryStateOnSurface &);
 
   //DC: USED ??
   ////  CLHEP::HepLorentzVector getBestMomentum() const {return newMomentum_;}
@@ -35,19 +33,13 @@ class ElectronMomentumCorrector
   //float getSCEnergyError() const {return errorEnergy_;}
   //float getTrackMomentumError() const {return errorTrackMomentum_;}
 
- private:
-
+private:
   float energyError(float E, float *par) const;
 
   //  CLHEP::HepLorentzVector newMomentum_;
   //math::XYZTLorentzVector newMomentum_;
   //float errorEnergy_;
   //float errorTrackMomentum_;
-
 };
 
 #endif
-
-
-
-

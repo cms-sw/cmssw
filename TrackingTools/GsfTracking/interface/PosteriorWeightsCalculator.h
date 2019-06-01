@@ -11,13 +11,11 @@
  */
 
 class PosteriorWeightsCalculator {
-
 private:
   typedef TrajectoryStateOnSurface TSOS;
 
 public:
-  PosteriorWeightsCalculator(const std::vector<TSOS>& mixture) :
-    predictedComponents(mixture) {}
+  PosteriorWeightsCalculator(const std::vector<TSOS>& mixture) : predictedComponents(mixture) {}
 
   ~PosteriorWeightsCalculator() {}
   /// Create random state
@@ -27,7 +25,6 @@ public:
 
 private:
   std::vector<TSOS> predictedComponents;
-  
 };
 
-#endif //_TR_PosteriorWeightsCalculator_H_
+#endif  //_TR_PosteriorWeightsCalculator_H_

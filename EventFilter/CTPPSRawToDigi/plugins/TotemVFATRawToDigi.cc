@@ -37,29 +37,28 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class TotemVFATRawToDigi : public edm::stream::EDProducer<>
-{
-  public:
-    explicit TotemVFATRawToDigi(const edm::ParameterSet&);
-    ~TotemVFATRawToDigi() override;
+class TotemVFATRawToDigi : public edm::stream::EDProducer<> {
+public:
+  explicit TotemVFATRawToDigi(const edm::ParameterSet &);
+  ~TotemVFATRawToDigi() override;
 
-    void produce(edm::Event&, const edm::EventSetup&) override;
-    void endStream() override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
+  void endStream() override;
 
-  private:
-    std::string subSystemName;
+private:
+  std::string subSystemName;
 
-    enum { ssUndefined, ssTrackingStrip, ssTimingDiamond, ssTotemTiming } subSystem;
+  enum { ssUndefined, ssTrackingStrip, ssTimingDiamond, ssTotemTiming } subSystem;
 
-    std::vector<unsigned int> fedIds;
+  std::vector<unsigned int> fedIds;
 
-    edm::EDGetTokenT<FEDRawDataCollection> fedDataToken;
+  edm::EDGetTokenT<FEDRawDataCollection> fedDataToken;
 
-    ctpps::RawDataUnpacker rawDataUnpacker;
-    RawToDigiConverter rawToDigiConverter;
+  ctpps::RawDataUnpacker rawDataUnpacker;
+  RawToDigiConverter rawToDigiConverter;
 
-    template <typename DigiType>
-    void run(edm::Event&, const edm::EventSetup&);
+  template <typename DigiType>
+  void run(edm::Event &, const edm::EventSetup &);
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -69,13 +68,12 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
-TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
-  subSystemName(conf.getParameter<string>("subSystem")),
-  subSystem(ssUndefined),
-  fedIds(conf.getParameter< vector<unsigned int> >("fedIds")),
-  rawDataUnpacker(conf.getParameterSet("RawUnpacking")),
-  rawToDigiConverter(conf.getParameterSet("RawToDigi"))
-{
+TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
+    : subSystemName(conf.getParameter<string>("subSystem")),
+      subSystem(ssUndefined),
+      fedIds(conf.getParameter<vector<unsigned int>>("fedIds")),
+      rawDataUnpacker(conf.getParameterSet("RawUnpacking")),
+      rawToDigiConverter(conf.getParameterSet("RawToDigi")) {
   fedDataToken = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("rawDataTag"));
 
   // validate chosen subSystem
@@ -87,20 +85,21 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
     subSystem = ssTotemTiming;
 
   if (subSystem == ssUndefined)
-    throw cms::Exception("TotemVFATRawToDigi::TotemVFATRawToDigi") << "Unknown sub-system string " << subSystemName << "." << endl;
+    throw cms::Exception("TotemVFATRawToDigi::TotemVFATRawToDigi")
+        << "Unknown sub-system string " << subSystemName << "." << endl;
 
   // FED (OptoRx) headers and footers
-  produces< vector<TotemFEDInfo> >(subSystemName);
+  produces<vector<TotemFEDInfo>>(subSystemName);
 
   // declare products
   if (subSystem == ssTrackingStrip)
-    produces< DetSetVector<TotemRPDigi> >(subSystemName);
+    produces<DetSetVector<TotemRPDigi>>(subSystemName);
 
   else if (subSystem == ssTimingDiamond)
-    produces< DetSetVector<CTPPSDiamondDigi> >(subSystemName);
+    produces<DetSetVector<CTPPSDiamondDigi>>(subSystemName);
 
   else if (subSystem == ssTotemTiming)
-    produces< DetSetVector<TotemTimingDigi> >(subSystemName);
+    produces<DetSetVector<TotemTimingDigi>>(subSystemName);
 
   // set default IDs
   if (fedIds.empty()) {
@@ -118,40 +117,37 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
     }
 
     else if (subSystem == ssTotemTiming) {
-      for (int id = FEDNumbering::MINTotemRPTimingVerticalFEDID; id <= FEDNumbering::MAXTotemRPTimingVerticalFEDID; ++id)
+      for (int id = FEDNumbering::MINTotemRPTimingVerticalFEDID; id <= FEDNumbering::MAXTotemRPTimingVerticalFEDID;
+           ++id)
         fedIds.push_back(id);
     }
   }
 
   // conversion status
-  produces< DetSetVector<TotemVFATStatus> >(subSystemName);
+  produces<DetSetVector<TotemVFATStatus>>(subSystemName);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-TotemVFATRawToDigi::~TotemVFATRawToDigi()
-{
-}
+TotemVFATRawToDigi::~TotemVFATRawToDigi() {}
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemVFATRawToDigi::produce(edm::Event& event, const edm::EventSetup &es)
-{
+void TotemVFATRawToDigi::produce(edm::Event &event, const edm::EventSetup &es) {
   if (subSystem == ssTrackingStrip)
-    run< DetSetVector<TotemRPDigi> >(event, es);
+    run<DetSetVector<TotemRPDigi>>(event, es);
 
   else if (subSystem == ssTimingDiamond)
-    run< DetSetVector<CTPPSDiamondDigi> >(event, es);
+    run<DetSetVector<CTPPSDiamondDigi>>(event, es);
 
   else if (subSystem == ssTotemTiming)
-    run< DetSetVector<TotemTimingDigi> >(event, es);
+    run<DetSetVector<TotemTimingDigi>>(event, es);
 }
 
 //----------------------------------------------------------------------------------------------------
 
 template <typename DigiType>
-void TotemVFATRawToDigi::run(edm::Event& event, const edm::EventSetup &es)
-{
+void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   // get DAQ mapping
   ESHandle<TotemDAQMapping> mapping;
   es.get<TotemReadoutRcd>().get(subSystemName, mapping);
@@ -171,8 +167,7 @@ void TotemVFATRawToDigi::run(edm::Event& event, const edm::EventSetup &es)
 
   // raw-data unpacking
   SimpleVFATFrameCollection vfatCollection;
-  for (const auto &fedId : fedIds)
-  {
+  for (const auto &fedId : fedIds) {
     const FEDRawData &data = rawData->FEDData(fedId);
     if (data.size() > 0)
       rawDataUnpacker.run(fedId, data, fedInfo, vfatCollection);
@@ -189,9 +184,6 @@ void TotemVFATRawToDigi::run(edm::Event& event, const edm::EventSetup &es)
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemVFATRawToDigi::endStream()
-{
-  rawToDigiConverter.printSummaries();
-}
+void TotemVFATRawToDigi::endStream() { rawToDigiConverter.printSummaries(); }
 
 DEFINE_FWK_MODULE(TotemVFATRawToDigi);

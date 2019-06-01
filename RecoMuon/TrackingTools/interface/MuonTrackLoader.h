@@ -25,8 +25,11 @@
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
-
-namespace edm {class Event; class EventSetup; class ParameterSet;}
+namespace edm {
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+}  // namespace edm
 
 class Trajectory;
 class Propagator;
@@ -38,76 +41,75 @@ class BarrelDetLayer;
 class TrackerTopology;
 
 class MuonTrackLoader {
-  public:
+public:
+  typedef MuonCandidate::TrajectoryContainer TrajectoryContainer;
+  typedef MuonCandidate::CandidateContainer CandidateContainer;
 
-    typedef MuonCandidate::TrajectoryContainer TrajectoryContainer;
-    typedef MuonCandidate::CandidateContainer CandidateContainer;
+  /// Constructor for the STA reco the args must be specify!
+  MuonTrackLoader(edm::ParameterSet& parameterSet,
+                  edm::ConsumesCollector& iC,
+                  const MuonServiceProxy* service = nullptr);
 
-    /// Constructor for the STA reco the args must be specify!
-    MuonTrackLoader(edm::ParameterSet &parameterSet,edm::ConsumesCollector& iC,  const MuonServiceProxy *service =nullptr);
+  /// Destructor
+  virtual ~MuonTrackLoader();
 
-    /// Destructor
-    virtual ~MuonTrackLoader();
-   
-    /// Convert the trajectories into tracks and load the tracks in the event
-    edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
-                                                        edm::Event&,
-                                                        const TrackerTopology& ttopo,
-                                                        const std::string& = "", 
-							bool = true);
+  /// Convert the trajectories into tracks and load the tracks in the event
+  edm::OrphanHandle<reco::TrackCollection> loadTracks(
+      const TrajectoryContainer&, edm::Event&, const TrackerTopology& ttopo, const std::string& = "", bool = true);
 
-    /// Convert the trajectories into tracks and load the tracks in the event
-    edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
-                                                        edm::Event&, std::vector<bool>&,
-                                                        const TrackerTopology& ttopo,
-							const std::string& = "",
-							bool = true);
+  /// Convert the trajectories into tracks and load the tracks in the event
+  edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&,
+                                                      edm::Event&,
+                                                      std::vector<bool>&,
+                                                      const TrackerTopology& ttopo,
+                                                      const std::string& = "",
+                                                      bool = true);
 
-    /// Convert the trajectories into tracks and load the tracks in the event
-    edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
-                                                        edm::Event&,const std::vector<std::pair<Trajectory*, reco::TrackRef> >&,
-                                                        edm::Handle<reco::TrackCollection> const& trackHandle,
-                                                        const TrackerTopology& ttopo,
-							const std::string& = "", 
-							bool = true);
+  /// Convert the trajectories into tracks and load the tracks in the event
+  edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&,
+                                                      edm::Event&,
+                                                      const std::vector<std::pair<Trajectory*, reco::TrackRef> >&,
+                                                      edm::Handle<reco::TrackCollection> const& trackHandle,
+                                                      const TrackerTopology& ttopo,
+                                                      const std::string& = "",
+                                                      bool = true);
 
-    /// Convert the trajectories into tracks and load the tracks in the event
-    edm::OrphanHandle<reco::MuonTrackLinksCollection> loadTracks(const CandidateContainer&,
-                                                                 edm::Event&,
-                                                                 const TrackerTopology& ttopo);
-  
-  private:
-    static std::vector<const TrackingRecHit*> unpackHit(const TrackingRecHit &hit);
+  /// Convert the trajectories into tracks and load the tracks in the event
+  edm::OrphanHandle<reco::MuonTrackLinksCollection> loadTracks(const CandidateContainer&,
+                                                               edm::Event&,
+                                                               const TrackerTopology& ttopo);
 
-    /// Build a track at the PCA WITHOUT any vertex constriant
-    std::pair<bool,reco::Track> buildTrackAtPCA(const Trajectory& trajectory, const reco::BeamSpot &) const;
+private:
+  static std::vector<const TrackingRecHit*> unpackHit(const TrackingRecHit& hit);
 
-    /// Takes a track at the PCA and applies the vertex constriant
-    std::pair<bool,reco::Track> buildTrackUpdatedAtPCA(const reco::Track& trackAtPCA, const reco::BeamSpot &) const;
+  /// Build a track at the PCA WITHOUT any vertex constriant
+  std::pair<bool, reco::Track> buildTrackAtPCA(const Trajectory& trajectory, const reco::BeamSpot&) const;
 
-    reco::TrackExtra buildTrackExtra(const Trajectory&) const;
+  /// Takes a track at the PCA and applies the vertex constriant
+  std::pair<bool, reco::Track> buildTrackUpdatedAtPCA(const reco::Track& trackAtPCA, const reco::BeamSpot&) const;
 
-    const MuonServiceProxy *theService;
+  reco::TrackExtra buildTrackExtra(const Trajectory&) const;
 
-    bool theUpdatingAtVtx;
-    MuonUpdatorAtVertex *theUpdatorAtVtx;
+  const MuonServiceProxy* theService;
 
-    bool theTrajectoryFlag;
+  bool theUpdatingAtVtx;
+  MuonUpdatorAtVertex* theUpdatorAtVtx;
 
-    bool theSmoothingStep;
-    std::string theSmootherName;
-    std::string theTrackerRecHitBuilderName;
-    std::unique_ptr<TrajectorySmoother> theSmoother;
-    TkClonerImpl hitCloner;
+  bool theTrajectoryFlag;
 
+  bool theSmoothingStep;
+  std::string theSmootherName;
+  std::string theTrackerRecHitBuilderName;
+  std::unique_ptr<TrajectorySmoother> theSmoother;
+  TkClonerImpl hitCloner;
 
-    edm::InputTag theBeamSpotInputTag; 
-    edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
+  edm::InputTag theBeamSpotInputTag;
+  edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
 
-    /// Label for L2SeededTracks
-    std::string theL2SeededTkLabel; 
-    bool thePutTkTrackFlag;
-    bool theSmoothTkTrackFlag;
-    bool theAllowNoVtxFlag;
+  /// Label for L2SeededTracks
+  std::string theL2SeededTkLabel;
+  bool thePutTkTrackFlag;
+  bool theSmoothTkTrackFlag;
+  bool theAllowNoVtxFlag;
 };
 #endif

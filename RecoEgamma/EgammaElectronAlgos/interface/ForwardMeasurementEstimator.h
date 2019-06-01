@@ -23,45 +23,45 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include <utility>
 
-class ForwardMeasurementEstimator
- : public MeasurementEstimator
- {
-  public:
+class ForwardMeasurementEstimator : public MeasurementEstimator {
+public:
+  ForwardMeasurementEstimator() {}
+  ForwardMeasurementEstimator(float phiMin, float phiMax, float rMin, float rMax)
+      : thePhiMin(phiMin), thePhiMax(phiMax), theRMin(rMin), theRMax(rMax) {}
 
-    ForwardMeasurementEstimator()
-     {}
-    ForwardMeasurementEstimator(float phiMin, float phiMax, float rMin, float rMax )
-     : thePhiMin(phiMin), thePhiMax( phiMax), theRMin(rMin), theRMax(rMax)
-     {}
+  void setPhiRange(float dummyphiMin, float dummyphiMax) {
+    thePhiMin = dummyphiMin;
+    thePhiMax = dummyphiMax;
+  }
+  void setRRange(float rmin, float rmax) {
+    theRMin = rmin;
+    theRMax = rmax;
+  }
+  void setRRangeI(float rmin, float rmax) {
+    theRMinI = rmin;
+    theRMaxI = rmax;
+  }
 
-    void setPhiRange(float dummyphiMin , float dummyphiMax )
-     { thePhiMin = dummyphiMin ; thePhiMax = dummyphiMax ; }
-    void setRRange(float rmin, float rmax )
-     { theRMin = rmin ; theRMax = rmax ; }
-    void setRRangeI( float rmin, float rmax )
-     { theRMinI = rmin ; theRMaxI = rmax ; }
+  // zero value indicates incompatible ts - hit pair
+  std::pair<bool, double> estimate(const TrajectoryStateOnSurface& ts, const TrackingRecHit& hit) const override;
+  virtual std::pair<bool, double> estimate(const TrajectoryStateOnSurface& ts, const GlobalPoint& gp) const;
+  virtual std::pair<bool, double> estimate(const GlobalPoint& vprim,
+                                           const TrajectoryStateOnSurface& ts,
+                                           const GlobalPoint& gp) const;
+  bool estimate(const TrajectoryStateOnSurface& ts, const BoundPlane& plane) const override;
 
-    // zero value indicates incompatible ts - hit pair
-    std::pair<bool,double> estimate( const TrajectoryStateOnSurface & ts, const TrackingRecHit & hit ) const override ;
-    virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface & ts, const GlobalPoint & gp ) const ;
-    virtual std::pair<bool,double> estimate( const GlobalPoint & vprim, const TrajectoryStateOnSurface & ts, const GlobalPoint & gp ) const ;
-    bool estimate( const TrajectoryStateOnSurface & ts, const BoundPlane & plane ) const override ;
+  ForwardMeasurementEstimator* clone() const override { return new ForwardMeasurementEstimator(*this); }
 
-    ForwardMeasurementEstimator* clone() const override
-     { return new ForwardMeasurementEstimator(*this) ; }
+  MeasurementEstimator::Local2DVector maximalLocalDisplacement(const TrajectoryStateOnSurface& ts,
+                                                               const BoundPlane& plane) const override;
 
-    MeasurementEstimator::Local2DVector
-    maximalLocalDisplacement( const TrajectoryStateOnSurface & ts, const BoundPlane & plane) const override ;
+private:
+  float thePhiMin;
+  float thePhiMax;
+  float theRMin;
+  float theRMax;
+  float theRMinI;
+  float theRMaxI;
+};
 
-  private :
-
-    float thePhiMin ;
-    float thePhiMax ;
-    float theRMin ;
-    float theRMax ;
-    float theRMinI ;
-    float theRMaxI ;
-
- } ;
-
-#endif // ForwardMeasurementEstimator_H
+#endif  // ForwardMeasurementEstimator_H

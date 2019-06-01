@@ -1,7 +1,7 @@
 /** Updates a GsfTrack with a virtual hit representing a vertex constraint */
 
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h" 
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -20,28 +20,23 @@ class TransverseImpactPointExtrapolator;
 
 class GsfConstraintAtVertex {
 public:
-  explicit GsfConstraintAtVertex (const edm::EventSetup&);
+  explicit GsfConstraintAtVertex(const edm::EventSetup&);
   ~GsfConstraintAtVertex();
-  
+
   /// (multi)TSOS after including the beamspot
-  TrajectoryStateOnSurface constrainAtBeamSpot (const reco::GsfTrack&,
-						const reco::BeamSpot&) const;
+  TrajectoryStateOnSurface constrainAtBeamSpot(const reco::GsfTrack&, const reco::BeamSpot&) const;
   /// (multi)TSOS after include a vertex
-  TrajectoryStateOnSurface constrainAtVertex (const reco::GsfTrack&,
-					      const reco::Vertex&) const;
+  TrajectoryStateOnSurface constrainAtVertex(const reco::GsfTrack&, const reco::Vertex&) const;
   /// (multi)TSOS after including a point with covariance matrix
-  TrajectoryStateOnSurface constrainAtPoint (const reco::GsfTrack&,
-					     const GlobalPoint& globalPosition,
-					     const GlobalError& globalError) const;
+  TrajectoryStateOnSurface constrainAtPoint(const reco::GsfTrack&,
+                                            const GlobalPoint& globalPosition,
+                                            const GlobalError& globalError) const;
 
 private:
-
   MultiTrajectoryStateTransform multiStateTransformer_;
   GsfMultiStateUpdator gsfUpdator_;
   const TrackerGeometry* geometry_;
   const MagneticField* magField_;
   GsfPropagatorAdapter* gsfPropagator_;
   TransverseImpactPointExtrapolator* tipExtrapolator_;
-
 };
-
