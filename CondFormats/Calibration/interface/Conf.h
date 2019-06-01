@@ -12,23 +12,23 @@
 namespace condex {
 
   struct ConfI : public cond::BaseKeyed {
-    ConfI()  : v(0), key(" ") {}
+    ConfI() : v(0), key(" ") {}
     ConfI(std::string k, int i) : v(i), key(k) {}
     int v;
-    std::string key; // just for test
-  
-  COND_SERIALIZABLE;
-};
+    std::string key;  // just for test
+
+    COND_SERIALIZABLE;
+  };
 
   struct ConfF : public cond::BaseKeyed {
     ConfF() : v(0), key(" ") {}
     ConfF(std::string k, float i) : v(i), key(k) {}
     float v;
-    std::string key; // just for test
-  
-  COND_SERIALIZABLE;
-};
+    std::string key;  // just for test
 
-}
+    COND_SERIALIZABLE;
+  };
+
+}  // namespace condex
 
 #endif

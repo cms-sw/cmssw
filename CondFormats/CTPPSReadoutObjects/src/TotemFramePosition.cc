@@ -15,68 +15,54 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
-std::ostream& operator << (std::ostream& s, const TotemFramePosition &fp)
-{
-  return s
-    << fp.getFEDId() << ":"
-    << fp.getGOHId() << ":"
-    << fp.getIdxInFiber();
+std::ostream &operator<<(std::ostream &s, const TotemFramePosition &fp) {
+  return s << fp.getFEDId() << ":" << fp.getGOHId() << ":" << fp.getIdxInFiber();
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemFramePosition::printXML()
-{
-  cout << "\" FEDId=\"" << getFEDId()
-    << "\" GOHId=\"" << getGOHId()
-    << "\" IdxInFiber=\"" << getIdxInFiber()
-    << "\"";
+void TotemFramePosition::printXML() {
+  cout << "\" FEDId=\"" << getFEDId() << "\" GOHId=\"" << getGOHId() << "\" IdxInFiber=\"" << getIdxInFiber() << "\"";
 }
 
 //----------------------------------------------------------------------------------------------------
 
-unsigned char TotemFramePosition::setXMLAttribute(const std::string &attribute, const std::string &value,
-    unsigned char &flag)
-{
+unsigned char TotemFramePosition::setXMLAttribute(const std::string &attribute,
+                                                  const std::string &value,
+                                                  unsigned char &flag) {
   unsigned int v = atoi(value.c_str());
 
-  if (attribute == "FEDId")
-  {
+  if (attribute == "FEDId") {
     setFEDId(v);
-    flag |= 0x1C; // SubSystem + TOTFED + OptoRx
+    flag |= 0x1C;  // SubSystem + TOTFED + OptoRx
     return 0;
   }
 
-  if (attribute == "SubSystemId")
-  {
+  if (attribute == "SubSystemId") {
     setSubSystemId(v);
     flag |= 0x10;
     return 0;
   }
 
-  if (attribute == "TOTFEDId")
-  {
+  if (attribute == "TOTFEDId") {
     setTOTFEDId(v);
     flag |= 0x8;
     return 0;
   }
 
-  if (attribute == "OptoRxId")
-  {
+  if (attribute == "OptoRxId") {
     setOptoRxId(v);
     flag |= 0x4;
     return 0;
   }
 
-  if (attribute == "GOHId")
-  {
+  if (attribute == "GOHId") {
     setGOHId(v);
     flag |= 0x2;
     return 0;
   }
 
-  if (attribute == "IdxInFiber")
-  {
+  if (attribute == "IdxInFiber") {
     setIdxInFiber(v);
     flag |= 0x1;
     return 0;
