@@ -27,17 +27,14 @@ public:
   void analyze(Event const& iEvent, EventSetup const&) override;
   void endJob() override {}
 
-private:  
+private:
   const ESInputTag m_tag;
 };
 
 DDTestDumpGeometry::DDTestDumpGeometry(const ParameterSet& iConfig)
-  : m_tag(iConfig.getParameter<ESInputTag>("DDDetector"))
-{}
+    : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")) {}
 
-void
-DDTestDumpGeometry::analyze(const Event&, const EventSetup& iEventSetup)
-{
+void DDTestDumpGeometry::analyze(const Event&, const EventSetup& iEventSetup) {
   LogVerbatim("Geometry") << "DDTestDumpGeometry::analyze: " << m_tag;
   ESTransientHandle<DDDetector> det;
   iEventSetup.get<GeometryFileRcd>().get(m_tag, det);
@@ -45,11 +42,11 @@ DDTestDumpGeometry::analyze(const Event&, const EventSetup& iEventSetup)
   TGeoManager const& geom = det->description()->manager();
 
   TGeoIterator next(geom.GetTopVolume());
-  TGeoNode *node;
+  TGeoNode* node;
   TString path;
-  while(( node = next())) {
-    next.GetPath( path );
-    LogVerbatim("Geometry") << path << ": "<< node->GetVolume()->GetName();
+  while ((node = next())) {
+    next.GetPath(path);
+    LogVerbatim("Geometry") << path << ": " << node->GetVolume()->GetName();
   }
 }
 
