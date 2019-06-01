@@ -1,7 +1,6 @@
 #ifndef TkDetLayers_TECPetalBuilder_h
 #define TkDetLayers_TECPetalBuilder_h
 
-
 #include "TECPetal.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,15 +11,11 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TECPetalBuilder {  
- public:
+class TECPetalBuilder {
+public:
   TECPetalBuilder(){};
-  TECPetal* build(const GeometricDet* aTECPetal,
-		  const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
-
-  
+  TECPetal* build(const GeometricDet* aTECPetal, const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
 };
 
-
 #pragma GCC visibility pop
-#endif 
+#endif
