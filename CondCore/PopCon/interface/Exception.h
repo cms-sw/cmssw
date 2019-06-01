@@ -4,10 +4,10 @@
 #include <string>
 
 namespace popcon {
-  class Exception : public cms::Exception{
+  class Exception : public cms::Exception {
   public:
-    explicit Exception( const std::string& message ):cms::Exception("PopCon",message){}
-    ~Exception() throw() override{}
+    explicit Exception(const std::string& message) : cms::Exception("PopCon", message) {}
+    ~Exception() throw() override {}
   };
-}
+}  // namespace popcon
 #endif

@@ -5,11 +5,10 @@
 #include <memory>
 
 int main() {
-
   std::cout << "testDTBufferTree\n";
 
   DTBufferTree<int, int> buf;
-  DTBufferTree<int, int> const * pBuf = &buf;
+  DTBufferTree<int, int> const* pBuf = &buf;
   std::vector<int> keys;
 
   int i;
@@ -80,11 +79,11 @@ int main() {
   // (which was done when the test was created)
 
   DTBufferTreeUniquePtr buf2;
-  DTBufferTreeUniquePtr const * pBuf2 = &buf2;
+  DTBufferTreeUniquePtr const* pBuf2 = &buf2;
 
   keys.clear();
   std::vector<int> v;
-  std::vector<int> * ptr = &v;
+  std::vector<int>* ptr = &v;
   std::vector<int> const* cptr = &v;
   assert(buf2.find(keys.end(), keys.end(), ptr) == 0);
   assert(ptr == nullptr);
@@ -112,7 +111,6 @@ int main() {
   ptr->push_back(103);
   assert(pBuf2->find(keys.begin(), keys.end(), cptr) == 0);
   assert(cptr->at(0) == 101 && cptr->at(1) == 102 && cptr->at(2) == 103);
-
 
   std::unique_ptr<std::vector<int> > uptr2(new std::vector<int>);
   uptr2->push_back(21);

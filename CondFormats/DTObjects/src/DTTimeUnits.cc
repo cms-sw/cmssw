@@ -16,31 +16,24 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-
 //---------------
 // C++ Headers --
 //---------------
-
 
 //-------------------
 // Initializations --
 //-------------------
 
-
 //----------------
 // Constructors --
 //----------------
-DTTimeUnits::DTTimeUnits() {
-}
+DTTimeUnits::DTTimeUnits() {}
 
 //--------------
 // Destructor --
 //--------------
-DTTimeUnits::~DTTimeUnits() {
-}
+DTTimeUnits::~DTTimeUnits() {}
 
 //--------------
 // Operations --
 //--------------
-
-

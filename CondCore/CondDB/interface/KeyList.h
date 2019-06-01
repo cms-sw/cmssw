@@ -7,10 +7,10 @@
 #include "CondCore/CondDB/interface/Exception.h"
 #include "CondFormats/Common/interface/BaseKeyed.h"
 //
-#include<map>
-#include<memory>
-#include<vector>
-#include<string>
+#include <map>
+#include <memory>
+#include <vector>
+#include <string>
 
 /*
  * KeyList represents a set of payloads each identified by a key  and "valid" at given time
@@ -31,40 +31,37 @@ namespace cond {
 
     class KeyList {
     public:
-      
-      void init( IOVProxy iovProxy );
-      
-      void load( const std::vector<unsigned long long>& keys );
-      
-      template<typename T> 
+      void init(IOVProxy iovProxy);
+
+      void load(const std::vector<unsigned long long>& keys);
+
+      template <typename T>
       std::shared_ptr<T> get(size_t n) const {
-	if( n >= size() ) throwException( "Index outside the bounds of the key array.", 
-					  "KeyList::get");
-	if( !m_objects[n] ){
-	  auto i = m_data.find( n );
-	  if( i != m_data.end() ){
-	    m_objects[n] = deserialize<T>( i->second.first, i->second.second.first, i->second.second.second );
-	    m_data.erase( n );
-	  } else {
-	    throwException( "Payload for index "+std::to_string(n)+" has not been found.",
-			    "KeyList::get");
-	  }
-	}
-	return std::static_pointer_cast<T>( m_objects[n] );
+        if (n >= size())
+          throwException("Index outside the bounds of the key array.", "KeyList::get");
+        if (!m_objects[n]) {
+          auto i = m_data.find(n);
+          if (i != m_data.end()) {
+            m_objects[n] = deserialize<T>(i->second.first, i->second.second.first, i->second.second.second);
+            m_data.erase(n);
+          } else {
+            throwException("Payload for index " + std::to_string(n) + " has not been found.", "KeyList::get");
+          }
+        }
+        return std::static_pointer_cast<T>(m_objects[n]);
       }
 
-      size_t size() const { return m_objects.size();}
+      size_t size() const { return m_objects.size(); }
 
     private:
       // the db session
       IOVProxy m_proxy;
-      // the key selection: 
-      mutable std::map<size_t,std::pair<std::string,std::pair<cond::Binary,cond::Binary> > > m_data;
+      // the key selection:
+      mutable std::map<size_t, std::pair<std::string, std::pair<cond::Binary, cond::Binary> > > m_data;
       mutable std::vector<std::shared_ptr<void> > m_objects;
-      
     };
 
-  }
-}
+  }  // namespace persistency
+}  // namespace cond
 
 #endif

@@ -14,7 +14,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -30,52 +29,43 @@
 #include <vector>
 #include <utility>
 
-template <class Key, class Content> class DTBufferTree;
+template <class Key, class Content>
+class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class DTRangeT0Id {
-
- public:
-
+public:
   DTRangeT0Id();
   ~DTRangeT0Id();
 
-  int   wheelId;
+  int wheelId;
   int stationId;
-  int  sectorId;
-  int      slId;
+  int sectorId;
+  int slId;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-
 class DTRangeT0Data {
-
- public:
-
+public:
   DTRangeT0Data();
   ~DTRangeT0Data();
 
   int t0min;
   int t0max;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-
 class DTRangeT0 {
-
- public:
-
+public:
   /** Constructor
    */
   DTRangeT0();
-  DTRangeT0( const std::string& version );
+  DTRangeT0(const std::string& version);
 
   /** Destructor
    */
@@ -84,81 +74,47 @@ class DTRangeT0 {
   /** Operations
    */
   /// get content
-  int slRangeT0( int   wheelId,
-                 int stationId,
-                 int  sectorId,
-                 int      slId,
-                 int&    t0min,
-                 int&    t0max ) const
-      { return get( wheelId, stationId, sectorId, slId,
-                    t0min, t0max ); };
-  int slRangeT0( const DTSuperLayerId& id,
-                 int&    t0min,
-                 int&    t0max ) const
-      { return get( id, t0min, t0max ); };
-  int get( int   wheelId,
-           int stationId,
-           int  sectorId,
-           int      slId,
-           int&    t0min,
-           int&    t0max ) const;
-  int get( const DTSuperLayerId& id,
-           int&    t0min,
-           int&    t0max ) const;
+  int slRangeT0(int wheelId, int stationId, int sectorId, int slId, int& t0min, int& t0max) const {
+    return get(wheelId, stationId, sectorId, slId, t0min, t0max);
+  };
+  int slRangeT0(const DTSuperLayerId& id, int& t0min, int& t0max) const { return get(id, t0min, t0max); };
+  int get(int wheelId, int stationId, int sectorId, int slId, int& t0min, int& t0max) const;
+  int get(const DTSuperLayerId& id, int& t0min, int& t0max) const;
 
   /// access version
-  const
-  std::string& version() const;
+  const std::string& version() const;
   std::string& version();
 
   /// reset content
   void clear();
 
-  int setSLRangeT0( int   wheelId,
-                    int stationId,
-                    int  sectorId,
-                    int      slId,
-                    int     t0min,
-                    int     t0max )
-      { return set( wheelId, stationId, sectorId, slId, t0min, t0max ); };
-  int setSLRangeT0( const DTSuperLayerId& id,
-                    int     t0min,
-                    int     t0max )
-      { return set( id, t0min, t0max ); };
-  int set( int   wheelId,
-           int stationId,
-           int  sectorId,
-           int      slId,
-           int     t0min,
-           int     t0max );
-  int set( const DTSuperLayerId& id,
-           int     t0min,
-           int     t0max );
+  int setSLRangeT0(int wheelId, int stationId, int sectorId, int slId, int t0min, int t0max) {
+    return set(wheelId, stationId, sectorId, slId, t0min, t0max);
+  };
+  int setSLRangeT0(const DTSuperLayerId& id, int t0min, int t0max) { return set(id, t0min, t0max); };
+  int set(int wheelId, int stationId, int sectorId, int slId, int t0min, int t0max);
+  int set(const DTSuperLayerId& id, int t0min, int t0max);
 
   /// Access methods to data
-  typedef std::vector< std::pair<DTRangeT0Id,
-                                 DTRangeT0Data> >::const_iterator
-                                                   const_iterator;
+  typedef std::vector<std::pair<DTRangeT0Id, DTRangeT0Data> >::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
   void initialize();
 
- private:
-
+private:
   DTRangeT0(DTRangeT0 const&) = delete;
   DTRangeT0& operator=(DTRangeT0 const&) = delete;
 
   std::string dataVersion;
 
-  std::vector< std::pair<DTRangeT0Id,DTRangeT0Data> > dataList;
+  std::vector<std::pair<DTRangeT0Id, DTRangeT0Data> > dataList;
 
-  DTBufferTree<int,int>* dBuf COND_TRANSIENT;
+  DTBufferTree<int, int>* dBuf COND_TRANSIENT;
 
   /// read and store full content
   std::string mapName() const;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
-#endif // DTRangeT0_H
+#endif  // DTRangeT0_H
