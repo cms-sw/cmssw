@@ -20,30 +20,25 @@ class DCCEventBlock;
 class DCCDataUnpacker;
 
 class DCCTowerBlock : public DCCFEBlock {
-	
   //to implement
-	
-  public :
 
-    DCCTowerBlock(DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack, bool forceToKeepFRdata );
-    
-    void updateCollectors() override;
-	 
-  protected:
-	 
-    int unpackXtalData(unsigned int stripID, unsigned int xtalID) override;
-    void fillEcalElectronicsError( std::unique_ptr<EcalElectronicsIdCollection> * ) override;
+public:
+  DCCTowerBlock(DCCDataUnpacker* u, EcalElectronicsMapper* m, DCCEventBlock* e, bool unpack, bool forceToKeepFRdata);
 
-    std::unique_ptr<EBDigiCollection>     * digis_;
-    
-    EBDetId                             * pDetId_;
+  void updateCollectors() override;
 
-    // to restructure as common collections to DCCSCBlock, to inherit from DCCFEBlock
-    std::unique_ptr<EBDetIdCollection>    * invalidGains_;  
-    std::unique_ptr<EBDetIdCollection>    * invalidGainsSwitch_ ;
-    std::unique_ptr<EBDetIdCollection>    * invalidChIds_;
-	 
+protected:
+  int unpackXtalData(unsigned int stripID, unsigned int xtalID) override;
+  void fillEcalElectronicsError(std::unique_ptr<EcalElectronicsIdCollection>*) override;
+
+  std::unique_ptr<EBDigiCollection>* digis_;
+
+  EBDetId* pDetId_;
+
+  // to restructure as common collections to DCCSCBlock, to inherit from DCCFEBlock
+  std::unique_ptr<EBDetIdCollection>* invalidGains_;
+  std::unique_ptr<EBDetIdCollection>* invalidGainsSwitch_;
+  std::unique_ptr<EBDetIdCollection>* invalidChIds_;
 };
-
 
 #endif

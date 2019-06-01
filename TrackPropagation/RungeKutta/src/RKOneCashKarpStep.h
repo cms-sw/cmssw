@@ -9,19 +9,17 @@
 #include <utility>
 
 template <typename T, int N>
-class dso_internal RKOneCashKarpStep // : RKStepWithPrecision 
+class dso_internal RKOneCashKarpStep  // : RKStepWithPrecision
 {
 public:
+  typedef T Scalar;
+  typedef RKSmallVector<T, N> Vector;
 
-  typedef T                                   Scalar;
-  typedef RKSmallVector<T,N>                  Vector;
-
-  std::pair< Vector, T> 
-  operator()( Scalar startPar, const Vector& startState,
-	      const RKDerivative<T,N>& deriv,
-	      const RKDistance<T,N>& dist, Scalar step);
-  
-
+  std::pair<Vector, T> operator()(Scalar startPar,
+                                  const Vector& startState,
+                                  const RKDerivative<T, N>& deriv,
+                                  const RKDistance<T, N>& dist,
+                                  Scalar step);
 };
 
 #include "TrackPropagation/RungeKutta/src/RKOneCashKarpStep.icc"

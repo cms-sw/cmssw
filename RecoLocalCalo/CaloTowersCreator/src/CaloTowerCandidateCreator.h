@@ -17,17 +17,16 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include <string>
 
-
 class CaloTowerCandidateCreator : public edm::stream::EDProducer<> {
- public:
+public:
   /// constructor from parameter set
-  CaloTowerCandidateCreator( const edm::ParameterSet & );
+  CaloTowerCandidateCreator(const edm::ParameterSet&);
   /// destructor
   ~CaloTowerCandidateCreator() override;
 
- private:
+private:
   /// process one event
-  void produce( edm::Event& e, const edm::EventSetup& ) override;
+  void produce(edm::Event& e, const edm::EventSetup&) override;
   /// verbosity
   int mVerbose;
   /// token of source collection
