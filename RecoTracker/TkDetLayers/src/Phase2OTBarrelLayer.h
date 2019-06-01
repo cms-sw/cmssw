@@ -1,8 +1,6 @@
 #ifndef TkDetLayers_Phase2OTBarrelLayer_h
 #define TkDetLayers_Phase2OTBarrelLayer_h
 
-
-
 #include "TBPLayer.h"
 
 /** A concrete implementation for PixelBarrel layer 
@@ -13,4 +11,4 @@
 using Phase2OTBarrelLayer = TBPLayer;
 
 #pragma GCC visibility pop
-#endif 
+#endif

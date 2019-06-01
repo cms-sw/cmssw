@@ -1,7 +1,6 @@
 #ifndef TkDetLayers_TOBLayerBuilder_h
 #define TkDetLayers_TOBLayerBuilder_h
 
-
 #include "TOBLayer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,15 +11,11 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TOBLayerBuilder {  
- public:
+class TOBLayerBuilder {
+public:
   TOBLayerBuilder(){};
-  TOBLayer* build(const GeometricDet* aTOBLayer,
-		  const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
-
-  
+  TOBLayer* build(const GeometricDet* aTOBLayer, const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
 };
 
-
 #pragma GCC visibility pop
-#endif 
+#endif
