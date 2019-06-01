@@ -51,22 +51,21 @@
 
 class GenericTriggerEventFlag;
 
-class LepHTMonitor: public DQMEDAnalyzer{
-
+class LepHTMonitor : public DQMEDAnalyzer {
 public:
   LepHTMonitor(const edm::ParameterSet& ps);
   ~LepHTMonitor() override;
 
 protected:
-  void dqmBeginRun(const edm::Run &run, const edm::EventSetup &e) override;
-  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &, const edm::EventSetup &) override;
-  void analyze(const edm::Event &e, const edm::EventSetup &eSetup) override;
-  void endRun(const edm::Run &run, const edm::EventSetup &eSetup) override;
+  void dqmBeginRun(const edm::Run& run, const edm::EventSetup& e) override;
+  void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& eSetup) override;
+  void endRun(const edm::Run& run, const edm::EventSetup& eSetup) override;
 
 private:
   //variables from config file
   edm::InputTag theElectronTag_;
-  edm::EDGetTokenT<edm::View<reco::GsfElectron> >theElectronCollection_;
+  edm::EDGetTokenT<edm::View<reco::GsfElectron> > theElectronCollection_;
   edm::InputTag theElectronVIDTag_;
   edm::EDGetTokenT<edm::ValueMap<bool> > theElectronVIDMap_;
   edm::InputTag theMuonTag_;
@@ -107,7 +106,6 @@ private:
   double lep_d0_cut_e_;
   double lep_dz_cut_e_;
 
-
   std::vector<double> ptbins_;
   std::vector<double> htbins_;
   int nbins_eta_;
@@ -119,7 +117,6 @@ private:
   float phibins_max_;
   float npvbins_min_;
   float npvbins_max_;
-
 
   // Histograms
   MonitorElement* h_pfHTTurnOn_num_;
@@ -134,7 +131,6 @@ private:
   MonitorElement* h_lepEtaPhiTurnOn_den_;
   MonitorElement* h_NPVTurnOn_num_;
   MonitorElement* h_NPVTurnOn_den_;
-
 };
 
 #endif  // ! DQMOffline_Trigger_LepHTMonitor_h

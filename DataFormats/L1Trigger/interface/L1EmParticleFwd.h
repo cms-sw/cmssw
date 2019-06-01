@@ -4,7 +4,7 @@
 //
 // Package:     L1Trigger
 // Class  :     L1EmParticleFwd
-// 
+//
 /**\class L1EmParticleCollection \file L1EmParticleFwd.h DataFormats/L1Trigger/interface/L1EmParticleFwd.h \author Werner Sun
 
  Description: typedefs for L1EmParticleCollection and associated containers.
@@ -23,16 +23,15 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
-
 namespace l1extra {
 
-   class L1EmParticle ;
+  class L1EmParticle;
 
-   typedef std::vector< L1EmParticle > L1EmParticleCollection ;
+  typedef std::vector<L1EmParticle> L1EmParticleCollection;
 
-   typedef edm::Ref< L1EmParticleCollection > L1EmParticleRef ;
-   typedef edm::RefVector< L1EmParticleCollection > L1EmParticleRefVector ;
-   typedef std::vector< L1EmParticleRef > L1EmParticleVectorRef ;
-}
+  typedef edm::Ref<L1EmParticleCollection> L1EmParticleRef;
+  typedef edm::RefVector<L1EmParticleCollection> L1EmParticleRefVector;
+  typedef std::vector<L1EmParticleRef> L1EmParticleVectorRef;
+}  // namespace l1extra
 
 #endif

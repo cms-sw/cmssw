@@ -3,21 +3,14 @@
 
 #include "SimFastTiming/FastTimingCommon/interface/MTDShapeBase.h"
 
-class BTLPulseShape : public MTDShapeBase
-{
-   public:
-  
-      BTLPulseShape() ;
+class BTLPulseShape : public MTDShapeBase {
+public:
+  BTLPulseShape();
 
-      ~BTLPulseShape() override ;
+  ~BTLPulseShape() override;
 
-
-   protected:
-  
-      void fillShape( MTDShapeBase::DVec& aVec ) const override ;
-
+protected:
+  void fillShape(MTDShapeBase::DVec& aVec) const override;
 };
 
-
 #endif
-  

@@ -10,6 +10,7 @@
 #include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -59,7 +60,9 @@ int main(int argc, char *argv[])
       "process.e = cms.EndPath(process.out)\n";
 
     // D.  Create the services.
-    edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(config));
+    std::unique_ptr<edm::ParameterSet> params;
+    edm::makeParameterSets(config, params);
+    edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
 
     // E.  Make the services available.
     edm::ServiceRegistry::Operate operate(tempToken);

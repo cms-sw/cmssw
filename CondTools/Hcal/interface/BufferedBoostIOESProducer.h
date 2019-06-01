@@ -30,31 +30,28 @@
 #include "CondFormats/Serialization/interface/eos/portable_iarchive.hpp"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrectionBuffer.h"
 
-template<class DataType, class MyRecord>
-class BufferedBoostIOESProducer : public edm::ESProducer
-{
+template <class DataType, class MyRecord>
+class BufferedBoostIOESProducer : public edm::ESProducer {
 public:
-    typedef std::unique_ptr<DataType> ReturnType;
+  typedef std::unique_ptr<DataType> ReturnType;
 
-    inline BufferedBoostIOESProducer(const edm::ParameterSet&)
-        {setWhatProduced(this);}
+  inline BufferedBoostIOESProducer(const edm::ParameterSet&) { setWhatProduced(this); }
 
-    inline ~BufferedBoostIOESProducer() override {}
+  inline ~BufferedBoostIOESProducer() override {}
 
-    ReturnType produce(const MyRecord&);
+  ReturnType produce(const MyRecord&);
 };
 
-template<class DataType, class MyRecord>
-typename BufferedBoostIOESProducer<DataType,MyRecord>::ReturnType
-BufferedBoostIOESProducer<DataType,MyRecord>::produce(const MyRecord& iRecord)
-{
-    edm::ESHandle<OOTPileupCorrectionBuffer> handle;
-    iRecord.get(handle);
-    std::istringstream is(handle->str());
-    eos::portable_iarchive ar(is);
-    auto ret = std::make_unique<DataType>();
-    ar & *ret;
-    return ret;
+template <class DataType, class MyRecord>
+typename BufferedBoostIOESProducer<DataType, MyRecord>::ReturnType
+BufferedBoostIOESProducer<DataType, MyRecord>::produce(const MyRecord& iRecord) {
+  edm::ESHandle<OOTPileupCorrectionBuffer> handle;
+  iRecord.get(handle);
+  std::istringstream is(handle->str());
+  eos::portable_iarchive ar(is);
+  auto ret = std::make_unique<DataType>();
+  ar&* ret;
+  return ret;
 }
 
-#endif // CondTools_Hcal_BufferedBoostIOESProducer_h
+#endif  // CondTools_Hcal_BufferedBoostIOESProducer_h

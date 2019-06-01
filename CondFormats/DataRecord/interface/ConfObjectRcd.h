@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     ConfObjectRcd
-// 
+//
 /**\class ConfObjectRcd ConfObjectRcd.h CondFormats/DataRecord/interface/ConfObjectRcd.h
 
  Description: [one line class summary]
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Tue Jan 18 11:27:43 CET 2011
 // $Id$
 //

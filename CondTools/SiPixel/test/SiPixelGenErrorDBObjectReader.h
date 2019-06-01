@@ -16,25 +16,24 @@
 #include "CondFormats/DataRecord/interface/SiPixelGenErrorDBObjectRcd.h"
 #include "CalibTracker/Records/interface/SiPixelGenErrorDBObjectESProducerRcd.h"
 
-
 class SiPixelGenErrorDBObjectReader : public edm::EDAnalyzer {
-   public:
-      explicit SiPixelGenErrorDBObjectReader(const edm::ParameterSet&);
-      ~SiPixelGenErrorDBObjectReader();
+public:
+  explicit SiPixelGenErrorDBObjectReader(const edm::ParameterSet&);
+  ~SiPixelGenErrorDBObjectReader();
 
-   private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-		
-      //edm::ESWatcher<SiPixelGenErrorDBObjectESProducerRcd>  SiPixGenerDBObjectWatcher_;
-      //edm::ESWatcher<SiPixelGenErrorDBObjectRcd>  SiPixGenerDBObjWatcher_;
-			
-      std::string theGenErrorCalibrationLocation;
-      bool theDetailedGenErrorDBErrorOutput;
-      bool theFullGenErrorDBOutput;
-      //bool testGlobalTag;
-      SiPixelGenErrorDBObject dbobject;
-      //bool hasTriggeredWatcher;			
+private:
+  virtual void beginJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
+
+  //edm::ESWatcher<SiPixelGenErrorDBObjectESProducerRcd>  SiPixGenerDBObjectWatcher_;
+  //edm::ESWatcher<SiPixelGenErrorDBObjectRcd>  SiPixGenerDBObjWatcher_;
+
+  std::string theGenErrorCalibrationLocation;
+  bool theDetailedGenErrorDBErrorOutput;
+  bool theFullGenErrorDBOutput;
+  //bool testGlobalTag;
+  SiPixelGenErrorDBObject dbobject;
+  //bool hasTriggeredWatcher;
 };
 #endif

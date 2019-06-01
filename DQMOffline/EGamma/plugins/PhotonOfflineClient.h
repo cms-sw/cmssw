@@ -11,7 +11,6 @@
 // EgammaCoreTools
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
-
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -52,7 +51,6 @@
  **   
  ***/
 
-
 // forward declarations
 class TFile;
 class TH1F;
@@ -60,45 +58,51 @@ class TH2F;
 class TProfile;
 class TTree;
 
-
-class PhotonOfflineClient : public  DQMEDHarvester
-{
-
- public:
-   
+class PhotonOfflineClient : public DQMEDHarvester {
+public:
   //
-  explicit PhotonOfflineClient( const edm::ParameterSet& pset ) ;
+  explicit PhotonOfflineClient(const edm::ParameterSet& pset);
   ~PhotonOfflineClient() override;
-                                   
-      
+
   //  virtual void analyze(const edm::Event&, const edm::EventSetup&  ) ;
   // virtual void beginJob() ;
   //virtual void endJob() ;
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
   //  virtual void endLuminosityBlock( const edm::LuminosityBlock& , const edm::EventSetup& ) ;
   //virtual void endRun(const edm::Run& , const edm::EventSetup& ) ;
   //virtual void runClient();
-  
-  virtual void runClient(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter );
-  MonitorElement* bookHisto(DQMStore::IBooker& iBooker,std::string histoName, std::string title, int bin, double min, double max);
 
-  void book2DHistoVector(DQMStore::IBooker& iBooker,std::vector<std::vector<MonitorElement*> >& vecOfHist, 
-			 std::string histoType, std::string histoName, std::string title, 
-			 int xbin, double xmin, double xmax,
-			 int ybin=1,double ymin=1, double ymax=2);
-  void book3DHistoVector(DQMStore::IBooker& iBooker, std::vector<std::vector<std::vector<MonitorElement*> > >& vecOfHist, 
-			 std::string histoType, std::string histoName, std::string title, 
-			 int xbin, double xmin, double xmax,
-			 int ybin=1,double ymin=1, double ymax=2);
+  virtual void runClient(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
+  MonitorElement* bookHisto(
+      DQMStore::IBooker& iBooker, std::string histoName, std::string title, int bin, double min, double max);
 
-
-
+  void book2DHistoVector(DQMStore::IBooker& iBooker,
+                         std::vector<std::vector<MonitorElement*> >& vecOfHist,
+                         std::string histoType,
+                         std::string histoName,
+                         std::string title,
+                         int xbin,
+                         double xmin,
+                         double xmax,
+                         int ybin = 1,
+                         double ymin = 1,
+                         double ymax = 2);
+  void book3DHistoVector(DQMStore::IBooker& iBooker,
+                         std::vector<std::vector<std::vector<MonitorElement*> > >& vecOfHist,
+                         std::string histoType,
+                         std::string histoName,
+                         std::string title,
+                         int xbin,
+                         double xmin,
+                         double xmax,
+                         int ybin = 1,
+                         double ymin = 1,
+                         double ymax = 2);
 
   MonitorElement* retrieveHisto(DQMStore::IGetter& iGetter, std::string dir, std::string name);
 
- private:
-
+private:
   std::string analyzerName_;
   MonitorElement* p_efficiencyVsEtaLoose_;
   MonitorElement* p_efficiencyVsEtLoose_;
@@ -121,11 +125,10 @@ class PhotonOfflineClient : public  DQMEDHarvester
   std::vector<std::vector<MonitorElement*> > p_badChannelsFractionVsEt_;
 
   MonitorElement* p_vertexReconstructionEfficiencyVsEta_;
-  
+
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator);
-  void dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator); 
-  
-  DQMStore *dbe_;
+  void dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator);
+
   int verbosity_;
 
   edm::ParameterSet parameters_;
@@ -137,16 +140,16 @@ class PhotonOfflineClient : public  DQMEDHarvester
 
   double etMin;
   double etMax;
-  int    etBin;
+  int etBin;
   double etaMin;
   double etaMax;
-  int    etaBin;
+  int etaBin;
   double phiMin;
   double phiMax;
-  int    phiBin;
+  int phiBin;
 
-  bool   standAlone_;
-  bool   batch_;
+  bool standAlone_;
+  bool batch_;
 
   std::string outputFileName_;
   std::string inputFileName_;
@@ -157,15 +160,9 @@ class PhotonOfflineClient : public  DQMEDHarvester
   int histo_index_conversions_;
   int histo_index_efficiency_;
   int histo_index_invMass_;
-  
+
   std::vector<std::string> types_;
   std::vector<std::string> parts_;
-
-
 };
-
-
-
-
 
 #endif

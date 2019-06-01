@@ -18,7 +18,6 @@
 // Last Modification: 13.02.2007
 //
 
-
 // system include files
 #include <memory>
 
@@ -33,29 +32,30 @@ namespace edm {
 namespace reco {
   class Candidate;
   class Track;
-}
+}  // namespace reco
 
 class FreeTrajectoryState;
 class MagneticField;
-	
-class HLTmmkFilter : public HLTFilter {
 
- public:
+class HLTmmkFilter : public HLTFilter {
+public:
   explicit HLTmmkFilter(const edm::ParameterSet&);
   ~HLTmmkFilter() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-  void beginJob() override ;
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+private:
+  void beginJob() override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
   void endJob() override;
 
   static int overlap(const reco::Candidate&, const reco::Candidate&);
-  static FreeTrajectoryState initialFreeState( const reco::Track&,const MagneticField*);
+  static FreeTrajectoryState initialFreeState(const reco::Track&, const MagneticField*);
 
-  edm::InputTag                                          muCandTag_;
+  edm::InputTag muCandTag_;
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> muCandToken_;
-  edm::InputTag                                          trkCandTag_;
+  edm::InputTag trkCandTag_;
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> trkCandToken_;
 
   const double thirdTrackMass_;
@@ -68,8 +68,7 @@ class HLTmmkFilter : public HLTFilter {
   const double minCosinePointingAngle_;
   const double minD0Significance_;
   const bool fastAccept_;
-  edm::InputTag                    beamSpotTag_;
+  edm::InputTag beamSpotTag_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
-
 };
 #endif

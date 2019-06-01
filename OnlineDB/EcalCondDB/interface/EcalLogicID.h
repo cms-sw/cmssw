@@ -5,19 +5,13 @@
 #include <string>
 // Defines an object to contain the DB logic ID for conditions
 class EcalLogicID {
-  
- public:
-
+public:
   // Default constructor
   EcalLogicID();
 
   // Initializing constructor
-  EcalLogicID( std::string name,
-	       int logicID,
-	       int id1 = NULLID,
-	       int id2 = NULLID,
-	       int id3 = NULLID,
-	       std::string mapsTo = "" );
+  EcalLogicID(
+      std::string name, int logicID, int id1 = NULLID, int id2 = NULLID, int id3 = NULLID, std::string mapsTo = "");
 
   // Destructor
   virtual ~EcalLogicID();
@@ -35,7 +29,6 @@ class EcalLogicID {
   inline void setID2(int x) { id2 = x; }
   inline void setID3(int x) { id3 = x; }
 
-
   std::string getMapsTo() const;
 
   // Constants
@@ -43,15 +36,14 @@ class EcalLogicID {
 
   // Operators
   friend inline bool operator<(EcalLogicID lhs, EcalLogicID rhs) { return (lhs.logicID < rhs.logicID); }
-  
- private:
+
+private:
   std::string name;
   int logicID;
   int id1;
   int id2;
   int id3;
-  std::string mapsTo;    
-
+  std::string mapsTo;
 };
 
 #endif

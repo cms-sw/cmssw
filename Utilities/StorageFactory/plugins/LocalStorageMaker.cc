@@ -8,42 +8,38 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-class LocalStorageMaker : public StorageMaker
-{
+class LocalStorageMaker : public StorageMaker {
 public:
-  std::unique_ptr<Storage> open (const std::string &proto,
-			 const std::string &path,
-			 int mode,
-       const AuxSettings&) const override
-    {
-      const StorageFactory *f = StorageFactory::get();
-      StorageFactory::ReadHint readHint = f->readHint();
-      StorageFactory::CacheHint cacheHint = f->cacheHint();
+  std::unique_ptr<Storage> open(const std::string &proto,
+                                const std::string &path,
+                                int mode,
+                                const AuxSettings &) const override {
+    const StorageFactory *f = StorageFactory::get();
+    StorageFactory::ReadHint readHint = f->readHint();
+    StorageFactory::CacheHint cacheHint = f->cacheHint();
 
-      if (readHint != StorageFactory::READ_HINT_UNBUFFERED
-	  || cacheHint == StorageFactory::CACHE_HINT_STORAGE)
-	mode &= ~IOFlags::OpenUnbuffered;
-      else
-	mode |= IOFlags::OpenUnbuffered;
+    if (readHint != StorageFactory::READ_HINT_UNBUFFERED || cacheHint == StorageFactory::CACHE_HINT_STORAGE)
+      mode &= ~IOFlags::OpenUnbuffered;
+    else
+      mode |= IOFlags::OpenUnbuffered;
 
-      auto file = std::make_unique<File> (path, mode);
-      return f->wrapNonLocalFile (std::move(file), proto, path, mode);
-    }
+    auto file = std::make_unique<File>(path, mode);
+    return f->wrapNonLocalFile(std::move(file), proto, path, mode);
+  }
 
-  bool check (const std::string &/*proto*/,
-		      const std::string &path,
-          const AuxSettings&,
-		      IOOffset *size = nullptr) const override
-    {
-      struct stat st;
-      if (stat (path.c_str(), &st) != 0)
-	return false;
+  bool check(const std::string & /*proto*/,
+             const std::string &path,
+             const AuxSettings &,
+             IOOffset *size = nullptr) const override {
+    struct stat st;
+    if (stat(path.c_str(), &st) != 0)
+      return false;
 
-      if (size)
-	*size = st.st_size;
+    if (size)
+      *size = st.st_size;
 
-      return true;
-    }
+    return true;
+  }
 };
 
-DEFINE_EDM_PLUGIN (StorageMakerFactory, LocalStorageMaker, "file");
+DEFINE_EDM_PLUGIN(StorageMakerFactory, LocalStorageMaker, "file");

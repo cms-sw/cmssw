@@ -7,7 +7,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -37,20 +36,21 @@
 typedef std::map<short, short, std::less<short> > LUT;
 
 class L1TMuonBarrelParamsESProducer : public edm::ESProducer {
-   public:
-      L1TMuonBarrelParamsESProducer(const edm::ParameterSet&);
-      ~L1TMuonBarrelParamsESProducer() override;
-      int load_pt(std::vector<LUT>& , std::vector<int>&, unsigned short int, std::string);
-      int load_phi(std::vector<LUT>& , unsigned short int, unsigned short int, std::string);
-      int load_ext(std::vector<L1TMuonBarrelParams::LUTParams::extLUT>&, unsigned short int, unsigned short int );
-      //void print(std::vector<LUT>& , std::vector<int>& ) const;
-      int getPtLutThreshold(int ,std::vector<int>& ) const;
-      using ReturnType = std::unique_ptr<L1TMuonBarrelParams>;
+public:
+  L1TMuonBarrelParamsESProducer(const edm::ParameterSet&);
+  ~L1TMuonBarrelParamsESProducer() override;
+  int load_pt(std::vector<LUT>&, std::vector<int>&, unsigned short int, std::string);
+  int load_phi(std::vector<LUT>&, unsigned short int, unsigned short int, std::string);
+  int load_ext(std::vector<L1TMuonBarrelParams::LUTParams::extLUT>&, unsigned short int, unsigned short int);
+  //void print(std::vector<LUT>& , std::vector<int>& ) const;
+  int getPtLutThreshold(int, std::vector<int>&) const;
+  using ReturnType = std::unique_ptr<L1TMuonBarrelParams>;
 
-      ReturnType produce(const L1TMuonBarrelParamsRcd&);
-   private:
-    //L1TMuonBarrelParams m_params;
-    L1TMuonBarrelParamsHelper m_params_helper;
+  ReturnType produce(const L1TMuonBarrelParamsRcd&);
+
+private:
+  //L1TMuonBarrelParams m_params;
+  L1TMuonBarrelParamsHelper m_params_helper;
 };
 
 //
@@ -64,64 +64,63 @@ class L1TMuonBarrelParamsESProducer : public edm::ESProducer {
 //
 // constructors and destructor
 //
-L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::ParameterSet& iConfig)
-{
-   //the following line is needed to tell the framework what
-   // data is being produced
-   setWhatProduced(this);
-   // Firmware version
-   unsigned fwVersion = iConfig.getParameter<unsigned>("fwVersion");
-   std::string AssLUTpath = iConfig.getParameter<std::string>("AssLUTPath");
-   //m_params.setAssLUTPath(AssLUTpath);
+L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::ParameterSet& iConfig) {
+  //the following line is needed to tell the framework what
+  // data is being produced
+  setWhatProduced(this);
+  // Firmware version
+  unsigned fwVersion = iConfig.getParameter<unsigned>("fwVersion");
+  std::string AssLUTpath = iConfig.getParameter<std::string>("AssLUTPath");
+  //m_params.setAssLUTPath(AssLUTpath);
 
-   // int PT_Assignment_nbits_Phi = iConfig.getParameter<int>("PT_Assignment_nbits_Phi");
-   // int PT_Assignment_nbits_PhiB = iConfig.getParameter<int>("PT_Assignment_nbits_PhiB");
-   // int PHI_Assignment_nbits_Phi = iConfig.getParameter<int>("PHI_Assignment_nbits_Phi");
-   // int PHI_Assignment_nbits_PhiB = iConfig.getParameter<int>("PHI_Assignment_nbits_PhiB");
-   // int Extrapolation_nbits_Phi = iConfig.getParameter<int>("Extrapolation_nbits_Phi");
-   // int Extrapolation_nbits_PhiB = iConfig.getParameter<int>("Extrapolation_nbits_PhiB");
-   // int BX_min = iConfig.getParameter<int>("BX_min");
-   // int BX_max = iConfig.getParameter<int>("BX_max");
-   // int Extrapolation_Filter = iConfig.getParameter<int>("Extrapolation_Filter");
-   // int OutOfTime_Filter_Window = iConfig.getParameter<int>("OutOfTime_Filter_Window");
-   // bool OutOfTime_Filter = iConfig.getParameter<bool>("OutOfTime_Filter");
-   // bool Open_LUTs = iConfig.getParameter<bool>("Open_LUTs");
-   // bool EtaTrackFinder = iConfig.getParameter<bool>("EtaTrackFinder");
-   // bool Extrapolation_21 = iConfig.getParameter<bool>("Extrapolation_21");
-   bool configFromXML = iConfig.getParameter<bool>("configFromXML");
-   // bool DisableNewAlgo = iConfig.getParameter<bool>("DisableNewAlgo");
+  // int PT_Assignment_nbits_Phi = iConfig.getParameter<int>("PT_Assignment_nbits_Phi");
+  // int PT_Assignment_nbits_PhiB = iConfig.getParameter<int>("PT_Assignment_nbits_PhiB");
+  // int PHI_Assignment_nbits_Phi = iConfig.getParameter<int>("PHI_Assignment_nbits_Phi");
+  // int PHI_Assignment_nbits_PhiB = iConfig.getParameter<int>("PHI_Assignment_nbits_PhiB");
+  // int Extrapolation_nbits_Phi = iConfig.getParameter<int>("Extrapolation_nbits_Phi");
+  // int Extrapolation_nbits_PhiB = iConfig.getParameter<int>("Extrapolation_nbits_PhiB");
+  // int BX_min = iConfig.getParameter<int>("BX_min");
+  // int BX_max = iConfig.getParameter<int>("BX_max");
+  // int Extrapolation_Filter = iConfig.getParameter<int>("Extrapolation_Filter");
+  // int OutOfTime_Filter_Window = iConfig.getParameter<int>("OutOfTime_Filter_Window");
+  // bool OutOfTime_Filter = iConfig.getParameter<bool>("OutOfTime_Filter");
+  // bool Open_LUTs = iConfig.getParameter<bool>("Open_LUTs");
+  // bool EtaTrackFinder = iConfig.getParameter<bool>("EtaTrackFinder");
+  // bool Extrapolation_21 = iConfig.getParameter<bool>("Extrapolation_21");
+  bool configFromXML = iConfig.getParameter<bool>("configFromXML");
+  // bool DisableNewAlgo = iConfig.getParameter<bool>("DisableNewAlgo");
 
-   std::map<std::string, int> allInts;
-   std::map<std::string, bool> allBools;
-   std::map<std::string, std::vector<std::string> > allMasks;
+  std::map<std::string, int> allInts;
+  std::map<std::string, bool> allBools;
+  std::map<std::string, std::vector<std::string> > allMasks;
 
-   allInts["PT_Assignment_nbits_Phi"] = iConfig.getParameter<int>("PT_Assignment_nbits_Phi");
-   allInts["PT_Assignment_nbits_PhiB"] = iConfig.getParameter<int>("PT_Assignment_nbits_PhiB");
-   allInts["PHI_Assignment_nbits_Phi"] = iConfig.getParameter<int>("PHI_Assignment_nbits_Phi");
-   allInts["PHI_Assignment_nbits_PhiB"] = iConfig.getParameter<int>("PHI_Assignment_nbits_PhiB");
-   allInts["Extrapolation_nbits_Phi"] = iConfig.getParameter<int>("Extrapolation_nbits_Phi");
-   allInts["Extrapolation_nbits_PhiB"] = iConfig.getParameter<int>("Extrapolation_nbits_PhiB");
-   allInts["BX_min"] = iConfig.getParameter<int>("BX_min");
-   allInts["BX_max"] = iConfig.getParameter<int>("BX_max");
-   allInts["Extrapolation_Filter"] = iConfig.getParameter<int>("Extrapolation_Filter");
-   allInts["OutOfTime_Filter_Window"] = iConfig.getParameter<int>("OutOfTime_Filter_Window");
-   allBools["OutOfTime_Filter"] = iConfig.getParameter<bool>("OutOfTime_Filter");
-   allBools["Open_LUTs"] = iConfig.getParameter<bool>("Open_LUTs");
-   allBools["EtaTrackFinder"] = iConfig.getParameter<bool>("EtaTrackFinder");
-   allBools["Extrapolation_21"] = iConfig.getParameter<bool>("Extrapolation_21");
-   allBools["configFromXML"] = iConfig.getParameter<bool>("configFromXML");
-   allBools["DisableNewAlgo"] = iConfig.getParameter<bool>("DisableNewAlgo");
+  allInts["PT_Assignment_nbits_Phi"] = iConfig.getParameter<int>("PT_Assignment_nbits_Phi");
+  allInts["PT_Assignment_nbits_PhiB"] = iConfig.getParameter<int>("PT_Assignment_nbits_PhiB");
+  allInts["PHI_Assignment_nbits_Phi"] = iConfig.getParameter<int>("PHI_Assignment_nbits_Phi");
+  allInts["PHI_Assignment_nbits_PhiB"] = iConfig.getParameter<int>("PHI_Assignment_nbits_PhiB");
+  allInts["Extrapolation_nbits_Phi"] = iConfig.getParameter<int>("Extrapolation_nbits_Phi");
+  allInts["Extrapolation_nbits_PhiB"] = iConfig.getParameter<int>("Extrapolation_nbits_PhiB");
+  allInts["BX_min"] = iConfig.getParameter<int>("BX_min");
+  allInts["BX_max"] = iConfig.getParameter<int>("BX_max");
+  allInts["Extrapolation_Filter"] = iConfig.getParameter<int>("Extrapolation_Filter");
+  allInts["OutOfTime_Filter_Window"] = iConfig.getParameter<int>("OutOfTime_Filter_Window");
+  allBools["OutOfTime_Filter"] = iConfig.getParameter<bool>("OutOfTime_Filter");
+  allBools["Open_LUTs"] = iConfig.getParameter<bool>("Open_LUTs");
+  allBools["EtaTrackFinder"] = iConfig.getParameter<bool>("EtaTrackFinder");
+  allBools["Extrapolation_21"] = iConfig.getParameter<bool>("Extrapolation_21");
+  allBools["configFromXML"] = iConfig.getParameter<bool>("configFromXML");
+  allBools["DisableNewAlgo"] = iConfig.getParameter<bool>("DisableNewAlgo");
 
-   allMasks["mask_phtf_st1"] = iConfig.getParameter< std::vector <string>  >("mask_phtf_st1");
-   allMasks["mask_phtf_st2"] = iConfig.getParameter< std::vector <string>  >("mask_phtf_st2");
-   allMasks["mask_phtf_st3"] = iConfig.getParameter< std::vector <string>  >("mask_phtf_st3");
-   allMasks["mask_phtf_st4"] = iConfig.getParameter< std::vector <string>  >("mask_phtf_st4");
+  allMasks["mask_phtf_st1"] = iConfig.getParameter<std::vector<string> >("mask_phtf_st1");
+  allMasks["mask_phtf_st2"] = iConfig.getParameter<std::vector<string> >("mask_phtf_st2");
+  allMasks["mask_phtf_st3"] = iConfig.getParameter<std::vector<string> >("mask_phtf_st3");
+  allMasks["mask_phtf_st4"] = iConfig.getParameter<std::vector<string> >("mask_phtf_st4");
 
-   allMasks["mask_ettf_st1"] = iConfig.getParameter< std::vector <string>  >("mask_ettf_st1");
-   allMasks["mask_ettf_st2"] = iConfig.getParameter< std::vector <string>  >("mask_ettf_st2");
-   allMasks["mask_ettf_st3"] = iConfig.getParameter< std::vector <string>  >("mask_ettf_st3");
+  allMasks["mask_ettf_st1"] = iConfig.getParameter<std::vector<string> >("mask_ettf_st1");
+  allMasks["mask_ettf_st2"] = iConfig.getParameter<std::vector<string> >("mask_ettf_st2");
+  allMasks["mask_ettf_st3"] = iConfig.getParameter<std::vector<string> >("mask_ettf_st3");
 
-/*
+  /*
        m_params.set_PT_Assignment_nbits_Phi(PT_Assignment_nbits_Phi);
        m_params.set_PT_Assignment_nbits_PhiB(PT_Assignment_nbits_PhiB);
        m_params.set_PHI_Assignment_nbits_Phi(PHI_Assignment_nbits_Phi);
@@ -230,17 +229,17 @@ L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::Paramete
 
     */
 
-        m_params_helper.configFromPy(allInts, allBools, allMasks, fwVersion, AssLUTpath);
-   if(configFromXML){
-      cout<<"Configuring BMTF Emulator from xml files.\n";
-      edm::FileInPath hwXmlFile(iConfig.getParameter<std::string>("hwXmlFile"));
-      edm::FileInPath topCfgXmlFile(iConfig.getParameter<std::string>("topCfgXmlFile"));
-      std::string xmlCfgKey = iConfig.getParameter<std::string>("xmlCfgKey");
+  m_params_helper.configFromPy(allInts, allBools, allMasks, fwVersion, AssLUTpath);
+  if (configFromXML) {
+    cout << "Configuring BMTF Emulator from xml files.\n";
+    edm::FileInPath hwXmlFile(iConfig.getParameter<std::string>("hwXmlFile"));
+    edm::FileInPath topCfgXmlFile(iConfig.getParameter<std::string>("topCfgXmlFile"));
+    std::string xmlCfgKey = iConfig.getParameter<std::string>("xmlCfgKey");
 
-      l1t::TriggerSystem trgSys;
-      trgSys.configureSystemFromFiles(hwXmlFile.fullPath().c_str(),topCfgXmlFile.fullPath().c_str(),xmlCfgKey.c_str());
+    l1t::TriggerSystem trgSys;
+    trgSys.configureSystemFromFiles(hwXmlFile.fullPath().c_str(), topCfgXmlFile.fullPath().c_str(), xmlCfgKey.c_str());
 
-     /* std::map<std::string, std::string> procRole = trgSys.getProcRole();
+    /* std::map<std::string, std::string> procRole = trgSys.getProcRole();
 
       for(auto it_proc=procRole.begin(); it_proc!=procRole.end(); it_proc++ ){
 
@@ -392,18 +391,12 @@ L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::Paramete
              }///for masks
           }///for it tRow
       }///for it procRole */
-	m_params_helper.configFromDB(trgSys);
-  }///if configDB
-	//m_params = cast_to_L1TMuonBarrelParams((L1TMuonBarrelParams_PUBLIC)m_params_helper);
- 
-
+    m_params_helper.configFromDB(trgSys);
+  }  ///if configDB
+     //m_params = cast_to_L1TMuonBarrelParams((L1TMuonBarrelParams_PUBLIC)m_params_helper);
 }
 
-
-L1TMuonBarrelParamsESProducer::~L1TMuonBarrelParamsESProducer()
-{
-
-}
+L1TMuonBarrelParamsESProducer::~L1TMuonBarrelParamsESProducer() {}
 
 /*int L1TMuonBarrelParamsESProducer::load_pt(std::vector<LUT>& pta_lut,
                                   std::vector<int>& pta_threshold,
@@ -592,9 +585,6 @@ int L1TMuonBarrelParamsESProducer::getPtLutThreshold(int pta_ind, std::vector<in
 
 */
 
-
-
-
 //
 // load extrapolation look-up tables
 //
@@ -696,10 +686,8 @@ int L1TMuonBarrelParamsESProducer::load_ext(std::vector<L1TMuonBarrelParams::LUT
 //
 */
 // ------------ method called to produce the data  ------------
-L1TMuonBarrelParamsESProducer::ReturnType
-L1TMuonBarrelParamsESProducer::produce(const L1TMuonBarrelParamsRcd& iRecord)
-{
-   return std::make_unique<L1TMuonBarrelParams>(m_params_helper);
+L1TMuonBarrelParamsESProducer::ReturnType L1TMuonBarrelParamsESProducer::produce(const L1TMuonBarrelParamsRcd& iRecord) {
+  return std::make_unique<L1TMuonBarrelParams>(m_params_helper);
 }
 
 //define this as a plug-in

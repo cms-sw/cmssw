@@ -56,17 +56,17 @@ class Herwig7Interface {
 	bool initGenerator();
 	void flushRandomNumberGenerator();
 
-	static std::unique_ptr<HepMC::GenEvent>
+	static std::auto_ptr<HepMC::GenEvent>
 				convert(const ThePEG::EventPtr &event);
 
 	static double pthat(const ThePEG::EventPtr &event);
 
 	
 
-	std::unique_ptr<HepMC::IO_BaseClass>	iobc_;
+	std::auto_ptr<HepMC::IO_BaseClass>	iobc_;
 
 	// HerwigUi contains settings piped to Herwig7
-	Herwig::HerwigUIProvider* HwUI_;
+	std::shared_ptr<Herwig::HerwigUIProvider> HwUI_;
 
 	/**
         * Function calls Herwig event generator via API

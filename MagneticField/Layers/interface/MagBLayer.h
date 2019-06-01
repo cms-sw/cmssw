@@ -18,7 +18,8 @@
 
 class MagBSector;
 class MagVolume;
-template <class T> class PeriodicBinFinderInPhi;
+template <class T>
+class PeriodicBinFinderInPhi;
 
 class MagBLayer {
 public:
@@ -32,21 +33,19 @@ public:
   virtual ~MagBLayer();
 
   /// Find the volume containing a point, with a given tolerance
-  const MagVolume * findVolume(const GlobalPoint & gp, double tolerance) const;
-  
+  const MagVolume* findVolume(const GlobalPoint& gp, double tolerance) const;
+
   /// Lowest radius of the layer
-  double minR() const {return theRMin;}
+  double minR() const { return theRMin; }
 
 private:
   // To support either the case of a simple one-volume layer or a
   // composite structure we have both theSectors or theSingleVolume.
   // Only one can be active at a time; not very elegant, but acceptable.
   std::vector<MagBSector*> theSectors;
-  MagVolume* theSingleVolume; 
+  MagVolume* theSingleVolume;
   double theRMin;
 
-  PeriodicBinFinderInPhi<float> * theBinFinder;
-
+  PeriodicBinFinderInPhi<float>* theBinFinder;
 };
 #endif
-

@@ -21,6 +21,9 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTGraphPayload.h"
 #include "CondFormats/DataRecord/interface/PhysicsTGraphPayloadRcd.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
@@ -39,7 +42,9 @@ class RecoTauDiscriminantCutMultiplexer : public PFTauDiscriminationProducerBase
   ~RecoTauDiscriminantCutMultiplexer() override;
   double discriminate(const reco::PFTauRef&) const override;
   void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
-  
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
  private:
   std::string moduleLabel_;
 
@@ -98,9 +103,7 @@ namespace
       throw cms::Exception("RecoTauDiscriminantCutMultiplexer::loadObjectFromFile") 
         << " Failed to load Object = " << objectName.data() << " from file = " << inputFile.GetName() << " !!\n";
     //Need to use TObject::Clone since the type T might be a base class
-    std::unique_ptr<const T> copy{ static_cast<T*>(object->Clone()) };
-
-    return std::move(copy);
+    return std::unique_ptr<const T>{ static_cast<T*>(object->Clone()) };
   }
 
   std::unique_ptr<const TGraph> loadTGraphFromDB(const edm::EventSetup& es, const std::string& graphName, const int& verbosity_ = 0)
@@ -145,19 +148,14 @@ RecoTauDiscriminantCutMultiplexer::RecoTauDiscriminantCutMultiplexer(const edm::
   key_ = cfg.getParameter<edm::InputTag>("key");
   key_token = consumes<reco::PFTauDiscriminator>(key_);
 
-  verbosity_ = ( cfg.exists("verbosity") ) ?
-    cfg.getParameter<int>("verbosity") : 0;
+  verbosity_ = cfg.getParameter<int>("verbosity");
 
-  loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
+  loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
   if ( !loadMVAfromDB_ ) {
-    if(cfg.exists("inputFileName")){
       inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
-    }else throw cms::Exception("MVA input not defined") << "Requested to load tau MVA input from ROOT file but no file provided in cfg file";
   }
   if(verbosity_)  std::cout << moduleLabel_ << " loadMVA = " << loadMVAfromDB_ << std::endl;
-  if ( cfg.exists("mvaOutput_normalization") ) {
-    mvaOutputNormalizationName_ = cfg.getParameter<std::string>("mvaOutput_normalization"); 
-  }
+  mvaOutputNormalizationName_ = cfg.getParameter<std::string>("mvaOutput_normalization"); 
 
   // Setup our cut map
   typedef std::vector<edm::ParameterSet> VPSet;
@@ -181,6 +179,7 @@ RecoTauDiscriminantCutMultiplexer::RecoTauDiscriminantCutMultiplexer(const edm::
     cuts_[category] = std::move(cut);
   }
 
+  verbosity_ = cfg.getParameter<int>("verbosity");
   if(verbosity_) std::cout << "constructed " << moduleLabel_ << std::endl;
 }
 
@@ -278,5 +277,38 @@ RecoTauDiscriminantCutMultiplexer::discriminate(const reco::PFTauRef& tau) const
 
   return passesCuts;
 }
+
+void
+RecoTauDiscriminantCutMultiplexer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // recoTauDiscriminantCutMultiplexer
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("toMultiplex", edm::InputTag("fixme"));
+  desc.add<int>("verbosity", 0);
+
+  {
+    edm::ParameterSet pset_mapping;
+    pset_mapping.addParameter<unsigned int>("category",0);
+    pset_mapping.addParameter<double>("cut",0.);
+    edm::ParameterSetDescription desc_mapping;
+    desc_mapping.add<unsigned int>("category",0);
+    desc_mapping.addNode(edm::ParameterDescription<std::string>("cut", true) xor
+                         edm::ParameterDescription<double>("cut", true));
+    // it seems the parameter string "variable" exists only when "cut" is string
+    // see hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT in RecoTauTag/Configuration/python/HPSPFTaus_cff.py
+    desc_mapping.addOptional<std::string>("variable")->setComment("the parameter is required when \"cut\" is string");
+    //  desc_mapping.add<double>("cut",0.);
+    std::vector<edm::ParameterSet> vpsd_mapping;
+    vpsd_mapping.push_back(pset_mapping);
+    desc.addVPSet("mapping",desc_mapping,vpsd_mapping);
+  }
+ 
+  desc.add<edm::FileInPath>("inputFileName", edm::FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"));
+  desc.add<bool>("loadMVAfromDB", true);
+  fillProducerDescriptions(desc); // inherited from the base
+  desc.add<std::string>("mvaOutput_normalization", "");
+  desc.add<edm::InputTag>("key", edm::InputTag("fixme"));
+  descriptions.add("recoTauDiscriminantCutMultiplexerDefault", desc);
+}
+
 
 DEFINE_FWK_MODULE(RecoTauDiscriminantCutMultiplexer);

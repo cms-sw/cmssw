@@ -12,19 +12,17 @@
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "CmsException.h"
 
-
 namespace clangcms {
-class GlobalStaticChecker : public clang::ento::Checker< clang::ento::check::ASTDecl< clang::VarDecl> > {
-  CMS_THREAD_SAFE mutable std::unique_ptr< clang::ento::BuiltinBug> BT;
+  class GlobalStaticChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::VarDecl> > {
+    CMS_THREAD_SAFE mutable std::unique_ptr<clang::ento::BuiltinBug> BT;
 
-public:
-  void checkASTDecl(const clang::VarDecl *D,
-                      clang::ento::AnalysisManager &Mgr,
-                      clang::ento::BugReporter &BR) const;
-private:
-  CmsException m_exception;
-};  
+  public:
+    void checkASTDecl(const clang::VarDecl *D, clang::ento::AnalysisManager &Mgr, clang::ento::BugReporter &BR) const;
 
-} 
+  private:
+    CmsException m_exception;
+  };
+
+}  // namespace clangcms
 
 #endif

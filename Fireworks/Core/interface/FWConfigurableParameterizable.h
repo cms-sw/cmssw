@@ -24,35 +24,29 @@
 #include "Fireworks/Core/interface/FWParameterizable.h"
 #include "Fireworks/Core/interface/FWConfigurable.h"
 
-
 // forward declarations
 
-class FWConfigurableParameterizable : public FWParameterizable, public FWConfigurable
-{
-
+class FWConfigurableParameterizable : public FWParameterizable, public FWConfigurable {
 public:
-   FWConfigurableParameterizable(unsigned int iVersion = 1);
-   ~FWConfigurableParameterizable() override;
+  FWConfigurableParameterizable(unsigned int iVersion = 1);
+  ~FWConfigurableParameterizable() override;
 
-   // ---------- const member functions ---------------------
-   void addTo(FWConfiguration&) const override;
+  // ---------- const member functions ---------------------
+  void addTo(FWConfiguration&) const override;
 
-   unsigned int version() const {
-      return m_version;
-   }
-   // ---------- static member functions --------------------
+  unsigned int version() const { return m_version; }
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void setFrom(const FWConfiguration&) override;
+  // ---------- member functions ---------------------------
+  void setFrom(const FWConfiguration&) override;
 
 private:
-   FWConfigurableParameterizable(const FWConfigurableParameterizable&) = delete;    // stop default
+  FWConfigurableParameterizable(const FWConfigurableParameterizable&) = delete;  // stop default
 
-   const FWConfigurableParameterizable& operator=(const FWConfigurableParameterizable&) = delete;    // stop default
+  const FWConfigurableParameterizable& operator=(const FWConfigurableParameterizable&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   unsigned int m_version;
+  // ---------- member data --------------------------------
+  unsigned int m_version;
 };
-
 
 #endif

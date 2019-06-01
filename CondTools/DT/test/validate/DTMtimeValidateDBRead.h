@@ -12,18 +12,14 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class DTMtimeValidateDBRead : public edm::EDAnalyzer {
-
- public:
-
-  explicit  DTMtimeValidateDBRead(edm::ParameterSet const& p);
-  explicit  DTMtimeValidateDBRead(int i) ;
-  virtual ~ DTMtimeValidateDBRead();
+public:
+  explicit DTMtimeValidateDBRead(edm::ParameterSet const& p);
+  explicit DTMtimeValidateDBRead(int i);
+  virtual ~DTMtimeValidateDBRead();
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   virtual void endJob();
 
- private:
-
+private:
   std::string dataFileName;
   std::string elogFileName;
-
 };

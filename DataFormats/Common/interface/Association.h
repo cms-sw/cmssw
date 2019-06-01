@@ -13,50 +13,51 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 namespace edm {
-  
-  template<typename C>
+
+  template <typename C>
   class Association : private ValueMap<int> {
   public:
-    typedef int index; // negative index == null reference
+    typedef int index;  // negative index == null reference
     typedef ValueMap<index> base;
     typedef typename base::offset offset;
-    typedef edm::RefProd<C> refprod_type; // could be specialized for View
+    typedef edm::RefProd<C> refprod_type;  // could be specialized for View
     typedef Ref<typename refprod_type::product_type> reference_type;
 
-    Association() : base() { }
-    template<typename H>
-    explicit Association(const H & h) : base(), ref_(h) { }
+    Association() : base() {}
+    template <typename H>
+    explicit Association(const H& h) : base(), ref_(h) {}
 
     // import this function from ValueMap<int>
     using base::rawIndexOf;
- 
-    template<typename RefKey>
-      reference_type operator[](const RefKey & r) const {
+
+    template <typename RefKey>
+    reference_type operator[](const RefKey& r) const {
       return get(r.id(), r.key());
     }
 
     /// meant to be used internally or in AssociativeIterator, not by the ordinary user
-    reference_type get(size_t rawIdx) const { 
+    reference_type get(size_t rawIdx) const {
       index i = values_[rawIdx];
-      if(i < 0) return reference_type(); 
+      if (i < 0)
+        return reference_type();
       size_t k = i;
-      if (k >= ref_->size()) throwIndexMapBound();
-      return reference_type(ref_,k);
+      if (k >= ref_->size())
+        throwIndexMapBound();
+      return reference_type(ref_, k);
     }
 
-    reference_type get(ProductID id, size_t idx) const { 
-      return get(rawIndexOf(id,idx));
-    }
+    reference_type get(ProductID id, size_t idx) const { return get(rawIndexOf(id, idx)); }
 
-    Association<C> & operator+=(const Association<C> & o) {
+    Association<C>& operator+=(const Association<C>& o) {
       add(o);
       return *this;
     }
-    void setRef(const refprod_type & ref) {
-      if(ref_.isNull() ) {
-	ref_ = ref;
+    void setRef(const refprod_type& ref) {
+      if (ref_.isNull()) {
+        ref_ = ref;
       } else {
-	if(ref_.id() != ref.id()) throwRefSet();
+        if (ref_.id() != ref.id())
+          throwRefSet();
       }
     }
     bool contains(ProductID id) const { return base::contains(id); }
@@ -76,20 +77,20 @@ namespace edm {
 
     class Filler : public helper::Filler<Association<C> > {
       typedef helper::Filler<Association<C> > base;
+
     public:
-      explicit Filler(Association<C> & association) : 
-	base(association) { }
-      void add(const Association<C> & association) {
-	base::map_.setRef(association.ref());
-	base::add(association);
+      explicit Filler(Association<C>& association) : base(association) {}
+      void add(const Association<C>& association) {
+        base::map_.setRef(association.ref());
+        base::add(association);
       }
     };
 
     /// meant to be used in AssociativeIterator, not by the ordinary user
-    const id_offset_vector & ids() const { return ids_; }
+    const id_offset_vector& ids() const { return ids_; }
     /// meant to be used in AssociativeIterator, not by the ordinary user
     using base::id_offset_vector;
-    
+
     //Used by ROOT storage
     CMS_CLASS_VERSION(10)
 
@@ -102,28 +103,27 @@ namespace edm {
       Exception::throwThis(errors::InvalidReference, "Association: reference to product already set\n");
     }
 
-    void add( const Association<C> & o ) {
+    void add(const Association<C>& o) {
       Filler filler(*this);
       filler.add(o);
       filler.fill();
     }
 
     friend class helper::Filler<Association<C> >;
-  }; 
-  
+  };
+
   // Free swap function
   template <typename C>
   inline void swap(Association<C>& lhs, Association<C>& rhs) {
     lhs.swap(rhs);
   }
 
-  template<typename C>
-  inline  Association<C> operator+( const Association<C> & a1,
-				       const Association<C> & a2 ) {
+  template <typename C>
+  inline Association<C> operator+(const Association<C>& a1, const Association<C>& a2) {
     Association<C> a = a1;
     a += a2;
     return a;
   }
-}
+}  // namespace edm
 
 #endif

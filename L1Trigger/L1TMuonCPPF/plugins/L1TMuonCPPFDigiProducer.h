@@ -26,41 +26,38 @@
 
 #include "CondFormats/RPCObjects/interface/RPCDeadStrips.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/L1TMuon/interface/CPPFDigi.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
-#include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCRoll.h"
 
 #include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConversion.h"
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.h"
 
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
-#include <cassert>
-#include <string>
-#include <fstream>
 #include "TVector3.h"
+#include <cassert>
+#include <fstream>
+#include <string>
 
 // Class declaration
 class L1TMuonCPPFDigiProducer : public edm::stream::EDProducer<> {
-  
- public:
-  explicit L1TMuonCPPFDigiProducer(const edm::ParameterSet&);
+public:
+  explicit L1TMuonCPPFDigiProducer(const edm::ParameterSet &);
   ~L1TMuonCPPFDigiProducer() override;
 
- private:
-  
+private:
   void beginStream(edm::StreamID) override;
   void endStream() override;
-  void produce(edm::Event& event, const edm::EventSetup& setup) override;
-  
- private:
+  void produce(edm::Event &event, const edm::EventSetup &setup) override;
+
+private:
   std::unique_ptr<EmulateCPPF> cppf_emulator_;
-       
 };
 
 #endif /* #define L1Trigger_L1TMuonCPPF_L1TMuonCPPFDigiProducer_h */

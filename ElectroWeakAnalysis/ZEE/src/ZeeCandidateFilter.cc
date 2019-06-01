@@ -932,11 +932,10 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
         if ( iEvent.getByToken(tracksToken_, ctfTracks) ) {
 
-            ConversionFinder convFinder;
-            ConversionInfo convInfo = convFinder.getConversionInfo(maxETelec1, ctfTracks, bfield);
+            ConversionInfo convInfo = egammaTools::getConversionInfo(maxETelec1, ctfTracks, bfield);
 
-            Float_t dist = convInfo.dist();
-            Float_t dcot = convInfo.dcot();
+            Float_t dist = convInfo.dist;
+            Float_t dcot = convInfo.dcot;
 
             Bool_t isConv = ( ( TMath::Abs(dist) < dist1_ ) && ( TMath::Abs(dcot) < dcot1_ ) ) ;
 
@@ -1003,11 +1002,10 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
         if ( iEvent.getByToken(tracksToken_, ctfTracks) ) {
 
-            ConversionFinder convFinder;
-            ConversionInfo convInfo = convFinder.getConversionInfo(maxETelec2, ctfTracks, bfield);
+            ConversionInfo convInfo = egammaTools::getConversionInfo(maxETelec2, ctfTracks, bfield);
 
-            Float_t dist = convInfo.dist();
-            Float_t dcot = convInfo.dcot();
+            Float_t dist = convInfo.dist;
+            Float_t dcot = convInfo.dcot;
 
             Bool_t isConv = ( ( TMath::Abs(dist) < dist2_ ) && ( TMath::Abs(dcot) < dcot2_ ) ) ;
 

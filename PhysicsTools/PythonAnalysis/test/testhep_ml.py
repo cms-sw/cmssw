@@ -6,6 +6,7 @@ Testing all the nnet library
 """
 from __future__ import division, print_function
 
+from builtins import range
 import numpy
 from sklearn.linear_model.logistic import LogisticRegression
 from sklearn.datasets import make_blobs

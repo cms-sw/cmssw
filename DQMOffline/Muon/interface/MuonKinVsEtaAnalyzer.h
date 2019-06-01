@@ -21,7 +21,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -32,32 +32,29 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 class MuonKinVsEtaAnalyzer : public DQMEDAnalyzer {
- public:
-  
+public:
   /// Constructor
-  MuonKinVsEtaAnalyzer(const edm::ParameterSet& pSet);
-  
+  MuonKinVsEtaAnalyzer(const edm::ParameterSet &pSet);
+
   /// Destructor
   ~MuonKinVsEtaAnalyzer() override;
-  
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
- private:
-  
+private:
   // ----------member data ---------------------------
   MuonServiceProxy *theService;
-  DQMStore* theDbe;
   edm::ParameterSet parameters;
- 
+
   // Switch for verbosity
   std::string metname;
 
   //Vertex requirements
-  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
+  edm::EDGetTokenT<edm::View<reco::Muon> > theMuonCollectionLabel_;
   edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
-  edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
-  
+  edm::EDGetTokenT<reco::BeamSpot> theBeamSpotLabel_;
+
   //histo binning parameters
   int pBin;
   double pMin;
@@ -94,68 +91,68 @@ class MuonKinVsEtaAnalyzer : public DQMEDAnalyzer {
 
   //the histos
   // global muon
-  std::vector<MonitorElement*> etaGlbTrack;
-  std::vector<MonitorElement*> phiGlbTrack;
-  std::vector<MonitorElement*> pGlbTrack;
-  std::vector<MonitorElement*> ptGlbTrack;
-  std::vector<MonitorElement*> chi2GlbTrack;
-  std::vector<MonitorElement*> chi2probGlbTrack;
+  std::vector<MonitorElement *> etaGlbTrack;
+  std::vector<MonitorElement *> phiGlbTrack;
+  std::vector<MonitorElement *> pGlbTrack;
+  std::vector<MonitorElement *> ptGlbTrack;
+  std::vector<MonitorElement *> chi2GlbTrack;
+  std::vector<MonitorElement *> chi2probGlbTrack;
 
   // tracker muon
-  std::vector<MonitorElement*> etaTrack;
-  std::vector<MonitorElement*> phiTrack;
-  std::vector<MonitorElement*> pTrack;
-  std::vector<MonitorElement*> ptTrack;
-  std::vector<MonitorElement*> chi2Track;
-  std::vector<MonitorElement*> chi2probTrack;
+  std::vector<MonitorElement *> etaTrack;
+  std::vector<MonitorElement *> phiTrack;
+  std::vector<MonitorElement *> pTrack;
+  std::vector<MonitorElement *> ptTrack;
+  std::vector<MonitorElement *> chi2Track;
+  std::vector<MonitorElement *> chi2probTrack;
 
   // sta muon
-  std::vector<MonitorElement*> etaStaTrack;
-  std::vector<MonitorElement*> phiStaTrack;
-  std::vector<MonitorElement*> pStaTrack;
-  std::vector<MonitorElement*> ptStaTrack;
-  std::vector<MonitorElement*> chi2StaTrack;
-  std::vector<MonitorElement*> chi2probStaTrack;
+  std::vector<MonitorElement *> etaStaTrack;
+  std::vector<MonitorElement *> phiStaTrack;
+  std::vector<MonitorElement *> pStaTrack;
+  std::vector<MonitorElement *> ptStaTrack;
+  std::vector<MonitorElement *> chi2StaTrack;
+  std::vector<MonitorElement *> chi2probStaTrack;
 
   // GMPT muon
-  std::vector<MonitorElement*> etaTightTrack;
-  std::vector<MonitorElement*> phiTightTrack;
-  std::vector<MonitorElement*> pTightTrack;
-  std::vector<MonitorElement*> ptTightTrack;
-  std::vector<MonitorElement*> chi2TightTrack;
-  std::vector<MonitorElement*> chi2probTightTrack;
+  std::vector<MonitorElement *> etaTightTrack;
+  std::vector<MonitorElement *> phiTightTrack;
+  std::vector<MonitorElement *> pTightTrack;
+  std::vector<MonitorElement *> ptTightTrack;
+  std::vector<MonitorElement *> chi2TightTrack;
+  std::vector<MonitorElement *> chi2probTightTrack;
 
   // Loose muon;
-  std::vector<MonitorElement*> etaLooseTrack;
-  std::vector<MonitorElement*> phiLooseTrack;
-  std::vector<MonitorElement*> pLooseTrack;
-  std::vector<MonitorElement*> ptLooseTrack;
-  std::vector<MonitorElement*> chi2LooseTrack;
-  std::vector<MonitorElement*> chi2probLooseTrack;
+  std::vector<MonitorElement *> etaLooseTrack;
+  std::vector<MonitorElement *> phiLooseTrack;
+  std::vector<MonitorElement *> pLooseTrack;
+  std::vector<MonitorElement *> ptLooseTrack;
+  std::vector<MonitorElement *> chi2LooseTrack;
+  std::vector<MonitorElement *> chi2probLooseTrack;
 
   // Medium muon;
-  std::vector<MonitorElement*> etaMediumTrack;
-  std::vector<MonitorElement*> phiMediumTrack;
-  std::vector<MonitorElement*> pMediumTrack;
-  std::vector<MonitorElement*> ptMediumTrack;
-  std::vector<MonitorElement*> chi2MediumTrack;
-  std::vector<MonitorElement*> chi2probMediumTrack;
+  std::vector<MonitorElement *> etaMediumTrack;
+  std::vector<MonitorElement *> phiMediumTrack;
+  std::vector<MonitorElement *> pMediumTrack;
+  std::vector<MonitorElement *> ptMediumTrack;
+  std::vector<MonitorElement *> chi2MediumTrack;
+  std::vector<MonitorElement *> chi2probMediumTrack;
 
   // Soft muon;
-  std::vector<MonitorElement*> etaSoftTrack;
-  std::vector<MonitorElement*> phiSoftTrack;
-  std::vector<MonitorElement*> pSoftTrack;
-  std::vector<MonitorElement*> ptSoftTrack;
-  std::vector<MonitorElement*> chi2SoftTrack;
-  std::vector<MonitorElement*> chi2probSoftTrack;
+  std::vector<MonitorElement *> etaSoftTrack;
+  std::vector<MonitorElement *> phiSoftTrack;
+  std::vector<MonitorElement *> pSoftTrack;
+  std::vector<MonitorElement *> ptSoftTrack;
+  std::vector<MonitorElement *> chi2SoftTrack;
+  std::vector<MonitorElement *> chi2probSoftTrack;
 
- // HighPt muon;
-  std::vector<MonitorElement*> etaHighPtTrack;
-  std::vector<MonitorElement*> phiHighPtTrack;
-  std::vector<MonitorElement*> pHighPtTrack;
-  std::vector<MonitorElement*> ptHighPtTrack;
-  std::vector<MonitorElement*> chi2HighPtTrack;
-  std::vector<MonitorElement*> chi2probHighPtTrack;
+  // HighPt muon;
+  std::vector<MonitorElement *> etaHighPtTrack;
+  std::vector<MonitorElement *> phiHighPtTrack;
+  std::vector<MonitorElement *> pHighPtTrack;
+  std::vector<MonitorElement *> ptHighPtTrack;
+  std::vector<MonitorElement *> chi2HighPtTrack;
+  std::vector<MonitorElement *> chi2probHighPtTrack;
 
   std::string theFolder;
 };

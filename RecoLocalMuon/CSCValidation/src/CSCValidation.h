@@ -64,7 +64,6 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
@@ -119,86 +118,95 @@
 class CSCValidation : public edm::EDAnalyzer {
 public:
   /// Constructor
-  CSCValidation(const edm::ParameterSet& pset);
+  CSCValidation(const edm::ParameterSet &pset);
 
   /// Destructor
   ~CSCValidation() override;
 
   /// Perform the analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
   void endJob() override;
 
   // for noise module
-  struct ltrh
-  {
-    bool operator()(const CSCRecHit2D& rh1, const CSCRecHit2D& rh2) const
-    {
-      return ((rh1.localPosition()).x()-(rh2.localPosition()).x()) < 0;
+  struct ltrh {
+    bool operator()(const CSCRecHit2D &rh1, const CSCRecHit2D &rh2) const {
+      return ((rh1.localPosition()).x() - (rh2.localPosition()).x()) < 0;
     }
   };
 
-
 protected:
-
-private: 
-
+private:
   // these are the "modules"
   // if you would like to add code to CSCValidation, please do so by adding an
   // extra module in the form of an additional private member function
-  void  doOccupancies(edm::Handle<CSCStripDigiCollection> strips, edm::Handle<CSCWireDigiCollection> wires,
-                      edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments);
-  void  doStripDigis(edm::Handle<CSCStripDigiCollection> strips);
-  void  doWireDigis(edm::Handle<CSCWireDigiCollection> wires);
-  void  doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::ESHandle<CSCGeometry> cscGeom);
-  void  doSimHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<edm::PSimHitContainer> simHits);
-  void  doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips);
-  void  doSegments(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom);
-  void  doResolution(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom);
-  void  doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm::Handle<CSCStripDigiCollection> strips,
-                       edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
-                       edm::ESHandle<CSCGeometry> cscGeom);
-  void  doGasGain(const CSCWireDigiCollection &, const CSCStripDigiCollection &, const CSCRecHit2DCollection &);
-  void  doCalibrations(const edm::EventSetup& eventSetup);
-  void  doAFEBTiming(const CSCWireDigiCollection &);
-  void  doCompTiming(const CSCComparatorDigiCollection &);
-  void  doADCTiming(const CSCRecHit2DCollection  &);
-  void  doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
-                    edm::ESHandle<CSCGeometry> cscGeom,  edm::Handle<CSCStripDigiCollection> strips);
-  bool  doTrigger(edm::Handle<L1MuGMTReadoutCollection> pCollection);
-  void  doStandalone(edm::Handle<reco::TrackCollection> saMuons);
-  void  doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
-                         edm::Handle<CSCALCTDigiCollection> alcts, edm::Handle<CSCCLCTDigiCollection> clcts,
-                         edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts,
-                         edm::Handle<L1MuGMTReadoutCollection> pCollection, edm::ESHandle<CSCGeometry> cscGeom,
-                         const edm::EventSetup& eventSetup, const edm::Event &event);
-  bool  doHLT(edm::Handle<edm::TriggerResults> hltResults);
-
+  void doOccupancies(edm::Handle<CSCStripDigiCollection> strips,
+                     edm::Handle<CSCWireDigiCollection> wires,
+                     edm::Handle<CSCRecHit2DCollection> recHits,
+                     edm::Handle<CSCSegmentCollection> cscSegments);
+  void doStripDigis(edm::Handle<CSCStripDigiCollection> strips);
+  void doWireDigis(edm::Handle<CSCWireDigiCollection> wires);
+  void doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::ESHandle<CSCGeometry> cscGeom);
+  void doSimHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<edm::PSimHitContainer> simHits);
+  void doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips);
+  void doSegments(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom);
+  void doResolution(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom);
+  void doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
+                      edm::Handle<CSCStripDigiCollection> strips,
+                      edm::Handle<CSCRecHit2DCollection> recHits,
+                      edm::Handle<CSCSegmentCollection> cscSegments,
+                      edm::ESHandle<CSCGeometry> cscGeom);
+  void doGasGain(const CSCWireDigiCollection &, const CSCStripDigiCollection &, const CSCRecHit2DCollection &);
+  void doCalibrations(const edm::EventSetup &eventSetup);
+  void doAFEBTiming(const CSCWireDigiCollection &);
+  void doCompTiming(const CSCComparatorDigiCollection &);
+  void doADCTiming(const CSCRecHit2DCollection &);
+  void doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits,
+                   edm::Handle<CSCSegmentCollection> cscSegments,
+                   edm::ESHandle<CSCGeometry> cscGeom,
+                   edm::Handle<CSCStripDigiCollection> strips);
+  bool doTrigger(edm::Handle<L1MuGMTReadoutCollection> pCollection);
+  void doStandalone(edm::Handle<reco::TrackCollection> saMuons);
+  void doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
+                        edm::Handle<CSCSegmentCollection> cscSegments,
+                        edm::Handle<CSCALCTDigiCollection> alcts,
+                        edm::Handle<CSCCLCTDigiCollection> clcts,
+                        edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts,
+                        edm::Handle<L1MuGMTReadoutCollection> pCollection,
+                        edm::ESHandle<CSCGeometry> cscGeom,
+                        const edm::EventSetup &eventSetup,
+                        const edm::Event &event);
+  bool doHLT(edm::Handle<edm::TriggerResults> hltResults);
 
   // some useful functions
-  bool   filterEvents(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
-                      edm::Handle<reco::TrackCollection> saMuons);
-  float  fitX(const CLHEP::HepMatrix& sp, const CLHEP::HepMatrix& ep);
-  float  getSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
-  float  getthisSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
-  int    getWidth(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
-  void   findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,  edm::Handle<CSCStripDigiCollection> strips);
-  int    chamberSerial( CSCDetId id );
-  int    ringSerial( CSCDetId id );
+  bool filterEvents(edm::Handle<CSCRecHit2DCollection> recHits,
+                    edm::Handle<CSCSegmentCollection> cscSegments,
+                    edm::Handle<reco::TrackCollection> saMuons);
+  float fitX(const CLHEP::HepMatrix &sp, const CLHEP::HepMatrix &ep);
+  float getSignal(const CSCStripDigiCollection &stripdigis, CSCDetId idRH, int centerStrip);
+  float getthisSignal(const CSCStripDigiCollection &stripdigis, CSCDetId idRH, int centerStrip);
+  int getWidth(const CSCStripDigiCollection &stripdigis, CSCDetId idRH, int centerStrip);
+  void findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom, edm::Handle<CSCStripDigiCollection> strips);
+  int chamberSerial(CSCDetId id);
+  int ringSerial(CSCDetId id);
 
   // these functions handle Stoyan's efficiency code
-  void  fillEfficiencyHistos(int bin, int flag);
-  void  getEfficiency(float bin, float Norm, std::vector<float> &eff);
-  void  histoEfficiency(TH1F *readHisto, TH1F *writeHisto);
-  double lineParametrization(double z1Position, double z2Position, double z1Direction){
-    double parameterLine = (z2Position-z1Position)/z1Direction;
+  void fillEfficiencyHistos(int bin, int flag);
+  void getEfficiency(float bin, float Norm, std::vector<float> &eff);
+  void histoEfficiency(TH1F *readHisto, TH1F *writeHisto);
+  double lineParametrization(double z1Position, double z2Position, double z1Direction) {
+    double parameterLine = (z2Position - z1Position) / z1Direction;
     return parameterLine;
   }
-  double extrapolate1D(double initPosition, double initDirection, double parameterOfTheLine){
-    double extrapolatedPosition = initPosition + initDirection*parameterOfTheLine;
-    return extrapolatedPosition; 
+  double extrapolate1D(double initPosition, double initDirection, double parameterOfTheLine) {
+    double extrapolatedPosition = initPosition + initDirection * parameterOfTheLine;
+    return extrapolatedPosition;
   }
-    bool withinSensitiveRegion(LocalPoint localPos, const std::array<const float, 4> & layerBounds, int station, int ring, float shiftFromEdge, float shiftFromDeadZone);
-
+  bool withinSensitiveRegion(LocalPoint localPos,
+                             const std::array<const float, 4> &layerBounds,
+                             int station,
+                             int ring,
+                             float shiftFromEdge,
+                             float shiftFromDeadZone);
 
   // counters
   int nEventsAnalyzed;
@@ -232,24 +240,24 @@ private:
   // quality filter parameters
   double pMin;
   double chisqMax;
-  int    nCSCHitsMin, nCSCHitsMax;
+  int nCSCHitsMin, nCSCHitsMax;
   double lengthMin, lengthMax;
   double deltaPhiMax;
   double polarMin, polarMax;
 
-  edm::EDGetTokenT<FEDRawDataCollection>           rd_token;
-  edm::EDGetTokenT<CSCWireDigiCollection>          wd_token;
-  edm::EDGetTokenT<CSCStripDigiCollection>         sd_token;
-  edm::EDGetTokenT<CSCComparatorDigiCollection>    cd_token;
-  edm::EDGetTokenT<CSCALCTDigiCollection>          al_token;
-  edm::EDGetTokenT<CSCCLCTDigiCollection>          cl_token;
+  edm::EDGetTokenT<FEDRawDataCollection> rd_token;
+  edm::EDGetTokenT<CSCWireDigiCollection> wd_token;
+  edm::EDGetTokenT<CSCStripDigiCollection> sd_token;
+  edm::EDGetTokenT<CSCComparatorDigiCollection> cd_token;
+  edm::EDGetTokenT<CSCALCTDigiCollection> al_token;
+  edm::EDGetTokenT<CSCCLCTDigiCollection> cl_token;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> co_token;
-  edm::EDGetTokenT<CSCRecHit2DCollection>          rh_token;
-  edm::EDGetTokenT<CSCSegmentCollection>           se_token;
-  edm::EDGetTokenT<L1MuGMTReadoutCollection>       l1_token;
-  edm::EDGetTokenT<edm::TriggerResults>            tr_token;
-  edm::EDGetTokenT<reco::TrackCollection>          sa_token;
-  edm::EDGetTokenT<edm::PSimHitContainer>          sh_token;
+  edm::EDGetTokenT<CSCRecHit2DCollection> rh_token;
+  edm::EDGetTokenT<CSCSegmentCollection> se_token;
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> l1_token;
+  edm::EDGetTokenT<edm::TriggerResults> tr_token;
+  edm::EDGetTokenT<reco::TrackCollection> sa_token;
+  edm::EDGetTokenT<edm::PSimHitContainer> sh_token;
 
   // module on/off switches
   bool makeOccupancyPlots;
@@ -297,31 +305,30 @@ private:
   TH2I *hOSegments;
 
   /// Maps and vectors for module doGasGain()
-  std::vector<int>     nmbhvsegm;
-  std::map<int, std::vector<int> >   m_wire_hvsegm;
-  std::map<int, int>   m_single_wire_layer;
+  std::vector<int> nmbhvsegm;
+  std::map<int, std::vector<int> > m_wire_hvsegm;
+  std::map<int, int> m_single_wire_layer;
 
-  //maps to store the DetId and associated RecHits  
-  std::multimap<CSCDetId , CSCRecHit2D> AllRechits;
-  std::multimap<CSCDetId , CSCRecHit2D> SegRechits;
-  std::multimap<CSCDetId , CSCRecHit2D> NonAssociatedRechits;
-  std::map<CSCRecHit2D,float,ltrh> distRHmap;
+  //maps to store the DetId and associated RecHits
+  std::multimap<CSCDetId, CSCRecHit2D> AllRechits;
+  std::multimap<CSCDetId, CSCRecHit2D> SegRechits;
+  std::multimap<CSCDetId, CSCRecHit2D> NonAssociatedRechits;
+  std::map<CSCRecHit2D, float, ltrh> distRHmap;
 
-  int typeIndex(CSCDetId id){
+  int typeIndex(CSCDetId id) {
     // linearlized index bases on endcap, station, and ring
     int index = 0;
-    if (id.station() == 1){
+    if (id.station() == 1) {
       index = id.ring() + 1;
-      if (id.ring() == 4) index = 1;
-    }
-    else index = id.station()*2 + id.ring();
-    if (id.endcap() == 1) index = index + 10;
-    if (id.endcap() == 2) index = 11 - index;
+      if (id.ring() == 4)
+        index = 1;
+    } else
+      index = id.station() * 2 + id.ring();
+    if (id.endcap() == 1)
+      index = index + 10;
+    if (id.endcap() == 2)
+      index = 11 - index;
     return index;
   }
-  
-
-
-
 };
 #endif

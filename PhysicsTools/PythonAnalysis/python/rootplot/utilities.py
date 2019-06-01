@@ -3,6 +3,7 @@ Utilities for rootplot including histogram classes.
 """
 from __future__ import print_function
 
+from builtins import range
 __license__ = '''\
 Copyright (c) 2009-2010 Jeff Klukas <klukas@wisc.edu>
 
@@ -148,13 +149,13 @@ class Hist(object):
             hist.GetPoint(i, x, y)
             self.x.append(copy.copy(x))
             self.y.append(copy.copy(y))
-        lower = [max(0, hist.GetErrorXlow(i))  for i in xrange(n)]
-        upper = [max(0, hist.GetErrorXhigh(i)) for i in xrange(n)]
+        lower = [max(0, hist.GetErrorXlow(i))  for i in range(n)]
+        upper = [max(0, hist.GetErrorXhigh(i)) for i in range(n)]
         self.xerr = [lower[:], upper[:]]
-        lower = [max(0, hist.GetErrorYlow(i))  for i in xrange(n)]
-        upper = [max(0, hist.GetErrorYhigh(i)) for i in xrange(n)]
+        lower = [max(0, hist.GetErrorYlow(i))  for i in range(n)]
+        upper = [max(0, hist.GetErrorYhigh(i)) for i in range(n)]
         self.yerr = [lower[:], upper[:]]
-        self.xedges = [self.x[i] - self.xerr[0][i] for i in xrange(n)]
+        self.xedges = [self.x[i] - self.xerr[0][i] for i in range(n)]
         self.xedges.append(self.x[n - 1] + self.xerr[1][n - 1])
         self.width = [self.xedges[i + 1] - self.xedges[i] for i in range(n)]
         self.underflow, self.overflow = 0, 0

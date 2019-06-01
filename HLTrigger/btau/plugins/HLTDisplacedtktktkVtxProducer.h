@@ -16,8 +16,6 @@
  *
  */
 
-
-
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -33,20 +31,20 @@ namespace edm {
 }
 
 class HLTDisplacedtktktkVtxProducer : public edm::stream::EDProducer<> {
- public:
+public:
   explicit HLTDisplacedtktktkVtxProducer(const edm::ParameterSet&);
   ~HLTDisplacedtktktkVtxProducer() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   virtual void beginJob();
   void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob();
 
- private:  
+private:
   bool checkPreviousCand(const reco::TrackRef& trackref, std::vector<reco::RecoChargedCandidateRef>& ref2);
 
-  const edm::InputTag                                          srcTag_;
+  const edm::InputTag srcTag_;
   const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> srcToken_;
-  const edm::InputTag                                          previousCandTag_;
+  const edm::InputTag previousCandTag_;
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
   const double maxEta_;
   const double minPtTk1_;
@@ -63,7 +61,7 @@ class HLTDisplacedtktktkVtxProducer : public edm::stream::EDProducer<> {
   const double massParticle3_;
   const int chargeOpt_;
   const int resOpt_;
-  const int triggerTypeDaughters_;  
+  const int triggerTypeDaughters_;
 
   double firstTrackMass;
   double secondTrackMass;
@@ -74,7 +72,6 @@ class HLTDisplacedtktktkVtxProducer : public edm::stream::EDProducer<> {
   double firstTrackMass2;
   double secondTrackMass2;
   double thirdTrackMass2;
-
 };
 
 #endif

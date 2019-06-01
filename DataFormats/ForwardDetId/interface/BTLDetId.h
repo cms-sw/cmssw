@@ -16,126 +16,122 @@
 */
 
 class BTLDetId : public MTDDetId {
-  
- public:
-  
-  static constexpr uint32_t kBTLmoduleOffset           = 10;
-  static constexpr uint32_t kBTLmoduleMask             = 0x3F;
-  static constexpr uint32_t kBTLmodTypeOffset          = 8;
-  static constexpr uint32_t kBTLmodTypeMask            = 0x3;
-  static constexpr uint32_t kBTLCrystalOffset          = 0;
-  static constexpr uint32_t kBTLCrystalMask            = 0x3F;
+public:
+  static constexpr uint32_t kBTLmoduleOffset = 10;
+  static constexpr uint32_t kBTLmoduleMask = 0x3F;
+  static constexpr uint32_t kBTLmodTypeOffset = 8;
+  static constexpr uint32_t kBTLmodTypeMask = 0x3;
+  static constexpr uint32_t kBTLCrystalOffset = 0;
+  static constexpr uint32_t kBTLCrystalMask = 0x3F;
 
   /// range constants, need two sets for the time being (one for tiles and one for bars)
   static constexpr int kModulesPerROD = 54;
   static constexpr int kModulesPerRODBarZflat = 42;
   static constexpr int kModulesPerRODBarPhiFlat = 48;
-  static constexpr std::array<int,4> kTypeBoundariesReference{ { 0, 18, 36, 54 } };
-  static constexpr std::array<int,4> kTypeBoundariesBarZflat{ { 0, 14, 28, 42 } };
-  static constexpr std::array<int,4> kTypeBoundariesBarPhiFlat{ { 0, 16, 32, 48 } };
-  static constexpr int kCrystalsInPhiTile = 16; // per module and ROD
-  static constexpr int kCrystalsInEtaTile = 4; // per module
-  static constexpr int kCrystalsInPhiBar = 4; // per module and ROD
-  static constexpr int kCrystalsInEtaBar = 16; // per module
-  static constexpr int kCrystalsInPhiBarZ = 64; // per module and ROD
-  static constexpr int kCrystalsInEtaBarZ = 1; // per module
-  static constexpr int kCrystalsInPhiBarPhi = 3; // per module and ROD
-  static constexpr int kCrystalsInEtaBarPhi = 16; // per module
-  static constexpr int kCrystalsPerROD = kModulesPerROD*kCrystalsInPhiTile*kCrystalsInEtaTile; // 64 crystals per module x 54 modules per rod, independent on geometry scenario Tile or Bar
-  static constexpr int kCrystalsPerRODBarZflat = kModulesPerRODBarZflat*kCrystalsInPhiBarZ*kCrystalsInEtaBarZ; // 64 crystals per module x 42 modules per rod, independent on geometry scenario Tile or Bar  
-  static constexpr int kCrystalsPerRODBarPhiFlat = kModulesPerRODBarPhiFlat*kCrystalsInPhiBarPhi*kCrystalsInEtaBarPhi; // 48 crystals per module x 48 modules per rod
+  static constexpr std::array<int, 4> kTypeBoundariesReference{{0, 18, 36, 54}};
+  static constexpr std::array<int, 4> kTypeBoundariesBarZflat{{0, 14, 28, 42}};
+  static constexpr std::array<int, 4> kTypeBoundariesBarPhiFlat{{0, 16, 32, 48}};
+  static constexpr int kCrystalsInPhiTile = 16;    // per module and ROD
+  static constexpr int kCrystalsInEtaTile = 4;     // per module
+  static constexpr int kCrystalsInPhiBar = 4;      // per module and ROD
+  static constexpr int kCrystalsInEtaBar = 16;     // per module
+  static constexpr int kCrystalsInPhiBarZ = 64;    // per module and ROD
+  static constexpr int kCrystalsInEtaBarZ = 1;     // per module
+  static constexpr int kCrystalsInPhiBarPhi = 3;   // per module and ROD
+  static constexpr int kCrystalsInEtaBarPhi = 16;  // per module
+  static constexpr int kCrystalsPerROD =
+      kModulesPerROD * kCrystalsInPhiTile *
+      kCrystalsInEtaTile;  // 64 crystals per module x 54 modules per rod, independent on geometry scenario Tile or Bar
+  static constexpr int kCrystalsPerRODBarZflat =
+      kModulesPerRODBarZflat * kCrystalsInPhiBarZ *
+      kCrystalsInEtaBarZ;  // 64 crystals per module x 42 modules per rod, independent on geometry scenario Tile or Bar
+  static constexpr int kCrystalsPerRODBarPhiFlat = kModulesPerRODBarPhiFlat * kCrystalsInPhiBarPhi *
+                                                   kCrystalsInEtaBarPhi;  // 48 crystals per module x 48 modules per rod
   static constexpr int MIN_ROD = 1;
   static constexpr int MAX_ROD = 72;
   static constexpr int HALF_ROD = 36;
   static constexpr int MIN_IETA = 1;
   static constexpr int MIN_IPHI = 1;
-  static constexpr int MAX_IETA_TILE = kCrystalsInEtaTile*kModulesPerROD;
-  static constexpr int MAX_IPHI_TILE = kCrystalsInPhiTile*HALF_ROD;
-  static constexpr int MAX_IETA_BAR = kCrystalsInEtaBar*kModulesPerROD;
-  static constexpr int MAX_IPHI_BAR = kCrystalsInPhiBar*HALF_ROD;
-  static constexpr int MAX_IETA_BARZ = kCrystalsInEtaBarZ*kModulesPerROD;
-  static constexpr int MAX_IPHI_BARZ = kCrystalsInPhiBarZ*HALF_ROD;
-  static constexpr int MAX_IETA_BARZFLAT = kCrystalsInEtaBarZ*kModulesPerRODBarZflat;
-  static constexpr int MAX_IPHI_BARZFLAT = kCrystalsInPhiBarZ*HALF_ROD;
-  static constexpr int MAX_IETA_BARPHIFLAT = kCrystalsInEtaBarPhi*kModulesPerRODBarPhiFlat;
-  static constexpr int MAX_IPHI_BARPHIFLAT = kCrystalsInPhiBarPhi*HALF_ROD;
-  static constexpr int MIN_HASH =  0; // always 0 ...
-  static constexpr int MAX_HASH =  2*MAX_IPHI_TILE*MAX_IETA_TILE-1; // the total amount is invariant per tile or bar)
-  static constexpr int kSizeForDenseIndexing = MAX_HASH + 1 ;
+  static constexpr int MAX_IETA_TILE = kCrystalsInEtaTile * kModulesPerROD;
+  static constexpr int MAX_IPHI_TILE = kCrystalsInPhiTile * HALF_ROD;
+  static constexpr int MAX_IETA_BAR = kCrystalsInEtaBar * kModulesPerROD;
+  static constexpr int MAX_IPHI_BAR = kCrystalsInPhiBar * HALF_ROD;
+  static constexpr int MAX_IETA_BARZ = kCrystalsInEtaBarZ * kModulesPerROD;
+  static constexpr int MAX_IPHI_BARZ = kCrystalsInPhiBarZ * HALF_ROD;
+  static constexpr int MAX_IETA_BARZFLAT = kCrystalsInEtaBarZ * kModulesPerRODBarZflat;
+  static constexpr int MAX_IPHI_BARZFLAT = kCrystalsInPhiBarZ * HALF_ROD;
+  static constexpr int MAX_IETA_BARPHIFLAT = kCrystalsInEtaBarPhi * kModulesPerRODBarPhiFlat;
+  static constexpr int MAX_IPHI_BARPHIFLAT = kCrystalsInPhiBarPhi * HALF_ROD;
+  static constexpr int MIN_HASH = 0;  // always 0 ...
+  static constexpr int MAX_HASH =
+      2 * MAX_IPHI_TILE * MAX_IETA_TILE - 1;  // the total amount is invariant per tile or bar)
+  static constexpr int kSizeForDenseIndexing = MAX_HASH + 1;
 
-  enum class CrysLayout { tile = 1 , bar = 2 , barzflat = 3 , barphiflat = 4 } ;
-  
+  enum class CrysLayout { tile = 1, bar = 2, barzflat = 3, barphiflat = 4 };
+
   // ---------- Constructors, enumerated types ----------
-  
+
   /** Construct a null id */
- BTLDetId() : MTDDetId( DetId::Forward, ForwardSubdetector::FastTime ) { id_ |= ( MTDType::BTL& kMTDsubdMask ) << kMTDsubdOffset ;}
-  
+  BTLDetId() : MTDDetId(DetId::Forward, ForwardSubdetector::FastTime) {
+    id_ |= (MTDType::BTL & kMTDsubdMask) << kMTDsubdOffset;
+  }
+
   /** Construct from a raw value */
- BTLDetId( const uint32_t& raw_id ) : MTDDetId( raw_id ) {;}
-  
+  BTLDetId(const uint32_t& raw_id) : MTDDetId(raw_id) { ; }
+
   /** Construct from generic DetId */
- BTLDetId( const DetId& det_id )  : MTDDetId( det_id.rawId() ) {;}
-  
+  BTLDetId(const DetId& det_id) : MTDDetId(det_id.rawId()) { ; }
+
   /** Construct and fill only the det and sub-det fields. */
- BTLDetId( uint32_t zside, 
-           uint32_t rod, 
-           uint32_t module, 
-           uint32_t modtyp, 
-           uint32_t crystal ) : MTDDetId( DetId::Forward, ForwardSubdetector::FastTime ) {
-    id_ |= ( MTDType::BTL& kMTDsubdMask ) << kMTDsubdOffset |
-      ( zside& kZsideMask ) << kZsideOffset |
-      ( rod& kRodRingMask ) << kRodRingOffset |
-      ( module& kBTLmoduleMask ) << kBTLmoduleOffset |
-      ( modtyp& kBTLmodTypeMask ) << kBTLmodTypeOffset |
-      ( (crystal-1)& kBTLCrystalMask ) << kBTLCrystalOffset ; 
+  BTLDetId(uint32_t zside, uint32_t rod, uint32_t module, uint32_t modtyp, uint32_t crystal)
+      : MTDDetId(DetId::Forward, ForwardSubdetector::FastTime) {
+    id_ |= (MTDType::BTL & kMTDsubdMask) << kMTDsubdOffset | (zside & kZsideMask) << kZsideOffset |
+           (rod & kRodRingMask) << kRodRingOffset | (module & kBTLmoduleMask) << kBTLmoduleOffset |
+           (modtyp & kBTLmodTypeMask) << kBTLmodTypeOffset | ((crystal - 1) & kBTLCrystalMask) << kBTLCrystalOffset;
   }
-  
+
   // ---------- Common methods ----------
-  
+
   /** Returns BTL module number. */
-  inline int module() const { return (id_>>kBTLmoduleOffset)&kBTLmoduleMask; }
-  
+  inline int module() const { return (id_ >> kBTLmoduleOffset) & kBTLmoduleMask; }
+
   /** Returns BTL crystal type number. */
-  inline int modType() const { return (id_>>kBTLmodTypeOffset)&kBTLmodTypeMask; }
-  
+  inline int modType() const { return (id_ >> kBTLmodTypeOffset) & kBTLmodTypeMask; }
+
   /** Returns BTL crystal number. */
-  inline int crystal() const { return ((id_>>kBTLCrystalOffset)&kBTLCrystalMask) + 1; }
-  
+  inline int crystal() const { return ((id_ >> kBTLCrystalOffset) & kBTLCrystalMask) + 1; }
+
   /** return the row in GeomDet language **/
-  inline int row(unsigned nrows=16) const { 
-    return (crystal()-1)%nrows; // anything else for now
+  inline int row(unsigned nrows = 16) const {
+    return (crystal() - 1) % nrows;  // anything else for now
   }
-  
+
   /** return the column in GeomDetLanguage **/
-  inline int column(unsigned nrows=16) const {     
-    return (crystal()-1)/nrows; 
-  }
+  inline int column(unsigned nrows = 16) const { return (crystal() - 1) / nrows; }
 
   /** Returns BTL iphi index for crystal according to type tile or bar */
-  int iphi( CrysLayout lay ) const ;
+  int iphi(CrysLayout lay) const;
 
   /** Returns BTL ieta index for crystal according to type tile or bar */
-  int ietaAbs( CrysLayout lay ) const ;
+  int ietaAbs(CrysLayout lay) const;
 
-  int ieta( CrysLayout lay ) const { return zside()*ietaAbs( lay ); }
+  int ieta(CrysLayout lay) const { return zside() * ietaAbs(lay); }
 
   /** define a dense index of arrays from a DetId */
-  int hashedIndex( CrysLayout lay ) const ;
+  int hashedIndex(CrysLayout lay) const;
 
-  static bool validHashedIndex( uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
+  static bool validHashedIndex(uint32_t din) { return (din < kSizeForDenseIndexing); }
 
   /** get a DetId from a compact index for arrays */
-  BTLDetId getUnhashedIndex( int hi, CrysLayout lay ) const ;
+  BTLDetId getUnhashedIndex(int hi, CrysLayout lay) const;
 
   /** create a Geographical DetId for Tracking **/
-  BTLDetId geographicalId( CrysLayout lay ) const;
+  BTLDetId geographicalId(CrysLayout lay) const;
 
   /** return the number of modules per type according to scenario */
-  int modulesPerType( CrysLayout lay ) const ;
-
+  int modulesPerType(CrysLayout lay) const;
 };
 
-std::ostream& operator<< ( std::ostream&, const BTLDetId& );
+std::ostream& operator<<(std::ostream&, const BTLDetId&);
 
-#endif // DataFormats_BTLDetId_BTLDetId_h
-
+#endif  // DataFormats_BTLDetId_BTLDetId_h

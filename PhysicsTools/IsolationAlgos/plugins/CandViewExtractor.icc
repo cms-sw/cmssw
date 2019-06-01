@@ -1,7 +1,7 @@
 template<typename T>
 IsoDeposit CandViewExtractor::depositFromObject(const Event & event, const EventSetup & eventSetup, const T & cand) const
 {
-    static std::string metname = "MuonIsolation|CandViewExtractor";
+    static const std::string metname = "MuonIsolation|CandViewExtractor";
 
     reco::isodeposit::Direction candDir(cand.eta(), cand.phi());
     IsoDeposit deposit(candDir );

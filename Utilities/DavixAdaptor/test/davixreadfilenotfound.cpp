@@ -7,8 +7,8 @@ int main(int, char ** /*argv*/) try {
   initTest();
 
   char buf[1024];
-  std::unique_ptr<Storage> s = StorageFactory::get()->open(
-      "http://cern.ch/cmsbuild/cms/mc/this/file/does/not/exist.root");
+  std::unique_ptr<Storage> s =
+      StorageFactory::get()->open("http://cern.ch/cmsbuild/cms/mc/this/file/does/not/exist.root");
   assert(s);
 
   s->read(buf, sizeof(buf));

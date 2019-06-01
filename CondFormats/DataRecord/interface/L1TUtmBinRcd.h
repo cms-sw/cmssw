@@ -1,4 +1,4 @@
-// L1TUtmBinRcd                                                                                            
+// L1TUtmBinRcd
 // Description: Record for L1TUtmBin
 //
 // automatically generate by make_records.pl

@@ -10,6 +10,8 @@
 #include <ThePEG/Config/ThePEG.h>
 #include <ThePEG/LesHouches/LesHouchesReader.h>
 
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -23,6 +25,9 @@
 #include "GeneratorInterface/LHEInterface/interface/LHEProxy.h"
 
 #include "GeneratorInterface/Herwig7Interface/interface/Herwig7Interface.h"
+
+#include <Herwig/API/HerwigAPI.h>
+#include "CLHEP/Random/RandomEngine.h"
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -48,6 +53,10 @@ class Herwig7Hadronizer : public Herwig7Interface, public gen::BaseHadronizer {
 	void finalizeEvent();
 
 	const char *classname() const { return "Herwig7Hadronizer"; }
+	std::unique_ptr<GenLumiInfoHeader> getGenLumiInfoHeader() const override;
+ 	void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+ 	void randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine);
+
 
     private:
 
@@ -57,10 +66,13 @@ class Herwig7Hadronizer : public Herwig7Interface, public gen::BaseHadronizer {
 
 	ThePEG::EventPtr		thepegEvent;
 	
-	boost::shared_ptr<lhef::LHEProxy> proxy_;
+	std::shared_ptr<lhef::LHEProxy> proxy_;
 	const std::string		handlerDirectory_;
 	edm::ParameterSet 	paramSettings;
 	const std::string runFileName;
+
+	unsigned int firstLumiBlock=0;
+	unsigned int currentLumiBlock=0;
 };
 
 Herwig7Hadronizer::Herwig7Hadronizer(const edm::ParameterSet &pset) :
@@ -80,15 +92,19 @@ Herwig7Hadronizer::~Herwig7Hadronizer()
 
 bool Herwig7Hadronizer::initializeForInternalPartons()
 {
-	std::ifstream runFile(runFileName+".run");
-	if (runFile.fail()) //required for showering of LHE files
+
+	if (currentLumiBlock==firstLumiBlock)
 	{
-		initRepository(paramSettings);
-	}
-	if (!initGenerator())
-	{
-		edm::LogInfo("Generator|Herwig7Hadronizer") << "No run step for Herwig chosen. Program will be aborted.";
-		exit(0);
+		std::ifstream runFile(runFileName+".run");
+		if (runFile.fail()) //required for showering of LHE files
+		{
+			initRepository(paramSettings);
+		}
+		if (!initGenerator())
+		{
+			edm::LogInfo("Generator|Herwig7Hadronizer") << "No run step for Herwig chosen. Program will be aborted.";
+			exit(0);
+		}
 	}
 	return true;
 }
@@ -106,38 +122,37 @@ bool Herwig7Hadronizer::declareStableParticles(const std::vector<int> &pdgIds)
 
 void Herwig7Hadronizer::statistics()
 {
-  if(eg_) {
-	runInfo().setInternalXSec(GenRunInfoProduct::XSec(
-		eg_->integratedXSec() / ThePEG::picobarn,
-		eg_->integratedXSecErr() / ThePEG::picobarn));
-  }
+	if(eg_){
+		runInfo().setInternalXSec(GenRunInfoProduct::XSec(
+			eg_->integratedXSec() / ThePEG::picobarn,
+			eg_->integratedXSecErr() / ThePEG::picobarn));
+	}
 }
 
 bool Herwig7Hadronizer::generatePartonsAndHadronize()
 {
 	edm::LogInfo("Generator|Herwig7Hadronizer") << "Start production";
 
-	flushRandomNumberGenerator();
 
         try {
                 thepegEvent = eg_->shoot();
         } catch (std::exception& exc) {
                 edm::LogWarning("Generator|Herwig7Hadronizer") << "EGPtr::shoot() thrown an exception, event skipped: " << exc.what();
                 return false;
-        } 
-        
-	if (!thepegEvent) {
-		edm::LogWarning("Generator|Herwig7Hadronizer") << "thepegEvent not initialized";
-		return false;
-	}
+        }
 
-	event() = convert(thepegEvent);
-	if (!event().get()) {
-		edm::LogWarning("Generator|Herwig7Hadronizer") << "genEvent not initialized";
-		return false;
-	}
+        if (!thepegEvent) {
+                edm::LogWarning("Generator|Herwig7Hadronizer") << "thepegEvent not initialized";
+                return false;
+        }
 
-	return true;
+        event() = convert(thepegEvent);
+        if (!event().get()) {
+                edm::LogWarning("Generator|Herwig7Hadronizer") << "genEvent not initialized";
+                return false;
+        }
+
+        return true;
 }
 
 bool Herwig7Hadronizer::hadronize()
@@ -173,6 +188,40 @@ bool Herwig7Hadronizer::residualDecay()
 {
 	return true;
 }
+
+std::unique_ptr<GenLumiInfoHeader> Herwig7Hadronizer::getGenLumiInfoHeader() const {
+  auto genLumiInfoHeader = BaseHadronizer::getGenLumiInfoHeader();
+
+  if (thepegEvent)
+  {
+  	int weights_number = thepegEvent->optionalWeights().size();
+
+	  if(weights_number > 1){
+	    genLumiInfoHeader->weightNames().reserve(weights_number + 1);
+	    genLumiInfoHeader->weightNames().push_back("nominal");
+	    std::map<std::string,double> weights_map = thepegEvent->optionalWeights();
+		for (std::map<std::string,double>::iterator it = weights_map.begin(); it != weights_map.end(); it++)
+		{
+		  	genLumiInfoHeader->weightNames().push_back(it->first);
+		}
+ 	 }
+  }
+
+  return genLumiInfoHeader;
+}
+
+void Herwig7Hadronizer::randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine)
+{
+	BaseHadronizer::randomizeIndex(lumi, rengine);
+	
+	if (firstLumiBlock==0)
+	{
+		firstLumiBlock=lumi.id().luminosityBlock();
+	}
+	currentLumiBlock=lumi.id().luminosityBlock();
+
+}
+
 
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 

@@ -7,13 +7,11 @@
 #include <iostream>
 
 class OpticalAlignmentsRcd : public edm::eventsetup::EventSetupRecordImplementation<OpticalAlignmentsRcd> {
-/*  public: */
-/*   OpticalAlignmentsRcd() {}; */
-/*   OpticalAlignmentsRcd (const edm::ParameterSet& ps ) {  */
-/*     std::cout << " what to do with parameterset? " << std::endl;  */
-/*   } */
-
-    
+  /*  public: */
+  /*   OpticalAlignmentsRcd() {}; */
+  /*   OpticalAlignmentsRcd (const edm::ParameterSet& ps ) {  */
+  /*     std::cout << " what to do with parameterset? " << std::endl;  */
+  /*   } */
 };
 
 #endif

@@ -23,25 +23,15 @@
 
 XERCES_CPP_NAMESPACE_BEGIN
 
-StreamOutFormatTarget::StreamOutFormatTarget(std::ostream& fStream) {
-  mStream = &fStream;
-}
+StreamOutFormatTarget::StreamOutFormatTarget(std::ostream& fStream) { mStream = &fStream; }
 
-StreamOutFormatTarget::~StreamOutFormatTarget()
-{}
+StreamOutFormatTarget::~StreamOutFormatTarget() {}
 
-void StreamOutFormatTarget::flush()
-{
-    mStream->flush();
-}
+void StreamOutFormatTarget::flush() { mStream->flush(); }
 
-void StreamOutFormatTarget::writeChars(const XMLByte* const  toWrite
-                                  , const XMLSize_t count
-                                  , XMLFormatter* const)
-{
-  mStream->write ((const char*) toWrite, sizeof(XMLByte) * count);
-  mStream->flush ();
+void StreamOutFormatTarget::writeChars(const XMLByte* const toWrite, const XMLSize_t count, XMLFormatter* const) {
+  mStream->write((const char*)toWrite, sizeof(XMLByte) * count);
+  mStream->flush();
 }
 
 XERCES_CPP_NAMESPACE_END
-

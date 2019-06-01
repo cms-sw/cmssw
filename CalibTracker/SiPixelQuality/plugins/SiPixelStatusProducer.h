@@ -7,7 +7,6 @@
 
 ________________________________________________________________**/
 
-
 // C++ standard
 #include <string>
 // CMS
@@ -28,26 +27,26 @@ ________________________________________________________________**/
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-class SiPixelStatusProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProducer,
-                                                         edm::one::WatchLuminosityBlocks, edm::Accumulator> {
- public:
+class SiPixelStatusProducer
+    : public edm::one::EDProducer<edm::EndLuminosityBlockProducer, edm::one::WatchLuminosityBlocks, edm::Accumulator> {
+public:
   explicit SiPixelStatusProducer(const edm::ParameterSet&);
   ~SiPixelStatusProducer() override;
 
- private:
-  void beginLuminosityBlock     (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
-  void endLuminosityBlock       (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
+private:
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
   void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) final;
-  void accumulate                  (edm::Event const&, const edm::EventSetup& iSetup) final;
-  
-  virtual void onlineRocColRow(const DetId &detId, int offlineRow, int offlineCol, int &roc, int &row, int &col) final;
+  void accumulate(edm::Event const&, const edm::EventSetup& iSetup) final;
+
+  virtual void onlineRocColRow(const DetId& detId, int offlineRow, int offlineCol, int& roc, int& row, int& col) final;
 
   virtual int indexROC(int irow, int icol, int nROCcolumns) final;
 
   // time granularity control
   unsigned long int ftotalevents;
   int resetNLumi_;
-  int countLumi_;      //counter
+  int countLumi_;  //counter
 
   int beginLumi_;
   int endLumi_;
@@ -71,25 +70,24 @@ class SiPixelStatusProducer : public edm::one::EDProducer<edm::EndLuminosityBloc
   SiPixelCoordinates coord_;
 
   // ROC size (number of row, number of columns for each det id)
-  std::map<int, std::pair<int,int> > fSensors;
+  std::map<int, std::pair<int, int>> fSensors;
   // the roc layout on a module
-  std::map<int, std::pair<int,int> > fSensorLayout;
+  std::map<int, std::pair<int, int>> fSensorLayout;
   // fedId as a function of detId
   std::unordered_map<uint32_t, unsigned int> fFedIds;
   // map the index ROC to rocId
-  std::map<int, std::map<int,int> > fRocIds;
+  std::map<int, std::map<int, int>> fRocIds;
 
   // Producer inputs / controls
-  edm::InputTag                                           fPixelClusterLabel_;
-  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>>  fSiPixelClusterToken_;
-  std::vector<edm::EDGetTokenT<PixelFEDChannelCollection> > theBadPixelFEDChannelsTokens_;
+  edm::InputTag fPixelClusterLabel_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> fSiPixelClusterToken_;
+  std::vector<edm::EDGetTokenT<PixelFEDChannelCollection>> theBadPixelFEDChannelsTokens_;
 
   // Channels always have FEDerror25 for the full lumi section
-  std::map<int, std::vector<PixelFEDChannel> > FEDerror25_;
+  std::map<int, std::vector<PixelFEDChannel>> FEDerror25_;
 
   // Producer production (output collection)
-  SiPixelDetectorStatus                                    fDet;
-
+  SiPixelDetectorStatus fDet;
 };
 
 #endif

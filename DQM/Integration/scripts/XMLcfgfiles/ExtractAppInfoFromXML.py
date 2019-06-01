@@ -21,6 +21,7 @@ Notes:
 """
 from __future__ import print_function
 ################################################################################
+from builtins import range
 import sys, os.path
 from xml.dom import minidom
 ################################################################################

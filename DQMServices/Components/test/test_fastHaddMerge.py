@@ -7,6 +7,7 @@ final merged output matches what is expected.
 """
 from __future__ import print_function
 
+from builtins import range
 from optparse import OptionParser
 import sys
 import commands

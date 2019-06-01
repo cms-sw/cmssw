@@ -1,21 +1,19 @@
 #include "Fireworks/Calo/plugins/FWCaloRecHitDigitSetProxyBuilder.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-class FWHBHERecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder
-{
+class FWHBHERecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder {
 public:
-   FWHBHERecHitProxyBuilder( void ) { invertBox(true); }
-   ~FWHBHERecHitProxyBuilder( void ) override {}
+  FWHBHERecHitProxyBuilder(void) { invertBox(true); }
+  ~FWHBHERecHitProxyBuilder(void) override {}
 
-   REGISTER_PROXYBUILDER_METHODS();
+  REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWHBHERecHitProxyBuilder( const FWHBHERecHitProxyBuilder& ) = delete;
-   const FWHBHERecHitProxyBuilder& operator=( const FWHBHERecHitProxyBuilder& ) = delete;
+  FWHBHERecHitProxyBuilder(const FWHBHERecHitProxyBuilder&) = delete;
+  const FWHBHERecHitProxyBuilder& operator=(const FWHBHERecHitProxyBuilder&) = delete;
 };
 
-REGISTER_FWPROXYBUILDER( FWHBHERecHitProxyBuilder, HBHERecHitCollection, "HBHE RecHit", FWViewType::kISpyBit );
-
+REGISTER_FWPROXYBUILDER(FWHBHERecHitProxyBuilder, HBHERecHitCollection, "HBHE RecHit", FWViewType::kISpyBit);
 
 // AMT: Refelct box. Previously used energyScaledBox3DCorners()
 

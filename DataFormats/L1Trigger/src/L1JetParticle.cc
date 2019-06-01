@@ -2,7 +2,7 @@
 //
 // Package:     L1Trigger
 // Class  :     L1JetParticle
-// 
+//
 /**\class L1JetParticle \file L1JetParticle.cc DataFormats/L1Trigger/src/L1JetParticle.cc \author Werner Sun
 */
 //
@@ -15,7 +15,7 @@
 // user include files
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 
-using namespace l1extra ;
+using namespace l1extra;
 
 //
 // constants, enums and typedefs
@@ -28,57 +28,27 @@ using namespace l1extra ;
 //
 // constructors and destructor
 //
-L1JetParticle::L1JetParticle()
-{
+L1JetParticle::L1JetParticle() {}
+
+L1JetParticle::L1JetParticle(const LorentzVector& p4, const edm::Ref<L1GctJetCandCollection>& aRef, int bx)
+    : LeafCandidate((char)0, p4), ref_(aRef), bx_(bx) {
+  if (ref_.isNonnull()) {
+    type_ = gctJetCand()->isTau() ? kTau : (gctJetCand()->isForward() ? kForward : kCentral);
+  }
 }
 
-L1JetParticle::L1JetParticle( const LorentzVector& p4,
-			      const edm::Ref< L1GctJetCandCollection >& aRef,
-			      int bx )
-   : LeafCandidate( ( char ) 0, p4 ),
-     ref_( aRef ),
-     bx_( bx )
-{
-   if( ref_.isNonnull() )
-   {
-      type_ = gctJetCand()->isTau() ? kTau :
-         ( gctJetCand()->isForward() ? kForward : kCentral ) ;
-   }
+L1JetParticle::L1JetParticle(const PolarLorentzVector& p4, const edm::Ref<L1GctJetCandCollection>& aRef, int bx)
+    : LeafCandidate((char)0, p4), ref_(aRef), bx_(bx) {
+  if (ref_.isNonnull()) {
+    type_ = gctJetCand()->isTau() ? kTau : (gctJetCand()->isForward() ? kForward : kCentral);
+  }
 }
 
-L1JetParticle::L1JetParticle( const PolarLorentzVector& p4,
-			      const edm::Ref< L1GctJetCandCollection >& aRef,
-			      int bx )
-   : LeafCandidate( ( char ) 0, p4 ),
-     ref_( aRef ),
-     bx_( bx )
-{
-   if( ref_.isNonnull() )
-   {
-      type_ = gctJetCand()->isTau() ? kTau :
-         ( gctJetCand()->isForward() ? kForward : kCentral ) ;
-   }
-}
+L1JetParticle::L1JetParticle(const LorentzVector& p4, JetType type, int bx)
+    : LeafCandidate((char)0, p4), type_(type), ref_(edm::Ref<L1GctJetCandCollection>()), bx_(bx) {}
 
-L1JetParticle::L1JetParticle( const LorentzVector& p4,
-			      JetType type,
-			      int bx )
-   : LeafCandidate( ( char ) 0, p4 ),
-     type_( type ),
-     ref_( edm::Ref< L1GctJetCandCollection >() ),
-     bx_( bx )
-{
-}
-
-L1JetParticle::L1JetParticle( const PolarLorentzVector& p4,
-			      JetType type,
-			      int bx )
-   : LeafCandidate( ( char ) 0, p4 ),
-     type_( type ),
-     ref_( edm::Ref< L1GctJetCandCollection >() ),
-     bx_( bx )
-{
-}
+L1JetParticle::L1JetParticle(const PolarLorentzVector& p4, JetType type, int bx)
+    : LeafCandidate((char)0, p4), type_(type), ref_(edm::Ref<L1GctJetCandCollection>()), bx_(bx) {}
 
 // L1JetParticle::L1JetParticle(const L1JetParticle& rhs)
 // {

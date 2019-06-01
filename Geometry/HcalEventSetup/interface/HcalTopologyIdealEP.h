@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -16,19 +15,19 @@ namespace edm {
 }
 
 class HcalTopologyIdealEP : public edm::ESProducer {
-
 public:
   HcalTopologyIdealEP(const edm::ParameterSet&);
 
   using ReturnType = std::unique_ptr<HcalTopology>;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   ReturnType produce(const HcalRecNumberingRecord&);
 
 private:
   // ----------member data ---------------------------
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> m_hdcToken;
   std::string m_restrictions;
-  bool        m_mergePosition;
+  bool m_mergePosition;
 };
 #endif

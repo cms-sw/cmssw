@@ -8,28 +8,27 @@
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 
 class DDTrackerZPosAlgo : public DDAlgorithm {
- public:
+public:
   //Constructor and Destructor
-  DDTrackerZPosAlgo(); 
+  DDTrackerZPosAlgo();
   ~DDTrackerZPosAlgo() override;
-  
-  void initialize(const DDNumericArguments & nArgs,
-		  const DDVectorArguments & vArgs,
-		  const DDMapArguments & mArgs,
-		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs) override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
 
   void execute(DDCompactView& cpv) override;
 
 private:
+  std::vector<double> zvec;         //Z positions
+  std::vector<std::string> rotMat;  //Names of rotation matrices
 
-  std::vector<double>      zvec;   //Z positions
-  std::vector<std::string> rotMat; //Names of rotation matrices
-
-  std::string              idNameSpace; //Namespace of this and ALL sub-parts
-  std::string              childName;   //Child name
-  int                      startCopyNo; //Start Copy number
-  int                      incrCopyNo;  //Increment in Copy number
+  std::string idNameSpace;  //Namespace of this and ALL sub-parts
+  std::string childName;    //Child name
+  int startCopyNo;          //Start Copy number
+  int incrCopyNo;           //Increment in Copy number
 };
 
 #endif

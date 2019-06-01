@@ -122,9 +122,7 @@ void IsFromLostTrackMapProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("packedPFCandidates")->setComment("packed PF Candidates collection ");
   desc.add<edm::InputTag>("lostTracks")->setComment("lost tracks collection");
 
-  std::string modname;
-  modname="isFromLostTrack map producer";
-  descriptions.add(modname,desc);
+  descriptions.addWithDefaultLabel(desc);
 
 }
 

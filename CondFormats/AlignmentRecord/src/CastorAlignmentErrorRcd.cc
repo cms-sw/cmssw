@@ -2,7 +2,7 @@
 //
 // Package:     CastorGeometry
 // Class  :     CastorAlignmentErrorRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

@@ -53,5 +53,4 @@ typedef cms_uint32_t CaloMissingEtWord;
 // code jet count = 31 indicate overflow condition
 typedef std::vector<unsigned> CaloJetCountsWord;
 
-
 #endif /*L1GlobalTrigger_L1GlobalTriggerReadoutSetupFwd_h*/

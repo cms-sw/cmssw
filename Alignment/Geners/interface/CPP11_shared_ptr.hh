@@ -11,5 +11,4 @@
 #define CPP11_shared_ptr std::tr1::shared_ptr
 #endif
 
-#endif // GENERS_CPP11_SHARED_PTR_HH_
-
+#endif  // GENERS_CPP11_SHARED_PTR_HH_

@@ -2,8 +2,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
-
 #include <Validation/EcalDigis/interface/EcalDigisValidation.h>
 DEFINE_FWK_MODULE(EcalDigisValidation);
 

@@ -6,15 +6,14 @@
 
 namespace l1t {
 
-// user include files
-//   base class
+  // user include files
+  //   base class
 
-// forward declarations
+  // forward declarations
 
-/// L1 GT objects
-///    ObjNull catch all errors
-enum GlobalObject
-{
+  /// L1 GT objects
+  ///    ObjNull catch all errors
+  enum GlobalObject {
     gtMu,
     gtEG,
     gtJet,
@@ -44,18 +43,18 @@ enum GlobalObject
     gtCentrality7,
     gtExternal,
     ObjNull
-};
+  };
 
-/// the string to enum and enum to string conversions for GlobalObject
+  /// the string to enum and enum to string conversions for GlobalObject
 
-struct L1TGtObjectStringToEnum {
+  struct L1TGtObjectStringToEnum {
     const char* label;
     GlobalObject value;
-};
+  };
 
-l1t::GlobalObject l1TGtObjectStringToEnum(const std::string&);
-std::string l1TGtObjectEnumToString(const GlobalObject&);
+  l1t::GlobalObject l1TGtObjectStringToEnum(const std::string&);
+  std::string l1TGtObjectEnumToString(const GlobalObject&);
 
-}
+}  // namespace l1t
 
 #endif

@@ -5,21 +5,51 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include <TMath.h>
-
 namespace reco { namespace tau {
+
+namespace {
+  inline const reco::Track* getTrack(const Candidate& cand)
+  {
+    const PFCandidate* pfCandPtr = dynamic_cast<const PFCandidate*>(&cand);
+    if (pfCandPtr != nullptr) {
+      if      ( pfCandPtr->trackRef().isNonnull()    ) return pfCandPtr->trackRef().get();
+      else if ( pfCandPtr->gsfTrackRef().isNonnull() ) return pfCandPtr->gsfTrackRef().get();
+      else return nullptr;
+    }
+    const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+    if (packedCand != nullptr && packedCand->hasTrackDetails())
+    	return &packedCand->pseudoTrack();
+
+   return nullptr;
+  }
+
+  inline const reco::TrackBaseRef getTrackRef(const Candidate& cand)
+  {
+    // TauReco@MiniAOD: This version does not work on top of MiniAOD, however,
+    // it is only used for non-default track-vertex associations
+    const PFCandidate* pfCandPtr = dynamic_cast<const PFCandidate*>(&cand);
+    if (pfCandPtr != nullptr) {
+      if      ( pfCandPtr->trackRef().isNonnull()    ) return reco::TrackBaseRef(pfCandPtr->trackRef());
+      else if ( pfCandPtr->gsfTrackRef().isNonnull() ) return reco::TrackBaseRef(pfCandPtr->gsfTrackRef());
+      else return reco::TrackBaseRef();
+    }
+    
+    return reco::TrackBaseRef();
+  }
+}
 
 // Get the highest pt track in a jet.
 // Get the KF track if it exists.  Otherwise, see if it has a GSF track.
-reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrack(const PFJet& jet) const
+const reco::CandidatePtr RecoTauVertexAssociator::getLeadCand(const Jet& jet) const
 {
-  std::vector<PFCandidatePtr> chargedPFCands = pfChargedCands(jet, true);
+  std::vector<CandidatePtr> chargedPFCands = pfChargedCands(jet, true);
   if ( verbosity_ >= 1 ) {
     std::cout << "<RecoTauVertexAssociator::getLeadTrack>:" << std::endl;
     std::cout << " jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << std::endl;
@@ -28,10 +58,10 @@ reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrack(const PFJet& jet) const
   }
 
   if ( chargedPFCands.empty() ) {
-    return reco::TrackBaseRef();
+    return reco::CandidatePtr(nullptr, 0);
   }
-
-  std::vector<PFCandidatePtr> selectedPFCands;
+  
+  std::vector<CandidatePtr> selectedPFCands;
   if ( vxTrkFiltering_ ) {
     selectedPFCands = qcuts_->filterCandRefs(chargedPFCands);
   } else { 
@@ -40,58 +70,65 @@ reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrack(const PFJet& jet) const
   if ( verbosity_ >= 1 ) {
     std::cout << " num. selectedPFCands = " << selectedPFCands.size() << std::endl;
   }
-
-  PFCandidatePtr leadPFCand;
+  
+  CandidatePtr leadCand;
   if ( !selectedPFCands.empty() ) {
     double leadTrackPt = 0.;
-    if ( leadingTrkOrPFCandOption_ == kFirstTrack){ leadPFCand=selectedPFCands[0];}
-    else
-    {
-      for ( std::vector<PFCandidatePtr>::const_iterator pfCand = selectedPFCands.begin();
-  	  pfCand != selectedPFCands.end(); ++pfCand ) {
-        const reco::Track* track = nullptr;
-        if ( (*pfCand)->trackRef().isNonnull() ) track = (*pfCand)->trackRef().get();
-        else if ( (*pfCand)->gsfTrackRef().isNonnull() ) track = (*pfCand)->gsfTrackRef().get();
-        if ( !track ) continue;
+    if ( leadingTrkOrPFCandOption_ == kFirstTrack){ leadCand=selectedPFCands[0];}
+    else {
+      for ( std::vector<CandidatePtr>::const_iterator pfCand = selectedPFCands.begin();
+	    pfCand != selectedPFCands.end(); ++pfCand ) {
+        const reco::Track* track = getTrack(**pfCand);
+        double actualTrackPt = 0. , actualTrackPtError = 0.;
+        if ( track != nullptr ) {
+          actualTrackPt = track->pt();
+          actualTrackPtError = track->ptError();
+	}
         double trackPt = 0.;
         if ( leadingTrkOrPFCandOption_ == kLeadTrack ) {
-  	  //double trackPt = track->pt();
-  	  trackPt = track->pt() - 2.*track->ptError();
+	  trackPt = actualTrackPt - 2.*actualTrackPtError;
         } else if ( leadingTrkOrPFCandOption_ == kLeadPFCand ) {
 	  trackPt = (*pfCand)->pt();
         } else if ( leadingTrkOrPFCandOption_ == kMinLeadTrackOrPFCand ) {
-	  trackPt = TMath::Min(track->pt(), (double)(*pfCand)->pt());
+	  trackPt = std::min(actualTrackPt, (double)(*pfCand)->pt());
 	} else assert(0);
         if ( trackPt > leadTrackPt ) {
-          leadPFCand = (*pfCand);
+          leadCand = (*pfCand);
 	  leadTrackPt = trackPt;
         }
       }
     }
   }
-  if ( leadPFCand.isNull() ) {
+  if ( leadCand.isNull() ) {
     if ( recoverLeadingTrk_ ) {
-      leadPFCand = chargedPFCands[0];
+      leadCand = chargedPFCands[0];
     } else {
-      return reco::TrackBaseRef();
+      return reco::CandidatePtr(nullptr, 0);
     } 
   }
   if ( verbosity_ >= 1 ) {
-    std::cout << "leadPFCand: Pt = " << leadPFCand->pt() << ", eta = " << leadPFCand->eta() << ", phi = " << leadPFCand->phi() << std::endl;
+    std::cout << "leadCand: Pt = " << leadCand->pt() << ", eta = " << leadCand->eta() << ", phi = " << leadCand->phi() << std::endl;
   }
-  
-  if ( leadPFCand->trackRef().isNonnull() ) {
-    return reco::TrackBaseRef(leadPFCand->trackRef());
-  } else if ( leadPFCand->gsfTrackRef().isNonnull() ) {
-    return reco::TrackBaseRef(leadPFCand->gsfTrackRef());
-  } 
-  return reco::TrackBaseRef();
+  return leadCand;
+}
+
+const reco::Track* RecoTauVertexAssociator::getLeadTrack(const Jet& jet) const {
+  auto leadCand = getLeadCand(jet);
+  if(leadCand.isNull()) return nullptr;
+  const reco::Track* track = getTrack(*leadCand);
+  return track;
+}
+
+const reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrackRef(const Jet& jet) const {
+  auto leadCand = getLeadCand(jet);
+  if(leadCand.isNull()) return reco::TrackBaseRef();
+  return getTrackRef(*leadCand);
 }
 
 namespace {
   // Define functors which extract the relevant information from a collection of
   // vertices.
-  double dzToTrack(const reco::VertexRef& vtx, const reco::TrackBaseRef& trk)
+  double dzToTrack(const reco::VertexRef& vtx, const reco::Track* trk)
   {
     if ( !trk || !vtx ) {
       return std::numeric_limits<double>::infinity();
@@ -211,7 +248,7 @@ void RecoTauVertexAssociator::setEvent(const edm::Event& evt)
   }
   edm::EventNumber_t currentEvent = evt.id().event();
   if ( currentEvent != lastEvent_ || !jetToVertexAssociation_ ) {
-    if ( !jetToVertexAssociation_ ) jetToVertexAssociation_ = new std::map<const reco::PFJet*, reco::VertexRef>;
+    if ( !jetToVertexAssociation_ ) jetToVertexAssociation_ = new std::map<const reco::Jet*, reco::VertexRef>;
     else jetToVertexAssociation_->clear();
     lastEvent_ = currentEvent;
   }
@@ -220,32 +257,30 @@ void RecoTauVertexAssociator::setEvent(const edm::Event& evt)
 reco::VertexRef
 RecoTauVertexAssociator::associatedVertex(const PFTau& tau, bool useJet) const 
 {
-
   if ( !useJet ) {
-    if ( tau.leadPFChargedHadrCand().isNonnull() ) {
-      if ( tau.leadPFChargedHadrCand()->trackRef().isNonnull() )
-	return associatedVertex( reco::TrackBaseRef( tau.leadPFChargedHadrCand()->trackRef() ) );
-      else if (  tau.leadPFChargedHadrCand()->gsfTrackRef().isNonnull() )
-	return associatedVertex( reco::TrackBaseRef( tau.leadPFChargedHadrCand()->gsfTrackRef() ) );
+    if ( tau.leadChargedHadrCand().isNonnull() ) {
+      const reco::Track* track = getTrack(*tau.leadChargedHadrCand());
+      if (track != nullptr)
+        return associatedVertex(track);
     }
   }
   // MB: use vertex associated to a given jet if explicitely requested or in case of missing leading track
-  reco::PFJetRef jetRef = tau.jetRef();
+  reco::JetBaseRef jetRef = tau.jetRef();
   // FIXME workaround for HLT which does not use updated data format
   if ( jetRef.isNull() ) jetRef = tau.pfTauTagInfoRef()->pfjetRef();
   return associatedVertex(*jetRef);
 }
 
 reco::VertexRef
-RecoTauVertexAssociator::associatedVertex(const TrackBaseRef& track) const 
+RecoTauVertexAssociator::associatedVertex(const Track* track) const 
 {
-
   reco::VertexRef trkVertex = ( !selectedVertices_.empty() ) ? selectedVertices_[0] : reco::VertexRef();
 
+  // algos kHighestWeigtForLeadTrack and kCombined not supported
   if ( algo_ == kHighestPtInEvent ) {
     if ( !selectedVertices_.empty() ) trkVertex = selectedVertices_[0];
   } else if ( algo_ == kClosestDeltaZ ) {
-    if ( track.isNonnull() ) {
+    if ( track ) {
       double closestDistance = 1.e+6;
       // Find the vertex that has the lowest dZ to the track
       int idxVertex = 0;
@@ -263,7 +298,23 @@ RecoTauVertexAssociator::associatedVertex(const TrackBaseRef& track) const
 	++idxVertex;
       }
     }
-  } else if ( algo_ == kHighestWeigtForLeadTrack || algo_ == kCombined ) {
+  }
+
+  if ( verbosity_ >= 1 ) {
+    std::cout << "--> returning vertex: x = " << trkVertex->position().x() << ", y = " << trkVertex->position().y() << ", z = " << trkVertex->position().z() << std::endl;
+  }
+  
+  return trkVertex;
+}
+
+
+reco::VertexRef
+RecoTauVertexAssociator::associatedVertex(const TrackBaseRef& track) const 
+{
+
+  reco::VertexRef trkVertex = ( !selectedVertices_.empty() ) ? selectedVertices_[0] : reco::VertexRef();
+
+  if ( algo_ == kHighestWeigtForLeadTrack || algo_ == kCombined ) {
     if ( track.isNonnull() ) {
       double largestWeight = -1.;
       // Find the vertex that has the highest association probability to the track
@@ -291,7 +342,7 @@ RecoTauVertexAssociator::associatedVertex(const TrackBaseRef& track) const
 	int idxVertex = 0;
 	for ( std::vector<reco::VertexRef>::const_iterator selectedVertex = selectedVertices_.begin();
 	      selectedVertex != selectedVertices_.end(); ++selectedVertex ) {
-	  double dZ = dzToTrack(*selectedVertex, track);
+	  double dZ = dzToTrack(*selectedVertex, track.get());
 	  if ( verbosity_ ) {
 	    std::cout << "vertex #" << idxVertex << ": x = " << (*selectedVertex)->position().x() << ", y = " << (*selectedVertex)->position().y() << ", z = " << (*selectedVertex)->position().z() 
 		      << " --> dZ = " << dZ << std::endl;
@@ -314,9 +365,9 @@ RecoTauVertexAssociator::associatedVertex(const TrackBaseRef& track) const
 }
 
 reco::VertexRef
-RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const 
+RecoTauVertexAssociator::associatedVertex(const Jet& jet) const 
 {
-  if ( verbosity_ >= 1 ) {
+if ( verbosity_ >= 1 ) {
     std::cout << "<RecoTauVertexAssociator::associatedVertex>:" << std::endl;
     std::cout << " jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << std::endl;
     std::cout << " num. Vertices = " << selectedVertices_.size() << std::endl;
@@ -327,31 +378,40 @@ RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const
   }
 
   reco::VertexRef jetVertex = ( !selectedVertices_.empty() ) ? selectedVertices_[0] : reco::VertexRef();
-  const PFJet* jetPtr = &jet;
+  const Jet* jetPtr = &jet;
 
   // check if jet-vertex association has been determined for this jet before
-  std::map<const reco::PFJet*, reco::VertexRef>::iterator vertexPtr = jetToVertexAssociation_->find(jetPtr);
+  std::map<const reco::Jet*, reco::VertexRef>::iterator vertexPtr = jetToVertexAssociation_->find(jetPtr);
   if ( vertexPtr != jetToVertexAssociation_->end() ) {
     jetVertex = vertexPtr->second;
   } else {
     // no jet-vertex association exists for this jet yet, compute it!
     if ( algo_ == kHighestPtInEvent ) {
       if ( !selectedVertices_.empty() ) jetVertex = selectedVertices_[0];
-    } else if ( algo_ == kClosestDeltaZ || 
-		algo_ == kHighestWeigtForLeadTrack || 
-		algo_ == kCombined ) {
+    } else if ( algo_ == kClosestDeltaZ ) {
       // find "leading" (highest Pt) track in jet
-      reco::TrackBaseRef leadTrack = getLeadTrack(jet);
+      const reco::Track* leadTrack = getLeadTrack(jet);
+      if ( verbosity_ ) {
+	if ( leadTrack != nullptr ) std::cout << "leadTrack: Pt = " << leadTrack->pt() << ", eta = " << leadTrack->eta() << ", phi = " << leadTrack->phi() << std::endl;
+	else std::cout << "leadTrack: N/A" << std::endl;
+      }
+      if ( leadTrack != nullptr ) {
+	jetVertex = associatedVertex(leadTrack);
+      }
+    } else if (algo_ == kHighestWeigtForLeadTrack || 
+	       algo_ == kCombined ) {
+      // find "leading" (highest Pt) track in jet
+      const reco::TrackBaseRef leadTrack = getLeadTrackRef(jet);
       if ( verbosity_ ) {
 	if ( leadTrack.isNonnull() ) std::cout << "leadTrack: Pt = " << leadTrack->pt() << ", eta = " << leadTrack->eta() << ", phi = " << leadTrack->phi() << std::endl;
 	else std::cout << "leadTrack: N/A" << std::endl;
       }
-      if ( leadTrack.isNonnull() ) {
+      if ( leadTrack.isNonnull()) {
 	jetVertex = associatedVertex(leadTrack);
       }
     }
     
-    jetToVertexAssociation_->insert(std::pair<const PFJet*, reco::VertexRef>(jetPtr, jetVertex));
+    jetToVertexAssociation_->insert(std::pair<const Jet*, reco::VertexRef>(jetPtr, jetVertex));
   }
 
   if ( verbosity_ >= 1 ) {

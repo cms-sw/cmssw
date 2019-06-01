@@ -85,18 +85,11 @@ void EcalRegressionData::fill(const reco::SuperCluster& superClus,
   else if(localCovs[1]>0) sigmaIEtaIPhi_ = 1.;
   else sigmaIEtaIPhi_ = -1.;
   
+  auto localCoordsFunc = isEB() ? egammaTools::localEcalClusterCoordsEB : egammaTools::localEcalClusterCoordsEE;
 
-  EcalClusterLocal ecalClusterLocal; //not clear why this doesnt use static functions
-  float thetaTilt=0,phiTilt=0; //dummy variables that are not used but are required by below function
-  void (EcalClusterLocal::*localCoordFunc)(const reco::CaloCluster &, const CaloGeometry &,
-  					   float &, float &, int &, int &, 
-  					   float &, float &)const;
-  localCoordFunc = &EcalClusterLocal::localCoordsEB;
-  if(!isEB()) localCoordFunc = &EcalClusterLocal::localCoordsEE;
-  (ecalClusterLocal.*localCoordFunc)(*superClus.seed(),*geom,
-				     seedCrysEtaOrX_,seedCrysPhiOrY_,
-				     seedCrysIEtaOrIX_,seedCrysIPhiOrIY_,
-				     thetaTilt,phiTilt);
+  float dummy;
+  localCoordsFunc( *superClus.seed(),*geom, seedCrysEtaOrX_,seedCrysPhiOrY_,
+                   seedCrysIEtaOrIX_,seedCrysIPhiOrIY_, dummy, dummy );
 
   for( auto clus = superClus.clustersBegin()+1;clus != superClus.clustersEnd(); ++clus ) {
     const float dEta = (*clus)->eta() - superClus.seed()->eta();

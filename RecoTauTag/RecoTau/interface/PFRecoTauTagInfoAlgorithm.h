@@ -10,14 +10,12 @@
 
 #include "Math/GenVector/VectorUtil.h" 
 
-#include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
-
 class  PFRecoTauTagInfoAlgorithm  {
  public:
   PFRecoTauTagInfoAlgorithm(){}
   PFRecoTauTagInfoAlgorithm(const edm::ParameterSet&);
   ~PFRecoTauTagInfoAlgorithm(){}
-  reco::PFTauTagInfo buildPFTauTagInfo(const reco::PFJetRef&,const std::vector<reco::PFCandidatePtr>&,const reco::TrackRefVector&,const reco::Vertex&) const; 
+  reco::PFTauTagInfo buildPFTauTagInfo(const reco::JetBaseRef&,const std::vector<reco::CandidatePtr>&,const reco::TrackRefVector&,const reco::Vertex&) const; 
  private: 
   double ChargedHadrCand_tkminPt_;
   int ChargedHadrCand_tkminPixelHitsn_;

@@ -4,7 +4,7 @@ from .Mixins import _ValidatingParameterListBase, specialImportRegistry
 from .Mixins import saveOrigin
 from .ExceptionHandling import format_typename, format_outerframe
 from past.builtins import long
-
+import codecs
 import copy
 import math
 import six
@@ -151,7 +151,8 @@ class bool(_SimpleParameterTypeBase):
         parameterSet.addBool(self.isTracked(), myname, self.value())
     def __nonzero__(self):
         return self.value()
-
+    def __bool__(self):
+        return self.__nonzero__()
 
 
 class string(_SimpleParameterTypeBase):
@@ -167,7 +168,13 @@ class string(_SimpleParameterTypeBase):
     @staticmethod
     def formatValueForConfig(value):
         l = len(value)
-        value = value.encode("string-escape")
+        import sys
+        if sys.version_info >= (3, 0): #python2 and python3 are different due to byptes vs strings
+            import codecs
+            t=codecs.escape_encode(value.encode('utf-8'))
+            value = t[0].decode('utf-8')
+        else: #be conservative and don't change the python2 version
+            value = value.encode("string-escape")
         newL = len(value)
         if l != newL:
             #get rid of the hex encoding
@@ -481,13 +488,26 @@ class InputTag(_ParameterTypeBase):
     @staticmethod
     def _isValid(value):
         return True
-    def __cmp__(self,other):
-        v = self.__moduleLabel != other.__moduleLabel
-        if not v:
-            v= self.__productInstance != other.__productInstance
-            if not v:
-                v=self.__processName != other.__processName
-        return v
+    def __eq__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) ==
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+    def __ne__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) !=
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+    def __lt__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) <
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+    def __gt__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) >
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+    def __le__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) <=
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+    def __ge__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) >=
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+
+
     def value(self):
         "Return the string rep"
         return self.configValue()
@@ -505,7 +525,6 @@ class InputTag(_ParameterTypeBase):
         self.__moduleLabel = moduleLabel
         self.__productInstance = productInstanceLabel
         self.__processName=processName
-
         if -1 != moduleLabel.find(":"):
             toks = moduleLabel.split(":")
             self.__moduleLabel = toks[0]
@@ -522,7 +541,7 @@ class InputTag(_ParameterTypeBase):
         parameterSet.addInputTag(self.isTracked(), myname, self.cppTag(parameterSet))
 
 class ESInputTag(_ParameterTypeBase):
-    def __init__(self,module='',data=''):
+    def __init__(self,module='',data= None):
         super(ESInputTag,self).__init__()
         self._setValues(module, data)
     def getModuleLabel(self):
@@ -540,9 +559,7 @@ class ESInputTag(_ParameterTypeBase):
             self._isModified=True
     dataLabel = property(getDataLabel,setDataLabel,"data label for the product")
     def configValue(self, options=PrintOptions()):
-        result = self.__moduleLabel
-        if self.__data != "":
-            result += ':' + self.__data
+        result = self.__moduleLabel + ':' + self.__data
         if result == "":
             result = '\"\"'
         return result;
@@ -557,11 +574,18 @@ class ESInputTag(_ParameterTypeBase):
     @staticmethod
     def _isValid(value):
         return True
-    def __cmp__(self,other):
-        v = self.__moduleLabel != other.__moduleLabel
-        if not v:
-            v= self.__data != other.__data
-        return v
+    def __eq__(self,other):
+        return ((self.__moduleLabel,self.__data) == (other.__moduleLabel,other.__data))
+    def __ne__(self,other):
+        return ((self.__moduleLabel,self.__data) != (other.__moduleLabel,other.__data))
+    def __lt__(self,other):
+        return ((self.__moduleLabel,self.__data) < (other.__moduleLabel,other.__data))
+    def __gt__(self,other):
+        return ((self.__moduleLabel,self.__data) > (other.__moduleLabel,other.__data))
+    def __le__(self,other):
+        return ((self.__moduleLabel,self.__data) <= (other.__moduleLabel,other.__data))
+    def __ge__(self,other):
+        return ((self.__moduleLabel,self.__data) >= (other.__moduleLabel,other.__data))
     def value(self):
         "Return the string rep"
         return self.configValue()
@@ -575,18 +599,22 @@ class ESInputTag(_ParameterTypeBase):
     def setValue(self,v):
         self._setValues(v)
         self._isModified=True
-    def _setValues(self,moduleLabel='',dataLabel=''):
+    def _setValues(self,moduleLabel='',dataLabel=None):
         self.__moduleLabel = moduleLabel
         self.__data = dataLabel
-        if -1 != moduleLabel.find(":"):
-        #    raise RuntimeError("the module label '"+str(moduleLabel)+"' contains a ':'. If you want to specify more than one label, please pass them as separate arguments.")
-        # tolerate it, at least for the translation phase
-            toks = moduleLabel.split(":")
-            self.__moduleLabel = toks[0]
-            if len(toks) > 1:
-                self.__data = toks[1]
-            if len(toks) > 2:
-                raise RuntimeError("an ESInputTag was passed the value'"+moduleLabel+"' which contains more than one ':'")
+        if dataLabel is None:
+            if moduleLabel:
+                if  -1 == moduleLabel.find(":"):
+                    raise RuntimeError("ESInputTag passed one string '"+str(moduleLabel)+"' which does not contain a ':'. Please add ':' to explicitly separate the module (1st) and data (2nd) label or use two strings.")
+                toks = moduleLabel.split(":")
+                self.__moduleLabel = toks[0]
+                if len(toks) > 1:
+                    self.__data = toks[1]
+                if len(toks) > 2:
+                    raise RuntimeError("an ESInputTag was passed the value'"+moduleLabel+"' which contains more than one ':'")
+            else:
+                self.__data = ''
+            
 
     # convert to the wrapper class for C++ ESInputTags
     def cppTag(self, parameterSet):
@@ -1382,10 +1410,10 @@ if __name__ == "__main__":
             self.assertEqual(it.getModuleLabel(), "")
             self.assertEqual(it.getDataLabel(), "data")
             self.assertEqual(repr(it), "cms.ESInputTag(\"\",\"data\")")
-            vit = VESInputTag(ESInputTag("label1"), ESInputTag("label2"))
-            self.assertEqual(repr(vit), "cms.VESInputTag(cms.ESInputTag(\"label1\"), cms.ESInputTag(\"label2\"))")
-            vit = VESInputTag("label1", "label2:label3")
-            self.assertEqual(repr(vit), "cms.VESInputTag(\"label1\", \"label2:label3\")")
+            vit = VESInputTag(ESInputTag("label1:"), ESInputTag("label2:"))
+            self.assertEqual(repr(vit), 'cms.VESInputTag(cms.ESInputTag("label1",""), cms.ESInputTag("label2",""))')
+            vit = VESInputTag("label1:", "label2:label3")
+            self.assertEqual(repr(vit), "cms.VESInputTag(\"label1:\", \"label2:label3\")")
 
         def testPSet(self):
             p1 = PSet(anInt = int32(1), a = PSet(b = int32(1)))
@@ -1531,8 +1559,8 @@ if __name__ == "__main__":
 
         def testPSetConversion(self):
             p = PSet(a = untracked.int32(7),
-                     b = untracked.InputTag("b"),
-                     c = untracked.ESInputTag("c"),
+                     b = untracked.InputTag("b:"),
+                     c = untracked.ESInputTag("c:"),
                      d = EventID(1,1,1),
                      e = LuminosityBlockID(1,1),
                      f = EventRange(1,1,1,8,8,8),
@@ -1545,8 +1573,8 @@ if __name__ == "__main__":
                      m = untracked.double(7.0),
                      n = FileInPath("xxx"),
                      o = untracked.vint32(7,8),
-                     p = untracked.VInputTag(InputTag("b"),InputTag("c")),
-                     q = untracked.VESInputTag(ESInputTag("c"),ESInputTag("d")),
+                     p = untracked.VInputTag(InputTag("b:"),InputTag("c:")),
+                     q = untracked.VESInputTag(ESInputTag("c:"),ESInputTag("d:")),
                      r = untracked.VEventID(EventID(1,1,1),EventID(2,2,2)),
                      s = untracked.VLuminosityBlockID(LuminosityBlockID(1,1),LuminosityBlockID(2,3)),
                      t = untracked.VEventRange(EventRange(1,1,1,8,8,8), EventRange(9,9,9,18,18,18)),

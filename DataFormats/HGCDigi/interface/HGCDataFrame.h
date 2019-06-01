@@ -13,24 +13,23 @@
 template <class D, class S>
 class HGCDataFrame {
 public:
-
   /**
      @short key to sort the collection
    */
-  typedef D key_type; 
+  typedef D key_type;
 
   /**
      @short CTOR
   */
-  HGCDataFrame() : id_(0), maxSampleSize_(15)             { data_.resize(maxSampleSize_); }
+  HGCDataFrame() : id_(0), maxSampleSize_(15) { data_.resize(maxSampleSize_); }
   HGCDataFrame(const D& id) : id_(id), maxSampleSize_(15) { data_.resize(maxSampleSize_); }
-  HGCDataFrame(const HGCDataFrame& o) : data_(o.data_), id_(o.id_), maxSampleSize_(o.maxSampleSize_) { }
+  HGCDataFrame(const HGCDataFrame& o) : data_(o.data_), id_(o.id_), maxSampleSize_(o.maxSampleSize_) {}
 
   /**
     @short det id
   */
   const D& id() const { return id_; }
-    
+
   /** 
     @short total number of samples in the digi 
   */
@@ -45,31 +44,29 @@ public:
      @short assess/set specific samples
   */
   const S& operator[](int i) const { return data_[i]; }
-  const S& sample(int i)     const { return data_[i]; }
-  void setSample(int i, const S &sample) { if(i<(int)data_.size()) data_[i]=sample; }
-  void print(std::ostream &out=std::cout)
-  {
-    for(size_t i=0; i<data_.size(); i++)
-      {
-	out << "[" << i << "] ";
-	data_[i].print(out); 
-      }
+  const S& sample(int i) const { return data_[i]; }
+  void setSample(int i, const S& sample) {
+    if (i < (int)data_.size())
+      data_[i] = sample;
+  }
+  void print(std::ostream& out = std::cout) {
+    for (size_t i = 0; i < data_.size(); i++) {
+      out << "[" << i << "] ";
+      data_[i].print(out);
+    }
   }
   const std::vector<S>& data() const { return data_; }
   void setData(const std::vector<S>& d) { data_ = d; }
 
-
 private:
-
   //collection of samples
   std::vector<S> data_;
-  
+
   // det id for this data frame
   D id_;
 
   //number of samples and maximum available
   size_t maxSampleSize_;
-
 };
 
 #endif

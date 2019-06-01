@@ -1,20 +1,21 @@
 #ifndef DataFormats_Common_BaseVectorHolder_h
 #define DataFormats_Common_BaseVectorHolder_h
+#include "DataFormats/Common/interface/BaseHolder.h"
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "DataFormats/Common/interface/BaseHolder.h"
-#include <stddef.h>
+#include <cstddef>
 #include <memory>
 
 namespace edm {
   class ProductID;
-  template<typename T> class RefToBase;
+  template <typename T>
+  class RefToBase;
   namespace reftobase {
-    template<typename T>
+    template <typename T>
     class BaseVectorHolder {
     public:
-      typedef size_t       size_type;
-      typedef T            element_type;
+      typedef size_t size_type;
+      typedef T element_type;
       typedef RefToBase<T> base_ref_type;
       BaseVectorHolder() {}
       virtual ~BaseVectorHolder() {}
@@ -29,15 +30,15 @@ namespace edm {
       virtual void clear() = 0;
       virtual ProductID id() const = 0;
       virtual EDProductGetter const* productGetter() const = 0;
-      void swap(BaseVectorHolder&) {} // nothing to swap
+      void swap(BaseVectorHolder&) {}  // nothing to swap
 
       // the following structure is public
       // to allow dictionary to compile
       //    protected:
       struct const_iterator_imp {
         typedef ptrdiff_t difference_type;
-        const_iterator_imp() { }
-        virtual ~const_iterator_imp() { }
+        const_iterator_imp() {}
+        virtual ~const_iterator_imp() {}
         virtual const_iterator_imp* clone() const = 0;
         virtual void increase() = 0;
         virtual void decrease() = 0;
@@ -50,21 +51,23 @@ namespace edm {
         virtual difference_type difference(const_iterator_imp const*) const = 0;
       };
 
-      struct const_iterator : public std::iterator <std::random_access_iterator_tag, RefToBase<T> >{
+      struct const_iterator : public std::iterator<std::random_access_iterator_tag, RefToBase<T> > {
         typedef base_ref_type value_type;
         typedef std::unique_ptr<value_type> pointer;
         typedef std::ptrdiff_t difference_type;
 
-        const_iterator() : i(nullptr) { }
-        const_iterator(const_iterator_imp* it) : i(it) { }
-        const_iterator(const_iterator const& it) : i(it.isValid() ? it.i->clone() : nullptr) { }
+        const_iterator() : i(nullptr) {}
+        const_iterator(const_iterator_imp* it) : i(it) {}
+        const_iterator(const_iterator const& it) : i(it.isValid() ? it.i->clone() : nullptr) {}
         ~const_iterator() { delete i; }
         const_iterator& operator=(const_iterator const& it) {
-          if(this == &it) {
+          if (this == &it) {
             return *this;
           }
-          if (isInvalid()) i = it.i;
-          else i->assign(it.i);
+          if (isInvalid())
+            i = it.i;
+          else
+            i->assign(it.i);
           return *this;
         }
         const_iterator& operator++() {
@@ -90,7 +93,8 @@ namespace edm {
           return ci;
         }
         difference_type operator-(const_iterator const& o) const {
-          if (isInvalid() && o.isInvalid()) return 0;
+          if (isInvalid() && o.isInvalid())
+            return 0;
           throwInvalidReference(isInvalid() || o.isInvalid(), "compute difference with");
           return i->difference(o.i);
         }
@@ -107,27 +111,30 @@ namespace edm {
           return const_iterator(ii);
         }
         bool operator<(const_iterator const& o) const {
-          if (isInvalid() && o.isInvalid()) return false;
+          if (isInvalid() && o.isInvalid())
+            return false;
           throwInvalidReference(isInvalid() || o.isInvalid(), "compute < operator with");
           return i->less_than(o.i);
         }
         bool operator==(const_iterator const& ci) const {
-          if (isInvalid() && ci.isInvalid()) return true;
-          if (isInvalid() || ci.isInvalid()) return false;
+          if (isInvalid() && ci.isInvalid())
+            return true;
+          if (isInvalid() || ci.isInvalid())
+            return false;
           return i->equal_to(ci.i);
         }
         bool operator!=(const_iterator const& ci) const {
-          if (isInvalid() && ci.isInvalid()) return false;
-          if (isInvalid() || ci.isInvalid()) return true;
-          return ! i->equal_to(ci.i);
+          if (isInvalid() && ci.isInvalid())
+            return false;
+          if (isInvalid() || ci.isInvalid())
+            return true;
+          return !i->equal_to(ci.i);
         }
         value_type operator*() const {
           throwInvalidReference(isInvalid(), "dereference");
           return i->deref();
         }
-        pointer operator->()const {
-          return pointer(new value_type(operator*()));
-        }
+        pointer operator->() const { return pointer(new value_type(operator*())); }
         const_iterator& operator+=(difference_type d) {
           throwInvalidReference(isInvalid(), "increment");
           i->increase(d);
@@ -143,7 +150,8 @@ namespace edm {
 
         void throwInvalidReference(bool iIsInvalid, char const* iWhy) const {
           if (iIsInvalid) {
-            Exception::throwThis(errors::InvalidReference, "Trying to ", iWhy, " an invalid RefToBaseVector<T>::const_iterator");
+            Exception::throwThis(
+                errors::InvalidReference, "Trying to ", iWhy, " an invalid RefToBaseVector<T>::const_iterator");
           }
         }
 
@@ -165,13 +173,11 @@ namespace edm {
     };
 
     // Free swap function
-    template<typename T>
-    inline
-    void
-    swap(BaseVectorHolder<T>& lhs, BaseVectorHolder<T>& rhs) {
+    template <typename T>
+    inline void swap(BaseVectorHolder<T>& lhs, BaseVectorHolder<T>& rhs) {
       lhs.swap(rhs);
     }
-  }
-}
+  }  // namespace reftobase
+}  // namespace edm
 
 #endif

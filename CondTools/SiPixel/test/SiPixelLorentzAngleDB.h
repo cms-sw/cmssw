@@ -18,32 +18,27 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-
-class SiPixelLorentzAngleDB : public edm::EDAnalyzer
-{
- public:
-  
+class SiPixelLorentzAngleDB : public edm::EDAnalyzer {
+public:
   explicit SiPixelLorentzAngleDB(const edm::ParameterSet& conf);
-  
-  virtual ~SiPixelLorentzAngleDB();
-  
-  virtual void beginJob();
-  
-  virtual void endJob(); 
-  
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  
-  
- private:
 
+  virtual ~SiPixelLorentzAngleDB();
+
+  virtual void beginJob();
+
+  virtual void endJob();
+
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+
+private:
   unsigned int HVgroup(unsigned int panel, unsigned int module);
 
-  std::vector< std::pair<uint32_t, float> > detid_la;
+  std::vector<std::pair<uint32_t, float> > detid_la;
   edm::ParameterSet conf_;
   double magneticField_;
   std::string recordName_;
 
-  typedef std::vector< edm::ParameterSet > Parameters;
+  typedef std::vector<edm::ParameterSet> Parameters;
   Parameters BPixParameters_;
   Parameters FPixParameters_;
   Parameters ModuleParameters_;
@@ -51,6 +46,5 @@ class SiPixelLorentzAngleDB : public edm::EDAnalyzer
   std::string fileName_;
   bool useFile_;
 };
-
 
 #endif

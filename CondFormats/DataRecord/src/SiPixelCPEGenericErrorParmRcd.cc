@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     SiPixelCPEGenericErrorParmRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Tue Nov 11 23:07:06 CET 2008
 // $Id$
 

@@ -31,8 +31,7 @@ RH_ASSIGN_GROUP(L1MuGMTParameters, TGlobalTriggerGroup)
  *  Query the CMS_GMT.GMT_SOFTWARE_CONFIG table with a key determined by the "master" config table
  *  and return the matching record.
  */
-std::unique_ptr<L1MuGMTParameters> L1MuGMTParametersOnlineProducer::newObject( const std::string& objectKey )
-{
+std::unique_ptr<L1MuGMTParameters> L1MuGMTParametersOnlineProducer::newObject(const std::string& objectKey) {
   RecordHelper<L1MuGMTParameters> helper;
 
   // Copy data members from L1MuGMTParameters,
@@ -86,35 +85,33 @@ std::unique_ptr<L1MuGMTParameters> L1MuGMTParametersOnlineProducer::newObject( c
   std::vector<std::string> resultColumns = helper.getColumnList();
   resultColumns.push_back("CMSSW_VERSION");
 
-  l1t::OMDSReader::QueryResults resultLines = 
-    m_omdsReader.basicQuery(
-          // SELECTed columns
-	  resultColumns,
-	  // schema name
-	  "CMS_GMT",
-	  // table name
-          "GMT_SOFTWARE_CONFIG",
-	  // WHERE lhs
-	  "GMT_SOFTWARE_CONFIG.KEY",
-	  // WHERE rhs
-	  m_omdsReader.singleAttribute(objectKey) );
+  l1t::OMDSReader::QueryResults resultLines = m_omdsReader.basicQuery(
+      // SELECTed columns
+      resultColumns,
+      // schema name
+      "CMS_GMT",
+      // table name
+      "GMT_SOFTWARE_CONFIG",
+      // WHERE lhs
+      "GMT_SOFTWARE_CONFIG.KEY",
+      // WHERE rhs
+      m_omdsReader.singleAttribute(objectKey));
 
-  if(resultLines.numberRows() == 1) {
-    const AttributeList&  resultRecord = resultLines.attributeLists().front();
+  if (resultLines.numberRows() == 1) {
+    const AttributeList& resultRecord = resultLines.attributeLists().front();
     checkCMSSWVersion(resultRecord);
     helper.extractRecord(resultRecord, *ptrResult);
     return ptrResult;
   }
-     
-  throw cond::Exception("Couldn't find GMT_SOFTWARE_CONFIG record for GMT key `" + objectKey + "'") ;
+
+  throw cond::Exception("Couldn't find GMT_SOFTWARE_CONFIG record for GMT key `" + objectKey + "'");
 }
 
-void L1MuGMTParametersOnlineProducer::checkCMSSWVersion(const coral::AttributeList& configRecord) 
-{
+void L1MuGMTParametersOnlineProducer::checkCMSSWVersion(const coral::AttributeList& configRecord) {
   const coral::Attribute& version = configRecord["CMSSW_VERSION"];
 
   /* If the DB field is unset, take any. */
-  if(version.isNull()) {
+  if (version.isNull()) {
     edm::LogInfo("No CMSSW version set in database, accepting " PROJECT_VERSION);
     return;
   }
@@ -123,24 +120,22 @@ void L1MuGMTParametersOnlineProducer::checkCMSSWVersion(const coral::AttributeLi
   const std::string& versionString = version.data<string>();
 
   /* PROJECT_VERSION is passed as a -D #define from scramv1 (eg CMSSW_2_1_0) */
-  if(versionString != PROJECT_VERSION) { 
-    std::string errMsg = "CMSSW version mismatch: Configuration requires " + 
-      versionString + ", but this is " + PROJECT_VERSION + "!";
-   
-    if(ignoreVersionMismatch_) { 
+  if (versionString != PROJECT_VERSION) {
+    std::string errMsg =
+        "CMSSW version mismatch: Configuration requires " + versionString + ", but this is " + PROJECT_VERSION + "!";
+
+    if (ignoreVersionMismatch_) {
       edm::LogWarning(errMsg + " (will continue because ignoreVersionMismatch is set)");
-    } else { 
-      throw cond::Exception(errMsg);	    
+    } else {
+      throw cond::Exception(errMsg);
     }
   }
 }
 
-L1MuGMTParametersOnlineProducer::L1MuGMTParametersOnlineProducer(const edm::ParameterSet& ps) : 
-  L1ConfigOnlineProdBase<L1MuGMTParametersRcd, L1MuGMTParameters>(ps)
-{
-  ignoreVersionMismatch_  = ps.getParameter<bool>("ignoreVersionMismatch");
+L1MuGMTParametersOnlineProducer::L1MuGMTParametersOnlineProducer(const edm::ParameterSet& ps)
+    : L1ConfigOnlineProdBase<L1MuGMTParametersRcd, L1MuGMTParameters>(ps) {
+  ignoreVersionMismatch_ = ps.getParameter<bool>("ignoreVersionMismatch");
 }
-
 
 L1MuGMTParametersOnlineProducer::~L1MuGMTParametersOnlineProducer() {}
 

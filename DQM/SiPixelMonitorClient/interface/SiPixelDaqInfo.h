@@ -2,23 +2,23 @@
 #define DQM_SiPixelMonitorClient_SiPixelDaqInfo_H
 
 // system include files
-#include <memory>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <memory>
 
 // FWCore
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
-//DQM
+// DQM
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -26,22 +26,24 @@
 
 class SiPixelDaqInfo : public DQMEDHarvester {
 public:
-  explicit SiPixelDaqInfo(const edm::ParameterSet&);
+  explicit SiPixelDaqInfo(const edm::ParameterSet &);
   ~SiPixelDaqInfo() override;
-  
 
 private:
-  void dqmEndLuminosityBlock(DQMStore::IBooker&, DQMStore::IGetter&, const edm::LuminosityBlock& , const  edm::EventSetup&) override;
-  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override ;
-  
-  MonitorElement*  Fraction_;
-  MonitorElement*  FractionBarrel_;
-  MonitorElement*  FractionEndcap_;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             const edm::LuminosityBlock &,
+                             const edm::EventSetup &) override;
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
-  std::pair<int,int> FEDRange_;
+  MonitorElement *Fraction_;
+  MonitorElement *FractionBarrel_;
+  MonitorElement *FractionEndcap_;
 
-  int  NumberOfFeds_;
-  
+  std::pair<int, int> FEDRange_;
+
+  int NumberOfFeds_;
+
   int NEvents_;
   int nFEDsBarrel_;
   int nFEDsEndcap_;
@@ -50,7 +52,7 @@ private:
 
   bool firstLumi;
 
-  //define Token(-s)
+  // define Token(-s)
   edm::EDGetTokenT<FEDRawDataCollection> daqSourceToken_;
 };
 

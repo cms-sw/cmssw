@@ -5,296 +5,219 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-inline std::uint32_t RPCLBLink::getId() const
-{
-    return id_;
-}
+inline std::uint32_t RPCLBLink::getId() const { return id_; }
 
-inline RPCLBLink::operator std::uint32_t() const
-{
-    return id_;
-}
+inline RPCLBLink::operator std::uint32_t() const { return id_; }
 
-inline bool RPCLBLink::matches(RPCLBLink const & rhs) const
-{
-    return ((id_ & rhs.getMask()) == (getMask() & rhs.id_));
-}
+inline bool RPCLBLink::matches(RPCLBLink const& rhs) const { return ((id_ & rhs.getMask()) == (getMask() & rhs.id_)); }
 
-inline void RPCLBLink::setId(std::uint32_t const & id)
-{
-    id_ = id;
-}
+inline void RPCLBLink::setId(std::uint32_t const& id) { id_ = id; }
 
-inline void RPCLBLink::reset()
-{
-    id_ = 0x0;
-}
+inline void RPCLBLink::reset() { id_ = 0x0; }
 
 // Field Getters
-inline int RPCLBLink::getRegion() const
-{
-    return bf_get(min_region_, mask_region_, pos_region_);
-}
+inline int RPCLBLink::getRegion() const { return bf_get(min_region_, mask_region_, pos_region_); }
 
-inline int RPCLBLink::getYoke() const
-{
-    return bf_get(min_yoke_, mask_yoke_, pos_yoke_);
-}
+inline int RPCLBLink::getYoke() const { return bf_get(min_yoke_, mask_yoke_, pos_yoke_); }
 
-inline int RPCLBLink::getSector() const
-{
-    return bf_get(min_sector_, mask_sector_, pos_sector_);
-}
+inline int RPCLBLink::getSector() const { return bf_get(min_sector_, mask_sector_, pos_sector_); }
 
-inline int RPCLBLink::getSide() const
-{
-    return bf_get(min_side_, mask_side_, pos_side_);
-}
+inline int RPCLBLink::getSide() const { return bf_get(min_side_, mask_side_, pos_side_); }
 
-inline int RPCLBLink::getWheelOrDisk() const
-{
-    return bf_get(min_wheelordisk_, mask_wheelordisk_, pos_wheelordisk_);
-}
+inline int RPCLBLink::getWheelOrDisk() const { return bf_get(min_wheelordisk_, mask_wheelordisk_, pos_wheelordisk_); }
 
-inline int RPCLBLink::getFibre() const
-{
-    return bf_get(min_fibre_, mask_fibre_, pos_fibre_);
-}
+inline int RPCLBLink::getFibre() const { return bf_get(min_fibre_, mask_fibre_, pos_fibre_); }
 
-inline int RPCLBLink::getRadial() const
-{
-    return bf_get(min_radial_, mask_radial_, pos_radial_);
-}
+inline int RPCLBLink::getRadial() const { return bf_get(min_radial_, mask_radial_, pos_radial_); }
 
-inline int RPCLBLink::getLinkBoard() const
-{
-    return bf_get(min_linkboard_, mask_linkboard_, pos_linkboard_);
-}
+inline int RPCLBLink::getLinkBoard() const { return bf_get(min_linkboard_, mask_linkboard_, pos_linkboard_); }
 
-inline int RPCLBLink::getConnector() const
-{
-    return bf_get(min_connector_, mask_connector_, pos_connector_);
-}
+inline int RPCLBLink::getConnector() const { return bf_get(min_connector_, mask_connector_, pos_connector_); }
 
 // Field Setters
-inline RPCLBLink & RPCLBLink::setRegion(int region)
-{
-    return bf_set(min_region_, max_region_, mask_region_, pos_region_, region);
+inline RPCLBLink& RPCLBLink::setRegion(int region) {
+  return bf_set(min_region_, max_region_, mask_region_, pos_region_, region);
 }
 
-inline RPCLBLink & RPCLBLink::setYoke(int yoke)
-{
-    return bf_set(min_yoke_, max_yoke_, mask_yoke_, pos_yoke_, yoke);
+inline RPCLBLink& RPCLBLink::setYoke(int yoke) { return bf_set(min_yoke_, max_yoke_, mask_yoke_, pos_yoke_, yoke); }
+
+inline RPCLBLink& RPCLBLink::setSector(int sector) {
+  return bf_set(min_sector_, max_sector_, mask_sector_, pos_sector_, sector);
 }
 
-inline RPCLBLink & RPCLBLink::setSector(int sector)
-{
-    return bf_set(min_sector_, max_sector_, mask_sector_, pos_sector_, sector);
+inline RPCLBLink& RPCLBLink::setSide(int side) { return bf_set(min_side_, max_side_, mask_side_, pos_side_, side); }
+
+inline RPCLBLink& RPCLBLink::setWheelOrDisk(int wheelordisk) {
+  return bf_set(min_wheelordisk_, max_wheelordisk_, mask_wheelordisk_, pos_wheelordisk_, wheelordisk);
 }
 
-inline RPCLBLink & RPCLBLink::setSide(int side)
-{
-    return bf_set(min_side_, max_side_, mask_side_, pos_side_, side);
+inline RPCLBLink& RPCLBLink::setFibre(int fibre) {
+  return bf_set(min_fibre_, max_fibre_, mask_fibre_, pos_fibre_, fibre);
 }
 
-inline RPCLBLink & RPCLBLink::setWheelOrDisk(int wheelordisk)
-{
-    return bf_set(min_wheelordisk_, max_wheelordisk_, mask_wheelordisk_, pos_wheelordisk_, wheelordisk);
+inline RPCLBLink& RPCLBLink::setRadial(int radial) {
+  return bf_set(min_radial_, max_radial_, mask_radial_, pos_radial_, radial);
 }
 
-inline RPCLBLink & RPCLBLink::setFibre(int fibre)
-{
-    return bf_set(min_fibre_, max_fibre_, mask_fibre_, pos_fibre_, fibre);
+inline RPCLBLink& RPCLBLink::setLinkBoard(int linkboard) {
+  return bf_set(min_linkboard_, max_linkboard_, mask_linkboard_, pos_linkboard_, linkboard);
 }
 
-inline RPCLBLink & RPCLBLink::setRadial(int radial)
-{
-    return bf_set(min_radial_, max_radial_, mask_radial_, pos_radial_, radial);
+inline RPCLBLink& RPCLBLink::setConnector(int connector) {
+  return bf_set(min_connector_, max_connector_, mask_connector_, pos_connector_, connector);
 }
 
-inline RPCLBLink & RPCLBLink::setLinkBoard(int linkboard)
-{
-    return bf_set(min_linkboard_, max_linkboard_, mask_linkboard_, pos_linkboard_, linkboard);
+inline bool RPCLBLink::operator<(RPCLBLink const& rhs) const { return (id_ < rhs.id_); }
+
+inline bool RPCLBLink::operator==(RPCLBLink const& rhs) const { return (id_ == rhs.id_); }
+
+inline bool RPCLBLink::operator!=(RPCLBLink const& rhs) const { return (id_ != rhs.id_); }
+
+inline bool RPCLBLink::operator<(std::uint32_t const& rhs) const { return (id_ < rhs); }
+
+inline bool RPCLBLink::operator==(std::uint32_t const& rhs) const { return (id_ == rhs); }
+
+inline bool RPCLBLink::operator!=(std::uint32_t const& rhs) const { return (id_ != rhs); }
+
+inline RPCLBLink& RPCLBLink::operator++() {
+  int value(0);
+  if ((value = getConnector()) != wildcard_) {
+    if (value < max_connector_)
+      return setConnector(value + 1);
+    setConnector(min_connector_);
+  }
+  if ((value = getLinkBoard()) != wildcard_) {
+    if (value < max_linkboard_)
+      return setLinkBoard(value + 1);
+    setLinkBoard(min_linkboard_);
+  }
+  if ((value = getRadial()) != wildcard_) {
+    if (value < max_radial_)
+      return setRadial(value + 1);
+    setRadial(min_radial_);
+  }
+  if ((value = getFibre()) != wildcard_) {
+    if (value < max_fibre_)
+      return setFibre(value + 1);
+    setFibre(min_fibre_);
+  }
+  if ((value = getWheelOrDisk()) != wildcard_) {
+    if (value < max_wheelordisk_)
+      return setWheelOrDisk(value + 1);
+    setWheelOrDisk(min_wheelordisk_);
+  }
+  if ((value = getSide()) != wildcard_) {
+    if (value < max_side_)
+      return setSide(value + 1);
+    setSide(min_side_);
+  }
+  if ((value = getSector()) != wildcard_) {
+    if (value < max_sector_)
+      return setSector(value + 1);
+    setSector(min_sector_);
+  }
+  if ((value = getYoke()) != wildcard_) {
+    if (value < max_yoke_)
+      return setYoke(value + 1);
+    setYoke(min_yoke_);
+  }
+  if ((value = getRegion()) != wildcard_) {
+    if (value < max_region_)
+      return setRegion(value + 1);
+    setRegion(min_region_);
+  }
+  return *this;
 }
 
-inline RPCLBLink & RPCLBLink::setConnector(int connector)
-{
-    return bf_set(min_connector_, max_connector_, mask_connector_, pos_connector_, connector);
+inline RPCLBLink RPCLBLink::operator++(int) {
+  RPCLBLink _value(*this);
+  ++(*this);
+  return _value;
 }
 
-inline bool RPCLBLink::operator<(RPCLBLink const & rhs) const
-{
-    return (id_ < rhs.id_);
+inline RPCLBLink& RPCLBLink::operator--() {
+  int value(0);
+  if ((value = getConnector()) != wildcard_) {
+    if (value > min_connector_)
+      return setConnector(value - 1);
+    setConnector(max_connector_);
+  }
+  if ((value = getLinkBoard()) != wildcard_) {
+    if (value > min_linkboard_)
+      return setLinkBoard(value - 1);
+    setLinkBoard(max_linkboard_);
+  }
+  if ((value = getRadial()) != wildcard_) {
+    if (value > min_radial_)
+      return setRadial(value - 1);
+    setRadial(max_radial_);
+  }
+  if ((value = getFibre()) != wildcard_) {
+    if (value > min_fibre_)
+      return setFibre(value - 1);
+    setFibre(max_fibre_);
+  }
+  if ((value = getWheelOrDisk()) != wildcard_) {
+    if (value > min_wheelordisk_)
+      return setWheelOrDisk(value - 1);
+    setWheelOrDisk(max_wheelordisk_);
+  }
+  if ((value = getSide()) != wildcard_) {
+    if (value > min_side_)
+      return setSide(value - 1);
+    setSide(max_side_);
+  }
+  if ((value = getSector()) != wildcard_) {
+    if (value > min_sector_)
+      return setSector(value - 1);
+    setSector(max_sector_);
+  }
+  if ((value = getYoke()) != wildcard_) {
+    if (value > min_yoke_)
+      return setYoke(value - 1);
+    setYoke(max_yoke_);
+  }
+  if ((value = getRegion()) != wildcard_) {
+    if (value > min_region_)
+      return setRegion(value - 1);
+    setRegion(max_region_);
+  }
+  return *this;
 }
 
-inline bool RPCLBLink::operator==(RPCLBLink const & rhs) const
-{
-    return (id_ == rhs.id_);
+inline RPCLBLink RPCLBLink::operator--(int) {
+  RPCLBLink _value(*this);
+  --(*this);
+  return _value;
 }
 
-inline bool RPCLBLink::operator!=(RPCLBLink const & rhs) const
-{
-    return (id_ != rhs.id_);
+inline int RPCLBLink::bf_get(int const min, std::uint32_t const mask, int const pos) const {
+  std::uint32_t value(id_ & mask);
+  if (value == 0)
+    return wildcard_;
+  return min + (int)(value >> pos) - 1;
 }
 
-inline bool RPCLBLink::operator<(std::uint32_t const & rhs) const
-{
-    return (id_ < rhs);
+inline RPCLBLink& RPCLBLink::bf_set(
+    int const min, int const max, std::uint32_t const mask, int const pos, int const value) {
+  if (value >= min && value <= max) {
+    id_ &= ~mask;
+    id_ |= (((std::uint32_t)(value - min + 1) << pos) & mask);
+  } else if (value == wildcard_)
+    id_ &= ~mask;
+  else
+    throw cms::Exception("OutOfRange") << "Out-of-range input for RPCLBLink::bf_set, position " << pos << ": " << value;
+  return *this;
 }
 
-inline bool RPCLBLink::operator==(std::uint32_t const & rhs) const
-{
-    return (id_ == rhs);
+inline std::ostream& RPCLBLink::bf_stream(std::ostream& ostream,
+                                          int const min,
+                                          std::uint32_t const mask,
+                                          int const pos) const {
+  std::uint32_t value(id_ & mask);
+  if (value == 0)
+    return (ostream << '*');
+  return (ostream << (min + (int)(value >> pos) - 1));
 }
 
-inline bool RPCLBLink::operator!=(std::uint32_t const & rhs) const
-{
-    return (id_ != rhs);
-}
-
-inline RPCLBLink & RPCLBLink::operator++()
-{
-    int value(0);
-    if ((value = getConnector()) != wildcard_) {
-        if (value < max_connector_)
-            return setConnector(value + 1);
-        setConnector(min_connector_);
-    }
-    if ((value = getLinkBoard()) != wildcard_) {
-        if (value < max_linkboard_)
-            return setLinkBoard(value + 1);
-        setLinkBoard(min_linkboard_);
-    }
-    if ((value = getRadial()) != wildcard_) {
-        if (value < max_radial_)
-            return setRadial(value + 1);
-        setRadial(min_radial_);
-    }
-    if ((value = getFibre()) != wildcard_) {
-        if (value < max_fibre_)
-            return setFibre(value + 1);
-        setFibre(min_fibre_);
-    }
-    if ((value = getWheelOrDisk()) != wildcard_) {
-        if (value < max_wheelordisk_)
-            return setWheelOrDisk(value + 1);
-        setWheelOrDisk(min_wheelordisk_);
-    }
-    if ((value = getSide()) != wildcard_) {
-        if (value < max_side_)
-            return setSide(value + 1);
-        setSide(min_side_);
-    }
-    if ((value = getSector()) != wildcard_) {
-        if (value < max_sector_)
-            return setSector(value + 1);
-        setSector(min_sector_);
-    }
-    if ((value = getYoke()) != wildcard_) {
-        if (value < max_yoke_)
-            return setYoke(value + 1);
-        setYoke(min_yoke_);
-    }
-    if ((value = getRegion()) != wildcard_) {
-        if (value < max_region_)
-            return setRegion(value + 1);
-        setRegion(min_region_);
-    }
-    return *this;
-}
-
-inline RPCLBLink RPCLBLink::operator++(int)
-{
-    RPCLBLink _value(*this);
-    ++(*this);
-    return _value;
-}
-
-inline RPCLBLink & RPCLBLink::operator--()
-{
-    int value(0);
-    if ((value = getConnector()) != wildcard_) {
-        if (value > min_connector_)
-            return setConnector(value - 1);
-        setConnector(max_connector_);
-    }
-    if ((value = getLinkBoard()) != wildcard_) {
-        if (value > min_linkboard_)
-            return setLinkBoard(value - 1);
-        setLinkBoard(max_linkboard_);
-    }
-    if ((value = getRadial()) != wildcard_) {
-        if (value > min_radial_)
-            return setRadial(value - 1);
-        setRadial(max_radial_);
-    }
-    if ((value = getFibre()) != wildcard_) {
-        if (value > min_fibre_)
-            return setFibre(value - 1);
-        setFibre(max_fibre_);
-    }
-    if ((value = getWheelOrDisk()) != wildcard_) {
-        if (value > min_wheelordisk_)
-            return setWheelOrDisk(value - 1);
-        setWheelOrDisk(max_wheelordisk_);
-    }
-    if ((value = getSide()) != wildcard_) {
-        if (value > min_side_)
-            return setSide(value - 1);
-        setSide(max_side_);
-    }
-    if ((value = getSector()) != wildcard_) {
-        if (value > min_sector_)
-            return setSector(value - 1);
-        setSector(max_sector_);
-    }
-    if ((value = getYoke()) != wildcard_) {
-        if (value > min_yoke_)
-            return setYoke(value - 1);
-        setYoke(max_yoke_);
-    }
-    if ((value = getRegion()) != wildcard_) {
-        if (value > min_region_)
-            return setRegion(value - 1);
-        setRegion(max_region_);
-    }
-    return *this;
-}
-
-inline RPCLBLink RPCLBLink::operator--(int)
-{
-    RPCLBLink _value(*this);
-    --(*this);
-    return _value;
-}
-
-inline int RPCLBLink::bf_get(int const min, std::uint32_t const mask, int const pos) const
-{
-    std::uint32_t value(id_ & mask);
-    if (value == 0)
-        return wildcard_;
-    return min + (int)(value >> pos) - 1;
-}
-
-inline RPCLBLink & RPCLBLink::bf_set(int const min, int const max, std::uint32_t const mask, int const pos, int const value)
-{
-    if (value >= min && value <= max) {
-        id_ &= ~mask;
-        id_ |= (((std::uint32_t)(value - min + 1) << pos) & mask);
-    } else if (value == wildcard_)
-        id_ &= ~mask;
-    else
-        throw cms::Exception("OutOfRange")
-            << "Out-of-range input for RPCLBLink::bf_set, position " << pos << ": " << value;
-    return *this;
-}
-
-inline std::ostream & RPCLBLink::bf_stream(std::ostream & ostream, int const min, std::uint32_t const mask, int const pos) const
-{
-    std::uint32_t value(id_ & mask);
-    if (value == 0)
-        return (ostream << '*');
-    return (ostream << (min + (int)(value >> pos) - 1));
-}
-
-#endif // CondFormats_RPCObjects_RPCLBLink_icc
+#endif  // CondFormats_RPCObjects_RPCLBLink_icc

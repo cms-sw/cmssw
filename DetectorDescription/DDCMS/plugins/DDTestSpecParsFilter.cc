@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/DDCMS/interface/DDSpecParRegistryRcd.h"
+#include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 
 #include <iostream>
@@ -35,28 +35,31 @@ DDTestSpecParsFilter::analyze(const Event&, const EventSetup& iEventSetup)
 {
   LogVerbatim("Geometry") << "DDTestSpecParsFilter::analyze: " << m_tag;
   ESTransientHandle<DDSpecParRegistry> registry;
-  iEventSetup.get<DDSpecParRegistryRcd>().get(m_tag.module(), registry);
+  iEventSetup.get<DDSpecParRegistryRcd>().get(m_tag, registry);
 
-  LogVerbatim("Geometry") << "DDTestSpecParsFilter::analyze: " << m_tag.module()
+  LogVerbatim("Geometry") << "DDTestSpecParsFilter::analyze: " << m_tag
 			  << " for attribute " << m_attribute << " and value " << m_value;
   LogVerbatim("Geometry") << "DD SpecPar Registry size: " << registry->specpars.size();
 
   DDSpecParRefs myReg;
-  registry->filter(myReg, m_attribute, m_value);
-
+  if(m_value.empty())
+    registry->filter(myReg, m_attribute);
+  else
+    registry->filter(myReg, m_attribute, m_value);
+  
   LogVerbatim("Geometry").log([&myReg](auto& log) {
-      log << "Filtered DD SpecPar Registry size: " << myReg.size();
+      log << "Filtered DD SpecPar Registry size: " << myReg.size() << "\n";
       for(const auto& t: myReg) {
-	log << " = { ";
+	log << "\nRegExps { ";
 	for(const auto& ki : t->paths)
-	  log << ki << ", ";
-	log << " };\n ";
+	  log << ki << " ";
+	log << "};\n ";
 	for(const auto& kl : t->spars) {
-	  log << kl.first << " = { ";
+	  log << kl.first << " = ";
 	  for(const auto& kil : kl.second) {
-	    log << kil << ", ";
+	    log << kil << " ";
 	  }
-	log << " };\n ";
+	log << "\n ";
 	}
       }
     });

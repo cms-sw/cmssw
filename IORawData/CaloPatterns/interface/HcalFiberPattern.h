@@ -19,6 +19,7 @@ public:
   int crate() const { return crate_; }
   int slot() const { return slot_; }
   int fiber() const { return fiber_; }
+
 private:
   HcalQIESample unpack(int bc, int fc);
   int crate_, slot_, tb_, fiber_, spigot_, dcc_;

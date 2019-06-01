@@ -15,21 +15,18 @@
 #include <string>
 
 class HcalCellSizeCheck : public edm::one::EDAnalyzer<> {
-
 public:
-  explicit HcalCellSizeCheck(const edm::ParameterSet& );
-  ~HcalCellSizeCheck( void ) override {}
+  explicit HcalCellSizeCheck(const edm::ParameterSet&);
+  ~HcalCellSizeCheck(void) override {}
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override {}
 };
 
-HcalCellSizeCheck::HcalCellSizeCheck( const edm::ParameterSet& iConfig ) { }
+HcalCellSizeCheck::HcalCellSizeCheck(const edm::ParameterSet& iConfig) {}
 
-void HcalCellSizeCheck::analyze(const edm::Event& /*iEvent*/,
-				 const edm::EventSetup& iSetup) {
-
+void HcalCellSizeCheck::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
   edm::ESHandle<HcalDDDRecConstants> hDRCons;
   iSetup.get<HcalRecNumberingRecord>().get(hDRCons);
   const HcalDDDRecConstants hcons = (*hDRCons);
@@ -39,19 +36,19 @@ void HcalCellSizeCheck::analyze(const edm::Event& /*iEvent*/,
   const HcalTopology topology = (*topologyHandle);
 
   HcalFlexiHardcodeGeometryLoader m_loader;
-  CaloSubdetectorGeometry*  geom = m_loader.load(topology, hcons);
+  CaloSubdetectorGeometry* geom = m_loader.load(topology, hcons);
 
-  const std::vector<DetId>& idsb=geom->getValidDetIds(DetId::Hcal,HcalBarrel);
+  const std::vector<DetId>& idsb = geom->getValidDetIds(DetId::Hcal, HcalBarrel);
   for (auto id : idsb) {
     HcalDetId hid(id.rawId());
-    std::pair<double,double> rz = hcons.getRZ(hid);
+    std::pair<double, double> rz = hcons.getRZ(hid);
     std::cout << hid << " Front " << rz.first << " Back " << rz.second << "\n";
   }
 
-  const std::vector<DetId>& idse=geom->getValidDetIds(DetId::Hcal,HcalEndcap);
+  const std::vector<DetId>& idse = geom->getValidDetIds(DetId::Hcal, HcalEndcap);
   for (auto id : idse) {
     HcalDetId hid(id.rawId());
-    std::pair<double,double> rz = hcons.getRZ(hid);
+    std::pair<double, double> rz = hcons.getRZ(hid);
     std::cout << hid << " Front " << rz.first << " Back " << rz.second << "\n";
   }
 }

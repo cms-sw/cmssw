@@ -21,8 +21,8 @@ class GlobalCosmicMuonProducer : public edm::stream::EDProducer<> {
 public:
   explicit GlobalCosmicMuonProducer(const edm::ParameterSet&);
 
-   ~GlobalCosmicMuonProducer() override;
-  
+  ~GlobalCosmicMuonProducer() override;
+
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
@@ -30,7 +30,7 @@ private:
   MuonTrackFinder* theTrackFinder;
 
   /// the event setup proxy, it takes care the services update
-  MuonServiceProxy *theService;
+  MuonServiceProxy* theService;
 };
 
 #endif

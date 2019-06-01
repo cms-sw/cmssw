@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- * This is a part of CTPPS offline software.
+ * This is a part of PPS offline software.
  * Authors:
  *   Laurent Forthomme (laurent.forthomme@cern.ch)
  *   Nicola Minafra (nicola.minafra@cern.ch)
@@ -55,7 +55,7 @@ CTPPSDiamondLocalTrackFitter::~CTPPSDiamondLocalTrackFitter()
 void
 CTPPSDiamondLocalTrackFitter::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  std::unique_ptr<edm::DetSetVector<CTPPSDiamondLocalTrack> > pOut( new edm::DetSetVector<CTPPSDiamondLocalTrack> );
+  auto pOut = std::make_unique<edm::DetSetVector<CTPPSDiamondLocalTrack> >();
 
   edm::Handle<edm::DetSetVector<CTPPSDiamondRecHit> > recHits;
   iEvent.getByToken( recHitsToken_, recHits );
@@ -102,8 +102,6 @@ CTPPSDiamondLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& 
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>( "recHitsTag", edm::InputTag( "ctppsDiamondRecHits" ) )
     ->setComment( "input rechits collection to retrieve" );
-  desc.add<int>( "verbosity", 0 )
-    ->setComment( "general verbosity of this module" );
 
   edm::ParameterSetDescription trackingAlgoParams;
   trackingAlgoParams.add<double>( "threshold", 1.5 )
@@ -116,6 +114,8 @@ CTPPSDiamondLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& 
     ->setComment( "starting horizontal coordinate of rechits for the track recognition" );
   trackingAlgoParams.add<double>( "stopAtX", 19.5 /* mm */ )
     ->setComment( "ending horizontal coordinate of rechits for the track recognition" );
+  trackingAlgoParams.add<double>( "tolerance", 0.1 /* mm */)
+    ->setComment( "tolerance used for checking if the track contains certain hit" );
 
   trackingAlgoParams.add<std::string>( "pixelEfficiencyFunction", "(x>[0]-0.5*[1])*(x<[0]+0.5*[1])+0*[2]" )
     ->setComment( "efficiency function for single pixel\n"
@@ -133,6 +133,8 @@ CTPPSDiamondLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& 
     ->setComment( "vertical offset of the outcoming track centre" );
   trackingAlgoParams.add<double>( "yWidth", 0.0 )
     ->setComment( "vertical track width" );
+  trackingAlgoParams.add<bool>( "excludeSingleEdgeHits", true )
+    ->setComment( "exclude rechits with missing leading/trailing edge" );
 
   desc.add<edm::ParameterSetDescription>( "trackingAlgorithmParams", trackingAlgoParams )
     ->setComment( "list of parameters associated to the track recognition algorithm" );

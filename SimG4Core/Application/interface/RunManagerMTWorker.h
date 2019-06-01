@@ -8,6 +8,7 @@
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 #include <memory>
+#include <tbb/concurrent_vector.h>
 
 namespace edm {
   class ParameterSet;
@@ -15,7 +16,7 @@ namespace edm {
   class EventSetup;
   class ConsumesCollector;
   class HepMCProduct;
-}
+}  // namespace edm
 class Generator;
 class RunManagerMT;
 
@@ -43,12 +44,14 @@ public:
 
   void endRun();
 
-  void produce(const edm::Event& inpevt, const edm::EventSetup& es, RunManagerMT& runManagerMaster);
+  std::unique_ptr<G4SimEvent> produce(const edm::Event& inpevt,
+                                      const edm::EventSetup& es,
+                                      RunManagerMT& runManagerMaster);
 
   void abortEvent();
-  void abortRun(bool softAbort=false);
+  void abortRun(bool softAbort = false);
 
-  inline G4SimEvent * simEvent() { return m_simEvent.get(); }
+  inline G4SimEvent* simEvent() { return m_simEvent; }
 
   void Connect(RunAction*);
   void Connect(EventAction*);
@@ -61,7 +64,6 @@ public:
   std::vector<std::shared_ptr<SimProducer> > producers();
 
 private:
-
   void initializeTLS();
   void initializeThread(RunManagerMT& runManagerMaster, const edm::EventSetup& es);
   void initializeUserActions();
@@ -69,7 +71,7 @@ private:
   void initializeRun();
   void terminateRun();
 
-  G4Event *generateEvent(const edm::Event& inpevt);
+  G4Event* generateEvent(const edm::Event& inpevt);
   void resetGenParticleId(const edm::Event& inpevt);
 
   Generator m_generator;
@@ -79,7 +81,7 @@ private:
   bool m_nonBeam;
   bool m_pUseMagneticField;
   bool m_hasWatchers;
-  int  m_EvtMgrVerbosity;
+  int m_EvtMgrVerbosity;
 
   edm::ParameterSet m_pField;
   edm::ParameterSet m_pRunAction;
@@ -91,9 +93,10 @@ private:
   edm::ParameterSet m_p;
 
   struct TLSData;
-  static thread_local TLSData *m_tls;
+  static thread_local TLSData* m_tls;
+  static void resetTLS();
 
-  std::unique_ptr<G4SimEvent> m_simEvent;
+  G4SimEvent* m_simEvent;
   std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
 };
 

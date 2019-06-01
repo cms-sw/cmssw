@@ -29,16 +29,16 @@
 
 #include <vector>
 
-class SimDigiDumper : public edm::EDAnalyzer{
+class SimDigiDumper : public edm::EDAnalyzer {
 public:
-  explicit SimDigiDumper( const edm::ParameterSet& );
-  virtual ~SimDigiDumper() {};
+  explicit SimDigiDumper(const edm::ParameterSet&);
+  virtual ~SimDigiDumper(){};
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob(){};
   virtual void endJob(){};
-private:
 
+private:
   edm::EDGetTokenT<EBDigiCollection> ECalEBSrc_;
   edm::EDGetTokenT<EEDigiCollection> ECalEESrc_;
   edm::EDGetTokenT<ESDigiCollection> ECalESSrc_;
@@ -61,14 +61,12 @@ private:
 
   edm::EDGetTokenT<RPCDigiCollection> MuRPCSrc_;
 
-  static const int sdSiTIB          = 3;
-  static const int sdSiTID          = 4;
-  static const int sdSiTOB          = 5;
-  static const int sdSiTEC          = 6;
-  static const int sdPxlBrl         = 1;
-  static const int sdPxlFwd         = 2;
-
-
+  static const int sdSiTIB = 3;
+  static const int sdSiTID = 4;
+  static const int sdSiTOB = 5;
+  static const int sdSiTEC = 6;
+  static const int sdPxlBrl = 1;
+  static const int sdPxlFwd = 2;
 };
 
 #endif

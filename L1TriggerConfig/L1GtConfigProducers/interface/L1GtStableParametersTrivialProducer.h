@@ -35,84 +35,76 @@
 // forward declarations
 
 // class declaration
-class L1GtStableParametersTrivialProducer : public edm::ESProducer
-{
-
+class L1GtStableParametersTrivialProducer : public edm::ESProducer {
 public:
+  /// constructor
+  L1GtStableParametersTrivialProducer(const edm::ParameterSet&);
 
-    /// constructor
-    L1GtStableParametersTrivialProducer(const edm::ParameterSet&);
+  /// destructor
+  ~L1GtStableParametersTrivialProducer() override;
 
-    /// destructor
-    ~L1GtStableParametersTrivialProducer() override;
+  /// public methods
 
-    /// public methods
-
-    /// L1 GT parameters
-    std::unique_ptr<L1GtStableParameters> produceGtStableParameters(
-        const L1GtStableParametersRcd&);
+  /// L1 GT parameters
+  std::unique_ptr<L1GtStableParameters> produceGtStableParameters(const L1GtStableParametersRcd&);
 
 private:
+  /// trigger decision
 
-    /// trigger decision
+  /// number of physics trigger algorithms
+  unsigned int m_numberPhysTriggers;
 
-    /// number of physics trigger algorithms
-    unsigned int m_numberPhysTriggers;
+  /// additional number of physics trigger algorithms
+  unsigned int m_numberPhysTriggersExtended;
 
-    /// additional number of physics trigger algorithms
-    unsigned int m_numberPhysTriggersExtended;
+  /// number of technical triggers
+  unsigned int m_numberTechnicalTriggers;
 
-    /// number of technical triggers
-    unsigned int m_numberTechnicalTriggers;
+  /// trigger objects
 
-    /// trigger objects
+  /// muons
+  unsigned int m_numberL1Mu;
 
-    /// muons
-    unsigned int m_numberL1Mu;
+  /// e/gamma and isolated e/gamma objects
+  unsigned int m_numberL1NoIsoEG;
+  unsigned int m_numberL1IsoEG;
 
-    /// e/gamma and isolated e/gamma objects
-    unsigned int m_numberL1NoIsoEG;
-    unsigned int m_numberL1IsoEG;
+  /// central, forward and tau jets
+  unsigned int m_numberL1CenJet;
+  unsigned int m_numberL1ForJet;
+  unsigned int m_numberL1TauJet;
 
-    /// central, forward and tau jets
-    unsigned int m_numberL1CenJet;
-    unsigned int m_numberL1ForJet;
-    unsigned int m_numberL1TauJet;
-
-    /// jet counts
-    unsigned int m_numberL1JetCounts;
-
-private:
-
-    /// hardware
-
-    /// number of maximum chips defined in the xml file
-    unsigned int m_numberConditionChips;
-
-    /// number of pins on the GTL condition chips
-    unsigned int m_pinsOnConditionChip;
-
-    /// correspondence "condition chip - GTL algorithm word" in the hardware
-    /// e.g.: chip 2: 0 - 95;  chip 1: 96 - 128 (191)
-    std::vector<int> m_orderConditionChip;
-
-    /// number of PSB boards in GT
-    int m_numberPsbBoards;
-
-    /// number of bits for eta of calorimeter objects
-    unsigned int m_ifCaloEtaNumberBits;
-
-    /// number of bits for eta of muon objects
-    unsigned int m_ifMuEtaNumberBits;
+  /// jet counts
+  unsigned int m_numberL1JetCounts;
 
 private:
+  /// hardware
 
-    /// GT DAQ record organized in words of WordLength bits
-    int m_wordLength;
+  /// number of maximum chips defined in the xml file
+  unsigned int m_numberConditionChips;
 
-    /// one unit in the word is UnitLength bits
-    int m_unitLength;
+  /// number of pins on the GTL condition chips
+  unsigned int m_pinsOnConditionChip;
 
+  /// correspondence "condition chip - GTL algorithm word" in the hardware
+  /// e.g.: chip 2: 0 - 95;  chip 1: 96 - 128 (191)
+  std::vector<int> m_orderConditionChip;
+
+  /// number of PSB boards in GT
+  int m_numberPsbBoards;
+
+  /// number of bits for eta of calorimeter objects
+  unsigned int m_ifCaloEtaNumberBits;
+
+  /// number of bits for eta of muon objects
+  unsigned int m_ifMuEtaNumberBits;
+
+private:
+  /// GT DAQ record organized in words of WordLength bits
+  int m_wordLength;
+
+  /// one unit in the word is UnitLength bits
+  int m_unitLength;
 };
 
 #endif

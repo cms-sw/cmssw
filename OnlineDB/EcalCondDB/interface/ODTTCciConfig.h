@@ -13,7 +13,7 @@
 #define BUFSIZE 200;
 
 class ODTTCciConfig : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODTTCciConfig();
   ~ODTTCciConfig() override;
@@ -32,7 +32,6 @@ class ODTTCciConfig : public IODConfig {
   inline void setConfigurationScriptParams(std::string x) { m_configuration_script_params = x; }
   inline std::string getConfigurationScriptParams() const { return m_configuration_script_params; }
 
-
   inline void setTrgMode(std::string x) { m_trg_mode = x; }
   inline std::string getTrgMode() const { return m_trg_mode; }
   inline void setTrgSleep(int id) { m_trg_sleep = id; }
@@ -42,30 +41,26 @@ class ODTTCciConfig : public IODConfig {
   inline unsigned char* getTTCciClob() const { return m_ttcci_clob; }
   inline void setSize(unsigned int id) { m_size = id; }
   inline unsigned int getSize() const { return m_size; }
-  void setParameters(const std::map<std::string,std::string>& my_keys_map);
+  void setParameters(const std::map<std::string, std::string>& my_keys_map);
 
-  
- private:
-  void prepareWrite()  noexcept(false) override;
-  void writeDB()       noexcept(false);
+private:
+  void prepareWrite() noexcept(false) override;
+  void writeDB() noexcept(false);
   void clear();
-  void fetchData(ODTTCciConfig * result)     noexcept(false);
-  int fetchID()  noexcept(false);
-
+  void fetchData(ODTTCciConfig* result) noexcept(false);
+  int fetchID() noexcept(false);
 
   int fetchNextId() noexcept(false);
 
   // User data
   int m_ID;
   unsigned char* m_ttcci_clob;
-  std::string  m_ttcci_file;
-  std::string  m_configuration_script;
-  std::string  m_configuration_script_params;
-  std::string  m_trg_mode;
-  int  m_trg_sleep;
+  std::string m_ttcci_file;
+  std::string m_configuration_script;
+  std::string m_configuration_script_params;
+  std::string m_trg_mode;
+  int m_trg_sleep;
   int m_size;
-
-  
 };
 
 #endif

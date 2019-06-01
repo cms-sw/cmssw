@@ -28,7 +28,6 @@
 #include <memory>
 #include "Rtypes.h"
 
-
 // forward declarations
 class TGPictureButton;
 class TGComboBox;
@@ -53,84 +52,83 @@ class CSGAction;
 class CmsShowSearchFiles;
 
 namespace fwlite {
-   class Event;
+  class Event;
 }
 
-class CmsShowMain : public CmsShowMainBase
-{
+class CmsShowMain : public CmsShowMainBase {
 public:
-   CmsShowMain(int argc, char *argv[]);
-   ~CmsShowMain() override;
-   void resetInitialization();
-   void openData();
-   void appendData();
-   void openDataViaURL();
-   void quit() override;
-   void doExit();
+  CmsShowMain(int argc, char* argv[]);
+  ~CmsShowMain() override;
+  void resetInitialization();
+  void openData();
+  void appendData();
+  void openDataViaURL();
+  void quit() override;
+  void doExit();
 
-   //  void writeConfigurationFile(const std::string& iFileName) const;
-   // ---------- static member functions --------------------
-   
-   // ---------- member functions ---------------------------
-   //  int draw(const fwlite::Event& );
+  //  void writeConfigurationFile(const std::string& iFileName) const;
+  // ---------- static member functions --------------------
 
-   void notified(TSocket*);
-   const fwlite::Event* getCurrentEvent() const;
-   const fireworks::Context* context() const { return m_context.get(); };
-   bool getVersionCheck() const { return !m_noVersionCheck; }
+  // ---------- member functions ---------------------------
+  //  int draw(const fwlite::Event& );
 
-   void fileChangedSlot(const TFile *file);
+  void notified(TSocket*);
+  const fwlite::Event* getCurrentEvent() const;
+  const fireworks::Context* context() const { return m_context.get(); };
+  bool getVersionCheck() const { return !m_noVersionCheck; }
+
+  void fileChangedSlot(const TFile* file);
 
 protected:
-   void eventChangedImp() override;
+  void eventChangedImp() override;
 
 private:
-   CmsShowMain(const CmsShowMain&); // stop default
-   const CmsShowMain& operator=(const CmsShowMain&); // stop default
+  CmsShowMain(const CmsShowMain&);                   // stop default
+  const CmsShowMain& operator=(const CmsShowMain&);  // stop default
 
-   void loadGeometry();
-   void setupDataHandling();
-   void setupSocket(unsigned int);
-   void connectSocket();
-   void setLoadedAnyInputFileAfterStartup();
+  void loadGeometry();
+  void setupDataHandling();
+  void setupSocket(unsigned int);
+  void connectSocket();
+  void setLoadedAnyInputFileAfterStartup();
 
-   void autoLoadNewEvent() override;
-   void checkPosition() override;
-   void stopPlaying() override;
-    void checkKeyBindingsOnPLayEventsStateChanged() override;
+  void autoLoadNewEvent() override;
+  void checkPosition() override;
+  void stopPlaying() override;
+  void checkKeyBindingsOnPLayEventsStateChanged() override;
 
-   void reachedEnd();
-   void reachedBeginning();
+  void reachedEnd();
+  void reachedBeginning();
 
-   // Filtering bits.
-   void navigatorChangedFilterState(int);
-   void filterButtonClicked();
-   void preFiltering();
-   void postFiltering(bool);
+  // Filtering bits.
+  void navigatorChangedFilterState(int);
+  void filterButtonClicked();
+  void preFiltering();
+  void postFiltering(bool);
 
-   void setLiveMode();
-   void checkLiveMode();
+  void setLiveMode();
+  void checkLiveMode();
 
-   // ---------- member data --------------------------------
-   std::unique_ptr<CmsShowNavigator>           m_navigator;
-   std::unique_ptr<FWLiteJobMetadataManager>   m_metadataManager;
-   std::unique_ptr<fireworks::Context>         m_context;
+  // ---------- member data --------------------------------
+  std::unique_ptr<CmsShowNavigator> m_navigator;
+  std::unique_ptr<FWLiteJobMetadataManager> m_metadataManager;
+  std::unique_ptr<fireworks::Context> m_context;
 
-   std::vector<std::string> m_inputFiles;
-   bool                     m_loadedAnyInputFile;
-   const TFile             *m_openFile;
+  std::vector<std::string> m_inputFiles;
+  bool m_loadedAnyInputFile;
+  const TFile* m_openFile;
 
-   std::unique_ptr<CmsShowSearchFiles>  m_searchFiles;
+  std::unique_ptr<CmsShowSearchFiles> m_searchFiles;
 
-   // live options
-   bool                         m_live;
-   std::unique_ptr<SignalTimer>   m_liveTimer;
-   int                          m_liveTimeout;
-   UInt_t                       m_lastXEventSerial;
+  // live options
+  bool m_live;
+  std::unique_ptr<SignalTimer> m_liveTimer;
+  int m_liveTimeout;
+  UInt_t m_lastXEventSerial;
 
-   bool                         m_noVersionCheck;
+  bool m_noVersionCheck;
 
-   std::unique_ptr<TMonitor> m_monitor;
+  std::unique_ptr<TMonitor> m_monitor;
 };
 
 #endif

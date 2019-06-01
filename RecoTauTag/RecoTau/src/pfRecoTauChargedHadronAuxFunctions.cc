@@ -1,12 +1,30 @@
 #include "RecoTauTag/RecoTau/interface/pfRecoTauChargedHadronAuxFunctions.h"
 
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include <TMath.h>
 
 namespace reco { namespace tau {
 
+const reco::Track* getTrackFromChargedHadron(const reco::PFRecoTauChargedHadron& chargedHadron) {
+  // Charged hadron made from track (reco::Track) - RECO/AOD only
+  if ( chargedHadron.getTrack().isNonnull()) {
+    return chargedHadron.getTrack().get();
+  }
+  // In MiniAOD, even isolated tracks are saved as candidates, so the track Ptr doesn't exist
+  const pat::PackedCandidate* chargedPFPCand = dynamic_cast<const pat::PackedCandidate*> (chargedHadron.getChargedPFCandidate().get());
+  if (chargedPFPCand != nullptr) {
+    return chargedPFPCand->bestTrack();
+  }
+  const pat::PackedCandidate* lostTrackCand = dynamic_cast<const pat::PackedCandidate*> (chargedHadron.getLostTrackCandidate().get());
+  if (lostTrackCand != nullptr) {
+    return lostTrackCand->bestTrack();
+  }
+  return nullptr;
+}
+  
 void setChargedHadronP4(reco::PFRecoTauChargedHadron& chargedHadron, double scaleFactor_neutralPFCands)
 {
   double chargedHadronP  = 0.;
@@ -16,22 +34,30 @@ void setChargedHadronP4(reco::PFRecoTauChargedHadron& chargedHadron, double scal
   double SumNeutrals = 0.;
   if ( chargedHadron.algoIs(reco::PFRecoTauChargedHadron::kChargedPFCandidate) ||
        chargedHadron.algoIs(reco::PFRecoTauChargedHadron::kPFNeutralHadron)   ) {
-    const reco::PFCandidatePtr& chargedPFCand = chargedHadron.getChargedPFCandidate();
+    const reco::CandidatePtr& chargedPFCand = chargedHadron.getChargedPFCandidate();
     assert(chargedPFCand.isNonnull());
     chargedHadronP     += chargedPFCand->p();
     chargedHadronPx     = chargedPFCand->px();
     chargedHadronPy     = chargedPFCand->py();
     chargedHadronPz     = chargedPFCand->pz();
   } else if ( chargedHadron.algoIs(reco::PFRecoTauChargedHadron::kTrack) ) {
-    const reco::PFRecoTauChargedHadron::TrackPtr& track = chargedHadron.getTrack();
-    assert(track.isNonnull());
-    chargedHadronP     += track->p();
-    chargedHadronPx     = track->px();
-    chargedHadronPy     = track->py();
-    chargedHadronPz     = track->pz();
+    const reco::Track* track = getTrackFromChargedHadron(chargedHadron);
+    if (track != nullptr) {
+      chargedHadronP     += track->p();
+      chargedHadronPx     = track->px();
+      chargedHadronPy     = track->py();
+      chargedHadronPz     = track->pz();
+    } else { // lost tracks from MiniAOD that don't have track information saved
+      const reco::CandidatePtr& lostTrack = chargedHadron.getLostTrackCandidate();
+      assert(lostTrack.isNonnull());
+      chargedHadronP     += lostTrack->p();
+      chargedHadronPx     = lostTrack->px();
+      chargedHadronPy     = lostTrack->py();
+      chargedHadronPz     = lostTrack->pz();
+    }
   } else assert(0);
-  const std::vector<reco::PFCandidatePtr>& neutralPFCands = chargedHadron.getNeutralPFCandidates();
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator neutralPFCand = neutralPFCands.begin();
+  const std::vector<reco::CandidatePtr>& neutralPFCands = chargedHadron.getNeutralPFCandidates();
+  for ( std::vector<reco::CandidatePtr>::const_iterator neutralPFCand = neutralPFCands.begin();
 	neutralPFCand != neutralPFCands.end(); ++neutralPFCand ) {
     SumNeutrals += (*neutralPFCand)->p();
   }

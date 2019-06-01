@@ -10,7 +10,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "RecoParticleFlow/PFProducer/interface/Utils.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"

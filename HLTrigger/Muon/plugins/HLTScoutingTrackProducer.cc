@@ -31,7 +31,6 @@ Description: Producer for Scouting Tracks
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 class HLTScoutingTrackProducer : public edm::global::EDProducer<> {
-
 public:
   explicit HLTScoutingTrackProducer(const edm::ParameterSet&);
   ~HLTScoutingTrackProducer() override;
@@ -39,21 +38,16 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup)
-    const final;
+  void produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& setup) const final;
 
   const edm::EDGetTokenT<reco::TrackCollection> otherTrackCollection_;
-
-
 };
 
 //
 // constructors and destructor
 //
-HLTScoutingTrackProducer::HLTScoutingTrackProducer(const edm::ParameterSet& iConfig):
-  otherTrackCollection_(consumes<reco::TrackCollection>
-			(iConfig.getParameter<edm::InputTag>("OtherTracks")))
-{
+HLTScoutingTrackProducer::HLTScoutingTrackProducer(const edm::ParameterSet& iConfig)
+    : otherTrackCollection_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("OtherTracks"))) {
   //register products
   produces<ScoutingTrackCollection>();
 }
@@ -61,32 +55,39 @@ HLTScoutingTrackProducer::HLTScoutingTrackProducer(const edm::ParameterSet& iCon
 HLTScoutingTrackProducer::~HLTScoutingTrackProducer() = default;
 
 // ------------ method called to produce the data  ------------
-void HLTScoutingTrackProducer::produce(edm::StreamID sid, edm::Event & iEvent,
-				       edm::EventSetup const & setup) const
-{
+void HLTScoutingTrackProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& setup) const {
   using namespace edm;
 
   std::unique_ptr<ScoutingTrackCollection> outTrack(new ScoutingTrackCollection());
-  
+
   Handle<reco::TrackCollection> otherTrackCollection;
-    
-  if(iEvent.getByToken(otherTrackCollection_, otherTrackCollection)){
+
+  if (iEvent.getByToken(otherTrackCollection_, otherTrackCollection)) {
     // Produce tracks in event
-    for (auto &trk : *otherTrackCollection) {
-      outTrack->emplace_back(trk.pt(), trk.eta(), trk.phi(),trk.chi2(), trk.ndof(),
-			     trk.charge(), trk.dxy(), trk.dz(), trk.hitPattern().numberOfValidPixelHits(), 
-			     trk.hitPattern().trackerLayersWithMeasurement(), trk.hitPattern().numberOfValidStripHits(), 
-			     trk.qoverp(), trk.lambda(), trk.dxyError(),  trk.dzError(),
-			     trk.qoverpError(),
-			     trk.lambdaError(),
-			     trk.phiError(),
-			     trk.dsz(),
-			     trk.dszError()
-			     );
-                     
+    for (auto& trk : *otherTrackCollection) {
+      outTrack->emplace_back(trk.pt(),
+                             trk.eta(),
+                             trk.phi(),
+                             trk.chi2(),
+                             trk.ndof(),
+                             trk.charge(),
+                             trk.dxy(),
+                             trk.dz(),
+                             trk.hitPattern().numberOfValidPixelHits(),
+                             trk.hitPattern().trackerLayersWithMeasurement(),
+                             trk.hitPattern().numberOfValidStripHits(),
+                             trk.qoverp(),
+                             trk.lambda(),
+                             trk.dxyError(),
+                             trk.dzError(),
+                             trk.qoverpError(),
+                             trk.lambdaError(),
+                             trk.phiError(),
+                             trk.dsz(),
+                             trk.dszError());
     }
   }
-    
+
   iEvent.put(std::move(outTrack));
 }
 

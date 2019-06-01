@@ -6,80 +6,55 @@
 using namespace std;
 using namespace oracle::occi;
 
-RunModeDef::RunModeDef()
-{
+RunModeDef::RunModeDef() {
   m_env = nullptr;
   m_conn = nullptr;
   m_ID = 0;
   m_runMode = "";
-
 }
 
+RunModeDef::~RunModeDef() {}
 
+string RunModeDef::getRunMode() const { return m_runMode; }
 
-RunModeDef::~RunModeDef()
-{
-}
-
-
-
-string RunModeDef::getRunMode() const
-{
-  return m_runMode;
-}
-
-
-
-void RunModeDef::setRunMode(string runmode)
-{
+void RunModeDef::setRunMode(string runmode) {
   if (runmode != m_runMode) {
     m_ID = 0;
     m_runMode = runmode;
   }
 }
 
-
-
-
-
-  
-int RunModeDef::fetchID()
-  noexcept(false)
-{
+int RunModeDef::fetchID() noexcept(false) {
   // Return def from memory if available
   if (m_ID) {
     return m_ID;
   }
 
   this->checkConnection();
-  
+
   try {
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT def_id FROM ecal_run_mode_def WHERE "
-		 "run_mode_string   = :1"
-		 );
+    stmt->setSQL(
+        "SELECT def_id FROM ecal_run_mode_def WHERE "
+        "run_mode_string   = :1");
     stmt->setString(1, m_runMode);
 
     ResultSet* rset = stmt->executeQuery();
-    
+
     if (rset->next()) {
       m_ID = rset->getInt(1);
     } else {
       m_ID = 0;
     }
     m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(std::runtime_error("RunModeDef::fetchID:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("RunModeDef::fetchID:  " + e.getMessage()));
   }
 
   return m_ID;
 }
 
-
-
-void RunModeDef::setByID(int id) 
-  noexcept(false)
-{
+void RunModeDef::setByID(int id) noexcept(false) {
   this->checkConnection();
 
   try {
@@ -94,32 +69,28 @@ void RunModeDef::setByID(int id)
     } else {
       throw(std::runtime_error("RunModeDef::setByID:  Given def_id is not in the database"));
     }
-    
+
     m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-   throw(std::runtime_error("RunModeDef::setByID:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("RunModeDef::setByID:  " + e.getMessage()));
   }
 }
 
-
-
-void RunModeDef::fetchAllDefs( std::vector<RunModeDef>* fillVec) 
-  noexcept(false)
-{
+void RunModeDef::fetchAllDefs(std::vector<RunModeDef>* fillVec) noexcept(false) {
   this->checkConnection();
   try {
     Statement* stmt = m_conn->createStatement();
     stmt->setSQL("SELECT def_id FROM ecal_run_mode_def ORDER BY def_id");
     ResultSet* rset = stmt->executeQuery();
-    
+
     RunModeDef runModeDef;
     runModeDef.setConnection(m_env, m_conn);
 
-    while(rset->next()) {
-      runModeDef.setByID( rset->getInt(1) );
-      fillVec->push_back( runModeDef );
+    while (rset->next()) {
+      runModeDef.setByID(rset->getInt(1));
+      fillVec->push_back(runModeDef);
     }
-  } catch (SQLException &e) {
-    throw(std::runtime_error("RunModeDef::fetchAllDefs:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("RunModeDef::fetchAllDefs:  " + e.getMessage()));
   }
 }

@@ -16,7 +16,6 @@
 //
 // ----------------------------------------------------------------------
 
-
 #include "FWCore/MessageLogger/interface/ELmap.h"
 
 // Possible traces
@@ -24,163 +23,136 @@
 //#define ELcountTRACE
 // #define ELmapDumpTRACE
 
+namespace edm {
 
-namespace edm
-{
+  // ----------------------------------------------------------------------
+  // LimitAndTimespan:
+  // ----------------------------------------------------------------------
 
+  LimitAndTimespan::LimitAndTimespan(int lim, int ts, int ivl) : limit(lim), timespan(ts), interval(ivl) {}
 
-// ----------------------------------------------------------------------
-// LimitAndTimespan:
-// ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
+  // CountAndLimit:
+  // ----------------------------------------------------------------------
 
-LimitAndTimespan::LimitAndTimespan( int lim, int ts, int ivl )
-: limit   ( lim )
-, timespan( ts )
-, interval( ivl )
-{ }
+  CountAndLimit::CountAndLimit(int lim, int ts, int ivl)
+      : n(0),
+        aggregateN(0),
+        lastTime(time(nullptr)),
+        limit(lim),
+        timespan(ts),
+        interval(ivl),
+        skipped(ivl - 1)  // So that the FIRST of the prescaled messages emerges
+  {}
 
-
-// ----------------------------------------------------------------------
-// CountAndLimit:
-// ----------------------------------------------------------------------
-
-CountAndLimit::CountAndLimit( int lim, int ts, int ivl )
-: n         ( 0 )
-, aggregateN( 0 )
-, lastTime  ( time(nullptr) )
-, limit     ( lim )
-, timespan  ( ts  )
-, interval  ( ivl )
-, skipped   ( ivl-1 )  // So that the FIRST of the prescaled messages emerges
-{ }
-
-
-bool  CountAndLimit::add()  {
-
-  time_t  now = time(nullptr);
+  bool CountAndLimit::add() {
+    time_t now = time(nullptr);
 
 #ifdef ELcountTRACE
-  std::cerr << "&&&--- CountAndLimit::add \n";
-  std::cerr << "&&&    Time now  is " << now << "\n";
-  std::cerr << "&&&    Last time is " << lastTime << "\n";
-  std::cerr << "&&&    timespan  is " << timespan << "\n";
-  std::cerr << "&&&    difftime  is " << difftime( now, lastTime ) << "\n"
-                                << std::flush;
+    std::cerr << "&&&--- CountAndLimit::add \n";
+    std::cerr << "&&&    Time now  is " << now << "\n";
+    std::cerr << "&&&    Last time is " << lastTime << "\n";
+    std::cerr << "&&&    timespan  is " << timespan << "\n";
+    std::cerr << "&&&    difftime  is " << difftime(now, lastTime) << "\n" << std::flush;
 #endif
 
-  // Has it been so long that we should restart counting toward the limit?
-  if ( (timespan >= 0)
-            &&
-        (difftime(now, lastTime) >= timespan) )  {
-     n = 0;
-     if ( interval > 0 ) {
-       skipped = interval - 1; // So this message will be reacted to
-     } else {
-       skipped = 0;
-     }
-  }
+    // Has it been so long that we should restart counting toward the limit?
+    if ((timespan >= 0) && (difftime(now, lastTime) >= timespan)) {
+      n = 0;
+      if (interval > 0) {
+        skipped = interval - 1;  // So this message will be reacted to
+      } else {
+        skipped = 0;
+      }
+    }
 
-  lastTime = now;
+    lastTime = now;
 
-  ++n;  
-  ++aggregateN;
-  ++skipped;  
+    ++n;
+    ++aggregateN;
+    ++skipped;
 
 #ifdef ELcountTRACE
-  std::cerr << "&&&       n is " << n << "-- limit is    " << limit    << "\n";
-  std::cerr << "&&& skipped is " << skipped 
-  	                              << "-- interval is " << interval << "\n";
+    std::cerr << "&&&       n is " << n << "-- limit is    " << limit << "\n";
+    std::cerr << "&&& skipped is " << skipped << "-- interval is " << interval << "\n";
 #endif
-  
-  if (skipped < interval) return false;
 
-  if ( limit == 0 ) return false;        // Zero limit - never react to this
-  if ( (limit < 0)  || ( n <= limit )) {
+    if (skipped < interval)
+      return false;
+
+    if (limit == 0)
+      return false;  // Zero limit - never react to this
+    if ((limit < 0) || (n <= limit)) {
+      skipped = 0;
+      return true;
+    }
+
+    // Now we are over the limit - have we exceeded limit by 2^N * limit?
+    long diff = n - limit;
+    long r = diff / limit;
+    if (r * limit != diff) {  // Not a multiple of limit - don't react
+      return false;
+    }
+    if (r == 1) {  // Exactly twice limit - react
+      skipped = 0;
+      return true;
+    }
+
+    while (r > 1) {
+      if ((r & 1) != 0)
+        return false;  // Not 2**n times limit - don't react
+      r >>= 1;
+    }
+    // If you never get an odd number till one, r is 2**n so react
+
     skipped = 0;
     return true;
-  }
-  
-  // Now we are over the limit - have we exceeded limit by 2^N * limit?
-  long  diff = n - limit;
-  long  r = diff/limit;
-  if ( r*limit != diff ) { // Not a multiple of limit - don't react
-    return false;
-  }  
-  if ( r == 1 )   {	// Exactly twice limit - react
-    skipped = 0;
-    return true;
-  }
 
-  while ( r > 1 )  {
-    if ( (r & 1) != 0 )  return false;  // Not 2**n times limit - don't react
-    r >>= 1;
-  }
-  // If you never get an odd number till one, r is 2**n so react
-  
-  skipped = 0;
-  return true;
+  }  // add()
 
-}  // add()
+  // ----------------------------------------------------------------------
+  // StatsCount:
+  // ----------------------------------------------------------------------
 
+  StatsCount::StatsCount() : n(0), aggregateN(0), ignoredFlag(false), context1(""), context2(""), contextLast("") {}
 
-// ----------------------------------------------------------------------
-// StatsCount:
-// ----------------------------------------------------------------------
+  void StatsCount::add(const ELstring& context, bool reactedTo) {
+    ++n;
+    ++aggregateN;
 
-StatsCount::StatsCount()
-: n          ( 0 )
-, aggregateN ( 0 )
-, ignoredFlag( false )
-, context1   ( "" )
-, context2   ( "" )
-, contextLast( "" )
-{ }
+    ((1 == n) ? context1 : (2 == n) ? context2 : contextLast) = ELstring(context, 0, 16);
 
+    if (!reactedTo)
+      ignoredFlag = true;
 
-void  StatsCount::add( const ELstring & context, bool reactedTo )  {
+  }  // add()
 
-  ++n;  ++aggregateN;
-
-  ( (1 == n) ? context1
-  : (2 == n) ? context2
-  :            contextLast
-  )                        = ELstring( context, 0, 16 );
-
-  if ( ! reactedTo )
-    ignoredFlag = true;
-
-}  // add()
-
-
-// ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
 
 #ifdef ELmapDumpTRACE
-// ----------------------------------------------------------------------
-// Global Dump methods (useful for debugging)
-// ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
+  // Global Dump methods (useful for debugging)
+  // ----------------------------------------------------------------------
 
 #include <sstream>
 #include <string.h>
 
-boost::shared_array<char> ELmapDump ( ELmap_limits m )  {
+  boost::shared_array<char> ELmapDump(ELmap_limits m) {
+    std::ostringstream s;
+    s << "**** ELmap_limits Dump **** \n";
 
-  std::ostringstream s;
-  s << "**** ELmap_limits Dump **** \n";
+    ELmap_limits::const_iterator i;
+    for (i = m.begin(); i != m.end(); ++i) {
+      LimitAndTimespan lt = (*i).second;
+      s << "     " << (*i).first << ":  " << lt.limit << ", " << lt.timespan << "\n";
+    }
+    s << "--------------------------------------------\n";
 
-  ELmap_limits::const_iterator i;
-  for ( i = m.begin();  i != m.end();  ++i )  {
-    LimitAndTimespan lt = (*i).second;
-    s << "     " << (*i).first << ":  " << lt.limit << ", " <<
-                lt.timespan << "\n";
+    boost::shared_array<char> dump(new char[s.str().size() + 1]);
+    strcpy(dump.get(), s.str().c_str());
+
+    return dump;
   }
-  s << "--------------------------------------------\n";
-
-  boost::shared_array<char> dump(new char[s.str().size()+1]);
-  strcpy( dump.get(), s.str().c_str() );
-
-  return dump;
-
-}
 #endif
 
-} // end of namespace edm  */
+}  // end of namespace edm  */

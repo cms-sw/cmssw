@@ -1,11 +1,11 @@
 #ifndef FastSimulation_TrackerSetup_TrackerInteractionGeometry_H
 #define FastSimulation_TrackerSetup_TrackerInteractionGeometry_H
-// v0  who ? when ? 
-// 11 Dec 2003 Florian Beaudette. Removed the surfaces corresponding to ECAL 
+// v0  who ? when ?
+// 11 Dec 2003 Florian Beaudette. Removed the surfaces corresponding to ECAL
 //             This will carried out by the FamosTrajectoryManager
 // 12 Oct 2006 Patrick Janot. Removed hardcoded active geometry & rings
 //                            Removed RecHit smearing parameterization
-// 16 Nov 2007 Patrick Janot. Make the whole thing configurable 
+// 16 Nov 2007 Patrick Janot. Make the whole thing configurable
 
 //FAMOS Headers
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
@@ -16,20 +16,16 @@
 class MediumProperties;
 class GeometricSearchTracker;
 
-namespace edm { 
+namespace edm {
   class ParameterSet;
 }
 
-class TrackerInteractionGeometry
-{
-
- public:
-
-  enum FirstCylinders { PXB=0,PXD=3,TIB=5,TID=9,TOB=12,TEC=18 };
+class TrackerInteractionGeometry {
+public:
+  enum FirstCylinders { PXB = 0, PXD = 3, TIB = 5, TID = 9, TOB = 12, TEC = 18 };
 
   /// Constructor : get the configurable parameters
-  TrackerInteractionGeometry(const edm::ParameterSet& trackerMaterial,
-			     const GeometricSearchTracker* geomSearchTracker);
+  TrackerInteractionGeometry(const edm::ParameterSet &trackerMaterial, const GeometricSearchTracker *geomSearchTracker);
 
   /// Destructor
   ~TrackerInteractionGeometry();
@@ -38,26 +34,21 @@ class TrackerInteractionGeometry
   /// void initialize(const GeometricSearchTracker* geomSearchTracker);
 
   /// Returns the first pointer in the cylinder list
-  inline std::list<TrackerLayer>::const_iterator cylinderBegin() const
-    { return _theCylinders.begin(); }
+  inline std::list<TrackerLayer>::const_iterator cylinderBegin() const { return _theCylinders.begin(); }
 
   /// Returns the last pointer in the cylinder list
-  inline std::list<TrackerLayer>::const_iterator cylinderEnd() const
-    { return _theCylinders.end(); }
+  inline std::list<TrackerLayer>::const_iterator cylinderEnd() const { return _theCylinders.end(); }
 
   /// Returns the number of cylinders in the Tracker
-  inline const int nCylinders() const 
-    { return _theCylinders.size(); }
+  inline const int nCylinders() const { return _theCylinders.size(); }
 
- private:
-
+private:
   // Fudge factors to apply to each layer material (private use only)
-  std::vector<double> fudgeFactors(unsigned layerNr); 
+  std::vector<double> fudgeFactors(unsigned layerNr);
   std::vector<double> minDim(unsigned layerNr);
   std::vector<double> maxDim(unsigned layerNr);
- 
- private:
 
+private:
   /// The list of tracker (sensistive or not) layers
   std::list<TrackerLayer> _theCylinders;
 
@@ -134,7 +125,7 @@ class TrackerInteractionGeometry
   std::vector<double> pixelOutCablesInnerRadius;
   std::vector<double> pixelOutCablesOuterRadius;
   std::vector<double> pixelOutCablesZPosition;
-  /// Tracker Inner Barrel Outside Cables and walls (endcap) 
+  /// Tracker Inner Barrel Outside Cables and walls (endcap)
   std::vector<double> tibOutCables1InnerRadius;
   std::vector<double> tibOutCables1OuterRadius;
   std::vector<double> tibOutCables1ZPosition;
@@ -207,14 +198,14 @@ class TrackerInteractionGeometry
   MediumProperties *_theMPInner1;
   MediumProperties *_theMPInner2;
   MediumProperties *_theMPInner3;
-  /// Some material in front of the tracker outer barrel (cylinder) 
+  /// Some material in front of the tracker outer barrel (cylinder)
   MediumProperties *_theMPTOBBInside;
-  /// Some material around the tracker inner barrel (disk) 
+  /// Some material around the tracker inner barrel (disk)
   MediumProperties *_theMPTIBEOutside1;
   MediumProperties *_theMPTIBEOutside2;
-  /// Some material around the tracker outer barrel (disk) 
+  /// Some material around the tracker outer barrel (disk)
   MediumProperties *_theMPTOBEOutside;
-  /// Some material around the tracker inner disks (disk) 
+  /// Some material around the tracker inner disks (disk)
   MediumProperties *_theMPTIDEOutside;
   /// Cables around the tracker (one barrel, two disks)
   MediumProperties *_theMPBarrelOutside;
@@ -225,6 +216,5 @@ class TrackerInteractionGeometry
 
   //use hardcoded pre-Phase I upgrade tracker geometry or use flexible geometry
   bool use_hardcoded;
-
 };
 #endif

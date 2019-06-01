@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     scaledMarker
-// 
+//
 /**\class scaledMarker scaledMarker.h Fireworks/Calo/interface/scaledMarker.h
 
  Description: [one line class summary]
@@ -21,24 +21,18 @@
 class TEveScalableStraightLineSet;
 class FWViewContext;
 
-namespace fireworks
-{
-struct scaleMarker {
-   scaleMarker(TEveScalableStraightLineSet* ls, float et, float e, const FWViewContext* vc):
-      m_ls(ls),
-      m_et(et),
-      m_energy(e),
-      m_vc(vc) 
-   {
-   };
+namespace fireworks {
+  struct scaleMarker {
+    scaleMarker(TEveScalableStraightLineSet* ls, float et, float e, const FWViewContext* vc)
+        : m_ls(ls), m_et(et), m_energy(e), m_vc(vc){};
 
-   virtual ~scaleMarker() {}
+    virtual ~scaleMarker() {}
 
-   TEveScalableStraightLineSet* m_ls;
-   float m_et;
-   float m_energy;
-   const FWViewContext* m_vc;
-};
-}
+    TEveScalableStraightLineSet* m_ls;
+    float m_et;
+    float m_energy;
+    const FWViewContext* m_vc;
+  };
+}  // namespace fireworks
 
 #endif

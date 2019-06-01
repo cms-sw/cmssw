@@ -342,7 +342,7 @@ public :
 			  int runHi=99999999, int etaMin=1, int etaMax=29,
 			  bool debug=false);
   // mode of LHC is kept 1 for 2017 scenario as no change in depth segmentation
-  // mode of LHC is 0 for 2019
+  // mode of LHC is 0 for 2021
   virtual ~HBHEMuonOfflineAnalyzer();
 
   virtual Int_t            Cut(Long64_t entry);
@@ -1712,7 +1712,7 @@ int HBHEMuonOfflineAnalyzer::nDepthBins(int eta, int phi) {
   int  nDepthR3[29]={4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,5,6,6,6,6,6,6,6,7,7,7,3};
   // Run 4 scenario
   int  nDepthR4[29]={4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7};
-  // for 2019 scenario multi depth segmentation
+  // for 2021 scenario multi depth segmentation
   //    int  nDepth[29]={3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5};
   // modeLHC_ = 0 --> nbin defined maxDepthHB/HE
   //          = 1 -->      corresponds to Run 1 (valid till 2016)

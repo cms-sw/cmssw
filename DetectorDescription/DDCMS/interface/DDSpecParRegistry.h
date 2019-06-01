@@ -26,7 +26,8 @@ namespace cms {
 
   struct DDSpecParRegistry {
     void filter(DDSpecParRefs&, std::string_view, std::string_view) const;
-
+    void filter(DDSpecParRefs&, std::string_view) const;
+    
     DDSpecParMap specpars;
   };
 }

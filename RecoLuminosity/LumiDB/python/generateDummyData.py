@@ -1,3 +1,4 @@
+from builtins import range
 import array,coral
 from RecoLuminosity.LumiDB import CommonUtil
 def lumiSummary(schema,nlumils):

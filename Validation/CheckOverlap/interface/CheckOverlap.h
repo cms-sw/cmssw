@@ -13,30 +13,24 @@ class BeginOfRun;
 class G4LogicalVolume;
 class G4VPhysicalVolume;
 
-typedef std::multimap< G4LogicalVolume*, G4VPhysicalVolume*, std::less<G4LogicalVolume*> > mmlvpv;
+typedef std::multimap<G4LogicalVolume *, G4VPhysicalVolume *, std::less<G4LogicalVolume *> > mmlvpv;
 
-class CheckOverlap : public SimWatcher,
-  		     public Observer<const BeginOfRun *> {
-
+class CheckOverlap : public SimWatcher, public Observer<const BeginOfRun *> {
 public:
-
-  CheckOverlap(edm::ParameterSet const & p);
+  CheckOverlap(edm::ParameterSet const &p);
   ~CheckOverlap() override;
 
 private:
-
-  void update(const BeginOfRun * run) override;
-  void checkHierarchyLeafPVLV(G4LogicalVolume * lv, unsigned int leafDepth);
-  void checkPV(G4VPhysicalVolume * pv, unsigned int leafDepth);
-  G4VPhysicalVolume * getTopPV();
-  void dumpLV(G4LogicalVolume * lv, std::string str);
+  void update(const BeginOfRun *run) override;
+  void checkHierarchyLeafPVLV(G4LogicalVolume *lv, unsigned int leafDepth);
+  void checkPV(G4VPhysicalVolume *pv, unsigned int leafDepth);
+  G4VPhysicalVolume *getTopPV();
+  void dumpLV(G4LogicalVolume *lv, std::string str);
 
 private:
-
-  std::vector<std::string>      nodeNames;
-  int                           nPoints;
-  std::vector<G4LogicalVolume*> topLV; 
-
+  std::vector<std::string> nodeNames;
+  int nPoints;
+  std::vector<G4LogicalVolume *> topLV;
 };
 
 #endif

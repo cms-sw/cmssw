@@ -12,17 +12,16 @@
 
 namespace Phase2Tracker {
 
-  class Phase2TrackerCommissioningDigiProducer : public edm::EDProducer
-  {
+  class Phase2TrackerCommissioningDigiProducer : public edm::EDProducer {
   public:
     /// constructor
-    Phase2TrackerCommissioningDigiProducer( const edm::ParameterSet& pset );
+    Phase2TrackerCommissioningDigiProducer(const edm::ParameterSet& pset);
     /// default constructor
     ~Phase2TrackerCommissioningDigiProducer() override;
-    void produce( edm::Event& event, const edm::EventSetup& es ) override;
-    
+    void produce(edm::Event& event, const edm::EventSetup& es) override;
+
   private:
     edm::EDGetTokenT<FEDRawDataCollection> token_;
   };
-}
-#endif // EventFilter_Phase2TrackerRawToDigi_Phase2TrackerCommissioningDigiProducer_H
+}  // namespace Phase2Tracker
+#endif  // EventFilter_Phase2TrackerRawToDigi_Phase2TrackerCommissioningDigiProducer_H

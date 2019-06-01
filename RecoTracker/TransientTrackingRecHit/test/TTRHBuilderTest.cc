@@ -46,8 +46,8 @@ class TTRHBuilderTest : public edm::EDAnalyzer {
 
     edm::ESHandle<TransientTrackingRecHitBuilder> theB;
     setup.get<TransientRecHitRecord>().get(cpeName,theB);
-    
-    cout <<" Got a "<<typeid(*theB).name()<<endl;
+    auto& r = *theB; 
+    cout <<" Got a "<<typeid(r).name()<<endl;
     //    cout <<" Strip CPE "<<theB->stripClusterParameterEstimator()<<endl;
     //    cout <<" Pixel CPE "<<theB->pixelClusterParameterEstimator()<<endl;
     

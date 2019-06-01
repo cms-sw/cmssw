@@ -5,7 +5,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
 from Configuration.Geometry.dict2023Geometry import detectorVersionDict
 
-varType = Enumerate ("Run1 2015 2015dev 2017 2017Muon 2019 2023")
+varType = Enumerate ("Run1 2015 2015dev 2017 2017Muon 2021 2023")
 defaultVersion=str();
 
 def help():
@@ -46,8 +46,8 @@ def simGeoLoad(score):
     elif score == "2017Muon":
        process.load("Geometry.CMSCommonData.cmsExtendedGeometry2017MuonXML_cfi")
 
-    elif score == "2019":
-       process.load("Geometry.CMSCommonData.cmsExtendedGeometry2019XML_cfi")
+    elif score == "2021":
+       process.load("Geometry.CMSCommonData.cmsExtendedGeometry2021XML_cfi")
 
     elif score == "2023":
        versionCheck(options.version)

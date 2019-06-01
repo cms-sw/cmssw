@@ -1,4 +1,4 @@
-// L1TUtmObjectRcd                                                                                            
+// L1TUtmObjectRcd
 // Description: Record for L1TUtmObject
 //
 // automatically generate by make_records.pl

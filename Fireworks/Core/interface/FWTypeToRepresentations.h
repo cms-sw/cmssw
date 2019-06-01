@@ -31,29 +31,27 @@
 class FWRepresentationCheckerBase;
 
 class FWTypeToRepresentations {
-
 public:
-   FWTypeToRepresentations();
-   virtual ~FWTypeToRepresentations();
+  FWTypeToRepresentations();
+  virtual ~FWTypeToRepresentations();
 
-   // ---------- const member functions ---------------------
-   const std::vector<FWRepresentationInfo>& representationsForType(const std::string& iTypeName) const;
+  // ---------- const member functions ---------------------
+  const std::vector<FWRepresentationInfo>& representationsForType(const std::string& iTypeName) const;
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void add( std::shared_ptr<FWRepresentationCheckerBase> iChecker);
-   void insert( const FWTypeToRepresentations& );
+  // ---------- member functions ---------------------------
+  void add(std::shared_ptr<FWRepresentationCheckerBase> iChecker);
+  void insert(const FWTypeToRepresentations&);
 
 private:
-   //FWTypeToRepresentations(const FWTypeToRepresentations&); // stop default
+  //FWTypeToRepresentations(const FWTypeToRepresentations&); // stop default
 
-   //const FWTypeToRepresentations& operator=(const FWTypeToRepresentations&); // stop default
+  //const FWTypeToRepresentations& operator=(const FWTypeToRepresentations&); // stop default
 
-   // ---------- member data --------------------------------
-   mutable std::map<std::string, std::vector<FWRepresentationInfo> > m_typeToReps;
-   std::vector<std::shared_ptr<FWRepresentationCheckerBase> > m_checkers;
+  // ---------- member data --------------------------------
+  mutable std::map<std::string, std::vector<FWRepresentationInfo> > m_typeToReps;
+  std::vector<std::shared_ptr<FWRepresentationCheckerBase> > m_checkers;
 };
-
 
 #endif

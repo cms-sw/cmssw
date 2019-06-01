@@ -3,10 +3,10 @@
 
 // Package: SiPixelMonitorTrack
 // Class:   SiPixelHitEfficiencySource
-// 
-// class SiPixelHitEfficiencySource SiPixelHitEfficiencySource.h 
+//
+// class SiPixelHitEfficiencySource SiPixelHitEfficiencySource.h
 //       DQM/SiPixelMonitorTrack/interface/SiPixelHitEfficiencySource.h
-// 
+//
 // Description:    <one line class summary>
 // Implementation: <Notes on implementation>
 //
@@ -14,99 +14,97 @@
 // Original Authors: Romain Rougny & Luca Mucibello
 //         Created: Mar Nov 10 13:29:00 CET 2009
 
-
 #include <boost/cstdint.hpp>
 
+#include "DQM/SiPixelMonitorTrack/interface/SiPixelHitEfficiencyModule.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQM/SiPixelMonitorTrack/interface/SiPixelHitEfficiencyModule.h"
 
-//Files added for monitoring track quantities
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
+// Files added for monitoring track quantities
 #include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
+#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 class SiPixelHitEfficiencySource : public DQMEDAnalyzer {
-  public:
-    explicit SiPixelHitEfficiencySource(const edm::ParameterSet&);
-            ~SiPixelHitEfficiencySource() override;
+public:
+  explicit SiPixelHitEfficiencySource(const edm::ParameterSet &);
+  ~SiPixelHitEfficiencySource() override;
 
-    void dqmBeginRun(const edm::Run& r, edm::EventSetup const& iSetup) override;
-    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void fillClusterProbability(int , int, bool, double );
+  void dqmBeginRun(const edm::Run &r, edm::EventSetup const &iSetup) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  virtual void fillClusterProbability(int, int, bool, double);
 
-  private: 
-    edm::ParameterSet pSet_; 
-    edm::InputTag src_; 
-    // edm::InputTag tracksrc_;
-    edm::EDGetTokenT<reco::VertexCollection> vertexCollectionToken_;
-    edm::EDGetTokenT<TrajTrackAssociationCollection> tracksrc_;
-    edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clusterCollectionToken_;
-    
-    edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerEventToken_;
+private:
+  edm::ParameterSet pSet_;
+  edm::InputTag src_;
+  // edm::InputTag tracksrc_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexCollectionToken_;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> tracksrc_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> clusterCollectionToken_;
 
-    bool applyEdgeCut_;
-    double nSigma_EdgeCut_;
-    
-    bool debug_; 
-    bool modOn; 
-    //barrel:
-    bool ladOn, layOn, phiOn;
-    //forward:
-    bool ringOn, bladeOn, diskOn; 
+  edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerEventToken_;
 
-    bool firstRun;
-    
-    std::map<uint32_t, SiPixelHitEfficiencyModule*> theSiPixelStructure;
+  bool applyEdgeCut_;
+  double nSigma_EdgeCut_;
 
-    std::string vtxsrc_;    
-    int nmissing,nvalid; 
-    
-    int nvtx_;
-    int vtxntrk_;
-    double vtxD0_;
-    double vtxX_;
-    double vtxY_;
-    double vtxZ_;
-    double vtxndof_;
-    double vtxchi2_;
+  bool debug_;
+  bool modOn;
+  // barrel:
+  bool ladOn, layOn, phiOn;
+  // forward:
+  bool ringOn, bladeOn, diskOn;
 
-    bool isUpgrade;
+  bool firstRun;
 
-    //MEs for cluster probability
-    MonitorElement* meClusterProbabilityL1_Plus_;
-    MonitorElement* meClusterProbabilityL1_Minus_;
+  std::map<uint32_t, SiPixelHitEfficiencyModule *> theSiPixelStructure;
 
-    MonitorElement* meClusterProbabilityL2_Plus_;
-    MonitorElement* meClusterProbabilityL2_Minus_;
+  std::string vtxsrc_;
+  int nmissing, nvalid;
 
-    MonitorElement* meClusterProbabilityL3_Plus_;
-    MonitorElement* meClusterProbabilityL3_Minus_;
+  int nvtx_;
+  int vtxntrk_;
+  double vtxD0_;
+  double vtxX_;
+  double vtxY_;
+  double vtxZ_;
+  double vtxndof_;
+  double vtxchi2_;
 
-    MonitorElement* meClusterProbabilityD1_Plus_;
-    MonitorElement* meClusterProbabilityD1_Minus_;
+  bool isUpgrade;
 
-    MonitorElement* meClusterProbabilityD2_Plus_;
-    MonitorElement* meClusterProbabilityD2_Minus_;
+  // MEs for cluster probability
+  MonitorElement *meClusterProbabilityL1_Plus_;
+  MonitorElement *meClusterProbabilityL1_Minus_;
 
+  MonitorElement *meClusterProbabilityL2_Plus_;
+  MonitorElement *meClusterProbabilityL2_Minus_;
+
+  MonitorElement *meClusterProbabilityL3_Plus_;
+  MonitorElement *meClusterProbabilityL3_Minus_;
+
+  MonitorElement *meClusterProbabilityD1_Plus_;
+  MonitorElement *meClusterProbabilityD1_Minus_;
+
+  MonitorElement *meClusterProbabilityD2_Plus_;
+  MonitorElement *meClusterProbabilityD2_Minus_;
 };
 
 #endif

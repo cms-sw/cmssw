@@ -33,6 +33,50 @@ GaussVtxSigmaZ4cmSmearingParameters = cms.PSet(
     SigmaZ = cms.double(4.0),
     TimeOffset = cms.double(0.0)
 )
+# Gaussian smearing
+# Flat optics for Run3 - Low SigmaZ
+# SigmaZ = 4.2 cm
+# SigmaX = 11.8 um
+# SigmaY = 5.5 um
+# BS positions extracted from 2018B 3.8T data, run 316199, fill 6675 (from StreamExpressAlignment, HP BS):
+# X0         =  0.09676  [cm]
+# Y0         = -0.06245  [cm]
+# Z0         = -0.292    [cm]
+# BPIX absolute position (from https://cms-conddb.cern.ch/cmsDbBrowser/payload_inspector/Prod):
+# X = 0.0859918 cm
+# Y = -0.104172 cm
+# Z = -0.327748 cm
+Run3FlatOpticsGaussVtxSigmaZ4p2cmSmearingParameters = cms.PSet(
+    MeanX = cms.double(0.0107682),
+    MeanY = cms.double(0.041722),
+    MeanZ = cms.double(0.035748),
+    SigmaY = cms.double(0.00055),
+    SigmaX = cms.double(0.00118),
+    SigmaZ = cms.double(4.2),
+    TimeOffset = cms.double(0.0)
+)
+# Gaussian smearing
+# Flat optics for Run3 - High SigmaZ
+# SigmaZ = 5.3 cm
+# SigmaX = 15 um
+# SigmaY = 13 um
+# BS positions extracted from 2018B 3.8T data, run 316199, fill 6675 (from StreamExpressAlignment, HP BS):
+# X0         =  0.09676  [cm]
+# Y0         = -0.06245  [cm]
+# Z0         = -0.292    [cm]
+# BPIX absolute position (from https://cms-conddb.cern.ch/cmsDbBrowser/payload_inspector/Prod):
+# X = 0.0859918 cm
+# Y = -0.104172 cm
+# Z = -0.327748 cm
+Run3FlatOpticsGaussVtxSigmaZ5p3cmSmearingParameters = cms.PSet(
+    MeanX = cms.double(0.0107682),
+    MeanY = cms.double(0.041722),
+    MeanZ = cms.double(0.035748),
+    SigmaY = cms.double(0.0013),
+    SigmaX = cms.double(0.0015),
+    SigmaZ = cms.double(5.3),
+    TimeOffset = cms.double(0.0)
+)
 
 # Flat Smearing
 # Important note: flat independent distributions in Z and T are not correct for physics production
@@ -616,6 +660,74 @@ Realistic25ns13TeVEarly2018CollisionVtxSmearingParameters = cms.PSet(
     Emittance = cms.double(1.634e-8),
     Alpha = cms.double(0.0),
     SigmaZ = cms.double(3.5),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.0107682),
+    Y0 = cms.double(0.041722 ),
+    Z0 = cms.double(0.035748 )
+)
+
+# Run3 possible beam parameters
+# Round optics - Low SigmaZ = 3.4 cm
+# From 2018B 3.8T data
+# BS parameters extracted from run 316199, fill 6675 (from StreamExpressAlignment, HP BS):
+# X0         =  0.09676  [cm]
+# Y0         = -0.06245  [cm]
+# Z0         = -0.292    [cm]
+# sigmaZ0    =  3.2676   [cm]
+# BeamWidthX 0.0008050
+# BeamWidthY 0.0006238
+#
+# set SigmaZ0 = 3.4 [cm]
+# set BeamWidthX = BeamWidthY = 11.5 [um]
+# set beta* = 28 cm
+# energy = 13 TeV
+# From LHC calculator, emittance is 4.762e-8 cm
+# https://lpc.web.cern.ch/lpc/lumi2.html
+#
+# BPIX absolute position (from https://cms-conddb.cern.ch/cmsDbBrowser/payload_inspector/Prod):
+# X = 0.0859918 cm
+# Y = -0.104172 cm
+# Z = -0.327748 cm
+Run3RoundOptics25ns13TeVLowSigmaZVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(28.0),
+    Emittance = cms.double(4.762e-8),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(3.4),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.0107682),
+    Y0 = cms.double(0.041722 ),
+    Z0 = cms.double(0.035748 )
+)
+
+# Run3 possible beam parameters
+# Round optics - High SigmaZ = 5.7 cm
+# From 2018B 3.8T data
+# BS parameters extracted from run 316199, fill 6675 (from StreamExpressAlignment, HP BS):
+# X0         =  0.09676  [cm]
+# Y0         = -0.06245  [cm]
+# Z0         = -0.292    [cm]
+# sigmaZ0    =  3.2676   [cm]
+# BeamWidthX 0.0008050
+# BeamWidthY 0.0006238
+#
+# set SigmaZ0 = 5.7 [cm]
+# set BeamWidthX = BeamWidthY = 11.5 [um]
+# set beta* = 28 cm
+# energy = 13 TeV
+# From LHC calculator, emittance is 4.762e-8 cm
+# https://lpc.web.cern.ch/lpc/lumi2.html
+#
+# BPIX absolute position (from https://cms-conddb.cern.ch/cmsDbBrowser/payload_inspector/Prod):
+# X = 0.0859918 cm
+# Y = -0.104172 cm
+# Z = -0.327748 cm
+Run3RoundOptics25ns13TeVHighSigmaZVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(28.0),
+    Emittance = cms.double(4.762e-8),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(5.7),
     TimeOffset = cms.double(0.0),
     X0 = cms.double(0.0107682),
     Y0 = cms.double(0.041722 ),

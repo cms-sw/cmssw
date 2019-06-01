@@ -18,16 +18,15 @@
 
 namespace clangcms {
 
-class edmChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
+  class edmChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
+  public:
+    void checkASTDecl(const clang::CXXRecordDecl *CRD,
+                      clang::ento::AnalysisManager &mgr,
+                      clang::ento::BugReporter &BR) const;
 
+  private:
+    CmsException m_exception;
+  };
 
-public:
-  void checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
-                    clang::ento::BugReporter &BR) const ;
-
-private:
-  CmsException m_exception;
-};
-
-}
+}  // namespace clangcms
 #endif

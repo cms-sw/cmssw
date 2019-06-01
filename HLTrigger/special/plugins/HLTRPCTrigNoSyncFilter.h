@@ -45,26 +45,26 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 
-
-
 //
 // class declaration
 //
 
-class HLTRPCTrigNoSyncFilter : public HLTFilter{
-   public:
-      explicit HLTRPCTrigNoSyncFilter(const edm::ParameterSet&);
-      ~HLTRPCTrigNoSyncFilter() override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+class HLTRPCTrigNoSyncFilter : public HLTFilter {
+public:
+  explicit HLTRPCTrigNoSyncFilter(const edm::ParameterSet&);
+  ~HLTRPCTrigNoSyncFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      void beginJob() override ;
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-      void endJob() override ;
-      edm::InputTag m_GMTInputTag;
-      edm::InputTag rpcRecHitsLabel;
-      edm::EDGetTokenT<L1MuGMTReadoutCollection> m_GMTInputToken;
-      edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsToken;
+private:
+  void beginJob() override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  void endJob() override;
+  edm::InputTag m_GMTInputTag;
+  edm::InputTag rpcRecHitsLabel;
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> m_GMTInputToken;
+  edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsToken;
 };
 
 #endif

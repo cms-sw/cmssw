@@ -1,24 +1,20 @@
 #ifndef Validation_RPCRecHits_RPCValidHistograms_H
 #define Validation_RPCRecHits_RPCValidHistograms_H
 
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/Run.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
 
-struct RPCValidHistograms
-{
-  typedef MonitorElement* MEP;
+struct RPCValidHistograms {
+  typedef MonitorElement *MEP;
 
-  RPCValidHistograms()
-  {
-    booked_ = false;
-  };
+  RPCValidHistograms() { booked_ = false; };
 
-  void bookHistograms(DQMStore::IBooker& booker, const std::string& subDir);
+  void bookHistograms(DQMStore::IBooker &booker, const std::string &subDir);
 
   // Hit properties
   MEP clusterSize, clusterSizeBarrel, clusterSizeEndcap;
@@ -43,7 +39,7 @@ struct RPCValidHistograms
   // Residuals
   MEP resBarrel, resEndcap;
   MEP res_wheel_res, res_disk_res, res_station_res, res_ring_res;
-  
+
   // Pulls
   MEP pullBarrel, pullEndcap;
   MEP pull_wheel_pull, pull_disk_pull, pull_station_pull, pull_ring_pull;
@@ -53,4 +49,3 @@ private:
 };
 
 #endif
-

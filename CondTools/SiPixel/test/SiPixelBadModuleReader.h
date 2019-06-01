@@ -3,7 +3,6 @@
 
 // system include files
 
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -21,18 +20,14 @@
 #include "TBranch.h"
 #include "TH2F.h"
 
-
-
-
 class SiPixelBadModuleReader : public edm::EDAnalyzer {
-
- public:
-  explicit SiPixelBadModuleReader( const edm::ParameterSet& );
+public:
+  explicit SiPixelBadModuleReader(const edm::ParameterSet &);
   ~SiPixelBadModuleReader();
-  
-  void analyze( const edm::Event&, const edm::EventSetup& );
-    
- private:
+
+  void analyze(const edm::Event &, const edm::EventSetup &);
+
+private:
   uint32_t printdebug_;
   std::string whichRcd;
   TH2F *_TH2F_dead_modules_BPIX_lay1;

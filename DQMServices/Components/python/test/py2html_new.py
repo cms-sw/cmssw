@@ -3,6 +3,7 @@
 #         Created:  Tue Feb 9 10:06:02 CEST 2010
 
 from __future__ import print_function
+from builtins import range
 import re
 import sys, os
 import sqlite3

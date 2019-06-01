@@ -1,22 +1,21 @@
 #ifndef HISTO_DATA__H
 #define HISTO_DATA__H
 
-#include <string>
-#include <cstring>
-#include <TH1.h>
 #include <TFile.h>
-
+#include <TH1.h>
+#include <cstring>
+#include <string>
 
 class HistoData {
 public:
-
-  HistoData(std::string Name, int PlotType, int Bin, std::string NewPath, TFile *NewFile, std::string RefPath, TFile *RefFile);
+  HistoData(
+      std::string Name, int PlotType, int Bin, std::string NewPath, TFile *NewFile, std::string RefPath, TFile *RefFile);
   HistoData(std::string Name, int PlotType, int Bin, TH1 *NewHisto, TH1 *RefHisto);
   virtual ~HistoData() {}
 
   // Get General Information
   std::string getName() const { return name; }
-  //PlotType getType() const { return type; }
+  // PlotType getType() const { return type; }
   int getType() const { return type; }
   int getBin() const { return bin; }
   TH1 *getNewHisto() const { return newHisto; }
@@ -54,7 +53,7 @@ public:
 
   // Set General Information
   void setName(std::string Name) { name = Name; }
-  //void setType(PlotType Type) { type = Type; }
+  // void setType(PlotType Type) { type = Type; }
   void setType(int PlotType) { type = PlotType; }
   void setBin(int Bin) { bin = Bin; }
   void setResultImage(std::string Image) { resultImage = Image; }
@@ -67,7 +66,10 @@ public:
   void setDoAllow2DRebinningY(bool Toggle) { doAllow2DRebinningY = Toggle; }
   void setDoProjectionsX(bool Toggle) { doProjectionsX = Toggle; }
   void setDoProjectionsY(bool Toggle) { doProjectionsY = Toggle; }
-  void setMaxProjections(int Num) { maxProjectionsX = Num; maxProjectionsY = Num; }
+  void setMaxProjections(int Num) {
+    maxProjectionsX = Num;
+    maxProjectionsY = Num;
+  }
   void setMaxProjectionsX(bool Num) { maxProjectionsX = Num; }
   void setMaxProjectionsY(bool Num) { maxProjectionsY = Num; }
 
@@ -76,7 +78,7 @@ public:
   void setChi2Score(float Score) { chi2Score = Score; }
   void setLowScore(float Score) { lowScore = Score; }
   void setHighScore(float Score) { highScore = Score; }
-  void setResult(bool Result); // also sets display colors
+  void setResult(bool Result);  // also sets display colors
   void setIsEmpty(bool Toggle) { isEmpty = Toggle; }
 
   // Set Visual Attributes
@@ -90,14 +92,16 @@ public:
 
   // Misc Functions
   void drawResult(TH1 *Summary, bool Vertical = true, bool SetLabels = false);
-  void clear(){ newHisto->Clear(); refHisto->Clear(); };
+  void clear() {
+    newHisto->Clear();
+    refHisto->Clear();
+  };
   inline void dump();
 
 private:
-
   // Misc. Data
   std::string name;
-  //PlotType type;
+  // PlotType type;
   int type;
   int bin;
   TH1 *newHisto;
@@ -131,7 +135,6 @@ private:
 
   // Implementation Function
   void initialize();
-
 };
 
-#endif // HISTO_DATA__H
+#endif  // HISTO_DATA__H

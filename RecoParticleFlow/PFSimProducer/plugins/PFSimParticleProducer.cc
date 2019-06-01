@@ -45,7 +45,6 @@
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
-#include "FastSimulation/Particle/interface/ParticleTable.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
@@ -122,8 +121,7 @@ void PFSimParticleProducer::produce(Event& iEvent,
   iSetup.getData(pdt);
   mySimEvent->initializePdt(&(*pdt));
 
-  ParticleTable::Sentry ptable(mySimEvent->theTable());
-  LogDebug("PFSimParticleProducer")<<"START event: "<<iEvent.id().event()
+ LogDebug("PFSimParticleProducer")<<"START event: "<<iEvent.id().event()
 				   <<" in run "<<iEvent.id().run()<<endl;
  
   //MC Truth Matching only with Famos and UnFoldedMode option to true!!

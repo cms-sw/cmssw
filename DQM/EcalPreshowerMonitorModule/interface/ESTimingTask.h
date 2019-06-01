@@ -20,24 +20,21 @@ class MonitorElement;
 double fitf(double *x, double *par);
 
 class ESTimingTask : public DQMEDAnalyzer {
-
- public:
-  
-  ESTimingTask(const edm::ParameterSet& ps);
+public:
+  ESTimingTask(const edm::ParameterSet &ps);
   ~ESTimingTask() override;
-  
- private:
 
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void set(const edm::EventSetup& es);
+private:
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void set(const edm::EventSetup &es);
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<ESDigiCollection> digilabel_;
   std::string prefixME_;
-  
-  MonitorElement* hTiming_[2][2];
-  MonitorElement* h2DTiming_;
+
+  MonitorElement *hTiming_[2][2];
+  MonitorElement *h2DTiming_;
 
   edm::ESHandle<ESGain> esgain_;
 
@@ -45,9 +42,8 @@ class ESTimingTask : public DQMEDAnalyzer {
   TH1F *htESP_;
   TH1F *htESM_;
 
-  int runNum_, eCount_; 
+  int runNum_, eCount_;
   Double_t wc_, n_;
-  
 };
 
 #endif

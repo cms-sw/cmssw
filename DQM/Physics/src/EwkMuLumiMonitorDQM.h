@@ -25,33 +25,30 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 namespace trigger {
-class TriggerEvent;
+  class TriggerEvent;
 }
 namespace reco {
-class BeamSpot;
-class MET;
-}
+  class BeamSpot;
+  class MET;
+}  // namespace reco
 
 class DQMStore;
 class MonitorElement;
 class EwkMuLumiMonitorDQM : public DQMEDAnalyzer {
- public:
+public:
   EwkMuLumiMonitorDQM(const edm::ParameterSet&);
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   //Book histograms
-  void bookHistograms(DQMStore::IBooker &,
-    edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
 
   void init_histograms();
   double muIso(const reco::Muon&);
-  double tkIso(const reco::Track&, edm::Handle<reco::TrackCollection>,
-               edm::Handle<CaloTowerCollection>);
-  bool IsMuMatchedToHLTMu(const reco::Muon&, const std::vector<reco::Particle>&,
-                          double, double);
+  double tkIso(const reco::Track&, edm::Handle<reco::TrackCollection>, edm::Handle<CaloTowerCollection>);
+  bool IsMuMatchedToHLTMu(const reco::Muon&, const std::vector<reco::Particle>&, double, double);
 
- private:
+private:
   edm::InputTag trigTag_;
   edm::EDGetTokenT<edm::TriggerResults> trigToken_;
   edm::EDGetTokenT<trigger::TriggerEvent> trigEvToken_;

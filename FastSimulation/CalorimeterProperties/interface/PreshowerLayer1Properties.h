@@ -10,23 +10,18 @@
  *
  * \author Patrick Janot
  * \date: 25-Jan-2004
- */ 
+ */
 
-namespace edm { 
+namespace edm {
   class ParameterSet;
 }
 
-class PreshowerLayer1Properties : public PreshowerProperties 
-{
+class PreshowerLayer1Properties : public PreshowerProperties {
+public:
+  PreshowerLayer1Properties(const edm::ParameterSet& fastDet);
 
- public:
+  ~PreshowerLayer1Properties() override { ; }
 
-  PreshowerLayer1Properties(const edm::ParameterSet& fastDet); 
-
-  ~PreshowerLayer1Properties() override {
-    ;
-  }
-  
   /// Fraction of energy collected on sensitive detectors
   inline double sensitiveFraction() const override { return 0.0036; }
 
@@ -35,7 +30,7 @@ class PreshowerLayer1Properties : public PreshowerProperties
 
   /// Thickness in cm (Pretend it is all lead)
   /// Default : 1.02 cm at normal incidence
-  double thickness(double eta) const override ;
+  double thickness(double eta) const override;
 };
 
 #endif

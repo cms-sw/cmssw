@@ -21,4 +21,3 @@ REGISTER_PLUGIN(L1GtPrescaleFactorsTechTrigRcd, L1GtPrescaleFactors);
 #include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
 
 REGISTER_PLUGIN(L1GtStableParametersRcd, L1GtStableParameters);
-

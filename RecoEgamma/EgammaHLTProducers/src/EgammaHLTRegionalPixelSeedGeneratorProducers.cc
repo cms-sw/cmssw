@@ -40,47 +40,43 @@
 using namespace std;
 using namespace reco;
 
-EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGeneratorProducers(edm::ParameterSet const& conf)
-{
-
+EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGeneratorProducers(
+    edm::ParameterSet const& conf) {
   produces<TrajectorySeedCollection>();
 
-  ptmin_       = conf.getParameter<double>("ptMin");
-  vertexz_     = conf.getParameter<double>("vertexZ");
-  originradius_= conf.getParameter<double>("originRadius");
-  halflength_  = conf.getParameter<double>("originHalfLength");
-  deltaEta_    = conf.getParameter<double>("deltaEtaRegion");
-  deltaPhi_    = conf.getParameter<double>("deltaPhiRegion");
+  ptmin_ = conf.getParameter<double>("ptMin");
+  vertexz_ = conf.getParameter<double>("vertexZ");
+  originradius_ = conf.getParameter<double>("originRadius");
+  halflength_ = conf.getParameter<double>("originHalfLength");
+  deltaEta_ = conf.getParameter<double>("deltaEtaRegion");
+  deltaPhi_ = conf.getParameter<double>("deltaPhiRegion");
 
-  candTag_     = consumes<reco::RecoEcalCandidateCollection>(conf.getParameter< edm::InputTag > ("candTag"));
-  candTagEle_  = consumes<reco::ElectronCollection>(conf.getParameter< edm::InputTag > ("candTagEle"));
-  BSProducer_  = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("BSProducer"));
-  
-  useZvertex_  = conf.getParameter<bool>("UseZInVertex");
+  candTag_ = consumes<reco::RecoEcalCandidateCollection>(conf.getParameter<edm::InputTag>("candTag"));
+  candTagEle_ = consumes<reco::ElectronCollection>(conf.getParameter<edm::InputTag>("candTagEle"));
+  BSProducer_ = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("BSProducer"));
+
+  useZvertex_ = conf.getParameter<bool>("UseZInVertex");
 
   edm::ParameterSet hitsfactoryPSet = conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
 
-  // get orderd hits generator from factory
-  edm::ConsumesCollector iC = consumesCollector();
-  OrderedHitsGenerator*  hitsGenerator = OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC);
-
   // start seed generator
   edm::ParameterSet creatorPSet;
-  creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
+  creatorPSet.addParameter<std::string>("propagator", "PropagatorWithMaterial");
 
-  combinatorialSeedGenerator.reset(new SeedGeneratorFromRegionHits( hitsGenerator, nullptr,
-                                                                    SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
-                                                                    ));
+  edm::ConsumesCollector iC = consumesCollector();
+  combinatorialSeedGenerator = std::make_unique<SeedGeneratorFromRegionHits>(
+      std::unique_ptr<OrderedHitsGenerator>{
+          OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC)},
+      nullptr,
+      std::unique_ptr<SeedCreator>{SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)});
   // setup orderedhits setup (in order to tell seed generator to use pairs/triplets, which layers)
 }
 
 // Virtual destructor needed.
-EgammaHLTRegionalPixelSeedGeneratorProducers::~EgammaHLTRegionalPixelSeedGeneratorProducers() { 
-}  
+EgammaHLTRegionalPixelSeedGeneratorProducers::~EgammaHLTRegionalPixelSeedGeneratorProducers() {}
 
 void EgammaHLTRegionalPixelSeedGeneratorProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
   edm::ParameterSetDescription desc;
   desc.add<double>("ptMin", 1.5);
   desc.add<double>("vertexZ", 0);
@@ -99,62 +95,64 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::fillDescriptions(edm::Configu
   orderedHitsPSET.add<edm::InputTag>("SeedingLayers", edm::InputTag("PixelLayerPairs"));
   orderedHitsPSET.add<unsigned int>("maxElement", 0);
   desc.add<edm::ParameterSetDescription>("OrderedHitsFactoryPSet", orderedHitsPSET);
-  
-  descriptions.add(("hltEgammaHLTRegionalPixelSeedGeneratorProducers"), desc);  
+
+  descriptions.add(("hltEgammaHLTRegionalPixelSeedGeneratorProducers"), desc);
 }
 
 // Functions that gets called by framework every event
-void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
+void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // resulting collection
-  auto output = std::make_unique< TrajectorySeedCollection>();    
+  auto output = std::make_unique<TrajectorySeedCollection>();
 
   // Get the recoEcalCandidates
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcands;
-  iEvent.getByToken(candTag_,recoecalcands);
+  iEvent.getByToken(candTag_, recoecalcands);
 
   //Get the Beam Spot position
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByToken(BSProducer_,recoBeamSpotHandle);
+  iEvent.getByToken(BSProducer_, recoBeamSpotHandle);
   // gets its position
-  const BeamSpot::Point& BSPosition = recoBeamSpotHandle->position(); 
+  const BeamSpot::Point& BSPosition = recoBeamSpotHandle->position();
 
   //Get the HLT electrons collection if needed
   edm::Handle<reco::ElectronCollection> electronHandle;
-  if(useZvertex_)
-    iEvent.getByToken(candTagEle_,electronHandle);
+  if (useZvertex_)
+    iEvent.getByToken(candTagEle_, electronHandle);
 
   reco::SuperClusterRef scRef;
-  for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoecalcands->begin(); recoecalcand!=recoecalcands->end(); recoecalcand++) {
+  for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand = recoecalcands->begin();
+       recoecalcand != recoecalcands->end();
+       recoecalcand++) {
     scRef = recoecalcand->superCluster();
     float zvertex = 0;
-    if( useZvertex_ ){
+    if (useZvertex_) {
       reco::SuperClusterRef scRefEle;
-      for(reco::ElectronCollection::const_iterator iElectron = electronHandle->begin(); iElectron != electronHandle->end(); iElectron++){
-	//Compare electron SC with EcalCandidate SC
-	scRefEle = iElectron->superCluster();
-	if(&(*scRef) == &(*scRefEle)){
-	  if(iElectron->track().isNonnull()) zvertex = iElectron->track()->vz();
-	  else  zvertex = iElectron->gsfTrack()->vz();
-	  break;
-	}
+      for (reco::ElectronCollection::const_iterator iElectron = electronHandle->begin();
+           iElectron != electronHandle->end();
+           iElectron++) {
+        //Compare electron SC with EcalCandidate SC
+        scRefEle = iElectron->superCluster();
+        if (&(*scRef) == &(*scRefEle)) {
+          if (iElectron->track().isNonnull())
+            zvertex = iElectron->track()->vz();
+          else
+            zvertex = iElectron->gsfTrack()->vz();
+          break;
+        }
       }
-
     }
-    GlobalVector dirVector((recoecalcand)->px(),(recoecalcand)->py(),(recoecalcand)->pz());
-    RectangularEtaPhiTrackingRegion etaphiRegion( dirVector,
-											   GlobalPoint( BSPosition.x(), BSPosition.y(), zvertex ), 
-											   ptmin_,
-											   originradius_,
-											   halflength_,
-											   deltaEta_,
-											   deltaPhi_);
+    GlobalVector dirVector((recoecalcand)->px(), (recoecalcand)->py(), (recoecalcand)->pz());
+    RectangularEtaPhiTrackingRegion etaphiRegion(dirVector,
+                                                 GlobalPoint(BSPosition.x(), BSPosition.y(), zvertex),
+                                                 ptmin_,
+                                                 originradius_,
+                                                 halflength_,
+                                                 deltaEta_,
+                                                 deltaPhi_);
 
     // fill Trajectory seed collection
     combinatorialSeedGenerator->run(*output, etaphiRegion, iEvent, iSetup);
-    
   }
 
-    iEvent.put(std::move(output));
+  iEvent.put(std::move(output));
 }

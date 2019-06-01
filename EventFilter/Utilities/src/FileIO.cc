@@ -18,16 +18,14 @@
 
 using namespace jsoncollector;
 
-void FileIO::writeStringToFile(std::string const& filename, std::string& content)
-{
+void FileIO::writeStringToFile(std::string const& filename, std::string& content) {
   std::ofstream outputFile;
   outputFile.open(filename.c_str());
   outputFile << content;
   outputFile.close();
 }
 
-bool FileIO::readStringFromFile(std::string const& filename, std::string& content)
-{
+bool FileIO::readStringFromFile(std::string const& filename, std::string& content) {
   if (!fileExists(filename))
     return false;
 
@@ -40,9 +38,7 @@ bool FileIO::readStringFromFile(std::string const& filename, std::string& conten
   return true;
 }
 
-bool FileIO::fileExists(std::string const& path)
-{
+bool FileIO::fileExists(std::string const& path) {
   std::ifstream ifile(path.c_str());
   return !ifile.fail();
 }
-

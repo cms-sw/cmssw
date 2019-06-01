@@ -16,7 +16,7 @@ class DTCalibrationWorker(object):
         workflows. Additional workflow classes should use the naming scheme
         DT${WORKFLOWNAME}Workflow and implement a classmethod function add_parser_options.
     """
-    available_workflows = ["ttrig","vdrift"]
+    available_workflows = ["ttrig","vdrift","T0Wire"]
     def __init__(self, options):
         self.options = options
         if not self.has_crab3_env:

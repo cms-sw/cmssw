@@ -1,5 +1,5 @@
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
-#include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 MuonSubDetector::MuonSubDetector(const std::string& name) 
@@ -15,8 +15,8 @@ MuonSubDetector::MuonSubDetector(const std::string& name)
   } else if (name=="MuonME0Hits") {
     detector=me0;
   } else {
-    std::cout << "MuonSubDetector::MuonSubDetector does not recognize ";
-    std::cout << name <<std::endl;
+    edm::LogWarning("Geometry") 
+      << "MuonSubDetector::MuonSubDetector does not recognize " << name;
     detector=nodef;
   } 
 }

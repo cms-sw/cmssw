@@ -31,10 +31,14 @@ class CrabHelper(object):
         #submit crab job
         log.info("Submitting crab job")
         self.crab.submit(full_crab_config_filename)
-        log.info("crab job submitted. Waiting 30 seconds before first status call")
-        time.sleep( 30 )
+        log.info("crab job submitted. Waiting 120 seconds before first status call")
+        time.sleep( 120 )
+
         task = self.crabFunctions.CrabTask(crab_config = full_crab_config_filename)
         task.update()
+        if task.state =="UNKNOWN":
+            time.sleep( 30 )
+            task.update()
         success_states = ( 'QUEUED', 'SUBMITTED', "COMPLETED", "FINISHED")
         if task.state in success_states:
             log.info("Job in state %s" % task.state )
@@ -234,3 +238,7 @@ class CrabHelper(object):
             taskname+= self.options.workflow_mode + "_"
         taskname += "run_" + str(self.options.run) + "_v" + str(self.options.trial)
         return taskname
+
+## Exception for the VOMS proxy
+class ProxyError(Exception):
+    pass

@@ -11,7 +11,7 @@
  * \date March 2007
  *
  */
- 
+
 #include <vector>
 #include <fstream>
 #include <stdint.h>
@@ -21,21 +21,27 @@ class L1CaloRegion;
 
 class L1GctChannelMask;
 
-class gctTestEnergyAlgos
-{
+class gctTestEnergyAlgos {
 public:
-
   // structs and typedefs
-  struct etmiss_vec { unsigned mag; unsigned phi; };
+  struct etmiss_vec {
+    unsigned mag;
+    unsigned phi;
+  };
 
   // Constructor and destructor
   gctTestEnergyAlgos();
   ~gctTestEnergyAlgos();
 
   /// Load another event into the gct. Overloaded for the various ways of doing this.
-  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent, const int16_t bx);
-  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const std::string &fileName, bool &endOfFile, const int16_t bx);
-  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const std::vector<L1CaloRegion>& inputRegions, const int16_t bx);
+  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger*& gct, const bool simpleEvent, const int16_t bx);
+  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger*& gct,
+                                      const std::string& fileName,
+                                      bool& endOfFile,
+                                      const int16_t bx);
+  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger*& gct,
+                                      const std::vector<L1CaloRegion>& inputRegions,
+                                      const int16_t bx);
 
   /// Set array sizes for the number of bunch crossings
   void setBxRange(const int bxStart, const int numOfBx);
@@ -47,7 +53,6 @@ public:
   void configure(const L1GctChannelMask* mask) { m_chanMask = mask; }
 
 private:
-
   // FUNCTION PROTOTYPES FOR EVENT GENERATION
   /// Generates test data for missing Et as 2-vector (magnitude, direction)
   etmiss_vec randomMissingEtVector() const;
@@ -57,15 +62,14 @@ private:
   L1CaloRegion nextRegionFromFile(const unsigned ieta, const unsigned iphi, const int16_t bx);
 
   /// Sends input regions to the gct and remembers strip sums for checking
-  void loadInputRegions(L1GlobalCaloTrigger* &gct, const std::vector<L1CaloRegion>& inputRegions, const int16_t bx);
+  void loadInputRegions(L1GlobalCaloTrigger*& gct, const std::vector<L1CaloRegion>& inputRegions, const int16_t bx);
 
   //=========================================================================
 
   //
   // FUNCTION PROTOTYPES FOR ENERGY SUM CHECKING
   /// Integer calculation of Ex or Ey from magnitude for a given pair of phi bins
-  int etComponent(const unsigned Emag0, const unsigned fact0,
-                  const unsigned Emag1, const unsigned fact1) const;
+  int etComponent(const unsigned Emag0, const unsigned fact0, const unsigned Emag1, const unsigned fact1) const;
   /// Calculate et vector from ex and ey, using floating arithmetic and conversion back to integer
   etmiss_vec trueMissingEt(const int ex, const int ey) const;
   //=========================================================================
@@ -76,12 +80,11 @@ private:
   int m_bxStart;
   int m_numOfBx;
 
-  std::vector<unsigned> etStripSums; 
+  std::vector<unsigned> etStripSums;
   std::vector<bool> inMinusOvrFlow;
   std::vector<bool> inPlusOverFlow;
 
   std::ifstream regionEnergyMapInputFile;
-
 };
 
 #endif /*GCTTEST_H_*/

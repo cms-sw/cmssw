@@ -4,7 +4,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 
 /** \class HcalCoderDb
-    
+
     coder which uses DB services to convert to fC
     $Author: ratnikov
 */
@@ -14,7 +14,7 @@ class HcalQIEShape;
 
 class HcalCoderDb : public HcalCoder {
 public:
-  HcalCoderDb (const HcalQIECoder& fCoder, const HcalQIEShape& fShape);
+  HcalCoderDb(const HcalQIECoder& fCoder, const HcalQIEShape& fShape);
 
   //these need to be overloads instead of templates to avoid linking issues when calling private member function templates
   void adc2fC(const HBHEDataFrame& df, CaloSamples& lf) const override;
@@ -34,8 +34,10 @@ public:
   void fC2adc(const CaloSamples& clf, QIE11DataFrame& df, int fCapIdOffset) const override;
 
 private:
-  template <class Digi> void adc2fC_ (const Digi& df, CaloSamples& clf) const;
-  template <class Digi> void fC2adc_ (const CaloSamples& clf, Digi& df, int fCapIdOffset) const;
+  template <class Digi>
+  void adc2fC_(const Digi& df, CaloSamples& clf) const;
+  template <class Digi>
+  void fC2adc_(const CaloSamples& clf, Digi& df, int fCapIdOffset) const;
 
   const HcalQIECoder* mCoder;
   const HcalQIEShape* mShape;

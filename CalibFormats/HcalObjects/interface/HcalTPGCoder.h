@@ -10,7 +10,7 @@
 
 // forward declaration of EventSetup is all that is needed here
 namespace edm {
-  class EventSetup; 
+  class EventSetup;
 }
 
 /** \class HcalTPGCoder
@@ -30,9 +30,13 @@ public:
   virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const = 0;
   virtual void adc2Linear(const QIE10DataFrame& df, IntegerCaloSamples& ics) const = 0;
   virtual void adc2Linear(const QIE11DataFrame& df, IntegerCaloSamples& ics) const = 0;
-  virtual unsigned short adc2Linear(HcalQIESample sample,HcalDetId id) const = 0;
-  unsigned short adc2Linear(unsigned char adc, HcalDetId id) const { return adc2Linear(HcalQIESample(adc,0,0,0),id); }
-  virtual void compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const = 0;
+  virtual unsigned short adc2Linear(HcalQIESample sample, HcalDetId id) const = 0;
+  unsigned short adc2Linear(unsigned char adc, HcalDetId id) const {
+    return adc2Linear(HcalQIESample(adc, 0, 0, 0), id);
+  }
+  virtual void compress(const IntegerCaloSamples& ics,
+                        const std::vector<bool>& featureBits,
+                        HcalTriggerPrimitiveDigi& tp) const = 0;
   virtual float getLUTPedestal(HcalDetId id) const = 0;
   virtual float getLUTGain(HcalDetId id) const = 0;
   /** \brief Get the full linearization LUT (128 elements).

@@ -6,12 +6,13 @@
 namespace l1t {
   namespace stage1 {
     class RCTEmRegionUnpacker : public Unpacker {
-      public:
-        bool unpack(const Block& block, UnpackerCollections *coll) override;
-      private:
-        unsigned int counter_ = 0;
+    public:
+      bool unpack(const Block& block, UnpackerCollections* coll) override;
+
+    private:
+      unsigned int counter_ = 0;
     };
-  }
-}
+  }  // namespace stage1
+}  // namespace l1t
 
 #endif

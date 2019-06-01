@@ -15,44 +15,38 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "Geometry/RPCGeometryBuilder/src/RPCGeometryParsFromDD.h"
 
-class RPCRecoIdealDBLoader : public edm::one::EDAnalyzer<edm::one::WatchRuns>
-{
+class RPCRecoIdealDBLoader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  
-  RPCRecoIdealDBLoader( const edm::ParameterSet& ) {}
-  
+  RPCRecoIdealDBLoader(const edm::ParameterSet&) {}
+
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
 };
 
-void
-RPCRecoIdealDBLoader::beginRun( const edm::Run&, edm::EventSetup const& es) 
-{
+void RPCRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
   RecoIdealGeometry* rig = new RecoIdealGeometry;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
-  if( !mydbservice.isAvailable() ){
-    edm::LogError("RPCRecoIdealDBLoader")<<"PoolDBOutputService unavailable";
+  if (!mydbservice.isAvailable()) {
+    edm::LogError("RPCRecoIdealDBLoader") << "PoolDBOutputService unavailable";
     return;
   }
 
   edm::ESTransientHandle<DDCompactView> pDD;
   edm::ESHandle<MuonDDDConstants> pMNDC;
-  es.get<IdealGeometryRecord>().get( pDD );
-  es.get<MuonNumberingRecord>().get( pMNDC );
+  es.get<IdealGeometryRecord>().get(pDD);
+  es.get<MuonNumberingRecord>().get(pMNDC);
 
   const DDCompactView& cpv = *pDD;
   RPCGeometryParsFromDD rpcpd;
 
-  rpcpd.build( &cpv, *pMNDC, *rig );
+  rpcpd.build(&cpv, *pMNDC, *rig);
 
-  if ( mydbservice->isNewTagRequest("RPCRecoGeometryRcd") ) {
-    mydbservice->createNewIOV<RecoIdealGeometry>(rig
-                                                 , mydbservice->beginOfTime()
-                                                 , mydbservice->endOfTime()
-                                                 , "RPCRecoGeometryRcd");
+  if (mydbservice->isNewTagRequest("RPCRecoGeometryRcd")) {
+    mydbservice->createNewIOV<RecoIdealGeometry>(
+        rig, mydbservice->beginOfTime(), mydbservice->endOfTime(), "RPCRecoGeometryRcd");
   } else {
-    edm::LogError("RPCRecoIdealDBLoader")<<"RPCRecoGeometryRcd Tag is already present.";
+    edm::LogError("RPCRecoIdealDBLoader") << "RPCRecoGeometryRcd Tag is already present.";
   }
 }
 

@@ -12,10 +12,12 @@ pfRecoTauDiscriminationAgainstMuonMVA = cms.EDProducer("PFRecoTauDiscriminationA
     #  2) a track OR a pi-zero in the signal cone has pT > 5 GeV
     Prediscriminants = requireLeadTrack,
     loadMVAfromDB = cms.bool(True),
+    inputFileName = cms.FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"), # the filename for MVA if it is not loaded from DB
     mvaName = cms.string("againstMuonMVA"),
     returnMVA = cms.bool(True),
     mvaMin = cms.double(0.0),
 
     srcMuons = cms.InputTag('muons'),
     dRmuonMatch = cms.double(0.3),
+    verbosity = cms.int32(0),
 )

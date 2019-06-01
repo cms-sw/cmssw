@@ -13,5 +13,5 @@ namespace cms {
 
   void Adler32(char const* data, size_t len, uint32_t& a, uint32_t& b);
   uint32_t Adler32(char const* data, size_t len);
-}
+}  // namespace cms
 #endif

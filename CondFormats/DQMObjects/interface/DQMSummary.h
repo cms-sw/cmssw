@@ -17,7 +17,7 @@
 */
 
 class DQMSummary {
- public:
+public:
   long long m_run;
   struct RunItem {
     long long m_lumisec;
@@ -26,33 +26,30 @@ class DQMSummary {
       std::string m_reportcontent;
       std::string m_type;
       double m_status;
-    
-    COND_SERIALIZABLE;
-};
+
+      COND_SERIALIZABLE;
+    };
     std::vector<LumiItem> m_lumisummary;
-  
-  COND_SERIALIZABLE;
-};
-  DQMSummary(){}
-  virtual ~DQMSummary(){}
+
+    COND_SERIALIZABLE;
+  };
+  DQMSummary() {}
+  virtual ~DQMSummary() {}
   std::vector<RunItem> m_summary;
   void printAllValues() const {
     std::cout << "run number = " << m_run << std::endl;
     std::vector<RunItem>::const_iterator runIt;
-    for(runIt = m_summary.begin(); runIt != m_summary.end(); ++runIt) {
+    for (runIt = m_summary.begin(); runIt != m_summary.end(); ++runIt) {
       std::cout << "--- lumisection = " << runIt->m_lumisec << std::endl;
       std::vector<RunItem::LumiItem>::const_iterator lumiIt;
-      for(lumiIt = runIt->m_lumisummary.begin(); lumiIt != runIt->m_lumisummary.end(); ++lumiIt) {
-	std::cout << "------ subsystem: " << lumiIt->m_subsystem 
-		  << ", report content: " << lumiIt->m_reportcontent
-		  << ", type: " << lumiIt->m_type
-		  << ", status = " << lumiIt->m_status
-		  << std::endl;
+      for (lumiIt = runIt->m_lumisummary.begin(); lumiIt != runIt->m_lumisummary.end(); ++lumiIt) {
+        std::cout << "------ subsystem: " << lumiIt->m_subsystem << ", report content: " << lumiIt->m_reportcontent
+                  << ", type: " << lumiIt->m_type << ", status = " << lumiIt->m_status << std::endl;
       }
     }
   }
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

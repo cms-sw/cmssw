@@ -22,35 +22,35 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
-
 
 //
 // class declaration
 //
 
 class HLTPFEnergyFractionsFilter : public HLTFilter {
+public:
+  explicit HLTPFEnergyFractionsFilter(const edm::ParameterSet&);
+  ~HLTPFEnergyFractionsFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
-   public:
-      explicit HLTPFEnergyFractionsFilter(const edm::ParameterSet&);
-      ~HLTPFEnergyFractionsFilter() override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-
-   private:
-      edm::EDGetTokenT<reco::PFJetCollection> m_thePFJetToken;
-      edm::InputTag inputPFJetTag_;   // input tag identifying pfjets
-      unsigned int nJet_;           // No. of jet to check with this filter 
-      double min_CEEF_;
-      double max_CEEF_;
-      double min_NEEF_;
-      double max_NEEF_;
-      double min_CHEF_;
-      double max_CHEF_;
-      double min_NHEF_;
-      double max_NHEF_;
-      int triggerType_;
+private:
+  edm::EDGetTokenT<reco::PFJetCollection> m_thePFJetToken;
+  edm::InputTag inputPFJetTag_;  // input tag identifying pfjets
+  unsigned int nJet_;            // No. of jet to check with this filter
+  double min_CEEF_;
+  double max_CEEF_;
+  double min_NEEF_;
+  double max_NEEF_;
+  double min_CHEF_;
+  double max_CHEF_;
+  double min_NHEF_;
+  double max_NHEF_;
+  int triggerType_;
 };
 
-#endif //HLTPFEnergyFractionsFilter_h
+#endif  //HLTPFEnergyFractionsFilter_h

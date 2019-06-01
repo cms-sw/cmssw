@@ -85,18 +85,15 @@ static StorageAccount::Counter *s_statsWrite = nullptr;
 static StorageAccount::Counter *s_statsCWrite = nullptr;
 static StorageAccount::Counter *s_statsXWrite = nullptr;
 
-
-static inline StorageAccount::Counter &
-storageCounter(StorageAccount::Counter *&c, StorageAccount::Operation operation)
-{
+static inline StorageAccount::Counter &storageCounter(StorageAccount::Counter *&c,
+                                                      StorageAccount::Operation operation) {
   static const auto token = StorageAccount::tokenForStorageClassName("tstoragefile");
-  if (! c) c = &StorageAccount::counter(token, operation);
+  if (!c)
+    c = &StorageAccount::counter(token, operation);
   return *c;
 }
 
-TStorageFactoryFile::TStorageFactoryFile(void)
-  : storage_()
-{
+TStorageFactoryFile::TStorageFactoryFile(void) : storage_() {
   StorageAccount::Stamp stats(storageCounter(s_statsCtor, StorageAccount::Operation::construct));
   stats.tick(0);
 }
@@ -111,13 +108,12 @@ TStorageFactoryFile::TStorageFactoryFile(const char *path,
                                          Int_t compress,
                                          Int_t netopt,
                                          Bool_t parallelopen /* = kFALSE */)
-  : TFile(path, "NET", ftitle, compress), // Pass "NET" to prevent local access in base class
-    storage_()
-{
+    : TFile(path, "NET", ftitle, compress),  // Pass "NET" to prevent local access in base class
+      storage_() {
   try {
     Initialize(path, option);
   } catch (...) {
-    edm::threadLocalException::setException(std::current_exception()); // capture
+    edm::threadLocalException::setException(std::current_exception());  // capture
   }
 }
 
@@ -125,20 +121,16 @@ TStorageFactoryFile::TStorageFactoryFile(const char *path,
                                          Option_t *option /* = "" */,
                                          const char *ftitle /* = "" */,
                                          Int_t compress /* = 1 */)
-  : TFile(path, "NET", ftitle, compress), // Pass "NET" to prevent local access in base class
-    storage_()
-{
+    : TFile(path, "NET", ftitle, compress),  // Pass "NET" to prevent local access in base class
+      storage_() {
   try {
     Initialize(path, option);
   } catch (...) {
-    edm::threadLocalException::setException(std::current_exception()); // capture
+    edm::threadLocalException::setException(std::current_exception());  // capture
   }
 }
 
-void
-TStorageFactoryFile::Initialize(const char *path,
-                                Option_t *option /* = "" */)
-{
+void TStorageFactoryFile::Initialize(const char *path, Option_t *option /* = "" */) {
   StorageAccount::Stamp stats(storageCounter(s_statsCtor, StorageAccount::Operation::construct));
 
   // Enable AsyncReading.
@@ -155,50 +147,48 @@ TStorageFactoryFile::Initialize(const char *path,
   if (fOption == "NEW")
     fOption = "CREATE";
 
-  Bool_t create   = (fOption == "CREATE");
+  Bool_t create = (fOption == "CREATE");
   Bool_t recreate = (fOption == "RECREATE");
-  Bool_t update   = (fOption == "UPDATE");
-  Bool_t read     = (fOption == "READ") || (fOption == "READWRAP");
+  Bool_t update = (fOption == "UPDATE");
+  Bool_t read = (fOption == "READ") || (fOption == "READWRAP");
   Bool_t readwrap = (fOption == "READWRAP");
 
-  if (!create && !recreate && !update && !read)
-  {
+  if (!create && !recreate && !update && !read) {
     read = true;
     fOption = "READ";
   }
 
-  if (recreate)
-  {
+  if (recreate) {
     if (!gSystem->AccessPathName(path, kFileExists))
       gSystem->Unlink(path);
 
     recreate = false;
-    create   = true;
-    fOption  = "CREATE";
+    create = true;
+    fOption = "CREATE";
   }
   assert(!recreate);
 
-  if (update && gSystem->AccessPathName(path, kFileExists))
-  {
+  if (update && gSystem->AccessPathName(path, kFileExists)) {
     update = kFALSE;
     create = kTRUE;
   }
 
   assert(read || update || create);
 
-  int           openFlags = IOFlags::OpenRead;
-  if (!read)    openFlags |= IOFlags::OpenWrite;
-  if (create)   openFlags |= IOFlags::OpenCreate;
+  int openFlags = IOFlags::OpenRead;
+  if (!read)
+    openFlags |= IOFlags::OpenWrite;
+  if (create)
+    openFlags |= IOFlags::OpenCreate;
   //if (recreate) openFlags |= IOFlags::OpenCreate | IOFlags::OpenTruncate;
-  if (readwrap) openFlags |= IOFlags::OpenWrap;
+  if (readwrap)
+    openFlags |= IOFlags::OpenWrap;
 
   // Open storage
-  if (! (storage_ = StorageFactory::get()->open(path, openFlags)))
-  {
-     MakeZombie();
-     gDirectory = gROOT;
-     throw cms::Exception("TStorageFactoryFile::TStorageFactoryFile()")
-       << "Cannot open file '" << path << "'";
+  if (!(storage_ = StorageFactory::get()->open(path, openFlags))) {
+    MakeZombie();
+    gDirectory = gROOT;
+    throw cms::Exception("TStorageFactoryFile::TStorageFactoryFile()") << "Cannot open file '" << path << "'";
   }
 
   // Record the statistics.
@@ -207,14 +197,14 @@ TStorageFactoryFile::Initialize(const char *path,
     if (statsService.isAvailable()) {
       statsService->setSize(storage_->size());
     }
-  } catch (edm::Exception const& e) {
+  } catch (edm::Exception const &e) {
     if (e.categoryCode() != edm::errors::NotFound) {
       throw;
     }
   }
 
   fRealName = path;
-  fD = 0; // sorry, meaningless
+  fD = 0;  // sorry, meaningless
   fWritable = read ? kFALSE : kTRUE;
 
   Init(create);
@@ -222,36 +212,27 @@ TStorageFactoryFile::Initialize(const char *path,
   stats.tick(0);
 }
 
-TStorageFactoryFile::~TStorageFactoryFile(void)
-{
-  Close();
-}
+TStorageFactoryFile::~TStorageFactoryFile(void) { Close(); }
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-Bool_t
-TStorageFactoryFile::ReadBuffer(char *buf, Long64_t pos, Int_t len)
-{
+Bool_t TStorageFactoryFile::ReadBuffer(char *buf, Long64_t pos, Int_t len) {
   // This function needs to be optimized to minimize seeks.
   // See TFile::ReadBuffer(char *buf, Long64_t pos, Int_t len) in ROOT 5.27.06.
   Seek(pos);
   return ReadBuffer(buf, len);
 }
 
-Bool_t
-TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
-{
+Bool_t TStorageFactoryFile::ReadBuffer(char *buf, Int_t len) {
   // Check that it's valid to access this file.
-  if (IsZombie())
-  {
+  if (IsZombie()) {
     Error("ReadBuffer", "Cannot read from a zombie file");
     return kTRUE;
   }
 
-  if (! IsOpen())
-  {
+  if (!IsOpen()) {
     Error("ReadBuffer", "Cannot read from a file that is not open");
     return kTRUE;
   }
@@ -269,19 +250,22 @@ TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
   // If we have a cache, read from there first.  This returns 0
   // if the block hasn't been prefetched, 1 if it was in cache,
   // and 2 if there was an error.
-  if (TFileCacheRead *c = GetCacheRead())
-  {
+  if (TFileCacheRead *c = GetCacheRead()) {
     Long64_t here = GetRelOffset();
-    Bool_t   async = c->IsAsyncReading();
+    Bool_t async = c->IsAsyncReading();
 
     StorageAccount::Stamp cstats(async
-                                 ? storageCounter(s_statsCPrefetch, StorageAccount::Operation::readPrefetchToCache)
-                                 : storageCounter(s_statsCRead, StorageAccount::Operation::readViaCache));
+                                     ? storageCounter(s_statsCPrefetch, StorageAccount::Operation::readPrefetchToCache)
+                                     : storageCounter(s_statsCRead, StorageAccount::Operation::readViaCache));
 
     Int_t st = ReadBufferViaCache(async ? nullptr : buf, len);
 
     if (st == 2) {
-      Error("ReadBuffer","ReadBufferViaCache failed. Asked to read nBytes: %d from offset: %lld with file size: %lld",len, here, GetSize());
+      Error("ReadBuffer",
+            "ReadBufferViaCache failed. Asked to read nBytes: %d from offset: %lld with file size: %lld",
+            len,
+            here,
+            GetSize());
       return kTRUE;
     }
 
@@ -305,24 +289,25 @@ TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
   IOSize n = storage_->xread(buf, len);
   xstats.tick(n);
   stats.tick(n);
-  if(n < static_cast<IOSize>(len)) {
-    Error("ReadBuffer", "read from Storage::xread returned %ld. Asked to read n bytes: %d from offset: %lld with file size: %lld",n, len, GetRelOffset(), GetSize());
+  if (n < static_cast<IOSize>(len)) {
+    Error("ReadBuffer",
+          "read from Storage::xread returned %ld. Asked to read n bytes: %d from offset: %lld with file size: %lld",
+          n,
+          len,
+          GetRelOffset(),
+          GetSize());
   }
   return n ? kFALSE : kTRUE;
 }
 
-Bool_t
-TStorageFactoryFile::ReadBufferAsync(Long64_t off, Int_t len)
-{
+Bool_t TStorageFactoryFile::ReadBufferAsync(Long64_t off, Int_t len) {
   // Check that it's valid to access this file.
-  if (IsZombie())
-  {
+  if (IsZombie()) {
     Error("ReadBufferAsync", "Cannot read from a zombie file");
     return kTRUE;
   }
 
-  if (! IsOpen())
-  {
+  if (!IsOpen()) {
     Error("ReadBufferAsync", "Cannot read from a file that is not open");
     return kTRUE;
   }
@@ -349,9 +334,8 @@ TStorageFactoryFile::ReadBufferAsync(Long64_t off, Int_t len)
     ;
   }
 
-  IOPosBuffer iov(off, (void *) nullptr, len ? len : PREFETCH_PROBE_LENGTH);
-  if (storage_->prefetch(&iov, 1))
-  {
+  IOPosBuffer iov(off, (void *)nullptr, len ? len : PREFETCH_PROBE_LENGTH);
+  if (storage_->prefetch(&iov, 1)) {
     stats.tick(len);
     return kFALSE;
   }
@@ -365,9 +349,7 @@ TStorageFactoryFile::ReadBufferAsync(Long64_t off, Int_t len)
   return kTRUE;
 }
 
-Bool_t
-TStorageFactoryFile::ReadBuffersSync(char *buf, Long64_t *pos, Int_t *len, Int_t nbuf)
-{
+Bool_t TStorageFactoryFile::ReadBuffersSync(char *buf, Long64_t *pos, Int_t *len, Int_t nbuf) {
   /** Most storage systems are not prepared for the onslaught of small reads
    *  that ROOT will perform, even if they implement a vectored read interface.
    *
@@ -388,23 +370,24 @@ TStorageFactoryFile::ReadBuffersSync(char *buf, Long64_t *pos, Int_t *len, Int_t
    *  I/O transactions.  A clear win for all cases except high-latency WAN.
    */
 
-  Int_t remaining = nbuf; // Number of read requests left to process.
-  Int_t pack_count; // Number of read requests processed by this iteration.
+  Int_t remaining = nbuf;  // Number of read requests left to process.
+  Int_t pack_count;        // Number of read requests processed by this iteration.
 
-  IOSize remaining_buffer_size=0;
+  IOSize remaining_buffer_size = 0;
   // Calculate the remaining buffer size for the ROOT-owned buffer by adding
   // the size of the various requests.
-  for (Int_t i=0; i<nbuf; i++) remaining_buffer_size+=len[i];
+  for (Int_t i = 0; i < nbuf; i++)
+    remaining_buffer_size += len[i];
 
-  char     *current_buffer = buf;
-  Long64_t *current_pos    = pos;
-  Int_t    *current_len    = len;
+  char *current_buffer = buf;
+  Long64_t *current_pos = pos;
+  Int_t *current_len = len;
 
   ReadRepacker repacker;
 
   while (remaining > 0) {
-
-    pack_count = repacker.pack(static_cast<long long int *>(current_pos), current_len, remaining, current_buffer, remaining_buffer_size);
+    pack_count = repacker.pack(
+        static_cast<long long int *>(current_pos), current_len, remaining, current_buffer, remaining_buffer_size);
 
     int real_bytes_processed = repacker.realBytesProcessed();
     IOSize io_buffer_used = repacker.bufferUsed();
@@ -414,7 +397,8 @@ TStorageFactoryFile::ReadBuffersSync(char *buf, Long64_t *pos, Int_t *len, Int_t
     std::vector<IOPosBuffer> &iov = repacker.iov();
     IOSize result = storage_->readv(&iov[0], iov.size());
     if (result != io_buffer_used) {
-      Error("ReadBuffersSync","Storage::readv returned different size result=%ld expected=%ld",result,io_buffer_used);
+      Error(
+          "ReadBuffersSync", "Storage::readv returned different size result=%ld expected=%ld", result, io_buffer_used);
       return kTRUE;
     }
     xstats.tick(io_buffer_used);
@@ -426,45 +410,38 @@ TStorageFactoryFile::ReadBuffersSync(char *buf, Long64_t *pos, Int_t *len, Int_t
 
     current_pos += pack_count;
     current_len += pack_count;
-    remaining   -= pack_count;
-
+    remaining -= pack_count;
   }
   assert(remaining_buffer_size == 0);
   return kFALSE;
 }
 
-Bool_t
-TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbuf)
-{
+Bool_t TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbuf) {
   // Check that it's valid to access this file.
-  if (IsZombie())
-  {
+  if (IsZombie()) {
     Error("ReadBuffers", "Cannot read from a zombie file");
     return kTRUE;
   }
 
-  if (! IsOpen())
-  {
+  if (!IsOpen()) {
     Error("ReadBuffers", "Cannot read from a file that is not open");
     return kTRUE;
   }
 
   // For synchronous reads, we have special logic to optimize the I/O requests
   // from ROOT before handing it to the storage.
-  if (buf)
-  {
+  if (buf) {
     return ReadBuffersSync(buf, pos, len, nbuf);
   }
   // For an async read, we assume the storage system is smart enough to do the
   // optimization itself.
 
   // Read from underlying storage.
-  void* const nobuf = nullptr;
+  void *const nobuf = nullptr;
   Int_t total = 0;
   std::vector<IOPosBuffer> iov;
   iov.reserve(nbuf);
-  for (Int_t i = 0; i < nbuf; ++i)
-  {
+  for (Int_t i = 0; i < nbuf; ++i) {
     iov.push_back(IOPosBuffer(pos[i], nobuf, len[i]));
     total += len[i];
   }
@@ -478,8 +455,8 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
   astats.tick(total);
 
   // If it didn't suceeed, pass down to the base class.
-  if(not success) {
-    if(TFile::ReadBuffers(buf, pos, len, nbuf)) {
+  if (not success) {
+    if (TFile::ReadBuffers(buf, pos, len, nbuf)) {
       Error("ReadBuffers", "call to TFile::ReadBuffers failed after prefetch already failed.");
       return kTRUE;
     }
@@ -487,24 +464,19 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
   return kFALSE;
 }
 
-Bool_t
-TStorageFactoryFile::WriteBuffer(const char *buf, Int_t len)
-{
+Bool_t TStorageFactoryFile::WriteBuffer(const char *buf, Int_t len) {
   // Check that it's valid to access this file.
-  if (IsZombie())
-  {
+  if (IsZombie()) {
     Error("WriteBuffer", "Cannot write to a zombie file");
     return kTRUE;
   }
 
-  if (! IsOpen())
-  {
+  if (!IsOpen()) {
     Error("WriteBuffer", "Cannot write to a file that is not open");
     return kTRUE;
   }
 
-  if (! fWritable)
-  {
+  if (!fWritable) {
     Error("WriteBuffer", "File is not writable");
     return kTRUE;
   }
@@ -514,29 +486,28 @@ TStorageFactoryFile::WriteBuffer(const char *buf, Int_t len)
 
   // Try first writing via a cache, and if that's not possible, directly.
   Int_t st;
-  switch ((st = WriteBufferViaCache(buf, len)))
-  {
-  case 0:
-    // Actual write.
-    {
-      StorageAccount::Stamp xstats(storageCounter(s_statsXWrite, StorageAccount::Operation::writeActual));
-      IOSize n = storage_->xwrite(buf, len);
-      xstats.tick(n);
-      stats.tick(n);
+  switch ((st = WriteBufferViaCache(buf, len))) {
+    case 0:
+      // Actual write.
+      {
+        StorageAccount::Stamp xstats(storageCounter(s_statsXWrite, StorageAccount::Operation::writeActual));
+        IOSize n = storage_->xwrite(buf, len);
+        xstats.tick(n);
+        stats.tick(n);
 
-      // FIXME: What if it's a short write?
-      return n > 0 ? kFALSE : kTRUE;
-    }
+        // FIXME: What if it's a short write?
+        return n > 0 ? kFALSE : kTRUE;
+      }
 
-  case 1:
-    cstats.tick(len);
-    stats.tick(len);
-    return kFALSE;
+    case 1:
+      cstats.tick(len);
+      stats.tick(len);
+      return kFALSE;
 
-  case 2:
-  default:
-    Error("WriteBuffer", "Error writing to cache");
-    return kTRUE;
+    case 2:
+    default:
+      Error("WriteBuffer", "Error writing to cache");
+      return kTRUE;
   }
 }
 
@@ -550,44 +521,43 @@ TStorageFactoryFile::WriteBuffer(const char *buf, Int_t len)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
-Int_t
-TStorageFactoryFile::SysOpen(const char *pathname, Int_t flags, UInt_t /* mode */)
-{
+Int_t TStorageFactoryFile::SysOpen(const char *pathname, Int_t flags, UInt_t /* mode */) {
   StorageAccount::Stamp stats(storageCounter(s_statsOpen, StorageAccount::Operation::open));
 
-  if (storage_)
-  {
+  if (storage_) {
     storage_->close();
   }
 
-  int                      openFlags = IOFlags::OpenRead;
-  if (flags & O_WRONLY)    openFlags = IOFlags::OpenWrite;
-  else if (flags & O_RDWR) openFlags |= IOFlags::OpenWrite;
-  if (flags & O_CREAT)     openFlags |= IOFlags::OpenCreate;
-  if (flags & O_APPEND)    openFlags |= IOFlags::OpenAppend;
-  if (flags & O_EXCL)      openFlags |= IOFlags::OpenExclusive;
-  if (flags & O_TRUNC)     openFlags |= IOFlags::OpenTruncate;
-  if (flags & O_NONBLOCK)  openFlags |= IOFlags::OpenNonBlock;
+  int openFlags = IOFlags::OpenRead;
+  if (flags & O_WRONLY)
+    openFlags = IOFlags::OpenWrite;
+  else if (flags & O_RDWR)
+    openFlags |= IOFlags::OpenWrite;
+  if (flags & O_CREAT)
+    openFlags |= IOFlags::OpenCreate;
+  if (flags & O_APPEND)
+    openFlags |= IOFlags::OpenAppend;
+  if (flags & O_EXCL)
+    openFlags |= IOFlags::OpenExclusive;
+  if (flags & O_TRUNC)
+    openFlags |= IOFlags::OpenTruncate;
+  if (flags & O_NONBLOCK)
+    openFlags |= IOFlags::OpenNonBlock;
 
-  if (! (storage_ = StorageFactory::get()->open(pathname, openFlags)))
-  {
-     MakeZombie();
-     gDirectory = gROOT;
-     throw cms::Exception("TStorageFactoryFile::SysOpen()")
-       << "Cannot open file '" << pathname << "'";
+  if (!(storage_ = StorageFactory::get()->open(pathname, openFlags))) {
+    MakeZombie();
+    gDirectory = gROOT;
+    throw cms::Exception("TStorageFactoryFile::SysOpen()") << "Cannot open file '" << pathname << "'";
   }
 
   stats.tick();
   return 0;
 }
 
-Int_t
-TStorageFactoryFile::SysClose(Int_t /* fd */)
-{
+Int_t TStorageFactoryFile::SysClose(Int_t /* fd */) {
   StorageAccount::Stamp stats(storageCounter(s_statsClose, StorageAccount::Operation::close));
 
-  if (storage_)
-  {
+  if (storage_) {
     storage_->close();
     releaseStorage();
   }
@@ -596,32 +566,23 @@ TStorageFactoryFile::SysClose(Int_t /* fd */)
   return 0;
 }
 
-Long64_t
-TStorageFactoryFile::SysSeek(Int_t /* fd */, Long64_t offset, Int_t whence)
-{
+Long64_t TStorageFactoryFile::SysSeek(Int_t /* fd */, Long64_t offset, Int_t whence) {
   StorageAccount::Stamp stats(storageCounter(s_statsSeek, StorageAccount::Operation::seek));
-  Storage::Relative rel = (whence == SEEK_SET ? Storage::SET
-                               : whence == SEEK_CUR ? Storage::CURRENT
-                               : Storage::END);
+  Storage::Relative rel = (whence == SEEK_SET ? Storage::SET : whence == SEEK_CUR ? Storage::CURRENT : Storage::END);
 
   offset = storage_->position(offset, rel);
   stats.tick();
   return offset;
 }
 
-Int_t
-TStorageFactoryFile::SysSync(Int_t /* fd */)
-{
+Int_t TStorageFactoryFile::SysSync(Int_t /* fd */) {
   StorageAccount::Stamp stats(storageCounter(s_statsFlush, StorageAccount::Operation::flush));
   storage_->flush();
   stats.tick();
   return 0;
 }
 
-Int_t
-TStorageFactoryFile::SysStat(Int_t /* fd */, Long_t *id, Long64_t *size,
-                             Long_t *flags, Long_t *modtime)
-{
+Int_t TStorageFactoryFile::SysStat(Int_t /* fd */, Long_t *id, Long64_t *size, Long_t *flags, Long_t *modtime) {
   StorageAccount::Stamp stats(storageCounter(s_statsStat, StorageAccount::Operation::stat));
   // FIXME: Most of this is unsupported or makes no sense with Storage
   *id = ::Hash(fRealName);
@@ -632,8 +593,4 @@ TStorageFactoryFile::SysStat(Int_t /* fd */, Long_t *id, Long64_t *size,
   return 0;
 }
 
-void
-TStorageFactoryFile::ResetErrno(void) const
-{
-  TSystem::ResetErrno();
-}
+void TStorageFactoryFile::ResetErrno(void) const { TSystem::ResetErrno(); }

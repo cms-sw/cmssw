@@ -1,7 +1,6 @@
 #ifndef DQMOFFLINE_TRIGGER_NOBPTXMONITOR_H
 #define DQMOFFLINE_TRIGGER_NOBPTXMONITOR_H
 
-
 #include <string>
 #include <vector>
 #include <map>
@@ -34,19 +33,17 @@
 
 class GenericTriggerEventFlag;
 
-
 //
 // class declaration
 //
 
-class NoBPTXMonitor : public DQMEDAnalyzer 
-{
+class NoBPTXMonitor : public DQMEDAnalyzer {
 public:
-  NoBPTXMonitor( const edm::ParameterSet& );
+  NoBPTXMonitor(const edm::ParameterSet&);
   ~NoBPTXMonitor() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
-  static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillHistoPSetDescription(edm::ParameterSetDescription& pset);
+  static void fillHistoLSPSetDescription(edm::ParameterSetDescription& pset);
 
   struct NoBPTXME {
     MonitorElement* numerator;
@@ -54,43 +51,75 @@ public:
   };
 
 protected:
-
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void bookNoBPTX(DQMStore::IBooker &, NoBPTXME& me, const std::string& histname, const std::string& histtitle, int nbins, double xmin, double xmax);
-  void bookNoBPTX(DQMStore::IBooker &, NoBPTXME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX);
-  void bookNoBPTX(DQMStore::IBooker &, NoBPTXME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax, bool bookDen);
-  void bookNoBPTX(DQMStore::IBooker &, NoBPTXME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax);
-  void bookNoBPTX(DQMStore::IBooker &, NoBPTXME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX, const std::vector<double>& binningY);
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void bookNoBPTX(DQMStore::IBooker&,
+                  NoBPTXME& me,
+                  const std::string& histname,
+                  const std::string& histtitle,
+                  int nbins,
+                  double xmin,
+                  double xmax);
+  void bookNoBPTX(DQMStore::IBooker&,
+                  NoBPTXME& me,
+                  const std::string& histname,
+                  const std::string& histtitle,
+                  const std::vector<double>& binningX);
+  void bookNoBPTX(DQMStore::IBooker&,
+                  NoBPTXME& me,
+                  const std::string& histname,
+                  const std::string& histtitle,
+                  int nbinsX,
+                  double xmin,
+                  double xmax,
+                  double ymin,
+                  double ymax,
+                  bool bookDen);
+  void bookNoBPTX(DQMStore::IBooker&,
+                  NoBPTXME& me,
+                  const std::string& histname,
+                  const std::string& histtitle,
+                  int nbinsX,
+                  double xmin,
+                  double xmax,
+                  int nbinsY,
+                  double ymin,
+                  double ymax);
+  void bookNoBPTX(DQMStore::IBooker&,
+                  NoBPTXME& me,
+                  const std::string& histname,
+                  const std::string& histtitle,
+                  const std::vector<double>& binningX,
+                  const std::vector<double>& binningY);
   void setNoBPTXTitle(NoBPTXME& me, const std::string& titleX, const std::string& titleY, bool bookDen);
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
-private:  
+private:
   struct NoBPTXbinning {
     unsigned int nbins;
     double xmin;
     double xmax;
   };
 
-  static NoBPTXbinning getHistoPSet    (const edm::ParameterSet & pset);
-  static NoBPTXbinning getHistoLSPSet  (const edm::ParameterSet & pset);
+  static NoBPTXbinning getHistoPSet(const edm::ParameterSet& pset);
+  static NoBPTXbinning getHistoLSPSet(const edm::ParameterSet& pset);
 
   std::string folderName_;
   std::string histoSuffix_;
 
-  edm::EDGetTokenT<reco::CaloJetCollection>       jetToken_;
-  edm::EDGetTokenT<reco::TrackCollection>        muonToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection> jetToken_;
+  edm::EDGetTokenT<reco::TrackCollection> muonToken_;
 
   std::vector<double> jetE_variable_binning_;
-  NoBPTXbinning           jetE_binning_;
-  NoBPTXbinning           jetEta_binning_;
-  NoBPTXbinning           jetPhi_binning_;
+  NoBPTXbinning jetE_binning_;
+  NoBPTXbinning jetEta_binning_;
+  NoBPTXbinning jetPhi_binning_;
   std::vector<double> muonPt_variable_binning_;
-  NoBPTXbinning           muonPt_binning_;
-  NoBPTXbinning           muonEta_binning_;
-  NoBPTXbinning           muonPhi_binning_;
-  NoBPTXbinning           ls_binning_;
-  NoBPTXbinning           bx_binning_;
+  NoBPTXbinning muonPt_binning_;
+  NoBPTXbinning muonEta_binning_;
+  NoBPTXbinning muonPhi_binning_;
+  NoBPTXbinning ls_binning_;
+  NoBPTXbinning bx_binning_;
 
   NoBPTXME jetENoBPTX_;
   NoBPTXME jetENoBPTX_variableBinning_;
@@ -116,11 +145,10 @@ private:
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
-  StringCutObjectSelector<reco::CaloJet,true   >    jetSelection_;
-  StringCutObjectSelector<reco::Track,true>        muonSelection_;
+  StringCutObjectSelector<reco::CaloJet, true> jetSelection_;
+  StringCutObjectSelector<reco::Track, true> muonSelection_;
   unsigned int njets_;
   unsigned int nmuons_;
-
 };
 
-#endif //DQMOFFLINE_TRIGGER_NOBPTXMONITOR_H
+#endif  //DQMOFFLINE_TRIGGER_NOBPTXMONITOR_H

@@ -13,7 +13,6 @@ Authors:  Seema Sharma, Sunanda Banerjee
 Created: August 2009
 */
 
-
 #ifndef CalibrationIsolatedParticleseECALMatrix_h
 #define CalibrationIsolatedParticleseECALMatrix_h
 
@@ -31,7 +30,6 @@ Created: August 2009
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
-
 #include "Calibration/IsolatedParticles/interface/MatrixECALDetIds.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -41,46 +39,157 @@ Created: August 2009
 
 class EcalSeverityLevelAlgo;
 
-namespace spr{
+namespace spr {
 
   // Energy in NxN crystal matrix
-  template< typename T>
-  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500,  bool debug=false);
-
-  template< typename T>
-  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, const EcalTrigTowerConstituentsMap& ttMap, int ieta, int iphi, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500, bool debug=false);
-
-  template< typename T>
-  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ietaE, int ietaW, int iphiN, int iphiS, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500,bool debug=false);
-
-  std::pair <double,bool> eECALmatrix(const DetId& detId, edm::Handle<EcalRecHitCollection>& hitsEB, edm::Handle<EcalRecHitCollection>& hitsEE, const EcalChannelStatus& chStatus, const CaloGeometry* geo, const CaloTopology* caloTopology, const EcalSeverityLevelAlgo* sevlv,int ieta, int iphi, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500,  bool debug=false);
-
-  std::pair <double,bool> eECALmatrix(const DetId& detId, edm::Handle<EcalRecHitCollection>& hitsEB, edm::Handle<EcalRecHitCollection>& hitsEE, const EcalChannelStatus& chStatus, const CaloGeometry* geo, const CaloTopology* caloTopology, const EcalSeverityLevelAlgo* sevlv,const EcalTrigTowerConstituentsMap& ttMap, int ieta, int iphi, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500, bool debug=false);
-
-  std::pair<double,bool> eECALmatrix(const HcalDetId& detId, edm::Handle<EcalRecHitCollection>& hitsEB, edm::Handle<EcalRecHitCollection>& hitsEE, const CaloGeometry* geo, const CaloTowerConstituentsMap* ctmap, const EcalSeverityLevelAlgo* sevlv, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500, bool debug=false);
-  
-  // returns vector of hits in NxN matrix 
   template <typename T>
-  void hitECALmatrix(CaloNavigator<DetId>& navigator, edm::Handle<T>& hits, int ieta, int iphi, std::vector<typename T::const_iterator>& hitlist, bool debug=false);
-  
+  double eECALmatrix(const DetId& detId,
+                     edm::Handle<T>& hitsEB,
+                     edm::Handle<T>& hitsEE,
+                     const CaloGeometry* geo,
+                     const CaloTopology* caloTopology,
+                     int ieta,
+                     int iphi,
+                     double ebThr = -100,
+                     double eeThr = -100,
+                     double tMin = -500,
+                     double tMax = 500,
+                     bool debug = false);
+
+  template <typename T>
+  double eECALmatrix(const DetId& detId,
+                     edm::Handle<T>& hitsEB,
+                     edm::Handle<T>& hitsEE,
+                     const CaloGeometry* geo,
+                     const CaloTopology* caloTopology,
+                     const EcalTrigTowerConstituentsMap& ttMap,
+                     int ieta,
+                     int iphi,
+                     double ebThr = -100,
+                     double eeThr = -100,
+                     double tMin = -500,
+                     double tMax = 500,
+                     bool debug = false);
+
+  template <typename T>
+  double eECALmatrix(const DetId& detId,
+                     edm::Handle<T>& hitsEB,
+                     edm::Handle<T>& hitsEE,
+                     const CaloGeometry* geo,
+                     const CaloTopology* caloTopology,
+                     int ietaE,
+                     int ietaW,
+                     int iphiN,
+                     int iphiS,
+                     double ebThr = -100,
+                     double eeThr = -100,
+                     double tMin = -500,
+                     double tMax = 500,
+                     bool debug = false);
+
+  std::pair<double, bool> eECALmatrix(const DetId& detId,
+                                      edm::Handle<EcalRecHitCollection>& hitsEB,
+                                      edm::Handle<EcalRecHitCollection>& hitsEE,
+                                      const EcalChannelStatus& chStatus,
+                                      const CaloGeometry* geo,
+                                      const CaloTopology* caloTopology,
+                                      const EcalSeverityLevelAlgo* sevlv,
+                                      int ieta,
+                                      int iphi,
+                                      double ebThr = -100,
+                                      double eeThr = -100,
+                                      double tMin = -500,
+                                      double tMax = 500,
+                                      bool debug = false);
+
+  std::pair<double, bool> eECALmatrix(const DetId& detId,
+                                      edm::Handle<EcalRecHitCollection>& hitsEB,
+                                      edm::Handle<EcalRecHitCollection>& hitsEE,
+                                      const EcalChannelStatus& chStatus,
+                                      const CaloGeometry* geo,
+                                      const CaloTopology* caloTopology,
+                                      const EcalSeverityLevelAlgo* sevlv,
+                                      const EcalTrigTowerConstituentsMap& ttMap,
+                                      int ieta,
+                                      int iphi,
+                                      double ebThr = -100,
+                                      double eeThr = -100,
+                                      double tMin = -500,
+                                      double tMax = 500,
+                                      bool debug = false);
+
+  std::pair<double, bool> eECALmatrix(const HcalDetId& detId,
+                                      edm::Handle<EcalRecHitCollection>& hitsEB,
+                                      edm::Handle<EcalRecHitCollection>& hitsEE,
+                                      const CaloGeometry* geo,
+                                      const CaloTowerConstituentsMap* ctmap,
+                                      const EcalSeverityLevelAlgo* sevlv,
+                                      double ebThr = -100,
+                                      double eeThr = -100,
+                                      double tMin = -500,
+                                      double tMax = 500,
+                                      bool debug = false);
+
+  // returns vector of hits in NxN matrix
+  template <typename T>
+  void hitECALmatrix(CaloNavigator<DetId>& navigator,
+                     edm::Handle<T>& hits,
+                     int ieta,
+                     int iphi,
+                     std::vector<typename T::const_iterator>& hitlist,
+                     bool debug = false);
+
   // returns energy deposited from the vector of hits
   template <typename T>
-  double energyECAL(std::vector<DetId>& vdets, edm::Handle<T>& hitsEB,  edm::Handle<T>& hitsEE, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500, bool debug=false);
+  double energyECAL(std::vector<DetId>& vdets,
+                    edm::Handle<T>& hitsEB,
+                    edm::Handle<T>& hitsEE,
+                    double ebThr = -100,
+                    double eeThr = -100,
+                    double tMin = -500,
+                    double tMax = 500,
+                    bool debug = false);
 
   template <typename T>
-  double energyECAL(std::vector<DetId>& vdets, edm::Handle<T>& hitsEB,  edm::Handle<T>& hitsEE, const EcalTrigTowerConstituentsMap& ttMap, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500, bool debug=false);
+  double energyECAL(std::vector<DetId>& vdets,
+                    edm::Handle<T>& hitsEB,
+                    edm::Handle<T>& hitsEE,
+                    const EcalTrigTowerConstituentsMap& ttMap,
+                    double ebThr = -100,
+                    double eeThr = -100,
+                    double tMin = -500,
+                    double tMax = 500,
+                    bool debug = false);
 
-  // returns energy in the EB/EE tower 
+  // returns energy in the EB/EE tower
   template <typename T>
-  double energyECALTower(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const EcalTrigTowerConstituentsMap& ttMap, bool debug=false);
+  double energyECALTower(const DetId& detId,
+                         edm::Handle<T>& hitsEB,
+                         edm::Handle<T>& hitsEE,
+                         const EcalTrigTowerConstituentsMap& ttMap,
+                         bool debug = false);
 
   // Hot Crystal
-  template< typename T>
-  DetId hotCrystal(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double tMin=-500, double tMax=500,  bool debug=false);
+  template <typename T>
+  DetId hotCrystal(const DetId& detId,
+                   edm::Handle<T>& hitsEB,
+                   edm::Handle<T>& hitsEE,
+                   const CaloGeometry* geo,
+                   const CaloTopology* caloTopology,
+                   int ieta,
+                   int iphi,
+                   double tMin = -500,
+                   double tMax = 500,
+                   bool debug = false);
 
-  template< typename T>
-  DetId hotCrystal(std::vector<DetId>& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, double tMin=-500, double tMax=500,  bool debug=false);
-}
+  template <typename T>
+  DetId hotCrystal(std::vector<DetId>& detId,
+                   edm::Handle<T>& hitsEB,
+                   edm::Handle<T>& hitsEE,
+                   double tMin = -500,
+                   double tMax = 500,
+                   bool debug = false);
+}  // namespace spr
 
 #include "Calibration/IsolatedParticles/interface/eECALMatrix.icc"
 

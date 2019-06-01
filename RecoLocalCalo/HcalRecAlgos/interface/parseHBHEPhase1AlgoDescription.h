@@ -3,6 +3,7 @@
 
 #include <memory>
 #include "RecoLocalCalo/HcalRecAlgos/interface/AbsHBHEPhase1Algo.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
     class ParameterSet;
@@ -17,5 +18,12 @@ namespace edm {
 //
 std::unique_ptr<AbsHBHEPhase1Algo>
 parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps);
+
+//
+// Parameter descriptions for "parseHBHEPhase1AlgoDescription".
+// Keep implementation of this function is sync with
+// "parseHBHEPhase1AlgoDescription".
+//
+edm::ParameterSetDescription fillDescriptionForParseHBHEPhase1Algo();
 
 #endif // RecoLocalCalo_HcalRecAlgos_parseHBHEPhase1AlgoDescription_h

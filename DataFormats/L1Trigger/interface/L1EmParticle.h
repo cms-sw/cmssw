@@ -4,7 +4,7 @@
 //
 // Package:     L1Trigger
 // Class  :     L1EmParticle
-// 
+//
 /**\class L1EmParticle \file L1EmParticle.h DataFormats/L1Trigger/interface/L1EmParticle.h \author Werner Sun
 
  Description: L1Extra particle class for EM objects.
@@ -25,74 +25,51 @@
 
 namespace l1extra {
 
-   class L1EmParticle : public reco::LeafCandidate
-   {
+  class L1EmParticle : public reco::LeafCandidate {
+  public:
+    enum EmType { kIsolated, kNonIsolated, kUndefined, kNumOfEmTypes };
 
-      public:
-         enum EmType
-         {
-            kIsolated,
-            kNonIsolated,
-	    kUndefined,
-            kNumOfEmTypes
-         } ;
+    L1EmParticle();
 
-	 L1EmParticle();
+    L1EmParticle(const LorentzVector& p4, const edm::Ref<L1GctEmCandCollection>& aRef, int bx = 0);
 
-	 L1EmParticle( const LorentzVector& p4,
-		       const edm::Ref< L1GctEmCandCollection >& aRef,
-		       int bx = 0 ) ;
+    L1EmParticle(const PolarLorentzVector& p4, const edm::Ref<L1GctEmCandCollection>& aRef, int bx = 0);
 
-	 L1EmParticle( const PolarLorentzVector& p4,
-		       const edm::Ref< L1GctEmCandCollection >& aRef,
-		       int bx = 0 ) ;
+    // Creates null Ref.
+    L1EmParticle(const LorentzVector& p4, EmType type = kUndefined, int bx = 0);
 
-         // Creates null Ref.
-         L1EmParticle( const LorentzVector& p4,
-                       EmType type = kUndefined,
-		       int bx = 0 ) ;
+    L1EmParticle(const PolarLorentzVector& p4, EmType type = kUndefined, int bx = 0);
 
-         L1EmParticle( const PolarLorentzVector& p4,
-                       EmType type = kUndefined,
-		       int bx = 0 ) ;
+    ~L1EmParticle() override {}
 
-	 ~L1EmParticle() override {}
+    // ---------- const member functions ---------------------
+    EmType type() const { return type_; }
 
-	 // ---------- const member functions ---------------------
-         EmType type() const
-         { return type_ ; }
+    const edm::Ref<L1GctEmCandCollection>& gctEmCandRef() const { return ref_; }
 
-	 const edm::Ref< L1GctEmCandCollection >& gctEmCandRef() const
-	 { return ref_ ; }
+    const L1GctEmCand* gctEmCand() const { return ref_.get(); }
 
-	 const L1GctEmCand* gctEmCand() const
-	 { return ref_.get() ; }
+    L1EmParticle* clone() const override { return new L1EmParticle(*this); }
 
-         L1EmParticle* clone() const override
-         { return new L1EmParticle( *this ) ; }
+    int bx() const { return bx_; }
 
-	 int bx() const
-	 { return bx_ ; }
+    // ---------- static member functions --------------------
 
-	 // ---------- static member functions --------------------
+    // ---------- member functions ---------------------------
+    void setType(EmType type) { type_ = type; }
 
-	 // ---------- member functions ---------------------------
-	 void setType( EmType type )
-	 { type_ = type ; }
+    void setBx(int bx) { bx_ = bx; }
 
-	 void setBx( int bx )
-	   { bx_ = bx ; }
+  private:
+    // L1EmParticle(const L1EmParticle&); // stop default
 
-      private:
-	 // L1EmParticle(const L1EmParticle&); // stop default
+    // const L1EmParticle& operator=(const L1EmParticle&); // stop default
 
-	 // const L1EmParticle& operator=(const L1EmParticle&); // stop default
-
-	 // ---------- member data --------------------------------
-         EmType type_ ;
-	 edm::Ref< L1GctEmCandCollection > ref_ ;
-	 int bx_ ;
-   };
-}
+    // ---------- member data --------------------------------
+    EmType type_;
+    edm::Ref<L1GctEmCandCollection> ref_;
+    int bx_;
+  };
+}  // namespace l1extra
 
 #endif

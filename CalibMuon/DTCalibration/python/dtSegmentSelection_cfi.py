@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 dtSegmentSelection = cms.PSet(
+    Muons= cms.InputTag(''),
     checkNoisyChannels = cms.bool(False),
     minHitsPhi = cms.int32(7),
     minHitsZ = cms.int32(4),

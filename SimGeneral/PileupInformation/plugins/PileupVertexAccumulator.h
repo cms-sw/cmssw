@@ -29,17 +29,19 @@ namespace edm {
   class Event;
   class EventSetup;
   class ParameterSet;
-  template<typename T> class Handle;
+  template <typename T>
+  class Handle;
   class StreamID;
-}
+}  // namespace edm
 
 class PileUpEventPrincipal;
 
 namespace cms {
   class PileupVertexAccumulator : public DigiAccumulatorMixMod {
   public:
-
-    explicit PileupVertexAccumulator(const edm::ParameterSet& conf, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
+    explicit PileupVertexAccumulator(const edm::ParameterSet& conf,
+                                     edm::ProducerBase& mixMod,
+                                     edm::ConsumesCollector& iC);
 
     ~PileupVertexAccumulator() override;
 
@@ -57,9 +59,7 @@ namespace cms {
     edm::InputTag Mtag_;
     edm::InputTag fallbackMtag_;
     bool saveVtxTimes_;
-
   };
-}
-
+}  // namespace cms
 
 #endif

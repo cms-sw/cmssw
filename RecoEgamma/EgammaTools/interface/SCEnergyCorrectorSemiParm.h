@@ -68,6 +68,7 @@ class SCEnergyCorrectorSemiParm {
 
  private:
   bool isHLT_;
+  bool applySigmaIetaIphiBug_; //there was a bug in sigmaIetaIphi for the 74X application
   int nHitsAboveThreshold_;
   float eThreshold_;
 };

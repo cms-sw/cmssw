@@ -59,8 +59,8 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
       endcapGeometry_  = dynamic_cast < const EcalEndcapGeometry* > (eeTmp);
 
       // get the ecalBarrel topology
-      barrelTopology_ = new  EcalBarrelTopology(geoHandle);
-      endcapTopology_ = new  EcalEndcapTopology(geoHandle);
+      barrelTopology_ = std::make_unique<EcalBarrelTopology>(*geoHandle);
+      endcapTopology_ = std::make_unique<EcalEndcapTopology>(*geoHandle);
 
       ecalNeighbArray(*barrelGeometry_,*barrelTopology_,*endcapGeometry_,*endcapTopology_);
 
@@ -418,8 +418,8 @@ DetId move(DetId cell,
 }
 
 
-  EcalEndcapTopology *endcapTopology_;
-  EcalBarrelTopology *barrelTopology_;
+  std::unique_ptr<EcalEndcapTopology> endcapTopology_;
+  std::unique_ptr<EcalBarrelTopology> barrelTopology_;
 
   const EcalEndcapGeometry *endcapGeometry_;
   const EcalBarrelGeometry *barrelGeometry_;

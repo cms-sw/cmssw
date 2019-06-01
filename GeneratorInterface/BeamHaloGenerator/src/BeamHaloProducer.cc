@@ -22,66 +22,58 @@ using namespace std;
 // #include "HepMC/CBhepevt.h"
 #include "HepMC/WeightContainer.h"
 
-
 #define KI_BHG_INIT ki_bhg_init_
 extern "C" {
-  void KI_BHG_INIT(long& seed);
+void KI_BHG_INIT(long& seed);
 }
 
 #define BHSETPARAM bhsetparam_
 extern "C" {
-  void BHSETPARAM(int* iparam, float* fparam, const char* cparam, int length);
+void BHSETPARAM(int* iparam, float* fparam, const char* cparam, int length);
 }
 
 #define KI_BHG_FILL ki_bhg_fill_
 extern "C" {
-    void KI_BHG_FILL(int& iret, float& weight);
+void KI_BHG_FILL(int& iret, float& weight);
 }
 
 #define KI_BHG_STAT ki_bhg_stat_
 extern "C" {
-    void KI_BHG_STAT(int &iret);
+void KI_BHG_STAT(int& iret);
 }
-
 
 // HepMC::ConvertHEPEVT conv;
 //include "HepMC/HEPEVT_Wrapper.h"
 static HepMC::HEPEVT_Wrapper wrapper;
 static HepMC::IO_HEPEVT conv;
 
-
 BeamHaloProducer::~BeamHaloProducer() {
-	int iret=0;
-	call_ki_bhg_stat(iret);
+  int iret = 0;
+  call_ki_bhg_stat(iret);
 }
 
+BeamHaloProducer::BeamHaloProducer(const ParameterSet& pset) : evt(nullptr), isInitialized_(false) {
+  int iparam[8];
+  float fparam[4];
+  std::string cparam;
+  // -- from bhgctrl.inc
+  iparam[0] = pset.getUntrackedParameter<int>("GENMOD");
+  iparam[1] = pset.getUntrackedParameter<int>("LHC_B1");
+  iparam[2] = pset.getUntrackedParameter<int>("LHC_B2");
+  iparam[3] = pset.getUntrackedParameter<int>("IW_MUO");
+  iparam[4] = pset.getUntrackedParameter<int>("IW_HAD");
+  iparam[5] = 9999999;
+  iparam[6] = pset.getUntrackedParameter<int>("OFFSET", 0);
+  iparam[7] = pset.getUntrackedParameter<int>("shift_bx");
 
-BeamHaloProducer::BeamHaloProducer( const ParameterSet & pset) :
-  evt(nullptr),
-  isInitialized_(false)
-{
+  fparam[0] = (float)pset.getUntrackedParameter<double>("EG_MIN");
+  fparam[1] = (float)pset.getUntrackedParameter<double>("EG_MAX");
 
-   int iparam[8];
-   float fparam[4];
-   std::string cparam;
- // -- from bhgctrl.inc
-   iparam[0]  = pset.getUntrackedParameter<int>("GENMOD");
-   iparam[1]  = pset.getUntrackedParameter<int>("LHC_B1");
-   iparam[2]  = pset.getUntrackedParameter<int>("LHC_B2");
-   iparam[3]  = pset.getUntrackedParameter<int>("IW_MUO");
-   iparam[4]  = pset.getUntrackedParameter<int>("IW_HAD");
-   iparam[5]  = 9999999;
-   iparam[6]  = pset.getUntrackedParameter<int>("OFFSET",0);
-   iparam[7]  = pset.getUntrackedParameter<int>("shift_bx");
-   
-   fparam[0]  = (float)pset.getUntrackedParameter<double>("EG_MIN");
-   fparam[1]  = (float)pset.getUntrackedParameter<double>("EG_MAX");
+  fparam[2] = (float)pset.getUntrackedParameter<double>("BXNS");
+  fparam[3] = (float)pset.getUntrackedParameter<double>("W0", 1.0);
 
-   fparam[2] = (float)pset.getUntrackedParameter<double>("BXNS");
-   fparam[3]  = (float)pset.getUntrackedParameter<double>("W0",1.0);
-
-   cparam     = pset.getUntrackedParameter<std::string>("G3FNAME","input.txt");
-   call_bh_set_parameters(iparam,fparam,cparam);
+  cparam = pset.getUntrackedParameter<std::string>("G3FNAME", "input.txt");
+  call_bh_set_parameters(iparam, fparam, cparam);
 
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
@@ -92,102 +84,94 @@ BeamHaloProducer::BeamHaloProducer( const ParameterSet & pset) :
   cout << "BeamHaloProducer: starting event generation ... " << endl;
 }
 
+void BeamHaloProducer::clear() {}
 
-void BeamHaloProducer::clear()
-{
-}
+void BeamHaloProducer::setRandomEngine(CLHEP::HepRandomEngine* v) { _BeamHalo_randomEngine = v; }
 
-void BeamHaloProducer::setRandomEngine(CLHEP::HepRandomEngine* v) {
-  _BeamHalo_randomEngine = v;
-}
-
-void BeamHaloProducer::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&)
-{
-  if(!isInitialized_) {
+void BeamHaloProducer::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&) {
+  if (!isInitialized_) {
     isInitialized_ = true;
     RandomEngineSentry<BeamHaloProducer> randomEngineSentry(this, lumi.index());
 
     // -- initialisation
-    long seed = 1; // This seed is not actually used
+    long seed = 1;  // This seed is not actually used
     call_ki_bhg_init(seed);
   }
 }
 
-void BeamHaloProducer::produce(Event & e, const EventSetup & es) {
-
+void BeamHaloProducer::produce(Event& e, const EventSetup& es) {
   RandomEngineSentry<BeamHaloProducer> randomEngineSentry(this, e.streamID());
 
-	// cout << "in produce " << endl;
+  // cout << "in produce " << endl;
 
   //    	unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
 
-	// cout << "apres autoptr " << endl;
+  // cout << "apres autoptr " << endl;
 
-	int iret=0;
-        float weight = 0;
-    	call_ki_bhg_fill(iret, weight);
+  int iret = 0;
+  float weight = 0;
+  call_ki_bhg_fill(iret, weight);
 
-// Throw an exception if call_ki_bhg_fill(...) fails.  Use the EventCorruption
-// exception since it maps onto SkipEvent which is what we want to do here.
+  // Throw an exception if call_ki_bhg_fill(...) fails.  Use the EventCorruption
+  // exception since it maps onto SkipEvent which is what we want to do here.
 
-        if( iret < 0 )
-          throw edm::Exception(edm::errors::EventCorruption)
-            << "BeamHaloProducer: function call_ki_bhg_fill returned " << iret << endl;
+  if (iret < 0)
+    throw edm::Exception(edm::errors::EventCorruption)
+        << "BeamHaloProducer: function call_ki_bhg_fill returned " << iret << endl;
 
-	// cout << "apres fortran " << endl;
+  // cout << "apres fortran " << endl;
 
-
-    	// HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
-	//	HepMC::GenEvent* evt = conv.read_next_event();  seems to be broken (?)
+  // HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
+  //	HepMC::GenEvent* evt = conv.read_next_event();  seems to be broken (?)
   evt = new HepMC::GenEvent();
 
-  for (int theindex = 1; theindex<=wrapper.number_entries(); theindex++) {
-  HepMC::GenVertex* Vtx = new  HepMC::GenVertex(HepMC::FourVector(wrapper.x(theindex),wrapper.y(theindex),wrapper.z(theindex),wrapper.t(theindex)));
-  HepMC::FourVector p(wrapper.px(theindex),wrapper.py(theindex),wrapper.pz(theindex),wrapper.e(theindex));
-  HepMC::GenParticle* Part = 
-    new HepMC::GenParticle(p,wrapper.id(theindex),wrapper.status(theindex));
-  Vtx->add_particle_out(Part); 
-  evt->add_vertex(Vtx);
+  for (int theindex = 1; theindex <= wrapper.number_entries(); theindex++) {
+    HepMC::GenVertex* Vtx = new HepMC::GenVertex(
+        HepMC::FourVector(wrapper.x(theindex), wrapper.y(theindex), wrapper.z(theindex), wrapper.t(theindex)));
+    HepMC::FourVector p(wrapper.px(theindex), wrapper.py(theindex), wrapper.pz(theindex), wrapper.e(theindex));
+    HepMC::GenParticle* Part = new HepMC::GenParticle(p, wrapper.id(theindex), wrapper.status(theindex));
+    Vtx->add_particle_out(Part);
+    evt->add_vertex(Vtx);
   }
 
   evt->set_event_number(e.id().event());
 
-	HepMC::WeightContainer& weights = evt -> weights();
-	weights.push_back(weight);
-	//	evt->print();
+  HepMC::WeightContainer& weights = evt->weights();
+  weights.push_back(weight);
+  //	evt->print();
   std::unique_ptr<HepMCProduct> CMProduct(new HepMCProduct());
-  if (evt) CMProduct->addHepMCData(evt);
+  if (evt)
+    CMProduct->addHepMCData(evt);
   e.put(std::move(CMProduct), "unsmeared");
 
   unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(evt));
   e.put(std::move(genEventInfo));
 }
 
-void BeamHaloProducer::endRunProduce( Run &run, const EventSetup& es )
-{
-   // just create an empty product
-   // to keep the EventContent definitions happy
-   // later on we might put the info into the run info that this is a PGun
-   unique_ptr<GenRunInfoProduct> genRunInfo( new GenRunInfoProduct() );
-   run.put(std::move(genRunInfo));
+void BeamHaloProducer::endRunProduce(Run& run, const EventSetup& es) {
+  // just create an empty product
+  // to keep the EventContent definitions happy
+  // later on we might put the info into the run info that this is a PGun
+  unique_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
+  run.put(std::move(genRunInfo));
 }
 
 bool BeamHaloProducer::call_bh_set_parameters(int* ival, float* fval, const std::string cval_string) {
-  BHSETPARAM(ival,fval,cval_string.c_str(),cval_string.length());
-	return true;
+  BHSETPARAM(ival, fval, cval_string.c_str(), cval_string.length());
+  return true;
 }
 
 bool BeamHaloProducer::call_ki_bhg_init(long& seed) {
-	KI_BHG_INIT(seed);
-	return true;
+  KI_BHG_INIT(seed);
+  return true;
 }
 
 bool BeamHaloProducer::call_ki_bhg_fill(int& iret, float& weight) {
-	KI_BHG_FILL(iret,weight);
-	return true;
+  KI_BHG_FILL(iret, weight);
+  return true;
 }
 
 bool BeamHaloProducer::call_ki_bhg_stat(int& iret) {
-	KI_BHG_STAT(iret);
-	return true;
+  KI_BHG_STAT(iret);
+  return true;
 }

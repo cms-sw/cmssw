@@ -2,188 +2,193 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "SimG4Core/Geometry/interface/DDG4Builder.h"
-#include "SimG4Core/Geometry/interface/DDG4SolidConverter.h"
-#include "SimG4Core/Geometry/interface/DDG4SensitiveConverter.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "SimG4Core/Geometry/interface/DDG4Builder.h"
+#include "SimG4Core/Geometry/interface/DDG4SensitiveConverter.h"
+#include "SimG4Core/Geometry/interface/DDG4SolidConverter.h"
 
-#include "G4VSolid.hh"
 #include "G4Box.hh"
-#include "G4Tubs.hh"
 #include "G4Cons.hh"
-#include "G4Trap.hh"
-#include "G4Material.hh"
 #include "G4LogicalVolume.hh"
-#include "G4VPhysicalVolume.hh"
+#include "G4Material.hh"
 #include "G4PVPlacement.hh"
 #include "G4ReflectionFactory.hh"
+#include "G4Trap.hh"
+#include "G4Tubs.hh"
+#include "G4VPhysicalVolume.hh"
+#include "G4VSolid.hh"
 
-#include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4UnitsTable.hh"
 
 #include <sstream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-DDG4DispContainer * DDG4Builder::theVectorOfDDG4Dispatchables_ = nullptr;
+DDG4DispContainer *DDG4Builder::theVectorOfDDG4Dispatchables_ = nullptr;
 
-DDG4DispContainer * DDG4Builder::theVectorOfDDG4Dispatchables() { 
-  return theVectorOfDDG4Dispatchables_; 
+DDG4DispContainer *DDG4Builder::theVectorOfDDG4Dispatchables() { return theVectorOfDDG4Dispatchables_; }
+
+DDG4Builder::DDG4Builder(const DDCompactView *cpv, bool check)
+    : solidConverter_(new DDG4SolidConverter), compactView(cpv), check_(check) {
+  theVectorOfDDG4Dispatchables_ = new DDG4DispContainer();
 }
 
-DDG4Builder::DDG4Builder(const DDCompactView* cpv, bool check) : 
-  solidConverter_(new DDG4SolidConverter), compactView(cpv), check_(check) { 
-  theVectorOfDDG4Dispatchables_ = new DDG4DispContainer(); 
-}
+DDG4Builder::~DDG4Builder() { delete solidConverter_; }
 
-DDG4Builder::~DDG4Builder() { 
-  delete solidConverter_; 
-}
-
-G4LogicalVolume * DDG4Builder::convertLV(const DDLogicalPart & part) {
+G4LogicalVolume *DDG4Builder::convertLV(const DDLogicalPart &part) {
   LogDebug("SimG4CoreGeometry") << "DDG4Builder::convertLV(): DDLogicalPart = " << part << "\n";
-  G4LogicalVolume * result = logs_[part];
+  G4LogicalVolume *result = logs_[part];
   if (!result) {
-    G4VSolid * g4s   = convertSolid(part.solid());
-    G4Material * g4m = convertMaterial(part.material());
-    result = new G4LogicalVolume(g4s,g4m,part.name().name());
-    map_.insert(result,part);
-    DDG4Dispatchable * disp = new DDG4Dispatchable(&part,result);	
+    G4VSolid *g4s = convertSolid(part.solid());
+    G4Material *g4m = convertMaterial(part.material());
+    result = new G4LogicalVolume(g4s, g4m, part.name().name());
+    map_.insert(result, part);
+    DDG4Dispatchable *disp = new DDG4Dispatchable(&part, result);
     theVectorOfDDG4Dispatchables_->push_back(disp);
     LogDebug("SimG4CoreGeometry") << "DDG4Builder::convertLV(): new G4LogicalVolume " << part.name().name()
-				  << "\nDDG4Builder: newEvent: dd=" << part.ddname() << " g4=" << result->GetName() << "\n";
-    logs_[part] = result;  // DDD -> GEANT4  
+                                  << "\nDDG4Builder: newEvent: dd=" << part.ddname() << " g4=" << result->GetName()
+                                  << "\n";
+    logs_[part] = result;  // DDD -> GEANT4
   }
   return result;
 }
 
-G4VSolid * DDG4Builder::convertSolid(const DDSolid & solid) {
-  G4VSolid * result = sols_[solid];
-  if (!result) { 
-    result = solidConverter_->convert(solid); sols_[solid] = result; 
+G4VSolid *DDG4Builder::convertSolid(const DDSolid &solid) {
+  G4VSolid *result = sols_[solid];
+  if (!result) {
+    result = solidConverter_->convert(solid);
+    sols_[solid] = result;
   }
   return result;
 }
 
-G4Material * DDG4Builder::convertMaterial(const DDMaterial & material) {
+G4Material *DDG4Builder::convertMaterial(const DDMaterial &material) {
   LogDebug("SimG4CoreGeometry") << "DDDetConstr::ConvertMaterial: material=" << material << "\n";
-  G4Material * result = nullptr;
+  G4Material *result = nullptr;
   if (material) {
     // only if it's a valid DDD-material
     if ((result = mats_[material])) {
-      LogDebug("SimG4CoreGeometry") << "  is already converted" << "\n"; 
-      return result; }
+      LogDebug("SimG4CoreGeometry") << "  is already converted"
+                                    << "\n";
+      return result;
+    }
   } else {
     // only if it's NOT a valid DDD-material
-    edm::LogError("SimG4CoreGeometry") << "DDG4Builder::  material " << material.toString() << " is not valid (in the DDD sense!)";
-    throw cms::Exception("SimG4CoreGeometry", " material is not valid from the Detector Description: " + material.toString()); 
-  }    
+    edm::LogError("SimG4CoreGeometry") << "DDG4Builder::  material " << material.toString()
+                                       << " is not valid (in the DDD sense!)";
+    throw cms::Exception("SimG4CoreGeometry",
+                         " material is not valid from the Detector Description: " + material.toString());
+  }
   int c = 0;
   if ((c = material.noOfConstituents())) {
     // it's a composite material
     LogDebug("SimG4CoreGeometry") << "  creating a G4-composite material. c=" << c
-				  << " d=" << material.density()/g*mole  << "\n";
-    result = new G4Material(material.name().name(),material.density(),c);
-    for (int i=0 ; i<c; ++i) {
+                                  << " d=" << material.density() / g * mole << "\n";
+    result = new G4Material(material.name().name(), material.density(), c);
+    for (int i = 0; i < c; ++i) {
       // recursive building of constituents
       LogDebug("SimG4CoreGeometry") << "  adding the composite=" << material.name()
-				    << " fm=" << material.constituent(i).second << "\n";
-      result->AddMaterial
-	(convertMaterial(material.constituent(i).first),
-	 material.constituent(i).second);// fractionmass
+                                    << " fm=" << material.constituent(i).second << "\n";
+      result->AddMaterial(convertMaterial(material.constituent(i).first),
+                          material.constituent(i).second);  // fractionmass
     }
   } else {
     // it's an elementary material
     LogDebug("SimG4CoreGeometry") << "  building an elementary material"
-				  << " z=" << material.z()
-				  << " a=" << material.a()/g*mole
-				  << " d=" << material.density()/g*cm3  << "\n";
-    result = new G4Material
-      (material.name().name(),material.z(),material.a(),material.density());
+                                  << " z=" << material.z() << " a=" << material.a() / g * mole
+                                  << " d=" << material.density() / g * cm3 << "\n";
+    result = new G4Material(material.name().name(), material.z(), material.a(), material.density());
   }
   mats_[material] = result;
   return result;
-} 
+}
 
 DDGeometryReturnType DDG4Builder::BuildGeometry() {
-  G4ReflectionFactory * refFact = G4ReflectionFactory::Instance();
-  refFact->SetScalePrecision(100.*refFact->GetScalePrecision());
+  G4ReflectionFactory *refFact = G4ReflectionFactory::Instance();
+  refFact->SetScalePrecision(100. * refFact->GetScalePrecision());
 
   using Graph = DDCompactView::Graph;
-  const auto & gra = compactView->graph();
+  const auto &gra = compactView->graph();
   using adjl_iterator = Graph::const_adj_iterator;
   adjl_iterator git = gra.begin();
-  adjl_iterator gend = gra.end();    
+  adjl_iterator gend = gra.end();
 
-  Graph::index_type i=0;
+  Graph::index_type i = 0;
   for (; git != gend; ++git) {
-    const DDLogicalPart & ddLP = gra.nodeData(git);
-    if ( !(ddLP.isDefined().second) ) {
-      edm::LogError("SimG4CoreGeometry") << "DDG4Builder::BuildGeometry() has encountered an undefined DDLogicalPart named " << ddLP.toString();
-      throw cms::Exception("SimG4CoreGeometry", " DDG4Builder::BuildGeometry() has encountered an undefined DDLogicalPart named " + ddLP.toString());
+    const DDLogicalPart &ddLP = gra.nodeData(git);
+    if (!(ddLP.isDefined().second)) {
+      edm::LogError("SimG4CoreGeometry") << "DDG4Builder::BuildGeometry() has encountered an undefined "
+                                            "DDLogicalPart named "
+                                         << ddLP.toString();
+      throw cms::Exception("SimG4CoreGeometry",
+                           " DDG4Builder::BuildGeometry() has encountered an "
+                           "undefined DDLogicalPart named " +
+                               ddLP.toString());
     }
-    G4LogicalVolume * g4LV = convertLV(ddLP);
-    ++i;	
+    G4LogicalVolume *g4LV = convertLV(ddLP);
+    ++i;
     if (!git->empty()) {
-      // ask for children of ddLP  
-      Graph::edge_list::const_iterator cit  = git->begin();
+      // ask for children of ddLP
+      Graph::edge_list::const_iterator cit = git->begin();
       Graph::edge_list::const_iterator cend = git->end();
       for (; cit != cend; ++cit) {
-	// fetch specific data
-	const DDLogicalPart & ddcurLP = gra.nodeData(cit->first);
-	if ( !ddcurLP.isDefined().second ) {
-	  std::string err = " DDG4Builder::BuildGeometry() in processing \"children\" has ";
-	  err += "encountered an undefined DDLogicalPart named " + ddcurLP.toString()
-	    + " is a child of " + ddLP.toString();
-	  edm::LogError("SimG4CoreGeometry") << err;
-	  throw cms::Exception("SimG4CoreGeometry", err) ;
-	}
-	int offset = getInt("CopyNoOffset",ddcurLP);
-	int tag = getInt("CopyNoTag",ddcurLP);				
-	DDRotationMatrix rm(gra.edgeData(cit->second)->rot());
-	DD3Vector x, y, z;
-	rm.GetComponents(x, y, z);
-	if ((x.Cross(y)).Dot(z)<0)
-	  edm::LogInfo("SimG4CoreGeometry") << ">>Reflection encountered: " 
-					    << gra.edgeData(cit->second)->ddrot()  
-					    << ">>Placement d=" << gra.nodeData(cit->first).ddname() 
-					    << " m=" << ddLP.ddname() << " cp=" << gra.edgeData(cit->second)->copyno()
-					    << " r=" << gra.edgeData(cit->second)->ddrot().ddname();     
-	G4ThreeVector tempTran(gra.edgeData(cit->second)->trans().X(), gra.edgeData(cit->second)->trans().Y(), gra.edgeData(cit->second)->trans().Z());
-	G4Translate3D transl = tempTran;
-	CLHEP::HepRep3x3 temp( x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z() ); //matrix representation
-	CLHEP::HepRotation hr ( temp );
-	    
-	// G3 convention of defining rot-matrices ...
-	G4Transform3D trfrm  = transl * G4Rotate3D(hr.inverse());//.inverse();
+        // fetch specific data
+        const DDLogicalPart &ddcurLP = gra.nodeData(cit->first);
+        if (!ddcurLP.isDefined().second) {
+          std::string err = " DDG4Builder::BuildGeometry() in processing \"children\" has ";
+          err += "encountered an undefined DDLogicalPart named " + ddcurLP.toString() + " is a child of " +
+                 ddLP.toString();
+          edm::LogError("SimG4CoreGeometry") << err;
+          throw cms::Exception("SimG4CoreGeometry", err);
+        }
+        int offset = getInt("CopyNoOffset", ddcurLP);
+        int tag = getInt("CopyNoTag", ddcurLP);
+        DDRotationMatrix rm(gra.edgeData(cit->second)->rot());
+        DD3Vector x, y, z;
+        rm.GetComponents(x, y, z);
+        if ((x.Cross(y)).Dot(z) < 0)
+          edm::LogInfo("SimG4CoreGeometry")
+              << ">>Reflection encountered: " << gra.edgeData(cit->second)->ddrot()
+              << ">>Placement d=" << gra.nodeData(cit->first).ddname() << " m=" << ddLP.ddname()
+              << " cp=" << gra.edgeData(cit->second)->copyno() << " r=" << gra.edgeData(cit->second)->ddrot().ddname();
+        G4ThreeVector tempTran(gra.edgeData(cit->second)->trans().X(),
+                               gra.edgeData(cit->second)->trans().Y(),
+                               gra.edgeData(cit->second)->trans().Z());
+        G4Translate3D transl = tempTran;
+        CLHEP::HepRep3x3 temp(x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z());  // matrix representation
+        CLHEP::HepRotation hr(temp);
 
-	refFact->Place(trfrm, // transformation containing a possible reflection
-		       gra.nodeData(cit->first).name().name(),
-		       convertLV(gra.nodeData(cit->first)), 		// daugther
-		       g4LV, 				 		// mother
-		       false,                 		 		// 'ONLY'
-		       gra.edgeData(cit->second)->copyno()+offset+tag, 	// copy number
-		       check_);
-      } // iterate over children
-    } // if (children)
-  } // iterate over graph nodes  
-    
-  // Looking for in the G4ReflectionFactory secretly created reflected G4LogicalVolumes
-  std::map<DDLogicalPart, G4LogicalVolume*>::const_iterator  ddg4_it = logs_.begin();
+        // G3 convention of defining rot-matrices ...
+        G4Transform3D trfrm = transl * G4Rotate3D(hr.inverse());  //.inverse();
+
+        refFact->Place(trfrm,  // transformation containing a possible reflection
+                       gra.nodeData(cit->first).name().name(),
+                       convertLV(gra.nodeData(cit->first)),                 // daugther
+                       g4LV,                                                // mother
+                       false,                                               // 'ONLY'
+                       gra.edgeData(cit->second)->copyno() + offset + tag,  // copy number
+                       check_);
+      }  // iterate over children
+    }    // if (children)
+  }      // iterate over graph nodes
+
+  // Looking for in the G4ReflectionFactory secretly created reflected
+  // G4LogicalVolumes
+  std::map<DDLogicalPart, G4LogicalVolume *>::const_iterator ddg4_it = logs_.begin();
   for (; ddg4_it != logs_.end(); ++ddg4_it) {
-    G4LogicalVolume * reflLogicalVolume = refFact->GetReflectedLV(ddg4_it->second);
+    G4LogicalVolume *reflLogicalVolume = refFact->GetReflectedLV(ddg4_it->second);
     if (reflLogicalVolume) {
       DDLogicalPart ddlv = ddg4_it->first;
-      map_.insert(reflLogicalVolume,ddlv);
-      DDG4Dispatchable * disp = new DDG4Dispatchable(&(ddg4_it->first),reflLogicalVolume);
+      map_.insert(reflLogicalVolume, ddlv);
+      DDG4Dispatchable *disp = new DDG4Dispatchable(&(ddg4_it->first), reflLogicalVolume);
       theVectorOfDDG4Dispatchables_->push_back(disp);
-      edm::LogInfo("SimG4CoreGeometry")<< "DDG4Builder: newEvent: dd=" 
-				       << ddlv.ddname() << " g4=" 
-				       << reflLogicalVolume->GetName();
-    }  
+      edm::LogInfo("SimG4CoreGeometry") << "DDG4Builder: newEvent: dd=" << ddlv.ddname()
+                                        << " g4=" << reflLogicalVolume->GetName();
+    }
   }
-      
-  G4LogicalVolume * world = logs_[compactView->root()];
+
+  G4LogicalVolume *world = logs_[compactView->root()];
 
   //
   //  needed for building sensitive detectors
@@ -191,50 +196,56 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
   DDG4SensitiveConverter conv_;
   SensitiveDetectorCatalog catalog = conv_.upDate(*theVectorOfDDG4Dispatchables_);
 
-  return DDGeometryReturnType(world,map_,catalog);    
+  return DDGeometryReturnType(world, map_, catalog);
 }
 
-int DDG4Builder::getInt(const std::string & ss, const DDLogicalPart & part)
-{
+int DDG4Builder::getInt(const std::string &ss, const DDLogicalPart &part) {
   DDValue val(ss);
   std::vector<const DDsvalues_type *> result = part.specifics();
   bool foundIt = false;
   for (auto stype : result) {
-    foundIt = DDfetch(stype,val);
-    if (foundIt) break;
-  }    
-  if (foundIt) { 
+    foundIt = DDfetch(stype, val);
+    if (foundIt)
+      break;
+  }
+  if (foundIt) {
     std::vector<double> temp = val.doubles();
     if (temp.size() != 1) {
       edm::LogError("SimG4CoreGeometry") << " DDG4Builder - ERROR: I need only 1 " << ss;
-      throw cms::Exception("SimG4CoreGeometry", " DDG4Builder::getInt() Problem with Region tags - one and only one allowed: " + ss);
-    }      
+      throw cms::Exception("SimG4CoreGeometry",
+                           " DDG4Builder::getInt() Problem with Region tags - "
+                           "one and only one allowed: " +
+                               ss);
+    }
     return int(temp[0]);
-  }
-  else return 0;
+  } else
+    return 0;
 }
 
-double DDG4Builder::getDouble(const std::string & ss, 
-			      const DDLogicalPart & part) {
+double DDG4Builder::getDouble(const std::string &ss, const DDLogicalPart &part) {
   DDValue val(ss);
   std::vector<const DDsvalues_type *> result = part.specifics();
   bool foundIt = false;
   for (auto stype : result) {
-    foundIt = DDfetch(stype,val);
-    if (foundIt) break;
-  }    
-  if (foundIt) { 
+    foundIt = DDfetch(stype, val);
+    if (foundIt)
+      break;
+  }
+  if (foundIt) {
     std::vector<std::string> temp = val.strings();
     if (temp.size() != 1) {
       edm::LogError("SimG4CoreGeometry") << " DDG4Builder - ERROR: I need only 1 " << ss;
-      throw cms::Exception("SimG4CoreGeometry", " DDG4Builder::getDouble() Problem with Region tags - one and only one allowed: " + ss);
+      throw cms::Exception("SimG4CoreGeometry",
+                           " DDG4Builder::getDouble() Problem with Region tags "
+                           "- one and only one allowed: " +
+                               ss);
     }
     double v;
     std::string unit;
     std::istringstream is(temp[0]);
     is >> v >> unit;
-    v  = v*G4UnitDefinition::GetValueOf(unit.substr(1,unit.size()));
+    v = v * G4UnitDefinition::GetValueOf(unit.substr(1, unit.size()));
     return v;
-  }
-  else return 0;
+  } else
+    return 0;
 }

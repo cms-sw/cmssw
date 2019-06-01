@@ -2,32 +2,32 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimDataFormats/NuclearInteractions/interface/FSimVertexType.h"
 
-inline FSimTrack& FBaseSimEvent::track(int i) const { 
-  if (i < 0 || i>=(int)nTracks()){
-    throw cms::Exception("FastSim") << "Index for FSimTracks out of range, please contact FastSim developers"<< std::endl;
+inline FSimTrack& FBaseSimEvent::track(int i) const {
+  if (i < 0 || i >= (int)nTracks()) {
+    throw cms::Exception("FastSim") << "Index for FSimTracks out of range, please contact FastSim developers"
+                                    << std::endl;
   }
   return (*theSimTracks)[i];
 }
 
-inline FSimVertex& FBaseSimEvent::vertex(int i) const { 
-  if (i < 0 || i>=(int)nVertices()){
-    throw cms::Exception("FastSim") << "Index for FSimVertex out of range, please contact FastSim developers"<< std::endl;
+inline FSimVertex& FBaseSimEvent::vertex(int i) const {
+  if (i < 0 || i >= (int)nVertices()) {
+    throw cms::Exception("FastSim") << "Index for FSimVertex out of range, please contact FastSim developers"
+                                    << std::endl;
   }
   return (*theSimVertices)[i];
 }
 
 inline FSimVertexType& FBaseSimEvent::vertexType(int i) const {
-  if (i < 0 || i >=(int)nVertices()){
-    throw cms::Exception("FastSim") << "Index for FSimVertexType out of range, please contact FastSim developers"<< std::endl;
+  if (i < 0 || i >= (int)nVertices()) {
+    throw cms::Exception("FastSim") << "Index for FSimVertexType out of range, please contact FastSim developers"
+                                    << std::endl;
   }
-  return (*theFSimVerticesType)[i]; 
+  return (*theFSimVerticesType)[i];
 }
 
-inline const SimTrack& FBaseSimEvent::embdTrack(int i) const { 
-  return (*theSimTracks)[i].simTrack(); }
+inline const SimTrack& FBaseSimEvent::embdTrack(int i) const { return (*theSimTracks)[i].simTrack(); }
 
-inline const SimVertex& FBaseSimEvent::embdVertex(int i) const { 
-  return (*theSimVertices)[i].simVertex(); }
+inline const SimVertex& FBaseSimEvent::embdVertex(int i) const { return (*theSimVertices)[i].simVertex(); }
 
-inline const FSimVertexType& FBaseSimEvent::embdVertexType(int i) const { 
-  return (*theFSimVerticesType)[i]; }
+inline const FSimVertexType& FBaseSimEvent::embdVertexType(int i) const { return (*theFSimVerticesType)[i]; }

@@ -33,46 +33,45 @@
 
 #include "FWCore/Utilities/interface/RegexMatch.h"
 
-
 class L1TdeStage2uGT : public DQMEDAnalyzer {
-  public:
-    L1TdeStage2uGT(const edm::ParameterSet& ps);
-    ~L1TdeStage2uGT() override;
-  
-  protected:
-    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-    void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  
-  private:
-    // Input and config info 
-    edm::InputTag dataLabel_;
-    edm::EDGetTokenT<GlobalAlgBlkBxCollection> dataSource_;
-    edm::InputTag emulLabel_;
-    edm::EDGetTokenT<GlobalAlgBlkBxCollection> emulSource_;
-    std::vector<std::string>  triggerBlackList_;
-    int numBx_;
-    std::string histFolder_;
-    l1t::L1TGlobalUtil* gtUtil_;
-    int numLS_;
-    uint m_currentLumi;
+public:
+  L1TdeStage2uGT(const edm::ParameterSet& ps);
+  ~L1TdeStage2uGT() override;
 
-    int firstBx, lastBx;
+protected:
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
-    std::map<std::string, MonitorElement*> m_HistNamesInitial, m_HistNamesFinal, m_SummaryHistograms;
-    MonitorElement* initDecisionMismatches_vs_LS;
-    MonitorElement* finalDecisionMismatches_vs_LS;
-    MonitorElement* m_normalizationHisto;
+private:
+  // Input and config info
+  edm::InputTag dataLabel_;
+  edm::EDGetTokenT<GlobalAlgBlkBxCollection> dataSource_;
+  edm::InputTag emulLabel_;
+  edm::EDGetTokenT<GlobalAlgBlkBxCollection> emulSource_;
+  std::vector<std::string> triggerBlackList_;
+  int numBx_;
+  std::string histFolder_;
+  l1t::L1TGlobalUtil* gtUtil_;
+  int numLS_;
+  uint m_currentLumi;
 
-    enum SummaryColumn {
-      NInitalMismatchDataNoEmul,
-      NInitalMismatchEmulNoData,
-      NFinalMismatchDataNoEmul,
-      NFinalMismatchEmulNoData,
-      NSummaryColumns,
-    };
+  int firstBx, lastBx;
 
-    void  fillHist(const std::map<std::string, MonitorElement*>&, const std::string&, const Double_t& , const Double_t&);
+  std::map<std::string, MonitorElement*> m_HistNamesInitial, m_HistNamesFinal, m_SummaryHistograms;
+  MonitorElement* initDecisionMismatches_vs_LS;
+  MonitorElement* finalDecisionMismatches_vs_LS;
+  MonitorElement* m_normalizationHisto;
+
+  enum SummaryColumn {
+    NInitalMismatchDataNoEmul,
+    NInitalMismatchEmulNoData,
+    NFinalMismatchDataNoEmul,
+    NFinalMismatchEmulNoData,
+    NSummaryColumns,
+  };
+
+  void fillHist(const std::map<std::string, MonitorElement*>&, const std::string&, const Double_t&, const Double_t&);
 };
 
 #endif

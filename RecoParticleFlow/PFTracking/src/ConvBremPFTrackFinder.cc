@@ -3,7 +3,6 @@
 
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "RecoParticleFlow/PFProducer/interface/Utils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"

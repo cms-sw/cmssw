@@ -7,7 +7,7 @@
 
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTable.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
-#include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"   
+#include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"
 
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromBinnedTFormula.h"

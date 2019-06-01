@@ -5,7 +5,4 @@
 
 // --[ TT6NTPedestalCalculator ]-----------------------------------------------
 //                                                               --[ PUBLIC ]--
-TT6NTPedestalCalculator::TT6NTPedestalCalculator()
-{
-  theStatus.setUpdating();
-}
+TT6NTPedestalCalculator::TT6NTPedestalCalculator() { theStatus.setUpdating(); }

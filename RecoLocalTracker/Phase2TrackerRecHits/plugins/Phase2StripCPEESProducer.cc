@@ -18,28 +18,23 @@
 #include <memory>
 #include <map>
 
-class Phase2StripCPEESProducer: public edm::ESProducer {
+class Phase2StripCPEESProducer : public edm::ESProducer {
+public:
+  Phase2StripCPEESProducer(const edm::ParameterSet&);
+  std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > produce(const TkStripCPERecord& iRecord);
 
-    public:
-    
-        Phase2StripCPEESProducer(const edm::ParameterSet&);
-        std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > produce(const TkStripCPERecord & iRecord);
+private:
+  enum CPE_t { DEFAULT, GEOMETRIC };
+  std::map<std::string, CPE_t> enumMap_;
 
-    private:
-
-        enum CPE_t { DEFAULT, GEOMETRIC };
-        std::map<std::string, CPE_t> enumMap_;
-
-        CPE_t cpeNum_;
-        edm::ParameterSet pset_;
-
+  CPE_t cpeNum_;
+  edm::ParameterSet pset_;
 };
 
-
-Phase2StripCPEESProducer::Phase2StripCPEESProducer(const edm::ParameterSet & p) {
+Phase2StripCPEESProducer::Phase2StripCPEESProducer(const edm::ParameterSet& p) {
   std::string name = p.getParameter<std::string>("ComponentType");
 
-  enumMap_[std::string("Phase2StripCPE")]          = DEFAULT;
+  enumMap_[std::string("Phase2StripCPE")] = DEFAULT;
   enumMap_[std::string("Phase2StripCPEGeometric")] = GEOMETRIC;
   if (enumMap_.find(name) == enumMap_.end())
     throw cms::Exception("Unknown StripCPE type") << name;
@@ -49,27 +44,24 @@ Phase2StripCPEESProducer::Phase2StripCPEESProducer(const edm::ParameterSet & p) 
   setWhatProduced(this, name);
 }
 
-
-std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > Phase2StripCPEESProducer::produce(const TkStripCPERecord & iRecord) {
-
+std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > Phase2StripCPEESProducer::produce(
+    const TkStripCPERecord& iRecord) {
   edm::ESHandle<MagneticField> magfield;
   edm::ESHandle<TrackerGeometry> pDD;
 
   std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > cpe_;
-  switch(cpeNum_) {
+  switch (cpeNum_) {
     case DEFAULT:
-      iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
-      iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
-      cpe_ = std::make_unique<Phase2StripCPE>(pset_, *magfield,*pDD);
+      iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
+      iRecord.getRecord<TrackerDigiGeometryRecord>().get(pDD);
+      cpe_ = std::make_unique<Phase2StripCPE>(pset_, *magfield, *pDD);
       break;
     case GEOMETRIC:
       cpe_ = std::make_unique<Phase2StripCPEGeometric>(pset_);
       break;
   }
   return cpe_;
-
 }
-
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 DEFINE_FWK_EVENTSETUP_MODULE(Phase2StripCPEESProducer);

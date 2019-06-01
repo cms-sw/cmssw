@@ -11,7 +11,7 @@
  *
  * \author Patrick Janot
  * $Date: 25-Jan-2007
- */ 
+ */
 
 #include "FastSimulation/MaterialEffects/interface/MaterialEffectsSimulator.h"
 
@@ -30,23 +30,21 @@ class RandomEngineAndDistribution;
 //class DaqMonitorBEInterface;
 //class MonitorElement;
 
-class NuclearInteractionSimulator : public MaterialEffectsSimulator
-{
- public:
-
+class NuclearInteractionSimulator : public MaterialEffectsSimulator {
+public:
   /// Constructor
   NuclearInteractionSimulator(std::vector<double>& hadronEnergies,
-			      std::vector<int>& hadronTypes,
-			      std::vector<std::string>& hadronNames,
-			      std::vector<double>& hadronMasses,
-			      std::vector<double>& hadronPMin,
-			      double pionEnergy,
-			      std::vector<double>& lengthRatio,
-			      std::vector< std::vector<double> >& ratios,
-			      std::map<int,int >& idMap,
-			      std::string inputFile,
-			      unsigned int distAlgo,
-			      double distCut);
+                              std::vector<int>& hadronTypes,
+                              std::vector<std::string>& hadronNames,
+                              std::vector<double>& hadronMasses,
+                              std::vector<double>& hadronPMin,
+                              double pionEnergy,
+                              std::vector<double>& lengthRatio,
+                              std::vector<std::vector<double> >& ratios,
+                              std::map<int, int>& idMap,
+                              std::string inputFile,
+                              unsigned int distAlgo,
+                              double distCut);
 
   /// Default Destructor
   ~NuclearInteractionSimulator() override;
@@ -57,14 +55,12 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
   /// Read former nuclear interaction (from previous run)
   bool read(std::string inputFile);
 
- private:
-
+private:
   /// Generate a nuclear interaction according to the probability that it happens
   void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*) override;
 
   /// Compute distance between secondary and primary
-  double distanceToPrimary(const RawParticle& Particle,
-			   const RawParticle& aDaughter) const;
+  double distanceToPrimary(const RawParticle& Particle, const RawParticle& aDaughter) const;
 
   /// Return a hashed index for a given pid
   unsigned index(int thePid);
@@ -76,20 +72,20 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
   std::vector<double> thePionPMin;
   double thePionEnergy;
   std::vector<double> theLengthRatio;
-  std::vector< std::vector<double> > theRatios;
+  std::vector<std::vector<double> > theRatios;
 
   TFile* theFile;
-  std::vector< std::vector<TTree*> > theTrees;
-  std::vector< std::vector<TBranch*> > theBranches;
-  std::vector< std::vector<NUEvent*> > theNUEvents;
-  std::vector< std::vector<unsigned> > theCurrentEntry;
-  std::vector< std::vector<unsigned> > theCurrentInteraction;
-  std::vector< std::vector<unsigned> > theNumberOfEntries;
-  std::vector< std::vector<unsigned> > theNumberOfInteractions;
-  std::vector< std::vector<std::string> > theFileNames;
-  std::vector< std::vector<double> > thePionCM;
-  
-  std::map< int, int > theIDMap;
+  std::vector<std::vector<TTree*> > theTrees;
+  std::vector<std::vector<TBranch*> > theBranches;
+  std::vector<std::vector<NUEvent*> > theNUEvents;
+  std::vector<std::vector<unsigned> > theCurrentEntry;
+  std::vector<std::vector<unsigned> > theCurrentInteraction;
+  std::vector<std::vector<unsigned> > theNumberOfEntries;
+  std::vector<std::vector<unsigned> > theNumberOfInteractions;
+  std::vector<std::vector<std::string> > theFileNames;
+  std::vector<std::vector<double> > thePionCM;
+
+  std::map<int, int> theIDMap;
   unsigned ien4;
   unsigned theDistAlgo;
   double theDistCut;
@@ -108,6 +104,5 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
   //  MonitorElement* hinel;
   //  MonitorElement* hscatter;
   //  MonitorElement* hscatter2;
-
 };
 #endif

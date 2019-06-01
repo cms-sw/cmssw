@@ -5,8 +5,9 @@
 //
 // Package:    DQMOffline/CalibCalo
 // Class:      DQMHcalIsoTrackAlCaReco
-// 
-/**\class DQMHcalIsoTrackAlCaReco DQMHcalIsoTrackAlCaReco.cc DQMOffline/CalibCalo/src/DQMHcalIsoTrackAlCaReco.cc
+//
+/**\class DQMHcalIsoTrackAlCaReco DQMHcalIsoTrackAlCaReco.cc
+ DQMOffline/CalibCalo/src/DQMHcalIsoTrackAlCaReco.cc
 
  Description: <one line class summary>
 
@@ -20,17 +21,16 @@
 //
 //
 
-
 // system include files
-#include <memory>
 #include <fstream>
+#include <memory>
 #include <vector>
 
 // user include files
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
@@ -42,36 +42,34 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-
 class DQMHcalIsoTrackAlCaReco : public DQMEDAnalyzer {
-
 public:
-  explicit DQMHcalIsoTrackAlCaReco(const edm::ParameterSet&);
+  explicit DQMHcalIsoTrackAlCaReco(const edm::ParameterSet &);
   ~DQMHcalIsoTrackAlCaReco() override;
-  
+
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
-  std::string                             folderName_;
-  std::vector<std::string>                l1FilterTag_, hltFilterTag_;
-  std::vector<int>                        type_;
-  edm::InputTag                           labelTrigger_, labelTrack_;
+  std::string folderName_;
+  std::vector<std::string> l1FilterTag_, hltFilterTag_;
+  std::vector<int> type_;
+  edm::InputTag labelTrigger_, labelTrack_;
   edm::EDGetTokenT<trigger::TriggerEvent> tokTrigger_;
   edm::EDGetTokenT<reco::HcalIsolatedTrackCandidateCollection> tokTrack_;
 
-  double                                  pThr_;
-  
-  std::vector<MonitorElement*>            hL1Pt_, hL1Eta_,  hL1phi_;
-  std::vector<MonitorElement*>            hHltP_, hHltEta_, hHltPhi_;
-  MonitorElement                         *hL3Dr_, *hL3Rat_;
-  std::vector<MonitorElement*>            hOffP_;
-  MonitorElement                         *hMaxP_, *hEnEcal_, *hIeta_, *hIphi_;
+  double pThr_;
 
-  int                                     nTotal_, nHLTaccepts_;
-  std::vector<double>                     etaRange_;
-  std::vector<unsigned int>               indexH_;
-  std::vector<bool>                       ifL3_;
+  std::vector<MonitorElement *> hL1Pt_, hL1Eta_, hL1phi_;
+  std::vector<MonitorElement *> hHltP_, hHltEta_, hHltPhi_;
+  MonitorElement *hL3Dr_, *hL3Rat_;
+  std::vector<MonitorElement *> hOffP_;
+  MonitorElement *hMaxP_, *hEnEcal_, *hIeta_, *hIphi_;
+
+  int nTotal_, nHLTaccepts_;
+  std::vector<double> etaRange_;
+  std::vector<unsigned int> indexH_;
+  std::vector<bool> ifL3_;
 };
 
 #endif

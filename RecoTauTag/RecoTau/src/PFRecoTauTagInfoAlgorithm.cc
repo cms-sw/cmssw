@@ -1,5 +1,8 @@
 #include "RecoTauTag/RecoTau/interface/PFRecoTauTagInfoAlgorithm.h"
 
+#include "DataFormats/Math/interface/deltaR.h"
+#include "RecoTauTag/RecoTau/interface/TauTagTools.h"
+
 using namespace reco;
 
 PFRecoTauTagInfoAlgorithm::PFRecoTauTagInfoAlgorithm(const edm::ParameterSet& parameters){
@@ -26,11 +29,11 @@ PFRecoTauTagInfoAlgorithm::PFRecoTauTagInfoAlgorithm(const edm::ParameterSet& pa
   tkPVmaxDZ_                          = parameters.getParameter<double>("tkPVmaxDZ");
 }
 
-PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJet,const std::vector<reco::PFCandidatePtr>& thePFCandsInEvent, const TrackRefVector& theTracks,const Vertex& thePV) const {
+PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const JetBaseRef& thePFJet,const std::vector<reco::CandidatePtr>& thePFCandsInEvent, const TrackRefVector& theTracks,const Vertex& thePV) const {
   PFTauTagInfo resultExtended;
   resultExtended.setpfjetRef(thePFJet);
 
-  std::vector<reco::PFCandidatePtr> thePFCands;
+  std::vector<reco::CandidatePtr> thePFCands;
   const float jetPhi = (*thePFJet).phi();
   const float jetEta = (*thePFJet).eta();
   auto dr2 = [jetPhi,jetEta](float phi, float eta) { return reco::deltaR2(jetEta,jetPhi,eta,phi);};
@@ -40,16 +43,22 @@ PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJ
   }
   bool pvIsFake = (thePV.z() < -500.);
 
-  std::vector<reco::PFCandidatePtr> theFilteredPFChargedHadrCands;
-  if (UsePVconstraint_ && !pvIsFake) theFilteredPFChargedHadrCands=TauTagTools::filteredPFChargedHadrCands(thePFCands,ChargedHadrCand_tkminPt_,ChargedHadrCand_tkminPixelHitsn_,ChargedHadrCand_tkminTrackerHitsn_,ChargedHadrCand_tkmaxipt_,ChargedHadrCand_tkmaxChi2_,ChargedHadrCand_tkPVmaxDZ_, thePV, thePV.z());
-  else theFilteredPFChargedHadrCands=TauTagTools::filteredPFChargedHadrCands(thePFCands,ChargedHadrCand_tkminPt_,ChargedHadrCand_tkminPixelHitsn_,ChargedHadrCand_tkminTrackerHitsn_,ChargedHadrCand_tkmaxipt_,ChargedHadrCand_tkmaxChi2_, thePV);
+  std::vector<reco::CandidatePtr> theFilteredPFChargedHadrCands;
+  if (UsePVconstraint_ && !pvIsFake) {
+    theFilteredPFChargedHadrCands = tautagtools::filteredPFChargedHadrCands(thePFCands,ChargedHadrCand_tkminPt_,ChargedHadrCand_tkminPixelHitsn_,ChargedHadrCand_tkminTrackerHitsn_,ChargedHadrCand_tkmaxipt_,ChargedHadrCand_tkmaxChi2_,ChargedHadrCand_tkPVmaxDZ_, thePV, thePV.z());
+  } else {
+    theFilteredPFChargedHadrCands = tautagtools::filteredPFChargedHadrCands(thePFCands,ChargedHadrCand_tkminPt_,ChargedHadrCand_tkminPixelHitsn_,ChargedHadrCand_tkminTrackerHitsn_,ChargedHadrCand_tkmaxipt_,ChargedHadrCand_tkmaxChi2_, thePV);
+  }
   resultExtended.setPFChargedHadrCands(theFilteredPFChargedHadrCands);
-  resultExtended.setPFNeutrHadrCands(TauTagTools::filteredPFNeutrHadrCands(thePFCands,NeutrHadrCand_HcalclusMinEt_));
-  resultExtended.setPFGammaCands(TauTagTools::filteredPFGammaCands(thePFCands,GammaCand_EcalclusMinEt_));
+  resultExtended.setPFNeutrHadrCands(tautagtools::filteredPFNeutrHadrCands(thePFCands,NeutrHadrCand_HcalclusMinEt_));
+  resultExtended.setPFGammaCands(tautagtools::filteredPFGammaCands(thePFCands,GammaCand_EcalclusMinEt_));
 
   TrackRefVector theFilteredTracks;
-  if (UsePVconstraint_ && !pvIsFake) theFilteredTracks=TauTagTools::filteredTracks(theTracks,tkminPt_,tkminPixelHitsn_,tkminTrackerHitsn_,tkmaxipt_,tkmaxChi2_,tkPVmaxDZ_,thePV, thePV.z());
-  else theFilteredTracks=TauTagTools::filteredTracks(theTracks,tkminPt_,tkminPixelHitsn_,tkminTrackerHitsn_,tkmaxipt_,tkmaxChi2_,thePV);
+  if (UsePVconstraint_ && !pvIsFake) {
+    theFilteredTracks = tautagtools::filteredTracks(theTracks,tkminPt_,tkminPixelHitsn_,tkminTrackerHitsn_,tkmaxipt_,tkmaxChi2_,tkPVmaxDZ_,thePV, thePV.z());
+  } else {
+    theFilteredTracks = tautagtools::filteredTracks(theTracks,tkminPt_,tkminPixelHitsn_,tkminTrackerHitsn_,tkmaxipt_,tkmaxChi2_,thePV);
+  }
   resultExtended.setTracks(theFilteredTracks);
 
   return resultExtended;

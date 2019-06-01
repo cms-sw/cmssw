@@ -14,30 +14,27 @@
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
- 
-class TriggerRatesMonitorClient: public DQMEDHarvester{
 
- public:
-
-  TriggerRatesMonitorClient(const edm::ParameterSet& ps);
+class TriggerRatesMonitorClient : public DQMEDHarvester {
+public:
+  TriggerRatesMonitorClient(const edm::ParameterSet &ps);
   ~TriggerRatesMonitorClient() override = default;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      
- protected:
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
+protected:
   void beginJob() override;
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) override;  //performed in the endLumi
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;       //performed in the endLumi
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
-  
- private:
 
-//private variables
+private:
+  //private variables
   std::string m_dqm_path;
 
   // Histograms
   std::vector<TH2F *> m_hltXpd_counts;
-
 };
 
-
-#endif // TRIGGERRATESMONITORCLIENT_H
+#endif  // TRIGGERRATESMONITORCLIENT_H

@@ -2,7 +2,7 @@
 #define DTPosNegType_H
 /** \class DTPosNegType
  *
- *  Description: 
+ *  Description:
  *
  *
  *  \author Paolo Ronchese INFN Padova
@@ -12,7 +12,6 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -37,9 +36,7 @@ class DTPosNegCompare {
 */
 
 class DTPosNegType {
-
- public:
-
+public:
   /** Constructor
    */
   DTPosNegType();
@@ -52,31 +49,22 @@ class DTPosNegType {
    */
   /// dump map
   static void dump();
-  static int getPN( int whe, int sec, int sta );
-  static int getPN( const DTChamberId& cha );
-  static int getCT( int whe, int sec, int sta );
-  static int getCT( const DTChamberId& cha );
+  static int getPN(int whe, int sec, int sta);
+  static int getPN(const DTChamberId &cha);
+  static int getCT(int whe, int sec, int sta);
+  static int getCT(const DTChamberId &cha);
 
- private:
-
+private:
   static bool initRequest;
-  static std::map<int,int> geomMap;
-//  static std::map<DTCCBId,int,DTPosNegCompare> geomMap;
+  static std::map<int, int> geomMap;
+  //  static std::map<DTCCBId,int,DTPosNegCompare> geomMap;
 
   static void fillMap();
-  static int idCode( int whe, int sec, int sta );
-  static int pnCode( int p, int t );
-  static void decode( int code, int& whe, int& sec, int& sta );
-  static void decode( int code, int& p, int& t );
-  static int getData( int whe, int sec, int sta );
-
+  static int idCode(int whe, int sec, int sta);
+  static int pnCode(int p, int t);
+  static void decode(int code, int &whe, int &sec, int &sta);
+  static void decode(int code, int &p, int &t);
+  static int getData(int whe, int sec, int sta);
 };
 
-
-#endif // DTPosNegType_H
-
-
-
-
-
-
+#endif  // DTPosNegType_H

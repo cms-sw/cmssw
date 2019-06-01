@@ -28,9 +28,9 @@
 #include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
 #include "CondFormats/HLTObjects/interface/HLTPrescaleTableCond.h"
 
-#include<map>
-#include<string>
-#include<vector>
+#include <map>
+#include <string>
+#include <vector>
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -44,21 +44,19 @@ class HLTPrescaleRecorder : public edm::one::EDProducer<edm::EndRunProducer,
                                                         edm::EndLuminosityBlockProducer,
                                                         edm::one::WatchRuns,
                                                         edm::one::WatchLuminosityBlocks> {
-
- public:
+public:
   explicit HLTPrescaleRecorder(const edm::ParameterSet&);
   ~HLTPrescaleRecorder() override;
-  static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  void beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup)final;
-  void endRun(edm::Run const& iRun, const edm::EventSetup& iSetup)final;
-  void endRunProduce(edm::Run & iRun, const edm::EventSetup& iSetup)final;
-  void beginLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup& iSetup)final;
-  void endLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup& iSetup)final;
-  void endLuminosityBlockProduce(edm::LuminosityBlock & iLumi, const edm::EventSetup& iSetup)final;
-  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup)final;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup) final;
+  void endRun(edm::Run const& iRun, const edm::EventSetup& iSetup) final;
+  void endRunProduce(edm::Run& iRun, const edm::EventSetup& iSetup) final;
+  void beginLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup& iSetup) final;
+  void endLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup& iSetup) final;
+  void endLuminosityBlockProduce(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) final;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) final;
 
- private:
-
+private:
   /// (Single) source: -1:PrescaleServicePSet 0:PrescaleService,
   /// 1:Run, 2:Lumi, 3:Event, 4:CondDB
   int src_;
@@ -73,7 +71,7 @@ class HLTPrescaleRecorder : public edm::one::EDProducer<edm::EndRunProducer,
   /// name of PrescaleServicePSet (src=-1)
   std::string psetName_;
   /// InputTag   of HLTPrescaleTable product (src=1,2,3)
-  edm::InputTag                               hltInputTag_;
+  edm::InputTag hltInputTag_;
   /// InputToken of HLTPrescaleTable product (src=1,2,3)
   edm::EDGetTokenT<trigger::HLTPrescaleTable> hltInputToken_;
   /// Tag of DB entry (HLT Key Name) (src=4)
@@ -90,6 +88,5 @@ class HLTPrescaleRecorder : public edm::one::EDProducer<edm::EndRunProducer,
 
   /// payload HLT object
   trigger::HLTPrescaleTable hlt_;
-
 };
 #endif

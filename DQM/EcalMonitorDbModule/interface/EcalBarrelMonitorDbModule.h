@@ -6,7 +6,7 @@
  *
  * \author G. Della Ricca
  *
-*/
+ */
 
 #include <string>
 
@@ -22,32 +22,28 @@ class DQMStore;
 
 class MonitorElementsDb;
 
-class EcalBarrelMonitorDbModule: public edm::EDAnalyzer{
-
- public:
-
+class EcalBarrelMonitorDbModule : public edm::EDAnalyzer {
+public:
   /// Constructor
-  EcalBarrelMonitorDbModule( const edm::ParameterSet& ps );
+  EcalBarrelMonitorDbModule(const edm::ParameterSet &ps);
 
   /// Destructor
-  virtual ~EcalBarrelMonitorDbModule();
+  ~EcalBarrelMonitorDbModule() override;
 
- protected:
-
+protected:
   /// Analyze
-  void analyze( const edm::Event& e, const edm::EventSetup& c );
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
   // BeginJob
-  void beginJob( void );
+  void beginJob(void) override;
 
   // EndJob
-  void endJob( void );
+  void endJob(void) override;
 
- private:
-  
+private:
   int icycle_;
- 
-  DQMStore* dqmStore_;
+
+  DQMStore *dqmStore_;
 
   std::string prefixME_;
 
@@ -55,12 +51,11 @@ class EcalBarrelMonitorDbModule: public edm::EDAnalyzer{
 
   std::string xmlFile_;
 
-  MonitorElementsDb* ME_Db_;
+  MonitorElementsDb *ME_Db_;
 
   unsigned int sleepTime_;
 
-  coral::ISessionProxy* session_;
-
+  coral::ISessionProxy *session_;
 };
 
 #endif

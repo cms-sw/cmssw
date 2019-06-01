@@ -98,7 +98,7 @@ HiTrivialConditionRetriever::produceTable( const HeavyIonRcd& ){
     i++;
   }
 
-  return std::move(CT);
+  return CT;
 }
 
 void HiTrivialConditionRetriever::printBin(const CentralityTable::CBin* thisBin){

@@ -19,7 +19,9 @@ class DQMStore;
 class TkDetMap;
 class TrackerTopology;
 class MonitorElement;
-namespace edm { class EventSetup; }
+namespace edm {
+  class EventSetup;
+}
 
 class SiStripTrackerMapCreator {
 public:
@@ -45,30 +47,23 @@ private:
                            DQMStore& dqm_store,
                            bool isBad,
                            std::map<unsigned int, std::string>& badmodmap);
-  void setTkMapFromHistogram(DQMStore& dqm_store,
-                             std::string const& htype,
-                             edm::EventSetup const& eSetup);
+  void setTkMapFromHistogram(DQMStore& dqm_store, std::string const& htype, edm::EventSetup const& eSetup);
   void setTkMapFromAlarm(DQMStore& dqm_store, edm::EventSetup const& eSetup);
   uint16_t getDetectorFlagAndComment(DQMStore* dqm_store,
                                      uint32_t det_id,
                                      TrackerTopology const* tTopo,
                                      std::ostringstream& comment);
 
-  void
-  paintTkMapFromHistogram(MonitorElement const* me,
-                          std::string const& map_type,
-                          std::vector<std::pair<float, uint32_t>>* topNmodVec);
+  void paintTkMapFromHistogram(MonitorElement const* me,
+                               std::string const& map_type,
+                               std::vector<std::pair<float, uint32_t>>* topNmodVec);
   void setTkMapRange(std::string const& map_type);
   void setTkMapRangeOffline();
-  uint16_t
-  getDetectorFlag(uint32_t const det_id)
-  {
+  uint16_t getDetectorFlag(uint32_t const det_id) {
     return detFlag_.find(det_id) != detFlag_.end() ? detFlag_[det_id] : 0;
   }
-  void printBadModuleList(std::map<unsigned int, std::string> const& badmodmap,
-                          edm::EventSetup const& eSetup);
-  void printTopModules(std::vector<std::pair<float, uint32_t>>& topNmodVec,
-                       edm::EventSetup const& eSetup);
+  void printBadModuleList(std::map<unsigned int, std::string> const& badmodmap, edm::EventSetup const& eSetup);
+  void printTopModules(std::vector<std::pair<float, uint32_t>>& topNmodVec, edm::EventSetup const& eSetup);
 
   std::unique_ptr<TrackerMap> trackerMap_{nullptr};
   std::string sRunNumber;

@@ -77,12 +77,10 @@
 using namespace edm;
 
 HLTScalers::HLTScalers(const edm::ParameterSet& ps)
-    : folderName_(ps.getUntrackedParameter<std::string>("dqmFolder",
-                                                        "HLT/HLTScalers_EvF")),
+    : folderName_(ps.getUntrackedParameter<std::string>("dqmFolder", "HLT/HLTScalers_EvF")),
       processname_(ps.getParameter<std::string>("processname")),
       pairPDPaths_(),
-      trigResultsSource_(consumes<TriggerResults>(
-          ps.getParameter<edm::InputTag>("triggerResults"))),
+      trigResultsSource_(consumes<TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"))),
       scalersN_(nullptr),
       scalersException_(nullptr),
       hltCorrelations_(nullptr),
@@ -122,8 +120,7 @@ void HLTScalers::dqmBeginRun(const edm::Run& run, const edm::EventSetup& c) {
       const std::vector<std::string>& PD = hltConfig_.streamContent("A");
 
       for (unsigned int i = 0; i < PD.size(); i++) {
-        const std::vector<std::string>& datasetPaths =
-            hltConfig_.datasetContent(PD[i]);
+        const std::vector<std::string>& datasetPaths = hltConfig_.datasetContent(PD[i]);
         pairPDPaths_.push_back(make_pair(PD[i], datasetPaths));
       }
 
@@ -131,14 +128,12 @@ void HLTScalers::dqmBeginRun(const edm::Run& run, const edm::EventSetup& c) {
       pairPDPaths_.push_back(make_pair("A", PD));
 
     } else {
-      LogDebug("HLTScalers")
-          << "HLTScalers::beginRun, steamm A not in the HLT menu ";
+      LogDebug("HLTScalers") << "HLTScalers::beginRun, steamm A not in the HLT menu ";
     }
   }
 }
 
-void HLTScalers::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&,
-                                edm::EventSetup const&) {
+void HLTScalers::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const&) {
   std::string rawdir(folderName_ + "/raw");
   iBooker.setCurrentFolder(rawdir);
 
@@ -146,10 +141,8 @@ void HLTScalers::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&,
   nLumiBlock_ = iBooker.bookInt("nLumiBlock");
   diagnostic_ = iBooker.book1D("hltMerge", "HLT merging diagnostic", 1, 0.5, 1.5);
   // fill for ever accepted event
-  hltOverallScaler_ =
-      iBooker.book1D("hltOverallScaler", "HLT Overall Scaler", 1, 0.5, 1.5);
-  hltOverallScalerN_ = iBooker.book1D("hltOverallScalerN",
-                                    "Reset HLT Overall Scaler", 1, 0.5, 1.5);
+  hltOverallScaler_ = iBooker.book1D("hltOverallScaler", "HLT Overall Scaler", 1, 0.5, 1.5);
+  hltOverallScalerN_ = iBooker.book1D("hltOverallScalerN", "Reset HLT Overall Scaler", 1, 0.5, 1.5);
 
   // DQM: Previously the number of trigger paths was determined on the first
   // event, by taking the size of the htlResults to book the histogram.
@@ -160,35 +153,29 @@ void HLTScalers::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&,
   // need to get maxModules dynamically
   int maxModules = 200;
 
-  scalersPD_ = iBooker.book1D("pdScalers", "PD scalers (stream A)", nPD, -0.5,
-                            nPD - 0.5);
+  scalersPD_ = iBooker.book1D("pdScalers", "PD scalers (stream A)", nPD, -0.5, nPD - 0.5);
   detailedScalers_ =
-      iBooker.book2D("detailedHltScalers", "HLT Scalers", npath, -0.5,
-                   npath - 0.5, maxModules, 0, maxModules - 1);
-  scalers_ =
-      iBooker.book1D("hltScalers", "HLT scalers", npath, -0.5, npath - 0.5);
-  scalersN_ = iBooker.book1D("hltScalersN", "Reset HLT scalers", npath, -0.5,
-                           npath - 0.5);
-  scalersException_ = iBooker.book1D("hltExceptions", "HLT Exception scalers",
-                                   npath, -0.5, npath - 0.5);
+      iBooker.book2D("detailedHltScalers", "HLT Scalers", npath, -0.5, npath - 0.5, maxModules, 0, maxModules - 1);
+  scalers_ = iBooker.book1D("hltScalers", "HLT scalers", npath, -0.5, npath - 0.5);
+  scalersN_ = iBooker.book1D("hltScalersN", "Reset HLT scalers", npath, -0.5, npath - 0.5);
+  scalersException_ = iBooker.book1D("hltExceptions", "HLT Exception scalers", npath, -0.5, npath - 0.5);
   hltCorrelations_ =
-      iBooker.book2D("hltCorrelations", "HLT Scalers", npath, -0.5, npath - 0.5,
-                   npath, -0.5, npath - 0.5);
+      iBooker.book2D("hltCorrelations", "HLT Scalers", npath, -0.5, npath - 0.5, npath, -0.5, npath - 0.5);
 
   // these two belong in top-level
   iBooker.setCurrentFolder(folderName_);
-  hltBxVsPath_ = iBooker.book2D("hltBxVsPath", "HLT Accept vs Bunch Number",
-                              3600, -0.5, 3599.5, npath, -0.5, npath - 0.5);
-  hltBx_ =
-      iBooker.book1D("hltBx", "Bx of HLT Accepted Events ", 3600, -0.5, 3599.5);
+  hltBxVsPath_ =
+      iBooker.book2D("hltBxVsPath", "HLT Accept vs Bunch Number", 3600, -0.5, 3599.5, npath, -0.5, npath - 0.5);
+  hltBx_ = iBooker.book1D("hltBx", "Bx of HLT Accepted Events ", 3600, -0.5, 3599.5);
 }
 
-void HLTScalers::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-                                      const edm::EventSetup& c) {
+void HLTScalers::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) {
   LogDebug("HLTScalers") << "Start of luminosity block.";
   // reset the N guys
-  if (scalersN_) scalersN_->Reset();
-  if (hltOverallScalerN_) hltOverallScalerN_->Reset();
+  if (scalersN_)
+    scalersN_->Reset();
+  if (hltOverallScalerN_)
+    hltOverallScalerN_->Reset();
 }
 
 void HLTScalers::analyze(const edm::Event& e, const edm::EventSetup& c) {
@@ -198,7 +185,7 @@ void HLTScalers::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   edm::Handle<TriggerResults> hltResults;
   bool b = e.getByToken(trigResultsSource_, hltResults);
-  if ( !b ) {
+  if (!b) {
     Labels l;
     labelsForToken(trigResultsSource_, l);
 
@@ -217,8 +204,7 @@ void HLTScalers::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
     // save path names in DQM-accessible format
     int q = 0;
-    for (TriggerNames::Strings::const_iterator j = names.triggerNames().begin();
-         j != names.triggerNames().end(); ++j) {
+    for (TriggerNames::Strings::const_iterator j = names.triggerNames().begin(); j != names.triggerNames().end(); ++j) {
       LogDebug("HLTScalers") << q << ": " << *j;
       ++q;
       scalers_->getTH1()->GetXaxis()->SetBinLabel(q, j->c_str());
@@ -226,8 +212,7 @@ void HLTScalers::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
     for (unsigned int i = 0; i < nPD; i++) {
       LogDebug("HLTScalers") << i << ": " << pairPDPaths_[i].first << std::endl;
-      scalersPD_->getTH1()->GetXaxis()->SetBinLabel(
-          i + 1, pairPDPaths_[i].first.c_str());
+      scalersPD_->getTH1()->GetXaxis()->SetBinLabel(i + 1, pairPDPaths_[i].first.c_str());
     }
 
     sentPaths_ = true;
@@ -272,9 +257,9 @@ void HLTScalers::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
       // check if this is hlt path name
       // unsigned int pathByIndex = triggerNames.triggerIndex(hltPathName);
-      unsigned int pathByIndex =
-          trigNames.triggerIndex(pairPDPaths_[mi].second[i]);
-      if (pathByIndex >= hltResults->size()) continue;
+      unsigned int pathByIndex = trigNames.triggerIndex(pairPDPaths_[mi].second[i]);
+      if (pathByIndex >= hltResults->size())
+        continue;
 
       // check if its L1 passed
       // comment out below but set groupL1Passed to true always
@@ -296,11 +281,11 @@ void HLTScalers::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 
-  if (anyGroupPassed) scalersPD_->Fill(pairPDPaths_.size() - 1);
+  if (anyGroupPassed)
+    scalersPD_->Fill(pairPDPaths_.size() - 1);
 }
 
-void HLTScalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-                                    const edm::EventSetup& c) {
+void HLTScalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) {
   // put this in as a first-pass for figuring out the rate
   // each lumi block is 23 seconds in length
   nLumiBlock_->Fill(lumiSeg.id().luminosityBlock());

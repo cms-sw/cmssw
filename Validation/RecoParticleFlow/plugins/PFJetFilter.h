@@ -1,25 +1,23 @@
 #ifndef PFJETFILTER_H
 #define PFJETFILTER_H
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAlgo.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 
-class PFJetFilter: public edm::EDFilter {
- public:
-
-  explicit PFJetFilter(const edm::ParameterSet&);
+class PFJetFilter : public edm::EDFilter {
+public:
+  explicit PFJetFilter(const edm::ParameterSet &);
   ~PFJetFilter() override;
 
- private:
-
-  void beginJob() override ;
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+private:
+  void beginJob() override;
+  bool filter(edm::Event &, const edm::EventSetup &) override;
   void endJob() override;
 
   double resolution(double, bool);
@@ -33,15 +31,13 @@ class PFJetFilter: public edm::EDFilter {
   double deltaR_max;
   double eta_min;
   double eta_max;
-  edm::EDGetTokenT< edm::View<reco::Candidate> > inputTruthLabel_;
-  edm::EDGetTokenT< edm::View<reco::Candidate> > inputRecoLabel_;
+  edm::EDGetTokenT<edm::View<reco::Candidate>> inputTruthLabel_;
+  edm::EDGetTokenT<edm::View<reco::Candidate>> inputRecoLabel_;
 
   unsigned int entry;
   bool verbose;
-  
-  PFBenchmarkAlgo *algo_;
 
+  PFBenchmarkAlgo *algo_;
 };
 
-
-#endif //PFJETBENCHMARKFILTER_H
+#endif  // PFJETBENCHMARKFILTER_H

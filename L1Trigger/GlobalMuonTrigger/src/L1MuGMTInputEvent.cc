@@ -2,7 +2,7 @@
 //
 //   class L1MuGMTInputEvent
 //
-//   Description:  
+//   Description:
 //
 //
 //   Author :
@@ -33,8 +33,7 @@
 //----------------
 // Constructors --
 //----------------
-L1MuGMTInputEvent::L1MuGMTInputEvent() : 
-  		m_runnr(0L), m_evtnr(0L), m_mip_bits(14,18), m_iso_bits(14,18) {
+L1MuGMTInputEvent::L1MuGMTInputEvent() : m_runnr(0L), m_evtnr(0L), m_mip_bits(14, 18), m_iso_bits(14, 18) {
   std::vector<L1MuRegionalCand> empty_vec;
   m_inputmuons["INC"] = empty_vec;
   m_inputmuons["IND"] = empty_vec;
@@ -49,23 +48,21 @@ L1MuGMTInputEvent::L1MuGMTInputEvent() :
   m_inputmuons["IND"].reserve(4);
   m_inputmuons["INB"].reserve(4);
   m_inputmuons["INF"].reserve(4);
-  
+
   m_mip_bits.init(false);
-  m_iso_bits.init(true); //this is more useful when reading a standalone input file
-                         //since "not-quiet" bits are stored there
+  m_iso_bits.init(true);  //this is more useful when reading a standalone input file
+                          //since "not-quiet" bits are stored there
 }
 
 //--------------
 // Destructor --
 //--------------
-L1MuGMTInputEvent::~L1MuGMTInputEvent() {
-}
+L1MuGMTInputEvent::~L1MuGMTInputEvent() {}
 
 //--------------
 // Operations --
 //--------------
-void L1MuGMTInputEvent::addInputMuon(const std::string chipid, 
-                                     const L1MuRegionalCand& inMu) {
+void L1MuGMTInputEvent::addInputMuon(const std::string chipid, const L1MuRegionalCand& inMu) {
   if (m_inputmuons.count(chipid) == 0)
     throw std::runtime_error("L1MuGMTInputEvent::addInputMuon: invalid chipid:" + chipid);
   m_inputmuons[chipid].push_back(inMu);
@@ -81,19 +78,14 @@ void L1MuGMTInputEvent::reset() {
   }
 
   m_mip_bits.init(false);
-  m_iso_bits.init(true); //see CTOR for info on this
+  m_iso_bits.init(true);  //see CTOR for info on this
 }
 
 const L1MuRegionalCand* L1MuGMTInputEvent::getInputMuon(std::string chipid, unsigned index) const {
-
-  if (m_inputmuons.count(chipid) == 0 )
+  if (m_inputmuons.count(chipid) == 0)
     throw std::runtime_error("L1GMTInputEvent::getInputMuon: invalid chipid:" + chipid);
-  
-  if (index >= m_inputmuons.find(chipid)->second.size()) return nullptr;
+
+  if (index >= m_inputmuons.find(chipid)->second.size())
+    return nullptr;
   return &(m_inputmuons.find(chipid)->second.at(index));
 }
-
-
-
-
-  

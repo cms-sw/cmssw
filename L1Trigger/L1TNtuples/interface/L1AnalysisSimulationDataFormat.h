@@ -3,37 +3,28 @@
 
 //-------------------------------------------------------------------------------
 // Created 20/04/2010 - E. Conte, A.C. Le Bihan
-// 
-// 
+//
+//
 // Original code : L1Trigger/L1TNtuples/L1NtupleProducer
 //-------------------------------------------------------------------------------
 
 #include <vector>
 
-namespace L1Analysis
-{
-  class L1AnalysisSimulationDataFormat
-  {
+namespace L1Analysis {
+  class L1AnalysisSimulationDataFormat {
   public:
-    L1AnalysisSimulationDataFormat(){ Reset(); };
+    L1AnalysisSimulationDataFormat() { Reset(); };
     ~L1AnalysisSimulationDataFormat(){};
-    
-    void Reset()
-    {
-      meanInt   = -1.;
+
+    void Reset() {
+      meanInt = -1.;
       actualInt = -1;
     }
 
-                   
     // ---- L1AnalysisSimulationDataFormat information.
-    
-    
-    float              meanInt;
-    int              actualInt;
 
-    
-  }; 
-} 
+    float meanInt;
+    int actualInt;
+  };
+}  // namespace L1Analysis
 #endif
-
-

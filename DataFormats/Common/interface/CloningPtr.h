@@ -4,7 +4,7 @@
 //
 // Package:     Common
 // Class  :     CloningPtr
-// 
+//
 /**\class CloningPtr CloningPtr.h DataFormats/Common/interface/CloningPtr.h
 
  Description: A smart pointer that owns its pointer and clones it when necessary
@@ -27,44 +27,39 @@
 
 // forward declarations
 namespace edm {
-  template< class T, class P = ClonePolicy<T> >
+  template <class T, class P = ClonePolicy<T> >
   class CloningPtr {
-public:
-    CloningPtr(): ptr_(nullptr) {}
+  public:
+    CloningPtr() : ptr_(nullptr) {}
     CloningPtr(const T& iPtr) : ptr_(P::clone(iPtr)) {}
     CloningPtr(std::unique_ptr<T> iPtr) : ptr_(iPtr.release()) {}
-    CloningPtr(const CloningPtr<T,P>& iPtr) : ptr_(P::clone(*(iPtr.ptr_))) {}
-    
-    CloningPtr<T,P>& operator=(const CloningPtr<T,P>& iRHS) {
-      CloningPtr<T,P> temp(iRHS);
+    CloningPtr(const CloningPtr<T, P>& iPtr) : ptr_(P::clone(*(iPtr.ptr_))) {}
+
+    CloningPtr<T, P>& operator=(const CloningPtr<T, P>& iRHS) {
+      CloningPtr<T, P> temp(iRHS);
       swap(temp);
       return *this;
     }
-    
-    void swap(CloningPtr<T,P>& iPtr) {
-      std::swap(ptr_, iPtr.ptr_);
-    }
-    
-    ~CloningPtr() { delete ptr_;}
-    
+
+    void swap(CloningPtr<T, P>& iPtr) { std::swap(ptr_, iPtr.ptr_); }
+
+    ~CloningPtr() { delete ptr_; }
+
     // ---------- const member functions ---------------------
     T& operator*() { return *ptr_; }
-    
+
     T* operator->() { return ptr_; }
-    
+
     T* get() { return ptr_; }
-    
-private:
+
+  private:
     T* ptr_;
   };
 
   // Free swap function
   template <class T, class P>
-  inline
-  void
-  swap(CloningPtr<T,P>& a, CloningPtr<T,P>& b) 
-  {
+  inline void swap(CloningPtr<T, P>& a, CloningPtr<T, P>& b) {
     a.swap(b);
   }
-}
+}  // namespace edm
 #endif

@@ -371,3 +371,12 @@ float RecHitTools::getPt(const DetId& id, const float& hitEnergy, const float& v
   float pt = hitEnergy / cosh(eta);
   return pt;
 }
+
+bool RecHitTools::maskCell(const DetId& id, int corners) const {
+  if (id.det() == DetId::Hcal) {
+    return false;
+  } else {
+    auto hg = static_cast<const HGCalGeometry*>(getSubdetectorGeometry(id));
+    return hg->topology().dddConstants().maskCell(id, corners);
+  }
+}

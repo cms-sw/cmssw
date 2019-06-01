@@ -9,6 +9,9 @@
  *
  */
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
@@ -26,6 +29,7 @@ class PFRecoTauDecayModeIndexProducer final : public PFTauDiscriminationProducer
       ~PFRecoTauDecayModeIndexProducer() override{} 
       double discriminate(const PFTauRef& thePFTauRef) const override ;
       void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
    private:
       edm::InputTag PFTauDecayModeProducer_;
       edm::Handle<PFTauDecayModeAssociation> decayModes_; // holds the PFTauDecayModes for the current event
@@ -52,6 +56,20 @@ double PFRecoTauDecayModeIndexProducer::discriminate(const PFTauRef& thePFTauRef
    return theDecayModeIndex;
 }
   
+}
+
+void
+PFRecoTauDecayModeIndexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfTauDecayModeIndexProducer
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("PFTauDecayModeProducer", edm::InputTag("pfRecoTauDecayModeProducer"));
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfRecoTauProducer"));
+  descriptions.add("pfTauDecayModeIndexProducer", desc);
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDecayModeIndexProducer);

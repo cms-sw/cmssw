@@ -13,33 +13,32 @@
 #include "CondTools/L1TriggerExt/interface/DataWriterExt.h"
 
 class L1CondDBPayloadWriterExt : public edm::EDAnalyzer {
-   public:
-      explicit L1CondDBPayloadWriterExt(const edm::ParameterSet&);
-      ~L1CondDBPayloadWriterExt() override;
+public:
+  explicit L1CondDBPayloadWriterExt(const edm::ParameterSet&);
+  ~L1CondDBPayloadWriterExt() override;
 
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-   private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+  // ----------member data ---------------------------
+  l1t::DataWriterExt m_writer;
+  // std::string m_tag ; // tag is known by PoolDBOutputService
 
-      // ----------member data ---------------------------
-      l1t::DataWriterExt m_writer ;
-      // std::string m_tag ; // tag is known by PoolDBOutputService
+  // set to false to write config data without valid TSC key
+  bool m_writeL1TriggerKeyExt;
 
-      // set to false to write config data without valid TSC key
-      bool m_writeL1TriggerKeyExt ;
+  // set to false to write config data only
+  bool m_writeConfigData;
 
-      // set to false to write config data only
-      bool m_writeConfigData ;
+  // substitute new payload tokens for existing keys in L1TriggerKeyListExt
+  bool m_overwriteKeys;
 
-      // substitute new payload tokens for existing keys in L1TriggerKeyListExt
-      bool m_overwriteKeys ;
+  bool m_logTransactions;
 
-      bool m_logTransactions ;
-
-      // if true, do not retrieve L1TriggerKeyListExt from EventSetup
-      bool m_newL1TriggerKeyListExt ;
+  // if true, do not retrieve L1TriggerKeyListExt from EventSetup
+  bool m_newL1TriggerKeyListExt;
 };
 
 #endif

@@ -22,24 +22,23 @@ class CSCChamberSpecs;
 class CSCWireGroupPackage;
 
 class CSCGeometry : public TrackingGeometry {
-
   typedef std::map<DetId, GeomDet*> CSCDetMap;
   // The buffer for specs need not really be a map. Could do it with a vector!
   typedef std::map<int, const CSCChamberSpecs*, std::less<int> > CSCSpecsContainer;
 
- public:
-
+public:
   typedef std::vector<const CSCChamber*> ChamberContainer;
   typedef std::vector<const CSCLayer*> LayerContainer;
 
-  friend class CSCGeometryBuilder; //FromDDD;
+  friend class CSCGeometryBuilder;  //FromDDD;
   friend class GeometryAligner;
 
   /// Default constructor
   CSCGeometry();
 
   /// Real constructor
-  CSCGeometry( bool debugV, bool gangedstripsME1a_, bool onlywiresME1a_, bool realWireGeometry_, bool useCentreTIOffsets_ );
+  CSCGeometry(
+      bool debugV, bool gangedstripsME1a_, bool onlywiresME1a_, bool realWireGeometry_, bool useCentreTIOffsets_);
 
   /// Destructor
   ~CSCGeometry() override;
@@ -49,16 +48,16 @@ class CSCGeometry : public TrackingGeometry {
   //---- Base class' interface
 
   // Return a vector of all det types
-  const DetTypeContainer&  detTypes() const override;
+  const DetTypeContainer& detTypes() const override;
 
   // Return a vector of all GeomDetUnit
   const DetContainer& detUnits() const override;
 
   // Return a vector of all GeomDet (including all GeomDetUnits)
   const DetContainer& dets() const override;
-  
+
   // Return a vector of all GeomDetUnit DetIds
-  const DetIdContainer&    detUnitIds() const override;
+  const DetIdContainer& detUnitIds() const override;
 
   // Return a vector of all GeomDet DetIds (including those of GeomDetUnits)
   const DetIdContainer& detIds() const override;
@@ -83,23 +82,21 @@ class CSCGeometry : public TrackingGeometry {
   /// Return a vector of all layers
   const LayerContainer& layers() const;
 
-
-
   /**
    * Return the CSCChamberSpecs* for given chamber type
    * if it exists, or 0 if it has not been created.
    */
-  const CSCChamberSpecs* findSpecs( int iChamberType );
+  const CSCChamberSpecs* findSpecs(int iChamberType);
 
   /**
    * Build CSCChamberSpecs for given chamber type.
    *
    * @@ a good candidate to be replaced by a factory?
    */
-  const CSCChamberSpecs* buildSpecs( int iChamberType,
-				 const std::vector<float>& fpar,
-				 const std::vector<float>& fupar,
-				 const CSCWireGroupPackage& wg );
+  const CSCChamberSpecs* buildSpecs(int iChamberType,
+                                    const std::vector<float>& fpar,
+                                    const std::vector<float>& fupar,
+                                    const CSCWireGroupPackage& wg);
 
   void setGangedStripsInME1a(bool gs) { gangedstripsME1a_ = gs; }
   void setOnlyWiresInME1a(bool ow) { onlywiresME1a_ = ow; }
@@ -135,14 +132,13 @@ class CSCGeometry : public TrackingGeometry {
   /// Dump parameters for overall strip and wire modelling
   void queryModelling() const;
 
- private:
-
+private:
   /// deallocate managed memory
   void deallocate();
 
   /// Add a chamber with given DetId.
   void addChamber(CSCChamber* ch);
-  
+
   /// Add a DetUnit
   void addLayer(CSCLayer* l);
 
@@ -156,25 +152,25 @@ class CSCGeometry : public TrackingGeometry {
   void addDet(GeomDet* det);
 
   // The chambers are owned by the geometry (which in turn own layers)
-  ChamberContainer  theChambers; 
+  ChamberContainer theChambers;
 
-  // Map for efficient lookup by DetId 
-  CSCDetMap         theMap;
+  // Map for efficient lookup by DetId
+  CSCDetMap theMap;
 
-  // These are used rarely; they could be computed at runtime 
+  // These are used rarely; they could be computed at runtime
   // to save memory.
-  DetTypeContainer  theDetTypes;
-  DetContainer      theDets;       // all dets (chambers and layers)
-  DetContainer      theDetUnits;   // all layers
-  DetIdContainer    theDetIds;
-  DetIdContainer    theDetUnitIds;
+  DetTypeContainer theDetTypes;
+  DetContainer theDets;      // all dets (chambers and layers)
+  DetContainer theDetUnits;  // all layers
+  DetIdContainer theDetIds;
+  DetIdContainer theDetUnitIds;
 
   // These are reduntant copies, to satisfy the interface.
-  LayerContainer    theLayers;
+  LayerContainer theLayers;
 
-  // Parameters controlling modelling of geometry 
+  // Parameters controlling modelling of geometry
 
-  bool debugV_; // for debug printout etc.
+  bool debugV_;  // for debug printout etc.
 
   bool gangedstripsME1a_;
   bool onlywiresME1a_;
@@ -183,8 +179,6 @@ class CSCGeometry : public TrackingGeometry {
 
   // Store pointers to Specs objects as we build them.
   CSCSpecsContainer specsContainer;
-
 };
 
 #endif
-

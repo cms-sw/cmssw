@@ -11,7 +11,6 @@ class UCTTower;
 
 class UCTLayer1 {
 public:
-
   // Layer1 hardware firmware version
   // Default (0): initial version for 2016 running
   // 1: Update to include saturated tower codes to layer 2
@@ -21,15 +20,15 @@ public:
   // 3: Update to handle saturation codes HF (and do division in LUT, and consider HBHE saturation before decompression)
   //    (put online at run >= 299756: http://cmsonline.cern.ch/cms-elog/999604)
   //
-  UCTLayer1(int fwv=0);
+  UCTLayer1(int fwv = 0);
 
   virtual ~UCTLayer1();
 
   // To access Layer1 information
 
-  std::vector<UCTCrate*>& getCrates() {return crates;}
-  const UCTRegion* getRegion(UCTRegionIndex r) const {return getRegion(r.first, r.second);}
-  const UCTTower* getTower(UCTTowerIndex t) const {return getTower(t.first, t.second);}
+  std::vector<UCTCrate*>& getCrates() { return crates; }
+  const UCTRegion* getRegion(UCTRegionIndex r) const { return getRegion(r.first, r.second); }
+  const UCTTower* getTower(UCTTowerIndex t) const { return getTower(t.first, t.second); }
 
   // To zero out event in case of selective tower filling
   bool clearEvent();
@@ -42,20 +41,19 @@ public:
 
   // More access functions
 
-  uint32_t getSummary() {return uctSummary;}
-  uint32_t et() {return uctSummary;}
+  uint32_t getSummary() { return uctSummary; }
+  uint32_t et() { return uctSummary; }
 
   friend std::ostream& operator<<(std::ostream&, const UCTLayer1&);
 
 private:
-
   // No copy constructor is needed
 
-  UCTLayer1(const UCTLayer1&);
+  UCTLayer1(const UCTLayer1&) = delete;
 
   // No equality operator is needed
 
-  const UCTLayer1& operator=(const UCTLayer1&);
+  const UCTLayer1& operator=(const UCTLayer1&) = delete;
 
   // Helper functions
 
@@ -68,7 +66,6 @@ private:
 
   uint32_t uctSummary;
   const int fwVersion;
-
 };
 
 #endif

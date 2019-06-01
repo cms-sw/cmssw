@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     SiPixelTemplateDBObject4TRcd
-// 
+//
 /**\class SiPixelTemplateDBObject4TRcd SiPixelTemplateDBObject4TRcd.h CondFormats/DataRecord/interface/SiPixelTemplateDBObject4TRcd.h
 
  Description: <one line class summary>
@@ -14,13 +14,14 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Mon Sep 28 15:40:50 CEST 2009
 // $Id$
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class SiPixelTemplateDBObject4TRcd : public edm::eventsetup::EventSetupRecordImplementation<SiPixelTemplateDBObject4TRcd> {};
+class SiPixelTemplateDBObject4TRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<SiPixelTemplateDBObject4TRcd> {};
 
 #endif

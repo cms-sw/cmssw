@@ -112,8 +112,7 @@ void Herwig7Interface::initRepository(const edm::ParameterSet &pset)
         else
             runModeTemp.erase(0, pos+1);
 
-		// construct HerwigUIProvider object and return it as global object
-		HwUI_ = new Herwig::HerwigUIProvider(pset, dumpConfig_, Herwig::RunMode::READ);
+		HwUI_.reset(new Herwig::HerwigUIProvider(pset, dumpConfig_, Herwig::RunMode::READ));
 		edm::LogInfo("Herwig7Interface") << "HerwigUIProvider object with run mode " << HwUI_->runMode() << " created.\n";
 
 
@@ -243,10 +242,10 @@ void Herwig7Interface::flushRandomNumberGenerator()
       */
 }
 
-unique_ptr<HepMC::GenEvent> Herwig7Interface::convert(
+auto_ptr<HepMC::GenEvent> Herwig7Interface::convert(
 					const ThePEG::EventPtr &event)
 {
-	return std::unique_ptr<HepMC::GenEvent>(
+	return std::auto_ptr<HepMC::GenEvent>(
 		ThePEG::HepMCConverter<HepMC::GenEvent>::convert(*event));
 }
 

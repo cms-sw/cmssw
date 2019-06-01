@@ -16,16 +16,16 @@ Toy EDAnalyzer for testing purposes only.
 #include <string>
 
 namespace edmtest {
-  class DTKeyedConfigDump : public edm::EDAnalyzer
-  {
+  class DTKeyedConfigDump : public edm::EDAnalyzer {
   public:
-    explicit  DTKeyedConfigDump(edm::ParameterSet const& p);
-    explicit  DTKeyedConfigDump(int i) ;
-    virtual ~ DTKeyedConfigDump();
+    explicit DTKeyedConfigDump(edm::ParameterSet const& p);
+    explicit DTKeyedConfigDump(int i);
+    virtual ~DTKeyedConfigDump();
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+
   private:
     bool dumpCCBKeys;
     bool dumpAllData;
     DTKeyedConfigCache cfgCache;
   };
-}
+}  // namespace edmtest

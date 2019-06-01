@@ -1,7 +1,6 @@
 #ifndef DTEfficiencyTask_H
 #define DTEfficiencyTask_H
 
-
 /** \class DTEfficiencyTask
  *  DQM Analysis of 4D DT segments, it produces plots about: <br>
  *      - single cell efficiency
@@ -10,7 +9,6 @@
  *
  *  \author G. Mila - INFN Torino
  */
-
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <DataFormats/Common/interface/Handle.h>
@@ -35,7 +33,7 @@ class DQMStore;
 class MonitorElement;
 class DTGeometry;
 
-class DTEfficiencyTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTEfficiencyTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor
   DTEfficiencyTask(const edm::ParameterSet& pset);
@@ -44,22 +42,20 @@ public:
   ~DTEfficiencyTask() override;
 
   /// To reset the MEs
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)  override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)  final {}
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) final {}
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
 protected:
-
   /// BeginRun
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
-// Book the histograms
-void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  // Book the histograms
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
-
   edm::ESHandle<DTGeometry> muonGeom;
 
   // Switch for verbosity
@@ -78,10 +74,8 @@ private:
   void fillHistos(DTLayerId lId, int firstWire, int lastWire, int missingWire, bool UnassHit);
 
   std::map<DTLayerId, std::vector<MonitorElement*> > histosPerL;
-
 };
 #endif
-
 
 /* Local Variables: */
 /* show-trailing-whitespace: t */

@@ -2,7 +2,7 @@
 //
 /**  \class DTChambPhSegm
  *
- *    Muon Chamber Trigger Phi candidate 
+ *    Muon Chamber Trigger Phi candidate
  *
  *
  *
@@ -21,8 +21,8 @@
 //----------------------
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "L1Trigger/DTTraco/interface/DTTracoTrigData.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigData.h"
@@ -39,106 +39,99 @@
 typedef unsigned char myint8;
 
 class DTChambPhSegm : public DTTrigData {
+public:
+  /// Constructor
+  DTChambPhSegm(DTChamberId, int);
 
-  public:
+  /// Constructor
+  /*sm   DTChambPhSegm(MuBarChamberId, int, */
+  /*sm 		    const DTTracoTrigData* tracotrig, int); */
+  DTChambPhSegm(DTChamberId, int, const DTTracoTrigData *, int);
+  /// Constructor */
+  /*sm   DTChambPhSegm(const DTChambPhSegm& seg); */
+  DTChambPhSegm(const DTChambPhSegm &);
 
-    /// Constructor
-    DTChambPhSegm(DTChamberId, int);
+  /// Destructor
+  ~DTChambPhSegm() override;
 
-    /// Constructor
-/*sm   DTChambPhSegm(MuBarChamberId, int, */
-/*sm 		    const DTTracoTrigData* tracotrig, int); */
-    DTChambPhSegm(DTChamberId, int,
-		    const DTTracoTrigData*, int);
-    /// Constructor */
-/*sm   DTChambPhSegm(const DTChambPhSegm& seg); */
-    DTChambPhSegm(const DTChambPhSegm&); 
+  /// Assignment operator
+  /*sm    DTChambPhSegm& operator=(const DTChambPhSegm& seg); */
+  DTChambPhSegm &operator=(const DTChambPhSegm &);
+  /// Associate a TRACO trigger
+  inline void setTracoTrig(const DTTracoTrigData *tracotrig, int isFirst) {
+    m_tracotrig = tracotrig;
+    m_isFirst = isFirst;
+  }
 
-    /// Destructor 
-    ~DTChambPhSegm() override;
+  /// Clear
+  void clear();
 
-  
-    /// Assignment operator
-    /*sm    DTChambPhSegm& operator=(const DTChambPhSegm& seg); */
-    DTChambPhSegm& operator=(const DTChambPhSegm&);
-    /// Associate a TRACO trigger
-    inline void setTracoTrig(const DTTracoTrigData* tracotrig, int isFirst) {
+  /// Return associated TRACO trigger
+  inline const DTTracoTrigData *tracoTrig() const { return m_tracotrig; }
 
-       m_tracotrig = tracotrig; 
-       m_isFirst = isFirst;
-    }
+  /// Return step number
+  inline int step() const { return m_step; }
 
-    /// Clear
-    void clear();
+  /// Return chamber identifier
+  DTChamberId ChamberId() const override { return m_chamberid; }
 
-    /// Return associated TRACO trigger
-    inline const DTTracoTrigData* tracoTrig() const { return m_tracotrig; }
+  /// Print
+  void print() const override;
 
-    /// Return step number
-    inline int step() const { return m_step; }
+  /// Return parent TRACO number
+  inline int tracoNumber() const { return m_tracotrig->tracoNumber(); }
 
-    /// Return chamber identifier
-    DTChamberId ChamberId() const override { return m_chamberid; }
+  /// Return if it is a first track
+  inline int isFirst() const { return m_isFirst == 1; }
 
-    /// Print
-    void print() const override;
+  /// Return trigger code (MTTF input format [0,7])
+  int code() const { return m_tracotrig->qdec(); }
 
-    /// Return parent TRACO number
-    inline int tracoNumber() const { return m_tracotrig->tracoNumber(); }
+  /// Return trigger code (10*inner_code+outer_code; X_code=1,2,3,4,8)
+  inline int oldCode() const { return m_tracotrig->code(); }
 
-    /// Return if it is a first track
-    inline int isFirst() const { return m_isFirst == 1; }
+  /// Return trigger K parameter
+  inline float K() const { return m_tracotrig->K(); }
 
-    /// Return trigger code (MTTF input format [0,7])
-    int code() const { return m_tracotrig->qdec(); }
+  /// Return trigger X parameter
+  inline float X() const { return m_tracotrig->X(); }
 
-    /// Return trigger code (10*inner_code+outer_code; X_code=1,2,3,4,8)
-    inline int oldCode() const { return m_tracotrig->code(); }
+  /// Return trigger K parameter converted to angle (bit pattern)
+  int psi() const { return m_tracotrig->psi(); }
 
-    /// Return trigger K parameter
-    inline float K() const { return m_tracotrig->K(); }
+  /// Return trigger X parameter converted to angle (bit pattern)
+  int psiR() const { return m_tracotrig->psiR(); }
 
-    /// Return trigger X parameter
-    inline float X() const { return m_tracotrig->X(); }
+  /// Return trigger X parameter converted to angle (bit pattern)
+  int phi() const { return m_tracotrig->psiR(); }
 
-    /// Return trigger K parameter converted to angle (bit pattern)
-    int psi() const { return m_tracotrig->psi(); }
+  /// Return bending angle (bit pattern)
+  inline int DeltaPsiR() const { return m_tracotrig->DeltaPsiR(); }
 
-    /// Return trigger X parameter converted to angle (bit pattern)
-    int psiR() const { return m_tracotrig->psiR(); }
+  /// Return bending angle (bit pattern)
+  inline int phiB() const { return m_tracotrig->DeltaPsiR(); }
 
-    /// Return trigger X parameter converted to angle (bit pattern)
-    int phi() const { return m_tracotrig->psiR(); }
+  /// Return correlator output code (position of segments)
+  inline int posMask() const { return m_tracotrig->posMask(); }
 
-    /// Return bending angle (bit pattern)
-    inline int DeltaPsiR() const { return m_tracotrig->DeltaPsiR(); }
+  /// Return the preview code (10*inner_code or outer_code; X_code=1,2,3,4,8)
+  inline int pvCode() const { return m_tracotrig->pvCode(); }
 
-    /// Return bending angle (bit pattern)
-    inline int phiB() const { return m_tracotrig->DeltaPsiR(); }
+  /// Return the preview K
+  inline int pvK() const { return m_tracotrig->pvK(); }
 
-    /// Return correlator output code (position of segments)
-    inline int posMask() const { return m_tracotrig->posMask(); }
-  
-    /// Return the preview code (10*inner_code or outer_code; X_code=1,2,3,4,8)
-    inline int pvCode() const { return m_tracotrig->pvCode(); }
+private:
+  /// parent chamber
+  DTChamberId m_chamberid;
 
-    /// Return the preview K
-    inline int pvK() const { return m_tracotrig->pvK(); }
+  /// step number
+  myint8 m_step;
 
-  private:
+  /// first or second track
+  myint8 m_isFirst;
 
-    /// parent chamber
-    DTChamberId m_chamberid;
-
-    /// step number
-    myint8 m_step;
-
-    /// first or second track
-    myint8 m_isFirst;
-
-    /// the corresponding traco trigger
-    const DTTracoTrigData* m_tracotrig;
-
+  /// the corresponding traco trigger
+  const DTTracoTrigData *m_tracotrig;
 };
 
 #endif

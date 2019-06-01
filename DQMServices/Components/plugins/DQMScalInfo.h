@@ -30,10 +30,8 @@
 #include "DataFormats/Scalers/interface/TimeSpec.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 
-class DQMScalInfo: public DQMEDAnalyzer{
-
+class DQMScalInfo : public DQMEDAnalyzer {
 public:
-
   /// Constructor
   DQMScalInfo(const edm::ParameterSet& ps);
 
@@ -41,13 +39,11 @@ public:
   ~DQMScalInfo() override;
 
 protected:
-
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
-
   void makeL1Scalars(const edm::Event& e);
   void makeLumiScalars(const edm::Event& e);
 
@@ -58,16 +54,16 @@ private:
   edm::EDGetTokenT<Level1TriggerScalersCollection> l1tscollectionToken_;
   edm::EDGetTokenT<LumiScalersCollection> lumicollectionToken_;
 
-   // histograms
-  MonitorElement * hlresync_;
-  MonitorElement * hlOC0_;
-  MonitorElement * hlTE_;
-  MonitorElement * hlstart_;
-  MonitorElement * hlEC0_;
-  MonitorElement * hlHR_;
-  MonitorElement * hphysTrig_;  
+  // histograms
+  MonitorElement* hlresync_;
+  MonitorElement* hlOC0_;
+  MonitorElement* hlTE_;
+  MonitorElement* hlstart_;
+  MonitorElement* hlEC0_;
+  MonitorElement* hlHR_;
+  MonitorElement* hphysTrig_;
 
-  MonitorElement * hinstLumi_;  
+  MonitorElement* hinstLumi_;
 };
 
 #endif

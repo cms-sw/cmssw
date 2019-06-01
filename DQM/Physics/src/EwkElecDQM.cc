@@ -35,65 +35,48 @@ using namespace std;
 using namespace reco;
 
 EwkElecDQM::EwkElecDQM(const ParameterSet& cfg)
-    :
-      // Input collections
-      metTag_(cfg.getUntrackedParameter<edm::InputTag>("METTag",
-                                                       edm::InputTag("met"))),
-      jetTag_(cfg.getUntrackedParameter<edm::InputTag>(
-          "JetTag", edm::InputTag("sisCone5CaloJets"))),
-//      trigTag_(consumes<edm::TriggerResults>(
-  //        cfg.getUntrackedParameter<edm::InputTag>(
-     //         "TrigTag", edm::InputTag("TriggerResults::HLT")))),
+    :  // Input collections
+      metTag_(cfg.getUntrackedParameter<edm::InputTag>("METTag", edm::InputTag("met"))),
+      jetTag_(cfg.getUntrackedParameter<edm::InputTag>("JetTag", edm::InputTag("sisCone5CaloJets"))),
+      //      trigTag_(consumes<edm::TriggerResults>(
+      //        cfg.getUntrackedParameter<edm::InputTag>(
+      //         "TrigTag", edm::InputTag("TriggerResults::HLT")))),
       elecTag_(consumes<edm::View<reco::GsfElectron> >(
-          cfg.getUntrackedParameter<edm::InputTag>(
-              "ElecTag", edm::InputTag("gsfElectrons")))),
-      metToken_(consumes<edm::View<reco::MET> >(
-          cfg.getUntrackedParameter<edm::InputTag>("METTag",
-                                                   edm::InputTag("met")))),
+          cfg.getUntrackedParameter<edm::InputTag>("ElecTag", edm::InputTag("gsfElectrons")))),
+      metToken_(
+          consumes<edm::View<reco::MET> >(cfg.getUntrackedParameter<edm::InputTag>("METTag", edm::InputTag("met")))),
       jetToken_(consumes<edm::View<reco::Jet> >(
-          cfg.getUntrackedParameter<edm::InputTag>(
-              "JetTag", edm::InputTag("sisCone5CaloJets")))),
+          cfg.getUntrackedParameter<edm::InputTag>("JetTag", edm::InputTag("sisCone5CaloJets")))),
       vertexTag_(consumes<edm::View<reco::Vertex> >(
-          cfg.getUntrackedParameter<edm::InputTag>(
-              "VertexTag", edm::InputTag("offlinePrimaryVertices")))),
+          cfg.getUntrackedParameter<edm::InputTag>("VertexTag", edm::InputTag("offlinePrimaryVertices")))),
       beamSpotTag_(
-          consumes<reco::BeamSpot>(cfg.getUntrackedParameter<edm::InputTag>(
-              "BeamSpotTag", edm::InputTag("BeamSpot")))),
+          consumes<reco::BeamSpot>(cfg.getUntrackedParameter<edm::InputTag>("BeamSpotTag", edm::InputTag("BeamSpot")))),
 
       // Main cuts
       //      muonTrig_(cfg.getUntrackedParameter<std::string> ("MuonTrig",
       // "HLT_Mu9")),
       // elecTrig_(cfg.getUntrackedParameter<std::vector< std::string >
       // >("ElecTrig", "HLT_Ele10_SW_L1R")),
-      elecTrig_(
-          cfg.getUntrackedParameter<std::vector<std::string> >("ElecTrig")),
+      elecTrig_(cfg.getUntrackedParameter<std::vector<std::string> >("ElecTrig")),
       //      ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
       ptCut_(cfg.getUntrackedParameter<double>("PtCut", 10.)),
       //      etaCut_(cfg.getUntrackedParameter<double>("EtaCut", 2.1)),
       etaCut_(cfg.getUntrackedParameter<double>("EtaCut", 2.4)),
       sieieCutBarrel_(cfg.getUntrackedParameter<double>("SieieBarrel", 0.01)),
       sieieCutEndcap_(cfg.getUntrackedParameter<double>("SieieEndcap", 0.028)),
-      detainCutBarrel_(
-          cfg.getUntrackedParameter<double>("DetainBarrel", 0.0071)),
-      detainCutEndcap_(
-          cfg.getUntrackedParameter<double>("DetainEndcap", 0.0066)),
+      detainCutBarrel_(cfg.getUntrackedParameter<double>("DetainBarrel", 0.0071)),
+      detainCutEndcap_(cfg.getUntrackedParameter<double>("DetainEndcap", 0.0066)),
       //      isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso",
       // true)),
       //      isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso",
       // false)),
       //      isoCut03_(cfg.getUntrackedParameter<double>("IsoCut03", 0.1)),
-      ecalIsoCutBarrel_(
-          cfg.getUntrackedParameter<double>("EcalIsoCutBarrel", 5.7)),
-      ecalIsoCutEndcap_(
-          cfg.getUntrackedParameter<double>("EcalIsoCutEndcap", 5.0)),
-      hcalIsoCutBarrel_(
-          cfg.getUntrackedParameter<double>("HcalIsoCutBarrel", 8.1)),
-      hcalIsoCutEndcap_(
-          cfg.getUntrackedParameter<double>("HcalIsoCutEndcap", 3.4)),
-      trkIsoCutBarrel_(
-          cfg.getUntrackedParameter<double>("TrkIsoCutBarrel", 7.2)),
-      trkIsoCutEndcap_(
-          cfg.getUntrackedParameter<double>("TrkIsoCutEndcap", 5.1)),
+      ecalIsoCutBarrel_(cfg.getUntrackedParameter<double>("EcalIsoCutBarrel", 5.7)),
+      ecalIsoCutEndcap_(cfg.getUntrackedParameter<double>("EcalIsoCutEndcap", 5.0)),
+      hcalIsoCutBarrel_(cfg.getUntrackedParameter<double>("HcalIsoCutBarrel", 8.1)),
+      hcalIsoCutEndcap_(cfg.getUntrackedParameter<double>("HcalIsoCutEndcap", 3.4)),
+      trkIsoCutBarrel_(cfg.getUntrackedParameter<double>("TrkIsoCutBarrel", 7.2)),
+      trkIsoCutEndcap_(cfg.getUntrackedParameter<double>("TrkIsoCutEndcap", 5.1)),
       mtMin_(cfg.getUntrackedParameter<double>("MtMin", -999999)),
       mtMax_(cfg.getUntrackedParameter<double>("MtMax", 999999.)),
       metMin_(cfg.getUntrackedParameter<double>("MetMin", -999999.)),
@@ -119,7 +102,7 @@ EwkElecDQM::EwkElecDQM(const ParameterSet& cfg)
       PUMax_(cfg.getUntrackedParameter<unsigned int>("PUMax", 60)),
       PUBinCount_(cfg.getUntrackedParameter<unsigned int>("PUBinCount", 12)),
       hltPrescaleProvider_(cfg, consumesCollector(), *this)
-      //       caloJetCollection_(cfg.getUntrackedParameter<edm:InputTag>("CaloJetCollection","sisCone5CaloJets"))
+//       caloJetCollection_(cfg.getUntrackedParameter<edm:InputTag>("CaloJetCollection","sisCone5CaloJets"))
 {
   isValidHltConfig_ = false;
 }
@@ -138,118 +121,108 @@ void EwkElecDQM::dqmBeginRun(const Run& iRun, const EventSetup& iSet) {
   bool isConfigChanged = false;
   // isValidHltConfig_ could be used to short-circuit analyze() in case of
   // problems
-  isValidHltConfig_ =
-      hltPrescaleProvider_.init(iRun, iSet, "HLT", isConfigChanged);
+  isValidHltConfig_ = hltPrescaleProvider_.init(iRun, iSet, "HLT", isConfigChanged);
 
   LogTrace("") << "isValidHltConfig_=" << isValidHltConfig_ << "\n";
 }
 
-void EwkElecDQM::bookHistograms(DQMStore::IBooker & ibooker,
-  edm::Run const &, edm::EventSetup const &) {
-
+void EwkElecDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
   ibooker.setCurrentFolder("Physics/EwkElecDQM");
 
   char chtitle[256] = "";
 
-  pt_before_ = ibooker.book1D("PT_BEFORECUTS",
-      "Electron transverse momentum [GeV]", 100, 0., 100.);
-  pt_after_ = ibooker.book1D("PT_LASTCUT",
-    "Electron transverse momentum [GeV]", 100, 0., 100.);
+  pt_before_ = ibooker.book1D("PT_BEFORECUTS", "Electron transverse momentum [GeV]", 100, 0., 100.);
+  pt_after_ = ibooker.book1D("PT_LASTCUT", "Electron transverse momentum [GeV]", 100, 0., 100.);
 
-  eta_before_ = ibooker.book1D("ETA_BEFORECUTS",
-    "Electron pseudo-rapidity", 50, -2.5, 2.5);
-  eta_after_ = ibooker.book1D("ETA_LASTCUT",
-    "Electron pseudo-rapidity", 50, -2.5, 2.5);
+  eta_before_ = ibooker.book1D("ETA_BEFORECUTS", "Electron pseudo-rapidity", 50, -2.5, 2.5);
+  eta_after_ = ibooker.book1D("ETA_LASTCUT", "Electron pseudo-rapidity", 50, -2.5, 2.5);
 
-  sieiebarrel_before_ = ibooker.book1D("SIEIEBARREL_BEFORECUTS",
-      "Electron #sigma_{i#etai#eta} (barrel)", 70, 0., 0.07);
-  sieiebarrel_after_ = ibooker.book1D("SIEIEBARREL_LASTCUT",
-      "Electron #sigma_{i#etai#eta} (barrel)", 70, 0., 0.07);
+  sieiebarrel_before_ = ibooker.book1D("SIEIEBARREL_BEFORECUTS", "Electron #sigma_{i#etai#eta} (barrel)", 70, 0., 0.07);
+  sieiebarrel_after_ = ibooker.book1D("SIEIEBARREL_LASTCUT", "Electron #sigma_{i#etai#eta} (barrel)", 70, 0., 0.07);
 
-  sieieendcap_before_ = ibooker.book1D("SIEIEENDCAP_BEFORECUTS",
-      "Electron #sigma_{i#etai#eta} (endcap)", 70, 0., 0.07);
-  sieieendcap_after_ = ibooker.book1D("SIEIEENDCAP_LASTCUT",
-      "Electron #sigma_{i#etai#eta} (endcap)", 70, 0., 0.07);
+  sieieendcap_before_ = ibooker.book1D("SIEIEENDCAP_BEFORECUTS", "Electron #sigma_{i#etai#eta} (endcap)", 70, 0., 0.07);
+  sieieendcap_after_ = ibooker.book1D("SIEIEENDCAP_LASTCUT", "Electron #sigma_{i#etai#eta} (endcap)", 70, 0., 0.07);
 
-  detainbarrel_before_ = ibooker.book1D("DETAINBARREL_BEFORECUTS",
-      "Electron #Delta#eta_{in} (barrel)", 40, -0.02, 0.02);
-  detainbarrel_after_ = ibooker.book1D("DETAINBARREL_LASTCUT",
-      "Electron #Delta#eta_{in} (barrel)", 40, -0.02, 0.02);
+  detainbarrel_before_ =
+      ibooker.book1D("DETAINBARREL_BEFORECUTS", "Electron #Delta#eta_{in} (barrel)", 40, -0.02, 0.02);
+  detainbarrel_after_ = ibooker.book1D("DETAINBARREL_LASTCUT", "Electron #Delta#eta_{in} (barrel)", 40, -0.02, 0.02);
 
-  detainendcap_before_ = ibooker.book1D("DETAINENDCAP_BEFORECUTS",
-      "Electron #Delta#eta_{in} (endcap)", 40, -0.02, 0.02);
-  detainendcap_after_ = ibooker.book1D("DETAINENDCAP_LASTCUT",
-      "Electron #Delta#eta_{in} (endcap)", 40, -0.02, 0.02);
+  detainendcap_before_ =
+      ibooker.book1D("DETAINENDCAP_BEFORECUTS", "Electron #Delta#eta_{in} (endcap)", 40, -0.02, 0.02);
+  detainendcap_after_ = ibooker.book1D("DETAINENDCAP_LASTCUT", "Electron #Delta#eta_{in} (endcap)", 40, -0.02, 0.02);
 
-  ecalisobarrel_before_ = ibooker.book1D("ECALISOBARREL_BEFORECUTS",
-      "Absolute electron ECAL isolation variable (barrel) [GeV]", 50, 0., 50.);
-  ecalisobarrel_after_ = ibooker.book1D("ECALISOBARREL_LASTCUT",
-      "Absolute electron ECAL isolation variable (barrel) [GeV]", 50, 0., 50.);
+  ecalisobarrel_before_ = ibooker.book1D(
+      "ECALISOBARREL_BEFORECUTS", "Absolute electron ECAL isolation variable (barrel) [GeV]", 50, 0., 50.);
+  ecalisobarrel_after_ =
+      ibooker.book1D("ECALISOBARREL_LASTCUT", "Absolute electron ECAL isolation variable (barrel) [GeV]", 50, 0., 50.);
 
-  ecalisoendcap_before_ = ibooker.book1D("ECALISOENDCAP_BEFORECUTS",
-      "Absolute electron ECAL isolation variable (endcap) [GeV]", 50, 0., 50.);
-  ecalisoendcap_after_ = ibooker.book1D("ECALISOENDCAP_LASTCUT",
-      "Absolute electron ECAL isolation variable (endcap) [GeV]", 50, 0., 50.);
+  ecalisoendcap_before_ = ibooker.book1D(
+      "ECALISOENDCAP_BEFORECUTS", "Absolute electron ECAL isolation variable (endcap) [GeV]", 50, 0., 50.);
+  ecalisoendcap_after_ =
+      ibooker.book1D("ECALISOENDCAP_LASTCUT", "Absolute electron ECAL isolation variable (endcap) [GeV]", 50, 0., 50.);
 
-  hcalisobarrel_before_ = ibooker.book1D("HCALISOBARREL_BEFORECUTS",
-      "Absolute electron HCAL isolation variable (barrel) [GeV]", 50, 0., 50.);
-  hcalisobarrel_after_ = ibooker.book1D("HCALISOBARREL_LASTCUT",
-      "Absolute electron HCAL isolation variable (barrel) [GeV]", 50, 0., 50.);
+  hcalisobarrel_before_ = ibooker.book1D(
+      "HCALISOBARREL_BEFORECUTS", "Absolute electron HCAL isolation variable (barrel) [GeV]", 50, 0., 50.);
+  hcalisobarrel_after_ =
+      ibooker.book1D("HCALISOBARREL_LASTCUT", "Absolute electron HCAL isolation variable (barrel) [GeV]", 50, 0., 50.);
 
-  hcalisoendcap_before_ = ibooker.book1D("HCALISOENDCAP_BEFORECUTS",
-      "Absolute electron HCAL isolation variable (endcap) [GeV]", 50, 0., 50.);
-  hcalisoendcap_after_ = ibooker.book1D("HCALISOENDCAP_LASTCUT",
-      "Absolute electron HCAL isolation variable (endcap) [GeV]", 50, 0., 50.);
+  hcalisoendcap_before_ = ibooker.book1D(
+      "HCALISOENDCAP_BEFORECUTS", "Absolute electron HCAL isolation variable (endcap) [GeV]", 50, 0., 50.);
+  hcalisoendcap_after_ =
+      ibooker.book1D("HCALISOENDCAP_LASTCUT", "Absolute electron HCAL isolation variable (endcap) [GeV]", 50, 0., 50.);
 
-  trkisobarrel_before_ = ibooker.book1D("TRKISOBARREL_BEFORECUTS",
-      "Absolute electron track isolation variable (barrel) [GeV]", 50, 0., 50.);
-  trkisobarrel_after_ = ibooker.book1D("TRKISOBARREL_LASTCUT",
-      "Absolute electron track isolation variable (barrel) [GeV]", 50, 0., 50.);
+  trkisobarrel_before_ = ibooker.book1D(
+      "TRKISOBARREL_BEFORECUTS", "Absolute electron track isolation variable (barrel) [GeV]", 50, 0., 50.);
+  trkisobarrel_after_ =
+      ibooker.book1D("TRKISOBARREL_LASTCUT", "Absolute electron track isolation variable (barrel) [GeV]", 50, 0., 50.);
 
-  trkisoendcap_before_ = ibooker.book1D("TRKISOENDCAP_BEFORECUTS",
-      "Absolute electron track isolation variable (endcap) [GeV]", 50, 0., 50.);
-  trkisoendcap_after_ = ibooker.book1D("TRKISOENDCAP_LASTCUT",
-      "Absolute electron track isolation variable (endcap) [GeV]", 50, 0., 50.);
+  trkisoendcap_before_ = ibooker.book1D(
+      "TRKISOENDCAP_BEFORECUTS", "Absolute electron track isolation variable (endcap) [GeV]", 50, 0., 50.);
+  trkisoendcap_after_ =
+      ibooker.book1D("TRKISOENDCAP_LASTCUT", "Absolute electron track isolation variable (endcap) [GeV]", 50, 0., 50.);
 
- // trig_before_ = ibooker.book1D("TRIG_BEFORECUTS", "Trigger response", 2, -0.5,
-     /// 1.5);  // elecTrig_ is now a vector of strings!
-//  trig_after_ = ibooker.book1D("TRIG_LASTCUT", "Trigger response", 2, -0.5, 1.5);
+  // trig_before_ = ibooker.book1D("TRIG_BEFORECUTS", "Trigger response", 2, -0.5,
+  /// 1.5);  // elecTrig_ is now a vector of strings!
+  //  trig_after_ = ibooker.book1D("TRIG_LASTCUT", "Trigger response", 2, -0.5, 1.5);
 
-  invmass_before_ = ibooker.book1D("INVMASS_BEFORECUTS",
-      "Di-electron invariant mass [GeV]", 100, 0., 200.);
-  invmass_after_ = ibooker.book1D("INVMASS_AFTERCUTS",
-      "Di-electron invariant mass [GeV]", 100, 0., 200.);
+  invmass_before_ = ibooker.book1D("INVMASS_BEFORECUTS", "Di-electron invariant mass [GeV]", 100, 0., 200.);
+  invmass_after_ = ibooker.book1D("INVMASS_AFTERCUTS", "Di-electron invariant mass [GeV]", 100, 0., 200.);
 
   invmassPU_before_ = ibooker.book2D("INVMASS_PU_BEFORECUTS",
-      "Di-electron invariant mass [GeV] vs PU; mass [GeV]; PU count", 100, 0.,
-      200., PUBinCount_, -0.5, PUMax_ + 0.5);
+                                     "Di-electron invariant mass [GeV] vs PU; mass [GeV]; PU count",
+                                     100,
+                                     0.,
+                                     200.,
+                                     PUBinCount_,
+                                     -0.5,
+                                     PUMax_ + 0.5);
   invmassPU_afterZ_ = ibooker.book2D("INVMASS_PU_AFTERZCUTS",
-      "Di-electron invariant mass [GeV] vs PU; mass [GeV]; PU count", 100, 0.,
-      200., PUBinCount_, -0.5, PUMax_ + 0.5);
+                                     "Di-electron invariant mass [GeV] vs PU; mass [GeV]; PU count",
+                                     100,
+                                     0.,
+                                     200.,
+                                     PUBinCount_,
+                                     -0.5,
+                                     PUMax_ + 0.5);
 
-  npvs_before_ = ibooker.book1D("NPVs_BEFORECUTS",
-      "Number of Valid Primary Vertices; nGoodPVs", PUMax_ + 1, -0.5, PUMax_ + 0.5);
+  npvs_before_ =
+      ibooker.book1D("NPVs_BEFORECUTS", "Number of Valid Primary Vertices; nGoodPVs", PUMax_ + 1, -0.5, PUMax_ + 0.5);
 
-  npvs_afterZ_ = ibooker.book1D("NPVs_AFTERZCUTS",
-      "Number of Valid Primary Vertices; nGoodPVs", PUMax_ + 1, -0.5, PUMax_ + 0.5);
+  npvs_afterZ_ =
+      ibooker.book1D("NPVs_AFTERZCUTS", "Number of Valid Primary Vertices; nGoodPVs", PUMax_ + 1, -0.5, PUMax_ + 0.5);
 
-  nelectrons_before_ = ibooker.book1D("NELECTRONS_BEFORECUTS",
-      "Number of electrons in event", 10, -0.5, 9.5);
-  nelectrons_after_ = ibooker.book1D("NELECTRONS_AFTERCUTS",
-      "Number of electrons in event", 10, -0.5, 9.5);
+  nelectrons_before_ = ibooker.book1D("NELECTRONS_BEFORECUTS", "Number of electrons in event", 10, -0.5, 9.5);
+  nelectrons_after_ = ibooker.book1D("NELECTRONS_AFTERCUTS", "Number of electrons in event", 10, -0.5, 9.5);
 
   snprintf(chtitle, 255, "Transverse mass (%s) [GeV]", metTag_.label().data());
   mt_before_ = ibooker.book1D("MT_BEFORECUTS", chtitle, 150, 0., 300.);
   mt_after_ = ibooker.book1D("MT_LASTCUT", chtitle, 150, 0., 300.);
 
-
-  snprintf(chtitle, 255, "Missing transverse energy (%s) [GeV]",
-      metTag_.label().data());
+  snprintf(chtitle, 255, "Missing transverse energy (%s) [GeV]", metTag_.label().data());
   met_before_ = ibooker.book1D("MET_BEFORECUTS", chtitle, 100, 0., 200.);
   met_after_ = ibooker.book1D("MET_LASTCUT", chtitle, 100, 0., 200.);
 
-  snprintf(chtitle, 255, "Number of jets (%s) above %.2f GeV",
-      jetTag_.label().data(), eJetMin_);
+  snprintf(chtitle, 255, "Number of jets (%s) above %.2f GeV", jetTag_.label().data(), eJetMin_);
   njets_before_ = ibooker.book1D("NJETS_BEFORECUTS", chtitle, 10, -0.5, 9.5);
   njets_after_ = ibooker.book1D("NJETS_LASTCUT", chtitle, 10, -0.5, 9.5);
 
@@ -257,15 +230,12 @@ void EwkElecDQM::bookHistograms(DQMStore::IBooker & ibooker,
   jet_et_before_ = ibooker.book1D("JETET1_BEFORECUTS", chtitle, 20, 0., 200.0);
   jet_et_after_ = ibooker.book1D("JETET1_AFTERCUTS", chtitle, 20, 0., 200.0);
 
-  snprintf(chtitle, 255, "Eta of Jet with highest E_{T} (%s)",
-      jetTag_.label().data());
+  snprintf(chtitle, 255, "Eta of Jet with highest E_{T} (%s)", jetTag_.label().data());
   jet_eta_before_ = ibooker.book1D("JETETA1_BEFORECUTS", chtitle, 20, -5, 5);
   jet_eta_after_ = ibooker.book1D("JETETA1_AFTERCUTS", chtitle, 20, -5, 5);
-
 }
 
 void EwkElecDQM::endRun(const Run& r, const EventSetup&) {
-
   // overall
   double all = nall;
   double esel = nsel / all;
@@ -273,9 +243,8 @@ void EwkElecDQM::endRun(const Run& r, const EventSetup&) {
   LogVerbatim("") << "Total number of events analyzed: " << nall << " [events]";
   LogVerbatim("") << "Total number of events selected: " << nsel << " [events]";
   LogVerbatim("") << "Overall efficiency:             "
-                  << "(" << setprecision(4) << esel * 100. << " +/- "
-                  << setprecision(2) << sqrt(esel * (1 - esel) / all) * 100.
-                  << ")%";
+                  << "(" << setprecision(4) << esel * 100. << " +/- " << setprecision(2)
+                  << sqrt(esel * (1 - esel) / all) * 100. << ")%";
 
   double erec = nrec / all;
   double eeid = neid / all;
@@ -287,9 +256,8 @@ void EwkElecDQM::endRun(const Run& r, const EventSetup&) {
   double num = nrec;
   double eff = erec;
   double err = sqrt(eff * (1 - eff) / all);
-  LogVerbatim("") << "Passing Pt/Eta/Quality cuts:    " << num << " [events], ("
-                  << setprecision(4) << eff * 100. << " +/- " << setprecision(2)
-                  << err * 100. << ")%";
+  LogVerbatim("") << "Passing Pt/Eta/Quality cuts:    " << num << " [events], (" << setprecision(4) << eff * 100.
+                  << " +/- " << setprecision(2) << err * 100. << ")%";
 
   // electron ID step
   num = neid;
@@ -297,13 +265,13 @@ void EwkElecDQM::endRun(const Run& r, const EventSetup&) {
   err = sqrt(eff * (1 - eff) / all);
   double effstep = 0.;
   double errstep = 0.;
-  if (nrec > 0) effstep = eeid / erec;
-  if (nrec > 0) errstep = sqrt(effstep * (1 - effstep) / nrec);
-  LogVerbatim("") << "Passing eID cuts:         " << num << " [events], ("
-                  << setprecision(4) << eff * 100. << " +/- " << setprecision(2)
-                  << err * 100. << ")%, to previous step: (" << setprecision(4)
-                  << effstep * 100. << " +/- " << setprecision(2)
-                  << errstep * 100. << ")%";
+  if (nrec > 0)
+    effstep = eeid / erec;
+  if (nrec > 0)
+    errstep = sqrt(effstep * (1 - effstep) / nrec);
+  LogVerbatim("") << "Passing eID cuts:         " << num << " [events], (" << setprecision(4) << eff * 100. << " +/- "
+                  << setprecision(2) << err * 100. << ")%, to previous step: (" << setprecision(4) << effstep * 100.
+                  << " +/- " << setprecision(2) << errstep * 100. << ")%";
 
   // isolation step
   num = niso;
@@ -311,13 +279,13 @@ void EwkElecDQM::endRun(const Run& r, const EventSetup&) {
   err = sqrt(eff * (1 - eff) / all);
   effstep = 0.;
   errstep = 0.;
-  if (neid > 0) effstep = eiso / eeid;
-  if (neid > 0) errstep = sqrt(effstep * (1 - effstep) / neid);
-  LogVerbatim("") << "Passing isolation cuts:         " << num << " [events], ("
-                  << setprecision(4) << eff * 100. << " +/- " << setprecision(2)
-                  << err * 100. << ")%, to previous step: (" << setprecision(4)
-                  << effstep * 100. << " +/- " << setprecision(2)
-                  << errstep * 100. << ")%";
+  if (neid > 0)
+    effstep = eiso / eeid;
+  if (neid > 0)
+    errstep = sqrt(effstep * (1 - effstep) / neid);
+  LogVerbatim("") << "Passing isolation cuts:         " << num << " [events], (" << setprecision(4) << eff * 100.
+                  << " +/- " << setprecision(2) << err * 100. << ")%, to previous step: (" << setprecision(4)
+                  << effstep * 100. << " +/- " << setprecision(2) << errstep * 100. << ")%";
 
   //   // trigger step
   //   num = nhlt;
@@ -338,13 +306,13 @@ void EwkElecDQM::endRun(const Run& r, const EventSetup&) {
   err = sqrt(eff * (1 - eff) / all);
   effstep = 0.;
   errstep = 0.;
-  if (niso > 0) effstep = esel / eiso;
-  if (niso > 0) errstep = sqrt(effstep * (1 - effstep) / niso);
-  LogVerbatim("") << "Passing HLT criteria:           " << num << " [events], ("
-                  << setprecision(4) << eff * 100. << " +/- " << setprecision(2)
-                  << err * 100. << ")%, to previous step: (" << setprecision(4)
-                  << effstep * 100. << " +/- " << setprecision(2)
-                  << errstep * 100. << ")%";
+  if (niso > 0)
+    effstep = esel / eiso;
+  if (niso > 0)
+    errstep = sqrt(effstep * (1 - effstep) / niso);
+  LogVerbatim("") << "Passing HLT criteria:           " << num << " [events], (" << setprecision(4) << eff * 100.
+                  << " +/- " << setprecision(2) << err * 100. << ")%, to previous step: (" << setprecision(4)
+                  << effstep * 100. << " +/- " << setprecision(2) << errstep * 100. << ")%";
 
   //   // met/acoplanarity cuts
   //   num = nmet;
@@ -378,7 +346,6 @@ void EwkElecDQM::endRun(const Run& r, const EventSetup&) {
 inline void HERE(const char* msg) { std::cout << msg << "\n"; }
 
 void EwkElecDQM::analyze(const Event& ev, const EventSetup& iSet) {
-
   // Reset global event selection flags
   bool rec_sel = false;
   bool eid_sel = false;
@@ -421,8 +388,7 @@ void EwkElecDQM::analyze(const Event& ev, const EventSetup& iSet) {
   //             }
   //       }
   double met_et = sqrt(met_px * met_px + met_py * met_py);
-  LogTrace("") << ">>> MET, MET_px, MET_py: " << met_et << ", " << met_px
-               << ", " << met_py << " [GeV]";
+  LogTrace("") << ">>> MET, MET_px, MET_py: " << met_et << ", " << met_px << ", " << met_py << " [GeV]";
   met_before_->Fill(met_et);
 
   // Vertices in the event
@@ -435,20 +401,21 @@ void EwkElecDQM::analyze(const Event& ev, const EventSetup& iSet) {
 
   for (unsigned int i = 0; i < vertexCollection->size(); i++) {
     const Vertex& vertex = vertexCollection->at(i);
-    if (vertex.isValid()) npvCount++;
+    if (vertex.isValid())
+      npvCount++;
   }
   npvs_before_->Fill(npvCount);
 
   // Trigger
- // Handle<TriggerResults> triggerResults;
- // if (!ev.getByToken(trigTag_, triggerResults)) {
-    // LogWarning("") << ">>> TRIGGER collection does not exist !!!";
-    return;
- // }
- // const edm::TriggerNames& trigNames = ev.triggerNames(*triggerResults);
- // bool trigger_fired = false;
+  // Handle<TriggerResults> triggerResults;
+  // if (!ev.getByToken(trigTag_, triggerResults)) {
+  // LogWarning("") << ">>> TRIGGER collection does not exist !!!";
+  return;
+  // }
+  // const edm::TriggerNames& trigNames = ev.triggerNames(*triggerResults);
+  // bool trigger_fired = false;
 
- // HLTConfigProvider const&  hltConfigProvider = hltPrescaleProvider_.hltConfigProvider();
+  // HLTConfigProvider const&  hltConfigProvider = hltPrescaleProvider_.hltConfigProvider();
 
   /* very old code
   for (unsigned int i=0; i<triggerResults->size(); i++) {
@@ -510,29 +477,29 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
     return;
   }
 
- // for (unsigned int i = 0;
-   //    (i < triggerResults->size()) && (trigger_fired == false); i++) {
-    // skip trigger, if it did not fire
+  // for (unsigned int i = 0;
+  //    (i < triggerResults->size()) && (trigger_fired == false); i++) {
+  // skip trigger, if it did not fire
   //  if (!triggerResults->accept(i)) continue;
 
-    // skip trigger, if it is not on our list
-   // bool found = false;
-   // const std::string trigName = trigNames.triggerName(i);
-   // for (unsigned int index = 0; index < elecTrig_.size() && found == false;
-     //    index++) {
-     // if (trigName.find(elecTrig_.at(index)) == 0) found = true;
-   // }
-   // if (!found) continue;
+  // skip trigger, if it is not on our list
+  // bool found = false;
+  // const std::string trigName = trigNames.triggerName(i);
+  // for (unsigned int index = 0; index < elecTrig_.size() && found == false;
+  //    index++) {
+  // if (trigName.find(elecTrig_.at(index)) == 0) found = true;
+  // }
+  // if (!found) continue;
 
-    // skip trigger, if it is prescaled
-   // if (hltConfigProvider.prescaleValue(prescaleSet, trigName) != 1) continue;
+  // skip trigger, if it is prescaled
+  // if (hltConfigProvider.prescaleValue(prescaleSet, trigName) != 1) continue;
 
-    // std::cout << "found unprescaled trigger that fired: " << trigName <<
-    // "\n";
-   // trigger_fired = true;
- // }
+  // std::cout << "found unprescaled trigger that fired: " << trigName <<
+  // "\n";
+  // trigger_fired = true;
+  // }
 
-/*  LogTrace("") << ">>> Trigger bit: " << trigger_fired << " for one of ( ";
+  /*  LogTrace("") << ">>> Trigger bit: " << trigger_fired << " for one of ( ";
   for (unsigned int k = 0; k < elecTrig_.size(); k++) {
     LogTrace("") << elecTrig_.at(k) << " ";
   }
@@ -579,11 +546,9 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
     float jet_current_et = jet.et();
     // 	cout << "jet_current_et " << jet_current_et << endl;
     // if it overlaps with electron, it is not a jet
-    if (electron_et > 0.0 && fabs(jet.eta() - electron_eta) < 0.2 &&
-        calcDeltaPhi(jet.phi(), electron_phi) < 0.2)
+    if (electron_et > 0.0 && fabs(jet.eta() - electron_eta) < 0.2 && calcDeltaPhi(jet.phi(), electron_phi) < 0.2)
       continue;
-    if (electron2_et > 0.0 && fabs(jet.eta() - electron2_eta) < 0.2 &&
-        calcDeltaPhi(jet.phi(), electron2_phi) < 0.2)
+    if (electron2_et > 0.0 && fabs(jet.eta() - electron2_eta) < 0.2 && calcDeltaPhi(jet.phi(), electron2_phi) < 0.2)
       continue;
 
     // if it has too low Et, throw away
@@ -612,8 +577,7 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
   }
 
   LogTrace("") << ">>> Total number of jets: " << jetCollectionSize;
-  LogTrace("") << ">>> Number of jets above " << eJetMin_
-               << " [GeV]: " << njets;
+  LogTrace("") << ">>> Number of jets above " << eJetMin_ << " [GeV]: " << njets;
   njets_before_->Fill(njets);
 
   // Start counting
@@ -695,8 +659,10 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
     double eta = elec.eta();
     LogTrace("") << "\t... pt, eta: " << pt << " [GeV], " << eta;
     ;
-    if (pt > ptCut_) electron_sel[0] = true;
-    if (fabs(eta) < etaCut_) electron_sel[1] = true;
+    if (pt > ptCut_)
+      electron_sel[0] = true;
+    if (fabs(eta) < etaCut_)
+      electron_sel[1] = true;
 
     bool isBarrel = false;
     bool isEndcap = false;
@@ -727,22 +693,21 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
 
     // Electron ID cuts
     double sieie = (double)elec.sigmaIetaIeta();
-    double detain =
-        (double)elec.deltaEtaSuperClusterTrackAtVtx();  // think this is detain
-    if (sieie < sieieCutBarrel_ && isBarrel) electron_sel[2] = true;
-    if (sieie < sieieCutEndcap_ && isEndcap) electron_sel[2] = true;
-    if (detain < detainCutBarrel_ && isBarrel) electron_sel[3] = true;
-    if (detain < detainCutEndcap_ && isEndcap) electron_sel[3] = true;
+    double detain = (double)elec.deltaEtaSuperClusterTrackAtVtx();  // think this is detain
+    if (sieie < sieieCutBarrel_ && isBarrel)
+      electron_sel[2] = true;
+    if (sieie < sieieCutEndcap_ && isEndcap)
+      electron_sel[2] = true;
+    if (detain < detainCutBarrel_ && isBarrel)
+      electron_sel[3] = true;
+    if (detain < detainCutEndcap_ && isEndcap)
+      electron_sel[3] = true;
     if (isBarrel) {
-      LogTrace("") << "\t... sieie value " << sieie << " (barrel), pass? "
-                   << electron_sel[2];
-      LogTrace("") << "\t... detain value " << detain << " (barrel), pass? "
-                   << electron_sel[3];
+      LogTrace("") << "\t... sieie value " << sieie << " (barrel), pass? " << electron_sel[2];
+      LogTrace("") << "\t... detain value " << detain << " (barrel), pass? " << electron_sel[3];
     } else if (isEndcap) {
-      LogTrace("") << "\t... sieie value " << sieie << " (endcap), pass? "
-                   << electron_sel[2];
-      LogTrace("") << "\t... detain value " << detain << " (endcap), pass? "
-                   << electron_sel[2];
+      LogTrace("") << "\t... sieie value " << sieie << " (endcap), pass? " << electron_sel[2];
+      LogTrace("") << "\t... detain value " << detain << " (endcap), pass? " << electron_sel[2];
     }
 
     if (isBarrel) {
@@ -763,26 +728,26 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
     // isovar += mu.isolationR03().hadEt;
     //}
     // if (isRelativeIso_) isovar /= pt;
-    if (ecalisovar < ecalIsoCutBarrel_ && isBarrel) electron_sel[4] = true;
-    if (ecalisovar < ecalIsoCutEndcap_ && isEndcap) electron_sel[4] = true;
-    if (hcalisovar < hcalIsoCutBarrel_ && isBarrel) electron_sel[5] = true;
-    if (hcalisovar < hcalIsoCutEndcap_ && isEndcap) electron_sel[5] = true;
-    if (trkisovar < trkIsoCutBarrel_ && isBarrel) electron_sel[6] = true;
-    if (trkisovar < trkIsoCutEndcap_ && isEndcap) electron_sel[6] = true;
+    if (ecalisovar < ecalIsoCutBarrel_ && isBarrel)
+      electron_sel[4] = true;
+    if (ecalisovar < ecalIsoCutEndcap_ && isEndcap)
+      electron_sel[4] = true;
+    if (hcalisovar < hcalIsoCutBarrel_ && isBarrel)
+      electron_sel[5] = true;
+    if (hcalisovar < hcalIsoCutEndcap_ && isEndcap)
+      electron_sel[5] = true;
+    if (trkisovar < trkIsoCutBarrel_ && isBarrel)
+      electron_sel[6] = true;
+    if (trkisovar < trkIsoCutEndcap_ && isEndcap)
+      electron_sel[6] = true;
     if (isBarrel) {
-      LogTrace("") << "\t... ecal isolation value " << ecalisovar
-                   << " (barrel), pass? " << electron_sel[4];
-      LogTrace("") << "\t... hcal isolation value " << hcalisovar
-                   << " (barrel), pass? " << electron_sel[5];
-      LogTrace("") << "\t... trk isolation value " << trkisovar
-                   << " (barrel), pass? " << electron_sel[6];
+      LogTrace("") << "\t... ecal isolation value " << ecalisovar << " (barrel), pass? " << electron_sel[4];
+      LogTrace("") << "\t... hcal isolation value " << hcalisovar << " (barrel), pass? " << electron_sel[5];
+      LogTrace("") << "\t... trk isolation value " << trkisovar << " (barrel), pass? " << electron_sel[6];
     } else if (isEndcap) {
-      LogTrace("") << "\t... ecal isolation value " << ecalisovar
-                   << " (endcap), pass? " << electron_sel[4];
-      LogTrace("") << "\t... hcal isolation value " << hcalisovar
-                   << " (endcap), pass? " << electron_sel[5];
-      LogTrace("") << "\t... trk isolation value " << trkisovar
-                   << " (endcap), pass? " << electron_sel[6];
+      LogTrace("") << "\t... ecal isolation value " << ecalisovar << " (endcap), pass? " << electron_sel[4];
+      LogTrace("") << "\t... hcal isolation value " << hcalisovar << " (endcap), pass? " << electron_sel[5];
+      LogTrace("") << "\t... trk isolation value " << trkisovar << " (endcap), pass? " << electron_sel[6];
     }
 
     // iso_before_->Fill(isovar);
@@ -797,7 +762,7 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
     }
 
     // HLT
-   // if (trigger_fired) electron_sel[7] = true;
+    // if (trigger_fired) electron_sel[7] = true;
 
     //             // MET/MT cuts
     double w_et = met_et + pt;
@@ -807,11 +772,13 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
     double massT = w_et * w_et - w_px * w_px - w_py * w_py;
     massT = (massT > 0) ? sqrt(massT) : 0;
 
-    LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et
-                 << ", " << w_px << ", " << w_py << " [GeV]";
-    if (massT > mtMin_ && massT < mtMax_) electron_sel[7] = true;
+    LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et << ", " << w_px << ", " << w_py
+                 << " [GeV]";
+    if (massT > mtMin_ && massT < mtMax_)
+      electron_sel[7] = true;
     mt_before_->Fill(massT);
-    if (met_et > metMin_ && met_et < metMax_) electron_sel[8] = true;
+    if (met_et > metMin_ && met_et < metMax_)
+      electron_sel[8] = true;
 
     //             // Acoplanarity cuts
     //             Geom::Phi<double> deltaphi(mu.phi()-atan2(met_py,met_px));
@@ -824,7 +791,8 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
 
     //             // Remaining flags (from global event information)
     //             if (nmuonsForZ1<1 || nmuonsForZ2<2) muon_sel[11] = true;
-    if (njets <= nJetMax_) electron_sel[9] = true;
+    if (njets <= nJetMax_)
+      electron_sel[9] = true;
 
     // Collect necessary flags "per electron"
     int flags_passed = 0;
@@ -833,11 +801,16 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
     bool iso_sel_this = true;
     bool all_sel_this = true;
     for (int j = 0; j < NFLAGS; ++j) {
-      if (electron_sel[j]) flags_passed += 1;
-      if (j < 2 && !electron_sel[j]) rec_sel_this = false;
-      if (j < 4 && !electron_sel[j]) eid_sel_this = false;
-      if (j < 7 && !electron_sel[j]) iso_sel_this = false;
-      if (!electron_sel[j]) all_sel_this = false;
+      if (electron_sel[j])
+        flags_passed += 1;
+      if (j < 2 && !electron_sel[j])
+        rec_sel_this = false;
+      if (j < 4 && !electron_sel[j])
+        eid_sel_this = false;
+      if (j < 7 && !electron_sel[j])
+        iso_sel_this = false;
+      if (!electron_sel[j])
+        all_sel_this = false;
     }
 
     if (all_sel_this) {
@@ -862,14 +835,18 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
     //             if (all_sel_this) all_sel = true;
 
     // "rec" => pt,eta cuts are satisfied
-    if (rec_sel_this) rec_sel = true;
+    if (rec_sel_this)
+      rec_sel = true;
     // "eid" => "rec" AND "electron passes ID"
-    if (eid_sel_this) iso_sel = true;
+    if (eid_sel_this)
+      iso_sel = true;
     // "iso" => "eid" AND "electron is isolated"
-    if (iso_sel_this) iso_sel = true;
+    if (iso_sel_this)
+      iso_sel = true;
     // "met" => "iso" AND "MET/MT"
     // "all" => "met" AND "event is triggered"
-    if (all_sel_this) all_sel = true;
+    if (all_sel_this)
+      all_sel = true;
 
     // Do N-1 histograms now (and only once for global event quantities)
     if (flags_passed >= (NFLAGS - 1)) {
@@ -930,7 +907,7 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
       // 		  {
       // 		    iso_after_->Fill(isovar);
       // 		  }
-    /*  if (!electron_sel[7] || flags_passed == NFLAGS) {
+      /*  if (!electron_sel[7] || flags_passed == NFLAGS) {
         if (!hlt_hist_done) {
           trig_after_->Fill(trigger_fired);
         }
@@ -977,11 +954,10 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
 
   nelectrons_before_->Fill(electronCollectionSize);
   if (electronCollectionSize > 1) {
-    invMass = sqrt(electron[0][1] + electron[1][1] +
-                   2 * (electron[0][2] * electron[1][2] -
-                        (electron[0][3] * electron[1][3] +
-                         electron[0][4] * electron[1][4] +
-                         electron[0][5] * electron[1][5])));
+    invMass =
+        sqrt(electron[0][1] + electron[1][1] +
+             2 * (electron[0][2] * electron[1][2] - (electron[0][3] * electron[1][3] + electron[0][4] * electron[1][4] +
+                                                     electron[0][5] * electron[1][5])));
     invmass_before_->Fill(invMass);
     invmassPU_before_->Fill(invMass, npvCount);
   }
@@ -990,8 +966,7 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
   if (nGoodElectrons > 1) {
     invMass = sqrt(goodElectron[0][1] + goodElectron[1][1] +
                    2 * (goodElectron[0][2] * goodElectron[1][2] -
-                        (goodElectron[0][3] * goodElectron[1][3] +
-                         goodElectron[0][4] * goodElectron[1][4] +
+                        (goodElectron[0][3] * goodElectron[1][3] + goodElectron[0][4] * goodElectron[1][4] +
                          goodElectron[0][5] * goodElectron[1][5])));
     invmass_after_->Fill(invMass);
     invmassPU_afterZ_->Fill(invMass, npvCount);
@@ -999,9 +974,12 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
   }
 
   // Collect final flags
-  if (rec_sel) nrec++;
-  if (eid_sel) neid++;
-  if (iso_sel) niso++;
+  if (rec_sel)
+    nrec++;
+  if (eid_sel)
+    neid++;
+  if (iso_sel)
+    niso++;
   //      if (hlt_sel) nhlt++;
   //      if (met_sel) nmet++;
 
@@ -1017,10 +995,10 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
 
 // This always returns only a positive deltaPhi
 double EwkElecDQM::calcDeltaPhi(double phi1, double phi2) {
-
   double deltaPhi = phi1 - phi2;
 
-  if (deltaPhi < 0) deltaPhi = -deltaPhi;
+  if (deltaPhi < 0)
+    deltaPhi = -deltaPhi;
 
   if (deltaPhi > 3.1415926) {
     deltaPhi = 2 * 3.1415926 - deltaPhi;

@@ -13,17 +13,16 @@
 #include "CmsException.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
-
 namespace clangcms {
 
-class ConstCastChecker: public clang::ento::Checker< clang::ento::check::PreStmt< clang::CXXConstCastExpr> > {
-public:
-	CMS_THREAD_SAFE mutable std::unique_ptr<clang::ento::BugType> BT;
-	void checkPreStmt(const clang::CXXConstCastExpr *CE, clang::ento::CheckerContext &C) const;
+  class ConstCastChecker : public clang::ento::Checker<clang::ento::check::PreStmt<clang::CXXConstCastExpr> > {
+  public:
+    CMS_THREAD_SAFE mutable std::unique_ptr<clang::ento::BugType> BT;
+    void checkPreStmt(const clang::CXXConstCastExpr *CE, clang::ento::CheckerContext &C) const;
 
-private:
-  CmsException m_exception;
-};
-} 
+  private:
+    CmsException m_exception;
+  };
+}  // namespace clangcms
 
 #endif

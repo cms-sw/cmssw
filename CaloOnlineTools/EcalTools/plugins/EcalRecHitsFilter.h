@@ -5,13 +5,12 @@
 //
 //class EcalRecHitsFilter EcalRecHitsFilter.cc
 //
-// Original Author:  
+// Original Author:
 //         Created:  We May 14 10:10:52 CEST 2008
 //
 
 #ifndef EcalRecHitsFilter_H
 #define EcalRecHitsFilter_H
-
 
 // system include files
 #include <memory>
@@ -45,23 +44,22 @@
 //
 
 class EcalRecHitsFilter : public edm::EDFilter {
-   public:
-      explicit EcalRecHitsFilter(const edm::ParameterSet &);
-      ~EcalRecHitsFilter() override;
+public:
+  explicit EcalRecHitsFilter(const edm::ParameterSet&);
+  ~EcalRecHitsFilter() override;
 
-   private:
-      void beginJob() override ;
-      bool filter ( edm::Event &, const edm::EventSetup &) override;
-      void endJob() override ;
+private:
+  void beginJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-      double EnergyCut;  
-      int NumBadXtalsThreshold_; 
-      edm::InputTag EBRecHitCollection_;
-    
+  double EnergyCut;
+  int NumBadXtalsThreshold_;
+  edm::InputTag EBRecHitCollection_;
 
-      TH1F* nRecHitsGreater1GevPerEvent_hist;
-      TH2F* nRecHitsGreater1GevPerEvent_hist_MAP;
-      TFile* file;
+  TH1F* nRecHitsGreater1GevPerEvent_hist;
+  TH2F* nRecHitsGreater1GevPerEvent_hist_MAP;
+  TFile* file;
 };
 
 #endif

@@ -22,70 +22,63 @@
 
 #include "Fireworks/Core/interface/FWGeometry.h"
 
-class FWPhotonProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Photon> 
-{
+class FWPhotonProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Photon> {
 public:
-   FWPhotonProxyBuilder( void ) {}
+  FWPhotonProxyBuilder(void) {}
 
-   ~FWPhotonProxyBuilder( void ) override {}
-  
-   bool haveSingleProduct( void ) const override { return false; }
-  
-   REGISTER_PROXYBUILDER_METHODS();
+  ~FWPhotonProxyBuilder(void) override {}
+
+  bool haveSingleProduct(void) const override { return false; }
+
+  REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWPhotonProxyBuilder( const FWPhotonProxyBuilder& ) = delete;
-   const FWPhotonProxyBuilder& operator=( const FWPhotonProxyBuilder& ) = delete;
-  
-   using FWSimpleProxyBuilderTemplate<reco::Photon> ::buildViewType;
-   void buildViewType( const reco::Photon& photon, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
+  FWPhotonProxyBuilder(const FWPhotonProxyBuilder&) = delete;
+  const FWPhotonProxyBuilder& operator=(const FWPhotonProxyBuilder&) = delete;
+
+  using FWSimpleProxyBuilderTemplate<reco::Photon>::buildViewType;
+  void buildViewType(const reco::Photon& photon,
+                     unsigned int iIndex,
+                     TEveElement& oItemHolder,
+                     FWViewType::EType type,
+                     const FWViewContext*) override;
 };
 
-void
-FWPhotonProxyBuilder::buildViewType( const reco::Photon& photon, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*)
-{  
-   const FWGeometry *geom = item()->getGeom();
- 
-   if( type == FWViewType::kRhoPhi || type == FWViewType::kRhoPhiPF )
-   {
-      fireworks::makeRhoPhiSuperCluster( this,
-                                         photon.superCluster(),
-                                         photon.phi(),
-                                         oItemHolder );
-   }
-  
-   else if( type == FWViewType::kRhoZ )
-      fireworks::makeRhoZSuperCluster( this,
-                                       photon.superCluster(),
-                                       photon.phi(),
-                                       oItemHolder );
+void FWPhotonProxyBuilder::buildViewType(const reco::Photon& photon,
+                                         unsigned int iIndex,
+                                         TEveElement& oItemHolder,
+                                         FWViewType::EType type,
+                                         const FWViewContext*) {
+  const FWGeometry* geom = item()->getGeom();
 
-   else if( type == FWViewType::kISpy )
-   {
-      std::vector<std::pair<DetId, float> > detIds = photon.superCluster()->hitsAndFractions();
+  if (type == FWViewType::kRhoPhi || type == FWViewType::kRhoPhiPF) {
+    fireworks::makeRhoPhiSuperCluster(this, photon.superCluster(), photon.phi(), oItemHolder);
+  }
 
-      TEveBoxSet* boxset = new TEveBoxSet();
-      boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
-      boxset->UseSingleColor();
-      boxset->SetPickable(true);
+  else if (type == FWViewType::kRhoZ)
+    fireworks::makeRhoZSuperCluster(this, photon.superCluster(), photon.phi(), oItemHolder);
 
-      for( std::vector<std::pair<DetId, float> >::iterator id = detIds.begin(), ide = detIds.end();
-           id != ide; ++id )      
-      {
-         const float* corners = geom->getCorners( id->first.rawId() );
-      
-         if( corners == nullptr )
-         {
-            fwLog( fwlog::kWarning )
-               << "No corners available for supercluster constituent" << std::endl;
-            continue;
-         }
-         boxset->AddBox( &corners[0]);
+  else if (type == FWViewType::kISpy) {
+    std::vector<std::pair<DetId, float> > detIds = photon.superCluster()->hitsAndFractions();
+
+    TEveBoxSet* boxset = new TEveBoxSet();
+    boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
+    boxset->UseSingleColor();
+    boxset->SetPickable(true);
+
+    for (std::vector<std::pair<DetId, float> >::iterator id = detIds.begin(), ide = detIds.end(); id != ide; ++id) {
+      const float* corners = geom->getCorners(id->first.rawId());
+
+      if (corners == nullptr) {
+        fwLog(fwlog::kWarning) << "No corners available for supercluster constituent" << std::endl;
+        continue;
       }
+      boxset->AddBox(&corners[0]);
+    }
 
-      boxset->RefitPlex();
-      setupAddElement(boxset, &oItemHolder);
-   }
+    boxset->RefitPlex();
+    setupAddElement(boxset, &oItemHolder);
+  }
 }
 
-REGISTER_FWPROXYBUILDER( FWPhotonProxyBuilder, reco::Photon, "Photons", FWViewType::kAllRPZBits |  FWViewType::kAll3DBits );
+REGISTER_FWPROXYBUILDER(FWPhotonProxyBuilder, reco::Photon, "Photons", FWViewType::kAllRPZBits | FWViewType::kAll3DBits);

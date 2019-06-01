@@ -8,7 +8,6 @@
 //                         June 2015
 // Following the structure used in JetMetHLTOfflineSource
 
-
 // system include files
 #include <fstream>
 #include <iostream>
@@ -42,13 +41,13 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 class BTVHLTOfflineSource : public DQMEDAnalyzer {
- public:
+public:
   explicit BTVHLTOfflineSource(const edm::ParameterSet&);
   ~BTVHLTOfflineSource() override;
 
- private:
+private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const & run, edm::EventSetup const & c) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const& run, edm::EventSetup const& c) override;
   void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
 
   bool verbose_;
@@ -74,10 +73,10 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
   edm::EDGetTokenT<std::vector<reco::Vertex> > hltCaloPVToken_;
   edm::EDGetTokenT<std::vector<reco::Vertex> > offlinePVToken_;
 
-  edm::EDGetTokenT <edm::TriggerResults> triggerResultsToken;
-  edm::EDGetTokenT <edm::TriggerResults> triggerResultsFUToken;
-  edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken;
-  edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryFUToken;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsFUToken;
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryToken;
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryFUToken;
 
   edm::EDGetTokenT<std::vector<reco::ShallowTagInfo> > shallowTagInfosTokenCalo_;
   edm::EDGetTokenT<std::vector<reco::ShallowTagInfo> > shallowTagInfosTokenPf_;
@@ -90,10 +89,20 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
   // edm::EDGetTokenT<std::vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > >
   //      pfTagInfosToken_;
 
-  edm::Handle<std::vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > >
-       caloTagInfos;
-  edm::Handle<std::vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > >
-       pfTagInfos;
+  edm::Handle<std::vector<reco::TemplatedSecondaryVertexTagInfo<
+      reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,
+                                     reco::Track,
+                                     edm::refhelper::FindUsingAdvance<std::vector<reco::Track>, reco::Track> >,
+                      reco::JTATagInfo>,
+      reco::Vertex> > >
+      caloTagInfos;
+  edm::Handle<std::vector<reco::TemplatedSecondaryVertexTagInfo<
+      reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,
+                                     reco::Track,
+                                     edm::refhelper::FindUsingAdvance<std::vector<reco::Track>, reco::Track> >,
+                      reco::JTATagInfo>,
+      reco::Vertex> > >
+      pfTagInfos;
 
   edm::EDGetTokenT<reco::JetTagCollection> caloTagsToken_;
   edm::EDGetTokenT<reco::JetTagCollection> pfTagsToken_;
@@ -106,59 +115,59 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
   edm::Handle<trigger::TriggerEvent> triggerObj_;
 
   class PathInfo : public TriggerDQMBase {
-    PathInfo():
-      prescaleUsed_(-1),
-      pathName_("unset"),
-      filterName_("unset"),
-      processName_("unset"),
-      objectType_(-1),
-      triggerType_("unset")
-      {};
+    PathInfo()
+        : prescaleUsed_(-1),
+          pathName_("unset"),
+          filterName_("unset"),
+          processName_("unset"),
+          objectType_(-1),
+          triggerType_("unset"){};
 
   public:
-    ~PathInfo() = default;;
+    ~PathInfo() override = default;
+    ;
     PathInfo(int prescaleUsed,
-        std::string pathName,
-        std::string filterName,
-        std::string processName,
-        size_t type,
-        std::string triggerType):
-      prescaleUsed_(prescaleUsed),
-      pathName_(std::move(pathName)),
-      filterName_(std::move(filterName)),
-      processName_(std::move(processName)),
-      objectType_(type),
-      triggerType_(std::move(triggerType)) {}
+             std::string pathName,
+             std::string filterName,
+             std::string processName,
+             size_t type,
+             std::string triggerType)
+        : prescaleUsed_(prescaleUsed),
+          pathName_(std::move(pathName)),
+          filterName_(std::move(filterName)),
+          processName_(std::move(processName)),
+          objectType_(type),
+          triggerType_(std::move(triggerType)) {}
 
-    const std::string getLabel( )                const  {return filterName_;}
-    void setLabel(std::string labelName)                {filterName_ = std::move(labelName);}
-    const std::string getPath( )                 const  {return pathName_;}
-    const int getprescaleUsed()                  const  {return prescaleUsed_;}
-    const std::string getProcess( )              const  {return processName_;}
-    const int getObjectType( )                   const  {return objectType_;}
-    const std::string getTriggerType( )          const  {return triggerType_;}
-    const edm::InputTag getTag()                 const  {return edm::InputTag(filterName_,"",processName_);}
-    const bool operator== (const std::string& v) const  {return v==pathName_;}
+    const std::string getLabel() const { return filterName_; }
+    void setLabel(std::string labelName) { filterName_ = std::move(labelName); }
+    const std::string getPath() const { return pathName_; }
+    const int getprescaleUsed() const { return prescaleUsed_; }
+    const std::string getProcess() const { return processName_; }
+    const int getObjectType() const { return objectType_; }
+    const std::string getTriggerType() const { return triggerType_; }
+    const edm::InputTag getTag() const { return edm::InputTag(filterName_, "", processName_); }
+    const bool operator==(const std::string& v) const { return v == pathName_; }
 
-    MonitorElement*  Discr = nullptr;
-    MonitorElement*  Pt = nullptr;
-    MonitorElement*  Eta = nullptr;
-    MonitorElement*  Discr_HLTvsRECO = nullptr;
-    MonitorElement*  Discr_HLTMinusRECO = nullptr;
-    ObjME            Discr_turnon_loose;
-    ObjME            Discr_turnon_medium;
-    ObjME            Discr_turnon_tight;
-    MonitorElement*  PVz = nullptr;
-    MonitorElement*  fastPVz = nullptr;
-    MonitorElement*  PVz_HLTMinusRECO = nullptr;
-    MonitorElement*  fastPVz_HLTMinusRECO = nullptr;
-    MonitorElement*  n_vtx = nullptr;
-    MonitorElement*  vtx_mass = nullptr;
-    MonitorElement*  n_vtx_trks = nullptr;
-    MonitorElement*  n_sel_tracks = nullptr;
-    MonitorElement*  h_3d_ip_distance = nullptr;
-    MonitorElement*  h_3d_ip_error = nullptr;
-    MonitorElement*  h_3d_ip_sig = nullptr;
+    MonitorElement* Discr = nullptr;
+    MonitorElement* Pt = nullptr;
+    MonitorElement* Eta = nullptr;
+    MonitorElement* Discr_HLTvsRECO = nullptr;
+    MonitorElement* Discr_HLTMinusRECO = nullptr;
+    ObjME Discr_turnon_loose;
+    ObjME Discr_turnon_medium;
+    ObjME Discr_turnon_tight;
+    MonitorElement* PVz = nullptr;
+    MonitorElement* fastPVz = nullptr;
+    MonitorElement* PVz_HLTMinusRECO = nullptr;
+    MonitorElement* fastPVz_HLTMinusRECO = nullptr;
+    MonitorElement* n_vtx = nullptr;
+    MonitorElement* vtx_mass = nullptr;
+    MonitorElement* n_vtx_trks = nullptr;
+    MonitorElement* n_sel_tracks = nullptr;
+    MonitorElement* h_3d_ip_distance = nullptr;
+    MonitorElement* h_3d_ip_error = nullptr;
+    MonitorElement* h_3d_ip_sig = nullptr;
     // MonitorElement*  n_pixel_hits_;
     // MonitorElement*  n_total_hits_;
 
@@ -171,15 +180,11 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
     std::string triggerType_;
   };
 
-  class PathInfoCollection: public std::vector<PathInfo> {
+  class PathInfoCollection : public std::vector<PathInfo> {
   public:
-    PathInfoCollection(): std::vector<PathInfo>()
-      {};
-      std::vector<PathInfo>::iterator find(const std::string& pathName) {
-        return std::find(begin(), end(), pathName);
-      }
+    PathInfoCollection() : std::vector<PathInfo>(){};
+    std::vector<PathInfo>::iterator find(const std::string& pathName) { return std::find(begin(), end(), pathName); }
   };
   PathInfoCollection hltPathsAll_;
-
- };
+};
 #endif

@@ -12,9 +12,6 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class DTSurveyRcd:
-  public edm::eventsetup::EventSetupRecordImplementation<DTSurveyRcd>
-{
-};
+class DTSurveyRcd : public edm::eventsetup::EventSetupRecordImplementation<DTSurveyRcd> {};
 
 #endif

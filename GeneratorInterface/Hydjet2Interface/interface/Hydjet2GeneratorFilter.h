@@ -5,8 +5,7 @@
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
-namespace gen
-{
+namespace gen {
   typedef edm::GeneratorFilter<gen::Hydjet2Hadronizer, gen::ExternalDecayDriver> Hydjet2GeneratorFilter;
 }
 

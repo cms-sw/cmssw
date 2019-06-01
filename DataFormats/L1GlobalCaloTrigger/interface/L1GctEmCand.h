@@ -18,10 +18,8 @@
  *  \date June 2006
  */
 
-
 class L1GctEmCand : public L1GctCand {
 public:
-
   /// default constructor (for vector initialisation etc.)
   L1GctEmCand();
 
@@ -44,7 +42,7 @@ public:
 
   /// destructor (virtual to prevent compiler warnings)
   ~L1GctEmCand() override;
-  
+
   /// region associated with the candidate
   L1CaloRegionDetId regionId() const override;
 
@@ -52,22 +50,22 @@ public:
   std::string name() const;
 
   /// was an object really found?
-  bool empty() const override  {  return (rank() == 0); }
- 
+  bool empty() const override { return (rank() == 0); }
+
   /// get the raw data
   uint16_t raw() const { return m_data; }
-  
+
   /// get rank bits
-  unsigned rank() const override  { return m_data & 0x3f; }
+  unsigned rank() const override { return m_data & 0x3f; }
 
   /// get eta index -6 to -0, +0 to +6 (bit 3 is sign, 1 for -ve Z, 0 for +ve Z)
-  unsigned etaIndex() const override  { return (m_data>>6) & 0xf; } 
+  unsigned etaIndex() const override { return (m_data >> 6) & 0xf; }
 
-  /// get eta sign (1 for -ve Z, 0 for +ve Z) 
-  unsigned etaSign() const override { return (m_data>>9) & 0x1; } 
+  /// get eta sign (1 for -ve Z, 0 for +ve Z)
+  unsigned etaSign() const override { return (m_data >> 9) & 0x1; }
 
   /// get phi index (0-17)
-  unsigned phiIndex() const override  { return (m_data>>10) & 0x1f; } 
+  unsigned phiIndex() const override { return (m_data >> 10) & 0x1f; }
 
   /// which stream did this come from
   bool isolated() const { return m_iso; }
@@ -82,30 +80,25 @@ public:
   int16_t bx() const { return m_bx; }
 
   /// equality operator
-  int operator==(const L1GctEmCand& c) const { return ((m_data==c.raw() && m_iso==c.isolated())
-                                                      || (this->empty() && c.empty())); }
+  int operator==(const L1GctEmCand& c) const {
+    return ((m_data == c.raw() && m_iso == c.isolated()) || (this->empty() && c.empty()));
+  }
 
   /// inequality operator
   int operator!=(const L1GctEmCand& c) const { return !(*this == c); }
 
- private:
-
+private:
   // set internal data from rank and region ieta, iphi
   void construct(unsigned rank, unsigned eta, unsigned phi);
 
- private:
-
+private:
   uint16_t m_data;
   bool m_iso;
   uint16_t m_captureBlock;
   uint8_t m_captureIndex;
   int16_t m_bx;
-
- };
-
+};
 
 std::ostream& operator<<(std::ostream& s, const L1GctEmCand& cand);
 
-
-
-#endif 
+#endif

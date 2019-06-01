@@ -4,7 +4,7 @@
 //
 // Package:    PythiaFilter
 // Class:      PythiaFilter
-// 
+//
 /**\class PythiaFilter PythiaFilter.cc IOMC/PythiaFilter/src/PythiaFilter.cc
 
  Description: <one line class summary>
@@ -17,7 +17,6 @@
 //         Created:  Mon Jan 23 14:57:54 CET 2006
 //
 //
-
 
 // system include files
 #include <memory>
@@ -39,32 +38,32 @@ namespace edm {
 }
 
 class PythiaFilter : public edm::global::EDFilter<> {
-   public:
-      explicit PythiaFilter(const edm::ParameterSet&);
-      ~PythiaFilter() override;
+public:
+  explicit PythiaFilter(const edm::ParameterSet&);
+  ~PythiaFilter() override;
 
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-   private:
-      // ----------member data ---------------------------
-      
-       const edm::EDGetTokenT<edm::HepMCProduct> token_;
-       const int particleID;
-       const double minpcut;
-       const double maxpcut;
-       const double minptcut;
-       const double maxptcut;
-       const double minetacut;
-       const double maxetacut;
-       const double minrapcut;
-       const double maxrapcut;
-       const double minphicut;
-       const double maxphicut;
+private:
+  // ----------member data ---------------------------
 
-       const int status; 
-       const int motherID;   
-       const int processID;    
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  const int particleID;
+  const double minpcut;
+  const double maxpcut;
+  const double minptcut;
+  const double maxptcut;
+  const double minetacut;
+  const double maxetacut;
+  const double minrapcut;
+  const double maxrapcut;
+  const double minphicut;
+  const double maxphicut;
 
-       const double betaBoost;
+  const int status;
+  const int motherID;
+  const int processID;
+
+  const double betaBoost;
 };
 #endif

@@ -2,7 +2,7 @@
 //
 // Package:     EDProduct
 // Class  :     EDProductGetter
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -21,27 +21,23 @@ namespace edm {
   //
   // constants, enums and typedefs
   //
-  
+
   //
   // static data member definitions
   //
-  
+
   //
   // constructors and destructor
   //
-  EDProductGetter::EDProductGetter()
-  {
-  }
-  
+  EDProductGetter::EDProductGetter() {}
+
   // EDProductGetter::EDProductGetter(EDProductGetter const& rhs)
   // {
   //    // do actual copying here;
   // }
-  
-  EDProductGetter::~EDProductGetter()
-  {
-  }
-  
+
+  EDProductGetter::~EDProductGetter() {}
+
   //
   // assignment operators
   //
@@ -53,45 +49,42 @@ namespace edm {
   //
   //   return *this;
   // }
-  
+
   //
   // member functions
   //
-  
+
   //
   // const member functions
   //
-  
+
   //
   // static member functions
   //
-  
-  EDProductGetter const*
-  mustBeNonZero(EDProductGetter const* prodGetter, std::string refType, ProductID const& productID) {
-    if (prodGetter != nullptr) return prodGetter;
-        throw Exception(errors::InvalidReference, refType)
-  	<< "Attempt to construct a " << refType << " with ProductID " << productID << "\n"
-  	<< "but with a null pointer to a product getter.\n"
-  	<< "The product getter pointer passed to the constructor must refer\n"
-  	<< "to a real getter, such as an EventPrincipal.\n";
+
+  EDProductGetter const* mustBeNonZero(EDProductGetter const* prodGetter,
+                                       std::string refType,
+                                       ProductID const& productID) {
+    if (prodGetter != nullptr)
+      return prodGetter;
+    throw Exception(errors::InvalidReference, refType)
+        << "Attempt to construct a " << refType << " with ProductID " << productID << "\n"
+        << "but with a null pointer to a product getter.\n"
+        << "The product getter pointer passed to the constructor must refer\n"
+        << "to a real getter, such as an EventPrincipal.\n";
   }
-  
+
   thread_local EDProductGetter const* s_productGetter = nullptr;
-  EDProductGetter const* 
-  EDProductGetter::switchProductGetter(EDProductGetter const* iNew) 
-  {
+  EDProductGetter const* EDProductGetter::switchProductGetter(EDProductGetter const* iNew) {
     //std::cout <<"switch from "<<s_productGetter<<" to "<<iNew<<std::endl;
     EDProductGetter const* old = s_productGetter;
     s_productGetter = iNew;
     return old;
   }
-  void 
-  EDProductGetter::assignEDProductGetter(EDProductGetter const* & iGetter)
-  {    
+  void EDProductGetter::assignEDProductGetter(EDProductGetter const*& iGetter) {
     //std::cout <<"assign "<<s_productGetter<<std::endl;
-    
+
     iGetter = s_productGetter;
   }
 
-
-}
+}  // namespace edm

@@ -12,21 +12,17 @@
  *
  * \author Patrick Janot
  * \date: 25-Jan-2004
- */ 
+ */
 
-namespace edm { 
+namespace edm {
   class ParameterSet;
 }
 
-class HCALProperties : public CalorimeterProperties 
-{
-
- public:
-
+class HCALProperties : public CalorimeterProperties {
+public:
   HCALProperties(const edm::ParameterSet& fastDet);
 
-  ~HCALProperties() override {
-  }
+  ~HCALProperties() override {}
 
   /// Effective A
   inline double theAeff() const override { return HCALAeff_; }
@@ -38,19 +34,19 @@ class HCALProperties : public CalorimeterProperties
   inline double rho() const override { return HCALrho_; }
 
   /// Radiation length in cm
-  inline double radLenIncm()  const override { return radiationLengthIncm(); }
+  inline double radLenIncm() const override { return radiationLengthIncm(); }
 
-  /// Radiation length in cm but static 
-  // This is needed in Calorimetry/CrystalSegment. 
+  /// Radiation length in cm but static
+  // This is needed in Calorimetry/CrystalSegment.
   // Patrick, if you don't like it, give me another solution
-  // to access the ECALProperties efficiently. 
+  // to access the ECALProperties efficiently.
   inline double radiationLengthIncm() const { return HCALradiationLengthIncm_; }
- 
+
   /// Radiation length in g/cm^2
   inline double radLenIngcm2() const override { return HCALradLenIngcm2_; }
 
   /// Moliere Radius in cm (=7 A/Z in g/cm^2)
-  inline   double moliereRadius() const override { return HCALmoliereRadius_; }
+  inline double moliereRadius() const override { return HCALmoliereRadius_; }
   //inline double moliereRadius()  const { return 2.4; }
 
   /// Critical energy in GeV (2.66E-3*(x0*Z/A)^1.1)
@@ -61,20 +57,20 @@ class HCALProperties : public CalorimeterProperties
 
   ///h/pi Warning ! This is a ad-hoc parameter. It has been tuned to get a good agreement on 1TeV electrons
   ///It might have nothing to do with reality
-  inline double hOverPi() const {return hOPi;}
+  inline double hOverPi() const { return hOPi; }
 
-  /// Spot fraction wrt ECAL 
-  inline double spotFraction() const {return spotFrac;}
+  /// Spot fraction wrt ECAL
+  inline double spotFraction() const { return spotFrac; }
 
-  double getHcalDepth(double) const;  
+  double getHcalDepth(double) const;
 
-  int eta2ieta(double eta) const; 
+  int eta2ieta(double eta) const;
 
- private:
+private:
   double hOPi;
   double spotFrac;
 
- protected:
+protected:
   double HCALAeff_;
   double HCALZeff_;
   double HCALrho_;
@@ -83,9 +79,8 @@ class HCALProperties : public CalorimeterProperties
   double HCALmoliereRadius_;
   double HCALcriticalEnergy_;
   double HCALinteractionLength_;
-  std::vector <double> etatow_;// HCAL towers eta edges
-  std::vector <double> hcalDepthLam_;// HCAL depth for each tower ieta
-
+  std::vector<double> etatow_;        // HCAL towers eta edges
+  std::vector<double> hcalDepthLam_;  // HCAL depth for each tower ieta
 };
 
 #endif

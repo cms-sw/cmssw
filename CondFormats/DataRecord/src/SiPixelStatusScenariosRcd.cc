@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     SiPixelStatusScenariosRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

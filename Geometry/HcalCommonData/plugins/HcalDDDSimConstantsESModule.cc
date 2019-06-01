@@ -20,41 +20,36 @@
 
 #include <FWCore/Framework/interface/ModuleFactory.h>
 #include <FWCore/Framework/interface/ESProducer.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 
 #include <Geometry/HcalCommonData/interface/HcalDDDSimConstants.h>
 #include <Geometry/Records/interface/HcalSimNumberingRecord.h>
 
 class HcalDDDSimConstantsESModule : public edm::ESProducer {
-
 public:
   HcalDDDSimConstantsESModule(const edm::ParameterSet&);
 
   using ReturnType = std::unique_ptr<HcalDDDSimConstants>;
 
-  static void fillDescriptions( edm::ConfigurationDescriptions & );
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   ReturnType produce(const HcalSimNumberingRecord&);
+
+private:
+  edm::ESGetToken<HcalParameters, HcalParametersRcd> parToken_;
 };
 
-HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet&) {
-  setWhatProduced(this);
-}
+HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet&)
+    : parToken_{setWhatProduced(this).consumesFrom<HcalParameters, HcalParametersRcd>(edm::ESInputTag{})} {}
 
-void HcalDDDSimConstantsESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) {
+void HcalDDDSimConstantsESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.add( "hcalDDDSimConstants", desc );
+  descriptions.add("hcalDDDSimConstants", desc);
 }
 
 // ------------ method called to produce the data  ------------
-HcalDDDSimConstantsESModule::ReturnType
-HcalDDDSimConstantsESModule::produce(const HcalSimNumberingRecord& iRecord) {
-
-  const HcalParametersRcd& parRecord = iRecord.getRecord<HcalParametersRcd>();
-  edm::ESHandle<HcalParameters> parHandle;
-  parRecord.get(parHandle);
-
-  return std::make_unique<HcalDDDSimConstants>(parHandle.product());
+HcalDDDSimConstantsESModule::ReturnType HcalDDDSimConstantsESModule::produce(const HcalSimNumberingRecord& iRecord) {
+  const auto& par = iRecord.get(parToken_);
+  return std::make_unique<HcalDDDSimConstants>(&par);
 }
 
 //define this as a plug-in

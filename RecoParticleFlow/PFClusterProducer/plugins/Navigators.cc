@@ -20,7 +20,7 @@ class PFRecHitEcalBarrelNavigatorWithTime : public PFRecHitCaloNavigatorWithTime
   void beginEvent(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle;
     iSetup.get<CaloGeometryRecord>().get(geoHandle);
-    topology_.reset( new EcalBarrelTopology(geoHandle) );
+    topology_ = std::make_unique<EcalBarrelTopology>(*geoHandle);
   }
 };
 
@@ -35,7 +35,7 @@ class PFRecHitEcalEndcapNavigatorWithTime : public PFRecHitCaloNavigatorWithTime
   void beginEvent(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle;
     iSetup.get<CaloGeometryRecord>().get(geoHandle);
-    topology_.reset( new EcalEndcapTopology(geoHandle) );
+    topology_ = std::make_unique<EcalEndcapTopology>(*geoHandle);
   }
 };
 
@@ -48,7 +48,7 @@ class PFRecHitEcalBarrelNavigator final : public PFRecHitCaloNavigator<EBDetId,E
   void beginEvent(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle;
     iSetup.get<CaloGeometryRecord>().get(geoHandle);
-    topology_.reset( new EcalBarrelTopology(geoHandle) );
+    topology_ = std::make_unique<EcalBarrelTopology>(*geoHandle);
   }
 };
 
@@ -61,7 +61,7 @@ class PFRecHitEcalEndcapNavigator final : public PFRecHitCaloNavigator<EEDetId,E
   void beginEvent(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle;
     iSetup.get<CaloGeometryRecord>().get(geoHandle);
-    topology_.reset( new EcalEndcapTopology(geoHandle) );
+    topology_ = std::make_unique<EcalEndcapTopology>(*geoHandle);
   }
 };
 
@@ -73,9 +73,7 @@ class PFRecHitPreshowerNavigator final : public PFRecHitCaloNavigator<ESDetId,Ec
 
 
   void beginEvent(const edm::EventSetup& iSetup) override {
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
-    topology_.reset( new EcalPreshowerTopology(geoHandle) );
+    topology_ = std::make_unique<EcalPreshowerTopology>();
   }
 };
 

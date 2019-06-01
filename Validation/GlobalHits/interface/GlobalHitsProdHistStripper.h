@@ -2,60 +2,56 @@
 #define GlobalHitsProdHistStripper_h
 
 /** \class GlobalHitsProdHistStripper
- *  
+ *
  *  Class to fill dqm monitor elements from existing EDM file
  *
  *  \author M. Strang SUNY-Buffalo
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//DQM services
+// DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 // helper files
 //#include <CLHEP/Vector/LorentzVector.h>
-#include "DataFormats/Math/interface/LorentzVector.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
-#include <iostream>
 #include <cstdlib>
-#include <string>
+#include <iostream>
 #include <memory>
+#include <string>
 #include <vector>
 
-#include "TString.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "TString.h"
 
-class GlobalHitsProdHistStripper : public edm::EDAnalyzer
-{
-  
- public:
+class GlobalHitsProdHistStripper : public edm::EDAnalyzer {
+public:
+  // typedef std::vector<float> FloatVector;
 
-  //typedef std::vector<float> FloatVector;
-
-  explicit GlobalHitsProdHistStripper(const edm::ParameterSet&);
+  explicit GlobalHitsProdHistStripper(const edm::ParameterSet &);
   ~GlobalHitsProdHistStripper() override;
-  void beginJob( void ) override;
-  void endJob() override;  
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
-  
- private:
+  void beginJob(void) override;
+  void endJob() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override;
 
+private:
   //  parameter information
   std::string fName;
   int verbosity;
@@ -64,24 +60,23 @@ class GlobalHitsProdHistStripper : public edm::EDAnalyzer
   bool getAllProvenances;
   bool printProvenanceInfo;
 
-
   DQMStore *dbe;
   std::string outputfile;
   bool doOutput;
 
-  std::map<std::string,MonitorElement*> monitorElements;
+  std::map<std::string, MonitorElement *> monitorElements;
 
-  std::vector<MonitorElement*> me;
+  std::vector<MonitorElement *> me;
 
   // G4MC info
   MonitorElement *meMCRGP[2];
   MonitorElement *meMCG4Vtx[2];
   MonitorElement *meGeantVtxX[2];
-  MonitorElement *meGeantVtxY[2];  
-  MonitorElement *meGeantVtxZ[2];  
+  MonitorElement *meGeantVtxY[2];
+  MonitorElement *meGeantVtxZ[2];
   MonitorElement *meMCG4Trk[2];
   MonitorElement *meGeantTrkPt;
-  MonitorElement *meGeantTrkE; 
+  MonitorElement *meGeantTrkE;
 
   // Electromagnetic info
   // ECal info
@@ -89,7 +84,7 @@ class GlobalHitsProdHistStripper : public edm::EDAnalyzer
   MonitorElement *meCaloEcalE[2];
   MonitorElement *meCaloEcalToF[2];
   MonitorElement *meCaloEcalPhi;
-  MonitorElement *meCaloEcalEta;  
+  MonitorElement *meCaloEcalEta;
 
   // Preshower info
   MonitorElement *meCaloPreSh[2];
@@ -104,13 +99,13 @@ class GlobalHitsProdHistStripper : public edm::EDAnalyzer
   MonitorElement *meCaloHcalE[2];
   MonitorElement *meCaloHcalToF[2];
   MonitorElement *meCaloHcalPhi;
-  MonitorElement *meCaloHcalEta;  
+  MonitorElement *meCaloHcalEta;
 
   // Tracker info
   // Pixel info
-  //int nPxlBrlHits;
-  //int nPxlFwdHits;
-  //int nPxlHits;
+  // int nPxlBrlHits;
+  // int nPxlFwdHits;
+  // int nPxlHits;
   MonitorElement *meTrackerPx[2];
   MonitorElement *meTrackerPxPhi;
   MonitorElement *meTrackerPxEta;
@@ -120,9 +115,9 @@ class GlobalHitsProdHistStripper : public edm::EDAnalyzer
   MonitorElement *meTrackerPxFZ;
 
   // Strip info
-  //int nSiHits;
-  //int nSiBrlHits;
-  //int nSiFwdHits;
+  // int nSiHits;
+  // int nSiBrlHits;
+  // int nSiFwdHits;
   MonitorElement *meTrackerSi[2];
   MonitorElement *meTrackerSiPhi;
   MonitorElement *meTrackerSiEta;
@@ -135,21 +130,21 @@ class GlobalHitsProdHistStripper : public edm::EDAnalyzer
   MonitorElement *meMuon[2];
   MonitorElement *meMuonPhi;
   MonitorElement *meMuonEta;
-  //int nMuonHits;
+  // int nMuonHits;
 
   // DT info
-  //int nMuonDtHits;
+  // int nMuonDtHits;
   MonitorElement *meMuonDtToF[2];
   MonitorElement *meMuonDtR;
 
   // CSC info
-  //int nMuonCscHits;
+  // int nMuonCscHits;
   MonitorElement *meMuonCscToF[2];
   MonitorElement *meMuonCscZ;
 
   // RPC info
-  //int nMuonRpcBrlHits;
-  //int nMuonRpcFwdHits;
+  // int nMuonRpcBrlHits;
+  // int nMuonRpcFwdHits;
   MonitorElement *meMuonRpcFToF[2];
   MonitorElement *meMuonRpcFZ;
   MonitorElement *meMuonRpcBToF[2];
@@ -158,8 +153,6 @@ class GlobalHitsProdHistStripper : public edm::EDAnalyzer
   // private statistics information
   unsigned int count;
 
-}; // end class declaration
-  
+};  // end class declaration
+
 #endif
-
-

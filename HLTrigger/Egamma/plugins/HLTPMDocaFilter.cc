@@ -20,32 +20,30 @@
 //
 // constructors and destructor
 //
-HLTPMDocaFilter::HLTPMDocaFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
-{
-  candTag_             = iConfig.getParameter< edm::InputTag > ("candTag");
-  docaDiffPerpCutHigh_ = iConfig.getParameter<double> ("docaDiffPerpCutHigh");
-  docaDiffPerpCutLow_  = iConfig.getParameter<double> ("docaDiffPerpCutLow");
-  nZcandcut_           = iConfig.getParameter<int> ("nZcandcut");
+HLTPMDocaFilter::HLTPMDocaFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
+  candTag_ = iConfig.getParameter<edm::InputTag>("candTag");
+  docaDiffPerpCutHigh_ = iConfig.getParameter<double>("docaDiffPerpCutHigh");
+  docaDiffPerpCutLow_ = iConfig.getParameter<double>("docaDiffPerpCutLow");
+  nZcandcut_ = iConfig.getParameter<int>("nZcandcut");
   candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
 }
 
-HLTPMDocaFilter::~HLTPMDocaFilter()= default;
+HLTPMDocaFilter::~HLTPMDocaFilter() = default;
 
-void
-HLTPMDocaFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTPMDocaFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("candTag",edm::InputTag("HltZeePMMassFilter"));
-  desc.add<double>("docaDiffPerpCutHigh",0.055691);
-  desc.add<double>("docaDiffPerpCutLow",0.0);
-  desc.add<int>("nZcandcut",1);
-  descriptions.add("hltPMDocaFilter",desc);
+  desc.add<edm::InputTag>("candTag", edm::InputTag("HltZeePMMassFilter"));
+  desc.add<double>("docaDiffPerpCutHigh", 0.055691);
+  desc.add<double>("docaDiffPerpCutLow", 0.0);
+  desc.add<int>("nZcandcut", 1);
+  descriptions.add("hltPMDocaFilter", desc);
 }
 
 // ------------ method called to produce the data  ------------
-bool
-HLTPMDocaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
-{
+bool HLTPMDocaFilter::hltFilter(edm::Event& iEvent,
+                                const edm::EventSetup& iSetup,
+                                trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -55,11 +53,10 @@ HLTPMDocaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
   edm::Ref<reco::ElectronCollection> ref;
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByToken (candToken_,PrevFilterOutput);
+  iEvent.getByToken(candToken_, PrevFilterOutput);
 
   std::vector<edm::Ref<reco::ElectronCollection> > electrons;
   PrevFilterOutput->getObjects(TriggerElectron, electrons);
-
 
   int n = 0;
 
@@ -67,34 +64,31 @@ HLTPMDocaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
   std::vector<double> vx(size);
   std::vector<double> vy(size);
 
-  for (unsigned int i=0; i< size; i++) {
+  for (unsigned int i = 0; i < size; i++) {
     ref = electrons[i];
-    vx[i]=ref->vx();
-    vy[i]=ref->vy();
+    vx[i] = ref->vx();
+    vy[i] = ref->vy();
   }
 
-  for(unsigned int jj=0;jj<size;jj++){
-     for(unsigned int ii=jj+1;ii<size;ii++){
-	 double docaDiffPerp = sqrt( (vx[jj]-vx[ii])*(vx[jj]-vx[ii])+(vy[jj]-vy[ii])*(vy[jj]-vy[ii]));
-	 // std::cout<<"docaDiffPerp= "<<docaDiffPerp<<std::endl;
-	 if((docaDiffPerp>=docaDiffPerpCutLow_) && (docaDiffPerp<= docaDiffPerpCutHigh_)){
-	   n++;
-	   ref = electrons[ii];
-	   filterproduct.addObject(TriggerElectron, ref);
-	   ref = electrons[jj];
-	   filterproduct.addObject(TriggerElectron, ref);
-
-	 }
-     }
+  for (unsigned int jj = 0; jj < size; jj++) {
+    for (unsigned int ii = jj + 1; ii < size; ii++) {
+      double docaDiffPerp = sqrt((vx[jj] - vx[ii]) * (vx[jj] - vx[ii]) + (vy[jj] - vy[ii]) * (vy[jj] - vy[ii]));
+      // std::cout<<"docaDiffPerp= "<<docaDiffPerp<<std::endl;
+      if ((docaDiffPerp >= docaDiffPerpCutLow_) && (docaDiffPerp <= docaDiffPerpCutHigh_)) {
+        n++;
+        ref = electrons[ii];
+        filterproduct.addObject(TriggerElectron, ref);
+        ref = electrons[jj];
+        filterproduct.addObject(TriggerElectron, ref);
+      }
+    }
   }
-
 
   // filter decision
-  bool accept(n>=nZcandcut_);
+  bool accept(n >= nZcandcut_);
 
   return accept;
 }
-
 
 // declare this class as a framework plugin
 #include "FWCore/Framework/interface/MakerMacros.h"

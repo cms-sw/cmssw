@@ -4,12 +4,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class G4CheckOverlap {
-
 public:
-
-  G4CheckOverlap(edm::ParameterSet const & p);
+  G4CheckOverlap(edm::ParameterSet const &p);
   ~G4CheckOverlap();
-
 };
 
 #endif

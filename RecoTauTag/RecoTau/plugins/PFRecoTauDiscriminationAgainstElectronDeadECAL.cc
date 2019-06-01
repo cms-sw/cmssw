@@ -16,6 +16,9 @@
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -43,8 +46,7 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
     minStatus_ = cfg.getParameter<uint32_t>("minStatus");
     dR_ = cfg.getParameter<double>("dR");
 
-    verbosity_ = ( cfg.exists("verbosity") ) ?
-      cfg.getParameter<int>("verbosity") : 0;
+    verbosity_ = cfg.getParameter<int>("verbosity");
   }
   ~PFRecoTauDiscriminationAgainstElectronDeadECAL() override {}
 
@@ -76,6 +78,8 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
     }
     return discriminator;
   }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
   void updateBadTowers(const edm::EventSetup& es) 
@@ -175,5 +179,35 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
 
   int verbosity_;
 };
+
+void
+PFRecoTauDiscriminationAgainstElectronDeadECAL::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfRecoTauDiscriminationAgainstElectronDeadECAL
+  edm::ParameterSetDescription desc;
+  desc.add<int>("verbosity", 0);
+  {
+    edm::ParameterSetDescription pset_Prediscriminants;
+    pset_Prediscriminants.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      pset_Prediscriminants.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    {
+      // encountered this at
+      // RecoTauTag/Configuration/python/HPSPFTaus_cff.py
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      pset_Prediscriminants.addOptional<edm::ParameterSetDescription>("decayMode", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", pset_Prediscriminants);
+  }
+  desc.add<double>("dR", 0.08);
+  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfTauProducer"));
+  desc.add<unsigned int>("minStatus", 12);
+  descriptions.add("pfRecoTauDiscriminationAgainstElectronDeadECAL", desc);
+}
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstElectronDeadECAL);

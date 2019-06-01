@@ -7,8 +7,7 @@
 #include "CondFormats/DataRecord/interface/RPCOMTFLinkMapRcd.h"
 
 class RPCInverseOMTFLinkMapRcd
-    : public edm::eventsetup::DependentRecordImplementation<RPCInverseOMTFLinkMapRcd
-                                                            , boost::mpl::vector<RPCOMTFLinkMapRcd> >
-{};
+    : public edm::eventsetup::DependentRecordImplementation<RPCInverseOMTFLinkMapRcd,
+                                                            boost::mpl::vector<RPCOMTFLinkMapRcd> > {};
 
-#endif // CondFormats_DataRecord_RPCInverseOMTFLinkMapRcd_h
+#endif  // CondFormats_DataRecord_RPCInverseOMTFLinkMapRcd_h

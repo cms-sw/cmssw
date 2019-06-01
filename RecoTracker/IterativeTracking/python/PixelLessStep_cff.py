@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
+
+#for dnn classifier
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+
 ##########################################################################
 # Large impact parameter tracking using TIB/TID/TEC stereo layer seeding #
 ##########################################################################
@@ -288,19 +292,20 @@ pixelLessStep.inputClassifiers=['pixelLessStepClassifier1','pixelLessStepClassif
 
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 
-#LWTNN selector
+trackingPhase1.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
+	mva = dict(GBRForestLabel = 'MVASelectorPixelLessStep_Phase1'),
+	qualityCuts = [-0.4,0.0,0.4]
+))
+
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackingPhase1.toReplaceWith(pixelLessStep, TrackLwtnnClassifier.clone(
+trackdnn.toReplaceWith(pixelLessStep, TrackLwtnnClassifier.clone(
      src = 'pixelLessStepTracks',
-     qualityCuts = [-0.6, -0.05, 0.5],
+     qualityCuts = [-0.6, -0.05, 0.5]
 ))
-(trackingPhase1 & fastSim).toModify(pixelLessStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
+(trackdnn & fastSim).toModify(pixelLessStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
-pp_on_AA_2018.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
-     qualityCuts = [-0.4,0.0,0.8],
-     mva = dict(GBRForestLabel = 'MVASelectorPixelLessStep_Phase1')
-))
+pp_on_AA_2018.toModify(pixelLessStep, qualityCuts = [-0.4,0.0,0.8])
 
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

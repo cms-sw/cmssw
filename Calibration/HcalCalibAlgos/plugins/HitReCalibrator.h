@@ -1,9 +1,7 @@
 #ifndef HitReCalibrator_h
 #define HitReCalibrator_h
 
-
 // -*- C++ -*-
-
 
 // system include files
 #include <memory>
@@ -32,28 +30,27 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-namespace cms
-{
+namespace cms {
 
-class HitReCalibrator : public edm::EDProducer {
-   public:
-      explicit HitReCalibrator(const edm::ParameterSet&);
-      ~HitReCalibrator() override;
+  class HitReCalibrator : public edm::EDProducer {
+  public:
+    explicit HitReCalibrator(const edm::ParameterSet &);
+    ~HitReCalibrator() override;
 
-      void beginJob() override;
+    void beginJob() override;
 
-      void produce(edm::Event &, const edm::EventSetup&) override;
-   private:
-      // ----------member data ---------------------------
+    void produce(edm::Event &, const edm::EventSetup &) override;
 
-     bool allowMissingInputs_;
+  private:
+    // ----------member data ---------------------------
+
+    bool allowMissingInputs_;
 
     edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
     edm::EDGetTokenT<HORecHitCollection> tok_ho_;
     edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
-
-};
-}// end namespace cms
+  };
+}  // end namespace cms
 #endif

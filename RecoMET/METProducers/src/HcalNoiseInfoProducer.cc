@@ -584,7 +584,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
     if(mySeverity->dropChannel(mydigistatus->getValue())) continue;
     if(digi.zsMarkAndPass()) continue;
     // Drop if exclude bit set
-    if ((mydigistatus->getValue() & (1 <<HcalChannelStatus::HcalCellExcludeFromHBHENoiseSummary))==1) continue;
+    if (mydigistatus->isBitSet(HcalChannelStatus::HcalCellExcludeFromHBHENoiseSummary)) continue;
       
     // get the calibrations and coder
     const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
@@ -848,19 +848,19 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
       uint32_t bitset = (1 << HcalRecHitFlagsToBeExcluded_[i]);
       recHitFlag = (recHitFlag & bitset) ? recHitFlag-bitset : recHitFlag;
     }
-    const uint32_t dbStatusFlag = dbHcalChStatus->getValues(id)->getValue();
+    const HcalChannelStatus* dbStatus = dbHcalChStatus->getValues(id);
 
     // Ignore rechit if exclude bit set, regardless of severity of other bits
-    if ((dbStatusFlag & (1 <<HcalChannelStatus::HcalCellExcludeFromHBHENoiseSummary))==1) continue;
+    if (dbStatus->isBitSet(HcalChannelStatus::HcalCellExcludeFromHBHENoiseSummary)) continue;
       
-    int severityLevel = hcalSevLvlComputer->getSeverityLevel(id, recHitFlag, dbStatusFlag);
+    int severityLevel = hcalSevLvlComputer->getSeverityLevel(id, recHitFlag, dbStatus->getValue());
     bool isRecovered  = hcalSevLvlComputer->recoveredRecHit(id, recHitFlag);
     if(severityLevel!=0 && !isRecovered && severityLevel>static_cast<int>(HcalAcceptSeverityLevel_)) continue;
 
     // do some rechit counting and energies
     summary.rechitCount_ = summary.rechitCount_ + 1;
     summary.rechitEnergy_ = summary.rechitEnergy_ + rechit.eraw();
-    if ((dbStatusFlag & (1 <<HcalChannelStatus::HcalBadLaserSignal))==1) // hit comes from a region where no laser calibration pulse is normally seen
+    if (dbStatus->isBitSet(HcalChannelStatus::HcalBadLaserSignal)) // hit comes from a region where no laser calibration pulse is normally seen
       {
 	++summary.hitsInNonLaserRegion_;
 	summary.energyInNonLaserRegion_+=rechit.eraw();
@@ -915,7 +915,7 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
     }
 
     if(rechit.flags() & ts4ts5bitset) {
-      if ((dbStatusFlag & (1 <<HcalChannelStatus::HcalCellExcludeFromHBHENoiseSummaryR45))==0)  // only add to TS4TS5 if the bit is not marked as "HcalCellExcludeFromHBHENoiseSummaryR45"
+      if (not dbStatus->isBitSet(HcalChannelStatus::HcalCellExcludeFromHBHENoiseSummaryR45))  // only add to TS4TS5 if the bit is not marked as "HcalCellExcludeFromHBHENoiseSummaryR45"
 	{
 	  summary.nts4ts5noise_++;
 	  summary.ts4ts5noisee_ += rechit.eraw();

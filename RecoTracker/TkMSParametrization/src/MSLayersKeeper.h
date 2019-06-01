@@ -10,15 +10,15 @@ class DetLayer;
 
 class dso_hidden MSLayersKeeper {
 public:
-  virtual ~MSLayersKeeper() { }
-  virtual MSLayer layer(const DetLayer* dl) const 
-    { return MSLayer(dl,DataX0(this)); }
-  virtual const MSLayersAtAngle & layers(float cotTheta) const = 0;  
-  virtual void init(const edm::EventSetup &iSetup) { }
+  virtual ~MSLayersKeeper() {}
+  virtual MSLayer layer(const DetLayer* dl) const { return MSLayer(dl, DataX0(this)); }
+  virtual const MSLayersAtAngle& layers(float cotTheta) const = 0;
+  virtual void init(const edm::EventSetup& iSetup) {}
+
 protected:
   typedef MSLayer::DataX0 DataX0;
-  static const DataX0 & getDataX0(const MSLayer & l) { return l.theX0Data; }
-  static void  setDataX0(MSLayer & l, const DataX0& x0Data) { l.theX0Data = x0Data; }  
+  static const DataX0& getDataX0(const MSLayer& l) { return l.theX0Data; }
+  static void setDataX0(MSLayer& l, const DataX0& x0Data) { l.theX0Data = x0Data; }
 };
 
 #endif

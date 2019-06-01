@@ -23,13 +23,11 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-
 //#include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "FWCore/Framework/interface/MakerMacros.h" 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 
 // event info
 #include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
@@ -49,25 +47,19 @@
 #include "TString.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-
-class GlobalRecHitsHistogrammer : public DQMEDAnalyzer
-{
-
- public:
-
+class GlobalRecHitsHistogrammer : public DQMEDAnalyzer {
+public:
   //typedef std::vector<float> FloatVector;
   //typedef std::vector<double> DoubleVector;
   //typedef std::vector<int> IntVector;
-  typedef std::map<uint32_t,float,std::less<uint32_t> > MapType;
+  typedef std::map<uint32_t, float, std::less<uint32_t> > MapType;
 
-  explicit GlobalRecHitsHistogrammer(const edm::ParameterSet&);
+  explicit GlobalRecHitsHistogrammer(const edm::ParameterSet &);
   ~GlobalRecHitsHistogrammer() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &,
-    edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
- private:
-
+private:
   //  parameter information
   std::string fName;
   int verbosity;
@@ -85,25 +77,21 @@ class GlobalRecHitsHistogrammer : public DQMEDAnalyzer
 
   // Electromagnetic info
   // ECal info
- 
+
   MonitorElement *mehEcaln[3];
   MonitorElement *mehEcalRes[3];
-
-
 
   // HCal info
 
   MonitorElement *mehHcaln[4];
   MonitorElement *mehHcalRes[4];
 
-
   // Tracker info
   // SiStrip
-  
+
   MonitorElement *mehSiStripn[19];
   MonitorElement *mehSiStripResX[19];
   MonitorElement *mehSiStripResY[19];
-
 
   // SiPxl
 
@@ -121,10 +109,9 @@ class GlobalRecHitsHistogrammer : public DQMEDAnalyzer
   MonitorElement *mehCSCResRDPhi;
   MonitorElement *mehRPCResX;
 
-
   // private statistics information
   unsigned int count;
 
-}; // end class declaration
+};  // end class declaration
 
-#endif //PGlobalRecHitsProducer_h
+#endif  //PGlobalRecHitsProducer_h

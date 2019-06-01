@@ -13,109 +13,85 @@
 #include <map>
 #include <vector>
 
-
-
-class CaloMiscalibMapEcal: public CaloMiscalibMap {
+class CaloMiscalibMapEcal : public CaloMiscalibMap {
 public:
-CaloMiscalibMapEcal(){ 
-}
+  CaloMiscalibMapEcal() {}
 
-void prefillMap(){
-  
+  void prefillMap() {
+    for (int iEta = -EBDetId::MAX_IETA; iEta <= EBDetId::MAX_IETA; ++iEta) {
+      if (iEta == 0)
+        continue;
+      for (int iPhi = EBDetId::MIN_IPHI; iPhi <= EBDetId::MAX_IPHI; ++iPhi) {
+        try {
+          EBDetId ebdetid(iEta, iPhi);
+          map_.setValue(ebdetid.rawId(), 1.0);
+        } catch (...) {
+        }
+      }
+    }
 
-   for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
-     if(iEta==0) continue;
-     for(int iPhi=EBDetId::MIN_IPHI; iPhi<=EBDetId::MAX_IPHI; ++iPhi) {
+    for (int iX = EEDetId::IX_MIN; iX <= EEDetId::IX_MAX; ++iX) {
+      for (int iY = EEDetId::IY_MIN; iY <= EEDetId::IY_MAX; ++iY) {
+        try {
+          EEDetId eedetidpos(iX, iY, 1);
+          map_.setValue(eedetidpos.rawId(), 1.0);
+          EEDetId eedetidneg(iX, iY, -1);
+          map_.setValue(eedetidneg.rawId(), 1.0);
+        } catch (...) {
+        }
+      }
+    }
+  }
 
-       try 
-	 {
-	   EBDetId ebdetid(iEta,iPhi);
-	   map_.setValue(ebdetid.rawId(),1.0);
-	 }
-       catch (...)
-	 {
-	 }
-     }
-   }
-   
-   for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
-     for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
-       try 
-	 {
- 	   EEDetId eedetidpos(iX,iY,1);
-	   map_.setValue(eedetidpos.rawId(),1.0);
-	   EEDetId eedetidneg(iX,iY,-1);
-	   map_.setValue(eedetidneg.rawId(),1.0);
-	 }
-       catch (...)
-	 {
-	 }
-     }
-   }
+  void addCell(const DetId &cell, float scaling_factor) override { map_.setValue(cell.rawId(), scaling_factor); }
 
+  void print() {
+    int icount = 0;
+    for (int iEta = -EBDetId::MAX_IETA; iEta <= EBDetId::MAX_IETA; ++iEta) {
+      if (iEta == 0)
+        continue;
+      for (int iPhi = EBDetId::MIN_IPHI; iPhi <= EBDetId::MAX_IPHI; ++iPhi) {
+        if (EBDetId::validDetId(iEta, iPhi)) {
+          EBDetId ebdetid(iEta, iPhi);
+          EcalIntercalibConstantMap::const_iterator icalit = map_.find(ebdetid.rawId());
+          EcalIntercalibConstant icalconst;
+          icalconst = (*icalit);
 
-}
+          icount++;
+          if (icount % 230 == 0) {
+            std::cout << "here is value for chan eta/phi " << iEta << "/" << iPhi << "=" << icalconst << std::endl;
+          }
+        }
+      }
+    }
+    for (int iX = EEDetId::IX_MIN; iX <= EEDetId::IX_MAX; ++iX) {
+      for (int iY = EEDetId::IY_MIN; iY <= EEDetId::IY_MAX; ++iY) {
+        if (EEDetId::validDetId(iX, iY, 1)) {
+          EEDetId eedetidpos(iX, iY, 1);
+          EcalIntercalibConstantMap::const_iterator icalit = map_.find(eedetidpos.rawId());
+          EcalIntercalibConstant icalconst;
+          icalconst = (*icalit);
 
+          EEDetId eedetidneg(iX, iY, -1);
+          EcalIntercalibConstantMap::const_iterator icalit2 = map_.find(eedetidneg.rawId());
+          EcalIntercalibConstant icalconst2;
+          icalconst2 = (*icalit2);
 
-void addCell(const DetId &cell, float scaling_factor) override
-{
-map_.setValue(cell.rawId(),scaling_factor);
-}
+          icount++;
+          if (icount % 230 == 0) {
+            std::cout << "here is value for chan x/y " << iX << "/" << iY << " pos side is =" << icalconst
+                      << " and neg side is= " << icalconst2 << std::endl;
+          }
+        }
+      }
+    }
+  }
 
-void print()
- {
-
-   int icount=0;
-   for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
-     if(iEta==0) continue;
-     for(int iPhi=EBDetId::MIN_IPHI; iPhi<=EBDetId::MAX_IPHI; ++iPhi) {
-       if (EBDetId::validDetId(iEta,iPhi))
-	 {
-	   EBDetId ebdetid(iEta,iPhi);
-	   EcalIntercalibConstantMap::const_iterator icalit= map_.find(ebdetid.rawId());
-	   EcalIntercalibConstant icalconst;
-	   icalconst = (*icalit);
-	   
-	   icount++;
-	   if(icount%230==0){
-	     std::cout<< "here is value for chan eta/phi "<<iEta<<"/"<<iPhi<<"="<<icalconst<<std::endl;}
-	 }
-     }
-   }
-   for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
-     for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
-       if (EEDetId::validDetId(iX,iY,1))
-	 {
-	   EEDetId eedetidpos(iX,iY,1);
-	   EcalIntercalibConstantMap::const_iterator icalit= map_.find(eedetidpos.rawId());
-           EcalIntercalibConstant icalconst;
-           icalconst = (*icalit);
-
-	   EEDetId eedetidneg(iX,iY,-1);
-	   EcalIntercalibConstantMap::const_iterator icalit2= map_.find(eedetidneg.rawId());
-           EcalIntercalibConstant icalconst2;
-           icalconst2 = (*icalit2);
-
-
-	   icount++;
-	   if(icount%230==0){
-
-	     std::cout<< "here is value for chan x/y "<<iX<<"/"<<iY<<" pos side is ="<<icalconst<< " and neg side is= "<< icalconst2<<std::endl;}
-
-	 }
-     }
-   }
- 
-}
-
-const EcalIntercalibConstants & get(){
-return map_;
-}
+  const EcalIntercalibConstants &get() { return map_; }
 
 private:
-
-EcalIntercalibConstants map_;
-const CaloSubdetectorGeometry *geometry;
+  EcalIntercalibConstants map_;
+  const CaloSubdetectorGeometry *geometry;
 };
 
 #endif

@@ -267,6 +267,10 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 # # a list of possible options is documented here:
 # # http://www.desy.de/~kleinwrt/MP2/doc/html/option_page.html#sec-cmd
 # #
+# # if you need to request a larger stack size for individual threads when
+# # running pede, you can do this with this setting: 
+# # process.AlignmentProducer.algoConfig.pedeSteerer.pedeCommand = "export OMP_STACKSIZE=20M; pede"
+# #
 # # you can change or drop pede options as follows:
 #
 # import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper as helper

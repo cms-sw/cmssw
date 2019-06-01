@@ -14,7 +14,7 @@
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
-#include "SimG4Core/Physics/interface/DDG4ProductionCuts.h"
+#include "SimG4Core/Geometry/interface/DDG4ProductionCuts.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 
@@ -82,78 +82,74 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-static
-void createWatchers(const edm::ParameterSet& iP,
-		    SimActivityRegistry& iReg,
-		    std::vector<std::shared_ptr<SimWatcher> >& oWatchers,
-		    std::vector<std::shared_ptr<SimProducer> >& oProds
-   )
-{
+static void createWatchers(const edm::ParameterSet& iP,
+                           SimActivityRegistry& iReg,
+                           std::vector<std::shared_ptr<SimWatcher> >& oWatchers,
+                           std::vector<std::shared_ptr<SimProducer> >& oProds) {
   using namespace std;
   using namespace edm;
 
   vector<ParameterSet> watchers = iP.getParameter<vector<ParameterSet> >("Watchers");
-  
-  for(vector<ParameterSet>::iterator itWatcher = watchers.begin();
-      itWatcher != watchers.end();
-      ++itWatcher) {
-    std::shared_ptr<SimWatcherMakerBase> maker( 
-      SimWatcherFactory::get()->create
-      (itWatcher->getParameter<std::string> ("type")) );
-    if(maker.get()==nullptr) {
-      throw edm::Exception(edm::errors::Configuration)
-	<< "Unable to find the requested Watcher";
+
+  for (vector<ParameterSet>::iterator itWatcher = watchers.begin(); itWatcher != watchers.end(); ++itWatcher) {
+    std::shared_ptr<SimWatcherMakerBase> maker(
+        SimWatcherFactory::get()->create(itWatcher->getParameter<std::string>("type")));
+    if (maker.get() == nullptr) {
+      throw edm::Exception(edm::errors::Configuration) << "Unable to find the requested Watcher";
     }
-    
+
     std::shared_ptr<SimWatcher> watcherTemp;
     std::shared_ptr<SimProducer> producerTemp;
-    maker->make(*itWatcher,iReg,watcherTemp,producerTemp);
+    maker->make(*itWatcher, iReg, watcherTemp, producerTemp);
     oWatchers.push_back(watcherTemp);
-    if(producerTemp) {
-       oProds.push_back(producerTemp);
+    if (producerTemp) {
+      oProds.push_back(producerTemp);
     }
   }
 }
 
-RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& iC) 
-  :   m_generator(new Generator(p.getParameter<edm::ParameterSet>("Generator"))),
-      m_HepMC(iC.consumes<edm::HepMCProduct>(p.getParameter<edm::ParameterSet>("Generator").getParameter<edm::InputTag>("HepMCProductLabel"))),
+RunManager::RunManager(edm::ParameterSet const& p, edm::ConsumesCollector&& iC)
+    : m_generator(new Generator(p.getParameter<edm::ParameterSet>("Generator"))),
+      m_HepMC(iC.consumes<edm::HepMCProduct>(
+          p.getParameter<edm::ParameterSet>("Generator").getParameter<edm::InputTag>("HepMCProductLabel"))),
       m_LHCtr(iC.consumes<edm::LHCTransportLinkContainer>(p.getParameter<edm::InputTag>("theLHCTlinkTag"))),
-      m_nonBeam(p.getParameter<bool>("NonBeamEvent")), 
-      m_primaryTransformer(nullptr), 
-      m_managerInitialized(false), 
-      m_runInitialized(false), m_runTerminated(false), m_runAborted(false),
+      m_nonBeam(p.getParameter<bool>("NonBeamEvent")),
+      m_primaryTransformer(nullptr),
+      m_managerInitialized(false),
+      m_runInitialized(false),
+      m_runTerminated(false),
+      m_runAborted(false),
       firstRun(true),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
-      m_currentRun(nullptr), m_currentEvent(nullptr), m_simEvent(nullptr), 
+      m_currentRun(nullptr),
+      m_currentEvent(nullptr),
+      m_simEvent(nullptr),
       m_PhysicsTablesDir(p.getParameter<std::string>("PhysicsTablesDirectory")),
       m_StorePhysicsTables(p.getParameter<bool>("StorePhysicsTables")),
       m_RestorePhysicsTables(p.getParameter<bool>("RestorePhysicsTables")),
-      m_EvtMgrVerbosity(p.getUntrackedParameter<int>("G4EventManagerVerbosity",0)),
+      m_EvtMgrVerbosity(p.getUntrackedParameter<int>("G4EventManagerVerbosity", 0)),
       m_pField(p.getParameter<edm::ParameterSet>("MagneticField")),
       m_pGenerator(p.getParameter<edm::ParameterSet>("Generator")),
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
-      m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),      
+      m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),
       m_pEventAction(p.getParameter<edm::ParameterSet>("EventAction")),
       m_pStackingAction(p.getParameter<edm::ParameterSet>("StackingAction")),
       m_pTrackingAction(p.getParameter<edm::ParameterSet>("TrackingAction")),
       m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction")),
       m_g4overlap(p.getParameter<edm::ParameterSet>("G4CheckOverlap")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
-      m_p(p)
-{    
+      m_p(p) {
   m_UIsession.reset(new CustomUIsession());
   m_kernel = new G4RunManagerKernel();
   G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
 
   m_physicsList.reset(nullptr);
   m_prodCuts.reset(nullptr);
-  m_attach = nullptr;
 
-  m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
-  m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
-  m_FieldFile = p.getUntrackedParameter<std::string>("FileNameField","");
-  m_RegionFile = p.getUntrackedParameter<std::string>("FileNameRegions","");
+  m_check = p.getUntrackedParameter<bool>("CheckOverlap", false);
+  m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML", "");
+  m_FieldFile = p.getUntrackedParameter<std::string>("FileNameField", "");
+  m_RegionFile = p.getUntrackedParameter<std::string>("FileNameRegions", "");
 
   m_userRunAction = nullptr;
   m_runInterface = nullptr;
@@ -161,438 +157,423 @@ RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& iC)
   //Look for an outside SimActivityRegistry
   // this is used by the visualization code
   edm::Service<SimActivityRegistry> otherRegistry;
-  if(otherRegistry){
+  if (otherRegistry) {
     m_registry.connect(*otherRegistry);
   }
   m_sVerbose.reset(nullptr);
 
-  std::vector<edm::ParameterSet> watchers 
-    = p.getParameter<std::vector<edm::ParameterSet> >("Watchers");
+  std::vector<edm::ParameterSet> watchers = p.getParameter<std::vector<edm::ParameterSet> >("Watchers");
   m_hasWatchers = (watchers.empty()) ? false : true;
 
-  if(m_hasWatchers) {
+  if (m_hasWatchers) {
     createWatchers(m_p, m_registry, m_watchers, m_producers);
   }
 }
 
-RunManager::~RunManager() 
-{ 
-  if (!m_runTerminated) { terminateRun(); }
+RunManager::~RunManager() {
+  if (!m_runTerminated) {
+    terminateRun();
+  }
   G4StateManager::GetStateManager()->SetNewState(G4State_Quit);
   G4GeometryManager::GetInstance()->OpenGeometry();
-  //   if (m_kernel!=0) delete m_kernel; 
+  //   if (m_kernel!=0) delete m_kernel;
   delete m_runInterface;
   delete m_generator;
 }
 
-void RunManager::initG4(const edm::EventSetup & es)
-{
+void RunManager::initG4(const edm::EventSetup& es) {
   bool geomChanged = idealGeomRcdWatcher_.check(es);
   if (geomChanged && (!firstRun)) {
-    throw cms::Exception("BadConfig") 
-      << "[SimG4Core RunManager]\n"
-      << "The Geometry configuration is changed during the job execution\n"
-      << "this is not allowed, the geometry must stay unchanged\n";
+    throw cms::Exception("BadConfig") << "[SimG4Core RunManager]\n"
+                                      << "The Geometry configuration is changed during the job execution\n"
+                                      << "this is not allowed, the geometry must stay unchanged\n";
   }
   if (m_pUseMagneticField) {
     bool magChanged = idealMagRcdWatcher_.check(es);
     if (magChanged && (!firstRun)) {
-      throw edm::Exception(edm::errors::Configuration) 
-	<< "[SimG4Core RunManager]\n"
-	<< "The MagneticField configuration is changed during the job execution\n"
-	<< "this is not allowed, the MagneticField must stay unchanged\n";
+      throw edm::Exception(edm::errors::Configuration)
+          << "[SimG4Core RunManager]\n"
+          << "The MagneticField configuration is changed during the job execution\n"
+          << "this is not allowed, the MagneticField must stay unchanged\n";
     }
   }
 
-  if (m_managerInitialized) return;
-  
+  if (m_managerInitialized)
+    return;
+
   // DDDWorld: get the DDCV from the ES and use it to build the World
   edm::ESTransientHandle<DDCompactView> pDD;
   es.get<IdealGeometryRecord>().get(pDD);
-   
+
   G4LogicalVolumeToDDLogicalPartMap map_;
   SensitiveDetectorCatalog catalog_;
-  const DDDWorld * world = new DDDWorld(&(*pDD), map_, catalog_, false);
+  const DDDWorld* world = new DDDWorld(&(*pDD), map_, catalog_, false);
   m_registry.dddWorldSignal_(world);
 
-  if (m_pUseMagneticField)
-    {
-      // setup the magnetic field
-      edm::ESHandle<MagneticField> pMF;
-      es.get<IdealMagneticFieldRecord>().get(pMF);
-      const GlobalPoint g(0.,0.,0.);
+  if (m_pUseMagneticField) {
+    // setup the magnetic field
+    edm::ESHandle<MagneticField> pMF;
+    es.get<IdealMagneticFieldRecord>().get(pMF);
+    const GlobalPoint g(0., 0., 0.);
 
-      sim::FieldBuilder fieldBuilder(pMF.product(), m_pField);
-      CMSFieldManager* fieldManager = new CMSFieldManager();
-      G4TransportationManager * tM =
-	G4TransportationManager::GetTransportationManager();
-      tM->SetFieldManager(fieldManager);
-      fieldBuilder.build( fieldManager, tM->GetPropagatorInField());
+    sim::FieldBuilder fieldBuilder(pMF.product(), m_pField);
+    CMSFieldManager* fieldManager = new CMSFieldManager();
+    G4TransportationManager* tM = G4TransportationManager::GetTransportationManager();
+    tM->SetFieldManager(fieldManager);
+    fieldBuilder.build(fieldManager, tM->GetPropagatorInField());
 
-      if(!m_FieldFile.empty()) { 
-	DumpMagneticField(tM->GetFieldManager()->GetDetectorField()); 
-      }
+    if (!m_FieldFile.empty()) {
+      DumpMagneticField(tM->GetFieldManager()->GetDetectorField());
     }
+  }
 
   // we need the track manager now
   m_trackManager = std::unique_ptr<SimTrackManager>(new SimTrackManager);
 
-  // attach sensitive detector
-  m_attach = new AttachSD;
-  
-  std::pair< std::vector<SensitiveTkDetector*>,
-    std::vector<SensitiveCaloDetector*> > sensDets = 
-    m_attach->create((*pDD),catalog_,m_p,m_trackManager.get(),m_registry);
-      
-  m_sensTkDets.swap(sensDets.first);
-  m_sensCaloDets.swap(sensDets.second);
-     
-  edm::LogInfo("SimG4CoreApplication") 
-    << " RunManager: Sensitive Detector "
-    << "building finished; found " 
-    << m_sensTkDets.size()
-    << " Tk type Producers, and " 
-    << m_sensCaloDets.size() 
-    << " Calo type producers ";
+  {
+    // attach sensitive detector
+
+    AttachSD attach;
+    auto sensDets = attach.create((*pDD), catalog_, m_p, m_trackManager.get(), m_registry);
+
+    m_sensTkDets.swap(sensDets.first);
+    m_sensCaloDets.swap(sensDets.second);
+  }
+
+  edm::LogInfo("SimG4CoreApplication") << " RunManager: Sensitive Detector "
+                                       << "building finished; found " << m_sensTkDets.size()
+                                       << " Tk type Producers, and " << m_sensCaloDets.size()
+                                       << " Calo type producers ";
 
   edm::ESHandle<HepPDT::ParticleDataTable> fTable;
   es.get<PDTRecord>().get(fTable);
-  const HepPDT::ParticleDataTable *fPDGTable = &(*fTable);
+  const HepPDT::ParticleDataTable* fPDGTable = &(*fTable);
 
   m_primaryTransformer = new PrimaryTransformer();
 
-  std::unique_ptr<PhysicsListMakerBase> 
-    physicsMaker(PhysicsListFactory::get()->create(
-      m_pPhysics.getParameter<std::string> ("type")));
-  if (physicsMaker.get()==nullptr) {
-    throw edm::Exception(edm::errors::Configuration)
-      << "Unable to find the Physics list requested";
+  std::unique_ptr<PhysicsListMakerBase> physicsMaker(
+      PhysicsListFactory::get()->create(m_pPhysics.getParameter<std::string>("type")));
+  if (physicsMaker.get() == nullptr) {
+    throw edm::Exception(edm::errors::Configuration) << "Unable to find the Physics list requested";
   }
-  m_physicsList = physicsMaker->make(m_pPhysics,m_registry);
+  m_physicsList = physicsMaker->make(m_pPhysics, m_registry);
 
-  PhysicsList* phys = m_physicsList.get(); 
-  if (phys==nullptr) { 
-    throw edm::Exception(edm::errors::Configuration)
-      << "Physics list construction failed!"; 
+  PhysicsList* phys = m_physicsList.get();
+  if (phys == nullptr) {
+    throw edm::Exception(edm::errors::Configuration) << "Physics list construction failed!";
   }
 
   // exotic particle physics
-  double monopoleMass = m_pPhysics.getUntrackedParameter<double>("MonopoleMass",0);
-  if(monopoleMass > 0.0) {
-    phys->RegisterPhysics(new CMSMonopolePhysics(fPDGTable,m_pPhysics));
+  double monopoleMass = m_pPhysics.getUntrackedParameter<double>("MonopoleMass", 0);
+  if (monopoleMass > 0.0) {
+    phys->RegisterPhysics(new CMSMonopolePhysics(fPDGTable, m_pPhysics));
   }
-  bool exotica = m_pPhysics.getUntrackedParameter<bool>("ExoticaTransport",false);
-  if(exotica) { CMSExoticaPhysics exo(phys, m_pPhysics); }
+  bool exotica = m_pPhysics.getUntrackedParameter<bool>("ExoticaTransport", false);
+  if (exotica) {
+    CMSExoticaPhysics exo(phys, m_pPhysics);
+  }
 
-  // adding GFlash, Russian Roulette for eletrons and gamma, 
+  // adding GFlash, Russian Roulette for eletrons and gamma,
   // step limiters on top of any Physics Lists
-  phys->RegisterPhysics(new ParametrisedEMPhysics("EMoptions",m_pPhysics));
+  phys->RegisterPhysics(new ParametrisedEMPhysics("EMoptions", m_pPhysics));
 
   std::string tableDir = m_PhysicsTablesDir;
   if (m_RestorePhysicsTables) {
     m_physicsList->SetPhysicsTableRetrieved(tableDir);
-  } 
-  edm::LogInfo("SimG4CoreApplication") 
-    << "RunManager: start initialisation of PhysicsList";
+  }
+  edm::LogInfo("SimG4CoreApplication") << "RunManager: start initialisation of PhysicsList";
 
-  int verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity",0),
-		      m_p.getParameter<int>("SteppingVerbosity"));
+  int verb =
+      std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), m_p.getParameter<int>("SteppingVerbosity"));
   m_kernel->SetVerboseLevel(verb);
 
-  m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue")*CLHEP::cm);
+  m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue") * CLHEP::cm);
   m_physicsList->SetCutsWithDefault();
-  if(m_pPhysics.getParameter<bool>("CutsPerRegion")) {
-    m_prodCuts.reset(new DDG4ProductionCuts(map_, verb, m_pPhysics));	
+  if (m_pPhysics.getParameter<bool>("CutsPerRegion")) {
+    m_prodCuts.reset(new DDG4ProductionCuts(map_, verb, m_pPhysics));
     m_prodCuts->update();
   }
 
   m_kernel->SetPhysics(phys);
   m_kernel->InitializePhysics();
 
-  if (m_kernel->RunInitialization()) { m_managerInitialized = true; }
-  else { 
-    throw edm::Exception(edm::errors::LogicError)
-      << "G4RunManagerKernel initialization failed!"; 
+  if (m_kernel->RunInitialization()) {
+    m_managerInitialized = true;
+  } else {
+    throw edm::Exception(edm::errors::LogicError) << "G4RunManagerKernel initialization failed!";
   }
-  
-  if (m_StorePhysicsTables)
-    {
-      std::ostringstream dir;
-      dir << tableDir << '\0';
-      std::string cmd = std::string("/control/shell mkdir -p ")+tableDir;
-      if (!std::ifstream(dir.str().c_str(), std::ios::in))
-        G4UImanager::GetUIpointer()->ApplyCommand(cmd);
-      m_physicsList->StorePhysicsTable(tableDir);
-    }
-  
+
+  if (m_StorePhysicsTables) {
+    std::ostringstream dir;
+    dir << tableDir << '\0';
+    std::string cmd = std::string("/control/shell mkdir -p ") + tableDir;
+    if (!std::ifstream(dir.str().c_str(), std::ios::in))
+      G4UImanager::GetUIpointer()->ApplyCommand(cmd);
+    m_physicsList->StorePhysicsTable(tableDir);
+  }
+
   //tell all interesting parties that we are beginning the job
   BeginOfJob aBeginOfJob(&es);
   m_registry.beginOfJobSignal_(&aBeginOfJob);
-  
+
   G4int sv = m_p.getParameter<int>("SteppingVerbosity");
-  G4double elim = m_p.getParameter<double>("StepVerboseThreshold")*CLHEP::GeV;
+  G4double elim = m_p.getParameter<double>("StepVerboseThreshold") * CLHEP::GeV;
   std::vector<int> ve = m_p.getParameter<std::vector<int> >("VerboseEvents");
   std::vector<int> vn = m_p.getParameter<std::vector<int> >("VertexNumber");
   std::vector<int> vt = m_p.getParameter<std::vector<int> >("VerboseTracks");
 
-  if(sv > 0) {
+  if (sv > 0) {
     m_sVerbose.reset(new CMSSteppingVerbose(sv, elim, ve, vn, vt));
   }
   initializeUserActions();
-  
-  if(!m_G4Commands.empty()) {
+
+  if (!m_G4Commands.empty()) {
     G4cout << "RunManager: Requested UI commands: " << G4endl;
-    for (unsigned it=0; it<m_G4Commands.size(); ++it) {
+    for (unsigned it = 0; it < m_G4Commands.size(); ++it) {
       G4cout << "    " << m_G4Commands[it] << G4endl;
       G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
     }
   }
 
-  if(!m_WriteFile.empty()) {
+  if (!m_WriteFile.empty()) {
     G4GDMLParser gdml;
     gdml.SetRegionExport(true);
     gdml.SetEnergyCutsExport(true);
     gdml.Write(m_WriteFile, world->GetWorldVolume(), true);
   }
 
-  if(!m_RegionFile.empty()) {
+  if (!m_RegionFile.empty()) {
     G4RegionReporter rrep;
     rrep.ReportRegions(m_RegionFile);
   }
 
-  if(m_check) { G4CheckOverlap check(m_g4overlap); }
+  if (m_check) {
+    G4CheckOverlap check(m_g4overlap);
+  }
 
   // If the Geant4 particle table is needed, decomment the lines below
   //
   //  G4cout << "Output of G4ParticleTable DumpTable:" << G4endl;
   //  G4ParticleTable::GetParticleTable()->DumpTable("ALL");
-  
+
   initializeRun();
-  firstRun= false;
+  firstRun = false;
 }
 
-void RunManager::stopG4()
-{
+void RunManager::stopG4() {
   G4StateManager::GetStateManager()->SetNewState(G4State_Quit);
-  if (!m_runTerminated) { terminateRun(); }
+  if (!m_runTerminated) {
+    terminateRun();
+  }
 }
 
-void RunManager::produce(edm::Event& inpevt, const edm::EventSetup & es)
-{
+void RunManager::produce(edm::Event& inpevt, const edm::EventSetup& es) {
   m_currentEvent = generateEvent(inpevt);
   m_simEvent = new G4SimEvent;
   m_simEvent->hepEvent(m_generator->genEvent());
   m_simEvent->weight(m_generator->eventWeight());
-  if (m_generator->genVertex() !=nullptr ) {
-    m_simEvent->collisionPoint(
-      math::XYZTLorentzVectorD(m_generator->genVertex()->x()/centimeter,
-			       m_generator->genVertex()->y()/centimeter,
-			       m_generator->genVertex()->z()/centimeter,
-			       m_generator->genVertex()->t()/second));
+  if (m_generator->genVertex() != nullptr) {
+    m_simEvent->collisionPoint(math::XYZTLorentzVectorD(m_generator->genVertex()->x() / centimeter,
+                                                        m_generator->genVertex()->y() / centimeter,
+                                                        m_generator->genVertex()->z() / centimeter,
+                                                        m_generator->genVertex()->t() / second));
   }
-  if (m_currentEvent->GetNumberOfPrimaryVertex()==0) {
+  if (m_currentEvent->GetNumberOfPrimaryVertex() == 0) {
     std::stringstream ss;
-    ss << " RunManager::produce(): event " << inpevt.id().event()
-       << " with no G4PrimaryVertices\n" ;
+    ss << " RunManager::produce(): event " << inpevt.id().event() << " with no G4PrimaryVertices\n";
     throw SimG4Exception(ss.str());
-       
+
     abortRun(false);
   } else {
-    edm::LogInfo("SimG4CoreApplication") 
-      << "RunManager::produce: start Event " << inpevt.id().event() 
-      << " of weight " << m_simEvent->weight()
-      << " with " << m_simEvent->nTracks() << " tracks and " 
-      << m_simEvent->nVertices()
-      << " vertices, generated by " << m_simEvent->nGenParts() << " particles ";
+    edm::LogInfo("SimG4CoreApplication") << "RunManager::produce: start Event " << inpevt.id().event() << " of weight "
+                                         << m_simEvent->weight() << " with " << m_simEvent->nTracks() << " tracks and "
+                                         << m_simEvent->nVertices() << " vertices, generated by "
+                                         << m_simEvent->nGenParts() << " particles ";
 
     m_kernel->GetEventManager()->ProcessOneEvent(m_currentEvent);
 
-    edm::LogInfo("SimG4CoreApplication")
-      << " RunManager::produce: ended Event " << inpevt.id().event(); 
-  }    
+    edm::LogInfo("SimG4CoreApplication") << " RunManager::produce: ended Event " << inpevt.id().event();
+  }
 }
- 
-G4Event * RunManager::generateEvent(edm::Event & inpevt)
-{                       
-  if (m_currentEvent!=nullptr) { delete m_currentEvent; }
+
+G4Event* RunManager::generateEvent(edm::Event& inpevt) {
+  if (m_currentEvent != nullptr) {
+    delete m_currentEvent;
+  }
   m_currentEvent = nullptr;
-  if (m_simEvent!=nullptr) { delete m_simEvent; }
+  if (m_simEvent != nullptr) {
+    delete m_simEvent;
+  }
   m_simEvent = nullptr;
 
   // 64 bits event ID in CMSSW converted into Geant4 event ID
   G4int evtid = (G4int)inpevt.id().event();
-  G4Event * evt = new G4Event(evtid);
-  
+  G4Event* evt = new G4Event(evtid);
+
   edm::Handle<edm::HepMCProduct> HepMCEvt;
-  
-  inpevt.getByToken( m_HepMC, HepMCEvt ) ;
-  
+
+  inpevt.getByToken(m_HepMC, HepMCEvt);
+
   m_generator->setGenEvent(HepMCEvt->GetEvent());
 
-  // required to reset the GenParticle Id for particles transported 
+  // required to reset the GenParticle Id for particles transported
   // along the beam pipe
   // to their original value for SimTrack creation
-  resetGenParticleId( inpevt );
+  resetGenParticleId(inpevt);
 
-  if (!m_nonBeam) 
-    {
-      m_generator->HepMC2G4(HepMCEvt->GetEvent(),evt);
-    }
-  else 
-    {
-      m_generator->nonBeamEvent2G4(HepMCEvt->GetEvent(),evt);
-    }
- 
+  if (!m_nonBeam) {
+    m_generator->HepMC2G4(HepMCEvt->GetEvent(), evt);
+  } else {
+    m_generator->nonBeamEvent2G4(HepMCEvt->GetEvent(), evt);
+  }
+
   return evt;
 }
 
-void RunManager::abortEvent()
-{
-  if (m_runTerminated) { return; }
-  G4Track* t =
-    m_kernel->GetEventManager()->GetTrackingManager()->GetTrack();
-  t->SetTrackStatus(fStopAndKill) ;
-     
+void RunManager::abortEvent() {
+  if (m_runTerminated) {
+    return;
+  }
+  G4Track* t = m_kernel->GetEventManager()->GetTrackingManager()->GetTrack();
+  t->SetTrackStatus(fStopAndKill);
+
   // CMS-specific act
   //
-  TrackingAction* uta =
-    (TrackingAction*)m_kernel->GetEventManager()->GetUserTrackingAction() ;
-  uta->PostUserTrackingAction(t) ;
+  TrackingAction* uta = (TrackingAction*)m_kernel->GetEventManager()->GetUserTrackingAction();
+  uta->PostUserTrackingAction(t);
 
-  m_currentEvent->SetEventAborted();    
-  m_kernel->GetEventManager()->GetStackManager()->clear() ;
-  m_kernel->GetEventManager()->GetTrackingManager()->EventAborted() ;
-     
+  m_currentEvent->SetEventAborted();
+  m_kernel->GetEventManager()->GetStackManager()->clear();
+  m_kernel->GetEventManager()->GetTrackingManager()->EventAborted();
+
   G4StateManager* stateManager = G4StateManager::GetStateManager();
   stateManager->SetNewState(G4State_GeomClosed);
 }
 
-void RunManager::initializeUserActions()
-{
+void RunManager::initializeUserActions() {
   m_runInterface = new SimRunInterface(this, false);
 
   m_userRunAction = new RunAction(m_pRunAction, m_runInterface, true);
   Connect(m_userRunAction);
 
-  G4EventManager * eventManager = m_kernel->GetEventManager();
+  G4EventManager* eventManager = m_kernel->GetEventManager();
   eventManager->SetVerboseLevel(m_EvtMgrVerbosity);
 
-  if (m_generator!=nullptr) {
-    EventAction * userEventAction = 
-      new EventAction(m_pEventAction, m_runInterface, m_trackManager.get(),
-		      m_sVerbose.get());
+  if (m_generator != nullptr) {
+    EventAction* userEventAction =
+        new EventAction(m_pEventAction, m_runInterface, m_trackManager.get(), m_sVerbose.get());
     Connect(userEventAction);
     eventManager->SetUserAction(userEventAction);
 
-    TrackingAction* userTrackingAction = 
-      new TrackingAction(userEventAction,m_pTrackingAction,m_sVerbose.get());
+    TrackingAction* userTrackingAction = new TrackingAction(userEventAction, m_pTrackingAction, m_sVerbose.get());
     Connect(userTrackingAction);
     eventManager->SetUserAction(userTrackingAction);
-	
-    SteppingAction* userSteppingAction = 
-      new SteppingAction(userEventAction,m_pSteppingAction,m_sVerbose.get(),m_hasWatchers); 
+
+    SteppingAction* userSteppingAction =
+        new SteppingAction(userEventAction, m_pSteppingAction, m_sVerbose.get(), m_hasWatchers);
     Connect(userSteppingAction);
     eventManager->SetUserAction(userSteppingAction);
 
-    eventManager->SetUserAction(new StackingAction(userTrackingAction, 
-						   m_pStackingAction,m_sVerbose.get()));
+    eventManager->SetUserAction(new StackingAction(userTrackingAction, m_pStackingAction, m_sVerbose.get()));
 
   } else {
     edm::LogWarning("SimG4CoreApplication") << " RunManager: WARNING : "
-					    << "No generator; initialized "
-					    << "only RunAction!";
+                                            << "No generator; initialized "
+                                            << "only RunAction!";
   }
 }
 
-void RunManager::initializeRun()
-{
+void RunManager::initializeRun() {
   m_runInitialized = false;
-  if (m_currentRun==nullptr) { m_currentRun = new G4Run(); }
+  if (m_currentRun == nullptr) {
+    m_currentRun = new G4Run();
+  }
   G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
-  if (m_userRunAction!=nullptr) { m_userRunAction->BeginOfRunAction(m_currentRun); }
+  if (m_userRunAction != nullptr) {
+    m_userRunAction->BeginOfRunAction(m_currentRun);
+  }
   m_runAborted = false;
   m_runInitialized = true;
 }
- 
-void RunManager::terminateRun()
-{
-  if(m_runTerminated) { return; }
-  if (m_userRunAction!=nullptr) {
+
+void RunManager::terminateRun() {
+  if (m_runTerminated) {
+    return;
+  }
+  if (m_userRunAction != nullptr) {
     m_userRunAction->EndOfRunAction(m_currentRun);
-    delete m_userRunAction; 
+    delete m_userRunAction;
     m_userRunAction = nullptr;
   }
   delete m_currentEvent;
   m_currentEvent = nullptr;
   delete m_simEvent;
   m_simEvent = nullptr;
-  if(m_kernel != nullptr) { m_kernel->RunTermination(); }
+  if (m_kernel != nullptr) {
+    m_kernel->RunTermination();
+  }
   m_runInitialized = false;
-  m_runTerminated = true;  
+  m_runTerminated = true;
 }
 
-void RunManager::abortRun(bool softAbort)
-{
-  if(m_runAborted) { return; }
-  if (!softAbort) { abortEvent(); }
-  if (m_currentRun!=nullptr) { delete m_currentRun; m_currentRun = nullptr; }
+void RunManager::abortRun(bool softAbort) {
+  if (m_runAborted) {
+    return;
+  }
+  if (!softAbort) {
+    abortEvent();
+  }
+  if (m_currentRun != nullptr) {
+    delete m_currentRun;
+    m_currentRun = nullptr;
+  }
   terminateRun();
   m_runAborted = true;
 }
 
-void RunManager::resetGenParticleId( edm::Event& inpevt ) 
-{
+void RunManager::resetGenParticleId(edm::Event& inpevt) {
   edm::Handle<edm::LHCTransportLinkContainer> theLHCTlink;
-  inpevt.getByToken( m_LHCtr, theLHCTlink );
-  if ( theLHCTlink.isValid() ) {
-    m_trackManager->setLHCTransportLink( theLHCTlink.product() );
+  inpevt.getByToken(m_LHCtr, theLHCTlink);
+  if (theLHCTlink.isValid()) {
+    m_trackManager->setLHCTransportLink(theLHCTlink.product());
   }
 }
 
-SimTrackManager* RunManager::GetSimTrackManager()
-{
-  return m_trackManager.get();
-}
+SimTrackManager* RunManager::GetSimTrackManager() { return m_trackManager.get(); }
 
-void  RunManager::Connect(RunAction* runAction)
-{
+void RunManager::Connect(RunAction* runAction) {
   runAction->m_beginOfRunSignal.connect(m_registry.beginOfRunSignal_);
   runAction->m_endOfRunSignal.connect(m_registry.endOfRunSignal_);
 }
 
-void  RunManager::Connect(EventAction* eventAction)
-{
+void RunManager::Connect(EventAction* eventAction) {
   eventAction->m_beginOfEventSignal.connect(m_registry.beginOfEventSignal_);
   eventAction->m_endOfEventSignal.connect(m_registry.endOfEventSignal_);
 }
 
-void  RunManager::Connect(TrackingAction* trackingAction)
-{
+void RunManager::Connect(TrackingAction* trackingAction) {
   trackingAction->m_beginOfTrackSignal.connect(m_registry.beginOfTrackSignal_);
   trackingAction->m_endOfTrackSignal.connect(m_registry.endOfTrackSignal_);
 }
 
-void  RunManager::Connect(SteppingAction* steppingAction)
-{
+void RunManager::Connect(SteppingAction* steppingAction) {
   steppingAction->m_g4StepSignal.connect(m_registry.g4StepSignal_);
 }
 
-void RunManager::DumpMagneticField(const G4Field* field) const
-{
+void RunManager::DumpMagneticField(const G4Field* field) const {
   std::ofstream fout(m_FieldFile.c_str(), std::ios::out);
-  if(fout.fail()){
-    edm::LogWarning("SimG4CoreApplication") 
-      << " RunManager WARNING : "
-      << "error opening file <" << m_FieldFile << "> for magnetic field";
+  if (fout.fail()) {
+    edm::LogWarning("SimG4CoreApplication") << " RunManager WARNING : "
+                                            << "error opening file <" << m_FieldFile << "> for magnetic field";
   } else {
-    double rmax = 9000*mm;
-    double zmax = 16000*mm;
+    double rmax = 9000 * mm;
+    double zmax = 16000 * mm;
 
-    double dr = 5*cm;
-    double dz = 20*cm;
+    double dr = 5 * cm;
+    double dz = 20 * cm;
 
-    int nr = (int)(rmax/dr);
-    int nz = 2*(int)(zmax/dz);
+    int nr = (int)(rmax / dr);
+    int nz = 2 * (int)(zmax / dz);
 
     double r = 0.0;
     double z0 = -zmax;
@@ -602,27 +583,25 @@ void RunManager::DumpMagneticField(const G4Field* field) const
     double cosf = cos(phi);
     double sinf = sin(phi);
 
-    double point[4] = {0.0,0.0,0.0,0.0};
-    double bfield[3] = {0.0,0.0,0.0};
+    double point[4] = {0.0, 0.0, 0.0, 0.0};
+    double bfield[3] = {0.0, 0.0, 0.0};
 
-    fout << std::setprecision(6); 
-    for(int i=0; i<=nr; ++i) {
+    fout << std::setprecision(6);
+    for (int i = 0; i <= nr; ++i) {
       z = z0;
-      for(int j=0; j<=nz; ++j) {
-        point[0] = r*cosf;
-	point[1] = r*sinf;
-	point[2] = z;
-        field->GetFieldValue(point, bfield); 
-        fout << "R(mm)= " << r/mm << " phi(deg)= " << phi/degree 
-	     << " Z(mm)= " << z/mm << "   Bz(tesla)= " << bfield[2]/tesla 
-	     << " Br(tesla)= " << (bfield[0]*cosf + bfield[1]*sinf)/tesla
-	     << " Bphi(tesla)= " << (bfield[0]*sinf - bfield[1]*cosf)/tesla
-	     << G4endl;
-	z += dz;
+      for (int j = 0; j <= nz; ++j) {
+        point[0] = r * cosf;
+        point[1] = r * sinf;
+        point[2] = z;
+        field->GetFieldValue(point, bfield);
+        fout << "R(mm)= " << r / mm << " phi(deg)= " << phi / degree << " Z(mm)= " << z / mm
+             << "   Bz(tesla)= " << bfield[2] / tesla << " Br(tesla)= " << (bfield[0] * cosf + bfield[1] * sinf) / tesla
+             << " Bphi(tesla)= " << (bfield[0] * sinf - bfield[1] * cosf) / tesla << G4endl;
+        z += dz;
       }
       r += dr;
     }
-    
+
     fout.close();
   }
 }

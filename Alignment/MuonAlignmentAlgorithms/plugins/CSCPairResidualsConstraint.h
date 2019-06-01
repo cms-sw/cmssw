@@ -27,39 +27,55 @@ class CSCOverlapsAlignmentAlgorithm;
 class CSCPairResidualsConstraint : public CSCPairConstraint {
 public:
   CSCPairResidualsConstraint(unsigned int identifier, int i, int j, CSCDetId id_i, CSCDetId id_j)
-    : CSCPairConstraint(i, j, 0., 0.)
-    , m_identifier(identifier), m_id_i(id_i), m_id_j(id_j)
-    , m_sum1(0.), m_sumx(0.), m_sumy(0.), m_sumxx(0.), m_sumyy(0.), m_sumxy(0.), m_sumN(0)
-    , m_Zplane(1000.), m_iZ1(1000.), m_iZ6(1000.), m_jZ1(1000.), m_jZ6(1000.), m_cscGeometry(nullptr), m_propagator(nullptr)
-  {};
-  ~CSCPairResidualsConstraint() override {};
+      : CSCPairConstraint(i, j, 0., 0.),
+        m_identifier(identifier),
+        m_id_i(id_i),
+        m_id_j(id_j),
+        m_sum1(0.),
+        m_sumx(0.),
+        m_sumy(0.),
+        m_sumxx(0.),
+        m_sumyy(0.),
+        m_sumxy(0.),
+        m_sumN(0),
+        m_Zplane(1000.),
+        m_iZ1(1000.),
+        m_iZ6(1000.),
+        m_jZ1(1000.),
+        m_jZ6(1000.),
+        m_cscGeometry(nullptr),
+        m_propagator(nullptr){};
+  ~CSCPairResidualsConstraint() override{};
 
-  enum {
-    kModePhiy,
-    kModePhiPos,
-    kModePhiz,
-    kModeRadius
-  };
+  enum { kModePhiy, kModePhiPos, kModePhiz, kModeRadius };
 
   double value() const override;
   double error() const override;
   CSCDetId id_i() const { return m_id_i; };
   CSCDetId id_j() const { return m_id_j; };
   bool valid() const override;
-  double radius(bool is_i) const { return m_cscGeometry->idToDet((is_i ? m_id_i : m_id_j))->surface().position().perp(); };
+  double radius(bool is_i) const {
+    return m_cscGeometry->idToDet((is_i ? m_id_i : m_id_j))->surface().position().perp();
+  };
 
   void configure(CSCOverlapsAlignmentAlgorithm *parent);
   void setZplane(const CSCGeometry *cscGeometry);
   void setPropagator(const Propagator *propagator);
-  bool addTrack(const std::vector<TrajectoryMeasurement> &measurements, const reco::TransientTrack &track, const TrackTransformer *trackTransformer);
+  bool addTrack(const std::vector<TrajectoryMeasurement> &measurements,
+                const reco::TransientTrack &track,
+                const TrackTransformer *trackTransformer);
 
   void write(std::ofstream &output);
-  void read(std::vector<std::ifstream*> &input, std::vector<std::string> &filenames);
+  void read(std::vector<std::ifstream *> &input, std::vector<std::string> &filenames);
 
 protected:
-  void calculatePhi(const TransientTrackingRecHit *hit, double &phi, double &phierr2, bool doRphi=false, bool globalPhi=false);
-  bool isFiducial(std::vector<const TransientTrackingRecHit*> &hits, bool is_i);
-  bool dphidzFromTrack(const std::vector<TrajectoryMeasurement> &measurements, const reco::TransientTrack &track, const TrackTransformer *trackTransformer, double &drphidz);
+  void calculatePhi(
+      const TransientTrackingRecHit *hit, double &phi, double &phierr2, bool doRphi = false, bool globalPhi = false);
+  bool isFiducial(std::vector<const TransientTrackingRecHit *> &hits, bool is_i);
+  bool dphidzFromTrack(const std::vector<TrajectoryMeasurement> &measurements,
+                       const reco::TransientTrack &track,
+                       const TrackTransformer *trackTransformer,
+                       double &drphidz);
 
   unsigned int m_identifier;
   CSCDetId m_id_i, m_id_j;
@@ -78,4 +94,4 @@ protected:
   TH1F *m_radial;
 };
 
-#endif // Alignment_MuonAlignmentAlgorithms_CSCPairResidualsConstraint_H
+#endif  // Alignment_MuonAlignmentAlgorithms_CSCPairResidualsConstraint_H
