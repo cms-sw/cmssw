@@ -1,5 +1,5 @@
 // Class:      LeptonRecoSkim
-// 
+//
 /**\class LeptonRecoSkim LeptonRecoSkim.cc Configuration/Skimming/src/LeptonRecoSkim.cc
 
    Description: [one line class summary]
@@ -50,25 +50,21 @@
 //includes for PF
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
-
 //includes for Trigger
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
-
 class LeptonRecoSkim : public edm::EDFilter {
- public:
+public:
   explicit LeptonRecoSkim(const edm::ParameterSet&);
   ~LeptonRecoSkim() override;
-  
- private:
-  void beginJob() override ;
+
+private:
+  void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
-  
+  void endJob() override;
+
   void handleObjects(const edm::Event&, const edm::EventSetup& iSetup);
-
-
 
   edm::InputTag hltLabel;
   std::string filterName;
@@ -80,33 +76,29 @@ class LeptonRecoSkim : public edm::EDFilter {
   edm::InputTag m_ebRecHitsSrc;
   edm::InputTag m_eeRecHitsSrc;
 
-  const reco::GsfElectronCollection*           theElectronCollection  ;    
-  const reco::PFCandidateCollection*           thePfCandidateCollection  ;    
-  const reco::MuonCollection*                  theMuonCollection      ;
-  const reco::CaloJetCollection*               theCaloJetCollection   ;
-  const reco::PFJetCollection*                 thePFJetCollection   ;
-  const EcalRecHitCollection*            theEcalBarrelCollection;
-  const EcalRecHitCollection*            theEcalEndcapCollection;
-  const CaloTopology*                    theCaloTopology;
-  const CaloGeometry*                    theCaloGeometry;
+  const reco::GsfElectronCollection* theElectronCollection;
+  const reco::PFCandidateCollection* thePfCandidateCollection;
+  const reco::MuonCollection* theMuonCollection;
+  const reco::CaloJetCollection* theCaloJetCollection;
+  const reco::PFJetCollection* thePFJetCollection;
+  const EcalRecHitCollection* theEcalBarrelCollection;
+  const EcalRecHitCollection* theEcalEndcapCollection;
+  const CaloTopology* theCaloTopology;
+  const CaloGeometry* theCaloGeometry;
 
   bool firstEvent;
 
-
-  
   bool useElectronSelection;
   bool usePfElectronSelection;
   bool useMuonSelection;
   bool useHtSelection;
   bool usePFHtSelection;
 
-
   bool ElectronCutPassed;
   bool PfElectronCutPassed;
   bool MuonCutPassed;
   bool HtCutPassed;
   bool PFHtCutPassed;
-  
 
   double ptElecMin;
   double ptPfElecMin;
@@ -120,8 +112,6 @@ class LeptonRecoSkim : public edm::EDFilter {
   double htJetThreshold;
   double pfHtJetThreshold;
 
-
-
   int NeventsTotal;
   int NeventsFiltered;
   int NHltMu9;
@@ -131,4 +121,3 @@ class LeptonRecoSkim : public edm::EDFilter {
   int NmvaElectrons;
   // ----------member data ---------------------------
 };
-
