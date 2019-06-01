@@ -27,14 +27,13 @@
 using namespace std;
 using namespace magneticfield;
 
-VolumeBasedMagneticFieldESProducer::VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig) : pset(iConfig)
-{
-  setWhatProduced(this, pset.getUntrackedParameter<std::string>("label",""));
+VolumeBasedMagneticFieldESProducer::VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig)
+    : pset(iConfig) {
+  setWhatProduced(this, pset.getUntrackedParameter<std::string>("label", ""));
 }
 
 // ------------ method called to produce the data  ------------
-std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const IdealMagneticFieldRecord & iRecord)
-{
+std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord) {
   bool debug = pset.getUntrackedParameter<bool>("debugBuilder", false);
   if (debug) {
     cout << "VolumeBasedMagneticFieldESProducer::produce() " << pset.getParameter<std::string>("version") << endl;
@@ -43,33 +42,36 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const
   MagFieldConfig conf(pset, debug);
 
   edm::ESTransientHandle<DDCompactView> cpv;
-  iRecord.get("magfield",cpv );
-  MagGeoBuilderFromDDD builder(conf.version,
-			       conf.geometryVersion,
-			       debug);
+  iRecord.get("magfield", cpv);
+  MagGeoBuilderFromDDD builder(conf.version, conf.geometryVersion, debug);
 
   // Set scaling factors
   if (!conf.keys.empty()) {
     builder.setScaling(conf.keys, conf.values);
   }
-  
+
   // Set specification for the grid tables to be used.
   if (!conf.gridFiles.empty()) {
     builder.setGridFiles(conf.gridFiles);
   }
-  
+
   builder.build(*cpv);
 
   // Get slave field (from ES)
   edm::ESHandle<MagneticField> paramField;
-  if (pset.getParameter<bool>("useParametrizedTrackerField")) {;
-    iRecord.get(pset.getParameter<string>("paramLabel"),paramField);
+  if (pset.getParameter<bool>("useParametrizedTrackerField")) {
+    ;
+    iRecord.get(pset.getParameter<string>("paramLabel"), paramField);
   }
-  return std::make_unique<VolumeBasedMagneticField>(conf.geometryVersion,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.product(), false);
+  return std::make_unique<VolumeBasedMagneticField>(conf.geometryVersion,
+                                                    builder.barrelLayers(),
+                                                    builder.endcapSectors(),
+                                                    builder.barrelVolumes(),
+                                                    builder.endcapVolumes(),
+                                                    builder.maxR(),
+                                                    builder.maxZ(),
+                                                    paramField.product(),
+                                                    false);
 }
-
-
-
-
 
 DEFINE_FWK_EVENTSETUP_MODULE(VolumeBasedMagneticFieldESProducer);

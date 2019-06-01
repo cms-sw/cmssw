@@ -8,18 +8,16 @@
  *  \author N. Amapane - CERN
  */
 
-  #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
+#include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
 
 namespace magneticfield {
-class FakeInterpolator : public MagProviderInterpol {
- public:
-  /// Constructor
-  FakeInterpolator() {};
-  
-  // Operations
-  LocalVectorType valueInTesla( const LocalPointType& p) const override {
-    return LocalVectorType(0.,0.,0.);
-  }
-};
-}
+  class FakeInterpolator : public MagProviderInterpol {
+  public:
+    /// Constructor
+    FakeInterpolator(){};
+
+    // Operations
+    LocalVectorType valueInTesla(const LocalPointType& p) const override { return LocalVectorType(0., 0., 0.); }
+  };
+}  // namespace magneticfield
 #endif

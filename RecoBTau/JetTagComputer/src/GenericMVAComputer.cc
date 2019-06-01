@@ -11,27 +11,19 @@ using namespace PhysicsTools;
 // static cache
 const GenericMVAComputer::TaggingVariableMapping GenericMVAComputer::mapping;
 
-GenericMVAComputer::TaggingVariableMapping::TaggingVariableMapping()
-{
-	for(unsigned int i = 0; i < btau::lastTaggingVariable; i++) {
-		const char *name = TaggingVariableTokens[i];
-		AtomicId id(name);
+GenericMVAComputer::TaggingVariableMapping::TaggingVariableMapping() {
+  for (unsigned int i = 0; i < btau::lastTaggingVariable; i++) {
+    const char *name = TaggingVariableTokens[i];
+    AtomicId id(name);
 
-		taggingVarToAtomicId.push_back(id);
-	}
+    taggingVarToAtomicId.push_back(id);
+  }
 }
 
 // explicit instantiation the common case of reco::TaggingVariableList
-template
-double GenericMVAComputer::eval<reco::TaggingVariableList::const_iterator>(
-				reco::TaggingVariableList::const_iterator,
-				reco::TaggingVariableList::const_iterator) const;
+template double GenericMVAComputer::eval<reco::TaggingVariableList::const_iterator>(
+    reco::TaggingVariableList::const_iterator, reco::TaggingVariableList::const_iterator) const;
 
-template
-double GenericMVAComputer::eval<reco::TaggingVariableList>(
-				const reco::TaggingVariableList&) const;
+template double GenericMVAComputer::eval<reco::TaggingVariableList>(const reco::TaggingVariableList &) const;
 
-template
-class GenericMVAComputer::TaggingVariableIterator<
-				reco::TaggingVariableList::const_iterator>;
-
+template class GenericMVAComputer::TaggingVariableIterator<reco::TaggingVariableList::const_iterator>;
