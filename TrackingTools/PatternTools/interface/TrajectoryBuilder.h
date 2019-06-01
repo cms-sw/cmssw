@@ -17,31 +17,29 @@ class TrajectorySeed;
 
 class TrajectoryBuilder {
 public:
-
   typedef std::vector<Trajectory> TrajectoryContainer;
   typedef TrajectoryContainer::iterator TrajectoryIterator;
 
-  virtual ~TrajectoryBuilder() {};
+  virtual ~TrajectoryBuilder(){};
 
   virtual TrajectoryContainer trajectories(const TrajectorySeed&) const = 0;
 
-  virtual void trajectories(const TrajectorySeed& seed, TrajectoryContainer &out) const {
-        TrajectoryContainer && ret = trajectories(seed);
-        out = std::move(ret);
+  virtual void trajectories(const TrajectorySeed& seed, TrajectoryContainer& out) const {
+    TrajectoryContainer&& ret = trajectories(seed);
+    out = std::move(ret);
   }
 
   /** Interface for trajectories re-building in the seeding region method.
       It has to be correctly implemented in the concrete class
   **/
-  virtual void  rebuildSeedingRegion(const TrajectorySeed&,
-				     TrajectoryContainer& result) const {    
-    LogDebug("TrajectoryBuilding") 
-      << "WARNING: you are using a trajectory builder which is not overloading the rebuildSeedingRegion method because there is not an implementation yet: output TrajectoryContainer is equal to inputTrajectoryContainer";
+  virtual void rebuildSeedingRegion(const TrajectorySeed&, TrajectoryContainer& result) const {
+    LogDebug("TrajectoryBuilding") << "WARNING: you are using a trajectory builder which is not overloading the "
+                                      "rebuildSeedingRegion method because there is not an implementation yet: output "
+                                      "TrajectoryContainer is equal to inputTrajectoryContainer";
   }
 
   virtual void setEvent(const edm::Event& event) const = 0;
   virtual void unset() const {};
 };
-
 
 #endif

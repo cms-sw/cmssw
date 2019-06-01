@@ -8,7 +8,6 @@
 #include <map>
 #include <vector>
 
-
 // forward declarations
 class TFile;
 class TH1F;
@@ -18,63 +17,48 @@ class TTree;
 class SimVertex;
 class SimTrack;
 
+class MCElectronAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  //
+  explicit MCElectronAnalyzer(const edm::ParameterSet&);
+  ~MCElectronAnalyzer() override;
 
-class MCElectronAnalyzer : public edm::one::EDAnalyzer<>
-{
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
 
-   public:
+private:
+  float etaTransformation(float a, float b);
+  float phiNormalization(float& a);
 
-      //
-      explicit MCElectronAnalyzer( const edm::ParameterSet& ) ;
-      ~MCElectronAnalyzer() override;
+  //
+  ElectronMCTruthFinder* theElectronMCTruthFinder_;
 
+  const TrackerGeometry* trackerGeom;
 
-      void analyze( const edm::Event&, const edm::EventSetup& ) override ;
-      void beginJob() override ;
-      void endJob() override ;
+  std::string fOutputFileName_;
+  TFile* fOutputFile_;
 
-   private:
+  int nEvt_;
+  int nMatched_;
 
+  /// global variable for the MC photon
+  double mcPhi_;
+  double mcEta_;
 
-      float etaTransformation( float a, float b);
-      float phiNormalization( float& a);
+  std::string HepMCLabel;
+  std::string SimTkLabel;
+  std::string SimVtxLabel;
+  std::string SimHitLabel;
 
+  TH1F* h_MCEleE_;
+  TH1F* h_MCEleEta_;
+  TH1F* h_MCElePhi_;
+  TH1F* h_BremFrac_;
+  TH1F* h_BremEnergy_;
 
-      //
-      ElectronMCTruthFinder*  theElectronMCTruthFinder_;
-
-      const TrackerGeometry* trackerGeom;
-
-      std::string fOutputFileName_ ;
-      TFile*      fOutputFile_ ;
-
-
-
-
-      int nEvt_;
-      int nMatched_;
-
-      /// global variable for the MC photon
-      double mcPhi_;
-      double mcEta_;
-
-      std::string HepMCLabel;
-      std::string SimTkLabel;
-      std::string SimVtxLabel;
-      std::string SimHitLabel;
-
-
-      TH1F* h_MCEleE_;
-      TH1F* h_MCEleEta_;
-      TH1F* h_MCElePhi_;
-      TH1F* h_BremFrac_;
-      TH1F* h_BremEnergy_;
-
-      TProfile* p_BremVsR_;
-      TProfile* p_BremVsEta_;
-
-
-
+  TProfile* p_BremVsR_;
+  TProfile* p_BremVsEta_;
 };
 
 #endif

@@ -10,14 +10,10 @@
  * It is to be used when there is no material between the state and the BeamLine
  */
 
-class TSCBLBuilderNoMaterial : public TrajectoryStateClosestToBeamLineBuilder
-{
-public: 
+class TSCBLBuilderNoMaterial : public TrajectoryStateClosestToBeamLineBuilder {
+public:
+  TrajectoryStateClosestToBeamLine operator()(const FTS& originalFTS, const reco::BeamSpot& beamSpot) const override;
 
-  TrajectoryStateClosestToBeamLine operator()
-    (const FTS& originalFTS, const reco::BeamSpot & beamSpot) const override;
-
-  ~TSCBLBuilderNoMaterial() override {};
-
+  ~TSCBLBuilderNoMaterial() override{};
 };
 #endif
