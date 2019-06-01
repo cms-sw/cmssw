@@ -19,11 +19,12 @@
 class CaloTowersReCreator : public edm::stream::EDProducer<> {
 public:
   explicit CaloTowersReCreator(const edm::ParameterSet& ps);
-  ~CaloTowersReCreator() override { }
+  ~CaloTowersReCreator() override {}
   void produce(edm::Event& e, const edm::EventSetup& c) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   double EBEScale, EEEScale, HBEScale, HESEScale;
   double HEDEScale, HOEScale, HF1EScale, HF2EScale;
+
 private:
   CaloTowersCreationAlgo algo_;
   edm::EDGetTokenT<CaloTowerCollection> tok_calo_;

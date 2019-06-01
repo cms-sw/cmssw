@@ -7,26 +7,20 @@
 #include <iostream>
 #include <string>
 
-
-
-class ECALTBParserBlockException{ 
-		public :
-		
-			/**
+class ECALTBParserBlockException {
+public:
+  /**
 			 * Constructor
 			 */
-  ECALTBParserBlockException(std::string exceptionInfo_){info_ = exceptionInfo_; }
-		
-		
-			/**
+  ECALTBParserBlockException(std::string exceptionInfo_) { info_ = exceptionInfo_; }
+
+  /**
 			 * Exception's discription
 			 */
-			const char * what() const throw() {	return info_.c_str();}
-			
-		protected :
-	
-			std::string info_;
+  const char* what() const throw() { return info_.c_str(); }
 
+protected:
+  std::string info_;
 };
 
 #endif

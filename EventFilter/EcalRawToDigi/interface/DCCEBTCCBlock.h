@@ -14,13 +14,11 @@
  *
 */
 
-#include <iostream>                  
+#include <iostream>
 #include <string>
 #include <vector>
 #include <map>
 #include <utility>
-
-
 
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
@@ -32,21 +30,18 @@
 class DCCDataUnpacker;
 
 class DCCEBTCCBlock : public DCCTCCBlock {
-	
-  public :
-    /**
+public:
+  /**
       Class constructor
     */
-    DCCEBTCCBlock( DCCDataUnpacker *  u, EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack);    
-	 
-    void updateCollectors() override;
-   
-    void addTriggerPrimitivesToCollection() override;
-  
-  protected :
+  DCCEBTCCBlock(DCCDataUnpacker* u, EcalElectronicsMapper* m, DCCEventBlock* e, bool unpack);
 
-   bool checkTccIdAndNumbTTs() override;
+  void updateCollectors() override;
 
+  void addTriggerPrimitivesToCollection() override;
+
+protected:
+  bool checkTccIdAndNumbTTs() override;
 };
 
 #endif
