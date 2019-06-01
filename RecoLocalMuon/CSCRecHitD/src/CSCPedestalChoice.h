@@ -13,21 +13,24 @@
 
 class CSCPedestalChoice {
 public:
-	CSCPedestalChoice() : defaultPed( 0. ){}
-	virtual ~CSCPedestalChoice(){};
-	/// Return default pedestal (typically zero)
-	float getDefault() const { return defaultPed; } 
-	/// Allow reseting of default pedestal (not currently used)
-	void setDefault( float ped ) { defaultPed = ped; }
-	/** 
+  CSCPedestalChoice() : defaultPed(0.) {}
+  virtual ~CSCPedestalChoice(){};
+  /// Return default pedestal (typically zero)
+  float getDefault() const { return defaultPed; }
+  /// Allow reseting of default pedestal (not currently used)
+  void setDefault(float ped) { defaultPed = ped; }
+  /** 
 	* Return appropriate pedestal for supplied SCA vector.
 	* If using conditions data then must also supply pointer to CSCRecoConditions
 	* and CSCDetId + channel
 	*/
-	virtual float pedestal( const std::vector<float>& sca, 
-	   const CSCRecoConditions* cond=nullptr, const CSCDetId id=0, int ichan=0 ) = 0;
+  virtual float pedestal(const std::vector<float>& sca,
+                         const CSCRecoConditions* cond = nullptr,
+                         const CSCDetId id = 0,
+                         int ichan = 0) = 0;
+
 private:
-	float defaultPed;
+  float defaultPed;
 };
 
 /**
@@ -39,16 +42,15 @@ private:
  */
 class CSCDynamicPedestal2 : public CSCPedestalChoice {
 public:
-	CSCDynamicPedestal2(){}
-	~CSCDynamicPedestal2() override{}
-	float pedestal( const std::vector<float>& sca, 
-	    const CSCRecoConditions*, const CSCDetId, int ) override{
-		float ped = getDefault();
-		if ( !sca.empty() ){
-			ped = ( sca[0]+sca[1] )/2.;
-		}
-		return ped;
-	}
+  CSCDynamicPedestal2() {}
+  ~CSCDynamicPedestal2() override {}
+  float pedestal(const std::vector<float>& sca, const CSCRecoConditions*, const CSCDetId, int) override {
+    float ped = getDefault();
+    if (!sca.empty()) {
+      ped = (sca[0] + sca[1]) / 2.;
+    }
+    return ped;
+  }
 };
 
 /**
@@ -60,16 +62,15 @@ public:
  */
 class CSCDynamicPedestal1 : public CSCPedestalChoice {
 public:
-	CSCDynamicPedestal1(){}
-	~CSCDynamicPedestal1() override{}
-	float pedestal( const std::vector<float>& sca,
-	    const CSCRecoConditions*, const CSCDetId, int ) override{
-		float ped = getDefault();
-		if ( !sca.empty() ){
-			ped = sca[0];
-		}
-	  return ped;
-	}
+  CSCDynamicPedestal1() {}
+  ~CSCDynamicPedestal1() override {}
+  float pedestal(const std::vector<float>& sca, const CSCRecoConditions*, const CSCDetId, int) override {
+    float ped = getDefault();
+    if (!sca.empty()) {
+      ped = sca[0];
+    }
+    return ped;
+  }
 };
 
 /**
@@ -81,13 +82,12 @@ public:
  */
 class CSCStaticPedestal : public CSCPedestalChoice {
 public:
-	CSCStaticPedestal(){}
-	~CSCStaticPedestal() override{}
-	float pedestal( const std::vector<float>& sca,
-	    const CSCRecoConditions* cond, const CSCDetId id, int ichan ) override{
-		float ped = cond->pedestal(id, ichan );
-		return ped;
-	}
+  CSCStaticPedestal() {}
+  ~CSCStaticPedestal() override {}
+  float pedestal(const std::vector<float>& sca, const CSCRecoConditions* cond, const CSCDetId id, int ichan) override {
+    float ped = cond->pedestal(id, ichan);
+    return ped;
+  }
 };
 
 /**
@@ -98,17 +98,15 @@ public:
  *
  */
 class CSCSubtractPedestal {
-  public:
-    CSCSubtractPedestal( float ped ): ped_(ped) {}
-    void operator()( float& elem ) const {
-      elem -= ped_;
-    }
-    void operator()( int& elem ) const {
-      elem -= static_cast<int>(ped_); // not strictly correct but OK for the typical large pedestals
-    }
+public:
+  CSCSubtractPedestal(float ped) : ped_(ped) {}
+  void operator()(float& elem) const { elem -= ped_; }
+  void operator()(int& elem) const {
+    elem -= static_cast<int>(ped_);  // not strictly correct but OK for the typical large pedestals
+  }
 
-  private:
-     float ped_;
+private:
+  float ped_;
 };
 
 #endif
