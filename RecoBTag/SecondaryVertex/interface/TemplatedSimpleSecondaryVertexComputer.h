@@ -15,63 +15,60 @@
 
 template <class IPTI, class VTX>
 class TemplatedSimpleSecondaryVertexComputer : public JetTagComputer {
-    public:
-	typedef reco::TemplatedSecondaryVertexTagInfo<IPTI,VTX> TagInfo;
-	
-	TemplatedSimpleSecondaryVertexComputer(const edm::ParameterSet &parameters) :
-	        use2d(!parameters.getParameter<bool>("use3d")),
-		useSig(parameters.getParameter<bool>("useSignificance")),
-	        unBoost(parameters.getParameter<bool>("unBoost")),
-	        minTracks(parameters.getParameter<unsigned int>("minTracks")),
-	        minVertices_(1)
-		  { 
-		    uses("svTagInfos"); 
-		    minVertices_    = parameters.existsAs<unsigned int>("minVertices") ?  parameters.getParameter<unsigned int>("minVertices") : 1 ;
-		  }
+public:
+  typedef reco::TemplatedSecondaryVertexTagInfo<IPTI, VTX> TagInfo;
 
-	float discriminator(const TagInfoHelper &tagInfos) const override
-	{
-		const TagInfo &info =
-				tagInfos.get<TagInfo>();
-		if(info.nVertices() < minVertices_) return -1;
-                unsigned int idx = 0;
-		while(idx < info.nVertices()) {
-			if (info.nVertexTracks(idx) >= minTracks)
-				break;
-			idx++;
-		}
-		if (idx >= info.nVertices())
-			return -1.0;
+  TemplatedSimpleSecondaryVertexComputer(const edm::ParameterSet &parameters)
+      : use2d(!parameters.getParameter<bool>("use3d")),
+        useSig(parameters.getParameter<bool>("useSignificance")),
+        unBoost(parameters.getParameter<bool>("unBoost")),
+        minTracks(parameters.getParameter<unsigned int>("minTracks")),
+        minVertices_(1) {
+    uses("svTagInfos");
+    minVertices_ =
+        parameters.existsAs<unsigned int>("minVertices") ? parameters.getParameter<unsigned int>("minVertices") : 1;
+  }
 
-		double gamma;
-		if (unBoost) {
-			reco::TrackKinematics kinematics(
-						info.secondaryVertex(idx));
-			gamma = kinematics.vectorSum().Gamma();
-		} else
-			gamma = 1.0;
+  float discriminator(const TagInfoHelper &tagInfos) const override {
+    const TagInfo &info = tagInfos.get<TagInfo>();
+    if (info.nVertices() < minVertices_)
+      return -1;
+    unsigned int idx = 0;
+    while (idx < info.nVertices()) {
+      if (info.nVertexTracks(idx) >= minTracks)
+        break;
+      idx++;
+    }
+    if (idx >= info.nVertices())
+      return -1.0;
 
-		double value;
-		if (useSig)
-			value = info.flightDistance(idx, use2d).significance();
-		else
-			value = info.flightDistance(idx, use2d).value();
+    double gamma;
+    if (unBoost) {
+      reco::TrackKinematics kinematics(info.secondaryVertex(idx));
+      gamma = kinematics.vectorSum().Gamma();
+    } else
+      gamma = 1.0;
 
-		value /= gamma;
+    double value;
+    if (useSig)
+      value = info.flightDistance(idx, use2d).significance();
+    else
+      value = info.flightDistance(idx, use2d).value();
 
-		if (useSig)
-			value = (value > 0) ? +std::log(1 + value)
-			                    : -std::log(1 - value);
+    value /= gamma;
 
-		return value;
-	}
+    if (useSig)
+      value = (value > 0) ? +std::log(1 + value) : -std::log(1 - value);
 
-    private:
-	bool		use2d;
-	bool		useSig;
-	bool		unBoost;
-	unsigned int	minTracks;
-	unsigned int    minVertices_;
+    return value;
+  }
+
+private:
+  bool use2d;
+  bool useSig;
+  bool unBoost;
+  unsigned int minTracks;
+  unsigned int minVertices_;
 };
 
-#endif // RecoBTag_SecondaryVertex_TemplatedSimpleSecondaryVertexComputer_h
+#endif  // RecoBTag_SecondaryVertex_TemplatedSimpleSecondaryVertexComputer_h

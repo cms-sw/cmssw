@@ -16,58 +16,54 @@
 #include "CommonTools/Utils/interface/DynArray.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-
 /**
     A StripClusterParameterEstimator specific for strips
    also implements direct access to measurement frame, since that is needed during the track refitting
 
 **/
 
-class StripClusterParameterEstimator
-{
- public:
-  using LocalValues = std::pair<LocalPoint,LocalError>;
+class StripClusterParameterEstimator {
+public:
+  using LocalValues = std::pair<LocalPoint, LocalError>;
   using ALocalValues = DynArray<LocalValues>;
-  using AClusters =  DynArray<SiStripCluster const *>;
+  using AClusters = DynArray<SiStripCluster const*>;
   typedef std::vector<LocalValues> VLocalValues;
 
-  virtual void localParameters(AClusters const & clusters, ALocalValues & retValues, const GeomDetUnit& gd, const LocalTrajectoryParameters & ltp) const {
-  }
+  virtual void localParameters(AClusters const& clusters,
+                               ALocalValues& retValues,
+                               const GeomDetUnit& gd,
+                               const LocalTrajectoryParameters& ltp) const {}
 
-  
-  virtual LocalValues localParameters( const SiStripCluster&,const GeomDetUnit&) const {
-      return std::make_pair(LocalPoint(), LocalError());
+  virtual LocalValues localParameters(const SiStripCluster&, const GeomDetUnit&) const {
+    return std::make_pair(LocalPoint(), LocalError());
   }
-  virtual LocalValues localParameters( const SiStripCluster& cluster, const GeomDetUnit& gd, const LocalTrajectoryParameters&) const {
-    return localParameters(cluster,gd);
+  virtual LocalValues localParameters(const SiStripCluster& cluster,
+                                      const GeomDetUnit& gd,
+                                      const LocalTrajectoryParameters&) const {
+    return localParameters(cluster, gd);
   }
-  virtual LocalValues localParameters( const SiStripCluster& cluster, const GeomDetUnit& gd, const TrajectoryStateOnSurface& tsos) const {
-    return localParameters(cluster,gd,tsos.localParameters());
+  virtual LocalValues localParameters(const SiStripCluster& cluster,
+                                      const GeomDetUnit& gd,
+                                      const TrajectoryStateOnSurface& tsos) const {
+    return localParameters(cluster, gd, tsos.localParameters());
   }
-  virtual VLocalValues localParametersV( const SiStripCluster& cluster, const GeomDetUnit& gd) const {
+  virtual VLocalValues localParametersV(const SiStripCluster& cluster, const GeomDetUnit& gd) const {
     VLocalValues vlp;
-    vlp.push_back(localParameters(cluster,gd));
+    vlp.push_back(localParameters(cluster, gd));
     return vlp;
   }
-  virtual VLocalValues localParametersV( const SiStripCluster& cluster, const GeomDetUnit& gd, const TrajectoryStateOnSurface& tsos) const {
+  virtual VLocalValues localParametersV(const SiStripCluster& cluster,
+                                        const GeomDetUnit& gd,
+                                        const TrajectoryStateOnSurface& tsos) const {
     VLocalValues vlp;
-    vlp.push_back(localParameters(cluster,gd,tsos.localParameters()));
+    vlp.push_back(localParameters(cluster, gd, tsos.localParameters()));
     return vlp;
   }
 
-  
   // used by Validation....
-  virtual LocalVector driftDirection(const StripGeomDetUnit* ) const =0;
+  virtual LocalVector driftDirection(const StripGeomDetUnit*) const = 0;
 
-  virtual ~StripClusterParameterEstimator(){}
-  
-
-
+  virtual ~StripClusterParameterEstimator() {}
 };
 
-
 #endif
-
-
-
-

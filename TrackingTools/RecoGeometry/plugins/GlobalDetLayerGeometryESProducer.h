@@ -7,12 +7,11 @@
 #include "TrackingTools/RecoGeometry/interface/GlobalDetLayerGeometry.h"
 #include <memory>
 
-class  GlobalDetLayerGeometryESProducer: public edm::ESProducer{
- public:
-  GlobalDetLayerGeometryESProducer(const edm::ParameterSet & p);
-  ~GlobalDetLayerGeometryESProducer() override; 
+class GlobalDetLayerGeometryESProducer : public edm::ESProducer {
+public:
+  GlobalDetLayerGeometryESProducer(const edm::ParameterSet &p);
+  ~GlobalDetLayerGeometryESProducer() override;
   std::unique_ptr<DetLayerGeometry> produce(const RecoGeometryRecord &);
 };
-
 
 #endif
