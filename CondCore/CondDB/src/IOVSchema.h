@@ -10,175 +10,212 @@ namespace cond {
 
   namespace persistency {
 
-    conddb_table( TAG ) {
-      
-      conddb_column( NAME, std::string );
-      conddb_column( TIME_TYPE, cond::TimeType );
-      conddb_column( OBJECT_TYPE, std::string );
-      conddb_column( SYNCHRONIZATION, cond::SynchronizationType );
-      conddb_column( END_OF_VALIDITY, cond::Time_t );
-      conddb_column( DESCRIPTION, std::string );
-      conddb_column( LAST_VALIDATED_TIME, cond::Time_t );
-      conddb_column( INSERTION_TIME, boost::posix_time::ptime );
-      conddb_column( MODIFICATION_TIME, boost::posix_time::ptime );
-      
+    conddb_table(TAG) {
+      conddb_column(NAME, std::string);
+      conddb_column(TIME_TYPE, cond::TimeType);
+      conddb_column(OBJECT_TYPE, std::string);
+      conddb_column(SYNCHRONIZATION, cond::SynchronizationType);
+      conddb_column(END_OF_VALIDITY, cond::Time_t);
+      conddb_column(DESCRIPTION, std::string);
+      conddb_column(LAST_VALIDATED_TIME, cond::Time_t);
+      conddb_column(INSERTION_TIME, boost::posix_time::ptime);
+      conddb_column(MODIFICATION_TIME, boost::posix_time::ptime);
+
       class Table : public ITagTable {
       public:
-	explicit Table( coral::ISchema& schema );
-	~Table() override{}
-	bool exists() override;
-	void create() override;
-	bool select( const std::string& name ) override;
-	bool select( const std::string& name, cond::TimeType& timeType, std::string& objectType, cond::SynchronizationType& synchronizationType,
-		     cond::Time_t& endOfValidity, std::string& description, cond::Time_t& lastValidatedTime ) override;
-	bool getMetadata( const std::string& name, std::string& description, 
-			  boost::posix_time::ptime& insertionTime, boost::posix_time::ptime& modificationTime ) override;
-	void insert( const std::string& name, cond::TimeType timeType, const std::string& objectType, 
-		     cond::SynchronizationType synchronizationType, cond::Time_t endOfValidity, const std::string& description, 
-		     cond::Time_t lastValidatedTime, const boost::posix_time::ptime& insertionTime ) override;
-	void update( const std::string& name, cond::SynchronizationType synchronizationType, cond::Time_t& endOfValidity, const std::string& description, 
-		     cond::Time_t lastValidatedTime, const boost::posix_time::ptime& updateTime ) override;
-	void updateValidity( const std::string& name, cond::Time_t lastValidatedTime, const boost::posix_time::ptime& updateTime ) override;
-	void setValidationMode() override{}
+        explicit Table(coral::ISchema& schema);
+        ~Table() override {}
+        bool exists() override;
+        void create() override;
+        bool select(const std::string& name) override;
+        bool select(const std::string& name,
+                    cond::TimeType& timeType,
+                    std::string& objectType,
+                    cond::SynchronizationType& synchronizationType,
+                    cond::Time_t& endOfValidity,
+                    std::string& description,
+                    cond::Time_t& lastValidatedTime) override;
+        bool getMetadata(const std::string& name,
+                         std::string& description,
+                         boost::posix_time::ptime& insertionTime,
+                         boost::posix_time::ptime& modificationTime) override;
+        void insert(const std::string& name,
+                    cond::TimeType timeType,
+                    const std::string& objectType,
+                    cond::SynchronizationType synchronizationType,
+                    cond::Time_t endOfValidity,
+                    const std::string& description,
+                    cond::Time_t lastValidatedTime,
+                    const boost::posix_time::ptime& insertionTime) override;
+        void update(const std::string& name,
+                    cond::SynchronizationType synchronizationType,
+                    cond::Time_t& endOfValidity,
+                    const std::string& description,
+                    cond::Time_t lastValidatedTime,
+                    const boost::posix_time::ptime& updateTime) override;
+        void updateValidity(const std::string& name,
+                            cond::Time_t lastValidatedTime,
+                            const boost::posix_time::ptime& updateTime) override;
+        void setValidationMode() override {}
+
       private:
-	coral::ISchema& m_schema;
+        coral::ISchema& m_schema;
       };
     }
 
-    conddb_table ( PAYLOAD ) {
-      
+    conddb_table(PAYLOAD) {
       static constexpr unsigned int PAYLOAD_HASH_SIZE = 40;
-      
-      conddb_column( HASH, std::string, PAYLOAD_HASH_SIZE );
-      conddb_column( OBJECT_TYPE, std::string );
-      conddb_column( DATA, cond::Binary );
-      conddb_column( STREAMER_INFO, cond::Binary );
-      conddb_column( VERSION, std::string );
-      conddb_column( INSERTION_TIME, boost::posix_time::ptime );
-     
+
+      conddb_column(HASH, std::string, PAYLOAD_HASH_SIZE);
+      conddb_column(OBJECT_TYPE, std::string);
+      conddb_column(DATA, cond::Binary);
+      conddb_column(STREAMER_INFO, cond::Binary);
+      conddb_column(VERSION, std::string);
+      conddb_column(INSERTION_TIME, boost::posix_time::ptime);
+
       class Table : public IPayloadTable {
       public:
-	explicit Table( coral::ISchema& schema );
-	~Table() override{}
-	bool exists() override;
-	void create() override;
-	bool select( const cond::Hash& payloadHash);
-	bool select( const cond::Hash& payloadHash, std::string& objectType, 
-		     cond::Binary& payloadData, cond::Binary& streamerInfoData) override;
-	bool getType( const cond::Hash& payloadHash, std::string& objectType ) override;
-	bool insert( const cond::Hash& payloadHash, const std::string& objectType, 
-		     const cond::Binary& payloadData, const cond::Binary& streamerInfoData, 
-		     const boost::posix_time::ptime& insertionTime);
-	cond::Hash insertIfNew( const std::string& objectType, const cond::Binary& payloadData, 
-				const cond::Binary& streamerInfoData, const boost::posix_time::ptime& insertionTime ) override;
+        explicit Table(coral::ISchema& schema);
+        ~Table() override {}
+        bool exists() override;
+        void create() override;
+        bool select(const cond::Hash& payloadHash);
+        bool select(const cond::Hash& payloadHash,
+                    std::string& objectType,
+                    cond::Binary& payloadData,
+                    cond::Binary& streamerInfoData) override;
+        bool getType(const cond::Hash& payloadHash, std::string& objectType) override;
+        bool insert(const cond::Hash& payloadHash,
+                    const std::string& objectType,
+                    const cond::Binary& payloadData,
+                    const cond::Binary& streamerInfoData,
+                    const boost::posix_time::ptime& insertionTime);
+        cond::Hash insertIfNew(const std::string& objectType,
+                               const cond::Binary& payloadData,
+                               const cond::Binary& streamerInfoData,
+                               const boost::posix_time::ptime& insertionTime) override;
+
       private:
-	coral::ISchema& m_schema;
+        coral::ISchema& m_schema;
       };
     }
-    
-    conddb_table( IOV ) {
-      
-      conddb_column( TAG_NAME, std::string );
-      conddb_column( SINCE, cond::Time_t );
-      conddb_column( PAYLOAD_HASH, std::string, PAYLOAD::PAYLOAD_HASH_SIZE );
-      conddb_column( INSERTION_TIME, boost::posix_time::ptime );
 
-      struct SINCE_GROUP {					 
-	typedef cond::Time_t type;				   
-	static constexpr size_t size = 0;
-	static std::string tableName(){ return SINCE::tableName(); }	
-	static std::string fullyQualifiedName(){ 
-	  return "MIN("+SINCE::fullyQualifiedName()+")";	  
-	} 
-	static std::string group( unsigned long long groupSize ){
-	  std::string sgroupSize = std::to_string(groupSize);
-	  return "CAST("+SINCE::fullyQualifiedName()+"/"+sgroupSize+" AS INT )*"+sgroupSize;
-	}
+    conddb_table(IOV) {
+      conddb_column(TAG_NAME, std::string);
+      conddb_column(SINCE, cond::Time_t);
+      conddb_column(PAYLOAD_HASH, std::string, PAYLOAD::PAYLOAD_HASH_SIZE);
+      conddb_column(INSERTION_TIME, boost::posix_time::ptime);
+
+      struct SINCE_GROUP {
+        typedef cond::Time_t type;
+        static constexpr size_t size = 0;
+        static std::string tableName() { return SINCE::tableName(); }
+        static std::string fullyQualifiedName() { return "MIN(" + SINCE::fullyQualifiedName() + ")"; }
+        static std::string group(unsigned long long groupSize) {
+          std::string sgroupSize = std::to_string(groupSize);
+          return "CAST(" + SINCE::fullyQualifiedName() + "/" + sgroupSize + " AS INT )*" + sgroupSize;
+        }
       };
- 
+
       struct SEQUENCE_SIZE {
-	typedef unsigned int type;
-	static constexpr size_t size = 0;
-	static std::string tableName(){ return SINCE::tableName(); }
-	static std::string fullyQualifiedName(){
-	  return "COUNT(*)";
-	}
+        typedef unsigned int type;
+        static constexpr size_t size = 0;
+        static std::string tableName() { return SINCE::tableName(); }
+        static std::string fullyQualifiedName() { return "COUNT(*)"; }
       };
 
       struct MIN_SINCE {
-	typedef cond::Time_t type;				   
-	static constexpr size_t size = 0;
-	static std::string tableName(){ return SINCE::tableName(); }	
-	static std::string fullyQualifiedName(){ 
-	  return "MIN("+SINCE::fullyQualifiedName()+")";	  
-	} 
+        typedef cond::Time_t type;
+        static constexpr size_t size = 0;
+        static std::string tableName() { return SINCE::tableName(); }
+        static std::string fullyQualifiedName() { return "MIN(" + SINCE::fullyQualifiedName() + ")"; }
       };
 
       struct MAX_SINCE {
-	typedef cond::Time_t type;				   
-	static constexpr size_t size = 0;
-	static std::string tableName(){ return SINCE::tableName(); }	
-	static std::string fullyQualifiedName(){ 
-	  return "MAX("+SINCE::fullyQualifiedName()+")";	  
-	} 
+        typedef cond::Time_t type;
+        static constexpr size_t size = 0;
+        static std::string tableName() { return SINCE::tableName(); }
+        static std::string fullyQualifiedName() { return "MAX(" + SINCE::fullyQualifiedName() + ")"; }
       };
-     
+
       class Table : public IIOVTable {
       public:
-	explicit Table( coral::ISchema& schema );
-	~Table() override{}
-	bool exists() override;
-	void create() override;
-	size_t getGroups( const std::string& tag, const boost::posix_time::ptime& snapshotTime, unsigned long long groupSize,
-			  std::vector<cond::Time_t>& groups ) override;
-	size_t select( const std::string& tag, cond::Time_t lowerGroup, cond::Time_t upperGroup, 
-		       const boost::posix_time::ptime& snapshotTime, 
-		       std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs) override;
-	bool getLastIov( const std::string& tag, const boost::posix_time::ptime& snapshotTime, cond::Time_t& since, cond::Hash& hash ) override;
-        bool getSize( const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size ) override;
-	bool getRange( const std::string& tag, cond::Time_t begin, cond::Time_t end, 
-		       const boost::posix_time::ptime& snapshotTime, std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override;
-	void insertOne( const std::string& tag, cond::Time_t since, cond::Hash payloadHash, const boost::posix_time::ptime& insertTime) override;
-	void insertMany( const std::string& tag, const std::vector<std::tuple<cond::Time_t,cond::Hash,boost::posix_time::ptime> >& iovs ) override;
-	void erase( const std::string& tag ) override;
+        explicit Table(coral::ISchema& schema);
+        ~Table() override {}
+        bool exists() override;
+        void create() override;
+        size_t getGroups(const std::string& tag,
+                         const boost::posix_time::ptime& snapshotTime,
+                         unsigned long long groupSize,
+                         std::vector<cond::Time_t>& groups) override;
+        size_t select(const std::string& tag,
+                      cond::Time_t lowerGroup,
+                      cond::Time_t upperGroup,
+                      const boost::posix_time::ptime& snapshotTime,
+                      std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override;
+        bool getLastIov(const std::string& tag,
+                        const boost::posix_time::ptime& snapshotTime,
+                        cond::Time_t& since,
+                        cond::Hash& hash) override;
+        bool getSize(const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size) override;
+        bool getRange(const std::string& tag,
+                      cond::Time_t begin,
+                      cond::Time_t end,
+                      const boost::posix_time::ptime& snapshotTime,
+                      std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override;
+        void insertOne(const std::string& tag,
+                       cond::Time_t since,
+                       cond::Hash payloadHash,
+                       const boost::posix_time::ptime& insertTime) override;
+        void insertMany(
+            const std::string& tag,
+            const std::vector<std::tuple<cond::Time_t, cond::Hash, boost::posix_time::ptime> >& iovs) override;
+        void erase(const std::string& tag) override;
+
       private:
-	coral::ISchema& m_schema;
+        coral::ISchema& m_schema;
       };
     }
-    
-    conddb_table( TAG_LOG ) {
 
-      conddb_column( TAG_NAME, std::string );
-      conddb_column( EVENT_TIME, boost::posix_time::ptime );
-      conddb_column( USER_NAME, std::string );
-      conddb_column( HOST_NAME, std::string );
-      conddb_column( COMMAND, std::string );
-      conddb_column( ACTION, std::string );
-      conddb_column( USER_TEXT, std::string );
+    conddb_table(TAG_LOG) {
+      conddb_column(TAG_NAME, std::string);
+      conddb_column(EVENT_TIME, boost::posix_time::ptime);
+      conddb_column(USER_NAME, std::string);
+      conddb_column(HOST_NAME, std::string);
+      conddb_column(COMMAND, std::string);
+      conddb_column(ACTION, std::string);
+      conddb_column(USER_TEXT, std::string);
 
       class Table : public ITagLogTable {
       public:
-	explicit Table( coral::ISchema& schema );
-	~Table() override{}
-	bool exists() override;
+        explicit Table(coral::ISchema& schema);
+        ~Table() override {}
+        bool exists() override;
         void create() override;
-        void insert( const std::string& tag, const boost::posix_time::ptime& eventTime, const std::string& userName, const std::string& hostName, 
-		     const std::string& command, const std::string& action, const std::string& userText ) override;
+        void insert(const std::string& tag,
+                    const boost::posix_time::ptime& eventTime,
+                    const std::string& userName,
+                    const std::string& hostName,
+                    const std::string& command,
+                    const std::string& action,
+                    const std::string& userText) override;
+
       private:
-	coral::ISchema& m_schema;
+        coral::ISchema& m_schema;
       };
     }
-    
+
     class IOVSchema : public IIOVSchema {
-    public: 
-      explicit IOVSchema( coral::ISchema& schema );
-      ~IOVSchema() override{}
+    public:
+      explicit IOVSchema(coral::ISchema& schema);
+      ~IOVSchema() override {}
       bool exists() override;
       bool create() override;
       ITagTable& tagTable() override;
       IIOVTable& iovTable() override;
       ITagLogTable& tagLogTable() override;
       IPayloadTable& payloadTable() override;
+
     private:
       TAG::Table m_tagTable;
       IOV::Table m_iovTable;
@@ -186,6 +223,6 @@ namespace cond {
       PAYLOAD::Table m_payloadTable;
     };
 
-  }
-}
+  }  // namespace persistency
+}  // namespace cond
 #endif

@@ -16,35 +16,33 @@
 
 using namespace cond::persistency;
 
-int main (int argc, char** argv)
-{
+int main(int argc, char** argv) {
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
 
   std::vector<edm::ParameterSet> psets;
   edm::ParameterSet pSet;
-  pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
+  pSet.addParameter("@service_type", std::string("SiteLocalConfigService"));
   psets.push_back(pSet);
   static const edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
   static const edm::ServiceRegistry::Operate operate(services);
 
   std::string connectionString("frontier://FrontierProd/CMS_CONDITIONS");
-  std::cout <<"# Connecting with db in "<<connectionString<<std::endl;
-  try{
+  std::cout << "# Connecting with db in " << connectionString << std::endl;
+  try {
     //*************
     ConnectionPool connPool;
-    connPool.setMessageVerbosity( coral::Debug );
-    Session session = connPool.createSession( connectionString );
+    connPool.setMessageVerbosity(coral::Debug);
+    Session session = connPool.createSession(connectionString);
     session.transaction().start();
-    IOVProxy iov = session.readIov( "runinfo_31X_hlt", true );
-    std::cout << "Loaded size="<<iov.loadedSize()<<std::endl;
+    IOVProxy iov = session.readIov("runinfo_31X_hlt", true);
+    std::cout << "Loaded size=" << iov.loadedSize() << std::endl;
     session.transaction().commit();
-  } catch (const std::exception& e){
+  } catch (const std::exception& e) {
     std::cout << "ERROR: " << e.what() << std::endl;
     return -1;
-  } catch (...){
+  } catch (...) {
     std::cout << "UNEXPECTED FAILURE." << std::endl;
     return -1;
   }
 }
-
