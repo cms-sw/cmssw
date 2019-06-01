@@ -2,7 +2,7 @@
 //
 // Package:    RecoJets/FFTJetProducers
 // Class:      FFTJetProducer
-// 
+//
 /**\class FFTJetProducer FFTJetProducer.h RecoJets/FFTJetProducers/plugins/FFTJetProducer.h
 
  Description: makes jets using FFTJet clustering tree
@@ -55,7 +55,6 @@
 
 #include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
 
-
 // framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -69,364 +68,336 @@
 #include "RecoJets/FFTJetProducers/interface/FFTJetInterface.h"
 
 namespace fftjetcms {
-    class DiscretizedEnergyFlow;
+  class DiscretizedEnergyFlow;
 }
 
 //
 // class declaration
 //
-class FFTJetProducer : public fftjetcms::FFTJetInterface
-{
+class FFTJetProducer : public fftjetcms::FFTJetInterface {
 public:
-    typedef fftjet::RecombinedJet<fftjetcms::VectorLike> RecoFFTJet;
-    typedef fftjet::SparseClusteringTree<fftjet::Peak,long> SparseTree;
+  typedef fftjet::RecombinedJet<fftjetcms::VectorLike> RecoFFTJet;
+  typedef fftjet::SparseClusteringTree<fftjet::Peak, long> SparseTree;
 
-    // Masks for the status bits. Do not add anything
-    // here -- higher bits (starting with 0x1000) will be
-    // used to indicate jet correction levels applied.
-    enum StatusBits
-    {
-        RESOLUTION = 0xff,
-        CONSTITUENTS_RESUMMED = 0x100,
-        PILEUP_CALCULATED = 0x200,
-        PILEUP_SUBTRACTED_4VEC = 0x400,
-        PILEUP_SUBTRACTED_PT = 0x800
-    };
+  // Masks for the status bits. Do not add anything
+  // here -- higher bits (starting with 0x1000) will be
+  // used to indicate jet correction levels applied.
+  enum StatusBits {
+    RESOLUTION = 0xff,
+    CONSTITUENTS_RESUMMED = 0x100,
+    PILEUP_CALCULATED = 0x200,
+    PILEUP_SUBTRACTED_4VEC = 0x400,
+    PILEUP_SUBTRACTED_PT = 0x800
+  };
 
-    enum Resolution
-    {
-        FIXED = 0,
-        MAXIMALLY_STABLE,
-        GLOBALLY_ADAPTIVE,
-        LOCALLY_ADAPTIVE,
-        FROM_GENJETS
-    };
+  enum Resolution { FIXED = 0, MAXIMALLY_STABLE, GLOBALLY_ADAPTIVE, LOCALLY_ADAPTIVE, FROM_GENJETS };
 
-    explicit FFTJetProducer(const edm::ParameterSet&);
-    ~FFTJetProducer() override;
+  explicit FFTJetProducer(const edm::ParameterSet&);
+  ~FFTJetProducer() override;
 
-    // Parser for the resolution enum
-    static Resolution parse_resolution(const std::string& name);
+  // Parser for the resolution enum
+  static Resolution parse_resolution(const std::string& name);
 
 protected:
-    // Functions which should be overriden from the base
-    void beginJob() override;
-    void produce(edm::Event&, const edm::EventSetup&) override;
-    void endJob() override;
+  // Functions which should be overriden from the base
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-    // The following functions can be overriden by derived classes 
-    // in order to adjust jet reconstruction algorithm behavior.
+  // The following functions can be overriden by derived classes
+  // in order to adjust jet reconstruction algorithm behavior.
 
-    // Override the following method in order to implement
-    // your own precluster selection strategy
-    virtual void selectPreclusters(
-        const SparseTree& tree,
-        const fftjet::Functor1<bool,fftjet::Peak>& peakSelector,
-        std::vector<fftjet::Peak>* preclusters);
+  // Override the following method in order to implement
+  // your own precluster selection strategy
+  virtual void selectPreclusters(const SparseTree& tree,
+                                 const fftjet::Functor1<bool, fftjet::Peak>& peakSelector,
+                                 std::vector<fftjet::Peak>* preclusters);
 
-    // Precluster maker from GenJets (useful in calibration)
-    virtual void genJetPreclusters(
-        const SparseTree& tree,
-        edm::Event&, const edm::EventSetup&,
-        const fftjet::Functor1<bool,fftjet::Peak>& peakSelector,
-        std::vector<fftjet::Peak>* preclusters);
+  // Precluster maker from GenJets (useful in calibration)
+  virtual void genJetPreclusters(const SparseTree& tree,
+                                 edm::Event&,
+                                 const edm::EventSetup&,
+                                 const fftjet::Functor1<bool, fftjet::Peak>& peakSelector,
+                                 std::vector<fftjet::Peak>* preclusters);
 
-    // Override the following method (which by default does not do
-    // anything) in order to implement your own process-dependent
-    // assignment of membership functions to preclusters. This method
-    // will be called once per event, just before the main algorithm.
-    virtual void assignMembershipFunctions(
-        std::vector<fftjet::Peak>* preclusters);
+  // Override the following method (which by default does not do
+  // anything) in order to implement your own process-dependent
+  // assignment of membership functions to preclusters. This method
+  // will be called once per event, just before the main algorithm.
+  virtual void assignMembershipFunctions(std::vector<fftjet::Peak>* preclusters);
 
-    // Parser for the peak selector
-    virtual std::unique_ptr<fftjet::Functor1<bool,fftjet::Peak> >
-    parse_peakSelector(const edm::ParameterSet&);
+  // Parser for the peak selector
+  virtual std::unique_ptr<fftjet::Functor1<bool, fftjet::Peak> > parse_peakSelector(const edm::ParameterSet&);
 
-    // Parser for the default jet membership function
-    virtual std::unique_ptr<fftjet::ScaleSpaceKernel>
-    parse_jetMembershipFunction(const edm::ParameterSet&);
+  // Parser for the default jet membership function
+  virtual std::unique_ptr<fftjet::ScaleSpaceKernel> parse_jetMembershipFunction(const edm::ParameterSet&);
 
-    // Parser for the background membership function
-    virtual std::unique_ptr<fftjetcms::AbsBgFunctor>
-    parse_bgMembershipFunction(const edm::ParameterSet&);
+  // Parser for the background membership function
+  virtual std::unique_ptr<fftjetcms::AbsBgFunctor> parse_bgMembershipFunction(const edm::ParameterSet&);
 
-    // Calculator for the recombination scale
-    virtual std::unique_ptr<fftjet::Functor1<double,fftjet::Peak> >
-    parse_recoScaleCalcPeak(const edm::ParameterSet&);
+  // Calculator for the recombination scale
+  virtual std::unique_ptr<fftjet::Functor1<double, fftjet::Peak> > parse_recoScaleCalcPeak(const edm::ParameterSet&);
 
-    // Calculator for the recombination scale ratio
-    virtual std::unique_ptr<fftjet::Functor1<double,fftjet::Peak> >
-    parse_recoScaleRatioCalcPeak(const edm::ParameterSet&);
+  // Calculator for the recombination scale ratio
+  virtual std::unique_ptr<fftjet::Functor1<double, fftjet::Peak> > parse_recoScaleRatioCalcPeak(
+      const edm::ParameterSet&);
 
-    // Calculator for the membership function factor
-    virtual std::unique_ptr<fftjet::Functor1<double,fftjet::Peak> >
-    parse_memberFactorCalcPeak(const edm::ParameterSet&);
+  // Calculator for the membership function factor
+  virtual std::unique_ptr<fftjet::Functor1<double, fftjet::Peak> > parse_memberFactorCalcPeak(const edm::ParameterSet&);
 
-    // Similar calculators for the iterative algorithm
-    virtual std::unique_ptr<fftjet::Functor1<double,RecoFFTJet> >
-    parse_recoScaleCalcJet(const edm::ParameterSet&);
+  // Similar calculators for the iterative algorithm
+  virtual std::unique_ptr<fftjet::Functor1<double, RecoFFTJet> > parse_recoScaleCalcJet(const edm::ParameterSet&);
 
-    virtual std::unique_ptr<fftjet::Functor1<double,RecoFFTJet> >
-    parse_recoScaleRatioCalcJet(const edm::ParameterSet&);
+  virtual std::unique_ptr<fftjet::Functor1<double, RecoFFTJet> > parse_recoScaleRatioCalcJet(const edm::ParameterSet&);
 
-    virtual std::unique_ptr<fftjet::Functor1<double,RecoFFTJet> >
-    parse_memberFactorCalcJet(const edm::ParameterSet&);
+  virtual std::unique_ptr<fftjet::Functor1<double, RecoFFTJet> > parse_memberFactorCalcJet(const edm::ParameterSet&);
 
-    // Calculator of the distance between jets which is used to make
-    // the decision about convergence of the iterative algorithm
-    virtual std::unique_ptr<fftjet::Functor2<double,RecoFFTJet,RecoFFTJet> >
-    parse_jetDistanceCalc(const edm::ParameterSet&);
+  // Calculator of the distance between jets which is used to make
+  // the decision about convergence of the iterative algorithm
+  virtual std::unique_ptr<fftjet::Functor2<double, RecoFFTJet, RecoFFTJet> > parse_jetDistanceCalc(
+      const edm::ParameterSet&);
 
-    // Pile-up density calculator
-    virtual std::unique_ptr<fftjetcms::AbsPileupCalculator>
-    parse_pileupDensityCalc(const edm::ParameterSet& ps);
+  // Pile-up density calculator
+  virtual std::unique_ptr<fftjetcms::AbsPileupCalculator> parse_pileupDensityCalc(const edm::ParameterSet& ps);
 
-    // The following function performs most of the precluster selection
-    // work in this module. You might want to reuse it if only a slight
-    // modification of the "selectPreclusters" method is desired.
-    void selectTreeNodes(const SparseTree& tree,
-                         const fftjet::Functor1<bool,fftjet::Peak>& peakSelect,
-                         std::vector<SparseTree::NodeId>* nodes);
+  // The following function performs most of the precluster selection
+  // work in this module. You might want to reuse it if only a slight
+  // modification of the "selectPreclusters" method is desired.
+  void selectTreeNodes(const SparseTree& tree,
+                       const fftjet::Functor1<bool, fftjet::Peak>& peakSelect,
+                       std::vector<SparseTree::NodeId>* nodes);
+
 private:
-    typedef fftjet::AbsVectorRecombinationAlg<
-        fftjetcms::VectorLike,fftjetcms::BgData> RecoAlg;
-    typedef fftjet::AbsRecombinationAlg<
-        fftjetcms::Real,fftjetcms::VectorLike,fftjetcms::BgData> GridAlg;
+  typedef fftjet::AbsVectorRecombinationAlg<fftjetcms::VectorLike, fftjetcms::BgData> RecoAlg;
+  typedef fftjet::AbsRecombinationAlg<fftjetcms::Real, fftjetcms::VectorLike, fftjetcms::BgData> GridAlg;
 
-    // Explicitly disable other ways to construct this object
-    FFTJetProducer() = delete;
-    FFTJetProducer(const FFTJetProducer&) = delete;
-    FFTJetProducer& operator=(const FFTJetProducer&) = delete;
+  // Explicitly disable other ways to construct this object
+  FFTJetProducer() = delete;
+  FFTJetProducer(const FFTJetProducer&) = delete;
+  FFTJetProducer& operator=(const FFTJetProducer&) = delete;
 
-    // Useful local utilities
-    template<class Real>
-    void loadSparseTreeData(const edm::Event&);
+  // Useful local utilities
+  template <class Real>
+  void loadSparseTreeData(const edm::Event&);
 
-    void removeFakePreclusters();
+  void removeFakePreclusters();
 
-    // The following methods do most of the work.
-    // The following function tells us if the grid was rebuilt.
-    bool loadEnergyFlow(
-        const edm::Event& iEvent,
-        std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >& flow);
-    void buildGridAlg();
-    void prepareRecombinationScales();
-    bool checkConvergence(const std::vector<RecoFFTJet>& previousIterResult,
-                          std::vector<RecoFFTJet>& thisIterResult);
-    void determineGriddedConstituents();
-    void determineVectorConstituents();
-    void saveResults(edm::Event& iEvent, const edm::EventSetup&,
-                     unsigned nPreclustersFound);
+  // The following methods do most of the work.
+  // The following function tells us if the grid was rebuilt.
+  bool loadEnergyFlow(const edm::Event& iEvent, std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >& flow);
+  void buildGridAlg();
+  void prepareRecombinationScales();
+  bool checkConvergence(const std::vector<RecoFFTJet>& previousIterResult, std::vector<RecoFFTJet>& thisIterResult);
+  void determineGriddedConstituents();
+  void determineVectorConstituents();
+  void saveResults(edm::Event& iEvent, const edm::EventSetup&, unsigned nPreclustersFound);
 
-    template <typename Jet>
-    void writeJets(edm::Event& iEvent, const edm::EventSetup&);
+  template <typename Jet>
+  void writeJets(edm::Event& iEvent, const edm::EventSetup&);
 
-    template <typename Jet>
-    void makeProduces(const std::string& alias, const std::string& tag);
+  template <typename Jet>
+  void makeProduces(const std::string& alias, const std::string& tag);
 
-    // The following function scans the pile-up density
-    // and fills the pile-up grid. Can be overriden if
-    // necessary.
-    virtual void determinePileupDensityFromConfig(
-        const edm::Event& iEvent,
-        std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >& density);
+  // The following function scans the pile-up density
+  // and fills the pile-up grid. Can be overriden if
+  // necessary.
+  virtual void determinePileupDensityFromConfig(const edm::Event& iEvent,
+                                                std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >& density);
 
-    // Similar function for getting pile-up shape from the database
-    virtual void determinePileupDensityFromDB(
-        const edm::Event& iEvent, const edm::EventSetup& iSetup,
-        std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >& density);
+  // Similar function for getting pile-up shape from the database
+  virtual void determinePileupDensityFromDB(const edm::Event& iEvent,
+                                            const edm::EventSetup& iSetup,
+                                            std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >& density);
 
-    // The following function builds the pile-up estimate
-    // for each jet
-    void determinePileup();
+  // The following function builds the pile-up estimate
+  // for each jet
+  void determinePileup();
 
-    // The following function returns the number of iterations
-    // performed. If this number equals to or less than "maxIterations"
-    // then the iterations have converged. If the number larger than
-    // "maxIterations" then the iterations failed to converge (note,
-    // however, that only "maxIterations" iterations would still be
-    // performed).
-    unsigned iterateJetReconstruction();
+  // The following function returns the number of iterations
+  // performed. If this number equals to or less than "maxIterations"
+  // then the iterations have converged. If the number larger than
+  // "maxIterations" then the iterations failed to converge (note,
+  // however, that only "maxIterations" iterations would still be
+  // performed).
+  unsigned iterateJetReconstruction();
 
-    // A function to set jet status bits
-    static void setJetStatusBit(RecoFFTJet* jet, int mask, bool value);
+  // A function to set jet status bits
+  static void setJetStatusBit(RecoFFTJet* jet, int mask, bool value);
 
-    //
-    // ----------member data ---------------------------
-    //
+  //
+  // ----------member data ---------------------------
+  //
 
-    // Local copy of the module configuration 
-    const edm::ParameterSet myConfiguration;
+  // Local copy of the module configuration
+  const edm::ParameterSet myConfiguration;
 
-    // Label for the tree produced by FFTJetPatRecoProducer
-    const edm::InputTag treeLabel;
+  // Label for the tree produced by FFTJetPatRecoProducer
+  const edm::InputTag treeLabel;
 
-    // Are we going to use energy flow discretization grid as input
-    // to jet reconstruction?
-    const bool useGriddedAlgorithm;
+  // Are we going to use energy flow discretization grid as input
+  // to jet reconstruction?
+  const bool useGriddedAlgorithm;
 
-    // Are we going to rebuild the energy flow discretization grid
-    // or to reuse the grid made by FFTJetPatRecoProducer?
-    const bool reuseExistingGrid;
+  // Are we going to rebuild the energy flow discretization grid
+  // or to reuse the grid made by FFTJetPatRecoProducer?
+  const bool reuseExistingGrid;
 
-    // Are we iterating?
-    const unsigned maxIterations;
+  // Are we iterating?
+  const unsigned maxIterations;
 
-    // Parameters which affect iteration convergence
-    const unsigned nJetsRequiredToConverge;
-    const double convergenceDistance;
+  // Parameters which affect iteration convergence
+  const unsigned nJetsRequiredToConverge;
+  const double convergenceDistance;
 
-    // Are we building assignments of collection members to jets?
-    const bool assignConstituents;
+  // Are we building assignments of collection members to jets?
+  const bool assignConstituents;
 
-    // Are we resumming the constituents to determine jet 4-vectors?
-    // This might make sense if FFTJet is used in the crisp, gridded
-    // mode to determine jet areas, and vector recombination is desired.
-    const bool resumConstituents;
+  // Are we resumming the constituents to determine jet 4-vectors?
+  // This might make sense if FFTJet is used in the crisp, gridded
+  // mode to determine jet areas, and vector recombination is desired.
+  const bool resumConstituents;
 
-    // Are we going to subtract the pile-up? Note that
-    // pile-up subtraction does not modify eta and phi moments.
-    const bool calculatePileup;
-    const bool subtractPileup;
-    const bool subtractPileupAs4Vec;
+  // Are we going to subtract the pile-up? Note that
+  // pile-up subtraction does not modify eta and phi moments.
+  const bool calculatePileup;
+  const bool subtractPileup;
+  const bool subtractPileupAs4Vec;
 
-    // Label for the pile-up energy flow. Must be specified
-    // if the pile-up is subtracted.
-    const edm::InputTag pileupLabel;
+  // Label for the pile-up energy flow. Must be specified
+  // if the pile-up is subtracted.
+  const edm::InputTag pileupLabel;
 
-    // Scale for the peak selection (if the scale is fixed)
-    const double fixedScale;
+  // Scale for the peak selection (if the scale is fixed)
+  const double fixedScale;
 
-    // Minimum and maximum scale for searching stable configurations
-    const double minStableScale;
-    const double maxStableScale;
+  // Minimum and maximum scale for searching stable configurations
+  const double minStableScale;
+  const double maxStableScale;
 
-    // Stability "alpha"
-    const double stabilityAlpha;
+  // Stability "alpha"
+  const double stabilityAlpha;
 
-    // Not sure at this point how to treat noise... For now, this is
-    // just a single configurable number...
-    const double noiseLevel;
+  // Not sure at this point how to treat noise... For now, this is
+  // just a single configurable number...
+  const double noiseLevel;
 
-    // Number of clusters requested (if the scale is adaptive)
-    const unsigned nClustersRequested;
+  // Number of clusters requested (if the scale is adaptive)
+  const unsigned nClustersRequested;
 
-    // Maximum eta for the grid-based algorithm
-    const double gridScanMaxEta;
+  // Maximum eta for the grid-based algorithm
+  const double gridScanMaxEta;
 
-    // Parameters related to the recombination algorithm
-    const std::string recombinationAlgorithm;
-    const bool isCrisp;
-    const double unlikelyBgWeight;
-    const double recombinationDataCutoff;
+  // Parameters related to the recombination algorithm
+  const std::string recombinationAlgorithm;
+  const bool isCrisp;
+  const double unlikelyBgWeight;
+  const double recombinationDataCutoff;
 
-    // Label for the genJets used as seeds for jets
-    const edm::InputTag genJetsLabel;
-    
-    // Maximum number of preclusters to use as jet seeds.
-    // This does not take into account the preclusters
-    // for which the value of the membership factor is 0.
-    const unsigned maxInitialPreclusters;
+  // Label for the genJets used as seeds for jets
+  const edm::InputTag genJetsLabel;
 
-    // Resolution. The corresponding parameter value
-    // should be one of "fixed", "maximallyStable",
-    // "globallyAdaptive", "locallyAdaptive", or "fromGenJets".
-    Resolution resolution;
+  // Maximum number of preclusters to use as jet seeds.
+  // This does not take into account the preclusters
+  // for which the value of the membership factor is 0.
+  const unsigned maxInitialPreclusters;
 
-    // Parameters related to the pileup shape stored
-    // in the database
-    std::string pileupTableRecord;
-    std::string pileupTableName;
-    std::string pileupTableCategory;
-    bool loadPileupFromDB;
+  // Resolution. The corresponding parameter value
+  // should be one of "fixed", "maximallyStable",
+  // "globallyAdaptive", "locallyAdaptive", or "fromGenJets".
+  Resolution resolution;
 
-    // Scales used
-    std::unique_ptr<std::vector<double> > iniScales;
+  // Parameters related to the pileup shape stored
+  // in the database
+  std::string pileupTableRecord;
+  std::string pileupTableName;
+  std::string pileupTableCategory;
+  bool loadPileupFromDB;
 
-    // The sparse clustering tree
-    SparseTree sparseTree;
+  // Scales used
+  std::unique_ptr<std::vector<double> > iniScales;
 
-    // Peak selector for the peaks already in the tree
-    std::unique_ptr<fftjet::Functor1<bool,fftjet::Peak> > peakSelector;
+  // The sparse clustering tree
+  SparseTree sparseTree;
 
-    // Recombination algorithms and related quantities
-    std::unique_ptr<RecoAlg> recoAlg;
-    std::unique_ptr<GridAlg> gridAlg;
-    std::unique_ptr<fftjet::ScaleSpaceKernel> jetMembershipFunction;
-    std::unique_ptr<fftjetcms::AbsBgFunctor> bgMembershipFunction;
+  // Peak selector for the peaks already in the tree
+  std::unique_ptr<fftjet::Functor1<bool, fftjet::Peak> > peakSelector;
 
-    // Calculator for the recombination scale
-    std::unique_ptr<fftjet::Functor1<double,fftjet::Peak> > recoScaleCalcPeak;
+  // Recombination algorithms and related quantities
+  std::unique_ptr<RecoAlg> recoAlg;
+  std::unique_ptr<GridAlg> gridAlg;
+  std::unique_ptr<fftjet::ScaleSpaceKernel> jetMembershipFunction;
+  std::unique_ptr<fftjetcms::AbsBgFunctor> bgMembershipFunction;
 
-    // Calculator for the recombination scale ratio
-    std::unique_ptr<fftjet::Functor1<double,fftjet::Peak> >
-    recoScaleRatioCalcPeak;
+  // Calculator for the recombination scale
+  std::unique_ptr<fftjet::Functor1<double, fftjet::Peak> > recoScaleCalcPeak;
 
-    // Calculator for the membership function factor
-    std::unique_ptr<fftjet::Functor1<double,fftjet::Peak> > memberFactorCalcPeak;
+  // Calculator for the recombination scale ratio
+  std::unique_ptr<fftjet::Functor1<double, fftjet::Peak> > recoScaleRatioCalcPeak;
 
-    // Similar calculators for the iterative algorithm
-    std::unique_ptr<fftjet::Functor1<double,RecoFFTJet> > recoScaleCalcJet;
-    std::unique_ptr<fftjet::Functor1<double,RecoFFTJet> > recoScaleRatioCalcJet;
-    std::unique_ptr<fftjet::Functor1<double,RecoFFTJet> > memberFactorCalcJet;
+  // Calculator for the membership function factor
+  std::unique_ptr<fftjet::Functor1<double, fftjet::Peak> > memberFactorCalcPeak;
 
-    // Calculator for the jet distance used to estimate convergence
-    // of the iterative algorithm
-    std::unique_ptr<fftjet::Functor2<double,RecoFFTJet,RecoFFTJet> >
-    jetDistanceCalc;
+  // Similar calculators for the iterative algorithm
+  std::unique_ptr<fftjet::Functor1<double, RecoFFTJet> > recoScaleCalcJet;
+  std::unique_ptr<fftjet::Functor1<double, RecoFFTJet> > recoScaleRatioCalcJet;
+  std::unique_ptr<fftjet::Functor1<double, RecoFFTJet> > memberFactorCalcJet;
 
-    // Vector of selected tree nodes
-    std::vector<SparseTree::NodeId> nodes;
+  // Calculator for the jet distance used to estimate convergence
+  // of the iterative algorithm
+  std::unique_ptr<fftjet::Functor2<double, RecoFFTJet, RecoFFTJet> > jetDistanceCalc;
 
-    // Vector of selected preclusters
-    std::vector<fftjet::Peak> preclusters;
+  // Vector of selected tree nodes
+  std::vector<SparseTree::NodeId> nodes;
 
-    // Vector of reconstructed jets (we will refill it in every event)
-    std::vector<RecoFFTJet> recoJets;
+  // Vector of selected preclusters
+  std::vector<fftjet::Peak> preclusters;
 
-    // Cluster occupancy calculated as a function of level number
-    std::vector<unsigned> occupancy;
+  // Vector of reconstructed jets (we will refill it in every event)
+  std::vector<RecoFFTJet> recoJets;
 
-    // The thresholds obtained by the LOCALLY_ADAPTIVE method
-    std::vector<double> thresholds;
+  // Cluster occupancy calculated as a function of level number
+  std::vector<unsigned> occupancy;
 
-    // Minimum, maximum and used level calculated by some algorithms
-    unsigned minLevel, maxLevel, usedLevel;
+  // The thresholds obtained by the LOCALLY_ADAPTIVE method
+  std::vector<double> thresholds;
 
-    // Unclustered/unused energy produced during recombination
-    fftjetcms::VectorLike unclustered;
-    double unused;
+  // Minimum, maximum and used level calculated by some algorithms
+  unsigned minLevel, maxLevel, usedLevel;
 
-    // Quantities defined below are used in the iterative mode only
-    std::vector<fftjet::Peak> iterPreclusters;
-    std::vector<RecoFFTJet> iterJets;
-    unsigned iterationsPerformed;
+  // Unclustered/unused energy produced during recombination
+  fftjetcms::VectorLike unclustered;
+  double unused;
 
-    // Vectors of constituents
-    std::vector<std::vector<reco::CandidatePtr> > constituents;
+  // Quantities defined below are used in the iterative mode only
+  std::vector<fftjet::Peak> iterPreclusters;
+  std::vector<RecoFFTJet> iterJets;
+  unsigned iterationsPerformed;
 
-    // Vector of pile-up. We will subtract it from the
-    // 4-vectors of reconstructed jets.
-    std::vector<fftjetcms::VectorLike> pileup;
+  // Vectors of constituents
+  std::vector<std::vector<reco::CandidatePtr> > constituents;
 
-    // The pile-up transverse energy density discretization grid.
-    // Note that this is _density_, not energy. To get energy, 
-    // multiply by cell area.
-    std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> > pileupEnergyFlow;
+  // Vector of pile-up. We will subtract it from the
+  // 4-vectors of reconstructed jets.
+  std::vector<fftjetcms::VectorLike> pileup;
 
-    // The functor that calculates the pile-up density
-    std::unique_ptr<fftjetcms::AbsPileupCalculator> pileupDensityCalc;
+  // The pile-up transverse energy density discretization grid.
+  // Note that this is _density_, not energy. To get energy,
+  // multiply by cell area.
+  std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> > pileupEnergyFlow;
 
-    // Memory buffers related to pile-up subtraction
-    std::vector<fftjet::AbsKernel2d*> memFcns2dVec;
-    std::vector<double> doubleBuf;
-    std::vector<unsigned> cellCountsVec;
+  // The functor that calculates the pile-up density
+  std::unique_ptr<fftjetcms::AbsPileupCalculator> pileupDensityCalc;
 
-    // Tokens for data access
-    edm::EDGetTokenT<reco::PattRecoTree<fftjetcms::Real,reco::PattRecoPeak<fftjetcms::Real> > > input_recotree_token_;
-    edm::EDGetTokenT<std::vector<reco::FFTAnyJet<reco::GenJet> > > input_genjet_token_;
-    edm::EDGetTokenT<reco::DiscretizedEnergyFlow> input_energyflow_token_;
-    edm::EDGetTokenT<reco::FFTJetPileupSummary> input_pusummary_token_;
+  // Memory buffers related to pile-up subtraction
+  std::vector<fftjet::AbsKernel2d*> memFcns2dVec;
+  std::vector<double> doubleBuf;
+  std::vector<unsigned> cellCountsVec;
+
+  // Tokens for data access
+  edm::EDGetTokenT<reco::PattRecoTree<fftjetcms::Real, reco::PattRecoPeak<fftjetcms::Real> > > input_recotree_token_;
+  edm::EDGetTokenT<std::vector<reco::FFTAnyJet<reco::GenJet> > > input_genjet_token_;
+  edm::EDGetTokenT<reco::DiscretizedEnergyFlow> input_energyflow_token_;
+  edm::EDGetTokenT<reco::FFTJetPileupSummary> input_pusummary_token_;
 };
 
-#endif // RecoJets_FFTJetProducers_FFTJetProducer_h
+#endif  // RecoJets_FFTJetProducers_FFTJetProducer_h

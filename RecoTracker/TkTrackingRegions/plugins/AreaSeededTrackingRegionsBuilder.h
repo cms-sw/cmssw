@@ -15,7 +15,7 @@
 #include "TrackingSeedCandidates.h"
 class AreaSeededTrackingRegionsBuilder {
 public:
-  using Origin = std::pair<GlobalPoint, float>; // (origin, half-length in z)
+  using Origin = std::pair<GlobalPoint, float>;  // (origin, half-length in z)
   using Origins = std::vector<Origin>;
 
   class Area {
@@ -25,23 +25,21 @@ public:
     // phimin and phimax, and hence xmin+xmax and ymin+ymax are
     // ordered by which way one goes around the unit circle, so it may
     // happen that actually phimax < phimin
-    Area(float rmin, float rmax, float phimin, float phimax, float zmin, float zmax):
-      m_zmin(zmin), m_zmax(zmax)
-    {
+    Area(float rmin, float rmax, float phimin, float phimax, float zmin, float zmax) : m_zmin(zmin), m_zmax(zmax) {
       auto cosphimin = std::cos(phimin);
       auto sinphimin = std::sin(phimin);
       auto cosphimax = std::cos(phimax);
       auto sinphimax = std::sin(phimax);
 
-      m_x_rmin_phimin = rmin*cosphimin;
-      m_x_rmin_phimax = rmin*cosphimax;
-      m_x_rmax_phimin = rmax*cosphimin;
-      m_x_rmax_phimax = rmax*cosphimax;
+      m_x_rmin_phimin = rmin * cosphimin;
+      m_x_rmin_phimax = rmin * cosphimax;
+      m_x_rmax_phimin = rmax * cosphimin;
+      m_x_rmax_phimax = rmax * cosphimax;
 
-      m_y_rmin_phimin = rmin*sinphimin;
-      m_y_rmin_phimax = rmin*sinphimax;
-      m_y_rmax_phimin = rmax*sinphimin;
-      m_y_rmax_phimax = rmax*sinphimax;
+      m_y_rmin_phimin = rmin * sinphimin;
+      m_y_rmin_phimax = rmin * sinphimax;
+      m_y_rmax_phimin = rmax * sinphimin;
+      m_y_rmax_phimax = rmax * sinphimax;
     }
 
     float x_rmin_phimin() const { return m_x_rmin_phimin; }
@@ -72,13 +70,12 @@ public:
     float m_zmax = 0;
   };
 
-
   class Builder {
   public:
-    explicit Builder(const AreaSeededTrackingRegionsBuilder *conf): m_conf(conf) {}
+    explicit Builder(const AreaSeededTrackingRegionsBuilder* conf) : m_conf(conf) {}
     ~Builder() = default;
 
-    void setMeasurementTracker(const MeasurementTrackerEvent *mte) { m_measurementTracker = mte; }
+    void setMeasurementTracker(const MeasurementTrackerEvent* mte) { m_measurementTracker = mte; }
     void setCandidates(const TrackingSeedCandidates::Objects cands) { candidates = cands; }
 
     std::vector<std::unique_ptr<TrackingRegion> > regions(const Origins& origins, const std::vector<Area>& areas) const;
@@ -89,12 +86,13 @@ public:
     template <typename T>
     std::unique_ptr<TrackingRegion> regionImpl(const Origin& origin, const T& areas) const;
 
-    const AreaSeededTrackingRegionsBuilder *m_conf = nullptr;
-    const MeasurementTrackerEvent *m_measurementTracker = nullptr;
+    const AreaSeededTrackingRegionsBuilder* m_conf = nullptr;
+    const MeasurementTrackerEvent* m_measurementTracker = nullptr;
     TrackingSeedCandidates::Objects candidates;
   };
 
-  AreaSeededTrackingRegionsBuilder(const edm::ParameterSet& regPSet, edm::ConsumesCollector&& iC): AreaSeededTrackingRegionsBuilder(regPSet, iC) {}
+  AreaSeededTrackingRegionsBuilder(const edm::ParameterSet& regPSet, edm::ConsumesCollector&& iC)
+      : AreaSeededTrackingRegionsBuilder(regPSet, iC) {}
   AreaSeededTrackingRegionsBuilder(const edm::ParameterSet& regPSet, edm::ConsumesCollector& iC);
   ~AreaSeededTrackingRegionsBuilder() = default;
 

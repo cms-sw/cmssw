@@ -1,11 +1,11 @@
 // This is CSCMake2DRecHit
- 
+
 #include <RecoLocalMuon/CSCRecHitD/src/CSCMake2DRecHit.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCXonStrip_MatchGatti.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
- 
+
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
@@ -21,93 +21,84 @@
 #include <cmath>
 #include <string>
 
-
-CSCMake2DRecHit::CSCMake2DRecHit(const edm::ParameterSet& ps):
-  peakTimeFinder_( new CSCFindPeakTime( ps ) ){
-    
-  useCalib            = ps.getParameter<bool>("CSCUseCalibrations");
-  stripWireDeltaTime  = ps.getParameter<int>("CSCstripWireDeltaTime"); //@@ Non-standard  CSC*s*trip...
-  useTimingCorrections= ps.getParameter<bool>("CSCUseTimingCorrections");
+CSCMake2DRecHit::CSCMake2DRecHit(const edm::ParameterSet& ps) : peakTimeFinder_(new CSCFindPeakTime(ps)) {
+  useCalib = ps.getParameter<bool>("CSCUseCalibrations");
+  stripWireDeltaTime = ps.getParameter<int>("CSCstripWireDeltaTime");  //@@ Non-standard  CSC*s*trip...
+  useTimingCorrections = ps.getParameter<bool>("CSCUseTimingCorrections");
   useGasGainCorrections = ps.getParameter<bool>("CSCUseGasGainCorrections");
 
-  xMatchGatti_        = new CSCXonStrip_MatchGatti( ps );
-
-}   
-
-
-CSCMake2DRecHit::~CSCMake2DRecHit() {
-  delete xMatchGatti_;
+  xMatchGatti_ = new CSCXonStrip_MatchGatti(ps);
 }
 
+CSCMake2DRecHit::~CSCMake2DRecHit() { delete xMatchGatti_; }
 
-CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLayer* layer,
-                                                 const CSCWireHit& wHit, const CSCStripHit& sHit)
-{
+CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id,
+                                                 const CSCLayer* layer,
+                                                 const CSCWireHit& wHit,
+                                                 const CSCStripHit& sHit) {
   // Cache layer info for ease of access
-  layer_        = layer;
-  layergeom_    = layer_->geometry();
-  specs_        = layer->chamber()->specs();
-  id_           = id;
-  
+  layer_ = layer;
+  layergeom_ = layer_->geometry();
+  specs_ = layer->chamber()->specs();
+  id_ = id;
+
   const float sqrt_12 = 3.4641;
-  
+
   float tpeak = -99.f;
-  
+
   CSCRecHit2D::ADCContainer adcMap;
   CSCRecHit2D::ChannelContainer wgroups;
-  
+
   // Find wire hit position and wire properties
   wgroups = wHit.wgroups();
 
-  int wg_left = wgroups[0];;
-  int wg_right = wgroups[wgroups.size()-1];
-  
-  int Nwires1 = layergeom_->numberOfWiresPerGroup( wg_left );
-  int Nwires2 = layergeom_->numberOfWiresPerGroup( wg_right );
+  int wg_left = wgroups[0];
+  ;
+  int wg_right = wgroups[wgroups.size() - 1];
 
-  float Mwire1 = layergeom_->middleWireOfGroup( wg_left );
-  float Mwire2 = layergeom_->middleWireOfGroup( wg_right );
-  
-  int centerWire_left = (int) (Mwire1 - Nwires1 / 2. + 0.5);
-  int centerWire_right = (int) (Mwire2 + Nwires2 / 2.);
-  
+  int Nwires1 = layergeom_->numberOfWiresPerGroup(wg_left);
+  int Nwires2 = layergeom_->numberOfWiresPerGroup(wg_right);
+
+  float Mwire1 = layergeom_->middleWireOfGroup(wg_left);
+  float Mwire2 = layergeom_->middleWireOfGroup(wg_right);
+
+  int centerWire_left = (int)(Mwire1 - Nwires1 / 2. + 0.5);
+  int centerWire_right = (int)(Mwire2 + Nwires2 / 2.);
+
   float centerWire = (centerWire_left + centerWire_right) / 2.;
 
   //---- WGs around dead HV segment regions may need special treatment...
   //---- This is not addressed here.
-    
+
   float sigmaWire = 0.;
-  if(wHit.deadWG()>0 || wgroups.size()>2){
+  if (wHit.deadWG() > 0 || wgroups.size() > 2) {
     //---- worst possible case; take most conservative approach
-    for(unsigned int iWG=0;iWG<wgroups.size();iWG++){
-      sigmaWire+=layergeom_->yResolution( wgroups[iWG] );
+    for (unsigned int iWG = 0; iWG < wgroups.size(); iWG++) {
+      sigmaWire += layergeom_->yResolution(wgroups[iWG]);
     }
-  }
-  else if(2==wgroups.size()){
+  } else if (2 == wgroups.size()) {
     //---- 2 WGs - get the larger error (overestimation if a single track is passing
     //---- between the WGs; underestimation if there are two separate signal sources)
-    if(layergeom_->yResolution( wgroups[0] ) > layergeom_->yResolution( wgroups[1] )){
-      sigmaWire  = layergeom_->yResolution( wgroups[0]);
-    }    
-    else{
-      sigmaWire  = layergeom_->yResolution( wgroups[1]);
+    if (layergeom_->yResolution(wgroups[0]) > layergeom_->yResolution(wgroups[1])) {
+      sigmaWire = layergeom_->yResolution(wgroups[0]);
+    } else {
+      sigmaWire = layergeom_->yResolution(wgroups[1]);
     }
-  }  
-  else if(1==wgroups.size()){
+  } else if (1 == wgroups.size()) {
     //---- simple - just 1 WG
-    sigmaWire  = layergeom_->yResolution( wgroups[0]);
+    sigmaWire = layergeom_->yResolution(wgroups[0]);
   }
-  
+
   // Find strips position and properties
-  
-  CSCRecHit2D::ChannelContainer const &  strips = sHit.strips();
+
+  CSCRecHit2D::ChannelContainer const& strips = sHit.strips();
   int tmax = sHit.tmax();
   int nStrip = strips.size();
-  int idCenterStrip = nStrip/2;
+  int idCenterStrip = nStrip / 2;
   int centerStrip = strips[idCenterStrip];
-  
+
   // Retrieve strip pulseheights from the CSCStripHit
-  const std::vector<float>& adc    = sHit.s_adc();
+  const std::vector<float>& adc = sHit.s_adc();
   const std::vector<float>& adcRaw = sHit.s_adcRaw();
 
   std::vector<float> adc2;
@@ -115,110 +106,108 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
 
   LogTrace("CSCMake2DRecHit") << "[CSCMake2DRecHit] dump of adc values to be added to rechit follows...";
 
-  for ( int iStrip = 0; iStrip < nStrip; ++iStrip) {
-
+  for (int iStrip = 0; iStrip < nStrip; ++iStrip) {
     adc2.clear();
     adc2Raw.clear();
     adc2.reserve(4);
     adc2Raw.reserve(4);
-    for ( int t = 0; t < 4; ++t ){
-      adc2.push_back(adc[t+iStrip*4]);
-      adc2Raw.push_back(adcRaw[t+iStrip*4]);
+    for (int t = 0; t < 4; ++t) {
+      adc2.push_back(adc[t + iStrip * 4]);
+      adc2Raw.push_back(adcRaw[t + iStrip * 4]);
     }
     //After CMSSW_5_0: ADC value is pedestal-subtracted and electronics-gain corrected
-    adcMap.put( strips[iStrip], adc2.begin(), adc2.end() ); 
+    adcMap.put(strips[iStrip], adc2.begin(), adc2.end());
     // Up to CMSSW_5_0, Rechit takes _raw_ adc values
-    // adcMap.put( strips[iStrip], adc2Raw.begin(), adc2Raw.end() ); 
+    // adcMap.put( strips[iStrip], adc2Raw.begin(), adc2Raw.end() );
 
-    LogTrace("CSCMake2DRecHit") << "[CSCMake2DRecHit] strip = " << strips[iStrip] << 
-      " adcs= " << adc2Raw[0] << " " << adc2Raw[1] << " " << adc2Raw[2] << " " << adc2Raw[3];
-
+    LogTrace("CSCMake2DRecHit") << "[CSCMake2DRecHit] strip = " << strips[iStrip] << " adcs= " << adc2Raw[0] << " "
+                                << adc2Raw[1] << " " << adc2Raw[2] << " " << adc2Raw[3];
   }
 
   //The tpeak finding for both edge and non-edge strips has been moved to here
   //tpeak will be a const argument for xMatchGatti_->findXOnStrip
   float adcArray[4];
-  for ( int t = 0; t < 4; ++t ) {
-    int k = t+4*(idCenterStrip);
+  for (int t = 0; t < 4; ++t) {
+    int k = t + 4 * (idCenterStrip);
     adcArray[t] = adc[k];
   }
-  tpeak = peakTimeFinder_->peakTime( tmax, adcArray, tpeak ); 
+  tpeak = peakTimeFinder_->peakTime(tmax, adcArray, tpeak);
   // Just for completeness, the start time of the pulse is 133 ns earlier, according to Stan :)
   float t_zero = tpeak - 133.f;
-  LogTrace("CSCRecHit") << "[CSCMake2DRecHit] " << 
-    id << " strip=" << centerStrip << ", t_zero=" << t_zero << ", tpeak=" << tpeak;
+  LogTrace("CSCRecHit") << "[CSCMake2DRecHit] " << id << " strip=" << centerStrip << ", t_zero=" << t_zero
+                        << ", tpeak=" << tpeak;
 
-
-  float positionWithinTheStrip= -99.;
+  float positionWithinTheStrip = -99.;
   float sigmaWithinTheStrip = -99.;
   int quality = -1;
   LocalPoint lp0(0., 0.);
-  
+
   float stripWidth = -99.f;
   // If at the edge, then used 1 strip cluster only
-  if ( centerStrip == 1 || centerStrip == specs_->nStrips() || nStrip < 2 ) {
-    lp0 = layergeom_->stripWireIntersection( centerStrip, centerWire);
+  if (centerStrip == 1 || centerStrip == specs_->nStrips() || nStrip < 2) {
+    lp0 = layergeom_->stripWireIntersection(centerStrip, centerWire);
     positionWithinTheStrip = 0.f;
     stripWidth = layergeom_->stripPitch(lp0);
     sigmaWithinTheStrip = stripWidth / sqrt_12;
     quality = 2;
-  }
-  else {
+  } else {
     // If not at the edge, used cluster of size ClusterSize:
-    LocalPoint lp11  = layergeom_->stripWireIntersection( centerStrip, centerWire);
-    stripWidth = layergeom_->stripPitch( lp11 );
-    
+    LocalPoint lp11 = layergeom_->stripWireIntersection(centerStrip, centerWire);
+    stripWidth = layergeom_->stripPitch(lp11);
+
     //---- Calculate local position within the strip
     float xWithinChamber = lp11.x();
     quality = 0;
-    if(layergeom_->inside(lp11 )){// save time; this hit is to be discarded anyway - see isHitInFiducial(...)
+    if (layergeom_->inside(lp11)) {  // save time; this hit is to be discarded anyway - see isHitInFiducial(...)
 
-      xMatchGatti_->findXOnStrip( id, layer_, sHit, centerStrip, 
-				  xWithinChamber,
-				  stripWidth,  tpeak, positionWithinTheStrip, 
-				  sigmaWithinTheStrip, quality);
-    }				
-    lp0 = LocalPoint( xWithinChamber, layergeom_->yOfWire(centerWire, xWithinChamber) );
+      xMatchGatti_->findXOnStrip(id,
+                                 layer_,
+                                 sHit,
+                                 centerStrip,
+                                 xWithinChamber,
+                                 stripWidth,
+                                 tpeak,
+                                 positionWithinTheStrip,
+                                 sigmaWithinTheStrip,
+                                 quality);
+    }
+    lp0 = LocalPoint(xWithinChamber, layergeom_->yOfWire(centerWire, xWithinChamber));
   }
 
-  
-  
   // compute the errors in local x and y
-  LocalError localerr = layergeom_->localError( centerStrip, 
-						sigmaWithinTheStrip, sigmaWire );
+  LocalError localerr = layergeom_->localError(centerStrip, sigmaWithinTheStrip, sigmaWire);
 
   // Before storing the recHit, take the opportunity to change its time
-  if (useTimingCorrections){
-    float chipCorrection = recoConditions_->chipCorrection(id,centerStrip);
-    float phaseCorrection = (sHit.stripsl1a()[0]>> (15-0) & 0x1)*25.;
+  if (useTimingCorrections) {
+    float chipCorrection = recoConditions_->chipCorrection(id, centerStrip);
+    float phaseCorrection = (sHit.stripsl1a()[0] >> (15 - 0) & 0x1) * 25.;
     float chamberCorrection = recoConditions_->chamberTimingCorrection(id);
 
     GlobalPoint gp0 = layer_->toGlobal(lp0);
-    float tofCorrection = gp0.mag()/29.9792458;
+    float tofCorrection = gp0.mag() / 29.9792458;
     float signalPropagationSpeed[11] = {0.0, -78, -76, -188, -262, -97, -99, -90, -99, -99, -113};
-    float position = lp0.y()/sin(layergeom_->stripAngle(centerStrip));
-    float yCorrection = position/signalPropagationSpeed[id_.iChamberType()];
+    float position = lp0.y() / sin(layergeom_->stripAngle(centerStrip));
+    float yCorrection = position / signalPropagationSpeed[id_.iChamberType()];
     //printf("RecHit in e:%d s:%d r:%d c:%d l:%d strip:%d \n",id.endcap(),id.station(), id.ring(),id.chamber(),id.layer(),centerStrip);
     //printf("\t tpeak before = %5.2f \t chipCorr %5.2f phaseCorr %5.2f chamberCorr %5.2f tofCorr %5.2f \n",
     //	   tpeak,chipCorrection, phaseCorrection,chamberCorrection,tofCorrection);
     //printf("localy = %5.2f, yCorr = %5.2f \n",lp0.y(),yCorrection);
-    tpeak = tpeak + chipCorrection + phaseCorrection + chamberCorrection-tofCorrection+yCorrection;
+    tpeak = tpeak + chipCorrection + phaseCorrection + chamberCorrection - tofCorrection + yCorrection;
     //printf("\t tpeak after = %5.2f\n",tpeak);
   }
 
   // Calculate wire time to the half bx level using time bins on
   // Store wire time with a precision of 0.01 as an int (multiply by 100)
   // Convert from bx to ns (multiply by 25)
-  int scaledWireTime = 100*findWireBx(wHit.timeBinsOn(), tpeak,id)*25; 
-
+  int scaledWireTime = 100 * findWireBx(wHit.timeBinsOn(), tpeak, id) * 25;
 
   //Get the gas-gain correction for this rechit
-  float gasGainCorrection = -999.f;   
+  float gasGainCorrection = -999.f;
   if (useGasGainCorrections) {
-    gasGainCorrection = recoConditions_->gasGainCorrection(id,centerStrip,centerWire);
-  } 
+    gasGainCorrection = recoConditions_->gasGainCorrection(id, centerStrip, centerWire);
+  }
 
-  /// Correct the 3x3 ADC sum into the energy deposited in the layer.  Note:  this correction will 
+  /// Correct the 3x3 ADC sum into the energy deposited in the layer.  Note:  this correction will
   /// give you dE.  In order to get the dE/dX, you will need to divide by the path length...
   /// If the algorithm to compute the corrected energy fails, flag it by a specific nonsense value:
   /// If the user has chosen not to use the gas gain correction --->  -998.
@@ -237,33 +226,40 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
 
   } else {
     // gas-gain correction is OK, correct the 3x3 ADC sum
-    if (adcMap.size()==12) {
-      energyDeposit =
-	adcMap[0] * gasGainCorrection + adcMap[1] * gasGainCorrection + adcMap[2] * gasGainCorrection +
-	adcMap[4] * gasGainCorrection + adcMap[5] * gasGainCorrection + adcMap[6] * gasGainCorrection +
-	adcMap[8] * gasGainCorrection + adcMap[9] * gasGainCorrection + adcMap[10]* gasGainCorrection ;	
+    if (adcMap.size() == 12) {
+      energyDeposit = adcMap[0] * gasGainCorrection + adcMap[1] * gasGainCorrection + adcMap[2] * gasGainCorrection +
+                      adcMap[4] * gasGainCorrection + adcMap[5] * gasGainCorrection + adcMap[6] * gasGainCorrection +
+                      adcMap[8] * gasGainCorrection + adcMap[9] * gasGainCorrection + adcMap[10] * gasGainCorrection;
 
-    } else if (adcMap.size()==4) {
+    } else if (adcMap.size() == 4) {
       // if this is an edge strip, set the energy to yet another nonsense value
       energyDeposit = -996.f;
     }
-
   }
 
   /// store rechit
 
-   /// Retrive the L1APhase+strips combination
-   CSCRecHit2D::ChannelContainer const & L1A_and_strips = sHit.stripsTotal();        /// L1A
-   /// Retrive the Bx + wgroups combination
-   CSCRecHit2D::ChannelContainer const & BX_and_wgroups = wHit.wgroupsBXandWire();   /// BX
-   // (sigmaWithinTheStrip/stripWidth) is in strip widths just like positionWithinTheStrip is!
+  /// Retrive the L1APhase+strips combination
+  CSCRecHit2D::ChannelContainer const& L1A_and_strips = sHit.stripsTotal();  /// L1A
+  /// Retrive the Bx + wgroups combination
+  CSCRecHit2D::ChannelContainer const& BX_and_wgroups = wHit.wgroupsBXandWire();  /// BX
+  // (sigmaWithinTheStrip/stripWidth) is in strip widths just like positionWithinTheStrip is!
 
-
-   CSCRecHit2D rechit( id, lp0, localerr, L1A_and_strips,                  /// L1A;
-		       //adcMap, wgroups, tpeak, positionWithinTheStrip,
-		       adcMap, BX_and_wgroups, tpeak, positionWithinTheStrip,        /// BX
-		       sigmaWithinTheStrip/stripWidth, quality, sHit.deadStrip(), wHit.deadWG(), scaledWireTime,
-		       energyDeposit);
+  CSCRecHit2D rechit(id,
+                     lp0,
+                     localerr,
+                     L1A_and_strips,  /// L1A;
+                     //adcMap, wgroups, tpeak, positionWithinTheStrip,
+                     adcMap,
+                     BX_and_wgroups,
+                     tpeak,
+                     positionWithinTheStrip,  /// BX
+                     sigmaWithinTheStrip / stripWidth,
+                     quality,
+                     sHit.deadStrip(),
+                     wHit.deadWG(),
+                     scaledWireTime,
+                     energyDeposit);
 
   /// To see RecHit content (L1A feature included) (to be commented out)
   // rechit.print();
@@ -271,67 +267,66 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   LogTrace("CSCRecHit") << "[CSCMake2DRecHit] rechit created in layer " << id << "... \n" << rechit;
 
   return rechit;
-
 }
 
-
-bool CSCMake2DRecHit::isHitInFiducial( const CSCLayer* layer, const CSCRecHit2D& rh ) {
-
+bool CSCMake2DRecHit::isHitInFiducial(const CSCLayer* layer, const CSCRecHit2D& rh) {
   bool isInFiducial = true;
   const CSCLayerGeometry* layergeom_ = layer->geometry();
-  LocalPoint rhPosition =  rh.localPosition();
-  // is the rechit within the chamber? 
+  LocalPoint rhPosition = rh.localPosition();
+  // is the rechit within the chamber?
   //(the problem occurs in ME11a/b otherwise it is OK)
-  // we could use also 
+  // we could use also
   //bool inside( const Local3DPoint&, const LocalError&, float scale=1.f ) const;
-  if(!layergeom_->inside(rhPosition)){
+  if (!layergeom_->inside(rhPosition)) {
     isInFiducial = false;
   }
-  
+
   return isInFiducial;
 }
- 
 
-void CSCMake2DRecHit::setConditions( const CSCRecoConditions* reco ) {
-  xMatchGatti_->setConditions( reco );
+void CSCMake2DRecHit::setConditions(const CSCRecoConditions* reco) {
+  xMatchGatti_->setConditions(reco);
   // And cache for use here
   recoConditions_ = reco;
-} 
+}
 
-float CSCMake2DRecHit::findWireBx(const std::vector <int>& timeBinsOn, float tpeak ,const CSCDetId& id) {
+float CSCMake2DRecHit::findWireBx(const std::vector<int>& timeBinsOn, float tpeak, const CSCDetId& id) {
   // Determine the wire Bx from the vector of time bins on for the wire digi with peak time as an intial estimate.
   // Assumes that a single hit should create either one time bin on or two consecutive time bins on
   // so algorithm looks for bin on nearest to peak time and checks if it has a bin on consecutive with it
   float anode_bx_offset = recoConditions_->anodeBXoffset(id);
-  float wireBx=-1;
-  float timeGuess=tpeak/25.f + anode_bx_offset;  
-  float diffMin=9999.f;
-  int bestMatch=-9;
-  for (int j=0; j<(int)timeBinsOn.size(); j++) {
-    auto diff=timeGuess-timeBinsOn[j];
+  float wireBx = -1;
+  float timeGuess = tpeak / 25.f + anode_bx_offset;
+  float diffMin = 9999.f;
+  int bestMatch = -9;
+  for (int j = 0; j < (int)timeBinsOn.size(); j++) {
+    auto diff = timeGuess - timeBinsOn[j];
     // Find bin on closest to peak time
-    if (std::abs(diff)< std::abs(diffMin)) {
-      diffMin=diff;
-      bestMatch=j;
-      wireBx=timeBinsOn[j];
+    if (std::abs(diff) < std::abs(diffMin)) {
+      diffMin = diff;
+      bestMatch = j;
+      wireBx = timeBinsOn[j];
     }
   }
-  int side= diffMin>0 ? 1 : -1;  // diffMin/fabs(diffMin);
-  bool unchanged=true;
+  int side = diffMin > 0 ? 1 : -1;  // diffMin/fabs(diffMin);
+  bool unchanged = true;
   // First check if bin on the same side as peak time is on
-  if ((bestMatch+side)>-1 && (bestMatch+side)<(int)timeBinsOn.size()) {      // Make sure one next to it within vector limits
-    if (timeBinsOn[bestMatch]==(timeBinsOn[bestMatch+side]-side)) {      // See if next bin on in vector is consecutive in time
+  if ((bestMatch + side) > -1 &&
+      (bestMatch + side) < (int)timeBinsOn.size()) {  // Make sure one next to it within vector limits
+    if (timeBinsOn[bestMatch] ==
+        (timeBinsOn[bestMatch + side] - side)) {  // See if next bin on in vector is consecutive in time
       // Set time to the average of the two bins
-      wireBx=wireBx+ 0.5f*side;
-      unchanged=false;
+      wireBx = wireBx + 0.5f * side;
+      unchanged = false;
     }
   }
   // If no match is found then check the other side
-  if ((bestMatch-side)>-1 && (bestMatch-side)<(int)timeBinsOn.size() && unchanged) {       // Make sure one next to it exists
-    if (timeBinsOn[bestMatch]==(timeBinsOn[bestMatch-side]+side)) {    // See if nextbin on is consecutive in time
-      wireBx=wireBx- 0.5f*side;
-      unchanged=false;
+  if ((bestMatch - side) > -1 && (bestMatch - side) < (int)timeBinsOn.size() &&
+      unchanged) {                                                         // Make sure one next to it exists
+    if (timeBinsOn[bestMatch] == (timeBinsOn[bestMatch - side] + side)) {  // See if nextbin on is consecutive in time
+      wireBx = wireBx - 0.5f * side;
+      unchanged = false;
     }
   }
-  return wireBx - anode_bx_offset; // expect collision muons to be centered near 0 bx
+  return wireBx - anode_bx_offset;  // expect collision muons to be centered near 0 bx
 }
