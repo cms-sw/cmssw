@@ -20,22 +20,73 @@
 // system include files
 #include <iostream>
 #include <fstream>
+#include <memory>
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProductHost.h"
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbService.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
 
+#include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
+#include "CondFormats/DataRecord/interface/CastorElectronicsMapRcd.h"
+#include "CondFormats/DataRecord/interface/CastorGainWidthsRcd.h"
+#include "CondFormats/DataRecord/interface/CastorGainsRcd.h"
+#include "CondFormats/DataRecord/interface/CastorPedestalWidthsRcd.h"
+#include "CondFormats/DataRecord/interface/CastorPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/CastorQIEDataRcd.h"
 #include "CondFormats/CastorObjects/interface/AllObjects.h"
 
-#include "CastorDbProducer.h"
+class CastorDbProducer : public edm::ESProducer {
+public:
+  CastorDbProducer(const edm::ParameterSet&);
+  ~CastorDbProducer() override;
+
+  std::shared_ptr<CastorDbService> produce(const CastorDbRecord&);
+
+private:
+  // ----------member data ---------------------------
+  using HostType = edm::ESProductHost<CastorDbService,
+                                      CastorPedestalsRcd,
+                                      CastorPedestalWidthsRcd,
+                                      CastorGainsRcd,
+                                      CastorGainWidthsRcd,
+                                      CastorQIEDataRcd,
+                                      CastorChannelQualityRcd,
+                                      CastorElectronicsMapRcd>;
+
+  template <typename RecordT, typename TokenT>
+  void setupItem(const RecordT& fRecord, const TokenT& token, const char* name, CastorDbService* service);
+
+  edm::ReusableObjectHolder<HostType> holder_;
+
+  edm::ESGetToken<CastorPedestals, CastorPedestalsRcd> pedestalsToken_;
+  edm::ESGetToken<CastorPedestalWidths, CastorPedestalWidthsRcd> pedestalWidthsToken_;
+  edm::ESGetToken<CastorGains, CastorGainsRcd> gainsToken_;
+  edm::ESGetToken<CastorGainWidths, CastorGainWidthsRcd> gainWidthsToken_;
+  edm::ESGetToken<CastorQIEData, CastorQIEDataRcd> qieDataToken_;
+  edm::ESGetToken<CastorChannelQuality, CastorChannelQualityRcd> channelQualityToken_;
+  edm::ESGetToken<CastorElectronicsMap, CastorElectronicsMapRcd> electronicsMapToken_;
+
+  std::vector<std::string> mDumpRequest;
+  std::ostream* mDumpStream;
+};
 
 CastorDbProducer::CastorDbProducer(const edm::ParameterSet& fConfig)
     : ESProducer(), mDumpRequest(), mDumpStream(nullptr) {
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced(this);
+  setWhatProduced(this)
+      .setConsumes(pedestalsToken_)
+      .setConsumes(pedestalWidthsToken_)
+      .setConsumes(gainsToken_)
+      .setConsumes(gainWidthsToken_)
+      .setConsumes(qieDataToken_)
+      .setConsumes(channelQualityToken_)
+      .setConsumes(electronicsMapToken_);
 
   //now do what ever other initialization is needed
 
@@ -65,30 +116,30 @@ std::shared_ptr<CastorDbService> CastorDbProducer::produce(const CastorDbRecord&
   bool needBuildCalibWidths = false;
 
   host->ifRecordChanges<CastorElectronicsMapRcd>(
-      record, [this, h = host.get()](auto const& rec) { setupElectronicsMap(rec, h); });
+      record, [this, h = host.get()](auto const& rec) { setupItem(rec, electronicsMapToken_, "ElectronicsMap", h); });
   host->ifRecordChanges<CastorChannelQualityRcd>(
-      record, [this, h = host.get()](auto const& rec) { setupChannelQuality(rec, h); });
+      record, [this, h = host.get()](auto const& rec) { setupItem(rec, channelQualityToken_, "ChannelQuality", h); });
   host->ifRecordChanges<CastorGainWidthsRcd>(record, [this, h = host.get(), &needBuildCalibWidths](auto const& rec) {
-    setupGainWidths(rec, h);
+    setupItem(rec, gainWidthsToken_, "GainWidths", h);
     needBuildCalibWidths = true;
   });
   host->ifRecordChanges<CastorQIEDataRcd>(
       record, [this, h = host.get(), &needBuildCalibrations, &needBuildCalibWidths](auto const& rec) {
-        setupQIEData(rec, h);
+        setupItem(rec, qieDataToken_, "QIEData", h);
         needBuildCalibrations = true;
         needBuildCalibWidths = true;
       });
   host->ifRecordChanges<CastorPedestalWidthsRcd>(record,
                                                  [this, h = host.get(), &needBuildCalibWidths](auto const& rec) {
-                                                   setupPedestalWidths(rec, h);
+                                                   setupItem(rec, pedestalWidthsToken_, "PedestalWidths", h);
                                                    needBuildCalibWidths = true;
                                                  });
   host->ifRecordChanges<CastorGainsRcd>(record, [this, h = host.get(), &needBuildCalibrations](auto const& rec) {
-    setupGains(rec, h);
+    setupItem(rec, gainsToken_, "Gains", h);
     needBuildCalibrations = true;
   });
   host->ifRecordChanges<CastorPedestalsRcd>(record, [this, h = host.get(), &needBuildCalibrations](auto const& rec) {
-    setupPedestals(rec, h);
+    setupItem(rec, pedestalsToken_, "Pedestals", h);
     needBuildCalibrations = true;
   });
 
@@ -103,73 +154,17 @@ std::shared_ptr<CastorDbService> CastorDbProducer::produce(const CastorDbRecord&
   return host;  // automatically converts to std::shared_ptr<CastorDbService>
 }
 
-void CastorDbProducer::setupPedestals(const CastorPedestalsRcd& fRecord, CastorDbService* service) {
-  edm::ESHandle<CastorPedestals> item;
-  fRecord.get(item);
-
-  service->setData(item.product());
-  if (std::find(mDumpRequest.begin(), mDumpRequest.end(), std::string("Pedestals")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL/CASTOR Pedestals set" << std::endl;
-    CastorDbASCIIIO::dumpObject(*mDumpStream, *(item.product()));
+template <typename RecordT, typename TokenT>
+void CastorDbProducer::setupItem(const RecordT& fRecord,
+                                 const TokenT& token,
+                                 const char* name,
+                                 CastorDbService* service) {
+  const auto& item = fRecord.get(token);
+  service->setData(&item);
+  if (std::find(mDumpRequest.begin(), mDumpRequest.end(), name) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL/CASTOR " << name << " set" << std::endl;
+    CastorDbASCIIIO::dumpObject(*mDumpStream, item);
   }
 }
 
-void CastorDbProducer::setupPedestalWidths(const CastorPedestalWidthsRcd& fRecord, CastorDbService* service) {
-  edm::ESHandle<CastorPedestalWidths> item;
-  fRecord.get(item);
-  service->setData(item.product());
-  if (std::find(mDumpRequest.begin(), mDumpRequest.end(), std::string("PedestalWidths")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL/CASTOR Pedestals set" << std::endl;
-    CastorDbASCIIIO::dumpObject(*mDumpStream, *(item.product()));
-  }
-}
-
-void CastorDbProducer::setupGains(const CastorGainsRcd& fRecord, CastorDbService* service) {
-  edm::ESHandle<CastorGains> item;
-  fRecord.get(item);
-  service->setData(item.product());
-  if (std::find(mDumpRequest.begin(), mDumpRequest.end(), std::string("Gains")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL/CASTOR Gains set" << std::endl;
-    CastorDbASCIIIO::dumpObject(*mDumpStream, *(item.product()));
-  }
-}
-
-void CastorDbProducer::setupGainWidths(const CastorGainWidthsRcd& fRecord, CastorDbService* service) {
-  edm::ESHandle<CastorGainWidths> item;
-  fRecord.get(item);
-  service->setData(item.product());
-  if (std::find(mDumpRequest.begin(), mDumpRequest.end(), std::string("GainWidths")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL/CASTOR GainWidths set" << std::endl;
-    CastorDbASCIIIO::dumpObject(*mDumpStream, *(item.product()));
-  }
-}
-
-void CastorDbProducer::setupQIEData(const CastorQIEDataRcd& fRecord, CastorDbService* service) {
-  edm::ESHandle<CastorQIEData> item;
-  fRecord.get(item);
-  service->setData(item.product());
-  if (std::find(mDumpRequest.begin(), mDumpRequest.end(), std::string("QIEData")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL/CASTOR QIEData set" << std::endl;
-    CastorDbASCIIIO::dumpObject(*mDumpStream, *(item.product()));
-  }
-}
-
-void CastorDbProducer::setupChannelQuality(const CastorChannelQualityRcd& fRecord, CastorDbService* service) {
-  edm::ESHandle<CastorChannelQuality> item;
-  fRecord.get(item);
-  service->setData(item.product());
-  if (std::find(mDumpRequest.begin(), mDumpRequest.end(), std::string("ChannelQuality")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL/CASTOR ChannelQuality set" << std::endl;
-    CastorDbASCIIIO::dumpObject(*mDumpStream, *(item.product()));
-  }
-}
-
-void CastorDbProducer::setupElectronicsMap(const CastorElectronicsMapRcd& fRecord, CastorDbService* service) {
-  edm::ESHandle<CastorElectronicsMap> item;
-  fRecord.get(item);
-  service->setData(item.product());
-  if (std::find(mDumpRequest.begin(), mDumpRequest.end(), std::string("ElectronicsMap")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL/CASTOR Electronics Map set" << std::endl;
-    CastorDbASCIIIO::dumpObject(*mDumpStream, *(item.product()));
-  }
-}
+DEFINE_FWK_EVENTSETUP_MODULE(CastorDbProducer);
