@@ -1,7 +1,6 @@
 #ifndef TkDetLayers_TIBRingBuilder_h
 #define TkDetLayers_TIBRingBuilder_h
 
-
 #include "TIBRing.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,15 +11,12 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TIBRingBuilder {  
- public:
+class TIBRingBuilder {
+public:
   TIBRingBuilder(){};
-  TIBRing* build(const std::vector<const GeometricDet*>& detsInRing,
-		 const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
-
-  
+  TIBRing* build(const std::vector<const GeometricDet*>& detsInRing, const TrackerGeometry* theGeomDetGeometry)
+      __attribute__((cold));
 };
 
-
 #pragma GCC visibility pop
-#endif 
+#endif

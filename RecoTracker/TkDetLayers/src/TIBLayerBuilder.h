@@ -1,7 +1,6 @@
 #ifndef TkDetLayers_TIBLayerBuilder_h
 #define TkDetLayers_TIBLayerBuilder_h
 
-
 #include "TIBLayer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,18 +11,15 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TIBLayerBuilder {  
- public:
+class TIBLayerBuilder {
+public:
   TIBLayerBuilder(){};
-  TIBLayer* build(const GeometricDet* aTIBLayer,
-		  const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
+  TIBLayer* build(const GeometricDet* aTIBLayer, const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
 
   void constructRings(std::vector<const GeometricDet*>& theGeometricRods,
-		      std::vector<std::vector<const GeometricDet*> >& innerGeometricDetRings,
-		      std::vector<std::vector<const GeometricDet*> >& outerGeometricDetRings);
-  
+                      std::vector<std::vector<const GeometricDet*> >& innerGeometricDetRings,
+                      std::vector<std::vector<const GeometricDet*> >& outerGeometricDetRings);
 };
 
-
 #pragma GCC visibility pop
-#endif 
+#endif

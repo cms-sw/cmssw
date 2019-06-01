@@ -13,18 +13,14 @@
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include <memory>
 
-class  KFUpdatorESProducer: public edm::ESProducer{
- public:
-  KFUpdatorESProducer(const edm::ParameterSet & p);
-  ~KFUpdatorESProducer() override; 
+class KFUpdatorESProducer : public edm::ESProducer {
+public:
+  KFUpdatorESProducer(const edm::ParameterSet &p);
+  ~KFUpdatorESProducer() override;
   std::unique_ptr<TrajectoryStateUpdator> produce(const TrackingComponentsRecord &);
- private:
+
+private:
   edm::ParameterSet pset_;
 };
 
-
 #endif
-
-
-
-
