@@ -9,7 +9,6 @@
 
 namespace TrackingTools_GsfTracking {
   struct dictionary {
-
     TrajGsfTrackAssociationCollection ttam;
     edm::Wrapper<TrajGsfTrackAssociationCollection> wttam;
     TrajGsfTrackAssociation vttam;
@@ -17,20 +16,18 @@ namespace TrackingTools_GsfTracking {
     TrajGsfTrackAssociationRefProd rpttam;
     TrajGsfTrackAssociationRefVector rvttam;
 
-
     GsfTrackMomConstraintAssociationCollection i1;
     edm::Wrapper<GsfTrackMomConstraintAssociationCollection> i2;
     GsfTrackMomConstraintAssociation i3;
     GsfTrackMomConstraintAssociationRef i4;
     GsfTrackMomConstraintAssociationRefProd i5;
     GsfTrackMomConstraintAssociationRefVector i6;
-  
+
     GsfTrackVtxConstraintAssociationCollection ii1;
     edm::Wrapper<GsfTrackVtxConstraintAssociationCollection> ii2;
     GsfTrackVtxConstraintAssociation ii3;
     GsfTrackVtxConstraintAssociationRef ii4;
     GsfTrackVtxConstraintAssociationRefProd ii5;
     GsfTrackVtxConstraintAssociationRefVector ii6;
-  
   };
-}
+}  // namespace TrackingTools_GsfTracking

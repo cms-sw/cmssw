@@ -6,14 +6,9 @@
 #include "DataFormats/GeometrySurface/interface/Line.h"
 
 class TrajectoryExtrapolatorToLine {
-
 public:
-
   /// extrapolation with user-supplied propagator
-  TrajectoryStateOnSurface extrapolate(const FreeTrajectoryState& fts,
-				       const Line& L,
-				       const Propagator& p) const;
-
+  TrajectoryStateOnSurface extrapolate(const FreeTrajectoryState& fts, const Line& L, const Propagator& p) const;
 };
 
 #endif
