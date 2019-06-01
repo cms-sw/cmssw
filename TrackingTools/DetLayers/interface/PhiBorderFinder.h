@@ -8,7 +8,6 @@
  *  \author N. Amapane - INFN Torino
  */
 
-
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 
 #include <DataFormats/GeometrySurface/interface/BoundingBox.h>
@@ -27,24 +26,22 @@
 
 class PhiBorderFinder {
 public:
-  
-  typedef DetRod Det; //FIXME!!!
-  typedef geomsort::ExtractPhi<Det,float> DetPhi;
-
+  typedef DetRod Det;  //FIXME!!!
+  typedef geomsort::ExtractPhi<Det, float> DetPhi;
 
   PhiBorderFinder(const std::vector<const Det*>& utheDets);
-  
+
   virtual ~PhiBorderFinder(){};
 
-  inline unsigned int nBins() {return theNbins;}
+  inline unsigned int nBins() { return theNbins; }
 
   /// Returns true if the Dets are periodic in phi.
   inline bool isPhiPeriodic() const { return isPhiPeriodic_; }
-  
+
   /// Returns true if any 2 of the Det overlap in phi.
   inline bool isPhiOverlapping() const { return isPhiOverlapping_; }
 
-  /// The borders, defined for each det as the middle between its lower 
+  /// The borders, defined for each det as the middle between its lower
   /// edge and the previous Det's upper edge.
   inline const std::vector<double>& phiBorders() const { return thePhiBorders; }
 
@@ -61,17 +58,11 @@ private:
   std::vector<double> thePhiBorders;
   std::vector<double> thePhiBins;
 
-  inline double positiveRange (double phi) const
-  {
-    return (phi > 0) ? phi : phi + Geom::twoPi();
-  }
+  inline double positiveRange(double phi) const { return (phi > 0) ? phi : phi + Geom::twoPi(); }
 
-  int binIndex( int i) const {
+  int binIndex(int i) const {
     int ind = i % (int)theNbins;
-    return (ind < 0) ? ind+theNbins : ind;
+    return (ind < 0) ? ind + theNbins : ind;
   }
-
-
 };
 #endif
-

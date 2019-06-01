@@ -19,19 +19,19 @@
 class IdealMagneticFieldRecord;
 
 namespace magneticfield {
-  class AutoMagneticFieldESProducer : public edm::ESProducer
-  {
+  class AutoMagneticFieldESProducer : public edm::ESProducer {
   public:
     AutoMagneticFieldESProducer(const edm::ParameterSet&);
     ~AutoMagneticFieldESProducer() override;
-    
+
     std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord&);
     edm::ParameterSet pset;
+
   private:
     std::string closerModel(float current);
     std::vector<int> nominalCurrents;
     std::vector<std::string> maps;
   };
-}
+}  // namespace magneticfield
 
 #endif

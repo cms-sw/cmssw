@@ -12,35 +12,31 @@
 class MeasurementEstimator;
 
 class DetRodOneR : public DetRod {
- public: 
+public:
   typedef std::vector<GeometricSearchDet*> DetContainer;
 
-
   /// Construct from iterators on GeomDet*
-  DetRodOneR( std::vector<const GeomDet*>::const_iterator first,
-	      std::vector<const GeomDet*>::const_iterator last);
+  DetRodOneR(std::vector<const GeomDet*>::const_iterator first, std::vector<const GeomDet*>::const_iterator last);
 
   /// Construct from a std::vector of GeomDet*
-  DetRodOneR( const std::vector<const GeomDet*>& dets);
+  DetRodOneR(const std::vector<const GeomDet*>& dets);
 
   ~DetRodOneR() override;
 
-  const std::vector<const GeomDet*>& basicComponents() const override {return theDets;}
-
-
+  const std::vector<const GeomDet*>& basicComponents() const override { return theDets; }
 
 protected:
   /// Query detector idet for compatible and add the output to result.
-  
-  bool add( int idet, std::vector<DetWithState>& result,
-	    const TrajectoryStateOnSurface& startingState,
-	    const Propagator& prop, 
-	    const MeasurementEstimator& est) const;
 
-  std::vector<const GeomDet*>     theDets;
-  
+  bool add(int idet,
+           std::vector<DetWithState>& result,
+           const TrajectoryStateOnSurface& startingState,
+           const Propagator& prop,
+           const MeasurementEstimator& est) const;
+
+  std::vector<const GeomDet*> theDets;
+
   void initialize();
-
 };
 
 #endif
