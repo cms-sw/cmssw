@@ -1,5 +1,5 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetRingOneZ.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/DetLayers/interface/ForwardRingDiskBuilderFromDet.h"
 //#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
@@ -11,37 +11,31 @@
 
 using namespace std;
 
-ForwardDetRingOneZ::~ForwardDetRingOneZ(){}
+ForwardDetRingOneZ::~ForwardDetRingOneZ() {}
 
 ForwardDetRingOneZ::ForwardDetRingOneZ(vector<const GeomDet*>::const_iterator first,
-				       vector<const GeomDet*>::const_iterator last)
-  : ForwardDetRing(false), theDets(first,last)
-{
+                                       vector<const GeomDet*>::const_iterator last)
+    : ForwardDetRing(false), theDets(first, last) {
   initialize();
 }
 
-ForwardDetRingOneZ::ForwardDetRingOneZ( const vector<const GeomDet*>& dets)
-  : ForwardDetRing(false), theDets(dets)
-{
+ForwardDetRingOneZ::ForwardDetRingOneZ(const vector<const GeomDet*>& dets) : ForwardDetRing(false), theDets(dets) {
   initialize();
 }
 
-
-void ForwardDetRingOneZ::initialize()
-{
+void ForwardDetRingOneZ::initialize() {
   // assume the dets ARE in a ring
   // sort them in phi
-  precomputed_value_sort( theDets.begin(), theDets.end(), geomsort::DetPhi());
+  precomputed_value_sort(theDets.begin(), theDets.end(), geomsort::DetPhi());
   setDisk(ForwardRingDiskBuilderFromDet()(theDets));
 }
 
-
-bool ForwardDetRingOneZ::add(int idet, vector<DetWithState>& result,
-			     const TrajectoryStateOnSurface& tsos,
-			     const Propagator& prop, 
-			     const MeasurementEstimator& est) const {
-  pair<bool,TrajectoryStateOnSurface> compat =
-    theCompatibilityChecker.isCompatible(theDets[idet],tsos, prop, est);
+bool ForwardDetRingOneZ::add(int idet,
+                             vector<DetWithState>& result,
+                             const TrajectoryStateOnSurface& tsos,
+                             const Propagator& prop,
+                             const MeasurementEstimator& est) const {
+  pair<bool, TrajectoryStateOnSurface> compat = theCompatibilityChecker.isCompatible(theDets[idet], tsos, prop, est);
 
   if (compat.first) {
     result.push_back(DetWithState(theDets[idet], compat.second));
@@ -49,4 +43,3 @@ bool ForwardDetRingOneZ::add(int idet, vector<DetWithState>& result,
 
   return compat.first;
 }
-

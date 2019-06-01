@@ -51,8 +51,8 @@ namespace magneticfield {
   class VolumeBasedMagneticFieldESProducerFromDB : public edm::ESProducer {
   public:
     VolumeBasedMagneticFieldESProducerFromDB(const edm::ParameterSet& iConfig);
-  
-    std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord & iRecord);
+
+    std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord& iRecord);
 
   private:
     // forbid copy ctor and assignment op.
@@ -63,24 +63,19 @@ namespace magneticfield {
     edm::ParameterSet pset;
     std::vector<int> nominalCurrents;
     std::vector<std::string> nominalLabels;
-
   };
+}  // namespace magneticfield
+
+VolumeBasedMagneticFieldESProducerFromDB::VolumeBasedMagneticFieldESProducerFromDB(const edm::ParameterSet& iConfig)
+    : pset(iConfig) {
+  setWhatProduced(this, pset.getUntrackedParameter<std::string>("label", ""));
+  nominalCurrents = {-1, 0, 9558, 14416, 16819, 18268, 19262};
+  nominalLabels = {"3.8T", "0T", "2T", "3T", "3.5T", "3.8T", "4T"};
 }
-
-
-VolumeBasedMagneticFieldESProducerFromDB::VolumeBasedMagneticFieldESProducerFromDB(const edm::ParameterSet& iConfig) : pset(iConfig)
-{
-  setWhatProduced(this, pset.getUntrackedParameter<std::string>("label",""));
-  nominalCurrents={-1, 0,9558,14416,16819,18268,19262};
-  nominalLabels  ={"3.8T","0T","2T", "3T", "3.5T", "3.8T", "4T"};
-}
-
-
 
 // ------------ method called to produce the data  ------------
-std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce(const IdealMagneticFieldRecord & iRecord)
-{
-
+std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce(
+    const IdealMagneticFieldRecord& iRecord) {
   bool debug = pset.getUntrackedParameter<bool>("debugBuilder", false);
 
   // Get value of the current from condition DB
@@ -94,45 +89,43 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce
   } else {
     message = " (from valueOverride card)";
   }
-  string configLabel  = closerNominalLabel(current);
+  string configLabel = closerNominalLabel(current);
 
   // Get configuration
   ESHandle<MagFieldConfig> confESH;
   iRecord.getRecord<MagFieldConfigRcd>().get(configLabel, confESH);
   const MagFieldConfig* conf = &*confESH;
 
-  edm::LogInfo("MagneticField|AutoMagneticField") << "Current: " << current << message << "; using map configuration with label: " << configLabel << endl
-						  << "Version: " << conf->version 
-						  << " geometryVersion: " << conf->geometryVersion
-						  << " slaveFieldVersion: " << conf->slaveFieldVersion;
+  edm::LogInfo("MagneticField|AutoMagneticField")
+      << "Current: " << current << message << "; using map configuration with label: " << configLabel << endl
+      << "Version: " << conf->version << " geometryVersion: " << conf->geometryVersion
+      << " slaveFieldVersion: " << conf->slaveFieldVersion;
 
   // Get the parametrized field
-  std::unique_ptr<MagneticField> paramField = ParametrizedMagneticFieldFactory::get(conf->slaveFieldVersion, conf->slaveFieldParameters);
-  
+  std::unique_ptr<MagneticField> paramField =
+      ParametrizedMagneticFieldFactory::get(conf->slaveFieldVersion, conf->slaveFieldParameters);
 
   if (conf->version == "parametrizedMagneticField") {
     // The map consist of only the parametrization in this case
     return paramField;
   } else {
     // Full VolumeBased map + parametrization
-    MagGeoBuilderFromDDD builder(conf->version,
-				 conf->geometryVersion,
-				 debug);
+    MagGeoBuilderFromDDD builder(conf->version, conf->geometryVersion, debug);
 
     // Set scaling factors
     if (!conf->keys.empty()) {
       builder.setScaling(conf->keys, conf->values);
     }
-  
+
     // Set specification for the grid tables to be used.
     if (!conf->gridFiles.empty()) {
       builder.setGridFiles(conf->gridFiles);
     }
 
     // Build the geomeytry (DDDCompactView) from the DB blob
-    // (code taken from GeometryReaders/XMLIdealGeometryESSource/src/XMLIdealMagneticFieldGeometryESProducer.cc) 
+    // (code taken from GeometryReaders/XMLIdealGeometryESSource/src/XMLIdealMagneticFieldGeometryESProducer.cc)
     edm::ESTransientHandle<FileBlob> gdd;
-    iRecord.getRecord<MFGeometryFileRcd>().get( std::to_string(conf->geometryVersion), gdd );
+    iRecord.getRecord<MFGeometryFileRcd>().get(std::to_string(conf->geometryVersion), gdd);
 
     auto cpv = std::make_unique<DDCompactView>(DDName("cmsMagneticField:MAGF"));
     DDLParser parser(*cpv);
@@ -141,24 +134,29 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce
     std::unique_ptr<std::vector<unsigned char> > tb = (*gdd).getUncompressedBlob();
     parser.parse(*tb, tb->size());
     cpv->lockdown();
-    
+
     builder.build(*cpv);
 
     // Build the VB map. Ownership of the parametrization is transferred to it
-    return std::make_unique<VolumeBasedMagneticField>(conf->geometryVersion,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.release(), true);
+    return std::make_unique<VolumeBasedMagneticField>(conf->geometryVersion,
+                                                      builder.barrelLayers(),
+                                                      builder.endcapSectors(),
+                                                      builder.barrelVolumes(),
+                                                      builder.endcapVolumes(),
+                                                      builder.maxR(),
+                                                      builder.maxZ(),
+                                                      paramField.release(),
+                                                      true);
   }
 }
 
-
 std::string VolumeBasedMagneticFieldESProducerFromDB::closerNominalLabel(float current) {
-
-  int i=0;
-  for(;i<(int)nominalLabels.size()-1;i++) {
-    if(2*current < nominalCurrents[i]+nominalCurrents[i+1] )
+  int i = 0;
+  for (; i < (int)nominalLabels.size() - 1; i++) {
+    if (2 * current < nominalCurrents[i] + nominalCurrents[i + 1])
       return nominalLabels[i];
   }
   return nominalLabels[i];
 }
-
 
 DEFINE_FWK_EVENTSETUP_MODULE(VolumeBasedMagneticFieldESProducerFromDB);

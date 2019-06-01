@@ -6,7 +6,7 @@
 // Find subjets corresponding to decay products of tau lepton pair
 // and produce data-formats neccessary to seed tau reconstruction.
 //
-// Questions/Comments? 
+// Questions/Comments?
 //    for physics : Christian.Veelken@cern.ch
 //    for implementation : Salvatore.Rappoccio@cern.ch
 //
@@ -40,10 +40,9 @@
 #include <sstream>
 #include <string>
 
-FASTJET_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
+FASTJET_BEGIN_NAMESPACE  // defined in fastjet/internal/base.hh
 
-namespace contrib{
-
+    namespace contrib {
   class CMSBoostedTauSeedingAlgorithmStructure;
 
   //------------------------------------------------------------------------
@@ -51,39 +50,48 @@ namespace contrib{
   /// This class implements the CMS boosted tau algorithm
   ///
   class CMSBoostedTauSeedingAlgorithm : public Transformer {
-
   public:
     // constructors
-    CMSBoostedTauSeedingAlgorithm(double ptMin, double muMin, double muMax, double yMin, double yMax, double dRMin, double dRMax, int maxDepth, int verbosity = 0);
+    CMSBoostedTauSeedingAlgorithm(double ptMin,
+                                  double muMin,
+                                  double muMax,
+                                  double yMin,
+                                  double yMax,
+                                  double dRMin,
+                                  double dRMax,
+                                  int maxDepth,
+                                  int verbosity = 0);
 
     // destructor
-    ~CMSBoostedTauSeedingAlgorithm() override{}
+    ~CMSBoostedTauSeedingAlgorithm() override {}
 
     // standard usage
     std::string description() const override;
 
-    PseudoJet result(const PseudoJet & jet) const override;
+    PseudoJet result(const PseudoJet& jet) const override;
 
     // the type of the associated structure
     typedef CMSBoostedTauSeedingAlgorithmStructure StructureType;
 
   protected:
-    void dumpSubJetStructure(const fastjet::PseudoJet& jet, int depth, int maxDepth, const std::string& depth_and_idx_string) const;
+    void dumpSubJetStructure(const fastjet::PseudoJet& jet,
+                             int depth,
+                             int maxDepth,
+                             const std::string& depth_and_idx_string) const;
     std::pair<PseudoJet, PseudoJet> findSubjets(const PseudoJet& jet, int depth, bool& subjetsFound) const;
 
-  private: 
+  private:
     double ptMin_;  ///< minimum sub-jet pt
     double muMin_;  ///< the min value of the mass-drop parameter
     double muMax_;  ///< the max value of the mass-drop parameter
     double yMin_;   ///< the min value of the asymmetry parameter
-    double yMax_;   ///< the max value of the asymmetry parameter    
+    double yMax_;   ///< the max value of the asymmetry parameter
     double dRMin_;  ///< the min value of the dR parameter
     double dRMax_;  ///< the max value of the dR parameter
     int maxDepth_;  ///< the max depth for descending into clustering sequence
 
-    int verbosity_; ///< flag to enable/disable debug output
+    int verbosity_;  ///< flag to enable/disable debug output
   };
-
 
   //------------------------------------------------------------------------
   /// @ingroup tools_taggers
@@ -98,10 +106,8 @@ namespace contrib{
     /// ctor with initialisation
     ///  \param pieces  the pieces of the created jet
     ///  \param rec     the recombiner from the underlying cluster sequence
-    CMSBoostedTauSeedingAlgorithmStructure(const PseudoJet& result_jet, const JetDefinition::Recombiner* rec = nullptr) 
-      : CompositeJetStructure(result_jet.pieces(), rec), 
-        _mu(0.0), _y(0.0), _dR(0.0), _pt(0.0) 
-    {}
+    CMSBoostedTauSeedingAlgorithmStructure(const PseudoJet& result_jet, const JetDefinition::Recombiner* rec = nullptr)
+        : CompositeJetStructure(result_jet.pieces(), rec), _mu(0.0), _y(0.0), _dR(0.0), _pt(0.0) {}
 
     /// returns the mass-drop ratio, pieces[0].m()/jet.m()
     inline double mu() const { return _mu; }
@@ -120,16 +126,15 @@ namespace contrib{
     //const PseudoJet& original() const { return _original_jet; }
 
   protected:
-    double _mu;              ///< the value of the mass-drop parameter
-    double _y;               ///< the value of the asymmetry parameter
-    double _dR;              ///< the value of the dR parameter
-    double _pt;              ///< the value of the pt parameter
+    double _mu;  ///< the value of the mass-drop parameter
+    double _y;   ///< the value of the asymmetry parameter
+    double _dR;  ///< the value of the dR parameter
+    double _pt;  ///< the value of the pt parameter
     // allow the tagger to set these
     friend class CMSBoostedTauSeedingAlgorithm;
   };
 
-
-} // namespace contrib
+}  // namespace contrib
 
 FASTJET_END_NAMESPACE
 

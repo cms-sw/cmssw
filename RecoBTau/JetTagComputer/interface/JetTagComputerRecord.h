@@ -7,9 +7,8 @@
 class BTauGenericMVAJetTagComputerRcd;
 class GBRWrapperRcd;
 
-class JetTagComputerRecord :
-  public edm::eventsetup::DependentRecordImplementation<
-    JetTagComputerRecord,
-    boost::mpl::vector<BTauGenericMVAJetTagComputerRcd, GBRWrapperRcd> > {};
+class JetTagComputerRecord : public edm::eventsetup::DependentRecordImplementation<
+                                 JetTagComputerRecord,
+                                 boost::mpl::vector<BTauGenericMVAJetTagComputerRcd, GBRWrapperRcd> > {};
 
 #endif

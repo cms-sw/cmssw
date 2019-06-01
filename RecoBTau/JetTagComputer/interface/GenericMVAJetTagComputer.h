@@ -14,23 +14,21 @@
 class JetTagComputerRecord;
 
 class GenericMVAJetTagComputer : public JetTagComputer {
-    public:
-	GenericMVAJetTagComputer(const edm::ParameterSet &parameters);
-	~GenericMVAJetTagComputer() override;
+public:
+  GenericMVAJetTagComputer(const edm::ParameterSet &parameters);
+  ~GenericMVAJetTagComputer() override;
 
-	void initialize(const JetTagComputerRecord &) override;
+  void initialize(const JetTagComputerRecord &) override;
 
-	float discriminator(const TagInfoHelper &info) const override;
+  float discriminator(const TagInfoHelper &info) const override;
 
-	virtual reco::TaggingVariableList
-	taggingVariables(const reco::BaseTagInfo &tagInfo) const;
-	virtual reco::TaggingVariableList
-	taggingVariables(const TagInfoHelper &info) const;
+  virtual reco::TaggingVariableList taggingVariables(const reco::BaseTagInfo &tagInfo) const;
+  virtual reco::TaggingVariableList taggingVariables(const TagInfoHelper &info) const;
 
-    private:
-	std::unique_ptr<TagInfoMVACategorySelector> categorySelector_;
-	GenericMVAComputerCache computerCache_;
-        std::string recordLabel_;
+private:
+  std::unique_ptr<TagInfoMVACategorySelector> categorySelector_;
+  GenericMVAComputerCache computerCache_;
+  std::string recordLabel_;
 };
 
-#endif // RecoBTau_JetTagComputer_GenericMVAJetTagComputer_h
+#endif  // RecoBTau_JetTagComputer_GenericMVAJetTagComputer_h
