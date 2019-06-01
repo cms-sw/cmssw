@@ -2,7 +2,7 @@
 //
 // Package:    DetectorDescription/DDCMS
 // Class:      DDSpecParRegistryESProducer
-// 
+//
 /**\class DDSpecParRegistryESProducer
 
  Description: Produce SpecPar registry
@@ -35,14 +35,13 @@ using namespace cms;
 
 class DDSpecParRegistryESProducer : public edm::ESProducer {
 public:
-
   DDSpecParRegistryESProducer(const edm::ParameterSet&);
   ~DDSpecParRegistryESProducer() override;
-  
+
   using ReturnType = unique_ptr<DDSpecParRegistry>;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
-  
+
   ReturnType produce(const DDSpecParRegistryRcd&);
 
 private:
@@ -50,25 +49,18 @@ private:
 };
 
 DDSpecParRegistryESProducer::DDSpecParRegistryESProducer(const edm::ParameterSet& iConfig)
-  : m_label(iConfig.getParameter<std::string>("appendToDataLabel"))
-{
+    : m_label(iConfig.getParameter<std::string>("appendToDataLabel")) {
   setWhatProduced(this);
 }
 
-DDSpecParRegistryESProducer::~DDSpecParRegistryESProducer()
-{
-}
+DDSpecParRegistryESProducer::~DDSpecParRegistryESProducer() {}
 
-void
-DDSpecParRegistryESProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
-{
+void DDSpecParRegistryESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   descriptions.addDefault(desc);
 }
 
-DDSpecParRegistryESProducer::ReturnType
-DDSpecParRegistryESProducer::produce(const DDSpecParRegistryRcd& iRecord)
-{  
+DDSpecParRegistryESProducer::ReturnType DDSpecParRegistryESProducer::produce(const DDSpecParRegistryRcd& iRecord) {
   edm::ESHandle<DDDetector> det;
   iRecord.getRecord<GeometryFileRcd>().get(m_label, det);
 
