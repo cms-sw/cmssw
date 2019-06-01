@@ -80,19 +80,15 @@
 #include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
 
 class BaseParticlePropagator {
-  
 public:
-
   /// Default c'tor
   BaseParticlePropagator();
 
   /** Constructors taking as arguments a RawParticle, as well as the radius,
       half-height and magnetic field defining the cylinder for which 
       propagation is to be performed, and optionally, the proper decay time */
-  BaseParticlePropagator(const RawParticle& myPart, 
-			 double r, double z, double B);
-  BaseParticlePropagator(const RawParticle& myPart, 
-			 double r, double z, double B, double t);
+  BaseParticlePropagator(const RawParticle& myPart, double r, double z, double B);
+  BaseParticlePropagator(const RawParticle& myPart, double r, double z, double B, double t);
 
   /// Initialize internal switches and quantities
   void init();
@@ -114,19 +110,19 @@ public:
       HCAL entrance, the HCAL 2nd and 3rd layer (not coded yet), the VFCAL 
       entrance, or any BoundSurface(disk or cylinder)*/
 
-  bool propagateToClosestApproach(double x0=0.,double y0=0,bool first=true);
-  bool propagateToEcal(bool first=true);
-  bool propagateToPreshowerLayer1(bool first=true);
-  bool propagateToPreshowerLayer2(bool first=true);
-  bool propagateToEcalEntrance(bool first=true);
-  bool propagateToHcalEntrance(bool first=true);
-  bool propagateToVFcalEntrance(bool first=true);
-  bool propagateToHcalExit(bool first=true);
-  bool propagateToHOLayer(bool first=true);
-  bool propagateToNominalVertex(const XYZTLorentzVector& hit2=XYZTLorentzVector(0.,0.,0.,0.));
-  bool propagateToBeamCylinder(const XYZTLorentzVector& v, double radius=0.); 
+  bool propagateToClosestApproach(double x0 = 0., double y0 = 0, bool first = true);
+  bool propagateToEcal(bool first = true);
+  bool propagateToPreshowerLayer1(bool first = true);
+  bool propagateToPreshowerLayer2(bool first = true);
+  bool propagateToEcalEntrance(bool first = true);
+  bool propagateToHcalEntrance(bool first = true);
+  bool propagateToVFcalEntrance(bool first = true);
+  bool propagateToHcalExit(bool first = true);
+  bool propagateToHOLayer(bool first = true);
+  bool propagateToNominalVertex(const XYZTLorentzVector& hit2 = XYZTLorentzVector(0., 0., 0., 0.));
+  bool propagateToBeamCylinder(const XYZTLorentzVector& v, double radius = 0.);
   /// Set the propagation characteristics (rCyl, zCyl and first loop only)
-  void setPropagationConditions(double r, double z, bool firstLoop=true);
+  void setPropagationConditions(double r, double z, bool firstLoop = true);
 
 private:
   RawParticle particle_;
@@ -160,138 +156,135 @@ private:
   bool decayed;
   /// The proper time of the particle
   double properTime;
-  /// The propagation direction 
+  /// The propagation direction
   int propDir;
 
 public:
-
   /// The particle being propagated
-  inline RawParticle const& particle() const { return particle_;}
-  inline RawParticle& particle() { return particle_;}
-  void setParticle(RawParticle const& iParticle) { particle_=iParticle;}
+  inline RawParticle const& particle() const { return particle_; }
+  inline RawParticle& particle() { return particle_; }
+  void setParticle(RawParticle const& iParticle) { particle_ = iParticle; }
 
   /// Set the proper decay time
   inline void setProperDecayTime(double t) { properDecayTime = t; }
 
   /// Just an internal trick
-  inline void increaseRCyl(double delta) {rCyl = rCyl + delta; rCyl2 = rCyl*rCyl; }
+  inline void increaseRCyl(double delta) {
+    rCyl = rCyl + delta;
+    rCyl2 = rCyl * rCyl;
+  }
 
   /// Transverse impact parameter
-  double xyImpactParameter(double x0=0., double y0=0.) const;
+  double xyImpactParameter(double x0 = 0., double y0 = 0.) const;
 
   /// Longitudinal impact parameter
-  inline double zImpactParameter(double x0=0, double y0=0.) const {
+  inline double zImpactParameter(double x0 = 0, double y0 = 0.) const {
     // Longitudinal impact parameter
-    return particle_.Z() - particle_.Pz() * std::sqrt( ((particle_.X()-x0)*(particle_.X()-x0) + (particle_.Y()-y0)*(particle_.Y()-y0) ) / particle_.Perp2());
+    return particle_.Z() - particle_.Pz() * std::sqrt(((particle_.X() - x0) * (particle_.X() - x0) +
+                                                       (particle_.Y() - y0) * (particle_.Y() - y0)) /
+                                                      particle_.Perp2());
   }
 
   /// The helix Radius
-  inline double helixRadius() const { 
+  inline double helixRadius() const {
     // The helix Radius
     //
-    // The helix' Radius sign accounts for the orientation of the magnetic field 
-    // (+ = along z axis) and the sign of the electric charge of the particle. 
-    // It signs the rotation of the (charged) particle around the z axis: 
+    // The helix' Radius sign accounts for the orientation of the magnetic field
+    // (+ = along z axis) and the sign of the electric charge of the particle.
+    // It signs the rotation of the (charged) particle around the z axis:
     // Positive means anti-clockwise, negative means clockwise rotation.
     //
     // The radius is returned in cm to match the units in RawParticle.
-    return particle_.charge() == 0 ? 0.0 : - particle_.Pt() / ( c_light() * 1e-5 * bField * particle_.charge() );
+    return particle_.charge() == 0 ? 0.0 : -particle_.Pt() / (c_light() * 1e-5 * bField * particle_.charge());
   }
 
-  inline double helixRadius(double pT) const { 
+  inline double helixRadius(double pT) const {
     // a faster version of helixRadius, once Perp() has been computed
-    return particle_.charge() == 0 ? 0.0 : - pT / ( c_light() * 1e-5 * bField * particle_.charge() );
+    return particle_.charge() == 0 ? 0.0 : -pT / (c_light() * 1e-5 * bField * particle_.charge());
   }
 
   /// The azimuth of the momentum at the vertex
-  inline double helixStartPhi() const { 
+  inline double helixStartPhi() const {
     // The azimuth of the momentum at the vertex
-    return particle_.Px() == 0.0 && particle_.Py() == 0.0 ? 0.0 : std::atan2(particle_.Py(),particle_.Px());
-  }
-  
-  /// The x coordinate of the helix axis
-  inline double helixCentreX() const { 
-    // The x coordinate of the helix axis
-    return particle_.X() - helixRadius() * std::sin ( helixStartPhi() );
+    return particle_.Px() == 0.0 && particle_.Py() == 0.0 ? 0.0 : std::atan2(particle_.Py(), particle_.Px());
   }
 
-  inline double helixCentreX(double radius, double phi) const { 
+  /// The x coordinate of the helix axis
+  inline double helixCentreX() const {
+    // The x coordinate of the helix axis
+    return particle_.X() - helixRadius() * std::sin(helixStartPhi());
+  }
+
+  inline double helixCentreX(double radius, double phi) const {
     // Fast version of helixCentreX()
-    return particle_.X() - radius * std::sin (phi);
+    return particle_.X() - radius * std::sin(phi);
   }
 
   /// The y coordinate of the helix axis
-  inline double helixCentreY() const { 
+  inline double helixCentreY() const {
     // The y coordinate of the helix axis
-    return particle_.Y() + helixRadius() * std::cos ( helixStartPhi() );
-}
+    return particle_.Y() + helixRadius() * std::cos(helixStartPhi());
+  }
 
-  inline double helixCentreY(double radius, double phi) const { 
+  inline double helixCentreY(double radius, double phi) const {
     // Fast version of helixCentreX()
-    return particle_.Y() + radius * std::cos (phi);
+    return particle_.Y() + radius * std::cos(phi);
   }
 
   /// The distance between the cylinder and the helix axes
-  inline double helixCentreDistToAxis() const { 
+  inline double helixCentreDistToAxis() const {
     // The distance between the cylinder and the helix axes
     double xC = helixCentreX();
     double yC = helixCentreY();
-    return std::sqrt( xC*xC + yC*yC );
+    return std::sqrt(xC * xC + yC * yC);
   }
 
-  inline double helixCentreDistToAxis(double xC, double yC) const { 
+  inline double helixCentreDistToAxis(double xC, double yC) const {
     // Faster version of helixCentreDistToAxis
-    return std::sqrt( xC*xC + yC*yC );
+    return std::sqrt(xC * xC + yC * yC);
   }
 
   /// The azimuth if the vector joining the cylinder and the helix axes
-  inline double helixCentrePhi() const { 
+  inline double helixCentrePhi() const {
     // The azimuth if the vector joining the cylinder and the helix axes
     double xC = helixCentreX();
     double yC = helixCentreY();
-    return xC == 0.0 && yC == 0.0 ? 0.0 : std::atan2(yC,xC);
-  }
-  
-  inline double helixCentrePhi(double xC, double yC) const { 
-    // Faster version of helixCentrePhi() 
-    return xC == 0.0 && yC == 0.0 ? 0.0 : std::atan2(yC,xC);
+    return xC == 0.0 && yC == 0.0 ? 0.0 : std::atan2(yC, xC);
   }
 
-  /// Is the vertex inside the cylinder ? (stricly inside : true) 
+  inline double helixCentrePhi(double xC, double yC) const {
+    // Faster version of helixCentrePhi()
+    return xC == 0.0 && yC == 0.0 ? 0.0 : std::atan2(yC, xC);
+  }
+
+  /// Is the vertex inside the cylinder ? (stricly inside : true)
   inline bool inside() const {
-    return (particle_.R2()<rCyl2-0.00001*rCyl && fabs(particle_.Z())<zCyl-0.00001);}
+    return (particle_.R2() < rCyl2 - 0.00001 * rCyl && fabs(particle_.Z()) < zCyl - 0.00001);
+  }
 
   inline bool inside(double rPos2) const {
-    return (rPos2<rCyl2-0.00001*rCyl && fabs(particle_.Z())<zCyl-0.00001);}
-
-
-  /// Is the vertex already on the cylinder surface ? 
-  inline bool onSurface() const {
-    return ( onBarrel() || onEndcap() ); 
+    return (rPos2 < rCyl2 - 0.00001 * rCyl && fabs(particle_.Z()) < zCyl - 0.00001);
   }
 
-  inline bool onSurface(double rPos2) const {
-    return ( onBarrel(rPos2) || onEndcap(rPos2) ); 
-  }
+  /// Is the vertex already on the cylinder surface ?
+  inline bool onSurface() const { return (onBarrel() || onEndcap()); }
 
-  /// Is the vertex already on the cylinder barrel ? 
+  inline bool onSurface(double rPos2) const { return (onBarrel(rPos2) || onEndcap(rPos2)); }
+
+  /// Is the vertex already on the cylinder barrel ?
   inline bool onBarrel() const {
     double rPos2 = particle_.R2();
-    return ( fabs(rPos2-rCyl2) < 0.00001*rCyl && fabs(particle_.Z()) <= zCyl );
+    return (fabs(rPos2 - rCyl2) < 0.00001 * rCyl && fabs(particle_.Z()) <= zCyl);
   }
 
   inline bool onBarrel(double rPos2) const {
-    return ( fabs(rPos2-rCyl2) < 0.00001*rCyl && fabs(particle_.Z()) <= zCyl );
+    return (fabs(rPos2 - rCyl2) < 0.00001 * rCyl && fabs(particle_.Z()) <= zCyl);
   }
 
-  /// Is the vertex already on the cylinder endcap ? 
-  inline bool onEndcap() const {
-    return ( fabs(fabs(particle_.Z())-zCyl) < 0.00001 && particle_.R2() <= rCyl2 ); 
-  }
-  
-  inline bool onEndcap(double rPos2) const {
-    return ( fabs(fabs(particle_.Z())-zCyl) < 0.00001 && rPos2 <= rCyl2 ); 
-  }
+  /// Is the vertex already on the cylinder endcap ?
+  inline bool onEndcap() const { return (fabs(fabs(particle_.Z()) - zCyl) < 0.00001 && particle_.R2() <= rCyl2); }
+
+  inline bool onEndcap(double rPos2) const { return (fabs(fabs(particle_.Z()) - zCyl) < 0.00001 && rPos2 <= rCyl2); }
 
   /// Is the vertex on some material ?
   inline bool onFiducial() const { return fiducial; }
@@ -300,18 +293,17 @@ public:
   inline bool hasDecayed() const { return decayed; }
 
   /// Has propagation been performed and was barrel or endcap reached ?
-  inline int  getSuccess() const { return success;  }
+  inline int getSuccess() const { return success; }
 
   /// Set the magnetic field
-  inline void setMagneticField(double b) {  bField=b; }
+  inline void setMagneticField(double b) { bField = b; }
 
-  /// Get the magnetic field 
-  inline double getMagneticField() const {  return bField; }
+  /// Get the magnetic field
+  inline double getMagneticField() const { return bField; }
 
   /// Set the debug leve;
-  inline void setDebug() { debug = true; } 
+  inline void setDebug() { debug = true; }
   inline void resetDebug() { debug = false; }
-    
 };
 
 #endif
