@@ -30,10 +30,9 @@ public:
 
   std::string dumpTSOS(const TrajectoryStateOnSurface& tsos) const;
 
-  std::string dumpMuonId(const DetId &id) const;
-protected:
+  std::string dumpMuonId(const DetId& id) const;
 
+protected:
 private:
 };
 #endif
-

@@ -14,46 +14,41 @@
 
 #include "DataFormats/Common/interface/ValueMap.h"
 
-
-class ParticleBasedIsoProducer : public edm::stream::EDProducer<>
-{
- public:
-
+class ParticleBasedIsoProducer : public edm::stream::EDProducer<> {
+public:
   ParticleBasedIsoProducer(const edm::ParameterSet& conf);
   ~ParticleBasedIsoProducer() override;
-  
-  void beginRun (edm::Run const& r, edm::EventSetup const & es) override;
-  void endRun(edm::Run const&,  edm::EventSetup const&) override;
+
+  void beginRun(edm::Run const& r, edm::EventSetup const& es) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   void produce(edm::Event& e, const edm::EventSetup& c) override;
-   
- private:
- 
- edm::ParameterSet conf_;
- std::string photonCollection_;
- std::string electronCollection_;
 
- edm::InputTag  photonProducer_; 
- edm::InputTag  photonTmpProducer_;
+private:
+  edm::ParameterSet conf_;
+  std::string photonCollection_;
+  std::string electronCollection_;
 
- edm::InputTag  electronProducer_; 
- edm::InputTag  electronTmpProducer_; 
+  edm::InputTag photonProducer_;
+  edm::InputTag photonTmpProducer_;
 
- edm::EDGetTokenT<reco::PhotonCollection> photonProducerT_;
- edm::EDGetTokenT<reco::PhotonCollection> photonTmpProducerT_;
- edm::EDGetTokenT<reco::GsfElectronCollection> electronProducerT_;
- edm::EDGetTokenT<reco::GsfElectronCollection> electronTmpProducerT_;
- edm::EDGetTokenT<reco::PFCandidateCollection> pfEgammaCandidates_;
- edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
- edm::EDGetTokenT<edm::ValueMap<reco::PhotonRef> > valMapPFCandToPhoton_;
- edm::EDGetTokenT<edm::ValueMap<reco::GsfElectronRef> > valMapPFCandToEle_;
+  edm::InputTag electronProducer_;
+  edm::InputTag electronTmpProducer_;
 
- std::string valueMapPFCandPhoton_;
- std::string valueMapPhoPFCandIso_;
- std::string valueMapPFCandEle_;
- std::string valueMapElePFCandIso_;
+  edm::EDGetTokenT<reco::PhotonCollection> photonProducerT_;
+  edm::EDGetTokenT<reco::PhotonCollection> photonTmpProducerT_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> electronProducerT_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> electronTmpProducerT_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfEgammaCandidates_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
+  edm::EDGetTokenT<edm::ValueMap<reco::PhotonRef> > valMapPFCandToPhoton_;
+  edm::EDGetTokenT<edm::ValueMap<reco::GsfElectronRef> > valMapPFCandToEle_;
 
- PFBlockBasedIsolation* thePFBlockBasedIsolation_;
+  std::string valueMapPFCandPhoton_;
+  std::string valueMapPhoPFCandIso_;
+  std::string valueMapPFCandEle_;
+  std::string valueMapElePFCandIso_;
 
+  PFBlockBasedIsolation* thePFBlockBasedIsolation_;
 };
 
 #endif

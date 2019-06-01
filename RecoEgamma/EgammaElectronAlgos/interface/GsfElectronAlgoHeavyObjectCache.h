@@ -13,6 +13,6 @@ namespace gsfAlgoHelpers {
     std::unique_ptr<const SoftElectronMVAEstimator> sElectronMVAEstimator;
     std::unique_ptr<const ElectronMVAEstimator> iElectronMVAEstimator;
   };
-}
+}  // namespace gsfAlgoHelpers
 
 #endif

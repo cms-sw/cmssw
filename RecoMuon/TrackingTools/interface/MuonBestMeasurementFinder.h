@@ -22,35 +22,27 @@ class TrajectoryMeasurement;
 class MuonTransientTrackingRecHit;
 
 class MuonBestMeasurementFinder {
-  typedef std::vector<TrajectoryMeasurement*>    TMContainer;
-  typedef TMContainer::iterator                 TMIterator;
+  typedef std::vector<TrajectoryMeasurement*> TMContainer;
+  typedef TMContainer::iterator TMIterator;
 
 public:
-  
   /// Constructor
   MuonBestMeasurementFinder();
-  
+
   /// Destructor
   virtual ~MuonBestMeasurementFinder();
 
   // Operations
 
-   /// return the Tm with the best chi2: no cut applied.
-  TrajectoryMeasurement* findBestMeasurement(std::vector<TrajectoryMeasurement>& measC,
-					     const Propagator* propagator);
-  
-  std::pair<double,int> lookAtSubRecHits(TrajectoryMeasurement* measurement,
-					 const Propagator* propagator);
+  /// return the Tm with the best chi2: no cut applied.
+  TrajectoryMeasurement* findBestMeasurement(std::vector<TrajectoryMeasurement>& measC, const Propagator* propagator);
 
-  const MeasurementEstimator* estimator() const { return theEstimator;}
+  std::pair<double, int> lookAtSubRecHits(TrajectoryMeasurement* measurement, const Propagator* propagator);
+
+  const MeasurementEstimator* estimator() const { return theEstimator; }
 
 protected:
-
 private:
-
   const MeasurementEstimator* theEstimator;
-
 };
 #endif
-
-
