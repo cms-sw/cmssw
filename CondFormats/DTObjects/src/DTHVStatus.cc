@@ -28,88 +28,56 @@
 // Initializations --
 //-------------------
 
-
 //----------------
 // Constructors --
 //----------------
-DTHVStatus::DTHVStatus():
-  dataVersion( " " ),
-  dBuf(new DTBufferTree<int,int>) {
-  dataList.reserve( 10 );
+DTHVStatus::DTHVStatus() : dataVersion(" "), dBuf(new DTBufferTree<int, int>) { dataList.reserve(10); }
+
+DTHVStatus::DTHVStatus(const std::string& version) : dataVersion(version), dBuf(new DTBufferTree<int, int>) {
+  dataList.reserve(10);
 }
 
+DTHVStatusId::DTHVStatusId() : wheelId(0), stationId(0), sectorId(0), slId(0), layerId(0), partId(0) {}
 
-DTHVStatus::DTHVStatus( const std::string& version ):
-  dataVersion( version ),
-  dBuf(new DTBufferTree<int,int>) {
-  dataList.reserve( 10 );
-}
-
-
-DTHVStatusId::DTHVStatusId() :
-    wheelId( 0 ),
-  stationId( 0 ),
-   sectorId( 0 ),
-       slId( 0 ),
-    layerId( 0 ),
-     partId( 0 ) {
-}
-
-
-DTHVStatusData::DTHVStatusData() :
-  flagA( 0 ),
-  flagC( 0 ),
-  flagS( 0 ) {
-}
-
+DTHVStatusData::DTHVStatusData() : flagA(0), flagC(0), flagS(0) {}
 
 //--------------
 // Destructor --
 //--------------
-DTHVStatus::~DTHVStatus() {
-}
+DTHVStatus::~DTHVStatus() {}
 
+DTHVStatusId::~DTHVStatusId() {}
 
-DTHVStatusId::~DTHVStatusId() {
-}
-
-
-DTHVStatusData::~DTHVStatusData() {
-}
-
+DTHVStatusData::~DTHVStatusData() {}
 
 //--------------
 // Operations --
 //--------------
-int DTHVStatus::get( int   wheelId,
-                     int stationId,
-                     int  sectorId,
-                     int      slId,
-                     int   layerId,
-                     int    partId,
-                     int&    fCell,
-                     int&    lCell,
-                     int&    flagA,
-                     int&    flagC,
-                     int&    flagS ) const {
-  fCell =
-  lCell =
-  flagA =
-  flagC = 
-  flagS = 0;
+int DTHVStatus::get(int wheelId,
+                    int stationId,
+                    int sectorId,
+                    int slId,
+                    int layerId,
+                    int partId,
+                    int& fCell,
+                    int& lCell,
+                    int& flagA,
+                    int& flagC,
+                    int& flagS) const {
+  fCell = lCell = flagA = flagC = flagS = 0;
 
   std::vector<int> chanKey;
   chanKey.reserve(6);
-  chanKey.push_back(   wheelId );
-  chanKey.push_back( stationId );
-  chanKey.push_back(  sectorId );
-  chanKey.push_back(      slId );
-  chanKey.push_back(   layerId );
-  chanKey.push_back(    partId );
+  chanKey.push_back(wheelId);
+  chanKey.push_back(stationId);
+  chanKey.push_back(sectorId);
+  chanKey.push_back(slId);
+  chanKey.push_back(layerId);
+  chanKey.push_back(partId);
   int ientry;
-  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
-  if ( !searchStatus ) {
-    const DTHVStatusData& data( dataList[ientry].second );
+  int searchStatus = dBuf->find(chanKey.begin(), chanKey.end(), ientry);
+  if (!searchStatus) {
+    const DTHVStatusData& data(dataList[ientry].second);
     fCell = data.fCell;
     lCell = data.lCell;
     flagA = data.flagA;
@@ -118,192 +86,153 @@ int DTHVStatus::get( int   wheelId,
   }
 
   return searchStatus;
-
 }
 
-
-int DTHVStatus::get( const DTLayerId& id,
-                     int    partId,
-                     int&    fCell,
-                     int&    lCell,
-                     int&    flagA,
-                     int&    flagC,
-                     int&    flagS ) const {
-  return get( id.wheel(),
-              id.station(),
-              id.sector(),
-              id.superLayer(),
-              id.layer(),
-              partId,
-              fCell, lCell, flagA, flagC, flagS );
+int DTHVStatus::get(const DTLayerId& id, int partId, int& fCell, int& lCell, int& flagA, int& flagC, int& flagS) const {
+  return get(
+      id.wheel(), id.station(), id.sector(), id.superLayer(), id.layer(), partId, fCell, lCell, flagA, flagC, flagS);
 }
 
-
-int DTHVStatus::get( const DTWireId& id,
-                     int&         flagA,
-                     int&         flagC,
-                     int&         flagS ) const {
+int DTHVStatus::get(const DTWireId& id, int& flagA, int& flagC, int& flagS) const {
   flagA = flagC = flagS = 0;
   int iCell = id.wire();
   int fCell;
   int lCell;
-  int
-  fCheck = get( id.wheel(),
-                id.station(),
-                id.sector(),
-                id.superLayer(),
-                id.layer(),
-                0,     fCell, lCell,
-                flagA, flagC, flagS );
-  if ( ( fCheck == 0 ) &&
-       ( fCell <= iCell ) &&
-       ( lCell >= iCell ) ) return 0;
-  fCheck = get( id.wheel(),
-                id.station(),
-                id.sector(),
-                id.superLayer(),
-                id.layer(),
-                1,     fCell, lCell,
-                flagA, flagC, flagS );
-  if ( ( fCheck == 0 ) &&
-       ( fCell <= iCell ) &&
-       ( lCell >= iCell ) ) return 0;
+  int fCheck =
+      get(id.wheel(), id.station(), id.sector(), id.superLayer(), id.layer(), 0, fCell, lCell, flagA, flagC, flagS);
+  if ((fCheck == 0) && (fCell <= iCell) && (lCell >= iCell))
+    return 0;
+  fCheck =
+      get(id.wheel(), id.station(), id.sector(), id.superLayer(), id.layer(), 1, fCell, lCell, flagA, flagC, flagS);
+  if ((fCheck == 0) && (fCell <= iCell) && (lCell >= iCell))
+    return 0;
   flagA = flagC = flagS = 0;
   return 1;
 }
-
 
 int DTHVStatus::offChannelsNumber() const {
   int offNum = 0;
   DTHVStatus::const_iterator iter = begin();
   DTHVStatus::const_iterator iend = end();
-  while ( iter != iend ) {
-    const std::pair<DTHVStatusId,DTHVStatusData>& entry = *iter++;
-    DTHVStatusId   hvId = entry.first;
+  while (iter != iend) {
+    const std::pair<DTHVStatusId, DTHVStatusData>& entry = *iter++;
+    DTHVStatusId hvId = entry.first;
     DTHVStatusData data = entry.second;
     int offA = data.flagA & 1;
     int offC = data.flagC & 1;
     int offS = data.flagS & 1;
-    if ( offA || offC || offS )
-         offNum += ( 1 + data.lCell - data.fCell );
+    if (offA || offC || offS)
+      offNum += (1 + data.lCell - data.fCell);
   }
   return offNum;
 }
 
-
-int DTHVStatus::offChannelsNumber( const DTChamberId& id ) const {
+int DTHVStatus::offChannelsNumber(const DTChamberId& id) const {
   int offNum = 0;
   DTHVStatus::const_iterator iter = begin();
   DTHVStatus::const_iterator iend = end();
-  while ( iter != iend ) {
-    const std::pair<DTHVStatusId,DTHVStatusData>& entry = *iter++;
-    DTHVStatusId   hvId = entry.first;
+  while (iter != iend) {
+    const std::pair<DTHVStatusId, DTHVStatusData>& entry = *iter++;
+    DTHVStatusId hvId = entry.first;
     DTHVStatusData data = entry.second;
-    if ( hvId.  wheelId != id.  wheel() ) continue;
-    if ( hvId.stationId != id.station() ) continue;
-    if ( hvId. sectorId != id. sector() ) continue;
+    if (hvId.wheelId != id.wheel())
+      continue;
+    if (hvId.stationId != id.station())
+      continue;
+    if (hvId.sectorId != id.sector())
+      continue;
     int offA = data.flagA & 1;
     int offC = data.flagC & 1;
     int offS = data.flagS & 1;
-    if ( offA || offC || offS )
-         offNum += ( 1 + data.lCell - data.fCell );
+    if (offA || offC || offS)
+      offNum += (1 + data.lCell - data.fCell);
   }
   return offNum;
 }
-
 
 int DTHVStatus::badChannelsNumber() const {
   int offNum = 0;
   DTHVStatus::const_iterator iter = begin();
   DTHVStatus::const_iterator iend = end();
-  while ( iter != iend ) {
-    const std::pair<DTHVStatusId,DTHVStatusData>& entry = *iter++;
-    DTHVStatusId   hvId = entry.first;
+  while (iter != iend) {
+    const std::pair<DTHVStatusId, DTHVStatusData>& entry = *iter++;
+    DTHVStatusId hvId = entry.first;
     DTHVStatusData data = entry.second;
-    if ( data.flagA || data.flagC || data.flagS )
-         offNum += ( 1 + data.lCell - data.fCell );
+    if (data.flagA || data.flagC || data.flagS)
+      offNum += (1 + data.lCell - data.fCell);
   }
   return offNum;
 }
 
-
-int DTHVStatus::badChannelsNumber( const DTChamberId& id ) const {
+int DTHVStatus::badChannelsNumber(const DTChamberId& id) const {
   int offNum = 0;
   DTHVStatus::const_iterator iter = begin();
   DTHVStatus::const_iterator iend = end();
-  while ( iter != iend ) {
-    const std::pair<DTHVStatusId,DTHVStatusData>& entry = *iter++;
-    DTHVStatusId   hvId = entry.first;
+  while (iter != iend) {
+    const std::pair<DTHVStatusId, DTHVStatusData>& entry = *iter++;
+    DTHVStatusId hvId = entry.first;
     DTHVStatusData data = entry.second;
-    if ( hvId.  wheelId != id.  wheel() ) continue;
-    if ( hvId.stationId != id.station() ) continue;
-    if ( hvId. sectorId != id. sector() ) continue;
-    if ( data.flagA || data.flagC || data.flagS )
-         offNum += ( 1 + data.lCell - data.fCell );
+    if (hvId.wheelId != id.wheel())
+      continue;
+    if (hvId.stationId != id.station())
+      continue;
+    if (hvId.sectorId != id.sector())
+      continue;
+    if (data.flagA || data.flagC || data.flagS)
+      offNum += (1 + data.lCell - data.fCell);
   }
   return offNum;
 }
 
+const std::string& DTHVStatus::version() const { return dataVersion; }
 
-const
-std::string& DTHVStatus::version() const {
-  return dataVersion;
-}
-
-
-std::string& DTHVStatus::version() {
-  return dataVersion;
-}
-
+std::string& DTHVStatus::version() { return dataVersion; }
 
 void DTHVStatus::clear() {
   dataList.clear();
-  dataList.reserve( 10 );
+  dataList.reserve(10);
   initialize();
   return;
 }
 
-
-int DTHVStatus::set( int   wheelId,
-                     int stationId,
-                     int  sectorId,
-                     int      slId,
-                     int   layerId,
-                     int    partId,
-                     int     fCell,
-                     int     lCell,
-                     int     flagA,
-                     int     flagC,
-                     int     flagS ) {
-
+int DTHVStatus::set(int wheelId,
+                    int stationId,
+                    int sectorId,
+                    int slId,
+                    int layerId,
+                    int partId,
+                    int fCell,
+                    int lCell,
+                    int flagA,
+                    int flagC,
+                    int flagS) {
   std::vector<int> chanKey;
   chanKey.reserve(6);
-  chanKey.push_back(   wheelId );
-  chanKey.push_back( stationId );
-  chanKey.push_back(  sectorId );
-  chanKey.push_back(      slId );
-  chanKey.push_back(   layerId );
-  chanKey.push_back(    partId );
+  chanKey.push_back(wheelId);
+  chanKey.push_back(stationId);
+  chanKey.push_back(sectorId);
+  chanKey.push_back(slId);
+  chanKey.push_back(layerId);
+  chanKey.push_back(partId);
   int ientry;
-  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
+  int searchStatus = dBuf->find(chanKey.begin(), chanKey.end(), ientry);
 
-  if ( !searchStatus ) {
-    DTHVStatusData& data( dataList[ientry].second );
+  if (!searchStatus) {
+    DTHVStatusData& data(dataList[ientry].second);
     data.fCell = fCell;
     data.lCell = lCell;
     data.flagA = flagA;
     data.flagC = flagC;
     data.flagS = flagS;
     return -1;
-  }
-  else {
+  } else {
     DTHVStatusId key;
-    key.  wheelId =   wheelId;
+    key.wheelId = wheelId;
     key.stationId = stationId;
-    key. sectorId =  sectorId;
-    key.     slId =      slId;
-    key.  layerId =   layerId;
-    key.   partId =    partId;
+    key.sectorId = sectorId;
+    key.slId = slId;
+    key.layerId = layerId;
+    key.partId = partId;
     DTHVStatusData data;
     data.fCell = fCell;
     data.lCell = lCell;
@@ -311,193 +240,64 @@ int DTHVStatus::set( int   wheelId,
     data.flagC = flagC;
     data.flagS = flagS;
     ientry = dataList.size();
-    dataList.push_back( std::pair<DTHVStatusId,
-                                  DTHVStatusData>( key, data ) );
-    dBuf->insert( chanKey.begin(), chanKey.end(), ientry );
+    dataList.push_back(std::pair<DTHVStatusId, DTHVStatusData>(key, data));
+    dBuf->insert(chanKey.begin(), chanKey.end(), ientry);
     return 0;
   }
 
   return 99;
-
 }
 
-
-int DTHVStatus::set( const DTLayerId& id,
-                     int    partId,
-                     int     fCell,
-                     int     lCell,
-                     int     flagA,
-                     int     flagC,
-                     int     flagS ) {
-  return set( id.wheel(),
-              id.station(),
-              id.sector(),
-              id.superLayer(),
-              id.layer(),
-              partId,
-              fCell, lCell, flagA, flagC, flagS );
+int DTHVStatus::set(const DTLayerId& id, int partId, int fCell, int lCell, int flagA, int flagC, int flagS) {
+  return set(
+      id.wheel(), id.station(), id.sector(), id.superLayer(), id.layer(), partId, fCell, lCell, flagA, flagC, flagS);
 }
 
-
-int DTHVStatus::setFlagA( int   wheelId,
-                          int stationId,
-                          int  sectorId,
-                          int      slId,
-                          int   layerId,
-                          int    partId,
-                          int      flag ) {
+int DTHVStatus::setFlagA(int wheelId, int stationId, int sectorId, int slId, int layerId, int partId, int flag) {
   int fCell;
   int lCell;
   int flagA;
   int flagC;
   int flagS;
-  get(   wheelId,
-       stationId,
-        sectorId,
-            slId,
-         layerId,
-          partId,
-           fCell,
-           lCell,
-           flagA,
-           flagC,
-           flagS );
-  return set(   wheelId,
-              stationId,
-               sectorId,
-                   slId,
-                layerId,
-                 partId,
-                  fCell,
-                  lCell,
-                   flag,
-                  flagC,
-                  flagS );
+  get(wheelId, stationId, sectorId, slId, layerId, partId, fCell, lCell, flagA, flagC, flagS);
+  return set(wheelId, stationId, sectorId, slId, layerId, partId, fCell, lCell, flag, flagC, flagS);
 }
 
-
-int DTHVStatus::setFlagA( const DTLayerId& id,
-                          int    partId,
-                          int      flag ) {
-  return setFlagA( id.wheel(),
-                   id.station(),
-                   id.sector(),
-                   id.superLayer(),
-                   id.layer(),
-                   partId,
-                   flag );
+int DTHVStatus::setFlagA(const DTLayerId& id, int partId, int flag) {
+  return setFlagA(id.wheel(), id.station(), id.sector(), id.superLayer(), id.layer(), partId, flag);
 }
 
-
-int DTHVStatus::setFlagC( int   wheelId,
-                          int stationId,
-                          int  sectorId,
-                          int      slId,
-                          int   layerId,
-                          int    partId,
-                          int      flag ) {
+int DTHVStatus::setFlagC(int wheelId, int stationId, int sectorId, int slId, int layerId, int partId, int flag) {
   int fCell;
   int lCell;
   int flagA;
   int flagC;
   int flagS;
-  get(   wheelId,
-       stationId,
-        sectorId,
-            slId,
-         layerId,
-          partId,
-           fCell,
-           lCell,
-           flagA,
-           flagC,
-           flagS );
-  return set(   wheelId,
-              stationId,
-               sectorId,
-               slId,
-                layerId,
-                 partId,
-                  fCell,
-                  lCell,
-                  flagA,
-                   flag,
-                  flagS );
+  get(wheelId, stationId, sectorId, slId, layerId, partId, fCell, lCell, flagA, flagC, flagS);
+  return set(wheelId, stationId, sectorId, slId, layerId, partId, fCell, lCell, flagA, flag, flagS);
 }
 
-
-int DTHVStatus::setFlagC( const DTLayerId& id,
-                          int    partId,
-                          int      flag ) {
-  return setFlagC( id.wheel(),
-                   id.station(),
-                   id.sector(),
-                   id.superLayer(),
-                   id.layer(),
-                   partId,
-                   flag );
+int DTHVStatus::setFlagC(const DTLayerId& id, int partId, int flag) {
+  return setFlagC(id.wheel(), id.station(), id.sector(), id.superLayer(), id.layer(), partId, flag);
 }
 
-
-int DTHVStatus::setFlagS( int   wheelId,
-                          int stationId,
-                          int  sectorId,
-                          int      slId,
-                          int   layerId,
-                          int    partId,
-                          int      flag ) {
+int DTHVStatus::setFlagS(int wheelId, int stationId, int sectorId, int slId, int layerId, int partId, int flag) {
   int fCell;
   int lCell;
   int flagA;
   int flagC;
   int flagS;
-  get(   wheelId,
-       stationId,
-        sectorId,
-            slId,
-         layerId,
-          partId,
-           fCell,
-           lCell,
-           flagA,
-           flagC,
-           flagS );
-  return set(   wheelId,
-              stationId,
-               sectorId,
-                   slId,
-                layerId,
-                 partId,
-                  fCell,
-                  lCell,
-                  flagA,
-                  flagC,
-                   flag );
+  get(wheelId, stationId, sectorId, slId, layerId, partId, fCell, lCell, flagA, flagC, flagS);
+  return set(wheelId, stationId, sectorId, slId, layerId, partId, fCell, lCell, flagA, flagC, flag);
 }
 
-
-int DTHVStatus::setFlagS( const DTLayerId& id,
-                          int    partId,
-                          int      flag ) {
-  return setFlagS( id.wheel(),
-                   id.station(),
-                   id.sector(),
-                   id.superLayer(),
-                   id.layer(),
-                   partId,
-                   flag );
+int DTHVStatus::setFlagS(const DTLayerId& id, int partId, int flag) {
+  return setFlagS(id.wheel(), id.station(), id.sector(), id.superLayer(), id.layer(), partId, flag);
 }
 
+DTHVStatus::const_iterator DTHVStatus::begin() const { return dataList.begin(); }
 
-DTHVStatus::const_iterator DTHVStatus::begin() const {
-  return dataList.begin();
-}
-
-
-DTHVStatus::const_iterator DTHVStatus::end() const {
-  return dataList.end();
-}
-
+DTHVStatus::const_iterator DTHVStatus::end() const { return dataList.end(); }
 
 std::string DTHVStatus::mapName() const {
   std::stringstream name;
@@ -505,32 +305,25 @@ std::string DTHVStatus::mapName() const {
   return name.str();
 }
 
-
 void DTHVStatus::initialize() {
-
   dBuf->clear();
 
   int entryNum = 0;
   int entryMax = dataList.size();
   std::vector<int> chanKey;
   chanKey.reserve(6);
-  while ( entryNum < entryMax ) {
-
+  while (entryNum < entryMax) {
     const DTHVStatusId& chan = dataList[entryNum].first;
 
     chanKey.clear();
-    chanKey.push_back( chan.  wheelId );
-    chanKey.push_back( chan.stationId );
-    chanKey.push_back( chan. sectorId );
-    chanKey.push_back( chan.     slId );
-    chanKey.push_back( chan.  layerId );
-    chanKey.push_back( chan.   partId );
-    dBuf->insert( chanKey.begin(), chanKey.end(), entryNum++ );
-
+    chanKey.push_back(chan.wheelId);
+    chanKey.push_back(chan.stationId);
+    chanKey.push_back(chan.sectorId);
+    chanKey.push_back(chan.slId);
+    chanKey.push_back(chan.layerId);
+    chanKey.push_back(chan.partId);
+    dBuf->insert(chanKey.begin(), chanKey.end(), entryNum++);
   }
 
   return;
-
 }
-
-

@@ -20,16 +20,15 @@
 /**
  *\brief Contains data on masked channels of a VFAT.
  */
-class TotemVFATAnalysisMask
-{
-  public:
-    TotemVFATAnalysisMask() : fullMask(false) {}
+class TotemVFATAnalysisMask {
+public:
+  TotemVFATAnalysisMask() : fullMask(false) {}
 
-    /// whether all channels of the VFAT shall be masked
-    bool fullMask;
+  /// whether all channels of the VFAT shall be masked
+  bool fullMask;
 
-    /// list of channels to be masked
-    std::set<unsigned char> maskedChannels;
+  /// list of channels to be masked
+  std::set<unsigned char> maskedChannels;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -37,12 +36,11 @@ class TotemVFATAnalysisMask
 /**
  *\brief Channel-mask mapping.
  **/
-class TotemAnalysisMask
-{
-  public:
-    std::map<TotemSymbID, TotemVFATAnalysisMask> analysisMask;
+class TotemAnalysisMask {
+public:
+  std::map<TotemSymbID, TotemVFATAnalysisMask> analysisMask;
 
-    void insert(const TotemSymbID &sid, const TotemVFATAnalysisMask &vam);
+  void insert(const TotemSymbID &sid, const TotemVFATAnalysisMask &vam);
 };
 
 #endif

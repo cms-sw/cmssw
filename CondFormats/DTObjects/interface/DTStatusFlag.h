@@ -14,7 +14,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -30,65 +29,54 @@
 #include <vector>
 #include <utility>
 
-template <class Key, class Content> class DTBufferTree;
+template <class Key, class Content>
+class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class DTStatusFlagId {
-
- public:
-
+public:
   DTStatusFlagId();
   ~DTStatusFlagId();
 
-  int   wheelId;
+  int wheelId;
   int stationId;
-  int  sectorId;
-  int      slId;
-  int   layerId;
-  int    cellId;
+  int sectorId;
+  int slId;
+  int layerId;
+  int cellId;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-
 class DTStatusFlagData {
-
- public:
-
+public:
   DTStatusFlagData();
   ~DTStatusFlagData();
 
   bool noiseFlag;
-  bool    feMask;
-  bool   tdcMask;
-  bool  trigMask;
-  bool  deadFlag;
-  bool  nohvFlag;
+  bool feMask;
+  bool tdcMask;
+  bool trigMask;
+  bool deadFlag;
+  bool nohvFlag;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
-
 
 class DTStatusFlagCompare {
- public:
-  bool operator()( const DTStatusFlagId& idl,
-                   const DTStatusFlagId& idr ) const;
+public:
+  bool operator()(const DTStatusFlagId& idl, const DTStatusFlagId& idr) const;
 };
 
-
 class DTStatusFlag {
-
- public:
-
+public:
   /** Constructor
    */
   DTStatusFlag();
-  DTStatusFlag( const std::string& version );
+  DTStatusFlag(const std::string& version);
 
   /** Destructor
    */
@@ -97,188 +85,128 @@ class DTStatusFlag {
   /** Operations
    */
   /// get content
-  int cellStatus( int   wheelId,
-                  int stationId,
-                  int  sectorId,
-                  int      slId,
-                  int   layerId,
-                  int    cellId,
-                  bool& noiseFlag,
-                  bool&    feMask,
-                  bool&   tdcMask,
-                  bool&  trigMask,
-                  bool&  deadFlag,
-                  bool&  nohvFlag ) const
-      { return get( wheelId, stationId, sectorId, slId, layerId, cellId,
-                    noiseFlag, feMask, tdcMask, trigMask,
-                    deadFlag, nohvFlag); };
-  int cellStatus( const DTWireId& id,
-                  bool& noiseFlag,
-                  bool&    feMask,
-                  bool&   tdcMask,
-                  bool&  trigMask,
-                  bool&  deadFlag,
-                  bool&  nohvFlag ) const
-      { return get( id,
-                    noiseFlag, feMask, tdcMask, trigMask,
-                    deadFlag, nohvFlag ); };
-  int get( int   wheelId,
-           int stationId,
-           int  sectorId,
-           int      slId,
-           int   layerId,
-           int    cellId,
-           bool& noiseFlag,
-           bool&    feMask,
-           bool&   tdcMask,
-           bool&  trigMask,
-           bool&  deadFlag,
-           bool&  nohvFlag ) const;
-  int get( const DTWireId& id,
-           bool& noiseFlag,
-           bool&    feMask,
-           bool&   tdcMask,
-           bool&  trigMask,
-           bool&  deadFlag,
-           bool&  nohvFlag ) const;
+  int cellStatus(int wheelId,
+                 int stationId,
+                 int sectorId,
+                 int slId,
+                 int layerId,
+                 int cellId,
+                 bool& noiseFlag,
+                 bool& feMask,
+                 bool& tdcMask,
+                 bool& trigMask,
+                 bool& deadFlag,
+                 bool& nohvFlag) const {
+    return get(
+        wheelId, stationId, sectorId, slId, layerId, cellId, noiseFlag, feMask, tdcMask, trigMask, deadFlag, nohvFlag);
+  };
+  int cellStatus(const DTWireId& id,
+                 bool& noiseFlag,
+                 bool& feMask,
+                 bool& tdcMask,
+                 bool& trigMask,
+                 bool& deadFlag,
+                 bool& nohvFlag) const {
+    return get(id, noiseFlag, feMask, tdcMask, trigMask, deadFlag, nohvFlag);
+  };
+  int get(int wheelId,
+          int stationId,
+          int sectorId,
+          int slId,
+          int layerId,
+          int cellId,
+          bool& noiseFlag,
+          bool& feMask,
+          bool& tdcMask,
+          bool& trigMask,
+          bool& deadFlag,
+          bool& nohvFlag) const;
+  int get(const DTWireId& id,
+          bool& noiseFlag,
+          bool& feMask,
+          bool& tdcMask,
+          bool& trigMask,
+          bool& deadFlag,
+          bool& nohvFlag) const;
 
   /// access version
-  const
-  std::string& version() const;
+  const std::string& version() const;
   std::string& version();
 
   /// reset content
   void clear();
 
-  int setCellStatus( int   wheelId,
-                     int stationId,
-                     int  sectorId,
-                     int      slId,
-                     int   layerId,
-                     int    cellId,
-                     bool noiseFlag,
-                     bool    feMask,
-                     bool   tdcMask,
-                     bool  trigMask,
-                     bool  deadFlag,
-                     bool  nohvFlag )
-      { return set( wheelId, stationId, sectorId, slId, layerId, cellId,
-                    noiseFlag, feMask, tdcMask, trigMask,
-                    deadFlag, nohvFlag); };
-  int setCellStatus( const DTWireId& id,
-                     bool noiseFlag,
-                     bool    feMask,
-                     bool   tdcMask,
-                     bool  trigMask,
-                     bool  deadFlag,
-                     bool  nohvFlag )
-      { return set( id,
-                    noiseFlag, feMask, tdcMask, trigMask,
-                    deadFlag, nohvFlag ); };
-
-  int set( int   wheelId,
-           int stationId,
-           int  sectorId,
-           int      slId,
-           int   layerId,
-           int    cellId,
-           bool noiseFlag,
-           bool    feMask,
-           bool   tdcMask,
-           bool  trigMask,
-           bool  deadFlag,
-           bool  nohvFlag );
-  int set( const DTWireId& id,
-           bool noiseFlag,
-           bool    feMask,
-           bool   tdcMask,
-           bool  trigMask,
-           bool  deadFlag,
-           bool  nohvFlag );
-
-  int setCellNoise( int   wheelId,
+  int setCellStatus(int wheelId,
                     int stationId,
-                    int  sectorId,
-                    int      slId,
-                    int   layerId,
-                    int    cellId,
-                    bool flag );
-  int setCellNoise( const DTWireId& id,
-                    bool flag );
+                    int sectorId,
+                    int slId,
+                    int layerId,
+                    int cellId,
+                    bool noiseFlag,
+                    bool feMask,
+                    bool tdcMask,
+                    bool trigMask,
+                    bool deadFlag,
+                    bool nohvFlag) {
+    return set(
+        wheelId, stationId, sectorId, slId, layerId, cellId, noiseFlag, feMask, tdcMask, trigMask, deadFlag, nohvFlag);
+  };
+  int setCellStatus(
+      const DTWireId& id, bool noiseFlag, bool feMask, bool tdcMask, bool trigMask, bool deadFlag, bool nohvFlag) {
+    return set(id, noiseFlag, feMask, tdcMask, trigMask, deadFlag, nohvFlag);
+  };
 
-  int setCellFEMask( int   wheelId,
-                     int stationId,
-                     int  sectorId,
-                     int      slId,
-                     int   layerId,
-                     int    cellId,
-                     bool mask );
-  int setCellFEMask( const DTWireId& id,
-                     bool mask );
+  int set(int wheelId,
+          int stationId,
+          int sectorId,
+          int slId,
+          int layerId,
+          int cellId,
+          bool noiseFlag,
+          bool feMask,
+          bool tdcMask,
+          bool trigMask,
+          bool deadFlag,
+          bool nohvFlag);
+  int set(const DTWireId& id, bool noiseFlag, bool feMask, bool tdcMask, bool trigMask, bool deadFlag, bool nohvFlag);
 
-  int setCellTDCMask( int   wheelId,
-                      int stationId,
-                      int  sectorId,
-                      int      slId,
-                      int   layerId,
-                      int    cellId,
-                      bool mask );
-  int setCellTDCMask( const DTWireId& id,
-                      bool mask );
+  int setCellNoise(int wheelId, int stationId, int sectorId, int slId, int layerId, int cellId, bool flag);
+  int setCellNoise(const DTWireId& id, bool flag);
 
-  int setCellTrigMask( int   wheelId,
-                       int stationId,
-                       int  sectorId,
-                       int      slId,
-                       int   layerId,
-                       int    cellId,
-                       bool mask );
-  int setCellTrigMask( const DTWireId& id,
-                       bool mask );
+  int setCellFEMask(int wheelId, int stationId, int sectorId, int slId, int layerId, int cellId, bool mask);
+  int setCellFEMask(const DTWireId& id, bool mask);
 
-  int setCellDead( int   wheelId,
-                   int stationId,
-                   int  sectorId,
-                   int      slId,
-                   int   layerId,
-                   int    cellId,
-                   bool flag );
-  int setCellDead( const DTWireId& id,
-                   bool flag );
+  int setCellTDCMask(int wheelId, int stationId, int sectorId, int slId, int layerId, int cellId, bool mask);
+  int setCellTDCMask(const DTWireId& id, bool mask);
 
-  int setCellNoHV( int   wheelId,
-                   int stationId,
-                   int  sectorId,
-                   int      slId,
-                   int   layerId,
-                   int    cellId,
-                   bool flag );
-  int setCellNoHV( const DTWireId& id,
-                   bool flag );
+  int setCellTrigMask(int wheelId, int stationId, int sectorId, int slId, int layerId, int cellId, bool mask);
+  int setCellTrigMask(const DTWireId& id, bool mask);
+
+  int setCellDead(int wheelId, int stationId, int sectorId, int slId, int layerId, int cellId, bool flag);
+  int setCellDead(const DTWireId& id, bool flag);
+
+  int setCellNoHV(int wheelId, int stationId, int sectorId, int slId, int layerId, int cellId, bool flag);
+  int setCellNoHV(const DTWireId& id, bool flag);
 
   /// Access methods to data
-  typedef std::vector< std::pair<DTStatusFlagId,
-                                 DTStatusFlagData> >::const_iterator
-                                                      const_iterator;
+  typedef std::vector<std::pair<DTStatusFlagId, DTStatusFlagData> >::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
   void initialize();
 
- private:
-
+private:
   DTStatusFlag(DTStatusFlag const&) = delete;
   DTStatusFlag& operator=(DTStatusFlag const&) = delete;
 
   std::string dataVersion;
 
-  std::vector< std::pair<DTStatusFlagId,DTStatusFlagData> > dataList;
+  std::vector<std::pair<DTStatusFlagId, DTStatusFlagData> > dataList;
 
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf COND_TRANSIENT;
+  edm::ConstRespectingPtr<DTBufferTree<int, int> > dBuf COND_TRANSIENT;
 
   std::string mapName() const;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
-#endif // DTStatusFlag_H
+#endif  // DTStatusFlag_H

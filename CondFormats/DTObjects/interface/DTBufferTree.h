@@ -40,9 +40,7 @@ public:
 
 template <class Key, class Content>
 class DTBufferTree {
-
 public:
-
   typedef typename std::vector<Key>::const_iterator ElementKey;
 
   DTBufferTree();
@@ -50,21 +48,20 @@ public:
 
   void clear();
 
-  int insert(ElementKey fKey, ElementKey lKey, Content cont );
-  int insert(const Key& k,                     Content cont );
-  int find(ElementKey fKey, ElementKey lKey, typename DTBufferTreeTrait<Content>::outputTypeOfConstFind& cont ) const;
-  int find(const Key& k,                     typename DTBufferTreeTrait<Content>::outputTypeOfConstFind& cont ) const;
-  int find(ElementKey fKey, ElementKey lKey, typename DTBufferTreeTrait<Content>::outputTypeOfNonConstFind& cont );
-  int find(const Key& k,                     typename DTBufferTreeTrait<Content>::outputTypeOfNonConstFind& cont );
+  int insert(ElementKey fKey, ElementKey lKey, Content cont);
+  int insert(const Key& k, Content cont);
+  int find(ElementKey fKey, ElementKey lKey, typename DTBufferTreeTrait<Content>::outputTypeOfConstFind& cont) const;
+  int find(const Key& k, typename DTBufferTreeTrait<Content>::outputTypeOfConstFind& cont) const;
+  int find(ElementKey fKey, ElementKey lKey, typename DTBufferTreeTrait<Content>::outputTypeOfNonConstFind& cont);
+  int find(const Key& k, typename DTBufferTreeTrait<Content>::outputTypeOfNonConstFind& cont);
 
 private:
-
   DTBufferTree(DTBufferTree const&) = delete;
   DTBufferTree& operator=(DTBufferTree const&) = delete;
 
-  typedef DTBufferTree<Key,Content> map_node;
-  typedef typename std::map<Key,DTBufferTree<Key,Content>*> map_cont;
-  typedef typename std::map<Key,DTBufferTree<Key,Content>*>::const_iterator map_iter;
+  typedef DTBufferTree<Key, Content> map_node;
+  typedef typename std::map<Key, DTBufferTree<Key, Content>*> map_cont;
+  typedef typename std::map<Key, DTBufferTree<Key, Content>*>::const_iterator map_iter;
 
   Content bufferContent;
   map_cont bufferMap;
@@ -78,7 +75,6 @@ private:
 // this will not be as important, although it will still keep
 // #include <memory> out of the header file of the class using
 // DTBufferTree.
-class DTBufferTreeUniquePtr : public DTBufferTree<int, std::unique_ptr<std::vector<int> > > {
-};
+class DTBufferTreeUniquePtr : public DTBufferTree<int, std::unique_ptr<std::vector<int> > > {};
 
-#endif // DTBufferTree_H
+#endif  // DTBufferTree_H
