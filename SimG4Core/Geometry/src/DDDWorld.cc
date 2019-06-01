@@ -4,47 +4,47 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4RunManagerKernel.hh"
 #include "G4PVPlacement.hh"
+#include "G4RunManagerKernel.hh"
 #include "G4TransportationManager.hh"
- 
+
 using namespace edm;
 
-DDDWorld::DDDWorld(const DDCompactView* cpv, 
-		   G4LogicalVolumeToDDLogicalPartMap & map,
-		   SensitiveDetectorCatalog & catalog,
-		   bool check) {
-
+DDDWorld::DDDWorld(const DDCompactView *cpv,
+                   G4LogicalVolumeToDDLogicalPartMap &map,
+                   SensitiveDetectorCatalog &catalog,
+                   bool check) {
   std::unique_ptr<DDG4Builder> theBuilder(new DDG4Builder(cpv, check));
 
   DDGeometryReturnType ret = theBuilder->BuildGeometry();
-  G4LogicalVolume *    world = ret.logicalVolume();
+  G4LogicalVolume *world = ret.logicalVolume();
 
-  m_world = new G4PVPlacement(nullptr,G4ThreeVector(),world,"DDDWorld",nullptr,false,0);
+  m_world = new G4PVPlacement(nullptr, G4ThreeVector(), world, "DDDWorld", nullptr, false, 0);
   SetAsWorld(m_world);
-  map     = ret.lvToDDLPMap();
+  map = ret.lvToDDLPMap();
   catalog = ret.sdCatalog();
 }
 
 DDDWorld::~DDDWorld() {}
 
-void DDDWorld::SetAsWorld(G4VPhysicalVolume * pv) {
-  G4RunManagerKernel * kernel = G4RunManagerKernel::GetRunManagerKernel();
-  if(kernel) kernel->DefineWorldVolume(pv);
-  else edm::LogError("SimG4CoreGeometry") << "No G4RunManagerKernel?";
+void DDDWorld::SetAsWorld(G4VPhysicalVolume *pv) {
+  G4RunManagerKernel *kernel = G4RunManagerKernel::GetRunManagerKernel();
+  if (kernel)
+    kernel->DefineWorldVolume(pv);
+  else
+    edm::LogError("SimG4CoreGeometry") << "No G4RunManagerKernel?";
   edm::LogInfo("SimG4CoreGeometry") << " World volume defined ";
 }
 
-void DDDWorld::WorkerSetAsWorld(G4VPhysicalVolume * pv) {
-  G4RunManagerKernel * kernel = G4RunManagerKernel::GetRunManagerKernel();
-  if(kernel) {
+void DDDWorld::WorkerSetAsWorld(G4VPhysicalVolume *pv) {
+  G4RunManagerKernel *kernel = G4RunManagerKernel::GetRunManagerKernel();
+  if (kernel) {
     kernel->WorkerDefineWorldVolume(pv);
     // The following does not get done in WorkerDefineWorldVolume()
     // because we don't use G4MTRunManager
-    G4TransportationManager* transM = G4TransportationManager::GetTransportationManager();
+    G4TransportationManager *transM = G4TransportationManager::GetTransportationManager();
     transM->SetWorldForTracking(pv);
-  }
-  else edm::LogError("SimG4CoreGeometry") << "No G4RunManagerKernel?";
+  } else
+    edm::LogError("SimG4CoreGeometry") << "No G4RunManagerKernel?";
   edm::LogInfo("SimG4CoreGeometry") << " World volume defined (for worker) ";
 }
-

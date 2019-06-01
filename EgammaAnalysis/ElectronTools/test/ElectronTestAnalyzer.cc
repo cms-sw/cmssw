@@ -38,7 +38,6 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "RecoParticleFlow/PFProducer/interface/Utils.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -47,6 +46,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include <cmath>
 #include <vector>
@@ -357,7 +357,7 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	float etareco = theEGamma[j].eta();
 	float phireco = theEGamma[j].phi();
 	float deta = etamc - etareco;
-	float dphi = Utils::mpi_pi(phimc - phireco);
+	float dphi = normalizedPhi(phimc - phireco);
 	float dR = sqrt(deta*deta + dphi*dphi);
 
 

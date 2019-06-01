@@ -5,13 +5,15 @@
 //
 // Package:    TextToRaw
 // Class:      TextToRaw
-// 
+//
 /**\class TextToRaw TextToRaw.cc L1Triggr/TextToDigi/src/TextToRaw.cc
 
- Description: Convert ASCII dump of a raw event to FEDRawData format for unpacking
+ Description: Convert ASCII dump of a raw event to FEDRawData format for
+ unpacking
 
  Implementation:
-     Input format is a 32 bit hex string per line (LSW first). Events separated with blank line.
+     Input format is a 32 bit hex string per line (LSW first). Events separated
+ with blank line.
 */
 //
 // Original Author:  Jim Brooke
@@ -19,16 +21,15 @@
 //
 //
 
-
 // system include files
+#include <fstream>
 #include <memory>
 #include <string>
-#include <fstream>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -38,17 +39,16 @@
 //
 
 class TextToRaw : public edm::EDProducer {
- public:
-  explicit TextToRaw(const edm::ParameterSet&);
+public:
+  explicit TextToRaw(const edm::ParameterSet &);
   ~TextToRaw() override;
-  
- private: // methods
+
+private:  // methods
   void beginJob() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  void produce(edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
 
- private:
-
+private:
   // ID of the FED to emulate
   int fedId_;
 
@@ -57,13 +57,12 @@ class TextToRaw : public edm::EDProducer {
   std::ifstream file_;
 
   // array to store the data
-  static const unsigned EVT_MAX_SIZE=8192;
+  static const unsigned EVT_MAX_SIZE = 8192;
   char data_[EVT_MAX_SIZE];
 
   int fileEventOffset_;
   int nevt_;
-  void putEmptyDigi(edm::Event&);
-
+  void putEmptyDigi(edm::Event &);
 };
 
 #endif

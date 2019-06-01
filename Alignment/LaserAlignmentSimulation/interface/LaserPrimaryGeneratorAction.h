@@ -9,9 +9,9 @@
  *  \author Maarten Thomas
  */
 
+#include "Alignment/LaserAlignmentSimulation/interface/LaserBeamsBarrel.h"
 #include "Alignment/LaserAlignmentSimulation/interface/LaserBeamsTEC1.h"
 #include "Alignment/LaserAlignmentSimulation/interface/LaserBeamsTEC2.h"
-#include "Alignment/LaserAlignmentSimulation/interface/LaserBeamsBarrel.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -23,28 +23,28 @@
 class G4Event;
 class LaserPrimaryGeneratorMessenger;
 
-class LaserPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
-{
- public:
-	/// constructor
-  LaserPrimaryGeneratorAction(edm::ParameterSet const& theConf);
-	/// destructor
+class LaserPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
+public:
+  /// constructor
+  LaserPrimaryGeneratorAction(edm::ParameterSet const &theConf);
+  /// destructor
   ~LaserPrimaryGeneratorAction() override;
 
- public:
-	/// call the corresponding GeneratePrimaries routines for both TEC's and the Barrel
-  void GeneratePrimaries(G4Event* myEvent) override;
-	/// set Id of the optical photons
-  void setGeneratorId(G4PrimaryParticle * aParticle, int ID) const;
+public:
+  /// call the corresponding GeneratePrimaries routines for both TEC's and the
+  /// Barrel
+  void GeneratePrimaries(G4Event *myEvent) override;
+  /// set Id of the optical photons
+  void setGeneratorId(G4PrimaryParticle *aParticle, int ID) const;
 
- private:
+private:
   G4double thePhotonEnergy;
   G4int thenParticleInGun;
   G4int thenParticle;
 
- private:
-  LaserBeamsTEC1 * theLaserBeamsInTEC1;
-  LaserBeamsTEC2 * theLaserBeamsInTEC2;
-  LaserBeamsBarrel * theLaserBeamsInTECTIBTOBTEC;
+private:
+  LaserBeamsTEC1 *theLaserBeamsInTEC1;
+  LaserBeamsTEC2 *theLaserBeamsInTEC2;
+  LaserBeamsBarrel *theLaserBeamsInTECTIBTOBTEC;
 };
 #endif

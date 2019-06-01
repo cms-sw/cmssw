@@ -3,6 +3,9 @@ from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_v
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
+#for dnn classifier
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+
 # NEW CLUSTERS (remove previously used clusters)
 pixelPairStepClusters = _cfg.clusterRemoverForIter("PixelPairStep")
 for _eraName, _postfix, _era in _cfg.nonDefaultEras():
@@ -333,29 +336,18 @@ pixelPairStep.src = 'pixelPairStepTracks'
 pixelPairStep.mva.GBRForestLabel = 'MVASelectorIter2_13TeV'
 pixelPairStep.qualityCuts = [-0.2,0.0,0.3]
 
-#LWTNN selector
+trackingPhase1.toModify(pixelPairStep, mva=dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1'))
+
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackingPhase1.toReplaceWith(pixelPairStep, TrackLwtnnClassifier.clone(
+trackdnn.toReplaceWith(pixelPairStep, TrackLwtnnClassifier.clone(
     src='pixelPairStepTracks',
-    qualityCuts=[-0.6, -0.1, 0.4],
+    qualityCuts=[-0.6, -0.1, 0.4]
 ))
 
-highBetaStar_2018.toReplaceWith(pixelPairStep, TrackMVAClassifierPrompt.clone(
-    src='pixelPairStepTracks',
-    qualityCuts = [-0.95,0.0,0.3],
-    mva=dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1')
-))
-
-pp_on_AA_2018.toReplaceWith(pixelPairStep, TrackMVAClassifierPrompt.clone( 
-    src='pixelPairStepTracks',
-    qualityCuts = [-0.2, 0.0, 0.9],
-    mva=dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1') 
-))
-
+highBetaStar_2018.toModify(pixelPairStep,qualityCuts = [-0.95,0.0,0.3])
+pp_on_AA_2018.toModify(pixelPairStep, qualityCuts = [-0.2, 0.0, 0.98])
 fastSim.toModify(pixelPairStep, vertices = "firstStepPrimaryVerticesBeforeMixing")
-
-
 
 # For LowPU and Phase2PU140
 import RecoTracker.IterativeTracking.LowPtTripletStep_cff

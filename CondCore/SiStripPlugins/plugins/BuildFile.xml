@@ -4,7 +4,6 @@
   <use   name="CondFormats/Common"/>
   <use   name="CommonTools/TrackerMap"/>
   <use   name="CalibTracker/StandaloneTrackerTopology"/>
-  <use   name="boost_python"/>
 </library>
 
 <library  file="SiStripApvGain_PayloadInspector.cc" name="SiStripApvGain_PayloadInspector">
@@ -14,7 +13,6 @@
   <use   name="CondFormats/SiStripObjects"/>
   <use   name="CommonTools/TrackerMap"/>
   <use   name="CalibTracker/StandaloneTrackerTopology"/>
-  <use   name="boost_python"/>
 </library>
 
 <library  file="SiStripBadStrip_PayloadInspector.cc" name="SiStripBadStrip_PayloadInspector">
@@ -24,7 +22,6 @@
   <use   name="CondFormats/SiStripObjects"/>
   <use   name="CommonTools/TrackerMap"/>
   <use   name="CalibTracker/StandaloneTrackerTopology"/>
-  <use   name="boost_python"/>
 </library>
 
 <library  file="SiStripLorentzAngle_PayloadInspector.cc" name="SiStripLorentzAngle_PayloadInspector">
@@ -34,7 +31,6 @@
   <use   name="CondFormats/SiStripObjects"/>
   <use   name="CommonTools/TrackerMap"/>
   <use   name="CalibTracker/StandaloneTrackerTopology"/>
-  <use   name="boost_python"/>
 </library>
 
 <library  file="SiStripBackPlaneCorrection_PayloadInspector.cc" name="SiStripBackPlaneCorrection_PayloadInspector">
@@ -44,7 +40,6 @@
   <use   name="CondFormats/SiStripObjects"/>
   <use   name="CommonTools/TrackerMap"/>
   <use   name="CalibTracker/StandaloneTrackerTopology"/>
-  <use   name="boost_python"/>
 </library>
 
 <library  file="SiStripNoises_PayloadInspector.cc" name="SiStripNoises_PayloadInspector">
@@ -54,7 +49,6 @@
   <use   name="CondFormats/SiStripObjects"/>
   <use   name="CommonTools/TrackerMap"/>
   <use   name="CalibTracker/StandaloneTrackerTopology"/>
-  <use   name="boost_python"/>
 </library>
 
 <library  file="SiStripPedestals_PayloadInspector.cc" name="SiStripPedestals_PayloadInspector">
@@ -64,7 +58,6 @@
   <use   name="CondFormats/SiStripObjects"/>
   <use   name="CommonTools/TrackerMap"/>
   <use   name="CalibTracker/StandaloneTrackerTopology"/>
-  <use   name="boost_python"/>
 </library>
 
 <library  file="SiStripConfObject_PayloadInspector.cc" name="SiStripConfObject_PayloadInspector">
@@ -74,7 +67,6 @@
   <use   name="CondFormats/SiStripObjects"/>
   <use   name="CalibTracker/StandaloneTrackerTopology"/>
   <use   name="CalibTracker/SiStripCommon"/>
-  <use   name="boost_python"/>
 </library>
 
 <library  file="SiStripThreshold_PayloadInspector.cc" name="SiStripThreshold_PayloadInspector">
@@ -84,7 +76,6 @@
   <use   name="CondFormats/SiStripObjects"/>
   <use   name="CommonTools/TrackerMap"/>
   <use   name="CalibTracker/StandaloneTrackerTopology"/>
-  <use   name="boost_python"/>
 </library>
 
 <library  file="SiStripLatency_PayloadInspector.cc" name="SiStripLatency_PayloadInspector">
@@ -94,7 +85,6 @@
   <use   name="CondFormats/SiStripObjects"/>
   <use   name="CommonTools/TrackerMap"/>
   <use   name="CalibTracker/StandaloneTrackerTopology"/>
-  <use   name="boost_python"/>
 </library>
 
 <library  file="SiStripFedCabling_PayloadInspector.cc" name="SiStripFedCabling_PayloadInspector">
@@ -104,7 +94,6 @@
   <use   name="CondFormats/SiStripObjects"/>
   <use   name="CommonTools/TrackerMap"/>
   <use   name="CalibTracker/StandaloneTrackerTopology"/>
-  <use   name="boost_python"/>
 </library>
 
 <library  file="plugin.cc" name="CondCoreSiStripPluginsOthers">

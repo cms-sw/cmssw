@@ -4,7 +4,7 @@
 
 //
 // This class is a "Hadronizer" template (see GeneratorInterface/Core)
-// 
+//
 
 #ifndef gen_Py8GunBase_h
 #define gen_Py8GunBase_h
@@ -41,29 +41,29 @@ namespace gen {
 
   class Py8GunBase : public Py8InterfaceBase {
   public:
-    Py8GunBase( edm::ParameterSet const& ps );
+    Py8GunBase(edm::ParameterSet const& ps);
     ~Py8GunBase() override {}
-    
-    virtual bool residualDecay(); // common func
+
+    virtual bool residualDecay();  // common func
     bool initializeForInternalPartons() override;
-    void finalizeEvent() override; 
+    void finalizeEvent() override;
     void statistics() override;
-    
+
     void setRandomEngine(CLHEP::HepRandomEngine* v) { p8SetRandomEngine(v); }
     std::vector<std::string> const& sharedResources() const { return p8SharedResources; }
-	void evtGenDecay();
+    void evtGenDecay();
 
-  protected:        
+  protected:
     // (some of) PGun parameters
     //
-    std::vector<int> fPartIDs ;
-    double           fMinPhi ;
-    double           fMaxPhi ;
-    
+    std::vector<int> fPartIDs;
+    double fMinPhi;
+    double fMaxPhi;
+
   private:
     static const std::vector<std::string> p8SharedResources;
   };
 
-} // namespace gen
+}  // namespace gen
 
-#endif // gen_BaseHadronizer_h
+#endif  // gen_BaseHadronizer_h

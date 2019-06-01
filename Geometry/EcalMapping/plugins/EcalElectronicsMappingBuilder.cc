@@ -4,15 +4,11 @@
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
 
-EcalElectronicsMappingBuilder::EcalElectronicsMappingBuilder(const edm::ParameterSet&)
-{
-  //the following line is needed to tell the framework what
-  // data is being produced
-  setWhatProduced(this);
-}
+EcalElectronicsMappingBuilder::EcalElectronicsMappingBuilder(const edm::ParameterSet&):
+  eeToken_{setWhatProduced(this).consumesFrom<EcalMappingElectronics, EcalMappingElectronicsRcd>(edm::ESInputTag{})}
+{}
 
 // ------------ method called to produce the data  ------------
 EcalElectronicsMappingBuilder::ReturnType
@@ -20,11 +16,9 @@ EcalElectronicsMappingBuilder::produce(const EcalMappingRcd& iRecord)
 {
    auto prod = std::make_unique<EcalElectronicsMapping>();
 
-   const EcalMappingElectronicsRcd& fRecord = iRecord.getRecord<EcalMappingElectronicsRcd>();
-   edm::ESHandle <EcalMappingElectronics> item;
-   fRecord.get(item);
+   const auto& item = iRecord.get(eeToken_);
 
-   const std::vector<EcalMappingElement>& ee = item->endcapItems();
+   const std::vector<EcalMappingElement>& ee = item.endcapItems();
    FillFromDatabase(ee,*prod);
    return prod;
 }

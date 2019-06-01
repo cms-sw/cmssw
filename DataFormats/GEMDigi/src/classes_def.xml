@@ -9,30 +9,6 @@
 <class name="MuonDigiCollection<GEMDetId,GEMDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMDigi> >" splitLevel="0"/> 
 
-<class name="GEMVfatStatusDigi" ClassVersion="3">
- <version ClassVersion="3" checksum="569767420"/>
-</class>
-<class name="std::vector<GEMVfatStatusDigi>"/>
-<class name="std::map<uint16_t,std::vector<GEMVfatStatusDigi> >"/>
-<class name="MuonDigiCollection<uint16_t,GEMVfatStatusDigi>"/> 
-<class name="edm::Wrapper<MuonDigiCollection<uint16_t,GEMVfatStatusDigi> >" splitLevel="0"/> 
-
-<class name="GEMGEBStatusDigi" ClassVersion="3">
- <version ClassVersion="3" checksum="3352362623"/>
-</class>
-<class name="std::vector<GEMGEBStatusDigi>"/>
-<class name="std::map<uint16_t,std::vector<GEMGEBStatusDigi> >"/>
-<class name="MuonDigiCollection<uint16_t,GEMGEBStatusDigi>"/>
-<class name="edm::Wrapper<MuonDigiCollection<uint16_t,GEMGEBStatusDigi> >" splitLevel="0"/>
-
-<class name="GEMAMCStatusDigi" ClassVersion="-1">
-  <version ClassVersion="-1" checksum="2990326637"/>
-</class>
-<class name="std::vector<GEMAMCStatusDigi>"/>
-<class name="std::map<uint16_t,std::vector<GEMAMCStatusDigi> >"/>
-<class name="MuonDigiCollection<uint16_t,GEMAMCStatusDigi>"/>
-<class name="edm::Wrapper<MuonDigiCollection<uint16_t,GEMAMCStatusDigi> >" splitLevel="0"/>
-
 <class name="GEMPadDigi" ClassVersion="12">
  <version ClassVersion="11" checksum="426510066"/>
  <version ClassVersion="12" checksum="3838591655"/>

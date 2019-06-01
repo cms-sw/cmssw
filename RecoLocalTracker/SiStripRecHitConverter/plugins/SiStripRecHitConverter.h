@@ -5,19 +5,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitConverterAlgorithm.h"
 
-class SiStripRecHitConverter : public edm::stream::EDProducer<>
-{
-  
- public:
-  
+class SiStripRecHitConverter : public edm::stream::EDProducer<> {
+public:
   explicit SiStripRecHitConverter(const edm::ParameterSet&);
   void produce(edm::Event&, const edm::EventSetup&) override;
-  
- private:
-  
+
+private:
   SiStripRecHitConverterAlgorithm recHitConverterAlgorithm;
   std::string matchedRecHitsTag, rphiRecHitsTag, stereoRecHitsTag;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterProducer;
-
 };
 #endif

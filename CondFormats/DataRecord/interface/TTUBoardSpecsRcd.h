@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     TTUBoardSpecsRcd
-// 
+//
 /**\class TTUBoardSpecsRcd TTUBoardSpecsRcd.h CondFormats/DataRecord/interface/TTUBoardSpecsRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Thu Dec 11 17:47:39 CET 2008
 // $Id$
 //

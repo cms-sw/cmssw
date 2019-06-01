@@ -1,10 +1,10 @@
 #ifndef DQMSERVICES_COMPONENTS_DQMFileReader_H
-# define DQMSERVICES_COMPONENTS_DQMFileReader_H
+#define DQMSERVICES_COMPONENTS_DQMFileReader_H
 // -*- C++ -*-
 //
 // Package:    DQMFileReader
 // Class:      DQMFileReader
-// 
+//
 /*
    
  Description: <one line class summary>
@@ -22,21 +22,19 @@
 
 class DQMFileReader : public edm::EDAnalyzer {
 public:
-  explicit DQMFileReader(const edm::ParameterSet&);
+  explicit DQMFileReader(const edm::ParameterSet &);
   ~DQMFileReader() override;
-  
 
 private:
-  void beginJob() override ;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
-  
-  DQMStore *dbe_;  
+  void beginJob() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
+
+  DQMStore *dbe_;
   edm::ParameterSet pset_;
 
-  std::vector<std::string > filenames_;
+  std::vector<std::string> filenames_;
   std::string referenceFileName_;
-
 };
 
 #endif

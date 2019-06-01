@@ -17,7 +17,6 @@
  * =====================================================================================
  */
 
-
 #ifndef CSCOfflineClient_H
 #define CSCOfflineClient_H
 
@@ -64,50 +63,46 @@
  * @class CSCOfflineClient
  * @brief CSC Offline DQM Client that uses CSCDQM Framework 
  */
-class CSCOfflineClient: public DQMEDHarvester, public cscdqm::MonitorObjectProvider {
- 
+class CSCOfflineClient : public DQMEDHarvester, public cscdqm::MonitorObjectProvider {
   /**
    * Global stuff
    */
 
-  public:
+public:
+  CSCOfflineClient(const edm::ParameterSet &ps);
+  ~CSCOfflineClient() override;
 
-    CSCOfflineClient(const edm::ParameterSet& ps);
-    ~CSCOfflineClient() override;
-
-  private:
-
-    cscdqm::Configuration     config;
-    cscdqm::Dispatcher       *dispatcher;
-    // DQMStore                 *dbe;
-    DQMStore::IBooker        *ibooker;
-    std::vector<std::string> maskedHW;
+private:
+  cscdqm::Configuration config;
+  cscdqm::Dispatcher *dispatcher;
+  // DQMStore                 *dbe;
+  DQMStore::IBooker *ibooker;
+  std::vector<std::string> maskedHW;
 
   /**
    * MonitorObjectProvider Implementation
    */
 
-  public:
-
-    bool getCSCDetId(const unsigned int crateId, const unsigned int dmbId, CSCDetId& detId) const override{ return false; }
-    cscdqm::MonitorObject *bookMonitorObject (const cscdqm::HistoBookRequest& p_req) override;
+public:
+  bool getCSCDetId(const unsigned int crateId, const unsigned int dmbId, CSCDetId &detId) const override {
+    return false;
+  }
+  cscdqm::MonitorObject *bookMonitorObject(const cscdqm::HistoBookRequest &p_req) override;
 
   /** 
    * EDAnalyzer Implementation
-   */ 
+   */
 
-  protected:
-
-    // void beginJob() { }
-    // void beginRun(const edm::Run& r, const edm::EventSetup& c) { }
-    void setup() { }
-    //void analyze(const edm::Event& e, const edm::EventSetup& c) { }
-    // void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) { } 
-    // void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) { }
-    // void endRun(const edm::Run& r, const edm::EventSetup& c);
-    // void endJob() { }
-    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
-
+protected:
+  // void beginJob() { }
+  // void beginRun(const edm::Run& r, const edm::EventSetup& c) { }
+  void setup() {}
+  //void analyze(const edm::Event& e, const edm::EventSetup& c) { }
+  // void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) { }
+  // void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) { }
+  // void endRun(const edm::Run& r, const edm::EventSetup& c);
+  // void endJob() { }
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 };
 
 #endif

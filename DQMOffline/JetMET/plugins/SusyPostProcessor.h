@@ -19,18 +19,15 @@
 #include "TH1.h"
 #include "TMath.h"
 
-class SusyPostProcessor : public DQMEDHarvester
-{
- public:
-  explicit SusyPostProcessor( const edm::ParameterSet& pSet ) ;
+class SusyPostProcessor : public DQMEDHarvester {
+public:
+  explicit SusyPostProcessor(const edm::ParameterSet& pSet);
   ~SusyPostProcessor() override;
-                                   
 
- private:
-
+private:
   edm::ParameterSet iConfig;
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
-  void QuantilePlots(MonitorElement* &, double, DQMStore::IBooker &);
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
+  void QuantilePlots(MonitorElement*&, double, DQMStore::IBooker&);
 
   static const char* messageLoggerCatregory;
 

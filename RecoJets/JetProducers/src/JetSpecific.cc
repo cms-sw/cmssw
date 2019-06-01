@@ -26,9 +26,6 @@
 #include <cmath>
 
 
-using namespace std;
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of global functions
 ////////////////////////////////////////////////////////////////////////////////
@@ -132,7 +129,7 @@ void reco::writeSpecific(reco::PFClusterJet & jet,
 
 
 //______________________________________________________________________________
-bool reco::makeSpecific(vector<reco::CandidatePtr> const & towers,
+bool reco::makeSpecific(std::vector<reco::CandidatePtr> const & towers,
 			const CaloSubdetectorGeometry* towerGeometry,
 			CaloJet::Specific* caloJetSpecific,
 			const HcalTopology &topology)
@@ -142,8 +139,8 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & towers,
   // 1.- Loop over the tower Ids, 
   // 2.- Get the corresponding CaloTower
   // 3.- Calculate the different CaloJet specific quantities
-  vector<double> eECal_i;
-  vector<double> eHCal_i;
+  std::vector<double> eECal_i;
+  std::vector<double> eHCal_i;
   double eInHad = 0.;
   double eInEm = 0.;
   double eInHO = 0.;
@@ -155,7 +152,7 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & towers,
   double eInEE = 0.;
   double jetArea = 0.;
   
-  vector<reco::CandidatePtr>::const_iterator itTower;
+  std::vector<reco::CandidatePtr>::const_iterator itTower;
   for (itTower=towers.begin();itTower!=towers.end();++itTower) {
     if ( itTower->isNull() || !itTower->isAvailable() ) { 
       edm::LogWarning("DataNotFound") << " JetSpecific: Tower is invalid\n";
@@ -225,8 +222,8 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & towers,
   caloJetSpecific->mMaxEInHadTowers = 0;
   
   //Sort the arrays
-  sort(eECal_i.begin(), eECal_i.end(), greater<double>());
-  sort(eHCal_i.begin(), eHCal_i.end(), greater<double>());
+  sort(eECal_i.begin(), eECal_i.end(), std::greater<double>());
+  sort(eHCal_i.begin(), eHCal_i.end(), std::greater<double>());
   
   if (!towers.empty()) {
     //Highest value in the array is the first element of the array
@@ -239,7 +236,7 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & towers,
 
 
 //______________________________________________________________________________
-bool reco::makeSpecific(vector<reco::CandidatePtr> const & particles,	   
+bool reco::makeSpecific(std::vector<reco::CandidatePtr> const & particles,	   
 			PFJet::Specific* pfJetSpecific)
 {
   if (nullptr==pfJetSpecific) return false;
@@ -271,7 +268,7 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & particles,
 
   float HOEnergy=0.;
   
-  vector<reco::CandidatePtr>::const_iterator itParticle;
+  std::vector<reco::CandidatePtr>::const_iterator itParticle;
   for (itParticle=particles.begin();itParticle!=particles.end();++itParticle){
     if ( itParticle->isNull() || !itParticle->isAvailable() ) { 
       edm::LogWarning("DataNotFound") << " JetSpecific: PF Particle is invalid\n";
@@ -374,50 +371,89 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & particles,
 
 
 //______________________________________________________________________________
-bool reco::makeSpecific(vector<reco::CandidatePtr> const & mcparticles, 
+bool reco::makeSpecific(std::vector<reco::CandidatePtr> const & mcparticles, 
 			GenJet::Specific* genJetSpecific)
 {
   if (nullptr==genJetSpecific) return false;
 
-  vector<reco::CandidatePtr>::const_iterator itMcParticle=mcparticles.begin();
+  std::vector<reco::CandidatePtr>::const_iterator itMcParticle=mcparticles.begin();
   for (;itMcParticle!=mcparticles.end();++itMcParticle) {
     if ( itMcParticle->isNull() || !itMcParticle->isAvailable() ) { 
       edm::LogWarning("DataNotFound") << " JetSpecific: MC Particle is invalid\n";
       continue;
     }
+
+    
     const Candidate* candidate = itMcParticle->get();
     if (candidate->hasMasterClone()) candidate = candidate->masterClone().get();
     //const GenParticle* genParticle = GenJet::genParticle(candidate);
+
+    
     if (candidate) {
       double e = candidate->energy();
-      switch (abs (candidate->pdgId ())) {
-      case 22: // photon
-      case 11: // e
-	genJetSpecific->m_EmEnergy += e;
-	break;
-      case 211: // pi
-      case 321: // K
-      case 130: // KL
-      case 2212: // p
-      case 2112: // n
-	genJetSpecific->m_HadEnergy += e;
-	break;
-      case 13: // muon
-      case 12: // nu_e
-      case 14: // nu_mu
-      case 16: // nu_tau
-	
-	genJetSpecific->m_InvisibleEnergy += e;
-	break;
-      default: 
-	genJetSpecific->m_AuxiliaryEnergy += e;
+
+      // Legacy calo-like definitions
+      switch (std::abs (candidate->pdgId ())) {
+        case 22: // photon
+        case 11: // e
+	  genJetSpecific->m_EmEnergy += e;
+	  break;
+        case 211: // pi
+        case 321: // K
+        case 130: // KL
+        case 2212: // p
+        case 2112: // n
+	  genJetSpecific->m_HadEnergy += e;
+	  break;
+        case 13: // muon
+        case 12: // nu_e
+        case 14: // nu_mu
+        case 16: // nu_tau	
+	  genJetSpecific->m_InvisibleEnergy += e;
+	  break;
+        default: 
+	  genJetSpecific->m_AuxiliaryEnergy += e;
       }
-    }
+
+      // PF-like definitions
+      switch (std::abs (candidate->pdgId ())) {
+        case 11: //electron
+	  genJetSpecific->m_ChargedEmEnergy += e;
+	  ++(genJetSpecific->m_ChargedEmMultiplicity); 
+	  break;
+        case 13: // muon
+	  genJetSpecific->m_MuonEnergy += e;
+	  ++(genJetSpecific->m_MuonMultiplicity);
+        case 211: //pi+-
+        case 321: //K
+        case 2212: //p
+        case 3222: //Sigma+
+        case 3112: //Sigma-
+        case 3312: //Xi-
+        case 3334: //Omega-
+	  genJetSpecific->m_ChargedHadronEnergy += e;
+	  ++(genJetSpecific->m_ChargedHadronMultiplicity);
+	  break;
+        case 310: //KS0
+        case 130: //KL0
+        case 3122: //Lambda0
+        case 3212: //Sigma0
+        case 3322: //Xi0
+        case 2112: //n0
+	  genJetSpecific->m_NeutralHadronEnergy += e;
+	  ++(genJetSpecific->m_NeutralHadronMultiplicity);
+	  break;
+        case 22: //photon
+	  genJetSpecific->m_NeutralEmEnergy += e;
+	  ++(genJetSpecific->m_NeutralEmMultiplicity);
+	  break;
+      }	 
+    } // end if found a candidate
     else {
       edm::LogWarning("DataNotFound") <<"reco::makeGenJetSpecific: Referred  GenParticleCandidate "
 				      <<"is not available in the event\n";
     }
-  }
+  }// end for loop over MC particles
   
   return true;
 }

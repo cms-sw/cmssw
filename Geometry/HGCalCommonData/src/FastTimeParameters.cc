@@ -1,8 +1,8 @@
 #include "Geometry/HGCalCommonData/interface/FastTimeParameters.h"
 
-FastTimeParameters::FastTimeParameters()  { }
+FastTimeParameters::FastTimeParameters() {}
 
-FastTimeParameters::~FastTimeParameters() { }
+FastTimeParameters::~FastTimeParameters() {}
 
 #include "FWCore/Utilities/interface/typelookup.h"
 

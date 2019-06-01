@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // File: ZdcTestAnalysis.h
 // Date: 03.06 Edmundo Garcia
-// Description: simulation analysis steering code 
+// Description: simulation analysis steering code
 //
 ///////////////////////////////////////////////////////////////////////////////
 #undef debug
@@ -37,7 +37,7 @@
 #include <memory>
 #include <vector>
 
-#include <CLHEP/Random/Randomize.h> 
+#include <CLHEP/Random/Randomize.h>
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -61,29 +61,27 @@ class EndOfEvent;
 class ZdcNumberingScheme;
 
 class ZdcTestAnalysis : public SimWatcher,
-			public Observer<const BeginOfJob *>, 
-			public Observer<const BeginOfRun *>,
-			public Observer<const EndOfRun *>,
-			public Observer<const BeginOfEvent *>, 
-			public Observer<const EndOfEvent *>, 
-			public Observer<const G4Step *> {
-  
+                        public Observer<const BeginOfJob *>,
+                        public Observer<const BeginOfRun *>,
+                        public Observer<const EndOfRun *>,
+                        public Observer<const BeginOfEvent *>,
+                        public Observer<const EndOfEvent *>,
+                        public Observer<const G4Step *> {
 public:
   ZdcTestAnalysis(const edm::ParameterSet &p);
   ~ZdcTestAnalysis() override;
 
 private:
   // observer classes
-  void update(const BeginOfJob * run) override;
-  void update(const BeginOfRun * run) override;
-  void update(const EndOfRun * run) override;
-  void update(const BeginOfEvent * evt) override;
-  void update(const EndOfEvent * evt) override;
-  void update(const G4Step * step) override;
-  
-private:
+  void update(const BeginOfJob *run) override;
+  void update(const BeginOfRun *run) override;
+  void update(const EndOfRun *run) override;
+  void update(const BeginOfEvent *evt) override;
+  void update(const EndOfEvent *evt) override;
+  void update(const G4Step *step) override;
 
-  void   finish();
+private:
+  void finish();
 
   int verbosity;
   int doNTzdcstep;
@@ -91,11 +89,11 @@ private:
   std::string stepNtFileName;
   std::string eventNtFileName;
 
-  TFile* zdcOutputEventFile;
-  TFile* zdcOutputStepFile;
+  TFile *zdcOutputEventFile;
+  TFile *zdcOutputStepFile;
 
-  TNtuple* zdcstepntuple;
-  TNtuple* zdceventntuple;
+  TNtuple *zdcstepntuple;
+  TNtuple *zdceventntuple;
 
   int eventIndex;
   int stepIndex;
@@ -103,8 +101,7 @@ private:
   Float_t zdcsteparray[18];
   Float_t zdceventarray[16];
 
-  ZdcNumberingScheme* theZdcNumScheme;
-
+  ZdcNumberingScheme *theZdcNumScheme;
 };
 
-#endif // ZdcTestAnalysis_h
+#endif  // ZdcTestAnalysis_h

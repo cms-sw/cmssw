@@ -8,9 +8,8 @@
  *  $Revision: 1.12 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
- 
- 
-#include <iosfwd> 
+
+#include <iosfwd>
 #include <iostream>
 #include <vector>
 
@@ -22,12 +21,12 @@
 
 /// A muon CSC Chamber( an AlignableDet )
 
-class AlignableCSCChamber: public AlignableDet {
- public:
-  friend std::ostream& operator<< (std::ostream&, const AlignableCSCChamber &);
+class AlignableCSCChamber : public AlignableDet {
+public:
+  friend std::ostream& operator<<(std::ostream&, const AlignableCSCChamber&);
 
   /// Constructor
-  AlignableCSCChamber(const GeomDet *geomDet);
+  AlignableCSCChamber(const GeomDet* geomDet);
 
   /// Updater
   void update(const GeomDet* geomDet);

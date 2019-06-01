@@ -21,10 +21,9 @@
  * \brief Event setup record containing the misaligned geometry information. It is used for 
  * alignment studies only.
  **/
-class VeryForwardMisalignedGeometryRecord : public edm::eventsetup::DependentRecordImplementation
-						   <VeryForwardMisalignedGeometryRecord, boost::mpl::vector<IdealGeometryRecord, RPMisalignedAlignmentRecord /*, ... */> >
-{
-};
+class VeryForwardMisalignedGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<
+          VeryForwardMisalignedGeometryRecord,
+          boost::mpl::vector<IdealGeometryRecord, RPMisalignedAlignmentRecord /*, ... */> > {};
 
 #endif
-

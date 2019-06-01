@@ -25,7 +25,6 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignment.h"
 #include "L1Trigger/L1TMuonEndCap/interface/SingleHitTrack.h"
 
-
 class SectorProcessor {
 public:
   explicit SectorProcessor();
@@ -34,21 +33,50 @@ public:
   typedef unsigned long long EventNumber_t;
   typedef PatternRecognition::pattern_ref_t pattern_ref_t;
 
-  void configure(
-      const GeometryTranslator* tp_geom,
-      const ConditionHelper* cond,
-      const SectorProcessorLUT* lut,
-      PtAssignmentEngine* pt_assign_engine,
-      int verbose, int endcap, int sector,
-      int minBX, int maxBX, int bxWindow, int bxShiftCSC, int bxShiftRPC, int bxShiftGEM,
-      std::string era,
-      const std::vector<int>& zoneBoundaries, int zoneOverlap,
-      bool includeNeighbor, bool duplicateTheta, bool fixZonePhi, bool useNewZones, bool fixME11Edges,
-      const std::vector<std::string>& pattDefinitions, const std::vector<std::string>& symPattDefinitions, bool useSymPatterns,
-      int thetaWindow, int thetaWindowZone0, bool useRPC, bool useSingleHits, bool bugSt2PhDiff, bool bugME11Dupes, bool bugAmbigThetaWin, bool twoStationSameBX,
-      int maxRoadsPerZone, int maxTracks, bool useSecondEarliest, bool bugSameSectorPt0,
-      bool readPtLUTFile, bool fixMode15HighPt, bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt, bool bugGMTPhi, bool promoteMode7, int modeQualVer
-  );
+  void configure(const GeometryTranslator* tp_geom,
+                 const ConditionHelper* cond,
+                 const SectorProcessorLUT* lut,
+                 PtAssignmentEngine* pt_assign_engine,
+                 int verbose,
+                 int endcap,
+                 int sector,
+                 int minBX,
+                 int maxBX,
+                 int bxWindow,
+                 int bxShiftCSC,
+                 int bxShiftRPC,
+                 int bxShiftGEM,
+                 std::string era,
+                 const std::vector<int>& zoneBoundaries,
+                 int zoneOverlap,
+                 bool includeNeighbor,
+                 bool duplicateTheta,
+                 bool fixZonePhi,
+                 bool useNewZones,
+                 bool fixME11Edges,
+                 const std::vector<std::string>& pattDefinitions,
+                 const std::vector<std::string>& symPattDefinitions,
+                 bool useSymPatterns,
+                 int thetaWindow,
+                 int thetaWindowZone0,
+                 bool useRPC,
+                 bool useSingleHits,
+                 bool bugSt2PhDiff,
+                 bool bugME11Dupes,
+                 bool bugAmbigThetaWin,
+                 bool twoStationSameBX,
+                 int maxRoadsPerZone,
+                 int maxTracks,
+                 bool useSecondEarliest,
+                 bool bugSameSectorPt0,
+                 bool readPtLUTFile,
+                 bool fixMode15HighPt,
+                 bool bug9BitDPhi,
+                 bool bugMode7CLCT,
+                 bool bugNegPt,
+                 bool bugGMTPhi,
+                 bool promoteMode7,
+                 int modeQualVer);
 
   void configure_by_fw_version(unsigned fw_version);
 
@@ -58,8 +86,7 @@ public:
       const TriggerPrimitiveCollection& muon_primitives,
       // Output
       EMTFHitCollection& out_hits,
-      EMTFTrackCollection& out_tracks
-  ) const;
+      EMTFTrackCollection& out_tracks) const;
 
   void process_single_bx(
       // Input
@@ -71,8 +98,7 @@ public:
       // Intermediate objects
       std::deque<EMTFHitCollection>& extended_conv_hits,
       std::deque<EMTFTrackCollection>& extended_best_track_cands,
-      std::map<pattern_ref_t, int>& patt_lifetime_map
-  ) const;
+      std::map<pattern_ref_t, int>& patt_lifetime_map) const;
 
 private:
   const GeometryTranslator* tp_geom_;

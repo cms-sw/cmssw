@@ -20,8 +20,7 @@ namespace edm {
   class FileBlock {
   public:
     // bit mask for reasons fast cloning can be disabled or not applicable
-    enum
-    WhyNotFastClonable {
+    enum WhyNotFastClonable {
       CanFastClone = 0x0,
 
       // For entire job
@@ -55,63 +54,67 @@ namespace edm {
       BranchMismatch = (SplitLevelMismatch << 1)
     };
 
-    FileBlock() :
-      fileFormatVersion_(),
-      tree_(nullptr), metaTree_(nullptr),
-      lumiTree_(nullptr), lumiMetaTree_(nullptr),
-      runTree_(nullptr), runMetaTree_(nullptr),
-      whyNotFastClonable_(NoRootInputSource),
-      hasNewlyDroppedBranch_(),
-      fileName_(),
-      branchListIndexesUnchanged_(false),
-      modifiedIDs_(false),
-      branchChildren_(new BranchChildren) {}
+    FileBlock()
+        : fileFormatVersion_(),
+          tree_(nullptr),
+          metaTree_(nullptr),
+          lumiTree_(nullptr),
+          lumiMetaTree_(nullptr),
+          runTree_(nullptr),
+          runMetaTree_(nullptr),
+          whyNotFastClonable_(NoRootInputSource),
+          hasNewlyDroppedBranch_(),
+          fileName_(),
+          branchListIndexesUnchanged_(false),
+          modifiedIDs_(false),
+          branchChildren_(new BranchChildren) {}
 
     FileBlock(FileFormatVersion const& version,
-              TTree const* ev, TTree const* meta,
-              TTree const* lumi, TTree const* lumiMeta,
-              TTree const* run, TTree const* runMeta,
+              TTree const* ev,
+              TTree const* meta,
+              TTree const* lumi,
+              TTree const* lumiMeta,
+              TTree const* run,
+              TTree const* runMeta,
               int whyNotFastClonable,
               std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch,
               std::string const& fileName,
               bool branchListIndexesUnchanged,
               bool modifiedIDs,
-              std::shared_ptr<BranchChildren const> branchChildren) :
-      fileFormatVersion_(version),
-      tree_(const_cast<TTree*>(ev)),
-      metaTree_(const_cast<TTree*>(meta)),
-      lumiTree_(const_cast<TTree*>(lumi)),
-      lumiMetaTree_(const_cast<TTree*>(lumiMeta)),
-      runTree_(const_cast<TTree*>(run)),
-      runMetaTree_(const_cast<TTree*>(runMeta)),
-      whyNotFastClonable_(whyNotFastClonable),
-      hasNewlyDroppedBranch_(hasNewlyDroppedBranch),
-      fileName_(fileName),
-      branchListIndexesUnchanged_(branchListIndexesUnchanged),
-      modifiedIDs_(modifiedIDs),
-      branchChildren_(branchChildren) {}
+              std::shared_ptr<BranchChildren const> branchChildren)
+        : fileFormatVersion_(version),
+          tree_(const_cast<TTree*>(ev)),
+          metaTree_(const_cast<TTree*>(meta)),
+          lumiTree_(const_cast<TTree*>(lumi)),
+          lumiMetaTree_(const_cast<TTree*>(lumiMeta)),
+          runTree_(const_cast<TTree*>(run)),
+          runMetaTree_(const_cast<TTree*>(runMeta)),
+          whyNotFastClonable_(whyNotFastClonable),
+          hasNewlyDroppedBranch_(hasNewlyDroppedBranch),
+          fileName_(fileName),
+          branchListIndexesUnchanged_(branchListIndexesUnchanged),
+          modifiedIDs_(modifiedIDs),
+          branchChildren_(branchChildren) {}
 
     ~FileBlock() {}
 
-    FileFormatVersion const& fileFormatVersion() const {return fileFormatVersion_;}
-    TTree* tree() const {return tree_;}
-    TTree* metaTree() const {return metaTree_;}
-    TTree* lumiTree() const {return lumiTree_;}
-    TTree* lumiMetaTree() const {return lumiMetaTree_;}
-    TTree* runTree() const {return runTree_;}
-    TTree* runMetaTree() const {return runMetaTree_;}
+    FileFormatVersion const& fileFormatVersion() const { return fileFormatVersion_; }
+    TTree* tree() const { return tree_; }
+    TTree* metaTree() const { return metaTree_; }
+    TTree* lumiTree() const { return lumiTree_; }
+    TTree* lumiMetaTree() const { return lumiMetaTree_; }
+    TTree* runTree() const { return runTree_; }
+    TTree* runMetaTree() const { return runMetaTree_; }
 
-    int whyNotFastClonable() const {return whyNotFastClonable_;}
-    std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
-    std::string const& fileName() const {return fileName_;}
-    bool branchListIndexesUnchanged() const {return branchListIndexesUnchanged_;}
-    bool modifiedIDs() const {return modifiedIDs_;}
+    int whyNotFastClonable() const { return whyNotFastClonable_; }
+    std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const { return hasNewlyDroppedBranch_; }
+    std::string const& fileName() const { return fileName_; }
+    bool branchListIndexesUnchanged() const { return branchListIndexesUnchanged_; }
+    bool modifiedIDs() const { return modifiedIDs_; }
 
-    void setNotFastClonable(WhyNotFastClonable const& why) {
-      whyNotFastClonable_ |= why;
-    }
+    void setNotFastClonable(WhyNotFastClonable const& why) { whyNotFastClonable_ |= why; }
     BranchChildren const& branchChildren() const { return *branchChildren_; }
-    void close () {runMetaTree_ = lumiMetaTree_ = metaTree_ = runTree_ = lumiTree_ = tree_ = nullptr;}
+    void close() { runMetaTree_ = lumiMetaTree_ = metaTree_ = runTree_ = lumiTree_ = tree_ = nullptr; }
 
   private:
     FileFormatVersion fileFormatVersion_;
@@ -129,5 +132,5 @@ namespace edm {
     bool modifiedIDs_;
     std::shared_ptr<BranchChildren const> branchChildren_;
   };
-}
+}  // namespace edm
 #endif

@@ -23,7 +23,7 @@ namespace Rivet {
   class RivetAnalysis : public Analysis {
 
     public:
-      std::vector<DressedLepton> leptons() const {return _leptons;}
+      ParticleVector leptons() const {return _leptons;}
       ParticleVector photons() const {return _photons;}
       ParticleVector neutrinos() const {return _neutrinos;}
       Jets jets() const {return _jets;}
@@ -40,8 +40,7 @@ namespace Rivet {
       double _jetConeSize, _jetMinPt, _jetMaxEta;
       double _fatJetConeSize, _fatJetMinPt, _fatJetMaxEta;
       
-      std::vector<DressedLepton> _leptons;
-      ParticleVector _photons, _neutrinos;
+      ParticleVector _leptons, _photons, _neutrinos;
       Jets _jets, _fatjets;
       Vector3 _met;
 
@@ -85,6 +84,7 @@ namespace Rivet {
         PromptFinalState prompt_leptons(charged_leptons);
         prompt_leptons.acceptMuonDecays(true);
         prompt_leptons.acceptTauDecays(true);
+        addProjection(prompt_leptons, "PromptLeptons");
         
         PromptFinalState prompt_photons(photons);
         prompt_photons.acceptMuonDecays(true);
@@ -151,7 +151,24 @@ namespace Rivet {
         Cut jet_cut    = (Cuts::abseta < _jetMaxEta)    and (Cuts::pT > _jetMinPt*GeV);
         Cut fatjet_cut = (Cuts::abseta < _fatJetMaxEta) and (Cuts::pT > _fatJetMinPt*GeV);
         
-        _leptons   = applyProjection<DressedLeptons>(event, "DressedLeptons").dressedLeptons();
+        _leptons   = applyProjection<DressedLeptons>(event, "DressedLeptons").particlesByPt();
+        // search tau ancestors
+        Particles promptleptons = applyProjection<PromptFinalState>(event, "PromptLeptons").particles();
+        for ( auto & lepton : _leptons ) {
+          const auto & cl = lepton.constituents().front(); // this has no ancestors anymore :(
+          for ( auto const & pl : promptleptons ) {
+            if (cl.momentum() == pl.momentum()) {
+              for ( auto & p : pl.ancestors()) {
+                if (p.abspid() == 15) {
+                  p.setMomentum(p.momentum()*10e-20);
+                  lepton.addConstituent(p, false);
+                }
+              }
+              break;
+            }
+          }
+        }
+        
         _jets      = applyProjection<FastJets>(event, "Jets").jetsByPt(jet_cut);
         _fatjets   = applyProjection<FastJets>(event, "FatJets").jetsByPt(fatjet_cut);
         _photons   = applyProjection<FinalState>(event, "Photons").particlesByPt();

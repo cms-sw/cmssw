@@ -3,16 +3,12 @@
 
 /// (Abstract) Base class for alignment algorithm user variables
 
-class AlignmentUserVariables 
-{
-
+class AlignmentUserVariables {
 public:
   virtual ~AlignmentUserVariables() {}
   // derived class must implement clone method
   // (should be simply copy constructor)
-  virtual AlignmentUserVariables* clone( void ) const = 0;
-
+  virtual AlignmentUserVariables* clone(void) const = 0;
 };
 
 #endif
-

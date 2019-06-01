@@ -23,8 +23,7 @@ public:
     cleanBadConvBrems_(conf.existsAs<bool>("cleanBadConvertedBrems") ? conf.getParameter<bool>("cleanBadConvertedBrems") : false),
     debug_(conf.getUntrackedParameter<bool>("debug",false)) {
     
-    pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo());
-    pfmu_->setParameters(conf);
+    pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo(conf));
     
   }
   

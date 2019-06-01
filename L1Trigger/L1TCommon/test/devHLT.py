@@ -5,10 +5,11 @@
 # with command line options: step2 --conditions auto:run2_mc_25ns14e33_v4 -s DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval25ns --datatier GEN-SIM-DIGI-RAW-HLTDEBUG -n 10 --era Run2_25ns --eventcontent FEVTDEBUGHLT --filein filelist:step1_dasquery.log --fileout file:step2.root
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-#process = cms.Process('HLT',eras.Run2_25ns)
-process = cms.Process('HLT',eras.Run2_2016)
+#from Configuration.Eras.Era_Run2_25ns_cff import Run2_25ns
+#process = cms.Process('HLT',Run2_25ns)
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+process = cms.Process('HLT',Run2_2016)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

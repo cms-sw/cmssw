@@ -1,8 +1,8 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("BeamPixel", eras.Run2_2018)
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process("BeamPixel", Run2_2018)
 
 
 #----------------------------

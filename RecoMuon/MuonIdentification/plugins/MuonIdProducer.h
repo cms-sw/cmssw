@@ -47,8 +47,9 @@
 #include "RecoMuon/MuonIdentification/interface/MuonTimingFiller.h"
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
-// RPC-Muon stuffs
+#include "RecoMuon/MuonIdentification/interface/MuonShowerDigiFiller.h"
 
+// RPC-Muon stuffs
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/MuonReco/interface/MuonRPCHitMatch.h"
@@ -177,6 +178,8 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
 
   std::unique_ptr<MuonTimingFiller> theTimingFiller_;
 
+  std::unique_ptr<MuonShowerDigiFiller> theShowerDigiFiller_;
+
    // selections
    double minPt_;
    double minP_;
@@ -194,7 +197,9 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    // what information to fill
    bool fillCaloCompatibility_;
    bool fillEnergy_;
+   bool storeCrossedHcalRecHits_;
    bool fillMatching_;
+   bool fillShowerDigis_;
    bool fillIsolation_;
    bool writeIsoDeposits_;
    double ptThresholdToFillCandidateP4WithGlobalFit_;

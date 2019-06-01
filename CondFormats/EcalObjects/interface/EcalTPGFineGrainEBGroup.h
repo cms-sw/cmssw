@@ -10,17 +10,12 @@
 P.P.
 */
 
+class EcalTPGFineGrainEBGroup : public EcalTPGGroups {
+public:
+  EcalTPGFineGrainEBGroup();
+  ~EcalTPGFineGrainEBGroup();
 
-
-class EcalTPGFineGrainEBGroup : public EcalTPGGroups
-{
- public:
-
-  EcalTPGFineGrainEBGroup() ;
-  ~EcalTPGFineGrainEBGroup() ;
-
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

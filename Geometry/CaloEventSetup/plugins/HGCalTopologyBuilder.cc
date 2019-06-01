@@ -2,7 +2,7 @@
 //
 // Package:    CaloEventSetup
 // Class:      HGCalTopologyBuilder
-// 
+//
 /**\class HGCalTopologyBuilder HGCalTopologyBuilder.h 
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -23,9 +22,10 @@
 #include <FWCore/Framework/interface/ModuleFactory.h>
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
@@ -40,10 +40,9 @@
 //
 
 class HGCalTopologyBuilder : public edm::ESProducer {
-
 public:
-  HGCalTopologyBuilder( const edm::ParameterSet& iP );
-  ~HGCalTopologyBuilder() override ;
+  HGCalTopologyBuilder(const edm::ParameterSet& iP);
+  ~HGCalTopologyBuilder() override;
 
   using ReturnType = std::unique_ptr<HGCalTopology>;
 
@@ -51,36 +50,28 @@ public:
 
 private:
   // ----------member data ---------------------------
-  std::string        name_;
-  int                det_;
+  edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> hgcToken_;
+  int det_;
 };
 
-
 HGCalTopologyBuilder::HGCalTopologyBuilder(const edm::ParameterSet& iConfig) {
-
-  name_     = iConfig.getParameter<std::string>("Name");
-  det_      = iConfig.getParameter<int>("Type");
+  auto name = iConfig.getParameter<std::string>("Name");
+  det_ = iConfig.getParameter<int>("Type");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "constructing HGCalTopology for " << name_
-				<< " and det " << det_;
+  edm::LogVerbatim("HGCalGeom") << "constructing HGCalTopology for " << name << " and det " << det_;
 #endif
-  setWhatProduced(this, name_);
+  hgcToken_ = setWhatProduced(this, name).consumes<HGCalDDDConstants>(edm::ESInputTag{"", name});
 }
 
-
-HGCalTopologyBuilder::~HGCalTopologyBuilder() { }
+HGCalTopologyBuilder::~HGCalTopologyBuilder() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-HGCalTopologyBuilder::ReturnType
-HGCalTopologyBuilder::produce(const IdealGeometryRecord& iRecord ) {
-
-  edm::ESHandle<HGCalDDDConstants>  pHGDC;
-  iRecord.get(name_, pHGDC);
-  const HGCalDDDConstants & hgdc = (*pHGDC);
+HGCalTopologyBuilder::ReturnType HGCalTopologyBuilder::produce(const IdealGeometryRecord& iRecord) {
+  const HGCalDDDConstants& hgdc = iRecord.get(hgcToken_);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Create HGCalTopology(hgdc,det)";

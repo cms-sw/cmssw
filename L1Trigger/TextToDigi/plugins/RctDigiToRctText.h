@@ -8,37 +8,33 @@
  *\created Thu Mar 29 23:22:57 CEST 2007
  */
 
-
 // system include files
-#include <memory>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"  // Logger
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h" // Logger
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 const static unsigned NUM_RCT_CRATES = 18;
 
-
 class RctDigiToRctText : public edm::EDAnalyzer {
-
- public:
-  explicit RctDigiToRctText(const edm::ParameterSet&);
+public:
+  explicit RctDigiToRctText(const edm::ParameterSet &);
   ~RctDigiToRctText() override;
-  
-  
- private:
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  
+
+private:
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+
   /// label for RCT digis
   edm::InputTag m_rctInputLabel;
 
@@ -53,7 +49,6 @@ class RctDigiToRctText : public edm::EDAnalyzer {
 
   /// handle for debug file
   std::ofstream fdebug;
-
 };
 
 #endif

@@ -15,25 +15,26 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class L3MuonCandidateProducerFromMuons : public edm::global::EDProducer<> {
-
- public:
-
+public:
   /// constructor with config
   L3MuonCandidateProducerFromMuons(const edm::ParameterSet&);
-  
+
   /// destructor
-  ~L3MuonCandidateProducerFromMuons() override; 
-  
+  ~L3MuonCandidateProducerFromMuons() override;
+
   /// produce candidates
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  
- private:
-  
+
+private:
   // L3/GLB Collection Label
-  edm::InputTag m_L3CollectionLabel; 
+  edm::InputTag m_L3CollectionLabel;
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
 };
 

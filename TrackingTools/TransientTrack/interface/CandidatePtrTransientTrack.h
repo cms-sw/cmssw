@@ -3,7 +3,7 @@
 
 #include <atomic>
 
-  /**
+/**
    * Concrete implementation of the TransientTrack for a reco::Track
    */
 
@@ -18,69 +18,76 @@ namespace reco {
 
   class CandidatePtrTransientTrack : public Track, public BasicTransientTrack {
   public:
-
     // constructor from persistent track
     CandidatePtrTransientTrack();
-    
-    CandidatePtrTransientTrack( const CandidatePtr & tk, const MagneticField* field);
-    CandidatePtrTransientTrack( const CandidatePtr & tk, const double time, const double dtime, const MagneticField* field);
 
-    CandidatePtrTransientTrack( const CandidatePtr & tk, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
-    CandidatePtrTransientTrack( const CandidatePtr & tk, const double time, const double dtime, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+    CandidatePtrTransientTrack(const CandidatePtr& tk, const MagneticField* field);
+    CandidatePtrTransientTrack(const CandidatePtr& tk,
+                               const double time,
+                               const double dtime,
+                               const MagneticField* field);
 
-    CandidatePtrTransientTrack( const CandidatePtrTransientTrack & tt );
+    CandidatePtrTransientTrack(const CandidatePtr& tk,
+                               const MagneticField* field,
+                               const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+    CandidatePtrTransientTrack(const CandidatePtr& tk,
+                               const double time,
+                               const double dtime,
+                               const MagneticField* field,
+                               const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
-    CandidatePtrTransientTrack& operator=(const CandidatePtrTransientTrack & tt);
+    CandidatePtrTransientTrack(const CandidatePtrTransientTrack& tt);
 
-    void setES(const edm::EventSetup& ) override;
+    CandidatePtrTransientTrack& operator=(const CandidatePtrTransientTrack& tt);
 
-    void setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& ) override;
+    void setES(const edm::EventSetup&) override;
+
+    void setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>&) override;
 
     void setBeamSpot(const reco::BeamSpot& beamSpot) override;
 
-    FreeTrajectoryState initialFreeState() const override {return initialFTS;}
+    FreeTrajectoryState initialFreeState() const override { return initialFTS; }
 
     TrajectoryStateOnSurface outermostMeasurementState() const override;
 
     TrajectoryStateOnSurface innermostMeasurementState() const override;
 
-    TrajectoryStateClosestToPoint
-      trajectoryStateClosestToPoint( const GlobalPoint & point ) const override
-      {return builder(initialFTS, point);}
+    TrajectoryStateClosestToPoint trajectoryStateClosestToPoint(const GlobalPoint& point) const override {
+      return builder(initialFTS, point);
+    }
 
-   /**
+    /**
     * The TSOS at any point. The initial state will be used for the propagation.
     */
-    TrajectoryStateOnSurface stateOnSurface(const GlobalPoint & point) const override;
+    TrajectoryStateOnSurface stateOnSurface(const GlobalPoint& point) const override;
 
     TrajectoryStateClosestToPoint impactPointTSCP() const override;
 
     TrajectoryStateOnSurface impactPointState() const override;
 
-    bool impactPointStateAvailable() const override {return (m_TSOS.load()==kSet ? true : false); }
+    bool impactPointStateAvailable() const override { return (m_TSOS.load() == kSet ? true : false); }
 
-  /**
+    /**
    * access to original persistent track
    */
     TrackRef persistentTrackRef() const { return TrackRef(); }
 
-    TrackBaseRef trackBaseRef() const override {return TrackBaseRef();}
+    TrackBaseRef trackBaseRef() const override { return TrackBaseRef(); }
 
-    TrackCharge charge() const override {return Track::charge();}
+    TrackCharge charge() const override { return Track::charge(); }
 
-    CandidatePtr candidate() const override {return ptr_; } 	
+    CandidatePtr candidate() const override { return ptr_; }
 
-    const MagneticField* field() const override {return theField;}
+    const MagneticField* field() const override { return theField; }
 
-    const Track & track() const override {return *this;}
+    const Track& track() const override { return *this; }
 
     TrajectoryStateClosestToBeamLine stateAtBeamLine() const override;
-    
-    double timeExt() const override { return ( hasTime ? timeExt_ : std::numeric_limits<double>::quiet_NaN() ); }
-    double dtErrorExt() const override { return ( hasTime ? dtErrorExt_ : std::numeric_limits<double>::quiet_NaN() ); }
+
+    double timeExt() const override { return (hasTime ? timeExt_ : std::numeric_limits<double>::quiet_NaN()); }
+    double dtErrorExt() const override { return (hasTime ? dtErrorExt_ : std::numeric_limits<double>::quiet_NaN()); }
 
   private:
-
     CandidatePtr ptr_;
     bool hasTime;
     double timeExt_, dtErrorExt_;
@@ -103,10 +110,9 @@ namespace reco {
     reco::BeamSpot theBeamSpot;
 
     // to be used to setup thread states of class mutables
-    enum CacheStates {kUnset, kSetting, kSet};
-
+    enum CacheStates { kUnset, kSetting, kSet };
   };
 
-}
+}  // namespace reco
 
 #endif

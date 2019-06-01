@@ -9,16 +9,15 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-L1MuonOverlapParamsDBProducer::L1MuonOverlapParamsDBProducer(const edm::ParameterSet & cfg){ }
+L1MuonOverlapParamsDBProducer::L1MuonOverlapParamsDBProducer(const edm::ParameterSet& cfg) {}
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
-void L1MuonOverlapParamsDBProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup){
-
+void L1MuonOverlapParamsDBProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
   const L1TMuonOverlapParamsRcd& omtfParamsRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
-  
+
   edm::ESHandle<L1TMuonOverlapParams> omtfParamsHandle;
-  
-  omtfParamsRcd.get("params",omtfParamsHandle);
+
+  omtfParamsRcd.get("params", omtfParamsHandle);
 
   omtfParams = std::unique_ptr<L1TMuonOverlapParams>(new L1TMuonOverlapParams(*omtfParamsHandle.product()));
   if (!omtfParams) {
@@ -27,12 +26,11 @@ void L1MuonOverlapParamsDBProducer::beginRun(edm::Run const& run, edm::EventSetu
 }
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
-void L1MuonOverlapParamsDBProducer::analyze(const edm::Event& ev, const edm::EventSetup& es){
-
+void L1MuonOverlapParamsDBProducer::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   std::string recordName = "L1TMuonOverlapParamsRcd";
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if(poolDbService.isAvailable()){
-    poolDbService->writeOne(omtfParams.get(), poolDbService->currentTime(),recordName);
+  if (poolDbService.isAvailable()) {
+    poolDbService->writeOne(omtfParams.get(), poolDbService->currentTime(), recordName);
   }
 }
 ///////////////////////////////////////////////////////////////

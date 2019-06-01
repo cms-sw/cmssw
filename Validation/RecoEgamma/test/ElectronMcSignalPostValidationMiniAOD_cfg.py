@@ -3,11 +3,12 @@ import sys
 import os
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras 
 
 #process = cms.Process("electronValidation")
-#process = cms.Process("electronPostValidation",eras.Run2_2017)
-process = cms.Process('electronPostValidation',eras.Phase2) 
+#from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+#process = cms.Process("electronPostValidation",Run2_2017)
+from Configuration.Eras.Era_Phase2_cff import Phase2
+process = cms.Process('electronPostValidation',Phase2) 
 
 process.options = cms.untracked.PSet( )
 

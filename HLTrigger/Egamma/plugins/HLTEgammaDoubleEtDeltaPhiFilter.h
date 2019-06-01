@@ -20,20 +20,21 @@ namespace edm {
 //
 
 class HLTEgammaDoubleEtDeltaPhiFilter : public HLTFilter {
+public:
+  explicit HLTEgammaDoubleEtDeltaPhiFilter(const edm::ParameterSet&);
+  ~HLTEgammaDoubleEtDeltaPhiFilter() override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   public:
-      explicit HLTEgammaDoubleEtDeltaPhiFilter(const edm::ParameterSet&);
-      ~HLTEgammaDoubleEtDeltaPhiFilter() override;
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-
-   private:
-      edm::InputTag inputTag_; // input tag identifying product contains filtered candidates
-      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>  inputToken_;
-      double etcut_;           // Et threshold in GeV
-      double minDeltaPhi_;    // minimum deltaPhi
- //   int    ncandcut_;        // number of egammas required
-      edm::InputTag l1EGTag_;
+private:
+  edm::InputTag inputTag_;  // input tag identifying product contains filtered candidates
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken_;
+  double etcut_;        // Et threshold in GeV
+  double minDeltaPhi_;  // minimum deltaPhi
+                        //   int    ncandcut_;        // number of egammas required
+  edm::InputTag l1EGTag_;
 };
 
-#endif //HLTEgammaDoubleEtDeltaPhiFilter_h
+#endif  //HLTEgammaDoubleEtDeltaPhiFilter_h

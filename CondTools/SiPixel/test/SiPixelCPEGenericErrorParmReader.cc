@@ -5,32 +5,21 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include <iostream>
 
-SiPixelCPEGenericErrorParmReader::SiPixelCPEGenericErrorParmReader(const edm::ParameterSet& iConfig)
-{
-}
+SiPixelCPEGenericErrorParmReader::SiPixelCPEGenericErrorParmReader(const edm::ParameterSet& iConfig) {}
 
-SiPixelCPEGenericErrorParmReader::~SiPixelCPEGenericErrorParmReader()
-{
-}
+SiPixelCPEGenericErrorParmReader::~SiPixelCPEGenericErrorParmReader() {}
 
-void 
-SiPixelCPEGenericErrorParmReader::beginJob()
-{
-}
+void SiPixelCPEGenericErrorParmReader::beginJob() {}
 
-void
-SiPixelCPEGenericErrorParmReader::analyze(const edm::Event& iEvent, const edm::EventSetup& setup)
-{
-	if(SiPixelCPEGenericErrorParmWatcher_.check(setup)) {
-		
-		edm::ESHandle<SiPixelCPEGenericErrorParm> errorsH;
-		setup.get<SiPixelCPEGenericErrorParmRcd>().get(errorsH);
-	
-		std::cout << *errorsH.product();
+void SiPixelCPEGenericErrorParmReader::analyze(const edm::Event& iEvent, const edm::EventSetup& setup) {
+  if (SiPixelCPEGenericErrorParmWatcher_.check(setup)) {
+    edm::ESHandle<SiPixelCPEGenericErrorParm> errorsH;
+    setup.get<SiPixelCPEGenericErrorParmRcd>().get(errorsH);
 
+    std::cout << *errorsH.product();
 
-		//uncomment to test random access
-		/*	SiPixelCPEGenericDBErrorParametrization theErrorGetter;
+    //uncomment to test random access
+    /*	SiPixelCPEGenericDBErrorParametrization theErrorGetter;
 		theErrorGetter.setDBAccess(setup);
 		std::pair<float,float> dbentry;
 		
@@ -42,11 +31,8 @@ SiPixelCPEGenericErrorParmReader::analyze(const edm::Event& iEvent, const edm::E
 							<< "By hand the indices should be for bx and by respectively: 346, 99\n"
 							<< "And the errors should be 0.000289 and 0.003431\nThey are: "
 							<< dbentry.first << " " << dbentry.second << std::endl;
-		*/	
-	}
+		*/
+  }
 }
 
-void 
-SiPixelCPEGenericErrorParmReader::endJob()
-{
-}
+void SiPixelCPEGenericErrorParmReader::endJob() {}

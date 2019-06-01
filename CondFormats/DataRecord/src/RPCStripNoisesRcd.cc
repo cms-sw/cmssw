@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     RPCStripNoisesRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Mon Apr 21 15:48:55 CEST 2008
 // $Id: RPCStripNoisesRcd.cc,v 1.1 2008/05/12 08:34:24 trentad Exp $
 

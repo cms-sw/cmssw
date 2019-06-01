@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     SiPixel2DTemplateDBObjectRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Tue Nov 11 23:08:00 CET 2008
 // $Id: SiPixel2DTemplateDBObjectRcd.cc,v 1.1 2008/11/12 18:13:03 dfehling Exp $
 

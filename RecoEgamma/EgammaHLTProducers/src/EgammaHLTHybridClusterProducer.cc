@@ -42,71 +42,69 @@
 // Class header file
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHybridClusterProducer.h"
 
-
 EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::ParameterSet& ps)
-  : basicclusterCollection_ (ps.getParameter<std::string>("basicclusterCollection"))
-  , superclusterCollection_ (ps.getParameter<std::string>("superclusterCollection"))
-  , hittoken_               (consumes<EcalRecHitCollection>(hitcollection_))
-  , hitcollection_          (ps.getParameter<edm::InputTag>("ecalhitcollection"))
-  
-  // L1 matching parameters
-  , l1TagIsolated_    (consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagIsolated")))
-  , l1TagNonIsolated_ (consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagNonIsolated")))
+    : basicclusterCollection_(ps.getParameter<std::string>("basicclusterCollection")),
+      superclusterCollection_(ps.getParameter<std::string>("superclusterCollection")),
+      hittoken_(consumes<EcalRecHitCollection>(hitcollection_)),
+      hitcollection_(ps.getParameter<edm::InputTag>("ecalhitcollection"))
 
-  , doIsolated_   (ps.getParameter<bool>("doIsolated"))
+      // L1 matching parameters
+      ,
+      l1TagIsolated_(consumes<l1extra::L1EmParticleCollection>(ps.getParameter<edm::InputTag>("l1TagIsolated"))),
+      l1TagNonIsolated_(consumes<l1extra::L1EmParticleCollection>(ps.getParameter<edm::InputTag>("l1TagNonIsolated")))
 
-  , l1LowerThr_ (ps.getParameter<double> ("l1LowerThr"))
-  , l1UpperThr_ (ps.getParameter<double> ("l1UpperThr"))
-  , l1LowerThrIgnoreIsolation_ (ps.getParameter<double> ("l1LowerThrIgnoreIsolation"))
+      ,
+      doIsolated_(ps.getParameter<bool>("doIsolated"))
 
-  , regionEtaMargin_   (ps.getParameter<double>("regionEtaMargin"))
-  , regionPhiMargin_   (ps.getParameter<double>("regionPhiMargin"))
+      ,
+      l1LowerThr_(ps.getParameter<double>("l1LowerThr")),
+      l1UpperThr_(ps.getParameter<double>("l1UpperThr")),
+      l1LowerThrIgnoreIsolation_(ps.getParameter<double>("l1LowerThrIgnoreIsolation"))
 
-  // Parameters for the position calculation:
-  , posCalculator_ (PositionCalc( ps.getParameter<edm::ParameterSet>("posCalcParameters") ))
+      ,
+      regionEtaMargin_(ps.getParameter<double>("regionEtaMargin")),
+      regionPhiMargin_(ps.getParameter<double>("regionPhiMargin"))
 
-  , hybrid_p (new HybridClusterAlgo(
-              ps.getParameter<double>("HybridBarrelSeedThr"), 
-              ps.getParameter<int>("step"),
-              ps.getParameter<double>("ethresh"),
-              ps.getParameter<double>("eseed"),
-              ps.getParameter<double>("xi"),
-              ps.getParameter<bool>("useEtForXi"),
-              ps.getParameter<double>("ewing"),
-              StringToEnumValue<EcalRecHit::Flags>(
-                  ps.getParameter<std::vector<std::string> >("RecHitFlagToBeExcluded")),
-              posCalculator_,
-              ps.getParameter<bool>("dynamicEThresh"),
-              ps.getParameter<double>("eThreshA"),
-              ps.getParameter<double>("eThreshB"),
-              StringToEnumValue<EcalSeverityLevel::SeverityLevel>(
-                  ps.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded")),
-              ps.getParameter<bool>("excludeFlagged")))
-{
+      // Parameters for the position calculation:
+      ,
+      posCalculator_(PositionCalc(ps.getParameter<edm::ParameterSet>("posCalcParameters")))
+
+      ,
+      hybrid_p(new HybridClusterAlgo(
+          ps.getParameter<double>("HybridBarrelSeedThr"),
+          ps.getParameter<int>("step"),
+          ps.getParameter<double>("ethresh"),
+          ps.getParameter<double>("eseed"),
+          ps.getParameter<double>("xi"),
+          ps.getParameter<bool>("useEtForXi"),
+          ps.getParameter<double>("ewing"),
+          StringToEnumValue<EcalRecHit::Flags>(ps.getParameter<std::vector<std::string>>("RecHitFlagToBeExcluded")),
+          posCalculator_,
+          ps.getParameter<bool>("dynamicEThresh"),
+          ps.getParameter<double>("eThreshA"),
+          ps.getParameter<double>("eThreshB"),
+          StringToEnumValue<EcalSeverityLevel::SeverityLevel>(
+              ps.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcluded")),
+          ps.getParameter<bool>("excludeFlagged"))) {
   if (ps.getParameter<bool>("dynamicPhiRoad")) {
-     edm::ParameterSet bremRecoveryPset = ps.getParameter<edm::ParameterSet>("bremRecoveryPset");
-     hybrid_p->setDynamicPhiRoad(bremRecoveryPset);
+    edm::ParameterSet bremRecoveryPset = ps.getParameter<edm::ParameterSet>("bremRecoveryPset");
+    hybrid_p->setDynamicPhiRoad(bremRecoveryPset);
   }
 
-  produces< reco::BasicClusterCollection >(basicclusterCollection_);
-  produces< reco::SuperClusterCollection >(superclusterCollection_);
+  produces<reco::BasicClusterCollection>(basicclusterCollection_);
+  produces<reco::SuperClusterCollection>(superclusterCollection_);
 }
 
-
-EgammaHLTHybridClusterProducer::~EgammaHLTHybridClusterProducer()
-{
-  delete hybrid_p;
-}
+EgammaHLTHybridClusterProducer::~EgammaHLTHybridClusterProducer() { delete hybrid_p; }
 
 void EgammaHLTHybridClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("debugLevel" , "INFO");
+  desc.add<std::string>("debugLevel", "INFO");
   desc.add<std::string>("basicclusterCollection", "");
   desc.add<std::string>("superclusterCollection", "");
-  desc.add<edm::InputTag>("ecalhitcollection", edm::InputTag("ecalRecHit","EcalRecHitsEB"));
-  desc.add<edm::InputTag>("l1TagIsolated", edm::InputTag("l1extraParticles","Isolated"));
-  desc.add<edm::InputTag>("l1TagNonIsolated", edm::InputTag("l1extraParticles","NonIsolated"));
+  desc.add<edm::InputTag>("ecalhitcollection", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>("l1TagIsolated", edm::InputTag("l1extraParticles", "Isolated"));
+  desc.add<edm::InputTag>("l1TagNonIsolated", edm::InputTag("l1extraParticles", "NonIsolated"));
   desc.add<bool>("doIsolated", true);
   desc.add<double>("l1LowerThr", 0);
   desc.add<double>("l1UpperThr", 9999.0);
@@ -124,7 +122,7 @@ void EgammaHLTHybridClusterProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<edm::ParameterSetDescription>("posCalcParameters", posCalcPSET);
 
   desc.add<std::vector<std::string>>("RecHitFlagToBeExcluded", std::vector<std::string>());
-  desc.add<std::vector<std::string> >("RecHitSeverityToBeExcluded", std::vector<std::string>());
+  desc.add<std::vector<std::string>>("RecHitSeverityToBeExcluded", std::vector<std::string>());
   desc.add<double>("severityRecHitThreshold", 4.0);
   desc.add<double>("HybridBarrelSeedThr", 1.0);
   desc.add<int>("step", 10);
@@ -139,154 +137,155 @@ void EgammaHLTHybridClusterProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<bool>("excludeFlagged", false);
   desc.add<bool>("dynamicPhiRoad", false);
   //desc.add<edm::ParameterSet>("bremRecoveryPset", edm::ParameterSet());
-  
-  descriptions.add("hltEgammaHLTHybridClusterProducer", desc);  
+
+  descriptions.add("hltEgammaHLTHybridClusterProducer", desc);
 }
 
-
 void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
-
   // get the hit collection from the event:
   edm::Handle<EcalRecHitCollection> rhcHandle;
   evt.getByToken(hittoken_, rhcHandle);
-  
-  if (!(rhcHandle.isValid()))  
-    {
-      edm::LogError("ProductNotFound")<< "could not get a handle on the EcalRecHitCollection!" << std::endl;
-      return;
-    }
-  const EcalRecHitCollection *hit_collection = rhcHandle.product();
+
+  if (!(rhcHandle.isValid())) {
+    edm::LogError("ProductNotFound") << "could not get a handle on the EcalRecHitCollection!" << std::endl;
+    return;
+  }
+  const EcalRecHitCollection* hit_collection = rhcHandle.product();
 
   // get the collection geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
   es.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
-  const CaloSubdetectorGeometry *geometry_p;
+  const CaloSubdetectorGeometry* geometry_p;
   std::unique_ptr<const CaloSubdetectorTopology> topology;
 
   //edm::ESHandle<EcalChannelStatus> chStatus;
   //es.get<EcalChannelStatusRcd>().get(chStatus);
   //const EcalChannelStatus* theEcalChStatus = chStatus.product();
-  
+
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
   es.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
   const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
- 
-  if(hitcollection_.instance() == "EcalRecHitsEB") {
+
+  if (hitcollection_.instance() == "EcalRecHitsEB") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-    topology.reset(new EcalBarrelTopology(geoHandle));
-  } else if(hitcollection_.instance() == "EcalRecHitsEE") {
+    topology = std::make_unique<EcalBarrelTopology>(*geoHandle);
+  } else if (hitcollection_.instance() == "EcalRecHitsEE") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-    topology.reset(new EcalEndcapTopology(geoHandle));
-  } else if(hitcollection_.instance() == "EcalRecHitsPS") {
+    topology = std::make_unique<EcalEndcapTopology>(*geoHandle);
+  } else if (hitcollection_.instance() == "EcalRecHitsPS") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-    topology.reset(new EcalPreshowerTopology (geoHandle));
-  } else throw(std::runtime_error("\n\nHybrid Cluster Producer encountered invalied ecalhitcollection type.\n\n"));
-    
+    topology = std::make_unique<EcalPreshowerTopology>();
+  } else
+    throw(std::runtime_error("\n\nHybrid Cluster Producer encountered invalied ecalhitcollection type.\n\n"));
+
   //Get the L1 EM Particle Collection
   //Get the L1 EM Particle Collection
-  edm::Handle< l1extra::L1EmParticleCollection > emIsolColl ;
-  if(doIsolated_)
+  edm::Handle<l1extra::L1EmParticleCollection> emIsolColl;
+  if (doIsolated_)
     evt.getByToken(l1TagIsolated_, emIsolColl);
 
   //Get the L1 EM Particle Collection
-  edm::Handle< l1extra::L1EmParticleCollection > emNonIsolColl ;
+  edm::Handle<l1extra::L1EmParticleCollection> emNonIsolColl;
   evt.getByToken(l1TagNonIsolated_, emNonIsolColl);
 
   // Get the CaloGeometry
-  edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
-  es.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
+  edm::ESHandle<L1CaloGeometry> l1CaloGeom;
+  es.get<L1CaloGeometryRecord>().get(l1CaloGeom);
 
   std::vector<RectangularEtaPhiRegion> regions;
 
-  if(doIsolated_) {
-    for( l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl->begin(); emItr != emIsolColl->end() ;++emItr ){
+  if (doIsolated_) {
+    for (l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl->begin(); emItr != emIsolColl->end();
+         ++emItr) {
+      if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_) {
+        // Access the GCT hardware object corresponding to the L1Extra EM object.
+        int etaIndex = emItr->gctEmCand()->etaIndex();
+        int phiIndex = emItr->gctEmCand()->phiIndex();
+        // Use the L1CaloGeometry to find the eta, phi bin boundaries.
+        double etaLow = l1CaloGeom->etaBinLowEdge(etaIndex);
+        double etaHigh = l1CaloGeom->etaBinHighEdge(etaIndex);
+        double phiLow = l1CaloGeom->emJetPhiBinLowEdge(phiIndex);
+        double phiHigh = l1CaloGeom->emJetPhiBinHighEdge(phiIndex);
 
-    if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_) {
+        int isbarl = 0;
+        //Part of the region is in the barel if either the upper or lower
+        //edge of the region is within the barrel
+        if (((float)(etaLow) > -1.479 && (float)(etaLow) < 1.479) ||
+            ((float)(etaHigh) > -1.479 && (float)(etaHigh) < 1.479))
+          isbarl = 1;
 
-      // Access the GCT hardware object corresponding to the L1Extra EM object.
-      int etaIndex = emItr->gctEmCand()->etaIndex() ;
-      int phiIndex = emItr->gctEmCand()->phiIndex() ;
-      // Use the L1CaloGeometry to find the eta, phi bin boundaries.
-      double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
-      double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
-      double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
-      double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
+        etaLow -= regionEtaMargin_;
+        etaHigh += regionEtaMargin_;
+        phiLow -= regionPhiMargin_;
+        phiHigh += regionPhiMargin_;
 
-       int isbarl=0;
-       //Part of the region is in the barel if either the upper or lower
-       //edge of the region is within the barrel
-       if(((float)(etaLow)>-1.479 && (float)(etaLow)<1.479) || 
-	  ((float)(etaHigh)>-1.479 && (float)(etaHigh)<1.479)) isbarl=1;
+        if (etaHigh > 1.479)
+          etaHigh = 1.479;
+        if (etaLow < -1.479)
+          etaLow = -1.479;
 
-
-      etaLow -= regionEtaMargin_;
-      etaHigh += regionEtaMargin_;
-      phiLow -= regionPhiMargin_;
-      phiHigh += regionPhiMargin_;
-
-      if (etaHigh>1.479) etaHigh=1.479;
-      if (etaLow<-1.479) etaLow=-1.479;
-
-      if(isbarl) regions.push_back(RectangularEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
-
+        if (isbarl)
+          regions.push_back(RectangularEtaPhiRegion(etaLow, etaHigh, phiLow, phiHigh));
+      }
     }
   }
+
+  if (!doIsolated_ || l1LowerThrIgnoreIsolation_ < 64) {
+    for (l1extra::L1EmParticleCollection::const_iterator emItr = emNonIsolColl->begin(); emItr != emNonIsolColl->end();
+         ++emItr) {
+      if (doIsolated_ && emItr->et() < l1LowerThrIgnoreIsolation_)
+        continue;
+
+      if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_) {
+        // Access the GCT hardware object corresponding to the L1Extra EM object.
+        int etaIndex = emItr->gctEmCand()->etaIndex();
+        int phiIndex = emItr->gctEmCand()->phiIndex();
+        // Use the L1CaloGeometry to find the eta, phi bin boundaries.
+        double etaLow = l1CaloGeom->etaBinLowEdge(etaIndex);
+        double etaHigh = l1CaloGeom->etaBinHighEdge(etaIndex);
+        double phiLow = l1CaloGeom->emJetPhiBinLowEdge(phiIndex);
+        double phiHigh = l1CaloGeom->emJetPhiBinHighEdge(phiIndex);
+
+        int isbarl = 0;
+        //Part of the region is in the barel if either the upper or lower
+        //edge of the region is within the barrel
+        if (((float)(etaLow) > -1.479 && (float)(etaLow) < 1.479) ||
+            ((float)(etaHigh) > -1.479 && (float)(etaHigh) < 1.479))
+          isbarl = 1;
+
+        etaLow -= regionEtaMargin_;
+        etaHigh += regionEtaMargin_;
+        phiLow -= regionPhiMargin_;
+        phiHigh += regionPhiMargin_;
+
+        if (etaHigh > 1.479)
+          etaHigh = 1.479;
+        if (etaLow < -1.479)
+          etaLow = -1.479;
+
+        if (isbarl)
+          regions.push_back(RectangularEtaPhiRegion(etaLow, etaHigh, phiLow, phiHigh));
+      }
+    }
   }
 
-  if(!doIsolated_||l1LowerThrIgnoreIsolation_<64) {
-    for( l1extra::L1EmParticleCollection::const_iterator emItr = emNonIsolColl->begin(); emItr != emNonIsolColl->end() ;++emItr ){
-
-      if(doIsolated_&&emItr->et()<l1LowerThrIgnoreIsolation_) continue;
-
-    if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_) {
-
-      // Access the GCT hardware object corresponding to the L1Extra EM object.
-      int etaIndex = emItr->gctEmCand()->etaIndex() ;
-      int phiIndex = emItr->gctEmCand()->phiIndex() ;
-      // Use the L1CaloGeometry to find the eta, phi bin boundaries.
-      double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
-      double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
-      double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
-      double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
-
-       int isbarl=0;
-       //Part of the region is in the barel if either the upper or lower
-       //edge of the region is within the barrel
-       if(((float)(etaLow)>-1.479 && (float)(etaLow)<1.479) || 
-          ((float)(etaHigh)>-1.479 && (float)(etaHigh)<1.479)) isbarl=1;
-       
-       
-       etaLow -= regionEtaMargin_;
-       etaHigh += regionEtaMargin_;
-       phiLow -= regionPhiMargin_;
-       phiHigh += regionPhiMargin_;
-       
-       if (etaHigh>1.479) etaHigh=1.479;
-       if (etaLow<-1.479) etaLow=-1.479;
-       
-       if(isbarl) regions.push_back(RectangularEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
-       
-    }
-    }
-  }
-  
   // make the Basic clusters!
   reco::BasicClusterCollection basicClusters;
   hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters, sevLevel, true, regions);
-  
+
   // create an unique_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
   auto basicclusters_p = std::make_unique<reco::BasicClusterCollection>();
   basicclusters_p->assign(basicClusters.begin(), basicClusters.end());
-  edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  evt.put(std::move(basicclusters_p),
-                                                                       basicclusterCollection_);
+  edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =
+      evt.put(std::move(basicclusters_p), basicclusterCollection_);
   if (!(bccHandle.isValid())) {
     return;
   }
   reco::BasicClusterCollection clusterCollection = *bccHandle;
 
   reco::CaloClusterPtrVector clusterRefVector;
-  for (unsigned int i = 0; i < clusterCollection.size(); i++){
+  for (unsigned int i = 0; i < clusterCollection.size(); i++) {
     clusterRefVector.push_back(reco::CaloClusterPtr(bccHandle, i));
   }
 
@@ -296,5 +295,3 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   superclusters_p->assign(superClusters.begin(), superClusters.end());
   evt.put(std::move(superclusters_p), superclusterCollection_);
 }
-
- 

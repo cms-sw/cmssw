@@ -79,9 +79,9 @@ trackingPhase2PU140.toModify(trackingNtuple, seedTracks = _seedSelectors_trackin
 
 def _seedProdToTrackCands(name):
     return name.replace("seedTracks", "").replace("Seeds", "TrackCandidates")
-trackingNtuple.trackCandidates = map(_seedProdToTrackCands, _seedProducers)
-trackingPhase1.toModify(trackingNtuple, trackCandidates=map(_seedProdToTrackCands, _seedProducers_trackingPhase1))
-trackingPhase2PU140.toModify(trackingNtuple, trackCandidates=map(_seedProdToTrackCands, _seedProducers_trackingPhase2PU140))
+trackingNtuple.trackCandidates = [_seedProdToTrackCands(i) for i in _seedProducers]
+trackingPhase1.toModify(trackingNtuple, trackCandidates=[_seedProdToTrackCands(i) for i in _seedProducers_trackingPhase1])
+trackingPhase2PU140.toModify(trackingNtuple, trackCandidates=[_seedProdToTrackCands(i) for i in _seedProducers_trackingPhase2PU140])
 
 trackingNtupleTask = cms.Task()
 # reproduce hits because they're not stored in RECO

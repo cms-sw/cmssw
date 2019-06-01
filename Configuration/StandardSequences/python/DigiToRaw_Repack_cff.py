@@ -48,7 +48,11 @@ virginRawDataRepacker = rawDataRepacker.clone(
 ## Repacked DigiToRaw Sequence
 ##
 
-DigiToRawRepack = cms.Sequence( SiStripDigiToZSRaw * rawDataRepacker )
-DigiToHybridRawRepack = cms.Sequence( SiStripDigiToHybridRaw * hybridRawDataRepacker )
-DigiToVirginRawRepack = cms.Sequence( SiStripRawDigiToVirginRaw * virginRawDataRepacker )
-DigiToSplitRawRepack = cms.Sequence( DigiToRawRepack + DigiToVirginRawRepack )
+DigiToRawRepackTask = cms.Task(SiStripDigiToZSRaw, rawDataRepacker)
+DigiToHybridRawRepackTask = cms.Task(SiStripDigiToHybridRaw, hybridRawDataRepacker)
+DigiToVirginRawRepackTask = cms.Task(SiStripRawDigiToVirginRaw, virginRawDataRepacker)
+
+DigiToRawRepack = cms.Sequence( DigiToRawRepackTask )
+DigiToHybridRawRepack = cms.Sequence( DigiToHybridRawRepackTask )
+DigiToVirginRawRepack = cms.Sequence( DigiToVirginRawRepackTask )
+DigiToSplitRawRepack = cms.Sequence( DigiToRawRepackTask, DigiToVirginRawRepackTask )

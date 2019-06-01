@@ -20,16 +20,15 @@
 
 class ME0TriggerBuilder;
 
-class ME0TriggerProducer : public edm::global::EDProducer<>
-{
- public:
+class ME0TriggerProducer : public edm::global::EDProducer<> {
+public:
   explicit ME0TriggerProducer(const edm::ParameterSet&);
   ~ME0TriggerProducer() override;
 
   //virtual void beginRun(const edm::EventSetup& setup);
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
- private:
+private:
   edm::InputTag me0PadDigiClusterProducer_;
   edm::EDGetTokenT<ME0PadDigiClusterCollection> me0_pad_token_;
   edm::ParameterSet config_;

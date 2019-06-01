@@ -1,7 +1,6 @@
 #ifndef L1RPCHwConfigRcd_h
 #define L1RPCHwConfigRcd_h
 
-
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 class L1RPCHwConfigRcd : public edm::eventsetup::EventSetupRecordImplementation<L1RPCHwConfigRcd> {};
 
@@ -14,4 +13,3 @@ class L1RPCHwConfigRcd : public edm::eventsetup::EventSetupRecordImplementation<
 //class L1RPCHwConfigRcd : public edm::eventsetup::DependentRecordImplementation<L1RPCHwConfigRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
 
 #endif
-

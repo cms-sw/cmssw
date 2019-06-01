@@ -9,8 +9,8 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class FEConfigFgrGroupDat : public IDataItem {
- public:
-  friend class EcalCondDBInterface; // XXX temp should not need
+public:
+  friend class EcalCondDBInterface;  // XXX temp should not need
   FEConfigFgrGroupDat();
   ~FEConfigFgrGroupDat() override;
 
@@ -31,16 +31,14 @@ class FEConfigFgrGroupDat : public IDataItem {
   inline void setLUTValue(int x) { m_lut = x; }
   inline int getLUTValue() const { return m_lut; }
 
- private:
+private:
   void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const FEConfigFgrGroupDat* item, FEConfigFgrInfo* iconf) noexcept(false);
 
+  void writeArrayDB(const std::map<EcalLogicID, FEConfigFgrGroupDat>* data, FEConfigFgrInfo* iconf) noexcept(false);
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigFgrGroupDat>* data, FEConfigFgrInfo* iconf) noexcept(false);
-
-
-  void fetchData(std::map< EcalLogicID, FEConfigFgrGroupDat >* fillMap, FEConfigFgrInfo* iconf) noexcept(false);
+  void fetchData(std::map<EcalLogicID, FEConfigFgrGroupDat>* fillMap, FEConfigFgrInfo* iconf) noexcept(false);
 
   // User data
   int m_group_id;
@@ -49,7 +47,6 @@ class FEConfigFgrGroupDat : public IDataItem {
   float m_ratio_low;
   float m_ratio_high;
   int m_lut;
-
 };
 
 #endif

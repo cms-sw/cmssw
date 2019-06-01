@@ -5,4 +5,4 @@
 
 class PerformancePayloadRecord : public edm::eventsetup::EventSetupRecordImplementation<PerformancePayloadRecord> {};
 
-#endif // Reco_Records_PerformancePayloadRecord_h
+#endif  // Reco_Records_PerformancePayloadRecord_h

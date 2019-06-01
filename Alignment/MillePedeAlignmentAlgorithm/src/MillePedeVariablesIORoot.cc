@@ -17,13 +17,11 @@
 #include "TTree.h"
 
 // -------------------------------------------------------------------------------------------------
-MillePedeVariablesIORoot::MillePedeVariablesIORoot() :
-  myId(0), myObjId(0), myNumPar(0),
-  myHitsX(0), myHitsY(0), myLabel(0), myName(""), myNamePtr(&myName)
-{
+MillePedeVariablesIORoot::MillePedeVariablesIORoot()
+    : myId(0), myObjId(0), myNumPar(0), myHitsX(0), myHitsY(0), myLabel(0), myName(""), myNamePtr(&myName) {
   treename = "MillePedeUser";
   treetxt = "MillePede User Variables";
-  for (unsigned int i=0;i<kMaxNumPar;i++) {
+  for (unsigned int i = 0; i < kMaxNumPar; i++) {
     myIsValid[i] = 0;
     myDiffBefore[i] = 0.;
     myGlobalCor[i] = 0.;
@@ -34,14 +32,13 @@ MillePedeVariablesIORoot::MillePedeVariablesIORoot() :
 }
 
 // -------------------------------------------------------------------------------------------------
-void MillePedeVariablesIORoot::writeMillePedeVariables
-(const align::Alignables& alivec, const char *filename, int iter, bool validCheck, int &ierr)
-{
+void MillePedeVariablesIORoot::writeMillePedeVariables(
+    const align::Alignables &alivec, const char *filename, int iter, bool validCheck, int &ierr) {
   ierr = 0;
 
-  int iret = this->open(filename, iter, true); 
+  int iret = this->open(filename, iter, true);
   if (iret != 0) {
-    ierr = -1; 
+    ierr = -1;
   } else {
     iret = this->write(alivec, validCheck);
     tree->BuildIndex("Id", "ObjId");
@@ -54,15 +51,16 @@ void MillePedeVariablesIORoot::writeMillePedeVariables
       }
     }
   }
-  
+
   return;
 }
 
 // -------------------------------------------------------------------------------------------------
-std::vector<AlignmentUserVariables*> MillePedeVariablesIORoot::readMillePedeVariables
-(const align::Alignables& alivec, const char *filename, int iter, int &ierr)
-{
-  std::vector<AlignmentUserVariables*> result;
+std::vector<AlignmentUserVariables *> MillePedeVariablesIORoot::readMillePedeVariables(const align::Alignables &alivec,
+                                                                                       const char *filename,
+                                                                                       int iter,
+                                                                                       int &ierr) {
+  std::vector<AlignmentUserVariables *> result;
   ierr = 0;
   int iret = this->open(filename, iter, false);
   if (iret != 0) {
@@ -83,36 +81,34 @@ std::vector<AlignmentUserVariables*> MillePedeVariablesIORoot::readMillePedeVari
 }
 
 // -------------------------------------------------------------------------------------------------
-int MillePedeVariablesIORoot::writeOne(Alignable* ali)
-{
-  if (!ali || !ali->alignmentParameters() 
-      || !dynamic_cast<MillePedeVariables*>(ali->alignmentParameters()->userVariables())) {
+int MillePedeVariablesIORoot::writeOne(Alignable *ali) {
+  if (!ali || !ali->alignmentParameters() ||
+      !dynamic_cast<MillePedeVariables *>(ali->alignmentParameters()->userVariables())) {
     edm::LogError("Alignment") << "@SUB=MillePedeVariablesIORoot::writeOne"
-                               << "No MillePedeVariables found!"; 
+                               << "No MillePedeVariables found!";
     return -1;
   }
 
-  const MillePedeVariables *mpVar = 
-    static_cast<MillePedeVariables*>(ali->alignmentParameters()->userVariables());
+  const MillePedeVariables *mpVar = static_cast<MillePedeVariables *>(ali->alignmentParameters()->userVariables());
   myNumPar = mpVar->size();
   if (myNumPar >= kMaxNumPar) {
     edm::LogError("Alignment") << "@SUB=MillePedeVariablesIORoot::writeOne"
-                               << "Ignoring parameters " << static_cast<int>(kMaxNumPar) << " to " << myNumPar-1;
+                               << "Ignoring parameters " << static_cast<int>(kMaxNumPar) << " to " << myNumPar - 1;
     myNumPar = kMaxNumPar;
   }
 
   for (unsigned int iPar = 0; iPar < myNumPar; ++iPar) {
-    myIsValid[iPar]    = mpVar->isValid()[iPar];
+    myIsValid[iPar] = mpVar->isValid()[iPar];
     myDiffBefore[iPar] = mpVar->diffBefore()[iPar];
-    myGlobalCor[iPar]  = mpVar->globalCor()[iPar];
-    myPreSigma[iPar]   = mpVar->preSigma()[iPar];
-    myParameter[iPar]  = mpVar->parameter()[iPar];
-    mySigma[iPar]      = mpVar->sigma()[iPar];
+    myGlobalCor[iPar] = mpVar->globalCor()[iPar];
+    myPreSigma[iPar] = mpVar->preSigma()[iPar];
+    myParameter[iPar] = mpVar->parameter()[iPar];
+    mySigma[iPar] = mpVar->sigma()[iPar];
   }
   myHitsX = mpVar->hitsX();
   myHitsY = mpVar->hitsY();
   myLabel = mpVar->label();
-  myName  = mpVar->name();
+  myName = mpVar->name();
 
   myId = ali->id();
   myObjId = ali->alignableObjectId();
@@ -123,65 +119,62 @@ int MillePedeVariablesIORoot::writeOne(Alignable* ali)
 }
 
 // -------------------------------------------------------------------------------------------------
-AlignmentUserVariables* MillePedeVariablesIORoot::readOne(Alignable *ali, int &ierr)
-{
+AlignmentUserVariables *MillePedeVariablesIORoot::readOne(Alignable *ali, int &ierr) {
   ierr = 0;
 
   if (tree->GetEntryWithIndex(ali->id(), ali->alignableObjectId()) < 0) {
     edm::LogError("Alignment") << "@SUB=MillePedeVariablesIORoot::readOne"
-                               << "No index for id/type = (" << ali->id() << "/"
-                               << ali->alignableObjectId() << ") found!";
+                               << "No index for id/type = (" << ali->id() << "/" << ali->alignableObjectId()
+                               << ") found!";
     ierr = 1;
     return nullptr;
   }
 
   MillePedeVariables *mpVar = new MillePedeVariables(myNumPar, myLabel, myName);
   for (unsigned int iPar = 0; iPar < myNumPar; ++iPar) {
-    mpVar->isValid()[iPar]    = myIsValid[iPar];
+    mpVar->isValid()[iPar] = myIsValid[iPar];
     mpVar->diffBefore()[iPar] = myDiffBefore[iPar];
-    mpVar->globalCor()[iPar]  = myGlobalCor[iPar];
-    mpVar->preSigma()[iPar]   = myPreSigma[iPar];
-    mpVar->parameter()[iPar]  = myParameter[iPar];
-    mpVar->sigma()[iPar]      = mySigma[iPar];
+    mpVar->globalCor()[iPar] = myGlobalCor[iPar];
+    mpVar->preSigma()[iPar] = myPreSigma[iPar];
+    mpVar->parameter()[iPar] = myParameter[iPar];
+    mpVar->sigma()[iPar] = mySigma[iPar];
   }
   mpVar->setHitsX(myHitsX);
   mpVar->setHitsY(myHitsY);
-  
+
   return mpVar;
 }
 
 // -------------------------------------------------------------------------------------------------
-void MillePedeVariablesIORoot::createBranches() 
-{
-  tree->Branch("Id",        &myId,        "Id/i");
-  tree->Branch("ObjId",     &myObjId,     "ObjId/I");
-  tree->Branch("NumPar",    &myNumPar,    "NumPar/i");
-  tree->Branch("IsValid",    myIsValid,   "IsValid[NumPar]/b");
-  tree->Branch("DiffBefore", myDiffBefore,"DiffBefore[NumPar]/F");
-  tree->Branch("GlobalCor",  myGlobalCor, "GlobalCor[NumPar]/F");
-  tree->Branch("PreSigma",   myPreSigma,  "PreSigma[NumPar]/F");
-  tree->Branch("Par",        myParameter, "Par[NumPar]/F"); // name as in AlignmentParametersIORoot
-  tree->Branch("Sigma",      mySigma,     "Sigma[NumPar]/F");
-  tree->Branch("HitsX",     &myHitsX,     "HitsX/i");
-  tree->Branch("HitsY",     &myHitsY,     "HitsY/i");
-  tree->Branch("Label",     &myLabel,     "Label/i");
-  tree->Branch("Name",      &myNamePtr);
+void MillePedeVariablesIORoot::createBranches() {
+  tree->Branch("Id", &myId, "Id/i");
+  tree->Branch("ObjId", &myObjId, "ObjId/I");
+  tree->Branch("NumPar", &myNumPar, "NumPar/i");
+  tree->Branch("IsValid", myIsValid, "IsValid[NumPar]/b");
+  tree->Branch("DiffBefore", myDiffBefore, "DiffBefore[NumPar]/F");
+  tree->Branch("GlobalCor", myGlobalCor, "GlobalCor[NumPar]/F");
+  tree->Branch("PreSigma", myPreSigma, "PreSigma[NumPar]/F");
+  tree->Branch("Par", myParameter, "Par[NumPar]/F");  // name as in AlignmentParametersIORoot
+  tree->Branch("Sigma", mySigma, "Sigma[NumPar]/F");
+  tree->Branch("HitsX", &myHitsX, "HitsX/i");
+  tree->Branch("HitsY", &myHitsY, "HitsY/i");
+  tree->Branch("Label", &myLabel, "Label/i");
+  tree->Branch("Name", &myNamePtr);
 }
 
 // -------------------------------------------------------------------------------------------------
-void MillePedeVariablesIORoot::setBranchAddresses() 
-{
-  tree->SetBranchAddress("Id",        &myId);
-  tree->SetBranchAddress("ObjId",     &myObjId);
-  tree->SetBranchAddress("NumPar",    &myNumPar);
-  tree->SetBranchAddress("IsValid",    myIsValid);
+void MillePedeVariablesIORoot::setBranchAddresses() {
+  tree->SetBranchAddress("Id", &myId);
+  tree->SetBranchAddress("ObjId", &myObjId);
+  tree->SetBranchAddress("NumPar", &myNumPar);
+  tree->SetBranchAddress("IsValid", myIsValid);
   tree->SetBranchAddress("DiffBefore", myDiffBefore);
-  tree->SetBranchAddress("GlobalCor",  myGlobalCor);
-  tree->SetBranchAddress("PreSigma",   myPreSigma);
-  tree->SetBranchAddress("Par",        myParameter);
-  tree->SetBranchAddress("Sigma",      mySigma);
-  tree->SetBranchAddress("HitsX",     &myHitsX);
-  tree->SetBranchAddress("HitsY",     &myHitsY);
-  tree->SetBranchAddress("Label",     &myLabel);
-  tree->SetBranchAddress("Name",      &myNamePtr);
+  tree->SetBranchAddress("GlobalCor", myGlobalCor);
+  tree->SetBranchAddress("PreSigma", myPreSigma);
+  tree->SetBranchAddress("Par", myParameter);
+  tree->SetBranchAddress("Sigma", mySigma);
+  tree->SetBranchAddress("HitsX", &myHitsX);
+  tree->SetBranchAddress("HitsY", &myHitsY);
+  tree->SetBranchAddress("Label", &myLabel);
+  tree->SetBranchAddress("Name", &myNamePtr);
 }

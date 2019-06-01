@@ -45,6 +45,8 @@ class TotemTimingRecHitProducer : public edm::stream::EDProducer<>
 
     /// Input digi collection
     edm::EDGetTokenT<edm::DetSetVector<TotemTimingDigi> > digiToken_;
+    /// Label to timing calibration tag
+    edm::ESInputTag timingCalibrationTag_;
     /// Digi-to-rechits transformation algorithm
     TotemTimingRecHitProducerAlgorithm algo_;
     /// Timing calibration parameters watcher
@@ -53,6 +55,7 @@ class TotemTimingRecHitProducer : public edm::stream::EDProducer<>
 
 TotemTimingRecHitProducer::TotemTimingRecHitProducer( const edm::ParameterSet& iConfig ) :
   digiToken_( consumes<edm::DetSetVector<TotemTimingDigi> >( iConfig.getParameter<edm::InputTag>( "digiTag" ) ) ),
+  timingCalibrationTag_( iConfig.getParameter<std::string>( "timingCalibrationTag" ) ),
   algo_( iConfig )
 {
   produces<edm::DetSetVector<TotemTimingRecHit> >();
@@ -72,7 +75,7 @@ TotemTimingRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& i
     // check for timing calibration parameters update
     if ( calibWatcher_.check( iSetup ) ) {
       edm::ESHandle<PPSTimingCalibration> hTimingCalib;
-      iSetup.get<PPSTimingCalibrationRcd>().get( hTimingCalib );
+      iSetup.get<PPSTimingCalibrationRcd>().get( timingCalibrationTag_, hTimingCalib );
       algo_.setCalibration( *hTimingCalib );
     }
 
@@ -94,6 +97,8 @@ TotemTimingRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& des
 
   desc.add<edm::InputTag>( "digiTag", edm::InputTag( "totemTimingRawToDigi", "TotemTiming" ) )
     ->setComment( "input digis collection to retrieve" );
+  desc.add<std::string>( "timingCalibrationTag", "GlobalTag:TotemTimingCalibration" )
+    ->setComment( "input tag for timing calibrations retrieval" );
   desc.add<int>( "baselinePoints", 8 )
     ->setComment( "number of points to be used for the baseline" );
   desc.add<double>( "saturationLimit", 0.85 )

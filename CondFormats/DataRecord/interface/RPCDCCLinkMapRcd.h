@@ -3,8 +3,6 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class RPCDCCLinkMapRcd
-    : public edm::eventsetup::EventSetupRecordImplementation<RPCDCCLinkMapRcd>
-{};
+class RPCDCCLinkMapRcd : public edm::eventsetup::EventSetupRecordImplementation<RPCDCCLinkMapRcd> {};
 
-#endif // CondFormats_DataRecord_RPCDCCLinkMapRcd_h
+#endif  // CondFormats_DataRecord_RPCDCCLinkMapRcd_h

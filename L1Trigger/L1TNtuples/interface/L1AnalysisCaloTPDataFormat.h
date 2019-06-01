@@ -3,21 +3,18 @@
 
 //-------------------------------------------------------------------------------
 // Created 20/04/2010 - E. Conte, A.C. Le Bihan
-// 
-// 
+//
+//
 // Original code : L1Trigger/L1TNtuples/L1NtupleProducer
 //-------------------------------------------------------------------------------
 
 #include <vector>
 
-namespace L1Analysis
-{
-  struct L1AnalysisCaloTPDataFormat
-  {
-    L1AnalysisCaloTPDataFormat(){Reset();};
+namespace L1Analysis {
+  struct L1AnalysisCaloTPDataFormat {
+    L1AnalysisCaloTPDataFormat() { Reset(); };
     ~L1AnalysisCaloTPDataFormat(){};
-    
-    
+
     void Reset() {
       nHCALTP = 0;
       hcalTPieta.clear();
@@ -34,11 +31,8 @@ namespace L1Analysis
       ecalTPcompEt.clear();
       ecalTPfineGrain.clear();
     }
-    
-    void Init() {
 
-    }
-    
+    void Init() {}
 
     short nHCALTP;
     std::vector<short> hcalTPieta;
@@ -55,8 +49,6 @@ namespace L1Analysis
     std::vector<float> ecalTPet;
     std::vector<short> ecalTPcompEt;
     std::vector<short> ecalTPfineGrain;
-    
-  }; 
-} 
+  };
+}  // namespace L1Analysis
 #endif
-

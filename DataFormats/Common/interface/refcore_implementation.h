@@ -4,7 +4,7 @@
 //
 // Package:     Common
 // Class  :     refcore_implementation
-// 
+//
 /**\class refcore_implementation refcore_implementation.h DataFormats/Common/interface/refcore_implementation.h
 
  Description: provide function implementations to use with both RefCore and RefCoreWithIndex 
@@ -30,57 +30,57 @@
 // forward declarations
 namespace edm {
   class EDProductGetter;
-  
+
   namespace refcoreimpl {
     const unsigned short kTransientBit = 0x8000;
     const unsigned short kProcessIndexMask = 0x3FFF;
     const std::uintptr_t kCacheIsProductPtrBit = 0x1;
     const std::uintptr_t kCacheIsProductPtrMask = std::numeric_limits<std::uintptr_t>::max() ^ kCacheIsProductPtrBit;
 
-    inline bool cacheIsProductPtr( void const* iPtr) {
+    inline bool cacheIsProductPtr(void const* iPtr) {
       return 0 == (reinterpret_cast<std::uintptr_t>(iPtr) & refcoreimpl::kCacheIsProductPtrBit);
     }
 
-    inline void setCacheIsProductGetter( std::atomic<void const*> & ptr, EDProductGetter const* iGetter) {
-      std::uintptr_t tmp = reinterpret_cast<std::uintptr_t>(iGetter); 
-      tmp |=refcoreimpl::kCacheIsProductPtrBit; 
+    inline void setCacheIsProductGetter(std::atomic<void const*>& ptr, EDProductGetter const* iGetter) {
+      std::uintptr_t tmp = reinterpret_cast<std::uintptr_t>(iGetter);
+      tmp |= refcoreimpl::kCacheIsProductPtrBit;
       ptr.store(reinterpret_cast<void const*>(tmp));
     }
 
     //Used by ROOT 5 I/O rule
     inline void setCacheIsProductGetter(void const*& ptr, EDProductGetter const* iGetter) {
-      std::uintptr_t tmp = reinterpret_cast<std::uintptr_t>(iGetter); 
-      tmp |=refcoreimpl::kCacheIsProductPtrBit;
+      std::uintptr_t tmp = reinterpret_cast<std::uintptr_t>(iGetter);
+      tmp |= refcoreimpl::kCacheIsProductPtrBit;
       ptr = reinterpret_cast<void const*>(tmp);
     }
 
+    inline void setCacheIsItem(std::atomic<void const*>& iCache, void const* iNewValue) { iCache = iNewValue; }
 
-    inline void setCacheIsItem(std::atomic<void const*>& iCache, void const* iNewValue) {
-      iCache = iNewValue;
-    }
-    
-    inline bool tryToSetCacheItemForFirstTime(std::atomic<void const*>&iCache, void const* iNewValue) {
+    inline bool tryToSetCacheItemForFirstTime(std::atomic<void const*>& iCache, void const* iNewValue) {
       auto cache = iCache.load();
-      if(not cacheIsProductPtr(cache)) {
+      if (not cacheIsProductPtr(cache)) {
         return iCache.compare_exchange_strong(cache, iNewValue);
       }
       return false;
     }
 
     inline void const* productPtr(std::atomic<void const*> const& iCache) {
-      auto tmp = iCache.load(); 
-      return refcoreimpl::cacheIsProductPtr(tmp)?tmp:static_cast<void const*>(nullptr);
+      auto tmp = iCache.load();
+      return refcoreimpl::cacheIsProductPtr(tmp) ? tmp : static_cast<void const*>(nullptr);
     }
 
     inline EDProductGetter const* productGetter(std::atomic<void const*> const& iCache) {
-      auto tmp = iCache.load(); 
-      return (!refcoreimpl::cacheIsProductPtr(tmp))? reinterpret_cast<EDProductGetter const*>(reinterpret_cast<std::uintptr_t>(tmp)&refcoreimpl::kCacheIsProductPtrMask):static_cast<EDProductGetter const*>(nullptr);
+      auto tmp = iCache.load();
+      return (!refcoreimpl::cacheIsProductPtr(tmp))
+                 ? reinterpret_cast<EDProductGetter const*>(reinterpret_cast<std::uintptr_t>(tmp) &
+                                                            refcoreimpl::kCacheIsProductPtrMask)
+                 : static_cast<EDProductGetter const*>(nullptr);
     }
 
-  }
-}
+  }  // namespace refcoreimpl
+}  // namespace edm
 
-#define ID_IMPL return ProductID(processIndex_ & refcoreimpl::kProcessIndexMask,productIndex_)
+#define ID_IMPL return ProductID(processIndex_ & refcoreimpl::kProcessIndexMask, productIndex_)
 
 #define PRODUCTPTR_IMPL return refcoreimpl::productPtr(cachePtr_)
 
@@ -88,11 +88,11 @@ namespace edm {
 
 #define PRODUCTGETTER_IMPL return refcoreimpl::productGetter(cachePtr_)
 
-#define ISTRANSIENT_IMPL return 0!=(processIndex_ & refcoreimpl::kTransientBit)
+#define ISTRANSIENT_IMPL return 0 != (processIndex_ & refcoreimpl::kTransientBit)
 
-#define SETTRANSIENT_IMPL processIndex_ |=refcoreimpl::kTransientBit
+#define SETTRANSIENT_IMPL processIndex_ |= refcoreimpl::kTransientBit
 
-#define SETCACHEISPRODUCTPTR_IMPL(_item_) refcoreimpl::setCacheIsItem(cachePtr_,_item_)
+#define SETCACHEISPRODUCTPTR_IMPL(_item_) refcoreimpl::setCacheIsItem(cachePtr_, _item_)
 
 #define SETCACHEISPRODUCTGETTER_IMPL(_getter_) refcoreimpl::setCacheIsProductGetter(cachePtr_, _getter_)
 

@@ -11,20 +11,19 @@ static constexpr auto s_tag = "[PathStatusFilter]";
 
 TEST_CASE("Standard checks of PathStatusFilter", s_tag) {
   const std::string baseConfig{
-R"_(from FWCore.TestProcessor.TestProcess import *
+      R"_(from FWCore.TestProcessor.TestProcess import *
 process = TestProcess()
 process.toTest = cms.EDFilter("PathStatusFilter")
 process.moduleToTest(process.toTest)
-)_"
-  };
+)_"};
 
   SECTION("module constructor") {
-    edm::test::TestProcessor::Config config{ baseConfig };
+    edm::test::TestProcessor::Config config{baseConfig};
     REQUIRE_NOTHROW(edm::test::TestProcessor(config));
   }
 
   SECTION("No event data, empty expression") {
-    edm::test::TestProcessor::Config config{ baseConfig };
+    edm::test::TestProcessor::Config config{baseConfig};
     edm::test::TestProcessor tester(config);
     REQUIRE_NOTHROW(tester.test());
 
@@ -36,15 +35,13 @@ process.moduleToTest(process.toTest)
     std::string fullConfig = baseConfig +
                              R"_(process.toTest.logicalExpression = cms.string("pathname")
                              )_";
-    edm::test::TestProcessor::Config testConfig{ fullConfig };
+    edm::test::TestProcessor::Config testConfig{fullConfig};
     auto token = testConfig.produces<edm::PathStatus>("pathname");
     edm::test::TestProcessor tester(testConfig);
-    auto event = tester.test(std::make_pair(token,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
+    auto event = tester.test(std::make_pair(token, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(event.modulePassed());
 
-    event = tester.test(std::make_pair(token,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
+    event = tester.test(std::make_pair(token, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(!event.modulePassed());
 
     REQUIRE_THROWS(tester.test());
@@ -54,33 +51,21 @@ process.moduleToTest(process.toTest)
     std::string fullConfig = baseConfig +
                              R"_(process.toTest.logicalExpression = cms.string("path1 and path2")
                              )_";
-    edm::test::TestProcessor::Config testConfig{ fullConfig };
+    edm::test::TestProcessor::Config testConfig{fullConfig};
     auto token1 = testConfig.produces<edm::PathStatus>("path1");
     auto token2 = testConfig.produces<edm::PathStatus>("path2");
     edm::test::TestProcessor tester(testConfig);
-    auto event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    auto event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                             std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                        std::make_pair(token2,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                        std::make_pair(token2,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                        std::make_pair(token2,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(!event.modulePassed());
   }
 
@@ -88,33 +73,21 @@ process.moduleToTest(process.toTest)
     std::string fullConfig = baseConfig +
                              R"_(process.toTest.logicalExpression = cms.string("path1 or path2")
                              )_";
-    edm::test::TestProcessor::Config testConfig{ fullConfig };
+    edm::test::TestProcessor::Config testConfig{fullConfig};
     auto token1 = testConfig.produces<edm::PathStatus>("path1");
     auto token2 = testConfig.produces<edm::PathStatus>("path2");
     edm::test::TestProcessor tester(testConfig);
-    auto event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    auto event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                             std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                        std::make_pair(token2,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                        std::make_pair(token2,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                        std::make_pair(token2,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(!event.modulePassed());
   }
 
@@ -122,15 +95,13 @@ process.moduleToTest(process.toTest)
     std::string fullConfig = baseConfig +
                              R"_(process.toTest.logicalExpression = cms.string("not pathname")
                              )_";
-    edm::test::TestProcessor::Config testConfig{ fullConfig };
+    edm::test::TestProcessor::Config testConfig{fullConfig};
     auto token = testConfig.produces<edm::PathStatus>("pathname");
     edm::test::TestProcessor tester(testConfig);
-    auto event = tester.test(std::make_pair(token,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
+    auto event = tester.test(std::make_pair(token, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(!event.modulePassed());
 
-    event = tester.test(std::make_pair(token,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
+    event = tester.test(std::make_pair(token, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(event.modulePassed());
   }
 
@@ -138,156 +109,93 @@ process.moduleToTest(process.toTest)
     std::string fullConfig = baseConfig +
                              R"_(process.toTest.logicalExpression = cms.string("path1 or path2 and path3")
                              )_";
-    edm::test::TestProcessor::Config testConfig{ fullConfig };
+    edm::test::TestProcessor::Config testConfig{fullConfig};
     auto token1 = testConfig.produces<edm::PathStatus>("path1");
     auto token2 = testConfig.produces<edm::PathStatus>("path2");
     auto token3 = testConfig.produces<edm::PathStatus>("path3");
     edm::test::TestProcessor tester(testConfig);
-    auto event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    auto event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                             std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                             std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(!event.modulePassed());
   }
   SECTION("test parenthesis") {
     std::string fullConfig = baseConfig +
                              R"_(process.toTest.logicalExpression = cms.string("(path1 or path2) and path3")
                              )_";
-    edm::test::TestProcessor::Config testConfig{ fullConfig };
+    edm::test::TestProcessor::Config testConfig{fullConfig};
     auto token1 = testConfig.produces<edm::PathStatus>("path1");
     auto token2 = testConfig.produces<edm::PathStatus>("path2");
     auto token3 = testConfig.produces<edm::PathStatus>("path3");
     edm::test::TestProcessor tester(testConfig);
-    auto event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    auto event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                             std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                             std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(!event.modulePassed());
   }
 
   SECTION("test extra space between pathnames and operators") {
-    std::string fullConfig = baseConfig +
-                             R"_(process.toTest.logicalExpression = cms.string("\t    path1   \t and \t  path2 \t and \t not(path3)and not not not path4 or(path5)and  not (  path6 or(path7)) \t   ")
+    std::string fullConfig =
+        baseConfig +
+        R"_(process.toTest.logicalExpression = cms.string("\t    path1   \t and \t  path2 \t and \t not(path3)and not not not path4 or(path5)and  not (  path6 or(path7)) \t   ")
                              )_";
-    edm::test::TestProcessor::Config testConfig{ fullConfig };
+    edm::test::TestProcessor::Config testConfig{fullConfig};
     auto token1 = testConfig.produces<edm::PathStatus>("path1");
     auto token2 = testConfig.produces<edm::PathStatus>("path2");
     auto token3 = testConfig.produces<edm::PathStatus>("path3");
@@ -296,149 +204,77 @@ process.moduleToTest(process.toTest)
     auto token6 = testConfig.produces<edm::PathStatus>("path6");
     auto token7 = testConfig.produces<edm::PathStatus>("path7");
     edm::test::TestProcessor tester(testConfig);
-    auto event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token4,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token5,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token6,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token7,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    auto event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                             std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                             std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                             std::make_pair(token4, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                             std::make_pair(token5, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                             std::make_pair(token6, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                             std::make_pair(token7, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token4,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token5,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token6,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token7,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token4, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token5, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token6, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token7, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token4,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token5,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token6,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token7,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token4, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token5, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token6, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token7, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token4,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token5,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token6,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token7,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token4, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token5, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token6, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token7, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token4,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token5,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token6,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token7,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token4, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token5, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token6, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token7, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token4,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token5,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token6,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token7,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token4, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token5, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token6, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token7, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token4,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token5,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token6,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token7,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token4, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token5, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token6, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token7, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token4,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token5,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token6,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token7,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token4, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token5, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token6, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token7, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token4,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token5,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token6,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                             std::make_pair(token7,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass))
-    );
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token4, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token5, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token6, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token7, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(!event.modulePassed());
   }
 
@@ -446,15 +282,13 @@ process.moduleToTest(process.toTest)
     std::string fullConfig = baseConfig +
                              R"_(process.toTest.logicalExpression = cms.string("a")
                              )_";
-    edm::test::TestProcessor::Config testConfig{ fullConfig };
+    edm::test::TestProcessor::Config testConfig{fullConfig};
     auto token = testConfig.produces<edm::PathStatus>("a");
     edm::test::TestProcessor tester(testConfig);
-    auto event = tester.test(std::make_pair(token,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
+    auto event = tester.test(std::make_pair(token, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(event.modulePassed());
 
-    event = tester.test(std::make_pair(token,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
+    event = tester.test(std::make_pair(token, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(!event.modulePassed());
   }
 
@@ -462,96 +296,65 @@ process.moduleToTest(process.toTest)
     std::string fullConfig = baseConfig +
                              R"_(process.toTest.logicalExpression = cms.string("nota and nota and anot")
                              )_";
-    edm::test::TestProcessor::Config testConfig{ fullConfig };
+    edm::test::TestProcessor::Config testConfig{fullConfig};
     auto token1 = testConfig.produces<edm::PathStatus>("nota");
     auto token2 = testConfig.produces<edm::PathStatus>("anot");
     edm::test::TestProcessor tester(testConfig);
-    auto event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
+    auto event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                             std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                        std::make_pair(token2,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                        std::make_pair(token2,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                        std::make_pair(token2,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(!event.modulePassed());
   }
 
   SECTION("test multiple parentheses and 'not's") {
-    std::string fullConfig = baseConfig +
-                             R"_(process.toTest.logicalExpression = cms.string("not not not (((not(not(((((not not path1))) or path2))) and path3)))")
+    std::string fullConfig =
+        baseConfig +
+        R"_(process.toTest.logicalExpression = cms.string("not not not (((not(not(((((not not path1))) or path2))) and path3)))")
                              )_";
-    edm::test::TestProcessor::Config testConfig{ fullConfig };
+    edm::test::TestProcessor::Config testConfig{fullConfig};
     auto token1 = testConfig.produces<edm::PathStatus>("path1");
     auto token2 = testConfig.produces<edm::PathStatus>("path2");
     auto token3 = testConfig.produces<edm::PathStatus>("path3");
     edm::test::TestProcessor tester(testConfig);
-    auto event = tester.test(std::make_pair(token1,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token2,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                             std::make_pair(token3,
-                                            std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
+    auto event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                             std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                             std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                        std::make_pair(token2,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                        std::make_pair(token3,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                        std::make_pair(token2,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                        std::make_pair(token3,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                        std::make_pair(token2,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                        std::make_pair(token3,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                        std::make_pair(token2,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                        std::make_pair(token3,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(!event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                        std::make_pair(token2,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
-                        std::make_pair(token3,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Pass)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                        std::make_pair(token2,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                        std::make_pair(token3,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Pass)));
     REQUIRE(event.modulePassed());
-    event = tester.test(std::make_pair(token1,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                        std::make_pair(token2,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
-                        std::make_pair(token3,
-                                       std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
+    event = tester.test(std::make_pair(token1, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token2, std::make_unique<edm::PathStatus>(edm::hlt::Fail)),
+                        std::make_pair(token3, std::make_unique<edm::PathStatus>(edm::hlt::Fail)));
     REQUIRE(event.modulePassed());
   }
 }

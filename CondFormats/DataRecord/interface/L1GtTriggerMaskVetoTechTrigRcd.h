@@ -36,6 +36,9 @@
 //     // empty
 
 // };
-class L1GtTriggerMaskVetoTechTrigRcd : public edm::eventsetup::DependentRecordImplementation<L1GtTriggerMaskVetoTechTrigRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+class L1GtTriggerMaskVetoTechTrigRcd
+    : public edm::eventsetup::DependentRecordImplementation<L1GtTriggerMaskVetoTechTrigRcd,
+                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+};
 
 #endif

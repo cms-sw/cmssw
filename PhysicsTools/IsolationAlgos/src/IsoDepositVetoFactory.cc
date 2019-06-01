@@ -2,7 +2,7 @@
 
 #include "DataFormats/RecoCandidate/interface/IsoDepositVetos.h"
 #include "PhysicsTools/IsolationAlgos/interface/EventDependentAbsVetos.h"
-#include <boost/regex.hpp>
+#include <regex>
 
 // ---------- FIRST DEFINE NEW VETOS ------------
 namespace reco { namespace isodeposit {
@@ -83,7 +83,7 @@ IsoDepositVetoFactory::make(const char *string, edm::ConsumesCollector& iC) {
 reco::isodeposit::AbsVeto *
 IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependentAbsVeto *&evdep, edm::ConsumesCollector& iC) {
     using namespace reco::isodeposit;
-    static boost::regex
+    static const std::regex
         ecalSwitch("^Ecal(Barrel|Endcaps):(.*)"),
         threshold("Threshold\\((\\d+\\.\\d+)\\)"),
         thresholdtransverse("ThresholdFromTransverse\\((\\d+\\.\\d+)\\)"),
@@ -99,10 +99,7 @@ IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependent
         otherJetConstituentsDR("OtherJetConstituentsDeltaRVeto\\((\\w+:?\\w*:?\\w*),\\s*(\\d+\\.?|\\d*\\.\\d*),\\s*(\\w+:?\\w*:?\\w*),\\s*(\\d+\\.?|\\d*\\.\\d*)\\)"),
         otherCand("^(.*?):(.*)"),
         number("^(\\d+\\.?|\\d*\\.\\d*)$");
-    boost::cmatch match;
-
-    //std::cout << "<IsoDepositVetoFactory::make>:" << std::endl;
-    //std::cout << " string = " << string << std::endl;
+    std::cmatch match;
 
     evdep = nullptr; // by default it does not depend on this
     if (regex_match(string, match, ecalSwitch)) {

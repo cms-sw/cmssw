@@ -2,7 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  \author G. Cerminara - CERN
+ *  Original author G. Cerminara - CERN
+ *  Modified by  spandey/bkansal
  */
 
 #include "ProducePFCalibrationObject.h"
@@ -71,6 +72,13 @@ void ProducePFCalibrationObject::beginRun(const edm::Run& run, const edm::EventS
   functType["PFfaEta_ENDCAP"] = PerformanceResult::PFfaEta_ENDCAP;
   functType["PFfbEta_BARREL"] = PerformanceResult::PFfbEta_BARREL;
   functType["PFfbEta_ENDCAP"] = PerformanceResult::PFfbEta_ENDCAP;
+
+  functType["PFfcEta_BARRELH"] = PerformanceResult::PFfcEta_BARRELH;
+  functType["PFfcEta_ENDCAPH"] = PerformanceResult::PFfcEta_ENDCAPH;
+  functType["PFfdEta_ENDCAPH"] = PerformanceResult::PFfdEta_ENDCAPH;
+  functType["PFfcEta_BARRELEH"] = PerformanceResult::PFfcEta_BARRELEH;
+  functType["PFfcEta_ENDCAPEH"] = PerformanceResult::PFfcEta_ENDCAPEH;
+  functType["PFfdEta_ENDCAPEH"] = PerformanceResult::PFfdEta_ENDCAPEH;
 
 
   // ---------------------------------------------------------------------------------

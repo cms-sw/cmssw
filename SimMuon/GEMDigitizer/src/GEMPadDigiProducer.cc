@@ -9,10 +9,7 @@
 
 #include <set>
 
-
-GEMPadDigiProducer::GEMPadDigiProducer(const edm::ParameterSet& ps)
-: geometry_(nullptr)
-{
+GEMPadDigiProducer::GEMPadDigiProducer(const edm::ParameterSet& ps) : geometry_(nullptr) {
   digis_ = ps.getParameter<edm::InputTag>("InputCollection");
 
   digi_token_ = consumes<GEMDigiCollection>(digis_);
@@ -21,21 +18,15 @@ GEMPadDigiProducer::GEMPadDigiProducer(const edm::ParameterSet& ps)
   consumes<GEMDigiCollection>(digis_);
 }
 
+GEMPadDigiProducer::~GEMPadDigiProducer() {}
 
-GEMPadDigiProducer::~GEMPadDigiProducer()
-{}
-
-
-void GEMPadDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup)
-{
+void GEMPadDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
   edm::ESHandle<GEMGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get(hGeom);
   geometry_ = &*hGeom;
 }
 
-
-void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
-{
+void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   edm::Handle<GEMDigiCollection> hdigis;
   e.getByToken(digi_token_, hdigis);
 
@@ -49,19 +40,15 @@ void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
   e.put(std::move(pPads));
 }
 
-
-void GEMPadDigiProducer::buildPads(const GEMDigiCollection &det_digis, GEMPadDigiCollection &out_pads) const
-{
-  for(const auto& p: geometry_->etaPartitions())
-  {
+void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDigiCollection& out_pads) const {
+  for (const auto& p : geometry_->etaPartitions()) {
     // set of <pad, bx> pairs, sorted first by pad then by bx
     std::set<std::pair<int, int> > proto_pads;
 
     // walk over digis in this partition,
     // and stuff them into a set of unique pads (equivalent of OR operation)
     auto digis = det_digis.get(p->id());
-    for (auto d = digis.first; d != digis.second; ++d)
-    {
+    for (auto d = digis.first; d != digis.second; ++d) {
       int pad_num = static_cast<int>(p->padOfStrip(d->strip()));
       proto_pads.emplace(pad_num, d->bx());
     }
@@ -70,8 +57,7 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection &det_digis, GEMPadDig
     // emulateDeadTime(proto_pads)
 
     // fill the output collections
-    for (const auto& d: proto_pads)
-    {
+    for (const auto& d : proto_pads) {
       GEMPadDigi pad_digi(d.first, d.second);
       out_pads.insertDigi(p->id(), pad_digi);
     }

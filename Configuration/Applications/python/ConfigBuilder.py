@@ -1935,6 +1935,8 @@ class ConfigBuilder(object):
     def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
 
+        # any 'DQM' job should use DQMStore in non-legacy mode (but not HARVESTING)
+        self.loadAndRemember("DQMServices/Core/DQMStoreNonLegacy_cff")
         self.loadDefaultOrSpecifiedCFF(sequence,self.DQMOFFLINEDefaultCFF)
         sequenceList=sequence.split('.')[-1].split('+')
         postSequenceList=sequence.split('.')[-1].split('+')
@@ -2070,13 +2072,14 @@ class ConfigBuilder(object):
         # now set up the modifies
         modifiers=[]
         modifierStrings=[]
-        modifierImports=['from Configuration.StandardSequences.Eras import eras']
+        modifierImports=[]
 
         if hasattr(self._options,"era") and self._options.era :
         # Multiple eras can be specified in a comma seperated list
             from Configuration.StandardSequences.Eras import eras
             for requestedEra in self._options.era.split(",") :
-                modifierStrings.append("eras."+requestedEra)
+                modifierStrings.append(requestedEra)
+                modifierImports.append(eras.pythonCfgLines[requestedEra])
                 modifiers.append(getattr(eras,requestedEra))
 
 
@@ -2224,6 +2227,9 @@ class ConfigBuilder(object):
             self.pythonCfgCode +="process.options.numberOfThreads=cms.untracked.uint32("+self._options.nThreads+")\n"
             self.pythonCfgCode +="process.options.numberOfStreams=cms.untracked.uint32("+self._options.nStreams+")\n"
             self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32("+self._options.nConcurrentLumis+")\n"
+            self.process.options.numberOfThreads=cms.untracked.uint32(int(self._options.nThreads))
+            self.process.options.numberOfStreams=cms.untracked.uint32(int(self._options.nStreams))            
+            self.process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(int(self._options.nConcurrentLumis))
         #repacked version
         if self._options.isRepacked:
             self.pythonCfgCode +="\n"

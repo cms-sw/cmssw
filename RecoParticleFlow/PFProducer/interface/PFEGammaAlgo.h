@@ -49,10 +49,13 @@
 #include <unordered_map>
 
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaHeavyObjectCache.h"
+#include "RecoParticleFlow/PFProducer/interface/FlaggedPtr.h"
+#include "RecoParticleFlow/PFProducer/interface/CommutativePairs.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
 class PFSCEnergyCalibration;
 class PFEnergyCalibration;
+
 
 class PFEGammaAlgo {
  public:
@@ -62,44 +65,30 @@ class PFEGammaAlgo {
   typedef reco::PFBlockElementGsfTrack PFGSFElement;
   typedef reco::PFBlockElementTrack PFKFElement;
   typedef reco::PFBlockElementCluster PFClusterElement;
-  typedef std::pair<const reco::PFBlockElement*,bool> PFFlaggedElement;
-  typedef std::pair<const PFSCElement*,bool> PFSCFlaggedElement;
-  typedef std::pair<const PFBremElement*,bool> PFBremFlaggedElement;
-  typedef std::pair<const PFGSFElement*,bool> PFGSFFlaggedElement;
-  typedef std::pair<const PFKFElement*,bool> PFKFFlaggedElement;
-  typedef std::pair<const PFClusterElement*,bool> PFClusterFlaggedElement;
-  typedef std::unordered_map<unsigned int, std::vector<unsigned int> > AsscMap;
-  typedef std::vector<std::pair<const reco::PFBlockElement*,
-    const reco::PFBlockElement*> > ElementMap;
-  typedef std::unordered_map<const PFGSFElement*, 
-    std::vector<PFKFFlaggedElement> > GSFToTrackMap;
-  typedef std::unordered_map<const PFClusterElement*, 
-    std::vector<PFClusterFlaggedElement> > ClusterMap;  
-  typedef std::unordered_map<const PFKFElement*, 
-    float > KFValMap;  
+  typedef std::unordered_map<const PFKFElement*, float > KFValMap;  
+
+  using ClusterMap = std::unordered_map<PFClusterElement const*,std::vector<PFClusterElement const*>>;
     
   struct ProtoEGObject {
-    ProtoEGObject() : parentSC(nullptr) {}
     reco::PFBlockRef parentBlock;
-    const PFSCElement* parentSC; // if ECAL driven
+    const PFSCElement* parentSC = nullptr; // if ECAL driven
     reco::ElectronSeedRef electronSeed; // if there is one
     // this is a mutable list of clusters
     // if ECAL driven we take the PF SC and refine it
     // if Tracker driven we add things to it as we discover more valid clusters
-    std::vector<PFClusterFlaggedElement> ecalclusters;
+    std::vector<FlaggedPtr<const PFClusterElement>> ecalclusters;
     ClusterMap ecal2ps;
     // associations to tracks of various sorts
-    std::vector<PFGSFFlaggedElement> primaryGSFs; 
-    GSFToTrackMap boundKFTracks;
-    std::vector<PFKFFlaggedElement> primaryKFs;
-    std::vector<PFBremFlaggedElement> brems; // these are tangent based brems
+    std::vector<PFGSFElement const*> primaryGSFs; 
+    std::vector<PFKFElement const*> primaryKFs;
+    std::vector<PFBremElement const*> brems; // these are tangent based brems
     // for manual brem recovery 
-    std::vector<PFGSFFlaggedElement> secondaryGSFs;
-    std::vector<PFKFFlaggedElement> secondaryKFs;    
+    std::vector<PFGSFElement const*> secondaryGSFs;
+    std::vector<PFKFElement const*> secondaryKFs;    
     KFValMap singleLegConversionMvaMap;
     // for track-HCAL cluster linking
-    std::vector<PFClusterFlaggedElement> hcalClusters;
-    ElementMap localMap;
+    std::vector<PFClusterElement const*> hcalClusters;
+    CommutativePairs<const reco::PFBlockElement*> localMap;
     // cluster closest to the gsf track(s), primary kf if none for gsf
     // last brem tangent cluster if neither of those work
     std::vector<const PFClusterElement*> electronClusters; 
@@ -117,8 +106,6 @@ class PFEGammaAlgo {
 
   //constructor
   PFEGammaAlgo(const PFEGConfigInfo&);
-  //destructor
-  ~PFEGammaAlgo(){ };
 
   void setEEtoPSAssociation(EEtoPSAssociation const& eetops) { eetops_ = &eetops; }
 
@@ -134,9 +121,6 @@ class PFEGammaAlgo {
     cfg_.primaryVtx = & primary;
   }
 
-  void RunPFEG(const pfEGHelpers::HeavyObjectCache* hoc,
-               const reco::PFBlockRef&  blockRef);
-  
   //get PFCandidate collection
   reco::PFCandidateCollection& getCandidates() {return outcands_;}
 
@@ -145,6 +129,10 @@ class PFEGammaAlgo {
   
   //get refined SCs
   reco::SuperClusterCollection& getRefinedSCs() {return refinedscs_;}
+
+  // this runs the functions below
+  void buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* hoc,
+                               const reco::PFBlockRef& block);
   
 private: 
   
@@ -162,7 +150,7 @@ private:
   reco::PFBlock::LinkData _currentlinks;  
   // keep a map of pf indices to the splayed block for convenience
   // sadly we're mashing together two ways of thinking about the block
-  std::vector<std::vector<PFFlaggedElement> > _splayedblock; 
+  std::vector<std::vector<FlaggedPtr<const reco::PFBlockElement>>> _splayedblock; 
 
   // pre-cleaning for the splayed block
   bool isMuon(const reco::PFBlockElement&);
@@ -178,9 +166,6 @@ private:
   std::list<ProtoEGObject> _refinableObjects;
 
   // functions:
-  // this runs the functions below
-  void buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* hoc,
-                               const reco::PFBlockRef& block);
 
   // build proto eg object using all available unflagged resources in block.
   // this will be kind of like the old 'SetLinks' but with simplified and 
@@ -191,7 +176,7 @@ private:
   // turn a supercluster into a map of ECAL cluster elements 
   // related to PS cluster elements
   bool unwrapSuperCluster(const reco::PFBlockElementSuperCluster*,
-			  std::vector<PFClusterFlaggedElement>&,
+			  std::vector<FlaggedPtr<const PFClusterElement>>&,
 			  ClusterMap&);    
   
   int attachPSClusters(const PFClusterElement*,
@@ -217,7 +202,7 @@ private:
   void linkRefinableObjectConvSecondaryKFsToSecondaryKFs(ProtoEGObject&);
   void linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject&);
   // helper function for above
-  void linkKFTrackToECAL(const PFKFFlaggedElement&, ProtoEGObject&);
+  void linkKFTrackToECAL(PFKFElement const*, ProtoEGObject&);
 
   // refining steps doing the ECAL -> track piece
   // this is the factorization of the old PF photon algo stuff
@@ -259,14 +244,6 @@ private:
 
   bool isPrimaryTrack(const reco::PFBlockElementTrack& KfEl,
 		      const reco::PFBlockElementGsfTrack& GsfEl);  
-  
- 
-  //std::vector<double> BDToutput_;
-  //std::vector<reco::PFCandidateElectronExtra > electronExtra_;
-  std::vector<bool> lockExtraKf_;
-  std::vector<bool> GsfTrackSingleEcal_;
-  std::vector< std::pair <unsigned int, unsigned int> > fifthStepKfTrack_;
-  std::vector< std::pair <unsigned int, unsigned int> > convGsfTrack_;
 
   PFEGConfigInfo cfg_;
 

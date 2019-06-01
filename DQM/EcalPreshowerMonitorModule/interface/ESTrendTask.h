@@ -14,18 +14,15 @@
 
 class MonitorElement;
 
-class ESTrendTask: public DQMEDAnalyzer{
-
- public:
-
+class ESTrendTask : public DQMEDAnalyzer {
+public:
   // Constructor
   ESTrendTask(const edm::ParameterSet& ps);
 
   // Destructor
   ~ESTrendTask() override {}
 
- protected:
-
+protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   // Analyze
@@ -35,19 +32,18 @@ class ESTrendTask: public DQMEDAnalyzer{
   void endJob(void) override;
 
   // BeginRun
-  void dqmBeginRun(const edm::Run & r, const edm::EventSetup & c) override;
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   // Update time check
   void updateTime(const edm::Event&);
 
   // Shift bins of TProfile to the right
-  void shift2Right(TProfile* p, int bins=1);
+  void shift2Right(TProfile* p, int bins = 1);
 
   // Shift bins of TProfile to the left
-  void shift2Left(TProfile* p, int bins=1);
+  void shift2Left(TProfile* p, int bins = 1);
 
- private:
-
+private:
   int ievt_;
 
   std::string prefixME_;
@@ -66,7 +62,6 @@ class ESTrendTask: public DQMEDAnalyzer{
   long int start_time_;
   long int current_time_;
   long int last_time_;
-
 };
 
 #endif

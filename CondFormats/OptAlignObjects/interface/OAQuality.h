@@ -5,9 +5,9 @@ enum OAQuality { oa_fixed, oa_calibrated, oa_unknown };
 
 struct OAQualityTranslator {
     
-  static const char * name(OAQuality oaq) 
+  constexpr static const char * const name(OAQuality oaq) 
   {
-    static const char* c[] = { 
+    constexpr const char * const c[] = { 
       "fixed",
       "calibrated",
       "unknown"   
@@ -15,7 +15,7 @@ struct OAQualityTranslator {
     return c[oaq];   			  
   }
   
-  static const OAQuality index( const int& ind ) {
+  static constexpr const OAQuality index(int ind ) {
     switch (ind) {
     case 0:
       return oa_fixed;

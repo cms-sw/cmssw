@@ -468,8 +468,8 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
  					      << "uncalib rechit amplitude: " << aHit.amplitude()
 
 // 	   std::cout << "processed EEDataFrame with id: "
-// 					      << EEDetId(itdg.id()) << "\n"
-// 					      << "uncalib rechit amplitude: " << aHit.amplitude() << std::endl;
+//                   << EEDetId(itdg.id()) << "\n"
+//                   << "uncalib rechit amplitude: " << aHit.amplitude() << std::endl;
 	     ;
 	 }
 #endif

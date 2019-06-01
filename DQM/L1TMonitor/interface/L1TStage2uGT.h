@@ -41,57 +41,55 @@
 // Class declaration
 //
 
-class L1TStage2uGT: public DQMEDAnalyzer {
-
+class L1TStage2uGT : public DQMEDAnalyzer {
 public:
-   L1TStage2uGT(const edm::ParameterSet& ps); // constructor
-   ~L1TStage2uGT() override; // destructor
+  L1TStage2uGT(const edm::ParameterSet& ps);  // constructor
+  ~L1TStage2uGT() override;                   // destructor
 
 protected:
-   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-   void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
-   void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-   
-   // Input parameters
-   edm::EDGetTokenT<GlobalAlgBlkBxCollection> l1tStage2uGtSource_; // input tag for L1 uGT DAQ readout record
-  
-   std::string monitorDir_; // histogram folder for L1 uGT plots
+  // Input parameters
+  edm::EDGetTokenT<GlobalAlgBlkBxCollection> l1tStage2uGtSource_;  // input tag for L1 uGT DAQ readout record
 
-   bool verbose_; // verbosity switch
+  std::string monitorDir_;  // histogram folder for L1 uGT plots
 
-   // To get the number of algorithms
-   std::shared_ptr<l1t::L1TGlobalUtil> gtUtil_;
-   int numAlgs_; // number of algorithms
+  bool verbose_;  // verbosity switch
 
-   // Algorithm bits
-   MonitorElement* algoBits_before_bxmask_;
-   MonitorElement* algoBits_before_prescale_;
-   MonitorElement* algoBits_after_prescale_;
-  
-   // Algorithm bits correlation
-   MonitorElement* algoBits_before_bxmask_corr_;
-   MonitorElement* algoBits_before_prescale_corr_;
-   MonitorElement* algoBits_after_prescale_corr_;
- 
-   // Algorithm bits vs global BX number
-   MonitorElement* algoBits_before_bxmask_bx_global_;
-   MonitorElement* algoBits_before_prescale_bx_global_;
-   MonitorElement* algoBits_after_prescale_bx_global_;
-  
-   // Algorithm bits vs BX number in event
-   MonitorElement* algoBits_before_bxmask_bx_inEvt_;
-   MonitorElement* algoBits_before_prescale_bx_inEvt_;
-   MonitorElement* algoBits_after_prescale_bx_inEvt_;
+  // To get the number of algorithms
+  std::shared_ptr<l1t::L1TGlobalUtil> gtUtil_;
+  int numAlgs_;  // number of algorithms
 
-   // Algorithm bits vs LS
-   MonitorElement* algoBits_before_bxmask_lumi_;
-   MonitorElement* algoBits_before_prescale_lumi_;
-   MonitorElement* algoBits_after_prescale_lumi_;
- 
-   // Prescale factor index 
-   MonitorElement* prescaleFactorSet_;
+  // Algorithm bits
+  MonitorElement* algoBits_before_bxmask_;
+  MonitorElement* algoBits_before_prescale_;
+  MonitorElement* algoBits_after_prescale_;
+
+  // Algorithm bits correlation
+  MonitorElement* algoBits_before_bxmask_corr_;
+  MonitorElement* algoBits_before_prescale_corr_;
+  MonitorElement* algoBits_after_prescale_corr_;
+
+  // Algorithm bits vs global BX number
+  MonitorElement* algoBits_before_bxmask_bx_global_;
+  MonitorElement* algoBits_before_prescale_bx_global_;
+  MonitorElement* algoBits_after_prescale_bx_global_;
+
+  // Algorithm bits vs BX number in event
+  MonitorElement* algoBits_before_bxmask_bx_inEvt_;
+  MonitorElement* algoBits_before_prescale_bx_inEvt_;
+  MonitorElement* algoBits_after_prescale_bx_inEvt_;
+
+  // Algorithm bits vs LS
+  MonitorElement* algoBits_before_bxmask_lumi_;
+  MonitorElement* algoBits_before_prescale_lumi_;
+  MonitorElement* algoBits_after_prescale_lumi_;
+
+  // Prescale factor index
+  MonitorElement* prescaleFactorSet_;
 };
 
 #endif

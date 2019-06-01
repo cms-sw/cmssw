@@ -15,7 +15,7 @@
 // Original Author:  Sunanda Banerjee
 //         Created:  Thu May 18 10:14:34 CEST 2006
 //
-  
+
 // system include files
 #include <boost/cstdint.hpp>
 #include <vector>
@@ -23,12 +23,11 @@
 // user include files
 
 class HcalTBNumberingScheme {
-
 public:
   HcalTBNumberingScheme() {}
   virtual ~HcalTBNumberingScheme() {}
-	 
-  static uint32_t              getUnitID (const uint32_t id, const int mode);
+
+  static uint32_t getUnitID(const uint32_t id, const int mode);
   static std::vector<uint32_t> getUnitIDs(const int type, const int mode);
 };
 

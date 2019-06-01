@@ -39,52 +39,48 @@ using namespace edm;
 //
 // constructors and destructor
 //
-CosmicMuonProducer::CosmicMuonProducer(const ParameterSet& iConfig)
-{
+CosmicMuonProducer::CosmicMuonProducer(const ParameterSet& iConfig) {
   ParameterSet tbpar = iConfig.getParameter<ParameterSet>("TrajectoryBuilderParameters");
 
-  theSeedCollectionToken =consumes<edm::View<TrajectorySeed> >( iConfig.getParameter<std::string>("MuonSeedCollectionLabel"));
+  theSeedCollectionToken =
+      consumes<edm::View<TrajectorySeed> >(iConfig.getParameter<std::string>("MuonSeedCollectionLabel"));
 
   // service parameters
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
-  
+
   // TrackLoader parameters
   ParameterSet trackLoaderParameters = iConfig.getParameter<ParameterSet>("TrackLoaderParameters");
-  
+
   // the services
 
   edm::ConsumesCollector iC = consumesCollector();
-  
+
   theService = new MuonServiceProxy(serviceParameters);
-  theTrackFinder = new MuonTrackFinder(new CosmicMuonTrajectoryBuilder(tbpar,theService,iC),
-				       new MuonTrackLoader(trackLoaderParameters,iC, theService));
+  theTrackFinder = new MuonTrackFinder(new CosmicMuonTrajectoryBuilder(tbpar, theService, iC),
+                                       new MuonTrackLoader(trackLoaderParameters, iC, theService));
 
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
   produces<std::vector<Trajectory> >();
   produces<TrajTrackAssociationCollection>();
-
 }
 
-
-CosmicMuonProducer::~CosmicMuonProducer()
-{
-  if (theService) delete theService;
-  if (theTrackFinder) delete theTrackFinder;
+CosmicMuonProducer::~CosmicMuonProducer() {
+  if (theService)
+    delete theService;
+  if (theTrackFinder)
+    delete theTrackFinder;
 }
-
 
 // ------------ method called to produce the data  ------------
-void
-CosmicMuonProducer::produce(Event& iEvent, const EventSetup& iSetup)
-{
+void CosmicMuonProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   LogInfo("CosmicMuonProducer") << "Analyzing event number: " << iEvent.id();
 
-  Handle<View<TrajectorySeed> > seeds; 
-  iEvent.getByToken(theSeedCollectionToken,seeds);
-  
+  Handle<View<TrajectorySeed> > seeds;
+  iEvent.getByToken(theSeedCollectionToken, seeds);
+
   // Update the services
   theService->update(iSetup);
-  theTrackFinder->reconstruct(seeds,iEvent,iSetup);
+  theTrackFinder->reconstruct(seeds, iEvent, iSetup);
 }

@@ -20,48 +20,35 @@
 
 class DDCompactView;
 
-template < class T >
-class CaloGeometryLoader
-{
+template <class T>
+class CaloGeometryLoader {
 public:
-
-  typedef std::vector< double > ParmVec ;
+  typedef std::vector<double> ParmVec;
 
   using PtrType = std::unique_ptr<CaloSubdetectorGeometry>;
 
-  typedef CaloSubdetectorGeometry::ParVec    ParVec ;
-  typedef CaloSubdetectorGeometry::ParVecVec ParVecVec ;
+  typedef CaloSubdetectorGeometry::ParVec ParVec;
+  typedef CaloSubdetectorGeometry::ParVecVec ParVecVec;
 
-  static const double k_ScaleFromDDDtoGeant ;
+  static const double k_ScaleFromDDDtoGeant;
 
-  CaloGeometryLoader< T >() ;
+  CaloGeometryLoader<T>();
 
-  virtual ~CaloGeometryLoader< T >() {}
- 
-  PtrType load( const DDCompactView* cpv,
-		const Alignments*    alignments = nullptr ,
-		const Alignments*    globals    = nullptr  ) ;  
+  virtual ~CaloGeometryLoader<T>() {}
+
+  PtrType load(const DDCompactView* cpv, const Alignments* alignments = nullptr, const Alignments* globals = nullptr);
 
 private:
+  void makeGeometry(const DDCompactView* cpv, T* geom, const Alignments* alignments, const Alignments* globals);
 
-  void makeGeometry( const DDCompactView*  cpv        , 
-		     T*                    geom       ,
-		     const Alignments*     alignments ,
-		     const Alignments*     globals       ) ;
-      
-  void fillNamedParams( const DDFilteredView& fv,
-			T*             geom ) ;
-      
-  void fillGeom( T*                    geom ,
-		 const ParmVec&        pv ,
-		 const HepGeom::Transform3D& tr ,
-		 const DetId&          id    ) ;
+  void fillNamedParams(const DDFilteredView& fv, T* geom);
 
-  unsigned int getDetIdForDDDNode( const DDFilteredView& fv ) ;
+  void fillGeom(T* geom, const ParmVec& pv, const HepGeom::Transform3D& tr, const DetId& id);
+
+  unsigned int getDetIdForDDDNode(const DDFilteredView& fv);
 
   typename T::NumberingScheme m_scheme;
-  DDAndFilter<DDSpecificsMatchesValueFilter,
-              DDSpecificsMatchesValueFilter> m_filter;
+  DDAndFilter<DDSpecificsMatchesValueFilter, DDSpecificsMatchesValueFilter> m_filter;
 };
 
 #endif

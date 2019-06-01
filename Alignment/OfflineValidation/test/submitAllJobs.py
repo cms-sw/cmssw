@@ -4,6 +4,7 @@
 '''
 from __future__ import print_function
 
+from builtins import range
 __author__ = 'Marco Musich'
 __copyright__ = 'Copyright 2015, CERN CMS'
 __credits__ = ['Ernesto Migliore', 'Salvatore Di Guida', 'Javier Duarte']
@@ -167,7 +168,7 @@ def split(sequence, size):
 # based on http://sandrotosi.blogspot.com/2011/04/python-group-list-in-sub-lists-of-n.html
 # about generators see also http://stackoverflow.com/questions/231767/the-python-yield-keyword-explained
 ##########################
-    for i in xrange(0, len(sequence), size):
+    for i in range(0, len(sequence), size):
         yield sequence[i:i+size] 
 
 #############

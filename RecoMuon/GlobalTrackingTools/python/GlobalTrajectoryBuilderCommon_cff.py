@@ -41,7 +41,7 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
         Chi2CutME0 = cms.double(1.0),
         Chi2CutRPC = cms.double(1.0),
         HitThreshold = cms.int32(1),
-        
+
         Fitter = cms.string('GlbMuKFFitter'),
         Propagator = cms.string('SmartPropagatorAnyRK'),
         TrackerRecHitBuilder = cms.string('WithAngleAndTemplate'),
@@ -50,19 +50,28 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
         RefitDirection = cms.string('insideOut'),
         PropDirForCosmics = cms.bool(False),
         RefitRPCHits = cms.bool(True),
-        
+
         # DYT stuff
         DYTthrs = cms.vint32(20, 30),
         DYTselector = cms.int32(1),
         DYTupdator = cms.bool(False),
         DYTuseAPE = cms.bool(False),
+        ## Parameters for DYT threshold parametrization
+        DYTuseThrsParametrization = cms.bool(True),
+        DYTthrsParameters = cms.PSet(
+                                  eta0p8 = cms.vdouble(1, -0.919853, 0.990742),
+                                  eta1p2 = cms.vdouble(1, -0.897354, 0.987738),
+                                  eta2p0 = cms.vdouble(4, -0.986855, 0.998516),
+                                  eta2p2 = cms.vdouble(1, -0.940342, 0.992955),
+                                  eta2p4 = cms.vdouble(1, -0.947633, 0.993762),
+                                    ),
 
         # muon station to be skipped
         SkipStation		= cms.int32(-1),
-        
+
         # PXB = 1, PXF = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6
         TrackerSkipSystem	= cms.int32(-1),
-        
+
         # layer, wheel, or disk depending on the system
         TrackerSkipSection	= cms.int32(-1),
 

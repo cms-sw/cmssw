@@ -85,4 +85,6 @@ phase2_muon.toModify( SimMuonPREMIX, outputCommands = SimMuonPREMIX.outputComman
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 def _renameForFastsim(s):
     return s.replace("_g4Sim", "_MuonSim")
-fastSim.toModify(SimMuonPREMIX, outputCommands = map(_renameForFastsim, SimMuonPREMIX.outputCommands.value()))
+
+fastSim.toModify(SimMuonPREMIX, outputCommands = list( ( _renameForFastsim(item) for item in SimMuonPREMIX.outputCommands.value())))
+

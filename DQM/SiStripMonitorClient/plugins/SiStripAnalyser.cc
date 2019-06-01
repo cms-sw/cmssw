@@ -38,22 +38,15 @@
 #include <string>
 
 SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps)
-  : condDataMon_{ps},
-    actionExecutor_{ps},
-    tkMapPSet_{ps.getParameter<edm::ParameterSet>("TkmapParameters")},
-    summaryFrequency_{
-      ps.getUntrackedParameter<int>("SummaryCreationFrequency", 1)},
-    staticUpdateFrequency_{
-      ps.getUntrackedParameter<int>("StaticUpdateFrequency", 1)},
-    globalStatusFilling_{
-      ps.getUntrackedParameter<int>("GlobalStatusFilling", 1)},
-    shiftReportFrequency_{
-      ps.getUntrackedParameter<int>("ShiftReportFrequency", 1)},
-    rawDataToken_{consumes<FEDRawDataCollection>(
-      ps.getUntrackedParameter<edm::InputTag>("RawDataTag"))},
-    printFaultyModuleList_{
-      ps.getUntrackedParameter<bool>("PrintFaultyModuleList", true)}
-{
+    : condDataMon_{ps},
+      actionExecutor_{ps},
+      tkMapPSet_{ps.getParameter<edm::ParameterSet>("TkmapParameters")},
+      summaryFrequency_{ps.getUntrackedParameter<int>("SummaryCreationFrequency", 1)},
+      staticUpdateFrequency_{ps.getUntrackedParameter<int>("StaticUpdateFrequency", 1)},
+      globalStatusFilling_{ps.getUntrackedParameter<int>("GlobalStatusFilling", 1)},
+      shiftReportFrequency_{ps.getUntrackedParameter<int>("ShiftReportFrequency", 1)},
+      rawDataToken_{consumes<FEDRawDataCollection>(ps.getUntrackedParameter<edm::InputTag>("RawDataTag"))},
+      printFaultyModuleList_{ps.getUntrackedParameter<bool>("PrintFaultyModuleList", true)} {
   std::string const localPath{"DQM/SiStripMonitorClient/test/loader.html"};
   std::ifstream fin{edm::FileInPath(localPath).fullPath(), std::ios::in};
   if (!fin) {
@@ -61,44 +54,31 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps)
               << " could not be opened!" << std::endl;
     return;
   }
-  edm::LogInfo("SiStripAnalyser")
-    << " SiStripAnalyser::Creating SiStripAnalyser ";
+  edm::LogInfo("SiStripAnalyser") << " SiStripAnalyser::Creating SiStripAnalyser ";
 }
 
-SiStripAnalyser::~SiStripAnalyser()
-{
-  edm::LogInfo("SiStripAnalyser")
-    << "SiStripAnalyser::Deleting SiStripAnalyser ";
-}
+SiStripAnalyser::~SiStripAnalyser() { edm::LogInfo("SiStripAnalyser") << "SiStripAnalyser::Deleting SiStripAnalyser "; }
 
-void
-SiStripAnalyser::beginJob()
-{
+void SiStripAnalyser::beginJob() {
   // Read the summary configuration file
   if (!actionExecutor_.readConfiguration()) {
-    edm::LogInfo("SiStripAnalyser")
-      << "SiStripAnalyser:: Error to read configuration file!! Summary will "
-         "not be produced!!!";
+    edm::LogInfo("SiStripAnalyser") << "SiStripAnalyser:: Error to read configuration file!! Summary will "
+                                       "not be produced!!!";
   }
 }
 
-void
-SiStripAnalyser::beginRun(edm::Run const& run, edm::EventSetup const& eSetup)
-{
+void SiStripAnalyser::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo("SiStripAnalyser") << "SiStripAnalyser:: Begining of Run";
 
   // Check latest Fed cabling and create TrackerMapCreator
-  unsigned long long const cacheID =
-    eSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
+  unsigned long long const cacheID = eSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
   if (m_cacheID_ != cacheID) {
     m_cacheID_ = cacheID;
-    edm::LogInfo("SiStripAnalyser")
-      << "SiStripAnalyser::beginRun: "
-      << " Change in Cabling, recrated TrackerMap";
+    edm::LogInfo("SiStripAnalyser") << "SiStripAnalyser::beginRun: "
+                                    << " Change in Cabling, recrated TrackerMap";
     if (!actionExecutor_.readTkMapConfiguration(eSetup)) {
-      edm::LogInfo("SiStripAnalyser")
-        << "SiStripAnalyser:: Error to read configuration file!! TrackerMap "
-           "will not be produced!!!";
+      edm::LogInfo("SiStripAnalyser") << "SiStripAnalyser:: Error to read configuration file!! TrackerMap "
+                                         "will not be produced!!!";
     }
     eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
     eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
@@ -110,16 +90,11 @@ SiStripAnalyser::beginRun(edm::Run const& run, edm::EventSetup const& eSetup)
   }
 }
 
-void
-SiStripAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                                      edm::EventSetup const& eSetup)
-{
+void SiStripAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
   edm::LogInfo("SiStripAnalyser") << "SiStripAnalyser:: Begin of LS transition";
 }
 
-void
-SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
-{
+void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup) {
   ++nEvents_;
   if (nEvents_ == 1 && globalStatusFilling_ > 0) {
     checkTrackerFEDs(e);
@@ -135,10 +110,7 @@ SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
   }
 }
 
-void
-SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                                    edm::EventSetup const& eSetup)
-{
+void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
   edm::LogInfo("SiStripAnalyser") << "SiStripAnalyser:: End of LS transition, "
                                      "performing the DQM client operation";
   ++nLumiSecs_;
@@ -149,12 +121,9 @@ SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
   }
   endLumiAnalysisOn_ = true;
 
-  std::cout << "====================================================== "
-            << std::endl;
-  std::cout << " ===> Iteration # " << nLumiSecs_ << " "
-            << lumiSeg.luminosityBlock() << std::endl;
-  std::cout << "====================================================== "
-            << std::endl;
+  std::cout << "====================================================== " << std::endl;
+  std::cout << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << std::endl;
+  std::cout << "====================================================== " << std::endl;
 
   auto& dqm_store = *edm::Service<DQMStore>{};
   // Fill Global Status
@@ -162,23 +131,18 @@ SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
     actionExecutor_.fillStatus(dqm_store, detCabling_, eSetup);
   }
   // -- Create summary monitor elements according to the frequency
-  if (summaryFrequency_ != -1 && nLumiSecs_ > 0 &&
-      nLumiSecs_ % summaryFrequency_ == 0) {
+  if (summaryFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_ % summaryFrequency_ == 0) {
     std::cout << " Creating Summary " << std::endl;
     actionExecutor_.createSummary(dqm_store);
   }
   endLumiAnalysisOn_ = false;
 }
 
-void
-SiStripAnalyser::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
-{
+void SiStripAnalyser::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo("SiStripAnalyser") << "SiStripAnalyser:: End of Run";
 }
 
-void
-SiStripAnalyser::endJob()
-{
+void SiStripAnalyser::endJob() {
   edm::LogInfo("SiStripAnalyser") << "SiStripAnalyser:: endjob called!";
   if (printFaultyModuleList_) {
     std::ostringstream str_val;
@@ -188,12 +152,11 @@ SiStripAnalyser::endJob()
   }
 }
 
-void
-SiStripAnalyser::checkTrackerFEDs(edm::Event const& e)
-{
+void SiStripAnalyser::checkTrackerFEDs(edm::Event const& e) {
   edm::Handle<FEDRawDataCollection> rawDataHandle;
   e.getByToken(rawDataToken_, rawDataHandle);
-  if (!rawDataHandle.isValid()) return;
+  if (!rawDataHandle.isValid())
+    return;
 
   auto const& rawDataCollection = *rawDataHandle;
   constexpr int siStripFedIdMin{FEDNumbering::MINSiStripFEDID};

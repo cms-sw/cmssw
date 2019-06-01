@@ -16,7 +16,6 @@
 #include "Fireworks/Core/interface/FWParameterBase.h"
 #include "Fireworks/Core/interface/FWParameterizable.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -29,13 +28,10 @@
 // constructors and destructor
 //
 
-FWParameterBase::FWParameterBase(FWParameterizable* iParent,const std::string& iName) :
-   m_name(iName)
-{
-   if (nullptr != iParent)
-   {
-      iParent->add(this);
-   }
+FWParameterBase::FWParameterBase(FWParameterizable* iParent, const std::string& iName) : m_name(iName) {
+  if (nullptr != iParent) {
+    iParent->add(this);
+  }
 }
 
 // FWParameterBase::FWParameterBase(const FWParameterBase& rhs)
@@ -43,9 +39,7 @@ FWParameterBase::FWParameterBase(FWParameterizable* iParent,const std::string& i
 //    // do actual copying here;
 // }
 
-FWParameterBase::~FWParameterBase()
-{
-}
+FWParameterBase::~FWParameterBase() {}
 
 //
 // assignment operators

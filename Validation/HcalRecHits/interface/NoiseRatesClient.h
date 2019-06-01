@@ -3,37 +3,36 @@
 
 // -*- C++ -*-
 //
-// 
+//
 /*
- Description: This is a NoiseRates client meant to plot noiserates quantities 
+ Description: This is a NoiseRates client meant to plot noiserates quantities
 */
 
 //
-// Originally create by: Hongxuan Liu 
+// Originally create by: Hongxuan Liu
 //                        May 2010
 //
 
-#include <memory>
-#include <unistd.h>
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
+#include <memory>
+#include <unistd.h>
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <vector>
 
 class MonitorElement;
 
 class NoiseRatesClient : public DQMEDHarvester {
- 
- private:
+private:
   std::string outputFile_;
 
   edm::ParameterSet conf_;
@@ -45,15 +44,14 @@ class NoiseRatesClient : public DQMEDHarvester {
   std::string dirNameJet_;
   std::string dirNameMET_;
 
- public:
-  explicit NoiseRatesClient(const edm::ParameterSet& );
+public:
+  explicit NoiseRatesClient(const edm::ParameterSet &);
   ~NoiseRatesClient() override;
-  
+
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
-  virtual void runClient_(DQMStore::IBooker &, DQMStore::IGetter &);   
+  virtual void runClient_(DQMStore::IBooker &, DQMStore::IGetter &);
 
-  int NoiseRatesEndjob(const std::vector<MonitorElement*> &hcalMEs);
-
+  int NoiseRatesEndjob(const std::vector<MonitorElement *> &hcalMEs);
 };
- 
+
 #endif

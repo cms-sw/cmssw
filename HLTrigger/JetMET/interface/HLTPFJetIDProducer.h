@@ -19,32 +19,31 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
-
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 // Class declaration
 class HLTPFJetIDProducer : public edm::stream::EDProducer<> {
-  public:
-    explicit HLTPFJetIDProducer(const edm::ParameterSet & iConfig);
-    ~HLTPFJetIDProducer() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+public:
+  explicit HLTPFJetIDProducer(const edm::ParameterSet& iConfig);
+  ~HLTPFJetIDProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  private:
-    double minPt_;
-    double maxEta_;
-    double CHF_;              ///< charged hadron fraction
-    double NHF_;              ///< neutral hadron fraction
-    double CEF_;              ///< charged EM fraction
-    double NEF_;              ///< neutral EM fraction
-    double maxCF_;            ///< total charged energy fraction
-    int NCH_;                 ///< number of charged constituents
-    int NTOT_;                ///< number of constituents
-    edm::InputTag inputTag_;  ///< input PFJet collection
+private:
+  double minPt_;
+  double maxEta_;
+  double CHF_;              ///< charged hadron fraction
+  double NHF_;              ///< neutral hadron fraction
+  double CEF_;              ///< charged EM fraction
+  double NEF_;              ///< neutral EM fraction
+  double maxCF_;            ///< total charged energy fraction
+  int NCH_;                 ///< number of charged constituents
+  int NTOT_;                ///< number of constituents
+  edm::InputTag inputTag_;  ///< input PFJet collection
 
-    edm::EDGetTokenT<reco::PFJetCollection> m_thePFJetToken;
+  edm::EDGetTokenT<reco::PFJetCollection> m_thePFJetToken;
 };
 
 #endif  // HLTPFJetIDProducer_h_

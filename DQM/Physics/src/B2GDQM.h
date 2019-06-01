@@ -78,24 +78,20 @@
 class DQMStore;
 
 class B2GDQM : public DQMEDAnalyzer {
-
- public:
+public:
   B2GDQM(const edm::ParameterSet& ps);
   ~B2GDQM() override;
 
- protected:
+protected:
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
   virtual void analyzeJets(edm::Event const& e, edm::EventSetup const& eSetup);
-  virtual void analyzeSemiMu(edm::Event const& e,
-                             edm::EventSetup const& eSetup);
+  virtual void analyzeSemiMu(edm::Event const& e, edm::EventSetup const& eSetup);
   virtual void analyzeSemiE(edm::Event const& e, edm::EventSetup const& eSetup);
-  virtual void analyzeAllHad(edm::Event const& e,
-                             edm::EventSetup const& eSetup);
+  virtual void analyzeAllHad(edm::Event const& e, edm::EventSetup const& eSetup);
 
- private:
-  void bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
-                              edm::EventSetup const&) override;
+private:
+  void bookHistograms(DQMStore::IBooker& bei, edm::Run const&, edm::EventSetup const&) override;
   int nLumiSecs_;
   int nEvents_, irun, ievt;
 
@@ -134,21 +130,19 @@ class B2GDQM : public DQMEDAnalyzer {
 
   double semiMu_HadJetPtCut_;  // min pt of hadronic-side jet
   double semiMu_LepJetPtCut_;  // min pt of leptonic-side jet
-  double semiMu_dphiHadCut_;  // min deltaPhi between muon and hadronic-side jet
-  double semiMu_dRMin_;  // min deltaR between muon and nearest jet for 2d cut
-  double semiMu_ptRel_;  // max ptRel between muon and nearest jet for 2d cut
-  std::shared_ptr<StringCutObjectSelector<reco::Muon> >
-      muonSelect_;  // Selection on all muons
+  double semiMu_dphiHadCut_;   // min deltaPhi between muon and hadronic-side jet
+  double semiMu_dRMin_;        // min deltaR between muon and nearest jet for 2d cut
+  double semiMu_ptRel_;        // max ptRel between muon and nearest jet for 2d cut
+  std::shared_ptr<StringCutObjectSelector<reco::Muon> > muonSelect_;  // Selection on all muons
 
   double semiE_HadJetPtCut_;  // pt of hadronic-side jet
   double semiE_LepJetPtCut_;  // min pt of leptonic-side jet
   double semiE_dphiHadCut_;   // min deltaPhi between electron and hadronic-side
                               // jet
-  double semiE_dRMin_;  // min deltaR between electron and nearest jet for 2d
-                        // cut
-  double semiE_ptRel_;  // max ptRel between electron and nearest jet for 2d cut
-  std::shared_ptr<StringCutObjectSelector<reco::GsfElectron> >
-      elecSelect_;  // Kinematic selection on all electrons
+  double semiE_dRMin_;        // min deltaR between electron and nearest jet for 2d
+                              // cut
+  double semiE_ptRel_;        // max ptRel between electron and nearest jet for 2d cut
+  std::shared_ptr<StringCutObjectSelector<reco::GsfElectron> > elecSelect_;  // Kinematic selection on all electrons
 
   std::string PFJetCorService_;
   ///////////////////////////

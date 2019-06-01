@@ -27,8 +27,6 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 // MUON includes
@@ -51,24 +49,21 @@
 
 class HLTTauRefProducer : public edm::global::EDProducer<> {
 public:
-
   explicit HLTTauRefProducer(const edm::ParameterSet&);
 
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
 private:
-
   using LorentzVector = math::XYZTLorentzVectorD;
   using LorentzVectorCollection = std::vector<LorentzVector>;
 
   edm::EDGetTokenT<reco::PFTauCollection> PFTaus_;
   std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator>> PFTauDis_;
   bool doPFTaus_;
-  double ptMinPFTau_,etaMinPFTau_,etaMaxPFTau_,phiMinPFTau_,phiMaxPFTau_;
+  double ptMinPFTau_, etaMinPFTau_, etaMaxPFTau_, phiMinPFTau_, phiMaxPFTau_;
 
   edm::EDGetTokenT<reco::GsfElectronCollection> Electrons_;
   bool doElectrons_;
-  edm::EDGetTokenT<reco::ElectronIDAssociationCollection> e_idAssocProd_;
   edm::EDGetTokenT<reco::TrackCollection> e_ctfTrackCollection_;
   edm::InputTag e_ctfTrackCollectionSrc_;
   double ptMinElectron_;
@@ -106,7 +101,7 @@ private:
   bool doMET_;
   double ptMinMET_;
 
-  double etaMin_,etaMax_,phiMin_,phiMax_;
+  double etaMin_, etaMax_, phiMin_, phiMax_;
 
   void doPFTaus(edm::Event&) const;
   void doMuons(edm::Event&) const;

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("ME0TPEmulator", eras.Phase2)
+from Configuration.Eras.Era_Phase2_cff import Phase2
+process = cms.Process("ME0TPEmulator", Phase2)
 
 process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(10)

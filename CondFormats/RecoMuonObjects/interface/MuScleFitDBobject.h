@@ -5,8 +5,7 @@
 
 #include <vector>
 
-struct MuScleFitDBobject
-{
+struct MuScleFitDBobject {
   std::vector<int> identifiers;
   std::vector<double> parameters;
   std::vector<double> fitQuality;
@@ -14,4 +13,4 @@ struct MuScleFitDBobject
   COND_SERIALIZABLE;
 };
 
-#endif // MuScleFitDBobject
+#endif  // MuScleFitDBobject

@@ -22,9 +22,9 @@ struct ParticleInfo {
   ParticleInfo(int bN, int s, int s1, int s2, int c) {
     fBaryonNumber = bN;
     fStrangeness = s;
-    fIsospin = s1; //2S
-    fSpin = s2; //2I
-    fCharge = c; //fCharge = 2 * I3
+    fIsospin = s1;  //2S
+    fSpin = s2;     //2I
+    fCharge = c;    //fCharge = 2 * I3
   }
 };
 

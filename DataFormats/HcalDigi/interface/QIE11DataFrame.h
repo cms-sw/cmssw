@@ -15,6 +15,11 @@ public:
   static const int HEADER_WORDS = 1;
   static const int FLAG_WORDS = 1;
 
+  static const int OFFSET_FLAVOR = 12;
+  static const int MASK_FLAVOR = 0x7;
+  static const int FLAVOR_HB = 3;
+  static const int MASK_LINKERROR = 0x800;
+  
   constexpr QIE11DataFrame() { }
   constexpr QIE11DataFrame(edm::DataFrame const & df) : m_data(df) { }
 
@@ -22,15 +27,23 @@ public:
   public:
     constexpr Sample(const edm::DataFrame& frame, edm::DataFrame::size_type i) : frame_(frame),i_(i) { }
     static const int MASK_ADC = 0xFF;
-    static const int MASK_TDC = 0x3F;
+    static const int MASK_TDC_HE = 0x3F;
+    static const int MASK_TDC_HB = 0x3;
     static const int OFFSET_TDC = 8; // 8 bits
     static const int MASK_SOI = 0x4000;
+    static const int MASK_LE_HB = 0x2000;
     static const int MASK_CAPID = 0x3;
-    static const int OFFSET_CAPID = 8;
+    static const int MASK_CAPID_INV_HB = 0xF3FF;
+    static const int MASK_CAPID_KEEP_HB = 0x0C00;
+    static const int OFFSET_CAPID_HE = 8;
+    static const int OFFSET_CAPID_HB = 10;
+    constexpr int flavor() const { return ((frame_[0]>>OFFSET_FLAVOR)&MASK_FLAVOR); }
     constexpr int adc() const { return frame_[i_]&MASK_ADC; }
-    constexpr int tdc() const { return (frame_[i_]>>OFFSET_TDC)&MASK_TDC; }
+    constexpr int tdc() const { return (frame_[i_]>>OFFSET_TDC)&((flavor()==FLAVOR_HB)?(MASK_TDC_HB):(MASK_TDC_HE)); }
     constexpr bool soi() const { return frame_[i_]&MASK_SOI; }
-    constexpr int capid() const { return ((((frame_[0]>>OFFSET_CAPID)&MASK_CAPID)+i_-HEADER_WORDS)&MASK_CAPID); }
+    constexpr int capid() const { return (flavor()==FLAVOR_HB)? ((frame_[i_]>>OFFSET_CAPID_HB)&MASK_CAPID) :
+	((((frame_[0]>>OFFSET_CAPID_HE)&MASK_CAPID)+i_-HEADER_WORDS)&MASK_CAPID); }
+    constexpr bool linkError() const { return (flavor()==FLAVOR_HB)? (frame_[i_]&MASK_LE_HB) : (frame_[0]&MASK_LINKERROR);  } 
   private:
     const edm::DataFrame& frame_;
     edm::DataFrame::size_type i_;
@@ -63,11 +76,8 @@ public:
     return -1;
   }
   /// get the flavor of the frame
-  static const int OFFSET_FLAVOR = 12;
-  static const int MASK_FLAVOR = 0x7;
   constexpr int flavor() const { return ((m_data[0]>>OFFSET_FLAVOR)&MASK_FLAVOR); }
   /// was there a link error?
-  static const int MASK_LINKERROR = 0x800;
   constexpr bool linkError() const { return m_data[0]&MASK_LINKERROR; } 
   /// was there a capid rotation error?
   static const int MASK_CAPIDERROR = 0x400;
@@ -81,14 +91,22 @@ public:
   /// get the sample
   constexpr inline Sample operator[](edm::DataFrame::size_type i) const { return Sample(m_data,i+HEADER_WORDS); }
   constexpr void setCapid0(int cap0) {
-    m_data[0]&=0xFCFF; // inversion of the capid0 mask
-    m_data[0]|=((cap0&Sample::MASK_CAPID)<<Sample::OFFSET_CAPID);  
+    if (flavor()==FLAVOR_HB) {
+      for (int i=0; i<samples(); i++) {
+	m_data[i+1]&=Sample::MASK_CAPID_INV_HB;
+	m_data[i+1]|=((cap0+i)&Sample::MASK_CAPID)<<Sample::OFFSET_CAPID_HB;
+      }
+    } else {
+      m_data[0]&=0xFCFF; // inversion of the capid0 mask
+      m_data[0]|=((cap0&Sample::MASK_CAPID)<<Sample::OFFSET_CAPID_HE);
+    }
   }
   /// set the sample contents
   constexpr void setSample(edm::DataFrame::size_type isample, int adc, 
                            int tdc, bool soi=false) {
     if (isample>=size()) return;
-    m_data[isample+1]=(adc&Sample::MASK_ADC)|(soi?(Sample::MASK_SOI):(0))|((tdc&Sample::MASK_TDC)<<Sample::OFFSET_TDC);
+    if (flavor()==FLAVOR_HB) m_data[isample+1]=(adc&Sample::MASK_ADC)|(soi?(Sample::MASK_SOI):(0))|((tdc&Sample::MASK_TDC_HB)<<Sample::OFFSET_TDC)|(m_data[isample+1]&Sample::MASK_CAPID_KEEP_HB);
+    else m_data[isample+1]=(adc&Sample::MASK_ADC)|(soi?(Sample::MASK_SOI):(0))|((tdc&Sample::MASK_TDC_HE)<<Sample::OFFSET_TDC);
   }
   /// get the flag word
   constexpr uint16_t flags() const { return m_data[size()-1]; }

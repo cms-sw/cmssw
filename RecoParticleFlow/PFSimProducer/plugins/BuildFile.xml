@@ -13,7 +13,6 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/Utilities"/>
   <use   name="FastSimulation/Event"/>
-  <use   name="FastSimulation/Particle"/>
   <use   name="Geometry/CommonDetUnit"/>
   <use   name="Geometry/Records"/>
   <use   name="Geometry/TrackerGeometryBuilder"/>

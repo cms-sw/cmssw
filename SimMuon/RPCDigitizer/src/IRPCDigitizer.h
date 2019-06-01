@@ -1,6 +1,6 @@
 #ifndef SimMuon_IRPCDigitizer_h
 #define SimMuon_IRPCDigitizer_h
-// 
+//
 
 /** \class IRPCDigitizer
  *  Digitizer class for RPC
@@ -18,7 +18,7 @@
 #include <string>
 #include "CLHEP/Random/RandomEngine.h"
 
-namespace edm{
+namespace edm {
   class ParameterSet;
 }
 
@@ -30,36 +30,34 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class IRPCDigitizer
-{
+class IRPCDigitizer {
 public:
   typedef edm::DetSetVector<RPCDigiSimLink> RPCDigiSimLinks;
   IRPCDigitizer(const edm::ParameterSet& config);
   ~IRPCDigitizer();
-  
+
   // *** digitize ***
-  void doAction(MixCollection<PSimHit> & simHits,
-                RPCDigiCollection & rpcDigis,
-		RPCDigiSimLinks & rpcDigiSimLink,
+  void doAction(MixCollection<PSimHit>& simHits,
+                RPCDigiCollection& rpcDigis,
+                RPCDigiSimLinks& rpcDigiSimLink,
                 CLHEP::HepRandomEngine*);
 
   /// sets geometry
-  void setGeometry(const RPCGeometry * geom) {theGeometry = geom;}
+  void setGeometry(const RPCGeometry* geom) { theGeometry = geom; }
 
-  void setRPCSimSetUp(RPCSimSetUp *simsetup){theSimSetUp = simsetup;}
+  void setRPCSimSetUp(RPCSimSetUp* simsetup) { theSimSetUp = simsetup; }
 
-  RPCSimSetUp* getRPCSimSetUp(){ return theSimSetUp; }
-  
+  RPCSimSetUp* getRPCSimSetUp() { return theSimSetUp; }
+
   /// finds the rpc det unit in the geometry associated with this det ID
-  const RPCRoll * findDet(int detId) const;
+  const RPCRoll* findDet(int detId) const;
 
 private:
-  const RPCGeometry * theGeometry;
+  const RPCGeometry* theGeometry;
   std::unique_ptr<RPCSim> theRPCSim;
-  RPCSimSetUp * theSimSetUp;
+  RPCSimSetUp* theSimSetUp;
   std::string theName;
   bool theNoise;
 };
 
 #endif
-

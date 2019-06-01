@@ -5,10 +5,15 @@
  *  \author A. Vilela Pereira
  */
 
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include <vector>
 
@@ -18,20 +23,15 @@ class DTStatusFlag;
 
 class DTSegmentSelector {
    public:
-      DTSegmentSelector(edm::ParameterSet const& pset):
-         checkNoisyChannels_(pset.getParameter<bool>("checkNoisyChannels")),
-         minHitsPhi_(pset.getParameter<int>("minHitsPhi")),
-         minHitsZ_(pset.getParameter<int>("minHitsZ")),
-         maxChi2_(pset.getParameter<double>("maxChi2")),
-         maxAnglePhi_(pset.getParameter<double>("maxAnglePhi")),
-         maxAngleZ_(pset.getParameter<double>("maxAngleZ")) {
-      }
+      DTSegmentSelector(edm::ParameterSet const& pset, edm::ConsumesCollector& iC);
       ~DTSegmentSelector() {}
       bool operator() (DTRecSegment4D const&, edm::Event const&, edm::EventSetup const&);
     
    private:
       bool checkNoisySegment(edm::ESHandle<DTStatusFlag> const&, std::vector<DTRecHit1D> const&);
 
+      edm::InputTag muonTags_; 
+      edm::EDGetTokenT<reco::MuonCollection> muonToken_;
       bool checkNoisyChannels_;
       int minHitsPhi_;
       int minHitsZ_;

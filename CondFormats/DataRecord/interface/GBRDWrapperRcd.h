@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     GBRDWrapperRcd
-// 
+//
 /**\class GBRDWrapperRcd GBRDWrapperRcd.h CondFormats/DataRecord/interface/GBRDWrapperRcd.h
 
  Description: [one line class summary]
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Tue Nov  8 22:18:56 CET 2011
 // $Id$
 //

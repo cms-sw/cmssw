@@ -29,7 +29,6 @@
 #include <map>
 #include <vector>
 
-
 // To remove into CMSSW versions before 20X
 class DQMStore;
 // To add into CMSSW versions before 20X
@@ -40,9 +39,8 @@ class DTGeometry;
 class DTChamber;
 
 // FR class DTCalibValidation: public edm::EDAnalyzer{
-class DTCalibValidation: public DQMEDAnalyzer{
-
- public:
+class DTCalibValidation : public DQMEDAnalyzer {
+public:
   /// Constructor
   DTCalibValidation(const edm::ParameterSet& pset);
 
@@ -50,18 +48,15 @@ class DTCalibValidation: public DQMEDAnalyzer{
   ~DTCalibValidation() override;
 
   /// BeginRun
-  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override ;
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
+protected:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
- protected:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-
-
- private:
-
+private:
   // Switch for verbosity
   //bool debug;
   edm::ParameterSet parameters;
@@ -81,55 +76,50 @@ class DTCalibValidation: public DQMEDAnalyzer{
   edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;
 
   // Return a map between DTRecHit1DPair and wireId
-  std::map<DTWireId, std::vector<DTRecHit1DPair> >
-    map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs);
+  std::map<DTWireId, std::vector<DTRecHit1DPair> > map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs);
 
   // Return a map between DTRecHit1D and wireId
-  std::map<DTWireId, std::vector<DTRecHit1D> >
-    map1DRecHitsPerWire(const DTRecSegment2DCollection* segment2Ds);
+  std::map<DTWireId, std::vector<DTRecHit1D> > map1DRecHitsPerWire(const DTRecSegment2DCollection* segment2Ds);
 
   // Return a map between DTRecHit1D and wireId
-  std::map<DTWireId, std::vector<DTRecHit1D> >
-    map1DRecHitsPerWire(const DTRecSegment4DCollection* segment4Ds);
+  std::map<DTWireId, std::vector<DTRecHit1D> > map1DRecHitsPerWire(const DTRecSegment4DCollection* segment4Ds);
 
-  template  <typename type>
-  const type*
-  findBestRecHit(const DTLayer* layer,
-		 DTWireId wireId,
-		 const std::vector<type>& recHits,
-		 const float simHitDist);
+  template <typename type>
+  const type* findBestRecHit(const DTLayer* layer,
+                             DTWireId wireId,
+                             const std::vector<type>& recHits,
+                             const float simHitDist);
 
   // Compute the distance from wire (cm) of a hits in a DTRecHit1DPair
   float recHitDistFromWire(const DTRecHit1DPair& hitPair, const DTLayer* layer);
   // Compute the distance from wire (cm) of a hits in a DTRecHit1D
   float recHitDistFromWire(const DTRecHit1D& recHit, const DTLayer* layer);
   // Compute the position with respect to the wire (cm) of a hits in a DTRecHit1DPair
-  float recHitPosition(const DTRecHit1DPair& hitPair, const DTLayer* layer, const DTChamber* chamber, float segmPos, int sl);
+  float recHitPosition(
+      const DTRecHit1DPair& hitPair, const DTLayer* layer, const DTChamber* chamber, float segmPos, int sl);
   // Compute the position with respect to the wire (cm) of a hits in a DTRecHit1D
   float recHitPosition(const DTRecHit1D& recHit, const DTLayer* layer, const DTChamber* chamber, float segmPos, int sl);
 
   // Does the real job
-  template  <typename type>
-    void compute(const DTGeometry *dtGeom,
-		 const DTRecSegment4D& segment,
-	       const std::map<DTWireId, std::vector<type> >& recHitsPerWire,
-		 int step);
+  template <typename type>
+  void compute(const DTGeometry* dtGeom,
+               const DTRecSegment4D& segment,
+               const std::map<DTWireId, std::vector<type> >& recHitsPerWire,
+               int step);
 
   // Book a set of histograms for a give chamber
   void bookHistos(DTSuperLayerId slId, int step);
   // Fill a set of histograms for a give chamber
   void fillHistos(DTSuperLayerId slId,
-		  float distance,
-		  float residualOnDistance,
-		  float position,
-		  float residualOnPosition,
-		  int step);
+                  float distance,
+                  float residualOnDistance,
+                  float position,
+                  float residualOnPosition,
+                  int step);
 
-  std::map<std::pair<DTSuperLayerId,int>, std::vector<MonitorElement*> > histosPerSL;
-
+  std::map<std::pair<DTSuperLayerId, int>, std::vector<MonitorElement*> > histosPerSL;
 };
 #endif
-
 
 /* Local Variables: */
 /* show-trailing-whitespace: t */

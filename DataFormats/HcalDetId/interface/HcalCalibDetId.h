@@ -8,7 +8,7 @@
 /** \class HcalCalibDetId
   *  
   *  Contents of the HcalCalibDetId :
-  *     [19:17] Calibration Category (1 = CalibUnit, 2 = HX, 3=uMNio/qie, 4=CastorRad)
+  *     [19:17] Calibration Category (1 = CalibUnit, 2 = HOX, 3=uMNio/qie, 4=CastorRad, 5=LASMON, 6=HBX, 7=HEX)
   *
   *  For CalibUnit:
   *     [16:14] Subdetector
@@ -29,13 +29,23 @@
   *     [9:5] fiber-in-rm
   *     [4:0] channel-on-fiber
   *     
+  *  For Laser Monitoring channels: 
+  *     [16:10] ieta
+  *     [9:5]   iphi 
+  *     [3:0]   cbox  
   *
+  *  For HBX/HEX:
+  *     [19:17]  6 or 7 (CalibType) 
+  *     [12:12]  side (true = positive)
+  *     [11:7]   ieta (1-29)
+  *     [6:0]    iphi (1-72)
+  *    
   * \author J. Mans - Minnesota
   */
 class HcalCalibDetId : public HcalOtherDetId {
 public:
   /** Type identifier within calibration det ids */
-  enum CalibDetType { CalibrationBox = 1, HOCrosstalk = 2, uMNqie = 3, CastorRadFacility = 4, LASERMON = 5 };
+  enum CalibDetType { CalibrationBox = 1, HOCrosstalk = 2, uMNqie = 3, CastorRadFacility = 4, LASERMON = 5, HBX = 6, HEX = 7 };
 
   /** Create a null det id */
   HcalCalibDetId();
@@ -46,21 +56,21 @@ public:
   HcalCalibDetId& operator=(const DetId& id);
   /** Construct a calibration box - channel detid */
   HcalCalibDetId(HcalSubdetector subdet, int ieta, int iphi, int ctype);
-  /** Construct an HO Crosstalk id  */
+  /** Construct an HOX/HBX/HEX Crosstalk id  */
+  HcalCalibDetId(CalibDetType dt, int ieta, int iphi);
+  /** Keep old HOX constructor for back-compatibility */
   HcalCalibDetId(int ieta, int iphi);
   /** Construct a uMNqie id or other id which uses a single value plus a DetType */
   HcalCalibDetId(CalibDetType dt, int value);
-    /** Construct a Castor radiation test facility id or other id which uses three values plus a DetType */
+  /** Construct a Castor radiation test facility id or other id which uses three values plus a DetType */
   HcalCalibDetId(CalibDetType dt, int value1, int value2, int value3);
 
   /// get the flavor of this calibration detid
   CalibDetType calibFlavor() const { return (CalibDetType)((id_>>17)&0x7); }
-
-
   /// get the HcalSubdetector (if relevant)
   HcalSubdetector hcalSubdet() const;
   /// get the rbx name (if relevant)
-//  std::string rbx() const;
+  /// std::string rbx() const;
   /// get the "ieta" identifier (if relevant)
   int ieta() const;
   /// get the low-edge iphi (if relevant)

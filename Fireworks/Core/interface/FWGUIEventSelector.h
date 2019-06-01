@@ -14,42 +14,39 @@ class FWGUIValidatingTextEntry;
 
 class FWGUIEventSelector : public TGHorizontalFrame {
 public:
-   FWGUIEventSelector(TGCompositeFrame* p, FWEventSelector* sel, std::vector<std::string>& triggerProcessList);
-   ~FWGUIEventSelector() override;
+  FWGUIEventSelector(TGCompositeFrame* p, FWEventSelector* sel, std::vector<std::string>& triggerProcessList);
+  ~FWGUIEventSelector() override;
 
-   void deleteCallback();
-   void enableCallback(bool);
-   void expressionCallback(char*);
-   void triggerProcessCallback(const char*);
-   void updateNEvents();
+  void deleteCallback();
+  void enableCallback(bool);
+  void expressionCallback(char*);
+  void triggerProcessCallback(const char*);
+  void updateNEvents();
 
-   
-   FWEventSelector* guiSelector()  { return m_guiSelector;  }
-   FWEventSelector* origSelector() { return m_origSelector; }
-   void setOrigSelector(FWEventSelector* s) { m_origSelector = s; }
+  FWEventSelector* guiSelector() { return m_guiSelector; }
+  FWEventSelector* origSelector() { return m_origSelector; }
+  void setOrigSelector(FWEventSelector* s) { m_origSelector = s; }
 
-   void removeSelector(FWGUIEventSelector*);  // *SIGNAL*
-   void selectorChanged();                    // *SIGNAL*
+  void removeSelector(FWGUIEventSelector*);  // *SIGNAL*
+  void selectorChanged();                    // *SIGNAL*
 
 private:
+  FWGUIEventSelector(const FWGUIEventSelector&);                   // stop default
+  const FWGUIEventSelector& operator=(const FWGUIEventSelector&);  // stop default
 
-   FWGUIEventSelector(const FWGUIEventSelector&); // stop default
-   const FWGUIEventSelector& operator=(const FWGUIEventSelector&); // stop default
-   
-   FWEventSelector*   m_guiSelector;
-   FWEventSelector*   m_origSelector;
-   
-   FWGUIValidatingTextEntry* m_text1;
-   FWGUIValidatingTextEntry* m_text2;
-   TGCheckButton*            m_enableBtn;
-   FWCustomIconsButton*      m_deleteBtn;
-   TGLabel*                  m_nEvents;
+  FWEventSelector* m_guiSelector;
+  FWEventSelector* m_origSelector;
 
-   TGComboBox*               m_combo;
-   FWHLTValidator*           m_validator;
+  FWGUIValidatingTextEntry* m_text1;
+  FWGUIValidatingTextEntry* m_text2;
+  TGCheckButton* m_enableBtn;
+  FWCustomIconsButton* m_deleteBtn;
+  TGLabel* m_nEvents;
 
-   ClassDefOverride(FWGUIEventSelector, 0); // Manager for EVE windows.
+  TGComboBox* m_combo;
+  FWHLTValidator* m_validator;
+
+  ClassDefOverride(FWGUIEventSelector, 0);  // Manager for EVE windows.
 };
 
 #endif
-

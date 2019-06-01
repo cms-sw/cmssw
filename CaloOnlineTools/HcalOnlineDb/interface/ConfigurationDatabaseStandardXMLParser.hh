@@ -14,17 +14,20 @@
 class ConfigurationDatabaseStandardXMLParser {
 public:
   ConfigurationDatabaseStandardXMLParser();
-  void parse(const std::string& xmlDocument, std::map<std::string,std::string>& parameters, std::vector<std::string>& items, std::string& encoding) noexcept(false);
+  void parse(const std::string& xmlDocument,
+             std::map<std::string, std::string>& parameters,
+             std::vector<std::string>& items,
+             std::string& encoding) noexcept(false);
   struct Item {
-    std::map<std::string,std::string> parameters;
+    std::map<std::string, std::string> parameters;
     std::vector<std::string> items;
     std::string encoding;
     std::vector<unsigned int> convert() const;
   };
   void parseMultiple(const std::string& xmlDocument, std::list<Item>& items) noexcept(false);
+
 private:
   xercesc::SAX2XMLReader* m_parser;
 };
 
-
-#endif // ConfigurationDatabaseStandardXMLParser_hh_included
+#endif  // ConfigurationDatabaseStandardXMLParser_hh_included

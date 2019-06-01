@@ -12,69 +12,64 @@
 
 using namespace std;
 
-
-MultipleScatteringX0Data::MultipleScatteringX0Data()
-  : theData(nullptr)
-{
-  string filename = fileName(); 
-  TFile theFile(filename.c_str(),"READ");
+MultipleScatteringX0Data::MultipleScatteringX0Data() : theData(nullptr) {
+  string filename = fileName();
+  TFile theFile(filename.c_str(), "READ");
   if (not theFile.IsZombie()) {
-    theData.reset(dynamic_cast<TH2F*> (theFile.GetKey("h100")->ReadObj()));
+    theData.reset(dynamic_cast<TH2F*>(theFile.GetKey("h100")->ReadObj()));
     theData->SetDirectory(nullptr);
   }
-  if (!theData)  {
-    throw cms::Exception("Data not found")  
-         << " ** MultipleScatteringX0Data ** file: "
-         << filename 
-         <<" <-- no data found!!!";
+  if (!theData) {
+    throw cms::Exception("Data not found")
+        << " ** MultipleScatteringX0Data ** file: " << filename << " <-- no data found!!!";
   }
 }
 
-MultipleScatteringX0Data::~MultipleScatteringX0Data()
-{
-}
+MultipleScatteringX0Data::~MultipleScatteringX0Data() {}
 
-string MultipleScatteringX0Data::fileName()
-{
-  string defName="RecoTracker/TkMSParametrization/data/MultipleScatteringX0Data.root";
+string MultipleScatteringX0Data::fileName() {
+  string defName = "RecoTracker/TkMSParametrization/data/MultipleScatteringX0Data.root";
   edm::FileInPath f(defName);
   return f.fullPath();
-} 
-
-int MultipleScatteringX0Data::nBinsEta() const
-{
-  if (theData) return theData->GetNbinsX();
-  else return 0;
 }
 
-float MultipleScatteringX0Data::minEta() const
-{
-  if (theData) return theData->GetXaxis()->GetXmin();
-  else return 0;
+int MultipleScatteringX0Data::nBinsEta() const {
+  if (theData)
+    return theData->GetNbinsX();
+  else
+    return 0;
 }
 
-float MultipleScatteringX0Data::maxEta() const
-{
-  if (theData) return theData->GetXaxis()->GetXmax();
-  else return 0;
+float MultipleScatteringX0Data::minEta() const {
+  if (theData)
+    return theData->GetXaxis()->GetXmin();
+  else
+    return 0;
 }
 
-float MultipleScatteringX0Data::sumX0atEta(float eta, float r) const
-{
-  if(!theData) return 0.;
+float MultipleScatteringX0Data::maxEta() const {
+  if (theData)
+    return theData->GetXaxis()->GetXmax();
+  else
+    return 0;
+}
+
+float MultipleScatteringX0Data::sumX0atEta(float eta, float r) const {
+  if (!theData)
+    return 0.;
   eta = fabs(eta);
 
   int ieta = theData->GetXaxis()->FindBin(eta);
   int irad = theData->GetYaxis()->FindBin(r);
 
-  if (irad < theData->GetNbinsY()) { 
-    return theData->GetBinContent(ieta,irad);
-  } 
-  else {
+  if (irad < theData->GetNbinsY()) {
+    return theData->GetBinContent(ieta, irad);
+  } else {
     float sumX0 = 0;
-    for(int ir = theData->GetNbinsY(); ir > 0; ir--) {
+    for (int ir = theData->GetNbinsY(); ir > 0; ir--) {
       float val = theData->GetBinContent(ieta, ir);
-      if (val > sumX0) sumX0 = val;
+      if (val > sumX0)
+        sumX0 = val;
     }
     return sumX0;
   }

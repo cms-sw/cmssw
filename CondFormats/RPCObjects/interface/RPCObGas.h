@@ -13,22 +13,21 @@
 #include <vector>
 
 class RPCObGas {
-    public:
-      struct Item {
-        int dpid;
-        float flowin;
-        float flowout;
-        int day;
-        int time;
-      
-      COND_SERIALIZABLE;
-};
-    RPCObGas(){}
-    virtual ~RPCObGas(){}
-    std::vector<Item>  ObGas_rpc;
-   
-   COND_SERIALIZABLE;
+public:
+  struct Item {
+    int dpid;
+    float flowin;
+    float flowout;
+    int day;
+    int time;
+
+    COND_SERIALIZABLE;
+  };
+  RPCObGas() {}
+  virtual ~RPCObGas() {}
+  std::vector<Item> ObGas_rpc;
+
+  COND_SERIALIZABLE;
 };
 
 #endif
-

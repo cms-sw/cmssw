@@ -2,29 +2,15 @@
 #define CSCEventData_h
 
 class CSCCFEBData;
-class CLCTData;
-class TMBScope;
-class CSCDMBHeader;
-class CSCDMBTrailer;
-class CSCStripDigi;
-class CSCALCTHeader;
-struct CSCALCTHeader2007;
-class CSCAnodeData;
-class CSCALCTTrailer;
 class CSCTMBHeader;
-class CSCTMBData;
 class CSCCLCTData;
-class CSCTMBTrailer;
 class CSCWireDigi;
 class CSCStripDigi;
-class CSCComparatorOutput;
 #include <map>
 #include <vector>
 #ifndef LOCAL_UNPACK
 #include <atomic>
 #endif
-#include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDMBTrailer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBTrailer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"

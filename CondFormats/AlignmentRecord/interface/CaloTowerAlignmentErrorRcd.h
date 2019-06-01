@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class CaloTowerAlignmentErrorRcd : public edm::eventsetup::EventSetupRecordImplementation<CaloTowerAlignmentErrorRcd> {};
+class CaloTowerAlignmentErrorRcd : public edm::eventsetup::EventSetupRecordImplementation<CaloTowerAlignmentErrorRcd> {
+};
 
-#endif 
-
+#endif

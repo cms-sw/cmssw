@@ -28,7 +28,6 @@
 #include <DataFormats/DTDigi/interface/DTDigi.h>
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 
-
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -49,10 +48,8 @@ class DTT0;
 class DQMStore;
 class MonitorElement;
 
-class DTDigiTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
-
+class DTDigiTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
-
   /// Constructor
   DTDigiTask(const edm::ParameterSet& ps);
 
@@ -60,21 +57,19 @@ public:
   ~DTDigiTask() override;
 
 protected:
-
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   // Book the histograms
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   /// Book the ME
-  void bookHistos(DQMStore::IBooker & ibooker, const DTSuperLayerId& dtSL, std::string folder, std::string histoTag);
-  void bookHistos(DQMStore::IBooker & ibooker, const DTChamberId& dtCh, std::string folder, std::string histoTag);
-  void bookHistos(DQMStore::IBooker & ibooker, const int wheelId, std::string folder, std::string histoTag);
+  void bookHistos(DQMStore::IBooker& ibooker, const DTSuperLayerId& dtSL, std::string folder, std::string histoTag);
+  void bookHistos(DQMStore::IBooker& ibooker, const DTChamberId& dtCh, std::string folder, std::string histoTag);
+  void bookHistos(DQMStore::IBooker& ibooker, const int wheelId, std::string folder, std::string histoTag);
 
   /// To reset the MEs
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)  override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)  final {}
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) final {}
 
   /// To map real channels
   void channelsMap(const DTChamberId& dtCh, std::string histoTag);
@@ -82,12 +77,10 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-
   /// get the L1A source
   std::string triggerSource();
 
 private:
-
   std::string topFolder() const;
 
   int nevents;
@@ -103,7 +96,7 @@ private:
 
   //check for sync noise
 
-  std::map<DTChamberId,int> hitMap;
+  std::map<DTChamberId, int> hitMap;
   std::set<DTChamberId> syncNoisyChambers;
   int syncNumTot;
   int syncNum;
@@ -156,12 +149,13 @@ private:
   bool lookForSyncNoise;
   bool filterSyncNoise;
 
+  bool sliceTestMode;
+  int tdcPedestal;
+
   bool doLayerTimeBoxes;
 
   std::map<DTChamberId, int> nSynchNoiseEvents;
   MonitorElement* nEventMonitor;
-
-
 };
 
 #endif

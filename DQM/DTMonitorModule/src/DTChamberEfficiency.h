@@ -19,7 +19,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -46,7 +45,6 @@ namespace reco {
   class TransientTrack;
 }
 
-
 class Chi2MeasurementEstimator;
 class MuonServiceProxy;
 
@@ -57,29 +55,28 @@ class DetLayer;
 class DetId;
 class NavigationSchool;
 
-class DTChamberEfficiency : public DQMEDAnalyzer
-{
-
- public:
+class DTChamberEfficiency : public DQMEDAnalyzer {
+public:
   //Constructor
-  DTChamberEfficiency(const edm::ParameterSet& pset) ;
+  DTChamberEfficiency(const edm::ParameterSet& pset);
 
   //Destructor
-  ~DTChamberEfficiency() override ;
+  ~DTChamberEfficiency() override;
 
   //Operations
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
- protected:
-// Book the histograms
-void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+protected:
+  // Book the histograms
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
- private:
-
+private:
   //functions
-  std::vector<const DetLayer*> compatibleLayers(const NavigationSchool& navigationSchool, const DetLayer *initialLayer,
-						const FreeTrajectoryState& fts, PropagationDirection propDir);
+  std::vector<const DetLayer*> compatibleLayers(const NavigationSchool& navigationSchool,
+                                                const DetLayer* initialLayer,
+                                                const FreeTrajectoryState& fts,
+                                                PropagationDirection propDir);
 
   MeasurementContainer segQualityCut(const MeasurementContainer& seg_list) const;
   bool chamberSelection(const DetId& idDetLay, reco::TransientTrack& trans_track) const;
@@ -112,11 +109,10 @@ void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const
 
   std::vector<std::vector<MonitorElement*> > histosPerW;
 
- protected:
-
+protected:
 };
 
-#endif // DTANALYZER_H
+#endif  // DTANALYZER_H
 
 /* Local Variables: */
 /* show-trailing-whitespace: t */

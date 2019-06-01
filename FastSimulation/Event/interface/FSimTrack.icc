@@ -1,73 +1,74 @@
 #include "FastSimulation/Event/interface/FBaseSimEvent.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 
-inline const FSimVertex FSimTrack::vertex() const { return (!mom_ ? FSimVertex(vertex_.position(), vertex_.parentIndex(), vertex_.vertexId(), nullptr) : mom_->vertex(vertIndex())); }
-
-inline const FSimVertex& FSimTrack::endVertex() const {
-  if(endv_ < 0)
-    throw cms::Exception("FastSim") << "FSimTrack::endVertex() called for FSimTrack w/o end vertex, please contact FastSim developers" << std::endl;
-  return mom_->vertex(endv_); 
+inline const FSimVertex FSimTrack::vertex() const {
+  return (!mom_ ? FSimVertex(vertex_.position(), vertex_.parentIndex(), vertex_.vertexId(), nullptr)
+                : mom_->vertex(vertIndex()));
 }
 
-inline const FSimTrack& FSimTrack::mother() const{ 
-  if(noMother()){
-    throw cms::Exception("FastSim") << "FSimTrack::mother() called for FSimTrack w/o mother, please contact FastSim developers" << std::endl;    
+inline const FSimVertex& FSimTrack::endVertex() const {
+  if (endv_ < 0)
+    throw cms::Exception("FastSim")
+        << "FSimTrack::endVertex() called for FSimTrack w/o end vertex, please contact FastSim developers" << std::endl;
+  return mom_->vertex(endv_);
+}
+
+inline const FSimTrack& FSimTrack::mother() const {
+  if (noMother()) {
+    throw cms::Exception("FastSim")
+        << "FSimTrack::mother() called for FSimTrack w/o mother, please contact FastSim developers" << std::endl;
   }
-  return vertex().parent(); 
+  return vertex().parent();
 }
 
 inline const FSimTrack& FSimTrack::daughter(int i) const {
-  if(i < 0 || i >= nDaughters())
-    throw cms::Exception("FastSim") << "FSimTrack::daughter(int index) index out of range, please contact FastSim developers" << std::endl;        
-  if(abs(type()) == 11 || abs(type()) == 13)
+  if (i < 0 || i >= nDaughters())
+    throw cms::Exception("FastSim")
+        << "FSimTrack::daughter(int index) index out of range, please contact FastSim developers" << std::endl;
+  if (abs(type()) == 11 || abs(type()) == 13)
     return mom_->track(daugh_[i]);
   else
     return endVertex().daughter(i);
 }
 
 inline int FSimTrack::nDaughters() const {
-  if(abs(type()) == 11 || abs(type()) == 13)
+  if (abs(type()) == 11 || abs(type()) == 13)
     return daugh_.size();
-  else{
-    if(noEndVertex())
+  else {
+    if (noEndVertex())
       return 0;
-    else 
-      return endVertex().nDaughters(); 
+    else
+      return endVertex().nDaughters();
   }
 }
 
 inline const std::vector<int>& FSimTrack::daughters() const {
-  if(abs(type()) == 11 || noEndVertex() )
+  if (abs(type()) == 11 || noEndVertex())
     return daugh_;
-  else{
+  else {
     //if(noEndVertex()){
-      //throw cms::Exception("FastSim") << "FSimTrack::daughters() called for FSimTrack w/o end vertex, please contact FastSim developers" << std::endl;
+    //throw cms::Exception("FastSim") << "FSimTrack::daughters() called for FSimTrack w/o end vertex, please contact FastSim developers" << std::endl;
     //}
     return endVertex().daughters();
   }
 }
 
-inline bool FSimTrack::noEndVertex() const { 
-
+inline bool FSimTrack::noEndVertex() const {
   // The particle either has no end vertex index
-  if(endv_ < 0)
-     return true;
+  if (endv_ < 0)
+    return true;
 
   // or it's an electron/muon that has just Brem'ed, but continues its way
   // ... but not those intermediate e/mu PYTHIA entries with prompt Brem
   bool bremOutOfPipe = true;
-  if( (mom_->vertex(endv_)).position().Perp2() < 1.0 )  bremOutOfPipe = false;
-  return 
-      ( (abs(type())==11 || abs(type())==13) && 
-      bremOutOfPipe &&
-      endVertex().nDaughters()>0 && 
-      endVertex().daughter(endVertex().nDaughters()-1).type()==22); 
-} 
+  if ((mom_->vertex(endv_)).position().Perp2() < 1.0)
+    bremOutOfPipe = false;
+  return ((abs(type()) == 11 || abs(type()) == 13) && bremOutOfPipe && endVertex().nDaughters() > 0 &&
+          endVertex().daughter(endVertex().nDaughters() - 1).type() == 22);
+}
 
 inline bool FSimTrack::noMother() const { return noVertex() || vertex().noParent(); }
 
 inline bool FSimTrack::noDaughter() const { return noEndVertex() || !nDaughters(); }
 
-inline const HepMC::GenParticle* FSimTrack::genParticle() const { 
-  return mom_->embdGenpart(genpartIndex()); 
-}
+inline const HepMC::GenParticle* FSimTrack::genParticle() const { return mom_->embdGenpart(genpartIndex()); }

@@ -27,16 +27,15 @@
 //
 
 class HLTGetRaw : public edm::global::EDAnalyzer<> {
-
- public:
+public:
   explicit HLTGetRaw(const edm::ParameterSet&);
   ~HLTGetRaw() override;
-  void analyze(edm::StreamID, edm::Event const& , edm::EventSetup const&) const final;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const final;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-  edm::InputTag                          rawDataCollection_;
+private:
+  edm::InputTag rawDataCollection_;
   edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
 };
 
-#endif //HLTGetRaw_h
+#endif  //HLTGetRaw_h

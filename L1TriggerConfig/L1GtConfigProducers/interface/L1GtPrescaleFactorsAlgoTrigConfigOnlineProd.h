@@ -29,25 +29,20 @@
 // forward declarations
 
 // class declaration
-class L1GtPrescaleFactorsAlgoTrigConfigOnlineProd :
-        public L1ConfigOnlineProdBase<L1GtPrescaleFactorsAlgoTrigRcd, L1GtPrescaleFactors>
-{
-
+class L1GtPrescaleFactorsAlgoTrigConfigOnlineProd
+    : public L1ConfigOnlineProdBase<L1GtPrescaleFactorsAlgoTrigRcd, L1GtPrescaleFactors> {
 public:
+  /// constructor
+  L1GtPrescaleFactorsAlgoTrigConfigOnlineProd(const edm::ParameterSet&);
 
-    /// constructor
-    L1GtPrescaleFactorsAlgoTrigConfigOnlineProd(const edm::ParameterSet&);
+  /// destructor
+  ~L1GtPrescaleFactorsAlgoTrigConfigOnlineProd() override;
 
-    /// destructor
-    ~L1GtPrescaleFactorsAlgoTrigConfigOnlineProd() override;
-
-    /// public methods
-    std::unique_ptr<L1GtPrescaleFactors> newObject(const std::string& objectKey) override;
+  /// public methods
+  std::unique_ptr<L1GtPrescaleFactors> newObject(const std::string& objectKey) override;
 
 private:
-
-    bool m_isDebugEnabled;
-
+  bool m_isDebugEnabled;
 };
 
 #endif

@@ -1,5 +1,5 @@
-#include "CondCore/PopCon/interface/PopConAnalyzer.h"
 #include "CSCBadWiresHandler.h"
+#include "CondCore/PopCon/interface/PopConAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 typedef popcon::PopConAnalyzer<popcon::CSCBadWiresImpl> CSCBadWiresPopConAnalyzer;

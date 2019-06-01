@@ -3,8 +3,8 @@
 //CAT: Model
 //
 //   ostream class for handling the output
-// 
-//   History: v1.0 
+//
+//   History: v1.0
 //   Pedro Arce
 
 #ifndef FILEOUT_H
@@ -18,28 +18,25 @@
 
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 
-
-class ALIFileOut : public std::ofstream 
-{
+class ALIFileOut : public std::ofstream {
 public:
   ALIFileOut(){};
-  ALIFileOut( const ALIstring& name ): std::ofstream(), theName(name){};
+  ALIFileOut(const ALIstring& name) : std::ofstream(), theName(name){};
   ~ALIFileOut() override{};
 
   // get the instance of file with name filename
-  static ALIFileOut& getInstance( const ALIstring& filename );
+  static ALIFileOut& getInstance(const ALIstring& filename);
 
- // Access data members
+  // Access data members
   const ALIstring& name() { return theName; }
 
-// private DATA MEMEBERS
+  // private DATA MEMEBERS
 private:
   // Class only instance
   static std::vector<ALIFileOut*> theInstances;
 
   /// Name of file
-  ALIstring theName; 
+  ALIstring theName;
 };
 
-#endif 
-
+#endif

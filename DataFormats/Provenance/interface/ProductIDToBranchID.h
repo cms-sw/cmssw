@@ -14,7 +14,6 @@ ProductIDToBranchID: Free function to map from ProductID to BranchID
 #include "DataFormats/Provenance/interface/ProductID.h"
 
 namespace edm {
-  BranchID
-  productIDToBranchID(ProductID const& pid, BranchIDLists const& lists, BranchListIndexes const& indexes);
+  BranchID productIDToBranchID(ProductID const& pid, BranchIDLists const& lists, BranchListIndexes const& indexes);
 }
 #endif

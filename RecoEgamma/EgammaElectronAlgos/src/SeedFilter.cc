@@ -64,25 +64,21 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf,
     throw cms::Exception("Configuration") << "SeedFilter: useOnDemandTracker must be -1, 0, or 1; got " << tmp;
   hitsfactoryMode_ = RectangularEtaPhiTrackingRegion::intToUseMeasurementTracker(tmp);
 
-  // get orderd hits generator from factory
-  OrderedHitsGenerator*  hitsGenerator = OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC);
-
   // start seed generator
   edm::ParameterSet seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
   std::string seedCreatorType = seedCreatorPSet.getParameter<std::string>("ComponentName");
 
-  combinatorialSeedGenerator = new SeedGeneratorFromRegionHits(hitsGenerator,nullptr,
-							       SeedCreatorFactory::get()->create(seedCreatorType, seedCreatorPSet)
+  combinatorialSeedGenerator = std::make_unique<SeedGeneratorFromRegionHits>(std::unique_ptr<OrderedHitsGenerator>{OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC)},
+                                                                             nullptr,
+                                                                             std::unique_ptr<SeedCreator>{SeedCreatorFactory::get()->create(seedCreatorType, seedCreatorPSet)}
 				                  	       );
   beamSpotTag_ = tokens.token_bs; ;
   if(hitsfactoryMode_ != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
     measurementTrackerToken_ = iC.consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("measurementTrackerEvent"));
   }
- }
-
-SeedFilter::~SeedFilter() {
-  delete combinatorialSeedGenerator;
 }
+
+SeedFilter::~SeedFilter() = default;
 
 void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::SuperClusterRef &scRef, TrajectorySeedCollection *output) {
 

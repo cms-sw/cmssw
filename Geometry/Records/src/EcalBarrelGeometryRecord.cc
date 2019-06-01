@@ -2,7 +2,7 @@
 //
 // Package:     Records
 // Class  :     EcalBarrelGeometryRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

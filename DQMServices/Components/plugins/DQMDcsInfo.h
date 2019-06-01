@@ -22,10 +22,8 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-class DQMDcsInfo: public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
-
+class DQMDcsInfo : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
 public:
-
   /// Constructor
   DQMDcsInfo(const edm::ParameterSet& ps);
 
@@ -33,14 +31,12 @@ public:
   ~DQMDcsInfo() override;
 
 protected:
-
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
 
 private:
-
   void makeDcsInfo(const edm::Event& e);
   void makeGtInfo(const edm::Event& e);
 
@@ -51,9 +47,8 @@ private:
   edm::EDGetTokenT<DcsStatusCollection> dcsStatusCollection_;
 
   bool dcs[25];
-   // histograms
-  MonitorElement * DCSbyLS_ ;
-
+  // histograms
+  MonitorElement* DCSbyLS_;
 };
 
 #endif

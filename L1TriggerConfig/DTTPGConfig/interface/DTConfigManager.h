@@ -28,7 +28,7 @@
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTraco.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTSTheta.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTSPhi.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTrigUnit.h" 
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTrigUnit.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigSectColl.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigLUTs.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -46,40 +46,36 @@
 //              -- Class Interface --
 //              ---------------------
 
-
 class DTConfigManager {
+public:
+  typedef std::map<DTBtiId, DTConfigBti> innerBtiMap;
+  typedef std::map<DTTracoId, DTConfigTraco> innerTracoMap;
+  typedef std::map<DTChamberId, innerBtiMap> BtiMap;
+  typedef std::map<DTChamberId, innerTracoMap> TracoMap;
+  typedef std::map<DTChamberId, DTConfigTSTheta> TSThetaMap;
+  typedef std::map<DTChamberId, DTConfigTSPhi> TSPhiMap;
+  typedef std::map<DTChamberId, DTConfigTrigUnit> TrigUnitMap;
+  typedef std::map<DTChamberId, DTConfigLUTs> LUTMap;
+  typedef std::map<DTSectCollId, DTConfigSectColl> SectCollMap;
 
- public:
-  
-  typedef std::map<DTBtiId,DTConfigBti> innerBtiMap;
-  typedef std::map<DTTracoId,DTConfigTraco> innerTracoMap;
-  typedef std::map<DTChamberId,innerBtiMap> BtiMap;
-  typedef std::map<DTChamberId,innerTracoMap> TracoMap;
-  typedef std::map<DTChamberId,DTConfigTSTheta> TSThetaMap;
-  typedef std::map<DTChamberId,DTConfigTSPhi> TSPhiMap;
-  typedef std::map<DTChamberId,DTConfigTrigUnit> TrigUnitMap;
-  typedef std::map<DTChamberId,DTConfigLUTs> LUTMap;
-  typedef std::map<DTSectCollId,DTConfigSectColl> SectCollMap;
-
- public:
-  
+public:
   //! Constructor
   DTConfigManager();
-  
-  //! Destructor 
+
+  //! Destructor
   ~DTConfigManager();
 
   //! Get desired BTI configuration
   const DTConfigBti* getDTConfigBti(DTBtiId) const;
 
   //! Get desired BTI configuration map for a given DTChamber
-  const std::map<DTBtiId,DTConfigBti>& getDTConfigBtiMap(DTChamberId) const;
-  
+  const std::map<DTBtiId, DTConfigBti>& getDTConfigBtiMap(DTChamberId) const;
+
   //! Get desired TRACO configuration
   const DTConfigTraco* getDTConfigTraco(DTTracoId) const;
 
   //! Get desired TRACO configuration map for a given DTChamber
-  const std::map<DTTracoId,DTConfigTraco>& getDTConfigTracoMap(DTChamberId) const;
+  const std::map<DTTracoId, DTConfigTraco>& getDTConfigTracoMap(DTChamberId) const;
 
   //! Get desired Trigger Server Theta configuration
   const DTConfigTSTheta* getDTConfigTSTheta(DTChamberId) const;
@@ -87,10 +83,10 @@ class DTConfigManager {
   //! Get desired Trigger Server Phi configuration
   const DTConfigTSPhi* getDTConfigTSPhi(DTChamberId) const;
 
-  //! Get desired Trigger Unit configuration 
+  //! Get desired Trigger Unit configuration
   const DTConfigTrigUnit* getDTConfigTrigUnit(DTChamberId) const;
-  
-   //! Get desired LUT configuration 
+
+  //! Get desired LUT configuration
   const DTConfigLUTs* getDTConfigLUTs(DTChamberId) const;
 
   //! Get desired SectorCollector configuration
@@ -98,7 +94,7 @@ class DTConfigManager {
 
   //! Get desired Pedestals configuration
   const DTConfigPedestals* getDTConfigPedestals() const;
- 
+
   //! Get global debug flag
   inline bool getDTTPGDebug() const { return my_dttpgdebug; };
 
@@ -113,35 +109,34 @@ class DTConfigManager {
 
   //! flag for CCB configuration validity
   inline bool CCBConfigValidity() const { return my_CCBvalid; }
- 
 
   //! Set DTConfigBti for desired chip
-  void setDTConfigBti(DTBtiId,DTConfigBti);
+  void setDTConfigBti(DTBtiId, DTConfigBti);
 
   //! Set DTConfigTraco for desired chip
-  void setDTConfigTraco(DTTracoId,DTConfigTraco);
+  void setDTConfigTraco(DTTracoId, DTConfigTraco);
 
   //! Set DTConfigTSTheta for desired chip
-  inline void setDTConfigTSTheta(DTChamberId chambid ,DTConfigTSTheta conf) { my_tsthetamap[chambid] = conf; };
+  inline void setDTConfigTSTheta(DTChamberId chambid, DTConfigTSTheta conf) { my_tsthetamap[chambid] = conf; };
 
   //! Set DTConfigTSPhi for desired chip
-  inline void setDTConfigTSPhi(DTChamberId chambid,DTConfigTSPhi conf) { my_tsphimap[chambid] = conf; };
+  inline void setDTConfigTSPhi(DTChamberId chambid, DTConfigTSPhi conf) { my_tsphimap[chambid] = conf; };
 
   //! Set DTConfigTrigUnit for desired chamber
-  void setDTConfigTrigUnit(DTChamberId chambid,DTConfigTrigUnit conf) { my_trigunitmap[chambid] = conf; };
+  void setDTConfigTrigUnit(DTChamberId chambid, DTConfigTrigUnit conf) { my_trigunitmap[chambid] = conf; };
 
   //! Set DTConfigLUTs for desired chamber
-  void setDTConfigLUTs(DTChamberId chambid,DTConfigLUTs conf) { my_lutmap[chambid] = conf; };
+  void setDTConfigLUTs(DTChamberId chambid, DTConfigLUTs conf) { my_lutmap[chambid] = conf; };
 
   //! Set DTConfigSectColl for desired chip
-  void setDTConfigSectColl(DTSectCollId sectcollid ,DTConfigSectColl conf){ my_sectcollmap[sectcollid] = conf; };
+  void setDTConfigSectColl(DTSectCollId sectcollid, DTConfigSectColl conf) { my_sectcollmap[sectcollid] = conf; };
 
-  //! Set DTConfigPedestals configuration 
+  //! Set DTConfigPedestals configuration
   void setDTConfigPedestals(DTConfigPedestals pedestals) { my_pedestals = pedestals; };
 
   //! SetGlobalDebug flag
   inline void setDTTPGDebug(bool debug) { my_dttpgdebug = debug; }
-   
+
   //! Set lut from DB flag
   inline void setLutFromDB(bool lutFromDB) { my_lutfromdb = lutFromDB; }
 
@@ -152,21 +147,19 @@ class DTConfigManager {
   inline void setCCBConfigValidity(bool CCBValid) { my_CCBvalid = CCBValid; }
 
   //! Dump luts string commands from configuration parameters
-  void dumpLUTParam(DTChamberId &chambid) const; /* SV 091111 */ 
+  void dumpLUTParam(DTChamberId& chambid) const; /* SV 091111 */
 
-
- private:
-
+private:
   // maps for the whole config structure
-  BtiMap       my_btimap;
-  TracoMap     my_tracomap;
-  TSThetaMap   my_tsthetamap;
-  TSPhiMap     my_tsphimap;
-  TrigUnitMap  my_trigunitmap; 
-  LUTMap       my_lutmap;
-  SectCollMap  my_sectcollmap;
+  BtiMap my_btimap;
+  TracoMap my_tracomap;
+  TSThetaMap my_tsthetamap;
+  TSPhiMap my_tsphimap;
+  TrigUnitMap my_trigunitmap;
+  LUTMap my_lutmap;
+  SectCollMap my_sectcollmap;
   DTConfigPedestals my_pedestals;
-  
+
   bool my_dttpgdebug;
 
   bool my_lutfromdb;

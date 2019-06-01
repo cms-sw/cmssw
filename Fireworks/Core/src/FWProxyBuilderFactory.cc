@@ -15,5 +15,4 @@
 // user include files
 #include "Fireworks/Core/interface/FWProxyBuilderFactory.h"
 
-
-EDM_REGISTER_PLUGINFACTORY(FWProxyBuilderFactory,"cmsShow FWProxyBuilder");
+EDM_REGISTER_PLUGINFACTORY(FWProxyBuilderFactory, "cmsShow FWProxyBuilder");

@@ -18,6 +18,7 @@
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameter.h"
 #include "DataFormats/PatCandidates/interface/TauPFSpecific.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -371,7 +372,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     }
 
     // extraction of variables needed to rerun MVA isolation and anti-electron discriminator on MiniAOD
-    if( aTau.isPFTau() ) {
+    if( !aTau.pfEssential_.empty() ) {
       edm::Handle<reco::PFTauCollection> pfTaus;
       iEvent.getByToken(pfTauToken_, pfTaus);
       reco::PFTauRef pfTauRef(pfTaus, idx);
@@ -383,26 +384,40 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       float sumEnergy = 0.;
       float leadChargedCandPt = -99;
       float leadChargedCandEtaAtEcalEntrance = -99;	
-      const std::vector<reco::PFCandidatePtr>& signalCands = pfTauRef->signalPFCands();
-      for(std::vector<reco::PFCandidatePtr>::const_iterator it = signalCands.begin(); it != signalCands.end(); ++it) {
-        const reco::PFCandidatePtr& icand = *it;
-        ecalEnergy += icand->ecalEnergy();
-        hcalEnergy += icand->hcalEnergy();
-	sumPhiTimesEnergy += icand->positionAtECALEntrance().phi()*icand->energy();		
-	sumEtaTimesEnergy += icand->positionAtECALEntrance().eta()*icand->energy();
-        sumEnergy += icand->energy();	 
-	const reco::Track* track = nullptr;
-     	if ( icand->trackRef().isNonnull() ) track = icand->trackRef().get();
-     	else if ( icand->muonRef().isNonnull() && icand->muonRef()->innerTrack().isNonnull()  ) track = icand->muonRef()->innerTrack().get();
-     	else if ( icand->muonRef().isNonnull() && icand->muonRef()->globalTrack().isNonnull() ) track = icand->muonRef()->globalTrack().get();
-     	else if ( icand->muonRef().isNonnull() && icand->muonRef()->outerTrack().isNonnull()  ) track = icand->muonRef()->outerTrack().get();
-     	else if ( icand->gsfTrackRef().isNonnull() ) track = icand->gsfTrackRef().get();
-     	if( track ) {
-     	  if( track->pt() > leadChargedCandPt ) {
-     	    leadChargedCandEtaAtEcalEntrance = icand->positionAtECALEntrance().eta();
-     	    leadChargedCandPt = track->pt();
-     	  }
-        } 		
+      const std::vector<reco::CandidatePtr>& signalCands = pfTauRef->signalCands();
+      for(const auto& it : signalCands) {
+	const reco::PFCandidate* icand = dynamic_cast<const reco::PFCandidate*>(it.get());
+	if (icand != nullptr) {
+	  ecalEnergy += icand->ecalEnergy();
+	  hcalEnergy += icand->hcalEnergy();
+	  sumPhiTimesEnergy += icand->positionAtECALEntrance().phi()*icand->energy();		
+	  sumEtaTimesEnergy += icand->positionAtECALEntrance().eta()*icand->energy();
+	  sumEnergy += icand->energy();	 
+	  const reco::Track* track = nullptr;
+	  if ( icand->trackRef().isNonnull() ) track = icand->trackRef().get();
+	  else if ( icand->muonRef().isNonnull() && icand->muonRef()->innerTrack().isNonnull()  ) track = icand->muonRef  ()->innerTrack().get();
+	  else if ( icand->muonRef().isNonnull() && icand->muonRef()->globalTrack().isNonnull() ) track = icand->muonRef  ()->globalTrack().get();
+	  else if ( icand->muonRef().isNonnull() && icand->muonRef()->outerTrack().isNonnull()  ) track = icand->muonRef  ()->outerTrack().get();
+	  else if ( icand->gsfTrackRef().isNonnull() ) track = icand->gsfTrackRef().get();
+	  if( track ) {
+	    if( track->pt() > leadChargedCandPt ) {
+	      leadChargedCandEtaAtEcalEntrance = icand->positionAtECALEntrance().eta();
+	      leadChargedCandPt = track->pt();
+	    }
+	  }
+	}
+	else {
+	  // TauReco@MiniAOD: individual ECAL and HCAL energies currently not available for PackedCandidates 
+	  // (see above implementation for PFCandidates).
+	  // Should be added if available, as well as on-the-fly computation of position at ECAL entrance
+	  sumEnergy += it->energy();
+	  const reco::Track* track = it->bestTrack();
+	  if( track != nullptr ) {
+	    if( track->pt() > leadChargedCandPt ) {
+	      leadChargedCandPt = track->pt();
+	    }
+	  }
+	}
       }
       aTauPFEssential.ecalEnergy_ = ecalEnergy;
       aTauPFEssential.hcalEnergy_ = hcalEnergy;
@@ -422,26 +437,40 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       float emFraction = -1.;
       float myHCALenergy = 0.;
       float myECALenergy = 0.;	
-      const reco::PFCandidatePtr& leadingPFCharged = pfTauRef->leadPFChargedHadrCand();
-      if(leadingPFCharged.isNonnull()) {
-	ecalEnergyLeadChargedHadrCand = leadingPFCharged->ecalEnergy();
-        hcalEnergyLeadChargedHadrCand = leadingPFCharged->hcalEnergy(); 
-        reco::TrackRef trackRef = leadingPFCharged->trackRef();
-        if( trackRef.isNonnull() ) {
-          leadingTrackNormChi2 = trackRef->normalizedChi2();			
-	  for( std::vector<reco::PFCandidatePtr>::const_iterator tauIt = pfTauRef->isolationPFCands().begin(); tauIt!=pfTauRef->isolationPFCands().end(); ++tauIt ){
-	    myHCALenergy += (*tauIt)->hcalEnergy();
-	    myECALenergy += (*tauIt)->ecalEnergy();
-	  }
-	  for( std::vector<reco::PFCandidatePtr>::const_iterator tauIt = pfTauRef->signalPFCands().begin(); tauIt!=pfTauRef->signalPFCands().end(); ++tauIt ){
-	    myHCALenergy += (*tauIt)->hcalEnergy();
-	    myECALenergy += (*tauIt)->ecalEnergy();
-	  }	  
-	  if( myHCALenergy + myECALenergy != 0. ) {
-            emFraction = myECALenergy/( myHCALenergy + myECALenergy);    
-	  }
+      const reco::CandidatePtr& leadingPFCharged = pfTauRef->leadChargedHadrCand();
+      if(leadingPFCharged.isNonnull()) { 
+      	const reco::PFCandidate* pfCandPtr = dynamic_cast<const reco::PFCandidate*>(leadingPFCharged.get());
+	if(pfCandPtr != nullptr) { // PFTau made from PFCandidates
+	  ecalEnergyLeadChargedHadrCand = pfCandPtr->ecalEnergy();
+          hcalEnergyLeadChargedHadrCand = pfCandPtr->hcalEnergy(); 
+          reco::TrackRef trackRef = pfCandPtr->trackRef();
+          if( trackRef.isNonnull() ) {
+            leadingTrackNormChi2 = trackRef->normalizedChi2();			
+	    for(const auto& isoPFCand : pfTauRef->isolationPFCands()){
+	      myHCALenergy += isoPFCand->hcalEnergy();
+	      myECALenergy += isoPFCand->ecalEnergy();
+	    }
+	    for(const auto& signalPFCand : pfTauRef->signalPFCands()){
+	      myHCALenergy += signalPFCand->hcalEnergy();
+	      myECALenergy += signalPFCand->ecalEnergy();
+	    }	  
+	    if( myHCALenergy + myECALenergy != 0. ) {
+              emFraction = myECALenergy/( myHCALenergy + myECALenergy);    
+	    }
+          }
         }
+        else {
+	  const pat::PackedCandidate* packedCandPtr = dynamic_cast<const pat::PackedCandidate*>(leadingPFCharged.get());
+	  if (packedCandPtr != nullptr) {
+	    // TauReco@MiniAOD: Update code below if ecal/hcal energies are available.
+	    const reco::Track* track = packedCandPtr->hasTrackDetails() ? &packedCandPtr->pseudoTrack() : nullptr;
+	    if (track != nullptr) {
+	      leadingTrackNormChi2 = track->normalizedChi2();
+	    }
+	  }
+	}
       }
+
       aTauPFEssential.emFraction_ = emFraction;
       aTauPFEssential.leadingTrackNormChi2_ = leadingTrackNormChi2;
       aTauPFEssential.ecalEnergyLeadChargedHadrCand_ = ecalEnergyLeadChargedHadrCand;

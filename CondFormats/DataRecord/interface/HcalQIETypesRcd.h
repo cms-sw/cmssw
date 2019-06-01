@@ -4,7 +4,7 @@
 //
 // Package:     QIETypes
 // Class  :     HcalQIETypesRcd
-// 
+//
 /**\class HcalQIETypesRcd HcalQIETypesRcd.h CondFormats/DataRecord/interface/HcalQIETypesRcd.h
 
  Description: <one line class summary>
@@ -22,6 +22,8 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class HcalQIETypesRcd : public edm::eventsetup::DependentRecordImplementation<HcalQIETypesRcd, boost::mpl::vector<HcalRecNumberingRecord,IdealGeometryRecord> > {};
+class HcalQIETypesRcd : public edm::eventsetup::DependentRecordImplementation<
+                            HcalQIETypesRcd,
+                            boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 
 #endif

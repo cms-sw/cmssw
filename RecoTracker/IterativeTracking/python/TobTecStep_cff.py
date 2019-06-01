@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
+#for dnn classifier
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+
 #######################################################################
 # Very large impact parameter tracking using TOB + TEC ring 5 seeding #
 #######################################################################
@@ -361,22 +364,20 @@ tobTecStep = ClassifierMerger.clone()
 tobTecStep.inputClassifiers=['tobTecStepClassifier1','tobTecStepClassifier2']
 
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toReplaceWith(tobTecStep, tobTecStepClassifier1.clone(
+     mva = dict(GBRForestLabel = 'MVASelectorTobTecStep_Phase1'),
+     qualityCuts = [-0.6,-0.45,-0.3]
+))
 
-#LWTNN selector
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackingPhase1.toReplaceWith(tobTecStep, TrackLwtnnClassifier.clone(
+trackdnn.toReplaceWith(tobTecStep, TrackLwtnnClassifier.clone(
      src = 'tobTecStepTracks',
      qualityCuts = [-0.4, -0.25, -0.1]
 ))
-(trackingPhase1 & fastSim).toModify(tobTecStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
+(trackdnn & fastSim).toModify(tobTecStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
-pp_on_AA_2018.toReplaceWith(tobTecStep, TrackMVAClassifierDetached.clone(
-     src = 'tobTecStepTracks',
-     qualityCuts = [-0.6,-0.3,0.7],
-     mva = dict(GBRForestLabel = 'MVASelectorTobTecStep_Phase1')
-))
-
+pp_on_AA_2018.toModify(tobTecStep, qualityCuts = [-0.6,-0.3,0.7])
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 trackingLowPU.toReplaceWith(tobTecStep, RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(

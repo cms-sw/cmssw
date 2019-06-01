@@ -32,20 +32,17 @@
 //              ---------------------
 
 class L1AbstractProcessor {
+public:
+  /// destructor
+  virtual ~L1AbstractProcessor() {}
 
-  public:
+  /// run processor logic
+  virtual void run(){};
 
-    /// destructor 
-    virtual ~L1AbstractProcessor() {}
+  virtual void run(const edm::EventSetup& c){};
 
-    /// run processor logic
-    virtual void run() {};
-
-    virtual void run(const edm::EventSetup& c) {};
-
-    /// clear event memory of processor
-    virtual void reset() = 0;
-
+  /// clear event memory of processor
+  virtual void reset() = 0;
 };
 
 #endif

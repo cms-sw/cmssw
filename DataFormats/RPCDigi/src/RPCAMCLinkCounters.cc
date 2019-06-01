@@ -1,4 +1,3 @@
 #include "DataFormats/RPCDigi/interface/RPCAMCLinkCounters.h"
 
-RPCAMCLinkCounters::RPCAMCLinkCounters()
-{}
+RPCAMCLinkCounters::RPCAMCLinkCounters() {}

@@ -29,8 +29,8 @@ GlobalTrackQualityProducer::GlobalTrackQualityProducer(const edm::ParameterSet& 
 {
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);     
-  
+  theService = new MuonServiceProxy(serviceParameters);
+
   // TrackRefitter parameters
   edm::ConsumesCollector iC  = consumesCollector();
   edm::ParameterSet refitterParameters = iConfig.getParameter<edm::ParameterSet>("RefitterParameters");
@@ -60,7 +60,7 @@ void
 GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   const std::string theCategory = "Muon|RecoMuon|GlobalTrackQualityProducer";
-  
+
   theService->update(iSetup);
 
   theGlbRefitter->setEvent(iEvent);
@@ -70,7 +70,7 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   // Take the GLB muon container(s)
   edm::Handle<reco::TrackCollection> glbMuons;
   iEvent.getByToken(glbMuonsToken,glbMuons);
-  
+
   edm::Handle<reco::MuonTrackLinksCollection>    linkCollectionHandle;
   iEvent.getByToken(linkCollectionToken,linkCollectionHandle);
 
@@ -83,7 +83,7 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   // reserve some space
   std::vector<reco::MuonQuality> valuesQual;
   valuesQual.reserve(glbMuons->size());
-  
+
   int trackIndex = 0;
   for (reco::TrackCollection::const_iterator track = glbMuons->begin(); track!=glbMuons->end(); ++track , ++trackIndex) {
     reco::TrackRef glbRef(glbMuons,trackIndex);
@@ -92,13 +92,13 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     std::vector<Trajectory> refitted=theGlbRefitter->refit(*track,1,tTopo);
 
     LogTrace(theCategory)<<"GLBQual N refitted " << refitted.size();
-    
+
     std::pair<double,double> thisKink;
     double relative_muon_chi2 = 0.0;
     double relative_tracker_chi2 = 0.0;
     double glbTrackProbability = 0.0;
     if(!refitted.empty()) {
-      thisKink = kink(refitted.front()) ;      
+      thisKink = kink(refitted.front()) ;
       std::pair<double,double> chi = newChi2(refitted.front());
       relative_muon_chi2 = chi.second; //normalized inside to /sum(muHits.dimension)
       relative_tracker_chi2 = chi.first; //normalized inside to /sum(tkHits.dimension)
@@ -120,7 +120,7 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	{
 	  if ( links->trackerTrack().isNull() ||
 	       links->standAloneTrack().isNull() ||
-	       links->globalTrack().isNull() ) 
+	       links->globalTrack().isNull() )
 	    {
 	      edm::LogWarning(theCategory) << "Global muon links to constituent tracks are invalid. There should be no such object. Muon is skipped.";
 	      continue;
@@ -167,7 +167,7 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::ValueMap<reco::MuonQuality>::Filler fillerQual(*outQual);
   fillerQual.insert(glbMuons, valuesQual.begin(), valuesQual.end());
   fillerQual.fill();
-  
+
   // put value map into event
   iEvent.put(std::move(outQual));
 }
@@ -175,22 +175,22 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 std::pair<double,double> GlobalTrackQualityProducer::kink(Trajectory& muon) const {
 
   const std::string theCategory = "Muon|RecoMuon|GlobalTrackQualityProducer";
-   
+
   using namespace std;
   using namespace edm;
   using namespace reco;
- 
+
   double result = 0.0;
   double resultGlb = 0.0;
 
-     
+
   typedef TransientTrackingRecHit::ConstRecHitPointer 	ConstRecHitPointer;
   typedef ConstRecHitPointer RecHit;
   typedef std::vector<TrajectoryMeasurement>::const_iterator TMI;
 
 
   vector<TrajectoryMeasurement> meas = muon.measurements();
-  
+
   for ( TMI m = meas.begin(); m != meas.end(); m++ ) {
     TransientTrackingRecHit::ConstRecHitPointer hit = m->recHit();
 
@@ -203,7 +203,7 @@ std::pair<double,double> GlobalTrackQualityProducer::kink(Trajectory& muon) cons
     }
 
     //if ( !ok ) continue;
-    
+
     const TrajectoryStateOnSurface& tsos = (*m).predictedState();
 
 
@@ -233,12 +233,12 @@ std::pair<double,double> GlobalTrackQualityProducer::kink(Trajectory& muon) cons
       if(ok) result += s;
       resultGlb += s;
     }
-    
+
   }
-  
-  
+
+
   return std::pair<double,double>(result,resultGlb);
-  
+
 }
 
 std::pair<double,double> GlobalTrackQualityProducer::newChi2(Trajectory& muon) const {
@@ -252,7 +252,7 @@ std::pair<double,double> GlobalTrackQualityProducer::newChi2(Trajectory& muon) c
   double tkChi2 = 0.0;
   unsigned int muNdof = 0;
   unsigned int tkNdof = 0;
-  
+
   typedef TransientTrackingRecHit::ConstRecHitPointer 	ConstRecHitPointer;
   typedef ConstRecHitPointer RecHit;
   typedef vector<TrajectoryMeasurement>::const_iterator TMI;
@@ -269,7 +269,7 @@ std::pair<double,double> GlobalTrackQualityProducer::newChi2(Trajectory& muon) c
     if (preciseHit->isValid() && uptsos.isValid()) {
       estimate = theEstimator->estimate(uptsos, *preciseHit ).second;
     }
-    
+
     //LogTrace(theCategory) << "estimate " << estimate << " TM.est " << m->estimate();
     //UNUSED:    double tkDiff = 0.0;
     //UNUSED:    double staDiff = 0.0;
@@ -284,7 +284,7 @@ std::pair<double,double> GlobalTrackQualityProducer::newChi2(Trajectory& muon) c
       muNdof += hit->dimension();
     }
   }
-  
+
   //For tkNdof < 6, should a large number or something else
   // be used instead of just tkChi2 directly?
   if (tkNdof > 5 ) {tkChi2 /= (tkNdof-5.); }
@@ -294,16 +294,16 @@ std::pair<double,double> GlobalTrackQualityProducer::newChi2(Trajectory& muon) c
   if (muNdof > 5 ) {muChi2 /= (muNdof-5.); }
 
   return std::pair<double,double>(tkChi2,muChi2);
-       
+
 }
 
 //
 // calculate the tail probability (-ln(P)) of a fit
 //
-double 
+double
 GlobalTrackQualityProducer::trackProbability(Trajectory& track) const {
 
-  if ( track.ndof() > 0 && track.chiSquared() > 0 ) { 
+  if ( track.ndof() > 0 && track.chiSquared() > 0 ) {
     return -LnChiSquaredProbability(track.chiSquared(), track.ndof());
   } else {
     return 0.0;
@@ -311,5 +311,66 @@ GlobalTrackQualityProducer::trackProbability(Trajectory& track) const {
 
 }
 
+void GlobalTrackQualityProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
+  edm::ParameterSetDescription desc;
+  {
+    edm::ParameterSetDescription psd1;
+    psd1.setAllowAnything();
+    desc.add<edm::ParameterSetDescription>("ServiceParameters", psd1);
+  }
+  {
+    edm::ParameterSetDescription psd1;
+    psd1.setAllowAnything();
+    desc.add<edm::ParameterSetDescription>("GlobalMuonTrackMatcher", psd1);
+  }
+  desc.add<edm::InputTag>("InputCollection",edm::InputTag("globalMuons"));
+  desc.add<edm::InputTag>("InputLinksCollection",edm::InputTag("globalMuons"));
+  desc.add<std::string>("BaseLabel","GLB");
+  {
+    edm::ParameterSetDescription descGlbMuonRefitter;
+    descGlbMuonRefitter.setAllowAnything();
+    descGlbMuonRefitter.add<edm::InputTag>("DTRecSegmentLabel" , edm::InputTag("dt1DRecHits"));
+    descGlbMuonRefitter.add<edm::InputTag>("CSCRecSegmentLabel" , edm::InputTag("csc2DRecHits"));
+    descGlbMuonRefitter.add<edm::InputTag>("GEMRecHitLabel" , edm::InputTag("gemRecHits"));
+    descGlbMuonRefitter.add<edm::InputTag>("ME0RecHitLabel" , edm::InputTag("me0Segments"));
+    descGlbMuonRefitter.add<edm::InputTag>("RPCRecSegmentLabel" , edm::InputTag("rpcRecHits"));
+
+    descGlbMuonRefitter.add<std::string>("Fitter", "KFFitterForRefitInsideOut");
+    descGlbMuonRefitter.add<std::string>("Smoother", "KFSmootherForRefitInsideOut");
+    descGlbMuonRefitter.add<std::string>("Propagator", "SmartPropagatorAnyRK");
+    descGlbMuonRefitter.add<std::string>("TrackerRecHitBuilder", "WithAngleAndTemplate");
+    descGlbMuonRefitter.add<std::string>("MuonRecHitBuilder", "MuonRecHitBuilder");
+    descGlbMuonRefitter.add<bool>("DoPredictionsOnly", false);
+    descGlbMuonRefitter.add<std::string>("RefitDirection", "insideOut");
+    descGlbMuonRefitter.add<bool>("PropDirForCosmics", false);
+    descGlbMuonRefitter.add<bool>("RefitRPCHits", true);
+
+    descGlbMuonRefitter.add<std::vector<int>>("DYTthrs",{10, 10});
+    descGlbMuonRefitter.add<int>("DYTselector",1);
+    descGlbMuonRefitter.add<bool>("DYTupdator", false);
+    descGlbMuonRefitter.add<bool>("DYTuseAPE", false );
+    descGlbMuonRefitter.add<bool>("DYTuseThrsParametrization", true);
+    {
+      edm::ParameterSetDescription descDYTthrs;
+      descDYTthrs.add<std::vector<double>>("eta0p8", {1,-0.919853, 0.990742});
+      descDYTthrs.add<std::vector<double>>("eta1p2", {1,-0.897354, 0.987738});
+      descDYTthrs.add<std::vector<double>>("eta2p0", {4,-0.986855, 0.998516});
+      descDYTthrs.add<std::vector<double>>("eta2p2", {1,-0.940342, 0.992955});
+      descDYTthrs.add<std::vector<double>>("eta2p4", {1,-0.947633, 0.993762});
+      descGlbMuonRefitter.add<edm::ParameterSetDescription>("DYTthrsParameters", descDYTthrs);
+    }
+
+    descGlbMuonRefitter.add<int>("SkipStation", -1);
+    descGlbMuonRefitter.add<int>("TrackerSkipSystem",-1);
+    descGlbMuonRefitter.add<int>("TrackerSkipSection", -1);
+    descGlbMuonRefitter.add<bool>("RefitFlag", true );
+
+    desc.add<edm::ParameterSetDescription>("RefitterParameters", descGlbMuonRefitter);
+  }
+  desc.add<double>("nSigma", 3.0);
+  desc.add<double>("MaxChi2", 100000.0);
+
+  descriptions.add("globalTrackQualityProducer", desc);
+}
 //#include "FWCore/Framework/interface/MakerMacros.h"
 //DEFINE_FWK_MODULE(GlobalTrackQualityProducer);

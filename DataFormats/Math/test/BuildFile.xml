@@ -43,12 +43,16 @@
 </bin>
 <bin   file="arc.cpp" name="DataFormatsAsin_t">
 </bin>
-<bin file="testAtan2.cpp" />
+<bin file="testAtan2.cpp">
+  <flags CXXFLAGS="-fwrapv"/>
+</bin>
 <bin file="testAtan2.cpp" name="testAtan2FastMath">
-   <flags CXXFLAGS="-ffast-math"/>
+  <use name="ofast-flag"/>
+  <flags CXXFLAGS="-fwrapv"/>
 </bin>
 <bin file="testAtan2.cpp" name="testAtan2VDT">
   <use   name="vdt"/>
+  <flags CXXFLAGS="-fwrapv"/>
 </bin>
 
 <bin   file="deltaR_t.cpp" name="DataFormatsDeltaR_t">

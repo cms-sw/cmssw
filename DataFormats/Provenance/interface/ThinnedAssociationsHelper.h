@@ -34,7 +34,6 @@ namespace edm {
 
   class ThinnedAssociationsHelper {
   public:
-
     ThinnedAssociationsHelper();
 
     std::vector<ThinnedAssociationBranches>::const_iterator begin() const;
@@ -64,23 +63,22 @@ namespace edm {
     void updateFromSecondaryInput(ThinnedAssociationsHelper const&,
                                   std::vector<BranchID> const& associationsFromSecondary);
 
-    void updateFromParentProcess(ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
-                                 std::map<BranchID, bool> const& keepAssociation,
-                                 std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);
+    void updateFromParentProcess(
+        ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
+        std::map<BranchID, bool> const& keepAssociation,
+        std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);
 
-    void initAssociationsFromSecondary(std::vector<BranchID> const&,
-                                       ThinnedAssociationsHelper const&);
+    void initAssociationsFromSecondary(std::vector<BranchID> const&, ThinnedAssociationsHelper const&);
 
   private:
-
-    bool shouldKeepAssociation(BranchID const& association,
-                               std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> > const& associationToBranches,
-                               std::set<BranchID>& branchesInRecursion,
-                               std::set<BranchID> const& keptProductsInEvent,
-                               std::map<BranchID, bool>& keepAssociation) const;
-
+    bool shouldKeepAssociation(
+        BranchID const& association,
+        std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> > const& associationToBranches,
+        std::set<BranchID>& branchesInRecursion,
+        std::set<BranchID> const& keptProductsInEvent,
+        std::map<BranchID, bool>& keepAssociation) const;
 
     std::vector<ThinnedAssociationBranches> vThinnedAssociationBranches_;
   };
-}
+}  // namespace edm
 #endif

@@ -32,6 +32,7 @@ process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTr
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelProfiles = .oO[offlineModuleLevelProfiles]Oo.
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..stripYResiduals = .oO[stripYResiduals]Oo.
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..maxTracks = .oO[maxtracks]Oo./ .oO[parallelJobs]Oo.
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..chargeCut = .oO[chargeCut]Oo.
 """
 
 OfflineValidationSequence = "process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo."

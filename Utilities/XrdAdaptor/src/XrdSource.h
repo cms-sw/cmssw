@@ -12,19 +12,18 @@
 #include "QualityMetric.h"
 
 namespace XrdCl {
-    class File;
+  class File;
 }
 
 namespace XrdAdaptor {
 
-class RequestList;
-class ClientRequest;
-class XrdSiteStatistics;
-class XrdStatisticsService;
+  class RequestList;
+  class ClientRequest;
+  class XrdSiteStatistics;
+  class XrdStatisticsService;
 
-class Source : public std::enable_shared_from_this<Source>, boost::noncopyable {
-
-public:
+  class Source : public std::enable_shared_from_this<Source>, boost::noncopyable {
+  public:
     Source(timespec now, std::unique_ptr<XrdCl::File> fileHandle, const std::string &exclude);
 
     ~Source();
@@ -35,15 +34,17 @@ public:
 
     std::shared_ptr<XrdCl::File> getFileHandle();
 
-    const std::string & ID() const {return m_id;}
-    const std::string & Site() const {return m_site;}
-    const std::string & PrettyID() const {return m_prettyid;}
-    const std::string & ExcludeID() const {return m_exclude;}
+    const std::string &ID() const { return m_id; }
+    const std::string &Site() const { return m_site; }
+    const std::string &PrettyID() const { return m_prettyid; }
+    const std::string &ExcludeID() const { return m_exclude; }
 
-    unsigned getQuality() {return m_qm->get();}
+    unsigned getQuality() { return m_qm->get(); }
 
-    struct timespec getLastDowngrade() const {return m_lastDowngrade;}
-    void setLastDowngrade(struct timespec now) {m_lastDowngrade = now;}
+    struct timespec getLastDowngrade() const {
+      return m_lastDowngrade;
+    }
+    void setLastDowngrade(struct timespec now) { m_lastDowngrade = now; }
 
     static bool getDomain(const std::string &host, std::string &domain);
     static bool getXrootdSite(XrdCl::File &file, std::string &site);
@@ -52,24 +53,24 @@ public:
     // Given a file and (possibly) a host list, determine the exclude string.
     static void determineHostExcludeString(XrdCl::File &file, const XrdCl::HostList *hostList, std::string &exclude);
 
-    // Given a connected File object, determine whether we believe this to be a 
+    // Given a connected File object, determine whether we believe this to be a
     // dCache pool (dCache is a separate implementation and sometimes benefits from
     // implementation-specific behaviors.
-    static bool isDCachePool(XrdCl::File &file, const XrdCl::HostList *hostList=nullptr);
+    static bool isDCachePool(XrdCl::File &file, const XrdCl::HostList *hostList = nullptr);
     static bool isDCachePool(const std::string &url);
 
     // Given an Xrootd server ID, determine the hostname to the best of our ability.
-    static bool getHostname(const std::string & id, std::string &hostname);
+    static bool getHostname(const std::string &id, std::string &hostname);
 
-private:
+  private:
     void requestCallback(/* TODO: type? */);
 
     void setXrootdSite();
 
-    std::shared_ptr<XrdCl::File const> fh() const {return get_underlying_safe(m_fh);}
-    std::shared_ptr<XrdCl::File>& fh() {return get_underlying_safe(m_fh);}
-    std::shared_ptr<XrdSiteStatistics const> stats() const {return get_underlying_safe(m_stats);}
-    std::shared_ptr<XrdSiteStatistics>& stats() {return get_underlying_safe(m_stats);}
+    std::shared_ptr<XrdCl::File const> fh() const { return get_underlying_safe(m_fh); }
+    std::shared_ptr<XrdCl::File> &fh() { return get_underlying_safe(m_fh); }
+    std::shared_ptr<XrdSiteStatistics const> stats() const { return get_underlying_safe(m_stats); }
+    std::shared_ptr<XrdSiteStatistics> &stats() { return get_underlying_safe(m_stats); }
 
     struct timespec m_lastDowngrade;
     std::string m_id;
@@ -84,8 +85,8 @@ private:
 #ifdef XRD_FAKE_SLOW
     bool m_slow;
 #endif
-};
+  };
 
-}
+}  // namespace XrdAdaptor
 
 #endif

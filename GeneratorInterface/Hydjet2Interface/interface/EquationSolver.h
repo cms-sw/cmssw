@@ -14,13 +14,12 @@ November. 2, 2005
 
 #define DefaultTolerance 5.0e-14
 
-template <class Function> 
+template <class Function>
 class NAEquationSolver {
+public:
+  enum { DefaultMaxIter = 100 };
 
- public:
-  enum {DefaultMaxIter = 100};
-	
- private:
+private:
   // Maximum number of iterations
   int fMaxIter;
   double fTolerance;
@@ -30,41 +29,39 @@ class NAEquationSolver {
   // root
   double fRoot;
 
- public:    
+public:
   // default constructor
-  NAEquationSolver() : fMaxIter(DefaultMaxIter), fTolerance(DefaultTolerance),
-    fA(0.0), fB(0.0), fRoot(0.0) {};
-	
-    NAEquationSolver(const int iterations, const double tol) :
-      fMaxIter(iterations), fTolerance(tol),
-      fA(0.0), fB(0.0), fRoot(0.0) {};
+  NAEquationSolver() : fMaxIter(DefaultMaxIter), fTolerance(DefaultTolerance), fA(0.0), fB(0.0), fRoot(0.0){};
 
-      // copy constructor	
-      NAEquationSolver(const NAEquationSolver & right);
+  NAEquationSolver(const int iterations, const double tol)
+      : fMaxIter(iterations), fTolerance(tol), fA(0.0), fB(0.0), fRoot(0.0){};
 
-      // destructor
-      ~NAEquationSolver() {};
-	
-      // operators
-      NAEquationSolver & operator=(const NAEquationSolver & right);
-      bool operator==(const NAEquationSolver & right) const;
-      bool operator!=(const NAEquationSolver & right) const;
-		
-      int GetMaxIterations(void) const {return fMaxIter;}
-      void SetMaxIterations(const int iterations) {fMaxIter=iterations;}
-	
-      double GetTolerance(void) const {return fTolerance;}
-      void SetTolerance(const double epsilon) {fTolerance = epsilon;}
-  
-      double GetIntervalLowerLimit(void) const {return fA;}
-      double GetIntervalUpperLimit(void) const {return fB;}
-	
-      void SetIntervalLimits(const double Limit1, const double Limit2);
+  // copy constructor
+  NAEquationSolver(const NAEquationSolver& right);
 
-      double GetRoot(void) const {return fRoot;}	
-	
-      // Calculates the root by the Brent's method
-      bool Brent(Function& theFunction);
+  // destructor
+  ~NAEquationSolver(){};
+
+  // operators
+  NAEquationSolver& operator=(const NAEquationSolver& right);
+  bool operator==(const NAEquationSolver& right) const;
+  bool operator!=(const NAEquationSolver& right) const;
+
+  int GetMaxIterations(void) const { return fMaxIter; }
+  void SetMaxIterations(const int iterations) { fMaxIter = iterations; }
+
+  double GetTolerance(void) const { return fTolerance; }
+  void SetTolerance(const double epsilon) { fTolerance = epsilon; }
+
+  double GetIntervalLowerLimit(void) const { return fA; }
+  double GetIntervalUpperLimit(void) const { return fB; }
+
+  void SetIntervalLimits(const double Limit1, const double Limit2);
+
+  double GetRoot(void) const { return fRoot; }
+
+  // Calculates the root by the Brent's method
+  bool Brent(Function& theFunction);
 };
 
 #include "GeneratorInterface/Hydjet2Interface/src/EquationSolver.icc"

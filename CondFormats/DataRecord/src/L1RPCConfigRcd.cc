@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     L1RPCConfigRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Tue Mar 20 14:39:09 CET 2007
 // $Id$
 

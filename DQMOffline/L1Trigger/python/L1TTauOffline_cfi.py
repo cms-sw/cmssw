@@ -4,14 +4,14 @@ from DQMOffline.L1Trigger.L1THistDefinitions_cff import histDefinitions
 tauEfficiencyThresholds = [28, 30, 32, 128, 176]
 
 tauEfficiencyBins = []
-tauEfficiencyBins.extend(list(xrange(0, 50, 1)))
-tauEfficiencyBins.extend(list(xrange(50, 60, 2)))
-tauEfficiencyBins.extend(list(xrange(60, 80, 5)))
-tauEfficiencyBins.extend(list(xrange(80, 200, 10)))
-tauEfficiencyBins.extend(list(xrange(200, 300, 20)))
-tauEfficiencyBins.extend(list(xrange(300, 400, 50)))
-tauEfficiencyBins.extend(list(xrange(400, 600, 100)))
-tauEfficiencyBins.extend(list(xrange(600, 1200, 200)))
+tauEfficiencyBins.extend(list(range(0, 50, 1)))
+tauEfficiencyBins.extend(list(range(50, 60, 2)))
+tauEfficiencyBins.extend(list(range(60, 80, 5)))
+tauEfficiencyBins.extend(list(range(80, 200, 10)))
+tauEfficiencyBins.extend(list(range(200, 300, 20)))
+tauEfficiencyBins.extend(list(range(300, 400, 50)))
+tauEfficiencyBins.extend(list(range(400, 600, 100)))
+tauEfficiencyBins.extend(list(range(600, 1200, 200)))
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 l1tTauOfflineDQM = DQMEDAnalyzer(

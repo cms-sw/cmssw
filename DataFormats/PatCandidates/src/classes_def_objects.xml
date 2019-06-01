@@ -67,7 +67,9 @@
   </ioread>
 
 
-  <class name="pat::Muon"  ClassVersion="25">
+  <class name="pat::Muon"  ClassVersion="27">
+   <version ClassVersion="27" checksum="3473399161"/>
+   <version ClassVersion="26" checksum="1156855644"/>
    <version ClassVersion="25" checksum="574733987"/>
    <version ClassVersion="24" checksum="2298704767"/>
    <version ClassVersion="23" checksum="3471390119"/>
@@ -164,7 +166,8 @@
   <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFGammaCandsTransientPtrs_">
   <![CDATA[isolationPFGammaCandsTransientPtrs_.reset();]]>
   </ioread>
-  <class name="pat::tau::TauPFSpecific"  ClassVersion="15">
+  <class name="pat::tau::TauPFSpecific"  ClassVersion="16">
+   <version ClassVersion="16" checksum="443572625"/>
    <version ClassVersion="15" checksum="3425877587"/>
    <version ClassVersion="14" checksum="1401440164"/>
    <version ClassVersion="13" checksum="3129436753"/>
@@ -173,6 +176,7 @@
    <version ClassVersion="10" checksum="2617942038"/>
   </class>
   <class name="std::vector<pat::tau::TauPFSpecific>" />
+
   <class name="pat::tau::TauCaloSpecific"  ClassVersion="11">
    <version ClassVersion="11" checksum="943826557"/>
    <version ClassVersion="10" checksum="2692173055"/>
@@ -334,7 +338,8 @@
   <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="3">
    <version ClassVersion="3" checksum="3320406063"/>
   </class>
-  <class name="pat::PackedCandidate" ClassVersion="33">
+  <class name="pat::PackedCandidate" ClassVersion="34">
+   <version ClassVersion="34" checksum="3953181632"/>
    <version ClassVersion="33" checksum="1092680546"/>
    <version ClassVersion="32" checksum="926869123"/>
    <version ClassVersion="31" checksum="1248040002"/>
@@ -415,6 +420,18 @@
    target="packedPuppiweightNoLepDiff_" include="DataFormats/Math/interface/liblogintpack.h">
    <![CDATA[
             packedPuppiweightNoLepDiff_ = std::numeric_limits<int8_t>::max()*(logintpack::unpack8logClosed(onfile.packedPuppiweightNoLepDiff_+onfile.packedPuppiweight_,-2,0,64)/2. - logintpack::unpack8logClosed(onfile.packedPuppiweight_,-2,0,64)/2.);
+   ]]>
+   </ioread>
+  <ioread sourceClass="pat::PackedCandidate" source="int8_t hcalFraction_; int pdgId_" version="[-33]" targetClass="pat::PackedCandidate" target="rawHcalFraction_,hcalFraction_,pdgId_">
+   <![CDATA[
+      int absPdgId = abs(onfile.pdgId_);
+      if (absPdgId == 211 || absPdgId == 11 || absPdgId == 13) {
+        rawHcalFraction_ = onfile.hcalFraction_;
+        hcalFraction_ = 0;
+      } else {
+        hcalFraction_ = onfile.hcalFraction_;
+      }
+      pdgId_ = onfile.pdgId_;
    ]]>
    </ioread>
 
@@ -616,6 +633,16 @@
   <class name="std::vector< std::vector<edm::Ptr<pat::Jet> > >" />
   <class name="edm::Wrapper< std::vector<edm::Ptr<pat::Jet> > >" />
   <class name="edm::Wrapper< std::vector< std::vector<edm::Ptr<pat::Jet> > > >" />
+
+  <!--  Association for Jet, and AssociationMap Jet-PackedCandidate -->
+  <class name="edm::Association<std::vector<pat::Jet> >"/>
+  <class name="edm::Wrapper<edm::Association<std::vector<pat::Jet> > >"/>
+  <class name="edm::RefProd<vector<pat::Jet> >"/>
+  <class name="edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>,std::vector<pat::PackedCandidate>,unsigned int> >">
+    <field name="transientMap_" transient="true" />
+  </class>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>,std::vector<pat::PackedCandidate>,unsigned int> > >"/>
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<pat::Jet> >,edm::RefProd<vector<pat::PackedCandidate> > >"/>
 
   <class name="pat::PATTauDiscriminatorBase">
     <field name="transientVector_" transient="true"/>

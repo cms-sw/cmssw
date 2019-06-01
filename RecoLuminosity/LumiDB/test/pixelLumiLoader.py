@@ -6,6 +6,7 @@
 ###################################################################
 
 from __future__ import print_function
+from builtins import range
 import os,sys,time,json,coral
 from datetime import datetime
 from RecoLuminosity.LumiDB import sessionManager,argparse,nameDealer,revisionDML,dataDML,lumiParameters,lumiTime

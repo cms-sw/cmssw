@@ -12,7 +12,6 @@ is the DataBlock.
 
 ----------------------------------------------------------------------*/
 
-
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
@@ -34,75 +33,47 @@ namespace edm {
   public:
     typedef LuminosityBlockAuxiliary Auxiliary;
     typedef Principal Base;
-    LuminosityBlockPrincipal(
-        std::shared_ptr<ProductRegistry const> reg,
-        ProcessConfiguration const& pc,
-        HistoryAppender* historyAppender,
-        unsigned int index,
-        bool isForPrimaryProcess=true);
+    LuminosityBlockPrincipal(std::shared_ptr<ProductRegistry const> reg,
+                             ProcessConfiguration const& pc,
+                             HistoryAppender* historyAppender,
+                             unsigned int index,
+                             bool isForPrimaryProcess = true);
 
     ~LuminosityBlockPrincipal() override {}
 
-    void fillLuminosityBlockPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader = nullptr);
+    void fillLuminosityBlockPrincipal(ProcessHistoryRegistry const& processHistoryRegistry,
+                                      DelayedReader* reader = nullptr);
 
-    RunPrincipal const& runPrincipal() const {
-      return *runPrincipal_;
-    }
+    RunPrincipal const& runPrincipal() const { return *runPrincipal_; }
 
-    RunPrincipal& runPrincipal() {
-      return *runPrincipal_;
-    }
+    RunPrincipal& runPrincipal() { return *runPrincipal_; }
 
-    void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) {
-      runPrincipal_ = rp;
-    }
+    void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) { runPrincipal_ = rp; }
 
-    LuminosityBlockIndex index() const {
-      return index_;
-    }
-    
-    LuminosityBlockID id() const {
-      return aux().id();
-    }
+    LuminosityBlockIndex index() const { return index_; }
 
-    Timestamp const& beginTime() const {
-      return aux().beginTime();
-    }
+    LuminosityBlockID id() const { return aux().id(); }
 
-    Timestamp const& endTime() const {
-      return aux().endTime();
-    }
+    Timestamp const& beginTime() const { return aux().beginTime(); }
 
-    void setEndTime(Timestamp const& time) {
-      aux_.setEndTime(time);
-    }
+    Timestamp const& endTime() const { return aux().endTime(); }
 
-    LuminosityBlockNumber_t luminosityBlock() const {
-      return aux().luminosityBlock();
-    }
+    void setEndTime(Timestamp const& time) { aux_.setEndTime(time); }
 
-    void setAux( LuminosityBlockAuxiliary iAux) { aux_ = std::move(iAux);}
-    LuminosityBlockAuxiliary const& aux() const {
-      return aux_;
-    }
+    LuminosityBlockNumber_t luminosityBlock() const { return aux().luminosityBlock(); }
 
-    RunNumber_t run() const {
-      return aux().run();
-    }
+    void setAux(LuminosityBlockAuxiliary iAux) { aux_ = std::move(iAux); }
+    LuminosityBlockAuxiliary const& aux() const { return aux_; }
 
-    void mergeAuxiliary(LuminosityBlockAuxiliary const& aux) {
-      return aux_.mergeAuxiliary(aux);
-    }
+    RunNumber_t run() const { return aux().run(); }
 
-    void put(
-        BranchDescription const& bd,
-        std::unique_ptr<WrapperBase> edp) const;
+    void mergeAuxiliary(LuminosityBlockAuxiliary const& aux) { return aux_.mergeAuxiliary(aux); }
 
-    void put(ProductResolverIndex index,
-             std::unique_ptr<WrapperBase> edp) const;
+    void put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
+
+    void put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp) const;
 
   private:
-
     unsigned int transitionIndex_() const override;
 
     edm::propagate_const<std::shared_ptr<RunPrincipal>> runPrincipal_;
@@ -111,6 +82,5 @@ namespace edm {
 
     LuminosityBlockIndex index_;
   };
-}
+}  // namespace edm
 #endif
-

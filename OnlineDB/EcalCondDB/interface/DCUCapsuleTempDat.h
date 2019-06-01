@@ -10,7 +10,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class DCUCapsuleTempDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   DCUCapsuleTempDat();
   ~DCUCapsuleTempDat() override;
@@ -20,23 +20,18 @@ class DCUCapsuleTempDat : public IDataItem {
 
   inline void setCapsuleTemp(float temp) { m_capsuleTemp = temp; }
   inline float getCapsuleTemp() const { return m_capsuleTemp; }
-  
- private:
-  void prepareWrite() 
-    noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const DCUCapsuleTempDat* item, DCUIOV* iov)
-    noexcept(false);
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void writeArrayDB(const std::map< EcalLogicID, DCUCapsuleTempDat>* data, DCUIOV* iov)
-  noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const DCUCapsuleTempDat* item, DCUIOV* iov) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, DCUCapsuleTempDat >* fillVec, DCUIOV* iov)
-     noexcept(false);
+  void writeArrayDB(const std::map<EcalLogicID, DCUCapsuleTempDat>* data, DCUIOV* iov) noexcept(false);
+
+  void fetchData(std::map<EcalLogicID, DCUCapsuleTempDat>* fillVec, DCUIOV* iov) noexcept(false);
 
   // User data
   float m_capsuleTemp;
-  
 };
 
 #endif

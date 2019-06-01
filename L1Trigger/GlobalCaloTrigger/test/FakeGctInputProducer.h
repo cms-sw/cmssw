@@ -2,7 +2,7 @@
 //
 // Package:    L1FakeRctProducer
 // Class:      FakeGctInputProducer
-// 
+//
 /**\class FakeGctInputProducer FakeGctInputProducer.h L1Trigger/GlobalCaloTrigger/src/FakeGctInputProducer.h
 
  \brief EDProducer to fill GCT input buffers for testing
@@ -15,7 +15,6 @@
 //         Created:  Thu Nov 16 00:07:32 CET 2006
 //
 //
-
 
 #ifndef FAKEGCTINPUTPRODUCER_H
 #define FAKEGCTINPUTPRODUCER_H
@@ -31,17 +30,16 @@
 //
 
 class FakeGctInputProducer : public edm::EDProducer {
-   public:
-      explicit FakeGctInputProducer(const edm::ParameterSet&);
-      ~FakeGctInputProducer();
+public:
+  explicit FakeGctInputProducer(const edm::ParameterSet&);
+  ~FakeGctInputProducer();
 
-   private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+private:
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
-      int rgnMode_;
-      int iemMode_;
-      int niemMode_;
-
+  int rgnMode_;
+  int iemMode_;
+  int niemMode_;
 };
 
 #endif

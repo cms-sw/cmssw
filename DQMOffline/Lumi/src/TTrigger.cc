@@ -5,7 +5,7 @@
 #include <cassert>
 #include <iostream>
 #include <fstream>
-#include <limits> 
+#include <limits>
 
 using namespace ZCountingTrigger;
 
@@ -19,36 +19,42 @@ using namespace ZCountingTrigger;
 // one entry for each <trigger object name>.
 //
 // The trigger object leg numbering is to account for the possibility that a particular object of
-// the trigger can evolve and obtain a different trigger object name, but we still want this to 
+// the trigger can evolve and obtain a different trigger object name, but we still want this to
 // be associated with the same leg (e.g. the trailing electron in a dielectron trigger)
 //
-TTrigger::TTrigger() { 
-
-  fRecords.push_back(ZCountingTrigger::TriggerRecord("HLT_IsoMu27_v*",0));
-  fRecords.back().objectMap.push_back(std::pair<std::string, int>("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07",0));    
-  fRecords.push_back(ZCountingTrigger::TriggerRecord("HLT_Ele35_WPTight_Gsf_v*",1));
-  fRecords.back().objectMap.push_back(std::pair<std::string, int>("hltEle35noerWPTightGsfTrackIsoFilter",0));
-  fRecords.push_back(ZCountingTrigger::TriggerRecord("HLT_Ele27_WPTight_Gsf_v*",2));
-  fRecords.back().objectMap.push_back(std::pair<std::string, int>("hltEle27WPTightGsfTrackIsoFilter",0));
+TTrigger::TTrigger(const std::vector<std::string> &muonTriggerNames,
+                   const std::vector<std::string> &muonTriggerObjectNames) {
+  for (unsigned int i = 0; i < muonTriggerNames.size(); ++i) {
+    fRecords.push_back(ZCountingTrigger::TriggerRecord(muonTriggerNames.at(i), 0));
+    fRecords.back().objectMap.push_back(std::pair<std::string, int>(muonTriggerObjectNames.at(i), 0));
+  }
+  fRecords.push_back(ZCountingTrigger::TriggerRecord("HLT_Ele35_WPTight_Gsf_v*", 1));
+  fRecords.back().objectMap.push_back(std::pair<std::string, int>("hltEle35noerWPTightGsfTrackIsoFilter", 0));
+  fRecords.push_back(ZCountingTrigger::TriggerRecord("HLT_Ele27_WPTight_Gsf_v*", 2));
+  fRecords.back().objectMap.push_back(std::pair<std::string, int>("hltEle27WPTightGsfTrackIsoFilter", 0));
 }
 
 //--------------------------------------------------------------------------------------------------
-int TTrigger::getTriggerBit(const std::string &iName) const { 
+int TTrigger::getTriggerBit(const std::string &iName) const {
   int lId = -1;
-  for(unsigned int i0 = 0; i0 < fRecords.size(); i0++) { 
-    if(iName == fRecords[i0].hltPattern) lId = i0;    
+  for (unsigned int i0 = 0; i0 < fRecords.size(); i0++) {
+    if (iName == fRecords[i0].hltPattern)
+      lId = i0;
   }
-  if(lId == -1) edm::LogWarning("ZCounting") << "=== Missing Trigger ==" << iName << std::endl;
+  if (lId == -1)
+    edm::LogWarning("ZCounting") << "=== Missing Trigger ==" << iName << std::endl;
   return lId;
 }
 
 //--------------------------------------------------------------------------------------------------
 int TTrigger::getTriggerObjectBit(const std::string &iName, const std::string &iObjName) const {
   int lId = getTriggerBit(iName);
-  if(lId == -1) return -1;
+  if (lId == -1)
+    return -1;
 
-  for(unsigned int i0 = 0; i0 < fRecords[lId].objectMap.size(); i0++) {
-    if(iObjName != fRecords[lId].objectMap[i0].first) continue;
+  for (unsigned int i0 = 0; i0 < fRecords[lId].objectMap.size(); i0++) {
+    if (iObjName != fRecords[lId].objectMap[i0].first)
+      continue;
     return fRecords[lId].objectMap[i0].second;
   }
 
@@ -58,15 +64,17 @@ int TTrigger::getTriggerObjectBit(const std::string &iName, const std::string &i
 //--------------------------------------------------------------------------------------------------
 bool TTrigger::pass(const std::string &iName, const TriggerBits &iTrig) const {
   int lId = getTriggerBit(iName);
-  if(lId == -1) return false;
+  if (lId == -1)
+    return false;
 
   return iTrig[lId];
 }
 
 //--------------------------------------------------------------------------------------------------
 bool TTrigger::passObj(const std::string &iName, const std::string &iObjName, const TriggerObjects &iTrigObj) const {
-  int lId = getTriggerObjectBit(iName,iObjName);
-  if(lId == -1) return false;
+  int lId = getTriggerObjectBit(iName, iObjName);
+  if (lId == -1)
+    return false;
 
   return iTrigObj[lId];
 }

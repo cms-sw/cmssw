@@ -9,14 +9,13 @@ namespace edm {
                              BranchType iBranchType,
                              KindOfType iKindOfType,
                              bool iAlwaysGets,
-                             bool iSkipCurrentProcess_) :
-    type_(iType),
-    label_(iLabel),
-    instance_(iInstance),
-    process_(iProcess),
-    branchType_(iBranchType),
-    kindOfType_(iKindOfType),
-    alwaysGets_(iAlwaysGets),
-    skipCurrentProcess_(iSkipCurrentProcess_) {
-  }
-}
+                             bool iSkipCurrentProcess_)
+      : type_(iType),
+        label_(iLabel),
+        instance_(iInstance),
+        process_(iProcess),
+        branchType_(iBranchType),
+        kindOfType_(iKindOfType),
+        alwaysGets_(iAlwaysGets),
+        skipCurrentProcess_(iSkipCurrentProcess_) {}
+}  // namespace edm

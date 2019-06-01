@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     FWCaloTowerSliceSelector
-// 
+//
 /**\class FWCaloTowerSliceSelector FWCaloTowerSliceSelector.h Fireworks/Calo/interface/FWCaloTowerSliceSelector.h
 
  Description: [one line class summary]
@@ -24,15 +24,13 @@
 
 #include "Fireworks/Calo/interface/FWHistSliceSelector.h"
 
-
-class FWCaloTowerSliceSelector : public FWHistSliceSelector
-{
+class FWCaloTowerSliceSelector : public FWHistSliceSelector {
 public:
   FWCaloTowerSliceSelector(TH2F* h, const FWEventItem* i);
   ~FWCaloTowerSliceSelector() override;
- 
+
 protected:
-   void getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const override; 
+  void getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const override;
 };
 
 #endif

@@ -9,7 +9,6 @@
  *  \author Adam Everett        Purdue University
  */
 
-
 // system include files
 #include <memory>
 #include <string>
@@ -31,35 +30,35 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-
-namespace reco {class Track;}
+namespace reco {
+  class Track;
+}
 
 class InputTag;
 class MonitorElement;
 class TrackAssociatorBase;
-class  DQMStore;
+class DQMStore;
 
 //
 // class decleration
 //
 
 class GlobalMuonMatchAnalyzer : public DQMEDAnalyzer {
-   public:
-      explicit GlobalMuonMatchAnalyzer(const edm::ParameterSet&);
-      ~GlobalMuonMatchAnalyzer() override;
+public:
+  explicit GlobalMuonMatchAnalyzer(const edm::ParameterSet &);
+  ~GlobalMuonMatchAnalyzer() override;
 
+private:
+  //      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override;
 
-   private:
-      //      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-      void endRun(const edm::Run&, const edm::EventSetup&) override;
-
-  void computeEfficiencyEta(MonitorElement*, MonitorElement *recoTH2, MonitorElement *simTH2);
-  void computeEfficiencyPt(MonitorElement*, MonitorElement *recoTH2, MonitorElement *simTH2);
-      // ----------member data ---------------------------
+  void computeEfficiencyEta(MonitorElement *, MonitorElement *recoTH2, MonitorElement *simTH2);
+  void computeEfficiencyPt(MonitorElement *, MonitorElement *recoTH2, MonitorElement *simTH2);
+  // ----------member data ---------------------------
   std::string out;
-  DQMStore* dbe_;
+  DQMStore *dbe_;
   edm::ParameterSet iConfig;
   std::string subsystemname_;
   MonitorElement *h_shouldMatch, *h_goodMatchSim, *h_tkOnlySim, *h_staOnlySim;
@@ -70,9 +69,8 @@ class GlobalMuonMatchAnalyzer : public DQMEDAnalyzer {
   const TrackAssociatorBase *tkAssociator_, *muAssociator_;
   edm::InputTag tkAssociatorName_, muAssociatorName_;
   edm::InputTag tkName_, tpName_, glbName_, staName_;
-  edm::EDGetTokenT<edm::View<reco::Track> >  tkToken_, tpToken_, glbToken_, staToken_;
+  edm::EDGetTokenT<edm::View<reco::Track> > tkToken_, tpToken_, glbToken_, staToken_;
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> tkAssociatorToken_, muAssociatorToken_;
-
 };
 
 #endif

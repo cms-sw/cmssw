@@ -1,5 +1,5 @@
 #ifndef DQM_RPCMonitorClient_DQMDaqInfo_H
-# define DQM_RPCMonitorClient_DQMDaqInfo_H
+#define DQM_RPCMonitorClient_DQMDaqInfo_H
 
 // system include files
 #include <iostream>
@@ -10,32 +10,32 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
-
-class RPCDaqInfo : public DQMEDHarvester{
- 
+class RPCDaqInfo : public DQMEDHarvester {
 public:
-  explicit RPCDaqInfo(const edm::ParameterSet&);
+  explicit RPCDaqInfo(const edm::ParameterSet &);
   ~RPCDaqInfo() override;
 
 protected:
   void beginJob() override;
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) override; //performed in the endLumi
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;       //performed in the endLumi
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
 private:
-  void  myBooker(DQMStore::IBooker &);
+  void myBooker(DQMStore::IBooker &);
 
   bool init_;
 
-  MonitorElement*  DaqFraction_;
-  MonitorElement * DaqMap_;
-  MonitorElement* daqWheelFractions[5];
-  MonitorElement* daqDiskFractions[10];
+  MonitorElement *DaqFraction_;
+  MonitorElement *DaqMap_;
+  MonitorElement *daqWheelFractions[5];
+  MonitorElement *daqDiskFractions[10];
 
-  std::pair<int,int> FEDRange_;
+  std::pair<int, int> FEDRange_;
 
-  int  numberOfDisks_,NumberOfFeds_;
- 
+  int numberOfDisks_, NumberOfFeds_;
 };
 
 #endif

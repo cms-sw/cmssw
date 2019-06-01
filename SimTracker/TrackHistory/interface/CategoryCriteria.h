@@ -1,88 +1,69 @@
 #ifndef CategoryCriteria_h
 #define CategoryCriteria_h
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 
-
-//! Implement a selector given a track or vertex collection and track or vertex classifier.
+//! Implement a selector given a track or vertex collection and track or vertex
+//! classifier.
 template <typename Collection, typename Classifier>
-class CategoryCriteria
-{
-
+class CategoryCriteria {
 public:
+  // Input collection type
+  typedef Collection collection;
 
-    // Input collection type
-    typedef Collection collection;
+  // Type of the collection elements
+  typedef typename Collection::value_type type;
 
-    // Type of the collection elements
-    typedef typename Collection::value_type type;
+  // Oumemberut collection type
+  typedef std::vector<const type *> container;
 
-    // Oumemberut collection type
-    typedef std::vector<const type *> container;
+  // Iterator over result collection type.
+  typedef typename container::const_iterator const_iterator;
 
-    // Iterator over result collection type.
-    typedef typename container::const_iterator const_iterator;
+  // Constructor from parameter set configurability
+  CategoryCriteria(const edm::ParameterSet &config, edm::ConsumesCollector &&iC)
+      : classifier_(config, std::move(iC)), evaluate_(config.getParameter<std::string>("cut")) {}
 
-    // Constructor from parameter set configurability
-    CategoryCriteria(const edm::ParameterSet & config, edm::ConsumesCollector && iC) :
-            classifier_(config,std::move(iC)),
-            evaluate_( config.getParameter<std::string>("cut") ) {}
+  // Select object from a collection and possibly event content
+  void select(const edm::Handle<collection> &collectionHandler, const edm::Event &event, const edm::EventSetup &setup) {
+    selected_.clear();
 
-    // Select object from a collection and possibly event content
-    void select(const edm::Handle<collection> & collectionHandler, const edm::Event & event, const edm::EventSetup & setup)
-    {
+    // const collection & collectionPointer = *(collectionHandler.product());
 
-        selected_.clear();
+    classifier_.newEvent(event, setup);
 
-        // const collection & collectionPointer = *(collectionHandler.product());
+    for (typename collection::size_type i = 0; i < collectionHandler->size(); ++i) {
+      edm::Ref<Collection> member(collectionHandler, i);
 
-        classifier_.newEvent(event, setup);
+      classifier_.evaluate(member);
 
-        for (typename collection::size_type i = 0; i < collectionHandler->size(); ++i)
-        {
-            edm::Ref<Collection> member(collectionHandler, i);
-
-            classifier_.evaluate(member);
-
-            // Classifier is evaluated using StringCutObjectSelector
-            if ( evaluate_(classifier_) )
-                selected_.push_back( &(*member) );
-        }
+      // Classifier is evaluated using StringCutObjectSelector
+      if (evaluate_(classifier_))
+        selected_.push_back(&(*member));
     }
+  }
 
-    // Iterators over selected objects: collection begin
-    const_iterator begin() const
-    {
-        return selected_.begin();
-    }
+  // Iterators over selected objects: collection begin
+  const_iterator begin() const { return selected_.begin(); }
 
-    // Iterators over selected objects: collection end
-    const_iterator end() const
-    {
-        return selected_.end();
-    }
+  // Iterators over selected objects: collection end
+  const_iterator end() const { return selected_.end(); }
 
-    // True if no object has been selected
-    std::size_t size() const
-    {
-        return selected_.size();
-    }
+  // True if no object has been selected
+  std::size_t size() const { return selected_.size(); }
 
 private:
+  container selected_;
 
-    container selected_;
+  Classifier classifier_;
 
-    Classifier classifier_;
-
-    StringCutObjectSelector<typename Classifier::Categories> evaluate_;
-
+  StringCutObjectSelector<typename Classifier::Categories> evaluate_;
 };
-
 
 #endif

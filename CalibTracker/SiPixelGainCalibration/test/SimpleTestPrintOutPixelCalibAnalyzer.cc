@@ -2,7 +2,7 @@
 //
 // Package:    SimpleTestPrintOutPixelCalibAnalyzer
 // Class:      SimpleTestPrintOutPixelCalibAnalyzer
-// 
+//
 /**\class SimpleTestPrintOutPixelCalibAnalyzer CalibTracker/SiPixelGainCalibration/test/SimpleTestPrintOutPixelCalibAnalyzer.cc
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Mon Nov  5 16:56:35 CET 2007
 //
 //
-
 
 // system include files
 #include <memory>
@@ -45,62 +44,45 @@
 SimpleTestPrintOutPixelCalibAnalyzer::SimpleTestPrintOutPixelCalibAnalyzer(const edm::ParameterSet& iConfig)
 
 {
-  tPixelCalibDigi = consumes <edm::DetSetVector<SiPixelCalibDigi> > (edm::InputTag("siPixelCalibDigis"));
-
+  tPixelCalibDigi = consumes<edm::DetSetVector<SiPixelCalibDigi> >(edm::InputTag("siPixelCalibDigis"));
 }
 
-
-SimpleTestPrintOutPixelCalibAnalyzer::~SimpleTestPrintOutPixelCalibAnalyzer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+SimpleTestPrintOutPixelCalibAnalyzer::~SimpleTestPrintOutPixelCalibAnalyzer() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
-void
-SimpleTestPrintOutPixelCalibAnalyzer::printInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-
+void SimpleTestPrintOutPixelCalibAnalyzer::printInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  
+
   Handle<DetSetVector<SiPixelCalibDigi> > pIn;
-  iEvent.getByToken(tPixelCalibDigi,pIn);
+  iEvent.getByToken(tPixelCalibDigi, pIn);
 
   DetSetVector<SiPixelCalibDigi>::const_iterator digiIter;
-  for(digiIter=pIn->begin(); digiIter!=pIn->end(); ++digiIter){
+  for (digiIter = pIn->begin(); digiIter != pIn->end(); ++digiIter) {
     uint32_t detid = digiIter->id;
     DetSet<SiPixelCalibDigi>::const_iterator ipix;
-    for(ipix= digiIter->data.begin(); ipix!=digiIter->end(); ++ipix){
-      std::cout  << std::endl;
-      for(uint32_t ipoint=0; ipoint<ipix->getnpoints(); ++ipoint)
-	std::cout << "\t Det ID " << detid << " row:" << ipix->row() << " col:" << ipix->col() << " point " << ipoint << " has " << ipix->getnentries(ipoint) << " entries, adc: " << ipix->getsum(ipoint) << ", adcsq: " << ipix->getsumsquares(ipoint) << std::endl;
+    for (ipix = digiIter->data.begin(); ipix != digiIter->end(); ++ipix) {
+      std::cout << std::endl;
+      for (uint32_t ipoint = 0; ipoint < ipix->getnpoints(); ++ipoint)
+        std::cout << "\t Det ID " << detid << " row:" << ipix->row() << " col:" << ipix->col() << " point " << ipoint
+                  << " has " << ipix->getnentries(ipoint) << " entries, adc: " << ipix->getsum(ipoint)
+                  << ", adcsq: " << ipix->getsumsquares(ipoint) << std::endl;
     }
   }
-
 }
 // ------------ method called to for each event  ------------
-void
-SimpleTestPrintOutPixelCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+void SimpleTestPrintOutPixelCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   printInfo(iEvent,iSetup);
-
+  printInfo(iEvent, iSetup);
 }
-
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-SimpleTestPrintOutPixelCalibAnalyzer::beginJob()
-{
-}
+void SimpleTestPrintOutPixelCalibAnalyzer::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-SimpleTestPrintOutPixelCalibAnalyzer::endJob() {
-}
-
+void SimpleTestPrintOutPixelCalibAnalyzer::endJob() {}

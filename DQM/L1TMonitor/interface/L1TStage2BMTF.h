@@ -48,44 +48,40 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 
-
 // class decleration
 
-class  L1TStage2BMTF: public DQMEDAnalyzer {
-
+class L1TStage2BMTF : public DQMEDAnalyzer {
 public:
+  // class constructor
+  L1TStage2BMTF(const edm::ParameterSet& ps);
+  // class destructor
+  ~L1TStage2BMTF() override;
 
-// class constructor
-L1TStage2BMTF(const edm::ParameterSet & ps);
-// class destructor
-~L1TStage2BMTF() override;
-
-// member functions
+  // member functions
 protected:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override ;
+  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
 
-// data members
-private:  
-
+  // data members
+private:
   std::string monitorDir;
-  edm::InputTag bmtfSource; 
+  edm::InputTag bmtfSource;
   //  edm::InputTag bmtfSourceTwinMux1;
   //  edm::InputTag bmtfSourceTwinMux2;
-  bool verbose ;
+  bool verbose;
   bool kalman;
   edm::EDGetToken bmtfToken;
   // edm::EDGetToken bmtfTokenTwinMux1;
-  //  edm::EDGetToken bmtfTokenTwinMux2; 
+  //  edm::EDGetToken bmtfTokenTwinMux2;
   float global_phi;
 
-  MonitorElement* bmtf_hwEta; 
+  MonitorElement* bmtf_hwEta;
   MonitorElement* bmtf_hwLocalPhi;
   MonitorElement* bmtf_hwGlobalPhi;
-  MonitorElement* bmtf_hwPt;  
+  MonitorElement* bmtf_hwPt;
   MonitorElement* bmtf_hwQual;
-  MonitorElement* bmtf_proc; 
+  MonitorElement* bmtf_proc;
 
   MonitorElement* bmtf_wedge_bx;
   MonitorElement* bmtf_hwEta_hwLocalPhi;
@@ -94,14 +90,13 @@ private:
   MonitorElement* bmtf_hwPt_hwEta;
   MonitorElement* bmtf_hwPt_hwLocalPhi;
 
-  MonitorElement* bmtf_hwEta_bx;  
-  MonitorElement* bmtf_hwLocalPhi_bx;  
-  MonitorElement* bmtf_hwPt_bx;   
-  MonitorElement* bmtf_hwQual_bx; 
+  MonitorElement* bmtf_hwEta_bx;
+  MonitorElement* bmtf_hwLocalPhi_bx;
+  MonitorElement* bmtf_hwPt_bx;
+  MonitorElement* bmtf_hwQual_bx;
 
   MonitorElement* bmtf_hwDXY;
   MonitorElement* bmtf_hwPt2;
-
 
   /* MonitorElement* bmtf_twinmuxInput_PhiBX; */
   /* MonitorElement* bmtf_twinmuxInput_PhiPhi; */
@@ -122,7 +117,6 @@ private:
   /* MonitorElement* bmtf_twinmuxInput_TheWheel; */
   /* MonitorElement* bmtf_twinmuxInput_TheTrSeg; */
   /* MonitorElement* bmtf_twinmuxInput_TheWheel_TheSector; */
-
 };
 
 #endif

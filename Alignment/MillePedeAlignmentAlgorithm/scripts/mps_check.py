@@ -12,6 +12,7 @@
 #  It also retirieves number of events from alignment.log and cputime from STDOUT
 
 from __future__ import print_function
+from builtins import range
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import subprocess
 import re
@@ -28,7 +29,7 @@ except subprocess.CalledProcessError:
     eoslsoutput = ""
 
 # loop over FETCH jobs
-for i in xrange(len(lib.JOBID)):
+for i in range(len(lib.JOBID)):
     # FIXME use bools?
     batchSuccess = 0
     batchExited = 0
@@ -56,6 +57,7 @@ for i in xrange(len(lib.JOBID)):
     cmdNotFound = 0
     insuffPriv = 0
     quotaspace = 0
+    copyerr=0
 
     kill_reason = None
     pedeLogErrStr = ""
@@ -102,6 +104,8 @@ for i in xrange(len(lib.JOBID)):
                     # AP 26.11.2009 Insufficient privileges to rfcp files
                     if re.search(re.compile('stage_put: Insufficient user privileges',re.M), line):
                         insuffPriv = 1
+                    if re.search(re.compile('Give up doing',re.M), line):
+                        copyerr = 1
                     # AP 05.11.2015 Extract cpu-time.
                     # STDOUT doesn't contain NCU anymore. Now KSI2K and HS06 seconds are displayed.
                     # The ncuFactor is calculated from few samples by comparing KSI2K seconds with
@@ -217,7 +221,7 @@ for i in xrange(len(lib.JOBID)):
                         nEvent = int(array[5])
 
             if logZipped == 'true':
-                os.system('gzip '+eazeLog)
+                os.system('gzip -f '+eazeLog)
 
         else:   # no access to alignment.log
             print('mps_check.py cannot find',eazeLog,'to test')
@@ -325,7 +329,7 @@ for i in xrange(len(lib.JOBID)):
                             pedeLogWrnStr += line
 
                 if logZipped == 'true':
-                    os.system('gzip '+eazeLog)
+                    os.system('gzip -f '+eazeLog)
             else:
                 print('mps_check.py cannot find',eazeLog,'to test')
 
@@ -353,7 +357,7 @@ for i in xrange(len(lib.JOBID)):
                                 pedeLogErr = 1
                                 pedeLogErrStr += line
                 if logZipped == 'true':
-                    os.system('gzip '+eazeLog)
+                    os.system('gzip -f '+eazeLog)
             else:
                 print('mps_check.py cannot find',eazeLog,'to test')
 
@@ -442,6 +446,11 @@ for i in xrange(len(lib.JOBID)):
             print(lib.JOBDIR[i],lib.JOBID[i],'Job not ended')
             remark = 'job not ended'
             okStatus = 'FAIL'
+        if copyerr == 1:
+            print(lib.JOBDIR[i],lib.JOBID[i],'Copy to eos failed')
+            remark = 'copy to eos failed'
+            okStatus = 'FAIL'
+
 
         # print warning line to stdout
         if okStatus != "OK":

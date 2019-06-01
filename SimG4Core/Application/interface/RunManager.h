@@ -23,7 +23,7 @@ namespace edm {
   class EventSetup;
   class ConsumesCollector;
   class HepMCProduct;
-}
+}  // namespace edm
 
 class PrimaryTransformer;
 class Generator;
@@ -52,61 +52,51 @@ class RunAction;
 
 class SimRunInterface;
 
-class RunManager
-{
+class RunManager {
 public:
-
-  RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& i);
+  RunManager(edm::ParameterSet const& p, edm::ConsumesCollector&& i);
   ~RunManager();
-  void initG4(const edm::EventSetup & es);
+  void initG4(const edm::EventSetup& es);
   void initializeUserActions();
   void initializeRun();
 
   void stopG4();
   void terminateRun();
-  void abortRun(bool softAbort=false);
+  void abortRun(bool softAbort = false);
 
-  const G4Run * currentRun() const { return m_currentRun; }
+  const G4Run* currentRun() const { return m_currentRun; }
   void produce(edm::Event& inpevt, const edm::EventSetup& es);
   void abortEvent();
-  const Generator * generator() const { return m_generator; }
-  const G4Event * currentEvent() const { return m_currentEvent; }
-  G4SimEvent * simEvent() { return m_simEvent; }
-  std::vector<SensitiveTkDetector*>& sensTkDetectors() { 
-    return m_sensTkDets; 
-  }
-  std::vector<SensitiveCaloDetector*>& sensCaloDetectors() { 
-    return m_sensCaloDets; 
-  }
-  std::vector<std::shared_ptr<SimProducer> > producers() const {
-    return m_producers;
-  }
+  const Generator* generator() const { return m_generator; }
+  const G4Event* currentEvent() const { return m_currentEvent; }
+  G4SimEvent* simEvent() { return m_simEvent; }
+  std::vector<SensitiveTkDetector*>& sensTkDetectors() { return m_sensTkDets; }
+  std::vector<SensitiveCaloDetector*>& sensCaloDetectors() { return m_sensCaloDets; }
+  std::vector<std::shared_ptr<SimProducer> > producers() const { return m_producers; }
 
   SimTrackManager* GetSimTrackManager();
-  void             Connect(RunAction*);
-  void             Connect(EventAction*);
-  void             Connect(TrackingAction*);
-  void             Connect(SteppingAction*);
+  void Connect(RunAction*);
+  void Connect(EventAction*);
+  void Connect(TrackingAction*);
+  void Connect(SteppingAction*);
 
 protected:
+  G4Event* generateEvent(edm::Event& inpevt);
+  void resetGenParticleId(edm::Event& inpevt);
+  void DumpMagneticField(const G4Field*) const;
 
-  G4Event * generateEvent( edm::Event& inpevt );
-  void resetGenParticleId( edm::Event& inpevt );
-  void DumpMagneticField( const G4Field*) const;
- 
 private:
+  G4RunManagerKernel* m_kernel;
 
-  G4RunManagerKernel * m_kernel;
-    
-  Generator * m_generator;
+  Generator* m_generator;
 
   edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
   edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_LHCtr;
-    
+
   bool m_nonBeam;
   std::unique_ptr<CustomUIsession> m_UIsession;
   std::unique_ptr<PhysicsList> m_physicsList;
-  PrimaryTransformer * m_primaryTransformer;
+  PrimaryTransformer* m_primaryTransformer;
 
   bool m_managerInitialized;
   bool m_runInitialized;
@@ -116,11 +106,11 @@ private:
   bool m_pUseMagneticField;
   bool m_hasWatchers;
 
-  G4Run * m_currentRun;
-  G4Event * m_currentEvent;
-  G4SimEvent * m_simEvent;
-  RunAction * m_userRunAction;
-  SimRunInterface * m_runInterface;
+  G4Run* m_currentRun;
+  G4Event* m_currentEvent;
+  G4SimEvent* m_simEvent;
+  RunAction* m_userRunAction;
+  SimRunInterface* m_runInterface;
 
   std::string m_PhysicsTablesDir;
   bool m_StorePhysicsTables;
@@ -128,9 +118,9 @@ private:
   int m_EvtMgrVerbosity;
   bool m_check;
   edm::ParameterSet m_pField;
-  edm::ParameterSet m_pGenerator;   
-  edm::ParameterSet m_pPhysics; 
-  edm::ParameterSet m_pRunAction;      
+  edm::ParameterSet m_pGenerator;
+  edm::ParameterSet m_pPhysics;
+  edm::ParameterSet m_pRunAction;
   edm::ParameterSet m_pEventAction;
   edm::ParameterSet m_pStackingAction;
   edm::ParameterSet m_pTrackingAction;
@@ -139,7 +129,6 @@ private:
   std::vector<std::string> m_G4Commands;
   edm::ParameterSet m_p;
 
-  AttachSD * m_attach;
   std::vector<SensitiveTkDetector*> m_sensTkDets;
   std::vector<SensitiveCaloDetector*> m_sensCaloDets;
 
@@ -148,12 +137,12 @@ private:
   SimActivityRegistry m_registry;
   std::vector<std::shared_ptr<SimWatcher> > m_watchers;
   std::vector<std::shared_ptr<SimProducer> > m_producers;
-    
+
   std::unique_ptr<SimTrackManager> m_trackManager;
-    
+
   edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;
   edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;
-    
+
   std::string m_FieldFile;
   std::string m_WriteFile;
   std::string m_RegionFile;

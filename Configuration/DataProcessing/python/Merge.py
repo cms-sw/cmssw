@@ -27,7 +27,8 @@ def mergeProcess(*inputFiles, **options):
     - newDQMIO : specifies if the new DQM format should be used to merge the files
     - output_file : sets the output file name
     - output_lfn : sets the output LFN
-    - bypassVersionCheck : to bypass version check in case merging happened in lower version of CMSSW (i.e. UL HLT case). This will be TRUE by default.
+    - mergeNANO : to merge NanoAOD
+    - bypassVersionCheck : to bypass version check in case merging happened in lower version of CMSSW (i.e. UL HLT case). This will be FALSE by default.
 
     """
     #  //
@@ -40,7 +41,7 @@ def mergeProcess(*inputFiles, **options):
     dropDQM = options.get("drop_dqm", False)
     newDQMIO = options.get("newDQMIO", False)
     mergeNANO = options.get("mergeNANO", False)
-    bypassVersionCheck = options.get("bypassVersionCheck", True)
+    bypassVersionCheck = options.get("bypassVersionCheck", False)
     #  //
     # // build process
     #//
@@ -51,9 +52,11 @@ def mergeProcess(*inputFiles, **options):
     #//
     if newDQMIO:
         process.source = Source("DQMRootSource")
-        process.add_(Service("DQMStore"))
+        process.add_(Service("DQMStore", forceResetOnBeginLumi = CfgTypes.untracked.bool(True)))
     else:
         process.source = Source("PoolSource")
+        if bypassVersionCheck:
+            process.source.bypassVersionCheck = CfgTypes.untracked.bool(True)
         if dropDQM:
             process.source.inputCommands = CfgTypes.untracked.vstring('keep *','drop *_EDMtoMEConverter_*_*')
     process.source.fileNames = CfgTypes.untracked(CfgTypes.vstring())
@@ -71,9 +74,6 @@ def mergeProcess(*inputFiles, **options):
         process.add_(Service("InitRootHandlers", EnableIMT = CfgTypes.untracked.bool(False)))
     else:
         outMod = OutputModule("PoolOutputModule")
-
-    # To bypass the version check in the merge process (TRUE by default)
-    process.source.bypassVersionCheck = CfgTypes.untracked.bool(bypassVersionCheck)
 
     outMod.fileName = CfgTypes.untracked.string(outputFilename)
     if outputLFN != None:

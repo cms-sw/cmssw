@@ -35,7 +35,6 @@
 
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
-
 using namespace reco;
 using namespace trigger;
 
@@ -43,79 +42,80 @@ using namespace trigger;
 #include "HLTSinglet.cc"
 
 // filter for HLT candidates
-typedef HLTSinglet<RecoEcalCandidate   > HLT1Photon   ;
-typedef HLTSinglet<Electron            > HLT1Electron ;
-typedef HLTSinglet<RecoChargedCandidate> HLT1Muon     ;
-typedef HLTSinglet<CaloJet             > HLT1CaloJet  ;
-typedef HLTSinglet<CompositeCandidate  > HLT1Composite;
-typedef HLTSinglet<CaloMET             > HLT1CaloMET  ;
-typedef HLTSinglet<MET                 > HLT1MET      ;
+typedef HLTSinglet<RecoEcalCandidate> HLT1Photon;
+typedef HLTSinglet<Electron> HLT1Electron;
+typedef HLTSinglet<RecoChargedCandidate> HLT1Muon;
+typedef HLTSinglet<CaloJet> HLT1CaloJet;
+typedef HLTSinglet<CompositeCandidate> HLT1Composite;
+typedef HLTSinglet<CaloMET> HLT1CaloMET;
+typedef HLTSinglet<MET> HLT1MET;
 //typedef HLTSinglet<RecoChargedCandidate> HLT1Track    ;
 //typedef HLTSinglet<RecoEcalCandidate   > HLT1Cluster  ;
-typedef HLTSinglet<PFTau               > HLT1PFTau    ;
-typedef HLTSinglet<PFJet               > HLT1PFJet    ;
-typedef HLTSinglet<PFMET               > HLT1PFMET    ;
+typedef HLTSinglet<PFTau> HLT1PFTau;
+typedef HLTSinglet<PFJet> HLT1PFJet;
+typedef HLTSinglet<PFMET> HLT1PFMET;
 
 // filters for L1 candidates
-typedef HLTSinglet<l1extra::L1EmParticle    > HLTLevel1EG;     // the actual type is ovrridden object-by-object (TriggerL1IsoEG or TriggerL1NoIsoEG)
-typedef HLTSinglet<l1extra::L1EtMissParticle> HLTLevel1MET;    // the actual type is ovrridden object-by-object (TriggerL1ETM or TriggerL1HTM)
-typedef HLTSinglet<l1extra::L1JetParticle   > HLTLevel1Jet;    // the actual type is ovrridden object-by-object (TriggerL1CenJet, TriggerL1ForJet or TriggerL1TauJet)
-typedef HLTSinglet<l1extra::L1MuonParticle  > HLTLevel1Muon;   
+typedef HLTSinglet<l1extra::L1EmParticle>
+    HLTLevel1EG;  // the actual type is ovrridden object-by-object (TriggerL1IsoEG or TriggerL1NoIsoEG)
+typedef HLTSinglet<l1extra::L1EtMissParticle>
+    HLTLevel1MET;  // the actual type is ovrridden object-by-object (TriggerL1ETM or TriggerL1HTM)
+typedef HLTSinglet<l1extra::L1JetParticle>
+    HLTLevel1Jet;  // the actual type is ovrridden object-by-object (TriggerL1CenJet, TriggerL1ForJet or TriggerL1TauJet)
+typedef HLTSinglet<l1extra::L1MuonParticle> HLTLevel1Muon;
 
 #include "HLTSmartSinglet.h"
 #include "HLTSmartSinglet.cc"
 
-typedef HLTSmartSinglet<RecoEcalCandidate   > HLT1SmartPhoton   ;
-typedef HLTSmartSinglet<Electron            > HLT1SmartElectron ;
-typedef HLTSmartSinglet<RecoChargedCandidate> HLT1SmartMuon     ;
-typedef HLTSmartSinglet<CaloJet             > HLT1SmartCaloJet  ;
-typedef HLTSmartSinglet<CompositeCandidate  > HLT1SmartComposite;
-typedef HLTSmartSinglet<CaloMET             > HLT1SmartCaloMET  ;
-typedef HLTSmartSinglet<MET                 > HLT1SmartMET      ;
-typedef HLTSmartSinglet<PFTau               > HLT1SmartPFTau    ;
-typedef HLTSmartSinglet<PFJet               > HLT1SmartPFJet    ;
-typedef HLTSmartSinglet<PFMET               > HLT1SmartPFMET    ;
-
+typedef HLTSmartSinglet<RecoEcalCandidate> HLT1SmartPhoton;
+typedef HLTSmartSinglet<Electron> HLT1SmartElectron;
+typedef HLTSmartSinglet<RecoChargedCandidate> HLT1SmartMuon;
+typedef HLTSmartSinglet<CaloJet> HLT1SmartCaloJet;
+typedef HLTSmartSinglet<CompositeCandidate> HLT1SmartComposite;
+typedef HLTSmartSinglet<CaloMET> HLT1SmartCaloMET;
+typedef HLTSmartSinglet<MET> HLT1SmartMET;
+typedef HLTSmartSinglet<PFTau> HLT1SmartPFTau;
+typedef HLTSmartSinglet<PFJet> HLT1SmartPFJet;
+typedef HLTSmartSinglet<PFMET> HLT1SmartPFMET;
 
 #include "HLTGlobalSums.h"
 #include "HLTGlobalSums.cc"
 
-typedef HLTGlobalSums<PFMET>   HLTGlobalSumsPFMET;
+typedef HLTGlobalSums<PFMET> HLTGlobalSumsPFMET;
 typedef HLTGlobalSums<CaloMET> HLTGlobalSumsCaloMET;
-typedef HLTGlobalSums<MET    > HLTGlobalSumsMET    ;
-
+typedef HLTGlobalSums<MET> HLTGlobalSumsMET;
 
 #include "HLTDoublet.h"
 #include "HLTDoublet.cc"
-typedef HLTDoublet<CaloJet,CaloJet> HLT2CaloJetCaloJet;
-typedef HLTDoublet<CaloJet,CaloMET> HLT2CaloJetCaloMET;
-typedef HLTDoublet<CaloJet,    MET> HLT2CaloJetMET;
-typedef HLTDoublet<  PFJet,  PFJet> HLT2PFJetPFJet;
-typedef HLTDoublet<  PFJet,CaloMET> HLT2PFJetCaloMET;
-typedef HLTDoublet<  PFJet,    MET> HLT2PFJetMET;
-typedef HLTDoublet<  PFJet,  PFMET> HLT2PFJetPFMET;
+typedef HLTDoublet<CaloJet, CaloJet> HLT2CaloJetCaloJet;
+typedef HLTDoublet<CaloJet, CaloMET> HLT2CaloJetCaloMET;
+typedef HLTDoublet<CaloJet, MET> HLT2CaloJetMET;
+typedef HLTDoublet<PFJet, PFJet> HLT2PFJetPFJet;
+typedef HLTDoublet<PFJet, CaloMET> HLT2PFJetCaloMET;
+typedef HLTDoublet<PFJet, MET> HLT2PFJetMET;
+typedef HLTDoublet<PFJet, PFMET> HLT2PFJetPFMET;
 
-typedef HLTDoublet<Electron            ,CaloJet> HLT2ElectronTau;
-typedef HLTDoublet<RecoEcalCandidate   ,CaloJet> HLT2PhotonTau;
-typedef HLTDoublet<RecoChargedCandidate,CaloJet> HLT2MuonTau;
-typedef HLTDoublet<Electron            ,CaloTau> HLT2ElectronCaloTau;
-typedef HLTDoublet<RecoChargedCandidate,CaloTau> HLT2MuonCaloTau;
-typedef HLTDoublet<Electron            ,HLTTau>  HLT2ElectronHLTTau;
-typedef HLTDoublet<RecoChargedCandidate,HLTTau>  HLT2MuonHLTTau;
-typedef HLTDoublet<Electron            ,PFTau>   HLT2ElectronPFTau;
-typedef HLTDoublet<RecoEcalCandidate   ,PFTau>   HLT2PhotonPFTau;
-typedef HLTDoublet<RecoChargedCandidate,PFTau>   HLT2MuonPFTau;
-typedef HLTDoublet<Electron            ,PFJet>   HLT2ElectronPFJet;
-typedef HLTDoublet<RecoChargedCandidate,PFJet>   HLT2MuonPFJet;
+typedef HLTDoublet<Electron, CaloJet> HLT2ElectronTau;
+typedef HLTDoublet<RecoEcalCandidate, CaloJet> HLT2PhotonTau;
+typedef HLTDoublet<RecoChargedCandidate, CaloJet> HLT2MuonTau;
+typedef HLTDoublet<Electron, CaloTau> HLT2ElectronCaloTau;
+typedef HLTDoublet<RecoChargedCandidate, CaloTau> HLT2MuonCaloTau;
+typedef HLTDoublet<Electron, HLTTau> HLT2ElectronHLTTau;
+typedef HLTDoublet<RecoChargedCandidate, HLTTau> HLT2MuonHLTTau;
+typedef HLTDoublet<Electron, PFTau> HLT2ElectronPFTau;
+typedef HLTDoublet<RecoEcalCandidate, PFTau> HLT2PhotonPFTau;
+typedef HLTDoublet<RecoChargedCandidate, PFTau> HLT2MuonPFTau;
+typedef HLTDoublet<Electron, PFJet> HLT2ElectronPFJet;
+typedef HLTDoublet<RecoChargedCandidate, PFJet> HLT2MuonPFJet;
 
-typedef HLTDoublet<Electron            ,CaloMET> HLT2ElectronCaloMET;
-typedef HLTDoublet<RecoChargedCandidate,CaloMET> HLT2MuonCaloMET;
-typedef HLTDoublet<Electron            ,    MET> HLT2ElectronMET;
-typedef HLTDoublet<RecoChargedCandidate,    MET> HLT2MuonMET;
-typedef HLTDoublet<Electron            ,  PFMET> HLT2ElectronPFMET;
-typedef HLTDoublet<RecoChargedCandidate,  PFMET> HLT2MuonPFMET;
-typedef HLTDoublet<RecoEcalCandidate   ,    MET> HLT2PhotonMET;
-typedef HLTDoublet<RecoEcalCandidate   ,  PFMET> HLT2PhotonPFMET;
+typedef HLTDoublet<Electron, CaloMET> HLT2ElectronCaloMET;
+typedef HLTDoublet<RecoChargedCandidate, CaloMET> HLT2MuonCaloMET;
+typedef HLTDoublet<Electron, MET> HLT2ElectronMET;
+typedef HLTDoublet<RecoChargedCandidate, MET> HLT2MuonMET;
+typedef HLTDoublet<Electron, PFMET> HLT2ElectronPFMET;
+typedef HLTDoublet<RecoChargedCandidate, PFMET> HLT2MuonPFMET;
+typedef HLTDoublet<RecoEcalCandidate, MET> HLT2PhotonMET;
+typedef HLTDoublet<RecoEcalCandidate, PFMET> HLT2PhotonPFMET;
 
 DEFINE_FWK_MODULE(HLTBool);
 DEFINE_FWK_MODULE(HLTFiltCand);
@@ -145,7 +145,6 @@ DEFINE_FWK_MODULE(HLT2MuonPFMET);
 DEFINE_FWK_MODULE(HLT2PhotonMET);
 DEFINE_FWK_MODULE(HLT2PhotonPFMET);
 
-
 DEFINE_FWK_MODULE(HLT1Electron);
 DEFINE_FWK_MODULE(HLT1Photon);
 DEFINE_FWK_MODULE(HLT1Muon);
@@ -165,4 +164,3 @@ DEFINE_FWK_MODULE(HLTLevel1Muon);
 DEFINE_FWK_MODULE(HLTGlobalSumsPFMET);
 DEFINE_FWK_MODULE(HLTGlobalSumsCaloMET);
 DEFINE_FWK_MODULE(HLTGlobalSumsMET);
-

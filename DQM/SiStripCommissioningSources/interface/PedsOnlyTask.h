@@ -16,21 +16,19 @@ class SiStripRawDigi;
 /**
    @class PedsOnlyTask
 */
-class PedsOnlyTask : public CommissioningTask 
-{
-  public:
-    PedsOnlyTask( DQMStore *, const FedChannelConnection &);
-    ~PedsOnlyTask() override;
+class PedsOnlyTask : public CommissioningTask {
+public:
+  PedsOnlyTask(DQMStore *, const FedChannelConnection &);
+  ~PedsOnlyTask() override;
 
-  private:
-    void book() override;
-    void fill( const SiStripEventSummary &,
-                       const edm::DetSet<SiStripRawDigi> &) override;
-    void update() override;
+private:
+  void book() override;
+  void fill(const SiStripEventSummary &, const edm::DetSet<SiStripRawDigi> &) override;
+  void update() override;
 
-    std::vector<HistoSet> peds_;
+  std::vector<HistoSet> peds_;
 
-    ApvAnalysisFactory *pApvFactory_; 
+  ApvAnalysisFactory *pApvFactory_;
 };
 
-#endif // DQM_SISTRIPCOMMISSIONINGSOURCES_PEDSONLYTASK_H
+#endif  // DQM_SISTRIPCOMMISSIONINGSOURCES_PEDSONLYTASK_H

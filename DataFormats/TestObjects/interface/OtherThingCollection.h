@@ -6,8 +6,7 @@
 #include "DataFormats/TestObjects/interface/OtherThing.h"
 
 namespace edmtest {
-   typedef std::vector<edmtest::OtherThing> OtherThingCollection;
+  typedef std::vector<edmtest::OtherThing> OtherThingCollection;
 }
 
 #endif
-

@@ -16,11 +16,10 @@
 #include <cstdint>
 #include <iosfwd>
 
-class RPCDigi{
-
+class RPCDigi {
 public:
-  explicit RPCDigi (int strip, int bx);
-  RPCDigi ();
+  explicit RPCDigi(int strip, int bx);
+  RPCDigi();
 
   bool operator==(const RPCDigi& digi) const;
   bool operator<(const RPCDigi& digi) const;
@@ -39,19 +38,17 @@ public:
   double deltaTime() const { return deltaTime_; }
   double deltaX() const { return deltaX_; }
   double deltaY() const { return deltaY_; }
-  void setTime(double time) { time_ = time;}
+  void setTime(double time) { time_ = time; }
   void setDeltaTime(double dt) { deltaTime_ = dt; }
   void setX(double x) { coordinateX_ = x; }
   void setY(double y) { coordinateY_ = y; }
   void setDeltaX(double dx) { deltaX_ = dx; }
   void setDeltaY(double dy) { deltaY_ = dy; }
-  bool isPseudoDigi() const { return hasX_ || hasY_ ; }
-
-
+  bool isPseudoDigi() const { return hasX_ || hasY_; }
 
 private:
   uint16_t strip_;
-  int32_t  bx_;
+  int32_t bx_;
   double time_;
   double coordinateX_;
   double coordinateY_;
@@ -63,7 +60,6 @@ private:
   bool hasY_;
 };
 
-std::ostream & operator<<(std::ostream & o, const RPCDigi& digi);
+std::ostream& operator<<(std::ostream& o, const RPCDigi& digi);
 
 #endif
-

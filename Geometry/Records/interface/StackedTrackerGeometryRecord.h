@@ -17,10 +17,10 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "boost/mpl/vector.hpp"
 
-class StackedTrackerGeometryRecord : public edm::eventsetup::DependentRecordImplementation< StackedTrackerGeometryRecord , boost::mpl::vector<TrackerDigiGeometryRecord> > {};
+class StackedTrackerGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<StackedTrackerGeometryRecord,
+                                                            boost::mpl::vector<TrackerDigiGeometryRecord> > {};
 
-#endif 
+#endif
 
 /* RECORDS_StackedTrackerGEOMETRYRECORD_H */
-
-

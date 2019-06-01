@@ -2,7 +2,7 @@
 //
 // Package:    HGCalGeometry
 // Class:      FastTimeGeometryESProducer
-// 
+//
 /**\class FastTimeGeometryESProducer FastTimeGeometryESProducer.h 
 
  Description: <one line class summary>
@@ -15,14 +15,12 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/FastTimeTopology.h"
@@ -36,10 +34,9 @@
 //
 
 class FastTimeGeometryESProducer : public edm::ESProducer {
-
 public:
-  FastTimeGeometryESProducer( const edm::ParameterSet& iP );
-  ~FastTimeGeometryESProducer() override ;
+  FastTimeGeometryESProducer(const edm::ParameterSet& iP);
+  ~FastTimeGeometryESProducer() override;
 
   using ReturnType = std::unique_ptr<FastTimeGeometry>;
 
@@ -47,42 +44,34 @@ public:
 
 private:
   // ----------member data ---------------------------
-  std::string        name_;
-  int                type_;
+  edm::ESGetToken<FastTimeTopology, IdealGeometryRecord> topologyToken_;
 };
 
-
 FastTimeGeometryESProducer::FastTimeGeometryESProducer(const edm::ParameterSet& iConfig) {
-
-  name_     = iConfig.getUntrackedParameter<std::string>("Name");
-  type_     = iConfig.getUntrackedParameter<int>("Type");
+  auto name = iConfig.getUntrackedParameter<std::string>("Name");
 #ifdef EDM_ML_DEBUG
-  std::cout <<"constructing FastTimeGeometry for " << name_ << " Type "
-	    << type_ << std::endl;
+  auto type = iConfig.getUntrackedParameter<int>("Type");
+  std::cout << "constructing FastTimeGeometry for " << name << " Type " << type << std::endl;
 #endif
-  setWhatProduced(this, name_);
+  auto cc = setWhatProduced(this, name);
+  topologyToken_ = cc.consumes<FastTimeTopology>(edm::ESInputTag{"", name});
 }
 
-
-FastTimeGeometryESProducer::~FastTimeGeometryESProducer() { }
-
+FastTimeGeometryESProducer::~FastTimeGeometryESProducer() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-FastTimeGeometryESProducer::ReturnType
-FastTimeGeometryESProducer::produce(const IdealGeometryRecord& iRecord ) {
-
-  edm::ESHandle<FastTimeTopology> topo;
-  iRecord.get(name_,topo);
+FastTimeGeometryESProducer::ReturnType FastTimeGeometryESProducer::produce(const IdealGeometryRecord& iRecord) {
+  const auto& topo = iRecord.get(topologyToken_);
 
   FastTimeGeometryLoader builder;
 #ifdef EDM_ML_DEBUG
-  std::cout << "Create FastTimeGeometry (*topo)" << std::endl;
+  std::cout << "Create FastTimeGeometry (topo)" << std::endl;
 #endif
-  return ReturnType(builder.build(*topo));
+  return ReturnType(builder.build(topo));
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(FastTimeGeometryESProducer);

@@ -8,24 +8,19 @@
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
 
+class CaloShapeIntegrator : public CaloVShape {
+public:
+  enum { BUNCHSPACE = 25 };
 
-class CaloShapeIntegrator: public CaloVShape
-{
-   public:
+  CaloShapeIntegrator(const CaloVShape *aShape);
 
-      enum {BUNCHSPACE = 25};
+  ~CaloShapeIntegrator() override;
 
-      CaloShapeIntegrator( const CaloVShape* aShape ) ;
+  double operator()(double startTime) const override;
+  double timeToRise() const override;
 
-      ~CaloShapeIntegrator() override ;
-
-      double operator () ( double startTime ) const override ;
-      double timeToRise()                     const override ;
-
-   private:
-
-      const CaloVShape* m_shape ;
+private:
+  const CaloVShape *m_shape;
 };
 
 #endif
-

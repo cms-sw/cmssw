@@ -11,7 +11,6 @@
 #ifndef L1T_TwinMux_IOPrinter_H
 #define L1T_TwinMux_IOPrinter_H
 
-
 #include <iostream>
 #include <iomanip>
 #include <iterator>
@@ -25,15 +24,18 @@
 #include "L1Trigger/L1TTwinMux/interface/DTRPCBxCorrection.h"
 #include "L1Trigger/L1TTwinMux/interface/RPCHitCleaner.h"
 
-class IOPrinter{
+class IOPrinter {
 public:
-  IOPrinter() {};
-  ~IOPrinter() {};
-  void run(edm::Handle<L1MuDTChambPhContainer>, const L1MuDTChambPhContainer &,  edm::Handle<RPCDigiCollection>,
-            const edm::EventSetup& );
-  void run(L1MuDTChambPhContainer const*, const L1MuDTChambPhContainer & , RPCDigiCollection const*,
-            const edm::EventSetup& );
-
+  IOPrinter(){};
+  ~IOPrinter(){};
+  void run(edm::Handle<L1MuDTChambPhContainer>,
+           const L1MuDTChambPhContainer&,
+           edm::Handle<RPCDigiCollection>,
+           const edm::EventSetup&);
+  void run(L1MuDTChambPhContainer const*,
+           const L1MuDTChambPhContainer&,
+           RPCDigiCollection const*,
+           const edm::EventSetup&);
 };
 
 #endif

@@ -12,34 +12,30 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
-
-class PCLMetadataWriter  : public edm::EDAnalyzer {
+class PCLMetadataWriter : public edm::EDAnalyzer {
 public:
   /// Constructor
-  PCLMetadataWriter(const edm::ParameterSet&);
+  PCLMetadataWriter(const edm::ParameterSet &);
 
   /// Destructor
   ~PCLMetadataWriter() override;
 
   // Operations
-//   virtual void beginJob            (void);
-//   virtual void endJob              (void);  
-  void analyze             (const edm::Event&          , const edm::EventSetup&) override;
-  void beginRun            (const edm::Run&            , const edm::EventSetup&) override;
-  void endRun              (const edm::Run&            , const edm::EventSetup&) override;
-//   virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-//   virtual void endLuminosityBlock  (const edm::LuminosityBlock&, const edm::EventSetup&);
+  //   virtual void beginJob            (void);
+  //   virtual void endJob              (void);
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override;
+  //   virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const
+  //   edm::EventSetup&); virtual void endLuminosityBlock  (const
+  //   edm::LuminosityBlock&, const edm::EventSetup&);
 
 protected:
-
 private:
   bool readFromDB;
-  std::map<std::string,  std::map<std::string, std::string> > recordMap;
-  
-
+  std::map<std::string, std::map<std::string, std::string>> recordMap;
 };
 #endif
-

@@ -30,7 +30,10 @@ EcalTBGeometryBuilder::EcalTBGeometryBuilder(const edm::ParameterSet& iConfig)
 {
    //the following line is needed to tell the framework what
    // data is being produced
-   setWhatProduced(this);
+   auto cc = setWhatProduced(this);
+
+   barrelToken_ = cc.consumes<CaloSubdetectorGeometry>(edm::ESInputTag{"", "EcalBarrel"});
+   hodoscopeToken_ = cc.consumes<CaloSubdetectorGeometry>(edm::ESInputTag{"", "EcalLaserPnDiode"});
 
    //now do what ever other initialization is needed
 }
@@ -54,16 +57,16 @@ EcalTBGeometryBuilder::produce(const IdealGeometryRecord& iRecord)
    auto pCaloGeom = std::make_unique<CaloGeometry>();
 
    // TODO: Look for ECAL parts
-   try {
-     iRecord.get("EcalBarrel", pG); 
+   if(auto pG = iRecord.getHandle(barrelToken_)) {
      pCaloGeom->setSubdetGeometry(DetId::Ecal,EcalBarrel,pG.product());
-   } catch (...) {
+   }
+   else {
      edm::LogWarning("MissingInput") << "No Ecal Barrel Geometry found";     
    }
-   try {
-     iRecord.get("EcalLaserPnDiode", pG); 
+   if(auto pG = iRecord.getHandle(hodoscopeToken_)) {
      pCaloGeom->setSubdetGeometry(DetId::Ecal,EcalLaserPnDiode,pG.product());
-   } catch (...) {
+   }
+   else {
      edm::LogWarning("MissingInput") << "No Ecal TB Hodoscope Geometry found";     
    }
 

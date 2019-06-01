@@ -9,17 +9,15 @@
 class HLTrigReport;
 
 class HLTrigReportService {
-
- public:
+public:
   virtual ~HLTrigReportService() = default;
-  virtual void registerModule(const HLTrigReport *)=0;
+  virtual void registerModule(const HLTrigReport *) = 0;
 
-  virtual void setDatasetNames(const std::vector<std::string>&)=0 ;
-  virtual void setDatasetCounts(const std::vector<unsigned int>&)=0;
+  virtual void setDatasetNames(const std::vector<std::string> &) = 0;
+  virtual void setDatasetCounts(const std::vector<unsigned int> &) = 0;
 
-  virtual void setStreamNames(const std::vector<std::string>&)=0 ;
-  virtual void setStreamCounts(const std::vector<unsigned int>&)=0;
-
+  virtual void setStreamNames(const std::vector<std::string> &) = 0;
+  virtual void setStreamCounts(const std::vector<unsigned int> &) = 0;
 };
 
 #endif

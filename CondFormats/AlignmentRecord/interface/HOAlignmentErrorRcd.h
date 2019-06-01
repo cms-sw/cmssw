@@ -5,5 +5,4 @@
 
 class HOAlignmentErrorRcd : public edm::eventsetup::EventSetupRecordImplementation<HOAlignmentErrorRcd> {};
 
-#endif 
-
+#endif

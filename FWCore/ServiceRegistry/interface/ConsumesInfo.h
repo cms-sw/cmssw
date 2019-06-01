@@ -22,7 +22,6 @@
 namespace edm {
   class ConsumesInfo {
   public:
-
     ConsumesInfo(TypeID const& iType,
                  char const* iLabel,
                  char const* iInstance,
@@ -52,7 +51,6 @@ namespace edm {
     //    from and it is possible for this to vary from event to event)
 
   private:
-
     TypeID type_;
     std::string label_;
     std::string instance_;
@@ -62,5 +60,5 @@ namespace edm {
     bool alwaysGets_;
     bool skipCurrentProcess_;
   };
-}
+}  // namespace edm
 #endif

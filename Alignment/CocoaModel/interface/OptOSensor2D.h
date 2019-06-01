@@ -3,8 +3,8 @@
 //CAT: Model
 //
 //   Base class to describe Optical Objects of type sensor 2D
-// 
-//   History: v1.0 
+//
+//   History: v1.0
 //   Pedro Arce
 
 #ifndef _OPTOSENSOR2D_HH
@@ -16,30 +16,28 @@ class Measurement;
 class LightRay;
 class DeviationsFromFileSensor2D;
 
-class OptOSensor2D: public OpticalObject
-{
-
+class OptOSensor2D : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptOSensor2D(){ };
-  OptOSensor2D(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
-  OpticalObject( parent, type, name, copy_data), fdevi_from_file(false){ };
-  ~OptOSensor2D() override{ };
+  OptOSensor2D(){};
+  OptOSensor2D(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
+      : OpticalObject(parent, type, name, copy_data), fdevi_from_file(false){};
+  ~OptOSensor2D() override{};
 
-  //---------- defaultBehaviour: make measurement 
-  void defaultBehaviour( LightRay& lightray, Measurement& meas ) override;
-  //---------- Make measurement 
-  void makeMeasurement( LightRay& lightray, Measurement& meas ) override;
+  //---------- defaultBehaviour: make measurement
+  void defaultBehaviour(LightRay& lightray, Measurement& meas) override;
+  //---------- Make measurement
+  void makeMeasurement(LightRay& lightray, Measurement& meas) override;
   //---------- Fast simulation of the light ray traversing
-  void fastTraversesLightRay( LightRay& lightray ) override;
+  void fastTraversesLightRay(LightRay& lightray) override;
   //---------- Detailed simulation of the light ray traversing
-  void detailedTraversesLightRay( LightRay& lightray ) override;
+  void detailedTraversesLightRay(LightRay& lightray) override;
 
   // Create and fill an extra entry, checking if it has to be read from file
-  void fillExtraEntry( std::vector<ALIstring>& wordlist ) override;
+  void fillExtraEntry(std::vector<ALIstring>& wordlist) override;
 
   // Get intersection in local coordinates
-  ALIdouble* convertPointToLocalCoordinates( const CLHEP::Hep3Vector& point);
+  ALIdouble* convertPointToLocalCoordinates(const CLHEP::Hep3Vector& point);
 
 #ifdef COCOA_VIS
   virtual void fillVRML();
@@ -47,7 +45,7 @@ public:
 #endif
   void constructSolidShape() override;
 
- private:
+private:
   // Deviation values read from file
   DeviationsFromFileSensor2D* deviFromFile;
   ALIbool fdevi_from_file;

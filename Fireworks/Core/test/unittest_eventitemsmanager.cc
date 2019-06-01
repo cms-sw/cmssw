@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     unittest_changemanager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -30,92 +30,85 @@
 // constants, enums and typedefs
 //
 namespace {
-   struct Listener {
-      Listener(): nMessages_(0), item_(0) {}
-      int nMessages_;
-      const FWEventItem* item_;
-      
-      void reset() {
-         nMessages_=0;
-         item_=0;
-      }
-      void newItem(const FWEventItem* iItem) {
-         ++nMessages_;
-         item_=iItem;
-      }
-   };
-}
+  struct Listener {
+    Listener() : nMessages_(0), item_(0) {}
+    int nMessages_;
+    const FWEventItem* item_;
 
-BOOST_AUTO_TEST_CASE( eventitemmanager )
-{
-   FWModelChangeManager cm;
-  
-   FWSelectionManager sm(&cm);
-   FWEventItemsManager eim(&cm);
-   FWColorManager colm(&cm);
-   colm.initialize();
+    void reset() {
+      nMessages_ = 0;
+      item_ = 0;
+    }
+    void newItem(const FWEventItem* iItem) {
+      ++nMessages_;
+      item_ = iItem;
+    }
+  };
+}  // namespace
 
-   // !!!! Passing 0 for FWJobMetadataManager
-   fireworks::Context context(&cm,&sm,&eim,&colm,0);
-   eim.setContext(&context);
-   
-   Listener listener;
-   //NOTE: have to pass a pointer to the listener else the bind will
-   // create a copy of the listener and the original one will never
-   // 'hear' any signal
-   eim.newItem_.connect(boost::bind(&Listener::newItem,&listener,_1));
+BOOST_AUTO_TEST_CASE(eventitemmanager) {
+  FWModelChangeManager cm;
 
-   TClass* cls=TClass::GetClass("std::vector<reco::Track>");
-   assert(0!=cls);
+  FWSelectionManager sm(&cm);
+  FWEventItemsManager eim(&cm);
+  FWColorManager colm(&cm);
+  colm.initialize();
 
-   Color_t color1 = FWColorManager::getDefaultStartColorIndex() + 1;
-   FWPhysicsObjectDesc tracks("Tracks",
-                              cls,
-                              "Tracks",
-                              FWDisplayProperties(color1, true, 100),
-                              "label",
-                              "instance",
-                              "proc");
+  // !!!! Passing 0 for FWJobMetadataManager
+  fireworks::Context context(&cm, &sm, &eim, &colm, 0);
+  eim.setContext(&context);
 
-   BOOST_REQUIRE(listener.nMessages_==0);
-   BOOST_REQUIRE(eim.begin()==eim.end());
+  Listener listener;
+  //NOTE: have to pass a pointer to the listener else the bind will
+  // create a copy of the listener and the original one will never
+  // 'hear' any signal
+  eim.newItem_.connect(boost::bind(&Listener::newItem, &listener, _1));
 
-   eim.add(tracks);
-   BOOST_CHECK(listener.nMessages_==1);
-   BOOST_CHECK(eim.end()-eim.begin() == 1);
-   const FWEventItem* item= *(eim.begin());
-   BOOST_REQUIRE(item!=0);
-   BOOST_CHECK(item == listener.item_);
-   BOOST_CHECK(item->name() == "Tracks");
-   BOOST_CHECK(item->type() == cls);
-   BOOST_CHECK(item->defaultDisplayProperties().color() == color1);
-   BOOST_CHECK(item->defaultDisplayProperties().isVisible());
-   BOOST_CHECK(item->moduleLabel() == "label");
-   BOOST_CHECK(item->productInstanceLabel() == "instance");
-   BOOST_CHECK(item->processName() == "proc");
+  TClass* cls = TClass::GetClass("std::vector<reco::Track>");
+  assert(0 != cls);
 
-   FWConfiguration config;
-   eim.addTo(config);
-   
-   eim.clearItems();   
-   listener.reset();
-   
+  Color_t color1 = FWColorManager::getDefaultStartColorIndex() + 1;
+  FWPhysicsObjectDesc tracks(
+      "Tracks", cls, "Tracks", FWDisplayProperties(color1, true, 100), "label", "instance", "proc");
 
-   BOOST_REQUIRE(listener.nMessages_==0);
-   BOOST_REQUIRE(eim.begin()==eim.end());
+  BOOST_REQUIRE(listener.nMessages_ == 0);
+  BOOST_REQUIRE(eim.begin() == eim.end());
 
-   eim.setFrom(config);
-   
-   BOOST_CHECK(listener.nMessages_==1);
-   BOOST_CHECK(eim.end()-eim.begin() == 1);
-   item= *(eim.begin());
-   BOOST_REQUIRE(item!=0);
-   BOOST_CHECK(item == listener.item_);
-   BOOST_CHECK(item->name() == "Tracks");
-   BOOST_CHECK(item->type() == cls);
-   BOOST_CHECK(item->defaultDisplayProperties().color() == color1);
-   BOOST_CHECK(item->defaultDisplayProperties().isVisible());
-   BOOST_CHECK(item->moduleLabel() == "label");
-   BOOST_CHECK(item->productInstanceLabel() == "instance");
-   BOOST_CHECK(item->processName() == "proc");
+  eim.add(tracks);
+  BOOST_CHECK(listener.nMessages_ == 1);
+  BOOST_CHECK(eim.end() - eim.begin() == 1);
+  const FWEventItem* item = *(eim.begin());
+  BOOST_REQUIRE(item != 0);
+  BOOST_CHECK(item == listener.item_);
+  BOOST_CHECK(item->name() == "Tracks");
+  BOOST_CHECK(item->type() == cls);
+  BOOST_CHECK(item->defaultDisplayProperties().color() == color1);
+  BOOST_CHECK(item->defaultDisplayProperties().isVisible());
+  BOOST_CHECK(item->moduleLabel() == "label");
+  BOOST_CHECK(item->productInstanceLabel() == "instance");
+  BOOST_CHECK(item->processName() == "proc");
+
+  FWConfiguration config;
+  eim.addTo(config);
+
+  eim.clearItems();
+  listener.reset();
+
+  BOOST_REQUIRE(listener.nMessages_ == 0);
+  BOOST_REQUIRE(eim.begin() == eim.end());
+
+  eim.setFrom(config);
+
+  BOOST_CHECK(listener.nMessages_ == 1);
+  BOOST_CHECK(eim.end() - eim.begin() == 1);
+  item = *(eim.begin());
+  BOOST_REQUIRE(item != 0);
+  BOOST_CHECK(item == listener.item_);
+  BOOST_CHECK(item->name() == "Tracks");
+  BOOST_CHECK(item->type() == cls);
+  BOOST_CHECK(item->defaultDisplayProperties().color() == color1);
+  BOOST_CHECK(item->defaultDisplayProperties().isVisible());
+  BOOST_CHECK(item->moduleLabel() == "label");
+  BOOST_CHECK(item->productInstanceLabel() == "instance");
+  BOOST_CHECK(item->processName() == "proc");
 }

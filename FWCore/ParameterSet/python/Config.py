@@ -40,7 +40,7 @@ def checkImportPermission(minLevel = 2, allowedPatterns = []):
     import inspect
     import os
 
-    ignorePatterns = ['FWCore/ParameterSet/Config.py','<string>']
+    ignorePatterns = ['FWCore/ParameterSet/Config.py','<string>','<frozen ']
     CMSSWPath = [os.environ['CMSSW_BASE'],os.environ['CMSSW_RELEASE_BASE']]
 
     # Filter the stack to things in CMSSWPath and not in ignorePatterns
@@ -284,7 +284,7 @@ class Process(object):
 
     def isUsingModifier(self,mod):
         """returns True if the Modifier is in used by this Process"""
-        if mod.isChosen():
+        if mod._isChosen():
             for m in self.__modifiers:
                 if m._isOrContains(mod):
                     return True
@@ -1316,12 +1316,12 @@ class _BoolModifierBase(object):
             self._rhs = rhs
     def toModify(self,obj, func=None,**kw):
         Modifier._toModifyCheck(obj,func,**kw)
-        if not self.isChosen():
+        if not self._isChosen():
             return
         Modifier._toModify(obj,func,**kw)
     def toReplaceWith(self,toObj,fromObj):
         Modifier._toReplaceWithCheck(toObj,fromObj)
-        if not self.isChosen():
+        if not self._isChosen():
             return
         Modifier._toReplaceWith(toObj,fromObj)
     def makeProcessModifier(self,func):
@@ -1340,22 +1340,22 @@ class _AndModifier(_BoolModifierBase):
     """A modifier which only applies if multiple Modifiers are chosen"""
     def __init__(self, lhs, rhs):
         super(_AndModifier,self).__init__(lhs, rhs)
-    def isChosen(self):
-        return self._lhs.isChosen() and self._rhs.isChosen()
+    def _isChosen(self):
+        return self._lhs._isChosen() and self._rhs._isChosen()
 
 class _InvertModifier(_BoolModifierBase):
     """A modifier which only applies if a Modifier is not chosen"""
     def __init__(self, lhs):
         super(_InvertModifier,self).__init__(lhs)
-    def isChosen(self):
-        return not self._lhs.isChosen()
+    def _isChosen(self):
+        return not self._lhs._isChosen()
 
 class _OrModifier(_BoolModifierBase):
     """A modifier which only applies if at least one of multiple Modifiers is chosen"""
     def __init__(self, lhs, rhs):
         super(_OrModifier,self).__init__(lhs, rhs)
-    def isChosen(self):
-        return self._lhs.isChosen() or self._rhs.isChosen()
+    def _isChosen(self):
+        return self._lhs._isChosen() or self._rhs._isChosen()
 
 
 class Modifier(object):
@@ -1394,7 +1394,7 @@ class Modifier(object):
             mod.toModify(foo, fred = dict(pebbles = 3, friend = "barney)) )
         """
         Modifier._toModifyCheck(obj,func,**kw)
-        if not self.isChosen():
+        if not self._isChosen():
             return
         Modifier._toModify(obj,func,**kw)
     @staticmethod
@@ -1412,7 +1412,7 @@ class Modifier(object):
         """If the Modifier is chosen the internals of toObj will be associated with the internals of fromObj
         """
         Modifier._toReplaceWithCheck(toObj,fromObj)
-        if not self.isChosen():
+        if not self._isChosen():
             return
         Modifier._toReplaceWith(toObj,fromObj)
     @staticmethod
@@ -1437,7 +1437,7 @@ class Modifier(object):
     def _setChosen(self):
         """Should only be called by cms.Process instances"""
         self.__chosen = True
-    def isChosen(self):
+    def _isChosen(self):
         return self.__chosen
     def __and__(self, other):
         return _AndModifier(self,other)
@@ -1465,7 +1465,7 @@ class ModifierChain(object):
         self.__chosen = True
         for m in self.__chain:
             m._setChosen()
-    def isChosen(self):
+    def _isChosen(self):
         return self.__chosen
     def copyAndExclude(self, toExclude):
         """Creates a new ModifierChain which is a copy of
@@ -1509,7 +1509,7 @@ class ProcessModifier(object):
         self.__func = func
         self.__seenProcesses = set()
     def apply(self,process):
-        if self.__modifier.isChosen():
+        if self.__modifier._isChosen():
             if process not in self.__seenProcesses:
                 self.__func(process)
                 self.__seenProcesses.add(process)

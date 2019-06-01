@@ -24,7 +24,10 @@
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-namespace edm {class Event; class EventSetup;}
+namespace edm {
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class Trajectory;
 class TrajectoryMeasurement;
@@ -36,11 +39,9 @@ typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 
 class CosmicMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
-
 public:
-
-  /// Constructor 
-  CosmicMuonTrajectoryBuilder(const edm::ParameterSet&,const MuonServiceProxy* service,edm::ConsumesCollector& iC);
+  /// Constructor
+  CosmicMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy* service, edm::ConsumesCollector& iC);
 
   /// Destructor
   ~CosmicMuonTrajectoryBuilder() override;
@@ -49,38 +50,34 @@ public:
   std::vector<Trajectory*> trajectories(const TrajectorySeed&) override;
 
   /// dummy implementation, unused in this class
-  CandidateContainer trajectories(const TrackCand&) override {
-    return CandidateContainer();
-  }
+  CandidateContainer trajectories(const TrackCand&) override { return CandidateContainer(); }
 
   void setEvent(const edm::Event&) override;
 
-  const Propagator* propagator() const {return &*theService->propagator(thePropagatorName);}
+  const Propagator* propagator() const { return &*theService->propagator(thePropagatorName); }
 
   //FIXME
-  const Propagator* propagatorAlong() const {return &*theService->propagator("SteppingHelixPropagatorAlong");}
+  const Propagator* propagatorAlong() const { return &*theService->propagator("SteppingHelixPropagatorAlong"); }
 
-  const Propagator* propagatorOpposite() const {return &*theService->propagator("SteppingHelixPropagatorOpposite");}
+  const Propagator* propagatorOpposite() const { return &*theService->propagator("SteppingHelixPropagatorOpposite"); }
 
-  MuonTrajectoryUpdator* updator() const {return theUpdator;}
+  MuonTrajectoryUpdator* updator() const { return theUpdator; }
 
-  MuonTrajectoryUpdator* backwardUpdator() const {return theBKUpdator;}
+  MuonTrajectoryUpdator* backwardUpdator() const { return theBKUpdator; }
 
-  CosmicMuonSmoother* smoother() const {return theSmoother;}
+  CosmicMuonSmoother* smoother() const { return theSmoother; }
 
-  const CosmicMuonUtilities* utilities() const {return smoother()->utilities();}
+  const CosmicMuonUtilities* utilities() const { return smoother()->utilities(); }
 
-  DirectMuonNavigation* navigation() const {return theNavigation;}
+  DirectMuonNavigation* navigation() const { return theNavigation; }
 
-  MuonBestMeasurementFinder* bestMeasurementFinder() const {return theBestMeasurementFinder;}
+  MuonBestMeasurementFinder* bestMeasurementFinder() const { return theBestMeasurementFinder; }
 
   double t0(const DTRecSegment4D* deseg) const;
 
   PropagationDirection checkDirectionByT0(const DTRecSegment4D*, const DTRecSegment4D*) const;
 
-
 private:
-
   MuonTransientTrackingRecHit::MuonRecHitContainer unusedHits(const DetLayer*, const TrajectoryMeasurement&) const;
 
   void buildSecondHalf(Trajectory&);
@@ -106,12 +103,16 @@ private:
   /// check the direction of trajectory by checking eta spread
   void estimateDirection(Trajectory&) const;
 
-  /// check the direction of trajectory by checking the timing 
+  /// check the direction of trajectory by checking the timing
   void getDirectionByTime(Trajectory&) const;
 
-  std::vector<TrajectoryMeasurement> findBestMeasurements(const DetLayer*, const TrajectoryStateOnSurface&, const Propagator*, const MeasurementEstimator*);
+  std::vector<TrajectoryMeasurement> findBestMeasurements(const DetLayer*,
+                                                          const TrajectoryStateOnSurface&,
+                                                          const Propagator*,
+                                                          const MeasurementEstimator*);
 
-  void incrementChamberCounters(const DetLayer* layer, int& dtChambers, int& cscChambers, int& rpcChambers, int& totalChambers);
+  void incrementChamberCounters(
+      const DetLayer* layer, int& dtChambers, int& cscChambers, int& rpcChambers, int& totalChambers);
 
   DirectMuonNavigation* theNavigation;
   edm::ParameterSet theNavigationPSet;
@@ -137,6 +138,5 @@ private:
   unsigned long long theCacheId_DG;
   edm::Handle<CSCRecHit2DCollection> cschits_;
   edm::Handle<DTRecHitCollection> dthits_;
- 
 };
 #endif

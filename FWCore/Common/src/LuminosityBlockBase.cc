@@ -24,21 +24,16 @@
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include "FWCore/ParameterSet/interface/Registry.h"
 
-namespace edm
-{
-//    typedef std::map<edm::ParameterSetID, edm::TriggerNames> TriggerNamesMap;
-//    static TriggerNamesMap triggerNamesMap;
-//    static TriggerNamesMap::const_iterator previousTriggerName;
+namespace edm {
+  //    typedef std::map<edm::ParameterSetID, edm::TriggerNames> TriggerNamesMap;
+  //    static TriggerNamesMap triggerNamesMap;
+  //    static TriggerNamesMap::const_iterator previousTriggerName;
 
-   LuminosityBlockBase::LuminosityBlockBase()
-   {
-   }
+  LuminosityBlockBase::LuminosityBlockBase() {}
 
-   LuminosityBlockBase::~LuminosityBlockBase()
-   {
-   }
+  LuminosityBlockBase::~LuminosityBlockBase() {}
 
-/*   TriggerNames const*
+  /*   TriggerNames const*
    EventBase::triggerNames_(edm::TriggerResults const& triggerResults) {
 
       // If the current and previous requests are for the same TriggerNames
@@ -107,4 +102,4 @@ namespace edm
       }
       return 0;
    }*/
-}
+}  // namespace edm

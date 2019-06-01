@@ -72,116 +72,117 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class EcalMixingModuleValidation: public DQMEDAnalyzer{
-
-    typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
+class EcalMixingModuleValidation : public DQMEDAnalyzer {
+  typedef std::map<uint32_t, float, std::less<uint32_t> > MapType;
 
 public:
+  /// Constructor
+  EcalMixingModuleValidation(const edm::ParameterSet& ps);
 
-/// Constructor
-EcalMixingModuleValidation(const edm::ParameterSet& ps);
+  /// Destructor
+  ~EcalMixingModuleValidation() override;
 
-/// Destructor
-~EcalMixingModuleValidation() override;
-
-void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) override;
 
 protected:
+  /// Analyze
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
-/// Analyze
-void analyze(edm::Event const & e, edm::EventSetup const & c) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
-void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-
-// EndRun
-void endRun(const edm::Run& r, const edm::EventSetup& c) override;
-
+  // EndRun
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
+  void checkPedestals(const edm::EventSetup& c);
 
- void checkPedestals(const edm::EventSetup & c);
+  void findPedestal(const DetId& detId, int gainId, double& ped) const;
 
- void findPedestal(const DetId & detId, int gainId, double & ped) const;
+  void checkCalibrations(edm::EventSetup const& c);
 
- void checkCalibrations(edm::EventSetup const & c);
- 
- bool verbose_;
+  bool verbose_;
 
- DQMStore* dbe_;
- 
- std::string outputFile_;
- 
- edm::EDGetTokenT<edm::HepMCProduct> HepMCToken_;
- 
- edm::EDGetTokenT<EBDigiCollection> EBdigiCollectionToken_;
- edm::EDGetTokenT<EEDigiCollection> EEdigiCollectionToken_;
- edm::EDGetTokenT<ESDigiCollection> ESdigiCollectionToken_;
- 
- edm::EDGetTokenT< CrossingFrame<PCaloHit> > crossingFramePCaloHitEBToken_, crossingFramePCaloHitEEToken_, crossingFramePCaloHitESToken_;
- 
- std::map<int, double, std::less<int> > gainConv_;
+  std::string outputFile_;
 
- double barrelADCtoGeV_;
- double endcapADCtoGeV_;
- 
- MonitorElement* meEBDigiMixRatiogt100ADC_;
- MonitorElement* meEEDigiMixRatiogt100ADC_;
+  edm::EDGetTokenT<edm::HepMCProduct> HepMCToken_;
 
- MonitorElement* meEBDigiMixRatioOriggt50pc_;
- MonitorElement* meEEDigiMixRatioOriggt40pc_;
+  edm::EDGetTokenT<EBDigiCollection> EBdigiCollectionToken_;
+  edm::EDGetTokenT<EEDigiCollection> EEdigiCollectionToken_;
+  edm::EDGetTokenT<ESDigiCollection> ESdigiCollectionToken_;
 
- MonitorElement* meEBbunchCrossing_;
- MonitorElement* meEEbunchCrossing_;
- MonitorElement* meESbunchCrossing_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit> > crossingFramePCaloHitEBToken_, crossingFramePCaloHitEEToken_,
+      crossingFramePCaloHitESToken_;
 
- static const int nBunch = 21;
+  std::map<int, double, std::less<int> > gainConv_;
 
- MonitorElement* meEBBunchShape_[nBunch];
- MonitorElement* meEEBunchShape_[nBunch];
- MonitorElement* meESBunchShape_[nBunch];
+  double barrelADCtoGeV_;
+  double endcapADCtoGeV_;
 
- MonitorElement* meEBShape_;
- MonitorElement* meEEShape_;
- MonitorElement* meESShape_;
+  MonitorElement* meEBDigiMixRatiogt100ADC_;
+  MonitorElement* meEEDigiMixRatiogt100ADC_;
 
- MonitorElement* meEBShapeRatio_;
- MonitorElement* meEEShapeRatio_;
- MonitorElement* meESShapeRatio_;
+  MonitorElement* meEBDigiMixRatioOriggt50pc_;
+  MonitorElement* meEEDigiMixRatioOriggt40pc_;
 
- const EcalSimParameterMap * theParameterMap;
- //const CaloVShape * theEcalShape;
- ESShape * theESShape;
- EBShape *theEBShape;
- EEShape *theEEShape;
+  MonitorElement* meEBbunchCrossing_;
+  MonitorElement* meEEbunchCrossing_;
+  MonitorElement* meESbunchCrossing_;
 
+  static const int nBunch = 21;
 
- //CaloHitResponse * theEcalResponse;
- CaloHitResponse * theESResponse;
- CaloHitResponse * theEBResponse;
- CaloHitResponse * theEEResponse;
- 
- void computeSDBunchDigi(const edm::EventSetup & eventSetup, const MixCollection<PCaloHit> & theHits, MapType & ebSignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold, CLHEP::HepRandomEngine*);
+  MonitorElement* meEBBunchShape_[nBunch];
+  MonitorElement* meEEBunchShape_[nBunch];
+  MonitorElement* meESBunchShape_[nBunch];
 
- void bunchSumTest(std::vector<MonitorElement *> & theBunches, MonitorElement* & theTotal, MonitorElement* & theRatio, int nSample);
+  MonitorElement* meEBShape_;
+  MonitorElement* meEEShape_;
+  MonitorElement* meESShape_;
 
- CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
+  MonitorElement* meEBShapeRatio_;
+  MonitorElement* meEEShapeRatio_;
+  MonitorElement* meESShapeRatio_;
 
- double esBaseline_;
- double esADCtokeV_;
- double esThreshold_;
+  const EcalSimParameterMap* theParameterMap;
+  //const CaloVShape * theEcalShape;
+  ESShape* theESShape;
+  EBShape* theEBShape;
+  EEShape* theEEShape;
 
- int theMinBunch;
- int theMaxBunch;
+  //CaloHitResponse * theEcalResponse;
+  CaloHitResponse* theESResponse;
+  CaloHitResponse* theEBResponse;
+  CaloHitResponse* theEEResponse;
 
- const CaloGeometry * theGeometry;
- 
- // the pedestals
- const EcalPedestals * thePedestals;
+  void computeSDBunchDigi(const edm::EventSetup& eventSetup,
+                          const MixCollection<PCaloHit>& theHits,
+                          MapType& ebSignalSimMap,
+                          const EcalSubdetector& thisDet,
+                          const double& theSimThreshold,
+                          CLHEP::HepRandomEngine*);
 
-      int m_ESgain ;
-      const ESPedestals* m_ESpeds ;
-      const ESIntercalibConstants* m_ESmips ;
-      double m_ESeffwei ;
+  void bunchSumTest(std::vector<MonitorElement*>& theBunches,
+                    MonitorElement*& theTotal,
+                    MonitorElement*& theRatio,
+                    int nSample);
+
+  CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
+
+  double esBaseline_;
+  double esADCtokeV_;
+  double esThreshold_;
+
+  int theMinBunch;
+  int theMaxBunch;
+
+  const CaloGeometry* theGeometry;
+
+  // the pedestals
+  const EcalPedestals* thePedestals;
+
+  int m_ESgain;
+  const ESPedestals* m_ESpeds;
+  const ESIntercalibConstants* m_ESmips;
+  double m_ESeffwei;
 
   std::vector<CLHEP::HepRandomEngine*> randomEngines_;
 };

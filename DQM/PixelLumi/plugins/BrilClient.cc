@@ -1,19 +1,17 @@
 #include "BrilClient.h"
 
+#include <boost/filesystem.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/filesystem.hpp>
 
 #include <iostream>
 #include <vector>
 
 #include "TH2F.h"
 
-BrilClient::BrilClient(const edm::ParameterSet& ps) {
-  pathToken_ = consumes<std::string, edm::InLumi>(
-      edm::InputTag("source", "sourceDataPath"));
-  jsonToken_ = consumes<std::string, edm::InLumi>(
-      edm::InputTag("source", "sourceJsonPath"));
+BrilClient::BrilClient(const edm::ParameterSet &ps) {
+  pathToken_ = consumes<std::string, edm::InLumi>(edm::InputTag("source", "sourceDataPath"));
+  jsonToken_ = consumes<std::string, edm::InLumi>(edm::InputTag("source", "sourceJsonPath"));
 }
 
 BrilClient::~BrilClient() {}
@@ -21,16 +19,17 @@ BrilClient::~BrilClient() {}
 using boost::property_tree::ptree;
 
 template <typename T>
-std::vector<T> as_vector(ptree const& pt, ptree::key_type const& key) {
+std::vector<T> as_vector(ptree const &pt, ptree::key_type const &key) {
   std::vector<T> r;
-  for (auto& item : pt.get_child(key)) r.push_back(item.second.get_value<T>());
+  for (auto &item : pt.get_child(key))
+    r.push_back(item.second.get_value<T>());
   return r;
 }
 
-void BrilClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker_,
-                                       DQMStore::IGetter& igetter_,
-                                       edm::LuminosityBlock const& lb,
-                                       edm::EventSetup const&) {
+void BrilClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker_,
+                                       DQMStore::IGetter &igetter_,
+                                       edm::LuminosityBlock const &lb,
+                                       edm::EventSetup const &) {
   edm::Handle<std::string> filePath_;
   lb.getByToken(pathToken_, filePath_);
 
@@ -41,8 +40,7 @@ void BrilClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker_,
   ptree json;
   if (!boost::filesystem::exists(*filePath_)) {
     edm::LogWarning("BrilClient") << "BrilClient"
-                                  << " File missing: " << *filePath_
-                                  << std::endl;
+                                  << " File missing: " << *filePath_ << std::endl;
 
     return;
   } else {
@@ -53,7 +51,7 @@ void BrilClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker_,
   }
 
   // Parse the json
-  for (auto& mainTree : json.get_child("OccupancyPlots")) {
+  for (auto &mainTree : json.get_child("OccupancyPlots")) {
     std::string title = mainTree.second.get<std::string>("titles");
     std::size_t pos = title.find(",");
     if (pos <= 0) {
@@ -68,16 +66,17 @@ void BrilClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker_,
     auto xrange = as_vector<int>(mainTree.second, "xrange");  // min, max
     auto yrange = as_vector<int>(mainTree.second, "yrange");  // min, max
 
-    TH2F* th = new TH2F(name.c_str(), title.c_str(), nBins.at(0), xrange.at(0),
-                        xrange.at(1), nBins.at(1), yrange.at(0), yrange.at(1));
+    TH2F *th = new TH2F(
+        name.c_str(), title.c_str(), nBins.at(0), xrange.at(0), xrange.at(1), nBins.at(1), yrange.at(0), yrange.at(1));
 
-    for (auto& dataArray : mainTree.second.get_child("data")) {
+    for (auto &dataArray : mainTree.second.get_child("data")) {
       int elements[3] = {0, 0, 0};  // binX, binY, binCont;
       auto element = std::begin(elements);
 
-      for (auto& binContent : dataArray.second) {
+      for (auto &binContent : dataArray.second) {
         *element++ = stoi(binContent.second.get_value<std::string>());
-        if (element == std::end(elements)) break;
+        if (element == std::end(elements))
+          break;
       }
 
       th->SetBinContent(elements[0], elements[1], elements[2]);
@@ -87,7 +86,7 @@ void BrilClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker_,
     ibooker_.setCurrentFolder("BRIL/OccupancyPlots");
     igetter_.setCurrentFolder("BRIL/OccupancyPlots");
 
-    MonitorElement* m = igetter_.get(name);
+    MonitorElement *m = igetter_.get(name);
     if (m == nullptr) {
       m = ibooker_.book2D(name, th);
     } else {

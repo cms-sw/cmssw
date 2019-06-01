@@ -7,8 +7,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include <string>
 #include <vector>
@@ -18,32 +18,27 @@ namespace edm {
 }
 class PTrackerSimHit;
 
-class TrackerHitProducer : public edm::EDProducer
-{
-  
- public:
-
+class TrackerHitProducer : public edm::EDProducer {
+public:
   typedef std::vector<float> FloatVector;
   typedef std::vector<int> IntegerVector;
 
-  explicit TrackerHitProducer(const edm::ParameterSet&);
+  explicit TrackerHitProducer(const edm::ParameterSet &);
   ~TrackerHitProducer() override;
   void beginJob() override;
-  void endJob() override;  
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  
- private:
+  void endJob() override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
+private:
   // production related methods
-  void fillG4MC(edm::Event&);
-  void storeG4MC(PTrackerSimHit&);
-  void fillTrk(edm::Event&, const edm::EventSetup&);
-  void storeTrk(PTrackerSimHit&);
+  void fillG4MC(edm::Event &);
+  void storeG4MC(PTrackerSimHit &);
+  void fillTrk(edm::Event &, const edm::EventSetup &);
+  void storeTrk(PTrackerSimHit &);
 
   void clear();
 
- private:
-
+private:
   //  parameter information
   bool getAllProvenances;
   bool printProvenanceInfo;
@@ -66,47 +61,44 @@ class TrackerHitProducer : public edm::EDProducer
   edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTIDLow_Token_, edmPSimHitContainer_siTIDHigh_Token_;
   edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTECLow_Token_, edmPSimHitContainer_siTECHigh_Token_;
 
-
   // G4MC info
-  FloatVector G4VtxX; 
-  FloatVector G4VtxY; 
-  FloatVector G4VtxZ; 
-  FloatVector G4TrkPt; 
+  FloatVector G4VtxX;
+  FloatVector G4VtxY;
+  FloatVector G4VtxZ;
+  FloatVector G4TrkPt;
   FloatVector G4TrkE;
   FloatVector G4TrkEta;
   FloatVector G4TrkPhi;
-
 
   // Tracker info
 
   // Hit info
   IntegerVector HitsSysID;
   FloatVector HitsDuID;
-  FloatVector HitsTkID; 
-  FloatVector HitsProT; 
-  FloatVector HitsParT; 
+  FloatVector HitsTkID;
+  FloatVector HitsProT;
+  FloatVector HitsParT;
   FloatVector HitsP;
-  FloatVector HitsLpX; 
-  FloatVector HitsLpY; 
-  FloatVector HitsLpZ; 
-  FloatVector HitsLdX; 
-  FloatVector HitsLdY; 
-  FloatVector HitsLdZ; 
-  FloatVector HitsLdTheta; 
+  FloatVector HitsLpX;
+  FloatVector HitsLpY;
+  FloatVector HitsLpZ;
+  FloatVector HitsLdX;
+  FloatVector HitsLdY;
+  FloatVector HitsLdZ;
+  FloatVector HitsLdTheta;
   FloatVector HitsLdPhi;
-  FloatVector HitsExPx; 
-  FloatVector HitsExPy; 
+  FloatVector HitsExPx;
+  FloatVector HitsExPy;
   FloatVector HitsExPz;
-  FloatVector HitsEnPx; 
-  FloatVector HitsEnPy; 
+  FloatVector HitsEnPx;
+  FloatVector HitsEnPy;
   FloatVector HitsEnPz;
-  FloatVector HitsEloss; 
+  FloatVector HitsEloss;
   FloatVector HitsToF;
-  
+
   std::string fName;
   std::string label;
 
-}; // end class declaration
-  
+};  // end class declaration
 
 #endif

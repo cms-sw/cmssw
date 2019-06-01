@@ -15,13 +15,12 @@ class GeometricDet;
 class CmsTrackerDetIdBuilder
 {
 public:
-  CmsTrackerDetIdBuilder(std::vector<int> detidShifts );
-  GeometricDet* buildId( GeometricDet *det );  
-protected:
-  void iterate( GeometricDet *det, int level, unsigned int ID );
+  CmsTrackerDetIdBuilder(const std::vector<int>& detidShifts );
+  void  buildId( GeometricDet &det );  
   
 private:
 
+  void iterate( GeometricDet &det, int level, unsigned int ID );
   static const unsigned int nSubDet=6;
   static const int maxLevels=6;
 

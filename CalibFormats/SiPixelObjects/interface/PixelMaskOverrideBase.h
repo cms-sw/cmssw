@@ -11,8 +11,8 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelROCMaskBits.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
-namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
+namespace pos {
+  /*!  \ingroup ConfigurationObjects "Configuration Objects"
 *    
 *  @{
 *
@@ -20,21 +20,16 @@ namespace pos{
 *  \brief This is the documentation about PixelMaskOverrideBase...
 *
 */
-  class PixelMaskOverrideBase: public PixelConfigBase {
-
+  class PixelMaskOverrideBase : public PixelConfigBase {
   public:
-
-    PixelMaskOverrideBase(std::string description, 
-			  std::string creator,
-			  std::string date);
+    PixelMaskOverrideBase(std::string description, std::string creator, std::string date);
 
     ~PixelMaskOverrideBase() override;
 
-    virtual PixelROCMaskBits getMaskBits(int ROCId)=0;
+    virtual PixelROCMaskBits getMaskBits(int ROCId) = 0;
 
   private:
-
   };
-}
+}  // namespace pos
 /* @} */
 #endif

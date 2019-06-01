@@ -3,7 +3,7 @@
 // -*- C++ -*-
 //
 // Package:     FWLite/DataFormats
-// Class  :     EntryFinder 
+// Class  :     EntryFinder
 //
 /**\class  DataFormats/FWLite/interface/EntryFinder.h
 
@@ -25,21 +25,24 @@
 // forward declarations
 
 namespace fwlite {
-   class BranchMapReader;
-   class EntryFinder {
-   public:
-     EntryFinder();
-     ~EntryFinder();
-     typedef edm::IndexIntoFile::EntryNumber_t EntryNumber_t;
-     bool empty() const {return indexIntoFile_.empty() && fileIndex_.empty();}
-     EntryNumber_t findEvent(edm::RunNumber_t const& run, edm::LuminosityBlockNumber_t const& lumi, edm::EventNumber_t const& event) const;
-     EntryNumber_t findLumi(edm::RunNumber_t const& run, edm::LuminosityBlockNumber_t const& lumi) const;
-     EntryNumber_t findRun(edm::RunNumber_t const& run) const;
-     void fillIndex(BranchMapReader& branchMap);
-     static EntryNumber_t const invalidEntry = -1LL;
-   private:
-     edm::IndexIntoFile indexIntoFile_;
-     edm::FileIndex fileIndex_;
-   };
-}
+  class BranchMapReader;
+  class EntryFinder {
+  public:
+    EntryFinder();
+    ~EntryFinder();
+    typedef edm::IndexIntoFile::EntryNumber_t EntryNumber_t;
+    bool empty() const { return indexIntoFile_.empty() && fileIndex_.empty(); }
+    EntryNumber_t findEvent(edm::RunNumber_t const& run,
+                            edm::LuminosityBlockNumber_t const& lumi,
+                            edm::EventNumber_t const& event) const;
+    EntryNumber_t findLumi(edm::RunNumber_t const& run, edm::LuminosityBlockNumber_t const& lumi) const;
+    EntryNumber_t findRun(edm::RunNumber_t const& run) const;
+    void fillIndex(BranchMapReader& branchMap);
+    static EntryNumber_t const invalidEntry = -1LL;
+
+  private:
+    edm::IndexIntoFile indexIntoFile_;
+    edm::FileIndex fileIndex_;
+  };
+}  // namespace fwlite
 #endif

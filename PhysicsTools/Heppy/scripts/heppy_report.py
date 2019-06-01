@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from builtins import range
 from optparse import OptionParser
 import json
 import six
@@ -15,7 +16,7 @@ def root2map(dir,ana,treename):
         print("Error: rootfile %s/%s/%s.root does not contain a TTree %s" % (dir,ana,treename,treename))
         return None
     jsonind = {}
-    for e in xrange(tree.GetEntries()):
+    for e in range(tree.GetEntries()):
         tree.GetEntry(e)
         run,lumi = tree.run, tree.lumi
         if run not in jsonind:

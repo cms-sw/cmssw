@@ -19,17 +19,21 @@
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
 #include "DataFormats/TauReco/interface/PFTauDecayModeAssociation.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 namespace {
 using namespace reco;
 
 class PFRecoTauCorrectedInvariantMassProducer : public PFTauDiscriminationProducerBase  {
    public:
-      explicit PFRecoTauCorrectedInvariantMassProducer(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig){   
+      explicit PFRecoTauCorrectedInvariantMassProducer(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig){
          PFTauDecayModeProducer_     = iConfig.getParameter<edm::InputTag>("PFTauDecayModeProducer");
       }
       ~PFRecoTauCorrectedInvariantMassProducer() override{} 
       double discriminate(const PFTauRef& pfTau) const override;
       void beginEvent(const edm::Event& event, const edm::EventSetup& evtSetup) override;
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
    private:
       edm::InputTag PFTauDecayModeProducer_;
       edm::Handle<PFTauDecayModeAssociation> theDMAssoc;
@@ -46,5 +50,17 @@ double PFRecoTauCorrectedInvariantMassProducer::discriminate(const PFTauRef& the
    const PFTauDecayMode& theDecayMode = (*theDMAssoc)[thePFTauRef];
    return theDecayMode.mass();
 }
+
+void
+PFRecoTauCorrectedInvariantMassProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfRecoTauCorrectedInvariantMassProducer
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("PFTauDecayModeProducer");
+
+  fillProducerDescriptions(desc); // inherited from the base
+
+  descriptions.add("pfRecoTauCorrectedInvariantMassProducer", desc);
+}
+
 }
 DEFINE_FWK_MODULE(PFRecoTauCorrectedInvariantMassProducer);

@@ -1,4 +1,4 @@
-#ifndef RBCLINKBOARDGLSIGNAL_H 
+#ifndef RBCLINKBOARDGLSIGNAL_H
 #define RBCLINKBOARDGLSIGNAL_H 1
 
 // Include files
@@ -14,21 +14,19 @@
  *  @date   2008-11-28
  */
 class RBCLinkBoardGLSignal : public RPCInputSignal {
-public: 
+public:
   /// Standard constructor
-  RBCLinkBoardGLSignal( ) { }; 
-  
-  RBCLinkBoardGLSignal( std::map< int, RBCInput* >  * ); 
-  
-  ~RBCLinkBoardGLSignal( ) override; ///< Destructor
-  
-  void clear() override { };
-  
-  std::map< int, RBCInput* >  * m_linkboardin;
-  
-protected:
-  
-private:
+  RBCLinkBoardGLSignal(){};
 
+  RBCLinkBoardGLSignal(std::map<int, RBCInput*>*);
+
+  ~RBCLinkBoardGLSignal() override;  ///< Destructor
+
+  void clear() override{};
+
+  std::map<int, RBCInput*>* m_linkboardin;
+
+protected:
+private:
 };
-#endif // RBCLINKBOARDGLSIGNAL_H
+#endif  // RBCLINKBOARDGLSIGNAL_H

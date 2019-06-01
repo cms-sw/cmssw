@@ -45,11 +45,8 @@
 
 using namespace std;
 
-
-ElectronConversionRejectionValidator::ElectronConversionRejectionValidator( const edm::ParameterSet& pset )
-{
-
-  fName_     = pset.getUntrackedParameter<std::string>("Name");
+ElectronConversionRejectionValidator::ElectronConversionRejectionValidator(const edm::ParameterSet& pset) {
+  fName_ = pset.getUntrackedParameter<std::string>("Name");
   verbosity_ = pset.getUntrackedParameter<int>("Verbosity");
   parameters_ = pset;
 
@@ -59,35 +56,30 @@ ElectronConversionRejectionValidator::ElectronConversionRejectionValidator( cons
   conversionCollectionProducer_ = pset.getParameter<std::string>("convProducer");
   conversionCollection_ = pset.getParameter<std::string>("conversionCollection");
   // conversionTrackProducer_ = pset.getParameter<std::string>("trackProducer");
-  gsfElecToken_ = consumes<reco::GsfElectronCollection>(
-      edm::InputTag(gsfElectronCollectionProducer_,
-                    gsfElectronCollection_));
-  convToken_ = consumes<reco::ConversionCollection>(
-      edm::InputTag(conversionCollectionProducer_,
-                    conversionCollection_));
+  gsfElecToken_ =
+      consumes<reco::GsfElectronCollection>(edm::InputTag(gsfElectronCollectionProducer_, gsfElectronCollection_));
+  convToken_ =
+      consumes<reco::ConversionCollection>(edm::InputTag(conversionCollectionProducer_, conversionCollection_));
 
-  isRunCentrally_=   pset.getParameter<bool>("isRunCentrally");
+  isRunCentrally_ = pset.getParameter<bool>("isRunCentrally");
 
   elePtMin_ = pset.getParameter<double>("elePtMin");
   eleExpectedHitsInnerMax_ = pset.getParameter<int>("eleExpectedHitsInnerMax");
   eleD0Max_ = pset.getParameter<double>("eleD0Max");
   offline_pvToken_ = consumes<reco::VertexCollection>(
-      pset.getUntrackedParameter<edm::InputTag> ("offlinePV",
-                                                 edm::InputTag("offlinePrimaryVertices")));
-  beamspotToken_ = consumes<reco::BeamSpot>(
-      pset.getUntrackedParameter<edm::InputTag> ("beamspot",
-                                                 edm::InputTag("offlineBeamSpot")));
+      pset.getUntrackedParameter<edm::InputTag>("offlinePV", edm::InputTag("offlinePrimaryVertices")));
+  beamspotToken_ =
+      consumes<reco::BeamSpot>(pset.getUntrackedParameter<edm::InputTag>("beamspot", edm::InputTag("offlineBeamSpot")));
 
-  nEvt_=0;
-  nEntry_=0;
+  nEvt_ = 0;
+  nEntry_ = 0;
 }
 
 ElectronConversionRejectionValidator::~ElectronConversionRejectionValidator() {}
 
-
-void ElectronConversionRejectionValidator::bookHistograms(DQMStore::IBooker & ibooker,
-  edm::Run const &, edm::EventSetup const & ){
-
+void ElectronConversionRejectionValidator::bookHistograms(DQMStore::IBooker& ibooker,
+                                                          edm::Run const&,
+                                                          edm::EventSetup const&) {
   double ptMin = parameters_.getParameter<double>("ptMin");
   double ptMax = parameters_.getParameter<double>("ptMax");
   int ptBin = parameters_.getParameter<int>("ptBin");
@@ -101,17 +93,16 @@ void ElectronConversionRejectionValidator::bookHistograms(DQMStore::IBooker & ib
   int etaBin = parameters_.getParameter<int>("etaBin");
 
   double phiMin = -TMath::Pi();
-  double phiMax =  TMath::Pi();
-  int    phiBin = parameters_.getParameter<int>("phiBin");
-
+  double phiMax = TMath::Pi();
+  int phiBin = parameters_.getParameter<int>("phiBin");
 
   double rhoMin = parameters_.getParameter<double>("rhoMin");
   double rhoMax = parameters_.getParameter<double>("rhoMax");
-  int    rhoBin = parameters_.getParameter<int>("rhoBin");
+  int rhoBin = parameters_.getParameter<int>("rhoBin");
 
   double zMin = parameters_.getParameter<double>("zMin");
   double zMax = parameters_.getParameter<double>("zMax");
-  int    zBin = parameters_.getParameter<int>("zBin");
+  int zBin = parameters_.getParameter<int>("zBin");
 
   //// All MC photons
   // SC from reco photons
@@ -131,7 +122,7 @@ void ElectronConversionRejectionValidator::bookHistograms(DQMStore::IBooker & ib
   h_elePhiPass_ = ibooker.book1D("elePhiPass", "# of Electrons", phiBin, phiMin, phiMax);
 
   h_elePtFail_ = ibooker.book1D("elePtFail", "# of Electrons", ptBin, ptMin, ptMax);
-  h_eleEtaFail_ = ibooker.book1D("eleEtaFail", "# of Electrons",etaBin, etaMin, etaMax);
+  h_eleEtaFail_ = ibooker.book1D("eleEtaFail", "# of Electrons", etaBin, etaMin, etaMax);
   h_elePhiFail_ = ibooker.book1D("elePhiFail", "# of Electrons", phiBin, phiMin, phiMax);
 
   h_convPt_ = ibooker.book1D("convPt", "# of Electrons", ptBin, ptMin, ptMax);
@@ -141,45 +132,40 @@ void ElectronConversionRejectionValidator::bookHistograms(DQMStore::IBooker & ib
   h_convZ_ = ibooker.book1D("convZ", "# of Electrons", zBin, zMin, zMax);
   h_convProb_ = ibooker.book1D("convProb", "# of Electrons", 100, 0.0, 1.0);
 
-  h_convLeadTrackpt_ = ibooker.book1D("convLeadTrackpt", "# of Electrons", trackptBin,
-      trackptMin, trackptMax);
+  h_convLeadTrackpt_ = ibooker.book1D("convLeadTrackpt", "# of Electrons", trackptBin, trackptMin, trackptMax);
 
-  h_convTrailTrackpt_ = ibooker.book1D("convTrailTrackpt", "# of Electrons", trackptBin,
-      trackptMin, trackptMax);
+  h_convTrailTrackpt_ = ibooker.book1D("convTrailTrackpt", "# of Electrons", trackptBin, trackptMin, trackptMax);
 
-  h_convLog10TrailTrackpt_ = ibooker.book1D("convLog10TrailTrackpt", "# of Electrons",
-      ptBin, -2.0, 3.0);
+  h_convLog10TrailTrackpt_ = ibooker.book1D("convLog10TrailTrackpt", "# of Electrons", ptBin, -2.0, 3.0);
 
-  h_convLeadTrackAlgo_ = ibooker.book1D("convLeadTrackAlgo", "# of Electrons", reco::TrackBase::algoSize, -0.5, reco::TrackBase::algoSize-0.5);
-  h_convTrailTrackAlgo_ = ibooker.book1D("convLeadTrackAlgo", "# of Electrons", reco::TrackBase::algoSize, -0.5, reco::TrackBase::algoSize-0.5);
+  h_convLeadTrackAlgo_ = ibooker.book1D(
+      "convLeadTrackAlgo", "# of Electrons", reco::TrackBase::algoSize, -0.5, reco::TrackBase::algoSize - 0.5);
+  h_convTrailTrackAlgo_ = ibooker.book1D(
+      "convLeadTrackAlgo", "# of Electrons", reco::TrackBase::algoSize, -0.5, reco::TrackBase::algoSize - 0.5);
 }
 
-void ElectronConversionRejectionValidator::analyze( const edm::Event& e, const edm::EventSetup& esup ) {
-
+void ElectronConversionRejectionValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) {
   using namespace edm;
-
 
   nEvt_++;
   LogInfo("ElectronConversionRejectionValidator")
-      << "ElectronConversionRejectionValidator Analyzing event number: "
-      << e.id() << " Global Counter " << nEvt_ <<"\n";
+      << "ElectronConversionRejectionValidator Analyzing event number: " << e.id() << " Global Counter " << nEvt_
+      << "\n";
 
   ///// Get the recontructed  conversions
   Handle<reco::ConversionCollection> convHandle;
   e.getByToken(convToken_, convHandle);
   if (!convHandle.isValid()) {
-    edm::LogError("ElectronConversionRejectionValidator")
-        << "Error! Can't get the Conversion collection "<< std::endl;
+    edm::LogError("ElectronConversionRejectionValidator") << "Error! Can't get the Conversion collection " << std::endl;
     return;
   }
 
   ///// Get the recontructed  photons
   Handle<reco::GsfElectronCollection> gsfElectronHandle;
   e.getByToken(gsfElecToken_, gsfElectronHandle);
-  const reco::GsfElectronCollection &gsfElectronCollection = *(gsfElectronHandle.product());
+  const reco::GsfElectronCollection& gsfElectronCollection = *(gsfElectronHandle.product());
   if (!gsfElectronHandle.isValid()) {
-    edm::LogError("ElectronConversionRejectionValidator")
-        << "Error! Can't get the Electron collection "<< std::endl;
+    edm::LogError("ElectronConversionRejectionValidator") << "Error! Can't get the Electron collection " << std::endl;
     return;
   }
 
@@ -187,45 +173,48 @@ void ElectronConversionRejectionValidator::analyze( const edm::Event& e, const e
   edm::Handle<reco::VertexCollection> vertexHandle;
   e.getByToken(offline_pvToken_, vertexHandle);
   if (!vertexHandle.isValid()) {
-    edm::LogError("ElectronConversionRejectionValidator")
-        << "Error! Can't get the product primary Vertex Collection "<< "\n";
+    edm::LogError("ElectronConversionRejectionValidator") << "Error! Can't get the product primary Vertex Collection "
+                                                          << "\n";
     return;
   }
-  const reco::Vertex &thevtx = vertexHandle->at(0);
+  const reco::Vertex& thevtx = vertexHandle->at(0);
 
   edm::Handle<reco::BeamSpot> bsHandle;
   e.getByToken(beamspotToken_, bsHandle);
   if (!bsHandle.isValid()) {
-    edm::LogError("ElectronConversionRejectionValidator")
-        << "Error! Can't get the product beamspot Collection "<< "\n";
+    edm::LogError("ElectronConversionRejectionValidator") << "Error! Can't get the product beamspot Collection "
+                                                          << "\n";
     return;
   }
-  const reco::BeamSpot &thebs = *bsHandle.product();
-
+  const reco::BeamSpot& thebs = *bsHandle.product();
 
   //loop over electrons
-  for (reco::GsfElectronCollection::const_iterator iele = gsfElectronCollection.begin(); iele!=gsfElectronCollection.end(); ++iele) {
+  for (reco::GsfElectronCollection::const_iterator iele = gsfElectronCollection.begin();
+       iele != gsfElectronCollection.end();
+       ++iele) {
     //apply basic pre-selection cuts to remove the conversions with obviously displaced tracks which will anyways be
     //removed from the analysis by the hit pattern or impact parameter requirements
-    if (iele->pt() < elePtMin_) continue;
-    if (iele->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) > eleExpectedHitsInnerMax_) continue;
-    if ( std::abs(iele->gsfTrack()->dxy(thevtx.position())) > eleD0Max_ ) continue;
+    if (iele->pt() < elePtMin_)
+      continue;
+    if (iele->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) >
+        eleExpectedHitsInnerMax_)
+      continue;
+    if (std::abs(iele->gsfTrack()->dxy(thevtx.position())) > eleD0Max_)
+      continue;
 
     //fill information for all electrons
     h_elePtAll_->Fill(iele->pt());
     h_eleEtaAll_->Fill(iele->eta());
     h_elePhiAll_->Fill(iele->phi());
 
-
     //find matching conversion if any
-    reco::Conversion const* conv = ConversionTools::matchedConversion(*iele,*convHandle,thebs.position());
+    reco::Conversion const* conv = ConversionTools::matchedConversion(*iele, *convHandle, thebs.position());
     //fill information on passing electrons only if there is no matching conversion (electron passed the conversion rejection cut!)
     if (conv == nullptr) {
       h_elePtPass_->Fill(iele->pt());
       h_eleEtaPass_->Fill(iele->eta());
       h_elePhiPass_->Fill(iele->phi());
-    }
-    else {
+    } else {
       //matching conversion, electron failed conversion rejection cut
       //fill information on electron and matching conversion
       //(Note that in case of multiple matching conversions passing the requirements, the conversion tools returns the one closest to the IP,
@@ -243,10 +232,11 @@ void ElectronConversionRejectionValidator::analyze( const edm::Event& e, const e
       h_convPhi_->Fill(convmom.phi());
       h_convRho_->Fill(conv->conversionVertex().position().rho());
       h_convZ_->Fill(conv->conversionVertex().position().z());
-      h_convProb_->Fill(ChiSquaredProbability(conv->conversionVertex().chi2(),conv->conversionVertex().ndof()));
+      h_convProb_->Fill(ChiSquaredProbability(conv->conversionVertex().chi2(), conv->conversionVertex().ndof()));
 
       //fill information about conversion tracks
-      if (conv->tracks().size()<2) continue;
+      if (conv->tracks().size() < 2)
+        continue;
 
       RefToBase<reco::Track> tk1 = conv->tracks().front();
       RefToBase<reco::Track> tk2 = conv->tracks().back();
@@ -256,8 +246,7 @@ void ElectronConversionRejectionValidator::analyze( const edm::Event& e, const e
       if (tk1->pt() >= tk2->pt()) {
         tklead = tk1;
         tktrail = tk2;
-      }
-      else {
+      } else {
         tklead = tk2;
         tktrail = tk1;
       }
@@ -266,8 +255,6 @@ void ElectronConversionRejectionValidator::analyze( const edm::Event& e, const e
       h_convLog10TrailTrackpt_->Fill(log10(tktrail->pt()));
       h_convLeadTrackAlgo_->Fill(tklead->algo());
       h_convTrailTrackAlgo_->Fill(tktrail->algo());
-
     }
   }
-
 }

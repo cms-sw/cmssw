@@ -1,4 +1,4 @@
-#ifndef INTERFACE_RBCPROCESSRPCSIMDIGIS_H 
+#ifndef INTERFACE_RBCPROCESSRPCSIMDIGIS_H
 #define INTERFACE_RBCPROCESSRPCSIMDIGIS_H 1
 
 // Include files
@@ -16,7 +16,7 @@
 #include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
 
 // From project
-#include "L1Trigger/RPCTechnicalTrigger/interface/RBCInput.h" 
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCInput.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCInputSignal.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCData.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/ProcessInputSignal.h"
@@ -38,57 +38,50 @@
  */
 
 class RBCProcessRPCSimDigis : public ProcessInputSignal {
-public: 
+public:
   /// Standard constructor
-  RBCProcessRPCSimDigis(); 
-  
-  RBCProcessRPCSimDigis( const edm::ESHandle<RPCGeometry> &, 
-                         const edm::Handle<edm::DetSetVector<RPCDigiSimLink> > & );
-  
-  int  next() override;
-  
+  RBCProcessRPCSimDigis();
+
+  RBCProcessRPCSimDigis(const edm::ESHandle<RPCGeometry> &, const edm::Handle<edm::DetSetVector<RPCDigiSimLink> > &);
+
+  int next() override;
+
   void reset();
-  
+
   void builddata();
-  
+
   void print_output();
-  
-  RPCInputSignal * retrievedata() override {
-    return  m_lbin.get();
-  };
-  
-  void rewind() {};
-  void showfirst() {};
-  
-  ~RBCProcessRPCSimDigis( ) override; ///< Destructor
-  
+
+  RPCInputSignal *retrievedata() override { return m_lbin.get(); };
+
+  void rewind(){};
+  void showfirst(){};
+
+  ~RBCProcessRPCSimDigis() override;  ///< Destructor
+
 protected:
-  
 private:
-  
   int getBarrelLayer(const int &, const int &);
-  
-  void setDigiAt( int , int , RPCData& );
-  
-  void setInputBit( std::bitset<15> & , int );
-  
-  void initialize( std::vector<RPCData> & );
-  
-  const edm::ESHandle<RPCGeometry> * m_ptr_rpcGeom;
-  const edm::Handle<edm::DetSetVector<RPCDigiSimLink> > * m_ptr_digiSimLink;
-  
+
+  void setDigiAt(int, int, RPCData &);
+
+  void setInputBit(std::bitset<15> &, int);
+
+  void initialize(std::vector<RPCData> &);
+
+  const edm::ESHandle<RPCGeometry> *m_ptr_rpcGeom;
+  const edm::Handle<edm::DetSetVector<RPCDigiSimLink> > *m_ptr_digiSimLink;
+
   edm::DetSetVector<RPCDigiSimLink>::const_iterator m_linkItr;
   edm::DetSet<RPCDigiSimLink>::const_iterator m_digiItr;
-    
+
   std::unique_ptr<RPCInputSignal> m_lbin;
-  
-  std::map<int, RBCInput*> m_data;
-  
+
+  std::map<int, RBCInput *> m_data;
+
   std::map<int, std::vector<RPCData> > m_vecDataperBx;
-  
+
   bool m_debug;
   int m_maxBxWindow;
-  
-  
 };
-#endif // INTERFACE_RBCPROCESSRPCSIMDIGIS_H
+#endif  // INTERFACE_RBCPROCESSRPCSIMDIGIS_H

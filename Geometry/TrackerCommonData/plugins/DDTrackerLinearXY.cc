@@ -13,54 +13,45 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-
-DDTrackerLinearXY::DDTrackerLinearXY() {
-  LogDebug("TrackerGeom") <<"DDTrackerLinearXY info: Creating an instance";
-}
+DDTrackerLinearXY::DDTrackerLinearXY() { LogDebug("TrackerGeom") << "DDTrackerLinearXY info: Creating an instance"; }
 
 DDTrackerLinearXY::~DDTrackerLinearXY() {}
 
-void DDTrackerLinearXY::initialize(const DDNumericArguments & nArgs,
-				   const DDVectorArguments & vArgs,
-				   const DDMapArguments & ,
-				   const DDStringArguments & sArgs,
-				   const DDStringVectorArguments &) {
+void DDTrackerLinearXY::initialize(const DDNumericArguments& nArgs,
+                                   const DDVectorArguments& vArgs,
+                                   const DDMapArguments&,
+                                   const DDStringArguments& sArgs,
+                                   const DDStringVectorArguments&) {
+  numberX = int(nArgs["NumberX"]);
+  deltaX = nArgs["DeltaX"];
+  numberY = int(nArgs["NumberY"]);
+  deltaY = nArgs["DeltaY"];
+  centre = vArgs["Center"];
 
-  numberX   = int(nArgs["NumberX"]);
-  deltaX    = nArgs["DeltaX"];
-  numberY   = int(nArgs["NumberY"]);
-  deltaY    = nArgs["DeltaY"];
-  centre    = vArgs["Center"];
-  
   idNameSpace = DDCurrentNamespace::ns();
-  childName   = sArgs["ChildName"]; 
+  childName = sArgs["ChildName"];
   DDName parentName = parent().name();
-  LogDebug("TrackerGeom") << "DDTrackerLinearXY debug: Parent " << parentName
-			  << "\tChild " << childName << " NameSpace " 
-			  << idNameSpace << "\tNumber along X/Y " << numberX
-			  << "/" << numberY << "\tDelta along X/Y " << deltaX
-			  << "/" << deltaY << "\tCentre " << centre[0] << ", " 
-			  << centre[1] << ", "	<< centre[2];
+  LogDebug("TrackerGeom") << "DDTrackerLinearXY debug: Parent " << parentName << "\tChild " << childName
+                          << " NameSpace " << idNameSpace << "\tNumber along X/Y " << numberX << "/" << numberY
+                          << "\tDelta along X/Y " << deltaX << "/" << deltaY << "\tCentre " << centre[0] << ", "
+                          << centre[1] << ", " << centre[2];
 }
 
 void DDTrackerLinearXY::execute(DDCompactView& cpv) {
-
   DDName mother = parent().name();
   DDName child(DDSplit(childName).first, DDSplit(childName).second);
   DDRotation rot;
-  double xoff = centre[0] - (numberX-1)*deltaX/2.;
-  double yoff = centre[1] - (numberY-1)*deltaY/2.;
-  int    copy = 0;
+  double xoff = centre[0] - (numberX - 1) * deltaX / 2.;
+  double yoff = centre[1] - (numberY - 1) * deltaY / 2.;
+  int copy = 0;
 
-  for (int i=0; i<numberX; i++) {
-    for (int j=0; j<numberY; j++) {
-	
-      DDTranslation tran(xoff+i*deltaX,yoff+j*deltaY,centre[2]);
+  for (int i = 0; i < numberX; i++) {
+    for (int j = 0; j < numberY; j++) {
+      DDTranslation tran(xoff + i * deltaX, yoff + j * deltaY, centre[2]);
       copy++;
-     cpv.position(child, mother, copy, tran, rot);
-      LogDebug("TrackerGeom") << "DDTrackerLinearXY test: " << child 
-			      << " number " << copy << " positioned in "
-			      << mother << " at " << tran << " with " << rot;
+      cpv.position(child, mother, copy, tran, rot);
+      LogDebug("TrackerGeom") << "DDTrackerLinearXY test: " << child << " number " << copy << " positioned in "
+                              << mother << " at " << tran << " with " << rot;
     }
   }
 }

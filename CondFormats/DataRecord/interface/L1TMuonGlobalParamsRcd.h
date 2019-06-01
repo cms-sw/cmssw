@@ -4,7 +4,7 @@
 //
 // Package:     Subsystem/Package
 // Class  :     L1TMuonGlobalParamsRcd
-// 
+//
 /**\class L1TMuonGlobalParamsRcd L1TMuonGlobalParamsRcd.h Subsystem/Package/interface/L1TMuonGlobalParamsRcd.h
 
  Description: [one line class summary]

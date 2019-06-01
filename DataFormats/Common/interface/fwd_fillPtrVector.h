@@ -29,32 +29,28 @@
 // forward declarations
 namespace edm {
   template <typename T, typename A>
-  void
-  fillPtrVector(std::vector<T, A> const& obj,
-                std::type_info const& iToType,
-                std::vector<unsigned long> const& iIndicies,
-                std::vector<void const*>& oPtr);
-  
-  template <typename T, typename A>
-  void
-  fillPtrVector(std::list<T, A> const& obj,
-                std::type_info const& iToType,
-                std::vector<unsigned long> const& iIndicies,
-                std::vector<void const*>& oPtr);
+  void fillPtrVector(std::vector<T, A> const& obj,
+                     std::type_info const& iToType,
+                     std::vector<unsigned long> const& iIndicies,
+                     std::vector<void const*>& oPtr);
 
   template <typename T, typename A>
-  void
-  fillPtrVector(std::deque<T, A> const& obj,
-                std::type_info const& iToType,
-                std::vector<unsigned long> const& iIndicies,
-                std::vector<void const*>& oPtr);
+  void fillPtrVector(std::list<T, A> const& obj,
+                     std::type_info const& iToType,
+                     std::vector<unsigned long> const& iIndicies,
+                     std::vector<void const*>& oPtr);
+
+  template <typename T, typename A>
+  void fillPtrVector(std::deque<T, A> const& obj,
+                     std::type_info const& iToType,
+                     std::vector<unsigned long> const& iIndicies,
+                     std::vector<void const*>& oPtr);
 
   template <typename T, typename A, typename Comp>
-  void
-  fillPtrVector(std::set<T, A, Comp> const& obj,
-                std::type_info const& iToType,
-                std::vector<unsigned long> const& iIndicies,
-                std::vector<void const*>& oPtr);
-}
+  void fillPtrVector(std::set<T, A, Comp> const& obj,
+                     std::type_info const& iToType,
+                     std::vector<unsigned long> const& iIndicies,
+                     std::vector<void const*>& oPtr);
+}  // namespace edm
 
 #endif

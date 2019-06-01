@@ -13,6 +13,6 @@ namespace edmtest {
     virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
   };
 
-}
+}  // namespace edmtest
 
 #endif

@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     BeamSpotObjectsRcd
-// 
+//
 /**\class BeamSpotObjectsRcd BeamSpotObjectsRcd.h CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Tue Mar  6 19:34:33 CST 2007
 // $Id$
 //

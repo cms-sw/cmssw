@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/TestProcessor
 // Class  :     TestDataProxy
-// 
+//
 /**\class TestDataProxy TestDataProxy.h "TestDataProxy.h"
 
  Description: [one line class summary]
@@ -27,32 +27,26 @@
 // forward declarations
 
 namespace edm {
-namespace test {
+  namespace test {
 
-template< typename T>
-  class TestDataProxy : public eventsetup::DataProxy
-{
+    template <typename T>
+    class TestDataProxy : public eventsetup::DataProxy {
+    public:
+      TestDataProxy() {}
 
-  public:
-  TestDataProxy() {}
+      void setData(std::unique_ptr<T> iData) { data_ = std::move(iData); }
 
-  void setData(std::unique_ptr<T> iData) {
-    data_ = std::move(iData);
-  }
-  
-  void const* getImpl(eventsetup::EventSetupRecordImpl const&, eventsetup::DataKey const& iKey) final {
-    return data_.get();
-  }
-  
-  void invalidateCache() final {
-    data_.reset();
-  }
+      void const* getImpl(eventsetup::EventSetupRecordImpl const&, eventsetup::DataKey const& iKey) final {
+        return data_.get();
+      }
 
-  private:
-  std::unique_ptr<T> data_;
-};
-}
+      void invalidateCache() final { data_.reset(); }
 
-}
+    private:
+      std::unique_ptr<T> data_;
+    };
+  }  // namespace test
+
+}  // namespace edm
 
 #endif

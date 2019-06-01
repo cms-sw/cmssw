@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     L1RPCConfigRcd
-// 
+//
 /**\class L1RPCConfigRcd L1RPCConfigRcd.h CondFormats/DataRecord/interface/L1RPCConfigRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Tue Mar 20 14:39:09 CET 2007
 // $Id: L1RPCConfigRcd.h,v 1.1 2007/03/23 14:36:40 wsun Exp $
 //
@@ -27,6 +27,9 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
 
 //class L1RPCConfigRcd : public edm::eventsetup::EventSetupRecordImplementation<L1RPCConfigRcd> {};
-class L1RPCConfigRcd : public edm::eventsetup::DependentRecordImplementation<L1RPCConfigRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+class L1RPCConfigRcd
+    : public edm::eventsetup::DependentRecordImplementation<L1RPCConfigRcd,
+                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+};
 
 #endif

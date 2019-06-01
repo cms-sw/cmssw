@@ -20,26 +20,26 @@
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-class EventShapeDQM: public DQMEDAnalyzer{
+class EventShapeDQM : public DQMEDAnalyzer {
 public:
-	EventShapeDQM(const edm::ParameterSet& ps);
-	~EventShapeDQM() override;
+  EventShapeDQM(const edm::ParameterSet& ps);
+  ~EventShapeDQM() override;
 
 protected:
-	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-	void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
 private:
-	edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
-	edm::EDGetTokenT<reco::EvtPlaneCollection> theEPCollection_;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
+  edm::EDGetTokenT<reco::EvtPlaneCollection> theEPCollection_;
 
-	std::string triggerPath_;
-	int order_;
-	int EPidx_;
-	int EPlvl_;
+  std::string triggerPath_;
+  int order_;
+  int EPidx_;
+  int EPlvl_;
 
-	// histo
-	MonitorElement* h_Q;
+  // histo
+  MonitorElement* h_Q;
 };
 
 #endif

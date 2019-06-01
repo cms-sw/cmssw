@@ -4,7 +4,7 @@
 //
 // Package:     Common
 // Class  :     CMS_CLASS_VERSION
-// 
+//
 /**\class CMS_CLASS_VERSION CMS_CLASS_VERSION.h DataFormats/Common/interface/CMS_CLASS_VERSION.h
 
  Description: Macro used to add versioning info needed by ROOT to a CMS templated class
@@ -27,6 +27,7 @@
 // user include files
 
 // forward declarations
-#define CMS_CLASS_VERSION(_version_) static short Class_Version() { return _version_;}
+#define CMS_CLASS_VERSION(_version_) \
+  static short Class_Version() { return _version_; }
 
 #endif

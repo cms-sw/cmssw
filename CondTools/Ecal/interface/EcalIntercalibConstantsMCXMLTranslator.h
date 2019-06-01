@@ -12,6 +12,6 @@
 
 #include "CondTools/Ecal/interface/EcalFloatCondObjectContainerXMLTranslator.h"
 
-typedef EcalFloatCondObjectContainerXMLTranslator  EcalIntercalibConstantsMCXMLTranslator;
+typedef EcalFloatCondObjectContainerXMLTranslator EcalIntercalibConstantsMCXMLTranslator;
 
-#endif // __EcalIntercalibConstantsMCXMLTranslator_h_
+#endif  // __EcalIntercalibConstantsMCXMLTranslator_h_

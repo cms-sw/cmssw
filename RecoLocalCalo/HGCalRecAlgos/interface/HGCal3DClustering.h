@@ -11,7 +11,7 @@
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
 #include "KDTreeLinkerAlgoT.h"
 
@@ -23,17 +23,22 @@ public:
   {
   }
 
- HGCal3DClustering(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes, const std::vector<double>& radii_in, uint32_t min_clusters) :
-  radii(radii_in),
-  minClusters(min_clusters),
-  points(2*(maxlayer+1)),
-  minpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
-  maxpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
-  es(0),
-  zees(2*(maxlayer+1),0.),
-  clusterTools(std::make_unique<hgcal::ClusterTools>(conf,sumes))
-  {
-  }
+  HGCal3DClustering(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes, const std::vector<double>& radii_in, uint32_t min_clusters) :
+   radii(radii_in),
+   minClusters(min_clusters),
+   points(2*(maxlayer+1)),
+   minpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
+   maxpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
+   es(0),
+   zees(2*(maxlayer+1),0.),
+   clusterTools(std::make_unique<hgcal::ClusterTools>(conf,sumes))
+   {
+   }
+
+
+   HGCal3DClustering(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes) :
+     HGCal3DClustering(conf, sumes, conf.getParameter<std::vector<double>>("multiclusterRadii"),
+         conf.getParameter<unsigned>("minClusters")) {}
 
   void getEvent(const edm::Event& ev) { clusterTools->getEvent(ev); }
   void getEventSetup(const edm::EventSetup& es)
@@ -65,7 +70,7 @@ private:
   void layerIntersection(std::array<double,3> &to, const std::array<double,3> &from) const;
 
   //max number of layers
-  static const unsigned int maxlayer = HGCalImagingAlgo::maxlayer;
+  static const unsigned int maxlayer = HGCalClusteringAlgoBase::maxlayer;
 
   std::vector<double> radii;
   uint32_t minClusters;

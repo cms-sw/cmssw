@@ -21,20 +21,18 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class CaloTowerAnalyzer: public DQMEDAnalyzer {
+class CaloTowerAnalyzer : public DQMEDAnalyzer {
 public:
-
   explicit CaloTowerAnalyzer(const edm::ParameterSet&);
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void dqmbeginRun(const edm::Run& ,const edm::EventSetup&);
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void dqmbeginRun(const edm::Run&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
-
   // Inputs from Configuration
   edm::EDGetTokenT<edm::View<reco::Candidate> > caloTowersLabel_;
-  std::vector< edm::InputTag >  HLTBitLabel_ ;
+  std::vector<edm::InputTag> HLTBitLabel_;
   edm::EDGetTokenT<edm::TriggerResults> HLTResultsLabel_;
   edm::EDGetTokenT<bool> HBHENoiseFilterResultLabel_;
   bool debug_;
@@ -44,7 +42,6 @@ private:
   bool hltselection_;
   std::string FolderName_;
   int Nevents;
-
 
   MonitorElement* hCT_Nevents;
   MonitorElement* hCT_et_ieta_iphi;

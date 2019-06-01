@@ -3,20 +3,22 @@
 // Package:    PixelLumiDQM
 // Class:      PixelLumiDQM
 
-/**\class PixelLumiDQM PixelLumiDQM.h PixelLumi/PixelLumiDQM/plugins/PixelLumiDQM.h
+/**\class PixelLumiDQM PixelLumiDQM.h
+ PixelLumi/PixelLumiDQM/plugins/PixelLumiDQM.h
 
  Description: DQM Module producing Pixel Cluster Count Luminosity
 
  Implementation notes:
      1) Filling scheme is put in by 'hand' for now.
-        Can obtain it from the cluster count but need higher rate in trigger; 
-	Best would be to have filling scheme in the DB. 
+        Can obtain it from the cluster count but need higher rate in trigger;
+        Best would be to have filling scheme in the DB.
      2) Afterglow correction is put in by hand.
-     3) Currently barrel layer 0 is excluded, but a version using all pixel layers and disks is also in place.
-     4) A stable beam flag should be obtained from the DB to turn on actual checks. 
-        (Pixel Lumi does not make sense outside stable beams.)
-     5) Need a top module to correlate the info from the three trigger categories.
-        NB: at present the module only uses the ZeroBias trigger providing about 85 Hz.
+     3) Currently barrel layer 0 is excluded, but a version using all pixel
+ layers and disks is also in place. 4) A stable beam flag should be obtained
+ from the DB to turn on actual checks. (Pixel Lumi does not make sense outside
+ stable beams.) 5) Need a top module to correlate the info from the three
+ trigger categories. NB: at present the module only uses the ZeroBias trigger
+ providing about 85 Hz.
 */
 
 // Original author:   Amita Raval
@@ -24,47 +26,45 @@
 #ifndef __PixelLumi_PixelLumiDQM_PixelLumiDQM_h__
 #define __PixelLumi_PixelLumiDQM_PixelLumiDQM_h__
 
-#include <vector>
+#include <fstream>
 #include <map>
 #include <string>
-#include <fstream>
+#include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 class ConfigurationDescriptions;
 
 class PixelLumiDQM : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
-  explicit PixelLumiDQM(const edm::ParameterSet&);
+  explicit PixelLumiDQM(const edm::ParameterSet &);
   ~PixelLumiDQM() override;
   static constexpr double FREQ_ORBIT = 11245.5;
-  static constexpr double SECONDS_PER_LS = double(0x40000)/double(FREQ_ORBIT);
+  static constexpr double SECONDS_PER_LS = double(0x40000) / double(FREQ_ORBIT);
 
   // Using all pixel clusters:
-  static constexpr double XSEC_PIXEL_CLUSTER = 10.08e-24; //in cm^2
+  static constexpr double XSEC_PIXEL_CLUSTER = 10.08e-24;  // in cm^2
   static constexpr double XSEC_PIXEL_CLUSTER_UNC = 0.17e-24;
 
   // Excluding the inner barrel layer.
-  static constexpr double rXSEC_PIXEL_CLUSTER = 9.4e-24; //in cm^2
+  static constexpr double rXSEC_PIXEL_CLUSTER = 9.4e-24;  // in cm^2
   static constexpr double rXSEC_PIXEL_CLUSTER_UNC = 0.119e-24;
-  static constexpr double CM2_TO_NANOBARN = 1.0/1.e-33;
+  static constexpr double CM2_TO_NANOBARN = 1.0 / 1.e-33;
   static const unsigned int lastBunchCrossing = 3564;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const&) override;
-  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&,
-                                    edm::EventSetup const&) override;
-  void endLuminosityBlock(edm::LuminosityBlock const&,
-                                  edm::EventSetup const&) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
+  void endRun(edm::Run const &, edm::EventSetup const &) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
-  // This is a kludge method to infer the filled bunches from the cluster count;  
+  // This is a kludge method to infer the filled bunches from the cluster count;
   // notice that this cannot be used with random triggers.
   // The filling scheme should be acquired from the database once it's there.
 
@@ -79,26 +79,24 @@ private:
   static constexpr size_t kOffsetDisks = 4;
 
   class PixelClusterCount {
-    // B for barrel, F for forwared, M for minus, P for plus side, 
+    // B for barrel, F for forwared, M for minus, P for plus side,
     // O for outer and I for inner. Numbers used for layers.
   public:
-    PixelClusterCount() :
-      numB(kNumLayers, 0),
-      numFM(kNumDisks, 0),
-      numFP(kNumDisks, 0),
-      dnumB(kNumLayers, 0.0),
-      dnumFM(kNumDisks, 0.0),
-      dnumFP(kNumDisks, 0.0)
+    PixelClusterCount()
+        : numB(kNumLayers, 0),
+          numFM(kNumDisks, 0),
+          numFP(kNumDisks, 0),
+          dnumB(kNumLayers, 0.0),
+          dnumFM(kNumDisks, 0.0),
+          dnumFP(kNumDisks, 0.0)
 
-    {
-    }
-    void Reset()
-    {
-      for(unsigned int i  = 0 ; i< numB.size(); i++){
-        numB[i]=0;
-        dnumB[i]=0.0;
+    {}
+    void Reset() {
+      for (unsigned int i = 0; i < numB.size(); i++) {
+        numB[i] = 0;
+        dnumB[i] = 0.0;
       }
-      for(unsigned int i  = 0 ; i< numFM.size(); i++){
+      for (unsigned int i = 0; i < numFM.size(); i++) {
         numFM[i] = 0;
         numFP[i] = 0;
         dnumFM[i] = 0.0;
@@ -111,10 +109,11 @@ private:
     std::vector<double> dnumB;
     std::vector<double> dnumFM;
     std::vector<double> dnumFP;
+
   private:
   };
 
-  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > fPixelClusterLabel;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> fPixelClusterLabel;
 
   UInt_t fRunNo;
   UInt_t fEvtNo;
@@ -134,23 +133,23 @@ private:
   bool fIncludeVertexInfo;
   bool fIncludePixelClusterInfo;
   bool fIncludePixelQualCheckHistos;
-  int  fResetIntervalInLumiSections;
+  int fResetIntervalInLumiSections;
 
-  std::map<std::string, MonitorElement*> fHistContainerThisRun;
+  std::map<std::string, MonitorElement *> fHistContainerThisRun;
 
   // This is a list of modules to be ignored, either because they were
   // dead or are dead in part of the data-taking period.
   std::vector<uint32_t> fDeadModules;
 
   // The minimum number of pixels that should live in a cluster in
-  // order for the cluster to be counted as a real cluster 
+  // order for the cluster to be counted as a real cluster
   // (as opposed to, e.g., a noise pixel).
   int fMinPixelsPerCluster;
 
   // The minimum pixel cluster charge for a cluster to be counted.
   double fMinClusterCharge;
 
-  // Use the module label to distinguish the three different streams. 
+  // Use the module label to distinguish the three different streams.
 
   MonitorElement *fIntActiveCrossingsFromDB;
   MonitorElement *fHistnBClusVsLS[3];
@@ -169,7 +168,7 @@ private:
   unsigned int filledAndUnmaskedBunches;
   bool useInnerBarrelLayer;
   unsigned int fFillNumber;
-  std::string  fLogFileName_;
+  std::string fLogFileName_;
 
   std::ofstream logFile_;
 };

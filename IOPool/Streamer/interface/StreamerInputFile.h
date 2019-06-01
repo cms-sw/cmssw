@@ -10,21 +10,20 @@
 
 #include <memory>
 
-#include<string>
-#include<vector>
+#include <string>
+#include <vector>
 
 namespace edm {
   class EventSkipperByID;
   class StreamerInputFile {
   public:
-
     /**Reads a Streamer file */
     explicit StreamerInputFile(std::string const& name,
-      std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>());
+                               std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>());
 
     /** Multiple Streamer files */
     explicit StreamerInputFile(std::vector<std::string> const& names,
-      std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>());
+                               std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>());
 
     ~StreamerInputFile();
 
@@ -36,13 +35,16 @@ namespace edm {
     EventMsgView const* currentRecord() const { return currentEvMsg_.get(); }
     /** Points to current Record */
 
-    bool newHeader() { bool tmp = newHeader_; newHeader_ = false; return tmp;}  /** Test bit if a new header is encountered */
+    bool newHeader() {
+      bool tmp = newHeader_;
+      newHeader_ = false;
+      return tmp;
+    } /** Test bit if a new header is encountered */
 
     /// Needs to be public because of forking.
     void closeStreamerFile();
 
   private:
-
     void openStreamerFile(std::string const& name);
     IOSize readBytes(char* buf, IOSize nBytes);
     IOOffset skipBytes(IOSize nBytes);
@@ -63,9 +65,9 @@ namespace edm {
     std::vector<char> headerBuf_; /** Buffer to store file Header */
     std::vector<char> eventBuf_;  /** Buffer to store Event Data */
 
-    unsigned int currentFile_; /** keeps track of which file is in use at the moment*/
+    unsigned int currentFile_;               /** keeps track of which file is in use at the moment*/
     std::vector<std::string> streamerNames_; /** names of Streamer files */
-    bool multiStreams_;  /** True if Multiple Streams are Read */
+    bool multiStreams_;                      /** True if Multiple Streams are Read */
     std::string currentFileName_;
     bool currentFileOpen_;
 
@@ -80,6 +82,6 @@ namespace edm {
 
     bool endOfFile_;
   };
-}
+}  // namespace edm
 
 #endif

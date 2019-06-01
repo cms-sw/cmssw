@@ -18,76 +18,65 @@
 #include "G4SDManager.hh"
 #include "G4ios.hh"
 
-FiberSD::FiberSD(const std::string& iname, const DDCompactView & cpv, 
-		 const SensitiveDetectorCatalog & clg, edm::ParameterSet const & p,
-		 const SimTrackManager* manager) :
-  SensitiveCaloDetector(iname, cpv, clg, p),
-  m_trackManager(manager), theHCID(-1), theHC(nullptr) {
-
+FiberSD::FiberSD(const std::string& iname,
+                 const DDCompactView& cpv,
+                 const SensitiveDetectorCatalog& clg,
+                 edm::ParameterSet const& p,
+                 const SimTrackManager* manager)
+    : SensitiveCaloDetector(iname, cpv, clg, p), m_trackManager(manager), theHCID(-1), theHC(nullptr) {
   theShower = new HFShower(iname, cpv, p, 1);
-
 }
 
 FiberSD::~FiberSD() {
- 
   delete theShower;
   delete theHC;
 }
 
-void FiberSD::Initialize(G4HCofThisEvent * HCE) {
-
+void FiberSD::Initialize(G4HCofThisEvent* HCE) {
   LogDebug("FiberSim") << "FiberSD : Initialize called for " << GetName();
   theHC = new FiberG4HitsCollection(GetName(), collectionName[0]);
-  if (theHCID<0)
+  if (theHCID < 0)
     theHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(theHCID, theHC);
-  
 }
 
-G4bool FiberSD::ProcessHits(G4Step * aStep, G4TouchableHistory*) {
-
+G4bool FiberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   //std::vector<HFShower::Hit> hits = theShower->getHits(aStep);
   double zoffset = 1000;
-  std::vector<HFShower::Hit> hits = theShower->getHits(aStep,true,zoffset);
+  std::vector<HFShower::Hit> hits = theShower->getHits(aStep, true, zoffset);
 
-  
   if (!hits.empty()) {
     std::vector<HFShowerPhoton> thePE;
-    for (unsigned int i=0; i<hits.size(); i++) {
+    for (unsigned int i = 0; i < hits.size(); i++) {
       //std::cout<<"hit position z "<<hits[i].position.z()<<std::endl;
-      HFShowerPhoton pe = HFShowerPhoton(hits[i].position.x(), 
-					 hits[i].position.y(), 
-					 hits[i].position.z(), 
-					 hits[i].wavelength, hits[i].time);
+      HFShowerPhoton pe = HFShowerPhoton(
+          hits[i].position.x(), hits[i].position.y(), hits[i].position.z(), hits[i].wavelength, hits[i].time);
       thePE.push_back(pe);
     }
     int trackID = aStep->GetTrack()->GetTrackID();
     G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
     const G4VTouchable* touch = preStepPoint->GetTouchable();
     G4LogicalVolume* lv = touch->GetVolume(0)->GetLogicalVolume();
-    int depth = (touch->GetReplicaNumber(0))%10;
+    int depth = (touch->GetReplicaNumber(0)) % 10;
     int detID = setDetUnitId(aStep);
-    math::XYZPoint theHitPos(preStepPoint->GetPosition().x(),
-			     preStepPoint->GetPosition().y(),
-			     preStepPoint->GetPosition().z());
+    math::XYZPoint theHitPos(
+        preStepPoint->GetPosition().x(), preStepPoint->GetPosition().y(), preStepPoint->GetPosition().z());
     //std::cout<<"presteppoint position z "<<preStepPoint->GetPosition().z()<<std::endl;
-    
-    FiberG4Hit *aHit = new FiberG4Hit(lv, detID, depth, trackID);
-    std::cout<<"hit size "<<hits.size()<<"  npe"<<aHit->npe()<<std::endl;
-    std::cout<<"pre hit position "<<aHit->hitPos()<<std::endl;
+
+    FiberG4Hit* aHit = new FiberG4Hit(lv, detID, depth, trackID);
+    std::cout << "hit size " << hits.size() << "  npe" << aHit->npe() << std::endl;
+    std::cout << "pre hit position " << aHit->hitPos() << std::endl;
     aHit->setNpe(hits.size());
     aHit->setPos(theHitPos);
     aHit->setTime(preStepPoint->GetGlobalTime());
     aHit->setPhoton(thePE);
-    std::cout<<"ShowerPhoton position "<<thePE[0].x()<<" "<<thePE[0].y()<<" "<<thePE[0].z()<<std::endl;
+    std::cout << "ShowerPhoton position " << thePE[0].x() << " " << thePE[0].y() << " " << thePE[0].z() << std::endl;
 
-    LogDebug("FiberSim") << "FiberSD: Hit created at " << lv->GetName()
-			 << " DetID: " << aHit->towerId() << " Depth: " 
-			 << aHit->depth() << " Track ID: " << aHit->trackId() 
-			 << " Nb. of Cerenkov Photons: " << aHit->npe()
-			 << " Time: " << aHit->time() << " at " 
-			 << aHit->hitPos();
-    for (unsigned int i=0; i<thePE.size(); i++) 
+    LogDebug("FiberSim") << "FiberSD: Hit created at " << lv->GetName() << " DetID: " << aHit->towerId()
+                         << " Depth: " << aHit->depth() << " Track ID: " << aHit->trackId()
+                         << " Nb. of Cerenkov Photons: " << aHit->npe() << " Time: " << aHit->time() << " at "
+                         << aHit->hitPos();
+    for (unsigned int i = 0; i < thePE.size(); i++)
       LogDebug("FiberSim") << "FiberSD: PE[" << i << "] " << thePE[i];
 
     theHC->insert(aHit);
@@ -95,47 +84,45 @@ G4bool FiberSD::ProcessHits(G4Step * aStep, G4TouchableHistory*) {
   return true;
 }
 
-void FiberSD::EndOfEvent(G4HCofThisEvent * HCE) {
- 
+void FiberSD::EndOfEvent(G4HCofThisEvent* HCE) {
   LogDebug("FiberSim") << "FiberSD: Sees" << theHC->entries() << " hits";
   clear();
-  std::cout<<"theHC entries = "<<theHC->entries()<<std::endl;
+  std::cout << "theHC entries = " << theHC->entries() << std::endl;
 }
 
 void FiberSD::clear() {}
 
-void FiberSD::DrawAll()  {}
+void FiberSD::DrawAll() {}
 
 void FiberSD::PrintAll() {}
 
-void FiberSD::update(const BeginOfJob * job) {
-
+void FiberSD::update(const BeginOfJob* job) {
   const edm::EventSetup* es = (*job)();
-  edm::ESHandle<HcalDDDSimConstants>    hdc;
+  edm::ESHandle<HcalDDDSimConstants> hdc;
   es->get<HcalSimNumberingRecord>().get(hdc);
   if (hdc.isValid()) {
     theShower->initRun(hdc.product());
   } else {
     edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimConstant";
-    throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant" << "\n";
+    throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant"
+                                              << "\n";
   }
-
 }
 
-void FiberSD::update(const BeginOfRun *) {}
+void FiberSD::update(const BeginOfRun*) {}
 
-void FiberSD::update(const BeginOfEvent *) {}
+void FiberSD::update(const BeginOfEvent*) {}
 
-void FiberSD::update(const ::EndOfEvent *) {}
+void FiberSD::update(const ::EndOfEvent*) {}
 
 void FiberSD::clearHits() {}
 
 uint32_t FiberSD::setDetUnitId(const G4Step* aStep) {
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  int fibre = (touch->GetReplicaNumber(1))%10;
-  int cell  = (touch->GetReplicaNumber(2));
+  int fibre = (touch->GetReplicaNumber(1)) % 10;
+  int cell = (touch->GetReplicaNumber(2));
   int tower = (touch->GetReplicaNumber(3));
-  return ((tower*1000+cell)*10+fibre);
+  return ((tower * 1000 + cell) * 10 + fibre);
 }
 
 void FiberSD::fillHits(edm::PCaloHitContainer&, const std::string&) {}

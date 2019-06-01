@@ -7,7 +7,6 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
-
 typedef edm::SortedCollection<FTLRecHit> FTLRecHitCollection;
 typedef edm::Ref<FTLRecHitCollection> FTLRecHitRef;
 typedef edm::RefVector<FTLRecHitCollection> FTLRecHitRefs;
@@ -17,6 +16,5 @@ typedef edm::SortedCollection<FTLUncalibratedRecHit> FTLUncalibratedRecHitCollec
 typedef edm::Ref<FTLUncalibratedRecHitCollection> FTLUncalibratedRecHitRef;
 typedef edm::RefVector<FTLUncalibratedRecHitCollection> FTLUncalibratedRecHitRefs;
 typedef edm::RefProd<FTLUncalibratedRecHitCollection> FTLUncalibratedRecHitsRef;
-
 
 #endif

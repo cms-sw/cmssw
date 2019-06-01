@@ -42,6 +42,9 @@ class Eras (object):
                  'Phase2C6',
                  'Phase2C6_timing',
                  'Phase2C4_timing_layer_bar',
+                 'Phase2C8',
+                 'Phase2C8_timing',
+                 'Phase2C8_timing_layer_bar',
         ]
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',
@@ -54,28 +57,33 @@ class Eras (object):
                            'phase1Pixel', 'run3_GEM', 'run2_GEM_2017',
                            'run2_CSC_2018',
                            'phase2_common', 'phase2_tracker',
-                           'phase2_hgcal', 'phase2_muon', 'phase2_timing', 'phase2_hgcalV9', 'phase2_hfnose', 
+                           'phase2_hgcal', 'phase2_muon', 'phase2_timing', 'phase2_hgcalV9', 'phase2_hfnose', 'phase2_hgcalV10',
                            'phase2_timing_layer','phase2_timing_layer_tile','phase2_timing_layer_bar','phase2_hcal',
                            'trackingLowPU', 'trackingPhase1', 'ctpps_2016', 'trackingPhase2PU140','highBetaStar_2018',
                            'tracker_apv_vfp30_2016', 'pf_badHcalMitigation', 'run2_miniAOD_80XLegacy','run2_miniAOD_94XFall17', 'run2_nanoAOD_92X',
                            'run2_nanoAOD_94XMiniAODv1', 'run2_nanoAOD_94XMiniAODv2', 'run2_nanoAOD_94X2016',
                            'run2_miniAOD_devel', 'run2_nanoAOD_102Xv1',
                            'hcalHardcodeConditions', 'hcalSkipPacker',
+                           'run2_HLTconditions_2016','run2_HLTconditions_2017','run2_HLTconditions_2018',
                            'bParking']
         internalUseModChains = ['run2_2017_noTrackingModifier']
 
+        self.pythonCfgLines = {}
 
         for e in allEras:
             eObj=getattr(__import__('Configuration.Eras.Era_'+e+'_cff',globals(),locals(),[e],0),e)
             self.addEra(e,eObj)
+            self.pythonCfgLines[e] = 'from Configuration.Eras.Era_'+e+'_cff import '+e
 
         for e in internalUseMods:
             eObj=getattr(__import__('Configuration.Eras.Modifier_'+e+'_cff',globals(),locals(),[e],0),e)
             self.addEra(e,eObj)
+            self.pythonCfgLines[e] = 'from Configuration.Eras.Modifier_'+e+'_cff import '+e
 
         for e in internalUseModChains:
             eObj=getattr(__import__('Configuration.Eras.ModifierChain_'+e+'_cff',globals(),locals(),[e],0),e)
             self.addEra(e,eObj)
+            self.pythonCfgLines[e] = 'from Configuration.Eras.ModifierChain_'+e+'_cff import '+e
 
 
     def addEra(self,name,obj):
@@ -86,7 +94,7 @@ class Eras (object):
 
     def inspectEra(self,e,details):
         print('\nEra:',e)
-        print('   isChosen:',getattr(self,e).isChosen())
+        print('   isChosen:',getattr(self,e)._isChosen())
         if details: print('   Modifiers:')
         nmod=0
         for value in getattr(self,e).__dict__['_ModifierChain__chain']:

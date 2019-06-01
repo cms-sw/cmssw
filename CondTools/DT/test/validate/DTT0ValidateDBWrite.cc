@@ -4,7 +4,4 @@
 
 typedef popcon::PopConAnalyzer<DTT0ValidateHandler> DTT0ValidateDBWrite;
 
-
 DEFINE_FWK_MODULE(DTT0ValidateDBWrite);
-
-

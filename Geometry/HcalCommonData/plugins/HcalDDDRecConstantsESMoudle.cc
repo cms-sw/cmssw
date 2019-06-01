@@ -2,7 +2,7 @@
 //
 // Package:    HcalDDDRecConstantsESModule
 // Class:      HcalDDDRecConstantsESModule
-// 
+//
 /**\class HcalDDDRecConstantsESModule HcalDDDRecConstantsESModule.h Geometry/HcalCommonData/interface/HcalDDDRecConstantsESModule.h
 
  Description: <one line class summary>
@@ -17,14 +17,12 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include <FWCore/Framework/interface/ModuleFactory.h>
 #include <FWCore/Framework/interface/ESProducer.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <CondFormats/GeometryObjects/interface/HcalParameters.h>
@@ -35,45 +33,46 @@
 //#define EDM_ML_DEBUG
 
 class HcalDDDRecConstantsESModule : public edm::ESProducer {
-
 public:
   HcalDDDRecConstantsESModule(const edm::ParameterSet&);
   ~HcalDDDRecConstantsESModule() override;
 
   using ReturnType = std::unique_ptr<HcalDDDRecConstants>;
 
-  static void fillDescriptions( edm::ConfigurationDescriptions & );
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   ReturnType produce(const HcalRecNumberingRecord&);
 
+private:
+  edm::ESGetToken<HcalParameters, HcalParametersRcd> parToken_;
+  edm::ESGetToken<HcalDDDSimConstants, HcalSimNumberingRecord> hdcToken_;
 };
 
 HcalDDDRecConstantsESModule::HcalDDDRecConstantsESModule(const edm::ParameterSet& iConfig) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") <<"constructing HcalDDDRecConstantsESModule";
+  edm::LogVerbatim("HcalGeom") << "constructing HcalDDDRecConstantsESModule";
 #endif
-  setWhatProduced(this);
+  auto cc = setWhatProduced(this);
+  parToken_ = cc.consumesFrom<HcalParameters, HcalParametersRcd>(edm::ESInputTag{});
+  hdcToken_ = cc.consumesFrom<HcalDDDSimConstants, HcalSimNumberingRecord>(edm::ESInputTag{});
 }
 
 HcalDDDRecConstantsESModule::~HcalDDDRecConstantsESModule() {}
 
-void HcalDDDRecConstantsESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) {
+void HcalDDDRecConstantsESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.add( "hcalDDDRecConstants", desc );
+  descriptions.add("hcalDDDRecConstants", desc);
 }
 
 // ------------ method called to produce the data  ------------
-HcalDDDRecConstantsESModule::ReturnType
-HcalDDDRecConstantsESModule::produce(const HcalRecNumberingRecord& iRecord) {
+HcalDDDRecConstantsESModule::ReturnType HcalDDDRecConstantsESModule::produce(const HcalRecNumberingRecord& iRecord) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalGeom") << "in HcalDDDRecConstantsESModule::produce";
 #endif
-  edm::ESHandle<HcalParameters>         parHandle;
-  iRecord.getRecord<HcalParametersRcd>().get(parHandle);
-  edm::ESHandle<HcalDDDSimConstants>    hdc;
-  iRecord.getRecord<HcalSimNumberingRecord>().get(hdc);
+  const auto& par = iRecord.get(parToken_);
+  const auto& hdc = iRecord.get(hdcToken_);
 
-  return std::make_unique<HcalDDDRecConstants>(&(*parHandle), *hdc);
+  return std::make_unique<HcalDDDRecConstants>(&par, hdc);
 }
 
 //define this as a plug-in

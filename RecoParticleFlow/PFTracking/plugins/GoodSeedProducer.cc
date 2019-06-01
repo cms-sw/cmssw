@@ -23,7 +23,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"  
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CommonTools/MVAUtils/interface/GBRForestTools.h"
@@ -243,9 +243,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 						      Tk[i].outerPosition().z(),
 						      0.);
 
-	  BaseParticlePropagator theOutParticle( RawParticle(mom,pos),
+	  BaseParticlePropagator theOutParticle( RawParticle(mom,pos, Tk[i].charge()),
 				    0,0,B_.z());
-	  theOutParticle.setCharge(Tk[i].charge());
       
 	  theOutParticle.propagateToEcalEntrance(false);
       
@@ -261,9 +260,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  PFClusterRef clusterRef;
 	  math::XYZPoint meanShowerSaved;
 	  if(theOutParticle.getSuccess()!=0){
-	     ElecTrkEcalPos=GlobalPoint(theOutParticle.vertex().x(),
-			       	        theOutParticle.vertex().y(),
-					theOutParticle.vertex().z()
+	     ElecTrkEcalPos=GlobalPoint(theOutParticle.particle().vertex().x(),
+			       	        theOutParticle.particle().vertex().y(),
+					theOutParticle.particle().vertex().z()
                                        );
 
             constexpr float psLim = 2.50746495928f; // std::sinh(1.65f);
@@ -281,7 +280,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 		= PFCluster::getDepthCorrection(aClus->correctedEnergy(),
 						isBelowPS,
 						false);
-	      auto mom = theOutParticle.momentum().Vect();
+	      auto mom = theOutParticle.particle().momentum().Vect();
 	      auto meanShower = ElecTrkEcalPos +
 		GlobalVector(mom.x(),mom.y(),mom.z()).unit()*ecalShowerDepth;	
 	  

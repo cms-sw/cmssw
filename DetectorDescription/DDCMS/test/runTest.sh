@@ -5,7 +5,7 @@ function die { echo $1: status $2 ; exit $2; }
 F1=${LOCAL_TEST_DIR}/python/dump.py
 F2=${LOCAL_TEST_DIR}/python/dumpDDShapes.py
 F3=${LOCAL_TEST_DIR}/python/dumpMFGeometry.py
-F4=${LOCAL_TEST_DIR}/python/testDDAngularAlgorithm.py
+F4=${LOCAL_TEST_DIR}/python/dumpMuonGeometry.py
 F5=${LOCAL_TEST_DIR}/python/testDDAngularAlgorithm.py
 F6=${LOCAL_TEST_DIR}/python/testDDDetectorESProducer.py
 F7=${LOCAL_TEST_DIR}/python/testDDPseudoTrapShapes.py
@@ -16,7 +16,13 @@ F11=${LOCAL_TEST_DIR}/python/testMuonGeometry.py
 F12=${LOCAL_TEST_DIR}/python/testShapes.py
 F13=${LOCAL_TEST_DIR}/python/testNavigateGeometry.py
 F14=${LOCAL_TEST_DIR}/python/testTGeoIterator.py
- 
+F15=${LOCAL_TEST_DIR}/python/testDDSpecParsFilterG4ProdCuts.py
+F16=${LOCAL_TEST_DIR}/python/testDDSpecParsFilter.py
+F17=${LOCAL_TEST_DIR}/python/testMuonNumbering.py
+F18=${LOCAL_TEST_DIR}/python/testDDHGCalCellAlgorithm.py
+F19=${LOCAL_TEST_DIR}/python/testDDCompactView.py
+F20=${LOCAL_TEST_DIR}/python/testDDGEMAngularAlgorithm.py
+
 echo " testing DetectorDescription/DDCMS"
 
 export tmpdir=${LOCAL_TMP_DIR:-/tmp}
@@ -28,7 +34,7 @@ echo "===== Test \"cmsRun dumpDDShapes.py\" ===="
 (cmsRun $F2) || die "Failure using cmsRun $F2" $?
 echo "===== Test \"cmsRun dumpMFGeometry.py\" ===="
 (cmsRun $F3) || die "Failure using cmsRun $F3" $?
-echo "===== Test \"cmsRun testDDAngularAlgorithm.py\" ===="
+echo "===== Test \"cmsRun dumpMuonGeometry.py\" ===="
 (cmsRun $F4) || die "Failure using cmsRun $F4" $?
 echo "===== Test \"cmsRun testDDAngularAlgorithm.py\" ===="
 (cmsRun $F5) || die "Failure using cmsRun $F5" $?
@@ -50,3 +56,15 @@ echo "===== Test \"cmsRun testNavigateGeometry.py\" ===="
 (cmsRun $F13) || die "Failure using cmsRun $F13" $?
 echo "===== Test \"cmsRun testTGeoIterator.py\" ===="
 (cmsRun $F14) || die "Failure using cmsRun $F14" $?
+echo "===== Test \"cmsRun testDDSpecParsFilterG4ProdCuts.py\" ===="
+(cmsRun $F15) || die "Failure using cmsRun $F15" $?
+echo "===== Test \"cmsRun testDDSpecParsFilter.py\" ===="
+(cmsRun $F16) || die "Failure using cmsRun $F16" $?
+echo "===== Test \"cmsRun testMuonNumbering.py\" ===="
+(cmsRun $F17) || die "Failure using cmsRun $F17" $?
+echo "===== Test \"cmsRun testDDHGCalCellAlgorithm.py\" ===="
+(cmsRun $F18) || die "Failure using cmsRun $F18" $?
+echo "===== Test \"cmsRun testDDCompactView.py\" ===="
+(cmsRun $F19) || die "Failure using cmsRun $F19" $?
+echo "===== Test \"cmsRun testDDGEMAngularAlgorithm.py\" ===="
+(cmsRun $F20) || die "Failure using cmsRun $F20" $?

@@ -3,9 +3,9 @@
 # Slava Valuev; October, 2006.
 
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("CSCTPEmulator", eras.Run2_2018)
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process("CSCTPEmulator", Run2_2018)
 
 process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(10000)

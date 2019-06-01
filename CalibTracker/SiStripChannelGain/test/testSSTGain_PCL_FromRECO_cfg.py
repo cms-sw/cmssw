@@ -4,7 +4,6 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import os
 
-from Configuration.StandardSequences.Eras import eras
 import Utilities.General.cmssw_das_client as das_client
 
 ###################################################################

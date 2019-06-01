@@ -24,7 +24,7 @@ class RunMerge:
         self.inputFiles = []
         self.newDQMIO = False
         self.mergeNANO = False
-        self.bypassVersionCheck = True
+        self.bypassVersionCheck = False
         
 
     def __call__(self):

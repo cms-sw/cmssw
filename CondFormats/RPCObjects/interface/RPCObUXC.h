@@ -13,21 +13,20 @@
 #include <vector>
 
 class RPCObUXC {
-    public:
-      struct Item {
-        float temperature;
-        float pressure;
-        float dewpoint;
-	int unixtime;
-      
-  COND_SERIALIZABLE;
-};
-    RPCObUXC(){}
-    virtual ~RPCObUXC(){}
-    std::vector<Item>  ObUXC_rpc;
-   
+public:
+  struct Item {
+    float temperature;
+    float pressure;
+    float dewpoint;
+    int unixtime;
+
+    COND_SERIALIZABLE;
+  };
+  RPCObUXC() {}
+  virtual ~RPCObUXC() {}
+  std::vector<Item> ObUXC_rpc;
+
   COND_SERIALIZABLE;
 };
 
 #endif
-

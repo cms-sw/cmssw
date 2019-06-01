@@ -60,6 +60,107 @@ namespace test {
        assert(hp.numberOfValidTimingHits() == 1);
     }
     
+    {
+      uint16_t oldHitPattern[50]  = {20113,
+                                     44149,
+                                     2321,
+                                     19529,
+                                     37506,
+                                     34993,
+                                     11429,
+                                     12644,
+                                     23051,
+                                     13124,
+                                     26,
+                                     0};
+
+
+      uint8_t hitCount = 15;
+      uint8_t beginTrackHits = 3;
+      uint8_t endTrackHits = 15;
+      uint8_t beginInner = 0;
+      uint8_t endInner = 0;
+      uint8_t beginOuter = 0;
+      uint8_t endOuter = 3;
+      
+      HitPattern hp;
+      HitPattern::fillNewHitPatternWithOldHitPattern_v12(oldHitPattern, hitCount,
+                                                         beginTrackHits, endTrackHits,
+                                                         beginInner, endInner,
+                                                         beginOuter, endOuter,
+                                                         &hp);
+
+      assert(hp.numberOfValidTrackerHits() ==12 );                         
+      assert(hp.numberOfValidPixelHits() == 4);                           
+      assert(hp.numberOfValidPixelBarrelHits() == 4 );                     
+      assert(hp.numberOfValidPixelEndcapHits() == 0);                     
+      assert(hp.numberOfValidStripHits() == 8 );                           
+      assert(hp.numberOfValidStripTIBHits() == 6);                        
+      assert(hp.numberOfValidStripTIDHits() == 0);                        
+      assert(hp.numberOfValidStripTOBHits() == 2);                        
+      assert(hp.numberOfValidStripTECHits() == 0);                        
+
+      assert(hp.numberOfTimingHits() == 0);         
+      assert(hp.numberOfValidTimingHits() ==  0);    
+      assert(hp.numberOfValidTimingBTLHits() == 0 );       
+      assert(hp.numberOfValidTimingETLHits() == 0);       
+
+      assert(hp.numberOfLostTimingHits() == 0 );     
+      assert(hp.numberOfLostTimingBTLHits() == 0);  
+      assert(hp.numberOfLostTimingETLHits() == 0 );  
+    
+      assert(hp.numberOfMuonHits() == 0);             
+      assert(hp.numberOfValidMuonHits() == 0);        
+      assert(hp.numberOfValidMuonDTHits() == 0);      
+      assert(hp.numberOfValidMuonCSCHits() == 0); //20     
+      assert(hp.numberOfValidMuonRPCHits() == 0);     
+      assert(hp.numberOfValidMuonGEMHits() == 0);     
+      assert(hp.numberOfValidMuonME0Hits() == 0);     
+
+      assert(hp.numberOfLostMuonHits() == 0);         
+      assert(hp.numberOfLostMuonDTHits() == 0);       
+      assert(hp.numberOfLostMuonCSCHits() == 0);      
+      assert(hp.numberOfLostMuonRPCHits() == 0);      
+      assert(hp.numberOfLostMuonGEMHits() == 0);      
+      assert(hp.numberOfLostMuonME0Hits() == 0);      
+
+      assert(hp.numberOfBadHits() == 0); // 30             
+      assert(hp.numberOfBadMuonHits() == 0);          
+      assert(hp.numberOfBadMuonDTHits() == 0);        
+      assert(hp.numberOfBadMuonCSCHits() == 0);       
+      assert(hp.numberOfBadMuonRPCHits() == 0);       
+      assert(hp.numberOfBadMuonGEMHits() == 0);       
+      assert(hp.numberOfBadMuonME0Hits() == 0);       
+
+      assert(hp.numberOfInactiveHits() == 0);         
+      assert(hp.numberOfInactiveTrackerHits() == 0);  
+      //assert(hp.numberOfInactiveTimingHits() );   
+
+      assert(hp.numberOfValidStripLayersWithMonoAndStereo() == 3);
+
+      assert(hp.trackerLayersWithMeasurementOld() == 9); //40        
+      assert(hp.trackerLayersWithMeasurement() == 9 );        
+      assert(hp.pixelLayersWithMeasurementOld() == 4);          
+      assert(hp.pixelLayersWithMeasurement() == 4);          
+      assert(hp.stripLayersWithMeasurement() == 5);          
+      assert(hp.pixelBarrelLayersWithMeasurement() == 4);    
+      assert(hp.pixelEndcapLayersWithMeasurement() == 0 );    
+      assert(hp.stripTIBLayersWithMeasurement() == 4);       
+      assert(hp.stripTIDLayersWithMeasurement() == 0 );       
+      assert(hp.stripTOBLayersWithMeasurement() == 1);       
+      assert(hp.stripTECLayersWithMeasurement() == 0); //50       
+
+      assert(hp.trackerLayersNull() ==20);                   
+      assert(hp.pixelLayersNull() == 3);                     
+      assert(hp.stripLayersNull() == 17);                     
+      assert(hp.pixelBarrelLayersNull() == 0);               
+      assert(hp.pixelEndcapLayersNull() == 3);               
+      assert(hp.stripTIBLayersNull() == 0);                  
+      assert(hp.stripTIDLayersNull() == 3);                  
+      assert(hp.stripTOBLayersNull() == 5);                  
+      assert(hp.stripTECLayersNull() == 9);                  
+
+    }
     
     
         HitPattern hp1;

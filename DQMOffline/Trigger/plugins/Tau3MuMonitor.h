@@ -32,39 +32,39 @@ struct MEbinning {
   double xmax;
 };
 
-class Tau3MuMonitor : public DQMEDAnalyzer 
-{
-  public:
-    Tau3MuMonitor( const edm::ParameterSet& );
-    ~Tau3MuMonitor() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
-  
-  protected:  
-    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;  
-    void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
-  
-  private:
-    static MEbinning getHistoPSet   (edm::ParameterSet pset);
-  
-    std::string folderName_;
-    
-    bool validProduct_ = true; // internally store a flag to remember whether the needed tau3mu collection is present and valid
-  
-    edm::EDGetTokenT<reco::CompositeCandidateCollection> tauToken_; // tau 3 mu collection
-  
-    MonitorElement* tau1DPt_    ; // 1D tau pt histogram
-    MonitorElement* tau1DEta_   ; // 1D tau eta histogram
-    MonitorElement* tau1DPhi_   ; // 1D tau phi histogram
-    MonitorElement* tau1DMass_  ; // 1D tau mass histogram
-    MonitorElement* tau2DEtaPhi_; // 2D tau eta vs phi histogram
+class Tau3MuMonitor : public DQMEDAnalyzer {
+public:
+  Tau3MuMonitor(const edm::ParameterSet&);
+  ~Tau3MuMonitor() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillHistoPSetDescription(edm::ParameterSetDescription& pset);
 
-    MEbinning pt_binning_  ; // for the 1D tau pt histogram
-    MEbinning eta_binning_ ; // for the 1D tau eta histogram and 2D tau eta vs phi histogram
-    MEbinning phi_binning_ ; // for the 1D tau phi histogram and 2D tau eta vs phi histogram
-    MEbinning mass_binning_; // for the 1D tau mass histogram
-      
-    std::unique_ptr<GenericTriggerEventFlag> genTriggerEventFlag_; // "is trigger fired?" flag
+protected:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+
+private:
+  static MEbinning getHistoPSet(edm::ParameterSet pset);
+
+  std::string folderName_;
+
+  bool validProduct_ =
+      true;  // internally store a flag to remember whether the needed tau3mu collection is present and valid
+
+  edm::EDGetTokenT<reco::CompositeCandidateCollection> tauToken_;  // tau 3 mu collection
+
+  MonitorElement* tau1DPt_;      // 1D tau pt histogram
+  MonitorElement* tau1DEta_;     // 1D tau eta histogram
+  MonitorElement* tau1DPhi_;     // 1D tau phi histogram
+  MonitorElement* tau1DMass_;    // 1D tau mass histogram
+  MonitorElement* tau2DEtaPhi_;  // 2D tau eta vs phi histogram
+
+  MEbinning pt_binning_;    // for the 1D tau pt histogram
+  MEbinning eta_binning_;   // for the 1D tau eta histogram and 2D tau eta vs phi histogram
+  MEbinning phi_binning_;   // for the 1D tau phi histogram and 2D tau eta vs phi histogram
+  MEbinning mass_binning_;  // for the 1D tau mass histogram
+
+  std::unique_ptr<GenericTriggerEventFlag> genTriggerEventFlag_;  // "is trigger fired?" flag
 };
 
-#endif // DQMOFFLINE_TRIGGER_TAU3MUMONITOR_H
+#endif  // DQMOFFLINE_TRIGGER_TAU3MUMONITOR_H

@@ -86,7 +86,7 @@ def getHighMultVPSet():
         partialPathName = "HLT_PixelTracks_Multiplicity"+str(t)+"_v"
         tracksL = 0
         tracksH = 200
-        tracksBins = (tracksH-tracksL)/5
+        tracksBins = (tracksH-tracksL)//5
         tracksCount  =  cms.PSet(
                 triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("RecoTrackCounterWithVertexConstraint"),
@@ -168,7 +168,7 @@ def getHighMultVPSet():
                 combinedObjectSortCriteria = cms.string("at(0).pt"),
                 combinedObjectDimension = cms.int32(1),
                 combinedObjectDrawables =  cms.VPSet(
-                    cms.PSet (name = cms.string("pt"), expression = cms.string("at(0).pt"), bins = cms.int32(256/4), min = cms.double(0), max = cms.double(256)),
+                    cms.PSet (name = cms.string("pt"), expression = cms.string("at(0).pt"), bins = cms.int32(256//4), min = cms.double(0), max = cms.double(256)),
                 )
         )
         ret.append(l1) 
@@ -195,7 +195,7 @@ def getPTAveVPSet(thresholds = [30, 60, 80, 100, 160, 220, 300], flavour="HFJEC"
             #partialPathName = "HLT_DiPFJetAve"+ str(t) +"_HFJEC_"
             partialPathName = "HLT_DiPFJetAve"+ str(t)+"_" + flavour + "_v"
 
-            ptBinLow  = t/2
+            ptBinLow  = t//2
             ptBinHigh = max(100, t*2)
             ptBins = min(100, ptBinHigh-ptBinLow)
 
@@ -233,8 +233,8 @@ def getPTAveVPSet(thresholds = [30, 60, 80, 100, 160, 220, 300], flavour="HFJEC"
                 combinedObjectSortCriteria = cms.string("at(0).pt"),
                 combinedObjectDimension = cms.int32(1),
                 combinedObjectDrawables =  cms.VPSet(
-                    cms.PSet (name = cms.string("pt"), expression = cms.string("at(0).pt"), bins = cms.int32(256/4), min = cms.double(0), max = cms.double(256)),
-                    cms.PSet (name = cms.string("eta"), expression = cms.string("at(0).eta"), bins = cms.int32(104/4), min = cms.double(-5.2), max = cms.double(5.2))
+                    cms.PSet (name = cms.string("pt"), expression = cms.string("at(0).pt"), bins = cms.int32(256//4), min = cms.double(0), max = cms.double(256)),
+                    cms.PSet (name = cms.string("eta"), expression = cms.string("at(0).eta"), bins = cms.int32(104//4), min = cms.double(-5.2), max = cms.double(5.2))
                 )
             )
             ret.append(l1)
@@ -317,7 +317,7 @@ def getPTAveVPSet(thresholds = [30, 60, 80, 100, 160, 220, 300], flavour="HFJEC"
             )
             ret.append(recoPF) 
             '''
-            recoThr = t/2
+            recoThr = t//2
             recoPFtopology  =  cms.PSet(
                 triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("RecoPFJetWithJEC"),
@@ -363,7 +363,7 @@ def getPTAveVPSet(thresholds = [30, 60, 80, 100, 160, 220, 300], flavour="HFJEC"
 
             # RecoCandidateCounter
             ''' example on how to count objects
-            recoThr = t/2
+            recoThr = t//2
             recoPFJetCnt  =  cms.PSet(
                 triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("RecoCandidateCounter"),
@@ -415,9 +415,9 @@ def getSinglePFJet(thresholds, flavour=None, etaMin=-1, srcType="genJets", parti
             partialPathNameLoc += flavour+"_"
         partialPathNameLoc += "v"
 
-        marginLow = max(t-t/2, 15)
+        marginLow = max(t-t//2, 15)
         ptBinLow  = max(t-marginLow,0)
-        marginHigh =  min(max(t/2, 20), 50)
+        marginHigh =  min(max(t//2, 20), 50)
         ptBinHigh = t+marginHigh
         ptBins = min(100, ptBinHigh-ptBinLow)
         fromJets =  cms.PSet(
@@ -495,9 +495,9 @@ def getDoublePFJet(thresholds, flavour=None, etaMin=-1, srcType="genJets" ):
             partialPathName += flavour+"_"
         partialPathName += "v"
 
-        marginLow = max(t-t/2, 15)
+        marginLow = max(t-t//2, 15)
         ptBinLow  = max(t-marginLow,0)
-        marginHigh =  min(max(t/3, 15), 50)
+        marginHigh =  min(max(t//3, 15), 50)
         ptBinHigh = t+marginHigh
         ptBins = min(100, ptBinHigh-ptBinLow)
         fromJets =  cms.PSet(

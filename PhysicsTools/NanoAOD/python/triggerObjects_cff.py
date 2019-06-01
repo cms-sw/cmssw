@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
+from PhysicsTools.NanoAOD.common_cff import ExtVar
 import copy
 
 unpackedPatTrigger = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
@@ -39,8 +43,9 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
                               "64*filter('*OverlapFilterIsoEle*PFTau*') + " \
                               "128*filter('hltEle*Ele*Ele*CaloIdLTrackIdLDphiLeg*Filter') + " \
                               "256*max(filter('hltL3fL1Mu*DoubleEG*Filtered*'),filter('hltMu*DiEle*CaloIdLTrackIdLElectronleg*Filter')) + " \
-                              "512*max(filter('hltL3fL1DoubleMu*EG*Filter*'),filter('hltDiMu*Ele*CaloIdLTrackIdLElectronleg*Filter'))"),
-            qualityBitsDoc = cms.string("1 = CaloIdL_TrackIdL_IsoVL, 2 = 1e (WPTight), 4 = 1e (WPLoose), 8 = OverlapFilter PFTau, 16 = 2e, 32 = 1e-1mu, 64 = 1e-1tau, 128 = 3e, 256 = 2e-1mu, 512 = 1e-2mu"),
+                              "512*max(filter('hltL3fL1DoubleMu*EG*Filter*'),filter('hltDiMu*Ele*CaloIdLTrackIdLElectronleg*Filter')) + " \
+                              "1024*min(filter('hltEle32L1DoubleEGWPTightGsfTrackIsoFilter'),filter('hltEGL1SingleEGOrFilter'))"),
+            qualityBitsDoc = cms.string("1 = CaloIdL_TrackIdL_IsoVL, 2 = 1e (WPTight), 4 = 1e (WPLoose), 8 = OverlapFilter PFTau, 16 = 2e, 32 = 1e-1mu, 64 = 1e-1tau, 128 = 3e, 256 = 2e-1mu, 512 = 1e-2mu, 1024 = 1e (32_L1DoubleEG_AND_L1SingleEGOr)"),
             ),
         cms.PSet(
             name = cms.string("Photon (PixelMatch-vetoed e/gamma)"), 
@@ -153,9 +158,26 @@ for sel in selections80X:
         sel.qualityBits = cms.string("filter('*CaloIdLTrackIdLIsoVL*TrackIso*Filter') + 2*filter('hltEle*WPTight*TrackIsoFilter*') + 4*filter('hltEle*WPLoose*TrackIsoFilter') + 8*filter('*OverlapFilter*IsoEle*PFTau*')")
         #sel.qualityBitsDoc = cms.string("1 = CaloIdL_TrackIdL_IsoVL, 2 = WPLoose, 4 = WPTight, 8 = OverlapFilter PFTau")
 
-run2_miniAOD_80XLegacy.toModify(
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify(
   triggerObjectTable,
   selections = selections80X
 )
 
+from PhysicsTools.PatUtils.L1ECALPrefiringWeightProducer_cff import prefiringweight
+for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
+    modifier.toModify(prefiringweight, DataEra = cms.string("2016BtoH"))
+
+l1PreFiringEventWeightTable = cms.EDProducer("GlobalVariablesTableProducer",
+    variables = cms.PSet(
+        L1PreFiringWeight_Nom = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProb"), "double", doc = "L1 pre-firing event correction weight (1-probability)", precision=8),
+        L1PreFiringWeight_Up = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbUp"), "double", doc = "L1 pre-firing event correction weight (1-probability), up var.", precision=8),
+        L1PreFiringWeight_Dn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbDown"), "double", doc = "L1 pre-firing event correction weight (1-probability), down var.", precision=8),
+    )
+)
+
 triggerObjectTables = cms.Sequence( unpackedPatTrigger + triggerObjectTable )
+
+_triggerObjectTables_withL1PreFiring = triggerObjectTables.copy()
+_triggerObjectTables_withL1PreFiring.replace(triggerObjectTable, prefiringweight + l1PreFiringEventWeightTable + triggerObjectTable)
+for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
+    modifier.toReplaceWith(triggerObjectTables, _triggerObjectTables_withL1PreFiring)

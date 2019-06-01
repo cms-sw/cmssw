@@ -1,4 +1,4 @@
-// L1TUtmCutValueRcd                                                                                            
+// L1TUtmCutValueRcd
 // Description: Record for L1TUtmCutValue
 //
 // automatically generate by make_records.pl

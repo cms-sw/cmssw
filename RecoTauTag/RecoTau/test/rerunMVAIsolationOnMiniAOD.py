@@ -41,7 +41,6 @@ process.rerunDiscriminationByIsolationMVArun2v1raw = patDiscriminationByIsolatio
     ## run with new MVA training
     mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1"),
     mvaOpt = cms.string("DBoldDMwLT"),
-    requireDecayMode = cms.bool(True),
     verbosity = cms.int32(0)
 )
 

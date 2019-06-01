@@ -71,172 +71,156 @@
 
 // forward declarations
 
-
 // class declaration
 class L1ExtraDQM : public DQMEDAnalyzer {
+public:
+  // constructor(s)
+  explicit L1ExtraDQM(const edm::ParameterSet&);
+
+  // destructor
+  ~L1ExtraDQM() override;
 
 public:
-
-    // constructor(s)
-    explicit L1ExtraDQM(const edm::ParameterSet&);
+  template <class CollectionType>
+  class L1ExtraMonElement {
+  public:
+    // constructor
+    L1ExtraMonElement(const edm::EventSetup&, const int);
 
     // destructor
-    ~L1ExtraDQM() override;
+    virtual ~L1ExtraMonElement();
 
-public:
+  public:
+    typedef typename CollectionType::const_iterator CIterColl;
 
-    template<class CollectionType>
-    class L1ExtraMonElement {
+    void bookhistograms(const edm::EventSetup& evSetup,
+                        DQMStore::IBooker& ibooker,
+                        const std::string& l1ExtraObject,
+                        const std::vector<L1GtObject>& l1GtObj,
+                        const bool bookPhi = true,
+                        const bool bookEta = true);
 
-    public:
-        // constructor
-        L1ExtraMonElement(const edm::EventSetup&, const int);
+    /// number of objects
+    void fillNrObjects(const CollectionType* collType, const bool validColl, const bool isL1Coll, const int bxInEvent);
 
-        // destructor
-        virtual ~L1ExtraMonElement();
+    /// PT, eta, phi
+    void fillPtPhiEta(const CollectionType* collType,
+                      const bool validColl,
+                      const bool bookPhi,
+                      const bool bookEta,
+                      const bool isL1Coll,
+                      const int bxInEvent);
 
-    public:
-        typedef typename CollectionType::const_iterator CIterColl;
+    /// ET, eta, phi
+    void fillEtPhiEta(const CollectionType* collType,
+                      const bool validColl,
+                      const bool bookPhi,
+                      const bool bookEta,
+                      const bool isL1Coll,
+                      const int bxInEvent);
 
-        void bookhistograms(const edm::EventSetup& evSetup, DQMStore::IBooker &ibooker,
-                const std::string& l1ExtraObject,
-                const std::vector<L1GtObject>& l1GtObj, const bool bookPhi =
-                        true, const bool bookEta = true);
+    /// fill ET total in energy sums
+    void fillEtTotal(const CollectionType* collType, const bool validColl, const bool isL1Coll, const int bxInEvent);
 
-        /// number of objects
-        void fillNrObjects(const CollectionType* collType,
-                const bool validColl, const bool isL1Coll, const int bxInEvent);
+    /// fill charge
+    void fillCharge(const CollectionType* collType, const bool validColl, const bool isL1Coll, const int bxInEvent);
 
-        /// PT, eta, phi
-        void fillPtPhiEta(const CollectionType* collType, const bool validColl,
-                const bool bookPhi, const bool bookEta, const bool isL1Coll,
-                const int bxInEvent);
+    /// fill bit counts in HFRings collections
+    void fillHfBitCounts(const CollectionType* collType,
+                         const bool validColl,
+                         const int countIndex,
+                         const bool isL1Coll,
+                         const int bxInEvent);
 
-        /// ET, eta, phi
-        void fillEtPhiEta(const CollectionType* collType, const bool validColl,
-                const bool bookPhi, const bool bookEta, const bool isL1Coll,
-                const int bxInEvent);
+    /// fill energy sums in HFRings collections
+    void fillHfRingEtSums(const CollectionType* collType,
+                          const bool validColl,
+                          const int countIndex,
+                          const bool isL1Coll,
+                          const int bxInEvent);
 
-        /// fill ET total in energy sums
-        void fillEtTotal(const CollectionType* collType, const bool validColl,
-                const bool isL1Coll, const int bxInEvent);
+  private:
+    std::vector<MonitorElement*> m_monElement;
 
-        /// fill charge
-        void fillCharge(const CollectionType* collType, const bool validColl,
-                const bool isL1Coll, const int bxInEvent);
-
-        /// fill bit counts in HFRings collections
-        void fillHfBitCounts(const CollectionType* collType,
-                const bool validColl, const int countIndex,
-                const bool isL1Coll, const int bxInEvent);
-
-        /// fill energy sums in HFRings collections
-        void fillHfRingEtSums(const CollectionType* collType,
-                const bool validColl, const int countIndex,
-                const bool isL1Coll, const int bxInEvent);
-
-    private:
-
-        std::vector<MonitorElement*> m_monElement;
-
-        /// histogram index for each quantity, set during histogram booking
-        int m_indexNrObjects;
-        int m_indexPt;
-        int m_indexEt;
-        int m_indexPhi;
-        int m_indexEta;
-        int m_indexEtTotal;
-        int m_indexCharge;
-        int m_indexHfBitCounts;
-        int m_indexHfRingEtSums;
-    };
+    /// histogram index for each quantity, set during histogram booking
+    int m_indexNrObjects;
+    int m_indexPt;
+    int m_indexEt;
+    int m_indexPhi;
+    int m_indexEta;
+    int m_indexEtTotal;
+    int m_indexCharge;
+    int m_indexHfBitCounts;
+    int m_indexHfRingEtSums;
+  };
 
 protected:
+  void analyzeL1ExtraMuon(const edm::Event&, const edm::EventSetup&);
+  void analyzeL1ExtraIsoEG(const edm::Event&, const edm::EventSetup&);
+  void analyzeL1ExtraNoIsoEG(const edm::Event&, const edm::EventSetup&);
+  void analyzeL1ExtraCenJet(const edm::Event&, const edm::EventSetup&);
+  void analyzeL1ExtraForJet(const edm::Event&, const edm::EventSetup&);
+  void analyzeL1ExtraTauJet(const edm::Event&, const edm::EventSetup&);
+  void analyzeL1ExtraIsoTauJet(const edm::Event&, const edm::EventSetup&);
+  void analyzeL1ExtraETT(const edm::Event&, const edm::EventSetup&);
+  void analyzeL1ExtraETM(const edm::Event&, const edm::EventSetup&);
+  void analyzeL1ExtraHTT(const edm::Event&, const edm::EventSetup&);
+  void analyzeL1ExtraHTM(const edm::Event&, const edm::EventSetup&);
+  void analyzeL1ExtraHfBitCounts(const edm::Event&, const edm::EventSetup&);
+  void analyzeL1ExtraHfRingEtSums(const edm::Event&, const edm::EventSetup&);
 
-    void analyzeL1ExtraMuon(const edm::Event&, const edm::EventSetup&);
-    void analyzeL1ExtraIsoEG(const edm::Event&, const edm::EventSetup&);
-    void analyzeL1ExtraNoIsoEG(const edm::Event&, const edm::EventSetup&);
-    void analyzeL1ExtraCenJet(const edm::Event&, const edm::EventSetup&);
-    void analyzeL1ExtraForJet(const edm::Event&, const edm::EventSetup&);
-    void analyzeL1ExtraTauJet(const edm::Event&, const edm::EventSetup&);
-    void analyzeL1ExtraIsoTauJet(const edm::Event&, const edm::EventSetup&);
-    void analyzeL1ExtraETT(const edm::Event&, const edm::EventSetup&);
-    void analyzeL1ExtraETM(const edm::Event&, const edm::EventSetup&);
-    void analyzeL1ExtraHTT(const edm::Event&, const edm::EventSetup&);
-    void analyzeL1ExtraHTM(const edm::Event&, const edm::EventSetup&);
-    void analyzeL1ExtraHfBitCounts(const edm::Event&, const edm::EventSetup&);
-    void analyzeL1ExtraHfRingEtSums(const edm::Event&, const edm::EventSetup&);
-
-    void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
-    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
-    void endRun(const edm::Run& run, const edm::EventSetup& evSetup) override;
-
-private:
-
-    /// input parameters
-
-    L1RetrieveL1Extra m_retrieveL1Extra;
-    edm::InputTag L1ExtraIsoTauJetSource;
-    /// directory name for L1Extra plots
-    std::string m_dirName;
-    bool m_stage1_layer2_;
-
-    /// number of bunch crosses in event to be monitored
-    int m_nrBxInEventGmt;
-    int m_nrBxInEventGct;
-
-    /// internal members
-
-    bool m_resetModule;
-    int m_currentRun;
-
-    ///
-    int m_nrEvJob;
-    int m_nrEvRun;
-
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endRun(const edm::Run& run, const edm::EventSetup& evSetup) override;
 
 private:
+  /// input parameters
 
-    edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_tagL1ExtraIsoTauJetTok;
+  L1RetrieveL1Extra m_retrieveL1Extra;
+  edm::InputTag L1ExtraIsoTauJetSource;
+  /// directory name for L1Extra plots
+  std::string m_dirName;
+  bool m_stage1_layer2_;
 
-    /// pointers to L1ExtraMonElement for each sub-analysis
-    std::vector<L1ExtraMonElement<l1extra::L1MuonParticleCollection>*>
-      m_meAnalysisL1ExtraMuon;
+  /// number of bunch crosses in event to be monitored
+  int m_nrBxInEventGmt;
+  int m_nrBxInEventGct;
 
-    std::vector<L1ExtraMonElement<l1extra::L1EmParticleCollection>*>
-            m_meAnalysisL1ExtraIsoEG;
-    std::vector<L1ExtraMonElement<l1extra::L1EmParticleCollection>*>
-            m_meAnalysisL1ExtraNoIsoEG;
+  /// internal members
 
-    std::vector<L1ExtraMonElement<l1extra::L1JetParticleCollection>*>
-            m_meAnalysisL1ExtraCenJet;
-    std::vector<L1ExtraMonElement<l1extra::L1JetParticleCollection>*>
-            m_meAnalysisL1ExtraForJet;
-    std::vector<L1ExtraMonElement<l1extra::L1JetParticleCollection>*>
-            m_meAnalysisL1ExtraTauJet;
-    std::vector<L1ExtraMonElement<l1extra::L1JetParticleCollection>*>
-            m_meAnalysisL1ExtraIsoTauJet;
+  bool m_resetModule;
+  int m_currentRun;
 
-    std::vector<L1ExtraMonElement<l1extra::L1EtMissParticleCollection>*>
-            m_meAnalysisL1ExtraETT;
+  ///
+  int m_nrEvJob;
+  int m_nrEvRun;
 
-    std::vector<L1ExtraMonElement<l1extra::L1EtMissParticleCollection>*>
-            m_meAnalysisL1ExtraETM;
+private:
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_tagL1ExtraIsoTauJetTok;
 
-    std::vector<L1ExtraMonElement<l1extra::L1EtMissParticleCollection>*>
-            m_meAnalysisL1ExtraHTT;
+  /// pointers to L1ExtraMonElement for each sub-analysis
+  std::vector<L1ExtraMonElement<l1extra::L1MuonParticleCollection>*> m_meAnalysisL1ExtraMuon;
 
-    std::vector<L1ExtraMonElement<l1extra::L1EtMissParticleCollection>*>
-            m_meAnalysisL1ExtraHTM;
+  std::vector<L1ExtraMonElement<l1extra::L1EmParticleCollection>*> m_meAnalysisL1ExtraIsoEG;
+  std::vector<L1ExtraMonElement<l1extra::L1EmParticleCollection>*> m_meAnalysisL1ExtraNoIsoEG;
 
-    std::vector<L1ExtraMonElement<l1extra::L1HFRingsCollection>*>
-            m_meAnalysisL1ExtraHfBitCounts;
+  std::vector<L1ExtraMonElement<l1extra::L1JetParticleCollection>*> m_meAnalysisL1ExtraCenJet;
+  std::vector<L1ExtraMonElement<l1extra::L1JetParticleCollection>*> m_meAnalysisL1ExtraForJet;
+  std::vector<L1ExtraMonElement<l1extra::L1JetParticleCollection>*> m_meAnalysisL1ExtraTauJet;
+  std::vector<L1ExtraMonElement<l1extra::L1JetParticleCollection>*> m_meAnalysisL1ExtraIsoTauJet;
 
-    std::vector<L1ExtraMonElement<l1extra::L1HFRingsCollection>*>
-            m_meAnalysisL1ExtraHfRingEtSums;
+  std::vector<L1ExtraMonElement<l1extra::L1EtMissParticleCollection>*> m_meAnalysisL1ExtraETT;
 
+  std::vector<L1ExtraMonElement<l1extra::L1EtMissParticleCollection>*> m_meAnalysisL1ExtraETM;
+
+  std::vector<L1ExtraMonElement<l1extra::L1EtMissParticleCollection>*> m_meAnalysisL1ExtraHTT;
+
+  std::vector<L1ExtraMonElement<l1extra::L1EtMissParticleCollection>*> m_meAnalysisL1ExtraHTM;
+
+  std::vector<L1ExtraMonElement<l1extra::L1HFRingsCollection>*> m_meAnalysisL1ExtraHfBitCounts;
+
+  std::vector<L1ExtraMonElement<l1extra::L1HFRingsCollection>*> m_meAnalysisL1ExtraHfRingEtSums;
 };
-
 
 #endif

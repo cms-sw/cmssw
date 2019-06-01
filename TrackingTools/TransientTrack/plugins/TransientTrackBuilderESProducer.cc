@@ -1,7 +1,7 @@
 #include "TransientTrackBuilderESProducer.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "boost/mpl/vector.hpp" 
+#include "boost/mpl/vector.hpp"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -11,25 +11,18 @@
 
 using namespace edm;
 
-TransientTrackBuilderESProducer::TransientTrackBuilderESProducer(const edm::ParameterSet & p) 
-{
-  std::string myname = p.getParameter<std::string>("ComponentName");
-  pset_ = p;
-  setWhatProduced(this,myname);
+TransientTrackBuilderESProducer::TransientTrackBuilderESProducer(const edm::ParameterSet& p) {
+  setWhatProduced(this, p.getParameter<std::string>("ComponentName")).setConsumes(magToken_).setConsumes(geomToken_);
 }
 
-TransientTrackBuilderESProducer::~TransientTrackBuilderESProducer() {}
-
-std::unique_ptr<TransientTrackBuilder> 
-TransientTrackBuilderESProducer::produce(const TransientTrackRecord & iRecord){ 
-
-  edm::ESHandle<MagneticField> magfield;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get( magfield );     
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  iRecord.getRecord<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
-
-  return std::make_unique<TransientTrackBuilder>(magfield.product(), theTrackingGeometry);
-
+std::unique_ptr<TransientTrackBuilder> TransientTrackBuilderESProducer::produce(const TransientTrackRecord& iRecord) {
+  return std::make_unique<TransientTrackBuilder>(&iRecord.get(magToken_), iRecord.getHandle(geomToken_));
 }
 
+void TransientTrackBuilderESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("ComponentName", "TransientTrackBuilder")
+      ->setComment("data label to use when getting the data product");
 
+  descriptions.addDefault(desc);
+}

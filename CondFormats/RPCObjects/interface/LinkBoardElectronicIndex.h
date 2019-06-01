@@ -9,9 +9,9 @@
 
 struct LinkBoardElectronicIndex {
   int dccId;
-  int dccInputChannelNum; 
+  int dccInputChannelNum;
   int tbLinkInputNum;
-  int lbNumInLink; 
-  std::string print( int depth = 0) const;
+  int lbNumInLink;
+  std::string print(int depth = 0) const;
 };
 #endif

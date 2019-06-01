@@ -445,30 +445,41 @@ template <> void Converter<DDLElementaryMaterial>::operator()(xml_h element) con
   if(  nullptr == mat ) {
     const char* matname = nam.c_str();
     double density      = xmat.density();
-    double atomicNumber = xmat.attr<double>(DD_CMU(atomicNumber));
+    int atomicNumber = xmat.attr<int>(DD_CMU(atomicNumber));
+    double atomicWeight = xmat.attr<double>(DD_CMU(atomicWeight));
     TGeoElementTable* tab = mgr.GetElementTable();
     TGeoMixture*      mix = new TGeoMixture(nam.c_str(), 1, density);
     TGeoElement*      elt = tab->FindElement(xmat.nameStr().c_str());
 
     printout(ns.context()->debug_materials ? ALWAYS : DEBUG, "DD4CMS",
-             "+++ Converting material %-48s  Density: %.3f.",
-             ('"'+nam+'"').c_str(), density);
+             "+++ Converting material %-48s  Atomic weight %.3f, Atomic number %u, Density: %.3f.",
+             ('"'+nam+'"').c_str(), atomicWeight, atomicNumber, density);
 
-    if( !elt )  {
-      printout(WARNING,"DD4CMS",
-               "+++ Converter<ElementaryMaterial> No element present with name:%s  [FAKE IT]",
-               matname);
-      int n = int(atomicNumber/2e0);
-      if( n < 2 ) n = 2;
-      elt = new TGeoElement(xmat.nameStr().c_str(),"CMS element",n,atomicNumber);
+    bool newMatDef = false;
+    
+    if(elt) {
+      // A is Mass of a mole in Geant4 units for atoms with atomic shell
+      printout(ns.context()->debug_materials ? ALWAYS : DEBUG, "DD4CMS",
+	       "    ROOT definition of %-50s Atomic weight %.3f, Atomic number %u, Number of nucleons %u",
+	       elt->GetName(), (elt->A())*g/mole, elt->Z(), elt->N() );
+      if(atomicNumber != elt->Z() || atomicWeight != (elt->A())*g/mole)
+	newMatDef = true;
     }
-    if( elt->Z() == 0 )   {
-      int n = int(atomicNumber/2e0);
-      if( n < 2 ) n = 2;
-      elt = new TGeoElement((xmat.nameStr()+"-CMS").c_str(),"CMS element",n,atomicNumber);
+    
+    if( !elt || newMatDef)  {
+      if( newMatDef )
+	printout(WARNING,"DD4CMS",
+		 "+++ Converter<ElementaryMaterial> Different definition of a default element with name:%s [CREATE NEW MATERIAL]",
+		 matname);
+      else
+	printout(WARNING,"DD4CMS",
+		 "+++ Converter<ElementaryMaterial> No default element present with name:%s  [CREATE NEW MATERIAL]",
+		 matname);
+      elt = new TGeoElement(xmat.nameStr().c_str(), "CMS element", atomicNumber, atomicWeight);
     }
+
     mix->AddElement(elt, 1.0);
-    mix->SetRadLen(0e0);
+
     /// Create medium from the material
     TGeoMedium* medium = mgr.GetMedium(matname);
     if(nullptr == medium) {
@@ -655,6 +666,9 @@ template <> void Converter<DDLPosPart>::operator()( xml_h element ) const {
   int         copy        = e.attr<int>( DD_CMU( copyNumber ));
   string      parentName  = ns.attr<string>( e.child( DD_CMU( rParent )), _U( name ));
   string      childName   = ns.attr<string>( e.child( DD_CMU( rChild )), _U( name ));
+
+  if( strchr( parentName.c_str(), NAMESPACE_SEP ) == nullptr )
+    parentName = ns.name() + parentName;
   Volume      parent      = ns.volume( parentName );
   
   if( strchr( childName.c_str(), NAMESPACE_SEP ) == nullptr )
@@ -1233,7 +1247,7 @@ template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const {
 	   "DD4CMS","+++ Start executing algorithm %s....", type.c_str());
 
   long ret = PluginService::Create<long>(type, &description, ns.context(), &element, &sd);
-  if(ret == 1) {
+  if(ret == s_executed) {
     printout(ns.context()->debug_algorithms ? ALWAYS : DEBUG,
 	     "DD4CMS", "+++ Executed algorithm: %08lX = %s", ret, name.c_str());
     return;
@@ -1312,12 +1326,11 @@ template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
   cms::DDParsingContext* context = _param<cms::DDParsingContext>();
   DDRegistry* res = _option<DDRegistry>();
   cms::DDNamespace ns( context );
-
+  int count = 0;
+  
   printout( context->debug_constants ? ALWAYS : DEBUG,
 	    "DD4CMS","+++ RESOLVING %ld unknown constants.....", res->unresolvedConst.size());
 
-  // FIXME: Avoid an infinite loop in a case
-  // when a referred constant is not defined
   while( !res->unresolvedConst.empty()) {
     for( auto i : res->unresolvedConst ) {
       const string& n = i.first;
@@ -1348,6 +1361,7 @@ template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
         break;
       }
     }
+    if( ++count > 10000) break;
   }
   if( !res->unresolvedConst.empty()) {
     for(const auto& e : res->unresolvedConst)

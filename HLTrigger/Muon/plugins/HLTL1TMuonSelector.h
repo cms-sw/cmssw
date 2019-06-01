@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-// Data Formats 
+// Data Formats
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -28,23 +28,24 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class HLTL1TMuonSelector : public edm::global::EDProducer<> {
- 
- public:
-  
+public:
   /// Constructor
   explicit HLTL1TMuonSelector(const edm::ParameterSet&);
 
   /// Destructor
   ~HLTL1TMuonSelector() override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  
- private:
 
+private:
   edm::InputTag theSource;
 
   edm::EDGetTokenT<l1t::MuonBxCollection> muCollToken_;
@@ -55,7 +56,6 @@ class HLTL1TMuonSelector : public edm::global::EDProducer<> {
 
   /// use central bx only muons
   bool centralBxOnly_;
-
 };
 
 #endif

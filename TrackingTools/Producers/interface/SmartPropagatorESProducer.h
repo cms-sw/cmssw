@@ -13,26 +13,25 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include <memory>
-  
 
-namespace edm {class ParameterSet;}
+namespace edm {
+  class ParameterSet;
+}
 
 class TrackingComponentsRecord;
 
-class  SmartPropagatorESProducer: public edm::ESProducer{
-
- public:
-  
+class SmartPropagatorESProducer : public edm::ESProducer {
+public:
   /// Constructor
   SmartPropagatorESProducer(const edm::ParameterSet &);
-  
+
   /// Destructor
-  ~SmartPropagatorESProducer() override; 
-  
+  ~SmartPropagatorESProducer() override;
+
   // Operations
   std::unique_ptr<Propagator> produce(const TrackingComponentsRecord &);
-  
- private:
+
+private:
   PropagationDirection thePropagationDirection;
   std::string theTrackerPropagatorName;
   std::string theMuonPropagatorName;
@@ -40,4 +39,3 @@ class  SmartPropagatorESProducer: public edm::ESProducer{
 };
 
 #endif
-

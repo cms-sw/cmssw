@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWEnumParameterSetter
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -29,18 +29,14 @@
 //
 // constructors and destructor
 //
-FWEnumParameterSetter::FWEnumParameterSetter() :
-   m_param(nullptr),
-   m_widget(nullptr)
-{}
+FWEnumParameterSetter::FWEnumParameterSetter() : m_param(nullptr), m_widget(nullptr) {}
 
 // FWEnumParameterSetter::FWEnumParameterSetter(const FWEnumParameterSetter& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWEnumParameterSetter::~FWEnumParameterSetter()
-{}
+FWEnumParameterSetter::~FWEnumParameterSetter() {}
 
 //
 // assignment operators
@@ -58,61 +54,48 @@ FWEnumParameterSetter::~FWEnumParameterSetter()
 // member functions
 //
 
-void
-FWEnumParameterSetter::attach(FWParameterBase* iParam)
-{
-   m_param = dynamic_cast<FWEnumParameter*>(iParam);
-   assert(nullptr!=m_param);
+void FWEnumParameterSetter::attach(FWParameterBase* iParam) {
+  m_param = dynamic_cast<FWEnumParameter*>(iParam);
+  assert(nullptr != m_param);
 }
 
-TGFrame*
-FWEnumParameterSetter::build(TGFrame* iParent, bool labelBack)
-{
-   TGCompositeFrame *frame = new TGHorizontalFrame(iParent);
+TGFrame* FWEnumParameterSetter::build(TGFrame* iParent, bool labelBack) {
+  TGCompositeFrame* frame = new TGHorizontalFrame(iParent);
 
-   m_widget = new TGComboBox(frame);
-   std::map<Long_t, std::string>::const_iterator me = m_param->entryMap().begin();
-   UInt_t max_len = 0;
-   while (me != m_param->entryMap().end())
-   {
-      m_widget->AddEntry(me->second.c_str(), static_cast<Int_t>(me->first));
-      if (me->second.length() > max_len) max_len = me->second.length();
-      ++me;
-   }
-   m_widget->Resize(8*max_len + 20, 20);
-   m_widget->Select(static_cast<Int_t>(m_param->value()), kFALSE);
+  m_widget = new TGComboBox(frame);
+  std::map<Long_t, std::string>::const_iterator me = m_param->entryMap().begin();
+  UInt_t max_len = 0;
+  while (me != m_param->entryMap().end()) {
+    m_widget->AddEntry(me->second.c_str(), static_cast<Int_t>(me->first));
+    if (me->second.length() > max_len)
+      max_len = me->second.length();
+    ++me;
+  }
+  m_widget->Resize(8 * max_len + 20, 20);
+  m_widget->Select(static_cast<Int_t>(m_param->value()), kFALSE);
 
-   m_widget->Connect("Selected(Int_t)", "FWEnumParameterSetter", this, "doUpdate(Int_t)");
+  m_widget->Connect("Selected(Int_t)", "FWEnumParameterSetter", this, "doUpdate(Int_t)");
 
-   // label
-   TGLabel* label = new TGLabel(frame, m_param->name().c_str());
-   if (labelBack)
-   {
-      frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,6,2,2));
-      frame->AddFrame(label, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2, 4, 0, 0));
-   }
-   else
-   {
-      frame->AddFrame(label, new TGLayoutHints(kLHintsLeft|kLHintsCenterY) );
-      frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,8,2,2));
-   }
-   return frame;
+  // label
+  TGLabel* label = new TGLabel(frame, m_param->name().c_str());
+  if (labelBack) {
+    frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 2, 6, 2, 2));
+    frame->AddFrame(label, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 2, 4, 0, 0));
+  } else {
+    frame->AddFrame(label, new TGLayoutHints(kLHintsLeft | kLHintsCenterY));
+    frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 2, 8, 2, 2));
+  }
+  return frame;
 }
 
-void
-FWEnumParameterSetter::doUpdate(Int_t id)
-{
-   assert(nullptr!=m_param);
-   assert(nullptr!=m_widget);
-   m_param->set((Long_t) id);
-   update();
+void FWEnumParameterSetter::doUpdate(Int_t id) {
+  assert(nullptr != m_param);
+  assert(nullptr != m_widget);
+  m_param->set((Long_t)id);
+  update();
 }
 
-void
-FWEnumParameterSetter::setEnabled(bool x)
-{
-   m_widget->SetEnabled(x);
-}
+void FWEnumParameterSetter::setEnabled(bool x) { m_widget->SetEnabled(x); }
 
 //
 // const member functions

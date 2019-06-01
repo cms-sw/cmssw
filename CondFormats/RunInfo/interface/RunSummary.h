@@ -4,7 +4,7 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iostream>
-#include<vector>
+#include <vector>
 
 /*
  *  \class RunSummary
@@ -17,31 +17,28 @@
 
 class RunSummary {
 public:
-  
   int m_run;
   std::string m_name;
   long long m_start_time_ll;
   std::string m_start_time_str;
   long long m_stop_time_ll;
   std::string m_stop_time_str;
-  int  m_lumisections;
+  int m_lumisections;
   std::vector<int> m_subdt_in;
   std::string m_hltkey;
   long long m_nevents;
   float m_rate;
-    
-  enum subdet { PIXEL, TRACKER, ECAL, HCAL, DT, CSC,RPC };  
-  
+
+  enum subdet { PIXEL, TRACKER, ECAL, HCAL, DT, CSC, RPC };
+
   RunSummary();
   virtual ~RunSummary(){};
   static RunSummary* Fake_RunSummary();
-    
+
   void printAllValues() const;
   std::vector<std::string> getSubdtIn() const;
-  
 
   COND_SERIALIZABLE;
 };
-
 
 #endif

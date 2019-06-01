@@ -3,7 +3,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
-  /** \class IdealZDCTrapezoid
+/** \class IdealZDCTrapezoid
     
   Trapezoid class used for ZDC volumes.  
   
@@ -19,48 +19,38 @@
   \author E. Garcia - UIC
   */
 
-class IdealZDCTrapezoid: public CaloCellGeometry 
-{
-   public:
+class IdealZDCTrapezoid : public CaloCellGeometry {
+public:
+  typedef CaloCellGeometry::CCGFloat CCGFloat;
+  typedef CaloCellGeometry::Pt3D Pt3D;
+  typedef CaloCellGeometry::Pt3DVec Pt3DVec;
+  typedef CaloCellGeometry::Tr3D Tr3D;
 
-      typedef CaloCellGeometry::CCGFloat CCGFloat ;
-      typedef CaloCellGeometry::Pt3D     Pt3D     ;
-      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
-      typedef CaloCellGeometry::Tr3D     Tr3D     ;
+  IdealZDCTrapezoid();
 
-      IdealZDCTrapezoid() ;
+  IdealZDCTrapezoid(const IdealZDCTrapezoid& idzt);
 
-      IdealZDCTrapezoid( const IdealZDCTrapezoid& idzt ) ;
-      
-      IdealZDCTrapezoid& operator=( const IdealZDCTrapezoid& idzt ) ;
+  IdealZDCTrapezoid& operator=(const IdealZDCTrapezoid& idzt);
 
-      IdealZDCTrapezoid( const GlobalPoint& faceCenter,
-			       CornersMgr*  mgr       ,
-			 const CCGFloat*    parm        ) ;
-	 
-      ~IdealZDCTrapezoid() override ;
+  IdealZDCTrapezoid(const GlobalPoint& faceCenter, CornersMgr* mgr, const CCGFloat* parm);
 
-      CCGFloat an() const ;
-      CCGFloat dx() const ;
-      CCGFloat dy() const ;
-      CCGFloat dz() const ;
-      CCGFloat ta() const ;
-      CCGFloat dt() const ;
+  ~IdealZDCTrapezoid() override;
 
-      void vocalCorners( Pt3DVec&        vec ,
-				 const CCGFloat* pv  ,
-				 Pt3D&           ref  ) const override ;
+  CCGFloat an() const;
+  CCGFloat dx() const;
+  CCGFloat dy() const;
+  CCGFloat dz() const;
+  CCGFloat ta() const;
+  CCGFloat dt() const;
 
-      static void localCorners( Pt3DVec&        vec ,
-				const CCGFloat* pv  , 
-				Pt3D&           ref  ) ;
-    
-   private:
-      void initCorners(CaloCellGeometry::CornersVec& ) override;
+  void vocalCorners(Pt3DVec& vec, const CCGFloat* pv, Pt3D& ref) const override;
 
+  static void localCorners(Pt3DVec& vec, const CCGFloat* pv, Pt3D& ref);
 
+private:
+  void initCorners(CaloCellGeometry::CornersVec&) override;
 };
 
-std::ostream& operator<<( std::ostream& s , const IdealZDCTrapezoid& cell ) ;
+std::ostream& operator<<(std::ostream& s, const IdealZDCTrapezoid& cell);
 
 #endif

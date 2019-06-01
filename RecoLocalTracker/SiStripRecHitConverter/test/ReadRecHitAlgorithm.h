@@ -1,6 +1,6 @@
 #ifndef ReadRecHitAlgorithm_h
 #define ReadRecHitAlgorithm_h
-# // -*-C++-*-
+#// -*-C++-*-
 /** \class ReadRecHitAlgorithm
  *
  * ReadRecHitAlgorithm reads rechits
@@ -18,20 +18,16 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 
-class ReadRecHitAlgorithm 
-{
- public:
-  
+class ReadRecHitAlgorithm {
+public:
   ReadRecHitAlgorithm(const edm::ParameterSet& conf);
   ~ReadRecHitAlgorithm();
-  
 
   /// Runs the algorithm
-    void run(const SiStripRecHit2DCollection* input);
-    void run(const SiStripMatchedRecHit2DCollection* input);
+  void run(const SiStripRecHit2DCollection* input);
+  void run(const SiStripMatchedRecHit2DCollection* input);
 
- private:
-
+private:
   edm::ParameterSet conf_;
 };
 

@@ -26,18 +26,15 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTRangeT0ValidateHandler: public popcon::PopConSourceHandler<DTRangeT0> {
-
- public:
-
+class DTRangeT0ValidateHandler : public popcon::PopConSourceHandler<DTRangeT0> {
+public:
   /** Constructor
    */
-  DTRangeT0ValidateHandler( const edm::ParameterSet& ps );
+  DTRangeT0ValidateHandler(const edm::ParameterSet& ps);
 
   /** Destructor
    */
@@ -45,26 +42,17 @@ class DTRangeT0ValidateHandler: public popcon::PopConSourceHandler<DTRangeT0> {
 
   /** Operations
    */
-  /// 
+  ///
   void getNewObjects();
   std::string id() const;
 
- private:
-
+private:
   int firstRun;
-  int  lastRun;
+  int lastRun;
   std::string dataVersion;
   std::string dataFileName;
   std::string elogFileName;
-  void addNewObject( int runNumber );
-
+  void addNewObject(int runNumber);
 };
 
-
-#endif // DTRangeT0ValidateHandler_H
-
-
-
-
-
-
+#endif  // DTRangeT0ValidateHandler_H

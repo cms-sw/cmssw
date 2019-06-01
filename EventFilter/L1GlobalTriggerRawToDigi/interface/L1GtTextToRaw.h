@@ -33,51 +33,45 @@
 // forward declarations
 
 // class declaration
-class L1GtTextToRaw : public edm::EDProducer
-{
-
+class L1GtTextToRaw : public edm::EDProducer {
 public:
+  /// constructor(s)
+  explicit L1GtTextToRaw(const edm::ParameterSet&);
 
-    /// constructor(s)
-    explicit L1GtTextToRaw(const edm::ParameterSet&);
-
-    /// destructor
-    ~L1GtTextToRaw() override;
-
-private:
-
-    /// beginning of job stuff
-    void beginJob() override;
-
-    /// clean the text file, if needed
-    virtual void cleanTextFile();
-
-    /// get the size of the record
-    virtual int getDataSize();
-
-    /// loop over events
-    void produce(edm::Event&, const edm::EventSetup&) override;
-
-    /// end of job stuff
-    void endJob() override;
+  /// destructor
+  ~L1GtTextToRaw() override;
 
 private:
+  /// beginning of job stuff
+  void beginJob() override;
 
-    /// file type for the text file
-    std::string m_textFileType;
+  /// clean the text file, if needed
+  virtual void cleanTextFile();
 
-    /// file name for the text file
-    std::string m_textFileName;
+  /// get the size of the record
+  virtual int getDataSize();
 
-    /// raw event size (including header and trailer) in units of 8 bits
-    int m_rawDataSize;
+  /// loop over events
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-    /// FED ID for the system
-    int m_daqGtFedId;
+  /// end of job stuff
+  void endJob() override;
 
-    /// the file itself
-    std::ifstream m_textFile;
+private:
+  /// file type for the text file
+  std::string m_textFileType;
 
+  /// file name for the text file
+  std::string m_textFileName;
+
+  /// raw event size (including header and trailer) in units of 8 bits
+  int m_rawDataSize;
+
+  /// FED ID for the system
+  int m_daqGtFedId;
+
+  /// the file itself
+  std::ifstream m_textFile;
 };
 
-#endif // EventFilter_L1GlobalTriggerRawToDigi_L1GtTextToRaw_h
+#endif  // EventFilter_L1GlobalTriggerRawToDigi_L1GtTextToRaw_h

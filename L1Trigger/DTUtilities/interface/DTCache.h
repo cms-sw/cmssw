@@ -4,7 +4,7 @@
  *
  *   Trigger Cache
  *   Used to store various trigger data
- *    
+ *
  *
  *
  *
@@ -19,41 +19,37 @@
 
 #include <vector>
 
-template<class T, class Coll=std::vector<T> > class DTCache {
+template <class T, class Coll = std::vector<T>>
+class DTCache {
+public:
+  typedef T my_type;
+  typedef Coll my_collection;
+  typedef typename my_collection::iterator iterator;
+  typedef typename my_collection::const_iterator const_iterator;
 
-  public:
-  
-  typedef T                                           my_type;
-  typedef Coll                                        my_collection;
-  typedef typename my_collection::iterator            iterator;
-  typedef typename my_collection::const_iterator      const_iterator;
-  
-  public:
-  
+public:
   //! Constructor
-  DTCache(){}
-  
+  DTCache() {}
+
   //! Destructor
-  virtual ~DTCache(){}
-  
+  virtual ~DTCache() {}
+
   //! Get first cache element
-  const_iterator begin() const { return _cache.begin();}
-  
+  const_iterator begin() const { return _cache.begin(); }
+
   //! Get last cache element
-  const_iterator end() const {return _cache.end();}
-  
+  const_iterator end() const { return _cache.end(); }
+
   //! Get cache vector's size
-  int size() const {return _cache.size();}
+  int size() const { return _cache.size(); }
 
   //! Clear cache vector
-  void clearCache() {_cache.clear();}
+  void clearCache() { _cache.clear(); }
 
   //! Virtual reconstruct member
   virtual void reconstruct() {}
 
-  protected:
-  
+protected:
   my_collection _cache;
-
 };
 #endif

@@ -21,7 +21,6 @@
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
-#include "FastSimulation/Particle/interface/ParticleTable.h"
 //#include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -160,8 +159,6 @@ void testGeneralTracks::dqmBeginRun(edm::Run const&, edm::EventSetup const& es)
 void
 testGeneralTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  ParticleTable::Sentry ptable(mySimEvent[0]->theTable());
-
   ++totalNEvt;
   
   //  std::cout << " >>>>>>>>> Analizying Event " << totalNEvt << "<<<<<<< " << std::endl; 

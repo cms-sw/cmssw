@@ -1,18 +1,18 @@
 #ifndef EcalCondDBReader_H
 #define EcalCondDBReader_H
 
+#include "DBReaderWorkers.h"
+#include "DQM/EcalCommon/interface/MESet.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "DQM/EcalCommon/interface/MESet.h"
-#include "DBReaderWorkers.h"
 
 class EcalCondDBReader : public DQMEDHarvester {
- public:
-  EcalCondDBReader(edm::ParameterSet const&);
-  ~EcalCondDBReader();
+public:
+  EcalCondDBReader(edm::ParameterSet const &);
+  ~EcalCondDBReader() override;
 
- private:
-  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
+private:
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   // DON'T CHANGE - ORDER MATTERS IN DB
   enum Tasks {
@@ -33,11 +33,11 @@ class EcalCondDBReader : public DQMEDHarvester {
     nTasks = 14
   };
 
-  EcalCondDBInterface* db_;
+  EcalCondDBInterface *db_;
   MonRunIOV monIOV_;
-  ecaldqm::DBReaderWorker* worker_;
+  ecaldqm::DBReaderWorker *worker_;
   std::string formula_;
-  ecaldqm::MESet* meSet_;
+  ecaldqm::MESet *meSet_;
 
   int verbosity_;
   bool executed_;

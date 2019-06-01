@@ -6,4 +6,3 @@
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMapFwd.h"
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMap.h"
 #include "DataFormats/L1TGlobal/interface/GlobalObject.h"
-

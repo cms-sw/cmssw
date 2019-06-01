@@ -29,12 +29,11 @@
 #include "TTree.h"
 #include "TFile.h"
 
-class DTTrigTest: public edm::EDAnalyzer{
+class DTTrigTest : public edm::EDAnalyzer {
 public:
-
   //! Constructor
   DTTrigTest(const edm::ParameterSet& pset);
-  
+
   //! Destructor
   ~DTTrigTest() override;
 
@@ -47,12 +46,11 @@ public:
 
   //! Create DTTrig instance and TUs
   void beginRun(const edm::Run& iRun, const edm::EventSetup& iEventSetup) override;
-  
-  //! Analyze function executed on all the events
-  void analyze(const edm::Event & iEvent, const edm::EventSetup& iEventSetup) override;
-  
-private:
 
+  //! Analyze function executed on all the events
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iEventSetup) override;
+
+private:
   // time to TDC_time conversion
   static const double my_TtoTDC;
 
@@ -61,34 +59,33 @@ private:
 
   // debug flag
   bool my_debug;
-  
+
   // ParameterSet
   edm::ParameterSet my_params;
 
   // tree
   TTree* my_tree;
   // TFile
-  TFile *my_rootfile;
-
+  TFile* my_rootfile;
 
   //GENERAL block
-  int             runn;
-  int             eventn;
-  float           weight;
+  int runn;
+  int eventn;
+  float weight;
 
   //GEANT block
-  int             ngen;
-  float           pxgen[10];
-  float           pygen[10];
-  float           pzgen[10];
-  float           ptgen[10];
-  float           etagen[10];
-  float           phigen[10];
-  int             chagen[10];
-  float           vxgen[10];
-  float           vygen[10];
-  float           vzgen[10];
-  
+  int ngen;
+  float pxgen[10];
+  float pygen[10];
+  float pzgen[10];
+  float ptgen[10];
+  float etagen[10];
+  float phigen[10];
+  int chagen[10];
+  float vxgen[10];
+  float vygen[10];
+  float vzgen[10];
+
   // BTI
   int nbti;
   int bwh[100];
@@ -106,7 +103,7 @@ private:
   float bdirx[100];
   float bdiry[100];
   float bdirz[100];
-  
+
   // TRACO
   int ntraco;
   int twh[80];
@@ -123,11 +120,11 @@ private:
   float tdirx[100];
   float tdiry[100];
   float tdirz[100];
-  
+
   // TSPHI
   int ntsphi;
   int swh[40];
-  int sstat[40]; 
+  int sstat[40];
   int ssect[40];
   int sbx[40];
   int scod[40];
@@ -138,12 +135,12 @@ private:
   float sposz[100];
   float sdirx[100];
   float sdiry[100];
-  float sdirz[100]; 
+  float sdirz[100];
 
   // TSTHETA
   int ntstheta;
   int thwh[40];
-  int thstat[40]; 
+  int thstat[40];
   int thsect[40];
   int thbx[40];
   int thcode[40][7];
@@ -153,7 +150,7 @@ private:
   // SECTOR COLLECTOR (PHI VIEW)
   int nscphi;
   int scphwh[40];
-  int scphstat[40]; 
+  int scphstat[40];
   int scphsect[40];
   int scphbx[40];
   int scphcod[40];
@@ -164,19 +161,17 @@ private:
   float scphposz[100];
   float scphdirx[100];
   float scphdiry[100];
-  float scphdirz[100]; 
+  float scphdirz[100];
 
   // SECTOR COLLECTOR (THETA VIEW)
   int nsctheta;
   int scthwh[40];
-  int scthstat[40]; 
+  int scthstat[40];
   int scthsect[40];
   int scthbx[40];
   int scthcode[40][7];
   int scthpos[40][7];
   int scthqual[40][7];
-
 };
- 
-#endif
 
+#endif

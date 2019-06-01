@@ -3,7 +3,5 @@
 #include "RecoTBCalo/EcalTBHodoscopeReconstructor/interface/EcalTBHodoscopeRecInfoProducer.h"
 #include "RecoTBCalo/EcalTBHodoscopeReconstructor/interface/EcalTBHodoscopeRawInfoDumper.h"
 
-
-DEFINE_FWK_MODULE( EcalTBHodoscopeRecInfoProducer );
-DEFINE_FWK_MODULE( EcalTBHodoscopeRawInfoDumper );
-
+DEFINE_FWK_MODULE(EcalTBHodoscopeRecInfoProducer);
+DEFINE_FWK_MODULE(EcalTBHodoscopeRawInfoDumper);

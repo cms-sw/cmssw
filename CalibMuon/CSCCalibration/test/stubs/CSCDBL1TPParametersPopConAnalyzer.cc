@@ -1,5 +1,5 @@
-#include "CondCore/PopCon/interface/PopConAnalyzer.h"
 #include "CSCDBL1TPParametersHandler.h"
+#include "CondCore/PopCon/interface/PopConAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 typedef popcon::PopConAnalyzer<popcon::CSCDBL1TPParametersImpl> CSCDBL1TPParametersPopConAnalyzer;
