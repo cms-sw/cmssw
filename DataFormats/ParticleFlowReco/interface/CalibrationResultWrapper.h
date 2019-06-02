@@ -7,7 +7,7 @@
 
 namespace pftools {
 
-/**
+  /**
  * \class CalibrationResultWrapper
  * \brief A small class designed to hold the result of a calibration of a SingleParticleWrapper
  *
@@ -15,109 +15,93 @@ namespace pftools {
  * \date May 2008
  *
  */
-class CalibrationResultWrapper {
-public:
+  class CalibrationResultWrapper {
+  public:
+    //	typedef boost::shared_ptr<CalibrationResultWrapper>
+    //			CalibrationResultWrapperPtr;
 
-//	typedef boost::shared_ptr<CalibrationResultWrapper>
-//			CalibrationResultWrapperPtr;
+    CalibrationResultWrapper() { reset(); }
 
-	CalibrationResultWrapper() {
-		reset();
-	}
+    virtual ~CalibrationResultWrapper() {}
 
-	virtual ~CalibrationResultWrapper() {
-	}
+    void reset() { resetCore(); }
 
+    void compute() { computeCore(); }
 
-	void reset() {
-		resetCore();
-	}
+    double bias() const { return (particleEnergy_ - truthEnergy_) / truthEnergy_; }
 
+    double ratio() const { return (particleEnergy_ / truthEnergy_); }
 
-	void compute() {
-		computeCore();
-	}
-
-	double bias() const {
-		return (particleEnergy_ -  truthEnergy_) / truthEnergy_;
-	}
-
-	double ratio() const {
-		return(particleEnergy_/truthEnergy_);
-	}
-
-	/*
+    /*
 	 * Which calibrator made this?
 	 */
-	CalibrationProvenance provenance_;
-	/*
+    CalibrationProvenance provenance_;
+    /*
 	 * What energy was this particle optimised to?
 	 */
-	double truthEnergy_;
+    double truthEnergy_;
 
-	/*
+    /*
 	 * Calibrated ecal deposition
 	 */
-	double ecalEnergy_;
+    double ecalEnergy_;
 
-	/*
+    /*
 	 * Calibrated hcal deposition
 	 */
-	double hcalEnergy_;
+    double hcalEnergy_;
 
-	/*
+    /*
 	 * Calibrated particle energy (not necessarily ecal + hcal!)
 	 */
-	double particleEnergy_;
+    double particleEnergy_;
 
-	/*
+    /*
 	 * What objects did this optimise on?
 	 */
-	CalibrationTarget target_;
+    CalibrationTarget target_;
 
-	/*
+    /*
 	 * (reco - truth)/truth
 	 */
-	double bias_;
+    double bias_;
 
-	/*
+    /*
 	 * reco/truth
 	 */
-	double ratio_;
+    double ratio_;
 
-	/*
+    /*
 	* Target function contribution
 	*/
-	double targetFuncContrib_;
+    double targetFuncContrib_;
 
-	double a_;
-	double b_;
-	double c_;
+    double a_;
+    double b_;
+    double c_;
 
-private:
+  private:
+    virtual void computeCore() {
+      bias_ = bias();
+      ratio_ = ratio();
+    }
 
-	virtual void computeCore() {
-		bias_ = bias();
-		ratio_ = ratio();
-	}
+    virtual void resetCore() {
+      truthEnergy_ = 0;
+      ecalEnergy_ = 0;
+      hcalEnergy_ = 0;
+      particleEnergy_ = 0;
+      provenance_ = UNCALIBRATED;
+      target_ = UNDEFINED;
+      bias_ = 0;
+      ratio_ = 1.0;
+      targetFuncContrib_ = 0;
+      a_ = 0.0;
+      b_ = 1.0;
+      c_ = 1.0;
+    }
+  };
 
-	virtual void resetCore() {
-		truthEnergy_ = 0;
-		ecalEnergy_ = 0;
-		hcalEnergy_ = 0;
-		particleEnergy_ = 0;
-		provenance_ = UNCALIBRATED;
-		target_ = UNDEFINED;
-		bias_ = 0;
-		ratio_ = 1.0;
-		targetFuncContrib_ = 0;
-		a_ = 0.0;
-		b_ = 1.0;
-		c_ = 1.0;
-	}
-
-};
-
-}
+}  // namespace pftools
 
 #endif /*CALIBRATIONRESULTWRAPPER_H_*/

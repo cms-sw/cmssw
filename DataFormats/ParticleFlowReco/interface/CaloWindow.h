@@ -10,179 +10,164 @@
 #include <map>
 namespace pftools {
 
-/**
+  /**
  * As we shall see, a CaloWindow is composed of a number of CaloRings.
  * Each ring is divided into panes. Numbering of the panes starts from 0.
  */
-class CaloRing {
-public:
-
-	/**
+  class CaloRing {
+  public:
+    /**
 	 * Constructor for just one pane.
 	 * @return
 	 */
-	CaloRing();
+    CaloRing();
 
-	/**
+    /**
 	 * Constructor for nPanes
 	 * @param nPanes the number of panes
 	 * @return
 	 */
-	CaloRing(unsigned nPanes);
+    CaloRing(unsigned nPanes);
 
-	/**
+    /**
 	 * Zeroes all energies contained.
 	 */
-	void reset();
+    void reset();
 
-	/**
+    /**
 	 * Energy contained in that pane
 	 * @param pane - numbering starts from 0
 	 * @return energy contained in GeV
 	 */
-	double getEnergy(unsigned pane) const;
+    double getEnergy(unsigned pane) const;
 
-	/**
+    /**
 	 * Sets the energy in the specified pane
 	 * @param pane - numbering starts from 0
 	 * @param energy
 	 * @return true if pane exists, false if outside of range
 	 */
-	bool setEnergy(unsigned pane, double energy);
+    bool setEnergy(unsigned pane, double energy);
 
-	/**
+    /**
 	 * Adds energy to the specified pane
 	 * @param pane - numbering starts from 0
 	 * @param energy
 	 * @return true if the pane exists, false if outside of range
 	 */
-	bool addEnergy(unsigned pane, double energy);
+    bool addEnergy(unsigned pane, double energy);
 
-	/**
+    /**
 	 * Total energy contained by this CaloRing
 	 * @return energy in GeV
 	 */
-	double totalE() const;
+    double totalE() const;
 
-	/**
+    /**
 	 * A copy of the vector of energies for each pane
 	 * @return a vector of energies
 	 */
-	std::vector<double> const & getEnergies() const {
-		return myPanes_;
-	}
+    std::vector<double> const& getEnergies() const { return myPanes_; }
 
-	/**
+    /**
 	 * Get the number of panes
 	 * @return
 	 */
-	unsigned getNPanes() const {
-		return panes_;
-	}
+    unsigned getNPanes() const { return panes_; }
 
-	void printEnergies(std::ostream& s, double range = 1.0);
+    void printEnergies(std::ostream& s, double range = 1.0);
 
+  private:
+    unsigned panes_;
+    std::vector<double> myPanes_;
+  };
 
-private:
-	unsigned panes_;
-	std::vector<double> myPanes_;
-};
- 
-std::ostream& operator<<(std::ostream& s, const CaloRing& caloRing);
+  std::ostream& operator<<(std::ostream& s, const CaloRing& caloRing);
 
-class CaloWindow {
-public:
-	/* Default constructor - do not use (this has to be here for Reflex to work?)*/
-	CaloWindow();
+  class CaloWindow {
+  public:
+    /* Default constructor - do not use (this has to be here for Reflex to work?)*/
+    CaloWindow();
 
-	/**
+    /**
 	 * Create a circular calo window centred on eta, phi, with nRings of size
 	 * deltaR.
 	 *
 	 * */
-	CaloWindow(double eta, double phi, unsigned nRings, double deltaR, unsigned nPanes, double axis = 0.0);
+    CaloWindow(double eta, double phi, unsigned nRings, double deltaR, unsigned nPanes, double axis = 0.0);
 
-	void init(double eta, double phi, unsigned nRings, double deltaR, unsigned nPanes, double axis = 0.0);
+    void init(double eta, double phi, unsigned nRings, double deltaR, unsigned nPanes, double axis = 0.0);
 
-	/**
+    /**
 	 * Adds a hit contribution. If eta, phi are outside the window, this method
 	 * returns false and does not add the energy to the window.
 	 *
 	 * If ok, it returns true.
 	 */
-	bool addHit(double eta, double phi, double energy);
+    bool addHit(double eta, double phi, double energy);
 
-	/**
+    /**
 	 * Return a vector of vectors:
 	 * Each inner vector corresponds to a ring of window panes around the barycentre
 	 * and the first entry of the bary centre itself
 	 *
 	 */
-	std::map<unsigned, CaloRing>const&  getRingDepositions() const {
-		return energies_;
-	}
+    std::map<unsigned, CaloRing> const& getRingDepositions() const { return energies_; }
 
-	std::map<unsigned, double> getRingEnergySummations() const;
+    std::map<unsigned, double> getRingEnergySummations() const;
 
+    virtual ~CaloWindow();
 
-	virtual ~CaloWindow();
+    void reset();
 
-	void reset();
+    void printEnergies(std::ostream& s, double range = 1.0);
 
-	void printEnergies(std::ostream& s, double range = 1.0);
-
-	/**
+    /**
 	 * Collapses all energies in all CaloRings into one vector of doubles
 	 * @param normalisation - divide each energy by this value
 	 * @return a vector of doubles
 	 */
-	std::vector<double> stream(double normalisation = 1.0) const;
+    std::vector<double> stream(double normalisation = 1.0) const;
 
-	double baryEta() const {return baryEta_;}
-	double baryPhi() const { return baryPhi_;}
+    double baryEta() const { return baryEta_; }
+    double baryPhi() const { return baryPhi_; }
 
-private:
-	//Where is the barycentre of this window?
-	double baryEta_;
-	double baryPhi_;
-	//How many rings is it composed of?
-	unsigned nRings_;
-	//What is the deltaR separation of the rings?
-	double deltaR_;
-	//How many panels will each calo ring be composed of? (central panel = 1)
-	unsigned nPanes_;
+  private:
+    //Where is the barycentre of this window?
+    double baryEta_;
+    double baryPhi_;
+    //How many rings is it composed of?
+    unsigned nRings_;
+    //What is the deltaR separation of the rings?
+    double deltaR_;
+    //How many panels will each calo ring be composed of? (central panel = 1)
+    unsigned nPanes_;
 
-	//Angle in radians fromm which we start counting rings (offset from zero)
-	double axis_;
+    //Angle in radians fromm which we start counting rings (offset from zero)
+    double axis_;
 
-	/*
+    /*
 	 * Determines which window pane to put the hit in.
 	 *
 	 */
-	std::pair<unsigned, unsigned> relativePosition(double eta, double phi) const;
+    std::pair<unsigned, unsigned> relativePosition(double eta, double phi) const;
 
-	//std::vector<boost::shared_ptr<std::vector<double> > > energies_;
-	std::map<unsigned, CaloRing> energies_;
+    //std::vector<boost::shared_ptr<std::vector<double> > > energies_;
+    std::map<unsigned, CaloRing> energies_;
+  };
 
+  std::ostream& operator<<(std::ostream& s, const CaloWindow& caloWindow);
 
+  class TestCaloWindow {
+  public:
+    TestCaloWindow() {}
 
-};
+    virtual ~TestCaloWindow() {}
 
-std::ostream& operator<<(std::ostream& s,
-                         const CaloWindow& caloWindow);
+    void doTest();
+  };
 
-class TestCaloWindow {
-public:
-	TestCaloWindow() {
-	}
+  //typedef boost::shared_ptr<CaloWindow> CalowWindowPtr;
 
-	virtual ~TestCaloWindow() {
-	}
-
-	void doTest();
-};
-
-//typedef boost::shared_ptr<CaloWindow> CalowWindowPtr;
-
-}
+}  // namespace pftools
 #endif /* CALOWINDOW_H_ */

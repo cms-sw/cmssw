@@ -10,6 +10,6 @@ namespace reco {
   class PFBlockElement;
   class PFBlockElementCluster;
   class PFBlockElementTrack;
-}
+}  // namespace reco
 
 #endif
