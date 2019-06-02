@@ -46,14 +46,18 @@ typedef edm::ValueMap<float> IsolationCollection;
 
 class ZMuMu_efficiencyAnalyzer : public edm::EDAnalyzer {
 public:
-  ZMuMu_efficiencyAnalyzer(const edm::ParameterSet& pset);
+  ZMuMu_efficiencyAnalyzer(const edm::ParameterSet &pset);
+
 private:
-  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  bool check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
-  float getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
-  float getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
-  float getParticlePhi(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
-  Particle::LorentzVector getParticleP4(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  void analyze(const edm::Event &event, const edm::EventSetup &setup) override;
+  bool check_ifZmumu(const Candidate *dauGen0, const Candidate *dauGen1, const Candidate *dauGen2);
+  float getParticlePt(const int ipart, const Candidate *dauGen0, const Candidate *dauGen1, const Candidate *dauGen2);
+  float getParticleEta(const int ipart, const Candidate *dauGen0, const Candidate *dauGen1, const Candidate *dauGen2);
+  float getParticlePhi(const int ipart, const Candidate *dauGen0, const Candidate *dauGen1, const Candidate *dauGen2);
+  Particle::LorentzVector getParticleP4(const int ipart,
+                                        const Candidate *dauGen0,
+                                        const Candidate *dauGen1,
+                                        const Candidate *dauGen2);
   void endJob() override;
 
   EDGetTokenT<CandidateView> zMuMuToken_;
@@ -74,8 +78,8 @@ private:
   // binning of entries array (at moment defined by hand and not in cfg file)
   unsigned int etaBins;
   unsigned int ptBins;
-  double  etaRange[7];
-  double  ptRange[5];
+  double etaRange[7];
+  double ptRange[5];
 
   reco::CandidateBaseRef globalMuonCandRef_, trackMuonCandRef_, standAloneMuonCandRef_;
   OverlapChecker overlap_;
@@ -86,12 +90,12 @@ private:
   TH1D *h_zmm1HLTminus_mass, *h_zmmNotIsominus_mass, *h_zmsminus_mass, *h_zmtminus_mass;
 
   // global counters
-  int nGlobalMuonsMatched_passed;    // total number of global muons MC matched and passing cuts (and triggered)
+  int nGlobalMuonsMatched_passed;  // total number of global muons MC matched and passing cuts (and triggered)
 
-  vector<TH1D *>  hmumu2HLTplus_eta, hmumu1HLTplus_eta, hmustaplus_eta, hmutrackplus_eta, hmumuNotIsoplus_eta;
-  vector<TH1D *>  hmumu2HLTplus_pt, hmumu1HLTplus_pt, hmustaplus_pt, hmutrackplus_pt, hmumuNotIsoplus_pt;
-  vector<TH1D *>  hmumu2HLTminus_eta, hmumu1HLTminus_eta, hmustaminus_eta, hmutrackminus_eta, hmumuNotIsominus_eta;
-  vector<TH1D *>  hmumu2HLTminus_pt, hmumu1HLTminus_pt, hmustaminus_pt, hmutrackminus_pt, hmumuNotIsominus_pt;
+  vector<TH1D *> hmumu2HLTplus_eta, hmumu1HLTplus_eta, hmustaplus_eta, hmutrackplus_eta, hmumuNotIsoplus_eta;
+  vector<TH1D *> hmumu2HLTplus_pt, hmumu1HLTplus_pt, hmustaplus_pt, hmutrackplus_pt, hmumuNotIsoplus_pt;
+  vector<TH1D *> hmumu2HLTminus_eta, hmumu1HLTminus_eta, hmustaminus_eta, hmutrackminus_eta, hmumuNotIsominus_eta;
+  vector<TH1D *> hmumu2HLTminus_pt, hmumu1HLTminus_pt, hmustaminus_pt, hmutrackminus_pt, hmumuNotIsominus_pt;
 };
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -103,61 +107,65 @@ private:
 #include <iterator>
 #include <cmath>
 
-ZMuMu_efficiencyAnalyzer::ZMuMu_efficiencyAnalyzer(const ParameterSet& pset) :
-  zMuMuToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuMu"))),
-  zMuMuMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuMuMatchMap"))),
-  zMuStandAloneToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuStandAlone"))),
-  zMuStandAloneMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuStandAloneMatchMap"))),
-  zMuTrackToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuTrack"))),
-  zMuTrackMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuTrackMatchMap"))),
-  muonsToken_(consumes<CandidateView>(pset.getParameter<InputTag>("muons"))),
-  tracksToken_(consumes<CandidateView>(pset.getParameter<InputTag>("tracks"))),
-  genParticlesToken_(consumes<GenParticleCollection>(pset.getParameter<InputTag>("genParticles"))),
-  primaryVerticesToken_(consumes<VertexCollection>(pset.getParameter<InputTag>("primaryVertices"))),
+ZMuMu_efficiencyAnalyzer::ZMuMu_efficiencyAnalyzer(const ParameterSet &pset)
+    : zMuMuToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuMu"))),
+      zMuMuMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuMuMatchMap"))),
+      zMuStandAloneToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuStandAlone"))),
+      zMuStandAloneMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuStandAloneMatchMap"))),
+      zMuTrackToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuTrack"))),
+      zMuTrackMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuTrackMatchMap"))),
+      muonsToken_(consumes<CandidateView>(pset.getParameter<InputTag>("muons"))),
+      tracksToken_(consumes<CandidateView>(pset.getParameter<InputTag>("tracks"))),
+      genParticlesToken_(consumes<GenParticleCollection>(pset.getParameter<InputTag>("genParticles"))),
+      primaryVerticesToken_(consumes<VertexCollection>(pset.getParameter<InputTag>("primaryVertices"))),
 
-  bothMuons_(pset.getParameter<bool>("bothMuons")),
+      bothMuons_(pset.getParameter<bool>("bothMuons")),
 
-  etamax_(pset.getUntrackedParameter<double>("etamax")),
-  ptmin_(pset.getUntrackedParameter<double>("ptmin")),
-  massMin_(pset.getUntrackedParameter<double>("zMassMin")),
-  massMax_(pset.getUntrackedParameter<double>("zMassMax")),
-  isoMax_(pset.getUntrackedParameter<double>("isomax")) {
+      etamax_(pset.getUntrackedParameter<double>("etamax")),
+      ptmin_(pset.getUntrackedParameter<double>("ptmin")),
+      massMin_(pset.getUntrackedParameter<double>("zMassMin")),
+      massMax_(pset.getUntrackedParameter<double>("zMassMax")),
+      isoMax_(pset.getUntrackedParameter<double>("isomax")) {
   Service<TFileService> fs;
 
   // general histograms
-  h_zmm_mass  = fs->make<TH1D>("zmm_mass","zmumu mass",100,0.,200.);
-  h_zmm2HLT_mass  = fs->make<TH1D>("zmm2HLT_mass","zmumu 2HLT mass",100,0.,200.);
-  h_zmm1HLTplus_mass  = fs->make<TH1D>("zmm1HLTplus_mass","zmumu 1HLT plus mass",100,0.,200.);
-  h_zmmNotIsoplus_mass  = fs->make<TH1D>("zmmNotIsoplus_mass","zmumu a least One Not Iso plus mass",100,0.,200.);
-  h_zmsplus_mass  = fs->make<TH1D>("zmsplus_mass","zmusta plus mass",100,0.,200.);
-  h_zmtplus_mass  = fs->make<TH1D>("zmtplus_mass","zmutrack plus mass",100,0.,200.);
-  h_zmm1HLTminus_mass  = fs->make<TH1D>("zmm1HLTminus_mass","zmumu 1HLT minus mass",100,0.,200.);
-  h_zmmNotIsominus_mass  = fs->make<TH1D>("zmmNotIsominus_mass","zmumu a least One Not Iso minus mass",100,0.,200.);
-  h_zmsminus_mass  = fs->make<TH1D>("zmsminus_mass","zmusta minus mass",100,0.,200.);
-  h_zmtminus_mass  = fs->make<TH1D>("zmtminus_mass","zmutrack minus mass",100,0.,200.);
+  h_zmm_mass = fs->make<TH1D>("zmm_mass", "zmumu mass", 100, 0., 200.);
+  h_zmm2HLT_mass = fs->make<TH1D>("zmm2HLT_mass", "zmumu 2HLT mass", 100, 0., 200.);
+  h_zmm1HLTplus_mass = fs->make<TH1D>("zmm1HLTplus_mass", "zmumu 1HLT plus mass", 100, 0., 200.);
+  h_zmmNotIsoplus_mass = fs->make<TH1D>("zmmNotIsoplus_mass", "zmumu a least One Not Iso plus mass", 100, 0., 200.);
+  h_zmsplus_mass = fs->make<TH1D>("zmsplus_mass", "zmusta plus mass", 100, 0., 200.);
+  h_zmtplus_mass = fs->make<TH1D>("zmtplus_mass", "zmutrack plus mass", 100, 0., 200.);
+  h_zmm1HLTminus_mass = fs->make<TH1D>("zmm1HLTminus_mass", "zmumu 1HLT minus mass", 100, 0., 200.);
+  h_zmmNotIsominus_mass = fs->make<TH1D>("zmmNotIsominus_mass", "zmumu a least One Not Iso minus mass", 100, 0., 200.);
+  h_zmsminus_mass = fs->make<TH1D>("zmsminus_mass", "zmusta minus mass", 100, 0., 200.);
+  h_zmtminus_mass = fs->make<TH1D>("zmtminus_mass", "zmutrack minus mass", 100, 0., 200.);
 
   cout << "primo" << endl;
   // creating histograms for each Pt, eta interval
 
-  TFileDirectory etaDirectory = fs->mkdir("etaIntervals");   // in this directory will be saved all the histos of different eta intervals
-  TFileDirectory ptDirectory = fs->mkdir("ptIntervals");   // in this directory will be saved all the histos of different pt intervals
+  TFileDirectory etaDirectory =
+      fs->mkdir("etaIntervals");  // in this directory will be saved all the histos of different eta intervals
+  TFileDirectory ptDirectory =
+      fs->mkdir("ptIntervals");  // in this directory will be saved all the histos of different pt intervals
 
   // binning of entries array (at moment defined by hand and not in cfg file)
   etaBins = 6;
   ptBins = 4;
-  double  etaRangeTmp[7] = {-2.,-1.2,-0.8,0.,0.8,1.2,2.};
-  double  ptRangeTmp[5] = {20.,40.,60.,80.,100.};
-  for (unsigned int i=0;i<=etaBins;i++) etaRange[i] = etaRangeTmp[i];
-  for (unsigned int i=0;i<=ptBins;i++) ptRange[i] = ptRangeTmp[i];
+  double etaRangeTmp[7] = {-2., -1.2, -0.8, 0., 0.8, 1.2, 2.};
+  double ptRangeTmp[5] = {20., 40., 60., 80., 100.};
+  for (unsigned int i = 0; i <= etaBins; i++)
+    etaRange[i] = etaRangeTmp[i];
+  for (unsigned int i = 0; i <= ptBins; i++)
+    ptRange[i] = ptRangeTmp[i];
 
   // eta histograms creation
   cout << "eta istograms creation " << endl;
 
-  for (unsigned int i=0;i<etaBins;i++) {
+  for (unsigned int i = 0; i < etaBins; i++) {
     cout << " bin eta plus  " << i << endl;
     // muon plus
     double range0 = etaRange[i];
-    double range1= etaRange[i+1];
+    double range1 = etaRange[i + 1];
     std::string ap, bp;
     ap = "zmumu2HLTplus_etaRange" + std::to_string(i);
     bp = "zmumu2HLT plus mass eta Range " + std::to_string(range0) + " to " + std::to_string(range1);
@@ -181,7 +189,7 @@ ZMuMu_efficiencyAnalyzer::ZMuMu_efficiencyAnalyzer(const ParameterSet& pset) :
     hmumuNotIsoplus_eta.push_back(etaDirectory.make<TH1D>(ap.c_str(), bp.c_str(), 100, 0., 200.));
     // muon minus
     cout << " bin eta minus  " << i << endl;
-    std::string  am, bm;
+    std::string am, bm;
     am = "zmumu2HLTminus_etaRange" + std::to_string(i);
     bm = "zmumu2HLT minus mass eta Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << am << "   " << bm << endl;
@@ -207,9 +215,9 @@ ZMuMu_efficiencyAnalyzer::ZMuMu_efficiencyAnalyzer(const ParameterSet& pset) :
   // pt histograms creation
   cout << "pt istograms creation " << endl;
 
-  for (unsigned int i=0;i<ptBins;i++) {
+  for (unsigned int i = 0; i < ptBins; i++) {
     double range0 = ptRange[i];
-    double range1= ptRange[i+1];
+    double range1 = ptRange[i + 1];
     // muon plus
     cout << " bin pt plus  " << i << endl;
     std::string ap1, bp1;
@@ -262,18 +270,18 @@ ZMuMu_efficiencyAnalyzer::ZMuMu_efficiencyAnalyzer(const ParameterSet& pset) :
   nGlobalMuonsMatched_passed = 0;
 }
 
-void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& setup) {
+void ZMuMu_efficiencyAnalyzer::analyze(const Event &event, const EventSetup &setup) {
   Handle<CandidateView> zMuMu;
-  Handle<GenParticleMatch> zMuMuMatchMap; //Map of Z made by Mu global + Mu global
+  Handle<GenParticleMatch> zMuMuMatchMap;  //Map of Z made by Mu global + Mu global
   Handle<CandidateView> zMuStandAlone;
-  Handle<GenParticleMatch> zMuStandAloneMatchMap; //Map of Z made by Mu + StandAlone
+  Handle<GenParticleMatch> zMuStandAloneMatchMap;  //Map of Z made by Mu + StandAlone
   Handle<CandidateView> zMuTrack;
-  Handle<GenParticleMatch> zMuTrackMatchMap; //Map of Z made by Mu + Track
-  Handle<CandidateView> muons; //Collection of Muons
-  Handle<CandidateView> tracks; //Collection of Tracks
+  Handle<GenParticleMatch> zMuTrackMatchMap;  //Map of Z made by Mu + Track
+  Handle<CandidateView> muons;                //Collection of Muons
+  Handle<CandidateView> tracks;               //Collection of Tracks
 
   Handle<GenParticleCollection> genParticles;  // Collection of Generatd Particles
-  Handle<VertexCollection> primaryVertices;  // Collection of primary Vertices
+  Handle<VertexCollection> primaryVertices;    // Collection of primary Vertices
 
   event.getByToken(zMuMuToken_, zMuMu);
   event.getByToken(zMuStandAloneToken_, zMuStandAlone);
@@ -295,20 +303,18 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
   //      std::cout<<"Run-> "<<event.id().run()<<std::endl;
   //      std::cout<<"Event-> "<<event.id().event()<<std::endl;
 
-
-
   bool zMuMu_found = false;
   // loop on ZMuMu
-  if (!zMuMu->empty() ) {
-    for(unsigned int i = 0; i < zMuMu->size(); ++i) { //loop on candidates
-      const Candidate & zMuMuCand = (*zMuMu)[i]; //the candidate
+  if (!zMuMu->empty()) {
+    for (unsigned int i = 0; i < zMuMu->size(); ++i) {  //loop on candidates
+      const Candidate &zMuMuCand = (*zMuMu)[i];         //the candidate
       CandidateBaseRef zMuMuCandRef = zMuMu->refAt(i);
 
-      const Candidate * lep0 = zMuMuCand.daughter( 0 );
-      const Candidate * lep1 = zMuMuCand.daughter( 1 );
-      const pat::Muon & muonDau0 = dynamic_cast<const pat::Muon &>(*lep0->masterClone());
+      const Candidate *lep0 = zMuMuCand.daughter(0);
+      const Candidate *lep1 = zMuMuCand.daughter(1);
+      const pat::Muon &muonDau0 = dynamic_cast<const pat::Muon &>(*lep0->masterClone());
       double trkiso0 = muonDau0.trackIso();
-      const pat::Muon & muonDau1 = dynamic_cast<const pat::Muon &>(*lep1->masterClone());
+      const pat::Muon &muonDau1 = dynamic_cast<const pat::Muon &>(*lep1->masterClone());
       double trkiso1 = muonDau1.trackIso();
 
       // kinemtic variables
@@ -321,138 +327,144 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
       double mass = zMuMuCand.mass();
 
       // HLT match
-      const pat::TriggerObjectStandAloneCollection mu0HLTMatches =
-	muonDau0.triggerObjectMatchesByPath( "HLT_Mu9" );
-      const pat::TriggerObjectStandAloneCollection mu1HLTMatches =
-	muonDau1.triggerObjectMatchesByPath( "HLT_Mu9" );
+      const pat::TriggerObjectStandAloneCollection mu0HLTMatches = muonDau0.triggerObjectMatchesByPath("HLT_Mu9");
+      const pat::TriggerObjectStandAloneCollection mu1HLTMatches = muonDau1.triggerObjectMatchesByPath("HLT_Mu9");
 
       bool trig0found = false;
       bool trig1found = false;
-      if( !mu0HLTMatches.empty() )
-	trig0found = true;
-      if( !mu1HLTMatches.empty() )
-	trig1found = true;
+      if (!mu0HLTMatches.empty())
+        trig0found = true;
+      if (!mu1HLTMatches.empty())
+        trig1found = true;
 
       // kinematic selection
 
       bool checkOppositeCharge = false;
-      if (charge0 != charge1) checkOppositeCharge = true;
-      if (pt0>ptmin_ && pt1>ptmin_ && abs(eta0)<etamax_ && abs(eta1)<etamax_ && mass>massMin_ && mass<massMax_ && checkOppositeCharge) {
-	if (trig0found || trig1found) { // at least one muon match HLT
-	  zMuMu_found = true;           // Z found as global-global (so don't check Zms and Zmt)
-	  if (trkiso0 < isoMax_ && trkiso1 < isoMax_) { // both muons are isolated
-	    if (trig0found && trig1found) {
+      if (charge0 != charge1)
+        checkOppositeCharge = true;
+      if (pt0 > ptmin_ && pt1 > ptmin_ && abs(eta0) < etamax_ && abs(eta1) < etamax_ && mass > massMin_ &&
+          mass < massMax_ && checkOppositeCharge) {
+        if (trig0found || trig1found) {                  // at least one muon match HLT
+          zMuMu_found = true;                            // Z found as global-global (so don't check Zms and Zmt)
+          if (trkiso0 < isoMax_ && trkiso1 < isoMax_) {  // both muons are isolated
+            if (trig0found && trig1found) {
+              // ******************** category zmm 2 HLT ****************
 
-	      // ******************** category zmm 2 HLT ****************
+              h_zmm2HLT_mass->Fill(mass);
+              h_zmm_mass->Fill(mass);
 
-	      h_zmm2HLT_mass->Fill(mass);
-	      h_zmm_mass->Fill(mass);
+              // check the cynematics to fill correct histograms
 
-	      // check the cynematics to fill correct histograms
+              for (unsigned int j = 0; j < etaBins; j++) {  // eta Bins loop
+                double range0 = etaRange[j];
+                double range1 = etaRange[j + 1];
 
-	      for (unsigned int j=0;j<etaBins;j++) {  // eta Bins loop
-		double range0 = etaRange[j];
-		double range1= etaRange[j+1];
+                // eta histograms
 
-		// eta histograms
+                if (eta0 >= range0 && eta0 < range1) {
+                  if (charge0 < 0)
+                    hmumu2HLTminus_eta[j]->Fill(mass);  // mu- in bin eta
+                  if (charge0 > 0)
+                    hmumu2HLTplus_eta[j]->Fill(mass);  // mu+ in bin eta
+                }
+                if (eta1 >= range0 && eta1 < range1) {
+                  if (charge1 < 0)
+                    hmumu2HLTminus_eta[j]->Fill(mass);  // mu- in bin eta
+                  if (charge1 > 0)
+                    hmumu2HLTplus_eta[j]->Fill(mass);  // mu+ in bin eta
+                }
+              }  // end loop etaBins
 
-		if (eta0>=range0 && eta0<range1)
-		  {
-		    if (charge0<0) hmumu2HLTminus_eta[j]->Fill(mass);  // mu- in bin eta
-		    if (charge0>0) hmumu2HLTplus_eta[j]->Fill(mass);  // mu+ in bin eta
-		  }
-		if (eta1>=range0 && eta1<range1)
-		  {
-		    if (charge1<0) hmumu2HLTminus_eta[j]->Fill(mass);  // mu- in bin eta
-		    if (charge1>0) hmumu2HLTplus_eta[j]->Fill(mass);  // mu+ in bin eta
-		  }
-	      } // end loop etaBins
+              for (unsigned int j = 0; j < ptBins; j++) {  // pt Bins loop
+                double range0pt = ptRange[j];
+                double range1pt = ptRange[j + 1];
+                // pt histograms
+                if (pt0 >= range0pt && pt0 < range1pt) {
+                  if (charge0 < 0)
+                    hmumu2HLTminus_pt[j]->Fill(mass);  // mu- in bin eta
+                  if (charge0 > 0)
+                    hmumu2HLTplus_pt[j]->Fill(mass);  // mu+ in bin eta
+                }
+                if (pt1 >= range0pt && pt1 < range1pt) {
+                  if (charge1 < 0)
+                    hmumu2HLTminus_pt[j]->Fill(mass);  // mu- in bin eta
+                  if (charge1 > 0)
+                    hmumu2HLTplus_pt[j]->Fill(mass);  // mu+ in bin eta
+                }
+              }  // end loop  ptBins
 
-	      for (unsigned int j=0;j<ptBins;j++) {  // pt Bins loop
-		double range0pt = ptRange[j];
-		double range1pt = ptRange[j+1];
-		// pt histograms
-		if (pt0>=range0pt && pt0<range1pt)
-		  {
-		    if (charge0<0) hmumu2HLTminus_pt[j]->Fill(mass);  // mu- in bin eta
-		    if (charge0>0) hmumu2HLTplus_pt[j]->Fill(mass);  // mu+ in bin eta
-		  }
-		if (pt1>=range0pt && pt1<range1pt)
-		  {
-		    if (charge1<0) hmumu2HLTminus_pt[j]->Fill(mass);  // mu- in bin eta
-		    if (charge1>0) hmumu2HLTplus_pt[j]->Fill(mass);  // mu+ in bin eta
-		  }
-	      } // end loop  ptBins
+            }  // ******************* end category zmm 2 HLT ****************
 
-	    }  // ******************* end category zmm 2 HLT ****************
+            if (!trig0found || !trig1found) {
+              // ****************** category zmm 1 HLT ******************
+              h_zmm_mass->Fill(mass);
+              double eta = 9999;
+              double pt = 9999;
+              double charge = 0;
+              if (trig0found) {
+                eta = eta1;  // check  muon not HLT matched
+                pt = pt1;
+                charge = charge1;
+              } else {
+                eta = eta0;
+                pt = pt0;
+                charge = charge0;
+              }
+              if (charge < 0)
+                h_zmm1HLTminus_mass->Fill(mass);
+              if (charge > 0)
+                h_zmm1HLTplus_mass->Fill(mass);
 
-	    if (!trig0found || !trig1found) {
-	      // ****************** category zmm 1 HLT ******************
-	      h_zmm_mass->Fill(mass);
-	      double eta = 9999;
-	      double pt = 9999;
-	      double charge = 0;
-	      if (trig0found) {
-		eta = eta1;       // check  muon not HLT matched
-		pt = pt1;
-		charge = charge1;
-	      } else {
-		eta = eta0;
-		pt =pt0;
-		charge = charge0;
-	      }
-	      if (charge<0) h_zmm1HLTminus_mass->Fill(mass);
-	      if (charge>0) h_zmm1HLTplus_mass->Fill(mass);
+              for (unsigned int j = 0; j < etaBins; j++) {  // eta Bins loop
+                double range0 = etaRange[j];
+                double range1 = etaRange[j + 1];
+                // eta histograms fill the bin of the muon not HLT matched
+                if (eta >= range0 && eta < range1) {
+                  if (charge < 0)
+                    hmumu1HLTminus_eta[j]->Fill(mass);
+                  if (charge > 0)
+                    hmumu1HLTplus_eta[j]->Fill(mass);
+                }
+              }                                            // end loop etaBins
+              for (unsigned int j = 0; j < ptBins; j++) {  // pt Bins loop
+                double range0 = ptRange[j];
+                double range1 = ptRange[j + 1];
+                // pt histograms
+                if (pt >= range0 && pt < range1) {
+                  if (charge < 0)
+                    hmumu1HLTminus_pt[j]->Fill(mass);
+                  if (charge > 0)
+                    hmumu1HLTplus_pt[j]->Fill(mass);
+                }
+              }  // end loop ptBins
 
-	      for (unsigned int j=0;j<etaBins;j++) {  // eta Bins loop
-		double range0 = etaRange[j];
-		double range1= etaRange[j+1];
-		// eta histograms fill the bin of the muon not HLT matched
-		if (eta>=range0 && eta<range1)
-		  {
-		    if (charge<0) hmumu1HLTminus_eta[j]->Fill(mass);
-		    if (charge>0) hmumu1HLTplus_eta[j]->Fill(mass);
-		  }
-	      } // end loop etaBins
-	      for (unsigned int j=0;j<ptBins;j++) {  // pt Bins loop
-		double range0 = ptRange[j];
-		double range1= ptRange[j+1];
-		// pt histograms
-		if (pt>=range0 && pt<range1)
-		  {
-		    if (charge<0) hmumu1HLTminus_pt[j]->Fill(mass);
-		    if (charge>0) hmumu1HLTplus_pt[j]->Fill(mass);
-		  }
-	      } // end loop ptBins
+            }  // ****************** end category zmm 1 HLT ***************
 
-	    } // ****************** end category zmm 1 HLT ***************
+          } else {  // one or both muons are not isolated
+            // *****************  category zmumuNotIso **************** (per ora non studio iso vs eta e pt da capire meglio)
 
-	  } else {  // one or both muons are not isolated
-	    // *****************  category zmumuNotIso **************** (per ora non studio iso vs eta e pt da capire meglio)
+          }  // end if both muons isolated
 
-	  } // end if both muons isolated
-
-	} // end if at least 1 HLT trigger found
-      }  // end if kinematic selection
-
+        }  // end if at least 1 HLT trigger found
+      }    // end if kinematic selection
 
     }  // end loop on ZMuMu cand
   }    // end if ZMuMu size > 0
 
   // loop on ZMuSta
   bool zMuSta_found = false;
-  if (!zMuMu_found && !zMuStandAlone->empty() ) {
+  if (!zMuMu_found && !zMuStandAlone->empty()) {
     event.getByToken(zMuStandAloneMatchMapToken_, zMuStandAloneMatchMap);
-    for(unsigned int i = 0; i < zMuStandAlone->size(); ++i) { //loop on candidates
-      const Candidate & zMuStandAloneCand = (*zMuStandAlone)[i]; //the candidate
+    for (unsigned int i = 0; i < zMuStandAlone->size(); ++i) {   //loop on candidates
+      const Candidate &zMuStandAloneCand = (*zMuStandAlone)[i];  //the candidate
       CandidateBaseRef zMuStandAloneCandRef = zMuStandAlone->refAt(i);
       GenParticleRef zMuStandAloneMatch = (*zMuStandAloneMatchMap)[zMuStandAloneCandRef];
 
-      const Candidate * lep0 = zMuStandAloneCand.daughter( 0 );
-      const Candidate * lep1 = zMuStandAloneCand.daughter( 1 );
-      const pat::Muon & muonDau0 = dynamic_cast<const pat::Muon &>(*lep0->masterClone());
+      const Candidate *lep0 = zMuStandAloneCand.daughter(0);
+      const Candidate *lep1 = zMuStandAloneCand.daughter(1);
+      const pat::Muon &muonDau0 = dynamic_cast<const pat::Muon &>(*lep0->masterClone());
       double trkiso0 = muonDau0.trackIso();
-      const pat::Muon & muonDau1 = dynamic_cast<const pat::Muon &>(*lep1->masterClone());
+      const pat::Muon &muonDau1 = dynamic_cast<const pat::Muon &>(*lep1->masterClone());
       double trkiso1 = muonDau1.trackIso();
       double pt0 = zMuStandAloneCand.daughter(0)->pt();
       double pt1 = zMuStandAloneCand.daughter(1)->pt();
@@ -463,80 +475,86 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
       double mass = zMuStandAloneCand.mass();
 
       // HLT match
-      const pat::TriggerObjectStandAloneCollection mu0HLTMatches =
-	muonDau0.triggerObjectMatchesByPath( "HLT_Mu9" );
-      const pat::TriggerObjectStandAloneCollection mu1HLTMatches =
-	muonDau1.triggerObjectMatchesByPath( "HLT_Mu9" );
+      const pat::TriggerObjectStandAloneCollection mu0HLTMatches = muonDau0.triggerObjectMatchesByPath("HLT_Mu9");
+      const pat::TriggerObjectStandAloneCollection mu1HLTMatches = muonDau1.triggerObjectMatchesByPath("HLT_Mu9");
 
       bool trig0found = false;
       bool trig1found = false;
-      if( !mu0HLTMatches.empty() )
-	trig0found = true;
-      if( !mu1HLTMatches.empty() )
-	trig1found = true;
+      if (!mu0HLTMatches.empty())
+        trig0found = true;
+      if (!mu1HLTMatches.empty())
+        trig1found = true;
 
       // check HLT match of Global muon and save eta, pt of second muon (standAlone)
       bool trigGlbfound = false;
-      double pt =999.;
+      double pt = 999.;
       double eta = 999.;
       double charge = 0;
       if (muonDau0.isGlobalMuon()) {
-	trigGlbfound = trig0found;
-	pt = pt1;
-	eta = eta1;
-	charge = charge1;
+        trigGlbfound = trig0found;
+        pt = pt1;
+        eta = eta1;
+        charge = charge1;
       }
       if (muonDau1.isGlobalMuon()) {
-	trigGlbfound = trig1found;
-	pt = pt0;
-	eta = eta0;
-	charge = charge0;
+        trigGlbfound = trig1found;
+        pt = pt0;
+        eta = eta0;
+        charge = charge0;
       }
 
       bool checkOppositeCharge = false;
-      if (charge0 != charge1) checkOppositeCharge = true;
+      if (charge0 != charge1)
+        checkOppositeCharge = true;
 
-      if (checkOppositeCharge && trigGlbfound && pt0>ptmin_ && pt1>ptmin_ && abs(eta0)<etamax_ && abs(eta1)<etamax_ && mass>massMin_ && mass<massMax_ && trkiso0<isoMax_ && trkiso1<isoMax_ ) {  // global mu match HLT + kinematic cuts + opposite charge
+      if (checkOppositeCharge && trigGlbfound && pt0 > ptmin_ && pt1 > ptmin_ && abs(eta0) < etamax_ &&
+          abs(eta1) < etamax_ && mass > massMin_ && mass < massMax_ && trkiso0 < isoMax_ &&
+          trkiso1 < isoMax_) {  // global mu match HLT + kinematic cuts + opposite charge
 
-	if (charge<0) h_zmsminus_mass->Fill(mass);
-	if (charge>0) h_zmsplus_mass->Fill(mass);
+        if (charge < 0)
+          h_zmsminus_mass->Fill(mass);
+        if (charge > 0)
+          h_zmsplus_mass->Fill(mass);
 
-	for (unsigned int j=0;j<etaBins;j++) {  // eta Bins loop
-	  double range0 = etaRange[j];
-	  double range1= etaRange[j+1];
-	  // eta histograms
-	  if (eta>=range0 && eta<range1) {
-	    if (charge<0)  hmustaminus_eta[j]->Fill(mass);
-	    if (charge>0)  hmustaplus_eta[j]->Fill(mass);
-	  }
-	} // end loop etaBins
-	for (unsigned int j=0;j<ptBins;j++) {  // pt Bins loop
-	  double range0 = ptRange[j];
-	  double range1= ptRange[j+1];
-	  // pt histograms
-	  if (pt>=range0 && pt<range1) {
-	    if (charge<0)  hmustaminus_pt[j]->Fill(mass);
-	    if (charge>0)  hmustaplus_pt[j]->Fill(mass);
-	  }
-	} // end loop ptBins
+        for (unsigned int j = 0; j < etaBins; j++) {  // eta Bins loop
+          double range0 = etaRange[j];
+          double range1 = etaRange[j + 1];
+          // eta histograms
+          if (eta >= range0 && eta < range1) {
+            if (charge < 0)
+              hmustaminus_eta[j]->Fill(mass);
+            if (charge > 0)
+              hmustaplus_eta[j]->Fill(mass);
+          }
+        }                                            // end loop etaBins
+        for (unsigned int j = 0; j < ptBins; j++) {  // pt Bins loop
+          double range0 = ptRange[j];
+          double range1 = ptRange[j + 1];
+          // pt histograms
+          if (pt >= range0 && pt < range1) {
+            if (charge < 0)
+              hmustaminus_pt[j]->Fill(mass);
+            if (charge > 0)
+              hmustaplus_pt[j]->Fill(mass);
+          }
+        }  // end loop ptBins
 
-      } // end if trigGlbfound + kinecuts + OppostieCharge
-    }  // end loop on ZMuStandAlone cand
-  }    // end if ZMuStandAlone size > 0
-
+      }  // end if trigGlbfound + kinecuts + OppostieCharge
+    }    // end loop on ZMuStandAlone cand
+  }      // end if ZMuStandAlone size > 0
 
   // loop on ZMuTrack
   //  bool zMuTrack_found = false;
-  if (!zMuMu_found && !zMuSta_found && !zMuTrack->empty() ) {
+  if (!zMuMu_found && !zMuSta_found && !zMuTrack->empty()) {
     event.getByToken(zMuTrackMatchMapToken_, zMuTrackMatchMap);
-    for(unsigned int i = 0; i < zMuTrack->size(); ++i) { //loop on candidates
-      const Candidate & zMuTrackCand = (*zMuTrack)[i]; //the candidate
+    for (unsigned int i = 0; i < zMuTrack->size(); ++i) {  //loop on candidates
+      const Candidate &zMuTrackCand = (*zMuTrack)[i];      //the candidate
       CandidateBaseRef zMuTrackCandRef = zMuTrack->refAt(i);
-      const Candidate * lep0 = zMuTrackCand.daughter( 0 );
-      const Candidate * lep1 = zMuTrackCand.daughter( 1 );
-      const pat::Muon & muonDau0 = dynamic_cast<const pat::Muon &>(*lep0->masterClone());
+      const Candidate *lep0 = zMuTrackCand.daughter(0);
+      const Candidate *lep1 = zMuTrackCand.daughter(1);
+      const pat::Muon &muonDau0 = dynamic_cast<const pat::Muon &>(*lep0->masterClone());
       double trkiso0 = muonDau0.trackIso();
-      const pat::GenericParticle & trackDau1 = dynamic_cast<const pat::GenericParticle &>(*lep1->masterClone());
+      const pat::GenericParticle &trackDau1 = dynamic_cast<const pat::GenericParticle &>(*lep1->masterClone());
       double trkiso1 = trackDau1.trackIso();
       double pt0 = zMuTrackCand.daughter(0)->pt();
       double pt1 = zMuTrackCand.daughter(1)->pt();
@@ -547,203 +565,215 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
       double mass = zMuTrackCand.mass();
 
       // HLT match (check just dau0 the global)
-      const pat::TriggerObjectStandAloneCollection mu0HLTMatches =
-	muonDau0.triggerObjectMatchesByPath( "HLT_Mu9" );
+      const pat::TriggerObjectStandAloneCollection mu0HLTMatches = muonDau0.triggerObjectMatchesByPath("HLT_Mu9");
 
       bool trig0found = false;
-      if( !mu0HLTMatches.empty() )
-	trig0found = true;
+      if (!mu0HLTMatches.empty())
+        trig0found = true;
 
       bool checkOppositeCharge = false;
-      if (charge0 != charge1) checkOppositeCharge = true;
+      if (charge0 != charge1)
+        checkOppositeCharge = true;
 
-      if (checkOppositeCharge && trig0found && pt0>ptmin_ && pt1>ptmin_ && abs(eta0)<etamax_ && abs(eta1)<etamax_ && mass>massMin_ && mass<massMax_ && trkiso0<isoMax_ && trkiso1<isoMax_ ) {  // global mu match HLT + kinematic cuts + opposite charge
+      if (checkOppositeCharge && trig0found && pt0 > ptmin_ && pt1 > ptmin_ && abs(eta0) < etamax_ &&
+          abs(eta1) < etamax_ && mass > massMin_ && mass < massMax_ && trkiso0 < isoMax_ &&
+          trkiso1 < isoMax_) {  // global mu match HLT + kinematic cuts + opposite charge
 
-	if (charge1<0) h_zmtminus_mass->Fill(mass);
-	if (charge1>0) h_zmtplus_mass->Fill(mass);
+        if (charge1 < 0)
+          h_zmtminus_mass->Fill(mass);
+        if (charge1 > 0)
+          h_zmtplus_mass->Fill(mass);
 
-	for (unsigned int j=0;j<etaBins;j++) {  // eta Bins loop
-	  double range0 = etaRange[j];
-	  double range1= etaRange[j+1];
-	  // eta histograms
-	  if (eta1>=range0 && eta1<range1) {
-	    if (charge1<0)  hmutrackminus_eta[j]->Fill(mass);  // just check muon1 (mu0 is global by definition)
-	    if (charge1>0)  hmutrackplus_eta[j]->Fill(mass);  // just check muon1 (mu0 is global by definition)
-	  }
-	} // end loop etaBins
-	for (unsigned int j=0;j<ptBins;j++) {  // pt Bins loop
-	  double range0 = ptRange[j];
-	  double range1= ptRange[j+1];
-	  // pt histograms
-	  if (pt1>=range0 && pt1<range1) {
-	    if (charge1<0)  hmutrackminus_pt[j]->Fill(mass);  // just check muon1 (mu0 is global by definition)
-	    if (charge1>0)  hmutrackplus_pt[j]->Fill(mass);  // just check muon1 (mu0 is global by definition)
-	  }
-	} // end loop ptBins
+        for (unsigned int j = 0; j < etaBins; j++) {  // eta Bins loop
+          double range0 = etaRange[j];
+          double range1 = etaRange[j + 1];
+          // eta histograms
+          if (eta1 >= range0 && eta1 < range1) {
+            if (charge1 < 0)
+              hmutrackminus_eta[j]->Fill(mass);  // just check muon1 (mu0 is global by definition)
+            if (charge1 > 0)
+              hmutrackplus_eta[j]->Fill(mass);  // just check muon1 (mu0 is global by definition)
+          }
+        }                                            // end loop etaBins
+        for (unsigned int j = 0; j < ptBins; j++) {  // pt Bins loop
+          double range0 = ptRange[j];
+          double range1 = ptRange[j + 1];
+          // pt histograms
+          if (pt1 >= range0 && pt1 < range1) {
+            if (charge1 < 0)
+              hmutrackminus_pt[j]->Fill(mass);  // just check muon1 (mu0 is global by definition)
+            if (charge1 > 0)
+              hmutrackplus_pt[j]->Fill(mass);  // just check muon1 (mu0 is global by definition)
+          }
+        }  // end loop ptBins
 
-      } // end if trig0found
-
+      }  // end if trig0found
 
     }  // end loop on ZMuTrack cand
   }    // end if ZMuTrack size > 0
 
-}       // end analyze
+}  // end analyze
 
-bool ZMuMu_efficiencyAnalyzer::check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)
-{
+bool ZMuMu_efficiencyAnalyzer::check_ifZmumu(const Candidate *dauGen0,
+                                             const Candidate *dauGen1,
+                                             const Candidate *dauGen2) {
   int partId0 = dauGen0->pdgId();
   int partId1 = dauGen1->pdgId();
   int partId2 = dauGen2->pdgId();
-  bool muplusFound=false;
-  bool muminusFound=false;
-  bool ZFound=false;
-  if (partId0==13 || partId1==13 || partId2==13) muminusFound=true;
-  if (partId0==-13 || partId1==-13 || partId2==-13) muplusFound=true;
-  if (partId0==23 || partId1==23 || partId2==23) ZFound=true;
+  bool muplusFound = false;
+  bool muminusFound = false;
+  bool ZFound = false;
+  if (partId0 == 13 || partId1 == 13 || partId2 == 13)
+    muminusFound = true;
+  if (partId0 == -13 || partId1 == -13 || partId2 == -13)
+    muplusFound = true;
+  if (partId0 == 23 || partId1 == 23 || partId2 == 23)
+    ZFound = true;
   return (muplusFound && muminusFound && ZFound);
 }
 
-float ZMuMu_efficiencyAnalyzer::getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)
-{
+float ZMuMu_efficiencyAnalyzer::getParticlePt(const int ipart,
+                                              const Candidate *dauGen0,
+                                              const Candidate *dauGen1,
+                                              const Candidate *dauGen2) {
   int partId0 = dauGen0->pdgId();
   int partId1 = dauGen1->pdgId();
   int partId2 = dauGen2->pdgId();
-  float ptpart=0.;
+  float ptpart = 0.;
   if (partId0 == ipart) {
-    for(unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
-      const Candidate * dauMuGen = dauGen0->daughter(k);
-      if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
-	ptpart = dauMuGen->pt();
+    for (unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
+      const Candidate *dauMuGen = dauGen0->daughter(k);
+      if (dauMuGen->pdgId() == ipart && dauMuGen->status() == 1) {
+        ptpart = dauMuGen->pt();
       }
     }
   }
   if (partId1 == ipart) {
-    for(unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
-      const Candidate * dauMuGen = dauGen1->daughter(k);
-      if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
-	ptpart = dauMuGen->pt();
+    for (unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
+      const Candidate *dauMuGen = dauGen1->daughter(k);
+      if (dauMuGen->pdgId() == ipart && dauMuGen->status() == 1) {
+        ptpart = dauMuGen->pt();
       }
     }
   }
   if (partId2 == ipart) {
-    for(unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
-      const Candidate * dauMuGen = dauGen2->daughter(k);
-      if(abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() ==1) {
-	ptpart = dauMuGen->pt();
+    for (unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
+      const Candidate *dauMuGen = dauGen2->daughter(k);
+      if (abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() == 1) {
+        ptpart = dauMuGen->pt();
       }
     }
   }
   return ptpart;
 }
 
-float ZMuMu_efficiencyAnalyzer::getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)
-{
+float ZMuMu_efficiencyAnalyzer::getParticleEta(const int ipart,
+                                               const Candidate *dauGen0,
+                                               const Candidate *dauGen1,
+                                               const Candidate *dauGen2) {
   int partId0 = dauGen0->pdgId();
   int partId1 = dauGen1->pdgId();
   int partId2 = dauGen2->pdgId();
-  float etapart=0.;
+  float etapart = 0.;
   if (partId0 == ipart) {
-    for(unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
-      const Candidate * dauMuGen = dauGen0->daughter(k);
-      if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
-	etapart = dauMuGen->eta();
+    for (unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
+      const Candidate *dauMuGen = dauGen0->daughter(k);
+      if (dauMuGen->pdgId() == ipart && dauMuGen->status() == 1) {
+        etapart = dauMuGen->eta();
       }
     }
   }
   if (partId1 == ipart) {
-    for(unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
-      const Candidate * dauMuGen = dauGen1->daughter(k);
-      if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
-	etapart = dauMuGen->eta();
+    for (unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
+      const Candidate *dauMuGen = dauGen1->daughter(k);
+      if (dauMuGen->pdgId() == ipart && dauMuGen->status() == 1) {
+        etapart = dauMuGen->eta();
       }
     }
   }
   if (partId2 == ipart) {
-    for(unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
-      const Candidate * dauMuGen = dauGen2->daughter(k);
-      if(abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() ==1) {
-	etapart = dauMuGen->eta();
+    for (unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
+      const Candidate *dauMuGen = dauGen2->daughter(k);
+      if (abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() == 1) {
+        etapart = dauMuGen->eta();
       }
     }
   }
   return etapart;
 }
 
-float ZMuMu_efficiencyAnalyzer::getParticlePhi(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)
-{
+float ZMuMu_efficiencyAnalyzer::getParticlePhi(const int ipart,
+                                               const Candidate *dauGen0,
+                                               const Candidate *dauGen1,
+                                               const Candidate *dauGen2) {
   int partId0 = dauGen0->pdgId();
   int partId1 = dauGen1->pdgId();
   int partId2 = dauGen2->pdgId();
-  float phipart=0.;
+  float phipart = 0.;
   if (partId0 == ipart) {
-    for(unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
-      const Candidate * dauMuGen = dauGen0->daughter(k);
-      if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
-	phipart = dauMuGen->phi();
+    for (unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
+      const Candidate *dauMuGen = dauGen0->daughter(k);
+      if (dauMuGen->pdgId() == ipart && dauMuGen->status() == 1) {
+        phipart = dauMuGen->phi();
       }
     }
   }
   if (partId1 == ipart) {
-    for(unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
-      const Candidate * dauMuGen = dauGen1->daughter(k);
-      if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
-	phipart = dauMuGen->phi();
+    for (unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
+      const Candidate *dauMuGen = dauGen1->daughter(k);
+      if (dauMuGen->pdgId() == ipart && dauMuGen->status() == 1) {
+        phipart = dauMuGen->phi();
       }
     }
   }
   if (partId2 == ipart) {
-    for(unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
-      const Candidate * dauMuGen = dauGen2->daughter(k);
-      if(abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() ==1) {
-	phipart = dauMuGen->phi();
+    for (unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
+      const Candidate *dauMuGen = dauGen2->daughter(k);
+      if (abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() == 1) {
+        phipart = dauMuGen->phi();
       }
     }
   }
   return phipart;
 }
 
-Particle::LorentzVector ZMuMu_efficiencyAnalyzer::getParticleP4(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)
-{
+Particle::LorentzVector ZMuMu_efficiencyAnalyzer::getParticleP4(const int ipart,
+                                                                const Candidate *dauGen0,
+                                                                const Candidate *dauGen1,
+                                                                const Candidate *dauGen2) {
   int partId0 = dauGen0->pdgId();
   int partId1 = dauGen1->pdgId();
   int partId2 = dauGen2->pdgId();
-  Particle::LorentzVector p4part(0.,0.,0.,0.);
+  Particle::LorentzVector p4part(0., 0., 0., 0.);
   if (partId0 == ipart) {
-    for(unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
-      const Candidate * dauMuGen = dauGen0->daughter(k);
-      if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
-	p4part = dauMuGen->p4();
+    for (unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
+      const Candidate *dauMuGen = dauGen0->daughter(k);
+      if (dauMuGen->pdgId() == ipart && dauMuGen->status() == 1) {
+        p4part = dauMuGen->p4();
       }
     }
   }
   if (partId1 == ipart) {
-    for(unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
-      const Candidate * dauMuGen = dauGen1->daughter(k);
-      if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
-	p4part = dauMuGen->p4();
+    for (unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
+      const Candidate *dauMuGen = dauGen1->daughter(k);
+      if (dauMuGen->pdgId() == ipart && dauMuGen->status() == 1) {
+        p4part = dauMuGen->p4();
       }
     }
   }
   if (partId2 == ipart) {
-    for(unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
-      const Candidate * dauMuGen = dauGen2->daughter(k);
-      if(abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() ==1) {
-	p4part = dauMuGen->p4();
+    for (unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
+      const Candidate *dauMuGen = dauGen2->daughter(k);
+      if (abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() == 1) {
+        p4part = dauMuGen->p4();
       }
     }
   }
   return p4part;
 }
 
-
-
-void ZMuMu_efficiencyAnalyzer::endJob() {
-
-
-
-}
+void ZMuMu_efficiencyAnalyzer::endJob() {}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(ZMuMu_efficiencyAnalyzer);
-
