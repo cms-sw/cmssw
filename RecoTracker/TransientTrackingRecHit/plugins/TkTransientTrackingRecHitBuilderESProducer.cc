@@ -86,7 +86,7 @@ TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord 
   edm::ESHandle<ClusterParameterEstimator<Phase2TrackerCluster1D> > p2OTe;
   const ClusterParameterEstimator<Phase2TrackerCluster1D> * p2OTp;
 
-  if (p2OTname != "") {
+  if (!p2OTname.empty()) {
     iRecord.getRecord<TkStripCPERecord>().get( p2OTname, p2OTe );
     p2OTp = p2OTe.product();
     return std::make_unique<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, p2OTp);
