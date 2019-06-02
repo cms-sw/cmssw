@@ -24,7 +24,7 @@ namespace cms {
     void endJob() override {delete dbg; }
 
   private:
-    virtual TrajectorySeedCollection::const_iterator 
+    TrajectorySeedCollection::const_iterator 
       lastSeed(TrajectorySeedCollection const& theSeedColl) override {return theSeedColl.begin()+1;}
 
     void initDebugger(edm::EventSetup const & es){
