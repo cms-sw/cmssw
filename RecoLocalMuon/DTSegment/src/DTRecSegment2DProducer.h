@@ -18,7 +18,7 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class DTRecSegment2DBaseAlgo;
 
@@ -29,23 +29,20 @@ class DTRecSegment2DBaseAlgo;
 /* Class DTRecSegment2DProducer Interface */
 
 class DTRecSegment2DProducer : public edm::stream::EDProducer<> {
-
- public:
-
+public:
   /// Constructor
-  DTRecSegment2DProducer(const edm::ParameterSet&) ;
+  DTRecSegment2DProducer(const edm::ParameterSet&);
 
   /// Destructor
-  ~DTRecSegment2DProducer() override ;
-    
+  ~DTRecSegment2DProducer() override;
+
   // Operations
 
   /// The method which produces the 2D-segments
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
- protected:
-
- private:
+protected:
+private:
   // Switch on verbosity
   bool debug;
 
@@ -55,5 +52,4 @@ class DTRecSegment2DProducer : public edm::stream::EDProducer<> {
   //static std::string theAlgoName;
   edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
 };
-#endif // DTRecHit_DTRecSegment2DProducer_h
-
+#endif  // DTRecHit_DTRecSegment2DProducer_h
