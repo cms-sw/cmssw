@@ -15,72 +15,58 @@ XERCES_CPP_NAMESPACE_USE
 
 using namespace PhysicsTools;
 
-namespace { // anonymous
+namespace {  // anonymous
 
-class ProcForeach : public TrainProcessor {
-    public:
-	typedef TrainProcessor::Registry<ProcForeach>::Type Registry;
+  class ProcForeach : public TrainProcessor {
+  public:
+    typedef TrainProcessor::Registry<ProcForeach>::Type Registry;
 
-	ProcForeach(const char *name, const AtomicId *id,
-	            MVATrainer *trainer);
-	~ProcForeach() override;
+    ProcForeach(const char *name, const AtomicId *id, MVATrainer *trainer);
+    ~ProcForeach() override;
 
-	void configure(DOMElement *elem) override;
-	Calibration::VarProcessor *getCalibration() const override;
+    void configure(DOMElement *elem) override;
+    Calibration::VarProcessor *getCalibration() const override;
 
-    private:
-	unsigned int	count;
-};
+  private:
+    unsigned int count;
+  };
 
-ProcForeach::Registry registry("ProcForeach");
+  ProcForeach::Registry registry("ProcForeach");
 
-ProcForeach::ProcForeach(const char *name, const AtomicId *id,
-                         MVATrainer *trainer) :
-	TrainProcessor(name, id, trainer)
-{
-}
+  ProcForeach::ProcForeach(const char *name, const AtomicId *id, MVATrainer *trainer)
+      : TrainProcessor(name, id, trainer) {}
 
-ProcForeach::~ProcForeach()
-{
-}
+  ProcForeach::~ProcForeach() {}
 
-void ProcForeach::configure(DOMElement *elem)
-{
-	DOMNode *node = elem->getFirstChild();
-	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
-		node = node->getNextSibling();
+  void ProcForeach::configure(DOMElement *elem) {
+    DOMNode *node = elem->getFirstChild();
+    while (node && node->getNodeType() != DOMNode::ELEMENT_NODE)
+      node = node->getNextSibling();
 
-	if (!node)
-		throw cms::Exception("ProcForeach")
-			<< "Expected procs tag in config section."
-			<< std::endl;
+    if (!node)
+      throw cms::Exception("ProcForeach") << "Expected procs tag in config section." << std::endl;
 
-	if (std::strcmp(XMLSimpleStr(node->getNodeName()), "procs") != 0)
-		throw cms::Exception("ProcForeach")
-				<< "Expected procs tag in config section."
-				<< std::endl;
+    if (std::strcmp(XMLSimpleStr(node->getNodeName()), "procs") != 0)
+      throw cms::Exception("ProcForeach") << "Expected procs tag in config section." << std::endl;
 
-	elem = static_cast<DOMElement*>(node);
+    elem = static_cast<DOMElement *>(node);
 
-	count = XMLDocument::readAttribute<unsigned int>(elem, "next");
+    count = XMLDocument::readAttribute<unsigned int>(elem, "next");
 
-	node = node->getNextSibling();
-	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
-		node = node->getNextSibling();
+    node = node->getNextSibling();
+    while (node && node->getNodeType() != DOMNode::ELEMENT_NODE)
+      node = node->getNextSibling();
 
-	if (node)
-		throw cms::Exception("ProcForeach")
-			<< "Superfluous tags in config section."
-			<< std::endl;
+    if (node)
+      throw cms::Exception("ProcForeach") << "Superfluous tags in config section." << std::endl;
 
-	trained = true;
-}
+    trained = true;
+  }
 
-Calibration::VarProcessor *ProcForeach::getCalibration() const
-{
-	Calibration::ProcForeach *calib = new Calibration::ProcForeach;
-	calib->nProcs = count;
-	return calib;
-}
+  Calibration::VarProcessor *ProcForeach::getCalibration() const {
+    Calibration::ProcForeach *calib = new Calibration::ProcForeach;
+    calib->nProcs = count;
+    return calib;
+  }
 
-} // anonymous namespace
+}  // anonymous namespace

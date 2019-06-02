@@ -7,31 +7,26 @@
 namespace root {
   namespace helper {
 
-    template<typename F, unsigned int args>
+    template <typename F, unsigned int args>
     struct RootFunctionAdapter {
-      RootFunctionAdapter() : f_(0) { }
-      RootFunctionAdapter(F & f) : f_(&f) { }
-      void addParameter(const boost::shared_ptr<double> & par) {
-	pars_.push_back(par);
+      RootFunctionAdapter() : f_(0) {}
+      RootFunctionAdapter(F& f) : f_(&f) {}
+      void addParameter(const boost::shared_ptr<double>& par) { pars_.push_back(par); }
+      void setParameters(const double* pars) {
+        for (size_t i = 0; i < pars_.size(); ++i) {
+          *pars_[i] = pars[i];
+        }
       }
-      void setParameters(const double * pars) {
-	for(size_t i = 0; i < pars_.size(); ++i) {
-	  *pars_[i] = pars[i];
-	}
-      }
-      double operator()(const double * var) const {
-        return RootVarsAdapter<F, args>::value(*f_, var);
-      }
-      size_t numberOfParameters() const {
-	return pars_.size();
-      }
+      double operator()(const double* var) const { return RootVarsAdapter<F, args>::value(*f_, var); }
+      size_t numberOfParameters() const { return pars_.size(); }
+
     private:
-      F * f_;
+      F* f_;
       std::vector<boost::shared_ptr<double> > pars_;
     };
-    
-  }
 
-}
+  }  // namespace helper
+
+}  // namespace root
 
 #endif

@@ -5,5 +5,3 @@
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBBeamCounters.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBParticleId.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-
-

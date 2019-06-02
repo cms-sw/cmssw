@@ -23,19 +23,17 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 
 class TtDilepEvtSolution {
-  
   friend class TtFullLepKinSolver;
   friend class TtDilepEvtSolutionMaker;
   friend class TtDilepLRSignalSelObservables;
   friend class TtLRSignalSelCalc;
-  
- public:
-  
+
+public:
   TtDilepEvtSolution();
   virtual ~TtDilepEvtSolution();
-  
+
   //-------------------------------------------
-  // get calibrated base objects 
+  // get calibrated base objects
   //-------------------------------------------
   pat::Jet getJetB() const;
   pat::Jet getJetBbar() const;
@@ -50,25 +48,75 @@ class TtDilepEvtSolution {
   //-------------------------------------------
   // get the matched gen particles
   //-------------------------------------------
-  const edm::RefProd<TtGenEvent> & getGenEvent() const { return theGenEvt_; };
-  const reco::GenParticle * getGenT() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->top(); };
-  const reco::GenParticle * getGenWp() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->wPlus(); };
-  const reco::GenParticle * getGenB() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->b(); };
-  const reco::GenParticle * getGenLepp() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->leptonBar(); };
-  const reco::GenParticle * getGenN() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->neutrino(); };
-  const reco::GenParticle * getGenTbar() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->topBar(); };
-  const reco::GenParticle * getGenWm() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->wMinus(); };
-  const reco::GenParticle * getGenBbar() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->bBar(); };
-  const reco::GenParticle * getGenLepm() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->lepton(); };
-  const reco::GenParticle * getGenNbar() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->neutrinoBar(); };
+  const edm::RefProd<TtGenEvent>& getGenEvent() const { return theGenEvt_; };
+  const reco::GenParticle* getGenT() const {
+    if (!theGenEvt_)
+      return nullptr;
+    else
+      return theGenEvt_->top();
+  };
+  const reco::GenParticle* getGenWp() const {
+    if (!theGenEvt_)
+      return nullptr;
+    else
+      return theGenEvt_->wPlus();
+  };
+  const reco::GenParticle* getGenB() const {
+    if (!theGenEvt_)
+      return nullptr;
+    else
+      return theGenEvt_->b();
+  };
+  const reco::GenParticle* getGenLepp() const {
+    if (!theGenEvt_)
+      return nullptr;
+    else
+      return theGenEvt_->leptonBar();
+  };
+  const reco::GenParticle* getGenN() const {
+    if (!theGenEvt_)
+      return nullptr;
+    else
+      return theGenEvt_->neutrino();
+  };
+  const reco::GenParticle* getGenTbar() const {
+    if (!theGenEvt_)
+      return nullptr;
+    else
+      return theGenEvt_->topBar();
+  };
+  const reco::GenParticle* getGenWm() const {
+    if (!theGenEvt_)
+      return nullptr;
+    else
+      return theGenEvt_->wMinus();
+  };
+  const reco::GenParticle* getGenBbar() const {
+    if (!theGenEvt_)
+      return nullptr;
+    else
+      return theGenEvt_->bBar();
+  };
+  const reco::GenParticle* getGenLepm() const {
+    if (!theGenEvt_)
+      return nullptr;
+    else
+      return theGenEvt_->lepton();
+  };
+  const reco::GenParticle* getGenNbar() const {
+    if (!theGenEvt_)
+      return nullptr;
+    else
+      return theGenEvt_->neutrinoBar();
+  };
 
   //-------------------------------------------
   // get (un-)/calibrated reco objects
   //-------------------------------------------
-  pat::Jet      getRecJetB() const { return this->getJetB().correctedJet("RAW"); };
-  pat::Jet      getCalJetB() const { return this->getJetB(); };
-  pat::Jet      getRecJetBbar() const { return this->getJetBbar().correctedJet("RAW"); };
-  pat::Jet      getCalJetBbar() const { return this->getJetBbar(); };
+  pat::Jet getRecJetB() const { return this->getJetB().correctedJet("RAW"); };
+  pat::Jet getCalJetB() const { return this->getJetB(); };
+  pat::Jet getRecJetBbar() const { return this->getJetBbar().correctedJet("RAW"); };
+  pat::Jet getCalJetBbar() const { return this->getJetBbar(); };
 
   //-------------------------------------------
   // get info on the W decays
@@ -79,35 +127,34 @@ class TtDilepEvtSolution {
   //-------------------------------------------
   // miscellaneous
   //-------------------------------------------
-  double getJetResidual()    const;
+  double getJetResidual() const;
   double getLeptonResidual() const;
-  double getFullResidual()   const { return getJetResidual()+getLeptonResidual(); }
-  bool   getBestSol()      const { return bestSol_; }
-  double getRecTopMass()   const {return topmass_; }
-  double getRecWeightMax() const {return weightmax_; }
-  
+  double getFullResidual() const { return getJetResidual() + getLeptonResidual(); }
+  bool getBestSol() const { return bestSol_; }
+  double getRecTopMass() const { return topmass_; }
+  double getRecWeightMax() const { return weightmax_; }
+
   //-------------------------------------------
-  // returns the 4-vector of the positive 
+  // returns the 4-vector of the positive
   // lepton, with the charge and the pdgId
   //-------------------------------------------
   reco::Particle getLeptPos() const;
 
   //-------------------------------------------
-  // returns the 4-vector of the negative 
+  // returns the 4-vector of the negative
   // lepton, with the charge and the pdgId
   //-------------------------------------------
   reco::Particle getLeptNeg() const;
-  
+
   //-------------------------------------------
-  // get info on the outcome of the signal 
+  // get info on the outcome of the signal
   // selection LR
   //-------------------------------------------
   double getLRSignalEvtObsVal(unsigned int) const;
   double getLRSignalEvtLRval() const { return lrSignalEvtLRval_; }
   double getLRSignalEvtProb() const { return lrSignalEvtProb_; }
-  
- protected:
-  
+
+protected:
   //-------------------------------------------
   // set the generated event
   //-------------------------------------------
@@ -116,26 +163,40 @@ class TtDilepEvtSolution {
   //-------------------------------------------
   // set the basic objects
   //-------------------------------------------
-  void setJetCorrectionScheme(int jetCorrScheme) 
-  { jetCorrScheme_ = jetCorrScheme; };
-  void setB(const edm::Handle<std::vector<pat::Jet> >& jet, int i)
-  { jetB_ = edm::Ref<std::vector<pat::Jet> >(jet, i); };
-  void setBbar(const edm::Handle<std::vector<pat::Jet> >& jet, int i)
-  { jetBbar_ = edm::Ref<std::vector<pat::Jet> >(jet, i); };
-  void setMuonp(const edm::Handle<std::vector<pat::Muon> >& muon, int i)
-  { muonp_ = edm::Ref<std::vector<pat::Muon> >(muon, i); wpDecay_ = "muon"; };
-  void setMuonm(const edm::Handle<std::vector<pat::Muon> >& muon, int i)
-  { muonm_ = edm::Ref<std::vector<pat::Muon> >(muon, i); wmDecay_ = "muon"; }
-  void setTaup(const edm::Handle<std::vector<pat::Tau> >& tau, int i)
-  { taup_ = edm::Ref<std::vector<pat::Tau> >(tau, i); wpDecay_ = "tau"; }
-  void setTaum(const edm::Handle<std::vector<pat::Tau> >& tau, int i)
-  { taum_ = edm::Ref<std::vector<pat::Tau> >(tau, i); wmDecay_ = "tau"; }
-  void setElectronp(const edm::Handle<std::vector<pat::Electron> >& elec, int i)
-  { elecp_ = edm::Ref<std::vector<pat::Electron> >(elec, i); wpDecay_ = "electron"; };
-  void setElectronm(const edm::Handle<std::vector<pat::Electron> >& elec, int i)
-  { elecm_ = edm::Ref<std::vector<pat::Electron> >(elec, i); wmDecay_ = "electron"; };
-  void setMET(const edm::Handle<std::vector<pat::MET> >& met, int i)
-  { met_ = edm::Ref<std::vector<pat::MET> >(met, i); };
+  void setJetCorrectionScheme(int jetCorrScheme) { jetCorrScheme_ = jetCorrScheme; };
+  void setB(const edm::Handle<std::vector<pat::Jet> >& jet, int i) {
+    jetB_ = edm::Ref<std::vector<pat::Jet> >(jet, i);
+  };
+  void setBbar(const edm::Handle<std::vector<pat::Jet> >& jet, int i) {
+    jetBbar_ = edm::Ref<std::vector<pat::Jet> >(jet, i);
+  };
+  void setMuonp(const edm::Handle<std::vector<pat::Muon> >& muon, int i) {
+    muonp_ = edm::Ref<std::vector<pat::Muon> >(muon, i);
+    wpDecay_ = "muon";
+  };
+  void setMuonm(const edm::Handle<std::vector<pat::Muon> >& muon, int i) {
+    muonm_ = edm::Ref<std::vector<pat::Muon> >(muon, i);
+    wmDecay_ = "muon";
+  }
+  void setTaup(const edm::Handle<std::vector<pat::Tau> >& tau, int i) {
+    taup_ = edm::Ref<std::vector<pat::Tau> >(tau, i);
+    wpDecay_ = "tau";
+  }
+  void setTaum(const edm::Handle<std::vector<pat::Tau> >& tau, int i) {
+    taum_ = edm::Ref<std::vector<pat::Tau> >(tau, i);
+    wmDecay_ = "tau";
+  }
+  void setElectronp(const edm::Handle<std::vector<pat::Electron> >& elec, int i) {
+    elecp_ = edm::Ref<std::vector<pat::Electron> >(elec, i);
+    wpDecay_ = "electron";
+  };
+  void setElectronm(const edm::Handle<std::vector<pat::Electron> >& elec, int i) {
+    elecm_ = edm::Ref<std::vector<pat::Electron> >(elec, i);
+    wmDecay_ = "electron";
+  };
+  void setMET(const edm::Handle<std::vector<pat::MET> >& met, int i) {
+    met_ = edm::Ref<std::vector<pat::MET> >(met, i);
+  };
 
   //-------------------------------------------
   // miscellaneous
@@ -143,20 +204,19 @@ class TtDilepEvtSolution {
   void setBestSol(bool bs) { bestSol_ = bs; };
   void setRecTopMass(double mass) { topmass_ = mass; };
   void setRecWeightMax(double wgt) { weightmax_ = wgt; };
-  
+
   //-------------------------------------------
   // set the outcome of the signal selection LR
   //-------------------------------------------
   void setLRSignalEvtObservables(const std::vector<std::pair<unsigned int, double> >&);
-  void setLRSignalEvtLRval(double clr) {lrSignalEvtLRval_ = clr;};
-  void setLRSignalEvtProb(double plr)  {lrSignalEvtProb_  = plr;};
-  
- private:
-  
+  void setLRSignalEvtLRval(double clr) { lrSignalEvtLRval_ = clr; };
+  void setLRSignalEvtProb(double plr) { lrSignalEvtProb_ = plr; };
+
+private:
   //-------------------------------------------
   // particle content
   //-------------------------------------------
-  edm::RefProd<TtGenEvent>            theGenEvt_;
+  edm::RefProd<TtGenEvent> theGenEvt_;
   edm::Ref<std::vector<pat::Electron> > elecp_, elecm_;
   edm::Ref<std::vector<pat::Muon> > muonp_, muonm_;
   edm::Ref<std::vector<pat::Tau> > taup_, taum_;
@@ -168,11 +228,11 @@ class TtDilepEvtSolution {
   //-------------------------------------------
   int jetCorrScheme_;
   std::string wpDecay_;
-  std::string wmDecay_;      
+  std::string wmDecay_;
   bool bestSol_;
   double topmass_;
   double weightmax_;
-  
+
   double lrSignalEvtLRval_, lrSignalEvtProb_;
   std::vector<std::pair<unsigned int, double> > lrSignalEvtVarVal_;
 };

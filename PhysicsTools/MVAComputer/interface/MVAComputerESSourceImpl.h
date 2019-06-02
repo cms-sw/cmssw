@@ -9,36 +9,29 @@
 
 namespace PhysicsTools {
 
-template<class RecordType>
-class MVAComputerESSourceImpl : public MVAComputerESSourceBase,
-                                public edm::EventSetupRecordIntervalFinder {
-    public:
-	MVAComputerESSourceImpl(const edm::ParameterSet &params) :
-		MVAComputerESSourceBase(params)
-	{
-		setWhatProduced(this);
-		findingRecord<RecordType>();
-	}
+  template <class RecordType>
+  class MVAComputerESSourceImpl : public MVAComputerESSourceBase, public edm::EventSetupRecordIntervalFinder {
+  public:
+    MVAComputerESSourceImpl(const edm::ParameterSet &params) : MVAComputerESSourceBase(params) {
+      setWhatProduced(this);
+      findingRecord<RecordType>();
+    }
 
-	~MVAComputerESSourceImpl() override {}
+    ~MVAComputerESSourceImpl() override {}
 
-	ReturnType produce(const RecordType &record)
-	{ return this->produce(); }
+    ReturnType produce(const RecordType &record) { return this->produce(); }
 
-    protected:
-	using MVAComputerESSourceBase::produce;
+  protected:
+    using MVAComputerESSourceBase::produce;
 
-    private:
-	void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
-	                    const edm::IOVSyncValue &syncValue,
-	                    edm::ValidityInterval &oValidity) override
-	{
-		oValidity = edm::ValidityInterval(
-					edm::IOVSyncValue::beginOfTime(),
-					edm::IOVSyncValue::endOfTime());
-	}
-};
+  private:
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
+                        const edm::IOVSyncValue &syncValue,
+                        edm::ValidityInterval &oValidity) override {
+      oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
+    }
+  };
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools
 
-#endif // PhysicsTools_MVAComputer_MVAComputerESSourceImpl_h
+#endif  // PhysicsTools_MVAComputer_MVAComputerESSourceImpl_h

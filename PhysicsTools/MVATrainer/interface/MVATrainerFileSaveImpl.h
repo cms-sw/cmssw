@@ -17,25 +17,22 @@
 
 namespace PhysicsTools {
 
-template<typename Record_t>
-class MVATrainerFileSaveImpl : public MVATrainerFileSave {
-    public:
-	explicit MVATrainerFileSaveImpl(const edm::ParameterSet &params) :
-		MVATrainerFileSave(params) {}
+  template <typename Record_t>
+  class MVATrainerFileSaveImpl : public MVATrainerFileSave {
+  public:
+    explicit MVATrainerFileSaveImpl(const edm::ParameterSet& params) : MVATrainerFileSave(params) {}
 
-    protected:
-	const Calibration::MVAComputerContainer *
-	getToPut(const edm::EventSetup& es) const override
-	{
-		edm::ESHandle<Calibration::MVAComputerContainer> handle;
-		if (trained)
-			es.get<Record_t>().get("trained", handle);
-		else
-			es.get<Record_t>().get(handle);
-		return handle.product();
-	}
-};
+  protected:
+    const Calibration::MVAComputerContainer* getToPut(const edm::EventSetup& es) const override {
+      edm::ESHandle<Calibration::MVAComputerContainer> handle;
+      if (trained)
+        es.get<Record_t>().get("trained", handle);
+      else
+        es.get<Record_t>().get(handle);
+      return handle.product();
+    }
+  };
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools
 
-#endif // PhysicsTools_MVATrainer_MVATrainerFileSaveImpl_h
+#endif  // PhysicsTools_MVATrainer_MVATrainerFileSaveImpl_h

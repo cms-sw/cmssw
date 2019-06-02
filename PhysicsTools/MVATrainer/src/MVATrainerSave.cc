@@ -23,47 +23,38 @@
 
 namespace PhysicsTools {
 
-MVATrainerSave::MVATrainerSave(const edm::ParameterSet &params) :
-	saved(false)
-{
-}
+  MVATrainerSave::MVATrainerSave(const edm::ParameterSet& params) : saved(false) {}
 
-void MVATrainerSave::analyze(const edm::Event& event,
-                             const edm::EventSetup& es)
-{
-	if (calib.get() || saved)
-		return;
+  void MVATrainerSave::analyze(const edm::Event& event, const edm::EventSetup& es) {
+    if (calib.get() || saved)
+      return;
 
-	const Calibration::MVAComputer *toPutCalib = getToPut(es);
-	if (MVATrainerLooper::isUntrained(toPutCalib))
-		return;
+    const Calibration::MVAComputer* toPutCalib = getToPut(es);
+    if (MVATrainerLooper::isUntrained(toPutCalib))
+      return;
 
-	edm::LogInfo("MVATrainerSave") << "Got the trained calibration data";
+    edm::LogInfo("MVATrainerSave") << "Got the trained calibration data";
 
-	std::unique_ptr<Calibration::MVAComputer> calib(
-						new Calibration::MVAComputer);
-	*calib = *toPutCalib;
+    std::unique_ptr<Calibration::MVAComputer> calib(new Calibration::MVAComputer);
+    *calib = *toPutCalib;
 
-	this->calib = std::move(calib);
-}
+    this->calib = std::move(calib);
+  }
 
-void MVATrainerSave::endJob()
-{
-	if (!calib.get() || saved)
-		return;
+  void MVATrainerSave::endJob() {
+    if (!calib.get() || saved)
+      return;
 
-	edm::LogInfo("MVATrainerSave") << "Saving calibration data in CondDB.";
+    edm::LogInfo("MVATrainerSave") << "Saving calibration data in CondDB.";
 
-	edm::Service<cond::service::PoolDBOutputService> dbService;
-	if (!dbService.isAvailable())
-		throw cms::Exception("MVATrainerSave")
-			<< "DBService unavailable" << std::endl;
+    edm::Service<cond::service::PoolDBOutputService> dbService;
+    if (!dbService.isAvailable())
+      throw cms::Exception("MVATrainerSave") << "DBService unavailable" << std::endl;
 
-	dbService->createNewIOV<Calibration::MVAComputer>(
-		calib.release(), dbService->beginOfTime(),
-		dbService->endOfTime(), getRecordName());
+    dbService->createNewIOV<Calibration::MVAComputer>(
+        calib.release(), dbService->beginOfTime(), dbService->endOfTime(), getRecordName());
 
-	saved = true;
-}
+    saved = true;
+  }
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools

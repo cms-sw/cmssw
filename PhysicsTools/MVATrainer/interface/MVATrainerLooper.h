@@ -13,81 +13,76 @@
 
 namespace PhysicsTools {
 
-class MVATrainerLooper : public edm::ESProducerLooper {
+  class MVATrainerLooper : public edm::ESProducerLooper {
+  public:
+    MVATrainerLooper(const edm::ParameterSet &params);
+    ~MVATrainerLooper() override;
+
+    void startingNewLoop(unsigned int iteration) override;
+    Status duringLoop(const edm::Event &ev, const edm::EventSetup &es) override;
+    Status endOfLoop(const edm::EventSetup &es, unsigned int iteration) override;
+
+    typedef std::shared_ptr<Calibration::MVAComputer> TrainObject;
+    typedef std::shared_ptr<Calibration::MVAComputerContainer> TrainContainer;
+
+    template <class T>
+    static inline bool isUntrained(const T *ptr);
+
+  protected:
+    class Trainer {
     public:
-	MVATrainerLooper(const edm::ParameterSet &params);
-	~MVATrainerLooper() override;
+      Trainer(const edm::ParameterSet &params);
+      virtual ~Trainer() {}
 
-	void startingNewLoop(unsigned int iteration) override;
-	Status duringLoop(const edm::Event &ev,
-	                          const edm::EventSetup &es) override;
-	Status endOfLoop(const edm::EventSetup &es,
-	                         unsigned int iteration) override;
-
-	typedef std::shared_ptr<Calibration::MVAComputer> TrainObject;
-	typedef std::shared_ptr<Calibration::MVAComputerContainer>
-							TrainContainer;
-
-	template<class T>
-	static inline bool isUntrained(const T *ptr);
-
-    protected:
-	class Trainer {
-	    public:
-		Trainer(const edm::ParameterSet &params);
-		virtual ~Trainer() {}
-
-		inline const MVATrainer *getTrainer() const
-		{ return trainer.get(); }
-		inline const TrainObject getCalibration() const
-		{ return trainCalib; }
-
-	    private:
-		friend class MVATrainerLooper;
-
-		std::unique_ptr<MVATrainer>	trainer;
-		TrainObject			trainCalib;
-	};
-
-	class TrainerContainer {
-	    public:
-		~TrainerContainer();
-		void clear();
-
-		typedef std::vector<Trainer*>::const_iterator const_iterator;
-
-		inline const_iterator begin() const { return content.begin(); }
-		inline const_iterator end() const { return content.end(); }
-		inline bool empty() const { return content.empty(); }
-
-		inline void add(Trainer *trainer)
-		{ content.push_back(trainer); }
-
-	    private:
-		std::vector<Trainer*> content;
-	};
-
-	class UntrainedMVAComputer : public Calibration::MVAComputer {};
-	class UntrainedMVAComputerContainer :
-				public Calibration::MVAComputerContainer {};
-
-	void addTrainer(Trainer *trainer) { trainers.add(trainer); }
-
-	inline const TrainerContainer &getTrainers() const { return trainers; }
+      inline const MVATrainer *getTrainer() const { return trainer.get(); }
+      inline const TrainObject getCalibration() const { return trainCalib; }
 
     private:
-	TrainerContainer	trainers;
-        bool dataProcessedInLoop;
-};
+      friend class MVATrainerLooper;
 
-template<> inline bool
-MVATrainerLooper::isUntrained(const Calibration::MVAComputer *ptr)
-{ return dynamic_cast<const UntrainedMVAComputer*>(ptr) != nullptr; }
+      std::unique_ptr<MVATrainer> trainer;
+      TrainObject trainCalib;
+    };
 
-template<> inline bool
-MVATrainerLooper::isUntrained(const Calibration::MVAComputerContainer *ptr)
-{ return dynamic_cast<const UntrainedMVAComputerContainer*>(ptr) != nullptr; }
+    class TrainerContainer {
+    public:
+      ~TrainerContainer();
+      void clear();
 
-} // namespace PhysicsTools
+      typedef std::vector<Trainer *>::const_iterator const_iterator;
 
-#endif // PhysicsTools_MVATrainer_MVATrainerLooper_h
+      inline const_iterator begin() const { return content.begin(); }
+      inline const_iterator end() const { return content.end(); }
+      inline bool empty() const { return content.empty(); }
+
+      inline void add(Trainer *trainer) { content.push_back(trainer); }
+
+    private:
+      std::vector<Trainer *> content;
+    };
+
+    class UntrainedMVAComputer : public Calibration::MVAComputer {};
+    class UntrainedMVAComputerContainer : public Calibration::MVAComputerContainer {};
+
+    void addTrainer(Trainer *trainer) { trainers.add(trainer); }
+
+    inline const TrainerContainer &getTrainers() const { return trainers; }
+
+  private:
+    TrainerContainer trainers;
+    bool dataProcessedInLoop;
+  };
+
+  template <>
+  inline bool MVATrainerLooper::isUntrained(const Calibration::MVAComputer *ptr) {
+    return dynamic_cast<const UntrainedMVAComputer *>(ptr) != nullptr;
+  }
+
+  template <>
+  inline bool MVATrainerLooper::isUntrained(const Calibration::MVAComputerContainer *ptr) {
+    return dynamic_cast<const UntrainedMVAComputerContainer *>(ptr) != nullptr;
+  }
+
+}  // namespace PhysicsTools
+
+#endif  // PhysicsTools_MVATrainer_MVATrainerLooper_h

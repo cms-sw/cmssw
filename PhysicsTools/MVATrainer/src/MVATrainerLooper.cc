@@ -15,122 +15,104 @@
 
 namespace PhysicsTools {
 
-namespace {
-    template<typename T>
-    inline void deleter (T *ptr) { delete ptr; }
-}
+  namespace {
+    template <typename T>
+    inline void deleter(T *ptr) {
+      delete ptr;
+    }
+  }  // namespace
 
-// MVATrainerLooper::Trainer implementation
+  // MVATrainerLooper::Trainer implementation
 
-MVATrainerLooper::Trainer::Trainer(const edm::ParameterSet &params)
-{
-	const edm::Entry *entry = params.retrieveUntracked("trainDescription");
-	if (!entry)
-		throw edm::Exception(edm::errors::Configuration,
-		                     "MissingParameter:")
-			<< "The required parameter 'trainDescription' "
-			   "was not specified." << std::endl;;
-	std::string trainDescription;
-	if (entry->typeCode() == 'F')
-		trainDescription = entry->getFileInPath().fullPath();
-	else
-		trainDescription = entry->getString();
+  MVATrainerLooper::Trainer::Trainer(const edm::ParameterSet &params) {
+    const edm::Entry *entry = params.retrieveUntracked("trainDescription");
+    if (!entry)
+      throw edm::Exception(edm::errors::Configuration, "MissingParameter:")
+          << "The required parameter 'trainDescription' "
+             "was not specified."
+          << std::endl;
+    ;
+    std::string trainDescription;
+    if (entry->typeCode() == 'F')
+      trainDescription = entry->getFileInPath().fullPath();
+    else
+      trainDescription = entry->getString();
 
-	bool useXSLT = params.getUntrackedParameter<bool>("useXSLT", false);
-	bool doLoad = params.getUntrackedParameter<bool>("loadState", false);
-	bool doSave = params.getUntrackedParameter<bool>("saveState", false);
-	bool doMonitoring = params.getUntrackedParameter<bool>("monitoring", false);
+    bool useXSLT = params.getUntrackedParameter<bool>("useXSLT", false);
+    bool doLoad = params.getUntrackedParameter<bool>("loadState", false);
+    bool doSave = params.getUntrackedParameter<bool>("saveState", false);
+    bool doMonitoring = params.getUntrackedParameter<bool>("monitoring", false);
 
-	trainer.reset(new MVATrainer(trainDescription, useXSLT));
+    trainer.reset(new MVATrainer(trainDescription, useXSLT));
 
-	if (doLoad)
-		trainer->loadState();
+    if (doLoad)
+      trainer->loadState();
 
-	trainer->setAutoSave(doSave);
-	trainer->setCleanup(!doSave);
-	trainer->setMonitoring(doMonitoring);
-}
+    trainer->setAutoSave(doSave);
+    trainer->setCleanup(!doSave);
+    trainer->setMonitoring(doMonitoring);
+  }
 
-// MVATrainerLooper::MVATrainerContainer implementation
+  // MVATrainerLooper::MVATrainerContainer implementation
 
-MVATrainerLooper::TrainerContainer::~TrainerContainer()
-{
-	clear();
-}
+  MVATrainerLooper::TrainerContainer::~TrainerContainer() { clear(); }
 
-void MVATrainerLooper::TrainerContainer::clear()
-{
-	std::for_each(begin(), end(), deleter<Trainer>);
-	content.clear();
-}
+  void MVATrainerLooper::TrainerContainer::clear() {
+    std::for_each(begin(), end(), deleter<Trainer>);
+    content.clear();
+  }
 
-// MVATrainerLooper implementation
+  // MVATrainerLooper implementation
 
-MVATrainerLooper::MVATrainerLooper(const edm::ParameterSet& iConfig) :
-  dataProcessedInLoop(false)
-{
-}
+  MVATrainerLooper::MVATrainerLooper(const edm::ParameterSet &iConfig) : dataProcessedInLoop(false) {}
 
-MVATrainerLooper::~MVATrainerLooper()
-{
-}
+  MVATrainerLooper::~MVATrainerLooper() {}
 
-void MVATrainerLooper::startingNewLoop(unsigned int iteration)
-{
-        dataProcessedInLoop = false; 
+  void MVATrainerLooper::startingNewLoop(unsigned int iteration) {
+    dataProcessedInLoop = false;
 
-	for(TrainerContainer::const_iterator iter = trainers.begin();
-	    iter != trainers.end(); iter++) {
-		Trainer *trainer = *iter;
+    for (TrainerContainer::const_iterator iter = trainers.begin(); iter != trainers.end(); iter++) {
+      Trainer *trainer = *iter;
 
-		trainer->trainCalib =
-			TrainObject(trainer->trainer->getTrainCalibration());
-	}
-}
+      trainer->trainCalib = TrainObject(trainer->trainer->getTrainCalibration());
+    }
+  }
 
-edm::EDLooper::Status
-MVATrainerLooper::duringLoop(const edm::Event &event,
-                                   const edm::EventSetup &es)
-{
-        dataProcessedInLoop = true;
+  edm::EDLooper::Status MVATrainerLooper::duringLoop(const edm::Event &event, const edm::EventSetup &es) {
+    dataProcessedInLoop = true;
 
-	if (trainers.empty())
-		return kStop;
+    if (trainers.empty())
+      return kStop;
 
-	for(TrainerContainer::const_iterator iter = trainers.begin();
-	    iter != trainers.end(); iter++)
-		if ((*iter)->getCalibration())
-			return kContinue;
+    for (TrainerContainer::const_iterator iter = trainers.begin(); iter != trainers.end(); iter++)
+      if ((*iter)->getCalibration())
+        return kContinue;
 
-	trainers.clear();
-	return kStop;
-}
+    trainers.clear();
+    return kStop;
+  }
 
-edm::EDLooper::Status MVATrainerLooper::endOfLoop(const edm::EventSetup &es,
-                                                  unsigned int iteration)
-{
-        if (!dataProcessedInLoop) {
-          cms::Exception ex("MVATrainerLooper");
-          ex << "No data processed during loop\n";
-          ex.addContext("Calling MVATrainerLooper::endOfLoop()");
-          throw ex;
-        }
+  edm::EDLooper::Status MVATrainerLooper::endOfLoop(const edm::EventSetup &es, unsigned int iteration) {
+    if (!dataProcessedInLoop) {
+      cms::Exception ex("MVATrainerLooper");
+      ex << "No data processed during loop\n";
+      ex.addContext("Calling MVATrainerLooper::endOfLoop()");
+      throw ex;
+    }
 
-	if (trainers.empty())
-		return kStop;
+    if (trainers.empty())
+      return kStop;
 
-	for(TrainerContainer::const_iterator iter = trainers.begin();
-	    iter != trainers.end(); iter++) {
-		Trainer *trainer = *iter;
+    for (TrainerContainer::const_iterator iter = trainers.begin(); iter != trainers.end(); iter++) {
+      Trainer *trainer = *iter;
 
-		if (trainer->trainCalib)
-			trainer->trainer->doneTraining(
-						trainer->trainCalib.get());
+      if (trainer->trainCalib)
+        trainer->trainer->doneTraining(trainer->trainCalib.get());
 
-		trainer->trainCalib.reset();
-	}
+      trainer->trainCalib.reset();
+    }
 
-	return kContinue;
-}
+    return kContinue;
+  }
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools
