@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
   // Read the information from a txt file
   while( !inputFile.eof() ) {
     getline(inputFile, line);
-    if( line != "" ) {
+    if( !line.empty() ) {
       // std::cout << "line = " << line << std::endl;
       std::stringstream ss(line);
       for( int i=0; i<6; ++i ) {

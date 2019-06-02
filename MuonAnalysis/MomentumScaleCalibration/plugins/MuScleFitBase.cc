@@ -128,7 +128,7 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
   TH2D * GLZ[6];
   TH2D * GL[6];
   TFile * ProbsFile;
-  if( probabilitiesFile_ != "" ) {
+  if( !probabilitiesFile_.empty() ) {
     ProbsFile = new TFile (probabilitiesFile_.c_str());
     std::cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from " << probabilitiesFile_ << std::endl;
   }
