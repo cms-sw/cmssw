@@ -15,40 +15,33 @@
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include <TFile.h>
 
+class GBRForestGetterFromDB : public edm::one::EDAnalyzer<> {
+public:
+  explicit GBRForestGetterFromDB(const edm::ParameterSet &);
+  ~GBRForestGetterFromDB() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-class GBRForestGetterFromDB: public edm::one::EDAnalyzer<>
-{
-    public:
-        explicit GBRForestGetterFromDB( const edm::ParameterSet & ) ;
-        ~GBRForestGetterFromDB() override ;
-        void analyze( const edm::Event &, const edm::EventSetup & ) override ;
-
-    private:
-        std::string theGBRForestName;
-        std::string theOutputFileName;
-        std::string theOutputObjectName;
-        edm::ESHandle<GBRForest> theGBRForestHandle;
+private:
+  std::string theGBRForestName;
+  std::string theOutputFileName;
+  std::string theOutputObjectName;
+  edm::ESHandle<GBRForest> theGBRForestHandle;
 };
 
-GBRForestGetterFromDB::GBRForestGetterFromDB( const edm::ParameterSet & conf ) :
-    theGBRForestName(conf.getParameter<std::string>("grbForestName")),
-    theOutputFileName(conf.getUntrackedParameter<std::string>("outputFileName")),
-    theOutputObjectName(conf.getUntrackedParameter<std::string>("outputObjectName", theGBRForestName.empty() ? "GBRForest" : theGBRForestName))
-{
-}
+GBRForestGetterFromDB::GBRForestGetterFromDB(const edm::ParameterSet &conf)
+    : theGBRForestName(conf.getParameter<std::string>("grbForestName")),
+      theOutputFileName(conf.getUntrackedParameter<std::string>("outputFileName")),
+      theOutputObjectName(conf.getUntrackedParameter<std::string>(
+          "outputObjectName", theGBRForestName.empty() ? "GBRForest" : theGBRForestName)) {}
 
-GBRForestGetterFromDB::~GBRForestGetterFromDB()
-{
-}
+GBRForestGetterFromDB::~GBRForestGetterFromDB() {}
 
-void
-GBRForestGetterFromDB::analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup ) 
-{
-    iSetup.get<GBRWrapperRcd>().get(theGBRForestName, theGBRForestHandle);
-    TFile *fOut = TFile::Open(theOutputFileName.c_str(), "RECREATE");
-    fOut->WriteObject(theGBRForestHandle.product(), theOutputObjectName.c_str());
-    fOut->Close();
-    std::cout << "Wrote output to " << theOutputFileName << std::endl;
+void GBRForestGetterFromDB::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  iSetup.get<GBRWrapperRcd>().get(theGBRForestName, theGBRForestHandle);
+  TFile *fOut = TFile::Open(theOutputFileName.c_str(), "RECREATE");
+  fOut->WriteObject(theGBRForestHandle.product(), theOutputObjectName.c_str());
+  fOut->Close();
+  std::cout << "Wrote output to " << theOutputFileName << std::endl;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

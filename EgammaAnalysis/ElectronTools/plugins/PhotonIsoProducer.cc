@@ -23,22 +23,23 @@
 //
 
 class PhotonIsoProducer : public edm::EDFilter {
-      public:
-         explicit PhotonIsoProducer(const edm::ParameterSet&);
-         ~PhotonIsoProducer() override;
-      private:
-        bool filter(edm::Event&, const edm::EventSetup&) override;
+public:
+  explicit PhotonIsoProducer(const edm::ParameterSet&);
+  ~PhotonIsoProducer() override;
 
-// ----------member data ---------------------------
-        bool verbose_;
-        edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-        edm::EDGetTokenT<reco::PhotonCollection> photonToken_;
-        edm::EDGetTokenT<reco::PFCandidateCollection> particleFlowToken_;
-        std::string nameIsoCh_;
-        std::string nameIsoPh_;
-        std::string nameIsoNh_;
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-        PFIsolationEstimator isolator;
+  // ----------member data ---------------------------
+  bool verbose_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+  edm::EDGetTokenT<reco::PhotonCollection> photonToken_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> particleFlowToken_;
+  std::string nameIsoCh_;
+  std::string nameIsoPh_;
+  std::string nameIsoNh_;
+
+  PFIsolationEstimator isolator;
 };
 
 //
@@ -53,34 +54,27 @@ class PhotonIsoProducer : public edm::EDFilter {
 // constructors and destructor
 //
 PhotonIsoProducer::PhotonIsoProducer(const edm::ParameterSet& iConfig) {
-        verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
-        vertexToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexTag"));
-        photonToken_ = consumes<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photonTag"));
-        particleFlowToken_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("particleFlowTag"));
+  verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
+  vertexToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexTag"));
+  photonToken_ = consumes<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photonTag"));
+  particleFlowToken_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("particleFlowTag"));
 
-        nameIsoCh_ = iConfig.getParameter<std::string>("nameValueMapIsoCh");
-        nameIsoPh_ = iConfig.getParameter<std::string>("nameValueMapIsoPh");
-        nameIsoNh_ = iConfig.getParameter<std::string>("nameValueMapIsoNh");
+  nameIsoCh_ = iConfig.getParameter<std::string>("nameValueMapIsoCh");
+  nameIsoPh_ = iConfig.getParameter<std::string>("nameValueMapIsoPh");
+  nameIsoNh_ = iConfig.getParameter<std::string>("nameValueMapIsoNh");
 
+  produces<edm::ValueMap<double> >(nameIsoCh_);
+  produces<edm::ValueMap<double> >(nameIsoPh_);
+  produces<edm::ValueMap<double> >(nameIsoNh_);
 
-        produces<edm::ValueMap<double> >(nameIsoCh_);
-        produces<edm::ValueMap<double> >(nameIsoPh_);
-        produces<edm::ValueMap<double> >(nameIsoNh_);
-
-        isolator.initializePhotonIsolation(kTRUE); //NOTE: this automatically set all the correct defaul veto values
-        isolator.setConeSize(0.3);
-
+  isolator.initializePhotonIsolation(kTRUE);  //NOTE: this automatically set all the correct defaul veto values
+  isolator.setConeSize(0.3);
 }
 
-
-PhotonIsoProducer::~PhotonIsoProducer()
-{
-
+PhotonIsoProducer::~PhotonIsoProducer() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-
 }
-
 
 //
 // member functions
@@ -88,78 +82,71 @@ PhotonIsoProducer::~PhotonIsoProducer()
 
 // ------------ method called on each new Event  ------------
 bool PhotonIsoProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  std::unique_ptr<edm::ValueMap<double> > chIsoMap(new edm::ValueMap<double>());
+  edm::ValueMap<double>::Filler chFiller(*chIsoMap);
 
-        std::unique_ptr<edm::ValueMap<double> > chIsoMap(new edm::ValueMap<double>() );
-	edm::ValueMap<double>::Filler chFiller(*chIsoMap);
+  std::unique_ptr<edm::ValueMap<double> > phIsoMap(new edm::ValueMap<double>());
+  edm::ValueMap<double>::Filler phFiller(*phIsoMap);
 
-        std::unique_ptr<edm::ValueMap<double> > phIsoMap(new edm::ValueMap<double>() );
-	edm::ValueMap<double>::Filler phFiller(*phIsoMap);
+  std::unique_ptr<edm::ValueMap<double> > nhIsoMap(new edm::ValueMap<double>());
+  edm::ValueMap<double>::Filler nhFiller(*nhIsoMap);
 
-        std::unique_ptr<edm::ValueMap<double> > nhIsoMap(new edm::ValueMap<double>() );
-	edm::ValueMap<double>::Filler nhFiller(*nhIsoMap);
+  edm::Handle<reco::VertexCollection> vertexCollection;
+  iEvent.getByToken(vertexToken_, vertexCollection);
 
-	edm::Handle<reco::VertexCollection>  vertexCollection;
-	iEvent.getByToken(vertexToken_, vertexCollection);
+  edm::Handle<reco::PhotonCollection> phoCollection;
+  iEvent.getByToken(photonToken_, phoCollection);
+  const reco::PhotonCollection* recoPho = phoCollection.product();
 
-	edm::Handle<reco::PhotonCollection> phoCollection;
-	iEvent.getByToken(photonToken_, phoCollection);
-	const reco::PhotonCollection *recoPho = phoCollection.product();
+  // All PF Candidate for alternate isolation
+  edm::Handle<reco::PFCandidateCollection> pfCandidatesH;
+  iEvent.getByToken(particleFlowToken_, pfCandidatesH);
+  const reco::PFCandidateCollection thePfColl = *(pfCandidatesH.product());
 
-	// All PF Candidate for alternate isolation
-	edm::Handle<reco::PFCandidateCollection> pfCandidatesH;
-	iEvent.getByToken(particleFlowToken_, pfCandidatesH);
-	const  reco::PFCandidateCollection thePfColl = *(pfCandidatesH.product());
+  std::vector<double> chIsoValues;
+  std::vector<double> phIsoValues;
+  std::vector<double> nhIsoValues;
+  chIsoValues.reserve(phoCollection->size());
+  phIsoValues.reserve(phoCollection->size());
+  nhIsoValues.reserve(phoCollection->size());
 
-        std::vector<double> chIsoValues;
-	std::vector<double> phIsoValues;
-	std::vector<double> nhIsoValues;
-        chIsoValues.reserve(phoCollection->size());
-        phIsoValues.reserve(phoCollection->size());
-        nhIsoValues.reserve(phoCollection->size());
+  unsigned int ivtx = 0;
+  reco::VertexRef myVtxRef(vertexCollection, ivtx);
 
-	unsigned int ivtx = 0;
-	reco::VertexRef myVtxRef(vertexCollection, ivtx);
+  for (reco::PhotonCollection::const_iterator aPho = recoPho->begin(); aPho != recoPho->end(); ++aPho) {
+    isolator.fGetIsolation(&*aPho, &thePfColl, myVtxRef, vertexCollection);
 
+    if (verbose_) {
+      std::cout << " run " << iEvent.id().run() << " lumi " << iEvent.id().luminosityBlock() << " event "
+                << iEvent.id().event();
+      std::cout << " pt " << aPho->pt() << " eta " << aPho->eta() << " phi " << aPho->phi() << " charge "
+                << aPho->charge() << " : " << std::endl;
+      ;
 
-        for (reco::PhotonCollection::const_iterator aPho = recoPho->begin(); aPho != recoPho->end(); ++aPho) {
+      std::cout << " ChargedIso " << isolator.getIsolationCharged() << std::endl;
+      std::cout << " PhotonIso " << isolator.getIsolationPhoton() << std::endl;
+      std::cout << " NeutralHadron Iso " << isolator.getIsolationNeutral() << std::endl;
+    }
 
-          isolator.fGetIsolation(&*aPho,
-		                 &thePfColl,
-				 myVtxRef,
-				 vertexCollection);
+    chIsoValues.push_back(isolator.getIsolationCharged());
+    phIsoValues.push_back(isolator.getIsolationPhoton());
+    nhIsoValues.push_back(isolator.getIsolationNeutral());
+  }
 
-	  if(verbose_) {
-	    std::cout << " run " << iEvent.id().run() << " lumi " << iEvent.id().luminosityBlock() << " event " << iEvent.id().event();
-	    std::cout << " pt " <<  aPho->pt() << " eta " << aPho->eta() << " phi " << aPho->phi()
-		      << " charge " << aPho->charge()<< " : " << std::endl;;
+  chFiller.insert(phoCollection, chIsoValues.begin(), chIsoValues.end());
+  chFiller.fill();
 
-	    std::cout << " ChargedIso " << isolator.getIsolationCharged() << std::endl;
-	    std::cout << " PhotonIso " << isolator.getIsolationPhoton() << std::endl;
-	    std::cout << " NeutralHadron Iso " << isolator.getIsolationNeutral()  << std::endl;
-	  }
+  phFiller.insert(phoCollection, phIsoValues.begin(), phIsoValues.end());
+  phFiller.fill();
 
-	  chIsoValues.push_back(isolator.getIsolationCharged());
-	  phIsoValues.push_back(isolator.getIsolationPhoton());
-	  nhIsoValues.push_back(isolator.getIsolationNeutral());
+  nhFiller.insert(phoCollection, nhIsoValues.begin(), nhIsoValues.end());
+  nhFiller.fill();
 
-	}
+  iEvent.put(std::move(chIsoMap), nameIsoCh_);
+  iEvent.put(std::move(phIsoMap), nameIsoPh_);
+  iEvent.put(std::move(nhIsoMap), nameIsoNh_);
 
-	chFiller.insert(phoCollection, chIsoValues.begin(), chIsoValues.end() );
-	chFiller.fill();
-
-	phFiller.insert(phoCollection, phIsoValues.begin(), phIsoValues.end() );
-	phFiller.fill();
-
-	nhFiller.insert(phoCollection, nhIsoValues.begin(), nhIsoValues.end() );
-	nhFiller.fill();
-
-
-	iEvent.put(std::move(chIsoMap),nameIsoCh_);
-	iEvent.put(std::move(phIsoMap),nameIsoPh_);
-	iEvent.put(std::move(nhIsoMap),nameIsoNh_);
-
-
-	return true;
+  return true;
 }
 
 //define this as a plug-in

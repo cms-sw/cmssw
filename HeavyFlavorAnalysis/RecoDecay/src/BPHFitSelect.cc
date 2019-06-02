@@ -19,26 +19,20 @@
 // C++ Headers --
 //---------------
 
-
 //-------------------
 // Initializations --
 //-------------------
 
-
 //----------------
 // Constructors --
 //----------------
-BPHFitSelect::BPHFitSelect() {
-}
+BPHFitSelect::BPHFitSelect() {}
 
 //--------------
 // Destructor --
 //--------------
-BPHFitSelect::~BPHFitSelect() {
-}
+BPHFitSelect::~BPHFitSelect() {}
 
 //--------------
 // Operations --
 //--------------
-
-
