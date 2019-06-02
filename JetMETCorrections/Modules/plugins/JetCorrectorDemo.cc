@@ -82,7 +82,7 @@ void JetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   edm::Handle<reco::JetCorrector> corrector;
   iEvent.getByToken(mJetCorrector, corrector);
   JetCorrectionUncertainty *jecUnc(nullptr);
-  if (mUncertaintyTag != "")
+  if (!mUncertaintyTag.empty())
     {
       if (mUseCondDB)
         {
@@ -126,7 +126,7 @@ void JetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           vjec_eta[ieta][i] = jec;
           vptcor[ieta][i] = rawPt*jec;
           unc = 0.0;
-          if (mUncertaintyTag != "")
+          if (!mUncertaintyTag.empty())
             {
               jecUnc->setJetEta(eta);
               jecUnc->setJetPt(rawPt*jec);// the uncertainty is a function of the corrected pt
@@ -168,7 +168,7 @@ void JetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           jec = corrector->correction(rawP4);// the jec is a function of the raw pt
           vjec_pt[ipt][i] = jec;
           unc = 0.0;
-          if (mUncertaintyTag != "")
+          if (!mUncertaintyTag.empty())
             {
               jecUnc->setJetEta(eta);
               jecUnc->setJetPt(corPt);// the uncertainty is a function of the corrected pt
