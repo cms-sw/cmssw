@@ -536,7 +536,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
      SiPixelStatusHarvester::constructTag(siPixelQualityStuckTBM_Tag, poolDbService, "stuckTBM", iRun);
 
      // Add a dummy IOV starting from last lumisection+1 to close the tag for the run
-     if((outputBase_ == "nLumibased" || outputBase_ == "dynamicLumibased") && finalIOV.size()>0){
+     if((outputBase_ == "nLumibased" || outputBase_ == "dynamicLumibased") && !finalIOV.empty()){
 
         itIOV=std::prev(finalIOV.end()); // go to last element in the pixel quality tag  
         SiPixelQuality* lastPrompt = siPixelQualityPrompt_Tag[itIOV->first];
