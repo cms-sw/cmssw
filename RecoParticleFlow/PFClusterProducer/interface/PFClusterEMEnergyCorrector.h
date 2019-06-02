@@ -24,52 +24,58 @@
 #include "CondFormats/EgammaObjects/interface/GBRForestD.h"
 
 class PFClusterEMEnergyCorrector {
- public:
-  PFClusterEMEnergyCorrector(const edm::ParameterSet& conf, edm::ConsumesCollector &&cc);
+public:
+  PFClusterEMEnergyCorrector(const edm::ParameterSet& conf, edm::ConsumesCollector&& cc);
   PFClusterEMEnergyCorrector(const PFClusterEMEnergyCorrector&) = delete;
   PFClusterEMEnergyCorrector& operator=(const PFClusterEMEnergyCorrector&) = delete;
 
-  void correctEnergies(const edm::Event &evt, const edm::EventSetup &es, const reco::PFCluster::EEtoPSAssociation &assoc, reco::PFClusterCollection& cs);
+  void correctEnergies(const edm::Event& evt,
+                       const edm::EventSetup& es,
+                       const reco::PFCluster::EEtoPSAssociation& assoc,
+                       reco::PFClusterCollection& cs);
 
- private:    
+private:
   double maxPtForMVAEvaluation_;
-       
-  edm::EDGetTokenT<EBSrFlagCollection> ebSrFlagToken_; 
-  edm::EDGetTokenT<EESrFlagCollection> eeSrFlagToken_; 
+
+  edm::EDGetTokenT<EBSrFlagCollection> ebSrFlagToken_;
+  edm::EDGetTokenT<EESrFlagCollection> eeSrFlagToken_;
 
   //required for reading SR flags
   edm::EDGetTokenT<EcalRecHitCollection> recHitsEB_;
-  edm::EDGetTokenT<EcalRecHitCollection> recHitsEE_;  
-  edm::EDGetTokenT<unsigned int> bunchSpacing_; 
-  
+  edm::EDGetTokenT<EcalRecHitCollection> recHitsEE_;
+  edm::EDGetTokenT<unsigned int> bunchSpacing_;
+
   std::vector<std::string> condnames_mean_;
-  std::vector<std::string> condnames_sigma_;  
+  std::vector<std::string> condnames_sigma_;
 
   std::vector<std::string> condnames_mean_25ns_;
-  std::vector<std::string> condnames_sigma_25ns_;  
+  std::vector<std::string> condnames_sigma_25ns_;
   std::vector<std::string> condnames_mean_50ns_;
-  std::vector<std::string> condnames_sigma_50ns_;  
-    
+  std::vector<std::string> condnames_sigma_50ns_;
+
   bool srfAwareCorrection_;
   bool applyCrackCorrections_;
   bool applyMVACorrections_;
 
   bool autoDetectBunchSpacing_;
   int bunchSpacingManual_;
-        
-  std::unique_ptr<PFEnergyCalibration> calibrator_;  
-  void getAssociatedPSEnergy(const size_t clusIdx, const reco::PFCluster::EEtoPSAssociation &assoc, float& e1, float& e2);
+
+  std::unique_ptr<PFEnergyCalibration> calibrator_;
+  void getAssociatedPSEnergy(const size_t clusIdx,
+                             const reco::PFCluster::EEtoPSAssociation& assoc,
+                             float& e1,
+                             float& e2);
 
   double meanlimlowEB_;
   double meanlimhighEB_;
   double meanoffsetEB_;
   double meanscaleEB_;
-  
+
   double meanlimlowEE_;
   double meanlimhighEE_;
   double meanoffsetEE_;
   double meanscaleEE_;
-  
+
   double sigmalimlowEB_;
   double sigmalimhighEB_;
   double sigmaoffsetEB_;
@@ -79,7 +85,6 @@ class PFClusterEMEnergyCorrector {
   double sigmalimhighEE_;
   double sigmaoffsetEE_;
   double sigmascaleEE_;
-
 };
 
 #endif

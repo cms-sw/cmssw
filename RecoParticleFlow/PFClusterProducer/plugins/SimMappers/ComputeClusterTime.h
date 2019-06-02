@@ -6,23 +6,21 @@
 #include <cmath>
 #include <vector>
 
-
 // functions to select the hits to compute the time of a given cluster
 // start with the only hits with timing information
 // average among the hits contained in the chosen time interval
 
-// N.B. time is corrected wrt vtx-calorimeter distance 
+// N.B. time is corrected wrt vtx-calorimeter distance
 // with straight line and light speed hypothesis
-// for charged tracks or heavy particles (longer track length or beta < 1) 
+// for charged tracks or heavy particles (longer track length or beta < 1)
 // need to correct the offset at analysis level
-
-
 
 namespace hgcalsimclustertime {
 
   //time-interval based on that ~210ps wide and with the highest number of hits
-  float fixSizeHighestDensity(std::vector<float>& t, float deltaT=0.210 /*time window in ns*/, float timeWidthBy=0.5){
-
+  float fixSizeHighestDensity(std::vector<float>& t,
+                              float deltaT = 0.210 /*time window in ns*/,
+                              float timeWidthBy = 0.5) {
     float tolerance = 0.05f;
     std::sort(t.begin(), t.end());
 
@@ -31,23 +29,19 @@ namespace hgcalsimclustertime {
     int end_el = 0;
     float timeW = 0.f;
 
-    for(auto start = t.begin(); start != t.end(); ++start) {
+    for (auto start = t.begin(); start != t.end(); ++start) {
       const auto startRef = *start;
-      int c = count_if(start, t.end(), [&](float el) {
-	  return el - startRef <= deltaT + tolerance;
-	});
+      int c = count_if(start, t.end(), [&](float el) { return el - startRef <= deltaT + tolerance; });
       if (c > max_elements) {
-	max_elements = c;
-	auto last_el = find_if_not(start, t.end(), [&](float el) {
-	    return el - startRef <= deltaT + tolerance;
-	  });
-	auto val = *(--last_el);
-	if (std::abs(deltaT - (val - startRef)) < tolerance) {
-	  tolerance = std::abs(deltaT - (val - startRef));
-	}
-	start_el = distance(t.begin(), start);
-	end_el = distance(t.begin(), last_el);
-	timeW = val - startRef;
+        max_elements = c;
+        auto last_el = find_if_not(start, t.end(), [&](float el) { return el - startRef <= deltaT + tolerance; });
+        auto val = *(--last_el);
+        if (std::abs(deltaT - (val - startRef)) < tolerance) {
+          tolerance = std::abs(deltaT - (val - startRef));
+        }
+        start_el = distance(t.begin(), start);
+        end_el = distance(t.begin(), last_el);
+        timeW = val - startRef;
       }
     }
 
@@ -59,23 +53,23 @@ namespace hgcalsimclustertime {
     int num = 0;
     int totSize = t.size();
 
-    for(int ij=0; ij<=start_el; ++ij){
-      if(t[ij] > (t[start_el] - HalfTimeDiff) ){
-	for(int kl=ij; kl<totSize; ++kl){
-	  if(t[kl] < (t[end_el] + HalfTimeDiff) ){
-	    sum += t[kl];
-	    ++num;
-	  }
-	  else  break;
-	}
-	break;
+    for (int ij = 0; ij <= start_el; ++ij) {
+      if (t[ij] > (t[start_el] - HalfTimeDiff)) {
+        for (int kl = ij; kl < totSize; ++kl) {
+          if (t[kl] < (t[end_el] + HalfTimeDiff)) {
+            sum += t[kl];
+            ++num;
+          } else
+            break;
+        }
+        break;
       }
     }
 
-    if(num == 0) return -99.;
-    return sum/num;
+    if (num == 0)
+      return -99.;
+    return sum / num;
   }
-
 
   //useful for future developments - baseline for 0PU
   /*
@@ -125,6 +119,6 @@ namespace hgcalsimclustertime {
     return sum/num;
   }
   */
-}
+}  // namespace hgcalsimclustertime
 
 #endif
