@@ -27,8 +27,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 class HiggsToZZ4LeptonsSkimEff : public edm::EDAnalyzer {
-
- public:
+public:
   // Constructor
   explicit HiggsToZZ4LeptonsSkimEff(const edm::ParameterSet&);
 
@@ -36,10 +35,9 @@ class HiggsToZZ4LeptonsSkimEff : public edm::EDAnalyzer {
   ~HiggsToZZ4LeptonsSkimEff() override;
 
   /// Get event properties to send to builder to fill seed collection
-  void analyze(const edm::Event&, const edm::EventSetup& ) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-
- private:
+private:
   bool debug;
   float stiffMinPt;
   float softMinPt;

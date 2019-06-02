@@ -16,22 +16,18 @@
 #include "JetMETCorrections/InterpolationTables/interface/StorableMultivariateFunctor.h"
 
 namespace npstat {
-    /**
+  /**
     // Note that this class does not have any public constructors.
     // All application usage is through the gs::StaticReader wrapper.
     */
-    class StorableMultivariateFunctorReader : 
-        public gs::DefaultReader<StorableMultivariateFunctor>
-    {
-        typedef gs::DefaultReader<StorableMultivariateFunctor> Base;
-        friend class gs::StaticReader<StorableMultivariateFunctorReader>;
-        StorableMultivariateFunctorReader(); //NOLINT
-    };
-        
-    /** The reader factory for descendants of StorableMultivariateFunctor */
-    typedef gs::StaticReader<StorableMultivariateFunctorReader>
-        StaticStorableMultivariateFunctorReader;
-}
+  class StorableMultivariateFunctorReader : public gs::DefaultReader<StorableMultivariateFunctor> {
+    typedef gs::DefaultReader<StorableMultivariateFunctor> Base;
+    friend class gs::StaticReader<StorableMultivariateFunctorReader>;
+    StorableMultivariateFunctorReader();  //NOLINT
+  };
 
-#endif // NPSTAT_READER_FOR_STORABLEMULTIVARIATEFUNCTOR
+  /** The reader factory for descendants of StorableMultivariateFunctor */
+  typedef gs::StaticReader<StorableMultivariateFunctorReader> StaticStorableMultivariateFunctorReader;
+}  // namespace npstat
 
+#endif  // NPSTAT_READER_FOR_STORABLEMULTIVARIATEFUNCTOR

@@ -3,5 +3,5 @@
 #include "TopQuarkAnalysis/TopTools/plugins/TtJetPartonMatch.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullLepEvtPartons.h"
 
-typedef TtJetPartonMatch< TtFullLepEvtPartons > TtFullLepJetPartonMatch;
+typedef TtJetPartonMatch<TtFullLepEvtPartons> TtFullLepJetPartonMatch;
 DEFINE_FWK_MODULE(TtFullLepJetPartonMatch);
