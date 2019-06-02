@@ -7,18 +7,19 @@
 
 class TAbsFitParticle;
 
-class TFitConstraintMGaus: public TFitConstraintM {
-
-public :
-
+class TFitConstraintMGaus : public TFitConstraintM {
+public:
   TFitConstraintMGaus();
   TFitConstraintMGaus(std::vector<TAbsFitParticle*>* ParList1,
-		      std::vector<TAbsFitParticle*>* ParList2,
-		      Double_t Mass = 0, Double_t Width = 0);
-  TFitConstraintMGaus(const TString &name, const TString &title,
-		      std::vector<TAbsFitParticle*>* ParList1,
-		      std::vector<TAbsFitParticle*>* ParList2,
-		      Double_t Mass = 0, Double_t Width = 0);
+                      std::vector<TAbsFitParticle*>* ParList2,
+                      Double_t Mass = 0,
+                      Double_t Width = 0);
+  TFitConstraintMGaus(const TString& name,
+                      const TString& title,
+                      std::vector<TAbsFitParticle*>* ParList1,
+                      std::vector<TAbsFitParticle*>* ParList2,
+                      Double_t Mass = 0,
+                      Double_t Width = 0);
 
   ~TFitConstraintMGaus() override;
 
@@ -29,18 +30,15 @@ public :
   void setMassConstraint(Double_t Mass, Double_t Width);
 
   TString getInfoString() override;
-  void print() override; 
+  void print() override;
 
-protected :
-  
+protected:
   Double_t _width;
 
   void init();
 
-private :
-
+private:
   ClassDefOverride(TFitConstraintMGaus, 0)
 };
 
 #endif
-

@@ -5,15 +5,11 @@
 using namespace std;
 using namespace examples;
 
-TrackTSelector::TrackTSelector() {
-  cout << ">> constructing TrackTSelector" << endl;
-}
+TrackTSelector::TrackTSelector() { cout << ">> constructing TrackTSelector" << endl; }
 
-void TrackTSelector::begin( TList * & ) {
-  cout << ">> nothing to be done at begin" << endl;
-}
+void TrackTSelector::begin(TList*&) { cout << ">> nothing to be done at begin" << endl; }
 
-void TrackTSelector::terminate( TList & out ) {
+void TrackTSelector::terminate(TList& out) {
   cout << ">> terminating" << endl;
-  TrackAnalysisAlgorithm::terminate( out );
+  TrackAnalysisAlgorithm::terminate(out);
 }

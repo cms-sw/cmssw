@@ -13,28 +13,31 @@
 class TH1F;
 class TList;
 class TCanvas;
-namespace edm { class Event; }
+namespace edm {
+  class Event;
+}
 
 namespace examples {
 
   struct TrackAnalysisAlgorithm {
     /// constructor
-    TrackAnalysisAlgorithm( const TList *, TList& );
+    TrackAnalysisAlgorithm(const TList *, TList &);
     /// process one event
-    void process( const edm::Event&  );
+    void process(const edm::Event &);
     /// post process
-    void postProcess( TList & );
+    void postProcess(TList &);
     /// terminate processing
-    static void terminate( TList & );
+    static void terminate(TList &);
+
   private:
     /// draw an histogram
-    static void draw( const TList &, TCanvas &, const char * );
+    static void draw(const TList &, TCanvas &, const char *);
     /// histograms
-    TH1F * h_pt, * h_eta;
+    TH1F *h_pt, *h_eta;
     /// histogram names
-    static const char * kPt, * kEta;
+    static const char *kPt, *kEta;
   };
 
-}
+}  // namespace examples
 
 #endif
