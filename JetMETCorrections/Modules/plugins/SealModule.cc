@@ -47,30 +47,28 @@ DEFINE_FWK_MODULE(BasicJetCorrectionProducer);
 
 DEFINE_FWK_EVENTSETUP_MODULE(JetCorrectionESChain);
 
-
 DEFINE_FWK_EVENTSETUP_MODULE(QGLikelihoodESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(QGLikelihoodSystematicsESProducer);
 
 DEFINE_FWK_EVENTSETUP_MODULE(JetResolutionESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(JetResolutionScaleFactorESProducer);
 
-
 //--------------- Generic LX corrections --------------------
-DEFINE_JET_CORRECTION_ESSOURCE (LXXXCorrector, LXXXCorrectionESSource);
-DEFINE_JET_CORRECTION_ESPRODUCER (LXXXCorrector, LXXXCorrectionESProducer);
+DEFINE_JET_CORRECTION_ESSOURCE(LXXXCorrector, LXXXCorrectionESSource);
+DEFINE_JET_CORRECTION_ESPRODUCER(LXXXCorrector, LXXXCorrectionESProducer);
 
 //--------------- L1 Offset subtraction corrections ---------
-DEFINE_JET_CORRECTION_ESSOURCE (L1OffsetCorrector, L1OffsetCorrectionESSource);
-DEFINE_JET_CORRECTION_ESPRODUCER (L1OffsetCorrector, L1OffsetCorrectionESProducer);
+DEFINE_JET_CORRECTION_ESSOURCE(L1OffsetCorrector, L1OffsetCorrectionESSource);
+DEFINE_JET_CORRECTION_ESPRODUCER(L1OffsetCorrector, L1OffsetCorrectionESProducer);
 
 //--------------- L1 Offset subtraction corrections ---------
-DEFINE_JET_CORRECTION_ESSOURCE (L1JPTOffsetCorrector, L1JPTOffsetCorrectionESSource);
-DEFINE_JET_CORRECTION_ESPRODUCER (L1JPTOffsetCorrector, L1JPTOffsetCorrectionESProducer);
+DEFINE_JET_CORRECTION_ESSOURCE(L1JPTOffsetCorrector, L1JPTOffsetCorrectionESSource);
+DEFINE_JET_CORRECTION_ESPRODUCER(L1JPTOffsetCorrector, L1JPTOffsetCorrectionESProducer);
 
 //--------------- L1 fastjet UE&PU subtraction corrections --
-DEFINE_JET_CORRECTION_ESSOURCE (L1FastjetCorrector, L1FastjetCorrectionESSource);
-DEFINE_JET_CORRECTION_ESPRODUCER (L1FastjetCorrector, L1FastjetCorrectionESProducer);
+DEFINE_JET_CORRECTION_ESSOURCE(L1FastjetCorrector, L1FastjetCorrectionESSource);
+DEFINE_JET_CORRECTION_ESPRODUCER(L1FastjetCorrector, L1FastjetCorrectionESProducer);
 
 //---------------  L6 SLB corrections -----------------------
-DEFINE_JET_CORRECTION_ESSOURCE (L6SLBCorrector, L6SLBCorrectionESSource);
-DEFINE_JET_CORRECTION_ESPRODUCER (L6SLBCorrector, L6SLBCorrectionESProducer);
+DEFINE_JET_CORRECTION_ESSOURCE(L6SLBCorrector, L6SLBCorrectionESSource);
+DEFINE_JET_CORRECTION_ESPRODUCER(L6SLBCorrector, L6SLBCorrectionESProducer);
