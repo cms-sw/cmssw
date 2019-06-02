@@ -3,27 +3,22 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-class PFClusterWidthAlgo
-{
- public:
+class PFClusterWidthAlgo {
+public:
   //constructor
-  PFClusterWidthAlgo(const std::vector<const reco::PFCluster* >& pfclust);
+  PFClusterWidthAlgo(const std::vector<const reco::PFCluster*>& pfclust);
 
-  
   //destructor
   ~PFClusterWidthAlgo();
 
-  inline double pflowPhiWidth() const {return phiWidth_;}
-  inline double pflowEtaWidth() const {return etaWidth_;}
-  inline double pflowSigmaEtaEta() const {return sigmaEtaEta_;}
+  inline double pflowPhiWidth() const { return phiWidth_; }
+  inline double pflowEtaWidth() const { return etaWidth_; }
+  inline double pflowSigmaEtaEta() const { return sigmaEtaEta_; }
 
- private:
-  
-
+private:
   double phiWidth_;
   double etaWidth_;
   double sigmaEtaEta_;
-
 };
 
 #endif

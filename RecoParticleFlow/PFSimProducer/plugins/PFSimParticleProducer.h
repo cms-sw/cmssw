@@ -27,7 +27,6 @@
 
 #include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
 
-
 /**\class PFSimParticleProducer 
 \brief Producer for PFRecTracks and PFSimParticles
 
@@ -38,42 +37,36 @@
 
 class FSimEvent;
 
-
-
 class PFSimParticleProducer : public edm::stream::EDProducer<> {
- public:
-
+public:
   explicit PFSimParticleProducer(const edm::ParameterSet&);
 
   ~PFSimParticleProducer() override;
-  
+
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef edm::Handle<reco::PFRecTrackCollection> TrackHandle;
-  void getSimIDs( const TrackHandle& trackh,
-		  std::vector<unsigned>& recTrackSimID );
+  void getSimIDs(const TrackHandle& trackh, std::vector<unsigned>& recTrackSimID);
 
- private:
-    
-
+private:
   /// module label for retrieving input simtrack and simvertex
-  edm::InputTag    inputTagSim_;
-  edm::EDGetTokenT<std::vector<SimTrack> >  tokenSim_;  
-  edm::EDGetTokenT<std::vector<SimVertex> >  tokenSimVertices_;  
+  edm::InputTag inputTagSim_;
+  edm::EDGetTokenT<std::vector<SimTrack> > tokenSim_;
+  edm::EDGetTokenT<std::vector<SimVertex> > tokenSimVertices_;
 
-  //MC Truth Matching 
+  //MC Truth Matching
   //modif-beg
   bool mctruthMatchingInfo_;
-  edm::InputTag    inputTagFastSimProducer_;
-  edm::EDGetTokenT<edm::PCaloHitContainer>    tokenFastSimProducer_;
+  edm::InputTag inputTagFastSimProducer_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tokenFastSimProducer_;
   //modif-end
 
-  edm::InputTag   inputTagRecTracks_;
-  edm::EDGetTokenT<reco::PFRecTrackCollection>   tokenRecTracks_;
-  edm::InputTag    inputTagEcalRecHitsEB_;
-  edm::EDGetTokenT<EcalRecHitCollection>    tokenEcalRecHitsEB_;
-  edm::InputTag    inputTagEcalRecHitsEE_;
-  edm::EDGetTokenT<EcalRecHitCollection>    tokenEcalRecHitsEE_;
+  edm::InputTag inputTagRecTracks_;
+  edm::EDGetTokenT<reco::PFRecTrackCollection> tokenRecTracks_;
+  edm::InputTag inputTagEcalRecHitsEB_;
+  edm::EDGetTokenT<EcalRecHitCollection> tokenEcalRecHitsEB_;
+  edm::InputTag inputTagEcalRecHitsEE_;
+  edm::EDGetTokenT<EcalRecHitCollection> tokenEcalRecHitsEE_;
 
   // parameters for retrieving true particles information --
 
@@ -83,11 +76,10 @@ class PFSimParticleProducer : public edm::stream::EDProducer<> {
   // flags for the various tasks ---------------------------
 
   /// process particles on/off
-  bool   processParticles_;
+  bool processParticles_;
 
   /// verbose ?
-  bool   verbose_;
-
-};  
+  bool verbose_;
+};
 
 #endif
