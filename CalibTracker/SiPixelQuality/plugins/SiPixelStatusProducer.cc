@@ -382,18 +382,20 @@ int SiPixelStatusProducer::indexROC(int irow, int icol, int nROCcolumns) {
 }
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
-
-     edm::ParameterSetDescription desc;
-
-     std::vector<edm::InputTag> badPixelFEDChannelCollections;
-
-     badPixelFEDChannelCollections.push_back(edm::InputTag("siPixelDigis"));
-     desc.add<std::vector<edm::InputTag>>("badPixelFEDChannelCollections",badPixelFEDChannelCollections);
-     desc.add<edm::InputTag>("pixelClusterLabel",edm::InputTag("siPixelClusters::RECO"));
-     desc.add<int>("resetEveryNLumi",1);
-
-     descriptions.add("siPixelStatusProducer",desc);
+//edmPythonConfigToCppValidation CalibTracker/SiPixelQuality/python/SiPixelStatusProducer_cfi.py
+void SiPixelStatusProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // siPixelStatusProducer
+  edm::ParameterSetDescription desc;
+  {
+       edm::ParameterSetDescription psd0;
+       psd0.addUntracked<int>("resetEveryNLumi", 1);
+       psd0.addUntracked<edm::InputTag>("pixelClusterLabel", edm::InputTag("siPixelClusters","","RECO"));
+       psd0.add<std::vector<edm::InputTag>>("badPixelFEDChannelCollections", {
+                    edm::InputTag("siPixelDigis"),
+       });
+       desc.add<edm::ParameterSetDescription>("SiPixelStatusProducerParameters", psd0);
+  }
+  descriptions.add("siPixelStatusProducer", desc);
 
 }
 
