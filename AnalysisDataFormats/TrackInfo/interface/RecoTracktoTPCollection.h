@@ -6,5 +6,4 @@
 
 typedef std::vector<RecoTracktoTP> RecoTracktoTPCollection;
 
-
 #endif

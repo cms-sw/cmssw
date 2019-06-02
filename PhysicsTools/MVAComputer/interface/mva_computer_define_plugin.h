@@ -4,7 +4,7 @@
 //
 // Package:     MVAComputer
 // Class  :     mva_computer_define_plugin
-// 
+//
 /**\class mva_computer_define_plugin mva_computer_define_plugin.h PhysicsTools/MVAComputer/interface/mva_computer_define_plugin.h
 
  Description: A macro to instantiate a MVA Computer
@@ -24,10 +24,9 @@
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-
-#define MVA_COMPUTER_DEFINE_PLUGIN(T) \
-	DEFINE_EDM_PLUGIN(edmplugin::PluginFactory<PhysicsTools::VarProcessor::PluginFunctionPrototype>, \
-	                  PhysicsTools::VarProcessor::Dummy, \
-	                  "VarProcessor/" #T)
+#define MVA_COMPUTER_DEFINE_PLUGIN(T)                                                              \
+  DEFINE_EDM_PLUGIN(edmplugin::PluginFactory<PhysicsTools::VarProcessor::PluginFunctionPrototype>, \
+                    PhysicsTools::VarProcessor::Dummy,                                             \
+                    "VarProcessor/" #T)
 
 #endif

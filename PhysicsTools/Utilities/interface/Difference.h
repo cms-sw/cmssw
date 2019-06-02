@@ -5,17 +5,17 @@
 
 namespace funct {
 
-  template<typename A, typename B>
-  struct Difference { 
-    typedef typename Sum<A, typename Minus<B>::type>::type type; 
+  template <typename A, typename B>
+  struct Difference {
+    typedef typename Sum<A, typename Minus<B>::type>::type type;
     inline static type combine(const A& a, const B& b) { return a + (-b); }
   };
 
-  template<typename A, typename B>
+  template <typename A, typename B>
   inline typename Difference<A, B>::type operator-(const A& a, const B& b) {
     return Difference<A, B>::combine(a, b);
   }
 
-}
+}  // namespace funct
 
 #endif

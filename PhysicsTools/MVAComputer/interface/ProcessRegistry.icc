@@ -19,47 +19,54 @@
 
 namespace PhysicsTools {
 
-template<class Base_t, class CalibBase_t, class Parent_t>
-Base_t *ProcessRegistry<Base_t, CalibBase_t, Parent_t>::Factory::create(
-		const char *name, const CalibBase_t *calib, Parent_t *parent)
-{ return ProcessRegistry::create(name, calib, parent); }
+  template <class Base_t, class CalibBase_t, class Parent_t>
+  Base_t *ProcessRegistry<Base_t, CalibBase_t, Parent_t>::Factory::create(const char *name,
+                                                                          const CalibBase_t *calib,
+                                                                          Parent_t *parent) {
+    return ProcessRegistry::create(name, calib, parent);
+  }
 
-template<class Base_t, class CalibBase_t, class Parent_t>
-tbb::concurrent_unordered_map<std::string, const ProcessRegistry<Base_t, CalibBase_t, Parent_t>*>
-	*ProcessRegistry<Base_t, CalibBase_t, Parent_t>::getRegistry()
-{
-	CMS_THREAD_SAFE static struct Sentinel {
-		Sentinel() : instance(new RegistryMap) {}
-		~Sentinel() { delete instance; instance = 0; }
+  template <class Base_t, class CalibBase_t, class Parent_t>
+  tbb::concurrent_unordered_map<std::string, const ProcessRegistry<Base_t, CalibBase_t, Parent_t> *>
+      *ProcessRegistry<Base_t, CalibBase_t, Parent_t>::getRegistry() {
+    CMS_THREAD_SAFE static struct Sentinel {
+      Sentinel() : instance(new RegistryMap) {}
+      ~Sentinel() {
+        delete instance;
+        instance = nullptr;
+      }
 
-		RegistryMap	*instance;
-	} sentinel;
+      RegistryMap *instance;
+    } sentinel;
 
-	return sentinel.instance;
-}
+    return sentinel.instance;
+  }
 
-template<class Base_t, class CalibBase_t, class Parent_t>
-Base_t *ProcessRegistry<Base_t, CalibBase_t, Parent_t>::create(
-		const char *name, const CalibBase_t *calib, Parent_t *parent)
-{
-	typename RegistryMap::iterator pos = getRegistry()->find(name);
+  template <class Base_t, class CalibBase_t, class Parent_t>
+  Base_t *ProcessRegistry<Base_t, CalibBase_t, Parent_t>::create(const char *name,
+                                                                 const CalibBase_t *calib,
+                                                                 Parent_t *parent) {
+    typename RegistryMap::iterator pos = getRegistry()->find(name);
 
-	if (pos == getRegistry()->end())
-		return 0;
+    if (pos == getRegistry()->end())
+      return nullptr;
 
-	return pos->second->instance(name, calib, parent);
-}
+    return pos->second->instance(name, calib, parent);
+  }
 
-template<class Base_t, class CalibBase_t, class Parent_t>
-void ProcessRegistry<Base_t, CalibBase_t, Parent_t>::registerProcess(
-			const char *name, const ProcessRegistry *process)
-{ (*getRegistry())[name] = process; }
+  template <class Base_t, class CalibBase_t, class Parent_t>
+  void ProcessRegistry<Base_t, CalibBase_t, Parent_t>::registerProcess(const char *name,
+                                                                       const ProcessRegistry *process) {
+    (*getRegistry())[name] = process;
+  }
 
-template<class Base_t, class CalibBase_t, class Parent_t>
-void ProcessRegistry<Base_t, CalibBase_t, Parent_t>::unregisterProcess(
-							const char *name)
-{ RegistryMap *map = getRegistry(); if (map) map->unsafe_erase(name); }
+  template <class Base_t, class CalibBase_t, class Parent_t>
+  void ProcessRegistry<Base_t, CalibBase_t, Parent_t>::unregisterProcess(const char *name) {
+    RegistryMap *map = getRegistry();
+    if (map)
+      map->unsafe_erase(name);
+  }
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools
 
-#endif // PhysicsTools_Calibration_ProcessRegistry_icc
+#endif  // PhysicsTools_Calibration_ProcessRegistry_icc

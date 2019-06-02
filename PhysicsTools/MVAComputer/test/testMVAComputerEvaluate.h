@@ -10,4 +10,4 @@ MVA_COMPUTER_CONTAINER_DEFINE(MVADemo);
 // reco code the record definition and plugin have to go into the
 // official places (see documentation(
 
-#endif // PhysicsTools_MVAComputer_testMVAComputerEvaluate_h
+#endif  // PhysicsTools_MVAComputer_testMVAComputerEvaluate_h
