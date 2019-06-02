@@ -22,7 +22,6 @@
   \version  $Id: TtSemiLRJetCombObservables.h,v 1.6 2008/04/15 10:13:43 rwolf Exp $
 */
 
-
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -38,27 +37,25 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 
 class TtSemiLRJetCombObservables {
+public:
+  typedef std::pair<unsigned int, bool> IntBoolPair;
 
-  public:
-
-  typedef std::pair<unsigned int,bool>   IntBoolPair;
-
-  TtSemiLRJetCombObservables(edm::ConsumesCollector && iC, const edm::EDGetTokenT<std::vector<pat::Jet> > & jetSourceToken);
+  TtSemiLRJetCombObservables(edm::ConsumesCollector&& iC,
+                             const edm::EDGetTokenT<std::vector<pat::Jet> >& jetSourceToken);
   ~TtSemiLRJetCombObservables();
 
-  std::vector< IntBoolPair > operator()(TtSemiEvtSolution&, const edm::Event & iEvent,bool matchOnly = false);
+  std::vector<IntBoolPair> operator()(TtSemiEvtSolution&, const edm::Event& iEvent, bool matchOnly = false);
   //void  operator()(TtSemiEvtSolution&);
 
 private:
-
-  typedef std::pair<unsigned int,double> IntDblPair;
+  typedef std::pair<unsigned int, double> IntDblPair;
   //std::vector<std::pair<unsigned int,double> > jetCombVarVal;
 
   edm::EDGetTokenT<std::vector<pat::Jet> > jetSourceToken_;
   edm::EDGetTokenT<TtGenEvent> genEvtToken_;
 
-  std::vector< IntDblPair > evtselectVarVal;
-  std::vector< IntBoolPair > evtselectVarMatch;
+  std::vector<IntDblPair> evtselectVarVal;
+  std::vector<IntBoolPair> evtselectVarMatch;
 };
 
 #endif
