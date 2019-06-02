@@ -560,7 +560,11 @@ private:
    int index_id_;             //!< current index
    float cota_current_;       //!< current cot alpha
    float cotb_current_;       //!< current cot beta
+
+   int Dtype_;                //!< flags BPix (=0) or FPix (=1)
    float abs_cotb_;           //!< absolute value of cot beta
+   bool flip_y_;              //!< flip y sign-sensitive quantities
+   bool flip_x_;              //!< flip x sign-sensitive quantities
    bool success_;             //!< true if cotalpha, cotbeta are inside of the acceptance (dynamically loaded)
    
    
@@ -586,6 +590,15 @@ private:
    float qmin_;              //!< minimum cluster charge for valid hit (keeps 99.9% of simulated hits)
    float clsleny_;           //!< y-cluster length of smaller interpolated template in pixels
    float clslenx_;           //!< x-cluster length of smaller interpolated template in pixels
+   float scalexavg_;         //!< average x-error scale factor
+   float scaleyavg_;         //!< average y-error scale factor
+   float delyavg_;            //!< average difference between clsleny_ and cluster length [with threshold effects]
+   float delysig_;            //!< rms of difference between clsleny_ and cluster length [with threshold effects]
+   float scalex_[4];         //!< x-error scale factor in charge bins
+   float scaley_[4];         //!< y-error scale factor in charge bins
+   float offsetx_[4];        //!< x-offset in charge bins
+   float offsety_[4];        //!< y-offset in charge bins
+
    float yratio_;            //!< fractional distance in y between cotbeta templates
    float yparl_[2][5];       //!< projected y-pixel uncertainty parameterization for smaller cotbeta
    float yparh_[2][5];       //!< projected y-pixel uncertainty parameterization for larger cotbeta
@@ -653,9 +666,17 @@ private:
    float fracxtwo_;          //!< The simulated fraction of single double-size pixel x-clusters 
    boost::multi_array<float,2> temp2dy_; //!< 2d-primitive for spltting 3-d template
    boost::multi_array<float,2> temp2dx_; //!< 2d-primitive for spltting 3-d template
-   const SiPixelTemplateEntry* entry00_; // Pointer to presently interpolated point [iy,ix]
-   const SiPixelTemplateEntry* entry10_; // Pointer to presently interpolated point [iy+1,ix]
-   const SiPixelTemplateEntry* entry01_; // Pointer to presently interpolated point [iy,ix+1]
+
+   // Pointers to presently interpolated point:
+   const SiPixelTemplateEntry* enty0_;   // enty[ilow]
+   const SiPixelTemplateEntry* enty1_;   // enty[iylow][ilow]
+
+   const SiPixelTemplateEntry* entx00_ ; // entx[iylow][ilow]
+   const SiPixelTemplateEntry* entx02_ ; 
+   const SiPixelTemplateEntry* entx20_ ;
+   const SiPixelTemplateEntry* entx22_ ;
+   const SiPixelTemplateEntry* entx21_ ;
+
    
    // The actual template store is a std::vector container
    const std::vector< SiPixelTemplateStore > & thePixelTemp_;

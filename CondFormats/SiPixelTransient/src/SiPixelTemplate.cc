@@ -1004,7 +1004,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
    int i, j;
    int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx;
    float yratio, yxratio, xxratio, sxmax, qcorrect, qxtempcor, symax, chi2xavgone, chi2xminone, cota, cotb, cotalpha0, cotbeta0;
-   bool flip_x, flip_y;
+   // bool flip_x, flip_y;
    //	std::vector <float> xrms(4), xgsig(4), xrmsc2m(4);
    float chi2xavg[4], chi2xmin[4], chi2xavgc2m[4], chi2xminc2m[4];
    
@@ -1027,6 +1027,10 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
                
                index_id_ = i;
                id_current_ = id;
+
+	       // Copy the detector type to the private variable
+            
+	       Dtype_ = thePixelTemp_[index_id_].head.Dtype;
                
                // Copy the charge scaling factor to the private variable
                
@@ -1062,7 +1066,6 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
       
       // Interpolate the absolute value of cot(beta)
       
-      abs_cotb_ = std::abs(cotbeta);
       
       //	qcorrect corrects the cot(alpha)=0 cluster charge for non-zero cot(alpha)
       
@@ -1071,19 +1074,19 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
       
       // for some cosmics, the ususal gymnastics are incorrect
       cota = cotalpha;
-      cotb = abs_cotb_;
-      flip_x = false;
-      flip_y = false;
-      switch(thePixelTemp_[index_id_].head.Dtype) {
+      cotb = abs_cotb_ = std::abs(cotbeta);
+      flip_x_ = false;
+      flip_y_ = false;
+      switch(Dtype_) {
          case 0:
-            if(cotbeta < 0.f) {flip_y = true;}
+            if(cotbeta < 0.f) {flip_y_ = true;}
             break;
          case 1:
             if(locBz < 0.f) {
                cotb = cotbeta;
             } else {
                cotb = -cotbeta;
-               flip_y = true;
+               flip_y_ = true;
             }
             break;
          case 2:
@@ -1092,20 +1095,20 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
          case 5:
             if(locBx*locBz < 0.f) {
                cota = -cotalpha;
-               flip_x = true;
+               flip_x_ = true;
             }
             if(locBx > 0.f) {
                cotb = cotbeta;
             } else {
                cotb = -cotbeta;
-               flip_y = true;
+               flip_y_ = true;
             }
             break;
          default:
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-            throw cms::Exception("DataCorrupt") << "SiPixelTemplate::illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
+            throw cms::Exception("DataCorrupt") << "SiPixelTemplate::illegal subdetector ID = " << Dtype_ << std::endl;
 #else
-            std::cout << "SiPixelTemplate::illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
+            std::cout << "SiPixelTemplate::illegal subdetector ID = " << Dtype_ << std::endl;
 #endif
       }
       
@@ -1152,84 +1155,90 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
       
       ihigh=ilow + 1;
       
-      // Interpolate/store all y-related quantities (flip displacements when flip_y)
+
+      // Use pointers to the three angle pairs used in the interpolation
+      //
+      enty0_ = &thePixelTemp_[index_id_].enty[ilow];
+      enty1_ = &thePixelTemp_[index_id_].enty[ihigh];
+
+      // Interpolate/store all y-related quantities (flip displacements when flip_y_)
       
       yratio_ = yratio;
-      qavg_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].qavg + yratio*thePixelTemp_[index_id_].enty[ihigh].qavg;
+      qavg_ = (1.f - yratio)*enty0_->qavg + yratio*enty1_->qavg;
       qavg_ *= qcorrect;
-      symax = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].symax + yratio*thePixelTemp_[index_id_].enty[ihigh].symax;
+      symax = (1.f - yratio)*enty0_->symax + yratio*enty1_->symax;
       syparmax_ = symax;
-      sxmax = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].sxmax + yratio*thePixelTemp_[index_id_].enty[ihigh].sxmax;
-      dyone_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].dyone + yratio*thePixelTemp_[index_id_].enty[ihigh].dyone;
-      if(flip_y) {dyone_ = -dyone_;}
-      syone_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].syone + yratio*thePixelTemp_[index_id_].enty[ihigh].syone;
-      dytwo_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].dytwo + yratio*thePixelTemp_[index_id_].enty[ihigh].dytwo;
-      if(flip_y) {dytwo_ = -dytwo_;}
-      sytwo_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].sytwo + yratio*thePixelTemp_[index_id_].enty[ihigh].sytwo;
-      qmin_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].qmin + yratio*thePixelTemp_[index_id_].enty[ihigh].qmin;
+      sxmax = (1.f - yratio)*enty0_->sxmax + yratio*enty1_->sxmax;
+      dyone_ = (1.f - yratio)*enty0_->dyone + yratio*enty1_->dyone;
+      if(flip_y_) {dyone_ = -dyone_;}
+      syone_ = (1.f - yratio)*enty0_->syone + yratio*enty1_->syone;
+      dytwo_ = (1.f - yratio)*enty0_->dytwo + yratio*enty1_->dytwo;
+      if(flip_y_) {dytwo_ = -dytwo_;}
+      sytwo_ = (1.f - yratio)*enty0_->sytwo + yratio*enty1_->sytwo;
+      qmin_ = (1.f - yratio)*enty0_->qmin + yratio*enty1_->qmin;
       qmin_ *= qcorrect;
-      qmin2_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].qmin2 + yratio*thePixelTemp_[index_id_].enty[ihigh].qmin2;
+      qmin2_ = (1.f - yratio)*enty0_->qmin2 + yratio*enty1_->qmin2;
       qmin2_ *= qcorrect;
-      mpvvav_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].mpvvav + yratio*thePixelTemp_[index_id_].enty[ihigh].mpvvav;
+      mpvvav_ = (1.f - yratio)*enty0_->mpvvav + yratio*enty1_->mpvvav;
       mpvvav_ *= qcorrect;
-      sigmavav_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].sigmavav + yratio*thePixelTemp_[index_id_].enty[ihigh].sigmavav;
-      kappavav_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].kappavav + yratio*thePixelTemp_[index_id_].enty[ihigh].kappavav;
-      mpvvav2_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].mpvvav2 + yratio*thePixelTemp_[index_id_].enty[ihigh].mpvvav2;
+      sigmavav_ = (1.f - yratio)*enty0_->sigmavav + yratio*enty1_->sigmavav;
+      kappavav_ = (1.f - yratio)*enty0_->kappavav + yratio*enty1_->kappavav;
+      mpvvav2_ = (1.f - yratio)*enty0_->mpvvav2 + yratio*enty1_->mpvvav2;
       mpvvav2_ *= qcorrect;
-      sigmavav2_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].sigmavav2 + yratio*thePixelTemp_[index_id_].enty[ihigh].sigmavav2;
-      kappavav2_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].kappavav2 + yratio*thePixelTemp_[index_id_].enty[ihigh].kappavav2;
-      clsleny_ = fminf(thePixelTemp_[index_id_].enty[ilow].clsleny, thePixelTemp_[index_id_].enty[ihigh].clsleny);
-      qavg_avg_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].qavg_avg + yratio*thePixelTemp_[index_id_].enty[ihigh].qavg_avg;
+      sigmavav2_ = (1.f - yratio)*enty0_->sigmavav2 + yratio*enty1_->sigmavav2;
+      kappavav2_ = (1.f - yratio)*enty0_->kappavav2 + yratio*enty1_->kappavav2;
+      clsleny_ = fminf(enty0_->clsleny, enty1_->clsleny);
+      qavg_avg_ = (1.f - yratio)*enty0_->qavg_avg + yratio*enty1_->qavg_avg;
       qavg_avg_ *= qcorrect;
       for(i=0; i<2 ; ++i) {
          for(j=0; j<5 ; ++j) {
             // Charge loss switches sides when cot(beta) changes sign
-            if(flip_y) {
-               yparl_[1-i][j] = thePixelTemp_[index_id_].enty[ilow].ypar[i][j];
-               yparh_[1-i][j] = thePixelTemp_[index_id_].enty[ihigh].ypar[i][j];
+            if(flip_y_) {
+               yparl_[1-i][j] = enty0_->ypar[i][j];
+               yparh_[1-i][j] = enty1_->ypar[i][j];
             } else {
-               yparl_[i][j] = thePixelTemp_[index_id_].enty[ilow].ypar[i][j];
-               yparh_[i][j] = thePixelTemp_[index_id_].enty[ihigh].ypar[i][j];
+               yparl_[i][j] = enty0_->ypar[i][j];
+               yparh_[i][j] = enty1_->ypar[i][j];
             }
-            if(flip_x) {
-               xparly0_[1-i][j] = thePixelTemp_[index_id_].enty[ilow].xpar[i][j];
-               xparhy0_[1-i][j] = thePixelTemp_[index_id_].enty[ihigh].xpar[i][j];
+            if(flip_x_) {
+               xparly0_[1-i][j] = enty0_->xpar[i][j];
+               xparhy0_[1-i][j] = enty1_->xpar[i][j];
             } else {
-               xparly0_[i][j] = thePixelTemp_[index_id_].enty[ilow].xpar[i][j];
-               xparhy0_[i][j] = thePixelTemp_[index_id_].enty[ihigh].xpar[i][j];
+               xparly0_[i][j] = enty0_->xpar[i][j];
+               xparhy0_[i][j] = enty1_->xpar[i][j];
             }
          }
       }
       
       for(i=0; i<4; ++i) {
-         yavg_[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].yavg[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].yavg[i];
-         if(flip_y) {yavg_[i] = -yavg_[i];}
-         yrms_[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].yrms[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].yrms[i];
-         //	      ygx0_[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].ygx0[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].ygx0[i];
-         //	      if(flip_y) {ygx0_[i] = -ygx0_[i];}
-         //	      ygsig_[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].ygsig[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].ygsig[i];
-         //	      xrms[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].xrms[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].xrms[i];
-         //	      xgsig[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].xgsig[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].xgsig[i];
-         chi2yavg_[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].chi2yavg[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].chi2yavg[i];
-         chi2ymin_[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].chi2ymin[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].chi2ymin[i];
-         chi2xavg[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].chi2xavg[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].chi2xavg[i];
-         chi2xmin[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].chi2xmin[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].chi2xmin[i];
-         yavgc2m_[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].yavgc2m[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].yavgc2m[i];
-         if(flip_y) {yavgc2m_[i] = -yavgc2m_[i];}
-         yrmsc2m_[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].yrmsc2m[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].yrmsc2m[i];
-         chi2yavgc2m_[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].chi2yavgc2m[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].chi2yavgc2m[i];
-         //	      if(flip_y) {chi2yavgc2m_[i] = -chi2yavgc2m_[i];}
-         chi2yminc2m_[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].chi2yminc2m[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].chi2yminc2m[i];
-         //	      xrmsc2m[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].xrmsc2m[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].xrmsc2m[i];
-         chi2xavgc2m[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].chi2xavgc2m[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].chi2xavgc2m[i];
-         chi2xminc2m[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].chi2xminc2m[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].chi2xminc2m[i];
+         yavg_[i]=(1.f - yratio)*enty0_->yavg[i] + yratio*enty1_->yavg[i];
+         if(flip_y_) {yavg_[i] = -yavg_[i];}
+         yrms_[i]=(1.f - yratio)*enty0_->yrms[i] + yratio*enty1_->yrms[i];
+         //	      ygx0_[i]=(1.f - yratio)*enty0_->ygx0[i] + yratio*enty1_->ygx0[i];
+         //	      if(flip_y_) {ygx0_[i] = -ygx0_[i];}
+         //	      ygsig_[i]=(1.f - yratio)*enty0_->ygsig[i] + yratio*enty1_->ygsig[i];
+         //	      xrms[i]=(1.f - yratio)*enty0_->xrms[i] + yratio*enty1_->xrms[i];
+         //	      xgsig[i]=(1.f - yratio)*enty0_->xgsig[i] + yratio*enty1_->xgsig[i];
+         chi2yavg_[i]=(1.f - yratio)*enty0_->chi2yavg[i] + yratio*enty1_->chi2yavg[i];
+         chi2ymin_[i]=(1.f - yratio)*enty0_->chi2ymin[i] + yratio*enty1_->chi2ymin[i];
+         chi2xavg[i]=(1.f - yratio)*enty0_->chi2xavg[i] + yratio*enty1_->chi2xavg[i];
+         chi2xmin[i]=(1.f - yratio)*enty0_->chi2xmin[i] + yratio*enty1_->chi2xmin[i];
+         yavgc2m_[i]=(1.f - yratio)*enty0_->yavgc2m[i] + yratio*enty1_->yavgc2m[i];
+         if(flip_y_) {yavgc2m_[i] = -yavgc2m_[i];}
+         yrmsc2m_[i]=(1.f - yratio)*enty0_->yrmsc2m[i] + yratio*enty1_->yrmsc2m[i];
+         chi2yavgc2m_[i]=(1.f - yratio)*enty0_->chi2yavgc2m[i] + yratio*enty1_->chi2yavgc2m[i];
+         //	      if(flip_y_) {chi2yavgc2m_[i] = -chi2yavgc2m_[i];}
+         chi2yminc2m_[i]=(1.f - yratio)*enty0_->chi2yminc2m[i] + yratio*enty1_->chi2yminc2m[i];
+         //	      xrmsc2m[i]=(1.f - yratio)*enty0_->xrmsc2m[i] + yratio*enty1_->xrmsc2m[i];
+         chi2xavgc2m[i]=(1.f - yratio)*enty0_->chi2xavgc2m[i] + yratio*enty1_->chi2xavgc2m[i];
+         chi2xminc2m[i]=(1.f - yratio)*enty0_->chi2xminc2m[i] + yratio*enty1_->chi2xminc2m[i];
          for(j=0; j<6 ; ++j) {
-            yflparl_[i][j] = thePixelTemp_[index_id_].enty[ilow].yflpar[i][j];
-            yflparh_[i][j] = thePixelTemp_[index_id_].enty[ihigh].yflpar[i][j];
+            yflparl_[i][j] = enty0_->yflpar[i][j];
+            yflparh_[i][j] = enty1_->yflpar[i][j];
             
             // Since Q_fl is odd under cotbeta, it flips qutomatically, change only even terms
             
-            if(flip_y && (j == 0 || j == 2 || j == 4)) {
+            if(flip_y_ && (j == 0 || j == 2 || j == 4)) {
                yflparl_[i][j] = - yflparl_[i][j];
                yflparh_[i][j] = - yflparh_[i][j];
             }
@@ -1238,15 +1247,15 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
       
       //// Single pixel cluster probabilities
       
-      chi2yavgone_=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].chi2yavgone + yratio*thePixelTemp_[index_id_].enty[ihigh].chi2yavgone;
-      chi2yminone_=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].chi2yminone + yratio*thePixelTemp_[index_id_].enty[ihigh].chi2yminone;
-      chi2xavgone=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].chi2xavgone + yratio*thePixelTemp_[index_id_].enty[ihigh].chi2xavgone;
-      chi2xminone=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].chi2xminone + yratio*thePixelTemp_[index_id_].enty[ihigh].chi2xminone;
+      chi2yavgone_=(1.f - yratio)*enty0_->chi2yavgone + yratio*enty1_->chi2yavgone;
+      chi2yminone_=(1.f - yratio)*enty0_->chi2yminone + yratio*enty1_->chi2yminone;
+      chi2xavgone=(1.f - yratio)*enty0_->chi2xavgone + yratio*enty1_->chi2xavgone;
+      chi2xminone=(1.f - yratio)*enty0_->chi2xminone + yratio*enty1_->chi2xminone;
       
-      fracyone_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].fracyone + yratio*thePixelTemp_[index_id_].enty[ihigh].fracyone;
-      fracytwo_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].fracytwo + yratio*thePixelTemp_[index_id_].enty[ihigh].fracytwo;
+      fracyone_ = (1.f - yratio)*enty0_->fracyone + yratio*enty1_->fracyone;
+      fracytwo_ = (1.f - yratio)*enty0_->fracytwo + yratio*enty1_->fracytwo;
       //       for(i=0; i<10; ++i) {
-      //		    pyspare[i]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].yspare[i] + yratio*thePixelTemp_[index_id_].enty[ihigh].yspare[i];
+      //		    pyspare[i]=(1.f - yratio)*enty0_->yspare[i] + yratio*enty1_->yspare[i];
       //       }
       
       // Interpolate and build the y-template
@@ -1260,10 +1269,10 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
             
             // Flip the basic y-template when the cotbeta is negative
             
-            if(flip_y) {
-               ytemp_[8-i][BYM3-j]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].ytemp[i][j] + yratio*thePixelTemp_[index_id_].enty[ihigh].ytemp[i][j];
+            if(flip_y_) {
+               ytemp_[8-i][BYM3-j]=(1.f - yratio)*enty0_->ytemp[i][j] + yratio*enty1_->ytemp[i][j];
             } else {
-               ytemp_[i][j+2]=(1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].ytemp[i][j] + yratio*thePixelTemp_[index_id_].enty[ihigh].ytemp[i][j];
+               ytemp_[i][j+2]=(1.f - yratio)*enty0_->ytemp[i][j] + yratio*enty1_->ytemp[i][j];
             }
          }
       }
@@ -1333,17 +1342,17 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
       symax_ = (1.f - xxratio)*thePixelTemp_[index_id_].entx[imaxx][ilow].symax + xxratio*thePixelTemp_[index_id_].entx[imaxx][ihigh].symax;
       if(thePixelTemp_[index_id_].entx[imaxx][imidy].symax != 0.f) {symax_=symax_/thePixelTemp_[index_id_].entx[imaxx][imidy].symax*symax;}
       dxone_ = (1.f - xxratio)*thePixelTemp_[index_id_].entx[0][ilow].dxone + xxratio*thePixelTemp_[index_id_].entx[0][ihigh].dxone;
-      if(flip_x) {dxone_ = -dxone_;}
+      if(flip_x_) {dxone_ = -dxone_;}
       sxone_ = (1.f - xxratio)*thePixelTemp_[index_id_].entx[0][ilow].sxone + xxratio*thePixelTemp_[index_id_].entx[0][ihigh].sxone;
       dxtwo_ = (1.f - xxratio)*thePixelTemp_[index_id_].entx[0][ilow].dxtwo + xxratio*thePixelTemp_[index_id_].entx[0][ihigh].dxtwo;
-      if(flip_x) {dxtwo_ = -dxtwo_;}
+      if(flip_x_) {dxtwo_ = -dxtwo_;}
       sxtwo_ = (1.f - xxratio)*thePixelTemp_[index_id_].entx[0][ilow].sxtwo + xxratio*thePixelTemp_[index_id_].entx[0][ihigh].sxtwo;
       clslenx_ = fminf(thePixelTemp_[index_id_].entx[0][ilow].clslenx, thePixelTemp_[index_id_].entx[0][ihigh].clslenx);
       
       for(i=0; i<2 ; ++i) {
          for(j=0; j<5 ; ++j) {
             // Charge loss switches sides when cot(alpha) changes sign
-            if(flip_x) {
+            if(flip_x_) {
                xpar0_[1-i][j] = thePixelTemp_[index_id_].entx[imaxx][imidy].xpar[i][j];
                xparl_[1-i][j] = thePixelTemp_[index_id_].entx[imaxx][ilow].xpar[i][j];
                xparh_[1-i][j] = thePixelTemp_[index_id_].entx[imaxx][ihigh].xpar[i][j];
@@ -1355,42 +1364,48 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
          }
       }
       
-      // pixmax is the maximum allowed pixel charge (used for truncation)
+      // Pointers to the currently interpolated point.
+      entx00_ = & thePixelTemp_[index_id_].entx[iylow][ilow];
+      entx02_ = & thePixelTemp_[index_id_].entx[iylow][ihigh];
+      entx20_ = & thePixelTemp_[index_id_].entx[iyhigh][ilow];
+      entx22_ = & thePixelTemp_[index_id_].entx[iyhigh][ihigh];
+      entx21_ = & thePixelTemp_[index_id_].entx[iyhigh][imidy];
+
+
+      // pixmax is the maximum allowed pixel charge (used for truncation)      
+      pixmax_ = (1.f - yxratio) * ((1.f - xxratio)*entx00_->pixmax + xxratio*entx02_->pixmax)
+	             + yxratio  * ((1.f - xxratio)*entx20_->pixmax + xxratio*entx22_->pixmax);
       
-      pixmax_=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].pixmax + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].pixmax)
-      +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].pixmax + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].pixmax);
-      
-      
-      r_qMeas_qTrue_=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].r_qMeas_qTrue + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].r_qMeas_qTrue)
-      +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].r_qMeas_qTrue + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].r_qMeas_qTrue);
+      r_qMeas_qTrue_ = (1.f - yxratio) * ((1.f - xxratio)*entx00_->r_qMeas_qTrue + xxratio*entx02_->r_qMeas_qTrue)
+	                    + yxratio  * ((1.f - xxratio)*entx20_->r_qMeas_qTrue + xxratio*entx22_->r_qMeas_qTrue);
       
       
       for(i=0; i<4; ++i) {
-         xavg_[i]=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].xavg[i] + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].xavg[i])
-         +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].xavg[i] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].xavg[i]);
-         if(flip_x) {xavg_[i] = -xavg_[i];}
+         xavg_[i] = (1.f - yxratio) * ((1.f - xxratio)*entx00_->xavg[i] + xxratio*entx02_->xavg[i])
+                         + yxratio  * ((1.f - xxratio)*entx20_->xavg[i] + xxratio*entx22_->xavg[i]);
+         if (flip_x_) {xavg_[i] = -xavg_[i];}
          
-         xrms_[i]=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].xrms[i] + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].xrms[i])
-         +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].xrms[i] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].xrms[i]);
+         xrms_[i] = (1.f - yxratio) * ((1.f - xxratio)*entx00_->xrms[i] + xxratio*entx02_->xrms[i])
+	                 + yxratio  * ((1.f - xxratio)*entx20_->xrms[i] + xxratio*entx22_->xrms[i]);
          
-         //	      xgx0_[i]=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].xgx0[i] + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].xgx0[i])
-         //		          +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].xgx0[i] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].xgx0[i]);
+         //	      xgx0_[i]=(1.f - yxratio)*((1.f - xxratio)*entx00_->xgx0[i] + xxratio*entx02_->xgx0[i])
+         //		          +yxratio*((1.f - xxratio)*entx20_->xgx0[i] + xxratio*entx22_->xgx0[i]);
          
-         //	      xgsig_[i]=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].xgsig[i] + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].xgsig[i])
-         //		          +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].xgsig[i] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].xgsig[i]);
+         //	      xgsig_[i]=(1.f - yxratio)*((1.f - xxratio)*entx00_->xgsig[i] + xxratio*entx02_->xgsig[i])
+         //		          +yxratio*((1.f - xxratio)*entx20_->xgsig[i] + xxratio*entx22_->xgsig[i]);
          
-         xavgc2m_[i]=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].xavgc2m[i] + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].xavgc2m[i])
-         +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].xavgc2m[i] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].xavgc2m[i]);
-         if(flip_x) {xavgc2m_[i] = -xavgc2m_[i];}
+         xavgc2m_[i] = (1.f - yxratio) * ((1.f - xxratio)*entx00_->xavgc2m[i] + xxratio*entx02_->xavgc2m[i])
+                            + yxratio  * ((1.f - xxratio)*entx20_->xavgc2m[i] + xxratio*entx22_->xavgc2m[i]);
+         if(flip_x_) {xavgc2m_[i] = -xavgc2m_[i];}
          
-         xrmsc2m_[i]=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].xrmsc2m[i] + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].xrmsc2m[i])
-         +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].xrmsc2m[i] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].xrmsc2m[i]);
+         xrmsc2m_[i] = (1.f - yxratio) * ((1.f - xxratio)*entx00_->xrmsc2m[i] + xxratio*entx02_->xrmsc2m[i])
+                            + yxratio  * ((1.f - xxratio)*entx20_->xrmsc2m[i] + xxratio*entx22_->xrmsc2m[i]);
          
-         //	      chi2xavgc2m_[i]=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].chi2xavgc2m[i] + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].chi2xavgc2m[i])
-         //		          +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].chi2xavgc2m[i] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].chi2xavgc2m[i]);
+         //	      chi2xavgc2m_[i]=(1.f - yxratio)*((1.f - xxratio)*entx00_->chi2xavgc2m[i] + xxratio*entx02_->chi2xavgc2m[i])
+         //		          +yxratio*((1.f - xxratio)*entx20_->chi2xavgc2m[i] + xxratio*entx22_->chi2xavgc2m[i]);
          
-         //	      chi2xminc2m_[i]=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].chi2xminc2m[i] + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].chi2xminc2m[i])
-         //		          +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].chi2xminc2m[i] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].chi2xminc2m[i]);
+         //	      chi2xminc2m_[i]=(1.f - yxratio)*((1.f - xxratio)*entx00_->chi2xminc2m[i] + xxratio*entx02_->chi2xminc2m[i])
+         //		          +yxratio*((1.f - xxratio)*entx20_->chi2xminc2m[i] + xxratio*entx22_->chi2xminc2m[i]);
          //
          //  Try new interpolation scheme
          //
@@ -1400,25 +1415,25 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
          //	      chi2xmin_[i]=((1.f - xxratio)*thePixelTemp_[index_id_].entx[imaxx][ilow].chi2xmin[i] + xxratio*thePixelTemp_[index_id_].entx[imaxx][ihigh].chi2xmin[i]);
          //		  if(thePixelTemp_[index_id_].entx[imaxx][imidy].chi2xmin[i] != 0.f) {chi2xmin_[i]=chi2xmin_[i]/thePixelTemp_[index_id_].entx[imaxx][imidy].chi2xmin[i]*chi2xmin[i];}
          //
-         chi2xavg_[i]=((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].chi2xavg[i] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].chi2xavg[i]);
-         if(thePixelTemp_[index_id_].entx[iyhigh][imidy].chi2xavg[i] != 0.f) {chi2xavg_[i]=chi2xavg_[i]/thePixelTemp_[index_id_].entx[iyhigh][imidy].chi2xavg[i]*chi2xavg[i];}
+         chi2xavg_[i] = ((1.f - xxratio) * entx20_->chi2xavg[i] + xxratio*entx22_->chi2xavg[i]);
+         if(entx21_->chi2xavg[i] != 0.f) {chi2xavg_[i]=chi2xavg_[i]/entx21_->chi2xavg[i]*chi2xavg[i];}
          
-         chi2xmin_[i]=((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].chi2xmin[i] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].chi2xmin[i]);
-         if(thePixelTemp_[index_id_].entx[iyhigh][imidy].chi2xmin[i] != 0.f) {chi2xmin_[i]=chi2xmin_[i]/thePixelTemp_[index_id_].entx[iyhigh][imidy].chi2xmin[i]*chi2xmin[i];}
+         chi2xmin_[i] = ((1.f - xxratio) * entx20_->chi2xmin[i] + xxratio*entx22_->chi2xmin[i]);
+         if(entx21_->chi2xmin[i] != 0.f) {chi2xmin_[i]=chi2xmin_[i]/entx21_->chi2xmin[i]*chi2xmin[i];}
          
-         chi2xavgc2m_[i]=((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].chi2xavgc2m[i] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].chi2xavgc2m[i]);
-         if(thePixelTemp_[index_id_].entx[iyhigh][imidy].chi2xavgc2m[i] != 0.f) {chi2xavgc2m_[i]=chi2xavgc2m_[i]/thePixelTemp_[index_id_].entx[iyhigh][imidy].chi2xavgc2m[i]*chi2xavgc2m[i];}
+         chi2xavgc2m_[i] = ((1.f - xxratio) * entx20_->chi2xavgc2m[i] + xxratio*entx22_->chi2xavgc2m[i]);
+         if(entx21_->chi2xavgc2m[i] != 0.f) {chi2xavgc2m_[i]=chi2xavgc2m_[i]/entx21_->chi2xavgc2m[i]*chi2xavgc2m[i];}
          
-         chi2xminc2m_[i]=((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].chi2xminc2m[i] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].chi2xminc2m[i]);
-         if(thePixelTemp_[index_id_].entx[iyhigh][imidy].chi2xminc2m[i] != 0.f) {chi2xminc2m_[i]=chi2xminc2m_[i]/thePixelTemp_[index_id_].entx[iyhigh][imidy].chi2xminc2m[i]*chi2xminc2m[i];}
+         chi2xminc2m_[i] = ((1.f - xxratio) * entx20_->chi2xminc2m[i] + xxratio*entx22_->chi2xminc2m[i]);
+         if(entx21_->chi2xminc2m[i] != 0.f) {chi2xminc2m_[i]=chi2xminc2m_[i]/entx21_->chi2xminc2m[i]*chi2xminc2m[i];}
          
          for(j=0; j<6 ; ++j) {
-            xflparll_[i][j] = thePixelTemp_[index_id_].entx[iylow][ilow].xflpar[i][j];
-            xflparlh_[i][j] = thePixelTemp_[index_id_].entx[iylow][ihigh].xflpar[i][j];
-            xflparhl_[i][j] = thePixelTemp_[index_id_].entx[iyhigh][ilow].xflpar[i][j];
-            xflparhh_[i][j] = thePixelTemp_[index_id_].entx[iyhigh][ihigh].xflpar[i][j];
+            xflparll_[i][j] = entx00_->xflpar[i][j];
+            xflparlh_[i][j] = entx02_->xflpar[i][j];
+            xflparhl_[i][j] = entx20_->xflpar[i][j];
+            xflparhh_[i][j] = entx22_->xflpar[i][j];
             // Since Q_fl is odd under cotalpha, it flips qutomatically, change only even terms
-            if(flip_x && (j == 0 || j == 2 || j == 4)) {
+            if(flip_x_ && (j == 0 || j == 2 || j == 4)) {
                xflparll_[i][j] = -xflparll_[i][j];
                xflparlh_[i][j] = -xflparlh_[i][j];
                xflparhl_[i][j] = -xflparhl_[i][j];
@@ -1430,20 +1445,20 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
       
       // Do the spares next
       
-      chi2xavgone_=((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].chi2xavgone + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].chi2xavgone);
-      if(thePixelTemp_[index_id_].entx[iyhigh][imidy].chi2xavgone != 0.f) {chi2xavgone_=chi2xavgone_/thePixelTemp_[index_id_].entx[iyhigh][imidy].chi2xavgone*chi2xavgone;}
+      chi2xavgone_=((1.f - xxratio)*entx20_->chi2xavgone + xxratio*entx22_->chi2xavgone);
+      if(entx21_->chi2xavgone != 0.f) {chi2xavgone_=chi2xavgone_/entx21_->chi2xavgone*chi2xavgone;}
       
-      chi2xminone_=((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].chi2xminone + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].chi2xminone);
-      if(thePixelTemp_[index_id_].entx[iyhigh][imidy].chi2xminone != 0.f) {chi2xminone_=chi2xminone_/thePixelTemp_[index_id_].entx[iyhigh][imidy].chi2xminone*chi2xminone;}
+      chi2xminone_=((1.f - xxratio)*entx20_->chi2xminone + xxratio*entx22_->chi2xminone);
+      if(entx21_->chi2xminone != 0.f) {chi2xminone_=chi2xminone_/entx21_->chi2xminone*chi2xminone;}
       
-      fracxone_ = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].fracxone + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].fracxone)
-   +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].fracxone + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].fracxone);
-      fracxtwo_ = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].fracxtwo + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].fracxtwo)
-   +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].fracxtwo + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].fracxtwo);
+      fracxone_ = (1.f - yxratio) * ((1.f - xxratio)*entx00_->fracxone + xxratio*entx02_->fracxone)
+	               + yxratio  * ((1.f - xxratio)*entx20_->fracxone + xxratio*entx22_->fracxone);
+      fracxtwo_ = (1.f - yxratio) * ((1.f - xxratio)*entx00_->fracxtwo + xxratio*entx02_->fracxtwo)
+	               + yxratio  * ((1.f - xxratio)*entx20_->fracxtwo + xxratio*entx22_->fracxtwo);
    
       //       for(i=0; i<10; ++i) {
-      //	      pxspare[i]=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].xspare[i] + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].xspare[i])
-      //		          +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].xspare[i] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].xspare[i]);
+      //	      pxspare[i]=(1.f - yxratio)*((1.f - xxratio)*entx00_->xspare[i] + xxratio*entx02_->xspare[i])
+      //		          +yxratio*((1.f - xxratio)*entx20_->xspare[i] + xxratio*entx22_->xspare[i]);
       //       }
       
       // Interpolate and build the x-template
@@ -1461,11 +1476,11 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
          for(j=0; j<TXSIZE; ++j) {
             //  Take next largest x-slice for the x-template (it reduces bias in the forward direction after irradiation)
             //		   xtemp_[i][j+2]=(1.f - xxratio)*thePixelTemp_[index_id_].entx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp_[index_id_].entx[imaxx][ihigh].xtemp[i][j];
-            //		   xtemp_[i][j+2]=(1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].xtemp[i][j] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].xtemp[i][j];
-            if(flip_x) {
-               xtemp_[8-i][BXM3-j]=qxtempcor*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].xtemp[i][j] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].xtemp[i][j]);
+            //		   xtemp_[i][j+2]=(1.f - xxratio)*entx20_->xtemp[i][j] + xxratio*entx22_->xtemp[i][j];
+            if(flip_x_) {
+               xtemp_[8-i][BXM3-j] = qxtempcor*((1.f - xxratio)*entx20_->xtemp[i][j] + xxratio*entx22_->xtemp[i][j]);
             } else {
-               xtemp_[i][j+2]=qxtempcor*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].xtemp[i][j] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].xtemp[i][j]);
+               xtemp_[i][j+2]      = qxtempcor*((1.f - xxratio)*entx20_->xtemp[i][j] + xxratio*entx22_->xtemp[i][j]);
             }
          }
       }
@@ -1474,8 +1489,8 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
       lorxwidth_ = thePixelTemp_[index_id_].head.lorxwidth;
       lorybias_ = thePixelTemp_[index_id_].head.lorybias;
       lorxbias_ = thePixelTemp_[index_id_].head.lorxbias;
-      if(flip_x) {lorxwidth_ = -lorxwidth_; lorxbias_ = -lorxbias_;}
-      if(flip_y) {lorywidth_ = -lorywidth_; lorybias_ = -lorybias_;}
+      if(flip_x_) {lorxwidth_ = -lorxwidth_; lorxbias_ = -lorxbias_;}
+      if(flip_y_) {lorywidth_ = -lorywidth_; lorybias_ = -lorybias_;}
       
       
    }
@@ -1537,10 +1552,15 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
 void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float locBx, float locBz, float lorwdy, float lorwdx, float q50, float fbin[3], float xsize, float ysize, float zsize)
 {
    // Set class variables to the input parameters
-   
-   entry00_ = entry;
-   entry01_ = entry;
-   entry10_ = entry;
+   enty1_ = entry;
+   enty0_ = entry;
+
+   entx00_ = entry;
+   entx02_ = entry;
+   entx20_ = entry;
+   entx22_ = entry;
+   entx21_ = entry;
+
    Dtype_ = iDtype;
    lorywidth_ = lorwdy;
    lorxwidth_ = lorwdx;
@@ -1553,27 +1573,19 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float lo
    
    // Set other class variables
    
-   adcota_ = 0.f;
-   adcotb_ = 0.f;
+   // adcota_ = 0.f;
+   // adcotb_ = 0.f;
    
    // Interpolate things in cot(alpha)-cot(beta)
    
-   qavg_ = entry00_->qavg;
-   
-   pixmax_ = entry00_->pixmax;
-   
-   sxymax_ = entry00_->sxymax;
-   
-   clsleny_ = entry00_->clsleny;
-   
-   clslenx_ = entry00_->clslenx;
-   
+   qavg_ = entry->qavg;
+   pixmax_ = entry->pixmax;
+   // sxymax_ = entry00_->sxymax;
+   clsleny_ = entry->clsleny;
+   clslenx_ = entry->clslenx;
    scaleyavg_ = 1.f;
-   
    scalexavg_ = 1.f;
-   
    delyavg_ = 0.f;
-   
    delysig_ = 0.f;
    
    for(int i=0; i<4 ; ++i) {
@@ -1587,7 +1599,7 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float lo
    
    flip_x_ = false;
    flip_y_ = false;
-   float cotbeta = entry00_->cotbeta;
+   float cotbeta = entry->cotbeta;
    switch(Dtype_) {
       case 0:
          if(cotbeta < 0.f) {flip_y_ = true;}
@@ -1610,35 +1622,36 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float lo
          break;
       default:
 	// #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-	//         throw cms::Exception("DataCorrupt") << "SiPixelTemplate2D::illegal subdetector ID = " << iDtype << std::endl;
+	//         throw cms::Exception("DataCorrupt") << "SiPixelTemplate2D::illegal subdetector ID = " << Dtype_ << std::endl;
 	//#else
-         std::cout << "SiPixelTemplate:illegal subdetector ID = " << iDtype << std::endl;
+         std::cout << "SiPixelTemplate:illegal subdetector ID = " << Dtype_ << std::endl;
 	 //#endif
    }
    
    //  Calculate signed quantities
    
-   lorydrift_ = lorywidth_/2.;
-   if(flip_y_) lorydrift_ = -lorydrift_;
-   lorxdrift_ = lorxwidth_/2.;
-   if(flip_x_) lorxdrift_ = -lorxdrift_;
+   // &&& Do we need these?
+   // lorydrift_ = lorywidth_/2.;
+   // if(flip_y_) lorydrift_ = -lorydrift_;
+   // lorxdrift_ = lorxwidth_/2.;
+   // if(flip_x_) lorxdrift_ = -lorxdrift_;
    
-   for(int i=0; i<2 ; ++i) {
-      for(int j=0; j<5 ; ++j) {
-         // Charge loss switches sides when cot(beta) changes sign
-         if(flip_y_) {
-            xypary0x0_[1-i][j] = (float)entry00_->xypar[i][j];
-            xypary1x0_[1-i][j] = (float)entry00_->xypar[i][j];
-            xypary0x1_[1-i][j] = (float)entry00_->xypar[i][j];
-            lanpar_[1-i][j] = entry00_->lanpar[i][j];
-         } else {
-            xypary0x0_[i][j] = (float)entry00_->xypar[i][j];
-            xypary1x0_[i][j] = (float)entry00_->xypar[i][j];
-            xypary0x1_[i][j] = (float)entry00_->xypar[i][j];
-            lanpar_[i][j] = entry00_->lanpar[i][j];
-         }
-      }
-   }
+   // for(int i=0; i<2 ; ++i) {
+   //    for(int j=0; j<5 ; ++j) {
+   //       // Charge loss switches sides when cot(beta) changes sign
+   //       if(flip_y_) {
+   //          xypary0x0_[1-i][j] = (float)entry->xypar[i][j];
+   //          xypary1x0_[1-i][j] = (float)entry->xypar[i][j];
+   //          xypary0x1_[1-i][j] = (float)entry->xypar[i][j];
+   //          lanpar_[1-i][j] = entry->lanpar[i][j];
+   //       } else {
+   //          xypary0x0_[i][j] = (float)entry->xypar[i][j];
+   //          xypary1x0_[i][j] = (float)entry->xypar[i][j];
+   //          xypary0x1_[i][j] = (float)entry->xypar[i][j];
+   //          lanpar_[i][j] = entry->lanpar[i][j];
+   //       }
+   //    }
+   // }
    return;
 } // sideload
 #endif
@@ -2938,7 +2951,7 @@ void SiPixelTemplate::temperrors(int id, float cotalpha, float cotbeta, int qBin
    
    // Interpolate the absolute value of cot(beta)
    
-   acotb = fabs((double)cotbeta);
+   acotb = std::abs(cotbeta);
    // cotb = cotbeta;   // &&& check with Morris, we reassign it below.
    
    // for some cosmics, the ususal gymnastics are incorrect
@@ -3542,7 +3555,7 @@ void SiPixelTemplate::vavilov_pars(double& mpv, double& sigma, double& kappa)
    
    // Interpolate Vavilov parameters
    
-   mpvvav_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].mpvvav + yratio*thePixelTemp_[index_id_].enty[ihigh].mpvvav;
+   mpvvav_   = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].mpvvav   + yratio*thePixelTemp_[index_id_].enty[ihigh].mpvvav;
    sigmavav_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].sigmavav + yratio*thePixelTemp_[index_id_].enty[ihigh].sigmavav;
    kappavav_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].kappavav + yratio*thePixelTemp_[index_id_].enty[ihigh].kappavav;
    
@@ -3620,7 +3633,7 @@ void SiPixelTemplate::vavilov2_pars(double& mpv, double& sigma, double& kappa)
    
    // Interpolate Vavilov parameters
    
-   mpvvav2_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].mpvvav2 + yratio*thePixelTemp_[index_id_].enty[ihigh].mpvvav2;
+   mpvvav2_   = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].mpvvav2   + yratio*thePixelTemp_[index_id_].enty[ihigh].mpvvav2;
    sigmavav2_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].sigmavav2 + yratio*thePixelTemp_[index_id_].enty[ihigh].sigmavav2;
    kappavav2_ = (1.f - yratio)*thePixelTemp_[index_id_].enty[ilow].kappavav2 + yratio*thePixelTemp_[index_id_].enty[ihigh].kappavav2;
    

@@ -533,7 +533,7 @@ bool SiPixelTemplate2D::getid(int id)
             index_id_ = i;
             id_current_ = id;
             
-            // Copy the charge scaling factor to the private variable
+            // Copy the detector type to the private variable
             
             Dtype_ = thePixelTemp_[index_id_].head.Dtype;
             
@@ -624,7 +624,9 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
    
    if(id != id_current_ || cotalpha != cota_current_ || cotbeta != cotb_current_) {
       cota_current_ = cotalpha; cotb_current_ = cotbeta;
-      success_ = getid(id);
+
+      // Try to find the correct template.  Fill the class variable index_id_ .
+      success_ = getid(id);   
    }
    
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
@@ -653,7 +655,7 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
       case 4:
       case 5:
          if(locBx*locBz < 0.f) {
-            cota = fabs(cotalpha);
+	    cota = std::abs(cotalpha);
             flip_x_ = true;
          }
          if(locBx < 0.f) {flip_y_ = true;}
@@ -679,13 +681,13 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
    } else {
       jx0_ = (int)((cota-cotalpha0_)/deltacota_+0.5f);
       dcota = (cota - (cotalpha0_ + jx0_*deltacota_))/deltacota_;
-      adcota_ = fabs(dcota);
+      adcota_ = std::abs(dcota);
       if(dcota > 0.f) {jx1_ = jx0_ + 1;if(jx1_ > Nxx_-1) jx1_ = jx0_-1;} else {jx1_ = jx0_ - 1; if(jx1_ < 0) jx1_ = jx0_+1;}
    }
    
    // Interpolate the absolute value of cot(beta)
    
-   acotb = fabs(cotbeta);
+   acotb = std::abs(cotbeta);
    
    if(acotb < cotbeta0_) {
       success_ = false;
@@ -700,8 +702,17 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
    } else {
       iy0_ = (int)((acotb-cotbeta0_)/deltacotb_+0.5f);
       dcotb = (acotb - (cotbeta0_ + iy0_*deltacotb_))/deltacotb_;
-      adcotb_ = fabs(dcotb);
-      if(dcotb > 0.f) {iy1_ = iy0_ + 1; if(iy1_ > Nyx_-1) iy1_ = iy0_-1;} else {iy1_ = iy0_ - 1; if(iy1_ < 0) iy1_ = iy0_+1;}
+      adcotb_ = std::abs(dcotb);
+      if(dcotb > 0.f) {
+	iy1_ = iy0_ + 1; 
+	if (iy1_ > Nyx_-1) 
+	  iy1_ = iy0_ - 1;
+      } 
+      else {
+	iy1_ = iy0_ - 1; 
+	if(iy1_ < 0) 
+	  iy1_ = iy0_ + 1;
+      }
    }
    
    //  Calculate signed quantities
@@ -863,21 +874,13 @@ void SiPixelTemplate2D::sideload(SiPixelTemplateEntry2D* entry, int iDtype, floa
    // Interpolate things in cot(alpha)-cot(beta)
    
    qavg_ = entry00_->qavg;
-   
    pixmax_ = entry00_->pixmax;
-   
    sxymax_ = entry00_->sxymax;
-   
    clsleny_ = entry00_->clsleny;
-   
    clslenx_ = entry00_->clslenx;
-   
    scaleyavg_ = 1.f;
-   
    scalexavg_ = 1.f;
-   
    delyavg_ = 0.f;
-   
    delysig_ = 0.f;
    
    for(int i=0; i<4 ; ++i) {
