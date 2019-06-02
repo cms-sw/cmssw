@@ -32,34 +32,31 @@ class TH2F;
 //class DQMStore; // CMSSW_2_X_X not needed here?
 
 class PFTauElecRejectionBenchmark {
-	
- public:
-  
+public:
   PFTauElecRejectionBenchmark();
   virtual ~PFTauElecRejectionBenchmark();
-  
-  void setup(
-	     std::string Filename,
-	     std::string benchmarkLabel,
-	     double maxDeltaR, 
-	     double minRecoPt, 
-	     double maxRecoAbsEta, 
-	     double minMCPt, 
-	     double maxMCAbsEta, 
-	     std::string sGenMatchObjectLabel,
-	     bool applyEcalCrackCut,
-	     DQMStore * db_store);
-  void process(edm::Handle<edm::HepMCProduct> mcevt, edm::Handle<reco::PFTauCollection> pfTaus, 
-	       edm::Handle<reco::PFTauDiscriminator> pfTauIsoDiscr, 
-	       edm::Handle<reco::PFTauDiscriminator> pfTauElecDiscr);
+
+  void setup(std::string Filename,
+             std::string benchmarkLabel,
+             double maxDeltaR,
+             double minRecoPt,
+             double maxRecoAbsEta,
+             double minMCPt,
+             double maxMCAbsEta,
+             std::string sGenMatchObjectLabel,
+             bool applyEcalCrackCut,
+             DQMStore *db_store);
+  void process(edm::Handle<edm::HepMCProduct> mcevt,
+               edm::Handle<reco::PFTauCollection> pfTaus,
+               edm::Handle<reco::PFTauDiscriminator> pfTauIsoDiscr,
+               edm::Handle<reco::PFTauDiscriminator> pfTauElecDiscr);
   void write();
-	
- private:
-		
+
+private:
   bool isInEcalCrack(double eta) const;
 
   TFile *file_;
-  std::string outputFile_;	
+  std::string outputFile_;
   std::string benchmarkLabel_;
   double maxDeltaR_;
   double minMCPt_;
@@ -116,12 +113,10 @@ class PFTauElecRejectionBenchmark {
   TH1F *hleadGsfTk_eta;
   TH1F *hleadGsfTk_phi;
 
-	
   std::vector<TLorentzVector> _GenObjects;
 
- protected:
-		
+protected:
   DQMStore *db_;
 };
 
-#endif // RecoParticleFlow_Benchmark_PFTauElecRejectionBenchmark_h
+#endif  // RecoParticleFlow_Benchmark_PFTauElecRejectionBenchmark_h
