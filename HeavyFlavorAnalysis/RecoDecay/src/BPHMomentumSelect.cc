@@ -19,26 +19,20 @@
 // C++ Headers --
 //---------------
 
-
 //-------------------
 // Initializations --
 //-------------------
 
-
 //----------------
 // Constructors --
 //----------------
-BPHMomentumSelect::BPHMomentumSelect() {
-}
+BPHMomentumSelect::BPHMomentumSelect() {}
 
 //--------------
 // Destructor --
 //--------------
-BPHMomentumSelect::~BPHMomentumSelect() {
-}
+BPHMomentumSelect::~BPHMomentumSelect() {}
 
 //--------------
 // Operations --
 //--------------
-
-

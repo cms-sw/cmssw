@@ -18,27 +18,24 @@
 //
 
 class AnalysisJV : public edm::EDAnalyzer {
-   public:
-      explicit AnalysisJV(const edm::ParameterSet&);
-      ~AnalysisJV();
+public:
+  explicit AnalysisJV(const edm::ParameterSet&);
+  ~AnalysisJV();
 
+private:
+  virtual void beginJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
+  std::string fOutputFileName;
 
-   private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      std::string fOutputFileName ;
+  TFile* fOutputFile;
+  TH1D* fHistAlpha;
 
-      TFile*      fOutputFile ;
-      TH1D*       fHistAlpha ;
+  typedef std::vector<double> ResultCollection1;
+  typedef std::vector<bool> ResultCollection2;
 
-      typedef std::vector<double> ResultCollection1;
-      typedef std::vector<bool> ResultCollection2;
-
-      edm::EDGetTokenT<ResultCollection1> fResult1Token;
-      edm::EDGetTokenT<ResultCollection2> fResult2Token;
-      edm::EDGetTokenT<reco::CaloJetCollection> fCaloJetsToken;
-
-
+  edm::EDGetTokenT<ResultCollection1> fResult1Token;
+  edm::EDGetTokenT<ResultCollection2> fResult2Token;
+  edm::EDGetTokenT<reco::CaloJetCollection> fCaloJetsToken;
 };
 #endif

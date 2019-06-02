@@ -13,100 +13,80 @@
 
 namespace PhysicsTools {
 
-template<class Record_t>
-class MVATrainerLooperImpl : public MVATrainerLooper {
+  template <class Record_t>
+  class MVATrainerLooperImpl : public MVATrainerLooper {
+  public:
+    MVATrainerLooperImpl(const edm::ParameterSet &params) : MVATrainerLooper(params) {
+      setWhatProduced(this, "trainer");
+      addTrainer(new Trainer(params));
+    }
+
+    ~MVATrainerLooperImpl() override {}
+
+    std::shared_ptr<Calibration::MVAComputer> produce(const Record_t &record) {
+      return (*getTrainers().begin())->getCalibration();
+    }
+  };
+
+  template <class Record_t>
+  class MVATrainerContainerLooperImpl : public MVATrainerLooper {
+  public:
+    enum { kTrainer, kTrained };
+
+    MVATrainerContainerLooperImpl(const edm::ParameterSet &params) : MVATrainerLooper(params) {
+      setWhatProduced(this, edm::es::label("trainer", kTrainer)("trained", kTrained));
+
+      std::vector<edm::ParameterSet> trainers = params.getParameter<std::vector<edm::ParameterSet> >("trainers");
+
+      for (std::vector<edm::ParameterSet>::const_iterator iter = trainers.begin(); iter != trainers.end(); iter++)
+
+        addTrainer(new Trainer(*iter));
+    }
+
+    ~MVATrainerContainerLooperImpl() override {}
+
+    edm::ESProducts<edm::es::L<Calibration::MVAComputerContainer, kTrainer>,
+                    edm::es::L<Calibration::MVAComputerContainer, kTrained> >
+    produce(const Record_t &record) {
+      std::shared_ptr<MVATrainerContainer> trainerCalib(new MVATrainerContainer());
+      TrainContainer trainedCalib;
+
+      bool untrained = false;
+      for (TrainerContainer::const_iterator iter = getTrainers().begin(); iter != getTrainers().end(); iter++) {
+        Trainer *trainer = dynamic_cast<Trainer *>(*iter);
+        TrainObject calib = trainer->getCalibration();
+
+        trainerCalib->addTrainer(trainer->calibrationRecord, calib);
+        if (calib) {
+          untrained = true;
+          continue;
+        }
+
+        if (!trainedCalib)
+          trainedCalib = std::make_shared<PhysicsTools::Calibration::MVAComputerContainer>();
+
+        trainedCalib->add(trainer->calibrationRecord) = *trainer->getTrainer()->getCalibration();
+      }
+
+      if (untrained)
+        trainedCalib = TrainContainer(new UntrainedMVAComputerContainer);
+
+      edm::es::L<Calibration::MVAComputerContainer, kTrainer> trainedESLabel(trainerCalib);
+
+      return edm::es::products(trainedESLabel, edm::es::l<kTrained>(trainedCalib));
+    }
+
+  protected:
+    class Trainer : public MVATrainerLooper::Trainer {
     public:
-	MVATrainerLooperImpl(const edm::ParameterSet &params) :
-		MVATrainerLooper(params)
-	{
-		setWhatProduced(this, "trainer");
-		addTrainer(new Trainer(params));
-	}
+      Trainer(const edm::ParameterSet &params)
+          : MVATrainerLooper::Trainer(params),
+            calibrationRecord(params.getParameter<std::string>("calibrationRecord")) {}
 
-	~MVATrainerLooperImpl() override {}
+      std::string calibrationRecord;
+    };
+  };
 
-	std::shared_ptr<Calibration::MVAComputer>
-	produce(const Record_t &record)
-	{ return (*getTrainers().begin())->getCalibration(); }
-};
+}  // namespace PhysicsTools
 
-template<class Record_t>
-class MVATrainerContainerLooperImpl : public MVATrainerLooper {
-    public:
-	enum { kTrainer, kTrained };
-
-	MVATrainerContainerLooperImpl(const edm::ParameterSet &params) :
-		MVATrainerLooper(params)
-	{
-		setWhatProduced(this, edm::es::label("trainer", kTrainer)
-		                                    ("trained", kTrained));
-
-		std::vector<edm::ParameterSet> trainers =
-			params.getParameter<std::vector<edm::ParameterSet> >(
-								"trainers");
-
-		for(std::vector<edm::ParameterSet>::const_iterator iter =
-			trainers.begin(); iter != trainers.end(); iter++)
-
-			addTrainer(new Trainer(*iter));
-	}
-
-	~MVATrainerContainerLooperImpl() override {}
-
-	edm::ESProducts<
-		edm::es::L<Calibration::MVAComputerContainer, kTrainer>,
-		edm::es::L<Calibration::MVAComputerContainer, kTrained> >
-	produce(const Record_t &record)
-	{
-		std::shared_ptr<MVATrainerContainer> trainerCalib(
-						new MVATrainerContainer());
-		TrainContainer trainedCalib;
-
-		bool untrained = false;
-		for(TrainerContainer::const_iterator iter =
-							getTrainers().begin();
-		    iter != getTrainers().end(); iter++) {
-			Trainer *trainer = dynamic_cast<Trainer*>(*iter);
-			TrainObject calib = trainer->getCalibration();
-
-			trainerCalib->addTrainer(trainer->calibrationRecord,
-			                         calib);
-			if (calib) {
-				untrained = true;
-				continue;
-			}
-
-			if (!trainedCalib)
-				trainedCalib = std::make_shared<PhysicsTools::Calibration::MVAComputerContainer>(
-					);
-
-			trainedCalib->add(trainer->calibrationRecord) =
-				*trainer->getTrainer()->getCalibration();
-		}
-
-		if (untrained)
-			trainedCalib = TrainContainer(
-					new UntrainedMVAComputerContainer);
-
-		edm::es::L<Calibration::MVAComputerContainer, kTrainer>
-						trainedESLabel(trainerCalib);
-
-		return edm::es::products(trainedESLabel,
-		                         edm::es::l<kTrained>(trainedCalib));
-	}
-
-    protected:
-	class Trainer : public MVATrainerLooper::Trainer {
-	    public:
-		Trainer(const edm::ParameterSet &params) :
-			MVATrainerLooper::Trainer(params),
-			calibrationRecord(params.getParameter<std::string>(
-						"calibrationRecord")) {}
-
-		std::string calibrationRecord;
-	};
-};
-
-} // namespace PhysicsTools
-
-#endif // PhysicsTools_MVATrainer_MVATrainerLooperImpl_h
+#endif  // PhysicsTools_MVATrainer_MVATrainerLooperImpl_h

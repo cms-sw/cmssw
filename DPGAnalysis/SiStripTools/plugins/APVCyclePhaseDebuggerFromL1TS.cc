@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -61,14 +60,14 @@ class APVCyclePhaseDebuggerFromL1TS : public edm::EDAnalyzer {
 public:
   explicit APVCyclePhaseDebuggerFromL1TS(const edm::ParameterSet&);
   ~APVCyclePhaseDebuggerFromL1TS() override;
-  
-  static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   edm::EDGetTokenT<Level1TriggerScalersCollection> _l1tscollectionToken;
   const unsigned int m_maxLS;
@@ -93,14 +92,11 @@ private:
   long long _lastEventCounter0;
   long long _lastOrbitCounter0;
   long long _lastTestEnable;
-
-
 };
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -109,156 +105,163 @@ private:
 //
 // constructors and destructor
 //
-APVCyclePhaseDebuggerFromL1TS::APVCyclePhaseDebuggerFromL1TS(const edm::ParameterSet& iConfig):
-  _l1tscollectionToken(consumes<Level1TriggerScalersCollection>(iConfig.getParameter<edm::InputTag>("l1TSCollection"))),
-  m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",250)),
-  m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",16)),
-  m_rhm(consumesCollector()),
-  _hsize(nullptr),_hlresync(nullptr),_hlOC0(nullptr),_hlTE(nullptr),_hlstart(nullptr),_hlEC0(nullptr),_hlHR(nullptr),_hdlec0lresync(nullptr),_hdlresynclHR(nullptr),
-  _lastResync(-1),_lastHardReset(-1),_lastStart(-1),
-  _lastEventCounter0(-1),_lastOrbitCounter0(-1),_lastTestEnable(-1)
-{
+APVCyclePhaseDebuggerFromL1TS::APVCyclePhaseDebuggerFromL1TS(const edm::ParameterSet& iConfig)
+    : _l1tscollectionToken(
+          consumes<Level1TriggerScalersCollection>(iConfig.getParameter<edm::InputTag>("l1TSCollection"))),
+      m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin", 250)),
+      m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction", 16)),
+      m_rhm(consumesCollector()),
+      _hsize(nullptr),
+      _hlresync(nullptr),
+      _hlOC0(nullptr),
+      _hlTE(nullptr),
+      _hlstart(nullptr),
+      _hlEC0(nullptr),
+      _hlHR(nullptr),
+      _hdlec0lresync(nullptr),
+      _hdlresynclHR(nullptr),
+      _lastResync(-1),
+      _lastHardReset(-1),
+      _lastStart(-1),
+      _lastEventCounter0(-1),
+      _lastOrbitCounter0(-1),
+      _lastTestEnable(-1) {
+  //now do what ever other initialization is needed
 
-   //now do what ever other initialization is needed
+  _hsize = m_rhm.makeTH1F("size", "Level1TriggerScalers Collection size", 20, -0.5, 19.5);
 
-  _hsize = m_rhm.makeTH1F("size","Level1TriggerScalers Collection size",20,-0.5,19.5);
-  
-  _hlresync = m_rhm.makeTH1F("lresync","Orbit of last resync",m_LSfrac*m_maxLS,0,m_maxLS*262144);
-  _hlOC0 = m_rhm.makeTH1F("lOC0","Orbit of last OC0",m_LSfrac*m_maxLS,0,m_maxLS*262144);
-  _hlTE = m_rhm.makeTH1F("lTE","Orbit of last TestEnable",m_LSfrac*m_maxLS,0,m_maxLS*262144);
-  _hlstart = m_rhm.makeTH1F("lstart","Orbit of last Start",m_LSfrac*m_maxLS,0,m_maxLS*262144);
-  _hlEC0 = m_rhm.makeTH1F("lEC0","Orbit of last EC0",m_LSfrac*m_maxLS,0,m_maxLS*262144);
-  _hlHR = m_rhm.makeTH1F("lHR","Orbit of last HardReset",m_LSfrac*m_maxLS,0,m_maxLS*262144);
-  _hdlec0lresync = m_rhm.makeTH1F("dlec0lresync","Orbit difference EC0-Resync",4000,-1999.5,2000.5);
-  _hdlresynclHR = m_rhm.makeTH1F("dlresynclHR","Orbit difference Resync-HR",4000,-1999.5,2000.5);
-  
+  _hlresync = m_rhm.makeTH1F("lresync", "Orbit of last resync", m_LSfrac * m_maxLS, 0, m_maxLS * 262144);
+  _hlOC0 = m_rhm.makeTH1F("lOC0", "Orbit of last OC0", m_LSfrac * m_maxLS, 0, m_maxLS * 262144);
+  _hlTE = m_rhm.makeTH1F("lTE", "Orbit of last TestEnable", m_LSfrac * m_maxLS, 0, m_maxLS * 262144);
+  _hlstart = m_rhm.makeTH1F("lstart", "Orbit of last Start", m_LSfrac * m_maxLS, 0, m_maxLS * 262144);
+  _hlEC0 = m_rhm.makeTH1F("lEC0", "Orbit of last EC0", m_LSfrac * m_maxLS, 0, m_maxLS * 262144);
+  _hlHR = m_rhm.makeTH1F("lHR", "Orbit of last HardReset", m_LSfrac * m_maxLS, 0, m_maxLS * 262144);
+  _hdlec0lresync = m_rhm.makeTH1F("dlec0lresync", "Orbit difference EC0-Resync", 4000, -1999.5, 2000.5);
+  _hdlresynclHR = m_rhm.makeTH1F("dlresynclHR", "Orbit difference Resync-HR", 4000, -1999.5, 2000.5);
 }
 
-
-APVCyclePhaseDebuggerFromL1TS::~APVCyclePhaseDebuggerFromL1TS()
-{
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+APVCyclePhaseDebuggerFromL1TS::~APVCyclePhaseDebuggerFromL1TS() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-APVCyclePhaseDebuggerFromL1TS::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+void APVCyclePhaseDebuggerFromL1TS::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
 {
-
   // update the parameters from DB
 
-
   m_rhm.beginRun(iRun);
-  
-  if(_hlresync && *_hlresync) {
-    (*_hlresync)->GetXaxis()->SetTitle("Orbit");     (*_hlresync)->GetYaxis()->SetTitle("Events");
+
+  if (_hlresync && *_hlresync) {
+    (*_hlresync)->GetXaxis()->SetTitle("Orbit");
+    (*_hlresync)->GetYaxis()->SetTitle("Events");
     (*_hlresync)->SetCanExtend(TH1::kXaxis);
   }
-  
-  if(_hlOC0 && *_hlOC0) {
-    (*_hlOC0)->GetXaxis()->SetTitle("Orbit");     (*_hlOC0)->GetYaxis()->SetTitle("Events");
+
+  if (_hlOC0 && *_hlOC0) {
+    (*_hlOC0)->GetXaxis()->SetTitle("Orbit");
+    (*_hlOC0)->GetYaxis()->SetTitle("Events");
     (*_hlOC0)->SetCanExtend(TH1::kXaxis);
   }
-  
-  if(_hlTE && *_hlTE) {
-    (*_hlTE)->GetXaxis()->SetTitle("Orbit");     (*_hlTE)->GetYaxis()->SetTitle("Events");
+
+  if (_hlTE && *_hlTE) {
+    (*_hlTE)->GetXaxis()->SetTitle("Orbit");
+    (*_hlTE)->GetYaxis()->SetTitle("Events");
     (*_hlTE)->SetCanExtend(TH1::kXaxis);
   }
-  
-  if(_hlstart && *_hlstart) {
-    (*_hlstart)->GetXaxis()->SetTitle("Orbit");     (*_hlstart)->GetYaxis()->SetTitle("Events");
+
+  if (_hlstart && *_hlstart) {
+    (*_hlstart)->GetXaxis()->SetTitle("Orbit");
+    (*_hlstart)->GetYaxis()->SetTitle("Events");
     (*_hlstart)->SetCanExtend(TH1::kXaxis);
   }
-  
-  if(_hlEC0 && *_hlEC0) {
-    (*_hlEC0)->GetXaxis()->SetTitle("Orbit");     (*_hlEC0)->GetYaxis()->SetTitle("Events");
+
+  if (_hlEC0 && *_hlEC0) {
+    (*_hlEC0)->GetXaxis()->SetTitle("Orbit");
+    (*_hlEC0)->GetYaxis()->SetTitle("Events");
     (*_hlEC0)->SetCanExtend(TH1::kXaxis);
   }
-  
-  if(_hlHR && *_hlHR) {
-    (*_hlHR)->GetXaxis()->SetTitle("Orbit");     (*_hlHR)->GetYaxis()->SetTitle("Events");
+
+  if (_hlHR && *_hlHR) {
+    (*_hlHR)->GetXaxis()->SetTitle("Orbit");
+    (*_hlHR)->GetYaxis()->SetTitle("Events");
     (*_hlHR)->SetCanExtend(TH1::kXaxis);
   }
-  
-  if(_hdlec0lresync && *_hdlec0lresync) {
+
+  if (_hdlec0lresync && *_hdlec0lresync) {
     (*_hdlec0lresync)->GetXaxis()->SetTitle("lastEC0-lastResync");
   }
-  
-  if(_hdlresynclHR && *_hdlresynclHR) {
+
+  if (_hdlresynclHR && *_hdlresynclHR) {
     (*_hdlresynclHR)->GetXaxis()->SetTitle("lastEC0-lastResync");
   }
-  
 }
 
-
-void
-APVCyclePhaseDebuggerFromL1TS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
+void APVCyclePhaseDebuggerFromL1TS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-
   Handle<Level1TriggerScalersCollection> l1ts;
-  iEvent.getByToken(_l1tscollectionToken,l1ts);
+  iEvent.getByToken(_l1tscollectionToken, l1ts);
 
-  if(_hsize && *_hsize) (*_hsize)->Fill(l1ts->size());
+  if (_hsize && *_hsize)
+    (*_hsize)->Fill(l1ts->size());
 
   // offset computation
 
-  if(!l1ts->empty()) {
+  if (!l1ts->empty()) {
+    if (_hlresync && *_hlresync)
+      (*_hlresync)->Fill((*l1ts)[0].lastResync());
+    if (_hlOC0 && *_hlOC0)
+      (*_hlOC0)->Fill((*l1ts)[0].lastOrbitCounter0());
+    if (_hlTE && *_hlTE)
+      (*_hlTE)->Fill((*l1ts)[0].lastTestEnable());
+    if (_hlstart && *_hlstart)
+      (*_hlstart)->Fill((*l1ts)[0].lastStart());
+    if (_hlEC0 && *_hlEC0)
+      (*_hlEC0)->Fill((*l1ts)[0].lastEventCounter0());
+    if (_hlHR && *_hlHR)
+      (*_hlHR)->Fill((*l1ts)[0].lastHardReset());
 
-    if(_hlresync && *_hlresync) (*_hlresync)->Fill((*l1ts)[0].lastResync());
-    if(_hlOC0 && *_hlOC0) (*_hlOC0)->Fill((*l1ts)[0].lastOrbitCounter0());
-    if(_hlTE && *_hlTE) (*_hlTE)->Fill((*l1ts)[0].lastTestEnable());
-    if(_hlstart && *_hlstart) (*_hlstart)->Fill((*l1ts)[0].lastStart());
-    if(_hlEC0 && *_hlEC0) (*_hlEC0)->Fill((*l1ts)[0].lastEventCounter0());
-    if(_hlHR && *_hlHR) (*_hlHR)->Fill((*l1ts)[0].lastHardReset());
-
-    if(_lastResync != (*l1ts)[0].lastResync()) {
+    if (_lastResync != (*l1ts)[0].lastResync()) {
       _lastResync = (*l1ts)[0].lastResync();
-      if(_hdlec0lresync && *_hdlec0lresync) (*_hdlec0lresync)->Fill((*l1ts)[0].lastEventCounter0()-(*l1ts)[0].lastResync());
-      LogDebug("TTCSignalReceived") << "New Resync at orbit " << _lastResync ;
+      if (_hdlec0lresync && *_hdlec0lresync)
+        (*_hdlec0lresync)->Fill((*l1ts)[0].lastEventCounter0() - (*l1ts)[0].lastResync());
+      LogDebug("TTCSignalReceived") << "New Resync at orbit " << _lastResync;
     }
-    if(_lastHardReset != (*l1ts)[0].lastHardReset()) {
+    if (_lastHardReset != (*l1ts)[0].lastHardReset()) {
       _lastHardReset = (*l1ts)[0].lastHardReset();
-      if(_hdlresynclHR && *_hdlresynclHR) (*_hdlresynclHR)->Fill((*l1ts)[0].lastResync()-(*l1ts)[0].lastHardReset());
-      LogDebug("TTCSignalReceived") << "New HardReset at orbit " << _lastHardReset ;
+      if (_hdlresynclHR && *_hdlresynclHR)
+        (*_hdlresynclHR)->Fill((*l1ts)[0].lastResync() - (*l1ts)[0].lastHardReset());
+      LogDebug("TTCSignalReceived") << "New HardReset at orbit " << _lastHardReset;
     }
-    if(_lastTestEnable != (*l1ts)[0].lastTestEnable()) {
+    if (_lastTestEnable != (*l1ts)[0].lastTestEnable()) {
       _lastTestEnable = (*l1ts)[0].lastTestEnable();
       //      LogDebug("TTCSignalReceived") << "New TestEnable at orbit " << _lastTestEnable ;
     }
-    if(_lastOrbitCounter0 != (*l1ts)[0].lastOrbitCounter0()) {
+    if (_lastOrbitCounter0 != (*l1ts)[0].lastOrbitCounter0()) {
       _lastOrbitCounter0 = (*l1ts)[0].lastOrbitCounter0();
-      LogDebug("TTCSignalReceived") << "New OrbitCounter0 at orbit " << _lastOrbitCounter0 ;
+      LogDebug("TTCSignalReceived") << "New OrbitCounter0 at orbit " << _lastOrbitCounter0;
     }
-    if(_lastEventCounter0 != (*l1ts)[0].lastEventCounter0()) {
+    if (_lastEventCounter0 != (*l1ts)[0].lastEventCounter0()) {
       _lastEventCounter0 = (*l1ts)[0].lastEventCounter0();
-      LogDebug("TTCSignalReceived") << "New EventCounter0 at orbit " << _lastEventCounter0 ;
+      LogDebug("TTCSignalReceived") << "New EventCounter0 at orbit " << _lastEventCounter0;
     }
-    if(_lastStart != (*l1ts)[0].lastStart()) {
+    if (_lastStart != (*l1ts)[0].lastStart()) {
       _lastStart = (*l1ts)[0].lastStart();
-      LogDebug("TTCSignalReceived") << "New Start at orbit " << _lastStart ;
+      LogDebug("TTCSignalReceived") << "New Start at orbit " << _lastStart;
     }
-
   }
-
-
 }
 
-void
-APVCyclePhaseDebuggerFromL1TS::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void APVCyclePhaseDebuggerFromL1TS::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("l1TSCollection",edm::InputTag("scalersRawToDigi"));
-  descriptions.add("l1TSDebugger",desc);
+  desc.add<edm::InputTag>("l1TSCollection", edm::InputTag("scalersRawToDigi"));
+  descriptions.add("l1TSDebugger", desc);
 }
 
 //define this as a plug-in

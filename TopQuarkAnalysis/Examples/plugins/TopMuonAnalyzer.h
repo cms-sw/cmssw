@@ -13,17 +13,14 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
 class TopMuonAnalyzer : public edm::EDAnalyzer {
-
- public:
-
-  explicit TopMuonAnalyzer(const edm::ParameterSet&);
+public:
+  explicit TopMuonAnalyzer(const edm::ParameterSet &);
   ~TopMuonAnalyzer() override;
 
- private:
-
-  void beginJob() override ;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+private:
+  void beginJob() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
 
   edm::EDGetTokenT<std::vector<pat::Muon> > inputToken_;
   bool verbose_;

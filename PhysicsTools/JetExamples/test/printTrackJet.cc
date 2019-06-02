@@ -21,29 +21,26 @@ using namespace reco;
 using namespace edm;
 
 class printTrackJet : public edm::EDAnalyzer {
-  public:
-    explicit printTrackJet(const edm::ParameterSet & );
-    ~printTrackJet() {};
-    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+public:
+  explicit printTrackJet(const edm::ParameterSet&);
+  ~printTrackJet(){};
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  private:
-
-    edm::EDGetTokenT<reco::CandidateView> sourceToken_;
-    edm::Handle<reco::CandidateView> trackJets;
+private:
+  edm::EDGetTokenT<reco::CandidateView> sourceToken_;
+  edm::Handle<reco::CandidateView> trackJets;
 };
 
-printTrackJet::printTrackJet(const edm::ParameterSet& iConfig)
-{
-  sourceToken_  = consumes<reco::CandidateView>(iConfig.getParameter<InputTag> ("src"));
+printTrackJet::printTrackJet(const edm::ParameterSet& iConfig) {
+  sourceToken_ = consumes<reco::CandidateView>(iConfig.getParameter<InputTag>("src"));
 }
 
-void printTrackJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void printTrackJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   cout << "[printTrackJet] analysing event " << iEvent.id() << endl;
 
   try {
-    iEvent.getByToken (sourceToken_ ,trackJets);
-  } catch(std::exception& ce) {
+    iEvent.getByToken(sourceToken_, trackJets);
+  } catch (std::exception& ce) {
     cerr << "[printTrackJet] caught std::exception " << ce.what() << endl;
     return;
   }
@@ -51,24 +48,13 @@ void printTrackJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   cout << "************************" << endl;
   cout << "* TrackJetCollection  *" << endl;
   cout << "************************" << endl;
-  for( CandidateView::const_iterator f  = trackJets->begin();
-                                     f != trackJets->end();
-                                     f++) {
+  for (CandidateView::const_iterator f = trackJets->begin(); f != trackJets->end(); f++) {
+    printf("[printTrackJet] (pt,eta,phi) = %7.3f %6.3f %6.3f |\n", f->et(), f->eta(), f->phi());
 
-     printf("[printTrackJet] (pt,eta,phi) = %7.3f %6.3f %6.3f |\n",
-              f->et(),
-              f->eta(),
-              f->phi()  );
-
-     for( Candidate::const_iterator c  = f->begin();
-                                    c != f->end();
-                                    c ++) {
-       printf("        [Constituents] (pt,eta,phi) = %6.2f %5.2f %5.2f|\n",
-               c->et(),
-               c->eta(),
-               c->phi() );
-     }
+    for (Candidate::const_iterator c = f->begin(); c != f->end(); c++) {
+      printf("        [Constituents] (pt,eta,phi) = %6.2f %5.2f %5.2f|\n", c->et(), c->eta(), c->phi());
+    }
   }
 }
 
-DEFINE_FWK_MODULE( printTrackJet );
+DEFINE_FWK_MODULE(printTrackJet);

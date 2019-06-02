@@ -10,7 +10,7 @@ class testParameter : public CppUnit::TestFixture {
 public:
   void setUp() {}
   void tearDown() {}
-  void checkAll(); 
+  void checkAll();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testParameter);
