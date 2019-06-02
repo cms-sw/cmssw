@@ -1,12 +1,12 @@
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "Rtypes.h" 
-#include "Math/Cartesian3D.h" 
-#include "Math/Polar3D.h" 
-#include "Math/CylindricalEta3D.h" 
+#include "Rtypes.h"
+#include "Math/Cartesian3D.h"
+#include "Math/Polar3D.h"
+#include "Math/CylindricalEta3D.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackReco/interface/TrackExtraFwd.h" 
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/TrackReco/interface/TrackResiduals.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
@@ -32,4 +32,3 @@
 #include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 
 #include <vector>
-
