@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "boost/cstdint.hpp"
 
- /**
+/**
     @file EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialDigiSource.h
     @class SiStripTrivialDigiSource
 
@@ -14,29 +14,25 @@
     to test the final DigiToRaw and RawToDigi converters.  
 */
 class SiStripTrivialDigiSource : public edm::EDProducer {
-  
- public:
-  
-  SiStripTrivialDigiSource( const edm::ParameterSet& );
+public:
+  SiStripTrivialDigiSource(const edm::ParameterSet&);
   ~SiStripTrivialDigiSource();
-  
-  virtual void beginJob() {;}
-  virtual void endJob() {;}
-  
-  virtual void produce( edm::Event&, const edm::EventSetup& );
-  
- private: 
 
+  virtual void beginJob() { ; }
+  virtual void endJob() { ; }
+
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+
+private:
   float meanOcc_;
 
   float rmsOcc_;
 
   int ped_;
 
-  bool  raw_;
+  bool raw_;
 
-  bool  useFedKey_;
-  
+  bool useFedKey_;
 };
 
-#endif // EventFilter_SiStripRawToDigi_SiStripTrivialDigiSource_H
+#endif  // EventFilter_SiStripRawToDigi_SiStripTrivialDigiSource_H

@@ -11,22 +11,21 @@
 class PFTrackTransformer;
 class PFNuclearProducer : public edm::stream::EDProducer<> {
 public:
-  
   ///Constructor
-  explicit PFNuclearProducer(const edm::ParameterSet&);
-  
+  explicit PFNuclearProducer(const edm::ParameterSet &);
+
   ///Destructor
   ~PFNuclearProducer() override;
-  
+
 private:
-  void beginRun(const edm::Run&,const edm::EventSetup&) override;
-  void endRun(const edm::Run&,const edm::EventSetup&) override;
-  
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override;
+
   ///Produce the PFRecTrack collection
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
   ///PFTrackTransformer
-  PFTrackTransformer *pfTransformer_; 
+  PFTrackTransformer *pfTransformer_;
   double likelihoodCut_;
   std::vector<edm::EDGetTokenT<reco::NuclearInteractionCollection> > nuclearContainers_;
 };
