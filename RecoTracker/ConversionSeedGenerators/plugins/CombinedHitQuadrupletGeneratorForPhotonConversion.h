@@ -12,7 +12,12 @@ class TrackingRegion;
 class OrderedHitPairs;
 class HitQuadrupletGeneratorFromLayerPairForPhotonConversion;
 class SeedingLayerSetsHits;
-namespace edm { class Event; class EventSetup; class ParameterSet; class ConsumesCollector;}
+namespace edm {
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+  class ConsumesCollector;
+}  // namespace edm
 
 #include "ConversionRegion.h"
 
@@ -25,27 +30,26 @@ public:
   typedef LayerHitMapCache LayerCacheType;
 
 public:
-  CombinedHitQuadrupletGeneratorForPhotonConversion(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
+  CombinedHitQuadrupletGeneratorForPhotonConversion(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
   ~CombinedHitQuadrupletGeneratorForPhotonConversion();
 
   void hitPairs(const TrackingRegion&, OrderedHitPairs&, const edm::Event&, const edm::EventSetup&);
 
-  const OrderedHitPairs & run(const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es);
+  const OrderedHitPairs& run(const TrackingRegion& region, const edm::Event& ev, const edm::EventSetup& es);
 
-
-  void clearLayerCache(){theLayerCache.clear();}
+  void clearLayerCache() { theLayerCache.clear(); }
 
   /*------------------------*/
 private:
-  CombinedHitQuadrupletGeneratorForPhotonConversion(const CombinedHitQuadrupletGeneratorForPhotonConversion & cb) = delete; 
+  CombinedHitQuadrupletGeneratorForPhotonConversion(const CombinedHitQuadrupletGeneratorForPhotonConversion& cb) =
+      delete;
 
   edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
   const unsigned int theMaxElement;
-  LayerCacheType   theLayerCache;
+  LayerCacheType theLayerCache;
 
   std::unique_ptr<HitQuadrupletGeneratorFromLayerPairForPhotonConversion> theGenerator;
 
   OrderedHitPairs thePairs;
-
 };
 #endif

@@ -7,10 +7,10 @@
  */
 
 struct SeedChargeSelector {
-  SeedChargeSelector( int charge ) : charge_( charge ) { }
-  template<typename T>
-  bool operator()( const T & t ) const {
-    return ( t.startingState().parameters().charge() == charge_ );
+  SeedChargeSelector(int charge) : charge_(charge) {}
+  template <typename T>
+  bool operator()(const T& t) const {
+    return (t.startingState().parameters().charge() == charge_);
   }
 
 private:
@@ -23,14 +23,14 @@ private:
 namespace reco {
   namespace modules {
 
-    template<>
+    template <>
     struct ParameterAdapter<SeedChargeSelector> {
-      static SeedChargeSelector make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
-        return SeedChargeSelector(cfg.getParameter<int>( "charge" ));
+      static SeedChargeSelector make(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) {
+        return SeedChargeSelector(cfg.getParameter<int>("charge"));
       }
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif

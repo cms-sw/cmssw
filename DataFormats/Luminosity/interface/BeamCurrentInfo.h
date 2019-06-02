@@ -1,6 +1,6 @@
 #ifndef DataFormats_Luminosity_BeamCurrentInfo_h
 #define DataFormats_Luminosity_BeamCurrentInfo_h
- 
+
 /** \class BeamCurrentInfo
  *
  *
@@ -30,28 +30,27 @@
 #include "DataFormats/Luminosity/interface/LumiConstants.h"
 
 class BeamCurrentInfo {
- public:
-  static const float scaleFactor; // factor to scale data by when packing/unpacking
-  
+public:
+  static const float scaleFactor;  // factor to scale data by when packing/unpacking
+
   /// default constructor
   BeamCurrentInfo() {
     beam1IntensitiesUnpacked_.assign(LumiConstants::numBX, 0.0);
     beam2IntensitiesUnpacked_.assign(LumiConstants::numBX, 0.0);
     beam1IntensitiesPacked_.assign(LumiConstants::numBX, 0);
     beam2IntensitiesPacked_.assign(LumiConstants::numBX, 0);
-  } 
-  
+  }
+
   /// constructor with fill
-  BeamCurrentInfo(const std::vector<float>& beam1Intensities,
-                  const std::vector<float>& beam2Intensities) {
+  BeamCurrentInfo(const std::vector<float>& beam1Intensities, const std::vector<float>& beam2Intensities) {
     beam1IntensitiesUnpacked_.assign(beam1Intensities.begin(), beam1Intensities.end());
     beam2IntensitiesUnpacked_.assign(beam2Intensities.begin(), beam2Intensities.end());
     packData();
   }
-  
+
   /// destructor
-  ~BeamCurrentInfo(){}
-  
+  ~BeamCurrentInfo() {}
+
   // Beam intensities by bunch, or all
   float getBeam1IntensityBX(int bx) const;
   const std::vector<float>& getBeam1Intensities() const;
@@ -61,7 +60,7 @@ class BeamCurrentInfo {
   // Get packed intensities. Only use this if you really know that this is what you want!
   const std::vector<uint16_t>& getBeam1IntensitiesPacked() const { return beam1IntensitiesPacked_; }
   const std::vector<uint16_t>& getBeam2IntensitiesPacked() const { return beam2IntensitiesPacked_; }
-  
+
   bool isProductEqual(BeamCurrentInfo const& next) const;
 
   //
@@ -69,25 +68,22 @@ class BeamCurrentInfo {
   //
 
   // fill beam intensities
-  void fillBeamIntensities(const std::vector<float>& beam1Intensities,
-			   const std::vector<float>& beam2Intensities);
+  void fillBeamIntensities(const std::vector<float>& beam1Intensities, const std::vector<float>& beam2Intensities);
   // synonym for above
-  void fill(const std::vector<float>& beam1Intensities,
-	    const std::vector<float>& beam2Intensities);
-  
+  void fill(const std::vector<float>& beam1Intensities, const std::vector<float>& beam2Intensities);
 
   // used by ROOT iorules
-  static void unpackData( const std::vector<uint16_t>& packed, std::vector<float>& unpacked);
+  static void unpackData(const std::vector<uint16_t>& packed, std::vector<float>& unpacked);
 
- private:
+private:
   std::vector<uint16_t> beam1IntensitiesPacked_;
   std::vector<uint16_t> beam2IntensitiesPacked_;
   std::vector<float> beam1IntensitiesUnpacked_;
   std::vector<float> beam2IntensitiesUnpacked_;
   void packData();
   void unpackData();
-}; 
+};
 
 std::ostream& operator<<(std::ostream& s, const BeamCurrentInfo& beamInfo);
 
-#endif // DataFormats_Luminosity_BeamCurrentInfo_h
+#endif  // DataFormats_Luminosity_BeamCurrentInfo_h

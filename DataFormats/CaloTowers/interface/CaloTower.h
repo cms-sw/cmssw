@@ -6,7 +6,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "Rtypes.h" 
+#include "Rtypes.h"
 #include <vector>
 #include <cmath>
 
@@ -23,142 +23,163 @@
 //    Make CaloTower inherit from LeafCandidate,
 //    add new members and accessors.
 
-
 class CaloTower : public reco::LeafCandidate {
 public:
-  typedef CaloTowerDetId key_type; // for SortedCollection
+  typedef CaloTowerDetId key_type;  // for SortedCollection
 
   // Default constructor
   CaloTower();
 
   // Constructors from values
 
-  CaloTower(const CaloTowerDetId& id, 
-	    double emE, double hadE, double outerE,
-	    int ecal_tp, int hcal_tp,
-	    const PolarLorentzVector& p4,
-      const GlobalPoint& emPosition, const GlobalPoint& hadPosition);
+  CaloTower(const CaloTowerDetId& id,
+            double emE,
+            double hadE,
+            double outerE,
+            int ecal_tp,
+            int hcal_tp,
+            const PolarLorentzVector& p4,
+            const GlobalPoint& emPosition,
+            const GlobalPoint& hadPosition);
 
-  CaloTower(const CaloTowerDetId& id, 
-	    double emE, double hadE, double outerE,
-	    int ecal_tp, int hcal_tp,
-	    const LorentzVector& p4,
-      const GlobalPoint& emPosition, const GlobalPoint& hadPosition);
-
-  CaloTower(CaloTowerDetId id, 
-	    float emE, float hadE, float outerE,
-	    int ecal_tp, int hcal_tp,
-	    GlobalVector p3, float iEnergy, bool massless,
-	    GlobalPoint emPosition, GlobalPoint hadPosition);
+  CaloTower(const CaloTowerDetId& id,
+            double emE,
+            double hadE,
+            double outerE,
+            int ecal_tp,
+            int hcal_tp,
+            const LorentzVector& p4,
+            const GlobalPoint& emPosition,
+            const GlobalPoint& hadPosition);
 
   CaloTower(CaloTowerDetId id,
-            float emE, float hadE, float outerE,
-            int ecal_tp, int hcal_tp,
-            GlobalVector p3, float iEnergy, float imass,
-            GlobalPoint emPosition, GlobalPoint hadPosition);
+            float emE,
+            float hadE,
+            float outerE,
+            int ecal_tp,
+            int hcal_tp,
+            GlobalVector p3,
+            float iEnergy,
+            bool massless,
+            GlobalPoint emPosition,
+            GlobalPoint hadPosition);
 
+  CaloTower(CaloTowerDetId id,
+            float emE,
+            float hadE,
+            float outerE,
+            int ecal_tp,
+            int hcal_tp,
+            GlobalVector p3,
+            float iEnergy,
+            float imass,
+            GlobalPoint emPosition,
+            GlobalPoint hadPosition);
 
-
-   // setters
-  void addConstituent( DetId id ) { constituents_.push_back( id ); }
-  void addConstituents( const std::vector<DetId>& ids );
+  // setters
+  void addConstituent(DetId id) { constituents_.push_back(id); }
+  void addConstituents(const std::vector<DetId>& ids);
 #ifdef __ROOTCLING__
-  void setConstituents( const std::vector<DetId>& ids ) { constituents_=ids;}
+  void setConstituents(const std::vector<DetId>& ids) { constituents_ = ids; }
 #else
-  void setConstituents( std::vector<DetId>&& ids ) { constituents_=std::move(ids);}
+  void setConstituents(std::vector<DetId>&& ids) { constituents_ = std::move(ids); }
 #endif
   void setEcalTime(int t) { ecalTime_ = t; };
   void setHcalTime(int t) { hcalTime_ = t; };
   void setHcalSubdet(int lastHB, int lastHE, int lastHF, int lastHO) {
     int ct_ieta = ietaAbs();
-    if(ct_ieta <= lastHB) subdet_ = HcalBarrel;
-    else if(ct_ieta <= lastHE) subdet_ = HcalEndcap;
-    else if(ct_ieta <= lastHF) subdet_ = HcalForward;
-	
+    if (ct_ieta <= lastHB)
+      subdet_ = HcalBarrel;
+    else if (ct_ieta <= lastHE)
+      subdet_ = HcalEndcap;
+    else if (ct_ieta <= lastHF)
+      subdet_ = HcalForward;
+
     //account for HO separately
-	if(ct_ieta <= lastHO) inHO_ = true;
-	else inHO_ = false;
-	
-	//account for gap/crossover tower separately
-	if(ct_ieta == lastHB) inHBHEgap_ = true;
-	else inHBHEgap_ = false;
+    if (ct_ieta <= lastHO)
+      inHO_ = true;
+    else
+      inHO_ = false;
+
+    //account for gap/crossover tower separately
+    if (ct_ieta == lastHB)
+      inHBHEgap_ = true;
+    else
+      inHBHEgap_ = false;
   }
 
   // set CaloTower status based on the number of
   // bad/recovered/problematic cells in ECAL and HCAL
 
-  void setCaloTowerStatus(unsigned int numBadHcalChan,unsigned int numBadEcalChan, 
-			  unsigned int numRecHcalChan,unsigned int numRecEcalChan,
-			  unsigned int numProbHcalChan,unsigned int numProbEcalChan);
+  void setCaloTowerStatus(unsigned int numBadHcalChan,
+                          unsigned int numBadEcalChan,
+                          unsigned int numRecHcalChan,
+                          unsigned int numRecEcalChan,
+                          unsigned int numProbHcalChan,
+                          unsigned int numProbEcalChan);
 
   void setCaloTowerStatus(uint32_t s) { twrStatusWord_ = s; }
 
   // set the hottest cell energy in the tower
   void setHottestCellE(double e) { hottestCellE_ = e; }
 
-
-
-
   // getters
   CaloTowerDetId id() const { return id_; }
   const std::vector<DetId>& constituents() const { return constituents_; }
   size_t constituentsSize() const { return constituents_.size(); }
-  DetId constituent( size_t i ) const { return constituents_[ i ]; }
+  DetId constituent(size_t i) const { return constituents_[i]; }
 
   // energy contributions from different detectors
   // energy in HO ("outerEnergy")is not included in "hadEnergy"
-  double emEnergy() const { return emE_ ; }
-  double hadEnergy() const { return hadE_ ; }
+  double emEnergy() const { return emE_; }
+  double hadEnergy() const { return hadE_; }
   double outerEnergy() const { return (inHO_) ? outerE_ : 0.0; }
 
   // transverse energies wrt to vtx (0,0,0)
-  double emEt() const { return emE_ * sin( theta() ); }
-  double hadEt() const { return hadE_ * sin( theta() ); }
-  double outerEt() const { return (inHO_) ? outerE_ * sin( theta() ) : 0.0; }
-
+  double emEt() const { return emE_ * sin(theta()); }
+  double hadEt() const { return hadE_ * sin(theta()); }
+  double outerEt() const { return (inHO_) ? outerE_ * sin(theta()) : 0.0; }
 
   // preserve the inherited default accessors where applicable
   // (user gets default p4 wrt to vtx (0,0,0) using p4(), etc.
 
-  using LeafCandidate::p4;
+  using LeafCandidate::et;
   using LeafCandidate::p;
-  using LeafCandidate::et; 
-
+  using LeafCandidate::p4;
 
   // recalculated wrt user provided vertex Z position;
 
   math::PtEtaPhiMLorentzVector p4(double vtxZ) const;
-  double p (double vtxZ) const { return p4(vtxZ).P(); }
+  double p(double vtxZ) const { return p4(vtxZ).P(); }
   double et(double vtxZ) const { return p4(vtxZ).Et(); }
 
-  double emEt(double vtxZ)  const { return  emE_ * sin(p4(vtxZ).theta()); }
-  double hadEt(double vtxZ) const { return  hadE_ * sin(p4(vtxZ).theta()); }
+  double emEt(double vtxZ) const { return emE_ * sin(p4(vtxZ).theta()); }
+  double hadEt(double vtxZ) const { return hadE_ * sin(p4(vtxZ).theta()); }
   double outerEt(double vtxZ) const { return (inHO_) ? outerE_ * sin(p4(vtxZ).theta()) : 0.0; }
 
   // recalculated wrt vertex provided as 3D point
 
   math::PtEtaPhiMLorentzVector p4(const Point& v) const;
-  double p (const Point& v) const { return p4(v).P(); }
+  double p(const Point& v) const { return p4(v).P(); }
   double et(const Point& v) const { return p4(v).Et(); }
 
-  double emEt(const Point& v)  const { return  emE_ * sin(p4(v).theta()); }
-  double hadEt(const Point& v) const { return  hadE_ * sin(p4(v).theta()); }
+  double emEt(const Point& v) const { return emE_ * sin(p4(v).theta()); }
+  double hadEt(const Point& v) const { return hadE_ * sin(p4(v).theta()); }
   double outerEt(const Point& v) const { return (inHO_) ? outerE_ * sin(p4(v).theta()) : 0.0; }
 
   double hottestCellE() const { return hottestCellE_; }
 
   // Access to p4 comming from HO alone: requested by JetMET to add/subtract HO contributions
-  // to the tower for cases when the tower collection was created without/with HO   
+  // to the tower for cases when the tower collection was created without/with HO
 
-  math::PtEtaPhiMLorentzVector p4_HO() const;  
+  math::PtEtaPhiMLorentzVector p4_HO() const;
   math::PtEtaPhiMLorentzVector p4_HO(double vtxZ) const;
   math::PtEtaPhiMLorentzVector p4_HO(const Point& v) const;
 
-
   // the reference poins in ECAL and HCAL for direction determination
   // algorithm and parameters for selecting these points are set in the CaloTowersCreator
-  const GlobalPoint& emPosition()  const { return emPosition_ ; }
-  const GlobalPoint& hadPosition() const { return hadPosition_ ; }
+  const GlobalPoint& emPosition() const { return emPosition_; }
+  const GlobalPoint& hadPosition() const { return hadPosition_; }
 
   int emLvl1() const { return emLvl1_; }
   int hadLv11() const { return hadLvl1_; }
@@ -170,12 +191,10 @@ public:
   // energy in the tower by HCAL subdetector
   // This is trivial except for tower 16
   // needed by JetMET cleanup in AOD.
-  double energyInHB() const; // { return (id_.ietaAbs()<16)? outerE_ : 0.0; }
+  double energyInHB() const;  // { return (id_.ietaAbs()<16)? outerE_ : 0.0; }
   double energyInHE() const;
   double energyInHF() const;
   double energyInHO() const;
-
-
 
   // time (ns) in ECAL/HCAL components of the tower based on weigted sum of the times in the contributing RecHits
   float ecalTime() const { return float(ecalTime_) * 0.01; }
@@ -187,7 +206,7 @@ public:
   int iphi() const { return id_.iphi(); }
   int zside() const { return id_.zside(); }
 
-  int numCrystals() const; 
+  int numCrystals() const;
 
   // methods to retrieve status information from the CaloTower:
   // number of bad/recovered/problematic cells in the tower
@@ -197,36 +216,35 @@ public:
   unsigned int numRecoveredEcalCells() const { return ((twrStatusWord_ >> 5) & 0x1F); }
   unsigned int numProblematicEcalCells() const { return ((twrStatusWord_ >> 10) & 0x1F); }
 
-  unsigned int numBadHcalCells() const { return ( (twrStatusWord_ >> 15)& 0x7); }
+  unsigned int numBadHcalCells() const { return ((twrStatusWord_ >> 15) & 0x7); }
   unsigned int numRecoveredHcalCells() const { return ((twrStatusWord_ >> 18) & 0x7); }
   unsigned int numProblematicHcalCells() const { return ((twrStatusWord_ >> 21) & 0x7); }
 
   // the status word itself
   uint32_t towerStatusWord() const { return twrStatusWord_; }
 
-
 private:
   CaloTowerDetId id_;
- 
+
   uint32_t twrStatusWord_;
 
-   // positions of assumed EM and HAD shower positions
-   GlobalPoint emPosition_;
-   GlobalPoint hadPosition_;
+  // positions of assumed EM and HAD shower positions
+  GlobalPoint emPosition_;
+  GlobalPoint hadPosition_;
 
   //hcal subdetector info
   HcalSubdetector subdet_;
   bool inHO_, inHBHEgap_;
-   
-   // time
-   int ecalTime_;
-   int hcalTime_;
+
+  // time
+  int ecalTime_;
+  int hcalTime_;
 
   float emE_, hadE_, outerE_;
   // for Jet ID use: hottest cell (ECAl or HCAL)
   float hottestCellE_;
 
-  int emLvl1_,hadLvl1_;
+  int emLvl1_, hadLvl1_;
   std::vector<DetId> constituents_;
 
   // vertex correction of EM and HAD momentum components:
@@ -243,8 +261,6 @@ private:
 
 std::ostream& operator<<(std::ostream& s, const CaloTower& ct);
 
-inline bool operator==( const CaloTower & t1, const CaloTower & t2 ) {
-  return t1.id() == t2.id();
-} 
+inline bool operator==(const CaloTower& t1, const CaloTower& t2) { return t1.id() == t2.id(); }
 
 #endif
