@@ -5,21 +5,19 @@
 
 #include "DataFormats/PatCandidates/interface/Particle.h"
 
-class TtFullHadHypKinFit : public TtFullHadHypothesis  {
-
- public:
-
+class TtFullHadHypKinFit : public TtFullHadHypothesis {
+public:
   explicit TtFullHadHypKinFit(const edm::ParameterSet&);
   ~TtFullHadHypKinFit() override;
 
- private:
-
+private:
   /// build the event hypothesis key
-  void buildKey() override { key_= TtFullHadronicEvent::kKinFit; };
+  void buildKey() override { key_ = TtFullHadronicEvent::kKinFit; };
   /// build event hypothesis from the reco objects of a full-hadronic event
   void buildHypo(edm::Event&,
-			 const edm::Handle<std::vector<pat::Jet> >&,
-			 std::vector<int>&, const unsigned int iComb) override;
+                 const edm::Handle<std::vector<pat::Jet> >&,
+                 std::vector<int>&,
+                 const unsigned int iComb) override;
 
   edm::EDGetTokenT<std::vector<int> > statusToken_;
   edm::EDGetTokenT<std::vector<pat::Particle> > lightQToken_;
@@ -28,7 +26,6 @@ class TtFullHadHypKinFit : public TtFullHadHypothesis  {
   edm::EDGetTokenT<std::vector<pat::Particle> > bBarToken_;
   edm::EDGetTokenT<std::vector<pat::Particle> > lightPToken_;
   edm::EDGetTokenT<std::vector<pat::Particle> > lightPBarToken_;
-
 };
 
 #endif

@@ -7,15 +7,13 @@ const bool refitTracks = true;
 
 namespace reco {
   namespace modules {
-    
-    template<>
+
+    template <>
     struct ParameterAdapter<KalmanVertexFitter> {
-      static KalmanVertexFitter make( const edm::ParameterSet & cfg ) {
-        return KalmanVertexFitter( refitTracks );
-      }
+      static KalmanVertexFitter make(const edm::ParameterSet& cfg) { return KalmanVertexFitter(refitTracks); }
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif
