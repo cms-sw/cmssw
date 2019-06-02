@@ -7,7 +7,6 @@
  *
  */
 
-
 // system include files
 #include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsSkimEff.h>
 
@@ -25,7 +24,6 @@
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 
-
 // C++
 #include <iostream>
 #include <vector>
@@ -34,76 +32,62 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-
 // Constructor
 HiggsToZZ4LeptonsSkimEff::HiggsToZZ4LeptonsSkimEff(const edm::ParameterSet& pset) {
-
   // Local Debug flag
-  debug              = pset.getParameter<bool>("DebugHiggsToZZ4LeptonsSkim");
+  debug = pset.getParameter<bool>("DebugHiggsToZZ4LeptonsSkim");
 
   // Reconstructed objects
-  theGLBMuonToken    = consumes<reco::TrackCollection>(pset.getParameter<edm::InputTag>("GlobalMuonCollectionLabel"));
-  theGsfEToken       = consumes<reco::GsfElectronCollection>(pset.getParameter<edm::InputTag>("ElectronCollectionLabel"));
-  genToken           = consumes<GenParticleCollection>(edm::InputTag("genParticles"));
+  theGLBMuonToken = consumes<reco::TrackCollection>(pset.getParameter<edm::InputTag>("GlobalMuonCollectionLabel"));
+  theGsfEToken = consumes<reco::GsfElectronCollection>(pset.getParameter<edm::InputTag>("ElectronCollectionLabel"));
+  genToken = consumes<GenParticleCollection>(edm::InputTag("genParticles"));
 
   // Minimum Pt for leptons for skimming
   // Minimum Pt for leptons for skimming
-  stiffMinPt         = pset.getParameter<double>("stiffMinimumPt");
-  softMinPt          = pset.getParameter<double>("softMinimumPt");
-  nStiffLeptonMin    = pset.getParameter<int>("nStiffLeptonMinimum");
-  nLeptonMin         = pset.getParameter<int>("nLeptonMinimum");
+  stiffMinPt = pset.getParameter<double>("stiffMinimumPt");
+  softMinPt = pset.getParameter<double>("softMinimumPt");
+  nStiffLeptonMin = pset.getParameter<int>("nStiffLeptonMinimum");
+  nLeptonMin = pset.getParameter<int>("nLeptonMinimum");
 
-  nEvents   = 0;
+  nEvents = 0;
   nSelFourE = nSelFourM = nSelTwoETwoM = nSelFourL = nSelTau = 0;
-  nFourE    = nFourM    = nTwoETwoM    = nFourL    = nTau    = 0;
-
+  nFourE = nFourM = nTwoETwoM = nFourL = nTau = 0;
 }
-
 
 // Destructor
 HiggsToZZ4LeptonsSkimEff::~HiggsToZZ4LeptonsSkimEff() {
-
   std::cout << "Number of events read " << nEvents << std::endl;
-  std::cout << "*** Efficiency for the various subsamples *** " <<  endl;
+  std::cout << "*** Efficiency for the various subsamples *** " << endl;
 
   std::cout << "Four leptons: "
-  << " pres "    << nFourL
-  << " kept "    << nSelFourL
-  << " eff  "    << ((double)nSelFourL)/((double) nFourL + 0.0001) << std::endl;
+            << " pres " << nFourL << " kept " << nSelFourL << " eff  "
+            << ((double)nSelFourL) / ((double)nFourL + 0.0001) << std::endl;
   std::cout << "Four muons:   "
-  << " pres "    << nFourM
-  << " kept "    << nSelFourM
-  << " eff  "    << ((double)nSelFourM)/((double) nFourM + 0.0001) << std::endl;
+            << " pres " << nFourM << " kept " << nSelFourM << " eff  "
+            << ((double)nSelFourM) / ((double)nFourM + 0.0001) << std::endl;
   std::cout << "Four elecs:   "
-  << " pres "    << nFourE
-  << " kept "    << nSelFourE
-  << " eff  "    << ((double)nSelFourE)/((double) nFourE + 0.0001) << std::endl;
+            << " pres " << nFourE << " kept " << nSelFourE << " eff  "
+            << ((double)nSelFourE) / ((double)nFourE + 0.0001) << std::endl;
   std::cout << "2 elec 2 mu:  "
-  << " pres "    << nTwoETwoM
-  << " kept "    << nSelTwoETwoM
-  << " eff  "    << ((double)nSelTwoETwoM)/((double) nTwoETwoM + 0.0001) << std::endl;
+            << " pres " << nTwoETwoM << " kept " << nSelTwoETwoM << " eff  "
+            << ((double)nSelTwoETwoM) / ((double)nTwoETwoM + 0.0001) << std::endl;
   std::cout << "with taus:    "
-  << " pres "    << nTau
-  << " kept "    << nSelTau
-  << " eff  "    << ((double)nSelTau)/((double) nTau + 0.0001) << std::endl;
-
+            << " pres " << nTau << " kept " << nSelTau << " eff  " << ((double)nSelTau) / ((double)nTau + 0.0001)
+            << std::endl;
 }
 
-
-
 // Filter event
-void HiggsToZZ4LeptonsSkimEff::analyze(const edm::Event& event, const edm::EventSetup& setup ) {
-
+void HiggsToZZ4LeptonsSkimEff::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   nEvents++;
 
   using reco::TrackCollection;
 
-  bool keepEvent   = false;
+  bool keepEvent = false;
 
   // First, pre-selection:
   int nMuon = 0;
   int nElec = 0;
-  int nTau  = 0;
+  int nTau = 0;
 
   bool isFourE = false;
   bool isFourM = false;
@@ -115,65 +99,65 @@ void HiggsToZZ4LeptonsSkimEff::analyze(const edm::Event& event, const edm::Event
   edm::Handle<CandidateCollection> genCandidates;
   event.getByToken(genToken, genCandidates);
 
-  for ( CandidateCollection::const_iterator mcIter=genCandidates->begin(); mcIter!=genCandidates->end(); ++mcIter ) {
-
+  for (CandidateCollection::const_iterator mcIter = genCandidates->begin(); mcIter != genCandidates->end(); ++mcIter) {
     // Muons:
-    if ( mcIter->pdgId() == 13 || mcIter->pdgId() == -13) {
+    if (mcIter->pdgId() == 13 || mcIter->pdgId() == -13) {
       // Mother is a Z
-      if ( mcIter->mother()->pdgId() == 23 ) {
-       // In fiducial volume:
-        if ( mcIter->eta() > -2.4 && mcIter->eta() < 2.4 ) nMuon++;
+      if (mcIter->mother()->pdgId() == 23) {
+        // In fiducial volume:
+        if (mcIter->eta() > -2.4 && mcIter->eta() < 2.4)
+          nMuon++;
       }
     }
     // Electrons:
-    if ( mcIter->pdgId() == 11 || mcIter->pdgId() == -11) {
+    if (mcIter->pdgId() == 11 || mcIter->pdgId() == -11) {
       // Mother is a Z
-      if ( mcIter->mother()->pdgId() == 23 ) {
+      if (mcIter->mother()->pdgId() == 23) {
         // In fiducial volume:
-        if ( mcIter->eta() > -2.5 && mcIter->eta() < 2.5 ) nElec++;
+        if (mcIter->eta() > -2.5 && mcIter->eta() < 2.5)
+          nElec++;
       }
     }
     // Taus:
-    if ( mcIter->pdgId() == 15 || mcIter->pdgId() == -15) {
+    if (mcIter->pdgId() == 15 || mcIter->pdgId() == -15) {
       // Mother is a Z
-      if ( mcIter->mother()->pdgId() == 23 ) {
+      if (mcIter->mother()->pdgId() == 23) {
         // In fiducial volume:
-        if ( mcIter->eta() > -2.5 && mcIter->eta() < 2.5 ) nTau++;
+        if (mcIter->eta() > -2.5 && mcIter->eta() < 2.5)
+          nTau++;
       }
     }
-
   }
 
-    if (nElec > 3) {
-      isFourE = true;
-      nFourE++;
-    }
-    if (nMuon > 3) {
-      isFourM = true;
-      nFourM++;
-    }
-    if (nMuon > 1 && nElec > 1) {
-      isTwoETwoM = true;
-      nTwoETwoM++;
-    }
-    if ( isFourE || isFourM || isTwoETwoM ) {
-      isFourL = true;
-      nFourL++;
-    }
-    if (nTau > 1) {
-      isTau = true;
-      nTau++;
-    }
+  if (nElec > 3) {
+    isFourE = true;
+    nFourE++;
+  }
+  if (nMuon > 3) {
+    isFourM = true;
+    nFourM++;
+  }
+  if (nMuon > 1 && nElec > 1) {
+    isTwoETwoM = true;
+    nTwoETwoM++;
+  }
+  if (isFourE || isFourM || isTwoETwoM) {
+    isFourL = true;
+    nFourL++;
+  }
+  if (nTau > 1) {
+    isTau = true;
+    nTau++;
+  }
 
-  if ( isFourL ) {
+  if (isFourL) {
     keepEvent = true;
   } else {
     return;
   }
 
-
-  int  nStiffLeptons = 0;
-  int  nLeptons      = 0;
+  int nStiffLeptons = 0;
+  int nLeptons = 0;
 
   // First look at muons:
 
@@ -181,54 +165,59 @@ void HiggsToZZ4LeptonsSkimEff::analyze(const edm::Event& event, const edm::Event
   edm::Handle<reco::TrackCollection> muTracks;
   event.getByToken(theGLBMuonToken, muTracks);
 
-  if ( muTracks.isValid() ) {
+  if (muTracks.isValid()) {
     reco::TrackCollection::const_iterator muons;
 
     // Loop over muon collections and count how many muons there are,
     // and how many are above threshold
-    for ( muons = muTracks->begin(); muons != muTracks->end(); ++muons ) {
-      float pt_mu =  muons->pt();
-      if ( pt_mu > stiffMinPt ) nStiffLeptons++;
-      if ( pt_mu > softMinPt ) nLeptons++;
+    for (muons = muTracks->begin(); muons != muTracks->end(); ++muons) {
+      float pt_mu = muons->pt();
+      if (pt_mu > stiffMinPt)
+        nStiffLeptons++;
+      if (pt_mu > softMinPt)
+        nLeptons++;
     }
   }
-
 
   // Now look at electrons:
 
   // Get the electron track collection from the event
   edm::Handle<reco::GsfElectronCollection> pTracks;
-  event.getByToken(theGsfEToken,pTracks);
+  event.getByToken(theGsfEToken, pTracks);
 
-  if ( pTracks.isValid() ) {
-
+  if (pTracks.isValid()) {
     const reco::GsfElectronCollection* eTracks = pTracks.product();
 
     reco::GsfElectronCollection::const_iterator electrons;
 
     // Loop over electron collections and count how many muons there are,
     // and how many are above threshold
-    for ( electrons = eTracks->begin(); electrons != eTracks->end(); ++electrons ) {
+    for (electrons = eTracks->begin(); electrons != eTracks->end(); ++electrons) {
       float pt_e = electrons->pt();
-      if ( pt_e > stiffMinPt ) nStiffLeptons++;
-      if ( pt_e > softMinPt ) nLeptons++;
+      if (pt_e > stiffMinPt)
+        nStiffLeptons++;
+      if (pt_e > softMinPt)
+        nLeptons++;
     }
   }
 
-
   // Make decision:
-  if ( nStiffLeptons >= nStiffLeptonMin && nLeptons >= nLeptonMin) {
+  if (nStiffLeptons >= nStiffLeptonMin && nLeptons >= nLeptonMin) {
     keepEvent = true;
   } else {
     keepEvent = false;
   }
 
-  if ( keepEvent ) {
-    if (isFourE)    nSelFourE++;
-    if (isFourM)    nSelFourM++;
-    if (isTwoETwoM) nSelTwoETwoM++;
-    if (isFourL)    nSelFourL++;
-    if (isTau)      nSelTau++;
+  if (keepEvent) {
+    if (isFourE)
+      nSelFourE++;
+    if (isFourM)
+      nSelFourM++;
+    if (isTwoETwoM)
+      nSelTwoETwoM++;
+    if (isFourL)
+      nSelFourL++;
+    if (isTau)
+      nSelTau++;
   }
-
 }

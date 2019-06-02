@@ -18,38 +18,32 @@
 
 using namespace std;
 
-L1OffsetCorrectorImplMaker::L1OffsetCorrectorImplMaker(edm::ParameterSet const& fConfig, 
-						       edm::ConsumesCollector fCollector) :
-  JetCorrectorImplMakerBase(fConfig),
-  verticesToken_(fCollector.consumes<reco::VertexCollection>(fConfig.getParameter<edm::InputTag>("vertexCollection"))),
-  minVtxNdof_(fConfig.getParameter<int>("minVtxNdof"))
-{
-}
-std::unique_ptr<reco::JetCorrectorImpl> 
-L1OffsetCorrectorImplMaker::make(edm::Event const& fEvent, edm::EventSetup const& fSetup) 
-{
+L1OffsetCorrectorImplMaker::L1OffsetCorrectorImplMaker(edm::ParameterSet const& fConfig,
+                                                       edm::ConsumesCollector fCollector)
+    : JetCorrectorImplMakerBase(fConfig),
+      verticesToken_(
+          fCollector.consumes<reco::VertexCollection>(fConfig.getParameter<edm::InputTag>("vertexCollection"))),
+      minVtxNdof_(fConfig.getParameter<int>("minVtxNdof")) {}
+std::unique_ptr<reco::JetCorrectorImpl> L1OffsetCorrectorImplMaker::make(edm::Event const& fEvent,
+                                                                         edm::EventSetup const& fSetup) {
   edm::Handle<reco::VertexCollection> recVtxs;
-  fEvent.getByToken(verticesToken_,recVtxs);
+  fEvent.getByToken(verticesToken_, recVtxs);
   int NPV(0);
-  for(auto const& vertex : *recVtxs) {
+  for (auto const& vertex : *recVtxs) {
     if ((not vertex.isFake()) and (vertex.ndof() > minVtxNdof_)) {
       NPV++;
     }
   }
-  
-  auto calculator = getCalculator(fSetup,
-				  [](std::string const& level) 
-    {
-      if ( level != "L1Offset") {
-	throw cms::Exception("L1OffsetCorrectorImpl")<<" correction level: "<<level<<" is not L1Offset";
-      }
-    });
-  return std::unique_ptr<reco::JetCorrectorImpl>(new L1OffsetCorrectorImpl(calculator,NPV));
+
+  auto calculator = getCalculator(fSetup, [](std::string const& level) {
+    if (level != "L1Offset") {
+      throw cms::Exception("L1OffsetCorrectorImpl") << " correction level: " << level << " is not L1Offset";
+    }
+  });
+  return std::unique_ptr<reco::JetCorrectorImpl>(new L1OffsetCorrectorImpl(calculator, NPV));
 }
 
-void 
-L1OffsetCorrectorImplMaker::fillDescriptions(edm::ConfigurationDescriptions& iDescriptions)
-{
+void L1OffsetCorrectorImplMaker::fillDescriptions(edm::ConfigurationDescriptions& iDescriptions) {
   edm::ParameterSetDescription desc;
   addToDescription(desc);
   desc.add<edm::InputTag>("vertexCollection");
@@ -57,30 +51,24 @@ L1OffsetCorrectorImplMaker::fillDescriptions(edm::ConfigurationDescriptions& iDe
   iDescriptions.addDefault(desc);
 }
 
-//------------------------------------------------------------------------ 
+//------------------------------------------------------------------------
 //--- L1OffsetCorrectorImpl constructor ------------------------------------------
 //------------------------------------------------------------------------
 L1OffsetCorrectorImpl::L1OffsetCorrectorImpl(std::shared_ptr<FactorizedJetCorrectorCalculator const> calculator,
-					     int npv):
-  corrector_(calculator),
-  npv_(npv)
-{
-}
+                                             int npv)
+    : corrector_(calculator), npv_(npv) {}
 
-//------------------------------------------------------------------------ 
+//------------------------------------------------------------------------
 //--- Returns correction for a given 4-vector ----------------------------
 //------------------------------------------------------------------------
-double L1OffsetCorrectorImpl::correction(const LorentzVector& fJet) const
-{
-  throw cms::Exception("EventRequired")
-    <<"Wrong interface correction(LorentzVector), event required!";
+double L1OffsetCorrectorImpl::correction(const LorentzVector& fJet) const {
+  throw cms::Exception("EventRequired") << "Wrong interface correction(LorentzVector), event required!";
   return 1.0;
 }
-//------------------------------------------------------------------------ 
+//------------------------------------------------------------------------
 //--- Returns correction for a given jet ---------------------------------
 //------------------------------------------------------------------------
-double L1OffsetCorrectorImpl::correction(const reco::Jet& fJet) const
-{
+double L1OffsetCorrectorImpl::correction(const reco::Jet& fJet) const {
   double result = 1.;
   if (npv_ > 0) {
     FactorizedJetCorrectorCalculator::VariableValues values;
@@ -92,4 +80,3 @@ double L1OffsetCorrectorImpl::correction(const reco::Jet& fJet) const
   }
   return result;
 }
-

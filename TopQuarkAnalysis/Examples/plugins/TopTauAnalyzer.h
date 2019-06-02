@@ -13,17 +13,14 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 
 class TopTauAnalyzer : public edm::EDAnalyzer {
-
- public:
-
-  explicit TopTauAnalyzer(const edm::ParameterSet&);
+public:
+  explicit TopTauAnalyzer(const edm::ParameterSet &);
   ~TopTauAnalyzer() override;
 
- private:
-
-  void beginJob() override ;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+private:
+  void beginJob() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
 
   edm::EDGetTokenT<std::vector<pat::Tau> > inputToken_;
 
