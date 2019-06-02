@@ -27,4 +27,3 @@ typedef edm::RefProd<CTPPSLocalTrackLiteCollection> CTPPSLocalTrackLiteRefProd;
 typedef edm::RefVector<CTPPSLocalTrackLiteCollection> CTPPSLocalTrackLiteRefVector;
 
 #endif
-

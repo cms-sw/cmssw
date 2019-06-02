@@ -4,12 +4,12 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
-#include "DataFormats/SiStripCommon/interface/Constants.h" 
-#include <boost/cstdint.hpp> 
+#include "DataFormats/SiStripCommon/interface/Constants.h"
+#include <boost/cstdint.hpp>
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
 
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 
-#endif // DataFormats_SiStripCommon_Classes_H
+#endif  // DataFormats_SiStripCommon_Classes_H

@@ -4,7 +4,7 @@
 //
 // Package:    METAlgorithms
 // Class:      SigInputObj
-// 
+//
 /**\class METSignificance SigInputObj.h RecoMET/METAlgorithms/include/SigInputObj.h
 
  Description: <one line class summary>
@@ -28,9 +28,9 @@
 //
 //
 
-//  
+//
 //  Purpose:
-//  
+//
 //  This subroutine takes in a vector of type SigInputObj that includes
 //  all of the physics objects in the event.  It then calculates
 //  the log significance of the MET of the event.
@@ -40,9 +40,9 @@
 //  where Chisq_0 is the value of Chi squared at MET=0.
 //
 //
-// 
+//
 // Revision history
-// 
+//
 // Revision 1.2  2009/10/21 11:27:11  fblekman
 // merged version with cvs head - includes new interfaces for MET significance to make it possible to correct MET objects later and also correct the signficance.
 //
@@ -82,21 +82,24 @@
 #include "TMatrixD.h"
 #include "TVectorD.h"
 
-namespace metsig{
-  class significanceAlgo{
+namespace metsig {
+  class significanceAlgo {
   public:
     significanceAlgo();
     ~significanceAlgo();
 
-    const void addSignifMatrix(const reco::METCovMatrix &input);
-    const void setSignifMatrix(const reco::METCovMatrix &input,const double &met_r, const double &met_phi, const double &met_set);
+    const void addSignifMatrix(const reco::METCovMatrix& input);
+    const void setSignifMatrix(const reco::METCovMatrix& input,
+                               const double& met_r,
+                               const double& met_phi,
+                               const double& met_set);
     const double significance(double& met_r, double& met_phi, double& met_set);
     const void addObjects(const std::vector<metsig::SigInputObj>& EventVec);
     const void subtractObjects(const std::vector<metsig::SigInputObj>& EventVec);
-    reco::METCovMatrix getSignifMatrix() const {return signifmatrix_;}
+    reco::METCovMatrix getSignifMatrix() const { return signifmatrix_; }
     //    const std::vector<metsig::SigInputObj> eventVec(){return eventVec_;}
   private:
-    //void rotateMatrix( Double_t theta, reco::METCovMatrix  &v);  
+    //void rotateMatrix( Double_t theta, reco::METCovMatrix  &v);
 
     //    std::vector<metsig::SigInputObj> eventVec_;
     reco::METCovMatrix signifmatrix_;
@@ -105,6 +108,6 @@ namespace metsig{
     double xmet_;
     double ymet_;
   };
-}
+}  // namespace metsig
 
 #endif

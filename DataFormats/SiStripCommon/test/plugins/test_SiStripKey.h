@@ -12,23 +12,18 @@
    @brief Simple class that tests SiStripKey.
 */
 class testSiStripKey : public edm::EDAnalyzer {
-
- public:
-  
-  testSiStripKey( const edm::ParameterSet& );
+public:
+  testSiStripKey(const edm::ParameterSet&);
   ~testSiStripKey();
-  
+
   void beginJob();
-  void analyze( const edm::Event&, const edm::EventSetup& );
-  void endJob() {;}
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void endJob() { ; }
 
- private:
-
+private:
   sistrip::KeyType keyType_;
   uint32_t key_;
   std::string path_;
-  
 };
 
-#endif // DataFormats_SiStripCommon_testSiStripKey_H
-
+#endif  // DataFormats_SiStripCommon_testSiStripKey_H
