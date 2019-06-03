@@ -66,7 +66,7 @@ private:
         }
         //make other booker methods for uniform binning
 
-        void fill( double value1, double value2 ) {
+        virtual void fill( double value1, double value2 ) {
             assert( plot != nullptr );
             plot->Fill( value1, value2 );
         }
@@ -153,7 +153,8 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
     edm::Handle< edm::View<reco::Vertex> > vertexHandle;
     iEvent.getByToken(pvToken, vertexHandle);
 
-    unsigned int nPVall = vertexHandle->size();
+    unsigned int nPVall = 0;
+    nPVall = vertexHandle->size();
     bool isGoodPV[ nPVall ] = {false};
     int npv = 0;
     for (unsigned int i=0; i<nPVall; i++) {
