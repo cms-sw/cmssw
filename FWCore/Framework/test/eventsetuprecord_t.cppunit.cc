@@ -146,8 +146,10 @@ public:
   }
 
 protected:
-  void registerProxies(const EventSetupRecordKey&, KeyedProxies& aProxyList, unsigned int iovIndex) override {
-    aProxyList.emplace_back(m_key, m_proxy);
+  KeyedProxiesVector registerProxies(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
+    KeyedProxiesVector keyedProxiesVector;
+    keyedProxiesVector.emplace_back(m_key, m_proxy);
+    return keyedProxiesVector;
   }
 
 private:
@@ -675,11 +677,11 @@ void testEventsetupRecord::proxyResetTest() {
   CPPUNIT_ASSERT(nullptr != wdProv.get());
   if (wdProv.get() == nullptr)
     return;  // To silence Coverity
+  wdProv->createKeyedProxies(DummyRecord::keyForClass(), 1);
   dummyProvider->add(wdProv);
 
   //this causes the proxies to actually be placed in the Record
   edm::eventsetup::EventSetupRecordProvider::DataToPreferredProviderMap pref;
-  wdProv->resizeKeyedProxiesVector(DummyRecord::keyForClass(), 1);
   dummyProvider->usePreferred(pref);
 
   CPPUNIT_ASSERT(dummyRecord.doGet(workingDataKey));
@@ -725,11 +727,11 @@ void testEventsetupRecord::transientTest() {
   const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(), "");
 
   std::shared_ptr<WorkingDummyProvider> wdProv = std::make_shared<WorkingDummyProvider>(workingDataKey, workingProxy);
+  wdProv->createKeyedProxies(DummyRecord::keyForClass(), 1);
   dummyProvider->add(wdProv);
 
   //this causes the proxies to actually be placed in the Record
   edm::eventsetup::EventSetupRecordProvider::DataToPreferredProviderMap pref;
-  wdProv->resizeKeyedProxiesVector(DummyRecord::keyForClass(), 1);
   dummyProvider->usePreferred(pref);
 
   //do a transient access to see if it clears properly

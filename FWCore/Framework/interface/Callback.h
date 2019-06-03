@@ -53,9 +53,7 @@ namespace edm {
             wasCalledForThisRecord_(false),
             decorator_(iDec) {}
 
-      Callback* clone() {
-        return new Callback(producer_.get(), method_, id_, decorator_);
-      }
+      Callback* clone() { return new Callback(producer_.get(), method_, id_, decorator_); }
 
       Callback(const Callback&) = delete;
       const Callback& operator=(const Callback&) = delete;

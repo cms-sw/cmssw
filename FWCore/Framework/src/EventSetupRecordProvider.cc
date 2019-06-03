@@ -122,16 +122,17 @@ namespace edm {
       for (unsigned int iovIndex = 0; iovIndex < nConcurrentIOVs_; ++iovIndex) {
         ProxyList& keyedProxies(iProvider->keyedProxies(this->key(), iovIndex));
 
-        for (auto& keyedProxy : keyedProxies) {
-          PreferredMap::const_iterator itFound = iMap.find(keyedProxy.first);
+        for (ProxyList::Iterator keyedProxy = keyedProxies.begin(), itEnd = keyedProxies.end(); keyedProxy != itEnd;
+             ++keyedProxy) {
+          PreferredMap::const_iterator itFound = iMap.find(keyedProxy.dataKey());
           if (iMap.end() != itFound) {
-            if (itFound->second.type_ != keyedProxy.second->providerDescription()->type_ ||
-                itFound->second.label_ != keyedProxy.second->providerDescription()->label_) {
+            if (itFound->second.type_ != keyedProxy.dataProxy()->providerDescription()->type_ ||
+                itFound->second.label_ != keyedProxy.dataProxy()->providerDescription()->label_) {
               //this is not the preferred provider
               continue;
             }
           }
-          recordImpls_.at(iovIndex)->add(keyedProxy.first, keyedProxy.second.get());
+          recordImpls_.at(iovIndex)->add(keyedProxy.dataKey(), keyedProxy.dataProxy());
         }
       }
     }
@@ -286,7 +287,7 @@ namespace edm {
       for (auto& dataProxyProvider : providers_) {
         if (dataProxyProvider->description().pid_ == psetID.psetID()) {
           dataProxyProvider = sharedDataProxyProvider;
-          dataProxyProvider->resizeKeyedProxiesVector(key_, nConcurrentIOVs_);
+          dataProxyProvider->createKeyedProxies(key_, nConcurrentIOVs_);
         }
       }
     }

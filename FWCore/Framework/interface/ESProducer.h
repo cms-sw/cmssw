@@ -158,8 +158,10 @@ namespace edm {
       using DecoratorType = typename eventsetup::DecoratorFromArg<T, TRecord, TArg>::Decorator_t;
       using CallbackType = eventsetup::Callback<T, TReturn, TRecord, DecoratorType>;
       unsigned int iovIndex = 0;  // Start with 0, but later will cycle through all of them
-      auto temp = std::make_shared<CallbackType>(iThis, iMethod, id, createDecoratorFrom(iThis, static_cast<const TRecord*>(nullptr), iDec));
-      auto callback = std::make_shared<std::pair<unsigned int, std::shared_ptr<CallbackType>>>(iovIndex, std::move(temp));
+      auto temp = std::make_shared<CallbackType>(
+          iThis, iMethod, id, createDecoratorFrom(iThis, static_cast<const TRecord*>(nullptr), iDec));
+      auto callback =
+          std::make_shared<std::pair<unsigned int, std::shared_ptr<CallbackType>>>(iovIndex, std::move(temp));
       registerProducts(std::move(callback),
                        static_cast<const typename eventsetup::produce::product_traits<TReturn>::type*>(nullptr),
                        static_cast<const TRecord*>(nullptr),

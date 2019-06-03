@@ -313,9 +313,7 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
-    void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey,
-                         KeyedProxies& aProxyList,
-                         unsigned int iovIndex) override;
+    KeyedProxiesVector registerProxies(const edm::eventsetup::EventSetupRecordKey&, unsigned int iovIndex) override;
 
     std::vector<std::shared_ptr<TestDataProxyTemplateJ>> proxies_;
     std::vector<unsigned> expectedCacheIds_;
@@ -333,13 +331,15 @@ namespace edmtest {
     descriptions.addDefault(desc);
   }
 
-  void ESTestDataProxyProviderJ::registerProxies(const edm::eventsetup::EventSetupRecordKey&,
-                                                 KeyedProxies& aProxyList,
-                                                 unsigned int iovIndex) {
+  edm::eventsetup::DataProxyProvider::KeyedProxiesVector ESTestDataProxyProviderJ::registerProxies(
+      const edm::eventsetup::EventSetupRecordKey& iRecord, unsigned int iovIndex) {
+    KeyedProxiesVector keyedProxiesVector;
     while (iovIndex >= proxies_.size()) {
       proxies_.push_back(std::make_shared<TestDataProxyTemplateJ>(&expectedCacheIds_));
     }
-    insertProxy(aProxyList, proxies_[iovIndex]);
+    edm::eventsetup::DataKey dataKey(edm::eventsetup::DataKey::makeTypeTag<ESTestDataJ>(), "");
+    keyedProxiesVector.emplace_back(dataKey, proxies_[iovIndex]);
+    return keyedProxiesVector;
   }
 }  // namespace edmtest
 
