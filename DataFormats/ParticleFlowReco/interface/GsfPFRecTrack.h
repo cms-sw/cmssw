@@ -21,54 +21,47 @@ namespace reco {
      \author Renaud Bruneliere, Michele Pioppi, Daniele Benedetti
      \date   July 2006
   */
-  class GsfPFRecTrack : public PFRecTrack
-  {
-
+  class GsfPFRecTrack : public PFRecTrack {
   public:
     GsfPFRecTrack(){};
     GsfPFRecTrack(double charge,
-               AlgoType_t algoType,
-               int trackId,
-               const reco::GsfTrackRef& gtrackref,
-               const edm::Ref<std::vector<PFRecTrack> >& kfpfrectrackref);
-
-  
+                  AlgoType_t algoType,
+                  int trackId,
+                  const reco::GsfTrackRef& gtrackref,
+                  const edm::Ref<std::vector<PFRecTrack> >& kfpfrectrackref);
 
     /// \return reference to corresponding gsftrack
-    const reco::GsfTrackRef& 
-      gsfTrackRef() const {return gsfTrackRef_;}
-    
+    const reco::GsfTrackRef& gsfTrackRef() const { return gsfTrackRef_; }
+
     /// \return reference to corresponding KF PFRecTrack  (only for GSF PFRecTrack)
-    const   edm::Ref<std::vector<PFRecTrack> >&
-      kfPFRecTrackRef() const  {return kfPFRecTrackRef_;} 
+    const edm::Ref<std::vector<PFRecTrack> >& kfPFRecTrackRef() const { return kfPFRecTrackRef_; }
     /// add a Bremsstrahlung photon
-    void addBrem( const reco::PFBrem& brem);
+    void addBrem(const reco::PFBrem& brem);
 
     /// calculate posrep_ once and for all for each brem
     void calculateBremPositionREP();
 
     /// \return the vector of PFBrem
-    const std::vector<reco::PFBrem>& PFRecBrem()const {return pfBremVec_;}
+    const std::vector<reco::PFBrem>& PFRecBrem() const { return pfBremVec_; }
 
     /// \return id
-    int trackId() const {return trackId_;}
-
+    int trackId() const { return trackId_; }
 
     /// \add PFRecTrackRef from conv Brems
     void addConvBremPFRecTrackRef(const reco::PFRecTrackRef& pfrectracksref);
 
     /// \return vector of PFRecTrackRef from Conv Brem
-    const std::vector<reco::PFRecTrackRef>& convBremPFRecTrackRef() const {return assoPFRecTrack_;}
+    const std::vector<reco::PFRecTrackRef>& convBremPFRecTrackRef() const { return assoPFRecTrack_; }
 
     /// \add GsfPFRecTrackRef from duplicates
-    void  addConvBremGsfPFRecTrackRef(const reco::GsfPFRecTrackRef& gsfpfrectracksref);
+    void addConvBremGsfPFRecTrackRef(const reco::GsfPFRecTrackRef& gsfpfrectracksref);
 
     /// \return vector of GsfPFRecTrackRef from duplicates
-    const std::vector<reco::GsfPFRecTrackRef>& convBremGsfPFRecTrackRef() const {return assoGsfPFRecTrack_;}
+    const std::vector<reco::GsfPFRecTrackRef>& convBremGsfPFRecTrackRef() const { return assoGsfPFRecTrack_; }
 
   private:
     /// reference to corresponding gsf track
-    reco::GsfTrackRef     gsfTrackRef_;
+    reco::GsfTrackRef gsfTrackRef_;
 
     ///ref to the corresponfing PfRecTrack with KF algo (only for PFRecTrack built from GSF track)
     reco::PFRecTrackRef kfPFRecTrackRef_;
@@ -78,7 +71,7 @@ namespace reco {
 
     /// vector of PFRecTrackRef from conv Brems
     std::vector<reco::PFRecTrackRef> assoPFRecTrack_;
-    
+
     /// vector of GsfPFRecTrackRef from duplicates
     std::vector<reco::GsfPFRecTrackRef> assoGsfPFRecTrack_;
 
@@ -86,7 +79,6 @@ namespace reco {
     int trackId_;
   };
 
-
-}
+}  // namespace reco
 
 #endif
