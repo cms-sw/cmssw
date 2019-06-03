@@ -49,7 +49,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -74,35 +73,33 @@
 #include "TLorentzVector.h"
 #include "TMath.h"
 
-
-
 //
 // class decleration
 //
 
 class BoostedTopProducer : public edm::EDProducer {
-   public:
-      explicit BoostedTopProducer(const edm::ParameterSet&);
-      ~BoostedTopProducer() override;
+public:
+  explicit BoostedTopProducer(const edm::ParameterSet&);
+  ~BoostedTopProducer() override;
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
-      // data labels
-      edm::EDGetTokenT<std::vector<pat::Electron> > eleToken_;
-      edm::EDGetTokenT<std::vector<pat::Muon> > muoToken_;
-      edm::EDGetTokenT<std::vector<pat::Jet> > jetToken_;
-      edm::EDGetTokenT<std::vector<pat::MET> > metToken_;
-      edm::EDGetTokenT<TtSemiLeptonicEvent> solToken_;
+  // data labels
+  edm::EDGetTokenT<std::vector<pat::Electron> > eleToken_;
+  edm::EDGetTokenT<std::vector<pat::Muon> > muoToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetToken_;
+  edm::EDGetTokenT<std::vector<pat::MET> > metToken_;
+  edm::EDGetTokenT<TtSemiLeptonicEvent> solToken_;
 
-      // Cut variables
-      double        caloIsoCut_;     // isolation cut to consider a lepton isolated
-      double        mTop_;           // input top mass
+  // Cut variables
+  double caloIsoCut_;  // isolation cut to consider a lepton isolated
+  double mTop_;        // input top mass
 
-      // Rapidity-invariant deltaR
-      double Psi(const TLorentzVector& p1, const TLorentzVector& p2, double mass);
+  // Rapidity-invariant deltaR
+  double Psi(const TLorentzVector& p1, const TLorentzVector& p2, double mass);
 };
 
 #endif

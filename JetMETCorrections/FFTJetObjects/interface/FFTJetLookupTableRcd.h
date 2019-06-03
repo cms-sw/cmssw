@@ -4,7 +4,7 @@
 //
 // Package:     JetMETCorrections/FFTJetObjects
 // Class  :     FFTJetLookupTableRcd
-// 
+//
 /**\class FFTJetLookupTableRcd FFTJetLookupTableRcd.h JetMETCorrections/FFTJetObjects/interface/FFTJetLookupTableRcd.h
 
  Description: record for FFTJet calibration lookup tables
@@ -24,9 +24,10 @@
 #include "CondFormats/DataRecord/interface/FFTJetCorrectorParametersRcd.h"
 
 template <typename CT>
-struct FFTJetLookupTableRcd : public edm::eventsetup::DependentRecordImplementation<
-    FFTJetLookupTableRcd<CT>,
-    boost::mpl::vector<FFTJetCorrectorParametersRcd<CT> >
-> {typedef CT correction_type;};
+struct FFTJetLookupTableRcd
+    : public edm::eventsetup::DependentRecordImplementation<FFTJetLookupTableRcd<CT>,
+                                                            boost::mpl::vector<FFTJetCorrectorParametersRcd<CT> > > {
+  typedef CT correction_type;
+};
 
-#endif // JetMETCorrections_FFTJetLookupTableRcd_h
+#endif  // JetMETCorrections_FFTJetLookupTableRcd_h

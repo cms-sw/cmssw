@@ -32,22 +32,21 @@
 */
 
 class JetEnergyShift : public edm::EDProducer {
-
- public:
+public:
   /// default constructor
   explicit JetEnergyShift(const edm::ParameterSet&);
   /// default destructor
   ~JetEnergyShift() override{};
 
- private:
+private:
   /// rescale jet energy and recalculated MET
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   /// jet input collection
-  edm::EDGetTokenT<std::vector<pat::Jet> > inputJetsToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet>> inputJetsToken_;
   /// met input collection
-  edm::EDGetTokenT<std::vector<pat::MET> > inputMETsToken_;
+  edm::EDGetTokenT<std::vector<pat::MET>> inputMETsToken_;
   /// jet output collection
   std::string outputJets_;
   /// MET output collection
@@ -60,48 +59,43 @@ class JetEnergyShift : public edm::EDProducer {
   double jetEMLimitForMET_;
 };
 
-
-JetEnergyShift::JetEnergyShift(const edm::ParameterSet& cfg):
-  inputJetsToken_      (consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("inputJets"))),
-  inputMETsToken_      (consumes<std::vector<pat::MET> >(cfg.getParameter<edm::InputTag>("inputMETs"))),
-  scaleFactor_         (cfg.getParameter<double>       ("scaleFactor"         )),
-  jetPTThresholdForMET_(cfg.getParameter<double>       ("jetPTThresholdForMET")),
-  jetEMLimitForMET_    (cfg.getParameter<double>       ("jetEMLimitForMET"    ))
-{
+JetEnergyShift::JetEnergyShift(const edm::ParameterSet& cfg)
+    : inputJetsToken_(consumes<std::vector<pat::Jet>>(cfg.getParameter<edm::InputTag>("inputJets"))),
+      inputMETsToken_(consumes<std::vector<pat::MET>>(cfg.getParameter<edm::InputTag>("inputMETs"))),
+      scaleFactor_(cfg.getParameter<double>("scaleFactor")),
+      jetPTThresholdForMET_(cfg.getParameter<double>("jetPTThresholdForMET")),
+      jetEMLimitForMET_(cfg.getParameter<double>("jetEMLimitForMET")) {
   // use label of input to create label for output
   outputJets_ = cfg.getParameter<edm::InputTag>("inputJets").label();
   outputMETs_ = cfg.getParameter<edm::InputTag>("inputMETs").label();
   // register products
-  produces<std::vector<pat::Jet> >(outputJets_);
-  produces<std::vector<pat::MET> >(outputMETs_);
+  produces<std::vector<pat::Jet>>(outputJets_);
+  produces<std::vector<pat::MET>>(outputMETs_);
 }
 
-void
-JetEnergyShift::produce(edm::Event& event, const edm::EventSetup& setup)
-{
-  edm::Handle<std::vector<pat::Jet> > jets;
+void JetEnergyShift::produce(edm::Event& event, const edm::EventSetup& setup) {
+  edm::Handle<std::vector<pat::Jet>> jets;
   event.getByToken(inputJetsToken_, jets);
 
-  edm::Handle<std::vector<pat::MET> > mets;
+  edm::Handle<std::vector<pat::MET>> mets;
   event.getByToken(inputMETsToken_, mets);
 
   auto pJets = std::make_unique<std::vector<pat::Jet>>();
   auto pMETs = std::make_unique<std::vector<pat::MET>>();
 
-  double dPx    = 0.;
-  double dPy    = 0.;
+  double dPx = 0.;
+  double dPy = 0.;
   double dSumEt = 0.;
 
-  for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
+  for (std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
     pat::Jet scaledJet = *jet;
-    scaledJet.scaleEnergy( scaleFactor_ );
-    pJets->push_back( scaledJet );
+    scaledJet.scaleEnergy(scaleFactor_);
+    pJets->push_back(scaledJet);
     // consider jet scale shift only if the raw jet pt and emf
     // is above the thresholds given in the module definition
-    if(jet->correctedJet("raw").pt() > jetPTThresholdForMET_
-       && jet->emEnergyFraction() < jetEMLimitForMET_) {
-      dPx    += scaledJet.px() - jet->px();
-      dPy    += scaledJet.py() - jet->py();
+    if (jet->correctedJet("raw").pt() > jetPTThresholdForMET_ && jet->emEnergyFraction() < jetEMLimitForMET_) {
+      dPx += scaledJet.px() - jet->px();
+      dPy += scaledJet.py() - jet->py();
       dSumEt += scaledJet.et() - jet->et();
     }
   }
@@ -110,11 +104,15 @@ JetEnergyShift::produce(edm::Event& event, const edm::EventSetup& setup)
   pat::MET met = *(mets->begin());
   double scaledMETPx = met.px() - dPx;
   double scaledMETPy = met.py() - dPy;
-  pat::MET scaledMET(reco::MET(met.sumEt()+dSumEt, reco::MET::LorentzVector(scaledMETPx, scaledMETPy, 0, sqrt(scaledMETPx*scaledMETPx+scaledMETPy*scaledMETPy)), reco::MET::Point(0,0,0)));
-  pMETs->push_back( scaledMET );
+  pat::MET scaledMET(
+      reco::MET(met.sumEt() + dSumEt,
+                reco::MET::LorentzVector(
+                    scaledMETPx, scaledMETPy, 0, sqrt(scaledMETPx * scaledMETPx + scaledMETPy * scaledMETPy)),
+                reco::MET::Point(0, 0, 0)));
+  pMETs->push_back(scaledMET);
   event.put(std::move(pJets), outputJets_);
   event.put(std::move(pMETs), outputMETs_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE( JetEnergyShift );
+DEFINE_FWK_MODULE(JetEnergyShift);

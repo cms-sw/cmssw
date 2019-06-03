@@ -8,59 +8,46 @@
 #include "JetMETCorrections/FFTJetObjects/interface/AbsFFTJetScaleCalculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-template<class MyJet, class Adjustable>
-class FFTEtaLogPtConeRadiusMapper : 
-    public AbsFFTJetScaleCalculator<MyJet, Adjustable>
-{
+template <class MyJet, class Adjustable>
+class FFTEtaLogPtConeRadiusMapper : public AbsFFTJetScaleCalculator<MyJet, Adjustable> {
 public:
-    inline explicit FFTEtaLogPtConeRadiusMapper(
-        CPP11_shared_ptr<npstat::AbsMultivariateFunctor> f)
-        : AbsFFTJetScaleCalculator<MyJet, Adjustable>(f) {}
+  inline explicit FFTEtaLogPtConeRadiusMapper(CPP11_shared_ptr<npstat::AbsMultivariateFunctor> f)
+      : AbsFFTJetScaleCalculator<MyJet, Adjustable>(f) {}
 
 private:
-    inline void map(const MyJet& jet,
-                    const Adjustable& current,
-                    double* buf, const unsigned dim) const override
-    {
-        assert(buf);
-        if (dim != 3)
-            throw cms::Exception("FFTJetBadConfig")
-                << "In FFTEtaLogPtConeRadiusMapper::map: "
-                << "invalid table dimensionality: "
-                << dim << std::endl;
-        buf[0] = current.vec().eta();
-        buf[1] = log(current.vec().pt());
-        buf[2] = jet.getFFTSpecific().f_recoScale();
-    }
+  inline void map(const MyJet& jet, const Adjustable& current, double* buf, const unsigned dim) const override {
+    assert(buf);
+    if (dim != 3)
+      throw cms::Exception("FFTJetBadConfig") << "In FFTEtaLogPtConeRadiusMapper::map: "
+                                              << "invalid table dimensionality: " << dim << std::endl;
+    buf[0] = current.vec().eta();
+    buf[1] = log(current.vec().pt());
+    buf[2] = jet.getFFTSpecific().f_recoScale();
+  }
 };
 
-template<class MyJet, class Adjustable>
-class FFTSpecificScaleCalculator : 
-    public AbsFFTJetScaleCalculator<MyJet, Adjustable>
-{
+template <class MyJet, class Adjustable>
+class FFTSpecificScaleCalculator : public AbsFFTJetScaleCalculator<MyJet, Adjustable> {
 public:
-    //
-    // This class will assume the ownership of the
-    // AbsFFTSpecificScaleCalculator object provided
-    // in the constructor
-    //
-    inline FFTSpecificScaleCalculator(
-        CPP11_shared_ptr<npstat::AbsMultivariateFunctor> f,
-        const AbsFFTSpecificScaleCalculator* p)
-        : AbsFFTJetScaleCalculator<MyJet, Adjustable>(f), calc_(p) {assert(p);}
+  //
+  // This class will assume the ownership of the
+  // AbsFFTSpecificScaleCalculator object provided
+  // in the constructor
+  //
+  inline FFTSpecificScaleCalculator(CPP11_shared_ptr<npstat::AbsMultivariateFunctor> f,
+                                    const AbsFFTSpecificScaleCalculator* p)
+      : AbsFFTJetScaleCalculator<MyJet, Adjustable>(f), calc_(p) {
+    assert(p);
+  }
 
-    inline ~FFTSpecificScaleCalculator() override {delete calc_;}
+  inline ~FFTSpecificScaleCalculator() override { delete calc_; }
 
 private:
-    inline void map(const MyJet& jet,
-                    const Adjustable& current,
-                    double* buf, const unsigned dim) const override
-    {
-        return calc_->mapFFTJet(jet, jet.getFFTSpecific(),
-                                current.vec(), buf, dim);
-    }
+  inline void map(const MyJet& jet, const Adjustable& current, double* buf, const unsigned dim) const override {
+    return calc_->mapFFTJet(jet, jet.getFFTSpecific(), current.vec(), buf, dim);
+  }
 
-    const AbsFFTSpecificScaleCalculator* calc_;
+  const AbsFFTSpecificScaleCalculator* calc_;
 };
 
-#endif // JetMETCorrections_FFTJetObjects_FFTJetScaleCalculators_h
+#endif  // JetMETCorrections_FFTJetObjects_FFTJetScaleCalculators_h
