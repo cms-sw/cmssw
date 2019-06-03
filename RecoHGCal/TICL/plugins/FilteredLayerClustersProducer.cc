@@ -31,7 +31,7 @@ class FilteredLayerClustersProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<std::vector<float>> clustersMask_token_;
   std::string clusterFilter_;
   std::string iteration_label_;
-  const ticl::ClusterFilterBase *theFilter_ = nullptr;
+  std::unique_ptr<const ticl::ClusterFilterBase> theFilter_;
 };
 
 DEFINE_FWK_MODULE(FilteredLayerClustersProducer);
@@ -42,7 +42,7 @@ FilteredLayerClustersProducer::FilteredLayerClustersProducer(const edm::Paramete
   clustersMask_token_ =
       consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("LayerClustersInputMask"));
   clusterFilter_ = ps.getParameter<std::string>("clusterFilter");
-  theFilter_ = ClusterFilterFactory::get()->create(clusterFilter_, ps);
+  theFilter_ = std::unique_ptr<ticl::ClusterFilterBase>{ClusterFilterFactory::get()->create(clusterFilter_, ps)};
   iteration_label_ = ps.getParameter<std::string>("iteration_label");
 
   produces<ticl::HgcalClusterFilterMask>(iteration_label_);
