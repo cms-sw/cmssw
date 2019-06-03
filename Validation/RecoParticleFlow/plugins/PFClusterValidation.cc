@@ -86,15 +86,13 @@ void PFClusterValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
 } // BOOKING HISTOS
 
 
-double   phi_MC = 9999.;
-double   eta_MC = 9999.;
-double partR  = 0.3;
-double Rmin   = 9999.;
  
 void PFClusterValidation::analyze(edm::Event const& event, edm::EventSetup const& c) {
   
   nevent++;
-  
+  //double   phi_MC = 9999.;
+  //double   eta_MC = 9999.;
+ 
    
   if (imc != 0){
     edm::Handle<edm::HepMCProduct> evtMC;
@@ -115,9 +113,14 @@ void PFClusterValidation::analyze(edm::Event const& event, edm::EventSetup const
       double phip = (*p)->momentum().phi();
       double etap = (*p)->momentum().eta();
       double pt  = (*p)->momentum().perp();
-      if(pt > maxPt) { npart++; maxPt = pt; phi_MC = phip; eta_MC = etap; }
+      if(pt > maxPt) { 
+	npart++; 
+	maxPt = pt; 
+	phi_MC = phip; 
+	eta_MC = etap; 
+      }
     }
-    //  std::cout << "*** Max pT = " << maxPt <<  std::endl;  
+    //std::cout << "eta and phi MC: " << eta_MC << phi_MC <<  std::endl;  
   }    
   
    
@@ -135,6 +138,7 @@ void PFClusterValidation::analyze(edm::Event const& event, edm::EventSetup const
   event.getByToken(PFClusterHFTok_, pfClusterHF);
     
 
+  
   double Econe  = 0.;
   double Hcone  = 0.;
   double HFcone  = 0.;
@@ -160,7 +164,7 @@ void PFClusterValidation::analyze(edm::Event const& event, edm::EventSetup const
 } //end for analyze
 
 double PFClusterValidation::dR(double eta1, double phi1, double eta2, double phi2) { 
-  double PI = 3.1415926535898;
+  const double PI = 3.1415926535898;
   double deltaphi= phi1 - phi2;
   if( phi2 > phi1 ) { deltaphi= phi2 - phi1;}
   if(deltaphi > PI) { deltaphi = 2.*PI - deltaphi;}
@@ -182,6 +186,7 @@ double PFClusterValidation::sumEnergy(edm::Handle<reco::PFClusterCollection> pfC
 	sumenergy += en;
       }
     }
+    
   }
   return sumenergy;
 }
