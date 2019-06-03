@@ -10,42 +10,43 @@
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "CondFormats/DataRecord/interface/QGLikelihoodRcd.h"
 
-class QGLikelihoodDBReader : public edm::EDAnalyzer{
+class QGLikelihoodDBReader : public edm::EDAnalyzer {
 public:
   explicit QGLikelihoodDBReader(const edm::ParameterSet&);
   ~QGLikelihoodDBReader() override{};
-  
+
 private:
   void beginJob() override{};
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override{};
- 
+
   std::string mPayloadName;
-  bool mCreateTextFile,mPrintScreen;
+  bool mCreateTextFile, mPrintScreen;
 };
 
-
-QGLikelihoodDBReader::QGLikelihoodDBReader(const edm::ParameterSet& iConfig){
-  mPayloadName    = iConfig.getUntrackedParameter<std::string>("payloadName");
-  mPrintScreen    = iConfig.getUntrackedParameter<bool>("printScreen");
+QGLikelihoodDBReader::QGLikelihoodDBReader(const edm::ParameterSet& iConfig) {
+  mPayloadName = iConfig.getUntrackedParameter<std::string>("payloadName");
+  mPrintScreen = iConfig.getUntrackedParameter<bool>("printScreen");
   mCreateTextFile = iConfig.getUntrackedParameter<bool>("createTextFile");
 }
 
-
-void QGLikelihoodDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+void QGLikelihoodDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::LogInfo("UserOutput") << "Inspecting QGLikelihood payload with label:" << mPayloadName << std::endl;
   edm::ESHandle<QGLikelihoodObject> QGLParamsColl;
   QGLikelihoodRcd const& rcdhandle = iSetup.get<QGLikelihoodRcd>();
   rcdhandle.get(mPayloadName, QGLParamsColl);
 
   edm::LogInfo("UserOutput") << "Ranges in which the QGTagger could be applied:"
-			     << "  pt: " << QGLParamsColl->qgValidRange.PtMin << " --> " << QGLParamsColl->qgValidRange.PtMax
-			     << ", eta: " << QGLParamsColl->qgValidRange.EtaMin << " --> " << QGLParamsColl->qgValidRange.EtaMax
-			     << ", rho: " << QGLParamsColl->qgValidRange.RhoMin << " --> " << QGLParamsColl->qgValidRange.RhoMax << std::endl;
+                             << "  pt: " << QGLParamsColl->qgValidRange.PtMin << " --> "
+                             << QGLParamsColl->qgValidRange.PtMax << ", eta: " << QGLParamsColl->qgValidRange.EtaMin
+                             << " --> " << QGLParamsColl->qgValidRange.EtaMax
+                             << ", rho: " << QGLParamsColl->qgValidRange.RhoMin << " --> "
+                             << QGLParamsColl->qgValidRange.RhoMax << std::endl;
 
   std::vector<QGLikelihoodObject::Entry> const& data = QGLParamsColl->data;
-  edm::LogInfo("UserOutput") <<  "There are " << data.size() << " entries (categories with associated PDF):" << std::endl;
-  for(auto idata = data.begin(); idata != data.end(); ++idata){    
+  edm::LogInfo("UserOutput") << "There are " << data.size()
+                             << " entries (categories with associated PDF):" << std::endl;
+  for (auto idata = data.begin(); idata != data.end(); ++idata) {
     int varIndex = idata->category.VarIndex;
     int qgBin = idata->category.QGIndex;
     double etaMin = idata->category.EtaMin;
@@ -56,7 +57,16 @@ void QGLikelihoodDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
     double ptMax = idata->category.PtMax;
 
     char buff[1000];
-    sprintf(buff, "var=%1d, qg=%1d, ptMin=%8.2f, ptMax=%8.2f, etaMin=%3.1f, etaMax=%3.1f, rhoMin=%6.2f, rhoMax=%6.2f", varIndex, qgBin, ptMin, ptMax, etaMin, etaMax, rhoMin, rhoMax);
+    sprintf(buff,
+            "var=%1d, qg=%1d, ptMin=%8.2f, ptMax=%8.2f, etaMin=%3.1f, etaMax=%3.1f, rhoMin=%6.2f, rhoMax=%6.2f",
+            varIndex,
+            qgBin,
+            ptMin,
+            ptMax,
+            etaMin,
+            etaMax,
+            rhoMin,
+            rhoMax);
     edm::LogVerbatim("UserOutput") << buff << std::endl;
   }
 }

@@ -26,16 +26,14 @@ namespace edm {
   namespace eventsetup {
     class EventSetupRecordKey;
   }
-}
+}  // namespace edm
 
-#define DEFINE_JET_CORRECTION_ESSOURCE(corrector_, name_ ) \
-typedef JetCorrectionESSource <corrector_>  name_; \
-DEFINE_FWK_EVENTSETUP_SOURCE(name_)
+#define DEFINE_JET_CORRECTION_ESSOURCE(corrector_, name_) \
+  typedef JetCorrectionESSource<corrector_> name_;        \
+  DEFINE_FWK_EVENTSETUP_SOURCE(name_)
 
 template <class Corrector>
-class JetCorrectionESSource : public edm::ESProducer,
-			      public edm::EventSetupRecordIntervalFinder
-{
+class JetCorrectionESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 private:
   edm::ParameterSet mParameterSet;
   std::string mLevel;
@@ -45,14 +43,13 @@ private:
   bool mDebug;
 
 public:
-  JetCorrectionESSource(edm::ParameterSet const& fConfig) : mParameterSet(fConfig) 
-  {
+  JetCorrectionESSource(edm::ParameterSet const& fConfig) : mParameterSet(fConfig) {
     std::string label = fConfig.getParameter<std::string>("@module_label");
-    mLevel            = fConfig.getParameter<std::string>("level");
-    mEra              = fConfig.getParameter<std::string>("era");
-    mAlgo             = fConfig.getParameter<std::string>("algorithm");
-    mSection          = fConfig.getParameter<std::string>("section");
-    mDebug            = fConfig.getUntrackedParameter<bool>("debug",false);
+    mLevel = fConfig.getParameter<std::string>("level");
+    mEra = fConfig.getParameter<std::string>("era");
+    mAlgo = fConfig.getParameter<std::string>("algorithm");
+    mSection = fConfig.getParameter<std::string>("section");
+    mDebug = fConfig.getUntrackedParameter<bool>("debug", false);
 
     setWhatProduced(this, label);
     findingRecord<JetCorrectionsRecord>();
@@ -60,26 +57,26 @@ public:
 
   ~JetCorrectionESSource() override {}
 
-  std::unique_ptr<JetCorrector> produce(JetCorrectionsRecord const& iRecord) 
-  {
+  std::unique_ptr<JetCorrector> produce(JetCorrectionsRecord const& iRecord) {
     std::string fileName("CondFormats/JetMETObjects/data/");
     if (!mEra.empty())
       fileName += mEra;
     if (!mLevel.empty())
-      fileName += "_"+mLevel;
+      fileName += "_" + mLevel;
     if (!mAlgo.empty())
-      fileName += "_"+mAlgo;
+      fileName += "_" + mAlgo;
     fileName += ".txt";
     if (mDebug)
       std::cout << "Parameter File: " << fileName << std::endl;
     edm::FileInPath fip(fileName);
-    JetCorrectorParameters *tmpJetCorPar = new JetCorrectorParameters(fip.fullPath(), mSection);
+    JetCorrectorParameters* tmpJetCorPar = new JetCorrectorParameters(fip.fullPath(), mSection);
     return std::make_unique<Corrector>(*tmpJetCorPar, mParameterSet);
   }
 
-  void setIntervalFor(edm::eventsetup::EventSetupRecordKey const&, edm::IOVSyncValue const&, edm::ValidityInterval& fIOV) override
-  {
-    fIOV = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime()); // anytime
+  void setIntervalFor(edm::eventsetup::EventSetupRecordKey const&,
+                      edm::IOVSyncValue const&,
+                      edm::ValidityInterval& fIOV) override {
+    fIOV = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());  // anytime
   }
 };
 #endif
