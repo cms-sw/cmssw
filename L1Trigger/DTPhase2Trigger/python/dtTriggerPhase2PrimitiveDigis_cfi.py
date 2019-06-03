@@ -17,7 +17,7 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                apply_txt_ttrig_bc0 = cms.untracked.bool(False),
                                                ttrig_filename = cms.untracked.string('L1Trigger/DTPhase2Trigger/data/wire_rawId_ttrig.txt'),
                                                z_filename = cms.untracked.string('L1Trigger/DTPhase2Trigger/data/wire_rawId_z.txt'),
-                                               shift_filename = cms.untracked.string('L1Trigger/DTPhase2Trigger/wire_rawId_x.txt'),
+                                               shift_filename = cms.untracked.string('L1Trigger/DTPhase2Trigger/data/wire_rawId_x.txt'),
                                                grouping_code = cms.untracked.int32(0),       # 0 = initial grouping, 1 = Hough transform, 2 = PseudoBayes Approach
                                                min_phinhits_match_segment = cms.untracked.int32(8),
                                                min_dT0_match_segment = cms.untracked.double(12.5),

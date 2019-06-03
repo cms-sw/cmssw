@@ -57,6 +57,10 @@ MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL(const ParameterSet& pset) :
     z_filename = pset.getUntrackedParameter<std::string>("z_filename");
     std::ifstream ifin2(z_filename.c_str());
     double z;
+    if (ifin2.fail()) {
+      throw cms::Exception("Missing Input File")
+        << "MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL() -  Cannot find " << z_filename.c_str();
+    }
     while (ifin2.good()){
 	ifin2 >> rawId >> z;
 	zinfo[rawId]=z;
@@ -66,6 +70,10 @@ MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL(const ParameterSet& pset) :
     shift_filename = pset.getUntrackedParameter<std::string>("shift_filename");
     std::ifstream ifin3(shift_filename.c_str());
     double shift;
+    if (ifin3.fail()) {
+      throw cms::Exception("Missing Input File")
+        << "MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL() -  Cannot find " << shift_filename.c_str();
+    }
     while (ifin3.good()){
 	ifin3 >> rawId >> shift;
 	shiftinfo[rawId]=shift;
