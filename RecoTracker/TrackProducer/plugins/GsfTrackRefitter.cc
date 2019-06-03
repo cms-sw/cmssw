@@ -27,7 +27,7 @@ GsfTrackRefitter::GsfTrackRefitter(const edm::ParameterSet& iConfig):
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
   std::string  constraint_str = iConfig.getParameter<std::string>( "constraint" );
 
-  if (constraint_str == "") constraint_ = none;
+  if (constraint_str.empty()) constraint_ = none;
 //   else if (constraint_str == "momentum") constraint_ = momentum;
   else if (constraint_str == "vertex") {
     constraint_ = vertex;

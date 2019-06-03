@@ -27,7 +27,7 @@ TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
   edm::InputTag trkconstrcoll = iConfig.getParameter<edm::InputTag>( "srcConstr" );
   
 
-  if (constraint_str == "") constraint_ = none;
+  if (constraint_str.empty()) constraint_ = none;
   else if (constraint_str == "momentum") { constraint_ = momentum; trkconstrcoll_ = consumes<TrackMomConstraintAssociationCollection>(trkconstrcoll); }
   else if (constraint_str == "vertex")   { constraint_ = vertex;   trkconstrcoll_ = consumes<TrackVtxConstraintAssociationCollection>(trkconstrcoll); }
   else if (constraint_str == "trackParameters") { constraint_ = trackParameters;  trkconstrcoll_ = consumes<TrackParamConstraintAssociationCollection>(trkconstrcoll); }
