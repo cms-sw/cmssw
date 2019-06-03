@@ -11,9 +11,8 @@
 
 class MeasurementDetException : public cms::Exception {
 public:
-  MeasurementDetException( const std::string& message) throw() :  cms::Exception(message)  {}
+  MeasurementDetException(const std::string& message) throw() : cms::Exception(message) {}
   ~MeasurementDetException() throw() override {}
-
 };
 
 #endif
