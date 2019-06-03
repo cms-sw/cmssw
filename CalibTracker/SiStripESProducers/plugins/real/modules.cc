@@ -7,5 +7,3 @@
 #include "CalibTracker/SiStripESProducers/plugins/real/SiStripQualityESProducer.h"
 DEFINE_FWK_EVENTSETUP_MODULE(SiStripQualityESProducer);
 
-#include "CalibTracker/SiStripESProducers/plugins/real/SiStripLorentzAngleDepESProducer.h"
-DEFINE_FWK_EVENTSETUP_MODULE(SiStripLorentzAngleDepESProducer);
