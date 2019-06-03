@@ -7,16 +7,17 @@
 
 class SensitiveDetectorCatalog {
 public:
-  typedef std::map<std::string, std::vector<std::string>> MapType;
+  using MapType = std::map<std::string, std::vector<std::string>>;
   void insert(const std::string &, const std::string &, const std::string &);
   const std::vector<std::string> &logicalNames(const std::string &readoutName) const;
-  std::vector<std::string> logicalNamesFromClassName(const std::string &className) const;
   const std::vector<std::string> &readoutNames(const std::string &className) const;
   std::vector<std::string> readoutNames() const;
   std::string className(const std::string &readoutName) const;
-  std::vector<std::string> classNames() const;
 
 private:
+  std::vector<std::string> logicalNamesFromClassName(const std::string &className) const;
+  std::vector<std::string> classNames() const;
+  
   MapType theClassNameMap;
   MapType theROUNameMap;
 };
