@@ -12,10 +12,12 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include <vector>
 
-namespace edm { class ParameterSet; }
+namespace edm {
+  class ParameterSet;
+}
 
 class ParabolicParametrizedMagneticField : public MagneticField {
- public:
+public:
   /// Default constructor, use default values for 3.8T map
   explicit ParabolicParametrizedMagneticField();
 
@@ -24,10 +26,10 @@ class ParabolicParametrizedMagneticField : public MagneticField {
 
   /// Destructor
   ~ParabolicParametrizedMagneticField() override;
-  
-  GlobalVector inTesla (const GlobalPoint& gp) const override;
 
-  GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const override;
+  GlobalVector inTesla(const GlobalPoint& gp) const override;
+
+  GlobalVector inTeslaUnchecked(const GlobalPoint& gp) const override;
 
   inline float B0Z(const float a) const;
 
@@ -35,7 +37,7 @@ class ParabolicParametrizedMagneticField : public MagneticField {
 
   inline bool isDefined(const GlobalPoint& gp) const override;
 
- private:
+private:
   float c1;
   float b0;
   float b1;
