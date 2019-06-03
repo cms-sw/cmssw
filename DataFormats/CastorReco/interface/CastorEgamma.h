@@ -16,9 +16,8 @@ namespace reco {
 
   class CastorEgamma : public CastorCluster {
   public:
-
     /// default constructor. Sets energy to zero
-    CastorEgamma() : energycal_(0.) { }
+    CastorEgamma() : energycal_(0.) {}
 
     /// constructor from values
     CastorEgamma(const double energycal, const CastorClusterRef& usedCluster);
@@ -34,21 +33,21 @@ namespace reco {
 
     /// Egamma centroid position
     ROOT::Math::XYZPoint position() const { return (*usedCluster_).position(); }
-    
+
     /// vector of used Clusters
     CastorClusterRef getUsedCluster() const { return usedCluster_; }
 
     /// comparison >= operator
-    bool operator >=(const CastorEgamma& rhs) const { return (energycal_>=rhs.energycal_); }
+    bool operator>=(const CastorEgamma& rhs) const { return (energycal_ >= rhs.energycal_); }
 
     /// comparison > operator
-    bool operator > (const CastorEgamma& rhs) const { return (energycal_> rhs.energycal_); }
+    bool operator>(const CastorEgamma& rhs) const { return (energycal_ > rhs.energycal_); }
 
     /// comparison <= operator
-    bool operator <=(const CastorEgamma& rhs) const { return (energycal_<=rhs.energycal_); }
+    bool operator<=(const CastorEgamma& rhs) const { return (energycal_ <= rhs.energycal_); }
 
     /// comparison <= operator
-    bool operator < (const CastorEgamma& rhs) const { return (energycal_< rhs.energycal_); }
+    bool operator<(const CastorEgamma& rhs) const { return (energycal_ < rhs.energycal_); }
 
     /// Egamma em energy
     double emEnergy() const { return (*usedCluster_).emEnergy(); }
@@ -87,17 +86,16 @@ namespace reco {
     double rho() const { return (*usedCluster_).rho(); }
 
   private:
-
     /// Egamma energycal
     double energycal_;
 
     /// used CastorClusters
     CastorClusterRef usedCluster_;
   };
-  
+
   // define CastorEgammaCollection
   typedef std::vector<CastorEgamma> CastorEgammaCollection;
 
-}
+}  // namespace reco
 
 #endif
