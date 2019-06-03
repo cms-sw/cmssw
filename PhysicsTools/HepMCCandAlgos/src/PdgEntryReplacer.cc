@@ -5,11 +5,13 @@ using namespace std;
 
 string PdgEntryReplacer::replace(const string& in) const {
   string out = in;
-  for(;;) {
+  for (;;) {
     size_t p1 = out.find_first_of('{');
-    if(p1 == string::npos) break;
+    if (p1 == string::npos)
+      break;
     size_t p2 = out.find_first_of('}', p1 + 1);
-    if(p2 == string::npos) break;
+    if (p2 == string::npos)
+      break;
     size_t n = p2 - p1 - 1;
     string name(out, p1 + 1, n);
     PdtEntry particle(name);
