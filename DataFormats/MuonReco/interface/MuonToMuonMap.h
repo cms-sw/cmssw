@@ -6,7 +6,7 @@
 
 namespace reco {
 
-typedef edm::ValueMap<reco::MuonRef> MuonToMuonMap;
+  typedef edm::ValueMap<reco::MuonRef> MuonToMuonMap;
 
 }
 

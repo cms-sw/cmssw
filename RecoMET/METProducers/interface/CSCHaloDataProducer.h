@@ -8,7 +8,6 @@
   [date]: October 15, 2009
 */
 
-
 //Standard C++ classes
 #include <iostream>
 #include <string>
@@ -126,17 +125,14 @@
 
 class MuonServiceProxy;
 
-namespace reco
-{
-class CSCHaloDataProducer : public edm::stream::EDProducer<> {
-
+namespace reco {
+  class CSCHaloDataProducer : public edm::stream::EDProducer<> {
   public:
-    explicit CSCHaloDataProducer(const edm::ParameterSet&);
+    explicit CSCHaloDataProducer(const edm::ParameterSet &);
     ~CSCHaloDataProducer() override;
 
   private:
-
-    void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event &, const edm::EventSetup &) override;
 
     //CSCHaloAlgo
     CSCHaloAlgo CSCAlgo;
@@ -147,7 +143,7 @@ class CSCHaloDataProducer : public edm::stream::EDProducer<> {
 
     //HLT
     edm::InputTag IT_HLTResult;
-    std::vector< edm::InputTag > vIT_HLTBit  ;
+    std::vector<edm::InputTag> vIT_HLTBit;
 
     //Muon-Segment Matching
     MuonSegmentMatcher *TheMatcher;
@@ -179,7 +175,6 @@ class CSCHaloDataProducer : public edm::stream::EDProducer<> {
     edm::EDGetTokenT<L1MuGMTReadoutCollection> l1mugmtro_token_;
     edm::EDGetTokenT<edm::TriggerResults> hltresult_token_;
   };
-}
+}  // namespace reco
 
 #endif
-

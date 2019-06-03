@@ -6,8 +6,7 @@
   [authors]: R. Remington, The University of Florida
   [description]: EDProducer which runs HcalHaloAlgo and stores HcalHaloData object to the event. 
   [date]: October 15, 2009
-*/  
-
+*/
 
 //Standard C++ classes
 #include <iostream>
@@ -82,18 +81,15 @@
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
-namespace reco
-{
+namespace reco {
   class HcalHaloDataProducer : public edm::stream::EDProducer<> {
-    
   public:
     explicit HcalHaloDataProducer(const edm::ParameterSet&);
     ~HcalHaloDataProducer() override;
-    
+
   private:
-    
     void produce(edm::Event&, const edm::EventSetup&) override;
-    
+
     //RecHit Level
     edm::InputTag IT_HBHERecHit;
     edm::InputTag IT_HORecHit;
@@ -113,7 +109,6 @@ namespace reco
     float SumHcalEnergyThreshold;
     int NHitsHcalThreshold;
   };
-}
+}  // namespace reco
 
 #endif
-  
