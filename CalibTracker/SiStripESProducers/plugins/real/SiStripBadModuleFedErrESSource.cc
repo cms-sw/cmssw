@@ -35,6 +35,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 
 class DQMStore;
@@ -51,6 +52,8 @@ public:
   ReturnType produce( const SiStripBadModuleFedErrRcd& );
 
 private:
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> cablingToken_;
+
   bool m_readFlag;
   std::string m_fileName;
   float m_cutoff;
@@ -59,17 +62,15 @@ private:
   float getProcessedEvents( DQMStore* dqmStore ) const;
 };
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 SiStripBadModuleFedErrESSource::SiStripBadModuleFedErrESSource(const edm::ParameterSet& iConfig)
 {
-  setWhatProduced(this);
+  setWhatProduced(this).setConsumes(cablingToken_);
   findingRecord<SiStripBadModuleFedErrRcd>();
 
   m_readFlag = iConfig.getParameter<bool>("ReadFromFile");
@@ -122,8 +123,7 @@ SiStripBadModuleFedErrESSource::produce(const SiStripBadModuleFedErrRcd& iRecord
 {
   using namespace edm::es;
 
-  edm::ESHandle<SiStripFedCabling> cabling;
-  iRecord.getRecord<SiStripFedCablingRcd>().get(cabling);
+  const auto& cabling = iRecord.get(cablingToken_);
 
   auto quality = std::make_unique<SiStripQuality>();
 
@@ -149,7 +149,7 @@ SiStripBadModuleFedErrESSource::produce(const SiStripBadModuleFedErrRcd& iRecord
 	const uint16_t fChan = elm.second/2;
         if ( ( fId == 9999 ) && ( fChan == 9999 ) ) continue;
 
-	FedChannelConnection channel = cabling->fedConnection(fId, fChan);
+	FedChannelConnection channel = cabling.fedConnection(fId, fChan);
         detectorMap[channel.detId()].insert(channel.apvPairNumber());
       }
 
