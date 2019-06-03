@@ -29,10 +29,9 @@
 #include "TopQuarkAnalysis/TopHitFit/interface/Defaults_Text.h"
 #include "TopQuarkAnalysis/TopHitFit/interface/Vector_Resolution.h"
 
-
 namespace hitfit {
 
-/**
+  /**
     @class EtaDepResElement
 
     @brief Represent a resolution and an  \f$ \eta \f$  range in which the
@@ -59,19 +58,17 @@ namespace hitfit {
     June 2009
 
  */
-class EtaDepResElement {
-
-private:
-
+  class EtaDepResElement {
+  private:
     /**
        Lower limit of the valid  \f$ \eta \f$  range.
      */
-    double            _EtaMin;
+    double _EtaMin;
 
     /**
        Upper limit of the valid  \f$ \eta \f$  range.
      */
-    double            _EtaMax;
+    double _EtaMax;
 
     /**
        Set the lower and upper limit of the valid eta range.
@@ -80,15 +77,14 @@ private:
        @param eta2 Value of  \f$ \eta \f$  in the other end of the valid
         \f$ \eta \f$  range.
      */
-    void              SetEta(double eta1,double eta2);
+    void SetEta(double eta1, double eta2);
 
     /**
        The resolution.
      */
     Vector_Resolution _Vector_Resolution;
 
-public:
-
+  public:
     /**
        @brief Construct an instance of EtaDepResElement
        from the lower limit, upper limit, and the resolution.  The constructor
@@ -101,8 +97,7 @@ public:
        valid  \f$ \eta \f$  range.
        @param res The resolution.
      */
-    EtaDepResElement(double eta1, double eta2,
-                     const Vector_Resolution& res);
+    EtaDepResElement(double eta1, double eta2, const Vector_Resolution& res);
 
     /**
        @brief Construct an instance of EtaDepResElement
@@ -117,8 +112,7 @@ public:
        valid  \f$ \eta \f$  range.
        @param res The resolution encoded in string.
      */
-    EtaDepResElement(double eta1, double eta2,
-                     std::string res);
+    EtaDepResElement(double eta1, double eta2, std::string res);
 
     /**
        @brief Construct an instance of EtaDepResElement
@@ -137,7 +131,8 @@ public:
        for transverse component  \f$ (p_{T}/E_{T}) \f$  instead for
        radial  \f$ (p/E) \f$  component.
      */
-    EtaDepResElement(double eta1, double eta2,
+    EtaDepResElement(double eta1,
+                     double eta2,
                      const Resolution& p_res,
                      const Resolution& eta_res,
                      const Resolution& phi_res,
@@ -148,8 +143,7 @@ public:
      */
     ~EtaDepResElement();
 
-    friend bool operator < (const EtaDepResElement& a,
-                            const EtaDepResElement& b) ;
+    friend bool operator<(const EtaDepResElement& a, const EtaDepResElement& b);
 
     /**
        @brief Return the lower limit of valid  \f$ \eta \f$  range.
@@ -171,7 +165,7 @@ public:
        <b>false</b> if this instance doesn't have overlapping  \f$ \eta \f$  range
        with another instance's  \f$ \eta \f$  range.
      */
-    bool IsOverlap(const EtaDepResElement& e) const ;
+    bool IsOverlap(const EtaDepResElement& e) const;
 
     /**
        @brief Check if this instance does not have overlapping  \f$ \eta \f$  range
@@ -183,7 +177,7 @@ public:
        <b>false</b> if this instance has overlapping  \f$ \eta \f$  range
        with another instance's  \f$ \eta \f$  range.
      */
-    bool IsNotOverlap(const EtaDepResElement& e) const ;
+    bool IsNotOverlap(const EtaDepResElement& e) const;
 
     /**
        @brief Check if an  \f$ \eta \f$  value is within
@@ -194,8 +188,7 @@ public:
        <b>false</b> if  \f$ \eta \f$  is not within the instnace's  \f$ \eta \f$
        range.
      */
-    bool IsInInterval(const double& eta) const ;
-
+    bool IsInInterval(const double& eta) const;
 
     /**
        @brief Check if an  \f$ \eta \f$  value is at the edge/boundary of
@@ -233,15 +226,13 @@ public:
        @par Return:
        The output stream <i>s</i>
      */
-    friend std::ostream& operator<<(std::ostream& s,
-                                    const EtaDepResElement& e);
+    friend std::ostream& operator<<(std::ostream& s, const EtaDepResElement& e);
 
     /**
        @brief Constant, the inverse of precision expected.
      */
-    static const int  InverseEtaPrecision = 1000000; // Precision of 1/1000000
+    static const int InverseEtaPrecision = 1000000;  // Precision of 1/1000000
+  };
 
-};
-
-} // namespace hitfit
-#endif // not #ifndef HITFIT_ETA_DEP_RES_ELEMENT
+}  // namespace hitfit
+#endif  // not #ifndef HITFIT_ETA_DEP_RES_ELEMENT

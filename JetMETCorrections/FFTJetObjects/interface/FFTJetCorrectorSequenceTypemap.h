@@ -11,31 +11,37 @@
 
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetCorrectorSequenceLoader.h"
 
-template<typename T>
+template <typename T>
 struct FFTJetCorrectorSequenceTypemap {};
 
-template<>
-struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::BasicJet> >
-{typedef StaticFFTBasicJetCorrectorSequenceLoader loader;};
+template <>
+struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::BasicJet> > {
+  typedef StaticFFTBasicJetCorrectorSequenceLoader loader;
+};
 
-template<>
-struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::CaloJet> >
-{typedef StaticFFTCaloJetCorrectorSequenceLoader loader;};
+template <>
+struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::CaloJet> > {
+  typedef StaticFFTCaloJetCorrectorSequenceLoader loader;
+};
 
-template<>
-struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::GenJet> >
-{typedef StaticFFTGenJetCorrectorSequenceLoader loader;};
- 
-template<>
-struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::PFJet> >
-{typedef StaticFFTPFJetCorrectorSequenceLoader loader;};
+template <>
+struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::GenJet> > {
+  typedef StaticFFTGenJetCorrectorSequenceLoader loader;
+};
 
-template<>
-struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::TrackJet> >
-{typedef StaticFFTTrackJetCorrectorSequenceLoader loader;};
+template <>
+struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::PFJet> > {
+  typedef StaticFFTPFJetCorrectorSequenceLoader loader;
+};
 
-template<>
-struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::JPTJet> >
-{typedef StaticFFTJPTJetCorrectorSequenceLoader loader;};
+template <>
+struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::TrackJet> > {
+  typedef StaticFFTTrackJetCorrectorSequenceLoader loader;
+};
 
-#endif // JetMETCorrections_FFTJetObjects_FFTJetCorrectorSequenceTypemap_h
+template <>
+struct FFTJetCorrectorSequenceTypemap<reco::FFTAnyJet<reco::JPTJet> > {
+  typedef StaticFFTJPTJetCorrectorSequenceLoader loader;
+};
+
+#endif  // JetMETCorrections_FFTJetObjects_FFTJetCorrectorSequenceTypemap_h

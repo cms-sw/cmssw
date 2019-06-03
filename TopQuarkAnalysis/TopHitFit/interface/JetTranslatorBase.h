@@ -23,10 +23,9 @@
 #include "TopQuarkAnalysis/TopHitFit/interface/Lepjets_Event_Jet.h"
 #include "TopQuarkAnalysis/TopHitFit/interface/fourvec.h"
 
-namespace hitfit{
+namespace hitfit {
 
-
-    /**
+  /**
        @class JetTranslatorBase.
 
        @brief Template class of function object to translate jet physics
@@ -41,17 +40,15 @@ namespace hitfit{
        be translated into HitFit's Lepjets_Event_Jet.
 
      */
-    template <class AJet>
-    class JetTranslatorBase {
-
-    public:
-
-        /**
+  template <class AJet>
+  class JetTranslatorBase {
+  public:
+    /**
            @brief Default constructor.
          */
-        JetTranslatorBase();
+    JetTranslatorBase();
 
-        /**
+    /**
            @brief Constructor, instantiate a JetTranslatorBase object
            using the names of input files in std::string format.
 
@@ -62,10 +59,9 @@ namespace hitfit{
            resolution for \f$b\f$ jets.
 
          */
-        JetTranslatorBase(const std::string& udscFile,
-                          const std::string& bFile);
-        
-        /**
+    JetTranslatorBase(const std::string& udscFile, const std::string& bFile);
+
+    /**
            @brief Constructor, instantiate a JetTranslatorBase object
            using the names of input files in std::string format.
 
@@ -82,18 +78,18 @@ namespace hitfit{
            @param jesB The b-jet energy scale.
 
          */
-        JetTranslatorBase(const std::string& udscFile,
-                          const std::string& bFile,
-                          const std::string& jetCorrectionLevel,
-                          double jes,
-                          double jesB);
+    JetTranslatorBase(const std::string& udscFile,
+                      const std::string& bFile,
+                      const std::string& jetCorrectionLevel,
+                      double jes,
+                      double jesB);
 
-        /**
+    /**
            @brief Destructor.
          */
-        ~JetTranslatorBase();
+    ~JetTranslatorBase();
 
-        /**
+    /**
            @brief Convert a jet physics object of type AJet into
            HitFit jet physics object of type Lepjets_Event_Jet.
            This operator must be able to apply the appropriate jet
@@ -108,60 +104,55 @@ namespace hitfit{
            user would like to use the resolution embedded in the object,
            and not the resolution read when instantiating the class.
          */
-        Lepjets_Event_Jet operator()(const AJet& jet,
-                                     int type = hitfit::unknown_label,
-                                     bool useObjEmbRes = false);
+    Lepjets_Event_Jet operator()(const AJet& jet, int type = hitfit::unknown_label, bool useObjEmbRes = false);
 
-        /**
+    /**
            @brief Return the  \f$ \eta- \f$ dependent resolution for \f$udsc\f$
            jets.
          */
-        const EtaDepResolution& udscResolution() const;
+    const EtaDepResolution& udscResolution() const;
 
-        /**
+    /**
            @brief Return the  \f$ \eta- \f$ dependent resolution for \f$b\f$
            jets.
          */
-        const EtaDepResolution& bResolution() const;
+    const EtaDepResolution& bResolution() const;
 
-        /**
+    /**
            @brief Check if a jet has  \f$ \eta \f$  value which is within the
            valid  \f$ \eta \f$  range of the resolution.
 
            @param jet The jet whose  \f$ \eta \f$  value is to be checked.
          */
-        bool CheckEta(const AJet& jet) const;
+    bool CheckEta(const AJet& jet) const;
 
-
-    private:
-
-        /**
+  private:
+    /**
            @brief The  \f$ \eta- \f$ dependent resolution for $udsc$ jets.
          */
-        EtaDepResolution udscResolution_;
+    EtaDepResolution udscResolution_;
 
-        /**
+    /**
            @brief The  \f$ \eta- \f$ dependent resolution for $b$ jets.
          */
-        EtaDepResolution bResolution_;
-        
-        /**
+    EtaDepResolution bResolution_;
+
+    /**
            @brief The jet correction level.
          */
-        std::string jetCorrectionLevel_;
-        
-        /**
+    std::string jetCorrectionLevel_;
+
+    /**
            @brief The jet energy scale.
          */
-        double jes_;
-        
-        /**
+    double jes_;
+
+    /**
            @brief The b-jet energy scale.
          */
-        double jesB_;
+    double jesB_;
+  };
 
-    };
+}  // namespace hitfit
 
-} // namespace hitfit
-
-#endif // #ifndef HitFit_JetTranslatorBase_h
+#endif  // #ifndef HitFit_JetTranslatorBase_h
