@@ -24,8 +24,6 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -42,62 +40,61 @@ class SiStripBackPlaneCorrectionDepESProducer : public edm::ESProducer {
   std::unique_ptr<SiStripBackPlaneCorrection> produce(const SiStripBackPlaneCorrectionDepRcd&);
    
  private:
-
-  edm::ParameterSet getLatency;
-  edm::ParameterSet getPeak;
-  edm::ParameterSet getDeconv;
-
-
+  edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
+  edm::ESGetToken<SiStripBackPlaneCorrection, SiStripBackPlaneCorrectionRcd> backPlaneCorrectionPeakToken_;
+  edm::ESGetToken<SiStripBackPlaneCorrection, SiStripBackPlaneCorrectionRcd> backPlaneCorrectionDeconvToken_;
 };
 
-SiStripBackPlaneCorrectionDepESProducer::SiStripBackPlaneCorrectionDepESProducer(const edm::ParameterSet& iConfig):
-  getLatency(iConfig.getParameter<edm::ParameterSet>("LatencyRecord")),
-  getPeak(iConfig.getParameter<edm::ParameterSet>("BackPlaneCorrectionPeakMode")),
-  getDeconv(iConfig.getParameter<edm::ParameterSet>("BackPlaneCorrectionDeconvMode"))
-{  
-  setWhatProduced(this);
-  
-  edm::LogInfo("SiStripBackPlaneCorrectionDepESProducer") << "ctor" << std::endl;
+SiStripBackPlaneCorrectionDepESProducer::SiStripBackPlaneCorrectionDepESProducer(const edm::ParameterSet& iConfig) {
+  auto cc = setWhatProduced(this);
 
+  edm::LogInfo("SiStripBackPlaneCorrectionDepESProducer") << "ctor";
+
+  auto getLatency = iConfig.getParameter<edm::ParameterSet>("LatencyRecord");
+  // How useful the "record" parameter really is?
+  if(getLatency.getParameter<std::string>("record") == "SiStripLatencyRcd") {
+    // Shouldn't the label be a tracked parameter?
+    cc.setConsumes(latencyToken_, edm::ESInputTag{"", getLatency.getUntrackedParameter<std::string>("label")});
+  }
+  // Would it make sense to elevate this as an exception?
+  else edm::LogError("SiStripBackPlaneCorrectionDepESProducer") << "[SiStripBackPlaneCorrectionDepESProducer::ctor] No Latency Record found ";
+
+  auto getPeak = iConfig.getParameter<edm::ParameterSet>("BackPlaneCorrectionPeakMode");
+  if(getPeak.getParameter<std::string>("record") == "SiStripBackPlaneCorrectionRcd") {
+    // Shouldn't the label be a tracked parameter?
+    cc.setConsumes(backPlaneCorrectionPeakToken_, edm::ESInputTag{"", getPeak.getUntrackedParameter<std::string>("label")});
+  // Would it make sense to elevate this as an exception?
+  } else edm::LogError("SiStripBackPlaneCorrectionDepESProducer") << "[SiStripBackPlaneCorrectionDepESProducer::ctor] No Lorentz Angle Record found " << std::endl;
+
+
+  auto getDeconv = iConfig.getParameter<edm::ParameterSet>("BackPlaneCorrectionDeconvMode");
+  // How useful the "record" parameter really is?
+  if(getDeconv.getParameter<std::string>("record") == "SiStripBackPlaneCorrectionRcd") {
+    // Shouldn't the label be a tracked parameter?
+    cc.setConsumes(backPlaneCorrectionDeconvToken_, edm::ESInputTag{"", getDeconv.getUntrackedParameter<std::string>("label")});
+  // Would it make sense to elevate this as an exception?
+  } else edm::LogError("SiStripBackPlaneCorrectionDepESProducer") << "[SiStripBackPlaneCorrectionDepESProducer::ctor] No Lorentz Angle Record found " << std::endl;
 }
 
 
 std::unique_ptr<SiStripBackPlaneCorrection> SiStripBackPlaneCorrectionDepESProducer::produce(const SiStripBackPlaneCorrectionDepRcd& iRecord)
 {
-  std::unique_ptr<SiStripBackPlaneCorrection> siStripBPC;
   edm::LogInfo("SiStripBackPlaneCorrectionDepESProducer") << "Producer called" << std::endl;
   
-  std::string latencyRecordName = getLatency.getParameter<std::string>("record");
-  std::string latencyLabel = getLatency.getUntrackedParameter<std::string>("label");
-  bool peakMode = false;
+  auto const *tokenPtr = &backPlaneCorrectionDeconvToken_;
   
-  if( latencyRecordName == "SiStripLatencyRcd" ) {      
-    edm::ESHandle<SiStripLatency> latency;  
-    iRecord.getRecord<SiStripLatencyRcd>().get( latencyLabel, latency);
-    if(latency -> singleReadOutMode() == 1) peakMode = true;
-  } else edm::LogError("SiStripBackPlaneCorrectionDepESProducer") << "[SiStripBackPlaneCorrectionDepESProducer::produce] No Latency Record found " << std::endl;
- 
-  std::string backPlaneCorrectionRecordName;
-  std::string backPlaneCorrectionLabel;
-  	 
-  if (peakMode){
-    backPlaneCorrectionRecordName = getPeak.getParameter<std::string>("record");
-    backPlaneCorrectionLabel = getPeak.getUntrackedParameter<std::string>("label"); 
-  } else {
-    backPlaneCorrectionRecordName = getDeconv.getParameter<std::string>("record");
-    backPlaneCorrectionLabel = getDeconv.getUntrackedParameter<std::string>("label"); 
-  } 
-  
-  if ( backPlaneCorrectionRecordName == "SiStripBackPlaneCorrectionRcd"){
-    edm::ESHandle<SiStripBackPlaneCorrection> siStripBackPlaneCorrection;
-    iRecord.getRecord<SiStripBackPlaneCorrectionRcd>().get(backPlaneCorrectionLabel, siStripBackPlaneCorrection);
-    siStripBPC = std::make_unique<SiStripBackPlaneCorrection>(*(siStripBackPlaneCorrection.product()));
-  } else edm::LogError("SiStripBackPlaneCorrectionDepESProducer") << "[SiStripBackPlaneCorrectionDepESProducer::produce] No Lorentz Angle Record found " << std::endl;
-	 
+  if(latencyToken_.isInitialized()) {
+    const auto& latency = iRecord.get(latencyToken_);
+    if(latency.singleReadOutMode() == 1) {
+      tokenPtr = &backPlaneCorrectionPeakToken_;
+    }
+  }
 
-   return siStripBPC;
-
-  
+  if (tokenPtr->isInitialized()) {
+    // Is this copy really needed? (there is a way to return the very same object)
+    return std::make_unique<SiStripBackPlaneCorrection>(iRecord.get(*tokenPtr));
+  }
+  return nullptr;
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiStripBackPlaneCorrectionDepESProducer);
