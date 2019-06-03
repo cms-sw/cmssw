@@ -185,13 +185,11 @@ std::pair<float,float> L1TriggerNtupleTrackTrigger::propagateToCalo(const math::
                                                                     const math::XYZTLorentzVector& iVtx,
                                                                     double iCharge,
                                                                     double iBField) {
-    BaseParticlePropagator particle = BaseParticlePropagator(RawParticle(iMom,iVtx),0.,0.,iBField);
-    particle.setCharge(iCharge);
-    // particle.propagateToEcalEntrance(false);
-    particle.setPropagationConditions(129.0 , triggerTools_.getLayerZ(1) , false);
-    particle.propagate();
-    double ecalShowerDepth = reco::PFCluster::getDepthCorrection(particle.momentum().E(),false,false);
-    math::XYZVector point = math::XYZVector(particle.vertex())+math::XYZTLorentzVector(particle.momentum()).Vect().Unit()*ecalShowerDepth;
+    BaseParticlePropagator prop = BaseParticlePropagator(RawParticle(iMom,iVtx,iCharge),0.,0.,iBField);
+    prop.setPropagationConditions(129.0 , triggerTools_.getLayerZ(1) , false);
+    prop.propagate();
+    double ecalShowerDepth = reco::PFCluster::getDepthCorrection(prop.particle().momentum().E(),false,false);
+    math::XYZVector point = math::XYZVector(prop.particle().vertex())+math::XYZTLorentzVector(prop.particle().momentum()).Vect().Unit()*ecalShowerDepth;
     // math::XYZVector point  = particle.vertex();
     // math::XYZVector point = math::XYZVector(particle.vertex())+math::XYZTLorentzVector(particle.momentum()).Vect().Unit()*ecalShowerDepth;
     return std::make_pair(point.eta(), point.phi());
