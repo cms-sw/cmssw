@@ -32,7 +32,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/ValueMap.h" 
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -64,18 +64,17 @@
 #include "TVector3.h"
 
 //____________________________________________________________________________||
-class TCMETAlgo 
-{
+class TCMETAlgo {
 public:
   typedef std::vector<const reco::Candidate> InputCollection;
   TCMETAlgo();
   virtual ~TCMETAlgo();
   reco::MET CalculateTCMET(edm::Event& event, const edm::EventSetup& setup);
-  TH2D* getResponseFunction_fit ( );
-  TH2D* getResponseFunction_mode ( );
-  TH2D* getResponseFunction_shower ( );
-  TH2D* getResponseFunction_noshower ( );
-  void configure(const edm::ParameterSet &iConfig, edm::ConsumesCollector && iConsumesCollector);
+  TH2D* getResponseFunction_fit();
+  TH2D* getResponseFunction_mode();
+  TH2D* getResponseFunction_shower();
+  TH2D* getResponseFunction_noshower();
+  void configure(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iConsumesCollector);
 
 private:
   double met_x_;
@@ -109,46 +108,45 @@ private:
   edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > muonDepValueMapToken_;
   edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > tcmetDepValueMapToken_;
 
-
-  bool    usePFClusters_;
-  int     nLayers_;
-  int     nLayersTight_;
-  int     vertexNdof_;
-  double  vertexZ_;
-  double  vertexRho_;
-  double  vertexMaxDZ_;
-  double  maxpt_eta25_;
-  double  maxpt_eta20_;
-  bool    vetoDuplicates_;
-  double  dupMinPt_;
-  double  dupDPhi_;
-  double  dupDCotTh_;
+  bool usePFClusters_;
+  int nLayers_;
+  int nLayersTight_;
+  int vertexNdof_;
+  double vertexZ_;
+  double vertexRho_;
+  double vertexMaxDZ_;
+  double maxpt_eta25_;
+  double maxpt_eta20_;
+  bool vetoDuplicates_;
+  double dupMinPt_;
+  double dupDPhi_;
+  double dupDCotTh_;
   std::vector<int> duplicateTracks_;
 
-  double  d0cuta_;
-  double  d0cutb_;
-  double  maxd0cut_;
-  double  maxchi2_tight_;
-  double  minhits_tight_;
-  double  maxPtErr_tight_;
-  int     nMinOuterHits_;
+  double d0cuta_;
+  double d0cutb_;
+  double maxd0cut_;
+  double maxchi2_tight_;
+  double minhits_tight_;
+  double maxPtErr_tight_;
+  int nMinOuterHits_;
   std::vector<reco::TrackBase::TrackAlgorithm> trackAlgos_;
-  double  usedeltaRRejection_;
-  double  deltaRShower_;
-  double  minpt_;
-  double  maxpt_;
-  double  maxeta_;
-  double  maxchi2_;
-  double  minhits_;
-  double  maxPtErr_;
-  double  radius_;
-  double  zdist_;
-  double  corner_;
-  double  eVetoDeltaR_;
-  double  eVetoDeltaPhi_;
-  double  eVetoDeltaCotTheta_; 
-  double  eVetoMinElectronPt_;
-  double  hOverECut_;
+  double usedeltaRRejection_;
+  double deltaRShower_;
+  double minpt_;
+  double maxpt_;
+  double maxeta_;
+  double maxchi2_;
+  double minhits_;
+  double maxPtErr_;
+  double radius_;
+  double zdist_;
+  double corner_;
+  double eVetoDeltaR_;
+  double eVetoDeltaPhi_;
+  double eVetoDeltaCotTheta_;
+  double eVetoMinElectronPt_;
+  double hOverECut_;
   std::vector<int> trkQuality_;
   std::vector<reco::TrackBase::TrackAlgorithm> trkAlgos_;
 
@@ -158,31 +156,29 @@ private:
   bool usePvtxd0_;
   bool checkTrackPropagation_;
 
-
   class TH2D* response_function_;
   class TH2D* showerRF_;
   bool hasValidVertex_;
-  const reco::VertexCollection *vertexColl_;
+  const reco::VertexCollection* vertexColl_;
 
   bool isMuon(const reco::TrackRef& trackRef);
   bool isElectron(const reco::TrackRef& trackRef);
   bool isGoodTrack(const reco::TrackRef trackRef);
-  bool closeToElectron( const reco::TrackRef );
+  bool closeToElectron(const reco::TrackRef);
   void correctMETforMuon(const reco::TrackRef, reco::MuonRef& muonRef);
   void correctMETforMuon(reco::MuonRef& muonRef);
-  void correctMETforTrack( const reco::TrackRef , TH2D* rf, const TVector3& );
-  void correctSumEtForTrack( const reco::TrackRef , TH2D* rf, const TVector3& );
+  void correctMETforTrack(const reco::TrackRef, TH2D* rf, const TVector3&);
+  void correctSumEtForTrack(const reco::TrackRef, TH2D* rf, const TVector3&);
   class TVector3 propagateTrackToCalorimeterFace(const reco::TrackRef trackRef);
   void findGoodShowerTracks(std::vector<int>& goodShowerTracks);
-  bool nearGoodShowerTrack( const reco::TrackRef , const std::vector<int>& goodShowerTracks );
+  bool nearGoodShowerTrack(const reco::TrackRef, const std::vector<int>& goodShowerTracks);
   int nExpectedInnerHits(const reco::TrackRef);
   int nExpectedOuterHits(const reco::TrackRef);
   int nLayers(const reco::TrackRef);
   bool isValidVertex();
   void findDuplicateTracks();
-  int vetoTrack( int i1 , int i2 );
+  int vetoTrack(int i1, int i2);
 };
 
 //____________________________________________________________________________||
-#endif // TCMETAlgo_h
-
+#endif  // TCMETAlgo_h
