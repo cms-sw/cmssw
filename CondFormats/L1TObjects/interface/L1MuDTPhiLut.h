@@ -33,51 +33,44 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-
 class L1MuDTPhiLut {
+public:
+  /// constructor
+  L1MuDTPhiLut();
 
-  public:
+  /// destructor
+  virtual ~L1MuDTPhiLut();
 
-    /// constructor
-    L1MuDTPhiLut();
+  /// reset phi-assignment look-up tables
+  void reset();
 
-    /// destructor
-    virtual ~L1MuDTPhiLut();
+  /// load phi-assignment look-up tables
+  int load();
 
-    /// reset phi-assignment look-up tables
-    void reset();
-    
-    /// load phi-assignment look-up tables
-    int load();
+  /// print phi-assignment look-up tables
+  void print() const;
 
-    /// print phi-assignment look-up tables
-    void print() const;
+  /// get delta-phi for a given address (bend-angle)
+  int getDeltaPhi(int idx, int address) const;
 
-    /// get delta-phi for a given address (bend-angle)
-    int getDeltaPhi(int idx, int address) const;
+  /// get precision for look-up tables
+  std::pair<unsigned short, unsigned short> getPrecision() const;
 
-    /// get precision for look-up tables
-    std::pair<unsigned short, unsigned short> getPrecision() const;
+private:
+  /// set precision for look-up tables
+  void setPrecision();
 
-  private:
+private:
+  typedef std::map<short, short, std::less<short> > LUT;
 
-    /// set precision for look-up tables
-    void setPrecision();
-      
-  private:
+  std::vector<LUT> phi_lut;
 
-    typedef std::map<short, short, std::less<short> > LUT;
-
-    std::vector<LUT> phi_lut;
-    
-    unsigned short int nbit_phi;
-    unsigned short int nbit_phib;
-    
+  unsigned short int nbit_phi;
+  unsigned short int nbit_phib;
 
   COND_SERIALIZABLE;
 };

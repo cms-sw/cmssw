@@ -13,9 +13,8 @@
 #include <string>
 //-----------------------------------------------------------------------------
 
-class RPCPattern  {
+class RPCPattern {
 public:
-  
   //needed types
   /** \class RPCLogicalStrip
    * Logical Strip for pattern definition. It may be OR of few Logic m_Strips of LogCone
@@ -23,94 +22,92 @@ public:
    * If the pattern is not defined for given plane, the valu of m_StripFrom is m_NOT_CONECTED.
   */
   class RPCLogicalStrip {
-     friend class RPCPattern;
-     private:
-       ///First strip in range.
-       unsigned char m_StripFrom;
-       ///Next-to-last strip in range.
-       unsigned char m_StripTo;
-  
-  COND_SERIALIZABLE;
-};
+    friend class RPCPattern;
 
-    typedef std::vector<RPCPattern> RPCPatVec;
+  private:
+    ///First strip in range.
+    unsigned char m_StripFrom;
+    ///Next-to-last strip in range.
+    unsigned char m_StripTo;
 
-    struct TQuality {
-        unsigned char m_FiredPlanes;
-        char m_QualityTabNumber;
-        char m_QualityValue;
-        char m_logsector;
-        char m_logsegment;
-        signed char m_tower;
-    
     COND_SERIALIZABLE;
-};
+  };
 
-    typedef std::vector<TQuality> TQualityVec;
-	      
-    
+  typedef std::vector<RPCPattern> RPCPatVec;
 
-    // use namespace?   
-    // Moved/duplicated from RPCConst 
-//    enum TPatternType {PAT_TYPE_T, PAT_TYPE_E};
-    typedef char TPatternType;
-    static const TPatternType PAT_TYPE_T = 0;
-    static const TPatternType PAT_TYPE_E = 1;
-    static const int m_LOGPLANES_COUNT = 6;
-    static const int m_FIRST_PLANE = 0;
-    static const int m_LAST_PLANE = 5;
-    static const int m_NOT_CONECTED = 99; 
-  
+  struct TQuality {
+    unsigned char m_FiredPlanes;
+    char m_QualityTabNumber;
+    char m_QualityValue;
+    char m_logsector;
+    char m_logsegment;
+    signed char m_tower;
+
+    COND_SERIALIZABLE;
+  };
+
+  typedef std::vector<TQuality> TQualityVec;
+
+  // use namespace?
+  // Moved/duplicated from RPCConst
+  //    enum TPatternType {PAT_TYPE_T, PAT_TYPE_E};
+  typedef char TPatternType;
+  static const TPatternType PAT_TYPE_T = 0;
+  static const TPatternType PAT_TYPE_E = 1;
+  static const int m_LOGPLANES_COUNT = 6;
+  static const int m_FIRST_PLANE = 0;
+  static const int m_LAST_PLANE = 5;
+  static const int m_NOT_CONECTED = 99;
 
   ///Default Constructor. Empty pattern, no muon, all planes m_NOT_CONECTED
-    RPCPattern();
-    RPCPattern(int tower, int sector, int segment);
+  RPCPattern();
+  RPCPattern(int tower, int sector, int segment);
 
-    void setStripFrom(int logPlane, int stripFrom);
-  
-    void setStripTo(int logPlane, int stripTo);
+  void setStripFrom(int logPlane, int stripFrom);
+
+  void setStripTo(int logPlane, int stripTo);
 
   ///First strip in range.
-    int getStripFrom(int logPlane) const;
+  int getStripFrom(int logPlane) const;
 
   ///Next-to-last strip in range.
-    int getStripTo(int logPlane) const;
+  int getStripTo(int logPlane) const;
 
-    int getTower() const;
-    int getLogSector() const;
-    int getLogSegment() const;
+  int getTower() const;
+  int getLogSector() const;
+  int getLogSegment() const;
 
-    int getCode() const;
+  int getCode() const;
 
-    int getSign() const;
+  int getSign() const;
 
-    int getNumber() const;
+  int getNumber() const;
 
-    TPatternType getPatternType() const;
+  TPatternType getPatternType() const;
 
-    int getRefGroup() const;
+  int getRefGroup() const;
 
-    int getQualityTabNumber() const;
+  int getQualityTabNumber() const;
 
-    void setCoords(int tower, int sector, int segment);
+  void setCoords(int tower, int sector, int segment);
 
-    void setCode(int a);
-  
-    void setSign(int a);
-  
-    void setNumber(int a);
+  void setCode(int a);
 
-    void setPatternType(TPatternType patternType);
+  void setSign(int a);
 
-    void setRefGroup(int refGroup);
+  void setNumber(int a);
 
-    void setQualityTabNumber(int qualityTabNumber);
-  
+  void setPatternType(TPatternType patternType);
+
+  void setRefGroup(int refGroup);
+
+  void setQualityTabNumber(int qualityTabNumber);
+
 private:
-  ///LogicalStrip for every LogPlane. 
+  ///LogicalStrip for every LogPlane.
   RPCLogicalStrip m_Strips[m_LOGPLANES_COUNT];
 
-// coordinates
+  // coordinates
   char m_Tower;
   char m_LogSector;
   char m_LogSegment;
@@ -135,8 +132,6 @@ private:
 
   ///m_Number of pattern in m_PAC's patterns set.
   short m_Number;
-
-
 
   COND_SERIALIZABLE;
 };
