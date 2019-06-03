@@ -14,7 +14,7 @@ TrackFilterForPVFinding::TrackFilterForPVFinding(const edm::ParameterSet& conf)
   std::string qualityClass =
     conf.getParameter<std::string>("trackQuality");
   if (qualityClass == "any" || qualityClass == "Any" ||
-      qualityClass == "ANY" || qualityClass == "") {
+      qualityClass == "ANY" || qualityClass.empty()) {
     quality_ = reco::TrackBase::undefQuality;
   } else {
     quality_ = reco::TrackBase::qualityByName(qualityClass);
