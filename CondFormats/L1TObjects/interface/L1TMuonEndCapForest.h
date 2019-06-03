@@ -13,11 +13,13 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 class L1TMuonEndCapForest {
- public:
-
+public:
   class DTreeNode {
   public:
-    DTreeNode(){splitVar = ileft = iright = 0; splitVal = fitVal = 0.0;}
+    DTreeNode() {
+      splitVar = ileft = iright = 0;
+      splitVal = fitVal = 0.0;
+    }
     int splitVar;
     double splitVal;
     double fitVal;
@@ -29,15 +31,15 @@ class L1TMuonEndCapForest {
   typedef std::vector<DTreeNode> DTree;
   typedef std::vector<DTree> DForest;
   typedef std::vector<DForest> DForestColl;
-  typedef std::map<int,int> DForestMap;
+  typedef std::map<int, int> DForestMap;
 
   unsigned version_;
   DForestColl forest_coll_;
   DForestMap forest_map_;
-  		
-  L1TMuonEndCapForest() { version_=0; }
+
+  L1TMuonEndCapForest() { version_ = 0; }
   ~L1TMuonEndCapForest() {}
-  
+
   COND_SERIALIZABLE;
 };
 #endif
