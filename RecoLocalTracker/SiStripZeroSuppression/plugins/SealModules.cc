@@ -4,5 +4,4 @@
 
 #include "RecoLocalTracker/SiStripZeroSuppression/plugins/SiStripZeroSuppression.h"
 
-
 DEFINE_FWK_MODULE(SiStripZeroSuppression);
