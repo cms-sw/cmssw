@@ -78,8 +78,10 @@ class PFClusterValidation : public DQMEDAnalyzer {
 
   int imc;
   
-  // test function scope
-  double partR, eta_MC, phi_MC;
+  // this acts throught the entire class
+  // no reinitialization required
+  const double partR = 0.3; // dr cutoff
+  double eta_MC, phi_MC = 9999.;
 
   // eta limits to calcualte MET, SET (not to include HF if not needed)
   double etaMax[3];
