@@ -93,7 +93,7 @@ void SiStripHistoTitle::setTitle() {
   if ( channel_ ) { title << channel_; }
   
   // Append extra info
-  if ( extraInfo_ != "" ) { 
+  if ( !extraInfo_.empty() ) { 
     title << sistrip::sep_ << extraInfo_; 
   }
   
@@ -182,7 +182,7 @@ std::ostream& operator<< ( std::ostream& os, const SiStripHistoTitle& title ) {
      << " Granularity    : " << SiStripEnumsAndStrings::granularity( title.granularity() ) << std::endl
      << " Channel        : " << title.channel() << std::endl
      << " ExtraInfo      : ";
-  if ( title.extraInfo() != "" ) { ss << "\"" << title.extraInfo() << "\""; }
+  if ( !title.extraInfo().empty() ) { ss << "\"" << title.extraInfo() << "\""; }
   else { ss << "(none)"; }
   os << ss.str();
   return os;
