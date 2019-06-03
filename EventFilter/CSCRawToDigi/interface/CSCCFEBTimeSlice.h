@@ -1,7 +1,6 @@
 #ifndef CSCCFEBTimeSlice_h
 #define CSCCFEBTimeSlice_h
 
-
 /**
  CFEB Data Stream 
 The ordering of the words in the data stream from a single CFEB is described by the following nested loops: 
@@ -19,7 +18,7 @@ do (N_ts  time samples){
 */
 
 struct CSCCFEBDataWord {
-  unsigned short adcCounts   : 12;
+  unsigned short adcCounts : 12;
   unsigned short adcOverflow : 1;
   /// combined from all 16 strips to make a word
   unsigned short controllerData : 1;
@@ -32,7 +31,7 @@ struct CSCCFEBDataWord {
 };
 
 #include <iostream>
-#include <cstring> //for bzero
+#include <cstring>  //for bzero
 
 struct CSCCFEBSCAControllerWord {
   /**
@@ -40,75 +39,72 @@ TRIG_TIME indicates which of the eight time samples in the 400ns SCA block (lowe
 
   */
   explicit CSCCFEBSCAControllerWord(unsigned short frame);
-  CSCCFEBSCAControllerWord() {bzero(this, 2);}
+  CSCCFEBSCAControllerWord() { bzero(this, 2); }
 
   unsigned short trig_time : 8;
-  unsigned short sca_blk   : 4;
+  unsigned short sca_blk : 4;
   unsigned short l1a_phase : 1;
   unsigned short lct_phase : 1;
-  unsigned short sca_full  : 1;
-  unsigned short ts_flag   : 1;
+  unsigned short sca_full : 1;
+  unsigned short ts_flag : 1;
 };
 
-
-
-
 class CSCCFEBTimeSlice {
- public:
+public:
   CSCCFEBTimeSlice();
 
   /// input from 0 to 95
-  CSCCFEBDataWord * timeSample(int index) const {
-    return (CSCCFEBDataWord *)(theSamples+index);
-  }
+  CSCCFEBDataWord *timeSample(int index) const { return (CSCCFEBDataWord *)(theSamples + index); }
 
   /// layer and element count from one
   // CSCCFEBDataWord * timeSample(int layer, int channel) const;
 
   /// !!! Important change. Use isDCFEB flag in user code to distinguish between CFEB and DCFEB
   /// !!! Use CSCCFEBData::isDCFEB() function to get this flag from CSCCFEBData object
-  CSCCFEBDataWord * timeSample(int layer, int channel, bool isDCFEB=false) const;
+  CSCCFEBDataWord *timeSample(int layer, int channel, bool isDCFEB = false) const;
 
   /// whether we keep 8 or 16 time samples
-  bool sixteenSamples() const {/*return scaControllerWord(1).ts_flag;i*/
-    return timeSample(95)->controllerData;}
-  unsigned sizeInWords() const {return 100;}
-
+  bool sixteenSamples() const { /*return scaControllerWord(1).ts_flag;i*/
+    return timeSample(95)->controllerData;
+  }
+  unsigned sizeInWords() const { return 100; }
 
   /// unpacked from the controller words for each channel in the layer
-  CSCCFEBSCAControllerWord scaControllerWord(int layer) const ;
-  
-  void setControllerWord(const CSCCFEBSCAControllerWord & controllerWord);
+  CSCCFEBSCAControllerWord scaControllerWord(int layer) const;
+
+  void setControllerWord(const CSCCFEBSCAControllerWord &controllerWord);
 
   /// Old CFEB format: dummy word 100 should be 0x7FFF
   /// New CFEB format: the sum of word 97 and 100 should be 0x7FFF (word 100 is inverted word 97)
-  bool check() const {return ((dummy == 0x7FFF)||((dummy+crc)== 0x7FFF));}
+  bool check() const { return ((dummy == 0x7FFF) || ((dummy + crc) == 0x7FFF)); }
 
-  bool checkCRC() const {return crc==calcCRC();}
-  
+  bool checkCRC() const { return crc == calcCRC(); }
+
   unsigned calcCRC() const;
 
   /// =VB= Set calculated CRC value for simulated CFEB Time Slice data
-  void setCRC() { crc=calcCRC(); dummy=0x7FFF-crc;}
+  void setCRC() {
+    crc = calcCRC();
+    dummy = 0x7FFF - crc;
+  }
 
-  friend std::ostream & operator<<(std::ostream & os, const CSCCFEBTimeSlice &);
-
+  friend std::ostream &operator<<(std::ostream &os, const CSCCFEBTimeSlice &);
 
   ///accessors for words 97, 98 and 99
-  unsigned  get_crc()               const {return crc;}
-  unsigned  get_n_free_sca_blocks() const {return n_free_sca_blocks;}
-  unsigned  get_lctpipe_count()     const {return lctpipe_count;}
-  unsigned  get_lctpipe_full()      const {return lctpipe_full;}
-  unsigned  get_l1pipe_full()       const {return l1pipe_full;}
-  unsigned  get_lctpipe_empty()     const {return lctpipe_empty;}
-  unsigned  get_l1pipe_empty()      const {return l1pipe_empty;}
-  unsigned  get_buffer_warning()    const {return buffer_warning;}
-  unsigned  get_buffer_count()      const {return buffer_count;}
-  unsigned  get_L1A_number()        const {return L1A_number;}
+  unsigned get_crc() const { return crc; }
+  unsigned get_n_free_sca_blocks() const { return n_free_sca_blocks; }
+  unsigned get_lctpipe_count() const { return lctpipe_count; }
+  unsigned get_lctpipe_full() const { return lctpipe_full; }
+  unsigned get_l1pipe_full() const { return l1pipe_full; }
+  unsigned get_lctpipe_empty() const { return lctpipe_empty; }
+  unsigned get_l1pipe_empty() const { return l1pipe_empty; }
+  unsigned get_buffer_warning() const { return buffer_warning; }
+  unsigned get_buffer_count() const { return buffer_count; }
+  unsigned get_L1A_number() const { return L1A_number; }
 
-  void 	    set_L1Anumber(unsigned l1a) {L1A_number = l1a & 0x3F;}
+  void set_L1Anumber(unsigned l1a) { L1A_number = l1a & 0x3F; }
 
- private:
+private:
   unsigned short theSamples[96];
 
   /// WORD 97
@@ -117,18 +113,17 @@ class CSCCFEBTimeSlice {
   /// WORD 98
   unsigned n_free_sca_blocks : 4;
   unsigned lctpipe_count : 4;
-  unsigned lctpipe_full  : 1;
-  unsigned l1pipe_full   : 1;
+  unsigned lctpipe_full : 1;
+  unsigned l1pipe_full : 1;
   unsigned lctpipe_empty : 1;
-  unsigned l1pipe_empty  : 1;
+  unsigned l1pipe_empty : 1;
   unsigned blank_space_1 : 4;
-
 
   /// WORD 99
   unsigned buffer_warning : 1;
   unsigned buffer_count : 5;
-  unsigned L1A_number :6;
-  unsigned blank_space_3 : 4; 
+  unsigned L1A_number : 6;
+  unsigned blank_space_3 : 4;
 
   /// WORD 100
   unsigned dummy : 16;

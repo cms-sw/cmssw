@@ -15,7 +15,6 @@
 
 class TrackProducer : public KfTrackProducerBase, public edm::stream::EDProducer<> {
 public:
-
   /// Constructor
   explicit TrackProducer(const edm::ParameterSet& iConfig);
 
@@ -25,17 +24,16 @@ public:
   /// Get Transient Tracks
   std::vector<reco::TransientTrack> getTransient(edm::Event&, const edm::EventSetup&);
 
-//   /// Put produced collections in the event
-//   virtual void putInEvt(edm::Event&,
-// 			std::unique_ptr<TrackingRecHitCollection>&,
-// 			std::unique_ptr<TrackCollection>&,
-// 			std::unique_ptr<reco::TrackExtraCollection>&,
-// 			std::unique_ptr<std::vector<Trajectory> >&,
-// 			AlgoProductCollection&);
+  //   /// Put produced collections in the event
+  //   virtual void putInEvt(edm::Event&,
+  // 			std::unique_ptr<TrackingRecHitCollection>&,
+  // 			std::unique_ptr<TrackCollection>&,
+  // 			std::unique_ptr<reco::TrackExtraCollection>&,
+  // 			std::unique_ptr<std::vector<Trajectory> >&,
+  // 			AlgoProductCollection&);
 
 private:
   TrackProducerAlgorithm<reco::Track> theAlgo;
-
 };
 
 #endif
