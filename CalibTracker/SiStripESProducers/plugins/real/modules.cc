@@ -15,8 +15,5 @@ DEFINE_FWK_EVENTSETUP_MODULE(SiStripGainESProducer);
 typedef SiStripGainESProducerTemplate<SiStripGainSimRcd,SiStripApvGainSimRcd> SiStripGainSimESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(SiStripGainSimESProducer);
 
-#include "CalibTracker/SiStripESProducers/plugins/real/SiStripDelayESProducer.h"
-DEFINE_FWK_EVENTSETUP_MODULE(SiStripDelayESProducer);
-
 #include "CalibTracker/SiStripESProducers/plugins/real/SiStripLorentzAngleDepESProducer.h"
 DEFINE_FWK_EVENTSETUP_MODULE(SiStripLorentzAngleDepESProducer);
