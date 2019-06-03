@@ -51,8 +51,8 @@ class TreeBranch {
     TreeBranch(std::string C, edm::InputTag S, std::string E, std::string O, std::string SE, std::string Mi, std::string Ba) :
       class_(C),src_(S),expr_(E),order_(O), selection_(SE),maxIndexName_(Mi),branchAlias_(Ba){
       branchTitle_= E+" calculated on "+C+" object from "+S.encode();
-      if (O!="") branchTitle_+=" ordered according to "+O;
-      if (SE!="") branchTitle_+=" selecting on "+SE;
+      if (!O.empty()) branchTitle_+=" ordered according to "+O;
+      if (!SE.empty()) branchTitle_+=" selecting on "+SE;
       edm::LogInfo("TreeBranch")<<"the branch with alias: "<<branchAlias_<<" corresponds to: "<<branchTitle_;
     }
 
@@ -152,14 +152,14 @@ public:
         value_->reserve(oH->size());
 
 	StringCutObjectSelector<Object> * selection=nullptr;
-	if (B.selection()!=""){
+	if (!B.selection().empty()){
 	  //std::cout<<"trying to get to a selection"<<std::endl;
 	  selection = new StringCutObjectSelector<Object>(B.selection());
 	  //std::cout<<"got the objet"<<std::endl;
 	}
 	uint i_end=oH->size();
 	//sort things first if requested
-	if (B.order()!=""){
+	if (!B.order().empty()){
 	  StringObjectFunction<Object> order(B.order());
 	  // allocate a vector of pointers (we are using view) to be sorted
 	  std::vector<const Object*> copyToSort(oH->size());

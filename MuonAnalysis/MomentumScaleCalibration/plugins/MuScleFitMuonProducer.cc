@@ -113,7 +113,7 @@ void MuScleFitMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 {
   unsigned long long dbObjectCacheId = iSetup.get<MuScleFitDBobjectRcd>().cacheIdentifier();
   if ( dbObjectCacheId != dbObjectCacheId_ ) {
-    if ( dbObjectLabel_ != "" ) {
+    if ( !dbObjectLabel_.empty() ) {
       iSetup.get<MuScleFitDBobjectRcd>().get(dbObjectLabel_, dbObject_);
     } else {
       iSetup.get<MuScleFitDBobjectRcd>().get(dbObject_);
