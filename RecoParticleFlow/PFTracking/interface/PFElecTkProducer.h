@@ -45,128 +45,112 @@ class ConvBremPFTrackFinder;
 
 #include <unordered_map>
 
-
 class PFElecTkProducer final : public edm::stream::EDProducer<edm::GlobalCache<convbremhelpers::HeavyObjectCache> > {
- public:
-  
-     ///Constructor
+public:
+  ///Constructor
   explicit PFElecTkProducer(const edm::ParameterSet&, const convbremhelpers::HeavyObjectCache*);
 
-
-  static std::unique_ptr<convbremhelpers::HeavyObjectCache> 
-    initializeGlobalCache( const edm::ParameterSet& conf ) {
-       return std::unique_ptr<convbremhelpers::HeavyObjectCache>(new convbremhelpers::HeavyObjectCache(conf));
-   }
-  
-  static void globalEndJob(convbremhelpers::HeavyObjectCache const* ) {
+  static std::unique_ptr<convbremhelpers::HeavyObjectCache> initializeGlobalCache(const edm::ParameterSet& conf) {
+    return std::unique_ptr<convbremhelpers::HeavyObjectCache>(new convbremhelpers::HeavyObjectCache(conf));
   }
 
-     ///Destructor
-     ~PFElecTkProducer() override;
+  static void globalEndJob(convbremhelpers::HeavyObjectCache const*) {}
 
-   private:
-      void beginRun(const edm::Run&,const edm::EventSetup&) override;
-      void endRun(const edm::Run&,const edm::EventSetup&) override;
+  ///Destructor
+  ~PFElecTkProducer() override;
 
-      ///Produce the PFRecTrack collection
-      void produce(edm::Event&, const edm::EventSetup&) override;
+private:
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
-    
-      int FindPfRef(const reco::PFRecTrackCollection & PfRTkColl, 
-		    const reco::GsfTrack&, bool);
-      
+  ///Produce the PFRecTrack collection
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
+  int FindPfRef(const reco::PFRecTrackCollection& PfRTkColl, const reco::GsfTrack&, bool);
 
-      bool applySelection(const reco::GsfTrack&);
-      
-      bool resolveGsfTracks(const std::vector<reco::GsfPFRecTrack> &GsfPFVec,
-			    unsigned int ngsf,
-			    std::vector<unsigned int> &secondaries,
-			    const reco::PFClusterCollection & theEClus);
+  bool applySelection(const reco::GsfTrack&);
 
-      float minTangDist(const reco::GsfPFRecTrack& primGsf,
-			const reco::GsfPFRecTrack& secGsf); 
-      
-      bool isSameEgSC(const reco::ElectronSeed& nSeed,
-		      const reco::ElectronSeed& iSeed,
-		      bool& bothGsfEcalDriven,
-		      float& SCEnergy);
+  bool resolveGsfTracks(const std::vector<reco::GsfPFRecTrack>& GsfPFVec,
+                        unsigned int ngsf,
+                        std::vector<unsigned int>& secondaries,
+                        const reco::PFClusterCollection& theEClus);
 
-      bool isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFRecTrack,
-				       const reco::GsfPFRecTrack& iGsfPFRecTrack,
-				       const reco::ElectronSeed& nSeed,
-				       const reco::ElectronSeed& iSeed,
-				       const reco::PFClusterCollection& theEClus,
-				       bool& bothGsfTrackerDriven,
-				       bool& nEcalDriven,
-				       bool& iEcalDriven,
-				       float& nEnergy,
-				       float& iEnergy);
-      
-      bool isInnerMost(const reco::GsfTrackRef& nGsfTrack,
-		       const reco::GsfTrackRef& iGsfTrack,
-		       bool& sameLayer);
-      
-      bool isInnerMostWithLostHits(const reco::GsfTrackRef& nGsfTrack,
-				   const reco::GsfTrackRef& iGsfTrack,
-				   bool& sameLayer);
-      
-      void createGsfPFRecTrackRef(const edm::OrphanHandle<reco::GsfPFRecTrackCollection>& gsfPfHandle,
-				  std::vector<reco::GsfPFRecTrack>& gsfPFRecTrackPrimary,
-				  const std::map<unsigned int, std::vector<reco::GsfPFRecTrack> >& MapPrimSec);
-	
-      // ----------member data ---------------------------
-      reco::GsfPFRecTrack pftrack_;
-      reco::GsfPFRecTrack secpftrack_;
-      edm::ParameterSet conf_;
-      edm::EDGetTokenT<reco::GsfTrackCollection> gsfTrackLabel_;
-      edm::EDGetTokenT<reco::PFRecTrackCollection> pfTrackLabel_;
-      edm::EDGetTokenT<reco::VertexCollection> primVtxLabel_;
-      edm::EDGetTokenT<reco::PFClusterCollection> pfEcalClusters_;
-      edm::EDGetTokenT<reco::PFDisplacedTrackerVertexCollection>  pfNuclear_;
-      edm::EDGetTokenT<reco::PFConversionCollection> pfConv_;
-      edm::EDGetTokenT<reco::PFV0Collection>  pfV0_;
-      bool useNuclear_;
-      bool useConversions_;
-      bool useV0_;
-      bool applyAngularGsfClean_;
-      double detaCutGsfClean_;
-      double dphiCutGsfClean_;
+  float minTangDist(const reco::GsfPFRecTrack& primGsf, const reco::GsfPFRecTrack& secGsf);
 
-      ///PFTrackTransformer
-      std::unique_ptr<PFTrackTransformer> pfTransformer_;     
-      MultiTrajectoryStateTransform  mtsTransform_;
-      std::unique_ptr<ConvBremPFTrackFinder> convBremFinder_;
+  bool isSameEgSC(const reco::ElectronSeed& nSeed,
+                  const reco::ElectronSeed& iSeed,
+                  bool& bothGsfEcalDriven,
+                  float& SCEnergy);
 
+  bool isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFRecTrack,
+                                   const reco::GsfPFRecTrack& iGsfPFRecTrack,
+                                   const reco::ElectronSeed& nSeed,
+                                   const reco::ElectronSeed& iSeed,
+                                   const reco::PFClusterCollection& theEClus,
+                                   bool& bothGsfTrackerDriven,
+                                   bool& nEcalDriven,
+                                   bool& iEcalDriven,
+                                   float& nEnergy,
+                                   float& iEnergy);
 
-      ///Trajectory of GSfTracks in the event?
-      bool trajinev_;
-      bool modemomentum_;
-      bool applySel_;
-      bool applyGsfClean_;
-      bool useFifthStepForEcalDriven_;
-      bool useFifthStepForTrackDriven_;
-      //   bool useFifthStepSec_;
-      bool debugGsfCleaning_;
-      double SCEne_;
-      double detaGsfSC_;
-      double dphiGsfSC_;
-      double maxPtConvReco_;
-      
-      /// Conv Brem Finder
-      bool useConvBremFinder_;
+  bool isInnerMost(const reco::GsfTrackRef& nGsfTrack, const reco::GsfTrackRef& iGsfTrack, bool& sameLayer);
 
-      double mvaConvBremFinderIDBarrelLowPt_;
-      double mvaConvBremFinderIDBarrelHighPt_;
-      double mvaConvBremFinderIDEndcapsLowPt_;
-      double mvaConvBremFinderIDEndcapsHighPt_;
-      std::string path_mvaWeightFileConvBremBarrelLowPt_;
-      std::string path_mvaWeightFileConvBremBarrelHighPt_;
-      std::string path_mvaWeightFileConvBremEndcapsLowPt_;
-      std::string path_mvaWeightFileConvBremEndcapsHighPt_;
-  
-      // cache for multitrajectory states
-      std::vector<double> gsfInnerMomentumCache_;
+  bool isInnerMostWithLostHits(const reco::GsfTrackRef& nGsfTrack, const reco::GsfTrackRef& iGsfTrack, bool& sameLayer);
 
+  void createGsfPFRecTrackRef(const edm::OrphanHandle<reco::GsfPFRecTrackCollection>& gsfPfHandle,
+                              std::vector<reco::GsfPFRecTrack>& gsfPFRecTrackPrimary,
+                              const std::map<unsigned int, std::vector<reco::GsfPFRecTrack> >& MapPrimSec);
+
+  // ----------member data ---------------------------
+  reco::GsfPFRecTrack pftrack_;
+  reco::GsfPFRecTrack secpftrack_;
+  edm::ParameterSet conf_;
+  edm::EDGetTokenT<reco::GsfTrackCollection> gsfTrackLabel_;
+  edm::EDGetTokenT<reco::PFRecTrackCollection> pfTrackLabel_;
+  edm::EDGetTokenT<reco::VertexCollection> primVtxLabel_;
+  edm::EDGetTokenT<reco::PFClusterCollection> pfEcalClusters_;
+  edm::EDGetTokenT<reco::PFDisplacedTrackerVertexCollection> pfNuclear_;
+  edm::EDGetTokenT<reco::PFConversionCollection> pfConv_;
+  edm::EDGetTokenT<reco::PFV0Collection> pfV0_;
+  bool useNuclear_;
+  bool useConversions_;
+  bool useV0_;
+  bool applyAngularGsfClean_;
+  double detaCutGsfClean_;
+  double dphiCutGsfClean_;
+
+  ///PFTrackTransformer
+  std::unique_ptr<PFTrackTransformer> pfTransformer_;
+  MultiTrajectoryStateTransform mtsTransform_;
+  std::unique_ptr<ConvBremPFTrackFinder> convBremFinder_;
+
+  ///Trajectory of GSfTracks in the event?
+  bool trajinev_;
+  bool modemomentum_;
+  bool applySel_;
+  bool applyGsfClean_;
+  bool useFifthStepForEcalDriven_;
+  bool useFifthStepForTrackDriven_;
+  //   bool useFifthStepSec_;
+  bool debugGsfCleaning_;
+  double SCEne_;
+  double detaGsfSC_;
+  double dphiGsfSC_;
+  double maxPtConvReco_;
+
+  /// Conv Brem Finder
+  bool useConvBremFinder_;
+
+  double mvaConvBremFinderIDBarrelLowPt_;
+  double mvaConvBremFinderIDBarrelHighPt_;
+  double mvaConvBremFinderIDEndcapsLowPt_;
+  double mvaConvBremFinderIDEndcapsHighPt_;
+  std::string path_mvaWeightFileConvBremBarrelLowPt_;
+  std::string path_mvaWeightFileConvBremBarrelHighPt_;
+  std::string path_mvaWeightFileConvBremEndcapsLowPt_;
+  std::string path_mvaWeightFileConvBremEndcapsHighPt_;
+
+  // cache for multitrajectory states
+  std::vector<double> gsfInnerMomentumCache_;
 };
 #endif
