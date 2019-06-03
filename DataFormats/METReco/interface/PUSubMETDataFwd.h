@@ -5,9 +5,8 @@
 
 #include <vector>
 
-namespace reco 
-{
+namespace reco {
   typedef std::vector<reco::PUSubMETCandInfo> PUSubMETCandInfoCollection;
 }
 
-#endif 
+#endif

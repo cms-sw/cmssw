@@ -28,11 +28,10 @@ namespace reco {
 // class definition
 //
 
-class HcalNoiseSummary
-{
-  friend class reco::HcalNoiseInfoProducer; // allows this class to fill the info
+class HcalNoiseSummary {
+  friend class reco::HcalNoiseInfoProducer;  // allows this class to fill the info
 
- public:
+public:
   // constructor
   HcalNoiseSummary();
 
@@ -74,7 +73,7 @@ class HcalNoiseSummary
   // # of hits with E>10 GeV or 25 GeV
   int num10GeVHits(void) const;
   int num25GeVHits(void) const;
-  
+
   // E(2TS), E(10TS), and E(2TS)/E(10TS) for the minimum and maximum E(2TS)/E(10TS) found in an RBX in the event
   // the total energy in the RBX must be > 50 GeV
   float minE2TS(void) const;
@@ -142,19 +141,19 @@ class HcalNoiseSummary
   bool goodJetFoundInLowBVRegion(void) const;
 
   double GetCalibChargeHF(void) const;
-  int    GetCalibCountHF(void)  const;
+  int GetCalibCountHF(void) const;
 
   // Get charge only in TS45
-  int GetCalibCountTS45(void) const;  // get number of HBHE calibration channels
-  int GetCalibgt15CountTS45(void) const; // get number of HBHE calib channels > 15 fC
-  double GetCalibChargeTS45(void) const; // get Calib charge
-  double GetCalibgt15ChargeTS45(void) const; // get charge from all channels gt 15 fC
+  int GetCalibCountTS45(void) const;          // get number of HBHE calibration channels
+  int GetCalibgt15CountTS45(void) const;      // get number of HBHE calib channels > 15 fC
+  double GetCalibChargeTS45(void) const;      // get Calib charge
+  double GetCalibgt15ChargeTS45(void) const;  // get charge from all channels gt 15 fC
 
-  int GetHitsInNonLaserRegion(void) const; // get number of channels in HBHE regions with no laser
-  int GetHitsInLaserRegion(void) const; // get number of channels in HBHE region where laser pulses are seen
-  double GetEnergyInNonLaserRegion(void) const; // get energy in region with no laser
-  double GetEnergyInLaserRegion(void) const; // get energy in non-laser region
-  
+  int GetHitsInNonLaserRegion(void) const;       // get number of channels in HBHE regions with no laser
+  int GetHitsInLaserRegion(void) const;          // get number of channels in HBHE region where laser pulses are seen
+  double GetEnergyInNonLaserRegion(void) const;  // get energy in region with no laser
+  double GetEnergyInLaserRegion(void) const;     // get energy in non-laser region
+
   // reference to problematic jets
   edm::RefVector<reco::CaloJetCollection> problematicJets(void) const;
 
@@ -163,8 +162,7 @@ class HcalNoiseSummary
   edm::RefVector<CaloTowerCollection> tightNoiseTowers(void) const;
   edm::RefVector<CaloTowerCollection> highLevelNoiseTowers(void) const;
 
- private:
-
+private:
   // data members corresponding to the values above
   int filterstatus_, noisetype_;
   float emenergy_, hadenergy_, trackenergy_;
@@ -207,7 +205,7 @@ class HcalNoiseSummary
   double calibChargeTS45_;
   double calibChargegt15TS45_;
 
-  int calibCountHF_; // calibration channels only in HF; no threshold used for determining HF noise
+  int calibCountHF_;  // calibration channels only in HF; no threshold used for determining HF noise
   double calibChargeHF_;
 
   int hitsInLaserRegion_;
