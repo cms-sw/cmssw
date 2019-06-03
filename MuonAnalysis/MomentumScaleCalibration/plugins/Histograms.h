@@ -35,18 +35,13 @@
 
 class Histograms {
 public:
-
   // Constructor
   // -----------
-  Histograms() : theWeight_(1), histoDir_(nullptr) {};
-  Histograms( const TString & name ) : theWeight_(1), name_(name), histoDir_(nullptr) {}
-  Histograms( TFile * outputFile, const TString & name ) :
-    theWeight_(1),
-    name_(name),
-    outputFile_(outputFile),
-    histoDir_( outputFile->GetDirectory(name) )
-  {
-    if( histoDir_ == nullptr ) {
+  Histograms() : theWeight_(1), histoDir_(nullptr){};
+  Histograms(const TString& name) : theWeight_(1), name_(name), histoDir_(nullptr) {}
+  Histograms(TFile* outputFile, const TString& name)
+      : theWeight_(1), name_(name), outputFile_(outputFile), histoDir_(outputFile->GetDirectory(name)) {
+    if (histoDir_ == nullptr) {
       histoDir_ = outputFile->mkdir(name);
     }
     histoDir_->cd();
@@ -54,98 +49,115 @@ public:
 
   // Destructor
   // ----------
-  virtual ~Histograms() {};
+  virtual ~Histograms(){};
 
   // Operations
   // ----------
   //   virtual void Fill( const reco::Particle::LorentzVector & p4 ) {};
   //   virtual void Fill( const CLHEP::HepLorentzVector & momentum ) {};
-  virtual void Fill( const reco::Particle::LorentzVector & p1, const reco::Particle::LorentzVector & p2 ) {};
-  virtual void Fill( const reco::Particle::LorentzVector & p1, const reco::Particle::LorentzVector & p2, const int charge, const double & weight = 1.) {};
-  virtual void Fill( const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2 ) {};
-  virtual void Fill( const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2, const int charge, const double & weight = 1.) {};
-  virtual void Fill( const CLHEP::HepLorentzVector & p1, const reco::Particle::LorentzVector & p2 ) {};
-  virtual void Fill( const reco::Particle::LorentzVector & p4, const double & weight = 1. ) {};
+  virtual void Fill(const reco::Particle::LorentzVector& p1, const reco::Particle::LorentzVector& p2){};
+  virtual void Fill(const reco::Particle::LorentzVector& p1,
+                    const reco::Particle::LorentzVector& p2,
+                    const int charge,
+                    const double& weight = 1.){};
+  virtual void Fill(const CLHEP::HepLorentzVector& momentum1, const CLHEP::HepLorentzVector& momentum2){};
+  virtual void Fill(const CLHEP::HepLorentzVector& momentum1,
+                    const CLHEP::HepLorentzVector& momentum2,
+                    const int charge,
+                    const double& weight = 1.){};
+  virtual void Fill(const CLHEP::HepLorentzVector& p1, const reco::Particle::LorentzVector& p2){};
+  virtual void Fill(const reco::Particle::LorentzVector& p4, const double& weight = 1.){};
 
   //virtual void Fill( const CLHEP::HepLorentzVector & momentum, const double & weight ) {};
   //------
-  virtual void Fill( const reco::Particle::LorentzVector & p4, const int charge, const double & weight = 1. ) {};
+  virtual void Fill(const reco::Particle::LorentzVector& p4, const int charge, const double& weight = 1.){};
 
-  virtual void Fill( const CLHEP::HepLorentzVector & momentum, const int charge, const double & weight =1.){};
+  virtual void Fill(const CLHEP::HepLorentzVector& momentum, const int charge, const double& weight = 1.){};
   //------
   // virtual void Fill( const reco::Particle::LorentzVector & p4, const double & likeValue ) {};
-  virtual void Fill( const reco::Particle::LorentzVector & p4, const double & resValue, const int charge ) {};
-  virtual void Fill( const reco::Particle::LorentzVector & p4, const double & genValue, const double recValue, const int charge ) {};
-  virtual void Fill( const CLHEP::HepLorentzVector & p, const double & likeValue ) {};
-  virtual void Fill( const unsigned int number ) {};
-  virtual void Fill( const reco::Particle::LorentzVector & recoP1, const int charge1,
-                     const reco::Particle::LorentzVector & genP1,
-                     const reco::Particle::LorentzVector & recoP2, const int charge2,
-                     const reco::Particle::LorentzVector & genP2,
-                     const double & recoMass, const double & genMass ) {};
-  virtual void Fill( const reco::Particle::LorentzVector & recoP1, const int charge1,
-                     // const reco::Particle::LorentzVector & genP1,
-                     const reco::Particle::LorentzVector & recoP2, const int charge2,
-                     // const reco::Particle::LorentzVector & genP2,
-                     const double & recoMass, const double & genMass ) {};
-  virtual void Fill( const reco::Particle::LorentzVector & recoP1,
-                     const reco::Particle::LorentzVector & genP1,
-                     const reco::Particle::LorentzVector & recoP2,
-                     const reco::Particle::LorentzVector & genP2 ) {};
-  virtual void Fill( const double & x, const double & y ) {};
-  virtual void Fill( const double & x, const double & y, const double & a, const double & b ) {};
-  virtual void Fill(const reco::Particle::LorentzVector & p41,
-		    const reco::Particle::LorentzVector & p42,
-		    const reco::Particle::LorentzVector & p4Res,
-		    const double & weight = 1.) {};
-  virtual void Fill(const CLHEP::HepLorentzVector & momentum1,
-		    const CLHEP::HepLorentzVector & momentum2,
-		    const CLHEP::HepLorentzVector & momentumRes,
-		    const double & weight = 1.) {};
+  virtual void Fill(const reco::Particle::LorentzVector& p4, const double& resValue, const int charge){};
+  virtual void Fill(const reco::Particle::LorentzVector& p4,
+                    const double& genValue,
+                    const double recValue,
+                    const int charge){};
+  virtual void Fill(const CLHEP::HepLorentzVector& p, const double& likeValue){};
+  virtual void Fill(const unsigned int number){};
+  virtual void Fill(const reco::Particle::LorentzVector& recoP1,
+                    const int charge1,
+                    const reco::Particle::LorentzVector& genP1,
+                    const reco::Particle::LorentzVector& recoP2,
+                    const int charge2,
+                    const reco::Particle::LorentzVector& genP2,
+                    const double& recoMass,
+                    const double& genMass){};
+  virtual void Fill(const reco::Particle::LorentzVector& recoP1,
+                    const int charge1,
+                    // const reco::Particle::LorentzVector & genP1,
+                    const reco::Particle::LorentzVector& recoP2,
+                    const int charge2,
+                    // const reco::Particle::LorentzVector & genP2,
+                    const double& recoMass,
+                    const double& genMass){};
+  virtual void Fill(const reco::Particle::LorentzVector& recoP1,
+                    const reco::Particle::LorentzVector& genP1,
+                    const reco::Particle::LorentzVector& recoP2,
+                    const reco::Particle::LorentzVector& genP2){};
+  virtual void Fill(const double& x, const double& y){};
+  virtual void Fill(const double& x, const double& y, const double& a, const double& b){};
+  virtual void Fill(const reco::Particle::LorentzVector& p41,
+                    const reco::Particle::LorentzVector& p42,
+                    const reco::Particle::LorentzVector& p4Res,
+                    const double& weight = 1.){};
+  virtual void Fill(const CLHEP::HepLorentzVector& momentum1,
+                    const CLHEP::HepLorentzVector& momentum2,
+                    const CLHEP::HepLorentzVector& momentumRes,
+                    const double& weight = 1.){};
 
-
-  virtual double Get( const reco::Particle::LorentzVector & recoP1, const TString & covarianceName ) { return 0.; };
+  virtual double Get(const reco::Particle::LorentzVector& recoP1, const TString& covarianceName) { return 0.; };
 
   virtual void Write() = 0;
   virtual void Clear() = 0;
 
-  virtual void SetWeight (double weight) {
-    theWeight_ = weight;
-  }
+  virtual void SetWeight(double weight) { theWeight_ = weight; }
 
-  virtual TString GetName() {
-    return name_;
-  }
+  virtual TString GetName() { return name_; }
 
 protected:
   double theWeight_;
   TString name_;
-  TFile * outputFile_;
-  TDirectory * histoDir_;
+  TFile* outputFile_;
+  TDirectory* histoDir_;
 
 private:
-
 };
 
 /// A wrapper for the TH2D histogram to allow it to be put inside the same map as all the other classes in this file
-class HTH2D : public Histograms
-{
+class HTH2D : public Histograms {
 public:
-  HTH2D( TFile * outputFile, const TString & name, const TString & title, const TString & dirName,
-         const int xBins, const double & xMin, const double & xMax,
-         const int yBins, const double & yMin, const double & yMax ) : Histograms(outputFile, dirName),
-                                                                       tH2d_( new TH2D(name, title, xBins, xMin, xMax, yBins, yMin, yMax) ),
-                                                                       tProfile_( new TProfile(name+"Prof", title+" profile", xBins, xMin, xMax, yMin, yMax) ) {}
+  HTH2D(TFile* outputFile,
+        const TString& name,
+        const TString& title,
+        const TString& dirName,
+        const int xBins,
+        const double& xMin,
+        const double& xMax,
+        const int yBins,
+        const double& yMin,
+        const double& yMax)
+      : Histograms(outputFile, dirName),
+        tH2d_(new TH2D(name, title, xBins, xMin, xMax, yBins, yMin, yMax)),
+        tProfile_(new TProfile(name + "Prof", title + " profile", xBins, xMin, xMax, yMin, yMax)) {}
   ~HTH2D() override {
     delete tH2d_;
     delete tProfile_;
   }
-  void Fill( const double & x, const double & y ) override {
-    tH2d_->Fill(x,y);
-    tProfile_->Fill(x,y);
+  void Fill(const double& x, const double& y) override {
+    tH2d_->Fill(x, y);
+    tProfile_->Fill(x, y);
   }
   void Write() override {
-    if(histoDir_ != nullptr) histoDir_->cd();
+    if (histoDir_ != nullptr)
+      histoDir_->cd();
     tH2d_->Write();
     tProfile_->Write();
   }
@@ -153,169 +165,159 @@ public:
     tH2d_->Clear();
     tProfile_->Clear();
   }
-  virtual void SetXTitle(const TString & title) {
+  virtual void SetXTitle(const TString& title) {
     tH2d_->GetXaxis()->SetTitle(title);
     tProfile_->GetXaxis()->SetTitle(title);
   }
-  virtual void SetYTitle(const TString & title) {
+  virtual void SetYTitle(const TString& title) {
     tH2d_->GetYaxis()->SetTitle(title);
     tProfile_->GetYaxis()->SetTitle(title);
   }
-  TH2D * operator->() { return tH2d_; }
-  TProfile * getProfile() { return tProfile_; }
+  TH2D* operator->() { return tH2d_; }
+  TProfile* getProfile() { return tProfile_; }
+
 protected:
-  TH2D * tH2d_;
-  TProfile * tProfile_;
+  TH2D* tH2d_;
+  TProfile* tProfile_;
 };
 
 /// A wrapper for the TH1D histogram to allow it to be put inside the same map as all the other classes in this file
-class HTH1D : public Histograms
-{
+class HTH1D : public Histograms {
 public:
-  HTH1D( TFile * outputFile, const TString & name, const TString & title,
-         const int xBins, const double & xMin, const double & xMax ) : Histograms(outputFile, name),
-                                                                       tH1D_( new TH1D(name, title, xBins, xMin, xMax) ) {}
-  ~HTH1D() override {
-    delete tH1D_;
-  }
-  void Fill( const double & x, const double & y ) override {
-    tH1D_->Fill(x, y);
-  }
+  HTH1D(TFile* outputFile,
+        const TString& name,
+        const TString& title,
+        const int xBins,
+        const double& xMin,
+        const double& xMax)
+      : Histograms(outputFile, name), tH1D_(new TH1D(name, title, xBins, xMin, xMax)) {}
+  ~HTH1D() override { delete tH1D_; }
+  void Fill(const double& x, const double& y) override { tH1D_->Fill(x, y); }
   void Write() override {
-    if(histoDir_ != nullptr) histoDir_->cd();
+    if (histoDir_ != nullptr)
+      histoDir_->cd();
     tH1D_->Write();
   }
-  void Clear() override {
-    tH1D_->Clear();
-  }
-  virtual void SetXTitle(const TString & title) {
-    tH1D_->GetXaxis()->SetTitle(title);
-  }
-  virtual void SetYTitle(const TString & title) {
-    tH1D_->GetYaxis()->SetTitle(title);
-  }
-  TH1D * operator->() { return tH1D_; }
+  void Clear() override { tH1D_->Clear(); }
+  virtual void SetXTitle(const TString& title) { tH1D_->GetXaxis()->SetTitle(title); }
+  virtual void SetYTitle(const TString& title) { tH1D_->GetYaxis()->SetTitle(title); }
+  TH1D* operator->() { return tH1D_; }
+
 protected:
-  TH1D * tH1D_;
+  TH1D* tH1D_;
 };
 
 /// A wrapper for the TProfile histogram to allow it to be put inside the same map as all the other classes in this file
-class HTProfile : public Histograms
-{
+class HTProfile : public Histograms {
 public:
-  HTProfile( TFile * outputFile, const TString & name, const TString & title,
-             const int xBins, const double & xMin, const double & xMax,
-             const double & yMin, const double & yMax ) : Histograms(outputFile, name),
-                                                          tProfile_( new TProfile(name+"Prof", title+" profile", xBins, xMin, xMax, yMin, yMax) ) {}
-  ~HTProfile() override {
-    delete tProfile_;
-  }
-  void Fill( const double & x, const double & y ) override {
-    tProfile_->Fill(x,y);
-  }
+  HTProfile(TFile* outputFile,
+            const TString& name,
+            const TString& title,
+            const int xBins,
+            const double& xMin,
+            const double& xMax,
+            const double& yMin,
+            const double& yMax)
+      : Histograms(outputFile, name),
+        tProfile_(new TProfile(name + "Prof", title + " profile", xBins, xMin, xMax, yMin, yMax)) {}
+  ~HTProfile() override { delete tProfile_; }
+  void Fill(const double& x, const double& y) override { tProfile_->Fill(x, y); }
   void Write() override {
-    if(histoDir_ != nullptr) histoDir_->cd();
+    if (histoDir_ != nullptr)
+      histoDir_->cd();
     tProfile_->Write();
   }
-  void Clear() override {
-    tProfile_->Clear();
-  }
-  virtual void SetXTitle(const TString & title) {
-    tProfile_->GetXaxis()->SetTitle(title);
-  }
-  virtual void SetYTitle(const TString & title) {
-    tProfile_->GetYaxis()->SetTitle(title);
-  }
-  TProfile * operator->() { return tProfile_; }
+  void Clear() override { tProfile_->Clear(); }
+  virtual void SetXTitle(const TString& title) { tProfile_->GetXaxis()->SetTitle(title); }
+  virtual void SetYTitle(const TString& title) { tProfile_->GetYaxis()->SetTitle(title); }
+  TProfile* operator->() { return tProfile_; }
+
 protected:
-  TProfile * tProfile_;
+  TProfile* tProfile_;
 };
 
 // -----------------------------------------------------
 // A set of histograms of particle kinematical variables
 // -----------------------------------------------------
 class HParticle : public Histograms {
- public:
-  HParticle( const TString & name, const double & minMass = 0., const double & maxMass = 200., const double & maxPt = 100. ) :
-    Histograms(name),
-    // Kinematical variables
-    hPt_(      new TH1F (name+"_Pt",      "transverse momentum", 100, 0, maxPt) ),
-    hPtVsEta_( new TH2F (name+"_PtVsEta", "transverse momentum vs #eta", 100, 0, maxPt, 100, -3.0, 3.0) ),
-   
-    hCurvVsEtaNeg_( new TProfile(name+"_CurvVsEtaNeg", "q/pT vs #eta neg.", 64, -3.2, 3.2, -1., 0.) ),
-    hCurvVsEtaPos_( new TProfile(name+"_CurvVsEtaPos", "q/pT vs #eta pos.", 64, -3.2, 3.2,  0., 1.) ),
-    hCurvVsPhiNeg_( new TProfile(name+"_CurvVsPhiNeg", "q/pT vs #phi neg.", 32, -3.2, 3.2, -1., 0.) ),
-    hCurvVsPhiPos_( new TProfile(name+"_CurvVsPhiPos", "q/pT vs #phi pos.", 32, -3.2, 3.2,  0., 1.) ),
+public:
+  HParticle(const TString& name, const double& minMass = 0., const double& maxMass = 200., const double& maxPt = 100.)
+      : Histograms(name),
+        // Kinematical variables
+        hPt_(new TH1F(name + "_Pt", "transverse momentum", 100, 0, maxPt)),
+        hPtVsEta_(new TH2F(name + "_PtVsEta", "transverse momentum vs #eta", 100, 0, maxPt, 100, -3.0, 3.0)),
 
-    hPtVsPhiNeg_( new TProfile(name+"_PtVsPhiNeg", "pT vs #phi neg.", 32, -3.2, 3.2, 0.,100) ),
-    hPtVsPhiPos_( new TProfile(name+"_PtVsPhiPos", "pT vs #phi pos.", 32, -3.2, 3.2, 0.,100) ),
+        hCurvVsEtaNeg_(new TProfile(name + "_CurvVsEtaNeg", "q/pT vs #eta neg.", 64, -3.2, 3.2, -1., 0.)),
+        hCurvVsEtaPos_(new TProfile(name + "_CurvVsEtaPos", "q/pT vs #eta pos.", 64, -3.2, 3.2, 0., 1.)),
+        hCurvVsPhiNeg_(new TProfile(name + "_CurvVsPhiNeg", "q/pT vs #phi neg.", 32, -3.2, 3.2, -1., 0.)),
+        hCurvVsPhiPos_(new TProfile(name + "_CurvVsPhiPos", "q/pT vs #phi pos.", 32, -3.2, 3.2, 0., 1.)),
 
-    
-    hEta_(     new TH1F (name+"_Eta",     "pseudorapidity", 64, -3.2, 3.2) ),
-    hPhi_(     new TH1F (name+"_Phi",     "phi angle",      64, -3.2, 3.2) ),
-    hMass_(    new TH1F (name+"_Mass",    "mass", 10000, minMass, maxMass) ),
-    hNumber_( new TH1F (name+"_Number", "number", 20, -0.5, 19.5) )
-  {}
+        hPtVsPhiNeg_(new TProfile(name + "_PtVsPhiNeg", "pT vs #phi neg.", 32, -3.2, 3.2, 0., 100)),
+        hPtVsPhiPos_(new TProfile(name + "_PtVsPhiPos", "pT vs #phi pos.", 32, -3.2, 3.2, 0., 100)),
+
+        hEta_(new TH1F(name + "_Eta", "pseudorapidity", 64, -3.2, 3.2)),
+        hPhi_(new TH1F(name + "_Phi", "phi angle", 64, -3.2, 3.2)),
+        hMass_(new TH1F(name + "_Mass", "mass", 10000, minMass, maxMass)),
+        hNumber_(new TH1F(name + "_Number", "number", 20, -0.5, 19.5)) {}
 
   /// Constructor that puts the histograms inside a TDirectory
-  HParticle( TFile* outputFile, const TString & name, const double & minMass = 0., const double & maxMass = 200., const double & maxPt = 100. ) :
-    Histograms(outputFile, name)
-  {
+  HParticle(TFile* outputFile,
+            const TString& name,
+            const double& minMass = 0.,
+            const double& maxMass = 200.,
+            const double& maxPt = 100.)
+      : Histograms(outputFile, name) {
     // Kinematical variables
-    hPt_ =      new TH1F (name+"_Pt", "transverse momentum", 100, 0, maxPt);
-    hPtVsEta_ = new TH2F (name+"_PtVsEta", "transverse momentum vs #eta", 100, 0, maxPt, 100, -3.0, 3.0);
-    
-    hPtVsEta_ = new TH2F (name+"_PtVsEta", "transverse momentum vs #eta", 100, 0, maxPt, 100, -3.0, 3.0);
-   
-    hCurvVsEtaNeg_ = new TProfile(name+"_CurvVsEtaNeg", "q/pT vs #eta neg.", 100, -3.0, 3.0, -1. ,0.);
-    hCurvVsEtaPos_ = new TProfile(name+"_CurvVsEtaPos", "q/pT vs #eta pos.", 100, -3.0, 3.0, 0., 1.);
-    hCurvVsPhiNeg_ = new TProfile(name+"_CurvVsPhiNeg", "q/pT vs #phi neg.", 32, -3.2, 3.2, -1. ,0.);
-    hCurvVsPhiPos_ = new TProfile(name+"_CurvVsPhiPos", "q/pT vs #phi pos.", 32, -3.2, 3.2, 0., 1.);
+    hPt_ = new TH1F(name + "_Pt", "transverse momentum", 100, 0, maxPt);
+    hPtVsEta_ = new TH2F(name + "_PtVsEta", "transverse momentum vs #eta", 100, 0, maxPt, 100, -3.0, 3.0);
 
-    hPtVsPhiNeg_ = new TProfile(name+"_PtVsPhiNeg", "pT vs #phi neg.", 32, -3.2, 3.2, 0.,100);
-    hPtVsPhiPos_ = new TProfile(name+"_PtVsPhiPos", "pT vs #phi pos.", 32, -3.2, 3.2, 0.,100);
+    hPtVsEta_ = new TH2F(name + "_PtVsEta", "transverse momentum vs #eta", 100, 0, maxPt, 100, -3.0, 3.0);
 
+    hCurvVsEtaNeg_ = new TProfile(name + "_CurvVsEtaNeg", "q/pT vs #eta neg.", 100, -3.0, 3.0, -1., 0.);
+    hCurvVsEtaPos_ = new TProfile(name + "_CurvVsEtaPos", "q/pT vs #eta pos.", 100, -3.0, 3.0, 0., 1.);
+    hCurvVsPhiNeg_ = new TProfile(name + "_CurvVsPhiNeg", "q/pT vs #phi neg.", 32, -3.2, 3.2, -1., 0.);
+    hCurvVsPhiPos_ = new TProfile(name + "_CurvVsPhiPos", "q/pT vs #phi pos.", 32, -3.2, 3.2, 0., 1.);
+
+    hPtVsPhiNeg_ = new TProfile(name + "_PtVsPhiNeg", "pT vs #phi neg.", 32, -3.2, 3.2, 0., 100);
+    hPtVsPhiPos_ = new TProfile(name + "_PtVsPhiPos", "pT vs #phi pos.", 32, -3.2, 3.2, 0., 100);
 
     //hPtVSPhi_prof_ = new TProfile (name+"_PtVSPhi_prof", "pt vs phi angle",12, -3.2, 3.2, 0, 200);
 
-    hEta_ =     new TH1F (name+"_Eta", "pseudorapidity", 64, -3.2, 3.2);
-    hPhi_ =     new TH1F (name+"_Phi", "phi angle",      64, -3.2, 3.2);
-    hMass_ =    new TH1F (name+"_Mass", "mass", 40000, minMass, maxMass);
-    hNumber_ = new TH1F (name+"_Number", "number", 20, -0.5, 19.5);
+    hEta_ = new TH1F(name + "_Eta", "pseudorapidity", 64, -3.2, 3.2);
+    hPhi_ = new TH1F(name + "_Phi", "phi angle", 64, -3.2, 3.2);
+    hMass_ = new TH1F(name + "_Mass", "mass", 40000, minMass, maxMass);
+    hNumber_ = new TH1F(name + "_Number", "number", 20, -0.5, 19.5);
   }
 
-  HParticle( const TString & name, TFile* file ) :
-    Histograms(name),
-    hPt_(      (TH1F *) file->Get(name_+"_Pt") ),
-    hPtVsEta_( (TH2F *) file->Get(name_+"_PtVsEta") ),
+  HParticle(const TString& name, TFile* file)
+      : Histograms(name),
+        hPt_((TH1F*)file->Get(name_ + "_Pt")),
+        hPtVsEta_((TH2F*)file->Get(name_ + "_PtVsEta")),
 
-   
-    hCurvVsEtaNeg_( (TProfile *) file->Get(name_+"_CurvVsEtaNeg") ),   
-    hCurvVsEtaPos_( (TProfile *) file->Get(name_+"_CurvVsEtaPos") ),
-    hCurvVsPhiNeg_( (TProfile *) file->Get(name_+"_CurvVsPhiNeg") ),   
-    hCurvVsPhiPos_( (TProfile *) file->Get(name_+"_CurvVsPhiPos") ),
+        hCurvVsEtaNeg_((TProfile*)file->Get(name_ + "_CurvVsEtaNeg")),
+        hCurvVsEtaPos_((TProfile*)file->Get(name_ + "_CurvVsEtaPos")),
+        hCurvVsPhiNeg_((TProfile*)file->Get(name_ + "_CurvVsPhiNeg")),
+        hCurvVsPhiPos_((TProfile*)file->Get(name_ + "_CurvVsPhiPos")),
 
-    hPtVsPhiNeg_( (TProfile *) file->Get(name_+"_PtVsPhiNeg") ),   
-    hPtVsPhiPos_( (TProfile *) file->Get(name_+"_PtVsPhiPos") ),
+        hPtVsPhiNeg_((TProfile*)file->Get(name_ + "_PtVsPhiNeg")),
+        hPtVsPhiPos_((TProfile*)file->Get(name_ + "_PtVsPhiPos")),
 
-    hEta_(     (TH1F *) file->Get(name_+"_Eta") ),
-    hPhi_(     (TH1F *) file->Get(name_+"_Phi") ),
-    hMass_(    (TH1F *) file->Get(name_+"_Mass") ),
-    //hMass_fine_ = (TH1F *) file->Get(name_+"_Mass_fine");
-    hNumber_( (TH1F *) file->Get(name_+"_Number") )
-  {}
+        hEta_((TH1F*)file->Get(name_ + "_Eta")),
+        hPhi_((TH1F*)file->Get(name_ + "_Phi")),
+        hMass_((TH1F*)file->Get(name_ + "_Mass")),
+        //hMass_fine_ = (TH1F *) file->Get(name_+"_Mass_fine");
+        hNumber_((TH1F*)file->Get(name_ + "_Number")) {}
 
-  ~HParticle() override
-  {
+  ~HParticle() override {
     delete hPt_;
     delete hPtVsEta_;
 
-    delete hCurvVsEtaNeg_; 
+    delete hCurvVsEtaNeg_;
     delete hCurvVsEtaPos_;
-    delete hCurvVsPhiNeg_; 
+    delete hCurvVsPhiNeg_;
     delete hCurvVsPhiPos_;
 
-    delete hPtVsPhiNeg_; 
+    delete hPtVsPhiNeg_;
     delete hPtVsPhiPos_;
 
     delete hEta_;
@@ -325,24 +327,28 @@ class HParticle : public Histograms {
     delete hNumber_;
   }
 
-  void Fill( const reco::Particle::LorentzVector & p4, const int charge, const double & weight = 1. ) override
-  {
-    Fill(CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()),charge, weight);
+  void Fill(const reco::Particle::LorentzVector& p4, const int charge, const double& weight = 1.) override {
+    Fill(CLHEP::HepLorentzVector(p4.x(), p4.y(), p4.z(), p4.t()), charge, weight);
   }
 
-  void Fill( const CLHEP::HepLorentzVector & momentum, const int charge, const double & weight =1.) override
-  {
+  void Fill(const CLHEP::HepLorentzVector& momentum, const int charge, const double& weight = 1.) override {
     hPt_->Fill(momentum.perp(), weight);
     hPtVsEta_->Fill(momentum.perp(), momentum.eta(), weight);
-   
-    //   std::cout<< "charge-> " <<charge<<std::endl;
-    if(charge<0)hCurvVsEtaNeg_->Fill( momentum.eta(),charge/(momentum.perp()),weight);     
-    if(charge>0)hCurvVsEtaPos_->Fill( momentum.eta(),charge/(momentum.perp()),weight);
-    if(charge<0)hCurvVsPhiNeg_->Fill( momentum.phi(),charge/(momentum.perp()),weight);     
-    if(charge>0)hCurvVsPhiPos_->Fill( momentum.phi(),charge/(momentum.perp()),weight);
 
-    if(charge<0)hPtVsPhiNeg_->Fill( momentum.phi(),momentum.perp(),weight);     
-    if(charge>0)hPtVsPhiPos_->Fill( momentum.phi(),momentum.perp(),weight);
+    //   std::cout<< "charge-> " <<charge<<std::endl;
+    if (charge < 0)
+      hCurvVsEtaNeg_->Fill(momentum.eta(), charge / (momentum.perp()), weight);
+    if (charge > 0)
+      hCurvVsEtaPos_->Fill(momentum.eta(), charge / (momentum.perp()), weight);
+    if (charge < 0)
+      hCurvVsPhiNeg_->Fill(momentum.phi(), charge / (momentum.perp()), weight);
+    if (charge > 0)
+      hCurvVsPhiPos_->Fill(momentum.phi(), charge / (momentum.perp()), weight);
+
+    if (charge < 0)
+      hPtVsPhiNeg_->Fill(momentum.phi(), momentum.perp(), weight);
+    if (charge > 0)
+      hPtVsPhiPos_->Fill(momentum.phi(), momentum.perp(), weight);
 
     hEta_->Fill(momentum.eta(), weight);
     hPhi_->Fill(momentum.phi(), weight);
@@ -350,19 +356,14 @@ class HParticle : public Histograms {
     //hMass_fine_->Fill(momentum.m(), weight);
   }
 
+  void Fill(unsigned int number) override { hNumber_->Fill(number); }
 
-  
-  void Fill( unsigned int number ) override
-  {
-    hNumber_->Fill(number);
-  }
-
-  void Write() override
-  {
-    if(histoDir_ != nullptr) histoDir_->cd();
+  void Write() override {
+    if (histoDir_ != nullptr)
+      histoDir_->cd();
     hPt_->Write();
     hPtVsEta_->Write();
-   
+
     hCurvVsEtaNeg_->Write();
     hCurvVsEtaPos_->Write();
     hCurvVsPhiNeg_->Write();
@@ -371,43 +372,42 @@ class HParticle : public Histograms {
     hPtVsPhiNeg_->Write();
     hPtVsPhiPos_->Write();
 
-    hEta_->Write();    
+    hEta_->Write();
     hPhi_->Write();
     hMass_->Write();
     //hMass_fine_->Write();
     hNumber_->Write();
   }
-  
-  void Clear() override
-  {
+
+  void Clear() override {
     hPt_->Clear();
     hPtVsEta_->Clear();
-    
+
     hCurvVsEtaNeg_->Clear();
     hCurvVsEtaPos_->Clear();
     hCurvVsPhiNeg_->Clear();
     hCurvVsPhiPos_->Clear();
-    
+
     hPtVsPhiNeg_->Clear();
     hPtVsPhiPos_->Clear();
 
-    hEta_->Clear();    
+    hEta_->Clear();
     hPhi_->Clear();
     hMass_->Clear();
     //hMass_fine_->Clear();
     hNumber_->Clear();
   }
 
- protected:
+protected:
   TH1F* hPt_;
   TH2F* hPtVsEta_;
- 
-  TProfile* hCurvVsEtaNeg_; 
+
+  TProfile* hCurvVsEtaNeg_;
   TProfile* hCurvVsEtaPos_;
-  TProfile* hCurvVsPhiNeg_; 
+  TProfile* hCurvVsPhiNeg_;
   TProfile* hCurvVsPhiPos_;
-  
-  TProfile* hPtVsPhiNeg_; 
+
+  TProfile* hPtVsPhiNeg_;
   TProfile* hPtVsPhiPos_;
 
   TH1F* hEta_;
@@ -420,42 +420,39 @@ class HParticle : public Histograms {
 // ---------------------------------------------------
 // A set of histograms for distances between particles
 // ---------------------------------------------------
-class HDelta : public Histograms
-{
- public:
-  HDelta (const TString & name) :
-    Histograms(name),
-    // Kinematical variables
-    // ---------------------
-    hEta_( new TH1F (name+"_DeltaEta", "#Delta#eta", 100, 0, 6) ),
-    hEtaSign_( new TH1F (name+"_DeltaEtaSign", "#Delta#eta with sign", 100, -6, 6) ),
-    hPhi_( new TH1F (name+"_DeltaPhi", "#Delta#phi", 100,0,3.2) ),
-    hTheta_( new TH1F (name+"_DeltaTheta", "#Delta#theta", 100,-3.2,3.2) ),
-    hCotgTheta_( new TH1F (name+"_DeltaCotgTheta", "#Delta Cotg(#theta )", 100,-3.2,3.2) ),
-    hDeltaR_( new TH1F (name+"_DeltaR","#Delta R", 400, 0, 4 ) )
-  {}
+class HDelta : public Histograms {
+public:
+  HDelta(const TString& name)
+      : Histograms(name),
+        // Kinematical variables
+        // ---------------------
+        hEta_(new TH1F(name + "_DeltaEta", "#Delta#eta", 100, 0, 6)),
+        hEtaSign_(new TH1F(name + "_DeltaEtaSign", "#Delta#eta with sign", 100, -6, 6)),
+        hPhi_(new TH1F(name + "_DeltaPhi", "#Delta#phi", 100, 0, 3.2)),
+        hTheta_(new TH1F(name + "_DeltaTheta", "#Delta#theta", 100, -3.2, 3.2)),
+        hCotgTheta_(new TH1F(name + "_DeltaCotgTheta", "#Delta Cotg(#theta )", 100, -3.2, 3.2)),
+        hDeltaR_(new TH1F(name + "_DeltaR", "#Delta R", 400, 0, 4)) {}
 
-  HDelta (TFile* outputFile, const TString & name) :
-    Histograms(outputFile, name),
-    // Kinematical variables
-    // ---------------------
-    hEta_( new TH1F (name+"_DeltaEta", "#Delta#eta", 100, 0, 6) ),
-    hEtaSign_( new TH1F (name+"_DeltaEtaSign", "#Delta#eta with sign", 100, -6, 6) ),
-    hPhi_( new TH1F (name+"_DeltaPhi", "#Delta#phi", 100,0,3.2) ),
-    hTheta_( new TH1F (name+"_DeltaTheta", "#Delta#theta", 100,-3.2,3.2) ),
-    hCotgTheta_( new TH1F (name+"_DeltaCotgTheta", "#Delta Cotg(#theta )", 100,-3.2,3.2) ),
-    hDeltaR_( new TH1F (name+"_DeltaR","#DeltaR", 400, 0, 4 ) )
-  {}
+  HDelta(TFile* outputFile, const TString& name)
+      : Histograms(outputFile, name),
+        // Kinematical variables
+        // ---------------------
+        hEta_(new TH1F(name + "_DeltaEta", "#Delta#eta", 100, 0, 6)),
+        hEtaSign_(new TH1F(name + "_DeltaEtaSign", "#Delta#eta with sign", 100, -6, 6)),
+        hPhi_(new TH1F(name + "_DeltaPhi", "#Delta#phi", 100, 0, 3.2)),
+        hTheta_(new TH1F(name + "_DeltaTheta", "#Delta#theta", 100, -3.2, 3.2)),
+        hCotgTheta_(new TH1F(name + "_DeltaCotgTheta", "#Delta Cotg(#theta )", 100, -3.2, 3.2)),
+        hDeltaR_(new TH1F(name + "_DeltaR", "#DeltaR", 400, 0, 4)) {}
 
-  HDelta (const TString & name, TFile* file) {
+  HDelta(const TString& name, TFile* file) {
     name_ = name;
-    hEta_       = (TH1F *) file->Get(name+"_DeltaEta");
-    hEtaSign_   = (TH1F *) file->Get(name+"_DeltaEtaSign");
-    hPhi_       = (TH1F *) file->Get(name+"_DeltaPhi");
-    hTheta_     = (TH1F *) file->Get(name+"_DeltaTheta");
-    hCotgTheta_ = (TH1F *) file->Get(name+"_DeltaCotgTheta");
-    hDeltaR_    = (TH1F *) file->Get(name+"_DeltaR");
-   }
+    hEta_ = (TH1F*)file->Get(name + "_DeltaEta");
+    hEtaSign_ = (TH1F*)file->Get(name + "_DeltaEtaSign");
+    hPhi_ = (TH1F*)file->Get(name + "_DeltaPhi");
+    hTheta_ = (TH1F*)file->Get(name + "_DeltaTheta");
+    hCotgTheta_ = (TH1F*)file->Get(name + "_DeltaCotgTheta");
+    hDeltaR_ = (TH1F*)file->Get(name + "_DeltaR");
+  }
 
   ~HDelta() override {
     delete hEta_;
@@ -465,32 +462,33 @@ class HDelta : public Histograms
     delete hCotgTheta_;
     delete hDeltaR_;
   }
-  
-  void Fill (const reco::Particle::LorentzVector & p1, const reco::Particle::LorentzVector & p2) override {
-    Fill (CLHEP::HepLorentzVector(p1.x(),p1.y(),p1.z(),p1.t()), 
-	  CLHEP::HepLorentzVector(p2.x(),p2.y(),p2.z(),p2.t()));
+
+  void Fill(const reco::Particle::LorentzVector& p1, const reco::Particle::LorentzVector& p2) override {
+    Fill(CLHEP::HepLorentzVector(p1.x(), p1.y(), p1.z(), p1.t()),
+         CLHEP::HepLorentzVector(p2.x(), p2.y(), p2.z(), p2.t()));
   }
 
-  void Fill (const CLHEP::HepLorentzVector & p1, const reco::Particle::LorentzVector & p2) override {
-    Fill (p1,CLHEP::HepLorentzVector(p2.x(),p2.y(),p2.z(),p2.t()));
+  void Fill(const CLHEP::HepLorentzVector& p1, const reco::Particle::LorentzVector& p2) override {
+    Fill(p1, CLHEP::HepLorentzVector(p2.x(), p2.y(), p2.z(), p2.t()));
   }
 
-  void Fill (const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2) override {
-    hEta_->Fill(fabs( momentum1.eta()-momentum2.eta() ));
-    hEtaSign_->Fill(momentum1.eta()-momentum2.eta());
-    hPhi_->Fill(MuScleFitUtils::deltaPhi(momentum1.phi(),momentum2.phi()));
-    hTheta_->Fill(momentum1.theta()-momentum2.theta());
+  void Fill(const CLHEP::HepLorentzVector& momentum1, const CLHEP::HepLorentzVector& momentum2) override {
+    hEta_->Fill(fabs(momentum1.eta() - momentum2.eta()));
+    hEtaSign_->Fill(momentum1.eta() - momentum2.eta());
+    hPhi_->Fill(MuScleFitUtils::deltaPhi(momentum1.phi(), momentum2.phi()));
+    hTheta_->Fill(momentum1.theta() - momentum2.theta());
     // hCotgTheta->Fill(1/(TMath::Tan(momentum1.theta()))-1/(TMath::Tan(momentum2.theta())));
     double theta1 = momentum1.theta();
     double theta2 = momentum2.theta();
-    hCotgTheta_->Fill(TMath::Cos(theta1)/TMath::Sin(theta1) - TMath::Cos(theta2)/TMath::Sin(theta2));
-    hDeltaR_->Fill(sqrt((momentum1.eta()-momentum2.eta())*(momentum1.eta()-momentum2.eta()) +
-                        (MuScleFitUtils::deltaPhi(momentum1.phi(),momentum2.phi()))*
-                        (MuScleFitUtils::deltaPhi(momentum1.phi(),momentum2.phi()))));
+    hCotgTheta_->Fill(TMath::Cos(theta1) / TMath::Sin(theta1) - TMath::Cos(theta2) / TMath::Sin(theta2));
+    hDeltaR_->Fill(sqrt((momentum1.eta() - momentum2.eta()) * (momentum1.eta() - momentum2.eta()) +
+                        (MuScleFitUtils::deltaPhi(momentum1.phi(), momentum2.phi())) *
+                            (MuScleFitUtils::deltaPhi(momentum1.phi(), momentum2.phi()))));
   }
-  
+
   void Write() override {
-    if(histoDir_ != nullptr) histoDir_->cd();
+    if (histoDir_ != nullptr)
+      histoDir_->cd();
 
     hEta_->Write();
     hEtaSign_->Write();
@@ -499,7 +497,7 @@ class HDelta : public Histograms
     hCotgTheta_->Write();
     hDeltaR_->Write();
   }
-  
+
   void Clear() override {
     hEta_->Clear();
     hEtaSign_->Clear();
@@ -508,8 +506,8 @@ class HDelta : public Histograms
     hDeltaR_->Clear();
     hCotgTheta_->Clear();
   }
-  
- public:
+
+public:
   TH1F* hEta_;
   TH1F* hEtaSign_;
   TH1F* hPhi_;
@@ -521,24 +519,18 @@ class HDelta : public Histograms
 // ------------------------------------------------------------
 // A set of histograms of particle kinematical variables vs eta
 // ------------------------------------------------------------
-class HPartVSEta : public Histograms
-{
- public:
-  HPartVSEta(const TString & name, const double & minMass = 0., const double & maxMass = 100., const double & maxPt = 100.)
-  {
+class HPartVSEta : public Histograms {
+public:
+  HPartVSEta(const TString& name, const double& minMass = 0., const double& maxMass = 100., const double& maxPt = 100.) {
     name_ = name;
-    hPtVSEta_ = new TH2F( name+"_PtVSEta", "transverse momentum vs pseudorapidity", 
-                          32, -3.2, 3.2, 200, 0, maxPt );
-    hMassVSEta_ = new TH2F( name+"_MassVSEta", "mass vs pseudorapidity", 
-                            32, -3.2, 3.2, 40, minMass, maxMass );
+    hPtVSEta_ = new TH2F(name + "_PtVSEta", "transverse momentum vs pseudorapidity", 32, -3.2, 3.2, 200, 0, maxPt);
+    hMassVSEta_ = new TH2F(name + "_MassVSEta", "mass vs pseudorapidity", 32, -3.2, 3.2, 40, minMass, maxMass);
     // TD profile histograms
     // ---------------------
-    hPtVSEta_prof_ = new TProfile( name+"_PtVSEta_prof", "mass vs pseudorapidity", 
-                                   32, -3.2, 3.2, 0, maxPt );
-    hMassVSEta_prof_ = new TProfile( name+"_MassVSEta_prof", "mass vs pseudorapidity", 
-                                     32, -3.2, 3.2, minMass, maxMass );
-    hCurvVSEta_prof_ = new TProfile( name+"_CurvVSEta_prof", "curvature vs pseudorapidity", 
-                                     32, -3.2, 3.2, 0, 1. );
+    hPtVSEta_prof_ = new TProfile(name + "_PtVSEta_prof", "mass vs pseudorapidity", 32, -3.2, 3.2, 0, maxPt);
+    hMassVSEta_prof_ =
+        new TProfile(name + "_MassVSEta_prof", "mass vs pseudorapidity", 32, -3.2, 3.2, minMass, maxMass);
+    hCurvVSEta_prof_ = new TProfile(name + "_CurvVSEta_prof", "curvature vs pseudorapidity", 32, -3.2, 3.2, 0, 1.);
   }
 
   ~HPartVSEta() override {
@@ -549,19 +541,19 @@ class HPartVSEta : public Histograms
     delete hCurvVSEta_prof_;
   }
 
-  void Fill (const reco::Particle::LorentzVector & p4, const double & weight = 1.) override {
-    Fill (CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()), weight);
+  void Fill(const reco::Particle::LorentzVector& p4, const double& weight = 1.) override {
+    Fill(CLHEP::HepLorentzVector(p4.x(), p4.y(), p4.z(), p4.t()), weight);
   }
 
-  void Fill (const CLHEP::HepLorentzVector & momentum, const double & weight = 1.) override {
-    hPtVSEta_->Fill(momentum.eta(),momentum.perp(), weight);
-    hPtVSEta_prof_->Fill(momentum.eta(),momentum.perp(), weight);
+  void Fill(const CLHEP::HepLorentzVector& momentum, const double& weight = 1.) override {
+    hPtVSEta_->Fill(momentum.eta(), momentum.perp(), weight);
+    hPtVSEta_prof_->Fill(momentum.eta(), momentum.perp(), weight);
 
-    hMassVSEta_->Fill(momentum.eta(),momentum.m(), weight);
-    hMassVSEta_prof_->Fill(momentum.eta(),momentum.m(), weight);
-    hCurvVSEta_prof_->Fill(momentum.eta(),1/momentum.perp(), weight);
+    hMassVSEta_->Fill(momentum.eta(), momentum.m(), weight);
+    hMassVSEta_prof_->Fill(momentum.eta(), momentum.m(), weight);
+    hCurvVSEta_prof_->Fill(momentum.eta(), 1 / momentum.perp(), weight);
   }
-    
+
   void Write() override {
     hPtVSEta_->Write();
     hPtVSEta_prof_->Write();
@@ -581,50 +573,45 @@ class HPartVSEta : public Histograms
     hCurvVSEta_prof_->Clear();
     hMassVSEta_->Clear();
     hMassVSEta_prof_->Clear();
-
   }
 
- public:
-
-  TH2F *hPtVSEta_;
-  TH2F *hMassVSEta_; 
-  TProfile *hMassVSEta_prof_; 
-  TProfile *hPtVSEta_prof_;  
-  TProfile *hCurvVSEta_prof_;  
+public:
+  TH2F* hPtVSEta_;
+  TH2F* hMassVSEta_;
+  TProfile* hMassVSEta_prof_;
+  TProfile* hPtVSEta_prof_;
+  TProfile* hCurvVSEta_prof_;
 };
 
 //---------------------------------------------------------------------------
 // A set of histograms of particle kinematical variables vs phi (in eta bins)
 // --------------------------------------------------------------------------
-class HPartVSPhi : public Histograms
-{
- public:
-  HPartVSPhi(const TString & name){
+class HPartVSPhi : public Histograms {
+public:
+  HPartVSPhi(const TString& name) {
     name_ = name;
-//     hPtVSPhi_ = new TH2F (name+"_PtVSPhi", "transverse momentum vs phi angle",
-//                           12, -3.2, 3.2, 200, 0, 200);
-//     hMassVSPhi_ = new TH2F (name+"_MassVSPhi", "mass vs phi angle", 
-//                             7, -3.2, 3.2, 40, 70, 110);
-//     hMassVSPhiF_ = new TH2F (name+"_MassVSPhiF", "mass vs phi F", 
-//                              7, -3.2, 3.2, 40, 70, 110);
-//     hMassVSPhiWp2_ = new TH2F (name+"_MassVSPhiWp2", "mass vs phi Wp2", 
-//                                7, -3.2, 3.2, 40, 70, 110);
-//     hMassVSPhiWp1_ = new TH2F (name+"_MassVSPhiWp1", "mass vs phi Wp1", 
-//                                7, -3.2, 3.2, 40, 70, 110);
-//     hMassVSPhiW0_ = new TH2F (name+"_MassVSPhiW0", "mass vs phi W0", 
-//                               7, -3.2, 3.2, 40, 70, 110);
-//     hMassVSPhiWm1_ = new TH2F (name+"_MassVSPhiWm1", "mass vs phi Wm1", 
-//                                7, -3.2, 3.2, 40, 70, 110);
-//     hMassVSPhiWm2_ = new TH2F (name+"_MassVSPhiWm2", "mass vs phi Wm2", 
-//                                7, -3.2, 3.2, 40, 70, 110);
-//     hMassVSPhiB_ = new TH2F (name+"_MassVSPhiB", "mass vs phi B", 
-//                              7, -3.2, 3.2, 40, 70, 110);  
+    //     hPtVSPhi_ = new TH2F (name+"_PtVSPhi", "transverse momentum vs phi angle",
+    //                           12, -3.2, 3.2, 200, 0, 200);
+    //     hMassVSPhi_ = new TH2F (name+"_MassVSPhi", "mass vs phi angle",
+    //                             7, -3.2, 3.2, 40, 70, 110);
+    //     hMassVSPhiF_ = new TH2F (name+"_MassVSPhiF", "mass vs phi F",
+    //                              7, -3.2, 3.2, 40, 70, 110);
+    //     hMassVSPhiWp2_ = new TH2F (name+"_MassVSPhiWp2", "mass vs phi Wp2",
+    //                                7, -3.2, 3.2, 40, 70, 110);
+    //     hMassVSPhiWp1_ = new TH2F (name+"_MassVSPhiWp1", "mass vs phi Wp1",
+    //                                7, -3.2, 3.2, 40, 70, 110);
+    //     hMassVSPhiW0_ = new TH2F (name+"_MassVSPhiW0", "mass vs phi W0",
+    //                               7, -3.2, 3.2, 40, 70, 110);
+    //     hMassVSPhiWm1_ = new TH2F (name+"_MassVSPhiWm1", "mass vs phi Wm1",
+    //                                7, -3.2, 3.2, 40, 70, 110);
+    //     hMassVSPhiWm2_ = new TH2F (name+"_MassVSPhiWm2", "mass vs phi Wm2",
+    //                                7, -3.2, 3.2, 40, 70, 110);
+    //     hMassVSPhiB_ = new TH2F (name+"_MassVSPhiB", "mass vs phi B",
+    //                              7, -3.2, 3.2, 40, 70, 110);
 
     // TD profile histograms
-    hMassVSPhi_prof_ = new TProfile (name+"_MassVSPhi_prof", "mass vs phi angle", 
-                                     16, -3.2, 3.2, 70, 110);
-    hPtVSPhi_prof_ = new TProfile (name+"_PtVSPhi_prof", "pt vs phi angle", 
-                                     16, -3.2, 3.2, 0, 200);
+    hMassVSPhi_prof_ = new TProfile(name + "_MassVSPhi_prof", "mass vs phi angle", 16, -3.2, 3.2, 70, 110);
+    hPtVSPhi_prof_ = new TProfile(name + "_PtVSPhi_prof", "pt vs phi angle", 16, -3.2, 3.2, 0, 200);
   }
 
   ~HPartVSPhi() override {
@@ -633,32 +620,32 @@ class HPartVSPhi : public Histograms
     delete hMassVSPhi_prof_;
     delete hPtVSPhi_prof_;
 
- //    delete hMassVSPhiB_;
-//     delete hMassVSPhiWm2_;
-//     delete hMassVSPhiWm1_;
-//     delete hMassVSPhiW0_;
-//     delete hMassVSPhiWp1_;
-//     delete hMassVSPhiWp2_;
-//     delete hMassVSPhiF_;
+    //    delete hMassVSPhiB_;
+    //     delete hMassVSPhiWm2_;
+    //     delete hMassVSPhiWm1_;
+    //     delete hMassVSPhiW0_;
+    //     delete hMassVSPhiWp1_;
+    //     delete hMassVSPhiWp2_;
+    //     delete hMassVSPhiF_;
   }
 
-  void Fill(const reco::Particle::LorentzVector & p4, const double & weight =1.) override {
-    Fill(CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()), weight);
+  void Fill(const reco::Particle::LorentzVector& p4, const double& weight = 1.) override {
+    Fill(CLHEP::HepLorentzVector(p4.x(), p4.y(), p4.z(), p4.t()), weight);
   }
 
-  void Fill(const CLHEP::HepLorentzVector & momentum, const double & weight= 1.) override {
-    hPtVSPhi_->Fill(momentum.phi(),momentum.perp(), weight);
-    hMassVSPhi_->Fill(momentum.phi(),momentum.m(), weight);
-    hMassVSPhi_prof_->Fill(momentum.phi(),momentum.m(), weight);
-    hPtVSPhi_prof_->Fill(momentum.phi(),momentum.perp(), weight);
- 
-//     if (momentum.eta()<-1.2)                             hMassVSPhiB_->Fill(momentum.phi(),momentum.m(), weight);
-//     else if (momentum.eta()<-0.8 && momentum.eta()>-1.2) hMassVSPhiWm2_->Fill(momentum.phi(),momentum.m(), weight);
-//     else if (momentum.eta()<-0.3 && momentum.eta()>-0.8) hMassVSPhiWm1_->Fill(momentum.phi(),momentum.m(), weight);
-//     else if ((fabs(momentum.eta())) < 0.3)               hMassVSPhiW0_->Fill(momentum.phi(),momentum.m(), weight);
-//     else if (momentum.eta()>0.3 && momentum.eta()<0.8)   hMassVSPhiWp1_->Fill(momentum.phi(),momentum.m(), weight);
-//     else if (momentum.eta()>0.8 && momentum.eta()<1.2)   hMassVSPhiWp2_->Fill(momentum.phi(),momentum.m(), weight);
-//     else if (momentum.eta()>1.2)                         hMassVSPhiF_->Fill(momentum.phi(),momentum.m(), weight);
+  void Fill(const CLHEP::HepLorentzVector& momentum, const double& weight = 1.) override {
+    hPtVSPhi_->Fill(momentum.phi(), momentum.perp(), weight);
+    hMassVSPhi_->Fill(momentum.phi(), momentum.m(), weight);
+    hMassVSPhi_prof_->Fill(momentum.phi(), momentum.m(), weight);
+    hPtVSPhi_prof_->Fill(momentum.phi(), momentum.perp(), weight);
+
+    //     if (momentum.eta()<-1.2)                             hMassVSPhiB_->Fill(momentum.phi(),momentum.m(), weight);
+    //     else if (momentum.eta()<-0.8 && momentum.eta()>-1.2) hMassVSPhiWm2_->Fill(momentum.phi(),momentum.m(), weight);
+    //     else if (momentum.eta()<-0.3 && momentum.eta()>-0.8) hMassVSPhiWm1_->Fill(momentum.phi(),momentum.m(), weight);
+    //     else if ((fabs(momentum.eta())) < 0.3)               hMassVSPhiW0_->Fill(momentum.phi(),momentum.m(), weight);
+    //     else if (momentum.eta()>0.3 && momentum.eta()<0.8)   hMassVSPhiWp1_->Fill(momentum.phi(),momentum.m(), weight);
+    //     else if (momentum.eta()>0.8 && momentum.eta()<1.2)   hMassVSPhiWp2_->Fill(momentum.phi(),momentum.m(), weight);
+    //     else if (momentum.eta()>1.2)                         hMassVSPhiF_->Fill(momentum.phi(),momentum.m(), weight);
   }
 
   void Write() override {
@@ -667,46 +654,46 @@ class HPartVSPhi : public Histograms
     hMassVSPhi_prof_->Write();
     hPtVSPhi_prof_->Write();
 
- //    hMassVSPhiB_->Write();
-//     hMassVSPhiWm2_->Write(); 
-//     hMassVSPhiWm1_->Write();
-//     hMassVSPhiW0_->Write();
-//     hMassVSPhiWp1_->Write();
-//     hMassVSPhiWp2_->Write();
-//     hMassVSPhiF_->Write();
+    //    hMassVSPhiB_->Write();
+    //     hMassVSPhiWm2_->Write();
+    //     hMassVSPhiWm1_->Write();
+    //     hMassVSPhiW0_->Write();
+    //     hMassVSPhiWp1_->Write();
+    //     hMassVSPhiWp2_->Write();
+    //     hMassVSPhiF_->Write();
 
-//     std::vector<TGraphErrors*> graphs ((MuScleFitUtils::fitMass(hMassVSPhi_)));
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++){
-//       (*graph)->Write();
-//     }
-//     std::vector<TGraphErrors*> graphsB ((MuScleFitUtils::fitMass(hMassVSPhiB_)));
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphsB.begin(); graph != graphsB.end(); graph++){
-//       (*graph)->Write();
-//     }
-//     std::vector<TGraphErrors*> graphsWm2 ((MuScleFitUtils::fitMass(hMassVSPhiWm2_)));
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphsWm2.begin(); graph != graphsWm2.end(); graph++){
-//       (*graph)->Write();
-//     }
-//     std::vector<TGraphErrors*> graphsWm1 ((MuScleFitUtils::fitMass(hMassVSPhiWm1_)));
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphsWm1.begin(); graph != graphsWm1.end(); graph++){
-//       (*graph)->Write();
-//     }
-//     std::vector<TGraphErrors*> graphsW0 ((MuScleFitUtils::fitMass(hMassVSPhiW0_)));
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphsW0.begin(); graph != graphsW0.end(); graph++){
-//       (*graph)->Write();
-//     }
-//     std::vector<TGraphErrors*> graphsWp1 ((MuScleFitUtils::fitMass(hMassVSPhiWp1_)));
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphsWp1.begin(); graph != graphsWp1.end(); graph++){
-//       (*graph)->Write();
-//     }
-//     std::vector<TGraphErrors*> graphsWp2 ((MuScleFitUtils::fitMass(hMassVSPhiWp2_)));
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphsWp2.begin(); graph != graphsWp2.end(); graph++){
-//       (*graph)->Write();
-//     }
-//     std::vector<TGraphErrors*> graphsF ((MuScleFitUtils::fitMass(hMassVSPhiF_)));
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphsF.begin(); graph != graphsF.end(); graph++){
-//       (*graph)->Write();
-//     }
+    //     std::vector<TGraphErrors*> graphs ((MuScleFitUtils::fitMass(hMassVSPhi_)));
+    //     for(std::vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++){
+    //       (*graph)->Write();
+    //     }
+    //     std::vector<TGraphErrors*> graphsB ((MuScleFitUtils::fitMass(hMassVSPhiB_)));
+    //     for(std::vector<TGraphErrors*>::const_iterator graph = graphsB.begin(); graph != graphsB.end(); graph++){
+    //       (*graph)->Write();
+    //     }
+    //     std::vector<TGraphErrors*> graphsWm2 ((MuScleFitUtils::fitMass(hMassVSPhiWm2_)));
+    //     for(std::vector<TGraphErrors*>::const_iterator graph = graphsWm2.begin(); graph != graphsWm2.end(); graph++){
+    //       (*graph)->Write();
+    //     }
+    //     std::vector<TGraphErrors*> graphsWm1 ((MuScleFitUtils::fitMass(hMassVSPhiWm1_)));
+    //     for(std::vector<TGraphErrors*>::const_iterator graph = graphsWm1.begin(); graph != graphsWm1.end(); graph++){
+    //       (*graph)->Write();
+    //     }
+    //     std::vector<TGraphErrors*> graphsW0 ((MuScleFitUtils::fitMass(hMassVSPhiW0_)));
+    //     for(std::vector<TGraphErrors*>::const_iterator graph = graphsW0.begin(); graph != graphsW0.end(); graph++){
+    //       (*graph)->Write();
+    //     }
+    //     std::vector<TGraphErrors*> graphsWp1 ((MuScleFitUtils::fitMass(hMassVSPhiWp1_)));
+    //     for(std::vector<TGraphErrors*>::const_iterator graph = graphsWp1.begin(); graph != graphsWp1.end(); graph++){
+    //       (*graph)->Write();
+    //     }
+    //     std::vector<TGraphErrors*> graphsWp2 ((MuScleFitUtils::fitMass(hMassVSPhiWp2_)));
+    //     for(std::vector<TGraphErrors*>::const_iterator graph = graphsWp2.begin(); graph != graphsWp2.end(); graph++){
+    //       (*graph)->Write();
+    //     }
+    //     std::vector<TGraphErrors*> graphsF ((MuScleFitUtils::fitMass(hMassVSPhiF_)));
+    //     for(std::vector<TGraphErrors*>::const_iterator graph = graphsF.begin(); graph != graphsF.end(); graph++){
+    //       (*graph)->Write();
+    //     }
   }
 
   void Clear() override {
@@ -715,149 +702,204 @@ class HPartVSPhi : public Histograms
     hPtVSPhi_prof_->Clear();
     hMassVSPhi_prof_->Clear();
 
-//     hMassVSPhiB_->Clear();
-//     hMassVSPhiWm2_->Clear(); 
-//     hMassVSPhiWm1_->Clear();
-//     hMassVSPhiW0_->Clear();
-//     hMassVSPhiWp1_->Clear();
-//     hMassVSPhiWp2_->Clear();
-//     hMassVSPhiF_->Clear();
+    //     hMassVSPhiB_->Clear();
+    //     hMassVSPhiWm2_->Clear();
+    //     hMassVSPhiWm1_->Clear();
+    //     hMassVSPhiW0_->Clear();
+    //     hMassVSPhiWp1_->Clear();
+    //     hMassVSPhiWp2_->Clear();
+    //     hMassVSPhiF_->Clear();
   }
-  
- public:
-  TH2F *hPtVSPhi_;
-  TH2F *hMassVSPhi_;
-  TProfile *hMassVSPhi_prof_;
-  TProfile *hPtVSPhi_prof_;
 
-//   TH2F *hMassVSPhiB_;
-//   TH2F *hMassVSPhiWm2_;
-//   TH2F *hMassVSPhiWm1_;
-//   TH2F *hMassVSPhiW0_;
-//   TH2F *hMassVSPhiWp1_;
-//   TH2F *hMassVSPhiWp2_;
-//   TH2F *hMassVSPhiF_;
+public:
+  TH2F* hPtVSPhi_;
+  TH2F* hMassVSPhi_;
+  TProfile* hMassVSPhi_prof_;
+  TProfile* hPtVSPhi_prof_;
+
+  //   TH2F *hMassVSPhiB_;
+  //   TH2F *hMassVSPhiWm2_;
+  //   TH2F *hMassVSPhiWm1_;
+  //   TH2F *hMassVSPhiW0_;
+  //   TH2F *hMassVSPhiWp1_;
+  //   TH2F *hMassVSPhiWp2_;
+  //   TH2F *hMassVSPhiF_;
 };
 
 //---------------------------------------------------------------------------------------
 // A set of histograms of particle VS pt
-class HPartVSPt : public Histograms
-{
- public:
-  HPartVSPt(const TString & name){
+class HPartVSPt : public Histograms {
+public:
+  HPartVSPt(const TString& name) {
     name_ = name;
-    hMassVSPt_ = new TH2F( name+"_MassVSPt", "mass vs transverse momentum", 
-                           12, -6, 6, 40, 70, 110 );
+    hMassVSPt_ = new TH2F(name + "_MassVSPt", "mass vs transverse momentum", 12, -6, 6, 40, 70, 110);
     // TD profile histograms
-    hMassVSPt_prof_ = new TProfile( name+"_MassVSPt_prof", "mass vs transverse momentum", 
-                                    12, -3, 3, 86, 116 );
+    hMassVSPt_prof_ = new TProfile(name + "_MassVSPt_prof", "mass vs transverse momentum", 12, -3, 3, 86, 116);
   }
 
-  ~HPartVSPt() override{
+  ~HPartVSPt() override {
     delete hMassVSPt_;
     delete hMassVSPt_prof_;
   }
 
-  void Fill(const reco::Particle::LorentzVector & p4, const double & weight = 1.) override {
-    Fill(CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()), weight);
+  void Fill(const reco::Particle::LorentzVector& p4, const double& weight = 1.) override {
+    Fill(CLHEP::HepLorentzVector(p4.x(), p4.y(), p4.z(), p4.t()), weight);
   }
 
-  void Fill(const CLHEP::HepLorentzVector & momentum, const double & weight = 1.) override {
-    hMassVSPt_->Fill(momentum.eta(),momentum.m(), weight);
-    hMassVSPt_prof_->Fill(momentum.eta(),momentum.m(), weight);    
+  void Fill(const CLHEP::HepLorentzVector& momentum, const double& weight = 1.) override {
+    hMassVSPt_->Fill(momentum.eta(), momentum.m(), weight);
+    hMassVSPt_prof_->Fill(momentum.eta(), momentum.m(), weight);
   }
-    
+
   void Write() override {
     hMassVSPt_->Write();
     hMassVSPt_prof_->Write();
-   
-//     std::vector<TGraphErrors*> graphs( (MuScleFitUtils::fitMass(hMassVSPt_)) );
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++){
-//       (*graph)->Write();
-//     }
+
+    //     std::vector<TGraphErrors*> graphs( (MuScleFitUtils::fitMass(hMassVSPt_)) );
+    //     for(std::vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++){
+    //       (*graph)->Write();
+    //     }
   }
-  
+
   void Clear() override {
     hMassVSPt_->Clear();
     hMassVSPt_prof_->Clear();
   }
 
- public:
-  TH2F *hMassVSPt_;
-  TProfile *hMassVSPt_prof_;
+public:
+  TH2F* hMassVSPt_;
+  TProfile* hMassVSPt_prof_;
 };
 
 // ---------------------------------------------------
 // A set of histograms of resonance mass versus muon variables
-class HMassVSPart : public Histograms
-{
- public:
-  HMassVSPart( const TString & name, const double & minMass = 0., const double & maxMass = 150., const double maxPt = 100. ) {
+class HMassVSPart : public Histograms {
+public:
+  HMassVSPart(const TString& name, const double& minMass = 0., const double& maxMass = 150., const double maxPt = 100.) {
     name_ = name;
 
     // Kinematical variables
     // ---------------------
-    hMassVSPt_       = new TH2F( name+"_MassVSPt", "resonance mass vs muon transverse momentum", 200, 0., maxPt, 6000, minMass, maxMass );
+    hMassVSPt_ = new TH2F(
+        name + "_MassVSPt", "resonance mass vs muon transverse momentum", 200, 0., maxPt, 6000, minMass, maxMass);
 
-    hMassVSEta_      = new TH2F( name+"_MassVSEta", "resonance mass vs muon pseudorapidity", 64, -6.4, 6.4, 6000, minMass, maxMass );
-    hMassVSEtaPlus_  = new TH2F( name+"_MassVSEtaPlus", "resonance mass vs muon+ pseudorapidity",  64, -6.4, 6.4,  6000, minMass, maxMass );
-    hMassVSEtaMinus_ = new TH2F( name+"_MassVSEtaMinus", "resonance mass vs muon- pseudorapidity", 64, -6.4, 6.4,  6000, minMass, maxMass );
+    hMassVSEta_ =
+        new TH2F(name + "_MassVSEta", "resonance mass vs muon pseudorapidity", 64, -6.4, 6.4, 6000, minMass, maxMass);
+    hMassVSEtaPlus_ = new TH2F(
+        name + "_MassVSEtaPlus", "resonance mass vs muon+ pseudorapidity", 64, -6.4, 6.4, 6000, minMass, maxMass);
+    hMassVSEtaMinus_ = new TH2F(
+        name + "_MassVSEtaMinus", "resonance mass vs muon- pseudorapidity", 64, -6.4, 6.4, 6000, minMass, maxMass);
 
-    hMassVSPhiPlus_  = new TH2F( name+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle",  64, -3.2, 3.2, 6000, minMass, maxMass );
-    hMassVSPhiMinus_ = new TH2F( name+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass );
+    hMassVSPhiPlus_ =
+        new TH2F(name + "_MassVSPhiPlus", "resonance mass vs muon+ phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass);
+    hMassVSPhiMinus_ =
+        new TH2F(name + "_MassVSPhiMinus", "resonance mass vs muon- phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass);
 
-    
     // J/Psi mass -----
-//     hMassVSEtaPhiPlus_      = new TH3F( name+"_MassVSEtaPhiPlus", "resonance mass vs muon+ phi/pseudorapidity",6, -3.2, 3.2, 20, -2.5, 2.5, 6000, minMass, maxMass );
-//     hMassVSEtaPhiMinus_      = new TH3F( name+"_MassVSEtaPhiMinus", "resonance mass vs muon- phi/pseudorapidity", 6, -3.2, 3.2, 20, -2.5, 2.5, 6000, minMass, maxMass );
- 
+    //     hMassVSEtaPhiPlus_      = new TH3F( name+"_MassVSEtaPhiPlus", "resonance mass vs muon+ phi/pseudorapidity",6, -3.2, 3.2, 20, -2.5, 2.5, 6000, minMass, maxMass );
+    //     hMassVSEtaPhiMinus_      = new TH3F( name+"_MassVSEtaPhiMinus", "resonance mass vs muon- phi/pseudorapidity", 6, -3.2, 3.2, 20, -2.5, 2.5, 6000, minMass, maxMass );
+
     //Z mass -----------
-    hMassVSEtaPhiPlus_      = new TH3F( name+"_MassVSEtaPhiPlus",  "resonance mass vs muon+ phi/pseudorapidity", 16, -3.2, 3.2, 20, -2.4, 2.4, 300, minMass, maxMass );
-    hMassVSEtaPhiMinus_     = new TH3F( name+"_MassVSEtaPhiMinus", "resonance mass vs muon- phi/pseudorapidity", 16, -3.2, 3.2, 20, -2.4, 2.4, 300, minMass, maxMass );
+    hMassVSEtaPhiPlus_ = new TH3F(name + "_MassVSEtaPhiPlus",
+                                  "resonance mass vs muon+ phi/pseudorapidity",
+                                  16,
+                                  -3.2,
+                                  3.2,
+                                  20,
+                                  -2.4,
+                                  2.4,
+                                  300,
+                                  minMass,
+                                  maxMass);
+    hMassVSEtaPhiMinus_ = new TH3F(name + "_MassVSEtaPhiMinus",
+                                   "resonance mass vs muon- phi/pseudorapidity",
+                                   16,
+                                   -3.2,
+                                   3.2,
+                                   20,
+                                   -2.4,
+                                   2.4,
+                                   300,
+                                   minMass,
+                                   maxMass);
 
+    hMassVSCosThetaCS_ = new TH2F(
+        name + "_MassVSCosThetaCS", "resonance mass vs cos(theta) (CS frame)", 40, -1., 1., 6000, minMass, maxMass);
+    hMassVSPhiCS_ =
+        new TH2F(name + "_MassVSPhiCS", "resonance mass vs phi (CS frame)", 64, -3.2, 3.2, 6000, minMass, maxMass);
 
-    hMassVSCosThetaCS_      = new TH2F( name+"_MassVSCosThetaCS", "resonance mass vs cos(theta) (CS frame)", 40, -1., 1., 6000, minMass, maxMass );
-    hMassVSPhiCS_           = new TH2F( name+"_MassVSPhiCS", "resonance mass vs phi (CS frame)", 64, -3.2, 3.2, 6000, minMass, maxMass );
+    hMassVSPhiPlusPhiMinus_ = new TH3F(name + "_MassVSPhiPlusPhiMinus",
+                                       "resonance mass vs muon+ phi/muon- phi",
+                                       16,
+                                       -3.2,
+                                       3.2,
+                                       16,
+                                       -3.2,
+                                       3.2,
+                                       6000,
+                                       minMass,
+                                       maxMass);
+    hMassVSEtaPlusEtaMinus_ = new TH3F(name + "_MassVSEtaPlusEtaMinus",
+                                       "resonance mass vs muon+ eta/muon- eta",
+                                       16,
+                                       -3.2,
+                                       3.2,
+                                       16,
+                                       -3.2,
+                                       3.2,
+                                       6000,
+                                       minMass,
+                                       maxMass);
 
-
-    hMassVSPhiPlusPhiMinus_ = new TH3F( name+"_MassVSPhiPlusPhiMinus", "resonance mass vs muon+ phi/muon- phi",16, -3.2, 3.2,16, -3.2, 3.2, 6000, minMass, maxMass );
-    hMassVSEtaPlusEtaMinus_ = new TH3F( name+"_MassVSEtaPlusEtaMinus", "resonance mass vs muon+ eta/muon- eta",16, -3.2, 3.2,16, -3.2, 3.2, 6000, minMass, maxMass );
-
-   
-    hMassVSPhiPlusMinusDiff_ = new TH2F( name+"_MassVSPhiPlusMinusDiff", "resonance mass vs delta phi between mu+/mu-", 64, -6.4, 6.4, 6000, minMass, maxMass );
-    hMassVSEtaPlusMinusDiff_ = new TH2F( name+"_MassVSEtaPlusMinusDiff", "resonance mass vs delta pseudorapidity between mu+/mu-", 32, -4.4, 4.4, 6000, minMass, maxMass );
-    hMassVSCosThetaCS_prof   = new TProfile (name+"_MassVScosTheta_prof", "resonance mass vs cosTheta", 40, -1., 1., 85., 95.);   
+    hMassVSPhiPlusMinusDiff_ = new TH2F(name + "_MassVSPhiPlusMinusDiff",
+                                        "resonance mass vs delta phi between mu+/mu-",
+                                        64,
+                                        -6.4,
+                                        6.4,
+                                        6000,
+                                        minMass,
+                                        maxMass);
+    hMassVSEtaPlusMinusDiff_ = new TH2F(name + "_MassVSEtaPlusMinusDiff",
+                                        "resonance mass vs delta pseudorapidity between mu+/mu-",
+                                        32,
+                                        -4.4,
+                                        4.4,
+                                        6000,
+                                        minMass,
+                                        maxMass);
+    hMassVSCosThetaCS_prof =
+        new TProfile(name + "_MassVScosTheta_prof", "resonance mass vs cosTheta", 40, -1., 1., 85., 95.);
 
     //hMassVSPt_prof       = new TProfile (name+"_MassVSPt_prof", "resonance mass vs muon transverse momentum", 100, 0., 200., minMass, maxMass);
     //hMassVSEta_prof      = new TProfile (name+"_MassVSEta_prof", "resonance mass vs muon pseudorapidity", 30, -6., 6., minMass, maxMass);
     //hMassVSPhiPlus_prof  = new TProfile (name+"_MassVSPhiPlus_prof", "resonance mass vs muon+ phi angle", 32, -3.2, 3.2, minMass, maxMass);
     //hMassVSPhiMinus_prof = new TProfile (name+"_MassVSPhiMinus_prof", "resonance mass vs muon- phi angle", 32, -3.2, 3.2, minMass, maxMass);
-   }
+  }
 
-  HMassVSPart(const TString & name, TFile* file){
-    name_=name;
-    hMassVSPt_       = (TH2F *) file->Get(name+"_MassVSPt");
-    hMassVSEta_      = (TH2F *) file->Get(name+"_MassVSEta");
+  HMassVSPart(const TString& name, TFile* file) {
+    name_ = name;
+    hMassVSPt_ = (TH2F*)file->Get(name + "_MassVSPt");
+    hMassVSEta_ = (TH2F*)file->Get(name + "_MassVSEta");
 
-    hMassVSEtaPhiPlus_    = (TH3F *) file->Get(name+"_MassVSEtaPlus");
-    hMassVSEtaPhiMinus_   = (TH3F *) file->Get(name+"_MassVSEtaMinus");
-    hMassVSEtaPlus_      = (TH2F *) file->Get(name+"_MassVSEtaPlus");
-    hMassVSEtaMinus_      = (TH2F *) file->Get(name+"_MassVSEtaMinus");
+    hMassVSEtaPhiPlus_ = (TH3F*)file->Get(name + "_MassVSEtaPlus");
+    hMassVSEtaPhiMinus_ = (TH3F*)file->Get(name + "_MassVSEtaMinus");
+    hMassVSEtaPlus_ = (TH2F*)file->Get(name + "_MassVSEtaPlus");
+    hMassVSEtaMinus_ = (TH2F*)file->Get(name + "_MassVSEtaMinus");
 
-    hMassVSPhiPlusMinusDiff_ = (TH2F *) file->Get(name+"_MassVSPhiPlusMinusDiff");
-    hMassVSEtaPlusMinusDiff_ = (TH2F *) file->Get(name+"_MassVSEtaPlusMinusDiff");
-    
-    hMassVSPhiPlus_  = (TH2F *) file->Get(name+"_MassVSPhiPlus");
-    hMassVSPhiMinus_ = (TH2F *) file->Get(name+"_MassVSPhiMinus");
-    
-    hMassVSCosThetaCS_prof  = (TProfile *) file->Get(name+"_MassVScosTheta_prof");  
+    hMassVSPhiPlusMinusDiff_ = (TH2F*)file->Get(name + "_MassVSPhiPlusMinusDiff");
+    hMassVSEtaPlusMinusDiff_ = (TH2F*)file->Get(name + "_MassVSEtaPlusMinusDiff");
+
+    hMassVSPhiPlus_ = (TH2F*)file->Get(name + "_MassVSPhiPlus");
+    hMassVSPhiMinus_ = (TH2F*)file->Get(name + "_MassVSPhiMinus");
+
+    hMassVSCosThetaCS_prof = (TProfile*)file->Get(name + "_MassVScosTheta_prof");
     //hMassVSPt_prof       = (TProfile *) file->Get(name+"_MassVSPt_prof");
     //hMassVSEta_prof      = (TProfile *) file->Get(name+"_MassVSEta_prof");
     //hMassVSPhiPlus_prof  = (TProfile *) file->Get(name+"_MassVSPhiPlus_prof");
     //hMassVSPhiMinus_prof = (TProfile *) file->Get(name+"_MassVSPhiMinus_prof");
   }
 
-  ~HMassVSPart() override{
+  ~HMassVSPart() override {
     delete hMassVSPt_;
     delete hMassVSEta_;
     delete hMassVSPhiPlus_;
@@ -872,116 +914,115 @@ class HMassVSPart : public Histograms
     delete hMassVSPhiCS_;
     delete hMassVSPhiPlusMinusDiff_;
     delete hMassVSEtaPlusMinusDiff_;
-    delete hMassVSCosThetaCS_prof;  
+    delete hMassVSCosThetaCS_prof;
   }
 
-  void Fill(const reco::Particle::LorentzVector & p41, const reco::Particle::LorentzVector & p42, const int charge, const double & weight = 1.) override
-  {
-    Fill(CLHEP::HepLorentzVector(p41.x(),p41.y(),p41.z(),p41.t()),
-	 CLHEP::HepLorentzVector(p42.x(),p42.y(),p42.z(),p42.t()), charge, weight);
+  void Fill(const reco::Particle::LorentzVector& p41,
+            const reco::Particle::LorentzVector& p42,
+            const int charge,
+            const double& weight = 1.) override {
+    Fill(CLHEP::HepLorentzVector(p41.x(), p41.y(), p41.z(), p41.t()),
+         CLHEP::HepLorentzVector(p42.x(), p42.y(), p42.z(), p42.t()),
+         charge,
+         weight);
   }
 
-  void Fill(const reco::Particle::LorentzVector & p41,
-		    const reco::Particle::LorentzVector & p42,
-		    const reco::Particle::LorentzVector & p4Res,
-		    const double & weight = 1.) override
-  {
-    Fill(CLHEP::HepLorentzVector(p41.x(),p41.y(),p41.z(),p41.t()),
-	 CLHEP::HepLorentzVector(p42.x(),p42.y(),p42.z(),p42.t()),
-	 CLHEP::HepLorentzVector(p4Res.x(),p4Res.y(),p4Res.z(),p4Res.t()),
-	 weight);
+  void Fill(const reco::Particle::LorentzVector& p41,
+            const reco::Particle::LorentzVector& p42,
+            const reco::Particle::LorentzVector& p4Res,
+            const double& weight = 1.) override {
+    Fill(CLHEP::HepLorentzVector(p41.x(), p41.y(), p41.z(), p41.t()),
+         CLHEP::HepLorentzVector(p42.x(), p42.y(), p42.z(), p42.t()),
+         CLHEP::HepLorentzVector(p4Res.x(), p4Res.y(), p4Res.z(), p4Res.t()),
+         weight);
   }
 
   /// Used to fill 2D histograms for comparison of opposite charge muons quantities
-  void Fill(const CLHEP::HepLorentzVector & momentum1,
-		    const CLHEP::HepLorentzVector & momentum2,
-		    const CLHEP::HepLorentzVector & momentumRes,
-		    const double & weight = 1.) override
-  {
-
+  void Fill(const CLHEP::HepLorentzVector& momentum1,
+            const CLHEP::HepLorentzVector& momentum2,
+            const CLHEP::HepLorentzVector& momentumRes,
+            const double& weight = 1.) override {
     /************************************************************************
      *
      * Observable: cos(theta) = 2 Q^-1 (Q^2+Qt^2)^-(1/2) (mu^+ mubar^- - mu^- mubar^+)
      * (computed in Collins-Soper frame)
      *
      ************************************************************************/
-    
+
     double costhetaCS, phiCS;
 
-    const CLHEP::HepLorentzVector& mu= momentum1;
-    const CLHEP::HepLorentzVector& mubar= momentum2;    
-    CLHEP::HepLorentzVector Q(mu+mubar);
-    double muplus  = 1.0/sqrt(2.0) * (mu.e() + mu.z());
-    double muminus = 1.0/sqrt(2.0) * (mu.e() - mu.z());
-    double mubarplus  = 1.0/sqrt(2.0) * (mubar.e() + mubar.z());
-    double mubarminus = 1.0/sqrt(2.0) * (mubar.e() - mubar.z());
+    const CLHEP::HepLorentzVector& mu = momentum1;
+    const CLHEP::HepLorentzVector& mubar = momentum2;
+    CLHEP::HepLorentzVector Q(mu + mubar);
+    double muplus = 1.0 / sqrt(2.0) * (mu.e() + mu.z());
+    double muminus = 1.0 / sqrt(2.0) * (mu.e() - mu.z());
+    double mubarplus = 1.0 / sqrt(2.0) * (mubar.e() + mubar.z());
+    double mubarminus = 1.0 / sqrt(2.0) * (mubar.e() - mubar.z());
     //double costheta = 2.0 / Q.Mag() / sqrt(pow(Q.Mag(), 2) + pow(Q.Pt(), 2)) * (muplus * mubarminus - muminus * mubarplus);
     costhetaCS = 2.0 / Q.mag() / sqrt(pow(Q.mag(), 2) + pow(Q.perp(), 2)) * (muplus * mubarminus - muminus * mubarplus);
-    if (momentumRes.rapidity()<0) costhetaCS = -costhetaCS;
-    
+    if (momentumRes.rapidity() < 0)
+      costhetaCS = -costhetaCS;
 
-
-
-  /************************************************************************
+    /************************************************************************
    *
    * 3) tanphi = (Q^2 + Qt^2)^1/2 / Q (Dt dot R unit) /(Dt dot Qt unit)
    *
    ************************************************************************/
 
-  // unit vector on R direction
-    CLHEP::HepLorentzVector Pbeam(0.,0.,3500.,3500.);
+    // unit vector on R direction
+    CLHEP::HepLorentzVector Pbeam(0., 0., 3500., 3500.);
     CLHEP::Hep3Vector R = Pbeam.vect().cross(Q.vect());
     CLHEP::Hep3Vector Runit = R.unit();
 
-
     // unit vector on Qt
-    CLHEP::Hep3Vector Qt = Q.vect(); Qt.setZ(0);
+    CLHEP::Hep3Vector Qt = Q.vect();
+    Qt.setZ(0);
     CLHEP::Hep3Vector Qtunit = Qt.unit();
 
-
-    CLHEP::HepLorentzVector D(mu-mubar);
-    CLHEP::Hep3Vector Dt = D.vect(); Dt.setZ(0);
+    CLHEP::HepLorentzVector D(mu - mubar);
+    CLHEP::Hep3Vector Dt = D.vect();
+    Dt.setZ(0);
     double tanphi = sqrt(pow(Q.mag(), 2) + pow(Q.perp(), 2)) / Q.mag() * Dt.dot(Runit) / Dt.dot(Qtunit);
-    if (momentumRes.rapidity()<0) tanphi = -tanphi;
-    phiCS = atan(tanphi); 
+    if (momentumRes.rapidity() < 0)
+      tanphi = -tanphi;
+    phiCS = atan(tanphi);
 
-    hMassVSPhiCS_->Fill(phiCS,momentumRes.m(), weight);
-    hMassVSCosThetaCS_->Fill(costhetaCS,momentumRes.m(), weight);
-    hMassVSCosThetaCS_prof ->Fill(costhetaCS,momentumRes.m());  
+    hMassVSPhiCS_->Fill(phiCS, momentumRes.m(), weight);
+    hMassVSCosThetaCS_->Fill(costhetaCS, momentumRes.m(), weight);
+    hMassVSCosThetaCS_prof->Fill(costhetaCS, momentumRes.m());
     /*************************************************************************
      *************************************************************************/
-   
+
     hMassVSPhiPlusPhiMinus_->Fill(momentum1.phi(), momentum2.phi(), momentumRes.m(), weight);
     hMassVSEtaPlusEtaMinus_->Fill(momentum1.eta(), momentum2.eta(), momentumRes.m(), weight);
 
-    hMassVSPhiPlusMinusDiff_->Fill( (momentum1.phi()-momentum2.phi()), momentumRes.m(), weight);
-    hMassVSEtaPlusMinusDiff_->Fill( (momentum1.eta()-momentum2.eta()), momentumRes.m(), weight);
+    hMassVSPhiPlusMinusDiff_->Fill((momentum1.phi() - momentum2.phi()), momentumRes.m(), weight);
+    hMassVSEtaPlusMinusDiff_->Fill((momentum1.eta() - momentum2.eta()), momentumRes.m(), weight);
   }
-  
-  void Fill(const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2, const int charge, const double & weight = 1.) override
-  {
-     hMassVSPt_->Fill(momentum1.perp(),momentum2.m(), weight); 
-     //hMassVSPt_prof_->Fill(momentum1.perp(),momentum2.m()); 
-     
 
-     hMassVSEta_->Fill(momentum1.eta(),momentum2.m(), weight);								 
-     //hMassVSEta_prof_->Fill(momentum1.eta(),momentum2.m()); 
+  void Fill(const CLHEP::HepLorentzVector& momentum1,
+            const CLHEP::HepLorentzVector& momentum2,
+            const int charge,
+            const double& weight = 1.) override {
+    hMassVSPt_->Fill(momentum1.perp(), momentum2.m(), weight);
+    //hMassVSPt_prof_->Fill(momentum1.perp(),momentum2.m());
 
-     if(charge>0){
-       hMassVSPhiPlus_->Fill(momentum1.phi(),momentum2.m(), weight);
-       hMassVSEtaPlus_->Fill(momentum1.eta(),momentum2.m(), weight); 
-       hMassVSEtaPhiPlus_->Fill(momentum1.phi(),momentum1.eta(),momentum2.m(), weight);
-     }
-     else if(charge<0){
-       hMassVSPhiMinus_->Fill(momentum1.phi(),momentum2.m(), weight);
-       hMassVSEtaMinus_->Fill(momentum1.eta(),momentum2.m(), weight); 
-       hMassVSEtaPhiMinus_->Fill(momentum1.phi(),momentum1.eta(),momentum2.m(), weight);
-     }
-     else {
-       LogDebug("Histograms") << "HMassVSPart: wrong charge value = " << charge << std::endl;
-       abort();
-     }
-   }
+    hMassVSEta_->Fill(momentum1.eta(), momentum2.m(), weight);
+    //hMassVSEta_prof_->Fill(momentum1.eta(),momentum2.m());
+
+    if (charge > 0) {
+      hMassVSPhiPlus_->Fill(momentum1.phi(), momentum2.m(), weight);
+      hMassVSEtaPlus_->Fill(momentum1.eta(), momentum2.m(), weight);
+      hMassVSEtaPhiPlus_->Fill(momentum1.phi(), momentum1.eta(), momentum2.m(), weight);
+    } else if (charge < 0) {
+      hMassVSPhiMinus_->Fill(momentum1.phi(), momentum2.m(), weight);
+      hMassVSEtaMinus_->Fill(momentum1.eta(), momentum2.m(), weight);
+      hMassVSEtaPhiMinus_->Fill(momentum1.phi(), momentum1.eta(), momentum2.m(), weight);
+    } else {
+      LogDebug("Histograms") << "HMassVSPart: wrong charge value = " << charge << std::endl;
+      abort();
+    }
+  }
 
   void Write() override {
     hMassVSPt_->Write();
@@ -1004,21 +1045,21 @@ class HMassVSPart : public Histograms
     hMassVSCosThetaCS_prof->Write();
 
     //hMassVSPt_prof_->Write();
-    //hMassVSEta_prof_->Write();    
+    //hMassVSEta_prof_->Write();
     //hMassVSPhiPlus_prof_->Write();
     //hMassVSPhiMinus_prof_->Write();
   }
 
   void Clear() override {
     hMassVSPt_->Clear();
-    hMassVSEta_->Clear();    
+    hMassVSEta_->Clear();
     hMassVSPhiPlus_->Clear();
     hMassVSPhiMinus_->Clear();
 
-    hMassVSEtaPhiPlus_->Clear();   
-    hMassVSEtaPhiMinus_->Clear();   
-    hMassVSEtaPlus_->Clear();   
-    hMassVSEtaMinus_->Clear();    
+    hMassVSEtaPhiPlus_->Clear();
+    hMassVSEtaPhiMinus_->Clear();
+    hMassVSEtaPlus_->Clear();
+    hMassVSEtaMinus_->Clear();
 
     hMassVSPhiPlusPhiMinus_->Clear();
     hMassVSEtaPlusEtaMinus_->Clear();
@@ -1029,23 +1070,23 @@ class HMassVSPart : public Histograms
     hMassVSCosThetaCS_prof->Clear();
 
     //hMassVSPt_prof_->Clear();
-    //hMassVSEta_prof_->Clear();    
+    //hMassVSEta_prof_->Clear();
     //hMassVSPhiPlus_prof_->Clear();
     //hMassVSPhiMinus_prof_->Clear();
   }
 
- protected:
+protected:
   TH2F* hMassVSPt_;
   TH2F* hMassVSEta_;
-  TH2F* hMassVSPhiPlus_; 
-  TH2F* hMassVSPhiMinus_; 
+  TH2F* hMassVSPhiPlus_;
+  TH2F* hMassVSPhiMinus_;
   TH2F* hMassVSCosThetaCS_;
   TH2F* hMassVSPhiCS_;
 
   TH3F* hMassVSEtaPhiPlus_;
   TH3F* hMassVSEtaPhiMinus_;
   TH2F* hMassVSEtaPlus_;
-  TH2F* hMassVSEtaMinus_; 
+  TH2F* hMassVSEtaMinus_;
 
   TH2F* hMassVSPhiPlusMinusDiff_;
   TH2F* hMassVSEtaPlusMinusDiff_;
@@ -1053,7 +1094,7 @@ class HMassVSPart : public Histograms
   TH3F* hMassVSPhiPlusPhiMinus_;
   TH3F* hMassVSEtaPlusEtaMinus_;
 
-  TProfile*  hMassVSCosThetaCS_prof;
+  TProfile* hMassVSCosThetaCS_prof;
 
   //TProfile* hMassVSPt_prof_;
   //TProfile* hMassVSEta_prof_;
@@ -1061,53 +1102,72 @@ class HMassVSPart : public Histograms
   //TProfile* hMassVSPhiMinus_prof_;
 };
 
-
 // ---------------------------------------------------
 // A set of histograms of Z mass versus muon variables
-class HMassVSPartProfile : public Histograms
-{
- public:
-  HMassVSPartProfile( const TString & name, const double & minMass = 0., const double & maxMass = 150., const double maxPt = 100. ) {
+class HMassVSPartProfile : public Histograms {
+public:
+  HMassVSPartProfile(const TString& name,
+                     const double& minMass = 0.,
+                     const double& maxMass = 150.,
+                     const double maxPt = 100.) {
     name_ = name;
 
     // Kinematical variables
     // ---------------------
-    hMassVSPt_       = new TProfile2D( name+"_MassVSPt", "resonance mass vs muon transverse momentum", 200, 0., maxPt, 6000, minMass, maxMass, 0., 100. );
-    hMassVSEta_      = new TProfile2D( name+"_MassVSEta", "resonance mass vs muon pseudorapidity", 64, -6.4, 6.4, 6000, minMass, maxMass, 0., 100. );
-    hMassVSPhiPlus_  = new TProfile2D( name+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass, 0., 100. );
-    hMassVSPhiMinus_ = new TProfile2D( name+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass, 0., 100. );
-   }
-
-  HMassVSPartProfile(const TString & name, TFile* file){
-    name_=name;
-    hMassVSPt_       = (TProfile2D *) file->Get(name+"_MassVSPt");
-    hMassVSEta_      = (TProfile2D *) file->Get(name+"_MassVSEta");
-    hMassVSPhiPlus_  = (TProfile2D *) file->Get(name+"_MassVSPhiPlus");
-    hMassVSPhiMinus_ = (TProfile2D *) file->Get(name+"_MassVSPhiMinus");
+    hMassVSPt_ = new TProfile2D(name + "_MassVSPt",
+                                "resonance mass vs muon transverse momentum",
+                                200,
+                                0.,
+                                maxPt,
+                                6000,
+                                minMass,
+                                maxMass,
+                                0.,
+                                100.);
+    hMassVSEta_ = new TProfile2D(
+        name + "_MassVSEta", "resonance mass vs muon pseudorapidity", 64, -6.4, 6.4, 6000, minMass, maxMass, 0., 100.);
+    hMassVSPhiPlus_ = new TProfile2D(
+        name + "_MassVSPhiPlus", "resonance mass vs muon+ phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass, 0., 100.);
+    hMassVSPhiMinus_ = new TProfile2D(
+        name + "_MassVSPhiMinus", "resonance mass vs muon- phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass, 0., 100.);
   }
 
-  ~HMassVSPartProfile() override{
+  HMassVSPartProfile(const TString& name, TFile* file) {
+    name_ = name;
+    hMassVSPt_ = (TProfile2D*)file->Get(name + "_MassVSPt");
+    hMassVSEta_ = (TProfile2D*)file->Get(name + "_MassVSEta");
+    hMassVSPhiPlus_ = (TProfile2D*)file->Get(name + "_MassVSPhiPlus");
+    hMassVSPhiMinus_ = (TProfile2D*)file->Get(name + "_MassVSPhiMinus");
+  }
+
+  ~HMassVSPartProfile() override {
     delete hMassVSPt_;
     delete hMassVSEta_;
     delete hMassVSPhiPlus_;
     delete hMassVSPhiMinus_;
   }
 
-  void Fill(const reco::Particle::LorentzVector & p41, const reco::Particle::LorentzVector & p42, const int charge, const double & weight = 1.) override {
-    Fill(CLHEP::HepLorentzVector(p41.x(),p41.y(),p41.z(),p41.t()),
-	 CLHEP::HepLorentzVector(p42.x(),p42.y(),p42.z(),p42.t()), charge, weight);
+  void Fill(const reco::Particle::LorentzVector& p41,
+            const reco::Particle::LorentzVector& p42,
+            const int charge,
+            const double& weight = 1.) override {
+    Fill(CLHEP::HepLorentzVector(p41.x(), p41.y(), p41.z(), p41.t()),
+         CLHEP::HepLorentzVector(p42.x(), p42.y(), p42.z(), p42.t()),
+         charge,
+         weight);
   }
-  
-  void Fill(const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2, const int charge, const double & weight = 1.) override { 
-    hMassVSPt_->Fill(momentum1.perp(),momentum2.m(), weight); 
-    hMassVSEta_->Fill(momentum1.eta(),momentum2.m(), weight); 
-    if(charge>0){
+
+  void Fill(const CLHEP::HepLorentzVector& momentum1,
+            const CLHEP::HepLorentzVector& momentum2,
+            const int charge,
+            const double& weight = 1.) override {
+    hMassVSPt_->Fill(momentum1.perp(), momentum2.m(), weight);
+    hMassVSEta_->Fill(momentum1.eta(), momentum2.m(), weight);
+    if (charge > 0) {
       hMassVSPhiPlus_->Fill(momentum1.phi(), momentum2.m(), weight);
-    }
-    else if(charge<0){
+    } else if (charge < 0) {
       hMassVSPhiMinus_->Fill(momentum1.phi(), momentum2.m(), weight);
-    }
-    else {
+    } else {
       LogDebug("Histograms") << "HMassVSPartProfile: wrong charge value = " << charge << std::endl;
       abort();
     }
@@ -1122,28 +1182,31 @@ class HMassVSPartProfile : public Histograms
 
   void Clear() override {
     hMassVSPt_->Clear();
-    hMassVSEta_->Clear();    
+    hMassVSEta_->Clear();
     hMassVSPhiPlus_->Clear();
     hMassVSPhiMinus_->Clear();
   }
 
- protected:
+protected:
   TProfile2D* hMassVSPt_;
   TProfile2D* hMassVSEta_;
-  TProfile2D* hMassVSPhiPlus_; 
-  TProfile2D* hMassVSPhiMinus_; 
+  TProfile2D* hMassVSPhiPlus_;
+  TProfile2D* hMassVSPhiMinus_;
 };
 
 //---------------------------------------------------------------------------------------
 /// A set of histograms for resolution
-class HResolutionVSPart : public Histograms
-{
- public:
-  HResolutionVSPart(TFile * outputFile, const TString & name, const double maxPt = 100,
-                    const double & yMinEta = 0., const double & yMaxEta = 2.,
-                    const double & yMinPt = 0., const double & yMaxPt = 2.,
-                    const bool doProfiles = false) : Histograms(outputFile, name), doProfiles_(doProfiles)
-  {
+class HResolutionVSPart : public Histograms {
+public:
+  HResolutionVSPart(TFile* outputFile,
+                    const TString& name,
+                    const double maxPt = 100,
+                    const double& yMinEta = 0.,
+                    const double& yMaxEta = 2.,
+                    const double& yMinPt = 0.,
+                    const double& yMaxPt = 2.,
+                    const bool doProfiles = false)
+      : Histograms(outputFile, name), doProfiles_(doProfiles) {
     // Kinematical variables
 
     // hReso           = new TH1F (name+"_Reso", "resolution", 4000, -1, 1);
@@ -1161,61 +1224,70 @@ class HResolutionVSPart : public Histograms
     // hAbsResoVSEta   = new TH2F (name+"_AbsResoVSEta", "Abs resolution VS eta", 60, -3, 3, 100, 0, 1);
     // hAbsResoVSPhi   = new TH2F (name+"_AbsResoVSPhi", "Abs resolution VS phi", 14, -3.2, 3.2, 100, 0, 1);
 
-    hReso_           = new TH1F( name+"_Reso", "resolution", 200, -1, 1 );
-    hResoVSPtEta_    = new TH2F( name+"_ResoVSPtEta", "resolution VS pt and #eta", 200, 0, maxPt, 60, -3, 3 );
-    hResoVSPt_       = new TH2F( name+"_ResoVSPt", "resolution VS pt", 200, 0, maxPt, 200, yMinPt, yMaxPt );
-    hResoVSPt_Bar_   = new TH2F( name+"_ResoVSPt_Bar", "resolution VS pt Barrel", 200, 0, maxPt, 200, yMinPt, yMaxPt );
-    hResoVSPt_Endc_17_  = new TH2F( name+"_ResoVSPt_Endc_1.7", "resolution VS pt Endcap (1.4<eta<1.7)", 200, 0, maxPt, 200, yMinPt, yMaxPt );
-    hResoVSPt_Endc_20_  = new TH2F( name+"_ResoVSPt_Endc_2.0", "resolution VS pt Endcap (1.7<eta<2.0)", 200, 0, maxPt, 200, yMinPt, yMaxPt );
-    hResoVSPt_Endc_24_  = new TH2F( name+"_ResoVSPt_Endc_2.4", "resolution VS pt Endcap (2.0<eta<2.4)", 200, 0, maxPt, 200, yMinPt, yMaxPt );
-    hResoVSPt_Ovlap_ = new TH2F( name+"_ResoVSPt_Ovlap", "resolution VS pt overlap", 200, 0, maxPt, 200, yMinPt, yMaxPt );
-    hResoVSEta_      = new TH2F( name+"_ResoVSEta", "resolution VS eta", 200, -3, 3, 200, yMinEta, yMaxEta );
-    hResoVSTheta_    = new TH2F( name+"_ResoVSTheta", "resolution VS theta", 30, 0, TMath::Pi(), 200, yMinEta, yMaxEta );
-    hResoVSPhiPlus_  = new TH2F( name+"_ResoVSPhiPlus", "resolution VS phi mu+",  16, -3.2, 3.2, 200, -1, 1 );
-    hResoVSPhiMinus_ = new TH2F( name+"_ResoVSPhiMinus", "resolution VS phi mu-", 16, -3.2, 3.2, 200, -1, 1 );
-    hAbsReso_        = new TH1F( name+"_AbsReso", "resolution", 100, 0, 1 );
-    hAbsResoVSPt_    = new TH2F( name+"_AbsResoVSPt", "Abs resolution VS pt", 200, 0, maxPt, 100, 0, 1 );
-    hAbsResoVSEta_   = new TH2F( name+"_AbsResoVSEta", "Abs resolution VS eta", 64, -3.2, 3.2, 100, 0, 1 );
-    hAbsResoVSPhi_   = new TH2F( name+"_AbsResoVSPhi", "Abs resolution VS phi", 16, -3.2, 3.2, 100, 0, 1 );
-    if( doProfiles_ ) {
-      hResoVSPt_prof_    = new TProfile(name+"_ResoVSPt_prof", "resolution VS pt", 100, 0, maxPt, yMinPt, yMaxPt );
-      hResoVSPt_Bar_prof_    = new TProfile(name+"_ResoVSPt_Bar_prof", "resolution VS pt Barrel", 100, 0, maxPt, yMinPt, yMaxPt );
-      hResoVSPt_Endc_17_prof_   = new TProfile(name+"_ResoVSPt_Endc_1.7_prof", "resolution VS pt Endcap (1.4<eta<1.7)", 100, 0, maxPt, yMinPt, yMaxPt );
-      hResoVSPt_Endc_20_prof_   = new TProfile(name+"_ResoVSPt_Endc_2.0_prof", "resolution VS pt Endcap (1.7<eta<2.0)", 100, 0, maxPt, yMinPt, yMaxPt );
-      hResoVSPt_Endc_24_prof_   = new TProfile(name+"_ResoVSPt_Endc_2.4_prof", "resolution VS pt Endcap (2.0<eta<2.4)", 100, 0, maxPt, yMinPt, yMaxPt );
-      hResoVSPt_Ovlap_prof_  = new TProfile(name+"_ResoVSPt_Ovlap_prof", "resolution VS pt Overlap", 100, 0, maxPt, yMinPt, yMaxPt );
-      hResoVSEta_prof_       = new TProfile(name+"_ResoVSEta_prof", "resolution VS eta", 200, -3.0, 3.0, yMinEta, yMaxEta );
-      hResoVSPhi_prof_       = new TProfile(name+"_ResoVSPhi_prof", "resolution VS phi", 16, -3.2, 3.2, -1, 1 );
+    hReso_ = new TH1F(name + "_Reso", "resolution", 200, -1, 1);
+    hResoVSPtEta_ = new TH2F(name + "_ResoVSPtEta", "resolution VS pt and #eta", 200, 0, maxPt, 60, -3, 3);
+    hResoVSPt_ = new TH2F(name + "_ResoVSPt", "resolution VS pt", 200, 0, maxPt, 200, yMinPt, yMaxPt);
+    hResoVSPt_Bar_ = new TH2F(name + "_ResoVSPt_Bar", "resolution VS pt Barrel", 200, 0, maxPt, 200, yMinPt, yMaxPt);
+    hResoVSPt_Endc_17_ = new TH2F(
+        name + "_ResoVSPt_Endc_1.7", "resolution VS pt Endcap (1.4<eta<1.7)", 200, 0, maxPt, 200, yMinPt, yMaxPt);
+    hResoVSPt_Endc_20_ = new TH2F(
+        name + "_ResoVSPt_Endc_2.0", "resolution VS pt Endcap (1.7<eta<2.0)", 200, 0, maxPt, 200, yMinPt, yMaxPt);
+    hResoVSPt_Endc_24_ = new TH2F(
+        name + "_ResoVSPt_Endc_2.4", "resolution VS pt Endcap (2.0<eta<2.4)", 200, 0, maxPt, 200, yMinPt, yMaxPt);
+    hResoVSPt_Ovlap_ =
+        new TH2F(name + "_ResoVSPt_Ovlap", "resolution VS pt overlap", 200, 0, maxPt, 200, yMinPt, yMaxPt);
+    hResoVSEta_ = new TH2F(name + "_ResoVSEta", "resolution VS eta", 200, -3, 3, 200, yMinEta, yMaxEta);
+    hResoVSTheta_ = new TH2F(name + "_ResoVSTheta", "resolution VS theta", 30, 0, TMath::Pi(), 200, yMinEta, yMaxEta);
+    hResoVSPhiPlus_ = new TH2F(name + "_ResoVSPhiPlus", "resolution VS phi mu+", 16, -3.2, 3.2, 200, -1, 1);
+    hResoVSPhiMinus_ = new TH2F(name + "_ResoVSPhiMinus", "resolution VS phi mu-", 16, -3.2, 3.2, 200, -1, 1);
+    hAbsReso_ = new TH1F(name + "_AbsReso", "resolution", 100, 0, 1);
+    hAbsResoVSPt_ = new TH2F(name + "_AbsResoVSPt", "Abs resolution VS pt", 200, 0, maxPt, 100, 0, 1);
+    hAbsResoVSEta_ = new TH2F(name + "_AbsResoVSEta", "Abs resolution VS eta", 64, -3.2, 3.2, 100, 0, 1);
+    hAbsResoVSPhi_ = new TH2F(name + "_AbsResoVSPhi", "Abs resolution VS phi", 16, -3.2, 3.2, 100, 0, 1);
+    if (doProfiles_) {
+      hResoVSPt_prof_ = new TProfile(name + "_ResoVSPt_prof", "resolution VS pt", 100, 0, maxPt, yMinPt, yMaxPt);
+      hResoVSPt_Bar_prof_ =
+          new TProfile(name + "_ResoVSPt_Bar_prof", "resolution VS pt Barrel", 100, 0, maxPt, yMinPt, yMaxPt);
+      hResoVSPt_Endc_17_prof_ = new TProfile(
+          name + "_ResoVSPt_Endc_1.7_prof", "resolution VS pt Endcap (1.4<eta<1.7)", 100, 0, maxPt, yMinPt, yMaxPt);
+      hResoVSPt_Endc_20_prof_ = new TProfile(
+          name + "_ResoVSPt_Endc_2.0_prof", "resolution VS pt Endcap (1.7<eta<2.0)", 100, 0, maxPt, yMinPt, yMaxPt);
+      hResoVSPt_Endc_24_prof_ = new TProfile(
+          name + "_ResoVSPt_Endc_2.4_prof", "resolution VS pt Endcap (2.0<eta<2.4)", 100, 0, maxPt, yMinPt, yMaxPt);
+      hResoVSPt_Ovlap_prof_ =
+          new TProfile(name + "_ResoVSPt_Ovlap_prof", "resolution VS pt Overlap", 100, 0, maxPt, yMinPt, yMaxPt);
+      hResoVSEta_prof_ = new TProfile(name + "_ResoVSEta_prof", "resolution VS eta", 200, -3.0, 3.0, yMinEta, yMaxEta);
+      hResoVSPhi_prof_ = new TProfile(name + "_ResoVSPhi_prof", "resolution VS phi", 16, -3.2, 3.2, -1, 1);
     }
   }
-  
-  HResolutionVSPart(const TString & name, TFile* file) {
-    name_=name;
-    hReso_           = (TH1F *) file->Get(name+"_Reso");
-    hResoVSPtEta_    = (TH2F *) file->Get(name+"_ResoVSPtEta");
-    hResoVSPt_       = (TH2F *) file->Get(name+"_ResoVSPt");
-    hResoVSPt_Bar_   = (TH2F *) file->Get(name+"_ResoVSPt");
-    hResoVSPt_Endc_17_  = (TH2F *) file->Get(name+"_ResoVSPt");
-    hResoVSPt_Endc_20_  = (TH2F *) file->Get(name+"_ResoVSPt");
-    hResoVSPt_Endc_24_  = (TH2F *) file->Get(name+"_ResoVSPt");
-    hResoVSPt_Ovlap_ = (TH2F *) file->Get(name+"_ResoVSPt");
-    hResoVSEta_      = (TH2F *) file->Get(name+"_ResoVSEta");
-    hResoVSTheta_    = (TH2F *) file->Get(name+"_ResoVSTheta");
-    hResoVSPhiPlus_  = (TH2F *) file->Get(name+"_ResoVSPhiPlus");
-    hResoVSPhiMinus_ = (TH2F *) file->Get(name+"_ResoVSPhiMinus");
-    hAbsReso_        = (TH1F *) file->Get(name+"_AbsReso");
-    hAbsResoVSPt_    = (TH2F *) file->Get(name+"_AbsResoVSPt");
-    hAbsResoVSEta_   = (TH2F *) file->Get(name+"_AbsResoVSEta");
-    hAbsResoVSPhi_   = (TH2F *) file->Get(name+"_AbsResoVSPhi");
-    if( doProfiles_ ) {
-      hResoVSPt_prof_  = (TProfile *) file->Get(name+"_ResoVSPt_prof");
-      hResoVSPt_Bar_prof_ = (TProfile *) file->Get(name+"_ResoVSPt_prof"); 
-      hResoVSPt_Endc_17_prof_ = (TProfile *) file->Get(name+"_ResoVSPt_1.7_prof"); 
-      hResoVSPt_Endc_20_prof_ = (TProfile *) file->Get(name+"_ResoVSPt_2.0_prof"); 
-      hResoVSPt_Endc_24_prof_ = (TProfile *) file->Get(name+"_ResoVSPt_2.4_prof"); 
-      hResoVSPt_Ovlap_prof_= (TProfile *) file->Get(name+"_ResoVSPt_prof"); 
-      hResoVSEta_prof_ = (TProfile *) file->Get(name+"_ResoVSEta_prof");
-      hResoVSPhi_prof_ = (TProfile *) file->Get(name+"_ResoVSPhi_prof");
+
+  HResolutionVSPart(const TString& name, TFile* file) {
+    name_ = name;
+    hReso_ = (TH1F*)file->Get(name + "_Reso");
+    hResoVSPtEta_ = (TH2F*)file->Get(name + "_ResoVSPtEta");
+    hResoVSPt_ = (TH2F*)file->Get(name + "_ResoVSPt");
+    hResoVSPt_Bar_ = (TH2F*)file->Get(name + "_ResoVSPt");
+    hResoVSPt_Endc_17_ = (TH2F*)file->Get(name + "_ResoVSPt");
+    hResoVSPt_Endc_20_ = (TH2F*)file->Get(name + "_ResoVSPt");
+    hResoVSPt_Endc_24_ = (TH2F*)file->Get(name + "_ResoVSPt");
+    hResoVSPt_Ovlap_ = (TH2F*)file->Get(name + "_ResoVSPt");
+    hResoVSEta_ = (TH2F*)file->Get(name + "_ResoVSEta");
+    hResoVSTheta_ = (TH2F*)file->Get(name + "_ResoVSTheta");
+    hResoVSPhiPlus_ = (TH2F*)file->Get(name + "_ResoVSPhiPlus");
+    hResoVSPhiMinus_ = (TH2F*)file->Get(name + "_ResoVSPhiMinus");
+    hAbsReso_ = (TH1F*)file->Get(name + "_AbsReso");
+    hAbsResoVSPt_ = (TH2F*)file->Get(name + "_AbsResoVSPt");
+    hAbsResoVSEta_ = (TH2F*)file->Get(name + "_AbsResoVSEta");
+    hAbsResoVSPhi_ = (TH2F*)file->Get(name + "_AbsResoVSPhi");
+    if (doProfiles_) {
+      hResoVSPt_prof_ = (TProfile*)file->Get(name + "_ResoVSPt_prof");
+      hResoVSPt_Bar_prof_ = (TProfile*)file->Get(name + "_ResoVSPt_prof");
+      hResoVSPt_Endc_17_prof_ = (TProfile*)file->Get(name + "_ResoVSPt_1.7_prof");
+      hResoVSPt_Endc_20_prof_ = (TProfile*)file->Get(name + "_ResoVSPt_2.0_prof");
+      hResoVSPt_Endc_24_prof_ = (TProfile*)file->Get(name + "_ResoVSPt_2.4_prof");
+      hResoVSPt_Ovlap_prof_ = (TProfile*)file->Get(name + "_ResoVSPt_prof");
+      hResoVSEta_prof_ = (TProfile*)file->Get(name + "_ResoVSEta_prof");
+      hResoVSPhi_prof_ = (TProfile*)file->Get(name + "_ResoVSPhi_prof");
     }
   }
 
@@ -1236,65 +1308,66 @@ class HResolutionVSPart : public Histograms
     delete hAbsResoVSPt_;
     delete hAbsResoVSEta_;
     delete hAbsResoVSPhi_;
-    if( doProfiles_ ) {
+    if (doProfiles_) {
       delete hResoVSPt_prof_;
-      delete hResoVSPt_Bar_prof_;  
-      delete hResoVSPt_Endc_17_prof_; 
-      delete hResoVSPt_Endc_20_prof_; 
-      delete hResoVSPt_Endc_24_prof_; 
+      delete hResoVSPt_Bar_prof_;
+      delete hResoVSPt_Endc_17_prof_;
+      delete hResoVSPt_Endc_20_prof_;
+      delete hResoVSPt_Endc_24_prof_;
       delete hResoVSPt_Ovlap_prof_;
       delete hResoVSEta_prof_;
       delete hResoVSPhi_prof_;
     }
   }
 
-  void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) override { 
+  void Fill(const reco::Particle::LorentzVector& p4, const double& resValue, const int charge) override {
     double pt = p4.Pt();
     double eta = p4.Eta();
     hReso_->Fill(resValue);
-    hResoVSPtEta_->Fill(pt, eta,resValue); 
-    hResoVSPt_->Fill(pt,resValue); 
-    if(fabs(eta)<=0.9)
-      hResoVSPt_Bar_->Fill(pt,resValue);
-    else if(fabs(eta)>0.9 && fabs(eta)<=1.4)
-      hResoVSPt_Ovlap_->Fill(pt,resValue);
-    else if(fabs(eta)>1.4 && fabs(eta)<=1.7)
-      hResoVSPt_Endc_17_->Fill(pt,resValue);
-    else if(fabs(eta)>1.7 && fabs(eta)<=2.0)
-      hResoVSPt_Endc_20_->Fill(pt,resValue);
+    hResoVSPtEta_->Fill(pt, eta, resValue);
+    hResoVSPt_->Fill(pt, resValue);
+    if (fabs(eta) <= 0.9)
+      hResoVSPt_Bar_->Fill(pt, resValue);
+    else if (fabs(eta) > 0.9 && fabs(eta) <= 1.4)
+      hResoVSPt_Ovlap_->Fill(pt, resValue);
+    else if (fabs(eta) > 1.4 && fabs(eta) <= 1.7)
+      hResoVSPt_Endc_17_->Fill(pt, resValue);
+    else if (fabs(eta) > 1.7 && fabs(eta) <= 2.0)
+      hResoVSPt_Endc_20_->Fill(pt, resValue);
     else
-      hResoVSPt_Endc_24_->Fill(pt,resValue);
-     
-    hResoVSEta_->Fill(eta,resValue);
-    hResoVSTheta_->Fill(p4.Theta(),resValue);
-    if(charge>0)
-      hResoVSPhiPlus_->Fill(p4.Phi(),resValue); 
-    else if(charge<0)
-      hResoVSPhiMinus_->Fill(p4.Phi(),resValue); 
-    hAbsReso_->Fill(fabs(resValue)); 
-    hAbsResoVSPt_->Fill(pt,fabs(resValue)); 
-    hAbsResoVSEta_->Fill(eta,fabs(resValue)); 
-    hAbsResoVSPhi_->Fill(p4.Phi(),fabs(resValue));     
-    if( doProfiles_ ) {
-      hResoVSPt_prof_->Fill(p4.Pt(),resValue); 
-      if(fabs(eta)<=0.9)
-	hResoVSPt_Bar_prof_->Fill(p4.Pt(),resValue); 
-      else if(fabs(eta)>0.9 && fabs(eta)<=1.4)
-	hResoVSPt_Ovlap_prof_->Fill(pt,resValue);
-      else if(fabs(eta)>1.4 && fabs(eta)<=1.7)
-	hResoVSPt_Endc_17_prof_->Fill(pt,resValue);
-      else if(fabs(eta)>1.7 && fabs(eta)<=2.0)
-	hResoVSPt_Endc_20_prof_->Fill(pt,resValue);
+      hResoVSPt_Endc_24_->Fill(pt, resValue);
+
+    hResoVSEta_->Fill(eta, resValue);
+    hResoVSTheta_->Fill(p4.Theta(), resValue);
+    if (charge > 0)
+      hResoVSPhiPlus_->Fill(p4.Phi(), resValue);
+    else if (charge < 0)
+      hResoVSPhiMinus_->Fill(p4.Phi(), resValue);
+    hAbsReso_->Fill(fabs(resValue));
+    hAbsResoVSPt_->Fill(pt, fabs(resValue));
+    hAbsResoVSEta_->Fill(eta, fabs(resValue));
+    hAbsResoVSPhi_->Fill(p4.Phi(), fabs(resValue));
+    if (doProfiles_) {
+      hResoVSPt_prof_->Fill(p4.Pt(), resValue);
+      if (fabs(eta) <= 0.9)
+        hResoVSPt_Bar_prof_->Fill(p4.Pt(), resValue);
+      else if (fabs(eta) > 0.9 && fabs(eta) <= 1.4)
+        hResoVSPt_Ovlap_prof_->Fill(pt, resValue);
+      else if (fabs(eta) > 1.4 && fabs(eta) <= 1.7)
+        hResoVSPt_Endc_17_prof_->Fill(pt, resValue);
+      else if (fabs(eta) > 1.7 && fabs(eta) <= 2.0)
+        hResoVSPt_Endc_20_prof_->Fill(pt, resValue);
       else
-	hResoVSPt_Endc_24_prof_->Fill(pt,resValue);
-      
-      hResoVSEta_prof_->Fill(p4.Eta(),resValue); 
-      hResoVSPhi_prof_->Fill(p4.Phi(),resValue); 
+        hResoVSPt_Endc_24_prof_->Fill(pt, resValue);
+
+      hResoVSEta_prof_->Fill(p4.Eta(), resValue);
+      hResoVSPhi_prof_->Fill(p4.Phi(), resValue);
     }
   }
 
   void Write() override {
-    if(histoDir_ != nullptr) histoDir_->cd();
+    if (histoDir_ != nullptr)
+      histoDir_->cd();
 
     hReso_->Write();
     hResoVSPtEta_->Write();
@@ -1312,7 +1385,7 @@ class HResolutionVSPart : public Histograms
     hAbsResoVSPt_->Write();
     hAbsResoVSEta_->Write();
     hAbsResoVSPhi_->Write();
-    if( doProfiles_ ) {
+    if (doProfiles_) {
       hResoVSPt_prof_->Write();
       hResoVSPt_Bar_prof_->Write();
       hResoVSPt_Endc_17_prof_->Write();
@@ -1323,7 +1396,7 @@ class HResolutionVSPart : public Histograms
       hResoVSPhi_prof_->Write();
     }
   }
-  
+
   void Clear() override {
     hReso_->Clear();
     hResoVSPtEta_->Clear();
@@ -1341,7 +1414,7 @@ class HResolutionVSPart : public Histograms
     hAbsResoVSPt_->Clear();
     hAbsResoVSEta_->Clear();
     hAbsResoVSPhi_->Clear();
-    if( doProfiles_ ) {
+    if (doProfiles_) {
       hResoVSPt_prof_->Clear();
       hResoVSPt_Bar_prof_->Clear();
       hResoVSPt_Endc_17_prof_->Clear();
@@ -1353,7 +1426,7 @@ class HResolutionVSPart : public Histograms
     }
   }
 
- public:
+public:
   TH1F* hReso_;
   TH2F* hResoVSPtEta_;
   TH2F* hResoVSPt_;
@@ -1384,73 +1457,77 @@ class HResolutionVSPart : public Histograms
 // -------------------------------------------------------------
 // A set of histograms of likelihood value versus muon variables
 // -------------------------------------------------------------
-class HLikelihoodVSPart : public Histograms
-{
- public:
-  HLikelihoodVSPart(const TString & name){
+class HLikelihoodVSPart : public Histograms {
+public:
+  HLikelihoodVSPart(const TString& name) {
     name_ = name;
 
     // Kinematical variables
     // ---------------------
-    hLikeVSPt_       = new TH2F (name+"_LikelihoodVSPt", "likelihood vs muon transverse momentum", 100, 0., 100., 100, -100., 100.);
-    hLikeVSEta_      = new TH2F (name+"_LikelihoodVSEta", "likelihood vs muon pseudorapidity", 100, -4.,4., 100, -100., 100.);
-    hLikeVSPhi_      = new TH2F (name+"_LikelihoodVSPhi", "likelihood vs muon phi angle", 100, -3.2, 3.2, 100, -100., 100.);
-    hLikeVSPt_prof_  = new TProfile (name+"_LikelihoodVSPt_prof", "likelihood vs muon transverse momentum", 40, 0., 100., -1000., 1000. );
-    hLikeVSEta_prof_ = new TProfile (name+"_LikelihoodVSEta_prof", "likelihood vs muon pseudorapidity", 40, -4.,4., -1000., 1000. );
-    hLikeVSPhi_prof_ = new TProfile (name+"_LikelihoodVSPhi_prof", "likelihood vs muon phi angle", 40, -3.2, 3.2, -1000., 1000.);
-   }
-  
-  HLikelihoodVSPart(const TString & name, TFile* file){
-    name_ = name;
-    hLikeVSPt_       = (TH2F *) file->Get(name+"_LikelihoodVSPt");
-    hLikeVSEta_      = (TH2F *) file->Get(name+"_LikelihoodVSEta");
-    hLikeVSPhi_      = (TH2F *) file->Get(name+"_LikelihoodVSPhi");
-    hLikeVSPt_prof_  = (TProfile *) file->Get(name+"_LikelihoodVSPt_prof");
-    hLikeVSEta_prof_ = (TProfile *) file->Get(name+"_LikelihoodVSEta_prof");
-    hLikeVSPhi_prof_ = (TProfile *) file->Get(name+"_LikelihoodVSPhi_prof");
+    hLikeVSPt_ =
+        new TH2F(name + "_LikelihoodVSPt", "likelihood vs muon transverse momentum", 100, 0., 100., 100, -100., 100.);
+    hLikeVSEta_ =
+        new TH2F(name + "_LikelihoodVSEta", "likelihood vs muon pseudorapidity", 100, -4., 4., 100, -100., 100.);
+    hLikeVSPhi_ = new TH2F(name + "_LikelihoodVSPhi", "likelihood vs muon phi angle", 100, -3.2, 3.2, 100, -100., 100.);
+    hLikeVSPt_prof_ = new TProfile(
+        name + "_LikelihoodVSPt_prof", "likelihood vs muon transverse momentum", 40, 0., 100., -1000., 1000.);
+    hLikeVSEta_prof_ =
+        new TProfile(name + "_LikelihoodVSEta_prof", "likelihood vs muon pseudorapidity", 40, -4., 4., -1000., 1000.);
+    hLikeVSPhi_prof_ =
+        new TProfile(name + "_LikelihoodVSPhi_prof", "likelihood vs muon phi angle", 40, -3.2, 3.2, -1000., 1000.);
   }
 
-  ~HLikelihoodVSPart() override{
+  HLikelihoodVSPart(const TString& name, TFile* file) {
+    name_ = name;
+    hLikeVSPt_ = (TH2F*)file->Get(name + "_LikelihoodVSPt");
+    hLikeVSEta_ = (TH2F*)file->Get(name + "_LikelihoodVSEta");
+    hLikeVSPhi_ = (TH2F*)file->Get(name + "_LikelihoodVSPhi");
+    hLikeVSPt_prof_ = (TProfile*)file->Get(name + "_LikelihoodVSPt_prof");
+    hLikeVSEta_prof_ = (TProfile*)file->Get(name + "_LikelihoodVSEta_prof");
+    hLikeVSPhi_prof_ = (TProfile*)file->Get(name + "_LikelihoodVSPhi_prof");
+  }
+
+  ~HLikelihoodVSPart() override {
     delete hLikeVSPt_;
     delete hLikeVSEta_;
     delete hLikeVSPhi_;
     delete hLikeVSPt_prof_;
     delete hLikeVSEta_prof_;
     delete hLikeVSPhi_prof_;
-  } 
-
-  void Fill(const reco::Particle::LorentzVector & p4, const double & likeValue) override {
-    Fill(CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()), likeValue);
   }
-  
-  void Fill(const CLHEP::HepLorentzVector& momentum, const double& likeValue) override { 
-     hLikeVSPt_->Fill(momentum.perp(),likeValue); 
-     hLikeVSEta_->Fill(momentum.eta(),likeValue); 
-     hLikeVSPhi_->Fill(momentum.phi(),likeValue); 
-     hLikeVSPt_prof_->Fill(momentum.perp(),likeValue); 
-     hLikeVSEta_prof_->Fill(momentum.eta(),likeValue); 
-     hLikeVSPhi_prof_->Fill(momentum.phi(),likeValue); 
-   } 
-  
+
+  void Fill(const reco::Particle::LorentzVector& p4, const double& likeValue) override {
+    Fill(CLHEP::HepLorentzVector(p4.x(), p4.y(), p4.z(), p4.t()), likeValue);
+  }
+
+  void Fill(const CLHEP::HepLorentzVector& momentum, const double& likeValue) override {
+    hLikeVSPt_->Fill(momentum.perp(), likeValue);
+    hLikeVSEta_->Fill(momentum.eta(), likeValue);
+    hLikeVSPhi_->Fill(momentum.phi(), likeValue);
+    hLikeVSPt_prof_->Fill(momentum.perp(), likeValue);
+    hLikeVSEta_prof_->Fill(momentum.eta(), likeValue);
+    hLikeVSPhi_prof_->Fill(momentum.phi(), likeValue);
+  }
+
   void Write() override {
     hLikeVSPt_->Write();
-    hLikeVSEta_->Write();    
+    hLikeVSEta_->Write();
     hLikeVSPhi_->Write();
     hLikeVSPt_prof_->Write();
-    hLikeVSEta_prof_->Write();    
+    hLikeVSEta_prof_->Write();
     hLikeVSPhi_prof_->Write();
   }
-  
+
   void Clear() override {
     hLikeVSPt_->Reset("ICE");
     hLikeVSEta_->Reset("ICE");
     hLikeVSPhi_->Reset("ICE");
     hLikeVSPt_prof_->Reset("ICE");
-    hLikeVSEta_prof_->Reset("ICE");    
+    hLikeVSEta_prof_->Reset("ICE");
     hLikeVSPhi_prof_->Reset("ICE");
   }
-  
- public:
+
+public:
   TH2F* hLikeVSPt_;
   TH2F* hLikeVSEta_;
   TH2F* hLikeVSPhi_;
@@ -1468,10 +1545,10 @@ class HLikelihoodVSPart : public Histograms
  * function, reflecting the parameters changes done by minuit) with those filled comparing
  * recoMuons with genMuons (the real resolutions).
  */
-class HFunctionResolution : public Histograms
-{
- public:
-  HFunctionResolution(TFile * outputFile, const TString & name, const double & ptMax = 100, const int totBinsY = 300) : Histograms(outputFile, name) {
+class HFunctionResolution : public Histograms {
+public:
+  HFunctionResolution(TFile* outputFile, const TString& name, const double& ptMax = 100, const int totBinsY = 300)
+      : Histograms(outputFile, name) {
     name_ = name;
     totBinsX_ = 300;
     totBinsY_ = totBinsY;
@@ -1481,36 +1558,42 @@ class HFunctionResolution : public Histograms
     double yMax = 3.0;
     deltaX_ = xMax - xMin_;
     deltaY_ = yMax - yMin_;
-    hReso_        = new TH1F( name+"_Reso", "resolution", 1000, 0, 1 );
-    hResoVSPtEta_ = new TH2F( name+"_ResoVSPtEta", "resolution vs pt and #eta", totBinsX_, xMin_, xMax, totBinsY_, yMin_, yMax );
+    hReso_ = new TH1F(name + "_Reso", "resolution", 1000, 0, 1);
+    hResoVSPtEta_ =
+        new TH2F(name + "_ResoVSPtEta", "resolution vs pt and #eta", totBinsX_, xMin_, xMax, totBinsY_, yMin_, yMax);
     // Create and initialize the resolution arrays
-    resoVsPtEta_  = new double*[totBinsX_];
-    resoCount_    = new int*[totBinsX_];
-    for( int i=0; i<totBinsX_; ++i ) {
+    resoVsPtEta_ = new double*[totBinsX_];
+    resoCount_ = new int*[totBinsX_];
+    for (int i = 0; i < totBinsX_; ++i) {
       resoVsPtEta_[i] = new double[totBinsY_];
-      resoCount_[i]   = new int[totBinsY_];
-      for( int j=0; j<totBinsY_; ++j ) {
+      resoCount_[i] = new int[totBinsY_];
+      for (int j = 0; j < totBinsY_; ++j) {
         resoVsPtEta_[i][j] = 0;
         resoCount_[i][j] = 0;
       }
     }
-    hResoVSPt_prof_       = new TProfile( name+"_ResoVSPt_prof", "resolution VS pt", totBinsX_, xMin_, xMax, yMin_, yMax);
-    hResoVSPt_Bar_prof_   = new TProfile( name+"_ResoVSPt_Bar_prof", "resolution VS pt Barrel", totBinsX_, xMin_, xMax, yMin_, yMax);
-    hResoVSPt_Endc_17_prof_  = new TProfile( name+"_ResoVSPt_Endc_1.7_prof", "resolution VS pt Endcap (1.4<eta<1.7)", totBinsX_, xMin_, xMax, yMin_, yMax);
-    hResoVSPt_Endc_20_prof_  = new TProfile( name+"_ResoVSPt_Endc_2.0_prof", "resolution VS pt Endcap (1.7<eta<2.0)", totBinsX_, xMin_, xMax, yMin_, yMax);
-    hResoVSPt_Endc_24_prof_  = new TProfile( name+"_ResoVSPt_Endc_2.4_prof", "resolution VS pt Endcap (2.0<eta<2.4)", totBinsX_, xMin_, xMax, yMin_, yMax);
-    hResoVSPt_Ovlap_prof_ = new TProfile( name+"_ResoVSPt_Ovlap_prof", "resolution VS pt Overlap", totBinsX_, xMin_, xMax, yMin_, yMax);
-    hResoVSEta_prof_      = new TProfile( name+"_ResoVSEta_prof", "resolution VS eta", totBinsY_, yMin_, yMax, 0, 1);
+    hResoVSPt_prof_ = new TProfile(name + "_ResoVSPt_prof", "resolution VS pt", totBinsX_, xMin_, xMax, yMin_, yMax);
+    hResoVSPt_Bar_prof_ =
+        new TProfile(name + "_ResoVSPt_Bar_prof", "resolution VS pt Barrel", totBinsX_, xMin_, xMax, yMin_, yMax);
+    hResoVSPt_Endc_17_prof_ = new TProfile(
+        name + "_ResoVSPt_Endc_1.7_prof", "resolution VS pt Endcap (1.4<eta<1.7)", totBinsX_, xMin_, xMax, yMin_, yMax);
+    hResoVSPt_Endc_20_prof_ = new TProfile(
+        name + "_ResoVSPt_Endc_2.0_prof", "resolution VS pt Endcap (1.7<eta<2.0)", totBinsX_, xMin_, xMax, yMin_, yMax);
+    hResoVSPt_Endc_24_prof_ = new TProfile(
+        name + "_ResoVSPt_Endc_2.4_prof", "resolution VS pt Endcap (2.0<eta<2.4)", totBinsX_, xMin_, xMax, yMin_, yMax);
+    hResoVSPt_Ovlap_prof_ =
+        new TProfile(name + "_ResoVSPt_Ovlap_prof", "resolution VS pt Overlap", totBinsX_, xMin_, xMax, yMin_, yMax);
+    hResoVSEta_prof_ = new TProfile(name + "_ResoVSEta_prof", "resolution VS eta", totBinsY_, yMin_, yMax, 0, 1);
     //hResoVSTheta_prof_    = new TProfile( name+"_ResoVSTheta_prof", "resolution VS theta", 30, 0, TMath::Pi(), 0, 1);
-    hResoVSPhiPlus_prof_  = new TProfile( name+"_ResoVSPhiPlus_prof", "resolution VS phi mu+", 16, -3.2, 3.2, 0, 1);
-    hResoVSPhiMinus_prof_ = new TProfile( name+"_ResoVSPhiMinus_prof", "resolution VS phi mu-", 16, -3.2, 3.2, 0, 1);
-    hResoVSPhi_prof_      = new TProfile( name+"_ResoVSPhi_prof", "resolution VS phi", 16, -3.2, 3.2, -1, 1);
+    hResoVSPhiPlus_prof_ = new TProfile(name + "_ResoVSPhiPlus_prof", "resolution VS phi mu+", 16, -3.2, 3.2, 0, 1);
+    hResoVSPhiMinus_prof_ = new TProfile(name + "_ResoVSPhiMinus_prof", "resolution VS phi mu-", 16, -3.2, 3.2, 0, 1);
+    hResoVSPhi_prof_ = new TProfile(name + "_ResoVSPhi_prof", "resolution VS phi", 16, -3.2, 3.2, -1, 1);
   }
   ~HFunctionResolution() override {
     delete hReso_;
     delete hResoVSPtEta_;
     // Free the resolution arrays
-    for( int i=0; i<totBinsX_; ++i ) {
+    for (int i = 0; i < totBinsX_; ++i) {
       delete[] resoVsPtEta_[i];
       delete[] resoCount_[i];
     }
@@ -1529,14 +1612,15 @@ class HFunctionResolution : public Histograms
     delete hResoVSPhiMinus_prof_;
     delete hResoVSPhi_prof_;
   }
-  void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) override {
-    if( resValue != resValue ) return;
+  void Fill(const reco::Particle::LorentzVector& p4, const double& resValue, const int charge) override {
+    if (resValue != resValue)
+      return;
     hReso_->Fill(resValue);
 
     // Fill the arrays with the resolution value and count
     int xIndex = getXindex(p4.Pt());
     int yIndex = getYindex(p4.Eta());
-    if ( 0 <= xIndex && xIndex < totBinsX_ && 0 <= yIndex && yIndex < totBinsY_ ) {
+    if (0 <= xIndex && xIndex < totBinsX_ && 0 <= yIndex && yIndex < totBinsY_) {
       resoVsPtEta_[xIndex][yIndex] += resValue;
       // ATTENTION: we count only for positive muons because we are considering di-muon resonances
       // and we use this counter to compute the mean in the end. The resoVsPtEta value is filled with each muon,
@@ -1549,38 +1633,41 @@ class HFunctionResolution : public Histograms
       resoCount_[xIndex][yIndex] += 1;
 
       // hResoVSPtEta->Fill(p4.Pt(), p4.Eta(), resValue);
-      hResoVSPt_prof_->Fill(p4.Pt(),resValue);
-      if(fabs(p4.Eta())<=0.9)
-	hResoVSPt_Bar_prof_->Fill(p4.Pt(),resValue);
-      else if(fabs(p4.Eta())>0.9 && fabs(p4.Eta())<=1.4 )
-	hResoVSPt_Ovlap_prof_->Fill(p4.Pt(),resValue);
-      else if(fabs(p4.Eta())>1.4 && fabs(p4.Eta())<=1.7 )
-	hResoVSPt_Endc_17_prof_->Fill(p4.Pt(),resValue);
-      else if(fabs(p4.Eta())>1.7 && fabs(p4.Eta())<=2.0 )
-	hResoVSPt_Endc_20_prof_->Fill(p4.Pt(),resValue);
+      hResoVSPt_prof_->Fill(p4.Pt(), resValue);
+      if (fabs(p4.Eta()) <= 0.9)
+        hResoVSPt_Bar_prof_->Fill(p4.Pt(), resValue);
+      else if (fabs(p4.Eta()) > 0.9 && fabs(p4.Eta()) <= 1.4)
+        hResoVSPt_Ovlap_prof_->Fill(p4.Pt(), resValue);
+      else if (fabs(p4.Eta()) > 1.4 && fabs(p4.Eta()) <= 1.7)
+        hResoVSPt_Endc_17_prof_->Fill(p4.Pt(), resValue);
+      else if (fabs(p4.Eta()) > 1.7 && fabs(p4.Eta()) <= 2.0)
+        hResoVSPt_Endc_20_prof_->Fill(p4.Pt(), resValue);
       else
-      	hResoVSPt_Endc_24_prof_->Fill(p4.Pt(),resValue);
-      hResoVSEta_prof_->Fill(p4.Eta(),resValue);
+        hResoVSPt_Endc_24_prof_->Fill(p4.Pt(), resValue);
+      hResoVSEta_prof_->Fill(p4.Eta(), resValue);
       //hResoVSTheta_prof_->Fill(p4.Theta(),resValue);
-      if(charge>0)
-        hResoVSPhiPlus_prof_->Fill(p4.Phi(),resValue);
-      else if(charge<0)
-        hResoVSPhiMinus_prof_->Fill(p4.Phi(),resValue);
-      hResoVSPhi_prof_->Fill(p4.Phi(),resValue);
+      if (charge > 0)
+        hResoVSPhiPlus_prof_->Fill(p4.Phi(), resValue);
+      else if (charge < 0)
+        hResoVSPhiMinus_prof_->Fill(p4.Phi(), resValue);
+      hResoVSPhi_prof_->Fill(p4.Phi(), resValue);
     }
   }
 
   void Write() override {
-    if(histoDir_ != nullptr) histoDir_->cd();
+    if (histoDir_ != nullptr)
+      histoDir_->cd();
 
     hReso_->Write();
 
-    for( int i=0; i<totBinsX_; ++i ) {
-      for( int j=0; j<totBinsY_; ++j ) {
+    for (int i = 0; i < totBinsX_; ++i) {
+      for (int j = 0; j < totBinsY_; ++j) {
         int N = resoCount_[i][j];
         // Fill with the mean value
-        if( N != 0 ) hResoVSPtEta_->SetBinContent( i+1, j+1, resoVsPtEta_[i][j]/N );
-        else hResoVSPtEta_->SetBinContent( i+1, j+1, 0 );
+        if (N != 0)
+          hResoVSPtEta_->SetBinContent(i + 1, j + 1, resoVsPtEta_[i][j] / N);
+        else
+          hResoVSPtEta_->SetBinContent(i + 1, j + 1, 0);
       }
     }
     hResoVSPtEta_->Write();
@@ -1597,7 +1684,8 @@ class HFunctionResolution : public Histograms
     hResoVSPhiPlus_prof_->Write();
     hResoVSPhi_prof_->Write();
 
-    TCanvas canvas(TString(hResoVSPtEta_->GetName())+"_canvas", TString(hResoVSPtEta_->GetTitle())+" canvas", 1000, 800);
+    TCanvas canvas(
+        TString(hResoVSPtEta_->GetName()) + "_canvas", TString(hResoVSPtEta_->GetTitle()) + " canvas", 1000, 800);
     canvas.Divide(2);
     canvas.cd(1);
     hResoVSPtEta_->Draw("lego");
@@ -1608,7 +1696,7 @@ class HFunctionResolution : public Histograms
 
     outputFile_->cd();
   }
-  
+
   void Clear() override {
     hReso_->Clear();
     hResoVSPtEta_->Clear();
@@ -1625,17 +1713,13 @@ class HFunctionResolution : public Histograms
     hResoVSPhi_prof_->Clear();
   }
 
- protected:
-  int getXindex(const double & x) const {
-    return int((x-xMin_)/deltaX_*totBinsX_);
-  }
-  int getYindex(const double & y) const {
-    return int((y-yMin_)/deltaY_*totBinsY_);
-  }
+protected:
+  int getXindex(const double& x) const { return int((x - xMin_) / deltaX_ * totBinsX_); }
+  int getYindex(const double& y) const { return int((y - yMin_) / deltaY_ * totBinsY_); }
   TH1F* hReso_;
   TH2F* hResoVSPtEta_;
-  double ** resoVsPtEta_;
-  int ** resoCount_;
+  double** resoVsPtEta_;
+  int** resoCount_;
   TProfile* hResoVSPt_prof_;
   TProfile* hResoVSPt_Bar_prof_;
   TProfile* hResoVSPt_Endc_17_prof_;
@@ -1652,56 +1736,57 @@ class HFunctionResolution : public Histograms
   double deltaX_, deltaY_;
 };
 
-class HFunctionResolutionVarianceCheck : public HFunctionResolution
-{
+class HFunctionResolutionVarianceCheck : public HFunctionResolution {
 public:
-  HFunctionResolutionVarianceCheck(TFile * outputFile, const TString & name, const double ptMax = 200) :
-    HFunctionResolution(outputFile, name, ptMax)
-  {
+  HFunctionResolutionVarianceCheck(TFile* outputFile, const TString& name, const double ptMax = 200)
+      : HFunctionResolution(outputFile, name, ptMax) {
     histoVarianceCheck_ = new TH1D**[totBinsX_];
-    for( int i=0; i<totBinsX_; ++i ) {
+    for (int i = 0; i < totBinsX_; ++i) {
       histoVarianceCheck_[i] = new TH1D*[totBinsY_];
-      for( int j=0; j<totBinsY_; ++j ) {
+      for (int j = 0; j < totBinsY_; ++j) {
         std::stringstream namei;
         std::stringstream namej;
         namei << i;
         namej << j;
-        histoVarianceCheck_[i][j] = new TH1D(name+"_"+namei.str()+"_"+namej.str(), name, 100, 0., 1.);
+        histoVarianceCheck_[i][j] = new TH1D(name + "_" + namei.str() + "_" + namej.str(), name, 100, 0., 1.);
       }
     }
   }
   ~HFunctionResolutionVarianceCheck() override {
-    for( int i=0; i<totBinsX_; ++i ) {
-      for( int j=0; j<totBinsY_; ++j ) {
+    for (int i = 0; i < totBinsX_; ++i) {
+      for (int j = 0; j < totBinsY_; ++j) {
         delete histoVarianceCheck_[i][j];
       }
       delete[] histoVarianceCheck_;
     }
     delete[] histoVarianceCheck_;
   }
-  void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) override {
-    if( resValue != resValue ) return;
+  void Fill(const reco::Particle::LorentzVector& p4, const double& resValue, const int charge) override {
+    if (resValue != resValue)
+      return;
     // Need to convert the (x,y) values to the array indeces
     int xIndex = getXindex(p4.Pt());
     int yIndex = getYindex(p4.Eta());
     // Only fill values if they are in the selected range
-    if ( 0 <= xIndex && xIndex < totBinsX_ && 0 <= yIndex && yIndex < totBinsY_ ) {
+    if (0 <= xIndex && xIndex < totBinsX_ && 0 <= yIndex && yIndex < totBinsY_) {
       histoVarianceCheck_[xIndex][yIndex]->Fill(resValue);
     }
     // Call also the fill of the base class
-    HFunctionResolution::Fill( p4, resValue, charge );
+    HFunctionResolution::Fill(p4, resValue, charge);
   }
   void Write() override {
-    if(histoDir_ != nullptr) histoDir_->cd();
-    for( int xBin=0; xBin<totBinsX_; ++xBin ) {
-      for( int yBin=0; yBin<totBinsY_; ++yBin ) {
+    if (histoDir_ != nullptr)
+      histoDir_->cd();
+    for (int xBin = 0; xBin < totBinsX_; ++xBin) {
+      for (int yBin = 0; yBin < totBinsY_; ++yBin) {
         histoVarianceCheck_[xBin][yBin]->Write();
       }
     }
     HFunctionResolution::Write();
   }
+
 protected:
-  TH1D *** histoVarianceCheck_;
+  TH1D*** histoVarianceCheck_;
 };
 
 /**
@@ -1714,21 +1799,25 @@ protected:
  */
 class HResolution : public TH1F {
 public:
-  HResolution( const TString & name, const TString & title,
-               const int totBins, const double & xMin, const double & xMax,
-               const double & yMin, const double & yMax, TDirectory * dir = nullptr) :
-    dir_(dir),
-    dir2D_(nullptr),
-    diffDir_(nullptr)
-  {
-    if( dir_ != nullptr ) {
-      dir2D_ = (TDirectory*) dir_->Get("2D");
-      if(dir2D_ == nullptr) dir2D_ = dir_->mkdir("2D");
-      diffDir_ = (TDirectory*) dir_->Get("deltaXoverX");
-      if(diffDir_ == nullptr) diffDir_ = dir->mkdir("deltaXoverX");
+  HResolution(const TString& name,
+              const TString& title,
+              const int totBins,
+              const double& xMin,
+              const double& xMax,
+              const double& yMin,
+              const double& yMax,
+              TDirectory* dir = nullptr)
+      : dir_(dir), dir2D_(nullptr), diffDir_(nullptr) {
+    if (dir_ != nullptr) {
+      dir2D_ = (TDirectory*)dir_->Get("2D");
+      if (dir2D_ == nullptr)
+        dir2D_ = dir_->mkdir("2D");
+      diffDir_ = (TDirectory*)dir_->Get("deltaXoverX");
+      if (diffDir_ == nullptr)
+        diffDir_ = dir->mkdir("deltaXoverX");
     }
-    diffHisto_ = new TProfile(name+"_prof", title+" profile", totBins, xMin, xMax, yMin, yMax);
-    histo2D_ = new TH2F(name+"2D", title, totBins, xMin, xMax, 4000, yMin, yMax);
+    diffHisto_ = new TProfile(name + "_prof", title + " profile", totBins, xMin, xMax, yMin, yMax);
+    histo2D_ = new TH2F(name + "2D", title, totBins, xMin, xMax, 4000, yMin, yMax);
     resoHisto_ = new TH1F(name, title, totBins, xMin, xMax);
   }
   ~HResolution() override {
@@ -1736,12 +1825,12 @@ public:
     delete histo2D_;
     delete resoHisto_;
   }
-  Int_t Fill( Double_t x, Double_t y ) override {
+  Int_t Fill(Double_t x, Double_t y) override {
     diffHisto_->Fill(x, y);
     histo2D_->Fill(x, y);
     return 0;
   }
-  Int_t	Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0) override {
+  Int_t Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0) override {
     // Loop on all the bins and take the rms.
     // The TProfile bin error is by default the standard error on the mean, that is
     // rms/sqrt(N). If it is created with the "S" option (as we did NOT do), it would
@@ -1750,26 +1839,30 @@ public:
     // bin 0 is the underflow, bin totBins+1 is the overflow.
     unsigned int totBins = diffHisto_->GetNbinsX();
     // std::cout << "totBins = " << totBins << std::endl;
-    for( unsigned int iBin=1; iBin<=totBins; ++iBin ) {
+    for (unsigned int iBin = 1; iBin <= totBins; ++iBin) {
       // std::cout << "iBin = " << iBin << ", " << diffHisto_->GetBinError(iBin)*sqrt(diffHisto_->GetBinEntries(iBin)) << std::endl;
-      resoHisto_->SetBinContent( iBin, diffHisto_->GetBinError(iBin)*sqrt(diffHisto_->GetBinEntries(iBin)) );
+      resoHisto_->SetBinContent(iBin, diffHisto_->GetBinError(iBin) * sqrt(diffHisto_->GetBinEntries(iBin)));
     }
-    if( dir_ != nullptr ) dir_->cd();
+    if (dir_ != nullptr)
+      dir_->cd();
     resoHisto_->Write();
-    if( diffDir_ != nullptr ) diffDir_->cd();
+    if (diffDir_ != nullptr)
+      diffDir_->cd();
     diffHisto_->Write();
-    if( dir2D_ != nullptr ) dir2D_->cd();
+    if (dir2D_ != nullptr)
+      dir2D_->cd();
     histo2D_->Write();
 
     return 0;
   }
- protected:
-  TDirectory * dir_;
-  TDirectory * dir2D_;
-  TDirectory * diffDir_;
-  TProfile * diffHisto_;
-  TH2F * histo2D_;
-  TH1F * resoHisto_;
+
+protected:
+  TDirectory* dir_;
+  TDirectory* dir2D_;
+  TDirectory* diffDir_;
+  TProfile* diffHisto_;
+  TH2F* histo2D_;
+  TH1F* resoHisto_;
 };
 
 /**
@@ -1779,32 +1872,27 @@ public:
  * cov(x,y) = Sum_i(x_i*y_i)/N - x_mean*y_mean. </br>
  * Of course passing the same variable for x and y gives the variance of that variable.
  */
-class Covariance
-{
- public:
-  Covariance() :
-    productXY_(0),
-    sumX_(0),
-    sumY_(0),
-    N_(0)
-  {}
-  void fill(const double & x, const double & y) {
-    productXY_ += x*y;
+class Covariance {
+public:
+  Covariance() : productXY_(0), sumX_(0), sumY_(0), N_(0) {}
+  void fill(const double& x, const double& y) {
+    productXY_ += x * y;
     sumX_ += x;
     sumY_ += y;
     ++N_;
   }
   double covariance() {
-    if( N_ != 0 ) {
-      double meanX = sumX_/N_;
-      double meanY = sumY_/N_;
+    if (N_ != 0) {
+      double meanX = sumX_ / N_;
+      double meanY = sumY_ / N_;
       // std::cout << "meanX*meanY = "<<meanX<<"*"<<meanY<< " = " << meanX*meanY << std::endl;
-      return (productXY_/N_ - meanX*meanY);
+      return (productXY_ / N_ - meanX * meanY);
     }
     return 0.;
   }
-  double getN() {return N_;}
- protected:
+  double getN() { return N_; }
+
+protected:
   double productXY_;
   double sumX_;
   double sumY_;
@@ -1815,46 +1903,52 @@ class Covariance
  * This class can be used to compute the covariance of two variables with respect to other two variables
  * (to see e.g. how does the covariance of ptVSphi vary with respect to (pt,eta).
  */
-class HCovarianceVSxy : public Histograms
-{
- public:
-  HCovarianceVSxy( const TString & name, const TString & title,
-                   const int totBinsX, const double & xMin, const double & xMax,
-                   const int totBinsY, const double & yMin, const double & yMax,
-                   TDirectory * dir = nullptr, bool varianceCheck = false ) :
-    totBinsX_(totBinsX), totBinsY_(totBinsY),
-    xMin_(xMin), deltaX_(xMax-xMin), yMin_(yMin), deltaY_(yMax-yMin),
-    readMode_(false),
-    varianceCheck_(varianceCheck)
-  {
+class HCovarianceVSxy : public Histograms {
+public:
+  HCovarianceVSxy(const TString& name,
+                  const TString& title,
+                  const int totBinsX,
+                  const double& xMin,
+                  const double& xMax,
+                  const int totBinsY,
+                  const double& yMin,
+                  const double& yMax,
+                  TDirectory* dir = nullptr,
+                  bool varianceCheck = false)
+      : totBinsX_(totBinsX),
+        totBinsY_(totBinsY),
+        xMin_(xMin),
+        deltaX_(xMax - xMin),
+        yMin_(yMin),
+        deltaY_(yMax - yMin),
+        readMode_(false),
+        varianceCheck_(varianceCheck) {
     name_ = name;
     histoDir_ = dir;
-    histoCovariance_ = new TH2D(name+"Covariance", title+" covariance", totBinsX, xMin, xMax, totBinsY, yMin, yMax);
+    histoCovariance_ = new TH2D(name + "Covariance", title + " covariance", totBinsX, xMin, xMax, totBinsY, yMin, yMax);
 
     covariances_ = new Covariance*[totBinsX];
-    for( int i=0; i<totBinsX; ++i ) {
+    for (int i = 0; i < totBinsX; ++i) {
       covariances_[i] = new Covariance[totBinsY];
     }
-    if( varianceCheck_ ) {
+    if (varianceCheck_) {
       histoVarianceCheck_ = new TH1D**[totBinsX_];
-      for( int i=0; i<totBinsX_; ++i ) {
+      for (int i = 0; i < totBinsX_; ++i) {
         histoVarianceCheck_[i] = new TH1D*[totBinsY_];
-        for( int j=0; j<totBinsY_; ++j ) {
+        for (int j = 0; j < totBinsY_; ++j) {
           std::stringstream namei;
           std::stringstream namej;
           namei << i;
           namej << j;
-          histoVarianceCheck_[i][j] = new TH1D(name+"_"+namei.str()+"_"+namej.str(), name, 10000, -1, 1);
+          histoVarianceCheck_[i][j] = new TH1D(name + "_" + namei.str() + "_" + namej.str(), name, 10000, -1, 1);
         }
       }
     }
   }
   /// Contructor to read histograms from file
-  HCovarianceVSxy( TFile * inputFile, const TString & name, const TString & dirName ) :
-    readMode_(true)
-  {
+  HCovarianceVSxy(TFile* inputFile, const TString& name, const TString& dirName) : readMode_(true) {
     histoDir_ = (TDirectory*)(inputFile->Get(dirName.Data()));
-    if( histoDir_ == nullptr ) {
+    if (histoDir_ == nullptr) {
       std::cout << "Error: directory not found" << std::endl;
       exit(0);
     }
@@ -1870,14 +1964,14 @@ class HCovarianceVSxy : public Histograms
   ~HCovarianceVSxy() override {
     delete histoCovariance_;
     // Free covariances
-    for(int i=0; i<totBinsX_; ++i) {
+    for (int i = 0; i < totBinsX_; ++i) {
       delete[] covariances_[i];
     }
     delete[] covariances_;
     // Free variance check histograms
-    if( varianceCheck_ ) {
-      for( int i=0; i<totBinsX_; ++i ) {
-        for( int j=0; j<totBinsY_; ++j ) {
+    if (varianceCheck_) {
+      for (int i = 0; i < totBinsX_; ++i) {
+        for (int j = 0; j < totBinsY_; ++j) {
           delete histoVarianceCheck_[i][j];
         }
         delete[] histoVarianceCheck_[i];
@@ -1890,45 +1984,54 @@ class HCovarianceVSxy : public Histograms
    * x and y should be the variables VS which we are computing the covariance (pt and eta)
    * a and b should be the variables OF which we are computing the covariance </br>
    */
-  void Fill( const double & x, const double & y, const double & a, const double & b ) override {
+  void Fill(const double& x, const double& y, const double& a, const double& b) override {
     // Need to convert the (x,y) values to the array indeces
     int xIndex = getXindex(x);
     int yIndex = getYindex(y);
     // Only fill values if they are in the selected range
-    if ( 0 <= xIndex && xIndex < totBinsX_ && 0 <= yIndex && yIndex < totBinsY_ ) {
+    if (0 <= xIndex && xIndex < totBinsX_ && 0 <= yIndex && yIndex < totBinsY_) {
       // if( TString(histoCovariance_->GetName()).Contains("CovarianceCotgTheta_Covariance") )
-      covariances_[xIndex][yIndex].fill(a,b);
+      covariances_[xIndex][yIndex].fill(a, b);
       // Should be used with the variance, in which case a==b
-      if( varianceCheck_ ) histoVarianceCheck_[xIndex][yIndex]->Fill(a);
+      if (varianceCheck_)
+        histoVarianceCheck_[xIndex][yIndex]->Fill(a);
     }
   }
 
   using Histograms::Get;
-  double Get( const double & x, const double & y ) const {
+  double Get(const double& x, const double& y) const {
     // Need to convert the (x,y) values to the array indeces
     int xIndex = getXindex(x);
     int yIndex = getYindex(y);
     // If the values exceed the limits of the histogram, return the border values
-    if ( xIndex < 0 ) xIndex = 0;
-    if ( xIndex >= totBinsX_ ) xIndex = totBinsX_-1;
-    if ( yIndex < 0 ) yIndex = 0;
-    if ( yIndex >= totBinsY_ ) yIndex = totBinsY_-1;
-    return histoCovariance_->GetBinContent(xIndex+1, yIndex+1);
+    if (xIndex < 0)
+      xIndex = 0;
+    if (xIndex >= totBinsX_)
+      xIndex = totBinsX_ - 1;
+    if (yIndex < 0)
+      yIndex = 0;
+    if (yIndex >= totBinsY_)
+      yIndex = totBinsY_ - 1;
+    return histoCovariance_->GetBinContent(xIndex + 1, yIndex + 1);
   }
 
   void Write() override {
-    if( !readMode_ ) {
+    if (!readMode_) {
       std::cout << "writing: " << histoCovariance_->GetName() << std::endl;
-      for( int xBin=0; xBin<totBinsX_; ++xBin ) {
-        for( int yBin=0; yBin<totBinsY_; ++yBin ) {
+      for (int xBin = 0; xBin < totBinsX_; ++xBin) {
+        for (int yBin = 0; yBin < totBinsY_; ++yBin) {
           double covariance = covariances_[xBin][yBin].covariance();
           // Histogram bins start from 1
           // std::cout << "covariance["<<xBin<<"]["<<yBin<<"] with N = "<<covariances_[xBin][yBin].getN()<<" is: " << covariance << std::endl;
-          histoCovariance_->SetBinContent(xBin+1, yBin+1, covariance);
+          histoCovariance_->SetBinContent(xBin + 1, yBin + 1, covariance);
         }
       }
-      if( histoDir_ != nullptr ) histoDir_->cd();
-      TCanvas canvas(TString(histoCovariance_->GetName())+"_canvas", TString(histoCovariance_->GetTitle())+" canvas", 1000, 800);
+      if (histoDir_ != nullptr)
+        histoDir_->cd();
+      TCanvas canvas(TString(histoCovariance_->GetName()) + "_canvas",
+                     TString(histoCovariance_->GetTitle()) + " canvas",
+                     1000,
+                     800);
       canvas.Divide(2);
       canvas.cd(1);
       histoCovariance_->Draw("lego");
@@ -1937,15 +2040,16 @@ class HCovarianceVSxy : public Histograms
       canvas.Write();
       histoCovariance_->Write();
 
-      TDirectory * binsDir = nullptr;
-      if( varianceCheck_ ) {
-        if ( histoDir_ != nullptr ) {
+      TDirectory* binsDir = nullptr;
+      if (varianceCheck_) {
+        if (histoDir_ != nullptr) {
           histoDir_->cd();
-          if( binsDir == nullptr ) binsDir = histoDir_->mkdir(name_+"Bins");
+          if (binsDir == nullptr)
+            binsDir = histoDir_->mkdir(name_ + "Bins");
           binsDir->cd();
         }
-        for( int xBin=0; xBin<totBinsX_; ++xBin ) {
-          for( int yBin=0; yBin<totBinsY_; ++yBin ) {
+        for (int xBin = 0; xBin < totBinsX_; ++xBin) {
+          for (int yBin = 0; yBin < totBinsY_; ++yBin) {
             histoVarianceCheck_[xBin][yBin]->Write();
           }
         }
@@ -1954,38 +2058,34 @@ class HCovarianceVSxy : public Histograms
   }
   void Clear() override {
     histoCovariance_->Clear();
-    if( varianceCheck_ ) {
-      for( int i=0; i<totBinsX_; ++i ) {
-        for( int j=0; j<totBinsY_; ++j ) {
+    if (varianceCheck_) {
+      for (int i = 0; i < totBinsX_; ++i) {
+        for (int j = 0; j < totBinsY_; ++j) {
           histoVarianceCheck_[i][j]->Clear();
         }
       }
     }
   }
- protected:
-  int getXindex(const double & x) const {
-    return int((x-xMin_)/deltaX_*totBinsX_);
-  }
-  int getYindex(const double & y) const {
-    return int((y-yMin_)/deltaY_*totBinsY_);
-  }
-  TH2D * histoCovariance_;
-  Covariance ** covariances_;
+
+protected:
+  int getXindex(const double& x) const { return int((x - xMin_) / deltaX_ * totBinsX_); }
+  int getYindex(const double& y) const { return int((y - yMin_) / deltaY_ * totBinsY_); }
+  TH2D* histoCovariance_;
+  Covariance** covariances_;
   int totBinsX_, totBinsY_, totBinsZ_;
   double xMin_, deltaX_, yMin_, deltaY_;
   bool readMode_;
   bool varianceCheck_;
-  TH1D *** histoVarianceCheck_;
+  TH1D*** histoVarianceCheck_;
 };
 
 /**
  * This class uses the HCovariance histograms to compute the covariances between the two input muons kinematic quantities. </br>
  * The covariances are computed against pt and eta.
  */
-class HCovarianceVSParts : public Histograms
-{
- public:
-  HCovarianceVSParts(TFile * outputFile, const TString & name, const double & ptMax ) : Histograms( outputFile, name ) {
+class HCovarianceVSParts : public Histograms {
+public:
+  HCovarianceVSParts(TFile* outputFile, const TString& name, const double& ptMax) : Histograms(outputFile, name) {
     int totBinsX = 40;
     int totBinsY = 40;
     double etaMin = -3.;
@@ -1995,77 +2095,96 @@ class HCovarianceVSParts : public Histograms
     readMode_ = false;
 
     // Variances
-    mapHisto_[name+"Pt"]                    = new HCovarianceVSxy(name+"Pt_", "Pt", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_, true);
-    mapHisto_[name+"CotgTheta"]             = new HCovarianceVSxy(name+"CotgTheta_", "CotgTheta", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_, true);
-    mapHisto_[name+"Phi"]                   = new HCovarianceVSxy(name+"Phi_", "Phi", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_, true);
+    mapHisto_[name + "Pt"] =
+        new HCovarianceVSxy(name + "Pt_", "Pt", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_, true);
+    mapHisto_[name + "CotgTheta"] = new HCovarianceVSxy(
+        name + "CotgTheta_", "CotgTheta", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_, true);
+    mapHisto_[name + "Phi"] =
+        new HCovarianceVSxy(name + "Phi_", "Phi", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_, true);
     // Covariances
-    mapHisto_[name+"Pt-CotgTheta"]          = new HCovarianceVSxy(name+"Pt_CotgTheta_", "Pt-CotgTheta", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
-    mapHisto_[name+"Pt-Phi"]                = new HCovarianceVSxy(name+"Pt_Phi_", "Pt-Phi", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
-    mapHisto_[name+"CotgTheta-Phi"]         = new HCovarianceVSxy(name+"CotgTheta_Phi_", "CotgTheta-Phi", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
-    mapHisto_[name+"Pt1-Pt2"]               = new HCovarianceVSxy(name+"Pt1_Pt2_", "Pt1-Pt2", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
-    mapHisto_[name+"CotgTheta1-CotgTheta2"] = new HCovarianceVSxy(name+"CotgTheta1_CotgTheta2_", "CotgTheta1-CotgTheta2", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
-    mapHisto_[name+"Phi1-Phi2"]             = new HCovarianceVSxy(name+"Phi1_Phi2_", "Phi1-Phi2", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
-    mapHisto_[name+"Pt12-CotgTheta21"]      = new HCovarianceVSxy(name+"Pt12_CotgTheta21_", "Pt12-CotgTheta21", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
-    mapHisto_[name+"Pt12-Phi21"]            = new HCovarianceVSxy(name+"Pt12_Phi21_", "Pt12-Phi21", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
-    mapHisto_[name+"CotgTheta12-Phi21"]     = new HCovarianceVSxy(name+"CotgTheta12_Phi21_", "CotgTheta12-Phi21", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
+    mapHisto_[name + "Pt-CotgTheta"] = new HCovarianceVSxy(
+        name + "Pt_CotgTheta_", "Pt-CotgTheta", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
+    mapHisto_[name + "Pt-Phi"] =
+        new HCovarianceVSxy(name + "Pt_Phi_", "Pt-Phi", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
+    mapHisto_[name + "CotgTheta-Phi"] = new HCovarianceVSxy(
+        name + "CotgTheta_Phi_", "CotgTheta-Phi", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
+    mapHisto_[name + "Pt1-Pt2"] =
+        new HCovarianceVSxy(name + "Pt1_Pt2_", "Pt1-Pt2", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
+    mapHisto_[name + "CotgTheta1-CotgTheta2"] = new HCovarianceVSxy(name + "CotgTheta1_CotgTheta2_",
+                                                                    "CotgTheta1-CotgTheta2",
+                                                                    totBinsX,
+                                                                    ptMin,
+                                                                    ptMax,
+                                                                    totBinsY,
+                                                                    etaMin,
+                                                                    etaMax,
+                                                                    histoDir_);
+    mapHisto_[name + "Phi1-Phi2"] = new HCovarianceVSxy(
+        name + "Phi1_Phi2_", "Phi1-Phi2", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
+    mapHisto_[name + "Pt12-CotgTheta21"] = new HCovarianceVSxy(
+        name + "Pt12_CotgTheta21_", "Pt12-CotgTheta21", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
+    mapHisto_[name + "Pt12-Phi21"] = new HCovarianceVSxy(
+        name + "Pt12_Phi21_", "Pt12-Phi21", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
+    mapHisto_[name + "CotgTheta12-Phi21"] = new HCovarianceVSxy(
+        name + "CotgTheta12_Phi21_", "CotgTheta12-Phi21", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
   }
 
   /// Constructor reading the histograms from file
-  HCovarianceVSParts( const TString & inputFileName, const TString & name )
-  {
+  HCovarianceVSParts(const TString& inputFileName, const TString& name) {
     name_ = name;
-    TFile * inputFile = new TFile(inputFileName, "READ");
+    TFile* inputFile = new TFile(inputFileName, "READ");
     readMode_ = true;
 
     // Variances
-    mapHisto_[name_+"Pt"]                    = new HCovarianceVSxy(inputFile, name_+"Pt_"+name_, name_);
-    mapHisto_[name_+"CotgTheta"]             = new HCovarianceVSxy(inputFile, name_+"CotgTheta_"+name_, name_);
-    mapHisto_[name_+"Phi"]                   = new HCovarianceVSxy(inputFile, name_+"Phi_"+name_, name_);
+    mapHisto_[name_ + "Pt"] = new HCovarianceVSxy(inputFile, name_ + "Pt_" + name_, name_);
+    mapHisto_[name_ + "CotgTheta"] = new HCovarianceVSxy(inputFile, name_ + "CotgTheta_" + name_, name_);
+    mapHisto_[name_ + "Phi"] = new HCovarianceVSxy(inputFile, name_ + "Phi_" + name_, name_);
     // Covariances
-    mapHisto_[name_+"Pt-CotgTheta"]          = new HCovarianceVSxy(inputFile, name_+"Pt_CotgTheta_"+name_, name_);
-    mapHisto_[name_+"Pt-Phi"]                = new HCovarianceVSxy(inputFile, name_+"Pt_Phi_"+name_, name_);
-    mapHisto_[name_+"CotgTheta-Phi"]         = new HCovarianceVSxy(inputFile, name_+"CotgTheta_Phi_"+name_, name_);
-    mapHisto_[name_+"Pt1-Pt2"]               = new HCovarianceVSxy(inputFile, name_+"Pt1_Pt2_"+name_, name_);
-    mapHisto_[name_+"CotgTheta1-CotgTheta2"] = new HCovarianceVSxy(inputFile, name_+"CotgTheta1_CotgTheta2_"+name_, name_);
-    mapHisto_[name_+"Phi1-Phi2"]             = new HCovarianceVSxy(inputFile, name_+"Phi1_Phi2_"+name_, name_);
-    mapHisto_[name_+"Pt12-CotgTheta21"]      = new HCovarianceVSxy(inputFile, name_+"Pt12_CotgTheta21_"+name_, name_);
-    mapHisto_[name_+"Pt12-Phi21"]            = new HCovarianceVSxy(inputFile, name_+"Pt12_Phi21_"+name_, name_);
-    mapHisto_[name_+"CotgTheta12-Phi21"]     = new HCovarianceVSxy(inputFile, name_+"CotgTheta12_Phi21_"+name_, name_);
+    mapHisto_[name_ + "Pt-CotgTheta"] = new HCovarianceVSxy(inputFile, name_ + "Pt_CotgTheta_" + name_, name_);
+    mapHisto_[name_ + "Pt-Phi"] = new HCovarianceVSxy(inputFile, name_ + "Pt_Phi_" + name_, name_);
+    mapHisto_[name_ + "CotgTheta-Phi"] = new HCovarianceVSxy(inputFile, name_ + "CotgTheta_Phi_" + name_, name_);
+    mapHisto_[name_ + "Pt1-Pt2"] = new HCovarianceVSxy(inputFile, name_ + "Pt1_Pt2_" + name_, name_);
+    mapHisto_[name_ + "CotgTheta1-CotgTheta2"] =
+        new HCovarianceVSxy(inputFile, name_ + "CotgTheta1_CotgTheta2_" + name_, name_);
+    mapHisto_[name_ + "Phi1-Phi2"] = new HCovarianceVSxy(inputFile, name_ + "Phi1_Phi2_" + name_, name_);
+    mapHisto_[name_ + "Pt12-CotgTheta21"] = new HCovarianceVSxy(inputFile, name_ + "Pt12_CotgTheta21_" + name_, name_);
+    mapHisto_[name_ + "Pt12-Phi21"] = new HCovarianceVSxy(inputFile, name_ + "Pt12_Phi21_" + name_, name_);
+    mapHisto_[name_ + "CotgTheta12-Phi21"] =
+        new HCovarianceVSxy(inputFile, name_ + "CotgTheta12_Phi21_" + name_, name_);
   }
 
   ~HCovarianceVSParts() override {
-    for (std::map<TString, HCovarianceVSxy*>::const_iterator histo=mapHisto_.begin(); 
-         histo!=mapHisto_.end(); histo++) {
+    for (std::map<TString, HCovarianceVSxy*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end();
+         histo++) {
       delete (*histo).second;
     }
   }
 
-  double Get( const reco::Particle::LorentzVector & recoP1, const TString & covarianceName ) override {
-    return mapHisto_[name_+covarianceName]->Get(recoP1.pt(), recoP1.eta());
+  double Get(const reco::Particle::LorentzVector& recoP1, const TString& covarianceName) override {
+    return mapHisto_[name_ + covarianceName]->Get(recoP1.pt(), recoP1.eta());
   }
 
-  void Fill( const reco::Particle::LorentzVector & recoP1,
-                     const reco::Particle::LorentzVector & genP1,
-                     const reco::Particle::LorentzVector & recoP2,
-                     const reco::Particle::LorentzVector & genP2 ) override {
-
+  void Fill(const reco::Particle::LorentzVector& recoP1,
+            const reco::Particle::LorentzVector& genP1,
+            const reco::Particle::LorentzVector& recoP2,
+            const reco::Particle::LorentzVector& genP2) override {
     double pt1 = recoP1.pt();
     double eta1 = recoP1.eta();
     double pt2 = recoP2.pt();
     double eta2 = recoP2.eta();
 
-    double diffPt1 = (pt1 - genP1.pt())/genP1.pt();
-    double diffPt2 = (pt2 - genP2.pt())/genP2.pt();
+    double diffPt1 = (pt1 - genP1.pt()) / genP1.pt();
+    double diffPt2 = (pt2 - genP2.pt()) / genP2.pt();
 
     double genTheta1 = genP1.theta();
     double genTheta2 = genP2.theta();
     double recoTheta1 = recoP1.theta();
     double recoTheta2 = recoP2.theta();
 
-    double genCotgTheta1 = TMath::Cos(genTheta1)/(TMath::Sin(genTheta1));
-    double genCotgTheta2 = TMath::Cos(genTheta2)/(TMath::Sin(genTheta2));
-    double recoCotgTheta1 = TMath::Cos(recoTheta1)/(TMath::Sin(recoTheta1));
-    double recoCotgTheta2 = TMath::Cos(recoTheta2)/(TMath::Sin(recoTheta2));
+    double genCotgTheta1 = TMath::Cos(genTheta1) / (TMath::Sin(genTheta1));
+    double genCotgTheta2 = TMath::Cos(genTheta2) / (TMath::Sin(genTheta2));
+    double recoCotgTheta1 = TMath::Cos(recoTheta1) / (TMath::Sin(recoTheta1));
+    double recoCotgTheta2 = TMath::Cos(recoTheta2) / (TMath::Sin(recoTheta2));
 
     // double diffCotgTheta1 = (recoCotgTheta1 - genCotgTheta1)/genCotgTheta1;
     // double diffCotgTheta2 = (recoCotgTheta2 - genCotgTheta2)/genCotgTheta2;
@@ -2078,57 +2197,58 @@ class HCovarianceVSParts : public Histograms
     double diffPhi2 = MuScleFitUtils::deltaPhiNoFabs(recoP2.phi(), genP2.phi());
 
     // Fill the variances
-    mapHisto_[name_+"Pt"]->Fill(pt1, eta1, diffPt1, diffPt1);
-    mapHisto_[name_+"Pt"]->Fill(pt2, eta2, diffPt2, diffPt2);
-    mapHisto_[name_+"CotgTheta"]->Fill(pt1, eta1, diffCotgTheta1, diffCotgTheta1);
-    mapHisto_[name_+"CotgTheta"]->Fill(pt2, eta2, diffCotgTheta2, diffCotgTheta2);
-    mapHisto_[name_+"Phi"]->Fill(pt1, eta1, diffPhi1, diffPhi1);
-    mapHisto_[name_+"Phi"]->Fill(pt2, eta2, diffPhi2, diffPhi2);
+    mapHisto_[name_ + "Pt"]->Fill(pt1, eta1, diffPt1, diffPt1);
+    mapHisto_[name_ + "Pt"]->Fill(pt2, eta2, diffPt2, diffPt2);
+    mapHisto_[name_ + "CotgTheta"]->Fill(pt1, eta1, diffCotgTheta1, diffCotgTheta1);
+    mapHisto_[name_ + "CotgTheta"]->Fill(pt2, eta2, diffCotgTheta2, diffCotgTheta2);
+    mapHisto_[name_ + "Phi"]->Fill(pt1, eta1, diffPhi1, diffPhi1);
+    mapHisto_[name_ + "Phi"]->Fill(pt2, eta2, diffPhi2, diffPhi2);
 
     // Fill these histograms with both muons
-    mapHisto_[name_+"Pt-CotgTheta"]->Fill(pt1, eta1, diffPt1, diffCotgTheta1 );
-    mapHisto_[name_+"Pt-CotgTheta"]->Fill(pt2, eta2, diffPt2, diffCotgTheta2 );
-    mapHisto_[name_+"Pt-Phi"]->Fill(pt1, eta1, diffPt1, diffPhi1);
-    mapHisto_[name_+"Pt-Phi"]->Fill(pt2, eta2, diffPt2, diffPhi2);
-    mapHisto_[name_+"CotgTheta-Phi"]->Fill(pt1, eta1, diffCotgTheta1, diffPhi1);
-    mapHisto_[name_+"CotgTheta-Phi"]->Fill(pt2, eta2, diffCotgTheta2, diffPhi2);
+    mapHisto_[name_ + "Pt-CotgTheta"]->Fill(pt1, eta1, diffPt1, diffCotgTheta1);
+    mapHisto_[name_ + "Pt-CotgTheta"]->Fill(pt2, eta2, diffPt2, diffCotgTheta2);
+    mapHisto_[name_ + "Pt-Phi"]->Fill(pt1, eta1, diffPt1, diffPhi1);
+    mapHisto_[name_ + "Pt-Phi"]->Fill(pt2, eta2, diffPt2, diffPhi2);
+    mapHisto_[name_ + "CotgTheta-Phi"]->Fill(pt1, eta1, diffCotgTheta1, diffPhi1);
+    mapHisto_[name_ + "CotgTheta-Phi"]->Fill(pt2, eta2, diffCotgTheta2, diffPhi2);
 
     // We fill two (pt, eta) bins for each pair of values. The bin of the
     // first and of the second muon. This should take account for the
     // assumed symmetry between the exchange of the first with the second muon.
-    mapHisto_[name_+"Pt1-Pt2"]->Fill(pt1, eta1, diffPt1, diffPt2);
-    mapHisto_[name_+"Pt1-Pt2"]->Fill(pt2, eta2, diffPt1, diffPt2);
-    mapHisto_[name_+"CotgTheta1-CotgTheta2"]->Fill(pt1, eta1, diffCotgTheta1, diffCotgTheta2);
-    mapHisto_[name_+"CotgTheta1-CotgTheta2"]->Fill(pt2, eta2, diffCotgTheta1, diffCotgTheta2);
-    mapHisto_[name_+"Phi1-Phi2"]->Fill(pt1, eta1, diffPhi1, diffPhi2);
-    mapHisto_[name_+"Phi1-Phi2"]->Fill(pt2, eta2, diffPhi1, diffPhi2);
+    mapHisto_[name_ + "Pt1-Pt2"]->Fill(pt1, eta1, diffPt1, diffPt2);
+    mapHisto_[name_ + "Pt1-Pt2"]->Fill(pt2, eta2, diffPt1, diffPt2);
+    mapHisto_[name_ + "CotgTheta1-CotgTheta2"]->Fill(pt1, eta1, diffCotgTheta1, diffCotgTheta2);
+    mapHisto_[name_ + "CotgTheta1-CotgTheta2"]->Fill(pt2, eta2, diffCotgTheta1, diffCotgTheta2);
+    mapHisto_[name_ + "Phi1-Phi2"]->Fill(pt1, eta1, diffPhi1, diffPhi2);
+    mapHisto_[name_ + "Phi1-Phi2"]->Fill(pt2, eta2, diffPhi1, diffPhi2);
 
     // Fill the following histograms again for each muon (pt, eta) bin. Same
     // reason as in the previous case. If the symmetry is true, it does not
     // make any difference the order by which we fill the pt and cotgTheta combinations.
-    mapHisto_[name_+"Pt12-CotgTheta21"]->Fill(pt1, eta1, diffPt1, diffCotgTheta2);
-    mapHisto_[name_+"Pt12-CotgTheta21"]->Fill(pt2, eta2, diffPt2, diffCotgTheta1);
-    mapHisto_[name_+"Pt12-Phi21"]->Fill(pt1, eta1, diffPt1, diffPhi2);
-    mapHisto_[name_+"Pt12-Phi21"]->Fill(pt2, eta2, diffPt2, diffPhi1);
-    mapHisto_[name_+"CotgTheta12-Phi21"]->Fill(pt1, eta1, diffCotgTheta1, diffPhi2);
-    mapHisto_[name_+"CotgTheta12-Phi21"]->Fill(pt2, eta2, diffCotgTheta2, diffPhi1);
+    mapHisto_[name_ + "Pt12-CotgTheta21"]->Fill(pt1, eta1, diffPt1, diffCotgTheta2);
+    mapHisto_[name_ + "Pt12-CotgTheta21"]->Fill(pt2, eta2, diffPt2, diffCotgTheta1);
+    mapHisto_[name_ + "Pt12-Phi21"]->Fill(pt1, eta1, diffPt1, diffPhi2);
+    mapHisto_[name_ + "Pt12-Phi21"]->Fill(pt2, eta2, diffPt2, diffPhi1);
+    mapHisto_[name_ + "CotgTheta12-Phi21"]->Fill(pt1, eta1, diffCotgTheta1, diffPhi2);
+    mapHisto_[name_ + "CotgTheta12-Phi21"]->Fill(pt2, eta2, diffCotgTheta2, diffPhi1);
   }
   void Write() override {
-    if( !readMode_ ) {
+    if (!readMode_) {
       histoDir_->cd();
-      for (std::map<TString, HCovarianceVSxy*>::const_iterator histo=mapHisto_.begin(); 
-           histo!=mapHisto_.end(); histo++) {
+      for (std::map<TString, HCovarianceVSxy*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end();
+           histo++) {
         (*histo).second->Write();
       }
     }
   }
   void Clear() override {
-    for (std::map<TString, HCovarianceVSxy*>::const_iterator histo=mapHisto_.begin(); 
-         histo!=mapHisto_.end(); histo++) {
+    for (std::map<TString, HCovarianceVSxy*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end();
+         histo++) {
       (*histo).second->Clear();
     }
   }
- protected:
+
+protected:
   std::map<TString, HCovarianceVSxy*> mapHisto_;
   bool readMode_;
 };
@@ -2142,63 +2262,73 @@ class HCovarianceVSParts : public Histograms
  * DeltaPhi of the pair</br>
  * pt, eta and phi of the plus and minus muon separately</br>
  */
-class HMassResolutionVSPart : public Histograms
-{
- public:
-  HMassResolutionVSPart(TFile * outputFile, const TString & name) : Histograms( outputFile, name ) {
+class HMassResolutionVSPart : public Histograms {
+public:
+  HMassResolutionVSPart(TFile* outputFile, const TString& name) : Histograms(outputFile, name) {
     // Kinematical variables
     nameSuffix_[0] = "Plus";
     nameSuffix_[1] = "Minus";
     TString titleSuffix[] = {" for mu+", " for mu-"};
 
-    mapHisto_[name]                  = new TH1F (name, "#Delta M/M", 4000, -1, 1);
-    mapHisto_[name+"VSPairPt"]       = new HResolution (name+"VSPairPt", "resolution VS pt of the pair", 100, 0, 200, -1, 1, histoDir_);
-    mapHisto_[name+"VSPairDeltaEta"] = new HResolution (name+"VSPairDeltaEta", "resolution VS #Delta#eta of the pair", 100, -0.1, 6.2, -1, 1, histoDir_);
-    mapHisto_[name+"VSPairDeltaPhi"] = new HResolution (name+"VSPairDeltaPhi", "resolution VS #Delta#phi of the pair", 100, -0.1, 3.2, -1, 1, histoDir_);
+    mapHisto_[name] = new TH1F(name, "#Delta M/M", 4000, -1, 1);
+    mapHisto_[name + "VSPairPt"] =
+        new HResolution(name + "VSPairPt", "resolution VS pt of the pair", 100, 0, 200, -1, 1, histoDir_);
+    mapHisto_[name + "VSPairDeltaEta"] = new HResolution(
+        name + "VSPairDeltaEta", "resolution VS #Delta#eta of the pair", 100, -0.1, 6.2, -1, 1, histoDir_);
+    mapHisto_[name + "VSPairDeltaPhi"] = new HResolution(
+        name + "VSPairDeltaPhi", "resolution VS #Delta#phi of the pair", 100, -0.1, 3.2, -1, 1, histoDir_);
 
-    for( int i=0; i<2; ++i ) {
-      mapHisto_[name+"VSPt"+nameSuffix_[i]]  = new HResolution (name+"VSPt"+nameSuffix_[i], "resolution VS pt"+titleSuffix[i], 100, 0, 200, -1, 1, histoDir_);
-      mapHisto_[name+"VSEta"+nameSuffix_[i]] = new HResolution (name+"VSEta"+nameSuffix_[i], "resolution VS #eta"+titleSuffix[i], 100, -3, 3, -1, 1, histoDir_);
-      mapHisto_[name+"VSPhi"+nameSuffix_[i]] = new HResolution (name+"VSPhi"+nameSuffix_[i], "resolution VS #phi"+titleSuffix[i], 100, -3.2, 3.2, -1, 1, histoDir_);
+    for (int i = 0; i < 2; ++i) {
+      mapHisto_[name + "VSPt" + nameSuffix_[i]] = new HResolution(
+          name + "VSPt" + nameSuffix_[i], "resolution VS pt" + titleSuffix[i], 100, 0, 200, -1, 1, histoDir_);
+      mapHisto_[name + "VSEta" + nameSuffix_[i]] = new HResolution(
+          name + "VSEta" + nameSuffix_[i], "resolution VS #eta" + titleSuffix[i], 100, -3, 3, -1, 1, histoDir_);
+      mapHisto_[name + "VSPhi" + nameSuffix_[i]] = new HResolution(
+          name + "VSPhi" + nameSuffix_[i], "resolution VS #phi" + titleSuffix[i], 100, -3.2, 3.2, -1, 1, histoDir_);
     }
 
     // single particles histograms
-    muMinus.reset( new HDelta("muMinus") );
-    muPlus.reset( new HDelta("muPlus") );
+    muMinus.reset(new HDelta("muMinus"));
+    muPlus.reset(new HDelta("muPlus"));
   }
 
-  ~HMassResolutionVSPart() override{
-    for (std::map<TString, TH1*>::const_iterator histo=mapHisto_.begin(); 
-         histo!=mapHisto_.end(); histo++) {
+  ~HMassResolutionVSPart() override {
+    for (std::map<TString, TH1*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
       delete (*histo).second;
     }
   }
 
-  void Fill( const reco::Particle::LorentzVector & recoP1, const int charge1,
-                     const reco::Particle::LorentzVector & genP1,
-                     const reco::Particle::LorentzVector & recoP2, const int charge2,
-                     const reco::Particle::LorentzVector & genP2,
-                     const double & recoMass, const double & genMass ) override {
+  void Fill(const reco::Particle::LorentzVector& recoP1,
+            const int charge1,
+            const reco::Particle::LorentzVector& genP1,
+            const reco::Particle::LorentzVector& recoP2,
+            const int charge2,
+            const reco::Particle::LorentzVector& genP2,
+            const double& recoMass,
+            const double& genMass) override {
     muMinus->Fill(recoP1, genP1);
     muPlus->Fill(recoP2, genP2);
 
-    Fill( recoP1, charge1, recoP2, charge2, recoMass, genMass );
+    Fill(recoP1, charge1, recoP2, charge2, recoMass, genMass);
   }
 
-  void Fill( const reco::Particle::LorentzVector & recoP1, const int charge1,
-                     // const reco::Particle::LorentzVector & genP1,
-                     const reco::Particle::LorentzVector & recoP2, const int charge2,
-                     // const reco::Particle::LorentzVector & genP2,
-                     const double & recoMass, const double & genMass ) override {
+  void Fill(const reco::Particle::LorentzVector& recoP1,
+            const int charge1,
+            // const reco::Particle::LorentzVector & genP1,
+            const reco::Particle::LorentzVector& recoP2,
+            const int charge2,
+            // const reco::Particle::LorentzVector & genP2,
+            const double& recoMass,
+            const double& genMass) override {
+    if (charge1 == charge2)
+      std::cout << "Error: must get two opposite charge particles" << std::endl;
 
-    if ( charge1 == charge2 ) std::cout << "Error: must get two opposite charge particles" << std::endl;
+    double massRes = (recoMass - genMass) / genMass;
 
-    double massRes = (recoMass - genMass)/genMass;
-
-    reco::Particle::LorentzVector recoPair( recoP1 + recoP2 );
+    reco::Particle::LorentzVector recoPair(recoP1 + recoP2);
     double pairPt = recoPair.Pt();
 
-    double recoPt[2]  = {recoP1.Pt(),  recoP2.Pt()};
+    double recoPt[2] = {recoP1.Pt(), recoP2.Pt()};
     double recoEta[2] = {recoP1.Eta(), recoP2.Eta()};
     double recoPhi[2] = {recoP1.Phi(), recoP2.Phi()};
 
@@ -2208,8 +2338,8 @@ class HMassResolutionVSPart : public Histograms
     // Index of the histogram. If the muons have charge1 = -1 and charge2 = 1, they already have the
     // correct histogram indeces. Otherwise, swap the indeces.
     // In any case the negative muon has index = 0  and the positive muon has index = 1.
-    int id[2] = {0,1};
-    if ( charge1 > 0 ) {
+    int id[2] = {0, 1};
+    if (charge1 > 0) {
       id[0] = 1;
       id[1] = 0;
     }
@@ -2218,25 +2348,24 @@ class HMassResolutionVSPart : public Histograms
     double pairDeltaPhi = MuScleFitUtils::deltaPhi(recoPhi[0], recoPhi[1]);
 
     mapHisto_[name_]->Fill(massRes);
-    mapHisto_[name_+"VSPairPt"]->Fill(pairPt, massRes);
-    mapHisto_[name_+"VSPairDeltaEta"]->Fill(pairDeltaEta, massRes);
-    mapHisto_[name_+"VSPairDeltaPhi"]->Fill(pairDeltaPhi, massRes);
+    mapHisto_[name_ + "VSPairPt"]->Fill(pairPt, massRes);
+    mapHisto_[name_ + "VSPairDeltaEta"]->Fill(pairDeltaEta, massRes);
+    mapHisto_[name_ + "VSPairDeltaPhi"]->Fill(pairDeltaPhi, massRes);
 
     // Resolution vs single muon quantities
     // ------------------------------------
     int index = 0;
-    for( int i=0; i<2; ++i ) {
+    for (int i = 0; i < 2; ++i) {
       index = id[i];
-      mapHisto_[name_+"VSPt"+nameSuffix_[i]]->Fill(recoPt[index], massRes); // EM [index] or [i]???
-      mapHisto_[name_+"VSEta"+nameSuffix_[i]]->Fill(recoEta[index], massRes);
-      mapHisto_[name_+"VSPhi"+nameSuffix_[i]]->Fill(recoPhi[index], massRes);
+      mapHisto_[name_ + "VSPt" + nameSuffix_[i]]->Fill(recoPt[index], massRes);  // EM [index] or [i]???
+      mapHisto_[name_ + "VSEta" + nameSuffix_[i]]->Fill(recoEta[index], massRes);
+      mapHisto_[name_ + "VSPhi" + nameSuffix_[i]]->Fill(recoPhi[index], massRes);
     }
-  } 
+  }
 
   void Write() override {
     histoDir_->cd();
-    for (std::map<TString, TH1*>::const_iterator histo=mapHisto_.begin(); 
-         histo!=mapHisto_.end(); histo++) {
+    for (std::map<TString, TH1*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
       (*histo).second->Write();
     }
     // Create the new dir and cd into it
@@ -2244,31 +2373,30 @@ class HMassResolutionVSPart : public Histograms
     muMinus->Write();
     muPlus->Write();
   }
-  
+
   void Clear() override {
-    for (std::map<TString, TH1*>::const_iterator histo=mapHisto_.begin(); 
-         histo!=mapHisto_.end(); histo++) {
+    for (std::map<TString, TH1*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
       (*histo).second->Clear();
     }
     muMinus->Clear();
     muPlus->Clear();
   }
 
-//   HMassResolutionVSPart(const TString & name, TFile* file){
-//     TString nameSuffix[] = {"Plus", "Minus"};
-//     name_ = name;
-//     hReso                    = (TH1F *)     file->Get(name+"_Reso");
-//     hResoVSPairPt            = (TH2F *)     file->Get(name+"_ResoVSPairPt");
-//     hResoVSPairDeltaEta      = (TH2F *)     file->Get(name+"_ResoVSPairDeltaEta");
-//     hResoVSPairDeltaPhi      = (TH2F *)     file->Get(name+"_ResoVSPairDeltaPhi");
-//     for( int i=0; i<2; ++i ) {
-//       hResoVSPt[i]           = (TH2F *)     file->Get(name+"_ResoVSPt"+nameSuffix[i]);
-//       hResoVSEta[i]          = (TH2F *)     file->Get(name+"_ResoVSEta"+nameSuffix[i]);
-//       hResoVSPhi[i]          = (TH2F *)     file->Get(name+"_ResoVSPhi"+nameSuffix[i]);
-//     }
-//   }
+  //   HMassResolutionVSPart(const TString & name, TFile* file){
+  //     TString nameSuffix[] = {"Plus", "Minus"};
+  //     name_ = name;
+  //     hReso                    = (TH1F *)     file->Get(name+"_Reso");
+  //     hResoVSPairPt            = (TH2F *)     file->Get(name+"_ResoVSPairPt");
+  //     hResoVSPairDeltaEta      = (TH2F *)     file->Get(name+"_ResoVSPairDeltaEta");
+  //     hResoVSPairDeltaPhi      = (TH2F *)     file->Get(name+"_ResoVSPairDeltaPhi");
+  //     for( int i=0; i<2; ++i ) {
+  //       hResoVSPt[i]           = (TH2F *)     file->Get(name+"_ResoVSPt"+nameSuffix[i]);
+  //       hResoVSEta[i]          = (TH2F *)     file->Get(name+"_ResoVSEta"+nameSuffix[i]);
+  //       hResoVSPhi[i]          = (TH2F *)     file->Get(name+"_ResoVSPhi"+nameSuffix[i]);
+  //     }
+  //   }
 
- protected:
+protected:
   std::map<TString, TH1*> mapHisto_;
   TString nameSuffix_[2];
   std::unique_ptr<HDelta> muMinus;
