@@ -66,6 +66,9 @@ private:
   const int RCTScaleShift;
   const double lsbQIE8;
   const double lsbQIE11;
+  edm::ESGetToken<HcalLutMetadata, HcalLutMetadataRcd> lutMetadataToken;
+  edm::ESGetToken<HcalTrigTowerGeometry, CaloGeometryRecord> theTrigTowerGeometryToken;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topoToken;
 };
 
 //
@@ -103,7 +106,7 @@ CaloTPGTranscoderULUTs::CaloTPGTranscoderULUTs(const edm::ParameterSet& iConfig)
       lsbQIE11(iConfig.getParameter<edm::ParameterSet>("tpScales")
                    .getParameter<edm::ParameterSet>("HBHE")
                    .getParameter<double>("LSBQIE11")) {
-  setWhatProduced(this);
+  setWhatProduced(this).setConsumes(lutMetadataToken).setConsumes(theTrigTowerGeometryToken).setConsumes(topoToken);
 }
 
 CaloTPGTranscoderULUTs::~CaloTPGTranscoderULUTs() {
@@ -147,20 +150,16 @@ CaloTPGTranscoderULUTs::ReturnType CaloTPGTranscoderULUTs::produce(const CaloTPG
   }
   //std::unique_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(ietal, ietah, ZS, LUTfactor, RCTLSB, nominal_gain, file1, file2));
 
-  edm::ESHandle<HcalLutMetadata> lutMetadata;
-  iRecord.getRecord<HcalLutMetadataRcd>().get(lutMetadata);
-  edm::ESHandle<HcalTrigTowerGeometry> theTrigTowerGeometry;
-  iRecord.getRecord<CaloGeometryRecord>().get(theTrigTowerGeometry);
+  const auto& lutMetadata = iRecord.get(lutMetadataToken);
+  const auto& theTrigTowerGeometry = iRecord.get(theTrigTowerGeometryToken);
+  const auto& topo = iRecord.getRecord<HcalLutMetadataRcd>().get(topoToken);
 
-  edm::ESHandle<HcalTopology> htopo;
-  iRecord.getRecord<HcalLutMetadataRcd>().getRecord<HcalRecNumberingRecord>().get(htopo);
+  HcalLutMetadata fullLut{lutMetadata};
+  fullLut.setTopo(&topo);
 
-  HcalLutMetadata fullLut{*lutMetadata};
-  fullLut.setTopo(htopo.product());
-
-  std::unique_ptr<CaloTPGTranscoderULUT> pTCoder(new CaloTPGTranscoderULUT(file1, file2));
-  pTCoder->setup(fullLut, *theTrigTowerGeometry, NCTScaleShift, RCTScaleShift, lsbQIE8, lsbQIE11, linearLUTs_);
-  return std::unique_ptr<CaloTPGTranscoder>(std::move(pTCoder));
+  auto pTCoder = std::make_unique<CaloTPGTranscoderULUT>(file1, file2);
+  pTCoder->setup(fullLut, theTrigTowerGeometry, NCTScaleShift, RCTScaleShift, lsbQIE8, lsbQIE11, linearLUTs_);
+  return pTCoder;
 }
 
 //define this as a plug-in
