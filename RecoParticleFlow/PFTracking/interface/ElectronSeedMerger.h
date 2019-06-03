@@ -12,19 +12,17 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 
 class ElectronSeedMerger : public edm::stream::EDProducer<> {
-   public:
-      explicit ElectronSeedMerger(const edm::ParameterSet&);
-      ~ElectronSeedMerger() override;
-  
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
- 
+public:
+  explicit ElectronSeedMerger(const edm::ParameterSet&);
+  ~ElectronSeedMerger() override;
 
-      edm::ParameterSet conf_;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      ///SEED COLLECTIONS
-      edm::EDGetTokenT<reco::ElectronSeedCollection> ecalSeedToken_;
-      edm::EDGetTokenT<reco::ElectronSeedCollection> tkSeedToken_;
+  edm::ParameterSet conf_;
 
+  ///SEED COLLECTIONS
+  edm::EDGetTokenT<reco::ElectronSeedCollection> ecalSeedToken_;
+  edm::EDGetTokenT<reco::ElectronSeedCollection> tkSeedToken_;
 };
 #endif
