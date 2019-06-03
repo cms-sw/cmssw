@@ -10,13 +10,15 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include <string>
 
-namespace edm { class Event; }
-namespace edm { class EventSetup; }
+namespace edm {
+  class Event;
+}
+namespace edm {
+  class EventSetup;
+}
 
 class MuIsoDepositCopyProducer : public edm::stream::EDProducer<> {
-
 public:
-
   //! constructor
   MuIsoDepositCopyProducer(const edm::ParameterSet&);
 
@@ -25,15 +27,14 @@ public:
 
   //! data making method
   void produce(edm::Event&, const edm::EventSetup&) override;
-  
+
 private:
   //! module configuration
   edm::ParameterSet theConfig;
 
-  //! for backward compatibility: take one input module and 
+  //! for backward compatibility: take one input module and
   std::vector<edm::InputTag> theInputTags;
   std::vector<edm::EDGetTokenT<reco::IsoDepositMap> > theInputTokens;
   std::vector<std::string> theDepositNames;
-
 };
 #endif

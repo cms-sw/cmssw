@@ -10,17 +10,13 @@
    @brief Simple class that tests SiStripEnumsAndStrings.
 */
 class testSiStripEnumsAndStrings : public edm::EDAnalyzer {
-
- public:
-  
-  testSiStripEnumsAndStrings( const edm::ParameterSet& );
+public:
+  testSiStripEnumsAndStrings(const edm::ParameterSet&);
   ~testSiStripEnumsAndStrings();
-  
+
   void beginJob();
-  void analyze( const edm::Event&, const edm::EventSetup& );
-  void endJob() {;}
-  
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void endJob() { ; }
 };
 
-#endif // DataFormats_SiStripCommon_testSiStripEnumsAndStrings_H
-
+#endif  // DataFormats_SiStripCommon_testSiStripEnumsAndStrings_H
