@@ -5,7 +5,7 @@
 // Description: Numbering scheme for hadron calorimeter (detailed for TB)
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class HcalTestNumbering {
 
