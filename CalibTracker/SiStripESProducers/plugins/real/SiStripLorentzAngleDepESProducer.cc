@@ -17,12 +17,40 @@
 //
 
 
+// system include files
+#include <memory>
 
-#include "CalibTracker/SiStripESProducers/plugins/real/SiStripLorentzAngleDepESProducer.h"
+// user include files
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
+#include "CalibTracker/Records/interface/SiStripDependentRecords.h"
+
+class SiStripLorentzAngleDepESProducer : public edm::ESProducer {
+ public:
+  SiStripLorentzAngleDepESProducer(const edm::ParameterSet&);
+  ~SiStripLorentzAngleDepESProducer() override{};
+  
+  std::unique_ptr<SiStripLorentzAngle> produce(const SiStripLorentzAngleDepRcd&);
+   
+ private:
+  edm::ParameterSet getLatency;
+  edm::ParameterSet getPeak;
+  edm::ParameterSet getDeconv;
+
+
+};
 
 SiStripLorentzAngleDepESProducer::SiStripLorentzAngleDepESProducer(const edm::ParameterSet& iConfig):
-  pset_(iConfig),
   getLatency(iConfig.getParameter<edm::ParameterSet>("LatencyRecord")),
   getPeak(iConfig.getParameter<edm::ParameterSet>("LorentzAnglePeakMode")),
   getDeconv(iConfig.getParameter<edm::ParameterSet>("LorentzAngleDeconvMode"))
@@ -72,3 +100,4 @@ std::unique_ptr<SiStripLorentzAngle> SiStripLorentzAngleDepESProducer::produce(c
   
 }
 
+DEFINE_FWK_EVENTSETUP_MODULE(SiStripLorentzAngleDepESProducer);
