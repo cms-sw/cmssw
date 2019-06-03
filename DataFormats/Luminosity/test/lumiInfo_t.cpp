@@ -6,15 +6,14 @@
 #include <iostream>
 #include <cmath>
 
-class TestLumiInfo: public CppUnit::TestFixture
-{
+class TestLumiInfo : public CppUnit::TestFixture {
   static const float tol;
 
-  CPPUNIT_TEST_SUITE(TestLumiInfo);  
+  CPPUNIT_TEST_SUITE(TestLumiInfo);
   CPPUNIT_TEST(testConstructor);
   CPPUNIT_TEST(testFill);
   CPPUNIT_TEST_SUITE_END();
-  
+
 public:
   void setUp() {}
   void tearDown() {}
@@ -28,18 +27,16 @@ const float TestLumiInfo::tol = 1e-5;
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(TestLumiInfo);
 
-void
-TestLumiInfo::testConstructor() {
+void TestLumiInfo::testConstructor() {
   std::cout << "\nTesting LumiInfo\n";
   LumiInfo lumiInfo;
-  
+
   lumiInfo.setDeadFraction(0.4);
   CPPUNIT_ASSERT(std::abs(lumiInfo.getDeadFraction() - 0.4) < tol);
   CPPUNIT_ASSERT(std::abs(lumiInfo.getLiveFraction() - 0.6) < tol);
 }
 
-void
-TestLumiInfo::testFill() {
+void TestLumiInfo::testFill() {
   LumiInfo lumiInfo;
   lumiInfo.setDeadFraction(0.5);
   std::vector<float> lumBX;
@@ -56,13 +53,11 @@ TestLumiInfo::testFill() {
 
   CPPUNIT_ASSERT(std::abs(lumiInfo.getTotalInstLumi() - 8.0f) < tol);
   CPPUNIT_ASSERT(std::abs(lumiInfo.instLuminosityBXSum() - 6.0f) < tol);
-  CPPUNIT_ASSERT(std::abs(lumiInfo.integLuminosity() - 8.0f*lumiInfo.lumiSectionLength()) < tol);
-  CPPUNIT_ASSERT(std::abs(lumiInfo.recordedLuminosity() - 4.0f*lumiInfo.lumiSectionLength()) < tol);
+  CPPUNIT_ASSERT(std::abs(lumiInfo.integLuminosity() - 8.0f * lumiInfo.lumiSectionLength()) < tol);
+  CPPUNIT_ASSERT(std::abs(lumiInfo.recordedLuminosity() - 4.0f * lumiInfo.lumiSectionLength()) < tol);
 
- 
   lumiInfo.setTotalInstToBXSum();
   CPPUNIT_ASSERT(std::abs(lumiInfo.getTotalInstLumi() - 6.0f) < tol);
-
 
   CPPUNIT_ASSERT(lumiInfo.isProductEqual(lumiInfo));
 

@@ -46,17 +46,16 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
-class CosmicRegionalSeedGenerator : public TrackingRegionProducer { 
- 
-
- public:
-  explicit CosmicRegionalSeedGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
+class CosmicRegionalSeedGenerator : public TrackingRegionProducer {
+public:
+  explicit CosmicRegionalSeedGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC);
 
   ~CosmicRegionalSeedGenerator() override {}
-  
-  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& event, const edm::EventSetup& es) const override;
 
- private:
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& event,
+                                                        const edm::EventSetup& es) const override;
+
+private:
   edm::ParameterSet conf_;
   edm::ParameterSet regionPSet;
 
@@ -72,18 +71,16 @@ class CosmicRegionalSeedGenerator : public TrackingRegionProducer {
   edm::InputTag recoMuonsCollection_;
   edm::InputTag recoTrackMuonsCollection_;
   edm::InputTag recoL2MuonsCollection_;
-  edm::EDGetTokenT<reco::CaloJetCollection>	 recoCaloJetsToken_	; 
-  edm::EDGetTokenT<reco::MuonCollection>	 recoMuonsToken_	; 
-  edm::EDGetTokenT<reco::TrackCollection>	 recoTrackMuonsToken_	; 
-  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> recoL2MuonsToken_	; 
-  edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerEventToken_	;
+  edm::EDGetTokenT<reco::CaloJetCollection> recoCaloJetsToken_;
+  edm::EDGetTokenT<reco::MuonCollection> recoMuonsToken_;
+  edm::EDGetTokenT<reco::TrackCollection> recoTrackMuonsToken_;
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> recoL2MuonsToken_;
+  edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerEventToken_;
 
-  
-  bool   doJetsExclusionCheck_;
+  bool doJetsExclusionCheck_;
   double deltaRExclusionSize_;
   double jetsPtMin_;
   edm::InputTag recoCaloJetsCollection_;
-
 };
 
 #endif

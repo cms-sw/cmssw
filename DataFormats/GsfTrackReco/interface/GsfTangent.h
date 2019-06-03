@@ -15,23 +15,17 @@ namespace reco {
   class GsfTangent {
   public:
     /// default constructor
-    GsfTangent () :
-      position_(0.,0.,0.), momentum_(0.,0.,0.),
-      deltaP_(0.), sigDeltaP_(0.) {}
+    GsfTangent() : position_(0., 0., 0.), momentum_(0., 0., 0.), deltaP_(0.), sigDeltaP_(0.) {}
     /// constructor from position, momentum and estimated deltaP
-    GsfTangent (const math::XYZPoint& position,
-		const math::XYZVector& momentum,
-		const Measurement1D& deltaP) :
-      position_(position), momentum_(momentum) {
+    GsfTangent(const math::XYZPoint& position, const math::XYZVector& momentum, const Measurement1D& deltaP)
+        : position_(position), momentum_(momentum) {
       deltaP_ = deltaP.value();
       sigDeltaP_ = deltaP.error();
     }
-    const math::XYZPoint& position () const {return position_;}
-    const math::XYZVector& momentum () const {return momentum_;}
+    const math::XYZPoint& position() const { return position_; }
+    const math::XYZVector& momentum() const { return momentum_; }
     /// estimated deltaP (p_out-p_in)
-    Measurement1D deltaP () const {
-      return Measurement1D(deltaP_,sigDeltaP_);
-    }
+    Measurement1D deltaP() const { return Measurement1D(deltaP_, sigDeltaP_); }
 
   private:
     math::XYZPoint position_;
@@ -39,5 +33,5 @@ namespace reco {
     double deltaP_;
     double sigDeltaP_;
   };
-}
+}  // namespace reco
 #endif

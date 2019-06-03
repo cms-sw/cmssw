@@ -7,67 +7,64 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 namespace reco {
-  
-   class NuclearInteraction {
-     
-     public :
 
-       typedef edm::RefVector<TrajectorySeedCollection>  TrajectorySeedRefVector;
-       typedef edm::Ref<TrajectorySeedCollection>        TrajectorySeedRef;
-       typedef reco::Vertex::trackRef_iterator           trackRef_iterator;
-       typedef TrajectorySeedRefVector::iterator         seedRef_iterator;
+  class NuclearInteraction {
+  public:
+    typedef edm::RefVector<TrajectorySeedCollection> TrajectorySeedRefVector;
+    typedef edm::Ref<TrajectorySeedCollection> TrajectorySeedRef;
+    typedef reco::Vertex::trackRef_iterator trackRef_iterator;
+    typedef TrajectorySeedRefVector::iterator seedRef_iterator;
 
-       NuclearInteraction() {}
+    NuclearInteraction() {}
 
-       NuclearInteraction( const TrajectorySeedRefVector& tseeds, const reco::Vertex& vtx, double lkh) { 
-                         seeds_ = tseeds;
-                         vertex_ = vtx;
-                         likelihood_ = lkh;
-       }
- 
-       /// return the base reference to the primary track
-       const edm::RefToBase<reco::Track>& primaryTrack() const { return *(vertex_.tracks_begin()); }
+    NuclearInteraction(const TrajectorySeedRefVector& tseeds, const reco::Vertex& vtx, double lkh) {
+      seeds_ = tseeds;
+      vertex_ = vtx;
+      likelihood_ = lkh;
+    }
 
-       /// return the number of secondary tracks
-       int secondaryTracksSize() const { return vertex_.tracksSize()-1; }
+    /// return the base reference to the primary track
+    const edm::RefToBase<reco::Track>& primaryTrack() const { return *(vertex_.tracks_begin()); }
 
-       /// first iterator over secondary tracks
-       trackRef_iterator secondaryTracks_begin() const { return vertex_.tracks_begin()+1; }
+    /// return the number of secondary tracks
+    int secondaryTracksSize() const { return vertex_.tracksSize() - 1; }
 
-       /// last iterator over secondary tracks
-       trackRef_iterator secondaryTracks_end() const { return vertex_.tracks_end(); }
+    /// first iterator over secondary tracks
+    trackRef_iterator secondaryTracks_begin() const { return vertex_.tracks_begin() + 1; }
 
-       /// return the number of seeds
-       int seedsSize() const { return seeds_.size(); }
+    /// last iterator over secondary tracks
+    trackRef_iterator secondaryTracks_end() const { return vertex_.tracks_end(); }
 
-       /// return the seeds
-       const TrajectorySeedRefVector& seeds() { return seeds_; }
+    /// return the number of seeds
+    int seedsSize() const { return seeds_.size(); }
 
-       /// first iterator over seeds
-       seedRef_iterator seeds_begin() const { return seeds_.begin(); }
+    /// return the seeds
+    const TrajectorySeedRefVector& seeds() { return seeds_; }
 
-       /// last iterator over seeds
-       seedRef_iterator seeds_end() const { return seeds_.end(); }
+    /// first iterator over seeds
+    seedRef_iterator seeds_begin() const { return seeds_.begin(); }
 
-       /// return the vertex
-       const reco::Vertex& vertex() const { return vertex_; }
+    /// last iterator over seeds
+    seedRef_iterator seeds_end() const { return seeds_.end(); }
 
-       /// return the likelihood ~ probability that the vertex is a real nuclear interaction
-       double likelihood() const { return likelihood_; }
+    /// return the vertex
+    const reco::Vertex& vertex() const { return vertex_; }
 
-     private :
+    /// return the likelihood ~ probability that the vertex is a real nuclear interaction
+    double likelihood() const { return likelihood_; }
 
-        /// The refitted primary track after removing eventually some outer rechits
-        //reco::Track                 refittedPrimaryTrack_; // to be included in a futur version
+  private:
+    /// The refitted primary track after removing eventually some outer rechits
+    //reco::Track                 refittedPrimaryTrack_; // to be included in a futur version
 
-        /// Reference to the TrajectorySeeds produced by NuclearSeedGenerator
-        TrajectorySeedRefVector     seeds_;
+    /// Reference to the TrajectorySeeds produced by NuclearSeedGenerator
+    TrajectorySeedRefVector seeds_;
 
-        /// The calculated vertex position
-        reco::Vertex                vertex_;
-   
-        /// Varaible used to measure the quality of the reconstructed nuclear interaction
-        double                      likelihood_;
-     };
-}
+    /// The calculated vertex position
+    reco::Vertex vertex_;
+
+    /// Varaible used to measure the quality of the reconstructed nuclear interaction
+    double likelihood_;
+  };
+}  // namespace reco
 #endif
