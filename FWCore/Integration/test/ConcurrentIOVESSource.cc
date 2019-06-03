@@ -89,7 +89,6 @@ namespace edmtest {
         setOfInvalidIOV_.insert(edm::IOVSyncValue(edm::EventID(1, val, 0)));
       }
     }
-
     this->findingRecord<ESTestRecordI>();
     setWhatProduced(this);
     if (findForRecordA_) {

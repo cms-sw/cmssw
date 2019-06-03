@@ -115,7 +115,9 @@ namespace {
     DummyProxyProvider() { usingRecord<DummyRecord>(); }
 
   protected:
-    void registerProxies(const edm::eventsetup::EventSetupRecordKey&, KeyedProxies&, unsigned int) override {}
+    KeyedProxiesVector registerProxies(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
+      return KeyedProxiesVector();
+    }
   };
 
   class DepRecordProxyProvider : public edm::eventsetup::DataProxyProvider {
@@ -123,7 +125,9 @@ namespace {
     DepRecordProxyProvider() { usingRecord<DepRecord>(); }
 
   protected:
-    void registerProxies(const edm::eventsetup::EventSetupRecordKey&, KeyedProxies&, unsigned int) override {}
+    KeyedProxiesVector registerProxies(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
+      return KeyedProxiesVector();
+    }
   };
 
   class WorkingDepRecordProxy : public edm::eventsetup::DataProxyTemplate<DepRecord, edm::eventsetup::test::DummyData> {
@@ -146,9 +150,12 @@ namespace {
     }
 
   protected:
-    void registerProxies(const edm::eventsetup::EventSetupRecordKey&, KeyedProxies& iProxies, unsigned int) override {
+    KeyedProxiesVector registerProxies(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
+      KeyedProxiesVector keyedProxiesVector;
       std::shared_ptr<WorkingDepRecordProxy> pProxy = std::make_shared<WorkingDepRecordProxy>(&dummy_);
-      insertProxy(iProxies, pProxy);
+      edm::eventsetup::DataKey dataKey(edm::eventsetup::DataKey::makeTypeTag<edm::eventsetup::test::DummyData>(), "");
+      keyedProxiesVector.emplace_back(dataKey, pProxy);
+      return keyedProxiesVector;
     }
 
   private:
@@ -160,7 +167,9 @@ namespace {
     DepOn2RecordProxyProvider() { usingRecord<DepOn2Record>(); }
 
   protected:
-    void registerProxies(const edm::eventsetup::EventSetupRecordKey&, KeyedProxies&, unsigned int) override {}
+    KeyedProxiesVector registerProxies(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
+      return KeyedProxiesVector();
+    }
   };
 
   class DepRecordFinder : public edm::EventSetupRecordIntervalFinder {

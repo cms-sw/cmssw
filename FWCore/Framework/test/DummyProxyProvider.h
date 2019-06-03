@@ -49,9 +49,12 @@ namespace edm::eventsetup::test {
     void incrementData() { ++dummy_.value_; }
 
   protected:
-    void registerProxies(const eventsetup::EventSetupRecordKey&, KeyedProxies& iProxies, unsigned int) {
+    KeyedProxiesVector registerProxies(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
+      KeyedProxiesVector keyedProxiesVector;
+      edm::eventsetup::DataKey dataKey(edm::eventsetup::DataKey::makeTypeTag<DummyData>(), "");
       std::shared_ptr<WorkingDummyProxy> pProxy = std::make_shared<WorkingDummyProxy>(&dummy_);
-      insertProxy(iProxies, pProxy);
+      keyedProxiesVector.emplace_back(dataKey, pProxy);
+      return keyedProxiesVector;
     }
 
   private:

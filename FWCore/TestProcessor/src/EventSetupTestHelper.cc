@@ -19,17 +19,6 @@
 namespace edm {
   namespace test {
 
-    //
-    // constants, enums and typedefs
-    //
-
-    //
-    // static data member definitions
-    //
-
-    //
-    // constructors and destructor
-    //
     EventSetupTestHelper::EventSetupTestHelper(std::vector<ESProduceEntry> iProxies) : proxies_{std::move(iProxies)} {
       //Deal with duplicates
       std::set<eventsetup::EventSetupRecordKey> records;
@@ -67,14 +56,15 @@ namespace edm {
       oIOV = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
     }
 
-    void EventSetupTestHelper::registerProxies(const eventsetup::EventSetupRecordKey& iRecordKey,
-                                               KeyedProxies& aProxyList,
-                                               unsigned int) {
+    eventsetup::DataProxyProvider::KeyedProxiesVector EventSetupTestHelper::registerProxies(
+        const eventsetup::EventSetupRecordKey& iRecordKey, unsigned int iovIndex) {
+      KeyedProxiesVector keyedProxiesVector;
       for (auto const& p : proxies_) {
         if (p.recordKey_ == iRecordKey) {
-          aProxyList.emplace_back(p.dataKey_, p.proxy_);
+          keyedProxiesVector.emplace_back(p.dataKey_, p.proxy_);
         }
       }
+      return keyedProxiesVector;
     }
 
     std::shared_ptr<eventsetup::DataProxy> EventSetupTestHelper::getProxy(unsigned int iIndex) {

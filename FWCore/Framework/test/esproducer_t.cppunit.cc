@@ -9,9 +9,12 @@
 #include "cppunit/extensions/HelperMacros.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/test/DummyData.h"
+#include "FWCore/Framework/test/Dummy2Record.h"
 #include "FWCore/Framework/test/DummyRecord.h"
 #include "FWCore/Framework/test/DummyFinder.h"
+#include "FWCore/Framework/test/DepOn2Record.h"
 #include "FWCore/Framework/test/DepRecord.h"
+#include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
@@ -59,6 +62,7 @@ class testEsproducer : public CppUnit::TestFixture {
   CPPUNIT_TEST(labelTest);
   CPPUNIT_TEST_EXCEPTION(failMultipleRegistration, cms::Exception);
   CPPUNIT_TEST(forceCacheClearTest);
+  CPPUNIT_TEST(dataProxyProviderTest);
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -76,6 +80,7 @@ public:
   void labelTest();
   void failMultipleRegistration();
   void forceCacheClearTest();
+  void dataProxyProviderTest();
 
 private:
   edm::propagate_const<std::unique_ptr<tbb::task_scheduler_init>> m_scheduler;
@@ -179,9 +184,10 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEsproducer);
 void testEsproducer::registerTest() {
   Test1Producer testProd;
   EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
+  EventSetupRecordKey depRecordKey = EventSetupRecordKey::makeKey<DepRecord>();
+  testProd.createKeyedProxies(dummyRecordKey, 1);
   CPPUNIT_ASSERT(testProd.isUsingRecord(dummyRecordKey));
-
-  testProd.resizeKeyedProxiesVector(dummyRecordKey, 1);
+  CPPUNIT_ASSERT(!testProd.isUsingRecord(depRecordKey));
   const DataProxyProvider::KeyedProxies& keyedProxies = testProd.keyedProxies(dummyRecordKey);
 
   CPPUNIT_ASSERT(keyedProxies.size() == 1);
@@ -439,4 +445,255 @@ void testEsproducer::forceCacheClearTest() {
     CPPUNIT_ASSERT(0 != pDummy.product());
     CPPUNIT_ASSERT(2 == pDummy->value_);
   }
+}
+
+namespace {
+  class TestDataProxyProvider : public DataProxyProvider {
+  public:
+    TestDataProxyProvider();
+
+    class TestProxy : public DataProxy {
+    public:
+      void const* getImpl(EventSetupRecordImpl const&, DataKey const&, edm::EventSetupImpl const*) override {
+        return nullptr;
+      }
+      void invalidateCache() override {}
+    };
+
+    DataKey dataKeyDummy_0_;
+    DataKey dataKeyDummy2_0_;
+    DataKey dataKeyDummy2_1_;
+    DataKey dataKeyDummy2_2_;
+    DataKey dataKeyDep_0_;
+    DataKey dataKeyDep_1_;
+    std::shared_ptr<TestProxy> proxyDummy_0_0_;
+    std::shared_ptr<TestProxy> proxyDummy_0_1_;
+    std::shared_ptr<TestProxy> proxyDummy_0_2_;
+    std::shared_ptr<TestProxy> proxyDummy2_0_0_;
+    std::shared_ptr<TestProxy> proxyDummy2_1_0_;
+    std::shared_ptr<TestProxy> proxyDummy2_2_0_;
+    std::shared_ptr<TestProxy> proxyDep_0_0_;
+    std::shared_ptr<TestProxy> proxyDep_0_1_;
+    std::shared_ptr<TestProxy> proxyDep_1_0_;
+    std::shared_ptr<TestProxy> proxyDep_1_1_;
+
+  private:
+    KeyedProxiesVector registerProxies(const EventSetupRecordKey& recordKey, unsigned int iovIndex) override {
+      KeyedProxiesVector keyedProxiesVector;
+      if (recordKey == EventSetupRecordKey::makeKey<DummyRecord>()) {
+        if (iovIndex == 0) {
+          keyedProxiesVector.emplace_back(dataKeyDummy_0_, proxyDummy_0_0_);
+        } else if (iovIndex == 1) {
+          keyedProxiesVector.emplace_back(dataKeyDummy_0_, proxyDummy_0_1_);
+        } else if (iovIndex == 2) {
+          keyedProxiesVector.emplace_back(dataKeyDummy_0_, proxyDummy_0_2_);
+        }
+      } else if (recordKey == EventSetupRecordKey::makeKey<Dummy2Record>()) {
+        keyedProxiesVector.emplace_back(dataKeyDummy2_0_, proxyDummy2_0_0_);
+        keyedProxiesVector.emplace_back(dataKeyDummy2_1_, proxyDummy2_1_0_);
+        keyedProxiesVector.emplace_back(dataKeyDummy2_2_, proxyDummy2_2_0_);
+      } else if (recordKey == EventSetupRecordKey::makeKey<DepRecord>()) {
+        if (iovIndex == 0) {
+          keyedProxiesVector.emplace_back(dataKeyDep_0_, proxyDep_0_0_);
+          keyedProxiesVector.emplace_back(dataKeyDep_1_, proxyDep_1_0_);
+        } else if (iovIndex == 1) {
+          keyedProxiesVector.emplace_back(dataKeyDep_0_, proxyDep_0_1_);
+          keyedProxiesVector.emplace_back(dataKeyDep_1_, proxyDep_1_1_);
+        }
+      }
+      return keyedProxiesVector;
+    }
+  };
+
+  TestDataProxyProvider::TestDataProxyProvider()
+      : dataKeyDummy_0_(DataKey::makeTypeTag<DummyData>(), "Dummy_0"),
+        dataKeyDummy2_0_(DataKey::makeTypeTag<DummyData>(), "Dummy2_0"),
+        dataKeyDummy2_1_(DataKey::makeTypeTag<DummyData>(), "Dummy2_1"),
+        dataKeyDummy2_2_(DataKey::makeTypeTag<DummyData>(), "Dummy2_2"),
+        dataKeyDep_0_(DataKey::makeTypeTag<DummyData>(), "Dep_0"),
+        dataKeyDep_1_(DataKey::makeTypeTag<DummyData>(), "Dep_1"),
+        proxyDummy_0_0_(std::make_shared<TestProxy>()),
+        proxyDummy_0_1_(std::make_shared<TestProxy>()),
+        proxyDummy_0_2_(std::make_shared<TestProxy>()),
+        proxyDummy2_0_0_(std::make_shared<TestProxy>()),
+        proxyDummy2_1_0_(std::make_shared<TestProxy>()),
+        proxyDummy2_2_0_(std::make_shared<TestProxy>()),
+        proxyDep_0_0_(std::make_shared<TestProxy>()),
+        proxyDep_0_1_(std::make_shared<TestProxy>()),
+        proxyDep_1_0_(std::make_shared<TestProxy>()),
+        proxyDep_1_1_(std::make_shared<TestProxy>()) {
+    usingRecord<DummyRecord>();
+    usingRecord<Dummy2Record>();
+    usingRecord<DepRecord>();
+    usingRecord<DepOn2Record>();
+    usingRecord<DummyRecord>();
+    usingRecord<Dummy2Record>();
+    usingRecord<DepRecord>();
+    usingRecord<DepOn2Record>();
+  }
+}  // namespace
+
+void testEsproducer::dataProxyProviderTest() {
+  TestDataProxyProvider dataProxyProvider;
+  EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
+  EventSetupRecordKey dummy2RecordKey = EventSetupRecordKey::makeKey<Dummy2Record>();
+  EventSetupRecordKey depRecordKey = EventSetupRecordKey::makeKey<DepRecord>();
+  EventSetupRecordKey depOn2RecordKey = EventSetupRecordKey::makeKey<DepOn2Record>();
+  unsigned int nConcurrentIOVs = 3;
+  dataProxyProvider.createKeyedProxies(dummyRecordKey, nConcurrentIOVs);
+  CPPUNIT_ASSERT(dataProxyProvider.isUsingRecord(dummyRecordKey));
+  CPPUNIT_ASSERT(dataProxyProvider.isUsingRecord(dummy2RecordKey));
+  CPPUNIT_ASSERT(dataProxyProvider.isUsingRecord(depRecordKey));
+  CPPUNIT_ASSERT(dataProxyProvider.isUsingRecord(depOn2RecordKey));
+
+  std::set<EventSetupRecordKey> expectedKeys;
+  expectedKeys.insert(dummyRecordKey);
+  expectedKeys.insert(dummy2RecordKey);
+  expectedKeys.insert(depRecordKey);
+  expectedKeys.insert(depOn2RecordKey);
+
+  auto keys = dataProxyProvider.usingRecords();
+  CPPUNIT_ASSERT(keys == expectedKeys);
+
+  keys.clear();
+  dataProxyProvider.fillRecordsNotAllowingConcurrentIOVs(keys);
+  expectedKeys.clear();
+  expectedKeys.insert(dummy2RecordKey);
+  CPPUNIT_ASSERT(keys == expectedKeys);
+
+  nConcurrentIOVs = 1;
+  dataProxyProvider.createKeyedProxies(dummy2RecordKey, nConcurrentIOVs);
+  nConcurrentIOVs = 2;
+  dataProxyProvider.createKeyedProxies(depRecordKey, nConcurrentIOVs);
+  nConcurrentIOVs = 4;
+  dataProxyProvider.createKeyedProxies(depOn2RecordKey, nConcurrentIOVs);
+
+  DataProxyProvider::KeyedProxies& keyedProxies0 = dataProxyProvider.keyedProxies(dummyRecordKey, 0);
+  CPPUNIT_ASSERT(keyedProxies0.recordKey() == dummyRecordKey);
+  CPPUNIT_ASSERT(keyedProxies0.size() == 1);
+  {
+    auto it = keyedProxies0.begin();
+    auto itEnd = keyedProxies0.end();
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy_0_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy_0_0_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies1 = dataProxyProvider.keyedProxies(dummyRecordKey, 1);
+  CPPUNIT_ASSERT(keyedProxies1.recordKey() == dummyRecordKey);
+  CPPUNIT_ASSERT(keyedProxies1.size() == 1);
+  {
+    auto it = keyedProxies1.begin();
+    auto itEnd = keyedProxies1.end();
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy_0_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy_0_1_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies2 = dataProxyProvider.keyedProxies(dummyRecordKey, 2);
+  CPPUNIT_ASSERT(keyedProxies2.recordKey() == dummyRecordKey);
+  CPPUNIT_ASSERT(keyedProxies2.size() == 1);
+  {
+    auto it = keyedProxies2.begin();
+    auto itEnd = keyedProxies2.end();
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy_0_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy_0_2_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies3 = dataProxyProvider.keyedProxies(dummy2RecordKey, 0);
+  CPPUNIT_ASSERT(keyedProxies3.recordKey() == dummy2RecordKey);
+  CPPUNIT_ASSERT(keyedProxies3.size() == 3);
+  {
+    auto it = keyedProxies3.begin();
+    auto itEnd = keyedProxies3.end();
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy2_0_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy2_0_0_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy2_1_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy2_1_0_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy2_2_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy2_2_0_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies4 = dataProxyProvider.keyedProxies(depRecordKey, 0);
+  CPPUNIT_ASSERT(keyedProxies4.recordKey() == depRecordKey);
+  CPPUNIT_ASSERT(keyedProxies4.size() == 2);
+  {
+    auto it = keyedProxies4.begin();
+    auto itEnd = keyedProxies4.end();
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDep_0_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDep_0_0_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDep_1_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDep_1_0_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies5 = dataProxyProvider.keyedProxies(depRecordKey, 1);
+  CPPUNIT_ASSERT(keyedProxies5.recordKey() == depRecordKey);
+  CPPUNIT_ASSERT(keyedProxies5.size() == 2);
+  {
+    auto it = keyedProxies5.begin();
+    auto itEnd = keyedProxies5.end();
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDep_0_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDep_0_1_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDep_1_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDep_1_1_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies6 = dataProxyProvider.keyedProxies(depOn2RecordKey, 0);
+  CPPUNIT_ASSERT(keyedProxies6.recordKey() == depOn2RecordKey);
+  CPPUNIT_ASSERT(keyedProxies6.size() == 0);
+  {
+    auto it = keyedProxies6.begin();
+    auto itEnd = keyedProxies6.end();
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies7 = dataProxyProvider.keyedProxies(depOn2RecordKey, 1);
+  CPPUNIT_ASSERT(keyedProxies7.recordKey() == depOn2RecordKey);
+  CPPUNIT_ASSERT(keyedProxies7.size() == 0);
+  {
+    auto it = keyedProxies7.begin();
+    auto itEnd = keyedProxies7.end();
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies8 = dataProxyProvider.keyedProxies(depOn2RecordKey, 2);
+  CPPUNIT_ASSERT(keyedProxies8.recordKey() == depOn2RecordKey);
+  CPPUNIT_ASSERT(keyedProxies8.size() == 0);
+  {
+    auto it = keyedProxies8.begin();
+    auto itEnd = keyedProxies8.end();
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies9 = dataProxyProvider.keyedProxies(depOn2RecordKey, 3);
+  CPPUNIT_ASSERT(keyedProxies9.recordKey() == depOn2RecordKey);
+  CPPUNIT_ASSERT(keyedProxies9.size() == 0);
+  {
+    auto it = keyedProxies9.begin();
+    auto itEnd = keyedProxies9.end();
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+
+  CPPUNIT_ASSERT(keyedProxies4.contains(dataProxyProvider.dataKeyDep_0_));
+  CPPUNIT_ASSERT(keyedProxies4.contains(dataProxyProvider.dataKeyDep_1_));
+  CPPUNIT_ASSERT(!keyedProxies4.contains(dataProxyProvider.dataKeyDummy_0_));
+
+  DataProxyProvider::KeyedProxies keyedProxies10(nullptr, 0);
+  CPPUNIT_ASSERT(keyedProxies10.unInitialized());
+  CPPUNIT_ASSERT(!keyedProxies0.unInitialized());
 }

@@ -121,24 +121,26 @@ namespace edm {
           std::set<EventSetupRecordKey> records = proxyProv->usingRecords();
           for (auto const& recordKey : records) {
             unsigned int iovIndex = 0;  // Doesn't matter which index is picked, at least 1 should always exist
-            const DataProxyProvider::KeyedProxies& keyedProxies = proxyProv->keyedProxies(recordKey, iovIndex);
-            if (!keyedProxies.empty()) {
+            DataProxyProvider::KeyedProxies& keyedProxies = proxyProv->keyedProxies(recordKey, iovIndex);
+            if (!keyedProxies.unInitialized()) {
               //add them to our output
               EventSetupRecordProvider::DataToPreferredProviderMap& dataToProviderMap = iReturnValue[recordKey];
 
-              for (auto const& itProxy : keyedProxies) {
+              for (DataProxyProvider::KeyedProxies::Iterator itProxy = keyedProxies.begin(), itEnd = keyedProxies.end();
+                   itProxy != itEnd;
+                   ++itProxy) {
                 EventSetupRecordProvider::DataToPreferredProviderMap::iterator itFind =
-                    dataToProviderMap.find(itProxy.first);
+                    dataToProviderMap.find(itProxy.dataKey());
                 if (itFind != dataToProviderMap.end()) {
                   throw cms::Exception("ESPreferConflict")
                       << "Two providers have been set to be preferred for\n"
-                      << itProxy.first.type().name() << " \"" << itProxy.first.name().value() << "\""
+                      << itProxy.dataKey().type().name() << " \"" << itProxy.dataKey().name().value() << "\""
                       << "\n the providers are "
                       << "\n 1) type=" << itFind->second.type_ << " label=\"" << itFind->second.label_ << "\""
                       << "\n 2) type=" << iComponent.type_ << " label=\"" << iComponent.label_ << "\""
                       << "\nPlease modify configuration so only one is preferred";
                 }
-                dataToProviderMap.insert(std::make_pair(itProxy.first, iComponent));
+                dataToProviderMap.insert(std::make_pair(itProxy.dataKey(), iComponent));
               }
             }
           }
@@ -197,9 +199,7 @@ namespace edm {
               std::shared_ptr<DataProxyProvider> proxyProv = recordProviderForKey.proxyProvider(*itProxyProv);
               unsigned int iovIndex = 0;  // Doesn't matter which index is picked, at least 1 should always exist
               const DataProxyProvider::KeyedProxies& keyedProxies = proxyProv->keyedProxies(recordKey, iovIndex);
-              if (std::find_if(keyedProxies.begin(), keyedProxies.end(), [&datumKey](auto const& kp) {
-                    return kp.first == datumKey;
-                  }) == keyedProxies.end()) {
+              if (!keyedProxies.contains(datumKey)) {
                 throw cms::Exception("ESPreferWrongData")
                     << "The es_prefer statement for type=" << itInfo.first.type_ << " label=\"" << itInfo.first.label_
                     << "\" specifies the data item \n"
@@ -265,7 +265,7 @@ namespace edm {
         const std::set<EventSetupRecordKey> recordsUsing = dataProxyProvider->usingRecords();
         for (auto const& key : recordsUsing) {
           unsigned int nConcurrentIOVs = numberOfConcurrentIOVs.numberOfConcurrentIOVs(key);
-          dataProxyProvider->resizeKeyedProxiesVector(key, nConcurrentIOVs);
+          dataProxyProvider->createKeyedProxies(key, nConcurrentIOVs);
 
           if (dataProxyProvider->description().isLooper_) {
             recordsWithALooperProxy_->insert(key);
