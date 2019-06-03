@@ -9,9 +9,8 @@ namespace reco {
   class IsoDeposit;
 
   //! keep it only as a part of ValueMap
-  typedef edm::ValueMap<reco::IsoDeposit> IsoDepositMap; 
+  typedef edm::ValueMap<reco::IsoDeposit> IsoDepositMap;
 
-
-}
+}  // namespace reco
 
 #endif
