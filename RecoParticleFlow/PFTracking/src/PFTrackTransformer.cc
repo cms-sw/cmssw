@@ -212,7 +212,6 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
    //HO layer0
    //   if (abs(theOutParticle.particle().vertex().z())<550) {
    if ( PT>3.0) { //Same value is used in PFBlockAlgo::link( case PFBlockLink::TRACKandHO:
-     float bfield_org=theOutParticle.getMagneticField();
      theOutParticle.setMagneticField(0);
      //theOutParticle.setCharge(0);  //Since the B field is 0, there should be no need to change charge
      theOutParticle.propagateToHOLayer(false);
@@ -226,10 +225,10 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
        PFTrajectoryPoint dummyHOLayer;
        pftrack.addPoint(dummyHOLayer); 
      }
-     theOutParticle.setMagneticField(bfield_org);
    }
 
    //VFcal(HF) entrance
+   theOutParticle.setMagneticField(0); // assume B=0 works ok for extrapolation to HF 
    theOutParticle.propagateToVFcalEntrance(false);
    if(theOutParticle.getSuccess()!=0){
      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::VFcalEntrance,
