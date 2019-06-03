@@ -20,6 +20,3 @@ DEFINE_FWK_EVENTSETUP_MODULE(SiStripDelayESProducer);
 
 #include "CalibTracker/SiStripESProducers/plugins/real/SiStripLorentzAngleDepESProducer.h"
 DEFINE_FWK_EVENTSETUP_MODULE(SiStripLorentzAngleDepESProducer);
-
-#include "CalibTracker/SiStripESProducers/plugins/real/SiStripBackPlaneCorrectionDepESProducer.h"
-DEFINE_FWK_EVENTSETUP_MODULE(SiStripBackPlaneCorrectionDepESProducer);

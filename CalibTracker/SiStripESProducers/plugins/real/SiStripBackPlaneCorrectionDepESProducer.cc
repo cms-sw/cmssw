@@ -16,11 +16,41 @@
 //
 //
 
-#include "CalibTracker/SiStripESProducers/plugins/real/SiStripBackPlaneCorrectionDepESProducer.h"
+// system include files
+#include <memory>
 
+// user include files
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
+#include "CalibTracker/Records/interface/SiStripDependentRecords.h"
+
+class SiStripBackPlaneCorrectionDepESProducer : public edm::ESProducer {
+ public:
+  SiStripBackPlaneCorrectionDepESProducer(const edm::ParameterSet&);
+  ~SiStripBackPlaneCorrectionDepESProducer() override{};
+  
+  std::unique_ptr<SiStripBackPlaneCorrection> produce(const SiStripBackPlaneCorrectionDepRcd&);
+   
+ private:
+
+  edm::ParameterSet getLatency;
+  edm::ParameterSet getPeak;
+  edm::ParameterSet getDeconv;
+
+
+};
 
 SiStripBackPlaneCorrectionDepESProducer::SiStripBackPlaneCorrectionDepESProducer(const edm::ParameterSet& iConfig):
-  pset_(iConfig),
   getLatency(iConfig.getParameter<edm::ParameterSet>("LatencyRecord")),
   getPeak(iConfig.getParameter<edm::ParameterSet>("BackPlaneCorrectionPeakMode")),
   getDeconv(iConfig.getParameter<edm::ParameterSet>("BackPlaneCorrectionDeconvMode"))
@@ -70,3 +100,4 @@ std::unique_ptr<SiStripBackPlaneCorrection> SiStripBackPlaneCorrectionDepESProdu
   
 }
 
+DEFINE_FWK_EVENTSETUP_MODULE(SiStripBackPlaneCorrectionDepESProducer);
