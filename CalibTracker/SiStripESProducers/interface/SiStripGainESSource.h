@@ -2,7 +2,6 @@
 #define CalibTracker_SiStripESProducers_SiStripGainESSource_H
 
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <memory>
