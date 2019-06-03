@@ -7,10 +7,9 @@
  *   \author Nancy Marinelli, U. of Notre Dame, US
  */
 
-#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h" 
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"
 #include "DataFormats/GeometryVector/interface/LocalTag.h"
-
 
 class TrajectoryStateOnSurface;
 class RecHit;
@@ -18,43 +17,31 @@ class Plane;
 
 class ConversionBarrelEstimator : public MeasurementEstimator {
 public:
-
-  ConversionBarrelEstimator() {};
-  ConversionBarrelEstimator( float phiRangeMin, float phiRangeMax, 
-                                 float zRangeMin, float zRangeMax, double nSigma = 3. ) : 
-                           thePhiRangeMin( phiRangeMin), thePhiRangeMax( phiRangeMax),
-                           theZRangeMin( zRangeMin), theZRangeMax( zRangeMax), theNSigma(nSigma) {
+  ConversionBarrelEstimator(){};
+  ConversionBarrelEstimator(float phiRangeMin, float phiRangeMax, float zRangeMin, float zRangeMax, double nSigma = 3.)
+      : thePhiRangeMin(phiRangeMin),
+        thePhiRangeMax(phiRangeMax),
+        theZRangeMin(zRangeMin),
+        theZRangeMax(zRangeMax),
+        theNSigma(nSigma) {
     //    std::cout << " ConversionBarrelEstimator CTOR " << std::endl;
-}
+  }
 
   // zero value indicates incompatible ts - hit pair
-  std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
-                               const TrackingRecHit& hit	) const override;
-  bool  estimate( const TrajectoryStateOnSurface& ts, 
-				       const Plane& plane) const override;
-  ConversionBarrelEstimator* clone() const override {
-    return new ConversionBarrelEstimator(*this);
-  } 
+  std::pair<bool, double> estimate(const TrajectoryStateOnSurface& ts, const TrackingRecHit& hit) const override;
+  bool estimate(const TrajectoryStateOnSurface& ts, const Plane& plane) const override;
+  ConversionBarrelEstimator* clone() const override { return new ConversionBarrelEstimator(*this); }
 
+  Local2DVector maximalLocalDisplacement(const TrajectoryStateOnSurface& ts, const Plane& plane) const override;
 
-
-
-
-  Local2DVector maximalLocalDisplacement( const TrajectoryStateOnSurface& ts, const Plane& plane) const override;
-
-
-  double nSigmaCut() const {return theNSigma;}
+  double nSigmaCut() const { return theNSigma; }
 
 private:
-
   float thePhiRangeMin;
   float thePhiRangeMax;
   float theZRangeMin;
   float theZRangeMax;
   double theNSigma;
-
-
-
 };
 
-#endif // ConversionBarrelEstimator_H
+#endif  // ConversionBarrelEstimator_H

@@ -34,47 +34,34 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
-
-
 class ConversionTrackEcalImpactPoint {
-
 public:
-
-  ConversionTrackEcalImpactPoint(const MagneticField* field );
-
+  ConversionTrackEcalImpactPoint(const MagneticField* field);
 
   ~ConversionTrackEcalImpactPoint();
 
-  std::vector<math::XYZPointF> find( const std::vector<reco::TransientTrack>& tracks, 
-				    const edm::Handle<edm::View<reco::CaloCluster> >&  bcHandle );
+  std::vector<math::XYZPointF> find(const std::vector<reco::TransientTrack>& tracks,
+                                    const edm::Handle<edm::View<reco::CaloCluster> >& bcHandle);
 
-  std::vector<reco::CaloClusterPtr> matchingBC() const {return matchingBC_;}
-  void setMagneticField ( const MagneticField* mf ) { theMF_=mf;}
- 
+  std::vector<reco::CaloClusterPtr> matchingBC() const { return matchingBC_; }
+  void setMagneticField(const MagneticField* mf) { theMF_ = mf; }
 
- 
-
- 
 private:
-  
   const MagneticField* theMF_;
 
-  TrajectoryStateOnSurface  stateAtECAL_;
+  TrajectoryStateOnSurface stateAtECAL_;
 
-  PropagatorWithMaterial*    forwardPropagator_ ;
-  PropagationDirection       dir_;
+  PropagatorWithMaterial* forwardPropagator_;
+  PropagationDirection dir_;
   std::vector<reco::CaloClusterPtr> matchingBC_;
 
-  static const ReferenceCountingPointer<BoundCylinder>  theBarrel_;
-  static const ReferenceCountingPointer<BoundDisk>      theNegativeEtaEndcap_;
-  static const ReferenceCountingPointer<BoundDisk>      thePositiveEtaEndcap_;
+  static const ReferenceCountingPointer<BoundCylinder> theBarrel_;
+  static const ReferenceCountingPointer<BoundDisk> theNegativeEtaEndcap_;
+  static const ReferenceCountingPointer<BoundDisk> thePositiveEtaEndcap_;
 
-  static const BoundCylinder& barrel()        { return *theBarrel_;}
-  static const BoundDisk& negativeEtaEndcap() { return *theNegativeEtaEndcap_;}
-  static const BoundDisk& positiveEtaEndcap() { return *thePositiveEtaEndcap_;}
-
+  static const BoundCylinder& barrel() { return *theBarrel_; }
+  static const BoundDisk& negativeEtaEndcap() { return *theNegativeEtaEndcap_; }
+  static const BoundDisk& positiveEtaEndcap() { return *thePositiveEtaEndcap_; }
 };
 
-#endif // ConversionTrackEcalImpactPoint_H
-
-
+#endif  // ConversionTrackEcalImpactPoint_H
