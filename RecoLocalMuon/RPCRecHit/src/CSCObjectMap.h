@@ -16,7 +16,7 @@ public:
   std::set<RPCDetId> const& getRolls(CSCStationIndex index) const;
 
 private:
-  std::map<CSCStationIndex,std::set<RPCDetId>> rollstore;
-}; 
+  std::map<CSCStationIndex, std::set<RPCDetId>> rollstore;
+};
 
-#endif // RecoLocalMuon_RPCRecHit_CSCObjectMap_h
+#endif  // RecoLocalMuon_RPCRecHit_CSCObjectMap_h

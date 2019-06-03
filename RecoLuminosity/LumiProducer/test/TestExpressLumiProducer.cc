@@ -17,13 +17,10 @@ namespace edm {
 using namespace std;
 using namespace edm;
 
-namespace edmtest
-{
+namespace edmtest {
 
-  class TestExpressLumiProducer : public edm::EDAnalyzer
-  {
+  class TestExpressLumiProducer : public edm::EDAnalyzer {
   public:
-
     explicit TestExpressLumiProducer(edm::ParameterSet const&);
     virtual ~TestExpressLumiProducer();
 
@@ -33,23 +30,18 @@ namespace edmtest
 
   // -----------------------------------------------------------------
 
-  TestExpressLumiProducer::TestExpressLumiProducer(edm::ParameterSet const& ps)
-  {
-    consumes<LumiSummary,edm::InLumi>(edm::InputTag("expressLumiProducer",""));
-    consumes<LumiDetails,edm::InLumi>(edm::InputTag("expressLumiProducer",""));
+  TestExpressLumiProducer::TestExpressLumiProducer(edm::ParameterSet const& ps) {
+    consumes<LumiSummary, edm::InLumi>(edm::InputTag("expressLumiProducer", ""));
+    consumes<LumiDetails, edm::InLumi>(edm::InputTag("expressLumiProducer", ""));
   }
 
   // -----------------------------------------------------------------
 
-  TestExpressLumiProducer::~TestExpressLumiProducer()
-  {
-  }
+  TestExpressLumiProducer::~TestExpressLumiProducer() {}
 
   // -----------------------------------------------------------------
 
-  void TestExpressLumiProducer::analyze(edm::Event const& e,edm::EventSetup const&)
-  {
-  }
+  void TestExpressLumiProducer::analyze(edm::Event const& e, edm::EventSetup const&) {}
 
   // -----------------------------------------------------------------
 
@@ -57,25 +49,25 @@ namespace edmtest
     Handle<LumiSummary> lumiSummary;
     lumiBlock.getByLabel("expressLumiProducer", lumiSummary);
     //std::cout<<"lumiSummary ptr "<<lumiSummary<<std::endl;
-    if(lumiSummary->isValid()){
+    if (lumiSummary->isValid()) {
       std::cout << *lumiSummary << "\n";
-    }else{
-      std::cout << "no valid lumi summary data" <<std::endl;
+    } else {
+      std::cout << "no valid lumi summary data" << std::endl;
     }
     Handle<LumiDetails> lumiDetails;
     lumiBlock.getByLabel("expressLumiProducer", lumiDetails);
-    if(lumiDetails->isValid()){
-      std::cout<<"valid detail"<<std::endl;
-      std::cout<<"lumivalue bx 14 "<<lumiDetails->lumiValue(LumiDetails::kOCC1,14)<<std::endl;
-      std::cout<<"lumivalue bx 214 "<<lumiDetails->lumiValue(LumiDetails::kOCC1,214)<<std::endl;
-      std::cout<<"lumivalue bx 1475 "<<lumiDetails->lumiValue(LumiDetails::kOCC1,1475)<<std::endl;
-      std::cout<<"lumivalue bx 2775 "<<lumiDetails->lumiValue(LumiDetails::kOCC1,2775)<<std::endl;
-      std::cout<<"lumivalue bx 3500 "<<lumiDetails->lumiValue(LumiDetails::kOCC1,3500)<<std::endl;
-    }else{
-      std::cout << "no valid lumi detail data" <<std::endl;
+    if (lumiDetails->isValid()) {
+      std::cout << "valid detail" << std::endl;
+      std::cout << "lumivalue bx 14 " << lumiDetails->lumiValue(LumiDetails::kOCC1, 14) << std::endl;
+      std::cout << "lumivalue bx 214 " << lumiDetails->lumiValue(LumiDetails::kOCC1, 214) << std::endl;
+      std::cout << "lumivalue bx 1475 " << lumiDetails->lumiValue(LumiDetails::kOCC1, 1475) << std::endl;
+      std::cout << "lumivalue bx 2775 " << lumiDetails->lumiValue(LumiDetails::kOCC1, 2775) << std::endl;
+      std::cout << "lumivalue bx 3500 " << lumiDetails->lumiValue(LumiDetails::kOCC1, 3500) << std::endl;
+    } else {
+      std::cout << "no valid lumi detail data" << std::endl;
     }
   }
-}//ns 
+}  // namespace edmtest
 using edmtest::TestExpressLumiProducer;
 
 DEFINE_FWK_MODULE(TestExpressLumiProducer);

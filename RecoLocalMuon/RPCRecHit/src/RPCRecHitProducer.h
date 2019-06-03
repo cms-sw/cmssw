@@ -17,16 +17,15 @@
 #include "RecoLocalMuon/RPCRecHit/interface/RPCRecHitBaseAlgo.h"
 
 class RPCRecHitProducer : public edm::stream::EDProducer<> {
-
 public:
   /// Constructor
   RPCRecHitProducer(const edm::ParameterSet& config);
 
   /// Destructor
-  ~RPCRecHitProducer() override {};
+  ~RPCRecHitProducer() override{};
 
   // Method that access the EventSetup for each run
-  void beginRun(const edm::Run&, const edm::EventSetup& ) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// The method which produces the rechits
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
@@ -49,8 +48,6 @@ private:
 
   std::vector<RPCMaskedStrips::MaskItem> MaskVec;
   std::vector<RPCDeadStrips::DeadItem> DeadVec;
-
 };
 
 #endif
-
