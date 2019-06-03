@@ -5,7 +5,7 @@
 //
 // Package:    MuonIdentification
 // Class:      MuonLinksProducer
-// 
+//
 /*
  Simple producer to make reco::MuonTrackLinks collection 
  out of the global muons from "muons" collection to restore
@@ -16,7 +16,6 @@
 //
 //
 
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -26,16 +25,15 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 class MuonLinksProducer : public edm::global::EDProducer<> {
- public:
-   explicit MuonLinksProducer(const edm::ParameterSet&);
-   
-   ~MuonLinksProducer() override;
-   
-   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-   
- private:
-   edm::InputTag m_inputCollection;
-   edm::EDGetTokenT<reco::MuonCollection> muonToken_; 
+public:
+  explicit MuonLinksProducer(const edm::ParameterSet&);
 
+  ~MuonLinksProducer() override;
+
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  edm::InputTag m_inputCollection;
+  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
 };
 #endif

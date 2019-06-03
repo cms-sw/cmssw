@@ -10,7 +10,6 @@
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -23,20 +22,20 @@
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 
 class MuonLinksProducerForHLT : public edm::global::EDProducer<> {
- public:
-   explicit MuonLinksProducerForHLT(const edm::ParameterSet&);
-   
-   ~MuonLinksProducerForHLT() override;
-   
-   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+public:
+  explicit MuonLinksProducerForHLT(const edm::ParameterSet&);
 
- private:
-   edm::InputTag theLinkCollectionInInput;
-   edm::InputTag theInclusiveTrackCollectionInInput;
-   edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;
-   edm::EDGetTokenT<reco::TrackCollection> trackToken_;
-   double ptMin;
-   double pMin;
-   double shareHitFraction;
+  ~MuonLinksProducerForHLT() override;
+
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  edm::InputTag theLinkCollectionInInput;
+  edm::InputTag theInclusiveTrackCollectionInInput;
+  edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+  double ptMin;
+  double pMin;
+  double shareHitFraction;
 };
 #endif

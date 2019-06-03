@@ -1,7 +1,6 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 #include "TrackExtractor.h"

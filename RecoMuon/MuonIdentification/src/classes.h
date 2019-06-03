@@ -11,13 +11,13 @@
 #include "PhysicsTools/SelectorUtils/interface/PrintVIDToString.h"
 
 namespace RecoMuon_MuonIdentification {
-  struct dictionary {    
+  struct dictionary {
     //for using the selectors in python
-    VersionedMuonSelector vMuonSelector; 
-    
+    VersionedMuonSelector vMuonSelector;
+
     MakeVersionedSelector<reco::Muon> vMakeMuonVersionedSelector;
     MakePtrFromCollection<reco::MuonCollection> vMakeMuonPtrFromCollection;
-    MakePtrFromCollection<std::vector<pat::Muon>,pat::Muon,reco::Muon> vMakePatToRecoMuonPtrFromCollection;
+    MakePtrFromCollection<std::vector<pat::Muon>, pat::Muon, reco::Muon> vMakePatToRecoMuonPtrFromCollection;
     PrintVIDToString<reco::Muon> vPrintMuonVIDToString;
   };
-}
+}  // namespace RecoMuon_MuonIdentification
