@@ -128,7 +128,8 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
     }
   }
 
-  bool isBelowPS=false; 
+   // ES1
+   bool isBelowPS=false; 
    theOutParticle.propagateToPreshowerLayer1(false);
    if(theOutParticle.getSuccess()!=0)
      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS1,
@@ -139,7 +140,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
      pftrack.addPoint(dummyPS1); 
    }
    
-
+   // ES2
    theOutParticle.propagateToPreshowerLayer2(false);
    if(theOutParticle.getSuccess()!=0){
      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS2,
@@ -150,7 +151,8 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
      PFTrajectoryPoint dummyPS2;
      pftrack.addPoint(dummyPS2); 
    }
-
+	
+   //ECAL entrance
    theOutParticle.propagateToEcalEntrance(false);
 
    if(theOutParticle.getSuccess()!=0){
@@ -169,12 +171,14 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 				      meanShower,
 				      math::XYZTLorentzVector(theOutParticle.particle().momentum())));}
    else {
-     if (PT>5. && msgwarning)
+     if (PT>5. && fabs(theOutParticle.particle().eta())<3.0 && msgwarning)
+       // Check consistent boundary as in CommonTools/BaseParticlePropagator/src/BaseParticlePropagator.cc
        LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE ECAL HAS FAILED";
      PFTrajectoryPoint dummyECAL;
      pftrack.addPoint(dummyECAL); 
      PFTrajectoryPoint dummyMaxSh;
      pftrack.addPoint(dummyMaxSh); 
+
    }
 
    //HCAL entrance
@@ -184,7 +188,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 					math::XYZPoint(theOutParticle.particle().vertex()),
 					math::XYZTLorentzVector(theOutParticle.particle().momentum())));
    else{
-     if (PT>5.&& msgwarning)
+     if (PT>5. && fabs(theOutParticle.particle().eta())<3.0 && msgwarning)
        LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
      PFTrajectoryPoint dummyHCALentrance;
      pftrack.addPoint(dummyHCALentrance); 
@@ -198,7 +202,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 					math::XYZPoint(theOutParticle.particle().vertex()),
 					math::XYZTLorentzVector(theOutParticle.particle().momentum())));
    else{
-     if (PT>5.&& msgwarning)
+     if (PT>5. && fabs(theOutParticle.particle().eta())<3.0 && msgwarning)
        LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL EXIT HAS FAILED";
      PFTrajectoryPoint dummyHCALexit;
      pftrack.addPoint(dummyHCALexit); 
@@ -223,8 +227,22 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
      }
    }
 
+   //VFcal(HF) entrance
+   theOutParticle.propagateToVFcalEntrance(false);
+   bool propagateVFcalSuccess = theOutParticle.getSuccess();
+   if(theOutParticle.getSuccess()!=0){
+     pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::VFcalEntrance,
+					math::XYZPoint(theOutParticle.particle().vertex()),
+					math::XYZTLorentzVector(theOutParticle.particle().momentum())));
+   }
+   else{
+     PFTrajectoryPoint dummyVFcalentrance;
+     pftrack.addPoint(dummyVFcalentrance); 
+   }
+   
    return true;
 }
+
 bool 
 PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack, 
 				       const reco::Track& track,
@@ -255,7 +273,6 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     delete PFGsf;
 
     // --------------------------   Fill GSF Track ------------------------------------- 
-    
 
     //    float pfmass= (pftrack.algoType()==reco::PFRecTrack::KF_ELCAND) ? 0.0005 : 0.139; 
     float ptot =  sqrt((p.x()*p.x())+(p.y()*p.y())+(p.z()*p.z()));
@@ -318,8 +335,6 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					 math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.mag())));
 
 
-
-
       BaseParticlePropagator theOutParticle = 
 	BaseParticlePropagator( 
 			       RawParticle(XYZTLorentzVector(p.x(),
@@ -332,7 +347,9 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 							     0.),
                                            track.charge()), 
 			       0.,0.,B_.z());
-      bool isBelowPS=false; 
+      bool isBelowPS=false;
+
+      // ES1
       theOutParticle.propagateToPreshowerLayer1(false);
       if(theOutParticle.getSuccess()!=0)
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS1,
@@ -343,7 +360,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 	pftrack.addPoint(dummyPS1); 
       }
       
-      
+      // ES2
       theOutParticle.propagateToPreshowerLayer2(false);
       if(theOutParticle.getSuccess()!=0){
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS2,
@@ -354,7 +371,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 	PFTrajectoryPoint dummyPS2;
 	pftrack.addPoint(dummyPS2); 
       }
-      
+
+      //ECAL entrance
       theOutParticle.propagateToEcalEntrance(false);
       
       if(theOutParticle.getSuccess()!=0){
@@ -381,8 +399,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 	pftrack.addPoint(dummyMaxSh); 
       }
       
-      
-      
+
       //HCAL entrance
       theOutParticle.propagateToHcalEntrance(false);
       if(theOutParticle.getSuccess()!=0)
@@ -465,9 +482,9 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     PFTrajectoryPoint dummyBeamPipe;  // Added just to have the right number order in PFTrack.cc
     brem.addPoint(dummyBeamPipe); 
 
+    bool isBelowPS=false;
 
-    
-    bool isBelowPS=false; 
+    // ES1
     theBremParticle.propagateToPreshowerLayer1(false);
     if(theBremParticle.getSuccess()!=0)
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS1,
@@ -477,9 +494,9 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       PFTrajectoryPoint dummyPS1;
       brem.addPoint(dummyPS1); 
     }
-    
-    // Brem Entrance PS Layer 2
 
+    // ES2
+    // Brem Entrance PS Layer 2
     theBremParticle.propagateToPreshowerLayer2(false);
     if(theBremParticle.getSuccess()!=0){
       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS2,
@@ -490,7 +507,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       PFTrajectoryPoint dummyPS2;
       brem.addPoint(dummyPS2); 
     }
-
+    
+    //ECAL entrance
    theBremParticle.propagateToEcalEntrance(false);
 
    if(theBremParticle.getSuccess()!=0){
@@ -504,19 +522,19 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 
    math::XYZPoint meanShower=math::XYZPoint(theBremParticle.particle().vertex())+
      math::XYZTLorentzVector(theBremParticle.particle().momentum()).Vect().Unit()*ecalShowerDepth;
- 
+
    brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
 				      meanShower,
 				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));}
    else {
      if ((DP>5.) && ((DP/SigmaDP)>3))
-       LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED";
+       LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED\n"
+				       <<"BremParticle.particle() pt,eta: "<<theBremParticle.particle().pt()<<" "<<theBremParticle.particle().eta();
      PFTrajectoryPoint dummyECAL;
-     brem.addPoint(dummyECAL); 
+     brem.addPoint(dummyECAL);
      PFTrajectoryPoint dummyMaxSh;
      brem.addPoint(dummyMaxSh); 
    }
-
 
  
    //HCAL entrance
@@ -674,7 +692,6 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
   brem.addPoint(dummyBeamPipe); 
   
   
-  
   bool isBelowPS=false; 
   theBremParticle.propagateToPreshowerLayer1(false);
   if(theBremParticle.getSuccess()!=0)
@@ -698,7 +715,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     PFTrajectoryPoint dummyPS2;
     brem.addPoint(dummyPS2); 
   }
-  
+
+  //ECAL entrance
   theBremParticle.propagateToEcalEntrance(false);
   
   if(theBremParticle.getSuccess()!=0){
@@ -721,13 +739,13 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				    math::XYZTLorentzVector(theBremParticle.particle().momentum())));}
   else {
     if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
-      LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED";
+      LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED\n"
+				      <<"BremParticle.particle() pt,eta: "<<theBremParticle.particle().pt()<<" "<<theBremParticle.particle().eta();
     PFTrajectoryPoint dummyECAL;
     brem.addPoint(dummyECAL); 
     PFTrajectoryPoint dummyMaxSh;
     brem.addPoint(dummyMaxSh); 
   }
-  
   
   
   //HCAL entrance
@@ -888,7 +906,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));}
     else {
       if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
-	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED";
+	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED\n"
+					<<"BremParticle.particle() pt,eta: "<<theBremParticle.particle().pt()<<" "<<theBremParticle.particle().eta();
       PFTrajectoryPoint dummyECAL;
       brem.addPoint(dummyECAL); 
       PFTrajectoryPoint dummyMaxSh;
@@ -1146,7 +1165,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));}
     else {
       if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
-	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED";
+	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED\n"
+					<<"pt,eta: "<<theBremParticle.particle().pt()<<" "<<theBremParticle.particle().eta();
       PFTrajectoryPoint dummyECAL;
       brem.addPoint(dummyECAL); 
       PFTrajectoryPoint dummyMaxSh;
