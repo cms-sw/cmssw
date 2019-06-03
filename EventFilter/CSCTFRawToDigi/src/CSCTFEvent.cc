@@ -96,9 +96,8 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
             if (header.active() & 0x40 && (!header.suppression() || spWord[shift + 1] & (0xF << (sp_block * 4))))
               spWordCountExpected += 1;
 
-          shift =
-              spWordCountExpected *
-              4;  // multiply by 4 because 'shift' is a 16-bit array index and 'spWordCountExpected' conuts 64-bit words
+          // multiply by 4 because 'shift' is a 16-bit array index and 'spWordCountExpected' conuts 64-bit words
+          shift = spWordCountExpected * 4;
         }
       }
 
