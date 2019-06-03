@@ -16,18 +16,15 @@
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
 class PFClusterTimeSelector : public edm::stream::EDProducer<> {
- public:
+public:
   explicit PFClusterTimeSelector(const edm::ParameterSet&);
   ~PFClusterTimeSelector() override;
 
-  void beginRun(const edm::Run& run, const edm::EventSetup & es) override;
-  
-  void produce(edm::Event& iEvent, 
-	       const edm::EventSetup& iSetup) override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
 
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
- protected:
-
+protected:
   struct CutInfo {
     double depth;
     double minE;
@@ -35,13 +32,11 @@ class PFClusterTimeSelector : public edm::stream::EDProducer<> {
     double minTime;
     double maxTime;
     bool endcap;
-
   };
 
   // ----------access to event data
   edm::EDGetTokenT<reco::PFClusterCollection> clusters_;
   std::vector<CutInfo> cutInfo_;
-
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

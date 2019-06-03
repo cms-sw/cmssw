@@ -5,7 +5,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 namespace reco {
-/*
+  /*
 
 
  CLASSIFICATION: For each RECO Muon, match to SIM particle, and then:
@@ -28,76 +28,74 @@ namespace reco {
 
 */
 
-  enum MuonSimType { 
-    Unknown                     = 999, 
-    NotMatched                  = 0,
-    MatchedPunchthrough         = 1,
-    MatchedElectron             = 11,
-    MatchedPrimaryMuon          = 4,
+  enum MuonSimType {
+    Unknown = 999,
+    NotMatched = 0,
+    MatchedPunchthrough = 1,
+    MatchedElectron = 11,
+    MatchedPrimaryMuon = 4,
     MatchedMuonFromHeavyFlavour = 3,
     MatchedMuonFromLightFlavour = 2,
-    GhostPunchthrough           = -1,
-    GhostElectron               = -11,
-    GhostPrimaryMuon            = -4,
-    GhostMuonFromHeavyFlavour   = -3,
-    GhostMuonFromLightFlavour   = -2
+    GhostPunchthrough = -1,
+    GhostElectron = -11,
+    GhostPrimaryMuon = -4,
+    GhostMuonFromHeavyFlavour = -3,
+    GhostMuonFromLightFlavour = -2
   };
 
-  enum ExtendedMuonSimType { 
-    ExtUnknown                        = 999, 
-    ExtNotMatched                     = 0,
-    ExtMatchedPunchthrough            = 1,
-    ExtMatchedElectron                = 11,
-    MatchedMuonFromGaugeOrHiggsBoson  = 10,
-    MatchedMuonFromTau                = 9,
-    MatchedMuonFromB                  = 8,
-    MatchedMuonFromBtoC               = 7,
-    MatchedMuonFromC                  = 6,
-    MatchedMuonFromOtherLight         = 5,
-    MatchedMuonFromPiKppMuX           = 4,
-    MatchedMuonFromPiKNotppMuX        = 3,
+  enum ExtendedMuonSimType {
+    ExtUnknown = 999,
+    ExtNotMatched = 0,
+    ExtMatchedPunchthrough = 1,
+    ExtMatchedElectron = 11,
+    MatchedMuonFromGaugeOrHiggsBoson = 10,
+    MatchedMuonFromTau = 9,
+    MatchedMuonFromB = 8,
+    MatchedMuonFromBtoC = 7,
+    MatchedMuonFromC = 6,
+    MatchedMuonFromOtherLight = 5,
+    MatchedMuonFromPiKppMuX = 4,
+    MatchedMuonFromPiKNotppMuX = 3,
     MatchedMuonFromNonPrimaryParticle = 2,
-    ExtGhostPunchthrough              = -1,
-    ExtGhostElectron                  = -11,
-    GhostMuonFromGaugeOrHiggsBoson    = -10,
-    GhostMuonFromTau                  = -9,
-    GhostMuonFromB                    = -8,
-    GhostMuonFromBtoC                 = -7,
-    GhostMuonFromC                    = -6,
-    GhostMuonFromOtherLight           = -5,
-    GhostMuonFromPiKppMuX             = -4,
-    GhostMuonFromPiKNotppMuX          = -3,
-    GhostMuonFromNonPrimaryParticle   = -2
-    
-  };
+    ExtGhostPunchthrough = -1,
+    ExtGhostElectron = -11,
+    GhostMuonFromGaugeOrHiggsBoson = -10,
+    GhostMuonFromTau = -9,
+    GhostMuonFromB = -8,
+    GhostMuonFromBtoC = -7,
+    GhostMuonFromC = -6,
+    GhostMuonFromOtherLight = -5,
+    GhostMuonFromPiKppMuX = -4,
+    GhostMuonFromPiKNotppMuX = -3,
+    GhostMuonFromNonPrimaryParticle = -2
 
+  };
 
   class MuonSimInfo {
   public:
     MuonSimInfo();
-    typedef math::XYZPointD Point; ///< point in the space
-    typedef math::XYZTLorentzVectorD LorentzVector; ///< Lorentz vector
-    MuonSimType primaryClass; 
+    typedef math::XYZPointD Point;                   ///< point in the space
+    typedef math::XYZTLorentzVectorD LorentzVector;  ///< Lorentz vector
+    MuonSimType primaryClass;
     ExtendedMuonSimType extendedClass;
     int flavour;
-    int pdgId; // pdg ID of matching tracking particle
-    int g4processType; // Geant process producing the particle
+    int pdgId;          // pdg ID of matching tracking particle
+    int g4processType;  // Geant process producing the particle
     int motherPdgId;
     int motherFlavour;
-    int motherStatus;  // Status of the first gen particle 
+    int motherStatus;  // Status of the first gen particle
     int grandMotherPdgId;
     int grandMotherFlavour;
-    int heaviestMotherFlavour; 
+    int heaviestMotherFlavour;
     int tpId;
     int tpEvent;
-    int tpBX;    // bunch crossing
+    int tpBX;  // bunch crossing
     int charge;
     LorentzVector p4;
     Point vertex;
     Point motherVertex;
     float tpAssoQuality;
   };
-}
-
+}  // namespace reco
 
 #endif
