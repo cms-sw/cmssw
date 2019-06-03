@@ -6,7 +6,7 @@ setData(const reco::Track* track,  const math::XYZPoint& ref){
 void IdealHelixParameters::
 setData(const reco::Track* track,  const math::XYZVector& refPoint){
 
-  if(track!=0 && _track!=track){
+  if(track!=nullptr && _track!=track){
     _track=track;
     _refPoint=refPoint;
     calculate();
