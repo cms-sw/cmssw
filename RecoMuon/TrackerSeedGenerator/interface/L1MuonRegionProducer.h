@@ -7,24 +7,27 @@
 
 class TrackingRegion;
 class L1MuGMTCand;
-namespace edm { class Event; class EventSetup; class ParameterSet; }
+namespace edm {
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+}  // namespace edm
 
 class L1MuonRegionProducer {
-
 public:
   L1MuonRegionProducer(const edm::ParameterSet& cfg);
-  ~L1MuonRegionProducer(){}
-  void setL1Constraint(const L1MuGMTCand & muon); 
+  ~L1MuonRegionProducer() {}
+  void setL1Constraint(const L1MuGMTCand& muon);
   std::vector<std::unique_ptr<TrackingRegion> > regions() const;
 
 private:
   // region configuration
-  double thePtMin, theOriginRadius, theOriginHalfLength; 
+  double thePtMin, theOriginRadius, theOriginHalfLength;
   GlobalPoint theOrigin;
 
   // L1 constraint
-  double thePtL1, thePhiL1, theEtaL1; int theChargeL1;
-
+  double thePtL1, thePhiL1, theEtaL1;
+  int theChargeL1;
 };
 
 #endif

@@ -12,43 +12,39 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps) :
-  digiToken_( consumes<ESDigiCollection>(ps.getParameter<edm::InputTag>("ESdigiCollection")) ),
-  rechitCollection_( ps.getParameter<std::string>("ESrechitCollection") ),
-  worker_{ESRecHitWorkerFactory::get()->create(ps.getParameter<std::string>("algo"), ps )}
-{
+ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps)
+    : digiToken_(consumes<ESDigiCollection>(ps.getParameter<edm::InputTag>("ESdigiCollection"))),
+      rechitCollection_(ps.getParameter<std::string>("ESrechitCollection")),
+      worker_{ESRecHitWorkerFactory::get()->create(ps.getParameter<std::string>("algo"), ps)} {
   produces<ESRecHitCollection>(rechitCollection_);
 }
 
-ESRecHitProducer::~ESRecHitProducer()  = default;
+ESRecHitProducer::~ESRecHitProducer() = default;
 
 void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es) {
+  edm::Handle<ESDigiCollection> digiHandle;
+  const ESDigiCollection* digi = nullptr;
+  e.getByToken(digiToken_, digiHandle);
 
-  edm::Handle<ESDigiCollection> digiHandle;  
-  const ESDigiCollection* digi=nullptr;
-  e.getByToken( digiToken_, digiHandle);
- 
   digi = digiHandle.product();
   LogDebug("ESRecHitInfo") << "total # ESdigis: " << digi->size();
-  
+
   // Create empty output
   auto rec = std::make_unique<ESRecHitCollection>();
-  
-  if ( digi ) {
-    rec->reserve(digi->size()); 
-    
-    worker_->set( es );
-    
+
+  if (digi) {
+    rec->reserve(digi->size());
+
+    worker_->set(es);
+
     // run the algorithm
-    for (ESDigiCollection::const_iterator i (digi->begin());
-	 i!=digi->end(); i++) {    
-      worker_->run( i, *rec );
+    for (ESDigiCollection::const_iterator i(digi->begin()); i != digi->end(); i++) {
+      worker_->run(i, *rec);
     }
   }
-  
-  e.put(std::move(rec),rechitCollection_);
+
+  e.put(std::move(rec), rechitCollection_);
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"  
-DEFINE_FWK_MODULE( ESRecHitProducer );
-
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ESRecHitProducer);
