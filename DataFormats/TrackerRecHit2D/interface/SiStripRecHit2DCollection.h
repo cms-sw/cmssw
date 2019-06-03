@@ -8,13 +8,11 @@
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
-typedef edm::RangeMap <DetId, edm::OwnVector<SiStripRecHit2D> > SiStripRecHit2DCollectionOld;
+typedef edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2D> > SiStripRecHit2DCollectionOld;
 
 // new collection(for some far indetermined future)
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 typedef edmNew::DetSetVector<SiStripRecHit2D> SiStripRecHit2DCollection;
-typedef SiStripRecHit2DCollection             SiStripRecHit2DCollectionNew;
-
+typedef SiStripRecHit2DCollection SiStripRecHit2DCollectionNew;
 
 #endif
-

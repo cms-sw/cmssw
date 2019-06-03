@@ -16,18 +16,17 @@
 namespace EcalSeverityLevel {
 
   enum SeverityLevel {
-    kGood=0,             // good channel 
-    kProblematic,        // problematic (e.g. noisy)
-    kRecovered,          // recovered (e.g. an originally dead or saturated)
-    kTime,               // the channel is out of time (e.g. spike)
-    kWeird,              // weird (e.g. spike)
-    kBad                 // bad, not suitable to be used for reconstruction
+    kGood = 0,     // good channel
+    kProblematic,  // problematic (e.g. noisy)
+    kRecovered,    // recovered (e.g. an originally dead or saturated)
+    kTime,         // the channel is out of time (e.g. spike)
+    kWeird,        // weird (e.g. spike)
+    kBad           // bad, not suitable to be used for reconstruction
   };
-      
-  
+
 }
 
-#endif // __EcalSeverityLevel_h_
+#endif  // __EcalSeverityLevel_h_
 
 // Configure (x)emacs for this file ...
 // Local Variables:
