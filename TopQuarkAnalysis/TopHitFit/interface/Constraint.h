@@ -21,7 +21,6 @@
 // Original Author : Scott Stuart Snyder <snyder@bnl.gov> for D0
 // Imported to CMSSW by Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>
 
-
 /**
     @file Constraint.h
 
@@ -43,23 +42,18 @@
     With consent from the original author (Scott Snyder).
  */
 
-
 #ifndef HITFIT_CONSTRAINT_H
 #define HITFIT_CONSTRAINT_H
-
 
 #include <memory>
 #include <string>
 #include "TopQuarkAnalysis/TopHitFit/interface/Constraint_Intermed.h"
 
-
 namespace hitfit {
 
+  class Fourvec_Event;
 
-class Fourvec_Event;
-
-
-/**
+  /**
     @class Constraint.
 
     @brief Represent a mass constraint equation.  Mass constraints
@@ -76,47 +70,46 @@ class Fourvec_Event;
     instances, each of which represents one side of the equation.
 
      */
-class Constraint
-//
-// Purpose: Represent a mass constraint equation.
-//
-{
-public:
-  // Constructor, destructor.  S is the string to parse describing
-  // the constraint.
+  class Constraint
+  //
+  // Purpose: Represent a mass constraint equation.
+  //
+  {
+  public:
+    // Constructor, destructor.  S is the string to parse describing
+    // the constraint.
 
-  /**
+    /**
      Constructor.
 
      @param s The string to parse describing the constraint.
    */
-  Constraint (std::string s);
+    Constraint(std::string s);
 
-  /**
+    /**
      Copy constructor.
 
      @param c The original object to be copied.
    */
-  Constraint (const Constraint& c);
+    Constraint(const Constraint& c);
 
-
-  /**
+    /**
      Destructor.
    */
-  ~Constraint () {}
+    ~Constraint() {}
 
-  // Assignment.
-  /**
+    // Assignment.
+    /**
      Assignment operator.
 
      @param c The original object to be copied.
    */
-  Constraint& operator= (const Constraint& c);
+    Constraint& operator=(const Constraint& c);
 
-  // See if this guy references both labels ILABEL and JLABEL
-  // on a single side of the constraint equation.
+    // See if this guy references both labels ILABEL and JLABEL
+    // on a single side of the constraint equation.
 
-  /**
+    /**
      See if this guy references both labels <i>ilabel</i> and <i>jlabel</i>
      on a single single side of the constraint equation.
 
@@ -128,11 +121,11 @@ public:
      - -1 if the RHS references both.
      -  0 if neither reference both.
    */
-  int has_labels (int ilabel, int jlabel) const;
+    int has_labels(int ilabel, int jlabel) const;
 
-  // Evaluate the mass constraint, using the data in EV.
-  // Return m(lhs)^2/2 - m(rhs)^2/2.
-  /**
+    // Evaluate the mass constraint, using the data in EV.
+    // Return m(lhs)^2/2 - m(rhs)^2/2.
+    /**
      Evaluate the mass constraint, using the data in <i>ev</i>.
 
      @param ev The event for which the constraint should be evaluated.
@@ -140,29 +133,25 @@ public:
      @par Return:
      \f$ \frac{m(\rm{lhs})^{2}}{2} - \frac{m(\rm{rhs})^{2}}{2}\f$
    */
-  double sum_mass_terms (const Fourvec_Event& ev) const;
+    double sum_mass_terms(const Fourvec_Event& ev) const;
 
-  // Print this object.
-  friend std::ostream& operator<< (std::ostream& s, const Constraint& c);
+    // Print this object.
+    friend std::ostream& operator<<(std::ostream& s, const Constraint& c);
 
+  private:
+    // The two sides of the constraint.
 
-private:
-  // The two sides of the constraint.
-
-  /**
+    /**
      Left hand side of the constraint.
    */
-  std::unique_ptr<Constraint_Intermed> _lhs;
+    std::unique_ptr<Constraint_Intermed> _lhs;
 
-  /**
+    /**
      Right hand side of the constraint.
    */
-  std::unique_ptr<Constraint_Intermed> _rhs;
-};
+    std::unique_ptr<Constraint_Intermed> _rhs;
+  };
 
+}  // namespace hitfit
 
-} // namespace hitfit
-
-
-#endif // not HITFIT_CONSTRAINT_H
-
+#endif  // not HITFIT_CONSTRAINT_H

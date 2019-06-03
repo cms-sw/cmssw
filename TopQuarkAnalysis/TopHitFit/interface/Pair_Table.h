@@ -31,7 +31,6 @@
 // Imported to CMSSW by Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>
 //
 
-
 /**
     @file Pair_Table.h
 
@@ -61,14 +60,11 @@
 #include "TopQuarkAnalysis/TopHitFit/interface/Constraint.h"
 #include "TopQuarkAnalysis/TopHitFit/interface/Objpair.h"
 
-
 namespace hitfit {
 
+  class Fourvec_Event;
 
-class Fourvec_Event;
-
-
-/**
+  /**
     @brief A lookup table to speed up constraint evaluation using
     Fourvec_Constrainer.
 
@@ -96,53 +92,48 @@ class Fourvec_Event;
     constraints the pair is used and on which side of the equation.
 
  */
-class Pair_Table
-//
-// Purpose: Helper for Fourvec_Constrainer.
-//
-{
-public:
-  // Constructor.  Give it the event and the list of constraints.
-  /**
+  class Pair_Table
+  //
+  // Purpose: Helper for Fourvec_Constrainer.
+  //
+  {
+  public:
+    // Constructor.  Give it the event and the list of constraints.
+    /**
      @brief Constructor, give it the event and the list of constraints.
 
      @param cv The list of constraints for the problem.
 
      @param ev The event.
    */
-  Pair_Table (const std::vector<Constraint>& cv,
-              const Fourvec_Event& ev);
+    Pair_Table(const std::vector<Constraint>& cv, const Fourvec_Event& ev);
 
-  // The number of pairs in the table.
+    // The number of pairs in the table.
 
-  /**
+    /**
      @brief Return the number of pairs in the table.
    */
-  int npairs () const;
+    int npairs() const;
 
-  // Get one of the pairs from the table.
-  /**
+    // Get one of the pairs from the table.
+    /**
      @brief Get one of the pairs from the table, index starts from 0.
 
      @param pairno The index of the pair, index starts from 0.
    */
-  const Objpair& get_pair (std::vector<Objpair>::size_type pairno) const;
+    const Objpair& get_pair(std::vector<Objpair>::size_type pairno) const;
 
-
-private:
-  //The table of pairs.
-  /**
+  private:
+    //The table of pairs.
+    /**
      The list of pairs.
    */
-  std::vector<Objpair> _pairs;
-};
+    std::vector<Objpair> _pairs;
+  };
 
+  // Dump out the table.
+  std::ostream& operator<<(std::ostream& s, const Pair_Table& p);
 
-// Dump out the table.
-std::ostream& operator<< (std::ostream& s, const Pair_Table& p);
+}  // namespace hitfit
 
-
-} // namespace hitfit
-
-
-#endif // not PAIR_TABLE_H
+#endif  // not PAIR_TABLE_H

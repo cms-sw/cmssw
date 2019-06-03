@@ -3,13 +3,8 @@
 
 #include <string>
 
-enum FFTJetCorrectorApp
-{
-    MC_ONLY = 0,
-    DATA_ONLY,
-    MC_OR_DATA
-};
+enum FFTJetCorrectorApp { MC_ONLY = 0, DATA_ONLY, MC_OR_DATA };
 
 FFTJetCorrectorApp parseFFTJetCorrectorApp(const std::string& config);
 
-#endif // JetMETCorrections_FFTJetObjects_FFTJetCorrectorApp_h
+#endif  // JetMETCorrections_FFTJetObjects_FFTJetCorrectorApp_h

@@ -6,28 +6,25 @@
 #include "JetMETCorrections/FFTJetObjects/interface/L2ResScaleCalculator.h"
 #include "JetMETCorrections/FFTJetObjects/interface/L2RecoScaleCalculator.h"
 
-FFTSpecificScaleCalculatorFactory::FFTSpecificScaleCalculatorFactory()
-{
-    (*this)["L2ResScaleCalculator"] = new ConcreteFFTJetObjectFactory<
-        AbsFFTSpecificScaleCalculator,L2ResScaleCalculator>();
+FFTSpecificScaleCalculatorFactory::FFTSpecificScaleCalculatorFactory() {
+  (*this)["L2ResScaleCalculator"] =
+      new ConcreteFFTJetObjectFactory<AbsFFTSpecificScaleCalculator, L2ResScaleCalculator>();
 
-    (*this)["L2RecoScaleCalculator"] = new ConcreteFFTJetObjectFactory<
-        AbsFFTSpecificScaleCalculator,L2RecoScaleCalculator>();
+  (*this)["L2RecoScaleCalculator"] =
+      new ConcreteFFTJetObjectFactory<AbsFFTSpecificScaleCalculator, L2RecoScaleCalculator>();
 
-    (*this)["L2AbsScaleCalculator"] = new ConcreteFFTJetObjectFactory<
-        AbsFFTSpecificScaleCalculator,L2AbsScaleCalculator>();
+  (*this)["L2AbsScaleCalculator"] =
+      new ConcreteFFTJetObjectFactory<AbsFFTSpecificScaleCalculator, L2AbsScaleCalculator>();
 
-    (*this)["FFTGenericScaleCalculator"] = new ConcreteFFTJetObjectFactory<
-        AbsFFTSpecificScaleCalculator,FFTGenericScaleCalculator>();
+  (*this)["FFTGenericScaleCalculator"] =
+      new ConcreteFFTJetObjectFactory<AbsFFTSpecificScaleCalculator, FFTGenericScaleCalculator>();
 }
 
-AbsFFTSpecificScaleCalculator* parseFFTSpecificScaleCalculator(
-    const edm::ParameterSet& ps, const std::string& tableDescription)
-{
-    std::string mapper_type(ps.getParameter<std::string>("Class"));
-    if (!mapper_type.compare("auto"))
-        mapper_type = tableDescription;
+AbsFFTSpecificScaleCalculator* parseFFTSpecificScaleCalculator(const edm::ParameterSet& ps,
+                                                               const std::string& tableDescription) {
+  std::string mapper_type(ps.getParameter<std::string>("Class"));
+  if (!mapper_type.compare("auto"))
+    mapper_type = tableDescription;
 
-    return StaticFFTSpecificScaleCalculatorFactory::instance().create(
-        mapper_type, ps);
+  return StaticFFTSpecificScaleCalculatorFactory::instance().create(mapper_type, ps);
 }

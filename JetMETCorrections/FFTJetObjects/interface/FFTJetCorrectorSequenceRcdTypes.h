@@ -5,24 +5,24 @@
 #include "CondFormats/JetMETObjects/interface/FFTJetCorrTypes.h"
 
 typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::BasicJet> FFTBasicJetCorrectorSequenceRcd;
-typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::GenJet>   FFTGenJetCorrectorSequenceRcd;
-typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::CaloJet>  FFTCaloJetCorrectorSequenceRcd;
-typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::PFJet>    FFTPFJetCorrectorSequenceRcd;
+typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::GenJet> FFTGenJetCorrectorSequenceRcd;
+typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::CaloJet> FFTCaloJetCorrectorSequenceRcd;
+typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::PFJet> FFTPFJetCorrectorSequenceRcd;
 typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::TrackJet> FFTTrackJetCorrectorSequenceRcd;
-typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::JPTJet>   FFTJPTJetCorrectorSequenceRcd;
-typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::PFCHS0>   FFTPFCHS0CorrectorSequenceRcd;
-typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::PFCHS1>   FFTPFCHS1CorrectorSequenceRcd;
-typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::PFCHS2>   FFTPFCHS2CorrectorSequenceRcd;
+typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::JPTJet> FFTJPTJetCorrectorSequenceRcd;
+typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::PFCHS0> FFTPFCHS0CorrectorSequenceRcd;
+typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::PFCHS1> FFTPFCHS1CorrectorSequenceRcd;
+typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::PFCHS2> FFTPFCHS2CorrectorSequenceRcd;
 
 typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::BasicJetSys> FFTBasicJetSysCorrectorSequenceRcd;
-typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::GenJetSys>   FFTGenJetSysCorrectorSequenceRcd;
-typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::CaloJetSys>  FFTCaloJetSysCorrectorSequenceRcd;
-typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::PFJetSys>    FFTPFJetSysCorrectorSequenceRcd;
+typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::GenJetSys> FFTGenJetSysCorrectorSequenceRcd;
+typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::CaloJetSys> FFTCaloJetSysCorrectorSequenceRcd;
+typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::PFJetSys> FFTPFJetSysCorrectorSequenceRcd;
 typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::TrackJetSys> FFTTrackJetSysCorrectorSequenceRcd;
-typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::JPTJetSys>   FFTJPTJetSysCorrectorSequenceRcd;
-typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::PFCHS0Sys>   FFTPFCHS0SysCorrectorSequenceRcd;
-typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::PFCHS1Sys>   FFTPFCHS1SysCorrectorSequenceRcd;
-typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::PFCHS2Sys>   FFTPFCHS2SysCorrectorSequenceRcd;
+typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::JPTJetSys> FFTJPTJetSysCorrectorSequenceRcd;
+typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::PFCHS0Sys> FFTPFCHS0SysCorrectorSequenceRcd;
+typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::PFCHS1Sys> FFTPFCHS1SysCorrectorSequenceRcd;
+typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::PFCHS2Sys> FFTPFCHS2SysCorrectorSequenceRcd;
 
 typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::Gen0> FFTGen0CorrectorSequenceRcd;
 typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::Gen1> FFTGen1CorrectorSequenceRcd;
@@ -77,4 +77,4 @@ typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::CHS7Sys> FFTCHS7SysCorrectorSeq
 typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::CHS8Sys> FFTCHS8SysCorrectorSequenceRcd;
 typedef FFTJetCorrectorSequenceRcd<fftcorrtypes::CHS9Sys> FFTCHS9SysCorrectorSequenceRcd;
 
-#endif // JetMETCorrections_FFTJetObjects_FFTJetCorrectorSequenceRcdTypes_h
+#endif  // JetMETCorrections_FFTJetObjects_FFTJetCorrectorSequenceRcdTypes_h

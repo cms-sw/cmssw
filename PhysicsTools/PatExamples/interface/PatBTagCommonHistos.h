@@ -5,7 +5,7 @@
 //
 // Package:    PatBTag
 // Class:      PatBTagCommonHistos
-// 
+//
 /**\class PatBTagCommonHistos PatBTagCommonHistos.h
 
  Description: <Define and Fill common set of histograms depending on flavor and tagger>
@@ -18,7 +18,6 @@
 // Original Author:  J. E. Ramirez
 //
 //
-
 
 // system include files
 #include <memory>
@@ -39,24 +38,25 @@
 //
 
 class PatBTagCommonHistos {
-   public:
-      explicit PatBTagCommonHistos(const edm::ParameterSet&);
-      ~PatBTagCommonHistos();
+public:
+  explicit PatBTagCommonHistos(const edm::ParameterSet&);
+  ~PatBTagCommonHistos();
 
-      void Set(std::string);
-      void Sumw2();
-      void Fill(edm::View<pat::Jet>::const_iterator&, std::string);
-   private:
+  void Set(std::string);
+  void Sumw2();
+  void Fill(edm::View<pat::Jet>::const_iterator&, std::string);
 
-      // ----------member data ---------------------------
+private:
+  // ----------member data ---------------------------
 
-
-  std::string  flavor;
-  std::map<std::string,TH1D*> histocontainer_;   // simple map to contain all histograms. Histograms are booked in the beginJob() method
-  std::map<std::string,TH2D*> h2_; // simple map to contain 2D  histograms. Histograms are booked in the beginJob() method
-  std::string  BTagdiscriminator_;
-  std::string  BTagpurity_;
-  double  BTagdisccut_;
+  std::string flavor;
+  std::map<std::string, TH1D*>
+      histocontainer_;  // simple map to contain all histograms. Histograms are booked in the beginJob() method
+  std::map<std::string, TH2D*>
+      h2_;  // simple map to contain 2D  histograms. Histograms are booked in the beginJob() method
+  std::string BTagdiscriminator_;
+  std::string BTagpurity_;
+  double BTagdisccut_;
   bJetSelector BTagger;
 };
 
