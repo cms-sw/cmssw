@@ -14,11 +14,9 @@ public:
   typedef std::vector<SingleGaussianState1D> SingleState1dContainer;
 
 public:
-
   MultiGaussianState1D() : theCombinedStateUp2Date(false) {}
 
-  MultiGaussianState1D(const SingleState1dContainer& stateV)
-    : theComponents(stateV), theCombinedStateUp2Date(false) {}
+  MultiGaussianState1D(const SingleState1dContainer& stateV) : theComponents(stateV), theCombinedStateUp2Date(false) {}
 
   ~MultiGaussianState1D() {}
 
@@ -29,9 +27,9 @@ public:
   /// combined variance
   double variance() const;
   /// access to components
-  const SingleState1dContainer& components() const {return theComponents;}
+  const SingleState1dContainer& components() const { return theComponents; }
 
-// protected:
+  // protected:
 private:
   /// calculation of the combined state (on demand)
   void checkCombinedState() const;
