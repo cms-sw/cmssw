@@ -43,61 +43,61 @@ class SiStripLorentzAngleDepESProducer : public edm::ESProducer {
   std::unique_ptr<SiStripLorentzAngle> produce(const SiStripLorentzAngleDepRcd&);
    
  private:
-  edm::ParameterSet getLatency;
-  edm::ParameterSet getPeak;
-  edm::ParameterSet getDeconv;
-
-
+  edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
+  edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleRcd> lorentzAnglePeakToken_;
+  edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleRcd> lorentzAngleDeconvToken_;
 };
 
-SiStripLorentzAngleDepESProducer::SiStripLorentzAngleDepESProducer(const edm::ParameterSet& iConfig):
-  getLatency(iConfig.getParameter<edm::ParameterSet>("LatencyRecord")),
-  getPeak(iConfig.getParameter<edm::ParameterSet>("LorentzAnglePeakMode")),
-  getDeconv(iConfig.getParameter<edm::ParameterSet>("LorentzAngleDeconvMode"))
+SiStripLorentzAngleDepESProducer::SiStripLorentzAngleDepESProducer(const edm::ParameterSet& iConfig)
 {  
-  setWhatProduced(this);
+  auto cc = setWhatProduced(this);
   
-  edm::LogInfo("SiStripLorentzAngleDepESProducer") << "ctor" << std::endl;
+  edm::LogInfo("SiStripLorentzAngleDepESProducer") << "ctor";
 
+  auto getLatency = iConfig.getParameter<edm::ParameterSet>("LatencyRecord");
+  // How useful the "record" parameter really is?
+  if(getLatency.getParameter<std::string>("record") == "SiStripLatencyRcd") {
+    // Shouldn't the label be a tracked parameter?
+    cc.setConsumes(latencyToken_, edm::ESInputTag{"", getLatency.getUntrackedParameter<std::string>("label")});
+  }
+  // Would it make sense to elevate this as an exception?
+  else edm::LogError("SiStripLorentzAngleDepESProducer") << "[SiStripLorentzAngleDepESProducer::ctor] No Latency Record found ";
+
+  auto getPeak = iConfig.getParameter<edm::ParameterSet>("BackPlaneCorrectionPeakMode");
+  if(getPeak.getParameter<std::string>("record") == "SiStripBackPlaneCorrectionRcd") {
+    // Shouldn't the label be a tracked parameter?
+    cc.setConsumes(lorentzAnglePeakToken_, edm::ESInputTag{"", getPeak.getUntrackedParameter<std::string>("label")});
+  // Would it make sense to elevate this as an exception?
+  } else edm::LogError("SiStripLorentzAngleDepESProducer") << "[SiStripLorentzAngleDepESProducer::ctor] No Lorentz Angle Record found " << std::endl;
+
+  auto getDeconv = iConfig.getParameter<edm::ParameterSet>("BackPlaneCorrectionDeconvMode");
+  // How useful the "record" parameter really is?
+  if(getDeconv.getParameter<std::string>("record") == "SiStripBackPlaneCorrectionRcd") {
+    // Shouldn't the label be a tracked parameter?
+    cc.setConsumes(lorentzAngleDeconvToken_, edm::ESInputTag{"", getDeconv.getUntrackedParameter<std::string>("label")});
+  // Would it make sense to elevate this as an exception?
+  } else edm::LogError("SiStripLorentzAngleDepESProducer") << "[SiStripLorentzAngleDepESProducer::ctor] No Lorentz Angle Record found " << std::endl;
 }
 
 
 std::unique_ptr<SiStripLorentzAngle> SiStripLorentzAngleDepESProducer::produce(const SiStripLorentzAngleDepRcd& iRecord)
 {
-  std::unique_ptr<SiStripLorentzAngle> siStripLA;
   edm::LogInfo("SiStripLorentzAngleDepESProducer") << "Producer called" << std::endl;
   
-  std::string latencyRecordName = getLatency.getParameter<std::string>("record");
-  std::string latencyLabel = getLatency.getUntrackedParameter<std::string>("label");
-  bool peakMode = false;
+  auto const *tokenPtr = &lorentzAngleDeconvToken_;
   
-  if( latencyRecordName == "SiStripLatencyRcd" ) {      
-    edm::ESHandle<SiStripLatency> latency;  
-    iRecord.getRecord<SiStripLatencyRcd>().get( latencyLabel, latency);
-    if(latency -> singleReadOutMode() == 1) peakMode = true;
-  } else edm::LogError("SiStripLorentzAngleDepESProducer") << "[SiStripLorentzAngleDepESProducer::produce] No Latency Record found " << std::endl;
- 
-  std::string lorentzAngleRecordName;
-  std::string lorentzAngleLabel;
-  	 
-  if (peakMode){
-    lorentzAngleRecordName = getPeak.getParameter<std::string>("record");
-    lorentzAngleLabel = getPeak.getUntrackedParameter<std::string>("label"); 
-  } else {
-    lorentzAngleRecordName = getDeconv.getParameter<std::string>("record");
-    lorentzAngleLabel = getDeconv.getUntrackedParameter<std::string>("label"); 
-  } 
-  
-  if ( lorentzAngleRecordName == "SiStripLorentzAngleRcd"){
-    edm::ESHandle<SiStripLorentzAngle> siStripLorentzAngle;
-    iRecord.getRecord<SiStripLorentzAngleRcd>().get(lorentzAngleLabel, siStripLorentzAngle);
-    siStripLA.reset(new SiStripLorentzAngle(*(siStripLorentzAngle.product())));
-  } else edm::LogError("SiStripLorentzAngleDepESProducer") << "[SiStripLorentzAngleDepESProducer::produce] No Lorentz Angle Record found " << std::endl;
-	 
+  if(latencyToken_.isInitialized()) {
+    const auto& latency = iRecord.get(latencyToken_);
+    if(latency.singleReadOutMode() == 1) {
+      tokenPtr = &lorentzAnglePeakToken_;
+    }
+  }
 
-   return siStripLA;
-
-  
+  if (tokenPtr->isInitialized()) {
+    // Is this copy really needed? (there is a way to return the very same object)
+    return std::make_unique<SiStripLorentzAngle>(iRecord.get(*tokenPtr));
+  }
+  return nullptr;
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiStripLorentzAngleDepESProducer);
