@@ -71,15 +71,15 @@ class MuonPathAnalyzerPerSL : public MuonPathAnalyzer {
   edm::ESHandle<DTGeometry> dtGeo;
 
   //ttrig
-  std::string ttrig_filename;
+  edm::FileInPath ttrig_filename;
   std::map<int,float> ttriginfo;
   
   //z 
-  std::string z_filename;
+  edm::FileInPath z_filename;
   std::map<int,float> zinfo;
   
   //shift
-  std::string shift_filename;
+  edm::FileInPath shift_filename;
   std::map<int,float> shiftinfo;
   
   int chosen_sl;
@@ -160,13 +160,13 @@ class MuonPathAnalyzerPerSL : public MuonPathAnalyzer {
      0 respecto de sí misma, se incluye en el array para que el código que
      hace el procesamiento sea más homogéneo y sencillo */
 
+  int bxTolerance;
+  MP_QUALITY minQuality;
+  float chiSquareThreshold;
   Bool_t debug;
   double chi2Th;
   double chi2corTh;
   double tanPhiTh;
-  int bxTolerance;
-  MP_QUALITY minQuality;
-  float chiSquareThreshold;
   int cellLayout[4];
   
 };
