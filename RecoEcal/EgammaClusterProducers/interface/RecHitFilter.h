@@ -18,24 +18,18 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 class RecHitFilter : public edm::global::EDProducer<> {
+public:
+  RecHitFilter(const edm::ParameterSet& ps);
 
-  public:
+  ~RecHitFilter() override;
 
-      RecHitFilter(const edm::ParameterSet& ps);
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-      ~RecHitFilter() override;
-
-      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-
-   private:
-
-      const double        noiseEnergyThreshold_;
-      const double        noiseChi2Threshold_;
-      const std::string   reducedHitCollection_;
-      const edm::EDGetTokenT<EcalRecHitCollection> hitCollection_;
-
-
+private:
+  const double noiseEnergyThreshold_;
+  const double noiseChi2Threshold_;
+  const std::string reducedHitCollection_;
+  const edm::EDGetTokenT<EcalRecHitCollection> hitCollection_;
 };
 #endif

@@ -17,7 +17,9 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 
-namespace reco {class Track;}
+namespace reco {
+  class Track;
+}
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
@@ -41,13 +43,10 @@ namespace reco {class Track;}
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-
 class MuPFIsoHelper;
-
 
 class MuonProducer : public edm::stream::EDProducer<> {
 public:
-
   /// Constructor
   MuonProducer(const edm::ParameterSet&);
 
@@ -57,38 +56,34 @@ public:
   /// reconstruct muons
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-
   typedef std::vector<edm::InputTag> InputTags;
 
 protected:
-
 private:
-  template<typename TYPE>
-    void fillMuonMap(edm::Event& event,
-		     const edm::OrphanHandle<reco::MuonCollection>& muonHandle,
-		     const std::vector<TYPE>& muonExtra,
-		     const std::string& label);
-  
+  template <typename TYPE>
+  void fillMuonMap(edm::Event& event,
+                   const edm::OrphanHandle<reco::MuonCollection>& muonHandle,
+                   const std::vector<TYPE>& muonExtra,
+                   const std::string& label);
+
   std::string theAlias;
 
-  void setAlias( std::string alias ){
-    alias.erase( alias.size() - 1, alias.size() );
-    theAlias=alias;
+  void setAlias(std::string alias) {
+    alias.erase(alias.size() - 1, alias.size());
+    theAlias = alias;
   }
 
-  std::string labelOrInstance(const edm::InputTag &) const;
+  std::string labelOrInstance(const edm::InputTag&) const;
 
 private:
   bool debug_;
   bool fastLabelling_;
-  
+
   edm::InputTag theMuonsCollectionLabel;
   edm::EDGetTokenT<reco::MuonCollection> theMuonsCollectionToken_;
- 
+
   edm::InputTag thePFCandLabel;
   edm::EDGetTokenT<reco::PFCandidateCollection> thePFCandToken_;
- 
-
 
   bool fillIsolation_;
   bool writeIsoDeposits_;
@@ -113,10 +108,8 @@ private:
   edm::EDGetTokenT<reco::IsoDepositMap> theHoDepositToken_;
   edm::EDGetTokenT<reco::IsoDepositMap> theJetDepositToken_;
 
-
   InputTags theSelectorMapNames;
-  std::vector<edm::EDGetTokenT<edm::ValueMap<bool> > >  theSelectorMapTokens_;
-
+  std::vector<edm::EDGetTokenT<edm::ValueMap<bool> > > theSelectorMapTokens_;
 
   edm::InputTag theShowerMapName;
   edm::EDGetTokenT<edm::ValueMap<reco::MuonShower> > theShowerMapToken_;
@@ -126,22 +119,15 @@ private:
   edm::EDGetTokenT<edm::ValueMap<reco::MuonCosmicCompatibility> > theCosmicCompMapToken_;
   std::string theMuToMuMapName;
 
-  MuPFIsoHelper *thePFIsoHelper;
+  MuPFIsoHelper* thePFIsoHelper;
 
   edm::EDGetTokenT<reco::MuonTimeExtraMap> timeMapCmbToken_;
   edm::EDGetTokenT<reco::MuonTimeExtraMap> timeMapDTToken_;
   edm::EDGetTokenT<reco::MuonTimeExtraMap> timeMapCSCToken_;
 
-
-
-
-  std::vector<std::map<std::string,edm::InputTag> > pfIsoMapNames;
-  std::vector<std::map<std::string,edm::EDGetTokenT<edm::ValueMap<double> > > > pfIsoMapTokens_;
+  std::vector<std::map<std::string, edm::InputTag> > pfIsoMapNames;
+  std::vector<std::map<std::string, edm::EDGetTokenT<edm::ValueMap<double> > > > pfIsoMapTokens_;
 
   edm::EDGetTokenT<reco::VertexCollection> vertexes_;
-  
 };
 #endif
-
-
- 
