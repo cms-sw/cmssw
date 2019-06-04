@@ -60,7 +60,7 @@ private:
                      const std::vector<double>& vx, int ny, double y0, double y1 ) :
                      Plot1D(n,t,d,nx,x0,x1), xbins(vx), nybins(ny), ylow(y0), yhigh(y1) {}
 
-        void book( DQMStore::IBooker& booker ) {
+        void book( DQMStore::IBooker& booker ) override {
             booker.setCurrentFolder( dir );
             plot = booker.bookProfile( name, title, xbins.size()-1, &xbins[0], nybins, ylow, yhigh, " " );
         }
@@ -204,7 +204,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
         int etaIndex = getEtaIndex( cand.eta() );
         std::string pftype = pdgMap[ abs(cand.pdgId()) ];
-        if ( etaIndex == -1 || pftype == "" ) continue;
+        if ( etaIndex == -1 || pftype.empty() ) continue;
 
         if ( pftype == "chm" ) { //check charged hadrons ONLY
             bool attached = false;
