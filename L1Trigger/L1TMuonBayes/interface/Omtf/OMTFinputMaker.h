@@ -83,7 +83,6 @@ private:
  virtual void addStub(MuonStubPtrs2D& muonStubsInLayers, unsigned int iLayer, unsigned int iInput, MuonStub& stub);
 
   RpcClusterization rpcClusterization;
-  //OmtfAngleConverter angleConverter;
 
   OmtfAngleConverter angleConverter;
 

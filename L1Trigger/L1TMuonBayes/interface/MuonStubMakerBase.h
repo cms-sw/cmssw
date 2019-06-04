@@ -21,7 +21,6 @@
 #include "L1Trigger/L1TMuonBayes/interface/MuonStub.h"
 #include "L1Trigger/L1TMuonBayes/interface/MuonStubsInput.h"
 #include "L1Trigger/L1TMuonBayes/interface/RpcClusterization.h"
-#include "L1Trigger/L1TMuonBayes/interface/AngleConverterBase.h"
 
 namespace edm {
   class EventSetup;
@@ -125,11 +124,8 @@ protected:
 			      l1t::tftype type);*/
 
   RpcClusterization rpcClusterization;
-  //OmtfAngleConverter angleConverter;
 
   const ProcConfigurationBase* config = nullptr;
-
-  int flag;
 
   edm::Handle<L1MuDTChambPhContainer> dtPhDigis;
   edm::Handle<L1MuDTChambThContainer> dtThDigis;

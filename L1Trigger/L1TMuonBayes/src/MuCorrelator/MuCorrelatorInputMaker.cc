@@ -10,7 +10,7 @@
 
 MuCorrelatorInputMaker::MuCorrelatorInputMaker(const edm::ParameterSet& edmCfg, const edm::EventSetup& es, MuCorrelatorConfigPtr config, MuStubsInputTokens& muStubsInputTokens):
   MuonStubMakerBase(),
-  config(config), rpcClusterization(3, 2)
+  config(config)
 {
   initialize(edmCfg, es, config.get(), muStubsInputTokens);
   angleConverter.checkAndUpdateGeometry(es, config.get());

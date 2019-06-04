@@ -67,10 +67,6 @@ private:
   MuCorrelatorConfigPtr config;
 
   AngleConverterBase angleConverter;
-
-  RpcClusterization rpcClusterization;
-
-  int minDtPhQuality = 2;
 };
 
 #endif /* INTERFACE_MUCORRELATOR_MUONCORRELATORINPUTMAKER_H_ */

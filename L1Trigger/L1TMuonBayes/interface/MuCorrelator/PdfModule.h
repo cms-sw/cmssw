@@ -72,12 +72,6 @@ public:
   }
 
 protected:
-  //[layer][ptBin][etaBin]
-  //meanDistPhiArrayType meanDistPhi;
-
-  // 16        64       16    128
-  //[layer][etaBin][refLayer][ptBin][pdfBin]
-
   //[layer][etaBin][refLayerNum][ptBin][coefficient index] refLayer = 0 means no ref layer, i.e. pdfBin = phiHit - phiTTTrack, otherwise pdfBin = phiHit - phiTTTrack - phiRefHit
   //pdfVal = a2(pdfBin -a1)^2 - a0
   std::vector<std::vector<std::vector<std::vector<std::vector<int> > > > > coefficients;
