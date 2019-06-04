@@ -19,14 +19,15 @@ if [ -z "$PERJOB" ]; then
 fi
 
 #
-#set default conditions - 2017
-#CONDITIONS=auto:phase1_2017_realistic
-#ERA=Run2_2017,run2_nanoAOD_94XMiniAODv1
-#
 #set default conditions - 2018
-CONDITIONS=auto:phase1_2018_realistic
-ERA=Run2_2018
+CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018
 #
+#conditions - 2017
+#CONDITIONS=auto:phase1_2017_realistic ERA=Run2_2017,run2_nanoAOD_94XMiniAODv1
+#
+#conditions - phase2
+#CONDITIONS=auto:phase2_realistic ERA=Phase2C8_timing_layer_bar
+
 #Running with 2 threads allows to use more memory on grid
 NTHREADS=2
 
@@ -70,8 +71,11 @@ elif [ "$1" == "MinBias" ]; then
 elif [ "$1" == "NuGunPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/NuGun_PU.txt
     NAME=NuGunPU
+elif [ "$1" == "conf" ]; then
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/NuGun_PU.txt
+    NAME=conf
 else
-    echo "Argument 1 must be [QCD|QCDPU|ZMM|MinBias|NuGunPU] but was $1"
+    echo "Argument 1 must be [QCD|QCDPU|ZMM|MinBias|NuGunPU|conf] but was $1"
     exit 1
 fi
 
@@ -93,28 +97,42 @@ echo $INPUT_FILELIST $NAME $STEP $SKIPEVENTS
 #env
 
 if [ $STEP == "RECO" ]; then
-    #Start of workflow
-    echo "Making subdirectory $NAME"
 
-    if [ -e $NAME ]; then
-        echo "directory $NAME exists, aborting"
-        exit 1
-    fi
+    if [ $NAME == "conf" ]; then
+	mkdir -p $NAME
+	cd $NAME
 
-    mkdir $NAME
-    cd $NAME
+	FILENAME=`sed -n "${NJOB}p" $INPUT_FILELIST`
+	echo "FILENAME="$FILENAME
 
-    FILENAME=`sed -n "${NJOB}p" $INPUT_FILELIST`
-    echo "FILENAME="$FILENAME
-    #Run the actual CMS reco with particle flow.
-    echo "Running step RECO" 
-    cmsDriver.py step3 --runUnscheduled  --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier RECOSIM,AODSIM,MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent RECOSIM,AODSIM,MINIAODSIM --filein $FILENAME --fileout file:step3.root | tee step3.log  2>&1
+	cmsDriver.py step3 --runUnscheduled  --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier RECOSIM,AODSIM,MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent RECOSIM,AODSIM,MINIAODSIM --filein step2.root --fileout file:step3.root --no_exec --python_filename=step3.py
+	
+    else
+	
+	#Start of workflow
+	echo "Making subdirectory $NAME"
+
+	if [ -e $NAME ]; then
+            echo "directory $NAME exists, aborting"
+            exit 1
+	fi
+
+	mkdir $NAME
+	cd $NAME
+
+	FILENAME=`sed -n "${NJOB}p" $INPUT_FILELIST`
+	echo "FILENAME="$FILENAME
+	#Run the actual CMS reco with particle flow.
+	echo "Running step RECO" 
+	cmsDriver.py step3 --runUnscheduled  --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier RECOSIM,AODSIM,MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent RECOSIM,AODSIM,MINIAODSIM --filein $FILENAME --fileout file:step3.root | tee step3.log  2>&1
    
-    #NanoAOD
-    #On lxplus, this step takes about 1 minute / 1000 events
-    #Can be skipped if doing DQM directly from RECO
-    #cmsDriver.py step4 --conditions $CONDITIONS -s NANO --datatier NANOAODSIM --nThreads $NTHREADS -n $N --era $ERA --eventcontent NANOAODSIM --filein file:step3_inMINIAODSIM.root --fileout file:step4.root > step4.log 2>&1
+	#NanoAOD
+	#On lxplus, this step takes about 1 minute / 1000 events
+	#Can be skipped if doing DQM directly from RECO
+	#cmsDriver.py step4 --conditions $CONDITIONS -s NANO --datatier NANOAODSIM --nThreads $NTHREADS -n $N --era $ERA --eventcontent NANOAODSIM --filein file:step3_inMINIAODSIM.root --fileout file:step4.root > step4.log 2>&1
 
+    fi
+	
 elif [ $STEP == "DQM" ]; then
     echo "Running step DQM" 
 

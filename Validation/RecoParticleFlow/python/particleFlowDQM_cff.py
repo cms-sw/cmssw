@@ -77,9 +77,6 @@ pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
                                        
 )
 
-
-
-# Do we need this?
 pfDQM = cms.Sequence(
 #    matchRecoJetToGenJet *
     pfJetAnalyzerDQM
