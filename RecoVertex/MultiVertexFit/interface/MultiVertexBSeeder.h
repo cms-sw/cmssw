@@ -9,21 +9,17 @@
  *  (i.e. high-multiplicity, collimated track "bundles" with
  *  at least one secondary vertex )
  */
-class MultiVertexBSeeder : public VertexReconstructor
-{
+class MultiVertexBSeeder : public VertexReconstructor {
 public:
-  MultiVertexBSeeder ( double nsigma=50. );
-  std::vector<TransientVertex> vertices(
-      const std::vector<reco::TransientTrack> &) const override; 
-  std::vector<TransientVertex> vertices(
-      const std::vector<reco::TransientTrack> &,
-      const reco::BeamSpot & ) const override; 
+  MultiVertexBSeeder(double nsigma = 50.);
+  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &) const override;
+  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &,
+                                        const reco::BeamSpot &) const override;
 
-  MultiVertexBSeeder * clone() const override;
+  MultiVertexBSeeder *clone() const override;
 
 private:
   double theNSigma;
-
 };
 
 #endif

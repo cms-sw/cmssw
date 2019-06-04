@@ -16,69 +16,68 @@ class LocalTrajectoryParameters;
 
 class dso_hidden TkPixelMeasurementDet final : public MeasurementDet {
 public:
-
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> SiPixelClusterRef;
-  
+
   typedef edmNew::DetSet<SiPixelCluster> detset;
   typedef detset::const_iterator const_iterator;
-  typedef PixelClusterParameterEstimator::LocalValues    LocalValues;
+  typedef PixelClusterParameterEstimator::LocalValues LocalValues;
 
-  TkPixelMeasurementDet( const GeomDet* gdet,
-			 PxMeasurementConditionSet & conditionSet );
+  TkPixelMeasurementDet(const GeomDet* gdet, PxMeasurementConditionSet& conditionSet);
 
-  void update(PxMeasurementDetSet &data, const detset & detSet ) { 
+  void update(PxMeasurementDetSet& data, const detset& detSet) {
     data.update(index(), detSet);
     data.setActiveThisEvent(index(), true);
   }
 
-  void setEmpty(PxMeasurementDetSet & data) { data.setEmpty(index());  }
-  bool isEmpty(const PxMeasurementDetSet & data) const {return data.empty(index());}
+  void setEmpty(PxMeasurementDetSet& data) { data.setEmpty(index()); }
+  bool isEmpty(const PxMeasurementDetSet& data) const { return data.empty(index()); }
 
-  ~TkPixelMeasurementDet() override { }
+  ~TkPixelMeasurementDet() override {}
 
   // all hits
-  RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & dat) const override;
+  RecHitContainer recHits(const TrajectoryStateOnSurface&, const MeasurementTrackerEvent& dat) const override;
 
-  // only hits compatible with tsos 
-  RecHitContainer compHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & dat, float xl, float yl ) const;
+  // only hits compatible with tsos
+  RecHitContainer compHits(const TrajectoryStateOnSurface&,
+                           const MeasurementTrackerEvent& dat,
+                           float xl,
+                           float yl) const;
 
-
-
- // simple hits
-  bool recHits(SimpleHitContainer & result,  
-		       const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data) const override {
-    assert("not implemented for Pixel yet"==nullptr);
+  // simple hits
+  bool recHits(SimpleHitContainer& result,
+               const TrajectoryStateOnSurface& stateOnThisDet,
+               const MeasurementEstimator&,
+               const MeasurementTrackerEvent& data) const override {
+    assert("not implemented for Pixel yet" == nullptr);
   }
 
- 
+  bool measurements(const TrajectoryStateOnSurface& stateOnThisDet,
+                    const MeasurementEstimator& est,
+                    const MeasurementTrackerEvent& dat,
+                    TempMeasurements& result) const override;
 
-  bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
-			    const MeasurementEstimator& est, const MeasurementTrackerEvent & dat,
-			    TempMeasurements & result) const override;
+  const PixelGeomDetUnit& specificGeomDet() const { return static_cast<PixelGeomDetUnit const&>(fastGeomDet()); }
 
-
-  const PixelGeomDetUnit& specificGeomDet() const {return static_cast<PixelGeomDetUnit const &>(fastGeomDet());}
-
-  TrackingRecHit::RecHitPointer 
-  buildRecHit( const SiPixelClusterRef & cluster,
-	       const LocalTrajectoryParameters & ltp) const;
+  TrackingRecHit::RecHitPointer buildRecHit(const SiPixelClusterRef& cluster,
+                                            const LocalTrajectoryParameters& ltp) const;
 
   /** \brief Turn on/off the module for reconstruction, for the full run or lumi (using info from DB, usually). */
   void setActive(bool active) { conditionSet().setActive(index(), active); }
   /** \brief Turn on/off the module for reconstruction for one events.
              This per-event flag is cleared by any call to 'update' or 'setEmpty'  */
-  void setActiveThisEvent(PxMeasurementDetSet & data, bool active) const { data.setActiveThisEvent(index(), active); }
+  void setActiveThisEvent(PxMeasurementDetSet& data, bool active) const { data.setActiveThisEvent(index(), active); }
   /** \brief Is this module active in reconstruction? It must be both 'setActiveThisEvent' and 'setActive'. */
-  bool isActive(const MeasurementTrackerEvent & data) const override { return data.pixelData().isActive(index()); }
+  bool isActive(const MeasurementTrackerEvent& data) const override { return data.pixelData().isActive(index()); }
 
-  bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & dat ) const override ; 
+  bool hasBadComponents(const TrajectoryStateOnSurface& tsos, const MeasurementTrackerEvent& dat) const override;
 
   /** \brief Sets the list of bad ROCs, identified by the positions of their centers in the local coordinate frame*/
-  void setBadRocPositions(std::vector< LocalPoint > & positions) { badRocPositions_.swap(positions); }
+  void setBadRocPositions(std::vector<LocalPoint>& positions) { badRocPositions_.swap(positions); }
   /** \brief Clear the list of bad ROCs */
   void clearBadRocPositions() { badRocPositions_.clear(); }
 
-  const PxMeasurementDetSet::BadFEDChannelPositions* getBadFEDChannelPositions(const MeasurementTrackerEvent & data) const {
+  const PxMeasurementDetSet::BadFEDChannelPositions* getBadFEDChannelPositions(
+      const MeasurementTrackerEvent& data) const {
     return data.pixelData().getBadFEDChannelPositions(index());
   }
 
@@ -87,27 +86,25 @@ public:
 
 private:
   unsigned int id_;
-  std::vector< LocalPoint > badRocPositions_;
+  std::vector<LocalPoint> badRocPositions_;
 
   int index_;
-  PxMeasurementConditionSet * theDetConditions;
-  PxMeasurementConditionSet & conditionSet() { return *theDetConditions; }
-  const PxMeasurementConditionSet & conditionSet() const { return *theDetConditions; }
+  PxMeasurementConditionSet* theDetConditions;
+  PxMeasurementConditionSet& conditionSet() { return *theDetConditions; }
+  const PxMeasurementConditionSet& conditionSet() const { return *theDetConditions; }
 
-  const PixelClusterParameterEstimator * cpe() const { return conditionSet().pixelCPE(); }
+  const PixelClusterParameterEstimator* cpe() const { return conditionSet().pixelCPE(); }
 
- public:
-
-  inline bool accept(SiPixelClusterRefNew & r, const std::vector<bool> skipClusters) const {
-    
-    if(skipClusters.empty()) return true;
-    if (r.key()>=skipClusters.size()){
-      edm::LogError("IndexMisMatch")<<r.key()<<" is larger than: "<<skipClusters.size()<<" no skipping done";
+public:
+  inline bool accept(SiPixelClusterRefNew& r, const std::vector<bool> skipClusters) const {
+    if (skipClusters.empty())
+      return true;
+    if (r.key() >= skipClusters.size()) {
+      edm::LogError("IndexMisMatch") << r.key() << " is larger than: " << skipClusters.size() << " no skipping done";
       return true;
     }
     return not skipClusters[r.key()];
   }
-
 };
 
 #endif

@@ -60,91 +60,83 @@ namespace reco {
      \author Renaud Bruneliere
      \date   July 2006
   */
-  class PFTrack
-    {
-    public:
-    
-      PFTrack();
-    
-      PFTrack(double charge);
+  class PFTrack {
+  public:
+    PFTrack();
 
-      PFTrack(const PFTrack& other);
-   
-      /// add a trajectory measurement
-      /// \todo throw an exception if the number of points is too large
-      void addPoint(const reco::PFTrajectoryPoint& trajPt);
+    PFTrack(double charge);
 
-      /// set a trajectory point
-      void setPoint(unsigned int index,
-                    const reco::PFTrajectoryPoint& measurement)
-        { trajectoryPoints_[index] = measurement; }
+    PFTrack(const PFTrack& other);
 
-      /// calculate posrep_ once and for all for each point
-      /// \todo where is posrep? profile and see if it's necessary.
-      void calculatePositionREP();
+    /// add a trajectory measurement
+    /// \todo throw an exception if the number of points is too large
+    void addPoint(const reco::PFTrajectoryPoint& trajPt);
 
-      /// \return electric charge
-      double charge() const { return charge_; }
+    /// set a trajectory point
+    void setPoint(unsigned int index, const reco::PFTrajectoryPoint& measurement) {
+      trajectoryPoints_[index] = measurement;
+    }
 
-      /// \return number of trajectory points
-      unsigned int nTrajectoryPoints() const 
-        { return trajectoryPoints_.size(); }
-    
-      /// \return number of trajectory measurements in tracker
-      unsigned int nTrajectoryMeasurements() const 
-        { return (indexOutermost_ ? indexOutermost_ - indexInnermost_ + 1 : 0); }
+    /// calculate posrep_ once and for all for each point
+    /// \todo where is posrep? profile and see if it's necessary.
+    void calculatePositionREP();
 
-      /// \return vector of trajectory points
-      const std::vector< reco::PFTrajectoryPoint >& trajectoryPoints() const 
-        { return trajectoryPoints_; }
-    
-      /// \return a trajectory point
-      const reco::PFTrajectoryPoint& trajectoryPoint(unsigned index) const 
-        { return trajectoryPoints_[index]; }
+    /// \return electric charge
+    double charge() const { return charge_; }
 
-      /// \return an extrapolated point 
-      /// \todo throw an exception in case of invalid point.
-      const reco::PFTrajectoryPoint& extrapolatedPoint(unsigned layerid) const; 
+    /// \return number of trajectory points
+    unsigned int nTrajectoryPoints() const { return trajectoryPoints_.size(); }
 
-      /// iterator on innermost tracker measurement
-      std::vector< reco::PFTrajectoryPoint >::const_iterator 
-        innermostMeasurement() const
-        { return trajectoryPoints_.begin() + indexInnermost_; }
-    
-      /// iterator on outermost tracker measurement
-      std::vector< reco::PFTrajectoryPoint >::const_iterator 
-        outermostMeasurement() const
-        { return trajectoryPoints_.begin() + indexOutermost_; }
-    
+    /// \return number of trajectory measurements in tracker
+    unsigned int nTrajectoryMeasurements() const {
+      return (indexOutermost_ ? indexOutermost_ - indexInnermost_ + 1 : 0);
+    }
 
-      void         setColor(int color) {color_ = color;}
-    
-      int          color() const { return color_; }    
+    /// \return vector of trajectory points
+    const std::vector<reco::PFTrajectoryPoint>& trajectoryPoints() const { return trajectoryPoints_; }
 
-    protected:
+    /// \return a trajectory point
+    const reco::PFTrajectoryPoint& trajectoryPoint(unsigned index) const { return trajectoryPoints_[index]; }
 
-      /// maximal number of tracking layers
-      static const unsigned int nMaxTrackingLayers_;
-  
-      /// charge
-      double charge_;
+    /// \return an extrapolated point
+    /// \todo throw an exception in case of invalid point.
+    const reco::PFTrajectoryPoint& extrapolatedPoint(unsigned layerid) const;
 
-      /// vector of trajectory points
-      std::vector< reco::PFTrajectoryPoint > trajectoryPoints_;
+    /// iterator on innermost tracker measurement
+    std::vector<reco::PFTrajectoryPoint>::const_iterator innermostMeasurement() const {
+      return trajectoryPoints_.begin() + indexInnermost_;
+    }
 
-      /// index innermost tracker measurement
-      unsigned int indexInnermost_;
+    /// iterator on outermost tracker measurement
+    std::vector<reco::PFTrajectoryPoint>::const_iterator outermostMeasurement() const {
+      return trajectoryPoints_.begin() + indexOutermost_;
+    }
 
-      /// index outermost tracker measurement
-      unsigned int indexOutermost_;
+    void setColor(int color) { color_ = color; }
 
-      /// color (transient)
-      int  color_;
+    int color() const { return color_; }
 
-    };
-    std::ostream& operator<<(std::ostream& out, 
-                             const PFTrack& track);
+  protected:
+    /// maximal number of tracking layers
+    static const unsigned int nMaxTrackingLayers_;
 
-}
+    /// charge
+    double charge_;
+
+    /// vector of trajectory points
+    std::vector<reco::PFTrajectoryPoint> trajectoryPoints_;
+
+    /// index innermost tracker measurement
+    unsigned int indexInnermost_;
+
+    /// index outermost tracker measurement
+    unsigned int indexOutermost_;
+
+    /// color (transient)
+    int color_;
+  };
+  std::ostream& operator<<(std::ostream& out, const PFTrack& track);
+
+}  // namespace reco
 
 #endif
