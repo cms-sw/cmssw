@@ -85,8 +85,6 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       bool eleIsEEDeeGap_;
       bool eleIsEERingGap_;
 
-      int eleIndex_;
-
       // config
       const bool isMC_;
       const double deltaR_;
@@ -220,8 +218,6 @@ ElectronMVANtuplizer::ElectronMVANtuplizer(const edm::ParameterSet& iConfig)
    tree_->Branch("ele_isEEDeeGap",&eleIsEEDeeGap_);
    tree_->Branch("ele_isEERingGap",&eleIsEERingGap_);
 
-   tree_->Branch("ele_index",&eleIndex_);
-
    // IDs
    for (size_t k = 0; k < nValMaps_; ++k) {
        tree_->Branch(valMapBranchNames_[k].c_str() ,  &mvaValues_[k]);
@@ -294,7 +290,8 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         iEvent.getByToken(mvaCatTokens_[k],mvaCats[k]);
     }
 
-    eleIndex_ = src->size();
+    std::vector<float> extraVariables = variableHelper_.getAuxVariables(iEvent);
+
     for(auto const& ele : src->ptrs())
     {
         if (ele->pt() < ptThreshold_) continue;
@@ -310,7 +307,6 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         ele3Q_ = ele->chargeInfo().isGsfCtfScPixConsistent;
 
         for (int iVar = 0; iVar < nVars_; ++iVar) {
-            std::vector<float> extraVariables = variableHelper_.getAuxVariables(iEvent);
             vars_[iVar] = mvaVarMngr_.getValue(iVar, *ele, extraVariables);
         }
 

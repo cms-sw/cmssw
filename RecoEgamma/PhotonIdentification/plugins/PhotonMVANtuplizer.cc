@@ -289,6 +289,8 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         iEvent.getByToken(mvaCatTokens_[k],mvaCats[k]);
     }
 
+    std::vector<float> extraVariables = variableHelper_.getAuxVariables(iEvent);
+
     for(auto const& pho : src->ptrs())
     {
         if (pho->pt() < ptThreshold_) continue;
@@ -304,7 +306,6 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
         // variables from the text file
         for (int iVar = 0; iVar < nVars_; ++iVar) {
-            std::vector<float> extraVariables = variableHelper_.getAuxVariables(iEvent);
             vars_[iVar] = mvaVarMngr_.getValue(iVar, *pho, extraVariables);
         }
 
