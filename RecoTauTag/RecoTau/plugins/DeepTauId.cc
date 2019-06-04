@@ -163,9 +163,9 @@ float dEta(const LVector1& p4, const LVector2& tau_p4)
 }
 
 template<typename LVector1, typename LVector2>
-float dPhi(const LVector1& p4, const LVector2& tau_p4)
+float dPhi(const LVector1& p4_1, const LVector2& p4_2)
 {
-    return static_cast<float>(reco::deltaPhi(p4.phi(), tau_p4.phi()));
+    return static_cast<float>(reco::deltaPhi(p4_2.phi(), p4_1.phi()));
 }
 
 struct MuonHitMatchV1 {
@@ -815,7 +815,7 @@ private:
         for(size_t n = 0; n < objects.size(); ++n) {
             const auto& obj = objects.at(n);
             const double deta = obj.polarP4().eta() - tau.polarP4().eta();
-            const double dphi = reco::deltaPhi(tau.polarP4().phi(), obj.polarP4().phi());
+            const double dphi = reco::deltaPhi(obj.polarP4().phi(), tau.polarP4().phi());
             const double dR2 = std::pow(deta, 2) + std::pow(dphi, 2);
             if(dR2 < inner_dR2)
                 addObject(n, deta, dphi, inner_grid);
