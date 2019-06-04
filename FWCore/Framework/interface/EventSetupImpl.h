@@ -64,7 +64,7 @@ namespace edm {
 
     bool validRecord(eventsetup::EventSetupRecordKey const& iKey) const;
 
-    ///Only EventSetupProvider allowed to create a EventSetup
+    ///Only EventSetupProvider allowed to create an EventSetupImpl
     friend class eventsetup::EventSetupProvider;
     friend class eventsetup::EventSetupRecordProvider;
     friend class ::testEventsetup;

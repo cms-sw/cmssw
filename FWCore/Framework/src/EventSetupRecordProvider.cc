@@ -73,7 +73,7 @@ namespace edm {
         }
       }
     }
-    void EventSetupRecordProvider::setValidityInterval(const ValidityInterval& iInterval) {
+    void EventSetupRecordProvider::setValidityInterval_forTesting(const ValidityInterval& iInterval) {
       validityInterval_ = iInterval;
       initializeForNewSyncValue();
     }

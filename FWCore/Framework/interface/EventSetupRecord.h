@@ -171,6 +171,15 @@ namespace edm {
           */
       unsigned long long cacheIdentifier() const { return impl_->cacheIdentifier(); }
 
+      /**When you are processing multiple validity intervals concurrently,
+          each must have its own cache for data. These caches are numbered
+          from 0 to one less than the maximum number of concurrent validity
+          intervals allowed for that record. This number is returned by
+          the following function. For one record type, all the different validity
+          intervals being processed at the same time will have a different
+          iovIndex. But the iovIndex's of record types that are different
+          are independent of each other.
+          */
       unsigned int iovIndex() const { return impl_->iovIndex(); }
 
       ///clears the oToFill vector and then fills it with the keys for all registered data keys
@@ -184,9 +193,8 @@ namespace edm {
     protected:
       template <template <typename> typename H, typename T, typename R>
       H<T> getHandleImpl(ESGetToken<T, R> const& iToken) const {
-        if (iToken.transitionID() != transitionID()) {
-          throwWrongTransitionID();
-        }
+        if
+          UNLIKELY(iToken.transitionID() != transitionID()) { throwWrongTransitionID(); }
         assert(iToken.isInitialized());
         assert(getTokenIndices_);
         //need to check token has valid index
