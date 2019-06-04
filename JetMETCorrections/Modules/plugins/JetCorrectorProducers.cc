@@ -2,7 +2,7 @@
 //
 // Package:     JetMETCorrections/Modules
 // Class  :     JetCorrectorProducers
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
