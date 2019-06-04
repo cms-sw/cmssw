@@ -294,8 +294,8 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
         if (itTP->compressedEt() == 0) {  // If there's no energy in TT, the constituents are removed from the recovery.
           for (size_t i = 0; i < v.size(); ++i)
             eeC.erase(v[i]);
-        } else if (itTP->compressedEt() !=
-                   0xFF) {  //If it's saturated the energy has already been determined, so we do not want to subtract any channels
+        } else if (itTP->compressedEt() != 0xFF) {
+          //If it's saturated the energy has already been determined, so we do not want to subtract any channels
           for (size_t j = 0; j < v.size(); ++j) {
             aTTC.insert(v[j]);
           }

@@ -191,12 +191,12 @@ unsigned short DTTime2DriftParametrization::MB_DT_drift_distance(
 
     DXV_v_drift[j] = par_x[0];                    // drift velocity
     DXV_delta_x[j] = MB_DT_delta_x(time, par_x);  // deviation from linearity
-    DXV_x_drift[j] =
-        MB_DT_dist(time, par_x) + DXV_delta_x[j] - OffSet * par_x[0];  // drift distance to the wire (signed)
-    DXV_x_width_m[j] = MB_DT_sigma_t_m(DXV_x_drift[j], par_sigma_t) *
-                       DXV_v_drift[j];  // distance width ~ vd * sigma_t(x)  (minus, left)
-    DXV_x_width_p[j] = MB_DT_sigma_t_p(DXV_x_drift[j], par_sigma_t) *
-                       DXV_v_drift[j];  // distance width ~ vd * sigma_t(x)  (plus, right)
+    // drift distance to the wire (signed)
+    DXV_x_drift[j] = MB_DT_dist(time, par_x) + DXV_delta_x[j] - OffSet * par_x[0];
+    // distance width ~ vd * sigma_t(x)  (minus, left)
+    DXV_x_width_m[j] = MB_DT_sigma_t_m(DXV_x_drift[j], par_sigma_t) * DXV_v_drift[j];
+    // distance width ~ vd * sigma_t(x)  (plus, right)
+    DXV_x_width_p[j] = MB_DT_sigma_t_p(DXV_x_drift[j], par_sigma_t) * DXV_v_drift[j];
 
 #ifdef MB_DT_DEBUG
     printf("MB_DT_drift_LOOP: OffSet = %f\n", OffSet);

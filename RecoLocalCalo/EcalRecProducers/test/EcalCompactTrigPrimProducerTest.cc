@@ -111,13 +111,12 @@ void EcalCompactTrigPrimProducerTest::analyze(edm::Event const& event, edm::Even
       if (oneSample) {
         const int skimSample = skimTrigPrim->sampleOfInterest();
         const int origSample = origTrigPrim->sampleOfInterest();
-        eq = ((skimTrigPrim->sample(skimSample).raw() &
-               0x1FFF)  //masked unused bits (see flaw in unpacker that modifies them)
-              == (origTrigPrim->sample(origSample).raw() & 0x1FFF));
+        //masked unused bits (see flaw in unpacker that modifies them)
+        eq = ((skimTrigPrim->sample(skimSample).raw() & 0x1FFF) == (origTrigPrim->sample(origSample).raw() & 0x1FFF));
       } else if (skimTrigPrim->size() == origTrigPrim->size()) {
         for (int iS = 0; iS < skimTrigPrim->size(); ++iS) {
-          if ((skimTrigPrim->sample(iS).raw() & 0x1FFF)  //masked unused bits (see flaw in unpacker that modifies them)
-              != (origTrigPrim->sample(iS).raw() & 0x1FFF))
+          //masked unused bits (see flaw in unpacker that modifies them)
+          if ((skimTrigPrim->sample(iS).raw() & 0x1FFF) != (origTrigPrim->sample(iS).raw() & 0x1FFF))
             eq = false;
         }
       } else {
