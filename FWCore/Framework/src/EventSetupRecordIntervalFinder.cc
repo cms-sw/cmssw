@@ -45,11 +45,11 @@ namespace edm {
 
   void EventSetupRecordIntervalFinder::doResetInterval(const eventsetup::EventSetupRecordKey&) {}
 
-  bool EventSetupRecordIntervalFinder::isLegacyESSource() const { return true; }
+  bool EventSetupRecordIntervalFinder::isConcurrentFinder() const { return false; }
 
-  bool EventSetupRecordIntervalFinder::isLegacyOutOfValidityInterval(const eventsetup::EventSetupRecordKey& iKey,
-                                                                     const IOVSyncValue& iTime) const {
-    if (isLegacyESSource()) {
+  bool EventSetupRecordIntervalFinder::isNonconcurrentAndIOVNeedsUpdate(const eventsetup::EventSetupRecordKey& iKey,
+                                                                        const IOVSyncValue& iTime) const {
+    if (!isConcurrentFinder()) {
       if (iTime == IOVSyncValue::invalidIOVSyncValue()) {
         return true;
       }

@@ -12,6 +12,8 @@
 
 #include "FWCore/Framework/interface/DependentRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
 #include <cassert>
 
 namespace edm {
@@ -167,15 +169,20 @@ namespace edm {
       previousIOVs_.clear();
     }
 
-    bool DependentRecordIntervalFinder::isLegacyESSource() const { return false; }
+    bool DependentRecordIntervalFinder::isConcurrentFinder() const {
+      throw Exception(errors::LogicError)
+          << "DependentRecordIntervalFinder::isConcurrentFinder() should never be called.\n"
+          << "Contact a Framework developer\n";
+      return true;
+    }
 
-    bool DependentRecordIntervalFinder::isLegacyOutOfValidityInterval(const EventSetupRecordKey& iKey,
-                                                                      const IOVSyncValue& iTime) const {
+    bool DependentRecordIntervalFinder::isNonconcurrentAndIOVNeedsUpdate(const EventSetupRecordKey& iKey,
+                                                                         const IOVSyncValue& iTime) const {
       // Note that we do not worry about dependent records here because this function
       // will get called once for every record and we would just be checking the
       // dependent records multiple times if we checked them inside this function.
       if (alternate_.get()) {
-        return alternate_->legacyOutOfValidityInterval(iKey, iTime);
+        return alternate_->nonconcurrentAndIOVNeedsUpdate(iKey, iTime);
       }
       return false;
     }

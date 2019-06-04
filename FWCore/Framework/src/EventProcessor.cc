@@ -1190,10 +1190,14 @@ namespace edm {
           lumiQueue_->pushAndPause(std::move(lumiWorkLambda));
         });
 
-    if (espController_->legacyESSourceOutOfValidityInterval(iSync)) {
+    if (espController_->doWeNeedToWaitForIOVsToFinish(iSync)) {
+      // We only get here inside this block if there is an EventSetup
+      // module not able to handle concurrent IOVs (usually an ESSource)
+      // and the new sync value is outside the current IOV of that module.
+
       WaitingTaskHolder queueLumiWorkTaskHolder{queueLumiWorkTask};
 
-      legacyIOVQueue_.push([this, queueLumiWorkTaskHolder, iSync, status]() mutable {
+      queueWhichWaitsForIOVsToFinish_.push([this, queueLumiWorkTaskHolder, iSync, status]() mutable {
         try {
           SendSourceTerminationSignalIfException sentry(actReg_.get());
           // Pass in iSync to let the EventSetup system know which run and lumi
@@ -1208,11 +1212,11 @@ namespace edm {
           status.reset();
           queueLumiWorkTaskHolder.doneWaiting(std::current_exception());
         }
-        legacyIOVQueue_.pause();
+        queueWhichWaitsForIOVsToFinish_.pause();
       });
 
     } else {
-      legacyIOVQueue_.pause();
+      queueWhichWaitsForIOVsToFinish_.pause();
 
       // This holder will be used to wait until the EventSetup IOVs are ready
       WaitingTaskHolder queueLumiWorkTaskHolder{queueLumiWorkTask};
@@ -1306,7 +1310,7 @@ namespace edm {
 
           try {
             status->resumeGlobalLumiQueue();
-            legacyIOVQueue_.resume();
+            queueWhichWaitsForIOVsToFinish_.resume();
           } catch (...) {
             if (not ptr) {
               ptr = std::current_exception();

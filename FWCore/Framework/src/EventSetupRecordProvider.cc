@@ -103,10 +103,10 @@ namespace edm {
             make_shared_noexcept_false<IntersectingIOVRecordIntervalFinder>(key_);
         intFinder->swapFinders(*multipleFinders_);
         finder_ = intFinder;
-        hasLegacyESSource_ = intFinder->hasLegacyESSource();
+        hasNonconcurrentFinder_ = intFinder->hasNonconcurrentFinder();
       } else {
         if (finder_.get() != nullptr) {
-          hasLegacyESSource_ = finder_->legacyESSource();
+          hasNonconcurrentFinder_ = !finder_->concurrentFinder();
         }
       }
 
@@ -160,12 +160,12 @@ namespace edm {
       intervalStatus_ = IntervalStatus::NotInitializedForSyncValue;
     }
 
-    bool EventSetupRecordProvider::legacyESSourceOutOfValidityInterval(IOVSyncValue const& iTime) const {
-      if (!hasLegacyESSource_) {
+    bool EventSetupRecordProvider::doWeNeedToWaitForIOVsToFinish(IOVSyncValue const& iTime) const {
+      if (!hasNonconcurrentFinder_) {
         return false;
       }
       if (intervalStatus_ == IntervalStatus::Invalid || !validityInterval_.validFor(iTime)) {
-        return finder_->legacyOutOfValidityInterval(key_, iTime);
+        return finder_->nonconcurrentAndIOVNeedsUpdate(key_, iTime);
       }
       return false;
     }

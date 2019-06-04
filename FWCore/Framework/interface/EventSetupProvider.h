@@ -71,7 +71,7 @@ namespace edm {
 
       std::shared_ptr<const EventSetupImpl> eventSetupForInstance(IOVSyncValue const&, bool& newEventSetupImpl);
 
-      bool legacyESSourceOutOfValidityInterval(IOVSyncValue const&) const;
+      bool doWeNeedToWaitForIOVsToFinish(IOVSyncValue const&) const;
 
       EventSetupImpl const& eventSetupImpl() const { return *eventSetupImpl_; }
 
@@ -79,7 +79,7 @@ namespace edm {
       void replaceExisting(std::shared_ptr<DataProxyProvider>);
       void add(std::shared_ptr<EventSetupRecordIntervalFinder>);
 
-      void finishConfiguration(NumberOfConcurrentIOVs const&, bool& hasLegacyESSource);
+      void finishConfiguration(NumberOfConcurrentIOVs const&, bool& hasNonconcurrentFinder);
 
       ///Used when we need to force a Record to reset all its proxies
       void resetRecordPlusDependentRecords(EventSetupRecordKey const&);

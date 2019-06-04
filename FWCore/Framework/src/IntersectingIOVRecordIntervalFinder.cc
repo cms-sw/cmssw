@@ -11,6 +11,7 @@
 //
 
 #include "FWCore/Framework/src/IntersectingIOVRecordIntervalFinder.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
   namespace eventsetup {
@@ -26,9 +27,9 @@ namespace edm {
       finders_.swap(iFinders);
     }
 
-    bool IntersectingIOVRecordIntervalFinder::hasLegacyESSource() const {
+    bool IntersectingIOVRecordIntervalFinder::hasNonconcurrentFinder() const {
       for (auto const& finder : finders_) {
-        if (finder->legacyESSource()) {
+        if (!finder->concurrentFinder()) {
           return true;
         }
       }
@@ -82,12 +83,17 @@ namespace edm {
       }
     }
 
-    bool IntersectingIOVRecordIntervalFinder::isLegacyESSource() const { return false; }
+    bool IntersectingIOVRecordIntervalFinder::isConcurrentFinder() const {
+      throw Exception(errors::LogicError)
+          << "IntersectingIOVRecordIntervalFinder::isConcurrentFinder() should never be called.\n"
+          << "Contact a Framework developer\n";
+      return true;
+    }
 
-    bool IntersectingIOVRecordIntervalFinder::isLegacyOutOfValidityInterval(const EventSetupRecordKey& iKey,
-                                                                            const IOVSyncValue& iTime) const {
+    bool IntersectingIOVRecordIntervalFinder::isNonconcurrentAndIOVNeedsUpdate(const EventSetupRecordKey& iKey,
+                                                                               const IOVSyncValue& iTime) const {
       for (auto const& finder : finders_) {
-        if (finder->legacyOutOfValidityInterval(iKey, iTime)) {
+        if (finder->nonconcurrentAndIOVNeedsUpdate(iKey, iTime)) {
           return true;
         }
       }

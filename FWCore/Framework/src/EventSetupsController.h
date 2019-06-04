@@ -95,7 +95,7 @@ namespace edm {
       // Version to use when IOVs are not allowed to run concurrently
       void eventSetupForInstance(IOVSyncValue const&);
 
-      bool legacyESSourceOutOfValidityInterval(IOVSyncValue const&) const;
+      bool doWeNeedToWaitForIOVsToFinish(IOVSyncValue const&) const;
 
       void forceCacheClear();
 
@@ -142,7 +142,7 @@ namespace edm {
 
       std::multimap<ParameterSetID, ESSourceInfo> const& essources() const { return essources_; }
 
-      bool hasLegacyESSource() const { return hasLegacyESSource_; }
+      bool hasNonconcurrentFinder() const { return hasNonconcurrentFinder_; }
       bool mustFinishConfiguration() const { return mustFinishConfiguration_; }
 
     private:
@@ -170,7 +170,7 @@ namespace edm {
       std::multimap<ParameterSetID, ESProducerInfo> esproducers_;
       std::multimap<ParameterSetID, ESSourceInfo> essources_;
 
-      bool hasLegacyESSource_ = false;
+      bool hasNonconcurrentFinder_ = false;
       bool mustFinishConfiguration_ = true;
     };
   }  // namespace eventsetup

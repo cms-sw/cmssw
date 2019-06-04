@@ -102,7 +102,7 @@ namespace edm {
       void endIOV(unsigned int iovIndex);
       void initializeForNewSyncValue();
 
-      bool legacyESSourceOutOfValidityInterval(IOVSyncValue const&) const;
+      bool doWeNeedToWaitForIOVsToFinish(IOVSyncValue const&) const;
 
       ///sets interval for this time and returns true if have a valid interval for time
       bool setValidityIntervalFor(IOVSyncValue const&);
@@ -168,7 +168,7 @@ namespace edm {
       const unsigned int nConcurrentIOVs_;
       IntervalStatus intervalStatus_ = IntervalStatus::NotInitializedForSyncValue;
       bool newIntervalForAnySubProcess_ = false;
-      bool hasLegacyESSource_ = false;
+      bool hasNonconcurrentFinder_ = false;
     };
   }  // namespace eventsetup
 }  // namespace edm

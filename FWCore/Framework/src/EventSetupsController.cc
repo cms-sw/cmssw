@@ -59,7 +59,7 @@ namespace edm {
         }
 
         for (auto& eventSetupProvider : providers_) {
-          eventSetupProvider->finishConfiguration(numberOfConcurrentIOVs_, hasLegacyESSource_);
+          eventSetupProvider->finishConfiguration(numberOfConcurrentIOVs_, hasNonconcurrentFinder_);
         }
 
         // When the ESSources and ESProducers were constructed a first pass was
@@ -147,10 +147,10 @@ namespace edm {
       }
     }
 
-    bool EventSetupsController::legacyESSourceOutOfValidityInterval(IOVSyncValue const& syncValue) const {
-      if (hasLegacyESSource()) {
+    bool EventSetupsController::doWeNeedToWaitForIOVsToFinish(IOVSyncValue const& syncValue) const {
+      if (hasNonconcurrentFinder()) {
         for (auto& eventSetupProvider : providers_) {
-          if (eventSetupProvider->legacyESSourceOutOfValidityInterval(syncValue)) {
+          if (eventSetupProvider->doWeNeedToWaitForIOVsToFinish(syncValue)) {
             return true;
           }
         }

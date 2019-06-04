@@ -229,12 +229,12 @@ namespace edm {
     }
 
     void EventSetupProvider::finishConfiguration(NumberOfConcurrentIOVs const& numberOfConcurrentIOVs,
-                                                 bool& hasLegacyESSource) {
+                                                 bool& hasNonconcurrentFinder) {
       //we delayed adding finders to the system till here so that everything would be loaded first
       recordToFinders_->clear();
       for (auto& finder : *finders_) {
-        if (finder->legacyESSource()) {
-          hasLegacyESSource = true;
+        if (!finder->concurrentFinder()) {
+          hasNonconcurrentFinder = true;
         }
 
         const std::set<EventSetupRecordKey> recordsUsing = finder->findingForRecords();
@@ -703,9 +703,9 @@ namespace edm {
       return get_underlying_safe(eventSetupImpl_);
     }
 
-    bool EventSetupProvider::legacyESSourceOutOfValidityInterval(IOVSyncValue const& iValue) const {
+    bool EventSetupProvider::doWeNeedToWaitForIOVsToFinish(IOVSyncValue const& iValue) const {
       for (auto& recProvider : recordProviders_) {
-        if (recProvider->legacyESSourceOutOfValidityInterval(iValue)) {
+        if (recProvider->doWeNeedToWaitForIOVsToFinish(iValue)) {
           return true;
         }
       }

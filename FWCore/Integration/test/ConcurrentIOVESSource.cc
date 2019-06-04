@@ -46,14 +46,14 @@ namespace edmtest {
                         edm::IOVSyncValue const&,
                         edm::ValidityInterval&) override;
 
-    bool isLegacyESSource() const override { return testLegacyESSourceMode_; }
+    bool isConcurrentFinder() const override { return concurrentFinder_; }
 
     // These are thread safe because after the constructor we do not
     // modify their state.
     bool iovIsTime_;
     std::set<edm::IOVSyncValue> setOfIOV_;
     std::set<edm::IOVSyncValue> setOfInvalidIOV_;
-    bool testLegacyESSourceMode_;
+    bool concurrentFinder_;
     bool testForceESSourceMode_;
     bool findForRecordA_;
     edm::WallclockTimer wallclockTimer_;
@@ -61,13 +61,13 @@ namespace edmtest {
     // Be careful with this. It is modified in setIntervalFor
     // and the setIntervalFor function is called serially (nonconcurrent
     // with itself). But it is not thread safe to use this data member
-    // in the produce methods unless testLegacyESSourceMode_ is true.
+    // in the produce methods unless concurrentFinder_ is false.
     edm::ValidityInterval validityInterval_;
   };
 
   ConcurrentIOVESSource::ConcurrentIOVESSource(edm::ParameterSet const& pset)
       : iovIsTime_(!pset.getParameter<bool>("iovIsRunNotTime")),
-        testLegacyESSourceMode_(pset.getParameter<bool>("testLegacyESSourceMode")),
+        concurrentFinder_(pset.getParameter<bool>("concurrentFinder")),
         testForceESSourceMode_(pset.getParameter<bool>("testForceESSourceMode")),
         findForRecordA_(pset.getParameter<bool>("findForRecordA")) {
     wallclockTimer_.start();
@@ -106,9 +106,10 @@ namespace edmtest {
         << " endIOV = " << iov.last().luminosityBlockNumber() << " IOV index = " << record.iovIndex()
         << " cache identifier = " << record.cacheIdentifier() << " time = " << wallclockTimer_.realTime();
 
-    if (testLegacyESSourceMode_) {
+    if (!concurrentFinder_) {
       if (validityInterval_ != iov) {
-        throw cms::Exception("TestError") << "ConcurrentIOVESSource::produce, testing legacy mode and IOV changed!";
+        throw cms::Exception("TestError")
+            << "ConcurrentIOVESSource::produce, testing as nonconcurrent finder and IOV changed!";
       }
     }
 
@@ -138,7 +139,7 @@ namespace edmtest {
     edm::ParameterSetDescription desc;
     std::vector<unsigned int> emptyVector;
     desc.add<bool>("iovIsRunNotTime", true);
-    desc.add<bool>("testLegacyESSourceMode", false);
+    desc.add<bool>("concurrentFinder", true);
     desc.add<bool>("testForceESSourceMode", false);
     desc.add<bool>("findForRecordA", false);
     desc.add<std::vector<unsigned int>>("firstValidLumis", emptyVector);

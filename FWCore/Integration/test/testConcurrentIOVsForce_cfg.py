@@ -46,7 +46,7 @@ process.concurrentIOVESSource = cms.ESSource("ConcurrentIOVESSource",
     iovIsRunNotTime = cms.bool(True),
     firstValidLumis = cms.vuint32(1, 4, 6, 7, 8, 9),
     invalidLumis = cms.vuint32(),
-    testLegacyESSourceMode = cms.bool(False),
+    concurrentFinder = cms.bool(True),
     testForceESSourceMode = cms.bool(True),
     findForRecordA = cms.bool(True)
 )

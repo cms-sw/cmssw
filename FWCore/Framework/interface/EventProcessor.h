@@ -316,7 +316,7 @@ namespace edm {
     InputSource::ItemType lastSourceTransition_;
     edm::propagate_const<std::unique_ptr<eventsetup::EventSetupsController>> espController_;
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
-    edm::SerialTaskQueue legacyIOVQueue_;
+    edm::SerialTaskQueue queueWhichWaitsForIOVsToFinish_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;
     std::shared_ptr<ProcessConfiguration const> processConfiguration_;
     ProcessContext processContext_;
