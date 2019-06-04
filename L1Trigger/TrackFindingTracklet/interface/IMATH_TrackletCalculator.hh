@@ -22,6 +22,7 @@ public:
   IMATH_TrackletCalculator(int i1, int i2)
   {
 
+#ifdef IMATH_TrackletCalculator_debug
     printf("=============================================\n");
     printf("IMATH Tracklet Calculator %i %i",i1,i2);
     printf("dphisector = %f\n",dphisector);
@@ -37,6 +38,7 @@ public:
 
 
     printf("initilaizing 1/dr LUT %f %f\n",rmean[i1-1],rmean[i2-1]);
+#endif
     double dr_mean = rmean[i2-1]-rmean[i1-1];
     drinv.initLUT(dr_mean);
     r1mean.set_fval(rmean[i1-1]);

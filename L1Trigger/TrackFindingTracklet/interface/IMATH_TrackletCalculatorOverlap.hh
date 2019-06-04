@@ -21,6 +21,7 @@ public:
   IMATH_TrackletCalculatorOverlap(int i1, int i2)
   {
 
+#ifdef IMATH_TrackletCalculatorOverlap_debug
     printf("=============================================\n");
     printf("IMATH Tracklet Calculator for Overlap %i %i",i1,i2);
     printf("dphisector = %f\n",dphisector);
@@ -33,6 +34,7 @@ public:
     printf(" disk proj Ks: kphiprojdisk, kphiprojderdisk, krprojdisk, krprojderdisk = %g, %g, %g, %g\n",
 	   kphi1*pow(2,SS_phiD_shift), kphi1/kr*pow(2,SS_phiderD_shift), kr*pow(2,PS_rD_shift),kr/kz*pow(2,PS_rderD_shift));
     printf("=============================================\n");
+#endif
 
     r1mean.set_fval(rmean[i1-1]);
     z2mean.set_fval(zmean[abs(i2)-1]);
