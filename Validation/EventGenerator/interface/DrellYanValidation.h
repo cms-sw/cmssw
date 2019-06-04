@@ -30,28 +30,27 @@
 
 #include "Validation/EventGenerator/interface/WeightManager.h"
 
-class DrellYanValidation : public DQMEDAnalyzer{
+class DrellYanValidation : public DQMEDAnalyzer {
+public:
+  explicit DrellYanValidation(const edm::ParameterSet &);
+  ~DrellYanValidation() override;
 
-  public:
-	explicit DrellYanValidation(const edm::ParameterSet&);
-	~DrellYanValidation() override;
+  void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(const edm::Run &r, const edm::EventSetup &c) override;
+  void analyze(edm::Event const &, edm::EventSetup const &) override;
 
-        void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-        void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
-        void analyze(edm::Event const&, edm::EventSetup const&) override;
-
-  private:
-	WeightManager wmanager_;
-	edm::InputTag hepmcCollection_;
+private:
+  WeightManager wmanager_;
+  edm::InputTag hepmcCollection_;
 
   /// PDT table
-  edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
-  
-  MonitorElement *nEvt;  
+  edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable;
+
+  MonitorElement *nEvt;
   MonitorElement *Zmass, *ZmassPeak, *Zpt, *ZptLog, *Zrap, *Zdaughters;
   MonitorElement *dilep_mass, *dilep_massPeak, *dilep_pt, *dilep_ptLog, *dilep_rap;
   MonitorElement *leadpt, *secpt, *leadeta, *seceta;
-  MonitorElement *gamma_energy, *cos_theta_gamma_lepton; 
+  MonitorElement *gamma_energy, *cos_theta_gamma_lepton;
 
   /// decay flavor
   int _flavor;
@@ -59,7 +58,6 @@ class DrellYanValidation : public DQMEDAnalyzer{
   std::string _name;
 
   edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
-
 };
 
 #endif
