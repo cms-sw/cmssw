@@ -13,21 +13,23 @@
 //  Authors:    Richard Cavanaugh, Ronald Remington
 //
 
-
 //____________________________________________________________________________||
 #ifndef METReco_SpecificGenMETData_h
 #define METReco_SpecificGenMETData_h
 
 //____________________________________________________________________________||
-struct SpecificGenMETData
-{
-
+struct SpecificGenMETData {
   SpecificGenMETData()
-    : NeutralEMEtFraction(0.0), NeutralHadEtFraction(0.0)
-    , ChargedEMEtFraction(0.0), ChargedHadEtFraction(0.0)
-    , MuonEtFraction(0.0), InvisibleEtFraction(0.0)
-    , m_EmEnergy(0.0), m_HadEnergy(0.0)
-    , m_InvisibleEnergy(0.0), m_AuxiliaryEnergy(0.0) { }
+      : NeutralEMEtFraction(0.0),
+        NeutralHadEtFraction(0.0),
+        ChargedEMEtFraction(0.0),
+        ChargedHadEtFraction(0.0),
+        MuonEtFraction(0.0),
+        InvisibleEtFraction(0.0),
+        m_EmEnergy(0.0),
+        m_HadEnergy(0.0),
+        m_InvisibleEnergy(0.0),
+        m_AuxiliaryEnergy(0.0) {}
 
   float NeutralEMEtFraction;
   float NeutralHadEtFraction;
@@ -44,4 +46,4 @@ struct SpecificGenMETData
 };
 
 //____________________________________________________________________________||
-#endif // METReco_SpecificGenMETData_h
+#endif  // METReco_SpecificGenMETData_h

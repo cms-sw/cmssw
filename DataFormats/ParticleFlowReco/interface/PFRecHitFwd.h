@@ -25,6 +25,6 @@ namespace reco {
 
   /// ref to base vector for dealing with views
   typedef edm::RefToBaseVector<reco::PFRecHit> PFRecHitBaseRefVector;
-}
+}  // namespace reco
 
 #endif

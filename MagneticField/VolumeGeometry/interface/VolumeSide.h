@@ -16,30 +16,27 @@ class VolumeSide {
 public:
   typedef SurfaceOrientation::GlobalFace GlobalFace;
   typedef SurfaceOrientation::Side Side;
-  
-  typedef ReferenceCountingPointer<Surface>    SurfacePointer;
 
-  VolumeSide( Surface* surf, GlobalFace gSide, Side sSide) : 
-    theSurface( surf),  theGlobalFace( gSide), theSurfaceSide( sSide) {}
+  typedef ReferenceCountingPointer<Surface> SurfacePointer;
 
-  VolumeSide( SurfacePointer surf, GlobalFace gSide,
-	      Side sSide) : 
-    theSurface( surf),  theGlobalFace( gSide), theSurfaceSide( sSide) {}
+  VolumeSide(Surface* surf, GlobalFace gSide, Side sSide)
+      : theSurface(surf), theGlobalFace(gSide), theSurfaceSide(sSide) {}
 
-  Surface& mutableSurface() const {return *theSurface;}
+  VolumeSide(SurfacePointer surf, GlobalFace gSide, Side sSide)
+      : theSurface(surf), theGlobalFace(gSide), theSurfaceSide(sSide) {}
 
-  const Surface& surface() const {return *theSurface;}
+  Surface& mutableSurface() const { return *theSurface; }
 
-  GlobalFace globalFace() const { return theGlobalFace;}
+  const Surface& surface() const { return *theSurface; }
 
-  Side  surfaceSide() const {return theSurfaceSide;}
+  GlobalFace globalFace() const { return theGlobalFace; }
+
+  Side surfaceSide() const { return theSurfaceSide; }
 
 private:
-
   SurfacePointer theSurface;
-  GlobalFace     theGlobalFace;
-  Side           theSurfaceSide;
-
+  GlobalFace theGlobalFace;
+  Side theSurfaceSide;
 };
 
 #endif

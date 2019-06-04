@@ -14,42 +14,44 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 
 namespace edm {
-        class Event;
-        class EventSetup;
-        class ParameterSet;
-        class ParameterSetDescription;
-}
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+  class ParameterSetDescription;
+}  // namespace edm
 
 class EcalUncalibRecHitWorkerFixedAlphaBetaFit : public EcalUncalibRecHitWorkerRunOneDigiBase {
+public:
+  EcalUncalibRecHitWorkerFixedAlphaBetaFit(const edm::ParameterSet& ps, edm::ConsumesCollector&);
+  EcalUncalibRecHitWorkerFixedAlphaBetaFit(){};
+  ~EcalUncalibRecHitWorkerFixedAlphaBetaFit() override{};
 
-        public:
-                EcalUncalibRecHitWorkerFixedAlphaBetaFit(const edm::ParameterSet& ps, edm::ConsumesCollector& ); 
-		EcalUncalibRecHitWorkerFixedAlphaBetaFit() {};
-                ~EcalUncalibRecHitWorkerFixedAlphaBetaFit() override {};
+  void set(const edm::EventSetup& es) override;
+  bool run(const edm::Event& evt,
+           const EcalDigiCollection::const_iterator& digi,
+           EcalUncalibratedRecHitCollection& result) override;
 
-                void set(const edm::EventSetup& es) override;
-                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
-		
-		edm::ParameterSetDescription getAlgoDescription() override;
-        private:
+  edm::ParameterSetDescription getAlgoDescription() override;
 
-                double AmplThrEB_;
-                double AmplThrEE_;
+private:
+  double AmplThrEB_;
+  double AmplThrEE_;
 
-                EcalUncalibRecHitFixedAlphaBetaAlgo<EBDataFrame> algoEB_;
-                EcalUncalibRecHitFixedAlphaBetaAlgo<EEDataFrame> algoEE_;
+  EcalUncalibRecHitFixedAlphaBetaAlgo<EBDataFrame> algoEB_;
+  EcalUncalibRecHitFixedAlphaBetaAlgo<EEDataFrame> algoEE_;
 
-                double alphaEB_;
-                double betaEB_;
-                double alphaEE_;
-                double betaEE_;
-                std::vector<std::vector<std::pair<double,double> > > alphaBetaValues_; // List of alpha and Beta values [SM#][CRY#](alpha, beta)
-                bool useAlphaBetaArray_;
-                std::string alphabetaFilename_;
+  double alphaEB_;
+  double betaEB_;
+  double alphaEE_;
+  double betaEE_;
+  std::vector<std::vector<std::pair<double, double> > >
+      alphaBetaValues_;  // List of alpha and Beta values [SM#][CRY#](alpha, beta)
+  bool useAlphaBetaArray_;
+  std::string alphabetaFilename_;
 
-                bool setAlphaBeta(); // Sets the alphaBetaValues_ vectors by the values provided in alphabetaFilename_
+  bool setAlphaBeta();  // Sets the alphaBetaValues_ vectors by the values provided in alphabetaFilename_
 
-                edm::ESHandle<EcalGainRatios> pRatio;
-                edm::ESHandle<EcalPedestals> pedHandle;
+  edm::ESHandle<EcalGainRatios> pRatio;
+  edm::ESHandle<EcalPedestals> pedHandle;
 };
 #endif

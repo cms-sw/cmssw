@@ -14,7 +14,7 @@
 class MagneticField;
 
 class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
- public:
+public:
   /// Constructor
   DTParametrizedDriftAlgo(const edm::ParameterSet& config);
 
@@ -26,18 +26,16 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
   /// Pass the Event Setup to the algo at each event
   void setES(const edm::EventSetup& setup) override;
 
-    
-  /// First step in computation of Left/Right hits from a Digi.  
+  /// First step in computation of Left/Right hits from a Digi.
   /// The results are the local position (in DTLayer frame) of the
-  /// Left and Right hit, and the error (which is common). 
+  /// Left and Right hit, and the error (which is common).
   /// The center of the wire is assumed as hit coordinate along y.
-  /// Returns false on failure. 
+  /// Returns false on failure.
   bool compute(const DTLayer* layer,
-                       const DTDigi& digi,
-                       LocalPoint& leftPoint,
-                       LocalPoint& rightPoint,
-                       LocalError& error) const override;
-
+               const DTDigi& digi,
+               LocalPoint& leftPoint,
+               LocalPoint& rightPoint,
+               LocalError& error) const override;
 
   /// Second step.
   /// The impact angle is given as input, and it's used to improve the hit
@@ -47,10 +45,9 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
   /// built, so the impact angle is known but the position along wire is not.
   /// NOTE: Only position and error of the new hit are modified
   bool compute(const DTLayer* layer,
-                       const DTRecHit1D& recHit1D,
-                       const float& angle,
-		       DTRecHit1D& newHit1D) const override;
-
+               const DTRecHit1D& recHit1D,
+               const float& angle,
+               DTRecHit1D& newHit1D) const override;
 
   /// Third (and final) step in hits position computation.
   /// In addition the the angle, also the global position of the hit is given
@@ -60,51 +57,45 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
   /// TOF and propagation of signal along the wire.
   /// NOTE: Only position and error of the new hit are modified
   bool compute(const DTLayer* layer,
-                       const DTRecHit1D& recHit1D,
-                       const float& angle,
-                       const GlobalPoint& globPos, 
-                       DTRecHit1D& newHit1D) const override;
+               const DTRecHit1D& recHit1D,
+               const float& angle,
+               const GlobalPoint& globPos,
+               DTRecHit1D& newHit1D) const override;
 
-
- private:
+private:
   // Interpolate parametrization function
   const bool interpolate;
 
   // Times below MinTime (ns) are considered as coming from previous BXs.
   const float minTime;
-  
+
   // Times above MaxTime (ns) are considered as coming from following BXs
   const float maxTime;
-  
+
   // Do the actual work.
   virtual bool compute(const DTLayer* layer,
-		       const DTWireId& wireId,
-		       const float digiTime,
-		       const float& angle,
-		       const GlobalPoint& globPos, 
-		       LocalPoint& leftPoint,
-		       LocalPoint& rightPoint,
-		       LocalError& error,
-		       int step) const;
+                       const DTWireId& wireId,
+                       const float digiTime,
+                       const float& angle,
+                       const GlobalPoint& globPos,
+                       LocalPoint& leftPoint,
+                       LocalPoint& rightPoint,
+                       LocalError& error,
+                       int step) const;
 
-  // Interface to the method which does the actual work suited for 2nd and 3rd steps 
+  // Interface to the method which does the actual work suited for 2nd and 3rd steps
   virtual bool compute(const DTLayer* layer,
-		       const DTWireId& wireId,
-		       const float digiTime,
-		       const float& angle,
-		       const GlobalPoint& globPos, 
-		       DTRecHit1D& newHit1D,
-		       int step) const;
+                       const DTWireId& wireId,
+                       const float digiTime,
+                       const float& angle,
+                       const GlobalPoint& globPos,
+                       DTRecHit1D& newHit1D,
+                       int step) const;
 
   // Switch on/off the verbosity
   const bool debug;
 
-
   // Pointer to the magnetic field (read from ES once per event)
-  const MagneticField * magField;
-
-
+  const MagneticField* magField;
 };
 #endif
-
-

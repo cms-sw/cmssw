@@ -29,51 +29,44 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-
 //
 // class declaration
 //
 
 class ClusterCompatibilityProducer : public edm::stream::EDProducer<> {
+public:
+  explicit ClusterCompatibilityProducer(const edm::ParameterSet &);
+  ~ClusterCompatibilityProducer() override;
 
-  public:
-    explicit ClusterCompatibilityProducer(const edm::ParameterSet&);
-    ~ClusterCompatibilityProducer() override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
-    void produce(edm::Event&, const edm::EventSetup&) override;
+private:
+  edm::EDGetTokenT<SiPixelRecHitCollection> inputToken_;
+  edm::InputTag inputTag_;  // input tag identifying product containing pixel clusters
+  double minZ_;             // beginning z-vertex position
+  double maxZ_;             // end z-vertex position
+  double zStep_;            // size of steps in z-vertex test
 
-  private:
+  struct VertexHit {
+    float z;
+    float r;
+    float w;
+  };
 
-    edm::EDGetTokenT<SiPixelRecHitCollection> inputToken_;
-    edm::InputTag       inputTag_;      // input tag identifying product containing pixel clusters
-    double              minZ_;          // beginning z-vertex position
-    double              maxZ_;          // end z-vertex position
-    double              zStep_;         // size of steps in z-vertex test
+  struct ContainedHits {
+    float z0;
+    int nHit;
+    float chi;
+  };
 
-    struct VertexHit
-    {
-      float z;
-      float r;
-      float w;
-    };
-
-    struct ContainedHits
-    {
-      float z0;
-      int nHit;
-      float chi;
-    };
-
-    ContainedHits getContainedHits(const std::vector<VertexHit> &hits, double z0) const;
-
+  ContainedHits getContainedHits(const std::vector<VertexHit> &hits, double z0) const;
 };
 
-ClusterCompatibilityProducer::ClusterCompatibilityProducer(const edm::ParameterSet& config):
-  inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  minZ_         (config.getParameter<double>("minZ")),
-  maxZ_         (config.getParameter<double>("maxZ")),
-  zStep_        (config.getParameter<double>("zStep"))
-{
+ClusterCompatibilityProducer::ClusterCompatibilityProducer(const edm::ParameterSet &config)
+    : inputTag_(config.getParameter<edm::InputTag>("inputTag")),
+      minZ_(config.getParameter<double>("minZ")),
+      maxZ_(config.getParameter<double>("maxZ")),
+      zStep_(config.getParameter<double>("zStep")) {
   inputToken_ = consumes<SiPixelRecHitCollection>(inputTag_);
   LogDebug("") << "Using the " << inputTag_ << " input collection";
   produces<reco::ClusterCompatibility>();
@@ -81,9 +74,7 @@ ClusterCompatibilityProducer::ClusterCompatibilityProducer(const edm::ParameterS
 
 ClusterCompatibilityProducer::~ClusterCompatibilityProducer() {}
 
-void
-ClusterCompatibilityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void ClusterCompatibilityProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   auto creco = std::make_unique<reco::ClusterCompatibility>();
 
   // get hold of products from Event
@@ -98,25 +89,25 @@ ClusterCompatibilityProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     const SiPixelRecHitCollection *hits = hRecHits.product();
 
     // loop over pixel rechits
-    int nPxlHits=0;
+    int nPxlHits = 0;
     std::vector<VertexHit> vhits;
-    for(SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(),
-          end = hits->data().end(); hit != end; ++hit) {
+    for (SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), end = hits->data().end();
+         hit != end;
+         ++hit) {
       if (!hit->isValid())
         continue;
       ++nPxlHits;
       DetId id(hit->geographicalId());
-      if(id.subdetId() != int(PixelSubdetector::PixelBarrel))
+      if (id.subdetId() != int(PixelSubdetector::PixelBarrel))
         continue;
-      const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit*>(tgeo->idToDet(id));
+      const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit *>(tgeo->idToDet(id));
       const PixelTopology *pixTopo = &(pgdu->specificTopology());
       std::vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
       bool pixelOnEdge = false;
-      for(std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin();
-          pixel != pixels.end(); ++pixel) {
+      for (std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); pixel != pixels.end(); ++pixel) {
         int pixelX = pixel->x;
         int pixelY = pixel->y;
-        if(pixTopo->isItEdgePixelInX(pixelX) || pixTopo->isItEdgePixelInY(pixelY)) {
+        if (pixTopo->isItEdgePixelInX(pixelX) || pixTopo->isItEdgePixelInY(pixelY)) {
           pixelOnEdge = true;
           break;
         }
@@ -124,9 +115,7 @@ ClusterCompatibilityProducer::produce(edm::Event& iEvent, const edm::EventSetup&
       if (pixelOnEdge)
         continue;
 
-      LocalPoint lpos = LocalPoint(hit->localPosition().x(),
-                                   hit->localPosition().y(),
-                                   hit->localPosition().z());
+      LocalPoint lpos = LocalPoint(hit->localPosition().x(), hit->localPosition().y(), hit->localPosition().z());
       GlobalPoint gpos = pgdu->toGlobal(lpos);
       VertexHit vh;
       vh.z = gpos.z();
@@ -136,34 +125,29 @@ ClusterCompatibilityProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     }
 
     creco->setNValidPixelHits(nPxlHits);
- 
+
     // append cluster compatibility  for each z-position
-    for(double z0 = minZ_; z0 <= maxZ_; z0 += zStep_)
-    { 
+    for (double z0 = minZ_; z0 <= maxZ_; z0 += zStep_) {
       ContainedHits c = getContainedHits(vhits, z0);
       creco->append(c.z0, c.nHit, c.chi);
     }
-
   }
   iEvent.put(std::move(creco));
-
 }
 
-
-ClusterCompatibilityProducer::ContainedHits ClusterCompatibilityProducer::getContainedHits(const std::vector<VertexHit> &hits, double z0) const
-{
-
+ClusterCompatibilityProducer::ContainedHits ClusterCompatibilityProducer::getContainedHits(
+    const std::vector<VertexHit> &hits, double z0) const {
   // Calculate number of hits contained in v-shaped window in cluster y-width vs. z-position.
   int n = 0;
   double chi = 0.;
 
-  for(std::vector<VertexHit>::const_iterator hit = hits.begin(); hit!= hits.end(); hit++) {
-    // the calculation of the predicted cluster width p was 
+  for (std::vector<VertexHit>::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
+    // the calculation of the predicted cluster width p was
     // marked 'FIXME' in the HLTPixelClusterShapeFilter. It should
-    // be revisited but is retained as it was for compatibility with the 
+    // be revisited but is retained as it was for compatibility with the
     // older filter.
-    double p = 2 * fabs(hit->z - z0)/hit->r + 0.5; 
-    if(fabs(p - hit->w) <= 1.) {                   
+    double p = 2 * fabs(hit->z - z0) / hit->r + 0.5;
+    if (fabs(p - hit->w) <= 1.) {
       chi += fabs(p - hit->w);
       n++;
     }

@@ -25,7 +25,7 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class PSimHit;
 class TFile;
@@ -43,48 +43,37 @@ public:
   // Operations
 
   /// Perform the real analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
 
 protected:
-
-private: 
+private:
   // Select the mu simhit closest to the rechit
   const PSimHit* findBestMuSimHit(const DTLayer* layer,
-				  const DTWireId& wireId,
-				  const std::vector<const PSimHit*>& simhits,
-				  float recHitDistFromWire);
+                                  const DTWireId& wireId,
+                                  const std::vector<const PSimHit*>& simhits,
+                                  float recHitDistFromWire);
 
   // Map simhits per wireId
-  std::map<DTWireId,  std::vector<const PSimHit*> > 
-  mapSimHitsPerWire(const edm::Handle<edm::PSimHitContainer >& simhits);
+  std::map<DTWireId, std::vector<const PSimHit*> > mapSimHitsPerWire(const edm::Handle<edm::PSimHitContainer>& simhits);
 
   // Compute SimHit distance from wire
-  double findSimHitDist(const DTLayer* layer,
-			const DTWireId& wireId,
-			const PSimHit * hit);
+  double findSimHitDist(const DTLayer* layer, const DTWireId& wireId, const PSimHit* hit);
 
   // Histograms
-  H1DRecHit *hRHitPhi;
-  H1DRecHit *hRHitZ_W0;
-  H1DRecHit *hRHitZ_W1;
-  H1DRecHit *hRHitZ_W2;
-  H1DRecHit *hRHitZ_All;
+  H1DRecHit* hRHitPhi;
+  H1DRecHit* hRHitZ_W0;
+  H1DRecHit* hRHitZ_W1;
+  H1DRecHit* hRHitZ_W2;
+  H1DRecHit* hRHitZ_All;
 
   // The file which will store the histos
-  TFile *theFile;
+  TFile* theFile;
   // Switch for debug output
   bool debug;
   // Root file name
   std::string rootFileName;
   std::string simHitLabel;
   std::string recHitLabel;
-
 };
 
-
 #endif
-
-
-
-

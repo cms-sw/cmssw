@@ -13,15 +13,12 @@
 class SiStripDigi;
 class SiStripRawDigi;
 
-class SiStripZeroSuppression : public edm::stream::EDProducer<>
-{
- public:
-
+class SiStripZeroSuppression : public edm::stream::EDProducer<> {
+public:
   explicit SiStripZeroSuppression(const edm::ParameterSet&);
-  void produce(edm::Event& , const edm::EventSetup& ) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   enum class RawType { Unknown, VirginRaw, ProcessedRaw, ScopeMode };
 
   void clearOutputs();
@@ -32,7 +29,7 @@ class SiStripZeroSuppression : public edm::stream::EDProducer<>
   void storeExtraOutput(uint32_t, int16_t);
   edm::DetSet<SiStripRawDigi> formatRawDigis(const edm::DetSet<SiStripRawDigi>& rawDigis);
   edm::DetSet<SiStripRawDigi> formatRawDigis(uint32_t detId, const std::vector<int16_t>& rawDigis);
-  using medians_t = std::vector<std::pair<short,float>>;
+  using medians_t = std::vector<std::pair<short, float>>;
   void storeCMN(uint32_t, const medians_t&);
   void storeBaseline(uint32_t, const medians_t&);
   void storeBaselinePoints(uint32_t);
@@ -49,13 +46,13 @@ class SiStripZeroSuppression : public edm::stream::EDProducer<>
 
   using rawtoken_t = edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi>>;
   using zstoken_t = edm::EDGetTokenT<edm::DetSetVector<SiStripDigi>>;
-  std::vector<std::tuple<std::string,RawType,rawtoken_t>> rawInputs;
-  std::vector<std::tuple<std::string,zstoken_t>> hybridInputs;
+  std::vector<std::tuple<std::string, RawType, rawtoken_t>> rawInputs;
+  std::vector<std::tuple<std::string, zstoken_t>> hybridInputs;
 
-  std::vector<edm::DetSet<SiStripDigi> > output_base;
-  std::vector<edm::DetSet<SiStripRawDigi> > output_base_raw;
-  std::vector< edm::DetSet<SiStripProcessedRawDigi> > output_apvcm;
-  std::vector< edm::DetSet<SiStripProcessedRawDigi> > output_baseline;
-  std::vector< edm::DetSet<SiStripDigi> > output_baseline_points;
+  std::vector<edm::DetSet<SiStripDigi>> output_base;
+  std::vector<edm::DetSet<SiStripRawDigi>> output_base_raw;
+  std::vector<edm::DetSet<SiStripProcessedRawDigi>> output_apvcm;
+  std::vector<edm::DetSet<SiStripProcessedRawDigi>> output_baseline;
+  std::vector<edm::DetSet<SiStripDigi>> output_baseline_points;
 };
 #endif

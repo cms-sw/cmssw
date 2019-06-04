@@ -10,7 +10,7 @@
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometrySurface/interface/LocalError.h"			    
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
@@ -24,43 +24,33 @@ class DTTTrigBaseSync;
 namespace edm {
   class ParameterSet;
   class EventSetup;
-}
-
-
-
-
+}  // namespace edm
 
 class DTRecHitBaseAlgo {
-
- public:
-  
+public:
   /// Constructor
   DTRecHitBaseAlgo(const edm::ParameterSet& config);
 
   /// Destructor
   virtual ~DTRecHitBaseAlgo();
-  
 
   /// Pass the Event Setup to the algo at each event
   virtual void setES(const edm::EventSetup& setup) = 0;
 
-
   /// Build all hits in the range associated to the layerId, at the 1st step.
   virtual edm::OwnVector<DTRecHit1DPair> reconstruct(const DTLayer* layer,
-						     const DTLayerId& layerId,
-						     const DTDigiCollection::Range& digiRange);
+                                                     const DTLayerId& layerId,
+                                                     const DTDigiCollection::Range& digiRange);
 
-
-  /// First step in computation of Left/Right hits from a Digi.  
+  /// First step in computation of Left/Right hits from a Digi.
   /// The results are the local position (in MuBarLayer frame) of the
   /// Left and Right hit, and the error (which is common). Returns
-  /// false on failure. 
+  /// false on failure.
   virtual bool compute(const DTLayer* layer,
                        const DTDigi& digi,
                        LocalPoint& leftPoint,
                        LocalPoint& rightPoint,
-                       LocalError& error) const = 0 ;
-
+                       LocalError& error) const = 0;
 
   /// Second step in hit position computation, for algorithms which support it.
   /// The impact angle is given as input, and it's used to improve the hit
@@ -72,7 +62,6 @@ class DTRecHitBaseAlgo {
                        const DTRecHit1D& recHit1D,
                        const float& angle,
                        DTRecHit1D& newHit1D) const = 0;
-  
 
   /// Third (and final) step in hits position computation, for
   /// algorithms which support it.
@@ -80,20 +69,15 @@ class DTRecHitBaseAlgo {
   /// as input. This allows to get the magnetic field at the hit position (and
   /// not only that at the center of the wire). Also the position along the
   /// wire is available and can be used to correct the drift time for particle
-  /// TOF and propagation of signal along the wire. 
+  /// TOF and propagation of signal along the wire.
   virtual bool compute(const DTLayer* layer,
-		       const DTRecHit1D& recHit1D,
+                       const DTRecHit1D& recHit1D,
                        const float& angle,
-                       const GlobalPoint& globPos, 
+                       const GlobalPoint& globPos,
                        DTRecHit1D& newHit1D) const = 0;
 
- protected:
+protected:
   // The module to be used for digi time synchronization
   std::unique_ptr<DTTTrigBaseSync> theSync;
-  
 };
 #endif
-
-
-
-

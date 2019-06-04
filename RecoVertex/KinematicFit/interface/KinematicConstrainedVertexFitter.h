@@ -18,71 +18,67 @@
  * Example: Vertex fit with collinear tracks..
  */
 
-class KinematicConstrainedVertexFitter{
-
+class KinematicConstrainedVertexFitter {
 public:
-
-/**
+  /**
  * Default constructor using LMSLinearizationPointFinder
  */
- KinematicConstrainedVertexFitter();
-  
-/**
+  KinematicConstrainedVertexFitter();
+
+  /**
  * Constructor with user-provided LinearizationPointFinder
- */  
- KinematicConstrainedVertexFitter(const LinearizationPointFinder& fnd);
-  
- ~KinematicConstrainedVertexFitter();
+ */
+  KinematicConstrainedVertexFitter(const LinearizationPointFinder &fnd);
+
+  ~KinematicConstrainedVertexFitter();
 
   /**
    * Configuration through PSet: number of iterations(maxDistance) and
    * stopping condition (maxNbrOfIterations)
    */
 
- void setParameters(const edm::ParameterSet& pSet);
+  void setParameters(const edm::ParameterSet &pSet);
 
-/**
+  /**
  * Without additional constraint, this will perform a simple
  * vertex fit using LMS with Lagrange multipliers method.
- */  
- RefCountedKinematicTree fit(const std::vector<RefCountedKinematicParticle> &part) {
-   return fit(part, nullptr, nullptr);
- }
+ */
+  RefCountedKinematicTree fit(const std::vector<RefCountedKinematicParticle> &part) {
+    return fit(part, nullptr, nullptr);
+  }
 
-/**
+  /**
  * LMS with Lagrange multipliers fit of vertex constraint and user-specified constraint.
- */  
- RefCountedKinematicTree fit(const std::vector<RefCountedKinematicParticle> &part,
-                            MultiTrackKinematicConstraint * cs) {
-   return fit(part, cs, nullptr);
- };
-    
-/**
- * LMS with Lagrange multipliers fit of vertex constraint, user-specified constraint and user-specified starting point.
- */  
- RefCountedKinematicTree fit(const std::vector<RefCountedKinematicParticle> &part,
-                           MultiTrackKinematicConstraint * cs,
-                           GlobalPoint * pt);
+ */
+  RefCountedKinematicTree fit(const std::vector<RefCountedKinematicParticle> &part, MultiTrackKinematicConstraint *cs) {
+    return fit(part, cs, nullptr);
+  };
 
-//return the number of iterations
- int getNit() const;
-//return the value of the constraint equation
- float getCSum() const;
+  /**
+ * LMS with Lagrange multipliers fit of vertex constraint, user-specified constraint and user-specified starting point.
+ */
+  RefCountedKinematicTree fit(const std::vector<RefCountedKinematicParticle> &part,
+                              MultiTrackKinematicConstraint *cs,
+                              GlobalPoint *pt);
+
+  //return the number of iterations
+  int getNit() const;
+  //return the value of the constraint equation
+  float getCSum() const;
 
 private:
+  void defaultParameters();
 
- void defaultParameters();
-
- float theMaxDelta; //maximum (delta parameter)^2/(sigma parameter)^2 per iteration for convergence
- int theMaxStep; 				       
- float theMaxReducedChiSq; //max of initial (after 2 iterations) chisq/dof value
- float theMinChiSqImprovement; //minimum required improvement in chisq to avoid fit termination for cases exceeding theMaxReducedChiSq
- LinearizationPointFinder * finder;				       
- KinematicConstrainedVertexUpdator * updator;
- VertexKinematicConstraint * vCons;
- ConstrainedTreeBuilder * tBuilder;
- int iterations;
- float csum;
+  float theMaxDelta;  //maximum (delta parameter)^2/(sigma parameter)^2 per iteration for convergence
+  int theMaxStep;
+  float theMaxReducedChiSq;  //max of initial (after 2 iterations) chisq/dof value
+  float theMinChiSqImprovement;  //minimum required improvement in chisq to avoid fit termination for cases exceeding theMaxReducedChiSq
+  LinearizationPointFinder *finder;
+  KinematicConstrainedVertexUpdator *updator;
+  VertexKinematicConstraint *vCons;
+  ConstrainedTreeBuilder *tBuilder;
+  int iterations;
+  float csum;
 };
 
 #endif

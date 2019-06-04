@@ -28,57 +28,50 @@ class DTSuperLayer;
 
 /* Class DTSegmentResidual Interface */
 
-class DTSegmentResidual{
+class DTSegmentResidual {
+public:
+  struct DTResidual {
+    DTResidual(double value,
+               double wireDistance = 0.0,
+               double angle = 0.0,
+               DTEnums::DTCellSide side = DTEnums::undefLR);  // constructor
+    double value;                                             // the resudual value
+    double wireDistance;                                      // the distance from wire
+    double angle;                                             // the impact angle (if any)
+    DTEnums::DTCellSide side;                                 // the side of the cell
+  };
 
-  public:
-    struct DTResidual {
-      DTResidual(double value,
-                 double wireDistance = 0.0,
-                 double angle=0.0,
-                 DTEnums::DTCellSide side = DTEnums::undefLR) ; // constructor
-      double value; // the resudual value
-      double wireDistance; // the distance from wire
-      double angle; // the impact angle (if any)
-      DTEnums::DTCellSide side; // the side of the cell
-    };
+  /* Constructor */
+  DTSegmentResidual(const DTRecSegment2D* seg, const DTSuperLayer* sl);
 
+  DTSegmentResidual(const DTChamberRecSegment2D* seg, const DTChamber* ch);
+  /* Destructor */
 
-/* Constructor */ 
-    DTSegmentResidual(const DTRecSegment2D* seg, const DTSuperLayer* sl) ;
+  /* Operations */
+  /// compute thr residuals
+  void run();
 
-    DTSegmentResidual(const DTChamberRecSegment2D* seg, const DTChamber* ch) ;
-/* Destructor */ 
+  /// return the residuals
+  std::vector<DTSegmentResidual::DTResidual> residuals() const { return theResiduals; }
 
-/* Operations */ 
-    /// compute thr residuals
-    void run() ;
+  /// return the residuals as double
+  std::vector<double> res() const;
 
-    /// return the residuals
-    std::vector<DTSegmentResidual::DTResidual> residuals() const {
-      return theResiduals;
-    }
+  /// return the residuals vs angle
+  std::vector<std::pair<double, double> > residualsVsAngle() const;
 
-    /// return the residuals as double
-    std::vector<double> res() const ;
+  /// return the residuals vs distance from wire
+  std::vector<std::pair<double, double> > residualsVsWireDist() const;
 
-    /// return the residuals vs angle
-    std::vector<std::pair<double, double> > residualsVsAngle() const ;
+  /// return the residuals vs cell side
+  std::vector<std::pair<double, DTEnums::DTCellSide> > residualsVsCellSide() const;
 
-    /// return the residuals vs distance from wire
-    std::vector<std::pair<double, double> > residualsVsWireDist() const ;
+private:
+  const DTRecSegment2D* theSeg;
+  const DTChamber* theCh;
+  const DTSuperLayer* theSL;
+  std::vector<DTResidual> theResiduals;
 
-    /// return the residuals vs cell side
-    std::vector<std::pair<double, DTEnums::DTCellSide> > residualsVsCellSide() const ;
-
-  private:
-
-    const DTRecSegment2D* theSeg;
-    const DTChamber* theCh;
-    const DTSuperLayer* theSL;
-    std::vector<DTResidual> theResiduals;
-
-  protected:
-
+protected:
 };
-#endif // DTSEGMENTRESIDUAL_H
-
+#endif  // DTSEGMENTRESIDUAL_H

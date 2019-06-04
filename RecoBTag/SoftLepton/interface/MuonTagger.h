@@ -12,23 +12,20 @@
 #include <memory>
 
 class MuonTagger : public JetTagComputer {
+public:
+  MuonTagger(const edm::ParameterSet&);
+  void initialize(const JetTagComputerRecord&) override;
+  float discriminator(const TagInfoHelper& tagInfo) const override;
 
-  public:
-  
-    MuonTagger(const edm::ParameterSet&);
-    void initialize(const JetTagComputerRecord &) override;
-    float discriminator(const TagInfoHelper& tagInfo) const override;
-    
-  private:
-    btag::LeptonSelector m_selector;
-    const bool m_useCondDB;
-    const std::string m_gbrForestLabel;
-    const edm::FileInPath m_weightFile;
-    const bool m_useGBRForest;
-    const bool m_useAdaBoost;
+private:
+  btag::LeptonSelector m_selector;
+  const bool m_useCondDB;
+  const std::string m_gbrForestLabel;
+  const edm::FileInPath m_weightFile;
+  const bool m_useGBRForest;
+  const bool m_useAdaBoost;
 
-    std::unique_ptr<TMVAEvaluator> mvaID;
+  std::unique_ptr<TMVAEvaluator> mvaID;
 };
 
 #endif
-

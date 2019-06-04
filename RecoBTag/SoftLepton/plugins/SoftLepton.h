@@ -45,77 +45,66 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
-
 class TransientTrackBuilder;
 
 class SoftLepton : public edm::stream::EDProducer<> {
 public:
   explicit SoftLepton(const edm::ParameterSet& iConfig);
   ~SoftLepton() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   struct TrackCompare {
-    inline bool operator () (const edm::RefToBase<reco::Track> &t1,
-                             const edm::RefToBase<reco::Track> &t2) const
-    { return t1.key() < t2.key();}
+    inline bool operator()(const edm::RefToBase<reco::Track>& t1, const edm::RefToBase<reco::Track>& t2) const {
+      return t1.key() < t2.key();
+    }
   };
 
   typedef std::map<unsigned int, float> LeptonIds;
   typedef std::map<edm::RefToBase<reco::Track>, LeptonIds, TrackCompare> Leptons;
 
   // generic interface, using a TrackRefVector for lepton tracks
-  reco::SoftLeptonTagInfo tag (
-      const edm::RefToBase<reco::Jet> & jet,
-      const reco::TrackRefVector      & tracks,
-      const Leptons                   & leptons,
-      const reco::Vertex              & primaryVertex
-  ) const;
+  reco::SoftLeptonTagInfo tag(const edm::RefToBase<reco::Jet>& jet,
+                              const reco::TrackRefVector& tracks,
+                              const Leptons& leptons,
+                              const reco::Vertex& primaryVertex) const;
 
 protected:
   // generic interface, using a TrackRefVector for lepton tracks
 
-  GlobalVector refineJetAxis (
-      const edm::RefToBase<reco::Jet>   & jet,
-      const reco::TrackRefVector        & tracks,
-      const edm::RefToBase<reco::Track> & exclude = edm::RefToBase<reco::Track>()
-  ) const;
+  GlobalVector refineJetAxis(const edm::RefToBase<reco::Jet>& jet,
+                             const reco::TrackRefVector& tracks,
+                             const edm::RefToBase<reco::Track>& exclude = edm::RefToBase<reco::Track>()) const;
 
-  static double relativeEta(
-      const math::XYZVector& vector,
-      const math::XYZVector& axis
-  );
+  static double relativeEta(const math::XYZVector& vector, const math::XYZVector& axis);
 
-  static double boostedPPar(
-      const math::XYZVector& vector,
-      const math::XYZVector& axis
-  );
+  static double boostedPPar(const math::XYZVector& vector, const math::XYZVector& axis);
 
 private:
-  void produce(edm::Event & event, const edm::EventSetup & setup) override;
+  void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
   // configuration
-  const edm::InputTag                                           m_jets;
-  const edm::EDGetTokenT<reco::JetTracksAssociationCollection>  token_jtas;
-  const edm::EDGetTokenT<edm::View<reco::Jet> >                 token_jets;
-  const edm::EDGetTokenT<reco::VertexCollection>                token_primaryVertex;
-  const edm::InputTag                                           m_leptons;
-  const edm::EDGetTokenT<edm::View<reco::GsfElectron> >         token_gsfElectrons;
-  const edm::EDGetTokenT<edm::View<reco::Electron> >            token_electrons;
-  const edm::EDGetTokenT<reco::PFCandidateCollection>           token_pfElectrons;
-  const edm::EDGetTokenT<edm::View<reco::Muon> >                token_muons;
-  const edm::EDGetTokenT<edm::View<reco::Track> >               token_tracks;
-  const edm::InputTag                                           m_leptonCands;
-  const edm::EDGetTokenT<edm::ValueMap<float> >                  token_leptonCands;
-  const edm::InputTag                                           m_leptonId;
-  const edm::EDGetTokenT<edm::ValueMap<float> >                  token_leptonId;
+  const edm::InputTag m_jets;
+  const edm::EDGetTokenT<reco::JetTracksAssociationCollection> token_jtas;
+  const edm::EDGetTokenT<edm::View<reco::Jet> > token_jets;
+  const edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
+  const edm::InputTag m_leptons;
+  const edm::EDGetTokenT<edm::View<reco::GsfElectron> > token_gsfElectrons;
+  const edm::EDGetTokenT<edm::View<reco::Electron> > token_electrons;
+  const edm::EDGetTokenT<reco::PFCandidateCollection> token_pfElectrons;
+  const edm::EDGetTokenT<edm::View<reco::Muon> > token_muons;
+  const edm::EDGetTokenT<edm::View<reco::Track> > token_tracks;
+  const edm::InputTag m_leptonCands;
+  const edm::EDGetTokenT<edm::ValueMap<float> > token_leptonCands;
+  const edm::InputTag m_leptonId;
+  const edm::EDGetTokenT<edm::ValueMap<float> > token_leptonId;
 
   // service used to make transient tracks from tracks
-  const TransientTrackBuilder * m_transientTrackBuilder;
+  const TransientTrackBuilder* m_transientTrackBuilder;
 
   // algorithm configuration
-  unsigned int  m_refineJetAxis;
-  double        m_deltaRCut;
-  double        m_chi2Cut;
+  unsigned int m_refineJetAxis;
+  double m_deltaRCut;
+  double m_chi2Cut;
 
   // specific for reco::Muons
   muon::SelectionType m_muonSelection;
@@ -124,4 +113,4 @@ private:
   static const reco::Vertex s_nominalBeamSpot;
 };
 
-#endif // RecoBTag_SoftLepton_SoftLepton_h
+#endif  // RecoBTag_SoftLepton_SoftLepton_h
