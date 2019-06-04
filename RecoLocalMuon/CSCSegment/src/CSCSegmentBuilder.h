@@ -24,28 +24,26 @@ class CSCSegmentAlgorithm;
 
 class CSCSegmentBuilder {
 public:
-   
-    /** Configure the algorithm via ctor.
+  /** Configure the algorithm via ctor.
      * Receives ParameterSet percolated down from EDProducer
      * which owns this Builder.
      */
-    explicit CSCSegmentBuilder(const edm::ParameterSet&);
-    /// Destructor
-    ~CSCSegmentBuilder();
+  explicit CSCSegmentBuilder(const edm::ParameterSet&);
+  /// Destructor
+  ~CSCSegmentBuilder();
 
-    /** Find rechits in each CSCChamber, build CSCSegment's in each chamber,
+  /** Find rechits in each CSCChamber, build CSCSegment's in each chamber,
      *  and fill into output collection.
      */
-    void build(const CSCRecHit2DCollection* rechits, CSCSegmentCollection& oc);
+  void build(const CSCRecHit2DCollection* rechits, CSCSegmentCollection& oc);
 
-    /** Cache pointer to geometry _for current event_
+  /** Cache pointer to geometry _for current event_
      */
-    void setGeometry(const CSCGeometry* geom);
+  void setGeometry(const CSCGeometry* geom);
 
 private:
-
-    const CSCGeometry* geom_;
-    std::map<std::string, std::unique_ptr<CSCSegmentAlgorithm>> algoMap;
+  const CSCGeometry* geom_;
+  std::map<std::string, std::unique_ptr<CSCSegmentAlgorithm>> algoMap;
 };
 
 #endif
