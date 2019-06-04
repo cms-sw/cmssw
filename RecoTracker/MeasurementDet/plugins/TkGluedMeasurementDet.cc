@@ -499,8 +499,8 @@ TkGluedMeasurementDet::HitCollectorForFastMeasurements::HitCollectorForFastMeasu
       hasNewHits_(false) {}
 
 void TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit2D const& hit2d) {
-  hasNewHits_ =
-      true;  //FIXME: see also what happens moving this within testAndPush  // consistent with previous code...
+  //FIXME: see also what happens moving this within testAndPush  // consistent with previous code...
+  hasNewHits_ = true;
   if (!est_.preFilter(stateOnThisDet_,
                       ClusterFilterPayload(hit2d.geographicalId(), &hit2d.monoCluster(), &hit2d.stereoCluster())))
     return;
