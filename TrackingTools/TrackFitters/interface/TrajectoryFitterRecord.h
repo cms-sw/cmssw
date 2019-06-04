@@ -9,8 +9,8 @@
 
 #include "boost/mpl/vector.hpp"
 
+class TrajectoryFitterRecord : public edm::eventsetup::DependentRecordImplementation<
+                                   TrajectoryFitterRecord,
+                                   boost::mpl::vector<TrackingComponentsRecord, RecoGeometryRecord> > {};
 
-class TrajectoryFitterRecord : public edm::eventsetup::DependentRecordImplementation<TrajectoryFitterRecord,
-  boost::mpl::vector<TrackingComponentsRecord,RecoGeometryRecord> > {};
-
-#endif 
+#endif
