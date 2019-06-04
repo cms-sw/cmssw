@@ -83,10 +83,10 @@ private:
                                               edm::Handle<TauCollection> taus) override
     {
         edm::Handle<pat::PackedCandidateCollection> pfcands;
-        event.getByToken(pfcand_token_, pfcands);
+        event.getByToken(pfcandToken_, pfcands);
 
         edm::Handle<reco::VertexCollection> vertices;
-        event.getByToken(vtx_token_, vertices);
+        event.getByToken(vtxToken_, vertices);
 
         tensorflow::Tensor tensor(tensorflow::DT_FLOAT, {1,
             static_cast<int>(getNumberOfParticles(graphVersion)), static_cast<int>(GetNumberOfFeatures(graphVersion))});
