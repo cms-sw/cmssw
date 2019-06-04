@@ -178,9 +178,9 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
           int seg = static_cast<int>(mp0.y());
           if (isPS)
             seg = seg / 16;
-          int chip =
-              1000 * nmod + 10 * int(tempTTStub.getTriggerPosition() / chipSize) + seg;  /// Find out which MPA/CBC ASIC
-          int CIC_chip = 10 * nmod + seg;                                                /// Find out which CIC ASIC
+          /// Find out which MPA/CBC ASIC
+          int chip = 1000 * nmod + 10 * int(tempTTStub.getTriggerPosition() / chipSize) + seg;
+          int CIC_chip = 10 * nmod + seg;  /// Find out which CIC ASIC
 
           // First look is the stub is passing trough the very front end (CBC/MPA)
           (isPS) ? maxStubs = maxStubs_PS : maxStubs = maxStubs_2S;
@@ -386,10 +386,10 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
       if (!lowerOK || !upperOK)
         continue;
 
-      tempTTStub.setTriggerDisplacement(
-          2. * stubIter->getTriggerDisplacement());  /// getter is in FULL-strip units, setter is in HALF-strip units
-      tempTTStub.setTriggerOffset(
-          2. * stubIter->getTriggerOffset());  /// getter is in FULL-strip units, setter is in HALF-strip units
+      /// getter is in FULL-strip units, setter is in HALF-strip units
+      tempTTStub.setTriggerDisplacement(2. * stubIter->getTriggerDisplacement());
+      /// getter is in FULL-strip units, setter is in HALF-strip units
+      tempTTStub.setTriggerOffset(2. * stubIter->getTriggerOffset());
       tempTTStub.setRealTriggerOffset(2. * stubIter->getRealTriggerOffset());
       tempTTStub.setHardwareBend(stubIter->getHardwareBend());
 

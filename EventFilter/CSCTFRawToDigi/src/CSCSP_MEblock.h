@@ -6,8 +6,8 @@
 class CSCSP_MEblock {
 private:
   /////// word 1 ///////
-  unsigned
-      clct_pattern_number : 4;  // higher pattern number - straighter high-momentum tracks with more layers hit, also encodes half/di-strip indication
+  // higher pattern number - straighter high-momentum tracks with more layers hit, also encodes half/di-strip indication
+  unsigned clct_pattern_number : 4;
   unsigned quality_ : 4;       // the more hits the higher LCT Quality
   unsigned wire_group_id : 7;  // radial position of the pattern within the chamber (0-111)
   unsigned zero_1 : 1;         // format specific
@@ -32,9 +32,9 @@ private:
   unsigned err_prop_cnt : 4;         // accumulates the "Receive Error Propagation" occurrences since last L1Reset
   unsigned receiver_status_er2 : 1;  // receiver status for the frame 2 (see below)
   unsigned receiver_status_dv2 : 1;  // receiver status for the frame 2 (see below)
-  unsigned
-      aligment_fifo_empty : 1;  // Alignment FIFO Empty Flag, should be 0, if AF has been initialized successfully by L1Reset
-  unsigned zero_4 : 1;          // format specific
+  // Alignment FIFO Empty Flag, should be 0, if AF has been initialized successfully by L1Reset
+  unsigned aligment_fifo_empty : 1;
+  unsigned zero_4 : 1;  // format specific
 
   // Optical Receiver Status options:
   // {receiver_status_dv, receiver_status_er} = {Receive Data Valid, Receive Error}
