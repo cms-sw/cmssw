@@ -426,4 +426,4 @@ PhotonIDSimpleAnalyzer::endJob()
 }
 
 //define this as a plug-in
-// DEFINE_FWK_MODULE(PhotonIDSimpleAnalyzer);
+DEFINE_FWK_MODULE(PhotonIDSimpleAnalyzer);
