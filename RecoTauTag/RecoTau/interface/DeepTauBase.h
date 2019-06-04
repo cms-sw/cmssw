@@ -24,7 +24,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <TF1.h>
-#include <boost/math/constants/constants.hpp>
 
 namespace deep_tau {
 
@@ -97,8 +96,8 @@ private:
 
 protected:
     edm::EDGetTokenT<TauCollection> tausToken_;
-    edm::EDGetTokenT<pat::PackedCandidateCollection> pfcand_token_;
-    edm::EDGetTokenT<reco::VertexCollection> vtx_token_;
+    edm::EDGetTokenT<pat::PackedCandidateCollection> pfcandToken_;
+    edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
     std::map<std::string, WPMap> workingPoints_;
     OutputCollection outputs_;
     const DeepTauCache* cache_;

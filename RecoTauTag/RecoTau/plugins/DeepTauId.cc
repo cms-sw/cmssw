@@ -8,6 +8,10 @@
 
 #include "RecoTauTag/RecoTau/interface/DeepTauBase.h"
 
+namespace deep_tau {
+    constexpr int NumberOfOutputs = 4;
+}
+
 namespace {
 
 struct dnn_inputs_2017v1 {
@@ -62,91 +66,94 @@ struct dnn_inputs_2017v1 {
         isolationGammaCands_nTotal,
         NumberOfInputs
     };
-
-    static constexpr int NumberOfOutputs = 4;
 };
 
 namespace dnn_inputs_2017_v2 {
     constexpr int number_of_inner_cell = 11;
     constexpr int number_of_outer_cell = 21;
     constexpr int number_of_conv_features = 64;
-namespace TauBlockInputs {
-    enum vars {
-        rho = 0, tau_pt, tau_eta, tau_phi, tau_mass, tau_E_over_pt, tau_charge, tau_n_charged_prongs,
-        tau_n_neutral_prongs, chargedIsoPtSum, chargedIsoPtSumdR03_over_dR05, footprintCorrection,
-        neutralIsoPtSum, neutralIsoPtSumWeight_over_neutralIsoPtSum, neutralIsoPtSumWeightdR03_over_neutralIsoPtSum,
-        neutralIsoPtSumdR03_over_dR05, photonPtSumOutsideSignalCone, puCorrPtSum,
-        tau_dxy_pca_x, tau_dxy_pca_y, tau_dxy_pca_z, tau_dxy_valid, tau_dxy, tau_dxy_sig,
-        tau_ip3d_valid, tau_ip3d, tau_ip3d_sig, tau_dz, tau_dz_sig_valid, tau_dz_sig,
-        tau_flightLength_x, tau_flightLength_y, tau_flightLength_z, tau_flightLength_sig,
-        tau_pt_weighted_deta_strip, tau_pt_weighted_dphi_strip, tau_pt_weighted_dr_signal,
-        tau_pt_weighted_dr_iso, tau_leadingTrackNormChi2, tau_e_ratio_valid, tau_e_ratio,
-        tau_gj_angle_diff_valid, tau_gj_angle_diff, tau_n_photons, tau_emFraction,
-        tau_inside_ecal_crack, leadChargedCand_etaAtEcalEntrance_minus_tau_eta, NumberOfInputs
-    };
-}
+    namespace TauBlockInputs {
+        enum vars {
+            rho = 0, tau_pt, tau_eta, tau_phi, tau_mass, tau_E_over_pt, tau_charge, tau_n_charged_prongs,
+            tau_n_neutral_prongs, chargedIsoPtSum, chargedIsoPtSumdR03_over_dR05, footprintCorrection,
+            neutralIsoPtSum, neutralIsoPtSumWeight_over_neutralIsoPtSum, neutralIsoPtSumWeightdR03_over_neutralIsoPtSum,
+            neutralIsoPtSumdR03_over_dR05, photonPtSumOutsideSignalCone, puCorrPtSum,
+            tau_dxy_pca_x, tau_dxy_pca_y, tau_dxy_pca_z, tau_dxy_valid, tau_dxy, tau_dxy_sig,
+            tau_ip3d_valid, tau_ip3d, tau_ip3d_sig, tau_dz, tau_dz_sig_valid, tau_dz_sig,
+            tau_flightLength_x, tau_flightLength_y, tau_flightLength_z, tau_flightLength_sig,
+            tau_pt_weighted_deta_strip, tau_pt_weighted_dphi_strip, tau_pt_weighted_dr_signal,
+            tau_pt_weighted_dr_iso, tau_leadingTrackNormChi2, tau_e_ratio_valid, tau_e_ratio,
+            tau_gj_angle_diff_valid, tau_gj_angle_diff, tau_n_photons, tau_emFraction,
+            tau_inside_ecal_crack, leadChargedCand_etaAtEcalEntrance_minus_tau_eta, NumberOfInputs
+        };
+    }
 
-namespace EgammaBlockInputs {
-    enum vars {rho = 0, tau_pt, tau_eta, tau_inside_ecal_crack, pfCand_ele_valid, pfCand_ele_rel_pt,
-        pfCand_ele_deta, pfCand_ele_dphi, pfCand_ele_pvAssociationQuality, pfCand_ele_puppiWeight,
-        pfCand_ele_charge, pfCand_ele_lostInnerHits, pfCand_ele_numberOfPixelHits, pfCand_ele_vertex_dx,
-        pfCand_ele_vertex_dy, pfCand_ele_vertex_dz, pfCand_ele_vertex_dx_tauFL, pfCand_ele_vertex_dy_tauFL,
-        pfCand_ele_vertex_dz_tauFL, pfCand_ele_hasTrackDetails, pfCand_ele_dxy, pfCand_ele_dxy_sig,
-        pfCand_ele_dz, pfCand_ele_dz_sig, pfCand_ele_track_chi2_ndof, pfCand_ele_track_ndof,
-        ele_valid, ele_rel_pt, ele_deta, ele_dphi, ele_cc_valid, ele_cc_ele_rel_energy, ele_cc_gamma_rel_energy,
-        ele_cc_n_gamma, ele_rel_trackMomentumAtVtx, ele_rel_trackMomentumAtCalo, ele_rel_trackMomentumOut,
-        ele_rel_trackMomentumAtEleClus, ele_rel_trackMomentumAtVtxWithConstraint,
-        ele_rel_ecalEnergy, ele_ecalEnergy_sig, ele_eSuperClusterOverP,
-        ele_eSeedClusterOverP, ele_eSeedClusterOverPout, ele_eEleClusterOverPout,
-        ele_deltaEtaSuperClusterTrackAtVtx, ele_deltaEtaSeedClusterTrackAtCalo,
-        ele_deltaEtaEleClusterTrackAtCalo, ele_deltaPhiEleClusterTrackAtCalo,
-        ele_deltaPhiSuperClusterTrackAtVtx, ele_deltaPhiSeedClusterTrackAtCalo,
-        ele_mvaInput_earlyBrem, ele_mvaInput_lateBrem, ele_mvaInput_sigmaEtaEta,
-        ele_mvaInput_hadEnergy, ele_mvaInput_deltaEta, ele_gsfTrack_normalizedChi2,
-        ele_gsfTrack_numberOfValidHits, ele_rel_gsfTrack_pt, ele_gsfTrack_pt_sig,
-        ele_has_closestCtfTrack, ele_closestCtfTrack_normalizedChi2, ele_closestCtfTrack_numberOfValidHits,
-        pfCand_gamma_valid, pfCand_gamma_rel_pt, pfCand_gamma_deta, pfCand_gamma_dphi,
-        pfCand_gamma_pvAssociationQuality, pfCand_gamma_fromPV, pfCand_gamma_puppiWeight,
-        pfCand_gamma_puppiWeightNoLep, pfCand_gamma_lostInnerHits, pfCand_gamma_numberOfPixelHits,
-        pfCand_gamma_vertex_dx, pfCand_gamma_vertex_dy, pfCand_gamma_vertex_dz, pfCand_gamma_vertex_dx_tauFL,
-        pfCand_gamma_vertex_dy_tauFL, pfCand_gamma_vertex_dz_tauFL, pfCand_gamma_hasTrackDetails,
-        pfCand_gamma_dxy, pfCand_gamma_dxy_sig, pfCand_gamma_dz, pfCand_gamma_dz_sig,
-        pfCand_gamma_track_chi2_ndof, pfCand_gamma_track_ndof,
-        NumberOfInputs
-    };
-}
+    namespace EgammaBlockInputs {
+        enum vars {
+            rho = 0, tau_pt, tau_eta, tau_inside_ecal_crack, pfCand_ele_valid, pfCand_ele_rel_pt,
+            pfCand_ele_deta, pfCand_ele_dphi, pfCand_ele_pvAssociationQuality, pfCand_ele_puppiWeight,
+            pfCand_ele_charge, pfCand_ele_lostInnerHits, pfCand_ele_numberOfPixelHits, pfCand_ele_vertex_dx,
+            pfCand_ele_vertex_dy, pfCand_ele_vertex_dz, pfCand_ele_vertex_dx_tauFL, pfCand_ele_vertex_dy_tauFL,
+            pfCand_ele_vertex_dz_tauFL, pfCand_ele_hasTrackDetails, pfCand_ele_dxy, pfCand_ele_dxy_sig,
+            pfCand_ele_dz, pfCand_ele_dz_sig, pfCand_ele_track_chi2_ndof, pfCand_ele_track_ndof,
+            ele_valid, ele_rel_pt, ele_deta, ele_dphi, ele_cc_valid, ele_cc_ele_rel_energy, ele_cc_gamma_rel_energy,
+            ele_cc_n_gamma, ele_rel_trackMomentumAtVtx, ele_rel_trackMomentumAtCalo, ele_rel_trackMomentumOut,
+            ele_rel_trackMomentumAtEleClus, ele_rel_trackMomentumAtVtxWithConstraint,
+            ele_rel_ecalEnergy, ele_ecalEnergy_sig, ele_eSuperClusterOverP,
+            ele_eSeedClusterOverP, ele_eSeedClusterOverPout, ele_eEleClusterOverPout,
+            ele_deltaEtaSuperClusterTrackAtVtx, ele_deltaEtaSeedClusterTrackAtCalo,
+            ele_deltaEtaEleClusterTrackAtCalo, ele_deltaPhiEleClusterTrackAtCalo,
+            ele_deltaPhiSuperClusterTrackAtVtx, ele_deltaPhiSeedClusterTrackAtCalo,
+            ele_mvaInput_earlyBrem, ele_mvaInput_lateBrem, ele_mvaInput_sigmaEtaEta,
+            ele_mvaInput_hadEnergy, ele_mvaInput_deltaEta, ele_gsfTrack_normalizedChi2,
+            ele_gsfTrack_numberOfValidHits, ele_rel_gsfTrack_pt, ele_gsfTrack_pt_sig,
+            ele_has_closestCtfTrack, ele_closestCtfTrack_normalizedChi2, ele_closestCtfTrack_numberOfValidHits,
+            pfCand_gamma_valid, pfCand_gamma_rel_pt, pfCand_gamma_deta, pfCand_gamma_dphi,
+            pfCand_gamma_pvAssociationQuality, pfCand_gamma_fromPV, pfCand_gamma_puppiWeight,
+            pfCand_gamma_puppiWeightNoLep, pfCand_gamma_lostInnerHits, pfCand_gamma_numberOfPixelHits,
+            pfCand_gamma_vertex_dx, pfCand_gamma_vertex_dy, pfCand_gamma_vertex_dz, pfCand_gamma_vertex_dx_tauFL,
+            pfCand_gamma_vertex_dy_tauFL, pfCand_gamma_vertex_dz_tauFL, pfCand_gamma_hasTrackDetails,
+            pfCand_gamma_dxy, pfCand_gamma_dxy_sig, pfCand_gamma_dz, pfCand_gamma_dz_sig,
+            pfCand_gamma_track_chi2_ndof, pfCand_gamma_track_ndof,
+            NumberOfInputs
+        };
+    }
 
-namespace MuonBlockInputs {
-    enum vars {rho = 0, tau_pt, tau_eta, tau_inside_ecal_crack, pfCand_muon_valid, pfCand_muon_rel_pt,
-         pfCand_muon_deta, pfCand_muon_dphi, pfCand_muon_pvAssociationQuality, pfCand_muon_fromPV,
-         pfCand_muon_puppiWeight, pfCand_muon_charge, pfCand_muon_lostInnerHits, pfCand_muon_numberOfPixelHits,
-         pfCand_muon_vertex_dx, pfCand_muon_vertex_dy, pfCand_muon_vertex_dz, pfCand_muon_vertex_dx_tauFL,
-         pfCand_muon_vertex_dy_tauFL, pfCand_muon_vertex_dz_tauFL,pfCand_muon_hasTrackDetails, pfCand_muon_dxy,
-         pfCand_muon_dxy_sig, pfCand_muon_dz, pfCand_muon_dz_sig, pfCand_muon_track_chi2_ndof,
-         pfCand_muon_track_ndof, muon_valid, muon_rel_pt, muon_deta, muon_dphi, muon_dxy, muon_dxy_sig,
-         muon_normalizedChi2_valid, muon_normalizedChi2, muon_numberOfValidHits, muon_segmentCompatibility,
-         muon_caloCompatibility, muon_pfEcalEnergy_valid, muon_rel_pfEcalEnergy, muon_n_matches_DT_1,
-         muon_n_matches_DT_2,  muon_n_matches_DT_3, muon_n_matches_DT_4, muon_n_matches_CSC_1,
-         muon_n_matches_CSC_2, muon_n_matches_CSC_3, muon_n_matches_CSC_4, muon_n_matches_RPC_1,
-         muon_n_matches_RPC_2, muon_n_matches_RPC_3, muon_n_matches_RPC_4, muon_n_hits_DT_1, muon_n_hits_DT_2,
-         muon_n_hits_DT_3, muon_n_hits_DT_4, muon_n_hits_CSC_1, muon_n_hits_CSC_2, muon_n_hits_CSC_3,
-         muon_n_hits_CSC_4, muon_n_hits_RPC_1, muon_n_hits_RPC_2, muon_n_hits_RPC_3, muon_n_hits_RPC_4, NumberOfInputs};
-}
+    namespace MuonBlockInputs {
+        enum vars {
+            rho = 0, tau_pt, tau_eta, tau_inside_ecal_crack, pfCand_muon_valid, pfCand_muon_rel_pt,
+            pfCand_muon_deta, pfCand_muon_dphi, pfCand_muon_pvAssociationQuality, pfCand_muon_fromPV,
+            pfCand_muon_puppiWeight, pfCand_muon_charge, pfCand_muon_lostInnerHits, pfCand_muon_numberOfPixelHits,
+            pfCand_muon_vertex_dx, pfCand_muon_vertex_dy, pfCand_muon_vertex_dz, pfCand_muon_vertex_dx_tauFL,
+            pfCand_muon_vertex_dy_tauFL, pfCand_muon_vertex_dz_tauFL,pfCand_muon_hasTrackDetails, pfCand_muon_dxy,
+            pfCand_muon_dxy_sig, pfCand_muon_dz, pfCand_muon_dz_sig, pfCand_muon_track_chi2_ndof,
+            pfCand_muon_track_ndof, muon_valid, muon_rel_pt, muon_deta, muon_dphi, muon_dxy, muon_dxy_sig,
+            muon_normalizedChi2_valid, muon_normalizedChi2, muon_numberOfValidHits, muon_segmentCompatibility,
+            muon_caloCompatibility, muon_pfEcalEnergy_valid, muon_rel_pfEcalEnergy, muon_n_matches_DT_1,
+            muon_n_matches_DT_2,  muon_n_matches_DT_3, muon_n_matches_DT_4, muon_n_matches_CSC_1,
+            muon_n_matches_CSC_2, muon_n_matches_CSC_3, muon_n_matches_CSC_4, muon_n_matches_RPC_1,
+            muon_n_matches_RPC_2, muon_n_matches_RPC_3, muon_n_matches_RPC_4, muon_n_hits_DT_1, muon_n_hits_DT_2,
+            muon_n_hits_DT_3, muon_n_hits_DT_4, muon_n_hits_CSC_1, muon_n_hits_CSC_2, muon_n_hits_CSC_3,
+            muon_n_hits_CSC_4, muon_n_hits_RPC_1, muon_n_hits_RPC_2, muon_n_hits_RPC_3, muon_n_hits_RPC_4,
+            NumberOfInputs
+        };
+    }
 
-namespace HadronBlockInputs {
-    enum vars {rho = 0, tau_pt, tau_eta, tau_inside_ecal_crack, pfCand_chHad_valid,
-        pfCand_chHad_rel_pt, pfCand_chHad_deta, pfCand_chHad_dphi, pfCand_chHad_leadChargedHadrCand,
-        pfCand_chHad_pvAssociationQuality, pfCand_chHad_fromPV, pfCand_chHad_puppiWeight,
-        pfCand_chHad_puppiWeightNoLep, pfCand_chHad_charge, pfCand_chHad_lostInnerHits,
-        pfCand_chHad_numberOfPixelHits, pfCand_chHad_vertex_dx, pfCand_chHad_vertex_dy,
-        pfCand_chHad_vertex_dz, pfCand_chHad_vertex_dx_tauFL, pfCand_chHad_vertex_dy_tauFL,
-        pfCand_chHad_vertex_dz_tauFL, pfCand_chHad_hasTrackDetails, pfCand_chHad_dxy,
-        pfCand_chHad_dxy_sig, pfCand_chHad_dz, pfCand_chHad_dz_sig, pfCand_chHad_track_chi2_ndof,
-        pfCand_chHad_track_ndof, pfCand_chHad_hcalFraction, pfCand_chHad_rawCaloFraction,
-        pfCand_nHad_valid, pfCand_nHad_rel_pt, pfCand_nHad_deta, pfCand_nHad_dphi,
-        pfCand_nHad_puppiWeight, pfCand_nHad_puppiWeightNoLep, pfCand_nHad_hcalFraction, NumberOfInputs};
-}
-
+    namespace HadronBlockInputs {
+        enum vars {
+            rho = 0, tau_pt, tau_eta, tau_inside_ecal_crack, pfCand_chHad_valid,
+            pfCand_chHad_rel_pt, pfCand_chHad_deta, pfCand_chHad_dphi, pfCand_chHad_leadChargedHadrCand,
+            pfCand_chHad_pvAssociationQuality, pfCand_chHad_fromPV, pfCand_chHad_puppiWeight,
+            pfCand_chHad_puppiWeightNoLep, pfCand_chHad_charge, pfCand_chHad_lostInnerHits,
+            pfCand_chHad_numberOfPixelHits, pfCand_chHad_vertex_dx, pfCand_chHad_vertex_dy,
+            pfCand_chHad_vertex_dz, pfCand_chHad_vertex_dx_tauFL, pfCand_chHad_vertex_dy_tauFL,
+            pfCand_chHad_vertex_dz_tauFL, pfCand_chHad_hasTrackDetails, pfCand_chHad_dxy,
+            pfCand_chHad_dxy_sig, pfCand_chHad_dz, pfCand_chHad_dz_sig, pfCand_chHad_track_chi2_ndof,
+            pfCand_chHad_track_ndof, pfCand_chHad_hcalFraction, pfCand_chHad_rawCaloFraction,
+            pfCand_nHad_valid, pfCand_nHad_rel_pt, pfCand_nHad_deta, pfCand_nHad_dphi,
+            pfCand_nHad_puppiWeight, pfCand_nHad_puppiWeightNoLep, pfCand_nHad_hcalFraction, NumberOfInputs
+        };
+    }
 }
 
 template<typename LVector1, typename LVector2>
@@ -158,7 +165,7 @@ float dEta(const LVector1& p4, const LVector2& tau_p4)
 template<typename LVector1, typename LVector2>
 float dPhi(const LVector1& p4, const LVector2& tau_p4)
 {
-    return static_cast<float>(ROOT::Math::VectorUtil::DeltaPhi(p4, tau_p4));
+    return static_cast<float>(reco::deltaPhi(p4.phi(), tau_p4.phi()));
 }
 
 struct MuonHitMatchV1 {
@@ -642,7 +649,7 @@ public:
         return DeepTauBase::globalEndJob(cache_);
     }
 private:
-    static constexpr float pi = boost::math::constants::pi<float>();
+    static constexpr float pi = M_PI;
 
     template<typename T>
     static float getValue(T value)
@@ -722,16 +729,16 @@ private:
         event.getByToken(muons_token_, muons);
 
         edm::Handle<pat::PackedCandidateCollection> pfCands;
-        event.getByToken(pfcand_token_, pfCands);
+        event.getByToken(pfcandToken_, pfCands);
 
         edm::Handle<reco::VertexCollection> vertices;
-        event.getByToken(vtx_token_, vertices);
+        event.getByToken(vtxToken_, vertices);
 
         edm::Handle<double> rho;
         event.getByToken(rho_token_, rho);
 
         tensorflow::Tensor predictions(tensorflow::DT_FLOAT, { static_cast<int>(taus->size()),
-                                       dnn_inputs_2017v1::NumberOfOutputs});
+                                       deep_tau::NumberOfOutputs});
         for(size_t tau_index = 0; tau_index < taus->size(); ++tau_index) {
             std::vector<tensorflow::Tensor> pred_vector;
             if(version == 1)
@@ -740,7 +747,7 @@ private:
                 getPredictionsV2(taus->at(tau_index), *electrons, *muons, *pfCands, vertices->at(0), *rho, pred_vector);
             else
                 throw cms::Exception("DeepTauId") << "version " << version << " is not supported.";
-            for(int k = 0; k < dnn_inputs_2017v1::NumberOfOutputs; ++k) {
+            for(int k = 0; k < deep_tau::NumberOfOutputs; ++k) {
                 const float pred = pred_vector[0].flat<float>()(k);
                 if(!(pred >= 0 && pred <= 1))
                     throw cms::Exception("DeepTauId") << "invalid prediction = " << pred << " for tau_index = "
@@ -808,7 +815,7 @@ private:
         for(size_t n = 0; n < objects.size(); ++n) {
             const auto& obj = objects.at(n);
             const double deta = obj.polarP4().eta() - tau.polarP4().eta();
-            const double dphi = ROOT::Math::VectorUtil::DeltaPhi(tau.polarP4(), obj.polarP4());
+            const double dphi = reco::deltaPhi(tau.polarP4().phi(), obj.polarP4().phi());
             const double dR2 = std::pow(deta, 2) + std::pow(dphi, 2);
             if(dR2 < inner_dR2)
                 addObject(n, deta, dphi, inner_grid);
