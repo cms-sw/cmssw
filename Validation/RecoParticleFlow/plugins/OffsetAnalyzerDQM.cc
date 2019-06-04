@@ -66,7 +66,7 @@ private:
         }
         //make other booker methods for uniform binning
 
-        void fill( double value1, double value2 ) {
+        void fill2D( double value1, double value2 ) {
             assert( plot != nullptr );
             plot->Fill( value1, value2 );
         }
@@ -154,7 +154,9 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
     iEvent.getByToken(pvToken, vertexHandle);
 
     unsigned int nPVall = vertexHandle->size();
-    bool isGoodPV[ nPVall ] = {false};
+    bool isGoodPV[nPVall];
+    for(size_t i=0; i < nPVall; ++i) isGoodPV[i] = false;
+
     int npv = 0;
     for (unsigned int i=0; i<nPVall; i++) {
         const auto& pv = vertexHandle->at(i);
@@ -243,7 +245,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
         for (int i=0; i<nEta; i++) {
             double eta = 0.5*(etabins[i] + etabins[i+1]);
-            offsetPlots[offset_name_npv].fill( eta, etaE[i] );
+            offsetPlots[offset_name_npv].fill2D( eta, etaE[i] );
         }
 
         if (int_mu != -1) {
@@ -252,7 +254,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
             for (int i=0; i<nEta; i++) {
                 double eta = 0.5*(etabins[i] + etabins[i+1]);
-                offsetPlots[offset_name_mu].fill( eta, etaE[i] );
+                offsetPlots[offset_name_mu].fill2D( eta, etaE[i] );
             }
         }
     }
