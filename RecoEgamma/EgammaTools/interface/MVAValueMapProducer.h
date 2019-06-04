@@ -118,6 +118,7 @@ MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& 
 template <class ParticleType>
 void MVAValueMapProducer<ParticleType>::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
+  std::vector<float> auxVariables = variableHelper_.getAuxVariables(iEvent);
 
   auto src = iEvent.getHandle(src_);
 
@@ -131,8 +132,6 @@ void MVAValueMapProducer<ParticleType>::produce(edm::StreamID, edm::Event& iEven
     // Loop over particles
     for (auto const& cand : src->ptrs())
     {
-      std::vector<float> auxVariables = variableHelper_.getAuxVariables(iEvent);
-
       int cat = -1; // Passed by reference to the mvaValue function to store the category
       const float response = mvaEstimators_[iEstimator]->mvaValue( cand.get(), auxVariables, cat );
       mvaRawValues.push_back( response ); // The MVA score
