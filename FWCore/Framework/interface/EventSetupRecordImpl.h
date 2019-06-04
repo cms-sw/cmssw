@@ -139,10 +139,6 @@ namespace edm {
                                       ComponentDescription const*,
                                       DataKey const&) const;
 
-      bool acquireResource() {
-        bool expected = true;
-        return isAvailable_.compare_exchange_strong(expected, false);
-      }
       void invalidateProxies();
       void resetIfTransientInProxies();
 

@@ -95,7 +95,7 @@ namespace edm {
       void addFinder(std::shared_ptr<EventSetupRecordIntervalFinder>);
 
       ///Intended for use only in unit tests
-      void setValidityInterval(ValidityInterval const&);
+      void setValidityInterval_forTesting(ValidityInterval const&);
 
       void initializeForNewIOV(unsigned int iovIndex, unsigned long long cacheIdentifier);
       void continueIOV(bool newEventSetupImpl);
