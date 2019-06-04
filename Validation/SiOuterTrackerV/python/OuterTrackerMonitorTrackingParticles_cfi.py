@@ -5,8 +5,6 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 OuterTrackerMonitorTrackingParticles = DQMEDAnalyzer('OuterTrackerMonitorTrackingParticles',
     TopFolderName = cms.string('SiOuterTrackerV'),
     trackingParticleToken = cms.InputTag("mix","MergedTrackTruth"), #tracking particles
-    StubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis","StubAccepted"), #stubs
-    TTTracksTag       = cms.InputTag("TTTracksFromTracklet", "Level1TTTracks"), #tracks (currently from tracklet)
     MCTruthStubInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"), #truth stub associator
     MCTruthTrackInputTag = cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"), #truth track associator
     MCTruthClusterInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"), #truth cluster associator
@@ -15,6 +13,7 @@ OuterTrackerMonitorTrackingParticles = DQMEDAnalyzer('OuterTrackerMonitorTrackin
     L1Tk_maxChi2 = cms.double(400.0),   # L1 tracks with Chi2 <= X
     L1Tk_maxChi2dof = cms.double(100.0),# L1 tracks with Chi2 <= X
     TP_minNStub = cms.int32(4),      # require TP to have >= X number of stubs associated with it
+    TP_minNLayersStub = cms.int32(4),   # require TP to have >= X number of layers hit with stubs
     TP_minPt = cms.double(2.0),      # only save TPs with pt > X GeV
     TP_maxPt = cms.double(1000.0),   # only save TPs with pt < X GeV
     TP_maxEta = cms.double(2.4),     # only save TPs with |eta| < X
