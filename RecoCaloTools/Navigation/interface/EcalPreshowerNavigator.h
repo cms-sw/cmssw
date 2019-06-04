@@ -7,9 +7,3 @@
 using EcalPreshowerNavigator = CaloNavigator<ESDetId>;
 
 #endif
-
-
-
-
-
-

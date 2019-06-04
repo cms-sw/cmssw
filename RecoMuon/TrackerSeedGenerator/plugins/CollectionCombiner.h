@@ -1,7 +1,6 @@
 #ifndef CollectionCombiner_H
 #define CollectionCombiner_H
 
-
 /** \class CollectionCombiner 
  * Description: this templated EDProducer can merge (no duplicate removal) any number of collection of the same type.
  * the usage is to declare a concrete combiner in SealModule:
@@ -11,7 +10,6 @@
  *
  * \author Jean-Roch Vlimant
  */
-
 
 // system include files
 #include <memory>
@@ -26,42 +24,39 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 template <typename Collection>
-class CollectionCombiner : public edm::global::EDProducer<>{
+class CollectionCombiner : public edm::global::EDProducer<> {
 public:
   explicit CollectionCombiner(const edm::ParameterSet&);
   ~CollectionCombiner() override;
-  
+
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  
+
   // ----------member data ---------------------------
   std::vector<edm::InputTag> labels;
-  std::vector<edm::EDGetTokenT<Collection> > collectionTokens; 
-
+  std::vector<edm::EDGetTokenT<Collection> > collectionTokens;
 };
 
 template <typename Collection>
-CollectionCombiner<Collection>::CollectionCombiner(const edm::ParameterSet& iConfig){
+CollectionCombiner<Collection>::CollectionCombiner(const edm::ParameterSet& iConfig) {
   labels = iConfig.getParameter<std::vector<edm::InputTag> >("labels");
   produces<Collection>();
-  for (unsigned int i=0;i<labels.size();++i)
+  for (unsigned int i = 0; i < labels.size(); ++i)
     collectionTokens.push_back(consumes<Collection>(labels.at(i)));
 }
 template <typename Collection>
-CollectionCombiner<Collection>::~CollectionCombiner(){}
+CollectionCombiner<Collection>::~CollectionCombiner() {}
 
 template <typename Collection>
-void CollectionCombiner<Collection>::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& es) const
-{
-  unsigned int i=0,i_max=labels.size();
+void CollectionCombiner<Collection>::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& es) const {
+  unsigned int i = 0, i_max = labels.size();
   edm::Handle<Collection> handle;
   auto merged = std::make_unique<Collection>();
-  for (;i!=i_max;++i){
+  for (; i != i_max; ++i) {
     iEvent.getByToken(collectionTokens[i], handle);
     merged->insert(merged->end(), handle->begin(), handle->end());
   }
   iEvent.put(std::move(merged));
 }
-
 
 #endif

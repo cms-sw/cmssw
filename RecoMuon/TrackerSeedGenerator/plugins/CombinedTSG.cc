@@ -6,25 +6,27 @@
 #include <vector>
 
 //constructor
-CombinedTSG::CombinedTSG(const edm::ParameterSet & par,edm::ConsumesCollector& iC) : CompositeTSG(par,iC) {
+CombinedTSG::CombinedTSG(const edm::ParameterSet& par, edm::ConsumesCollector& iC) : CompositeTSG(par, iC) {
   theCategory = "CombinedTSG";
 }
 
 //destructor
-CombinedTSG::~CombinedTSG(){
- //
+CombinedTSG::~CombinedTSG() {
+  //
 }
 
-void CombinedTSG::trackerSeeds(const TrackCand & muonTrackCand, const TrackingRegion& region, const TrackerTopology *tTopo,
-			       std::vector<TrajectorySeed> & result){
+void CombinedTSG::trackerSeeds(const TrackCand& muonTrackCand,
+                               const TrackingRegion& region,
+                               const TrackerTopology* tTopo,
+                               std::vector<TrajectorySeed>& result) {
   //run all the seed generators registered
 
-  for (unsigned int iTSG=0; iTSG!=theTSGs.size();iTSG++){
-    if(theTSGs[iTSG]) {
-      std::vector<TrajectorySeed>  tmpResult;
-      theTSGs[iTSG]->trackerSeeds(muonTrackCand,region,tTopo,tmpResult);
+  for (unsigned int iTSG = 0; iTSG != theTSGs.size(); iTSG++) {
+    if (theTSGs[iTSG]) {
+      std::vector<TrajectorySeed> tmpResult;
+      theTSGs[iTSG]->trackerSeeds(muonTrackCand, region, tTopo, tmpResult);
       //vector of seeds
-      result.insert(result.end(),tmpResult.begin(),tmpResult.end());
+      result.insert(result.end(), tmpResult.begin(), tmpResult.end());
     }
   }
 }

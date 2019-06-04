@@ -17,7 +17,7 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class DTRecHitBaseAlgo;
 
@@ -41,4 +41,3 @@ private:
   std::unique_ptr<DTRecHitBaseAlgo> theAlgo;
 };
 #endif
-
