@@ -7,37 +7,37 @@
  * \author Marcin Konecki
 */
 
-
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
-namespace edm { class Event; class EventSetup; }
+namespace edm {
+  class Event;
+  class EventSetup;
+}  // namespace edm
 class L1MuonRegionProducer;
 class L1MuonPixelTrackFitter;
 class OrderedHitsGenerator;
 class PixelTrackFilter;
 class L1MuonSeedsMerger;
 
-
 class TSGFromL1Muon : public edm::stream::EDProducer<> {
 public:
   TSGFromL1Muon(const edm::ParameterSet& cfg);
   ~TSGFromL1Muon() override;
   void produce(edm::Event& ev, const edm::EventSetup& es) override;
+
 private:
- 
 private:
   edm::ParameterSet theConfig;
   edm::InputTag theSourceTag;
-  edm::EDGetTokenT<l1extra::L1MuonParticleCollection> theSourceToken; 
+  edm::EDGetTokenT<l1extra::L1MuonParticleCollection> theSourceToken;
   edm::EDGetTokenT<PixelTrackFilter> theFilterToken;
 
   std::unique_ptr<L1MuonRegionProducer> theRegionProducer;
   std::unique_ptr<OrderedHitsGenerator> theHitGenerator;
   std::unique_ptr<L1MuonPixelTrackFitter> theFitter;
   std::unique_ptr<L1MuonSeedsMerger> theMerger;
-
 };
 #endif

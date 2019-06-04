@@ -23,43 +23,42 @@
 using namespace edm;
 using namespace std;
 
-DTRecSegment4DProducer::DTRecSegment4DProducer(const ParameterSet& pset):
-  // Get the concrete 4D-segments reconstruction algo from the factory
-  the4DAlgo{DTRecSegment4DAlgoFactory::get()->create(pset.getParameter<string>("Reco4DAlgoName"),
-                                                     pset.getParameter<ParameterSet>("Reco4DAlgoConfig"))}
-{
+DTRecSegment4DProducer::DTRecSegment4DProducer(const ParameterSet& pset)
+    :  // Get the concrete 4D-segments reconstruction algo from the factory
+      the4DAlgo{DTRecSegment4DAlgoFactory::get()->create(pset.getParameter<string>("Reco4DAlgoName"),
+                                                         pset.getParameter<ParameterSet>("Reco4DAlgoConfig"))} {
   produces<DTRecSegment4DCollection>();
-  
+
   // debug parameter
   debug = pset.getUntrackedParameter<bool>("debug", false);
-  
-  if(debug)
+
+  if (debug)
     cout << "[DTRecSegment4DProducer] Constructor called" << endl;
-  
+
   // the name of the 1D rec hits collection
   recHits1DToken_ = consumes<DTRecHitCollection>(pset.getParameter<InputTag>("recHits1DLabel"));
-  
+
   // the name of the 2D rec hits collection
   recHits2DToken_ = consumes<DTRecSegment2DCollection>(pset.getParameter<InputTag>("recHits2DLabel"));
-  
-  if(debug) cout << "the Reco4D AlgoName is " << pset.getParameter<string>("Reco4DAlgoName") << endl;
+
+  if (debug)
+    cout << "the Reco4D AlgoName is " << pset.getParameter<string>("Reco4DAlgoName") << endl;
 }
 
 /// Destructor
-DTRecSegment4DProducer::~DTRecSegment4DProducer(){
-  if(debug)
+DTRecSegment4DProducer::~DTRecSegment4DProducer() {
+  if (debug)
     cout << "[DTRecSegment4DProducer] Destructor called" << endl;
 }
 
-void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
-
+void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup) {
   // Get the 1D rechits from the event
-  Handle<DTRecHitCollection> all1DHits; 
+  Handle<DTRecHitCollection> all1DHits;
   event.getByToken(recHits1DToken_, all1DHits);
-  
+
   // Get the 2D rechits from the event
   Handle<DTRecSegment2DCollection> all2DSegments;
-  if(the4DAlgo->wants2DSegments())
+  if (the4DAlgo->wants2DSegments())
     event.getByToken(recHits2DToken_, all2DSegments);
 
   // Create the pointer to the collection which will store the rechits
@@ -77,36 +76,39 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
 
   DTChamberId oldChId;
 
-  for (dtLayerIt = all1DHits->id_begin(); dtLayerIt != all1DHits->id_end(); ++dtLayerIt){
-
+  for (dtLayerIt = all1DHits->id_begin(); dtLayerIt != all1DHits->id_end(); ++dtLayerIt) {
     // Check the DTChamberId
     const DTChamberId chId = (*dtLayerIt).chamberId();
-    if (chId==oldChId) continue; // I'm on the same Chamber as before
+    if (chId == oldChId)
+      continue;  // I'm on the same Chamber as before
     oldChId = chId;
-    if(debug) cout << "ChamberId: "<< chId << endl;
+    if (debug)
+      cout << "ChamberId: " << chId << endl;
     the4DAlgo->setChamber(chId);
 
-    if(debug) cout<<"Take the DTRecHits1D and set them in the reconstructor"<<endl;
+    if (debug)
+      cout << "Take the DTRecHits1D and set them in the reconstructor" << endl;
 
     the4DAlgo->setDTRecHit1DContainer(all1DHits);
 
-    if(debug) cout<<"Take the DTRecSegments2D and set them in the reconstructor"<<endl;
+    if (debug)
+      cout << "Take the DTRecSegments2D and set them in the reconstructor" << endl;
 
     the4DAlgo->setDTRecSegment2DContainer(all2DSegments);
 
-    if(debug) cout << "Start 4D-Segments Reco " << endl;
-    
+    if (debug)
+      cout << "Start 4D-Segments Reco " << endl;
+
     OwnVector<DTRecSegment4D> segments4D = the4DAlgo->reconstruct();
-    
-    if(debug) {
+
+    if (debug) {
       cout << "Number of reconstructed 4D-segments " << segments4D.size() << endl;
-      copy(segments4D.begin(), segments4D.end(),
-           ostream_iterator<DTRecSegment4D>(cout, "\n"));
+      copy(segments4D.begin(), segments4D.end(), ostream_iterator<DTRecSegment4D>(cout, "\n"));
     }
 
-    if (!segments4D.empty() )
+    if (!segments4D.empty())
       // convert the OwnVector into a Collection
-      segments4DCollection->put(chId, segments4D.begin(),segments4D.end());
+      segments4DCollection->put(chId, segments4D.begin(), segments4D.end());
   }
   // Load the output in the Event
   event.put(std::move(segments4DCollection));
