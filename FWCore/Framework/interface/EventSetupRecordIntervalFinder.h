@@ -51,10 +51,11 @@ namespace edm {
 
     void resetInterval(const eventsetup::EventSetupRecordKey&);
 
-    bool legacyESSource() const { return isLegacyESSource(); }
+    bool concurrentFinder() const { return isConcurrentFinder(); }
 
-    bool legacyOutOfValidityInterval(const eventsetup::EventSetupRecordKey& key, const IOVSyncValue& syncValue) const {
-      return isLegacyOutOfValidityInterval(key, syncValue);
+    bool nonconcurrentAndIOVNeedsUpdate(const eventsetup::EventSetupRecordKey& key,
+                                        const IOVSyncValue& syncValue) const {
+      return isNonconcurrentAndIOVNeedsUpdate(key, syncValue);
     }
 
     void setDescriptionForFinder(const eventsetup::ComponentDescription& iDescription) { description_ = iDescription; }
@@ -72,14 +73,23 @@ namespace edm {
   private:
     virtual void doResetInterval(const eventsetup::EventSetupRecordKey&);
 
-    // Should be overridden in all ESSources at the time the ESSource is
-    // upgraded to support concurrent IOVs.
-    virtual bool isLegacyESSource() const;
+    // The following function should be overridden in a derived class if
+    // it supports concurrent IOVs. If this returns false (the default),
+    // this will cause the Framework to run everything associated with the
+    // particular IOV set in a call to the function setIntervalFor before
+    // calling setIntervalFor again for that finder. In modules that do not
+    // support concurrency, this time ordering is what the produce functions
+    // use to know what IOV to produce data for. In finders that support
+    // concurrency, the produce function will get information from the
+    // Record to know what IOV to produce data for. This waiting to synchronize
+    // IOV transitions can affect performance. It would be nice if someday
+    // all finders were migrated to support concurrency and this function
+    // and the code related to it could be deleted.
+    virtual bool isConcurrentFinder() const;
 
     // Should only be overridden by DependentRecordIntervalFinder and
-    // IntersectingIOVRecordIntervalFinder. Other ESSources should not
-    // need to override this.
-    virtual bool isLegacyOutOfValidityInterval(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&) const;
+    // IntersectingIOVRecordIntervalFinder.
+    virtual bool isNonconcurrentAndIOVNeedsUpdate(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&) const;
 
     /** override this method if you need to delay setting what records you will be using until after all modules are loaded*/
     virtual void delaySettingRecords();

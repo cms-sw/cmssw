@@ -40,7 +40,7 @@ namespace edmtest {
                         edm::IOVSyncValue const&,
                         edm::ValidityInterval&) override;
 
-    bool isLegacyESSource() const override { return false; }
+    bool isConcurrentFinder() const override { return true; }
   };
 
   RunLumiESSource::RunLumiESSource(edm::ParameterSet const&) {
