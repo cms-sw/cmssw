@@ -28,13 +28,12 @@ class MaterialBudgetForward : public SimWatcher,
                               public Observer<const EndOfTrack *> {
 public:
   MaterialBudgetForward(const edm::ParameterSet &);
-  MaterialBudgetForward(const MaterialBudgetForward &) = delete;                   // stop default
+  MaterialBudgetForward(const MaterialBudgetForward &) = delete;  // stop default
   ~MaterialBudgetForward() override;
 
   const MaterialBudgetForward &operator=(const MaterialBudgetForward &) = delete;  // ...
 
 private:
-
   void update(const BeginOfRun *) override;
   void update(const BeginOfTrack *) override;
   void update(const G4Step *) override;

@@ -29,8 +29,8 @@ namespace {
     static const double Z_BIG;
   };
 
-  const double CaloPoint::depth =
-      0.1;  // one for all relative depth of the reference point between ECAL begin and HCAL end
+  // one for all relative depth of the reference point between ECAL begin and HCAL end
+  const double CaloPoint::depth = 0.1;
   const double CaloPoint::R_BARREL = (1. - depth) * 143. + depth * 407.;
   const double CaloPoint::R_BARREL2 = R_BARREL * R_BARREL;
   const double CaloPoint::Z_ENDCAP = (1. - depth) * 320. + depth * 568.;                         // 1/2(EEz+HEz)

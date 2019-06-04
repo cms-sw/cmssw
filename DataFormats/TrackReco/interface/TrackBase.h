@@ -472,8 +472,8 @@ namespace reco {
     uint8_t quality_;
 
     /// number of loops made during the building of the trajectory of a looper particle
-    signed char
-        nLoops_;  // I use signed char because I don't expect more than 128 loops and I could use a negative value for a special purpose.
+    // I use signed char because I don't expect more than 128 loops and I could use a negative value for a special purpose.
+    signed char nLoops_;
 
     /// Stop Reason
     uint8_t stopReason_;
