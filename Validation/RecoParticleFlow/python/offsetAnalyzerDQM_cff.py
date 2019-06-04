@@ -93,11 +93,3 @@ offsetDQMPostProcessor = DQMEDHarvester("OffsetDQMPostProcessor",
                                         
 )
 
-#print( offsetAnalyzerDQM.offsetPlots[455].parameters_  )
-#for i in range(0, len(offsetAnalyzerDQM.th1dPlots)) :
-#    print( offsetAnalyzerDQM.th1dPlots[i].parameters_  )
-
-# Do we need this?
-offsetDQM = cms.Sequence(
-    offsetAnalyzerDQM
-)

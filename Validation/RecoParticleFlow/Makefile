@@ -2,6 +2,14 @@ TMPDIR=tmp
 RELVALCMD=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/run_relval.sh
 DQM_MC=DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO
 
+conf:
+	cd ${TMPDIR} && ${RELVALCMD} conf reco 0
+
+dumpconf:
+	cd ${TMPDIR}/conf && python -c 'import step3; print step3.process.dumpPython()' > step3_dump.py
+	cp ${TMPDIR}/conf/step3.py crab/
+	cp ${TMPDIR}/conf/step3_dump.py crab/
+
 QCD: QCD_reco QCD_dqm
 
 QCD_reco:
@@ -21,8 +29,11 @@ ZMM_reco:
 MinBias_reco:
 	cd ${TMPDIR} && ${RELVALCMD} MinBias reco 0
 
+NuGunPU_reco:
+	cd ${TMPDIR} && ${RELVALCMD} NuGunPU reco 0
+
 #dqm: QCD_dqm QCDPU_dqm ZMM_dqm MinBias_dqm SN_dqm
-dqm: QCD_dqm QCDPU_dqm ZMM_dqm NuGunPU_dqm
+dqm: QCD_dqm QCDPU_dqm NuGunPU_dqm
 
 QCD_dqm:
 	rm -f ${TMPDIR}/QCD/DQM*.root
@@ -43,34 +54,6 @@ MinBias_dqm:
 NuGunPU_dqm:
 	rm -f ${TMPDIR}/NuGunPU/DQM*.root
 	cd ${TMPDIR} && ${RELVALCMD} NuGunPU dqm 0
-
-#post: QCD_post QCDPU_post ZMM_post MinBias_post SN_post
-#post: QCD_post QCDPU_post NuGunPU_post
-
-#QCD_post:
-#	rm -f ${TMPDIR}/QCD/*withResponse*.root ${TMPDIR}/QCD/DQMTotal.root
-#	cd ${TMPDIR}/QCD && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponseAndResolution.py DQM*.root
-#	hadd -f ${TMPDIR}/QCD/DQMTotal.root ${TMPDIR}/QCD/DQM_*.root
-
-#QCDPU_post:
-#	rm -f ${TMPDIR}/QCDPU/*withResponse*.root ${TMPDIR}/QCDPU/DQMTotal.root
-#	cd ${TMPDIR}/QCDPU && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponseAndResolution.py DQM*.root
-#	hadd -f ${TMPDIR}/QCDPU/DQMTotal.root ${TMPDIR}/QCDPU/DQM_*.root
-
-#ZMM_post:
-#	rm -f ${TMPDIR}/ZMM/*withResponse*.root ${TMPDIR}/ZMM/DQMTotal.root
-#	cd ${TMPDIR}/ZMM && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponseAndResolution.py DQM*.root
-#	hadd -f ${TMPDIR}/ZMM/DQMTotal.root ${TMPDIR}/ZMM/DQM_*.root
-
-#MinBias_post:
-#	rm -f ${TMPDIR}/MinBias/*withResponse*.root ${TMPDIR}/MinBias/DQMTotal.root
-#	cd ${TMPDIR}/MinBias && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponseAndResolution.py DQM*.root
-#	hadd -f ${TMPDIR}/MinBias/DQMTotal.root ${TMPDIR}/MinBias/DQM_*.root
-
-#NuGunPU_post:
-#	rm -f ${TMPDIR}/NoGunPU/*withResponse*.root ${TMPDIR}/NuGunPU/DQMTotal.root
-#	cd ${TMPDIR}/NuGunPU && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponseAndResolution.py DQM*.root
-#	hadd -f ${TMPDIR}/NuGunPU/DQMTotal.root ${TMPDIR}/NuGunPU/DQM_*.root
 
 .PHONY: plots # Enable re-running plots
 
