@@ -266,12 +266,7 @@ void AlignmentProducerBase::createAlignmentAlgorithm() {
   algoConfig.addUntrackedParameter("enableAlignableUpdates", enableAlignableUpdates_);
 
   const auto& algoName = algoConfig.getParameter<std::string>("algoName");
-  alignmentAlgo_ =
-      std::unique_ptr<AlignmentAlgorithmBase>{AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig)};
-
-  if (!alignmentAlgo_) {
-    throw cms::Exception("BadConfig") << "Couldn't find the called alignment algorithm: " << algoName;
-  }
+  alignmentAlgo_ = AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig);
 }
 
 //------------------------------------------------------------------------------
@@ -279,13 +274,8 @@ void AlignmentProducerBase::createMonitors() {
   const auto& monitorConfig = config_.getParameter<edm::ParameterSet>("monitorConfig");
   auto monitors = monitorConfig.getUntrackedParameter<std::vector<std::string> >("monitors");
   for (const auto& miter : monitors) {
-    std::unique_ptr<AlignmentMonitorBase> newMonitor{
-        AlignmentMonitorPluginFactory::get()->create(miter, monitorConfig.getUntrackedParameterSet(miter))};
-
-    if (!newMonitor) {
-      throw cms::Exception("BadConfig") << "Couldn't find monitor named " << miter;
-    }
-    monitors_.emplace_back(std::move(newMonitor));
+    monitors_.emplace_back(
+        AlignmentMonitorPluginFactory::get()->create(miter, monitorConfig.getUntrackedParameterSet(miter)));
   }
 }
 
