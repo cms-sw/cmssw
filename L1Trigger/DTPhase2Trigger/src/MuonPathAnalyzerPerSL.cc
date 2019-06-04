@@ -13,53 +13,26 @@ MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL(const ParameterSet& pset) :
     MuonPathAnalyzer(pset),
     bxTolerance(30),
     minQuality(LOWQGHOST),
-    chiSquareThreshold(50)
+    chiSquareThreshold(50),
+    debug(pset.getUntrackedParameter<Bool_t>("debug")),
+    chi2Th(pset.getUntrackedParameter<double>("chi2Th")),
+    tanPhiTh(pset.getUntrackedParameter<double>("tanPhiTh"))
 {
-    debug = pset.getUntrackedParameter<Bool_t>("debug");
+  
     if (debug) cout <<"MuonPathAnalyzer: constructor" << endl;
     
-    chi2Th = pset.getUntrackedParameter<double>("chi2Th");  
+
     setChiSquareThreshold(chi2Th*100.); 
 
-    tanPhiTh = pset.getUntrackedParameter<double>("tanPhiTh");  
-
-    /*
-    std::cout<<"building up wireIds"<<std::endl;
-
-    for(int wh=-2;wh<=2;wh++)
-        for(int st=1;st<=4;st++)
-            for(int se=1;se<=14;se++){
-                if(se>=13&&st!=4)continue;
-                DTChamberId theChId(wh,st,se);
-                for(int sl=1;sl<=3;sl++){
-                    if(st==4&&sl==2)continue;
-                    for(int la=1;la<=4;la++){
-			
-                        if(theLayId){
-                            int fC =dtGeo->layer(theLayId)->specificTopology().firstChannel();
-                            int lC =dtGeo->layer(theLayId)->specificTopology().lastChannel();
-                            for(int wi=fC;wi<=lC;wi++){
-                                DTWireId wireId(wh,st,se,sl,la,wi);
-                                LocalPoint wireInChamberFrame = (dtGeo->chamber(theChId)->toLocal(dtGeo->layer(wireId)->toGlobal(Local3DPoint(dtGeo->layer(wireId)->specificTopology().wirePosition(wi), 0., 0.))));
-				std::cout<<"\t DTinfo:wire "<<wireId<<" "<<wireId.rawId()<<" "<<" "<<wireInChamberFrame<<std::endl;
-				int rawId=wireId.rawId();
-				zinfo[rawId]=wireInChamberFrame.z();
-				shiftinfo[rawId]=wireInChamberFrame.x();
-                            }
-                        }
-                    }
-                }
-            }
-    */
-
+    
     //z
     int rawId;
-    z_filename = pset.getUntrackedParameter<std::string>("z_filename");
-    std::ifstream ifin2(z_filename.c_str());
+    z_filename = pset.getParameter<edm::FileInPath>("z_filename");
+    std::ifstream ifin2(z_filename.fullPath());
     double z;
     if (ifin2.fail()) {
       throw cms::Exception("Missing Input File")
-        << "MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL() -  Cannot find " << z_filename.c_str();
+        << "MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL() -  Cannot find " << z_filename.fullPath();
     }
     while (ifin2.good()){
 	ifin2 >> rawId >> z;
@@ -67,12 +40,12 @@ MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL(const ParameterSet& pset) :
     }
 
     //shift
-    shift_filename = pset.getUntrackedParameter<std::string>("shift_filename");
-    std::ifstream ifin3(shift_filename.c_str());
+    shift_filename = pset.getParameter<edm::FileInPath>("shift_filename");
+    std::ifstream ifin3(shift_filename.fullPath());
     double shift;
     if (ifin3.fail()) {
       throw cms::Exception("Missing Input File")
-        << "MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL() -  Cannot find " << shift_filename.c_str();
+        << "MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL() -  Cannot find " << shift_filename.fullPath();
     }
     while (ifin3.good()){
 	ifin3 >> rawId >> shift;

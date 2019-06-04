@@ -21,9 +21,13 @@ MuonPathAssociator::MuonPathAssociator(const ParameterSet& pset) {
 
     //shift
     int rawId;
-    shift_filename = pset.getUntrackedParameter<std::string>("shift_filename");
-    std::ifstream ifin3(shift_filename.c_str());
+    shift_filename = pset.getParameter<edm::FileInPath>("shift_filename");
+    std::ifstream ifin3(shift_filename.fullPath());
     double shift;
+    if (ifin3.fail()) {
+      throw cms::Exception("Missing Input File")
+        << "MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL() -  Cannot find " << shift_filename.fullPath();
+    }
     while (ifin3.good()){
 	ifin3 >> rawId >> shift;
 	shiftinfo[rawId]=shift;

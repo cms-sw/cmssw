@@ -75,7 +75,7 @@ private:
   Bool_t debug;
 
   //shift
-  std::string shift_filename;
+  edm::FileInPath shift_filename;
   std::map<int,float> shiftinfo;
   
 };
