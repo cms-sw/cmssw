@@ -24,188 +24,216 @@
 #include "CommonTools/PileupAlgos/plugins/PuppiPhoton.h"
 
 // ------------------------------------------------------------------------------------------
-PuppiPhoton::PuppiPhoton(const edm::ParameterSet& iConfig) {
-  tokenPFCandidates_     = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("candName"));
-  tokenPuppiCandidates_  = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("puppiCandName"));
-  usePFphotons_          = iConfig.getParameter<bool>("usePFphotons");
-  if(!usePFphotons_)
+PuppiPhoton::PuppiPhoton(const edm::ParameterSet &iConfig) {
+  tokenPFCandidates_ = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("candName"));
+  tokenPuppiCandidates_ = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("puppiCandName"));
+  usePFphotons_ = iConfig.getParameter<bool>("usePFphotons");
+  if (!usePFphotons_)
     tokenPhotonCandidates_ = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("photonName"));
-  usePhotonId_           = !(iConfig.getParameter<edm::InputTag>("photonId")).label().empty();
-  if(usePhotonId_)
-    tokenPhotonId_         = consumes<edm::ValueMap<bool>  >(iConfig.getParameter<edm::InputTag>("photonId"));
-  runOnMiniAOD_          = iConfig.getParameter<bool>("runOnMiniAOD");
-  if(!runOnMiniAOD_)
-    reco2pf_               =  consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(iConfig.getParameter<edm::InputTag>("recoToPFMap"));
-  useValueMap_           = iConfig.getParameter<bool>("useValueMap");
-  if(useValueMap_)
-    tokenWeights_          = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("weightsName"));
+  usePhotonId_ = !(iConfig.getParameter<edm::InputTag>("photonId")).label().empty();
+  if (usePhotonId_)
+    tokenPhotonId_ = consumes<edm::ValueMap<bool>>(iConfig.getParameter<edm::InputTag>("photonId"));
+  runOnMiniAOD_ = iConfig.getParameter<bool>("runOnMiniAOD");
+  if (!runOnMiniAOD_)
+    reco2pf_ =
+        consumes<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(iConfig.getParameter<edm::InputTag>("recoToPFMap"));
+  useValueMap_ = iConfig.getParameter<bool>("useValueMap");
+  if (useValueMap_)
+    tokenWeights_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("weightsName"));
 
-  pt_                    = iConfig.getParameter<double>("pt");
-  eta_                   = iConfig.getParameter<double>("eta");
-  dRMatch_               = iConfig.getParameter<std::vector<double> > ("dRMatch");
-  pdgIds_                = iConfig.getParameter<std::vector<int32_t> >("pdgids");
-  usePFRef_              = iConfig.getParameter<bool>("useRefs");
-  weight_                = iConfig.getParameter<double>("weight");
+  pt_ = iConfig.getParameter<double>("pt");
+  eta_ = iConfig.getParameter<double>("eta");
+  dRMatch_ = iConfig.getParameter<std::vector<double>>("dRMatch");
+  pdgIds_ = iConfig.getParameter<std::vector<int32_t>>("pdgids");
+  usePFRef_ = iConfig.getParameter<bool>("useRefs");
+  weight_ = iConfig.getParameter<double>("weight");
   produces<PFOutputCollection>();
-  produces< edm::ValueMap<reco::CandidatePtr> >(); 
+  produces<edm::ValueMap<reco::CandidatePtr>>();
 }
 // ------------------------------------------------------------------------------------------
-PuppiPhoton::~PuppiPhoton(){}
+PuppiPhoton::~PuppiPhoton() {}
 // ------------------------------------------------------------------------------------------
-void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void PuppiPhoton::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   int iC = -1;
-  std::vector<const reco::Candidate*> phoCands;
+  std::vector<const reco::Candidate *> phoCands;
   std::vector<uint16_t> phoIndx;
 
   edm::Handle<edm::ValueMap<std::vector<reco::PFCandidateRef>>> reco2pf;
-  if(!runOnMiniAOD_) iEvent.getByToken(reco2pf_, reco2pf);
+  if (!runOnMiniAOD_)
+    iEvent.getByToken(reco2pf_, reco2pf);
 
   // Get PFCandidate Collection
   edm::Handle<CandidateView> hPFProduct;
-  iEvent.getByToken(tokenPFCandidates_,hPFProduct);
+  iEvent.getByToken(tokenPFCandidates_, hPFProduct);
   const CandidateView *pfCol = hPFProduct.product();
 
   edm::Handle<CandidateView> hPuppiProduct;
-  iEvent.getByToken(tokenPuppiCandidates_,hPuppiProduct);
+  iEvent.getByToken(tokenPuppiCandidates_, hPuppiProduct);
   const CandidateView *pupCol = hPuppiProduct.product();
-  if(usePFphotons_) {
-   for(const auto & pho : *pfCol) {
-    iC++;
-    if(pho.pt() < pt_) continue;
-    if(std::abs(pho.pdgId())!=22) continue;
-    if(fabs(pho.eta()) < eta_ ) {
-     phoIndx.push_back(iC);
-     phoCands.push_back(&pho);
-    }
-   }
-  } else {
-   edm::Handle<CandidateView> hPhoProduct;
-   iEvent.getByToken(tokenPhotonCandidates_,hPhoProduct);
-   const CandidateView *phoCol = hPhoProduct.product();
-
-   edm::Handle<edm::ValueMap<bool> > photonId;
-   if(usePhotonId_) iEvent.getByToken(tokenPhotonId_,photonId);
-
-   for(CandidateView::const_iterator itPho = phoCol->begin(); itPho!=phoCol->end(); itPho++) {
-    iC++;
-    bool passObject = false;
-    if(itPho->isPhoton() && usePhotonId_)   passObject =  (*photonId)  [phoCol->ptrAt(iC)];
-    if(itPho->pt() < pt_) continue;
-    if(!passObject && usePhotonId_) continue;
-    if(runOnMiniAOD_) {
-      const pat::Photon *pPho = dynamic_cast<const pat::Photon*>(&(*itPho));
-      if(pPho != nullptr) {
-        for( const edm::Ref<pat::PackedCandidateCollection> & ref : pPho->associatedPackedPFCandidates() ) {
-	  if(fabs(ref->eta()) < eta_ ) {
-	    phoIndx.push_back(ref.key());
-	    phoCands.push_back(&(*(pfCol->ptrAt(ref.key()))));
-	  }
-        }
+  if (usePFphotons_) {
+    for (const auto &pho : *pfCol) {
+      iC++;
+      if (pho.pt() < pt_)
         continue;
-      }
-      const pat::Electron *pElectron = dynamic_cast<const pat::Electron*>(&(*itPho));
-      if(pElectron != nullptr) {
-        for( const edm::Ref<pat::PackedCandidateCollection> & ref : pElectron->associatedPackedPFCandidates() )
-	  if(fabs(ref->eta()) < eta_ )  {
-	    phoIndx.push_back(ref.key());
-	    phoCands.push_back(&(*(pfCol->ptrAt(ref.key()))));
-	  }
-      }
-    } else {
-      for( const edm::Ref<std::vector<reco::PFCandidate> > & ref : (*reco2pf)[phoCol->ptrAt(iC)] ) {
-	  if(fabs(ref->eta()) < eta_ )  {
-	    phoIndx.push_back(ref.key());
-	    phoCands.push_back(&(*(pfCol->ptrAt(ref.key()))));
-	  }
+      if (std::abs(pho.pdgId()) != 22)
+        continue;
+      if (fabs(pho.eta()) < eta_) {
+        phoIndx.push_back(iC);
+        phoCands.push_back(&pho);
       }
     }
-   }
+  } else {
+    edm::Handle<CandidateView> hPhoProduct;
+    iEvent.getByToken(tokenPhotonCandidates_, hPhoProduct);
+    const CandidateView *phoCol = hPhoProduct.product();
+
+    edm::Handle<edm::ValueMap<bool>> photonId;
+    if (usePhotonId_)
+      iEvent.getByToken(tokenPhotonId_, photonId);
+
+    for (CandidateView::const_iterator itPho = phoCol->begin(); itPho != phoCol->end(); itPho++) {
+      iC++;
+      bool passObject = false;
+      if (itPho->isPhoton() && usePhotonId_)
+        passObject = (*photonId)[phoCol->ptrAt(iC)];
+      if (itPho->pt() < pt_)
+        continue;
+      if (!passObject && usePhotonId_)
+        continue;
+      if (runOnMiniAOD_) {
+        const pat::Photon *pPho = dynamic_cast<const pat::Photon *>(&(*itPho));
+        if (pPho != nullptr) {
+          for (const edm::Ref<pat::PackedCandidateCollection> &ref : pPho->associatedPackedPFCandidates()) {
+            if (fabs(ref->eta()) < eta_) {
+              phoIndx.push_back(ref.key());
+              phoCands.push_back(&(*(pfCol->ptrAt(ref.key()))));
+            }
+          }
+          continue;
+        }
+        const pat::Electron *pElectron = dynamic_cast<const pat::Electron *>(&(*itPho));
+        if (pElectron != nullptr) {
+          for (const edm::Ref<pat::PackedCandidateCollection> &ref : pElectron->associatedPackedPFCandidates())
+            if (fabs(ref->eta()) < eta_) {
+              phoIndx.push_back(ref.key());
+              phoCands.push_back(&(*(pfCol->ptrAt(ref.key()))));
+            }
+        }
+      } else {
+        for (const edm::Ref<std::vector<reco::PFCandidate>> &ref : (*reco2pf)[phoCol->ptrAt(iC)]) {
+          if (fabs(ref->eta()) < eta_) {
+            phoIndx.push_back(ref.key());
+            phoCands.push_back(&(*(pfCol->ptrAt(ref.key()))));
+          }
+        }
+      }
+    }
   }
   //Get Weights
-  edm::Handle<edm::ValueMap<float> > pupWeights; 
-  if(useValueMap_)
-    iEvent.getByToken(tokenWeights_,pupWeights);
-  std::unique_ptr<edm::ValueMap<LorentzVector> > p4PupOut(new edm::ValueMap<LorentzVector>());
+  edm::Handle<edm::ValueMap<float>> pupWeights;
+  if (useValueMap_)
+    iEvent.getByToken(tokenWeights_, pupWeights);
+  std::unique_ptr<edm::ValueMap<LorentzVector>> p4PupOut(new edm::ValueMap<LorentzVector>());
   LorentzVectorCollection puppiP4s;
   std::vector<reco::CandidatePtr> values(hPFProduct->size());
-  int iPF = 0; 
+  int iPF = 0;
   std::vector<float> lWeights;
   static const reco::PFCandidate dummySinceTranslateIsNotStatic;
-  corrCandidates_.reset( new PFOutputCollection );
+  corrCandidates_.reset(new PFOutputCollection);
   std::set<int> foundPhoIndex;
-  for(CandidateView::const_iterator itPF = pupCol->begin(); itPF!=pupCol->end(); itPF++) {  
+  for (CandidateView::const_iterator itPF = pupCol->begin(); itPF != pupCol->end(); itPF++) {
     auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(itPF->pdgId());
-    const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&(*itPF));
-    reco::PFCandidate pCand( pPF ? *pPF : reco::PFCandidate(itPF->charge(), itPF->p4(), id) );
+    const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate *>(&(*itPF));
+    reco::PFCandidate pCand(pPF ? *pPF : reco::PFCandidate(itPF->charge(), itPF->p4(), id));
     LorentzVector pVec = itPF->p4();
     float pWeight = 1.;
-    if(useValueMap_) pWeight  = (*pupWeights)[pupCol->ptrAt(iPF)];     
-    if(!usePFRef_) { 
+    if (useValueMap_)
+      pWeight = (*pupWeights)[pupCol->ptrAt(iPF)];
+    if (!usePFRef_) {
       int iPho = -1;
-      for(std::vector<const reco::Candidate*>::iterator itPho = phoCands.begin(); itPho!=phoCands.end(); itPho++) {
-	iPho++;
-	if((!matchPFCandidate(&(*itPF),*itPho))||(foundPhoIndex.count(iPho)!=0)) continue;
+      for (std::vector<const reco::Candidate *>::iterator itPho = phoCands.begin(); itPho != phoCands.end(); itPho++) {
+        iPho++;
+        if ((!matchPFCandidate(&(*itPF), *itPho)) || (foundPhoIndex.count(iPho) != 0))
+          continue;
         pWeight = weight_;
-	if(!useValueMap_ && itPF->pt() != 0) pWeight = pWeight*(phoCands[iPho]->pt()/itPF->pt());
-	if(!useValueMap_ && itPF->pt() == 0) pVec.SetPxPyPzE(phoCands[iPho]->px()*pWeight,phoCands[iPho]->py()*pWeight,phoCands[iPho]->pz()*pWeight,phoCands[iPho]->energy()*pWeight);
+        if (!useValueMap_ && itPF->pt() != 0)
+          pWeight = pWeight * (phoCands[iPho]->pt() / itPF->pt());
+        if (!useValueMap_ && itPF->pt() == 0)
+          pVec.SetPxPyPzE(phoCands[iPho]->px() * pWeight,
+                          phoCands[iPho]->py() * pWeight,
+                          phoCands[iPho]->pz() * pWeight,
+                          phoCands[iPho]->energy() * pWeight);
         foundPhoIndex.insert(iPho);
       }
-    } else { 
+    } else {
       int iPho = -1;
-      for(std::vector<uint16_t>::const_iterator itPho = phoIndx.begin(); itPho!=phoIndx.end(); itPho++) {
+      for (std::vector<uint16_t>::const_iterator itPho = phoIndx.begin(); itPho != phoIndx.end(); itPho++) {
         iPho++;
-        if(pupCol->refAt(iPF).key() != *itPho) continue;
+        if (pupCol->refAt(iPF).key() != *itPho)
+          continue;
         pWeight = weight_;
-        if(!useValueMap_ && itPF->pt() != 0) pWeight = pWeight*(phoCands[iPho]->pt()/itPF->pt());
-	if(!useValueMap_ && itPF->pt() == 0) pVec.SetPxPyPzE(phoCands[iPho]->px()*pWeight,phoCands[iPho]->py()*pWeight,phoCands[iPho]->pz()*pWeight,phoCands[iPho]->energy()*pWeight);
+        if (!useValueMap_ && itPF->pt() != 0)
+          pWeight = pWeight * (phoCands[iPho]->pt() / itPF->pt());
+        if (!useValueMap_ && itPF->pt() == 0)
+          pVec.SetPxPyPzE(phoCands[iPho]->px() * pWeight,
+                          phoCands[iPho]->py() * pWeight,
+                          phoCands[iPho]->pz() * pWeight,
+                          phoCands[iPho]->energy() * pWeight);
         foundPhoIndex.insert(iPho);
       }
     }
-    if(itPF->pt() != 0) pVec.SetPxPyPzE(itPF->px()*pWeight,itPF->py()*pWeight,itPF->pz()*pWeight,itPF->energy()*pWeight);
+    if (itPF->pt() != 0)
+      pVec.SetPxPyPzE(itPF->px() * pWeight, itPF->py() * pWeight, itPF->pz() * pWeight, itPF->energy() * pWeight);
 
     lWeights.push_back(pWeight);
     pCand.setP4(pVec);
-    puppiP4s.push_back( pVec );
-    pCand.setSourceCandidatePtr( itPF->sourceCandidatePtr(0) );
+    puppiP4s.push_back(pVec);
+    pCand.setSourceCandidatePtr(itPF->sourceCandidatePtr(0));
     corrCandidates_->push_back(pCand);
     iPF++;
   }
   //Add the missing pfcandidates
-  for(unsigned int iPho = 0; iPho < phoCands.size(); iPho++) { 
-    if(foundPhoIndex.count(iPho)!=0) continue;
+  for (unsigned int iPho = 0; iPho < phoCands.size(); iPho++) {
+    if (foundPhoIndex.count(iPho) != 0)
+      continue;
     auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(phoCands[iPho]->pdgId());
-    reco::PFCandidate pCand(reco::PFCandidate(phoCands[iPho]->charge(), phoCands[iPho]->p4(),id) );
-    pCand.setSourceCandidatePtr( phoCands[iPho]->sourceCandidatePtr(0) );
+    reco::PFCandidate pCand(reco::PFCandidate(phoCands[iPho]->charge(), phoCands[iPho]->p4(), id));
+    pCand.setSourceCandidatePtr(phoCands[iPho]->sourceCandidatePtr(0));
     LorentzVector pVec = phoCands[iPho]->p4();
-    pVec.SetPxPyPzE(phoCands[iPho]->px()*weight_,phoCands[iPho]->py()*weight_,phoCands[iPho]->pz()*weight_,phoCands[iPho]->energy()*weight_);
+    pVec.SetPxPyPzE(phoCands[iPho]->px() * weight_,
+                    phoCands[iPho]->py() * weight_,
+                    phoCands[iPho]->pz() * weight_,
+                    phoCands[iPho]->energy() * weight_);
     pCand.setP4(pVec);
     lWeights.push_back(weight_);
-    puppiP4s.push_back( pVec );
+    puppiP4s.push_back(pVec);
     corrCandidates_->push_back(pCand);
   }
   //Fill it into the event
   edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put(std::move(corrCandidates_));
-  for(unsigned int ic=0, nc = pupCol->size(); ic < nc; ++ic) {
-      reco::CandidatePtr pkref( oh, ic );
-      values[ic] = pkref;
-  }  
-  std::unique_ptr<edm::ValueMap<reco::CandidatePtr> > pfMap_p(new edm::ValueMap<reco::CandidatePtr>());
+  for (unsigned int ic = 0, nc = pupCol->size(); ic < nc; ++ic) {
+    reco::CandidatePtr pkref(oh, ic);
+    values[ic] = pkref;
+  }
+  std::unique_ptr<edm::ValueMap<reco::CandidatePtr>> pfMap_p(new edm::ValueMap<reco::CandidatePtr>());
   edm::ValueMap<reco::CandidatePtr>::Filler filler(*pfMap_p);
   filler.insert(hPFProduct, values.begin(), values.end());
   filler.fill();
   iEvent.put(std::move(pfMap_p));
 }
 // ------------------------------------------------------------------------------------------
-bool PuppiPhoton::matchPFCandidate(const reco::Candidate *iPF,const reco::Candidate *iPho) { 
-  if(iPF->pdgId() != iPho->pdgId()) return false;
-  double lDR = deltaR(iPF->eta(),iPF->phi(),iPho->eta(),iPho->phi());
-  for(unsigned int i0 = 0; i0 < pdgIds_.size(); i0++) {
-    if(std::abs(iPF->pdgId()) == pdgIds_[i0] && lDR < dRMatch_[i0])  return true;
+bool PuppiPhoton::matchPFCandidate(const reco::Candidate *iPF, const reco::Candidate *iPho) {
+  if (iPF->pdgId() != iPho->pdgId())
+    return false;
+  double lDR = deltaR(iPF->eta(), iPF->phi(), iPho->eta(), iPho->phi());
+  for (unsigned int i0 = 0; i0 < pdgIds_.size(); i0++) {
+    if (std::abs(iPF->pdgId()) == pdgIds_[i0] && lDR < dRMatch_[i0])
+      return true;
   }
   return false;
 }
 // ------------------------------------------------------------------------------------------
-void PuppiPhoton::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void PuppiPhoton::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

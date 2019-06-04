@@ -16,9 +16,10 @@
 
 struct Booster {
   /// constructor from a boost vector
-  Booster( const math::XYZVector & b ) : boost( b ) { }
+  Booster(const math::XYZVector& b) : boost(b) {}
   /// set up a candidate kinematics according to the boost
-  void set( reco::Candidate& c );
+  void set(reco::Candidate& c);
+
 private:
   const math::XYZVector boost;
 };
