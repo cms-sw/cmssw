@@ -7,7 +7,6 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
-
 typedef edm::SortedCollection<EcalRecHit> EcalRecHitCollection;
 typedef edm::Ref<EcalRecHitCollection> EcalRecHitRef;
 typedef edm::RefVector<EcalRecHitCollection> EcalRecHitRefs;
