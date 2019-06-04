@@ -267,6 +267,12 @@ def _setupEgammaPostRECOSequenceMiniAOD(process,applyEnergyCorrections=False,app
         process.photonIDValueMapProducer.srcMiniAOD = phoVIDSrc
         process.egmPhotonIsolation.srcToIsolate = phoVIDSrc
 
+        #we need to also zero out the AOD srcs as otherwise it gets confused in two tier jobs
+        #and bad things happen
+        process.electronMVAValueMapProducer.src = cms.InputTag("")
+        process.photonMVAValueMapProducer.src = cms.InputTag("")
+        process.photonIDValueMapProducer.src = cms.InputTag("")
+
     if runVID and hasattr(process,'heepIDVarValueMaps'):
         process.heepIDVarValueMaps.elesMiniAOD = eleVIDSrc
         process.heepIDVarValueMaps.dataFormat = 2
