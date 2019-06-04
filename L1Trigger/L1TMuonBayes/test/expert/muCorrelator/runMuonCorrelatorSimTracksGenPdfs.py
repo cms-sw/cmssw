@@ -20,10 +20,10 @@ if verbose:
                                                #'critical',
                                                #'cout',
                                                #'cerr',
-                                               'omtfEventDump'
+                                               'muCorrelatorEventPrint'
                     ),
        categories        = cms.untracked.vstring('l1tMuBayesEventPrint'),
-       omtfEventDump = cms.untracked.PSet(    
+       muCorrelatorEventPrint = cms.untracked.PSet(    
                          extension = cms.untracked.string('.txt'),                
                          threshold = cms.untracked.string('DEBUG'),
                          default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
@@ -31,13 +31,13 @@ if verbose:
                          #DEBUG   = cms.untracked.int32(0),
                          l1tMuBayesEventPrint = cms.untracked.PSet( limit = cms.untracked.int32(100000000) )
                        ),
-       debugModules = cms.untracked.vstring('L1TMuonOverlapTTMergerTrackProducer', 'OmtfTTAnalyzer', 'simOmtfDigis', 'omtfTTAnalyzer', 'simBayesMuCorrelatorTrackProducer') 
+       debugModules = cms.untracked.vstring('L1TMuonBayesMuCorrelatorTrackProducer', 'OmtfTTAnalyzer', 'simOmtfDigis', 'omtfTTAnalyzer', 'simBayesMuCorrelatorTrackProducer') 
        #debugModules = cms.untracked.vstring('*')
     )
 
     #process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 if not verbose:
-    process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
+    process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
     process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False), 
                                          #SkipEvent = cms.untracked.vstring('ProductNotFound') 
                                      )
@@ -49,7 +49,6 @@ GEOMETRY = "D17"
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
-#process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
@@ -58,7 +57,6 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
@@ -209,7 +207,7 @@ process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("SIM_TRACK
 process.simBayesMuCorrelatorTrackProducer.pdfModuleType = cms.string("PdfModuleWithStats") #TODO
 process.simBayesMuCorrelatorTrackProducer.minDtPhQuality = cms.int32(4);
 process.simBayesMuCorrelatorTrackProducer.generatePdfs = cms.bool(True);
-process.simBayesMuCorrelatorTrackProducer.pdfModuleFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModuleSimTracks100FilesWithiRPC.xml") #TODO
+process.simBayesMuCorrelatorTrackProducer.pdfModuleFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/expert/muCorrelator/pdfModuleSimTracks100FilesSigma1p3.xml") #TODO
 process.simBayesMuCorrelatorTrackProducer.generateTiming = cms.bool(False)
 
 process.L1TMuonSeq = cms.Sequence( #process.esProd +         
