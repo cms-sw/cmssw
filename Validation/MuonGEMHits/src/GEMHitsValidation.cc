@@ -79,7 +79,6 @@ void GEMHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
     for( auto& region : GEMGeometry_->regions() ){
       for( auto& station : region->stations() ){    
         for( auto& ring : station->rings()){
-          GEMDetId id;
           if ( ring->ring() != 1 ) break ; // Only Ring1 is interesting.
           string name_suffix = getSuffixName(region->region(), station->station());
           string title_suffix= getSuffixTitle(region->region(), station->station());
@@ -167,7 +166,7 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     Int_t nroll = (Int_t) id.roll();
 
     //Int_t even_odd = id.chamber()%2;
-    if ( GEMGeometry_->idToDet(hits->detUnitId()) == nullptr) {
+    if ( GEMGeometry_->idToDet(GEMDetId(hits->detUnitId())) == nullptr) {
       std::cout<<"simHit did not matched with GEMGeometry."<<std::endl;
       continue;
     }
@@ -175,7 +174,7 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     //const GlobalPoint Gp0(GEMGeometry_->idToDet(hits->detUnitId())->surface().toGlobal(p0));
     const LocalPoint hitLP(hits->localPosition());
     
-    const GlobalPoint hitGP(GEMGeometry_->idToDet(hits->detUnitId())->surface().toGlobal(hitLP));
+    const GlobalPoint hitGP(GEMGeometry_->idToDet(GEMDetId(hits->detUnitId()))->surface().toGlobal(hitLP));
     Float_t g_r = hitGP.perp();
     Float_t g_x = hitGP.x();
     Float_t g_y = hitGP.y();
