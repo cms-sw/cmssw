@@ -11,6 +11,6 @@
 #include <FWCore/PluginManager/interface/PluginFactory.h>
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentAlgorithm.h>
 
-typedef edmplugin::PluginFactory<CSCSegmentAlgorithm *(const edm::ParameterSet&)> CSCSegmentBuilderPluginFactory;
+typedef edmplugin::PluginFactory<CSCSegmentAlgorithm *(const edm::ParameterSet &)> CSCSegmentBuilderPluginFactory;
 
 #endif
