@@ -17,6 +17,7 @@
 #include <ostream>
 #include <cassert>
 #include <iostream>
+#include <string_view>
 
 enum : char {
   kTbool = 'B',
@@ -51,58 +52,157 @@ enum : char {
   kTVEventRange = 'r'
 };
 
-namespace edm {
-  namespace pset {
+static constexpr const std::array<std::string_view, 30> s_types = {{"bool",
+                                                                    "double",
+                                                                    "int32",
+                                                                    "int64",
+                                                                    "path",
+                                                                    "string",
+                                                                    "uint32",
+                                                                    "uint64",
+                                                                    "vdouble",
+                                                                    "vint32",
+                                                                    "vint64",
+                                                                    "vstring",
+                                                                    "vuint32",
+                                                                    "vuint64",
+                                                                    "vBool",
+                                                                    "vPSet",
+                                                                    "EventID",
+                                                                    "EventRange",
+                                                                    "ESInputTag",
+                                                                    "FileInPath",
+                                                                    "InputTag",
+                                                                    "LuminosityBlockID",
+                                                                    "LuminosityBlockRange",
+                                                                    "PSet",
+                                                                    "VEventID",
+                                                                    "VEventRange",
+                                                                    "VESInputTag",
+                                                                    "VInputTag",
+                                                                    "VLuminosityBlockID",
+                                                                    "VLuminosityBlockRange"}};
 
-    struct TypeTrans {
-      TypeTrans();
+static constexpr const std::array<char, 30> s_codes = {{kTbool,
+                                                        kTdouble,
+                                                        kTint32,
+                                                        kTint64,
+                                                        kTpath,
+                                                        kTstring,
+                                                        kTuint32,
+                                                        kTuint64,
+                                                        kTvdouble,
+                                                        kTvint32,
+                                                        kTvint64,
+                                                        kTvstring,
+                                                        kTvuint32,
+                                                        kTvuint64,
+                                                        kTvBool,
+                                                        kTvPSet,
+                                                        kTEventID,
+                                                        kTEventRange,
+                                                        kTESInputTag,
+                                                        kTFileInPath,
+                                                        kTInputTag,
+                                                        kTLuminosityBlockID,
+                                                        kTLuminosityBlockRange,
+                                                        kTPSet,
+                                                        kTVEventID,
+                                                        kTVEventRange,
+                                                        kTVESInputTag,
+                                                        kTVInputTag,
+                                                        kTVLuminosityBlockID,
+                                                        kTVLuminosityBlockRange}};
 
-      typedef std::vector<std::string> CodeMap;
-      CodeMap table_;
-      std::map<std::string, char> type2Code_;
-    };
-
-    TypeTrans::TypeTrans() : table_(255) {
-      table_[kTvBool] = "vBool";
-      table_[kTbool] = "bool";
-      table_[kTvint32] = "vint32";
-      table_[kTint32] = "int32";
-      table_[kTvuint32] = "vuint32";
-      table_[kTuint32] = "uint32";
-      table_[kTvint64] = "vint64";
-      table_[kTint64] = "int64";
-      table_[kTvuint64] = "vuint64";
-      table_[kTuint64] = "uint64";
-      table_[kTvstring] = "vstring";
-      table_[kTstring] = "string";
-      table_[kTvdouble] = "vdouble";
-      table_[kTdouble] = "double";
-      table_[kTvPSet] = "vPSet";
-      table_[kTPSet] = "PSet";
-      table_[kTpath] = "path";
-      table_[kTFileInPath] = "FileInPath";
-      table_[kTInputTag] = "InputTag";
-      table_[kTVInputTag] = "VInputTag";
-      table_[kTESInputTag] = "ESInputTag";
-      table_[kTVESInputTag] = "VESInputTag";
-      table_[kTVEventID] = "VEventID";
-      table_[kTEventID] = "EventID";
-      table_[kTVLuminosityBlockID] = "VLuminosityBlockID";
-      table_[kTLuminosityBlockID] = "LuminosityBlockID";
-      table_[kTVLuminosityBlockRange] = "VLuminosityBlockRange";
-      table_[kTLuminosityBlockRange] = "LuminosityBlockRange";
-      table_[kTVEventRange] = "VEventRange";
-      table_[kTEventRange] = "EventRange";
-
-      for (CodeMap::const_iterator itCode = table_.begin(), itCodeEnd = table_.end(); itCode != itCodeEnd; ++itCode) {
-        type2Code_[*itCode] = (itCode - table_.begin());
-      }
+//a compile time function to convert code to type
+// not used at runtime since does linear search
+static constexpr std::string_view c2t(char iCode) {
+  static_assert(s_codes.size() == s_types.size());
+  for (size_t index = 0; index < s_codes.size(); ++index) {
+    if (s_codes[index] == iCode) {
+      return s_types[index];
     }
-  }  // namespace pset
+  }
+  return nullptr;
+}
 
-  static pset::TypeTrans const sTypeTranslations;
-  typedef std::map<std::string, char> Type2Code;
+static constexpr std::array<std::string_view, 255> fillTable() {
+  std::array<std::string_view, 255> table_ = {{nullptr}};
+  static_assert(not c2t(kTvBool).empty());
+  table_[kTvBool] = c2t(kTvBool);
+  static_assert(not c2t(kTbool).empty());
+  table_[kTbool] = c2t(kTbool);
+  static_assert(not c2t(kTvint32).empty());
+  table_[kTvint32] = c2t(kTvint32);
+  static_assert(not c2t(kTint32).empty());
+  table_[kTint32] = c2t(kTint32);
+  static_assert(not c2t(kTvuint32).empty());
+  table_[kTvuint32] = c2t(kTvuint32);
+  static_assert(not c2t(kTuint32).empty());
+  table_[kTuint32] = c2t(kTuint32);
+  static_assert(not c2t(kTvint64).empty());
+  table_[kTvint64] = c2t(kTvint64);
+  static_assert(not c2t(kTint64).empty());
+  table_[kTint64] = c2t(kTint64);
+  static_assert(not c2t(kTvuint64).empty());
+  table_[kTvuint64] = c2t(kTvuint64);
+  static_assert(not c2t(kTuint64).empty());
+  table_[kTuint64] = c2t(kTuint64);
+  static_assert(not c2t(kTvstring).empty());
+  table_[kTvstring] = c2t(kTvstring);
+  static_assert(not c2t(kTstring).empty());
+  table_[kTstring] = c2t(kTstring);
+  static_assert(not c2t(kTvdouble).empty());
+  table_[kTvdouble] = c2t(kTvdouble);
+  static_assert(not c2t(kTdouble).empty());
+  table_[kTdouble] = c2t(kTdouble);
+  static_assert(not c2t(kTvPSet).empty());
+  table_[kTvPSet] = c2t(kTvPSet);
+  static_assert(not c2t(kTPSet).empty());
+  table_[kTPSet] = c2t(kTPSet);
+  static_assert(not c2t(kTpath).empty());
+  table_[kTpath] = c2t(kTpath);
+  static_assert(not c2t(kTFileInPath).empty());
+  table_[kTFileInPath] = c2t(kTFileInPath);
+  static_assert(not c2t(kTInputTag).empty());
+  table_[kTInputTag] = c2t(kTInputTag);
+  static_assert(not c2t(kTVInputTag).empty());
+  table_[kTVInputTag] = c2t(kTVInputTag);
+  static_assert(not c2t(kTESInputTag).empty());
+  table_[kTESInputTag] = c2t(kTESInputTag);
+  static_assert(not c2t(kTVESInputTag).empty());
+  table_[kTVESInputTag] = c2t(kTVESInputTag);
+  static_assert(not c2t(kTVEventID).empty());
+  table_[kTVEventID] = c2t(kTVEventID);
+  static_assert(not c2t(kTFileInPath).empty());
+  table_[kTEventID] = c2t(kTEventID);
+  static_assert(not c2t(kTVLuminosityBlockID).empty());
+  table_[kTVLuminosityBlockID] = c2t(kTVLuminosityBlockID);
+  static_assert(not c2t(kTLuminosityBlockID).empty());
+  table_[kTLuminosityBlockID] = c2t(kTLuminosityBlockID);
+  static_assert(not c2t(kTVLuminosityBlockRange).empty());
+  table_[kTVLuminosityBlockRange] = c2t(kTVLuminosityBlockRange);
+  static_assert(not c2t(kTLuminosityBlockRange).empty());
+  table_[kTLuminosityBlockRange] = c2t(kTLuminosityBlockRange);
+  static_assert(not c2t(kTVEventRange).empty());
+  table_[kTVEventRange] = c2t(kTVEventRange);
+  static_assert(not c2t(kTEventRange).empty());
+  table_[kTEventRange] = c2t(kTEventRange);
+  return table_;
+}
 
+static constexpr const std::array<std::string_view, 255> s_table = fillTable();
+
+static constexpr std::string_view typeFromCode(char iCode) { return s_table[iCode]; }
+
+static char codeFromType(const std::string& iType) {
+  auto itFound = std::lower_bound(s_types.begin(), s_types.end(), iType);
+  if (itFound == s_types.end() or *itFound != iType) {
+    throw edm::Exception(edm::errors::Configuration) << "bad type name used for Entry : " << iType;
+  }
+  return s_codes[itFound - s_types.begin()];
+}
+namespace edm {
   // ----------------------------------------------------------------------
   // consistency-checker
   // ----------------------------------------------------------------------
@@ -595,12 +695,7 @@ namespace edm {
       : name_(name), rep(), type('?'), tracked('?') {
     std::string codedString(is_tracked ? "-" : "+");
 
-    Type2Code::const_iterator itFound = sTypeTranslations.type2Code_.find(type);
-    if (itFound == sTypeTranslations.type2Code_.end()) {
-      throw Exception(errors::Configuration) << "bad type name used for Entry : " << type;
-    }
-
-    codedString += itFound->second;
+    codedString += codeFromType(type);
     codedString += '(';
     codedString += value;
     codedString += ')';
@@ -615,12 +710,7 @@ namespace edm {
       : name_(name), rep(), type('?'), tracked('?') {
     std::string codedString(is_tracked ? "-" : "+");
 
-    Type2Code::const_iterator itFound = sTypeTranslations.type2Code_.find(type);
-    if (itFound == sTypeTranslations.type2Code_.end()) {
-      throw Exception(errors::Configuration) << "bad type name used for Entry : " << type;
-    }
-
-    codedString += itFound->second;
+    codedString += codeFromType(type);
     codedString += '(';
     codedString += '{';
     std::vector<std::string>::const_iterator i = value.begin();
@@ -1023,7 +1113,7 @@ namespace edm {
   }
 
   std::ostream& operator<<(std::ostream& os, Entry const& entry) {
-    os << sTypeTranslations.table_[entry.typeCode()] << " " << (entry.isTracked() ? "tracked " : "untracked ") << " = ";
+    os << typeFromCode(entry.typeCode()) << " " << (entry.isTracked() ? "tracked " : "untracked ") << " = ";
 
     // now handle the difficult cases
     switch (entry.typeCode()) {
@@ -1116,8 +1206,8 @@ namespace edm {
   // Helper functions for throwing exceptions
 
   void Entry::throwValueError(char const* expectedType) const {
-    throw Exception(errors::Configuration, "ValueError") << "type of " << name_ << " is expected to be " << expectedType
-                                                         << " but declared as " << sTypeTranslations.table_[type];
+    throw Exception(errors::Configuration, "ValueError")
+        << "type of " << name_ << " is expected to be " << expectedType << " but declared as " << typeFromCode(type);
   }
 
   void Entry::throwEntryError(char const* expectedType, std::string const& badRep) const {
