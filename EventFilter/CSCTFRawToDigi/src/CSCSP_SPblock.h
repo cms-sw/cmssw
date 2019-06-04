@@ -14,8 +14,8 @@ private:
   unsigned charge_ : 1;     // muon charge bit
   unsigned eta_ : 5;        // pseudo rapidity, eta[4:1] is a part of the PT LUT address
   unsigned halo_ : 1;       // halo bit
-  unsigned
-      se : 1;  // synchronization error: OR of 15 SM bits for all LCTs and similar bits for 2 MB Stubs, passed to the MS
+  // synchronization error: OR of 15 SM bits for all LCTs and similar bits for 2 MB Stubs, passed to the MS
+  unsigned se : 1;
   unsigned zero_1 : 1;  // format specific
   /////// word 2 ///////
   unsigned deltaPhi12_ : 8;  // difference in phi between station 1 and 2, part of the PT LUT address

@@ -91,9 +91,9 @@ void TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
   ///    NOTE: in terms of coordinates, the center of the module is at NROWS/2-0.5 to
   ///    be consistent with the definition given above
 
-  double offsetD =
-      2 * delta * (mp0.x() - (top0->nrows() / 2 - 0.5)) * (pitch0.first / pitch1.first);  /// In HALF-STRIP units!
-  int offsetI = ((offsetD > 0) - (offsetD < 0)) * floor(std::abs(offsetD));               /// In HALF-STRIP units!
+  /// In HALF-STRIP units!
+  double offsetD = 2 * delta * (mp0.x() - (top0->nrows() / 2 - 0.5)) * (pitch0.first / pitch1.first);
+  int offsetI = ((offsetD > 0) - (offsetD < 0)) * floor(std::abs(offsetD));  /// In HALF-STRIP units!
 
   if (stDetId.subdetId() == StripSubdetector::TOB) {
     int layer = theTrackerTopo_->layer(stDetId);
@@ -104,8 +104,8 @@ void TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
     if (type < 3)  // Only for tilted modules
     {
       corr = (barrelNTilt.at(layer) + 1) / 2.;
-      ladder =
-          corr - (corr - ladder) * type;  // Corrected ring number, bet 0 and barrelNTilt.at(layer), in ascending |z|
+      // Corrected ring number, bet 0 and barrelNTilt.at(layer), in ascending |z|
+      ladder = corr - (corr - ladder) * type;
       window = 2 * (tiltedCut.at(layer)).at(ladder);
     } else  // Classis barrel window otherwise
     {
