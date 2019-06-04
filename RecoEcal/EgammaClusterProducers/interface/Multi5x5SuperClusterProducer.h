@@ -15,49 +15,41 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 //
 
+class Multi5x5SuperClusterProducer : public edm::stream::EDProducer<> {
+public:
+  Multi5x5SuperClusterProducer(const edm::ParameterSet& ps);
 
-class Multi5x5SuperClusterProducer : public edm::stream::EDProducer<>
-{
-  
-  public:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endStream() override;
 
-      Multi5x5SuperClusterProducer(const edm::ParameterSet& ps);
+private:
+  edm::EDGetTokenT<reco::BasicClusterCollection> eeClustersToken_;
+  edm::EDGetTokenT<reco::BasicClusterCollection> ebClustersToken_;
+  edm::EDPutTokenT<reco::SuperClusterCollection> endcapPutToken_;
+  edm::EDPutTokenT<reco::SuperClusterCollection> barrelPutToken_;
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endStream() override;
+  const float barrelEtaSearchRoad_;
+  const float barrelPhiSearchRoad_;
+  const float endcapEtaSearchRoad_;
+  const float endcapPhiSearchRoad_;
+  const float seedTransverseEnergyThreshold_;
 
-   private:
+  const bool doBarrel_;
+  const bool doEndcaps_;
 
-      edm::EDGetTokenT<reco::BasicClusterCollection> eeClustersToken_; 
-      edm::EDGetTokenT<reco::BasicClusterCollection> ebClustersToken_; 
-      edm::EDPutTokenT<reco::SuperClusterCollection> endcapPutToken_;
-      edm::EDPutTokenT<reco::SuperClusterCollection> barrelPutToken_;
+  std::unique_ptr<Multi5x5BremRecoveryClusterAlgo> bremAlgo_p;
 
-      const float barrelEtaSearchRoad_;
-      const float barrelPhiSearchRoad_;
-      const float endcapEtaSearchRoad_; 
-      const float endcapPhiSearchRoad_;
-      const float seedTransverseEnergyThreshold_;
+  double totalE;
+  int noSuperClusters;
 
-      const bool doBarrel_;
-      const bool doEndcaps_;
+  reco::CaloClusterPtrVector getClusterPtrVector(
+      edm::Event& evt, const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken) const;
 
-      std::unique_ptr<Multi5x5BremRecoveryClusterAlgo>  bremAlgo_p;
+  void produceSuperclustersForECALPart(edm::Event& evt,
+                                       const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
+                                       const edm::EDPutTokenT<reco::SuperClusterCollection>& putToken);
 
-      double totalE;
-      int noSuperClusters;
-
-      reco::CaloClusterPtrVector
-      getClusterPtrVector(edm::Event& evt, 
-                          const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken) const;
-  
-      void produceSuperclustersForECALPart(edm::Event& evt, 
-                                           const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
-                                           const edm::EDPutTokenT<reco::SuperClusterCollection>& putToken);
-
-      void outputValidationInfo(reco::SuperClusterCollection &superclusterCollection);
-    
+  void outputValidationInfo(reco::SuperClusterCollection& superclusterCollection);
 };
 
 #endif
-

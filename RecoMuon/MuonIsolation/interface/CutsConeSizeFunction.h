@@ -5,18 +5,19 @@
 #include "RecoMuon/MuonIsolation/interface/IsolatorByDeposit.h"
 
 namespace muonisolation {
-class CutsConeSizeFunction : public IsolatorByDeposit::ConeSizeFunction {
-public: 
-  CutsConeSizeFunction(const Cuts & cuts) : theLastCut(nullptr), theCuts(cuts) {} 
-  ~CutsConeSizeFunction() override = default;
-  float threshold() const { return theLastCut->threshold; }
-  float coneSize( float eta, float pt) const override {
-    theLastCut = & theCuts(eta); 
-    return theLastCut->conesize;
-  } 
-private:
-  mutable const Cuts::CutSpec * theLastCut;
-  const Cuts & theCuts;
-};
-}
+  class CutsConeSizeFunction : public IsolatorByDeposit::ConeSizeFunction {
+  public:
+    CutsConeSizeFunction(const Cuts& cuts) : theLastCut(nullptr), theCuts(cuts) {}
+    ~CutsConeSizeFunction() override = default;
+    float threshold() const { return theLastCut->threshold; }
+    float coneSize(float eta, float pt) const override {
+      theLastCut = &theCuts(eta);
+      return theLastCut->conesize;
+    }
+
+  private:
+    mutable const Cuts::CutSpec* theLastCut;
+    const Cuts& theCuts;
+  };
+}  // namespace muonisolation
 #endif
