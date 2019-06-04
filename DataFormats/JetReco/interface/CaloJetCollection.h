@@ -11,15 +11,15 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
 namespace reco {
-  /// collection of CaloJet objects 
+  /// collection of CaloJet objects
   typedef std::vector<CaloJet> CaloJetCollection;
   /// edm references
   typedef edm::Ref<CaloJetCollection> CaloJetRef;
   typedef edm::FwdRef<CaloJetCollection> CaloJetFwdRef;
   typedef edm::FwdPtr<CaloJet> CaloJetFwdPtr;
   typedef edm::RefVector<CaloJetCollection> CaloJetRefVector;
-  typedef edm::RefProd<CaloJetCollection> CaloJetRefProd;  
+  typedef edm::RefProd<CaloJetCollection> CaloJetRefProd;
   typedef std::vector<edm::FwdRef<CaloJetCollection> > CaloJetFwdRefVector;
   typedef std::vector<edm::FwdPtr<CaloJet> > CaloJetFwdPtrVector;
-}
+}  // namespace reco
 #endif

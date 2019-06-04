@@ -16,10 +16,9 @@ namespace reco {
   class FitQuality {
   public:
     /// default constructor
-    FitQuality() : chi2_(0), ndof_(0) { }
+    FitQuality() : chi2_(0), ndof_(0) {}
     /// constructor form values
-    FitQuality( double chi2, double ndof ) :
-      chi2_( chi2 ), ndof_( ndof ) { }
+    FitQuality(double chi2, double ndof) : chi2_(chi2), ndof_(ndof) {}
     /// chi-squared
     double chi2() const { return chi2_; }
     /// number of degrees of freedom
@@ -32,6 +31,6 @@ namespace reco {
     Double32_t ndof_;
   };
 
-}
+}  // namespace reco
 
 #endif

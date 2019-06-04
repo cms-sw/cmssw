@@ -8,10 +8,9 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/JetReco/interface/TrackJet.h"
 
-
 namespace reco {
 
-  /// collection of TrackJet objects 
+  /// collection of TrackJet objects
   typedef std::vector<TrackJet> TrackJetCollection;
   /// edm references
   typedef edm::Ref<TrackJetCollection> TrackJetRef;
@@ -22,6 +21,6 @@ namespace reco {
   typedef std::vector<edm::FwdPtr<TrackJet> > TrackJetFwdPtrVector;
   typedef edm::RefProd<TrackJetCollection> TrackJetRefProd;
 
-}
+}  // namespace reco
 
 #endif
