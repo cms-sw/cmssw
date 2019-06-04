@@ -225,8 +225,10 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         chEmEF = Var("chargedEmEnergyFraction()", float, doc="charged Electromagnetic Energy Fraction", precision= 6),
         neEmEF = Var("neutralEmEnergyFraction()", float, doc="neutral Electromagnetic Energy Fraction", precision= 6),
         muEF = Var("muonEnergyFraction()", float, doc="muon Energy Fraction", precision= 6),
-        jercCHPUF = Var("userFloat('jercCHPUF')", float, doc="Pileup Charged Hadron Energy Fraction with the JERC group definition", precision= 6),
-        jercCHF = Var("userFloat('jercCHF')", float, doc="Charged Hadron Energy Fraction with the JERC group definition", precision= 6),
+        chFPV0EF = Var("userFloat('chFPV0EF')", float, doc="charged energy fraction with fromPV==0 (removed by the CHS method), w.r.t. Raw (un    corrected) CHS jet energy. Previously called betastar.", precision= 6),
+        chFPV1EF = Var("userFloat('chFPV1EF')", float, doc="charged energy fraction with fromPV==1 (included by the CHS method), w.r.t. Raw (u    ncorrected) CHS jet energy.", precision= 6),
+        chFPV2EF = Var("userFloat('chFPV2EF')", float, doc="charged energy fraction with fromPV==2 (included by the CHS method), w.r.t. Raw (u    ncorrected) CHS jet energy.", precision= 6),
+        chFPV3EF = Var("userFloat('chFPV3EF')", float, doc="charged energy fraction with fromPV==3 (included by the CHS method), w.r.t. Raw (u    ncorrected) CHS jet energy.", precision= 6),
     )
 )
 
