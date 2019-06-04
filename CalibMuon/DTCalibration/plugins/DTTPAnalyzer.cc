@@ -74,8 +74,8 @@ DTTPAnalyzer::DTTPAnalyzer(const edm::ParameterSet& pset):
   rootFile_->cd();
 
   if(subtractT0_) 
-    tTrigSync_ = std::unique_ptr<DTTTrigBaseSync>{DTTTrigSyncFactory::get()->create(pset.getParameter<std::string>("tTrigMode"),
-                                                                                    pset.getParameter<edm::ParameterSet>("tTrigModeConfig"))};
+    tTrigSync_ = DTTTrigSyncFactory::get()->create(pset.getParameter<std::string>("tTrigMode"),
+                                                   pset.getParameter<edm::ParameterSet>("tTrigModeConfig"));
 
 }
  
