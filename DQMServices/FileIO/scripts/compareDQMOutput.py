@@ -61,10 +61,6 @@ def get_file_pairs(base_dir, pr_dir):
     return [value for value in base_files if value in pr_files]
 
 def upload_to_gui(output_dir, num_procs):
-    print('Output directory content:')
-    print(os.listdir(os.path.join(output_dir, 'base')))
-    print(os.listdir(os.path.join(output_dir, 'pr')))
-    
     base_files = glob.glob(os.path.join(output_dir, 'base/*.root'))
     pr_files = glob.glob(os.path.join(output_dir, 'pr/*.root'))
 
