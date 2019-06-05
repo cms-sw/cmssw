@@ -6,27 +6,29 @@ import re
 
 class TauIDEmbedder(object):
     """class to rerun the tau seq and acces trainings from the database"""
+    availableDiscriminators = [
+        "2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1",
+        "deepTau2017v1", "deepTau2017v2", "DPFTau_2016_v0", "DPFTau_2016_v1", "againstEle2018"
+    ]
 
     def __init__(self, process, cms, debug = False,
-        updatedTauName = "slimmedTausNewID",
-        toKeep = ["2016v1", "newDM2016v1","deepTau2017v1", "deepTau2017v2","DPFTau_2016_v0"],
-        tauIdDiscrMVA_trainings_run2_2017 = {
-            'tauIdMVAIsoDBoldDMwLT2017' : "tauIdMVAIsoDBoldDMwLT2017",
-        },
-        tauIdDiscrMVA_WPs_run2_2017 = {
-            'tauIdMVAIsoDBoldDMwLT2017' : {
-                'Eff95' : "DBoldDMwLTEff95",
-                'Eff90' : "DBoldDMwLTEff90",
-                'Eff80' : "DBoldDMwLTEff80",
-                'Eff70' : "DBoldDMwLTEff70",
-                'Eff60' : "DBoldDMwLTEff60",
-                'Eff50' : "DBoldDMwLTEff50",
-                'Eff40' : "DBoldDMwLTEff40"
-            }
-        },
-        tauIdDiscrMVA_2017_version = "v1",
-        conditionDB = "" # preparational DB: 'frontier://FrontierPrep/CMS_CONDITIONS'
-        ):
+                 updatedTauName = "slimmedTausNewID",
+                 toKeep =  ["deepTau2017v2"],
+                 tauIdDiscrMVA_trainings_run2_2017 = { 'tauIdMVAIsoDBoldDMwLT2017' : "tauIdMVAIsoDBoldDMwLT2017", },
+                 tauIdDiscrMVA_WPs_run2_2017 = {
+                    'tauIdMVAIsoDBoldDMwLT2017' : {
+                        'Eff95' : "DBoldDMwLTEff95",
+                        'Eff90' : "DBoldDMwLTEff90",
+                        'Eff80' : "DBoldDMwLTEff80",
+                        'Eff70' : "DBoldDMwLTEff70",
+                        'Eff60' : "DBoldDMwLTEff60",
+                        'Eff50' : "DBoldDMwLTEff50",
+                        'Eff40' : "DBoldDMwLTEff40"
+                    }
+                 },
+                 tauIdDiscrMVA_2017_version = "v1",
+                 conditionDB = "" # preparational DB: 'frontier://FrontierPrep/CMS_CONDITIONS'
+                 ):
         super(TauIDEmbedder, self).__init__()
         self.process = process
         self.cms = cms
@@ -44,6 +46,9 @@ class TauIDEmbedder(object):
         self.tauIdDiscrMVA_trainings_run2_2017 = tauIdDiscrMVA_trainings_run2_2017
         self.tauIdDiscrMVA_WPs_run2_2017 = tauIdDiscrMVA_WPs_run2_2017
         self.tauIdDiscrMVA_2017_version = tauIdDiscrMVA_2017_version
+        for discr in toKeep:
+            if discr not in TauIDEmbedder.availableDiscriminators:
+                raise RuntimeError('TauIDEmbedder: discriminator "{}" is not supported'.format(discr))
         self.toKeep = toKeep
 
 
@@ -593,7 +598,7 @@ class TauIDEmbedder(object):
             tauIDSources.byVVTightIsolationMVArun2v1DBnewDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1VVTight')
 
         if "deepTau2017v1" in self.toKeep:
-            print ("Adding DeepTau IDs")
+            if self.debug: print ("Adding DeepTau IDs")
 
             workingPoints_ = {
                 "e": {
@@ -647,7 +652,7 @@ class TauIDEmbedder(object):
             self.process.rerunMvaIsolationSequence += self.process.deepTau2017v1
 
         if "deepTau2017v2" in self.toKeep:
-            print ("Adding DeepTau IDs")
+            if self.debug: print ("Adding DeepTau IDs")
 
             workingPoints_ = {
                 "e": {
@@ -677,7 +682,7 @@ class TauIDEmbedder(object):
                     "VVTight": 0.9733927,
                 },
             }
-            #file_names = ['RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6.pb']
+
             file_names = [
                 'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_core.pb',
                 'inner:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_inner.pb',
@@ -703,7 +708,7 @@ class TauIDEmbedder(object):
             self.process.rerunMvaIsolationSequence += self.process.deepTau2017v2
 
         if "DPFTau_2016_v0" in self.toKeep:
-            print ("Adding DPFTau isolation (v0)")
+            if self.debug: print ("Adding DPFTau isolation (v0)")
 
             workingPoints_ = {
                 "all": {
@@ -1036,7 +1041,7 @@ class TauIDEmbedder(object):
             tauIDSources =_tauIDSourcesWithAgainistEle.clone()
 
         ##
-        print('Embedding new TauIDs into \"'+self.updatedTauName+'\"')
+        if self.debug: print('Embedding new TauIDs into \"'+self.updatedTauName+'\"')
         embedID = self.cms.EDProducer("PATTauIDEmbedder",
             src = self.cms.InputTag('slimmedTaus'),
             tauIDSources = tauIDSources
