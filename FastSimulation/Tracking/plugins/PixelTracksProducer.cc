@@ -39,8 +39,7 @@ PixelTracksProducer::PixelTracksProducer(const edm::ParameterSet& conf) : theReg
 
   const edm::ParameterSet& regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer = std::unique_ptr<TrackingRegionProducer>{
-      TrackingRegionProducerFactory::get()->create(regfactoryName, regfactoryPSet, consumesCollector())};
+  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName, regfactoryPSet, consumesCollector());
 
   fitterToken = consumes<PixelFitter>(conf.getParameter<edm::InputTag>("Fitter"));
   filterToken = consumes<PixelTrackFilter>(conf.getParameter<edm::InputTag>("Filter"));
