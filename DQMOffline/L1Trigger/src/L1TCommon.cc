@@ -86,7 +86,7 @@ getTriggerObjects(const std::vector<edm::InputTag> &hltFilters,
     const unsigned filterIndex = triggerEvent.filterIndex(filter);
 
     if (filterIndex < triggerEvent.sizeFilters()) {
-      const trigger::Keys triggerKeys(triggerEvent.filterKeys(filterIndex));
+      const trigger::Keys& triggerKeys(triggerEvent.filterKeys(filterIndex));
       const size_t nTriggers = triggerEvent.filterIds(filterIndex).size();
       for (size_t i = 0; i < nTriggers; ++i) {
         results.push_back(triggerObjects[triggerKeys[i]]);
@@ -110,7 +110,7 @@ getHLTFilters(const std::vector<unsigned int> &triggers,
   for (auto trigger : triggers) {
     unsigned int hltIndexOffset(2);
     unsigned int moduleIndex = hltConfig.size(trigger) - hltIndexOffset;
-    const std::vector<std::string> modules(hltConfig.moduleLabels(trigger));
+    const std::vector<std::string>& modules(hltConfig.moduleLabels(trigger));
     std::string module(modules[moduleIndex]);
     edm::InputTag filterInputTag = edm::InputTag(module, "", triggerProcess);
     results.push_back(filterInputTag);
