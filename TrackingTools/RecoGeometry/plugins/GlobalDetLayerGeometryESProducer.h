@@ -12,6 +12,11 @@ public:
   GlobalDetLayerGeometryESProducer(const edm::ParameterSet &p);
   ~GlobalDetLayerGeometryESProducer() override;
   std::unique_ptr<DetLayerGeometry> produce(const RecoGeometryRecord &);
+
+private:
+  edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> trackerToken_;
+  edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> muonToken_;
+  edm::ESGetToken<MTDDetLayerGeometry, MTDRecoGeometryRecord> mtdToken_;
 };
 
 #endif
