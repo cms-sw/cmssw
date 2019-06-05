@@ -5,6 +5,4 @@ typedef CollectionAdder<reco::GenParticleMatch> GenParticleMatchMerger;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( GenParticleMatchMerger );
-
-
+DEFINE_FWK_MODULE(GenParticleMatchMerger);
