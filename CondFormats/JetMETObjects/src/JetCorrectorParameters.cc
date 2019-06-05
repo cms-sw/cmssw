@@ -139,7 +139,7 @@ JetCorrectorParameters::JetCorrectorParameters(const std::string& fFile, const s
               continue;
             }
           Definitions definitions(currentDefinitions);
-          if (!(definitions.nBinVar()==0 && definitions.formula()==""))
+          if (!(definitions.nBinVar()==0 && definitions.formula().empty()))
             mDefinitions = definitions;
           Record record(line,mDefinitions.nBinVar());
           bool check(true);
@@ -152,10 +152,10 @@ JetCorrectorParameters::JetCorrectorParameters(const std::string& fFile, const s
             mRecords.push_back(record);
         }
     }
-  if (currentDefinitions=="")
+  if (currentDefinitions.empty())
     handleError("JetCorrectorParameters","No definitions found!!!");
-  if (mRecords.empty() && currentSection == "") mRecords.push_back(Record());
-  if (mRecords.empty() && currentSection != "")
+  if (mRecords.empty() && currentSection.empty()) mRecords.push_back(Record());
+  if (mRecords.empty() && !currentSection.empty())
     {
       std::stringstream sserr;
       sserr<<"the requested section "<<fSection<<" doesn't exist!";
@@ -468,7 +468,7 @@ void JetCorrectorParametersCollection::getSections(std::string inputFile,
     std::string in(buff);
     if ( in[0] == '[' ) {
       std::string tok = getSection(in);
-      if ( tok != "" ) {
+      if ( !tok.empty() ) {
         outputs.push_back( tok );
       }
     }
@@ -490,7 +490,7 @@ void JetCorrectorParametersCollection::push_back( key_type i, value_type const &
     std::cout << "This is L7, getL7Bin = " << getL7Bin(flav) << std::endl;
     correctionsL7_.push_back( pair_type(getL7Bin(flav),j) );
   }
-  else if ( flav == "" ) {
+  else if ( flav.empty() ) {
     corrections_.push_back( pair_type(i,j) );
   } else {
     std::cout << "***** NOT ADDING " << flav << ", corresponding position in JetCorrectorParameters is not found." << std::endl;
