@@ -63,14 +63,7 @@ private:
   bool useClosestToCentreSeedCrysDef_;
   edm::ESHandle<CaloGeometry> caloGeomHandle_;
 
-  //because we're using a direct comp to this value to detect if its a default value
-  //we need to ensure its using the exact same type as its declared as
-  using TrkFBremType = decltype(reco::GsfElectron::ClassificationVariables::trackFbrem);
-  static const TrkFBremType kDefaultTrackFbrem_;
 };
-
-const EGRegressionModifierV3::TrkFBremType EGRegressionModifierV3::
-kDefaultTrackFbrem_ = reco::GsfElectron::ClassificationVariables().trackFbrem;
 
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
 		  EGRegressionModifierV3,
@@ -123,7 +116,7 @@ void EGRegressionModifierV3::modifyObject(reco::GsfElectron& ele) const
 
   //check if fbrem is filled as its needed for E/p combination so abort if its set to the default value 
   //this will be the case for <5 (or current cuts) for miniAOD electrons
-  if(ele.fbrem()==kDefaultTrackFbrem_) return;
+  if(ele.fbrem()==reco::GsfElectron::ClassificationVariables::kDefaultValue) return;
   
   auto regData = getRegData(ele);
   const float rawEnergy = superClus->rawEnergy(); 

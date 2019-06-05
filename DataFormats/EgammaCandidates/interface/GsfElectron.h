@@ -754,8 +754,9 @@ class GsfElectron : public RecoCandidate
       {
        float trackFbrem  ;       // the brem fraction from gsf fit: (track momentum in - track momentum out) / track momentum in
        float superClusterFbrem ; // the brem fraction from supercluster: (supercluster energy - electron cluster energy) / supercluster energy
+       constexpr static float kDefaultValue = -1.e30;
        ClassificationVariables()
-        : trackFbrem(-1.e30), superClusterFbrem(-1.e30)
+        : trackFbrem(kDefaultValue), superClusterFbrem(kDefaultValue)
         {}
       } ;
     enum Classification { UNKNOWN=-1, GOLDEN=0, BIGBREM=1, BADTRACK=2, SHOWERING=3, GAP=4 } ;
