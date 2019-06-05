@@ -14,31 +14,31 @@
 #include <map>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-class JetValidation : public edm::EDAnalyzer 
-   {
-     public:
-       JetValidation(edm::ParameterSet const& cfg);
-     private:
-       void beginJob() override;
-       void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
-       void endJob() override;
-       void FillHist1D(const TString& histName, const Double_t& x);
-       void FillHist2D(const TString& histName, const Double_t& x, const Double_t& y);
-       void FillHistProfile(const TString& histName, const Double_t& x, const Double_t& y);
+class JetValidation : public edm::EDAnalyzer {
+public:
+  JetValidation(edm::ParameterSet const& cfg);
 
-       std::map<TString, TH1*> m_HistNames1D;  
-       std::map<TString, TH2*> m_HistNames2D;
-       std::map<TString, TProfile*> m_HistNamesProfile; 
-       TFile* m_file;
-   
-       double PtMin;
-       double dRmatch;
-       int Njets;
-       bool MCarlo;
-       std::string histoFileName; 
-       std::string genAlgo;   
-       std::string calAlgo;
-       std::string jetTracksAssociator; 
-  };
+private:
+  void beginJob() override;
+  void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
+  void endJob() override;
+  void FillHist1D(const TString& histName, const Double_t& x);
+  void FillHist2D(const TString& histName, const Double_t& x, const Double_t& y);
+  void FillHistProfile(const TString& histName, const Double_t& x, const Double_t& y);
+
+  std::map<TString, TH1*> m_HistNames1D;
+  std::map<TString, TH2*> m_HistNames2D;
+  std::map<TString, TProfile*> m_HistNamesProfile;
+  TFile* m_file;
+
+  double PtMin;
+  double dRmatch;
+  int Njets;
+  bool MCarlo;
+  std::string histoFileName;
+  std::string genAlgo;
+  std::string calAlgo;
+  std::string jetTracksAssociator;
+};
 
 #endif

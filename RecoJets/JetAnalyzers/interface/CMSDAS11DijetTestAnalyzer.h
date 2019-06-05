@@ -18,18 +18,16 @@ class TH1D;
 class TH2D;
 
 class CMSDAS11DijetTestAnalyzer : public edm::EDAnalyzer {
- public:
-  CMSDAS11DijetTestAnalyzer(const edm::ParameterSet &);
-  void analyze( const edm::Event& , const edm::EventSetup& ) override;
+public:
+  CMSDAS11DijetTestAnalyzer(const edm::ParameterSet&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   ~CMSDAS11DijetTestAnalyzer() override {}
   void beginJob() override {}
   void endJob(void) override;
-  
-  static bool compare_JetPt(const reco::CaloJet& jet1, const reco::CaloJet& jet2) {
-    return (jet1.pt() > jet2.pt() );
-  }
- private:
 
+  static bool compare_JetPt(const reco::CaloJet& jet1, const reco::CaloJet& jet2) { return (jet1.pt() > jet2.pt()); }
+
+private:
   // Parameters
   edm::InputTag jetSrc;
   edm::InputTag vertexSrc;
@@ -64,8 +62,6 @@ class CMSDAS11DijetTestAnalyzer : public edm::EDAnalyzer {
 
   TH1D* hInnerDijetMass;
   TH1D* hOuterDijetMass;
-
 };
-
 
 #endif
