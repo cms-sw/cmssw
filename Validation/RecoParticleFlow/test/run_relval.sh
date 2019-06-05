@@ -20,13 +20,13 @@ fi
 
 #
 #set default conditions - 2018
-#CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 GEOM=DB:Extended
+CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 GEOM=DB:Extended
 #
 #conditions - 2017
 #CONDITIONS=auto:phase1_2017_realistic ERA=Run2_2017,run2_nanoAOD_94XMiniAODv1 GEOM=DB.Extended
 #
 #conditions - phase2
-CONDITIONS=auto:phase2_realistic ERA=Phase2C8_timing_layer_bar GEOM=Extended2023D41
+#CONDITIONS=auto:phase2_realistic ERA=Phase2C8_timing_layer_bar GEOM=Extended2023D41
 
 #Running with 2 threads allows to use more memory on grid
 NTHREADS=2
