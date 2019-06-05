@@ -96,10 +96,18 @@ namespace edm {
       }
 
       for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
+        // For a particular record, if the top level process or any SubProcess requires
+        // starting a new IOV, then we must start a new IOV for all of them. And we
+        // need to know whether this is needed at this point in time. This is
+        // recorded in the EventSetupRecordProviders.
         eventSetupRecordIOVQueue->setNewIntervalForAnySubProcess();
       }
 
       for (auto& eventSetupProvider : providers_) {
+        // Decides whether we can reuse the existing EventSetupImpl and if we can
+        // returns it. If a new one is needed it will create it, although the pointers
+        // to the EventSetupRecordImpl's will not be set yet in the returned EventSetupImpl
+        // object.
         eventSetupImpls.push_back(eventSetupProvider->eventSetupForInstance(syncValue, newEventSetupImpl));
       }
 
@@ -133,6 +141,7 @@ namespace edm {
         WaitingTaskHolder waitingTaskHolder(waitUntilIOVInitializationCompletes.get());
 
         try {
+          // All the real work is done here.
           eventSetupForInstance(syncValue, waitingTaskHolder, dummyWaitingTaskList, dummyEventSetupImpls);
           dummyWaitingTaskList.doneWaiting(std::exception_ptr{});
         } catch (...) {
