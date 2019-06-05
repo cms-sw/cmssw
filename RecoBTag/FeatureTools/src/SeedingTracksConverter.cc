@@ -62,6 +62,11 @@ namespace btagbtvdeep {
             sortedSeedsMap.clear();
             seedingT_features_vector.clear();
             
+            std::vector<std::pair<bool,Measurement1D>> absIP3D(selectedTracks.size()); 
+            std::vector<std::pair<bool,Measurement1D>> absIP2D(selectedTracks.size());
+            std::vector<bool> absIP3D_filled(selectedTracks.size(), false);
+            std::vector<bool> absIP2D_filled(selectedTracks.size(), false);
+
             unsigned int selTrackCount=0;
 
             for(auto const& it : selectedTracks){
@@ -73,6 +78,10 @@ namespace btagbtvdeep {
                 if (reco::deltaR(it.track(), jet) > 0.4) continue;
                 
                 std::pair<bool,Measurement1D> ip = IPTools::absoluteImpactParameter3D(it, pv);
+
+                absIP3D[selTrackCount-1]=ip;
+                absIP3D_filled[selTrackCount-1]=true;
+
                 std::pair<double, Measurement1D> jet_dist =IPTools::jetTrackDistance(it, jetdirection, pv); 
                 TrajectoryStateOnSurface closest = IPTools::closestApproachToJet(it.impactPointState(),pv, jetdirection,it.field());
                 float length=999;
@@ -103,8 +112,25 @@ namespace btagbtvdeep {
                     if(neighbourTrackCount==selTrackCount) continue;
                     if(std::fabs(pv.z()-tt.track().vz())>0.1) continue;
 
-                    std::pair<bool,Measurement1D> t_ip = IPTools::absoluteImpactParameter3D(tt,pv);
-                    std::pair<bool,Measurement1D> t_ip2d = IPTools::absoluteTransverseImpactParameter(tt,pv);
+                    //avoid calling IPs twice
+                    if(!absIP2D_filled[neighbourTrackCount-1])
+                    {
+                        absIP2D[neighbourTrackCount-1]=IPTools::absoluteTransverseImpactParameter(tt,pv);
+                        absIP2D_filled[neighbourTrackCount-1]=true;
+                    }
+
+                    if(!absIP3D_filled[neighbourTrackCount-1])
+                    {
+                        absIP3D[neighbourTrackCount-1]= IPTools::absoluteImpactParameter3D(tt,pv); 
+                        absIP3D_filled[neighbourTrackCount-1]=true;
+                    }
+
+                    std::pair<bool,Measurement1D> t_ip = absIP3D[neighbourTrackCount-1];
+                    std::pair<bool,Measurement1D> t_ip2d = absIP2D[neighbourTrackCount-1];
+
+
+//                     std::pair<bool,Measurement1D> t_ip = IPTools::absoluteImpactParameter3D(tt,pv);
+//                     std::pair<bool,Measurement1D> t_ip2d = IPTools::absoluteTransverseImpactParameter(tt,pv);
 
                     btagbtvdeep::TrackPairInfoBuilder trackPairInfo;
                     trackPairInfo.buildTrackPairInfo(&(it),&(tt),pv,masses[neighbourTrackCount-1],jetdirection, t_ip, t_ip2d);
