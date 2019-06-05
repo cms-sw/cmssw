@@ -281,6 +281,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2021_realistic',
         'HLTmenu': '@relval2017',
         'Era' : 'Run3',
+        'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
     },
     '2021Design' : {
