@@ -12,7 +12,6 @@
 
 ________________________________________________________________**/
 
-
 // C++ standard
 #include <string>
 // CMS
@@ -21,18 +20,15 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 class BeamSpotFromDB : public edm::EDAnalyzer {
- public:
+public:
   explicit BeamSpotFromDB(const edm::ParameterSet&);
   ~BeamSpotFromDB() override;
 
- private:
-  void beginJob() override ;
+private:
+  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
-
-
+  void endJob() override;
 };
 
 #endif
