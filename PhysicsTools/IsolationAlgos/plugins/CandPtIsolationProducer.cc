@@ -8,8 +8,9 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsolationProducer.h"
 #include "PhysicsTools/IsolationAlgos/interface/PtIsolationAlgo.h"
 
-typedef IsolationProducer<reco::CandidateCollection, reco::CandidateCollection,
-			  PtIsolationAlgo<reco::Candidate,reco::CandidateCollection> > 
-                          CandPtIsolationProducer;
+typedef IsolationProducer<reco::CandidateCollection,
+                          reco::CandidateCollection,
+                          PtIsolationAlgo<reco::Candidate, reco::CandidateCollection> >
+    CandPtIsolationProducer;
 
-DEFINE_FWK_MODULE( CandPtIsolationProducer );
+DEFINE_FWK_MODULE(CandPtIsolationProducer);

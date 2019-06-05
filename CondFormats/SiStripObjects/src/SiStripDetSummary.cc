@@ -1,4 +1,5 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
