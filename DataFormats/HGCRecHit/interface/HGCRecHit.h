@@ -38,6 +38,10 @@ public:
   //  HGCbhe recHit flags
   enum HGCbheFlags { kHGCbheGood, kHGCbheDead, kHGCbheHot, kHGCbhePassBX, kHGCbheSaturated };
 
+  //   HFnose rechit flags
+  enum HFNoseFlags { kHFNoseGood, kHFNosePoorReco, kHFNoseOutOfTime, kHFNoseFaultyHardware, kHFNoseNoisy, kHFNosePoorCalib, kHFNoseSaturated, kHFNoseDead, kHFNoseKilled, kHFNoseWeird, kHFNoseDiWeird, kHFNoseUnknown };
+
+
   /** bit structure of CaloRecHit::flags_ used in EcalRecHit:
    *
    *  | 32 | 31...25 | 24...12 | 11...5 | 4...1 |
