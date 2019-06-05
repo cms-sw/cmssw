@@ -9,7 +9,7 @@ dqmInfoTauV = DQMEDAnalyzer(
     )
 
 
-produceDenoms = cms.Sequence(
+produceDenomsData = cms.Sequence(
     produceDenominatorRealData+
     produceDenominatorRealElectronsData+
     produceDenominatorRealMuonsData
