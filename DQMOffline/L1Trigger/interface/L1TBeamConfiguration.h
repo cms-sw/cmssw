@@ -53,29 +53,21 @@
 
 // Forward declarations
 
-
-
 // Helper
 
 // Class declaration
 
-
-class L1TBeamConfiguration{
-
- public:
-
+class L1TBeamConfiguration {
+public:
   L1TBeamConfiguration();
 
   bool bxConfig(unsigned iBx);
 
-  bool isValid(){return m_valid;}
+  bool isValid() { return m_valid; }
 
-  bool m_valid;           // Bit Name for which the fit refers to
+  bool m_valid;  // Bit Name for which the fit refers to
   std::vector<bool> beam1;
   std::vector<bool> beam2;
-
 };
 
-
 #endif
-

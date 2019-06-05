@@ -17,7 +17,7 @@
  *
  */
 
-// 
+//
 
 // This class header
 #include "DQMOffline/L1Trigger/interface/L1TLSBlock.h"
@@ -59,70 +59,71 @@ using namespace std;
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 
-L1TLSBlock::L1TLSBlock(){
-
+L1TLSBlock::L1TLSBlock() {
   // Initialize LumiRangeList object. This will be redone at every doBlocking call. Perhaps rethink this
   initializeIO(false);
-  
 }
 
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 
-L1TLSBlock::~L1TLSBlock(){}
+L1TLSBlock::~L1TLSBlock() {}
 
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 
-L1TLSBlock::LumiRangeList L1TLSBlock::doBlocking(const LumiTestDoubleList& inputList, double threshold, BLOCKBY blockingMethod)
-{
+L1TLSBlock::LumiRangeList L1TLSBlock::doBlocking(const LumiTestDoubleList& inputList,
+                                                 double threshold,
+                                                 BLOCKBY blockingMethod) {
   inputDoubleList_ = inputList;
   thresholdD_ = threshold;
-  
+
   initializeIO(true);
-  
+
   orderTestDoubleList();
-  
-  switch(blockingMethod){
-  case STATISTICS:
-    blockByStatistics();
-    break;
-  default:
-    cout << "[L1TLSBlock::doBlocking()]: Blocking method does not exist or is not implemented" << endl;
+
+  switch (blockingMethod) {
+    case STATISTICS:
+      blockByStatistics();
+      break;
+    default:
+      cout << "[L1TLSBlock::doBlocking()]: Blocking method does not exist or is not implemented" << endl;
   }
-  
-  
+
   return outputList_;
 }
 
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 
-L1TLSBlock::LumiRangeList L1TLSBlock::doBlocking(const LumiTestIntList& inputList, int threshold, BLOCKBY blockingMethod)
-{
+L1TLSBlock::LumiRangeList L1TLSBlock::doBlocking(const LumiTestIntList& inputList,
+                                                 int threshold,
+                                                 BLOCKBY blockingMethod) {
   inputIntList_ = inputList;
   thresholdI_ = threshold;
-  
+
   initializeIO(true);
-  
+
   orderTestIntList();
-  
-  switch(blockingMethod){
-  case STATISTICS:
-    cout << "[L1TLSBlock::doBlocking()]: Blocking by statistics require doubles as inputs for test variable and threshold" << endl;
-    break;
-  default:
-    cout << "[L1TLSBlock::doBlocking()]: Blocking method does not exist or is not implemented" << endl;
+
+  switch (blockingMethod) {
+    case STATISTICS:
+      cout << "[L1TLSBlock::doBlocking()]: Blocking by statistics require doubles as inputs for test variable and "
+              "threshold"
+           << endl;
+      break;
+    default:
+      cout << "[L1TLSBlock::doBlocking()]: Blocking method does not exist or is not implemented" << endl;
   }
-  
+
   return outputList_;
 }
 
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 
-void L1TLSBlock::initializeIO(bool outputOnly){
-  if(!outputOnly){
+void L1TLSBlock::initializeIO(bool outputOnly) {
+  if (!outputOnly) {
     inputIntList_.clear();
     inputDoubleList_.clear();
   }
@@ -132,7 +133,7 @@ void L1TLSBlock::initializeIO(bool outputOnly){
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 
-void L1TLSBlock::orderTestDoubleList(){
+void L1TLSBlock::orderTestDoubleList() {
   std::sort(inputDoubleList_.begin(), inputDoubleList_.end(), sort_pair_first<int, double>());
   // std::sort(v.begin(), v.end(), sort_pair_second<int, std::greater<int> >());
 }
@@ -140,46 +141,43 @@ void L1TLSBlock::orderTestDoubleList(){
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 
-void L1TLSBlock::orderTestIntList(){
+void L1TLSBlock::orderTestIntList() {
   std::sort(inputIntList_.begin(), inputIntList_.end(), sort_pair_first<int, int>());
 }
 
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 
-void L1TLSBlock::blockByStatistics(){
+void L1TLSBlock::blockByStatistics() {
   LumiRange currentRange;
   double currentError(0);
   bool resetFlag(true);
 
-  for(LumiTestDoubleList::iterator i=inputDoubleList_.begin(); i!=inputDoubleList_.end(); i++){
-    if(resetFlag){
-      currentRange = std::make_pair(i->first,i->first);
+  for (LumiTestDoubleList::iterator i = inputDoubleList_.begin(); i != inputDoubleList_.end(); i++) {
+    if (resetFlag) {
+      currentRange = std::make_pair(i->first, i->first);
       resetFlag = false;
-    }
-    else
-      currentRange = std::make_pair(currentRange.first,i->first);
+    } else
+      currentRange = std::make_pair(currentRange.first, i->first);
     currentError = computeErrorFromRange(currentRange);
-    if(currentError < thresholdD_){
+    if (currentError < thresholdD_) {
       outputList_.push_back(currentRange);
       resetFlag = true;
     }
-    
   }
 }
 
-double L1TLSBlock::computeErrorFromRange(LumiRange& lumiRange){
+double L1TLSBlock::computeErrorFromRange(LumiRange& lumiRange) {
   std::vector<double> errorList;
   errorList.clear();
 
-  for(size_t i=0; i < inputDoubleList_.size(); i++){
-    if(inputDoubleList_[i].first>lumiRange.first && inputDoubleList_[i].first<lumiRange.second)
+  for (size_t i = 0; i < inputDoubleList_.size(); i++) {
+    if (inputDoubleList_[i].first > lumiRange.first && inputDoubleList_[i].first < lumiRange.second)
       errorList.push_back(inputDoubleList_[i].second);
   }
-  
-  double error(-1);
-  for(size_t i=0; i<errorList.size(); i++)
-    error += 1 / (errorList[i] * errorList[i] );
-  return error;
 
+  double error(-1);
+  for (size_t i = 0; i < errorList.size(); i++)
+    error += 1 / (errorList[i] * errorList[i]);
+  return error;
 }
