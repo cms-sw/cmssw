@@ -2,7 +2,7 @@
 //
 // Package:    IPAnalyzer
 // Class:      IPAnalyzer
-// 
+//
 /**\class IPAnalyzer IPAnalyzer.cc RecoBTag/IPAnalyzer/src/IPAnalyzer.cc
 
  Description: <one line class summary>
@@ -15,8 +15,6 @@
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
 //
 //
-
-
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -52,78 +50,69 @@ using namespace reco;
 //
 
 class IPAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit IPAnalyzer(const edm::ParameterSet&);
-      ~IPAnalyzer() {}
+public:
+  explicit IPAnalyzer(const edm::ParameterSet&);
+  ~IPAnalyzer() {}
 
-      virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-   private:
-     edm::InputTag m_assoc;
-     edm::InputTag m_jets;
-     edm::EDGetTokenT<reco::TrackIPTagInfoCollection> token_ipassoc;
+private:
+  edm::InputTag m_assoc;
+  edm::InputTag m_jets;
+  edm::EDGetTokenT<reco::TrackIPTagInfoCollection> token_ipassoc;
 };
 
 //
 // constructors and destructor
 //
-IPAnalyzer::IPAnalyzer(const edm::ParameterSet& iConfig)
-{
-  m_jets  = iConfig.getParameter<edm::InputTag>("jets");
+IPAnalyzer::IPAnalyzer(const edm::ParameterSet& iConfig) {
+  m_jets = iConfig.getParameter<edm::InputTag>("jets");
   m_assoc = iConfig.getParameter<edm::InputTag>("association");
   token_ipassoc = consumes<reco::TrackIPTagInfoCollection>(iConfig.getParameter<edm::InputTag>("ipassociation"));
 }
 
-void
-IPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void IPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   using namespace reco;
 
   Handle<TrackIPTagInfoCollection> ipHandle;
   iEvent.getByToken(token_ipassoc, ipHandle);
-  const TrackIPTagInfoCollection & ip = *(ipHandle.product());
+  const TrackIPTagInfoCollection& ip = *(ipHandle.product());
   cout << "Found " << ip.size() << " TagInfo" << endl;
-
 
   cout << boolalpha;
   cout << fixed;
 
-
-
-   TrackIPTagInfoCollection::const_iterator it = ip.begin();
-   for(; it != ip.end(); it++)
-     {
-      cout << "Jet pt: " << it->jet()->pt() << endl;
-      cout << "Tot tracks: " << it->tracks().size() << endl;    
-      TrackRefVector selTracks=it->selectedTracks();
-      int n=selTracks.size();
-      cout << "Sel tracks: " << n << endl; 
-// false      cout << " Pt  \t d len \t jet dist \t p3d \t p2d\t ip3d \t ip2d " << endl; 
-               GlobalPoint pv(it->primaryVertex()->position().x(),it->primaryVertex()->position().y(),it->primaryVertex()->position().z());
-  cout << pv << " vs " << it->primaryVertex()->position()   << endl;
-   for(int j=0;j< n;j++)
-      {
-        btag::TrackIPData data = it->impactParameterData()[j];  
-        cout << selTracks[j]->pt() << "\t";
-        cout << it->probabilities(0)[j] << "\t";
-        cout << it->probabilities(1)[j] << "\t";
-        cout << data.ip3d.value() << "\t";
-        cout << data.ip3d.significance() << "\t";
-        cout << data.distanceToJetAxis.value() << "\t";
-        cout << data.distanceToJetAxis.significance() << "\t";
-        cout << data.distanceToGhostTrack.value() << "\t";
-        cout << data.distanceToGhostTrack.significance() << "\t";
-        cout << data.closestToJetAxis << "\t";
-        cout << (data.closestToJetAxis - pv).mag() << "\t";
-        cout << data.closestToGhostTrack << "\t";
-        cout << (data.closestToGhostTrack - pv).mag() << "\t";
-        cout << data.ip2d.value() << "\t";
-        cout << data.ip2d.significance() <<  endl;     
-      }
-
+  TrackIPTagInfoCollection::const_iterator it = ip.begin();
+  for (; it != ip.end(); it++) {
+    cout << "Jet pt: " << it->jet()->pt() << endl;
+    cout << "Tot tracks: " << it->tracks().size() << endl;
+    TrackRefVector selTracks = it->selectedTracks();
+    int n = selTracks.size();
+    cout << "Sel tracks: " << n << endl;
+    // false      cout << " Pt  \t d len \t jet dist \t p3d \t p2d\t ip3d \t ip2d " << endl;
+    GlobalPoint pv(
+        it->primaryVertex()->position().x(), it->primaryVertex()->position().y(), it->primaryVertex()->position().z());
+    cout << pv << " vs " << it->primaryVertex()->position() << endl;
+    for (int j = 0; j < n; j++) {
+      btag::TrackIPData data = it->impactParameterData()[j];
+      cout << selTracks[j]->pt() << "\t";
+      cout << it->probabilities(0)[j] << "\t";
+      cout << it->probabilities(1)[j] << "\t";
+      cout << data.ip3d.value() << "\t";
+      cout << data.ip3d.significance() << "\t";
+      cout << data.distanceToJetAxis.value() << "\t";
+      cout << data.distanceToJetAxis.significance() << "\t";
+      cout << data.distanceToGhostTrack.value() << "\t";
+      cout << data.distanceToGhostTrack.significance() << "\t";
+      cout << data.closestToJetAxis << "\t";
+      cout << (data.closestToJetAxis - pv).mag() << "\t";
+      cout << data.closestToGhostTrack << "\t";
+      cout << (data.closestToGhostTrack - pv).mag() << "\t";
+      cout << data.ip2d.value() << "\t";
+      cout << data.ip2d.significance() << endl;
+    }
   }
-
 }
 
 //define this as a plug-in

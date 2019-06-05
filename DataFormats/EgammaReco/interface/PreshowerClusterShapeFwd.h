@@ -26,6 +26,6 @@ namespace reco {
 
   /// iterator over a vector of references to PreshowerClusterShape objects
   typedef PreshowerClusterShapeRefVector::iterator PreshowerClusterShape_iterator;
-}
+}  // namespace reco
 
 #endif

@@ -15,15 +15,16 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/CircleFromThreePoints.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
-inline float sqr(float x) { return x*x; }
+inline float sqr(float x) { return x * x; }
 
 using namespace std;
 
 /*****************************************************************************/
-ClusterShapeTrackFilter::ClusterShapeTrackFilter(const SiPixelClusterShapeCache *cache, double ptmin, double ptmax, const edm::EventSetup& es):
-  theClusterShapeCache(cache),
-  ptMin(ptmin), ptMax(ptmax)
-{
+ClusterShapeTrackFilter::ClusterShapeTrackFilter(const SiPixelClusterShapeCache* cache,
+                                                 double ptmin,
+                                                 double ptmax,
+                                                 const edm::EventSetup& es)
+    : theClusterShapeCache(cache), ptMin(ptmin), ptMax(ptmax) {
   // Get tracker geometry
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
@@ -31,7 +32,7 @@ ClusterShapeTrackFilter::ClusterShapeTrackFilter(const SiPixelClusterShapeCache 
 
   // Get cluster shape hit filter
   edm::ESHandle<ClusterShapeHitFilter> shape;
-  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",shape);
+  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter", shape);
   theFilter = shape.product();
 
   edm::ESHandle<TrackerTopology> tTopoHand;
@@ -40,61 +41,52 @@ ClusterShapeTrackFilter::ClusterShapeTrackFilter(const SiPixelClusterShapeCache 
 }
 
 /*****************************************************************************/
-ClusterShapeTrackFilter::~ClusterShapeTrackFilter()
-{
-}
+ClusterShapeTrackFilter::~ClusterShapeTrackFilter() {}
 
 /*****************************************************************************/
-float ClusterShapeTrackFilter::areaParallelogram
-  (const Global2DVector& a, const Global2DVector& b) const
-{  
+float ClusterShapeTrackFilter::areaParallelogram(const Global2DVector& a, const Global2DVector& b) const {
   return a.x() * b.y() - a.y() * b.x();
 }
 
 /*****************************************************************************/
-vector<GlobalVector> ClusterShapeTrackFilter::getGlobalDirs
-  (const vector<GlobalPoint> & g) const
-{
+vector<GlobalVector> ClusterShapeTrackFilter::getGlobalDirs(const vector<GlobalPoint>& g) const {
   // Get 2d points
   vector<Global2DVector> p;
-  for(vector<GlobalPoint>::const_iterator ig = g.begin();
-                                          ig!= g.end(); ig++)
-     p.push_back( Global2DVector(ig->x(), ig->y()) );
+  for (vector<GlobalPoint>::const_iterator ig = g.begin(); ig != g.end(); ig++)
+    p.push_back(Global2DVector(ig->x(), ig->y()));
 
   //
   vector<GlobalVector> globalDirs;
 
   // Determine circle
-  CircleFromThreePoints circle(g[0],g[1],g[2]);
+  CircleFromThreePoints circle(g[0], g[1], g[2]);
 
-  if(circle.curvature() != 0.)
-  {
-    Global2DVector c (circle.center().x(), circle.center().y());
+  if (circle.curvature() != 0.) {
+    Global2DVector c(circle.center().x(), circle.center().y());
 
     float rad2 = (p[0] - c).mag2();
     float a12 = asin(fabsf(areaParallelogram(p[0] - c, p[1] - c)) / rad2);
 
     float slope = (g[1].z() - g[0].z()) / a12;
 
-    float cotTheta = slope * circle.curvature(); // == sinhEta
-    float coshEta  = sqrt(1 + sqr(cotTheta));    // == 1/sinTheta
+    float cotTheta = slope * circle.curvature();  // == sinhEta
+    float coshEta = sqrt(1 + sqr(cotTheta));      // == 1/sinTheta
 
     // Calculate globalDirs
-    float sinTheta =       1. / coshEta;
+    float sinTheta = 1. / coshEta;
     float cosTheta = cotTheta * sinTheta;
 
     int dir;
-    if(areaParallelogram(p[0] - c, p[1] - c) > 0) dir = 1; else dir = -1;
+    if (areaParallelogram(p[0] - c, p[1] - c) > 0)
+      dir = 1;
+    else
+      dir = -1;
 
     float curvature = circle.curvature();
 
-    for(vector<Global2DVector>::const_iterator ip = p.begin();
-                                               ip!= p.end(); ip++)
-    {
-      Global2DVector v = (*ip - c)*curvature*dir;
-      globalDirs.push_back(GlobalVector(-v.y()*sinTheta,
-                                         v.x()*sinTheta,
-                                               cosTheta));
+    for (vector<Global2DVector>::const_iterator ip = p.begin(); ip != p.end(); ip++) {
+      Global2DVector v = (*ip - c) * curvature * dir;
+      globalDirs.push_back(GlobalVector(-v.y() * sinTheta, v.x() * sinTheta, cosTheta));
     }
   }
 
@@ -102,19 +94,13 @@ vector<GlobalVector> ClusterShapeTrackFilter::getGlobalDirs
 }
 
 /*****************************************************************************/
-vector<GlobalPoint> ClusterShapeTrackFilter::getGlobalPoss
-  (const vector<const TrackingRecHit *> & recHits) const
-{
+vector<GlobalPoint> ClusterShapeTrackFilter::getGlobalPoss(const vector<const TrackingRecHit*>& recHits) const {
   vector<GlobalPoint> globalPoss;
 
-  for(vector<const TrackingRecHit *>::const_iterator recHit = recHits.begin();
-                                                     recHit!= recHits.end();
-                                                     recHit++)
-  {
+  for (vector<const TrackingRecHit*>::const_iterator recHit = recHits.begin(); recHit != recHits.end(); recHit++) {
     DetId detId = (*recHit)->geographicalId();
 
-    GlobalPoint gpos = 
-      theTracker->idToDet(detId)->toGlobal((*recHit)->localPosition());
+    GlobalPoint gpos = theTracker->idToDet(detId)->toGlobal((*recHit)->localPosition());
 
     globalPoss.push_back(gpos);
   }
@@ -123,54 +109,46 @@ vector<GlobalPoint> ClusterShapeTrackFilter::getGlobalPoss
 }
 
 /*****************************************************************************/
-bool ClusterShapeTrackFilter::operator()
-  (const reco::Track* track,
-   const vector<const TrackingRecHit *> & recHits) const
-{
+bool ClusterShapeTrackFilter::operator()(const reco::Track* track, const vector<const TrackingRecHit*>& recHits) const {
   // Do not even look at pairs
-  if(recHits.size() <= 2) return true;
+  if (recHits.size() <= 2)
+    return true;
 
   // Check pt
-  if(track->pt() < ptMin ||
-     track->pt() > ptMax)
-  {
-    LogTrace("ClusterShapeTrackFilter")
-       << "  [ClusterShapeTrackFilter] pt not in range: "
-       << ptMin << " " << track->pt() << " " << ptMax;
+  if (track->pt() < ptMin || track->pt() > ptMax) {
+    LogTrace("ClusterShapeTrackFilter") << "  [ClusterShapeTrackFilter] pt not in range: " << ptMin << " "
+                                        << track->pt() << " " << ptMax;
     return false;
   }
 
   // Get global positions
-  vector<GlobalPoint>  globalPoss = getGlobalPoss(recHits);
+  vector<GlobalPoint> globalPoss = getGlobalPoss(recHits);
 
   // Get global directions
   vector<GlobalVector> globalDirs = getGlobalDirs(globalPoss);
-  if ( globalDirs.empty() ) return false;
+  if (globalDirs.empty())
+    return false;
 
   bool ok = true;
 
   // Check whether shape of pixel cluster is compatible
   // with local track direction
-  for(unsigned int i = 0; i < recHits.size(); i++)
-  {
-    const SiPixelRecHit* pixelRecHit =
-      dynamic_cast<const SiPixelRecHit *>(recHits[i]);
+  for (unsigned int i = 0; i < recHits.size(); i++) {
+    const SiPixelRecHit* pixelRecHit = dynamic_cast<const SiPixelRecHit*>(recHits[i]);
 
-    if(!pixelRecHit->isValid())
-    { 
-      ok = false; break; 
+    if (!pixelRecHit->isValid()) {
+      ok = false;
+      break;
     }
 
-    if(! theFilter->isCompatible(*pixelRecHit, globalDirs[i], *theClusterShapeCache) )
-    {
+    if (!theFilter->isCompatible(*pixelRecHit, globalDirs[i], *theClusterShapeCache)) {
       LogTrace("ClusterShapeTrackFilter")
-         << "  [ClusterShapeTrackFilter] clusShape problem"
-         << HitInfo::getInfo(*recHits[i],tTopo);
+          << "  [ClusterShapeTrackFilter] clusShape problem" << HitInfo::getInfo(*recHits[i], tTopo);
 
-      ok = false; break;
+      ok = false;
+      break;
     }
   }
 
   return ok;
 }
-

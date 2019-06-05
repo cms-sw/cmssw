@@ -7,7 +7,7 @@
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackCleaner.h"
 
-class TrackCleanerESProducer: public edm::ESProducer {
+class TrackCleanerESProducer : public edm::ESProducer {
 public:
   TrackCleanerESProducer(const edm::ParameterSet& iConfig);
   ~TrackCleanerESProducer() override = default;
@@ -31,7 +31,7 @@ void TrackCleanerESProducer::fillDescriptions(edm::ConfigurationDescriptions& de
 std::unique_ptr<PixelTrackCleaner> TrackCleanerESProducer::produce(const PixelTrackCleaner::Record& iRecord) {
   edm::ESHandle<TrackerTopology> tTopoHand;
   iRecord.getRecord<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology *tTopo=tTopoHand.product();
+  const TrackerTopology* tTopo = tTopoHand.product();
 
   return std::make_unique<TrackCleaner>(tTopo);
 }

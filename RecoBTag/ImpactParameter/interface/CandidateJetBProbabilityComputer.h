@@ -5,7 +5,7 @@
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
 #include "RecoBTag/ImpactParameter/interface/TemplatedJetBProbabilityComputer.h"
 
+typedef TemplatedJetBProbabilityComputer<std::vector<reco::CandidatePtr>, reco::JetTagInfo>
+    CandidateJetBProbabilityComputer;
 
-typedef TemplatedJetBProbabilityComputer<std::vector<reco::CandidatePtr>,reco::JetTagInfo> CandidateJetBProbabilityComputer;
-
-#endif // ImpactParameter_CandidateJetBProbabilityComputer_h
+#endif  // ImpactParameter_CandidateJetBProbabilityComputer_h

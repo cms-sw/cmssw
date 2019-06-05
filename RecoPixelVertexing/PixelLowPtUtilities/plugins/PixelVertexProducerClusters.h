@@ -6,12 +6,15 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
-namespace edm { class Run; class Event; class EventSetup; }
+namespace edm {
+  class Run;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class TrackerGeometry;
 
-class PixelVertexProducerClusters : public edm::global::EDProducer<>
-{
+class PixelVertexProducerClusters : public edm::global::EDProducer<> {
 public:
   explicit PixelVertexProducerClusters(const edm::ParameterSet& ps);
   ~PixelVertexProducerClusters() override;
