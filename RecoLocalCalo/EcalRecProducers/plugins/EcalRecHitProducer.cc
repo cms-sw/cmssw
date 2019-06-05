@@ -58,12 +58,11 @@ EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps) {
 
   std::string componentType = ps.getParameter<std::string>("algo");
   edm::ConsumesCollector c{consumesCollector()};
-  worker_ = std::unique_ptr<EcalRecHitWorkerBaseClass>{EcalRecHitWorkerFactory::get()->create(componentType, ps, c)};
+  worker_ = EcalRecHitWorkerFactory::get()->create(componentType, ps, c);
 
   // to recover problematic channels
   componentType = ps.getParameter<std::string>("algoRecover");
-  workerRecover_ =
-      std::unique_ptr<EcalRecHitWorkerBaseClass>{EcalRecHitWorkerFactory::get()->create(componentType, ps, c)};
+  workerRecover_ = EcalRecHitWorkerFactory::get()->create(componentType, ps, c);
 
   edm::ParameterSet cleaningPs = ps.getParameter<edm::ParameterSet>("cleaningConfig");
   cleaningAlgo_ = std::make_unique<EcalCleaningAlgo>(cleaningPs);
