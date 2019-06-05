@@ -23,6 +23,7 @@ voms-proxy-init -voms cms
 #RECO step, about 30 minutes
 #Necessary if you need to re-reco events to test introduced changes to PF reco.
 #Note that the default era & condition is now set to 2018. Change CONDITIONS and ERA in test/run_relval.sh when trying other era, before trying the above commands.
+#Also, you may run 'python datasets.py' to update filelists in tmp/das_cache after checking datasets specified in this python script
 make QCD_reco
 
 #DQM step, a few minutes
