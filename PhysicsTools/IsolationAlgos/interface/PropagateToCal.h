@@ -28,13 +28,11 @@ public:
   PropagateToCal();
   ~PropagateToCal();
   PropagateToCal(double radius, double minZ, double maxZ, bool theIgnoreMaterial);
-  bool propagate(const GlobalPoint& vertex, 
-	         GlobalVector& Cand, int charge,
-		 const MagneticField * bField) const;
+  bool propagate(const GlobalPoint& vertex, GlobalVector& Cand, int charge, const MagneticField* bField) const;
 
 private:
-  bool   theIgnoreMaterial_;    /// whether or not propagation should ignore material
-  double radius_, maxZ_, minZ_; /// Cylinder defining the inner surface of the calorimeter
+  bool theIgnoreMaterial_;       /// whether or not propagation should ignore material
+  double radius_, maxZ_, minZ_;  /// Cylinder defining the inner surface of the calorimeter
 };
 
 #endif

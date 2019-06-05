@@ -9,15 +9,15 @@
 
 namespace reco {
   namespace modules {
-    
-    template<typename T, typename C> 
-    struct ParameterAdapter<TrkCalIsolationAlgo<T, C> > { 
-      static TrkCalIsolationAlgo<T, C> make( const edm::ParameterSet & cfg ) {
-	  return TrkCalIsolationAlgo<T, C>( cfg.template getParameter<double>( "dRMin" ), 
-					    cfg.template getParameter<double>( "dRMax" ) );
+
+    template <typename T, typename C>
+    struct ParameterAdapter<TrkCalIsolationAlgo<T, C> > {
+      static TrkCalIsolationAlgo<T, C> make(const edm::ParameterSet& cfg) {
+        return TrkCalIsolationAlgo<T, C>(cfg.template getParameter<double>("dRMin"),
+                                         cfg.template getParameter<double>("dRMax"));
       }
     };
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif
