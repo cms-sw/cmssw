@@ -12,14 +12,13 @@
 
 namespace reco {
   namespace modules {
-    typedef CandCombiner<
-              StringCutObjectSelector<reco::Candidate, true>,
-              AnyPairSelector,
-              combiner::helpers::ShallowClone,
-              reco::NamedCompositeCandidateCollection 
-            > NamedCandViewShallowCloneCombiner;
+    typedef CandCombiner<StringCutObjectSelector<reco::Candidate, true>,
+                         AnyPairSelector,
+                         combiner::helpers::ShallowClone,
+                         reco::NamedCompositeCandidateCollection>
+        NamedCandViewShallowCloneCombiner;
 
-DEFINE_FWK_MODULE( NamedCandViewShallowCloneCombiner );
+    DEFINE_FWK_MODULE(NamedCandViewShallowCloneCombiner);
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco

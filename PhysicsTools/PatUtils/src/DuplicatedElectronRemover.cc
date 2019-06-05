@@ -2,19 +2,15 @@
 
 #include <algorithm>
 
-
-std::unique_ptr< std::vector<size_t> > 
-pat::DuplicatedElectronRemover::duplicatesToRemove(const std::vector<reco::GsfElectron> &electrons) const {
-    return duplicatesToRemove< std::vector<reco::GsfElectron> >(electrons);
+std::unique_ptr<std::vector<size_t> > pat::DuplicatedElectronRemover::duplicatesToRemove(
+    const std::vector<reco::GsfElectron> &electrons) const {
+  return duplicatesToRemove<std::vector<reco::GsfElectron> >(electrons);
 }
 
-std::unique_ptr< std::vector<size_t> > 
-pat::DuplicatedElectronRemover::duplicatesToRemove(const edm::View<reco::GsfElectron>   &electrons) const {
-    return duplicatesToRemove< edm::View<reco::GsfElectron> >(electrons);
+std::unique_ptr<std::vector<size_t> > pat::DuplicatedElectronRemover::duplicatesToRemove(
+    const edm::View<reco::GsfElectron> &electrons) const {
+  return duplicatesToRemove<edm::View<reco::GsfElectron> >(electrons);
 }
-
-
-
 
 /*
 std::unique_ptr< std::vector<size_t> >

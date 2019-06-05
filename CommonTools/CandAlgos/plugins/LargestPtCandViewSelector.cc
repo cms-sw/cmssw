@@ -21,11 +21,7 @@
 #include "CommonTools/Utils/interface/PtComparator.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef ObjectSelector<
-          SortCollectionSelector<
-            reco::CandidateView,
-            GreaterByPt<reco::Candidate>
-          >
-        > LargestPtCandViewSelector;
+typedef ObjectSelector<SortCollectionSelector<reco::CandidateView, GreaterByPt<reco::Candidate> > >
+    LargestPtCandViewSelector;
 
-DEFINE_FWK_MODULE( LargestPtCandViewSelector );
+DEFINE_FWK_MODULE(LargestPtCandViewSelector);

@@ -7,4 +7,3 @@ typedef ShiftedParticleProducerT<reco::PFCandidate> ShiftedPFCandidateProducer;
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(ShiftedPFCandidateProducer);
-
