@@ -20,13 +20,13 @@ fi
 
 #
 #set default conditions - 2018
-CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018
+#CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 GEOM=DB:Extended
 #
 #conditions - 2017
-#CONDITIONS=auto:phase1_2017_realistic ERA=Run2_2017,run2_nanoAOD_94XMiniAODv1
+#CONDITIONS=auto:phase1_2017_realistic ERA=Run2_2017,run2_nanoAOD_94XMiniAODv1 GEOM=DB.Extended
 #
 #conditions - phase2
-#CONDITIONS=auto:phase2_realistic ERA=Phase2C8_timing_layer_bar
+CONDITIONS=auto:phase2_realistic ERA=Phase2C8_timing_layer_bar GEOM=Extended2023D41
 
 #Running with 2 threads allows to use more memory on grid
 NTHREADS=2
@@ -71,8 +71,8 @@ elif [ "$1" == "MinBias" ]; then
 elif [ "$1" == "NuGunPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/NuGun_PU.txt
     NAME=NuGunPU
-elif [ "$1" == "conf" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/NuGun_PU.txt
+elif [ "$1" == "conf" ]; then  # special switch for creating conf file, 
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/NuGun_PU.txt # dummy
     NAME=conf
 else
     echo "Argument 1 must be [QCD|QCDPU|ZMM|MinBias|NuGunPU|conf] but was $1"
@@ -105,7 +105,7 @@ if [ $STEP == "RECO" ]; then
 	FILENAME=`sed -n "${NJOB}p" $INPUT_FILELIST`
 	echo "FILENAME="$FILENAME
 
-	cmsDriver.py step3 --runUnscheduled  --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier RECOSIM,AODSIM,MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent RECOSIM,AODSIM,MINIAODSIM --filein step2.root --fileout file:step3.root --no_exec --python_filename=step3.py
+	cmsDriver.py step3 --runUnscheduled  --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier RECOSIM,AODSIM,MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent RECOSIM,AODSIM,MINIAODSIM --geometry=$GEOM --filein step2.root --fileout file:step3.root --no_exec --python_filename=step3.py
 	
     else
 	
@@ -124,7 +124,7 @@ if [ $STEP == "RECO" ]; then
 	echo "FILENAME="$FILENAME
 	#Run the actual CMS reco with particle flow.
 	echo "Running step RECO" 
-	cmsDriver.py step3 --runUnscheduled  --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier RECOSIM,AODSIM,MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent RECOSIM,AODSIM,MINIAODSIM --filein $FILENAME --fileout file:step3.root | tee step3.log  2>&1
+	cmsDriver.py step3 --runUnscheduled  --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier RECOSIM,AODSIM,MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent RECOSIM,AODSIM,MINIAODSIM --geometry=$GEOM --filein $FILENAME --fileout file:step3.root | tee step3.log  2>&1
    
 	#NanoAOD
 	#On lxplus, this step takes about 1 minute / 1000 events
