@@ -15,7 +15,6 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-
 /**\class TauGenJetProducer
 \brief builds a GenJet from the visible daughters of each status 2 tau in the event.
 
@@ -23,26 +22,23 @@
 \date   february 2008
 */
 class TauGenJetProducer : public edm::global::EDProducer<> {
- public:
-
+public:
   explicit TauGenJetProducer(const edm::ParameterSet&);
 
   ~TauGenJetProducer() override;
 
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
- private:
-
+private:
   /// Input PFCandidates
-  const edm::InputTag   inputTagGenParticles_;
-  const edm::EDGetTokenT<reco::GenParticleCollection>   tokenGenParticles_;
+  const edm::InputTag inputTagGenParticles_;
+  const edm::EDGetTokenT<reco::GenParticleCollection> tokenGenParticles_;
 
   /// if yes, neutrinos will be included, for debug purposes
-  const bool   includeNeutrinos_;
+  const bool includeNeutrinos_;
 
   /// verbose ?
-  const bool   verbose_;
-
+  const bool verbose_;
 };
 
 #endif
