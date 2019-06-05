@@ -1,11 +1,11 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "Rtypes.h" 
-#include "Math/Cartesian3D.h" 
-#include "Math/Polar3D.h" 
-#include "Math/CylindricalEta3D.h" 
-#include "Math/PxPyPzE4D.h" 
+#include "Rtypes.h"
+#include "Math/Cartesian3D.h"
+#include "Math/Polar3D.h"
+#include "Math/CylindricalEta3D.h"
+#include "Math/PxPyPzE4D.h"
 #include "DataFormats/Candidate/interface/LeafRefCandidateT.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
@@ -38,6 +38,6 @@
 #include <vector>
 
 namespace reco {
-   typedef edm::AssociationMap<edm::OneToManyWithQualityGeneric<CandidateView,CandidateView,bool> > CandViewCandViewAssociation;
+  typedef edm::AssociationMap<edm::OneToManyWithQualityGeneric<CandidateView, CandidateView, bool> >
+      CandViewCandViewAssociation;
 }
-
