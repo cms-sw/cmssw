@@ -57,7 +57,7 @@ namespace btagbtvdeep{
 
 
     void TrackPairInfoBuilder::buildTrackPairInfo(const reco::TransientTrack * it , const reco::TransientTrack * tt, const reco::Vertex & pv, float mass, GlobalVector jetdirection, 
-                                                  std::pair<bool,Measurement1D> t_ip, std::pair<bool,Measurement1D> t_ip2d  )
+                                                  const std::pair<bool,Measurement1D> & t_ip, const std::pair<bool,Measurement1D> & t_ip2d  )
     {
         
         GlobalPoint pvp(pv.x(),pv.y(),pv.z());

@@ -36,7 +36,7 @@ namespace btagbtvdeep{
 
 
     void SeedingTrackInfoBuilder::buildSeedingTrackInfo(const reco::TransientTrack * it , const reco::Vertex & pv,  const reco::Jet & jet,/*GlobalVector jetdirection,*/ float mass, 
-                              std::pair<bool,Measurement1D> ip, float jet_distance, float jaxis_dlength, HistogramProbabilityEstimator* m_probabilityEstimator, bool m_computeProbabilities=false ){
+                              const std::pair<bool,Measurement1D> & ip, float jet_distance, float jaxis_dlength, HistogramProbabilityEstimator* m_probabilityEstimator, bool m_computeProbabilities=false ){
         
         GlobalPoint pvp(pv.x(),pv.y(),pv.z());
         GlobalVector jetdirection(jet.px(),jet.py(),jet.pz());
