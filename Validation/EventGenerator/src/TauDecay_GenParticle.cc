@@ -37,8 +37,8 @@ void TauDecay_GenParticle::Analyze(const reco::GenParticle *Particle, unsigned i
       TauDecayProducts.push_back(Particle);
       MotherIdx.push_back(midx);
     }
-    if (pdgid == PdtPdgMini::pi0 &&
-        dopi0) {  // store information on pi0 decay products even though a pi0 is a finsal state particle (for 3PiPi0 studies)
+    // store information on pi0 decay products even though a pi0 is a finsal state particle (for 3PiPi0 studies)
+    if (pdgid == PdtPdgMini::pi0 && dopi0) {
       midx = MotherIdx.size() - 1;
       for (unsigned int i = 0; i < Particle->numberOfDaughters(); i++) {
         const reco::Candidate *dau = Particle->daughter(i);

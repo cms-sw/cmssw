@@ -487,8 +487,8 @@ bool GenericTriggerEventFlag::acceptL1LogicalExpression(const edm::Event& event,
   if (stage2_)
     l1uGt_->retrieveL1(event, setup);
   else
-    l1Gt_->getL1GtRunCache(
-        event, setup, useL1EventSetup, useL1GtTriggerMenuLite);  // FIXME This can possibly go to initRun()
+    // FIXME This can possibly go to initRun()
+    l1Gt_->getL1GtRunCache(event, setup, useL1EventSetup, useL1GtTriggerMenuLite);
 
   // Check empty std::strings
   if (l1LogicalExpression.empty()) {

@@ -102,7 +102,6 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   // chi2 parameters for flags determination
   kPoorRecoFlagEB_ = ps.getParameter<bool>("kPoorRecoFlagEB");
   kPoorRecoFlagEE_ = ps.getParameter<bool>("kPoorRecoFlagEE");
-  ;
   chi2ThreshEB_ = ps.getParameter<double>("chi2ThreshEB_");
   chi2ThreshEE_ = ps.getParameter<double>("chi2ThreshEE_");
 }
