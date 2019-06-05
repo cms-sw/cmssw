@@ -133,7 +133,7 @@ EmbeddingLHEProducer::EmbeddingLHEProducer(const edm::ParameterSet& iConfig)
 
    write_lheout=false;
    std::string lhe_ouputfile = iConfig.getUntrackedParameter<std::string>("lhe_outputfilename","");
-   if (lhe_ouputfile !=""){
+   if (!lhe_ouputfile.empty()){
      write_lheout=true;
      file.open(lhe_ouputfile, std::fstream::out | std::fstream::trunc);
    }
