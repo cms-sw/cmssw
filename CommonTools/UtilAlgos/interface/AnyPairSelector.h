@@ -5,16 +5,13 @@
 
 namespace reco {
   namespace modules {
-    
-    template<>
+
+    template <>
     struct ParameterAdapter<AnyPairSelector> {
-      static AnyPairSelector make( const edm::ParameterSet & cfg ) {
-	return AnyPairSelector();
-      }
+      static AnyPairSelector make(const edm::ParameterSet& cfg) { return AnyPairSelector(); }
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif
-

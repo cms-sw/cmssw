@@ -8,9 +8,11 @@
  */
 
 struct EtMinSelector {
-  EtMinSelector( double etMin ) : etMin_( etMin ) { }
-  template<typename T>
-  bool operator()( const T & t ) const { return t.et() >= etMin_; }
+  EtMinSelector(double etMin) : etMin_(etMin) {}
+  template <typename T>
+  bool operator()(const T& t) const {
+    return t.et() >= etMin_;
+  }
 
 private:
   double etMin_;

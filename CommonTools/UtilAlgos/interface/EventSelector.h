@@ -15,28 +15,29 @@
 
 class EventSelector {
 public:
-  EventSelector () {}
-  EventSelector (const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) :
-    EventSelector(iConfig, iC) {}
-  EventSelector (const edm::ParameterSet& iConfig, edm::ConsumesCollector & iC) {
+  EventSelector() {}
+  EventSelector(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) : EventSelector(iConfig, iC) {}
+  EventSelector(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC) {
     std::string selector = iConfig.getParameter<std::string>("selector");
-    name_ = iConfig.getUntrackedParameter<std::string>("name",selector);
+    name_ = iConfig.getUntrackedParameter<std::string>("name", selector);
   }
-  virtual ~EventSelector () {}
+  virtual ~EventSelector() {}
   /// name of the module (from configuration)
-  const std::string& name () const {return name_;}
-  const std::vector<std::string> & description() { return description_;}
+  const std::string& name() const { return name_; }
+  const std::vector<std::string>& description() { return description_; }
   /// decision of the selector module
-  virtual bool select (const edm::Event&) const = 0;
+  virtual bool select(const edm::Event&) const = 0;
 
- protected:
+protected:
   std::string name_;
   std::vector<std::string> description_;
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-typedef edmplugin::PluginFactory< EventSelector* (const edm::ParameterSet&, edm::ConsumesCollector &&) > EventSelectorFactory;
-typedef edmplugin::PluginFactory< EventSelector* (const edm::ParameterSet&, edm::ConsumesCollector &) > EventSelectorFactoryFromHelper;
+typedef edmplugin::PluginFactory<EventSelector*(const edm::ParameterSet&, edm::ConsumesCollector&&)>
+    EventSelectorFactory;
+typedef edmplugin::PluginFactory<EventSelector*(const edm::ParameterSet&, edm::ConsumesCollector&)>
+    EventSelectorFactoryFromHelper;
 
 #endif

@@ -14,24 +14,20 @@
 const std::string TFileService::kSharedResource = "TFileService";
 thread_local TFileDirectory TFileService::tFileDirectory_;
 
-TFileService::TFileService(const edm::ParameterSet & cfg, edm::ActivityRegistry & r) :
-  file_(nullptr),
-  fileName_(cfg.getParameter<std::string>("fileName")),
-  fileNameRecorded_(false),
-  closeFileFast_(cfg.getUntrackedParameter<bool>("closeFileFast", false)) 
-{
-  tFileDirectory_ = TFileDirectory("",
-                                  "",
-                                  TFile::Open(fileName_.c_str(), "RECREATE"),
-                                  "");
+TFileService::TFileService(const edm::ParameterSet& cfg, edm::ActivityRegistry& r)
+    : file_(nullptr),
+      fileName_(cfg.getParameter<std::string>("fileName")),
+      fileNameRecorded_(false),
+      closeFileFast_(cfg.getUntrackedParameter<bool>("closeFileFast", false)) {
+  tFileDirectory_ = TFileDirectory("", "", TFile::Open(fileName_.c_str(), "RECREATE"), "");
   file_ = tFileDirectory_.file_;
 
   // activities to monitor in order to set the proper directory
-  r.watchPreModuleConstruction(this, & TFileService::setDirectoryName);
-  r.watchPreModuleBeginJob(this, & TFileService::setDirectoryName);
-  r.watchPreModuleEndJob(this, & TFileService::setDirectoryName);
-  r.watchPreModuleEvent(this, & TFileService::preModuleEvent);
-  r.watchPostModuleEvent(this, & TFileService::postModuleEvent);
+  r.watchPreModuleConstruction(this, &TFileService::setDirectoryName);
+  r.watchPreModuleBeginJob(this, &TFileService::setDirectoryName);
+  r.watchPreModuleEndJob(this, &TFileService::setDirectoryName);
+  r.watchPreModuleEvent(this, &TFileService::preModuleEvent);
+  r.watchPostModuleEvent(this, &TFileService::postModuleEvent);
 
   r.watchPreModuleGlobalBeginRun(this, &TFileService::preModuleGlobal);
   r.watchPostModuleGlobalBeginRun(this, &TFileService::postModuleGlobal);
@@ -49,12 +45,13 @@ TFileService::TFileService(const edm::ParameterSet & cfg, edm::ActivityRegistry 
 
 TFileService::~TFileService() {
   file_->Write();
-  if(closeFileFast_) gROOT->GetListOfFiles()->Remove(file_); 
+  if (closeFileFast_)
+    gROOT->GetListOfFiles()->Remove(file_);
   file_->Close();
   delete file_;
 }
 
-void TFileService::setDirectoryName(const edm::ModuleDescription & desc) {
+void TFileService::setDirectoryName(const edm::ModuleDescription& desc) {
   tFileDirectory_.file_ = file_;
   tFileDirectory_.dir_ = desc.moduleLabel();
   tFileDirectory_.descr_ = tFileDirectory_.dir_ + " (" + desc.moduleName() + ") folder";
@@ -66,47 +63,43 @@ void TFileService::preModuleEvent(edm::StreamContext const&, edm::ModuleCallingC
 
 void TFileService::postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const& mcc) {
   edm::ModuleCallingContext const* previous_mcc = mcc.previousModuleOnThread();
-  if(previous_mcc) {
+  if (previous_mcc) {
     setDirectoryName(*previous_mcc->moduleDescription());
   }
 }
 
-void
-TFileService::preModuleGlobal(edm::GlobalContext const&, edm::ModuleCallingContext const& mcc) {
+void TFileService::preModuleGlobal(edm::GlobalContext const&, edm::ModuleCallingContext const& mcc) {
   setDirectoryName(*mcc.moduleDescription());
 }
 
-void
-TFileService::postModuleGlobal(edm::GlobalContext const&, edm::ModuleCallingContext const& mcc) {
+void TFileService::postModuleGlobal(edm::GlobalContext const&, edm::ModuleCallingContext const& mcc) {
   edm::ModuleCallingContext const* previous_mcc = mcc.previousModuleOnThread();
-  if(previous_mcc) {
+  if (previous_mcc) {
     setDirectoryName(*previous_mcc->moduleDescription());
   }
 }
 
 void TFileService::afterBeginJob() {
-
-  if(!fileName_.empty())  {
-    if(!fileNameRecorded_) {
+  if (!fileName_.empty()) {
+    if (!fileNameRecorded_) {
       std::string fullName(1024, '\0');
 
       while (getcwd(&fullName[0], fullName.size()) == nullptr) {
-	 if (errno != ERANGE) {
-	    throw cms::Exception("TFileService")
-	       << "Failed to get current directory (errno=" << errno 
-	       << "): " << strerror(errno);
-	 }
-	 fullName.resize(fullName.size()*2, '\0');
-      }   
+        if (errno != ERANGE) {
+          throw cms::Exception("TFileService")
+              << "Failed to get current directory (errno=" << errno << "): " << strerror(errno);
+        }
+        fullName.resize(fullName.size() * 2, '\0');
+      }
       fullName.resize(fullName.find('\0'));
 
       fullName += "/" + fileName_;
 
       std::map<std::string, std::string> fileData;
-      fileData.insert(std::make_pair("Source","TFileService"));
+      fileData.insert(std::make_pair("Source", "TFileService"));
 
       edm::Service<edm::JobReport> reportSvc;
-      reportSvc->reportAnalysisFile(fullName,fileData);
+      reportSvc->reportAnalysisFile(fullName, fileData);
       fileNameRecorded_ = true;
     }
   }

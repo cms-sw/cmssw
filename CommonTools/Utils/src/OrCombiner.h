@@ -14,17 +14,15 @@
 #include "CommonTools/Utils/src/SelectorPtr.h"
 
 namespace reco {
-  namespace parser {    
+  namespace parser {
     struct OrCombiner : public SelectorBase {
-      OrCombiner( SelectorPtr lhs, SelectorPtr rhs ) :
-	lhs_( lhs ), rhs_( rhs ) {}
-      bool operator()( const edm::ObjectWithDict& o ) const override {
-	return (*lhs_)( o ) || (*rhs_)( o );
-      }
+      OrCombiner(SelectorPtr lhs, SelectorPtr rhs) : lhs_(lhs), rhs_(rhs) {}
+      bool operator()(const edm::ObjectWithDict& o) const override { return (*lhs_)(o) || (*rhs_)(o); }
+
     private:
       SelectorPtr lhs_, rhs_;
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

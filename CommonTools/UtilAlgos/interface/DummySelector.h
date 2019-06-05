@@ -18,27 +18,29 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class DummySelector {
 public:
-  explicit DummySelector(const edm::ParameterSet&, edm::ConsumesCollector & iC) : updated_(false) { }
+  explicit DummySelector(const edm::ParameterSet&, edm::ConsumesCollector& iC) : updated_(false) {}
   void newEvent(const edm::Event&, const edm::EventSetup&) { updated_ = true; }
-  template<typename T>
+  template <typename T>
   bool operator()(const T&) {
-    if(!updated_)
-      throw edm::Exception(edm::errors::Configuration)
-	<< "DummySelector: forgot to call newEvent\n";
+    if (!updated_)
+      throw edm::Exception(edm::errors::Configuration) << "DummySelector: forgot to call newEvent\n";
     return true;
   }
+
 private:
   bool updated_;
 };
 
 namespace dummy {
-  template<typename T>
-  inline bool select(const T&) { return true; }
-}
+  template <typename T>
+  inline bool select(const T&) {
+    return true;
+  }
+}  // namespace dummy
 
 EVENTSETUP_STD_INIT(DummySelector);
 

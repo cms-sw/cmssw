@@ -8,8 +8,7 @@
  */
 
 struct MaxNumberSelector {
-  MaxNumberSelector(unsigned int maxNumber) : 
-    maxNumber_(maxNumber) { }
+  MaxNumberSelector(unsigned int maxNumber) : maxNumber_(maxNumber) {}
   bool operator()(unsigned int number) const { return number <= maxNumber_; }
 
 private:

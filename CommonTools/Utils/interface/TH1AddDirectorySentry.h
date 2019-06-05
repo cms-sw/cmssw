@@ -4,7 +4,7 @@
 //
 // Package:     UtilAlgos
 // Class  :     TH1AddDirectorySentry
-// 
+//
 /**\class TH1AddDirectorySentry TH1AddDirectorySentry.h CommonTools/UtilAlgos/interface/TH1AddDirectorySentry.h
 
  Description: Manages the status of the ROOT directory
@@ -21,19 +21,15 @@
 // $Id: TH1AddDirectorySentry.h,v 1.1 2009/03/03 13:07:28 llista Exp $
 //
 
-class TH1AddDirectorySentry
-{
+class TH1AddDirectorySentry {
+public:
+  TH1AddDirectorySentry();
+  ~TH1AddDirectorySentry();
 
-   public:
-      TH1AddDirectorySentry();
-      ~TH1AddDirectorySentry();
-
-
-   private:
-      TH1AddDirectorySentry(const TH1AddDirectorySentry&) = delete;
-      TH1AddDirectorySentry& operator=(const TH1AddDirectorySentry&) = delete;
-      bool status_;
+private:
+  TH1AddDirectorySentry(const TH1AddDirectorySentry&) = delete;
+  TH1AddDirectorySentry& operator=(const TH1AddDirectorySentry&) = delete;
+  bool status_;
 };
-
 
 #endif
