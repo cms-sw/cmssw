@@ -33,7 +33,7 @@ if __name__ == "__main__":
         conf.JobType.maxJobRuntimeMin = 4*60
         conf.JobType.allowUndistributedCMSSW = True
         conf.JobType.outputFiles = ["step3_inMINIAODSIM.root"]
-        conf.JobType.maxMemoryMB = 4000
+        conf.JobType.maxMemoryMB = 5000
         conf.JobType.numCores = 2
         
         conf.Data.inputDataset = dataset
@@ -45,8 +45,8 @@ if __name__ == "__main__":
         #conf.Data.ignoreLocality = True
         
         # Where the output files will be transmitted to
-        conf.Site.storageSite = 'T3_US_Baylor'
-        #conf.Site.storageSite = 'T2_US_Caltech'
+        #conf.Site.storageSite = 'T3_US_Baylor'
+        conf.Site.storageSite = 'T2_US_Caltech'
         #conf.Site.whitelist = ["T2_US_Caltech", "T2_CH_CERN"]
         
         submit(conf) 
