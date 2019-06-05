@@ -70,10 +70,10 @@ public:
 
   ~PrescaleWeightProvider() {}
 
-  void initRun(const edm::Run& run,
-               const edm::EventSetup& setup);  // to be called from the ED module's beginRun() method
-  int prescaleWeight(const edm::Event& event,
-                     const edm::EventSetup& setup);  // to be called from the ED module's event loop method
+  // to be called from the ED module's beginRun() method
+  void initRun(const edm::Run& run, const edm::EventSetup& setup);
+  // to be called from the ED module's event loop method
+  int prescaleWeight(const edm::Event& event, const edm::EventSetup& setup);
 
 private:
   PrescaleWeightProvider(const edm::ParameterSet& config, edm::ConsumesCollector& iC);
