@@ -41,11 +41,11 @@ FTLRecHitProducer::FTLRecHitProducer(const edm::ParameterSet& ps)
 
   const edm::ParameterSet& barrel = ps.getParameterSet("barrel");
   const std::string& barrelAlgo = barrel.getParameter<std::string>("algoName");
-  barrel_ = std::unique_ptr<FTLRecHitAlgoBase>{FTLRecHitAlgoFactory::get()->create(barrelAlgo, barrel, sumes)};
+  barrel_ = FTLRecHitAlgoFactory::get()->create(barrelAlgo, barrel, sumes);
 
   const edm::ParameterSet& endcap = ps.getParameterSet("endcap");
   const std::string& endcapAlgo = endcap.getParameter<std::string>("algoName");
-  endcap_ = std::unique_ptr<FTLRecHitAlgoBase>{FTLRecHitAlgoFactory::get()->create(endcapAlgo, endcap, sumes)};
+  endcap_ = FTLRecHitAlgoFactory::get()->create(endcapAlgo, endcap, sumes);
 }
 
 FTLRecHitProducer::~FTLRecHitProducer() {}
