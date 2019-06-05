@@ -5,7 +5,7 @@
 // Package:     Framework
 // Class:      EventSetupProvider
 //
-/**\class EventSetupProvider EventSetupProvider.h FWCore/Framework/interface/EventSetupProvider.h
+/**\class edm::eventsetup::EventSetupProvider
 
  Description: Factory for a EventSetup
 

@@ -5,7 +5,7 @@
 // Package:     Framework
 // Class  :     EventSetupRecordProvider
 //
-/**\class EventSetupRecordProvider EventSetupRecordProvider.h FWCore/Framework/interface/EventSetupRecordProvider.h
+/**\class edm::eventsetup::EventSetupRecordProvider
 
  Description: Coordinates all EventSetupDataProviders with the same 'interval of validity'
 
@@ -25,7 +25,6 @@
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 // system include files
-
 #include <map>
 #include <memory>
 #include <set>
@@ -97,14 +96,38 @@ namespace edm {
       ///Intended for use only in unit tests
       void setValidityInterval_forTesting(ValidityInterval const&);
 
+      /** This function is called when an IOV is started up by the asynchronous task assigned to start IOVs.
+       *  This is the point where we know the value of iovIndex, so we know which EventSetupRecordImpl
+       *  object will be used. We set a pointer to it. In the EventSetupRecordImpl we set the cacheIdentifier
+       *  and validity interval. We also set the pointer in the EventSetupImpl to the EventSetupRecordImpl here.
+       */
       void initializeForNewIOV(unsigned int iovIndex, unsigned long long cacheIdentifier);
+
+      /** This function is called when we do not need to start a new IOV for a record and syncValue.
+       *  If a new EventSetupImpl was created, then this will set its pointer to the EventSetupRecordImpl.
+       *  This is also the place where the validity interval will be updated in the special case
+       *  where the beginning of the interval did not change but the end changed so it is not treated
+       *  as a new IOV.
+       */
       void continueIOV(bool newEventSetupImpl);
+
+      /** The asynchronous task called when an IOV ends calls this function. It clears the caches
+       *  of the DataProxy's.
+       */
       void endIOV(unsigned int iovIndex);
+
+      /** Set a flag each time the EventSetupProvider starts initializing with a new sync value.
+       *  setValidityIntervalFor can be called multiple times because of dependent records.
+       *  Using this flag allows setValidityIntervalFor to avoid duplicating its work on the same
+       *  syncValue.
+       */
       void initializeForNewSyncValue();
 
       bool doWeNeedToWaitForIOVsToFinish(IOVSyncValue const&) const;
 
-      ///sets interval for this time and returns true if have a valid interval for time
+      /** Sets the validity interval for this sync value and returns true if we have a valid
+       *  interval for sync value. Also sets the interval status.
+       */
       bool setValidityIntervalFor(IOVSyncValue const&);
 
       bool newIntervalForAnySubProcess() const { return newIntervalForAnySubProcess_; }

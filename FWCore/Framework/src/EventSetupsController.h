@@ -87,6 +87,18 @@ namespace edm {
                                                        ActivityRegistry*,
                                                        ParameterSet const* optionsPset = nullptr);
 
+      // Pass in an IOVSyncValue to let the EventSetup system know which run and lumi
+      // need to be processed and prepare IOVs for it (also could be a time or only a run).
+      // Pass in a WaitingTaskHolder that allows the EventSetup to communicate when all
+      // the IOVs are ready to process this IOVSyncValue. Note this preparation is often
+      // done in asynchronous tasks and the function might return before all the preparation
+      // is complete.
+      // Pass in endIOVWaitingTasks, additions to this WaitingTaskList allow the lumi to notify
+      // the EventSetup when the lumi is done and no longer needs its EventSetup IOVs.
+      // Pass in a vector of EventSetupImpl that gets filled and is used to give clients
+      // of EventSetup access to the EventSetup system such that for each record the IOV
+      // associated with this IOVSyncValue will be used. The first element of the vector
+      // is for the top level process and each additional element corresponds to a SubProcess.
       void eventSetupForInstance(IOVSyncValue const&,
                                  WaitingTaskHolder const& taskToStartAfterIOVInit,
                                  WaitingTaskList& endIOVWaitingTasks,
