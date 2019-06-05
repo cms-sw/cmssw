@@ -40,6 +40,8 @@
       -1, 0, -1, 1, -2, -1, 0, -1, 1, -2, -1, 0, -1, 1, -2,
       -1, 0, -1, 1, -2, -1, 0, -1, 1, -2, -1, 0, -1, 1, -2,
       -1, 0, -1, 1, -2, -1, 0, -1, 1, -2</Vector>
+    <Vector name="LayerCenter" type="numeric" nEntries="14">
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0</Vector>
     <Numeric name="FirstLayer"       value="[hgcal:FirstMixedLayer]"/>
     <Numeric name="AbsorberMode"     value="1"/>
     <Vector name="TopMaterialNames" type="string" nEntries="6">

@@ -213,14 +213,13 @@ bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU, int cellV
 
 double HGCalDDDConstants::cellThickness(int layer, int waferU, int waferV) const {
   double thick(-1);
-  if ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full)) {
-    auto itr = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(layer, waferU, waferV));
-    int type = ((itr == hgpar_->typesInLayers_.end() ? maxType : hgpar_->waferTypeL_[itr->second]));
-    thick = 10000.0 * hgpar_->cellThickness_[type];  // cm to micron
-  } else if ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull)) {
-    int type =
-        (((waferU >= 0) && (waferU < (int)(hgpar_->waferTypeL_.size()))) ? hgpar_->waferTypeL_[waferU] : minType);
-    thick = 100.0 * type;  // type = 1,2,3 for 100,200,300 micron
+  int type = waferType(layer, waferU, waferV);
+  if (type > 0) {
+    if ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full)) {
+      thick = 10000.0 * hgpar_->cellThickness_[type-1];  // cm to micron
+    } else if ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull)) {
+      thick = 100.0 * type;  // type = 1,2,3 for 100,200,300 micron
+    }
   }
   return thick;
 }
@@ -1227,6 +1226,19 @@ int HGCalDDDConstants::waferType(DetId const& id) const {
     type = ((id.det() != DetId::Forward) ? (1 + HGCSiliconDetId(id).type()) : (1 + HFNoseDetId(id).type()));
   } else if ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull)) {
     type = waferTypeL(HGCalDetId(id).wafer());
+  }
+  return type;
+}
+
+int HGCalDDDConstants::waferType(int layer, int waferU, int waferV) const {
+  int type(-1);
+  if ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full)) {
+    auto itr = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(layer, waferU, waferV));
+    if (itr != hgpar_->typesInLayers_.end()) 
+      type = (1 + hgpar_->waferTypeL_[itr->second]);
+  } else if ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull)) {
+    if ((waferU >= 0) && (waferU < (int)(hgpar_->waferTypeL_.size())))
+      type = hgpar_->waferTypeL_[waferU];
   }
   return type;
 }
