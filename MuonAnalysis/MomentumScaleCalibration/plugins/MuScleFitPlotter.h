@@ -19,14 +19,13 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class TFile;
 class LeafCandidate;
 
-class MuScleFitPlotter{
-
- public:
+class MuScleFitPlotter {
+public:
   // Constructor
   // -----------
   MuScleFitPlotter(std::string);
@@ -37,7 +36,7 @@ class MuScleFitPlotter{
 
   // Operations
   // ----------
-  void fillGen(const reco::GenParticleCollection& genParticles, bool=false);
+  void fillGen(const reco::GenParticleCollection& genParticles, bool = false);
   void fillGen(const edm::HepMCProduct& evtMC, bool sherpaFlag_);
   void fillSim(edm::Handle<edm::SimTrackContainer> simTracks);
   void fillGenSim(edm::Handle<edm::HepMCProduct> evtMC, edm::Handle<edm::SimTrackContainer> simTracks);
@@ -45,23 +44,21 @@ class MuScleFitPlotter{
   void fillRec(std::vector<MuScleFitMuon>& muons);
 
   // Root tree specific
-  void fillTreeRec( const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & savedPairs );
-  void fillTreeGen( const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & genPairs );
+  void fillTreeRec(
+      const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> >& savedPairs);
+  void fillTreeGen(
+      const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> >& genPairs);
 
   void fillHistoMap();
   void writeHistoMap();
 
   bool debug;
 
- protected:
-
- private:
+protected:
+private:
   // The map of histograms
   // ---------------------
   std::map<std::string, Histograms*> mapHisto;
-  TFile * outputFile;
-
+  TFile* outputFile;
 };
 #endif
-
-

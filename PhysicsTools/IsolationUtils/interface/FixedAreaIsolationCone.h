@@ -3,9 +3,9 @@
 
 // -*- C++ -*-
 //
-// Package:    
+// Package:
 // Class:      FixedAreaIsolationCone
-// 
+//
 /**\class FixedAreaIsolationCone FixedAreaIsolationCone.cc PhysicsTools/IsolationUtils/src/FixedAreaIsolationCone.cc
 
  Description: highest level class to compute size of isolation cone 
@@ -34,12 +34,11 @@
 // class declaration
 //
 
-class FixedAreaIsolationCone
-{
- public:
+class FixedAreaIsolationCone {
+public:
   // default constructor
   FixedAreaIsolationCone();
-  
+
   // destructor
   ~FixedAreaIsolationCone();
 
@@ -48,14 +47,14 @@ class FixedAreaIsolationCone
   //  such that the area in the region where particles can be reconstructed is constant;
   //  i.e. guarantees flat efficiency near the acceptance boundary)
   void setAcceptanceLimit(double etaMaxTrackingAcceptance);
-  
-  double operator() (double coneAxisTheta, double coneAxisPhi,
-		     double openingAngleSignalCone, double areaIsolationCone, int& error);
-  
- private:
-  ConeAreaFunction areaFunctionSignalCone_; 
+
+  double operator()(
+      double coneAxisTheta, double coneAxisPhi, double openingAngleSignalCone, double areaIsolationCone, int& error);
+
+private:
+  ConeAreaFunction areaFunctionSignalCone_;
   ConeAreaRootFunction areaRootFunctionIsolationCone_;
-  ROOT::Math::RootFinder areaRootFinderIsolationCone_; 
+  ROOT::Math::RootFinder areaRootFinderIsolationCone_;
 
   static const unsigned int debugLevel_ = 0;
 };
