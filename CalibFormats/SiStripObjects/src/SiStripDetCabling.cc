@@ -5,6 +5,7 @@
 //         Created:  Wed Mar 22 12:24:33 CET 2006
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/typelookup.h"
 

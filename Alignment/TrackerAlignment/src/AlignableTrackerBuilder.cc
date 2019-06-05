@@ -14,6 +14,7 @@
 #include "Alignment/TrackerAlignment/interface/AlignableSiStripDet.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableIndexer.h"
 
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 
 //=============================================================================
