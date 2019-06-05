@@ -59,12 +59,17 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
-  bool verbose_;  // if set to true, then the run:LS:event for any event failing the cut will be printed out
-  std::string
-      prefix_;  // prefix will be printed before any event if verbose mode is true, in order to make searching for events easier
-  int minCalibChannelsHBHELaser_;  // set minimum number of HBHE Calib events that causes an event to be considered a bad (i.e., HBHE laser) event
-  double
-      minFracDiffHBHELaser_;  // minimum difference in fractional occupancies between 'good' and 'bad' HBHE regions (i.e., regions whose RBXes receive laser signals and those whose RBXes see no laser) necessary to declare an event as a laser event.  In laser events, good fractional occupancy is generally near 1, while bad fractional occupancy is considerably less
+  // if set to true, then the run:LS:event for any event failing the cut will be printed out
+  bool verbose_;
+  // prefix will be printed before any event if verbose mode is true, in order to make searching for events easier
+  std::string prefix_;
+  // set minimum number of HBHE Calib events that causes an event to be considered a bad (i.e., HBHE laser) event
+  int minCalibChannelsHBHELaser_;
+  // minimum difference in fractional occupancies between 'good' and 'bad' HBHE regions (i.e., regions whose
+  // RBXes receive laser signals and those whose RBXes see no laser) necessary to declare an event as a laser
+  // event.  In laser events, good fractional occupancy is generally near 1, while bad fractional occupancy
+  // is considerably less
+  double minFracDiffHBHELaser_;
   edm::InputTag digiLabel_;
   edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
   edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;

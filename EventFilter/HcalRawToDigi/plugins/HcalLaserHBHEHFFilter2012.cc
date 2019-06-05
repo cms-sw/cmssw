@@ -59,24 +59,34 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
-  bool filterHBHE_;  // Flag to activate laser filter for HBHE
-  int minCalibChannelsHBHELaser_;  // set minimum number of HBHE Calib events that causes an event to be considered a bad (i.e., HBHE laser) event
-  double
-      minFracDiffHBHELaser_;  // minimum difference in fractional occupancies between 'good' and 'bad' HBHE regions (i.e., regions whose RBXes receive laser signals and those whose RBXes see no laser) necessary to declare an event as a laser event.  In laser events, good fractional occupancy is generally near 1, while bad fractional occupancy is considerably less
+  // Flag to activate laser filter for HBHE
+  bool filterHBHE_;
+  // set minimum number of HBHE Calib events that causes an event to be considered a bad (i.e., HBHE laser) event
+  int minCalibChannelsHBHELaser_;
+  // minimum difference in fractional occupancies between 'good' and 'bad' HBHE regions (i.e., regions whose RBXes
+  // receive laser signals and those whose RBXes see no laser) necessary to declare an event as a laser event.
+  // In laser events, good fractional occupancy is generally near 1, while bad fractional occupancy is
+  // considerably less
+  double minFracDiffHBHELaser_;
 
-  double HBHEcalibThreshold_;  // minimum integrated charge needed for a hit to count as an occupied calib channel
-  std::vector<int> CalibTS_;   // time slices used when integrating calib charges
+  // minimum integrated charge needed for a hit to count as an occupied calib channel
+  double HBHEcalibThreshold_;
+  // time slices used when integrating calib charges
+  std::vector<int> CalibTS_;
 
-  bool filterHF_;  // Flag to activate laser filter for HF
-  int minCalibChannelsHFLaser_;  // set minimum number of HF Calib events that causes an event to be considered a bad (i.e., HF laser) event
+  // Flag to activate laser filter for HF
+  bool filterHF_;
+  // set minimum number of HF Calib events that causes an event to be considered a bad (i.e., HF laser) event
+  int minCalibChannelsHFLaser_;
 
   edm::InputTag digiLabel_;
   edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
   edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
 
-  bool verbose_;  // if set to true, then the run:LS:event for any event failing the cut will be printed out
-  std::string
-      prefix_;  // prefix will be printed before any event if verbose mode is true, in order to make searching for events easier
+  // if set to true, then the run:LS:event for any event failing the cut will be printed out
+  bool verbose_;
+  // prefix will be printed before any event if verbose mode is true, in order to make searching for events easier
+  std::string prefix_;
   bool WriteBadToFile_;
   bool forceFilterTrue_;
   std::ofstream outfile_;
