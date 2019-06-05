@@ -56,11 +56,12 @@ private:
   typedef std::vector<std::string> strVec;
   typedef std::vector<std::string>::iterator strVecI;
 
-  std::vector<std::string>
-      EventList_;  // vector of strings representing bad events, with each string in "run:LS:event" format
-  bool verbose_;   // if set to true, then the run:LS:event for any event failing the cut will be printed out
-  std::string
-      prefix_;  // prefix will be printed before any event if verbose mode is true, in order to make searching for events easier
+  // vector of strings representing bad events, with each string in "run:LS:event" format
+  std::vector<std::string> EventList_;
+  // if set to true, then the run:LS:event for any event failing the cut will be printed out
+  bool verbose_;
+  // prefix will be printed before any event if verbose mode is true, in order to make searching for events easier
+  std::string prefix_;
 
   // Set run range of events in the BAD LASER LIST.
   // The purpose of these values is to shorten the length of the EventList_ vector when running on only a subset of data
