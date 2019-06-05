@@ -391,7 +391,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					   meanShower,
 					   math::XYZTLorentzVector(theOutParticle.particle().momentum())));}
       else {
-	if (PT>5.)
+	if (PT>5. && fabs(theOutParticle.particle().eta())<3.0)
 	  LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE ECAL HAS FAILED";
 	PFTrajectoryPoint dummyECAL;
 	pftrack.addPoint(dummyECAL); 
@@ -407,7 +407,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					   math::XYZPoint(theOutParticle.particle().vertex()),
 					   math::XYZTLorentzVector(theOutParticle.particle().momentum())));
       else{
-	if (PT>5.)
+	if (PT>5. && fabs(theOutParticle.particle().eta())<3.0)
 	  LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
 	PFTrajectoryPoint dummyHCALentrance;
 	pftrack.addPoint(dummyHCALentrance); 
@@ -419,7 +419,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					   math::XYZPoint(theOutParticle.particle().vertex()),
 					   math::XYZTLorentzVector(theOutParticle.particle().momentum())));
       else{
-	if (PT>5.)
+	if (PT>5. && fabs(theOutParticle.particle().eta())<3.0)
 	  LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL EXIT HAS FAILED";
 	PFTrajectoryPoint dummyHCALexit;
 	pftrack.addPoint(dummyHCALexit); 
@@ -527,7 +527,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				      meanShower,
 				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));}
    else {
-     if ((DP>5.) && ((DP/SigmaDP)>3))
+     if ((DP>5.) && ((DP/SigmaDP)>3) && fabs(theBremParticle.particle().eta())<3.0)
        LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED\n"
 				       <<"BremParticle.particle() pt,eta: "<<theBremParticle.particle().pt()<<" "<<theBremParticle.particle().eta();
      PFTrajectoryPoint dummyECAL;
@@ -544,7 +544,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					math::XYZPoint(theBremParticle.particle().vertex()),
 					math::XYZTLorentzVector(theBremParticle.particle().momentum())));
    else{
-     if ((DP>5.) && ((DP/SigmaDP)>3))
+     if ((DP>5.) && ((DP/SigmaDP)>3) && fabs(theBremParticle.particle().eta())<3.0)
        LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
      PFTrajectoryPoint dummyHCALentrance;
      brem.addPoint(dummyHCALentrance); 
@@ -557,7 +557,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				     math::XYZPoint(theBremParticle.particle().vertex()),
 				     math::XYZTLorentzVector(theBremParticle.particle().momentum())));
    else{  
-     if ((DP>5.) && ((DP/SigmaDP)>3))
+     if ((DP>5.) && ((DP/SigmaDP)>3) && fabs(theBremParticle.particle().eta())<3.0)
        LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
      PFTrajectoryPoint dummyHCALexit;
      brem.addPoint(dummyHCALexit); 
@@ -738,7 +738,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				    meanShower,
 				    math::XYZTLorentzVector(theBremParticle.particle().momentum())));}
   else {
-    if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+    if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && fabs(theBremParticle.particle().eta())<3.0)
       LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED\n"
 				      <<"BremParticle.particle() pt,eta: "<<theBremParticle.particle().pt()<<" "<<theBremParticle.particle().eta();
     PFTrajectoryPoint dummyECAL;
@@ -755,7 +755,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				    math::XYZPoint(theBremParticle.particle().vertex()),
 				    math::XYZTLorentzVector(theBremParticle.particle().momentum())));
   else{
-    if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+    if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && fabs(theBremParticle.particle().eta())<3.0)
       LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
     PFTrajectoryPoint dummyHCALentrance;
     brem.addPoint(dummyHCALentrance); 
@@ -768,7 +768,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				    math::XYZPoint(theBremParticle.particle().vertex()),
 				    math::XYZTLorentzVector(theBremParticle.particle().momentum())));
   else{  
-    if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+    if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && fabs(theBremParticle.particle().eta())<3.0)
       LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
     PFTrajectoryPoint dummyHCALexit;
     brem.addPoint(dummyHCALexit); 
@@ -905,7 +905,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				      meanShower,
 				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));}
     else {
-      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && fabs(theBremParticle.particle().eta())<3.0)
 	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED\n"
 					<<"BremParticle.particle() pt,eta: "<<theBremParticle.particle().pt()<<" "<<theBremParticle.particle().eta();
       PFTrajectoryPoint dummyECAL;
@@ -923,7 +923,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				      math::XYZPoint(theBremParticle.particle().vertex()),
 				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));
     else{
-      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && fabs(theBremParticle.particle().eta())<3.0)
 	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
       PFTrajectoryPoint dummyHCALentrance;
       brem.addPoint(dummyHCALentrance); 
@@ -936,7 +936,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				      math::XYZPoint(theBremParticle.particle().vertex()),
 				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));
     else{  
-      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && fabs(theBremParticle.particle().eta())<3.0)
 	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
       PFTrajectoryPoint dummyHCALexit;
       brem.addPoint(dummyHCALexit); 
@@ -1042,7 +1042,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					 meanShower,
 					 math::XYZTLorentzVector(theOutParticle.particle().momentum())));}
     else {
-      if (pTtot_out>5.)
+      if (pTtot_out>5. && fabs(theOutParticle.particle().eta())<3.0)
 	LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE ECAL HAS FAILED";
       PFTrajectoryPoint dummyECAL;
       pftrack.addPoint(dummyECAL); 
@@ -1059,7 +1059,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					 math::XYZPoint(theOutParticle.particle().vertex()),
 					 math::XYZTLorentzVector(theOutParticle.particle().momentum())));
     else{
-      if (pTtot_out>5.)
+      if (pTtot_out>5. && fabs(theOutParticle.particle().eta())<3.0)
 	LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
       PFTrajectoryPoint dummyHCALentrance;
       pftrack.addPoint(dummyHCALentrance); 
@@ -1071,7 +1071,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					 math::XYZPoint(theOutParticle.particle().vertex()),
 					 math::XYZTLorentzVector(theOutParticle.particle().momentum())));
     else{
-      if (pTtot_out>5.)
+      if (pTtot_out>5. && fabs(theOutParticle.particle().eta())<3.0)
 	LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL EXIT HAS FAILED";
       PFTrajectoryPoint dummyHCALexit;
       pftrack.addPoint(dummyHCALexit); 
@@ -1164,7 +1164,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				      meanShower,
 				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));}
     else {
-      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && fabs(theBremParticle.particle().eta())<3.0)
 	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED\n"
 					<<"pt,eta: "<<theBremParticle.particle().pt()<<" "<<theBremParticle.particle().eta();
       PFTrajectoryPoint dummyECAL;
@@ -1182,7 +1182,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				      math::XYZPoint(theBremParticle.particle().vertex()),
 				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));
     else{
-      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && fabs(theBremParticle.particle().eta())<3.0)
 	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
       PFTrajectoryPoint dummyHCALentrance;
       brem.addPoint(dummyHCALentrance); 
@@ -1194,7 +1194,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				      math::XYZPoint(theBremParticle.particle().vertex()),
 				      math::XYZTLorentzVector(theBremParticle.particle().momentum())));
     else{  
-      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && fabs(theBremParticle.particle().eta())<3.0)
 	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
       PFTrajectoryPoint dummyHCALexit;
       brem.addPoint(dummyHCALexit); 
