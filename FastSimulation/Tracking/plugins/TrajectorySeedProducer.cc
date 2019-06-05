@@ -133,7 +133,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) {
   // seed creator
   const edm::ParameterSet& seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
   std::string seedCreatorName = seedCreatorPSet.getParameter<std::string>("ComponentName");
-  seedCreator = std::unique_ptr<SeedCreator>{SeedCreatorFactory::get()->create(seedCreatorName, seedCreatorPSet)};
+  seedCreator = SeedCreatorFactory::get()->create(seedCreatorName, seedCreatorPSet);
 }
 
 void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
