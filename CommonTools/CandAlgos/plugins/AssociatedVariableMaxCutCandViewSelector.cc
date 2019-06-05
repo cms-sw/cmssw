@@ -24,12 +24,8 @@
 #include "DataFormats/Candidate/interface/CandAssociation.h"
 typedef double isolation;
 
-typedef SingleObjectSelector<
-          reco::CandViewDoubleAssociations,
-          PairSelector<
-            RefSelector<AnySelector>,
-            MaxSelector<isolation>
-          >
-        > AssociatedVariableMaxCutCandViewSelector;
+typedef SingleObjectSelector<reco::CandViewDoubleAssociations,
+                             PairSelector<RefSelector<AnySelector>, MaxSelector<isolation> > >
+    AssociatedVariableMaxCutCandViewSelector;
 
-DEFINE_FWK_MODULE( AssociatedVariableMaxCutCandViewSelector );
+DEFINE_FWK_MODULE(AssociatedVariableMaxCutCandViewSelector);

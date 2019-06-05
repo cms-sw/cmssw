@@ -6,23 +6,15 @@
 class ExpressionEvaluatorCutWithEventContent : public CutApplicatorWithEventContentBase {
 public:
   ExpressionEvaluatorCutWithEventContent(const edm::ParameterSet& c);
-  ~ExpressionEvaluatorCutWithEventContent() override {};
+  ~ExpressionEvaluatorCutWithEventContent() override{};
 
-  result_type asCandidate(const argument_type& cand) const final {
-    return (*cut_)(cand);
-  }
+  result_type asCandidate(const argument_type& cand) const final { return (*cut_)(cand); }
 
-  void setConsumes(edm::ConsumesCollector& sumes) final { 
-    cut_->setConsumes(sumes);
-  }
+  void setConsumes(edm::ConsumesCollector& sumes) final { cut_->setConsumes(sumes); }
 
-  void getEventContent(const edm::EventBase& event) final { 
-    cut_->getEventContent(event);
-  }
+  void getEventContent(const edm::EventBase& event) final { cut_->getEventContent(event); }
 
-  double value(const reco::CandidatePtr& cand) const final {
-    return cut_->value(cand);
-  }
+  double value(const reco::CandidatePtr& cand) const final { return cut_->value(cand); }
 
   const std::string& name() const final { return realname_; }
 
@@ -31,47 +23,34 @@ private:
   CutApplicatorWithEventContentBase* cut_;
 };
 
-ExpressionEvaluatorCutWithEventContent::
-ExpressionEvaluatorCutWithEventContent(const edm::ParameterSet& c) : 
-  CutApplicatorWithEventContentBase(c),
-  realname_(c.getParameter<std::string>("realCutName")) 
-{ 
+ExpressionEvaluatorCutWithEventContent::ExpressionEvaluatorCutWithEventContent(const edm::ParameterSet& c)
+    : CutApplicatorWithEventContentBase(c), realname_(c.getParameter<std::string>("realCutName")) {
   const std::string newline("\n");
   const std::string close_function("; };");
   const std::string candTypePreamble("CandidateType candidateType() const override final { return ");
-  
+
   //construct the overload of candidateType()
   const std::string& candType = c.getParameter<std::string>("candidateType");
   const std::string candTypeExpr = candTypePreamble + candType + close_function;
-  
+
   // read in the overload of operator()
   const std::string& oprExpr = c.getParameter<std::string>("functionDef");
-  
+
   // read in the overload of value()
   const std::string& valExpr = c.getParameter<std::string>("valueDef");
 
   // read in the overload of setConsumes()
-  const std::string& setConsumesExpr = 
-    c.getParameter<std::string>("setConsumesDef");
+  const std::string& setConsumesExpr = c.getParameter<std::string>("setConsumesDef");
 
   // read in the overload of getEventContent()
-  const std::string& getEventContentExpr = 
-    c.getParameter<std::string>("getEventContentDef");
-  
+  const std::string& getEventContentExpr = c.getParameter<std::string>("getEventContentDef");
 
   // concatenate and evaluate the expression
-  const std::string total_expr = ( candTypeExpr        + newline + 
-                                   oprExpr             + newline +
-                                   valExpr             + newline +
-                                   setConsumesExpr     + newline +
-                                   getEventContentExpr             );
-  reco::ExpressionEvaluator eval("PhysicsTools/SelectorUtils",
-                                 "CutApplicatorWithEventContentBase",
-                                 total_expr);
+  const std::string total_expr = (candTypeExpr + newline + oprExpr + newline + valExpr + newline + setConsumesExpr +
+                                  newline + getEventContentExpr);
+  reco::ExpressionEvaluator eval("PhysicsTools/SelectorUtils", "CutApplicatorWithEventContentBase", total_expr);
   cut_ = eval.expr<CutApplicatorWithEventContentBase>();
-
 }
-
 
 DEFINE_EDM_PLUGIN(CutApplicatorFactory,
                   ExpressionEvaluatorCutWithEventContent,

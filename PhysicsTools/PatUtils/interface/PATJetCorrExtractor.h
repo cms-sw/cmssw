@@ -29,61 +29,61 @@
 #include <string>
 #include <vector>
 
-namespace
-{
-  std::string format_vstring(const std::vector<std::string>& v)
-  {
+namespace {
+  std::string format_vstring(const std::vector<std::string>& v) {
     std::string retVal;
 
     retVal.append("{ ");
 
     unsigned numEntries = v.size();
-    for ( unsigned iEntry = 0; iEntry < numEntries; ++iEntry ) {
+    for (unsigned iEntry = 0; iEntry < numEntries; ++iEntry) {
       retVal.append(v[iEntry]);
-      if ( iEntry < (numEntries - 1) ) retVal.append(", ");
+      if (iEntry < (numEntries - 1))
+        retVal.append(", ");
     }
 
     retVal.append(" }");
 
     return retVal;
   }
-}
+}  // namespace
 
-class PATJetCorrExtractor
-{
- public:
-
-  reco::Candidate::LorentzVector operator()(const pat::Jet rawJet, const reco::JetCorrector* jetCorr,
-					    double jetCorrEtaMax = 9.9,
-					    const reco::Candidate::LorentzVector * const rawJetP4_specified = nullptr) const
-  {
-     JetCorrExtractorT<pat::Jet> jetCorrExtractor;
-     return jetCorrExtractor(rawJet, jetCorr, jetCorrEtaMax, rawJetP4_specified);
+class PATJetCorrExtractor {
+public:
+  reco::Candidate::LorentzVector operator()(
+      const pat::Jet rawJet,
+      const reco::JetCorrector* jetCorr,
+      double jetCorrEtaMax = 9.9,
+      const reco::Candidate::LorentzVector* const rawJetP4_specified = nullptr) const {
+    JetCorrExtractorT<pat::Jet> jetCorrExtractor;
+    return jetCorrExtractor(rawJet, jetCorr, jetCorrEtaMax, rawJetP4_specified);
   }
 
-  reco::Candidate::LorentzVector operator()(const pat::Jet& jet, const std::string& jetCorrLabel,
-					    double jetCorrEtaMax = 9.9,
-					    const reco::Candidate::LorentzVector* const rawJetP4_specified = nullptr) const
-  {
+  reco::Candidate::LorentzVector operator()(
+      const pat::Jet& jet,
+      const std::string& jetCorrLabel,
+      double jetCorrEtaMax = 9.9,
+      const reco::Candidate::LorentzVector* const rawJetP4_specified = nullptr) const {
     reco::Candidate::LorentzVector corrJetP4;
 
     try {
       corrJetP4 = jet.correctedP4(jetCorrLabel);
-      if(rawJetP4_specified != nullptr) {
-	//MM: compensate for potential removal of constituents (as muons)
-	//similar effect in JetMETCorrection/Type1MET/interface/JetCorrExtractor.h
-	reco::Candidate::LorentzVector rawJetP4 = jet.correctedP4("Uncorrected");
-	double corrFactor = corrJetP4.pt()/rawJetP4.pt();
-	corrJetP4 = (*rawJetP4_specified);
-	corrJetP4 *= corrFactor;
-	if(corrFactor<0) {
-	  edm::LogWarning("PATJetCorrExtractor") << "Negative jet energy scale correction noticed" << ".\n";
-	}
+      if (rawJetP4_specified != nullptr) {
+        //MM: compensate for potential removal of constituents (as muons)
+        //similar effect in JetMETCorrection/Type1MET/interface/JetCorrExtractor.h
+        reco::Candidate::LorentzVector rawJetP4 = jet.correctedP4("Uncorrected");
+        double corrFactor = corrJetP4.pt() / rawJetP4.pt();
+        corrJetP4 = (*rawJetP4_specified);
+        corrJetP4 *= corrFactor;
+        if (corrFactor < 0) {
+          edm::LogWarning("PATJetCorrExtractor") << "Negative jet energy scale correction noticed"
+                                                 << ".\n";
+        }
       }
-    } catch( cms::Exception const& ) {
+    } catch (cms::Exception const&) {
       throw cms::Exception("InvalidRequest")
-	<< "The JEC level " << jetCorrLabel << " does not exist !!\n"
-	<< "Available levels = " << format_vstring(jet.availableJECLevels()) << ".\n";
+          << "The JEC level " << jetCorrLabel << " does not exist !!\n"
+          << "Available levels = " << format_vstring(jet.availableJECLevels()) << ".\n";
     }
 
     return corrJetP4;
@@ -91,5 +91,3 @@ class PATJetCorrExtractor
 };
 
 #endif
-
-

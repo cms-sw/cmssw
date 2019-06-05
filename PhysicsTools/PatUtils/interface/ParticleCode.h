@@ -11,11 +11,10 @@
    \version $Id: $
 **/
 
-
 namespace pat {
 
   //! Definition of particle types
-  enum ParticleType { 
+  enum ParticleType {
     UNKNOWN = 0,  //!< 0: Unidentified isolated particle
     ELECTRON,     //!< 1:
     MUON,         //!< 2:
@@ -26,18 +25,16 @@ namespace pat {
     TOP,          //!< 7:
     INVISIBLE     //!< 8: Invisible particle (Monte Carlo only)
   };
-                      
 
   //! Definition of particle status after selection
-  enum ParticleStatus { 
-    GOOD = 0,    //!< 0: Passed selection
-    BAD,         //!< 1: Failed selection (without additional info)
-    HOVERE,      //!< 2: Bad H/E ratio
-    SHOWER,      //!< 3: Bad ECAL shower shape
-    MATCHING     //!< 4: Bad matching to track
+  enum ParticleStatus {
+    GOOD = 0,  //!< 0: Passed selection
+    BAD,       //!< 1: Failed selection (without additional info)
+    HOVERE,    //!< 2: Bad H/E ratio
+    SHOWER,    //!< 3: Bad ECAL shower shape
+    MATCHING   //!< 4: Bad matching to track
   };
 
-
-}
+}  // namespace pat
 
 #endif

@@ -16,9 +16,6 @@
 #include "CommonTools/UtilAlgos/interface/PdgIdSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef SingleObjectSelector<
-          reco::CandidateCollection,
-          PdgIdSelector
-        > PdgIdCandSelector;
+typedef SingleObjectSelector<reco::CandidateCollection, PdgIdSelector> PdgIdCandSelector;
 
-DEFINE_FWK_MODULE( PdgIdCandSelector );
+DEFINE_FWK_MODULE(PdgIdCandSelector);

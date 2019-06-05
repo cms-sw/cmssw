@@ -16,9 +16,6 @@
 #include "CommonTools/UtilAlgos/interface/PdgIdExcluder.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef SingleObjectSelector<
-  reco::CandidateCollection,
-          PdgIdExcluder
-  > PdgIdCandExcluder;
+typedef SingleObjectSelector<reco::CandidateCollection, PdgIdExcluder> PdgIdCandExcluder;
 
-DEFINE_FWK_MODULE( PdgIdCandExcluder );
+DEFINE_FWK_MODULE(PdgIdCandExcluder);

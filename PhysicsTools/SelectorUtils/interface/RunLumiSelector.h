@@ -19,20 +19,16 @@ public:
   RunLumiSelector() {}
 
 #ifndef __GCCXML__
-  RunLumiSelector( edm::ParameterSet const & params, edm::ConsumesCollector&& iC ) :
-    RunLumiSelector( params )
-  {}
+  RunLumiSelector(edm::ParameterSet const& params, edm::ConsumesCollector&& iC) : RunLumiSelector(params) {}
 #endif
 
-  RunLumiSelector( edm::ParameterSet const & params ) {
-
+  RunLumiSelector(edm::ParameterSet const& params) {
     push_back("RunLumi");
 
-    if ( params.exists("lumisToProcess") ) {
-      lumis_ = params.getUntrackedParameter<std::vector<edm::LuminosityBlockRange> > ("lumisToProcess");
-      set("RunLumi" );
-    }
-    else {
+    if (params.exists("lumisToProcess")) {
+      lumis_ = params.getUntrackedParameter<std::vector<edm::LuminosityBlockRange> >("lumisToProcess");
+      set("RunLumi");
+    } else {
       lumis_.clear();
       set("RunLumi", false);
     }
@@ -40,20 +36,22 @@ public:
     retInternal_ = getBitTemplate();
   }
 
-  bool operator() ( edm::EventBase const & ev,  pat::strbitset & ret ) override {
-
-    if ( !ignoreCut("RunLumi") ) {
+  bool operator()(edm::EventBase const& ev, pat::strbitset& ret) override {
+    if (!ignoreCut("RunLumi")) {
       bool goodLumi = false;
-      for ( std::vector<edm::LuminosityBlockRange>::const_iterator lumisBegin = lumis_.begin(),
-	      lumisEnd = lumis_.end(), ilumi = lumisBegin;
-	    ilumi != lumisEnd; ++ilumi ) {
-	if ( ev.id().run() >= ilumi->startRun() && ev.id().run() <= ilumi->endRun()  &&
-	     ev.id().luminosityBlock() >= ilumi->startLumi() && ev.id().luminosityBlock() <= ilumi->endLumi() )  {
-	  goodLumi = true;
-	  break;
-	}
+      for (std::vector<edm::LuminosityBlockRange>::const_iterator lumisBegin = lumis_.begin(),
+                                                                  lumisEnd = lumis_.end(),
+                                                                  ilumi = lumisBegin;
+           ilumi != lumisEnd;
+           ++ilumi) {
+        if (ev.id().run() >= ilumi->startRun() && ev.id().run() <= ilumi->endRun() &&
+            ev.id().luminosityBlock() >= ilumi->startLumi() && ev.id().luminosityBlock() <= ilumi->endLumi()) {
+          goodLumi = true;
+          break;
+        }
       }
-      if ( goodLumi ) passCut(ret, "RunLumi" );
+      if (goodLumi)
+        passCut(ret, "RunLumi");
     } else {
       passCut(ret, "RunLumi");
     }
@@ -65,9 +63,7 @@ public:
   using EventSelector::operator();
 
 private:
-
   std::vector<edm::LuminosityBlockRange> lumis_;
-
 };
 
 #endif

@@ -12,9 +12,8 @@
 
 namespace reco {
   namespace modules {
-    typedef SingleObjectSelector<GenParticleCollection,::GenParticleCustomSelector> 
-    GenParticleCustomSelector ;
+    typedef SingleObjectSelector<GenParticleCollection, ::GenParticleCustomSelector> GenParticleCustomSelector;
 
-    DEFINE_FWK_MODULE( GenParticleCustomSelector );
-  }
-}
+    DEFINE_FWK_MODULE(GenParticleCustomSelector);
+  }  // namespace modules
+}  // namespace reco

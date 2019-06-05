@@ -10,4 +10,3 @@ typedef JetCleanerForType1METT<reco::PFJet, JetCorrExtractorT<reco::PFJet> > PFJ
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(PFJetCleanerForType1MET);
-

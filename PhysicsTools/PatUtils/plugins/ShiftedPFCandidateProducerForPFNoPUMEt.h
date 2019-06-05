@@ -39,21 +39,18 @@
 #include <string>
 #include <vector>
 
-class ShiftedPFCandidateProducerForPFNoPUMEt : public edm::EDProducer
-{
- public:
-
+class ShiftedPFCandidateProducerForPFNoPUMEt : public edm::EDProducer {
+public:
   explicit ShiftedPFCandidateProducerForPFNoPUMEt(const edm::ParameterSet&);
   ~ShiftedPFCandidateProducerForPFNoPUMEt() override;
 
- private:
-
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::string moduleLabel_;
 
   edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidatesToken_;
-  edm::EDGetTokenT<reco::PFJetCollection>       srcJetsToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> srcJetsToken_;
 
   edm::FileInPath jetCorrInputFileName_;
   std::string jetCorrPayloadName_;
@@ -68,11 +65,6 @@ class ShiftedPFCandidateProducerForPFNoPUMEt : public edm::EDProducer
   double shiftBy_;
 
   double unclEnUncertainty_;
-
 };
 
 #endif
-
-
-
-

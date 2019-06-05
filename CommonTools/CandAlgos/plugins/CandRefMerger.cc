@@ -11,4 +11,4 @@
 
 typedef Merger<reco::CandidateBaseRefVector> CandRefMerger;
 
-DEFINE_FWK_MODULE( CandRefMerger );
+DEFINE_FWK_MODULE(CandRefMerger);

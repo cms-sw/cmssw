@@ -10,14 +10,22 @@
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 #include <set>
 
-namespace edm { class ParameterSet; class EventSetup; class Event; class ConsumesCollector; }
-namespace reco { class Candidate; }
+namespace edm {
+  class ParameterSet;
+  class EventSetup;
+  class Event;
+  class ConsumesCollector;
+}  // namespace edm
+namespace reco {
+  class Candidate;
+}
 
 class GenJetParticleSelector {
 public:
-  GenJetParticleSelector(const edm::ParameterSet&, edm::ConsumesCollector & iC);
+  GenJetParticleSelector(const edm::ParameterSet&, edm::ConsumesCollector& iC);
   bool operator()(const reco::Candidate&);
   void init(const edm::EventSetup&);
+
 private:
   typedef std::vector<PdtEntry> vpdt;
   bool stableOnly_;
@@ -32,18 +40,16 @@ private:
 namespace reco {
   namespace modules {
     struct GenJetParticleSelectorEventSetupInit {
-      static void init(GenJetParticleSelector & selector,
-		       const edm::Event & evt,
-		       const edm::EventSetup& es) {
-	selector.init(es);
+      static void init(GenJetParticleSelector& selector, const edm::Event& evt, const edm::EventSetup& es) {
+        selector.init(es);
       }
     };
 
-    template<>
+    template <>
     struct EventSetupInit<GenJetParticleSelectorEventSetupInit> {
       typedef GenJetParticleSelectorEventSetupInit type;
     };
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif
