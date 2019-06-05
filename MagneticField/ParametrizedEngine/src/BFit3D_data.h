@@ -5,12 +5,10 @@
 namespace magfieldparam {
   //_______________________________________________________________________________
   //Nominal field values (the same as for 2D fit
-  const double BFit3D::B_nom[4] =
-     {  2.02156567013928,
-        3.51622117206486,
-        3.81143026675623, //Average of 2 3.8T runs
-        4.01242188708911
-     };
+  const double BFit3D::B_nom[4] = {2.02156567013928,
+                                   3.51622117206486,
+                                   3.81143026675623,  //Average of 2 3.8T runs
+                                   4.01242188708911};
 
   //Spline coefficients for the field expansion coefficients
   //_______________________________________________________________________________
@@ -1109,6 +1107,6 @@ namespace magfieldparam {
    { -2.49339851944005e-09,  7.82113073640820e-09, -4.03564156613509e-08 }
   }; //BFit3D::C2[360][3]
   // clang-format on
-}
+}  // namespace magfieldparam
 
 #endif
