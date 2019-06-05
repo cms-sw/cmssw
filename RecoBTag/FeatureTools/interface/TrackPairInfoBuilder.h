@@ -14,7 +14,7 @@ public:
     TrackPairInfoBuilder();
 
     void buildTrackPairInfo(const reco::TransientTrack * it , const reco::TransientTrack * tt, const reco::Vertex & pv, float mass, GlobalVector jetdirection,
-                            std::pair<bool,Measurement1D> t_ip, std::pair<bool,Measurement1D> t_ip2d );
+                            const std::pair<bool,Measurement1D> & t_ip, const std::pair<bool,Measurement1D> & t_ip2d );
 
     const float track_pt() const {return track_pt_;}
     const float track_eta() const {return track_eta_;}
