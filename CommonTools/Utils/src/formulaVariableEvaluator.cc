@@ -2,7 +2,7 @@
 //
 // Package:     CommonTools/Utils
 // Class  :     reco::formula::VariableEvaluator
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "formulaVariableEvaluator.h"
 
-
 namespace reco {
   namespace formula {
     double VariableEvaluator::evaluate(double const* iVariables, double const* /*iParameters*/) const {
@@ -23,7 +22,7 @@ namespace reco {
     }
 
     std::vector<std::string> VariableEvaluator::abstractSyntaxTree() const {
-      return std::vector<std::string>{1, std::string("var[")+std::to_string(m_index)+"]"};
+      return std::vector<std::string>{1, std::string("var[") + std::to_string(m_index) + "]"};
     }
-  }
-}
+  }  // namespace formula
+}  // namespace reco

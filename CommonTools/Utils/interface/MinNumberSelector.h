@@ -8,8 +8,7 @@
  */
 
 struct MinNumberSelector {
-  MinNumberSelector(unsigned int minNumber) : 
-    minNumber_(minNumber) { }
+  MinNumberSelector(unsigned int minNumber) : minNumber_(minNumber) {}
   bool operator()(unsigned int number) const { return number >= minNumber_; }
 
 private:

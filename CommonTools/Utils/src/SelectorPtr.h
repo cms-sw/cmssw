@@ -16,7 +16,7 @@ namespace reco {
   namespace parser {
     class SelectorBase;
     typedef boost::shared_ptr<SelectorBase> SelectorPtr;
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

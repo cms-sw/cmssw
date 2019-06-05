@@ -21,25 +21,25 @@
  * true), EDProducers are better for the unscheduled mode than
  * EDFilters.
  */
-template<typename Selector,
-         typename OutputCollection,
-         typename PostProcessor,
-         typename StoreManager,
-         typename Base,
-         typename Init
-         >
+template <typename Selector,
+          typename OutputCollection,
+          typename PostProcessor,
+          typename StoreManager,
+          typename Base,
+          typename Init>
 class ObjectSelectorProducer : public Base {
 public:
   /// constructor
-  explicit ObjectSelectorProducer(const edm::ParameterSet & cfg) :
-    Base(cfg),
-    srcToken_( this-> template consumes<typename Selector::collection>(cfg.template getParameter<edm::InputTag>("src"))),
-    selector_(cfg, this->consumesCollector()),
-    postProcessor_(cfg, this->consumesCollector()) {
-    postProcessor_.init(* this);
-   }
+  explicit ObjectSelectorProducer(const edm::ParameterSet& cfg)
+      : Base(cfg),
+        srcToken_(
+            this->template consumes<typename Selector::collection>(cfg.template getParameter<edm::InputTag>("src"))),
+        selector_(cfg, this->consumesCollector()),
+        postProcessor_(cfg, this->consumesCollector()) {
+    postProcessor_.init(*this);
+  }
   /// destructor
-  ~ObjectSelectorProducer() override { }
+  ~ObjectSelectorProducer() override {}
 
 private:
   /// process one event
@@ -60,6 +60,5 @@ private:
   /// post processor
   PostProcessor postProcessor_;
 };
-
 
 #endif

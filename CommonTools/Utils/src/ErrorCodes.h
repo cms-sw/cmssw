@@ -4,7 +4,7 @@
 //
 // Package:     Utilities
 // Class  :     ErrorCodes
-// 
+//
 /**\enum ErrorCodes ErrorCodes.h CommonTools/Utils/interface/ErrorCodes.h
 
  Description: enum containing the various ways data/function member lookups can fail
@@ -26,21 +26,21 @@
 // forward declarations
 
 namespace reco {
-   namespace parser {
-      enum ErrorCodes {
-         kNoError = 0,
-         kNameDoesNotExist,
-         kIsNotPublic,
-         kIsStatic,
-         kIsNotConst,
-         kIsFunctionAddedByROOT,
-         kIsConstructor,
-         kIsDestructor,
-         kIsOperator,
-         kWrongNumberOfArguments,
-         kWrongArgumentType,
-         kOverloaded
-      };
-   }
-}
+  namespace parser {
+    enum ErrorCodes {
+      kNoError = 0,
+      kNameDoesNotExist,
+      kIsNotPublic,
+      kIsStatic,
+      kIsNotConst,
+      kIsFunctionAddedByROOT,
+      kIsConstructor,
+      kIsDestructor,
+      kIsOperator,
+      kWrongNumberOfArguments,
+      kWrongArgumentType,
+      kOverloaded
+    };
+  }
+}  // namespace reco
 #endif

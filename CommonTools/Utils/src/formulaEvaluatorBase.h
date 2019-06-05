@@ -4,7 +4,7 @@
 //
 // Package:     CommonTools/Utils
 // Class  :     reco::formula::EvaluatorBase
-// 
+//
 /**\class reco::formula::EvaluatorBase formulaEvaluatorBase.h "formulaEvaluatorBase.h"
 
  Description: Base class for formula evaluators
@@ -31,27 +31,25 @@
 namespace reco {
   namespace formula {
     std::vector<std::string> shiftAST(std::vector<std::string> child);
-    class EvaluatorBase
-    {
-      
+    class EvaluatorBase {
     public:
       enum class Precedence {
-          kIdentity = 1,
-          kComparison=2,
-          kPlusMinus = 3,
-          kMultDiv = 4,
-          kPower = 5,
-          kFunction = 6, //default
-          kParenthesis = 7,
-          kUnaryMinusOperator = 8
-          };
+        kIdentity = 1,
+        kComparison = 2,
+        kPlusMinus = 3,
+        kMultDiv = 4,
+        kPower = 5,
+        kFunction = 6,  //default
+        kParenthesis = 7,
+        kUnaryMinusOperator = 8
+      };
 
       EvaluatorBase();
       EvaluatorBase(Precedence);
       virtual ~EvaluatorBase();
-      
+
       // ---------- const member functions ---------------------
-      //inputs are considered to be 'arrays' which have already been validated to 
+      //inputs are considered to be 'arrays' which have already been validated to
       // be of the appropriate length
       virtual double evaluate(double const* iVariables, double const* iParameters) const = 0;
       virtual std::vector<std::string> abstractSyntaxTree() const = 0;
@@ -60,15 +58,14 @@ namespace reco {
       void setPrecedenceToParenthesis() { m_precedence = static_cast<unsigned int>(Precedence::kParenthesis); }
 
     private:
-      EvaluatorBase(const EvaluatorBase&) = delete; 
-      
+      EvaluatorBase(const EvaluatorBase&) = delete;
+
       const EvaluatorBase& operator=(const EvaluatorBase&) = delete;
-      
+
       // ---------- member data --------------------------------
       unsigned int m_precedence;
     };
-  }
-}
-
+  }  // namespace formula
+}  // namespace reco
 
 #endif

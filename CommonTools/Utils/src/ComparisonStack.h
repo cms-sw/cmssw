@@ -17,7 +17,7 @@ namespace reco {
   namespace parser {
     struct ComparisonBase;
     typedef std::vector<boost::shared_ptr<ComparisonBase> > ComparisonStack;
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

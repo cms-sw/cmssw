@@ -8,8 +8,10 @@
  */
 
 struct AnySelector {
-  template<typename T>
-  bool operator()( const T & ) const { return true; }
+  template <typename T>
+  bool operator()(const T&) const {
+    return true;
+  }
 };
 
 #endif

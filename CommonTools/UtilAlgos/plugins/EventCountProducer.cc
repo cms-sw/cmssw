@@ -2,13 +2,12 @@
 //
 // Package:    EventCountProducer
 // Class:      EventCountProducer
-// 
+//
 /**\class EventCountProducer EventCountProducer.cc CommonTools/UtilAlgos/plugins/EventCountProducer.cc
 
 Description: An event counter that can store the number of events in the lumi block 
 
 */
-
 
 // system include files
 #include <memory>
@@ -26,59 +25,45 @@ Description: An event counter that can store the number of events in the lumi bl
 
 #include "DataFormats/Common/interface/MergeableCounter.h"
 
-
-class EventCountProducer : public edm::one::EDProducer<edm::one::WatchLuminosityBlocks,
-                                                       edm::EndLuminosityBlockProducer> {
+class EventCountProducer
+    : public edm::one::EDProducer<edm::one::WatchLuminosityBlocks, edm::EndLuminosityBlockProducer> {
 public:
   explicit EventCountProducer(const edm::ParameterSet&);
   ~EventCountProducer() override;
 
 private:
-  void produce(edm::Event &, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void endLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup&) override;
-  void endLuminosityBlockProduce(edm::LuminosityBlock &, const edm::EventSetup&) override;
-      
+  void endLuminosityBlockProduce(edm::LuminosityBlock&, const edm::EventSetup&) override;
+
   // ----------member data ---------------------------
 
   unsigned int eventsProcessedInLumi_;
-
 };
-
-
 
 using namespace edm;
 using namespace std;
 
-
-
-EventCountProducer::EventCountProducer(const edm::ParameterSet& iConfig){
+EventCountProducer::EventCountProducer(const edm::ParameterSet& iConfig) {
   produces<edm::MergeableCounter, edm::Transition::EndLuminosityBlock>();
 }
 
+EventCountProducer::~EventCountProducer() {}
 
-EventCountProducer::~EventCountProducer(){}
-
-
-void
-EventCountProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void EventCountProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   eventsProcessedInLumi_++;
   return;
 }
 
-
-void 
-EventCountProducer::beginLuminosityBlock(const LuminosityBlock & theLuminosityBlock, const EventSetup & theSetup) {
+void EventCountProducer::beginLuminosityBlock(const LuminosityBlock& theLuminosityBlock, const EventSetup& theSetup) {
   eventsProcessedInLumi_ = 0;
   return;
 }
 
-void 
-EventCountProducer::endLuminosityBlock(LuminosityBlock const& theLuminosityBlock, const EventSetup & theSetup) {
-}
+void EventCountProducer::endLuminosityBlock(LuminosityBlock const& theLuminosityBlock, const EventSetup& theSetup) {}
 
-void 
-EventCountProducer::endLuminosityBlockProduce(LuminosityBlock & theLuminosityBlock, const EventSetup & theSetup) {
+void EventCountProducer::endLuminosityBlockProduce(LuminosityBlock& theLuminosityBlock, const EventSetup& theSetup) {
   LogTrace("EventCounting") << "endLumi: adding " << eventsProcessedInLumi_ << " events" << endl;
 
   unique_ptr<edm::MergeableCounter> numEventsPtr(new edm::MergeableCounter);
@@ -87,8 +72,6 @@ EventCountProducer::endLuminosityBlockProduce(LuminosityBlock & theLuminosityBlo
 
   return;
 }
-
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(EventCountProducer);

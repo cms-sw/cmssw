@@ -16,14 +16,13 @@
 namespace reco {
   namespace parser {
     struct ExpressionNumberSetter {
-      ExpressionNumberSetter(ExpressionStack & stack) : stack_(stack) { }
-      void operator()(double n) const {
-	stack_.push_back(ExpressionPtr(new ExpressionNumber(n)));
-      }
+      ExpressionNumberSetter(ExpressionStack& stack) : stack_(stack) {}
+      void operator()(double n) const { stack_.push_back(ExpressionPtr(new ExpressionNumber(n))); }
+
     private:
-      ExpressionStack & stack_;
+      ExpressionStack& stack_;
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif
