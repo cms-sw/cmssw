@@ -34,7 +34,17 @@ plots.setdefault('x_over_l_vs_eta', Plot_params(10, '#eta', '(x/X_{0})/(x/#lambd
 plots.setdefault('x_over_l_vs_phi', Plot_params(20, '#varphi [rad]', '(x/X_{0})/(x/#lambda_{I})', 0., 0., 0., 0., '', 0, -1, -1, 0, 0))
 
 # Conversion name from the label (key) to the components in CMSSW/Geometry
-_LABELS2COMPS = {'HGCal': 'HGCal',
+_LABELS2COMPS = {'BeamPipe': 'BEAM',
+                 'Tracker': 'Tracker', 
+                 'EndcapTimingLayer + Thermal Screen': 'CALOECTSFront',
+                 'Neutron Moderator + Thermal Screen' : 'CALOECTSMiddle',
+                 'HGCal + HGCal Service + Thermal Screen' : 'CALOECTSRear',
+                 'Solenoid Magnet' : 'MGNT',
+                 'Muon Wheels and Cables' : 'MB',
+                 'ECAL': 'ECAL',
+                 'HCal': 'HCal',
+                 'FromVertexToBackOfHGCal' : ['BEAM','Tracker','ECAL','HCal','CALOECTSFront','CALOECTSMiddle','CALOECTSRear','MGNT','MB'],
+                 'HGCal': 'HGCal',
                  'HGCalEE': 'HGCalEE',
                  'HGCalHE': ['HGCalHEsil', 'HGCalHEmix']
                  }
