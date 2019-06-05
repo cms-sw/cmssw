@@ -22,7 +22,6 @@
 using reco::isodeposit::Direction;
 
 class CandIsoDumper : public edm::EDAnalyzer {
-
 public:
   CandIsoDumper(const edm::ParameterSet&);
 
@@ -31,22 +30,20 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
-   edm::EDGetTokenT< reco::IsoDepositMap > srcToken_;
+  edm::EDGetTokenT<reco::IsoDepositMap> srcToken_;
 };
 
 /// constructor with config
-CandIsoDumper::CandIsoDumper(const edm::ParameterSet& par) :
-  srcToken_(consumes< reco::IsoDepositMap >(par.getParameter<edm::InputTag>("src")))  {
-}
+CandIsoDumper::CandIsoDumper(const edm::ParameterSet& par)
+    : srcToken_(consumes<reco::IsoDepositMap>(par.getParameter<edm::InputTag>("src"))) {}
 
 /// destructor
-CandIsoDumper::~CandIsoDumper(){
-}
+CandIsoDumper::~CandIsoDumper() {}
 
 /// build deposits
-void CandIsoDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+void CandIsoDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace reco::isodeposit;
-  edm::Handle< reco::IsoDepositMap > hDeps;
+  edm::Handle<reco::IsoDepositMap> hDeps;
   iEvent.getByToken(srcToken_, hDeps);
 
   static uint32_t event = 0;
@@ -57,19 +54,19 @@ void CandIsoDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   typedef reco::IsoDepositMap::container::const_iterator iterator_ii;
   iterator_i depI = hDeps->begin();
   iterator_i depIEnd = hDeps->end();
-  for (; depI != depIEnd; ++depI){
-    std::vector<double> retV(depI.size(),0);
+  for (; depI != depIEnd; ++depI) {
+    std::vector<double> retV(depI.size(), 0);
     edm::Handle<edm::View<reco::Candidate> > candH;
     iEvent.get(depI.id(), candH);
     edm::View<reco::Candidate>::const_iterator candII;
 
     iterator_ii depII;
-    for (dep = 0, depII=depI.begin(), candII=candH->begin(); depII != depI.end(); ++depII, ++dep, ++candII) {
-      std::cout << "  Dumping deposit " << (dep+1) << std::endl;
-      const reco::Candidate &cand = *candII;
-      const reco::IsoDeposit &val = *depII;
-      std::cout << "      Candidate pt " << cand.pt()
-		<< ", eta " << cand.eta() << ", phi " << cand.phi() << ", energy " << cand.energy() << std::endl;
+    for (dep = 0, depII = depI.begin(), candII = candH->begin(); depII != depI.end(); ++depII, ++dep, ++candII) {
+      std::cout << "  Dumping deposit " << (dep + 1) << std::endl;
+      const reco::Candidate& cand = *candII;
+      const reco::IsoDeposit& val = *depII;
+      std::cout << "      Candidate pt " << cand.pt() << ", eta " << cand.eta() << ", phi " << cand.phi() << ", energy "
+                << cand.energy() << std::endl;
       std::cout << "      Deposit within 0.4 " << val.depositWithin(0.4, true) << "\n";
       reco::isodeposit::Direction candDir(cand.eta(), cand.phi());
       AbsVetos z2v;
@@ -83,16 +80,19 @@ void CandIsoDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       //z2v.push_back(new AngleConeVeto(candDir,0.2));
       //std::cout << "      Deposit within 0.7 - A3DV(0.2) " << val.depositWithin(0.7, z2v) << std::endl;
 
-      for (size_t i = 0; i < z2v.size(); i++) { delete z2v[i]; }
-      std::cout << "      Dumping deposit contents: " << "\n";
+      for (size_t i = 0; i < z2v.size(); i++) {
+        delete z2v[i];
+      }
+      std::cout << "      Dumping deposit contents: "
+                << "\n";
       for (reco::IsoDeposit::const_iterator it = val.begin(), ed = val.end(); it != ed; ++it) {
-	std::cout << "        + at dR(eta, phi) = "
-		  <<it->dR()<<" (" << it->eta() << ", " << it->phi() << "): value = " << it->value() << "\n";
+        std::cout << "        + at dR(eta, phi) = " << it->dR() << " (" << it->eta() << ", " << it->phi()
+                  << "): value = " << it->value() << "\n";
       }
       std::cout << "      -end of deposit: " << std::endl;
 
-    }//!for (depII)
-  }//!for (depI)
+    }  //!for (depII)
+  }    //!for (depI)
 }
 
-DEFINE_FWK_MODULE( CandIsoDumper );
+DEFINE_FWK_MODULE(CandIsoDumper);
