@@ -22,7 +22,7 @@ config.Data.unitsPerJob = 10
 config.Data.outLFNDirBase = '/store/user/%s/' % (getUsernameFromSiteDB())
 config.Data.publication = False
 config.Data.outputDatasetTag = 'CRAB3_muCorr_MC_analysis'
-config.Data.totalUnits = 300 #75 600
+config.Data.totalUnits = 600 #75 600
 config.Data.ignoreLocality = False
 
 config.section_("Debug")

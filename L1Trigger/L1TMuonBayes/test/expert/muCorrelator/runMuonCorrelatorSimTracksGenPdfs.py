@@ -103,7 +103,7 @@ filesNameLike = sys.argv[2]
 
 chosenFiles = []
 
-filesPerPtBin = 100
+filesPerPtBin = 1
 
 if filesNameLike == 'allPt' :
     for ptCode in range(31, 3, -1) :

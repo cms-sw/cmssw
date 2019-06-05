@@ -65,8 +65,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '103X_upgrade2023_realistic_v2'
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
-if GEOMETRY == "D17":
-    Source_Files = cms.untracked.vstring(
+Source_Files = cms.untracked.vstring(
 #        "/store/relval/CMSSW_10_0_0_pre1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/94X_upgrade2023_realistic_v2_2023D17noPU-v2/10000/06C888F3-CFCE-E711-8928-0CC47A4D764C.root"
          #"/store/relval/CMSSW_9_3_2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/93X_upgrade2023_realistic_v2_2023D17noPU-v1/10000/0681719F-AFA6-E711-87C9-0CC47A4C8E14.root"
          #"file:///eos/user/k/kbunkow/cms_data/0681719F-AFA6-E711-87C9-0CC47A4C8E14.root"
@@ -86,12 +85,7 @@ if GEOMETRY == "D17":
          'file:///eos/user/k/kbunkow/cms_data/mc/PhaseIIFall17D/ZMM_EE29AF8E-51AF-E811-A2BD-484D7E8DF0D3_dump1000Events.root'
          #'file:///eos/user/a/akalinow/Data/SingleMu/SingleMuFlatPt_50GeVto10GeV_cfi_py_GEN_SIM_DIGI_L1_L1TrackTrigger_DIGI2RAW_HLT.root'
 )
-elif GEOMETRY == "TkOnly":
-    Source_Files = cms.untracked.vstring(
-    "file:MuMinus_1to10_TkOnly.root"
-)
-else: 
-    print "not a valid geometry!"
+
 
 process.source = cms.Source("PoolSource", fileNames = Source_Files,
         inputCommands=cms.untracked.vstring(

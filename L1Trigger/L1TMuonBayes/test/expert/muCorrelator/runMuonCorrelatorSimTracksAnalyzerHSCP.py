@@ -17,10 +17,10 @@ if verbose:
                                                #'critical',
                                                #'cout',
                                                #'cerr',
-                                               'omtfEventDump'
+                                               'muCorrelatorEventPrint'
                     ),
-       categories        = cms.untracked.vstring('MuTimingModule', 'l1tMuBayesEventPrint'), #, 
-       omtfEventDump = cms.untracked.PSet(    
+       categories        = cms.untracked.vstring('l1tMuBayesEventPrint'),
+       muCorrelatorEventPrint = cms.untracked.PSet(    
                          extension = cms.untracked.string('.txt'),                
                          threshold = cms.untracked.string('DEBUG'),
                          default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
@@ -28,7 +28,7 @@ if verbose:
                          #DEBUG   = cms.untracked.int32(0),
                          l1tMuBayesEventPrint = cms.untracked.PSet( limit = cms.untracked.int32(100000000) )
                        ),
-       debugModules = cms.untracked.vstring('L1TMuonOverlapTTMergerTrackProducer', 'OmtfTTAnalyzer', 'simOmtfDigis', 'omtfTTAnalyzer', 'simBayesMuCorrelatorTrackProducer') 
+       debugModules = cms.untracked.vstring('L1TMuonBayesMuCorrelatorTrackProducer', 'OmtfTTAnalyzer', 'simOmtfDigis', 'omtfTTAnalyzer', 'simBayesMuCorrelatorTrackProducer') 
        #debugModules = cms.untracked.vstring('*')
     )
 
@@ -43,27 +43,21 @@ if not verbose:
 #######################################TTTracks################################################
 GEOMETRY = "D17"
 
+# import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
-#process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
-
-if GEOMETRY == "D17":
-    print "using geometry " + GEOMETRY + " (tilted)"
-    process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
-    process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
-elif GEOMETRY == "TkOnly":
-    print "using geometry " + GEOMETRY + " (tilted)"
-    process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff')
-else:
-    print "this is not a valid geometry!!!"
-
+process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
-
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '103X_upgrade2023_realistic_v2', '') 
 
 ############################################################
 # input and output
@@ -176,6 +170,14 @@ process.load('L1Trigger.L1TMuonBayes.simBayesMuCorrelatorTrackProducer_cfi')
 
 #process.TFileService = cms.Service("TFileService", fileName = cms.string('muCorrelatorHists.root'), closeFileFast = cms.untracked.bool(True))
 
+  #MCTruthTrackInputTag = cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"), ## MCTruth input 
+  # other input collections
+#process.simBayesMuCorrelatorTrackProducer.L1StubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis","StubAccepted"),
+#process.simBayesMuCorrelatorTrackProducer.MCTruthClusterInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
+#process.simBayesMuCorrelatorTrackProducer.MCTruthStubInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
+process.simBayesMuCorrelatorTrackProducer.TrackingParticleInputTag = cms.InputTag("mix", "MergedTrackTruth")
+  #TrackingVertexInputTag = cms.InputTag("mix", "MergedTrackTruth"),
+  
 #process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("L1_TRACKER")
 #process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("SIM_TRACKS") #TODO !!!!!!!
 process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("TRACKING_PARTICLES") #TODO !!!!!!!

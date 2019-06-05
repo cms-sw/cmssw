@@ -42,9 +42,15 @@ L1TMuonBayesMuCorrelatorTrackProducer::L1TMuonBayesMuCorrelatorTrackProducer(con
   edm::InputTag l1TrackInputTag = cfg.getParameter<edm::InputTag>("L1TrackInputTag");
   ttTrackToken = consumes< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > >(l1TrackInputTag);
 
-  inputTokenSimTracks = consumes<edm::SimTrackContainer>(edmParameterSet.getParameter<edm::InputTag>("g4SimTrackSrc")); //TODO is it needed?
+  std::string trackSrc = "L1_TRACKER";
+  if(cfg.exists("ttTracksSource") )
+    trackSrc = cfg.getParameter<std::string>("ttTracksSource");
 
-  trackingParticleToken = mayConsume< std::vector< TrackingParticle > >(edmParameterSet.getParameter<edm::InputTag>("TrackingParticleInputTag") );
+  if(trackSrc == "SIM_TRACKS")
+	  inputTokenSimTracks = mayConsume<edm::SimTrackContainer>(edmParameterSet.getParameter<edm::InputTag>("g4SimTrackSrc")); //TODO is it needed?
+
+  if(trackSrc == "TRACKING_PARTICLES")
+	  trackingParticleToken = mayConsume< std::vector< TrackingParticle > >(edmParameterSet.getParameter<edm::InputTag>("TrackingParticleInputTag") );
 
 
   //Range of the BXes for which the emulation is performed,
