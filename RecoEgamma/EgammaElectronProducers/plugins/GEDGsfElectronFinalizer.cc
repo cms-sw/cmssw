@@ -34,7 +34,7 @@ GEDGsfElectronFinalizer::GEDGsfElectronFinalizer( const edm::ParameterSet & cfg 
      const edm::ParameterSet& iconf = cfg.getParameterSet("regressionConfig");
      const std::string& mname = iconf.getParameter<std::string>("modifierName");
      auto cc = consumesCollector();
-     gedRegression_ = std::unique_ptr<ModifyObjectValueBase>{ModifyObjectValueFactory::get()->create(mname,iconf,cc)};
+     gedRegression_ = ModifyObjectValueFactory::get()->create(mname,iconf,cc);
    }
 
    produces<reco::GsfElectronCollection> (outputCollectionLabel_);
