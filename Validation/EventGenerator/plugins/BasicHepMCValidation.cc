@@ -369,8 +369,8 @@ void BasicHepMCValidation::analyze(const edm::Event &iEvent, const edm::EventSet
   for (HepMC::GenEvent::vertex_const_iterator vrtxIt = vrtxBegin; vrtxIt != vrtxEnd; ++vrtxIt) {
     ///Vertices
     HepMC::GenVertex const *vrtx = *vrtxIt;
-    outVrtxPtclNumber->Fill(vrtx->particles_out_size(),
-                            weight);  //std::cout << "all " << vrtx->particles_out_size() << '\n';
+    outVrtxPtclNumber->Fill(vrtx->particles_out_size(), weight);
+    //std::cout << "all " << vrtx->particles_out_size() << '\n';
 
     if (nvtx == 0) {
       vrtxZ->Fill(vrtx->point3d().z(), weight);
@@ -384,7 +384,8 @@ void BasicHepMCValidation::analyze(const edm::Event &iEvent, const edm::EventSet
          ++vrtxPtclIt) {
       HepMC::GenParticle const *vrtxPtcl = *vrtxPtclIt;
       if (vrtxPtcl->status() == 1) {
-        ++outVrtxStablePtclNum;  //std::cout << "stable " << outVrtxStablePtclNum << '\n';
+        ++outVrtxStablePtclNum;
+        //std::cout << "stable " << outVrtxStablePtclNum << '\n';
       }
     }
     outVrtxStablePtclNumber->Fill(outVrtxStablePtclNum, weight);

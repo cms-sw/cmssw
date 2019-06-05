@@ -18,8 +18,7 @@ using namespace edm;
 TauValidation::TauValidation(const edm::ParameterSet &iPSet)
     :  //  wmanager_(iPSet,consumesCollector())
       genparticleCollection_(iPSet.getParameter<edm::InputTag>("genparticleCollection")),
-      NMODEID(TauDecay::NMODEID - 1)  // fortran to C++ index
-      ,
+      NMODEID(TauDecay::NMODEID - 1),  // fortran to C++ index
       zsbins(20),
       zsmin(-0.5),
       zsmax(0.5) {
@@ -670,8 +669,8 @@ void TauValidation::countParticles(const reco::GenParticle *p,
 
 void TauValidation::spinEffectsWHpm(
     const reco::GenParticle *tau, int mother, int decay, std::vector<const reco::GenParticle *> &part, double weight) {
-  if (decay == TauDecay::MODE_PION || decay == TauDecay::MODE_MUON ||
-      decay == TauDecay::MODE_ELECTRON) {  // polarization only for 1-prong hadronic taus with no neutral pions
+  // polarization only for 1-prong hadronic taus with no neutral pions
+  if (decay == TauDecay::MODE_PION || decay == TauDecay::MODE_MUON || decay == TauDecay::MODE_ELECTRON) {
     TLorentzVector momP4 = motherP4(tau);
     TLorentzVector pionP4 = leadingPionP4(tau);
     pionP4.Boost(-1 * momP4.BoostVector());

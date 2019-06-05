@@ -161,9 +161,8 @@ private:
       return true;
     }
 
-    const HepMC::GenParticle *GetFinal(
-        const HepMC::GenParticle
-            *p) {  // includes mixing (assuming mixing is not occurring more than 5 times back and forth)
+    // includes mixing (assuming mixing is not occurring more than 5 times back and forth)
+    const HepMC::GenParticle *GetFinal(const HepMC::GenParticle *p) {
       const HepMC::GenParticle *aPart = p;
       for (unsigned int iMix = 0; iMix < 10; iMix++) {
         bool foundSimilar = false;

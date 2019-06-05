@@ -261,8 +261,8 @@ void MaterialBudgetCastorHistos::fillHisto(int id, int ix) {
     ii += 10;
   }
   LogDebug("MaterialBudget") << "MaterialBudgetCastorHistos:FillHisto "
-                             << "called with index " << id << ":" << ix << ":" << ii << " eta " << etaAbs << " (" << eta_
-                             << ") integrated  step " << stepLen << " X0 " << radLen << " Lamda " << intLen;
+                             << "called with index " << id << ":" << ix << ":" << ii << " eta " << etaAbs << " ("
+                             << eta_ << ") integrated  step " << stepLen << " X0 " << radLen << " Lamda " << intLen;
 
   me100[ii]->Fill(eta_, radLen);
   me200[ii]->Fill(eta_, intLen);
