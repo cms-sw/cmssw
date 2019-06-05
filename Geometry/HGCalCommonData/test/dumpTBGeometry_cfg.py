@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DUMP")
-process.load("Geometry.HGCalCommonData.testTB160XML_cfi")
+process.load("Geometry.HGCalCommonData.testTB181XML_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
