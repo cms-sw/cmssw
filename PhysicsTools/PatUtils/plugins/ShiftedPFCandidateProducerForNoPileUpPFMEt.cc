@@ -49,7 +49,7 @@ void ShiftedPFCandidateProducerForNoPileUpPFMEt::produce(edm::Event& evt, const 
     if ( jet->pt() > minJetPt_ ) selectedJets.push_back(&(*jet));
   }
 
-  if ( jetCorrPayloadName_ != "" ) {
+  if ( !jetCorrPayloadName_.empty() ) {
       edm::ESHandle<JetCorrectorParametersCollection> jetCorrParameterSet;
       es.get<JetCorrectionsRecord>().get(jetCorrPayloadName_, jetCorrParameterSet);
       const JetCorrectorParameters& jetCorrParameters = (*jetCorrParameterSet)[jetCorrUncertaintyTag_];

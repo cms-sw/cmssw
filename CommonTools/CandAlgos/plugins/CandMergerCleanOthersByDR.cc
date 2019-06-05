@@ -31,7 +31,7 @@
 class CandMergerCleanOthersByDR : public edm::global::EDProducer<> {
 public:
   explicit CandMergerCleanOthersByDR(const edm::ParameterSet&);
-  ~CandMergerCleanOthersByDR(){}
+  ~CandMergerCleanOthersByDR() override{}
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
