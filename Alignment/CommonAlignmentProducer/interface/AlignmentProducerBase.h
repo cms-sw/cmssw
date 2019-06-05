@@ -204,9 +204,6 @@ private:
   /// Takes over ownership of AlignmentSurfaceDeformations.
   void writeDB(AlignmentSurfaceDeformations*, const std::string&, cond::Time_t) const;
 
-  template <typename T>
-  bool hasParameter(const edm::ParameterSet&, const std::string& name);
-
   //========================== PRIVATE DATA ====================================
   //============================================================================
 
