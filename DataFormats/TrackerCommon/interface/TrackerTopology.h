@@ -2,9 +2,8 @@
 #define TRACKERTOPOLOGY_H
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/SiStripEnums.h"
 
 #include <vector>
 #include <string>
@@ -13,7 +12,6 @@
 //flexible replacement for PXBDetId and friends
 //to implement
 // endcap pixel
-
 
 class TrackerTopology {
 
@@ -494,7 +492,7 @@ class TrackerTopology {
 		 uint32_t petal_fw_bw, uint32_t petal,
 		 uint32_t ring, uint32_t module, uint32_t ster) const {  
 
-    DetId id=SiStripDetId(DetId::Tracker,StripSubdetector::TEC);
+    DetId id=DetId(DetId::Tracker,SiStripSubdetector::TEC);
     uint32_t rawid=id.rawId();
 
     rawid |= (side& tecVals_.sideMask_)         << tecVals_.sideStartBit_ |
@@ -513,7 +511,7 @@ class TrackerTopology {
 		 uint32_t str,
 		 uint32_t module,
 		 uint32_t ster) const {
-    DetId id=SiStripDetId(DetId::Tracker,StripSubdetector::TIB);
+    DetId id=DetId(DetId::Tracker,SiStripSubdetector::TIB);
     uint32_t rawid=id.rawId();
     rawid |= (layer& tibVals_.layerMask_) << tibVals_.layerStartBit_ |
       (str_fw_bw& tibVals_.str_fw_bwMask_) << tibVals_.str_fw_bwStartBit_ |
@@ -530,7 +528,7 @@ class TrackerTopology {
 		 uint32_t module_fw_bw,
 		 uint32_t module,
 		 uint32_t ster) const { 
-    DetId id=SiStripDetId(DetId::Tracker,StripSubdetector::TID);
+    DetId id=DetId(DetId::Tracker,SiStripSubdetector::TID);
     uint32_t rawid=id.rawId();
     rawid |= (side& tidVals_.sideMask_)      << tidVals_.sideStartBit_    |
       (wheel& tidVals_.wheelMask_)          << tidVals_.wheelStartBit_      |
@@ -546,7 +544,7 @@ class TrackerTopology {
 		 uint32_t rod,
 		 uint32_t module,
 		 uint32_t ster) const {
-    DetId id=SiStripDetId(DetId::Tracker,StripSubdetector::TOB);
+    DetId id=DetId(DetId::Tracker,SiStripSubdetector::TOB);
     uint32_t rawid=id.rawId();
     rawid |= (layer& tobVals_.layerMask_) << tobVals_.layerStartBit_ |
       (rod_fw_bw& tobVals_.rod_fw_bwMask_) << tobVals_.rod_fw_bwStartBit_ |
@@ -582,7 +580,7 @@ class TrackerTopology {
 
   std::string print(DetId detid) const;
 
-  SiStripDetId::ModuleGeometry moduleGeometry(const DetId &id) const; 
+  SiStripModuleGeometry moduleGeometry(const DetId &id) const;
   
   int getOTLayerNumber(const DetId &id)const;
   int getITPixelLayerNumber(const DetId &id)const;
