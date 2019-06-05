@@ -12,7 +12,7 @@ def submit(config):
 
 samples = [
     ("/RelValQCD_Pt-15To7000_Flat_14TeV/CMSSW_10_6_0-106X_upgrade2023_realistic_v2_2023D41noPU-v2/GEN-SIM-DIGI-RAW", "QCD_noPU_phase2"),
-    (" /RelValQCD_Pt-15To7000_Flat_14TeV/CMSSW_10_6_0-PU25ns_106X_upgrade2023_realistic_v2_2023D41PU200-v1/GEN-SIM-DIGI-RAW", "QCD_PU_phase2"),
+    ("/RelValQCD_Pt-15To7000_Flat_14TeV/CMSSW_10_6_0-PU25ns_106X_upgrade2023_realistic_v2_2023D41PU200-v1/GEN-SIM-DIGI-RAW", "QCD_PU_phase2"),
     #("/RelValZMM_14/CMSSW_10_6_0-106X_upgrade2023_realistic_v2_2023D41noPU-v2/GEN-SIM-DIGI-RAW", "ZMM_phase2"),
     ("/RelValNuGun/CMSSW_10_6_0-PU25ns_106X_upgrade2023_realistic_v2_2023D41PU200-v1/GEN-SIM-DIGI-RAW", "NuGun_PU_phase2"),
 ]
