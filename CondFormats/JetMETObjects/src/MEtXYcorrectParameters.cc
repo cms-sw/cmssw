@@ -134,7 +134,7 @@ MEtXYcorrectParameters::MEtXYcorrectParameters(const std::string& fFile, const s
         continue; 
       }
       Definitions definitions(currentDefinitions);
-      if (!(definitions.nBinVar()==0 && definitions.formula()==""))
+      if (!(definitions.nBinVar()==0 && definitions.formula().empty()))
         mDefinitions = definitions;
       Record record(line,mDefinitions.nBinVar());
       bool check(true);
@@ -147,10 +147,10 @@ MEtXYcorrectParameters::MEtXYcorrectParameters(const std::string& fFile, const s
         mRecords.push_back(record);
     } 
   }
-  if (currentDefinitions=="")
+  if (currentDefinitions.empty())
     handleError("MEtXYcorrectParameters","No definitions found!!!");
-  if (mRecords.empty() && currentSection == "") mRecords.push_back(Record());
-  if (mRecords.empty() && currentSection != "") 
+  if (mRecords.empty() && currentSection.empty()) mRecords.push_back(Record());
+  if (mRecords.empty() && !currentSection.empty()) 
   {
     std::stringstream sserr; 
     sserr<<"the requested section "<<fSection<<" doesn't exist!";
@@ -383,7 +383,7 @@ void MEtXYcorrectParametersCollection::getSections( std::string inputFile,
     std::string in(buff);
     if ( in[0] == '[' ) {
       std::string tok = getSection(in);
-      if ( tok != "" ) {
+      if ( !tok.empty() ) {
 	outputs.push_back( tok );
       }
     }
