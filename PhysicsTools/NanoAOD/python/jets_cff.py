@@ -140,8 +140,10 @@ updatedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
          ptD = cms.InputTag("bJetVars:ptD"),
          genPtwNu = cms.InputTag("bJetVars:genPtwNu"),
          qgl = cms.InputTag('qgtagger:qgLikelihood'),
-         jercCHPUF = cms.InputTag("jercVars:chargedHadronPUEnergyFraction"),
-         jercCHF = cms.InputTag("jercVars:chargedHadronCHSEnergyFraction"),
+         chFPV0EF = cms.InputTag("jercVars:chargedFromPV0EnergyFraction"),
+         chFPV1EF = cms.InputTag("jercVars:chargedFromPV1EnergyFraction"),
+         chFPV2EF = cms.InputTag("jercVars:chargedFromPV2EnergyFraction"),
+         chFPV3EF = cms.InputTag("jercVars:chargedFromPV3EnergyFraction"),         
          ),
      userInts = cms.PSet(
         tightId = cms.InputTag("tightJetId"),
@@ -662,7 +664,7 @@ from RecoJets.JetProducers.QGTagger_cfi import  QGTagger
 qgtagger=QGTagger.clone(srcJets="updatedJets",srcVertexCollection="offlineSlimmedPrimaryVertices")
 
 #before cross linking
-jetSequence = cms.Sequence(jetCorrFactorsNano+updatedJets+tightJetId+tightJetIdLepVeto+bJetVars+jercVars+qgtagger+updatedJetsWithUserData+jetCorrFactorsAK8+updatedJetsAK8+tightJetIdAK8+tightJetIdLepVetoAK8+updatedJetsAK8WithUserData+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets+finalJetsAK8)
+jetSequence = cms.Sequence(jetCorrFactorsNano+updatedJets+tightJetId+tightJetIdLepVeto+bJetVars+qgtagger+jercVars+updatedJetsWithUserData+jetCorrFactorsAK8+updatedJetsAK8+tightJetIdAK8+tightJetIdLepVetoAK8+updatedJetsAK8WithUserData+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets+finalJetsAK8)
 
 _jetSequence_2016 = jetSequence.copy()
 _jetSequence_2016.insert(_jetSequence_2016.index(tightJetId), looseJetId)
