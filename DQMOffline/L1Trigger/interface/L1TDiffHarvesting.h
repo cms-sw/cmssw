@@ -13,48 +13,45 @@
 #include <vector>
 
 namespace dqmoffline {
-namespace l1t {
+  namespace l1t {
 
-class L1TDiffHarvesting: public DQMEDHarvester {
+    class L1TDiffHarvesting : public DQMEDHarvester {
+    public:
+      L1TDiffHarvesting(const edm::ParameterSet &ps);
+      ~L1TDiffHarvesting() override;
 
-public:
-  L1TDiffHarvesting(const edm::ParameterSet& ps);
-  ~L1TDiffHarvesting() override;
+    protected:
+      void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
 
-protected:
+    private:
+      class L1TDiffPlotHandler {
+      public:
+        L1TDiffPlotHandler(const edm::ParameterSet &ps, std::string plotName);
+        L1TDiffPlotHandler(const L1TDiffPlotHandler &handler);  // needed for vector collection
 
-  void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
+        void computeDiff(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
 
-private:
-  class L1TDiffPlotHandler {
-  public:
-    L1TDiffPlotHandler(const edm::ParameterSet & ps, std::string plotName);
-    L1TDiffPlotHandler(const L1TDiffPlotHandler &handler); // needed for vector collection
+        std::string dir1_;
+        std::string dir2_;
+        std::string outputDir_;
+        std::string plotName_;
 
-    void computeDiff(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
+        MonitorElement *h1_;
+        MonitorElement *h2_;
+        MonitorElement *h_diff_;
+        MonitorElement::Kind histType1_, histType2_;
 
-    std::string dir1_;
-    std::string dir2_;
-    std::string outputDir_;
-    std::string plotName_;
+        void loadHistograms(DQMStore::IGetter &igetter);
+        bool isValid() const;
+        void bookDiff(DQMStore::IBooker &ibooker);
+      };
 
-    MonitorElement* h1_;
-    MonitorElement* h2_;
-    MonitorElement* h_diff_;
-    MonitorElement::Kind histType1_, histType2_;
+      typedef std::vector<L1TDiffPlotHandler> L1TDiffPlotHandlers;
 
-    void loadHistograms(DQMStore::IGetter &igetter);
-    bool isValid() const;
-    void bookDiff(DQMStore::IBooker &ibooker);
+      L1TDiffPlotHandlers plotHandlers_;
+    };
 
-  };
-
-  typedef std::vector<L1TDiffPlotHandler> L1TDiffPlotHandlers;
-
-  L1TDiffPlotHandlers plotHandlers_;
-};
-
-} // l1t
-} // dqmoffline
+  }  // namespace l1t
+}  // namespace dqmoffline
 
 #endif
