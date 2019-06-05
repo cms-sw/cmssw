@@ -36,31 +36,31 @@ process.genParticlePlusGEANT = cms.EDProducer("GenPlusSimParticleProducer",
 #include <ext/algorithm>
 
 namespace pat {
-class GenPlusSimParticleProducer : public edm::EDProducer {
-public:
-  explicit GenPlusSimParticleProducer(const edm::ParameterSet&);
-  ~GenPlusSimParticleProducer() override {}
+  class GenPlusSimParticleProducer : public edm::EDProducer {
+  public:
+    explicit GenPlusSimParticleProducer(const edm::ParameterSet &);
+    ~GenPlusSimParticleProducer() override {}
 
-private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override {}
+  private:
+    void produce(edm::Event &, const edm::EventSetup &) override;
+    void endJob() override {}
 
-  bool firstEvent_;
-  edm::EDGetTokenT<edm::SimTrackContainer> simtracksToken_;
-  edm::EDGetTokenT<edm::SimVertexContainer> simverticesToken_;
-  int setStatus_;
-  std::set<int>         pdgIds_; // these are the ones we really use
-  std::vector<PdtEntry> pdts_;   // these are needed before we get the EventSetup
+    bool firstEvent_;
+    edm::EDGetTokenT<edm::SimTrackContainer> simtracksToken_;
+    edm::EDGetTokenT<edm::SimVertexContainer> simverticesToken_;
+    int setStatus_;
+    std::set<int> pdgIds_;        // these are the ones we really use
+    std::vector<PdtEntry> pdts_;  // these are needed before we get the EventSetup
 
-  typedef StringCutObjectSelector<reco::GenParticle> StrFilter;
-  std::unique_ptr<StrFilter> filter_;
+    typedef StringCutObjectSelector<reco::GenParticle> StrFilter;
+    std::unique_ptr<StrFilter> filter_;
 
-  /// Collection of GenParticles I need to make refs to. It must also have its associated vector<int> of barcodes, aligned with them.
-  edm::EDGetTokenT<reco::GenParticleCollection> gensToken_;
-  edm::EDGetTokenT<std::vector<int> > genBarcodesToken_;
+    /// Collection of GenParticles I need to make refs to. It must also have its associated vector<int> of barcodes, aligned with them.
+    edm::EDGetTokenT<reco::GenParticleCollection> gensToken_;
+    edm::EDGetTokenT<std::vector<int>> genBarcodesToken_;
 
-  /// Try to link the GEANT particle to the generator particle it came from
-  /** Arguments:
+    /// Try to link the GEANT particle to the generator particle it came from
+    /** Arguments:
    * -- Specific --
    *    gp: GenParticle made from the GEANT particle
    *    st: The GEANT simTrack for which we create a genParticle
@@ -73,40 +73,42 @@ private:
    *    gens             : Handle to the GenParticles, to make the ref to
    *    genBarcodes      : Barcodes for each GenParticle, in a vector aligned to the GenParticleCollection.
    *    barcodesAreSorted: true if the barcodes are sorted (which means I can use binary_search on them) */
-  void addGenParticle(const SimTrack &stMom,
-		      const SimTrack &stDau,
-		      unsigned int momidx,
-		      const edm::SimTrackContainer &simtks,
-		      const edm::SimVertexContainer &simvtxs,
-		      reco::GenParticleCollection &mergedGens,
-		      const reco::GenParticleRefProd ref,
-		      std::vector<int> &genBarcodes,
-		      bool &barcodesAreSorted ) const ;
-  struct LessById {
-    bool operator()(const SimTrack &tk1, const SimTrack &tk2) const { return tk1.trackId() < tk2.trackId(); }
-    bool operator()(const SimTrack &tk1, unsigned int    id ) const { return tk1.trackId() < id;            }
-    bool operator()(unsigned int     id, const SimTrack &tk2) const { return id            < tk2.trackId(); }
+    void addGenParticle(const SimTrack &stMom,
+                        const SimTrack &stDau,
+                        unsigned int momidx,
+                        const edm::SimTrackContainer &simtks,
+                        const edm::SimVertexContainer &simvtxs,
+                        reco::GenParticleCollection &mergedGens,
+                        const reco::GenParticleRefProd ref,
+                        std::vector<int> &genBarcodes,
+                        bool &barcodesAreSorted) const;
+    struct LessById {
+      bool operator()(const SimTrack &tk1, const SimTrack &tk2) const { return tk1.trackId() < tk2.trackId(); }
+      bool operator()(const SimTrack &tk1, unsigned int id) const { return tk1.trackId() < id; }
+      bool operator()(unsigned int id, const SimTrack &tk2) const { return id < tk2.trackId(); }
+    };
   };
-
-};
-}
+}  // namespace pat
 
 using namespace std;
 using namespace edm;
 using namespace reco;
 using pat::GenPlusSimParticleProducer;
 
-GenPlusSimParticleProducer::GenPlusSimParticleProducer(const ParameterSet& cfg) :
-  firstEvent_(true),
-  simtracksToken_(consumes<SimTrackContainer>(cfg.getParameter<InputTag>("src"))),            // source sim tracks & vertices
-  simverticesToken_(consumes<SimVertexContainer>(cfg.getParameter<InputTag>("src"))),            // source sim tracks & vertices
-  setStatus_(cfg.getParameter<int32_t>("setStatus")), // set status of GenParticle to this code
-  gensToken_(consumes<GenParticleCollection>(cfg.getParameter<InputTag>("genParticles"))), // get the genParticles to add GEANT particles to
-  genBarcodesToken_(consumes<std::vector<int> >(cfg.getParameter<InputTag>("genParticles"))) // get the genParticles to add GEANT particles to
+GenPlusSimParticleProducer::GenPlusSimParticleProducer(const ParameterSet &cfg)
+    : firstEvent_(true),
+      simtracksToken_(consumes<SimTrackContainer>(cfg.getParameter<InputTag>("src"))),  // source sim tracks & vertices
+      simverticesToken_(
+          consumes<SimVertexContainer>(cfg.getParameter<InputTag>("src"))),  // source sim tracks & vertices
+      setStatus_(cfg.getParameter<int32_t>("setStatus")),                    // set status of GenParticle to this code
+      gensToken_(consumes<GenParticleCollection>(
+          cfg.getParameter<InputTag>("genParticles"))),  // get the genParticles to add GEANT particles to
+      genBarcodesToken_(consumes<std::vector<int>>(
+          cfg.getParameter<InputTag>("genParticles")))  // get the genParticles to add GEANT particles to
 {
   // Possibly allow a list of particle types
   if (cfg.exists("particleTypes")) {
-    pdts_ = cfg.getParameter<vector<PdtEntry> >("particleTypes");
+    pdts_ = cfg.getParameter<vector<PdtEntry>>("particleTypes");
   }
 
   // Possibly allow a string cut
@@ -117,74 +119,75 @@ GenPlusSimParticleProducer::GenPlusSimParticleProducer(const ParameterSet& cfg) 
     }
   }
   produces<GenParticleCollection>();
-  produces<vector<int> >();
+  produces<vector<int>>();
 }
 
-void GenPlusSimParticleProducer::addGenParticle( const SimTrack &stMom,
-						    const SimTrack &stDau,
-						    unsigned int momidx,
-						    const SimTrackContainer &simtracksSorted,
-						    const SimVertexContainer &simvertices,
-						    reco::GenParticleCollection &mergedGens,
-						    const GenParticleRefProd ref,
-						    std::vector<int> &genBarcodes,
-						    bool &barcodesAreSorted) const
-{
+void GenPlusSimParticleProducer::addGenParticle(const SimTrack &stMom,
+                                                const SimTrack &stDau,
+                                                unsigned int momidx,
+                                                const SimTrackContainer &simtracksSorted,
+                                                const SimVertexContainer &simvertices,
+                                                reco::GenParticleCollection &mergedGens,
+                                                const GenParticleRefProd ref,
+                                                std::vector<int> &genBarcodes,
+                                                bool &barcodesAreSorted) const {
   // Make the genParticle for stDau and add it to the new collection and update the parent-child relationship
   // Make up a GenParticleCandidate from the GEANT track info.
   int charge = static_cast<int>(stDau.charge());
-  const Particle::LorentzVector& p4 = stDau.momentum();
-  Particle::Point vtx; // = (0,0,0) by default
-  if (!stDau.noVertex()) vtx = simvertices[stDau.vertIndex()].position();
+  const Particle::LorentzVector &p4 = stDau.momentum();
+  Particle::Point vtx;  // = (0,0,0) by default
+  if (!stDau.noVertex())
+    vtx = simvertices[stDau.vertIndex()].position();
   GenParticle genp(charge, p4, vtx, stDau.type(), setStatus_, true);
 
   // Maybe apply filter on the particle
   if (filter_.get() != nullptr) {
-    if (!(*filter_)(genp)) return;
+    if (!(*filter_)(genp))
+      return;
   }
 
   reco::GenParticleRef parentRef(ref, momidx);
   genp.addMother(parentRef);
   mergedGens.push_back(genp);
   // get the index for the daughter just added
-  unsigned int dauidx = mergedGens.size()-1;
+  unsigned int dauidx = mergedGens.size() - 1;
 
   // update add daughter relationship
-  reco::GenParticle & cand = mergedGens[ momidx ];
-  cand.addDaughter( GenParticleRef( ref, dauidx) );
+  reco::GenParticle &cand = mergedGens[momidx];
+  cand.addDaughter(GenParticleRef(ref, dauidx));
 
   //look for simtrack daughters of stDau to see if we need to recur further down the chain
 
-  for (SimTrackContainer::const_iterator isimtrk = simtracksSorted.begin();
-       isimtrk != simtracksSorted.end(); ++isimtrk) {
+  for (SimTrackContainer::const_iterator isimtrk = simtracksSorted.begin(); isimtrk != simtracksSorted.end();
+       ++isimtrk) {
     if (!isimtrk->noVertex()) {
       // Pick the vertex (isimtrk.vertIndex() is really an index)
       const SimVertex &vtx = simvertices[isimtrk->vertIndex()];
 
       // Check if the vertex has a parent track (otherwise, we're lost)
       if (!vtx.noParent()) {
-
-	// Now note that vtx.parentIndex() is NOT an index, it's a track id, so I have to search for it
-	unsigned int idx = vtx.parentIndex();
-	SimTrackContainer::const_iterator it = std::lower_bound(simtracksSorted.begin(), simtracksSorted.end(), idx, LessById());
-	if ((it != simtracksSorted.end()) && (it->trackId() == idx)) {
-	  if (it->trackId()==stDau.trackId()) {
-	    //need the genparticle index of stDau which is dauidx
-	    addGenParticle(stDau, *isimtrk, dauidx, simtracksSorted, simvertices, mergedGens, ref, genBarcodes, barcodesAreSorted);
-	  }
-	}
+        // Now note that vtx.parentIndex() is NOT an index, it's a track id, so I have to search for it
+        unsigned int idx = vtx.parentIndex();
+        SimTrackContainer::const_iterator it =
+            std::lower_bound(simtracksSorted.begin(), simtracksSorted.end(), idx, LessById());
+        if ((it != simtracksSorted.end()) && (it->trackId() == idx)) {
+          if (it->trackId() == stDau.trackId()) {
+            //need the genparticle index of stDau which is dauidx
+            addGenParticle(
+                stDau, *isimtrk, dauidx, simtracksSorted, simvertices, mergedGens, ref, genBarcodes, barcodesAreSorted);
+          }
+        }
       }
     }
   }
 }
 
-void GenPlusSimParticleProducer::produce(Event& event,
-					    const EventSetup& iSetup) {
-  if (firstEvent_){
+void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup) {
+  if (firstEvent_) {
     if (!pdts_.empty()) {
       pdgIds_.clear();
       for (vector<PdtEntry>::iterator itp = pdts_.begin(), edp = pdts_.end(); itp != edp; ++itp) {
-        itp->setup(iSetup); // decode string->pdgId and vice-versa
+        itp->setup(iSetup);  // decode string->pdgId and vice-versa
         pdgIds_.insert(std::abs(itp->pdgId()));
       }
       pdts_.clear();
@@ -198,11 +201,11 @@ void GenPlusSimParticleProducer::produce(Event& event,
 
   // Need to check that SimTrackContainer is sorted; otherwise, copy and sort :-(
   std::unique_ptr<SimTrackContainer> simtracksTmp;
-  const SimTrackContainer * simtracksSorted = &* simtracks;
+  const SimTrackContainer *simtracksSorted = &*simtracks;
   if (!__gnu_cxx::is_sorted(simtracks->begin(), simtracks->end(), LessById())) {
     simtracksTmp.reset(new SimTrackContainer(*simtracks));
     std::sort(simtracksTmp->begin(), simtracksTmp->end(), LessById());
-    simtracksSorted = &* simtracksTmp;
+    simtracksSorted = &*simtracksTmp;
   }
 
   // Get the associated vertices
@@ -211,20 +214,21 @@ void GenPlusSimParticleProducer::produce(Event& event,
 
   // Get the GenParticles and barcodes, if needed to set mother and daughter links
   Handle<GenParticleCollection> gens;
-  Handle<std::vector<int> > genBarcodes;
+  Handle<std::vector<int>> genBarcodes;
   bool barcodesAreSorted = true;
   event.getByToken(gensToken_, gens);
   event.getByToken(genBarcodesToken_, genBarcodes);
-  if (gens->size() != genBarcodes->size()) throw cms::Exception("Corrupt data") << "Barcodes not of the same size as GenParticles!\n";
+  if (gens->size() != genBarcodes->size())
+    throw cms::Exception("Corrupt data") << "Barcodes not of the same size as GenParticles!\n";
 
   // make the output collection
   auto candsPtr = std::make_unique<GenParticleCollection>();
-  GenParticleCollection & cands = * candsPtr;
+  GenParticleCollection &cands = *candsPtr;
 
   const GenParticleRefProd ref = event.getRefBeforePut<GenParticleCollection>();
 
   // add the original genParticles to the merged output list
-  for( size_t i = 0; i < gens->size(); ++ i ) {
+  for (size_t i = 0; i < gens->size(); ++i) {
     reco::GenParticle cand((*gens)[i]);
     cands.push_back(cand);
   }
@@ -236,66 +240,73 @@ void GenPlusSimParticleProducer::produce(Event& event,
   }
   barcodesAreSorted = __gnu_cxx::is_sorted(newGenBarcodes->begin(), newGenBarcodes->end());
 
-  for( size_t i = 0; i < cands.size(); ++ i ) {
-    reco::GenParticle & cand = cands[ i ];
+  for (size_t i = 0; i < cands.size(); ++i) {
+    reco::GenParticle &cand = cands[i];
     size_t nDaus = cand.numberOfDaughters();
     GenParticleRefVector daus = cand.daughterRefVector();
-    cand.resetDaughters( ref.id() );
-    for ( size_t d = 0; d < nDaus; ++d) {
-      cand.addDaughter( GenParticleRef( ref, daus[d].key() ) );
+    cand.resetDaughters(ref.id());
+    for (size_t d = 0; d < nDaus; ++d) {
+      cand.addDaughter(GenParticleRef(ref, daus[d].key()));
     }
 
     size_t nMoms = cand.numberOfMothers();
     GenParticleRefVector moms = cand.motherRefVector();
-    cand.resetMothers( ref.id() );
-    for ( size_t m = 0; m < nMoms; ++m) {
-      cand.addMother( GenParticleRef( ref, moms[m].key() ) );
+    cand.resetMothers(ref.id());
+    for (size_t m = 0; m < nMoms; ++m) {
+      cand.addMother(GenParticleRef(ref, moms[m].key()));
     }
   }
 
-  for (SimTrackContainer::const_iterator isimtrk = simtracks->begin();
-       isimtrk != simtracks->end(); ++isimtrk) {
-
+  for (SimTrackContainer::const_iterator isimtrk = simtracks->begin(); isimtrk != simtracks->end(); ++isimtrk) {
     // Skip PYTHIA tracks.
-    if (isimtrk->genpartIndex() != -1) continue;
+    if (isimtrk->genpartIndex() != -1)
+      continue;
 
     // Maybe apply the PdgId filter
-    if (!pdgIds_.empty()) { // if we have a filter on pdg ids
-      if (pdgIds_.find(std::abs(isimtrk->type())) == pdgIds_.end()) continue;
+    if (!pdgIds_.empty()) {  // if we have a filter on pdg ids
+      if (pdgIds_.find(std::abs(isimtrk->type())) == pdgIds_.end())
+        continue;
     }
 
     // find simtrack that has a genParticle match to its parent
     // Look at the production vertex. If there is no vertex, I can do nothing...
     if (!isimtrk->noVertex()) {
-
       // Pick the vertex (isimtrk.vertIndex() is really an index)
       const SimVertex &vtx = (*simvertices)[isimtrk->vertIndex()];
 
       // Check if the vertex has a parent track (otherwise, we're lost)
       if (!vtx.noParent()) {
+        // Now note that vtx.parentIndex() is NOT an index, it's a track id, so I have to search for it
+        unsigned int idx = vtx.parentIndex();
+        SimTrackContainer::const_iterator it =
+            std::lower_bound(simtracksSorted->begin(), simtracksSorted->end(), idx, LessById());
+        if ((it != simtracksSorted->end()) && (it->trackId() == idx)) {  //it is the parent sim track
+          if (it->genpartIndex() != -1) {
+            std::vector<int>::const_iterator itIndex;
+            if (barcodesAreSorted) {
+              itIndex = std::lower_bound(genBarcodes->begin(), genBarcodes->end(), it->genpartIndex());
+            } else {
+              itIndex = std::find(genBarcodes->begin(), genBarcodes->end(), it->genpartIndex());
+            }
 
-	// Now note that vtx.parentIndex() is NOT an index, it's a track id, so I have to search for it
-	unsigned int idx = vtx.parentIndex();
-	SimTrackContainer::const_iterator it = std::lower_bound(simtracksSorted->begin(), simtracksSorted->end(), idx, LessById());
-	if ((it != simtracksSorted->end()) && (it->trackId() == idx)) { //it is the parent sim track
-	  if (it->genpartIndex() != -1) {
-	    std::vector<int>::const_iterator itIndex;
-	    if (barcodesAreSorted) {
-	      itIndex = std::lower_bound(genBarcodes->begin(), genBarcodes->end(), it->genpartIndex());
-	    } else {
-	      itIndex = std::find(       genBarcodes->begin(), genBarcodes->end(), it->genpartIndex());
-	    }
-
-	    // Check that I found something
-	    // I need to check '*itIndex == it->genpartIndex()' because lower_bound just finds the right spot for an item in a sorted list, not the item
-	    if ((itIndex != genBarcodes->end()) && (*itIndex == it->genpartIndex())) {
-	      // Ok, I'll make the genParticle for st and add it to the new collection updating the map and parent-child relationship
-	      // pass the mother and daughter sim tracks and the mother genParticle to method to create the daughter genParticle and recur
-	      unsigned int momidx = itIndex - genBarcodes->begin();
-	      addGenParticle(*it, *isimtrk, momidx, *simtracksSorted, *simvertices, *candsPtr, ref, *newGenBarcodes, barcodesAreSorted);
-	    }
-	  }
-	}
+            // Check that I found something
+            // I need to check '*itIndex == it->genpartIndex()' because lower_bound just finds the right spot for an item in a sorted list, not the item
+            if ((itIndex != genBarcodes->end()) && (*itIndex == it->genpartIndex())) {
+              // Ok, I'll make the genParticle for st and add it to the new collection updating the map and parent-child relationship
+              // pass the mother and daughter sim tracks and the mother genParticle to method to create the daughter genParticle and recur
+              unsigned int momidx = itIndex - genBarcodes->begin();
+              addGenParticle(*it,
+                             *isimtrk,
+                             momidx,
+                             *simtracksSorted,
+                             *simvertices,
+                             *candsPtr,
+                             ref,
+                             *newGenBarcodes,
+                             barcodesAreSorted);
+            }
+          }
+        }
       }
     }
   }
