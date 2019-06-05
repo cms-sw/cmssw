@@ -325,8 +325,10 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig) :
 
   sectors=new FPGASector*[NSector];
 
-  cout << "cabling DTC links :     "<<DTCLinkFile.fullPath()<<endl;
-  cout << "module cabling :     "<<moduleCablingFile.fullPath()<<endl;
+  if (debug1) {
+    cout << "cabling DTC links :     "<<DTCLinkFile.fullPath()<<endl;
+    cout << "module cabling :     "<<moduleCablingFile.fullPath()<<endl;
+  }
 
   cabling.init(DTCLinkFile.fullPath().c_str(),moduleCablingFile.fullPath().c_str());
 
@@ -334,15 +336,16 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig) :
     sectors[i]=new FPGASector(i);
   }
 
-  cout << "fit pattern :     "<<fitPatternFile.fullPath()<<endl;
-  cout << "process modules : "<<processingModulesFile.fullPath()<<endl;
-  cout << "memory modules :  "<<memoryModulesFile.fullPath()<<endl;
-  cout << "wires          :  "<<wiresFile.fullPath()<<endl;
+  if (debug1) {
+    cout << "fit pattern :     "<<fitPatternFile.fullPath()<<endl;
+    cout << "process modules : "<<processingModulesFile.fullPath()<<endl;
+    cout << "memory modules :  "<<memoryModulesFile.fullPath()<<endl;
+    cout << "wires          :  "<<wiresFile.fullPath()<<endl;
+  }
 
   fitpatternfile=fitPatternFile.fullPath();
 
-
-  cout << "Will read memory modules file"<<endl;
+  if (debug1) cout << "Will read memory modules file"<<endl;
 
   ifstream inmem(memoryModulesFile.fullPath().c_str());
   assert(inmem.good());
@@ -361,7 +364,7 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig) :
   }
 
 
-  cout << "Will read processing modules file"<<endl;
+  if (debug1) cout << "Will read processing modules file"<<endl;
 
   ifstream inproc(processingModulesFile.fullPath().c_str());
   assert(inproc.good());
@@ -380,7 +383,7 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig) :
   }
 
 
-  cout << "Will read wiring information"<<endl;
+  if (debug1) cout << "Will read wiring information"<<endl;
 
   ifstream inwire(wiresFile.fullPath().c_str());
   assert(inwire.good());

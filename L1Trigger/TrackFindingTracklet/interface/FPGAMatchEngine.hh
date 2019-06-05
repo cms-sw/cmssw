@@ -309,6 +309,11 @@ public:
 	  if (barrel?table_[index]:(isPSmodule?tablePS_[index]:table2S_[index])) {
 	    FPGATracklet* proj=vmprojs_->getFPGATracklet(projindex);
 	    std::pair<FPGATracklet*,int> tmp(proj,vmprojs_->getAllProjIndex(projindex));
+            if (writeSeeds) {
+              ofstream fout("seeds.txt", ofstream::app);
+              fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_" << iSector_ << " " << proj->getISeed() << endl;
+              fout.close();
+            }
 	    candmatches_->addMatch(tmp,stub);
 	    countpass++;
 	  }

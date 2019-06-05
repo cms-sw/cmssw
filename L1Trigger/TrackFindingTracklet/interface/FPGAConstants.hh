@@ -13,13 +13,13 @@
 //(Please also follow the instructions in L1Trigger/TrackFindingTMTT/README_HLS.txt).
 //#define USE_HLS
 
-static unsigned int nHelixPar = 4; // 4 or 5 param helix fit.
-
 static bool doKF=false; //true => use KF (assumes USEHYBRID is defined)
 static bool printDebugKF=false; // if true print lots of debugging statements related to the KF fit
 static bool bookHistos=false;
 
-static bool hourglassExtended=false; // This is turn on Displaced Tracking. Also change the file in Tracklet_cfi from hourglass to hourglassExtended ****************
+static unsigned int nHelixPar = 4; // 4 or 5 param helix fit.
+static bool hourglassExtended=false; // This is turn on Displaced Tracking. Also edit L1TrackNtupleMaker_cfg.py, searching for and uncommenting "Extended" on several lines. ****************
+
 
 //Gemetry extensions
 static std::string geomext=hourglassExtended?"hourglassExtended":"hourglass";  
@@ -106,6 +106,7 @@ static bool tcorrection=true;
 static bool exactderivatives=false;  //for both the integer and float
 static bool exactderivativesforfloating=true; //only for the floating point
 static bool useapprox=true; //use approximate postion based on integer representation for floating point
+static bool usephicritapprox=true; //use approximate version of phicrit cut
 static int alphashift=12;  
 static int nbitsalpha=4;  //bits used to store alpha
 static int alphaBitsTable=2; //For number of bits in track derivative table
@@ -311,6 +312,10 @@ static double dphicritmc=0.005; //lose for MC
 static double phicritminmc=phicritmin-dphicritmc;
 static double phicritmaxmc=phicritmax+dphicritmc;
 
+// these are tuned such that all tracklets passing the exact phicrit cut also
+// pass the approximate version in high-pileup events
+static int phicritapproxminmc=9253;
+static int phicritapproxmaxmc=56269;
 
 static const unsigned int NLONGVMBITS=3; 
 static const unsigned int NLONGVMRBITS=3;   //4 bins on each side (+-z)
@@ -363,10 +368,10 @@ static int nbitsphiprojL123=nbitsphistubL123;
 static int nbitsphiprojL456=nbitsphistubL456;
 
 static int nbitszprojL123=12;
-static int nbitszprojL456=hourglassExtended?12:8;
+static int nbitszprojL456=8;
 
-static int nbitsphiprojderL123=hourglassExtended?16:8+2;
-static int nbitsphiprojderL456=hourglassExtended?16:8+2;
+static int nbitsphiprojderL123=8+2;
+static int nbitsphiprojderL456=8+2;
 
 static int nbitszprojderL123=8+2;
 static int nbitszprojderL456=7+2;
@@ -463,9 +468,9 @@ static int phiderdiskbitshift=20;
 static int rderdiskbitshift=7;
 
 
-static int phiresidbits=hourglassExtended?16:12; 
-static int zresidbits=hourglassExtended?16:9;
-static int rresidbits=hourglassExtended?16:7;
+static int phiresidbits=12; 
+static int zresidbits=9;
+static int rresidbits=7;
 
 //Trackfit
 static int fitrinvbitshift=9;  //6 OK?
@@ -480,16 +485,16 @@ static int chisqphifactbits=14;
 static int chisqzfactbits=14;
 
 //Duplicate Removal
-static int minIndStubs=3; // Not for merge removal
-
+static int minIndStubs=3; // not used with merge removal
+//"ichi" (pairwise, keep track with best ichisq), "nstub" (pairwise, keep track with more stubs), "grid" (TMTT-like removal), "" (no removal), "merge" (hybrid dup removal)
 #ifdef USEHYBRID
-static std::string RemovalType="ichi"; //"merge";
+static std::string RemovalType="merge";
 #else
 static std::string RemovalType="ichi";
 #endif
+//static std::string RemovalType=""; // Run without duplicate removal
 
-//"ichi" (pairwise, keep track with best ichisq), "nstub" (pairwise, keep track with more stubs), "grid" (TMTT-like removal), "" (no removal)
-static bool fakefit_5par=false; //if true, this would use KF 5-parameter fit for displaced tracking, false means use tracklet parameters instead (i.e. no fit)
+static bool fakefit=false; //if true, run a dummy fit, producing TTracks directly from output of tracklet pattern reco stage.
 
 #endif
 

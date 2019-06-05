@@ -21,7 +21,7 @@ public:
   IMATH_TrackletCalculatorOverlap(int i1, int i2)
   {
 
-#ifdef IMATH_TrackletCalculatorOverlap_debug
+#ifndef CMSSW_GIT_HASH
     printf("=============================================\n");
     printf("IMATH Tracklet Calculator for Overlap %i %i",i1,i2);
     printf("dphisector = %f\n",dphisector);

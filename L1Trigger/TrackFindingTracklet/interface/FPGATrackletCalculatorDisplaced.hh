@@ -1037,10 +1037,8 @@ public:
     int irinv,iphi0,id0,it,iz0;
     bool validproj[4];
     int iphiproj[4],izproj[4],iphider[4],izder[4];
-    bool minusNeighbor[4],plusNeighbor[4];
     bool validprojdisk[5];
     int iphiprojdisk[5],irprojdisk[5],iphiderdisk[5],irderdisk[5];
-    bool minusNeighborDisk[5],plusNeighborDisk[5];
       
     //store the binary results
     irinv = rinvapprox / krinv;
@@ -1059,9 +1057,6 @@ public:
       validproj[i] = true;
       if (izproj[i]<-(1<<(nbitszprojL123-1))) validproj[i]=false;
       if (izproj[i]>=(1<<(nbitszprojL123-1))) validproj[i]=false;
-      
-      minusNeighbor[i]=false;
-      plusNeighbor[i]=false;
 
       //this is left from the original....
       if (iphiproj[i]>=(1<<nbitsphistubL456)-1) {
@@ -1082,7 +1077,14 @@ public:
 	validproj[i] = false;
       }
 
-      
+      if (rproj_[i]<60.0) {
+        if (iphider[i]<-(1<<(nbitsphiprojderL123-1))) iphider[i] = -(1<<(nbitsphiprojderL123-1));
+        if (iphider[i]>=(1<<(nbitsphiprojderL123-1))) iphider[i] = (1<<(nbitsphiprojderL123-1))-1;
+      }
+      else {
+        if (iphider[i]<-(1<<(nbitsphiprojderL456-1))) iphider[i] = -(1<<(nbitsphiprojderL456-1));
+        if (iphider[i]>=(1<<(nbitsphiprojderL456-1))) iphider[i] = (1<<(nbitsphiprojderL456-1))-1;
+      }
     }
 
     if(fabs(it * kt)<1.0) {
@@ -1099,36 +1101,26 @@ public:
 
 	iphiderdisk[i] = phiderdiskapprox[i] / kphiderdisk;
 	irderdisk[i]   = rderdiskapprox[i] / krderdisk;
-      
-	minusNeighborDisk[i]=false;
-	plusNeighborDisk[i]=false;
-     
-	if (iphiprojdisk[i]<0) {
-	  iphiprojdisk[i]=0;
-	  validprojdisk[i]=false;
-	}
-	if (iphiprojdisk[i]>=(1<<nbitsphistubL123)) {
-	  iphiprojdisk[i]=(1<<nbitsphistubL123)-1;
-	  validprojdisk[i]=false;
-	}
-      
 	//"protection" from the original
-	if (iphiprojdisk[i]<0) {
+	if (iphiprojdisk[i]<=0) {
 	  iphiprojdisk[i]=0;
 	  validprojdisk[i]=false;
 	}
-	if (iphiprojdisk[i]>=(1<<nbitsphistubL123)) {
+	if (iphiprojdisk[i]>=(1<<nbitsphistubL123)-1) {
 	  iphiprojdisk[i]=(1<<nbitsphistubL123)-1;
 	  validprojdisk[i]=false;
 	}
 	
-	if(irprojdisk[i]< 20. / krprojdisk || irprojdisk[i] > 120. / krprojdisk ){
+	if(rprojdiskapprox[i]< 20. || rprojdiskapprox[i] > 120.){
 	  validprojdisk[i]=false;
 	  irprojdisk[i] = 0;
 	  iphiprojdisk[i] = 0;
 	  iphiderdisk[i]  = 0;
 	  irderdisk[i]    = 0;
 	}
+
+        if (iphiderdisk[i]<-(1<<(nbitsphiprojderL123-1))) iphiderdisk[i] = -(1<<(nbitsphiprojderL123-1));
+        if (iphiderdisk[i]>=(1<<(nbitsphiprojderL123-1))) iphiderdisk[i] = (1<<(nbitsphiprojderL123-1))-1;
       }
     }
 
@@ -1151,31 +1143,18 @@ public:
     if (!success) return false;
 
     double phicrit=phi0approx-asin(0.5*rcrit*rinvapprox);
-    bool keep=(phicrit>phicritminmc)&&(phicrit<phicritmaxmc);
-    if (!keep) return false;
-    
-    for(unsigned int j=0;j<toZ_.size();j++){
-      if (minusNeighborDisk[j]) {
-	phiprojdiskapprox[j]+=dphisector;
-	phiprojdisk[j]+=dphisector;
-      }
-      if (plusNeighborDisk[j]) {
-	phiprojdiskapprox[j]-=dphisector;
-	phiprojdisk[j]-=dphisector;
-      }
+    int phicritapprox=iphi0-2*irinv;
+    bool keep=(phicrit>phicritminmc)&&(phicrit<phicritmaxmc),
+         keepapprox=(phicritapprox>phicritapproxminmc)&&(phicritapprox<phicritapproxmaxmc);
+    if (debug1)
+      if (keep && !keepapprox)
+        cout << "FPGATrackletCalculatorDisplaced::LLLSeeding tracklet kept with exact phicrit cut but not approximate, phicritapprox: " << phicritapprox << endl;
+    if (!usephicritapprox) {
+      if (!keep) return false;
     }
-	  
-    for(unsigned int j=0;j<toR_.size();j++){
-      if (minusNeighbor[j]) {
-	phiprojapprox[j]+=dphisector;
-	phiproj[j]+=dphisector;
-      }
-      if (plusNeighbor[j]) {
-	phiprojapprox[j]-=dphisector;
-	phiproj[j]-=dphisector;
-      }	    
+    else {
+      if (!keepapprox) return false;
     }
-    
     
     if (writeTrackletPars) {
       static ofstream out("trackletpars.txt");
@@ -1351,10 +1330,8 @@ public:
     int irinv,iphi0,id0,it,iz0;
     bool validproj[4];
     int iphiproj[4],izproj[4],iphider[4],izder[4];
-    bool minusNeighbor[4],plusNeighbor[4];
     bool validprojdisk[5];
     int iphiprojdisk[5],irprojdisk[5],iphiderdisk[5],irderdisk[5];
-    bool minusNeighborDisk[5],plusNeighborDisk[5];
       
     //store the binary results
     irinv = rinvapprox / krinv;
@@ -1374,9 +1351,6 @@ public:
       if (izproj[i]<-(1<<(nbitszprojL123-1))) validproj[i]=false;
       if (izproj[i]>=(1<<(nbitszprojL123-1))) validproj[i]=false;
       
-      minusNeighbor[i]=false;
-      plusNeighbor[i]=false;
- 
       //this is left from the original....
       if (iphiproj[i]>=(1<<nbitsphistubL456)-1) {
 	iphiproj[i]=(1<<nbitsphistubL456)-2; //-2 not to hit atExtreme
@@ -1396,7 +1370,14 @@ public:
 	validproj[i] = false;
       }
 
-      
+      if (rproj_[i]<60.0) {
+        if (iphider[i]<-(1<<(nbitsphiprojderL123-1))) iphider[i] = -(1<<(nbitsphiprojderL123-1));
+        if (iphider[i]>=(1<<(nbitsphiprojderL123-1))) iphider[i] = (1<<(nbitsphiprojderL123-1))-1;
+      }
+      else {
+        if (iphider[i]<-(1<<(nbitsphiprojderL456-1))) iphider[i] = -(1<<(nbitsphiprojderL456-1));
+        if (iphider[i]>=(1<<(nbitsphiprojderL456-1))) iphider[i] = (1<<(nbitsphiprojderL456-1))-1;
+      }
     }
 
     if(fabs(it * kt)<1.0) {
@@ -1414,28 +1395,15 @@ public:
 	iphiderdisk[i] = phiderdiskapprox[i] / kphiderdisk;
 	irderdisk[i]   = rderdiskapprox[i] / krderdisk;
       
-	minusNeighborDisk[i]=false;
-	plusNeighborDisk[i]=false;
-
-	if (iphiprojdisk[i]<0) {
+	if (iphiprojdisk[i]<=0) {
 	  iphiprojdisk[i]=0;
 	  validprojdisk[i]=false;
 	}
-	if (iphiprojdisk[i]>=(1<<nbitsphistubL123)) {
+	if (iphiprojdisk[i]>=(1<<nbitsphistubL123)-1) {
 	  iphiprojdisk[i]=(1<<nbitsphistubL123)-1;
 	  validprojdisk[i]=false;
 	}
       
-	//"protection" from the original
-	if (iphiprojdisk[i]<0) {
-	  iphiprojdisk[i]=0;
-	  validprojdisk[i]=false;
-	}
-	if (iphiprojdisk[i]>=(1<<nbitsphistubL123)) {
-	  iphiprojdisk[i]=(1<<nbitsphistubL123)-1;
-	  validprojdisk[i]=false;
-	}
-	
 	if(irprojdisk[i]< 20. / krprojdisk || irprojdisk[i] > 120. / krprojdisk ){
 	  validprojdisk[i]=false;
 	  irprojdisk[i] = 0;
@@ -1443,6 +1411,9 @@ public:
 	  iphiderdisk[i]  = 0;
 	  irderdisk[i]    = 0;
 	}
+
+        if (iphiderdisk[i]<-(1<<(nbitsphiprojderL123-1))) iphiderdisk[i] = -(1<<(nbitsphiprojderL123-1));
+        if (iphiderdisk[i]>=(1<<(nbitsphiprojderL123-1))) iphiderdisk[i] = (1<<(nbitsphiprojderL123-1))-1;
       }
     }
 
@@ -1465,33 +1436,18 @@ public:
     if (!success) return false;
 
     double phicrit=phi0approx-asin(0.5*rcrit*rinvapprox);
-    bool keep=(phicrit>phicritminmc)&&(phicrit<phicritmaxmc);
-    if(debug1)
-      cout<<phicrit<< "\t"<<phicritminmc<<"\t"<<phicritmaxmc<<"\n";
-    if (!keep) return false;
-    
-    for(unsigned int j=0;j<toZ_.size();j++){
-      if (minusNeighborDisk[j]) {
-	phiprojdiskapprox[j]+=dphisector;
-	phiprojdisk[j]+=dphisector;
-      }
-      if (plusNeighborDisk[j]) {
-	phiprojdiskapprox[j]-=dphisector;
-	phiprojdisk[j]-=dphisector;
-      }
+    int phicritapprox=iphi0-2*irinv;
+    bool keep=(phicrit>phicritminmc)&&(phicrit<phicritmaxmc),
+         keepapprox=(phicritapprox>phicritapproxminmc)&&(phicritapprox<phicritapproxmaxmc);
+    if (debug1)
+      if (keep && !keepapprox)
+        cout << "FPGATrackletCalculatorDisplaced::DDLSeeding tracklet kept with exact phicrit cut but not approximate, phicritapprox: " << phicritapprox << endl;
+    if (!usephicritapprox) {
+      if (!keep) return false;
     }
-	  
-    for(unsigned int j=0;j<toR_.size();j++){
-      if (minusNeighbor[j]) {
-	phiprojapprox[j]+=dphisector;
-	phiproj[j]+=dphisector;
-      }
-      if (plusNeighbor[j]) {
-	phiprojapprox[j]-=dphisector;
-	phiproj[j]-=dphisector;
-      }	    
+    else {
+      if (!keepapprox) return false;
     }
-    
     
     if (writeTrackletPars) {
       static ofstream out("trackletpars.txt");
@@ -1661,10 +1617,8 @@ public:
     int irinv,iphi0,id0,it,iz0;
     bool validproj[4];
     int iphiproj[4],izproj[4],iphider[4],izder[4];
-    bool minusNeighbor[4],plusNeighbor[4];
     bool validprojdisk[5];
     int iphiprojdisk[5],irprojdisk[5],iphiderdisk[5],irderdisk[5];
-    bool minusNeighborDisk[5],plusNeighborDisk[5];
       
     //store the binary results
     irinv = rinvapprox / krinv;
@@ -1684,9 +1638,6 @@ public:
       if (izproj[i]<-(1<<(nbitszprojL123-1))) validproj[i]=false;
       if (izproj[i]>=(1<<(nbitszprojL123-1))) validproj[i]=false;
       
-      minusNeighbor[i]=false;
-      plusNeighbor[i]=false;
- 
       //this is left from the original....
       if (iphiproj[i]>=(1<<nbitsphistubL456)-1) {
 	iphiproj[i]=(1<<nbitsphistubL456)-2; //-2 not to hit atExtreme
@@ -1706,7 +1657,14 @@ public:
 	validproj[i] = false;
       }
 
-      
+      if (rproj_[i]<60.0) {
+        if (iphider[i]<-(1<<(nbitsphiprojderL123-1))) iphider[i] = -(1<<(nbitsphiprojderL123-1));
+        if (iphider[i]>=(1<<(nbitsphiprojderL123-1))) iphider[i] = (1<<(nbitsphiprojderL123-1))-1;
+      }
+      else {
+        if (iphider[i]<-(1<<(nbitsphiprojderL456-1))) iphider[i] = -(1<<(nbitsphiprojderL456-1));
+        if (iphider[i]>=(1<<(nbitsphiprojderL456-1))) iphider[i] = (1<<(nbitsphiprojderL456-1))-1;
+      }
     }
 
     if(fabs(it * kt)<1.0) {
@@ -1724,28 +1682,15 @@ public:
 	iphiderdisk[i] = phiderdiskapprox[i] / kphiderdisk;
 	irderdisk[i]   = rderdiskapprox[i] / krderdisk;
       
-	minusNeighborDisk[i]=false;
-	plusNeighborDisk[i]=false;
-
-	if (iphiprojdisk[i]<0) {
+	if (iphiprojdisk[i]<=0) {
 	  iphiprojdisk[i]=0;
 	  validprojdisk[i]=false;
 	}
-	if (iphiprojdisk[i]>=(1<<nbitsphistubL123)) {
+	if (iphiprojdisk[i]>=(1<<nbitsphistubL123)-1) {
 	  iphiprojdisk[i]=(1<<nbitsphistubL123)-1;
 	  validprojdisk[i]=false;
 	}
       
-	//"protection" from the original
-	if (iphiprojdisk[i]<0) {
-	  iphiprojdisk[i]=0;
-	  validprojdisk[i]=false;
-	}
-	if (iphiprojdisk[i]>=(1<<nbitsphistubL123)) {
-	  iphiprojdisk[i]=(1<<nbitsphistubL123)-1;
-	  validprojdisk[i]=false;
-	}
-	
 	if(irprojdisk[i]< 20. / krprojdisk || irprojdisk[i] > 120. / krprojdisk ){
 	  validprojdisk[i]=false;
 	  irprojdisk[i] = 0;
@@ -1753,6 +1698,9 @@ public:
 	  iphiderdisk[i]  = 0;
 	  irderdisk[i]    = 0;
 	}
+
+        if (iphiderdisk[i]<-(1<<(nbitsphiprojderL123-1))) iphiderdisk[i] = -(1<<(nbitsphiprojderL123-1));
+        if (iphiderdisk[i]>=(1<<(nbitsphiprojderL123-1))) iphiderdisk[i] = (1<<(nbitsphiprojderL123-1))-1;
       }
     }
 
@@ -1775,31 +1723,18 @@ public:
     if (!success) return false;
 
     double phicrit=phi0approx-asin(0.5*rcrit*rinvapprox);
-    bool keep=(phicrit>phicritminmc)&&(phicrit<phicritmaxmc);
-    if (!keep) return false;
-    
-    for(unsigned int j=0;j<toZ_.size();j++){
-      if (minusNeighborDisk[j]) {
-	phiprojdiskapprox[j]+=dphisector;
-	phiprojdisk[j]+=dphisector;
-      }
-      if (plusNeighborDisk[j]) {
-	phiprojdiskapprox[j]-=dphisector;
-	phiprojdisk[j]-=dphisector;
-      }
+    int phicritapprox=iphi0-2*irinv;
+    bool keep=(phicrit>phicritminmc)&&(phicrit<phicritmaxmc),
+         keepapprox=(phicritapprox>phicritapproxminmc)&&(phicritapprox<phicritapproxmaxmc);
+    if (debug1)
+      if (keep && !keepapprox)
+        cout << "FPGATrackletCalculatorDisplaced::LLDSeeding tracklet kept with exact phicrit cut but not approximate, phicritapprox: " << phicritapprox << endl;
+    if (!usephicritapprox) {
+      if (!keep) return false;
     }
-	  
-    for(unsigned int j=0;j<toR_.size();j++){
-      if (minusNeighbor[j]) {
-	phiprojapprox[j]+=dphisector;
-	phiproj[j]+=dphisector;
-      }
-      if (plusNeighbor[j]) {
-	phiprojapprox[j]-=dphisector;
-	phiproj[j]-=dphisector;
-      }	    
+    else {
+      if (!keepapprox) return false;
     }
-    
     
     if (writeTrackletPars) {
       static ofstream out("trackletpars.txt");

@@ -293,7 +293,7 @@ public:
       rphicutPS_[10]=0.0;
       rcutPS_[10]=0.0;
       rphicut2S_[10]=0.8/(kphiproj123*kr);
-      rcut2S_[10]=5.0/krprojshiftdisk;      
+      rcut2S_[10]=3.8/krprojshiftdisk;      
       rphicutPS_[11]=0.2/(kphiproj123*kr);
       rcutPS_[11]=0.4/krprojshiftdisk;
       rphicut2S_[11]=0.1/(kphiproj123*kr);

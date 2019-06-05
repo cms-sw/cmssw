@@ -21,7 +21,7 @@ public:
   IMATH_TrackletCalculatorDisk(int i1, int i2)
   {
 
-#ifdef IMATH_TrackletCalculatorDisk_debug
+#ifndef CMSSW_GIT_HASH
     printf("=============================================\n");
     printf("IMATH Tracklet Calculator for Disk %i %i",i1,i2);
     printf("dphisector = %f\n",dphisector);
@@ -34,7 +34,7 @@ public:
     printf(" disk proj Ks: kphiprojdisk, kphiprojderdisk, krprojdisk, krprojderdisk = %g, %g, %g, %g\n",
 	   kphi1*pow(2,SS_phiD_shift), kphi1/kr*pow(2,SS_phiderD_shift), kr*pow(2,PS_rD_shift),kr/kz*pow(2,PS_rderD_shift));
     printf("=============================================\n");
-#endif
+#endif 
 
     z1mean.set_fval(zmean[abs(i1)-1]);
     z2mean.set_fval(zmean[abs(i2)-1]);

@@ -48,7 +48,7 @@ public:
 
   void close() {
     if(h_file_) {
-      h_file_->ls();
+      //h_file_->ls();
       h_file_->Write();
       h_file_->Close();
       h_file_ = 0;
@@ -56,6 +56,8 @@ public:
   }
   
   void bookLayerResidual(){
+
+    TH1::AddDirectory(kTRUE); 
 
     assert(h_file_!=0);
     h_file_->cd();
@@ -74,6 +76,8 @@ public:
 
   void bookDiskResidual(){
 
+    TH1::AddDirectory(kTRUE); 
+
     assert(h_file_!=0);
     h_file_->cd();
 
@@ -91,6 +95,8 @@ public:
 
 
   void bookTrackletParams(){
+
+    TH1::AddDirectory(kTRUE); 
 
     assert(h_file_!=0);
     h_file_->cd();
@@ -237,6 +243,8 @@ public:
   }
 
   void bookSeedEff(){
+
+    TH1::AddDirectory(kTRUE); 
 
     assert(h_file_!=0);
     h_file_->cd();

@@ -269,7 +269,10 @@ public:
 	  if (overlap_) {
 	    assert(stubs_[j].first->getVMBitsOverlap().nbits()!=-1);
 	    stub+=stubs_[j].first->getVMBitsOverlap().str();
-	  } else {
+	  } else if (extra_) {
+            assert(stubs_[j].first->getVMBitsExtra().nbits()!=-1);
+            stub+=stubs_[j].first->getVMBitsExtra().str();
+          } else {
 	    assert(stubs_[j].first->getVMBits().nbits()!=-1);
 	    stub+=stubs_[j].first->getVMBits().str();
 	  }
@@ -305,8 +308,10 @@ public:
 	int ifinezbin=-1;
 	if (overlap_) {
 	  ifinezbin=stubsbinned_[i][j].first->getVMBitsOverlap().value();
-	} else {
-	  ifinezbin=stubsbinned_[i][j].first->getVMBits().value();
+	} else if (extra_) {
+          ifinezbin=stubsbinned_[i][j].first->getVMBitsExtra().value();
+	} else {  
+          ifinezbin=stubsbinned_[i][j].first->getVMBits().value();
 	}
 	assert(ifinezbin!=-1);
         FPGAWord finezbin;

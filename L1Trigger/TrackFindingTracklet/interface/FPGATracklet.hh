@@ -605,9 +605,11 @@ public:
 
   std::string addressstr() {
     std::ostringstream oss;
-    oss << innerFPGAStub_->phiregionaddressstr()<<"|" 
-	<< middleFPGAStub_->phiregionaddressstr()<<"|" 
-	<< outerFPGAStub_->phiregionaddressstr();
+    oss << innerFPGAStub_->phiregionaddressstr()<<"|";
+    if (middleFPGAStub_) {
+      oss << middleFPGAStub_->phiregionaddressstr()<<"|";
+    }
+    oss << outerFPGAStub_->phiregionaddressstr();
     
     return oss.str();
     
@@ -627,15 +629,18 @@ public:
     
     //Binary Print out
     if(!writeoutReal){
-      oss << innerFPGAStub_->stubindex().str()<<"|" 
-	  << middleFPGAStub_->stubindex().str()<<"|"
-	  << outerFPGAStub_->stubindex().str()<<"|"
+      oss << innerFPGAStub_->stubindex().str()<<"|";
+      if (middleFPGAStub_) {
+        oss << middleFPGAStub_->stubindex().str()<<"|";
+      }
+      oss << outerFPGAStub_->stubindex().str()<<"|"
 	  << fpgarinv_.str()<<"|"
 	  << fpgaphi0_.str()<<"|"
 	  << fpgad0_.str()<<"|"
 	  << fpgaz0_.str()<<"|"
 	  << fpgat_.str();
     }
+
     return oss.str();
   }
   
@@ -1682,9 +1687,11 @@ public:
         << (itfit_.value())*ktpars<<" "
         << (iz0fit_.value())*kz<<" "
       //<< ichisqfit_.str()<< "|"                            
-        << innerFPGAStub_->phiregionaddressstr()<<" "
-        << middleFPGAStub_->phiregionaddressstr()<<" "
-        << outerFPGAStub_->phiregionaddressstr()<<" "
+        << innerFPGAStub_->phiregionaddressstr()<<" ";
+    if (middleFPGAStub_) {
+      oss << middleFPGAStub_->phiregionaddressstr()<<" ";
+    }
+    oss << outerFPGAStub_->phiregionaddressstr()<<" "
 	<< stubid0<<"|"
 	<< stubid1<<"|"
 	<< stubid2<<"|"
@@ -1699,9 +1706,11 @@ public:
 	  << itfit_.str()<<"|"
 	  << iz0fit_.str()<<"|"
 	//<< ichisqfit_.str()<< "|"
-	  << innerFPGAStub_->phiregionaddressstr()<<"|"
-	  << middleFPGAStub_->phiregionaddressstr()<<"|"
-	  << outerFPGAStub_->phiregionaddressstr()<<"|"
+	  << innerFPGAStub_->phiregionaddressstr()<<"|";
+    if (middleFPGAStub_) {
+      oss << middleFPGAStub_->phiregionaddressstr()<<"|";
+    }
+      oss << outerFPGAStub_->phiregionaddressstr()<<"|"
 	  << stubid0<<"|"
 	  << stubid1<<"|"
 	  << stubid2<<"|"

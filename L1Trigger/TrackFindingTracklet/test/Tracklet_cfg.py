@@ -22,7 +22,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 # input
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 Source_Files = cms.untracked.vstring(
-"/store/relval/CMSSW_10_6_0_pre4/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/106X_upgrade2023_realistic_v2_2023D41noPU-v1/10000/F1B6D387-7EA9-0B47-8661-2D444502CD15.root"
+"/store/relval/CMSSW_10_6_0_pre4/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_106X_upgrade2023_realistic_v2_2023D41PU200-v1/10000/FEA5D564-937A-8D4B-9C9A-696EFC05AB58.root"
 )
 process.source = cms.Source("PoolSource", fileNames = Source_Files)
 

@@ -103,32 +103,30 @@ class FPGAHybridFit{
   73:  float   theta()      const  {return atan2(1., this->tanLambda());} // Use atan2 to ensure 0 < theta < pi.
   78:  float   zAtChosenR()   const  {return (this->z0() + (settings_->chosenRofZ()) * this->tanLambda());} // neglects transverse impact parameter & track curvature.
   */
-      float  kfz50=kfz0+50.0*kft;
 
-      if (kfz50 > 214.0){kf_eta_reg=17;}
-      else if (kfz50 > 172.0){kf_eta_reg=16;}
-      else if (kfz50 > 132.0){kf_eta_reg=15;}
-      else if (kfz50 > 98.0){kf_eta_reg=14;}
-      else if (kfz50 > 72.0){kf_eta_reg=13;}
-      else if (kfz50 > 51.0){kf_eta_reg=12;}
-      else if (kfz50 > 32.0){kf_eta_reg=11;}
-      else if (kfz50 > 16.0){kf_eta_reg=10;}
-      else if (kfz50 > 0.0){kf_eta_reg=9;}
-      else if (kfz50 > -16.0){kf_eta_reg=8;}
-      else if (kfz50 > -32.0){kf_eta_reg=7;}
-      else if (kfz50 > -51.0){kf_eta_reg=6;}
-      else if (kfz50 > -72.0){kf_eta_reg=5;}
-      else if (kfz50 > -98.0){kf_eta_reg=4;}
-      else if (kfz50 > -132.0){kf_eta_reg=3;}
-      else if (kfz50 > -172.0){kf_eta_reg=2;}
-      else if (kfz50 > -214.0){kf_eta_reg=1;}
-      else {kf_eta_reg=0;}
+  // Get range in z of tracks covered by this sector at chosen radius from beam-line
+
+      const vector<double> etaRegions = settings->etaRegions();
+      const float chosenRofZ = settings->chosenRofZ();
+
+      float  kfzRef = kfz0 + chosenRofZ*kft;
+
+      kf_eta_reg = 0;
+      for (unsigned int iEtaSec = 1; iEtaSec < etaRegions.size() - 1; iEtaSec++) { // Doesn't apply eta < 2.4 cut.
+        const float etaMax = etaRegions[iEtaSec];
+	const float zRefMax = chosenRofZ / tan( 2. * atan(exp(-etaMax)) );
+	if (kfzRef > zRefMax) kf_eta_reg = iEtaSec;
+      }
 
       int kf_phi_sec=tracklet->homeSector() -3;
       if(kf_phi_sec < 0){kf_phi_sec+=9;}      
 
 
       TMTT::L1track3D l1track3d(settings,TMTTstubs,celllocation,helixrphi,helixrz,-kfd0,kf_phi_sec,kf_eta_reg,1,false); //remember to change after fixing the d0 sign convention.
+      unsigned int seedType = tracklet->getISeed();
+      unsigned int numPS = tracklet->PSseed(); // Function PSseed() is out of date!
+      l1track3d.setSeedLayerType(seedType);
+      l1track3d.setSeedPS(numPS);
 
       // Create Kalman track fitter.
       static bool firstPrint = true;

@@ -80,7 +80,6 @@ public:
     inputstublists_.clear();
     mergedstubidslists_.clear();
     
-
     if(RemovalType!="merge") {
       for (unsigned int i=0;i<inputtrackfits_.size();i++) {
         if(inputtrackfits_[i]->nTracks()==0) continue;
@@ -103,6 +102,7 @@ public:
     if(RemovalType=="merge") {
 
       std::vector<std::pair<int,bool>> trackInfo; // Track seed & duplicate flag
+      std::vector<int> seedRank; // Vector to store the relative rank of the track candidate for merging, based on seed type
 
       // Get vectors from TrackFit and save them
       // inputtracklets: FPGATracklet objects from the FitTrack (not actually fit yet)
@@ -113,6 +113,7 @@ public:
         if(inputtrackfits_[i]->nStublists()==0) continue;
         if(inputtrackfits_[i]->nStublists() != inputtrackfits_[i]->nTracks()) throw "Number of stublists and tracks don't match up!";
         for(unsigned int j=0;j<inputtrackfits_[i]->nStublists();j++){
+          FPGATracklet* aTrack=inputtrackfits_[i]->getTrack(j);
           inputtracklets_.push_back(inputtrackfits_[i]->getTrack(j));
 
           std::vector<std::pair<FPGAStub*,L1TStub*>> stublist = inputtrackfits_[i]->getStublist(j);
@@ -122,11 +123,40 @@ public:
           inputstubidslists_.push_back(stubidslist);
           mergedstubidslists_.push_back(stubidslist);
 
+          // Encoding: L1L2=1, L1D1=21, L2L3=2, L2D1=22, D1D2=11, L3L4=3, L5L6=5, D3D4=13
+          // Best Guess:          L1L2 > L1D1 > L2L3 > L2D1 > D1D2 > L3L4 > L5L6 > D3D4 (1,21,2,22,11,3,5,13)
+          // Best Rank:           L1L2 > L3L4 > D3D4 > D1D2 > L2L3 > L2D1 > L5L6 > L1D1 (1,3,13,11,2,22,5,21)
+          // Rank-Informed Guess: L1L2 > L3L4 > L1D1 > L2L3 > L2D1 > D1D2 > L5L6 > D3D4
+          int curSeed = abs(aTrack->seed());
+          if (curSeed == 1) {
+            seedRank.push_back(1);
+          } else if (curSeed == 3) {
+            seedRank.push_back(2);
+          } else if (curSeed == 13) {
+            seedRank.push_back(3);
+          } else if (curSeed == 11) {
+            seedRank.push_back(4);
+          } else if (curSeed == 2) {
+            seedRank.push_back(5);
+          } else if (curSeed == 22) {
+            seedRank.push_back(6);
+          } else if (curSeed == 5) {
+            seedRank.push_back(7);
+          } else if (curSeed == 21) {
+            seedRank.push_back(8);
+          } else if (hourglassExtended) {
+            seedRank.push_back(9);
+          } else {
+            cout << "Error: Seed " << curSeed << " not found in list, and hourglassExtended not set." << endl;
+            assert(0);
+          }
+
           if(stublist.size() != stubidslist.size()) throw "Number of stubs and stubids don't match up!";
 
           trackInfo.push_back(std::pair<int,bool>(i,false));
         }
       }
+
       if(inputtracklets_.size()==0) return;
       unsigned int numStublists = inputstublists_.size();
 
@@ -152,15 +182,30 @@ public:
 
           // Count shared stubs
           int nShare = 0;
+          // Count number of Unique Regions (UR) that share stubs
+          int nShareUR = 0;
+          bool URArray[16];
+          for (int i=0; i<16; i++) { URArray[i] = false; };
+
           for(std::vector<std::pair<int, int>>::iterator  st1=stubsTrk1.begin(); st1!=stubsTrk1.end(); st1++) {
             for(std::vector<std::pair<int, int>>::iterator  st2=stubsTrk2.begin(); st2!=stubsTrk2.end(); st2++) {
-              if(st1->first==st2->first && st1->second==st2->second) nShare++;
+              if(st1->first==st2->first && st1->second==st2->second)
+              {
+                nShare++;
+                int i = st1->first;
+                 int reg = (i>0&&i<10)*(i-1) + (i>10)*(i-5) - (i<0)*i;
+                if (!URArray[reg])
+                {
+                  nShareUR ++;
+                  URArray[reg] = true;
+                }
+              }
             }
           }
           
           // Fill duplicate map
           // !!FIXME!! This is completely unoptimized. Just an educated guess
-          if(nShare >=3) {
+          if (nShareUR >=3) {
             dupMap[itrk][jtrk] = true;
             dupMap[jtrk][itrk] = true;
           }
@@ -173,32 +218,42 @@ public:
         for(unsigned int jtrk=itrk+1; jtrk<numStublists; jtrk++) {
           // Merge a track with its first duplicate found. 
           if(dupMap[itrk][jtrk]) {
+            // Set preferred track based on seed rank
+            int preftrk;
+            int rejetrk;
+            if (seedRank[itrk] < seedRank[jtrk]) {
+              preftrk = itrk;
+              rejetrk = jtrk;
+            } else {
+              preftrk = jtrk;
+              rejetrk = itrk;
+            }
 
             // Get a merged stub list
             std::vector<std::pair<FPGAStub*,L1TStub*>> newStubList;
-            std::vector<std::pair<FPGAStub*,L1TStub*>> stubsTrk1 = inputstublists_[itrk];
-            std::vector<std::pair<FPGAStub*,L1TStub*>> stubsTrk2 = inputstublists_[jtrk];
+            std::vector<std::pair<FPGAStub*,L1TStub*>> stubsTrk1 = inputstublists_[rejetrk];
+            std::vector<std::pair<FPGAStub*,L1TStub*>> stubsTrk2 = inputstublists_[preftrk];
             newStubList = stubsTrk1;
             newStubList.insert(newStubList.end(),stubsTrk2.begin(),stubsTrk2.end());
             sort( newStubList.begin(), newStubList.end() );
             // Erase duplicate stubs
             newStubList.erase( unique( newStubList.begin(), newStubList.end() ), newStubList.end() );
-            // Overwrite stublist of track 2 with merged list
-            inputstublists_[jtrk] = newStubList;
+            // Overwrite stublist of preferred track with merged list
+            inputstublists_[preftrk] = newStubList;
 
             std::vector<std::pair<int,int>> newStubidsList;
-            std::vector<std::pair<int,int>> stubidsTrk1 = mergedstubidslists_[itrk];
-            std::vector<std::pair<int,int>> stubidsTrk2 = mergedstubidslists_[jtrk];
+            std::vector<std::pair<int,int>> stubidsTrk1 = mergedstubidslists_[rejetrk];
+            std::vector<std::pair<int,int>> stubidsTrk2 = mergedstubidslists_[preftrk];
             newStubidsList = stubidsTrk1;
             newStubidsList.insert(newStubidsList.end(),stubidsTrk2.begin(),stubidsTrk2.end());
             sort( newStubidsList.begin(), newStubidsList.end() );
             // Erase duplicate stubs
             newStubidsList.erase( unique( newStubidsList.begin(), newStubidsList.end() ), newStubidsList.end() );
-            // Overwrite stubidslist of track2 with merged list
-            mergedstubidslists_[jtrk] = newStubidsList;
+            // Overwrite stubidslist of preferred track with merged list
+            mergedstubidslists_[preftrk] = newStubidsList;
 
-            // Mark that track 1 has been merged into track 2
-            trackInfo[itrk].second = true;
+            // Mark that rejected track has been merged into another track
+            trackInfo[rejetrk].second = true;
           }
         }
       }

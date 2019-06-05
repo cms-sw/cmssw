@@ -163,6 +163,11 @@ public:
       zprojoverlap_[3]=zmeanD5;
     }
     
+    if (usephicritapprox) {
+      double phicritFactor = 0.5 * rcrit * FPGATrackletCalculator::ITC_L1L2.rinv_final.get_K() / FPGATrackletCalculator::ITC_L1L2.phi0_final.get_K();
+      if (fabs(phicritFactor - 2.) > 0.25)
+        cout << "FPGATrackletCalculator::FPGATrackletCalculator phicrit approximation may be invalid! Please check." << endl;
+    }
   }
   
   void addOutputProjection(FPGATrackletProjections* &outputProj, FPGAMemoryBase* memory){
@@ -900,7 +905,14 @@ public:
 	validproj[i] = false;
       }
 
-      
+      if (rproj_[i]<60.0) {
+        if (iphider[i]<-(1<<(nbitsphiprojderL123-1))) iphider[i] = -(1<<(nbitsphiprojderL123-1));
+        if (iphider[i]>=(1<<(nbitsphiprojderL123-1))) iphider[i] = (1<<(nbitsphiprojderL123-1))-1;
+      }
+      else {
+        if (iphider[i]<-(1<<(nbitsphiprojderL456-1))) iphider[i] = -(1<<(nbitsphiprojderL456-1));
+        if (iphider[i]>=(1<<(nbitsphiprojderL456-1))) iphider[i] = (1<<(nbitsphiprojderL456-1))-1;
+      }
     }
 
     iphiprojdisk[0] = ITC->phiD_0_final.get_ival();
@@ -925,22 +937,12 @@ public:
 	validprojdisk[i]=true;
 	iphiderdisk[i] = ITC->der_phiD_final.get_ival();
 	irderdisk[i]   = ITC->der_rD_final.get_ival();
-      
-	if (iphiprojdisk[i]<0) {
-	  iphiprojdisk[i]=0;
-	  validprojdisk[i]=false;
-	}
-	if (iphiprojdisk[i]>=(1<<nbitsphistubL123)) {
-	  iphiprojdisk[i]=(1<<nbitsphistubL123)-1;
-	  validprojdisk[i]=false;
-	}
-      
 	//"protection" from the original
-	if (iphiprojdisk[i]<0) {
+	if (iphiprojdisk[i]<=0) {
 	  iphiprojdisk[i]=0;
 	  validprojdisk[i]=false;
 	}
-	if (iphiprojdisk[i]>=(1<<nbitsphistubL123)) {
+	if (iphiprojdisk[i]>=(1<<nbitsphistubL123)-1) {
 	  iphiprojdisk[i]=(1<<nbitsphistubL123)-1;
 	  validprojdisk[i]=false;
 	}
@@ -952,6 +954,9 @@ public:
 	  iphiderdisk[i]  = 0;
 	  irderdisk[i]    = 0;
 	}
+
+        if (iphiderdisk[i]<-(1<<(nbitsphiprojderL123-1))) iphiderdisk[i] = -(1<<(nbitsphiprojderL123-1));
+        if (iphiderdisk[i]>=(1<<(nbitsphiprojderL123-1))) iphiderdisk[i] = (1<<(nbitsphiprojderL123-1))-1;
       }
     }
 
@@ -972,8 +977,18 @@ public:
     if (!success) return false;
 
     double phicrit=phi0approx-asin(0.5*rcrit*rinvapprox);
-    bool keep=(phicrit>phicritminmc)&&(phicrit<phicritmaxmc);
+    int phicritapprox=iphi0-2*irinv;
+    bool keep=(phicrit>phicritminmc)&&(phicrit<phicritmaxmc),
+         keepapprox=(phicritapprox>phicritapproxminmc)&&(phicritapprox<phicritapproxmaxmc);
+    if (debug1)
+      if (keep && !keepapprox)
+        cout << "FPGATrackletCalculator::barrelSeeding tracklet kept with exact phicrit cut but not approximate, phicritapprox: " << phicritapprox << endl;
+    if (!usephicritapprox) {
       if (!keep) return false;
+    }
+    else {
+      if (!keepapprox) return false;
+    }
     
     
     if (writeTrackletPars) {
@@ -1325,6 +1340,14 @@ public:
 	validproj[i] = false;
       }
 
+      if (rproj_[i]<60.0) {
+        if (iphider[i]<-(1<<(nbitsphiprojderL123-1))) iphider[i] = -(1<<(nbitsphiprojderL123-1));
+        if (iphider[i]>=(1<<(nbitsphiprojderL123-1))) iphider[i] = (1<<(nbitsphiprojderL123-1))-1;
+      }
+      else {
+        if (iphider[i]<-(1<<(nbitsphiprojderL456-1))) iphider[i] = -(1<<(nbitsphiprojderL456-1));
+        if (iphider[i]>=(1<<(nbitsphiprojderL456-1))) iphider[i] = (1<<(nbitsphiprojderL456-1))-1;
+      }
     }
 
     iphiprojdisk[0] = ITC->phiD_0_final.get_ival();
@@ -1339,11 +1362,18 @@ public:
       iphiderdisk[i] = ITC->der_phiD_final.get_ival();
       irderdisk[i]   = ITC->der_rD_final.get_ival();
       
-      //"protection" from the original
-      if (iphiprojdisk[i]<0) iphiprojdisk[i]=0;
-      if (iphiprojdisk[i]>=(1<<nbitsphistubL123)) iphiprojdisk[i]=(1<<nbitsphistubL123)-1;
-      
       validprojdisk[i]=true;
+
+      //"protection" from the original
+      if (iphiprojdisk[i]<=0) {
+        iphiprojdisk[i]=0;
+        validprojdisk[i]=false;
+      }
+      if (iphiprojdisk[i]>=(1<<nbitsphistubL123)-1) {
+        iphiprojdisk[i]=(1<<nbitsphistubL123)-1;
+        validprojdisk[i]=false;
+      }
+      
       if(irprojdisk[i]<=0 || irprojdisk[i] > 120. / ITC->rD_0_final.get_K() ){
 	validprojdisk[i]=false;
 	irprojdisk[i] = 0;
@@ -1351,6 +1381,9 @@ public:
 	iphiderdisk[i]  = 0;
 	irderdisk[i]    = 0;
       }
+
+      if (iphiderdisk[i]<-(1<<(nbitsphiprojderL123-1))) iphiderdisk[i] = -(1<<(nbitsphiprojderL123-1));
+      if (iphiderdisk[i]>=(1<<(nbitsphiprojderL123-1))) iphiderdisk[i] = (1<<(nbitsphiprojderL123-1))-1;
     }
 
     bool success = true;
@@ -1368,8 +1401,18 @@ public:
     if (!success) return false;
 
     double phicrit=phi0approx-asin(0.5*rcrit*rinvapprox);
-    bool keep=(phicrit>phicritminmc)&&(phicrit<phicritmaxmc);
-    if (!keep) return false;
+    int phicritapprox=iphi0-2*irinv;
+    bool keep=(phicrit>phicritminmc)&&(phicrit<phicritmaxmc),
+         keepapprox=(phicritapprox>phicritapproxminmc)&&(phicritapprox<phicritapproxmaxmc);
+    if (debug1)
+      if (keep && !keepapprox)
+        cout << "FPGATrackletCalculator::diskSeeding tracklet kept with exact phicrit cut but not approximate, phicritapprox: " << phicritapprox << endl;
+    if (!usephicritapprox) {
+      if (!keep) return false;
+    }
+    else {
+      if (!keepapprox) return false;
+    }
     
     if (writeTrackletParsDisk) {
       static ofstream out("trackletparsdisk.txt");
@@ -1681,7 +1724,7 @@ public:
       if (izproj[i]>=(1<<(nbitszprojL123-1))) validproj[i]=false;
 
       //this is left from the original....
-      if (iphiproj[i]>=(1<<nbitsphistubL456)) {
+      if (iphiproj[i]>=(1<<nbitsphistubL456)-1) {
 	iphiproj[i]=(1<<nbitsphistubL456)-2; //-2 not to hit atExtreme
 	validproj[i] = false;
       }
@@ -1697,7 +1740,14 @@ public:
 	validproj[i] = false;
       }
 
-      
+      if (rproj_[i]<60.0) {
+        if (iphider[i]<-(1<<(nbitsphiprojderL123-1))) iphider[i] = -(1<<(nbitsphiprojderL123-1));
+        if (iphider[i]>=(1<<(nbitsphiprojderL123-1))) iphider[i] = (1<<(nbitsphiprojderL123-1))-1;
+      }
+      else {
+        if (iphider[i]<-(1<<(nbitsphiprojderL456-1))) iphider[i] = -(1<<(nbitsphiprojderL456-1));
+        if (iphider[i]>=(1<<(nbitsphiprojderL456-1))) iphider[i] = (1<<(nbitsphiprojderL456-1))-1;
+      }
     }
 
     iphiprojdisk[0] = ITC->phiD_0_final.get_ival();
@@ -1714,11 +1764,18 @@ public:
       iphiderdisk[i] = ITC->der_phiD_final.get_ival();
       irderdisk[i]   = ITC->der_rD_final.get_ival();
 
-      //"protection" from the original
-      if (iphiprojdisk[i]<0) iphiprojdisk[i]=0;
-      if (iphiprojdisk[i]>=(1<<nbitsphistubL123)) iphiprojdisk[i]=(1<<nbitsphistubL123)-1;
-      
       validprojdisk[i]=true;
+
+      //"protection" from the original
+      if (iphiprojdisk[i]<=0) {
+        iphiprojdisk[i]=0;
+        validprojdisk[i]=false;
+      }
+      if (iphiprojdisk[i]>=(1<<nbitsphistubL123)-1) {
+        iphiprojdisk[i]=(1<<nbitsphistubL123)-1;
+        validprojdisk[i]=false;
+      }
+
       if(irprojdisk[i]<=0 || irprojdisk[i] > 120. / ITC->rD_0_final.get_K() ){
 	validprojdisk[i]=false;
 	irprojdisk[i] = 0;
@@ -1726,6 +1783,9 @@ public:
 	iphiderdisk[i]  = 0;
 	irderdisk[i]    = 0;
       }
+
+      if (iphiderdisk[i]<-(1<<(nbitsphiprojderL123-1))) iphiderdisk[i] = -(1<<(nbitsphiprojderL123-1));
+      if (iphiderdisk[i]>=(1<<(nbitsphiprojderL123-1))) iphiderdisk[i] = (1<<(nbitsphiprojderL123-1))-1;
     }
 
     bool success = true;
@@ -1764,12 +1824,17 @@ public:
     }
 
     double phicrit=phi0approx-asin(0.5*rcrit*rinvapprox);
-    bool keep=(phicrit>phicritminmc)&&(phicrit<phicritmaxmc);
-    if (!keep) {
-      if (debug1) {
-	cout << "FPGATrackletCalculator::OverlapSeeding fail phicrit "<<endl;
-      }
-      return false;
+    int phicritapprox=iphi0-2*irinv;
+    bool keep=(phicrit>phicritminmc)&&(phicrit<phicritmaxmc),
+         keepapprox=(phicritapprox>phicritapproxminmc)&&(phicritapprox<phicritapproxmaxmc);
+    if (debug1)
+      if (keep && !keepapprox)
+        cout << "FPGATrackletCalculator::overlapSeeding tracklet kept with exact phicrit cut but not approximate, phicritapprox: " << phicritapprox << endl;
+    if (!usephicritapprox) {
+      if (!keep) return false;
+    }
+    else {
+      if (!keepapprox) return false;
     }
     
 
