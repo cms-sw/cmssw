@@ -227,11 +227,11 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig) :
 
    // set jet algorithm
    if (jetAlgorithm_=="Kt")
-     fjJetDefinition_= JetDefPtr( new fastjet::JetDefinition(fastjet::kt_algorithm, rParam_) );
+     fjJetDefinition_= std::make_shared<fastjet::JetDefinition>( fastjet::kt_algorithm, rParam_ );
    else if (jetAlgorithm_=="CambridgeAachen")
-     fjJetDefinition_= JetDefPtr( new fastjet::JetDefinition(fastjet::cambridge_algorithm, rParam_) );
+     fjJetDefinition_= std::make_shared<fastjet::JetDefinition>( fastjet::cambridge_algorithm, rParam_ );
    else if (jetAlgorithm_=="AntiKt")
-     fjJetDefinition_= JetDefPtr( new fastjet::JetDefinition(fastjet::antikt_algorithm, rParam_) );
+     fjJetDefinition_= std::make_shared<fastjet::JetDefinition>( fastjet::antikt_algorithm, rParam_ );
    else
      throw cms::Exception("InvalidJetAlgorithm") << "Jet clustering algorithm is invalid: " << jetAlgorithm_ << ", use CambridgeAachen | Kt | AntiKt" << std::endl;
 
@@ -328,7 +328,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      insertGhosts(leptons, ghostRescaling_, false, false, false, true, fjInputs);
 
    // define jet clustering sequence
-   fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequence( fjInputs, *fjJetDefinition_ ) );
+   fjClusterSeq_ = std::make_shared<fastjet::ClusterSequence>( fjInputs, *fjJetDefinition_ );
    // recluster jet constituents and inserted "ghosts"
    std::vector<fastjet::PseudoJet> inclusiveJets = fastjet::sorted_by_pt( fjClusterSeq_->inclusive_jets(jetPtMin_) );
 
