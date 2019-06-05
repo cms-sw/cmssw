@@ -116,7 +116,7 @@ class CaloJetMETcorrInputProducerT final : public edm::global::EDProducer<>
 
     typedef edm::View<reco::MET> METView;
     edm::Handle<METView> met;
-    if ( srcMET_.label() != "" ) {
+    if ( !srcMET_.label().empty() ) {
       evt.getByToken(metToken_, met);
       if ( met->size() != 1 )
 	throw cms::Exception("CaloJetMETcorrInputProducer::produce")

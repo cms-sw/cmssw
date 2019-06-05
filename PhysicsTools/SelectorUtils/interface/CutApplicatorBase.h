@@ -59,7 +59,7 @@ class CutApplicatorBase : public candf::CandidateCut {
 #endif
     
   
-  result_type operator()(const argument_type&) const override
+  result_type operator()(const argument_type&) const 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     final
 #endif

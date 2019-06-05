@@ -74,7 +74,7 @@ class METCorrectionAlgorithm
 	    srcUnclEnergySum != srcUnclEnergySums.end(); ++srcUnclEnergySum )
 	{
 	  std::string instanceLabel = srcUnclEnergySum->instance();
-	  if ( instanceLabel != "" && binLabel_ != "" ) instanceLabel.append("#");
+	  if ( !instanceLabel.empty() && !binLabel_.empty() ) instanceLabel.append("#");
 	  instanceLabel.append(binLabel_);
 	  edm::InputTag inputTag(srcUnclEnergySum->label(), instanceLabel);
 	  corrTokens_.push_back(iConsumesCollector.consumes<CorrMETData>(inputTag));

@@ -50,7 +50,7 @@ class ShiftedMETcorrInputProducer : public edm::stream::EDProducer<>
     std::string getInstanceLabel_full(const std::string& instanceLabel)
     {
       std::string retVal = instanceLabel;
-      if ( instanceLabel != "" && binLabel_ != "" ) retVal.append("#");
+      if ( !instanceLabel.empty() && !binLabel_.empty() ) retVal.append("#");
       retVal.append(binLabel_);
       return retVal;
     }
