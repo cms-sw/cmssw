@@ -18,6 +18,6 @@ namespace reco {
   typedef edm::RefVector<ElectronSeedCollection> ElectronSeedRefVector;
   /// iterator over a vector of reference to ElectronSeed objects
   typedef ElectronSeedRefVector::iterator electronseed_iterator;
-}
+}  // namespace reco
 
 #endif

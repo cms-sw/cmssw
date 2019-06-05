@@ -22,17 +22,17 @@
 using namespace std;
 
 /*****************************************************************************/
-PixelTripletLowPtGenerator::PixelTripletLowPtGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC):
-  HitTripletGeneratorFromPairAndLayers(), // no theMaxElement used in this class
-  theTracker(nullptr),
-  theClusterShapeCacheToken(iC.consumes<SiPixelClusterShapeCache>(cfg.getParameter<edm::InputTag>("clusterShapeCacheSrc")))
-{
+PixelTripletLowPtGenerator::PixelTripletLowPtGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
+    : HitTripletGeneratorFromPairAndLayers(),  // no theMaxElement used in this class
+      theTracker(nullptr),
+      theClusterShapeCacheToken(
+          iC.consumes<SiPixelClusterShapeCache>(cfg.getParameter<edm::InputTag>("clusterShapeCacheSrc"))) {
   checkMultipleScattering = cfg.getParameter<bool>("checkMultipleScattering");
-  nSigMultipleScattering  = cfg.getParameter<double>("nSigMultipleScattering");
-  checkClusterShape       = cfg.getParameter<bool>("checkClusterShape"); 
-  rzTolerance             = cfg.getParameter<double>("rzTolerance");
-  maxAngleRatio           = cfg.getParameter<double>("maxAngleRatio");
-  builderName             = cfg.getParameter<string>("TTRHBuilder");
+  nSigMultipleScattering = cfg.getParameter<double>("nSigMultipleScattering");
+  checkClusterShape = cfg.getParameter<bool>("checkClusterShape");
+  rzTolerance = cfg.getParameter<double>("rzTolerance");
+  maxAngleRatio = cfg.getParameter<double>("maxAngleRatio");
+  builderName = cfg.getParameter<string>("TTRHBuilder");
 }
 
 /*****************************************************************************/
@@ -40,13 +40,9 @@ PixelTripletLowPtGenerator::~PixelTripletLowPtGenerator() {}
 
 /*****************************************************************************/
 
-
 /*****************************************************************************/
-void PixelTripletLowPtGenerator::getTracker
-  (const edm::EventSetup& es)
-{
-  if(theTracker == nullptr)
-  {
+void PixelTripletLowPtGenerator::getTracker(const edm::EventSetup& es) {
+  if (theTracker == nullptr) {
     // Get tracker geometry
     edm::ESHandle<TrackerGeometry> tracker;
     es.get<TrackerDigiGeometryRecord>().get(tracker);
@@ -54,60 +50,53 @@ void PixelTripletLowPtGenerator::getTracker
     theTracker = tracker.product();
   }
 
-  if(!theFilter)
-  {
+  if (!theFilter) {
     theFilter = std::make_unique<TripletFilter>(es);
   }
 }
 
 /*****************************************************************************/
-GlobalPoint PixelTripletLowPtGenerator::getGlobalPosition
-  (const TrackingRecHit* recHit)
-{
+GlobalPoint PixelTripletLowPtGenerator::getGlobalPosition(const TrackingRecHit* recHit) {
   DetId detId = recHit->geographicalId();
 
-  return
-    theTracker->idToDet(detId)->toGlobal(recHit->localPosition());
+  return theTracker->idToDet(detId)->toGlobal(recHit->localPosition());
 }
 
 /*****************************************************************************/
-void PixelTripletLowPtGenerator::hitTriplets(
-    const TrackingRegion& region,
-    OrderedHitTriplets & result,
-    const edm::Event & ev,
-    const edm::EventSetup& es,
-    const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
-    const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers)
-{
-
+void PixelTripletLowPtGenerator::hitTriplets(const TrackingRegion& region,
+                                             OrderedHitTriplets& result,
+                                             const edm::Event& ev,
+                                             const edm::EventSetup& es,
+                                             const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
+                                             const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers) {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
   es.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology *tTopo=tTopoHand.product();
+  const TrackerTopology* tTopo = tTopoHand.product();
 
   edm::Handle<SiPixelClusterShapeCache> clusterShapeCache;
   ev.getByToken(theClusterShapeCacheToken, clusterShapeCache);
 
   // Generate pairs
-  OrderedHitPairs pairs; pairs.reserve(30000);
-  thePairGenerator->hitPairs(region,pairs,ev,es, pairLayers);
+  OrderedHitPairs pairs;
+  pairs.reserve(30000);
+  thePairGenerator->hitPairs(region, pairs, ev, es, pairLayers);
 
-  if (pairs.empty()) return;
+  if (pairs.empty())
+    return;
 
   int size = thirdLayers.size();
 
   // Set aliases
-  const RecHitsSortedInPhi **thirdHitMap = new const RecHitsSortedInPhi*[size]; 
-  for(int il=0; il<size; il++)
+  const RecHitsSortedInPhi** thirdHitMap = new const RecHitsSortedInPhi*[size];
+  for (int il = 0; il < size; il++)
     thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, es);
 
   // Get tracker
   getTracker(es);
 
   // Look at all generated pairs
-  for(OrderedHitPairs::const_iterator ip = pairs.begin();
-                                      ip!= pairs.end(); ip++)
-  {
+  for (OrderedHitPairs::const_iterator ip = pairs.begin(); ip != pairs.end(); ip++) {
     // Fill rechits and points
     vector<const TrackingRecHit*> recHits(3);
     vector<GlobalPoint> points(3);
@@ -116,46 +105,40 @@ void PixelTripletLowPtGenerator::hitTriplets(
     recHits[1] = (*ip).outer()->hit();
 
 #ifdef Debug
-    cerr << " RecHits " + HitInfo::getInfo(*recHits[0]) +
-                          HitInfo::getInfo(*recHits[1]) << endl;
+    cerr << " RecHits " + HitInfo::getInfo(*recHits[0]) + HitInfo::getInfo(*recHits[1]) << endl;
 #endif
 
-    for(int i=0; i<2; i++)
+    for (int i = 0; i < 2; i++)
       points[i] = getGlobalPosition(recHits[i]);
 
     // Initialize helix prediction
-    ThirdHitPrediction
-      thePrediction(region,
-                    points[0],points[1], es,
-                    nSigMultipleScattering,maxAngleRatio,builderName);
+    ThirdHitPrediction thePrediction(
+        region, points[0], points[1], es, nSigMultipleScattering, maxAngleRatio, builderName);
 
     // Look at all layers
-    for(int il=0; il<size; il++)
-    {
-      const DetLayer * layer = thirdLayers[il].detLayer();
+    for (int il = 0; il < size; il++) {
+      const DetLayer* layer = thirdLayers[il].detLayer();
 
 #ifdef Debug
-      cerr << "  check layer " << layer->subDetector()
-                        << " " << layer->location() << endl;
+      cerr << "  check layer " << layer->subDetector() << " " << layer->location() << endl;
 #endif
 
       // Get ranges for the third hit
-      float phi[2],rz[2];
-      thePrediction.getRanges(layer, phi,rz);
+      float phi[2], rz[2];
+      thePrediction.getRanges(layer, phi, rz);
 
-      PixelRecoRange<float> phiRange(phi[0]              , phi[1]             );
-      PixelRecoRange<float>  rzRange( rz[0] - rzTolerance, rz[1] + rzTolerance);
+      PixelRecoRange<float> phiRange(phi[0], phi[1]);
+      PixelRecoRange<float> rzRange(rz[0] - rzTolerance, rz[1] + rzTolerance);
 
       // Get third hit candidates from cache
       typedef RecHitsSortedInPhi::Hit Hit;
-      vector<Hit> thirdHits = thirdHitMap[il]->hits(phiRange.min(),phiRange.max());
+      vector<Hit> thirdHits = thirdHitMap[il]->hits(phiRange.min(), phiRange.max());
       typedef vector<Hit>::const_iterator IH;
 
-      for (IH th=thirdHits.begin(), eh=thirdHits.end(); th < eh; ++th) 
-      {
+      for (IH th = thirdHits.begin(), eh = thirdHits.end(); th < eh; ++th) {
         // Fill rechit and point
         recHits[2] = (*th)->hit();
-        points[2]  = getGlobalPosition(recHits[2]);
+        points[2] = getGlobalPosition(recHits[2]);
 
 #ifdef Debug
         cerr << "  third hit " + HitInfo::getInfo(*recHits[2]) << endl;
@@ -163,17 +146,16 @@ void PixelTripletLowPtGenerator::hitTriplets(
 
         // Check if third hit is compatible with multiple scattering
         vector<GlobalVector> globalDirs;
-        if(thePrediction.isCompatibleWithMultipleScattering
-             (points[2], recHits, globalDirs, es) == false)
-        {
+        if (thePrediction.isCompatibleWithMultipleScattering(points[2], recHits, globalDirs, es) == false) {
 #ifdef Debug
           cerr << "  not compatible: multiple scattering" << endl;
 #endif
-          if(checkMultipleScattering) continue;
+          if (checkMultipleScattering)
+            continue;
         }
 
         // Convert to localDirs
-/*
+        /*
         vector<LocalVector> localDirs;
         vector<GlobalVector>::const_iterator globalDir = globalDirs.begin();
         for(vector<const TrackingRecHit *>::const_iterator
@@ -187,10 +169,8 @@ void PixelTripletLowPtGenerator::hitTriplets(
 */
 
         // Check if the cluster shapes are compatible with thrusts
-        if(checkClusterShape)
-        {
-          if(! theFilter->checkTrack(recHits,globalDirs,tTopo, *clusterShapeCache))
-          {
+        if (checkClusterShape) {
+          if (!theFilter->checkTrack(recHits, globalDirs, tTopo, *clusterShapeCache)) {
 #ifdef Debug
             cerr << "  not compatible: cluster shape" << endl;
 #endif
@@ -199,24 +179,20 @@ void PixelTripletLowPtGenerator::hitTriplets(
         }
 
         // All checks passed, put triplet back
-        result.push_back(OrderedHitTriplet((*ip).inner(),(*ip).outer(),*th));
+        result.push_back(OrderedHitTriplet((*ip).inner(), (*ip).outer(), *th));
       }
     }
-  } 
-  delete [] thirdHitMap;
+  }
+  delete[] thirdHitMap;
 
   return;
 }
-void PixelTripletLowPtGenerator::hitTriplets(
-					   const TrackingRegion& region, 
-					   OrderedHitTriplets & result,
-					   const edm::EventSetup & es,
-					   const HitDoublets & doublets,
-					   const RecHitsSortedInPhi ** thirdHitMap,
-					   const std::vector<const DetLayer *> & thirdLayerDetLayer,
-					   const int nThirdLayers)
-{
-  throw cms::Exception("Error")<<"PixelTripletLowPtGenerator::hitTriplets is not implemented \n";
+void PixelTripletLowPtGenerator::hitTriplets(const TrackingRegion& region,
+                                             OrderedHitTriplets& result,
+                                             const edm::EventSetup& es,
+                                             const HitDoublets& doublets,
+                                             const RecHitsSortedInPhi** thirdHitMap,
+                                             const std::vector<const DetLayer*>& thirdLayerDetLayer,
+                                             const int nThirdLayers) {
+  throw cms::Exception("Error") << "PixelTripletLowPtGenerator::hitTriplets is not implemented \n";
 }
-
-

@@ -12,8 +12,9 @@
 namespace reco {
 
   // association map
-  typedef edm::AssociationMap<edm::OneToOne<SuperClusterCollection, HFEMClusterShapeCollection> > HFEMClusterShapeAssociationCollection;
- 
+  typedef edm::AssociationMap<edm::OneToOne<SuperClusterCollection, HFEMClusterShapeCollection> >
+      HFEMClusterShapeAssociationCollection;
+
   typedef HFEMClusterShapeAssociationCollection::value_type HFEMClusterShapeAssociation;
 
   /// reference to an object in a collection of SeedMap objects
@@ -25,6 +26,6 @@ namespace reco {
   /// vector of references to objects in the same colletion of SeedMap objects
   typedef edm::RefVector<HFEMClusterShapeAssociationCollection> HFEMClusterShapeAssociationRefVector;
 
-}
+}  // namespace reco
 
 #endif
