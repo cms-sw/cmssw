@@ -19,18 +19,16 @@
 // class TFile;
 
 class myRawAna : public edm::EDAnalyzer {
-
 public:
-  myRawAna( const edm::ParameterSet & );
+  myRawAna(const edm::ParameterSet&);
 
 private:
-  void beginJob(  ) override;
-  void analyze ( const edm::Event& , const edm::EventSetup& ) override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  TH2F *fedSize;
-  TH1F *totFedSize;
-  
+  TH2F* fedSize;
+  TH1F* totFedSize;
 };
 
 #endif
