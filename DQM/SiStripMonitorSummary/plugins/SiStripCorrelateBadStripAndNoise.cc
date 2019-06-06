@@ -2,6 +2,7 @@
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 SiStripCorrelateBadStripAndNoise::SiStripCorrelateBadStripAndNoise(const edm::ParameterSet &iConfig)
     : cacheID_quality(0xFFFFFFFF), cacheID_noise(0xFFFFFFFF) {

@@ -18,13 +18,13 @@ namespace reco {
 
     class MCMatchCandRefSelector {
     public:
-      explicit MCMatchCandRefSelector(const EDGetTokenT<GenParticleMatch>& srcToken) :
-	srcToken_(srcToken) { }
+      explicit MCMatchCandRefSelector(const EDGetTokenT<GenParticleMatch>& srcToken) : srcToken_(srcToken) {}
       void newEvent(const Event& evt, const EventSetup&);
-      bool operator()(const CandidateBaseRef &) const;
+      bool operator()(const CandidateBaseRef&) const;
+
     private:
       EDGetTokenT<GenParticleMatch> srcToken_;
-      const GenParticleMatch * match_ = nullptr;
+      const GenParticleMatch* match_ = nullptr;
     };
 
     void MCMatchCandRefSelector::newEvent(const Event& evt, const EventSetup&) {
@@ -33,20 +33,20 @@ namespace reco {
       match_ = match.product();
     }
 
-    bool MCMatchCandRefSelector::operator()(const CandidateBaseRef & c) const {
+    bool MCMatchCandRefSelector::operator()(const CandidateBaseRef& c) const {
       GenParticleRef m = (*match_)[c];
       return m.isNonnull();
     }
 
-    template<>
+    template <>
     struct ParameterAdapter<MCMatchCandRefSelector> {
-      static MCMatchCandRefSelector make(const ParameterSet & cfg, edm::ConsumesCollector & iC) {
-	return MCMatchCandRefSelector(iC.consumes<GenParticleMatch>(cfg.getParameter<InputTag>("match")));
+      static MCMatchCandRefSelector make(const ParameterSet& cfg, edm::ConsumesCollector& iC) {
+        return MCMatchCandRefSelector(iC.consumes<GenParticleMatch>(cfg.getParameter<InputTag>("match")));
       }
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 EVENTSETUP_STD_INIT(MCMatchCandRefSelector);
 

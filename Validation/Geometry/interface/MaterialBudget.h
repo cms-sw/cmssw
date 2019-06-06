@@ -28,13 +28,12 @@ class MaterialBudget : public SimWatcher,
                        public Observer<const EndOfTrack*> {
 public:
   MaterialBudget(const edm::ParameterSet&);
-  MaterialBudget(const MaterialBudget&) = delete;                   // stop default
+  MaterialBudget(const MaterialBudget&) = delete;  // stop default
   ~MaterialBudget() override;
 
   const MaterialBudget& operator=(const MaterialBudget&) = delete;  // ...
 
 private:
-
   void update(const BeginOfRun*) override;
   void update(const BeginOfTrack*) override;
   void update(const G4Step*) override;

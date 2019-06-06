@@ -11,13 +11,13 @@
  */
 
 namespace reco {
-  class Candidate; 
+  class Candidate;
 }
 
 class OverlapChecker {
 public:
   /// return true if two candidates overlap
-  bool operator()( const reco::Candidate &, const reco::Candidate & ) const;
+  bool operator()(const reco::Candidate &, const reco::Candidate &) const;
 };
 
 #endif

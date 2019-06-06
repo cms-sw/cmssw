@@ -18,7 +18,6 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 
-
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/RotationInterfaces.h"
@@ -26,34 +25,30 @@
 
 #include <vector>
 
-class RPixDetPatternFinder{
-  
+class RPixDetPatternFinder {
 public:
-  RPixDetPatternFinder(edm::ParameterSet const& parameterSet) {}
-  
-  virtual ~RPixDetPatternFinder() {};
+  RPixDetPatternFinder(edm::ParameterSet const &parameterSet) {}
 
-  typedef struct{
-    CLHEP::Hep3Vector    globalPoint;
+  virtual ~RPixDetPatternFinder(){};
+
+  typedef struct {
+    CLHEP::Hep3Vector globalPoint;
     math::Error<3>::type globalError;
-    CTPPSPixelRecHit     recHit     ;
-    CTPPSPixelDetId      detId      ;
+    CTPPSPixelRecHit recHit;
+    CTPPSPixelDetId detId;
   } PointInPlane;
   typedef std::vector<PointInPlane> Road;
-  
-  void setHits(const edm::DetSetVector<CTPPSPixelRecHit> *hitVector) {hitVector_ = hitVector; }
-  virtual void findPattern()=0;
-  void clear(){
-    patternVector_.clear();
-  }
-  std::vector<Road> const& getPatterns() const {return patternVector_; }
-  void setGeometry(const CTPPSGeometry *geometry) {geometry_ = geometry; }
-  
+
+  void setHits(const edm::DetSetVector<CTPPSPixelRecHit> *hitVector) { hitVector_ = hitVector; }
+  virtual void findPattern() = 0;
+  void clear() { patternVector_.clear(); }
+  std::vector<Road> const &getPatterns() const { return patternVector_; }
+  void setGeometry(const CTPPSGeometry *geometry) { geometry_ = geometry; }
+
 protected:
   const edm::DetSetVector<CTPPSPixelRecHit> *hitVector_;
   std::vector<Road> patternVector_;
   const CTPPSGeometry *geometry_;
-  
 };
 
 #endif

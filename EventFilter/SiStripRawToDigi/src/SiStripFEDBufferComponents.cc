@@ -7,598 +7,600 @@
 
 namespace sistrip {
 
-  void printHexValue(const uint8_t value, std::ostream& os)
-  {
+  void printHexValue(const uint8_t value, std::ostream& os) {
     const std::ios_base::fmtflags originalFormatFlags = os.flags();
     os << std::hex << std::setfill('0') << std::setw(2);
     os << uint16_t(value);
     os.flags(originalFormatFlags);
   }
 
-  void printHexWord(const uint8_t* pointer, const size_t lengthInBytes, std::ostream& os)
-  {
-    size_t i = lengthInBytes-1;
-    do{
-      printHexValue(pointer[i],os);
-      if (i != 0) os << " ";
+  void printHexWord(const uint8_t* pointer, const size_t lengthInBytes, std::ostream& os) {
+    size_t i = lengthInBytes - 1;
+    do {
+      printHexValue(pointer[i], os);
+      if (i != 0)
+        os << " ";
     } while (i-- != 0);
   }
 
-  void printHex(const void* pointer, const size_t lengthInBytes, std::ostream& os)
-  {
+  void printHex(const void* pointer, const size_t lengthInBytes, std::ostream& os) {
     const uint8_t* bytePointer = reinterpret_cast<const uint8_t*>(pointer);
     //if there is one 64 bit word or less, print it out
     if (lengthInBytes <= 8) {
-      printHexWord(bytePointer,lengthInBytes,os);
+      printHexWord(bytePointer, lengthInBytes, os);
     }
     //otherwise, print word numbers etc
     else {
       //header
-      os << "word\tbyte\t                       \t\tbyte" << std::endl;;
-      const size_t words = lengthInBytes/8;
-      const size_t extraBytes = lengthInBytes - 8*words;
+      os << "word\tbyte\t                       \t\tbyte" << std::endl;
+      ;
+      const size_t words = lengthInBytes / 8;
+      const size_t extraBytes = lengthInBytes - 8 * words;
       //print full words
       for (size_t w = 0; w < words; w++) {
-	const size_t startByte = w*8;
-	os << w << '\t' << startByte+8 << '\t';
-	printHexWord(bytePointer+startByte,8,os);
-	os << "\t\t" << startByte << std::endl;
+        const size_t startByte = w * 8;
+        os << w << '\t' << startByte + 8 << '\t';
+        printHexWord(bytePointer + startByte, 8, os);
+        os << "\t\t" << startByte << std::endl;
       }
       //print part word, if any
       if (extraBytes) {
-	const size_t startByte = words*8;
-	os << words << '\t' << startByte+8 << '\t';
-	//padding
-	size_t p = 8;
-	while (p-- > extraBytes) {
-	  os << "00 ";
-	}
-	printHexWord(bytePointer+startByte,extraBytes,os);
-	os << "\t\t" << startByte << std::endl;
+        const size_t startByte = words * 8;
+        os << words << '\t' << startByte + 8 << '\t';
+        //padding
+        size_t p = 8;
+        while (p-- > extraBytes) {
+          os << "00 ";
+        }
+        printHexWord(bytePointer + startByte, extraBytes, os);
+        os << "\t\t" << startByte << std::endl;
       }
       os << std::endl;
     }
   }
-  
-  
-  uint16_t calculateFEDBufferCRC(const uint8_t* buffer, const size_t lengthInBytes)
-  {
+
+  uint16_t calculateFEDBufferCRC(const uint8_t* buffer, const size_t lengthInBytes) {
     uint16_t crc = 0xFFFF;
-    for (size_t i = 0; i < lengthInBytes-8; i++) {
-      crc = evf::compute_crc_8bit(crc,buffer[i^7]);
+    for (size_t i = 0; i < lengthInBytes - 8; i++) {
+      crc = evf::compute_crc_8bit(crc, buffer[i ^ 7]);
     }
-    for (size_t i=lengthInBytes-8; i<lengthInBytes; i++) {
+    for (size_t i = lengthInBytes - 8; i < lengthInBytes; i++) {
       uint8_t byte;
       //set CRC bytes to zero since these were not set when CRC was calculated
-      if (i==lengthInBytes-4 || i==lengthInBytes-3)
-	byte = 0x00;
+      if (i == lengthInBytes - 4 || i == lengthInBytes - 3)
+        byte = 0x00;
       else
-	byte = buffer[i^7];
-      crc = evf::compute_crc_8bit(crc,byte);
+        byte = buffer[i ^ 7];
+      crc = evf::compute_crc_8bit(crc, byte);
     }
     return crc;
   }
 
-
-  std::ostream& operator<<(std::ostream& os, const FEDBufferFormat& value)
-  {
+  std::ostream& operator<<(std::ostream& os, const FEDBufferFormat& value) {
     switch (value) {
-    case BUFFER_FORMAT_OLD_VME:
-      os << "Old VME";
-      break;
-    case BUFFER_FORMAT_OLD_SLINK:
-      os << "Old S-Link";
-      break;
-    case BUFFER_FORMAT_NEW:
-      os << "New";
-      break;
-    case BUFFER_FORMAT_INVALID:
-      os << "Invalid";
-      break;
-    default:
-      os << "Unrecognized";
-      os << " (";
-      printHexValue(value,os);
-      os << ")";
-      break;
+      case BUFFER_FORMAT_OLD_VME:
+        os << "Old VME";
+        break;
+      case BUFFER_FORMAT_OLD_SLINK:
+        os << "Old S-Link";
+        break;
+      case BUFFER_FORMAT_NEW:
+        os << "New";
+        break;
+      case BUFFER_FORMAT_INVALID:
+        os << "Invalid";
+        break;
+      default:
+        os << "Unrecognized";
+        os << " (";
+        printHexValue(value, os);
+        os << ")";
+        break;
     }
     return os;
   }
 
-  std::ostream& operator<<(std::ostream& os, const FEDHeaderType& value)
-  {
+  std::ostream& operator<<(std::ostream& os, const FEDHeaderType& value) {
     switch (value) {
-    case HEADER_TYPE_FULL_DEBUG:
-      os << "Full debug";
-      break;
-    case HEADER_TYPE_APV_ERROR:
-      os << "APV error";
-      break;
-    case HEADER_TYPE_NONE:
-      os << "None";
-      break;
-    case HEADER_TYPE_INVALID:
-      os << "Invalid";
-      break;
-    default:
-      os << "Unrecognized";
-      os << " (";
-      printHexValue(value,os);
-      os << ")";
-      break;
+      case HEADER_TYPE_FULL_DEBUG:
+        os << "Full debug";
+        break;
+      case HEADER_TYPE_APV_ERROR:
+        os << "APV error";
+        break;
+      case HEADER_TYPE_NONE:
+        os << "None";
+        break;
+      case HEADER_TYPE_INVALID:
+        os << "Invalid";
+        break;
+      default:
+        os << "Unrecognized";
+        os << " (";
+        printHexValue(value, os);
+        os << ")";
+        break;
     }
     return os;
   }
 
-  std::ostream& operator<<(std::ostream& os, const FEDLegacyReadoutMode& value)
-  {
+  std::ostream& operator<<(std::ostream& os, const FEDLegacyReadoutMode& value) {
     switch (value) {
-    case READOUT_MODE_LEGACY_SCOPE:                     os << "(L) Scope mode"; break;
-    case READOUT_MODE_LEGACY_VIRGIN_RAW_REAL:           os << "(L) Virgin raw (real)"; break;
-    case READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE:           os << "(L) Virgin raw (fake)"; break;
-    case READOUT_MODE_LEGACY_PROC_RAW_REAL:             os << "(L) Processed raw (real)"; break;
-    case READOUT_MODE_LEGACY_PROC_RAW_FAKE:             os << "(L) Processed raw (fake)"; break;
-    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL:      os << "(L) Zero suppressed (real)"; break;
-    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE:      os << "(L) Zero suppressed (fake)"; break;
-    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL: os << "(L) Zero suppressed lite (real)"; break;
-    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE: os << "(L) Zero suppressed lite (fake)"; break;
-    case READOUT_MODE_LEGACY_SPY:                       os << "(L) Spy channel"; break;
-    case READOUT_MODE_LEGACY_PREMIX_RAW:                os << "(L) PreMix raw"; break;
-    case READOUT_MODE_LEGACY_INVALID:                   os << "(L) Invalid"; break;
-    default:
-      os << "(L) Unrecognized";
-      os << " (";
-      printHexValue(value,os);
-      os << ")";
-      break;
+      case READOUT_MODE_LEGACY_SCOPE:
+        os << "(L) Scope mode";
+        break;
+      case READOUT_MODE_LEGACY_VIRGIN_RAW_REAL:
+        os << "(L) Virgin raw (real)";
+        break;
+      case READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE:
+        os << "(L) Virgin raw (fake)";
+        break;
+      case READOUT_MODE_LEGACY_PROC_RAW_REAL:
+        os << "(L) Processed raw (real)";
+        break;
+      case READOUT_MODE_LEGACY_PROC_RAW_FAKE:
+        os << "(L) Processed raw (fake)";
+        break;
+      case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL:
+        os << "(L) Zero suppressed (real)";
+        break;
+      case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE:
+        os << "(L) Zero suppressed (fake)";
+        break;
+      case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL:
+        os << "(L) Zero suppressed lite (real)";
+        break;
+      case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE:
+        os << "(L) Zero suppressed lite (fake)";
+        break;
+      case READOUT_MODE_LEGACY_SPY:
+        os << "(L) Spy channel";
+        break;
+      case READOUT_MODE_LEGACY_PREMIX_RAW:
+        os << "(L) PreMix raw";
+        break;
+      case READOUT_MODE_LEGACY_INVALID:
+        os << "(L) Invalid";
+        break;
+      default:
+        os << "(L) Unrecognized";
+        os << " (";
+        printHexValue(value, os);
+        os << ")";
+        break;
     }
     return os;
   }
 
-  std::ostream& operator<<(std::ostream& os, const FEDReadoutMode& value)
-  {
+  std::ostream& operator<<(std::ostream& os, const FEDReadoutMode& value) {
     switch (value) {
-    case READOUT_MODE_SCOPE:
-      os << "Scope mode";
-      break;
-    case READOUT_MODE_VIRGIN_RAW:
-      os << "Virgin raw";
-      break;
-    case READOUT_MODE_PROC_RAW:
-      os << "Processed raw";
-      break;
-    case READOUT_MODE_ZERO_SUPPRESSED:
-      os << "Zero suppressed";
-      break;
-    case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
-      os << "Zero suppressed (fake)";
-      break;
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
-      os << "Zero suppressed lite";
-      break;
-    case READOUT_MODE_SPY:
-      os << "Spy channel";
-      break;
-    /*case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+      case READOUT_MODE_SCOPE:
+        os << "Scope mode";
+        break;
+      case READOUT_MODE_VIRGIN_RAW:
+        os << "Virgin raw";
+        break;
+      case READOUT_MODE_PROC_RAW:
+        os << "Processed raw";
+        break;
+      case READOUT_MODE_ZERO_SUPPRESSED:
+        os << "Zero suppressed";
+        break;
+      case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
+        os << "Zero suppressed (fake)";
+        break;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+        os << "Zero suppressed lite";
+        break;
+      case READOUT_MODE_SPY:
+        os << "Spy channel";
+        break;
+      /*case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
       os << "Zero suppressed CM Override";
       break;*/
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
-      os << "Zero suppressed lite CM Override";
-      break;
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
-      os << "Zero suppressed lite (8 bit, top-stripped)";
-      break;
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
-      os << "Zero suppressed lite CM Override (8 bit, top-stripped)";
-      break;
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
-      os << "Zero suppressed lite (8 bit, bottom-stripped)";
-      break;
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
-      os << "Zero suppressed lite CM Override (8 bit, bottom-stripped)";
-      break;
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
-      os << "Zero suppressed lite (8 bit, top/bottom-stripped)";
-      break;
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
-      os << "Zero suppressed lite CM Override (8 bit, top/bottom-stripped)";
-      break;
-    case READOUT_MODE_PREMIX_RAW:
-      os << "PreMix raw";
-      break;
-    case READOUT_MODE_INVALID:
-      os << "Invalid";
-      break;
-    default:
-      os << "Unrecognized";
-      os << " (";
-      printHexValue(value,os);
-      os << ")";
-      break;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+        os << "Zero suppressed lite CM Override";
+        break;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+        os << "Zero suppressed lite (8 bit, top-stripped)";
+        break;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+        os << "Zero suppressed lite CM Override (8 bit, top-stripped)";
+        break;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+        os << "Zero suppressed lite (8 bit, bottom-stripped)";
+        break;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+        os << "Zero suppressed lite CM Override (8 bit, bottom-stripped)";
+        break;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+        os << "Zero suppressed lite (8 bit, top/bottom-stripped)";
+        break;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+        os << "Zero suppressed lite CM Override (8 bit, top/bottom-stripped)";
+        break;
+      case READOUT_MODE_PREMIX_RAW:
+        os << "PreMix raw";
+        break;
+      case READOUT_MODE_INVALID:
+        os << "Invalid";
+        break;
+      default:
+        os << "Unrecognized";
+        os << " (";
+        printHexValue(value, os);
+        os << ")";
+        break;
     }
     return os;
   }
 
-  std::ostream& operator<<(std::ostream& os, const FEDDAQEventType& value)
-  {
+  std::ostream& operator<<(std::ostream& os, const FEDDAQEventType& value) {
     switch (value) {
-    case DAQ_EVENT_TYPE_PHYSICS:
-      os << "Physics trigger";
-      break;
-    case DAQ_EVENT_TYPE_CALIBRATION:
-      os << "Calibration trigger";
-      break;
-    case DAQ_EVENT_TYPE_TEST:
-      os << "Test trigger";
-      break;
-    case DAQ_EVENT_TYPE_TECHNICAL:
-      os << "Technical trigger";
-      break;
-    case DAQ_EVENT_TYPE_SIMULATED:
-      os << "Simulated event";
-      break;
-    case DAQ_EVENT_TYPE_TRACED:
-      os << "Traced event";
-      break;
-    case DAQ_EVENT_TYPE_ERROR:
-      os << "Error";
-      break;
-    case DAQ_EVENT_TYPE_INVALID:
-      os << "Unknown";
-      break;
-    default:
-      os << "Unrecognized";
-      os << " (";
-      printHexValue(value,os);
-      os << ")";
-      break;
+      case DAQ_EVENT_TYPE_PHYSICS:
+        os << "Physics trigger";
+        break;
+      case DAQ_EVENT_TYPE_CALIBRATION:
+        os << "Calibration trigger";
+        break;
+      case DAQ_EVENT_TYPE_TEST:
+        os << "Test trigger";
+        break;
+      case DAQ_EVENT_TYPE_TECHNICAL:
+        os << "Technical trigger";
+        break;
+      case DAQ_EVENT_TYPE_SIMULATED:
+        os << "Simulated event";
+        break;
+      case DAQ_EVENT_TYPE_TRACED:
+        os << "Traced event";
+        break;
+      case DAQ_EVENT_TYPE_ERROR:
+        os << "Error";
+        break;
+      case DAQ_EVENT_TYPE_INVALID:
+        os << "Unknown";
+        break;
+      default:
+        os << "Unrecognized";
+        os << " (";
+        printHexValue(value, os);
+        os << ")";
+        break;
     }
     return os;
   }
 
-  std::ostream& operator<<(std::ostream& os, const FEDTTSBits& value)
-  {
+  std::ostream& operator<<(std::ostream& os, const FEDTTSBits& value) {
     switch (value) {
-    case TTS_DISCONNECTED0:
-      os << "Disconected 0";
-      break;
-    case TTS_WARN_OVERFLOW:
-      os << "Warning overflow";
-      break;
-    case TTS_OUT_OF_SYNC:
-      os << "Out of sync";
-      break;
-    case TTS_BUSY:
-      os << "Busy";
-      break;
-    case TTS_READY:
-      os << "Ready";
-      break;
-    case TTS_ERROR:
-      os << "Error";
-      break;
-    case TTS_INVALID:
-      os << "Invalid";
-      break;
-    case TTS_DISCONNECTED1:
-      os << "Disconected 1";
-      break;
-    default:
-      os << "Unrecognized";
-      os << " (";
-      printHexValue(value,os);
-      os << ")";
-      break;
+      case TTS_DISCONNECTED0:
+        os << "Disconected 0";
+        break;
+      case TTS_WARN_OVERFLOW:
+        os << "Warning overflow";
+        break;
+      case TTS_OUT_OF_SYNC:
+        os << "Out of sync";
+        break;
+      case TTS_BUSY:
+        os << "Busy";
+        break;
+      case TTS_READY:
+        os << "Ready";
+        break;
+      case TTS_ERROR:
+        os << "Error";
+        break;
+      case TTS_INVALID:
+        os << "Invalid";
+        break;
+      case TTS_DISCONNECTED1:
+        os << "Disconected 1";
+        break;
+      default:
+        os << "Unrecognized";
+        os << " (";
+        printHexValue(value, os);
+        os << ")";
+        break;
     }
     return os;
   }
 
-  std::ostream& operator<<(std::ostream& os, const FEDBufferState& value)
-  {
+  std::ostream& operator<<(std::ostream& os, const FEDBufferState& value) {
     switch (value) {
-    case BUFFER_STATE_UNSET:
-      os << "Unset";
-      break;
-    case BUFFER_STATE_EMPTY:
-      os << "Empty";
-      break;
-    case BUFFER_STATE_PARTIAL_FULL:
-      os << "Partial Full";
-      break;
-    case BUFFER_STATE_FULL:
-      os << "Full";
-      break;
-    default:
-      os << "Unrecognized";
-      os << " (";
-      printHexValue(value,os);
-      os << ")";
-      break;
+      case BUFFER_STATE_UNSET:
+        os << "Unset";
+        break;
+      case BUFFER_STATE_EMPTY:
+        os << "Empty";
+        break;
+      case BUFFER_STATE_PARTIAL_FULL:
+        os << "Partial Full";
+        break;
+      case BUFFER_STATE_FULL:
+        os << "Full";
+        break;
+      default:
+        os << "Unrecognized";
+        os << " (";
+        printHexValue(value, os);
+        os << ")";
+        break;
     }
     return os;
   }
 
-  std::ostream& operator<<(std::ostream& os, const FEDChannelStatus& value)
-  {
-    if (!(value&CHANNEL_STATUS_LOCKED)) os << "Unlocked ";
-    if (!(value&CHANNEL_STATUS_IN_SYNC)) os << "Out-of-sync ";
-    if (!(value&CHANNEL_STATUS_APV1_ADDRESS_GOOD)) os << "APV 1 bad address ";
-    if (!(value&CHANNEL_STATUS_APV1_NO_ERROR_BIT)) os << "APV 1 error ";
-    if (!(value&CHANNEL_STATUS_APV0_ADDRESS_GOOD)) os << "APV 0 bad address ";
-    if (!(value&CHANNEL_STATUS_APV0_NO_ERROR_BIT)) os << "APV 0 error ";
-    if (value == CHANNEL_STATUS_NO_PROBLEMS) os << "No errors";
+  std::ostream& operator<<(std::ostream& os, const FEDChannelStatus& value) {
+    if (!(value & CHANNEL_STATUS_LOCKED))
+      os << "Unlocked ";
+    if (!(value & CHANNEL_STATUS_IN_SYNC))
+      os << "Out-of-sync ";
+    if (!(value & CHANNEL_STATUS_APV1_ADDRESS_GOOD))
+      os << "APV 1 bad address ";
+    if (!(value & CHANNEL_STATUS_APV1_NO_ERROR_BIT))
+      os << "APV 1 error ";
+    if (!(value & CHANNEL_STATUS_APV0_ADDRESS_GOOD))
+      os << "APV 0 bad address ";
+    if (!(value & CHANNEL_STATUS_APV0_NO_ERROR_BIT))
+      os << "APV 0 error ";
+    if (value == CHANNEL_STATUS_NO_PROBLEMS)
+      os << "No errors";
     return os;
   }
-  
-  FEDBufferFormat fedBufferFormatFromString(const std::string& bufferFormatString)
-  {
-    if ( (bufferFormatString == "OLD_VME") ||
-         (bufferFormatString == "BUFFER_FORMAT_OLD_VME") ||
-         (bufferFormatString == "Old VME") ) {
+
+  FEDBufferFormat fedBufferFormatFromString(const std::string& bufferFormatString) {
+    if ((bufferFormatString == "OLD_VME") || (bufferFormatString == "BUFFER_FORMAT_OLD_VME") ||
+        (bufferFormatString == "Old VME")) {
       return BUFFER_FORMAT_OLD_VME;
     }
-    if ( (bufferFormatString == "OLD_SLINK") ||
-         (bufferFormatString == "BUFFER_FORMAT_OLD_SLINK") ||
-         (bufferFormatString == "Old S-Link") ) {
+    if ((bufferFormatString == "OLD_SLINK") || (bufferFormatString == "BUFFER_FORMAT_OLD_SLINK") ||
+        (bufferFormatString == "Old S-Link")) {
       return BUFFER_FORMAT_OLD_SLINK;
     }
-    if ( (bufferFormatString == "NEW") ||
-         (bufferFormatString == "BUFFER_FORMAT_NEW") ||
-         (bufferFormatString == "New") ) {
+    if ((bufferFormatString == "NEW") || (bufferFormatString == "BUFFER_FORMAT_NEW") || (bufferFormatString == "New")) {
       return BUFFER_FORMAT_NEW;
     }
     //if it was none of the above then return invalid
     return BUFFER_FORMAT_INVALID;
   }
-  
-  FEDHeaderType fedHeaderTypeFromString(const std::string& headerTypeString)
-  {
-    if ( (headerTypeString == "FULL_DEBUG") ||
-         (headerTypeString == "HEADER_TYPE_FULL_DEBUG") ||
-         (headerTypeString == "Full debug") ) {
+
+  FEDHeaderType fedHeaderTypeFromString(const std::string& headerTypeString) {
+    if ((headerTypeString == "FULL_DEBUG") || (headerTypeString == "HEADER_TYPE_FULL_DEBUG") ||
+        (headerTypeString == "Full debug")) {
       return HEADER_TYPE_FULL_DEBUG;
     }
-    if ( (headerTypeString == "APV_ERROR") ||
-         (headerTypeString == "HEADER_TYPE_APV_ERROR") ||
-         (headerTypeString == "APV error") ) {
+    if ((headerTypeString == "APV_ERROR") || (headerTypeString == "HEADER_TYPE_APV_ERROR") ||
+        (headerTypeString == "APV error")) {
       return HEADER_TYPE_APV_ERROR;
     }
-    if ( (headerTypeString == "None") ||
-         (headerTypeString == "none") ) {
+    if ((headerTypeString == "None") || (headerTypeString == "none")) {
       return HEADER_TYPE_NONE;
     }
     //if it was none of the above then return invalid
     return HEADER_TYPE_INVALID;
   }
-  
-  FEDReadoutMode fedReadoutModeFromString(const std::string& readoutModeString)
-  {
-    if ( (readoutModeString == "READOUT_MODE_SCOPE") ||
-         (readoutModeString == "SCOPE") ||
-         (readoutModeString == "SCOPE_MODE") ||
-         (readoutModeString == "Scope mode") ) {
+
+  FEDReadoutMode fedReadoutModeFromString(const std::string& readoutModeString) {
+    if ((readoutModeString == "READOUT_MODE_SCOPE") || (readoutModeString == "SCOPE") ||
+        (readoutModeString == "SCOPE_MODE") || (readoutModeString == "Scope mode")) {
       return READOUT_MODE_SCOPE;
     }
-    if ( (readoutModeString == "READOUT_MODE_VIRGIN_RAW") ||
-         (readoutModeString == "VIRGIN_RAW") ||
-         (readoutModeString == "Virgin raw") ) {
+    if ((readoutModeString == "READOUT_MODE_VIRGIN_RAW") || (readoutModeString == "VIRGIN_RAW") ||
+        (readoutModeString == "Virgin raw")) {
       return READOUT_MODE_VIRGIN_RAW;
     }
-    if ( (readoutModeString == "READOUT_MODE_PROC_RAW") ||
-         (readoutModeString == "PROC_RAW") ||
-         (readoutModeString == "PROCESSED_RAW") ||
-         (readoutModeString == "Processed raw") ) {
+    if ((readoutModeString == "READOUT_MODE_PROC_RAW") || (readoutModeString == "PROC_RAW") ||
+        (readoutModeString == "PROCESSED_RAW") || (readoutModeString == "Processed raw")) {
       return READOUT_MODE_PROC_RAW;
     }
-    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED") ||
-         (readoutModeString == "ZERO_SUPPRESSED") ||
-         (readoutModeString == "Zero suppressed") ) {
+    if ((readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED") || (readoutModeString == "ZERO_SUPPRESSED") ||
+        (readoutModeString == "Zero suppressed")) {
       return READOUT_MODE_ZERO_SUPPRESSED;
     }
-    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE8") ||
-         (readoutModeString == "ZERO_SUPPRESSED_LITE8") ||
-         (readoutModeString == "Zero suppressed lite8") ){
+    if ((readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE8") || (readoutModeString == "ZERO_SUPPRESSED_LITE8") ||
+        (readoutModeString == "Zero suppressed lite8")) {
       return READOUT_MODE_ZERO_SUPPRESSED_LITE8;
     }
-    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT") ||
-         (readoutModeString == "ZERO_SUPPRESSED_LITE8_TOPBOT") ||
-         (readoutModeString == "Zero suppressed lite8 TopBot") ){
+    if ((readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT") ||
+        (readoutModeString == "ZERO_SUPPRESSED_LITE8_TOPBOT") ||
+        (readoutModeString == "Zero suppressed lite8 TopBot")) {
       return READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT;
     }
-    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT") ||
-         (readoutModeString == "ZERO_SUPPRESSED_LITE8_BOTBOT") ||
-         (readoutModeString == "Zero suppressed lite8 BotBot") ){
+    if ((readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT") ||
+        (readoutModeString == "ZERO_SUPPRESSED_LITE8_BOTBOT") ||
+        (readoutModeString == "Zero suppressed lite8 BotBot")) {
       return READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT;
     }
-    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE10") ||
-         (readoutModeString == "ZERO_SUPPRESSED_LITE10") ||
-         (readoutModeString == "Zero suppressed lite10") ) {
+    if ((readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE10") ||
+        (readoutModeString == "ZERO_SUPPRESSED_LITE10") || (readoutModeString == "Zero suppressed lite10")) {
       return READOUT_MODE_ZERO_SUPPRESSED_LITE10;
     }
-    if ( (readoutModeString == "READOUT_MODE_PREMIX_RAW") ||
-         (readoutModeString == "PREMIX_RAW") ||
-         (readoutModeString == "PreMix Raw") ) {
+    if ((readoutModeString == "READOUT_MODE_PREMIX_RAW") || (readoutModeString == "PREMIX_RAW") ||
+        (readoutModeString == "PreMix Raw")) {
       return READOUT_MODE_PREMIX_RAW;
     }
-    if ( (readoutModeString == "READOUT_MODE_SPY") ||
-         (readoutModeString == "SPY") ||
-         (readoutModeString == "Spy channel") ) {
+    if ((readoutModeString == "READOUT_MODE_SPY") || (readoutModeString == "SPY") ||
+        (readoutModeString == "Spy channel")) {
       return READOUT_MODE_SPY;
     }
     //if it was none of the above then return invalid
     return READOUT_MODE_INVALID;
   }
-  uint8_t packetCodeFromString(const std::string& packetCode, FEDReadoutMode mode)
-  {
-    if ( mode == READOUT_MODE_ZERO_SUPPRESSED ) {
-      if        ( packetCode == "ZERO_SUPPRESSED" || packetCode == "Zero suppressed" ) {
+  uint8_t packetCodeFromString(const std::string& packetCode, FEDReadoutMode mode) {
+    if (mode == READOUT_MODE_ZERO_SUPPRESSED) {
+      if (packetCode == "ZERO_SUPPRESSED" || packetCode == "Zero suppressed") {
         return PACKET_CODE_ZERO_SUPPRESSED;
-      } else if ( packetCode == "ZERO_SUPPRESSED10" || packetCode == "Zero suppressed 10" ) {
+      } else if (packetCode == "ZERO_SUPPRESSED10" || packetCode == "Zero suppressed 10") {
         return PACKET_CODE_ZERO_SUPPRESSED10;
-      } else if ( packetCode == "ZERO_SUPPRESSED8_BOTBOT" || packetCode == "Zero suppressed 8 BOTBOT" ) {
+      } else if (packetCode == "ZERO_SUPPRESSED8_BOTBOT" || packetCode == "Zero suppressed 8 BOTBOT") {
         return PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT;
-      } else if ( packetCode == "ZERO_SUPPRESSED8_TOPBOT" || packetCode == "Zero suppressed 8 TOPBOT" ) {
+      } else if (packetCode == "ZERO_SUPPRESSED8_TOPBOT" || packetCode == "Zero suppressed 8 TOPBOT") {
         return PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT;
       } else {
-        throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode ZERO_SUPPRESSED";
-
+        throw cms::Exception("FEDBuffer")
+            << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode ZERO_SUPPRESSED";
       }
-    } else if ( mode == READOUT_MODE_VIRGIN_RAW ) {
-      if        ( packetCode == "VIRGIN_RAW" || packetCode == "Virgin raw" ) {
+    } else if (mode == READOUT_MODE_VIRGIN_RAW) {
+      if (packetCode == "VIRGIN_RAW" || packetCode == "Virgin raw") {
         return PACKET_CODE_VIRGIN_RAW;
-      } else if ( packetCode == "VIRGIN_RAW10" || packetCode == "Virgin raw 10" ) {
+      } else if (packetCode == "VIRGIN_RAW10" || packetCode == "Virgin raw 10") {
         return PACKET_CODE_VIRGIN_RAW10;
-      } else if ( packetCode == "VIRGIN_RAW8_BOTBOT" || packetCode == "Virgin raw 8 BOTBOT" ) {
+      } else if (packetCode == "VIRGIN_RAW8_BOTBOT" || packetCode == "Virgin raw 8 BOTBOT") {
         return PACKET_CODE_VIRGIN_RAW8_BOTBOT;
-      } else if ( packetCode == "VIRGIN_RAW8_TOPBOT" || packetCode == "Virgin raw 8 TOPBOT" ) {
+      } else if (packetCode == "VIRGIN_RAW8_TOPBOT" || packetCode == "Virgin raw 8 TOPBOT") {
         return PACKET_CODE_VIRGIN_RAW8_TOPBOT;
       } else {
-        throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode VIRGIN_RAW";
+        throw cms::Exception("FEDBuffer")
+            << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode VIRGIN_RAW";
       }
-    } else if ( mode == READOUT_MODE_PROC_RAW ) {
-      if        ( packetCode == "PROC_RAW" || packetCode == "Processed raw" ) {
+    } else if (mode == READOUT_MODE_PROC_RAW) {
+      if (packetCode == "PROC_RAW" || packetCode == "Processed raw") {
         return PACKET_CODE_PROC_RAW;
-      } else if ( packetCode == "PROC_RAW10" || packetCode == "Processed raw 10" ) {
+      } else if (packetCode == "PROC_RAW10" || packetCode == "Processed raw 10") {
         return PACKET_CODE_PROC_RAW10;
-      } else if ( packetCode == "PROC_RAW8_BOTBOT" || packetCode == "Processed raw 8 BOTBOT" ) {
+      } else if (packetCode == "PROC_RAW8_BOTBOT" || packetCode == "Processed raw 8 BOTBOT") {
         return PACKET_CODE_PROC_RAW8_BOTBOT;
-      } else if ( packetCode == "PROC_RAW8_TOPBOT" || packetCode == "Processed raw 8 TOPBOT" ) {
+      } else if (packetCode == "PROC_RAW8_TOPBOT" || packetCode == "Processed raw 8 TOPBOT") {
         return PACKET_CODE_PROC_RAW8_TOPBOT;
       } else {
-        throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode PROC_RAW";
+        throw cms::Exception("FEDBuffer")
+            << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode PROC_RAW";
       }
-    } else if ( mode == READOUT_MODE_SCOPE ) {
-      if ( packetCode == "SCOPE" || packetCode == "Scope"
-          || packetCode.empty() ) { // default
+    } else if (mode == READOUT_MODE_SCOPE) {
+      if (packetCode == "SCOPE" || packetCode == "Scope" || packetCode.empty()) {  // default
         return PACKET_CODE_SCOPE;
       } else {
-        throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode SCOPE";
+        throw cms::Exception("FEDBuffer")
+            << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode SCOPE";
       }
     } else {
-      if ( !packetCode.empty() ) {
-        throw cms::Exception("FEDBuffer") << "Packet codes are only needed for zero-suppressed (non-lite), virgin raw, processed raw and spy data. FEDReadoutMode=" << mode << " and packetCode='" << packetCode << "'";
+      if (!packetCode.empty()) {
+        throw cms::Exception("FEDBuffer") << "Packet codes are only needed for zero-suppressed (non-lite), virgin raw, "
+                                             "processed raw and spy data. FEDReadoutMode="
+                                          << mode << " and packetCode='" << packetCode << "'";
       }
       return 0;
     }
   }
 
-  FEDDAQEventType fedDAQEventTypeFromString(const std::string& daqEventTypeString)
-  {
-    if ( (daqEventTypeString == "PHYSICS") ||
-         (daqEventTypeString == "DAQ_EVENT_TYPE_PHYSICS") ||
-         (daqEventTypeString == "Physics trigger") ) {
+  FEDDAQEventType fedDAQEventTypeFromString(const std::string& daqEventTypeString) {
+    if ((daqEventTypeString == "PHYSICS") || (daqEventTypeString == "DAQ_EVENT_TYPE_PHYSICS") ||
+        (daqEventTypeString == "Physics trigger")) {
       return DAQ_EVENT_TYPE_PHYSICS;
     }
-    if ( (daqEventTypeString == "CALIBRATION") ||
-         (daqEventTypeString == "DAQ_EVENT_TYPE_CALIBRATION") ||
-         (daqEventTypeString == "Calibration trigger") ) {
+    if ((daqEventTypeString == "CALIBRATION") || (daqEventTypeString == "DAQ_EVENT_TYPE_CALIBRATION") ||
+        (daqEventTypeString == "Calibration trigger")) {
       return DAQ_EVENT_TYPE_CALIBRATION;
     }
-    if ( (daqEventTypeString == "TEST") ||
-         (daqEventTypeString == "DAQ_EVENT_TYPE_TEST") ||
-         (daqEventTypeString == "Test trigger") ) {
+    if ((daqEventTypeString == "TEST") || (daqEventTypeString == "DAQ_EVENT_TYPE_TEST") ||
+        (daqEventTypeString == "Test trigger")) {
       return DAQ_EVENT_TYPE_TEST;
     }
-    if ( (daqEventTypeString == "TECHNICAL") ||
-         (daqEventTypeString == "DAQ_EVENT_TYPE_TECHNICAL") ||
-         (daqEventTypeString == "Technical trigger") ) {
+    if ((daqEventTypeString == "TECHNICAL") || (daqEventTypeString == "DAQ_EVENT_TYPE_TECHNICAL") ||
+        (daqEventTypeString == "Technical trigger")) {
       return DAQ_EVENT_TYPE_TECHNICAL;
     }
-    if ( (daqEventTypeString == "SIMULATED") ||
-         (daqEventTypeString == "DAQ_EVENT_TYPE_SIMULATED") ||
-         (daqEventTypeString == "Simulated trigger") ) {
+    if ((daqEventTypeString == "SIMULATED") || (daqEventTypeString == "DAQ_EVENT_TYPE_SIMULATED") ||
+        (daqEventTypeString == "Simulated trigger")) {
       return DAQ_EVENT_TYPE_SIMULATED;
     }
-    if ( (daqEventTypeString == "TRACED") ||
-         (daqEventTypeString == "DAQ_EVENT_TYPE_TRACED") ||
-         (daqEventTypeString == "Traced event") ) {
+    if ((daqEventTypeString == "TRACED") || (daqEventTypeString == "DAQ_EVENT_TYPE_TRACED") ||
+        (daqEventTypeString == "Traced event")) {
       return DAQ_EVENT_TYPE_TRACED;
     }
-    if ( (daqEventTypeString == "ERROR") ||
-         (daqEventTypeString == "DAQ_EVENT_TYPE_ERROR") ||
-         (daqEventTypeString == "Error") ) {
+    if ((daqEventTypeString == "ERROR") || (daqEventTypeString == "DAQ_EVENT_TYPE_ERROR") ||
+        (daqEventTypeString == "Error")) {
       return DAQ_EVENT_TYPE_ERROR;
     }
     //if it was none of the above then return invalid
     return DAQ_EVENT_TYPE_INVALID;
   }
 
-
-
-
-  void FEDStatusRegister::printFlags(std::ostream& os) const
-  {
-    if (slinkFullFlag()) os << "SLINK_FULL ";
-    if (trackerHeaderMonitorDataReadyFlag()) os << "HEADER_MONITOR_READY ";
-    if (qdrMemoryFullFlag()) os << "QDR_FULL ";
-    if (qdrMemoryPartialFullFlag()) os << "QDR_PARTIAL_FULL ";
-    if (qdrMemoryEmptyFlag()) os << "QDR_EMPTY ";
-    if (l1aBxFIFOFullFlag()) os << "L1A_FULL ";
-    if (l1aBxFIFOPartialFullFlag()) os << "L1A_PARTIAL_FULL ";
-    if (l1aBxFIFOEmptyFlag()) os << "L1A_EMPTY ";
+  void FEDStatusRegister::printFlags(std::ostream& os) const {
+    if (slinkFullFlag())
+      os << "SLINK_FULL ";
+    if (trackerHeaderMonitorDataReadyFlag())
+      os << "HEADER_MONITOR_READY ";
+    if (qdrMemoryFullFlag())
+      os << "QDR_FULL ";
+    if (qdrMemoryPartialFullFlag())
+      os << "QDR_PARTIAL_FULL ";
+    if (qdrMemoryEmptyFlag())
+      os << "QDR_EMPTY ";
+    if (l1aBxFIFOFullFlag())
+      os << "L1A_FULL ";
+    if (l1aBxFIFOPartialFullFlag())
+      os << "L1A_PARTIAL_FULL ";
+    if (l1aBxFIFOEmptyFlag())
+      os << "L1A_EMPTY ";
     for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
-      if (feDataMissingFlag(iFE)) os << "FEUNIT" << uint16_t(iFE) << "MISSING ";
+      if (feDataMissingFlag(iFE))
+        os << "FEUNIT" << uint16_t(iFE) << "MISSING ";
     }
   }
-  
-  FEDBufferState FEDStatusRegister::qdrMemoryState() const
-  {
+
+  FEDBufferState FEDStatusRegister::qdrMemoryState() const {
     uint8_t result(0x00);
-    if (qdrMemoryFullFlag()) result |= BUFFER_STATE_FULL;
-    if (qdrMemoryPartialFullFlag()) result |= BUFFER_STATE_PARTIAL_FULL;
-    if (qdrMemoryEmptyFlag()) result |= BUFFER_STATE_EMPTY;
+    if (qdrMemoryFullFlag())
+      result |= BUFFER_STATE_FULL;
+    if (qdrMemoryPartialFullFlag())
+      result |= BUFFER_STATE_PARTIAL_FULL;
+    if (qdrMemoryEmptyFlag())
+      result |= BUFFER_STATE_EMPTY;
     return FEDBufferState(result);
   }
-  
-  FEDBufferState FEDStatusRegister::l1aBxFIFOState() const
-  {
+
+  FEDBufferState FEDStatusRegister::l1aBxFIFOState() const {
     uint8_t result(0x00);
-    if (l1aBxFIFOFullFlag()) result |= BUFFER_STATE_FULL;
-    if (l1aBxFIFOPartialFullFlag()) result |= BUFFER_STATE_PARTIAL_FULL;
-    if (l1aBxFIFOEmptyFlag()) result |= BUFFER_STATE_EMPTY;
+    if (l1aBxFIFOFullFlag())
+      result |= BUFFER_STATE_FULL;
+    if (l1aBxFIFOPartialFullFlag())
+      result |= BUFFER_STATE_PARTIAL_FULL;
+    if (l1aBxFIFOEmptyFlag())
+      result |= BUFFER_STATE_EMPTY;
     return FEDBufferState(result);
   }
-  
-  void FEDStatusRegister::setBit(const uint8_t num, const bool bitSet)
-  {
+
+  void FEDStatusRegister::setBit(const uint8_t num, const bool bitSet) {
     const uint16_t mask = (0x0001 << num);
-    if (bitSet) data_ |= mask;
-    else data_ &= (~mask);
+    if (bitSet)
+      data_ |= mask;
+    else
+      data_ &= (~mask);
   }
-  
-  FEDStatusRegister& FEDStatusRegister::setQDRMemoryBufferState(const FEDBufferState state)
-  {
+
+  FEDStatusRegister& FEDStatusRegister::setQDRMemoryBufferState(const FEDBufferState state) {
     switch (state) {
-    case BUFFER_STATE_FULL:
-    case BUFFER_STATE_PARTIAL_FULL:
-    case BUFFER_STATE_EMPTY:
-    case BUFFER_STATE_UNSET:
-      break;
-    default:
-      std::ostringstream ss;
-      ss << "Invalid buffer state: ";
-      printHex(&state,1,ss);
-      throw cms::Exception("FEDBuffer") << ss.str();
+      case BUFFER_STATE_FULL:
+      case BUFFER_STATE_PARTIAL_FULL:
+      case BUFFER_STATE_EMPTY:
+      case BUFFER_STATE_UNSET:
+        break;
+      default:
+        std::ostringstream ss;
+        ss << "Invalid buffer state: ";
+        printHex(&state, 1, ss);
+        throw cms::Exception("FEDBuffer") << ss.str();
     }
     setQDRMemoryFullFlag(state & BUFFER_STATE_FULL);
     setQDRMemoryPartialFullFlag(state & BUFFER_STATE_PARTIAL_FULL);
     setQDRMemoryEmptyFlag(state & BUFFER_STATE_EMPTY);
     return *this;
   }
-  
-  FEDStatusRegister& FEDStatusRegister::setL1ABXFIFOBufferState(const FEDBufferState state)
-  {
+
+  FEDStatusRegister& FEDStatusRegister::setL1ABXFIFOBufferState(const FEDBufferState state) {
     switch (state) {
-    case BUFFER_STATE_FULL:
-    case BUFFER_STATE_PARTIAL_FULL:
-    case BUFFER_STATE_EMPTY:
-    case BUFFER_STATE_UNSET:
-      break;
-    default:
-      std::ostringstream ss;
-      ss << "Invalid buffer state: ";
-      printHex(&state,1,ss);
-      throw cms::Exception("FEDBuffer") << ss.str();
+      case BUFFER_STATE_FULL:
+      case BUFFER_STATE_PARTIAL_FULL:
+      case BUFFER_STATE_EMPTY:
+      case BUFFER_STATE_UNSET:
+        break;
+      default:
+        std::ostringstream ss;
+        ss << "Invalid buffer state: ";
+        printHex(&state, 1, ss);
+        throw cms::Exception("FEDBuffer") << ss.str();
     }
     setL1ABXFIFOFullFlag(state & BUFFER_STATE_FULL);
     setL1ABXFIFOPartialFullFlag(state & BUFFER_STATE_PARTIAL_FULL);
@@ -606,69 +608,78 @@ namespace sistrip {
     return *this;
   }
 
-
-
-
-  void FEDBackendStatusRegister::printFlags(std::ostream& os) const
-  {
-    if (internalFreezeFlag()) os << "INTERNAL_FREEZE ";
-    if (slinkDownFlag()) os << "SLINK_DOWN ";
-    if (slinkFullFlag()) os << "SLINK_FULL ";
-    if (backpressureFlag()) os << "BACKPRESSURE ";
-    if (ttcReadyFlag()) os << "TTC_READY ";
-    if (trackerHeaderMonitorDataReadyFlag()) os << "HEADER_MONITOR_READY ";
-    printFlagsForBuffer(qdrMemoryState(),"QDR",os);
-    printFlagsForBuffer(frameAddressFIFOState(),"FRAME_ADDRESS",os);
-    printFlagsForBuffer(totalLengthFIFOState(),"TOTAL_LENGTH",os);
-    printFlagsForBuffer(trackerHeaderFIFOState(),"TRACKER_HEADER",os);
-    printFlagsForBuffer(l1aBxFIFOState(),"L1ABX",os);
-    printFlagsForBuffer(feEventLengthFIFOState(),"FE_LENGTH",os);
-    printFlagsForBuffer(feFPGABufferState(),"FE",os);
+  void FEDBackendStatusRegister::printFlags(std::ostream& os) const {
+    if (internalFreezeFlag())
+      os << "INTERNAL_FREEZE ";
+    if (slinkDownFlag())
+      os << "SLINK_DOWN ";
+    if (slinkFullFlag())
+      os << "SLINK_FULL ";
+    if (backpressureFlag())
+      os << "BACKPRESSURE ";
+    if (ttcReadyFlag())
+      os << "TTC_READY ";
+    if (trackerHeaderMonitorDataReadyFlag())
+      os << "HEADER_MONITOR_READY ";
+    printFlagsForBuffer(qdrMemoryState(), "QDR", os);
+    printFlagsForBuffer(frameAddressFIFOState(), "FRAME_ADDRESS", os);
+    printFlagsForBuffer(totalLengthFIFOState(), "TOTAL_LENGTH", os);
+    printFlagsForBuffer(trackerHeaderFIFOState(), "TRACKER_HEADER", os);
+    printFlagsForBuffer(l1aBxFIFOState(), "L1ABX", os);
+    printFlagsForBuffer(feEventLengthFIFOState(), "FE_LENGTH", os);
+    printFlagsForBuffer(feFPGABufferState(), "FE", os);
   }
-  
-  void FEDBackendStatusRegister::printFlagsForBuffer(const FEDBufferState bufferState, const std::string name, std::ostream& os) const
-  {
-    if (bufferState&BUFFER_STATE_EMPTY) os << name << "_EMPTY ";
-    if (bufferState&BUFFER_STATE_PARTIAL_FULL) os << name << "_PARTIAL_FULL ";
-    if (bufferState&BUFFER_STATE_FULL) os << name << "_FULL ";
-    if (bufferState == BUFFER_STATE_UNSET) os << name << "_UNSET ";
+
+  void FEDBackendStatusRegister::printFlagsForBuffer(const FEDBufferState bufferState,
+                                                     const std::string name,
+                                                     std::ostream& os) const {
+    if (bufferState & BUFFER_STATE_EMPTY)
+      os << name << "_EMPTY ";
+    if (bufferState & BUFFER_STATE_PARTIAL_FULL)
+      os << name << "_PARTIAL_FULL ";
+    if (bufferState & BUFFER_STATE_FULL)
+      os << name << "_FULL ";
+    if (bufferState == BUFFER_STATE_UNSET)
+      os << name << "_UNSET ";
   }
-  
-  FEDBufferState FEDBackendStatusRegister::getBufferState(const uint8_t bufferPosition) const
-  {
+
+  FEDBufferState FEDBackendStatusRegister::getBufferState(const uint8_t bufferPosition) const {
     uint8_t result = 0x00;
-    if (getBit(bufferPosition+STATE_OFFSET_EMPTY)) result |= BUFFER_STATE_EMPTY;
-    if (getBit(bufferPosition+STATE_OFFSET_PARTIAL_FULL)) result |= BUFFER_STATE_PARTIAL_FULL;
-    if (getBit(bufferPosition+STATE_OFFSET_FULL)) result |= BUFFER_STATE_FULL;
+    if (getBit(bufferPosition + STATE_OFFSET_EMPTY))
+      result |= BUFFER_STATE_EMPTY;
+    if (getBit(bufferPosition + STATE_OFFSET_PARTIAL_FULL))
+      result |= BUFFER_STATE_PARTIAL_FULL;
+    if (getBit(bufferPosition + STATE_OFFSET_FULL))
+      result |= BUFFER_STATE_FULL;
     return FEDBufferState(result);
   }
-  
-  void FEDBackendStatusRegister::setBufferSate(const uint8_t bufferPosition, const FEDBufferState state)
-  {
+
+  void FEDBackendStatusRegister::setBufferSate(const uint8_t bufferPosition, const FEDBufferState state) {
     switch (state) {
-    case BUFFER_STATE_FULL:
-    case BUFFER_STATE_PARTIAL_FULL:
-    case BUFFER_STATE_EMPTY:
-    case BUFFER_STATE_UNSET:
-      break;
-    default:
-      std::ostringstream ss;
-      ss << "Invalid buffer state: ";
-      printHex(&state,1,ss);
-      throw cms::Exception("FEDBuffer") << ss.str();
+      case BUFFER_STATE_FULL:
+      case BUFFER_STATE_PARTIAL_FULL:
+      case BUFFER_STATE_EMPTY:
+      case BUFFER_STATE_UNSET:
+        break;
+      default:
+        std::ostringstream ss;
+        ss << "Invalid buffer state: ";
+        printHex(&state, 1, ss);
+        throw cms::Exception("FEDBuffer") << ss.str();
     }
-    setBit(bufferPosition+STATE_OFFSET_EMPTY, state&BUFFER_STATE_EMPTY);
-    setBit(bufferPosition+STATE_OFFSET_PARTIAL_FULL, state&BUFFER_STATE_PARTIAL_FULL);
-    setBit(bufferPosition+STATE_OFFSET_FULL, state&BUFFER_STATE_FULL);
+    setBit(bufferPosition + STATE_OFFSET_EMPTY, state & BUFFER_STATE_EMPTY);
+    setBit(bufferPosition + STATE_OFFSET_PARTIAL_FULL, state & BUFFER_STATE_PARTIAL_FULL);
+    setBit(bufferPosition + STATE_OFFSET_FULL, state & BUFFER_STATE_FULL);
   }
-  
-  void FEDBackendStatusRegister::setBit(const uint8_t num, const bool bitSet)
-  {
+
+  void FEDBackendStatusRegister::setBit(const uint8_t num, const bool bitSet) {
     const uint32_t mask = (0x00000001 << num);
-    if (bitSet) data_ |= mask;
-    else data_ &= (~mask);
+    if (bitSet)
+      data_ |= mask;
+    else
+      data_ &= (~mask);
   }
-  
+
   FEDBackendStatusRegister::FEDBackendStatusRegister(const FEDBufferState qdrMemoryBufferState,
                                                      const FEDBufferState frameAddressFIFOBufferState,
                                                      const FEDBufferState totalLengthFIFOBufferState,
@@ -676,11 +687,13 @@ namespace sistrip {
                                                      const FEDBufferState l1aBxFIFOBufferState,
                                                      const FEDBufferState feEventLengthFIFOBufferState,
                                                      const FEDBufferState feFPGABufferState,
-                                                     const bool backpressure, const bool slinkFull,
-                                                     const bool slinkDown, const bool internalFreeze,
-                                                     const bool trackerHeaderMonitorDataReady, const bool ttcReady)
-    : data_(0)
-  {
+                                                     const bool backpressure,
+                                                     const bool slinkFull,
+                                                     const bool slinkDown,
+                                                     const bool internalFreeze,
+                                                     const bool trackerHeaderMonitorDataReady,
+                                                     const bool ttcReady)
+      : data_(0) {
     setInternalFreezeFlag(internalFreeze);
     setSLinkDownFlag(slinkDown);
     setSLinkFullFlag(slinkFull);
@@ -696,208 +709,203 @@ namespace sistrip {
     setFEFPGABufferState(feFPGABufferState);
   }
 
-
-
-
-  TrackerSpecialHeader::TrackerSpecialHeader(const uint8_t* headerPointer)
-  {
+  TrackerSpecialHeader::TrackerSpecialHeader(const uint8_t* headerPointer) {
     //the buffer format byte is one of the valid values if we assume the buffer is not swapped
-    const bool validFormatByteWhenNotWordSwapped = ( (headerPointer[BUFFERFORMAT] == BUFFER_FORMAT_CODE_NEW) ||
-						     (headerPointer[BUFFERFORMAT] == BUFFER_FORMAT_CODE_OLD) );
+    const bool validFormatByteWhenNotWordSwapped = ((headerPointer[BUFFERFORMAT] == BUFFER_FORMAT_CODE_NEW) ||
+                                                    (headerPointer[BUFFERFORMAT] == BUFFER_FORMAT_CODE_OLD));
     //the buffer format byte is the old value if we assume the buffer is swapped
-    const bool validFormatByteWhenWordSwapped = (headerPointer[BUFFERFORMAT^4] == BUFFER_FORMAT_CODE_OLD);
+    const bool validFormatByteWhenWordSwapped = (headerPointer[BUFFERFORMAT ^ 4] == BUFFER_FORMAT_CODE_OLD);
     //if the buffer format byte is valid if the buffer is not swapped or it is never valid
-    if (validFormatByteWhenNotWordSwapped || (!validFormatByteWhenNotWordSwapped && !validFormatByteWhenWordSwapped) ) {
-      memcpy(specialHeader_,headerPointer,8);
+    if (validFormatByteWhenNotWordSwapped || (!validFormatByteWhenNotWordSwapped && !validFormatByteWhenWordSwapped)) {
+      memcpy(specialHeader_, headerPointer, 8);
       wordSwapped_ = false;
     } else {
-      memcpy(specialHeader_,headerPointer+4,4);
-      memcpy(specialHeader_+4,headerPointer,4);
+      memcpy(specialHeader_, headerPointer + 4, 4);
+      memcpy(specialHeader_ + 4, headerPointer, 4);
       wordSwapped_ = true;
     }
   }
 
-  FEDBufferFormat TrackerSpecialHeader::bufferFormat() const
-  {
-    if (bufferFormatByte() == BUFFER_FORMAT_CODE_NEW) return BUFFER_FORMAT_NEW;
+  FEDBufferFormat TrackerSpecialHeader::bufferFormat() const {
+    if (bufferFormatByte() == BUFFER_FORMAT_CODE_NEW)
+      return BUFFER_FORMAT_NEW;
     else if (bufferFormatByte() == BUFFER_FORMAT_CODE_OLD) {
-      if (wordSwapped_) return BUFFER_FORMAT_OLD_VME;
-      else return BUFFER_FORMAT_OLD_SLINK;
-    }
-    else return BUFFER_FORMAT_INVALID;
+      if (wordSwapped_)
+        return BUFFER_FORMAT_OLD_VME;
+      else
+        return BUFFER_FORMAT_OLD_SLINK;
+    } else
+      return BUFFER_FORMAT_INVALID;
   }
 
-  FEDHeaderType TrackerSpecialHeader::headerType() const
-  {
-    if ( (headerTypeNibble() == HEADER_TYPE_FULL_DEBUG) || 
-	 (headerTypeNibble() == HEADER_TYPE_APV_ERROR) ||
-         (headerTypeNibble() == HEADER_TYPE_NONE) )
+  FEDHeaderType TrackerSpecialHeader::headerType() const {
+    if ((headerTypeNibble() == HEADER_TYPE_FULL_DEBUG) || (headerTypeNibble() == HEADER_TYPE_APV_ERROR) ||
+        (headerTypeNibble() == HEADER_TYPE_NONE))
       return FEDHeaderType(headerTypeNibble());
-    else return HEADER_TYPE_INVALID;
+    else
+      return HEADER_TYPE_INVALID;
   }
 
-  FEDLegacyReadoutMode TrackerSpecialHeader::legacyReadoutMode() const
-  {
+  FEDLegacyReadoutMode TrackerSpecialHeader::legacyReadoutMode() const {
     const uint8_t eventTypeNibble = trackerEventTypeNibble();
     const uint8_t mode = (eventTypeNibble & 0xF);
-    switch(mode) {
-    case READOUT_MODE_LEGACY_VIRGIN_RAW_REAL:
-    case READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE:
-    case READOUT_MODE_LEGACY_PROC_RAW_REAL:
-    case READOUT_MODE_LEGACY_PROC_RAW_FAKE:
-    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL:
-    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE:
-    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL:
-    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE:
-      return FEDLegacyReadoutMode(mode);
-    default:
-      return READOUT_MODE_LEGACY_INVALID;
+    switch (mode) {
+      case READOUT_MODE_LEGACY_VIRGIN_RAW_REAL:
+      case READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE:
+      case READOUT_MODE_LEGACY_PROC_RAW_REAL:
+      case READOUT_MODE_LEGACY_PROC_RAW_FAKE:
+      case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL:
+      case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE:
+      case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL:
+      case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE:
+        return FEDLegacyReadoutMode(mode);
+      default:
+        return READOUT_MODE_LEGACY_INVALID;
     }
   }
 
-  FEDReadoutMode TrackerSpecialHeader::readoutMode() const
-  {
+  FEDReadoutMode TrackerSpecialHeader::readoutMode() const {
     const uint8_t eventTypeNibble = trackerEventTypeNibble();
     //if it is scope mode then return as is (it cannot be fake data)
-    if (eventTypeNibble == READOUT_MODE_SCOPE) return FEDReadoutMode(eventTypeNibble);
+    if (eventTypeNibble == READOUT_MODE_SCOPE)
+      return FEDReadoutMode(eventTypeNibble);
     //if it is premix then return as is: stripping last bit would make it spy data !
-    if (eventTypeNibble == READOUT_MODE_PREMIX_RAW) return FEDReadoutMode(eventTypeNibble);
+    if (eventTypeNibble == READOUT_MODE_PREMIX_RAW)
+      return FEDReadoutMode(eventTypeNibble);
     //if not then ignore the last bit which indicates if it is real or fake
     else {
       const uint8_t mode = (eventTypeNibble & 0xF);
-      switch(mode) {
-      case READOUT_MODE_VIRGIN_RAW:
-      case READOUT_MODE_PROC_RAW:
-      case READOUT_MODE_ZERO_SUPPRESSED:
-      case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
-      //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
-      case READOUT_MODE_SPY:
-        return FEDReadoutMode(mode);
-      default:
-        return READOUT_MODE_INVALID;
+      switch (mode) {
+        case READOUT_MODE_VIRGIN_RAW:
+        case READOUT_MODE_PROC_RAW:
+        case READOUT_MODE_ZERO_SUPPRESSED:
+        case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+        //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+        case READOUT_MODE_SPY:
+          return FEDReadoutMode(mode);
+        default:
+          return READOUT_MODE_INVALID;
       }
     }
   }
 
-  TrackerSpecialHeader& TrackerSpecialHeader::setBufferFormat(const FEDBufferFormat newBufferFormat)
-  {
+  TrackerSpecialHeader& TrackerSpecialHeader::setBufferFormat(const FEDBufferFormat newBufferFormat) {
     //check if order in buffer is different
-    if ( ( (bufferFormat()==BUFFER_FORMAT_OLD_VME) && (newBufferFormat!=BUFFER_FORMAT_OLD_VME) ) ||
-         ( (bufferFormat()!=BUFFER_FORMAT_OLD_VME) && (newBufferFormat==BUFFER_FORMAT_OLD_VME) ) ) {
+    if (((bufferFormat() == BUFFER_FORMAT_OLD_VME) && (newBufferFormat != BUFFER_FORMAT_OLD_VME)) ||
+        ((bufferFormat() != BUFFER_FORMAT_OLD_VME) && (newBufferFormat == BUFFER_FORMAT_OLD_VME))) {
       wordSwapped_ = !wordSwapped_;
     }
     //set appropriate code
     setBufferFormatByte(newBufferFormat);
     return *this;
   }
-  
-  void TrackerSpecialHeader::setBufferFormatByte(const FEDBufferFormat newBufferFormat)
-  {
+
+  void TrackerSpecialHeader::setBufferFormatByte(const FEDBufferFormat newBufferFormat) {
     switch (newBufferFormat) {
-    case BUFFER_FORMAT_OLD_VME:
-    case BUFFER_FORMAT_OLD_SLINK:
-      specialHeader_[BUFFERFORMAT] = BUFFER_FORMAT_CODE_OLD;
-      break;
-    case BUFFER_FORMAT_NEW:
-      specialHeader_[BUFFERFORMAT] = BUFFER_FORMAT_CODE_NEW;
-      break;
-    default:
-      std::ostringstream ss;
-      ss << "Invalid buffer format: ";
-      printHex(&newBufferFormat,1,ss);
-      throw cms::Exception("FEDBuffer") << ss.str();
+      case BUFFER_FORMAT_OLD_VME:
+      case BUFFER_FORMAT_OLD_SLINK:
+        specialHeader_[BUFFERFORMAT] = BUFFER_FORMAT_CODE_OLD;
+        break;
+      case BUFFER_FORMAT_NEW:
+        specialHeader_[BUFFERFORMAT] = BUFFER_FORMAT_CODE_NEW;
+        break;
+      default:
+        std::ostringstream ss;
+        ss << "Invalid buffer format: ";
+        printHex(&newBufferFormat, 1, ss);
+        throw cms::Exception("FEDBuffer") << ss.str();
     }
   }
-  
-  TrackerSpecialHeader& TrackerSpecialHeader::setHeaderType(const FEDHeaderType headerType)
-  {
-    switch(headerType) {
-    case HEADER_TYPE_FULL_DEBUG:
-    case HEADER_TYPE_APV_ERROR:
-    case HEADER_TYPE_NONE:
-      setHeaderTypeNibble(headerType);
-      return *this;
-    default:
-      std::ostringstream ss;
-      ss << "Invalid header type: ";
-      printHex(&headerType,1,ss);
-      throw cms::Exception("FEDBuffer") << ss.str();
+
+  TrackerSpecialHeader& TrackerSpecialHeader::setHeaderType(const FEDHeaderType headerType) {
+    switch (headerType) {
+      case HEADER_TYPE_FULL_DEBUG:
+      case HEADER_TYPE_APV_ERROR:
+      case HEADER_TYPE_NONE:
+        setHeaderTypeNibble(headerType);
+        return *this;
+      default:
+        std::ostringstream ss;
+        ss << "Invalid header type: ";
+        printHex(&headerType, 1, ss);
+        throw cms::Exception("FEDBuffer") << ss.str();
     }
   }
-  
-  TrackerSpecialHeader& TrackerSpecialHeader::setReadoutMode(const FEDReadoutMode readoutMode)
-  {
-    switch(readoutMode) {
-    case READOUT_MODE_SCOPE:
-      //scope mode is always real
-      setReadoutModeBits(readoutMode);
-    case READOUT_MODE_VIRGIN_RAW:
-    case READOUT_MODE_PROC_RAW:
-    case READOUT_MODE_SPY:
-    case READOUT_MODE_ZERO_SUPPRESSED:
-    case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
-      setReadoutModeBits(readoutMode);
-      break;
-    case READOUT_MODE_PREMIX_RAW:
-      //special mode for simulation
-      setReadoutModeBits(readoutMode);
-      break;
-    default:
-      std::ostringstream ss;
-      ss << "Invalid readout mode: ";
-      printHex(&readoutMode,1,ss);
-      throw cms::Exception("FEDBuffer") << ss.str();
+
+  TrackerSpecialHeader& TrackerSpecialHeader::setReadoutMode(const FEDReadoutMode readoutMode) {
+    switch (readoutMode) {
+      case READOUT_MODE_SCOPE:
+        //scope mode is always real
+        setReadoutModeBits(readoutMode);
+      case READOUT_MODE_VIRGIN_RAW:
+      case READOUT_MODE_PROC_RAW:
+      case READOUT_MODE_SPY:
+      case READOUT_MODE_ZERO_SUPPRESSED:
+      case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+        setReadoutModeBits(readoutMode);
+        break;
+      case READOUT_MODE_PREMIX_RAW:
+        //special mode for simulation
+        setReadoutModeBits(readoutMode);
+        break;
+      default:
+        std::ostringstream ss;
+        ss << "Invalid readout mode: ";
+        printHex(&readoutMode, 1, ss);
+        throw cms::Exception("FEDBuffer") << ss.str();
     }
     return *this;
   }
-  
-  TrackerSpecialHeader& TrackerSpecialHeader::setAPVAddressErrorForFEUnit(const uint8_t internalFEUnitNum, const bool error)
-  {
+
+  TrackerSpecialHeader& TrackerSpecialHeader::setAPVAddressErrorForFEUnit(const uint8_t internalFEUnitNum,
+                                                                          const bool error) {
     const uint8_t mask = 0x1 << internalFEUnitNum;
-    const uint8_t result = ( (apvAddressErrorRegister() & (~mask)) | (error?mask:0x00) );
+    const uint8_t result = ((apvAddressErrorRegister() & (~mask)) | (error ? mask : 0x00));
     setAPVEAddressErrorRegister(result);
     return *this;
   }
-  
-  TrackerSpecialHeader& TrackerSpecialHeader::setFEEnableForFEUnit(const uint8_t internalFEUnitNum, const bool enabled)
-  {
+
+  TrackerSpecialHeader& TrackerSpecialHeader::setFEEnableForFEUnit(const uint8_t internalFEUnitNum,
+                                                                   const bool enabled) {
     const uint8_t mask = 0x1 << internalFEUnitNum;
-    const uint8_t result = ( (feEnableRegister() & (~mask)) | (enabled?mask:0x00) );
+    const uint8_t result = ((feEnableRegister() & (~mask)) | (enabled ? mask : 0x00));
     setFEEnableRegister(result);
     return *this;
   }
-  
-  TrackerSpecialHeader& TrackerSpecialHeader::setFEOverflowForFEUnit(const uint8_t internalFEUnitNum, const bool overflow)
-  {
+
+  TrackerSpecialHeader& TrackerSpecialHeader::setFEOverflowForFEUnit(const uint8_t internalFEUnitNum,
+                                                                     const bool overflow) {
     const uint8_t mask = 0x1 << internalFEUnitNum;
-    const uint8_t result = ( (feOverflowRegister() & (~mask)) | (overflow?mask:0x00) );
+    const uint8_t result = ((feOverflowRegister() & (~mask)) | (overflow ? mask : 0x00));
     setFEEnableRegister(result);
     return *this;
   }
-  
-  TrackerSpecialHeader::TrackerSpecialHeader(const FEDBufferFormat bufferFormat, const FEDReadoutMode readoutMode,
+
+  TrackerSpecialHeader::TrackerSpecialHeader(const FEDBufferFormat bufferFormat,
+                                             const FEDReadoutMode readoutMode,
                                              const FEDHeaderType headerType,
-                                             const uint8_t address, const uint8_t addressErrorRegister,
-                                             const uint8_t feEnableRegister, const uint8_t feOverflowRegister,
-                                             const FEDStatusRegister fedStatusRegister)
-  {
-    memset(specialHeader_,0x00,8);
+                                             const uint8_t address,
+                                             const uint8_t addressErrorRegister,
+                                             const uint8_t feEnableRegister,
+                                             const uint8_t feOverflowRegister,
+                                             const FEDStatusRegister fedStatusRegister) {
+    memset(specialHeader_, 0x00, 8);
     //determine if order is swapped in real buffer
     wordSwapped_ = (bufferFormat == BUFFER_FORMAT_OLD_VME);
     //set fields
@@ -911,57 +919,51 @@ namespace sistrip {
     setFEDStatusRegister(fedStatusRegister);
   }
 
-
-
-
-  FEDDAQEventType FEDDAQHeader::eventType() const
-  {
-    switch(eventTypeNibble()) {
-    case DAQ_EVENT_TYPE_PHYSICS:
-    case DAQ_EVENT_TYPE_CALIBRATION:
-    case DAQ_EVENT_TYPE_TEST:
-    case DAQ_EVENT_TYPE_TECHNICAL:
-    case DAQ_EVENT_TYPE_SIMULATED:
-    case DAQ_EVENT_TYPE_TRACED:
-    case DAQ_EVENT_TYPE_ERROR:
-      return FEDDAQEventType(eventTypeNibble());
-    default:
-      return DAQ_EVENT_TYPE_INVALID;
+  FEDDAQEventType FEDDAQHeader::eventType() const {
+    switch (eventTypeNibble()) {
+      case DAQ_EVENT_TYPE_PHYSICS:
+      case DAQ_EVENT_TYPE_CALIBRATION:
+      case DAQ_EVENT_TYPE_TEST:
+      case DAQ_EVENT_TYPE_TECHNICAL:
+      case DAQ_EVENT_TYPE_SIMULATED:
+      case DAQ_EVENT_TYPE_TRACED:
+      case DAQ_EVENT_TYPE_ERROR:
+        return FEDDAQEventType(eventTypeNibble());
+      default:
+        return DAQ_EVENT_TYPE_INVALID;
     }
   }
-  
-  FEDDAQHeader& FEDDAQHeader::setEventType(const FEDDAQEventType evtType)
-  {
+
+  FEDDAQHeader& FEDDAQHeader::setEventType(const FEDDAQEventType evtType) {
     header_[7] = ((header_[7] & 0xF0) | evtType);
     return *this;
   }
-  
-  FEDDAQHeader& FEDDAQHeader::setL1ID(const uint32_t l1ID)
-  {
+
+  FEDDAQHeader& FEDDAQHeader::setL1ID(const uint32_t l1ID) {
     header_[4] = (l1ID & 0x000000FF);
-    header_[5] = ( (l1ID & 0x0000FF00) >> 8);
-    header_[6] = ( (l1ID & 0x00FF0000) >> 16);
+    header_[5] = ((l1ID & 0x0000FF00) >> 8);
+    header_[6] = ((l1ID & 0x00FF0000) >> 16);
     return *this;
   }
-  
-  FEDDAQHeader& FEDDAQHeader::setBXID(const uint16_t bxID)
-  {
-    header_[3] = ( (bxID & 0x0FF0) >> 4);
-    header_[2] = ( (header_[2] & 0x0F) | ( (bxID & 0x000F) << 4) );
+
+  FEDDAQHeader& FEDDAQHeader::setBXID(const uint16_t bxID) {
+    header_[3] = ((bxID & 0x0FF0) >> 4);
+    header_[2] = ((header_[2] & 0x0F) | ((bxID & 0x000F) << 4));
     return *this;
   }
-  
-  FEDDAQHeader& FEDDAQHeader::setSourceID(const uint16_t sourceID)
-  {
-    header_[2] = ( (header_[2] & 0xF0) | ( (sourceID & 0x0F00) >> 8) );
+
+  FEDDAQHeader& FEDDAQHeader::setSourceID(const uint16_t sourceID) {
+    header_[2] = ((header_[2] & 0xF0) | ((sourceID & 0x0F00) >> 8));
     header_[1] = (sourceID & 0x00FF);
     return *this;
   }
-  
-  FEDDAQHeader::FEDDAQHeader(const uint32_t l1ID, const uint16_t bxID, const uint16_t sourceID, const FEDDAQEventType evtType)
-  {
+
+  FEDDAQHeader::FEDDAQHeader(const uint32_t l1ID,
+                             const uint16_t bxID,
+                             const uint16_t sourceID,
+                             const FEDDAQEventType evtType) {
     //clear everything (FOV,H,x,$ all set to 0)
-    memset(header_,0x0,8);
+    memset(header_, 0x0, 8);
     //set the BoE nibble to indicate this is the last fragment
     header_[7] = 0x50;
     //set variable fields vith values supplied
@@ -971,31 +973,30 @@ namespace sistrip {
     setSourceID(sourceID);
   }
 
-
-
-
-  FEDTTSBits FEDDAQTrailer::ttsBits() const
-  {
-    switch(ttsNibble()) {
-    case TTS_DISCONNECTED0:
-    case TTS_WARN_OVERFLOW:
-    case TTS_OUT_OF_SYNC:
-    case TTS_BUSY:
-    case TTS_READY:
-    case TTS_ERROR:
-    case TTS_DISCONNECTED1:
-      return FEDTTSBits(ttsNibble());
-    default:
-      return TTS_INVALID;
+  FEDTTSBits FEDDAQTrailer::ttsBits() const {
+    switch (ttsNibble()) {
+      case TTS_DISCONNECTED0:
+      case TTS_WARN_OVERFLOW:
+      case TTS_OUT_OF_SYNC:
+      case TTS_BUSY:
+      case TTS_READY:
+      case TTS_ERROR:
+      case TTS_DISCONNECTED1:
+        return FEDTTSBits(ttsNibble());
+      default:
+        return TTS_INVALID;
     }
   }
-  
-  FEDDAQTrailer::FEDDAQTrailer(const uint32_t eventLengthIn64BitWords, const uint16_t crc, const FEDTTSBits ttsBits,
-                               const bool slinkTransmissionError, const bool badFEDID, const bool slinkCRCError,
-                               const uint8_t eventStatusNibble)
-  {
+
+  FEDDAQTrailer::FEDDAQTrailer(const uint32_t eventLengthIn64BitWords,
+                               const uint16_t crc,
+                               const FEDTTSBits ttsBits,
+                               const bool slinkTransmissionError,
+                               const bool badFEDID,
+                               const bool slinkCRCError,
+                               const uint8_t eventStatusNibble) {
     //clear everything (T,x,$ all set to 0)
-    memset(trailer_,0x0,8);
+    memset(trailer_, 0x0, 8);
     //set the EoE nibble to indicate this is the last fragment
     trailer_[7] = 0xA0;
     //set variable fields vith values supplied
@@ -1007,193 +1008,142 @@ namespace sistrip {
     setBadSourceIDBit(badFEDID);
     setSLinkCRCErrorBit(slinkCRCError);
   }
-  
-  FEDDAQTrailer& FEDDAQTrailer::setEventLengthIn64BitWords(const uint32_t eventLengthIn64BitWords)
-  {
+
+  FEDDAQTrailer& FEDDAQTrailer::setEventLengthIn64BitWords(const uint32_t eventLengthIn64BitWords) {
     trailer_[4] = (eventLengthIn64BitWords & 0x000000FF);
-    trailer_[5] = ( (eventLengthIn64BitWords & 0x0000FF00) >> 8);
-    trailer_[6] = ( (eventLengthIn64BitWords & 0x00FF0000) >> 16);
+    trailer_[5] = ((eventLengthIn64BitWords & 0x0000FF00) >> 8);
+    trailer_[6] = ((eventLengthIn64BitWords & 0x00FF0000) >> 16);
     return *this;
   }
-  
-  FEDDAQTrailer& FEDDAQTrailer::setCRC(const uint16_t crc)
-  {
+
+  FEDDAQTrailer& FEDDAQTrailer::setCRC(const uint16_t crc) {
     trailer_[2] = (crc & 0x00FF);
-    trailer_[3] = ( (crc >> 8) & 0x00FF );
-    return *this;
-  }
-  
-  FEDDAQTrailer& FEDDAQTrailer::setSLinkTransmissionErrorBit(const bool bitSet)
-  {
-    if (bitSet) trailer_[1] |= 0x80;
-    else trailer_[1] &= (~0x80);
-    return *this;
-  }
-  
-  FEDDAQTrailer& FEDDAQTrailer::setBadSourceIDBit(const bool bitSet)
-  {
-    if (bitSet) trailer_[1] |= 0x40;
-    else trailer_[1] &= (~0x40);
-    return *this;
-  }
-  
-  FEDDAQTrailer& FEDDAQTrailer::setSLinkCRCErrorBit(const bool bitSet)
-  {
-    if (bitSet) trailer_[0] |= 0x04;
-    else trailer_[0] &= (~0x40);
-    return *this;
-  }
-  
-  FEDDAQTrailer& FEDDAQTrailer::setEventStatusNibble(const uint8_t eventStatusNibble)
-  {
-    trailer_[1] = ( (trailer_[1] & 0xF0) | (eventStatusNibble & 0x0F) );
-    return *this;
-  }
-  
-  FEDDAQTrailer& FEDDAQTrailer::setTTSBits(const FEDTTSBits ttsBits)
-  {
-    trailer_[0] = ( (trailer_[0] & 0x0F) | (ttsBits & 0xF0) );
+    trailer_[3] = ((crc >> 8) & 0x00FF);
     return *this;
   }
 
-
-
-
-  FEDAPVErrorHeader::~FEDAPVErrorHeader()
-  {
+  FEDDAQTrailer& FEDDAQTrailer::setSLinkTransmissionErrorBit(const bool bitSet) {
+    if (bitSet)
+      trailer_[1] |= 0x80;
+    else
+      trailer_[1] &= (~0x80);
+    return *this;
   }
 
-  size_t FEDAPVErrorHeader::lengthInBytes() const
-  {
-    return APV_ERROR_HEADER_SIZE_IN_BYTES;
+  FEDDAQTrailer& FEDDAQTrailer::setBadSourceIDBit(const bool bitSet) {
+    if (bitSet)
+      trailer_[1] |= 0x40;
+    else
+      trailer_[1] &= (~0x40);
+    return *this;
   }
 
-  void FEDAPVErrorHeader::print(std::ostream& os) const
-  {
-    printHex(header_,APV_ERROR_HEADER_SIZE_IN_BYTES,os);
-  }
-  
-  FEDAPVErrorHeader* FEDAPVErrorHeader::clone() const
-  {
-    return new FEDAPVErrorHeader(*this);
+  FEDDAQTrailer& FEDDAQTrailer::setSLinkCRCErrorBit(const bool bitSet) {
+    if (bitSet)
+      trailer_[0] |= 0x04;
+    else
+      trailer_[0] &= (~0x40);
+    return *this;
   }
 
-  bool FEDAPVErrorHeader::checkStatusBits(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const
-  {
+  FEDDAQTrailer& FEDDAQTrailer::setEventStatusNibble(const uint8_t eventStatusNibble) {
+    trailer_[1] = ((trailer_[1] & 0xF0) | (eventStatusNibble & 0x0F));
+    return *this;
+  }
+
+  FEDDAQTrailer& FEDDAQTrailer::setTTSBits(const FEDTTSBits ttsBits) {
+    trailer_[0] = ((trailer_[0] & 0x0F) | (ttsBits & 0xF0));
+    return *this;
+  }
+
+  FEDAPVErrorHeader::~FEDAPVErrorHeader() {}
+
+  size_t FEDAPVErrorHeader::lengthInBytes() const { return APV_ERROR_HEADER_SIZE_IN_BYTES; }
+
+  void FEDAPVErrorHeader::print(std::ostream& os) const { printHex(header_, APV_ERROR_HEADER_SIZE_IN_BYTES, os); }
+
+  FEDAPVErrorHeader* FEDAPVErrorHeader::clone() const { return new FEDAPVErrorHeader(*this); }
+
+  bool FEDAPVErrorHeader::checkStatusBits(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const {
     //3 bytes per FE unit, channel order is reversed in FE unit data, 2 bits per channel
-    const uint16_t bitNumber = (internalFEDChannelNum/FEDCH_PER_FEUNIT)*24 + (FEDCH_PER_FEUNIT-1-(internalFEDChannelNum%FEDCH_PER_FEUNIT))*2 + apvNum;
+    const uint16_t bitNumber = (internalFEDChannelNum / FEDCH_PER_FEUNIT) * 24 +
+                               (FEDCH_PER_FEUNIT - 1 - (internalFEDChannelNum % FEDCH_PER_FEUNIT)) * 2 + apvNum;
     //bit high means no error
-    return (header_[bitNumber/8] & (0x01<<(bitNumber%8)) );
+    return (header_[bitNumber / 8] & (0x01 << (bitNumber % 8)));
   }
 
-  bool FEDAPVErrorHeader::checkChannelStatusBits(const uint8_t internalFEDChannelNum) const
-  {
-    return (checkStatusBits(internalFEDChannelNum,0) && checkStatusBits(internalFEDChannelNum,1));
+  bool FEDAPVErrorHeader::checkChannelStatusBits(const uint8_t internalFEDChannelNum) const {
+    return (checkStatusBits(internalFEDChannelNum, 0) && checkStatusBits(internalFEDChannelNum, 1));
   }
-  
-  const uint8_t* FEDAPVErrorHeader::data() const
-  {
-    return header_;
-  }
-  
-  FEDAPVErrorHeader::FEDAPVErrorHeader(const std::vector<bool>& apvsGood)
-  {
-    memset(header_,0x00,APV_ERROR_HEADER_SIZE_IN_BYTES);
+
+  const uint8_t* FEDAPVErrorHeader::data() const { return header_; }
+
+  FEDAPVErrorHeader::FEDAPVErrorHeader(const std::vector<bool>& apvsGood) {
+    memset(header_, 0x00, APV_ERROR_HEADER_SIZE_IN_BYTES);
     for (uint8_t iCh = 0; iCh < FEDCH_PER_FED; iCh++) {
-      setAPVStatusBit(iCh,0,apvsGood[iCh*2]);
-      setAPVStatusBit(iCh,1,apvsGood[iCh*2+1]);
+      setAPVStatusBit(iCh, 0, apvsGood[iCh * 2]);
+      setAPVStatusBit(iCh, 1, apvsGood[iCh * 2 + 1]);
     }
   }
-  
-  FEDAPVErrorHeader& FEDAPVErrorHeader::setAPVStatusBit(const uint8_t internalFEDChannelNum, const uint8_t apvNum, const bool apvGood)
-  {
+
+  FEDAPVErrorHeader& FEDAPVErrorHeader::setAPVStatusBit(const uint8_t internalFEDChannelNum,
+                                                        const uint8_t apvNum,
+                                                        const bool apvGood) {
     //3 bytes per FE unit, channel order is reversed in FE unit data, 2 bits per channel
-    const uint16_t bitNumber = (internalFEDChannelNum/FEDCH_PER_FED)*24 + (FEDCH_PER_FED-1-(internalFEDChannelNum%FEDCH_PER_FED))*2+apvNum;
-    const uint8_t byteNumber = bitNumber/8;
-    const uint8_t bitInByte = bitNumber%8;
+    const uint16_t bitNumber = (internalFEDChannelNum / FEDCH_PER_FED) * 24 +
+                               (FEDCH_PER_FED - 1 - (internalFEDChannelNum % FEDCH_PER_FED)) * 2 + apvNum;
+    const uint8_t byteNumber = bitNumber / 8;
+    const uint8_t bitInByte = bitNumber % 8;
     const uint8_t mask = (0x01 << bitInByte);
-    header_[byteNumber] = ( (header_[byteNumber] & (~mask)) | (apvGood?mask:0x00) );
+    header_[byteNumber] = ((header_[byteNumber] & (~mask)) | (apvGood ? mask : 0x00));
     return *this;
   }
-  
-  void FEDAPVErrorHeader::setChannelStatus(const uint8_t internalFEDChannelNum, const FEDChannelStatus status)
-  {
+
+  void FEDAPVErrorHeader::setChannelStatus(const uint8_t internalFEDChannelNum, const FEDChannelStatus status) {
     //if channel is unlocked then set both APV bits bad
-    if ( (!(status & CHANNEL_STATUS_LOCKED)) || (!(status & CHANNEL_STATUS_IN_SYNC)) ) {
-      setAPVStatusBit(internalFEDChannelNum,0,false);
-      setAPVStatusBit(internalFEDChannelNum,1,false);
+    if ((!(status & CHANNEL_STATUS_LOCKED)) || (!(status & CHANNEL_STATUS_IN_SYNC))) {
+      setAPVStatusBit(internalFEDChannelNum, 0, false);
+      setAPVStatusBit(internalFEDChannelNum, 1, false);
       return;
     } else {
-      if ( (status & CHANNEL_STATUS_APV0_ADDRESS_GOOD) && (status & CHANNEL_STATUS_APV0_NO_ERROR_BIT) ) {
-        setAPVStatusBit(internalFEDChannelNum,0,true);
+      if ((status & CHANNEL_STATUS_APV0_ADDRESS_GOOD) && (status & CHANNEL_STATUS_APV0_NO_ERROR_BIT)) {
+        setAPVStatusBit(internalFEDChannelNum, 0, true);
       } else {
-        setAPVStatusBit(internalFEDChannelNum,0,false);
+        setAPVStatusBit(internalFEDChannelNum, 0, false);
       }
-      if ( (status & CHANNEL_STATUS_APV1_ADDRESS_GOOD) && (status & CHANNEL_STATUS_APV1_NO_ERROR_BIT) ) {
-        setAPVStatusBit(internalFEDChannelNum,1,true);
+      if ((status & CHANNEL_STATUS_APV1_ADDRESS_GOOD) && (status & CHANNEL_STATUS_APV1_NO_ERROR_BIT)) {
+        setAPVStatusBit(internalFEDChannelNum, 1, true);
       } else {
-        setAPVStatusBit(internalFEDChannelNum,1,false);
+        setAPVStatusBit(internalFEDChannelNum, 1, false);
       }
     }
   }
-  
+
   //These methods do nothing as the values in question are in present in the APV Error header.
   //The methods exist so that users of the base class can set the values without caring which type of header they have and so if they are needed.
-  void FEDAPVErrorHeader::setFEUnitMajorityAddress(const uint8_t internalFEUnitNum, const uint8_t address)
-  {
+  void FEDAPVErrorHeader::setFEUnitMajorityAddress(const uint8_t internalFEUnitNum, const uint8_t address) { return; }
+  void FEDAPVErrorHeader::setBEStatusRegister(const FEDBackendStatusRegister beStatusRegister) { return; }
+  void FEDAPVErrorHeader::setDAQRegister(const uint32_t daqRegister) { return; }
+  void FEDAPVErrorHeader::setDAQRegister2(const uint32_t daqRegister2) { return; }
+  void FEDAPVErrorHeader::set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister) {
     return;
   }
-  void FEDAPVErrorHeader::setBEStatusRegister(const FEDBackendStatusRegister beStatusRegister)
-  {
-    return;
-  }
-  void FEDAPVErrorHeader::setDAQRegister(const uint32_t daqRegister)
-  {
-    return;
-  }
-  void FEDAPVErrorHeader::setDAQRegister2(const uint32_t daqRegister2)
-  {
-    return;
-  }
-  void FEDAPVErrorHeader::set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister)
-  {
-    return;
-  }
-  void FEDAPVErrorHeader::setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length)
-  {
-    return;
-  }
-  
-  
-  FEDFullDebugHeader::~FEDFullDebugHeader()
-  {
+  void FEDAPVErrorHeader::setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length) { return; }
+
+  FEDFullDebugHeader::~FEDFullDebugHeader() {}
+
+  size_t FEDFullDebugHeader::lengthInBytes() const { return FULL_DEBUG_HEADER_SIZE_IN_BYTES; }
+
+  void FEDFullDebugHeader::print(std::ostream& os) const { printHex(header_, FULL_DEBUG_HEADER_SIZE_IN_BYTES, os); }
+
+  FEDFullDebugHeader* FEDFullDebugHeader::clone() const { return new FEDFullDebugHeader(*this); }
+
+  bool FEDFullDebugHeader::checkStatusBits(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const {
+    return (!unlockedFromBit(internalFEDChannelNum) && !outOfSyncFromBit(internalFEDChannelNum) &&
+            !apvError(internalFEDChannelNum, apvNum) && !apvAddressError(internalFEDChannelNum, apvNum));
   }
 
-  size_t FEDFullDebugHeader::lengthInBytes() const
-  {
-    return FULL_DEBUG_HEADER_SIZE_IN_BYTES;
-  }
-
-  void FEDFullDebugHeader::print(std::ostream& os) const
-  {
-    printHex(header_,FULL_DEBUG_HEADER_SIZE_IN_BYTES,os);
-  }
-  
-  FEDFullDebugHeader* FEDFullDebugHeader::clone() const
-  {
-    return new FEDFullDebugHeader(*this);
-  }
-  
-  bool FEDFullDebugHeader::checkStatusBits(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const
-  {
-    return ( !unlockedFromBit(internalFEDChannelNum) &&
-             !outOfSyncFromBit(internalFEDChannelNum) &&
-             !apvError(internalFEDChannelNum,apvNum) &&
-             !apvAddressError(internalFEDChannelNum,apvNum) );
-  }
-
-  bool FEDFullDebugHeader::checkChannelStatusBits(const uint8_t internalFEDChannelNum) const
-  {
+  bool FEDFullDebugHeader::checkChannelStatusBits(const uint8_t internalFEDChannelNum) const {
     //return ( !unlockedFromBit(internalFEDChannelNum) &&
     //         !outOfSyncFromBit(internalFEDChannelNum) &&
     //         !apvErrorFromBit(internalFEDChannelNum,0) &&
@@ -1203,23 +1153,24 @@ namespace sistrip {
     return (getChannelStatus(internalFEDChannelNum) == CHANNEL_STATUS_NO_PROBLEMS);
   }
 
-  FEDChannelStatus FEDFullDebugHeader::getChannelStatus(const uint8_t internalFEDChannelNum) const
-  {
-    const uint8_t* pFEWord = feWord(internalFEDChannelNum/FEDCH_PER_FEUNIT);
+  FEDChannelStatus FEDFullDebugHeader::getChannelStatus(const uint8_t internalFEDChannelNum) const {
+    const uint8_t* pFEWord = feWord(internalFEDChannelNum / FEDCH_PER_FEUNIT);
     const uint8_t feUnitChanNum = internalFEDChannelNum % FEDCH_PER_FEUNIT;
-    const uint8_t startByteInFEWord = (FEDCH_PER_FEUNIT-1 - feUnitChanNum) * 6 / 8;
-    switch ( (FEDCH_PER_FEUNIT-1-feUnitChanNum) % 4 ) {
-    case 0:
-      return FEDChannelStatus( pFEWord[startByteInFEWord] & 0x3F );
-    case 1:
-      return FEDChannelStatus( ((pFEWord[startByteInFEWord] & 0xC0) >> 6) | ((pFEWord[startByteInFEWord+1] & 0x0F) << 2) );
-    case 2:
-      return FEDChannelStatus( ((pFEWord[startByteInFEWord] & 0xF0) >> 4) | ((pFEWord[startByteInFEWord+1] & 0x03) << 4) );
-    case 3:
-      return FEDChannelStatus( (pFEWord[startByteInFEWord] & 0xFC) >> 2 );
-    //stop compiler warning
-    default:
-      return FEDChannelStatus(0);
+    const uint8_t startByteInFEWord = (FEDCH_PER_FEUNIT - 1 - feUnitChanNum) * 6 / 8;
+    switch ((FEDCH_PER_FEUNIT - 1 - feUnitChanNum) % 4) {
+      case 0:
+        return FEDChannelStatus(pFEWord[startByteInFEWord] & 0x3F);
+      case 1:
+        return FEDChannelStatus(((pFEWord[startByteInFEWord] & 0xC0) >> 6) |
+                                ((pFEWord[startByteInFEWord + 1] & 0x0F) << 2));
+      case 2:
+        return FEDChannelStatus(((pFEWord[startByteInFEWord] & 0xF0) >> 4) |
+                                ((pFEWord[startByteInFEWord + 1] & 0x03) << 4));
+      case 3:
+        return FEDChannelStatus((pFEWord[startByteInFEWord] & 0xFC) >> 2);
+      //stop compiler warning
+      default:
+        return FEDChannelStatus(0);
     }
     /*const uint8_t feUnitChanNum = internalFEDChannelNum / FEDCH_PER_FEUNIT;
     const uint8_t* pFEWord = feWord(feUnitChanNum);
@@ -1242,108 +1193,91 @@ namespace sistrip {
       return FEDChannelStatus(0);
     }*/
   }
-  
-  const uint8_t* FEDFullDebugHeader::data() const
-  {
-    return header_;
-  }
-  
-  FEDFullDebugHeader::FEDFullDebugHeader(const std::vector<uint16_t>& feUnitLengths, const std::vector<uint8_t>& feMajorityAddresses,
-                                         const std::vector<FEDChannelStatus>& channelStatus, const FEDBackendStatusRegister beStatusRegister,
-                                         const uint32_t daqRegister, const uint32_t daqRegister2)
-  {
-    memset(header_,0x00,FULL_DEBUG_HEADER_SIZE_IN_BYTES);
+
+  const uint8_t* FEDFullDebugHeader::data() const { return header_; }
+
+  FEDFullDebugHeader::FEDFullDebugHeader(const std::vector<uint16_t>& feUnitLengths,
+                                         const std::vector<uint8_t>& feMajorityAddresses,
+                                         const std::vector<FEDChannelStatus>& channelStatus,
+                                         const FEDBackendStatusRegister beStatusRegister,
+                                         const uint32_t daqRegister,
+                                         const uint32_t daqRegister2) {
+    memset(header_, 0x00, FULL_DEBUG_HEADER_SIZE_IN_BYTES);
     setBEStatusRegister(beStatusRegister);
     setDAQRegister(daqRegister);
     setDAQRegister2(daqRegister2);
     for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
-      setFEUnitLength(iFE,feUnitLengths[iFE]);
-      setFEUnitMajorityAddress(iFE,feMajorityAddresses[iFE]);
+      setFEUnitLength(iFE, feUnitLengths[iFE]);
+      setFEUnitMajorityAddress(iFE, feMajorityAddresses[iFE]);
     }
     for (uint8_t iCh = 0; iCh < FEDCH_PER_FED; iCh++) {
-      setChannelStatus(iCh,channelStatus[iCh]);
+      setChannelStatus(iCh, channelStatus[iCh]);
     }
   }
-  
-  void FEDFullDebugHeader::setChannelStatus(const uint8_t internalFEDChannelNum, const FEDChannelStatus status)
-  {
-    setUnlocked(internalFEDChannelNum, !(status&CHANNEL_STATUS_LOCKED) );
-    setOutOfSync(internalFEDChannelNum, !(status&CHANNEL_STATUS_IN_SYNC) );
-    setAPVAddressError(internalFEDChannelNum,1, !(status&CHANNEL_STATUS_APV1_ADDRESS_GOOD) );
-    setAPVAddressError(internalFEDChannelNum,0, !(status&CHANNEL_STATUS_APV0_ADDRESS_GOOD) );
-    setAPVError(internalFEDChannelNum,1, !(status&CHANNEL_STATUS_APV1_NO_ERROR_BIT) );
-    setAPVError(internalFEDChannelNum,0, !(status&CHANNEL_STATUS_APV0_NO_ERROR_BIT) );
+
+  void FEDFullDebugHeader::setChannelStatus(const uint8_t internalFEDChannelNum, const FEDChannelStatus status) {
+    setUnlocked(internalFEDChannelNum, !(status & CHANNEL_STATUS_LOCKED));
+    setOutOfSync(internalFEDChannelNum, !(status & CHANNEL_STATUS_IN_SYNC));
+    setAPVAddressError(internalFEDChannelNum, 1, !(status & CHANNEL_STATUS_APV1_ADDRESS_GOOD));
+    setAPVAddressError(internalFEDChannelNum, 0, !(status & CHANNEL_STATUS_APV0_ADDRESS_GOOD));
+    setAPVError(internalFEDChannelNum, 1, !(status & CHANNEL_STATUS_APV1_NO_ERROR_BIT));
+    setAPVError(internalFEDChannelNum, 0, !(status & CHANNEL_STATUS_APV0_NO_ERROR_BIT));
   }
-  
-  void FEDFullDebugHeader::setFEUnitMajorityAddress(const uint8_t internalFEUnitNum, const uint8_t address)
-  {
+
+  void FEDFullDebugHeader::setFEUnitMajorityAddress(const uint8_t internalFEUnitNum, const uint8_t address) {
     feWord(internalFEUnitNum)[9] = address;
   }
-  
-  void FEDFullDebugHeader::setBEStatusRegister(const FEDBackendStatusRegister beStatusRegister)
-  {
-    set32BitWordAt(feWord(0)+10,beStatusRegister);
+
+  void FEDFullDebugHeader::setBEStatusRegister(const FEDBackendStatusRegister beStatusRegister) {
+    set32BitWordAt(feWord(0) + 10, beStatusRegister);
   }
-  
-  void FEDFullDebugHeader::setDAQRegister(const uint32_t daqRegister)
-  {
-    set32BitWordAt(feWord(7)+10,daqRegister);
-  }
-  
-  void FEDFullDebugHeader::setDAQRegister2(const uint32_t daqRegister2)
-  {
-    set32BitWordAt(feWord(6)+10,daqRegister2);
+
+  void FEDFullDebugHeader::setDAQRegister(const uint32_t daqRegister) { set32BitWordAt(feWord(7) + 10, daqRegister); }
+
+  void FEDFullDebugHeader::setDAQRegister2(const uint32_t daqRegister2) {
+    set32BitWordAt(feWord(6) + 10, daqRegister2);
   }
 
   //used by DigiToRaw to copy reserved registers in internalFEUnit buffers 1 through 5
-  void FEDFullDebugHeader::set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister)
-  {
-    set32BitWordAt(feWord(internalFEUnitNum)+10,reservedRegister);
+  void FEDFullDebugHeader::set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister) {
+    set32BitWordAt(feWord(internalFEUnitNum) + 10, reservedRegister);
   }
-  
-  void FEDFullDebugHeader::setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length)
-  {
-    feWord(internalFEUnitNum)[15] = ( (length & 0xFF00) >> 8);
+
+  void FEDFullDebugHeader::setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length) {
+    feWord(internalFEUnitNum)[15] = ((length & 0xFF00) >> 8);
     feWord(internalFEUnitNum)[14] = (length & 0x00FF);
   }
-  
-  void FEDFullDebugHeader::setBit(const uint8_t internalFEDChannelNum, const uint8_t bit, const bool value)
-  {
-    const uint8_t bitInFeWord = (FEDCH_PER_FEUNIT-1 - (internalFEDChannelNum%FEDCH_PER_FEUNIT)) * 6 + bit;
-    uint8_t& byte = *(feWord(internalFEDChannelNum / FEDCH_PER_FEUNIT)+(bitInFeWord/8));
-    const uint8_t mask = (0x1 << bitInFeWord%8);
-    byte = ( (byte & (~mask)) | (value?mask:0x0) );
+
+  void FEDFullDebugHeader::setBit(const uint8_t internalFEDChannelNum, const uint8_t bit, const bool value) {
+    const uint8_t bitInFeWord = (FEDCH_PER_FEUNIT - 1 - (internalFEDChannelNum % FEDCH_PER_FEUNIT)) * 6 + bit;
+    uint8_t& byte = *(feWord(internalFEDChannelNum / FEDCH_PER_FEUNIT) + (bitInFeWord / 8));
+    const uint8_t mask = (0x1 << bitInFeWord % 8);
+    byte = ((byte & (~mask)) | (value ? mask : 0x0));
   }
 
-  FEDFEHeader::~FEDFEHeader()
-  {
-  }
-
-
-
+  FEDFEHeader::~FEDFEHeader() {}
 
   FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat)
-    : channels_(FEDCH_PER_FED,FEDChannel(nullptr,0,0)),
-      originalBuffer_(fedBuffer),
-      bufferSize_(fedBufferSize)
-  {
-    init(fedBuffer,fedBufferSize,allowUnrecognizedFormat);
+      : channels_(FEDCH_PER_FED, FEDChannel(nullptr, 0, 0)), originalBuffer_(fedBuffer), bufferSize_(fedBufferSize) {
+    init(fedBuffer, fedBufferSize, allowUnrecognizedFormat);
   }
-  
-  FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat, const bool fillChannelVector)
-    : originalBuffer_(fedBuffer),
-      bufferSize_(fedBufferSize)
-  {
-    init(fedBuffer,fedBufferSize,allowUnrecognizedFormat);
-    if (fillChannelVector) channels_.assign(FEDCH_PER_FED,FEDChannel(nullptr,0,0));
+
+  FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer,
+                               const size_t fedBufferSize,
+                               const bool allowUnrecognizedFormat,
+                               const bool fillChannelVector)
+      : originalBuffer_(fedBuffer), bufferSize_(fedBufferSize) {
+    init(fedBuffer, fedBufferSize, allowUnrecognizedFormat);
+    if (fillChannelVector)
+      channels_.assign(FEDCH_PER_FED, FEDChannel(nullptr, 0, 0));
   }
-  
-  void FEDBufferBase::init(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat)
-  {
-    //min buffer length. DAQ header, DAQ trailer, tracker special header. 
-    static const size_t MIN_BUFFER_SIZE = 8+8+8;
+
+  void FEDBufferBase::init(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat) {
+    //min buffer length. DAQ header, DAQ trailer, tracker special header.
+    static const size_t MIN_BUFFER_SIZE = 8 + 8 + 8;
     //check size is non zero and data pointer is not NULL
-    if (!originalBuffer_) throw cms::Exception("FEDBuffer") << "Buffer pointer is NULL.";
+    if (!originalBuffer_)
+      throw cms::Exception("FEDBuffer") << "Buffer pointer is NULL.";
     if (bufferSize_ < MIN_BUFFER_SIZE) {
       std::ostringstream ss;
       ss << "Buffer is too small. "
@@ -1351,10 +1285,10 @@ namespace sistrip {
          << "Buffer size is " << bufferSize_ << ". ";
       throw cms::Exception("FEDBuffer") << ss.str();
     }
-  
+
     //construct tracker special header using second 64 bit word
-    specialHeader_ = TrackerSpecialHeader(originalBuffer_+8);
-  
+    specialHeader_ = TrackerSpecialHeader(originalBuffer_ + 8);
+
     //check the buffer format
     const FEDBufferFormat bufferFormat = specialHeader_.bufferFormat();
     if (bufferFormat == BUFFER_FORMAT_INVALID && !allowUnrecognizedFormat) {
@@ -1364,49 +1298,48 @@ namespace sistrip {
       throw cms::Exception("FEDBuffer") << ss.str();
     }
     //swap the buffer words so that the whole buffer is in slink ordering
-    if ( (bufferFormat == BUFFER_FORMAT_OLD_VME) || (bufferFormat == BUFFER_FORMAT_NEW) ) {
+    if ((bufferFormat == BUFFER_FORMAT_OLD_VME) || (bufferFormat == BUFFER_FORMAT_NEW)) {
       uint8_t* newBuffer = new uint8_t[bufferSize_];
       const uint32_t* originalU32 = reinterpret_cast<const uint32_t*>(originalBuffer_);
-      const size_t sizeU32 = bufferSize_/4;
+      const size_t sizeU32 = bufferSize_ / 4;
       uint32_t* newU32 = reinterpret_cast<uint32_t*>(newBuffer);
       if (bufferFormat == BUFFER_FORMAT_OLD_VME) {
-	//swap whole buffer
-	for (size_t i = 0; i < sizeU32; i+=2) {
-	  newU32[i] = originalU32[i+1];
-	  newU32[i+1] = originalU32[i];
-	}
+        //swap whole buffer
+        for (size_t i = 0; i < sizeU32; i += 2) {
+          newU32[i] = originalU32[i + 1];
+          newU32[i + 1] = originalU32[i];
+        }
       }
       if (bufferFormat == BUFFER_FORMAT_NEW) {
-	//copy DAQ header
-	memcpy(newU32,originalU32,8);
-	//copy DAQ trailer
-	memcpy(newU32+sizeU32-2,originalU32+sizeU32-2,8);
-	//swap the payload
-	for (size_t i = 2; i < sizeU32-2; i+=2) {
-	  newU32[i] = originalU32[i+1];
-	  newU32[i+1] = originalU32[i];
-	}
+        //copy DAQ header
+        memcpy(newU32, originalU32, 8);
+        //copy DAQ trailer
+        memcpy(newU32 + sizeU32 - 2, originalU32 + sizeU32 - 2, 8);
+        //swap the payload
+        for (size_t i = 2; i < sizeU32 - 2; i += 2) {
+          newU32[i] = originalU32[i + 1];
+          newU32[i + 1] = originalU32[i];
+        }
       }
       orderedBuffer_ = newBuffer;
-    } //if ( (bufferFormat == BUFFER_FORMAT_OLD_VME) || (bufferFormat == BUFFER_FORMAT_NEW) )
+    }  //if ( (bufferFormat == BUFFER_FORMAT_OLD_VME) || (bufferFormat == BUFFER_FORMAT_NEW) )
     else {
       orderedBuffer_ = originalBuffer_;
     }
-  
+
     //construct header object at begining of buffer
     daqHeader_ = FEDDAQHeader(orderedBuffer_);
     //construct trailer object using last 64 bit word of buffer
-    daqTrailer_ = FEDDAQTrailer(orderedBuffer_+bufferSize_-8);
+    daqTrailer_ = FEDDAQTrailer(orderedBuffer_ + bufferSize_ - 8);
   }
 
-  FEDBufferBase::~FEDBufferBase()
-  {
+  FEDBufferBase::~FEDBufferBase() {
     //if the buffer was coppied and swapped then delete the copy
-    if (orderedBuffer_ != originalBuffer_) delete[] orderedBuffer_;
+    if (orderedBuffer_ != originalBuffer_)
+      delete[] orderedBuffer_;
   }
 
-  void FEDBufferBase::print(std::ostream& os) const
-  {
+  void FEDBufferBase::print(std::ostream& os) const {
     os << "buffer format: " << bufferFormat() << std::endl;
     os << "Buffer size: " << bufferSize() << " bytes" << std::endl;
     os << "Event length from DAQ trailer: " << daqEventLengthInBytes() << " bytes" << std::endl;
@@ -1417,117 +1350,110 @@ namespace sistrip {
     os << "TTS state: " << daqTTSState() << std::endl;
     os << "L1 ID: " << daqLvl1ID() << std::endl;
     os << "BX ID: " << daqBXID() << std::endl;
-    os << "FED status register flags: "; fedStatusRegister().printFlags(os); os << std::endl;
+    os << "FED status register flags: ";
+    fedStatusRegister().printFlags(os);
+    os << std::endl;
     os << "APVe Address: " << uint16_t(apveAddress()) << std::endl;
     os << "Enabled FE units: " << uint16_t(nFEUnitsEnabled()) << std::endl;
   }
 
-  uint8_t FEDBufferBase::nFEUnitsEnabled() const
-  {
+  uint8_t FEDBufferBase::nFEUnitsEnabled() const {
     uint8_t result = 0;
     for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
-      if (feEnabled(iFE)) result++;
+      if (feEnabled(iFE))
+        result++;
     }
     return result;
   }
 
-  bool FEDBufferBase::checkSourceIDs() const
-  {
-    return ( (daqSourceID() >= FED_ID_MIN) &&
-	     (daqSourceID() <= FED_ID_MAX) );
+  bool FEDBufferBase::checkSourceIDs() const {
+    return ((daqSourceID() >= FED_ID_MIN) && (daqSourceID() <= FED_ID_MAX));
   }
-  
-  bool FEDBufferBase::checkMajorityAddresses() const
-  {
+
+  bool FEDBufferBase::checkMajorityAddresses() const {
     for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
-      if (!feEnabled(iFE)) continue;
-      if (majorityAddressErrorForFEUnit(iFE)) return false;
+      if (!feEnabled(iFE))
+        continue;
+      if (majorityAddressErrorForFEUnit(iFE))
+        return false;
     }
     return true;
   }
-  
-  bool FEDBufferBase::channelGood(const uint8_t internalFEDChannelNum) const
-  {
-    const uint8_t feUnit = internalFEDChannelNum/FEDCH_PER_FEUNIT;
-    return ( !majorityAddressErrorForFEUnit(feUnit) && feEnabled(feUnit) && !feOverflow(feUnit) );
-  }
-  
-  bool FEDBufferBase::doChecks() const
-  {
-    return (doTrackerSpecialHeaderChecks() && doDAQHeaderAndTrailerChecks());
+
+  bool FEDBufferBase::channelGood(const uint8_t internalFEDChannelNum) const {
+    const uint8_t feUnit = internalFEDChannelNum / FEDCH_PER_FEUNIT;
+    return (!majorityAddressErrorForFEUnit(feUnit) && feEnabled(feUnit) && !feOverflow(feUnit));
   }
 
-  std::string FEDBufferBase::checkSummary() const
-  {
+  bool FEDBufferBase::doChecks() const { return (doTrackerSpecialHeaderChecks() && doDAQHeaderAndTrailerChecks()); }
+
+  std::string FEDBufferBase::checkSummary() const {
     std::ostringstream summary;
-    summary << "Check buffer type valid: " << ( checkBufferFormat() ? "passed" : "FAILED" ) << std::endl;
-    summary << "Check header format valid: " << ( checkHeaderType() ? "passed" : "FAILED" ) << std::endl;
-    summary << "Check readout mode valid: " << ( checkReadoutMode() ? "passed" : "FAILED" ) << std::endl;
+    summary << "Check buffer type valid: " << (checkBufferFormat() ? "passed" : "FAILED") << std::endl;
+    summary << "Check header format valid: " << (checkHeaderType() ? "passed" : "FAILED") << std::endl;
+    summary << "Check readout mode valid: " << (checkReadoutMode() ? "passed" : "FAILED") << std::endl;
     //summary << "Check APVe address valid: " << ( checkAPVEAddressValid() ? "passed" : "FAILED" ) << std::endl;
-    summary << "Check FE unit majority addresses: " << ( checkMajorityAddresses() ? "passed" : "FAILED" ) << std::endl;
+    summary << "Check FE unit majority addresses: " << (checkMajorityAddresses() ? "passed" : "FAILED") << std::endl;
     if (!checkMajorityAddresses()) {
       summary << "FEs with majority address error: ";
       unsigned int badFEs = 0;
       for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
-	if (!feEnabled(iFE)) continue;
-	if (majorityAddressErrorForFEUnit(iFE)) {
-	  summary << uint16_t(iFE) << " ";
-	  badFEs++;
-	}
+        if (!feEnabled(iFE))
+          continue;
+        if (majorityAddressErrorForFEUnit(iFE)) {
+          summary << uint16_t(iFE) << " ";
+          badFEs++;
+        }
       }
       summary << std::endl;
       summary << "Number of FE Units with bad addresses: " << badFEs << std::endl;
     }
-    summary << "Check for FE unit buffer overflows: " << ( checkNoFEOverflows() ? "passed" : "FAILED" ) << std::endl;
+    summary << "Check for FE unit buffer overflows: " << (checkNoFEOverflows() ? "passed" : "FAILED") << std::endl;
     if (!checkNoFEOverflows()) {
       summary << "FEs which overflowed: ";
       unsigned int badFEs = 0;
       for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
-	if (feOverflow(iFE)) {
-	  summary << uint16_t(iFE) << " ";
-	  badFEs++;
-	}
+        if (feOverflow(iFE)) {
+          summary << uint16_t(iFE) << " ";
+          badFEs++;
+        }
       }
       summary << std::endl;
       summary << "Number of FE Units which overflowed: " << badFEs << std::endl;
     }
-    summary << "Check for S-Link CRC errors: " << ( checkNoSlinkCRCError() ? "passed" : "FAILED" ) << std::endl;
-    summary << "Check for S-Link transmission error: " << ( checkNoSLinkTransmissionError() ? "passed" : "FAILED" ) << std::endl;
-    summary << "Check CRC: " << ( checkCRC() ? "passed" : "FAILED" ) << std::endl;
-    summary << "Check source ID is FED ID: " << ( checkSourceIDs() ? "passed" : "FAILED" ) << std::endl;
-    summary << "Check for unexpected source ID at FRL: " << ( checkNoUnexpectedSourceID() ? "passed" : "FAILED" ) << std::endl;
-    summary << "Check there are no extra headers or trailers: " << ( checkNoExtraHeadersOrTrailers() ? "passed" : "FAILED" ) << std::endl;
-    summary << "Check length from trailer: " << ( checkLengthFromTrailer() ? "passed" : "FAILED" ) << std::endl;
+    summary << "Check for S-Link CRC errors: " << (checkNoSlinkCRCError() ? "passed" : "FAILED") << std::endl;
+    summary << "Check for S-Link transmission error: " << (checkNoSLinkTransmissionError() ? "passed" : "FAILED")
+            << std::endl;
+    summary << "Check CRC: " << (checkCRC() ? "passed" : "FAILED") << std::endl;
+    summary << "Check source ID is FED ID: " << (checkSourceIDs() ? "passed" : "FAILED") << std::endl;
+    summary << "Check for unexpected source ID at FRL: " << (checkNoUnexpectedSourceID() ? "passed" : "FAILED")
+            << std::endl;
+    summary << "Check there are no extra headers or trailers: "
+            << (checkNoExtraHeadersOrTrailers() ? "passed" : "FAILED") << std::endl;
+    summary << "Check length from trailer: " << (checkLengthFromTrailer() ? "passed" : "FAILED") << std::endl;
     return summary.str();
   }
 
-
-
-
-  uint16_t FEDChannel::cmMedian(const uint8_t apvIndex) const
-  {
+  uint16_t FEDChannel::cmMedian(const uint8_t apvIndex) const {
     const auto pCode = packetCode();
-    if ( ( pCode != PACKET_CODE_ZERO_SUPPRESSED ) && ( pCode != PACKET_CODE_ZERO_SUPPRESSED10 )
-      && ( pCode != PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT ) && ( pCode != PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT ) )
-    {
+    if ((pCode != PACKET_CODE_ZERO_SUPPRESSED) && (pCode != PACKET_CODE_ZERO_SUPPRESSED10) &&
+        (pCode != PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT) && (pCode != PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT)) {
       std::ostringstream ss;
       ss << "Request for CM median from channel with non-ZS packet code. "
-         << "Packet code is " << uint16_t(packetCode()) << "."
-         << std::endl;
+         << "Packet code is " << uint16_t(packetCode()) << "." << std::endl;
       throw cms::Exception("FEDBuffer") << ss.str();
     }
     if (apvIndex > 1) {
       std::ostringstream ss;
       ss << "Channel APV index out of range when requesting CM median for APV. "
-         << "Channel APV index is " << uint16_t(apvIndex) << "."
-         << std::endl;
+         << "Channel APV index is " << uint16_t(apvIndex) << "." << std::endl;
       throw cms::Exception("FEDBuffer") << ss.str();
     }
     uint16_t result = 0;
     //CM median is 10 bits with lowest order byte first. First APV CM median starts in 4th byte of channel data
-    result |= data_[(offset_+3+2*apvIndex)^7];
-    result |= ( ((data_[(offset_+4+2*apvIndex)^7]) << 8) & 0x300 );
+    result |= data_[(offset_ + 3 + 2 * apvIndex) ^ 7];
+    result |= (((data_[(offset_ + 4 + 2 * apvIndex) ^ 7]) << 8) & 0x300);
     return result;
   }
-  
-}
+
+}  // namespace sistrip

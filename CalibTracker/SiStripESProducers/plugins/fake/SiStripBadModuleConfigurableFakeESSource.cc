@@ -20,6 +20,7 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

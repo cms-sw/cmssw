@@ -17,20 +17,19 @@
 
 #include <memory>
 
-
 class PFMultiDepthClusterProducer : public edm::stream::EDProducer<> {
   typedef InitialClusteringStepBase ICSB;
   typedef PFClusterBuilderBase PFCBB;
   typedef PFCPositionCalculatorBase PosCalc;
- public:    
+
+public:
   PFMultiDepthClusterProducer(const edm::ParameterSet&);
   ~PFMultiDepthClusterProducer() override = default;
-  
-  void beginLuminosityBlock(const edm::LuminosityBlock&, 
-				    const edm::EventSetup&) override;
+
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  
- private:
+
+private:
   // inputs
   edm::EDGetTokenT<reco::PFClusterCollection> _clustersLabel;
   // options

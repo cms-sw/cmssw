@@ -11,18 +11,14 @@
 
 #include <memory>
 
-class  TkTransientTrackingRecHitBuilderESProducer: public edm::ESProducer{
- public:
-  TkTransientTrackingRecHitBuilderESProducer(const edm::ParameterSet & p);
-  ~TkTransientTrackingRecHitBuilderESProducer() override; 
+class TkTransientTrackingRecHitBuilderESProducer : public edm::ESProducer {
+public:
+  TkTransientTrackingRecHitBuilderESProducer(const edm::ParameterSet &p);
+  ~TkTransientTrackingRecHitBuilderESProducer() override;
   std::unique_ptr<TransientTrackingRecHitBuilder> produce(const TransientRecHitRecord &);
- private:
+
+private:
   edm::ParameterSet pset_;
 };
 
-
 #endif
-
-
-
-
