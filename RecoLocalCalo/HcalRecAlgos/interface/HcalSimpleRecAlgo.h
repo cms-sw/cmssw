@@ -35,18 +35,18 @@
 class HcalSimpleRecAlgo {
 public:
   /** Full featured constructor for HB/HE and HO (HPD-based detectors) */
-  HcalSimpleRecAlgo(bool correctForTimeslew, 
-		    bool correctForContainment, float fixedPhaseNs);
+  HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForContainment, float fixedPhaseNs);
 
-  void beginRun(edm::EventSetup const & es);
+  void beginRun(edm::EventSetup const& es);
   void endRun();
 
-  void initPulseCorr(int toadd); 
+  void initPulseCorr(int toadd);
 
   // set RecoParams channel-by-channel.
-  void setRecoParams(bool correctForTimeslew, bool correctForPulse, bool setLeakCorrection, int pileupCleaningID, float phaseNS);
+  void setRecoParams(
+      bool correctForTimeslew, bool correctForPulse, bool setLeakCorrection, int pileupCleaningID, float phaseNS);
 
-  // usage of leak correction 
+  // usage of leak correction
   void setLeakCorrection();
 
   // set OOT pileup corrections
@@ -57,12 +57,18 @@ public:
   // This object will not manage the pointer.
   void setBXInfo(const BunchXParameter* info, unsigned lenInfo);
 
+  HFRecHit reconstruct(
+      const HFDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HFRecHit reconstructQIE10(
+      const QIE10DataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 
-  HFRecHit reconstruct(const HFDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  HFRecHit reconstructQIE10(const QIE10DataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-
-  HORecHit reconstruct(const HODataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HORecHit reconstruct(
+      const HODataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,
+                              int first,
+                              int toadd,
+                              const HcalCoder& coder,
+                              const HcalCalibrations& calibs) const;
 
 private:
   bool correctForTimeslew_;

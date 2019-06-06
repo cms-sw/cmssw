@@ -4,6 +4,6 @@
 #include "DataFormats/TrackReco/interface/TrackResiduals.h"
 
 class Trajectory;
-reco::TrackResiduals trajectoryToResiduals (const Trajectory &);
+reco::TrackResiduals trajectoryToResiduals(const Trajectory &);
 
 #endif

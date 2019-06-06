@@ -26,8 +26,4 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
- typedef SingleObjectSelector<
-   edm::SimVertexContainer, 
-   StringCutObjectSelector<SimVertex> 
-   > SimVertexSelector;
-
+typedef SingleObjectSelector<edm::SimVertexContainer, StringCutObjectSelector<SimVertex> > SimVertexSelector;

@@ -26,8 +26,5 @@
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
 
- typedef SingleObjectSelector<
-           reco::PFDisplacedVertexCollection, 
-           StringCutObjectSelector<reco::PFDisplacedVertex> 
-         > PFDisplacedVertexSelector;
-
+typedef SingleObjectSelector<reco::PFDisplacedVertexCollection, StringCutObjectSelector<reco::PFDisplacedVertex> >
+    PFDisplacedVertexSelector;

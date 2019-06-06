@@ -5,7 +5,7 @@
 //
 // Package:    HiEgammaSCCorrectionMaker
 // Class:      HiEgammaSCCorrectionMaker
-// 
+//
 /**\class HiEgammaSCCorrectionMaker HiEgammaSCCorrectionMaker.cc HiEgammaSCCorrectionMaker/HiEgammaSCCorrectionMaker/src/HiEgammaSCCorrectionMaker.cc
 
  Description: Producer of corrected SuperClusters
@@ -30,46 +30,41 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "RecoHI/HiEgammaAlgos/interface/HiEgammaSCEnergyCorrectionAlgo.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h" 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
-
 class HiEgammaSCCorrectionMaker : public edm::stream::EDProducer<> {
-	
-   public:
-     explicit HiEgammaSCCorrectionMaker(const edm::ParameterSet&);
-     ~HiEgammaSCCorrectionMaker() override;
-     void produce(edm::Event&, const edm::EventSetup&) override;
+public:
+  explicit HiEgammaSCCorrectionMaker(const edm::ParameterSet&);
+  ~HiEgammaSCCorrectionMaker() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-   private:
+private:
+  std::unique_ptr<EcalClusterFunctionBaseClass> EnergyCorrection_;
 
-     std::unique_ptr<EcalClusterFunctionBaseClass> EnergyCorrection_;
+  // the debug level
+  HiEgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity_;
 
-     // the debug level
-     HiEgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity_;
+  // pointer to the correction algo object
+  std::unique_ptr<HiEgammaSCEnergyCorrectionAlgo> energyCorrector_;
 
-     // pointer to the correction algo object
-     std::unique_ptr<HiEgammaSCEnergyCorrectionAlgo> energyCorrector_;
-    
-     // vars for the correction algo
-     bool applyEnergyCorrection_;
-     //     bool oldEnergyScaleCorrection_;
-     double sigmaElectronicNoise_;
-     double etThresh_;
-     
-     // vars to get products
-     edm::InputTag rHInputProducerTag_;
-     edm::InputTag sCInputProducerTag_;
-     edm::EDGetTokenT<EcalRecHitCollection> rHInputProducer_;
-     edm::EDGetTokenT<reco::SuperClusterCollection> sCInputProducer_;
+  // vars for the correction algo
+  bool applyEnergyCorrection_;
+  //     bool oldEnergyScaleCorrection_;
+  double sigmaElectronicNoise_;
+  double etThresh_;
 
-     reco::CaloCluster::AlgoId sCAlgo_;
-     std::string outputCollection_;
-     edm::ESHandle<CaloTopology> theCaloTopo_;
+  // vars to get products
+  edm::InputTag rHInputProducerTag_;
+  edm::InputTag sCInputProducerTag_;
+  edm::EDGetTokenT<EcalRecHitCollection> rHInputProducer_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> sCInputProducer_;
 
-
+  reco::CaloCluster::AlgoId sCAlgo_;
+  std::string outputCollection_;
+  edm::ESHandle<CaloTopology> theCaloTopo_;
 };
 #endif

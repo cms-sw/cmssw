@@ -36,13 +36,26 @@ class HcalTimeSlew;
 class ZdcSimpleRecAlgo {
 public:
   /** Full featured constructor for ZDC */
-  ZdcSimpleRecAlgo(bool correctForTimeslew, 
-		   bool correctForContainment, float fixedPhaseNs, int recoMethod, int lowGainOffset, double lowGainFrac);
+  ZdcSimpleRecAlgo(bool correctForTimeslew,
+                   bool correctForContainment,
+                   float fixedPhaseNs,
+                   int recoMethod,
+                   int lowGainOffset,
+                   double lowGainFrac);
   /** Simple constructor for PMT-based detectors */
   ZdcSimpleRecAlgo(int recoMethod);
-  void initPulseCorr(int toadd, const HcalTimeSlew* hcalTimeSlew_delay); 
-  ZDCRecHit reconstruct(const ZDCDataFrame& digi, const std::vector<unsigned int>& myNoiseTS, const std::vector<unsigned int>& mySignalTS, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi, const std::vector<unsigned int>& myNoiseTS, const std::vector<unsigned int>& mySignalTS, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  void initPulseCorr(int toadd, const HcalTimeSlew* hcalTimeSlew_delay);
+  ZDCRecHit reconstruct(const ZDCDataFrame& digi,
+                        const std::vector<unsigned int>& myNoiseTS,
+                        const std::vector<unsigned int>& mySignalTS,
+                        const HcalCoder& coder,
+                        const HcalCalibrations& calibs) const;
+  HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,
+                              const std::vector<unsigned int>& myNoiseTS,
+                              const std::vector<unsigned int>& mySignalTS,
+                              const HcalCoder& coder,
+                              const HcalCalibrations& calibs) const;
+
 private:
   int recoMethod_;
   bool correctForTimeslew_;

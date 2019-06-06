@@ -20,13 +20,13 @@ namespace reco {
 
   /// Links between the three tracks which can define a muon
   class MuonTrackLinks;
-  
+
   /// collection of MuonTrackLinks
   typedef std::vector<MuonTrackLinks> MuonTrackLinksCollection;
-  
+
   class CaloMuon;
   /// collection of Muon objects
   typedef std::vector<CaloMuon> CaloMuonCollection;
-}
+}  // namespace reco
 
 #endif

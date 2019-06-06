@@ -18,7 +18,12 @@
 */
 class HcalDataFrameFilter {
 public:
-  HcalDataFrameFilter(bool requireCapid, bool requireDVER, bool energyFilter, int firstSample=-1, int lastSample=-1, double minAmpl=-1);
+  HcalDataFrameFilter(bool requireCapid,
+                      bool requireDVER,
+                      bool energyFilter,
+                      int firstSample = -1,
+                      int lastSample = -1,
+                      double minAmpl = -1);
   /// filter HB/HE data frames
   HBHEDigiCollection filter(const HBHEDigiCollection& incol, HcalUnpackerReport& r);
   /// filter HF data frames
@@ -37,6 +42,7 @@ public:
   bool active() const;
   /// get conditions
   void setConditions(const HcalDbService* conditions);
+
 private:
   bool requireCapid_;
   bool requireDVER_;
@@ -45,7 +51,5 @@ private:
   double minimumAmplitude_;
   const HcalDbService* conditions_;
 };
-
-
 
 #endif
