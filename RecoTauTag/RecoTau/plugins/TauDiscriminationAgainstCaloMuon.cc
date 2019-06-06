@@ -306,7 +306,6 @@ namespace {
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 typedef TauDiscriminationAgainstCaloMuon<PFTau, PFTauDiscriminator> PFRecoTauDiscriminationAgainstCaloMuon;
-typedef TauDiscriminationAgainstCaloMuon<CaloTau, CaloTauDiscriminator> CaloRecoTauDiscriminationAgainstCaloMuon;
 
 // accordingly method for specific class
 template <>
@@ -340,11 +339,4 @@ void TauDiscriminationAgainstCaloMuon<PFTau, PFTauDiscriminator>::fillDescriptio
   descriptions.add("pfRecoTauDiscriminationAgainstCaloMuon", desc);
 }
 
-template <>
-void TauDiscriminationAgainstCaloMuon<CaloTau, CaloTauDiscriminator>::fillDescriptions(
-    edm::ConfigurationDescriptions& descriptions) {
-  // there was no cfi file for this plugin
-}
-
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstCaloMuon);
-DEFINE_FWK_MODULE(CaloRecoTauDiscriminationAgainstCaloMuon);

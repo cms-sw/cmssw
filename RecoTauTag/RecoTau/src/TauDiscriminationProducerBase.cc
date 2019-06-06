@@ -167,14 +167,10 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::fillProducerDescr
   }
 }
 
-// template specialiazation to get the correct (Calo/PF)TauProducer names
+// template specialiazation to get the correct (PF/PAT)TauProducer names
 template <>
 std::string getProducerString<PFTau>() {
   return "PFTauProducer";
-}
-template <>
-std::string getProducerString<CaloTau>() {
-  return "CaloTauProducer";
 }
 template <>
 std::string getProducerString<pat::Tau>() {
@@ -183,5 +179,4 @@ std::string getProducerString<pat::Tau>() {
 
 // compile our desired types and make available to linker
 template class TauDiscriminationProducerBase<PFTau, PFTauDiscriminator>;
-template class TauDiscriminationProducerBase<CaloTau, CaloTauDiscriminator>;
 template class TauDiscriminationProducerBase<pat::Tau, pat::PATTauDiscriminator>;
