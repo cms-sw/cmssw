@@ -71,7 +71,7 @@ namespace {
     const HGCalDDDConstants* ddd = &(hg->topology().dddConstants());
     check_ddd(ddd);
     return ddd;
-  }						
+  }
 
 }
 
@@ -92,9 +92,11 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
     fhOffset_ = (geomEE->topology().dddConstants()).layers(true);
     wmaxEE    = (geomEE->topology().dddConstants()).waferCount(0);
     auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalHSi,ForwardSubdetector::ForwardEmpty));
-    bhOffset_ = fhOffset_;
     wmaxFH    = (geomFH->topology().dddConstants()).waferCount(0);
     fhLastLayer_ = fhOffset_ + (geomFH->topology().dddConstants()).layers(true);
+    auto geomBH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalHSc,ForwardSubdetector::ForwardEmpty));
+    bhOffset_ = fhOffset_ + (geomBH->topology().dddConstants()).firstLayer() - (geomEE->topology().dddConstants()).firstLayer();
+    bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants()).layers(true);
   }
   else {
     geometryType_ = 0;
@@ -105,6 +107,8 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
     bhOffset_ = fhOffset_ + (geomFH->topology().dddConstants()).layers(true);
     wmaxFH    = 1 + (geomFH->topology().dddConstants()).waferMax();
     fhLastLayer_ = bhOffset_;
+    auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
+    bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants())->getMaxDepth(1);
   }
   maxNumberOfWafersPerLayer_ = std::max(wmaxEE,wmaxFH);
   // For nose geometry
@@ -337,9 +341,9 @@ unsigned int RecHitTools::getLayerWithOffset(const DetId& id) const {
   unsigned int layer = getLayer(id);
   if (id.det() == DetId::Forward && id.subdetId() == HGCHEF ) {
     layer += fhOffset_;
-  } else if (id.det() == DetId::HGCalHSi || id.det() == DetId::HGCalHSc) {
+  } else if (id.det() == DetId::HGCalHSi) {
     layer += fhOffset_;
-  } else if (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
+  } else if ((id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) || id.det() == DetId::HGCalHSc) {
     layer += bhOffset_;
   }
   return layer;
