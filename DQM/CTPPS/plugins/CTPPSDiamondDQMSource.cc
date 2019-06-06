@@ -16,7 +16,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Run.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/Provenance/interface/EventRange.h"

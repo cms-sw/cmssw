@@ -7,7 +7,7 @@
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DQMServices/Core/interface/DQMStore.h"

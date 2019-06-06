@@ -6,7 +6,7 @@
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 class ESIntegrityTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {

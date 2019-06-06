@@ -18,7 +18,7 @@
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include <DQMServices/Core/interface/DQMStore.h>
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
 
 #include "DataFormats/DTDigi/interface/DTControlData.h"
 #include "DataFormats/DTDigi/interface/DTuROSControlData.h"

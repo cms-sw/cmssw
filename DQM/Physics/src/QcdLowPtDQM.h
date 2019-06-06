@@ -2,7 +2,7 @@
 #ifndef QcdLowPtDQM_H
 #define QcdLowPtDQM_H
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
