@@ -90,6 +90,7 @@ public:
   int lastHBRing()  const {return lastHBRing_;}
   int firstHERing() const {return firstHERing_;}
   int lastHERing()  const {return lastHERing_;}
+  int lastHBHERing() const {return std::max(lastHBRing_,lastHERing_);}
   int firstHFRing() const {return firstHFRing_;}
   int lastHFRing()  const {return lastHFRing_;}
   int firstHORing() const {return firstHORing_;}
