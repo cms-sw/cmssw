@@ -71,6 +71,8 @@ OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
 
   std::string stitle;
   std::vector<MonitorElement*> vME;
+  std::vector<std::string> MEStrings = iget_.getMEs();
+  std::for_each(MEStrings.begin(), MEStrings.end(), [&](auto& s){ s.insert(0, offsetDir.c_str());});
 
   // temporary ME and root objects
   MonitorElement* mtmp;
@@ -87,6 +89,8 @@ OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
     // getting the average value for Npv and mu
     //
     stitle=offsetDir+(*i);
+    std::vector<std::string>::const_iterator it = std::find(MEStrings.begin(), MEStrings.end(), stitle);
+    if (it == MEStrings.end()) continue;
     mtmp=iget_.get(stitle);
     float avg=mtmp->getMean();
     int iavg = int( avg+0.5 ); // integer version for identifying correcping ME, in order to get the rounding correctly

@@ -59,7 +59,7 @@ class PFJetDQMPostProcessor : public DQMEDHarvester {
 
 // Some switches
 //
-// constructors and destructor
+// constuctors and destructor
 //
 PFJetDQMPostProcessor::PFJetDQMPostProcessor(const edm::ParameterSet& iConfig)
 {
@@ -82,6 +82,19 @@ PFJetDQMPostProcessor::~PFJetDQMPostProcessor()
 void 
 PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& iget_)
 {
+
+  // 
+  iget_.setCurrentFolder(genjetDir);
+  std::vector<std::string> sME_genjets = iget_.getMEs();
+  std::for_each(sME_genjets.begin(), sME_genjets.end(), 
+		[&](auto& s){ s.insert(0, genjetDir.c_str());});
+  //for (unsigned int i=0; i<sME_genjets.size(); i++) std::cout << sME_genjets[i] << std::endl;
+
+  iget_.setCurrentFolder(jetResponseDir);
+  std::vector<std::string> sME_response = iget_.getMEs();
+  std::for_each(sME_response.begin(), sME_response.end(), 
+		[&](auto& s){ s.insert(0, jetResponseDir);});
+  //for (unsigned int i=0; i<sME_response.size(); i++) std::cout << sME_response[i] << std::endl;
 
   iget_.setCurrentFolder(jetResponseDir);
 
@@ -106,6 +119,9 @@ PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& i
   for(unsigned int ieta = 1; ieta < etaBins.size(); ++ieta) {
 
     stitle = genjetDir + "genjet_pt" + "_eta" + seta(etaBins[ieta]); 
+    //std::cout << ieta << " " << stitle << std::endl;
+    std::vector<std::string>::const_iterator it = std::find(sME_genjets.begin(), sME_genjets.end(), stitle);
+    if (it == sME_genjets.end()) continue;
     me=iget_.get(stitle);
     h_genjet_pt = (TH1F*) me->getTH1F();
           
@@ -124,6 +140,8 @@ PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& i
     for(unsigned int ipt = 0; ipt < ptBins.size()-1; ++ipt) { 
 
       stitle = jetResponseDir + "reso_dist_" + spt(ptBins[ipt],ptBins[ipt+1]) + "_eta" + seta(etaBins[ieta]); 
+      std::vector<std::string>::const_iterator it = std::find(sME_response.begin(), sME_response.end(), stitle);
+      if (it == sME_response.end()) continue;
       me=iget_.get(stitle);
       h_resp = (TH1F*) me->getTH1F();
 
