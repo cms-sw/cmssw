@@ -25,8 +25,16 @@ PhotosppInterface::PhotosppInterface( const edm::ParameterSet& pset)
     fIsInitialized(false),
     fPSet(0)
 {
-   fSpecialSettings.push_back("QED-brem-off:all");
-   fPSet = new ParameterSet(pset);
+  // add ability to keep brem from hadronizer and only modify specific channels 10/27/2014
+  bool UseHadronizerQEDBrem=false;
+  fPSet = new ParameterSet(pset);
+  std::vector<std::string> par = fPSet->getParameter< std::vector<std::string> >("parameterSets");
+  for (unsigned int ip=0; ip<par.size(); ++ip ){
+    std::string curSet = par[ip];
+    // Physics settings
+    if(curSet=="UseHadronizerQEDBrem") UseHadronizerQEDBrem=true;
+  }
+  if(!UseHadronizerQEDBrem)fSpecialSettings.push_back("QED-brem-off:all");
 }
 
 void PhotosppInterface::setRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine){fRandomEngine=decayRandomEngine;}
@@ -63,6 +71,9 @@ void PhotosppInterface::init(){
     if(curSet=="deIgnoreParticlesOfStatus")        Photospp::Photos::deIgnoreParticlesOfStatus(fPSet->getParameter<int>(curSet));
     if(curSet=="setMomentumConservationThreshold") Photospp::Photos::setMomentumConservationThreshold(fPSet->getParameter<double>(curSet));
     if(curSet=="suppressAll")                      if(fPSet->getParameter<bool>(curSet)==true)Photospp::Photos::suppressAll();
+    if(curSet=="setPairEmission")                  Photospp::Photos::setPairEmission(fPSet->getParameter<bool>(curSet));
+    if(curSet=="setPhotonEmission")                Photospp::Photos::setPhotonEmission(fPSet->getParameter<bool>(curSet));
+    if(curSet=="setStopAtCriticalError")           Photospp::Photos::setStopAtCriticalError(fPSet->getParameter<bool>(curSet));
   
   // Now setup more complicated radiation/mass supression and forcing.
     if(curSet=="suppressBremForBranch"){
@@ -206,4 +217,4 @@ double PhotosppInterface::flat(){
 
 void PhotosppInterface::statistics(){Photospp::Photos::iniInfo();}
 
-DEFINE_EDM_PLUGIN(PhotosFactory, gen::PhotosppInterface, "Photospp355");
+DEFINE_EDM_PLUGIN(PhotosFactory, gen::PhotosppInterface, "Photospp356");
