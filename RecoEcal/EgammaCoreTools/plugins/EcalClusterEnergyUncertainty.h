@@ -15,12 +15,11 @@
 #include "RecoEcal/EgammaCoreTools/plugins/EcalClusterEnergyUncertaintyBaseClass.h"
 
 class EcalClusterEnergyUncertainty : public EcalClusterEnergyUncertaintyBaseClass {
-        public:
-                EcalClusterEnergyUncertainty( const edm::ParameterSet &){};
-                // compute the correction
-                float getValue( const reco::SuperCluster &, const int mode ) const override;
-                float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const override { return 0.;};
-	
+public:
+  EcalClusterEnergyUncertainty(const edm::ParameterSet &){};
+  // compute the correction
+  float getValue(const reco::SuperCluster &, const int mode) const override;
+  float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const override { return 0.; };
 };
 
 #endif
