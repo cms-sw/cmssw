@@ -4,7 +4,8 @@ process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("Configuration.Geometry.GeometryExtended2023D17Reco_cff")
-process.load("Configuration.Geometry.GeometryExtended2023D17_cff")
+#process.load("Configuration.Geometry.GeometryExtended2023D28Reco_cff")
+#process.load("Configuration.Geometry.GeometryExtended2023D41Reco_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
@@ -36,6 +37,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.prodTest = cms.EDAnalyzer("HGCalTestRecHitTool",
                                   Mode = cms.int32(0),
+#                                 Mode = cms.int32(1),
                                   )
 
 process.p1 = cms.Path(process.generator*process.prodTest)

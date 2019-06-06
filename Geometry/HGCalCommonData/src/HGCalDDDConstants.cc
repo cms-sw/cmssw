@@ -361,7 +361,7 @@ int HGCalDDDConstants::getLayer(double z, bool reco) const {
   if (((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull)) && reco) {
     int indx = layerIndex(lay, false);
     if (indx >= 0)
-      lay = hgpar_->layerGroup_[indx];
+      lay = hgpar_->layerGroupO_[indx];
   } else {
     lay += (hgpar_->firstLayer_ - 1);
   }

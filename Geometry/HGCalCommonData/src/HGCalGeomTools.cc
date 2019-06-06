@@ -5,6 +5,7 @@
 #include <string>
 
 //#define EDM_ML_DEBUG
+HGCalGeomTools::HGCalGeomTools() : factor_(1.0/std::sqrt(3.0)) {}
 
 void HGCalGeomTools::radius(double zf,
                             double zb,
