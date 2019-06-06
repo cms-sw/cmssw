@@ -80,7 +80,7 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   if (pHGCHFNoseDigis.isValid()) {
     const HGCalDigiCollection* hfnoseDigis = 
       pHGCHFNoseDigis.product(); // get a ptr to the product
-    if (hfnoseDigis->size() > 0) {
+    if (!hfnoseDigis->empty()) {
       hfnoseUncalibRechits->reserve(hfnoseDigis->size());
       for(auto itdg = hfnoseDigis->begin(); itdg != hfnoseDigis->end(); ++itdg)
 	worker_->run4(evt, itdg, *hfnoseUncalibRechits);
