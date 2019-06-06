@@ -10,30 +10,28 @@
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
 class CSCDetIdSameDetLayerComparator {
- public:
-  bool operator() (CSCDetId i1, CSCDetId i2) const;
+public:
+  bool operator()(CSCDetId i1, CSCDetId i2) const;
 };
 
 class CSCDetIdSameChamberComparator {
- public:
+public:
   bool operator()(CSCDetId i1, CSCDetId i2) const;
 };
 
 class CSCRangeMapAccessor {
- public:
-  
+public:
   /// Constructor
   CSCRangeMapAccessor();
 
   /// Destructor
   virtual ~CSCRangeMapAccessor();
-  
-  ///  Returns a valid DetId + a valid comparator for the RangeMap.
-  static std::pair<CSCDetId,CSCDetIdSameChamberComparator> cscChamber(CSCDetId id);
-  static std::pair<CSCDetId,CSCDetIdSameDetLayerComparator> cscDetLayer(CSCDetId id);
 
- private:
-   
+  ///  Returns a valid DetId + a valid comparator for the RangeMap.
+  static std::pair<CSCDetId, CSCDetIdSameChamberComparator> cscChamber(CSCDetId id);
+  static std::pair<CSCDetId, CSCDetIdSameDetLayerComparator> cscDetLayer(CSCDetId id);
+
+private:
 };
- 
+
 #endif

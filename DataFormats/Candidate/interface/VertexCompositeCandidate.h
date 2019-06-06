@@ -15,26 +15,29 @@
 namespace reco {
   class VertexCompositeCandidate : public CompositeCandidate {
   public:
-    VertexCompositeCandidate() : CompositeCandidate() { }
+    VertexCompositeCandidate() : CompositeCandidate() {}
     /// constructor from values
-    VertexCompositeCandidate(Charge q, const LorentzVector & p4, const Point & vtx,
-			     int pdgId = 0, int status = 0, bool integerCharge = true) :
-      CompositeCandidate(q, p4, vtx, pdgId, status, integerCharge),
-      chi2_(0), ndof_(0) { }
+    VertexCompositeCandidate(
+        Charge q, const LorentzVector &p4, const Point &vtx, int pdgId = 0, int status = 0, bool integerCharge = true)
+        : CompositeCandidate(q, p4, vtx, pdgId, status, integerCharge), chi2_(0), ndof_(0) {}
     /// constructor from values
-    VertexCompositeCandidate(Charge q, const LorentzVector & p4, const Point & vtx,
-			     const CovarianceMatrix & err, double chi2, double ndof,
-			     int pdgId = 0, int status = 0, bool integerCharge = true);
-     /// constructor from values
-    explicit VertexCompositeCandidate(const Candidate & p) :
-      CompositeCandidate(p), chi2_(0), ndof_(0) { }
-     /// constructor from values
-    explicit VertexCompositeCandidate(const CompositeCandidate & p) :
-      CompositeCandidate(p), chi2_(0), ndof_(0) { }
+    VertexCompositeCandidate(Charge q,
+                             const LorentzVector &p4,
+                             const Point &vtx,
+                             const CovarianceMatrix &err,
+                             double chi2,
+                             double ndof,
+                             int pdgId = 0,
+                             int status = 0,
+                             bool integerCharge = true);
+    /// constructor from values
+    explicit VertexCompositeCandidate(const Candidate &p) : CompositeCandidate(p), chi2_(0), ndof_(0) {}
+    /// constructor from values
+    explicit VertexCompositeCandidate(const CompositeCandidate &p) : CompositeCandidate(p), chi2_(0), ndof_(0) {}
     /// destructor
     ~VertexCompositeCandidate() override;
     /// returns a clone of the candidate
-    VertexCompositeCandidate * clone() const override;
+    VertexCompositeCandidate *clone() const override;
     /// chi-squares
     double vertexChi2() const override { return chi2_; }
     /** Number of degrees of freedom
@@ -47,18 +50,18 @@ namespace reco {
     /// chi-squared divided by n.d.o.f.
     double vertexNormalizedChi2() const override { return chi2_ / ndof_; }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
-    double vertexCovariance(int i, int j) const override { 
-      return covariance_[idx(i, j)]; 
-    }
-    using reco::LeafCandidate::vertexCovariance; // avoid hiding the
+    double vertexCovariance(int i, int j) const override { return covariance_[idx(i, j)]; }
+    using reco::LeafCandidate::vertexCovariance;  // avoid hiding the
     /// fill SMatrix
-    void fillVertexCovariance(CovarianceMatrix & v) const override;
+    void fillVertexCovariance(CovarianceMatrix &v) const override;
     /// set chi2 and ndof
     void setChi2AndNdof(double chi2, double ndof) {
-      chi2_ = chi2; ndof_ = ndof;
+      chi2_ = chi2;
+      ndof_ = ndof;
     }
     /// set covariance matrix
     void setCovariance(const CovarianceMatrix &m);
+
   private:
     /// chi-sqared
     Double32_t chi2_;
@@ -69,10 +72,10 @@ namespace reco {
     /// position index
     index idx(index i, index j) const {
       int a = (i <= j ? i : j), b = (i <= j ? j : i);
-      return b * (b + 1)/2 + a;
+      return b * (b + 1) / 2 + a;
     }
   };
 
-}
+}  // namespace reco
 
 #endif
