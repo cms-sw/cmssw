@@ -8,7 +8,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/ServiceRegistry/interface/Service.h>
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
 #include <DQMServices/Core/interface/DQMStore.h>
 
 #include <DataFormats/Scalers/interface/DcsStatus.h>

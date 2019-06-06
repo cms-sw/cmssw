@@ -31,7 +31,7 @@
 #include <string>
 #include <vector>
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
