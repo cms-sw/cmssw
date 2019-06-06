@@ -14,7 +14,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-
 using namespace std;
 
 class IsolationExample : public edm::EDAnalyzer {
@@ -23,7 +22,8 @@ public:
   ~IsolationExample();
   virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() { }
+  virtual void endJob() {}
+
 private:
   edm::InputTag theMuonTag;
 
@@ -35,29 +35,23 @@ private:
 };
 
 IsolationExample::IsolationExample(const edm::ParameterSet& conf)
-  : theMuonTag(conf.getUntrackedParameter<edm::InputTag>("MuonCollection", edm::InputTag("muons"))), 
-    theTkDepMapTag(conf.getUntrackedParameter<edm::InputTag>("TkMapCollection", edm::InputTag("muIsoDepositTk"))), 
-    theEcalDepMapTag(conf.getUntrackedParameter<edm::InputTag>("EcalMapCollection", 
-							       edm::InputTag("muIsoDepositCalByAssociatorTowers:ecal"))), 
-    theHcalDepMapTag(conf.getUntrackedParameter<edm::InputTag>("HcalMapCollection",  
-                                                               edm::InputTag("muIsoDepositCalByAssociatorTowers:hcal"))), 
-    theEventCount(0)
-{
-  LogDebug("IsolationExample") <<" CTOR"<<endl;
+    : theMuonTag(conf.getUntrackedParameter<edm::InputTag>("MuonCollection", edm::InputTag("muons"))),
+      theTkDepMapTag(conf.getUntrackedParameter<edm::InputTag>("TkMapCollection", edm::InputTag("muIsoDepositTk"))),
+      theEcalDepMapTag(conf.getUntrackedParameter<edm::InputTag>(
+          "EcalMapCollection", edm::InputTag("muIsoDepositCalByAssociatorTowers:ecal"))),
+      theHcalDepMapTag(conf.getUntrackedParameter<edm::InputTag>(
+          "HcalMapCollection", edm::InputTag("muIsoDepositCalByAssociatorTowers:hcal"))),
+      theEventCount(0) {
+  LogDebug("IsolationExample") << " CTOR" << endl;
 }
 
-IsolationExample::~IsolationExample()
-{
-}
+IsolationExample::~IsolationExample() {}
 
-void IsolationExample::beginJob()
-{
-}
+void IsolationExample::beginJob() {}
 
-void IsolationExample:: analyze(const edm::Event& ev, const edm::EventSetup& es)
-{
+void IsolationExample::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   static const std::string metname = "IsolationExample";
-  LogDebug(metname)<<" ============== analysis of event: "<< ++theEventCount;
+  LogDebug(metname) << " ============== analysis of event: " << ++theEventCount;
   edm::Handle<edm::View<reco::Muon> > trackCollection;
   ev.getByLabel(theMuonTag, trackCollection);
   const edm::View<reco::Muon>& muons = *trackCollection;
@@ -77,28 +71,26 @@ void IsolationExample:: analyze(const edm::Event& ev, const edm::EventSetup& es)
   reco::IsoDeposit::Vetos dVetos;
 
   unsigned int nMuons = muons.size();
-  for(unsigned int iMu=0; iMu < nMuons; ++iMu){
-    LogTrace(metname) <<"muon pt="<< muons[iMu].pt();
+  for (unsigned int iMu = 0; iMu < nMuons; ++iMu) {
+    LogTrace(metname) << "muon pt=" << muons[iMu].pt();
 
     //! let's look at sumPt in 5 different cones
     //! pick a deposit first (change to ..sit& when it works)
     const reco::IsoDeposit tkDep((*tkMapH)[muons.refAt(iMu)]);
-    for( int i=1; i<6; ++i) {
-      float coneSize = 0.1*i;
-      LogTrace(metname)<<" iso sumPt in cone "<<coneSize<<" is "<<tkDep.depositWithin(coneSize);    
+    for (int i = 1; i < 6; ++i) {
+      float coneSize = 0.1 * i;
+      LogTrace(metname) << " iso sumPt in cone " << coneSize << " is " << tkDep.depositWithin(coneSize);
     }
     //! can count tracks too
-    LogTrace(metname)<<" N tracks in cone 0.5  is "<<tkDep.depositAndCountWithin(0.5).second;
+    LogTrace(metname) << " N tracks in cone 0.5  is " << tkDep.depositAndCountWithin(0.5).second;
 
     //! now the same with pt>1.5 for each track
-    LogTrace(metname)<<" N tracks in cone 0.5  is "<<tkDep.depositAndCountWithin(0.5, dVetos, 1.5).first;
+    LogTrace(metname) << " N tracks in cone 0.5  is " << tkDep.depositAndCountWithin(0.5, dVetos, 1.5).first;
 
     //! now the closest track
-    LogTrace(metname)<<" The closest track in dR is at "<<tkDep.begin().dR()<<" with pt "<<tkDep.begin().value();
-
-
+    LogTrace(metname) << " The closest track in dR is at " << tkDep.begin().dR() << " with pt "
+                      << tkDep.begin().value();
   }
-
 }
 
 DEFINE_FWK_MODULE(IsolationExample);

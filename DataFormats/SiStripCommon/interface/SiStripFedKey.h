@@ -8,7 +8,7 @@
 class SiStripFedKey;
 
 /** Debug info for SiStripFedKey class. */
-std::ostream& operator<< ( std::ostream&, const SiStripFedKey& );
+std::ostream& operator<<(std::ostream&, const SiStripFedKey&);
 
 /**
    @class SiStripFedKey
@@ -54,32 +54,30 @@ std::ostream& operator<< ( std::ostream&, const SiStripFedKey& );
    bottom.
 */
 class SiStripFedKey : public SiStripKey {
-  
- public:
-  
+public:
   // ---------- Constructors ----------
-  
+
   /** Constructor using FED id, FE unit, FE channel, and APV. */
-  SiStripFedKey( const uint16_t& fed_id,
-		 const uint16_t& fe_unit = 0,
-		 const uint16_t& fe_chan = 0,
-		 const uint16_t& fed_apv = 0 );
-  
+  SiStripFedKey(const uint16_t& fed_id,
+                const uint16_t& fe_unit = 0,
+                const uint16_t& fe_chan = 0,
+                const uint16_t& fed_apv = 0);
+
   /** Constructor using 32-bit "FED key". */
-  SiStripFedKey( const uint32_t& fed_key );
-  
+  SiStripFedKey(const uint32_t& fed_key);
+
   /** Constructor using directory path. */
-  SiStripFedKey( const std::string& directory_path );
+  SiStripFedKey(const std::string& directory_path);
 
   /** Copy constructor. */
-  SiStripFedKey( const SiStripFedKey& );
+  SiStripFedKey(const SiStripFedKey&);
 
   /** Copy constructor using base class. */
-  SiStripFedKey( const SiStripKey& );
-  
+  SiStripFedKey(const SiStripKey&);
+
   /** Default constructor */
   SiStripFedKey();
-  
+
   // ---------- Public interface to member data ----------
 
   /** Returns FED id. */
@@ -97,96 +95,92 @@ class SiStripFedKey : public SiStripKey {
   /** Returns FED channel (according to "internal" numbering). */
   inline uint16_t fedChannel() const;
 
-  // ---------- Numbering schemes ---------- 
-  
+  // ---------- Numbering schemes ----------
+
   /** Returns FED channel ("internal" numbering scheme) for given
       Front-End unit and channel ("external" numbering scheme). */
-  static uint16_t fedCh( const uint16_t& fe_unit,
-			 const uint16_t& fe_chan );
-  
+  static uint16_t fedCh(const uint16_t& fe_unit, const uint16_t& fe_chan);
+
   /** Returns Front-End unit ("external" numbering scheme) for given
       FED channel ("internal" numbering scheme). */
-  static uint16_t feUnit( const uint16_t& fed_ch );
-  
+  static uint16_t feUnit(const uint16_t& fed_ch);
+
   /** Returns Front-End channel ("external" numbering scheme) for
       given FED channel ("internal" numbering scheme). */
-  static uint16_t feChan( const uint16_t& fed_ch );
-  
+  static uint16_t feChan(const uint16_t& fed_ch);
+
   /** Returns number that encodes FED id and FED channel, which can be
       used to index vectors containing event and non-event data. Users
       should check if returned value is valid for indexing vector! */
-  static uint32_t fedIndex( const uint16_t& fed_id,
-			    const uint16_t& fed_ch );
-  
-  // ---------- Utility methods ---------- 
+  static uint32_t fedIndex(const uint16_t& fed_id, const uint16_t& fed_ch);
+
+  // ---------- Utility methods ----------
 
   /** Identifies key objects with identical member data. */
-  bool isEqual( const SiStripKey& ) const override;
-  
+  bool isEqual(const SiStripKey&) const override;
+
   /** "Consistent" means identical and/or null (ie, "all") data. */
-  bool isConsistent( const SiStripKey& ) const override;
+  bool isConsistent(const SiStripKey&) const override;
 
   /** Identifies all member data as being "valid" or null ("all"). */
   bool isValid() const override;
-  
+
   /** All member data to level of "Granularity" are valid. If
       sistrip::Granularity is "undefined", returns false. */
-  bool isValid( const sistrip::Granularity& ) const override;
-  
+  bool isValid(const sistrip::Granularity&) const override;
+
   /** Identifies all member data as being invalid. */
   bool isInvalid() const override;
 
   /** All member data to level of "Granularity" are invalid. If
       sistrip::Granularity is "undefined", returns true.  */
-  bool isInvalid( const sistrip::Granularity& ) const override;
+  bool isInvalid(const sistrip::Granularity&) const override;
 
   // ---------- Print methods ----------
-  
+
   /** Print member data of the key  */
-  void print( std::stringstream& ss ) const override;
-  
+  void print(std::stringstream& ss) const override;
+
   /** A terse summary of the key  */
-  void terse( std::stringstream& ss ) const override;
-  
- private:
-  
+  void terse(std::stringstream& ss) const override;
+
+private:
   // ---------- Private methods ----------
 
   void initFromValue() override;
   void initFromKey() override;
   void initFromPath() override;
   void initGranularity() override;
-  
+
   // ---------- Private member data ----------
 
   /** FED id [0,50-489,invalid]. */
-  uint16_t fedId_;  
+  uint16_t fedId_;
 
   /** FE unit [0,1-8,invalid]. */
-  uint16_t feUnit_; 
+  uint16_t feUnit_;
 
   /** FE channel [0,1-12,invalid]. */
-  uint16_t feChan_; 
+  uint16_t feChan_;
 
   /** APV [0,1-2,invalid]. */
-  uint16_t fedApv_; 
-  
-  // Definition of bit field positions for 32-bit key 
-  static const uint16_t fedCrateOffset_ = 24;
-  static const uint16_t fedSlotOffset_  = 19;
-  static const uint16_t fedIdOffset_    = 10;
-  static const uint16_t feUnitOffset_   =  6;
-  static const uint16_t feChanOffset_   =  2;
-  static const uint16_t fedApvOffset_   =  0;
+  uint16_t fedApv_;
 
-  // Definition of bit field masks for 32-bit key 
-  static const uint16_t fedCrateMask_ = 0x03F; // (6 bits)
-  static const uint16_t fedSlotMask_  = 0x01F; // (5 bits)
-  static const uint16_t fedIdMask_    = 0x1FF; // (9 bits)
-  static const uint16_t feUnitMask_   = 0x00F; // (4 bits)
-  static const uint16_t feChanMask_   = 0x00F; // (4 bits)
-  static const uint16_t fedApvMask_   = 0x003; // (2 bits)
-  
+  // Definition of bit field positions for 32-bit key
+  static const uint16_t fedCrateOffset_ = 24;
+  static const uint16_t fedSlotOffset_ = 19;
+  static const uint16_t fedIdOffset_ = 10;
+  static const uint16_t feUnitOffset_ = 6;
+  static const uint16_t feChanOffset_ = 2;
+  static const uint16_t fedApvOffset_ = 0;
+
+  // Definition of bit field masks for 32-bit key
+  static const uint16_t fedCrateMask_ = 0x03F;  // (6 bits)
+  static const uint16_t fedSlotMask_ = 0x01F;   // (5 bits)
+  static const uint16_t fedIdMask_ = 0x1FF;     // (9 bits)
+  static const uint16_t feUnitMask_ = 0x00F;    // (4 bits)
+  static const uint16_t feChanMask_ = 0x00F;    // (4 bits)
+  static const uint16_t fedApvMask_ = 0x003;    // (2 bits)
 };
 
 // ---------- Inline methods ----------
@@ -195,9 +189,6 @@ const uint16_t& SiStripFedKey::fedId() const { return fedId_; }
 const uint16_t& SiStripFedKey::feUnit() const { return feUnit_; }
 const uint16_t& SiStripFedKey::feChan() const { return feChan_; }
 const uint16_t& SiStripFedKey::fedApv() const { return fedApv_; }
-uint16_t SiStripFedKey::fedChannel() const { return fedCh( feUnit_, feChan_ ); }
+uint16_t SiStripFedKey::fedChannel() const { return fedCh(feUnit_, feChan_); }
 
-#endif // DataFormats_SiStripCommon_SiStripFedKey_H
-
-
-
+#endif  // DataFormats_SiStripCommon_SiStripFedKey_H

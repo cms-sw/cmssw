@@ -16,14 +16,10 @@ class MagneticField;
 
 class FTSFromSimHitFactory {
 public:
-
-  FreeTrajectoryState operator()( const PSimHit& hit, const GeomDet& det,
-				  const MagneticField& field) const;
+  FreeTrajectoryState operator()(const PSimHit& hit, const GeomDet& det, const MagneticField& field) const;
 
 private:
-
-  TrackCharge  charge( int particleId) const;
-  
+  TrackCharge charge(int particleId) const;
 };
 
 #endif

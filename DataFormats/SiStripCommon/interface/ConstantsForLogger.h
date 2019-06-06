@@ -9,23 +9,23 @@
     @brief Constants defining MessageLogger categories
 */
 
-namespace sistrip { 
-  
-  static const char mlCabling_[]       = "SiStripCabling";
+namespace sistrip {
+
+  static const char mlCabling_[] = "SiStripCabling";
   static const char mlCommissioning_[] = "SiStripCommissioning";
-  static const char mlConfigDb_[]      = "SiStripConfigDb";
-  static const char mlDigis_[]         = "SiStripDigis";
-  static const char mlDqmCommon_[]     = "SiStripDqmCommon";
-  static const char mlDqmClient_[]     = "SiStripDqmClient";
-  static const char mlDqmSource_[]     = "SiStripDqmSource";
-  static const char mlESSources_[]     = "SiStripESSources";
-  static const char mlInputSource_[]   = "SiStripInputSource";
-  static const char mlO2O_[]           = "SiStripO2O";
-  static const char mlRawToCluster_[]  = "SiStripRawToCluster";
-  static const char mlRawToDigi_[]     = "SiStripRawToDigi";
-  static const char mlSummaryPlots_[]  = "SiStripSummaryPlots";
-  static const char mlTest_[]          = "SiStripTEST";
+  static const char mlConfigDb_[] = "SiStripConfigDb";
+  static const char mlDigis_[] = "SiStripDigis";
+  static const char mlDqmCommon_[] = "SiStripDqmCommon";
+  static const char mlDqmClient_[] = "SiStripDqmClient";
+  static const char mlDqmSource_[] = "SiStripDqmSource";
+  static const char mlESSources_[] = "SiStripESSources";
+  static const char mlInputSource_[] = "SiStripInputSource";
+  static const char mlO2O_[] = "SiStripO2O";
+  static const char mlRawToCluster_[] = "SiStripRawToCluster";
+  static const char mlRawToDigi_[] = "SiStripRawToDigi";
+  static const char mlSummaryPlots_[] = "SiStripSummaryPlots";
+  static const char mlTest_[] = "SiStripTEST";
 
-}
+}  // namespace sistrip
 
-#endif // DataFormats_SiStripCommon_ConstantsForLogger_H
+#endif  // DataFormats_SiStripCommon_ConstantsForLogger_H
