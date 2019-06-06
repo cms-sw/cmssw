@@ -22,27 +22,26 @@ class AbsHcalAlgoData;
 // PMTs, these objects will be created from the module configuration
 // parameters.
 //
-class AbsHFPhase1Algo
-{
+class AbsHFPhase1Algo {
 public:
-    inline virtual ~AbsHFPhase1Algo() {}
+  inline virtual ~AbsHFPhase1Algo() {}
 
-    // Does this class expect to receive its configuration from the database?
-    virtual bool isConfigurable() const = 0;
+  // Does this class expect to receive its configuration from the database?
+  virtual bool isConfigurable() const = 0;
 
-    // If using DB, expect that the configuration will be updated
-    // once per run. We will not manage the pointer here. "true"
-    // should be returned on success (typically, automatic cast
-    // from the pointer checked by the appropriate dynamic cast).
-    inline virtual bool configure(const AbsHcalAlgoData*) {return false;}
+  // If using DB, expect that the configuration will be updated
+  // once per run. We will not manage the pointer here. "true"
+  // should be returned on success (typically, automatic cast
+  // from the pointer checked by the appropriate dynamic cast).
+  inline virtual bool configure(const AbsHcalAlgoData*) { return false; }
 
-    // Convention: if we do not want to use the given HFPreRecHit
-    // at all (i.e., it is to be discarded), the returned HFRecHit
-    // should have its id (of type HcalDetId) set to 0.
-    virtual HFRecHit reconstruct(const HFPreRecHit& prehit,
-                                 const HcalCalibrations& calibs,
-                                 const bool flaggedBadInDB[2],
-                                 bool expectSingleAnodePMT) = 0;
+  // Convention: if we do not want to use the given HFPreRecHit
+  // at all (i.e., it is to be discarded), the returned HFRecHit
+  // should have its id (of type HcalDetId) set to 0.
+  virtual HFRecHit reconstruct(const HFPreRecHit& prehit,
+                               const HcalCalibrations& calibs,
+                               const bool flaggedBadInDB[2],
+                               bool expectSingleAnodePMT) = 0;
 };
 
-#endif // RecoLocalCalo_HcalRecAlgos_AbsHFPhase1Algo_h_
+#endif  // RecoLocalCalo_HcalRecAlgos_AbsHFPhase1Algo_h_

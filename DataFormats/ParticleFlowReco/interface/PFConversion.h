@@ -1,7 +1,6 @@
 #ifndef DataFormats_ParticleFlowReco_PFConversion_h
 #define DataFormats_ParticleFlowReco_PFConversion_h
 
-
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
@@ -19,35 +18,27 @@ namespace reco {
   */
   class PFConversion {
   public:
-
-
- // Default constructor
+    // Default constructor
     PFConversion() {}
-  
 
     //    PFConversion(const reco::ConversionRef c);
     // PFConversion(const reco::ConversionRef c, const std::vector<reco::PFRecTrackRef>&  tr   );
 
-    PFConversion( reco::ConversionRef c);
-    PFConversion( const reco::ConversionRef& c, const std::vector<reco::PFRecTrackRef>&  tr   );
-
+    PFConversion(reco::ConversionRef c);
+    PFConversion(const reco::ConversionRef& c, const std::vector<reco::PFRecTrackRef>& tr);
 
     /// destructor
     ~PFConversion();
 
-    const reco::ConversionRef& originalConversion() const   {return originalConversion_;} 
-    const std::vector<reco::PFRecTrackRef>& pfTracks() const {return pfTracks_ ;} 
-    
+    const reco::ConversionRef& originalConversion() const { return originalConversion_; }
+    const std::vector<reco::PFRecTrackRef>& pfTracks() const { return pfTracks_; }
 
   private:
-
-    void addPFTrack( const reco::PFRecTrackRef & tr ) { pfTracks_.push_back(tr); }    
+    void addPFTrack(const reco::PFRecTrackRef& tr) { pfTracks_.push_back(tr); }
     reco::ConversionRef originalConversion_;
-    std::vector<reco::PFRecTrackRef>  pfTracks_;
-    
-
+    std::vector<reco::PFRecTrackRef> pfTracks_;
   };
 
-}
+}  // namespace reco
 
 #endif

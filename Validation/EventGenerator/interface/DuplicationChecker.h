@@ -37,35 +37,32 @@
 #include "Validation/EventGenerator/interface/WeightManager.h"
 
 class DuplicationChecker : public DQMEDAnalyzer {
-  
- public:
-
-  typedef std::multimap<double,edm::EventID> associationMap;
+public:
+  typedef std::multimap<double, edm::EventID> associationMap;
   typedef std::vector<associationMap::iterator> itemList;
 
-  explicit DuplicationChecker(const edm::ParameterSet&);
+  explicit DuplicationChecker(const edm::ParameterSet &);
   ~DuplicationChecker() override;
 
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
 
-  void findValuesAssociatedWithKey(associationMap &mMap, double &key, itemList &theObjects);  
-  
- private:
+  void findValuesAssociatedWithKey(associationMap &mMap, double &key, itemList &theObjects);
+
+private:
   WeightManager wmanager_;
-  
+
   edm::InputTag generatedCollection_;
   edm::InputTag lheEventProduct_;
-  
+
   bool searchForLHE_;
 
   associationMap xBjorkenHistory;
-	
-  MonitorElement* xBjorkenME;
+
+  MonitorElement *xBjorkenME;
 
   edm::EDGetTokenT<LHEEventProduct> lheEventProductToken_;
   edm::EDGetTokenT<edm::HepMCProduct> generatedCollectionToken_;
-
 };
 
 #endif

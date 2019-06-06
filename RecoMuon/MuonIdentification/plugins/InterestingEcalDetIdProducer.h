@@ -11,13 +11,13 @@
 
 class CaloTopology;
 class InterestingEcalDetIdProducer : public edm::stream::EDProducer<> {
- public:
+public:
   explicit InterestingEcalDetIdProducer(const edm::ParameterSet&);
   ~InterestingEcalDetIdProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
- private:
+private:
   edm::InputTag inputCollection_;
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
   const CaloTopology* caloTopology_;

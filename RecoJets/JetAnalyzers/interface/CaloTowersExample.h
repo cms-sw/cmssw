@@ -14,11 +14,11 @@ class TFile;
 
 class CaloTowersExample : public edm::EDAnalyzer {
 public:
-  CaloTowersExample( const edm::ParameterSet & );
+  CaloTowersExample(const edm::ParameterSet&);
 
 private:
-  void beginJob( ) override;
-  void analyze( const edm::Event& , const edm::EventSetup& ) override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
   std::string CaloTowersAlgorithm;
   TH1F h_et;

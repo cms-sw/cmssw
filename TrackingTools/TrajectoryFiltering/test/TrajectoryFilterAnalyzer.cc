@@ -2,7 +2,7 @@
 //
 // Package:    TrajectoryFilterAnalyzer
 // Class:      TrajectoryFilterAnalyzer
-// 
+//
 /**\class TrajectoryFilterAnalyzer TrajectoryFilterAnalyzer.cc TrackingTools/TrajectoryFilterAnalyzer/src/TrajectoryFilterAnalyzer.cc
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Thu Oct  4 21:42:40 CEST 2007
 //
 //
-
 
 // system include files
 #include <memory>
@@ -34,52 +33,41 @@
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 
 class TrajectoryFilterAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit TrajectoryFilterAnalyzer(const edm::ParameterSet&);
-      ~TrajectoryFilterAnalyzer();
+public:
+  explicit TrajectoryFilterAnalyzer(const edm::ParameterSet&);
+  ~TrajectoryFilterAnalyzer();
 
+private:
+  virtual void beginJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
 
-   private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-    std::vector<std::unique_ptr<TrajectoryFilter>> filters;
+  std::vector<std::unique_ptr<TrajectoryFilter>> filters;
 };
 
-TrajectoryFilterAnalyzer::TrajectoryFilterAnalyzer(const edm::ParameterSet& iConfig)
-{
+TrajectoryFilterAnalyzer::TrajectoryFilterAnalyzer(const edm::ParameterSet& iConfig) {
   using VPSet = std::vector<edm::ParameterSet>;
-  VPSet filterPSets = iConfig.getParameter<std::vector<edm::ParameterSet> >("filters");
-  edm::LogInfo("TrajectoryFilterAnalyzer")<<" I am happy to try and get: "<<filterPSets.size()
-                                          <<" TrajectoryFilter from TrajectoryFilterFactory";
-  for(const auto& pset: filterPSets) {
+  VPSet filterPSets = iConfig.getParameter<std::vector<edm::ParameterSet>>("filters");
+  edm::LogInfo("TrajectoryFilterAnalyzer")
+      << " I am happy to try and get: " << filterPSets.size() << " TrajectoryFilter from TrajectoryFilterFactory";
+  for (const auto& pset : filterPSets) {
     const std::string& type = pset.getParameter<std::string>("ComponentType");
     edm::ConsumesCollector&& iC = consumesCollector();
     filters.emplace_back(TrajectoryFilterFactory::get()->create(type, pset, iC));
-    edm::LogInfo("TrajectoryFilterAnalyzer")<<"I was able to create: "<< type
-                                            <<"\nof type: "<<filters.back()->name();
+    edm::LogInfo("TrajectoryFilterAnalyzer")
+        << "I was able to create: " << type << "\nof type: " << filters.back()->name();
   }
 }
 
+TrajectoryFilterAnalyzer::~TrajectoryFilterAnalyzer() {}
 
-TrajectoryFilterAnalyzer::~TrajectoryFilterAnalyzer(){}
-
-void TrajectoryFilterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-}
-
+void TrajectoryFilterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-TrajectoryFilterAnalyzer::beginJob()
-{
-}
+void TrajectoryFilterAnalyzer::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-TrajectoryFilterAnalyzer::endJob() {
-}
+void TrajectoryFilterAnalyzer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TrajectoryFilterAnalyzer);

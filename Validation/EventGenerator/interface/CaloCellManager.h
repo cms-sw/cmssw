@@ -1,4 +1,4 @@
-#ifndef Validation_EventGenerator_CaloCellManager 
+#ifndef Validation_EventGenerator_CaloCellManager
 #define Validation_EventGenerator_CaloCellManager
 
 /* class CaloCellManager
@@ -12,10 +12,8 @@
 
 #include <vector>
 
-class CaloCellManager{
-
- public:
-
+class CaloCellManager {
+public:
   typedef std::vector<CaloCellId*> CaloCellCollection;
 
   CaloCellManager(unsigned int theVerbosity);
@@ -35,14 +33,13 @@ class CaloCellManager{
   static const unsigned int nEndcapPhi = 36;
   static const unsigned int nForwardPhi = 36;
 
-  static const unsigned int nBarrelCell = 2*nBarrelEta*nBarrelPhi;
-  static const unsigned int nEndcapCell = 2*nEndcapEta*nEndcapPhi;
-  static const unsigned int nForwardCell = 2*nForwardEta*nForwardPhi;
+  static const unsigned int nBarrelCell = 2 * nBarrelEta * nBarrelPhi;
+  static const unsigned int nEndcapCell = 2 * nEndcapEta * nEndcapPhi;
+  static const unsigned int nForwardCell = 2 * nForwardEta * nForwardPhi;
 
-  static const unsigned int nCaloCell = nBarrelCell+nEndcapCell+nForwardCell;
-  
- private:
+  static const unsigned int nCaloCell = nBarrelCell + nEndcapCell + nForwardCell;
 
+private:
   void init();
   void builder();
 
@@ -54,7 +51,6 @@ class CaloCellManager{
   std::vector<double> phiLimFor;
 
   CaloCellCollection theCellCollection;
-
 };
 
 #endif

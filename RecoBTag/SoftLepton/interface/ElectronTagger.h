@@ -15,11 +15,10 @@
 
 class ElectronTagger : public JetTagComputer {
 public:
-
-  /// explicit ctor 
-  ElectronTagger(const edm::ParameterSet & );
+  /// explicit ctor
+  ElectronTagger(const edm::ParameterSet &);
   void initialize(const JetTagComputerRecord &) override;
-  float discriminator(const TagInfoHelper & tagInfo) const override;
+  float discriminator(const TagInfoHelper &tagInfo) const override;
 
 private:
   const btag::LeptonSelector m_selector;

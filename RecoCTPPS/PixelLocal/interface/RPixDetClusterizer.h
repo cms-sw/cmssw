@@ -24,48 +24,38 @@
 #include <set>
 
 class RPixCalibDigi : public CTPPSPixelDigi {
-
 public:
-
-RPixCalibDigi(unsigned char row, unsigned char col, unsigned short adc, unsigned short ele) : CTPPSPixelDigi(row,col,adc){
+  RPixCalibDigi(unsigned char row, unsigned char col, unsigned short adc, unsigned short ele)
+      : CTPPSPixelDigi(row, col, adc) {
     electrons_ = ele;
   }
 
-RPixCalibDigi() : CTPPSPixelDigi(){
-    electrons_ = 0;
-}
+  RPixCalibDigi() : CTPPSPixelDigi() { electrons_ = 0; }
 
-  int electrons() const {
-    return electrons_;
-  }
-  void set_electrons(int a) {
-    electrons_=a;
-  }
+  int electrons() const { return electrons_; }
+  void set_electrons(int a) { electrons_ = a; }
 
 private:
-
   int electrons_;
-
 };
 
-
-class RPixDetClusterizer{
-
+class RPixDetClusterizer {
 public:
+  RPixDetClusterizer(edm::ParameterSet const &conf);
 
-  RPixDetClusterizer(edm::ParameterSet const& conf);
+  void buildClusters(unsigned int detId,
+                     const std::vector<CTPPSPixelDigi> &digi,
+                     std::vector<CTPPSPixelCluster> &clusters,
+                     const CTPPSPixelGainCalibrations *pcalibration,
+                     const CTPPSPixelAnalysisMask *mask);
+  int calibrate(unsigned int, int, int, int, const CTPPSPixelGainCalibrations *pcalibration);
 
-  void buildClusters(unsigned int detId, const std::vector<CTPPSPixelDigi> &digi, std::vector<CTPPSPixelCluster> &clusters, const CTPPSPixelGainCalibrations * pcalibration, const CTPPSPixelAnalysisMask*  mask);
-  int calibrate(unsigned int, int, int, int ,const CTPPSPixelGainCalibrations * pcalibration);
-
-  void make_cluster( RPixCalibDigi const &aSeed,  std::vector<CTPPSPixelCluster> &clusters );
+  void make_cluster(RPixCalibDigi const &aSeed, std::vector<CTPPSPixelCluster> &clusters);
   ~RPixDetClusterizer();
 
-
 private:
-
   std::set<CTPPSPixelDigi> rpix_digi_set_;
-  std::map<unsigned int,RPixCalibDigi> calib_rpix_digi_map_;
+  std::map<unsigned int, RPixCalibDigi> calib_rpix_digi_map_;
   const edm::ParameterSet &params_;
   int verbosity_;
   unsigned short SeedADCThreshold_;
@@ -78,18 +68,13 @@ private:
   std::vector<RPixCalibDigi> SeedVector_;
 };
 
-
-
-class RPixTempCluster{
-
+class RPixTempCluster {
 public:
-
-  RPixTempCluster()
-  {
-    isize=0; 
-    curr=0; 
+  RPixTempCluster() {
+    isize = 0;
+    curr = 0;
   }
-  ~RPixTempCluster(){}
+  ~RPixTempCluster() {}
 
   static constexpr unsigned short MAXSIZE = 256;
   unsigned short adc[MAXSIZE];
@@ -99,20 +84,18 @@ public:
   unsigned short curr;
 
   // stack interface (unsafe ok for use below)
-  unsigned short top() const { return curr;}
-  void pop() { ++curr;}   
-  bool empty() { return curr==isize;}
+  unsigned short top() const { return curr; }
+  void pop() { ++curr; }
+  bool empty() { return curr == isize; }
 
   bool addPixel(unsigned char myrow, unsigned char mycol, unsigned short const iadc) {
-    if (isize==MAXSIZE) return false;
-    adc[isize]=iadc;
-    row[isize]=myrow;
-    col[isize++]=mycol;
+    if (isize == MAXSIZE)
+      return false;
+    adc[isize] = iadc;
+    row[isize] = myrow;
+    col[isize++] = mycol;
     return true;
   }
- 
-
 };
-
 
 #endif

@@ -1,14 +1,13 @@
 #ifndef RecoParticleFlow_PFClusterTools_PFSCEnergyCalibration_h
-#define RecoParticleFlow_PFClusterTools_PFSCEnergyCalibration_h 
+#define RecoParticleFlow_PFClusterTools_PFSCEnergyCalibration_h
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include <iostream>
-
 
 // -*- C++ -*-
 //
 // Package:    PFClusterTools
 // Class:      PFSuperClusterEnergyCalibration
-// 
+//
 /**\class
 
  Description: An auxiliary class of the Particle-Flow algorithm,
@@ -23,21 +22,16 @@
 // Original Author:  Daniele Benedetti
 //         Created:  Fri Dec  4 10:18:18 CDT 2006
 
+class PFSCEnergyCalibration {
+public:
+  PFSCEnergyCalibration();  // default constructor;
+                            // needed by PFRootEvent
 
-
-
-class PFSCEnergyCalibration 
-{
- public:
-  PFSCEnergyCalibration(); // default constructor;
-                           // needed by PFRootEvent
-  
   PFSCEnergyCalibration(std::vector<double> &barrelFbremCorr,
-			std::vector<double> &endcapFbremCorr,
-			std::vector<double> &barrelCorr,
-			std::vector<double> &endcapCorr);
-  
-  
+                        std::vector<double> &endcapFbremCorr,
+                        std::vector<double> &barrelCorr,
+                        std::vector<double> &endcapCorr);
+
   ~PFSCEnergyCalibration();
 
   // ecal calibration
@@ -46,10 +40,8 @@ class PFSCEnergyCalibration
 
   double SCCorrEtEtaBarrel(double et, double eta);
   double SCCorrEtEtaEndcap(double et, double eta);
-  
 
- private:
-
+private:
   //fBrem values
   std::vector<double> barrelFbremCorr_;
   std::vector<double> endcapFbremCorr_;
@@ -61,9 +53,6 @@ class PFSCEnergyCalibration
   std::vector<double> endcapCorr_;
   double cc[9];
   double bb[17];
-
 };
 
 #endif
-
-

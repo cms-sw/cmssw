@@ -7,26 +7,20 @@
 #include <vector>
 
 namespace reco {
-  typedef edm::AssociationVector<PFTauRefProd,std::vector<float> > PFTauDiscriminatorBase;
-  
+  typedef edm::AssociationVector<PFTauRefProd, std::vector<float> > PFTauDiscriminatorBase;
+
   class PFTauDiscriminator : public PFTauDiscriminatorBase {
   public:
-    PFTauDiscriminator() :
-      PFTauDiscriminatorBase()
-      { }
-    
-    PFTauDiscriminator(const reco::PFTauRefProd & ref) :
-      PFTauDiscriminatorBase(ref)
-      { }
-    
-    PFTauDiscriminator(const PFTauDiscriminatorBase &v) :
-      PFTauDiscriminatorBase(v)
-      { }
+    PFTauDiscriminator() : PFTauDiscriminatorBase() {}
+
+    PFTauDiscriminator(const reco::PFTauRefProd &ref) : PFTauDiscriminatorBase(ref) {}
+
+    PFTauDiscriminator(const PFTauDiscriminatorBase &v) : PFTauDiscriminatorBase(v) {}
   };
-  
-  typedef PFTauDiscriminator::value_type PFTauDiscriminatorVT;  
-  typedef edm::Ref<PFTauDiscriminator> PFTauDiscriminatorRef;  
-  typedef edm::RefProd<PFTauDiscriminator> PFTauDiscriminatorRefProd;  
-  typedef edm::RefVector<PFTauDiscriminator> PFTauDiscriminatorRefVector; 
-}
+
+  typedef PFTauDiscriminator::value_type PFTauDiscriminatorVT;
+  typedef edm::Ref<PFTauDiscriminator> PFTauDiscriminatorRef;
+  typedef edm::RefProd<PFTauDiscriminator> PFTauDiscriminatorRefProd;
+  typedef edm::RefVector<PFTauDiscriminator> PFTauDiscriminatorRefVector;
+}  // namespace reco
 #endif

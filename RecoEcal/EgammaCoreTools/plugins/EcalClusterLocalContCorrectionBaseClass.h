@@ -21,33 +21,32 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
 namespace edm {
-        class EventSetup;
-        class ParameterSet;
-}
+  class EventSetup;
+  class ParameterSet;
+}  // namespace edm
 
 class EcalClusterLocalContCorrectionBaseClass : public EcalClusterFunctionBaseClass {
-        public:
-                EcalClusterLocalContCorrectionBaseClass();
-                EcalClusterLocalContCorrectionBaseClass( const edm::ParameterSet & ) {};
-                ~EcalClusterLocalContCorrectionBaseClass() override;
+public:
+  EcalClusterLocalContCorrectionBaseClass();
+  EcalClusterLocalContCorrectionBaseClass(const edm::ParameterSet &){};
+  ~EcalClusterLocalContCorrectionBaseClass() override;
 
-                // get/set explicit methods for parameters
-                const EcalClusterLocalContCorrParameters * getParameters() const { return params_; }
-                // check initialization
-                void checkInit() const;
-                
-                // compute the correction
-                float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const override = 0;
-                float getValue( const reco::SuperCluster &, const int mode ) const override = 0;
+  // get/set explicit methods for parameters
+  const EcalClusterLocalContCorrParameters *getParameters() const { return params_; }
+  // check initialization
+  void checkInit() const;
 
-                // set parameters
-                void init( const edm::EventSetup& es ) override;
+  // compute the correction
+  float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const override = 0;
+  float getValue(const reco::SuperCluster &, const int mode) const override = 0;
 
-        protected:
-                edm::ESHandle<EcalClusterLocalContCorrParameters> esParams_;
-                const EcalClusterLocalContCorrParameters * params_;
-		const edm::EventSetup * es_; //needed to access the ECAL geometry
-		 
+  // set parameters
+  void init(const edm::EventSetup &es) override;
+
+protected:
+  edm::ESHandle<EcalClusterLocalContCorrParameters> esParams_;
+  const EcalClusterLocalContCorrParameters *params_;
+  const edm::EventSetup *es_;  //needed to access the ECAL geometry
 };
 
 #endif

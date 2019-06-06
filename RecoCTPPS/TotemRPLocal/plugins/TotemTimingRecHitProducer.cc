@@ -33,89 +33,78 @@
 #include "CondFormats/DataRecord/interface/PPSTimingCalibrationRcd.h"
 
 /// TOTEM/PPS timing detectors digi-to-rechits conversion module
-class TotemTimingRecHitProducer : public edm::stream::EDProducer<>
-{
-  public:
-    explicit TotemTimingRecHitProducer( const edm::ParameterSet& );
+class TotemTimingRecHitProducer : public edm::stream::EDProducer<> {
+public:
+  explicit TotemTimingRecHitProducer(const edm::ParameterSet&);
 
-    static void fillDescriptions( edm::ConfigurationDescriptions& );
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-  private:
-    void produce( edm::Event&, const edm::EventSetup& ) override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-    /// Input digi collection
-    edm::EDGetTokenT<edm::DetSetVector<TotemTimingDigi> > digiToken_;
-    /// Label to timing calibration tag
-    edm::ESInputTag timingCalibrationTag_;
-    /// Digi-to-rechits transformation algorithm
-    TotemTimingRecHitProducerAlgorithm algo_;
-    /// Timing calibration parameters watcher
-    edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
+  /// Input digi collection
+  edm::EDGetTokenT<edm::DetSetVector<TotemTimingDigi> > digiToken_;
+  /// Label to timing calibration tag
+  edm::ESInputTag timingCalibrationTag_;
+  /// Digi-to-rechits transformation algorithm
+  TotemTimingRecHitProducerAlgorithm algo_;
+  /// Timing calibration parameters watcher
+  edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
 };
 
-TotemTimingRecHitProducer::TotemTimingRecHitProducer( const edm::ParameterSet& iConfig ) :
-  digiToken_( consumes<edm::DetSetVector<TotemTimingDigi> >( iConfig.getParameter<edm::InputTag>( "digiTag" ) ) ),
-  timingCalibrationTag_( iConfig.getParameter<std::string>( "timingCalibrationTag" ) ),
-  algo_( iConfig )
-{
+TotemTimingRecHitProducer::TotemTimingRecHitProducer(const edm::ParameterSet& iConfig)
+    : digiToken_(consumes<edm::DetSetVector<TotemTimingDigi> >(iConfig.getParameter<edm::InputTag>("digiTag"))),
+      timingCalibrationTag_(iConfig.getParameter<std::string>("timingCalibrationTag")),
+      algo_(iConfig) {
   produces<edm::DetSetVector<TotemTimingRecHit> >();
 }
 
-void
-TotemTimingRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
-  std::unique_ptr<edm::DetSetVector<TotemTimingRecHit> > pOut( new edm::DetSetVector<TotemTimingRecHit> );
+void TotemTimingRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  std::unique_ptr<edm::DetSetVector<TotemTimingRecHit> > pOut(new edm::DetSetVector<TotemTimingRecHit>);
 
   // get the digi collection
   edm::Handle<edm::DetSetVector<TotemTimingDigi> > digis;
-  iEvent.getByToken( digiToken_, digis );
+  iEvent.getByToken(digiToken_, digis);
 
   // do not retrieve the calibration parameters if no digis were found
-  if ( !digis->empty() ) {
+  if (!digis->empty()) {
     // check for timing calibration parameters update
-    if ( calibWatcher_.check( iSetup ) ) {
+    if (calibWatcher_.check(iSetup)) {
       edm::ESHandle<PPSTimingCalibration> hTimingCalib;
-      iSetup.get<PPSTimingCalibrationRcd>().get( timingCalibrationTag_, hTimingCalib );
-      algo_.setCalibration( *hTimingCalib );
+      iSetup.get<PPSTimingCalibrationRcd>().get(timingCalibrationTag_, hTimingCalib);
+      algo_.setCalibration(*hTimingCalib);
     }
 
     // get the geometry
     edm::ESHandle<CTPPSGeometry> geometry;
-    iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );
+    iSetup.get<VeryForwardRealGeometryRecord>().get(geometry);
 
     // produce the rechits collection
-    algo_.build( *geometry, *digis, *pOut );
+    algo_.build(*geometry, *digis, *pOut);
   }
 
-  iEvent.put( std::move( pOut ) );
+  iEvent.put(std::move(pOut));
 }
 
-void
-TotemTimingRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& descr )
-{
+void TotemTimingRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descr) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>( "digiTag", edm::InputTag( "totemTimingRawToDigi", "TotemTiming" ) )
-    ->setComment( "input digis collection to retrieve" );
-  desc.add<std::string>( "timingCalibrationTag", "GlobalTag:TotemTimingCalibration" )
-    ->setComment( "input tag for timing calibrations retrieval" );
-  desc.add<int>( "baselinePoints", 8 )
-    ->setComment( "number of points to be used for the baseline" );
-  desc.add<double>( "saturationLimit", 0.85 )
-    ->setComment( "all signals with max > saturationLimit will be considered as saturated" );
-  desc.add<double>( "cfdFraction", 0.3 )
-    ->setComment( "fraction of the CFD" );
-  desc.add<int>( "smoothingPoints", 20 )
-    ->setComment( "number of points to be used for the smoothing using sinc (lowpass)" );
-  desc.add<double>( "lowPassFrequency", 0.7 )
-    ->setComment( "Frequency (in GHz) for CFD smoothing, 0 for disabling the filter" );
-  desc.add<double>( "hysteresis", 5.e-3 )
-    ->setComment( "hysteresis of the discriminator" );
-  desc.add<bool>( "mergeTimePeaks", true )
-      ->setComment( "if time peaks schould be merged" );
+  desc.add<edm::InputTag>("digiTag", edm::InputTag("totemTimingRawToDigi", "TotemTiming"))
+      ->setComment("input digis collection to retrieve");
+  desc.add<std::string>("timingCalibrationTag", "GlobalTag:TotemTimingCalibration")
+      ->setComment("input tag for timing calibrations retrieval");
+  desc.add<int>("baselinePoints", 8)->setComment("number of points to be used for the baseline");
+  desc.add<double>("saturationLimit", 0.85)
+      ->setComment("all signals with max > saturationLimit will be considered as saturated");
+  desc.add<double>("cfdFraction", 0.3)->setComment("fraction of the CFD");
+  desc.add<int>("smoothingPoints", 20)
+      ->setComment("number of points to be used for the smoothing using sinc (lowpass)");
+  desc.add<double>("lowPassFrequency", 0.7)
+      ->setComment("Frequency (in GHz) for CFD smoothing, 0 for disabling the filter");
+  desc.add<double>("hysteresis", 5.e-3)->setComment("hysteresis of the discriminator");
+  desc.add<bool>("mergeTimePeaks", true)->setComment("if time peaks schould be merged");
 
-  descr.add( "totemTimingRecHits", desc );
+  descr.add("totemTimingRecHits", desc);
 }
 
-DEFINE_FWK_MODULE( TotemTimingRecHitProducer );
-
+DEFINE_FWK_MODULE(TotemTimingRecHitProducer);

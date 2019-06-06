@@ -47,45 +47,40 @@
 
 #include <string>
 
-
 //____________________________________________________________________________||
-namespace metsig
-{
-    class SignAlgoResolutions;
+namespace metsig {
+  class SignAlgoResolutions;
 }
 
 //____________________________________________________________________________||
-namespace cms
-{
-  class PFMETProducer: public edm::stream::EDProducer<>
-    {
-    public:
-      explicit PFMETProducer(const edm::ParameterSet&);
-      ~PFMETProducer() override { }
-      void produce(edm::Event&, const edm::EventSetup&) override;
+namespace cms {
+  class PFMETProducer : public edm::stream::EDProducer<> {
+  public:
+    explicit PFMETProducer(const edm::ParameterSet&);
+    ~PFMETProducer() override {}
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
-    private:
+  private:
+    reco::METCovMatrix getMETCovMatrix(const edm::Event& event,
+                                       const edm::EventSetup&,
+                                       const edm::Handle<edm::View<reco::Candidate> >& input) const;
 
-      reco::METCovMatrix getMETCovMatrix(const edm::Event& event, const edm::EventSetup&, 
-					 const edm::Handle<edm::View<reco::Candidate> >& input) const;
+    edm::EDGetTokenT<edm::View<reco::Candidate> > inputToken_;
 
+    bool calculateSignificance_;
+    metsig::METSignificance* metSigAlgo_;
 
-      edm::EDGetTokenT<edm::View<reco::Candidate> > inputToken_;
+    double globalThreshold_;
+    double jetThreshold_;
 
-      bool calculateSignificance_;
-      metsig::METSignificance* metSigAlgo_;
-
-      double globalThreshold_;
-      double jetThreshold_;
-
-      edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
-      std::vector< edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
-      std::string jetSFType_;
-      std::string jetResPtType_;
-      std::string jetResPhiType_;
-      edm::EDGetTokenT<double> rhoToken_;
+    edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
+    std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
+    std::string jetSFType_;
+    std::string jetResPtType_;
+    std::string jetResPhiType_;
+    edm::EDGetTokenT<double> rhoToken_;
   };
-}
+}  // namespace cms
 
 //____________________________________________________________________________||
-#endif // PFMETProducer_h
+#endif  // PFMETProducer_h

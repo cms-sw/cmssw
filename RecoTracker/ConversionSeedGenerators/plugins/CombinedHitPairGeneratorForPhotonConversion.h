@@ -9,12 +9,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
-
 class TrackingRegion;
 class OrderedHitPairs;
 class HitPairGeneratorFromLayerPairForPhotonConversion;
 class SeedingLayerSetsHits;
-namespace edm { class Event; class EventSetup; }
+namespace edm {
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 #include "ConversionRegion.h"
 
@@ -22,38 +24,39 @@ namespace edm { class Event; class EventSetup; }
  * Hides set of HitPairGeneratorFromLayerPairForPhotonConversion generators.
  */
 
-class dso_hidden CombinedHitPairGeneratorForPhotonConversion  {
+class dso_hidden CombinedHitPairGeneratorForPhotonConversion {
 public:
   typedef LayerHitMapCache LayerCacheType;
 
 public:
-  CombinedHitPairGeneratorForPhotonConversion(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
+  CombinedHitPairGeneratorForPhotonConversion(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-  const OrderedHitPairs & run(
-			      const ConversionRegion& convRegion,
-			      const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es);
+  const OrderedHitPairs& run(const ConversionRegion& convRegion,
+                             const TrackingRegion& region,
+                             const edm::Event& ev,
+                             const edm::EventSetup& es);
 
 private:
-  void hitPairs( const ConversionRegion& convRegion, const TrackingRegion& reg, 
-		 OrderedHitPairs & result, const edm::Event& ev, const edm::EventSetup& es);
+  void hitPairs(const ConversionRegion& convRegion,
+                const TrackingRegion& reg,
+                OrderedHitPairs& result,
+                const edm::Event& ev,
+                const edm::EventSetup& es);
 
 public:
   void clearCache();
 
-
 private:
-
   edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
 
   uint32_t maxHitPairsPerTrackAndGenerator;
 
-  LayerCacheType   theLayerCache;
+  LayerCacheType theLayerCache;
 
   std::unique_ptr<HitPairGeneratorFromLayerPairForPhotonConversion> theGenerator;
 
   OrderedHitPairs thePairs;
 
   unsigned int theMaxElement;
-
 };
 #endif

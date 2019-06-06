@@ -7,12 +7,13 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include <memory>
 
-class  dso_hidden MeasurementTrackerESProducer: public edm::ESProducer{
- public:
-  MeasurementTrackerESProducer(const edm::ParameterSet & p);
-  ~MeasurementTrackerESProducer() override; 
+class dso_hidden MeasurementTrackerESProducer : public edm::ESProducer {
+public:
+  MeasurementTrackerESProducer(const edm::ParameterSet &p);
+  ~MeasurementTrackerESProducer() override;
   std::unique_ptr<MeasurementTracker> produce(const CkfComponentsRecord &);
- private:
+
+private:
   edm::ParameterSet pset_;
   std::string pixelCPEName;
   std::string stripCPEName;
@@ -20,9 +21,4 @@ class  dso_hidden MeasurementTrackerESProducer: public edm::ESProducer{
   std::string phase2TrackerCPEName;
 };
 
-
 #endif
-
-
-
-

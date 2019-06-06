@@ -9,7 +9,7 @@
 TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg) {
   produces<L3MuonTrajectorySeedCollection>();
 
-  edm::ConsumesCollector iC  = consumesCollector();
+  edm::ConsumesCollector iC = consumesCollector();
 
   edm::ParameterSet serviceParameters = cfg.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = std::make_unique<MuonServiceProxy>(serviceParameters);
@@ -21,20 +21,21 @@ TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg) {
   //Region builder
   edm::ParameterSet regionBuilderPSet = cfg.getParameter<edm::ParameterSet>("MuonTrackingRegionBuilder");
   //ability to no define a region
-  if (!regionBuilderPSet.empty()){
+  if (!regionBuilderPSet.empty()) {
     theRegionBuilder = std::make_unique<MuonTrackingRegionBuilder>(regionBuilderPSet, iC);
   }
 
   //Seed generator
   edm::ParameterSet seedGenPSet = cfg.getParameter<edm::ParameterSet>("TkSeedGenerator");
   std::string seedGenName = seedGenPSet.getParameter<std::string>("ComponentName");
-  theTkSeedGenerator = std::unique_ptr<TrackerSeedGenerator>{TrackerSeedGeneratorFactory::get()->create(seedGenName, seedGenPSet,iC)};
-  
+  theTkSeedGenerator =
+      std::unique_ptr<TrackerSeedGenerator>{TrackerSeedGeneratorFactory::get()->create(seedGenName, seedGenPSet, iC)};
+
   //Seed cleaner
   edm::ParameterSet trackerSeedCleanerPSet = cfg.getParameter<edm::ParameterSet>("TrackerSeedCleaner");
   //To activate or not the cleaner
-  if (!trackerSeedCleanerPSet.empty()){
-    theSeedCleaner = std::make_unique<TrackerSeedCleaner>(trackerSeedCleanerPSet,iC);
+  if (!trackerSeedCleanerPSet.empty()) {
+    theSeedCleaner = std::make_unique<TrackerSeedCleaner>(trackerSeedCleanerPSet, iC);
   }
 
   //L2 collection
@@ -42,87 +43,82 @@ TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg) {
   l2muonToken = consumes<reco::TrackCollection>(theL2CollectionLabel);
 }
 
-
 TSGFromL2Muon::~TSGFromL2Muon() = default;
 
-
-void TSGFromL2Muon::beginRun(const edm::Run & run, const edm::EventSetup&es){
+void TSGFromL2Muon::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   //update muon proxy service
   theService->update(es);
   theTkSeedGenerator->init(theService.get());
-  if (theSeedCleaner) theSeedCleaner->init(theService.get());
+  if (theSeedCleaner)
+    theSeedCleaner->init(theService.get());
 }
 
-
-void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es){
+void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
   auto result = std::make_unique<L3MuonTrajectorySeedCollection>();
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
   es.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology *tTopo=tTopoHand.product();
+  const TrackerTopology* tTopo = tTopoHand.product();
 
   //intialize tools
   theService->update(es);
   theTkSeedGenerator->setEvent(ev);
-  if (theRegionBuilder)  theRegionBuilder->setEvent(ev);
-  if (theSeedCleaner) theSeedCleaner->setEvent(ev);
+  if (theRegionBuilder)
+    theRegionBuilder->setEvent(ev);
+  if (theSeedCleaner)
+    theSeedCleaner->setEvent(ev);
 
   //retrieve L2 track collection
   edm::Handle<reco::TrackCollection> l2muonH;
-  ev.getByToken(l2muonToken ,l2muonH); 
+  ev.getByToken(l2muonToken, l2muonH);
 
   // produce trajectory seed collection
-  LogDebug("TSGFromL2Muon")<<l2muonH->size()<<" l2 tracks.";
+  LogDebug("TSGFromL2Muon") << l2muonH->size() << " l2 tracks.";
 
-  for (unsigned int imu=0; imu != l2muonH->size(); ++imu){
+  for (unsigned int imu = 0; imu != l2muonH->size(); ++imu) {
     //make a ref to l2 muon
     reco::TrackRef muRef(l2muonH, imu);
-    
+
     // cut on muons with low momenta
-    if ( muRef->pt() < thePtCut 
-	 || muRef->innerMomentum().Rho() < thePtCut 
-	 || muRef->innerMomentum().R() < thePCut ) continue;
-    
+    if (muRef->pt() < thePtCut || muRef->innerMomentum().Rho() < thePtCut || muRef->innerMomentum().R() < thePCut)
+      continue;
+
     //define the region of interest
     std::unique_ptr<RectangularEtaPhiTrackingRegion> region;
-    if(theRegionBuilder){
+    if (theRegionBuilder) {
       region = theRegionBuilder->region(muRef);
     }
-    
+
     //Make seeds container
     std::vector<TrajectorySeed> tkSeeds;
 
     //Make TrackCand
-    std::pair<const Trajectory*,reco::TrackRef> staCand((Trajectory*)nullptr, muRef);
+    std::pair<const Trajectory*, reco::TrackRef> staCand((Trajectory*)nullptr, muRef);
 
     //Run seed generator to fill seed container
-    theTkSeedGenerator->trackerSeeds(staCand, *region, tTopo,tkSeeds);
+    theTkSeedGenerator->trackerSeeds(staCand, *region, tTopo, tkSeeds);
 
     //Seed Cleaner From Direction
-    if(theSeedCleaner){
-       theSeedCleaner->clean(muRef,*region,tkSeeds);
+    if (theSeedCleaner) {
+      theSeedCleaner->clean(muRef, *region, tkSeeds);
     }
 
-    for (unsigned int is=0; is != tkSeeds.size(); ++is){
-      result->push_back( L3MuonTrajectorySeed(tkSeeds[is], muRef));
+    for (unsigned int is = 0; is != tkSeeds.size(); ++is) {
+      result->push_back(L3MuonTrajectorySeed(tkSeeds[is], muRef));
     }
-    
   }
-  
 
   //ADDME: remove seed duplicate, keeping the ref to L2
 
-  LogDebug("TSGFromL2Muon")<<result->size()<<" trajectory seeds to the events";
+  LogDebug("TSGFromL2Muon") << result->size() << " trajectory seeds to the events";
 
   //put in the event
   ev.put(std::move(result));
 }
 
 // FillDescription generated from hltL3TrajSeedOIState with additions from OIHit and IOHit
-void
-TSGFromL2Muon::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void TSGFromL2Muon::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setAllowAnything();
 }
-

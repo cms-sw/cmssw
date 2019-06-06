@@ -10,6 +10,8 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/plugins/SiStripBadComponentInfo.h"
 
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+
 #include <cmath>
 #include <cstdio>
 #include <iomanip>

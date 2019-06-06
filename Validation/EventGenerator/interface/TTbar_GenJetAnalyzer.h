@@ -2,7 +2,7 @@
 //
 // Package:    ObjectAnalyzer
 // Class:      TTbar_GenJetAnalyzer
-// 
+//
 /**\class TTbar_GenJetAnalyzer 
 
  Description: [one line class summary]
@@ -43,35 +43,30 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-
 #include <map>
 #include <string>
-
 
 //
 // class declaration
 //
 
 class TTbar_GenJetAnalyzer : public DQMEDAnalyzer {
-   public:
-      explicit TTbar_GenJetAnalyzer(const edm::ParameterSet&);
-      ~TTbar_GenJetAnalyzer() override;
+public:
+  explicit TTbar_GenJetAnalyzer(const edm::ParameterSet &);
+  ~TTbar_GenJetAnalyzer() override;
 
-      void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-   private:
+private:
+  // ----------member data ---------------------------
 
-      // ----------member data ---------------------------
+  edm::InputTag jets_;
+  edm::InputTag genEventInfoProductTag_;
+  std::map<std::string, MonitorElement *> hists_;
 
-      edm::InputTag jets_;
-      edm::InputTag genEventInfoProductTag_;
-      std::map<std::string, MonitorElement*> hists_;
-
-      double weight ;
+  double weight;
 
   edm::EDGetTokenT<GenEventInfoProduct> genEventInfoProductTagToken_;
   edm::EDGetTokenT<std::vector<reco::GenJet> > jetsToken_;
-
 };
-

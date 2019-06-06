@@ -12,188 +12,184 @@
  * \author Fedor Ratnikov, UMd, Apr 24, 2007
  ************************************************************/
 
-
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
-class PFJet : public Jet {
- public:
-
+  class PFJet : public Jet {
+  public:
     typedef reco::PFCandidatePtr ConstituentTypePtr;
     typedef reco::PFCandidateFwdPtr ConstituentTypeFwdPtr;
 
-  struct Specific {
-    Specific () :
-       mChargedHadronEnergy (0),
-       mNeutralHadronEnergy (0),
-       mPhotonEnergy (0),
-       mElectronEnergy (0),
-       mMuonEnergy (0),
-       mHFHadronEnergy (0),
-       mHFEMEnergy (0),
+    struct Specific {
+      Specific()
+          : mChargedHadronEnergy(0),
+            mNeutralHadronEnergy(0),
+            mPhotonEnergy(0),
+            mElectronEnergy(0),
+            mMuonEnergy(0),
+            mHFHadronEnergy(0),
+            mHFEMEnergy(0),
 
-       mChargedHadronMultiplicity (0),
-       mNeutralHadronMultiplicity (0),
-       mPhotonMultiplicity (0),
-       mElectronMultiplicity (0),
-       mMuonMultiplicity (0),
-       mHFHadronMultiplicity (0),
-       mHFEMMultiplicity (0),
+            mChargedHadronMultiplicity(0),
+            mNeutralHadronMultiplicity(0),
+            mPhotonMultiplicity(0),
+            mElectronMultiplicity(0),
+            mMuonMultiplicity(0),
+            mHFHadronMultiplicity(0),
+            mHFEMMultiplicity(0),
 
-       mChargedEmEnergy (0),
-       mChargedMuEnergy (0),
-       mNeutralEmEnergy (0),
-       
-       mChargedMultiplicity (0),
-       mNeutralMultiplicity (0),
+            mChargedEmEnergy(0),
+            mChargedMuEnergy(0),
+            mNeutralEmEnergy(0),
 
-       mHOEnergy (0)
-    {}
-    float mChargedHadronEnergy;
-    float mNeutralHadronEnergy;
-    float mPhotonEnergy;
-    float mElectronEnergy;
-    float mMuonEnergy;
-    float mHFHadronEnergy;
-    float mHFEMEnergy;
+            mChargedMultiplicity(0),
+            mNeutralMultiplicity(0),
 
-    int mChargedHadronMultiplicity;
-    int mNeutralHadronMultiplicity;
-    int mPhotonMultiplicity;
-    int mElectronMultiplicity;
-    int mMuonMultiplicity;
-    int mHFHadronMultiplicity;
-    int mHFEMMultiplicity;
+            mHOEnergy(0) {}
+      float mChargedHadronEnergy;
+      float mNeutralHadronEnergy;
+      float mPhotonEnergy;
+      float mElectronEnergy;
+      float mMuonEnergy;
+      float mHFHadronEnergy;
+      float mHFEMEnergy;
 
-    //old (deprecated) data members
-    //kept only for backwards compatibility:
-    float mChargedEmEnergy;
-    float mChargedMuEnergy;
-    float mNeutralEmEnergy;
-    int mChargedMultiplicity;
-    int mNeutralMultiplicity;
+      int mChargedHadronMultiplicity;
+      int mNeutralHadronMultiplicity;
+      int mPhotonMultiplicity;
+      int mElectronMultiplicity;
+      int mMuonMultiplicity;
+      int mHFHadronMultiplicity;
+      int mHFEMMultiplicity;
 
-    float mHOEnergy;
- };
-  
-  /** Default constructor*/
-  PFJet() {}
-  
-  /** Constructor from values*/
-  PFJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific, 
-	  const Jet::Constituents& fConstituents);
+      //old (deprecated) data members
+      //kept only for backwards compatibility:
+      float mChargedEmEnergy;
+      float mChargedMuEnergy;
+      float mNeutralEmEnergy;
+      int mChargedMultiplicity;
+      int mNeutralMultiplicity;
 
-  PFJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific); 
+      float mHOEnergy;
+    };
 
-  /** backward compatible, vertex=(0,0,0) */
-  PFJet(const LorentzVector& fP4, const Specific& fSpecific, 
-	  const Jet::Constituents& fConstituents);
+    /** Default constructor*/
+    PFJet() {}
 
-  
-  ~PFJet() override {};
+    /** Constructor from values*/
+    PFJet(const LorentzVector& fP4,
+          const Point& fVertex,
+          const Specific& fSpecific,
+          const Jet::Constituents& fConstituents);
 
-  /// chargedHadronEnergy 
-  float chargedHadronEnergy () const {return m_specific.mChargedHadronEnergy;}
-  ///  chargedHadronEnergyFraction
-  float  chargedHadronEnergyFraction () const {return chargedHadronEnergy () / energy ();}
-  /// neutralHadronEnergy
-  float neutralHadronEnergy () const {return m_specific.mNeutralHadronEnergy;}
-  /// neutralHadronEnergyFraction
-  float neutralHadronEnergyFraction () const {return neutralHadronEnergy () / energy ();}
-  /// photonEnergy 
-  float photonEnergy () const {return m_specific.mPhotonEnergy;}
-  /// photonEnergyFraction
-  float photonEnergyFraction () const {return photonEnergy () / energy ();}
-  /// electronEnergy 
-  float electronEnergy () const {return m_specific.mElectronEnergy;}
-  /// electronEnergyFraction
-  float electronEnergyFraction () const {return electronEnergy () / energy ();}
-  /// muonEnergy 
-  float muonEnergy () const {return m_specific.mMuonEnergy;}
-  /// muonEnergyFraction
-  float muonEnergyFraction () const {return muonEnergy () / energy ();}
-  /// HFHadronEnergy 
-  float HFHadronEnergy () const {return m_specific.mHFHadronEnergy;}
-  /// HFHadronEnergyFraction
-  float HFHadronEnergyFraction () const {return HFHadronEnergy () / energy ();}
-  /// HFEMEnergy 
-  float HFEMEnergy () const {return m_specific.mHFEMEnergy;}
-  /// HFEMEnergyFraction
-  float HFEMEnergyFraction () const {return HFEMEnergy () / energy ();}
+    PFJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific);
 
-  /// chargedHadronMultiplicity
-  int chargedHadronMultiplicity () const {return m_specific.mChargedHadronMultiplicity;}
-  /// neutralHadronMultiplicity
-  int neutralHadronMultiplicity () const {return m_specific.mNeutralHadronMultiplicity;}
-  /// photonMultiplicity
-  int photonMultiplicity () const {return m_specific.mPhotonMultiplicity;}
-  /// electronMultiplicity
-  int electronMultiplicity () const {return m_specific.mElectronMultiplicity;}
-  /// muonMultiplicity
-  int muonMultiplicity () const {return m_specific.mMuonMultiplicity;}
-  /// HFHadronMultiplicity
-  int HFHadronMultiplicity () const {return m_specific.mHFHadronMultiplicity;}
-  /// HFEMMultiplicity
-  int HFEMMultiplicity () const {return m_specific.mHFEMMultiplicity;}
+    /** backward compatible, vertex=(0,0,0) */
+    PFJet(const LorentzVector& fP4, const Specific& fSpecific, const Jet::Constituents& fConstituents);
 
-  /// chargedEmEnergy
-  float chargedEmEnergy () const {return m_specific.mChargedEmEnergy;}
-  /// chargedEmEnergyFraction
-  float chargedEmEnergyFraction () const {return chargedEmEnergy () / energy ();}
-  /// chargedMuEnergy
-  float chargedMuEnergy () const {return m_specific.mChargedMuEnergy;}
-  /// chargedMuEnergyFraction
-  float chargedMuEnergyFraction () const {return chargedMuEnergy () / energy ();}
-  /// neutralEmEnergy
-  float neutralEmEnergy () const {return m_specific.mNeutralEmEnergy;}
-  /// neutralEmEnergyFraction
-  float neutralEmEnergyFraction () const {return neutralEmEnergy () / energy ();}
-  
-  /// chargedMultiplicity
-  int chargedMultiplicity () const {return m_specific.mChargedMultiplicity;}
-  /// neutralMultiplicity
-  int neutralMultiplicity () const {return m_specific.mNeutralMultiplicity;}
+    ~PFJet() override{};
 
-  /// hoEnergy 
-  float hoEnergy () const {return m_specific.mHOEnergy;}
-  /// hoEnergyFraction
-  float hoEnergyFraction () const {return hoEnergy () / energy ();}
+    /// chargedHadronEnergy
+    float chargedHadronEnergy() const { return m_specific.mChargedHadronEnergy; }
+    ///  chargedHadronEnergyFraction
+    float chargedHadronEnergyFraction() const { return chargedHadronEnergy() / energy(); }
+    /// neutralHadronEnergy
+    float neutralHadronEnergy() const { return m_specific.mNeutralHadronEnergy; }
+    /// neutralHadronEnergyFraction
+    float neutralHadronEnergyFraction() const { return neutralHadronEnergy() / energy(); }
+    /// photonEnergy
+    float photonEnergy() const { return m_specific.mPhotonEnergy; }
+    /// photonEnergyFraction
+    float photonEnergyFraction() const { return photonEnergy() / energy(); }
+    /// electronEnergy
+    float electronEnergy() const { return m_specific.mElectronEnergy; }
+    /// electronEnergyFraction
+    float electronEnergyFraction() const { return electronEnergy() / energy(); }
+    /// muonEnergy
+    float muonEnergy() const { return m_specific.mMuonEnergy; }
+    /// muonEnergyFraction
+    float muonEnergyFraction() const { return muonEnergy() / energy(); }
+    /// HFHadronEnergy
+    float HFHadronEnergy() const { return m_specific.mHFHadronEnergy; }
+    /// HFHadronEnergyFraction
+    float HFHadronEnergyFraction() const { return HFHadronEnergy() / energy(); }
+    /// HFEMEnergy
+    float HFEMEnergy() const { return m_specific.mHFEMEnergy; }
+    /// HFEMEnergyFraction
+    float HFEMEnergyFraction() const { return HFEMEnergy() / energy(); }
 
-  /// get specific constituent
-  virtual reco::PFCandidatePtr getPFConstituent (unsigned fIndex) const;
+    /// chargedHadronMultiplicity
+    int chargedHadronMultiplicity() const { return m_specific.mChargedHadronMultiplicity; }
+    /// neutralHadronMultiplicity
+    int neutralHadronMultiplicity() const { return m_specific.mNeutralHadronMultiplicity; }
+    /// photonMultiplicity
+    int photonMultiplicity() const { return m_specific.mPhotonMultiplicity; }
+    /// electronMultiplicity
+    int electronMultiplicity() const { return m_specific.mElectronMultiplicity; }
+    /// muonMultiplicity
+    int muonMultiplicity() const { return m_specific.mMuonMultiplicity; }
+    /// HFHadronMultiplicity
+    int HFHadronMultiplicity() const { return m_specific.mHFHadronMultiplicity; }
+    /// HFEMMultiplicity
+    int HFEMMultiplicity() const { return m_specific.mHFEMMultiplicity; }
 
-  /// get all constituents
-  virtual std::vector <reco::PFCandidatePtr> getPFConstituents () const;
+    /// chargedEmEnergy
+    float chargedEmEnergy() const { return m_specific.mChargedEmEnergy; }
+    /// chargedEmEnergyFraction
+    float chargedEmEnergyFraction() const { return chargedEmEnergy() / energy(); }
+    /// chargedMuEnergy
+    float chargedMuEnergy() const { return m_specific.mChargedMuEnergy; }
+    /// chargedMuEnergyFraction
+    float chargedMuEnergyFraction() const { return chargedMuEnergy() / energy(); }
+    /// neutralEmEnergy
+    float neutralEmEnergy() const { return m_specific.mNeutralEmEnergy; }
+    /// neutralEmEnergyFraction
+    float neutralEmEnergyFraction() const { return neutralEmEnergy() / energy(); }
 
-  /// \ brief get all tracks in the jets
-  /// All PFCandidates hold a reference to a track. All the non-null
-  /// references are added to the returned TrackRefVector
-  reco::TrackRefVector getTrackRefs() const; 
-  
-  // block accessors
-  
-  const Specific& getSpecific () const {return m_specific;}
+    /// chargedMultiplicity
+    int chargedMultiplicity() const { return m_specific.mChargedMultiplicity; }
+    /// neutralMultiplicity
+    int neutralMultiplicity() const { return m_specific.mNeutralMultiplicity; }
 
-  /// Polymorphic clone
-  PFJet* clone () const override;
+    /// hoEnergy
+    float hoEnergy() const { return m_specific.mHOEnergy; }
+    /// hoEnergyFraction
+    float hoEnergyFraction() const { return hoEnergy() / energy(); }
 
-  /// Print object in details
-  std::string print () const override;
+    /// get specific constituent
+    virtual reco::PFCandidatePtr getPFConstituent(unsigned fIndex) const;
 
+    /// get all constituents
+    virtual std::vector<reco::PFCandidatePtr> getPFConstituents() const;
 
- private:
-  /// Polymorphic overlap
-  bool overlap( const Candidate & ) const override;
-  
-  //Variables specific to to the PFJet class
-  Specific m_specific;
-};
+    /// \ brief get all tracks in the jets
+    /// All PFCandidates hold a reference to a track. All the non-null
+    /// references are added to the returned TrackRefVector
+    reco::TrackRefVector getTrackRefs() const;
 
-// streamer
- std::ostream& operator<<(std::ostream& out, const reco::PFJet& jet);
-}
+    // block accessors
+
+    const Specific& getSpecific() const { return m_specific; }
+
+    /// Polymorphic clone
+    PFJet* clone() const override;
+
+    /// Print object in details
+    std::string print() const override;
+
+  private:
+    /// Polymorphic overlap
+    bool overlap(const Candidate&) const override;
+
+    //Variables specific to to the PFJet class
+    Specific m_specific;
+  };
+
+  // streamer
+  std::ostream& operator<<(std::ostream& out, const reco::PFJet& jet);
+}  // namespace reco
 // temporary fix before include_checcker runs globally
-#include "DataFormats/JetReco/interface/PFJetCollection.h" //INCLUDECHECKER:SKIP 
+#include "DataFormats/JetReco/interface/PFJetCollection.h"  //INCLUDECHECKER:SKIP
 #endif

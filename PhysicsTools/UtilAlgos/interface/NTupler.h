@@ -1,7 +1,6 @@
 #ifndef NTupler_H
 #define NTupler_H
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -19,20 +18,21 @@
 //base generic class
 
 class NTupler {
- public:
-  NTupler() : useTFileService_(false){}
-  virtual ~NTupler(){}
+public:
+  NTupler() : useTFileService_(false) {}
+  virtual ~NTupler() {}
 
-  virtual unsigned int registerleaves(edm::ProducerBase * producer) =0;
-  virtual void fill(edm::Event& iEvent)=0;
- protected:
+  virtual unsigned int registerleaves(edm::ProducerBase* producer) = 0;
+  virtual void fill(edm::Event& iEvent) = 0;
+
+protected:
   bool useTFileService_;
-  TTree * tree_;
+  TTree* tree_;
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-typedef edmplugin::PluginFactory< NTupler* (const edm::ParameterSet&) > NTuplerFactory;
+typedef edmplugin::PluginFactory<NTupler*(const edm::ParameterSet&)> NTuplerFactory;
 
 #endif

@@ -24,43 +24,40 @@
 /// \class ScalersRaw.h
 /// \brief Raw Data Level 1 Global Trigger Scalers and Lumi Scalers
 
-class ScalersRaw
-{
- public:
-  enum
-  {
-    N_L1_TRIGGERS_v1      = 128,
+class ScalersRaw {
+public:
+  enum {
+    N_L1_TRIGGERS_v1 = 128,
     N_L1_TEST_TRIGGERS_v1 = 64,
-    N_LUMI_OCC_v1         = 2,
-    N_BX_v2               = 4,
-    N_BX_v6               = 8,
-    N_SPARE_v5            = 3,
-    I_SPARE_PILEUP_v7     = 0,
-    I_SPARE_PILEUPRMS_v7  = 1,
-    I_SPARE_BUNCHLUMI_v8  = 2,
-    I_SPARE_SPARE_v8      = 3,
-    SCALERS_FED_ID        = 735
+    N_LUMI_OCC_v1 = 2,
+    N_BX_v2 = 4,
+    N_BX_v6 = 8,
+    N_SPARE_v5 = 3,
+    I_SPARE_PILEUP_v7 = 0,
+    I_SPARE_PILEUPRMS_v7 = 1,
+    I_SPARE_BUNCHLUMI_v8 = 2,
+    I_SPARE_SPARE_v8 = 3,
+    SCALERS_FED_ID = 735
   };
 };
 
-struct TriggerScalersRaw_v1
-{
-  unsigned int       collectionTimeSpecial_sec;
-  unsigned int       collectionTimeSpecial_nsec;
-  unsigned int       ORBIT_NUMBER;          /* ORBITNR          */
-  unsigned int       LUMINOSITY_SEGMENT;
-  unsigned short     BC_ERRORS;            
+struct TriggerScalersRaw_v1 {
+  unsigned int collectionTimeSpecial_sec;
+  unsigned int collectionTimeSpecial_nsec;
+  unsigned int ORBIT_NUMBER; /* ORBITNR          */
+  unsigned int LUMINOSITY_SEGMENT;
+  unsigned short BC_ERRORS;
 
-  unsigned int       collectionTimeSummary_sec;
-  unsigned int       collectionTimeSummary_nsec;
-  unsigned int       TRIGGER_NR;            /* TRIGNR_          */
-  unsigned int       EVENT_NR;              /* EVNR             */
-  unsigned int       FINOR_DISTRIBUTED;     /* PHYS_L1A      ?? */
-  unsigned int       CAL_TRIGGER;           /* CAL_L1A_         */
-  unsigned int       RANDOM_TRIGGER;        /* RNDM_L1A_        */
-  unsigned int       TEST_TRIGGER;          /* TECHTRIG_        */
-  unsigned int       FINOR_GENERATED;       /* FINOR_        ?? */
-  unsigned int       FINOR_IN_INVALID_BC;   /* LOST_BC_      ?? */
+  unsigned int collectionTimeSummary_sec;
+  unsigned int collectionTimeSummary_nsec;
+  unsigned int TRIGGER_NR;                  /* TRIGNR_          */
+  unsigned int EVENT_NR;                    /* EVNR             */
+  unsigned int FINOR_DISTRIBUTED;           /* PHYS_L1A      ?? */
+  unsigned int CAL_TRIGGER;                 /* CAL_L1A_         */
+  unsigned int RANDOM_TRIGGER;              /* RNDM_L1A_        */
+  unsigned int TEST_TRIGGER;                /* TECHTRIG_        */
+  unsigned int FINOR_GENERATED;             /* FINOR_        ?? */
+  unsigned int FINOR_IN_INVALID_BC;         /* LOST_BC_      ?? */
   unsigned long long DEADTIME;              /* DEADT_           */
   unsigned long long LOST_FINOR;            /* LOST_TRIG_    ?? */
   unsigned long long DEADTIMEA;             /* DEADT_A          */
@@ -70,16 +67,15 @@ struct TriggerScalersRaw_v1
   unsigned long long THROTTLE_DEADTIMEA;    /* DEADT_THROTTLE_A */
   unsigned long long CALIBRATION_DEADTIMEA; /* DEADT_CALIBR_A   */
   unsigned long long TIMESLOT_DEADTIMEA;    /*                  */
-  unsigned int       NR_OF_RESETS;          /* NR_RESETS_       */
+  unsigned int NR_OF_RESETS;                /* NR_RESETS_       */
 
-  unsigned int       collectionTimeDetails_sec;
-  unsigned int       collectionTimeDetails_nsec;
-  unsigned int       ALGO_RATE[ScalersRaw::N_L1_TRIGGERS_v1];
-  unsigned int       TEST_RATE[ScalersRaw::N_L1_TEST_TRIGGERS_v1];
+  unsigned int collectionTimeDetails_sec;
+  unsigned int collectionTimeDetails_nsec;
+  unsigned int ALGO_RATE[ScalersRaw::N_L1_TRIGGERS_v1];
+  unsigned int TEST_RATE[ScalersRaw::N_L1_TEST_TRIGGERS_v1];
 };
 
-struct TriggerScalersRaw_v3
-{
+struct TriggerScalersRaw_v3 {
   unsigned int collectionTime_sec;
   unsigned int collectionTime_nsec;
   unsigned int lumiSegmentNr;
@@ -117,8 +113,7 @@ struct TriggerScalersRaw_v3
   unsigned int gtTechCounts[ScalersRaw::N_L1_TEST_TRIGGERS_v1];
 };
 
-struct LumiScalersRaw_v1
-{
+struct LumiScalersRaw_v1 {
   unsigned int collectionTime_sec;
   unsigned int collectionTime_nsec;
   float DeadtimeNormalization;
@@ -154,8 +149,7 @@ struct LumiScalersRaw_v1
   unsigned int numOrbits;
 };
 
-struct BeamSpotOnlineRaw_v4
-{
+struct BeamSpotOnlineRaw_v4 {
   unsigned int collectionTime_sec;
   unsigned int collectionTime_nsec;
   float x;
@@ -176,8 +170,7 @@ struct BeamSpotOnlineRaw_v4
   float err_sigma_z;
 };
 
-struct DcsStatusRaw_v4
-{
+struct DcsStatusRaw_v4 {
   unsigned int collectionTime_sec;
   unsigned int collectionTime_nsec;
   unsigned int ready;
@@ -185,87 +178,80 @@ struct DcsStatusRaw_v4
   float magnetTemperature;
 };
 
-struct ScalersEventRecordRaw_v1
-{
+struct ScalersEventRecordRaw_v1 {
   unsigned long long header;
   int version;
   struct TriggerScalersRaw_v1 trig;
-  struct LumiScalersRaw_v1    lumi;
+  struct LumiScalersRaw_v1 lumi;
   unsigned int filler;
   unsigned long long trailer;
 };
 
-struct ScalersEventRecordRaw_v2
-{
+struct ScalersEventRecordRaw_v2 {
   unsigned long long header;
   int version;
   struct TriggerScalersRaw_v1 trig;
-  struct LumiScalersRaw_v1    lumi;
+  struct LumiScalersRaw_v1 lumi;
   unsigned int filler;
   unsigned long long bx[ScalersRaw::N_BX_v2];
   unsigned long long trailer;
 };
 
-struct ScalersEventRecordRaw_v3
-{
+struct ScalersEventRecordRaw_v3 {
   unsigned long long header;
   int version;
   struct TriggerScalersRaw_v3 trig;
-  struct LumiScalersRaw_v1    lumi;
+  struct LumiScalersRaw_v1 lumi;
   unsigned int filler;
   unsigned long long bx[ScalersRaw::N_BX_v2];
   unsigned long long trailer;
 };
 
-struct ScalersEventRecordRaw_v4
-{
+struct ScalersEventRecordRaw_v4 {
   unsigned long long header;
   int version;
   struct TriggerScalersRaw_v3 trig;
-  struct LumiScalersRaw_v1    lumi;
+  struct LumiScalersRaw_v1 lumi;
   struct BeamSpotOnlineRaw_v4 beamSpotOnline;
-  struct DcsStatusRaw_v4      dcsStatus;
+  struct DcsStatusRaw_v4 dcsStatus;
   unsigned long long bx[ScalersRaw::N_BX_v2];
   unsigned long long trailer;
 };
 
-
-struct ScalersEventRecordRaw_v5
-{
-  unsigned long long          header;
-  int                         version;
+struct ScalersEventRecordRaw_v5 {
+  unsigned long long header;
+  int version;
   struct TriggerScalersRaw_v3 trig;
-  struct LumiScalersRaw_v1    lumi;
+  struct LumiScalersRaw_v1 lumi;
   struct BeamSpotOnlineRaw_v4 beamSpotOnline;
-  struct DcsStatusRaw_v4      dcsStatus;
-  unsigned int                lastOrbitCounter0;
-  unsigned int                lastTestEnable;
-  unsigned int                lastResync;
-  unsigned int                lastStart;
-  unsigned int                lastEventCounter0;
-  unsigned int                lastHardReset;
-  unsigned long long          spare[ScalersRaw::N_SPARE_v5];
-  unsigned long long          bx[ScalersRaw::N_BX_v2];
-  unsigned long long          trailer;
+  struct DcsStatusRaw_v4 dcsStatus;
+  unsigned int lastOrbitCounter0;
+  unsigned int lastTestEnable;
+  unsigned int lastResync;
+  unsigned int lastStart;
+  unsigned int lastEventCounter0;
+  unsigned int lastHardReset;
+  unsigned long long spare[ScalersRaw::N_SPARE_v5];
+  unsigned long long bx[ScalersRaw::N_BX_v2];
+  unsigned long long trailer;
 };
 
-struct ScalersEventRecordRaw_v6
-{
-  unsigned long long          header;
-  int                         version;
+struct ScalersEventRecordRaw_v6 {
+  unsigned long long header;
+  int version;
   struct TriggerScalersRaw_v3 trig;
-  struct LumiScalersRaw_v1    lumi;
+  struct LumiScalersRaw_v1 lumi;
   struct BeamSpotOnlineRaw_v4 beamSpotOnline;
-  struct DcsStatusRaw_v4      dcsStatus;
-  unsigned int                lastOrbitCounter0;
-  unsigned int                lastTestEnable;
-  unsigned int                lastResync;
-  unsigned int                lastStart;
-  unsigned int                lastEventCounter0;
-  unsigned int                lastHardReset;
-  unsigned long long          spare[ScalersRaw::N_SPARE_v5];
-  unsigned long long          bx[ScalersRaw::N_BX_v6];
-  unsigned long long          trailer;
+  struct DcsStatusRaw_v4 dcsStatus;
+  unsigned int lastOrbitCounter0;
+  unsigned int lastTestEnable;
+  unsigned int lastResync;
+  unsigned int lastStart;
+  unsigned int lastEventCounter0;
+  unsigned int lastHardReset;
+  unsigned long long spare[ScalersRaw::N_SPARE_v5];
+  unsigned long long bx[ScalersRaw::N_BX_v6];
+  unsigned long long trailer;
 };
 
 #pragma pack(pop)

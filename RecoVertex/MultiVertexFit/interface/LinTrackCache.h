@@ -7,36 +7,32 @@
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
-class LinTrackCache
-{
+class LinTrackCache {
 private:
-  struct Comparer
-  {
-    bool operator() ( const GlobalPoint &, const GlobalPoint & ) const;
+  struct Comparer {
+    bool operator()(const GlobalPoint &, const GlobalPoint &) const;
   };
 
-  struct Vicinity
-  {
-    bool operator() ( const GlobalPoint &, const GlobalPoint & ) const;
+  struct Vicinity {
+    bool operator()(const GlobalPoint &, const GlobalPoint &) const;
   };
 
 public:
-
   typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
 
   /**
    *  \class LinTrackCache
    *  caches LinearizedTrackStates
    */
-  RefCountedLinearizedTrackState linTrack ( const GlobalPoint &, const reco::TransientTrack & );
+  RefCountedLinearizedTrackState linTrack(const GlobalPoint &, const reco::TransientTrack &);
   ~LinTrackCache();
   void clear();
 
 private:
-  typedef std::map < reco::TransientTrack, RefCountedLinearizedTrackState > LinTrkMap;
-  typedef std::map < reco::TransientTrack, bool > HasLinTrkMap;
-  std::map < GlobalPoint, LinTrkMap, Vicinity > theLinTracks;
-  std::map < GlobalPoint, HasLinTrkMap, Vicinity > theHasLinTrack;
+  typedef std::map<reco::TransientTrack, RefCountedLinearizedTrackState> LinTrkMap;
+  typedef std::map<reco::TransientTrack, bool> HasLinTrkMap;
+  std::map<GlobalPoint, LinTrkMap, Vicinity> theLinTracks;
+  std::map<GlobalPoint, HasLinTrkMap, Vicinity> theHasLinTrack;
 };
 
 #endif

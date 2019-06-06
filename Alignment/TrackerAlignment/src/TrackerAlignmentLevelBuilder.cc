@@ -7,6 +7,7 @@
 // topology and geometry
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 
 

@@ -4,8 +4,7 @@
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 
-PFGeometry::PFGeometry()
-{
+PFGeometry::PFGeometry() {
   if (innerRadius_.empty()) {
     // All distances are in cm
     // BeamPipe
@@ -39,8 +38,8 @@ PFGeometry::PFGeometry()
     innerZ_.push_back(0.);
     outerZ_.push_back(433.2);
     // HCALEndcap
-    innerRadius_.push_back(31.6); // !!! Do not use : Probably wrong !!!    
-    outerRadius_.push_back(285.0); // !!! Do not use : Probably wrong !!! 
+    innerRadius_.push_back(31.6);   // !!! Do not use : Probably wrong !!!
+    outerRadius_.push_back(285.0);  // !!! Do not use : Probably wrong !!!
     innerZ_.push_back(388.0);
     outerZ_.push_back(560.0);
 
@@ -51,11 +50,11 @@ PFGeometry::PFGeometry()
     outerZ_.push_back(700.25);
 
     // Define reference surfaces
-    tanTh_.push_back(innerRadius_[BeamPipe]/outerZ_[BeamPipe]);
-    tanTh_.push_back(outerRadius_[PS1]/outerZ_[PS1]);
-    tanTh_.push_back(outerRadius_[PS2]/outerZ_[PS2]);
-    tanTh_.push_back(innerRadius_[ECALBarrel]/innerZ_[ECALEndcap]);
-    tanTh_.push_back(innerRadius_[HCALBarrel]/innerZ_[HCALEndcap]);
-    tanTh_.push_back(outerRadius_[HCALBarrel]/outerZ_[HCALEndcap]);
+    tanTh_.push_back(innerRadius_[BeamPipe] / outerZ_[BeamPipe]);
+    tanTh_.push_back(outerRadius_[PS1] / outerZ_[PS1]);
+    tanTh_.push_back(outerRadius_[PS2] / outerZ_[PS2]);
+    tanTh_.push_back(innerRadius_[ECALBarrel] / innerZ_[ECALEndcap]);
+    tanTh_.push_back(innerRadius_[HCALBarrel] / innerZ_[HCALEndcap]);
+    tanTh_.push_back(outerRadius_[HCALBarrel] / outerZ_[HCALEndcap]);
   }
 }

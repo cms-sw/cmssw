@@ -14,8 +14,8 @@ namespace siStripClusterTools {
     if (detid.subdetId()>=SiStripDetId::TIB) {
       SiStripDetId siStripDetId = detid(); 
       if (siStripDetId.subdetId()==SiStripDetId::TOB) return 1.f/0.047f;
-      if (siStripDetId.moduleGeometry()==SiStripDetId::W5 || siStripDetId.moduleGeometry()==SiStripDetId::W6 ||
-          siStripDetId.moduleGeometry()==SiStripDetId::W7)
+      if (siStripDetId.moduleGeometry()==SiStripModuleGeometry::W5 || siStripDetId.moduleGeometry()==SiStripModuleGeometry::W6 ||
+          siStripDetId.moduleGeometry()==SiStripModuleGeometry::W7)
 	  return 1.f/0.047f;
       return 1.f/0.029f; // so it is TEC ring 1-4 or TIB or TOB;
     } else if (detid.subdetId()==1) return 1.f/0.0285f;

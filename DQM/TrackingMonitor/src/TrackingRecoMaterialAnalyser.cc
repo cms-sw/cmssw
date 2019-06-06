@@ -1,6 +1,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"

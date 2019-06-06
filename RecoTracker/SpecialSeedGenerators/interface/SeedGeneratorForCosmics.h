@@ -5,7 +5,7 @@
  *  A concrete regional seed generator providing seeds constructed 
  *  from combinations of hits in pairs of pixel layers 
  */
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"    
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 //#include "RecoTracker/SpecialSeedGenerators/interface/SeedGeneratorFromLayerPairs.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -23,34 +23,30 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/CosmicHitTripletGenerator.h"
 class PixelSeedLayerPairs;
 
-class SeedGeneratorForCosmics{
- public:
+class SeedGeneratorForCosmics {
+public:
   typedef TrajectoryStateOnSurface TSOS;
-  SeedGeneratorForCosmics(const edm::ParameterSet& conf);
+  SeedGeneratorForCosmics(const edm::ParameterSet &conf);
   virtual ~SeedGeneratorForCosmics(){};
   void init(const SiStripRecHit2DCollection &collstereo,
-	    const SiStripRecHit2DCollection &collrphi,
-	    const SiStripMatchedRecHit2DCollection &collmatched,
-	    const edm::EventSetup& c);
+            const SiStripRecHit2DCollection &collrphi,
+            const SiStripMatchedRecHit2DCollection &collmatched,
+            const edm::EventSetup &c);
 
+  void run(TrajectorySeedCollection &, const edm::EventSetup &c);
+  bool seeds(TrajectorySeedCollection &output, const edm::EventSetup &c, const TrackingRegion &region);
 
-
-  void  run(TrajectorySeedCollection &,const edm::EventSetup& c);
-  bool  seeds(TrajectorySeedCollection &output,
-	      const edm::EventSetup& c,
-	      const TrackingRegion& region);
- 
- private:
-  int32_t           maxSeeds_;
+private:
+  int32_t maxSeeds_;
   GlobalTrackingRegion region;
-  CosmicHitPairGenerator* thePairGenerator;
-  CosmicHitTripletGenerator* theTripletGenerator; 
+  CosmicHitPairGenerator *thePairGenerator;
+  CosmicHitTripletGenerator *theTripletGenerator;
   edm::ESHandle<MagneticField> magfield;
   edm::ESHandle<TrackerGeometry> tracker;
-  
+
   KFUpdator *theUpdator;
-  PropagatorWithMaterial  *thePropagatorAl;
-  PropagatorWithMaterial  *thePropagatorOp;
+  PropagatorWithMaterial *thePropagatorAl;
+  PropagatorWithMaterial *thePropagatorOp;
   const TransientTrackingRecHitBuilder *TTTRHBuilder;
   std::string builderName;
   std::string geometry;
@@ -65,5 +61,3 @@ class SeedGeneratorForCosmics{
   //***
 };
 #endif
-
-

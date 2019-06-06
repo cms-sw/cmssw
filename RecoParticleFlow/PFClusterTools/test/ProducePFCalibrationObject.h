@@ -16,7 +16,7 @@
 #include <vector>
 #include <string>
 
-class ProducePFCalibrationObject  : public edm::EDAnalyzer {
+class ProducePFCalibrationObject : public edm::EDAnalyzer {
 public:
   /// Constructor
   ProducePFCalibrationObject(const edm::ParameterSet&);
@@ -25,22 +25,18 @@ public:
   virtual ~ProducePFCalibrationObject();
 
   // Operations
-//   virtual void beginJob();
+  //   virtual void beginJob();
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& eSetup);
-  
+
   virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
   virtual void endJob() {}
 
 protected:
-
 private:
-
   bool read;
   bool write;
 
   std::vector<edm::ParameterSet> fToWrite;
   std::vector<std::string> fToRead;
-
 };
 #endif
-

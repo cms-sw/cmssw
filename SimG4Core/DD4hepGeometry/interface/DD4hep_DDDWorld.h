@@ -8,6 +8,7 @@ namespace cms {
   class DDDetector;
 }
 
+namespace cms {
 class DDDWorld {
 
  public:
@@ -26,5 +27,6 @@ class DDDWorld {
   void setAsWorld(G4VPhysicalVolume* pv);
   G4VPhysicalVolume* m_world;
 };
+}
 
 #endif
