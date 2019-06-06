@@ -27,9 +27,9 @@
 #include <DataFormats/DTRecHit/interface/DTRecSegment2D.h>
 #include <DataFormats/DTRecHit/interface/DTRecHitCollection.h>
 #include <DataFormats/DTRecHit/interface/DTRecHit1D.h>
-#include <DataFormats/TrackReco/interface/Track.h> 
-#include <DataFormats/TrackReco/interface/TrackFwd.h> 
-#include <DataFormats/TrackReco/interface/TrackExtra.h> 
+#include <DataFormats/TrackReco/interface/Track.h>
+#include <DataFormats/TrackReco/interface/TrackFwd.h>
+#include <DataFormats/TrackReco/interface/TrackExtra.h>
 #include <SimDataFormats/Track/interface/SimTrackContainer.h>
 #include <SimDataFormats/TrackingHit/interface/PSimHitContainer.h>
 #include <DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h>
@@ -54,13 +54,13 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <utility> 
+#include <utility>
 
 namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 //class PSimHit;
 class TFile;
@@ -74,62 +74,74 @@ class SegSelector;
 
 class MuonSeedValidator : public edm::EDAnalyzer {
 public:
-
   /// Constructor
-  MuonSeedValidator(const edm::ParameterSet& pset);
+  MuonSeedValidator(const edm::ParameterSet &pset);
 
   /// Destructor
   virtual ~MuonSeedValidator();
 
   // Operations
   /// Perform the real analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup);
 
 protected:
-
 private:
- 
-  SegSelector* recsegSelector;
-  MuonServiceProxy* theService;
+  SegSelector *recsegSelector;
+  MuonServiceProxy *theService;
 
   // Utility functions
 
-  void CSCsegment_stat(edm::Handle<CSCSegmentCollection> cscSeg, edm::ESHandle<CSCGeometry> cscGeom,
-                        double trkEta, double trkPhi);
-  void DTsegment_stat(edm::Handle<DTRecSegment4DCollection> dtSeg,edm::ESHandle<DTGeometry> dtGeom,
-                        double trkEta, double trkPhi);
+  void CSCsegment_stat(edm::Handle<CSCSegmentCollection> cscSeg,
+                       edm::ESHandle<CSCGeometry> cscGeom,
+                       double trkEta,
+                       double trkPhi);
+  void DTsegment_stat(edm::Handle<DTRecSegment4DCollection> dtSeg,
+                      edm::ESHandle<DTGeometry> dtGeom,
+                      double trkEta,
+                      double trkPhi);
   void Simsegment_stat(std::vector<SimSegment> sCSC_v, std::vector<SimSegment> sDT_v);
 
-  void CSCRecHit_Stat(edm::Handle<CSCRecHit2DCollection> cscrechit, edm::ESHandle<CSCGeometry> cscGeom,
-                      double trkEta, double trkPhi);
-  void DTRecHit_Stat(edm::Handle<DTRecHitCollection> dtrechit, edm::ESHandle<DTGeometry> dtGeom,
-                      double trkEta, double trkPhi);
-  
+  void CSCRecHit_Stat(edm::Handle<CSCRecHit2DCollection> cscrechit,
+                      edm::ESHandle<CSCGeometry> cscGeom,
+                      double trkEta,
+                      double trkPhi);
+  void DTRecHit_Stat(edm::Handle<DTRecHitCollection> dtrechit,
+                     edm::ESHandle<DTGeometry> dtGeom,
+                     double trkEta,
+                     double trkPhi);
+
   int ChargeAssignment(GlobalVector Va, GlobalVector Vb);
- 
-  void RecSeedReader(edm::Handle<TrajectorySeedCollection> rec_seeds );
-  void SegOfRecSeed(edm::Handle<TrajectorySeedCollection> rec_seeds, int seed_idx,
-                    std::vector<SimSegment> sCSC_v, std::vector<SimSegment> sDT_v);
+
+  void RecSeedReader(edm::Handle<TrajectorySeedCollection> rec_seeds);
+  void SegOfRecSeed(edm::Handle<TrajectorySeedCollection> rec_seeds,
+                    int seed_idx,
+                    std::vector<SimSegment> sCSC_v,
+                    std::vector<SimSegment> sDT_v);
   void SegOfRecSeed(edm::Handle<TrajectorySeedCollection> rec_seeds, int seed_idx);
 
   void StaTrackReader(edm::Handle<reco::TrackCollection> sta_trk, int sta_glb);
   void SimInfo(const edm::Handle<edm::SimTrackContainer> simTracks,
                const edm::Handle<edm::PSimHitContainer> dsimHits,
                const edm::Handle<edm::PSimHitContainer> csimHits,
-               edm::ESHandle<DTGeometry> dtGeom,edm::ESHandle<CSCGeometry> cscGeom);
-  int RecSegReader( edm::Handle<CSCSegmentCollection> cscSeg, edm::Handle<DTRecSegment4DCollection> dtSeg,
-                    edm::ESHandle<CSCGeometry> cscGeom, edm::ESHandle<DTGeometry> dtGeom, 
-                    double trkEta, double trkPhi);
+               edm::ESHandle<DTGeometry> dtGeom,
+               edm::ESHandle<CSCGeometry> cscGeom);
+  int RecSegReader(edm::Handle<CSCSegmentCollection> cscSeg,
+                   edm::Handle<DTRecSegment4DCollection> dtSeg,
+                   edm::ESHandle<CSCGeometry> cscGeom,
+                   edm::ESHandle<DTGeometry> dtGeom,
+                   double trkEta,
+                   double trkPhi);
 
   double getEta(double vx, double vy, double vz);
   double getEta(double theta);
 
-  std::vector<int> IdentifyShowering( edm::Handle<CSCSegmentCollection> cscSeg , edm::ESHandle<CSCGeometry> cscGeom,
-                                      edm::Handle<DTRecSegment4DCollection> dtSeg, edm::ESHandle<DTGeometry> dtGeom,
-                                      double trkTheta, double trkPhi) ;
-  double getdR(std::vector<double> etav , std::vector<double> phiv );
-
+  std::vector<int> IdentifyShowering(edm::Handle<CSCSegmentCollection> cscSeg,
+                                     edm::ESHandle<CSCGeometry> cscGeom,
+                                     edm::Handle<DTRecSegment4DCollection> dtSeg,
+                                     edm::ESHandle<DTGeometry> dtGeom,
+                                     double trkTheta,
+                                     double trkPhi);
+  double getdR(std::vector<double> etav, std::vector<double> phiv);
 
   // Histograms
   H2DRecHit1 *h_all;
@@ -213,8 +225,8 @@ private:
   std::vector<double> y_error;
 
   // Sim info
-  typedef std::vector<double> layer_pt ;
-  typedef std::vector<double> layer_pa ;
+  typedef std::vector<double> layer_pt;
+  typedef std::vector<double> layer_pa;
 
   std::vector<double> theta_v;
   std::vector<double> theta_p;
@@ -232,7 +244,7 @@ private:
   std::vector<int> trackID;
 
   // showering info
-  std::vector<double> muCone ;
+  std::vector<double> muCone;
 
   // Switch for debug output
   std::string rootFileName;
@@ -255,9 +267,6 @@ private:
   double pTCutMin;
   double eta_Low;
   double eta_High;
-
 };
 
-
 #endif
-

@@ -8,8 +8,7 @@
 #include <TVector3.h>
 
 class Conv4HitsReco {
-public :
-
+public:
   //Needed for construction
   TVector3 vV;
   TVector3 hit4;
@@ -58,26 +57,26 @@ public :
   double ptPhotMaxCut;
 
   std::string qFromM_print(double m);
-  double qFromM(double); //For debugging purposes
+  double qFromM(double);  //For debugging purposes
 
   //Elements of the linearized system matrix
   double Tq, Tm, T0;
   double Oq, Om, O0;
   int ComputeMaxLimits();
   int ComputeMinLimits();
-  int GuessStartingValues(double&, double&);
-  int mqFindByIteration(double&, double&);
-  TVector3 GetIntersection(TVector3&, TVector3&, TVector3&, TVector3&);
+  int GuessStartingValues(double &, double &);
+  int mqFindByIteration(double &, double &);
+  TVector3 GetIntersection(TVector3 &, TVector3 &, TVector3 &, TVector3 &);
   TVector3 GetPlusCenter(double &);
   TVector3 GetMinusCenter(double &);
-  void SetPtLegMinCut(double val){ptLegMinCut = val;};
-  void SetPtLegMaxCut(double val){ptLegMaxCut = val;};
-  void SetPtPhotMaxCut(double val){ptPhotMaxCut = val;};
+  void SetPtLegMinCut(double val) { ptLegMinCut = val; };
+  void SetPtLegMaxCut(double val) { ptLegMaxCut = val; };
+  void SetPtPhotMaxCut(double val) { ptPhotMaxCut = val; };
   void SetLinSystCoeff(double, double);
   void Set(double);
-  void SetIterationStopRelThreshold(double val){iterationStopRelThreshold = val;};
-  void SetMaxNumberOfIterations(int val){maxNumberOfIterations = val;};
-  void SetMaxVtxDistance(int val){maxVtxDistance = val;};
+  void SetIterationStopRelThreshold(double val) { iterationStopRelThreshold = val; };
+  void SetMaxNumberOfIterations(int val) { maxNumberOfIterations = val; };
+  void SetMaxVtxDistance(int val) { maxVtxDistance = val; };
   double GetDq();
   double GetDm();
   double GetPtFromParamAndHitPair(double &, double &);
@@ -85,22 +84,19 @@ public :
   double GetPtMinusFromParam(double &);
   TVector3 GetConvVertexFromParams(double &, double &);
   int IsNotValidForPtLimit(double, double, double, double);
-  int IsNotValidForVtxPosition(double&);
+  int IsNotValidForVtxPosition(double &);
 
-  int ConversionCandidate(TVector3&, double&, double&);
+  int ConversionCandidate(TVector3 &, double &, double &);
   void Dump();
 
   Conv4HitsReco(TVector3 &, TVector3 &, TVector3 &, TVector3 &, TVector3 &);
   ~Conv4HitsReco();
-
 };
 
 #endif
 
 #ifdef Conv4HitsReco_cxx
-Conv4HitsReco::Conv4HitsReco(TVector3 & vPhotVertex, TVector3 & h1, TVector3 & h2, TVector3 & h3, TVector3 & h4)
-{
-
+Conv4HitsReco::Conv4HitsReco(TVector3 &vPhotVertex, TVector3 &h1, TVector3 &h2, TVector3 &h3, TVector3 &h4) {
   vV = vPhotVertex;
   hit4 = h4;
   hit3 = h3;
@@ -115,27 +111,27 @@ Conv4HitsReco::Conv4HitsReco(TVector3 & vPhotVertex, TVector3 & h1, TVector3 & h
   hit1.SetZ(0.);
 
   //Filling important quantities
-  vN.SetXYZ(0.5*hit4.X()+0.5*hit3.X(),0.5*hit4.Y()+0.5*hit3.Y(),0.5*hit4.Z()+0.5*hit3.Z());
-  vP.SetXYZ(0.5*hit2.X()+0.5*hit1.X(),0.5*hit2.Y()+0.5*hit1.Y(),0.5*hit2.Z()+0.5*hit1.Z());
-  vPminusN=vP-vN;
-  vPminusV=vP-vV;
-  vNminusV=vN-vV;
-  v3minus4=hit3-hit4;
-  v1minus2=hit1-hit2;
-  unitVn=v3minus4.Orthogonal().Unit();
-  unitVp=v1minus2.Orthogonal().Unit();
-  pPN = unitVp*vPminusN;
-  nPN = unitVn*vPminusN;
-  pNV = unitVp*vNminusV;
-  nNV = unitVn*vNminusV;
-  pn = unitVp*unitVn;
+  vN.SetXYZ(0.5 * hit4.X() + 0.5 * hit3.X(), 0.5 * hit4.Y() + 0.5 * hit3.Y(), 0.5 * hit4.Z() + 0.5 * hit3.Z());
+  vP.SetXYZ(0.5 * hit2.X() + 0.5 * hit1.X(), 0.5 * hit2.Y() + 0.5 * hit1.Y(), 0.5 * hit2.Z() + 0.5 * hit1.Z());
+  vPminusN = vP - vN;
+  vPminusV = vP - vV;
+  vNminusV = vN - vV;
+  v3minus4 = hit3 - hit4;
+  v1minus2 = hit1 - hit2;
+  unitVn = v3minus4.Orthogonal().Unit();
+  unitVp = v1minus2.Orthogonal().Unit();
+  pPN = unitVp * vPminusN;
+  nPN = unitVn * vPminusN;
+  pNV = unitVp * vNminusV;
+  nNV = unitVn * vNminusV;
+  pn = unitVp * unitVn;
   PN = vPminusN.Mag();
   PN2 = vPminusN.Mag2();
 
-  _eta=0.5*(hit3-hit4).Mag();
-  _pi=0.5*(hit1-hit2).Mag();
-  _eta2=_eta*_eta;
-  _pi2=_pi*_pi;
+  _eta = 0.5 * (hit3 - hit4).Mag();
+  _pi = 0.5 * (hit1 - hit2).Mag();
+  _eta2 = _eta * _eta;
+  _pi2 = _pi * _pi;
 
   //Default values for parameters
   SetIterationStopRelThreshold(0.0005);
@@ -144,13 +140,10 @@ Conv4HitsReco::Conv4HitsReco(TVector3 & vPhotVertex, TVector3 & h1, TVector3 & h
   SetPtLegMaxCut(20.);
   SetPtPhotMaxCut(30.);
   SetMaxVtxDistance(20.);
-
 }
 
-Conv4HitsReco::~Conv4HitsReco(){
-  
+Conv4HitsReco::~Conv4HitsReco() {
   //  std::cout << " Bye..." << std::endl;
-
 }
 
-#endif // #ifdef Conv4HitsReco_h
+#endif  // #ifdef Conv4HitsReco_h
