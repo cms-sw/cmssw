@@ -39,21 +39,17 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCVDMBTrailerFormat.h"
 
-struct CSCDMBTrailer2013: public CSCVDMBTrailerFormat {
-// public:
-  CSCDMBTrailer2013()
-    {
-      bzero(data(), sizeInWords()*2);
-      bits.ddu_code_1 = bits.ddu_code_2 = bits.ddu_code_3 = bits.ddu_code_4 = 0xF;
-      bits.ddu_code_5 = bits.ddu_code_6 = bits.ddu_code_7 = bits.ddu_code_8 = 0xE;
-    }
- 
-  CSCDMBTrailer2013(const uint16_t * buf)
-    {
-      memcpy(data(), buf, sizeInWords()*2);
-    }
-  
-/*  
+struct CSCDMBTrailer2013 : public CSCVDMBTrailerFormat {
+  // public:
+  CSCDMBTrailer2013() {
+    bzero(data(), sizeInWords() * 2);
+    bits.ddu_code_1 = bits.ddu_code_2 = bits.ddu_code_3 = bits.ddu_code_4 = 0xF;
+    bits.ddu_code_5 = bits.ddu_code_6 = bits.ddu_code_7 = bits.ddu_code_8 = 0xE;
+  }
+
+  CSCDMBTrailer2013(const uint16_t *buf) { memcpy(data(), buf, sizeInWords() * 2); }
+
+  /*  
   CSCDMBTrailer2013(const CSCDMBStatusDigi & digi) 
     {
       memcpy(this, digi.trailer(), sizeInWords()*2);
@@ -61,13 +57,12 @@ struct CSCDMBTrailer2013: public CSCVDMBTrailerFormat {
 */
 
   ///@@ NEEDS TO BE DONE
-  void setEventInformation(const CSCDMBHeader & dmbHeader) override 
-    {
-	bits.dmb_id = dmbHeader.dmbID();
-        bits.crate_id = dmbHeader.crateID();
-        bits.dmb_l1a = dmbHeader.l1a();
-        bits.dmb_bxn = dmbHeader.bxn();
-    };
+  void setEventInformation(const CSCDMBHeader &dmbHeader) override {
+    bits.dmb_id = dmbHeader.dmbID();
+    bits.crate_id = dmbHeader.crateID();
+    bits.dmb_l1a = dmbHeader.l1a();
+    bits.dmb_bxn = dmbHeader.bxn();
+  };
 
   unsigned crateID() const override { return bits.crate_id; };
   unsigned dmbID() const override { return bits.dmb_id; };
@@ -88,9 +83,8 @@ struct CSCDMBTrailer2013: public CSCVDMBTrailerFormat {
 
   /// Empty bits don't exists in new format
   unsigned alct_empty() const override { return 0; };
-  unsigned tmb_empty() const override { return 0 ; };
+  unsigned tmb_empty() const override { return 0; };
   unsigned cfeb_empty() const override { return 0; };
-
 
   unsigned alct_half() const override { return bits.alct_half; };
   unsigned tmb_half() const override { return bits.tmb_half; };
@@ -99,71 +93,69 @@ struct CSCDMBTrailer2013: public CSCVDMBTrailerFormat {
   unsigned alct_full() const override { return bits.alct_full; };
   unsigned tmb_full() const override { return bits.tmb_full; };
   unsigned cfeb_full() const override { return (bits.cfeb_full_lowo | (bits.cfeb_full_hiwo << 3)); };
-  
+
   unsigned crc22() const override { return (bits.dmb_crc_1 | (bits.dmb_crc_2 << 11)); };
   unsigned crc_lo_parity() const override { return bits.dmb_parity_1; };
   unsigned crc_hi_parity() const override { return bits.dmb_parity_2; };
- 
-  unsigned short * data() override { return (unsigned short *)(&bits); }
-  unsigned short * data() const override { return (unsigned short *)(&bits); }
 
-  bool check() const override {return bits.ddu_code_1 == 0xF && bits.ddu_code_2 == 0xF
-                          && bits.ddu_code_3 == 0xF && bits.ddu_code_4 == 0xF
-                          && bits.ddu_code_5 == 0xE && bits.ddu_code_6 == 0xE
-                          && bits.ddu_code_7 == 0xE && bits.ddu_code_8 == 0xE;}
+  unsigned short *data() override { return (unsigned short *)(&bits); }
+  unsigned short *data() const override { return (unsigned short *)(&bits); }
+
+  bool check() const override {
+    return bits.ddu_code_1 == 0xF && bits.ddu_code_2 == 0xF && bits.ddu_code_3 == 0xF && bits.ddu_code_4 == 0xF &&
+           bits.ddu_code_5 == 0xE && bits.ddu_code_6 == 0xE && bits.ddu_code_7 == 0xE && bits.ddu_code_8 == 0xE;
+  }
 
   unsigned sizeInWords() const override { return 8; }
 
   struct {
-  /// 1st Trailer word
-  unsigned dmb_l1a   	 : 6;  	  /// DMB_L1A[5:0]
-  unsigned dmb_bxn       : 5;     /// DMB_BXN[4:0]
-  unsigned alct_endtimeout : 1;   /// ALCT_End_Timeout(1) 
-  unsigned ddu_code_1    : 4;     /// constant, should be '1111'
+    /// 1st Trailer word
+    unsigned dmb_l1a : 6;          /// DMB_L1A[5:0]
+    unsigned dmb_bxn : 5;          /// DMB_BXN[4:0]
+    unsigned alct_endtimeout : 1;  /// ALCT_End_Timeout(1)
+    unsigned ddu_code_1 : 4;       /// constant, should be '1111'
 
-  /// 2nd Trailer word
-  unsigned cfeb_endtimeout : 7;   /// CFEB_End_Timeout(7:1)
-  unsigned cfeb_movlp    : 5;     /// CFEB_MOVLP(5:1)
-  unsigned ddu_code_2    : 4;     /// constant, should be '1111'
+    /// 2nd Trailer word
+    unsigned cfeb_endtimeout : 7;  /// CFEB_End_Timeout(7:1)
+    unsigned cfeb_movlp : 5;       /// CFEB_MOVLP(5:1)
+    unsigned ddu_code_2 : 4;       /// constant, should be '1111'
 
-  /// 3rd Trailer word
-  unsigned dmb_l1pipe    : 8;     /// DMB_L1PIPE(8)
-  unsigned tmb_starttimeout : 1;  /// TMB_Start_Timeout(1)
-  unsigned cfeb_full_lowo : 3;    /// CFEB_FULL(3:1)
-  unsigned ddu_code_3    : 4;     /// constant, should be '1111'
+    /// 3rd Trailer word
+    unsigned dmb_l1pipe : 8;        /// DMB_L1PIPE(8)
+    unsigned tmb_starttimeout : 1;  /// TMB_Start_Timeout(1)
+    unsigned cfeb_full_lowo : 3;    /// CFEB_FULL(3:1)
+    unsigned ddu_code_3 : 4;        /// constant, should be '1111'
 
-  /// 4th Trailer word
-  unsigned cfeb_full_hiwo    : 4; /// CFEB_FULL(7:4)
-  unsigned cfeb_starttimeout : 7; /// CFEB_Start_Timeout(7:1)
-  unsigned alct_starttimeout : 1; /// ALCT_Start_Timeout(1) 
-  unsigned ddu_code_4        : 4; /// constant, should be '1111'
+    /// 4th Trailer word
+    unsigned cfeb_full_hiwo : 4;     /// CFEB_FULL(7:4)
+    unsigned cfeb_starttimeout : 7;  /// CFEB_Start_Timeout(7:1)
+    unsigned alct_starttimeout : 1;  /// ALCT_Start_Timeout(1)
+    unsigned ddu_code_4 : 4;         /// constant, should be '1111'
 
-  /// 5th Trailer word
-  unsigned cfeb_half     : 7;   /// CFEB_HALF(7:1)
-  unsigned tmb_endtimeout : 1;  /// TMB_End_Timeout(1)
-  unsigned tmb_half 	 : 1;   /// TMB_HALF(1) 
-  unsigned alct_half	 : 1;   /// ALCT_HALF(1)
-  unsigned tmb_full      : 1;   /// TMB_FULL(1)
-  unsigned alct_full     : 1;   /// ALCT_FULL(1)
-  unsigned ddu_code_5    : 4;   /// constant, should be '1110'
+    /// 5th Trailer word
+    unsigned cfeb_half : 7;       /// CFEB_HALF(7:1)
+    unsigned tmb_endtimeout : 1;  /// TMB_End_Timeout(1)
+    unsigned tmb_half : 1;        /// TMB_HALF(1)
+    unsigned alct_half : 1;       /// ALCT_HALF(1)
+    unsigned tmb_full : 1;        /// TMB_FULL(1)
+    unsigned alct_full : 1;       /// ALCT_FULL(1)
+    unsigned ddu_code_5 : 4;      /// constant, should be '1110'
 
-  /// 6th Trailer word
-  unsigned dmb_id        : 4;   /// DMB_ID(4)
-  unsigned crate_id      : 8;   /// DMB_CRATE(8)
-  unsigned ddu_code_6    : 4;   /// constant, should be '1110'
+    /// 6th Trailer word
+    unsigned dmb_id : 4;      /// DMB_ID(4)
+    unsigned crate_id : 8;    /// DMB_CRATE(8)
+    unsigned ddu_code_6 : 4;  /// constant, should be '1110'
 
-  /// 7th Trailer word
-  unsigned dmb_crc_1     : 11;	/// DMB_CRC[10:0]
-  unsigned dmb_parity_1  : 1;   /// DMB_CRC_LowParity(1)
-  unsigned ddu_code_7    : 4;   /// constant, should be '1110'
+    /// 7th Trailer word
+    unsigned dmb_crc_1 : 11;    /// DMB_CRC[10:0]
+    unsigned dmb_parity_1 : 1;  /// DMB_CRC_LowParity(1)
+    unsigned ddu_code_7 : 4;    /// constant, should be '1110'
 
-  /// 8th Trailer word
-  unsigned dmb_crc_2     : 11;	/// DMB_CRC[21:11]
-  unsigned dmb_parity_2  : 1;   /// DMB_CRC_HighParity(1)
-  unsigned ddu_code_8    : 4;   /// constant, should be '1110'
+    /// 8th Trailer word
+    unsigned dmb_crc_2 : 11;    /// DMB_CRC[21:11]
+    unsigned dmb_parity_2 : 1;  /// DMB_CRC_HighParity(1)
+    unsigned ddu_code_8 : 4;    /// constant, should be '1110'
   } bits;
-
 };
 
 #endif
-

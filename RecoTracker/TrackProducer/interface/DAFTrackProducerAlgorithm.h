@@ -8,9 +8,7 @@
 #ifndef DAFTrackProducerAlgorithm_h
 #define DAFTrackProducerAlgorithm_h
 
-
 #include "AlgoProductTraits.h"
-
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
@@ -29,8 +27,8 @@ class TrajectoryStateOnSurface;
 class TransientTrackingRecHitBuilder;
 class MultiRecHitCollector;
 class SiTrackerMultiRecHitUpdator;
-namespace reco{
-	class Track;
+namespace reco {
+  class Track;
 }
 
 class DAFTrackProducerAlgorithm : public AlgoProductTraits<reco::Track> {
@@ -39,74 +37,70 @@ public:
   using TrackCollection = typename Base::TrackCollection;
   using AlgoProductCollection = typename Base::AlgoProductCollection;
 
-  using TrajAnnealingCollection=std::vector<TrajAnnealing>;
+  using TrajAnnealingCollection = std::vector<TrajAnnealing>;
 
 public:
- 
   DAFTrackProducerAlgorithm(const edm::ParameterSet& conf);
   ~DAFTrackProducerAlgorithm() {}
-  
-  /// Run the Final Fit taking TrackCandidates as input
-  void runWithCandidate(const TrackingGeometry *, 
-			const MagneticField *, 
-			//const TrackCandidateCollection&,
-			const TrajTrackAssociationCollection&,
-			const MeasurementTrackerEvent *measTk,
-			const TrajectoryFitter *,
-			const TransientTrackingRecHitBuilder*,
-			const MultiRecHitCollector* measurementTracker,
-			const SiTrackerMultiRecHitUpdator*,
-			const reco::BeamSpot&,
-			AlgoProductCollection &,
-			TrajAnnealingCollection &,
-			bool ,
-			AlgoProductCollection& , 
-			AlgoProductCollection&) const;
 
- private:
+  /// Run the Final Fit taking TrackCandidates as input
+  void runWithCandidate(const TrackingGeometry*,
+                        const MagneticField*,
+                        //const TrackCandidateCollection&,
+                        const TrajTrackAssociationCollection&,
+                        const MeasurementTrackerEvent* measTk,
+                        const TrajectoryFitter*,
+                        const TransientTrackingRecHitBuilder*,
+                        const MultiRecHitCollector* measurementTracker,
+                        const SiTrackerMultiRecHitUpdator*,
+                        const reco::BeamSpot&,
+                        AlgoProductCollection&,
+                        TrajAnnealingCollection&,
+                        bool,
+                        AlgoProductCollection&,
+                        AlgoProductCollection&) const;
+
+private:
   /// Construct Tracks to be put in the event
-  bool buildTrack(const Trajectory,
-		  AlgoProductCollection& algoResults,
-		  float,
-		  const reco::BeamSpot&, 
-		  const reco::TrackRef* ) const;
+  bool buildTrack(
+      const Trajectory, AlgoProductCollection& algoResults, float, const reco::BeamSpot&, const reco::TrackRef*) const;
 
   /// accomplishes the fitting-smoothing step for each annealing value
-  Trajectory fit(const std::pair<TransientTrackingRecHit::RecHitContainer,
-                                    TrajectoryStateOnSurface>& hits,
-                                    const TrajectoryFitter * theFitter,
-                                    Trajectory vtraj) const;
+  Trajectory fit(const std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface>& hits,
+                 const TrajectoryFitter* theFitter,
+                 Trajectory vtraj) const;
 
   //calculates the ndof according to the DAF prescription
   float calculateNdof(const Trajectory vtraj) const;
 
-  //creates MultiRecHits out of a KF trajectory 	
+  //creates MultiRecHits out of a KF trajectory
   std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> collectHits(
-              const Trajectory vtraj,
-              const MultiRecHitCollector* measurementCollector,
-              const MeasurementTrackerEvent *measTk     ) const;
+      const Trajectory vtraj,
+      const MultiRecHitCollector* measurementCollector,
+      const MeasurementTrackerEvent* measTk) const;
 
   //updates the hits with the specified annealing factor
   std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> updateHits(
-	      const Trajectory vtraj,
-              const SiTrackerMultiRecHitUpdator* updator,
-	      const MeasurementTrackerEvent* theMTE,
-              double annealing) const; 
+      const Trajectory vtraj,
+      const SiTrackerMultiRecHitUpdator* updator,
+      const MeasurementTrackerEvent* theMTE,
+      double annealing) const;
 
   //removes from the trajectory isolated hits with very low weight
-  void filter(const TrajectoryFitter* fitter, 
-	      std::vector<Trajectory>& input, 
-	      int minhits, std::vector<Trajectory>& output,
-	      const TransientTrackingRecHitBuilder* builder) const;
+  void filter(const TrajectoryFitter* fitter,
+              std::vector<Trajectory>& input,
+              int minhits,
+              std::vector<Trajectory>& output,
+              const TransientTrackingRecHitBuilder* builder) const;
 
   int countingGoodHits(const Trajectory traj) const;
 
-  int checkHits( Trajectory iInitTraj, const Trajectory iFinalTraj) const; 
+  int checkHits(Trajectory iInitTraj, const Trajectory iFinalTraj) const;
 
   void PrintHit(const TrackingRecHit* const& hit, TrajectoryStateOnSurface& tsos) const;
 
   edm::ParameterSet conf_;
-  int minHits_;  
+  int minHits_;
 };
 
 #endif
