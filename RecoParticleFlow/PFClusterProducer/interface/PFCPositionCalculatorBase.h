@@ -13,16 +13,17 @@ namespace edm {
 
 class PFCPositionCalculatorBase {
   typedef PFCPositionCalculatorBase PosCalc;
- public:
-  PFCPositionCalculatorBase(const edm::ParameterSet& conf) :
-    _minFractionInCalc(conf.getParameter<double>("minFractionInCalc")),
-    _algoName(conf.getParameter<std::string>("algoName")) { }
+
+public:
+  PFCPositionCalculatorBase(const edm::ParameterSet& conf)
+      : _minFractionInCalc(conf.getParameter<double>("minFractionInCalc")),
+        _algoName(conf.getParameter<std::string>("algoName")) {}
   virtual ~PFCPositionCalculatorBase() = default;
   //get rid of things we should never use
   PFCPositionCalculatorBase(const PosCalc&) = delete;
   PosCalc& operator=(const PosCalc&) = delete;
 
-  virtual void update(const edm::EventSetup&) { }
+  virtual void update(const edm::EventSetup&) {}
 
   // here we transform one PFCluster to use the new position calculation
   virtual void calculateAndSetPosition(reco::PFCluster&) = 0;
@@ -30,17 +31,16 @@ class PFCPositionCalculatorBase {
   virtual void calculateAndSetPositions(reco::PFClusterCollection&) = 0;
 
   const std::string& name() const { return _algoName; }
-  
- protected:  
+
+protected:
   const float _minFractionInCalc;
 
- private:  
+private:
   const std::string _algoName;
-
 };
 
 // define the factory for this base class
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< PFCPositionCalculatorBase* (const edm::ParameterSet&) > PFCPositionCalculatorFactory;
+typedef edmplugin::PluginFactory<PFCPositionCalculatorBase*(const edm::ParameterSet&)> PFCPositionCalculatorFactory;
 
 #endif

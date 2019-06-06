@@ -17,30 +17,34 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 namespace reco {
- 
-  class ME0Muon : public RecoCandidate{
+
+  class ME0Muon : public RecoCandidate {
   public:
     ME0Muon();
     //ME0Muon( const TrackRef & t, const ME0Segment & s) { innerTrack_ = t; me0Segment_ = s;}
-    ME0Muon( const TrackRef & t, const ME0Segment & s, const int v, const double c) { innerTrack_ = t; me0Segment_ = s; me0segid_=v; trackCharge_ = c;}
-    ~ME0Muon() override{}     
-    
+    ME0Muon(const TrackRef& t, const ME0Segment& s, const int v, const double c) {
+      innerTrack_ = t;
+      me0Segment_ = s;
+      me0segid_ = v;
+      trackCharge_ = c;
+    }
+    ~ME0Muon() override {}
+
     /// reference to Track reconstructed in the tracker only
     TrackRef innerTrack() const { return innerTrack_; }
     TrackRef track() const override { return innerTrack(); }
     /// set reference to Track
-    void setInnerTrack( const TrackRef & t ) { innerTrack_ = t; }
-    void setTrack( const TrackRef & t ) { setInnerTrack(t); }
+    void setInnerTrack(const TrackRef& t) { innerTrack_ = t; }
+    void setTrack(const TrackRef& t) { setInnerTrack(t); }
     /// set reference to our new ME0Segment type
-    void setME0Segment( const ME0Segment & s ) { me0Segment_ = s; }
+    void setME0Segment(const ME0Segment& s) { me0Segment_ = s; }
 
     const ME0Segment& me0segment() const { return me0Segment_; }
-    
-    //Added for testing
-    void setme0segid( const int v){me0segid_=v;}
-    int me0segid() const {return me0segid_;}
 
-    
+    //Added for testing
+    void setme0segid(const int v) { me0segid_ = v; }
+    int me0segid() const { return me0segid_; }
+
     const GlobalPoint& globalTrackPosAtSurface() const { return globalTrackPosAtSurface_; }
     const GlobalVector& globalTrackMomAtSurface() const { return globalTrackMomAtSurface_; }
     const LocalPoint& localTrackPosAtSurface() const { return localTrackPosAtSurface_; }
@@ -50,17 +54,25 @@ namespace reco {
     const AlgebraicSymMatrix66& globalTrackCov() const { return globalTrackCov_; }
     const AlgebraicSymMatrix55& localTrackCov() const { return localTrackCov_; }
 
-    void setGlobalTrackPosAtSurface(const GlobalPoint& globalTrackPosAtSurface) { globalTrackPosAtSurface_ = globalTrackPosAtSurface; }
-    void setGlobalTrackMomAtSurface(const GlobalVector& globalTrackMomAtSurface) { globalTrackMomAtSurface_ = globalTrackMomAtSurface; }
-    void setLocalTrackPosAtSurface(const LocalPoint& localTrackPosAtSurface) { localTrackPosAtSurface_ = localTrackPosAtSurface; }
-    void setLocalTrackMomAtSurface(const LocalVector& localTrackMomAtSurface) { localTrackMomAtSurface_ = localTrackMomAtSurface; }
+    void setGlobalTrackPosAtSurface(const GlobalPoint& globalTrackPosAtSurface) {
+      globalTrackPosAtSurface_ = globalTrackPosAtSurface;
+    }
+    void setGlobalTrackMomAtSurface(const GlobalVector& globalTrackMomAtSurface) {
+      globalTrackMomAtSurface_ = globalTrackMomAtSurface;
+    }
+    void setLocalTrackPosAtSurface(const LocalPoint& localTrackPosAtSurface) {
+      localTrackPosAtSurface_ = localTrackPosAtSurface;
+    }
+    void setLocalTrackMomAtSurface(const LocalVector& localTrackMomAtSurface) {
+      localTrackMomAtSurface_ = localTrackMomAtSurface;
+    }
     void setTrackCharge(const int& trackCharge) { trackCharge_ = trackCharge; }
     void setGlobalTrackCov(const AlgebraicSymMatrix66& trackCov) { globalTrackCov_ = trackCov; }
     void setLocalTrackCov(const AlgebraicSymMatrix55& trackCov) { localTrackCov_ = trackCov; }
-     
+
   private:
     /// check overlap with another candidate
-    bool overlap( const Candidate & ) const override;
+    bool overlap(const Candidate&) const override;
 
     /// reference to Track reconstructed in the tracker only
     TrackRef innerTrack_;
@@ -79,9 +91,6 @@ namespace reco {
     //double xpull_,ypull_,xdiff_,ydiff_,phidirdiff_;
   };
 
-}
-
+}  // namespace reco
 
 #endif
-
-
