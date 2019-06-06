@@ -1,5 +1,6 @@
 #include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalRecHitWorkerSimple.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -29,14 +30,23 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
     hgcHEB_isSiFE_ = ps.getParameter<bool>("HGCHEB_isSiFE");
     hgchebUncalib2GeV_ = keV2GeV / hgcHEB_keV2DIGI_;
 
+    // HGChfnose constants
+    hgcHFNose_keV2DIGI_ = ps.getParameter<double>("HGCHFNose_keV2DIGI");
+    hgcHFNose_fCPerMIP_ = ps.getParameter < std::vector<double> > ("HGCHFNose_fCPerMIP");
+    hgcHFNose_isSiFE_ = ps.getParameter<bool>("HGCHFNose_isSiFE");
+    hgchfnoseUncalib2GeV_ = keV2GeV / hgcHFNose_keV2DIGI_;
+
     // layer weights (from Valeri/Arabella)
     const auto& dweights = ps.getParameter < std::vector<double> > ("layerWeights");
     for (auto weight : dweights)
     {
         weights_.push_back(weight);
     }
+    const auto& weightnose = ps.getParameter < std::vector<double> > ("layerNoseWeights");
+    for (auto const& weight : weightnose) weightsNose_.emplace_back(weight);
 
     rechitMaker_->setLayerWeights(weights_);
+    rechitMaker_->setNoseLayerWeights(weightsNose_);
 
     // residual correction for cell thickness
     const auto& rcorr = ps.getParameter < std::vector<double> > ("thicknessCorrection");
@@ -53,6 +63,8 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
     hgcHEF_noise_fC_ = ps.getParameter<edm::ParameterSet>("HGCHEF_noise_fC").getParameter < std::vector<double> > ("values");
     hgcHEF_cce_ = ps.getParameter<edm::ParameterSet>("HGCHEF_cce").getParameter< std::vector<double> > ("values");
     hgcHEB_noise_MIP_ = ps.getParameter<edm::ParameterSet>("HGCHEB_noise_MIP").getParameter<double>("noise_MIP");
+    hgcHFNose_noise_fC_ = ps.getParameter<edm::ParameterSet>("HGCHFNose_noise_fC").getParameter < std::vector<double> > ("values");
+    hgcHFNose_cce_ = ps.getParameter<edm::ParameterSet>("HGCHFNose_cce").getParameter< std::vector<double> > ("values");
 
     // don't produce rechit if detid is a ghost one
     rangeMatch_ = ps.getParameter<uint32_t>("rangeMatch");
@@ -83,6 +95,16 @@ void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es)
         ddds_[1] = nullptr;
     }
     ddds_[2] = nullptr;
+    if (hgcHFNose_isSiFE_)
+    {
+        edm::ESHandle < HGCalGeometry > hgchfnoseGeoHandle;
+        es.get<IdealGeometryRecord>().get("HGCalHFNoseSensitive", hgchfnoseGeoHandle);
+        ddds_[3] = &(hgchfnoseGeoHandle->topology().dddConstants());
+    }
+    else
+    {
+        ddds_[3] = nullptr;
+    }
 }
 
 bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedRecHit& uncalibRH,
@@ -127,6 +149,10 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
       case HGCHEB:
 	idtype = hgcbh; 
 	break;
+      case HFNose:
+	idtype = hgchfnose; 
+	thickness = 1 + HFNoseDetId(detid).type();
+	break;
       default:
 	break;
       }
@@ -147,6 +173,12 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
     case hgcbh:
       rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_));
       sigmaNoiseGeV = 1e-3 * hgcHEB_noise_MIP_ * weights_[layer];
+      break;
+    case hgchfnose:
+      rechitMaker_->setADCToGeVConstant(float(hgchfnoseUncalib2GeV_));
+      cce_correction = hgcHFNose_cce_[thickness - 1];
+      sigmaNoiseGeV = 1e-3 * weightsNose_[layer] * rcorr_[thickness]
+	* hgcHFNose_noise_fC_[thickness - 1] / hgcHFNose_fCPerMIP_[thickness - 1];
       break;
     default:
       throw cms::Exception("NonHGCRecHit") << "Rechit with detid = " 

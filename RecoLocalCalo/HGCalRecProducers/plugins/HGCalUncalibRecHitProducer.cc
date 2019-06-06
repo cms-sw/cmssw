@@ -13,15 +13,18 @@ HGCalUncalibRecHitProducer::HGCalUncalibRecHitProducer(const edm::ParameterSet& 
   eeDigiCollection_( consumes<HGCalDigiCollection>( ps.getParameter<edm::InputTag>("HGCEEdigiCollection") ) ),
   hefDigiCollection_( consumes<HGCalDigiCollection>( ps.getParameter<edm::InputTag>("HGCHEFdigiCollection") ) ),
   hebDigiCollection_( consumes<HGCalDigiCollection>( ps.getParameter<edm::InputTag>("HGCHEBdigiCollection") ) ),
+  hfnoseDigiCollection_( consumes<HGCalDigiCollection>( ps.getParameter<edm::InputTag>("HGCHFNosedigiCollection") ) ),
   eeHitCollection_( ps.getParameter<std::string>("HGCEEhitCollection") ),
   hefHitCollection_( ps.getParameter<std::string>("HGCHEFhitCollection") ),
   hebHitCollection_( ps.getParameter<std::string>("HGCHEBhitCollection") ),
+  hfnoseHitCollection_( ps.getParameter<std::string>("HGCHFNosehitCollection") ),
   worker_{ HGCalUncalibRecHitWorkerFactory::get()->create(ps.getParameter<std::string>("algo"), ps) }
 {
 
   produces< HGCeeUncalibratedRecHitCollection >(eeHitCollection_);
   produces< HGChefUncalibratedRecHitCollection >(hefHitCollection_);
   produces< HGChebUncalibratedRecHitCollection >(hebHitCollection_);
+  produces< HGChfnoseUncalibratedRecHitCollection >(hfnoseHitCollection_);
 
 }
 
@@ -41,6 +44,7 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   auto eeUncalibRechits = std::make_unique<HGCeeUncalibratedRecHitCollection>();
   auto hefUncalibRechits = std::make_unique<HGChefUncalibratedRecHitCollection>();
   auto hebUncalibRechits = std::make_unique<HGChebUncalibratedRecHitCollection>();
+  auto hfnoseUncalibRechits = std::make_unique<HGChfnoseUncalibratedRecHitCollection>();
   
   // loop over HGCEE digis
   edm::Handle< HGCalDigiCollection > pHGCEEDigis;
@@ -70,11 +74,26 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
     worker_->run3(evt, itdg, *hebUncalibRechits);
   }
   
+  // loop over HFNose digis
+  edm::Handle< HGCalDigiCollection > pHGCHFNoseDigis;
+  evt.getByToken( eeDigiCollection_, pHGCHFNoseDigis);
+  if (pHGCHFNoseDigis.isValid()) {
+    const HGCalDigiCollection* hfnoseDigis = 
+      pHGCHFNoseDigis.product(); // get a ptr to the product
+    hfnoseUncalibRechits->reserve(hfnoseDigis->size());
+    for(auto itdg = hfnoseDigis->begin(); itdg != hfnoseDigis->end(); ++itdg) {
+      worker_->run4(evt, itdg, *hfnoseUncalibRechits);
+    }
+  }
+  
   // put the collection of recunstructed hits in the event
   evt.put(std::move(eeUncalibRechits), eeHitCollection_);
   evt.put(std::move(hefUncalibRechits), hefHitCollection_);
   evt.put(std::move(hebUncalibRechits), hebHitCollection_);
+  if (pHGCHFNoseDigis.isValid()) 
+    evt.put(std::move(hfnoseUncalibRechits), hfnoseHitCollection_);
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"                                                                                                            
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 DEFINE_FWK_MODULE( HGCalUncalibRecHitProducer );
