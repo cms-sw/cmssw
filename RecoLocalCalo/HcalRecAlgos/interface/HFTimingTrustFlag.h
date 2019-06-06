@@ -10,18 +10,17 @@
        
     \author I. Vodopiyanov -- Florida Institute of technology
 */
-   
+
 class HFTimingTrustFlag {
- public:
+public:
   HFTimingTrustFlag();
   HFTimingTrustFlag(int level1, int level2);
   ~HFTimingTrustFlag();
-  
-  void setHFTimingTrustFlag(HFRecHit&   rechit, const HFDataFrame&   digi);
 
- private:
+  void setHFTimingTrustFlag(HFRecHit& rechit, const HFDataFrame& digi);
+
+private:
   int HFTimingTrustLevel1_, HFTimingTrustLevel2_;
-
 };
 
 #endif

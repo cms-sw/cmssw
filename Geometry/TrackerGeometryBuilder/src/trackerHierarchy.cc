@@ -1,4 +1,5 @@
 #include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include<string>
 #include<vector>

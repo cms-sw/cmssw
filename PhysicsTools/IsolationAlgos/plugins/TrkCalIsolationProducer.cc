@@ -11,8 +11,9 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
-typedef IsolationProducer<reco::TrackCollection, CaloTowerCollection,
-			  TrkCalIsolationAlgo<reco::Track, CaloTowerCollection> > 
-                          TrkCalIsolationProducer;
+typedef IsolationProducer<reco::TrackCollection,
+                          CaloTowerCollection,
+                          TrkCalIsolationAlgo<reco::Track, CaloTowerCollection> >
+    TrkCalIsolationProducer;
 
-DEFINE_FWK_MODULE( TrkCalIsolationProducer );
+DEFINE_FWK_MODULE(TrkCalIsolationProducer);

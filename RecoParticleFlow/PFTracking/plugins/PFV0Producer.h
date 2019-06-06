@@ -9,27 +9,24 @@
 #include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 
-
 class PFTrackTransformer;
 class PFV0Producer : public edm::stream::EDProducer<> {
 public:
-  
   ///Constructor
-  explicit PFV0Producer(const edm::ParameterSet&);
-  
+  explicit PFV0Producer(const edm::ParameterSet &);
+
   ///Destructor
   ~PFV0Producer() override;
-  
+
 private:
-  void beginRun(const edm::Run&,const edm::EventSetup&) override;
-  void endRun(const edm::Run&,const edm::EventSetup&) override;
-  
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override;
+
   ///Produce the PFRecTrack collection
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
   ///PFTrackTransformer
-  PFTrackTransformer *pfTransformer_; 
-  std::vector < edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> > V0list_;
-
+  PFTrackTransformer *pfTransformer_;
+  std::vector<edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> > V0list_;
 };
 #endif

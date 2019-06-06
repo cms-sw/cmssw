@@ -13,10 +13,10 @@ class DTObjectMap {
 public:
   DTObjectMap(MuonGeometryRecord const& record);
 
-  std::set<RPCDetId> const & getRolls(DTStationIndex index) const;
+  std::set<RPCDetId> const& getRolls(DTStationIndex index) const;
 
 private:
   std::map<DTStationIndex, std::set<RPCDetId>> rollstore;
-}; 
+};
 
-#endif // RecoLocalMuon_RPCRecHit_DTObjectMap_h
+#endif  // RecoLocalMuon_RPCRecHit_DTObjectMap_h

@@ -22,6 +22,7 @@
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 //for S/N cut
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"

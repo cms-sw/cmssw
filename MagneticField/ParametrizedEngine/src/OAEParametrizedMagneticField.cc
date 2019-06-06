@@ -12,44 +12,36 @@
 using namespace std;
 using namespace magfieldparam;
 
-OAEParametrizedMagneticField::OAEParametrizedMagneticField(float B) : 
-  theParam(B){}
+OAEParametrizedMagneticField::OAEParametrizedMagneticField(float B) : theParam(B) {}
 
-OAEParametrizedMagneticField::OAEParametrizedMagneticField(string T) : 
-  theParam(T){}
+OAEParametrizedMagneticField::OAEParametrizedMagneticField(string T) : theParam(T) {}
 
-
-OAEParametrizedMagneticField::OAEParametrizedMagneticField(const edm::ParameterSet& parameters) : 
-  theParam(parameters.getParameter<string>("BValue")) {}
-
+OAEParametrizedMagneticField::OAEParametrizedMagneticField(const edm::ParameterSet& parameters)
+    : theParam(parameters.getParameter<string>("BValue")) {}
 
 OAEParametrizedMagneticField::~OAEParametrizedMagneticField() {}
 
-
-GlobalVector
-OAEParametrizedMagneticField::inTesla(const GlobalPoint& gp) const {
+GlobalVector OAEParametrizedMagneticField::inTesla(const GlobalPoint& gp) const {
   if (isDefined(gp)) {
     return inTeslaUnchecked(gp);
   } else {
-    edm::LogWarning("MagneticField|FieldOutsideValidity") << " Point " << gp << " is outside the validity region of OAEParametrizedMagneticField";
+    edm::LogWarning("MagneticField|FieldOutsideValidity")
+        << " Point " << gp << " is outside the validity region of OAEParametrizedMagneticField";
     return GlobalVector();
   }
 }
 
 namespace {
-  constexpr float ooh = 1./100;
+  constexpr float ooh = 1. / 100;
 }
 
-GlobalVector
-OAEParametrizedMagneticField::inTeslaUnchecked(const GlobalPoint& gp) const {
-  float x[3] = {gp.x()*ooh, gp.y()*ooh, gp.z()*ooh};
+GlobalVector OAEParametrizedMagneticField::inTeslaUnchecked(const GlobalPoint& gp) const {
+  float x[3] = {gp.x() * ooh, gp.y() * ooh, gp.z() * ooh};
   float B[3];
-  theParam.getBxyz(x,B);
+  theParam.getBxyz(x, B);
   return GlobalVector(B[0], B[1], B[2]);
 }
 
-
-bool
-OAEParametrizedMagneticField::isDefined(const GlobalPoint& gp) const {
-  return (gp.perp2()<(115.f*115.f) && fabs(gp.z())<280.f);
+bool OAEParametrizedMagneticField::isDefined(const GlobalPoint& gp) const {
+  return (gp.perp2() < (115.f * 115.f) && fabs(gp.z()) < 280.f);
 }

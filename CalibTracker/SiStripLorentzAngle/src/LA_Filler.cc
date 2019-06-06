@@ -1,5 +1,6 @@
 #include "CalibTracker/SiStripLorentzAngle/interface/LA_Filler_Fitter.h"
 #include "CalibTracker/SiStripCommon/interface/TTREE_FOREACH_ENTRY.hh"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include <cmath>
 #include <boost/lexical_cast.hpp>

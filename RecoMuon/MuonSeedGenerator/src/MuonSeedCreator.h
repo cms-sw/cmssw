@@ -28,9 +28,7 @@ class MagneticField;
 class MuonTransientTrackingRecHit;
 
 class MuonSeedCreator {
-
- public:
-
+public:
   typedef MuonTransientTrackingRecHit::MuonRecHitContainer SegmentContainer;
 
   /// Constructor
@@ -42,15 +40,13 @@ class MuonSeedCreator {
   // Operations
 
   /// Cache Magnetic Field for current event
-  void setBField( const MagneticField* theField ){ BField = theField; };
+  void setBField(const MagneticField* theField) { BField = theField; };
 
   /// Create a seed from set of segments
-  TrajectorySeed createSeed(int type, const SegmentContainer& seg, const std::vector<int>& layers, int NShower, int NShowerSeg );
+  TrajectorySeed createSeed(
+      int type, const SegmentContainer& seg, const std::vector<int>& layers, int NShower, int NShowerSeg);
 
-
-  
- private:
-
+private:
   /// Estimate transverse momentum of track from CSC measurements
   void estimatePtCSC(const SegmentContainer& seg, const std::vector<int>& layers, double& pt, double& spt);
 
@@ -67,7 +63,10 @@ class MuonSeedCreator {
   void estimatePtShowering(int& NShowers, int& NShowerSeg, double& pt, double& spt);
 
   /// Compute weighted mean pt from different pt estimators
-  void weightedPt(const std::vector<double>& ptEstimate, const std::vector<double>& sptEstimate, double& ptAvg, double& sptAvg);
+  void weightedPt(const std::vector<double>& ptEstimate,
+                  const std::vector<double>& sptEstimate,
+                  double& ptAvg,
+                  double& sptAvg);
 
   /// Compute pt from parameters
   std::vector<double> getPt(const std::vector<double>& vParameters, double eta, double dPhi);
@@ -75,27 +74,27 @@ class MuonSeedCreator {
   /// Scale the dPhi from segment position
   double scaledPhi(double dphi, double t1);
 
-  // Miminum and maximum pt momentum of a track  
+  // Miminum and maximum pt momentum of a track
   float theMinMomentum;
   float theMaxMomentum;
   float defaultMomentum;
 
   // Error on pt estimate which prevents weighted average from blowing up ( spt --> 0 )
   double sysError;
- 
+
   // Flag for internal debugging
   bool debug;
- 
+
   // Cache Magnetic Field for current event
   const MagneticField* BField;
 
   // seed parameters vectors
-  std::vector<double> DT12;  
-  std::vector<double> DT13;  
-  std::vector<double> DT14;  
-  std::vector<double> DT23;  
-  std::vector<double> DT24;  
-  std::vector<double> DT34;  
+  std::vector<double> DT12;
+  std::vector<double> DT13;
+  std::vector<double> DT14;
+  std::vector<double> DT23;
+  std::vector<double> DT24;
+  std::vector<double> DT34;
 
   std::vector<double> CSC01;
   std::vector<double> CSC12;
@@ -112,7 +111,7 @@ class MuonSeedCreator {
   std::vector<double> OL1232;
   std::vector<double> OL2213;
   std::vector<double> OL2222;
-  
+
   std::vector<double> SME11;
   std::vector<double> SME12;
   std::vector<double> SME13;
@@ -180,6 +179,5 @@ class MuonSeedCreator {
   std::vector<double> SME_13S;
   std::vector<double> SME_21S;
   std::vector<double> SME_22S;
-
 };
 #endif

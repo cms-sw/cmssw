@@ -818,8 +818,8 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent, const edm::EventSet
           binW = dNchdpt2->getTH1()->GetBinWidth(1);
           dNchdpt2->Fill(hepmcGPCollection[i]->momentum().perp(), 1. / binW);  // weight to account for the pt bin width
           binW = dNchdeta2->getTH1()->GetBinWidth(1);
-          dNchdeta2->Fill(hepmcGPCollection[i]->momentum().eta(),
-                          1. / binW);  // weight to account for the eta bin width
+          // weight to account for the eta bin width
+          dNchdeta2->Fill(hepmcGPCollection[i]->momentum().eta(), 1. / binW);
         }
       }
     }

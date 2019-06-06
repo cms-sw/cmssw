@@ -3,15 +3,14 @@
 
 #include <cassert>
 #include <iosfwd>
-#include <cstring> // bzero
+#include <cstring>  // bzero
 
 class CSCDMBHeader;
 
-class CSCVDMBTrailerFormat  {
+class CSCVDMBTrailerFormat {
 public:
-
-  virtual ~CSCVDMBTrailerFormat() {};
-/*
+  virtual ~CSCVDMBTrailerFormat(){};
+  /*
   void init() {
     bzero(this, sizeInWords()*2);
   }
@@ -51,17 +50,14 @@ public:
   virtual unsigned crc_lo_parity() const = 0;
   virtual unsigned crc_hi_parity() const = 0;
 
-
-  virtual unsigned short * data() = 0;
-  virtual unsigned short * data() const = 0;
+  virtual unsigned short *data() = 0;
+  virtual unsigned short *data() const = 0;
 
   virtual bool check() const = 0;
 
   virtual unsigned sizeInWords() const = 0;
-  
-  //ostream & operator<<(ostream &, const CSCVDMBTrailerFormat &);
 
+  //ostream & operator<<(ostream &, const CSCVDMBTrailerFormat &);
 };
 
 #endif
-

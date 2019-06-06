@@ -12,19 +12,16 @@
  */
 
 template <unsigned int N>
-class  CloseComponentsMergerESProducer: public edm::ESProducer{
- public:
-  CloseComponentsMergerESProducer(const edm::ParameterSet & p);
-  ~CloseComponentsMergerESProducer() override; 
-  std::unique_ptr< MultiGaussianStateMerger<N> > produce(const TrackingComponentsRecord &);
- private:
+class CloseComponentsMergerESProducer : public edm::ESProducer {
+public:
+  CloseComponentsMergerESProducer(const edm::ParameterSet &p);
+  ~CloseComponentsMergerESProducer() override;
+  std::unique_ptr<MultiGaussianStateMerger<N> > produce(const TrackingComponentsRecord &);
+
+private:
   edm::ParameterSet pset_;
 };
 
 #include "TrackingTools/GsfTools/plugins/CloseComponentsMergerESProducer.icc"
 
 #endif
-
-
-
-

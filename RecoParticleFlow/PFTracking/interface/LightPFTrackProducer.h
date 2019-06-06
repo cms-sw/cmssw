@@ -12,26 +12,24 @@
 class PFTrackTransformer;
 class LightPFTrackProducer : public edm::stream::EDProducer<> {
 public:
-  
   ///Constructor
-  explicit LightPFTrackProducer(const edm::ParameterSet&);
-  
+  explicit LightPFTrackProducer(const edm::ParameterSet &);
+
   ///Destructor
   ~LightPFTrackProducer() override;
-  
+
 private:
-  void beginRun(const edm::Run&,const edm::EventSetup&) override ;
-  void endRun(const edm::Run&,const edm::EventSetup&) override;
-  
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override;
+
   ///Produce the PFRecTrack collection
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
   ///PFTrackTransformer
-  PFTrackTransformer *pfTransformer_; 
+  PFTrackTransformer *pfTransformer_;
   std::vector<edm::EDGetTokenT<reco::TrackCollection> > tracksContainers_;
   ///TRACK QUALITY
-    bool useQuality_;
-    reco::TrackBase::TrackQuality trackQuality_;
-
+  bool useQuality_;
+  reco::TrackBase::TrackQuality trackQuality_;
 };
 #endif
