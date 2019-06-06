@@ -3,7 +3,7 @@ from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_
 from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
 
 from  PhysicsTools.NanoAOD.common_cff import *
-
+from RecoJets.JetProducers.ak4PFJetsBetaStar_cfi import *
 
 
 ##################### User floats producers, selectors ##########################
@@ -111,6 +111,12 @@ bJetVars = cms.EDProducer("JetRegressionVarProducer",
     #elesrc = cms.InputTag("slimmedElectrons")
 )
 
+jercVars = cms.EDProducer("BetaStarPackedCandidateVarProducer",
+    srcJet = cms.InputTag("updatedJets"),    
+    srcPF = cms.InputTag("packedPFCandidates"),
+    maxDR = cms.double(0.4)
+)
+
 
 updatedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
      src = cms.InputTag("updatedJets"),
@@ -131,6 +137,8 @@ updatedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
          ptD = cms.InputTag("bJetVars:ptD"),
          genPtwNu = cms.InputTag("bJetVars:genPtwNu"),
          qgl = cms.InputTag('qgtagger:qgLikelihood'),
+         jercCHPUF = cms.InputTag("jercVars:chargedHadronPUEnergyFraction"),
+         jercCHF = cms.InputTag("jercVars:chargedHadronCHSEnergyFraction"),
          ),
      userInts = cms.PSet(
         tightId = cms.InputTag("tightJetId"),
@@ -214,6 +222,8 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         chEmEF = Var("chargedEmEnergyFraction()", float, doc="charged Electromagnetic Energy Fraction", precision= 6),
         neEmEF = Var("neutralEmEnergyFraction()", float, doc="neutral Electromagnetic Energy Fraction", precision= 6),
         muEF = Var("muonEnergyFraction()", float, doc="muon Energy Fraction", precision= 6),
+        jercCHPUF = Var("userFloat('jercCHPUF')", float, doc="Pileup Charged Hadron Energy Fraction with the JERC group definition", precision= 6),
+        jercCHF = Var("userFloat('jercCHF')", float, doc="Charged Hadron Energy Fraction with the JERC group definition", precision= 6),
     )
 )
 
@@ -548,7 +558,7 @@ from RecoJets.JetProducers.QGTagger_cfi import  QGTagger
 qgtagger=QGTagger.clone(srcJets="updatedJets",srcVertexCollection="offlineSlimmedPrimaryVertices")
 
 #before cross linking
-jetSequence = cms.Sequence(jetCorrFactorsNano+updatedJets+tightJetId+tightJetIdLepVeto+bJetVars+qgtagger+updatedJetsWithUserData+jetCorrFactorsAK8+updatedJetsAK8+tightJetIdAK8+tightJetIdLepVetoAK8+updatedJetsAK8WithUserData+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets+finalJetsAK8)
+jetSequence = cms.Sequence(jetCorrFactorsNano+updatedJets+tightJetId+tightJetIdLepVeto+bJetVars+jercVars+qgtagger+updatedJetsWithUserData+jetCorrFactorsAK8+updatedJetsAK8+tightJetIdAK8+tightJetIdLepVetoAK8+updatedJetsAK8WithUserData+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets+finalJetsAK8)
 
 _jetSequence_2016 = jetSequence.copy()
 _jetSequence_2016.insert(_jetSequence_2016.index(tightJetId), looseJetId)
