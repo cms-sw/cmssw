@@ -4,19 +4,17 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 namespace dqmoffline {
-namespace l1t {
+  namespace l1t {
 
-
-
-/**
+    /**
  * Fills a given MonitorElement within the boundaries of the underlying histogram.
  * This means that underflow is filled into the first bin and overflow is filled into the last bin.
  * @param pointer to the DQM MonitorElement
  * @param fill value
  * @param optional weight
  */
-void fillWithinLimits(MonitorElement* mon, double value, double weight=1.);
-/**
+    void fillWithinLimits(MonitorElement* mon, double value, double weight = 1.);
+    /**
  * Fills a given MonitorElement within the boundaries of the underlying histogram.
  * This means that underflow is filled into the first bin and overflow is filled into the last bin.
  * @param pointer to the DQM MonitorElement
@@ -25,11 +23,10 @@ void fillWithinLimits(MonitorElement* mon, double value, double weight=1.);
  * @param optional weight X
  * @param optional weight Y
  */
-void fill2DWithinLimits(MonitorElement* mon, double valueX, double valueY, double weight=1.);
+    void fill2DWithinLimits(MonitorElement* mon, double valueX, double valueY, double weight = 1.);
 
-
-double getFillValueWithinLimits(double value, double min, double max);
-}
-}
+    double getFillValueWithinLimits(double value, double min, double max);
+  }  // namespace l1t
+}  // namespace dqmoffline
 
 #endif
