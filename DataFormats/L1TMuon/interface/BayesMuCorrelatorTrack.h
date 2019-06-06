@@ -1,7 +1,7 @@
 /*
  * BayesMuCorrelatorTrack.h
  * The objects of this class are produced by the L1Trigger/L1TMuonBayes/plugins/L1TMuonBayesMuCorrelatorTrackProducer.h
- * It is tracked formed by matching the trackcing trigger tracks to the muon (DT, CSC, RPC) stubs.
+ * It is a muon track formed by matching the tracking trigger tracks to the muon stubs (DT, CSC, RPC) .
  *  Created on: Mar 15, 2019
  *      Author: Karol Bunkowski kbunkow@cern.ch
  */
@@ -143,7 +143,7 @@ private:
 
   CandidateType candidateType = fastTrack;
 
-  //the "pointers" the either sim Track ot ttTrack that was use to create this TrackingTriggerTrack, needed only for analysis
+  //the "pointers" to either simTrack or ttTrack or trackingParticl that was use to create this TrackingTriggerTrack, needed only for analysis
   edm::Ptr< SimTrack > simTrackPtr;
   edm::Ptr< L1TTTrackType > ttTrackPtr;
   edm::Ptr< TrackingParticle > trackPartPtr;
