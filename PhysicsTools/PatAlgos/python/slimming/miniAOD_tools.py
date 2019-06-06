@@ -335,7 +335,10 @@ def miniAOD_customizeCommon(process):
     #-- Adding customization for 94X 2017 legacy reMniAOD
     from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
     _makePatTausTaskWithRetrainedMVATauID = process.makePatTausTask.copy()
-    _makePatTausTaskWithRetrainedMVATauID.add(process.hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask)
+    _makePatTausTaskWithRetrainedMVATauID.add(process.hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask,
+                                              process.hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTTask,
+                                              process.hpsPFTauIsolationSums03Task,
+                                              process.hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTTask)
     run2_miniAOD_94XFall17.toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithRetrainedMVATauID
         )
