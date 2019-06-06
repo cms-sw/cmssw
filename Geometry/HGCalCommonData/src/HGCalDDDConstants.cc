@@ -18,9 +18,6 @@
 //#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
-static const int maxType = 2;
-static const int minType = 0;
-
 HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::string& name)
     : hgpar_(hp), sqrt3_(std::sqrt(3.0)) {
   mode_ = hgpar_->mode_;
@@ -216,9 +213,9 @@ double HGCalDDDConstants::cellThickness(int layer, int waferU, int waferV) const
   int type = waferType(layer, waferU, waferV);
   if (type > 0) {
     if ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full)) {
-      thick = 10000.0 * hgpar_->cellThickness_[type-1];  // cm to micron
+      thick = 10000.0 * hgpar_->cellThickness_[type];  // cm to micron
     } else if ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull)) {
-      thick = 100.0 * type;  // type = 1,2,3 for 100,200,300 micron
+      thick = 100.0 * (type+1);  // type = 1,2,3 for 100,200,300 micron
     }
   }
   return thick;
@@ -1235,10 +1232,10 @@ int HGCalDDDConstants::waferType(int layer, int waferU, int waferV) const {
   if ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full)) {
     auto itr = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(layer, waferU, waferV));
     if (itr != hgpar_->typesInLayers_.end()) 
-      type = (1 + hgpar_->waferTypeL_[itr->second]);
+      type = hgpar_->waferTypeL_[itr->second];
   } else if ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull)) {
     if ((waferU >= 0) && (waferU < (int)(hgpar_->waferTypeL_.size())))
-      type = hgpar_->waferTypeL_[waferU];
+      type = (hgpar_->waferTypeL_[waferU]-1);
   }
   return type;
 }
