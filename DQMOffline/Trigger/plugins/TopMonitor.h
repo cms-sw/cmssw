@@ -88,6 +88,7 @@ private:
   edm::EDGetTokenT<reco::PhotonCollection>        phoToken_;
   // Marina
   edm::EDGetTokenT<reco::JetTagCollection>        jetTagToken_ ;
+  edm::EDGetTokenT<reco::JetTagCollection>        jetbbTagToken_ ; 
   //Suvankar
   edm::EDGetTokenT<reco::VertexCollection>        vtxToken_;
 
@@ -204,7 +205,6 @@ private:
   std::vector<ObjME> bjetEta_;
   std::vector<ObjME> bjetPt_;
   std::vector<ObjME> bjetCSV_;
-  
   std::vector<ObjME> muPt_variableBinning_;
   std::vector<ObjME> elePt_variableBinning_;
   std::vector<ObjME> jetPt_variableBinning_;
@@ -247,7 +247,6 @@ private:
   StringCutObjectSelector<reco::Vertex,true>      vtxSelection_;
   
   StringCutObjectSelector<reco::Jet,true   >      bjetSelection_;
-
   unsigned int njets_;
   unsigned int nelectrons_;
   unsigned int nmuons_;
@@ -259,12 +258,12 @@ private:
   // Marina
   unsigned int nbjets_;
   double workingpoint_;
-
+  std::string btagalgoName_;
   //Suvankar
   PVcut  lepPVcuts_;
   bool usePVcuts_;
 
-  bool applyMETcut_ = false;
+  bool applyMETcut_ = false;  
 
   //george
   double invMassUppercut_;
