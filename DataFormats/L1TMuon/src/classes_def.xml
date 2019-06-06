@@ -114,13 +114,5 @@
   <class name="l1t::BayesMuCorrTrackBxCollection" />
   <class name="edm::Wrapper<l1t::BayesMuCorrTrackBxCollection>" />
   
-  
-<!--  <class name="l1t::BayesMuCorrRef" />
-  <class name="edm::Wrapper<l1t::BayesMuCorrRef>" />
-  <class name="l1t::BayesMuCorrRefVector" />
-  <class name="edm::Wrapper<l1t::BayesMuCorrRefVector>" />
-  <class name="l1t::BayesMuCorrVectorRef" />
-  <class name="edm::Wrapper<l1t::BayesMuCorrVectorRef>" /> -->
-
  </selection>
 </lcgdict>
