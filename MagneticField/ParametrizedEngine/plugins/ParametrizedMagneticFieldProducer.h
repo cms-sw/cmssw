@@ -16,15 +16,14 @@
 class IdealMagneticFieldRecord;
 
 namespace magneticfield {
-  class ParametrizedMagneticFieldProducer : public edm::ESProducer
-  {
+  class ParametrizedMagneticFieldProducer : public edm::ESProducer {
   public:
     ParametrizedMagneticFieldProducer(const edm::ParameterSet&);
     ~ParametrizedMagneticFieldProducer() override;
-    
+
     std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord&);
     edm::ParameterSet pset;
   };
-}
+}  // namespace magneticfield
 
 #endif

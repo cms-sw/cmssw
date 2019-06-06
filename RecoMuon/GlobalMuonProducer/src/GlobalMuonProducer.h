@@ -24,49 +24,45 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class MuonTrackFinder;
 class MuonServiceProxy;
 
 class GlobalMuonProducer : public edm::stream::EDProducer<> {
-
- public:
-
+public:
   /// constructor with config
   GlobalMuonProducer(const edm::ParameterSet&);
-  
+
   /// destructor
-  ~GlobalMuonProducer() override; 
-  
+  ~GlobalMuonProducer() override;
+
   /// reconstruct muons
   void produce(edm::Event&, const edm::EventSetup&) override;
-  
- private:
 
-
-  edm::InputTag theSTACollectionLabel    ;
+private:
+  edm::InputTag theSTACollectionLabel;
   /// STA Tokens
   edm::EDGetTokenT<reco::TrackCollection> staMuonsToken;
   edm::EDGetTokenT<std::vector<Trajectory> > staMuonsTrajToken;
   edm::EDGetTokenT<TrajTrackAssociationCollection> staAssoMapToken;
   edm::EDGetTokenT<reco::TrackToTrackMap> updatedStaAssoMapToken;
 
-
-
-
   MuonTrackFinder* theTrackFinder;
-    
+
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy* theService;
-    
+
   std::string theAlias;
 
-  void setAlias( std::string alias ){
-    alias.erase( alias.size() - 1, alias.size() );
-    theAlias=alias;
+  void setAlias(std::string alias) {
+    alias.erase(alias.size() - 1, alias.size());
+    theAlias = alias;
   }
-
 };
 
 #endif
