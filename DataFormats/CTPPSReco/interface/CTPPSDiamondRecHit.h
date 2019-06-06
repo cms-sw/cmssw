@@ -14,48 +14,56 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSTimingRecHit.h"
 
 /// Reconstructed hit in diamond detectors.
-class CTPPSDiamondRecHit : public CTPPSTimingRecHit
-{
-  public:
-    CTPPSDiamondRecHit() :
-      CTPPSTimingRecHit(),
-      tot_( 0 ), tPrecision_( 0 ), tsIndex_( 0 ), hptdcErr_( 0 ), mh_( false ) {}
-    CTPPSDiamondRecHit( float x, float xWidth, float y, float yWidth, float z, float zWidth,
-                        float t, float tot, float tPrecision, int ootIdx,
-                        const HPTDCErrorFlags &hptdcErr, const bool mh ) :
-      CTPPSTimingRecHit( x, xWidth, y, yWidth, z, zWidth, t ),
-      tot_( tot ), tPrecision_( tPrecision ), tsIndex_( ootIdx ),
-      hptdcErr_( hptdcErr ), mh_( mh ) {}
+class CTPPSDiamondRecHit : public CTPPSTimingRecHit {
+public:
+  CTPPSDiamondRecHit() : CTPPSTimingRecHit(), tot_(0), tPrecision_(0), tsIndex_(0), hptdcErr_(0), mh_(false) {}
+  CTPPSDiamondRecHit(float x,
+                     float xWidth,
+                     float y,
+                     float yWidth,
+                     float z,
+                     float zWidth,
+                     float t,
+                     float tot,
+                     float tPrecision,
+                     int ootIdx,
+                     const HPTDCErrorFlags &hptdcErr,
+                     const bool mh)
+      : CTPPSTimingRecHit(x, xWidth, y, yWidth, z, zWidth, t),
+        tot_(tot),
+        tPrecision_(tPrecision),
+        tsIndex_(ootIdx),
+        hptdcErr_(hptdcErr),
+        mh_(mh) {}
 
-    static constexpr int TIMESLICE_WITHOUT_LEADING = -10;
+  static constexpr int TIMESLICE_WITHOUT_LEADING = -10;
 
-    inline void setToT( float tot ) { tot_ = tot; }
-    inline float getToT() const { return tot_; }
+  inline void setToT(float tot) { tot_ = tot; }
+  inline float getToT() const { return tot_; }
 
-    inline void setTPrecision( float tPrecision ) { tPrecision_ = tPrecision; }
-    inline float getTPrecision() const { return tPrecision_; }
+  inline void setTPrecision(float tPrecision) { tPrecision_ = tPrecision; }
+  inline float getTPrecision() const { return tPrecision_; }
 
-    inline void setOOTIndex( int i ) { tsIndex_ = i; }
-    inline int getOOTIndex() const { return tsIndex_; }
+  inline void setOOTIndex(int i) { tsIndex_ = i; }
+  inline int getOOTIndex() const { return tsIndex_; }
 
-    inline void setMultipleHits( bool mh ) { mh_ = mh; }
-    inline bool getMultipleHits() const { return mh_; }
+  inline void setMultipleHits(bool mh) { mh_ = mh; }
+  inline bool getMultipleHits() const { return mh_; }
 
-    inline void setHPTDCErrorFlags( const HPTDCErrorFlags &err ) { hptdcErr_ = err; }
-    inline HPTDCErrorFlags getHPTDCErrorFlags() const { return hptdcErr_; }
+  inline void setHPTDCErrorFlags(const HPTDCErrorFlags &err) { hptdcErr_ = err; }
+  inline HPTDCErrorFlags getHPTDCErrorFlags() const { return hptdcErr_; }
 
-  private:
-    /// Time over threshold
-    float tot_;
-    /// Expected timing precision
-    float tPrecision_;
-    /// Time slice index
-    int tsIndex_;
-    /// List of error flags encountered by the HPTDC
-    HPTDCErrorFlags hptdcErr_;
-    /// Multiple hits detected
-    bool mh_;
+private:
+  /// Time over threshold
+  float tot_;
+  /// Expected timing precision
+  float tPrecision_;
+  /// Time slice index
+  int tsIndex_;
+  /// List of error flags encountered by the HPTDC
+  HPTDCErrorFlags hptdcErr_;
+  /// Multiple hits detected
+  bool mh_;
 };
 
 #endif
-

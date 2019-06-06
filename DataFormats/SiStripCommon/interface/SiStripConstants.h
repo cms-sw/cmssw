@@ -16,5 +16,4 @@
 #include "DataFormats/SiStripCommon/interface/ConstantsForRunType.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForView.h"
 
-#endif // DataFormats_SiStripCommon_SiStripConstants_H
-
+#endif  // DataFormats_SiStripCommon_SiStripConstants_H

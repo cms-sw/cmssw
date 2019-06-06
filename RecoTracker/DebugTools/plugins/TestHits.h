@@ -1,12 +1,11 @@
 #ifndef TESTHITS_H
 #define TESTHITS_H
 
-
 // -*- C++ -*-
 //
 // Package:    TestHits
 // Class:      TestHits
-// 
+//
 /**\class TestHits TestHits.cc RecoTracker/DebugTools/src/TestHits.cc
 
  Description: <one line class summary>
@@ -31,9 +30,9 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
@@ -57,7 +56,7 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  std::pair<LocalPoint,LocalVector> projectHit(const PSimHit&, const StripGeomDetUnit*, const BoundPlane&);
+  std::pair<LocalPoint, LocalVector> projectHit(const PSimHit&, const StripGeomDetUnit*, const BoundPlane&);
 
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
@@ -77,47 +76,47 @@ private:
 
   TFile* file;
   std::stringstream title;
-  std::map<std::string,TH1F*> hPullGP_X_ts;
-  std::map<std::string,TH1F*> hPullGP_Y_ts;
-  std::map<std::string,TH1F*> hPullGP_Z_ts;
-  std::map<std::string,TH1F*> hPullGM_X_ts;
-  std::map<std::string,TH1F*> hPullGM_Y_ts;
-  std::map<std::string,TH1F*> hPullGM_Z_ts;
-  std::map<std::string,TH1F*> hPullGP_X_rs;
-  std::map<std::string,TH1F*> hPullGP_Y_rs;
-  std::map<std::string,TH1F*> hPullGP_Z_rs;
-  std::map<std::string,TH1F*> hPullGP_X_tr;
-  std::map<std::string,TH1F*> hPullGP_Y_tr;
-  std::map<std::string,TH1F*> hPullGP_Z_tr;
-  std::map<std::string,TH1F*> hChi2Increment;
-  TH1F * hTotChi2Increment;
-  TH2F * hProcess_vs_Chi2, *hClsize_vs_Chi2;
+  std::map<std::string, TH1F*> hPullGP_X_ts;
+  std::map<std::string, TH1F*> hPullGP_Y_ts;
+  std::map<std::string, TH1F*> hPullGP_Z_ts;
+  std::map<std::string, TH1F*> hPullGM_X_ts;
+  std::map<std::string, TH1F*> hPullGM_Y_ts;
+  std::map<std::string, TH1F*> hPullGM_Z_ts;
+  std::map<std::string, TH1F*> hPullGP_X_rs;
+  std::map<std::string, TH1F*> hPullGP_Y_rs;
+  std::map<std::string, TH1F*> hPullGP_Z_rs;
+  std::map<std::string, TH1F*> hPullGP_X_tr;
+  std::map<std::string, TH1F*> hPullGP_Y_tr;
+  std::map<std::string, TH1F*> hPullGP_Z_tr;
+  std::map<std::string, TH1F*> hChi2Increment;
+  TH1F* hTotChi2Increment;
+  TH2F *hProcess_vs_Chi2, *hClsize_vs_Chi2;
 
-  std::map<std::string,TH1F*> hPullGP_X_ts_mono;
-  std::map<std::string,TH1F*> hPullGP_Y_ts_mono;
-  std::map<std::string,TH1F*> hPullGP_Z_ts_mono;
-  std::map<std::string,TH1F*> hPullGM_X_ts_mono;
-  std::map<std::string,TH1F*> hPullGM_Y_ts_mono;
-  std::map<std::string,TH1F*> hPullGM_Z_ts_mono;
-  std::map<std::string,TH1F*> hPullGP_X_rs_mono;
-  std::map<std::string,TH1F*> hPullGP_Y_rs_mono;
-  std::map<std::string,TH1F*> hPullGP_Z_rs_mono;
-  std::map<std::string,TH1F*> hPullGP_X_tr_mono;
-  std::map<std::string,TH1F*> hPullGP_Y_tr_mono;
-  std::map<std::string,TH1F*> hPullGP_Z_tr_mono;
+  std::map<std::string, TH1F*> hPullGP_X_ts_mono;
+  std::map<std::string, TH1F*> hPullGP_Y_ts_mono;
+  std::map<std::string, TH1F*> hPullGP_Z_ts_mono;
+  std::map<std::string, TH1F*> hPullGM_X_ts_mono;
+  std::map<std::string, TH1F*> hPullGM_Y_ts_mono;
+  std::map<std::string, TH1F*> hPullGM_Z_ts_mono;
+  std::map<std::string, TH1F*> hPullGP_X_rs_mono;
+  std::map<std::string, TH1F*> hPullGP_Y_rs_mono;
+  std::map<std::string, TH1F*> hPullGP_Z_rs_mono;
+  std::map<std::string, TH1F*> hPullGP_X_tr_mono;
+  std::map<std::string, TH1F*> hPullGP_Y_tr_mono;
+  std::map<std::string, TH1F*> hPullGP_Z_tr_mono;
 
-  std::map<std::string,TH1F*> hPullGP_X_ts_stereo;
-  std::map<std::string,TH1F*> hPullGP_Y_ts_stereo;
-  std::map<std::string,TH1F*> hPullGP_Z_ts_stereo;
-  std::map<std::string,TH1F*> hPullGM_X_ts_stereo;
-  std::map<std::string,TH1F*> hPullGM_Y_ts_stereo;
-  std::map<std::string,TH1F*> hPullGM_Z_ts_stereo;
-  std::map<std::string,TH1F*> hPullGP_X_rs_stereo;
-  std::map<std::string,TH1F*> hPullGP_Y_rs_stereo;
-  std::map<std::string,TH1F*> hPullGP_Z_rs_stereo;
-  std::map<std::string,TH1F*> hPullGP_X_tr_stereo;
-  std::map<std::string,TH1F*> hPullGP_Y_tr_stereo;
-  std::map<std::string,TH1F*> hPullGP_Z_tr_stereo;
+  std::map<std::string, TH1F*> hPullGP_X_ts_stereo;
+  std::map<std::string, TH1F*> hPullGP_Y_ts_stereo;
+  std::map<std::string, TH1F*> hPullGP_Z_ts_stereo;
+  std::map<std::string, TH1F*> hPullGM_X_ts_stereo;
+  std::map<std::string, TH1F*> hPullGM_Y_ts_stereo;
+  std::map<std::string, TH1F*> hPullGM_Z_ts_stereo;
+  std::map<std::string, TH1F*> hPullGP_X_rs_stereo;
+  std::map<std::string, TH1F*> hPullGP_Y_rs_stereo;
+  std::map<std::string, TH1F*> hPullGP_Z_rs_stereo;
+  std::map<std::string, TH1F*> hPullGP_X_tr_stereo;
+  std::map<std::string, TH1F*> hPullGP_Y_tr_stereo;
+  std::map<std::string, TH1F*> hPullGP_Z_tr_stereo;
 };
 
 #endif
