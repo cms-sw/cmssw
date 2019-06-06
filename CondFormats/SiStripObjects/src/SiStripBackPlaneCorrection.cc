@@ -28,7 +28,7 @@ void SiStripBackPlaneCorrection::printDebug(std::stringstream& ss, const Tracker
   ss << "SiStripBackPlaneCorrectionReader:" << std::endl;
   ss << "detid \t Geometry \t Back Plane Corrections" << std::endl;
   for( it=detid_la.begin(); it!=detid_la.end(); ++it ) {
-    ss << it->first << "\t" << trackerTopo->moduleGeometry(it->first) << "\t" << it->second << std::endl;
+    ss << it->first << "\t" << static_cast<int>(trackerTopo->moduleGeometry(it->first)) << "\t" << it->second << std::endl;
     ++count;
   }
 }

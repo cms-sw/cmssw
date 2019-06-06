@@ -14,27 +14,21 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class RecHitLessByDet {
-
   typedef TransientTrackingRecHit::ConstRecHitPointer RecHitPointer;
-public:
 
-  RecHitLessByDet(const PropagationDirection& dir) :
-    theDirection(dir) {}
+public:
+  RecHitLessByDet(const PropagationDirection& dir) : theDirection(dir) {}
 
   ~RecHitLessByDet() {}
 
-  bool operator()(const RecHitPointer& aHit, const RecHitPointer& bHit) const{
-
-    return (theDirection == alongMomentum ? 
-	    (aHit->surface()->toGlobal(aHit->localPosition()).mag() < 
-	     bHit->surface()->toGlobal(bHit->localPosition()).mag() ) :
-	    (aHit->surface()->toGlobal(aHit->localPosition()).mag() >
-	     bHit->surface()->toGlobal(bHit->localPosition()).mag()) );
+  bool operator()(const RecHitPointer& aHit, const RecHitPointer& bHit) const {
+    return (theDirection == alongMomentum ? (aHit->surface()->toGlobal(aHit->localPosition()).mag() <
+                                             bHit->surface()->toGlobal(bHit->localPosition()).mag())
+                                          : (aHit->surface()->toGlobal(aHit->localPosition()).mag() >
+                                             bHit->surface()->toGlobal(bHit->localPosition()).mag()));
   }
 
 private:
-  
   PropagationDirection theDirection;
-
 };
-#endif //CD_RecHitLessByDet_H_
+#endif  //CD_RecHitLessByDet_H_

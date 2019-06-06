@@ -7,11 +7,10 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class CutsIsolatorWithCorrection : public muonisolation::MuIsoBaseIsolator {
- public:
-  CutsIsolatorWithCorrection(const edm::ParameterSet & par, 
-			     edm::ConsumesCollector && iC);
+public:
+  CutsIsolatorWithCorrection(const edm::ParameterSet& par, edm::ConsumesCollector&& iC);
 
-  ResultType resultType() const override {return ISOL_BOOL_TYPE;}
+  ResultType resultType() const override { return ISOL_BOOL_TYPE; }
 
   Result result(const DepositContainer& deposits, const edm::Event* = nullptr) const override {
     Result answer(ISOL_BOOL_TYPE);
@@ -21,8 +20,8 @@ class CutsIsolatorWithCorrection : public muonisolation::MuIsoBaseIsolator {
   }
 
   Result result(const DepositContainer& deposits, const reco::Track& tk, const edm::Event* = nullptr) const override;
-  
- private:
+
+private:
   double depSum(const DepositContainer& deposits, double dr, double corr) const;
 
   // Isolation cuts
@@ -41,7 +40,6 @@ class CutsIsolatorWithCorrection : public muonisolation::MuIsoBaseIsolator {
   bool theReturnAbsoluteSum;
   bool theReturnRelativeSum;
   bool theAndOrCuts;
-
 };
 
 #endif

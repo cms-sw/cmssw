@@ -6,5 +6,4 @@
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentBuilderPluginFactory.h>
 
-EDM_REGISTER_PLUGINFACTORY(CSCSegmentBuilderPluginFactory,"CSCSegmentBuilderPluginFactory");
-
+EDM_REGISTER_PLUGINFACTORY(CSCSegmentBuilderPluginFactory, "CSCSegmentBuilderPluginFactory");

@@ -7,46 +7,43 @@
 
 class binary_ifstream {
 public:
+  explicit binary_ifstream(const char* name);
+  explicit binary_ifstream(const std::string& name);
 
-    explicit binary_ifstream( const char* name);
-    explicit binary_ifstream( const std::string& name);
+  ~binary_ifstream();
 
-    ~binary_ifstream();
+  binary_ifstream& operator>>(char& n);
+  binary_ifstream& operator>>(unsigned char& n);
 
-    binary_ifstream& operator>>( char& n);
-    binary_ifstream& operator>>( unsigned char& n);
+  binary_ifstream& operator>>(short& n);
+  binary_ifstream& operator>>(unsigned short& n);
 
-    binary_ifstream& operator>>( short& n);
-    binary_ifstream& operator>>( unsigned short& n);
+  binary_ifstream& operator>>(int& n);
+  binary_ifstream& operator>>(unsigned int& n);
 
-    binary_ifstream& operator>>( int& n);
-    binary_ifstream& operator>>( unsigned int& n);
+  binary_ifstream& operator>>(long& n);
+  binary_ifstream& operator>>(unsigned long& n);
 
-    binary_ifstream& operator>>( long& n);
-    binary_ifstream& operator>>( unsigned long& n);
+  binary_ifstream& operator>>(float& n);
+  binary_ifstream& operator>>(double& n);
 
-    binary_ifstream& operator>>( float& n);
-    binary_ifstream& operator>>( double& n);
+  binary_ifstream& operator>>(bool& n);
+  binary_ifstream& operator>>(std::string& n);
 
-    binary_ifstream& operator>>( bool& n);
-    binary_ifstream& operator>>( std::string& n);
-
-    void close();
+  void close();
 
   /// stream state checking
-    bool good() const;
-    bool eof() const;
-    bool fail() const;
-    bool bad() const;
-    bool operator!() const;
-    operator bool() const;
+  bool good() const;
+  bool eof() const;
+  bool fail() const;
+  bool bad() const;
+  bool operator!() const;
+  operator bool() const;
 
 private:
+  FILE* file_;
 
-    FILE* file_;
-
-    void init( const char* name);
-
+  void init(const char* name);
 };
 
 #endif

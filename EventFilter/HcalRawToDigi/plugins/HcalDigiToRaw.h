@@ -24,12 +24,12 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalPacker.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-class HcalDigiToRaw : public edm::global::EDProducer<>
-{
+class HcalDigiToRaw : public edm::global::EDProducer<> {
 public:
   explicit HcalDigiToRaw(const edm::ParameterSet& ps);
   ~HcalDigiToRaw() override;
   void produce(edm::StreamID id, edm::Event& e, const edm::EventSetup& c) const override;
+
 private:
   HcalPacker packer_;
   const edm::InputTag hbheTag_, hoTag_, hfTag_, zdcTag_, calibTag_, trigTag_;

@@ -5,7 +5,6 @@
 
 #include "DTRecHitProducer.h"
 
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -23,34 +22,27 @@
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include <string>
 
-
 using namespace edm;
 using namespace std;
 
-
-
-
-DTRecHitProducer::DTRecHitProducer(const ParameterSet& config) :
-  // Set verbose output
-  debug(config.getUntrackedParameter<bool>("debug", false)),
-  // Get the concrete reconstruction algo from the factory
-  theAlgo{DTRecHitAlgoFactory::get()->create(config.getParameter<string>("recAlgo"),
-                                             config.getParameter<ParameterSet>("recAlgoConfig"))}
-{
-  if(debug)
+DTRecHitProducer::DTRecHitProducer(const ParameterSet& config)
+    :  // Set verbose output
+      debug(config.getUntrackedParameter<bool>("debug", false)),
+      // Get the concrete reconstruction algo from the factory
+      theAlgo{DTRecHitAlgoFactory::get()->create(config.getParameter<string>("recAlgo"),
+                                                 config.getParameter<ParameterSet>("recAlgoConfig"))} {
+  if (debug)
     cout << "[DTRecHitProducer] Constructor called" << endl;
-  
+
   produces<DTRecHitCollection>();
 
   DTDigiToken_ = consumes<DTDigiCollection>(config.getParameter<InputTag>("dtDigiLabel"));
 }
 
-DTRecHitProducer::~DTRecHitProducer(){
-  if(debug)
+DTRecHitProducer::~DTRecHitProducer() {
+  if (debug)
     cout << "[DTRecHitProducer] Destructor called" << endl;
 }
-
-
 
 void DTRecHitProducer::produce(Event& event, const EventSetup& setup) {
   // Get the DT Geometry
@@ -58,7 +50,7 @@ void DTRecHitProducer::produce(Event& event, const EventSetup& setup) {
   setup.get<MuonGeometryRecord>().get(dtGeom);
 
   // Get the digis from the event
-  Handle<DTDigiCollection> digis; 
+  Handle<DTDigiCollection> digis;
   event.getByToken(DTDigiToken_, digis);
 
   // Pass the EventSetup to the algo
@@ -67,12 +59,9 @@ void DTRecHitProducer::produce(Event& event, const EventSetup& setup) {
   // Create the pointer to the collection which will store the rechits
   auto recHitCollection = std::make_unique<DTRecHitCollection>();
 
-
-  // Iterate through all digi collections ordered by LayerId   
+  // Iterate through all digi collections ordered by LayerId
   DTDigiCollection::DigiRangeIterator dtLayerIt;
-  for (dtLayerIt = digis->begin();
-	   dtLayerIt != digis->end();
-	   ++dtLayerIt){
+  for (dtLayerIt = digis->begin(); dtLayerIt != digis->end(); ++dtLayerIt) {
     // The layerId
     const DTLayerId& layerId = (*dtLayerIt).first;
     // Get the GeomDet from the setup
@@ -80,13 +69,12 @@ void DTRecHitProducer::produce(Event& event, const EventSetup& setup) {
 
     // Get the iterators over the digis associated with this LayerId
     const DTDigiCollection::Range& range = (*dtLayerIt).second;
-    
-    OwnVector<DTRecHit1DPair> recHits =
-      theAlgo->reconstruct(layer, layerId, range);
-    
-    if(debug)
+
+    OwnVector<DTRecHit1DPair> recHits = theAlgo->reconstruct(layer, layerId, range);
+
+    if (debug)
       cout << "Number of hits in this layer: " << recHits.size() << endl;
-    if(!recHits.empty()) //FIXME: is it really needed?
+    if (!recHits.empty())  //FIXME: is it really needed?
       recHitCollection->put(layerId, recHits.begin(), recHits.end());
   }
 

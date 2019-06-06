@@ -4,7 +4,6 @@
 #include "RecoLocalMuon/DTSegment/src/DTClusterer.h"
 DEFINE_FWK_MODULE(DTClusterer);
 
-
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DProducer.h"
 #include "RecoLocalMuon/DTSegment/src/DTSegment4DT0Corrector.h"
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DAlgoFactory.h"
@@ -13,8 +12,8 @@ DEFINE_FWK_MODULE(DTClusterer);
 
 DEFINE_FWK_MODULE(DTRecSegment2DProducer);
 DEFINE_FWK_MODULE(DTSegment4DT0Corrector);
-DEFINE_EDM_PLUGIN (DTRecSegment2DAlgoFactory, DTCombinatorialPatternReco, "DTCombinatorialPatternReco");
-DEFINE_EDM_PLUGIN (DTRecSegment2DAlgoFactory, DTMeantimerPatternReco, "DTMeantimerPatternReco");
+DEFINE_EDM_PLUGIN(DTRecSegment2DAlgoFactory, DTCombinatorialPatternReco, "DTCombinatorialPatternReco");
+DEFINE_EDM_PLUGIN(DTRecSegment2DAlgoFactory, DTMeantimerPatternReco, "DTMeantimerPatternReco");
 //-------------------------------------------------------------------------------------------------------
 
 // ----------- Modules for 2D-segments extended reco -----------
@@ -29,7 +28,7 @@ DEFINE_FWK_MODULE(DTRecSegment2DExtendedProducer);
 #include "RecoLocalMuon/DTSegment/src/DTRefitAndCombineReco4D.h"
 
 DEFINE_FWK_MODULE(DTRecSegment4DProducer);
-DEFINE_EDM_PLUGIN (DTRecSegment4DAlgoFactory, DTCombinatorialPatternReco4D, "DTCombinatorialPatternReco4D");
-DEFINE_EDM_PLUGIN (DTRecSegment4DAlgoFactory, DTRefitAndCombineReco4D, "DTRefitAndCombineReco4D");
-DEFINE_EDM_PLUGIN (DTRecSegment4DAlgoFactory, DTMeantimerPatternReco4D, "DTMeantimerPatternReco4D");
+DEFINE_EDM_PLUGIN(DTRecSegment4DAlgoFactory, DTCombinatorialPatternReco4D, "DTCombinatorialPatternReco4D");
+DEFINE_EDM_PLUGIN(DTRecSegment4DAlgoFactory, DTRefitAndCombineReco4D, "DTRefitAndCombineReco4D");
+DEFINE_EDM_PLUGIN(DTRecSegment4DAlgoFactory, DTMeantimerPatternReco4D, "DTMeantimerPatternReco4D");
 //-------------------------------------------------------------------------------------------------------

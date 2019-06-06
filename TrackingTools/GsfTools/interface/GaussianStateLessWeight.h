@@ -10,18 +10,15 @@
 
 template <unsigned int N>
 class GaussianStateLessWeight {
-  
 private:
-  typedef std::shared_ptr< SingleGaussianState<N> > SingleStatePtr;
+  typedef std::shared_ptr<SingleGaussianState<N> > SingleStatePtr;
 
 public:
   GaussianStateLessWeight() {}
-  bool operator()(const SingleStatePtr& a, 
-		  const SingleStatePtr& b) const
-  {
-// ThS: No validity for SingleGaussianState
-//     if ( !a.isValid() || !b.isValid() )  return false;
-    return a->weight()>b->weight();
+  bool operator()(const SingleStatePtr& a, const SingleStatePtr& b) const {
+    // ThS: No validity for SingleGaussianState
+    //     if ( !a.isValid() || !b.isValid() )  return false;
+    return a->weight() > b->weight();
   }
 };
 

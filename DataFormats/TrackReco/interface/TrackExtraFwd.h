@@ -6,26 +6,24 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
-namespace reco 
-{
-    class TrackExtra;
+namespace reco {
+  class TrackExtra;
 
-    /// collection of TrackExtra objects
-    typedef std::vector<TrackExtra> TrackExtraCollection;
+  /// collection of TrackExtra objects
+  typedef std::vector<TrackExtra> TrackExtraCollection;
 
-    /// persistent reference to a TrackExtra
-    typedef edm::Ref<TrackExtraCollection> TrackExtraRef;
+  /// persistent reference to a TrackExtra
+  typedef edm::Ref<TrackExtraCollection> TrackExtraRef;
 
-    /// reference to a TrackExtra collection
-    typedef edm::RefProd<TrackExtraCollection> TrackExtraRefProd;
+  /// reference to a TrackExtra collection
+  typedef edm::RefProd<TrackExtraCollection> TrackExtraRefProd;
 
-    /// vector of references to TrackExtra in the same collection
-    typedef edm::RefVector<TrackExtraCollection> TrackExtraRefVector;
+  /// vector of references to TrackExtra in the same collection
+  typedef edm::RefVector<TrackExtraCollection> TrackExtraRefVector;
 
-    /// iterator over a vector of references to TrackExtra in the same collection
-    typedef TrackExtraRefVector::iterator trackExtra_iterator;
+  /// iterator over a vector of references to TrackExtra in the same collection
+  typedef TrackExtraRefVector::iterator trackExtra_iterator;
 
-}// namespace reco
+}  // namespace reco
 
 #endif
-

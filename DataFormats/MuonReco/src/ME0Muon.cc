@@ -6,12 +6,9 @@
 #include "DataFormats/MuonReco/interface/ME0Muon.h"
 using namespace reco;
 
-ME0Muon::ME0Muon() {
-}
+ME0Muon::ME0Muon() {}
 
-bool ME0Muon::overlap( const Candidate & c ) const {
-  const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
-  return ( o != nullptr && 
-	   ( checkOverlap( track(), o->track() ))
-	   );
+bool ME0Muon::overlap(const Candidate &c) const {
+  const RecoCandidate *o = dynamic_cast<const RecoCandidate *>(&c);
+  return (o != nullptr && (checkOverlap(track(), o->track())));
 }

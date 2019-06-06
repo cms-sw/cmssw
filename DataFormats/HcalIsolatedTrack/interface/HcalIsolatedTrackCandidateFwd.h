@@ -24,7 +24,6 @@ namespace reco {
   typedef HcalIsolatedTrackCandidateRefVector::iterator HcalIsolatedTrackCandidateIterator;
 
   typedef std::vector<reco::HcalIsolatedTrackCandidateRef> HcalIsolatedTrackCandidateSimpleRefVector;
-}
+}  // namespace reco
 
 #endif
-

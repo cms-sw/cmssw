@@ -24,8 +24,8 @@ private:
   unsigned se_bits : 15;  // Sync Error bits for 15 ME LCTs
   unsigned zero_3 : 1;    // format specific
   /////// word 4 ///////
-  unsigned
-      sm_bits : 15;  // Modified Sync Error bits for 15 ME LCTs: (SE) OR (Optical Link status) OR (Alignment FIFO status) OR (Bunch Crossing Counter status)
+  // Modified Sync Error bits for 15 ME LCTs: (SE) OR (Optical Link status) OR (Alignment FIFO status) OR (Bunch Crossing Counter status)
+  unsigned sm_bits : 15;
   unsigned zero_4 : 1;  // format specific
   /////// word 5 ///////
   unsigned af_bits : 15;  // Alignment FIFO status bits for 15 ME links, in normal state zero

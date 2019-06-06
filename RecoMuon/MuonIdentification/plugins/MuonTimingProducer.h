@@ -5,7 +5,7 @@
 //
 // Package:    MuonTimingProducer
 // Class:      MuonTimingProducer
-// 
+//
 /**\class MuonTimingProducer MuonTimingProducer.h RecoMuon/MuonIdentification/interface/MuonTimingProducer.h
 
  Description: <one line class summary>
@@ -18,7 +18,6 @@
 //         Created:  Mon Mar 16 12:27:22 CET 2009
 //
 //
-
 
 // system include files
 #include <memory>
@@ -35,25 +34,23 @@
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "RecoMuon/MuonIdentification/interface/MuonTimingFiller.h"
 
-
 //
 // class decleration
 //
 
 class MuonTimingProducer : public edm::stream::EDProducer<> {
-   public:
-      explicit MuonTimingProducer(const edm::ParameterSet&);
-      ~MuonTimingProducer() override;
+public:
+  explicit MuonTimingProducer(const edm::ParameterSet&);
+  ~MuonTimingProducer() override;
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      
-      // ----------member data ---------------------------
-      edm::InputTag m_muonCollection;
-      edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      MuonTimingFiller* theTimingFiller_;
+  // ----------member data ---------------------------
+  edm::InputTag m_muonCollection;
+  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
 
+  MuonTimingFiller* theTimingFiller_;
 };
 
 #endif

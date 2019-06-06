@@ -6,7 +6,6 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"
 
-
 #include <string>
 #include <vector>
 
@@ -14,22 +13,19 @@ class BtagPerformance {
 public:
   BtagPerformance(const PerformancePayload& p, const PerformanceWorkingPoint& w) : pl(p), wp(w) {}
 
-  virtual float getResult(PerformanceResult::ResultType,const BinningPointByMap&) const ;
+  virtual float getResult(PerformanceResult::ResultType, const BinningPointByMap&) const;
 
-  virtual bool isResultOk(PerformanceResult::ResultType,const BinningPointByMap&) const ;
+  virtual bool isResultOk(PerformanceResult::ResultType, const BinningPointByMap&) const;
 
-  virtual const PerformancePayload & payload() const { return pl; }
-  
-  virtual const PerformanceWorkingPoint& workingPoint() const {return wp;}
+  virtual const PerformancePayload& payload() const { return pl; }
 
-  virtual ~BtagPerformance() {};
+  virtual const PerformanceWorkingPoint& workingPoint() const { return wp; }
 
-  private:
+  virtual ~BtagPerformance(){};
+
+private:
   const PerformancePayload& pl;
   const PerformanceWorkingPoint& wp;
-
 };
 
-
 #endif
-

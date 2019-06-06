@@ -10,28 +10,21 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
 using namespace std;
 using namespace edm;
 using namespace reco;
 
 PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
+  tokenPFCandidates_ = consumes<PFCollection>(iConfig.getParameter<InputTag>("PFCandidates"));
+  tokenPFCandidatesView_ = mayConsume<PFView>(iConfig.getParameter<InputTag>("PFCandidates"));
 
-  tokenPFCandidates_
-    = consumes<PFCollection>(iConfig.getParameter<InputTag>("PFCandidates"));
-  tokenPFCandidatesView_
-    = mayConsume<PFView>(iConfig.getParameter<InputTag>("PFCandidates"));
-
-  tokenVertices_
-    = consumes<VertexCollection>(iConfig.getParameter<InputTag>("Vertices"));
+  tokenVertices_ = consumes<VertexCollection>(iConfig.getParameter<InputTag>("Vertices"));
 
   enable_ = iConfig.getParameter<bool>("Enable");
 
-  verbose_ =
-    iConfig.getUntrackedParameter<bool>("verbose",false);
+  verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
 
-
-  if ( iConfig.exists("checkClosestZVertex") ) {
+  if (iConfig.exists("checkClosestZVertex")) {
     checkClosestZVertex_ = iConfig.getParameter<bool>("checkClosestZVertex");
   } else {
     checkClosestZVertex_ = false;
@@ -42,44 +35,33 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
   pileUpAlgo_.setCheckClosestZVertex(checkClosestZVertex_);
 
   //produces<reco::PFCandidateCollection>();
-  produces< PFCollection > ();
+  produces<PFCollection>();
   // produces< PFCollectionByValue > ();
 }
 
+PFPileUp::~PFPileUp() {}
 
-
-PFPileUp::~PFPileUp() { }
-
-
-
-void PFPileUp::produce(Event& iEvent,
-			  const EventSetup& iSetup) {
-
-//   LogDebug("PFPileUp")<<"START event: "<<iEvent.id().event()
-// 			 <<" in run "<<iEvent.id().run()<<endl;
-
+void PFPileUp::produce(Event& iEvent, const EventSetup& iSetup) {
+  //   LogDebug("PFPileUp")<<"START event: "<<iEvent.id().event()
+  // 			 <<" in run "<<iEvent.id().run()<<endl;
 
   // get PFCandidates
 
-  unique_ptr< PFCollection >
-    pOutput( new PFCollection );
+  unique_ptr<PFCollection> pOutput(new PFCollection);
 
-  unique_ptr< PFCollectionByValue >
-    pOutputByValue ( new PFCollectionByValue );
+  unique_ptr<PFCollectionByValue> pOutputByValue(new PFCollectionByValue);
 
-  if(enable_) {
-
-
+  if (enable_) {
     // get vertices
     Handle<VertexCollection> vertices;
-    iEvent.getByToken( tokenVertices_, vertices);
+    iEvent.getByToken(tokenVertices_, vertices);
 
     // get PF Candidates
     Handle<PFCollection> pfCandidates;
-    PFCollection const * pfCandidatesRef = nullptr;
+    PFCollection const* pfCandidatesRef = nullptr;
     PFCollection usedIfNoFwdPtrs;
-    bool getFromFwdPtr = iEvent.getByToken( tokenPFCandidates_, pfCandidates);
-    if ( getFromFwdPtr ) {
+    bool getFromFwdPtr = iEvent.getByToken(tokenPFCandidates_, pfCandidates);
+    if (getFromFwdPtr) {
       pfCandidatesRef = pfCandidates.product();
     }
     // Maintain backwards-compatibility.
@@ -89,26 +71,31 @@ void PFPileUp::produce(Event& iEvent,
     // then we can pass it to the PFPileupAlgo.
     else {
       Handle<PFView> pfView;
-      bool getFromView = iEvent.getByToken( tokenPFCandidatesView_, pfView );
-      if ( ! getFromView ) {
-	throw cms::Exception("PFPileUp is misconfigured. This needs to be either vector<FwdPtr<PFCandidate> >, or View<PFCandidate>");
+      bool getFromView = iEvent.getByToken(tokenPFCandidatesView_, pfView);
+      if (!getFromView) {
+        throw cms::Exception(
+            "PFPileUp is misconfigured. This needs to be either vector<FwdPtr<PFCandidate> >, or View<PFCandidate>");
       }
-      for ( edm::View<reco::PFCandidate>::const_iterator viewBegin = pfView->begin(),
-	      viewEnd = pfView->end(), iview = viewBegin;
-	    iview != viewEnd; ++iview ) {
-	usedIfNoFwdPtrs.push_back( edm::FwdPtr<reco::PFCandidate>( pfView->ptrAt(iview-viewBegin), pfView->ptrAt(iview-viewBegin)  ) );
+      for (edm::View<reco::PFCandidate>::const_iterator viewBegin = pfView->begin(),
+                                                        viewEnd = pfView->end(),
+                                                        iview = viewBegin;
+           iview != viewEnd;
+           ++iview) {
+        usedIfNoFwdPtrs.push_back(
+            edm::FwdPtr<reco::PFCandidate>(pfView->ptrAt(iview - viewBegin), pfView->ptrAt(iview - viewBegin)));
       }
       pfCandidatesRef = &usedIfNoFwdPtrs;
     }
 
-    if ( pfCandidatesRef == nullptr ) {
-      throw cms::Exception("Something went dreadfully wrong with PFPileUp. pfCandidatesRef should never be zero, so this is a logic error.");
+    if (pfCandidatesRef == nullptr) {
+      throw cms::Exception(
+          "Something went dreadfully wrong with PFPileUp. pfCandidatesRef should never be zero, so this is a logic "
+          "error.");
     }
 
-
-
-    pileUpAlgo_.process(*pfCandidatesRef,*vertices);
-    pOutput->insert(pOutput->end(),pileUpAlgo_.getPFCandidatesFromPU().begin(),pileUpAlgo_.getPFCandidatesFromPU().end());
+    pileUpAlgo_.process(*pfCandidatesRef, *vertices);
+    pOutput->insert(
+        pOutput->end(), pileUpAlgo_.getPFCandidatesFromPU().begin(), pileUpAlgo_.getPFCandidatesFromPU().end());
 
     // for ( PFCollection::const_iterator byValueBegin = pileUpAlgo_.getPFCandidatesFromPU().begin(),
     // 	    byValueEnd = pileUpAlgo_.getPFCandidatesFromPU().end(), ibyValue = byValueBegin;
@@ -116,9 +103,8 @@ void PFPileUp::produce(Event& iEvent,
     //   pOutputByValue->push_back( **ibyValue );
     // }
 
-  } // end if enabled
+  }  // end if enabled
   // outsize of the loop to fill the collection anyway even when disabled
   iEvent.put(std::move(pOutput));
   // iEvent.put(std::move(pOutputByValue));
 }
-

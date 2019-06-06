@@ -13,7 +13,11 @@
 #include "SimG4Core/DD4hepGeometry/interface/DD4hep_DDDWorld.h"
 #include "DDG4/Geant4Converter.h"
 #include "DD4hep/Detector.h"
+#include "DD4hep/Handle.h"
 #include "G4LogicalVolume.hh"
+#include "G4MTRunManagerKernel.hh"
+#include "G4ProductionCuts.hh"
+#include "G4RegionStore.hh"
 
 #include <iostream>
 #include <string>
@@ -31,6 +35,15 @@ namespace {
     v.remove_prefix(min(first+1, v.size()));
     return v;
   }
+
+  bool sortByName(const std::pair<G4LogicalVolume*, const DDSpecPar*>& p1,
+		  const std::pair<G4LogicalVolume*, const DDSpecPar*>& p2) {
+    bool result = false;
+    if (p1.first->GetName() > p2.first->GetName()) {
+      result = true;
+    }
+    return result;
+  }
 }
 
 class DD4hepTestDDDWorld : public one::EDAnalyzer<> {
@@ -44,39 +57,46 @@ public:
 private:
   void update();
   void initialize(const dd4hep::sim::Geant4GeometryMaps::VolumeMap&);
+  G4ProductionCuts* getProductionCuts(G4Region* region);
   
-  const ESInputTag m_tag;
-  const DDSpecParRegistry* m_specPars;
-  DDSpecParRefs m_specs;
-  vector<pair<G4LogicalVolume*, const DDSpecPar*>> m_vec;
-  string_view m_keywordRegion;
-  unique_ptr<DDDWorld> m_world;
+  const ESInputTag tag_;
+  const DDSpecParRegistry* specPars_;
+  G4MTRunManagerKernel* kernel_;
+  DDSpecParRefs specs_;
+  vector<pair<G4LogicalVolume*, const DDSpecPar*>> vec_;
+  string_view keywordRegion_;
+  unique_ptr<DDDWorld> world_;
+  int verbosity_;
+  bool protonCut_;
 };
 
 DD4hepTestDDDWorld::DD4hepTestDDDWorld(const ParameterSet& iConfig)
-  : m_tag(iConfig.getParameter<ESInputTag>("DDDetector"))
+  : tag_(iConfig.getParameter<ESInputTag>("DDDetector"))
 {
-  m_keywordRegion = "CMSCutsRegion";
+  keywordRegion_ = "CMSCutsRegion";
+  protonCut_ = iConfig.getUntrackedParameter<bool>("CutsOnProton", true);
+  verbosity_ = iConfig.getUntrackedParameter<int>("Verbosity", 1);
+  kernel_ = new G4MTRunManagerKernel();
 }
 
 void
 DD4hepTestDDDWorld::analyze(const Event&, const EventSetup& iEventSetup)
 {
-  LogVerbatim("Geometry") << "\nDD4hepTestDDDWorld::analyze: " << m_tag;
+  LogVerbatim("Geometry") << "\nDD4hepTestDDDWorld::analyze: " << tag_;
 
   const DDVectorRegistryRcd& regRecord = iEventSetup.get<DDVectorRegistryRcd>();
   ESTransientHandle<DDVectorRegistry> reg;
-  regRecord.get(m_tag, reg);
+  regRecord.get(tag_, reg);
 
   const GeometryFileRcd& ddRecord = iEventSetup.get<GeometryFileRcd>();
   ESTransientHandle<DDDetector> ddd;
-  ddRecord.get(m_tag, ddd);
+  ddRecord.get(tag_, ddd);
 
   const DDSpecParRegistryRcd& specParRecord = iEventSetup.get<DDSpecParRegistryRcd>();
   ESTransientHandle<DDSpecParRegistry> registry;
-  specParRecord.get(m_tag, registry);
-  m_specPars = registry.product();
-    
+  specParRecord.get(tag_, registry);
+  specPars_ = registry.product();
+
   const dd4hep::Detector& detector = *ddd->description();
   dd4hep::sim::Geant4Converter g4Geo = dd4hep::sim::Geant4Converter(detector);
   g4Geo.debugMaterials = true;
@@ -85,21 +105,20 @@ DD4hepTestDDDWorld::analyze(const Event&, const EventSetup& iEventSetup)
   g4Geo.debugVolumes = true;
   g4Geo.debugPlacements = true;
   g4Geo.create(detector.world());
-  
+    
   dd4hep::sim::Geant4GeometryMaps::VolumeMap lvMap;
-  m_world.reset(new DDDWorld(ddd.product(), lvMap));
+  world_.reset(new DDDWorld(ddd.product(), lvMap));
   initialize(lvMap);
   update();
   LogVerbatim("Geometry") << "Done.";
 }
 
 void DD4hepTestDDDWorld::initialize(const dd4hep::sim::Geant4GeometryMaps::VolumeMap& vmap) {
-  // FIXME: when PR#26890 is in IBs
-  m_specPars->filter(m_specs, m_keywordRegion, "");
+  specPars_->filter(specs_, keywordRegion_);
 
   LogVerbatim("Geometry").log([&](auto& log) {
     for(auto const& it : vmap) {
-      for(auto const& fit : m_specs) {
+      for(auto const& fit : specs_) {
         for(auto const& sit : fit->spars) {
 	  log << sit.first << " =  " << sit.second[0] << "\n";
 	}
@@ -107,7 +126,7 @@ void DD4hepTestDDDWorld::initialize(const dd4hep::sim::Geant4GeometryMaps::Volum
 	  log << cms::dd::realTopName(pit) << "\n";
 	  log << "   compare equal to " << noNamespace(it.first.name()) << " ... ";
 	  if(cms::dd::compareEqual(noNamespace(it.first.name()), cms::dd::realTopName(pit))) {
-	    m_vec.emplace_back(std::make_pair<G4LogicalVolume*, const cms::DDSpecPar*>(&*it.second, &*fit));
+	    vec_.emplace_back(std::make_pair<G4LogicalVolume*, const cms::DDSpecPar*>(&*it.second, &*fit));
 	    log << "   are equal!\n";
 	  } else
 	    log << "   nope.\n";	
@@ -115,12 +134,24 @@ void DD4hepTestDDDWorld::initialize(const dd4hep::sim::Geant4GeometryMaps::Volum
       }
     }
   });
+  
+  // sort all root volumes - to get the same sequence at every run of the application.
+  sort(begin(vec_), end(vec_), &sortByName);
+  
+  // Now generate all the regions
+  for(auto const& it : vec_) {
+    auto regName = it.second->strValue(keywordRegion_.data());
+    G4Region* region = G4RegionStore::GetInstance()->FindOrCreateRegion({regName.data(), regName.size()});
+    region->AddRootLogicalVolume(it.first);
+    LogVerbatim("Geometry") << it.first->GetName() << ": " << it.second->strValue(keywordRegion_.data());
+    LogVerbatim("Geometry") << " MakeRegions: added " << it.first->GetName() << " to region " << region->GetName();
+  }
 }
 
 void DD4hepTestDDDWorld::update() {
   LogVerbatim("Geometry").log([&](auto& log) {
-    log << "DD4hepTestDDDWorld::update()";
-    for(const auto& t: m_vec) {
+    log << "DD4hepTestDDDWorld::update()\n";
+    for(const auto& t: vec_) {
       log << t.first->GetName() << ":\n";
       for(const auto& kl : t.second->spars) {
         log << kl.first << " = "; 
@@ -132,15 +163,54 @@ void DD4hepTestDDDWorld::update() {
     }
     log << "DD4hepTestDDDWorld::update() done!\n";
   });
+  // Loop over all DDLP and provide the cuts for each region
+  for(auto const& it : vec_) {
+    auto regName = it.second->strValue(keywordRegion_.data());
+    G4Region* region = G4RegionStore::GetInstance()->FindOrCreateRegion({regName.data(), regName.size()});
+
+    //
+    // search for production cuts
+    // you must have four of them: e+ e- gamma proton
+    //
+    auto gammacutStr = it.second->strValue("ProdCutsForGamma");
+    double gammacut = dd4hep::_toDouble({gammacutStr.data(), gammacutStr.size()});
+    
+    auto electroncutStr = it.second->strValue("ProdCutsForElectrons");
+    double electroncut = dd4hep::_toDouble({electroncutStr.data(), electroncutStr.size()});
+    
+    auto positroncutStr = it.second->strValue("ProdCutsForPositrons");
+    double positroncut = dd4hep::_toDouble({positroncutStr.data(), positroncutStr.size()});
+    double protoncut = 0.0;
+
+    //
+    // For the moment I assume all of the three are set
+    //
+    G4ProductionCuts* prodCuts = getProductionCuts(region);
+    prodCuts->SetProductionCut(gammacut, idxG4GammaCut);
+    prodCuts->SetProductionCut(electroncut, idxG4ElectronCut);
+    prodCuts->SetProductionCut(positroncut, idxG4PositronCut);
+
+    // For recoil use the same cut as for e-
+    if (protonCut_) {
+      protoncut = electroncut;
+    }
+    prodCuts->SetProductionCut(protoncut, idxG4ProtonCut);
+    if (verbosity_ > 0) {
+      LogVerbatim("Geometry") << "DDG4ProductionCuts : Setting cuts for " << regName << "\n    Electrons: "
+			      << electroncutStr << " (" << electroncut << ")\n    Positrons: " << positroncutStr
+			      << " (" << positroncut << ")\n    Gamma    : "
+			      << gammacutStr << " (" << gammacut << ")\n";
+    }
+  }
+}
+
+G4ProductionCuts* DD4hepTestDDDWorld::getProductionCuts(G4Region* region) {
+  G4ProductionCuts* prodCuts = region->GetProductionCuts();
+  if (!prodCuts) {
+    prodCuts = new G4ProductionCuts();
+    region->SetProductionCuts(prodCuts);
+  }
+  return prodCuts;
 }
 
 DEFINE_FWK_MODULE(DD4hepTestDDDWorld);
-
-
-
-
-
-
-
-
-  

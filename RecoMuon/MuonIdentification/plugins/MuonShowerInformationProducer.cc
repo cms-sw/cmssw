@@ -18,19 +18,19 @@
 
 class MuonShowerInformationProducer : public edm::stream::EDProducer<> {
 public:
-  MuonShowerInformationProducer(const edm::ParameterSet& iConfig) :
-    inputMuonCollection_(iConfig.getParameter<edm::InputTag>("muonCollection")),
-    inputTrackCollection_(iConfig.getParameter<edm::InputTag>("trackCollection"))
-  {
+  MuonShowerInformationProducer(const edm::ParameterSet& iConfig)
+      : inputMuonCollection_(iConfig.getParameter<edm::InputTag>("muonCollection")),
+        inputTrackCollection_(iConfig.getParameter<edm::InputTag>("trackCollection")) {
     edm::ConsumesCollector iC = consumesCollector();
-    showerFiller_ =  new MuonShowerInformationFiller(iConfig.getParameter<edm::ParameterSet>("ShowerInformationFillerParameters"),iC);
+    showerFiller_ = new MuonShowerInformationFiller(
+        iConfig.getParameter<edm::ParameterSet>("ShowerInformationFillerParameters"), iC);
 
     muonToken_ = consumes<reco::MuonCollection>(inputMuonCollection_);
- 
-    produces<edm::ValueMap<reco::MuonShower> >().setBranchAlias("muonShowerInformation");
+
+    produces<edm::ValueMap<reco::MuonShower>>().setBranchAlias("muonShowerInformation");
   }
-   ~MuonShowerInformationProducer() override {
-    if( showerFiller_)
+  ~MuonShowerInformationProducer() override {
+    if (showerFiller_)
       delete showerFiller_;
   }
 
@@ -40,27 +40,21 @@ private:
   edm::InputTag inputTrackCollection_;
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
 
-
-
-  MuonShowerInformationFiller *showerFiller_;
+  MuonShowerInformationFiller* showerFiller_;
 };
 
-void
-MuonShowerInformationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void MuonShowerInformationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<reco::MuonCollection> muons;
   iEvent.getByToken(muonToken_, muons);
 
   // reserve some space for output
   std::vector<reco::MuonShower> showerInfoValues;
   showerInfoValues.reserve(muons->size());
-  
-  for(reco::MuonCollection::const_iterator muon = muons->begin(); 
-      muon != muons->end(); ++muon)
-    {
-     // if (!muon->isGlobalMuon() && !muon->isStandAloneMuon()) continue;
-      showerInfoValues.push_back(showerFiller_->fillShowerInformation(*muon,iEvent,iSetup));
-    }
+
+  for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
+    // if (!muon->isGlobalMuon() && !muon->isStandAloneMuon()) continue;
+    showerInfoValues.push_back(showerFiller_->fillShowerInformation(*muon, iEvent, iSetup));
+  }
 
   // create and fill value map
   auto outC = std::make_unique<edm::ValueMap<reco::MuonShower>>();

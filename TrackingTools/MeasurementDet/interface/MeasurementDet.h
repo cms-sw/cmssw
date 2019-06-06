@@ -18,30 +18,36 @@ class MeasurementTrackerEvent;
 class MeasurementDet {
 public:
   typedef tracking::TempMeasurements TempMeasurements;
-  typedef TrackingRecHit::ConstRecHitContainer        RecHitContainer;
+  typedef TrackingRecHit::ConstRecHitContainer RecHitContainer;
 
-  using SimpleHitContainer=std::vector<BaseTrackerRecHit *>;
+  using SimpleHitContainer = std::vector<BaseTrackerRecHit*>;
 
-
-  MeasurementDet( const GeomDet* gdet) : 
-    theGeomDet(gdet), 
-    theMissingHit(std::make_shared<InvalidTrackingRecHit>(fastGeomDet(),TrackingRecHit::missing)),
-    theInactiveHit(std::make_shared<InvalidTrackingRecHit>(fastGeomDet(),TrackingRecHit::inactive)){}
+  MeasurementDet(const GeomDet* gdet)
+      : theGeomDet(gdet),
+        theMissingHit(std::make_shared<InvalidTrackingRecHit>(fastGeomDet(), TrackingRecHit::missing)),
+        theInactiveHit(std::make_shared<InvalidTrackingRecHit>(fastGeomDet(), TrackingRecHit::inactive)) {}
 
   virtual ~MeasurementDet() = default;
-  virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent &) const = 0;
+  virtual RecHitContainer recHits(const TrajectoryStateOnSurface&, const MeasurementTrackerEvent&) const = 0;
 
   // use a MeasurementEstimator to filter the hits (same algo as below..)
-  // default as above 
-  virtual bool recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data,
-			RecHitContainer & result, std::vector<float> &) const {
+  // default as above
+  virtual bool recHits(const TrajectoryStateOnSurface& stateOnThisDet,
+                       const MeasurementEstimator&,
+                       const MeasurementTrackerEvent& data,
+                       RecHitContainer& result,
+                       std::vector<float>&) const {
     result = recHits(stateOnThisDet, data);
     return !result.empty();
   }
 
   // default for non-tracker dets...
-  virtual bool recHits(SimpleHitContainer & result,  
-		       const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data) const { return false;}
+  virtual bool recHits(SimpleHitContainer& result,
+                       const TrajectoryStateOnSurface& stateOnThisDet,
+                       const MeasurementEstimator&,
+                       const MeasurementTrackerEvent& data) const {
+    return false;
+  }
 
   /** obsolete version in case the TrajectoryState on the surface of the
    *  Det is already available. The first TrajectoryStateOnSurface is on the surface of this 
@@ -49,50 +55,46 @@ public:
    * The stateOnThisDet should the result of <BR>
    *  prop.propagate( startingState, this->surface())
    */
-  std::vector<TrajectoryMeasurement> 
-  fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet, 
-		    const TrajectoryStateOnSurface&, 
-		    const Propagator&, 
-		    const MeasurementEstimator& est,
-                    const MeasurementTrackerEvent & data) const {
-
+  std::vector<TrajectoryMeasurement> fastMeasurements(const TrajectoryStateOnSurface& stateOnThisDet,
+                                                      const TrajectoryStateOnSurface&,
+                                                      const Propagator&,
+                                                      const MeasurementEstimator& est,
+                                                      const MeasurementTrackerEvent& data) const {
     TempMeasurements tmps;
     measurements(stateOnThisDet, est, data, tmps);
     std::vector<TrajectoryMeasurement> result;
     result.reserve(tmps.size());
-    int index[tmps.size()];  tmps.sortIndex(index);
-    for (std::size_t i=0; i!=tmps.size(); ++i) {
-       auto j=index[i];
-       result.emplace_back(stateOnThisDet,std::move(tmps.hits[j]),tmps.distances[j]);
+    int index[tmps.size()];
+    tmps.sortIndex(index);
+    for (std::size_t i = 0; i != tmps.size(); ++i) {
+      auto j = index[i];
+      result.emplace_back(stateOnThisDet, std::move(tmps.hits[j]), tmps.distances[j]);
     }
     return result;
   }
 
   // return false if missing ( if inactive is true and one hit)
-  virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
-			     const MeasurementEstimator& est,
-                             const MeasurementTrackerEvent & data,
-			     TempMeasurements & result) const =0;
+  virtual bool measurements(const TrajectoryStateOnSurface& stateOnThisDet,
+                            const MeasurementEstimator& est,
+                            const MeasurementTrackerEvent& data,
+                            TempMeasurements& result) const = 0;
 
+  const GeomDet& fastGeomDet() const { return *theGeomDet; }
+  virtual const GeomDet& geomDet() const { return *theGeomDet; }
 
-  const GeomDet& fastGeomDet() const { return *theGeomDet;}
-  virtual const GeomDet& geomDet() const { return *theGeomDet;}
+  const Surface& surface() const { return geomDet().surface(); }
 
-  const Surface& surface() const {return  geomDet().surface();}
+  const Surface::PositionType& position() const { return geomDet().position(); }
 
-  const Surface::PositionType& position() const {return geomDet().position();}
+  virtual bool isActive(const MeasurementTrackerEvent& data) const = 0;
+  virtual bool hasBadComponents(const TrajectoryStateOnSurface& tsos, const MeasurementTrackerEvent& data) const = 0;
 
-  virtual bool isActive(const MeasurementTrackerEvent & data) const=0;
-  virtual bool hasBadComponents(const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data) const=0;
-
- private:
-
+private:
   const GeomDet* theGeomDet;
+
 protected:
   TrackingRecHit::ConstRecHitPointer theMissingHit;
   TrackingRecHit::ConstRecHitPointer theInactiveHit;
-
 };
-
 
 #endif

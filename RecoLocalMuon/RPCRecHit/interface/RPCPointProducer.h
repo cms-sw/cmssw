@@ -13,32 +13,31 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "RecoLocalMuon/RPCRecHit/interface/DTSegtoRPC.h"
 #include "RecoLocalMuon/RPCRecHit/interface/CSCSegtoRPC.h"
-#include "RecoLocalMuon/RPCRecHit/interface/TracktoRPC.h" 
+#include "RecoLocalMuon/RPCRecHit/interface/TracktoRPC.h"
 
 //
 // class decleration
 //
 
 class RPCPointProducer : public edm::global::EDProducer<> {
-   public:
-      explicit RPCPointProducer(const edm::ParameterSet&);
+public:
+  explicit RPCPointProducer(const edm::ParameterSet&);
 
-   private:
-      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-      const edm::EDGetTokenT<CSCSegmentCollection> cscSegments;
-      const edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegments;
-      const edm::EDGetTokenT<reco::TrackCollection> tracks;
-      const edm::InputTag tracks_;
+  const edm::EDGetTokenT<CSCSegmentCollection> cscSegments;
+  const edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegments;
+  const edm::EDGetTokenT<reco::TrackCollection> tracks;
+  const edm::InputTag tracks_;
 
-      const bool incldt;
-      const bool inclcsc;
-      const bool incltrack; 
-      const bool debug;
-      const double MinCosAng;
-      const double MaxD;
-      const double MaxDrb4;
-      const double ExtrapolatedRegion;
-      const edm::ParameterSet trackTransformerParam;
+  const bool incldt;
+  const bool inclcsc;
+  const bool incltrack;
+  const bool debug;
+  const double MinCosAng;
+  const double MaxD;
+  const double MaxDrb4;
+  const double ExtrapolatedRegion;
+  const edm::ParameterSet trackTransformerParam;
 };
-

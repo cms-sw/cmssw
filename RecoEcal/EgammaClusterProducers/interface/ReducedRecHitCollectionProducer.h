@@ -5,7 +5,7 @@
 //
 // Package:    ReducedRecHitCollectionProducer
 // Class:      ReducedRecHitCollectionProducer
-// 
+//
 /**\class ReducedRecHitCollectionProducer ReducedRecHitCollectionProducer.cc Calibration/EcalAlCaRecoProducers/src/ReducedRecHitCollectionProducer.cc
 
 Original author: Paolo Meridiani PH/CMG
@@ -13,8 +13,6 @@ Original author: Paolo Meridiani PH/CMG
 Implementation:
  <Notes on implementation>
 */
-
-
 
 // system include files
 #include <memory>
@@ -33,19 +31,18 @@ Implementation:
 class CaloTopology;
 
 class ReducedRecHitCollectionProducer : public edm::stream::EDProducer<> {
-   public:
-      //! ctor
-      explicit ReducedRecHitCollectionProducer(const edm::ParameterSet&);
-      ~ReducedRecHitCollectionProducer() override;
-      //! producer
-      void produce(edm::Event &, const edm::EventSetup&) override;
+public:
+  //! ctor
+  explicit ReducedRecHitCollectionProducer(const edm::ParameterSet &);
+  ~ReducedRecHitCollectionProducer() override;
+  //! producer
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
-   private:
-      // ----------member data ---------------------------
-      edm::EDGetTokenT<EcalRecHitCollection>     recHitsToken_;
-      std::vector<edm::EDGetTokenT<DetIdCollection> > interestingDetIdCollections_;
-      std::string reducedHitsCollection_;
-  
+private:
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<EcalRecHitCollection> recHitsToken_;
+  std::vector<edm::EDGetTokenT<DetIdCollection> > interestingDetIdCollections_;
+  std::string reducedHitsCollection_;
 };
 
 #endif

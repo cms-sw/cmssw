@@ -12,10 +12,10 @@
 namespace reco {
   // PPFTau3ProngSummary
   typedef edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTau3ProngSummaryRef> > PFTau3ProngSumAssociation;
-  typedef PFTau3ProngSumAssociation::value_type PFTau3ProngSumAssociationVT;  
-  typedef edm::Ref<PFTau3ProngSumAssociation> PFTau3ProngSumAssociationRef;  
-  typedef edm::RefProd<PFTau3ProngSumAssociation> PFTau3ProngSumAssociationRefProd;  
-  typedef edm::RefVector<PFTau3ProngSumAssociation> PFTau3ProngSumAssociationRefVector; 
-}
+  typedef PFTau3ProngSumAssociation::value_type PFTau3ProngSumAssociationVT;
+  typedef edm::Ref<PFTau3ProngSumAssociation> PFTau3ProngSumAssociationRef;
+  typedef edm::RefProd<PFTau3ProngSumAssociation> PFTau3ProngSumAssociationRefProd;
+  typedef edm::RefVector<PFTau3ProngSumAssociation> PFTau3ProngSumAssociationRefVector;
+}  // namespace reco
 
 #endif

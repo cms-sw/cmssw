@@ -2,7 +2,7 @@
 //
 // Package:    HcalLaserHFFilter2012
 // Class:      HcalLaserHFFilter2012
-// 
+//
 /**\class HcalLaserHFFilter2012 HcalLaserHFFilter2012.cc UserCode/HcalLaserHFFilter2012/src/HcalLaserHFFilter2012.cc
 
  Description: [one line class summary]
@@ -11,11 +11,10 @@
      [Notes on implementation]
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Fri Oct 19 13:15:44 EDT 2012
 //
 //
-
 
 // system include files
 #include <memory>
@@ -44,7 +43,6 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 
-
 //
 // class declaration
 //
@@ -53,18 +51,19 @@ class HcalLaserHFFilter2012 : public edm::EDFilter {
 public:
   explicit HcalLaserHFFilter2012(const edm::ParameterSet&);
   ~HcalLaserHFFilter2012() override;
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+
 private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
-  
+
   // ----------member data ---------------------------
   bool verbose_;  // if set to true, then the run:LS:event for any event failing the cut will be printed out
-  std::string prefix_;  // prefix will be printed before any event if verbose mode is true, in order to make searching for events easier
-  int minCalibChannelsHFLaser_; // set minimum number of HF Calib events that causes an event to be considered a bad (i.e., HF laser) event
-  edm::InputTag     digiLabel_;
+  std::string
+      prefix_;  // prefix will be printed before any event if verbose mode is true, in order to make searching for events easier
+  int minCalibChannelsHFLaser_;  // set minimum number of HF Calib events that causes an event to be considered a bad (i.e., HF laser) event
+  edm::InputTag digiLabel_;
   edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
 
   bool WriteBadToFile_;
@@ -83,89 +82,81 @@ private:
 //
 // constructors and destructor
 //
-HcalLaserHFFilter2012::HcalLaserHFFilter2012(const edm::ParameterSet& ps)
-{
-   //now do what ever initialization is needed
-  verbose_ = ps.getUntrackedParameter<bool>("verbose",false);
-  prefix_  = ps.getUntrackedParameter<std::string>("prefix","");
-  minCalibChannelsHFLaser_=ps.getUntrackedParameter<int>("minCalibChannelsHFLaser",10);
+HcalLaserHFFilter2012::HcalLaserHFFilter2012(const edm::ParameterSet& ps) {
+  //now do what ever initialization is needed
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  prefix_ = ps.getUntrackedParameter<std::string>("prefix", "");
+  minCalibChannelsHFLaser_ = ps.getUntrackedParameter<int>("minCalibChannelsHFLaser", 10);
   edm::InputTag digi_default("hcalDigis");
-  digiLabel_     = ps.getUntrackedParameter<edm::InputTag>("digiLabel",digi_default);
+  digiLabel_ = ps.getUntrackedParameter<edm::InputTag>("digiLabel", digi_default);
   tok_calib_ = consumes<HcalCalibDigiCollection>(digiLabel_);
-  WriteBadToFile_=ps.getUntrackedParameter<bool>("WriteBadToFile",false);
+  WriteBadToFile_ = ps.getUntrackedParameter<bool>("WriteBadToFile", false);
   if (WriteBadToFile_)
     outfile_.open("badHcalLaserList_hffilter.txt");
-  forceFilterTrue_=ps.getUntrackedParameter<bool>("forceFilterTrue",false);
+  forceFilterTrue_ = ps.getUntrackedParameter<bool>("forceFilterTrue", false);
 
-} // HcalLaserHFFilter2012::HcalLaserHFFilter2012  constructor
+}  // HcalLaserHFFilter2012::HcalLaserHFFilter2012  constructor
 
-
-HcalLaserHFFilter2012::~HcalLaserHFFilter2012()
-{
- 
-   // do anything here that needs to be done at destruction time
-   // (e.g. close files, deallocate resources etc.)
-
+HcalLaserHFFilter2012::~HcalLaserHFFilter2012() {
+  // do anything here that needs to be done at destruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool
-HcalLaserHFFilter2012::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+bool HcalLaserHFFilter2012::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Step 1:: try to get calib digi collection.
   // Return true if collection not found?  Or false?  What should default behavior be?
   edm::Handle<HcalCalibDigiCollection> calib_digi;
-   if (!(iEvent.getByToken(tok_calib_,calib_digi)))
-    {
-      edm::LogWarning("HcalLaserHFFilter2012")<< digiLabel_<<" calib_digi not available";
-      return true;
-    }
-   
-   if (!(calib_digi.isValid()))
-     {
-       edm::LogWarning("HcalLaserHFFilter2012")<< digiLabel_<<" calib_digi is not valid";
-       return true;
-    }
+  if (!(iEvent.getByToken(tok_calib_, calib_digi))) {
+    edm::LogWarning("HcalLaserHFFilter2012") << digiLabel_ << " calib_digi not available";
+    return true;
+  }
+
+  if (!(calib_digi.isValid())) {
+    edm::LogWarning("HcalLaserHFFilter2012") << digiLabel_ << " calib_digi is not valid";
+    return true;
+  }
 
   // Step 2:  Count HF digi calib channels
-  int ncalibHF=0; // this will track number of HF digi channels
+  int ncalibHF = 0;  // this will track number of HF digi channels
 
-  
-  for (HcalCalibDigiCollection::const_iterator Calibiter = calib_digi->begin();
-       Calibiter != calib_digi->end(); ++ Calibiter)
-     {
-       const HcalCalibDataFrame digi = (const HcalCalibDataFrame)(*Calibiter);
-       if (digi.zsMarkAndPass()) continue; // skip digis labeled as "mark and pass" in NZS events
-       HcalCalibDetId myid=(HcalCalibDetId)digi.id();
-       if (myid.hcalSubdet()!=HcalForward) continue;
-       ++ncalibHF;
-       if (ncalibHF>=minCalibChannelsHFLaser_)
-	 {
-	   if (verbose_) std::cout <<prefix_<<iEvent.id().run()<<":"<<iEvent.luminosityBlock()<<":"<<iEvent.id().event()<<std::endl;
-	   if (WriteBadToFile_)
-	     outfile_<<iEvent.id().run()<<":"<<iEvent.luminosityBlock()<<":"<<iEvent.id().event()<<std::endl;	  
-	   if (forceFilterTrue_) return true; // if special input boolean set, always return true, regardless of filter decision
-	   else return false;
-	 }
-     }
+  for (HcalCalibDigiCollection::const_iterator Calibiter = calib_digi->begin(); Calibiter != calib_digi->end();
+       ++Calibiter) {
+    const HcalCalibDataFrame digi = (const HcalCalibDataFrame)(*Calibiter);
+    if (digi.zsMarkAndPass())
+      continue;  // skip digis labeled as "mark and pass" in NZS events
+    HcalCalibDetId myid = (HcalCalibDetId)digi.id();
+    if (myid.hcalSubdet() != HcalForward)
+      continue;
+    ++ncalibHF;
+    if (ncalibHF >= minCalibChannelsHFLaser_) {
+      if (verbose_)
+        std::cout << prefix_ << iEvent.id().run() << ":" << iEvent.luminosityBlock() << ":" << iEvent.id().event()
+                  << std::endl;
+      if (WriteBadToFile_)
+        outfile_ << iEvent.id().run() << ":" << iEvent.luminosityBlock() << ":" << iEvent.id().event() << std::endl;
+      if (forceFilterTrue_)
+        return true;  // if special input boolean set, always return true, regardless of filter decision
+      else
+        return false;
+    }
+  }
 
-   return true;
+  return true;
 }  // HcalLaserHFFilter2012::filter
- 
+
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-HcalLaserHFFilter2012::endJob() {
-  if (WriteBadToFile_) outfile_.close();
+void HcalLaserHFFilter2012::endJob() {
+  if (WriteBadToFile_)
+    outfile_.close();
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-HcalLaserHFFilter2012::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HcalLaserHFFilter2012::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

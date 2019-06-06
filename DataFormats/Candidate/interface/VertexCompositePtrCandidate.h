@@ -19,37 +19,50 @@ namespace reco {
     /// covariance error matrix (3x3)
     typedef math::Error<dimension4D>::type CovarianceMatrix4D;
     /// matix size
-    enum { size4D = dimension4D * (dimension4D + 1)/2 };
+    enum { size4D = dimension4D * (dimension4D + 1) / 2 };
 
-    VertexCompositePtrCandidate() : CompositePtrCandidate(), chi2_(0), ndof_(0), time_(0) { }
+    VertexCompositePtrCandidate() : CompositePtrCandidate(), chi2_(0), ndof_(0), time_(0) {}
     /// constructor from values
-    VertexCompositePtrCandidate(Charge q, const LorentzVector & p4, const Point & vtx,
-				int pdgId = 0, int status = 0, bool integerCharge = true) :
-      CompositePtrCandidate(q, p4, vtx, pdgId, status, integerCharge),
-	chi2_(0), ndof_(0), time_(0) { }
-    VertexCompositePtrCandidate(Charge q, const LorentzVector & p4, const Point & vtx,
-				double time, int pdgId = 0, int status = 0, 
-				bool integerCharge = true) :
-      CompositePtrCandidate(q, p4, vtx, pdgId, status, integerCharge),
-	chi2_(0), ndof_(0), time_(time) { }
+    VertexCompositePtrCandidate(
+        Charge q, const LorentzVector &p4, const Point &vtx, int pdgId = 0, int status = 0, bool integerCharge = true)
+        : CompositePtrCandidate(q, p4, vtx, pdgId, status, integerCharge), chi2_(0), ndof_(0), time_(0) {}
+    VertexCompositePtrCandidate(Charge q,
+                                const LorentzVector &p4,
+                                const Point &vtx,
+                                double time,
+                                int pdgId = 0,
+                                int status = 0,
+                                bool integerCharge = true)
+        : CompositePtrCandidate(q, p4, vtx, pdgId, status, integerCharge), chi2_(0), ndof_(0), time_(time) {}
     /// constructor from values
-    VertexCompositePtrCandidate(Charge q, const LorentzVector & p4, const Point & vtx,
-				const CovarianceMatrix & err, double chi2, double ndof,
-				int pdgId = 0, int status = 0, bool integerCharge = true);
-    VertexCompositePtrCandidate(Charge q, const LorentzVector & p4, const Point & vtx,
-				double time, const CovarianceMatrix4D & err, double chi2, 
-				double ndof, int pdgId = 0, int status = 0, 
-				bool integerCharge = true);
-     /// constructor from values
-    explicit VertexCompositePtrCandidate(const Candidate & p) :
-      CompositePtrCandidate(p), chi2_(0), ndof_(0), time_(0) { }
-     /// constructor from values
-    explicit VertexCompositePtrCandidate(const CompositePtrCandidate & p) :
-      CompositePtrCandidate(p), chi2_(0), ndof_(0), time_(0) { }
+    VertexCompositePtrCandidate(Charge q,
+                                const LorentzVector &p4,
+                                const Point &vtx,
+                                const CovarianceMatrix &err,
+                                double chi2,
+                                double ndof,
+                                int pdgId = 0,
+                                int status = 0,
+                                bool integerCharge = true);
+    VertexCompositePtrCandidate(Charge q,
+                                const LorentzVector &p4,
+                                const Point &vtx,
+                                double time,
+                                const CovarianceMatrix4D &err,
+                                double chi2,
+                                double ndof,
+                                int pdgId = 0,
+                                int status = 0,
+                                bool integerCharge = true);
+    /// constructor from values
+    explicit VertexCompositePtrCandidate(const Candidate &p) : CompositePtrCandidate(p), chi2_(0), ndof_(0), time_(0) {}
+    /// constructor from values
+    explicit VertexCompositePtrCandidate(const CompositePtrCandidate &p)
+        : CompositePtrCandidate(p), chi2_(0), ndof_(0), time_(0) {}
     /// destructor
     ~VertexCompositePtrCandidate() override;
     /// returns a clone of the candidate
-    VertexCompositePtrCandidate * clone() const override;
+    VertexCompositePtrCandidate *clone() const override;
 
     /// chi-squares
     double vertexChi2() const override { return chi2_; }
@@ -63,21 +76,24 @@ namespace reco {
     /// chi-squared divided by n.d.o.f.
     double vertexNormalizedChi2() const override { return chi2_ / ndof_; }
     /// (i, j)-th element of error matrix, i, j = 0, ... 3
-    double vertexCovariance(int i, int j) const override { 
-      return covariance_[idx(i, j)]; 
-    }
-    using reco::LeafCandidate::vertexCovariance; // avoid hiding the
+    double vertexCovariance(int i, int j) const override { return covariance_[idx(i, j)]; }
+    using reco::LeafCandidate::vertexCovariance;  // avoid hiding the
     /// return SMatrix 4D
-    CovarianceMatrix4D vertexCovariance4D() const { CovarianceMatrix4D m; fillVertexCovariance( m ); return m; }
+    CovarianceMatrix4D vertexCovariance4D() const {
+      CovarianceMatrix4D m;
+      fillVertexCovariance(m);
+      return m;
+    }
 
     /// fill SMatrix
-    void fillVertexCovariance(CovarianceMatrix & v) const override;
+    void fillVertexCovariance(CovarianceMatrix &v) const override;
     /// 4D version
-    void fillVertexCovariance( CovarianceMatrix4D & v ) const;
+    void fillVertexCovariance(CovarianceMatrix4D &v) const;
 
     /// set chi2 and ndof
     void setChi2AndNdof(double chi2, double ndof) {
-      chi2_ = chi2; ndof_ = ndof;
+      chi2_ = chi2;
+      ndof_ = ndof;
     }
     /// set covariance matrix
     void setCovariance(const CovarianceMatrix &m);
@@ -90,12 +106,20 @@ namespace reco {
     /// the following functions are implemented to have a more consistent interface with the one of reco::Vertex
     typedef math::Error<dimension>::type Error;
     typedef math::Error<dimension4D>::type Error4D;
-    const Point & position() const {return vertex();} 	
+    const Point &position() const { return vertex(); }
     double t() const { return time_; }
-    double tError() const { return std::sqrt( vertexCovariance(3,3) ); }
-    Error  error() const { Error m; fillVertexCovariance( m ); return m; }
+    double tError() const { return std::sqrt(vertexCovariance(3, 3)); }
+    Error error() const {
+      Error m;
+      fillVertexCovariance(m);
+      return m;
+    }
     /// return SMatrix 4D
-    Error4D error4D() const { Error4D m; fillVertexCovariance( m ); return m; }
+    Error4D error4D() const {
+      Error4D m;
+      fillVertexCovariance(m);
+      return m;
+    }
 
   private:
     /// chi-sqared
@@ -109,10 +133,10 @@ namespace reco {
     /// position index
     index idx(index i, index j) const {
       int a = (i <= j ? i : j), b = (i <= j ? j : i);
-      return b * (b + 1)/2 + a;
+      return b * (b + 1) / 2 + a;
     }
   };
 
-}
+}  // namespace reco
 
 #endif

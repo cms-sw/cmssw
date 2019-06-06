@@ -18,24 +18,19 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-class MuonIdTruthInfo
-{
- public:
+class MuonIdTruthInfo {
+public:
+  void registerConsumes(edm::ConsumesCollector& iC);
 
-   void registerConsumes(edm::ConsumesCollector& iC);
+  static void truthMatchMuon(const edm::Event& iEvent, const edm::EventSetup& iSetup, reco::Muon& aMuon);
 
+private:
+  static void checkSimHitForBestMatch(reco::MuonSegmentMatch& segmentMatch,
+                                      double& distance,
+                                      const PSimHit& hit,
+                                      const DetId& chamberId,
+                                      const edm::ESHandle<GlobalTrackingGeometry>& geometry);
 
-   static void truthMatchMuon( const edm::Event& iEvent,
-			       const edm::EventSetup& iSetup,
-			       reco::Muon& aMuon);
- private:
-   static void checkSimHitForBestMatch(reco::MuonSegmentMatch& segmentMatch,
-				       double& distance,
-				       const PSimHit& hit, 
-				       const DetId& chamberId,
-				       const edm::ESHandle<GlobalTrackingGeometry>& geometry);
-   
-   static double matchChi2(    const reco::Track& recoTrk,
-			       const SimTrack& simTrk);
+  static double matchChi2(const reco::Track& recoTrk, const SimTrack& simTrk);
 };
 #endif

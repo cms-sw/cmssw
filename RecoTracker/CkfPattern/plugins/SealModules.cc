@@ -5,7 +5,6 @@
 #include "CkfTrackCandidateMaker.h"
 #include "CkfTrajectoryMaker.h"
 
-
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Utilities/interface/typelookup.h"
 

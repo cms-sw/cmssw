@@ -3,13 +3,11 @@
 
 #include "DataFormats/Math/interface/Error.h"
 
-namespace reco
-{
+namespace reco {
 
-typedef math::Error<5>::type PerigeeCovarianceMatrix;
-PerigeeCovarianceMatrix &fillCovariance(PerigeeCovarianceMatrix &v, const float *data);
+  typedef math::Error<5>::type PerigeeCovarianceMatrix;
+  PerigeeCovarianceMatrix &fillCovariance(PerigeeCovarianceMatrix &v, const float *data);
 
-} //namespace reco
+}  //namespace reco
 
 #endif
-

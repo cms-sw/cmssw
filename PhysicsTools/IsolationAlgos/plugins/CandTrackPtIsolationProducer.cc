@@ -10,8 +10,9 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsolationProducerNew.h"
 #include "PhysicsTools/IsolationAlgos/interface/PtIsolationAlgo.h"
 
-typedef reco::modulesNew::IsolationProducer<reco::CandidateView, reco::TrackCollection,
-					    PtIsolationAlgo<reco::Candidate,reco::TrackCollection>
-                                            > CandTrackPtIsolationProducer;
+typedef reco::modulesNew::IsolationProducer<reco::CandidateView,
+                                            reco::TrackCollection,
+                                            PtIsolationAlgo<reco::Candidate, reco::TrackCollection> >
+    CandTrackPtIsolationProducer;
 
 DEFINE_FWK_MODULE(CandTrackPtIsolationProducer);

@@ -24,7 +24,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -32,42 +31,42 @@
 #include "Validation/EventGenerator/interface/WeightManager.h"
 
 class BasicHepMCHeavyIonValidation : public DQMEDAnalyzer {
-	public:
-		explicit BasicHepMCHeavyIonValidation(const edm::ParameterSet&);
-		~BasicHepMCHeavyIonValidation() override;
+public:
+  explicit BasicHepMCHeavyIonValidation(const edm::ParameterSet&);
+  ~BasicHepMCHeavyIonValidation() override;
 
-		void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-		void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
-	private:
-		WeightManager wmanager_;
-		edm::InputTag hepmcCollection_;
-		bool QWdebug_;
+private:
+  WeightManager wmanager_;
+  edm::InputTag hepmcCollection_;
+  bool QWdebug_;
 
-		/// PDT table
-		//edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
+  /// PDT table
+  //edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
 
-		MonitorElement* nEvt;
+  MonitorElement* nEvt;
 
-		// Additional information stored in HeavyIon structure
-		MonitorElement* Ncoll_hard;		// Number of hard scatterings
-		MonitorElement* Npart_proj;		// Number of projectile participants
-		MonitorElement* Npart_targ;		// Number of target participants
-		MonitorElement* Ncoll;			// Number of NN (nucleon-nucleon) collisions
-		MonitorElement* N_Nwounded_collisions;		// Number of N-Nwounded collisions
-		MonitorElement* Nwounded_N_collisions;		// Number of Nwounded-N collisons
-		MonitorElement* Nwounded_Nwounded_collisions;	// Number of Nwounded-Nwounded collisions
-		MonitorElement* spectator_neutrons;		// Number of spectator neutrons
-		MonitorElement* spectator_protons;		// Number of spectator protons
-		MonitorElement* impact_parameter;		// Impact Parameter(fm) of collision
-		MonitorElement* event_plane_angle;		// Azimuthal angle of event plane
-		MonitorElement* eccentricity;		// eccentricity of participating nucleons
-							// in the transverse plane 
-							// (as in phobos nucl-ex/0510031) 
-		MonitorElement* sigma_inel_NN;		// nucleon-nucleon inelastic 
-							// (including diffractive) cross-section
+  // Additional information stored in HeavyIon structure
+  MonitorElement* Ncoll_hard;                    // Number of hard scatterings
+  MonitorElement* Npart_proj;                    // Number of projectile participants
+  MonitorElement* Npart_targ;                    // Number of target participants
+  MonitorElement* Ncoll;                         // Number of NN (nucleon-nucleon) collisions
+  MonitorElement* N_Nwounded_collisions;         // Number of N-Nwounded collisions
+  MonitorElement* Nwounded_N_collisions;         // Number of Nwounded-N collisons
+  MonitorElement* Nwounded_Nwounded_collisions;  // Number of Nwounded-Nwounded collisions
+  MonitorElement* spectator_neutrons;            // Number of spectator neutrons
+  MonitorElement* spectator_protons;             // Number of spectator protons
+  MonitorElement* impact_parameter;              // Impact Parameter(fm) of collision
+  MonitorElement* event_plane_angle;             // Azimuthal angle of event plane
+  MonitorElement* eccentricity;                  // eccentricity of participating nucleons
+                                                 // in the transverse plane
+                                                 // (as in phobos nucl-ex/0510031)
+  MonitorElement* sigma_inel_NN;                 // nucleon-nucleon inelastic
+                                                 // (including diffractive) cross-section
 
-		edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
+  edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
 };
 
 #endif
