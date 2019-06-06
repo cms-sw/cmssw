@@ -215,7 +215,6 @@ private:
   int maxDepthHB_, maxDepthHE_, maxDepthHF_;
   int etaHE2HF_, etaHF2HE_;
   int maxEta_, maxPhiHE_;
-  static const int minMaxDepth_ = 4;
 
   unsigned int HBSize_;
   unsigned int HESize_;
