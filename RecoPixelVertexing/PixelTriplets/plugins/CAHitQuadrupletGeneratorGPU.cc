@@ -2,14 +2,17 @@
 // Author: Felice Pantaleo, CERN
 //
 
+#include <array>
+#include <cassert>
 #include <functional>
+#include <vector>
 
-#include "CommonTools/Utils/interface/DynArray.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
@@ -21,6 +24,33 @@ namespace {
   template <typename T>
   T sqr(T x) {
     return x * x;
+  }
+
+  CAHitQuadrupletGeneratorKernels::QualityCuts makeQualityCuts(edm::ParameterSet const& pset) {
+    auto coeff = pset.getParameter<std::vector<double>>("chi2Coeff");
+    if (coeff.size() != 4) {
+      throw edm::Exception(edm::errors::Configuration, "CAHitQuadrupletGeneratorGPU.trackQualityCuts.chi2Coeff must have 4 elements");
+    }
+    return CAHitQuadrupletGeneratorKernels::QualityCuts {
+      // polynomial coefficients for the pT-dependent chi2 cut
+      { (float) coeff[0], (float) coeff[1], (float) coeff[2], (float) coeff[3] },
+      // max pT used to determine the chi2 cut
+      (float) pset.getParameter<double>("chi2MaxPt"),
+      // chi2 scale factor: 30 for broken line fit, 45 for Riemann fit
+      (float) pset.getParameter<double>("chi2Scale"),
+      // regional cuts for triplets
+      {
+        (float) pset.getParameter<double>("tripletMaxTip"),
+        (float) pset.getParameter<double>("tripletMinPt"),
+        (float) pset.getParameter<double>("tripletMaxZip")
+      },
+      // regional cuts for quadruplets
+      {
+        (float) pset.getParameter<double>("quadrupletMaxTip"),
+        (float) pset.getParameter<double>("quadrupletMinPt"),
+        (float) pset.getParameter<double>("quadrupletMaxZip")
+      }
+    };
   }
 
 }  // namespace
@@ -43,7 +73,8 @@ CAHitQuadrupletGeneratorGPU::CAHitQuadrupletGeneratorGPU(const edm::ParameterSet
               cfg.getParameter<double>("CAThetaCutForward"),
               cfg.getParameter<double>("hardCurvCut"),
               cfg.getParameter<double>("dcaCutInnerTriplet"),
-              cfg.getParameter<double>("dcaCutOuterTriplet")),
+              cfg.getParameter<double>("dcaCutOuterTriplet"),
+              makeQualityCuts(cfg.getParameterSet("trackQualityCuts"))),
       fitter(cfg.getParameter<bool>("fit5as4")),
       caThetaCut(cfg.getParameter<double>("CAThetaCut")),
       caPhiCut(cfg.getParameter<double>("CAPhiCut")),
@@ -64,12 +95,27 @@ void CAHitQuadrupletGeneratorGPU::fillDescriptions(edm::ParameterSetDescription 
   desc.add<double>("dcaCutOuterTriplet", 0.25f)->setComment("Cut on origin radius when the outer hit is on BPix1");
   desc.add<bool>("earlyFishbone", false);
   desc.add<bool>("lateFishbone", true);
-  desc.add<bool>("idealConditions", true), desc.add<bool>("fillStatistics", false),
-      desc.add<unsigned int>("minHitsPerNtuplet", 4);
+  desc.add<bool>("idealConditions", true);
+  desc.add<bool>("fillStatistics", false);
+  desc.add<unsigned int>("minHitsPerNtuplet", 4);
   desc.add<bool>("fit5as4", true);
   desc.add<bool>("doClusterCut", true);
   desc.add<bool>("doZCut", true);
   desc.add<bool>("doPhiCut", true);
+
+  edm::ParameterSetDescription trackQualityCuts;
+  trackQualityCuts.add<double>("chi2MaxPt", 10.)->setComment("max pT used to determine the pT-dependent chi2 cut");
+  trackQualityCuts.add<std::vector<double>>("chi2Coeff", { 0.68177776, 0.74609577, -0.08035491, 0.00315399 })
+    ->setComment("Polynomial coefficients to derive the pT-dependent chi2 cut");
+  trackQualityCuts.add<double>("chi2Scale", 30.)->setComment("Factor to multiply the pT-dependent chi2 cut (currently: 30 for the broken line fit, 45 for the Riemann fit)");
+  trackQualityCuts.add<double>("tripletMinPt", 0.5)->setComment("Min pT for triplets, in GeV");
+  trackQualityCuts.add<double>("tripletMaxTip", 0.3)->setComment("Max |Tip| for triplets, in cm");
+  trackQualityCuts.add<double>("tripletMaxZip", 12.)->setComment("Max |Zip| for triplets, in cm");
+  trackQualityCuts.add<double>("quadrupletMinPt", 0.3)->setComment("Min pT for quadruplets, in GeV");
+  trackQualityCuts.add<double>("quadrupletMaxTip", 0.5)->setComment("Max |Tip| for quadruplets, in cm");
+  trackQualityCuts.add<double>("quadrupletMaxZip", 12.)->setComment("Max |Zip| for quadruplets, in cm");
+  desc.add<edm::ParameterSetDescription>("trackQualityCuts", trackQualityCuts)
+    ->setComment("Quality cuts based on the results of the track fit:\n  - apply a pT-dependent chi2 cut;\n  - apply \"region cuts\" based on the fit results (pT, Tip, Zip).");
 }
 
 void CAHitQuadrupletGeneratorGPU::initEvent(edm::Event const &ev, edm::EventSetup const &es) {

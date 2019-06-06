@@ -97,7 +97,7 @@ private:
   const float caHardPtCut = 0.f;
 
   // products
-  std::vector<uint32_t> indToEdm;  // index of    tuple in reco tracks....
+  std::vector<uint32_t> indToEdm;  // index of tuple in reco tracks....
   TuplesOnGPU* gpu_d = nullptr;    // copy of the structure on the gpu itself: this is the "Product"
   TuplesOnGPU::Container* tuples_ = nullptr;
   Rfit::helix_fit* helix_fit_results_ = nullptr;

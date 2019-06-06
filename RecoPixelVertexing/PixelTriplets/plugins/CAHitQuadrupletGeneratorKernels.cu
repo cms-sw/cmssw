@@ -2,6 +2,7 @@
 // Author: Felice Pantaleo, CERN
 //
 
+#include <cmath>
 #include <cstdint>
 
 #include <cuda_runtime.h>
@@ -271,50 +272,72 @@ __global__ void kernel_fillMultiplicity(TuplesOnGPU::Container const *__restrict
 
 __global__ void kernel_classifyTracks(TuplesOnGPU::Container const *__restrict__ tuples,
                                       Rfit::helix_fit const *__restrict__ fit_results,
+                                      CAHitQuadrupletGeneratorKernels::QualityCuts cuts,
                                       Quality *__restrict__ quality) {
   auto idx = blockIdx.x * blockDim.x + threadIdx.x;
-  if (idx >= tuples->nbins())
+  if (idx >= tuples->nbins()) {
     return;
+  }
   if (tuples->size(idx) == 0) {
     return;
   }
 
+  // mark as bad by default
   quality[idx] = pixelTuplesHeterogeneousProduct::bad;
 
+  // mark doublets as bad
   if (tuples->size(idx) < 3) {
     return;
   }
 
-  const float par[4] = {0.68177776, 0.74609577, -0.08035491, 0.00315399};
-  constexpr float chi2CutFact = 30;  // *0.7 if Riemann....
-  auto chi2Cut = [&](float pt) {
-    pt = std::min(pt, 10.f);
-    return chi2CutFact * (par[0] + pt * (par[1] + pt * (par[2] + pt * par[3])));
-  };
-
+  // if the fit has any invalid parameters, mark it as bad
   bool isNaN = false;
   for (int i = 0; i < 5; ++i) {
-    isNaN |= fit_results[idx].par(i) != fit_results[idx].par(i);
+    isNaN |= isnan(fit_results[idx].par(i));
   }
-  isNaN |= !(fit_results[idx].chi2_line + fit_results[idx].chi2_circle <
-             chi2Cut(fit_results[idx].par(2)));  // catch NaN as well
-
+  if (isNaN) {
 #ifdef GPU_DEBUG
-  if (isNaN)
-    printf("NaN or Bad Fit %d size %d chi2 %f/%f\n",
+    printf("NaN in fit %d size %d chi2 %f + %f\n",
            idx,
            tuples->size(idx),
            fit_results[idx].chi2_line,
            fit_results[idx].chi2_circle);
 #endif
+    return;
+  }
 
-  // impose "region cuts" (NaN safe)
-  // phi,Tip,pt,cotan(theta)),Zip
-  bool ok = std::abs(fit_results[idx].par(1)) < (tuples->size(idx) > 3 ? 0.5f : 0.3f) &&
-            fit_results[idx].par(2) > (tuples->size(idx) > 3 ? 0.3f : 0.5f) && std::abs(fit_results[idx].par(4)) < 12.f;
+  // compute a pT-dependent chi2 cut
+  // default parameters:
+  //   - chi2MaxPt = 10 GeV
+  //   - chi2Coeff = { 0.68177776, 0.74609577, -0.08035491, 0.00315399 }
+  //   - chi2Scale = 30 for broken line fit, 45 for Riemann fit
+  // (see CAHitQuadrupletGeneratorGPU.cc)
+  float pt = std::min<float>(fit_results[idx].par(2), cuts.chi2MaxPt);
+  float chi2Cut = cuts.chi2Scale *
+                  (cuts.chi2Coeff[0] + pt * (cuts.chi2Coeff[1] + pt * (cuts.chi2Coeff[2] + pt * cuts.chi2Coeff[3])));
+  if (fit_results[idx].chi2_line + fit_results[idx].chi2_circle >= chi2Cut) {
+#ifdef GPU_DEBUG
+    printf("Bad fit %d size %d chi2 %f + %f\n",
+           idx,
+           tuples->size(idx),
+           fit_results[idx].chi2_line,
+           fit_results[idx].chi2_circle);
+#endif
+    return;
+  }
 
-  ok &= (!isNaN);
-  quality[idx] = ok ? pixelTuplesHeterogeneousProduct::loose : pixelTuplesHeterogeneousProduct::bad;
+  // impose "region cuts" based on the fit results (phi, Tip, pt, cotan(theta)), Zip)
+  // default cuts:
+  //   - for triplets:    |Tip| < 0.3 cm, pT > 0.5 GeV, |Zip| < 12.0 cm
+  //   - for quadruplets: |Tip| < 0.5 cm, pT > 0.3 GeV, |Zip| < 12.0 cm
+  // (see CAHitQuadrupletGeneratorGPU.cc)
+  auto const &region = (tuples->size(idx) > 3) ? cuts.quadruplet : cuts.triplet;
+  bool isOk = (std::abs(fit_results[idx].par(1)) < region.maxTip) and (fit_results[idx].par(2) > region.minPt) and
+              (std::abs(fit_results[idx].par(4)) < region.maxZip);
+
+  if (isOk) {
+    quality[idx] = pixelTuplesHeterogeneousProduct::loose;
+  }
 }
 
 __global__ void kernel_doStatsForTracks(TuplesOnGPU::Container const *__restrict__ tuples,
@@ -597,7 +620,7 @@ void CAHitQuadrupletGeneratorKernels::classifyTuples(HitsOnCPU const &hh,
   // classify tracks based on kinematics
   auto numberOfBlocks = (CAConstants::maxNumberOfQuadruplets() + blockSize - 1) / blockSize;
   kernel_classifyTracks<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-      tuples.tuples_d, tuples.helix_fit_results_d, tuples.quality_d);
+      tuples.tuples_d, tuples.helix_fit_results_d, cuts_, tuples.quality_d);
   cudaCheck(cudaGetLastError());
 
   // apply fishbone cleaning to good tracks
