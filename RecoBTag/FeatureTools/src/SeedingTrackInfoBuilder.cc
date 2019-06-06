@@ -35,8 +35,9 @@ namespace btagbtvdeep{
 }
 
 
-    void SeedingTrackInfoBuilder::buildSeedingTrackInfo(const reco::TransientTrack * it , const reco::Vertex & pv,  const reco::Jet & jet,/*GlobalVector jetdirection,*/ float mass, 
-                              const std::pair<bool,Measurement1D> & ip, float jet_distance, float jaxis_dlength, HistogramProbabilityEstimator* m_probabilityEstimator, bool m_computeProbabilities=false ){
+    void SeedingTrackInfoBuilder::buildSeedingTrackInfo(const reco::TransientTrack * it , const reco::Vertex & pv,  const reco::Jet & jet,/*GlobalVector jetdirection,*/ 
+                                                        float mass, const std::pair<bool,Measurement1D> & ip, const std::pair<bool,Measurement1D> & ip2d,
+                                                        float jet_distance, float jaxis_dlength, HistogramProbabilityEstimator* m_probabilityEstimator, bool m_computeProbabilities=false ){
         
         GlobalPoint pvp(pv.x(),pv.y(),pv.z());
         GlobalVector jetdirection(jet.px(),jet.py(),jet.pz());
@@ -52,7 +53,6 @@ namespace btagbtvdeep{
         
         std::pair<bool,Measurement1D> ipSigned = IPTools::signedImpactParameter3D(*it,jetdirection, pv);        
         std::pair<bool,Measurement1D> ip2dSigned = IPTools::signedTransverseImpactParameter(*it,jetdirection, pv);         
-        std::pair<bool,Measurement1D> ip2d = IPTools::absoluteTransverseImpactParameter(*it, pv);        
         
         ip3D_=ip.second.value();
         sip3D_=ip.second.significance();

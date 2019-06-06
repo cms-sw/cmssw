@@ -11,9 +11,10 @@ class SeedingTrackInfoBuilder{
 public:
     SeedingTrackInfoBuilder();
 
-    void buildSeedingTrackInfo(const reco::TransientTrack * it , const reco::Vertex & pv,  const reco::Jet & jet,/*GlobalVector jetdirection,*/ float mass, 
-                                const std::pair<bool,Measurement1D> & ip, float jet_distance, float jaxis_dlength, HistogramProbabilityEstimator* m_probabilityEstimator, bool m_computeProbabilities);    
-    
+    void buildSeedingTrackInfo(const reco::TransientTrack * it , const reco::Vertex & pv,  const reco::Jet & jet,/*GlobalVector jetdirection,*/ 
+                               float mass, const std::pair<bool,Measurement1D> & ip, const std::pair<bool,Measurement1D> & ip2d,
+                               float jet_distance, float jaxis_dlength, HistogramProbabilityEstimator* m_probabilityEstimator, bool m_computeProbabilities);
+
     const float pt() const {return pt_;}
     const float eta() const {return eta_;}
     const float phi() const {return phi_;}
