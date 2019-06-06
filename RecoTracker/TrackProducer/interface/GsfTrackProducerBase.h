@@ -25,49 +25,46 @@ class TrajectoryStateClosestToBeamLineBuilder;
 
 class GsfTrackProducerBase : public TrackProducerBase<reco::GsfTrack> {
 public:
-
   /// Constructor
-  explicit GsfTrackProducerBase(bool trajectoryInEvent, bool split) :
-  TrackProducerBase<reco::GsfTrack>(trajectoryInEvent),
-    useSplitting(split){}
-  
+  explicit GsfTrackProducerBase(bool trajectoryInEvent, bool split)
+      : TrackProducerBase<reco::GsfTrack>(trajectoryInEvent), useSplitting(split) {}
+
   /// Put produced collections in the event
   virtual void putInEvt(edm::Event&,
-			const Propagator* prop,
-			const MeasurementTracker* measTk,
-			std::unique_ptr<TrackingRecHitCollection>&,
-			std::unique_ptr<reco::GsfTrackCollection>&,
-			std::unique_ptr<reco::TrackExtraCollection>&,
-			std::unique_ptr<reco::GsfTrackExtraCollection>&,
-			std::unique_ptr<std::vector<Trajectory> >&,
-			AlgoProductCollection&,
-			TransientTrackingRecHitBuilder const*,
-			const reco::BeamSpot&, const TrackerTopology *ttopo);
-
+                        const Propagator* prop,
+                        const MeasurementTracker* measTk,
+                        std::unique_ptr<TrackingRecHitCollection>&,
+                        std::unique_ptr<reco::GsfTrackCollection>&,
+                        std::unique_ptr<reco::TrackExtraCollection>&,
+                        std::unique_ptr<reco::GsfTrackExtraCollection>&,
+                        std::unique_ptr<std::vector<Trajectory> >&,
+                        AlgoProductCollection&,
+                        TransientTrackingRecHitBuilder const*,
+                        const reco::BeamSpot&,
+                        const TrackerTopology* ttopo);
 
 protected:
-  void fillStates (TrajectoryStateOnSurface tsos, std::vector<reco::GsfComponent5D>& states) const;
-  void fillMode (reco::GsfTrack& track, const TrajectoryStateOnSurface innertsos,
-		 const Propagator& gsfProp,
-		 const TransverseImpactPointExtrapolator& tipExtrapolator,
-		 TrajectoryStateClosestToBeamLineBuilder& tscblBuilder,
-		 const reco::BeamSpot& bs) const;
+  void fillStates(TrajectoryStateOnSurface tsos, std::vector<reco::GsfComponent5D>& states) const;
+  void fillMode(reco::GsfTrack& track,
+                const TrajectoryStateOnSurface innertsos,
+                const Propagator& gsfProp,
+                const TransverseImpactPointExtrapolator& tipExtrapolator,
+                TrajectoryStateClosestToBeamLineBuilder& tscblBuilder,
+                const reco::BeamSpot& bs) const;
 
 private:
   /// local parameters rescaled with q/p from mode
-  void localParametersFromQpMode (const TrajectoryStateOnSurface tsos,
-				  AlgebraicVector5& parameters,
-				  AlgebraicSymMatrix55& covariance) const;
+  void localParametersFromQpMode(const TrajectoryStateOnSurface tsos,
+                                 AlgebraicVector5& parameters,
+                                 AlgebraicSymMatrix55& covariance) const;
   /// position, momentum and estimated deltaP at an intermediate measurement (true if successful)
-  bool computeModeAtTM (const TrajectoryMeasurement& tm,
-			reco::GsfTrackExtra::Point& position,
-			reco::GsfTrackExtra::Vector& momentum,
-			Measurement1D& deltaP) const;
+  bool computeModeAtTM(const TrajectoryMeasurement& tm,
+                       reco::GsfTrackExtra::Point& position,
+                       reco::GsfTrackExtra::Vector& momentum,
+                       Measurement1D& deltaP) const;
 
 private:
-bool useSplitting;
-
+  bool useSplitting;
 };
 
-     
 #endif
