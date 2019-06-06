@@ -156,7 +156,7 @@ HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
       maxMplofLCs_(pset.getParameter<double>("maxMplofLCs")),
       nintMplofLCs_(pset.getParameter<int>("nintMplofLCs")),
 
-      //Parameters for cluster size 
+      //Parameters for cluster size
       minSizeCLsinMCLs_(pset.getParameter<double>("minSizeCLsinMCLs")),
       maxSizeCLsinMCLs_(pset.getParameter<double>("maxSizeCLsinMCLs")),
       nintSizeCLsinMCLs_(pset.getParameter<int>("nintSizeCLsinMCLs")),
@@ -180,7 +180,6 @@ HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
       minZ_(pset.getParameter<double>("minZ")),
       maxZ_(pset.getParameter<double>("maxZ")),
       nintZ_(pset.getParameter<int>("nintZ"))
-
 {}
 
 HGVHistoProducerAlgo::~HGVHistoProducerAlgo() {}
@@ -745,7 +744,7 @@ void HGVHistoProducerAlgo::bookMultiClusterHistos(DQMStore::ConcurrentBooker& ib
 								       "Profile of 2d layer clusters in multicluster vs layer number",
 								       2 * layers,
 								       0.,
-								       (float)2 * layers,			       
+								       (float)2 * layers,
 								       minTotNClsinMCLsperlayer_,
 								       maxTotNClsinMCLsperlayer_
 								       );
@@ -759,10 +758,10 @@ void HGVHistoProducerAlgo::bookMultiClusterHistos(DQMStore::ConcurrentBooker& ib
   histograms.h_multiplicity_zplus_numberOfEventsHistogram = ibook.book1D("multiplicity_zplus_numberOfEventsHistogram","multiplicity numberOfEventsHistogram in z+", nintMplofLCs_, minMplofLCs_, maxMplofLCs_);
 
   histograms.h_multiplicityOfLCinMCL_vs_layercluster_zminus = ibook.book2D("multiplicityOfLCinMCL_vs_layercluster_zminus","Multiplicity vs Layer number in z-", nintMplofLCs_, minMplofLCs_, maxMplofLCs_, layers, 0., (float) layers);
-  
+
   histograms.h_multiplicityOfLCinMCL_vs_layercluster_zplus = ibook.book2D("multiplicityOfLCinMCL_vs_layercluster_zplus","Multiplicity vs Layer number in z+", nintMplofLCs_, minMplofLCs_, maxMplofLCs_, layers, 0., (float) layers);
 
-  histograms.h_multiplicityOfLCinMCL_vs_layerclusterenergy = ibook.book2D("multiplicityOfLCinMCL_vs_layerclusterenergy", "Multiplicity vs Layer cluster energy", nintMplofLCs_, minMplofLCs_, maxMplofLCs_, nintClEnepermultiplicity_, minClEnepermultiplicity_, maxClEnepermultiplicity_ ) ; 
+  histograms.h_multiplicityOfLCinMCL_vs_layerclusterenergy = ibook.book2D("multiplicityOfLCinMCL_vs_layerclusterenergy", "Multiplicity vs Layer cluster energy", nintMplofLCs_, minMplofLCs_, maxMplofLCs_, nintClEnepermultiplicity_, minClEnepermultiplicity_, maxClEnepermultiplicity_ ) ;
 
   histograms.h_multicluster_pt = ibook.book1D("multicluster_pt", "Pt of the multicluster", nintPt_, minPt_, maxPt_);
   histograms.h_multicluster_eta =
@@ -880,9 +879,53 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
             }
           }
           cPOnLayer[cpId][cpLayerId].energy += it_haf.second * hit->energy();
-          cPOnLayer[cpId][cpLayerId].hits_and_fractions.emplace_back(hitid, it_haf.second);
+          // We need to compress the hits and fractions in order to have a
+          // reasonable score between CP and LC. Imagine, for example, that a
+          // CP has detID X used by 2 SimClusters with different fractions. If
+          // a single LC uses X with fraction 1 and is compared to the 2
+          // contributions separately, it will be assigned a score != 0, which
+          // is wrong.
+          auto& haf = cPOnLayer[cpId][cpLayerId].hits_and_fractions;
+          auto found = std::find_if(
+              std::begin(haf), std::end(haf), [&hitid](const std::pair<DetId, float>& v) { return v.first == hitid; });
+          if (found != haf.end()) {
+            found->second += it_haf.second;
+          } else {
+            cPOnLayer[cpId][cpLayerId].hits_and_fractions.emplace_back(hitid, it_haf.second);
+          }
         }
       }
+    }
+  }
+
+  std::cout << "cPOnLayer INFO" << std::endl;
+  for (size_t cp = 0; cp < cPOnLayer.size(); ++cp) {
+    std::cout << "For CaloParticle Idx: " << cp << " we have: " << std::endl;
+    for (size_t cpp = 0; cpp < cPOnLayer[cp].size(); ++cpp) {
+      std::cout << "  On Layer: " << cpp << " we have:" << std::endl;
+      std::cout << "    CaloParticleIdx: " << cPOnLayer[cp][cpp].caloParticleId << std::endl;
+      std::cout << "    Energy:          " << cPOnLayer[cp][cpp].energy << std::endl;
+      double tot_energy = 0.;
+      for (auto const& haf : cPOnLayer[cp][cpp].hits_and_fractions) {
+        std::cout << "      Hits/fraction/energy: " << (uint32_t)haf.first << "/" << haf.second << "/"
+                  << haf.second * hitMap.at(haf.first)->energy() << std::endl;
+        tot_energy += haf.second * hitMap.at(haf.first)->energy();
+      }
+      std::cout << "    Tot Sum haf: " << tot_energy << std::endl;
+      for (auto const& lc : cPOnLayer[cp][cpp].layerClusterIdToEnergyAndScore) {
+        std::cout << "      lcIdx/energy/score: " << lc.first << "/" << lc.second.first << "/" << lc.second.second
+                  << std::endl;
+      }
+    }
+  }
+
+  std::cout << "detIdToCaloParticleId_Map INFO" << std::endl;
+  for (auto const& cp : detIdToCaloParticleId_Map) {
+    std::cout << "For detId: " << (uint32_t)cp.first
+              << " we have found the following connections with CaloParticles:" << std::endl;
+    for (auto const& cpp : cp.second) {
+      std::cout << "  CaloParticle Id: " << cpp.clusterId << " with fraction: " << cpp.fraction
+                << " and energy: " << cpp.fraction * hitMap.at(cp.first)->energy() << std::endl;
     }
   }
 
@@ -890,16 +933,31 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
     const std::vector<std::pair<DetId, float>>& hits_and_fractions = clusters[lcId].hitsAndFractions();
     unsigned int numberOfHitsInLC = hits_and_fractions.size();
 
+    // This vector will store, for each hit in the Layercluster, the index of
+    // the CaloParticle that contributed the most, in terms of energy, to it.
+    // Special values are:
+    //
+    // -2  --> the reconstruction fraction of the RecHit is 0 (used in the past to monitor Halo Hits)
+    // -3  --> same as before with the added condition that no CaloParticle has been linked to this RecHit
+    // -1  --> the reco fraction is >0, but no CaloParticle has been linked to it
+    // >=0 --> index of the linked CaloParticle
     std::vector<int> hitsToCaloParticleId(numberOfHitsInLC);
     const auto firstHitDetId = hits_and_fractions[0].first;
     int lcLayerId =
         recHitTools_->getLayerWithOffset(firstHitDetId) + layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
 
+    // This will store the index of the CaloParticle linked to the LayerCluster that has the most number of hits in common.
     int maxCPId_byNumberOfHits = -1;
+    // This will store the maximum number of shared hits between a Layercluster andd a CaloParticle
     unsigned int maxCPNumberOfHitsInLC = 0;
+    // This will store the index of the CaloParticle linked to the LayerCluster that has the most energy in common.
+    //
     int maxCPId_byEnergy = -1;
+    // This will store the maximum number of shared energy between a Layercluster and a CaloParticle
     float maxEnergySharedLCandCP = 0.f;
+    // This will store the fraction of the LayerCluster energy shared with the best(energy) CaloParticle: e_shared/lc_energy
     float energyFractionOfLCinCP = 0.f;
+    // This will store the fraction of the CaloParticle energy shared with the LayerCluster: e_shared/cp_energy
     float energyFractionOfCPinLC = 0.f;
     std::unordered_map<unsigned, unsigned> occurrencesCPinLC;
     std::unordered_map<unsigned, float> CPEnergyInLC;
@@ -940,7 +998,9 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
           CPEnergyInLC[h.clusterId] += h.fraction * hit->energy();
           cPOnLayer[h.clusterId][lcLayerId].layerClusterIdToEnergyAndScore[lcId].first += h.fraction * hit->energy();
           cpsInLayerCluster[lcId].emplace_back(std::make_pair<int, float>(h.clusterId, 0.f));
-          if (h.fraction > maxCPEnergyInLC) {
+          // Keep track of which CaloParticle ccontributed the most, in terms
+          // of energy, to this specific LayerCluster.
+          if (CPEnergyInLC[h.clusterId] > maxCPEnergyInLC) {
             maxCPEnergyInLC = CPEnergyInLC[h.clusterId];
             maxCPId = h.clusterId;
           }
@@ -949,7 +1009,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       }
       histograms.h_cellAssociation_perlayer.at(lcLayerId).fill(
           hitsToCaloParticleId[hitId] > 0. ? 0. : hitsToCaloParticleId[hitId]);
-    }
+    }  // End loop over hits on a LayerCluster
 
     for (auto& c : hitsToCaloParticleId) {
       if (c < 0) {
@@ -980,27 +1040,57 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
         energyFractionOfLCinCP = maxEnergySharedLCandCP / clusters[lcId].energy();
       }
     }
-    LogDebug("HGCalValidator") << std::setw(10) << "LayerId:"
-                               << "\t" << std::setw(12) << "layerCluster"
-                               << "\t" << std::setw(10) << "lc energy"
-                               << "\t" << std::setw(5) << "nhits"
-                               << "\t" << std::setw(12) << "noise hits"
-                               << "\t" << std::setw(22) << "maxCPId_byNumberOfHits"
-                               << "\t" << std::setw(8) << "nhitsCP"
-                               << "\t" << std::setw(16) << "maxCPId_byEnergy"
-                               << "\t" << std::setw(23) << "maxEnergySharedLCandCP"
-                               << "\t" << std::setw(22) << "totalCPEnergyOnLayer"
-                               << "\t" << std::setw(22) << "energyFractionOfLCinCP"
-                               << "\t" << std::setw(25) << "energyFractionOfCPinLC"
-                               << "\t"
-                               << "\n";
-    LogDebug("HGCalValidator") << std::setw(10) << lcLayerId << "\t" << std::setw(12) << lcId << "\t" << std::setw(10)
-                               << clusters[lcId].energy() << "\t" << std::setw(5) << numberOfHitsInLC << "\t"
-                               << std::setw(12) << numberOfNoiseHitsInLC << "\t" << std::setw(22)
-                               << maxCPId_byNumberOfHits << "\t" << std::setw(8) << maxCPNumberOfHitsInLC << "\t"
-                               << std::setw(16) << maxCPId_byEnergy << "\t" << std::setw(23) << maxEnergySharedLCandCP
-                               << "\t" << std::setw(22) << totalCPEnergyOnLayer << "\t" << std::setw(22)
-                               << energyFractionOfLCinCP << "\t" << std::setw(25) << energyFractionOfCPinLC << "\n";
+    std::cout << std::setw(10) << "LayerId:"
+              << "\t" << std::setw(12) << "layerCluster"
+              << "\t" << std::setw(10) << "lc energy"
+              << "\t" << std::setw(5) << "nhits"
+              << "\t" << std::setw(12) << "noise hits"
+              << "\t" << std::setw(22) << "maxCPId_byNumberOfHits"
+              << "\t" << std::setw(8) << "nhitsCP"
+              << "\t" << std::setw(13) << "maxCPId_byEnergy"
+              << "\t" << std::setw(20) << "maxEnergySharedLCandCP"
+              << "\t" << std::setw(22) << "totalCPEnergyOnLayer"
+              << "\t" << std::setw(22) << "energyFractionOfLCinCP"
+              << "\t" << std::setw(25) << "energyFractionOfCPinLC"
+              << "\t"
+              << "\n";
+    std::cout << std::setw(10) << lcLayerId << "\t" << std::setw(12) << lcId << "\t" << std::setw(10)
+              << clusters[lcId].energy() << "\t" << std::setw(5) << numberOfHitsInLC << "\t" << std::setw(12)
+              << numberOfNoiseHitsInLC << "\t" << std::setw(22) << maxCPId_byNumberOfHits << "\t" << std::setw(8)
+              << maxCPNumberOfHitsInLC << "\t" << std::setw(13) << maxCPId_byEnergy << "\t" << std::setw(20)
+              << maxEnergySharedLCandCP << "\t" << std::setw(22) << totalCPEnergyOnLayer << "\t" << std::setw(22)
+              << energyFractionOfLCinCP << "\t" << std::setw(25) << energyFractionOfCPinLC << "\n";
+  }  // End of loop over LayerClusters
+
+  std::cout << "Improved cPOnLayer INFO" << std::endl;
+  for (size_t cp = 0; cp < cPOnLayer.size(); ++cp) {
+    std::cout << "For CaloParticle Idx: " << cp << " we have: " << std::endl;
+    for (size_t cpp = 0; cpp < cPOnLayer[cp].size(); ++cpp) {
+      std::cout << "  On Layer: " << cpp << " we have:" << std::endl;
+      std::cout << "    CaloParticleIdx: " << cPOnLayer[cp][cpp].caloParticleId << std::endl;
+      std::cout << "    Energy:          " << cPOnLayer[cp][cpp].energy << std::endl;
+      double tot_energy = 0.;
+      for (auto const& haf : cPOnLayer[cp][cpp].hits_and_fractions) {
+        std::cout << "      Hits/fraction/energy: " << (uint32_t)haf.first << "/" << haf.second << "/"
+                  << haf.second * hitMap.at(haf.first)->energy() << std::endl;
+        tot_energy += haf.second * hitMap.at(haf.first)->energy();
+      }
+      std::cout << "    Tot Sum haf: " << tot_energy << std::endl;
+      for (auto const& lc : cPOnLayer[cp][cpp].layerClusterIdToEnergyAndScore) {
+        std::cout << "      lcIdx/energy/score: " << lc.first << "/" << lc.second.first << "/" << lc.second.second
+                  << std::endl;
+      }
+    }
+  }
+
+  std::cout << "Improved detIdToCaloParticleId_Map INFO" << std::endl;
+  for (auto const& cp : detIdToCaloParticleId_Map) {
+    std::cout << "For detId: " << (uint32_t)cp.first
+              << " we have found the following connections with CaloParticles:" << std::endl;
+    for (auto const& cpp : cp.second) {
+      std::cout << "  CaloParticle Id: " << cpp.clusterId << " with fraction: " << cpp.fraction
+                << " and energy: " << cpp.fraction * hitMap.at(cp.first)->energy() << std::endl;
+    }
   }
 
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
@@ -1013,11 +1103,12 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
     auto firstHitDetId = hits_and_fractions[0].first;
     int lcLayerId =
         recHitTools_->getLayerWithOffset(firstHitDetId) + layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
+    // If a reconstructed LayerCluster has energy 0 but is linked to a CaloParticle, assigned score 1
     if (clusters[lcId].energy() == 0. && !cpsInLayerCluster[lcId].empty()) {
       for (auto& cpPair : cpsInLayerCluster[lcId]) {
         cpPair.second = 1.;
-        LogDebug("HGCalValidator") << "layerCluster Id: \t" << lcId << "\t CP id: \t" << cpPair.first << "\t score \t"
-                                   << cpPair.second << "\n";
+        std::cout << "layerCluster Id: \t" << lcId << "\t CP id: \t" << cpPair.first << "\t score \t" << cpPair.second
+                  << "\n";
         histograms.h_score_layercl2caloparticle_perlayer.at(lcLayerId).fill(cpPair.second);
       }
       continue;
@@ -1047,16 +1138,16 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
         cpPair.second +=
             (rhFraction - cpFraction) * (rhFraction - cpFraction) * hitEnergyWeight * invLayerClusterEnergyWeight;
       }
-    }
+    }  // End of loop over Hits within a LayerCluster
 
     if (cpsInLayerCluster[lcId].empty())
-      LogDebug("HGCalValidator") << "layerCluster Id: \t" << lcId << "\tCP id:\t-1 "
-                                 << "\t score \t-1"
-                                 << "\n";
+      std::cout << "layerCluster Id: \t" << lcId << "\tCP id:\t-1 "
+                << "\t score \t-1"
+                << "\n";
 
     for (auto& cpPair : cpsInLayerCluster[lcId]) {
-      LogDebug("HGCalValidator") << "layerCluster Id: \t" << lcId << "\t CP id: \t" << cpPair.first << "\t score \t"
-                                 << cpPair.second << "\n";
+      std::cout << "layerCluster Id: \t" << lcId << "\t CP id: \t" << cpPair.first << "\t score \t" << cpPair.second
+                << "\n";
       histograms.h_score_layercl2caloparticle_perlayer.at(lcLayerId).fill(cpPair.second);
       auto const& cp_linked = cPOnLayer[cpPair.first][lcLayerId].layerClusterIdToEnergyAndScore[lcId];
       histograms.h_sharedenergy_layercl2caloparticle_perlayer.at(lcLayerId).fill(cp_linked.first /
@@ -1086,7 +1177,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
     }
     histograms.h_denom_layercl_eta_perlayer.at(lcLayerId).fill(clusters[lcId].eta());
     histograms.h_denom_layercl_phi_perlayer.at(lcLayerId).fill(clusters[lcId].phi());
-  }
+  }  // End of loop over LayerClusters
 
   for (unsigned int cpId = 0; cpId < nCaloParticles; ++cpId) {
     for (unsigned int layerId = 0; layerId < layers * 2; ++layerId) {
@@ -1106,16 +1197,15 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       if (CPenergy > 0.f)
         CPEnergyFractionInLC = maxEnergyLCinCP / CPenergy;
 
-      LogDebug("HGCalValidator") << std::setw(8) << "LayerId:\t" << std::setw(12) << "caloparticle\t" << std::setw(15)
-                                 << "cp total energy\t" << std::setw(15) << "cpEnergyOnLayer\t" << std::setw(14)
-                                 << "CPNhitsOnLayer\t" << std::setw(18) << "lcWithMaxEnergyInCP\t" << std::setw(15)
-                                 << "maxEnergyLCinCP\t" << std::setw(20) << "CPEnergyFractionInLC"
-                                 << "\n";
-      LogDebug("HGCalValidator") << std::setw(8) << layerId << "\t" << std::setw(12) << cpId << "\t" << std::setw(15)
-                                 << cP[cpId].energy() << "\t" << std::setw(15) << CPenergy << "\t" << std::setw(14)
-                                 << CPNumberOfHits << "\t" << std::setw(18) << lcWithMaxEnergyInCP << "\t"
-                                 << std::setw(15) << maxEnergyLCinCP << "\t" << std::setw(20) << CPEnergyFractionInLC
-                                 << "\n";
+      std::cout << std::setw(8) << "LayerId:\t" << std::setw(12) << "caloparticle\t" << std::setw(15)
+                << "cp total energy\t" << std::setw(15) << "cpEnergyOnLayer\t" << std::setw(14) << "CPNhitsOnLayer\t"
+                << std::setw(18) << "lcWithMaxEnergyInCP\t" << std::setw(15) << "maxEnergyLCinCP\t" << std::setw(20)
+                << "CPEnergyFractionInLC"
+                << "\n";
+      std::cout << std::setw(8) << layerId << "\t" << std::setw(12) << cpId << "\t" << std::setw(15)
+                << cP[cpId].energy() << "\t" << std::setw(15) << CPenergy << "\t" << std::setw(14) << CPNumberOfHits
+                << "\t" << std::setw(18) << lcWithMaxEnergyInCP << "\t" << std::setw(15) << maxEnergyLCinCP << "\t"
+                << std::setw(20) << CPEnergyFractionInLC << "\n";
 
       for (unsigned int i = 0; i < CPNumberOfHits; ++i) {
         auto& cp_hitDetId = cPOnLayer[cpId][layerId].hits_and_fractions[i].first;
@@ -1142,29 +1232,29 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
             if (findHitIt != detIdToLayerClusterId_Map[cp_hitDetId].end())
               lcFraction = findHitIt->fraction;
           }
-          if (lcFraction == 0.) {
-            lcFraction = -1.;
-          }
+          //          if (lcFraction == 0.) {
+          //            lcFraction = -1.;
+          //          }
           lcPair.second.second +=
               (lcFraction - cpFraction) * (lcFraction - cpFraction) * hitEnergyWeight * invCPEnergyWeight;
-          LogDebug("HGCalValidator") << "layerClusterId:\t" << layerClusterId << "\t"
-                                     << "lcfraction,cpfraction:\t" << lcFraction << ", " << cpFraction << "\t"
-                                     << "hitEnergyWeight:\t" << hitEnergyWeight << "\t"
-                                     << "currect score:\t" << lcPair.second.second << "\t"
-                                     << "invCPEnergyWeight:\t" << invCPEnergyWeight << "\n";
-        }
-      }
+          std::cout << "cpDetId:\t" << (uint32_t)cp_hitDetId << "\tlayerClusterId:\t" << layerClusterId << "\t"
+                    << "lcfraction,cpfraction:\t" << lcFraction << ", " << cpFraction << "\t"
+                    << "hitEnergyWeight:\t" << hitEnergyWeight << "\t"
+                    << "current score:\t" << lcPair.second.second << "\t"
+                    << "invCPEnergyWeight:\t" << invCPEnergyWeight << "\n";
+        }  // End of loop over LayerClusters linked to hits of this CaloParticle
+      }    // End of loop over hits of CaloParticle on a Layer
 
       if (cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore.empty())
-        LogDebug("HGCalValidator") << "CP Id: \t" << cpId << "\tLC id:\t-1 "
-                                   << "\t score \t-1"
-                                   << "\n";
+        std::cout << "CP Id: \t" << cpId << "\tLC id:\t-1 "
+                  << "\t score \t-1"
+                  << "\n";
 
       for (auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore) {
-        LogDebug("HGCalValidator") << "CP Id: \t" << cpId << "\t LC id: \t" << lcPair.first << "\t score \t"
-                                   << lcPair.second.second << "\t"
-                                   << "shared energy:\t" << lcPair.second.first << "\t"
-                                   << "shared energy fraction:\t" << (lcPair.second.first / CPenergy) << "\n";
+        std::cout << "CP Id: \t" << cpId << "\t LC id: \t" << lcPair.first << "\t score \t" << lcPair.second.second
+                  << "\t"
+                  << "shared energy:\t" << lcPair.second.first << "\t"
+                  << "shared energy fraction:\t" << (lcPair.second.first / CPenergy) << "\n";
         histograms.h_score_caloparticle2layercl_perlayer.at(layerId).fill(
             lcPair.second.second > 1. ? 1. : lcPair.second.second);
         histograms.h_sharedenergy_caloparticle2layercl_perlayer.at(layerId).fill(lcPair.second.first / CPenergy);
@@ -1298,7 +1388,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
       } else if (rh_detid.det() == DetId::HGCalHSc) {
         thickness = -1;
       } else {
-        LogDebug("HGCalValidator") << "These are HGCal layer clusters, you shouldn't be here !!! " << layerid << "\n";
+        std::cout << "These are HGCal layer clusters, you shouldn't be here !!! " << layerid << "\n";
         continue;
       }
 
@@ -1338,8 +1428,8 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
 
       std::map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(rh_detid);
       if (itcheck == hitMap.end()) {
-        LogDebug("HGCalValidator") << " You shouldn't be here - Unable to find a hit " << rh_detid.rawId() << " "
-                                   << rh_detid.det() << " " << HGCalDetId(rh_detid) << "\n";
+        std::cout << " You shouldn't be here - Unable to find a hit " << rh_detid.rawId() << " " << rh_detid.det()
+                  << " " << HGCalDetId(rh_detid) << "\n";
         continue;
       }
 
@@ -1370,8 +1460,8 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
       //Let's check the density
       std::map<DetId, float>::const_iterator dit = densities.find(rh_detid);
       if (dit == densities.end()) {
-        LogDebug("HGCalValidator") << " You shouldn't be here - Unable to find a density " << rh_detid.rawId() << " "
-                                   << rh_detid.det() << " " << HGCalDetId(rh_detid) << "\n";
+        std::cout << " You shouldn't be here - Unable to find a density " << rh_detid.rawId() << " " << rh_detid.det()
+                  << " " << HGCalDetId(rh_detid) << "\n";
         continue;
       }
 
@@ -1796,7 +1886,7 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
       for (auto& cpPair : cpsInMultiCluster[mclId]) {
         //In case of a multi cluster with zero energy but related CaloParticles the score is set to 1.
         cpPair.second = 1.;
-        // LogDebug("HGCalValidator") << "multiCluster Id: \t" << mclId
+        // std::cout << "multiCluster Id: \t" << mclId
         // 			   << "\t CP id: \t" << cpPair.first
         // 			   << "\t score \t" << cpPair.second
         // 			   << "\n";
@@ -1819,7 +1909,6 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
       unsigned int numberOfHitsInLC = hits_and_fractions.size();
       // auto firstHitDetId = hits_and_fractions[0].first;
       // int lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId) + layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
-
       for (unsigned int i = 0; i < numberOfHitsInLC; ++i) {
         DetId rh_detid = hits_and_fractions[i].first;
         float rhFraction = hits_and_fractions[i].second;
@@ -1851,12 +1940,12 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
 
     //In case of a multi cluster with some energy but none related CaloParticles print some info.
     if (cpsInMultiCluster[mclId].empty())
-      LogDebug("HGCalValidator") << "multiCluster Id: \t" << mclId << "\tCP id:\t-1 "
-                                 << "\t score \t-1"
-                                 << "\n";
+      std::cout << "multiCluster Id: \t" << mclId << "\tCP id:\t-1 "
+                << "\t score \t-1"
+                << "\n";
 
     for (auto& cpPair : cpsInMultiCluster[mclId]) {
-      // LogDebug("HGCalValidator") << "multiCluster Id: \t" << mclId
+      // std::cout << "multiCluster Id: \t" << mclId
       // 			   << "\t CP id: \t" << cpPair.first
       // 			   << "\t score \t" << cpPair.second
       // 			   << "\n";
@@ -2009,17 +2098,63 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
         }
       }  //end of loop through sim hits of current calo particle
 
+      std::cout << std::setw(8) << "LayerId:\t" << std::setw(12) << "caloparticle\t" << std::setw(15)
+                << "cp total energy\t" << std::setw(15) << "cpEnergyOnLayer\t" << std::setw(14) << "CPNhitsOnLayer\t"
+                << std::setw(18) << "lcWithMaxEnergyInCP\t" << std::setw(15) << "maxEnergyLCinCP\t" << std::setw(20)
+                << "CPEnergyFractionInLC"
+                << "\n";
+      std::cout << std::setw(8) << layerId << "\t" << std::setw(12) << cpId << "\t" << std::setw(15)
+                << cP[cpId].energy() << "\t" << std::setw(15) << CPenergy << "\t" << std::setw(14) << CPNumberOfHits
+                << "\t" << std::setw(18) << mclWithMaxEnergyInCP << "\t" << std::setw(15) << maxEnergyMCLperlayerinCP
+                << "\t" << std::setw(20) << CPEnergyFractionInMCLperlayer << "\n";
+
+      for (unsigned int i = 0; i < CPNumberOfHits; ++i) {
+        auto& cp_hitDetId = cPOnLayer[cpId][layerId].hits_and_fractions[i].first;
+        auto& cpFraction = cPOnLayer[cpId][layerId].hits_and_fractions[i].second;
+
+        bool hitWithNoMCL = false;
+        if (cpFraction == 0.f)
+          continue;  //hopefully this should never happen
+        auto hit_find_in_MCL = detIdToMultiClusterId_Map.find(cp_hitDetId);
+        if (hit_find_in_MCL == detIdToMultiClusterId_Map.end())
+          hitWithNoMCL = true;
+        auto itcheck = hitMap.find(cp_hitDetId);
+        const HGCRecHit* hit = itcheck->second;
+        float hitEnergyWeight = hit->energy() * hit->energy();
+        for (auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore) {
+          unsigned int multiClusterId = lcPair.first;
+          float mclFraction = 0.f;
+
+          if (!hitWithNoMCL) {
+            auto findHitIt = std::find(detIdToMultiClusterId_Map[cp_hitDetId].begin(),
+                                       detIdToMultiClusterId_Map[cp_hitDetId].end(),
+                                       HGVHistoProducerAlgo::detIdInfoInMultiCluster{multiClusterId, 0, 0.f});
+            if (findHitIt != detIdToMultiClusterId_Map[cp_hitDetId].end())
+              mclFraction = findHitIt->fraction;
+          }
+          if (mclFraction == 0.) {
+            mclFraction = -1.;
+          }
+          //Observe here that we do not divide as before by the layer cluster energy weight. We should sum first
+          //over all layers and divide with the total CP energy over all layers.
+          lcPair.second.second += (mclFraction - cpFraction) * (mclFraction - cpFraction) * hitEnergyWeight;
+          std::cout << "multiClusterId:\t" << multiClusterId << "\t"
+                    << "mclfraction,cpfraction:\t" << mclFraction << ", " << cpFraction << "\t"
+                    << "hitEnergyWeight:\t" << hitEnergyWeight << "\t"
+                    << "currect score numerator:\t" << lcPair.second.second << "\n";
+        }
+      }  //end of loop through sim hits of current calo particle
+
       if (cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore.empty())
-        LogDebug("HGCalValidator") << "CP Id: \t" << cpId << "\t MCL id:\t-1 "
-                                   << "\t layer \t " << layerId << " Sub score in \t -1"
-                                   << "\n";
+        std::cout << "CP Id: \t" << cpId << "\t MCL id:\t-1 "
+                  << "\t layer \t " << layerId << " Sub score in \t -1"
+                  << "\n";
 
       for (auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore) {
         //3d score here without the denominator at this point
         score3d[cpId][lcPair.first] = score3d[cpId][lcPair.first] + lcPair.second.second;
         mclsharedenergy[cpId][lcPair.first] = mclsharedenergy[cpId][lcPair.first] + lcPair.second.first;
       }
-
     }  //end of loop through layers
 
     float invCPEnergyWeight = 1.f / (CPenergy * CPenergy);
@@ -2030,11 +2165,10 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
       score3d[cpId][mclId] = score3d[cpId][mclId] * invCPEnergyWeight;
       mclsharedenergyfrac[cpId][mclId] = (mclsharedenergy[cpId][mclId] / CPenergy);
 
-      LogDebug("HGCalValidator") << "CP Id: \t" << cpId << "\t MCL id: \t" << mclId << "\t score \t"
-                                 << score3d[cpId][mclId] << "\t"
-                                 << "invCPEnergyWeight \t" << invCPEnergyWeight << "\t"
-                                 << "shared energy:\t" << mclsharedenergy[cpId][mclId] << "\t"
-                                 << "shared energy fraction:\t" << mclsharedenergyfrac[cpId][mclId] << "\n";
+      std::cout << "CP Id: \t" << cpId << "\t MCL id: \t" << mclId << "\t score \t" << score3d[cpId][mclId] << "\t"
+                << "invCPEnergyWeight \t" << invCPEnergyWeight << "\t"
+                << "shared energy:\t" << mclsharedenergy[cpId][mclId] << "\t"
+                << "shared energy fraction:\t" << mclsharedenergyfrac[cpId][mclId] << "\n";
 
       histograms.h_score_caloparticle2multicl.fill(score3d[cpId][mclId] > 1. ? 1. : score3d[cpId][mclId]);
       if (contimulti[mclId]) {
@@ -2102,9 +2236,9 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
   contmulti.clear();
 
   //[mclId]-> vector of 2d layer clusters size
-  std::unordered_map<unsigned int, std::vector<unsigned int> > multiplicity; 
+  std::unordered_map<unsigned int, std::vector<unsigned int> > multiplicity;
   //[mclId]-> [layer][cluster size]
-  std::unordered_map<unsigned int, std::vector<unsigned int> > multiplicity_vs_layer; 
+  std::unordered_map<unsigned int, std::vector<unsigned int> > multiplicity_vs_layer;
   //We will need for the scale text option
   // unsigned int totallcinmcls = 0;
   // for (unsigned int mclId = 0; mclId < nMultiClusters; ++mclId) {
@@ -2124,7 +2258,7 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
     }
 
     //Total number of layer clusters in multicluster
-    int tnlcinmcl = 0;  
+    int tnlcinmcl = 0;
 
     //To keep track of total num of layer clusters per multicluster
     //tnlcinmclperlaypz[layerid], tnlcinmclperlaymz[layerid]
@@ -2154,7 +2288,7 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
 
       tnlcinmclperlay[layerid]++;
       tnlcinmcl++;
- 
+
       if (recHitTools_->zside(firstHitDetId) > 0.) {
 	multiclusterInZplus = true;
       }
@@ -2169,7 +2303,7 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
       if (histograms.h_clusternum_in_multicluster_perlayer.count(ilayer) && tnlcinmclperlay[ilayer] != 0) {
         histograms.h_clusternum_in_multicluster_perlayer.at(ilayer).fill((float) tnlcinmclperlay[ilayer]);
       }
-      //For the profile now of 2d layer cluster in multiclusters vs layer number. 
+      //For the profile now of 2d layer cluster in multiclusters vs layer number.
       if (tnlcinmclperlay[ilayer] != 0) {histograms.h_clusternum_in_multicluster_vs_layer.fill((float) ilayer, (float) tnlcinmclperlay[ilayer]);}
     }  //end of loop over layers
 
@@ -2208,13 +2342,13 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
     histograms.h_clusternum_in_multicluster.fill(tnlcinmcl);
 
     for (unsigned int lc = 0; lc < multiplicity[mclId].size(); ++lc) {
-      //multiplicity of the current LC 
+      //multiplicity of the current LC
       float mlp = std::count(std::begin(multiplicity[mclId]), std::end(multiplicity[mclId]), multiplicity[mclId][lc]);
        //std::cout << "mlp %" << (100. * mlp)/ ((float) nLayerClusters) << std::endl;
       // histograms.h_multiplicityOfLCinMCL.fill( mlp , multiplicity[mclId][lc] , 100. / (float) totallcinmcls );
       histograms.h_multiplicityOfLCinMCL.fill( mlp , multiplicity[mclId][lc]  );
-      //When we will plot with the text option we want the entries to be the same 
-      //as the % of the current cell over the whole number of clusters. For this we need an extra histo. 
+      //When we will plot with the text option we want the entries to be the same
+      //as the % of the current cell over the whole number of clusters. For this we need an extra histo.
       histograms.h_multiplicity_numberOfEventsHistogram.fill( mlp );
       //For the cluster multiplicity vs layer
       //First with the -z endcap (V10:0->49)
@@ -2241,7 +2375,7 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
     histograms.h_multicluster_layersnum.fill((float)multicluster_layers.size());
 
   }  //end of loop through multiclusters
-  
+
   if (tnmclmz != 0) {histograms.h_multiclusternum.fill(tnmclmz);}
   if (tnmclpz != 0) {histograms.h_multiclusternum.fill(tnmclpz);}
 

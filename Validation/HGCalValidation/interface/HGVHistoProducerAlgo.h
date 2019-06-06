@@ -140,7 +140,7 @@ struct HGVHistoProducerAlgoHistograms {
   ConcurrentMonitorElement h_multiplicityOfLCinMCL_vs_layercluster_zminus;
   ConcurrentMonitorElement h_multiplicityOfLCinMCL_vs_layercluster_zplus;
   ConcurrentMonitorElement h_multiplicityOfLCinMCL_vs_layerclusterenergy;
-  ConcurrentMonitorElement h_clusternum_in_multicluster_vs_layer; 
+  ConcurrentMonitorElement h_clusternum_in_multicluster_vs_layer;
   ConcurrentMonitorElement h_multicluster_pt;
   ConcurrentMonitorElement h_multicluster_eta;
   ConcurrentMonitorElement h_multicluster_phi;
