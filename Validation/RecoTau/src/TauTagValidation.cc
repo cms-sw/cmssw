@@ -127,7 +127,7 @@ void TauTagValidation::bookHistograms(DQMStore::IBooker& ibooker,
   MonitorElement *ptTemp, *etaTemp, *phiTemp, *pileupTemp, *tmpME, *summaryTemp;
 
   ibooker.setCurrentFolder("RecoTauV/" + TauProducer_ + extensionName_ + "_Summary");
-  auto n_disc = discriminators_.size() ? discriminators_.size() : 21;
+  auto n_disc = !discriminators_.empty() ? discriminators_.size() : 21;
   hinfo summaryHinfo = (histoSettings_.exists("summary"))
                            ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("summary"))
                            : hinfo(n_disc, -0.5, n_disc - 0.5);
