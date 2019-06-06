@@ -52,7 +52,7 @@ HGCalUncalibRecHit = cms.EDProducer(
         ),
 
     HGCHFNoseConfig = cms.PSet(
-        isSiFE = cms.bool(True),
+        isSiFE = cms.bool(False),
         # adc information
         adcNbits      = hfnoseDigitizer.digiCfg.feCfg.adcNbits,
         adcSaturation = hfnoseDigitizer.digiCfg.feCfg.adcSaturation_fC,
@@ -74,3 +74,7 @@ phase2_hgcalV9.toModify( HGCalUncalibRecHit.HGCHEFConfig , fCPerMIP = fCPerMIP_v
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 phase2_hgcalV10.toModify( HGCalUncalibRecHit.HGCEEConfig , fCPerMIP = fCPerMIP_v10 ) 
 phase2_hgcalV10.toModify( HGCalUncalibRecHit.HGCHEFConfig , fCPerMIP = fCPerMIP_v10 )
+
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
+phase2_hfnose.toModify( HGCalUncalibRecHit.HGCHFNoseConfig , isSiFE = True )
+
