@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-regressionModifier = cms.PSet(
+regressionModifier106XUL = cms.PSet(
     modifierName = cms.string('EGRegressionModifierV3'),       
     rhoTag = cms.InputTag('fixedGridRhoFastjetAllTmp'),
     useClosestToCentreSeedCrysDef = cms.bool(False),                            
@@ -91,7 +91,7 @@ regressionModifier = cms.PSet(
 regressionModifier94X = \
     cms.PSet( modifierName    = cms.string('EGRegressionModifierV2'),  
 
-              rhoCollection = cms.InputTag('fixedGridRhoFastjetAll'),
+              rhoCollection = cms.InputTag('fixedGridRhoFastjetAllTmp'),
               
               electron_config = cms.PSet( # EB, EE
                 regressionKey  = cms.vstring('electron_eb_ECALonly_lowpt', 'electron_eb_ECALonly', 'electron_ee_ECALonly_lowpt', 'electron_ee_ECALonly',
@@ -142,3 +142,11 @@ regressionModifier80X = \
                                           uncertaintyKey_50ns = cms.vstring('gedphoton_EBUncertainty_50ns', 'gedphoton_EEUncertainty_50ns'),
                                           )
               )
+
+#by default we use the regression inappropriate to the main purpose of this release
+#life is simplier that way
+regressionModifier = regressionModifier94X.clone()
+
+
+from Configuration.Eras.Modifier_run2_egamma_2017_cff import run2_egamma_2017
+run2_egamma_2017.toReplaceWith(regressionModifier,regressionModifier106XUL)
