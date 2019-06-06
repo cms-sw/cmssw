@@ -214,6 +214,21 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   edm::ESHandle<TransientTrackBuilder> track_builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", track_builder);
 
+  std::vector<reco::TransientTrack> selectedTracks;
+  std::vector<float> masses;
+
+  if (run_deepVertex_)  //make a collection of selected transient tracks for deepvertex outside of the jet loop
+  {
+    for(typename edm::View<reco::Candidate>::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
+        unsigned int k = track - tracks->begin();
+        if(track->bestTrack() != nullptr && track->pt()>0.5) { 
+            if (std::fabs(track->vz()-pv.z())<0.5)  {
+                selectedTracks.push_back(track_builder->build(tracks->ptrAt(k)));
+                masses.push_back(track->mass());  }
+            }
+        }
+  } 
+
   for (std::size_t jet_n = 0; jet_n <  jets->size(); jet_n++) {
 
     // create data containing structure
@@ -417,7 +432,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   if (run_deepVertex_)
   {
       if (jet.pt()>min_jet_pt_ && std::fabs(jet.eta())<max_jet_eta_) //jet thresholds
-          btagbtvdeep::seedingTracksToFeatures(tracks, jet, pv, track_builder, probabilityEstimator_.get(), compute_probabilities_, features.seed_features);     
+          btagbtvdeep::seedingTracksToFeatures(selectedTracks, masses, jet, pv, probabilityEstimator_.get(), compute_probabilities_, features.seed_features); 
   }
    
   output_tag_infos->emplace_back(features, jet_ref);
