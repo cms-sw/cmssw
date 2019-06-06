@@ -1,4 +1,5 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
@@ -126,6 +127,8 @@ std::ostream& operator<<(std::ostream& s, const HGCRecHit& hit) {
     return s << HGCSiliconDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
   else if (hit.detid().det() == DetId::HGCalHSc)
     return s << HGCScintillatorDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
+  else if (hit.detid().det() == DetId::Forward && hit.detid().subdetId() == HFNose) 
+    return s << HFNoseDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
   else
     return s << "HGCRecHit undefined subdetector";
 }

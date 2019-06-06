@@ -12,12 +12,13 @@
  */
 
 template <unsigned int N>
-class  DistanceBetweenComponentsESProducer : public edm::ESProducer{
- public:
-  DistanceBetweenComponentsESProducer(const edm::ParameterSet & p);
-  ~DistanceBetweenComponentsESProducer() override; 
-  std::unique_ptr< DistanceBetweenComponents<N> > produce(const TrackingComponentsRecord &);
- private:
+class DistanceBetweenComponentsESProducer : public edm::ESProducer {
+public:
+  DistanceBetweenComponentsESProducer(const edm::ParameterSet &p);
+  ~DistanceBetweenComponentsESProducer() override;
+  std::unique_ptr<DistanceBetweenComponents<N> > produce(const TrackingComponentsRecord &);
+
+private:
   edm::ParameterSet pset_;
 };
 

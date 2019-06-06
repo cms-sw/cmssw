@@ -1655,9 +1655,9 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster,
         fillME(MEs.iSubdet->ClusterChargePerCMfromTrack, dQdx_fromTrack);
       if (track_ok)
         fillME(MEs.iSubdet->ClusterChargePerCMfromOriginOnTrack, dQdx_fromOrigin);
-      if (tTopo->moduleGeometry(detid) == SiStripDetId::ModuleGeometry::W5 ||
-          tTopo->moduleGeometry(detid) == SiStripDetId::ModuleGeometry::W6 ||
-          tTopo->moduleGeometry(detid) == SiStripDetId::ModuleGeometry::W7) {
+      if (tTopo->moduleGeometry(detid) == SiStripModuleGeometry::W5 ||
+          tTopo->moduleGeometry(detid) == SiStripModuleGeometry::W6 ||
+          tTopo->moduleGeometry(detid) == SiStripModuleGeometry::W7) {
         if (noise > 0.0)
           fillME(MEs.iSubdet->ClusterStoNCorrThickOnTrack, StoN * cosRZ);
         fillME(MEs.iSubdet->ClusterChargeCorrThickOnTrack, charge * cosRZ);

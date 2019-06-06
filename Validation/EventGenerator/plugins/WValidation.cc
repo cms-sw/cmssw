@@ -106,8 +106,8 @@ void WValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //requires status 1 for leptons and neutrinos (except tau)
   int requiredstatus = (std::abs(_flavor) == 11 || std::abs(_flavor) == 13) ? 1 : 3;
 
-  bool vetotau =
-      true;  //(std::abs(_flavor) == 11 || std::abs(_flavor) == 12 || std::abs(_flavor) ==13 || std::abs(_flavor) ==14 || std::abs(_flavor) ==16) ? true : false;
+  bool vetotau = true;
+  // alternatively (std::abs(_flavor) == 11 || std::abs(_flavor) == 12 || std::abs(_flavor) ==13 || std::abs(_flavor) ==14 || std::abs(_flavor) ==16) ? true : false;
 
   for (HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin();
        iter != myGenEvent->particles_end();

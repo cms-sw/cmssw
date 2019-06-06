@@ -1,8 +1,6 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
-
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripFEDRawDataAnalyzer.h"
 DEFINE_FWK_MODULE(SiStripFEDRawDataAnalyzer);
 

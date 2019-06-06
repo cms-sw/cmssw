@@ -27,7 +27,7 @@ namespace hgcal {
     const CaloSubdetectorGeometry* getSubdetectorGeometry( const DetId& id ) const;
 
     GlobalPoint getPosition(const DetId& id) const;
-    GlobalPoint getPositionLayer(int layer) const;
+    GlobalPoint getPositionLayer(int layer, bool nose=false) const;
     // zside returns +/- 1
     int zside(const DetId& id) const;
 
@@ -35,7 +35,7 @@ namespace hgcal {
     std::float_t getRadiusToSide(const DetId&) const;
     int getSiThickIndex(const DetId&) const;
 
-    unsigned int getLayer(DetId::Detector type) const;
+    unsigned int getLayer(DetId::Detector type, bool nose=false) const;
     unsigned int getLayer(ForwardSubdetector type) const;
     unsigned int getLayer(const DetId&) const;
     unsigned int getLayerWithOffset(const DetId&) const;
@@ -57,12 +57,14 @@ namespace hgcal {
     inline const CaloGeometry * getGeometry() const {return geom_;};
     unsigned int lastLayerEE() const {return fhOffset_;}
     unsigned int lastLayerFH() const {return fhLastLayer_;}
-    unsigned int maxNumberOfWafersPerLayer() const {return maxNumberOfWafersPerLayer_;}
+    unsigned int maxNumberOfWafersPerLayer(bool nose=false) const 
+    {return (nose ? maxNumberOfWafersNose_ : maxNumberOfWafersPerLayer_);}
     inline int getGeometryType() const {return geometryType_;}
     bool maskCell(const DetId& id, int corners=3) const;
   private:
     const CaloGeometry* geom_;
-    unsigned int        fhOffset_, bhOffset_, fhLastLayer_, maxNumberOfWafersPerLayer_;
+    unsigned int        fhOffset_, bhOffset_, fhLastLayer_;
+    unsigned int        maxNumberOfWafersPerLayer_, maxNumberOfWafersNose_;
     int                 geometryType_;
   };
 }

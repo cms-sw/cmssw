@@ -5,15 +5,12 @@
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
-void PFClusterFromHGCalMultiCluster::updateEvent(const edm::Event& ev) {
-  ev.getByToken(clusterToken_, clusterH_);
-}
+void PFClusterFromHGCalMultiCluster::updateEvent(const edm::Event& ev) { ev.getByToken(clusterToken_, clusterH_); }
 
-void PFClusterFromHGCalMultiCluster::buildClusters(
-    const edm::Handle<reco::PFRecHitCollection>& input,
-    const std::vector<bool>& rechitMask, const std::vector<bool>& seedable,
-    reco::PFClusterCollection& output) {
-
+void PFClusterFromHGCalMultiCluster::buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
+                                                   const std::vector<bool>& rechitMask,
+                                                   const std::vector<bool>& seedable,
+                                                   reco::PFClusterCollection& output) {
   const auto& hgcalMultiClusters = *clusterH_;
   auto const& hits = *input;
 

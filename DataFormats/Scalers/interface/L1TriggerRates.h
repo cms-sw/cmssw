@@ -22,21 +22,14 @@
  *
  */
 
-
 /// \class L1TriggerRates.h
 /// \brief Persistable copy of L1 Trigger Rates
 
 class L1TriggerScalers;
 
-class L1TriggerRates
-{
- public:
-
-  enum
-  {
-    N_BX = 3654,
-    N_BX_ACTIVE = 2808
-  };
+class L1TriggerRates {
+public:
+  enum { N_BX = 3654, N_BX_ACTIVE = 2808 };
 
 #define BX_SPACING (double)25E-9
 
@@ -46,8 +39,7 @@ class L1TriggerRates
   virtual ~L1TriggerRates();
 
   void computeRunRates(L1TriggerScalers const& t);
-  void computeRates(L1TriggerScalers const& t1,
-		    L1TriggerScalers const& t2);
+  void computeRates(L1TriggerScalers const& t1, L1TriggerScalers const& t2);
 
   /// name method
   std::string name() const { return "L1TriggerRates"; }
@@ -57,141 +49,99 @@ class L1TriggerRates
 
   /// get the data
 
-  int version() const { return(version_);}
-  timespec collectionTimeSummary() { return(collectionTimeSummary_.get_timespec());}
+  int version() const { return (version_); }
+  timespec collectionTimeSummary() { return (collectionTimeSummary_.get_timespec()); }
 
-  double deltaT()       const { return(deltaT_);}
-  double deltaTActive() const { return(deltaTActive_);}
-  double deltaTRun()       const { return(deltaTRun_);}
-  double deltaTRunActive() const { return(deltaTRunActive_);}
+  double deltaT() const { return (deltaT_); }
+  double deltaTActive() const { return (deltaTActive_); }
+  double deltaTRun() const { return (deltaTRun_); }
+  double deltaTRunActive() const { return (deltaTRunActive_); }
 
   // Instantaneous Rate accessors
-  double triggerNumberRate() const            
-  { return(triggerNumberRate_);}
+  double triggerNumberRate() const { return (triggerNumberRate_); }
 
-  double eventNumberRate() const              
-  { return(eventNumberRate_);}
+  double eventNumberRate() const { return (eventNumberRate_); }
 
-  double finalTriggersGeneratedRate() const         
-  { return(finalTriggersGeneratedRate_);}
-  double finalTriggersDistributedRate() const         
-  { return(finalTriggersDistributedRate_);}
+  double finalTriggersGeneratedRate() const { return (finalTriggersGeneratedRate_); }
+  double finalTriggersDistributedRate() const { return (finalTriggersDistributedRate_); }
 
-  double randomTriggersRate() const          
-  { return(randomTriggersRate_);}
+  double randomTriggersRate() const { return (randomTriggersRate_); }
 
-  double calibrationTriggersRate() const     
-  { return(calibrationTriggersRate_);}
+  double calibrationTriggersRate() const { return (calibrationTriggersRate_); }
 
-  double totalTestTriggersRate() const                 
-  { return(totalTestTriggersRate_);}
+  double totalTestTriggersRate() const { return (totalTestTriggersRate_); }
 
-  double orbitNumberRate() const              
-  { return(orbitNumberRate_);}
+  double orbitNumberRate() const { return (orbitNumberRate_); }
 
-  double numberResetsRate() const             
-  { return(numberResetsRate_);}
+  double numberResetsRate() const { return (numberResetsRate_); }
 
-  double deadTimePercent() const                 
-  { return(deadTimePercent_);}
+  double deadTimePercent() const { return (deadTimePercent_); }
 
-  double deadTimeActivePercent() const           
-  { return(deadTimeActivePercent_);}
+  double deadTimeActivePercent() const { return (deadTimeActivePercent_); }
 
-  double deadTimeActiveCalibrationPercent() const
-  { return(deadTimeActiveCalibrationPercent_);}
+  double deadTimeActiveCalibrationPercent() const { return (deadTimeActiveCalibrationPercent_); }
 
-  double deadTimeActivePrivatePercent() const    
-  { return(deadTimeActivePrivatePercent_);}
+  double deadTimeActivePrivatePercent() const { return (deadTimeActivePrivatePercent_); }
 
-  double deadTimeActivePartitionPercent() const  
-  { return(deadTimeActivePartitionPercent_);}
+  double deadTimeActivePartitionPercent() const { return (deadTimeActivePartitionPercent_); }
 
-  double deadTimeActiveThrottlePercent() const   
-  { return(deadTimeActiveThrottlePercent_);}
+  double deadTimeActiveThrottlePercent() const { return (deadTimeActiveThrottlePercent_); }
 
-  double deadTimeActiveTimeSlotPercent() const   
-  { return(deadTimeActiveTimeSlotPercent_);}
+  double deadTimeActiveTimeSlotPercent() const { return (deadTimeActiveTimeSlotPercent_); }
 
-  double finalTriggersInvalidBCPercent() const       
-  { return(finalTriggersInvalidBCPercent_);}
+  double finalTriggersInvalidBCPercent() const { return (finalTriggersInvalidBCPercent_); }
 
-  double lostFinalTriggersPercent() const             
-  { return(lostFinalTriggersPercent_);}
+  double lostFinalTriggersPercent() const { return (lostFinalTriggersPercent_); }
 
-  double lostFinalTriggersActivePercent() const       
-  { return(lostFinalTriggersActivePercent_);}
+  double lostFinalTriggersActivePercent() const { return (lostFinalTriggersActivePercent_); }
 
-  timespec collectionTimeDetails() const 
-  { return(collectionTimeDetails_.get_timespec());}
+  timespec collectionTimeDetails() const { return (collectionTimeDetails_.get_timespec()); }
 
-  std::vector<double> triggersRate() const    { return(triggersRate_);}
-  std::vector<double> testTriggersRate() const
-  { return(testTriggersRate_);}
+  std::vector<double> triggersRate() const { return (triggersRate_); }
+  std::vector<double> testTriggersRate() const { return (testTriggersRate_); }
 
   // Run Rate Accessors
-  double triggerNumberRunRate() const            
-  { return(triggerNumberRunRate_);}
+  double triggerNumberRunRate() const { return (triggerNumberRunRate_); }
 
-  double eventNumberRunRate() const              
-  { return(eventNumberRunRate_);}
+  double eventNumberRunRate() const { return (eventNumberRunRate_); }
 
-  double finalTriggersDistributedRunRate() const         
-  { return(finalTriggersDistributedRunRate_);}
+  double finalTriggersDistributedRunRate() const { return (finalTriggersDistributedRunRate_); }
 
-  double finalTriggersGeneratedRunRate() const      
-  { return(finalTriggersGeneratedRunRate_);}
+  double finalTriggersGeneratedRunRate() const { return (finalTriggersGeneratedRunRate_); }
 
-  double randomTriggersRunRate() const          
-  { return(randomTriggersRunRate_);}
+  double randomTriggersRunRate() const { return (randomTriggersRunRate_); }
 
-  double calibrationTriggersRunRate() const     
-  { return(calibrationTriggersRunRate_);}
+  double calibrationTriggersRunRate() const { return (calibrationTriggersRunRate_); }
 
-  double totalTestTriggersRunRate() const                 
-  { return(totalTestTriggersRunRate_);}
+  double totalTestTriggersRunRate() const { return (totalTestTriggersRunRate_); }
 
-  double orbitNumberRunRate() const              
-  { return(orbitNumberRunRate_);}
+  double orbitNumberRunRate() const { return (orbitNumberRunRate_); }
 
-  double numberResetsRunRate() const             
-  { return(numberResetsRunRate_);}
+  double numberResetsRunRate() const { return (numberResetsRunRate_); }
 
-  double deadTimeRunPercent() const                 
-  { return(deadTimeRunPercent_);}
+  double deadTimeRunPercent() const { return (deadTimeRunPercent_); }
 
-  double deadTimeActiveRunPercent() const           
-  { return(deadTimeActiveRunPercent_);}
+  double deadTimeActiveRunPercent() const { return (deadTimeActiveRunPercent_); }
 
-  double deadTimeActiveCalibrationRunPercent() const
-  { return(deadTimeActiveCalibrationRunPercent_);}
+  double deadTimeActiveCalibrationRunPercent() const { return (deadTimeActiveCalibrationRunPercent_); }
 
-  double deadTimeActivePrivateRunPercent() const    
-  { return(deadTimeActivePrivateRunPercent_);}
+  double deadTimeActivePrivateRunPercent() const { return (deadTimeActivePrivateRunPercent_); }
 
-  double deadTimeActivePartitionRunPercent() const  
-  { return(deadTimeActivePartitionRunPercent_);}
+  double deadTimeActivePartitionRunPercent() const { return (deadTimeActivePartitionRunPercent_); }
 
-  double deadTimeActiveThrottleRunPercent() const   
-  { return(deadTimeActiveThrottleRunPercent_);}
+  double deadTimeActiveThrottleRunPercent() const { return (deadTimeActiveThrottleRunPercent_); }
 
-  double deadTimeActiveTimeSlotRunPercent() const   
-  { return(deadTimeActiveTimeSlotRunPercent_);}
+  double deadTimeActiveTimeSlotRunPercent() const { return (deadTimeActiveTimeSlotRunPercent_); }
 
-  double finalTriggersInvalidBCRunPercent() const       
-  { return(finalTriggersInvalidBCRunPercent_);}
+  double finalTriggersInvalidBCRunPercent() const { return (finalTriggersInvalidBCRunPercent_); }
 
-  double lostFinalTriggersRunPercent() const             
-  { return(lostFinalTriggersRunPercent_);}
+  double lostFinalTriggersRunPercent() const { return (lostFinalTriggersRunPercent_); }
 
-  double lostFinalTriggersActiveRunPercent() const       
-  { return(lostFinalTriggersActiveRunPercent_);}
+  double lostFinalTriggersActiveRunPercent() const { return (lostFinalTriggersActiveRunPercent_); }
 
-  std::vector<double> triggersRunRate() const    
-  { return(triggersRunRate_);}
+  std::vector<double> triggersRunRate() const { return (triggersRunRate_); }
 
-  std::vector<double> testTriggersRunRate() const    
-  { return(testTriggersRunRate_);}
+  std::vector<double> testTriggersRunRate() const { return (testTriggersRunRate_); }
 
   /// equality operator
   int operator==(const L1TriggerRates& e) const { return false; }
@@ -200,7 +150,6 @@ class L1TriggerRates
   int operator!=(const L1TriggerRates& e) const { return false; }
 
 protected:
-
   int version_;
   TimeSpec collectionTimeSummary_;
 
@@ -257,7 +206,6 @@ protected:
   std::vector<double> triggersRunRate_;
   std::vector<double> testTriggersRunRate_;
 };
-
 
 /// Pretty-print operator for L1TriggerRates
 std::ostream& operator<<(std::ostream& s, const L1TriggerRates& c);

@@ -5,6 +5,4 @@ reco::CastorEgamma::CastorEgamma(const double energycal, const reco::CastorClust
   usedCluster_ = usedCluster;
 }
 
-reco::CastorEgamma::~CastorEgamma() {
-
-}
+reco::CastorEgamma::~CastorEgamma() {}

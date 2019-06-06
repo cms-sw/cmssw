@@ -1,5 +1,6 @@
 #include "FastSimulation/Tracking/interface/TrackingLayer.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 const TrackingLayer::eqfct TrackingLayer::_eqfct;
 

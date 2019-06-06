@@ -147,7 +147,7 @@ HITrackClusterRemover::HITrackClusterRemover(const ParameterSet& iConfig):
     stripRecHits_(doStripChargeCheck_ ? iConfig.getParameter<std::string>("stripRecHits") : std::string("siStripMatchedRecHits")),
     pixelRecHits_(doPixelChargeCheck_ ? iConfig.getParameter<std::string>("pixelRecHits") : std::string("siPixelRecHits"))
 {
-  mergeOld_ = mergeOld_ && iConfig.getParameter<InputTag>("oldClusterRemovalInfo").label()!="";
+  mergeOld_ = mergeOld_ && !iConfig.getParameter<InputTag>("oldClusterRemovalInfo").label().empty();
   if (iConfig.exists("overrideTrkQuals"))
     overrideTrkQuals_.push_back(consumes<edm::ValueMap<int> >(iConfig.getParameter<InputTag>("overrideTrkQuals")));
   if (iConfig.exists("clusterLessSolution"))
@@ -278,8 +278,8 @@ float HITrackClusterRemover::sensorThickness (const SiStripDetId& detid) const
 {
   if (detid.subdetId()>=SiStripDetId::TIB) {
     if (detid.subdetId()==SiStripDetId::TOB) return 0.047;
-    if (detid.moduleGeometry()==SiStripDetId::W5 || detid.moduleGeometry()==SiStripDetId::W6 ||
-        detid.moduleGeometry()==SiStripDetId::W7)
+    if (detid.moduleGeometry()==SiStripModuleGeometry::W5 || detid.moduleGeometry()==SiStripModuleGeometry::W6 ||
+        detid.moduleGeometry()==SiStripModuleGeometry::W7)
 	return 0.047;
     return 0.029; // so it is TEC ring 1-4 or TIB or TOB;
   } else if (detid.subdetId()==PixelSubdetector::PixelBarrel) return 0.0285;

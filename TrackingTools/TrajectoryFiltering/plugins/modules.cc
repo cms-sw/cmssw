@@ -25,4 +25,3 @@ DEFINE_EDM_PLUGIN(TrajectoryFilterFactory, ThresholdPtTrajectoryFilter, "Thresho
 DEFINE_EDM_PLUGIN(TrajectoryFilterFactory, CompositeTrajectoryFilter, "CompositeTrajectoryFilter");
 DEFINE_EDM_PLUGIN(TrajectoryFilterFactory, CkfBaseTrajectoryFilter, "CkfBaseTrajectoryFilter");
 DEFINE_EDM_PLUGIN(TrajectoryFilterFactory, ChargeSignificanceTrajectoryFilter, "ChargeSignificanceTrajectoryFilter");
-		  

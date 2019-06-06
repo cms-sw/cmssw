@@ -7,10 +7,16 @@
  */
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrackerCommon/interface/SiStripEnums.h"
 
 class StripSubdetector : public DetId {
 public:
-  enum SubDetector { TIB = 3, TID = 4, TOB = 5, TEC = 6 };
+  using SubDetector = SiStripSubdetector::Subdetector;
+  static constexpr auto UNKNOWN = SiStripSubdetector::UNKNOWN;
+  static constexpr auto TIB = SiStripSubdetector::TIB;
+  static constexpr auto TID = SiStripSubdetector::TID;
+  static constexpr auto TOB = SiStripSubdetector::TOB;
+  static constexpr auto TEC = SiStripSubdetector::TEC;
 
   /** Constructor from a raw value */
   StripSubdetector(uint32_t rawid) : DetId(rawid) {}

@@ -2,36 +2,31 @@
 
 #include <cfloat>
 
-
 template <unsigned int N>
-typename MultiGaussianStateCombiner<N>::SingleStatePtr
-MultiGaussianStateCombiner<N>::combine(const MultiState & theState) const
-{
+typename MultiGaussianStateCombiner<N>::SingleStatePtr MultiGaussianStateCombiner<N>::combine(
+    const MultiState& theState) const {
   return combine(theState.components());
 }
 
 template <unsigned int N>
-typename MultiGaussianStateCombiner<N>::SingleStatePtr
-MultiGaussianStateCombiner<N>::combine(const VSC& theComponents) const
-{
+typename MultiGaussianStateCombiner<N>::SingleStatePtr MultiGaussianStateCombiner<N>::combine(
+    const VSC& theComponents) const {
   if (theComponents.empty()) {
-    throw cms::Exception("LogicError") 
-      << "MultiGaussianStateCombiner:: state container to collapse is empty";
+    throw cms::Exception("LogicError") << "MultiGaussianStateCombiner:: state container to collapse is empty";
     return SingleStatePtr();
   }
 
   const SingleStatePtr firstState(theComponents.front());
-  if (theComponents.size()==1) {
+  if (theComponents.size() == 1) {
     return firstState;
   }
 
-//   int size = firstState.mean().num_row();
+  //   int size = firstState.mean().num_row();
   typename SingleState::Vector meanMean;
   double weightSum = 0.;
   double weight;
   typename SingleState::Matrix measCovar1, measCovar2;
-  for ( auto mixtureIter1 = theComponents.begin();
-  	mixtureIter1 != theComponents.end(); mixtureIter1++ ) {
+  for (auto mixtureIter1 = theComponents.begin(); mixtureIter1 != theComponents.end(); mixtureIter1++) {
     weight = (*mixtureIter1)->weight();
     weightSum += weight;
 
@@ -39,29 +34,27 @@ MultiGaussianStateCombiner<N>::combine(const VSC& theComponents) const
     meanMean += weight * mean1;
     measCovar1 += weight * (**mixtureIter1).covariance();
 
-    for (auto mixtureIter2 = mixtureIter1+1;
-  	mixtureIter2 != theComponents.end(); mixtureIter2++ ) {
+    for (auto mixtureIter2 = mixtureIter1 + 1; mixtureIter2 != theComponents.end(); mixtureIter2++) {
       typename SingleState::Vector posDiff = mean1 - (**mixtureIter2).mean();
-      // 
+      //
       // TensorProd yields a general matrix - need to convert to a symm. matrix
-      ROOT::Math::SMatrix<double,N,N> covGen = ROOT::Math::TensorProd(posDiff,posDiff);
+      ROOT::Math::SMatrix<double, N, N> covGen = ROOT::Math::TensorProd(posDiff, posDiff);
       typename SingleState::Matrix covSym(covGen.LowerBlock());
       measCovar2 += weight * (**mixtureIter2).weight() * covSym;
     }
   }
 
   typename SingleState::Matrix measCovar;
-  if (weightSum<DBL_MIN){
-    std::cout << "MultiGaussianStateCombiner:: New state has total weight of 0."
-	      << std::endl;
-//     meanMean = SingleState::Vector(size,0);
+  if (weightSum < DBL_MIN) {
+    std::cout << "MultiGaussianStateCombiner:: New state has total weight of 0." << std::endl;
+    //     meanMean = SingleState::Vector(size,0);
     meanMean *= 0.;
     weightSum = 0.;
   } else {
-    auto wsInv = 1./weightSum;
+    auto wsInv = 1. / weightSum;
     meanMean *= wsInv;
     measCovar1 *= wsInv;
-    measCovar2 *= wsInv*wsInv; 
+    measCovar2 *= wsInv * wsInv;
     measCovar = measCovar1 + measCovar2;
   }
 

@@ -1,6 +1,5 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
 
-std::ostream& operator<<(std::ostream& o, const InitialClusteringStepBase& a){return a<<o;}
+std::ostream& operator<<(std::ostream& o, const InitialClusteringStepBase& a) { return a << o; }
 
-EDM_REGISTER_PLUGINFACTORY(InitialClusteringStepFactory,
-			   "InitialClusteringStepFactory");
+EDM_REGISTER_PLUGINFACTORY(InitialClusteringStepFactory, "InitialClusteringStepFactory");

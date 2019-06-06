@@ -4,7 +4,7 @@
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
 
 namespace reco {
-class RecoTauPiZero : public CompositePtrCandidate {
+  class RecoTauPiZero : public CompositePtrCandidate {
   public:
     enum PiZeroAlgorithm {
       // Algorithm where each photon becomes a pi zero
@@ -14,46 +14,45 @@ class RecoTauPiZero : public CompositePtrCandidate {
       kStrips = 3
     };
 
-    RecoTauPiZero()
-      : CompositePtrCandidate(),
-        algoName_(kUndefined), bendCorrEta_ (0.), bendCorrPhi_ (0.)
-    {
-      this->setPdgId(111); 
+    RecoTauPiZero() : CompositePtrCandidate(), algoName_(kUndefined), bendCorrEta_(0.), bendCorrPhi_(0.) {
+      this->setPdgId(111);
     }
 
     RecoTauPiZero(PiZeroAlgorithm algoName)
-      : CompositePtrCandidate(), 
-        algoName_(algoName), bendCorrEta_ (0.), bendCorrPhi_ (0.)
-    { 
-      this->setPdgId(111); 
+        : CompositePtrCandidate(), algoName_(algoName), bendCorrEta_(0.), bendCorrPhi_(0.) {
+      this->setPdgId(111);
     }
 
     /// constructor from values
-    RecoTauPiZero(Charge q, const LorentzVector& p4,
-                  const Point& vtx = Point( 0, 0, 0 ),
-                  int pdgId = 111, int status = 0, bool integerCharge = true,
+    RecoTauPiZero(Charge q,
+                  const LorentzVector& p4,
+                  const Point& vtx = Point(0, 0, 0),
+                  int pdgId = 111,
+                  int status = 0,
+                  bool integerCharge = true,
                   PiZeroAlgorithm algoName = kUndefined)
-      : CompositePtrCandidate(q, p4, vtx, pdgId, status, integerCharge ),
-        algoName_(algoName), bendCorrEta_ (0.), bendCorrPhi_ (0.)
-    {
-    }
+        : CompositePtrCandidate(q, p4, vtx, pdgId, status, integerCharge),
+          algoName_(algoName),
+          bendCorrEta_(0.),
+          bendCorrPhi_(0.) {}
 
     /// constructor from values
-    RecoTauPiZero(Charge q, const PolarLorentzVector& p4,
-                  const Point& vtx = Point( 0, 0, 0 ),
-                  int pdgId = 111, int status = 0, bool integerCharge = true,
-                  PiZeroAlgorithm algoName=kUndefined)
-      : CompositePtrCandidate(q, p4, vtx, pdgId, status, integerCharge ),
-        algoName_(algoName), bendCorrEta_ (0.), bendCorrPhi_ (0.)
-    {
-    }
+    RecoTauPiZero(Charge q,
+                  const PolarLorentzVector& p4,
+                  const Point& vtx = Point(0, 0, 0),
+                  int pdgId = 111,
+                  int status = 0,
+                  bool integerCharge = true,
+                  PiZeroAlgorithm algoName = kUndefined)
+        : CompositePtrCandidate(q, p4, vtx, pdgId, status, integerCharge),
+          algoName_(algoName),
+          bendCorrEta_(0.),
+          bendCorrPhi_(0.) {}
 
     /// constructor from a Candidate
     explicit RecoTauPiZero(const Candidate& p, PiZeroAlgorithm algoName = kUndefined)
-      : CompositePtrCandidate(p),
-        algoName_(algoName), bendCorrEta_ (0.), bendCorrPhi_ (0.)
-    { 
-      this->setPdgId(111); 
+        : CompositePtrCandidate(p), algoName_(algoName), bendCorrEta_(0.), bendCorrPhi_(0.) {
+      this->setPdgId(111);
     }
 
     /// destructor
@@ -91,10 +90,10 @@ class RecoTauPiZero : public CompositePtrCandidate {
 
     float bendCorrEta_;
     float bendCorrPhi_;
-};
+  };
 
-std::ostream & operator<<(std::ostream& out, const RecoTauPiZero& c);
+  std::ostream& operator<<(std::ostream& out, const RecoTauPiZero& c);
 
-}
+}  // namespace reco
 
 #endif

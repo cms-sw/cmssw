@@ -22,13 +22,11 @@
 #include <stdio.h>
 #include <algorithm>
 
-
 using namespace std;
 using namespace edm;
 
 // constructors
-MuonSeeddPhiScale::MuonSeeddPhiScale(const ParameterSet& pset){ 
-
+MuonSeeddPhiScale::MuonSeeddPhiScale(const ParameterSet& pset) {
   // dPhi scale factors
   CSC01_1 = pset.getParameter<std::vector<double> >("CSC_01_1_scale");
   CSC12_1 = pset.getParameter<std::vector<double> >("CSC_12_1_scale");
@@ -76,306 +74,293 @@ MuonSeeddPhiScale::MuonSeeddPhiScale(const ParameterSet& pset){
   SME_13S = pset.getParameter<std::vector<double> >("SME_13_0_scale");
   SME_21S = pset.getParameter<std::vector<double> >("SME_21_0_scale");
   SME_22S = pset.getParameter<std::vector<double> >("SME_22_0_scale");
-
 }
 
 // destructor
-MuonSeeddPhiScale::~MuonSeeddPhiScale(){
+MuonSeeddPhiScale::~MuonSeeddPhiScale() {}
 
-}
-
-void MuonSeeddPhiScale::ScaleCSCdPhi( double dPhiP1[2][5][5] , double EtaP1[2][5] ) {
-
+void MuonSeeddPhiScale::ScaleCSCdPhi(double dPhiP1[2][5][5], double EtaP1[2][5]) {
   // fill the information for CSC pT parameterization from segment pair
-  if (dPhiP1[1][0][1]!=99.0 ){
-      double oPh  = 1./dPhiP1[0][0][1];
-      double oPhi = 1./dPhiP1[1][0][1];
-      dPhiP1[0][0][1] = dPhiP1[0][0][1]/( 1. + (CSC01_1[3]/fabs(oPh  + 10.) ) );
-      dPhiP1[1][0][1] = dPhiP1[1][0][1]/( 1. + (CSC01_1[3]/fabs(oPhi + 10.) ) );
+  if (dPhiP1[1][0][1] != 99.0) {
+    double oPh = 1. / dPhiP1[0][0][1];
+    double oPhi = 1. / dPhiP1[1][0][1];
+    dPhiP1[0][0][1] = dPhiP1[0][0][1] / (1. + (CSC01_1[3] / fabs(oPh + 10.)));
+    dPhiP1[1][0][1] = dPhiP1[1][0][1] / (1. + (CSC01_1[3] / fabs(oPhi + 10.)));
   }
 
-  if (dPhiP1[1][0][2]!=99.0 && fabs(EtaP1[1][0]) > 1.6  ){
-      double oPh  = 1./dPhiP1[0][0][2];
-      double oPhi = 1./dPhiP1[1][0][2];
-      dPhiP1[0][0][2] = dPhiP1[0][0][2]/( 1. + (CSC12_3[3]/fabs(oPh  + 10.) ) );
-      dPhiP1[1][0][2] = dPhiP1[1][0][2]/( 1. + (CSC12_3[3]/fabs(oPhi + 10.) ) );
+  if (dPhiP1[1][0][2] != 99.0 && fabs(EtaP1[1][0]) > 1.6) {
+    double oPh = 1. / dPhiP1[0][0][2];
+    double oPhi = 1. / dPhiP1[1][0][2];
+    dPhiP1[0][0][2] = dPhiP1[0][0][2] / (1. + (CSC12_3[3] / fabs(oPh + 10.)));
+    dPhiP1[1][0][2] = dPhiP1[1][0][2] / (1. + (CSC12_3[3] / fabs(oPhi + 10.)));
   }
-  if (dPhiP1[1][1][2]!=99.0 && fabs(EtaP1[1][1]) <= 1.6 && fabs(EtaP1[1][0]) > 1.2 ){
-      double oPh  = 1./dPhiP1[0][1][2];
-      double oPhi = 1./dPhiP1[1][1][2];
-      dPhiP1[0][1][2] = dPhiP1[0][1][2]/( 1. + (CSC12_2[3]/fabs(oPh  + 10.) ) );
-      dPhiP1[1][1][2] = dPhiP1[1][1][2]/( 1. + (CSC12_2[3]/fabs(oPhi + 10.) ) );
+  if (dPhiP1[1][1][2] != 99.0 && fabs(EtaP1[1][1]) <= 1.6 && fabs(EtaP1[1][0]) > 1.2) {
+    double oPh = 1. / dPhiP1[0][1][2];
+    double oPhi = 1. / dPhiP1[1][1][2];
+    dPhiP1[0][1][2] = dPhiP1[0][1][2] / (1. + (CSC12_2[3] / fabs(oPh + 10.)));
+    dPhiP1[1][1][2] = dPhiP1[1][1][2] / (1. + (CSC12_2[3] / fabs(oPhi + 10.)));
   }
-  if (dPhiP1[1][1][2]!=99.0 && fabs(EtaP1[1][1]) <= 1.2 ){
-      double oPh  = 1./dPhiP1[0][1][2];
-      double oPhi = 1./dPhiP1[1][1][2];
-      dPhiP1[0][1][2] = dPhiP1[0][1][2]/( 1. + (CSC12_1[3]/fabs(oPh  + 10.) ) );
-      dPhiP1[1][1][2] = dPhiP1[1][1][2]/( 1. + (CSC12_1[3]/fabs(oPhi + 10.) ) );
-  }
-
-  if (dPhiP1[1][0][3]!=99.0 ){
-      double oPh  = 1./dPhiP1[0][0][3];
-      double oPhi = 1./dPhiP1[1][0][3];
-      dPhiP1[0][0][3] = dPhiP1[0][0][3]/( 1. + (CSC13_3[3]/fabs(oPh  + 10.) ) );
-      dPhiP1[1][0][3] = dPhiP1[1][0][3]/( 1. + (CSC13_3[3]/fabs(oPhi + 10.) ) );
-  }
-  if (dPhiP1[1][1][3]!=99.0 ){
-      double oPh  = 1./dPhiP1[0][1][3];
-      double oPhi = 1./dPhiP1[1][1][3];
-      dPhiP1[0][1][3] = dPhiP1[0][1][3]/( 1. + (CSC13_2[3]/fabs(oPh  + 10.) ) );
-      dPhiP1[1][1][3] = dPhiP1[1][1][3]/( 1. + (CSC13_2[3]/fabs(oPhi + 10.) ) );
+  if (dPhiP1[1][1][2] != 99.0 && fabs(EtaP1[1][1]) <= 1.2) {
+    double oPh = 1. / dPhiP1[0][1][2];
+    double oPhi = 1. / dPhiP1[1][1][2];
+    dPhiP1[0][1][2] = dPhiP1[0][1][2] / (1. + (CSC12_1[3] / fabs(oPh + 10.)));
+    dPhiP1[1][1][2] = dPhiP1[1][1][2] / (1. + (CSC12_1[3] / fabs(oPhi + 10.)));
   }
 
-  if (dPhiP1[1][0][4]!=99.0 ){
-      double oPh  = 1./dPhiP1[0][0][4];
-      double oPhi = 1./dPhiP1[1][0][4];
-      dPhiP1[0][0][4] = dPhiP1[0][0][4]/( 1. + (CSC14_3[3]/fabs(oPh  + 10.) ) );
-      dPhiP1[1][0][4] = dPhiP1[1][0][4]/( 1. + (CSC14_3[3]/fabs(oPhi + 10.) ) );
+  if (dPhiP1[1][0][3] != 99.0) {
+    double oPh = 1. / dPhiP1[0][0][3];
+    double oPhi = 1. / dPhiP1[1][0][3];
+    dPhiP1[0][0][3] = dPhiP1[0][0][3] / (1. + (CSC13_3[3] / fabs(oPh + 10.)));
+    dPhiP1[1][0][3] = dPhiP1[1][0][3] / (1. + (CSC13_3[3] / fabs(oPhi + 10.)));
   }
-  if (dPhiP1[1][1][4]!=99.0 ){
-      double oPh  = 1./dPhiP1[0][1][4];
-      double oPhi = 1./dPhiP1[1][1][4];
-      dPhiP1[0][1][4] = dPhiP1[0][1][4]/( 1. + (CSC14_3[3]/fabs(oPh  + 10.) ) );
-      dPhiP1[1][1][4] = dPhiP1[1][1][4]/( 1. + (CSC14_3[3]/fabs(oPhi + 10.) ) );
-  }
-
-  if (dPhiP1[1][2][3]!=99.0 && fabs(EtaP1[1][2]) > 1.7 ){
-      double oPh  = 1./dPhiP1[0][2][3];
-      double oPhi = 1./dPhiP1[1][2][3];
-      dPhiP1[0][2][3] = dPhiP1[0][2][3]/( 1. + (CSC23_2[3]/fabs(oPh  + 10.) ) );
-      dPhiP1[1][2][3] = dPhiP1[1][2][3]/( 1. + (CSC23_2[3]/fabs(oPhi + 10.) ) );
-  }
-  if (dPhiP1[1][2][3]!=99.0 && fabs(EtaP1[1][2]) <= 1.7 ){
-      double oPh  = 1./dPhiP1[0][2][3];
-      double oPhi = 1./dPhiP1[1][2][3];
-      dPhiP1[0][2][3] = dPhiP1[0][2][3]/( 1. + (CSC23_1[3]/fabs(oPh  + 10.) ) );
-      dPhiP1[1][2][3] = dPhiP1[1][2][3]/( 1. + (CSC23_1[3]/fabs(oPhi + 10.) ) );
+  if (dPhiP1[1][1][3] != 99.0) {
+    double oPh = 1. / dPhiP1[0][1][3];
+    double oPhi = 1. / dPhiP1[1][1][3];
+    dPhiP1[0][1][3] = dPhiP1[0][1][3] / (1. + (CSC13_2[3] / fabs(oPh + 10.)));
+    dPhiP1[1][1][3] = dPhiP1[1][1][3] / (1. + (CSC13_2[3] / fabs(oPhi + 10.)));
   }
 
-  if (dPhiP1[1][2][4]!=99.0 ){
-      double oPh  = 1./dPhiP1[0][2][4];
-      double oPhi = 1./dPhiP1[1][2][4];
-      dPhiP1[0][2][4] = dPhiP1[0][2][4]/( 1. + (CSC24_1[3]/fabs(oPh  + 10.) ) );
-      dPhiP1[1][2][4] = dPhiP1[1][2][4]/( 1. + (CSC24_1[3]/fabs(oPhi + 10.) ) );
+  if (dPhiP1[1][0][4] != 99.0) {
+    double oPh = 1. / dPhiP1[0][0][4];
+    double oPhi = 1. / dPhiP1[1][0][4];
+    dPhiP1[0][0][4] = dPhiP1[0][0][4] / (1. + (CSC14_3[3] / fabs(oPh + 10.)));
+    dPhiP1[1][0][4] = dPhiP1[1][0][4] / (1. + (CSC14_3[3] / fabs(oPhi + 10.)));
   }
-  if (dPhiP1[1][3][4]!=99.0 ){
-      double oPh  = 1./dPhiP1[0][3][4];
-      double oPhi = 1./dPhiP1[1][3][4];
-      dPhiP1[0][3][4] = dPhiP1[0][3][4]/( 1. + (CSC34_1[3]/fabs(oPh  + 10.) ) );
-      dPhiP1[1][3][4] = dPhiP1[1][3][4]/( 1. + (CSC34_1[3]/fabs(oPhi + 10.) ) );
+  if (dPhiP1[1][1][4] != 99.0) {
+    double oPh = 1. / dPhiP1[0][1][4];
+    double oPhi = 1. / dPhiP1[1][1][4];
+    dPhiP1[0][1][4] = dPhiP1[0][1][4] / (1. + (CSC14_3[3] / fabs(oPh + 10.)));
+    dPhiP1[1][1][4] = dPhiP1[1][1][4] / (1. + (CSC14_3[3] / fabs(oPhi + 10.)));
   }
 
+  if (dPhiP1[1][2][3] != 99.0 && fabs(EtaP1[1][2]) > 1.7) {
+    double oPh = 1. / dPhiP1[0][2][3];
+    double oPhi = 1. / dPhiP1[1][2][3];
+    dPhiP1[0][2][3] = dPhiP1[0][2][3] / (1. + (CSC23_2[3] / fabs(oPh + 10.)));
+    dPhiP1[1][2][3] = dPhiP1[1][2][3] / (1. + (CSC23_2[3] / fabs(oPhi + 10.)));
+  }
+  if (dPhiP1[1][2][3] != 99.0 && fabs(EtaP1[1][2]) <= 1.7) {
+    double oPh = 1. / dPhiP1[0][2][3];
+    double oPhi = 1. / dPhiP1[1][2][3];
+    dPhiP1[0][2][3] = dPhiP1[0][2][3] / (1. + (CSC23_1[3] / fabs(oPh + 10.)));
+    dPhiP1[1][2][3] = dPhiP1[1][2][3] / (1. + (CSC23_1[3] / fabs(oPhi + 10.)));
+  }
+
+  if (dPhiP1[1][2][4] != 99.0) {
+    double oPh = 1. / dPhiP1[0][2][4];
+    double oPhi = 1. / dPhiP1[1][2][4];
+    dPhiP1[0][2][4] = dPhiP1[0][2][4] / (1. + (CSC24_1[3] / fabs(oPh + 10.)));
+    dPhiP1[1][2][4] = dPhiP1[1][2][4] / (1. + (CSC24_1[3] / fabs(oPhi + 10.)));
+  }
+  if (dPhiP1[1][3][4] != 99.0) {
+    double oPh = 1. / dPhiP1[0][3][4];
+    double oPhi = 1. / dPhiP1[1][3][4];
+    dPhiP1[0][3][4] = dPhiP1[0][3][4] / (1. + (CSC34_1[3] / fabs(oPh + 10.)));
+    dPhiP1[1][3][4] = dPhiP1[1][3][4] / (1. + (CSC34_1[3] / fabs(oPhi + 10.)));
+  }
 }
 
-void MuonSeeddPhiScale::ScaleDTdPhi( double dPhiP3[2][5][5], double EtaP3[2][5]  ) {
-
+void MuonSeeddPhiScale::ScaleDTdPhi(double dPhiP3[2][5][5], double EtaP3[2][5]) {
   /// For DT
   //  fill the information for DT pT parameterization from segment pair
-  if (dPhiP3[1][1][2]!=99.0 && fabs(EtaP3[1][1]) <= 0.7 ){
-      double oPh  = 1./dPhiP3[0][1][2];
-      double oPhi = 1./dPhiP3[1][1][2];
-      dPhiP3[0][1][2] = dPhiP3[0][1][2]/( 1. + (DT12_1[3]/fabs(oPh+ 10.) ) );
-      dPhiP3[1][1][2] = dPhiP3[1][1][2]/( 1. + (DT12_1[3]/fabs(oPhi+ 10.) ) );
+  if (dPhiP3[1][1][2] != 99.0 && fabs(EtaP3[1][1]) <= 0.7) {
+    double oPh = 1. / dPhiP3[0][1][2];
+    double oPhi = 1. / dPhiP3[1][1][2];
+    dPhiP3[0][1][2] = dPhiP3[0][1][2] / (1. + (DT12_1[3] / fabs(oPh + 10.)));
+    dPhiP3[1][1][2] = dPhiP3[1][1][2] / (1. + (DT12_1[3] / fabs(oPhi + 10.)));
   }
-  if (dPhiP3[1][1][2]!=99.0 && fabs(EtaP3[1][1]) > 0.7 ){
-      double oPh  = 1./dPhiP3[0][1][2];
-      double oPhi = 1./dPhiP3[1][1][2];
-      dPhiP3[0][1][2] = dPhiP3[0][1][2]/( 1. + (DT12_2[3]/fabs(oPh+ 10.) ) );
-      dPhiP3[1][1][2] = dPhiP3[1][1][2]/( 1. + (DT12_2[3]/fabs(oPhi+ 10.) ) );
-  }
-
-  if (dPhiP3[1][1][3]!=99.0 && fabs(EtaP3[1][1]) <= 0.6 ){
-      double oPh  = 1./dPhiP3[0][1][3];
-      double oPhi = 1./dPhiP3[1][1][3];
-      dPhiP3[0][1][3] = dPhiP3[0][1][3]/( 1. + (DT13_1[3]/fabs(oPh+ 10.) ) );
-      dPhiP3[1][1][3] = dPhiP3[1][1][3]/( 1. + (DT13_1[3]/fabs(oPhi+ 10.) ) );
-  }
-  if (dPhiP3[1][1][3]!=99.0 && fabs(EtaP3[1][1]) > 0.6 ){
-      double oPh  = 1./dPhiP3[0][1][3];
-      double oPhi = 1./dPhiP3[1][1][3];
-      dPhiP3[0][1][3] = dPhiP3[0][1][3]/( 1. + (DT13_2[3]/fabs(oPh+ 10.) ) );
-      dPhiP3[1][1][3] = dPhiP3[1][1][3]/( 1. + (DT13_2[3]/fabs(oPhi+ 10.) ) );
+  if (dPhiP3[1][1][2] != 99.0 && fabs(EtaP3[1][1]) > 0.7) {
+    double oPh = 1. / dPhiP3[0][1][2];
+    double oPhi = 1. / dPhiP3[1][1][2];
+    dPhiP3[0][1][2] = dPhiP3[0][1][2] / (1. + (DT12_2[3] / fabs(oPh + 10.)));
+    dPhiP3[1][1][2] = dPhiP3[1][1][2] / (1. + (DT12_2[3] / fabs(oPhi + 10.)));
   }
 
-  if (dPhiP3[1][1][4]!=99.0 && fabs(EtaP3[1][1]) <= 0.52 ){
-      double oPh  = 1./dPhiP3[0][1][4];
-      double oPhi = 1./dPhiP3[1][1][4];
-      dPhiP3[0][1][4] = dPhiP3[0][1][4]/( 1. + (DT14_1[3]/fabs(oPh+ 10.) ) );
-      dPhiP3[1][1][4] = dPhiP3[1][1][4]/( 1. + (DT14_1[3]/fabs(oPhi+ 10.) ) );
+  if (dPhiP3[1][1][3] != 99.0 && fabs(EtaP3[1][1]) <= 0.6) {
+    double oPh = 1. / dPhiP3[0][1][3];
+    double oPhi = 1. / dPhiP3[1][1][3];
+    dPhiP3[0][1][3] = dPhiP3[0][1][3] / (1. + (DT13_1[3] / fabs(oPh + 10.)));
+    dPhiP3[1][1][3] = dPhiP3[1][1][3] / (1. + (DT13_1[3] / fabs(oPhi + 10.)));
   }
-  if (dPhiP3[1][1][4]!=99.0 && fabs(EtaP3[1][1]) >  0.52 ){
-      double oPh  = 1./dPhiP3[0][1][4];
-      double oPhi = 1./dPhiP3[1][1][4];
-      dPhiP3[0][1][4] = dPhiP3[0][1][4]/( 1. + (DT14_2[3]/fabs(oPh+ 10.) ) );
-      dPhiP3[1][1][4] = dPhiP3[1][1][4]/( 1. + (DT14_2[3]/fabs(oPhi+ 10.) ) );
-  }
-
-  if (dPhiP3[1][2][3]!=99.0 && fabs(EtaP3[1][2]) <= 0.6 ){
-      double oPh  = 1./dPhiP3[0][2][3];
-      double oPhi = 1./dPhiP3[1][2][3];
-      dPhiP3[0][2][3] = dPhiP3[0][2][3]/( 1. + (DT23_1[3]/fabs(oPh+ 10.) ) );
-      dPhiP3[1][2][3] = dPhiP3[1][2][3]/( 1. + (DT23_1[3]/fabs(oPhi+ 10.) ) );
-  }
-  if (dPhiP3[1][2][3]!=99.0 && fabs(EtaP3[1][2]) >  0.6 ){
-      double oPh  = 1./dPhiP3[0][2][3];
-      double oPhi = 1./dPhiP3[1][2][3];
-      dPhiP3[0][2][3] = dPhiP3[0][2][3]/( 1. + (DT23_2[3]/fabs(oPh+ 10.) ) );
-      dPhiP3[1][2][3] = dPhiP3[1][2][3]/( 1. + (DT23_2[3]/fabs(oPhi+ 10.) ) );
+  if (dPhiP3[1][1][3] != 99.0 && fabs(EtaP3[1][1]) > 0.6) {
+    double oPh = 1. / dPhiP3[0][1][3];
+    double oPhi = 1. / dPhiP3[1][1][3];
+    dPhiP3[0][1][3] = dPhiP3[0][1][3] / (1. + (DT13_2[3] / fabs(oPh + 10.)));
+    dPhiP3[1][1][3] = dPhiP3[1][1][3] / (1. + (DT13_2[3] / fabs(oPhi + 10.)));
   }
 
-  if (dPhiP3[1][2][4]!=99.0 && fabs(EtaP3[1][2]) <= 0.52 ){
-      double oPh  = 1./dPhiP3[0][2][4];
-      double oPhi = 1./dPhiP3[1][2][4];
-      dPhiP3[0][2][4] = dPhiP3[0][2][4]/( 1. + (DT24_1[3]/fabs(oPh+ 10.) ) );
-      dPhiP3[1][2][4] = dPhiP3[1][2][4]/( 1. + (DT24_1[3]/fabs(oPhi+ 10.) ) );
+  if (dPhiP3[1][1][4] != 99.0 && fabs(EtaP3[1][1]) <= 0.52) {
+    double oPh = 1. / dPhiP3[0][1][4];
+    double oPhi = 1. / dPhiP3[1][1][4];
+    dPhiP3[0][1][4] = dPhiP3[0][1][4] / (1. + (DT14_1[3] / fabs(oPh + 10.)));
+    dPhiP3[1][1][4] = dPhiP3[1][1][4] / (1. + (DT14_1[3] / fabs(oPhi + 10.)));
   }
-  if (dPhiP3[1][2][4]!=99.0 && fabs(EtaP3[1][2]) > 0.52 ){
-      double oPh  = 1./dPhiP3[0][2][4];
-      double oPhi = 1./dPhiP3[1][2][4];
-      dPhiP3[0][2][4] = dPhiP3[0][2][4]/( 1. + (DT24_2[3]/fabs(oPh+ 10.) ) );
-      dPhiP3[1][2][4] = dPhiP3[1][2][4]/( 1. + (DT24_2[3]/fabs(oPhi+ 10.) ) );
-  }
-
-  if (dPhiP3[1][3][4]!=99.0 && fabs(EtaP3[1][3]) <= 0.51 ){
-      double oPh  = 1./dPhiP3[0][3][4];
-      double oPhi = 1./dPhiP3[1][3][4];
-      dPhiP3[0][3][4] = dPhiP3[0][3][4]/( 1. + (DT34_1[3]/fabs(oPh+ 10.) ) );
-      dPhiP3[1][3][4] = dPhiP3[1][3][4]/( 1. + (DT34_1[3]/fabs(oPhi+ 10.) ) );
-  }
-  if (dPhiP3[1][3][4]!=99.0 && fabs(EtaP3[1][3]) > 0.51 ){
-      double oPh  = 1./dPhiP3[0][3][4];
-      double oPhi = 1./dPhiP3[1][3][4];
-      dPhiP3[0][3][4] = dPhiP3[0][3][4]/( 1. + (DT34_2[3]/fabs(oPh+ 10.) ) );
-      dPhiP3[1][3][4] = dPhiP3[1][3][4]/( 1. + (DT34_2[3]/fabs(oPhi+ 10.) ) );
+  if (dPhiP3[1][1][4] != 99.0 && fabs(EtaP3[1][1]) > 0.52) {
+    double oPh = 1. / dPhiP3[0][1][4];
+    double oPhi = 1. / dPhiP3[1][1][4];
+    dPhiP3[0][1][4] = dPhiP3[0][1][4] / (1. + (DT14_2[3] / fabs(oPh + 10.)));
+    dPhiP3[1][1][4] = dPhiP3[1][1][4] / (1. + (DT14_2[3] / fabs(oPhi + 10.)));
   }
 
+  if (dPhiP3[1][2][3] != 99.0 && fabs(EtaP3[1][2]) <= 0.6) {
+    double oPh = 1. / dPhiP3[0][2][3];
+    double oPhi = 1. / dPhiP3[1][2][3];
+    dPhiP3[0][2][3] = dPhiP3[0][2][3] / (1. + (DT23_1[3] / fabs(oPh + 10.)));
+    dPhiP3[1][2][3] = dPhiP3[1][2][3] / (1. + (DT23_1[3] / fabs(oPhi + 10.)));
+  }
+  if (dPhiP3[1][2][3] != 99.0 && fabs(EtaP3[1][2]) > 0.6) {
+    double oPh = 1. / dPhiP3[0][2][3];
+    double oPhi = 1. / dPhiP3[1][2][3];
+    dPhiP3[0][2][3] = dPhiP3[0][2][3] / (1. + (DT23_2[3] / fabs(oPh + 10.)));
+    dPhiP3[1][2][3] = dPhiP3[1][2][3] / (1. + (DT23_2[3] / fabs(oPhi + 10.)));
+  }
+
+  if (dPhiP3[1][2][4] != 99.0 && fabs(EtaP3[1][2]) <= 0.52) {
+    double oPh = 1. / dPhiP3[0][2][4];
+    double oPhi = 1. / dPhiP3[1][2][4];
+    dPhiP3[0][2][4] = dPhiP3[0][2][4] / (1. + (DT24_1[3] / fabs(oPh + 10.)));
+    dPhiP3[1][2][4] = dPhiP3[1][2][4] / (1. + (DT24_1[3] / fabs(oPhi + 10.)));
+  }
+  if (dPhiP3[1][2][4] != 99.0 && fabs(EtaP3[1][2]) > 0.52) {
+    double oPh = 1. / dPhiP3[0][2][4];
+    double oPhi = 1. / dPhiP3[1][2][4];
+    dPhiP3[0][2][4] = dPhiP3[0][2][4] / (1. + (DT24_2[3] / fabs(oPh + 10.)));
+    dPhiP3[1][2][4] = dPhiP3[1][2][4] / (1. + (DT24_2[3] / fabs(oPhi + 10.)));
+  }
+
+  if (dPhiP3[1][3][4] != 99.0 && fabs(EtaP3[1][3]) <= 0.51) {
+    double oPh = 1. / dPhiP3[0][3][4];
+    double oPhi = 1. / dPhiP3[1][3][4];
+    dPhiP3[0][3][4] = dPhiP3[0][3][4] / (1. + (DT34_1[3] / fabs(oPh + 10.)));
+    dPhiP3[1][3][4] = dPhiP3[1][3][4] / (1. + (DT34_1[3] / fabs(oPhi + 10.)));
+  }
+  if (dPhiP3[1][3][4] != 99.0 && fabs(EtaP3[1][3]) > 0.51) {
+    double oPh = 1. / dPhiP3[0][3][4];
+    double oPhi = 1. / dPhiP3[1][3][4];
+    dPhiP3[0][3][4] = dPhiP3[0][3][4] / (1. + (DT34_2[3] / fabs(oPh + 10.)));
+    dPhiP3[1][3][4] = dPhiP3[1][3][4] / (1. + (DT34_2[3] / fabs(oPhi + 10.)));
+  }
 }
 
-void MuonSeeddPhiScale::ScaleOLdPhi( double dPhiP2[2][5][5], bool MBPath[2][5][3], bool MEPath[2][5][4] ) {
-
-      if ( MBPath[1][1][2] && MEPath[1][1][3] ) {
-         double oPh  = 1./dPhiP2[0][1][1];
-         double oPhi = 1./dPhiP2[1][1][1];
-         dPhiP2[0][1][1] = dPhiP2[0][1][1]/( 1. + (OL1213[3]/fabs(oPh + 10.) ) );
-         dPhiP2[1][1][1] = dPhiP2[1][1][1]/( 1. + (OL1213[3]/fabs(oPhi + 10.) ) );
-      }
-      if ( MBPath[1][1][2] && MEPath[1][2][2] ) {
-         double oPh  = 1./dPhiP2[0][1][2];
-         double oPhi = 1./dPhiP2[1][1][2];
-         dPhiP2[0][1][2] = dPhiP2[0][1][2]/( 1. + (OL1222[3]/fabs(oPh + 10.) ) );
-         dPhiP2[1][1][2] = dPhiP2[1][1][2]/( 1. + (OL1222[3]/fabs(oPhi + 10.) ) );
-      }
-      if ( MBPath[1][1][2] && MEPath[1][3][2] ) {
-         double oPh  = 1./dPhiP2[0][1][3];
-         double oPhi = 1./dPhiP2[1][1][3];
-         dPhiP2[0][1][3] = dPhiP2[0][1][3]/( 1. + (OL1232[3]/fabs(oPh + 10.) ) );
-         dPhiP2[1][1][3] = dPhiP2[1][1][3]/( 1. + (OL1232[3]/fabs(oPhi + 10.) ) );
-      }
-      if ( MBPath[1][2][2] && MEPath[1][1][3] ) {
-         double oPh  = 1./dPhiP2[0][2][1];
-         double oPhi = 1./dPhiP2[1][2][1];
-         dPhiP2[0][2][1] = dPhiP2[0][2][1]/( 1. + (OL2213[3]/fabs(oPh + 10.) ) );
-         dPhiP2[1][2][1] = dPhiP2[1][2][1]/( 1. + (OL2213[3]/fabs(oPhi + 10.) ) );
-      }
-      if ( MBPath[1][2][2] && MEPath[1][2][2] ) {
-         double oPh  = 1./dPhiP2[0][2][2];
-         double oPhi = 1./dPhiP2[1][2][2];
-         dPhiP2[0][2][2] = dPhiP2[0][2][2]/( 1. + (OL2222[3]/fabs(oPh + 10.) ) );
-         dPhiP2[1][2][2] = dPhiP2[1][2][1]/( 1. + (OL2222[3]/fabs(oPhi + 10.) ) );
-      }
-
+void MuonSeeddPhiScale::ScaleOLdPhi(double dPhiP2[2][5][5], bool MBPath[2][5][3], bool MEPath[2][5][4]) {
+  if (MBPath[1][1][2] && MEPath[1][1][3]) {
+    double oPh = 1. / dPhiP2[0][1][1];
+    double oPhi = 1. / dPhiP2[1][1][1];
+    dPhiP2[0][1][1] = dPhiP2[0][1][1] / (1. + (OL1213[3] / fabs(oPh + 10.)));
+    dPhiP2[1][1][1] = dPhiP2[1][1][1] / (1. + (OL1213[3] / fabs(oPhi + 10.)));
+  }
+  if (MBPath[1][1][2] && MEPath[1][2][2]) {
+    double oPh = 1. / dPhiP2[0][1][2];
+    double oPhi = 1. / dPhiP2[1][1][2];
+    dPhiP2[0][1][2] = dPhiP2[0][1][2] / (1. + (OL1222[3] / fabs(oPh + 10.)));
+    dPhiP2[1][1][2] = dPhiP2[1][1][2] / (1. + (OL1222[3] / fabs(oPhi + 10.)));
+  }
+  if (MBPath[1][1][2] && MEPath[1][3][2]) {
+    double oPh = 1. / dPhiP2[0][1][3];
+    double oPhi = 1. / dPhiP2[1][1][3];
+    dPhiP2[0][1][3] = dPhiP2[0][1][3] / (1. + (OL1232[3] / fabs(oPh + 10.)));
+    dPhiP2[1][1][3] = dPhiP2[1][1][3] / (1. + (OL1232[3] / fabs(oPhi + 10.)));
+  }
+  if (MBPath[1][2][2] && MEPath[1][1][3]) {
+    double oPh = 1. / dPhiP2[0][2][1];
+    double oPhi = 1. / dPhiP2[1][2][1];
+    dPhiP2[0][2][1] = dPhiP2[0][2][1] / (1. + (OL2213[3] / fabs(oPh + 10.)));
+    dPhiP2[1][2][1] = dPhiP2[1][2][1] / (1. + (OL2213[3] / fabs(oPhi + 10.)));
+  }
+  if (MBPath[1][2][2] && MEPath[1][2][2]) {
+    double oPh = 1. / dPhiP2[0][2][2];
+    double oPhi = 1. / dPhiP2[1][2][2];
+    dPhiP2[0][2][2] = dPhiP2[0][2][2] / (1. + (OL2222[3] / fabs(oPh + 10.)));
+    dPhiP2[1][2][2] = dPhiP2[1][2][1] / (1. + (OL2222[3] / fabs(oPhi + 10.)));
+  }
 }
 
-void MuonSeeddPhiScale::ScaleMESingle( double ME_phi[2][5][4], bool MEPath[2][5][4] ) {
-
-  if ( MEPath[1][0][1] && MEPath[0][0][1]) {
-     double oPh  = 1./ME_phi[0][0][1];
-     double oPhi = 1./ME_phi[1][0][1];
-     ME_phi[0][0][1] = ME_phi[0][0][1]/( 1. + (SME_11S[3]/fabs(oPh  + 10.) ) );  
-     ME_phi[1][0][1] = ME_phi[1][0][1]/( 1. + (SME_11S[3]/fabs(oPhi + 10.) ) );  
+void MuonSeeddPhiScale::ScaleMESingle(double ME_phi[2][5][4], bool MEPath[2][5][4]) {
+  if (MEPath[1][0][1] && MEPath[0][0][1]) {
+    double oPh = 1. / ME_phi[0][0][1];
+    double oPhi = 1. / ME_phi[1][0][1];
+    ME_phi[0][0][1] = ME_phi[0][0][1] / (1. + (SME_11S[3] / fabs(oPh + 10.)));
+    ME_phi[1][0][1] = ME_phi[1][0][1] / (1. + (SME_11S[3] / fabs(oPhi + 10.)));
   }
-  if ( MEPath[1][1][2] && MEPath[0][1][2]) {
-     double oPh  = 1./ME_phi[0][1][2];
-     double oPhi = 1./ME_phi[1][1][2];
-     ME_phi[0][1][2] = ME_phi[0][1][2]/( 1. + (SME_12S[3]/fabs(oPh  + 10.) ) );  
-     ME_phi[1][1][2] = ME_phi[1][1][2]/( 1. + (SME_12S[3]/fabs(oPhi + 10.) ) );  
+  if (MEPath[1][1][2] && MEPath[0][1][2]) {
+    double oPh = 1. / ME_phi[0][1][2];
+    double oPhi = 1. / ME_phi[1][1][2];
+    ME_phi[0][1][2] = ME_phi[0][1][2] / (1. + (SME_12S[3] / fabs(oPh + 10.)));
+    ME_phi[1][1][2] = ME_phi[1][1][2] / (1. + (SME_12S[3] / fabs(oPhi + 10.)));
   }
-  if ( MEPath[1][1][3] && MEPath[0][1][3]) {
-     double oPh  = 1./ME_phi[0][1][3];
-     double oPhi = 1./ME_phi[1][1][3];
-     ME_phi[0][1][3] = ME_phi[0][1][3]/( 1. + (SME_13S[3]/fabs(oPh  + 10.) ) );  
-     ME_phi[1][1][3] = ME_phi[1][1][3]/( 1. + (SME_13S[3]/fabs(oPhi + 10.) ) );  
+  if (MEPath[1][1][3] && MEPath[0][1][3]) {
+    double oPh = 1. / ME_phi[0][1][3];
+    double oPhi = 1. / ME_phi[1][1][3];
+    ME_phi[0][1][3] = ME_phi[0][1][3] / (1. + (SME_13S[3] / fabs(oPh + 10.)));
+    ME_phi[1][1][3] = ME_phi[1][1][3] / (1. + (SME_13S[3] / fabs(oPhi + 10.)));
   }
-  if ( MEPath[1][2][1] && MEPath[0][2][1]) {
-     double oPh  = 1./ME_phi[0][2][1];
-     double oPhi = 1./ME_phi[1][2][1];
-     ME_phi[0][2][1] = ME_phi[0][2][1]/( 1. + (SME_21S[3]/fabs(oPh  + 10.) ) );  
-     ME_phi[1][2][1] = ME_phi[1][2][1]/( 1. + (SME_21S[3]/fabs(oPhi + 10.) ) );  
+  if (MEPath[1][2][1] && MEPath[0][2][1]) {
+    double oPh = 1. / ME_phi[0][2][1];
+    double oPhi = 1. / ME_phi[1][2][1];
+    ME_phi[0][2][1] = ME_phi[0][2][1] / (1. + (SME_21S[3] / fabs(oPh + 10.)));
+    ME_phi[1][2][1] = ME_phi[1][2][1] / (1. + (SME_21S[3] / fabs(oPhi + 10.)));
   }
-  if ( MEPath[1][2][2] && MEPath[0][2][2]) {
-     double oPh  = 1./ME_phi[0][2][2];
-     double oPhi = 1./ME_phi[1][2][2];
-     ME_phi[0][2][2] = ME_phi[0][2][2]/( 1. + (SME_22S[3]/fabs(oPh  + 10.) ) );  
-     ME_phi[1][2][2] = ME_phi[1][2][2]/( 1. + (SME_22S[3]/fabs(oPhi + 10.) ) );  
+  if (MEPath[1][2][2] && MEPath[0][2][2]) {
+    double oPh = 1. / ME_phi[0][2][2];
+    double oPhi = 1. / ME_phi[1][2][2];
+    ME_phi[0][2][2] = ME_phi[0][2][2] / (1. + (SME_22S[3] / fabs(oPh + 10.)));
+    ME_phi[1][2][2] = ME_phi[1][2][2] / (1. + (SME_22S[3] / fabs(oPhi + 10.)));
   }
-
 }
 
-void MuonSeeddPhiScale::ScaleMBSingle( double MB_phi[2][5][3], bool MBPath[2][5][3] ) {
-
-  if ( MBPath[1][1][0] && MBPath[0][1][0]) {
-     double oPh  = 1./MB_phi[0][1][0];
-     double oPhi = 1./MB_phi[1][1][0];
-     MB_phi[0][1][0] = MB_phi[0][1][0]/( 1. + (SMB_10S[3]/fabs(oPh  + 10.) ) );  
-     MB_phi[1][1][0] = MB_phi[1][1][0]/( 1. + (SMB_10S[3]/fabs(oPhi + 10.) ) );  
+void MuonSeeddPhiScale::ScaleMBSingle(double MB_phi[2][5][3], bool MBPath[2][5][3]) {
+  if (MBPath[1][1][0] && MBPath[0][1][0]) {
+    double oPh = 1. / MB_phi[0][1][0];
+    double oPhi = 1. / MB_phi[1][1][0];
+    MB_phi[0][1][0] = MB_phi[0][1][0] / (1. + (SMB_10S[3] / fabs(oPh + 10.)));
+    MB_phi[1][1][0] = MB_phi[1][1][0] / (1. + (SMB_10S[3] / fabs(oPhi + 10.)));
   }
-  if ( MBPath[1][1][1] && MBPath[0][1][1]) {
-     double oPh  = 1./MB_phi[0][1][1];
-     double oPhi = 1./MB_phi[1][1][1];
-     MB_phi[0][1][1] = MB_phi[0][1][1]/( 1. + (SMB_11S[3]/fabs(oPh  + 10.) ) );  
-     MB_phi[1][1][1] = MB_phi[1][1][1]/( 1. + (SMB_11S[3]/fabs(oPhi + 10.) ) );  
+  if (MBPath[1][1][1] && MBPath[0][1][1]) {
+    double oPh = 1. / MB_phi[0][1][1];
+    double oPhi = 1. / MB_phi[1][1][1];
+    MB_phi[0][1][1] = MB_phi[0][1][1] / (1. + (SMB_11S[3] / fabs(oPh + 10.)));
+    MB_phi[1][1][1] = MB_phi[1][1][1] / (1. + (SMB_11S[3] / fabs(oPhi + 10.)));
   }
-  if ( MBPath[1][1][2] && MBPath[0][1][2]) {
-     double oPh  = 1./MB_phi[0][1][2];
-     double oPhi = 1./MB_phi[1][1][2];
-     MB_phi[0][1][2] = MB_phi[0][1][2]/( 1. + (SMB_12S[3]/fabs(oPh  + 10.) ) );  
-     MB_phi[1][1][2] = MB_phi[1][1][2]/( 1. + (SMB_12S[3]/fabs(oPhi + 10.) ) );  
+  if (MBPath[1][1][2] && MBPath[0][1][2]) {
+    double oPh = 1. / MB_phi[0][1][2];
+    double oPhi = 1. / MB_phi[1][1][2];
+    MB_phi[0][1][2] = MB_phi[0][1][2] / (1. + (SMB_12S[3] / fabs(oPh + 10.)));
+    MB_phi[1][1][2] = MB_phi[1][1][2] / (1. + (SMB_12S[3] / fabs(oPhi + 10.)));
   }
-  if ( MBPath[1][2][0] && MBPath[0][2][0]) {
-     double oPh  = 1./MB_phi[0][2][0];
-     double oPhi = 1./MB_phi[1][2][0];
-     MB_phi[0][2][0] = MB_phi[0][2][0]/( 1. + (SMB_20S[3]/fabs(oPh  + 10.) ) );  
-     MB_phi[1][2][0] = MB_phi[1][2][0]/( 1. + (SMB_20S[3]/fabs(oPhi + 10.) ) );  
+  if (MBPath[1][2][0] && MBPath[0][2][0]) {
+    double oPh = 1. / MB_phi[0][2][0];
+    double oPhi = 1. / MB_phi[1][2][0];
+    MB_phi[0][2][0] = MB_phi[0][2][0] / (1. + (SMB_20S[3] / fabs(oPh + 10.)));
+    MB_phi[1][2][0] = MB_phi[1][2][0] / (1. + (SMB_20S[3] / fabs(oPhi + 10.)));
   }
-  if ( MBPath[1][2][1] && MBPath[0][2][1]) {
-     double oPh  = 1./MB_phi[0][2][1];
-     double oPhi = 1./MB_phi[1][2][1];
-     MB_phi[0][2][1] = MB_phi[0][2][1]/( 1. + (SMB_21S[3]/fabs(oPh  + 10.) ) );  
-     MB_phi[1][2][1] = MB_phi[1][2][1]/( 1. + (SMB_21S[3]/fabs(oPhi + 10.) ) );  
+  if (MBPath[1][2][1] && MBPath[0][2][1]) {
+    double oPh = 1. / MB_phi[0][2][1];
+    double oPhi = 1. / MB_phi[1][2][1];
+    MB_phi[0][2][1] = MB_phi[0][2][1] / (1. + (SMB_21S[3] / fabs(oPh + 10.)));
+    MB_phi[1][2][1] = MB_phi[1][2][1] / (1. + (SMB_21S[3] / fabs(oPhi + 10.)));
   }
-  if ( MBPath[1][2][2] && MBPath[0][2][2]) {
-     double oPh  = 1./MB_phi[0][2][2];
-     double oPhi = 1./MB_phi[1][2][2];
-     MB_phi[0][2][2] = MB_phi[0][2][2]/( 1. + (SMB_22S[3]/fabs(oPh  + 10.) ) );  
-     MB_phi[1][2][2] = MB_phi[1][2][2]/( 1. + (SMB_22S[3]/fabs(oPhi + 10.) ) );  
+  if (MBPath[1][2][2] && MBPath[0][2][2]) {
+    double oPh = 1. / MB_phi[0][2][2];
+    double oPhi = 1. / MB_phi[1][2][2];
+    MB_phi[0][2][2] = MB_phi[0][2][2] / (1. + (SMB_22S[3] / fabs(oPh + 10.)));
+    MB_phi[1][2][2] = MB_phi[1][2][2] / (1. + (SMB_22S[3] / fabs(oPhi + 10.)));
   }
-  if ( MBPath[1][3][0] && MBPath[0][3][0]) {
-     double oPh  = 1./MB_phi[0][3][0];
-     double oPhi = 1./MB_phi[1][3][0];
-     MB_phi[0][3][0] = MB_phi[0][3][0]/( 1. + (SMB_30S[3]/fabs(oPh  + 10.) ) );  
-     MB_phi[1][3][0] = MB_phi[1][3][0]/( 1. + (SMB_30S[3]/fabs(oPhi + 10.) ) );  
+  if (MBPath[1][3][0] && MBPath[0][3][0]) {
+    double oPh = 1. / MB_phi[0][3][0];
+    double oPhi = 1. / MB_phi[1][3][0];
+    MB_phi[0][3][0] = MB_phi[0][3][0] / (1. + (SMB_30S[3] / fabs(oPh + 10.)));
+    MB_phi[1][3][0] = MB_phi[1][3][0] / (1. + (SMB_30S[3] / fabs(oPhi + 10.)));
   }
-  if ( MBPath[1][3][1] && MBPath[0][3][1]) {
-     double oPh  = 1./MB_phi[0][3][1];
-     double oPhi = 1./MB_phi[1][3][1];
-     MB_phi[0][3][1] = MB_phi[0][3][1]/( 1. + (SMB_31S[3]/fabs(oPh  + 10.) ) );  
-     MB_phi[1][3][1] = MB_phi[1][3][1]/( 1. + (SMB_31S[3]/fabs(oPhi + 10.) ) );  
+  if (MBPath[1][3][1] && MBPath[0][3][1]) {
+    double oPh = 1. / MB_phi[0][3][1];
+    double oPhi = 1. / MB_phi[1][3][1];
+    MB_phi[0][3][1] = MB_phi[0][3][1] / (1. + (SMB_31S[3] / fabs(oPh + 10.)));
+    MB_phi[1][3][1] = MB_phi[1][3][1] / (1. + (SMB_31S[3] / fabs(oPhi + 10.)));
   }
-  if ( MBPath[1][3][2] && MBPath[0][3][2]) {
-     double oPh  = 1./MB_phi[0][3][2];
-     double oPhi = 1./MB_phi[1][3][2];
-     MB_phi[0][3][2] = MB_phi[0][3][2]/( 1. + (SMB_32S[3]/fabs(oPh  + 10.) ) );  
-     MB_phi[1][3][2] = MB_phi[1][3][2]/( 1. + (SMB_32S[3]/fabs(oPhi + 10.) ) );  
+  if (MBPath[1][3][2] && MBPath[0][3][2]) {
+    double oPh = 1. / MB_phi[0][3][2];
+    double oPhi = 1. / MB_phi[1][3][2];
+    MB_phi[0][3][2] = MB_phi[0][3][2] / (1. + (SMB_32S[3] / fabs(oPh + 10.)));
+    MB_phi[1][3][2] = MB_phi[1][3][2] / (1. + (SMB_32S[3] / fabs(oPhi + 10.)));
   }
-
 }
