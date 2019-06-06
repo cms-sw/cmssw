@@ -13,6 +13,8 @@
 #time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label='Solenoid Magnet'
 ##Muon Wheels and Cables
 #time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label='Muon Wheels and Cables'
+##Finally, all together 
+#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label=FromVertexToBackOfHGCal
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
