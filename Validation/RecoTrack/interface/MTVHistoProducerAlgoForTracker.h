@@ -35,6 +35,7 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
   std::vector<ConcurrentMonitorElement> h_tracks, h_fakes, h_hits, h_charge, h_algo, h_seedsFitFailed, h_seedsFitFailedFraction;
   std::vector<ConcurrentMonitorElement> h_recoeta, h_reco2eta, h_assoceta, h_assoc2eta, h_simuleta, h_loopereta, h_misideta, h_pileupeta;
   std::vector<ConcurrentMonitorElement> h_recopT, h_reco2pT, h_assocpT, h_assoc2pT, h_simulpT, h_looperpT, h_misidpT, h_pileuppT;
+  std::vector<ConcurrentMonitorElement> h_recopTvseta, h_reco2pTvseta, h_assocpTvseta, h_assoc2pTvseta, h_simulpTvseta, h_looperpTvseta, h_misidpTvseta, h_pileuppTvseta;
   std::vector<ConcurrentMonitorElement> h_recohit, h_assochit, h_assoc2hit, h_simulhit, h_looperhit, h_misidhit, h_pileuphit;
   std::vector<ConcurrentMonitorElement> h_recolayer, h_assoclayer, h_assoc2layer, h_simullayer, h_looperlayer, h_misidlayer, h_pileuplayer;
   std::vector<ConcurrentMonitorElement> h_recopixellayer, h_assocpixellayer, h_assoc2pixellayer, h_simulpixellayer, h_looperpixellayer, h_misidpixellayer, h_pileuppixellayer;
@@ -53,6 +54,7 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
   std::vector<ConcurrentMonitorElement> h_assocdr, h_assoc2dr, h_simuldr, h_recodr, h_looperdr, h_pileupdr;
   std::vector<ConcurrentMonitorElement> h_assocdrj, h_assoc2drj, h_simuldrj , h_recodrj, h_looperdrj, h_pileupdrj;
   std::vector<ConcurrentMonitorElement> h_recochi2, h_assoc2chi2, h_looperchi2, h_misidchi2, h_pileupchi2;
+  std::vector<ConcurrentMonitorElement> h_recochi2prob, h_assoc2chi2prob, h_looperchi2prob, h_misidchi2prob, h_pileupchi2prob;
   std::vector<ConcurrentMonitorElement> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
   std::vector<ConcurrentMonitorElement> h_assoc2_itpu_eta, h_assoc2_itpu_sig_eta, h_assoc2eta_sig;
   std::vector<ConcurrentMonitorElement> h_assoc2_itpu_vertcount, h_assoc2_itpu_sig_vertcount;
@@ -118,6 +120,7 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
 
   //chi2 and # lost hits vs eta: to be used with doProfileX
   std::vector<ConcurrentMonitorElement> chi2_vs_eta, nlosthits_vs_eta;
+  std::vector<ConcurrentMonitorElement> assoc_chi2_vs_eta, assoc_chi2prob_vs_eta;
 
   //resolution of track params: to be used with fitslicesytool
   std::vector<ConcurrentMonitorElement> dxyres_vs_eta, ptres_vs_eta, dzres_vs_eta, phires_vs_eta, cotThetares_vs_eta;
