@@ -1,3 +1,5 @@
+#include "IOPool/Streamer/interface/FRDEventMessage.h"
+
 /**
  * This class is used to view the contents of "FED Raw Data" (FRD) events.
  * Initially, the only time that such events are created is
@@ -8,8 +10,6 @@
  * events as well.
  *
  */
-
-#include "IOPool/Streamer/interface/FRDEventMessage.h"
 
 /**
  * Constructor for the FRD event message viewer.

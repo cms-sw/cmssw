@@ -135,4 +135,40 @@ private:
   uint32 crc32c_;
 };
 
+/*
+ * FRD File Header optionally found at the beginning of the FRD RAW file
+ *
+ * Version 1 Format:
+ *   unsigned char [4] - id contanining 4 characters: 0x52, 0x41, 0x57, 0x5f  "RAW_"
+ *   unsigned char [4] - version string 4 characters: 0x30, 0x30, 0x30, 0x31  "0001"
+ *   uint16 - header size: 22
+ *   uint32 - number of events in the RAW file
+ *   uint64 - total size of the raw file (including header)
+ *
+ * */
+
+struct FRDFileHeader_v1 {
+  unsigned char id_[4];       // 0x52, 0x41, 0x57, 0x5f  "RAW_"
+  unsigned char version_[4];  // 0x30, 0x30, 0x30, 0x31  "0001"
+  uint16 headerSize_;         //22
+  uint32 nbEventsWritten_;
+  uint64 fileSize_;
+};
+
+const unsigned char FRDFileHeader_id[4] = {0x52, 0x41, 0x57, 0x5f};
+
+inline uint16 getFRDFileHeaderVersion(const unsigned char* id, const unsigned char* version) {
+  size_t i;
+  for (i = 0; i < 4; i++)
+    if (id[i] != FRDFileHeader_id[i])
+      return 0;  //not FRD file header
+  uint16 ret = 0;
+  for (i = 4; i < 8; i++) {
+    if (version[i] > 0x39 || version[i] < 0x30)
+      return 0;  //NaN sequence
+    ret += (version[i] - 0x30) << (7 - i);
+  }
+  return ret;
+}
+
 #endif

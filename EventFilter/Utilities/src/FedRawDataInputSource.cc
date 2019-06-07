@@ -433,6 +433,28 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
     return evf::EvFDaqDirector::noFile;
   }
 
+  //handle RAW file header
+  if (currentFile_->bufferPosition_ == 0 && currentFile_->rawHeaderSize_ > 0) {
+    if (currentFile_->fileSize_ <= currentFile_->rawHeaderSize_) {
+      if (currentFile_->fileSize_ < currentFile_->rawHeaderSize_)
+        throw cms::Exception("FedRawDataInputSource::getNextEvent")
+            << "Premature end of input file while reading file header";
+
+      edm::LogWarning("FedRawDataInputSource")
+          << "File with only raw header and no events received in LS " << currentFile_->lumi_;
+      if (getLSFromFilename_)
+        if (currentFile_->lumi_ > currentLumiSection_) {
+          reportEventsThisLumiInSource(currentLumiSection_, eventsThisLumi_);
+          eventsThisLumi_ = 0;
+          maybeOpenNewLumiSection(currentFile_->lumi_);
+        }
+    }
+
+    //advance buffer position to skip file header (chunk will be acquired later)
+    currentFile_->chunkPosition_ += currentFile_->rawHeaderSize_;
+    currentFile_->bufferPosition_ += currentFile_->rawHeaderSize_;
+  }
+
   //file is too short
   if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < FRDHeaderVersionSize[detectedFRDversion_]) {
     throw cms::Exception("FedRawDataInputSource::getNextEvent")
@@ -808,7 +830,7 @@ void FedRawDataInputSource::readSupervisor() {
     //look for a new file
     std::string nextFile;
     uint32_t fileSizeIndex;
-    int64_t fileSizeFromJson;
+    int64_t fileSizeFromMetadata;
 
     if (fms_) {
       fms_->setInStateSup(evf::FastMonitoringThread::inSupBusy);
@@ -817,8 +839,8 @@ void FedRawDataInputSource::readSupervisor() {
     }
 
     evf::EvFDaqDirector::FileStatus status = evf::EvFDaqDirector::noFile;
-
-    int serverEventsInNewFile_ = -1;
+    uint16_t rawHeaderSize = 0;
+    int32_t serverEventsInNewFile = -1;
 
     int backoff_exp = 0;
 
@@ -832,11 +854,25 @@ void FedRawDataInputSource::readSupervisor() {
       if (fileListMode_) {
         //return LS if LS not set, otherwise return file
         status = getFile(ls, nextFile, fileSizeIndex, thisLockWaitTimeUs);
+        if (status == evf::EvFDaqDirector::newFile) {
+          if (evf::EvFDaqDirector::parseFRDFileHeader(
+                  nextFile, rawHeaderSize, serverEventsInNewFile, fileSizeFromMetadata, false, false) != 0) {
+            //error
+            setExceptionState_ = true;
+            stop = true;
+            break;
+          }
+        }
       } else if (!useFileBroker_)
         status = daqDirector_->updateFuLock(ls, nextFile, fileSizeIndex, thisLockWaitTimeUs);
       else {
-        status = daqDirector_->getNextFromFileBroker(
-            currentLumiSection, ls, nextFile, serverEventsInNewFile_, fileSizeFromJson, thisLockWaitTimeUs);
+        status = daqDirector_->getNextFromFileBroker(currentLumiSection,
+                                                     ls,
+                                                     nextFile,
+                                                     rawHeaderSize,
+                                                     serverEventsInNewFile,
+                                                     fileSizeFromMetadata,
+                                                     thisLockWaitTimeUs);
       }
 
       if (fms_)
@@ -981,9 +1017,10 @@ void FedRawDataInputSource::readSupervisor() {
         if (!useFileBroker_)
           eventsInNewFile = daqDirector_->grabNextJsonFileAndUnlock(nextFile);
         else
-          eventsInNewFile = serverEventsInNewFile_;
+          eventsInNewFile = serverEventsInNewFile;
         assert(eventsInNewFile >= 0);
-        assert((eventsInNewFile > 0) == (fileSize > 0));  //file without events must be empty
+        assert((eventsInNewFile > 0) ==
+               (fileSize > rawHeaderSize));  //file without events must be empty or contain only header
       }
 
       if (!singleBufferMode_) {
@@ -992,8 +1029,14 @@ void FedRawDataInputSource::readSupervisor() {
         if (fileSize % eventChunkSize_)
           neededChunks++;
 
-        InputFile* newInputFile = new InputFile(
-            evf::EvFDaqDirector::FileStatus::newFile, ls, rawFile, fileSize, neededChunks, eventsInNewFile, this);
+        InputFile* newInputFile = new InputFile(evf::EvFDaqDirector::FileStatus::newFile,
+                                                ls,
+                                                rawFile,
+                                                fileSize,
+                                                rawHeaderSize,
+                                                neededChunks,
+                                                eventsInNewFile,
+                                                this);
         readingFilesCount_++;
         fileQueue_.push(newInputFile);
 
@@ -1066,7 +1109,15 @@ void FedRawDataInputSource::readSupervisor() {
         if (!eventsInNewFile) {
           //still queue file for lumi update
           std::unique_lock<std::mutex> lkw(mWakeup_);
-          InputFile* newInputFile = new InputFile(evf::EvFDaqDirector::FileStatus::newFile, ls, rawFile, 0, 0, 0, this);
+          //TODO: also file with only file header fits in this edge case. Check if read correctly in single buffer mode
+          InputFile* newInputFile = new InputFile(evf::EvFDaqDirector::FileStatus::newFile,
+                                                  ls,
+                                                  rawFile,
+                                                  fileSize,
+                                                  rawHeaderSize,
+                                                  (rawHeaderSize > 0),
+                                                  0,
+                                                  this);
           readingFilesCount_++;
           fileQueue_.push(newInputFile);
           cvWakeup_.notify_one();
@@ -1090,8 +1141,8 @@ void FedRawDataInputSource::readSupervisor() {
         newChunk->readComplete_ = true;
 
         //push file and wakeup main thread
-        InputFile* newInputFile =
-            new InputFile(evf::EvFDaqDirector::FileStatus::newFile, ls, rawFile, fileSize, 1, eventsInNewFile, this);
+        InputFile* newInputFile = new InputFile(
+            evf::EvFDaqDirector::FileStatus::newFile, ls, rawFile, fileSize, rawHeaderSize, 1, eventsInNewFile, this);
         newInputFile->chunks_[0] = newChunk;
         readingFilesCount_++;
         fileQueue_.push(newInputFile);
@@ -1206,8 +1257,10 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
                                       << " GB/s)";
     close(fileDescriptor);
 
-    if (detectedFRDversion_ == 0 && chunk->offset_ == 0)
-      detectedFRDversion_ = *((uint32*)chunk->buf_);
+    //detect FRD event version. Skip file Header if it exists
+    if (detectedFRDversion_ == 0 && chunk->offset_ == 0) {
+      detectedFRDversion_ = *((uint32*)chunk->buf_ + file->rawHeaderSize_);
+    }
     assert(detectedFRDversion_ <= 5);
     chunk->readComplete_ =
         true;  //this is atomic to secure the sequential buffer fill before becoming available for processing)

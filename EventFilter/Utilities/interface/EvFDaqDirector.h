@@ -123,6 +123,16 @@ namespace evf {
     void createLumiSectionFiles(const uint32_t lumiSection,
                                 const uint32_t currentLumiSection,
                                 bool doCreateBoLS = true);
+    static int parseFRDFileHeader(std::string const& rawSourcePath,
+                                  uint16_t& rawHeaderSize,
+                                  int32_t& eventsFromHeader,
+                                  int64_t& fileSizeFromHeader,
+                                  bool requireHeader,
+                                  bool retry);
+    int grabNextJsonFromRaw(std::string const& rawSourcePath,
+                            uint16_t& rawHeaderSize,
+                            int64_t& fileSizeFromHeader,
+                            bool& fileFound);
     int grabNextJsonFile(std::string const& jsonSourcePath,
                          std::string const& rawSourcePath,
                          int64_t& fileSizeFromJson,
@@ -135,12 +145,14 @@ namespace evf {
                                                  uint32_t& closedServerLS,
                                                  std::string& nextFileJson,
                                                  std::string& nextFileRaw,
+                                                 bool& rawHeader,
                                                  int maxLS);
 
     FileStatus getNextFromFileBroker(const unsigned int currentLumiSection,
                                      unsigned int& ls,
                                      std::string& nextFile,
-                                     int& serverEventsInNewFile_,
+                                     uint16_t& rawHeaderSize,
+                                     int32_t& serverEventsInNewFile_,
                                      int64_t& fileSize,
                                      uint64_t& thisLockWaitTimeUs);
     void createRunOpendirMaybe();
