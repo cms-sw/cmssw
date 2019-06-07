@@ -143,9 +143,8 @@ bool FakeCPEFiller::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
         std::cout << "simhit " << sh.localPosition() << std::endl;
 
-        LocalValues lv(
-            sh.localPosition(),
-            thit.localPositionError());  // fill with simhit and rechit error (in alternative hand-made error)
+        // fill with simhit and rechit error (in alternative hand-made error)
+        LocalValues lv(sh.localPosition(), thit.localPositionError());
         //LocalValues lv(thit.localPosition(),thit.localPositionError());  // fill with rechit (to verify nothing changes!)
         // Fill The Map
         if (clus.isPixel())

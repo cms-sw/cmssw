@@ -326,8 +326,8 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
         //I avoid the Sqrt since it will not be saved
         double maximumXdistance = maxGlobalPointDistance[0] * maxGlobalPointDistance[0];
         double maximumYdistance = maxGlobalPointDistance[1] * maxGlobalPointDistance[1];
-        double minimumDistance =
-            1. + maximumXdistance + maximumYdistance;  // to be sure that the first min distance is from a real point
+        // to be sure that the first min distance is from a real point
+        double minimumDistance = 1. + maximumXdistance + maximumYdistance;
         for (const auto &hit : (*hitMap_)[tmpPlaneId]) {
           double xResidual = hit.globalPoint.x() - pointOnDet.x();
           double yResidual = hit.globalPoint.y() - pointOnDet.y();
@@ -471,9 +471,8 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
         track.setRecoInfo(CTPPSpixelLocalTrackReconstructionInfo::
                               allShiftedPlanes);  // Track reconstructed in a shifted ROC, only with bx-shifted planes
       if (bxShiftedPlanesUsed == 0 && bxNonShiftedPlanesUsed == 3)
-        track.setRecoInfo(
-            CTPPSpixelLocalTrackReconstructionInfo::
-                noShiftedPlanes);  // Track reconstructed in a shifted ROC, only with non-bx-shifted planes
+        // Track reconstructed in a shifted ROC, only with non-bx-shifted planes
+        track.setRecoInfo(CTPPSpixelLocalTrackReconstructionInfo::noShiftedPlanes);
       if (bxShiftedPlanesUsed > 0 && bxNonShiftedPlanesUsed > 0)
         track.setRecoInfo(CTPPSpixelLocalTrackReconstructionInfo::
                               mixedPlanes);  // Track reconstructed in a shifted ROC, with mixed planes

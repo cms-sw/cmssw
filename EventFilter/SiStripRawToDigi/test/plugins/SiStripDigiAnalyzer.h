@@ -16,9 +16,7 @@ class SiStripTrivialDigiAnalysis {
 public:
   /** Default constructor. */
   SiStripTrivialDigiAnalysis()
-      : events_(0), feds_(0), channels_(0), strips_(0), digis_(0), size_(1024), pos_(size_ + 1, 0), adc_(size_ + 1, 0) {
-    ;
-  }
+      : events_(0), feds_(0), channels_(0), strips_(0), digis_(0), size_(1024), pos_(size_ + 1, 0), adc_(size_ + 1, 0) {}
 
   /** Pipes collected statistics to stringstream. */
   void print(std::stringstream&);

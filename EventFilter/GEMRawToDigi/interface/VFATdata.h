@@ -12,8 +12,8 @@ namespace gem {
       uint64_t msData1 : 16;  ///<channels from 65to128
       uint64_t bc : 16;       ///<Bunch Crossing number, 16 bits
       uint64_t ec : 8;        ///<Event Counter, 8 bits
-      uint64_t
-          header : 8;  ///<normally 0x1E. 0x5E indicates that the VFAT3 internal buffer is half-full, so it's like a warning
+      ///<normally 0x1E. 0x5E indicates that the VFAT3 internal buffer is half-full, so it's like a warning
+      uint64_t header : 8;
       uint64_t crcCheck : 8;  ///<bits 183:177 are not used, should be 0, bit 176 is 1 if CTP7 detected a CRC mismatch
       uint64_t pos : 8;       ///<an 8bit value indicating the VFAT position on this GEB (it can be 0 to 23)
     };

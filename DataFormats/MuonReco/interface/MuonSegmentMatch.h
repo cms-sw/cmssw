@@ -28,8 +28,8 @@ namespace reco {
     static const unsigned int BelongsToTrackByME1aClean = 1 << 21;  // won ME1a segment sharing cleaning
     static const unsigned int BelongsToTrackByOvlClean = 1 << 22;   // won chamber overlap segment sharing cleaning
     static const unsigned int BelongsToTrackByClusClean = 1 << 23;  // won cluster sharing cleaning
-    static const unsigned int BelongsToTrackByCleaning =
-        1 << 24;  // won any arbitration cleaning type, including defaults
+    // won any arbitration cleaning type, including defaults
+    static const unsigned int BelongsToTrackByCleaning = 1 << 24;
 
     float x;            // X position of the matched segment
     float y;            // Y position of the matched segment

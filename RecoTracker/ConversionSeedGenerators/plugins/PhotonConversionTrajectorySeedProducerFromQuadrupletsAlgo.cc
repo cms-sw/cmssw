@@ -122,10 +122,10 @@ bool PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::inspect(const Tr
   ss << "\n nHitss " << nHitss << "\n";
 #endif
 
+  // don't do multiple reserves in the case of multiple regions: it would make things even worse
+  // as it will cause N re-allocations instead of the normal log(N)/log(2)
   if (seedCollection->empty())
-    seedCollection->reserve(
-        nHitss / 2);  // don't do multiple reserves in the case of multiple regions: it would make things even worse
-                      // as it will cause N re-allocations instead of the normal log(N)/log(2)
+    seedCollection->reserve(nHitss / 2);
 
   unsigned int iHits = 0, jHits = 1;
 

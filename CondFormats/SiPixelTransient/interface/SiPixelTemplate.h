@@ -209,19 +209,18 @@ struct SiPixelTemplateStore {  //!< template storage structure
   float cotbetaY[60];
   float cotbetaX[5];
   float cotalphaX[29];
-  SiPixelTemplateEntry
-      enty[60];  //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px [28 entries for fpix]
-  SiPixelTemplateEntry entx
-      [5]
-      [29];  //!< 29 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 5 slices [3x29 for fpix]
+  //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px [28 entries for fpix]
+  SiPixelTemplateEntry enty[60];
+  //!< 29 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 5 slices [3x29 for fpix]
+  SiPixelTemplateEntry entx[5][29];
   void destroy(){};
 #else
   float* cotbetaY = nullptr;
   float* cotbetaX = nullptr;
   float* cotalphaX = nullptr;
   boost::multi_array<SiPixelTemplateEntry, 1> enty;  //!< use 1d entry to store [60] barrel entries or [28] fpix entries
-  boost::multi_array<SiPixelTemplateEntry, 2>
-      entx;         //!< use 2d entry to store [5][29] barrel entries or [3][29] fpix entries
+  //!< use 2d entry to store [5][29] barrel entries or [3][29] fpix entries
+  boost::multi_array<SiPixelTemplateEntry, 2> entx;
   void destroy() {  // deletes arrays created by pushfile method of SiPixelTemplate
     if (cotbetaY != nullptr)
       delete[] cotbetaY;
@@ -266,11 +265,10 @@ public:
 #ifdef SI_PIXEL_TEMPLATE_STANDALONE
   static bool pushfile(int filenum, std::vector<SiPixelTemplateStore>& pixelTemp, std::string dir = "");
 #else
-  static bool pushfile(
-      int filenum,
-      std::vector<SiPixelTemplateStore>& pixelTemp,
-      std::string dir =
-          "CalibTracker/SiPixelESProducers/data/");  // *&^%$#@!  Different default dir -- remove once FastSim is updated.
+  static bool pushfile(int filenum,
+                       std::vector<SiPixelTemplateStore>& pixelTemp,
+                       // *&^%$#@!  Different default dir -- remove once FastSim is updated.
+                       std::string dir = "CalibTracker/SiPixelESProducers/data/");
   static bool pushfile(const SiPixelTemplateDBObject& dbobject,
                        std::vector<SiPixelTemplateStore>& pixelTemp);  // load the private store with info from db
 #endif

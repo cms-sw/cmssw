@@ -51,10 +51,7 @@ PreIdAnalyzer::PreIdAnalyzer(const edm::ParameterSet& pset) {
   TrackLabel_ = pset.getParameter<edm::InputTag>("TrackCollection");
 }
 
-PreIdAnalyzer::~PreIdAnalyzer() {
-  dbe->save("PreId.root");
-  ;
-}
+PreIdAnalyzer::~PreIdAnalyzer() { dbe->save("PreId.root"); }
 
 void PreIdAnalyzer::beginRun(edm::Run const& run, edm::EventSetup const& es) {
   dbe = edm::Service<DQMStore>().operator->();

@@ -204,9 +204,8 @@ void GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         int ipteta = getBin(Tk[i].eta(), Tk[i].pt());
         int ibin = ipteta * 9;
 
-        float oPTOB =
-            1.f /
-            std::sqrt(Tk[i].innerMomentum().mag2());  // FIXME the original code was buggy should be outerMomentum...
+        // FIXME the original code was buggy should be outerMomentum...
+        float oPTOB = 1.f / std::sqrt(Tk[i].innerMomentum().mag2());
         //  float chikfred=Tk[i].normalizedChi2();
         float nchi = Tk[i].normalizedChi2();
 
