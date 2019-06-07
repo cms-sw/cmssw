@@ -98,6 +98,7 @@ namespace hgcal {
       std::map<DetId, const HGCRecHit *> * hitMap_;
       std::vector<Spot> theSpots_;
       int pcaIteration_;
+      unsigned int maxlayer;
 
       // output quantities
       math::XYZPoint barycenter_;
