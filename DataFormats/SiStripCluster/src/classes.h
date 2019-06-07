@@ -7,6 +7,4 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/ContainerMask.h"
 
-
-
-#endif // SISTRIPCLUSTER_CLASSES_H
+#endif  // SISTRIPCLUSTER_CLASSES_H

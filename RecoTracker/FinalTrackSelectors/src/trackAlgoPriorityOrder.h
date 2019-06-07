@@ -25,56 +25,55 @@ namespace impl {
    * each reco::TrackBase::TrackAlgorithm enumerator should be in the
    * array exactly once (checked below in findIndex() function).
    */
-  constexpr reco::TrackBase::TrackAlgorithm algoPriorityOrder[] ={
-    reco::TrackBase::undefAlgorithm,
-    reco::TrackBase::ctf,
-    reco::TrackBase::cosmics,
-    reco::TrackBase::duplicateMerge,
-    reco::TrackBase::initialStep,
-    reco::TrackBase::highPtTripletStep,
-    reco::TrackBase::detachedQuadStep,
-    reco::TrackBase::detachedTripletStep,
-    reco::TrackBase::lowPtQuadStep,
-    reco::TrackBase::lowPtTripletStep,
-    reco::TrackBase::pixelPairStep,
-    reco::TrackBase::mixedTripletStep,
-    reco::TrackBase::pixelLessStep,
-    reco::TrackBase::tobTecStep,
-    reco::TrackBase::jetCoreRegionalStep,
-    reco::TrackBase::conversionStep,
-    reco::TrackBase::muonSeededStepInOut,
-    reco::TrackBase::muonSeededStepOutIn,
-    reco::TrackBase::outInEcalSeededConv,
-    reco::TrackBase::inOutEcalSeededConv,
-    reco::TrackBase::nuclInter,
-    reco::TrackBase::standAloneMuon,
-    reco::TrackBase::globalMuon,
-    reco::TrackBase::cosmicStandAloneMuon,
-    reco::TrackBase::cosmicGlobalMuon,
-    reco::TrackBase::reservedForUpgrades1,
-    reco::TrackBase::reservedForUpgrades2,
-    reco::TrackBase::bTagGhostTracks,
-    reco::TrackBase::beamhalo,
-    reco::TrackBase::gsf,
-    reco::TrackBase::hltPixel,
-    reco::TrackBase::hltIter0,
-    reco::TrackBase::hltIter1,
-    reco::TrackBase::hltIter2,
-    reco::TrackBase::hltIter3,
-    reco::TrackBase::hltIter4,
-    reco::TrackBase::hltIterX,
-    reco::TrackBase::hiRegitMuInitialStep,
-    reco::TrackBase::hiRegitMuPixelPairStep,
-    reco::TrackBase::hiRegitMuMixedTripletStep,
-    reco::TrackBase::hiRegitMuPixelLessStep,
-    reco::TrackBase::hiRegitMuDetachedTripletStep,
-    reco::TrackBase::hiRegitMuMuonSeededStepInOut,
-    reco::TrackBase::hiRegitMuMuonSeededStepOutIn,
-    reco::TrackBase::hiRegitMuLowPtTripletStep,
-    reco::TrackBase::hiRegitMuTobTecStep
-  };
+  constexpr reco::TrackBase::TrackAlgorithm algoPriorityOrder[] = {reco::TrackBase::undefAlgorithm,
+                                                                   reco::TrackBase::ctf,
+                                                                   reco::TrackBase::cosmics,
+                                                                   reco::TrackBase::duplicateMerge,
+                                                                   reco::TrackBase::initialStep,
+                                                                   reco::TrackBase::highPtTripletStep,
+                                                                   reco::TrackBase::detachedQuadStep,
+                                                                   reco::TrackBase::detachedTripletStep,
+                                                                   reco::TrackBase::lowPtQuadStep,
+                                                                   reco::TrackBase::lowPtTripletStep,
+                                                                   reco::TrackBase::pixelPairStep,
+                                                                   reco::TrackBase::mixedTripletStep,
+                                                                   reco::TrackBase::pixelLessStep,
+                                                                   reco::TrackBase::tobTecStep,
+                                                                   reco::TrackBase::jetCoreRegionalStep,
+                                                                   reco::TrackBase::conversionStep,
+                                                                   reco::TrackBase::muonSeededStepInOut,
+                                                                   reco::TrackBase::muonSeededStepOutIn,
+                                                                   reco::TrackBase::outInEcalSeededConv,
+                                                                   reco::TrackBase::inOutEcalSeededConv,
+                                                                   reco::TrackBase::nuclInter,
+                                                                   reco::TrackBase::standAloneMuon,
+                                                                   reco::TrackBase::globalMuon,
+                                                                   reco::TrackBase::cosmicStandAloneMuon,
+                                                                   reco::TrackBase::cosmicGlobalMuon,
+                                                                   reco::TrackBase::reservedForUpgrades1,
+                                                                   reco::TrackBase::reservedForUpgrades2,
+                                                                   reco::TrackBase::bTagGhostTracks,
+                                                                   reco::TrackBase::beamhalo,
+                                                                   reco::TrackBase::gsf,
+                                                                   reco::TrackBase::hltPixel,
+                                                                   reco::TrackBase::hltIter0,
+                                                                   reco::TrackBase::hltIter1,
+                                                                   reco::TrackBase::hltIter2,
+                                                                   reco::TrackBase::hltIter3,
+                                                                   reco::TrackBase::hltIter4,
+                                                                   reco::TrackBase::hltIterX,
+                                                                   reco::TrackBase::hiRegitMuInitialStep,
+                                                                   reco::TrackBase::hiRegitMuPixelPairStep,
+                                                                   reco::TrackBase::hiRegitMuMixedTripletStep,
+                                                                   reco::TrackBase::hiRegitMuPixelLessStep,
+                                                                   reco::TrackBase::hiRegitMuDetachedTripletStep,
+                                                                   reco::TrackBase::hiRegitMuMuonSeededStepInOut,
+                                                                   reco::TrackBase::hiRegitMuMuonSeededStepOutIn,
+                                                                   reco::TrackBase::hiRegitMuLowPtTripletStep,
+                                                                   reco::TrackBase::hiRegitMuTobTecStep};
 
-  static_assert(reco::TrackBase::algoSize == sizeof(algoPriorityOrder)/sizeof(unsigned int), "Please update me too after adding new enumerators to reco::TrackBase::TrackAlgorithm");
+  static_assert(reco::TrackBase::algoSize == sizeof(algoPriorityOrder) / sizeof(unsigned int),
+                "Please update me too after adding new enumerators to reco::TrackBase::TrackAlgorithm");
 
   /**
    * Recursive implementation of searching the index of an algorithm in the algoPriorityOrder
@@ -99,10 +98,7 @@ namespace impl {
    *
    * @see findIndex()
    */
-  constexpr unsigned int priorityForAlgo(const reco::TrackBase::TrackAlgorithm algo) {
-    return findIndex(algo, 0);
-  }
-
+  constexpr unsigned int priorityForAlgo(const reco::TrackBase::TrackAlgorithm algo) { return findIndex(algo, 0); }
 
   /**
    * Helper template to initialize std::array compile-time.
@@ -121,10 +117,10 @@ namespace impl {
    */
   template <typename T, size_t N, size_t I>
   struct MakeArray {
-    template <typename ...Args>
-    constexpr static
-    std::array<T, N> value(Args&&... args) {
-      return MakeArray<T, N, I-1>::value(priorityForAlgo(static_cast<reco::TrackBase::TrackAlgorithm>(I-1)), std::forward<Args>(args)...);
+    template <typename... Args>
+    constexpr static std::array<T, N> value(Args&&... args) {
+      return MakeArray<T, N, I - 1>::value(priorityForAlgo(static_cast<reco::TrackBase::TrackAlgorithm>(I - 1)),
+                                           std::forward<Args>(args)...);
     }
   };
 
@@ -133,13 +129,11 @@ namespace impl {
    */
   template <typename T, size_t N>
   struct MakeArray<T, N, 0> {
-    template <typename ...Args>
-    constexpr static
-    std::array<T, N> value(Args&&... args) {
+    template <typename... Args>
+    constexpr static std::array<T, N> value(Args&&... args) {
       return std::array<T, N>{{std::forward<Args>(args)...}};
     }
   };
-
 
   /**
    * Create compile-time an std::array mapping
@@ -150,19 +144,17 @@ namespace impl {
    * @tparam N  Size of the std::array
    */
   template <typename T, size_t N>
-  constexpr
-  std::array<T, N> makeArray() {
+  constexpr std::array<T, N> makeArray() {
     return MakeArray<T, N, N>::value();
   }
 
-}
+}  // namespace impl
 
 /**
  * Array mapping reco::TrackBase::TrackAlgorithm enumerators to their
  * order priorities in track list merging.
  */
-constexpr std::array<unsigned int, reco::TrackBase::algoSize> trackAlgoPriorityOrder = impl::makeArray<unsigned int, reco::TrackBase::algoSize>();
+constexpr std::array<unsigned int, reco::TrackBase::algoSize> trackAlgoPriorityOrder =
+    impl::makeArray<unsigned int, reco::TrackBase::algoSize>();
 
-
-#endif // DataFormats_TrackReco_trackAlgoPriorityOrder_h
-
+#endif  // DataFormats_TrackReco_trackAlgoPriorityOrder_h
