@@ -3,7 +3,9 @@ import FWCore.ParameterSet.Config as cms
 regressionModifier106XUL = cms.PSet(
     modifierName = cms.string('EGRegressionModifierV3'),       
     rhoTag = cms.InputTag('fixedGridRhoFastjetAllTmp'),
-    useClosestToCentreSeedCrysDef = cms.bool(False),                            
+    useClosestToCentreSeedCrysDef = cms.bool(False),
+    maxRawEnergyForLowPtEBSigma = cms.double(-1), 
+    maxRawEnergyForLowPtEESigma = cms.double(1300.),
     eleRegs = cms.PSet(
         ecalOnlyMean = cms.PSet(
             rangeMinLowEt = cms.double(0.2),
