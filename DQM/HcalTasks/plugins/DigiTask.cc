@@ -30,6 +30,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _vflags[fLED] = hcaldqm::flag::Flag("LEDMisfire");
   _vflags[fCapId] = hcaldqm::flag::Flag("BadCapId");
 
+  _qie10InConditions = ps.getUntrackedParameter<bool>("qie10InConditions", true);
+
   // Get reference digi sizes. Convert from unsigned to signed int, because <digi>::size()/samples() return ints for some reason.
   std::vector<uint32_t> vrefDigiSize = ps.getUntrackedParameter<std::vector<uint32_t>>("refDigiSize");
   _refDigiSize[HcalBarrel] = (int)vrefDigiSize[0];
@@ -1146,197 +1148,199 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
   rawidValid = 0;
 
   //	HF collection
-  for (QIE10DigiCollection::const_iterator it = c_QIE10->begin(); it != c_QIE10->end(); ++it) {
-    const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
+  if (_qie10InConditions) {
+    for (QIE10DigiCollection::const_iterator it = c_QIE10->begin(); it != c_QIE10->end(); ++it) {
+      const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
 
-    //	Explicit check on the DetIds present in the Collection
-    HcalDetId const& did = digi.detid();
-    if (did.subdet() != HcalForward) {
-      // LED monitoring from calibration channels
-      if (_ptype != fLocal) {
-        if (did.subdet() == HcalOther) {
-          HcalOtherDetId hodid(digi.detid());
-          if (hodid.subdet() == HcalCalibration) {
-            // New method: use configurable list of channels
-            if (std::find(_ledCalibrationChannels[HcalForward].begin(),
-                          _ledCalibrationChannels[HcalForward].end(),
-                          did) != _ledCalibrationChannels[HcalForward].end()) {
-              bool channelLEDSignalPresent = false;
-              for (int i = 0; i < digi.samples(); i++) {
-                _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalForward, 16, 1, 1), bx, digi[i].adc());
+      //	Explicit check on the DetIds present in the Collection
+      HcalDetId const& did = digi.detid();
+      if (did.subdet() != HcalForward) {
+        // LED monitoring from calibration channels
+        if (_ptype != fLocal) {
+          if (did.subdet() == HcalOther) {
+            HcalOtherDetId hodid(digi.detid());
+            if (hodid.subdet() == HcalCalibration) {
+              // New method: use configurable list of channels
+              if (std::find(_ledCalibrationChannels[HcalForward].begin(),
+                            _ledCalibrationChannels[HcalForward].end(),
+                            did) != _ledCalibrationChannels[HcalForward].end()) {
+                bool channelLEDSignalPresent = false;
+                for (int i = 0; i < digi.samples(); i++) {
+                  _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalForward, 16, 1, 1), bx, digi[i].adc());
 
-                if (digi[i].adc() > _thresh_led) {
-                  channelLEDSignalPresent = true;
+                  if (digi[i].adc() > _thresh_led) {
+                    channelLEDSignalPresent = true;
+                  }
                 }
-              }
-              if (channelLEDSignalPresent) {
-                _LED_CUCountvsLS_Subdet.fill(HcalDetId(HcalForward, 16, 1, 1), _currentLS);
-                if (_ptype == fOnline) {
-                  _LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalForward, 16, 1, 1), _currentLS % 60);
+                if (channelLEDSignalPresent) {
+                  _LED_CUCountvsLS_Subdet.fill(HcalDetId(HcalForward, 16, 1, 1), _currentLS);
+                  if (_ptype == fOnline) {
+                    _LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalForward, 16, 1, 1), _currentLS % 60);
+                  }
                 }
               }
             }
           }
         }
-      }
-      continue;
-    }
-
-    uint32_t rawid = _ehashmap.lookup(did);
-    if (rawid == 0) {
-      meUnknownIds1LS->Fill(1);
-      _unknownIdsPresent = true;
-      continue;
-    } else {
-      rawidValid = did.rawId();
-    }
-    HcalElectronicsId const& eid(rawid);
-
-    //	filter out channels that are masked out
-    if (_xQuality.exists(did)) {
-      HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
-      if (cs.isBitSet(HcalChannelStatus::HcalCellMask) || cs.isBitSet(HcalChannelStatus::HcalCellDead))
         continue;
-    }
+      }
 
-    // (capid - BX) % 4
-    if (_ptype == fOnline) {
-      short soi = -1;
-      for (int i = 0; i < digi.samples(); i++) {
-        if (digi[i].soi()) {
-          soi = i;
-          break;
-        }
-      }
-      short this_capidmbx = (digi[soi].capid() - bx) % 4;
-      if (this_capidmbx < 0) {
-        this_capidmbx += 4;
-      }
-      _cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
-      bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
-      if (!good_capidmbx) {
-        _xBadCapid.get(eid)++;
-        _cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
-        _cCapid_BadvsFEDvsLSmod60.fill(eid, _currentLS % 60);
-      }
-      if (eid.isVMEid()) {
-        _cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
-
+      uint32_t rawid = _ehashmap.lookup(did);
+      if (rawid == 0) {
+        meUnknownIds1LS->Fill(1);
+        _unknownIdsPresent = true;
+        continue;
       } else {
-        _cCapidMinusBXmod4_CrateSlotuTCA[this_capidmbx].fill(eid);
+        rawidValid = did.rawId();
       }
-    }
+      HcalElectronicsId const& eid(rawid);
 
-    CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
-    double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples() - 1);
-    //double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
-
-    //if (!_filter_QIE1011.filter(did)) {
-    _cSumQ_SubdetPM_QIE1011.fill(did, sumQ);
-    //}
-    
-    _cOccupancy_depth.fill(did);
-    if (_ptype == fOnline) {
-      _xNChs.get(eid)++;
-      _cDigiSizevsLS_FED.fill(eid, _currentLS, digi.samples());
-      digi.samples() != _refDigiSize[did.subdet()] ? _xDigiSize.get(eid)++ : _xDigiSize.get(eid) += 0;
-      _cOccupancyvsiphi_SubdetPM.fill(did);
-      _cOccupancyvsieta_Subdet.fill(did);
-    }
-    _cDigiSize_Crate.fill(eid, digi.samples());
-    if (_ptype != fOffline) {  // hidefed2crate
-      _cDigiSize_FED.fill(eid, digi.samples());
-      if (eid.isVMEid()) {
-        _cOccupancy_FEDVME.fill(eid);
-        _cOccupancy_ElectronicsVME.fill(eid);
-        /*
-				if (!it->validate(0, it->size()))
-					_cCapIdRots_FEDVME.fill(eid, 1);*/
-      } else {
-        _cOccupancy_FEDuTCA.fill(eid);
-        _cOccupancy_ElectronicsuTCA.fill(eid);
-        /*
-				if (!it->validate(0, it->size()))
-					_cCapIdRots_FEDuTCA.fill(eid, 1);*/
-      }
-    }
-
-    for (int i = 0; i < digi.samples(); i++) {
-      double q = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, i);
-      //if (!_filter_QIE1011.filter(did)) {
-      _cADC_SubdetPM_QIE1011.fill(did, digi[i].adc());
-      _cfC_SubdetPM_QIE1011.fill(did, q);
-      _cLETDCvsADC_SubdetPM.fill(did, digi[i].adc(), digi[i].le_tdc());
-      _cLETDCvsTS_SubdetPM.fill(did, (int)i, digi[i].le_tdc());
-      if (digi[i].le_tdc() < 50) {
-        double time = i * 25. + (digi[i].le_tdc() / 2.);
-        _cLETDCTime_SubdetPM.fill(did, time);
-        _cLETDCTime_depth.fill(did, time);
-        _cLETDCTimevsADC_SubdetPM.fill(did, digi[i].adc(), time);
+      //	filter out channels that are masked out
+      if (_xQuality.exists(did)) {
+        HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
+        if (cs.isBitSet(HcalChannelStatus::HcalCellMask) || cs.isBitSet(HcalChannelStatus::HcalCellDead))
+          continue;
       }
 
-      // Bad TDC values: 50-61 should never happen in QIE10 or QIE11, but we are seeing some in 2017 data.
-      if ((50 <= digi[i].le_tdc()) && (digi[i].le_tdc() <= 61)) {
-        _cBadTDCValues_SubdetPM.fill(did, digi[i].le_tdc());
-        _cBadTDCvsBX_SubdetPM.fill(did, bx);
-        _cBadTDCvsLS_SubdetPM.fill(did, _currentLS);
-        _cBadTDCCount_depth.fill(did);
-      }
-      if (_ptype != fOffline) {  // hidefed2crate
-        _cADCvsTS_SubdetPM_QIE1011.fill(did, (int)i, digi[i].adc());
-        if (sumQ > _cutSumQ_HF)
-          _cShapeCut_FED.fill(eid, (int)i, q);
-      }
-      //}
-    }
-
-    if (sumQ > _cutSumQ_HF) {
-      double timing = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples() - 1);
-      double q1 = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, 1);
-      double q2 = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, 2);
-      double q2q12 = q2 / (q1 + q2);
-      _cSumQ_depth.fill(did, sumQ);
-      //if (!_filter_QIE1011.filter(did)) {
-      _cSumQvsLS_SubdetPM_QIE1011.fill(did, _currentLS, sumQ);
-      //}
-      _cTimingCut_SubdetPM.fill(did, timing);
-      _cTimingCut_depth.fill(did, timing);
-      _cTimingCutvsLS_SubdetPM.fill(did, _currentLS, timing);
+      // (capid - BX) % 4
       if (_ptype == fOnline) {
-        //if (!_filter_QIE1011.filter(did)) {
-        _cSumQvsBX_SubdetPM_QIE1011.fill(did, bx, sumQ);
-        //}
-        _cTimingCutvsiphi_SubdetPM.fill(did, timing);
-        _cTimingCutvsieta_Subdet.fill(did, timing);
-        _cOccupancyCutvsiphi_SubdetPM.fill(did);
-        _cOccupancyCutvsieta_Subdet.fill(did);
-        _cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
-        //				_cOccupancyCutvsSlotvsLS_HFPM.fill(did, _currentLS);
-        _xUniHF.get(eid)++;
-      }
-      if (_ptype != fOffline) {  // hidefed2crate
-        _cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
-      }
-      _cOccupancyCut_depth.fill(did);
-      if (!eid.isVMEid())
-        if (_ptype == fOnline)
-          _cQ2Q12CutvsLS_FEDHF.fill(eid, _currentLS, q2q12);
-      if (_ptype != fOffline) {  // hidefed2crate
+        short soi = -1;
+        for (int i = 0; i < digi.samples(); i++) {
+          if (digi[i].soi()) {
+            soi = i;
+            break;
+          }
+        }
+        short this_capidmbx = (digi[soi].capid() - bx) % 4;
+        if (this_capidmbx < 0) {
+          this_capidmbx += 4;
+        }
+        _cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
+        bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
+        if (!good_capidmbx) {
+          _xBadCapid.get(eid)++;
+          _cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
+          _cCapid_BadvsFEDvsLSmod60.fill(eid, _currentLS % 60);
+        }
         if (eid.isVMEid()) {
-          _cTimingCut_FEDVME.fill(eid, timing);
-          _cTimingCut_ElectronicsVME.fill(eid, timing);
-          _cOccupancyCut_FEDVME.fill(eid);
-          _cOccupancyCut_ElectronicsVME.fill(eid);
+          _cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
+
         } else {
-          _cTimingCut_FEDuTCA.fill(eid, timing);
-          _cTimingCut_ElectronicsuTCA.fill(eid, timing);
-          _cOccupancyCut_FEDuTCA.fill(eid);
-          _cOccupancyCut_ElectronicsuTCA.fill(eid);
+          _cCapidMinusBXmod4_CrateSlotuTCA[this_capidmbx].fill(eid);
         }
       }
-      numChsCut++;
+
+      CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
+      double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples() - 1);
+      //double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
+
+      //if (!_filter_QIE1011.filter(did)) {
+      _cSumQ_SubdetPM_QIE1011.fill(did, sumQ);
+      //}
+      
+      _cOccupancy_depth.fill(did);
+      if (_ptype == fOnline) {
+        _xNChs.get(eid)++;
+        _cDigiSizevsLS_FED.fill(eid, _currentLS, digi.samples());
+        digi.samples() != _refDigiSize[did.subdet()] ? _xDigiSize.get(eid)++ : _xDigiSize.get(eid) += 0;
+        _cOccupancyvsiphi_SubdetPM.fill(did);
+        _cOccupancyvsieta_Subdet.fill(did);
+      }
+      _cDigiSize_Crate.fill(eid, digi.samples());
+      if (_ptype != fOffline) {  // hidefed2crate
+        _cDigiSize_FED.fill(eid, digi.samples());
+        if (eid.isVMEid()) {
+          _cOccupancy_FEDVME.fill(eid);
+          _cOccupancy_ElectronicsVME.fill(eid);
+          /*
+  				if (!it->validate(0, it->size()))
+  					_cCapIdRots_FEDVME.fill(eid, 1);*/
+        } else {
+          _cOccupancy_FEDuTCA.fill(eid);
+          _cOccupancy_ElectronicsuTCA.fill(eid);
+          /*
+  				if (!it->validate(0, it->size()))
+  					_cCapIdRots_FEDuTCA.fill(eid, 1);*/
+        }
+      }
+
+      for (int i = 0; i < digi.samples(); i++) {
+        double q = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, i);
+        //if (!_filter_QIE1011.filter(did)) {
+        _cADC_SubdetPM_QIE1011.fill(did, digi[i].adc());
+        _cfC_SubdetPM_QIE1011.fill(did, q);
+        _cLETDCvsADC_SubdetPM.fill(did, digi[i].adc(), digi[i].le_tdc());
+        _cLETDCvsTS_SubdetPM.fill(did, (int)i, digi[i].le_tdc());
+        if (digi[i].le_tdc() < 50) {
+          double time = i * 25. + (digi[i].le_tdc() / 2.);
+          _cLETDCTime_SubdetPM.fill(did, time);
+          _cLETDCTime_depth.fill(did, time);
+          _cLETDCTimevsADC_SubdetPM.fill(did, digi[i].adc(), time);
+        }
+
+        // Bad TDC values: 50-61 should never happen in QIE10 or QIE11, but we are seeing some in 2017 data.
+        if ((50 <= digi[i].le_tdc()) && (digi[i].le_tdc() <= 61)) {
+          _cBadTDCValues_SubdetPM.fill(did, digi[i].le_tdc());
+          _cBadTDCvsBX_SubdetPM.fill(did, bx);
+          _cBadTDCvsLS_SubdetPM.fill(did, _currentLS);
+          _cBadTDCCount_depth.fill(did);
+        }
+        if (_ptype != fOffline) {  // hidefed2crate
+          _cADCvsTS_SubdetPM_QIE1011.fill(did, (int)i, digi[i].adc());
+          if (sumQ > _cutSumQ_HF)
+            _cShapeCut_FED.fill(eid, (int)i, q);
+        }
+        //}
+      }
+
+      if (sumQ > _cutSumQ_HF) {
+        double timing = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples() - 1);
+        double q1 = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, 1);
+        double q2 = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, 2);
+        double q2q12 = q2 / (q1 + q2);
+        _cSumQ_depth.fill(did, sumQ);
+        //if (!_filter_QIE1011.filter(did)) {
+        _cSumQvsLS_SubdetPM_QIE1011.fill(did, _currentLS, sumQ);
+        //}
+        _cTimingCut_SubdetPM.fill(did, timing);
+        _cTimingCut_depth.fill(did, timing);
+        _cTimingCutvsLS_SubdetPM.fill(did, _currentLS, timing);
+        if (_ptype == fOnline) {
+          //if (!_filter_QIE1011.filter(did)) {
+          _cSumQvsBX_SubdetPM_QIE1011.fill(did, bx, sumQ);
+          //}
+          _cTimingCutvsiphi_SubdetPM.fill(did, timing);
+          _cTimingCutvsieta_Subdet.fill(did, timing);
+          _cOccupancyCutvsiphi_SubdetPM.fill(did);
+          _cOccupancyCutvsieta_Subdet.fill(did);
+          _cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
+          //				_cOccupancyCutvsSlotvsLS_HFPM.fill(did, _currentLS);
+          _xUniHF.get(eid)++;
+        }
+        if (_ptype != fOffline) {  // hidefed2crate
+          _cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
+        }
+        _cOccupancyCut_depth.fill(did);
+        if (!eid.isVMEid())
+          if (_ptype == fOnline)
+            _cQ2Q12CutvsLS_FEDHF.fill(eid, _currentLS, q2q12);
+        if (_ptype != fOffline) {  // hidefed2crate
+          if (eid.isVMEid()) {
+            _cTimingCut_FEDVME.fill(eid, timing);
+            _cTimingCut_ElectronicsVME.fill(eid, timing);
+            _cOccupancyCut_FEDVME.fill(eid);
+            _cOccupancyCut_ElectronicsVME.fill(eid);
+          } else {
+            _cTimingCut_FEDuTCA.fill(eid, timing);
+            _cTimingCut_ElectronicsuTCA.fill(eid, timing);
+            _cOccupancyCut_FEDuTCA.fill(eid);
+            _cOccupancyCut_ElectronicsuTCA.fill(eid);
+          }
+        }
+        numChsCut++;
+      }
+      numChs++;
     }
-    numChs++;
   }
 
   if (rawidValid != 0) {
