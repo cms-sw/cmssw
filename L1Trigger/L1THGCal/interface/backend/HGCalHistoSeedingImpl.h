@@ -93,7 +93,7 @@ private:
   SeedingType seedingType_;
   SeedingPosition seedingPosition_;
 
-  unsigned nBinsRHisto_ = 41;
+  unsigned nBinsRHisto_ = 42;
   unsigned nBinsPhiHisto_ = 216;
   std::vector<unsigned> binsSumsHisto_;
   double histoThreshold_ = 20.;
@@ -102,7 +102,7 @@ private:
   HGCalTriggerTools triggerTools_;
 
   static constexpr unsigned neighbour_weights_size_ = 9;
-  static constexpr double kROverZMin_ = 0.09;
+  static constexpr double kROverZMin_ = 0.076;
   static constexpr double kROverZMax_ = 0.58;
 };
 

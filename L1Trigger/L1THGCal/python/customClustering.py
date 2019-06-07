@@ -133,6 +133,7 @@ def custom_3dclustering_histoMax_variableDr(process,
                                             nBins_Phi=histoMaxVariableDR_C3d_params.nBins_Phi_histo_multicluster,
                                             binSumsHisto=histoMaxVariableDR_C3d_params.binSumsHisto,
                                             seed_threshold=histoMaxVariableDR_C3d_params.threshold_histo_multicluster,
+                                            seed_position=histoMaxVariableDR_C3d_params.seed_position,
                                             shape_threshold=histoMaxVariableDR_C3d_params.shape_threshold,
                                             ):
     parameters_c3d = histoMaxVariableDR_C3d_params.clone(

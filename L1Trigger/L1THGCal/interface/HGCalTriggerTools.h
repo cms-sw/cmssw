@@ -22,9 +22,7 @@
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
-
-class HGCalTriggerGeometryBase;
-class DetId;
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
 namespace edm {
   class Event;
