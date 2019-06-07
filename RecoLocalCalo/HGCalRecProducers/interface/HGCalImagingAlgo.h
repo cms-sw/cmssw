@@ -49,13 +49,11 @@ public:
      fcPerEle_(ps.getParameter<double>("fcPerEle")),
      nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double> >("values")),
      noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("noise_MIP")),
-     initialized_(false),
-     points_(2*(maxlayer+1)),
-     minpos_(2*(maxlayer+1),{ {0.0f,0.0f} }),
-     maxpos_(2*(maxlayer+1),{ {0.0f,0.0f} }) {}
+     initialized_(false) {}
 
 ~HGCalImagingAlgo() override {}
 
+void getEventSetupPerAlgorithm(const edm::EventSetup& es) override;
 
 void populate(const HGCRecHitCollection &hits) override;
 // this is the method that will start the clusterisation (it is possible to invoke this method more than once - but make sure it is with
