@@ -7,36 +7,32 @@
 //
 // -- Class Deleration
 //
- 
-class SiStripDCSFilter : public edm::EDFilter {
- public:
- SiStripDCSFilter( const edm::ParameterSet & );
- ~SiStripDCSFilter() override;
 
-  private:
-  bool filter( edm::Event &, edm::EventSetup const& ) override;
-  SiStripDCSStatus* dcsStatus_;  
+class SiStripDCSFilter : public edm::EDFilter {
+public:
+  SiStripDCSFilter(const edm::ParameterSet&);
+  ~SiStripDCSFilter() override;
+
+private:
+  bool filter(edm::Event&, edm::EventSetup const&) override;
+  SiStripDCSStatus* dcsStatus_;
 };
- 
+
 //
 // -- Constructor
 //
-SiStripDCSFilter::SiStripDCSFilter( const edm::ParameterSet & pset ) {
-  dcsStatus_ = new SiStripDCSStatus(consumesCollector()); 
+SiStripDCSFilter::SiStripDCSFilter(const edm::ParameterSet& pset) {
+  dcsStatus_ = new SiStripDCSStatus(consumesCollector());
 }
 //
 // -- Destructor
 //
 SiStripDCSFilter::~SiStripDCSFilter() {
-  if (dcsStatus_) delete dcsStatus_;
+  if (dcsStatus_)
+    delete dcsStatus_;
 }
- 
-bool SiStripDCSFilter::filter( edm::Event & evt, edm::EventSetup const& es) {
 
-  return (dcsStatus_->getStatus(evt, es));   
-}
+bool SiStripDCSFilter::filter(edm::Event& evt, edm::EventSetup const& es) { return (dcsStatus_->getStatus(evt, es)); }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripDCSFilter);
-
- 

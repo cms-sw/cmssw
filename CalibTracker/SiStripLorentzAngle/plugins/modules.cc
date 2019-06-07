@@ -3,8 +3,6 @@
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 
-
-
 #include "CalibTracker/SiStripLorentzAngle/plugins/EnsembleCalibrationLA.h"
 DEFINE_FWK_MODULE(sistrip::EnsembleCalibrationLA);
 

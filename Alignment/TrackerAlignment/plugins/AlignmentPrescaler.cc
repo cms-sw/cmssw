@@ -25,248 +25,225 @@
 
 using namespace std;
 
-AlignmentPrescaler::AlignmentPrescaler(const edm::ParameterSet &iConfig):
-  src_(iConfig.getParameter<edm::InputTag>("src")),
-  srcQualityMap_(iConfig.getParameter<edm::InputTag>("assomap")),
-  prescfilename_(iConfig.getParameter<std::string>("PrescFileName")),
-  presctreename_(iConfig.getParameter<std::string>("PrescTreeName"))
-{
+AlignmentPrescaler::AlignmentPrescaler(const edm::ParameterSet& iConfig)
+    : src_(iConfig.getParameter<edm::InputTag>("src")),
+      srcQualityMap_(iConfig.getParameter<edm::InputTag>("assomap")),
+      prescfilename_(iConfig.getParameter<std::string>("PrescFileName")),
+      presctreename_(iConfig.getParameter<std::string>("PrescTreeName")) {
   // issue the produce<>
   produces<AliClusterValueMap>();
   produces<AliTrackTakenClusterValueMap>();
-
 }
 
-AlignmentPrescaler::~AlignmentPrescaler(){
-  //  
-}
-
-void AlignmentPrescaler::beginJob(){
+AlignmentPrescaler::~AlignmentPrescaler() {
   //
-  std::cout<<"in AlignmentPrescaler::beginJob"<<std::flush;
-   fpresc_=new TFile(prescfilename_.c_str(),"READ");
-   tpresc_=(TTree*)fpresc_->Get(presctreename_.c_str());
-   tpresc_->BuildIndex("DetId");
-   tpresc_->SetBranchStatus("*",false);
-   tpresc_->SetBranchStatus("DetId",true);
-   tpresc_->SetBranchStatus("PrescaleFactor",true);
-   tpresc_->SetBranchStatus("PrescaleFactorOverlap",true);
-   cout<<" Branches activated "<<std::flush;
-   detid_=0;
-   hitPrescFactor_=99.0;
-   overlapPrescFactor_=88.0;
-   
-   tpresc_->SetBranchAddress("DetId",&detid_);
-   tpresc_->SetBranchAddress("PrescaleFactor",&hitPrescFactor_);
-   tpresc_->SetBranchAddress("PrescaleFactorOverlap",&overlapPrescFactor_);
-   cout<<" addressed "<<std::flush;   
-   myrand_=new TRandom3();
-   //   myrand_->SetSeed();
-   cout<<" ok "<<std::endl;
-
 }
 
-void AlignmentPrescaler::endJob( ){
+void AlignmentPrescaler::beginJob() {
+  //
+  std::cout << "in AlignmentPrescaler::beginJob" << std::flush;
+  fpresc_ = new TFile(prescfilename_.c_str(), "READ");
+  tpresc_ = (TTree*)fpresc_->Get(presctreename_.c_str());
+  tpresc_->BuildIndex("DetId");
+  tpresc_->SetBranchStatus("*", false);
+  tpresc_->SetBranchStatus("DetId", true);
+  tpresc_->SetBranchStatus("PrescaleFactor", true);
+  tpresc_->SetBranchStatus("PrescaleFactorOverlap", true);
+  cout << " Branches activated " << std::flush;
+  detid_ = 0;
+  hitPrescFactor_ = 99.0;
+  overlapPrescFactor_ = 88.0;
 
+  tpresc_->SetBranchAddress("DetId", &detid_);
+  tpresc_->SetBranchAddress("PrescaleFactor", &hitPrescFactor_);
+  tpresc_->SetBranchAddress("PrescaleFactorOverlap", &overlapPrescFactor_);
+  cout << " addressed " << std::flush;
+  myrand_ = new TRandom3();
+  //   myrand_->SetSeed();
+  cout << " ok " << std::endl;
+}
+
+void AlignmentPrescaler::endJob() {
   delete tpresc_;
   fpresc_->Close();
   delete fpresc_;
   delete myrand_;
 }
 
-void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSetup){
+void AlignmentPrescaler::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // std::cout<<"\n\n#################\n### Starting the AlignmentPrescaler::produce ; Event: "<<iEvent.id().run() <<", "<<iEvent.id().event()<<std::endl;
   edm::Handle<reco::TrackCollection> Tracks;
   iEvent.getByLabel(src_, Tracks);
- 
+
   //take  HitAssomap
   edm::Handle<AliClusterValueMap> hMap;
   iEvent.getByLabel(srcQualityMap_, hMap);
-  AliClusterValueMap InValMap=*hMap;
+  AliClusterValueMap InValMap = *hMap;
 
   //prepare the output of the ValueMap flagging tracks
-  std::vector<int> trackflags(Tracks->size(),0);
-
+  std::vector<int> trackflags(Tracks->size(), 0);
 
   //int npxlhits=0;
-  
-    //loop on tracks
-  for(std::vector<reco::Track>::const_iterator ittrk = Tracks->begin(), edtrk = Tracks->end(); ittrk != edtrk; ++ittrk){
+
+  //loop on tracks
+  for (std::vector<reco::Track>::const_iterator ittrk = Tracks->begin(), edtrk = Tracks->end(); ittrk != edtrk;
+       ++ittrk) {
     //loop on tracking rechits
     // std::cout << "Loop on hits of track #" << (ittrk - Tracks->begin()) << std::endl;
-    int nhit=0;
-    int ntakenhits=0;
-    bool firstTakenHit=false;
+    int nhit = 0;
+    int ntakenhits = 0;
+    bool firstTakenHit = false;
 
-    for(auto const& hit : ittrk->recHits()) {
-      if(! hit->isValid()){
-       	nhit++;
-	continue;
+    for (auto const& hit : ittrk->recHits()) {
+      if (!hit->isValid()) {
+        nhit++;
+        continue;
       }
       uint32_t tmpdetid = hit->geographicalId().rawId();
       tpresc_->GetEntryWithIndex(tmpdetid);
-      
 
       //-------------
       //decide whether to take this hit or not
-      bool takeit=false;  
-      int subdetId=hit->geographicalId().subdetId();   
- 
+      bool takeit = false;
+      int subdetId = hit->geographicalId().subdetId();
 
       //check first if the cluster is also in the overlap asso map
-      bool isOverlapHit=false;
+      bool isOverlapHit = false;
       //  bool first=true;
       //ugly...
-      const SiPixelRecHit*   pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
+      const SiPixelRecHit* pixelhit = dynamic_cast<const SiPixelRecHit*>(hit);
       const SiStripRecHit1D* stripHit1D = dynamic_cast<const SiStripRecHit1D*>(hit);
       const SiStripRecHit2D* stripHit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
 
       AlignmentClusterFlag tmpflag(hit->geographicalId());
-      int stripType=0;
-      if(subdetId>2){// SST case
-	const std::type_info &type = typeid(*hit); 	 
-	if (type == typeid(SiStripRecHit1D))	stripType=1;
-	else  if (type == typeid(SiStripRecHit2D))	stripType=2;
-	else	stripType=3;
+      int stripType = 0;
+      if (subdetId > 2) {  // SST case
+        const std::type_info& type = typeid(*hit);
+        if (type == typeid(SiStripRecHit1D))
+          stripType = 1;
+        else if (type == typeid(SiStripRecHit2D))
+          stripType = 2;
+        else
+          stripType = 3;
 
-	if(stripType==1) { 
-	  //	  const SiStripRecHit1D* stripHit1D = dynamic_cast<const SiStripRecHit1D*>(hit);
-	  
-	  if(stripHit1D!=nullptr){
-	    SiStripRecHit1D::ClusterRef stripclust(stripHit1D->cluster());
-	    tmpflag=InValMap[stripclust];
-	    tmpflag.SetDetId(hit->geographicalId());
-	    if(tmpflag.isOverlap())isOverlapHit=true;
-	    // std::cout<<"~*~*~* Prescale (1D) for module "<<tmpflag.detId().rawId()<<"("<<InValMap[stripclust].detId().rawId() <<") is "<<hitPrescFactor_<<std::flush;
-	    //  if(tmpflag.isOverlap())cout<<" (it is Overlap)"<<endl;
-	    // else cout<<endl;
-	    
-	  }//end if striphit1D!=0
-	}
-	else if (stripType==2) {
-	  //const SiStripRecHit2D* stripHit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
-	  if(stripHit2D!=nullptr){
-	    SiStripRecHit2D::ClusterRef stripclust(stripHit2D->cluster());
-	    tmpflag=InValMap[stripclust];
-	    tmpflag.SetDetId(hit->geographicalId());
-	    if(tmpflag.isOverlap())isOverlapHit=true;
-	    // std::cout<<"~*~*~* Prescale (2D) for module "<<tmpflag.detId().rawId()<<"("<<InValMap[stripclust].detId().rawId() <<") is "<<hitPrescFactor_<<std::flush;
-	    //  if(tmpflag.isOverlap())cout<<" (it is Overlap)"<<endl;
-	    // else cout<<endl;
-	  
-	  }//end if striphit2D!=0
-	}
-      }//end if is a strip hit
-      else{
-	//	const SiPixelRecHit*   pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
-	if(pixelhit!=nullptr){
-	  //npxlhits++;
-	  SiPixelClusterRefNew pixclust(pixelhit->cluster());
-	  tmpflag=InValMap[pixclust];
-	  tmpflag.SetDetId(hit->geographicalId());
-	  if(tmpflag.isOverlap())isOverlapHit=true;
-	}
-      }//end else is a pixel hit
+        if (stripType == 1) {
+          //	  const SiStripRecHit1D* stripHit1D = dynamic_cast<const SiStripRecHit1D*>(hit);
+
+          if (stripHit1D != nullptr) {
+            SiStripRecHit1D::ClusterRef stripclust(stripHit1D->cluster());
+            tmpflag = InValMap[stripclust];
+            tmpflag.SetDetId(hit->geographicalId());
+            if (tmpflag.isOverlap())
+              isOverlapHit = true;
+            // std::cout<<"~*~*~* Prescale (1D) for module "<<tmpflag.detId().rawId()<<"("<<InValMap[stripclust].detId().rawId() <<") is "<<hitPrescFactor_<<std::flush;
+            //  if(tmpflag.isOverlap())cout<<" (it is Overlap)"<<endl;
+            // else cout<<endl;
+
+          }  //end if striphit1D!=0
+        } else if (stripType == 2) {
+          //const SiStripRecHit2D* stripHit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
+          if (stripHit2D != nullptr) {
+            SiStripRecHit2D::ClusterRef stripclust(stripHit2D->cluster());
+            tmpflag = InValMap[stripclust];
+            tmpflag.SetDetId(hit->geographicalId());
+            if (tmpflag.isOverlap())
+              isOverlapHit = true;
+            // std::cout<<"~*~*~* Prescale (2D) for module "<<tmpflag.detId().rawId()<<"("<<InValMap[stripclust].detId().rawId() <<") is "<<hitPrescFactor_<<std::flush;
+            //  if(tmpflag.isOverlap())cout<<" (it is Overlap)"<<endl;
+            // else cout<<endl;
+
+          }  //end if striphit2D!=0
+        }
+      }  //end if is a strip hit
+      else {
+        //	const SiPixelRecHit*   pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
+        if (pixelhit != nullptr) {
+          //npxlhits++;
+          SiPixelClusterRefNew pixclust(pixelhit->cluster());
+          tmpflag = InValMap[pixclust];
+          tmpflag.SetDetId(hit->geographicalId());
+          if (tmpflag.isOverlap())
+            isOverlapHit = true;
+        }
+      }  //end else is a pixel hit
       //      tmpflag.SetDetId(hit->geographicalId());
 
-      if( isOverlapHit ){
-	//cout<<"  DetId="<<tmpdetid<<" is Overlap! "<<flush;
-	takeit=(float(myrand_->Rndm())<=overlapPrescFactor_);
+      if (isOverlapHit) {
+        //cout<<"  DetId="<<tmpdetid<<" is Overlap! "<<flush;
+        takeit = (float(myrand_->Rndm()) <= overlapPrescFactor_);
       }
-      if( !takeit ){
-	float rr=float(myrand_->Rndm());
-	takeit=(rr<=hitPrescFactor_);
+      if (!takeit) {
+        float rr = float(myrand_->Rndm());
+        takeit = (rr <= hitPrescFactor_);
       }
-      if(takeit){//HIT TAKEN !
-	//cout<<"  DetId="<<tmpdetid<<" taken!"<<flush;
-	tmpflag.SetTakenFlag();
+      if (takeit) {  //HIT TAKEN !
+        //cout<<"  DetId="<<tmpdetid<<" taken!"<<flush;
+        tmpflag.SetTakenFlag();
 
-	if(subdetId>2){
-	  if(stripType==1){
-	    SiStripRecHit1D::ClusterRef stripclust(stripHit1D->cluster());
-	    InValMap[stripclust]=tmpflag;//.SetTakenFlag();
-	  }
-	  else if(stripType==2){
-	    SiStripRecHit1D::ClusterRef stripclust(stripHit2D->cluster());
-	    InValMap[stripclust]=tmpflag;//.SetTakenFlag();
-	  }
-	  else std::cout<<"Unknown type of strip hit"<<std::endl;
-	}
-	else{
-	  SiPixelClusterRefNew pixclust(pixelhit->cluster());
-	  InValMap[pixclust]=tmpflag;//.SetTakenFlag();
-	}
-	
-	if(!firstTakenHit){
-	  firstTakenHit=true;
-	  //std::cout<<"Index of the track iterator is "<< ittrk-Tracks->begin() <<endl;
-	  
-	}
-	ntakenhits++;
-      }//end if take this hit
+        if (subdetId > 2) {
+          if (stripType == 1) {
+            SiStripRecHit1D::ClusterRef stripclust(stripHit1D->cluster());
+            InValMap[stripclust] = tmpflag;  //.SetTakenFlag();
+          } else if (stripType == 2) {
+            SiStripRecHit1D::ClusterRef stripclust(stripHit2D->cluster());
+            InValMap[stripclust] = tmpflag;  //.SetTakenFlag();
+          } else
+            std::cout << "Unknown type of strip hit" << std::endl;
+        } else {
+          SiPixelClusterRefNew pixclust(pixelhit->cluster());
+          InValMap[pixclust] = tmpflag;  //.SetTakenFlag();
+        }
+
+        if (!firstTakenHit) {
+          firstTakenHit = true;
+          //std::cout<<"Index of the track iterator is "<< ittrk-Tracks->begin() <<endl;
+        }
+        ntakenhits++;
+      }  //end if take this hit
+         //cout<<endl;
+
+      nhit++;
       //cout<<endl;
+    }  //end loop on RecHits
+    trackflags[ittrk - Tracks->begin()] = ntakenhits;
 
-        nhit++;
-      //cout<<endl;
-    }//end loop on RecHits
-    trackflags[ittrk-Tracks->begin()]=ntakenhits;
-  
-  }//end loop on tracks
-  
-
+  }  //end loop on tracks
 
   // totnhitspxl_+=ntakenhits;
   //cout<<"AlignmentPrescaler::produce says that in this event "<<ntakenhits<<" pixel clusters were taken (out of "<<npxlhits<<" total pixel hits."<<endl;
 
-
-
   //save the asso map, tracks...
-  // prepare output 
+  // prepare output
   auto OutVM = std::make_unique<AliClusterValueMap>();
-  *OutVM=InValMap;
+  *OutVM = InValMap;
 
   iEvent.put(std::move(OutVM));
-  
-  
+
   auto trkVM = std::make_unique<AliTrackTakenClusterValueMap>();
   AliTrackTakenClusterValueMap::Filler trkmapfiller(*trkVM);
-  trkmapfiller.insert(Tracks,trackflags.begin(),trackflags.end() );
+  trkmapfiller.insert(Tracks, trackflags.begin(), trackflags.end());
   trkmapfiller.fill();
   iEvent.put(std::move(trkVM));
 
+}  //end produce
 
-}//end produce
-
-
-int AlignmentPrescaler::layerFromId (const DetId& id, const TrackerTopology* tTopo) const
-{
- if ( uint32_t(id.subdetId())==PixelSubdetector::PixelBarrel ) {
-    
+int AlignmentPrescaler::layerFromId(const DetId& id, const TrackerTopology* tTopo) const {
+  if (uint32_t(id.subdetId()) == PixelSubdetector::PixelBarrel) {
     return tTopo->pxbLayer(id);
-  }
-  else if ( uint32_t(id.subdetId())==PixelSubdetector::PixelEndcap ) {
-    
-    return tTopo->pxfDisk(id) + (3*(tTopo->pxfSide(id)-1));
-  }
-  else if ( id.subdetId()==StripSubdetector::TIB ) {
-    
+  } else if (uint32_t(id.subdetId()) == PixelSubdetector::PixelEndcap) {
+    return tTopo->pxfDisk(id) + (3 * (tTopo->pxfSide(id) - 1));
+  } else if (id.subdetId() == StripSubdetector::TIB) {
     return tTopo->tibLayer(id);
-  }
-  else if ( id.subdetId()==StripSubdetector::TOB ) {
-    
+  } else if (id.subdetId() == StripSubdetector::TOB) {
     return tTopo->tobLayer(id);
-  }
-  else if ( id.subdetId()==StripSubdetector::TEC ) {
-    
-    return tTopo->tecWheel(id) + (9*(tTopo->pxfSide(id)-1));
-  }
-  else if ( id.subdetId()==StripSubdetector::TID ) {
-    
-    return tTopo->tidWheel(id) + (3*(tTopo->tidSide(id)-1));
+  } else if (id.subdetId() == StripSubdetector::TEC) {
+    return tTopo->tecWheel(id) + (9 * (tTopo->pxfSide(id) - 1));
+  } else if (id.subdetId() == StripSubdetector::TID) {
+    return tTopo->tidWheel(id) + (3 * (tTopo->tidSide(id) - 1));
   }
   return -1;
 
-}//end layerfromId
+}  //end layerfromId
 
 // ========= MODULE DEF ==============
 #include "FWCore/PluginManager/interface/ModuleDef.h"
