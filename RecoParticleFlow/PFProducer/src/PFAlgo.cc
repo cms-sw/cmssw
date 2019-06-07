@@ -1269,88 +1269,7 @@ int PFAlgo::decideType(const edm::OwnVector<reco::PFBlockElement> &elements,
   return 0;
 }
 
-void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
-                           std::list<reco::PFBlockRef>& hcalBlockRefs,
-                           std::list<reco::PFBlockRef>& ecalBlockRefs, PFEGammaFilters const* pfegamma  ) {
-
-  // debug_ = false;
-  assert(!blockref.isNull() );
-  const reco::PFBlock& block = *blockref;
-
-  if(debug_) {
-    cout<<"#########################################################"<<endl;
-    cout<<"#####           Process Block:                      #####"<<endl;
-    cout<<"#########################################################"<<endl;
-    cout<<block<<endl;
-  }
-
-
-  const edm::OwnVector< reco::PFBlockElement >& elements = block.elements();
-  // make a copy of the link data, which will be edited.
-  PFBlock::LinkData linkData =  block.linkData();
-
-  // keep track of the elements which are still active.
-  vector<bool>   active( elements.size(), true );
-
-
-  // //PFElectrons:
-  // usePFElectrons_ external configurable parameter to set the usage of pf electron
-  std::vector<reco::PFCandidate> tempElectronCandidates;
-  tempElectronCandidates.clear();
-
-
-  // New EGamma Reconstruction 10/10/2013
-  if(useEGammaFilters_) {
-    egammaFilters(blockref, active, pfegamma);
-  } // end if use EGammaFilters
-
-
-
-  //Lock extra conversion tracks not used by Photon Algo
-  if (usePFConversions_  ) {
-    conversionAlgo(elements, active);
-  }
-
-
-
-
-
-  if(debug_)
-    cout<<endl<<"--------------- loop 1 ------------------"<<endl;
-
-  //COLINFEB16
-  // In loop 1, we loop on all elements.
-
-  // The primary goal is to deal with tracks that are:
-  // - not associated to an HCAL cluster
-  // - not identified as an electron.
-  // Those tracks should be predominantly relatively low energy charged
-  // hadrons which are not detected in the ECAL.
-
-  // The secondary goal is to prepare for the next loops
-  // - The ecal and hcal elements are sorted in separate vectors
-  // which will be used as a base for the corresponding loops.
-  // - For tracks which are connected to more than one HCAL cluster,
-  // the links between the track and the cluster are cut for all clusters
-  // but the closest one.
-  // - HF only blocks ( HFEM, HFHAD, HFEM+HFAD) are identified
-
-  // obsolete comments?
-  // loop1:
-  // - sort ecal and hcal elements in separate vectors
-  // - for tracks:
-  //       - lock closest ecal cluster
-  //       - cut link to farthest hcal cluster, if more than 1.
-
-  vector<bool> deadArea(elements.size(), false);
-  
-  // vectors to store indices to ho, hcal and ecal elements
-  ElementIndices inds;
-
-  elementLoop(block, linkData, elements, active, blockref, inds, deadArea);
-
-  // deal with HF.
-  if( !(inds.hfEmIs.empty() &&  inds.hfHadIs.empty() ) ) {
+void PFAlgo::createCandidateHF(const reco::PFBlock &block, const reco::PFBlockRef &blockref, const edm::OwnVector<reco::PFBlockElement> &elements, ElementIndices& inds) {
     // there is at least one HF element in this block.
     // so all elements must be HF.
     assert( inds.hfEmIs.size() + inds.hfHadIs.size() == elements.size() );
@@ -1451,10 +1370,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 //       assert(0);
 //       cerr<<"not ready for navigation in the HF!"<<endl;
     }
-  }
-
-
-
+}
+  
+void PFAlgo::createCandidatesHCAL(const reco::PFBlock &block, reco::PFBlock::LinkData& linkData, const edm::OwnVector<reco::PFBlockElement> &elements, std::vector<bool>& active, const reco::PFBlockRef &blockref, ElementIndices& inds, std::vector<bool> &deadArea) {
   if(debug_) {
     cout<<endl;
     cout<<endl<<"--------------- loop hcal ---------------------"<<endl;
@@ -2619,6 +2537,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
   // end loop on hcal element iHcal= hcalIs[i] 
 
     
+}
+ 
+void PFAlgo::createCandidatesHCALUnlinked(const reco::PFBlock &block, reco::PFBlock::LinkData& linkData, const edm::OwnVector<reco::PFBlockElement> &elements, std::vector<bool>& active, const reco::PFBlockRef &blockref, ElementIndices& inds, std::vector<bool> &deadArea) {
+  
   // Processing the remaining HCAL clusters
   if(debug_) {
     cout<<endl;
@@ -2628,8 +2550,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
   }
 
 
-  //COLINFEB16
-  // now dealing with the HCAL elements that are not linked to any track
   for(unsigned iHcal : inds.hcalIs) {
 
     // Keep ECAL and HO elements for reference in the PFCandidate
@@ -2842,10 +2762,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     for (auto const& ho : hoRefs) cand.addElementInBlock( blockref, ho );
 
   }//loop hcal elements
+}
 
-
-
-
+void PFAlgo::createCandidatesECAL(const reco::PFBlock &block, reco::PFBlock::LinkData& linkData, const edm::OwnVector<reco::PFBlockElement> &elements, std::vector<bool>& active, const reco::PFBlockRef &blockref, ElementIndices& inds, std::vector<bool> &deadArea) {
   if(debug_) std::cout << std::endl << std::endl << "---- loop ecal------- " << std::endl;
 
   // for each ecal element iEcal = ecalIs[i] in turn:
@@ -2884,8 +2803,103 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     cand.addElementInBlock( blockref, iEcal );
 
   }  // end loop on ecal elements iEcal = ecalIs[i]
+}
 
-}  // end processBlock
+void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
+                           std::list<reco::PFBlockRef>& hcalBlockRefs,
+                           std::list<reco::PFBlockRef>& ecalBlockRefs, PFEGammaFilters const* pfegamma  ) {
+
+  // debug_ = false;
+  assert(!blockref.isNull() );
+  const reco::PFBlock& block = *blockref;
+
+  if(debug_) {
+    cout<<"#########################################################"<<endl;
+    cout<<"#####           Process Block:                      #####"<<endl;
+    cout<<"#########################################################"<<endl;
+    cout<<block<<endl;
+  }
+
+
+  const edm::OwnVector< reco::PFBlockElement >& elements = block.elements();
+  // make a copy of the link data, which will be edited.
+  PFBlock::LinkData linkData =  block.linkData();
+
+  // keep track of the elements which are still active.
+  vector<bool>   active( elements.size(), true );
+
+
+  // //PFElectrons:
+  // usePFElectrons_ external configurable parameter to set the usage of pf electron
+  std::vector<reco::PFCandidate> tempElectronCandidates;
+  tempElectronCandidates.clear();
+
+
+  // New EGamma Reconstruction 10/10/2013
+  if(useEGammaFilters_) {
+    egammaFilters(blockref, active, pfegamma);
+  } // end if use EGammaFilters
+
+
+
+  //Lock extra conversion tracks not used by Photon Algo
+  if (usePFConversions_  ) {
+    conversionAlgo(elements, active);
+  }
+
+
+
+
+
+  if(debug_)
+    cout<<endl<<"--------------- loop 1 ------------------"<<endl;
+
+  //COLINFEB16
+  // In loop 1, we loop on all elements.
+
+  // The primary goal is to deal with tracks that are:
+  // - not associated to an HCAL cluster
+  // - not identified as an electron.
+  // Those tracks should be predominantly relatively low energy charged
+  // hadrons which are not detected in the ECAL.
+
+  // The secondary goal is to prepare for the next loops
+  // - The ecal and hcal elements are sorted in separate vectors
+  // which will be used as a base for the corresponding loops.
+  // - For tracks which are connected to more than one HCAL cluster,
+  // the links between the track and the cluster are cut for all clusters
+  // but the closest one.
+  // - HF only blocks ( HFEM, HFHAD, HFEM+HFAD) are identified
+
+  // obsolete comments?
+  // loop1:
+  // - sort ecal and hcal elements in separate vectors
+  // - for tracks:
+  //       - lock closest ecal cluster
+  //       - cut link to farthest hcal cluster, if more than 1.
+
+  vector<bool> deadArea(elements.size(), false);
+  
+  // vectors to store indices to ho, hcal and ecal elements
+  ElementIndices inds;
+
+  elementLoop(block, linkData, elements, active, blockref, inds, deadArea);
+
+  // deal with HF.
+  if( !(inds.hfEmIs.empty() &&  inds.hfHadIs.empty() ) ) {
+    createCandidateHF(block, blockref, elements, inds);
+  }
+
+
+
+
+  createCandidatesHCAL(block, linkData, elements, active, blockref, inds, deadArea);
+  // COLINFEB16: now dealing with the HCAL elements that are not linked to any track
+  createCandidatesHCALUnlinked(block, linkData, elements, active, blockref, inds, deadArea); 
+  createCandidatesECAL(block, linkData, elements, active, blockref, inds, deadArea);
+
+
+}  // end processBlock HCALLoop
 
 /////////////////////////////////////////////////////////////////////
 unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt, bool allowLoose) {
