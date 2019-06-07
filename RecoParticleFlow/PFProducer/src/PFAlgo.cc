@@ -446,270 +446,8 @@ void PFAlgo::conversionAlgo(const edm::OwnVector<reco::PFBlockElement> &elements
   }
 }
 
-void PFAlgo::elementLoop(const reco::PFBlock &block, reco::PFBlock::LinkData& linkData,
-  const edm::OwnVector<reco::PFBlockElement> &elements, std::vector<bool>& active,
-  const reco::PFBlockRef &blockref, ElementIndices& inds, std::vector<bool> &deadArea) {
-  for(unsigned iEle=0; iEle<elements.size(); iEle++) {
-    PFBlockElement::Type type = elements[iEle].type();
 
-    if(debug_ && type != PFBlockElement::BREM ) cout<<endl<<elements[iEle];
-    auto ret_decideType = decideType(elements, type, active, inds, deadArea, iEle);
-    if (ret_decideType == 1) {
-      continue;
-    }
-
-    // we're now dealing with a track
-    unsigned iTrack = iEle;
-    reco::MuonRef muonRef = elements[iTrack].muonRef();
-    if (debug_ && muonRef.isNonnull()) {
-        cout << "track " << iTrack << " has a valid muon reference. " << std::endl;
-        cout << "   - isMuon: " << PFMuonAlgo::isMuon(muonRef) << endl;
-        cout << "   - isGlobalTightMuon: " << PFMuonAlgo::isGlobalTightMuon(muonRef) << endl;
-        cout << "   - isTrackerTightMuon: " << PFMuonAlgo::isTrackerTightMuon(muonRef) << endl;
-        cout << "   - isIsolatedMuon: " << PFMuonAlgo::isIsolatedMuon(muonRef) << endl;
-    }
-
-    //Check if the track is a primary track of a secondary interaction
-    //If that is the case reconstruct a charged hadron noly using that
-    //track
-    if (active[iTrack] && isFromSecInt(elements[iEle], "primary")){
-      bool isPrimaryTrack = elements[iEle].displacedVertexRef(PFBlockElement::T_TO_DISP)->displacedVertexRef()->isTherePrimaryTracks();
-      if (isPrimaryTrack) {
-	if (debug_) cout << "Primary Track reconstructed alone" << endl;
-
-	unsigned tmpi = reconstructTrack(elements[iEle]);
-	(*pfCandidates_)[tmpi].addElementInBlock( blockref, iEle );
-	active[iTrack] = false;
-      }
-    }
-
-
-    if(debug_) {
-      if ( !active[iTrack] )
-	cout << "Already used by electrons, muons, conversions" << endl;
-    }
-
-    // Track already used as electron, muon, conversion?
-    // Added a check on the activated element
-    if ( ! active[iTrack] ) continue;
-
-    reco::TrackRef trackRef = elements[iTrack].trackRef();
-    assert( !trackRef.isNull() );
-
-    if (debug_ ) {
-      cout <<"PFAlgo:processBlock "<<" "<< inds.trackIs.size()<<" "
-        << inds.ecalIs.size()<<" "<< inds.hcalIs.size()<<" "
-        << inds.hoIs.size()<<endl;
-    }
-
-    // look for associated elements of all types
-    //COLINFEB16
-    // all types of links are considered.
-    // the elements are sorted by increasing distance
-    std::multimap<double, unsigned> ecalElems;
-    block.associatedElements( iTrack,  linkData,
-                              ecalElems ,
-                              reco::PFBlockElement::ECAL,
-			      reco::PFBlock::LINKTEST_ALL );
-
-    std::multimap<double, unsigned> hcalElems;
-    block.associatedElements( iTrack,  linkData,
-                              hcalElems,
-                              reco::PFBlockElement::HCAL,
-                              reco::PFBlock::LINKTEST_ALL );
-
-    if (debug_ ) {
-        std::cout << "\tTrack " << iTrack << " is linked to " << ecalElems.size() << " ecal and " << hcalElems.size() << " hcal elements" << std::endl;
-        for (const auto & pair : ecalElems) {
-            std::cout << "ecal: dist " << pair.first << "\t elem " << pair.second << std::endl;
-        }
-        for (const auto & pair : hcalElems) {
-            std::cout << "hcal: dist " << pair.first << "\t elem " << pair.second << (deadArea[pair.second] ? "  DEAD AREA MARKER" : "") <<  std::endl;
-        }
-    }
-    // there's 3 possible options possible here, in principle:
-    //    1) flag everything that may be associated to a dead hcal marker
-    //    2) flag everything whose closest hcal link is a dead hcal marker
-    //    3) flag only things that are linked only to dead hcal marker
-    // in our first test we go for (2)
-    //--- option (1) --
-    //bool hasDeadHcal = false;
-    //for (auto it = hcalElems.begin(), ed = hcalElems.end(); it != ed; /*NOTE NO ++it HERE */ ) {
-    //    if (deadArea[it->second]) { hasDeadHcal = true; it = hcalElems.erase(it); } // std::multimap::erase returns iterator to next
-    //    else ++it;
-    //}
-    //--- option (2) --
-    bool hasDeadHcal = false;
-    if (!hcalElems.empty() && deadArea[hcalElems.begin()->second]) {
-        hasDeadHcal = true;
-        hcalElems.clear();
-    }
-    //--- option (3) --
-    //bool hasDeadHcal = true;
-    //for (auto it = hcalElems.begin(), ed = hcalElems.end(); it != ed; /*NOTE NO ++it HERE */ ) {
-    //    if (deadArea[it->second]) { it = hcalElems.erase(it); } // std::multimap::erase returns iterator to next
-    //    else { hasDeadHcal = false; }
-    //}
-
-    // for tracks with bad Hcal, check the quality
-    bool goodTrackDeadHcal = false;
-    if (hasDeadHcal) {
-       goodTrackDeadHcal = ( trackRef->ptError() < goodTrackDeadHcal_ptErrRel_ * trackRef->pt() &&
-                             trackRef->normalizedChi2() < goodTrackDeadHcal_chi2n_ &&
-                             trackRef->hitPattern().trackerLayersWithMeasurement() >= goodTrackDeadHcal_layers_ &&
-                             trackRef->validFraction() > goodTrackDeadHcal_validFr_ &&
-                             std::abs(trackRef->dxy(primaryVertex_.position())) < goodTrackDeadHcal_dxy_ );
-       // now we add an extra block for tracks at high |eta|
-       if (!goodTrackDeadHcal &&
-            std::abs(trackRef->eta()) > goodPixelTrackDeadHcal_minEta_ && // high eta
-            trackRef->hitPattern().pixelLayersWithMeasurement() >= 3   && // pixel track
-            trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::TRACK_HITS) == 0 &&
-            trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS) == 0 &&
-            trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS) <= (
-                trackRef->hitPattern().pixelLayersWithMeasurement() > 3 ?
-                goodPixelTrackDeadHcal_maxLost4Hit_ : goodPixelTrackDeadHcal_maxLost3Hit_  ) &&
-            trackRef->normalizedChi2() < goodPixelTrackDeadHcal_chi2n_ && // tighter cut
-            std::abs(trackRef->dxy(primaryVertex_.position())) < goodPixelTrackDeadHcal_dxy_  &&
-            std::abs(trackRef->dz(primaryVertex_.position()))  < goodPixelTrackDeadHcal_dz_  &&
-            trackRef->ptError() < goodPixelTrackDeadHcal_ptErrRel_*trackRef->pt() && // sanity
-            trackRef->pt() < goodPixelTrackDeadHcal_maxPt_) {                        // sanity
-            goodTrackDeadHcal = true;
-            // FIXME: may decide to do something to the track pT
-       }
-       //if (!goodTrackDeadHcal && trackRef->hitPattern().trackerLayersWithMeasurement() == 4 && trackRef->validFraction() == 1
-       if (debug_) cout << " track pt " << trackRef->pt() << " +- " << trackRef->ptError()
-          << " layers valid " << trackRef->hitPattern().trackerLayersWithMeasurement()
-                << ", lost " << trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::TRACK_HITS)
-                << ", lost outer " << trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS)
-                << ", lost inner " << trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS)
-                << "(valid fraction " << trackRef->validFraction() << ")"
-          << " chi2/ndf " << trackRef->normalizedChi2()
-          << " |dxy| " << std::abs(trackRef->dxy(primaryVertex_.position())) << " +- " << trackRef->dxyError()
-          << " |dz| " << std::abs(trackRef->dz(primaryVertex_.position())) << " +- " << trackRef->dzError()
-          << (goodTrackDeadHcal ? " passes " : " fails ") << "quality cuts" << std::endl;
-    }
-
-    // When a track has no HCAL cluster linked, but another track is linked to the same
-    // ECAL cluster and an HCAL cluster, link the track to the HCAL cluster for
-    // later analysis
-    if ( hcalElems.empty() && !ecalElems.empty() && !hasDeadHcal) {
-      // debug_ = true;
-      unsigned ntt = 1;
-      unsigned index = ecalElems.begin()->second;
-      std::multimap<double, unsigned> sortedTracks;
-      block.associatedElements( index,  linkData,
-				sortedTracks,
-				reco::PFBlockElement::TRACK,
-				reco::PFBlock::LINKTEST_ALL );
-      if (debug_ ) std::cout << "The closest ECAL cluster is linked to " << sortedTracks.size() << " tracks, with distance = " << ecalElems.begin()->first << std::endl;
-
-      // Loop over all tracks
-      for(auto const& trk : sortedTracks) {
-	unsigned jTrack = trk.second;
-	//std::cout << "Track " << jTrack << std::endl;
-	// Track must be active
-	if ( !active[jTrack] ) continue;
-	//std::cout << "Active " << std::endl;
-
-	// The loop is on the other tracks !
-	if ( jTrack == iTrack ) continue;
-	//std::cout << "A different track ! " << std::endl;
-
-	// Check if the ECAL closest to this track is the current ECAL
-	// Otherwise ignore this track in the neutral energy determination
-	std::multimap<double, unsigned> sortedECAL;
-	block.associatedElements( jTrack,  linkData,
-				  sortedECAL,
-				  reco::PFBlockElement::ECAL,
-				  reco::PFBlock::LINKTEST_ALL );
-	if ( sortedECAL.begin()->second != index ) continue;
-	if (debug_ ) std::cout << "  track " << jTrack << " with closest ECAL identical " << std::endl;
-
-
-	// Check if this track is also linked to an HCAL
-	std::multimap<double, unsigned> sortedHCAL;
-	block.associatedElements( jTrack,  linkData,
-				  sortedHCAL,
-				  reco::PFBlockElement::HCAL,
-				  reco::PFBlock::LINKTEST_ALL );
-	if ( sortedHCAL.empty() ) continue;
-	if (debug_ ) std::cout << "  and with an HCAL cluster " << sortedHCAL.begin()->second << std::endl;
-	ntt++;
-
-	// In that case establish a link with the first track
-	block.setLink( iTrack,
-		       sortedHCAL.begin()->second,
-		       sortedECAL.begin()->first,
-		       linkData,
-		       PFBlock::LINKTEST_RECHIT );
-
-      } // End other tracks
-
-      // Redefine HCAL elements
-      block.associatedElements( iTrack,  linkData,
-				hcalElems,
-				reco::PFBlockElement::HCAL,
-				reco::PFBlock::LINKTEST_ALL );
-
-      if ( debug_ && !hcalElems.empty() )
-	std::cout << "Track linked back to HCAL due to ECAL sharing with other tracks" << std::endl;
-    }
-
-    //MICHELE
-    //TEMPORARY SOLUTION FOR ELECTRON REJECTION IN PFTAU
-    //COLINFEB16
-    // in case particle flow electrons are not reconstructed,
-    // the mva_e_pi of the charged hadron will be set to 1
-    // if a GSF element is associated to the current TRACK element
-    // This information will be used in the electron rejection for tau ID.
-    std::multimap<double,unsigned> gsfElems;
-    block.associatedElements( iTrack, linkData, gsfElems, reco::PFBlockElement::GSF );
-
-    if(hcalElems.empty() && debug_) {
-      cout<<"no hcal element connected to track "<<iTrack<<endl;
-    }
-
-    // will now loop on associated elements ...
-    // typedef std::multimap<double, unsigned>::iterator IE;
-
-    bool hcalFound = false;
-
-    if(debug_)
-      cout<<"now looping on elements associated to the track"<<endl;
-
-    // ... first on associated ECAL elements
-    // Check if there is still a free ECAL for this track
-    for(auto const& ecal : ecalElems) {
-
-      unsigned index = ecal.second;
-      // Sanity checks and optional printout
-      PFBlockElement::Type type = elements[index].type();
-      if(debug_) {
-	double  dist  = ecal.first;
-        cout<<"\telement "<<elements[index]<<" linked with distance = "<< dist <<endl;
-	if ( ! active[index] ) cout << "This ECAL is already used - skip it" << endl;
-      }
-      assert( type == PFBlockElement::ECAL );
-
-      // This ECAL is not free (taken by an electron?) - just skip it
-      if ( ! active[index] ) continue;
-
-      // Flag ECAL clusters for which the corresponding track is not linked to an HCAL cluster
-
-      //reco::PFClusterRef clusterRef = elements[index].clusterRef();
-      //assert( !clusterRef.isNull() );
-      if( !hcalElems.empty() && debug_)
-	cout<<"\t\tat least one hcal element connected to the track."
-	    <<" Sparing Ecal cluster for the hcal loop"<<endl;
-
-    } //loop print ecal elements
-
-
-    // tracks which are not linked to an HCAL
-    // are reconstructed now.
-
-    if( hcalElems.empty() ) {
-
+  bool PFAlgo::recoTracksNotHCAL(const reco::PFBlock &block, reco::PFBlock::LinkData& linkData, const edm::OwnVector<reco::PFBlockElement> &elements, const reco::PFBlockRef &blockref, std::vector<bool>& active, bool goodTrackDeadHcal, bool hasDeadHcal, unsigned int iTrack, std::multimap<double, unsigned>& ecalElems, reco::TrackRef& trackRef) {
       if ( debug_ )
 	std::cout << "Now deals with tracks linked to no HCAL clusters. Was HCal active? " << (!hasDeadHcal) << std::endl;
       // vector<unsigned> elementIndices;
@@ -778,7 +516,7 @@ void PFAlgo::elementLoop(const reco::PFBlock &block, reco::PFBlock::LinkData& li
 	}
       }
 
-      if ( rejectFake ) continue;
+      if ( rejectFake ) { return true; };
 
       // Create a track candidate
       // unsigned tmpi = reconstructTrack( elements[iTrack] );
@@ -797,7 +535,7 @@ void PFAlgo::elementLoop(const reco::PFBlock &block, reco::PFBlock::LinkData& li
 	double dptRel = Dpt/trackRef->pt()*100;
 	bool isPrimaryOrSecondary = isFromSecInt(elements[iTrack], "all");
 
-	if ( isPrimaryOrSecondary && dptRel < dptRel_DispVtx_) continue;
+	if ( isPrimaryOrSecondary && dptRel < dptRel_DispVtx_) { return true; };
 	unsigned nHits =  elements[iTrack].trackRef()->hitPattern().trackerLayersWithMeasurement();
 	unsigned int NLostHit = trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::TRACK_HITS);
 
@@ -808,7 +546,7 @@ void PFAlgo::elementLoop(const reco::PFBlock &block, reco::PFBlock::LinkData& li
 		    << " without any link to ECAL/HCAL and with " << nHits << " (" << NLostHit
 		    << ") hits (lost hits) has been cleaned" << std::endl;
 	active[iTrack] = false;
-	continue;
+	return true;
       }
 
 
@@ -825,7 +563,7 @@ void PFAlgo::elementLoop(const reco::PFBlock &block, reco::PFBlock::LinkData& li
 	(*pfCandidates_)[tmpi[0]].setPs1Energy( 0 );
 	(*pfCandidates_)[tmpi[0]].setPs2Energy( 0 );
 	(*pfCandidates_)[tmpi[0]].addElementInBlock( blockref, kTrack[0] );
-	continue;
+	return true;
       }
 
       // Look for closest ECAL cluster
@@ -871,7 +609,7 @@ void PFAlgo::elementLoop(const reco::PFBlock &block, reco::PFBlock::LinkData& li
             (*pfCandidates_)[tmpi[0]].setPs1Energy( 0 );
             (*pfCandidates_)[tmpi[0]].setPs2Energy( 0 );
             (*pfCandidates_)[tmpi[0]].addElementInBlock( blockref, kTrack[0] );
-            continue;
+            return true;
           } else {
             if (debug_) cout << " the closest track to ECAL " << thisEcal << " is " << sortedTracks.begin()->second << " which is the one being processed. Will skip ECAL linking for all other track" << endl;
             sortedTracks.clear();
@@ -1174,7 +912,276 @@ void PFAlgo::elementLoop(const reco::PFBlock &block, reco::PFBlock::LinkData& li
 	  (*pfCandidates_)[tmpi[ic]].addElementInBlock( blockref, kTrack[ic] );
 	}
       }
+  return false;
+}
 
+void PFAlgo::elementLoop(const reco::PFBlock &block, reco::PFBlock::LinkData& linkData,
+  const edm::OwnVector<reco::PFBlockElement> &elements, std::vector<bool>& active,
+  const reco::PFBlockRef &blockref, ElementIndices& inds, std::vector<bool> &deadArea) {
+  for(unsigned iEle=0; iEle<elements.size(); iEle++) {
+    PFBlockElement::Type type = elements[iEle].type();
+
+    if(debug_ && type != PFBlockElement::BREM ) cout<<endl<<elements[iEle];
+    auto ret_decideType = decideType(elements, type, active, inds, deadArea, iEle);
+    if (ret_decideType == 1) {
+      continue;
+    }
+
+    // we're now dealing with a track
+    unsigned iTrack = iEle;
+    reco::MuonRef muonRef = elements[iTrack].muonRef();
+    if (debug_ && muonRef.isNonnull()) {
+        cout << "track " << iTrack << " has a valid muon reference. " << std::endl;
+        cout << "   - isMuon: " << PFMuonAlgo::isMuon(muonRef) << endl;
+        cout << "   - isGlobalTightMuon: " << PFMuonAlgo::isGlobalTightMuon(muonRef) << endl;
+        cout << "   - isTrackerTightMuon: " << PFMuonAlgo::isTrackerTightMuon(muonRef) << endl;
+        cout << "   - isIsolatedMuon: " << PFMuonAlgo::isIsolatedMuon(muonRef) << endl;
+    }
+
+    //Check if the track is a primary track of a secondary interaction
+    //If that is the case reconstruct a charged hadron noly using that
+    //track
+    if (active[iTrack] && isFromSecInt(elements[iEle], "primary")){
+      bool isPrimaryTrack = elements[iEle].displacedVertexRef(PFBlockElement::T_TO_DISP)->displacedVertexRef()->isTherePrimaryTracks();
+      if (isPrimaryTrack) {
+	if (debug_) cout << "Primary Track reconstructed alone" << endl;
+
+	unsigned tmpi = reconstructTrack(elements[iEle]);
+	(*pfCandidates_)[tmpi].addElementInBlock( blockref, iEle );
+	active[iTrack] = false;
+      }
+    }
+
+
+    if(debug_) {
+      if ( !active[iTrack] )
+	cout << "Already used by electrons, muons, conversions" << endl;
+    }
+
+    // Track already used as electron, muon, conversion?
+    // Added a check on the activated element
+    if ( ! active[iTrack] ) continue;
+
+    reco::TrackRef trackRef = elements[iTrack].trackRef();
+    assert( !trackRef.isNull() );
+
+    if (debug_ ) {
+      cout <<"PFAlgo:processBlock "<<" "<< inds.trackIs.size()<<" "
+        << inds.ecalIs.size()<<" "<< inds.hcalIs.size()<<" "
+        << inds.hoIs.size()<<endl;
+    }
+
+    // look for associated elements of all types
+    //COLINFEB16
+    // all types of links are considered.
+    // the elements are sorted by increasing distance
+    std::multimap<double, unsigned> ecalElems;
+    block.associatedElements( iTrack,  linkData,
+                              ecalElems ,
+                              reco::PFBlockElement::ECAL,
+			      reco::PFBlock::LINKTEST_ALL );
+
+    std::multimap<double, unsigned> hcalElems;
+    block.associatedElements( iTrack,  linkData,
+                              hcalElems,
+                              reco::PFBlockElement::HCAL,
+                              reco::PFBlock::LINKTEST_ALL );
+
+    if (debug_ ) {
+        std::cout << "\tTrack " << iTrack << " is linked to " << ecalElems.size() << " ecal and " << hcalElems.size() << " hcal elements" << std::endl;
+        for (const auto & pair : ecalElems) {
+            std::cout << "ecal: dist " << pair.first << "\t elem " << pair.second << std::endl;
+        }
+        for (const auto & pair : hcalElems) {
+            std::cout << "hcal: dist " << pair.first << "\t elem " << pair.second << (deadArea[pair.second] ? "  DEAD AREA MARKER" : "") <<  std::endl;
+        }
+    }
+    // there's 3 possible options possible here, in principle:
+    //    1) flag everything that may be associated to a dead hcal marker
+    //    2) flag everything whose closest hcal link is a dead hcal marker
+    //    3) flag only things that are linked only to dead hcal marker
+    // in our first test we go for (2)
+    //--- option (1) --
+    //bool hasDeadHcal = false;
+    //for (auto it = hcalElems.begin(), ed = hcalElems.end(); it != ed; /*NOTE NO ++it HERE */ ) {
+    //    if (deadArea[it->second]) { hasDeadHcal = true; it = hcalElems.erase(it); } // std::multimap::erase returns iterator to next
+    //    else ++it;
+    //}
+    //--- option (2) --
+    bool hasDeadHcal = false;
+    if (!hcalElems.empty() && deadArea[hcalElems.begin()->second]) {
+        hasDeadHcal = true;
+        hcalElems.clear();
+    }
+    //--- option (3) --
+    //bool hasDeadHcal = true;
+    //for (auto it = hcalElems.begin(), ed = hcalElems.end(); it != ed; /*NOTE NO ++it HERE */ ) {
+    //    if (deadArea[it->second]) { it = hcalElems.erase(it); } // std::multimap::erase returns iterator to next
+    //    else { hasDeadHcal = false; }
+    //}
+
+    // for tracks with bad Hcal, check the quality
+    bool goodTrackDeadHcal = false;
+    if (hasDeadHcal) {
+       goodTrackDeadHcal = ( trackRef->ptError() < goodTrackDeadHcal_ptErrRel_ * trackRef->pt() &&
+                             trackRef->normalizedChi2() < goodTrackDeadHcal_chi2n_ &&
+                             trackRef->hitPattern().trackerLayersWithMeasurement() >= goodTrackDeadHcal_layers_ &&
+                             trackRef->validFraction() > goodTrackDeadHcal_validFr_ &&
+                             std::abs(trackRef->dxy(primaryVertex_.position())) < goodTrackDeadHcal_dxy_ );
+       // now we add an extra block for tracks at high |eta|
+       if (!goodTrackDeadHcal &&
+            std::abs(trackRef->eta()) > goodPixelTrackDeadHcal_minEta_ && // high eta
+            trackRef->hitPattern().pixelLayersWithMeasurement() >= 3   && // pixel track
+            trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::TRACK_HITS) == 0 &&
+            trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS) == 0 &&
+            trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS) <= (
+                trackRef->hitPattern().pixelLayersWithMeasurement() > 3 ?
+                goodPixelTrackDeadHcal_maxLost4Hit_ : goodPixelTrackDeadHcal_maxLost3Hit_  ) &&
+            trackRef->normalizedChi2() < goodPixelTrackDeadHcal_chi2n_ && // tighter cut
+            std::abs(trackRef->dxy(primaryVertex_.position())) < goodPixelTrackDeadHcal_dxy_  &&
+            std::abs(trackRef->dz(primaryVertex_.position()))  < goodPixelTrackDeadHcal_dz_  &&
+            trackRef->ptError() < goodPixelTrackDeadHcal_ptErrRel_*trackRef->pt() && // sanity
+            trackRef->pt() < goodPixelTrackDeadHcal_maxPt_) {                        // sanity
+            goodTrackDeadHcal = true;
+            // FIXME: may decide to do something to the track pT
+       }
+       //if (!goodTrackDeadHcal && trackRef->hitPattern().trackerLayersWithMeasurement() == 4 && trackRef->validFraction() == 1
+       if (debug_) cout << " track pt " << trackRef->pt() << " +- " << trackRef->ptError()
+          << " layers valid " << trackRef->hitPattern().trackerLayersWithMeasurement()
+                << ", lost " << trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::TRACK_HITS)
+                << ", lost outer " << trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS)
+                << ", lost inner " << trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS)
+                << "(valid fraction " << trackRef->validFraction() << ")"
+          << " chi2/ndf " << trackRef->normalizedChi2()
+          << " |dxy| " << std::abs(trackRef->dxy(primaryVertex_.position())) << " +- " << trackRef->dxyError()
+          << " |dz| " << std::abs(trackRef->dz(primaryVertex_.position())) << " +- " << trackRef->dzError()
+          << (goodTrackDeadHcal ? " passes " : " fails ") << "quality cuts" << std::endl;
+    }
+
+    // When a track has no HCAL cluster linked, but another track is linked to the same
+    // ECAL cluster and an HCAL cluster, link the track to the HCAL cluster for
+    // later analysis
+    if ( hcalElems.empty() && !ecalElems.empty() && !hasDeadHcal) {
+      // debug_ = true;
+      unsigned ntt = 1;
+      unsigned index = ecalElems.begin()->second;
+      std::multimap<double, unsigned> sortedTracks;
+      block.associatedElements( index,  linkData,
+				sortedTracks,
+				reco::PFBlockElement::TRACK,
+				reco::PFBlock::LINKTEST_ALL );
+      if (debug_ ) std::cout << "The closest ECAL cluster is linked to " << sortedTracks.size() << " tracks, with distance = " << ecalElems.begin()->first << std::endl;
+
+      // Loop over all tracks
+      for(auto const& trk : sortedTracks) {
+	unsigned jTrack = trk.second;
+	//std::cout << "Track " << jTrack << std::endl;
+	// Track must be active
+	if ( !active[jTrack] ) continue;
+	//std::cout << "Active " << std::endl;
+
+	// The loop is on the other tracks !
+	if ( jTrack == iTrack ) continue;
+	//std::cout << "A different track ! " << std::endl;
+
+	// Check if the ECAL closest to this track is the current ECAL
+	// Otherwise ignore this track in the neutral energy determination
+	std::multimap<double, unsigned> sortedECAL;
+	block.associatedElements( jTrack,  linkData,
+				  sortedECAL,
+				  reco::PFBlockElement::ECAL,
+				  reco::PFBlock::LINKTEST_ALL );
+	if ( sortedECAL.begin()->second != index ) continue;
+	if (debug_ ) std::cout << "  track " << jTrack << " with closest ECAL identical " << std::endl;
+
+
+	// Check if this track is also linked to an HCAL
+	std::multimap<double, unsigned> sortedHCAL;
+	block.associatedElements( jTrack,  linkData,
+				  sortedHCAL,
+				  reco::PFBlockElement::HCAL,
+				  reco::PFBlock::LINKTEST_ALL );
+	if ( sortedHCAL.empty() ) continue;
+	if (debug_ ) std::cout << "  and with an HCAL cluster " << sortedHCAL.begin()->second << std::endl;
+	ntt++;
+
+	// In that case establish a link with the first track
+	block.setLink( iTrack,
+		       sortedHCAL.begin()->second,
+		       sortedECAL.begin()->first,
+		       linkData,
+		       PFBlock::LINKTEST_RECHIT );
+
+      } // End other tracks
+
+      // Redefine HCAL elements
+      block.associatedElements( iTrack,  linkData,
+				hcalElems,
+				reco::PFBlockElement::HCAL,
+				reco::PFBlock::LINKTEST_ALL );
+
+      if ( debug_ && !hcalElems.empty() )
+	std::cout << "Track linked back to HCAL due to ECAL sharing with other tracks" << std::endl;
+    }
+
+    //MICHELE
+    //TEMPORARY SOLUTION FOR ELECTRON REJECTION IN PFTAU
+    //COLINFEB16
+    // in case particle flow electrons are not reconstructed,
+    // the mva_e_pi of the charged hadron will be set to 1
+    // if a GSF element is associated to the current TRACK element
+    // This information will be used in the electron rejection for tau ID.
+    std::multimap<double,unsigned> gsfElems;
+    block.associatedElements( iTrack, linkData, gsfElems, reco::PFBlockElement::GSF );
+
+    if(hcalElems.empty() && debug_) {
+      cout<<"no hcal element connected to track "<<iTrack<<endl;
+    }
+
+    // will now loop on associated elements ...
+    // typedef std::multimap<double, unsigned>::iterator IE;
+
+    bool hcalFound = false;
+
+    if(debug_)
+      cout<<"now looping on elements associated to the track"<<endl;
+
+    // ... first on associated ECAL elements
+    // Check if there is still a free ECAL for this track
+    for(auto const& ecal : ecalElems) {
+
+      unsigned index = ecal.second;
+      // Sanity checks and optional printout
+      PFBlockElement::Type type = elements[index].type();
+      if(debug_) {
+	double  dist  = ecal.first;
+        cout<<"\telement "<<elements[index]<<" linked with distance = "<< dist <<endl;
+	if ( ! active[index] ) cout << "This ECAL is already used - skip it" << endl;
+      }
+      assert( type == PFBlockElement::ECAL );
+
+      // This ECAL is not free (taken by an electron?) - just skip it
+      if ( ! active[index] ) continue;
+
+      // Flag ECAL clusters for which the corresponding track is not linked to an HCAL cluster
+
+      //reco::PFClusterRef clusterRef = elements[index].clusterRef();
+      //assert( !clusterRef.isNull() );
+      if( !hcalElems.empty() && debug_)
+	cout<<"\t\tat least one hcal element connected to the track."
+	    <<" Sparing Ecal cluster for the hcal loop"<<endl;
+
+    } //loop print ecal elements
+
+
+    // tracks which are not linked to an HCAL
+    // are reconstructed now.
+
+    if( hcalElems.empty() ) {
+      auto ret_continue = recoTracksNotHCAL(block, linkData, elements, blockref, active, goodTrackDeadHcal, hasDeadHcal, iTrack, ecalElems, trackRef);
+       if (ret_continue) {
+         continue;
+       }
     } // end if( hcalElems.empty() )
 
 
