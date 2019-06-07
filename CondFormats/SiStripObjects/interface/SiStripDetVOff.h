@@ -3,10 +3,10 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include<vector>
-#include<map>
-#include<iostream>
-#include<boost/cstdint.hpp>
+#include <vector>
+#include <map>
+#include <iostream>
+#include <boost/cstdint.hpp>
 #include <string>
 
 class TrackerTopology;
@@ -28,26 +28,24 @@ class TrackerTopology;
  * one of the two off.
  */
 
-class SiStripDetVOff
-{
- public:
-
-  typedef std::vector<uint32_t>::iterator       vOffIterator;
+class SiStripDetVOff {
+public:
+  typedef std::vector<uint32_t>::iterator vOffIterator;
   typedef std::vector<uint32_t>::const_iterator constVoffIterator;
-  typedef std::vector<int>::const_iterator     constVboolIterator;
+  typedef std::vector<int>::const_iterator constVboolIterator;
 
   // Bitmasks used to retrieve LV and HV information
-  static const short LVmask = 0x1;    // <--- 01
-  static const unsigned int LVonMask = 0xFFFFFFFE;    // <--- the last 4 bits are 1110. All the other bits are 1.
-  static const short HVmask = 0x2;    // <--- 10
-  static const unsigned int HVonMask = 0xFFFFFFFD;    // <--- the last 4 bits are 1101. All the other bits are 1.
-  static const unsigned int allOnMask = 0x03;   // <--- 2 bits are 11.
+  static const short LVmask = 0x1;                  // <--- 01
+  static const unsigned int LVonMask = 0xFFFFFFFE;  // <--- the last 4 bits are 1110. All the other bits are 1.
+  static const short HVmask = 0x2;                  // <--- 10
+  static const unsigned int HVonMask = 0xFFFFFFFD;  // <--- the last 4 bits are 1101. All the other bits are 1.
+  static const unsigned int allOnMask = 0x03;       // <--- 2 bits are 11.
   static const unsigned int eightBitMask = 0xFFFFFFFF;
   static const short bitShift = 2;
 
   SiStripDetVOff() {}
   ~SiStripDetVOff() {}
-  SiStripDetVOff( const SiStripDetVOff & toCopy ) { toCopy.getVoff(v_Voff); }
+  SiStripDetVOff(const SiStripDetVOff& toCopy) { toCopy.getVoff(v_Voff); }
 
   /// Needed by the copy constructor
   void getVoff(std::vector<uint32_t>& vOff_) const { vOff_ = v_Voff; }
@@ -58,7 +56,7 @@ class SiStripDetVOff
   /// Insert information for a vector of detIds
   bool put(std::vector<uint32_t>& DetId, std::vector<int>& HVoff, std::vector<int>& LVoff);
 
-  bool operator == (const SiStripDetVOff& d) const { return d.v_Voff==v_Voff; } 
+  bool operator==(const SiStripDetVOff& d) const { return d.v_Voff == v_Voff; }
 
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
 
@@ -69,8 +67,8 @@ class SiStripDetVOff
 
   bool IsModuleLVOff(const uint32_t DetID) const;
 
-  void printDebug(std::stringstream & ss, const TrackerTopology*) const;
-  void printSummary(std::stringstream & ss, const TrackerTopology*) const;
+  void printDebug(std::stringstream& ss, const TrackerTopology*) const;
+  void printSummary(std::stringstream& ss, const TrackerTopology*) const;
 
   /// Returns the total number of modules with LV off
   int getLVoffCounts() const;
@@ -78,13 +76,12 @@ class SiStripDetVOff
   int getHVoffCounts() const;
 
   /// Changes the bits in the stored value according to on/off voltages
-  void setBits( uint32_t & enDetId, const int HVoff, const int LVoff );
+  void setBits(uint32_t& enDetId, const int HVoff, const int LVoff);
 
- private:
+private:
+  std::vector<uint32_t> v_Voff;
 
-  std::vector<uint32_t> v_Voff; 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif
