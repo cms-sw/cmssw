@@ -48,7 +48,7 @@ HGCalRecHitProducer::HGCalRecHitProducer(const edm::ParameterSet& ps) :
   eeUncalibRecHitCollection_( consumes<HGCeeUncalibratedRecHitCollection>( ps.getParameter<edm::InputTag>("HGCEEuncalibRecHitCollection") ) ),
   hefUncalibRecHitCollection_( consumes<HGChefUncalibratedRecHitCollection>( ps.getParameter<edm::InputTag>("HGCHEFuncalibRecHitCollection") ) ),
   hebUncalibRecHitCollection_( consumes<HGChebUncalibratedRecHitCollection>( ps.getParameter<edm::InputTag>("HGCHEBuncalibRecHitCollection") ) ),
-  hfnoseUncalibRecHitCollection_( consumes<HGChfnoseUncalibratedRecHitCollection>( ps.getParameter<edm::InputTag>("HGCHEBuncalibRecHitCollection") ) ),
+  hfnoseUncalibRecHitCollection_( consumes<HGChfnoseUncalibratedRecHitCollection>( ps.getParameter<edm::InputTag>("HGCHFNoseuncalibRecHitCollection") ) ),
   eeRechitCollection_( ps.getParameter<std::string>("HGCEErechitCollection") ),
   hefRechitCollection_( ps.getParameter<std::string>("HGCHEFrechitCollection") ),
   hebRechitCollection_( ps.getParameter<std::string>("HGCHEBrechitCollection") ),
