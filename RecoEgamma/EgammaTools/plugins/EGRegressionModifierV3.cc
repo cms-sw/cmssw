@@ -61,6 +61,8 @@ private:
   edm::EDGetTokenT<double> rhoToken_;
 
   bool useClosestToCentreSeedCrysDef_;
+  float maxRawEnergyForLowPtEBSigma_;
+  float maxRawEnergyForLowPtEESigma_;
   edm::ESHandle<CaloGeometry> caloGeomHandle_;
 
 };
@@ -74,7 +76,9 @@ EGRegressionModifierV3::EGRegressionModifierV3(const edm::ParameterSet& conf,
   ModifyObjectValueBase(conf),
   rhoValue_(0.),
   rhoToken_(cc.consumes<double>(conf.getParameter<edm::InputTag>("rhoTag"))),
-  useClosestToCentreSeedCrysDef_(conf.getParameter<bool>("useClosestToCentreSeedCrysDef"))
+  useClosestToCentreSeedCrysDef_(conf.getParameter<bool>("useClosestToCentreSeedCrysDef")),
+  maxRawEnergyForLowPtEBSigma_(conf.getParameter<double>("maxRawEnergyForLowPtEBSigma")),
+  maxRawEnergyForLowPtEESigma_(conf.getParameter<double>("maxRawEnergyForLowPtEESigma"))
 {   
   if(conf.exists("eleRegs")) {
     eleRegs_ = std::make_unique<EleRegs>(conf.getParameter<edm::ParameterSet>("eleRegs"));
@@ -127,6 +131,18 @@ void EGRegressionModifierV3::modifyObject(reco::GsfElectron& ele) const
 
   const float ecalMean = eleRegs_->ecalOnlyMean(rawEt,ele.isEB(),isSaturated,regData.data());
   const float ecalMeanCorr = ecalMean > 0. ? ecalMean : 1.0;
+  //as the sample is trained flat in pt, the regression's only source of very high energy
+  //electrons is in the high endcap and therefore it gives a very poor resolution estimate
+  //to any electrons with this energy, regardless of their actual eta
+  //hence this lovely hack
+  if(ele.isEB() && maxRawEnergyForLowPtEBSigma_>=0 && 
+     eleRegs_->ecalOnlySigma.useLowEtBin(rawEt,isSaturated)){
+    regData[0] = std::min(regData[0],maxRawEnergyForLowPtEBSigma_);
+  }
+  if(!ele.isEB() && maxRawEnergyForLowPtEESigma_>=0 && 
+     eleRegs_->ecalOnlySigma.useLowEtBin(rawEt,isSaturated)){
+    regData[0] = std::min(regData[0],maxRawEnergyForLowPtEESigma_);
+  }
   const float ecalSigma = eleRegs_->ecalOnlySigma(rawEt,ele.isEB(),isSaturated,regData.data());
 
   const float corrEnergy = (rawEnergy + rawESEnergy)*ecalMeanCorr;
@@ -168,6 +184,16 @@ void EGRegressionModifierV3::modifyObject(reco::Photon& pho) const
   const bool isSaturated = pho.nSaturatedXtals();
   const float ecalMean = phoRegs_->ecalOnlyMean(rawEt,pho.isEB(),isSaturated,regData.data());
   const float ecalMeanCorr = ecalMean > 0. ? ecalMean : 1.0;
+
+  //see the electrons for explaination of this lovely feature
+  if(pho.isEB() && maxRawEnergyForLowPtEBSigma_>=0 && 
+     phoRegs_->ecalOnlySigma.useLowEtBin(rawEt,isSaturated)){
+    regData[0] = std::min(regData[0],maxRawEnergyForLowPtEBSigma_);
+  }
+  if(!pho.isEB() && maxRawEnergyForLowPtEESigma_>=0 && 
+     phoRegs_->ecalOnlySigma.useLowEtBin(rawEt,isSaturated)){
+    regData[0] = std::min(regData[0],maxRawEnergyForLowPtEESigma_);
+  }
   const float ecalSigma = phoRegs_->ecalOnlySigma(rawEt,pho.isEB(),isSaturated,regData.data());
     
   const double corrEnergy = (rawEnergy + rawESEnergy)*ecalMeanCorr;
