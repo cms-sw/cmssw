@@ -24,17 +24,16 @@
  */
 
 // class SiStripBackPlaneCorrection : public SiStripBaseObject
-class SiStripBackPlaneCorrection
-{
+class SiStripBackPlaneCorrection {
 public:
   SiStripBackPlaneCorrection(){};
   ~SiStripBackPlaneCorrection(){};
 
-  inline void putLorentsAngles(std::map<unsigned int,float>& BPC){m_BPC=BPC;}   
-  inline const std::map<unsigned int,float>&  getBackPlaneCorrections () const {return m_BPC;}
+  inline void putLorentsAngles(std::map<unsigned int, float>& BPC) { m_BPC = BPC; }
+  inline const std::map<unsigned int, float>& getBackPlaneCorrections() const { return m_BPC; }
 
   bool putBackPlaneCorrection(const uint32_t&, float);
-  float getBackPlaneCorrection (const uint32_t&) const;
+  float getBackPlaneCorrection(const uint32_t&) const;
 
   /// Prints BackPlaneCorrections for all detIds.
   void printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
@@ -42,7 +41,7 @@ public:
   void printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
 
 private:
-  std::map<unsigned int,float> m_BPC; 
+  std::map<unsigned int, float> m_BPC;
 
   COND_SERIALIZABLE;
 };

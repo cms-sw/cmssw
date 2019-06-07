@@ -23,17 +23,16 @@
  */
 
 // class SiStripLorentzAngle : public SiStripBaseObject
-class SiStripLorentzAngle
-{
+class SiStripLorentzAngle {
 public:
   SiStripLorentzAngle(){};
   ~SiStripLorentzAngle(){};
 
-  inline void putLorentsAngles(std::map<unsigned int,float>& LA){m_LA=LA;}   
-  inline const std::map<unsigned int,float>&  getLorentzAngles () const {return m_LA;}
+  inline void putLorentsAngles(std::map<unsigned int, float>& LA) { m_LA = LA; }
+  inline const std::map<unsigned int, float>& getLorentzAngles() const { return m_LA; }
 
   bool putLorentzAngle(const uint32_t&, float);
-  float getLorentzAngle (const uint32_t&) const;
+  float getLorentzAngle(const uint32_t&) const;
 
   /// Prints LorentzAngles for all detIds.
   void printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
@@ -41,7 +40,7 @@ public:
   void printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
 
 private:
-  std::map<unsigned int,float> m_LA; 
+  std::map<unsigned int, float> m_LA;
 
   COND_SERIALIZABLE;
 };
