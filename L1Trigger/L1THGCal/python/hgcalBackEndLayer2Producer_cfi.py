@@ -16,7 +16,7 @@ binSums = cms.vuint32(13,               # 0
                       9, 9, 9,          # 4 - 6
                       7, 7, 7, 7, 7, 7,  # 7 - 12
                       5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  # 13 - 27
-                      3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3  # 28 - 40
+                      3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3  # 28 - 41
                       )
 
 EE_DR_GROUP = 7
@@ -69,7 +69,7 @@ histoMax_C3d_params = cms.PSet(type_multicluster=cms.string('HistoMaxC3d'),
                                dR_multicluster_byLayer_coefficientB=cms.vdouble(),
                                shape_threshold=cms.double(1.),
                                minPt_multicluster=cms.double(0.5),  # minimum pt of the multicluster (GeV)
-                               nBins_R_histo_multicluster=cms.uint32(41), # bin size of about 0.012
+                               nBins_R_histo_multicluster=cms.uint32(42), # bin size of about 0.012
                                nBins_Phi_histo_multicluster=cms.uint32(216), # bin size of about 0.029
                                binSumsHisto=binSums,
                                threshold_histo_multicluster=cms.double(10.),

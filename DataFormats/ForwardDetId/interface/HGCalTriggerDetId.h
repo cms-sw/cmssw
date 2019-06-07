@@ -82,7 +82,6 @@ public:
 
   static const HGCalTriggerDetId Undefined;
 
-private:
   static const int kHGCalCellUOffset = 0;
   static const int kHGCalCellUMask = 0xF;
   static const int kHGCalCellVOffset = 4;
