@@ -30,75 +30,70 @@
 
 // Values are not ordered randomly, but the order is taken from
 // http://cmslxr.fnal.gov/dxr/CMSSW/source/Geometry/CommonDetUnit/interface/GeomDetEnumerators.h#15
-static const std::vector<std::string> sDETS{ "", "PXB", "PXF", "TIB", "TID", "TOB", "TEC" };
+static const std::vector<std::string> sDETS{"", "PXB", "PXF", "TIB", "TID", "TOB", "TEC"};
 
 class TrackingRecoMaterialAnalyser : public DQMEDAnalyzer {
-  public:
-    explicit TrackingRecoMaterialAnalyser(const edm::ParameterSet&);
-    void bookHistograms(DQMStore::IBooker &i,
-                                edm::Run const&,
-                                edm::EventSetup const&) override;
-    void analyze(const edm::Event &, const edm::EventSetup &) override ;
-    ~TrackingRecoMaterialAnalyser() override;
-  private:
-    inline bool isDoubleSided(SiStripDetId strip_id) {
-      return ((strip_id.subDetector() != SiStripDetId::UNKNOWN) && strip_id.glued());
-    }
-    TrackTransformer refitter_;
-    const edm::EDGetTokenT<reco::TrackCollection>  tracksToken_;
-    const edm::EDGetTokenT<reco::BeamSpot>  beamspotToken_;
-    const edm::EDGetTokenT<reco::VertexCollection>  verticesToken_;
-    bool usePV_;
-    std::string folder_;
-    std::unordered_map<std::string, MonitorElement *> histosOriEta_;
-    std::unordered_map<std::string, MonitorElement *> histosEta_;
-    MonitorElement * histo_RZ_;
-    MonitorElement * histo_RZ_Ori_;
-    MonitorElement * deltaPt_in_out_2d_;
-    MonitorElement * deltaP_in_out_vs_eta_;
-    MonitorElement * deltaP_in_out_vs_z_;
-    MonitorElement * deltaP_in_out_vs_eta_2d_;
-    MonitorElement * deltaP_in_out_vs_eta_vs_phi_2d_;
-    MonitorElement * deltaP_in_out_vs_z_2d_;
-    MonitorElement * deltaPt_in_out_vs_eta_;
-    MonitorElement * deltaPt_in_out_vs_z_;
-    MonitorElement * deltaPl_in_out_vs_eta_;
-    MonitorElement * deltaPl_in_out_vs_z_;
-    MonitorElement * P_vs_eta_2d_;
+public:
+  explicit TrackingRecoMaterialAnalyser(const edm::ParameterSet &);
+  void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  ~TrackingRecoMaterialAnalyser() override;
+
+private:
+  inline bool isDoubleSided(SiStripDetId strip_id) {
+    return ((strip_id.subDetector() != SiStripDetId::UNKNOWN) && strip_id.glued());
+  }
+  TrackTransformer refitter_;
+  const edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
+  const edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
+  bool usePV_;
+  std::string folder_;
+  std::unordered_map<std::string, MonitorElement *> histosOriEta_;
+  std::unordered_map<std::string, MonitorElement *> histosEta_;
+  MonitorElement *histo_RZ_;
+  MonitorElement *histo_RZ_Ori_;
+  MonitorElement *deltaPt_in_out_2d_;
+  MonitorElement *deltaP_in_out_vs_eta_;
+  MonitorElement *deltaP_in_out_vs_z_;
+  MonitorElement *deltaP_in_out_vs_eta_2d_;
+  MonitorElement *deltaP_in_out_vs_eta_vs_phi_2d_;
+  MonitorElement *deltaP_in_out_vs_z_2d_;
+  MonitorElement *deltaPt_in_out_vs_eta_;
+  MonitorElement *deltaPt_in_out_vs_z_;
+  MonitorElement *deltaPl_in_out_vs_eta_;
+  MonitorElement *deltaPl_in_out_vs_z_;
+  MonitorElement *P_vs_eta_2d_;
 };
 
 //-------------------------------------------------------------------------
-TrackingRecoMaterialAnalyser::TrackingRecoMaterialAnalyser(const edm::ParameterSet& iPSet):
-  refitter_(iPSet),
-  tracksToken_(consumes<reco::TrackCollection>(iPSet.getParameter<edm::InputTag>("tracks"))),
-  beamspotToken_(consumes<reco::BeamSpot>(iPSet.getParameter<edm::InputTag>("beamspot"))),
-  verticesToken_(mayConsume<reco::VertexCollection>(iPSet.getParameter<edm::InputTag>("vertices"))),
-  usePV_(iPSet.getParameter<bool>("usePV")),
-  folder_(iPSet.getParameter<std::string>("folder")),
-  histo_RZ_(nullptr),
-  histo_RZ_Ori_(nullptr),
-  deltaPt_in_out_2d_(nullptr),
-  deltaP_in_out_vs_eta_(nullptr),
-  deltaP_in_out_vs_z_(nullptr),
-  deltaP_in_out_vs_eta_2d_(nullptr),
-  deltaP_in_out_vs_eta_vs_phi_2d_(nullptr),
-  deltaP_in_out_vs_z_2d_(nullptr),
-  deltaPt_in_out_vs_eta_(nullptr),
-  deltaPt_in_out_vs_z_(nullptr),
-  deltaPl_in_out_vs_eta_(nullptr),
-  deltaPl_in_out_vs_z_(nullptr),
-  P_vs_eta_2d_(nullptr)
-{
-}
+TrackingRecoMaterialAnalyser::TrackingRecoMaterialAnalyser(const edm::ParameterSet &iPSet)
+    : refitter_(iPSet),
+      tracksToken_(consumes<reco::TrackCollection>(iPSet.getParameter<edm::InputTag>("tracks"))),
+      beamspotToken_(consumes<reco::BeamSpot>(iPSet.getParameter<edm::InputTag>("beamspot"))),
+      verticesToken_(mayConsume<reco::VertexCollection>(iPSet.getParameter<edm::InputTag>("vertices"))),
+      usePV_(iPSet.getParameter<bool>("usePV")),
+      folder_(iPSet.getParameter<std::string>("folder")),
+      histo_RZ_(nullptr),
+      histo_RZ_Ori_(nullptr),
+      deltaPt_in_out_2d_(nullptr),
+      deltaP_in_out_vs_eta_(nullptr),
+      deltaP_in_out_vs_z_(nullptr),
+      deltaP_in_out_vs_eta_2d_(nullptr),
+      deltaP_in_out_vs_eta_vs_phi_2d_(nullptr),
+      deltaP_in_out_vs_z_2d_(nullptr),
+      deltaPt_in_out_vs_eta_(nullptr),
+      deltaPt_in_out_vs_z_(nullptr),
+      deltaPl_in_out_vs_eta_(nullptr),
+      deltaPl_in_out_vs_z_(nullptr),
+      P_vs_eta_2d_(nullptr) {}
 
 //-------------------------------------------------------------------------
-TrackingRecoMaterialAnalyser::~TrackingRecoMaterialAnalyser(void)
-{
-}
+TrackingRecoMaterialAnalyser::~TrackingRecoMaterialAnalyser(void) {}
 
 //-------------------------------------------------------------------------
-void TrackingRecoMaterialAnalyser::bookHistograms(DQMStore::IBooker & ibook,
-                                                  edm::Run const&,
+void TrackingRecoMaterialAnalyser::bookHistograms(DQMStore::IBooker &ibook,
+                                                  edm::Run const &,
                                                   edm::EventSetup const &setup) {
   using namespace std;
   edm::ESHandle<TrackerGeometry> trackerGeometry;
@@ -109,87 +104,73 @@ void TrackingRecoMaterialAnalyser::bookHistograms(DQMStore::IBooker & ibook,
   // Histogram to store the radiation length map, in the R-Z plane,
   // gathering numbers directly from the trackerRecoMaterial.xml
   // file. The numbers are not corrected for the track angle.
-  histo_RZ_Ori_ = ibook.bookProfile2D("OriRadLen", "Original_RadLen",
-                                  600, -300., 300, 120, 0., 120., 0., 1.);
+  histo_RZ_Ori_ = ibook.bookProfile2D("OriRadLen", "Original_RadLen", 600, -300., 300, 120, 0., 120., 0., 1.);
 
   // Histogram to store the radiation length map, as before, but
   // correcting the numbers with the track angle. This represents the
   // real material seen by the track.
-  histo_RZ_ = ibook.bookProfile2D("RadLen", "RadLen",
-                                  600, -300., 300, 120, 0., 120., 0., 1.);
+  histo_RZ_ = ibook.bookProfile2D("RadLen", "RadLen", 600, -300., 300, 120, 0., 120., 0., 1.);
 
   // Histogram to show the deltaP Out-In in the eta-phi plane.
-  deltaP_in_out_vs_eta_vs_phi_2d_ = ibook.bookProfile2D("DeltaP_in_out_vs_eta_vs_phi_2d",
-                                                        "DeltaP_in_out_vs_eta_vs_phi_2d",
-                                                        100, -3.0, 3.0,
-                                                        100, -3.15, 3.15,
-                                                        0., 100.);
+  deltaP_in_out_vs_eta_vs_phi_2d_ = ibook.bookProfile2D(
+      "DeltaP_in_out_vs_eta_vs_phi_2d", "DeltaP_in_out_vs_eta_vs_phi_2d", 100, -3.0, 3.0, 100, -3.15, 3.15, 0., 100.);
 
   // Histogram to show the deltaP Out-In vs eta.
-  deltaP_in_out_vs_eta_2d_ = ibook.book2D("DeltaP_in_out_vs_eta_2d", "DeltaP_in_out_vs_eta_2d",
-                                          100, -3.0, 3.0, 100, 0., 1);
+  deltaP_in_out_vs_eta_2d_ =
+      ibook.book2D("DeltaP_in_out_vs_eta_2d", "DeltaP_in_out_vs_eta_2d", 100, -3.0, 3.0, 100, 0., 1);
 
   // Histogram to show the deltaP Out-In vs Z. The Z coordinate is the
   // one computed at the outermost hit.
-  deltaP_in_out_vs_z_2d_   = ibook.book2D("DeltaP_in_out_vs_z_2d", "DeltaP_in_out_vs_z_2d",
-                                          600, -300, 300, 200., -1, 1.);
+  deltaP_in_out_vs_z_2d_ = ibook.book2D("DeltaP_in_out_vs_z_2d", "DeltaP_in_out_vs_z_2d", 600, -300, 300, 200., -1, 1.);
 
   // Histogram to show the deltaP Out-In vs eta. The eta is the one
   // computed at the innermost hit.
-  deltaP_in_out_vs_eta_ = ibook.bookProfile("DeltaP_in_out_vs_eta", "DeltaP_in_out_vs_eta",
-                                      100, -3.0, 3.0, -100., 100.);
-  deltaP_in_out_vs_z_   = ibook.bookProfile("DeltaP_in_out_vs_z", "DeltaP_in_out_vs_z",
-                                      600, -300, 300, -100., 100.);
+  deltaP_in_out_vs_eta_ =
+      ibook.bookProfile("DeltaP_in_out_vs_eta", "DeltaP_in_out_vs_eta", 100, -3.0, 3.0, -100., 100.);
+  deltaP_in_out_vs_z_ = ibook.bookProfile("DeltaP_in_out_vs_z", "DeltaP_in_out_vs_z", 600, -300, 300, -100., 100.);
 
   // Histogram to show the delta_Pt Out-In vs eta. The eta is the one
   // computed at the innermost hit.
-  deltaPt_in_out_vs_eta_ = ibook.bookProfile("DeltaPt_in_out_vs_eta", "DeltaPt_in_out_vs_eta",
-                                      100, -3.0, 3.0, -100., 100.);
+  deltaPt_in_out_vs_eta_ =
+      ibook.bookProfile("DeltaPt_in_out_vs_eta", "DeltaPt_in_out_vs_eta", 100, -3.0, 3.0, -100., 100.);
 
   // Histogram to show the delta_Pt Out-In vs Z. The Z is the one
   // computed at the outermost hit.
-  deltaPt_in_out_vs_z_   = ibook.bookProfile("DeltaPt_in_out_vs_z", "DeltaPt_in_out_vs_z",
-                                      600, -300, 300, -100., 100);
+  deltaPt_in_out_vs_z_ = ibook.bookProfile("DeltaPt_in_out_vs_z", "DeltaPt_in_out_vs_z", 600, -300, 300, -100., 100);
 
   // Histogram to show the delta_Pl Out-In vs eta. The eta is the one
   // computed at the innermost hit.
-  deltaPl_in_out_vs_eta_ = ibook.bookProfile("DeltaPz_in_out_vs_eta", "DeltaPz_in_out_vs_eta",
-                                      100, -3.0, 3.0, -100., 100.);
+  deltaPl_in_out_vs_eta_ =
+      ibook.bookProfile("DeltaPz_in_out_vs_eta", "DeltaPz_in_out_vs_eta", 100, -3.0, 3.0, -100., 100.);
 
   // Histogram to show the delta_Pl Out-In vs Z. The Z is the one
   // computed at the outermost hit.
-  deltaPl_in_out_vs_z_   = ibook.bookProfile("DeltaPz_in_out_vs_z", "DeltaPz_in_out_vs_z",
-                                      600, -300, 300, -100., 100.);
+  deltaPl_in_out_vs_z_ = ibook.bookProfile("DeltaPz_in_out_vs_z", "DeltaPz_in_out_vs_z", 600, -300, 300, -100., 100.);
 
   // Histogram to show the delta_Pt Out-In in the Z-R plane. Z and R
   // are related to the outermost hit.
-  deltaPt_in_out_2d_     = ibook.bookProfile2D("DeltaPt 2D", "DeltaPt 2D",
-                                               600, -300., 300, 120, 0., 120., -100., 100.);
+  deltaPt_in_out_2d_ = ibook.bookProfile2D("DeltaPt 2D", "DeltaPt 2D", 600, -300., 300, 120, 0., 120., -100., 100.);
 
   // Histogram to show the distribution of p vs eta for all tracks.
-  P_vs_eta_2d_   = ibook.book2D("P_vs_eta_2d", "P_vs_eta_2d",
-                                          100, -3.0, 3.0, 100., 0., 5.);
+  P_vs_eta_2d_ = ibook.book2D("P_vs_eta_2d", "P_vs_eta_2d", 100, -3.0, 3.0, 100., 0., 5.);
   char title[50];
   char key[20];
-  for (unsigned int det = 1; det < sDETS.size(); ++det ) {
-    for (unsigned int sub_det = 1;
-      sub_det <= trackerGeometry->numberOfLayers(det); ++sub_det) {
+  for (unsigned int det = 1; det < sDETS.size(); ++det) {
+    for (unsigned int sub_det = 1; sub_det <= trackerGeometry->numberOfLayers(det); ++sub_det) {
       memset(title, 0, sizeof(title));
       snprintf(title, sizeof(title), "Original_RadLen_vs_Eta_%s%d", sDETS[det].data(), sub_det);
       snprintf(key, sizeof(key), "%s%d", sDETS[det].data(), sub_det);
-      histosOriEta_.insert(make_pair<string, MonitorElement*>(key,
-        ibook.bookProfile(title, title, 250, -5.0, 5.0, 0., 1.)));
+      histosOriEta_.insert(
+          make_pair<string, MonitorElement *>(key, ibook.bookProfile(title, title, 250, -5.0, 5.0, 0., 1.)));
       snprintf(title, sizeof(title), "RadLen_vs_Eta_%s%d", sDETS[det].data(), sub_det);
-      histosEta_.insert(make_pair<string, MonitorElement*>(key,
-        ibook.bookProfile(title, title, 250, -5.0, 5.0, 0., 1.)));
+      histosEta_.insert(
+          make_pair<string, MonitorElement *>(key, ibook.bookProfile(title, title, 250, -5.0, 5.0, 0., 1.)));
     }
   }
 }
 
 //-------------------------------------------------------------------------
-void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
-                                           const edm::EventSetup& setup)
-{
+void TrackingRecoMaterialAnalyser::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   using namespace edm;
   using namespace reco;
   using namespace std;
@@ -212,9 +193,8 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
 
   // Track Selector
   auto selector = [](const Track &track, const reco::Vertex::Point &pv) -> bool {
-    return (track.quality(track.qualityByName("highPurity"))
-            && track.dxy(pv) < 0.01
-            && track.hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS) == 0);
+    return (track.quality(track.qualityByName("highPurity")) && track.dxy(pv) < 0.01 &&
+            track.hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS) == 0);
   };
 
   // Get BeamSpot
@@ -233,9 +213,7 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
       // to geometrical effects, we need to confine the PV to some small
       // region.
       const Vertex &v = (*vertices)[0];
-      if (!v.isFake() && v.ndof() > 4
-          && std::fabs(v.z()) < 24
-          && std::fabs(v.position().rho()) < 2)
+      if (!v.isFake() && v.ndof() > 4 && std::fabs(v.z()) < 24 && std::fabs(v.position().rho()) < 2)
         pv = v.position();
     }
   }
@@ -261,8 +239,8 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
   for (auto const track : *tracks) {
     if (!selector(track, pv))
       continue;
-    auto const& inner = track.innerMomentum();
-    auto const& outer = track.outerMomentum();
+    auto const &inner = track.innerMomentum();
+    auto const &outer = track.outerMomentum();
     deltaP_in_out_vs_eta_->Fill(inner.eta(), inner.R() - outer.R());
     deltaP_in_out_vs_z_->Fill(track.outerZ(), inner.R() - outer.R());
     deltaP_in_out_vs_eta_2d_->Fill(inner.eta(), inner.R() - outer.R());
@@ -274,33 +252,30 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
     deltaPl_in_out_vs_z_->Fill(track.outerZ(), inner.z() - outer.z());
     deltaPt_in_out_2d_->Fill(track.outerZ(), track.outerPosition().rho(), inner.rho() - outer.rho());
     P_vs_eta_2d_->Fill(track.eta(), track.p());
-    vector<Trajectory> traj  = refitter_.transform(track);
+    vector<Trajectory> traj = refitter_.transform(track);
     if (traj.size() > 1 || traj.empty())
       continue;
     for (auto const &tm : traj.front().measurements()) {
       if (tm.recHit().get() &&
-        (tm.recHitR().type() == TrackingRecHit::valid ||
-         tm.recHitR().type() == TrackingRecHit::missing)) {
+          (tm.recHitR().type() == TrackingRecHit::valid || tm.recHitR().type() == TrackingRecHit::missing)) {
         current_tsos = tm.updatedState().isValid() ? tm.updatedState() : tm.forwardPredictedState();
-        auto const & localP = current_tsos.localMomentum();
+        auto const &localP = current_tsos.localMomentum();
         current_det = tm.recHit()->geographicalId();
-        const Surface& surface = current_tsos.surface();
+        const Surface &surface = current_tsos.surface();
         assert(tm.recHit()->surface() == &surface);
         if (!surface.mediumProperties().isValid()) {
           LogError("TrackingRecoMaterialAnalyser")
-            << "Medium properties for material linked to detector"
-            << " are invalid at: "
-            << current_tsos.globalPosition() << " "
-            << (SiStripDetId)current_det << endl;
-           assert(0);
+              << "Medium properties for material linked to detector"
+              << " are invalid at: " << current_tsos.globalPosition() << " " << (SiStripDetId)current_det << endl;
+          assert(0);
           continue;
         }
         float p2 = localP.mag2();
-        float xf = std::abs(std::sqrt(p2)/localP.z());
+        float xf = std::abs(std::sqrt(p2) / localP.z());
         float ori_xi = surface.mediumProperties().xi();
         float ori_radLen = surface.mediumProperties().radLen();
-        float xi = ori_xi*xf;
-        float radLen = ori_radLen*xf;
+        float xi = ori_xi * xf;
+        float radLen = ori_radLen * xf;
 
         // NOTA BENE: THIS ASSUMES THAT THE TRACKS HAVE BEEN PRODUCED
         // WITH SPLITTING, AS IS THE CASE FOR THE generalTracks
@@ -321,22 +296,24 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
         // http://cmslxr.fnal.gov/dxr/CMSSW_8_0_5/source/Geometry/TrackerGeometryBuilder/src/TrackerGeomBuilderFromGeometricDet.cc#287
 
         if (isDoubleSided(current_det)) {
-          LogTrace("TrackingRecoMaterialAnalyser") <<  "Eta: " << track.eta() << " "
-             << sDETS[current_det.subdetId()] << trk_topology->layer(current_det)
-             << " has ori_radLen: " << ori_radLen << " and ori_xi: " << xi
-             << " and has radLen: " << radLen << "  and xi: " << xi << endl;
+          LogTrace("TrackingRecoMaterialAnalyser")
+              << "Eta: " << track.eta() << " " << sDETS[current_det.subdetId()] << trk_topology->layer(current_det)
+              << " has ori_radLen: " << ori_radLen << " and ori_xi: " << xi << " and has radLen: " << radLen
+              << "  and xi: " << xi << endl;
           ori_radLen *= 2.;
           radLen *= 2.;
         }
 
-        histosOriEta_[sDETS[current_det.subdetId()]+to_string(trk_topology->layer(current_det))]->Fill(current_tsos.globalPosition().eta(), ori_radLen);
-        histosEta_[sDETS[current_det.subdetId()]+to_string(trk_topology->layer(current_det))]->Fill(current_tsos.globalPosition().eta(), radLen);
+        histosOriEta_[sDETS[current_det.subdetId()] + to_string(trk_topology->layer(current_det))]->Fill(
+            current_tsos.globalPosition().eta(), ori_radLen);
+        histosEta_[sDETS[current_det.subdetId()] + to_string(trk_topology->layer(current_det))]->Fill(
+            current_tsos.globalPosition().eta(), radLen);
         histo_RZ_Ori_->Fill(current_tsos.globalPosition().z(), current_tsos.globalPosition().perp(), ori_radLen);
         histo_RZ_->Fill(current_tsos.globalPosition().z(), current_tsos.globalPosition().perp(), radLen);
-        LogInfo("TrackingRecoMaterialAnalyser") <<  "Eta: " << track.eta() << " "
-             << sDETS[current_det.subdetId()] << trk_topology->layer(current_det)
-             << " has ori_radLen: " << ori_radLen << " and ori_xi: " << xi
-             << " and has radLen: " << radLen << "  and xi: " << xi << endl;
+        LogInfo("TrackingRecoMaterialAnalyser")
+            << "Eta: " << track.eta() << " " << sDETS[current_det.subdetId()] << trk_topology->layer(current_det)
+            << " has ori_radLen: " << ori_radLen << " and ori_xi: " << xi << " and has radLen: " << radLen
+            << "  and xi: " << xi << endl;
       }
     }
   }

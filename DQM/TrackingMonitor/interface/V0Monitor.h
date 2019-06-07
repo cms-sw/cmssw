@@ -36,30 +36,44 @@ struct MEbinning {
 // class declaration
 //
 
-class V0Monitor : public DQMEDAnalyzer 
-{
+class V0Monitor : public DQMEDAnalyzer {
 public:
-  V0Monitor( const edm::ParameterSet& );
+  V0Monitor(const edm::ParameterSet&);
   ~V0Monitor() override;
 
 protected:
-
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  MonitorElement* bookHisto1D(DQMStore::IBooker & ibooker,std::string name, std::string title, std::string xaxis, std::string yaxis, MEbinning binning);
-  MonitorElement* bookHisto2D(DQMStore::IBooker & ibooker,std::string name, std::string title, std::string xaxis, std::string yaxis, MEbinning xbinning, MEbinning ybinning);
-  MonitorElement* bookProfile(DQMStore::IBooker & ibooker,std::string name, std::string title, std::string xaxis, std::string yaxis, MEbinning xbinning, MEbinning ybinning);
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  MonitorElement* bookHisto1D(DQMStore::IBooker& ibooker,
+                              std::string name,
+                              std::string title,
+                              std::string xaxis,
+                              std::string yaxis,
+                              MEbinning binning);
+  MonitorElement* bookHisto2D(DQMStore::IBooker& ibooker,
+                              std::string name,
+                              std::string title,
+                              std::string xaxis,
+                              std::string yaxis,
+                              MEbinning xbinning,
+                              MEbinning ybinning);
+  MonitorElement* bookProfile(DQMStore::IBooker& ibooker,
+                              std::string name,
+                              std::string title,
+                              std::string xaxis,
+                              std::string yaxis,
+                              MEbinning xbinning,
+                              MEbinning ybinning);
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
 private:
-
   void getHistoPSet(edm::ParameterSet pset, MEbinning& mebinning);
 
   std::string folderName_;
 
   edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> v0Token_;
-  edm::EDGetTokenT<reco::BeamSpot>         bsToken_;
+  edm::EDGetTokenT<reco::BeamSpot> bsToken_;
   edm::EDGetTokenT<reco::VertexCollection> pvToken_;
-  edm::EDGetTokenT<LumiScalersCollection>  lumiscalersToken_;
+  edm::EDGetTokenT<LumiScalersCollection> lumiscalersToken_;
 
   int pvNDOF_;
 
@@ -115,4 +129,4 @@ private:
   MEbinning ls_binning_;
 };
 
-#endif // LUMIMONITOR_H
+#endif  // LUMIMONITOR_H
