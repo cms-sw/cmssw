@@ -80,6 +80,134 @@ void PFClusterValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
   sprintf  (histo, "emean_vs_eta_EHFO" );
   emean_vs_eta_EHFO = ibooker.bookProfile(histo, histo, 82, etaBinsOffset, -100., 2000., " ");
    
+  //1D histos
+
+  sprintf (histo,"Esummed_ECAL_0");
+  Esummed_ECAL_0= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_HCAL_0");
+  Esummed_HCAL_0= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_HO_0");
+  Esummed_HO_0= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_ECAL_HCAL_0");
+  Esummed_ECAL_HCAL_0= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_ECAL_HCAL_HO_0");
+  Esummed_ECAL_HCAL_HO_0= ibooker.book1D(histo, histo, 50, 0, 50); 
+  
+  sprintf (histo,"Esummed_ECAL_1");
+  Esummed_ECAL_1= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_HCAL_1");
+  Esummed_HCAL_1= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_HO_1");
+  Esummed_HO_1= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_ECAL_HCAL_1");
+  Esummed_ECAL_HCAL_1= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_ECAL_HCAL_HO_1");
+  Esummed_ECAL_HCAL_HO_1= ibooker.book1D(histo, histo, 50, 0, 50); 
+  
+  sprintf (histo,"Esummed_ECAL_2");
+  Esummed_ECAL_2= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_HCAL_2");
+  Esummed_HCAL_2= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_HO_2");
+  Esummed_HO_2= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_ECAL_HCAL_2");
+  Esummed_ECAL_HCAL_2= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_ECAL_HCAL_HO_2");
+  Esummed_ECAL_HCAL_HO_2= ibooker.book1D(histo, histo, 50, 0, 50); 
+  
+  sprintf (histo,"Esummed_ECAL_3");
+  Esummed_ECAL_3= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_HCAL_3");
+  Esummed_HCAL_3= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_HO_3");
+  Esummed_HO_3= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_ECAL_HCAL_3");
+  Esummed_ECAL_HCAL_3= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_ECAL_HCAL_HO_3");
+  Esummed_ECAL_HCAL_HO_3= ibooker.book1D(histo, histo, 50, 0, 50); 
+  
+  sprintf (histo,"Esummed_ECAL_4");
+  Esummed_ECAL_4= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_HCAL_4");
+  Esummed_HCAL_4= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_HO_4");
+  Esummed_HO_4= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_ECAL_HCAL_4");
+  Esummed_ECAL_HCAL_4= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_ECAL_HCAL_HO_4");
+  Esummed_ECAL_HCAL_HO_4= ibooker.book1D(histo, histo, 50, 0, 50); 
+  
+  
+  sprintf (histo,"Esummed_HF_5");
+  Esummed_HF_5= ibooker.book1D(histo, histo, 50, 0, 50); 
+  sprintf (histo,"Esummed_HF_6");
+  Esummed_HF_6= ibooker.book1D(histo, histo, 50, 0, 50); 
+  
+  sprintf (histo,"Ratio_Esummed_ECAL_0");
+  Ratio_Esummed_ECAL_0= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_HCAL_0");
+  Ratio_Esummed_HCAL_0= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_HO_0");
+  Ratio_Esummed_HO_0= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_ECAL_HCAL_0");
+  Ratio_Esummed_ECAL_HCAL_0= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_ECAL_HCAL_HO_0");
+  Ratio_Esummed_ECAL_HCAL_HO_0= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  
+  sprintf (histo,"Ratio_Esummed_ECAL_1");
+  Ratio_Esummed_ECAL_1= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_HCAL_1");
+  Ratio_Esummed_HCAL_1= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_HO_1");
+  Ratio_Esummed_HO_1= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_ECAL_HCAL_1");
+  Ratio_Esummed_ECAL_HCAL_1= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_ECAL_HCAL_HO_1");
+  Ratio_Esummed_ECAL_HCAL_HO_1= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  
+  sprintf (histo,"Ratio_Esummed_ECAL_2");
+  Ratio_Esummed_ECAL_2= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_HCAL_2");
+  Ratio_Esummed_HCAL_2= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_HO_2");
+  Ratio_Esummed_HO_2= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_ECAL_HCAL_2");
+  Ratio_Esummed_ECAL_HCAL_2= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_ECAL_HCAL_HO_2");
+  Ratio_Esummed_ECAL_HCAL_HO_2= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  
+  sprintf (histo,"Ratio_Esummed_ECAL_3");
+  Ratio_Esummed_ECAL_3= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_HCAL_3");
+  Ratio_Esummed_HCAL_3= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_HO_3");
+  Ratio_Esummed_HO_3= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_ECAL_HCAL_3");
+  Ratio_Esummed_ECAL_HCAL_3= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_ECAL_HCAL_HO_3");
+  Ratio_Esummed_ECAL_HCAL_HO_3= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  
+  sprintf (histo,"Ratio_Esummed_ECAL_4");
+  Ratio_Esummed_ECAL_4= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_HCAL_4");
+  Ratio_Esummed_HCAL_4= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_HO_4");
+  Ratio_Esummed_HO_4= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_ECAL_HCAL_4");
+  Ratio_Esummed_ECAL_HCAL_4= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_ECAL_HCAL_HO_4");
+  Ratio_Esummed_ECAL_HCAL_HO_4= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  
+  
+  sprintf (histo,"Ratio_Esummed_HF_5");
+  Ratio_Esummed_HF_5= ibooker.book1D(histo, histo, 50, 0., 5.); 
+  sprintf (histo,"Ratio_Esummed_HF_6");
+  Ratio_Esummed_HF_6= ibooker.book1D(histo, histo, 50, 0., 5.); 
+
+  sprintf (histo,"Egen_MC");
+  Egen_MC= ibooker.book1D(histo, histo, 50, 0, 50); 
+
+
   //-------------------------------------------------------------------------------------------
   
   
@@ -113,17 +241,20 @@ void PFClusterValidation::analyze(edm::Event const& event, edm::EventSetup const
       double phip = (*p)->momentum().phi();
       double etap = (*p)->momentum().eta();
       double pt  = (*p)->momentum().perp();
+      double energy = (*p)->momentum().e();
       if(pt > maxPt) { 
 	npart++; 
 	maxPt = pt; 
+	energy_MC = energy;
 	phi_MC = phip; 
 	eta_MC = etap; 
       }
     }
-    //std::cout << "eta and phi MC: " << eta_MC << phi_MC <<  std::endl;  
   }    
+  Egen_MC -> Fill(energy_MC);
+  std::cout<<"In analyze"<<std::endl;
+  std::cout<<"eta and phi and energy MC"<< eta_MC <<" "<< phi_MC <<" "<< energy_MC <<std::endl;
   
-   
   edm::Handle<reco::PFClusterCollection> pfClusterECAL;
   event.getByToken(PFClusterECALTok_, pfClusterECAL);
   reco::PFClusterCollection::const_iterator pf; 
@@ -149,7 +280,83 @@ void PFClusterValidation::analyze(edm::Event const& event, edm::EventSetup const
   Hcone = sumEnergy(pfClusterHCAL);
   HOcone = sumEnergy(pfClusterHO);
   HFcone = sumEnergy(pfClusterHF);
-  
+
+  if (fabs(eta_MC) < 0.5) {
+    Esummed_ECAL_0 -> Fill(Econe);
+    Esummed_HCAL_0 -> Fill(Hcone);
+    Esummed_HO_0 -> Fill(HOcone);
+    Esummed_ECAL_HCAL_0 -> Fill(Econe+Hcone);
+    Esummed_ECAL_HCAL_HO_0 -> Fill(Econe+Hcone+HOcone);
+    
+    Ratio_Esummed_ECAL_0 -> Fill(Econe/energy_MC);
+    Ratio_Esummed_HCAL_0 -> Fill(Hcone/energy_MC);
+    Ratio_Esummed_HO_0 -> Fill(HOcone/energy_MC);
+    Ratio_Esummed_ECAL_HCAL_0 -> Fill((Econe+Hcone)/energy_MC);
+    Ratio_Esummed_ECAL_HCAL_HO_0 -> Fill((Econe+Hcone+HOcone)/energy_MC);
+  }  
+  else if(fabs(eta_MC) < 1.3 && fabs(eta_MC) > 0.5) {
+    Esummed_ECAL_1 -> Fill(Econe);
+    Esummed_HCAL_1 -> Fill(Hcone);
+    Esummed_HO_1 -> Fill(HOcone);
+    Esummed_ECAL_HCAL_1 -> Fill(Econe+Hcone);
+    Esummed_ECAL_HCAL_HO_1 -> Fill(Econe+Hcone+HOcone);
+
+    Ratio_Esummed_ECAL_1 -> Fill(Econe/energy_MC);
+    Ratio_Esummed_HCAL_1 -> Fill(Hcone/energy_MC);
+    Ratio_Esummed_HO_1 -> Fill(HOcone/energy_MC);
+    Ratio_Esummed_ECAL_HCAL_1 -> Fill((Econe+Hcone)/energy_MC);
+    Ratio_Esummed_ECAL_HCAL_HO_1 -> Fill((Econe+Hcone+HOcone)/energy_MC);
+  }
+  else if(fabs(eta_MC) < 2.1 && fabs(eta_MC) > 1.3) {
+    Esummed_ECAL_2 -> Fill(Econe);
+    Esummed_HCAL_2 -> Fill(Hcone);
+    Esummed_HO_2 -> Fill(HOcone);
+    Esummed_ECAL_HCAL_2 -> Fill(Econe+Hcone);
+    Esummed_ECAL_HCAL_HO_2 -> Fill(Econe+Hcone+HOcone);
+
+    Ratio_Esummed_ECAL_2 -> Fill(Econe/energy_MC);
+    Ratio_Esummed_HCAL_2 -> Fill(Hcone/energy_MC);
+    Ratio_Esummed_HO_2 -> Fill(HOcone/energy_MC);
+    Ratio_Esummed_ECAL_HCAL_2 -> Fill((Econe+Hcone)/energy_MC);
+    Ratio_Esummed_ECAL_HCAL_HO_2 -> Fill((Econe+Hcone+HOcone)/energy_MC);
+
+  }
+  else if(fabs(eta_MC) < 2.5 && fabs(eta_MC) > 2.1) {
+    Esummed_ECAL_3 -> Fill(Econe);
+    Esummed_HCAL_3 -> Fill(Hcone);
+    Esummed_HO_3 -> Fill(HOcone);
+    Esummed_ECAL_HCAL_3 -> Fill(Econe+Hcone);
+    Esummed_ECAL_HCAL_HO_3 -> Fill(Econe+Hcone+HOcone);
+
+    Ratio_Esummed_ECAL_3 -> Fill(Econe/energy_MC);
+    Ratio_Esummed_HCAL_3 -> Fill(Hcone/energy_MC);
+    Ratio_Esummed_HO_3 -> Fill(HOcone/energy_MC);
+    Ratio_Esummed_ECAL_HCAL_3 -> Fill((Econe+Hcone)/energy_MC);
+    Ratio_Esummed_ECAL_HCAL_HO_3 -> Fill((Econe+Hcone+HOcone)/energy_MC);
+
+  }
+  else if(2.5 < fabs(eta_MC) && fabs(eta_MC) < 3.0) {
+    Esummed_ECAL_4 -> Fill(Econe);
+    Esummed_HCAL_4 -> Fill(Hcone);
+    Esummed_HO_4 -> Fill(HOcone);
+    Esummed_ECAL_HCAL_4 -> Fill(Econe+Hcone);
+    Esummed_ECAL_HCAL_HO_4 -> Fill(Econe+Hcone+HOcone);
+
+    Ratio_Esummed_ECAL_4 -> Fill(Econe/energy_MC);
+    Ratio_Esummed_HCAL_4 -> Fill(Hcone/energy_MC);
+    Ratio_Esummed_HO_4 -> Fill(HOcone/energy_MC);
+    Ratio_Esummed_ECAL_HCAL_4 -> Fill((Econe+Hcone)/energy_MC);
+    Ratio_Esummed_ECAL_HCAL_HO_4 -> Fill((Econe+Hcone+HOcone)/energy_MC);
+
+  }
+  else if(3.0 < fabs(eta_MC) && fabs(eta_MC) < 4.0) {
+    Esummed_HF_5 -> Fill(HFcone);
+    Ratio_Esummed_HF_5 -> Fill(HFcone/energy_MC);
+  }
+  else if(4.0 < fabs(eta_MC) && fabs(eta_MC) < 5.0) {
+    Ratio_Esummed_HF_6 -> Fill(HFcone/energy_MC);
+  }
+
   //These are the six single pion histos
   emean_vs_eta_E  -> Fill(double(eta_MC), Econe); 
   emean_vs_eta_H  -> Fill(double(eta_MC), Hcone); 
@@ -160,7 +367,7 @@ void PFClusterValidation::analyze(edm::Event const& event, edm::EventSetup const
   emean_vs_eta_EHF -> Fill(double(eta_MC), Econe+Hcone+HFcone); 
   emean_vs_eta_EHFO -> Fill(double(eta_MC), Econe+Hcone+HFcone+HOcone); 
   
-  
+    
 } //end for analyze
 
 double PFClusterValidation::dR(double eta1, double phi1, double eta2, double phi2) { 

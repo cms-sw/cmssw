@@ -81,7 +81,7 @@ class PFClusterValidation : public DQMEDAnalyzer {
   // this acts throught the entire class
   // no reinitialization required
   const double partR = 0.3; // dr cutoff
-  double eta_MC, phi_MC = 9999.;
+  double eta_MC, phi_MC,energy_MC = 9999.;
 
   // eta limits to calcualte MET, SET (not to include HF if not needed)
   double etaMax[3];
@@ -100,6 +100,78 @@ class PFClusterValidation : public DQMEDAnalyzer {
   MonitorElement*  emean_vs_eta_HO;
   MonitorElement*  emean_vs_eta_EHF;
   MonitorElement*  emean_vs_eta_EHFO;
+
+  MonitorElement* Esummed_ECAL_0;
+  MonitorElement* Esummed_HCAL_0;
+  MonitorElement* Esummed_HO_0;
+ 
+  MonitorElement* Esummed_ECAL_1;
+  MonitorElement* Esummed_HCAL_1;
+  MonitorElement* Esummed_HO_1;
+ 
+  MonitorElement* Esummed_ECAL_2;
+  MonitorElement* Esummed_HCAL_2;
+  MonitorElement* Esummed_HO_2;
+ 
+  MonitorElement* Esummed_ECAL_3;
+  MonitorElement* Esummed_HCAL_3;
+  MonitorElement* Esummed_HO_3;
+ 
+  MonitorElement* Esummed_ECAL_4;
+  MonitorElement* Esummed_HCAL_4;
+  MonitorElement* Esummed_HO_4;
+ 
+  MonitorElement* Esummed_HF_5;
+  MonitorElement* Esummed_HF_6;
+
+  MonitorElement* Esummed_ECAL_HCAL_0;
+  MonitorElement* Esummed_ECAL_HCAL_HO_0;
+  MonitorElement* Esummed_ECAL_HCAL_1;
+  MonitorElement* Esummed_ECAL_HCAL_HO_1;
+  MonitorElement* Esummed_ECAL_HCAL_2;
+  MonitorElement* Esummed_ECAL_HCAL_HO_2;
+  MonitorElement* Esummed_ECAL_HCAL_3;
+  MonitorElement* Esummed_ECAL_HCAL_HO_3;
+  MonitorElement* Esummed_ECAL_HCAL_4;
+  MonitorElement* Esummed_ECAL_HCAL_HO_4;
+
+  MonitorElement* Ratio_Esummed_ECAL_0;
+  MonitorElement* Ratio_Esummed_HCAL_0;
+  MonitorElement* Ratio_Esummed_HO_0;
+ 
+  MonitorElement* Ratio_Esummed_ECAL_1;
+  MonitorElement* Ratio_Esummed_HCAL_1;
+  MonitorElement* Ratio_Esummed_HO_1;
+ 
+  MonitorElement* Ratio_Esummed_ECAL_2;
+  MonitorElement* Ratio_Esummed_HCAL_2;
+  MonitorElement* Ratio_Esummed_HO_2;
+ 
+  MonitorElement* Ratio_Esummed_ECAL_3;
+  MonitorElement* Ratio_Esummed_HCAL_3;
+  MonitorElement* Ratio_Esummed_HO_3;
+ 
+  MonitorElement* Ratio_Esummed_ECAL_4;
+  MonitorElement* Ratio_Esummed_HCAL_4;
+  MonitorElement* Ratio_Esummed_HO_4;
+ 
+  MonitorElement* Ratio_Esummed_HF_5;
+  MonitorElement* Ratio_Esummed_HF_6;
+
+  MonitorElement* Ratio_Esummed_ECAL_HCAL_0;
+  MonitorElement* Ratio_Esummed_ECAL_HCAL_HO_0;
+  MonitorElement* Ratio_Esummed_ECAL_HCAL_1;
+  MonitorElement* Ratio_Esummed_ECAL_HCAL_HO_1;
+  MonitorElement* Ratio_Esummed_ECAL_HCAL_2;
+  MonitorElement* Ratio_Esummed_ECAL_HCAL_HO_2;
+  MonitorElement* Ratio_Esummed_ECAL_HCAL_3;
+  MonitorElement* Ratio_Esummed_ECAL_HCAL_HO_3;
+  MonitorElement* Ratio_Esummed_ECAL_HCAL_4;
+  MonitorElement* Ratio_Esummed_ECAL_HCAL_HO_4;
+
+  MonitorElement* Egen_MC;
+
+  
   // MonitorElement*  emean_vs_eta_H1;
   //MonitorElement*  emean_vs_eta_EH1;
   

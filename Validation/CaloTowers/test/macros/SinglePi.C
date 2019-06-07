@@ -51,7 +51,7 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    char labelp[Nprof][64];
 
    //1D Histos
-   const int Nhist1  = 13;  // insetad of 11 to include Chi2 hist for HB/HE
+   const int Nhist1  = 25;  // insetad of 11 to include Chi2 hist for HB/HE, changed to 25 to include PF cluster energy.
 
    TH1* f1_hist1[Nhist1];
    TH1* f2_hist1[Nhist1];
@@ -114,6 +114,21 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    sprintf(label1[9], "Ndigis_HO.gif" );
    sprintf(label1[10], "Ndigis_HF.gif" );
 
+   sprintf(label1[13], "Ratio_Esummed_ECAL_HCAL_0.gif");
+   sprintf(label1[14], "Ratio_Esummed_ECAL_HCAL_HO_0.gif");
+   sprintf(label1[15], "Ratio_Esummed_ECAL_HCAL_1.gif");
+   sprintf(label1[16], "Ratio_Esummed_ECAL_HCAL_HO_1.gif");
+   sprintf(label1[17], "Ratio_Esummed_ECAL_HCAL_2.gif");
+   sprintf(label1[18], "Ratio_Esummed_ECAL_HCAL_HO_2.gif");
+   sprintf(label1[19], "Ratio_Esummed_ECAL_HCAL_3.gif");
+   sprintf(label1[20], "Ratio_Esummed_ECAL_HCAL_HO_3.gif");
+   sprintf(label1[21], "Ratio_Esummed_ECAL_HCAL_4.gif");
+   sprintf(label1[22], "Ratio_Esummed_ECAL_HCAL_HO_4.gif");
+   
+   sprintf(label1[23], "Ratio_Esummed_HF_5.gif");
+   sprintf(label1[24], "Ratio_Esummed_HF_6.gif");
+
+   
    // REFERENCE FILE
 
    TDirectory *td = fileDirectory(&f1, "CaloTowersTask");
@@ -143,6 +158,20 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    f1_prof[18] = (TProfile*)td->Get("emean_vs_eta_HO");
    f1_prof[19] = (TProfile*)td->Get("emean_vs_eta_EHF");
    f1_prof[20] = (TProfile*)td->Get("emean_vs_eta_EHFO");
+
+   f1_hist1[13] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_0");
+   f1_hist1[14] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_HO_0");
+   f1_hist1[15] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_1");
+   f1_hist1[16] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_HO_1");
+   f1_hist1[17] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_2");
+   f1_hist1[18] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_HO_2");
+   f1_hist1[19] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_3");
+   f1_hist1[20] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_HO_3");
+   f1_hist1[21] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_4");
+   f1_hist1[22] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_HO_4");
+   
+   f1_hist1[23] = (TH1*)td->Get("Ratio_Esummed_HF_5");
+   f1_hist1[24] = (TH1*)td->Get("Ratio_Esummed_HF_6");
    
    
    td = fileDirectory(&f1, "HcalRecHitTask");
@@ -213,6 +242,19 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    f2_prof[19] = (TProfile*)td->Get("emean_vs_eta_EHF");
    f2_prof[20] = (TProfile*)td->Get("emean_vs_eta_EHFO");
    
+   f2_hist1[13] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_0");
+   f2_hist1[14] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_HO_0");
+   f2_hist1[15] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_1");
+   f2_hist1[16] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_HO_1");
+   f2_hist1[17] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_2");
+   f2_hist1[18] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_HO_2");
+   f2_hist1[19] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_3");
+   f2_hist1[20] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_HO_3");
+   f2_hist1[21] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_4");
+   f2_hist1[22] = (TH1*)td->Get("Ratio_Esummed_ECAL_HCAL_HO_4");
+   
+   f2_hist1[23] = (TH1*)td->Get("Ratio_Esummed_HF_5");
+   f2_hist1[24] = (TH1*)td->Get("Ratio_Esummed_HF_6");
 
    td = fileDirectory(&f2, "HcalRecHitTask");
    //f2.cd("DQMData/HcalRecHitsV/HcalRecHitTask");
@@ -310,7 +352,22 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
 
    f1_hist1[11]->GetXaxis()->SetTitle("HE log_10(Chi2)");
    f1_hist1[12]->GetXaxis()->SetTitle("HB log_10(Chi2)");
-
+   
+   
+   f1_hist1[13]->GetXaxis()->SetTitle("Esummed/Egen_ECAL+HCAL_0");
+   f1_hist1[14]->GetXaxis()->SetTitle("Esummed/Egen_ECAL+HCAL_HO_0");
+   f1_hist1[15]->GetXaxis()->SetTitle("Esummed/Egen_ECAL+HCAL_1");
+   f1_hist1[16]->GetXaxis()->SetTitle("Esummed/Egen_ECAL+HCAL_HO_1");
+   f1_hist1[17]->GetXaxis()->SetTitle("Esummed/Egen_ECAL+HCAL_2");
+   f1_hist1[18]->GetXaxis()->SetTitle("Esummed/Egen_ECAL+HCAL_HO_2");
+   f1_hist1[19]->GetXaxis()->SetTitle("Esummed/Egen_ECAL+HCAL_3");
+   f1_hist1[20]->GetXaxis()->SetTitle("Esummed/Egen_ECAL+HCAL_HO_3");
+   f1_hist1[21]->GetXaxis()->SetTitle("Esummed/Egen_ECAL+HCAL_4");
+   f1_hist1[22]->GetXaxis()->SetTitle("Esummed/Egen_ECAL+HCAL_HO_4");
+   
+   f1_hist1[23]->GetXaxis()->SetTitle("Esummed/Egen_HF_5");
+   f1_hist1[24]->GetXaxis()->SetTitle("Esummed/Egen_HF_6");
+   
 
    //
    f1_prof[0]->SetMaximum(20.);  // CaloTowers 1  
