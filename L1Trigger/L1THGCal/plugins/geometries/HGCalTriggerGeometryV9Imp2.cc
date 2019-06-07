@@ -377,9 +377,7 @@ HGCalTriggerGeometryBase::geom_ordered_set HGCalTriggerGeometryV9Imp2::getOrdere
 
 HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp2::getNeighborsFromTriggerCell(
     const unsigned trigger_cell_id) const {
-  HGCalDetId trigger_cell_det_id(trigger_cell_id);
-  geom_set neighbor_detids;
-  return neighbor_detids;
+  throw cms::Exception("FeatureNotImplemented") << "Neighbor search is not implemented in HGCalTriggerGeometryV9Imp2";
 }
 
 unsigned HGCalTriggerGeometryV9Imp2::getLinksInModule(const unsigned module_id) const {

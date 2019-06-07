@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 
-def custom_geometry_V9(process, implementation=1):
+def custom_geometry_V9(process, implementation=2):
     if implementation==1:
         process.hgcalTriggerGeometryESProducer.TriggerGeometry.TriggerGeometryName = cms.string('HGCalTriggerGeometryV9Imp1')
         process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TCellsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping_8inch_aligned_192_432_V9_1.txt")
