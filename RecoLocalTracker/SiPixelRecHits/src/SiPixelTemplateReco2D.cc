@@ -99,7 +99,9 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id, float cotalpha, float cotbeta
    
    // Extract some relevant info from the 2D template
    
-   if(id > 0) {if(!templ2D.interpolate(id, cotalpha, cotbeta, locBz, locBx)) return 4;}
+   if(id > 0) {   // if id==0, bypass interpolation (used in calibration)
+     if(!templ2D.interpolate(id, cotalpha, cotbeta, locBz, locBx)) return 4;
+   }
    float xsize = templ2D.xsize();
    float ysize = templ2D.ysize();
    

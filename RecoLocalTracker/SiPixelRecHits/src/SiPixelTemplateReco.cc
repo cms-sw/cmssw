@@ -162,10 +162,12 @@ int SiPixelTemplateReco::PixelTempReco1D(int id, float cotalpha, float cotbeta, 
    
    // First, interpolate the template needed to analyze this cluster
    // check to see of the track direction is in the physical range of the loaded template
-   
-   if(!templ.interpolate(id, cotalpha, cotbeta, locBz, locBx)) {
-      if (theVerboseLevel > 2) {LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha << ", cot(beta) = " << cotbeta << ", local B_z = " << locBz  << ", local B_x = " << locBx << ", template ID = " << id << ", no reconstruction performed" << ENDL;}
-      return 20;
+
+   if(id > 0) {   // if id==0, bypass interpolation (used in calibration)
+      if(!templ.interpolate(id, cotalpha, cotbeta, locBz, locBx)) {
+         if (theVerboseLevel > 2) {LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha << ", cot(beta) = " << cotbeta << ", local B_z = " << locBz  << ", local B_x = " << locBx << ", template ID = " << id << ", no reconstruction performed" << ENDL;}
+         return 20;
+      }
    }
    
    // Check to see if Q probability is selected
