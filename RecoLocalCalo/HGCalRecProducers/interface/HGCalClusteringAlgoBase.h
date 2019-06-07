@@ -65,9 +65,14 @@ enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
  virtual std::vector<reco::BasicCluster> getClusters(bool) = 0;
  virtual void reset() = 0;
  virtual hgcal_clustering::Density getDensity() = 0;
+ virtual void getEventSetupPerAlgorithm(const edm::EventSetup& es){}
 
  inline void getEventSetup(const edm::EventSetup& es){
    rhtools_.getEventSetup(es);
+   maxlayer = rhtools_.lastLayerBH();
+   lastLayerEE = rhtools_.lastLayerEE();
+   lastLayerFH = rhtools_.lastLayerFH();
+   getEventSetupPerAlgorithm(es);
  }
  inline void setVerbosity(VerbosityLevel the_verbosity) {
    verbosity_ = the_verbosity;
@@ -75,10 +80,10 @@ enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
  inline void setAlgoId(reco::CaloCluster::AlgoId algo) {algoId_ = algo;}
 
  //max number of layers
- static const unsigned int maxlayer = 52;
+ unsigned int maxlayer;
  // last layer per subdetector
- static const unsigned int lastLayerEE = 28;
- static const unsigned int lastLayerFH = 40;
+ unsigned int lastLayerEE;
+ unsigned int lastLayerFH;
 
 protected:
  // The verbosity level

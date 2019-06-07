@@ -45,6 +45,7 @@ public:
   {
     clusterTools->getEventSetup(es);
     rhtools_.getEventSetup(es);
+    maxlayer = rhtools_.lastLayerBH();
   }
 
   typedef std::vector<reco::BasicCluster> ClusterCollection;
@@ -70,7 +71,7 @@ private:
   void layerIntersection(std::array<double,3> &to, const std::array<double,3> &from) const;
 
   //max number of layers
-  static const unsigned int maxlayer = HGCalClusteringAlgoBase::maxlayer;
+  unsigned int maxlayer;
 
   std::vector<double> radii;
   uint32_t minClusters;

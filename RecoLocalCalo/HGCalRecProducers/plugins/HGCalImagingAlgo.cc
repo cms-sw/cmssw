@@ -14,6 +14,15 @@
 
 using namespace hgcal_clustering;
 
+void HGCalImagingAlgo::getEventSetupPerAlgorithm(const edm::EventSetup& es) {
+  points_.clear();
+  minpos_.clear();
+  maxpos_.clear();
+  points_.resize(2*(maxlayer+1));
+  minpos_.resize(2*(maxlayer+1), { {0.0f,0.0f} });
+  maxpos_.resize(2*(maxlayer+1), { {0.0f,0.0f} });
+}
+
 void HGCalImagingAlgo::populate(const HGCRecHitCollection &hits) {
   // loop over all hits and create the Hexel structure, skip energies below ecut
 
