@@ -13,6 +13,7 @@
 #include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
 #include "EventFilter/Utilities/interface/DataPointDefinition.h"
 #include "EventFilter/Utilities/interface/DataPoint.h"
+#include "IOPool/Streamer/interface/FRDEventMessage.h"
 
 #include <iostream>
 //#include <istream>
@@ -941,6 +942,154 @@ namespace evf {
     }
   }
 
+  int EvFDaqDirector::parseFRDFileHeader(std::string const& rawSourcePath,
+                                         uint16_t& rawHeaderSize,
+                                         int32_t& eventsFromHeader,
+                                         int64_t& fileSizeFromHeader,
+                                         bool requireHeader,
+                                         bool retry) {
+    int infile;
+
+    if ((infile = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
+      if (retry) {
+        edm::LogWarning("EvFDaqDirector")
+            << "parseFRDFileHeader - failed to open input file -: " << rawSourcePath << " : " << strerror(errno);
+        return parseFRDFileHeader(
+            rawSourcePath, rawHeaderSize, eventsFromHeader, fileSizeFromHeader, requireHeader, false);
+      } else {
+        usleep(100000);
+        if ((infile = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
+          edm::LogError("EvFDaqDirector")
+              << "parseFRDFileHeader - failed to open input file -: " << rawSourcePath << " : " << strerror(errno);
+          if (errno == ENOENT)
+            return 1;  // error && file not found
+          else
+            return -1;
+        }
+      }
+    }
+
+    const std::size_t buf_sz = sizeof(FRDFileHeader_v1);  //try to read v1 FRD header size
+    char buf[buf_sz];
+
+    ssize_t sz_read = ::read(infile, buf, buf_sz);
+    close(infile);
+
+    if (sz_read < 0) {
+      edm::LogError("EvFDaqDirector") << "parseFRDFileHeader - unable to read " << rawSourcePath << " : "
+                                      << strerror(errno);
+      return -1;
+    }
+    if ((size_t)sz_read < buf_sz) {
+      edm::LogError("EvFDaqDirector") << "parseFRDFileHeader - file smaller than header: " << rawSourcePath;
+      return -1;
+    }
+
+    FRDFileHeader_v1 const* fileHead = reinterpret_cast<FRDFileHeader_v1 const*>(buf);
+
+    uint16_t frd_version = getFRDFileHeaderVersion(fileHead->id_, fileHead->version_);
+
+    if (frd_version == 0) {
+      //no header (specific sequence not detected)
+      if (requireHeader) {
+        edm::LogError("EvFDaqDirector") << "no header or invalid version string found in:" << rawSourcePath;
+        return -1;
+      } else {
+        //no header, but valid file
+        rawHeaderSize = 0;
+        eventsFromHeader = -1;
+        fileSizeFromHeader = -1;
+      }
+    } else {
+      //version 1 header
+      uint32 headerSizeRaw = fileHead->headerSize_;
+      if (headerSizeRaw < buf_sz) {
+        edm::LogError("EvFDaqDirector") << "inconsistent header size: " << rawSourcePath << " size: " << headerSizeRaw
+                                        << " v:" << frd_version;
+        return -1;
+      }
+      //allow header size to exceed read size. Future header versions will not break this, but the size can change.
+      eventsFromHeader = (int32_t)fileHead->nbEventsWritten_;
+      fileSizeFromHeader = (int64_t)fileHead->fileSize_;
+      rawHeaderSize = fileHead->headerSize_;
+    }
+    return 0;  //OK
+  }
+
+  int EvFDaqDirector::grabNextJsonFromRaw(std::string const& rawSourcePath,
+                                          uint16_t& rawHeaderSize,
+                                          int64_t& fileSizeFromHeader,
+                                          bool& fileFound) {
+    fileFound = true;
+
+    //take only first three tokens delimited by "_" in the renamed raw file name
+    std::string jsonStem = boost::filesystem::path(rawSourcePath).stem().string();
+    size_t pos = 0, n_tokens = 0;
+    while (n_tokens++ < 3 && (pos = jsonStem.find("_", pos + 1)) != std::string::npos) {
+    }
+    std::string reducedJsonStem = jsonStem.substr(0, pos);
+
+    std::ostringstream fileNameWithPID;
+    //should be ported to use fffnaming
+    fileNameWithPID << reducedJsonStem << "_pid" << std::setfill('0') << std::setw(5) << pid_ << ".jsn";
+
+    std::string jsonDestPath = baseRunDir() + "/" + fileNameWithPID.str();
+
+    LogDebug("EvFDaqDirector") << "RAW parse -: " << rawSourcePath << " and JSON create " << jsonDestPath;
+
+    //parse RAW file header if it exists
+    int32_t nbEventsWrittenRaw;
+    int64_t fileSizeFromRaw;
+    auto ret = parseFRDFileHeader(rawSourcePath, rawHeaderSize, nbEventsWrittenRaw, fileSizeFromRaw, true, true);
+    if (ret != 0) {
+      if (ret == 1)
+        fileFound = false;
+      return -1;
+    }
+
+    int outfile;
+    int oflag = O_CREAT | O_WRONLY | O_TRUNC | O_EXCL;  //file should not exist
+    int omode = S_IWUSR | S_IRUSR | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH;
+    if ((outfile = ::open(jsonDestPath.c_str(), oflag, omode)) < 0) {
+      if (errno == EEXIST) {
+        edm::LogError("EvFDaqDirector") << "grabNextJsonFromRaw - destination file already exists -: " << jsonDestPath
+                                        << " : ";
+        return -1;
+      }
+      edm::LogError("EvFDaqDirector") << "grabNextJsonFromRaw - failed to open output file -: " << jsonDestPath << " : "
+                                      << strerror(errno);
+      usleep(100000);
+      struct stat out_stat;
+      if (stat(jsonDestPath.c_str(), &out_stat) == 0) {
+        edm::LogWarning("EvFDaqDirector")
+            << "grabNextJsonFromRaw - output file possibly got created with error, deleting and retry -: "
+            << jsonDestPath;
+        if (unlink(jsonDestPath.c_str()) == -1) {
+          edm::LogWarning("EvFDaqDirector")
+              << "grabNextJsonFromRaw - failed to remove -: " << jsonDestPath << " : " << strerror(errno);
+        }
+      }
+      if ((outfile = ::open(jsonDestPath.c_str(), oflag, omode)) < 0) {
+        edm::LogError("EvFDaqDirector") << "grabNextJsonFromRaw - failed to open output file (on retry) -: "
+                                        << jsonDestPath << " : " << strerror(errno);
+        return -1;
+      }
+    }
+    //write JSON file (TODO: use jsoncpp)
+    std::stringstream ss;
+    ss << "{\"data\":{\"NEvents\":" << nbEventsWrittenRaw << ",\"NBytes\":" << fileSizeFromRaw << "}}";
+    std::string sstr = ss.str();
+
+    if (::write(outfile, sstr.c_str(), sstr.size()) < 0) {
+      edm::LogError("EvFDaqDirector") << "grabNextJsonFromRaw - failed to write to output file file -: " << jsonDestPath
+                                      << " : " << strerror(errno);
+      return -1;
+    }
+    close(outfile);
+    fileSizeFromHeader = fileSizeFromRaw;
+    return nbEventsWrittenRaw;
+  }
+
   int EvFDaqDirector::grabNextJsonFile(std::string const& jsonSourcePath,
                                        std::string const& rawSourcePath,
                                        int64_t& fileSizeFromJson,
@@ -1092,13 +1241,13 @@ namespace evf {
       for (unsigned int i = 0; i < dpd_->getNames().size(); i++) {
         if (dpd_->getNames().at(i) == "NBytes") {
           if (i < dp.getData().size()) {
-            data = dp.getData()[i];
+            std::string dataSize = dp.getData()[i];
             try {
-              fileSizeFromJson = boost::lexical_cast<long>(data);
+              fileSizeFromJson = boost::lexical_cast<long>(dataSize);
             } catch (boost::bad_lexical_cast const&) {
               //non-fatal currently, processing can continue without this value
               edm::LogWarning("EvFDaqDirector") << "grabNextJsonFile - error parsing number of Bytes from BU JSON. "
-                                                << "Input value is -: " << data;
+                                                << "Input value is -: " << dataSize;
             }
             break;
           }
@@ -1218,6 +1367,7 @@ namespace evf {
                                                                uint32_t& closedServerLS,
                                                                std::string& nextFileJson,
                                                                std::string& nextFileRaw,
+                                                               bool& rawHeader,
                                                                int maxLS) {
     EvFDaqDirector::FileStatus fileStatus = noFile;
     serverError = false;
@@ -1328,6 +1478,14 @@ namespace evf {
 
         auto server_ls = serverMap.find("lumisection");
 
+        unsigned int version = 1;
+        try {
+          version = boost::lexical_cast<unsigned int>(server_version->second);
+        } catch (boost::bad_lexical_cast const&) {
+          edm::LogWarning("EvFDaqDirector")
+              << "Bad lexical cast while parsing server version " << server_version->second;
+        }
+
         closedServerLS = (uint64_t)std::max(0, atoi(server_eols->second.c_str()));
         if (server_ls != serverMap.end())
           serverLS = (uint64_t)std::max(1, atoi(server_ls->second.c_str()));
@@ -1370,9 +1528,17 @@ namespace evf {
             else
               filestem = server_file->second;
             assert(!filestem.empty());
-            nextFileRaw = bu_run_dir_ + "/" + filestem + ".raw";  //raw files are not moved
-            filestem = bu_run_dir_ + "/" + fileprefix + filestem;
-            nextFileJson = filestem + ".jsn";
+            if (version > 1) {
+              nextFileRaw = bu_run_dir_ + "/" + fileprefix + filestem + ".raw";  //filestem should be raw
+              filestem = bu_run_dir_ + "/" + fileprefix + filestem;
+              nextFileJson = "";
+              rawHeader = true;
+            } else {
+              nextFileRaw = bu_run_dir_ + "/" + filestem + ".raw";  //raw files are not moved
+              filestem = bu_run_dir_ + "/" + fileprefix + filestem;
+              nextFileJson = filestem + ".jsn";
+              rawHeader = false;
+            }
             fileStatus = newFile;
             edm::LogInfo("EvFDaqDirector") << "Got READY notification with last EOLS " << closedServerLS << " new LS "
                                            << serverLS << " file:" << filestem;
@@ -1449,8 +1615,9 @@ namespace evf {
   EvFDaqDirector::FileStatus EvFDaqDirector::getNextFromFileBroker(const unsigned int currentLumiSection,
                                                                    unsigned int& ls,
                                                                    std::string& nextFileRaw,
-                                                                   int& serverEventsInNewFile,
-                                                                   int64_t& fileSizeFromJson,
+                                                                   uint16_t& rawHeaderSize,
+                                                                   int32_t& serverEventsInNewFile,
+                                                                   int64_t& fileSizeFromMetadata,
                                                                    uint64_t& thisLockWaitTimeUs) {
     EvFDaqDirector::FileStatus fileStatus = noFile;
 
@@ -1500,8 +1667,9 @@ namespace evf {
       lockFULocal2();
 
     int maxLS = stopFileLS < 0 ? -1 : std::max(stopFileLS, (int)currentLumiSection);
-    fileStatus =
-        contactFileBroker(serverHttpStatus, serverError, serverLS, closedServerLS, nextFileJson, nextFileRaw, maxLS);
+    bool rawHeader = false;
+    fileStatus = contactFileBroker(
+        serverHttpStatus, serverError, serverLS, closedServerLS, nextFileJson, nextFileRaw, rawHeader, maxLS);
 
     if (serverError) {
       //do not update anything
@@ -1527,9 +1695,12 @@ namespace evf {
 
     bool fileFound = true;
 
-    if (fileStatus == newFile)
-      serverEventsInNewFile = grabNextJsonFile(nextFileJson, nextFileRaw, fileSizeFromJson, fileFound);
-
+    if (fileStatus == newFile) {
+      if (rawHeader > 0)
+        serverEventsInNewFile = grabNextJsonFromRaw(nextFileRaw, rawHeaderSize, fileSizeFromMetadata, fileFound);
+      else
+        serverEventsInNewFile = grabNextJsonFile(nextFileJson, nextFileRaw, fileSizeFromMetadata, fileFound);
+    }
     if (!fileFound) {
       //catch condition where directory got deleted
       fileStatus = noFile;

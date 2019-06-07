@@ -206,6 +206,7 @@ struct InputFile {
   unsigned int lumi_;
   std::string fileName_;
   uint64_t fileSize_;
+  uint16_t rawHeaderSize_;
   uint32_t nChunks_;
   int nEvents_;
   unsigned int nProcessed_;
@@ -220,6 +221,7 @@ struct InputFile {
             unsigned int lumi = 0,
             std::string const& name = std::string(),
             uint64_t fileSize = 0,
+            uint16_t rawHeaderSize = 0,
             uint32_t nChunks = 0,
             int nEvents = 0,
             FedRawDataInputSource* parent = nullptr)
@@ -228,6 +230,7 @@ struct InputFile {
         lumi_(lumi),
         fileName_(name),
         fileSize_(fileSize),
+        rawHeaderSize_(rawHeaderSize),
         nChunks_(nChunks),
         nEvents_(nEvents),
         nProcessed_(0) {
