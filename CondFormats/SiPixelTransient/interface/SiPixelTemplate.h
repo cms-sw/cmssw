@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v10.20)
+//  SiPixelTemplate.h (v10.24)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -79,6 +79,7 @@
 //  V10.20 - Add directory path selection to the ascii pushfile method
 //  V10.21 - Address runtime issues in pushfile() for gcc 7.X due to using tempfile as char string + misc. cleanup [Petar]
 //  V10.22 - Move templateStore to the heap, fix variable name in pushfile() [Petar]
+//  V10.24 - Add sideload() + associated gymnastics [Petar]
 
 
 
@@ -256,7 +257,7 @@ struct SiPixelTemplateStore { //!< template storage structure
 // ******************************************************************************************
 class SiPixelTemplate {
 public:
-   SiPixelTemplate(const std::vector< SiPixelTemplateStore > & thePixelTemp) : thePixelTemp_(thePixelTemp) { id_current_ = -1; index_id_ = -1; cota_current_ = 0.; cotb_current_ = 0.; } //!< Constructor for cases in which template store already exists
+   SiPixelTemplate(const std::vector< SiPixelTemplateStore > & thePixelTemp) : thePixelTemp_(thePixelTemp) { id_current_ = -1; index_id_ = -1; cota_current_ = 0.; cotb_current_ = 0.; entry_sideloaded_ = nullptr; } //!< Constructor for cases in which template store already exists
    
 
 // Load the private store with info from the file with the index (int) filenum from directory dir:
@@ -298,7 +299,7 @@ public:
    //Method to estimate the central pixel of the interpolated x-template
    int cxtemp();
    
-   // new methods to build templates from two interpolated clusters (for splitting)
+   // Methods to build templates from two interpolated clusters (for splitting)
    void ytemp3d_int(int nypix, int& nybins);
    
    void ytemp3d(int j, int k, std::vector<float>& ytemplate);
@@ -677,6 +678,9 @@ private:
    const SiPixelTemplateEntry* entx22_ ;
    const SiPixelTemplateEntry* entx21_ ;
 
+   // Pointer to the sideloaded Entry: use this one if set.
+   const SiPixelTemplateEntry * entry_sideloaded_ ;
+   
    
    // The actual template store is a std::vector container
    const std::vector< SiPixelTemplateStore > & thePixelTemp_;

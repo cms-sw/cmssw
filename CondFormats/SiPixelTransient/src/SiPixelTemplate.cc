@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.cc  Version 10.21
+//  SiPixelTemplate.cc  Version 10.24
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -81,7 +81,7 @@
 //  V10.20 - Add directory path selection to the ascii pushfile method
 //  V10.21 - Address runtime issues in pushfile() for gcc 7.X due to using tempfile as char string + misc. cleanup [Petar]
 //  V10.22 - Move templateStore to the heap, fix variable name in pushfile() [Petar]
-
+//  V10.24 - Add sideload() + associated gymnastics [Petar]
 
 //  Created by Morris Swartz on 10/27/06.
 //
@@ -1008,6 +1008,12 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
    //	std::vector <float> xrms(4), xgsig(4), xrmsc2m(4);
    float chi2xavg[4], chi2xmin[4], chi2xavgc2m[4], chi2xminc2m[4];
    
+   // If the sideloading is turned on, xtemp_ and ytemp_ are already set to what they need to be.
+   // So we'll just exit.
+   if ( entry_sideloaded_ == nullptr ) {
+     success_ = true;
+     return success_ ;
+   }
    
    // Check to see if interpolation is valid
    if(id != id_current_ || cotalpha != cota_current_ || cotbeta != cotb_current_) {
@@ -1552,6 +1558,8 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
 void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float locBx, float locBz, float lorwdy, float lorwdx, float q50, float fbin[3], float xsize, float ysize, float zsize)
 {
    // Set class variables to the input parameters
+   entry_sideloaded_ = entry;    // will bypass xtemp_[] and ytemp_[] and use those from this Entry.
+  
    enty1_ = entry;
    enty0_ = entry;
 
@@ -1576,24 +1584,56 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float lo
    // adcota_ = 0.f;
    // adcotb_ = 0.f;
    
-   // Interpolate things in cot(alpha)-cot(beta)
+   yratio_  = 0.f;
+   yxratio_ = 0.f;
+   xxratio_ = 0.f;
    
    qavg_ = entry->qavg;
+   qmin_ = 0.f;
+
    pixmax_ = entry->pixmax;
-   // sxymax_ = entry00_->sxymax;
+   sxmax_ = entry->sxmax;
+   symax_ = entry->symax;
    clsleny_ = entry->clsleny;
    clslenx_ = entry->clslenx;
+
    scaleyavg_ = 1.f;
    scalexavg_ = 1.f;
    delyavg_ = 0.f;
    delysig_ = 0.f;
+
+   
+   dyone_ = 0.f;
+   syone_ = 0.f;
+
+   chi2yminone_ = 0.f;
+   chi2yavgone_ = 0.f;
+
+   //chi2ymin_ = 0.f;
+   //yflcorr_ = 0.f;
+   //xflcorr_ = 0.f;
+   //xsigma2_ = 0.f;
+
+         // slice->costrk[0] = -cosy;
+         // slice->costrk[1] = -cosx;
+         // slice->costrk[2] = -cosz;
+         // slice->cotalpha = cosy/cosz;
+         // slice->cotbeta = cosx/cosz;
+
    
    for(int i=0; i<4 ; ++i) {
       scalex_[i] = 1.f;
       scaley_[i] = 1.f;
       offsetx_[i] = 0.f;
       offsety_[i] = 0.f;
+      xrms_[i] = 0.f;
+      yrms_[i] = 0.f;
+      xavg_[i] = 0.f;
+      yavg_[i] = 0.f;
+      chi2yavg_[i] = 0.f;
+      chi2xavg_[i] = 0.f;
    }
+
    
    // This works only for IP-related tracks
    
@@ -1602,7 +1642,9 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float lo
    float cotbeta = entry->cotbeta;
    switch(Dtype_) {
       case 0:
-         if(cotbeta < 0.f) {flip_y_ = true;}
+         if(cotbeta < 0.f) {
+	   flip_y_ = true;
+	 }
          break;
       case 1:
          if(locBz > 0.f) {
@@ -1622,14 +1664,58 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float lo
          break;
       default:
 	// #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-	//         throw cms::Exception("DataCorrupt") << "SiPixelTemplate2D::illegal subdetector ID = " << Dtype_ << std::endl;
+	//         throw cms::Exception("DataCorrupt") << "SiPixelTemplate::illegal subdetector ID = " << Dtype_ << std::endl;
 	//#else
          std::cout << "SiPixelTemplate:illegal subdetector ID = " << Dtype_ << std::endl;
 	 //#endif
    }
-   
+
    //  Calculate signed quantities
+
+   //	qxtempcor corrects the total charge to the actual track angles (not actually needed for the template fits, but useful for Guofan)
+   // &&& What to do here?
+   // cotbeta0 =  thePixelTemp_[index_id_].entx[iyhigh][0].cotbeta;
+   // qxtempcor=std::sqrt((1.f+cotbeta*cotbeta+cotalpha*cotalpha)/(1.f+cotbeta0*cotbeta0+cotalpha*cotalpha));
+   float qxtempcor = 1.f;
    
+   for(int i=0; i<9; ++i) {
+      xtemp_[i][0] = 0.f;
+      xtemp_[i][1] = 0.f;
+      xtemp_[i][BXM2] = 0.f;
+      xtemp_[i][BXM1] = 0.f;
+      for(int j=0; j<TXSIZE; ++j) {
+         //
+         if(flip_x_) {
+	    xtemp_[8-i][BXM3-j] = qxtempcor*entry_sideloaded_->xtemp[i][j];
+         } else {
+	    xtemp_[i][j+2]      = qxtempcor*entry_sideloaded_->xtemp[i][j];
+         }
+        //
+      }
+   }
+   
+
+   for(int i=0; i<9; ++i) {
+      ytemp_[i][0] = 0.f;
+      ytemp_[i][1] = 0.f;
+      ytemp_[i][BYM2] = 0.f;
+      ytemp_[i][BYM1] = 0.f;
+      for(int j=0; j<TYSIZE; ++j) {
+         
+         // Flip the basic y-template when the cotbeta is negative
+         
+         if(flip_y_) {
+   	    ytemp_[8-i][BYM3-j] = entry_sideloaded_->ytemp[i][j] ;
+         } else {
+ 	    ytemp_[i][j+2]      = entry_sideloaded_->ytemp[i][j] ;
+         }
+      }
+   }
+
+
+
+
+
    // &&& Do we need these?
    // lorydrift_ = lorywidth_/2.;
    // if(flip_y_) lorydrift_ = -lorydrift_;
@@ -2109,7 +2195,6 @@ void SiPixelTemplate::ytemp(int fybin, int lybin, float ytemplate[41][BYSIZE])
 //! \param xtemplate - (output) a 41x11 output buffer
 // ************************************************************************************************************
 void SiPixelTemplate::xtemp(int fxbin, int lxbin, float xtemplate[41][BXSIZE])
-
 {
    // Retrieve already interpolated quantities
    
@@ -2152,9 +2237,7 @@ void SiPixelTemplate::xtemp(int fxbin, int lxbin, float xtemplate[41][BXSIZE])
          xtemplate[i+24][j+1]=xtemp_[i][j];
       }
    }
-   
    //  Add more bins if needed
-   
    if(fxbin < 8) {
       for(i=0; i<8; ++i) {
          xtemplate[i][BXM2] = 0.f;
@@ -2515,10 +2598,11 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
                           float& dy2, float& sx1, float& dx1, float& sx2, float& dx2) // float& lorywidth, float& lorxwidth)
 {
    // Interpolate for a new set of track angles
-   
-   
+
+   // &&& New approach: use cached pointers.
+   //
    // Find the index corresponding to id
-   
+   // 
    int index = -1;
    for( int i=0; i<(int)thePixelTemp_.size(); ++i) {
       if(id == thePixelTemp_[i].head.ID) {
@@ -2636,18 +2720,18 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    
    // Interpolate/store all y-related quantities (flip displacements when flip_y)
    
-   dy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dyone + yratio*thePixelTemp_[index].enty[ihigh].dyone;
+   dy1 = (1.f - yratio)*enty0_->dyone + yratio*enty1_->dyone;
    if(flip_y) {dy1 = -dy1;}
-   sy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].syone + yratio*thePixelTemp_[index].enty[ihigh].syone;
-   dy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dytwo + yratio*thePixelTemp_[index].enty[ihigh].dytwo;
+   sy1 = (1.f - yratio)*enty0_->syone + yratio*enty1_->syone;
+   dy2 = (1.f - yratio)*enty0_->dytwo + yratio*enty1_->dytwo;
    if(flip_y) {dy2 = -dy2;}
-   sy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].sytwo + yratio*thePixelTemp_[index].enty[ihigh].sytwo;
+   sy2 = (1.f - yratio)*enty0_->sytwo + yratio*enty1_->sytwo;
    
-   auto qavg = (1.f - yratio)*thePixelTemp_[index].enty[ilow].qavg + yratio*thePixelTemp_[index].enty[ihigh].qavg;
+   auto qavg = (1.f - yratio)*enty0_->qavg + yratio*enty1_->qavg;
    qavg *= qcorrect;
-   auto qmin = (1.f - yratio)*thePixelTemp_[index].enty[ilow].qmin + yratio*thePixelTemp_[index].enty[ihigh].qmin;
+   auto qmin = (1.f - yratio)*enty0_->qmin + yratio*enty1_->qmin;
    qmin *= qcorrect;
-   auto qmin2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].qmin2 + yratio*thePixelTemp_[index].enty[ihigh].qmin2;
+   auto qmin2 = (1.f - yratio)*enty0_->qmin2 + yratio*enty1_->qmin2;
    qmin2 *= qcorrect;
    
    
@@ -2684,9 +2768,9 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
       }
    }
    
-   auto yavggen =(1.f - yratio)*thePixelTemp_[index].enty[ilow].yavggen[binq] + yratio*thePixelTemp_[index].enty[ihigh].yavggen[binq];
+   auto yavggen =(1.f - yratio)*enty0_->yavggen[binq] + yratio*enty1_->yavggen[binq];
    if(flip_y) {yavggen = -yavggen;}
-   auto yrmsgen =(1.f - yratio)*thePixelTemp_[index].enty[ilow].yrmsgen[binq] + yratio*thePixelTemp_[index].enty[ihigh].yrmsgen[binq];
+   auto yrmsgen =(1.f - yratio)*enty0_->yrmsgen[binq] + yratio*enty1_->yrmsgen[binq];
    
    
    // next, loop over all x-angle entries, first, find relevant y-slices
@@ -3014,9 +3098,9 @@ void SiPixelTemplate::temperrors(int id, float cotalpha, float cotbeta, int qBin
    
    // Interpolate/store all y-related quantities (flip displacements when flip_y)
    
-   sy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].syone + yratio*thePixelTemp_[index].enty[ihigh].syone;
-   sy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].sytwo + yratio*thePixelTemp_[index].enty[ihigh].sytwo;
-   yrms=(1.f - yratio)*thePixelTemp_[index].enty[ilow].yrms[qBin] + yratio*thePixelTemp_[index].enty[ihigh].yrms[qBin];
+   sy1 = (1.f - yratio)*enty0_->syone + yratio*enty1_->syone;
+   sy2 = (1.f - yratio)*enty0_->sytwo + yratio*enty1_->sytwo;
+   yrms=(1.f - yratio)*enty0_->yrms[qBin] + yratio*enty1_->yrms[qBin];
    
    
    // next, loop over all x-angle entries, first, find relevant y-slices
@@ -3201,8 +3285,8 @@ void SiPixelTemplate::qbin_dist(int id, float cotalpha, float cotbeta, float qbi
    ihigh=ilow + 1;
    
    // Interpolate/store all y-related quantities (flip displacements when flip_y)
-   ny1_frac = (1.f - yratio)*thePixelTemp_[index].enty[ilow].fracyone + yratio*thePixelTemp_[index].enty[ihigh].fracyone;
-   ny2_frac = (1.f - yratio)*thePixelTemp_[index].enty[ilow].fracytwo + yratio*thePixelTemp_[index].enty[ihigh].fracytwo;
+   ny1_frac = (1.f - yratio)*enty0_->fracyone + yratio*enty1_->fracyone;
+   ny2_frac = (1.f - yratio)*enty0_->fracytwo + yratio*enty1_->fracytwo;
    
    // next, loop over all x-angle entries, first, find relevant y-slices
    
