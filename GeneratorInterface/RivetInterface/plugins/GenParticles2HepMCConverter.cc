@@ -51,9 +51,8 @@ private:
 };
 
 GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet& pset)
-    : cmEnergy_(pset.getUntrackedParameter<double>(
-          "cmEnergy", 13000))  // dummy value to set incident proton pz for particle gun samples
-{
+    // dummy value to set incident proton pz for particle gun samples
+    : cmEnergy_(pset.getUntrackedParameter<double>("cmEnergy", 13000)) {
   genParticlesToken_ = consumes<reco::CandidateView>(pset.getParameter<edm::InputTag>("genParticles"));
   genEventInfoToken_ = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("genEventInfo"));
   signalParticlePdgIds_ = pset.getParameter<std::vector<int>>("signalParticlePdgIds");

@@ -47,8 +47,8 @@ namespace gem {
   union EventTrailer {
     uint64_t word;
     struct {
-      uint64_t
-          oosGlib : 40;  // GLIB is out‐of‐sync (critical): L1A ID is different for different chambers in this event (1 bit)
+      // GLIB is out‐of‐sync (critical): L1A ID is different for different chambers in this event (1 bit)
+      uint64_t oosGlib : 40;
       uint64_t chTimeOut : 24;  // GLIB did not receive data from a particular input for this L1A
     };
   };

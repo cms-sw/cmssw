@@ -430,20 +430,19 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
         unsigned int indexDDU = mapping->slink(chamberItr->first);
 
         /// Lets handle possible mapping issues
-        if ((indexDDU >= FEDNumbering::MINCSCFEDID) &&
-            (indexDDU <= FEDNumbering::MAXCSCFEDID))  // Still preLS1 DCC FEDs mapping
-        {
+        // Still preLS1 DCC FEDs mapping
+        if ((indexDDU >= FEDNumbering::MINCSCFEDID) && (indexDDU <= FEDNumbering::MAXCSCFEDID)) {
           int dduID = mapping->ddu(chamberItr->first);  // try to switch to DDU ID mapping
-          if ((dduID >= FEDNumbering::MINCSCDDUFEDID) &&
-              (dduID <= FEDNumbering::MAXCSCDDUFEDID))  // DDU ID is in expectedi post-LS1 FED ID range
-          {
+          // DDU ID is in expectedi post-LS1 FED ID range
+          if ((dduID >= FEDNumbering::MINCSCDDUFEDID) && (dduID <= FEDNumbering::MAXCSCDDUFEDID)) {
             indexDDU = dduID;
           } else  // Messy
           {
             // Lets try to change pre-LS1 1-36 ID range to post-LS1 MINCSCDDUFEDID - MAXCSCDDUFEDID range
             dduID &= 0xFF;
+            // indexDDU = FEDNumbering::MINCSCDDUFEDID + dduID-1;
             if ((dduID <= 36) && (dduID > 0))
-              indexDDU = postLS1_map[dduID - 1];  // indexDDU = FEDNumbering::MINCSCDDUFEDID + dduID-1;
+              indexDDU = postLS1_map[dduID - 1];
           }
         }
 

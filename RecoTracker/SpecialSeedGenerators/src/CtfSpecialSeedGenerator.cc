@@ -124,7 +124,6 @@ void CtfSpecialSeedGenerator::produce(edm::Event& e, const edm::EventSetup& iSet
     if (!clustsOrZero) {
       bool ok = run(iSetup, e, *output);
       if (!ok) {
-        ;
       }  // nothing to do
     } else
       edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";

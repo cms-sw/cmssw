@@ -78,18 +78,17 @@ struct SiPixelGenErrorStore {  //!< template storage structure
   float cotbetaY[60];
   float cotbetaX[5];
   float cotalphaX[29];
-  SiPixelGenErrorEntry
-      enty[60];  //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px [28 entries for fpix]
-  SiPixelGenErrorEntry entx
-      [5]
-      [29];  //!< 29 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 5 slices [3x29 for fpix]
+  //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px [28 entries for fpix]
+  SiPixelGenErrorEntry enty[60];
+  //!< 29 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 5 slices [3x29 for fpix]
+  SiPixelGenErrorEntry entx[5][29];
 #else
   float* cotbetaY;
   float* cotbetaX;
   float* cotalphaX;
   boost::multi_array<SiPixelGenErrorEntry, 1> enty;  //!< use 1d entry to store [60] barrel entries or [28] fpix entries
-  boost::multi_array<SiPixelGenErrorEntry, 2>
-      entx;  //!< use 2d entry to store [5][29] barrel entries or [3][29] fpix entries
+  //!< use 2d entry to store [5][29] barrel entries or [3][29] fpix entries
+  boost::multi_array<SiPixelGenErrorEntry, 2> entx;
 #endif
 };
 
@@ -120,8 +119,8 @@ public:
   static bool pushfile(int filenum, std::vector<SiPixelGenErrorStore>& pixelTemp, std::string dir = "");
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-  static bool pushfile(const SiPixelGenErrorDBObject& dbobject,
-                       std::vector<SiPixelGenErrorStore>& pixelTemp);  // load the private store with info from db
+  // load the private store with info from db
+  static bool pushfile(const SiPixelGenErrorDBObject& dbobject, std::vector<SiPixelGenErrorStore>& pixelTemp);
 #endif
 
   // initialize the binary search information;
