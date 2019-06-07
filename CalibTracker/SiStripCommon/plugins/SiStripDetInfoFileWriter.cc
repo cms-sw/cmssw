@@ -9,85 +9,63 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
-
 using namespace cms;
 using namespace std;
 
-
 SiStripDetInfoFileWriter::SiStripDetInfoFileWriter(const edm::ParameterSet& iConfig) {
-
-  
   edm::LogInfo("SiStripDetInfoFileWriter::SiStripDetInfoFileWriter");
 
-  filePath_ = iConfig.getUntrackedParameter<std::string>("FilePath",std::string("SiStripDetInfo.dat"));
-
+  filePath_ = iConfig.getUntrackedParameter<std::string>("FilePath", std::string("SiStripDetInfo.dat"));
 }
 
-
-SiStripDetInfoFileWriter::~SiStripDetInfoFileWriter(){
-
-   edm::LogInfo("SiStripDetInfoFileWriter::~SiStripDetInfoFileWriter");
+SiStripDetInfoFileWriter::~SiStripDetInfoFileWriter() {
+  edm::LogInfo("SiStripDetInfoFileWriter::~SiStripDetInfoFileWriter");
 }
 
-
-
-void SiStripDetInfoFileWriter::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
-
-
+void SiStripDetInfoFileWriter::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   outputFile_.open(filePath_.c_str());
 
-  if (outputFile_.is_open()){
-
-
+  if (outputFile_.is_open()) {
     edm::ESHandle<TrackerGeometry> pDD;
 
-    iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
+    iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
 
-    edm::LogInfo("SiStripDetInfoFileWriter::beginRun - got geometry  ")<<std::endl;
+    edm::LogInfo("SiStripDetInfoFileWriter::beginRun - got geometry  ") << std::endl;
 
-    
-    edm::LogInfo("SiStripDetInfoFileWriter") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
-    
-    for( const auto& it : pDD->detUnits()) {
-  
-      const StripGeomDetUnit* mit = dynamic_cast<StripGeomDetUnit const *>(it);
+    edm::LogInfo("SiStripDetInfoFileWriter") << " There are " << pDD->detUnits().size() << " detectors" << std::endl;
 
-      if(mit!=nullptr){
+    for (const auto& it : pDD->detUnits()) {
+      const StripGeomDetUnit* mit = dynamic_cast<StripGeomDetUnit const*>(it);
 
-	uint32_t detid=(mit->geographicalId()).rawId();
-	double stripLength = mit->specificTopology().stripLength();
-	unsigned short numberOfAPVs= mit->specificTopology().nstrips()/128;
-	float thickness=mit->specificSurface().bounds().thickness();
+      if (mit != nullptr) {
+        uint32_t detid = (mit->geographicalId()).rawId();
+        double stripLength = mit->specificTopology().stripLength();
+        unsigned short numberOfAPVs = mit->specificTopology().nstrips() / 128;
+        float thickness = mit->specificSurface().bounds().thickness();
 
+        if (numberOfAPVs < 1 || numberOfAPVs > 6) {
+          edm::LogError("SiStripDetInfoFileWriter")
+              << " Problem with Number of strips in detector.. " << mit->specificTopology().nstrips()
+              << "Will not write this entry to file" << endl;
+          continue;
+        }
 
-	if(numberOfAPVs<1 || numberOfAPVs>6 ) {
-	  edm::LogError("SiStripDetInfoFileWriter")<<" Problem with Number of strips in detector.. "<< mit->specificTopology().nstrips() <<  "Will not write this entry to file"<< endl;
-	  continue;
-	}
-
-	outputFile_ << detid << " "<< numberOfAPVs << " " << stripLength << " "<< thickness << "\n";
-
+        outputFile_ << detid << " " << numberOfAPVs << " " << stripLength << " " << thickness << "\n";
       }
-
     }
-    
+
     outputFile_.close();
 
   }
-  
+
   else {
-
-    edm::LogError("SiStripDetInfoFileWriter::beginRun - Unable to open file")<<endl;
+    edm::LogError("SiStripDetInfoFileWriter::beginRun - Unable to open file") << endl;
     return;
-  
   }
-
 }
-
-

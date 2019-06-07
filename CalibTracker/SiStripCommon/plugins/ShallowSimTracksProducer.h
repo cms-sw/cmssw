@@ -10,19 +10,15 @@
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 class ShallowSimTracksProducer : public edm::EDProducer {
+public:
+  explicit ShallowSimTracksProducer(const edm::ParameterSet &);
 
- public:
-
-  explicit ShallowSimTracksProducer(const edm::ParameterSet&);
-
- private:
-
+private:
   const std::string Prefix;
   const std::string Suffix;
   const edm::EDGetTokenT<TrackingParticleCollection> trackingParticles_token_;
   const edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> associator_token_;
-	const edm::EDGetTokenT<edm::View<reco::Track> > tracks_token_;
-  void produce( edm::Event &, const edm::EventSetup & ) override;
-
+  const edm::EDGetTokenT<edm::View<reco::Track> > tracks_token_;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 };
 #endif
