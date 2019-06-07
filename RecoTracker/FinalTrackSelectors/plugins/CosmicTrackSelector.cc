@@ -124,7 +124,7 @@ CosmicTrackSelector::CosmicTrackSelector( const edm::ParameterSet & cfg ) :
 {
   if (cfg.exists("qualityBit")) {
     std::string qualityStr = cfg.getParameter<std::string>("qualityBit");
-    if (qualityStr != "") {
+    if (!qualityStr.empty()) {
       setQualityBit_ = true;
       qualityToSet_  = TrackBase::qualityByName(cfg.getParameter<std::string>("qualityBit"));
     }

@@ -178,7 +178,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
 
     if (cfg.exists("qualityBit")) {
       std::string qualityStr = cfg.getParameter<std::string>("qualityBit");
-      if (qualityStr != "") {
+      if (!qualityStr.empty()) {
         setQualityBit_[0] = true;
         qualityToSet_ [0] = TrackBase::qualityByName(cfg.getParameter<std::string>("qualityBit"));
       }
