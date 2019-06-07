@@ -211,7 +211,7 @@ bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU, int cellV
 double HGCalDDDConstants::cellThickness(int layer, int waferU, int waferV) const {
   double thick(-1);
   int type = waferType(layer, waferU, waferV);
-  if (type > 0) {
+  if (type >= 0) {
     if ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full)) {
       thick = 10000.0 * hgpar_->cellThickness_[type];  // cm to micron
     } else if ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull)) {
