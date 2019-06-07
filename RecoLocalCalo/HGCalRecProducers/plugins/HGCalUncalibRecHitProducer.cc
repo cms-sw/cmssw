@@ -20,7 +20,6 @@ HGCalUncalibRecHitProducer::HGCalUncalibRecHitProducer(const edm::ParameterSet& 
   hfnoseHitCollection_( ps.getParameter<std::string>("HGCHFNosehitCollection") ),
   worker_{ HGCalUncalibRecHitWorkerFactory::get()->create(ps.getParameter<std::string>("algo"), ps) }
 {
-
   produces< HGCeeUncalibratedRecHitCollection >(eeHitCollection_);
   produces< HGChefUncalibratedRecHitCollection >(hefHitCollection_);
   produces< HGChebUncalibratedRecHitCollection >(hebHitCollection_);
@@ -76,11 +75,11 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   
   // loop over HFNose digis
   edm::Handle< HGCalDigiCollection > pHGCHFNoseDigis;
-  evt.getByToken( eeDigiCollection_, pHGCHFNoseDigis);
+  evt.getByToken( hfnoseDigiCollection_, pHGCHFNoseDigis);
   if (pHGCHFNoseDigis.isValid()) {
     const HGCalDigiCollection* hfnoseDigis = 
       pHGCHFNoseDigis.product(); // get a ptr to the product
-    if (!hfnoseDigis->empty()) {
+    if (!(hfnoseDigis->empty())) {
       hfnoseUncalibRechits->reserve(hfnoseDigis->size());
       for(auto itdg = hfnoseDigis->begin(); itdg != hfnoseDigis->end(); ++itdg)
 	worker_->run4(evt, itdg, *hfnoseUncalibRechits);

@@ -86,7 +86,7 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
     // Now fill flags
     // all rechits from the digitizer are "good" at present
     rh.setFlag(HGCRecHit::kGood);
-    
+
     return rh;
   }
 
