@@ -8,5 +8,4 @@
 
 #include <RecoLocalMuon/GEMCSCSegment/plugins/GEMCSCSegmentBuilderPluginFactory.h>
 
-EDM_REGISTER_PLUGINFACTORY(GEMCSCSegmentBuilderPluginFactory,"GEMCSCSegmentBuilderPluginFactory");
-
+EDM_REGISTER_PLUGINFACTORY(GEMCSCSegmentBuilderPluginFactory, "GEMCSCSegmentBuilderPluginFactory");
