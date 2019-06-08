@@ -71,21 +71,6 @@ SiPixelQualityESProducer::SiPixelQualityESProducer(const edm::ParameterSet& conf
 {
   edm::LogInfo("SiPixelQualityESProducer::SiPixelQualityESProducer");
 
-  // The following check is done only because the earlier code
-  // (essentially) threw an exception if either of the parameters were
-  // missing. I'm not sure if that is really required (in which case
-  // the whole parameter could be removed).
-  auto toGet = conf_.getParameter<std::vector< edm::ParameterSet >>("ListOfRecordToMerge");
-  auto throwIfNotFound = [&toGet](const std::string& recordName) {
-    if(std::find_if(toGet.begin(), toGet.end(), [&recordName](const edm::ParameterSet& pset) {
-          return pset.getParameter<std::string>("record") == recordName;
-        }) == toGet.end()) {
-      throw cms::Exception("Configuration") << "Did not find a PSet with record='" << recordName << "' from ListOfRecordToMerge";
-    }
-  };
-  throwIfNotFound("SiPixelDetVOffRcd");
-  throwIfNotFound("SiPixelQualityFromDbRcd");
-
   auto label = conf_.exists("siPixelQualityLabel")?conf_.getParameter<std::string>("siPixelQualityLabel"):std::string{};
   auto setConsumes = [](edm::ESConsumesCollector&& cc, Tokens& tokens, const std::string& label) {
     cc.setConsumes(tokens.voffToken_).setConsumes(tokens.dbobjectToken_, edm::ESInputTag{"", label});
