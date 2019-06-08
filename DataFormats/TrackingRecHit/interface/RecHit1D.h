@@ -16,45 +16,33 @@
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
-
 class RecHit1D : public TrackingRecHit {
- public:
-
+public:
   RecHit1D(DetId id) : TrackingRecHit(id) {}
-  RecHit1D(TrackingRecHit::id_type id=0) : TrackingRecHit(id) {}
+  RecHit1D(TrackingRecHit::id_type id = 0) : TrackingRecHit(id) {}
 
   /// Destructor
   ~RecHit1D() override {}
 
-
   /// Return just the x
   AlgebraicVector parameters() const override;
-
 
   /// Return just "(sigma_x)^2"
   AlgebraicSymMatrix parametersError() const override;
 
-
   ///Return the projection matrix
-  AlgebraicMatrix projectionMatrix() const override {
-    return theProjectionMatrix;
-  }
+  AlgebraicMatrix projectionMatrix() const override { return theProjectionMatrix; }
 
   /// Return the RecHit dimension
-  int dimension() const override {
-    return 1;
-  }
-
+  int dimension() const override { return 1; }
 
   /// Local position
   LocalPoint localPosition() const override = 0;
 
-
   /// Error on the local position
   LocalError localPositionError() const override = 0;
 
-
- private:
+private:
   static const AlgebraicMatrix theProjectionMatrix;
 };
 #endif
