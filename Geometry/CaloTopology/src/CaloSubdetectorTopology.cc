@@ -1,9 +1,9 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include <cassert>
 
-std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id, const int& northSouthSize, const int& eastWestSize) const
-{
-  
+std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id,
+                                                      const int& northSouthSize,
+                                                      const int& eastWestSize) const {
   std::vector<DetId> cellsInWindow;
   // check pivot
   if (id.null())
@@ -11,66 +11,59 @@ std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id, const int
 
   //
   DetId myTmpId(id);
-  std::vector<std::pair<Coordinate,DetId> > fringe;
-  fringe.emplace_back(std::pair<Coordinate,DetId>(Coordinate(0,0),myTmpId));
-  
-  int halfWestEast = eastWestSize/2 ;
-  int halfNorthSouth = northSouthSize/2 ;
+  std::vector<std::pair<Coordinate, DetId> > fringe;
+  fringe.emplace_back(std::pair<Coordinate, DetId>(Coordinate(0, 0), myTmpId));
+
+  int halfWestEast = eastWestSize / 2;
+  int halfNorthSouth = northSouthSize / 2;
 
   std::vector<CellInfo> visited_cells;
   visited_cells.resize(northSouthSize * eastWestSize);
-  
-  while (!fringe.empty())
-    {
-      std::pair<Coordinate,DetId> cur = fringe.back();
-      fringe.pop_back();
-      
-      // check all four neighbours
-      const CaloDirection directions[4] = { NORTH, SOUTH, EAST, WEST };
-      
-      for (auto direction : directions)
-        {
-          Coordinate neighbour = getNeighbourIndex(cur.first,direction);
-	  //If outside the window range
-	  if ( neighbour.first < -halfWestEast ||
-	       neighbour.first > halfWestEast ||
-	       neighbour.second < -halfNorthSouth ||
-	       neighbour.second > halfNorthSouth )
-	    continue;
-	  
-	  
-	  //Found integer index in the matrix
-	  unsigned int_index =  neighbour.first + halfWestEast +  
-	    eastWestSize * (neighbour.second + halfNorthSouth );
-	  assert(int_index < visited_cells.size());
-	  
-          // check whether we have seen this neighbour already
-          if (visited_cells[int_index].visited)
-            // we have seen this one already
-            continue;
-              
-          // a new cell, get the DetId of the neighbour, mark it
-          // as visited and add it to the fringe
-          visited_cells[int_index].visited = true;
-	  std::vector<DetId> neighbourCells = getNeighbours(cur.second,direction);
 
-	  if ( neighbourCells.size() == 1 )
-	    visited_cells[int_index].cell = neighbourCells[0];
-	  else if ( neighbourCells.empty() )
-	    visited_cells[int_index].cell = DetId(0);
-	  else
-	    throw cms::Exception("getWindowError") << "Not supported subdetector for getWindow method";
-	  
-          if (!visited_cells[int_index].cell.null())
-            fringe.emplace_back(std::pair<Coordinate,DetId>(neighbour,visited_cells[int_index].cell));
-		  
-	} // loop over all possible directions
-    } // while some cells are left on the fringe
-  
-  
-  for (auto & visited_cell : visited_cells)
+  while (!fringe.empty()) {
+    std::pair<Coordinate, DetId> cur = fringe.back();
+    fringe.pop_back();
+
+    // check all four neighbours
+    const CaloDirection directions[4] = {NORTH, SOUTH, EAST, WEST};
+
+    for (auto direction : directions) {
+      Coordinate neighbour = getNeighbourIndex(cur.first, direction);
+      //If outside the window range
+      if (neighbour.first < -halfWestEast || neighbour.first > halfWestEast || neighbour.second < -halfNorthSouth ||
+          neighbour.second > halfNorthSouth)
+        continue;
+
+      //Found integer index in the matrix
+      unsigned int_index = neighbour.first + halfWestEast + eastWestSize * (neighbour.second + halfNorthSouth);
+      assert(int_index < visited_cells.size());
+
+      // check whether we have seen this neighbour already
+      if (visited_cells[int_index].visited)
+        // we have seen this one already
+        continue;
+
+      // a new cell, get the DetId of the neighbour, mark it
+      // as visited and add it to the fringe
+      visited_cells[int_index].visited = true;
+      std::vector<DetId> neighbourCells = getNeighbours(cur.second, direction);
+
+      if (neighbourCells.size() == 1)
+        visited_cells[int_index].cell = neighbourCells[0];
+      else if (neighbourCells.empty())
+        visited_cells[int_index].cell = DetId(0);
+      else
+        throw cms::Exception("getWindowError") << "Not supported subdetector for getWindow method";
+
+      if (!visited_cells[int_index].cell.null())
+        fringe.emplace_back(std::pair<Coordinate, DetId>(neighbour, visited_cells[int_index].cell));
+
+    }  // loop over all possible directions
+  }    // while some cells are left on the fringe
+
+  for (auto& visited_cell : visited_cells)
     if (!visited_cell.cell.null())
       cellsInWindow.emplace_back(visited_cell.cell);
-  
+
   return cellsInWindow;
 }
