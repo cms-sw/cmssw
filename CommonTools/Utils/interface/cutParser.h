@@ -7,13 +7,13 @@
 
 namespace reco {
   namespace parser {
-    bool cutParser(const edm::TypeWithDict &t, const std::string & cut, SelectorPtr & sel, bool lazy) ;
+    bool cutParser(const edm::TypeWithDict &t, const std::string &cut, SelectorPtr &sel, bool lazy);
 
-    template<typename T>
-    inline bool cutParser(const std::string & cut, SelectorPtr & sel, bool lazy=false) {
-        return reco::parser::cutParser(edm::TypeWithDict(typeid(T)), cut, sel, lazy);
+    template <typename T>
+    inline bool cutParser(const std::string &cut, SelectorPtr &sel, bool lazy = false) {
+      return reco::parser::cutParser(edm::TypeWithDict(typeid(T)), cut, sel, lazy);
     }
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

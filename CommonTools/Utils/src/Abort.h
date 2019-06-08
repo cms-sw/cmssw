@@ -14,9 +14,9 @@
 namespace reco {
   namespace parser {
     struct Abort {
-      void operator()( const char *, const char * ) const;
+      void operator()(const char *, const char *) const;
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

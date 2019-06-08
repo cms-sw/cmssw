@@ -4,7 +4,7 @@
 //
 // Package:     CommonTools/Utils
 // Class  :     reco::formula::VariableEvaluator
-// 
+//
 /**\class reco::formula::VariableEvaluator formulaVariableEvaluator.h "formulaVariableEvaluator.h"
 
  Description: [one line class summary]
@@ -27,27 +27,23 @@
 
 namespace reco {
   namespace formula {
-    class VariableEvaluator : public EvaluatorBase
-    {
-      
+    class VariableEvaluator : public EvaluatorBase {
     public:
       explicit VariableEvaluator(unsigned int iIndex) : m_index(iIndex) {}
-      
 
       // ---------- const member functions ---------------------
       double evaluate(double const* iVariables, double const* iParameters) const final;
       std::vector<std::string> abstractSyntaxTree() const final;
-      
+
     private:
       VariableEvaluator(const VariableEvaluator&) = delete;
-      
+
       const VariableEvaluator& operator=(const VariableEvaluator&) = delete;
-      
+
       // ---------- member data --------------------------------
       unsigned int m_index;
     };
-  }
-}
-
+  }  // namespace formula
+}  // namespace reco
 
 #endif

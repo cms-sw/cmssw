@@ -13,9 +13,9 @@
 #include <vector>
 
 namespace reco {
-namespace parser {
-typedef std::vector<AnyMethodArgument> MethodArgumentStack;
-} // namespace reco
-} // namespace parser
+  namespace parser {
+    typedef std::vector<AnyMethodArgument> MethodArgumentStack;
+  }  // namespace parser
+}  // namespace reco
 
-#endif // CommonTools_Utils_MethodArgumentStack_h
+#endif  // CommonTools_Utils_MethodArgumentStack_h

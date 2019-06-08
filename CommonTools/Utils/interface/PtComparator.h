@@ -13,25 +13,21 @@
  *
  */
 
-template<typename T>
+template <typename T>
 struct LessByPt {
   typedef T first_argument_type;
   typedef T second_argument_type;
-  bool operator()( const T & t1, const T & t2 ) const {
-    return t1.pt() < t2.pt();
-  }
+  bool operator()(const T& t1, const T& t2) const { return t1.pt() < t2.pt(); }
 };
 
-template<typename T>
+template <typename T>
 struct GreaterByPt {
   typedef T first_argument_type;
   typedef T second_argument_type;
-  bool operator()( const T & t1, const T & t2 ) const {
-    return t1.pt() > t2.pt();
-  }
+  bool operator()(const T& t1, const T& t2) const { return t1.pt() > t2.pt(); }
 };
 
-#include<limits>
+#include <limits>
 #include <cmath>
 
 template <class T>
@@ -39,10 +35,10 @@ struct NumericSafeLessByPt {
   typedef T first_argument_type;
   typedef T second_argument_type;
   bool operator()(const T& a1, const T& a2) {
-    return
-      fabs (a1.pt()-a2.pt()) > std::numeric_limits<double>::epsilon() ? a1.pt() < a2.pt() :
-      fabs (a1.px()-a2.px()) > std::numeric_limits<double>::epsilon() ? a1.px() < a2.px() :
-      a1.pz() < a2.pz();
+    return fabs(a1.pt() - a2.pt()) > std::numeric_limits<double>::epsilon()
+               ? a1.pt() < a2.pt()
+               : fabs(a1.px() - a2.px()) > std::numeric_limits<double>::epsilon() ? a1.px() < a2.px()
+                                                                                  : a1.pz() < a2.pz();
   }
 };
 
@@ -51,10 +47,10 @@ struct NumericSafeGreaterByPt {
   typedef T first_argument_type;
   typedef T second_argument_type;
   bool operator()(const T& a1, const T& a2) {
-    return
-      fabs (a1.pt()-a2.pt()) > std::numeric_limits<double>::epsilon() ? a1.pt() > a2.pt() :
-      fabs (a1.px()-a2.px()) > std::numeric_limits<double>::epsilon() ? a1.px() > a2.px() :
-      a1.pz() > a2.pz();
+    return fabs(a1.pt() - a2.pt()) > std::numeric_limits<double>::epsilon()
+               ? a1.pt() > a2.pt()
+               : fabs(a1.px() - a2.px()) > std::numeric_limits<double>::epsilon() ? a1.px() > a2.px()
+                                                                                  : a1.pz() > a2.pz();
   }
 };
 

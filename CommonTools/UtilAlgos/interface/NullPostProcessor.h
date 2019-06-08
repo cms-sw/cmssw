@@ -11,20 +11,18 @@ namespace edm {
   class EDFilter;
   class Event;
   class ParameterSet;
-}
+}  // namespace edm
 
 namespace helper {
 
-  template<typename OutputCollection, typename EdmFilter=edm::EDFilter>
+  template <typename OutputCollection, typename EdmFilter = edm::EDFilter>
   struct NullPostProcessor {
-    NullPostProcessor( const edm::ParameterSet & iConfig, edm::ConsumesCollector && iC ) :
-      NullPostProcessor( iConfig ) { }
-    NullPostProcessor( const edm::ParameterSet & iConfig ) { }
-    void init( EdmFilter & ) { }
-    void process( edm::OrphanHandle<OutputCollection>, edm::Event & ) { }
+    NullPostProcessor(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) : NullPostProcessor(iConfig) {}
+    NullPostProcessor(const edm::ParameterSet& iConfig) {}
+    void init(EdmFilter&) {}
+    void process(edm::OrphanHandle<OutputCollection>, edm::Event&) {}
   };
 
-}
+}  // namespace helper
 
 #endif
-
