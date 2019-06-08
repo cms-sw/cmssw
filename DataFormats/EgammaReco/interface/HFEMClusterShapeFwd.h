@@ -6,21 +6,21 @@
 
 namespace reco {
   class HFEMClusterShape;
-// collection of HFEMClusterShape objects
-typedef std::vector<HFEMClusterShape> HFEMClusterShapeCollection;
+  // collection of HFEMClusterShape objects
+  typedef std::vector<HFEMClusterShape> HFEMClusterShapeCollection;
 
-/// persistent reference to HFEMClusterShape objects
-typedef edm::Ref<HFEMClusterShapeCollection> HFEMClusterShapeRef;
+  /// persistent reference to HFEMClusterShape objects
+  typedef edm::Ref<HFEMClusterShapeCollection> HFEMClusterShapeRef;
 
-/// reference to HFEMClusterShape collection
-typedef edm::RefProd<HFEMClusterShapeCollection> HFEMClusterShapeRefProd;
+  /// reference to HFEMClusterShape collection
+  typedef edm::RefProd<HFEMClusterShapeCollection> HFEMClusterShapeRefProd;
 
-/// vector of references to HFEMClusterShape objects all in the same collection
-typedef edm::RefVector<HFEMClusterShapeCollection> HFEMClusterShapeRefVector;
+  /// vector of references to HFEMClusterShape objects all in the same collection
+  typedef edm::RefVector<HFEMClusterShapeCollection> HFEMClusterShapeRefVector;
 
-/// iterator over a vector of references to HFEMClusterShape objects
-typedef HFEMClusterShapeRefVector::iterator HFEMClusterShape_iterator;
- 
-}
+  /// iterator over a vector of references to HFEMClusterShape objects
+  typedef HFEMClusterShapeRefVector::iterator HFEMClusterShape_iterator;
+
+}  // namespace reco
 
 #endif

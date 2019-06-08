@@ -18,8 +18,7 @@ $Revision: 1.4 $
 
 class CaloTopology {
 public:
-
-  typedef std::map<int, std::unique_ptr<const CaloSubdetectorTopology>> TopMap ;
+  typedef std::map<int, std::unique_ptr<const CaloSubdetectorTopology>> TopMap;
 
   CaloTopology();
 
@@ -30,7 +29,7 @@ public:
   const CaloSubdetectorTopology* getSubdetectorTopology(const DetId& id) const;
   /// access the subdetector Topology for the given subdetector directly
   const CaloSubdetectorTopology* getSubdetectorTopology(DetId::Detector det, int subdet) const;
-  /// Is this a valid cell id? 
+  /// Is this a valid cell id?
   bool valid(const DetId& id) const;
 
   /// Get the neighbors of the given cell in east direction
@@ -56,7 +55,5 @@ private:
   TopMap theTopologies_;
   int makeIndex(DetId::Detector det, int subdet) const;
 };
-
-
 
 #endif

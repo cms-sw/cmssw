@@ -19,43 +19,37 @@
 using namespace std;
 
 /*****************************************************************************/
-TripletFilter::TripletFilter(const edm::EventSetup& es)
-{
+TripletFilter::TripletFilter(const edm::EventSetup& es) {
   // Get cluster shape hit filter
   edm::ESHandle<ClusterShapeHitFilter> shape;
-  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",shape);
+  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter", shape);
   theFilter = shape.product();
 }
 
 /*****************************************************************************/
-TripletFilter::~TripletFilter()
-{
-}
+TripletFilter::~TripletFilter() {}
 
 /*****************************************************************************/
-bool TripletFilter::checkTrack
-(const vector<const TrackingRecHit*>& recHits, const vector<LocalVector>& localDirs, const TrackerTopology *tTopo, const SiPixelClusterShapeCache& clusterShapeCache)
-{
+bool TripletFilter::checkTrack(const vector<const TrackingRecHit*>& recHits,
+                               const vector<LocalVector>& localDirs,
+                               const TrackerTopology* tTopo,
+                               const SiPixelClusterShapeCache& clusterShapeCache) {
   bool ok = true;
 
   vector<LocalVector>::const_iterator localDir = localDirs.begin();
-  for(vector<const TrackingRecHit*>::const_iterator recHit = recHits.begin();
-                                                    recHit!= recHits.end();
-                                                    recHit++)
-  {
-    const SiPixelRecHit* pixelRecHit =
-      dynamic_cast<const SiPixelRecHit *>(*recHit);
+  for (vector<const TrackingRecHit*>::const_iterator recHit = recHits.begin(); recHit != recHits.end(); recHit++) {
+    const SiPixelRecHit* pixelRecHit = dynamic_cast<const SiPixelRecHit*>(*recHit);
 
-    if(! pixelRecHit->isValid())
-    {  ok = false; break; }
+    if (!pixelRecHit->isValid()) {
+      ok = false;
+      break;
+    }
 
-    if(! theFilter->isCompatible(*pixelRecHit, *localDir, clusterShapeCache))
-    {
-      LogTrace("MinBiasTracking")
-       << "  [TripletFilter] clusShape problem"
-       << HitInfo::getInfo(**recHit,tTopo);
+    if (!theFilter->isCompatible(*pixelRecHit, *localDir, clusterShapeCache)) {
+      LogTrace("MinBiasTracking") << "  [TripletFilter] clusShape problem" << HitInfo::getInfo(**recHit, tTopo);
 
-      ok = false; break;
+      ok = false;
+      break;
     }
 
     localDir++;
@@ -65,29 +59,26 @@ bool TripletFilter::checkTrack
 }
 
 /*****************************************************************************/
-bool TripletFilter::checkTrack
-(const vector<const TrackingRecHit*>& recHits, const vector<GlobalVector>& globalDirs, const TrackerTopology *tTopo, const SiPixelClusterShapeCache& clusterShapeCache)
-{
+bool TripletFilter::checkTrack(const vector<const TrackingRecHit*>& recHits,
+                               const vector<GlobalVector>& globalDirs,
+                               const TrackerTopology* tTopo,
+                               const SiPixelClusterShapeCache& clusterShapeCache) {
   bool ok = true;
 
   vector<GlobalVector>::const_iterator globalDir = globalDirs.begin();
-  for(vector<const TrackingRecHit*>::const_iterator recHit = recHits.begin();
-                                                    recHit!= recHits.end();
-                                                    recHit++)
-  {
-    const SiPixelRecHit* pixelRecHit =
-      dynamic_cast<const SiPixelRecHit *>(*recHit);
+  for (vector<const TrackingRecHit*>::const_iterator recHit = recHits.begin(); recHit != recHits.end(); recHit++) {
+    const SiPixelRecHit* pixelRecHit = dynamic_cast<const SiPixelRecHit*>(*recHit);
 
-    if(! pixelRecHit->isValid())
-    {  ok = false; break; }
+    if (!pixelRecHit->isValid()) {
+      ok = false;
+      break;
+    }
 
-    if(! theFilter->isCompatible(*pixelRecHit, *globalDir, clusterShapeCache))
-    {
-      LogTrace("MinBiasTracking")
-       << "  [TripletFilter] clusShape problem"
-       << HitInfo::getInfo(**recHit,tTopo);
+    if (!theFilter->isCompatible(*pixelRecHit, *globalDir, clusterShapeCache)) {
+      LogTrace("MinBiasTracking") << "  [TripletFilter] clusShape problem" << HitInfo::getInfo(**recHit, tTopo);
 
-      ok = false; break;
+      ok = false;
+      break;
     }
 
     globalDir++;
@@ -95,4 +86,3 @@ bool TripletFilter::checkTrack
 
   return ok;
 }
-
