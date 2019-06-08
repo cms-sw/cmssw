@@ -725,6 +725,16 @@ void HGVHistoProducerAlgo::bookMultiClusterHistos(DQMStore::ConcurrentBooker& ib
                                                          nintTotNClsinMCLs_,
                                                          minTotNClsinMCLs_,
                                                          maxTotNClsinMCLs_);
+
+  histograms.h_clusternum_in_multicluster_vs_layer = ibook.bookProfile("clusternum_in_multicluster_vs_layer",
+								       "Profile of 2d layer clusters in multicluster vs layer number",
+								       2 * layers,
+								       0.,
+								       (float)2 * layers,			       
+								       minTotNClsinMCLsperlayer_,
+								       maxTotNClsinMCLsperlayer_
+								       );
+
   histograms.h_multicluster_pt = ibook.book1D("multicluster_pt", "Pt of the multicluster", nintPt_, minPt_, maxPt_);
   histograms.h_multicluster_eta =
       ibook.book1D("multicluster_eta", "Eta of the multicluster", nintEta_, minEta_, maxEta_);
@@ -2049,7 +2059,7 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
   //Each event to be treated as two events:
   //an event in +ve endcap, plus another event in -ve endcap.
 
-  //To keep track of total num of multilusters
+  //To keep track of total num of multiclusters
   int tnmclmz = 0;  //-z
   int tnmclpz = 0;  //+z
   //To count the number of multiclusters with 3 contiguous layers per event.
@@ -2075,13 +2085,11 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
     }
 
     //Total number of layer clusters in multicluster
-    int tnlcinmclmz = 0;  //-z
-    int tnlcinmclpz = 0;  //+z
+    int tnlcinmcl = 0;  
 
     //To keep track of total num of layer clusters per multicluster
     //tnlcinmclperlaypz[layerid], tnlcinmclperlaymz[layerid]
-    std::vector<int> tnlcinmclperlaypz(1000, 0);  //+z
-    std::vector<int> tnlcinmclperlaymz(1000, 0);  //-z
+    std::vector<int> tnlcinmclperlay(1000, 0);  //+z
 
     //For the layers the multicluster expands to. Will use a set because there would be many
     //duplicates and then go back to vector for random access, since they say it is faster.
@@ -2101,14 +2109,13 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
                     layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
       multicluster_layers.insert(layerid);
 
+      tnlcinmclperlay[layerid]++;
+      tnlcinmcl++;
+ 
       if (recHitTools_->zside(firstHitDetId) > 0.) {
-        tnlcinmclpz++;
-        tnlcinmclperlaypz[layerid]++;
-        multiclusterInZplus = true;
+	multiclusterInZplus = true;
       }
       if (recHitTools_->zside(firstHitDetId) < 0.) {
-        tnlcinmclmz++;
-        tnlcinmclperlaymz[layerid]++;
         multiclusterInZminus = true;
       }
 
@@ -2116,10 +2123,11 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
 
     //Per layer : Loop 0->103
     for (unsigned ilayer = 0; ilayer < layers * 2; ++ilayer) {
-      if (histograms.h_clusternum_in_multicluster_perlayer.count(ilayer)) {
-        histograms.h_clusternum_in_multicluster_perlayer.at(ilayer).fill(tnlcinmclperlaypz[ilayer]);
-        histograms.h_clusternum_in_multicluster_perlayer.at(ilayer).fill(tnlcinmclperlaymz[ilayer]);
+      if (histograms.h_clusternum_in_multicluster_perlayer.count(ilayer) && tnlcinmclperlay[ilayer] != 0) {
+        histograms.h_clusternum_in_multicluster_perlayer.at(ilayer).fill((float) tnlcinmclperlay[ilayer]);
       }
+      //For the profile now of 2d layer cluster in multiclusters vs layer number. 
+      if (tnlcinmclperlay[ilayer] != 0) {histograms.h_clusternum_in_multicluster_vs_layer.fill((float) ilayer, (float) tnlcinmclperlay[ilayer]);}
     }  //end of loop over layers
 
     //Looking for multiclusters with 3 contiguous layers per event.
@@ -2154,8 +2162,7 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
     //Save for the score
     contmulti.push_back(contimulti);
 
-    histograms.h_clusternum_in_multicluster.fill(tnlcinmclpz);
-    histograms.h_clusternum_in_multicluster.fill(tnlcinmclmz);
+    histograms.h_clusternum_in_multicluster.fill(tnlcinmcl);
 
     histograms.h_multicluster_pt.fill(multiClusters[mclId].pt());
     histograms.h_multicluster_eta.fill(multiClusters[mclId].eta());
@@ -2170,14 +2177,14 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
 
   }  //end of loop through multiclusters
 
-  histograms.h_multiclusternum.fill(tnmclmz);
-  histograms.h_multiclusternum.fill(tnmclpz);
+  if (tnmclmz != 0) {histograms.h_multiclusternum.fill(tnmclmz);}
+  if (tnmclpz != 0) {histograms.h_multiclusternum.fill(tnmclpz);}
 
-  histograms.h_contmulticlusternum.fill(tncontmclpz);
-  histograms.h_contmulticlusternum.fill(tncontmclmz);
+  if (tncontmclpz != 0) {histograms.h_contmulticlusternum.fill(tncontmclpz);}
+  if (tncontmclmz != 0) {histograms.h_contmulticlusternum.fill(tncontmclmz);}
 
-  histograms.h_noncontmulticlusternum.fill(tnnoncontmclpz);
-  histograms.h_noncontmulticlusternum.fill(tnnoncontmclmz);
+  if (tnnoncontmclpz != 0) {histograms.h_noncontmulticlusternum.fill(tnnoncontmclpz);}
+  if (tnnoncontmclmz != 0) {histograms.h_noncontmulticlusternum.fill(tnnoncontmclmz);}
 
   multiClusters_to_CaloParticles(histograms, multiClusters, cP, hitMap, layers, contmulti);
 }

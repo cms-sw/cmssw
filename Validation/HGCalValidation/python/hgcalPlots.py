@@ -1351,11 +1351,11 @@ _noncontmulticlusternum = PlotGroup("noncontmulticlusternum", [
 ],ncols=1)
 
 _multicluster_firstlayer = PlotGroup("multicluster_firstlayer", [
-  Plot("multicluster_firstlayer", xtitle="", **_common)
+  Plot("multicluster_firstlayer", xtitle="Layer number", **_common)
 ],ncols=1)
 
 _multicluster_lastlayer = PlotGroup("multicluster_lastlayer", [
-  Plot("multicluster_lastlayer", xtitle="", **_common)
+  Plot("multicluster_lastlayer", xtitle="Layer number", **_common)
 ],ncols=1)
 
 _multicluster_layersnum = PlotGroup("multicluster_layersnum", [
@@ -1365,6 +1365,12 @@ _multicluster_layersnum = PlotGroup("multicluster_layersnum", [
 _common["xmax"] = 50 
 _clusternum_in_multicluster = PlotGroup("clusternum_in_multicluster",[
   Plot("clusternum_in_multicluster", xtitle="", **_common)
+],ncols=1)
+
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
+
+_clusternum_in_multicluster_vs_layer = PlotGroup("clusternum_in_multicluster_vs_layer",[
+  Plot("clusternum_in_multicluster_vs_layer", xtitle="Layer number", ytitle = "<2d Layer Clusters in Multicluster>",  **_common)
 ],ncols=1)
 
 #--------------------------------------------------------------------------------------------
@@ -2049,6 +2055,7 @@ hgcalMultiClustersPlotter.append("NumberofLayerClustersinMultiClusterPerEventAnd
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
         ], PlotFolder(
         _clusternum_in_multicluster,
+        _clusternum_in_multicluster_vs_layer,
         _clusternum_in_multicluster_perlayer_zminus_EE,
         _clusternum_in_multicluster_perlayer_zminus_FH,
         _clusternum_in_multicluster_perlayer_zminus_BH,

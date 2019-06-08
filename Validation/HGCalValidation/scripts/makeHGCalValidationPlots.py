@@ -24,11 +24,11 @@ def main(opts):
     val = SimpleValidation([sample], opts.outputDir)
     htmlReport = val.createHtmlReport(validationName=opts.html_validation_name)
 
-    hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
-    val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
+    #hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
+    #val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
 
-    #hgclaymulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
-    #val.doPlots(hgclaymulticlus, plotterDrawArgs=drawArgs)
+    hgclaymulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
+    val.doPlots(hgclaymulticlus, plotterDrawArgs=drawArgs)
     print()
     if opts.no_html:
         print("Plots created into directory '%s'." % opts.outputDir)

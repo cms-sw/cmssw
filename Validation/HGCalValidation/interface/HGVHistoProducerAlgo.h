@@ -132,6 +132,7 @@ struct HGVHistoProducerAlgoHistograms {
   ConcurrentMonitorElement h_noncontmulticlusternum;
   ConcurrentMonitorElement h_clusternum_in_multicluster;
   std::unordered_map<int, ConcurrentMonitorElement> h_clusternum_in_multicluster_perlayer;
+  ConcurrentMonitorElement h_clusternum_in_multicluster_vs_layer; 
   ConcurrentMonitorElement h_multicluster_pt;
   ConcurrentMonitorElement h_multicluster_eta;
   ConcurrentMonitorElement h_multicluster_phi;
