@@ -22,9 +22,9 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 class HODetIdAssociator: public CaloDetIdAssociator{
  public:
-   HODetIdAssociator():CaloDetIdAssociator(72,30,0.087){};
+   HODetIdAssociator():CaloDetIdAssociator(72,30,0.087, nullptr){};
 
-   HODetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet){};
+   using CaloDetIdAssociator::CaloDetIdAssociator;
 
    const char* name() const override { return "HO"; }
 

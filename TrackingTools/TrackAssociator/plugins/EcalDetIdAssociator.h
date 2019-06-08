@@ -22,9 +22,9 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 class EcalDetIdAssociator: public CaloDetIdAssociator{
  public:
-   EcalDetIdAssociator():CaloDetIdAssociator(360,300,0.02){};
+   EcalDetIdAssociator():CaloDetIdAssociator(360,300,0.02,nullptr){};
 
-   EcalDetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet){};
+   using CaloDetIdAssociator::CaloDetIdAssociator;
 
    const char* name() const override { return "ECAL"; }
 

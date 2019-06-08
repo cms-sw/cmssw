@@ -33,6 +33,7 @@ Implementation:
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
