@@ -37,6 +37,24 @@
 #include "FWCore/Common/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 
+#include "DataFormats/BTauReco/interface/SeedingTrackFeatures.h"
+#include "DataFormats/BTauReco/interface/TrackPairFeatures.h"
+#include "RecoBTag/FeatureTools/interface/TrackPairInfoBuilder.h"
+#include "RecoBTag/FeatureTools/interface/SeedingTrackInfoBuilder.h"
+#include "RecoBTag/FeatureTools/interface/SeedingTracksConverter.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
+class HistogramProbabilityEstimator;
+#include <typeinfo>
+#include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
+#include "CondFormats/DataRecord/interface/BTagTrackProbability2DRcd.h"
+#include "CondFormats/DataRecord/interface/BTagTrackProbability3DRcd.h"
+#include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+
 class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
 
   public:
@@ -67,12 +85,26 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
     edm::EDGetTokenT<edm::ValueMap<float>> puppi_value_map_token_;
     edm::EDGetTokenT<edm::ValueMap<int>> pvasq_value_map_token_;
     edm::EDGetTokenT<edm::Association<VertexCollection>> pvas_token_;
-
+    edm::EDGetTokenT<edm::View<reco::Candidate> > candidateToken_;
+    
     bool use_puppi_value_map_;
     bool use_pvasq_value_map_;
 
     bool fallback_puppi_weight_;
     bool fallback_vertex_association_;
+    
+    bool run_deepVertex_;
+    
+    //TrackProbability
+    void checkEventSetup(const edm::EventSetup& iSetup);
+    std::unique_ptr<HistogramProbabilityEstimator> probabilityEstimator_;
+    bool compute_probabilities_;
+    unsigned long long calibrationCacheId2D_; 
+    unsigned long long calibrationCacheId3D_;
+    
+    const double min_jet_pt_;
+    const double max_jet_eta_;
+    
 
 };
 
@@ -84,10 +116,15 @@ DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& 
   vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
   sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
   shallow_tag_info_token_(consumes<ShallowTagInfoCollection>(iConfig.getParameter<edm::InputTag>("shallow_tag_infos"))),
+  candidateToken_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("candidates"))),
   use_puppi_value_map_(false),
   use_pvasq_value_map_(false),
   fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight")),
-  fallback_vertex_association_(iConfig.getParameter<bool>("fallback_vertex_association"))
+  fallback_vertex_association_(iConfig.getParameter<bool>("fallback_vertex_association")),
+  run_deepVertex_(iConfig.getParameter<bool>("run_deepVertex")),
+  compute_probabilities_(iConfig.getParameter<bool>("compute_probabilities")),
+  min_jet_pt_(iConfig.getParameter<double>("min_jet_pt")),
+  max_jet_eta_(iConfig.getParameter<double>("max_jet_eta"))
 {
   produces<DeepFlavourTagInfoCollection>();
 
@@ -123,9 +160,14 @@ void DeepFlavourTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
+  desc.add<edm::InputTag>("candidates", edm::InputTag("packedPFCandidates"));
   desc.add<edm::InputTag>("vertex_associator", edm::InputTag("primaryVertexAssociation","original"));
   desc.add<bool>("fallback_puppi_weight", false);
   desc.add<bool>("fallback_vertex_association", false);
+  desc.add<bool>("run_deepVertex", false);
+  desc.add<bool>("compute_probabilities", false);
+  desc.add<double>("min_jet_pt", 15.0);
+  desc.add<double>("max_jet_eta", 2.5);
   descriptions.add("pfDeepFlavourTagInfos", desc);
 }
 
@@ -133,6 +175,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 {
 
   auto output_tag_infos = std::make_unique<DeepFlavourTagInfoCollection>();
+  if (compute_probabilities_) checkEventSetup(iSetup);
 
   edm::Handle<edm::View<reco::Jet>> jets;
   iEvent.getByToken(jet_token_, jets);
@@ -146,6 +189,9 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   }
   // reference to primary vertex
   const auto & pv = vtxs->at(0);
+  
+  edm::Handle<edm::View<reco::Candidate> > tracks;
+  iEvent.getByToken(candidateToken_, tracks);
 
   edm::Handle<SVCollection> svs;
   iEvent.getByToken(sv_token_, svs);
@@ -176,6 +222,21 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   edm::ESHandle<TransientTrackBuilder> track_builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", track_builder);
+
+  std::vector<reco::TransientTrack> selectedTracks;
+  std::vector<float> masses;
+
+  if (run_deepVertex_)  //make a collection of selected transient tracks for deepvertex outside of the jet loop
+  {
+    for(typename edm::View<reco::Candidate>::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
+        unsigned int k = track - tracks->begin();
+        if(track->bestTrack() != nullptr && track->pt()>0.5) { 
+            if (std::fabs(track->vz()-pv.z())<0.5)  {
+                selectedTracks.push_back(track_builder->build(tracks->ptrAt(k)));
+                masses.push_back(track->mass());  }
+            }
+        }
+  } 
 
   for (std::size_t jet_n = 0; jet_n <  jets->size(); jet_n++) {
 
@@ -370,14 +431,43 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
 
   }
-
-
-
+  
+  if (run_deepVertex_)
+  {
+      if (jet.pt()>min_jet_pt_ && std::fabs(jet.eta())<max_jet_eta_) //jet thresholds
+          btagbtvdeep::seedingTracksToFeatures(selectedTracks, masses, jet, pv, probabilityEstimator_.get(), compute_probabilities_, features.seed_features); 
+  }
+   
   output_tag_infos->emplace_back(features, jet_ref);
+      
   }
 
   iEvent.put(std::move(output_tag_infos));
 
+}
+
+
+void DeepFlavourTagInfoProducer::checkEventSetup(const edm::EventSetup & iSetup) {
+    using namespace edm;
+    using namespace edm::eventsetup;
+    
+    const EventSetupRecord & re2D= iSetup.get<BTagTrackProbability2DRcd>();
+    const EventSetupRecord & re3D= iSetup.get<BTagTrackProbability3DRcd>();
+    unsigned long long cacheId2D= re2D.cacheIdentifier();
+    unsigned long long cacheId3D= re3D.cacheIdentifier();
+    if(cacheId2D!=calibrationCacheId2D_ || cacheId3D!=calibrationCacheId3D_  )  //Calibration changed
+    {
+        ESHandle<TrackProbabilityCalibration> calib2DHandle;
+        iSetup.get<BTagTrackProbability2DRcd>().get(calib2DHandle);
+        ESHandle<TrackProbabilityCalibration> calib3DHandle;
+        iSetup.get<BTagTrackProbability3DRcd>().get(calib3DHandle);
+        probabilityEstimator_.reset(new HistogramProbabilityEstimator(calib3DHandle.product(),calib2DHandle.product()));
+        
+    }
+    
+    calibrationCacheId3D_=cacheId3D;
+    calibrationCacheId2D_=cacheId2D;
+    
 }
 
 //define this as a plug-in

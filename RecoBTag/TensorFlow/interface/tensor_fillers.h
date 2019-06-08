@@ -17,7 +17,10 @@ namespace btagbtvdeep {
   void jet_tensor_filler(tensorflow::Tensor & tensor,
                          std::size_t jet_n,
                          const btagbtvdeep::DeepFlavourFeatures & features) ;
-
+                         
+  void jet4vec_tensor_filler(tensorflow::Tensor & tensor,
+                         std::size_t jet_n,
+                         const btagbtvdeep::DeepFlavourFeatures & features) ;                        
 
   void db_tensor_filler(tensorflow::Tensor & tensor,
                          std::size_t jet_n,
@@ -51,6 +54,17 @@ namespace btagbtvdeep {
                           std::size_t jet_n,
                           std::size_t sv_n,
                           const btagbtvdeep::SecondaryVertexFeatures & sv_features) ;
+
+  
+  void seed_tensor_filler(tensorflow::Tensor & tensor,
+                          std::size_t jet_n,
+                          std::size_t seed_n,
+                          const btagbtvdeep::SeedingTrackFeatures & seed_features);
+
+  void neighbourTracks_tensor_filler(tensorflow::Tensor & tensor,
+                          std::size_t jet_n,
+                          std::size_t seed_n,
+                          const btagbtvdeep::SeedingTrackFeatures & seed_features);
 
 }
 
