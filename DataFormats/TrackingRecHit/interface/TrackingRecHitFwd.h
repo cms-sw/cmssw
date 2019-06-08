@@ -9,7 +9,7 @@
 
 class TrackingRecHit;
 /// collection of TrackingRecHits
-typedef  edm::OwnVector<TrackingRecHit> TrackingRecHitCollection;
+typedef edm::OwnVector<TrackingRecHit> TrackingRecHitCollection;
 /// persistent reference to a TrackingRecHit
 typedef edm::Ref<TrackingRecHitCollection> TrackingRecHitRef;
 /// persistent reference to a TrackingRecHit collection

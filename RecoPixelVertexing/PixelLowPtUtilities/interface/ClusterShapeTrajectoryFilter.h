@@ -4,7 +4,10 @@
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
-namespace edm { class ParameterSet; class EventSetup; }
+namespace edm {
+  class ParameterSet;
+  class EventSetup;
+}  // namespace edm
 
 class SiPixelRecHit;
 class SiStripRecHit2D;
@@ -16,7 +19,7 @@ class ClusterShapeHitFilter;
 class SiPixelClusterShapeCache;
 
 class ClusterShapeTrajectoryFilter : public TrajectoryFilter {
- public:
+public:
   ClusterShapeTrajectoryFilter(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC);
 
   ~ClusterShapeTrajectoryFilter() override;
@@ -25,16 +28,16 @@ class ClusterShapeTrajectoryFilter : public TrajectoryFilter {
 
   bool qualityFilter(const TempTrajectory&) const override;
   bool qualityFilter(const Trajectory&) const override;
- 
+
   bool toBeContinued(TempTrajectory&) const override;
   bool toBeContinued(Trajectory&) const override;
 
   std::string name() const override { return "ClusterShapeTrajectoryFilter"; }
 
- private:
+private:
   edm::EDGetTokenT<SiPixelClusterShapeCache> theCacheToken;
-  const SiPixelClusterShapeCache *theCache;
-  const ClusterShapeHitFilter * theFilter;
+  const SiPixelClusterShapeCache* theCache;
+  const ClusterShapeHitFilter* theFilter;
 };
 
 #endif
