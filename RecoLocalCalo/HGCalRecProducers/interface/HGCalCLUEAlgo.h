@@ -43,12 +43,12 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
      fcPerEle_(ps.getParameter<double>("fcPerEle")),
      nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double> >("values")),
      noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("noise_MIP")),
-     initialized_(false),
-     cells_(2*(maxlayer+1)),
-     numberOfClustersPerLayer_(2*(maxlayer+1),0)
+     initialized_(false)
      {}
 
   ~HGCalCLUEAlgo() override {}
+
+  void getEventSetupPerAlgorithm(const edm::EventSetup& es) override;
 
   void populate(const HGCRecHitCollection &hits) override;
 
@@ -69,7 +69,7 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
 
     for(auto& cells : cells_)
       cells.clear();
-    
+
   }
 
   Density getDensity() override;
@@ -143,10 +143,10 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
 
   struct CellsOnLayer {
     std::vector<DetId> detid;
-    std::vector<float> x; 
+    std::vector<float> x;
     std::vector<float> y;
 
-    std::vector<float> weight; 
+    std::vector<float> weight;
     std::vector<float> rho;
 
     std::vector<float> delta;
@@ -171,22 +171,22 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
       isSeed.clear();
     }
   };
-  
+
   std::vector<CellsOnLayer> cells_;
-  
+
   std::vector<int> numberOfClustersPerLayer_;
 
   inline float distance2(int cell1, int cell2, int layerId) const {  // distance squared
     const float dx = cells_[layerId].x[cell1] - cells_[layerId].x[cell2];
     const float dy = cells_[layerId].y[cell1] - cells_[layerId].y[cell2];
     return (dx * dx + dy * dy);
-  }  
+  }
 
   inline float distance(int cell1,
                          int cell2, int layerId) const {  // 2-d distance on the layer (x-y)
     return std::sqrt(distance2(cell1, cell2, layerId));
   }
-  
+
   void prepareDataStructures(const unsigned int layerId);
   void calculateLocalDensity(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c);  // return max density
   void calculateDistanceToHigher(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c);

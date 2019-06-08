@@ -16,6 +16,12 @@
 
 using namespace hgcal_clustering;
 
+void HGCalCLUEAlgo::getEventSetupPerAlgorithm(const edm::EventSetup& es) {
+  cells_.clear();
+  numberOfClustersPerLayer_.clear();
+  cells_.resize(2*(maxlayer+1));
+  numberOfClustersPerLayer_.resize(2*(maxlayer+1), 0);
+}
 
 void HGCalCLUEAlgo::populate(const HGCRecHitCollection &hits) {
   // loop over all hits and create the Hexel structure, skip energies below ecut
@@ -25,7 +31,7 @@ void HGCalCLUEAlgo::populate(const HGCRecHitCollection &hits) {
     // once
     computeThreshold();
   }
-  
+
   for (unsigned int i = 0; i < hits.size(); ++i) {
     const HGCRecHit &hgrh = hits[i];
     DetId detid = hgrh.detid();
@@ -46,7 +52,6 @@ void HGCalCLUEAlgo::populate(const HGCRecHitCollection &hits) {
     }
     if (!dependSensor_ && hgrh.energy() < ecut_) continue;
     const GlobalPoint position(rhtools_.getPosition(detid));
-
     int offset = ((rhtools_.zside(detid) + 1) >> 1)*maxlayer;
     int layer = layerOnSide + offset;
     cells_[layer].detid.emplace_back(detid);
@@ -68,7 +73,7 @@ void HGCalCLUEAlgo::prepareDataStructures(unsigned int l)
   cells_[l].clusterIndex.resize(cellsSize,-1);
   cells_[l].followers.resize(cellsSize);
   cells_[l].isSeed.resize(cellsSize,false);
-  
+
 }
 
 // Create a vector of Hexels associated to one cluster from a collection of
@@ -93,7 +98,7 @@ void HGCalCLUEAlgo::makeClusters() {
       prepareDataStructures(i);
       calculateLocalDensity(lt, i, delta_c);
       calculateDistanceToHigher(lt, i, delta_c);
-      numberOfClustersPerLayer_[i] = findAndAssignClusters(i,delta_c);  
+      numberOfClustersPerLayer_[i] = findAndAssignClusters(i,delta_c);
     });
   });
   //Now that we have the density per point we can store it
@@ -125,23 +130,23 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgo::getClusters(bool) {
     auto& cellsOnLayer = cells_[layerId];
     unsigned int numberOfCells = cellsOnLayer.detid.size();
     auto firstClusterIdx = offsets[layerId];
-    
+
     for (unsigned int i = 0; i < numberOfCells; ++i )
-    {   
+    {
       auto clusterIndex = cellsOnLayer.clusterIndex[i];
       if(clusterIndex != -1)
         cellsIdInCluster[clusterIndex].push_back(i);
     }
-    
+
 
     std::vector<std::pair<DetId, float>> thisCluster;
-    
+
     for(auto& cl: cellsIdInCluster)
     {
       auto position = calculatePosition(cl, layerId);
       float energy = 0.f;
       int seedDetId = -1;
-      
+
       for(auto cellIdx : cl)
       {
         energy+= cellsOnLayer.weight[cellIdx];
@@ -152,7 +157,7 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgo::getClusters(bool) {
         }
       }
       auto globalClusterIndex = cellsOnLayer.clusterIndex[cl[0]] +  firstClusterIdx;
-      
+
       clusters_v_[globalClusterIndex]=reco::BasicCluster(energy, position, reco::CaloID::DET_HGCAL_ENDCAP, thisCluster, algoId_);
       clusters_v_[globalClusterIndex].setSeed(seedDetId);
       thisCluster.clear();
@@ -169,14 +174,14 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgo::getClusters(bool) {
 
 
 math::XYZPoint HGCalCLUEAlgo::calculatePosition(const std::vector<int> &v, const unsigned int layerId) const {
-  
+
   float total_weight = 0.f;
   float x = 0.f;
   float y = 0.f;
 
   unsigned int maxEnergyIndex = 0;
   float maxEnergyValue = 0.f;
-  
+
   auto& cellsOnLayer = cells_[layerId];
 
 
@@ -221,7 +226,7 @@ math::XYZPoint HGCalCLUEAlgo::calculatePosition(const std::vector<int> &v, const
 
       x += cellsOnLayer.x[i] * rhEnergy;
       y += cellsOnLayer.y[i] * rhEnergy;
-      
+
     }
   }
   if (total_weight != 0.) {
@@ -233,22 +238,22 @@ math::XYZPoint HGCalCLUEAlgo::calculatePosition(const std::vector<int> &v, const
 
 
 
-void HGCalCLUEAlgo::calculateLocalDensity(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c)  
+void HGCalCLUEAlgo::calculateLocalDensity(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c)
 {
 
   auto& cellsOnLayer = cells_[layerId];
   unsigned int numberOfCells = cellsOnLayer.detid.size();
 
-  for(unsigned int i = 0; i < numberOfCells; i++) 
+  for(unsigned int i = 0; i < numberOfCells; i++)
   {
     std::array<int,4> search_box = lt.searchBox(cellsOnLayer.x[i] - delta_c, cellsOnLayer.x[i] + delta_c, cellsOnLayer.y[i] - delta_c, cellsOnLayer.y[i] + delta_c);
-    
+
     for(int xBin = search_box[0]; xBin < search_box[1]+1; ++xBin) {
       for(int yBin = search_box[2]; yBin < search_box[3]+1; ++yBin) {
-        
+
         int binId = lt.getGlobalBinByBin(xBin,yBin);
         size_t binSize = lt[binId].size();
-        
+
         for (unsigned int j = 0; j < binSize; j++) {
           unsigned int otherId = lt[binId][j];
           if(distance(i, otherId, layerId) < delta_c) {
@@ -256,7 +261,7 @@ void HGCalCLUEAlgo::calculateLocalDensity(const HGCalLayerTiles& lt, const unsig
           }
         }
       }
-    }    
+    }
   }
 
 }
@@ -278,11 +283,11 @@ void HGCalCLUEAlgo::calculateDistanceToHigher(const HGCalLayerTiles& lt, const u
     // guarantee to cover a range "outlierDeltaFactor_*delta_c"
     auto range = outlierDeltaFactor_*delta_c;
     std::array<int,4> search_box = lt.searchBox(cellsOnLayer.x[i]  - range, cellsOnLayer.x[i] + range, cellsOnLayer.y[i] - range, cellsOnLayer.y[i] + range);
-    
+
     // loop over all bins in the search box
     for(int xBin = search_box[0]; xBin < search_box[1]+1; ++xBin) {
       for(int yBin = search_box[2]; yBin < search_box[3]+1; ++yBin) {
-        
+
         // get the id of this bin
         size_t binId = lt.getGlobalBinByBin(xBin,yBin);
         // get the size of this bin
@@ -303,7 +308,7 @@ void HGCalCLUEAlgo::calculateDistanceToHigher(const HGCalLayerTiles& lt, const u
             i_delta = dist;
             // update i_nearestHigher
             i_nearestHigher = otherId;
-            
+
           }
         }
       }
@@ -324,7 +329,7 @@ void HGCalCLUEAlgo::calculateDistanceToHigher(const HGCalLayerTiles& lt, const u
 
 
 int HGCalCLUEAlgo::findAndAssignClusters(const unsigned int layerId, float delta_c ) {
-   
+
   // this is called once per layer and endcap...
   // so when filling the cluster temporary vector of Hexels we resize each time
   // by the number  of clusters found. This is always equal to the number of
@@ -333,23 +338,23 @@ int HGCalCLUEAlgo::findAndAssignClusters(const unsigned int layerId, float delta
   auto& cellsOnLayer = cells_[layerId];
   unsigned int numberOfCells = cellsOnLayer.detid.size();
   std::vector<int> localStack;
-  // find cluster seeds and outlier  
+  // find cluster seeds and outlier
   for(unsigned int i = 0; i < numberOfCells; i++) {
     float rho_c = kappa_ * cellsOnLayer.sigmaNoise[i];
     // initialize clusterIndex
     cellsOnLayer.clusterIndex[i] = -1;
     bool isSeed = (cellsOnLayer.delta[i] > delta_c) && (cellsOnLayer.rho[i] >= rho_c);
     bool isOutlier = (cellsOnLayer.delta[i] > outlierDeltaFactor_*delta_c) && (cellsOnLayer.rho[i] < rho_c);
-    if (isSeed) 
+    if (isSeed)
     {
       cellsOnLayer.clusterIndex[i] = nClustersOnLayer;
       cellsOnLayer.isSeed[i] = true;
       nClustersOnLayer++;
       localStack.push_back(i);
-    
+
     } else if (!isOutlier) {
-      cellsOnLayer.followers[cellsOnLayer.nearestHigher[i]].push_back(i);   
-    } 
+      cellsOnLayer.followers[cellsOnLayer.nearestHigher[i]].push_back(i);
+    }
   }
   // need to pass clusterIndex to their followers
   while (!localStack.empty()) {
@@ -364,7 +369,7 @@ int HGCalCLUEAlgo::findAndAssignClusters(const unsigned int layerId, float delta
       // push this follower to localStack
       localStack.push_back(j);
     }
-    
+
   }
   return nClustersOnLayer;
 }
@@ -405,7 +410,7 @@ void HGCalCLUEAlgo::setDensity(const unsigned int layerId){
   auto& cellsOnLayer = cells_[layerId];
   unsigned int numberOfCells = cellsOnLayer.detid.size();
   for (unsigned int i = 0; i< numberOfCells; ++i) density_[ cellsOnLayer.detid[i] ] =   cellsOnLayer.rho[i] ;
-  
+
 }
 
 Density HGCalCLUEAlgo::getDensity() {

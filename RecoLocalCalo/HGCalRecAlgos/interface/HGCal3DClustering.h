@@ -26,11 +26,7 @@ public:
   HGCal3DClustering(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes, const std::vector<double>& radii_in, uint32_t min_clusters) :
    radii(radii_in),
    minClusters(min_clusters),
-   points(2*(maxlayer+1)),
-   minpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
-   maxpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
    es(0),
-   zees(2*(maxlayer+1),0.),
    clusterTools(std::make_unique<hgcal::ClusterTools>(conf,sumes))
    {
    }
@@ -46,6 +42,14 @@ public:
     clusterTools->getEventSetup(es);
     rhtools_.getEventSetup(es);
     maxlayer = rhtools_.lastLayerBH();
+    points.clear();
+    minpos.clear();
+    maxpos.clear();
+    zees.clear();
+    points.resize(2*(maxlayer+1));
+    minpos.resize(2*(maxlayer+1),{ {0.0f,0.0f} });
+    maxpos.resize(2*(maxlayer+1),{ {0.0f,0.0f} });
+    zees.resize(2*(maxlayer+1),0.);
   }
 
   typedef std::vector<reco::BasicCluster> ClusterCollection;
