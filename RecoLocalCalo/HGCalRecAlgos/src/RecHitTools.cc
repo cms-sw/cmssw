@@ -341,9 +341,10 @@ unsigned int RecHitTools::getLayerWithOffset(const DetId& id) const {
   unsigned int layer = getLayer(id);
   if (id.det() == DetId::Forward && id.subdetId() == HGCHEF ) {
     layer += fhOffset_;
-  } else if (id.det() == DetId::HGCalHSi) {
+  } else if (id.det() == DetId::HGCalHSi || id.det() == DetId::HGCalHSc) {
+    // DetId::HGCalHSc hits include the offset w.r.t. EE already
     layer += fhOffset_;
-  } else if ((id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) || id.det() == DetId::HGCalHSc) {
+  } else if (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
     layer += bhOffset_;
   }
   return layer;
