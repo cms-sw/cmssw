@@ -6,14 +6,14 @@
 #include "CommonTools/Utils/src/AnyMethodArgument.h"
 
 namespace reco {
-  // second pair member is true if a reference is found 
+  // second pair member is true if a reference is found
   // of type edm::Ref, edm::RefToBase or edm::Ptr
-  std::pair<edm::FunctionWithDict, bool> findMethod(const edm::TypeWithDict & type,
-						   const std::string & name,
-						   const std::vector<reco::parser::AnyMethodArgument> &args,
-                                                   std::vector<reco::parser::AnyMethodArgument> &fixuppedArgs,
-                                                   const char* where,
-                                                   int& oError);
-}
+  std::pair<edm::FunctionWithDict, bool> findMethod(const edm::TypeWithDict& type,
+                                                    const std::string& name,
+                                                    const std::vector<reco::parser::AnyMethodArgument>& args,
+                                                    std::vector<reco::parser::AnyMethodArgument>& fixuppedArgs,
+                                                    const char* where,
+                                                    int& oError);
+}  // namespace reco
 
 #endif

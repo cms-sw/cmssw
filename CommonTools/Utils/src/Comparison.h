@@ -14,13 +14,14 @@
 
 namespace reco {
   namespace parser {
-    template<class CompT>
+    template <class CompT>
     struct Comparison : public ComparisonBase {
       bool compare(double lhs, double rhs) const override { return comp(lhs, rhs); }
+
     private:
       CompT comp;
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

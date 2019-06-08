@@ -7,30 +7,25 @@
 namespace reco {
   namespace modules {
 
-    template<>
+    template <>
     struct ParameterAdapter<PdgIdSelector> {
-      static PdgIdSelector make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
-	return PdgIdSelector( cfg.getParameter<std::vector<int> >( "pdgId" ) );
+      static PdgIdSelector make(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) {
+        return PdgIdSelector(cfg.getParameter<std::vector<int> >("pdgId"));
       }
     };
 
-  }
-}
-
+  }  // namespace modules
+}  // namespace reco
 
 // Introducing a simpler way to use a string object selector outside of the
 // heavily-templated infrastructure above. This simply translates the cfg
 // into the string that the functor expects.
-namespace reco{
-    class PdgIdSelectorHandler : public PdgIdSelector  {
-    public:
-      explicit PdgIdSelectorHandler( const edm::ParameterSet & cfg ) :
-        PdgIdSelector(cfg.getParameter<std::vector<int> >("pdgId"))
-      {
-      }
+namespace reco {
+  class PdgIdSelectorHandler : public PdgIdSelector {
+  public:
+    explicit PdgIdSelectorHandler(const edm::ParameterSet& cfg)
+        : PdgIdSelector(cfg.getParameter<std::vector<int> >("pdgId")) {}
   };
-}
-
+}  // namespace reco
 
 #endif
-

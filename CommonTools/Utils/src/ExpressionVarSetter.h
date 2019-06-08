@@ -17,26 +17,23 @@
 namespace reco {
   namespace parser {
     struct ExpressionVarSetter {
-      ExpressionVarSetter(ExpressionStack & exprStack, 
-			  MethodStack & methStack, 
-			  LazyMethodStack & lazyMethStack, 
-			  TypeStack & typeStack) : 
-	exprStack_(exprStack), 
-	methStack_(methStack),
-	lazyMethStack_(lazyMethStack),
-	typeStack_(typeStack) { }
+      ExpressionVarSetter(ExpressionStack &exprStack,
+                          MethodStack &methStack,
+                          LazyMethodStack &lazyMethStack,
+                          TypeStack &typeStack)
+          : exprStack_(exprStack), methStack_(methStack), lazyMethStack_(lazyMethStack), typeStack_(typeStack) {}
       void operator()(const char *, const char *) const;
 
     private:
       void push(const char *, const char *) const;
       void lazyPush(const char *, const char *) const;
 
-      ExpressionStack & exprStack_;
-      MethodStack & methStack_;
-      LazyMethodStack & lazyMethStack_;
-      TypeStack & typeStack_;
+      ExpressionStack &exprStack_;
+      MethodStack &methStack_;
+      LazyMethodStack &lazyMethStack_;
+      TypeStack &typeStack_;
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

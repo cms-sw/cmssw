@@ -8,19 +8,16 @@
 namespace reco {
   namespace modules {
 
-    template<>
+    template <>
     struct ParameterAdapter<PtMinSelector> {
-      static PtMinSelector make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
-	return PtMinSelector( cfg.getParameter<double>( "ptMin" ) );
+      static PtMinSelector make(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) {
+        return PtMinSelector(cfg.getParameter<double>("ptMin"));
       }
 
-      static void fillPSetDescription(edm::ParameterSetDescription& desc) {
-        desc.add<double>("ptMin", 0.);
-      }
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<double>("ptMin", 0.); }
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif
-
