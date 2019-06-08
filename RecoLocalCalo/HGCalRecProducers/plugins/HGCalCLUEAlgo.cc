@@ -19,8 +19,8 @@ using namespace hgcal_clustering;
 void HGCalCLUEAlgo::getEventSetupPerAlgorithm(const edm::EventSetup& es) {
   cells_.clear();
   numberOfClustersPerLayer_.clear();
-  cells_.resize(2*(maxlayer+1));
-  numberOfClustersPerLayer_.resize(2*(maxlayer+1), 0);
+  cells_.resize(2*(maxlayer_+1));
+  numberOfClustersPerLayer_.resize(2*(maxlayer_+1), 0);
 }
 
 void HGCalCLUEAlgo::populate(const HGCRecHitCollection &hits) {
@@ -52,7 +52,7 @@ void HGCalCLUEAlgo::populate(const HGCRecHitCollection &hits) {
     }
     if (!dependSensor_ && hgrh.energy() < ecut_) continue;
     const GlobalPoint position(rhtools_.getPosition(detid));
-    int offset = ((rhtools_.zside(detid) + 1) >> 1)*maxlayer;
+    int offset = ((rhtools_.zside(detid) + 1) >> 1)*maxlayer_;
     int layer = layerOnSide + offset;
     cells_[layer].detid.emplace_back(detid);
     cells_[layer].x.emplace_back(position.x());
@@ -83,14 +83,14 @@ void HGCalCLUEAlgo::prepareDataStructures(unsigned int l)
 void HGCalCLUEAlgo::makeClusters() {
   // assign all hits in each layer to a cluster core
   tbb::this_task_arena::isolate([&] {
-    tbb::parallel_for(size_t(0), size_t(2 * maxlayer + 2), [&](size_t i) {
+    tbb::parallel_for(size_t(0), size_t(2 * maxlayer_ + 2), [&](size_t i) {
       HGCalLayerTiles lt;
       lt.fill(cells_[i].x,cells_[i].y);
       float delta_c;  // maximum search distance (critical distance) for local
                   // density calculation
-      if (i%maxlayer < lastLayerEE)
+      if (i%maxlayer_ < lastLayerEE_)
         delta_c = vecDeltas_[0];
-      else if (i%maxlayer < lastLayerFH)
+      else if (i%maxlayer_ < lastLayerFH_)
         delta_c = vecDeltas_[1];
       else
         delta_c = vecDeltas_[2];
@@ -102,7 +102,7 @@ void HGCalCLUEAlgo::makeClusters() {
     });
   });
   //Now that we have the density per point we can store it
-  for(unsigned int i=0; i< 2 * maxlayer + 2; ++i) { setDensity(i); }
+  for(unsigned int i=0; i< 2 * maxlayer_ + 2; ++i) { setDensity(i); }
 }
 
 std::vector<reco::BasicCluster> HGCalCLUEAlgo::getClusters(bool) {
@@ -124,7 +124,7 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgo::getClusters(bool) {
   std::vector<std::vector<int> > cellsIdInCluster;
   cellsIdInCluster.reserve(maxClustersOnLayer);
 
-  for(unsigned int layerId = 0; layerId < 2 * maxlayer + 2; ++layerId)
+  for(unsigned int layerId = 0; layerId < 2 * maxlayer_ + 2; ++layerId)
   {
     cellsIdInCluster.resize(numberOfClustersPerLayer_[layerId]);
     auto& cellsOnLayer = cells_[layerId];
@@ -389,10 +389,10 @@ void HGCalCLUEAlgo::computeThreshold() {
   std::vector<double> dummy;
   const unsigned maxNumberOfThickIndices = 3;
   dummy.resize(maxNumberOfThickIndices + 1, 0);  // +1 to accomodate for the Scintillators
-  thresholds_.resize(maxlayer, dummy);
-  v_sigmaNoise_.resize(maxlayer, dummy);
+  thresholds_.resize(maxlayer_, dummy);
+  v_sigmaNoise_.resize(maxlayer_, dummy);
 
-  for (unsigned ilayer = 1; ilayer <= maxlayer; ++ilayer) {
+  for (unsigned ilayer = 1; ilayer <= maxlayer_; ++ilayer) {
     for (unsigned ithick = 0; ithick < maxNumberOfThickIndices; ++ithick) {
       float sigmaNoise = 0.001f * fcPerEle_ * nonAgedNoises_[ithick] * dEdXweights_[ilayer] /
                          (fcPerMip_[ithick] * thicknessCorrection_[ithick]);

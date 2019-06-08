@@ -69,9 +69,9 @@ enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
 
  inline void getEventSetup(const edm::EventSetup& es){
    rhtools_.getEventSetup(es);
-   maxlayer = rhtools_.lastLayerBH();
-   lastLayerEE = rhtools_.lastLayerEE();
-   lastLayerFH = rhtools_.lastLayerFH();
+   maxlayer_ = rhtools_.lastLayerBH();
+   lastLayerEE_ = rhtools_.lastLayerEE();
+   lastLayerFH_ = rhtools_.lastLayerFH();
    getEventSetupPerAlgorithm(es);
  }
  inline void setVerbosity(VerbosityLevel the_verbosity) {
@@ -80,10 +80,10 @@ enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
  inline void setAlgoId(reco::CaloCluster::AlgoId algo) {algoId_ = algo;}
 
  //max number of layers
- unsigned int maxlayer;
+ unsigned int maxlayer_;
  // last layer per subdetector
- unsigned int lastLayerEE;
- unsigned int lastLayerFH;
+ unsigned int lastLayerEE_;
+ unsigned int lastLayerFH_;
 
 protected:
  // The verbosity level
