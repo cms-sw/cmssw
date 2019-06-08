@@ -86,11 +86,11 @@ namespace citk {
         throw cms::Exception("InvalidIsolationType") << "Isolation type: " << isotype << " is not available in the "
                                                      << "list of allowed isolations!.";
       }
-      _isolation_types[thetype->second].emplace_back(std::move(theisolator));
       const std::string dash("-");
       std::string pname = isotype + dash + coneName + dash + theisolator->additionalCode();
       _product_names[thetype->second].emplace_back(pname);
       produces<edm::ValueMap<float>>(pname);
+      _isolation_types[thetype->second].emplace_back(std::move(theisolator));
     }
   }
 
