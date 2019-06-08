@@ -25,6 +25,7 @@
 #include "TH1F.h"
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
