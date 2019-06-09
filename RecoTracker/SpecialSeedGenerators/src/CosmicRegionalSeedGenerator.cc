@@ -91,8 +91,8 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
 
     //get the propagator
     edm::ESHandle<Propagator> thePropagator;
-    es.get<TrackingComponentsRecord>().get(thePropagatorName_,
-                                           thePropagator);  // thePropagatorName = "AnalyticalPropagator"
+    // thePropagatorName = "AnalyticalPropagator"
+    es.get<TrackingComponentsRecord>().get(thePropagatorName_, thePropagator);
 
     //get tracker geometry
     edm::ESHandle<TrackerGeometry> theTrackerGeometry;
@@ -243,8 +243,8 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
 
     //get the propagator
     edm::ESHandle<Propagator> thePropagator;
-    es.get<TrackingComponentsRecord>().get(thePropagatorName_,
-                                           thePropagator);  // thePropagatorName = "AnalyticalPropagator"
+    // thePropagatorName = "AnalyticalPropagator"
+    es.get<TrackingComponentsRecord>().get(thePropagatorName_, thePropagator);
 
     //get tracker geometry
     edm::ESHandle<TrackerGeometry> theTrackerGeometry;
@@ -379,8 +379,8 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
 
     //get the propagator
     edm::ESHandle<Propagator> thePropagator;
-    es.get<TrackingComponentsRecord>().get(thePropagatorName_,
-                                           thePropagator);  // thePropagatorName = "AnalyticalPropagator"
+    // thePropagatorName = "AnalyticalPropagator"
+    es.get<TrackingComponentsRecord>().get(thePropagatorName_, thePropagator);
 
     //get tracker geometry
     edm::ESHandle<TrackerGeometry> theTrackerGeometry;
