@@ -151,6 +151,16 @@ HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
       maxTotNClsinMCLsperlayer_(pset.getParameter<double>("maxTotNClsinMCLsperlayer")),
       nintTotNClsinMCLsperlayer_(pset.getParameter<int>("nintTotNClsinMCLsperlayer")),
 
+      //Parameters for the multiplicity of layer clusters in multicluster
+      minMplofLCs_(pset.getParameter<double>("minMplofLCs")),
+      maxMplofLCs_(pset.getParameter<double>("maxMplofLCs")),
+      nintMplofLCs_(pset.getParameter<int>("nintMplofLCs")),
+
+      //Parameters for cluster size 
+      minSizeCLsinMCLs_(pset.getParameter<double>("minSizeCLsinMCLs")),
+      maxSizeCLsinMCLs_(pset.getParameter<double>("maxSizeCLsinMCLs")),
+      nintSizeCLsinMCLs_(pset.getParameter<int>("nintSizeCLsinMCLs")),
+
       //parameters for x
       minX_(pset.getParameter<double>("minX")),
       maxX_(pset.getParameter<double>("maxX")),
@@ -734,6 +744,14 @@ void HGVHistoProducerAlgo::bookMultiClusterHistos(DQMStore::ConcurrentBooker& ib
 								       minTotNClsinMCLsperlayer_,
 								       maxTotNClsinMCLsperlayer_
 								       );
+
+  histograms.h_multiplicityOfLCinMCL = ibook.book2D("multiplicityOfLCinMCL","Multiplicity vs Layer cluster size in Multiclusters", nintMplofLCs_, minMplofLCs_, maxMplofLCs_, nintSizeCLsinMCLs_, minSizeCLsinMCLs_, maxSizeCLsinMCLs_);
+
+  histograms.h_multiplicity_numberOfEventsHistogram = ibook.book1D("multiplicity_numberOfEventsHistogram","multiplicity numberOfEventsHistogram", nintMplofLCs_, minMplofLCs_, maxMplofLCs_);
+
+  histograms.h_multiplicityOfLCinMCL_vs_layercluster = ibook.book2D("multiplicityOfLCinMCL_vs_layercluster","Multiplicity vs Layer number", nintMplofLCs_, minMplofLCs_, maxMplofLCs_, 2 * layers, 0., (float) 2 * layers);
+  
+  histograms.h_multiplicityOfLCinMCL_vs_layerclusterenergy = ibook.book2D("multiplicityOfLCinMCL_vs_layerclusterenergy", "Multiplicity vs Layer cluster energy", nintMplofLCs_, minMplofLCs_, maxMplofLCs_, nintClEneperthickperlayer_, minClEneperthickperlayer_, maxClEneperthickperlayer_ ) ; 
 
   histograms.h_multicluster_pt = ibook.book1D("multicluster_pt", "Pt of the multicluster", nintPt_, minPt_, maxPt_);
   histograms.h_multicluster_eta =
@@ -2072,6 +2090,16 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
   std::vector<bool> contmulti;
   contmulti.clear();
 
+  //[mclId]-> vector of 2d layer clusters size
+  std::unordered_map<unsigned int, std::vector<unsigned int> > multiplicity; 
+  //[mclId]-> [layer][cluster size]
+  std::unordered_map<unsigned int, std::vector<unsigned int> > multiplicity_vs_layer; 
+  //We will need for the scale text option
+  // unsigned int totallcinmcls = 0;
+  // for (unsigned int mclId = 0; mclId < nMultiClusters; ++mclId) {
+  //   totallcinmcls = totallcinmcls + multiClusters[mclId].clusters().size();
+  // }
+
   auto nMultiClusters = multiClusters.size();
   //loop through multiclusters of the event
   for (unsigned int mclId = 0; mclId < nMultiClusters; ++mclId) {
@@ -2103,11 +2131,15 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
       //take the hits and their fraction of the specific layer cluster.
       const std::vector<std::pair<DetId, float>>& hits_and_fractions = layerClusters[lcId]->hitsAndFractions();
 
+      //For the multiplicity of the 2d layer clusters in multiclusters
+      multiplicity[mclId].emplace_back(hits_and_fractions.size());
+
       const auto firstHitDetId = hits_and_fractions[0].first;
       //The layer that the layer cluster belongs to
       int layerid = recHitTools_->getLayerWithOffset(firstHitDetId) +
                     layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
       multicluster_layers.insert(layerid);
+      multiplicity_vs_layer[mclId].emplace_back(layerid);
 
       tnlcinmclperlay[layerid]++;
       tnlcinmcl++;
@@ -2164,6 +2196,23 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
 
     histograms.h_clusternum_in_multicluster.fill(tnlcinmcl);
 
+    for (unsigned int lc = 0; lc < multiplicity[mclId].size(); ++lc) {
+      //multiplicity of the current LC 
+      float mlp = std::count(std::begin(multiplicity[mclId]), std::end(multiplicity[mclId]), multiplicity[mclId][lc]);
+       //std::cout << "mlp %" << (100. * mlp)/ ((float) nLayerClusters) << std::endl;
+      // histograms.h_multiplicityOfLCinMCL.fill( mlp , multiplicity[mclId][lc] , 100. / (float) totallcinmcls );
+      histograms.h_multiplicityOfLCinMCL.fill( mlp , multiplicity[mclId][lc]  );
+      //When we will plot with the text option we want the entries to be the same 
+      //as the % of the current cell over the whole number of clusters. For this we need an extra histo. 
+      histograms.h_multiplicity_numberOfEventsHistogram.fill( mlp );
+      //For the cluster multiplicity vs layer
+      histograms.h_multiplicityOfLCinMCL_vs_layercluster.fill( mlp , multiplicity_vs_layer[mclId][lc] );
+      //For the cluster multiplicity vs cluster energy
+      histograms.h_multiplicityOfLCinMCL_vs_layerclusterenergy.fill( mlp , layerClusters[lc]->energy() );
+
+
+    }
+
     histograms.h_multicluster_pt.fill(multiClusters[mclId].pt());
     histograms.h_multicluster_eta.fill(multiClusters[mclId].eta());
     histograms.h_multicluster_phi.fill(multiClusters[mclId].phi());
@@ -2176,7 +2225,7 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
     histograms.h_multicluster_layersnum.fill((float)multicluster_layers.size());
 
   }  //end of loop through multiclusters
-
+  
   if (tnmclmz != 0) {histograms.h_multiclusternum.fill(tnmclmz);}
   if (tnmclpz != 0) {histograms.h_multiclusternum.fill(tnmclpz);}
 
