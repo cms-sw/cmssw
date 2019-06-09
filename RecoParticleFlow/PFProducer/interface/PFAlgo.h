@@ -59,7 +59,6 @@ class PFAlgo {
   PFAlgo(bool debug);
 
   void setHOTag(bool ho) { useHO_ = ho;}
-  void setPFMuonAlgo(PFMuonAlgo* algo) {pfmu_ =algo;}
   void setMuonHandle(const edm::Handle<reco::MuonCollection>&);
 
   void setParameters(double nSigmaECAL,
@@ -116,18 +115,18 @@ class PFAlgo {
   void setEGElectronCollection(const reco::GsfElectronCollection & egelectrons);
 
   /// reconstruct particles 
-  void reconstructParticles( const reco::PFBlockHandle& blockHandle, PFEGammaFilters const* pfegamma );
+  void reconstructParticles(const reco::PFBlockHandle& blockHandle, PFEGammaFilters const* pfegamma);
 
   /// Check HF Cleaning
   void checkCleaning( const reco::PFRecHitCollection& cleanedHF );
 
   /// \return collection of cleaned HF candidates
-  std::unique_ptr<reco::PFCandidateCollection> transferCleanedCandidates() {
-    return std::move(pfCleanedCandidates_);
+  reco::PFCandidateCollection& getCleanedCandidates() {
+    return pfCleanedCandidates_;
   }
-  
+
   /// \return the collection of candidates
-  reco::PFCandidateCollection transferCandidates() {
+  reco::PFCandidateCollection makeConnectedCandidates() {
     return connector_.connect(*pfCandidates_);
   }
   
@@ -182,7 +181,7 @@ class PFAlgo {
 
   std::unique_ptr<reco::PFCandidateCollection>    pfCandidates_;
   // the post-HF-cleaned candidates
-  std::unique_ptr<reco::PFCandidateCollection>    pfCleanedCandidates_;
+  reco::PFCandidateCollection pfCleanedCandidates_;
 
   /// Associate PS clusters to a given ECAL cluster, and return their energy
   void associatePSClusters(unsigned iEcal,
@@ -199,14 +198,6 @@ class PFAlgo {
   // Post HF Cleaning
   void postCleaning();
 
-  /// create a reference to a block, transient or persistent 
-  /// depending on the needs
-  reco::PFBlockRef createBlockRef( const reco::PFBlockCollection& blocks, 
-				   unsigned bi );
-    
-  /// input block handle (full framework case)
-  reco::PFBlockHandle    blockHandle_;
-
   /// number of sigma to judge energy excess in ECAL
   double             nSigmaECAL_;
   
@@ -220,7 +211,7 @@ class PFAlgo {
   bool               useHO_;
   const bool         debug_;
 
-  PFMuonAlgo *pfmu_;
+  std::unique_ptr<PFMuonAlgo> pfmu_;
 
 
   /// Variables for NEW EGAMMA selection
