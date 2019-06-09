@@ -44,8 +44,8 @@ void CosmicSeedCreator::makeSeed(TrajectorySeedCollection& seedCollection, const
 
   //definition of position & momentum
   //++++++++++++++++++++++++++++++++++
-  GlobalVector initialMomentum(
-      region->direction());  //direction of the trajectory seed given by the direction of the region
+  //direction of the trajectory seed given by the direction of the region
+  GlobalVector initialMomentum(region->direction());
   //fix the momentum scale
   //initialMomentum = initialMomentum.basicVector.unitVector() * region->origin().direction().mag();
   //initialMomentum = region->origin().direction(); //alternative.

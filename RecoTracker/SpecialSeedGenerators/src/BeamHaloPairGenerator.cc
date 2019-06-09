@@ -38,7 +38,6 @@ const OrderedSeedingHits& BeamHaloPairGenerator::run(const TrackingRegion& regio
             << " |sin(Dtheta)|: " << ABSsinDtheta << ((ABSsinDtheta > theMaxTheta) ? " skip" : " keep");
 
         if (ABSsinDtheta > theMaxTheta) {
-          ;
           continue;
         }
 

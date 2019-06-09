@@ -35,8 +35,8 @@ public:
         theEstimator(aEstimator.clone()),
         theErrorRescaling(errorRescaling),
         minHits_(minHits),
-        theGeometry(
-            nullptr) {  // to be fixed. Why this first constructor is needed? who is using it? Can it be removed?
+        // to be fixed. Why this first constructor is needed? who is using it? Can it be removed?
+        theGeometry(nullptr) {
     if (!theGeometry)
       theGeometry = &dummyGeometry;
     auto p = aPropagator.clone();

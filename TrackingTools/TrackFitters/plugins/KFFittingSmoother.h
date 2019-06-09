@@ -388,8 +388,8 @@ namespace {
           for (; it != meas.end(); ++it)
             if (it->recHitR().isValid())
               break;
-          tmpTraj.push(std::move(*it),
-                       smoothed.chiSquared());  //push the first valid measurement and set the same global chi2
+          //push the first valid measurement and set the same global chi2
+          tmpTraj.push(std::move(*it), smoothed.chiSquared());
 
           for (auto itt = it + 1; itt != meas.end(); ++itt)
             tmpTraj.push(std::move(*itt), 0);  //add all the other measurements

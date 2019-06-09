@@ -46,10 +46,10 @@ namespace muon {
     // ectors above are more efficient at low pt in the endcaps, which is
     // what we feel is more suggestive of the algorithm name. This will be
     // less confusing for future generations of CMS members, I hope...
-    TMLastStationOptimizedBarrelLowPtLoose =
-        22,  // combination of TMLastStation and TMOneStation but with low pT optimization in barrel only
-    TMLastStationOptimizedBarrelLowPtTight =
-        23,           // combination of TMLastStation and TMOneStation but with low pT optimization in barrel only
+    // combination of TMLastStation and TMOneStation but with low pT optimization in barrel only
+    TMLastStationOptimizedBarrelLowPtLoose = 22,
+    // combination of TMLastStation and TMOneStation but with low pT optimization in barrel only
+    TMLastStationOptimizedBarrelLowPtTight = 23,
     RPCMuLoose = 24,  // checks isRPCMuon flag (require two well matched hits in different RPC layers)
     AllME0Muons = 25,
     ME0MuonArbitrated = 26,
