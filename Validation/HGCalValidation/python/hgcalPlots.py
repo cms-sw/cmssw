@@ -1377,12 +1377,18 @@ _clusternum_in_multicluster_vs_layer = PlotGroup("clusternum_in_multicluster_vs_
 _common["scale"] = 100.
 #, ztitle = "% of clusters" normalizeToUnitArea=True
 _multiplicity_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters/multiplicity_numberOfEventsHistogram"
+_multiplicity_zminus_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters/multiplicity_zminus_numberOfEventsHistogram"
+_multiplicity_zplus_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters/multiplicity_zplus_numberOfEventsHistogram"
 _multiplicityOfLCinMCL = PlotGroup("multiplicityOfLCinMCL",[
   Plot("multiplicityOfLCinMCL", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Cluster size (n_{hit})         ", drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)
 ],ncols=1)
 
-_multiplicityOfLCinMCL_vs_layercluster = PlotGroup("multiplicityOfLCinMCL_vs_layercluster",[
-  Plot("multiplicityOfLCinMCL_vs_layercluster", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Layer Number         ", drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)
+_multiplicityOfLCinMCL_vs_layercluster_zminus = PlotGroup("multiplicityOfLCinMCL_vs_layercluster_zminus",[
+  Plot("multiplicityOfLCinMCL_vs_layercluster_zminus", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Layer Number         ", drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)
+],ncols=1)
+
+_multiplicityOfLCinMCL_vs_layercluster_zplus = PlotGroup("multiplicityOfLCinMCL_vs_layercluster_zplus",[
+  Plot("multiplicityOfLCinMCL_vs_layercluster_zplus", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Layer Number         ", drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)
 ],ncols=1)
 
 _multiplicityOfLCinMCL_vs_layerclusterenergy = PlotGroup("multiplicityOfLCinMCL_vs_layerclusterenergy",[
@@ -2114,11 +2120,28 @@ hgcalMultiClustersPlotter.append("Multiplicity", [
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
         ], PlotFolder(
         _multiplicityOfLCinMCL,
-        _multiplicityOfLCinMCL_vs_layercluster,
         _multiplicityOfLCinMCL_vs_layerclusterenergy,
         loopSubFolders=False,
         purpose=PlotPurpose.Timing, page="Multiplicity", 
         numberOfEventsHistogram=_multiplicity_numberOfEventsHistogram
         ))
 
+#We append here two PlotFolder because we want the text to be in percent
+#and the number of events are different in zplus and zminus
+hgcalMultiClustersPlotter.append("Multiplicity", [
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+        ], PlotFolder(
+        _multiplicityOfLCinMCL_vs_layercluster_zminus,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page="Multiplicity", 
+        numberOfEventsHistogram=_multiplicity_zminus_numberOfEventsHistogram
+        ))
 
+hgcalMultiClustersPlotter.append("Multiplicity", [
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+        ], PlotFolder(
+        _multiplicityOfLCinMCL_vs_layercluster_zplus,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page="Multiplicity", 
+        numberOfEventsHistogram=_multiplicity_zplus_numberOfEventsHistogram
+        ))

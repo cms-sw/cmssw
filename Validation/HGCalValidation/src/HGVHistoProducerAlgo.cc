@@ -161,6 +161,11 @@ HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
       maxSizeCLsinMCLs_(pset.getParameter<double>("maxSizeCLsinMCLs")),
       nintSizeCLsinMCLs_(pset.getParameter<int>("nintSizeCLsinMCLs")),
 
+      //Parameters for the energy of a cluster per thickness per layer
+      minClEnepermultiplicity_(pset.getParameter<double>("minClEnepermultiplicity")),
+      maxClEnepermultiplicity_(pset.getParameter<double>("maxClEnepermultiplicity")),
+      nintClEnepermultiplicity_(pset.getParameter<int>("nintClEnepermultiplicity")),
+
       //parameters for x
       minX_(pset.getParameter<double>("minX")),
       maxX_(pset.getParameter<double>("maxX")),
@@ -749,9 +754,15 @@ void HGVHistoProducerAlgo::bookMultiClusterHistos(DQMStore::ConcurrentBooker& ib
 
   histograms.h_multiplicity_numberOfEventsHistogram = ibook.book1D("multiplicity_numberOfEventsHistogram","multiplicity numberOfEventsHistogram", nintMplofLCs_, minMplofLCs_, maxMplofLCs_);
 
-  histograms.h_multiplicityOfLCinMCL_vs_layercluster = ibook.book2D("multiplicityOfLCinMCL_vs_layercluster","Multiplicity vs Layer number", nintMplofLCs_, minMplofLCs_, maxMplofLCs_, 2 * layers, 0., (float) 2 * layers);
+  histograms.h_multiplicity_zminus_numberOfEventsHistogram = ibook.book1D("multiplicity_zminus_numberOfEventsHistogram","multiplicity numberOfEventsHistogram in z-", nintMplofLCs_, minMplofLCs_, maxMplofLCs_);
+
+  histograms.h_multiplicity_zplus_numberOfEventsHistogram = ibook.book1D("multiplicity_zplus_numberOfEventsHistogram","multiplicity numberOfEventsHistogram in z+", nintMplofLCs_, minMplofLCs_, maxMplofLCs_);
+
+  histograms.h_multiplicityOfLCinMCL_vs_layercluster_zminus = ibook.book2D("multiplicityOfLCinMCL_vs_layercluster_zminus","Multiplicity vs Layer number in z-", nintMplofLCs_, minMplofLCs_, maxMplofLCs_, layers, 0., (float) layers);
   
-  histograms.h_multiplicityOfLCinMCL_vs_layerclusterenergy = ibook.book2D("multiplicityOfLCinMCL_vs_layerclusterenergy", "Multiplicity vs Layer cluster energy", nintMplofLCs_, minMplofLCs_, maxMplofLCs_, nintClEneperthickperlayer_, minClEneperthickperlayer_, maxClEneperthickperlayer_ ) ; 
+  histograms.h_multiplicityOfLCinMCL_vs_layercluster_zplus = ibook.book2D("multiplicityOfLCinMCL_vs_layercluster_zplus","Multiplicity vs Layer number in z+", nintMplofLCs_, minMplofLCs_, maxMplofLCs_, layers, 0., (float) layers);
+
+  histograms.h_multiplicityOfLCinMCL_vs_layerclusterenergy = ibook.book2D("multiplicityOfLCinMCL_vs_layerclusterenergy", "Multiplicity vs Layer cluster energy", nintMplofLCs_, minMplofLCs_, maxMplofLCs_, nintClEnepermultiplicity_, minClEnepermultiplicity_, maxClEnepermultiplicity_ ) ; 
 
   histograms.h_multicluster_pt = ibook.book1D("multicluster_pt", "Pt of the multicluster", nintPt_, minPt_, maxPt_);
   histograms.h_multicluster_eta =
@@ -2206,11 +2217,16 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
       //as the % of the current cell over the whole number of clusters. For this we need an extra histo. 
       histograms.h_multiplicity_numberOfEventsHistogram.fill( mlp );
       //For the cluster multiplicity vs layer
-      histograms.h_multiplicityOfLCinMCL_vs_layercluster.fill( mlp , multiplicity_vs_layer[mclId][lc] );
+      //First with the -z endcap (V10:0->49)
+      if (multiplicity_vs_layer[mclId][lc] < layers) {
+	histograms.h_multiplicityOfLCinMCL_vs_layercluster_zminus.fill( mlp , multiplicity_vs_layer[mclId][lc]  );
+        histograms.h_multiplicity_zminus_numberOfEventsHistogram.fill( mlp );
+      } else {  //Then for the +z (V10:50->99)
+	histograms.h_multiplicityOfLCinMCL_vs_layercluster_zplus.fill( mlp , multiplicity_vs_layer[mclId][lc] - layers );
+	histograms.h_multiplicity_zplus_numberOfEventsHistogram.fill( mlp );
+      }
       //For the cluster multiplicity vs cluster energy
       histograms.h_multiplicityOfLCinMCL_vs_layerclusterenergy.fill( mlp , layerClusters[lc]->energy() );
-
-
     }
 
     histograms.h_multicluster_pt.fill(multiClusters[mclId].pt());
