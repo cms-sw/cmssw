@@ -134,7 +134,11 @@ struct HGVHistoProducerAlgoHistograms {
   std::unordered_map<int, ConcurrentMonitorElement> h_clusternum_in_multicluster_perlayer;
   ConcurrentMonitorElement h_multiplicityOfLCinMCL;
   ConcurrentMonitorElement h_multiplicity_numberOfEventsHistogram;
+  ConcurrentMonitorElement h_multiplicity_zminus_numberOfEventsHistogram;
+  ConcurrentMonitorElement h_multiplicity_zplus_numberOfEventsHistogram;
   ConcurrentMonitorElement h_multiplicityOfLCinMCL_vs_layercluster;
+  ConcurrentMonitorElement h_multiplicityOfLCinMCL_vs_layercluster_zminus;
+  ConcurrentMonitorElement h_multiplicityOfLCinMCL_vs_layercluster_zplus;
   ConcurrentMonitorElement h_multiplicityOfLCinMCL_vs_layerclusterenergy;
   ConcurrentMonitorElement h_clusternum_in_multicluster_vs_layer; 
   ConcurrentMonitorElement h_multicluster_pt;
@@ -287,6 +291,8 @@ private:
   int nintMplofLCs_;
   double minSizeCLsinMCLs_, maxSizeCLsinMCLs_;
   int nintSizeCLsinMCLs_;
+  double minClEnepermultiplicity_, maxClEnepermultiplicity_;
+  int nintClEnepermultiplicity_;
   double minX_, maxX_;
   int nintX_;
   double minY_, maxY_;

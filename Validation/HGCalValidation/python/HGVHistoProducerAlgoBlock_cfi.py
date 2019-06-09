@@ -144,6 +144,11 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     maxSizeCLsinMCLs = cms.double(50.),
     nintSizeCLsinMCLs = cms.int32(50),
 
+    #Parameters for the energy of a cluster per multiplicity
+    minClEnepermultiplicity  = cms.double(0.),
+    maxClEnepermultiplicity = cms.double(10.),
+    nintClEnepermultiplicity = cms.int32(10),
+
     #parameters for X
     minX  = cms.double(-300.),
     maxX  = cms.double(300.),
