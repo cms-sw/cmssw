@@ -362,9 +362,8 @@ void SETPatternRecognition::produce(const edm::Event& event,
           if (!((((*it2)->globalPosition().phi() + 0.09) < (seed_minX[NNN] - dXclusBoxMax) &&
                  ((*it2)->globalPosition().phi() - 0.09) < (seed_minX[NNN] - dXclusBoxMax)) ||
                 (((*it2)->globalPosition().phi() + 0.09) > (seed_maxX[NNN] + dXclusBoxMax) &&
-                 ((*it2)->globalPosition().phi() - 0.09) >
-                     (seed_maxX[NNN] +
-                      dXclusBoxMax)))) {  // we have checked that the 2Dsegment is within tight theta boundaries and loose phi boundaries of the current cluster -> add it
+                 // we have checked that the 2Dsegment is within tight theta boundaries and loose phi boundaries of the current cluster -> add it
+                 ((*it2)->globalPosition().phi() - 0.09) > (seed_maxX[NNN] + dXclusBoxMax)))) {
             seeds[NNN].push_back((*it2));
           }
         }
@@ -381,9 +380,8 @@ void SETPatternRecognition::produce(const edm::Event& event,
           if (!((((*it2)->globalPosition().theta() + 0.3) < (seed_minY[NNN] - dYclusBoxMax) &&
                  ((*it2)->globalPosition().theta() - 0.3) < (seed_minY[NNN] - dYclusBoxMax)) ||
                 (((*it2)->globalPosition().theta() + 0.3) > (seed_maxY[NNN] + dYclusBoxMax) &&
-                 ((*it2)->globalPosition().theta() - 0.3) >
-                     (seed_maxY[NNN] +
-                      dYclusBoxMax)))) {  // we have checked that the 2Dsegment is within tight phi boundaries and loose theta boundaries of the current cluster -> add it
+                 // we have checked that the 2Dsegment is within tight phi boundaries and loose theta boundaries of the current cluster -> add it
+                 ((*it2)->globalPosition().theta() - 0.3) > (seed_maxY[NNN] + dYclusBoxMax)))) {
             seeds[NNN].push_back((*it2));  // warning - neeed eta/theta switch here
           }
         }
@@ -410,9 +408,8 @@ void SETPatternRecognition::produce(const edm::Event& event,
           if (!((((*it2)->globalPosition().theta() + 0.3) < (seed_minY[NNN] - dYclusBoxMax) &&
                  ((*it2)->globalPosition().theta() - 0.3) < (seed_minY[NNN] - dYclusBoxMax)) ||
                 (((*it2)->globalPosition().theta() + 0.3) > (seed_maxY[NNN] + dYclusBoxMax) &&
-                 ((*it2)->globalPosition().theta() - 0.3) >
-                     (seed_maxY[NNN] +
-                      dYclusBoxMax)))) {  // we have checked that the 2Dsegment is within tight phi boundaries and loose theta boundaries of the current cluster -> add it
+                 // we have checked that the 2Dsegment is within tight phi boundaries and loose theta boundaries of the current cluster -> add it
+                 ((*it2)->globalPosition().theta() - 0.3) > (seed_maxY[NNN] + dYclusBoxMax)))) {
             seeds[NNN].push_back((*it2));  // warning - neeed eta/theta switch here
           }
         }

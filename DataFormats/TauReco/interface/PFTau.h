@@ -178,8 +178,8 @@ namespace reco {
     float emFraction() const;        // Ecal/Hcal Cluster Energy
     float hcalTotOverPLead() const;  // total Hcal Cluster E / leadPFChargedHadron P
     float hcalMaxOverPLead() const;  // max. Hcal Cluster E / leadPFChargedHadron P
-    float hcal3x3OverPLead()
-        const;  // Hcal Cluster E in R<0.184 around Ecal impact point of leading track / leadPFChargedHadron P
+    // Hcal Cluster E in R<0.184 around Ecal impact point of leading track / leadPFChargedHadron P
+    float hcal3x3OverPLead() const;
     float ecalStripSumEOverPLead() const;       // Simple BremsRecovery Sum E / leadPFChargedHadron P
     float bremsRecoveryEOverPLead() const;      // BremsRecovery Sum E / leadPFChargedHadron P
     reco::TrackRef electronPreIDTrack() const;  // Ref to KF track from Electron PreID

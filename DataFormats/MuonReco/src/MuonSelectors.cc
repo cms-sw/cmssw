@@ -103,8 +103,8 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
         else
           stations_w_track_at_boundary[i - 1] = 0.;
       }
-      if (muon.segmentX(i, 1, arbitrationType) <
-          999999) {  //current "raw" info that a segment is matched to the current track
+      //current "raw" info that a segment is matched to the current track
+      if (muon.segmentX(i, 1, arbitrationType) < 999999) {
         ++nr_of_stations_with_segment;
         station_has_segmentmatch[i - 1] = 1;
       }
@@ -117,8 +117,8 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
         else
           stations_w_track_at_boundary[i - 1] = 0.;
       }
-      if (muon.segmentX(i - 4, 2, arbitrationType) <
-          999999) {  //current "raw" info that a segment is matched to the current track
+      //current "raw" info that a segment is matched to the current track
+      if (muon.segmentX(i - 4, 2, arbitrationType) < 999999) {
         ++nr_of_stations_with_segment;
         station_has_segmentmatch[i - 1] = 1;
       }
@@ -196,9 +196,9 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
           // if segment is not present but track in inefficient region, do not count as "missing match" but add some reduced weight.
           // original "match weight" is currently reduced by at least attenuate_weight_regain, variing with an error function down to 0 if the track is
           // inside the chamber.
+          // remark: the additional scale of 0.5 normalizes Err to run from 0 to 1 in y
           station_weight[i - 1] = station_weight[i - 1] * attenuate_weight_regain * 0.5 *
-                                  (TMath::Erf(stations_w_track_at_boundary[i - 1] / 6.) +
-                                   1.);  // remark: the additional scale of 0.5 normalizes Err to run from 0 to 1 in y
+                                  (TMath::Erf(stations_w_track_at_boundary[i - 1] / 6.) + 1.);
         } else if (station_has_segmentmatch[i - 1] <= 0 &&
                    stations_w_track_at_boundary[i - 1] == 0.) {  // no segment match and track well inside chamber
           // full penalization
@@ -209,8 +209,8 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
           station_weight[i - 1] = 0.;
       }
 
-      if (station_has_segmentmatch[i - 1] > 0 &&
-          42 == 42) {  // if track has matching segment, but the matching is not high quality, penalize
+      // if track has matching segment, but the matching is not high quality, penalize
+      if (station_has_segmentmatch[i - 1] > 0 && 42 == 42) {
         if (i <= 4) {  // we are in the DTs
           if (muon.dY(i, 1, arbitrationType) < 999999 &&
               muon.dX(i, 1, arbitrationType) < 999999) {  // have both X and Y match
@@ -238,8 +238,8 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
               }
             }
           } else if (muon.dY(i, 1, arbitrationType) >= 999999) {  // has no match in Y
-            if (muon.pullX(i, 1, arbitrationType) >
-                1.) {  // has a match in X. Pull larger that 1 to avoid increasing the weight (just penalize, don't anti-penalize)
+            // has a match in X. Pull larger that 1 to avoid increasing the weight (just penalize, don't anti-penalize)
+            if (muon.pullX(i, 1, arbitrationType) > 1.) {
               // reduce weight
               if (use_match_dist_penalty) {
                 // only use pull if 3 sigma is not smaller than 3 cm
@@ -252,8 +252,8 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
               }
             }
           } else {  // has no match in X
-            if (muon.pullY(i, 1, arbitrationType) >
-                1.) {  // has a match in Y. Pull larger that 1 to avoid increasing the weight (just penalize, don't anti-penalize)
+            // has a match in Y. Pull larger that 1 to avoid increasing the weight (just penalize, don't anti-penalize)
+            if (muon.pullY(i, 1, arbitrationType) > 1.) {
               // reduce weight
               if (use_match_dist_penalty) {
                 // only use pull if 3 sigma is not smaller than 3 cm

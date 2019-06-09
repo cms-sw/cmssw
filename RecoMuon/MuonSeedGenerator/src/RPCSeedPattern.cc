@@ -371,7 +371,6 @@ void RPCSeedPattern::SegmentAlgorithmSpecial(const edm::EventSetup& eSetup) {
   double deltaBz2 = 0.;
   for (std::vector<GlobalVector>::const_iterator BIter = BValue.begin(); BIter != BValue.end(); BIter++)
     deltaBz2 += (BIter->z() - meanBz2) * (BIter->z() - meanBz2);
-  ;
   deltaBz2 /= BValue.size();
   deltaBz2 = sqrt(deltaBz2);
   cout << "delta Bz is " << deltaBz2 << endl;

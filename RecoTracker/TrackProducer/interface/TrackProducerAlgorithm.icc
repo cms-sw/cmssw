@@ -155,8 +155,8 @@ void TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry* theG,
       TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT, hits, theG, theMF);
 
       // the seed has dummy state and hits.What matters for the fitting is the seedDirection;
-      if (seedDir ==
-          anyDirection) {  //if anyDirection the seed direction is not stored in the root file: keep same order
+      //if anyDirection the seed direction is not stored in the root file: keep same order
+      if (seedDir == anyDirection) {
         throw cms::Exception("TrackProducer")
             << "ERROR: trying to refit a track which doesn't have a properly filled 'seed direction' data member"
             << std::endl;
