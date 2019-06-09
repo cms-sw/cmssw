@@ -1367,12 +1367,29 @@ _clusternum_in_multicluster = PlotGroup("clusternum_in_multicluster",[
   Plot("clusternum_in_multicluster", xtitle="", **_common)
 ],ncols=1)
 
-_common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
+_common = {"stat": True, "drawStyle": "pcolz", "staty": 0.65}
 
 _clusternum_in_multicluster_vs_layer = PlotGroup("clusternum_in_multicluster_vs_layer",[
   Plot("clusternum_in_multicluster_vs_layer", xtitle="Layer number", ytitle = "<2d Layer Clusters in Multicluster>",  **_common)
 ],ncols=1)
 
+_common["scale"] = 100.
+#, ztitle = "% of clusters" normalizeToUnitArea=True
+_multiplicity_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters/multiplicity_numberOfEventsHistogram"
+_multiplicityOfLCinMCL = PlotGroup("multiplicityOfLCinMCL",[
+  Plot("multiplicityOfLCinMCL", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Cluster size (n_{hit})         ", drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)
+],ncols=1)
+
+_multiplicityOfLCinMCL_vs_layercluster = PlotGroup("multiplicityOfLCinMCL_vs_layercluster",[
+  Plot("multiplicityOfLCinMCL_vs_layercluster", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Layer Number         ", drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)
+],ncols=1)
+
+_multiplicityOfLCinMCL_vs_layerclusterenergy = PlotGroup("multiplicityOfLCinMCL_vs_layerclusterenergy",[
+  Plot("multiplicityOfLCinMCL_vs_layerclusterenergy", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Cluster Energy (GeV)         ", drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)
+],ncols=1)
+
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
 #--------------------------------------------------------------------------------------------
 # z-
 #--------------------------------------------------------------------------------------------
@@ -2091,3 +2108,17 @@ hgcalMultiClustersPlotter.append("NumberofMultiClusters_First_Last_NLayers", [
         loopSubFolders=False,
         purpose=PlotPurpose.Timing, page="NumberofMultiClusters_First_Last_NLayers"
         ))
+
+#[O] Multiplicity of layer clusters in multicluster 
+hgcalMultiClustersPlotter.append("Multiplicity", [
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+        ], PlotFolder(
+        _multiplicityOfLCinMCL,
+        _multiplicityOfLCinMCL_vs_layercluster,
+        _multiplicityOfLCinMCL_vs_layerclusterenergy,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page="Multiplicity", 
+        numberOfEventsHistogram=_multiplicity_numberOfEventsHistogram
+        ))
+
+
