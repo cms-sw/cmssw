@@ -70,16 +70,16 @@ void EMTFSubsystemCollector::extractPrimitives(
 // Specialized for CPPF
 template<>
 void EMTFSubsystemCollector::extractPrimitives(
-    emtf::CPPFTag tag, // Defined in interface/EMTFSubsystemTag.h, maps to CPPFDigi
+    CPPFTag tag, // Defined in interface/EMTFSubsystemTag.h, maps to CPPFDigi
     const edm::Event& iEvent,
     const edm::EDGetToken& token,
     TriggerPrimitiveCollection& out
 ) const {
-  edm::Handle<emtf::CPPFTag::digi_collection> cppfDigis;
+  edm::Handle<CPPFTag::digi_collection> cppfDigis;
   iEvent.getByToken(token, cppfDigis);
 
   // Output
-  for (auto digi : *cppfDigis) {
+  for (const auto& digi : *cppfDigis) {
     out.emplace_back(digi.rpcId(), digi);
   }
 
@@ -119,6 +119,87 @@ void EMTFSubsystemCollector::extractPrimitives(
   // Output
   std::copy(clus_muon_primitives.begin(), clus_muon_primitives.end(), std::back_inserter(out));
   return;
+}
+
+// Specialized for iRPC
+template<>
+void EMTFSubsystemCollector::extractPrimitives(
+    IRPCTag tag, // Defined in interface/EMTFSubsystemTag.h, maps to RPCDigi
+    const edm::Event& iEvent,
+    const edm::EDGetToken& token,
+    TriggerPrimitiveCollection& out
+) const {
+  edm::Handle<IRPCTag::digi_collection> irpcDigis;
+  iEvent.getByToken(token, irpcDigis);
+
+  TriggerPrimitiveCollection muon_primitives;
+
+  auto chamber = irpcDigis->begin();
+  auto chend   = irpcDigis->end();
+  for( ; chamber != chend; ++chamber ) {
+    auto digi = (*chamber).second.first;
+    auto dend = (*chamber).second.second;
+    for( ; digi != dend; ++digi ) {
+      if ((*chamber).first.region() != 0) {  // 0 is barrel
+        if ((*chamber).first.station() >= 3 && (*chamber).first.ring() == 1) {  // only RE3/1, RE4/1
+          muon_primitives.emplace_back((*chamber).first,*digi);
+        }
+      }
+    }
+  }
+
+  // Cluster the iRPC digis
+  TriggerPrimitiveCollection clus_muon_primitives;
+  cluster_rpc(muon_primitives, clus_muon_primitives);
+
+  // Output
+  std::copy(clus_muon_primitives.begin(), clus_muon_primitives.end(), std::back_inserter(out));
+  return;
+}
+
+// Specialized for ME0
+template<>
+void EMTFSubsystemCollector::extractPrimitives(
+    ME0Tag tag, // Defined in interface/EMTFSubsystemTag.h, maps to ME0PadDigi
+    const edm::Event& iEvent,
+    const edm::EDGetToken& token,
+    TriggerPrimitiveCollection& out
+) const {
+  edm::Handle<ME0Tag::digi_collection> me0Digis;
+  iEvent.getByToken(token, me0Digis);
+
+  auto chamber = me0Digis->begin();
+  auto chend   = me0Digis->end();
+  for( ; chamber != chend; ++chamber ) {
+    auto digi = (*chamber).second.first;
+    auto dend = (*chamber).second.second;
+    for( ; digi != dend; ++digi ) {
+      out.emplace_back((*chamber).first,*digi);
+    }
+  }
+  return;
+}
+
+// Specialized for TT
+template<>
+void EMTFSubsystemCollector::extractTTPrimitives(
+    TTTag tag, // Defined in interface/EMTFSubsystemTag.h, maps to TTStub<T>
+    const edm::Event& iEvent,
+    const edm::EDGetToken& token,
+    TTTriggerPrimitiveCollection& out
+) const {
+  edm::Handle<TTTag::digi_collection> ttDigis;
+  iEvent.getByToken(token, ttDigis);
+
+  auto chamber = ttDigis->begin();
+  auto chend   = ttDigis->end();
+  for ( ; chamber != chend; ++chamber ) {
+    auto digi = chamber->begin();
+    auto dend = chamber->end();
+    for( ; digi != dend; ++digi ) {
+      out.emplace_back(digi->getDetId(),*digi);
+    }
+  }
 }
 
 

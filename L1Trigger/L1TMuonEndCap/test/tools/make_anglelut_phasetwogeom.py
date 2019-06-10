@@ -7,12 +7,12 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Whatever")
 
-process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '90X_upgrade2023_realistic_v9', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 print("Using GlobalTag: %s" % process.GlobalTag.globaltag.value())
 
 # Fake alignment is/should be ideal geometry

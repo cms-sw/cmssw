@@ -25,11 +25,16 @@ void TTPrimitiveConversion::process(
     const std::map<int, TTTriggerPrimitiveCollection>& selected_ttprim_map,
     EMTFHitCollection& conv_hits
 ) const {
+  std::map<int, TTTriggerPrimitiveCollection>::const_iterator map_tp_it  = selected_ttprim_map.begin();
+  std::map<int, TTTriggerPrimitiveCollection>::const_iterator map_tp_end = selected_ttprim_map.end();
 
-  for (const auto& map_tp_it : selected_ttprim_map) {
-    for (const auto& tp_it : map_tp_it.second) {
+  for (; map_tp_it != map_tp_end; ++map_tp_it) {
+    TTTriggerPrimitiveCollection::const_iterator tp_it  = map_tp_it->second.begin();
+    TTTriggerPrimitiveCollection::const_iterator tp_end = map_tp_it->second.end();
+
+    for (; tp_it != tp_end; ++tp_it) {
       EMTFHit conv_hit;
-      convert_tt(tp_it, conv_hit);
+      convert_tt(*tp_it, conv_hit);
       conv_hits.push_back(conv_hit);
     }
   }
@@ -39,11 +44,13 @@ void TTPrimitiveConversion::process_no_prim_sel(
     const TTTriggerPrimitiveCollection& ttmuon_primitives,
     EMTFHitCollection& conv_hits
 ) const {
+  TTTriggerPrimitiveCollection::const_iterator tp_it  = ttmuon_primitives.begin();
+  TTTriggerPrimitiveCollection::const_iterator tp_end = ttmuon_primitives.end();
 
-  for (const auto& tp_it : ttmuon_primitives) {
-    if (endcap_ == 1 && sector_ == 1 && bx_ == tp_it.getTTData().bx) {  //FIXME: stupidly put everything into sector +1, to be fixed.
+  for (; tp_it != tp_end; ++tp_it) {
+    if (endcap_ == 1 && sector_ == 1 && bx_ == tp_it->getTTData().bx) {  //FIXME: stupidly put everything into sector +1, to be fixed.
       EMTFHit conv_hit;
-      convert_tt(tp_it, conv_hit);
+      convert_tt(*tp_it, conv_hit);
       conv_hits.push_back(conv_hit);
     }
   }

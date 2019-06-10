@@ -20,10 +20,8 @@ void PrimitiveConversion::configure(
     bool duplicateTheta, bool fixZonePhi, bool useNewZones, bool fixME11Edges,
     bool bugME11Dupes
 ) {
-  if (not(tp_geom != nullptr))
-    { edm::LogError("L1T") << "tp_geom = " << tp_geom; return; }
-  if (not(lut != nullptr))
-    { edm::LogError("L1T") << "lut = " << lut; return; }
+  assert(tp_geom != nullptr);
+  assert(lut != nullptr);
 
   tp_geom_ = tp_geom;
   lut_     = lut;
@@ -74,8 +72,7 @@ void PrimitiveConversion::process(
       } else if (tp_it->subsystem() == TriggerPrimitive::kGEM) {
         convert_gem(pc_sector, pc_station, pc_chamber, pc_segment, *tp_it, conv_hit);
       } else {
-        if (not(false && "Incorrect subsystem type"))
-	  { edm::LogError("L1T") << "Incorrect subsystem type"; return; }
+        assert(false && "Incorrect subsystem type");
       }
       conv_hits.push_back(conv_hit);
       pc_segment += 1;
@@ -118,8 +115,7 @@ void PrimitiveConversion::convert_csc(
     csc_nID += 1;
 
     if (tp_station == 1) {  // neighbor ME1
-      if (not(tp_subsector == 2))
-	{ edm::LogError("L1T") << "tp_subsector = " << tp_subsector; return; }
+      assert(tp_subsector == 2);
     }
   }
 
@@ -261,8 +257,7 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
   } else if (pc_station == 5 && pc_chamber < 9) {  // neighbor ME4: 59 - 60
     pc_lut_id += 50 + 9 - 7;
   }
-  if (not(pc_lut_id < 61))
-    { edm::LogError("L1T") << "pc_lut_id = " << pc_lut_id; return; }
+  assert(pc_lut_id < 61);
 
   if (verbose_ > 1) {  // debug
     std::cout << "pc_station: " << pc_station << " pc_chamber: " << pc_chamber
@@ -298,9 +293,7 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
     eighth_strip = fw_strip << 3;  // multiply by 2, uses all 3 bits of pattern correction
     eighth_strip += clct_pat_corr_sign * (clct_pat_corr >> 0);
   }
-    if (not(bugStrip0BeforeFW48200 == true || eighth_strip >= 0))
-      { edm::LogError("L1T") << "bugStrip0BeforeFW48200 = " << bugStrip0BeforeFW48200 
-			     << ", eighth_strip = " << eighth_strip; return; }
+  assert(bugStrip0BeforeFW48200 == true || eighth_strip >= 0);
 
   // Multiplicative factor for eighth_strip
   int factor = 1024;
@@ -343,10 +336,8 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
   if (fixZonePhi_)
     zone_hit = zone_hit_fixed;
 
-  if (not(0 <= fph && fph < 5000))
-    { edm::LogError("L1T") << "fph = " << fph; return; }
-  if (not(0 <= zone_hit && zone_hit < 192))
-    { edm::LogError("L1T") << "zone_hit = " << zone_hit; return; }
+  assert(0 <= fph && fph < 5000);
+  assert(0 <= zone_hit && zone_hit < 192);
 
   // ___________________________________________________________________________
   // theta conversion
@@ -404,8 +395,7 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
   int th = lut().get_th_init(fw_endcap, fw_sector, pc_lut_id);
   th = th + th_tmp;
 
-  if (not(0 <=  th &&  th <  128))
-    { edm::LogError("L1T") << "th = " << th; return; }
+  assert(0 <=  th &&  th <  128);
   th = (th == 0) ? 1 : th;  // protect against invalid value
 
   // ___________________________________________________________________________
@@ -542,12 +532,10 @@ void PrimitiveConversion::convert_rpc(
     int fph = emtf::calc_phi_loc_int_rpc(glob_phi, conv_hit.PC_sector());
     int th  = emtf::calc_theta_int_rpc(glob_theta, conv_hit.Endcap());
 
-    if (not(0 <= fph && fph < 1250))
-      { edm::LogError("L1T") << "fph = " << fph; return; }
-    if (not(0 <=  th &&  th < 32))
-      { edm::LogError("L1T") << "th = " << th; return; }
-    if (not(th != 0b11111))  // RPC hit valid when data is not all ones
-      { edm::LogError("L1T") << "th = " << th; return; }
+    //assert(0 <= fph && fph < 1024);
+    assert(0 <= fph && fph < 1250);
+    assert(0 <=  th &&  th < 32);
+    assert(th != 0b11111);  // RPC hit valid when data is not all ones
     fph <<= 2;  // upgrade to full CSC precision by adding 2 zeros
     th <<= 2;   // upgrade to full CSC precision by adding 2 zeros
     th = (th == 0) ? 1 : th;  // protect against invalid value
@@ -565,10 +553,10 @@ void PrimitiveConversion::convert_rpc(
     conv_hit.set_theta_fp  ( th );  // Full-precision integer theta
   }
 
-  convert_rpc_details(conv_hit, (tp_data.isCPPF == false));
+  convert_rpc_details(conv_hit, tp_data.isCPPF);
 }
 
-void PrimitiveConversion::convert_rpc_details(EMTFHit& conv_hit, const bool use_cppf_lut) const {
+void PrimitiveConversion::convert_rpc_details(EMTFHit& conv_hit, bool isCPPF) const {
   const bool is_neighbor = conv_hit.Neighbor();
 
   const int pc_station = conv_hit.PC_station();
@@ -595,22 +583,27 @@ void PrimitiveConversion::convert_rpc_details(EMTFHit& conv_hit, const bool use_
   int fph = conv_hit.Phi_fp();
   int th  = conv_hit.Theta_fp();
 
+  // Do coordinate conversion using the CPPF LUTs. Not needed if the received digis are CPPF digis.
+  bool use_cppf_lut = !isCPPF;
+#ifdef PHASE_TWO_TRIGGER
+  use_cppf_lut = false;  // The CPPF LUTs fail for Phase 2 geometry
+#endif
+
   if (use_cppf_lut) {
     int halfstrip = (conv_hit.Strip_low() + conv_hit.Strip_hi() - 1);
-    if (not(1 <= halfstrip && halfstrip <= 64))
-      { edm::LogError("L1T") << "halfstrip = " << halfstrip; return; }
+    assert(1 <= halfstrip && halfstrip <= 64);
 
     int fph2 = lut().get_cppf_ph_lut(conv_hit.Endcap(), conv_hit.Sector_RPC(), conv_hit.Station(), conv_hit.Ring(), conv_hit.Subsector_RPC(), conv_hit.Roll(), halfstrip, is_neighbor);
     int th2  = lut().get_cppf_th_lut(conv_hit.Endcap(), conv_hit.Sector_RPC(), conv_hit.Station(), conv_hit.Ring(), conv_hit.Subsector_RPC(), conv_hit.Roll());
+    //assert(abs((fph>>2) - fph2) <= 4); // arbitrary tolerance
+    //assert(abs((th>>2) - th2) <= 1);   // arbitrary tolerance
     fph = fph2;
     th = th2;
 
-    if (not(0 <= fph && fph < 1250))
-      { edm::LogError("L1T") << "fph = " << fph; return; }
-    if (not(0 <=  th &&  th < 32))
-      { edm::LogError("L1T") << "th = " << th; return; }
-    if (not(th != 0b11111))  // RPC hit valid when data is not all ones
-      { edm::LogError("L1T") << "th = " << th; return; }
+    //assert(0 <= fph && fph < 1024);
+    assert(0 <= fph && fph < 1250);
+    assert(0 <=  th &&  th < 32);
+    assert(th != 0b11111);  // RPC hit valid when data is not all ones
     fph <<= 2;  // upgrade to full CSC precision by adding 2 zeros
     th <<= 2;   // upgrade to full CSC precision by adding 2 zeros
     th = (th == 0) ? 1 : th;  // protect against invalid value
@@ -682,6 +675,8 @@ void PrimitiveConversion::convert_gem(
   int tp_bx        = tp_data.bx;
   int tp_strip     = ((tp_data.pad_low + tp_data.pad_hi) / 2);  // in full-strip unit
 
+  const bool is_me0 = tp_data.isME0;
+
   // Use CSC trigger sector definitions
   // Code copied from DataFormats/MuonDetId/src/CSCDetId.cc
   auto get_trigger_sector = [](int ring, int station, int chamber) {
@@ -730,6 +725,7 @@ void PrimitiveConversion::convert_gem(
   // station 1 --> subsector 1 or 2
   // station 2,3,4 --> subsector 0
   int tp_subsector = (tp_station != 1) ? 0 : ((tp_chamber%6 > 2) ? 1 : 2);
+  if (is_me0)  tp_subsector = 2;
 
   const bool is_neighbor = (pc_station == 5);
 
@@ -742,13 +738,17 @@ void PrimitiveConversion::convert_gem(
     csc_nID += 1;
 
     if (tp_station == 1) {  // neighbor ME1
-      if (not(tp_subsector == 2))
-	{ edm::LogError("L1T") << "tp_subsector = " << tp_subsector; return; }
+      assert(tp_subsector == 2);
     }
   }
 
   // Set properties
-  //conv_hit.SetGEMDetId     ( tp_detId );  // Temporarily disable, caused compile error - AWB 12.04.2018
+  //conv_hit.SetGEMDetId       ( tp_detId );
+  if (!is_me0) {
+    conv_hit.SetGEMDetId       ( tp_detId.getGEMDetId() );
+  } else {
+    conv_hit.SetME0DetId       ( tp_detId.getME0DetId() );
+  }
 
   conv_hit.set_endcap        ( (tp_endcap == 2) ? -1 : tp_endcap );
   conv_hit.set_station       ( tp_station );
@@ -806,10 +806,27 @@ void PrimitiveConversion::convert_gem(
     int fph = emtf::calc_phi_loc_int(glob_phi, conv_hit.PC_sector());
     int th  = emtf::calc_theta_int(glob_theta, conv_hit.Endcap());
 
-    if (not(0 <= fph && fph < 5000))
-      { edm::LogError("L1T") << "fph = " << fph; return; }
-    if (not(0 <=  th &&  th < 128))
-      { edm::LogError("L1T") << "th = " << th; return; }
+    if (is_me0) {
+      // The ME0 chamber 1 starts at -10 deg. The CSC chamber 1 starts at -5 deg.
+      // This 5 deg difference unfortunately causes the local phi coord to go
+      // out of bound. This is because the local phi 0 is set to the CSC chamber
+      // edge minus 22 deg to accommodate for the neighbor chamber. However, it
+      // is possible for the ME0 neighbor chamber to go to as far as the CSC
+      // chamber edge minus 25 deg.
+      double loc = emtf::calc_phi_loc_deg_from_glob(glob_phi, conv_hit.PC_sector());
+      if ((loc + 22.) < 0.&& (loc + 27.) > 0.)
+        fph = 0;
+      else if ((loc + 360. + 22.) < 0.&& (loc + 360. + 27.) > 0.)
+        fph = 0;
+
+      // The ME0 extends to eta of 2.8 or theta of 7.0 deg. But integer theta
+      // starts from theta of 8.5 deg.
+      if (th < 0)
+        th = 0;
+    }
+
+    assert(0 <= fph && fph < 5000);
+    assert(0 <=  th &&  th < 128);
     th = (th == 0) ? 1 : th;  // protect against invalid value
 
     // _________________________________________________________________________
@@ -912,8 +929,7 @@ int PrimitiveConversion::get_zone_code(const EMTFHit& conv_hit, int th) const {
       }
     }
   }
-  if (not(zone_code > 0))
-    { edm::LogError("L1T") << "zone_code = " << zone_code; return 0; }
+  assert(zone_code > 0);
   return zone_code;
 }
 
@@ -953,8 +969,7 @@ int PrimitiveConversion::get_fs_zone_code(const EMTFHit& conv_hit) const {
 
   unsigned int istation = (conv_hit.Station()-1);
   unsigned int iring = (conv_hit.Ring() == 4) ? 0 : (conv_hit.Ring()-1);
-  if (not(istation < 4 && iring < 3))
-    { edm::LogError("L1T") << "istation = " << istation << ", iring = " << iring; return 0; }
+  assert(istation < 4 && iring < 3);
   unsigned int zone_code = useNewZones_ ? zone_code_table_new[istation][iring] : zone_code_table[istation][iring];
   return zone_code;
 }
@@ -982,9 +997,11 @@ int PrimitiveConversion::get_fs_segment(const EMTFHit& conv_hit, int fw_station,
     fs_chamber = is_neighbor ? 0 : 1+n;
   }
 
-  if (not(fs_history == 0 && (0 <= fs_chamber && fs_chamber < 7) && (0 <= fs_segment && fs_segment < 2)))
-    { edm::LogError("L1T") << "fs_history = " << fs_history << ", fs_chamber = " << fs_chamber
-			   << ", fs_segment = " << fs_segment; return 0; }
+#ifdef PHASE_TWO_TRIGGER
+  // No assert
+#else
+  assert(fs_history == 0 && (0 <= fs_chamber && fs_chamber < 7) && (0 <= fs_segment && fs_segment < 2));
+#endif
   // fs_segment is a 6-bit word, HHCCCS, encoding the segment number S in the chamber (1 or 2),
   // the chamber number CCC ("j" above: uniquely identifies chamber within station and ring),
   // and the history HH (0 for current BX, 1 for previous BX, 2 for BX before that)
@@ -1016,13 +1033,21 @@ int PrimitiveConversion::get_bt_segment(const EMTFHit& conv_hit, int fw_station,
   if (fw_station == 0 && bt_chamber >= 13)  // ME1 neighbor chambers 13,14,15 -> 10,11,12
     bt_chamber -= 3;
 
-  if (not(bt_history == 0 && (0 <= bt_chamber && bt_chamber < 13) && (0 <= bt_segment && bt_segment < 2)))
-    { edm::LogError("L1T") << "bt_history = " << bt_history << ", bt_chamber = " << bt_chamber
-			   << ", bt_segment = " << bt_segment; return 0; }
-
+#ifdef PHASE_TWO_TRIGGER
+  // No assert
+#else
+  assert(bt_history == 0 && (0 <= bt_chamber && bt_chamber < 13) && (0 <= bt_segment && bt_segment < 2));
+#endif
   // bt_segment is a 7-bit word, HHCCCCS, encoding the segment number S in the chamber (1 or 2),
   // the chamber number CCCC ("j" above: uniquely identifies chamber within station and ring),
   // and the history HH (0 for current BX, 1 for previous BX, 2 for BX before that)
   bt_segment = ((bt_history & 0x3)<<5) | ((bt_chamber & 0xf)<<1) | (bt_segment & 0x1);
   return bt_segment;
+}
+
+bool PrimitiveConversion::is_valid_for_run2(const EMTFHit& conv_hit) const {
+  bool is_csc = conv_hit.Is_CSC();
+  bool is_rpc = conv_hit.Is_RPC();
+  bool is_irpc = conv_hit.Is_RPC() && ((conv_hit.Station() == 3 || conv_hit.Station() == 4) && (conv_hit.Ring() == 1));
+  return (is_csc || (is_rpc && !is_irpc));
 }

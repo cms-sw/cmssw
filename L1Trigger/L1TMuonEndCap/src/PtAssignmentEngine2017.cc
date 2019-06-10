@@ -12,8 +12,7 @@ const PtAssignmentEngineAux2017& PtAssignmentEngine2017::aux() const {
 }
 
 float PtAssignmentEngine2017::scale_pt(const float pt, const int mode) const {
-  if (not(ptLUTVersion_ >= 6))
-    { edm::LogError("L1T") << "ptLUTVersion_ = " << ptLUTVersion_; return 0; }
+  assert(ptLUTVersion_ >= 6);
 
   float pt_xml   = -99;
   float pt_scale = -99;
@@ -36,8 +35,7 @@ float PtAssignmentEngine2017::scale_pt(const float pt, const int mode) const {
 }
 
 float PtAssignmentEngine2017::unscale_pt(const float pt, const int mode) const {
-  if (not(ptLUTVersion_ >= 6))
-    { edm::LogError("L1T") << "ptLUTVersion_ = " << ptLUTVersion_; return 0; }
+  assert(ptLUTVersion_ >= 6);
 
   float pt_unscale = -99;
 
@@ -60,9 +58,8 @@ PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EM
     int theta  = track.Theta_fp();
     int endcap = track.Endcap();
     int nHits  = (mode / 8) + ((mode % 8) / 4) + ((mode % 4) / 2) + ((mode % 2) / 1);
-    if (not(nHits > 1 && nHits < 5))
-      { edm::LogError("L1T") << "nHits = " << nHits; return 0; }
-    
+    assert(nHits > 1 && nHits < 5);
+
     // 'A' is first station in the track, 'B' the second, etc.
     int mode_ID = -1;
     int iA = -1, iB = -1, iC = -1, iD = -1;
@@ -168,9 +165,8 @@ PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EM
       address |= (frA       & ((1<<1)-1)) << (0+7+5+4+1+1+2);
       address |= (mode15_8b & ((1<<8)-1)) << (0+7+5+4+1+1+2+1);
       address |= (mode_ID   & ((1<<1)-1)) << (0+7+5+4+1+1+2+1+8);
-      if (not(address < pow(2, 30) && address >= pow(2, 29)))
-	{ edm::LogError("L1T") << "address = " << address; return 0; }
-    } 
+      assert(address < pow(2, 30) && address >= pow(2, 29));
+    }
     else if (nHits == 3) {
       address |= (dPhiAB    & ((1<<7)-1)) << (0);
       address |= (dPhiBC    & ((1<<5)-1)) << (0+7);
@@ -185,13 +181,11 @@ PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EM
       address |= (rpc_2b    & ((1<<2)-1)) << (0+7+5+1+3+1+bit+2);
       address |= (theta     & ((1<<5)-1)) << (0+7+5+1+3+1+bit+2+2);
       if (mode != 7) {
-	address |= (mode_ID & ((1<<2)-1)) << (0+7+5+1+3+1+bit+2+2+5); 
-	if (not(address < pow(2, 29) && address >= pow(2, 27)))
-	  { edm::LogError("L1T") << "address = " << address; return 0; }
+        address |= (mode_ID & ((1<<2)-1)) << (0+7+5+1+3+1+bit+2+2+5);
+        assert(address < pow(2, 29) && address >= pow(2, 27));
       } else {
-	address |= (mode_ID & ((1<<1)-1)) << (0+7+5+1+3+1+bit+2+2+5); 
-	if (not(address < pow(2, 27) && address >= pow(2, 26)))
-	  { edm::LogError("L1T") << "address = " << address; return 0; }
+        address |= (mode_ID & ((1<<1)-1)) << (0+7+5+1+3+1+bit+2+2+5);
+        assert(address < pow(2, 27) && address >= pow(2, 26));
       }
     }
     else if (nHits == 2) {
@@ -203,8 +197,7 @@ PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EM
       address |= (clctB     & ((1<<3)-1)) << (0+7+3+1+1+3);
       address |= (theta     & ((1<<5)-1)) << (0+7+3+1+1+3+3);
       address |= (mode_ID   & ((1<<3)-1)) << (0+7+3+1+1+3+3+5);
-      if (not(address < pow(2, 26) && address >= pow(2, 24)))
-	{ edm::LogError("L1T") << "address = " << address; return 0; }
+      assert(address < pow(2, 26) && address >= pow(2, 24));
     }
 
     return address;
@@ -224,8 +217,7 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
   float pt_xml  = 0.;
   int nHits = -1, mode = -1;
 
-  if (not(address < pow(2, 30)))
-    { edm::LogError("L1T") << "address = " << address; return 0; }
+  assert(address < pow(2, 30));
   if      (address >= pow(2, 29)) { nHits = 4; mode = 15; }
   else if (address >= pow(2, 27)) { nHits = 3;            }
   else if (address >= pow(2, 26)) { nHits = 3; mode =  7; }
@@ -255,9 +247,8 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     frA       = (address >> (0+7+5+4+1+1+2)     & ((1<<1)-1));
     mode15_8b = (address >> (0+7+5+4+1+1+2+1)   & ((1<<8)-1));
     mode_ID   = (address >> (0+7+5+4+1+1+2+1+8) & ((1<<1)-1));
-    if (not(address < pow(2, 30)))
-      { edm::LogError("L1T") << "address = " << address; return 0; }
-  } 
+    assert(address < pow(2, 30));
+  }
   else if (nHits == 3) {
     dPhiAB    = (address >> (0)                     & ((1<<7)-1));
     dPhiBC    = (address >> (0+7)                   & ((1<<5)-1));
@@ -272,13 +263,11 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     rpc_2b    = (address >> (0+7+5+1+3+1+bit+2)     & ((1<<2)-1));
     theta     = (address >> (0+7+5+1+3+1+bit+2+2)   & ((1<<5)-1));
     if (mode != 7) {
-      mode_ID = (address >> (0+7+5+1+3+1+bit+2+2+5) & ((1<<2)-1)); 
-      if (not(address < pow(2, 29)))
-	{ edm::LogError("L1T") << "address = " << address; return 0; }
+      mode_ID = (address >> (0+7+5+1+3+1+bit+2+2+5) & ((1<<2)-1));
+      assert(address < pow(2, 29));
     } else {
-      mode_ID = (address >> (0+7+5+1+3+1+bit+2+2+5) & ((1<<1)-1)); 
-      if (not(address < pow(2, 27)))
-	{ edm::LogError("L1T") << "address = " << address; return 0; }
+      mode_ID = (address >> (0+7+5+1+3+1+bit+2+2+5) & ((1<<1)-1));
+      assert(address < pow(2, 27));
     }
   }
   else if (nHits == 2) {
@@ -290,10 +279,9 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     clctB     = (address >> (0+7+3+1+1+3)     & ((1<<3)-1));
     theta     = (address >> (0+7+3+1+1+3+3)   & ((1<<5)-1));
     mode_ID   = (address >> (0+7+3+1+1+3+3+5) & ((1<<3)-1));
-    if (not(address < pow(2, 26)))
-      { edm::LogError("L1T") << "address = " << address; return 0; }
+    assert(address < pow(2, 26));
   }
-  
+
   // Infer track mode (and stations with hits) from mode_ID
   if (nHits == 3 && mode != 7) {
     switch (mode_ID) {
@@ -314,8 +302,7 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     }
   }
 
-  if (not(mode > 0))
-    { edm::LogError("L1T") << "mode = " << mode; return 0; }
+  assert(mode > 0);
 
   // Un-compress words from address
   // For most variables (e.g. theta, dTheta, CLCT) don't need to unpack, since compressed version was used in training
@@ -327,8 +314,7 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     aux().unpack8bMode15 ( mode15_8b, theta, St1_ring2, endcap, (sPhiAB == 1 ? 1 : -1), clctA, rpcA, rpcB, rpcC, rpcD );
 
     // // Check bit-wise compression / de-compression
-    // if (not( dTheta == aux().getdTheta( aux().unpackdTheta( dTheta, 2), 2) );
-    // { edm::LogError("L1T") << " = " << ; return; }
+    // assert( dTheta == aux().getdTheta( aux().unpackdTheta( dTheta, 2), 2) );
   } else if (nHits == 3) {
     dPhiAB    = aux().getdPhiFromBin( dPhiAB, 7, 512 );
     dPhiBC    = aux().getdPhiFromBin( dPhiBC, 5, 256 ) * (sPhiBC == 1 ? 1 : -1);
@@ -336,32 +322,25 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     aux().unpack2bRPC    ( rpc_2b, rpcA, rpcB, rpcC );
 
     // // Check bit-wise compression / de-compression
-    // if (not( dTheta == aux().getdTheta( aux().unpackdTheta( dTheta, 3), 3) );
-    // { edm::LogError("L1T") << " = " << ; return; }
-    // if (not( clctA  == aux().getCLCT( aux().unpackCLCT( clctA, endcap, (sPhiAB == 1 ? 1 : -1), 2), 
-    //                               endcap, (sPhiAB == 1 ? 1 : -1), 2) );
-    // { edm::LogError("L1T") << " = " << ; return; }
+    // assert( dTheta == aux().getdTheta( aux().unpackdTheta( dTheta, 3), 3) );
+    // assert( clctA  == aux().getCLCT( aux().unpackCLCT( clctA, endcap, (sPhiAB == 1 ? 1 : -1), 2),
+    //                                      endcap, (sPhiAB == 1 ? 1 : -1), 2) );
     // int theta_unp = theta;
     // aux().unpackTheta( theta_unp, St1_ring2, 5 );
-    // if (not( theta == aux().getTheta(theta_unp, St1_ring2, 5) );
-    // { edm::LogError("L1T") << " = " << ; return; }
+    // assert( theta == aux().getTheta(theta_unp, St1_ring2, 5) );
   } else if (nHits == 2) {
     dPhiAB    = aux().getdPhiFromBin( dPhiAB, 7, 512 );
     St1_ring2 = aux().unpackSt1Ring2( theta, 5 );
-    
+
     // // Check bit-wise compression / de-compression
-    // if (not( dTheta == aux().getdTheta( aux().unpackdTheta( dTheta, 3), 3) );
-    // { edm::LogError("L1T") << " = " << ; return; }
-    // if (not( clctA  == aux().getCLCT( aux().unpackCLCT( clctA, endcap, (sPhiAB == 1 ? 1 : -1), 3), 
-    //                               endcap, (sPhiAB == 1 ? 1 : -1), 3) );
-    // { edm::LogError("L1T") << " = " << ; return; }
-    // if (not( clctB  == aux().getCLCT( aux().unpackCLCT( clctB, endcap, (sPhiAB == 1 ? 1 : -1), 3), 
-    //                               endcap, (sPhiAB == 1 ? 1 : -1), 3) );
-    // { edm::LogError("L1T") << " = " << ; return; }
+    // assert( dTheta == aux().getdTheta( aux().unpackdTheta( dTheta, 3), 3) );
+    // assert( clctA  == aux().getCLCT( aux().unpackCLCT( clctA, endcap, (sPhiAB == 1 ? 1 : -1), 3),
+    //                                      endcap, (sPhiAB == 1 ? 1 : -1), 3) );
+    // assert( clctB  == aux().getCLCT( aux().unpackCLCT( clctB, endcap, (sPhiAB == 1 ? 1 : -1), 3),
+    //                                      endcap, (sPhiAB == 1 ? 1 : -1), 3) );
     // int theta_unp = theta;
     // aux().unpackTheta( theta_unp, St1_ring2, 5 );
-    // if (not( theta == aux().getTheta(theta_unp, St1_ring2, 5) );
-    // { edm::LogError("L1T") << " = " << ; return; }
+    // assert( theta == aux().getTheta(theta_unp, St1_ring2, 5) );
   }
 
 
@@ -404,8 +383,7 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
   else if (nHits == 2 && mode <  8) {
     predictors = { theta,            dPhiAB, frA, frB, clctA, clctB, dTheta, (clctA == 0), (clctB == 0) };
   }
-  else
-    { edm::LogError("L1T") << "nHits = " << nHits << ", mode = " << mode; return 0; }
+  else assert (false && "Incorrect nHits or mode");
 
   // Retreive pT from XMLs
   std::vector<double> tree_data(predictors.cbegin(),predictors.cend());

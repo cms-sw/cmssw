@@ -649,8 +649,7 @@ float PtAssignmentEngine2016::calculate_pt_xml(const address_t& address) const {
     if (mv != -999) {
       int v = variables.at(mv);
       if (!(mode_inv == 13 && i == 3)) {  // somehow this uses CSCID1
-        if (not(v != -999))
-	  { edm::LogError("L1T") << "v = " << v; return -1; }
+        assert(v != -999);
       }
       tree_data.push_back(v);
     } else {

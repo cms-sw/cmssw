@@ -8,6 +8,7 @@
 
 TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iConsumes) :
     geometry_translator_(),
+    ttgeometry_translator_(),
     condition_helper_(),
     sector_processor_lut_(),
     pt_assign_engine_(),
@@ -17,6 +18,9 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
     tokenRPC_(iConsumes.consumes<RPCTag::digi_collection>(iConfig.getParameter<edm::InputTag>("RPCInput"))),
     tokenCPPF_(iConsumes.consumes<CPPFTag::digi_collection>(iConfig.getParameter<edm::InputTag>("CPPFInput"))),
     tokenGEM_(iConsumes.consumes<GEMTag::digi_collection>(iConfig.getParameter<edm::InputTag>("GEMInput"))),
+    tokenIRPC_(iConsumes.consumes<IRPCTag::digi_collection>(iConfig.getParameter<edm::InputTag>("IRPCInput"))),
+    tokenME0_(iConsumes.consumes<ME0Tag::digi_collection>(iConfig.getParameter<edm::InputTag>("ME0Input"))),
+    tokenTT_(iConsumes.consumes<TTTag::digi_collection>(iConfig.getParameter<edm::InputTag>("TTInput"))),
     verbose_(iConfig.getUntrackedParameter<int>("verbosity")),
     primConvLUT_(iConfig.getParameter<edm::ParameterSet>("spPCParams16").getParameter<int>("PrimConvLUT")),
     fwConfig_(iConfig.getParameter<bool>("FWConfig")),
@@ -24,6 +28,9 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
     useRPC_(iConfig.getParameter<bool>("RPCEnable")),
     useCPPF_(iConfig.getParameter<bool>("CPPFEnable")),
     useGEM_(iConfig.getParameter<bool>("GEMEnable")),
+    useIRPC_(iConfig.getParameter<bool>("IRPCEnable")),
+    useME0_(iConfig.getParameter<bool>("ME0Enable")),
+    useTT_(iConfig.getParameter<bool>("TTEnable")),
     era_(iConfig.getParameter<std::string>("Era"))
 {
 
@@ -31,8 +38,11 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
     pt_assign_engine_.reset(new PtAssignmentEngine2016());
   } else if (era_ == "Run2_2017" || era_ == "Run2_2018") {
     pt_assign_engine_.reset(new PtAssignmentEngine2017());
+  } else if (era_ == "Phase2C2") {
+    pt_assign_engine_.reset(new PtAssignmentEngine2017());
   } else {
-    edm::LogError("L1T") << "era_ = " << era_; return;
+    edm::LogError("L1T") << "Cannot recognize the era option: " << era_;
+    //return;
   }
 
   auto minBX       = iConfig.getParameter<int>("MinBX");
@@ -88,6 +98,7 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
 
       sector_processors_.at(es).configure(
           &geometry_translator_,
+          &ttgeometry_translator_,
           &condition_helper_,
           &sector_processor_lut_,
           pt_assign_engine_.get(),
@@ -104,6 +115,10 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
     }
   }
 
+#ifdef PHASE_TWO_TRIGGER
+  // This flag is defined in BuildFile.xml
+  std::cout << "The EMTF emulator has been customized with flag PHASE_TWO_TRIGGER." << std::endl;
+#endif
 } // End constructor: TrackFinder::TrackFinder()
 
 TrackFinder::~TrackFinder() {
@@ -122,6 +137,9 @@ void TrackFinder::process(
 
   // Get the geometry for TP conversions
   geometry_translator_.checkAndUpdateGeometry(iSetup);
+#ifdef PHASE_TWO_TRIGGER
+  ttgeometry_translator_.checkAndUpdateGeometry(iSetup);
+#endif
 
   // Get the conditions, primarily the firmware version and the BDT forests
   condition_helper_.checkAndUpdateConditions(iEvent, iSetup);
@@ -130,6 +148,7 @@ void TrackFinder::process(
   // Extract all trigger primitives
 
   TriggerPrimitiveCollection muon_primitives;
+  TTTriggerPrimitiveCollection ttmuon_primitives;
 
   EMTFSubsystemCollector collector;
   if (useCSC_)
@@ -140,6 +159,13 @@ void TrackFinder::process(
     collector.extractPrimitives(RPCTag(), iEvent, tokenRPC_, muon_primitives);
   if (useGEM_)
     collector.extractPrimitives(GEMTag(), iEvent, tokenGEM_, muon_primitives);
+  if (useIRPC_)
+    collector.extractPrimitives(IRPCTag(), iEvent, tokenIRPC_, muon_primitives);
+  if (useME0_)
+    collector.extractPrimitives(ME0Tag(), iEvent, tokenME0_, muon_primitives);
+  if (useTT_)
+    collector.extractTTPrimitives(TTTag(), iEvent, tokenTT_, ttmuon_primitives);
+
 
   // Check trigger primitives
   if (verbose_ > 2) {  // debug
@@ -172,6 +198,7 @@ void TrackFinder::process(
       sector_processors_.at(es).process(
           iEvent.id().event(),
           muon_primitives,
+          ttmuon_primitives,
           out_hits,
           out_tracks
       );

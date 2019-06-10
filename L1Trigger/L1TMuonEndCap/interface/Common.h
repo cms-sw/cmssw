@@ -1,17 +1,16 @@
 #ifndef L1TMuonEndCap_Common_h
 #define L1TMuonEndCap_Common_h
 
-#include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
 #include "DataFormats/L1TMuon/interface/EMTFRoad.h"
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
 
-#include "L1Trigger/L1TMuon/interface/GeometryTranslator.h"
-#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
-#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitiveFwd.h"
+#include "L1Trigger/L1TMuonEndCap/interface/GeometryTranslator.h"
+#include "L1Trigger/L1TMuonEndCap/interface/MuonTriggerPrimitive.h"
+#include "L1Trigger/L1TMuonEndCap/interface/MuonTriggerPrimitiveFwd.h"
 
-#include "L1Trigger/L1TMuon/interface/TTGeometryTranslator.h"
-#include "L1Trigger/L1TMuon/interface/TTMuonTriggerPrimitive.h"
+#include "L1Trigger/L1TMuonEndCap/interface/TTGeometryTranslator.h"
+#include "L1Trigger/L1TMuonEndCap/interface/TTMuonTriggerPrimitive.h"
 
 #include "L1Trigger/L1TMuonEndCap/interface/EMTFSubsystemTag.h"
 
@@ -29,13 +28,13 @@ typedef l1t::EMTFTrack           EMTFTrack;
 typedef l1t::EMTFTrackCollection EMTFTrackCollection;
 typedef l1t::EMTFPtLUT           EMTFPtLUT;
 
-typedef L1TMuon::GeometryTranslator         GeometryTranslator;
-typedef L1TMuon::TriggerPrimitive           TriggerPrimitive;
-typedef L1TMuon::TriggerPrimitiveCollection TriggerPrimitiveCollection;
+typedef L1TMuonEndCap::GeometryTranslator         GeometryTranslator;
+typedef L1TMuonEndCap::TriggerPrimitive           TriggerPrimitive;
+typedef L1TMuonEndCap::TriggerPrimitiveCollection TriggerPrimitiveCollection;
 
-typedef L1TMuon::TTGeometryTranslator         TTGeometryTranslator;
-typedef L1TMuon::TTTriggerPrimitive           TTTriggerPrimitive;
-typedef L1TMuon::TTTriggerPrimitiveCollection TTTriggerPrimitiveCollection;
+typedef L1TMuonEndCap::TTGeometryTranslator         TTGeometryTranslator;
+typedef L1TMuonEndCap::TTTriggerPrimitive           TTTriggerPrimitive;
+typedef L1TMuonEndCap::TTTriggerPrimitiveCollection TTTriggerPrimitiveCollection;
 
 typedef TriggerPrimitive::CSCData   CSCData;
 typedef TriggerPrimitive::RPCData   RPCData;

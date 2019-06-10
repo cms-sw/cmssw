@@ -3,6 +3,7 @@
 </export>
 <flags ADD_SUBDIR="1"/>
 <flags LDFLAGS="-lXMLIO"/>
+<flags CPPDEFINES="PHASE_TWO_TRIGGER=1"/>
 
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>

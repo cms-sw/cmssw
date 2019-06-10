@@ -9,6 +9,7 @@
 #include "L1Trigger/L1TMuonEndCap/interface/Common.h"
 
 //#include "L1Trigger/L1TMuonEndCap/interface/GeometryTranslator.h"
+//#include "L1Trigger/L1TMuonEndCap/interface/TTGeometryTranslator.h"
 #include "L1Trigger/L1TMuonEndCap/interface/ConditionHelper.h"
 
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.h"
@@ -18,6 +19,7 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/PrimitiveSelection.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConversion.h"
+#include "L1Trigger/L1TMuonEndCap/interface/TTPrimitiveConversion.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PatternRecognition.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PrimitiveMatching.h"
 #include "L1Trigger/L1TMuonEndCap/interface/AngleCalculation.h"
@@ -36,6 +38,7 @@ public:
 
   void configure(
       const GeometryTranslator* tp_geom,
+      const TTGeometryTranslator* tp_ttgeom,
       const ConditionHelper* cond,
       const SectorProcessorLUT* lut,
       PtAssignmentEngine* pt_assign_engine,
@@ -56,6 +59,7 @@ public:
       // Input
       EventNumber_t ievent,
       const TriggerPrimitiveCollection& muon_primitives,
+      const TTTriggerPrimitiveCollection& ttmuon_primitives,
       // Output
       EMTFHitCollection& out_hits,
       EMTFTrackCollection& out_tracks
@@ -65,6 +69,7 @@ public:
       // Input
       int bx,
       const TriggerPrimitiveCollection& muon_primitives,
+      const TTTriggerPrimitiveCollection& ttmuon_primitives,
       // Output
       EMTFHitCollection& out_hits,
       EMTFTrackCollection& out_tracks,
@@ -76,6 +81,8 @@ public:
 
 private:
   const GeometryTranslator* tp_geom_;
+
+  const TTGeometryTranslator* tp_ttgeom_;
 
   const ConditionHelper* cond_;
 
@@ -100,7 +107,7 @@ private:
 
   // For track building
   int thetaWindow_, thetaWindowZone0_;
-  bool useRPC_, useCPPF_, useSingleHits_;
+  bool useRPC_, useSingleHits_;
   bool bugSt2PhDiff_, bugME11Dupes_, bugAmbigThetaWin_, twoStationSameBX_;
 
   // For ghost cancellation

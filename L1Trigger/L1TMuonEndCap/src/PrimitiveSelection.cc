@@ -76,9 +76,9 @@ void PrimitiveSelection::process(
     int selected_csc = select_csc(new_tp); // Returns CSC "link" index (0 - 53)
 
     if (selected_csc >= 0) {
-      if (not(selected_csc < NUM_CSC_CHAMBERS))
-        { edm::LogError("L1T") << "selected_csc = " << selected_csc << ", NUM_CSC_CHAMBERS = " << NUM_CSC_CHAMBERS; return; }
+      assert(selected_csc < NUM_CSC_CHAMBERS);
 
+      //FIXME
       if (selected_csc_map[selected_csc].size() < 2) {
         selected_csc_map[selected_csc].push_back(new_tp);
       }
@@ -119,8 +119,7 @@ void PrimitiveSelection::process(
         edm::LogWarning("L1T") << "EMTF found 3 CSC LCTs in one chamber: keeping only two";
         tmp_primitives.erase(tmp_primitives.begin() + 2);  // erase 3rd element
       }
-      if (not(tmp_primitives.size() <= 2))  // at most 2 hits
-	{ edm::LogError("L1T") << "tmp_primitives.size()  = " << tmp_primitives.size() ; return; }
+      assert(tmp_primitives.size() <= 2);  // at most 2 hits
 
       if (tmp_primitives.size() == 2) {
         if (
@@ -153,8 +152,7 @@ void PrimitiveSelection::process(
             tmp_primitives.insert(tmp_primitives.begin()+1, tp1);  // (s2,w1) at 2nd pos
             tmp_primitives.insert(tmp_primitives.begin()+2, tp0);  // (s1,w2) at 3rd pos
           }
-          if (not(tmp_primitives.size() == 1 || tmp_primitives.size() == 4))
-	    { edm::LogError("L1T") << "tmp_primitives.size() = " << tmp_primitives.size(); return; }
+          assert(tmp_primitives.size() == 1 || tmp_primitives.size() == 4);
         }
 
       }  // end if tmp_primitives.size() == 2
@@ -178,8 +176,7 @@ void PrimitiveSelection::process(
     int selected_rpc = select_rpc(*tp_it);  // Returns RPC "link" index (0 - 41)
 
     if (selected_rpc >= 0) {
-      if (not(selected_rpc < NUM_RPC_CHAMBERS))
-	{ edm::LogError("L1T") << "selected_rpc = " << selected_rpc << ", NUM_RPC_CHAMBERS = " << NUM_RPC_CHAMBERS; return; }
+      assert(selected_rpc < NUM_RPC_CHAMBERS);
       selected_rpc_map[selected_rpc].push_back(*tp_it);
     }
   }
@@ -197,7 +194,18 @@ void PrimitiveSelection::process(
     struct {
       typedef TriggerPrimitive value_type;
       bool operator()(const value_type& x) const {
+        // Skip cluster size cut if primitives are from CPPF emulator or EMTF unpacker (already clustered)
+        if (x.getRPCData().isCPPF)
+          return false;
+
         int sz = x.getRPCData().strip_hi - x.getRPCData().strip_low + 1;
+
+        const RPCDetId& tp_detId = x.detId<RPCDetId>();
+        int tp_station     = tp_detId.station();
+        int tp_ring        = tp_detId.ring();
+        const bool is_irpc = (tp_station == 3 || tp_station == 4) && (tp_ring == 1);
+        if (is_irpc)  sz /= 3;  // iRPC strip pitch is 3 times smaller than traditional RPC
+
         return sz > 3;
       }
     } cluster_size_cut;
@@ -209,21 +217,18 @@ void PrimitiveSelection::process(
       //int selected = map_tp_it->first;
       TriggerPrimitiveCollection& tmp_primitives = map_tp_it->second;  // pass by reference
 
+      //FIXME
       // Check to see if unpacked CPPF digis have <= 2 digis per chamber, as expected
       if (tmp_primitives.size() > 2 && tmp_primitives.at(0).getRPCData().isCPPF) {
-	edm::LogWarning("L1T") << "\n******************* EMTF EMULATOR: SUPER-BIZZARE CASE *******************";
-	edm::LogWarning("L1T") << "Found " << tmp_primitives.size() << " CPPF digis in the same chamber";
-	for (const auto & tp : tmp_primitives) tp.print(std::cout);
-	edm::LogWarning("L1T") << "************************* ONLY KEEP FIRST TWO *************************\n\n";
+        edm::LogWarning("L1T") << "\n******************* EMTF EMULATOR: SUPER-BIZZARE CASE *******************";
+        edm::LogWarning("L1T") << "Found " << tmp_primitives.size() << " CPPF digis in the same chamber";
+        for (const auto & tp : tmp_primitives) tp.print(std::cout);
+        edm::LogWarning("L1T") << "************************* ONLY KEEP FIRST TWO *************************\n\n";
       }
 
       // Keep the first two clusters
       if (tmp_primitives.size() > 2)
         tmp_primitives.erase(tmp_primitives.begin()+2, tmp_primitives.end());
-
-      // Skip cluster size cut if primitives are from CPPF emulator or EMTF unpacker (already clustered)
-      if (!tmp_primitives.empty() && tmp_primitives.at(0).getRPCData().isCPPF)
-	break;
 
       // Apply cluster size cut
       tmp_primitives.erase(
@@ -270,23 +275,32 @@ void PrimitiveSelection::process(
         } else if (4 <= rpc_chm && rpc_chm <= 5) {  // RE4/2, RE4/3
            pc_station = 4;
            pc_chamber = 3 + rpc_sub;
+        } else if (rpc_chm == 6) {  // RE3/1
+          pc_station = 3;
+          pc_chamber = rpc_sub;
+        } else if (rpc_chm == 7) {  // RE4/1
+          pc_station = 4;
+          pc_chamber = rpc_sub;
         }
 
       } else {  // neighbor
-	pc_station = 5;
-	if (rpc_chm == 0) {  // RE1/2
-	  pc_chamber = 1;
-	} else if (rpc_chm == 1) {  // RE2/2
-	  pc_chamber = 4;
-	} else if (2 <= rpc_chm && rpc_chm <= 3) {  // RE3/2, RE3/3
-	  pc_chamber = 6;
-	} else if (4 <= rpc_chm && rpc_chm <= 5) {  // RE4/2, RE4/3
-	  pc_chamber = 8;
-	}
+        pc_station = 5;
+        if (rpc_chm == 0) {  // RE1/2
+          pc_chamber = 1;
+        } else if (rpc_chm == 1) {  // RE2/2
+          pc_chamber = 4;
+        } else if (2 <= rpc_chm && rpc_chm <= 3) {  // RE3/2, RE3/3
+          pc_chamber = 6;
+        } else if (4 <= rpc_chm && rpc_chm <= 5) {  // RE4/2, RE4/3
+          pc_chamber = 8;
+        } else if (rpc_chm == 6) {  // RE3/1
+          pc_chamber = 5;
+        } else if (rpc_chm == 7) {  // RE4/1
+          pc_chamber = 7;
+        }
       }
 
-      if (not(pc_station != -1 && pc_chamber != -1))
-	{ edm::LogError("L1T") << "pc_station = " << pc_station << ", pc_chamber = " << pc_chamber; return; }
+      assert(pc_station != -1 && pc_chamber != -1);
 
       selected = (pc_station * 9) + pc_chamber;
 
@@ -332,8 +346,7 @@ void PrimitiveSelection::process(
     int selected_gem = select_gem(*tp_it);  // Returns GEM "link" index (0 - 53)
 
     if (selected_gem >= 0) {
-      if (not(selected_gem < NUM_GEM_CHAMBERS))
-	{ edm::LogError("L1T") << "selected_gem = " << selected_gem << ", NUM_GEM_CHAMBERS = " << NUM_GEM_CHAMBERS; return; }
+      assert(selected_gem < NUM_GEM_CHAMBERS);
       selected_gem_map[selected_gem].push_back(*tp_it);
     }
   }
@@ -403,8 +416,7 @@ void PrimitiveSelection::merge(
   for (; map_tp_it != map_tp_end; ++map_tp_it) {
     int selected_csc = map_tp_it->first;
     const TriggerPrimitiveCollection& csc_primitives = map_tp_it->second;
-    if (not(csc_primitives.size() <= 4))  // at most 4 hits, including duplicated hits
-      { edm::LogError("L1T") << "csc_primitives.size() = " << csc_primitives.size(); return; }
+    assert(csc_primitives.size() <= 4);  // at most 4 hits, including duplicated hits
 
     // Insert all CSC hits
     selected_prim_map[selected_csc] = csc_primitives;
@@ -418,8 +430,7 @@ void PrimitiveSelection::merge(
     int selected_gem = map_tp_it->first;
     const TriggerPrimitiveCollection& gem_primitives = map_tp_it->second;
     if (gem_primitives.empty())  continue;
-    if (not(gem_primitives.size() <= 8))  // at most 8 hits
-      { edm::LogError("L1T") << "gem_primitives.size() = " << gem_primitives.size(); return; }
+    assert(gem_primitives.size() <= 8);  // at most 8 hits
 
     bool found = (selected_prim_map.find(selected_gem) != selected_prim_map.end());
     if (!found) {
@@ -439,8 +450,7 @@ void PrimitiveSelection::merge(
     int selected_rpc = map_tp_it->first;
     const TriggerPrimitiveCollection& rpc_primitives = map_tp_it->second;
     if (rpc_primitives.empty())  continue;
-    if (not(rpc_primitives.size() <= 4))  // at most 4 hits
-      { edm::LogError("L1T") << "rpc_primitives.size() = " << rpc_primitives.size(); return; }
+    assert(rpc_primitives.size() <= 4);  // at most 4 hits
 
     bool found = (selected_prim_map.find(selected_rpc) != selected_prim_map.end());
     if (!found) {
@@ -454,9 +464,7 @@ void PrimitiveSelection::merge(
           tmp_rpc_primitives.push_back(tp);
         }
       }
-      if (not(tmp_rpc_primitives.size() <= 2))  // at most 2 hits
-	{ edm::LogError("L1T") << "tmp_rpc_primitives.size() = " << tmp_rpc_primitives.size(); return; }
-
+      assert(tmp_rpc_primitives.size() <= 2);  // at most 2 hits
       selected_prim_map[selected_rpc] = tmp_rpc_primitives;
 
     } else {
@@ -506,21 +514,6 @@ int PrimitiveSelection::select_csc(const TriggerPrimitive& muon_primitive) const
     int tp_bx        = tp_data.bx;
     int tp_csc_ID    = tp_data.cscID;
 
-    if ( !(emtf::MIN_ENDCAP <= tp_endcap && tp_endcap <= emtf::MAX_ENDCAP) ) {
-      edm::LogWarning("L1T") << "EMTF CSC format error: tp_endcap = "  << tp_endcap; return selected; }
-    if ( !(emtf::MIN_TRIGSECTOR <= tp_sector && tp_sector <= emtf::MAX_TRIGSECTOR) ) {
-      edm::LogWarning("L1T") << "EMTF CSC format error: tp_sector = "  << tp_sector; return selected; }
-    if ( !(1 <= tp_station && tp_station <= 4) ) {
-      edm::LogWarning("L1T") << "EMTF CSC format error: tp_station = " << tp_station; return selected; }
-    if ( !(1 <= tp_csc_ID && tp_csc_ID <= 9) ) {
-      edm::LogWarning("L1T") << "EMTF CSC format error: tp_csc_ID = "  << tp_csc_ID; return selected; }
-    if ( !(tp_data.valid == true) ) {
-      edm::LogWarning("L1T") << "EMTF CSC format error: tp_data.valid = "   << tp_data.valid ; return selected; }
-    if ( !(tp_data.pattern <= 10) ) {
-      edm::LogWarning("L1T") << "EMTF CSC format error: tp_data.pattern = " << tp_data.pattern; return selected; }
-    if ( !(tp_data.quality > 0) ) {
-      edm::LogWarning("L1T") << "EMTF CSC format error: tp_data.quality = " << tp_data.quality; return selected; }
-
     int max_strip = 0;
     int max_wire  = 0;
     if        (tp_station == 1 && tp_ring == 4) { // ME1/1a
@@ -546,15 +539,25 @@ int PrimitiveSelection::select_csc(const TriggerPrimitive& muon_primitive) const
       max_wire  =  64;
     }
 
+    assert_no_abort(emtf::MIN_ENDCAP <= tp_endcap && tp_endcap <= emtf::MAX_ENDCAP);
+    assert_no_abort(emtf::MIN_TRIGSECTOR <= tp_sector && tp_sector <= emtf::MAX_TRIGSECTOR);
+    assert_no_abort(1 <= tp_station && tp_station <= 4);
+    assert_no_abort(1 <= tp_csc_ID && tp_csc_ID <= 9);
+    assert_no_abort(tp_data.valid == true);
+    assert_no_abort(tp_data.pattern <= 10);
+    assert_no_abort(tp_data.quality > 0);
+
+    // LogWarning
     if ( !(tp_data.strip < max_strip) ) {
       edm::LogWarning("L1T") << "EMTF CSC format error in station " << tp_station << ", ring " << tp_ring
-			   << ": tp_data.strip = " << tp_data.strip << " (max = " << max_strip - 1 << ")" << std::endl;
-      return selected; }
+        << ": tp_data.strip = " << tp_data.strip << " (max = " << max_strip - 1 << ")";
+      //return selected;
+    }
     if ( !(tp_data.keywire < max_wire) ) {
       edm::LogWarning("L1T") << "EMTF CSC format error in station " << tp_station << ", ring " << tp_ring
-			   << ": tp_data.keywire = " << tp_data.keywire << " (max = " << max_wire - 1 << ")" << std::endl;
-      return selected; }
-
+        << ": tp_data.keywire = " << tp_data.keywire << " (max = " << max_wire - 1 << ")";
+      //return selected;
+    }
 
     // station 1 --> subsector 1 or 2
     // station 2,3,4 --> subsector 0
@@ -649,24 +652,18 @@ int PrimitiveSelection::select_rpc(const TriggerPrimitive& muon_primitive) const
     // In neighbor chambers, have two separate CPPFDigis for the two EMTF sectors
     if (tp_CPPF && (tp_emtf_sect != sector_)) return selected;
 
-    if ( !(tp_region != 0) ) {
-      edm::LogWarning("L1T") << "EMTF RPC format error: tp_region = "  << tp_region; return selected; }
-    if ( !(emtf::MIN_ENDCAP <= tp_endcap && tp_endcap <= emtf::MAX_ENDCAP) ) {
-      edm::LogWarning("L1T") << "EMTF RPC format error: tp_endcap = "  << tp_endcap; return selected; }
-    if ( !(emtf::MIN_TRIGSECTOR <= tp_sector && tp_sector <= emtf::MAX_TRIGSECTOR) ) {
-      edm::LogWarning("L1T") << "EMTF RPC format error: tp_sector = "  << tp_sector; return selected; } 
-    if ( !(1 <= tp_subsector && tp_subsector <= 6) ) {
-      edm::LogWarning("L1T") << "EMTF RPC format error: tp_subsector = "  << tp_subsector; return selected; } 
-    if ( !(1 <= tp_station && tp_station <= 4) ) {
-      edm::LogWarning("L1T") << "EMTF RPC format error: tp_station = " << tp_station; return selected; }
-    if ( !(2 <= tp_ring && tp_ring <= 3) ) {
-      edm::LogWarning("L1T") << "EMTF RPC format error: tp_ring = " << tp_ring; return selected; }
-    if ( !(1 <= tp_roll && tp_roll <= 3) ) {
-      edm::LogWarning("L1T") << "EMTF RPC format error: tp_roll = "  << tp_roll; return selected; }
-    if ( !(tp_CPPF || (1 <= tp_strip && tp_strip <= 32)) ) {
-      edm::LogWarning("L1T") << "EMTF RPC format error: tp_data.strip = "   << tp_data.strip; return selected; }
-    if ( !(tp_station > 2 || tp_ring != 3) ) {
-      edm::LogWarning("L1T") << "EMTF RPC format error: tp_station = " << tp_station << ", tp_ring = " << tp_ring; return selected; }
+    const bool is_irpc = (tp_station == 3 || tp_station == 4) && (tp_ring == 1);
+
+    assert_no_abort(tp_region != 0);
+    assert_no_abort(emtf::MIN_ENDCAP <= tp_endcap && tp_endcap <= emtf::MAX_ENDCAP);
+    assert_no_abort(emtf::MIN_TRIGSECTOR <= tp_sector && tp_sector <= emtf::MAX_TRIGSECTOR);
+    assert_no_abort(1 <= tp_subsector && tp_subsector <= 6);
+    assert_no_abort(1 <= tp_station && tp_station <= 4);
+    assert_no_abort((!is_irpc && 2 <= tp_ring && tp_ring <= 3) || (is_irpc && 1 <= tp_ring && tp_ring <= 3));
+    assert_no_abort((!is_irpc && 1 <= tp_roll && tp_roll <= 3) || (is_irpc && 1 <= tp_roll && tp_roll <= 5));
+    assert_no_abort((!is_irpc && (tp_CPPF || (1 <= tp_strip && tp_strip <= 32))) || (is_irpc && 1 <= tp_strip && tp_strip <= 192));
+    assert_no_abort(tp_station > 2 || tp_ring != 3);  // stations 1 and 2 do not receive RPCs from ring 3
+    assert_no_abort(tp_data.valid == true);
 
 
     // Selection
@@ -685,17 +682,30 @@ bool PrimitiveSelection::is_in_sector_rpc(int tp_endcap, int tp_station, int tp_
   // RPC sector X, subsectors 1-2 corresponds to CSC sector X-1
   // RPC sector X, subsectors 3-6 corresponds to CSC sector X
   auto get_csc_sector = [](int tp_station, int tp_ring, int tp_sector, int tp_subsector) {
-    // 10 degree chamber
-    int corr = (tp_subsector < 3) ? (tp_sector == 1 ? +5 : -1) : 0;
-    return tp_sector + corr;
+    const bool is_irpc = (tp_station == 3 || tp_station == 4) && (tp_ring == 1);
+    if (is_irpc) {
+      // 20 degree chamber
+      int corr = (tp_subsector < 2) ? (tp_sector == 1 ? +5 : -1) : 0;
+      return tp_sector + corr;
+    } else {
+      // 10 degree chamber
+      int corr = (tp_subsector < 3) ? (tp_sector == 1 ? +5 : -1) : 0;
+      return tp_sector + corr;
+    }
   };
   return ((endcap_ == tp_endcap) && (sector_ == get_csc_sector(tp_station, tp_ring, tp_sector, tp_subsector)));
 }
 
 bool PrimitiveSelection::is_in_neighbor_sector_rpc(int tp_endcap, int tp_station, int tp_ring, int tp_sector, int tp_subsector) const {
   auto get_csc_neighbor_subsector = [](int tp_station, int tp_ring) {
-    // 10 degree chamber
-    return 2;
+    const bool is_irpc = (tp_station == 3 || tp_station == 4) && (tp_ring == 1);
+    if (is_irpc) {
+      // 20 degree chamber
+      return 1;
+    } else {
+      // 10 degree chamber
+      return 2;
+    }
   };
   return (includeNeighbor_ && (endcap_ == tp_endcap) && (sector_ == tp_sector) && (tp_subsector == get_csc_neighbor_subsector(tp_station, tp_ring)));
 }
@@ -732,8 +742,23 @@ int PrimitiveSelection::get_index_rpc(int tp_station, int tp_ring, int tp_subsec
     rpc_chm = 2 + (tp_station - 3)*2 + (tp_ring - 2);
   }
 
-  if (not(rpc_sub != -1 && rpc_chm != -1))
-    { edm::LogError("L1T") << "rpc_sub = " << rpc_sub << ", rpc_chm = " << rpc_chm; return selected; }
+  // Numbering for iRPC (20 degree chambers)
+  const bool is_irpc = (tp_station == 3 || tp_station == 4) && (tp_ring == 1);
+  if (is_irpc) {
+    if (!is_neighbor) {
+      rpc_sub = ((tp_subsector + 1) % 3);
+    } else {
+      rpc_sub = 6;
+    }
+
+    if (tp_station == 3) {
+      rpc_chm = 6;
+    } else if (tp_station == 4) {
+      rpc_chm = 7;
+    }
+  }
+
+  assert(rpc_sub != -1 && rpc_chm != -1);
 
   selected = (rpc_sub * 8) + rpc_chm;
   return selected;
@@ -759,6 +784,8 @@ int PrimitiveSelection::select_gem(const TriggerPrimitive& muon_primitive) const
 
     int tp_bx        = tp_data.bx;
     int tp_pad       = tp_data.pad;
+
+    const bool is_me0 = tp_data.isME0;
 
     // Use CSC trigger sector definitions
     // Code copied from DataFormats/MuonDetId/src/CSCDetId.cc
@@ -791,6 +818,9 @@ int PrimitiveSelection::select_gem(const TriggerPrimitive& muon_primitive) const
         case 3:
           result += 6; // 7,8,9
           break;
+        case 4:  // ME0
+          result = (chamber+1) % 3 + 1; // 1,2,3
+          break;
         }
       }
       else {
@@ -810,33 +840,20 @@ int PrimitiveSelection::select_gem(const TriggerPrimitive& muon_primitive) const
     // station 1 --> subsector 1 or 2
     // station 2,3,4 --> subsector 0
     int tp_subsector = (tp_station != 1) ? 0 : ((tp_chamber%6 > 2) ? 1 : 2);
+    if (is_me0)  tp_subsector = 2;
+
+    assert_no_abort(emtf::MIN_ENDCAP <= tp_endcap && tp_endcap <= emtf::MAX_ENDCAP);
+    assert_no_abort(emtf::MIN_TRIGSECTOR <= tp_sector && tp_sector <= emtf::MAX_TRIGSECTOR);
+    assert_no_abort(1 <= tp_station && tp_station <= 2);
+    assert_no_abort(tp_ring == 1 || tp_ring == 4);
+    assert_no_abort(1 <= tp_roll && tp_roll <= 8);
+    assert_no_abort((!is_me0 && 1 <= tp_layer && tp_layer <= 2) || (is_me0 && 1 <= tp_layer && tp_layer <= 6));
+    assert_no_abort(1 <= tp_csc_ID && tp_csc_ID <= 9);
+    //assert_no_abort(tp_data.pad < 192);
+    assert_no_abort((tp_station == 1 && 1 <= tp_pad && tp_pad <= 192) || (tp_station != 1));
+    assert_no_abort((tp_station == 2 && 1 <= tp_pad && tp_pad <= 384) || (tp_station != 2));
 
 
-    if ( !(emtf::MIN_ENDCAP <= tp_endcap && tp_endcap <= emtf::MAX_ENDCAP) ) {
-      edm::LogWarning("L1T") << "EMTF GEM format error: tp_endcap = "  << tp_endcap; return selected; }
-    if ( !(emtf::MIN_TRIGSECTOR <= tp_sector && tp_sector <= emtf::MAX_TRIGSECTOR) ) {
-      edm::LogWarning("L1T") << "EMTF GEM format error: tp_sector = "  << tp_sector; return selected; }
-    if ( !(1 <= tp_station && tp_station <= 2) ) {
-      edm::LogWarning("L1T") << "EMTF GEM format error: tp_station = " << tp_station; return selected; }
-    if ( !(1 <= tp_ring && tp_ring <= 1) ) {
-      edm::LogWarning("L1T") << "EMTF GEM format error: tp_ring = " << tp_ring; return selected; }
-    if ( !(1 <= tp_csc_ID && tp_csc_ID <= 9) ) {
-      edm::LogWarning("L1T") << "EMTF GEM format error: tp_csc_ID = "  << tp_csc_ID; return selected; }
-    if (!(tp_station == 1 && 1 <= tp_roll && tp_roll <= 8) || (tp_station != 1)) {
-      edm::LogWarning("L1T") << "EMTF GEM format error: tp_station = " << tp_station
-			     << ", tp_roll = " << tp_roll; return selected; }
-    if ( !(tp_station == 2 && 1 <= tp_roll && tp_roll <= 12) || (tp_station != 2)) {
-      edm::LogWarning("L1T") << "EMTF GEM format error: tp_station = " << tp_station
-			     << ", tp_roll = " << tp_roll; return selected; }
-    if ( !(1 <= tp_layer && tp_layer <= 2)) {
-      edm::LogWarning("L1T") << "EMTF GEM format error: tp_layer = " << tp_layer; return selected; }
-    if ( !((tp_station == 1 && 1 <= tp_pad && tp_pad <= 192) || (tp_station != 1))) {
-	edm::LogWarning("L1T") << "EMTF GEM format error: tp_station = " << tp_station
-			       << ", tp_pad = " << tp_pad; return selected; }
-    if ( !((tp_station == 2 && 1 <= tp_pad && tp_pad <= 192) || (tp_station != 2))) {
-      edm::LogWarning("L1T") << "EMTF GEM format error: tp_station = " << tp_station
-			     << ", tp_pad = " << tp_pad; return selected; }
-    
     // Selection
     if (is_in_bx_gem(tp_bx)) {
       if (is_in_sector_gem(tp_endcap, tp_sector)) {
