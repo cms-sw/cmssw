@@ -81,8 +81,7 @@ namespace edm {
         throw eventsetup::NoRecordException<T>(recordDoesExist(m_setup, eventsetup::EventSetupRecordKey::makeKey<T>()));
       }
       T returnValue;
-      returnValue.setImpl(temp, m_id, m_getTokenIndices);
-      returnValue.setEventSetupImpl(&m_setup);
+      returnValue.setImpl(temp, m_id, m_getTokenIndices, &m_setup);
       return returnValue;
     }
 
@@ -100,8 +99,7 @@ namespace edm {
                                                 eventsetup::EventSetupRecordKey>());
       if (temp != nullptr) {
         T rec;
-        rec.setImpl(temp, m_id, m_getTokenIndices);
-        rec.setEventSetupImpl(&m_setup);
+        rec.setImpl(temp, m_id, m_getTokenIndices, &m_setup);
         return rec;
       }
       return std::nullopt;

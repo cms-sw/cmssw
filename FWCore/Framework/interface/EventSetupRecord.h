@@ -92,12 +92,15 @@ namespace edm {
       // ---------- const member functions ---------------------
       ValidityInterval validityInterval() const { return impl_->validityInterval(); }
 
-      void setImpl(EventSetupRecordImpl const* iImpl, unsigned int transitionID, ESProxyIndex const* getTokenIndices) {
+      void setImpl(EventSetupRecordImpl const* iImpl,
+                   unsigned int transitionID,
+                   ESProxyIndex const* getTokenIndices,
+                   EventSetupImpl const* iEventSetupImpl) {
         impl_ = iImpl;
         transitionID_ = transitionID;
         getTokenIndices_ = getTokenIndices;
+        eventSetupImpl_ = iEventSetupImpl;
       }
-      void setEventSetupImpl(EventSetupImpl const* iEventSetupImpl) { eventSetupImpl_ = iEventSetupImpl; }
 
       template <typename HolderT>
       bool get(HolderT& iHolder) const {
@@ -185,6 +188,7 @@ namespace edm {
       ///clears the oToFill vector and then fills it with the keys for all registered data keys
       void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const { impl_->fillRegisteredDataKeys(oToFill); }
 
+      ///Classes that derive from EventSetupRecord can redefine this with a false value
       static constexpr bool allowConcurrentIOVs_ = true;
 
       friend class ::testEventsetup;
@@ -269,8 +273,7 @@ namespace edm {
                               unsigned int iTransitionID,
                               ESProxyIndex const* getTokenIndices,
                               EventSetupImpl const* eventSetupImpl) {
-        setImpl(iImpl, iTransitionID, getTokenIndices);
-        setEventSetupImpl(eventSetupImpl);
+        setImpl(iImpl, iTransitionID, getTokenIndices, eventSetupImpl);
       }
 
       EventSetupRecordKey key() const final { return impl()->key(); }

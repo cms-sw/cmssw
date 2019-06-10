@@ -655,6 +655,9 @@ namespace edm {
     }
 
     void EventSetupProvider::setAllValidityIntervals(const IOVSyncValue& iValue) {
+      // First loop sets a flag that helps us to not duplicate calls to the
+      // same EventSetupRecordProvider setting the IOVs. Dependent records
+      // can cause duplicate calls without this protection.
       for (auto& recProvider : recordProviders_) {
         recProvider->initializeForNewSyncValue();
       }

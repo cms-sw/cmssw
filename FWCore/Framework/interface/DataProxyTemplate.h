@@ -57,8 +57,7 @@ namespace edm {
                           EventSetupImpl const* iEventSetupImpl) override {
         assert(iRecord.key() == RecordT::keyForClass());
         RecordT rec;
-        rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr);
-        rec.setEventSetupImpl(iEventSetupImpl);
+        rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl);
         return this->make(rec, iKey);
       }
 

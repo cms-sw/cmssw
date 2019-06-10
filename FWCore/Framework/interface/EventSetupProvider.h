@@ -67,6 +67,7 @@ namespace edm {
 
       ESRecordsToProxyIndices recordsToProxyIndices() const;
 
+      ///Set the validity intervals in all EventSetupRecordProviders
       void setAllValidityIntervals(const IOVSyncValue& iValue);
 
       std::shared_ptr<const EventSetupImpl> eventSetupForInstance(IOVSyncValue const&, bool& newEventSetupImpl);
