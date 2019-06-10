@@ -58,7 +58,6 @@
 #include <memory>
 
 
-class PFSCEnergyCalibration;
 class PFEnergyCalibration;
 
 
