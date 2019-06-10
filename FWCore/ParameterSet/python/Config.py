@@ -134,6 +134,9 @@ class Process(object):
         self.__dict__['_Process__partialschedules'] = {}
         self.__isStrict = False
         self.__dict__['_Process__modifiers'] = Mods
+        self.__dict__['options'] = Process.defaultOptions_()
+        self.__dict__['maxEvents'] = Process.defaultMaxEvents_()
+        self.__dict__['maxLuminosityBlocks'] = Process.defaultMaxLuminosityBlocks_()
         for m in self.__modifiers:
             m._setChosen()
 
@@ -206,6 +209,44 @@ class Process(object):
     def setLooper_(self,lpr):
         self._placeLooper('looper',lpr)
     looper = property(looper_,setLooper_,doc='the main looper or None if not set')
+    @staticmethod
+    def defaultOptions_():
+        return untracked.PSet(numberOfThreads = untracked.uint32(1),
+                              numberOfStreams = untracked.uint32(0),
+                              numberOfConcurrentRuns = untracked.uint32(1),
+                              numberOfConcurrentLuminosityBlocks = untracked.uint32(1),
+                              wantSummary = untracked.bool(False),
+                              fileMode = untracked.string('FULLMERGE'),
+                              forceEventSetupCacheClearOnNewRun = untracked.bool(False),
+                              throwIfIllegalParameter = untracked.bool(True),
+                              printDependencies = untracked.bool(False),
+                              sizeOfStackForThreadsInKB = optional.untracked.uint32,
+                              Rethrow = untracked.vstring(),
+                              SkipEvent = untracked.vstring(),
+                              FailPath = untracked.vstring(),
+                              IgnoreCompletely = untracked.vstring(),
+                              canDeleteEarly = untracked.vstring(),
+                              allowUnscheduled = obsolete.untracked.bool,
+                              emptyRunLumiMode = obsolete.untracked.string,
+                              makeTriggerResults = obsolete.untracked.bool
+                              )
+    def __updateOptions(self,opt):
+        newOpts = self.defaultOptions_()
+        for p in opt.parameters_():
+            setattr(newOpts, p, getattr(opt,p))
+        return newOpts
+    @staticmethod
+    def defaultMaxEvents_():
+        return untracked.PSet(input=optional.untracked.int32,
+                              output=optional.untracked.allowed(int32,PSet))
+    def __updateMaxEvents(self,ps):
+        newMax = self.defaultMaxEvents_()
+        for p in ps.parameters_():
+            setattr(newMax, p, getattr(ps,p))
+        return newMax
+    @staticmethod
+    def defaultMaxLuminosityBlocks_():
+        return untracked.PSet(input=untracked.int32(-1))
     def subProcesses_(self):
         """returns a list of the subProcesses that have been added to the Process"""
         return self.__subProcesses
@@ -321,6 +362,11 @@ class Process(object):
         # check if the name is well-formed (only _ and alphanumerics are allowed)
         if not name.replace('_','').isalnum():
             raise ValueError('The label '+name+' contains forbiden characters')
+
+        if name == 'options':
+            value = self.__updateOptions(value)
+        if name == 'maxEvents':
+            value = self.__updateMaxEvents(value)
 
         # private variable exempt from all this
         if name.startswith('_Process__'):
@@ -2562,7 +2608,26 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             ps2 = PSet(a = int32(2))
             self.assertRaises(ValueError, EDProducer, 'C', ps1, ps2)
             self.assertRaises(ValueError, EDProducer, 'C', ps1, a=int32(3))
+        
+        def testOptions(self):
+            p = Process('test')
+            self.assertEqual(p.options.numberOfThreads.value(),1)
+            p.options.numberOfThreads = 8
+            self.assertEqual(p.options.numberOfThreads.value(),8)
+            p.options = PSet()
+            self.assertEqual(p.options.numberOfThreads.value(),1)
 
+        def testMaxEvents(self):
+            p = Process("Test")
+            p.maxEvents.input = 10
+            self.assertEqual(p.maxEvents.input.value(),10)
+            p = Process("Test")
+            p.maxEvents.output = 10
+            self.assertEqual(p.maxEvents.output.value(),10)
+            p = Process("Test")
+            p.maxEvents.output = PSet(out=untracked.int32(10))
+            self.assertEqual(p.maxEvents.output.out.value(), 10)
+        
         def testExamples(self):
             p = Process("Test")
             p.source = Source("PoolSource",fileNames = untracked(string("file:reco.root")))
