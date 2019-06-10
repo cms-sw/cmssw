@@ -32,19 +32,19 @@ namespace {
   string_view noNamespace(string_view input) {
     string_view v = input;
     auto first = v.find_first_of(":");
-    v.remove_prefix(min(first+1, v.size()));
+    v.remove_prefix(min(first + 1, v.size()));
     return v;
   }
 
   bool sortByName(const std::pair<G4LogicalVolume*, const DDSpecPar*>& p1,
-		  const std::pair<G4LogicalVolume*, const DDSpecPar*>& p2) {
+                  const std::pair<G4LogicalVolume*, const DDSpecPar*>& p2) {
     bool result = false;
     if (p1.first->GetName() > p2.first->GetName()) {
       result = true;
     }
     return result;
   }
-}
+}  // namespace
 
 class DD4hepTestDDDWorld : public one::EDAnalyzer<> {
 public:
@@ -58,7 +58,7 @@ private:
   void update();
   void initialize(const dd4hep::sim::Geant4GeometryMaps::VolumeMap&);
   G4ProductionCuts* getProductionCuts(G4Region* region);
-  
+
   const ESInputTag tag_;
   const DDSpecParRegistry* specPars_;
   G4MTRunManagerKernel* kernel_;
@@ -71,17 +71,14 @@ private:
 };
 
 DD4hepTestDDDWorld::DD4hepTestDDDWorld(const ParameterSet& iConfig)
-  : tag_(iConfig.getParameter<ESInputTag>("DDDetector"))
-{
+    : tag_(iConfig.getParameter<ESInputTag>("DDDetector")) {
   keywordRegion_ = "CMSCutsRegion";
   protonCut_ = iConfig.getUntrackedParameter<bool>("CutsOnProton", true);
   verbosity_ = iConfig.getUntrackedParameter<int>("Verbosity", 1);
   kernel_ = new G4MTRunManagerKernel();
 }
 
-void
-DD4hepTestDDDWorld::analyze(const Event&, const EventSetup& iEventSetup)
-{
+void DD4hepTestDDDWorld::analyze(const Event&, const EventSetup& iEventSetup) {
   LogVerbatim("Geometry") << "\nDD4hepTestDDDWorld::analyze: " << tag_;
 
   const DDVectorRegistryRcd& regRecord = iEventSetup.get<DDVectorRegistryRcd>();
@@ -105,7 +102,7 @@ DD4hepTestDDDWorld::analyze(const Event&, const EventSetup& iEventSetup)
   g4Geo.debugVolumes = true;
   g4Geo.debugPlacements = true;
   g4Geo.create(detector.world());
-    
+
   dd4hep::sim::Geant4GeometryMaps::VolumeMap lvMap;
   world_.reset(new DDDWorld(ddd.product(), lvMap));
   initialize(lvMap);
@@ -117,29 +114,29 @@ void DD4hepTestDDDWorld::initialize(const dd4hep::sim::Geant4GeometryMaps::Volum
   specPars_->filter(specs_, keywordRegion_);
 
   LogVerbatim("Geometry").log([&](auto& log) {
-    for(auto const& it : vmap) {
-      for(auto const& fit : specs_) {
-        for(auto const& sit : fit->spars) {
-	  log << sit.first << " =  " << sit.second[0] << "\n";
-	}
-	for(auto const& pit : fit->paths) {
-	  log << cms::dd::realTopName(pit) << "\n";
-	  log << "   compare equal to " << noNamespace(it.first.name()) << " ... ";
-	  if(cms::dd::compareEqual(noNamespace(it.first.name()), cms::dd::realTopName(pit))) {
-	    vec_.emplace_back(std::make_pair<G4LogicalVolume*, const cms::DDSpecPar*>(&*it.second, &*fit));
-	    log << "   are equal!\n";
-	  } else
-	    log << "   nope.\n";	
+    for (auto const& it : vmap) {
+      for (auto const& fit : specs_) {
+        for (auto const& sit : fit->spars) {
+          log << sit.first << " =  " << sit.second[0] << "\n";
+        }
+        for (auto const& pit : fit->paths) {
+          log << cms::dd::realTopName(pit) << "\n";
+          log << "   compare equal to " << noNamespace(it.first.name()) << " ... ";
+          if (cms::dd::compareEqual(noNamespace(it.first.name()), cms::dd::realTopName(pit))) {
+            vec_.emplace_back(std::make_pair<G4LogicalVolume*, const cms::DDSpecPar*>(&*it.second, &*fit));
+            log << "   are equal!\n";
+          } else
+            log << "   nope.\n";
         }
       }
     }
   });
-  
+
   // sort all root volumes - to get the same sequence at every run of the application.
   sort(begin(vec_), end(vec_), &sortByName);
-  
+
   // Now generate all the regions
-  for(auto const& it : vec_) {
+  for (auto const& it : vec_) {
     auto regName = it.second->strValue(keywordRegion_.data());
     G4Region* region = G4RegionStore::GetInstance()->FindOrCreateRegion({regName.data(), regName.size()});
     region->AddRootLogicalVolume(it.first);
@@ -151,12 +148,12 @@ void DD4hepTestDDDWorld::initialize(const dd4hep::sim::Geant4GeometryMaps::Volum
 void DD4hepTestDDDWorld::update() {
   LogVerbatim("Geometry").log([&](auto& log) {
     log << "DD4hepTestDDDWorld::update()\n";
-    for(const auto& t: vec_) {
+    for (const auto& t : vec_) {
       log << t.first->GetName() << ":\n";
-      for(const auto& kl : t.second->spars) {
-        log << kl.first << " = "; 
-        for(const auto& kil : kl.second) {
-	  log << kil << ", ";
+      for (const auto& kl : t.second->spars) {
+        log << kl.first << " = ";
+        for (const auto& kil : kl.second) {
+          log << kil << ", ";
         }
       }
       log << "\n";
@@ -164,7 +161,7 @@ void DD4hepTestDDDWorld::update() {
     log << "DD4hepTestDDDWorld::update() done!\n";
   });
   // Loop over all DDLP and provide the cuts for each region
-  for(auto const& it : vec_) {
+  for (auto const& it : vec_) {
     auto regName = it.second->strValue(keywordRegion_.data());
     G4Region* region = G4RegionStore::GetInstance()->FindOrCreateRegion({regName.data(), regName.size()});
 
@@ -174,10 +171,10 @@ void DD4hepTestDDDWorld::update() {
     //
     auto gammacutStr = it.second->strValue("ProdCutsForGamma");
     double gammacut = dd4hep::_toDouble({gammacutStr.data(), gammacutStr.size()});
-    
+
     auto electroncutStr = it.second->strValue("ProdCutsForElectrons");
     double electroncut = dd4hep::_toDouble({electroncutStr.data(), electroncutStr.size()});
-    
+
     auto positroncutStr = it.second->strValue("ProdCutsForPositrons");
     double positroncut = dd4hep::_toDouble({positroncutStr.data(), positroncutStr.size()});
     double protoncut = 0.0;
@@ -196,10 +193,10 @@ void DD4hepTestDDDWorld::update() {
     }
     prodCuts->SetProductionCut(protoncut, idxG4ProtonCut);
     if (verbosity_ > 0) {
-      LogVerbatim("Geometry") << "DDG4ProductionCuts : Setting cuts for " << regName << "\n    Electrons: "
-			      << electroncutStr << " (" << electroncut << ")\n    Positrons: " << positroncutStr
-			      << " (" << positroncut << ")\n    Gamma    : "
-			      << gammacutStr << " (" << gammacut << ")\n";
+      LogVerbatim("Geometry") << "DDG4ProductionCuts : Setting cuts for " << regName
+                              << "\n    Electrons: " << electroncutStr << " (" << electroncut
+                              << ")\n    Positrons: " << positroncutStr << " (" << positroncut
+                              << ")\n    Gamma    : " << gammacutStr << " (" << gammacut << ")\n";
     }
   }
 }
