@@ -18,22 +18,22 @@
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 
-class GEMCSCSegmentBuilder; 
+class GEMCSCSegmentBuilder;
 
 class GEMCSCSegmentProducer : public edm::stream::EDProducer<> {
 public:
-    /// Constructor
-    explicit GEMCSCSegmentProducer(const edm::ParameterSet&);
-    /// Destructor
-    ~GEMCSCSegmentProducer() override;
-    /// Produce the GEM-CSCSegment collection
-    void produce(edm::Event&, const edm::EventSetup&) override;
+  /// Constructor
+  explicit GEMCSCSegmentProducer(const edm::ParameterSet&);
+  /// Destructor
+  ~GEMCSCSegmentProducer() override;
+  /// Produce the GEM-CSCSegment collection
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-    int iev; // events through
-    GEMCSCSegmentBuilder* segmentBuilder_;
-    edm::EDGetTokenT<CSCSegmentCollection> csc_token;
-    edm::EDGetTokenT<GEMRecHitCollection>  gem_token;
+  int iev;  // events through
+  GEMCSCSegmentBuilder* segmentBuilder_;
+  edm::EDGetTokenT<CSCSegmentCollection> csc_token;
+  edm::EDGetTokenT<GEMRecHitCollection> gem_token;
 };
 
 #endif
