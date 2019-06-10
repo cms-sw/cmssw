@@ -1,6 +1,25 @@
-#include "RecoParticleFlow/PFProducer/plugins/PFConcretePFCandidateProducer.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <string>
+
+class PFConcretePFCandidateProducer : public edm::stream::EDProducer<> {
+ public:
+  explicit PFConcretePFCandidateProducer(const edm::ParameterSet&);
+  ~PFConcretePFCandidateProducer() override;
+  
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+ private:
+
+  edm::InputTag  inputColl_;
+};
+
+DEFINE_FWK_MODULE(PFConcretePFCandidateProducer);
 
 PFConcretePFCandidateProducer::PFConcretePFCandidateProducer(const edm::ParameterSet& iConfig) {
   inputColl_ = iConfig.getParameter<edm::InputTag>("src");
