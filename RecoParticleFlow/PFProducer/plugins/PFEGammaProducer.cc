@@ -68,8 +68,6 @@ class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<PFEGamm
 
  private:
 
-  void setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo&);
-
   void setPFVertexParameters(reco::VertexCollection const&  primaryVertices);
 
   void createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras,
@@ -152,8 +150,8 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
     reco::Vertex::Point p(0, 0, 0);  
     primaryVertex_ = reco::Vertex(p, e, 0, 0, 0);  
   }  
-  algo_config.primaryVtx = &primaryVertex_;  
   pfeg_ = std::make_unique<PFEGammaAlgo>(algo_config, *gbrForests);
+  pfeg_->setPrimaryVertex(primaryVertex_ );
 
 }
 
@@ -398,7 +396,7 @@ PFEGammaProducer::setPFVertexParameters(reco::VertexCollection const&  primaryVe
         }
     }
 
-    pfeg_->setPhotonPrimaryVtx(primaryVertex_ );
+    pfeg_->setPrimaryVertex(primaryVertex_ );
 }
 
 void PFEGammaProducer::createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras,

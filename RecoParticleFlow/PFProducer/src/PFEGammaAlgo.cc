@@ -670,7 +670,6 @@ PFEGammaAlgo::EgammaObjects PFEGammaAlgo::operator()(const reco::PFBlockRef& blo
   std::list<ProtoEGObject> refinableObjects;
 
   _splayedblock.clear();
-  refinableObjects.clear();
   _splayedblock.resize(13); // make sure that we always have the HGCAL entry
 
   _currentblock = block;
@@ -1250,8 +1249,8 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	   const int nexhits = 
 	     trackref->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
 	   bool fromprimaryvertex = false;
-	   for( auto vtxtks = cfg_.primaryVtx->tracks_begin();
-		vtxtks != cfg_.primaryVtx->tracks_end(); ++ vtxtks ) {
+	   for( auto vtxtks = primaryVertex_->tracks_begin();
+		vtxtks != primaryVertex_->tracks_end(); ++ vtxtks ) {
 	     if( trackref == vtxtks->castTo<reco::TrackRef>() ) {
 	       fromprimaryvertex = true;
 	       break;
@@ -1683,7 +1682,7 @@ linkRefinableObjectECALToSingleLegConv(ProtoEGObject& RO) {
     // go through non-conv-identified kfs and check MVA to add conversions
     for( auto kf = notconvkf; kf != notmatchedkf; ++kf ) {
       float mvaval = evaluateSingleLegMVA(_currentblock, 
-                                          *cfg_.primaryVtx, 
+                                          *primaryVertex_, 
                                           (*kf)->index());
       if(mvaval > cfg_.mvaConvCut) {
 	const reco::PFBlockElementTrack* elemaskf =
@@ -1795,7 +1794,7 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs) {
         float mvaval = ( mvavalmapped != RO.singleLegConversionMvaMap.end() ? 
                          mvavalmapped->second : 
                          3.0 + evaluateSingleLegMVA(_currentblock,
-                                                    *cfg_.primaryVtx, 
+                                                    *primaryVertex_,
                                                     kf->index()) );
         
         xtra.addSingleLegConvTrackRefMva(std::make_pair(kf->trackRef(),mvaval));
@@ -1826,7 +1825,7 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs) {
     const double scE = the_sc.energy();
     if( scE != 0.0 ) {
       const math::XYZPoint& seedPos = the_sc.seed()->position();
-      math::XYZVector egDir = the_sc.position()-cfg_.primaryVtx->position();
+      math::XYZVector egDir = the_sc.position()-primaryVertex_->position();
       egDir = egDir.Unit();      
       cand.setP4(math::XYZTLorentzVector(scE*egDir.x(),
 					 scE*egDir.y(),
