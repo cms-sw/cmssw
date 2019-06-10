@@ -13,6 +13,6 @@
 #include <FWCore/PluginManager/interface/PluginFactory.h>
 #include <RecoLocalMuon/GEMCSCSegment/plugins/GEMCSCSegmentAlgorithm.h>
 
-typedef edmplugin::PluginFactory<GEMCSCSegmentAlgorithm *(const edm::ParameterSet&)> GEMCSCSegmentBuilderPluginFactory;
+typedef edmplugin::PluginFactory<GEMCSCSegmentAlgorithm *(const edm::ParameterSet &)> GEMCSCSegmentBuilderPluginFactory;
 
 #endif
