@@ -9,9 +9,6 @@
 #include "L1Trigger/L1TMuonEndCap/interface/MuonTriggerPrimitive.h"
 #include "L1Trigger/L1TMuonEndCap/interface/MuonTriggerPrimitiveFwd.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/TTGeometryTranslator.h"
-#include "L1Trigger/L1TMuonEndCap/interface/TTMuonTriggerPrimitive.h"
-
 #include "L1Trigger/L1TMuonEndCap/interface/EMTFSubsystemTag.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -32,22 +29,19 @@ typedef L1TMuonEndCap::GeometryTranslator         GeometryTranslator;
 typedef L1TMuonEndCap::TriggerPrimitive           TriggerPrimitive;
 typedef L1TMuonEndCap::TriggerPrimitiveCollection TriggerPrimitiveCollection;
 
-typedef L1TMuonEndCap::TTGeometryTranslator         TTGeometryTranslator;
-typedef L1TMuonEndCap::TTTriggerPrimitive           TTTriggerPrimitive;
-typedef L1TMuonEndCap::TTTriggerPrimitiveCollection TTTriggerPrimitiveCollection;
+typedef TriggerPrimitive::DTData   DTData;
+typedef TriggerPrimitive::CSCData  CSCData;
+typedef TriggerPrimitive::RPCData  RPCData;
+typedef TriggerPrimitive::GEMData  GEMData;
+typedef TriggerPrimitive::ME0Data  ME0Data;
 
-typedef TriggerPrimitive::CSCData   CSCData;
-typedef TriggerPrimitive::RPCData   RPCData;
-typedef TriggerPrimitive::GEMData   GEMData;
-typedef TTTriggerPrimitive::TTData  TTData;
-
+typedef emtf::DTTag   DTTag;
 typedef emtf::CSCTag  CSCTag;
 typedef emtf::RPCTag  RPCTag;
 typedef emtf::CPPFTag CPPFTag;
 typedef emtf::GEMTag  GEMTag;
 typedef emtf::IRPCTag IRPCTag;
 typedef emtf::ME0Tag  ME0Tag;
-typedef emtf::TTTag   TTTag;
 
 namespace emtf {
 

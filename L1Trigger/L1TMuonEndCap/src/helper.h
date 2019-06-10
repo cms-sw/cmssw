@@ -106,6 +106,23 @@ namespace {
   template<typename T1, typename T2>
   struct is_map_of_vectors<std::map<T1, std::vector<T2> > > : public std::true_type { };
 
+  // Like copy_n, but only copy elements if pred returns true
+  template<typename InputIt, typename OutputIt, typename Size, typename UnaryPredicate>
+  OutputIt copy_n_if(InputIt first, InputIt last, Size n, OutputIt result, UnaryPredicate pred) {
+    while (first != last) {
+      if (pred(*first)) {
+        *result = *first;
+        ++result;
+        --n;
+      }
+      if (n > 0)
+        ++first;
+      else
+        break;
+    }
+    return result;
+  }
+
   // Merge a map of vectors (map1) into another map of vectors (map2)
   template<typename Map>
   void merge_map_into_map(const Map& map1, Map& map2) {

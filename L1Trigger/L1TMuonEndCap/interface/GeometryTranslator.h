@@ -69,6 +69,11 @@ namespace L1TMuonEndCap {
     unsigned long long _magfield_cache_id;
     edm::ESHandle<MagneticField> _magfield;
 
+    GlobalPoint getME0SpecificPoint(const TriggerPrimitive&) const;
+    double calcME0SpecificEta(const TriggerPrimitive&) const;
+    double calcME0SpecificPhi(const TriggerPrimitive&) const;
+    double calcME0SpecificBend(const TriggerPrimitive&) const;
+
     GlobalPoint getGEMSpecificPoint(const TriggerPrimitive&) const;
     double calcGEMSpecificEta(const TriggerPrimitive&) const;
     double calcGEMSpecificPhi(const TriggerPrimitive&) const;

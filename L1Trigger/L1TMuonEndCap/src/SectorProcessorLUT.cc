@@ -278,6 +278,7 @@ void SectorProcessorLUT::read_file(const std::string& filename, std::vector<uint
 }
 
 void SectorProcessorLUT::read_cppf_file(const std::string& filename, std::vector<uint32_t>& vec1, std::vector<uint32_t>& vec2, bool local) {
+  // Extracted from "DataFormats/MuonDetId/interface/RPCDetId.h"
   auto get_rpc_region = [](uint32_t id) { return (static_cast<int>((id >> 0) & 0X3) + (-1)); };
   auto get_rpc_sector = [](uint32_t id) { return (static_cast<int>((id >> 7) & 0XF) + (1)); };
   auto get_rpc_ring = [](uint32_t id) { return (static_cast<int>((id >> 2) & 0X7) + (1)); };

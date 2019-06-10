@@ -461,7 +461,12 @@ void PrimitiveMatching::insert_hits(
       true
     ) {
       // All duplicates with the same strip but different wire must have same phi_fp
+
+#ifdef PHASE_TWO_TRIGGER
+      // No assert, due to the CLCT comparator digi fit that includes the use of RNG to speed up fitting.
+#else
       assert(conv_hit_i.Phi_fp() == conv_hit_j.Phi_fp());
+#endif
 
       track.push_Hit( conv_hit_i );
 
