@@ -1,0 +1,5 @@
+<bin file="test*.cc" name="testCUDADataFormatsCommon">
+  <use name="HeterogeneousCore/CUDACore"/>
+  <use name="catch2"/>
+  <use name="cuda"/>
+</bin>

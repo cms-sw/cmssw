@@ -18,3 +18,11 @@ premix_stage2.toModify(tpClusterProducer,
     stripSimLinkSrc = "mixData:StripDigiSimLink",
     phase2OTSimLinkSrc = "mixData:Phase2OTDigiSimLink",
 )
+
+
+from SimTracker.TrackerHitAssociation.tpClusterProducerHeterogeneousDefault_cfi import tpClusterProducerHeterogeneousDefault as _tpClusterProducerHeterogeneous
+tpClusterProducerHeterogeneous = _tpClusterProducerHeterogeneous.clone()
+
+from SimTracker.TrackerHitAssociation.tpClusterHeterogeneousConverter_cfi import tpClusterHeterogeneousConverter as _tpHeterogeneousConverter
+tpClusterProducerConverter = _tpHeterogeneousConverter.clone()
+

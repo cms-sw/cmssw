@@ -1,0 +1,9 @@
+<use name="cuda-api-wrappers"/>
+<use name="rootcore"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/ParameterSetReader"/>
+<use name="HeterogeneousCore/CUDAServices"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
+<export>
+    <lib name="1"/>
+</export>
