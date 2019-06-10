@@ -84,17 +84,17 @@ def customise(process):
     ## - recompile
     ## - modify process.simMuonCSCDigis, process.CSCCommonTrigger, process.simCscTriggerPrimitiveDigis,
     ##   and process.simEmtfDigis
-    if hasattr(process, 'simMuonCSCDigis'):
-        process.simMuonCSCDigis.strips.comparatorTimeBinOffset = cms.double(3.0)
-        process.simMuonCSCDigis.wires.timeBitForBxZero = cms.int32(6)
-    if hasattr(process, 'CSCCommonTrigger'):
-        process.CSCCommonTrigger.MinBX = cms.int32(3)
-        process.CSCCommonTrigger.MaxBX = cms.int32(9)
-    if hasattr(process, 'simCscTriggerPrimitiveDigis'):
-        process.simCscTriggerPrimitiveDigis.MinBX = cms.int32(3)
-        process.simCscTriggerPrimitiveDigis.MaxBX = cms.int32(9)
-        process.simCscTriggerPrimitiveDigis.commonParam.alctClctOffset = cms.uint32(0)
-    if hasattr(process, 'simEmtfDigis'):
-        process.simEmtfDigis.CSCInputBXShift = cms.int32(-6)
+    #if hasattr(process, 'simMuonCSCDigis'):
+    #    process.simMuonCSCDigis.strips.comparatorTimeBinOffset = cms.double(3.0)
+    #    process.simMuonCSCDigis.wires.timeBitForBxZero = cms.int32(6)
+    #if hasattr(process, 'CSCCommonTrigger'):
+    #    process.CSCCommonTrigger.MinBX = cms.int32(3)
+    #    process.CSCCommonTrigger.MaxBX = cms.int32(9)
+    #if hasattr(process, 'simCscTriggerPrimitiveDigis'):
+    #    process.simCscTriggerPrimitiveDigis.MinBX = cms.int32(3)
+    #    process.simCscTriggerPrimitiveDigis.MaxBX = cms.int32(9)
+    #    process.simCscTriggerPrimitiveDigis.commonParam.alctClctOffset = cms.uint32(0)
+    #if hasattr(process, 'simEmtfDigis'):
+    #    process.simEmtfDigis.CSCInputBXShift = cms.int32(-6)
 
     return process
