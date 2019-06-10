@@ -44,7 +44,7 @@ EMTFCSCComparatorDigiFitter::fit(const std::vector<std::vector<CompDigi> >& comp
     const std::vector<int>& combination = *it;
     for (unsigned i=0; i<combination.size(); ++i) {
       int ii = combination.at(i);
-      if (compDigisAllLayers.at(i).size() > 0) { // protect against empty layer
+      if (!compDigisAllLayers.at(i).empty()) { // protect against empty layer
         const CompDigi& compDigi = compDigisAllLayers.at(i).at(ii);
         x.push_back(compDigi.getHalfStrip() - keyStrip + stagger.at(i) - stagger.at(CSCConstants::KEY_CLCT_LAYER-1));
         y.push_back(i+1);

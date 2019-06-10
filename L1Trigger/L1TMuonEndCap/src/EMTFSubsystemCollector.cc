@@ -302,7 +302,7 @@ void EMTFSubsystemCollector::extractPrimitives(
 
     //out.emplace_back((*segment).me0DetId(), *segment, tp_geom->getME0Geometry());  // does not work because me0DetId is missing the eta partition number
 
-    assert((*segment).specificRecHits().size() > 0);  // must contain at least 1 rechit
+    assert(!(*segment).specificRecHits().empty());  // must contain at least 1 rechit
     ME0DetId detid = (*segment).me0DetId();
     if (detid.roll() == 0 || detid.layer() == 0) {
       auto rechit_it = (*segment).specificRecHits().begin();
@@ -622,7 +622,7 @@ void EMTFSubsystemCollector::make_copad_gem(TriggerPrimitiveCollection& declus_m
           continue;
 
         has_copad = true;
-        if (std::abs(bend) > deltaPad) {
+        if (static_cast<unsigned int>(std::abs(bend)) > deltaPad) {
           if (co_p->getGEMData().pad >= p->getGEMData().pad)
             bend = deltaPad;
           else

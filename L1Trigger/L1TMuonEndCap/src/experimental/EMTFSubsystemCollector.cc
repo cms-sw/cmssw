@@ -98,7 +98,7 @@ void EMTFSubsystemCollector::extractPrimitives(
 
       int nhitlayers = 0;
       for (const auto& x : compDigisAllLayers) {
-        if (x.size() > 0)
+        if (!x.empty())
           ++nhitlayers;
       }
       if (nhitlayers < 3) {
