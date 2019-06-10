@@ -12,7 +12,6 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include "CondFormats/DataRecord/interface/PFCalibrationRcd.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"

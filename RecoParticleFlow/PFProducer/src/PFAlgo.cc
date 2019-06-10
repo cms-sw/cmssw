@@ -13,29 +13,43 @@ using namespace std;
 using namespace reco;
 
 
-PFAlgo::PFAlgo(bool debug)
+PFAlgo::PFAlgo(double nSigmaECAL, double nSigmaHCAL, PFEnergyCalibration& calibration, PFEnergyCalibrationHF& thepfEnergyCalibrationHF, const edm::ParameterSet& pset, bool debug)
   : pfCandidates_( new PFCandidateCollection),
-    nSigmaECAL_(0),
-    nSigmaHCAL_(1),
+    nSigmaECAL_(nSigmaECAL),
+    nSigmaHCAL_(nSigmaHCAL),
+    calibration_(calibration),
+    thepfEnergyCalibrationHF_(thepfEnergyCalibrationHF),
     debug_(debug),
-    connector_(debug),
-    useVertices_(false)
-{}
+    connector_(debug)
+{
+  pfmu_ = std::make_unique<PFMuonAlgo>(pset);
 
-void
-PFAlgo::setParameters(double nSigmaECAL,
-                      double nSigmaHCAL,
-                      PFEnergyCalibration& calibration,
-                      PFEnergyCalibrationHF&  thepfEnergyCalibrationHF) {
+  // Muon parameters
+  muonHCAL_= pset.getParameter<std::vector<double> >("muon_HCAL");
+  muonECAL_= pset.getParameter<std::vector<double> >("muon_ECAL");
+  muonHO_= pset.getParameter<std::vector<double> >("muon_HO");
+  assert ( muonHCAL_.size() == 2 && muonECAL_.size() == 2 && muonHO_.size() == 2);
+  nSigmaTRACK_= pset.getParameter<double>("nsigma_TRACK");
+  ptError_= pset.getParameter<double>("pt_Error");
+  factors45_ = pset.getParameter<std::vector<double> >("factors_45");
+  assert ( factors45_.size() == 2 );
 
-  nSigmaECAL_ = nSigmaECAL;
-  nSigmaHCAL_ = nSigmaHCAL;
+  // Bad Hcal Track Parameters
+  goodTrackDeadHcal_ptErrRel_ = pset.getParameter<double>("goodTrackDeadHcal_ptErrRel");
+  goodTrackDeadHcal_chi2n_ = pset.getParameter<double>("goodTrackDeadHcal_chi2n");
+  goodTrackDeadHcal_layers_ = pset.getParameter<uint32_t>("goodTrackDeadHcal_layers");
+  goodTrackDeadHcal_validFr_ = pset.getParameter<double>("goodTrackDeadHcal_validFr");
+  goodTrackDeadHcal_dxy_ = pset.getParameter<double>("goodTrackDeadHcal_dxy");
 
-  calibration_ = &calibration;
-  thepfEnergyCalibrationHF_ = &thepfEnergyCalibrationHF;
-
+  goodPixelTrackDeadHcal_minEta_ = pset.getParameter<double>("goodPixelTrackDeadHcal_minEta");
+  goodPixelTrackDeadHcal_maxPt_ = pset.getParameter<double>("goodPixelTrackDeadHcal_maxPt");
+  goodPixelTrackDeadHcal_ptErrRel_ = pset.getParameter<double>("goodPixelTrackDeadHcal_ptErrRel");
+  goodPixelTrackDeadHcal_chi2n_ = pset.getParameter<double>("goodPixelTrackDeadHcal_chi2n");
+  goodPixelTrackDeadHcal_maxLost3Hit_ = pset.getParameter<int32_t>("goodPixelTrackDeadHcal_maxLost3Hit");
+  goodPixelTrackDeadHcal_maxLost4Hit_ = pset.getParameter<int32_t>("goodPixelTrackDeadHcal_maxLost4Hit");
+  goodPixelTrackDeadHcal_dxy_ = pset.getParameter<double>("goodPixelTrackDeadHcal_dxy");
+  goodPixelTrackDeadHcal_dz_ = pset.getParameter<double>("goodPixelTrackDeadHcal_dz");
 }
-
 
 PFMuonAlgo* PFAlgo::getPFMuonAlgo() {
   return pfmu_.get();
@@ -58,42 +72,6 @@ void  PFAlgo::setEGammaCollections(const edm::View<reco::PFCandidate> & pfEgamma
     valueMapGedElectrons_ = & valueMapGedElectrons;
     valueMapGedPhotons_ = & valueMapGedPhotons;
   }
-}
-
-
-void
-PFAlgo::setPFMuonAndFakeParameters(const edm::ParameterSet& pset)
-{
-  pfmu_ = std::make_unique<PFMuonAlgo>(pset);
-
-  // Muon parameters
-  muonHCAL_= pset.getParameter<std::vector<double> >("muon_HCAL");
-  muonECAL_= pset.getParameter<std::vector<double> >("muon_ECAL");
-  muonHO_= pset.getParameter<std::vector<double> >("muon_HO");
-  assert ( muonHCAL_.size() == 2 && muonECAL_.size() == 2 && muonHO_.size() == 2);
-  nSigmaTRACK_= pset.getParameter<double>("nsigma_TRACK");
-  ptError_= pset.getParameter<double>("pt_Error");
-  factors45_ = pset.getParameter<std::vector<double> >("factors_45");
-  assert ( factors45_.size() == 2 );
-}
-
-void
-PFAlgo::setBadHcalTrackParams(const edm::ParameterSet& pset)
-{
-  goodTrackDeadHcal_ptErrRel_ = pset.getParameter<double>("goodTrackDeadHcal_ptErrRel");
-  goodTrackDeadHcal_chi2n_ = pset.getParameter<double>("goodTrackDeadHcal_chi2n");
-  goodTrackDeadHcal_layers_ = pset.getParameter<uint32_t>("goodTrackDeadHcal_layers");
-  goodTrackDeadHcal_validFr_ = pset.getParameter<double>("goodTrackDeadHcal_validFr");
-  goodTrackDeadHcal_dxy_ = pset.getParameter<double>("goodTrackDeadHcal_dxy");
-
-  goodPixelTrackDeadHcal_minEta_ = pset.getParameter<double>("goodPixelTrackDeadHcal_minEta");
-  goodPixelTrackDeadHcal_maxPt_ = pset.getParameter<double>("goodPixelTrackDeadHcal_maxPt");
-  goodPixelTrackDeadHcal_ptErrRel_ = pset.getParameter<double>("goodPixelTrackDeadHcal_ptErrRel");
-  goodPixelTrackDeadHcal_chi2n_ = pset.getParameter<double>("goodPixelTrackDeadHcal_chi2n");
-  goodPixelTrackDeadHcal_maxLost3Hit_ = pset.getParameter<int32_t>("goodPixelTrackDeadHcal_maxLost3Hit");
-  goodPixelTrackDeadHcal_maxLost4Hit_ = pset.getParameter<int32_t>("goodPixelTrackDeadHcal_maxLost4Hit");
-  goodPixelTrackDeadHcal_dxy_ = pset.getParameter<double>("goodPixelTrackDeadHcal_dxy");
-  goodPixelTrackDeadHcal_dz_ = pset.getParameter<double>("goodPixelTrackDeadHcal_dz");
 }
 
 void
@@ -758,7 +736,7 @@ bool PFAlgo::recoTracksNotHCAL(const reco::PFBlock &block, reco::PFBlock::LinkDa
     const double previousSlopeEcal = slopeEcal;
     calibEcal = std::max(totalEcal,0.);
     calibHcal = 0.;
-    calibration_->energyEmHad( trackMomentum,calibEcal,calibHcal,
+    calibration_.energyEmHad( trackMomentum,calibEcal,calibHcal,
                                clusterRef->positionREP().Eta(),
                                clusterRef->positionREP().Phi() );
     if ( totalEcal > 0.) slopeEcal = calibEcal/totalEcal;
@@ -1282,8 +1260,8 @@ void PFAlgo::createCandidateHF(const reco::PFBlock &block, const reco::PFBlockRe
 	// do EM-only calibration here
 	energyHF = clusterRef->energy();
 	uncalibratedenergyHF = energyHF;
-	if(thepfEnergyCalibrationHF_->getcalibHF_use()==true){
-	  energyHF = thepfEnergyCalibrationHF_->energyEm(uncalibratedenergyHF,
+	if(thepfEnergyCalibrationHF_.getcalibHF_use()==true){
+	  energyHF = thepfEnergyCalibrationHF_.energyEm(uncalibratedenergyHF,
 							 clusterRef->positionREP().Eta(),
 							 clusterRef->positionREP().Phi());
 	}
@@ -1300,8 +1278,8 @@ void PFAlgo::createCandidateHF(const reco::PFBlock &block, const reco::PFBlockRe
 	// do HAD-only calibration here
 	energyHF = clusterRef->energy();
 	uncalibratedenergyHF = energyHF;
-	if(thepfEnergyCalibrationHF_->getcalibHF_use()==true){
-	  energyHF = thepfEnergyCalibrationHF_->energyHad(uncalibratedenergyHF,
+	if(thepfEnergyCalibrationHF_.getcalibHF_use()==true){
+	  energyHF = thepfEnergyCalibrationHF_.energyHad(uncalibratedenergyHF,
 							 clusterRef->positionREP().Eta(),
 							 clusterRef->positionREP().Phi());
 	}
@@ -1338,13 +1316,13 @@ void PFAlgo::createCandidateHF(const reco::PFBlock &block, const reco::PFBlockRe
       double energyHfHad = chad->energy();
       double uncalibratedenergyHFEm = energyHfEm;
       double uncalibratedenergyHFHad = energyHfHad;
-      if(thepfEnergyCalibrationHF_->getcalibHF_use()==true){
+      if(thepfEnergyCalibrationHF_.getcalibHF_use()==true){
 
-	energyHfEm = thepfEnergyCalibrationHF_->energyEmHad(uncalibratedenergyHFEm,
+	energyHfEm = thepfEnergyCalibrationHF_.energyEmHad(uncalibratedenergyHFEm,
 							    0.0,
 							    c0->positionREP().Eta(),
 							    c0->positionREP().Phi());
-	energyHfHad = thepfEnergyCalibrationHF_->energyEmHad(0.0,
+	energyHfHad = thepfEnergyCalibrationHF_.energyEmHad(0.0,
 							     uncalibratedenergyHFHad,
 							     c1->positionREP().Eta(),
 							     c1->positionREP().Phi());
@@ -1723,7 +1701,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock &block, reco::PFBlock::Lin
 	      // PJ 1st-April-09 : To be done somewhere !!! (Had to comment it, but it is needed)
 	      // currentChargedHadron.addElementInBlock( blockref, iEcal );
        
-	      // KH: we don't know if this satellite is due to egamma or hadron shower. use raw energy for PF hadron calibration. store also calibration constant.
+	      // KH: we don't know if this satellite is due to egamma or hadron shower. use raw energy for PF hadron calibration_. store also calibration constant.
 	      double ecalCalibFactor = (ecalEnergy>1E-9) ? ecalEnergyCalibrated/ecalEnergy : 1.;
 	      std::tuple<unsigned,::math::XYZVector,double> satellite(iEcal,ecalEnergy*photonDirection,ecalCalibFactor);
 	      ecalSatellites.emplace(-1., satellite);
@@ -1833,7 +1811,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock &block, reco::PFBlock::Lin
       calibHcal = std::max(0.,totalHcal);
       hadronAtECAL = calibHcal * hadronDirection;
       // Calibrate ECAL and HCAL energy under the hadron hypothesis.
-      calibration_->energyEmHad( totalChargedMomentum,calibEcal,calibHcal,
+      calibration_.energyEmHad( totalChargedMomentum,calibEcal,calibHcal,
                                  hclusterref->positionREP().Eta(),
                                  hclusterref->positionREP().Phi() );
       caloEnergy = calibEcal+calibHcal;
@@ -2455,7 +2433,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock &block, reco::PFBlock::Lin
     if(totalEcal>0) {
       // removing ecal energy from abc calibration
       totalHcalEnergyCalibrated  -= calibEcal;
-      // totalHcalEnergyCalibrated -= calibration_->paramECALplusHCAL_slopeECAL() * totalEcal;
+      // totalHcalEnergyCalibrated -= calibration_.paramECALplusHCAL_slopeECAL() * totalEcal;
     }
     */
     // else caloEnergy = hcal only calibrated energy -> ok.
@@ -2621,7 +2599,7 @@ void PFAlgo::createCandidatesHCALUnlinked(const reco::PFBlock &block, reco::PFBl
       reco::PFClusterRef eclusterRef = elements[iEcal].clusterRef();
       assert( !eclusterRef.isNull() );
 
-      // KH: use raw ECAL energy for PF hadron calibration. 
+      // KH: use raw ECAL energy for PF hadron calibration_. 
       double ecalEnergy = eclusterRef->energy(); // ecalEnergy = eclusterRef->correctedEnergy();
 
       //std::cout << "EcalEnergy, ps1, ps2 = " << ecalEnergy
@@ -2688,7 +2666,7 @@ void PFAlgo::createCandidatesHCALUnlinked(const reco::PFBlock &block, reco::PFBl
         reco::PFClusterRef hoclusterRef = elements[iHO].clusterRef();
         assert( !hoclusterRef.isNull() );
 
-        double hoEnergy = hoclusterRef->energy(); // calibration_->energyEm(*hoclusterRef,ps1Ene,ps2Ene,crackCorrection);
+        double hoEnergy = hoclusterRef->energy(); // calibration_.energyEm(*hoclusterRef,ps1Ene,ps2Ene,crackCorrection);
 
         totalHO += hoEnergy;
         if ( hoEnergy > hoMax ) {
@@ -2725,7 +2703,7 @@ void PFAlgo::createCandidatesHCALUnlinked(const reco::PFBlock &block, reco::PFBl
       //caloEnergy = totalHcal/0.7;
       calibEcal = totalEcal;
     } else {
-      calibration_->energyEmHad(-1.,calibEcal,calibHcal,
+      calibration_.energyEmHad(-1.,calibEcal,calibHcal,
 				hclusterRef->positionREP().Eta(),
 				hclusterRef->positionREP().Phi());
       //caloEnergy = calibEcal+calibHcal;
@@ -2784,7 +2762,7 @@ void PFAlgo::createCandidatesECAL(const reco::PFBlock &block, reco::PFBlock::Lin
     active[iEcal] = false;
 
     float ecalEnergy = clusterref->correctedEnergy();
-    // float ecalEnergy = calibration_->energyEm( clusterref->energy() );
+    // float ecalEnergy = calibration_.energyEm( clusterref->energy() );
     double particleEnergy = ecalEnergy;
 
     auto& cand = (*pfCandidates_)[reconstructCluster( *clusterref, particleEnergy )];
@@ -3150,7 +3128,7 @@ ostream& operator<<(ostream& out, const PFAlgo& algo) {
   out<<"nSigmaECAL_     "<<algo.nSigmaECAL_<<endl;
   out<<"nSigmaHCAL_     "<<algo.nSigmaHCAL_<<endl;
   out<<endl;
-  out<<(*(algo.calibration_))<<endl;
+  out<<algo.calibration_<<endl;
   out<<endl;
   out<<"reconstructed particles: "<<endl;
 
