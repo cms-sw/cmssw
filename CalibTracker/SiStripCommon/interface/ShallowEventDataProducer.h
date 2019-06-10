@@ -8,12 +8,13 @@
 #include <string>
 
 class ShallowEventDataProducer : public edm::EDProducer {
- public: 
-  explicit ShallowEventDataProducer(const edm::ParameterSet&);
- private: 
-  void produce( edm::Event &, const edm::EventSetup & ) override;
-	edm::EDGetTokenT< L1GlobalTriggerReadoutRecord > trig_token_;
-	edm::EDGetTokenT< LumiScalersCollection > scalerToken_; 
+public:
+  explicit ShallowEventDataProducer(const edm::ParameterSet &);
+
+private:
+  void produce(edm::Event &, const edm::EventSetup &) override;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> trig_token_;
+  edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
 };
 
 #endif
