@@ -117,7 +117,6 @@ class PFEGammaAlgo {
     bool applyCrackCorrections;
     bool produceEGCandsWithNoSuperCluster;
     double mvaConvCut;
-    const reco::Vertex* primaryVtx;
   };
 
   struct EgammaObjects {
@@ -139,9 +138,7 @@ class PFEGammaAlgo {
     channelStatus_ = channelStatus;
   }
 
-  void setPhotonPrimaryVtx(const reco::Vertex& primary){
-    cfg_.primaryVtx = & primary;
-  }
+  void setPrimaryVertex(reco::Vertex const& primaryVertex) { primaryVertex_ = &primaryVertex; }
 
   // this runs the functions below
   EgammaObjects operator()(const reco::PFBlockRef& block);
@@ -242,7 +239,8 @@ private:
   bool isPrimaryTrack(const reco::PFBlockElementTrack& KfEl,
 		      const reco::PFBlockElementGsfTrack& GsfEl);  
 
-  PFEGConfigInfo cfg_;
+  const PFEGConfigInfo cfg_;
+  reco::Vertex const* primaryVertex_;
 
   const ESChannelStatus* channelStatus_;
   
