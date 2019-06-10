@@ -119,11 +119,10 @@ namespace edm {
   }
 
   void ParameterDescriptionBase::writeCfi_(std::ostream& os,
+                                           bool optional,
                                            bool& startWithComma,
                                            int indentation,
                                            bool& wroteSomething) const {
-    if (!hasDefault())
-      return;
 
     wroteSomething = true;
     if (startWithComma)
@@ -134,11 +133,23 @@ namespace edm {
     printSpaces(os, indentation);
 
     os << label() << " = cms.";
-    if (!isTracked())
-      os << "untracked.";
-    os << parameterTypeEnumToString(type()) << "(";
-    writeCfi_(os, indentation);
-    os << ")";
+    
+    if (!hasDefault()) {
+      if(optional) {
+        os <<"optional.";
+      } else {
+        os <<"required.";
+      }
+      if (!isTracked())
+        os << "untracked.";
+      os <<parameterTypeEnumToString(type());
+    } else {
+      if (!isTracked())
+        os << "untracked.";
+      os << parameterTypeEnumToString(type()) << "(";
+      writeCfi_(os, indentation);
+      os << ")";
+    }
   }
 
   void ParameterDescriptionBase::print_(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const {
