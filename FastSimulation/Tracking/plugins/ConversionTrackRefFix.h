@@ -8,17 +8,15 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaTrackReco/interface/ConversionTrackFwd.h"
 
-class ConversionTrackRefFix : public edm::stream::EDProducer<>
-{
- public:
+class ConversionTrackRefFix : public edm::stream::EDProducer<> {
+public:
   explicit ConversionTrackRefFix(const edm::ParameterSet&);
   ~ConversionTrackRefFix() override;
-  
- private:
-  
+
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  edm::EDGetTokenT<reco::ConversionTrackCollection > conversionTracksToken;
-  edm::EDGetTokenT<reco::TrackCollection > newTracksToken;
+  edm::EDGetTokenT<reco::ConversionTrackCollection> conversionTracksToken;
+  edm::EDGetTokenT<reco::TrackCollection> newTracksToken;
 };
 
 #endif
