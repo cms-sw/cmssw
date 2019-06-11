@@ -1,7 +1,20 @@
-# In order to produce everything that you need in one go, use the command:
-#
-# for t in {'BeamPipe','Tracker','PixBar','PixFwdMinus','PixFwdPlus','TIB','TOB','TIDB','TIDF','TEC','TkStrct','InnerServices'}; do cmsRun runP_Tracker_cfg.py geom=XYZ label=$t >& /dev/null &; done
-
+# In order to produce what you need (or in a loop)
+#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label=BeamPipe
+#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label=Tracker
+#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label=ECAL
+#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label=HCal
+##EndcapTimingLayer + Thermal Screen (Barrel Timing Layer is included in the Tracker)
+#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label='EndcapTimingLayer + Thermal Screen'
+##Neutron Moderator + Thermal Screen
+#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label='Neutron Moderator + Thermal Screen'
+##HGCal + HGCal Service + Thermal Screen
+#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label='HGCal + HGCal Service + Thermal Screen'
+##Solenoid Magnet
+#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label='Solenoid Magnet'
+##Muon Wheels and Cables
+#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label='Muon Wheels and Cables'
+##Finally, all together 
+#time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label=FromVertexToBackOfHGCal
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
@@ -11,13 +24,13 @@ process = cms.Process("PROD")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-# The default geometry is Extended2023D28. If a different geoemtry
+# The default geometry is Extended2023D41. If a different geoemtry
 # is needed, the appropriate flag has to be passed at command line,
-# e.g.: cmsRun runP_HGCal_cfg.py geom="XYZ"
+# e.g.: cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom="XYZ"
 
 # The default component to be monitored is the HGCal. If other
 # components need to be studied, they must be supplied, one at a time,
-# at the command line, e.g.: cmsRun runP_HGCal_cfg.py
+# at the command line, e.g.: cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py
 # label="XYZ"
 
 from Validation.Geometry.plot_hgcal_utils import _LABELS2COMPS
@@ -26,7 +39,7 @@ _ALLOWED_LABELS = _LABELS2COMPS.keys()
 
 options = VarParsing('analysis')
 options.register('geom',             #name
-                 'Extended2023D28',      #default value
+                 'Extended2023D41',      #default value
                  VarParsing.multiplicity.singleton,   # kind of options
                  VarParsing.varType.string,           # type of option
                  "Select the geometry to be studied"  # help message
@@ -98,14 +111,14 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         #        TextFile = cms.string("matbdg_HGCal.txt")
         TextFile = cms.string('None'), 
         #Setting ranges for histos
-        #Make z 1mm per bin. Be careful this could lead to memory crashes if too low. 
-        minZ = cms.double(-5500.),
-        maxZ = cms.double(5500.),
-        nintZ = cms.int32(11000), 
+        #Make z 2mm per bin. Be careful this could lead to memory crashes if too low. 
+        minZ = cms.double(-7000.),
+        maxZ = cms.double(7000.),
+        nintZ = cms.int32(7000), 
         # Make r 1cm per bin
         rMin = cms.double(-50.), 
-        rMax = cms.double(3400.),
-        nrbin = cms.int32(345),
+        rMax = cms.double(8000.),
+        nrbin = cms.int32(805),
         # eta
         etaMin = cms.double(-5.), 
         etaMax = cms.double(5.),
@@ -116,8 +129,8 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         nphibin = cms.int32(180),
         # R for profile histos
         RMin =  cms.double(0.), 
-        RMax =  cms.double(3000.), 
-        nRbin = cms.int32(300)
+        RMax =  cms.double(8000.), 
+        nRbin = cms.int32(800)
 
      )
 ))

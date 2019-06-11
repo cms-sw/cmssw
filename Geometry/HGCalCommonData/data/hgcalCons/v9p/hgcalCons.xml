@@ -12,6 +12,11 @@
   <Vector name="ZRanges" type="numeric" nEntries="4">
     [hgcal:zMinEE], [hgcal:zMinHEsil], [hgcal:zMinHEmix], 
     [hgcal:zMaxHEmix]</Vector>
+  <Vector name="LayerCenter" type="numeric" nEntries="52">
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0</Vector>
 </ConstantsSection>
 
 <SpecParSection label="hgcalCons.xml" eval="true">
