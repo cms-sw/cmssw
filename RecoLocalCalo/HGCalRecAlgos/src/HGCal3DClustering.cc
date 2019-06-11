@@ -80,8 +80,10 @@ std::vector<reco::HGCalMultiCluster> HGCal3DClustering::makeClusters(
         unsigned int layer =
             j > maxlayer ? (j - (maxlayer + 1)) : j;  //maps back from index used for KD trees to actual layer
         float radius = radii[2];
-        if(layer <= rhtools_.lastLayerEE()) radius = radii[0];
-        else if(layer <= rhtools_.lastLayerFH()) radius = radii[1];
+        if (layer <= rhtools_.lastLayerEE())
+          radius = radii[0];
+        else if (layer <= rhtools_.lastLayerFH())
+          radius = radii[1];
         float radius2 = radius * radius;
         KDTreeBox search_box(
             float(to[0]) - radius, float(to[0]) + radius, float(to[1]) - radius, float(to[1]) + radius);

@@ -53,9 +53,11 @@ std::vector<reco::HGCalMultiCluster> HGCalDepthPreClusterer::makePreClusters(
           DetId detid = thecls[es[j]]->hitsAndFractions()[0].first();
           unsigned int layer = clusterTools->getLayer(detid);
           float radius = radii[2];
-          if(layer <= rhtools_.lastLayerEE()) radius = radii[0];
-          else if(layer <= rhtools_.lastLayerFH()) radius = radii[1];
-          float radius2 = radius*radius;
+          if (layer <= rhtools_.lastLayerEE())
+            radius = radii[0];
+          else if (layer <= rhtools_.lastLayerFH())
+            radius = radii[1];
+          float radius2 = radius * radius;
           if (distanceCheck<radius2 &&int(thecls[es[j]]->z() * vused[i])> 0) {
             temp.push_back(thecls[es[j]]);
             vused[j] = vused[i];

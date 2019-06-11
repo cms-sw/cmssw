@@ -125,10 +125,11 @@ bool ClusterTools::getWidths(const reco::CaloCluster& clus,
                              double& sigmaphiphi,
                              double& sigmaetaetal,
                              double& sigmaphiphil) const {
-  if (getLayer(clus.hitsAndFractions()[0].first) > (int) rhtools_.lastLayerEE()) return false;
-  const math::XYZPoint & position(clus.position());
-  unsigned nhit=clus.hitsAndFractions().size();
- if (getLayer(clus.hitsAndFractions()[0].first) > lastLayerEE)
+  if (getLayer(clus.hitsAndFractions()[0].first) > (int)rhtools_.lastLayerEE())
+    return false;
+  const math::XYZPoint& position(clus.position());
+  unsigned nhit = clus.hitsAndFractions().size();
+  if (getLayer(clus.hitsAndFractions()[0].first) > lastLayerEE)
     return false;
   const math::XYZPoint& position(clus.position());
   unsigned nhit = clus.hitsAndFractions().size();
