@@ -4,15 +4,16 @@ void NuclearLikelihood::calculate(const reco::Vertex& vtx) {
   likelihood_ = 0.0;
   if (vtx.isValid()) {
     if (vtx.tracksSize() > 1) {
-      likelihood_ = 0.3;
-      int idBest;
+      int idBest = 0;
       int secMaxHits = secondaryTrackMaxHits(vtx, idBest);
-      if (secMaxHits > 3)
-        likelihood_ = 0.5;
-      if (secMaxHits > 4)
-        likelihood_ = 0.7;
       if ((*(vtx.tracks_begin() + idBest))->normalizedChi2() < 3.0)
         likelihood_ = 1.0;
+      else if (secMaxHits > 4)
+        likelihood_ = 0.7;
+      else if (secMaxHits > 3)
+        likelihood_ = 0.5;
+      else
+        likelihood_ = 0.3;
     }
   }
 }
