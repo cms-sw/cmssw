@@ -2,8 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CaloCellGeometryTest")
 
-process.load("Configuration.Geometry.GeometryExtended2023D19_cff")
-process.load("Configuration.Geometry.GeometryExtended2023D19Reco_cff")
+process.load("Configuration.Geometry.GeometryExtended2023D31_cff")
+process.load("Configuration.Geometry.GeometryExtended2023D31Reco_cff")
+process.load('FWCore.MessageService.MessageLogger_cfi')
+
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.categories.append('CaloGeometryBuilder')
+
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
