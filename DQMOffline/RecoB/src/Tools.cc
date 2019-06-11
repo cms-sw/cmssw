@@ -116,18 +116,18 @@ void RecoBTag::PrintCanvasHistos ( TCanvas * canvas , const std::string& psFile 
   //
   // if string = "" don't print to corresponding file
   //
-  if ( psFile  != "" ) canvas->Print ( psFile.c_str() ) ;
-  if ( epsFile != "" ) canvas->Print ( epsFile.c_str() , "eps" ) ;
+  if ( !psFile.empty() ) canvas->Print ( psFile.c_str() ) ;
+  if ( !epsFile.empty() ) canvas->Print ( epsFile.c_str() , "eps" ) ;
   // if in batch: use a converter tool
   const std::string& rootVersion ( gROOT->GetVersion() ) ;
   const bool& rootCanGif = rootVersion.find("4") == 0 || rootVersion.find("5") == 0 ;
-  if ( gifFile != "" ) {
+  if ( !gifFile.empty() ) {
     if ( !(gROOT->IsBatch()) || rootCanGif )  { // to find out if running in batch mode
       cout << "--> Print directly gif!" << endl ;
       canvas->Print ( gifFile.c_str() , "gif" ) ;
     }
     else {
-      if ( epsFile != "" ) {   // eps file must have been created before
+      if ( !epsFile.empty() ) {   // eps file must have been created before
 	cout << "--> Print gif via scripts!" << endl ;
 	const std::string& executeString1 = "pstopnm -ppm -xborder 0 -yborder 0 -portrait " + epsFile ;
 	gSystem->Exec(executeString1.c_str()) ;
