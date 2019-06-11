@@ -91,9 +91,9 @@ namespace edm {
 
   private:
     // ---------- member data --------------------------------
-    std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
     std::shared_ptr<void> run_;
     LimitedTaskQueue::Resumer globalLumiQueueResumer_;
+    std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
     EventProcessor* eventProcessor_ = nullptr;
     IOVSyncValue nextSyncValue_;
     std::atomic<unsigned int> nStreamsStillProcessingLumi_{0};  //read/write as streams finish lumi so must be atomic
