@@ -175,7 +175,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
 
       // the POCA should at least be in the sensitive volume
       GlobalPoint cxPt = cApp.crossingPoint();
-      if ( (cxPt.x() * cxPt.x() + cxPt.y() * cxPt.y()) > 120.*120. || std::abs(cxPt.z()) > 300.)
+      if ((cxPt.x() * cxPt.x() + cxPt.y() * cxPt.y()) > 120. * 120. || std::abs(cxPt.z()) > 300.)
         continue;
 
       // the tracks should at least point in the same quadrant
@@ -239,8 +239,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
       }
 
       // make sure the vertex radius is within the inner track hit radius
-      double tkHitPosLimitSquared = (distMagXY - sigmaDistMagXY * innerHitPosCut_)
-	                          * (distMagXY - sigmaDistMagXY * innerHitPosCut_);
+      double tkHitPosLimitSquared =
+          (distMagXY - sigmaDistMagXY * innerHitPosCut_) * (distMagXY - sigmaDistMagXY * innerHitPosCut_);
       if (innerHitPosCut_ > 0. && positiveTrackRef->innerOk()) {
         reco::Vertex::Point posTkHitPos = positiveTrackRef->innerPosition();
         double posTkHitPosD2 = (posTkHitPos.x() - referencePos.x()) * (posTkHitPos.x() - referencePos.x()) +
