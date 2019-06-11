@@ -16,7 +16,7 @@
 #include "SimGeneral/PreMixingModule/interface/PreMixingWorker.h"
 #include "SimGeneral/PreMixingModule/interface/PreMixingWorkerFactory.h"
 
-class PreMixingHGCalWorker: public PreMixingWorker {
+class PreMixingHGCalWorker : public PreMixingWorker {
 public:
   PreMixingHGCalWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC);
   ~PreMixingHGCalWorker() override = default;
@@ -26,10 +26,10 @@ public:
 
   void beginRun(const edm::Run& run, const edm::EventSetup& ES) override;
   void endRun() override;
-  void initializeEvent(const edm::Event &e, const edm::EventSetup& ES) override {}
-  void addSignals(const edm::Event &e, const edm::EventSetup& ES) override;
+  void initializeEvent(const edm::Event& e, const edm::EventSetup& ES) override {}
+  void addSignals(const edm::Event& e, const edm::EventSetup& ES) override;
   void addPileups(const PileUpEventPrincipal&, const edm::EventSetup& ES) override;
-  void put(edm::Event &e,const edm::EventSetup& ES, std::vector<PileupSummaryInfo> const& ps, int bs) override;
+  void put(edm::Event& e, const edm::EventSetup& ES, std::vector<PileupSummaryInfo> const& ps, int bs) override;
 
 private:
   edm::EDGetTokenT<PHGCSimAccumulator> signalToken_;
@@ -39,23 +39,20 @@ private:
   HGCDigitizer digitizer_;
 };
 
-PreMixingHGCalWorker::PreMixingHGCalWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC):
-  signalToken_(iC.consumes<PHGCSimAccumulator>(ps.getParameter<edm::InputTag>("digiTagSig"))),
-  pileInputTag_(ps.getParameter<edm::InputTag>("pileInputTag")),
-  digitizer_(ps, iC)
-{
+PreMixingHGCalWorker::PreMixingHGCalWorker(const edm::ParameterSet& ps,
+                                           edm::ProducerBase& producer,
+                                           edm::ConsumesCollector&& iC)
+    : signalToken_(iC.consumes<PHGCSimAccumulator>(ps.getParameter<edm::InputTag>("digiTagSig"))),
+      pileInputTag_(ps.getParameter<edm::InputTag>("pileInputTag")),
+      digitizer_(ps, iC) {
   producer.produces<HGCalDigiCollection>(digitizer_.digiCollection());
 }
 
-void PreMixingHGCalWorker::beginRun(const edm::Run& run, const edm::EventSetup& ES) {
-  digitizer_.beginRun(ES);
-}
+void PreMixingHGCalWorker::beginRun(const edm::Run& run, const edm::EventSetup& ES) { digitizer_.beginRun(ES); }
 
-void PreMixingHGCalWorker::endRun() {
-  digitizer_.endRun();
-}
+void PreMixingHGCalWorker::endRun() { digitizer_.endRun(); }
 
-void PreMixingHGCalWorker::addSignals(const edm::Event &e,const edm::EventSetup& ES) {
+void PreMixingHGCalWorker::addSignals(const edm::Event& e, const edm::EventSetup& ES) {
   edm::Handle<PHGCSimAccumulator> handle;
   e.getByToken(signalToken_, handle);
   digitizer_.accumulate(*handle);
@@ -67,7 +64,10 @@ void PreMixingHGCalWorker::addPileups(const PileUpEventPrincipal& pep, const edm
   digitizer_.accumulate(*handle);
 }
 
-void PreMixingHGCalWorker::put(edm::Event &e,const edm::EventSetup& ES, std::vector<PileupSummaryInfo> const& ps, int bs) {
+void PreMixingHGCalWorker::put(edm::Event& e,
+                               const edm::EventSetup& ES,
+                               std::vector<PileupSummaryInfo> const& ps,
+                               int bs) {
   edm::Service<edm::RandomNumberGenerator> rng;
   digitizer_.finalizeEvent(e, ES, &rng->getEngine(e.streamID()));
 }
