@@ -4,48 +4,54 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-
-HistoProviderDQM::HistoProviderDQM(const std::string& prefix, const std::string& label, DQMStore::IBooker & ibook): ibook_(ibook) {
+HistoProviderDQM::HistoProviderDQM(const std::string& prefix, const std::string& label, DQMStore::IBooker& ibook)
+    : ibook_(ibook) {
   // get the store
   label_ = prefix + "/" + label;
   setDir(label_);
 }
 
-void HistoProviderDQM::setDir(const std::string& name){
-  ibook_.setCurrentFolder(name);
-}
+void HistoProviderDQM::setDir(const std::string& name) { ibook_.setCurrentFolder(name); }
 
-MonitorElement* HistoProviderDQM::book1D(const std::string &name,
-                                const std::string &title,
-                                const int& nchX, const double& lowX, const double& highX) {
+MonitorElement* HistoProviderDQM::book1D(
+    const std::string& name, const std::string& title, const int& nchX, const double& lowX, const double& highX) {
   return ibook_.book1D(name, title, nchX, lowX, highX);
 }
 
-
-MonitorElement* HistoProviderDQM::book1D (const std::string &name,
-                                 const std::string &title,
-                                 const int& nchX, float *xbinsize) {
+MonitorElement* HistoProviderDQM::book1D(const std::string& name,
+                                         const std::string& title,
+                                         const int& nchX,
+                                         float* xbinsize) {
   return ibook_.book1D(name, title, nchX, xbinsize);
-}        
+}
 
-MonitorElement* HistoProviderDQM::book2D(const std::string &name,
-                                const std::string &title,
-                                const int& nchX, const double& lowX, const double& highX,
-                                const int& nchY, const double& lowY, const double& highY) {
+MonitorElement* HistoProviderDQM::book2D(const std::string& name,
+                                         const std::string& title,
+                                         const int& nchX,
+                                         const double& lowX,
+                                         const double& highX,
+                                         const int& nchY,
+                                         const double& lowY,
+                                         const double& highY) {
   return ibook_.book2D(name, title, nchX, lowX, highX, nchY, lowY, highY);
 }
 
-MonitorElement* HistoProviderDQM::book2D(const std::string &name,
-                                 const std::string &title,
-                                 const int& nchX, float *xbinsize,
-                                 const int& nchY, float *ybinsize) {
+MonitorElement* HistoProviderDQM::book2D(const std::string& name,
+                                         const std::string& title,
+                                         const int& nchX,
+                                         float* xbinsize,
+                                         const int& nchY,
+                                         float* ybinsize) {
   return ibook_.book2D(name, title, nchX, xbinsize, nchY, ybinsize);
 }
-        
-MonitorElement* HistoProviderDQM::bookProfile(const std::string &name,
-                                const std::string &title,
-                                int nchX, double lowX, double highX,
-                                int nchY, double lowY, double highY) {
+
+MonitorElement* HistoProviderDQM::bookProfile(const std::string& name,
+                                              const std::string& title,
+                                              int nchX,
+                                              double lowX,
+                                              double highX,
+                                              int nchY,
+                                              double lowY,
+                                              double highY) {
   return ibook_.bookProfile(name, title, nchX, lowX, highX, nchY, lowY, highY);
 }
-
