@@ -25,36 +25,35 @@ public:
   explicit SiPixelTestSummary(const edm::ParameterSet&) {}
   ~SiPixelTestSummary();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
 private:
 };
 
 // ----------------------------------------------------------------------
-SiPixelTestSummary::~SiPixelTestSummary(){}
+SiPixelTestSummary::~SiPixelTestSummary() {}
 
 // ----------------------------------------------------------------------
 void SiPixelTestSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   std::cout << "====== SiPixelTestSummary begin" << std::endl;
-  
-  SiPixelDetSummary a(1); 
 
+  SiPixelDetSummary a(1);
 
   edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
-  
+  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+
   cout << "**********************************************************************" << endl;
-  cout << " *** Geometry node for TrackerGeom is  "<<&(*pDD)<<std::endl;
-  cout << " *** I have " << pDD->dets().size() <<" detectors"<<std::endl;
-  cout << " *** I have " << pDD->detTypes().size() <<" types"<<std::endl;
-  
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-    if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=0){
+  cout << " *** Geometry node for TrackerGeom is  " << &(*pDD) << std::endl;
+  cout << " *** I have " << pDD->dets().size() << " detectors" << std::endl;
+  cout << " *** I have " << pDD->detTypes().size() << " types" << std::endl;
+
+  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
+    if (dynamic_cast<PixelGeomDetUnit const*>((*it)) != 0) {
       DetId detId = (*it)->geographicalId();
-      a.add(detId); 
+      a.add(detId);
     }
   }
 
-  bool toyExample(false); 
+  bool toyExample(false);
   if (toyExample) {
     a.add(302055684, 2.3);  // BPix_BmI_SEC4_LYR1_LDR5_MOD4  302055684
     a.add(302125072, 2.4);  // BPix_BmO_SEC4_LYR2_LDR8_MOD1  302125072
@@ -77,15 +76,12 @@ void SiPixelTestSummary::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   cout << endl;
   cout << "Testing map" << endl;
-  map<int, int> b = a.getCounts(); 
-  for (map<int,int>::const_iterator bIt = b.begin(); bIt != b.end(); ++bIt) {
+  map<int, int> b = a.getCounts();
+  for (map<int, int>::const_iterator bIt = b.begin(); bIt != b.end(); ++bIt) {
     cout << bIt->first << " -> " << bIt->second << endl;
   }
-  
 
   std::cout << "====== SiPixelTestSummary end" << std::endl;
-
-  
 }
 
 //define this as a plug-in
