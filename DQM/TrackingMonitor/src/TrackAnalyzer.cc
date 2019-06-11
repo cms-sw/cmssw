@@ -130,6 +130,7 @@ void TrackAnalyzer::initHistos()
   DistanceOfClosestApproachErrorVsPhi = nullptr;
   DistanceOfClosestApproachErrorVsDxy = nullptr;
   DistanceOfClosestApproachToBS = nullptr;
+  DistanceOfClosestApproachToBSdz = nullptr;
   AbsDistanceOfClosestApproachToBS = nullptr;
   DistanceOfClosestApproachToPV = nullptr;
   DistanceOfClosestApproachToPVZoom = nullptr;
@@ -138,6 +139,7 @@ void TrackAnalyzer::initHistos()
   DistanceOfClosestApproachVsTheta = nullptr;
   DistanceOfClosestApproachVsPhi = nullptr;  
   DistanceOfClosestApproachToBSVsPhi = nullptr;
+  DistanceOfClosestApproachToBSVsEta = nullptr;
   DistanceOfClosestApproachToPVVsPhi = nullptr;
   DistanceOfClosestApproachVsEta = nullptr;
   xPointOfClosestApproach = nullptr;
@@ -803,6 +805,11 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       DistanceOfClosestApproachToBS = ibooker.book1D(histname+CategoryName,histname+CategoryName,DxyBin,DxyMin,DxyMax);
       DistanceOfClosestApproachToBS->setAxisTitle("Track d_{xy} wrt beam spot (cm)",1);
       DistanceOfClosestApproachToBS->setAxisTitle("Number of Tracks",2);
+
+      histname = "DistanceOfClosestApproachToBSdz_";
+      DistanceOfClosestApproachToBSdz = ibooker.book1D(histname+CategoryName,histname+CategoryName,100,-1.1,1.1);
+      DistanceOfClosestApproachToBSdz->setAxisTitle("Track d_{z} wrt beam spot (cm)",1);
+      DistanceOfClosestApproachToBSdz->setAxisTitle("Number of Tracks",2);
       
       histname = "AbsDistanceOfClosestApproachToBS_";
       AbsDistanceOfClosestApproachToBS = ibooker.book1D(histname+CategoryName,histname+CategoryName,AbsDxyBin,AbsDxyMin,AbsDxyMax);
@@ -814,6 +821,12 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       DistanceOfClosestApproachToBSVsPhi->getTH1()->SetCanExtend(TH1::kAllAxes);
       DistanceOfClosestApproachToBSVsPhi->setAxisTitle("Track #phi",1);
       DistanceOfClosestApproachToBSVsPhi->setAxisTitle("Track d_{xy} wrt beam spot (cm)",2);
+
+      histname = "DistanceOfClosestApproachToBSVsEta_";
+      DistanceOfClosestApproachToBSVsEta = ibooker.bookProfile(histname+CategoryName,histname+CategoryName, EtaBin, EtaMin, EtaMax, DxyBin, DxyMin, DxyMax,"");
+      DistanceOfClosestApproachToBSVsEta->getTH1()->SetCanExtend(TH1::kAllAxes);
+      DistanceOfClosestApproachToBSVsEta->setAxisTitle("Track #eta",1);
+      DistanceOfClosestApproachToBSVsEta->setAxisTitle("Track d_{xy} wrt beam spot (cm)",2);
       
       histname = "xPointOfClosestApproachVsZ0wrt000_";
       xPointOfClosestApproachVsZ0wrt000 = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, Z0Bin, Z0Min, Z0Max, X0Bin, X0Min, X0Max,"");
@@ -1215,8 +1228,10 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     DistanceOfClosestApproachErrorVsDxy -> Fill(track.dxy(bs.position()),track.dxyError());
 
     DistanceOfClosestApproachToBS      -> Fill(track.dxy(bs.position()));
+    DistanceOfClosestApproachToBSdz    -> Fill(track.dz(bs.position()));
     AbsDistanceOfClosestApproachToBS   -> Fill(std::abs(track.dxy(bs.position())));
     DistanceOfClosestApproachToBSVsPhi -> Fill(track.phi(), track.dxy(bs.position()));
+    DistanceOfClosestApproachToBSVsEta -> Fill(track.eta(), track.dxy(bs.position()));
     zPointOfClosestApproachVsPhi       -> Fill(track.phi(), track.vz());
     xPointOfClosestApproachVsZ0wrt000  -> Fill(track.dz(),  track.vx());
     yPointOfClosestApproachVsZ0wrt000  -> Fill(track.dz(),  track.vy());
@@ -1547,6 +1562,80 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ib
     tkmes.TrackPt->setAxisTitle("Track p_{T} (GeV/c)", 1);
     tkmes.TrackPt->setAxisTitle("Number of Tracks",2);
 
+    histname = "TrackPtHighPurity_" + histTag;
+    tkmes.TrackPtHighPurity = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPtHighPurity->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPtHighPurity->setAxisTitle("Number of High Purity Tracks",2);
+
+    histname = "TrackPtTight_" + histTag;
+    tkmes.TrackPtTight = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPtTight->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPtTight->setAxisTitle("Number of Tight Tracks",2);
+
+    histname = "TrackPtLoose_" + histTag;
+    tkmes.TrackPtLoose = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPtLoose->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPtLoose->setAxisTitle("Number of Loose Tracks",2);
+
+    histname = "Quality_";
+    tkmes.Quality = ibooker.book1D(histname+CategoryName, histname+CategoryName, 3, 0., 3.);
+    tkmes.Quality->setAxisTitle("Track quality",1);     
+    tkmes.Quality->setAxisTitle("Number of Tracks",2);
+
+    for (size_t ibin=0; ibin<3; ibin++) {
+	tkmes.Quality->setBinLabel(ibin+1,reco::TrackBase::qualityNames[ibin]);
+    }
+
+    histname = "TrackPtZone1_" + histTag;
+    tkmes.TrackPtZone1 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPtZone1->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPtZone1->setAxisTitle("Number of Tracks",2);
+
+    histname = "TrackPtZone2_" + histTag;
+    tkmes.TrackPtZone2 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPtZone2->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPtZone2->setAxisTitle("Number of Tracks",2);
+
+    histname = "TrackPtZone3_" + histTag;
+    tkmes.TrackPtZone3 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPtZone3->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPtZone3->setAxisTitle("Number of Tracks",2);
+
+    histname = "TrackPtZone4_" + histTag;
+    tkmes.TrackPtZone4 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPtZone4->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPtZone4->setAxisTitle("Number of Tracks",2);
+
+    histname = "TrackPtZone5_" + histTag;
+    tkmes.TrackPtZone5 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPtZone5->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPtZone5->setAxisTitle("Number of Tracks",2);
+
+    histname = "TrackPtZone6_" + histTag;
+    tkmes.TrackPtZone6 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPtZone6->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPtZone6->setAxisTitle("Number of Tracks",2);
+
+    histname = "TrackPtZone7_" + histTag;
+    tkmes.TrackPtZone7 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPtZone7->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPtZone7->setAxisTitle("Number of Tracks",2);
+
+    histname = "TrackPtZone8_" + histTag;
+    tkmes.TrackPtZone8 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPtZone8->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPtZone8->setAxisTitle("Number of Tracks",2);
+
+    histname = "Ratio_byFolding_" + histTag;
+    tkmes.Ratio_byFolding = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.Ratio_byFolding->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.Ratio_byFolding->setAxisTitle("Efficiency(Ratio)",2);
+
+    histname = "Ratio_byFolding2_" + histTag;
+    tkmes.Ratio_byFolding2 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.Ratio_byFolding2->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.Ratio_byFolding2->setAxisTitle("Efficiency(Ratio)",2);
+
     if (doTrackPxPyPlots_) {
       histname = "TrackPx_" + histTag;
       tkmes.TrackPx = ibooker.book1D(histname, histname, TrackPxBin, TrackPxMin, TrackPxMax);
@@ -1573,10 +1662,55 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ib
     tkmes.TrackEta->setAxisTitle("Track #eta", 1);
     tkmes.TrackEta->setAxisTitle("Number of Tracks",2);
 
+    histname = "TrackEtaHighpurity_" + histTag;
+    tkmes.TrackEtaHighPurity = ibooker.book1D(histname, histname, EtaBin, EtaMin, EtaMax);
+    tkmes.TrackEtaHighPurity->setAxisTitle("Track #eta", 1);
+    tkmes.TrackEtaHighPurity->setAxisTitle("Number of High Purity Tracks",2);
+
+    histname = "TrackEtaTight_" + histTag;
+    tkmes.TrackEtaTight = ibooker.book1D(histname, histname, EtaBin, EtaMin, EtaMax);
+    tkmes.TrackEtaTight->setAxisTitle("Track #eta", 1);
+    tkmes.TrackEtaTight->setAxisTitle("Number of Tight Tracks",2);
+
+    histname = "TrackEtaLoose_" + histTag;
+    tkmes.TrackEtaLoose = ibooker.book1D(histname, histname, EtaBin, EtaMin, EtaMax);
+    tkmes.TrackEtaLoose->setAxisTitle("Track #eta", 1);
+    tkmes.TrackEtaLoose->setAxisTitle("Number of Loose Tracks",2);
+
     histname = "TrackEtaPhi_" + histTag;
     tkmes.TrackEtaPhi = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
     tkmes.TrackEtaPhi->setAxisTitle("Track #eta", 1);
     tkmes.TrackEtaPhi->setAxisTitle("Track #phi", 2);
+
+    histname = "TrackEtaPhiInverted_" + histTag;
+    tkmes.TrackEtaPhiInverted = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+    tkmes.TrackEtaPhiInverted->setAxisTitle("Track #eta", 1);
+    tkmes.TrackEtaPhiInverted->setAxisTitle("Track #phi", 2);
+
+    histname = "TrackEtaPhiInvertedoutofphase_" + histTag;
+    tkmes.TrackEtaPhiInvertedoutofphase = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+    tkmes.TrackEtaPhiInvertedoutofphase->setAxisTitle("Track #eta", 1);
+    tkmes.TrackEtaPhiInvertedoutofphase->setAxisTitle("Track #phi", 2);
+
+    histname = "TkEtaPhi_Ratio_byFoldingmap_" + histTag;
+    tkmes.TkEtaPhi_Ratio_byFoldingmap = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+    tkmes.TkEtaPhi_Ratio_byFoldingmap->setAxisTitle("Track #eta", 1);
+    tkmes.TkEtaPhi_Ratio_byFoldingmap->setAxisTitle("Track #phi", 2);
+
+    histname = "TkEtaPhi_Ratio_byFoldingmap_op_" + histTag;
+    tkmes.TkEtaPhi_Ratio_byFoldingmap_op = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+    tkmes.TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #eta", 1);
+    tkmes.TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #phi", 2);
+
+    histname = "TkEtaPhi_RelativeDifference_byFoldingmap_" + histTag;
+    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #eta", 1);
+    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #phi", 2);
+
+    histname = "TkEtaPhi_RelativeDifference_byFoldingmap_op_" + histTag;
+    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #eta", 1);
+    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #phi", 2);
 
     histname = "TrackEtaPhiInner_" + histTag;
     tkmes.TrackEtaPhiInner = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
@@ -1600,6 +1734,11 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ib
     tkmes.TrackQ = ibooker.book1D(histname, histname, TrackQBin, TrackQMin, TrackQMax);
     tkmes.TrackQ->setAxisTitle("Track Charge", 1);
     tkmes.TrackQ->setAxisTitle("Number of Tracks",2);
+
+    histname = "TrackQoverP_" + histTag;
+    tkmes.TrackQoverP = ibooker.book1D(histname, histname, 10*TrackQBin, TrackQMin, TrackQMax);
+    tkmes.TrackQoverP->setAxisTitle("Track QoverP", 1);
+    tkmes.TrackQoverP->setAxisTitle("Number of Tracks",2);
 
     histname = "TrackPErrOverP_" + histTag;
     tkmes.TrackPErr = ibooker.book1D(histname, histname, pErrBin, pErrMin, pErrMax);
@@ -1808,11 +1947,132 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
       }
       tkmes.TrackPz->Fill(pz);
       tkmes.TrackPt->Fill(pt);
+
+      if (track.quality(reco::TrackBase::highPurity)) {
+         tkmes.TrackPtHighPurity->Fill(pt);
+         tkmes.Quality->Fill(reco::TrackBase::highPurity,1.);
+      }
+      if (track.quality(reco::TrackBase::tight)) {
+         tkmes.TrackPtTight->Fill(pt);
+         tkmes.Quality->Fill(reco::TrackBase::tight,1.);
+      }
+      if (track.quality(reco::TrackBase::loose)) {
+         tkmes.TrackPtLoose->Fill(pt);
+         tkmes.Quality->Fill(reco::TrackBase::loose,1.);
+      }
       
       // angles
       tkmes.TrackPhi->Fill(phi);
       tkmes.TrackEta->Fill(eta);
+      if (track.quality(reco::TrackBase::highPurity)) {
+         tkmes.TrackEtaHighPurity->Fill(eta);
+      }
+      if (track.quality(reco::TrackBase::tight)) {
+         tkmes.TrackEtaTight->Fill(eta);
+      }
+      if (track.quality(reco::TrackBase::loose)) {
+         tkmes.TrackEtaLoose->Fill(eta);
+      }
+
       tkmes.TrackEtaPhi->Fill(eta,phi);
+      tkmes.TrackEtaPhiInverted->Fill(eta,-1*phi);
+      tkmes.TrackEtaPhiInvertedoutofphase->Fill(eta,3.141592654+phi);
+      tkmes.TrackEtaPhiInvertedoutofphase->Fill(eta,phi- 3.141592654 );
+      tkmes.TkEtaPhi_Ratio_byFoldingmap->getTH2F()->Divide(tkmes.TrackEtaPhi->getTH2F(),tkmes.TrackEtaPhiInverted->getTH2F(),1.,1.,"");
+      tkmes.TkEtaPhi_Ratio_byFoldingmap_op->getTH2F()->Divide(tkmes.TrackEtaPhi->getTH2F(),tkmes.TrackEtaPhiInvertedoutofphase->getTH2F(),1.,1.,"");
+
+      int nx = tkmes.TrackEtaPhi->getTH2F()->GetNbinsX();
+      int ny = tkmes.TrackEtaPhi->getTH2F()->GetNbinsY();
+
+	for (int ii=1; ii<=nx; ii++){
+	for (int jj=1; jj<=ny; jj++){
+
+        double Sum1 = tkmes.TrackEtaPhi->getTH2F()->GetBinContent(ii,jj) + tkmes.TrackEtaPhiInverted->getTH2F()->GetBinContent(ii,jj);
+	double Sum2 = tkmes.TrackEtaPhi->getTH2F()->GetBinContent(ii,jj) + tkmes.TrackEtaPhiInvertedoutofphase->getTH2F()->GetBinContent(ii,jj);
+
+        double Sub1 = tkmes.TrackEtaPhi->getTH2F()->GetBinContent(ii,jj) - tkmes.TrackEtaPhiInverted->getTH2F()->GetBinContent(ii,jj);
+	double Sub2 = tkmes.TrackEtaPhi->getTH2F()->GetBinContent(ii,jj) - tkmes.TrackEtaPhiInvertedoutofphase->getTH2F()->GetBinContent(ii,jj);
+
+        if (Sum1 == 0 || Sum2 ==0){
+        tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->getTH2F()->SetBinContent(ii,jj,1);
+	tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->getTH2F()->SetBinContent(ii,jj,1);
+	}else{ 
+        double ratio1 = Sub1/Sum1;
+        double ratio2 = Sub2/Sum2; 
+	tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->getTH2F()->SetBinContent(ii,jj,ratio1);
+	tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->getTH2F()->SetBinContent(ii,jj,ratio2);
+	}
+	}
+	}
+	  
+ 
+//pT histograms to create efficiency vs pT plot for only the more inefficient region.        
+     
+     if(eta < 0. && phi < -1.6) {tkmes.TrackPtZone1->Fill(pt);} 
+     if(eta < 0. && phi < 0 && phi >= -1.6) {tkmes.TrackPtZone2->Fill(pt);}
+     if(eta < 0. && phi < 1.6 && phi >= 0) {tkmes.TrackPtZone3->Fill(pt);}
+     if(eta < 0. && phi >= 1.6) {tkmes.TrackPtZone4->Fill(pt);}
+     if(eta >= 0. && phi < -1.6) {tkmes.TrackPtZone5->Fill(pt);} 
+     if(eta >= 0. && phi < 0 && phi >= -1.6) {tkmes.TrackPtZone6->Fill(pt);}
+     if(eta >= 0. && phi < 1.6 && phi >= 0) {tkmes.TrackPtZone7->Fill(pt);}
+     if(eta >= 0. && phi >= 1.6) {tkmes.TrackPtZone8->Fill(pt);}
+
+     float A [8];
+     A[0] = tkmes.TrackPtZone1->getTH1()->Integral();
+     A[1] = tkmes.TrackPtZone2->getTH1()->Integral();
+     A[2] = tkmes.TrackPtZone3->getTH1()->Integral();
+     A[3] = tkmes.TrackPtZone4->getTH1()->Integral();
+     A[4] = tkmes.TrackPtZone5->getTH1()->Integral();
+     A[5] = tkmes.TrackPtZone6->getTH1()->Integral();
+     A[6] = tkmes.TrackPtZone7->getTH1()->Integral();
+     A[7] = tkmes.TrackPtZone8->getTH1()->Integral();
+
+     int WZ = 0;
+     float minA = A[0];
+     for(int w=1;w<8;w++){
+        if( minA > A[w]){ 
+	minA = A[w];        
+	WZ=w;
+	}
+        }
+        
+      switch(WZ){
+	case 1:
+		tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPtZone1->getTH1(),tkmes.TrackPtZone4->getTH1(),1.,1.,"B"); 
+		tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPtZone1->getTH1(),tkmes.TrackPtZone2->getTH1(),1.,1.,"B"); 
+	break;
+	case 2:
+		tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPtZone2->getTH1(),tkmes.TrackPtZone3->getTH1(),1.,1.,"B"); 
+		tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPtZone2->getTH1(),tkmes.TrackPtZone1->getTH1(),1.,1.,"B"); 
+	break;
+	case 3:
+		tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPtZone3->getTH1(),tkmes.TrackPtZone2->getTH1(),1.,1.,"B"); 
+		tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPtZone3->getTH1(),tkmes.TrackPtZone4->getTH1(),1.,1.,"B"); 
+	break;
+	case 4:
+		tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPtZone4->getTH1(),tkmes.TrackPtZone1->getTH1(),1.,1.,"B"); 
+		tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPtZone4->getTH1(),tkmes.TrackPtZone3->getTH1(),1.,1.,"B"); 
+	break;
+	case 5:
+		tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPtZone5->getTH1(),tkmes.TrackPtZone8->getTH1(),1.,1.,"B"); 
+		tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPtZone5->getTH1(),tkmes.TrackPtZone6->getTH1(),1.,1.,"B"); 
+	break;
+	case 6:
+		tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPtZone6->getTH1(),tkmes.TrackPtZone7->getTH1(),1.,1.,"B"); 
+		tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPtZone6->getTH1(),tkmes.TrackPtZone5->getTH1(),1.,1.,"B"); 
+	break;
+	case 7:
+		tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPtZone7->getTH1(),tkmes.TrackPtZone6->getTH1(),1.,1.,"B"); 
+		tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPtZone7->getTH1(),tkmes.TrackPtZone8->getTH1(),1.,1.,"B"); 
+	break;
+	case 8:
+		tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPtZone8->getTH1(),tkmes.TrackPtZone5->getTH1(),1.,1.,"B"); 
+		tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPtZone8->getTH1(),tkmes.TrackPtZone7->getTH1(),1.,1.,"B"); 
+	break;
+}
+
+
+
       tkmes.TrackEtaPhiInner->Fill(etaIn,phiIn);
       tkmes.TrackEtaPhiOuter->Fill(etaOut,phiOut);
 
@@ -1820,7 +2080,9 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
 	tkmes.TrackTheta->Fill(theta);
       }
       tkmes.TrackQ->Fill(q);
-      
+      if (p > 0.) {
+      tkmes.TrackQoverP->Fill(q/p);
+      }
       // errors
       tkmes.TrackPtErr->Fill(pterror);
       tkmes.TrackPtErrVsEta->Fill(eta,pterror);

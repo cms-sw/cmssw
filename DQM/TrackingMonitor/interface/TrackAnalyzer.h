@@ -209,6 +209,21 @@ class TrackAnalyzer
 	  MonitorElement* TrackPy;
 	  MonitorElement* TrackPz;
 	  MonitorElement* TrackPt;
+	  MonitorElement* TrackPtZone1;
+	  MonitorElement* TrackPtZone2;
+	  MonitorElement* TrackPtZone3;
+	  MonitorElement* TrackPtZone4;
+	  MonitorElement* TrackPtZone5;
+	  MonitorElement* TrackPtZone6;
+	  MonitorElement* TrackPtZone7;
+	  MonitorElement* TrackPtZone8;
+	  MonitorElement* Ratio_byFolding;
+	  MonitorElement* Ratio_byFolding2;
+	  MonitorElement* TrackPtHighPurity;
+	  MonitorElement* TrackPtTight;
+	  MonitorElement* TrackPtLoose;
+	  MonitorElement* Quality;	
+
 	  
 	  MonitorElement* TrackPxErr;
 	  MonitorElement* TrackPyErr;
@@ -219,10 +234,21 @@ class TrackAnalyzer
 	  MonitorElement* TrackPtErrVsEta;
 	  
 	  MonitorElement* TrackQ;
+	  MonitorElement* TrackQoverP;
+
 	  
 	  MonitorElement* TrackPhi;
 	  MonitorElement* TrackEta;
+	  MonitorElement* TrackEtaHighPurity;
+	  MonitorElement* TrackEtaTight;
+	  MonitorElement* TrackEtaLoose;
           MonitorElement* TrackEtaPhi=nullptr;
+          MonitorElement* TrackEtaPhiInverted=nullptr;
+          MonitorElement* TrackEtaPhiInvertedoutofphase=nullptr;
+          MonitorElement* TkEtaPhi_Ratio_byFoldingmap=nullptr;
+          MonitorElement* TkEtaPhi_Ratio_byFoldingmap_op=nullptr;
+          MonitorElement* TkEtaPhi_RelativeDifference_byFoldingmap=nullptr;
+          MonitorElement* TkEtaPhi_RelativeDifference_byFoldingmap_op=nullptr;
           MonitorElement* TrackEtaPhiInner=nullptr;
           MonitorElement* TrackEtaPhiOuter=nullptr;
 
@@ -357,6 +383,7 @@ class TrackAnalyzer
 	MonitorElement* DistanceOfClosestApproachErrorVsPhi;
 	MonitorElement* DistanceOfClosestApproachErrorVsDxy;
 	MonitorElement* DistanceOfClosestApproachToBS;
+	MonitorElement* DistanceOfClosestApproachToBSdz;
 	MonitorElement* AbsDistanceOfClosestApproachToBS;
 	MonitorElement* DistanceOfClosestApproachToPV;
         MonitorElement* DistanceOfClosestApproachToPVZoom;
@@ -365,6 +392,7 @@ class TrackAnalyzer
 	MonitorElement* DistanceOfClosestApproachVsTheta;
 	MonitorElement* DistanceOfClosestApproachVsPhi;
 	MonitorElement* DistanceOfClosestApproachToBSVsPhi;
+	MonitorElement* DistanceOfClosestApproachToBSVsEta;
 	MonitorElement* DistanceOfClosestApproachToPVVsPhi;
 	MonitorElement* DistanceOfClosestApproachVsEta;
 	MonitorElement* xPointOfClosestApproach;

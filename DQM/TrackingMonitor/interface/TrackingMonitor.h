@@ -125,6 +125,9 @@ class TrackingMonitor : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElement
 
         // Tracks 
         MonitorElement * NumberOfTracks;
+        MonitorElement * NumberOfTracks_PUvtx;
+        MonitorElement * NumberofTracks_Hardvtx;
+        MonitorElement * NumberofTracks_Hardvtx_PUvtx;
         MonitorElement * NumberOfMeanRecHitsPerTrack;
         MonitorElement * NumberOfMeanLayersPerTrack;  
 
