@@ -43,7 +43,7 @@ SeedCreatorFromRegionHitsEDProducerT<T_SeedCreator>::SeedCreatorFromRegionHitsED
   edm::ParameterSet comparitorPSet = iConfig.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
   if(comparitorName != "none") {
-    comparitor_ = std::unique_ptr<SeedComparitor>{SeedComparitorFactory::get()->create(comparitorName, comparitorPSet, iC)};
+    comparitor_ = SeedComparitorFactory::get()->create(comparitorName, comparitorPSet, iC);
   }
 
   produces<TrajectorySeedCollection>();
