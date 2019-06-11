@@ -281,7 +281,7 @@ double HGCalImagingAlgo::calculateLocalDensity(std::vector<KDNode> &nd,
                  // density calculation
   if (layer <= lastLayerEE_)
     delta_c = vecDeltas_[0];
-  else if (layer <= lastLayerFH_)
+  else if (layer < firstLayerBH_)
     delta_c = vecDeltas_[1];
   else
     delta_c = vecDeltas_[2];
@@ -373,7 +373,7 @@ int HGCalImagingAlgo::findAndAssignClusters(
   float delta_c; // critical distance
   if (layer <= lastLayerEE_)
     delta_c = vecDeltas_[0];
-  else if (layer <= lastLayerFH_)
+  else if (layer < firstLayerBH_)
     delta_c = vecDeltas_[1];
   else
     delta_c = vecDeltas_[2];

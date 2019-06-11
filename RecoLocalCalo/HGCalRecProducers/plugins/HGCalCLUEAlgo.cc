@@ -90,7 +90,7 @@ void HGCalCLUEAlgo::makeClusters() {
                   // density calculation
       if (i%maxlayer_ < lastLayerEE_)
         delta_c = vecDeltas_[0];
-      else if (i%maxlayer_ < lastLayerFH_)
+      else if (i%maxlayer_ < (firstLayerBH_-1))
         delta_c = vecDeltas_[1];
       else
         delta_c = vecDeltas_[2];

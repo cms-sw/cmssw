@@ -72,6 +72,7 @@ enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
    maxlayer_ = rhtools_.lastLayerBH();
    lastLayerEE_ = rhtools_.lastLayerEE();
    lastLayerFH_ = rhtools_.lastLayerFH();
+   firstLayerBH_ = rhtools_.firstLayerBH();
    getEventSetupPerAlgorithm(es);
  }
  inline void setVerbosity(VerbosityLevel the_verbosity) {
@@ -84,6 +85,7 @@ enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
  // last layer per subdetector
  unsigned int lastLayerEE_;
  unsigned int lastLayerFH_;
+ unsigned int firstLayerBH_;
 
 protected:
  // The verbosity level
