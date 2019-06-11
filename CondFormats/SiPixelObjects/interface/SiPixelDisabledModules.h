@@ -16,29 +16,25 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 class SiPixelDisabledModules {
-
- public:
+public:
   typedef DetId disabledModuleType;
   typedef std::vector<disabledModuleType> disabledModuleListType;
 
-  SiPixelDisabledModules() {;}
+  SiPixelDisabledModules() { ; }
 
   // constructor from a list of disabled modules
-  SiPixelDisabledModules(const disabledModuleListType& disabledModules) : theDisabledModules(disabledModules) {;}
+  SiPixelDisabledModules(const disabledModuleListType& disabledModules) : theDisabledModules(disabledModules) { ; }
 
-  virtual ~SiPixelDisabledModules() {;}
+  virtual ~SiPixelDisabledModules() { ; }
 
   // return the list of disabled modules/ROCs
-  disabledModuleListType getDisabledModuleList()
-    { return theDisabledModules; }
+  disabledModuleListType getDisabledModuleList() { return theDisabledModules; }
 
   // set the list of disabled modules (current list is lost)
-  void setDisabledModuleList(const disabledModuleListType& disabledModules)
-    { theDisabledModules = disabledModules; }
+  void setDisabledModuleList(const disabledModuleListType& disabledModules) { theDisabledModules = disabledModules; }
 
   // add a single module to the vector of disabled modules
-  void addDisabledModule(disabledModuleType module)
-  { theDisabledModules.push_back(module); }
+  void addDisabledModule(disabledModuleType module) { theDisabledModules.push_back(module); }
 
   // add a vector of modules to the vector of disabled modules
   void addDisabledModule(const disabledModuleListType& idVector);
@@ -51,13 +47,10 @@ class SiPixelDisabledModules {
   // return true if it is
   bool isModuleDisabled(disabledModuleType module);
 
- private:
+private:
   disabledModuleListType theDisabledModules;
 
-
- COND_SERIALIZABLE;
-}; // class SiPixelDisabledModules
-
-
+  COND_SERIALIZABLE;
+};  // class SiPixelDisabledModules
 
 #endif
