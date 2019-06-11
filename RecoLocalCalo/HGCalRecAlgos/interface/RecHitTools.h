@@ -14,7 +14,7 @@ class DetId;
 namespace edm {
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 namespace hgcal {
   class RecHitTools {
@@ -24,10 +24,10 @@ namespace hgcal {
 
     void getEvent(const edm::Event&);
     void getEventSetup(const edm::EventSetup&);
-    const CaloSubdetectorGeometry* getSubdetectorGeometry( const DetId& id ) const;
+    const CaloSubdetectorGeometry* getSubdetectorGeometry(const DetId& id) const;
 
     GlobalPoint getPosition(const DetId& id) const;
-    GlobalPoint getPositionLayer(int layer, bool nose=false) const;
+    GlobalPoint getPositionLayer(int layer, bool nose = false) const;
     // zside returns +/- 1
     int zside(const DetId& id) const;
 
@@ -35,12 +35,12 @@ namespace hgcal {
     std::float_t getRadiusToSide(const DetId&) const;
     int getSiThickIndex(const DetId&) const;
 
-    unsigned int getLayer(DetId::Detector type, bool nose=false) const;
+    unsigned int getLayer(DetId::Detector type, bool nose = false) const;
     unsigned int getLayer(ForwardSubdetector type) const;
     unsigned int getLayer(const DetId&) const;
     unsigned int getLayerWithOffset(const DetId&) const;
-    std::pair<int,int> getWafer(const DetId&) const;
-    std::pair<int,int> getCell(const DetId&) const;
+    std::pair<int, int> getWafer(const DetId&) const;
+    std::pair<int, int> getCell(const DetId&) const;
 
     bool isHalfCell(const DetId&) const;
 
@@ -54,19 +54,21 @@ namespace hgcal {
     float getPhi(const DetId& id) const;
     float getPt(const DetId& id, const float& hitEnergy, const float& vertex_z = 0.) const;
 
-    inline const CaloGeometry * getGeometry() const {return geom_;};
-    unsigned int lastLayerEE() const {return fhOffset_;}
-    unsigned int lastLayerFH() const {return fhLastLayer_;}
-    unsigned int maxNumberOfWafersPerLayer(bool nose=false) const 
-    {return (nose ? maxNumberOfWafersNose_ : maxNumberOfWafersPerLayer_);}
-    inline int getGeometryType() const {return geometryType_;}
-    bool maskCell(const DetId& id, int corners=3) const;
+    inline const CaloGeometry* getGeometry() const { return geom_; };
+    unsigned int lastLayerEE() const { return fhOffset_; }
+    unsigned int lastLayerFH() const { return fhLastLayer_; }
+    unsigned int maxNumberOfWafersPerLayer(bool nose = false) const {
+      return (nose ? maxNumberOfWafersNose_ : maxNumberOfWafersPerLayer_);
+    }
+    inline int getGeometryType() const { return geometryType_; }
+    bool maskCell(const DetId& id, int corners = 3) const;
+
   private:
     const CaloGeometry* geom_;
-    unsigned int        fhOffset_, bhOffset_, fhLastLayer_;
-    unsigned int        maxNumberOfWafersPerLayer_, maxNumberOfWafersNose_;
-    int                 geometryType_;
+    unsigned int fhOffset_, bhOffset_, fhLastLayer_;
+    unsigned int maxNumberOfWafersPerLayer_, maxNumberOfWafersNose_;
+    int geometryType_;
   };
-}
+}  // namespace hgcal
 
 #endif
