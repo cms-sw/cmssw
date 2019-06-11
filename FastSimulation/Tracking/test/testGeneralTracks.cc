@@ -33,17 +33,15 @@
 //#include "TProcessID.h"
 
 class testGeneralTracks : public DQMEDAnalyzer {
-
-public :
+public:
   explicit testGeneralTracks(const edm::ParameterSet&);
   ~testGeneralTracks();
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup& ) override;
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const& ) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
-  
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
   edm::ParameterSet particleFilter_;
   std::vector<edm::InputTag> allTracks;
@@ -63,40 +61,34 @@ private:
 
   int totalNEvt;
 
-  const TrackerGeometry*  theGeometry;
+  const TrackerGeometry* theGeometry;
 
-  int  numfast;
-  int  numfull;
-  int  numfastHP;
-  int  numfullHP;
+  int numfast;
+  int numfull;
+  int numfastHP;
+  int numfullHP;
 
   reco::TrackBase::TrackQuality _trackQuality;
-
-
 };
 
-testGeneralTracks::testGeneralTracks(const edm::ParameterSet& p) :
-  mySimEvent(2, static_cast<FSimEvent*>(0)),
-  h0(2,static_cast<MonitorElement*>(0)),
-  TracksvsEtaP(2,static_cast<MonitorElement*>(0)),
-  HitsvsP(2,static_cast<MonitorElement*>(0)),
-  HitsvsEta(2,static_cast<MonitorElement*>(0)),
-  LayersvsP(2,static_cast<MonitorElement*>(0)),
-  LayersvsEta(2,static_cast<MonitorElement*>(0)),
+testGeneralTracks::testGeneralTracks(const edm::ParameterSet& p)
+    : mySimEvent(2, static_cast<FSimEvent*>(0)),
+      h0(2, static_cast<MonitorElement*>(0)),
+      TracksvsEtaP(2, static_cast<MonitorElement*>(0)),
+      HitsvsP(2, static_cast<MonitorElement*>(0)),
+      HitsvsEta(2, static_cast<MonitorElement*>(0)),
+      LayersvsP(2, static_cast<MonitorElement*>(0)),
+      LayersvsEta(2, static_cast<MonitorElement*>(0)),
 
-  Num(2,static_cast<MonitorElement*>(0)),
+      Num(2, static_cast<MonitorElement*>(0)),
 
-  totalNEvt(0)
-{
-  
-
+      totalNEvt(0) {
   // Let's just initialize the SimEvent's
-  particleFilter_ = p.getParameter<edm::ParameterSet>
-    ( "TestParticleFilter" );   
+  particleFilter_ = p.getParameter<edm::ParameterSet>("TestParticleFilter");
 
   allTracks.push_back(p.getParameter<edm::InputTag>("Full"));
   allTracks.push_back(p.getParameter<edm::InputTag>("Fast"));
- 
+
   // For the full sim
   mySimEvent[0] = new FSimEvent(particleFilter_);
   // For the fast sim
@@ -105,128 +97,118 @@ testGeneralTracks::testGeneralTracks(const edm::ParameterSet& p) :
   numfast = numfull = 0;
   numfastHP = numfullHP = 0;
   _trackQuality = reco::TrackBase::qualityByName("highPurity");
-
 }
 
-void testGeneralTracks::bookHistograms(DQMStore::IBooker & ibooker,
-				    edm::Run const & iRun,
-				    edm::EventSetup const & iSetup)
-{
-  ibooker.setCurrentFolder("testGeneralTracks") ;
-    
+void testGeneralTracks::bookHistograms(DQMStore::IBooker& ibooker,
+                                       edm::Run const& iRun,
+                                       edm::EventSetup const& iSetup) {
+  ibooker.setCurrentFolder("testGeneralTracks");
+
   // ... and the histograms
-  h0[0] = ibooker.book1D("generatedEta", "Generated Eta", 300, -3., 3. );
-  h0[1] = ibooker.book1D("generatedMom", "Generated momentum", 100, 0., 10. );
+  h0[0] = ibooker.book1D("generatedEta", "Generated Eta", 300, -3., 3.);
+  h0[1] = ibooker.book1D("generatedMom", "Generated momentum", 100, 0., 10.);
 
-  genTracksvsEtaP = ibooker.book2D("genEtaP","Generated eta vs p",28,-2.8,2.8,100,0,10.);
-  TracksvsEtaP[0] = ibooker.book2D("eff0Full","Efficiency 0th Full",28,-2.8,2.8,100,0,10.);
-  TracksvsEtaP[1] = ibooker.book2D("eff0Fast","Efficiency 0th Fast",28,-2.8,2.8,100,0,10.);
-  HitsvsP[0]      = ibooker.book2D("Hits0PFull","Hits vs P 0th Full",100,0.,10.,30,0,30.);
-  HitsvsP[1]      = ibooker.book2D("Hits0PFast","Hits vs P 0th Fast",100,0.,10.,30,0,30.);
-  HitsvsEta[0]    = ibooker.book2D("Hits0EtaFull","Hits vs Eta 0th Full",28,-2.8,2.8,30,0,30.);
-  HitsvsEta[1]    = ibooker.book2D("Hits0EtaFast","Hits vs Eta 0th Fast",28,-2.8,2.8,30,0,30.);
-  LayersvsP[0]    = ibooker.book2D("Layers0PFull","Layers vs P 0th Full",100,0.,10.,30,0,30.);
-  LayersvsP[1]    = ibooker.book2D("Layers0PFast","Layers vs P 0th Fast",100,0.,10.,30,0,30.);
-  LayersvsEta[0]  = ibooker.book2D("Layers0EtaFull","Layers vs Eta 0th Full",28,-2.8,2.8,30,0,30.);
-  LayersvsEta[1]  = ibooker.book2D("Layers0EtaFast","Layers vs Eta 0th Fast",28,-2.8,2.8,30,0,30.);
-
+  genTracksvsEtaP = ibooker.book2D("genEtaP", "Generated eta vs p", 28, -2.8, 2.8, 100, 0, 10.);
+  TracksvsEtaP[0] = ibooker.book2D("eff0Full", "Efficiency 0th Full", 28, -2.8, 2.8, 100, 0, 10.);
+  TracksvsEtaP[1] = ibooker.book2D("eff0Fast", "Efficiency 0th Fast", 28, -2.8, 2.8, 100, 0, 10.);
+  HitsvsP[0] = ibooker.book2D("Hits0PFull", "Hits vs P 0th Full", 100, 0., 10., 30, 0, 30.);
+  HitsvsP[1] = ibooker.book2D("Hits0PFast", "Hits vs P 0th Fast", 100, 0., 10., 30, 0, 30.);
+  HitsvsEta[0] = ibooker.book2D("Hits0EtaFull", "Hits vs Eta 0th Full", 28, -2.8, 2.8, 30, 0, 30.);
+  HitsvsEta[1] = ibooker.book2D("Hits0EtaFast", "Hits vs Eta 0th Fast", 28, -2.8, 2.8, 30, 0, 30.);
+  LayersvsP[0] = ibooker.book2D("Layers0PFull", "Layers vs P 0th Full", 100, 0., 10., 30, 0, 30.);
+  LayersvsP[1] = ibooker.book2D("Layers0PFast", "Layers vs P 0th Fast", 100, 0., 10., 30, 0, 30.);
+  LayersvsEta[0] = ibooker.book2D("Layers0EtaFull", "Layers vs Eta 0th Full", 28, -2.8, 2.8, 30, 0, 30.);
+  LayersvsEta[1] = ibooker.book2D("Layers0EtaFast", "Layers vs Eta 0th Fast", 28, -2.8, 2.8, 30, 0, 30.);
 }
 
-testGeneralTracks::~testGeneralTracks()
-{
-
+testGeneralTracks::~testGeneralTracks() {
   std::cout << "\t\t Number of Tracks " << std::endl;
-  std::cout << "\tFULL\t" <<  numfull << "\t HP= " << numfullHP << std::endl;
-  std::cout << "\tFAST\t" <<  numfast << "\t HP= " << numfastHP << std::endl;
-
+  std::cout << "\tFULL\t" << numfull << "\t HP= " << numfullHP << std::endl;
+  std::cout << "\tFAST\t" << numfast << "\t HP= " << numfastHP << std::endl;
 }
 
-void testGeneralTracks::dqmBeginRun(edm::Run const&, edm::EventSetup const& es)
-{
+void testGeneralTracks::dqmBeginRun(edm::Run const&, edm::EventSetup const& es) {
   // init Particle data table (from Pythia)
-  edm::ESHandle < HepPDT::ParticleDataTable > pdt;
+  edm::ESHandle<HepPDT::ParticleDataTable> pdt;
   es.getData(pdt);
-  
+
   mySimEvent[0]->initializePdt(&(*pdt));
   mySimEvent[1]->initializePdt(&(*pdt));
 
-  edm::ESHandle<TrackerGeometry>        geometry;
+  edm::ESHandle<TrackerGeometry> geometry;
   es.get<TrackerDigiGeometryRecord>().get(geometry);
   theGeometry = &(*geometry);
-
 }
 
-void
-testGeneralTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
+void testGeneralTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   ++totalNEvt;
-  
-  //  std::cout << " >>>>>>>>> Analizying Event " << totalNEvt << "<<<<<<< " << std::endl; 
-  
-  if ( totalNEvt/1000*1000 == totalNEvt ) 
-    std::cout << "Number of event analysed "
-	      << totalNEvt << std::endl; 
-  
-  std::unique_ptr<edm::SimTrackContainer> nuclSimTracks(new edm::SimTrackContainer);
-  
-  edm::Handle<std::vector<SimTrack> > fastSimTracks;
-  iEvent.getByLabel("fastSimProducer",fastSimTracks);
-  edm::Handle<std::vector<SimVertex> > fastSimVertices;
-  iEvent.getByLabel("fastSimProducer",fastSimVertices);
-  mySimEvent[1]->fill( *fastSimTracks, *fastSimVertices );
 
-  if ( !mySimEvent[1]->nVertices() ) return;
-  if ( !mySimEvent[1]->nTracks() ) return;
+  //  std::cout << " >>>>>>>>> Analizying Event " << totalNEvt << "<<<<<<< " << std::endl;
+
+  if (totalNEvt / 1000 * 1000 == totalNEvt)
+    std::cout << "Number of event analysed " << totalNEvt << std::endl;
+
+  std::unique_ptr<edm::SimTrackContainer> nuclSimTracks(new edm::SimTrackContainer);
+
+  edm::Handle<std::vector<SimTrack> > fastSimTracks;
+  iEvent.getByLabel("fastSimProducer", fastSimTracks);
+  edm::Handle<std::vector<SimVertex> > fastSimVertices;
+  iEvent.getByLabel("fastSimProducer", fastSimVertices);
+  mySimEvent[1]->fill(*fastSimTracks, *fastSimVertices);
+
+  if (!mySimEvent[1]->nVertices())
+    return;
+  if (!mySimEvent[1]->nTracks())
+    return;
   const FSimTrack& thePion = mySimEvent[1]->track(0);
-  
+
   double etaGen = thePion.momentum().Eta();
   double pGen = std::sqrt(thePion.momentum().Vect().Perp2());
-  if ( pGen < 0.2 ) return;
+  if (pGen < 0.2)
+    return;
 
   h0[0]->Fill(pGen);
   h0[1]->Fill(etaGen);
-  genTracksvsEtaP->Fill(etaGen,pGen,1.);
+  genTracksvsEtaP->Fill(etaGen, pGen, 1.);
   //  std::cout << " PArticle list: Pt = "  <<  pGen << " , eta = " << etaGen << std::endl;
-  
-  std::vector<bool> firstSeed(2,static_cast<bool>(false));
-  std::vector<bool> secondSeed(2,static_cast<bool>(false));
+
+  std::vector<bool> firstSeed(2, static_cast<bool>(false));
+  std::vector<bool> secondSeed(2, static_cast<bool>(false));
   std::vector<TrajectorySeed::range> theRecHitRange(2);
-  
-  for ( unsigned ievt=0; ievt<2; ++ievt ) {
-    
+
+  for (unsigned ievt = 0; ievt < 2; ++ievt) {
     edm::Handle<reco::TrackCollection> tkRef0;
-    iEvent.getByLabel(allTracks[ievt],tkRef0);    
+    iEvent.getByLabel(allTracks[ievt], tkRef0);
     std::vector<const reco::TrackCollection*> tkColl;
     tkColl.push_back(tkRef0.product());
-    
-    
+
     reco::TrackCollection::const_iterator itk0 = tkColl[0]->begin();
     reco::TrackCollection::const_iterator itk0_e = tkColl[0]->end();
-    for(;itk0!=itk0_e;++itk0){
+    for (; itk0 != itk0_e; ++itk0) {
       //std::cout << "quality " << itk0->quality(_trackQuality) << std::endl;
-      if(!(itk0->quality(_trackQuality)) ) {
-	//std::cout << "evt " << totalNEvt << "\tTRACK REMOVED" << std::endl;
-	continue;
-      } 
-      if(ievt==0) numfullHP++;
-      if(ievt==1) numfastHP++;
-     TracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
-     HitsvsEta[ievt]->Fill(etaGen,itk0->found(),1.);
-     HitsvsP[ievt]->Fill(pGen,itk0->found(),1.);
-     LayersvsEta[ievt]->Fill(etaGen,itk0->hitPattern().trackerLayersWithMeasurement(),1.);
-     LayersvsP[ievt]->Fill(pGen,itk0->hitPattern().trackerLayersWithMeasurement(),1.);
+      if (!(itk0->quality(_trackQuality))) {
+        //std::cout << "evt " << totalNEvt << "\tTRACK REMOVED" << std::endl;
+        continue;
+      }
+      if (ievt == 0)
+        numfullHP++;
+      if (ievt == 1)
+        numfastHP++;
+      TracksvsEtaP[ievt]->Fill(etaGen, pGen, 1.);
+      HitsvsEta[ievt]->Fill(etaGen, itk0->found(), 1.);
+      HitsvsP[ievt]->Fill(pGen, itk0->found(), 1.);
+      LayersvsEta[ievt]->Fill(etaGen, itk0->hitPattern().trackerLayersWithMeasurement(), 1.);
+      LayersvsP[ievt]->Fill(pGen, itk0->hitPattern().trackerLayersWithMeasurement(), 1.);
     }
 
     //    std::cout << "\t\t Number of Tracks " << std::endl;
-    if(ievt ==0){
-      numfull +=  tkColl[0]->size();       
+    if (ievt == 0) {
+      numfull += tkColl[0]->size();
       //      std::cout << "\tFULL\t" << tkColl[0]->size() << "\t" << numfull << "\t" << numfullHP << std::endl;
-    } else if (ievt ==1){
-      numfast +=  tkColl[0]->size();
+    } else if (ievt == 1) {
+      numfast += tkColl[0]->size();
       // std::cout << "\tFAST\t" << tkColl[0]->size() << "\t" << numfast << "\t" << numfastHP << std::endl;
     }
-
-
   }
 }
 
