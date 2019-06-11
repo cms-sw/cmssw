@@ -1336,7 +1336,13 @@ private:
                 get(dnn::pfCand_chHad_track_ndof) = pfCands.at(index_chH).pseudoTrack().ndof() > 0 ?
                     getValueNorm(pfCands.at(index_chH).pseudoTrack().ndof(), 13.92f, 6.581f) : 0;
             }
-            get(dnn::pfCand_chHad_hcalFraction) = getValue(pfCands.at(index_chH).hcalFraction());
+	    float hcal_fraction = 0.;
+	    if(pfCands.at(index_chH).pdgId() == 1 || pfCands.at(index_chH).pdgId() == 130) {
+	      hcal_fraction = pfCands.at(index_chH).hcalFraction();
+	    } else if(pfCands.at(index_chH).isIsolatedChargedHadron()) {
+	      hcal_fraction = pfCands.at(index_chH).rawHcalFraction();
+	    }
+            get(dnn::pfCand_chHad_hcalFraction) = getValue(hcal_fraction);
             get(dnn::pfCand_chHad_rawCaloFraction) = getValueLinear(pfCands.at(index_chH).rawCaloFraction(), 0.f, 2.6f, true);
         }
         if(valid_nH){
@@ -1351,7 +1357,13 @@ private:
                 is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
             get(dnn::pfCand_nHad_puppiWeight) = getValue(pfCands.at(index_nH).puppiWeight());
             get(dnn::pfCand_nHad_puppiWeightNoLep) = getValue(pfCands.at(index_nH).puppiWeightNoLep());
-            get(dnn::pfCand_nHad_hcalFraction) = getValue(pfCands.at(index_nH).hcalFraction());
+	    float hcal_fraction = 0.;
+	    if(pfCands.at(index_nH).pdgId() == 1 || pfCands.at(index_nH).pdgId() == 130) {
+	      hcal_fraction = pfCands.at(index_nH).hcalFraction();
+	    } else if(pfCands.at(index_nH).isIsolatedChargedHadron()) {
+	      hcal_fraction = pfCands.at(index_nH).rawHcalFraction();
+	    }
+            get(dnn::pfCand_nHad_hcalFraction) = getValue(hcal_fraction);
         }
         checkInputs(inputs, is_inner ? "hadron_inner_block" : "hadron_outer_block", dnn::NumberOfInputs);
     }
