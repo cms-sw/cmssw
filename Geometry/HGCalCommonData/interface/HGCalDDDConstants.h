@@ -159,6 +159,7 @@ public:
     return ((wafer >= 0) && (wafer < (int)(hgpar_->waferTypeL_.size()))) ? hgpar_->waferTypeL_[wafer] : 0;
   }
   int waferType(DetId const& id) const;
+  int waferType(int layer, int waferU, int waferV) const;
   int waferUVMax() const { return hgpar_->waferUVMax_; }
   bool waferVirtual(int layer, int waferU, int waferV) const;
   double waferZ(int layer, bool reco) const;

@@ -43,6 +43,8 @@
       0, 0, 0, 1, 0,  0, 0, 0, 1, 0,  0, 0, 0, 1, 0,
       0, 0, 0, 1, 0,  0, 0, 0, 1, 0,  0, 0, 0, 1, 0,
       0, 0, 0, 1, 0 </Vector>
+    <Vector name="LayerCenter" type="numeric" nEntries="16">
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0</Vector>
     <Vector name="TopMaterialNames" type="string" nEntries="3">
       materials:Cables, materials:H_Scintillator, 
       hgcalMaterial:HGC_G10-FR4</Vector>
