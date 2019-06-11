@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 primitiveRPCProducer = cms.EDProducer("L1TMuonRPCTriggerPrimitivesProducer",
 				Primitiverechitlabel = cms.InputTag("rpcdigis"),		
-				Mapsource = cms.string('L1Trigger/RPCTriggerPrimitives/input/Linkboard_rpc_roll_mapping_lb_chamber2.txt'),
+				Mapsource = cms.string('L1Trigger/RPCTriggerPrimitives/data/Linkboard_rpc_roll_mapping_lb_chamber2.txt'),
 			        ApplyLinkBoardCut = cms.bool(True),
 			        LinkBoardCut = cms.int32(2), # Number of clusters per linkboard greater than (default >2) are rejected
 			        ClusterSizeCut = cms.int32(3), # Clustersize greater than (default >3) is rejected 
