@@ -1634,6 +1634,15 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float lo
       chi2xavg_[i] = 0.f;
    }
 
+   sxparmax_ = entry->sxmax;
+   syparmax_ = entry->symax;
+   // Fitted errors params
+   for(int i =0; i<2; i++){
+     for(int j=0; j<5; j++){
+       yparl_[i][j] = yparh_[i][j] = entry->ypar[i][j];
+       xparl_[i][j] = xparh_[i][j] = entry->xpar[i][j];
+     }
+   }
    
    // This works only for IP-related tracks
    
