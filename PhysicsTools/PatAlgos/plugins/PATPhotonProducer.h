@@ -54,9 +54,9 @@ namespace pat {
     public:
 
       explicit PATPhotonProducer(const edm::ParameterSet & iConfig);
-      ~PATPhotonProducer();
+      ~PATPhotonProducer() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
