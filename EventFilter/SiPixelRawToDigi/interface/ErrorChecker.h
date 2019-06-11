@@ -8,9 +8,7 @@
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorCheckerBase.h"
 #include "FWCore/Utilities/interface/typedefs.h"
 
-
 class ErrorChecker : public ErrorCheckerBase {
-
 public:
   typedef cms_uint32_t Word32;
   typedef cms_uint64_t Word64;
@@ -28,22 +26,20 @@ public:
 
   bool checkTrailer(bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, Errors& errors) override;
 
-  bool checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameConverter* converter, 
-		const SiPixelFedCabling* theCablingTree,
-		Word32& errorWord, Errors& errors) override;
+  bool checkROC(bool& errorsInEvent,
+                int fedId,
+                const SiPixelFrameConverter* converter,
+                const SiPixelFedCabling* theCablingTree,
+                Word32& errorWord,
+                Errors& errors) override;
 
-
-
-  void conversionError(int fedId, const SiPixelFrameConverter* converter, 
-		       int status, Word32& errorWord, Errors& errors) override;
+  void conversionError(
+      int fedId, const SiPixelFrameConverter* converter, int status, Word32& errorWord, Errors& errors) override;
 
 private:
-
   bool includeErrors;
 
-  cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, 
-	 	          int errorType, const Word32 & word) const override;
-
+  cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, int errorType, const Word32& word) const override;
 };
 
 #endif
