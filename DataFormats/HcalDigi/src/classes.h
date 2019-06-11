@@ -19,5 +19,3 @@ struct HcalUpgradeDataFrame {
 struct HcalUpgradeQIESample {};
 typedef edm::SortedCollection<HcalUpgradeDataFrame> HBHEUpgradeDigiCollection;
 typedef edm::SortedCollection<HcalUpgradeDataFrame> HFUpgradeDigiCollection;
-
-

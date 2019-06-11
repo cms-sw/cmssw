@@ -26,19 +26,28 @@ namespace edm {
   class AdjusterBase {
   public:
     virtual ~AdjusterBase() {}
-    virtual void doOffset(int bunchspace, int bcr, const edm::EventPrincipal&, ModuleCallingContext const*, unsigned int EventNr, int vertexOffset) = 0;
+    virtual void doOffset(int bunchspace,
+                          int bcr,
+                          const edm::EventPrincipal&,
+                          ModuleCallingContext const*,
+                          unsigned int EventNr,
+                          int vertexOffset) = 0;
     virtual bool checkSignal(edm::Event const& event) = 0;
   };
 
-  template<typename T>
+  template <typename T>
   class Adjuster : public AdjusterBase {
-
   public:
     Adjuster(InputTag const& tag, edm::ConsumesCollector&& iC, bool wrap);
 
     ~Adjuster() override {}
 
-    void doOffset(int bunchspace, int bcr, const edm::EventPrincipal&, ModuleCallingContext const*, unsigned int EventNr, int vertexOffset) override;
+    void doOffset(int bunchspace,
+                  int bcr,
+                  const edm::EventPrincipal&,
+                  ModuleCallingContext const*,
+                  unsigned int EventNr,
+                  int vertexOffset) override;
 
     bool checkSignal(edm::Event const& event) override {
       bool got = false;
@@ -47,7 +56,7 @@ namespace edm {
       return got;
     }
 
-   private:
+  private:
     InputTag tag_;
     bool WrapT_ = false;
     EDGetTokenT<T> token_;
@@ -58,15 +67,41 @@ namespace edm {
   //==============================================================================
 
   namespace detail {
-    void doTheOffset(int bunchspace, int bcr, std::vector<SimTrack>& product, unsigned int eventNr, int vertexOffset, bool wraptimes);
-    void doTheOffset(int bunchspace, int bcr, std::vector<SimVertex>& product, unsigned int eventNr, int vertexOffset, bool wraptimes);
-    void doTheOffset(int bunchspace, int bcr, std::vector<PCaloHit>& product, unsigned int eventNr, int vertexOffset, bool wraptimes);
-    void doTheOffset(int bunchspace, int bcr, std::vector<PSimHit>& product, unsigned int eventNr, int vertexOffset, bool wraptimes);
-    void doTheOffset(int bunchspace, int bcr, TrackingRecHitCollection & product, unsigned int eventNr, int vertexOffset, bool wraptimes);
-  }
+    void doTheOffset(int bunchspace,
+                     int bcr,
+                     std::vector<SimTrack>& product,
+                     unsigned int eventNr,
+                     int vertexOffset,
+                     bool wraptimes);
+    void doTheOffset(int bunchspace,
+                     int bcr,
+                     std::vector<SimVertex>& product,
+                     unsigned int eventNr,
+                     int vertexOffset,
+                     bool wraptimes);
+    void doTheOffset(int bunchspace,
+                     int bcr,
+                     std::vector<PCaloHit>& product,
+                     unsigned int eventNr,
+                     int vertexOffset,
+                     bool wraptimes);
+    void doTheOffset(
+        int bunchspace, int bcr, std::vector<PSimHit>& product, unsigned int eventNr, int vertexOffset, bool wraptimes);
+    void doTheOffset(int bunchspace,
+                     int bcr,
+                     TrackingRecHitCollection& product,
+                     unsigned int eventNr,
+                     int vertexOffset,
+                     bool wraptimes);
+  }  // namespace detail
 
-  template<typename T>
-  void  Adjuster<T>::doOffset(int bunchspace, int bcr, const EventPrincipal &ep, ModuleCallingContext const* mcc, unsigned int eventNr, int vertexOffset) {
+  template <typename T>
+  void Adjuster<T>::doOffset(int bunchspace,
+                             int bcr,
+                             const EventPrincipal& ep,
+                             ModuleCallingContext const* mcc,
+                             unsigned int eventNr,
+                             int vertexOffset) {
     std::shared_ptr<Wrapper<T> const> shPtr = getProductByTag<T>(ep, tag_, mcc);
     if (shPtr) {
       T& product = const_cast<T&>(*shPtr->product());
@@ -74,13 +109,15 @@ namespace edm {
     }
   }
 
-  template<typename T>
-    Adjuster<T>::Adjuster(InputTag const& tag, ConsumesCollector&& iC, bool wrapLongTimes) : tag_(tag), token_(iC.consumes<T>(tag)) {
-    if(wrapLongTimes) {
+  template <typename T>
+  Adjuster<T>::Adjuster(InputTag const& tag, ConsumesCollector&& iC, bool wrapLongTimes)
+      : tag_(tag), token_(iC.consumes<T>(tag)) {
+    if (wrapLongTimes) {
       std::string Musearch = tag_.instance();
-      if(Musearch.find("Muon") == 0) WrapT_ = true; // wrap time for neutrons in Muon system subdetectors
+      if (Musearch.find("Muon") == 0)
+        WrapT_ = true;  // wrap time for neutrons in Muon system subdetectors
     }
   }
-}
+}  // namespace edm
 
 #endif

@@ -6,14 +6,12 @@
 
 #include <iostream>
 
-EDM_REGISTER_PLUGINFACTORY(edm::DigiAccumulatorMixModPluginFactory,"DigiAccumulator");
+EDM_REGISTER_PLUGINFACTORY(edm::DigiAccumulatorMixModPluginFactory, "DigiAccumulator");
 
 namespace edm {
-  DigiAccumulatorMixModFactory::~DigiAccumulatorMixModFactory() {
-  }
+  DigiAccumulatorMixModFactory::~DigiAccumulatorMixModFactory() {}
 
-  DigiAccumulatorMixModFactory::DigiAccumulatorMixModFactory() {
-  }
+  DigiAccumulatorMixModFactory::DigiAccumulatorMixModFactory() {}
 
   DigiAccumulatorMixModFactory const DigiAccumulatorMixModFactory::singleInstance_;
 
@@ -25,26 +23,24 @@ namespace edm {
     return &singleInstance_;
   }
 
-  std::unique_ptr<DigiAccumulatorMixMod>
-  DigiAccumulatorMixModFactory::makeDigiAccumulator(ParameterSet const& conf, ProducerBase& mixMod, ConsumesCollector& iC) const {
+  std::unique_ptr<DigiAccumulatorMixMod> DigiAccumulatorMixModFactory::makeDigiAccumulator(
+      ParameterSet const& conf, ProducerBase& mixMod, ConsumesCollector& iC) const {
     std::string accumulatorType = conf.getParameter<std::string>("accumulatorType");
     FDEBUG(1) << "DigiAccumulatorMixModFactory: digi_accumulator_type = " << accumulatorType << std::endl;
     std::unique_ptr<DigiAccumulatorMixMod> wm;
-    wm = std::unique_ptr<DigiAccumulatorMixMod>(DigiAccumulatorMixModPluginFactory::get()->create(accumulatorType, conf, mixMod, iC));
-    
-    if(wm.get()==nullptr) {
-	throw edm::Exception(errors::Configuration,"NoSourceModule")
-	  << "DigiAccumulator Factory:\n"
-	  << "Cannot find dig type from ParameterSet: "
-	  << accumulatorType << "\n"
-	  << "Perhaps your source type is misspelled or is not an EDM Plugin?\n"
-	  << "Try running EdmPluginDump to obtain a list of available Plugins.";
+    wm = std::unique_ptr<DigiAccumulatorMixMod>(
+        DigiAccumulatorMixModPluginFactory::get()->create(accumulatorType, conf, mixMod, iC));
+
+    if (wm.get() == nullptr) {
+      throw edm::Exception(errors::Configuration, "NoSourceModule")
+          << "DigiAccumulator Factory:\n"
+          << "Cannot find dig type from ParameterSet: " << accumulatorType << "\n"
+          << "Perhaps your source type is misspelled or is not an EDM Plugin?\n"
+          << "Try running EdmPluginDump to obtain a list of available Plugins.";
     }
 
-    FDEBUG(1) << "DigiAccumulatorMixModFactory: created a Digi Accumulator "
-	      << accumulatorType
-	      << std::endl;
+    FDEBUG(1) << "DigiAccumulatorMixModFactory: created a Digi Accumulator " << accumulatorType << std::endl;
 
     return wm;
   }
-}
+}  // namespace edm
