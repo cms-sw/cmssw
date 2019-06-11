@@ -54,11 +54,7 @@ public:
   CutApplicatorBase& operator=(const CutApplicatorBase&) = delete;
 #endif
 
-  result_type operator()(const argument_type&) const
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-      final
-#endif
-      ;
+  result_type operator()(const argument_type&) const final;
 
   // electrons
   virtual result_type operator()(const reco::GsfElectronPtr&) const { return false; }
