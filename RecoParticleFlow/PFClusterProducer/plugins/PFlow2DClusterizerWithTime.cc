@@ -62,15 +62,13 @@ PFlow2DClusterizerWithTime::PFlow2DClusterizerWithTime(const edm::ParameterSet& 
   if (conf.exists("allCellsPositionCalc")) {
     const edm::ParameterSet& acConf = conf.getParameterSet("allCellsPositionCalc");
     const std::string& algoac = acConf.getParameter<std::string>("algoName");
-    _allCellsPosCalc =
-        std::unique_ptr<PFCPositionCalculatorBase>{PFCPositionCalculatorFactory::get()->create(algoac, acConf)};
+    _allCellsPosCalc = PFCPositionCalculatorFactory::get()->create(algoac, acConf);
   }
   // if necessary a third pos calc for convergence testing
   if (conf.exists("positionCalcForConvergence")) {
     const edm::ParameterSet& convConf = conf.getParameterSet("positionCalcForConvergence");
     const std::string& algoconv = convConf.getParameter<std::string>("algoName");
-    _convergencePosCalc =
-        std::unique_ptr<PFCPositionCalculatorBase>{PFCPositionCalculatorFactory::get()->create(algoconv, convConf)};
+    _convergencePosCalc = PFCPositionCalculatorFactory::get()->create(algoconv, convConf);
   }
   if (conf.exists("timeResolutionCalcBarrel")) {
     const edm::ParameterSet& timeResConf = conf.getParameterSet("timeResolutionCalcBarrel");
