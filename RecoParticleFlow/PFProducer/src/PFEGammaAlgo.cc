@@ -570,11 +570,11 @@ namespace {
 }
 
 PFEGammaAlgo::
-PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg) : cfg_(cfg)
+PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg, GBRForests const& gbrForests)
+    : gbrForests_(gbrForests) , cfg_(cfg)
 {}
 
-float PFEGammaAlgo::evaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
-                                         const reco::PFBlockRef& blockRef, 
+float PFEGammaAlgo::evaluateSingleLegMVA(const reco::PFBlockRef& blockRef, 
                                          const reco::Vertex& primaryVtx, 
                                          unsigned int trackIndex)
 {
@@ -627,7 +627,7 @@ float PFEGammaAlgo::evaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* ho
   float vars[] = { delPhi, nLayers, chi2, eOverPt,
                    hOverPt, trackPt, stip, nlost };
 
-  return hoc->gbrSingleLeg_->GetAdaBoostClassifier(vars);
+  return gbrForests_.singleLeg_->GetAdaBoostClassifier(vars);
 }
 
 bool PFEGammaAlgo::isMuon(const reco::PFBlockElement& pfbe) {
@@ -657,12 +657,19 @@ bool PFEGammaAlgo::isMuon(const reco::PFBlockElement& pfbe) {
   return false;
 }
 
-void PFEGammaAlgo::buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* hoc,
-                                           const reco::PFBlockRef& block) {
+PFEGammaAlgo::EgammaObjects PFEGammaAlgo::operator()(const reco::PFBlockRef& block) {
   LOGVERB("PFEGammaAlgo") 
     << "Resetting PFEGammaAlgo for new block and running!" << std::endl;
+
+  // candidate collections:
+  // this starts off as an inclusive list of prototype objects built from 
+  // supercluster/ecal-driven seeds and tracker driven seeds in a block
+  // it is then refined through by various cleanings, determining the energy 
+  // flow.
+  // use list for constant-time removals
+  std::list<ProtoEGObject> refinableObjects;
+
   _splayedblock.clear();
-  _refinableObjects.clear();
   _splayedblock.resize(13); // make sure that we always have the HGCAL entry
 
   _currentblock = block;
@@ -696,9 +703,9 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* 
   // we don't allow clusters in super clusters to be locked out this way
   removeOrLinkECALClustersToKFTracks();
 
-  initializeProtoCands(_refinableObjects); 
+  initializeProtoCands(refinableObjects); 
   LOGDRESSED("PFEGammaAlgo") 
-    << "Initialized " << _refinableObjects.size() << " proto-EGamma objects"
+    << "Initialized " << refinableObjects.size() << " proto-EGamma objects"
     << std::endl;
   dumpCurrentRefinableObjects();
 
@@ -710,7 +717,7 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* 
   // --- Primary Linking Step ---
   // since this is particle flow and we try to work from the pixels out
   // we start by linking the tracks together and finding the ECAL clusters
-  for( auto& RO : _refinableObjects ) {
+  for( auto& RO : refinableObjects ) {
     // find the KF tracks associated to GSF primary tracks
     linkRefinableObjectGSFTracksToKFs(RO);
     // do the same for HCAL clusters associated to the GSF
@@ -730,7 +737,7 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* 
   dumpCurrentRefinableObjects();
 
   // merge objects after primary linking
-  mergeROsByAnyLink(_refinableObjects);
+  mergeROsByAnyLink(refinableObjects);
 
   LOGDRESSED("PFEGammaAlgo")
     << "Dumping after first merging operation : " << std::endl;
@@ -739,9 +746,9 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* 
   // --- Secondary Linking Step ---
   // after this we go through the ECAL clusters on the remaining tracks
   // and try to link those in...
-  for( auto& RO : _refinableObjects ) {    
+  for( auto& RO : refinableObjects ) {    
     // look for conversion legs
-    linkRefinableObjectECALToSingleLegConv(hoc,RO);
+    linkRefinableObjectECALToSingleLegConv(RO);
     dumpCurrentRefinableObjects();
     // look for tracks that complement conversion legs
     linkRefinableObjectConvSecondaryKFsToSecondaryKFs(RO);
@@ -754,15 +761,15 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* 
   dumpCurrentRefinableObjects();
 
   // merge objects after primary linking
-  mergeROsByAnyLink(_refinableObjects);
+  mergeROsByAnyLink(refinableObjects);
 
   LOGDRESSED("PFEGammaAlgo")
-    << "There are " << _refinableObjects.size() 
+    << "There are " << refinableObjects.size() 
     << " after the 2nd merging step." << std::endl;
   dumpCurrentRefinableObjects();
 
   // -- unlinking and proto-object vetos, final sorting
-  for( auto& RO : _refinableObjects ) {
+  for( auto& RO : refinableObjects ) {
     // remove secondary KFs (and possibly ECALs) matched to HCAL clusters
     unlinkRefinableObjectKFandECALMatchedToHCAL(RO, false, false);
     // remove secondary KFs and ECALs linked to them that have bad E/p_in 
@@ -777,12 +784,12 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* 
   }
 
   LOGDRESSED("PFEGammaAlgo")
-    << "There are " << _refinableObjects.size() 
+    << "There are " << refinableObjects.size() 
     << " after the unlinking and vetos step." << std::endl;
   dumpCurrentRefinableObjects();
 
   // fill the PF candidates and then build the refined SC
-  fillPFCandidates(hoc,_refinableObjects,outcands_,outcandsextra_);
+  return fillPFCandidates(refinableObjects);
 
 }
 
@@ -808,8 +815,8 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
       unwrapSuperCluster(fromSC.parentSC,fromSC.ecalclusters,fromSC.ecal2ps);
     if( sc_success ) {
       /*
-      auto ins_pos = std::lower_bound(_refinableObjects.begin(),
-				      _refinableObjects.end(),
+      auto ins_pos = std::lower_bound(refinableObjects.begin(),
+				      refinableObjects.end(),
 				      fromSC,
 				      [&](const ProtoEGObject& a,
 					  const ProtoEGObject& b){
@@ -820,7 +827,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 					return a_en < b_en;
 				      });
       */
-      _refinableObjects.insert(_refinableObjects.end(),fromSC);
+      egobjs.insert(egobjs.end(),fromSC);
     }
   }
   // step 2: build GSF-seed-based proto-candidates
@@ -892,15 +899,15 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	 << " isNonnull: " << fromGSF.electronSeed.isNonnull() 
 	 << std::endl;           
        SeedMatchesToProtoObject sctoseedmatch(fromGSF.electronSeed);      
-       std::list<ProtoEGObject>::iterator objsbegin = _refinableObjects.begin();
-       std::list<ProtoEGObject>::iterator objsend   = _refinableObjects.end();
+       auto objsbegin = egobjs.begin();
+       auto objsend   = egobjs.end();
        // this auto is a std::list<ProtoEGObject>::iterator
        auto clusmatch = std::find_if(objsbegin,objsend,sctoseedmatch);
        if( clusmatch != objsend ) {
 	 fromGSF.parentSC = clusmatch->parentSC;
 	 fromGSF.ecalclusters = std::move(clusmatch->ecalclusters);
 	 fromGSF.ecal2ps  = std::move(clusmatch->ecal2ps);
-	 _refinableObjects.erase(clusmatch);	
+	 egobjs.erase(clusmatch);	
        } else if (fromGSF.electronSeed.isAvailable()  && 
 		  fromGSF.electronSeed.isNonnull()) {
 	 // link tests in the gap region can current split a gap electron
@@ -918,22 +925,8 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	   << gsf_err.str() << std::endl;
        } // supercluster in block
      } // is ECAL driven seed?   
-     /*
-     auto ins_pos = std::lower_bound(_refinableObjects.begin(),
-				     _refinableObjects.end(),
-				     fromGSF,
-				     [&](const ProtoEGObject& a,
-					 const ProtoEGObject& b){
-				       const double a_en = ( a.parentSC ?
-							     a.parentSC->superClusterRef()->energy() :
-							     a.primaryGSFs[0]->GsftrackRef()->pt() );
-				       const double b_en = ( b.parentSC ?
-							     b.parentSC->superClusterRef()->energy() :
-							     b.primaryGSFs[0]->GsftrackRef()->pt() );
-				       return a_en < b_en;
-				     });   
-     */
-     _refinableObjects.insert(_refinableObjects.end(),fromGSF);
+
+     egobjs.insert(egobjs.end(),fromGSF);
    } // end loop on GSF elements of block
 }
 
@@ -1118,9 +1111,9 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
  #ifdef PFLOW_DEBUG
    edm::LogVerbatim("PFEGammaAlgo") 
      //<< "Dumping current block: " << std::endl << *_currentblock << std::endl
-     << "Dumping " << _refinableObjects.size()
+     << "Dumping " << refinableObjects.size()
      << " refinable objects for this block: " << std::endl;
-   for( const auto& ro : _refinableObjects ) {    
+   for( const auto& ro : refinableObjects ) {    
      std::stringstream info;
      info << "Refinable Object:" << std::endl;
      if( ro.parentSC ) {
@@ -1256,8 +1249,8 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	   const int nexhits = 
 	     trackref->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
 	   bool fromprimaryvertex = false;
-	   for( auto vtxtks = cfg_.primaryVtx->tracks_begin();
-		vtxtks != cfg_.primaryVtx->tracks_end(); ++ vtxtks ) {
+	   for( auto vtxtks = primaryVertex_->tracks_begin();
+		vtxtks != primaryVertex_->tracks_end(); ++ vtxtks ) {
 	     if( trackref == vtxtks->castTo<reco::TrackRef>() ) {
 	       fromprimaryvertex = true;
 	       break;
@@ -1668,8 +1661,7 @@ linkRefinableObjectConvSecondaryKFsToSecondaryKFs(ProtoEGObject& RO) {
 }
 
 void PFEGammaAlgo::
-linkRefinableObjectECALToSingleLegConv(const pfEGHelpers::HeavyObjectCache* hoc,
-                                       ProtoEGObject& RO) { 
+linkRefinableObjectECALToSingleLegConv(ProtoEGObject& RO) { 
   auto KFbegin = _splayedblock[reco::PFBlockElement::TRACK].begin();
   auto KFend = _splayedblock[reco::PFBlockElement::TRACK].end();  
   for( auto& ecal : RO.ecalclusters ) {
@@ -1689,8 +1681,8 @@ linkRefinableObjectECALToSingleLegConv(const pfEGHelpers::HeavyObjectCache* hoc,
     }
     // go through non-conv-identified kfs and check MVA to add conversions
     for( auto kf = notconvkf; kf != notmatchedkf; ++kf ) {
-      float mvaval = evaluateSingleLegMVA(hoc,_currentblock, 
-                                          *cfg_.primaryVtx, 
+      float mvaval = evaluateSingleLegMVA(_currentblock, 
+                                          *primaryVertex_, 
                                           (*kf)->index());
       if(mvaval > cfg_.mvaConvCut) {
 	const reco::PFBlockElementTrack* elemaskf =
@@ -1727,18 +1719,16 @@ linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject& RO) {
   }
 }
 
-void PFEGammaAlgo::
-fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
-                 const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
-		 reco::PFCandidateCollection& egcands,
-		 reco::PFCandidateEGammaExtraCollection& egxs) {
-  // reset output collections
-  egcands.clear();
-  egxs.clear();  
-  refinedscs_.clear();
-  egcands.reserve(ROs.size());
-  egxs.reserve(ROs.size());
-  refinedscs_.reserve(ROs.size());
+PFEGammaAlgo::EgammaObjects PFEGammaAlgo::
+fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs) {
+
+  EgammaObjects output;
+
+  // reserve output collections
+  output.candidates.reserve(ROs.size());
+  output.candidateExtras.reserve(ROs.size());
+  output.refinedSuperClusters.reserve(ROs.size());
+
   for( auto& RO : ROs ) {    
     if( RO.ecalclusters.empty()  && 
 	!cfg_.produceEGCandsWithNoSuperCluster ) continue;
@@ -1803,8 +1793,8 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
         //by storing 3.0 + mvaval
         float mvaval = ( mvavalmapped != RO.singleLegConversionMvaMap.end() ? 
                          mvavalmapped->second : 
-                         3.0 + evaluateSingleLegMVA(hoc,_currentblock,
-                                                    *cfg_.primaryVtx, 
+                         3.0 + evaluateSingleLegMVA(_currentblock,
+                                                    *primaryVertex_,
                                                     kf->index()) );
         
         xtra.addSingleLegConvTrackRefMva(std::make_pair(kf->trackRef(),mvaval));
@@ -1812,7 +1802,7 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
     }
     
     // build the refined supercluster from those clusters left in the cand
-    refinedscs_.push_back(buildRefinedSuperCluster(RO));
+    output.refinedSuperClusters.push_back(buildRefinedSuperCluster(RO));
 
     //*TODO* cluster time is not reliable at the moment, so only use track timing
     float trkTime = 0, trkTimeErr = -1;
@@ -1827,7 +1817,7 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
       cand.setTime( trkTime, trkTimeErr );
     }
     
-    const reco::SuperCluster& the_sc = refinedscs_.back();
+    const reco::SuperCluster& the_sc = output.refinedSuperClusters.back();
     // with the refined SC in hand we build a naive candidate p4 
     // and set the candidate ECAL position to either the barycenter of the 
     // supercluster (if super-cluster present) or the seed of the
@@ -1835,7 +1825,7 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
     const double scE = the_sc.energy();
     if( scE != 0.0 ) {
       const math::XYZPoint& seedPos = the_sc.seed()->position();
-      math::XYZVector egDir = the_sc.position()-cfg_.primaryVtx->position();
+      math::XYZVector egDir = the_sc.position()-primaryVertex_->position();
       egDir = egDir.Unit();      
       cand.setP4(math::XYZTLorentzVector(scE*egDir.x(),
 					 scE*egDir.y(),
@@ -1860,18 +1850,19 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
       cand.setP4(p4);   
       cand.setPositionAtECALEntrance(kf->positionAtECALEntrance());
     }    
-    const float eleMVAValue = calculateEleMVA(hoc,RO,xtra);
+    const float eleMVAValue = calculateEleMVA(RO,xtra);
     fillExtraInfo(RO,xtra);
     //std::cout << "PFEG eleMVA: " << eleMVAValue << std::endl;
     xtra.setMVA(eleMVAValue);    
     cand.set_mva_e_pi(eleMVAValue);
-    egcands.push_back(cand);
-    egxs.push_back(xtra);    
+    output.candidates.push_back(cand);
+    output.candidateExtras.push_back(xtra);    
   }
+
+  return output;
 }
 
-float PFEGammaAlgo::calculateEleMVA(const pfEGHelpers::HeavyObjectCache* hoc,
-                                    const PFEGammaAlgo::ProtoEGObject& ro,
+float PFEGammaAlgo::calculateEleMVA(const PFEGammaAlgo::ProtoEGObject& ro,
                                     reco::PFCandidateEGammaExtra& xtra) const
 {
   if( ro.primaryGSFs.empty() ) 
@@ -2031,7 +2022,7 @@ float PFEGammaAlgo::calculateEleMVA(const pfEGHelpers::HeavyObjectCache* hoc,
                        nHitKf, chi2Kf, eTotPinMode, eGsfPoutMode, eTotBremPinPoutMode,
                        dEtaGsfEcalClust, logSigmaEtaEta, hOverHe, lateBrem, firstBrem };
 
-      return hoc->gbrEle_->GetAdaBoostClassifier(vars);
+      return gbrForests_.ele_->GetAdaBoostClassifier(vars);
     }
   }
   return -2.0f;
