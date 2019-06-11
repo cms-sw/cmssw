@@ -98,18 +98,18 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig) {
     // Load MuIsoExtractor parameters
     edm::ParameterSet caloExtractorPSet = iConfig.getParameter<edm::ParameterSet>("CaloExtractorPSet");
     std::string caloExtractorName = caloExtractorPSet.getParameter<std::string>("ComponentName");
-    muIsoExtractorCalo_ = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{
-        IsoDepositExtractorFactory::get()->create(caloExtractorName, caloExtractorPSet, consumesCollector())};
+    muIsoExtractorCalo_ =
+        IsoDepositExtractorFactory::get()->create(caloExtractorName, caloExtractorPSet, consumesCollector());
 
     edm::ParameterSet trackExtractorPSet = iConfig.getParameter<edm::ParameterSet>("TrackExtractorPSet");
     std::string trackExtractorName = trackExtractorPSet.getParameter<std::string>("ComponentName");
-    muIsoExtractorTrack_ = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{
-        IsoDepositExtractorFactory::get()->create(trackExtractorName, trackExtractorPSet, consumesCollector())};
+    muIsoExtractorTrack_ =
+        IsoDepositExtractorFactory::get()->create(trackExtractorName, trackExtractorPSet, consumesCollector());
 
     edm::ParameterSet jetExtractorPSet = iConfig.getParameter<edm::ParameterSet>("JetExtractorPSet");
     std::string jetExtractorName = jetExtractorPSet.getParameter<std::string>("ComponentName");
-    muIsoExtractorJet_ = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{
-        IsoDepositExtractorFactory::get()->create(jetExtractorName, jetExtractorPSet, consumesCollector())};
+    muIsoExtractorJet_ =
+        IsoDepositExtractorFactory::get()->create(jetExtractorName, jetExtractorPSet, consumesCollector());
   }
   if (fillIsolation_ && writeIsoDeposits_) {
     trackDepositName_ = iConfig.getParameter<std::string>("trackDepositName");
