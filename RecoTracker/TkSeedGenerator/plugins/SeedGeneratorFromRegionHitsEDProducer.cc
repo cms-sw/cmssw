@@ -37,7 +37,7 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
   edm::ParameterSet regfactoryPSet = 
       cfg.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer = std::unique_ptr<TrackingRegionProducer>{TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector())};
+  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector());
 
   edm::ConsumesCollector iC = consumesCollector();
   edm::ParameterSet hitsfactoryPSet =
@@ -49,14 +49,14 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
   std::unique_ptr<SeedComparitor> aComparitor;
   if(comparitorName != "none") {
-    aComparitor = std::unique_ptr<SeedComparitor>{SeedComparitorFactory::get()->create( comparitorName, comparitorPSet, iC)};
+    aComparitor = SeedComparitorFactory::get()->create( comparitorName, comparitorPSet, iC);
   }
 
   std::string creatorName = creatorPSet.getParameter<std::string>("ComponentName");
 
-  theGenerator = std::make_unique<SeedGeneratorFromRegionHits>(std::unique_ptr<OrderedHitsGenerator>{OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC)},
+  theGenerator = std::make_unique<SeedGeneratorFromRegionHits>(OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC),
                                                                std::move(aComparitor),
-                                                               std::unique_ptr<SeedCreator>{SeedCreatorFactory::get()->create( creatorName, creatorPSet)});
+                                                               SeedCreatorFactory::get()->create( creatorName, creatorPSet));
 
   produces<TrajectorySeedCollection>();
 }
