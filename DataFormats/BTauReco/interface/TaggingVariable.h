@@ -19,154 +19,152 @@ namespace reco {
 
   namespace btau {
 
-    inline double etaRel(const math::XYZVector &dir, const math::XYZVector &track)
-    {
-            double momPar = dir.Dot(track);
-            double energy = std::sqrt(track.Mag2() +
-                                      ROOT::Math::Square(reco::ParticleMasses::piPlus));
+    inline double etaRel(const math::XYZVector& dir, const math::XYZVector& track) {
+      double momPar = dir.Dot(track);
+      double energy = std::sqrt(track.Mag2() + ROOT::Math::Square(reco::ParticleMasses::piPlus));
 
-            return 0.5 * std::log((energy + momPar) / (energy - momPar));
+      return 0.5 * std::log((energy + momPar) / (energy - momPar));
     }
 
     // define the enum in a namespace to avoid polluting reco with all the enum values
     enum TaggingVariableName {
-      jetEnergy = 0,                            // jet energy
-      jetPt,                                    // jet transverse momentum
-      trackJetPt,                               // track-based jet transverse momentum
-      jetEta,                                   // jet pseudorapidity
-      jetAbsEta,                                // jet pseudorapidity
-      jetPhi,                                   // jet polar angle
-      jetNTracks,                               // tracks associated to jet
-      jetNSelectedTracks,                       // tracks associated to jet
-      jetNTracksEtaRel,                         // number of tracks for which etaRel is computed
+      jetEnergy = 0,       // jet energy
+      jetPt,               // jet transverse momentum
+      trackJetPt,          // track-based jet transverse momentum
+      jetEta,              // jet pseudorapidity
+      jetAbsEta,           // jet pseudorapidity
+      jetPhi,              // jet polar angle
+      jetNTracks,          // tracks associated to jet
+      jetNSelectedTracks,  // tracks associated to jet
+      jetNTracksEtaRel,    // number of tracks for which etaRel is computed
 
-      trackMomentum,                            // track momentum
-      trackEta,                                 // track pseudorapidity
-      trackPhi,                                 // track polar angle
+      trackMomentum,  // track momentum
+      trackEta,       // track pseudorapidity
+      trackPhi,       // track polar angle
 
-      trackCharge,                              // track charge
+      trackCharge,  // track charge
 
-      trackPtRel,                               // track transverse momentum, relative to the jet axis
-      trackPPar,                                // track parallel momentum, along the jet axis
-      trackEtaRel,                              // track pseudorapidity, relative to the jet axis
-      trackDeltaR,                              // track pseudoangular distance from the jet axis
-      trackPtRatio,                             // track transverse momentum, relative to the jet axis, normalized to its energy
-      trackPParRatio,                           // track parallel momentum, along the jet axis, normalized to its energy
+      trackPtRel,      // track transverse momentum, relative to the jet axis
+      trackPPar,       // track parallel momentum, along the jet axis
+      trackEtaRel,     // track pseudorapidity, relative to the jet axis
+      trackDeltaR,     // track pseudoangular distance from the jet axis
+      trackPtRatio,    // track transverse momentum, relative to the jet axis, normalized to its energy
+      trackPParRatio,  // track parallel momentum, along the jet axis, normalized to its energy
 
-      trackSip2dVal,                            // track 2D signed impact parameter
-      trackSip2dSig,                            // track 2D signed impact parameter significance
-      trackSip3dVal,                            // track 3D signed impact parameter
-      trackSip3dSig,                            // track 3D signed impact parameter significance
-      trackDecayLenVal,                         // track decay length
-      trackDecayLenSig,                         // track decay length significance
-      trackJetDistVal,                          // minimum track approach distance to jet axis
-      trackJetDistSig,                          // minimum track approach distance to jet axis significance
-      trackGhostTrackDistVal,                   // minimum approach distance to ghost track
-      trackGhostTrackDistSig,                   // minimum approach distance to ghost track significance
-      trackGhostTrackWeight,                    // weight of track participation in ghost track fit
+      trackSip2dVal,           // track 2D signed impact parameter
+      trackSip2dSig,           // track 2D signed impact parameter significance
+      trackSip3dVal,           // track 3D signed impact parameter
+      trackSip3dSig,           // track 3D signed impact parameter significance
+      trackDecayLenVal,        // track decay length
+      trackDecayLenSig,        // track decay length significance
+      trackJetDistVal,         // minimum track approach distance to jet axis
+      trackJetDistSig,         // minimum track approach distance to jet axis significance
+      trackGhostTrackDistVal,  // minimum approach distance to ghost track
+      trackGhostTrackDistSig,  // minimum approach distance to ghost track significance
+      trackGhostTrackWeight,   // weight of track participation in ghost track fit
 
-      trackSumJetEtRatio,                       // ratio of track sum transverse energy over jet energy
-      trackSumJetDeltaR,                        // pseudoangular distance between jet axis and track fourvector sum
+      trackSumJetEtRatio,  // ratio of track sum transverse energy over jet energy
+      trackSumJetDeltaR,   // pseudoangular distance between jet axis and track fourvector sum
 
-      vertexCategory,                           // category of secondary vertex (Reco, Pseudo, No)
-      vertexLeptonCategory,                     // category of secondary vertex & soft lepton (RecoNo, PseudoNo, NoNo, RecoMu, PseudoMu, NoMu, RecoEl, PseudoEl, NoEl)
+      vertexCategory,  // category of secondary vertex (Reco, Pseudo, No)
+      vertexLeptonCategory,  // category of secondary vertex & soft lepton (RecoNo, PseudoNo, NoNo, RecoMu, PseudoMu, NoMu, RecoEl, PseudoEl, NoEl)
 
-      jetNSecondaryVertices,                    // number of reconstructed possible secondary vertices in jet
-      jetNSingleTrackVertices,                  // number of single-track ghost-track vertices
+      jetNSecondaryVertices,    // number of reconstructed possible secondary vertices in jet
+      jetNSingleTrackVertices,  // number of single-track ghost-track vertices
 
-      vertexMass,                               // mass of track sum at secondary vertex
-      vertexNTracks,                            // number of tracks at secondary vertex
-      vertexFitProb,                            // vertex fit probability
+      vertexMass,     // mass of track sum at secondary vertex
+      vertexNTracks,  // number of tracks at secondary vertex
+      vertexFitProb,  // vertex fit probability
 
-      vertexEnergyRatio,                        // ratio of energy at secondary vertex over total energy
-      vertexJetDeltaR,                          // pseudoangular distance between jet axis and secondary vertex direction
-      
-      flightDistance1dVal,                      // Longitudinal distance along the z-axis between primary and secondary vertex
-      flightDistance1dSig,                      // Longitudinal distance significance along the z-axis between primary and secondary vertex
-      flightDistance2dVal,                      // transverse distance between primary and secondary vertex
-      flightDistance2dSig,                      // transverse distance significance between primary and secondary vertex
-      flightDistance3dVal,                      // distance between primary and secondary vertex
-      flightDistance3dSig,                      // distance significance between primary and secondary vertex
+      vertexEnergyRatio,  // ratio of energy at secondary vertex over total energy
+      vertexJetDeltaR,    // pseudoangular distance between jet axis and secondary vertex direction
 
-      trackSip2dValAboveCharm,                  // track 2D signed impact parameter of first track lifting mass above charm
-      trackSip2dSigAboveCharm,                  // track 2D signed impact parameter significance of first track lifting mass above charm
-      trackSip3dValAboveCharm,                  // track 3D signed impact parameter of first track lifting mass above charm
-      trackSip3dSigAboveCharm,                  // track 3D signed impact parameter significance of first track lifting mass above charm
+      flightDistance1dVal,  // Longitudinal distance along the z-axis between primary and secondary vertex
+      flightDistance1dSig,  // Longitudinal distance significance along the z-axis between primary and secondary vertex
+      flightDistance2dVal,  // transverse distance between primary and secondary vertex
+      flightDistance2dSig,  // transverse distance significance between primary and secondary vertex
+      flightDistance3dVal,  // distance between primary and secondary vertex
+      flightDistance3dSig,  // distance significance between primary and secondary vertex
 
-      leptonQuality,                            // lepton identification quality
-      leptonQuality2,                           // lepton identification quality 2
+      trackSip2dValAboveCharm,  // track 2D signed impact parameter of first track lifting mass above charm
+      trackSip2dSigAboveCharm,  // track 2D signed impact parameter significance of first track lifting mass above charm
+      trackSip3dValAboveCharm,  // track 3D signed impact parameter of first track lifting mass above charm
+      trackSip3dSigAboveCharm,  // track 3D signed impact parameter significance of first track lifting mass above charm
 
-      trackP0Par,                               // track momentum along the jet axis, in the jet rest frame
-      trackP0ParRatio,                          // track momentum along the jet axis, in the jet rest frame, normalized to its energy"
-      trackChi2,                                // track fit chi2
-      trackNTotalHits,                          // number of valid total hits
-      trackNPixelHits,                          // number of valid pixel hits
+      leptonQuality,   // lepton identification quality
+      leptonQuality2,  // lepton identification quality 2
 
-      chargedHadronEnergyFraction,              // fraction of the jet energy coming from charged hadrons
-      neutralHadronEnergyFraction,              // fraction of the jet energy coming from neutral hadrons
-      photonEnergyFraction,                     // fraction of the jet energy coming from photons
-      electronEnergyFraction,                   // fraction of the jet energy coming from electrons
-      muonEnergyFraction,                       // fraction of the jet energy coming from muons
-      chargedHadronMultiplicity,                // number of charged hadrons in the jet
-      neutralHadronMultiplicity,                // number of neutral hadrons in the jet
-      photonMultiplicity,                       // number of photons in the jet
-      electronMultiplicity,                     // number of electrons in the jet
-      muonMultiplicity,                         // number of muons in the jet
-      hadronMultiplicity,                       // sum of number of charged and neutral hadrons in the jet
-      hadronPhotonMultiplicity,                 // sum of number of charged and neutral hadrons and photons in the jet
-      totalMultiplicity,                        // sum of number of charged and neutral hadrons, photons, electrons and muons in the jet
+      trackP0Par,       // track momentum along the jet axis, in the jet rest frame
+      trackP0ParRatio,  // track momentum along the jet axis, in the jet rest frame, normalized to its energy"
+      trackChi2,        // track fit chi2
+      trackNTotalHits,  // number of valid total hits
+      trackNPixelHits,  // number of valid pixel hits
 
-      massVertexEnergyFraction,                 // vertexmass times fraction of the vertex energy w.r.t. the jet energy
-      vertexBoostOverSqrtJetPt,                 // variable related to the boost of the vertex system in flight direction
+      chargedHadronEnergyFraction,  // fraction of the jet energy coming from charged hadrons
+      neutralHadronEnergyFraction,  // fraction of the jet energy coming from neutral hadrons
+      photonEnergyFraction,         // fraction of the jet energy coming from photons
+      electronEnergyFraction,       // fraction of the jet energy coming from electrons
+      muonEnergyFraction,           // fraction of the jet energy coming from muons
+      chargedHadronMultiplicity,    // number of charged hadrons in the jet
+      neutralHadronMultiplicity,    // number of neutral hadrons in the jet
+      photonMultiplicity,           // number of photons in the jet
+      electronMultiplicity,         // number of electrons in the jet
+      muonMultiplicity,             // number of muons in the jet
+      hadronMultiplicity,           // sum of number of charged and neutral hadrons in the jet
+      hadronPhotonMultiplicity,     // sum of number of charged and neutral hadrons and photons in the jet
+      totalMultiplicity,  // sum of number of charged and neutral hadrons, photons, electrons and muons in the jet
 
-      leptonSip2d,                              // 2D signed impact parameter of the soft lepton
-      leptonSip3d,                              // 3D signed impact parameter of the soft lepton
-      leptonPtRel,                              // transverse momentum of the soft lepton wrt. the jet axis
-      leptonP0Par,                              // momentum of the soft lepton along the jet direction, in the jet rest frame
-      leptonEtaRel,                             // pseudo)rapidity of the soft lepton along jet axis
-      leptonDeltaR,                             // pseudo)angular distance of the soft lepton to jet axis
-      leptonRatio,                              // momentum of the soft lepton over jet energy
-      leptonRatioRel,                           // momentum of the soft lepton parallel to jet axis over jet energy
-      electronMVA,                              // mva output from electron ID
+      massVertexEnergyFraction,  // vertexmass times fraction of the vertex energy w.r.t. the jet energy
+      vertexBoostOverSqrtJetPt,  // variable related to the boost of the vertex system in flight direction
+
+      leptonSip2d,     // 2D signed impact parameter of the soft lepton
+      leptonSip3d,     // 3D signed impact parameter of the soft lepton
+      leptonPtRel,     // transverse momentum of the soft lepton wrt. the jet axis
+      leptonP0Par,     // momentum of the soft lepton along the jet direction, in the jet rest frame
+      leptonEtaRel,    // pseudo)rapidity of the soft lepton along jet axis
+      leptonDeltaR,    // pseudo)angular distance of the soft lepton to jet axis
+      leptonRatio,     // momentum of the soft lepton over jet energy
+      leptonRatioRel,  // momentum of the soft lepton parallel to jet axis over jet energy
+      electronMVA,     // mva output from electron ID
 
       // ### specific to boosted double-b tagger (see BTV-15-002 PAS for more details) ###
-      trackSip3dSig_0,                          // 1st largest track 3D signed impact parameter significance
-      trackSip3dSig_1,                          // 2nd largest track 3D signed impact parameter significance
-      trackSip3dSig_2,                          // 3rd largest track 3D signed impact parameter significance
-      trackSip3dSig_3,                          // 4th largest track 3D signed impact parameter significance
-      tau1_trackSip3dSig_0,                     // 1st largest track 3D signed impact parameter significance associated to the 1st N-subjettiness axis
-      tau1_trackSip3dSig_1,                     // 2nd largest track 3D signed impact parameter significance associated to the 1st N-subjettiness axis
-      tau2_trackSip3dSig_0,                     // 1st largest track 3D signed impact parameter significance associated to the 2nd N-subjettiness axis
-      tau2_trackSip3dSig_1,                     // 2nd largest track 3D signed impact parameter significance associated to the 2nd N-subjettiness axis
-      trackSip2dSigAboveBottom_0,               // track 2D signed impact parameter significance of 1st track lifting mass above bottom
-      trackSip2dSigAboveBottom_1,               // track 2D signed impact parameter significance of 2nd track lifting mass above bottom
-      tau1_trackEtaRel_0,                       // 1st smallest track pseudorapidity, relative to the jet axis, associated to the 1st N-subjettiness axis
-      tau1_trackEtaRel_1,                       // 2nd smallest track pseudorapidity, relative to the jet axis, associated to the 1st N-subjettiness axis
-      tau1_trackEtaRel_2,                       // 3rd smallest track pseudorapidity, relative to the jet axis, associated to the 1st N-subjettiness axis
-      tau2_trackEtaRel_0,                       // 1st smallest track pseudorapidity, relative to the jet axis, associated to the 2nd N-subjettiness axis
-      tau2_trackEtaRel_1,                       // 2nd smallest track pseudorapidity, relative to the jet axis, associated to the 2nd N-subjettiness axis
-      tau2_trackEtaRel_2,                       // 3rd smallest track pseudorapidity, relative to the jet axis, associated to the 2nd N-subjettiness axis
-      tau1_vertexMass,                          // mass of track sum at secondary vertex associated to the 1st N-subjettiness axis
-      tau1_vertexEnergyRatio,                   // ratio of energy at secondary vertex over total energy associated to the 1st N-subjettiness axis
-      tau1_flightDistance2dSig,                 // transverse distance significance between primary and secondary vertex associated to the 1st N-subjettiness axis
-      tau1_vertexDeltaR,                        // pseudoangular distance between the 1st N-subjettiness axis and secondary vertex direction
-      tau2_vertexMass,                          // mass of track sum at secondary vertex associated to the 2nd N-subjettiness axis
-      tau2_vertexEnergyRatio,                   // ratio of energy at secondary vertex over total energy associated to the 2nd N-subjettiness axis
-      tau2_flightDistance2dSig,                 // transverse distance significance between primary and secondary vertex associated to the 2nd N-subjettiness axis
-      tau2_vertexDeltaR,                        // pseudoangular distance between the 2nd N-subjettiness axis and secondary vertex direction
-      z_ratio,                                  // z ratio
-	  
-      Jet_SoftMu,               								// discriminator output of SoftMuon Tagger, used as input to (Deep)CMVA
-      Jet_SoftEl,								                // discriminator output of SoftElectron Tagger, used as input to (Deep)CMVA
-      Jet_JBP,									                // discriminator output of JPB Tagger, used as input to (Deep)CMVA
-      Jet_JP,									                  // discriminator output of JP Tagger, used as input to (Deep)CMVA
+      trackSip3dSig_0,  // 1st largest track 3D signed impact parameter significance
+      trackSip3dSig_1,  // 2nd largest track 3D signed impact parameter significance
+      trackSip3dSig_2,  // 3rd largest track 3D signed impact parameter significance
+      trackSip3dSig_3,  // 4th largest track 3D signed impact parameter significance
+      tau1_trackSip3dSig_0,  // 1st largest track 3D signed impact parameter significance associated to the 1st N-subjettiness axis
+      tau1_trackSip3dSig_1,  // 2nd largest track 3D signed impact parameter significance associated to the 1st N-subjettiness axis
+      tau2_trackSip3dSig_0,  // 1st largest track 3D signed impact parameter significance associated to the 2nd N-subjettiness axis
+      tau2_trackSip3dSig_1,  // 2nd largest track 3D signed impact parameter significance associated to the 2nd N-subjettiness axis
+      trackSip2dSigAboveBottom_0,  // track 2D signed impact parameter significance of 1st track lifting mass above bottom
+      trackSip2dSigAboveBottom_1,  // track 2D signed impact parameter significance of 2nd track lifting mass above bottom
+      tau1_trackEtaRel_0,  // 1st smallest track pseudorapidity, relative to the jet axis, associated to the 1st N-subjettiness axis
+      tau1_trackEtaRel_1,  // 2nd smallest track pseudorapidity, relative to the jet axis, associated to the 1st N-subjettiness axis
+      tau1_trackEtaRel_2,  // 3rd smallest track pseudorapidity, relative to the jet axis, associated to the 1st N-subjettiness axis
+      tau2_trackEtaRel_0,  // 1st smallest track pseudorapidity, relative to the jet axis, associated to the 2nd N-subjettiness axis
+      tau2_trackEtaRel_1,  // 2nd smallest track pseudorapidity, relative to the jet axis, associated to the 2nd N-subjettiness axis
+      tau2_trackEtaRel_2,  // 3rd smallest track pseudorapidity, relative to the jet axis, associated to the 2nd N-subjettiness axis
+      tau1_vertexMass,  // mass of track sum at secondary vertex associated to the 1st N-subjettiness axis
+      tau1_vertexEnergyRatio,  // ratio of energy at secondary vertex over total energy associated to the 1st N-subjettiness axis
+      tau1_flightDistance2dSig,  // transverse distance significance between primary and secondary vertex associated to the 1st N-subjettiness axis
+      tau1_vertexDeltaR,  // pseudoangular distance between the 1st N-subjettiness axis and secondary vertex direction
+      tau2_vertexMass,    // mass of track sum at secondary vertex associated to the 2nd N-subjettiness axis
+      tau2_vertexEnergyRatio,  // ratio of energy at secondary vertex over total energy associated to the 2nd N-subjettiness axis
+      tau2_flightDistance2dSig,  // transverse distance significance between primary and secondary vertex associated to the 2nd N-subjettiness axis
+      tau2_vertexDeltaR,  // pseudoangular distance between the 2nd N-subjettiness axis and secondary vertex direction
+      z_ratio,            // z ratio
+
+      Jet_SoftMu,  // discriminator output of SoftMuon Tagger, used as input to (Deep)CMVA
+      Jet_SoftEl,  // discriminator output of SoftElectron Tagger, used as input to (Deep)CMVA
+      Jet_JBP,     // discriminator output of JPB Tagger, used as input to (Deep)CMVA
+      Jet_JP,      // discriminator output of JP Tagger, used as input to (Deep)CMVA
       // #################################################################################
 
-      algoDiscriminator,                        // discriminator output of an algorithm
+      algoDiscriminator,  // discriminator output of an algorithm
 
       lastTaggingVariable
     };
-  }
+  }  // namespace btau
 
   // import only TaggingVariableName type into reco namespace
   using btau::TaggingVariableName;
@@ -174,27 +172,20 @@ namespace reco {
   extern const char* const TaggingVariableDescription[];
   extern const char* const TaggingVariableTokens[];
 
-  TaggingVariableName getTaggingVariableName ( const std::string & name );
+  TaggingVariableName getTaggingVariableName(const std::string& name);
 
   typedef float TaggingValue;
-  
+
   // cannot use a const member since the STL containers relie on the default assignment operator
   // typedef std::pair< const TaggingVariableName, TaggingValue > TaggingVariable;
-  typedef std::pair< TaggingVariableName, TaggingValue > TaggingVariable;
+  typedef std::pair<TaggingVariableName, TaggingValue> TaggingVariable;
 
   struct TaggingVariableCompare {
-    bool operator() (const TaggingVariable& i, const TaggingVariable& j) {
-      return i.first < j.first;
-    }
+    bool operator()(const TaggingVariable& i, const TaggingVariable& j) { return i.first < j.first; }
 
-    bool operator() (const TaggingVariable& i, TaggingVariableName tag) {
-      return i.first < tag;
-    }
+    bool operator()(const TaggingVariable& i, TaggingVariableName tag) { return i.first < tag; }
 
-    bool operator() (TaggingVariableName tag, const TaggingVariable& i) {
-      return tag < i.first;
-    }
-
+    bool operator()(TaggingVariableName tag, const TaggingVariable& i) { return tag < i.first; }
   };
 
   // implementation via std::vector where
@@ -202,13 +193,14 @@ namespace reco {
   //  - extraction is done via binary search
   class TaggingVariableList {
   public:
-    TaggingVariableList() : m_list() { }
-    TaggingVariableList( const TaggingVariableList& list ) : m_list( list.m_list ) { }
+    TaggingVariableList() : m_list() {}
+    TaggingVariableList(const TaggingVariableList& list) : m_list(list.m_list) {}
 
     // [begin, end) must identify a valid range of iterators to TaggingVariableList
     template <typename InputIterator>
-    TaggingVariableList( const InputIterator begin, const InputIterator end ) : m_list() {
-      static_assert(( boost::is_convertible< const TaggingVariableList, typename boost::pointee<InputIterator>::type >::value ));
+    TaggingVariableList(const InputIterator begin, const InputIterator end) : m_list() {
+      static_assert(
+          (boost::is_convertible<const TaggingVariableList, typename boost::pointee<InputIterator>::type>::value));
       for (const InputIterator i = begin; i != end; i++)
         insert(*i);
     }
@@ -216,42 +208,39 @@ namespace reco {
     /**
      *  STL-like accessors 
      */
-    typedef std::vector < TaggingVariable >::const_iterator const_iterator;
-    typedef std::pair < const_iterator, const_iterator > range;
+    typedef std::vector<TaggingVariable>::const_iterator const_iterator;
+    typedef std::pair<const_iterator, const_iterator> range;
     size_t size() const { return m_list.size(); }
     const_iterator begin() const { return m_list.begin(); }
     const_iterator end() const { return m_list.end(); }
-    void push_back ( const TaggingVariable & t ) { m_list.push_back ( t ); }
+    void push_back(const TaggingVariable& t) { m_list.push_back(t); }
 
-    ~TaggingVariableList() { }
-
+    ~TaggingVariableList() {}
 
   private:
-    std::vector< TaggingVariable > m_list;
-      
+    std::vector<TaggingVariable> m_list;
+
   public:
-    bool checkTag( TaggingVariableName tag ) const;
-    
-    void insert( const TaggingVariable & variable, bool delayed = false );
-    void insert( const TaggingVariableList & list );
-    void insert( TaggingVariableName tag, TaggingValue value, bool delayed = false );
-    void insert( TaggingVariableName tag, const std::vector<TaggingValue> & values, bool delayed = false );
+    bool checkTag(TaggingVariableName tag) const;
 
-    void finalize( void );
-    
-    TaggingValue get( TaggingVariableName tag ) const;
-    TaggingValue get( TaggingVariableName tag, TaggingValue defaultValue ) const;
-    std::vector<TaggingValue> getList( TaggingVariableName tag, bool throwOnEmptyList = true ) const;
+    void insert(const TaggingVariable& variable, bool delayed = false);
+    void insert(const TaggingVariableList& list);
+    void insert(TaggingVariableName tag, TaggingValue value, bool delayed = false);
+    void insert(TaggingVariableName tag, const std::vector<TaggingValue>& values, bool delayed = false);
 
-    range getRange( TaggingVariableName tag ) const;
+    void finalize(void);
 
-    TaggingValue operator[]( TaggingVariableName tag ) const {
-      return get( tag );
-    }
+    TaggingValue get(TaggingVariableName tag) const;
+    TaggingValue get(TaggingVariableName tag, TaggingValue defaultValue) const;
+    std::vector<TaggingValue> getList(TaggingVariableName tag, bool throwOnEmptyList = true) const;
+
+    range getRange(TaggingVariableName tag) const;
+
+    TaggingValue operator[](TaggingVariableName tag) const { return get(tag); }
   };
 
-  DECLARE_EDM_REFS( TaggingVariableList )
+  DECLARE_EDM_REFS(TaggingVariableList)
 
-}
+}  // namespace reco
 
-#endif // DataFormats_BTauReco_TaggingVariable_h
+#endif  // DataFormats_BTauReco_TaggingVariable_h

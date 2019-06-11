@@ -6,10 +6,9 @@
 
 namespace reco {
 
-typedef reco::TemplatedSecondaryVertexTagInfo<reco::TrackIPTagInfo,reco::Vertex> SecondaryVertexTagInfo;
+  typedef reco::TemplatedSecondaryVertexTagInfo<reco::TrackIPTagInfo, reco::Vertex> SecondaryVertexTagInfo;
 
+  DECLARE_EDM_REFS(SecondaryVertexTagInfo)
 
-DECLARE_EDM_REFS(SecondaryVertexTagInfo)
-
-}
-#endif // DataFormats_BTauReco_SecondaryVertexTagInfo_h
+}  // namespace reco
+#endif  // DataFormats_BTauReco_SecondaryVertexTagInfo_h

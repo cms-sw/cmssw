@@ -4,7 +4,7 @@
 //
 // Package:     TrackingTools/TrackAssociator
 // Class  :     PreshowerDetIdAssociatorMaker
-// 
+//
 /**\class PreshowerDetIdAssociatorMaker PreshowerDetIdAssociatorMaker.h "PreshowerDetIdAssociatorMaker.h"
 
  Description: [one line class summary]
@@ -26,18 +26,14 @@
 
 // forward declarations
 
-class PreshowerDetIdAssociatorMaker : public CaloDetIdAssociatorMaker
-{
-
- public:
+class PreshowerDetIdAssociatorMaker : public CaloDetIdAssociatorMaker {
+public:
   using CaloDetIdAssociatorMaker::CaloDetIdAssociatorMaker;
 
- private:
-  std::unique_ptr<DetIdAssociator> make(CaloGeometry const& geom, int nPhi, int nEta, double etaBinSize ) const final {
-    return std::unique_ptr<DetIdAssociator>( new PreshowerDetIdAssociator(nPhi,nEta, etaBinSize, &geom) );
+private:
+  std::unique_ptr<DetIdAssociator> make(CaloGeometry const& geom, int nPhi, int nEta, double etaBinSize) const final {
+    return std::unique_ptr<DetIdAssociator>(new PreshowerDetIdAssociator(nPhi, nEta, etaBinSize, &geom));
   }
-
 };
-
 
 #endif

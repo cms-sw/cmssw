@@ -2,7 +2,7 @@
 //
 // Package:     TrackingTools/TrackAssociator
 // Class  :     MuonDetIdAssociatorMaker
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -32,27 +32,23 @@
 // constructors and destructor
 //
 MuonDetIdAssociatorMaker::MuonDetIdAssociatorMaker(edm::ParameterSet const& pSet,
-                                                   edm::ESConsumesCollectorT<DetIdAssociatorRecord>&& iCollector):
-  etaBinSize{pSet.getParameter<double>("etaBinSize")},
-  nPhi{pSet.getParameter<int>("nPhi")},
-  nEta{pSet.getParameter<int>("nEta")},
-  includeBadChambers_{pSet.getParameter<bool>("includeBadChambers")},
-  includeGEM_{pSet.getParameter<bool>("includeGEM")},
-  includeME0_{pSet.getParameter<bool>("includeME0")}
-{
+                                                   edm::ESConsumesCollectorT<DetIdAssociatorRecord>&& iCollector)
+    : etaBinSize{pSet.getParameter<double>("etaBinSize")},
+      nPhi{pSet.getParameter<int>("nPhi")},
+      nEta{pSet.getParameter<int>("nEta")},
+      includeBadChambers_{pSet.getParameter<bool>("includeBadChambers")},
+      includeGEM_{pSet.getParameter<bool>("includeGEM")},
+      includeME0_{pSet.getParameter<bool>("includeME0")} {
   iCollector.setConsumes(geomToken_).setConsumes(badChambersToken_);
 }
 
-std::unique_ptr<DetIdAssociator> 
-MuonDetIdAssociatorMaker::make(const DetIdAssociatorRecord& iRecord) const {
-  return std::unique_ptr<DetIdAssociator>(
-                                          new MuonDetIdAssociator(nPhi, nEta, etaBinSize,
+std::unique_ptr<DetIdAssociator> MuonDetIdAssociatorMaker::make(const DetIdAssociatorRecord& iRecord) const {
+  return std::unique_ptr<DetIdAssociator>(new MuonDetIdAssociator(nPhi,
+                                                                  nEta,
+                                                                  etaBinSize,
                                                                   &iRecord.get(geomToken_),
                                                                   &iRecord.get(badChambersToken_),
                                                                   includeBadChambers_,
                                                                   includeGEM_,
-                                                                  includeME0_)
-                                          );
+                                                                  includeME0_));
 }
-
-
