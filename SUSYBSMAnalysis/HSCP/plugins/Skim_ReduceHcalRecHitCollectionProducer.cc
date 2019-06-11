@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -28,7 +27,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -63,24 +61,24 @@
 //
 
 class ReduceHcalRecHitCollectionProducer : public edm::EDProducer {
-   public:
-      explicit ReduceHcalRecHitCollectionProducer(const edm::ParameterSet&);
-      ~ReduceHcalRecHitCollectionProducer() override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-   private:
-      edm::EDGetTokenT<HBHERecHitCollection> recHitsToken_;
-      std::string reducedHitsCollection_;
-      edm::EDGetTokenT<reco::TrackCollection> inputCollectionToken_;
-      TrackDetectorAssociator trackAssociator_;
-      TrackAssociatorParameters parameters_;
-      double  ptcut_;
-      // ----------member data ---------------------------
+public:
+  explicit ReduceHcalRecHitCollectionProducer(const edm::ParameterSet&);
+  ~ReduceHcalRecHitCollectionProducer() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  edm::EDGetTokenT<HBHERecHitCollection> recHitsToken_;
+  std::string reducedHitsCollection_;
+  edm::EDGetTokenT<reco::TrackCollection> inputCollectionToken_;
+  TrackDetectorAssociator trackAssociator_;
+  TrackAssociatorParameters parameters_;
+  double ptcut_;
+  // ----------member data ---------------------------
 };
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -89,93 +87,76 @@ class ReduceHcalRecHitCollectionProducer : public edm::EDProducer {
 //
 // constructors and destructor
 //
-ReduceHcalRecHitCollectionProducer::ReduceHcalRecHitCollectionProducer(const edm::ParameterSet& iConfig)
-{
-  recHitsToken_ = consumes<HBHERecHitCollection>(iConfig.getParameter< edm::InputTag > ("recHitsLabel"));
+ReduceHcalRecHitCollectionProducer::ReduceHcalRecHitCollectionProducer(const edm::ParameterSet& iConfig) {
+  recHitsToken_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsLabel"));
 
   reducedHitsCollection_ = iConfig.getParameter<std::string>("reducedHitsCollection");
 
-   //register your products
-  produces< HBHERecHitCollection > (reducedHitsCollection_) ;
+  //register your products
+  produces<HBHERecHitCollection>(reducedHitsCollection_);
 
-    inputCollectionToken_ = consumes<reco::TrackCollection>(iConfig.getParameter< edm::InputTag >("inputCollection"));
-    ptcut_= iConfig.getParameter< double >("TrackPt");
+  inputCollectionToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputCollection"));
+  ptcut_ = iConfig.getParameter<double>("TrackPt");
 
-    produces< DetIdCollection >() ;
-   // TrackAssociator parameters
-   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-   edm::ConsumesCollector iC = consumesCollector();
-   parameters_.loadParameters( parameters, iC );
-   trackAssociator_.useDefaultPropagator();
-
+  produces<DetIdCollection>();
+  // TrackAssociator parameters
+  edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+  edm::ConsumesCollector iC = consumesCollector();
+  parameters_.loadParameters(parameters, iC);
+  trackAssociator_.useDefaultPropagator();
 }
 
-
-ReduceHcalRecHitCollectionProducer::~ReduceHcalRecHitCollectionProducer()
-{
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+ReduceHcalRecHitCollectionProducer::~ReduceHcalRecHitCollectionProducer() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-ReduceHcalRecHitCollectionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+void ReduceHcalRecHitCollectionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   using namespace std;
+  using namespace std;
 
-   using reco::TrackCollection;
+  using reco::TrackCollection;
 
-   Handle<HBHERecHitCollection> recHitsHandle;
-   iEvent.getByToken(recHitsToken_,recHitsHandle);
-   if( !recHitsHandle.isValid() )
-     {
-       edm::LogError("ReduceHcalRecHitCollectionProducer") << "RecHit collection not found";
-       return;
-     }
+  Handle<HBHERecHitCollection> recHitsHandle;
+  iEvent.getByToken(recHitsToken_, recHitsHandle);
+  if (!recHitsHandle.isValid()) {
+    edm::LogError("ReduceHcalRecHitCollectionProducer") << "RecHit collection not found";
+    return;
+  }
 
-   //Create empty output collections
-   std::unique_ptr< HBHERecHitCollection > miniRecHitCollection (new HBHERecHitCollection) ;
+  //Create empty output collections
+  std::unique_ptr<HBHERecHitCollection> miniRecHitCollection(new HBHERecHitCollection);
 
-//loop through tracks.
-   Handle<TrackCollection> tkTracks;
-   iEvent.getByToken(inputCollectionToken_,tkTracks);
-   std::unique_ptr< DetIdCollection > interestingDetIdCollection( new DetIdCollection() ) ;
-   for(TrackCollection::const_iterator itTrack = tkTracks->begin();
-       itTrack != tkTracks->end();
-       ++itTrack) {
-        if(itTrack->pt()>ptcut_){
+  //loop through tracks.
+  Handle<TrackCollection> tkTracks;
+  iEvent.getByToken(inputCollectionToken_, tkTracks);
+  std::unique_ptr<DetIdCollection> interestingDetIdCollection(new DetIdCollection());
+  for (TrackCollection::const_iterator itTrack = tkTracks->begin(); itTrack != tkTracks->end(); ++itTrack) {
+    if (itTrack->pt() > ptcut_) {
+      TrackDetMatchInfo info =
+          trackAssociator_.associate(iEvent, iSetup, *itTrack, parameters_, TrackDetectorAssociator::InsideOut);
 
-           TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *itTrack, parameters_, TrackDetectorAssociator::InsideOut);
-
-          if(!info.crossedHcalIds.empty()){
-             //loop through hits in the cone
-             for(std::vector<const HBHERecHit*>::const_iterator hit = info.hcalRecHits.begin();
-                 hit != info.hcalRecHits.end(); ++hit)
-             {
-                DetId hitid=(*hit)->id();
-                HBHERecHitCollection::const_iterator iRecHit = recHitsHandle->find(hitid);
-                if ( (iRecHit != recHitsHandle->end()) && (miniRecHitCollection->find(hitid) == miniRecHitCollection->end()) )
-                   miniRecHitCollection->push_back(*iRecHit);
-             }
-
-
-          }
+      if (!info.crossedHcalIds.empty()) {
+        //loop through hits in the cone
+        for (std::vector<const HBHERecHit*>::const_iterator hit = info.hcalRecHits.begin();
+             hit != info.hcalRecHits.end();
+             ++hit) {
+          DetId hitid = (*hit)->id();
+          HBHERecHitCollection::const_iterator iRecHit = recHitsHandle->find(hitid);
+          if ((iRecHit != recHitsHandle->end()) && (miniRecHitCollection->find(hitid) == miniRecHitCollection->end()))
+            miniRecHitCollection->push_back(*iRecHit);
         }
-   }
+      }
+    }
+  }
 
-   iEvent.put(std::move(miniRecHitCollection),reducedHitsCollection_ );
-
-
-
+  iEvent.put(std::move(miniRecHitCollection), reducedHitsCollection_);
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(ReduceHcalRecHitCollectionProducer);

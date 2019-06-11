@@ -19,15 +19,12 @@
 
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 
+class BetaCalculatorMUON {
+public:
+  BetaCalculatorMUON(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
+  void addInfoToCandidate(susybsm::HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-class  BetaCalculatorMUON{
-   public:
-      BetaCalculatorMUON(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
-      void  addInfoToCandidate(susybsm::HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup);
-
-      edm::EDGetTokenT<reco::MuonTimeExtraMap> m_muontiming_dt;
-      edm::EDGetTokenT<reco::MuonTimeExtraMap> m_muontiming_csc;
-      edm::EDGetTokenT<reco::MuonTimeExtraMap> m_muontiming_combined;
+  edm::EDGetTokenT<reco::MuonTimeExtraMap> m_muontiming_dt;
+  edm::EDGetTokenT<reco::MuonTimeExtraMap> m_muontiming_csc;
+  edm::EDGetTokenT<reco::MuonTimeExtraMap> m_muontiming_combined;
 };
-
-
