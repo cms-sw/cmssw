@@ -40,7 +40,7 @@ caHardPtCut(cfg.getParameter<double>("CAHardPtCut"))
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
   if (comparitorName != "none")
   {
-    theComparitor = std::unique_ptr<SeedComparitor>{SeedComparitorFactory::get()->create(comparitorName, comparitorPSet, iC)};
+    theComparitor = SeedComparitorFactory::get()->create(comparitorName, comparitorPSet, iC);
   }
 }
 
