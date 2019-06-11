@@ -43,12 +43,12 @@ HitTripletProducer::HitTripletProducer(const edm::ParameterSet& conf)
       conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string orderedName = orderedPSet.getParameter<std::string>("ComponentName");
   edm::ConsumesCollector iC = consumesCollector();
-  theGenerator = std::unique_ptr<OrderedHitsGenerator>{OrderedHitsGeneratorFactory::get()->create( orderedName, orderedPSet, iC)};
+  theGenerator = OrderedHitsGeneratorFactory::get()->create( orderedName, orderedPSet, iC);
 
   edm::ParameterSet regfactoryPSet =
       conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer = std::unique_ptr<TrackingRegionProducer>{TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet,consumesCollector())};
+  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet,consumesCollector());
 }
 
 HitTripletProducer::~HitTripletProducer() 
