@@ -17,14 +17,13 @@ PFMultiDepthClusterProducer::PFMultiDepthClusterProducer(const edm::ParameterSet
   const edm::ParameterSet& pfcConf = conf.getParameterSet("pfClusterBuilder");
   if (!pfcConf.empty()) {
     const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
-    _pfClusterBuilder = std::unique_ptr<PFCBB>{PFClusterBuilderFactory::get()->create(pfcName, pfcConf)};
+    _pfClusterBuilder = PFClusterBuilderFactory::get()->create(pfcName, pfcConf);
   }
   // see if new need to apply corrections, setup if there.
   const edm::ParameterSet& cConf = conf.getParameterSet("energyCorrector");
   if (!cConf.empty()) {
     const std::string& cName = cConf.getParameter<std::string>("algoName");
-    _energyCorrector =
-        std::unique_ptr<PFClusterEnergyCorrectorBase>{PFClusterEnergyCorrectorFactory::get()->create(cName, cConf)};
+    _energyCorrector = PFClusterEnergyCorrectorFactory::get()->create(cName, cConf);
   }
 
   produces<reco::PFClusterCollection>();

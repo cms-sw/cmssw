@@ -93,8 +93,7 @@ PFCTRecHitProducer::PFCTRecHitProducer(const edm::ParameterSet& iConfig) {
   towersToken_ = consumes<CaloTowerCollection>(iConfig.getParameter<InputTag>("caloTowers"));
 
   edm::ParameterSet navSet = iConfig.getParameter<edm::ParameterSet>("navigator");
-  navigator_ = std::unique_ptr<PFRecHitNavigatorBase>{
-      PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"), navSet)};
+  navigator_ = PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"), navSet);
 
   //--ab
   produces<reco::PFRecHitCollection>();
