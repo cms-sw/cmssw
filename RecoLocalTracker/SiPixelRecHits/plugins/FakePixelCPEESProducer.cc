@@ -32,7 +32,7 @@ public:
     setWhatProduced(this,myname);
   }
 
-  ~FakePixelCPEESProducer() = default; 
+  ~FakePixelCPEESProducer() override = default; 
 
   std::unique_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord &) {
      return std::make_unique<PixelFakeCPE>();
