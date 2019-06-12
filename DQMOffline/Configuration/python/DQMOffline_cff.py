@@ -66,7 +66,7 @@ DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
                                  bTagPlotsDATA *
                                  alcaBeamMonitor *
                                  dqmPhysics *
-                                 produceDenoms *
+                                 produceDenomsData *
                                  pfTauRunDQMValidation)
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
@@ -121,7 +121,7 @@ DQMOuterTracker = cms.Sequence( dqmDcsInfo *
                                 DQMMessageLogger *
                                 dqmPhysics *
                                 pvMonitor *
-                                produceDenoms
+                                produceDenomsData
                                 )
 
 DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
@@ -133,7 +133,7 @@ DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  alcaBeamMonitor *
                                  castorSources *
                                  dqmPhysics *
-                                 produceDenoms *
+                                 produceDenomsData *
                                  pfTauRunDQMValidation
                                 )
 DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
@@ -148,7 +148,7 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  dqmPhysics *
                                  pvMonitor *
                                  materialDumperAnalyzer *
-                                 produceDenoms *
+                                 produceDenomsData *
                                  pfTauRunDQMValidation
                                  )
 DQMOfflineLumi = cms.Sequence ( zcounting )
