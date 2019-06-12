@@ -18,9 +18,9 @@ namespace edm {
   namespace eventsetup {
 
     EventSetupRecordIOVQueue::EventSetupRecordIOVQueue(unsigned int nConcurrentIOVs)
-        : nConcurrentIOVs_(nConcurrentIOVs), iovQueue_(nConcurrentIOVs), cacheIdentifier_(1) {
-      for (unsigned int i = 0; i < nConcurrentIOVs; ++i) {
-        isAvailable_.push_back(std::make_unique<std::atomic<bool>>(true));
+        : nConcurrentIOVs_(nConcurrentIOVs), iovQueue_(nConcurrentIOVs), isAvailable_(nConcurrentIOVs), cacheIdentifier_(1) {
+      for (auto& i: isAvailable_) {
+        i.store(true);
       }
       waitForIOVsInFlight_ = edm::make_empty_waiting_task();
       waitForIOVsInFlight_->increment_ref_count();
@@ -83,7 +83,7 @@ namespace edm {
               unsigned int iovIndex = 0;
               for (; iovIndex < nConcurrentIOVs_; ++iovIndex) {
                 bool expected = true;
-                if (isAvailable_[iovIndex]->compare_exchange_strong(expected, false)) {
+                if (isAvailable_[iovIndex].compare_exchange_strong(expected, false)) {
                   break;
                 }
               }
@@ -107,7 +107,7 @@ namespace edm {
                                                        for (auto recordProvider : recordProviders_) {
                                                          recordProvider->endIOV(iovIndex);
                                                        }
-                                                       isAvailable_[iovIndex]->store(true);
+                                                       isAvailable_[iovIndex].store(true);
                                                        iResumer.resume();
                                                        waitForIOVsInFlight_->decrement_ref_count();
                                                        // There is nothing in this task to catch an exception
