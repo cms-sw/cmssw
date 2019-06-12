@@ -1814,7 +1814,7 @@ if __name__=="__main__":
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.optional.untracked.int32,
-    output = cms.optional.untracked..allowed(cms.int32,cms.PSet)
+    output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
 process.maxLuminosityBlocks = cms.untracked.PSet(
