@@ -6,7 +6,7 @@
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerBySharedHits.h"
 
-class PixelTrackCleanerBySharedHitsESProducer: public edm::ESProducer {
+class PixelTrackCleanerBySharedHitsESProducer : public edm::ESProducer {
 public:
   PixelTrackCleanerBySharedHitsESProducer(const edm::ParameterSet& iConfig);
   ~PixelTrackCleanerBySharedHitsESProducer() override = default;
@@ -19,9 +19,8 @@ private:
   const bool useQuadrupletAlgo_;
 };
 
-PixelTrackCleanerBySharedHitsESProducer::PixelTrackCleanerBySharedHitsESProducer(const edm::ParameterSet& iConfig):
-  useQuadrupletAlgo_(iConfig.getParameter<bool>("useQuadrupletAlgo"))
-{
+PixelTrackCleanerBySharedHitsESProducer::PixelTrackCleanerBySharedHitsESProducer(const edm::ParameterSet& iConfig)
+    : useQuadrupletAlgo_(iConfig.getParameter<bool>("useQuadrupletAlgo")) {
   auto componentName = iConfig.getParameter<std::string>("ComponentName");
   setWhatProduced(this, componentName);
 }
@@ -33,7 +32,8 @@ void PixelTrackCleanerBySharedHitsESProducer::fillDescriptions(edm::Configuratio
   descriptions.add("pixelTrackCleanerBySharedHits", desc);
 }
 
-std::unique_ptr<PixelTrackCleaner> PixelTrackCleanerBySharedHitsESProducer::produce(const PixelTrackCleaner::Record& iRecord) {
+std::unique_ptr<PixelTrackCleaner> PixelTrackCleanerBySharedHitsESProducer::produce(
+    const PixelTrackCleaner::Record& iRecord) {
   return std::make_unique<PixelTrackCleanerBySharedHits>(useQuadrupletAlgo_);
 }
 
