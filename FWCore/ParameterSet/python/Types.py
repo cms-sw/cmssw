@@ -10,6 +10,8 @@ import math
 import six
 from six.moves import builtins
 
+_builtin_bool = bool
+
 class _Untracked(object):
     """Class type for 'untracked' to allow nice syntax"""
     __name__ = "untracked"
@@ -58,6 +60,9 @@ class _ProxyParameter(_ParameterTypeBase):
             return setattr(v,name,value)
         else:
             return object.__setattr__(self, name, value)
+    def __nonzero__(self):
+        v = self.__dict__.get('_ProxyParameter__value',None)
+        return _builtin_bool(v)
     def dumpPython(self, options=PrintOptions()):
         v =self.__dict__.get('_ProxyParameter__value',None)
         if v is not None:
@@ -153,8 +158,6 @@ class _ProxyParameterFactory(object):
 required = _ProxyParameterFactory(_RequiredParameter)
 optional = _ProxyParameterFactory(_OptionalParameter)
 obsolete = _ProxyParameterFactory(_ObsoleteParameter)
-
-#required.allowed(int32, PSet)
 
 class int32(_SimpleParameterTypeBase):
     @staticmethod
@@ -1628,6 +1631,13 @@ if __name__ == "__main__":
             self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.optional.untracked.int32\n)')
             p1.anInt = 6
             self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.untracked.int32(6)\n)')
+            p1 = PSet(f = required.vint32)
+            self.failIf(p1.f)
+            p1.f = []
+            self.failIf(p1.f)
+            p1.f.append(3)
+            self.assert_(p1.f)
+
         def testAllowed(self):
             p1 = PSet(aValue = required.allowed(int32, string))
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.allowed(cms.int32,cms.string)\n)')
