@@ -7,38 +7,45 @@ class MonitorElement;
 
 #include <string>
 
-class HistoProviderDQM  {
- public:
-  HistoProviderDQM(const std::string& prefix, const std::string& label, DQMStore::IBooker & ibook);
+class HistoProviderDQM {
+public:
+  HistoProviderDQM(const std::string& prefix, const std::string& label, DQMStore::IBooker& ibook);
   virtual ~HistoProviderDQM() {}
 
-  virtual MonitorElement* book1D(const std::string &name,
-                      const std::string &title,
-                      const int& nchX, const double& lowX, const double& highX);
-  
-  virtual MonitorElement* book1D(const std::string &name,
-                      const std::string &title,
-                      const int& nchX, float *xbinsize);
+  virtual MonitorElement* book1D(
+      const std::string& name, const std::string& title, const int& nchX, const double& lowX, const double& highX);
 
-  virtual MonitorElement* book2D(const std::string &name,
-                      const std::string &title,
-                      const int& nchX, const double& lowX, const double& highX,
-                      const int& nchY, const double& lowY, const double& highY);
-  
-  virtual MonitorElement* book2D(const std::string &name,
-                      const std::string &title,
-                      const int& nchX, float *xbinsize,
-                      const int& nchY, float *ybinsize);
+  virtual MonitorElement* book1D(const std::string& name, const std::string& title, const int& nchX, float* xbinsize);
 
-  virtual MonitorElement* bookProfile(const std::string &name,
-                      const std::string &title,
-                      int nchX, double lowX, double highX,
-                      int nchY, double lowY, double highY);
+  virtual MonitorElement* book2D(const std::string& name,
+                                 const std::string& title,
+                                 const int& nchX,
+                                 const double& lowX,
+                                 const double& highX,
+                                 const int& nchY,
+                                 const double& lowY,
+                                 const double& highY);
+
+  virtual MonitorElement* book2D(const std::string& name,
+                                 const std::string& title,
+                                 const int& nchX,
+                                 float* xbinsize,
+                                 const int& nchY,
+                                 float* ybinsize);
+
+  virtual MonitorElement* bookProfile(const std::string& name,
+                                      const std::string& title,
+                                      int nchX,
+                                      double lowX,
+                                      double highX,
+                                      int nchY,
+                                      double lowY,
+                                      double highY);
 
   void setDir(const std::string&);
 
- private:
+private:
   std::string label_;
-  DQMStore::IBooker & ibook_;
-};                                                                                                                                                                           
+  DQMStore::IBooker& ibook_;
+};
 #endif

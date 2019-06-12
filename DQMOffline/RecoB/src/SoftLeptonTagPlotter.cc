@@ -5,84 +5,172 @@
 #include <sstream>
 #include <string>
 
-using namespace std ;
+using namespace std;
 using namespace RecoBTag;
 
-static const string ordinal[9] = { "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th" };
+static const string ordinal[9] = {"1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"};
 
-SoftLeptonTagPlotter::SoftLeptonTagPlotter(const std::string & tagName,
-					   const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, 
-					   unsigned int mc, bool wf, DQMStore::IBooker & ibook) :
-  BaseTagInfoPlotter(tagName, etaPtBin), mcPlots_(mc), willFinalize_(wf)
-{
+SoftLeptonTagPlotter::SoftLeptonTagPlotter(const std::string& tagName,
+                                           const EtaPtBin& etaPtBin,
+                                           const edm::ParameterSet& pSet,
+                                           unsigned int mc,
+                                           bool wf,
+                                           DQMStore::IBooker& ibook)
+    : BaseTagInfoPlotter(tagName, etaPtBin), mcPlots_(mc), willFinalize_(wf) {
   const std::string softLepDir(theExtensionString.substr(1));
-  
-  if(willFinalize_) return;
-  
+
+  if (willFinalize_)
+    return;
+
   for (int i = 0; i < s_leptons; i++) {
     std::string s;
     s += ordinal[i] + " lepton ";
-    m_leptonId.push_back(std::make_unique<FlavourHistograms<double>>(
-						   s + "id",
-						   "Lepton identification discriminaint",
-						   60, -0.1, 1.1, false, false, true, "b", softLepDir, mcPlots_, ibook));
+    m_leptonId.push_back(std::make_unique<FlavourHistograms<double>>(s + "id",
+                                                                     "Lepton identification discriminaint",
+                                                                     60,
+                                                                     -0.1,
+                                                                     1.1,
+                                                                     false,
+                                                                     false,
+                                                                     true,
+                                                                     "b",
+                                                                     softLepDir,
+                                                                     mcPlots_,
+                                                                     ibook));
     m_leptonPt.push_back(std::make_unique<FlavourHistograms<double>>(
-						   s + "pT",
-						   "Lepton transverse moementum",
-						   100, 0.0, 20.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
-    m_sip2dsig.push_back(std::make_unique<FlavourHistograms<double>>(
-        s + "sip2dsig",
-        "Lepton signed 2D impact parameter significance",
-        100, -20.0, 30.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
-    m_sip3dsig.push_back(std::make_unique<FlavourHistograms<double>>(
-        s + "sip3dsig",
-        "Lepton signed 3D impact parameter significance",
-        100, -20.0, 30.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
-    m_sip2d.push_back(std::make_unique<FlavourHistograms<double>>(
-        s + "sip2d",
-        "Lepton signed 2D impact parameter",
-        100, -20.0, 30.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
-    m_sip3d.push_back(std::make_unique<FlavourHistograms<double>>(
-        s + "sip3d",
-        "Lepton signed 3D impact parameter",
-        100, -20.0, 30.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
-    m_ptRel.push_back(std::make_unique<FlavourHistograms<double>>(
-        s +  "pT rel",
-        "Lepton transverse momentum relative to jet axis",
-        100, 0.0, 10.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
-    m_p0Par.push_back(std::make_unique<FlavourHistograms<double>>(
-        s + "p0 par",
-        "Lepton moementum along jet axis in the B rest frame",
-        100, 0.0, 10.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
-    m_etaRel.push_back(std::make_unique<FlavourHistograms<double>>(
-        s + "eta rel",
-        "Lepton pseudorapidity relative to jet axis",
-        100, -5.0, 25.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
-    m_deltaR.push_back(std::make_unique<FlavourHistograms<double>>(
-        s + "delta R",
-        "Lepton pseudoangular distance from jet axis",
-        100, 0.0, 0.6, false, false, true, "b", softLepDir, mcPlots_, ibook));
-    m_ratio.push_back(std::make_unique<FlavourHistograms<double>>(
-        s + "energy ratio",
-        "Ratio of lepton momentum to jet energy",
-        100, 0.0, 2.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
-    m_ratioRel.push_back(std::make_unique<FlavourHistograms<double>>(
-        s + "parallel energy ratio",
-        "Ratio of lepton momentum along the jet axis to jet energy",
-        100, 0.0, 2.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
+        s + "pT", "Lepton transverse moementum", 100, 0.0, 20.0, false, false, true, "b", softLepDir, mcPlots_, ibook));
+    m_sip2dsig.push_back(std::make_unique<FlavourHistograms<double>>(s + "sip2dsig",
+                                                                     "Lepton signed 2D impact parameter significance",
+                                                                     100,
+                                                                     -20.0,
+                                                                     30.0,
+                                                                     false,
+                                                                     false,
+                                                                     true,
+                                                                     "b",
+                                                                     softLepDir,
+                                                                     mcPlots_,
+                                                                     ibook));
+    m_sip3dsig.push_back(std::make_unique<FlavourHistograms<double>>(s + "sip3dsig",
+                                                                     "Lepton signed 3D impact parameter significance",
+                                                                     100,
+                                                                     -20.0,
+                                                                     30.0,
+                                                                     false,
+                                                                     false,
+                                                                     true,
+                                                                     "b",
+                                                                     softLepDir,
+                                                                     mcPlots_,
+                                                                     ibook));
+    m_sip2d.push_back(std::make_unique<FlavourHistograms<double>>(s + "sip2d",
+                                                                  "Lepton signed 2D impact parameter",
+                                                                  100,
+                                                                  -20.0,
+                                                                  30.0,
+                                                                  false,
+                                                                  false,
+                                                                  true,
+                                                                  "b",
+                                                                  softLepDir,
+                                                                  mcPlots_,
+                                                                  ibook));
+    m_sip3d.push_back(std::make_unique<FlavourHistograms<double>>(s + "sip3d",
+                                                                  "Lepton signed 3D impact parameter",
+                                                                  100,
+                                                                  -20.0,
+                                                                  30.0,
+                                                                  false,
+                                                                  false,
+                                                                  true,
+                                                                  "b",
+                                                                  softLepDir,
+                                                                  mcPlots_,
+                                                                  ibook));
+    m_ptRel.push_back(std::make_unique<FlavourHistograms<double>>(s + "pT rel",
+                                                                  "Lepton transverse momentum relative to jet axis",
+                                                                  100,
+                                                                  0.0,
+                                                                  10.0,
+                                                                  false,
+                                                                  false,
+                                                                  true,
+                                                                  "b",
+                                                                  softLepDir,
+                                                                  mcPlots_,
+                                                                  ibook));
+    m_p0Par.push_back(std::make_unique<FlavourHistograms<double>>(s + "p0 par",
+                                                                  "Lepton moementum along jet axis in the B rest frame",
+                                                                  100,
+                                                                  0.0,
+                                                                  10.0,
+                                                                  false,
+                                                                  false,
+                                                                  true,
+                                                                  "b",
+                                                                  softLepDir,
+                                                                  mcPlots_,
+                                                                  ibook));
+    m_etaRel.push_back(std::make_unique<FlavourHistograms<double>>(s + "eta rel",
+                                                                   "Lepton pseudorapidity relative to jet axis",
+                                                                   100,
+                                                                   -5.0,
+                                                                   25.0,
+                                                                   false,
+                                                                   false,
+                                                                   true,
+                                                                   "b",
+                                                                   softLepDir,
+                                                                   mcPlots_,
+                                                                   ibook));
+    m_deltaR.push_back(std::make_unique<FlavourHistograms<double>>(s + "delta R",
+                                                                   "Lepton pseudoangular distance from jet axis",
+                                                                   100,
+                                                                   0.0,
+                                                                   0.6,
+                                                                   false,
+                                                                   false,
+                                                                   true,
+                                                                   "b",
+                                                                   softLepDir,
+                                                                   mcPlots_,
+                                                                   ibook));
+    m_ratio.push_back(std::make_unique<FlavourHistograms<double>>(s + "energy ratio",
+                                                                  "Ratio of lepton momentum to jet energy",
+                                                                  100,
+                                                                  0.0,
+                                                                  2.0,
+                                                                  false,
+                                                                  false,
+                                                                  true,
+                                                                  "b",
+                                                                  softLepDir,
+                                                                  mcPlots_,
+                                                                  ibook));
+    m_ratioRel.push_back(
+        std::make_unique<FlavourHistograms<double>>(s + "parallel energy ratio",
+                                                    "Ratio of lepton momentum along the jet axis to jet energy",
+                                                    100,
+                                                    0.0,
+                                                    2.0,
+                                                    false,
+                                                    false,
+                                                    true,
+                                                    "b",
+                                                    softLepDir,
+                                                    mcPlots_,
+                                                    ibook));
   }
 }
 
 SoftLeptonTagPlotter::~SoftLeptonTagPlotter() {}
 
-void SoftLeptonTagPlotter::analyzeTag( const reco::BaseTagInfo * baseTagInfo, double jec, int jetFlavour, float w/*=1*/)
-{
-  const reco::SoftLeptonTagInfo * tagInfo = 
-	dynamic_cast<const reco::SoftLeptonTagInfo *>(baseTagInfo);
+void SoftLeptonTagPlotter::analyzeTag(const reco::BaseTagInfo* baseTagInfo, double jec, int jetFlavour, float w /*=1*/) {
+  const reco::SoftLeptonTagInfo* tagInfo = dynamic_cast<const reco::SoftLeptonTagInfo*>(baseTagInfo);
 
   if (!tagInfo) {
     throw cms::Exception("Configuration")
-      << "BTagPerformanceAnalyzer: Extended TagInfo not of type SoftLeptonTagInfo. " << endl;
+        << "BTagPerformanceAnalyzer: Extended TagInfo not of type SoftLeptonTagInfo. " << endl;
   }
 
   int n_leptons = tagInfo->leptons();
@@ -104,15 +192,15 @@ void SoftLeptonTagPlotter::analyzeTag( const reco::BaseTagInfo * baseTagInfo, do
   }
 }
 
-void SoftLeptonTagPlotter::psPlot(const std::string & name)
-{
-  if(willFinalize_) return;
+void SoftLeptonTagPlotter::psPlot(const std::string& name) {
+  if (willFinalize_)
+    return;
 
   const std::string cName("SoftLeptonPlots" + theExtensionString);
   setTDRStyle()->cd();
   TCanvas canvas(cName.c_str(), cName.c_str(), 600, 900);
   canvas.UseCurrentStyle();
-  canvas.Divide(2,3);
+  canvas.Divide(2, 3);
   canvas.Print((name + cName + ".ps[").c_str());
   for (int i = 0; i < s_leptons; i++) {
     canvas.cd(1)->Clear();
@@ -146,24 +234,22 @@ void SoftLeptonTagPlotter::psPlot(const std::string & name)
   canvas.Print((name + cName + ".ps]").c_str());
 }
 
+void SoftLeptonTagPlotter::epsPlot(const std::string& name) {
+  if (willFinalize_)
+    return;
 
-void SoftLeptonTagPlotter::epsPlot(const std::string & name)
-{
-  if(willFinalize_) return;
-
-  for (int i=0; i != s_leptons; ++i) {
-    m_leptonId[i]->epsPlot( name );
-    m_leptonPt[i]->epsPlot( name );
-    m_sip2d[i]->epsPlot( name );
-    m_sip3d[i]->epsPlot( name );
-    m_sip2dsig[i]->epsPlot( name );
-    m_sip3dsig[i]->epsPlot( name );
-    m_ptRel[i]->epsPlot( name );
-    m_p0Par[i]->epsPlot( name );
-    m_etaRel[i]->epsPlot( name );
-    m_deltaR[i]->epsPlot( name );
-    m_ratio[i]->epsPlot( name );
-    m_ratioRel[i]->epsPlot( name );
+  for (int i = 0; i != s_leptons; ++i) {
+    m_leptonId[i]->epsPlot(name);
+    m_leptonPt[i]->epsPlot(name);
+    m_sip2d[i]->epsPlot(name);
+    m_sip3d[i]->epsPlot(name);
+    m_sip2dsig[i]->epsPlot(name);
+    m_sip3dsig[i]->epsPlot(name);
+    m_ptRel[i]->epsPlot(name);
+    m_p0Par[i]->epsPlot(name);
+    m_etaRel[i]->epsPlot(name);
+    m_deltaR[i]->epsPlot(name);
+    m_ratio[i]->epsPlot(name);
+    m_ratioRel[i]->epsPlot(name);
   }
 }
-

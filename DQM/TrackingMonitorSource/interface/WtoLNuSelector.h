@@ -36,7 +36,7 @@ private:
   const edm::InputTag pfmetTag_;
   const edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
   const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
-  const edm::EDGetTokenT<reco::MuonCollection> muonToken_; 
-  const edm::EDGetTokenT<reco::PFMETCollection> pfmetToken_; 
+  const edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  const edm::EDGetTokenT<reco::PFMETCollection> pfmetToken_;
 };
 #endif
