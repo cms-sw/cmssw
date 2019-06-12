@@ -65,8 +65,8 @@ class _ProxyParameter(_ParameterTypeBase):
         specialImportRegistry.registerUse(self)
         v = "cms."+self._dumpPythonName()
         if not _ParameterTypeBase.isTracked(self):
-            v+=".untracked."
-        return v+self.__type.__name__
+            v+=".untracked"
+        return v+'.'+self.__type.__name__
     def validate_(self,value):
         return isinstance(value,self.__type)
     def convert_(self,value):
@@ -106,7 +106,7 @@ class _AllowedParameterTypes(object):
         if v is not None:
             return v.dumpPython(options)
         specialImportRegistry.registerUse(self)
-        return ".allowed("+','.join( ("cms."+t.__name__ for t in self.__types))+')'
+        return "allowed("+','.join( ("cms."+t.__name__ for t in self.__types))+')'
     def __call__(self,value):
         chosenType = None
         for t in self.__types:
@@ -1586,7 +1586,9 @@ if __name__ == "__main__":
         def testRequired(self):
             p1 = PSet(anInt = required.int32)
             self.assert_(hasattr(p1,"anInt"))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    anInt = cms.required.int32\n)')
             p1.anInt = 3
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    anInt = cms.int32(3)\n)')
             self.assertEqual(p1.anInt.value(), 3)
             p1 = PSet(anInt = required.int32)
             p1.anInt.setValue(3)
@@ -1609,8 +1611,10 @@ if __name__ == "__main__":
         def testOptional(self):
             p1 = PSet(anInt = optional.int32)
             self.assert_(hasattr(p1,"anInt"))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    anInt = cms.optional.int32\n)')
             p1.anInt = 3
             self.assertEqual(p1.anInt.value(), 3)
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    anInt = cms.int32(3)\n)')
             p1 = PSet(anInt = optional.int32)
             p1.anInt.setValue(3)
             self.assertEqual(p1.anInt.value(), 3)
@@ -1630,11 +1634,23 @@ if __name__ == "__main__":
             p1.aValue = 1
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.int32(1)\n)')
             self.assertRaises(ValueError,setattr(p1,'aValue',PSet()))
+            p1 = PSet(aValue = required.untracked.allowed(int32, string))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.untracked.allowed(cms.int32,cms.string)\n)')
+            p1.aValue = 1
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.untracked.int32(1)\n)')
+            self.assertRaises(ValueError,setattr(p1,'aValue',PSet()))
             p2 = PSet(aValue=optional.allowed(int32,PSet))
             self.assertEqual(p2.dumpPython(),'cms.PSet(\n    aValue = cms.optional.allowed(cms.int32,cms.PSet)\n)')
             p2.aValue = 2
             self.assertEquals(p2.aValue.value(),2)
             p2 = PSet(aValue=optional.allowed(int32,PSet))
+            p2.aValue = PSet(i = int32(3))
+            self.assertEqual(p2.aValue.i.value(),3)
+            p2 = PSet(aValue=optional.untracked.allowed(int32,PSet))
+            self.assertEqual(p2.dumpPython(),'cms.PSet(\n    aValue = cms.optional.untracked.allowed(cms.int32,cms.PSet)\n)')
+            p2.aValue = 2
+            self.assertEquals(p2.aValue.value(),2)
+            p2 = PSet(aValue=optional.untracked.allowed(int32,PSet))
             p2.aValue = PSet(i = int32(3))
             self.assertEqual(p2.aValue.i.value(),3)
 
