@@ -9,9 +9,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -23,12 +21,11 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/MuonReco/interface/MuonToMuonMap.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-#include <iostream>
-#include <string>
-#include <string>
+namespace edm {
+class EventSetup;
+}  // namespace edm
 
 class PFLinker : public edm::stream::EDProducer<> {
  public:

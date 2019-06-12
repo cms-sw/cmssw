@@ -3,9 +3,6 @@
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerTools.h"
 
-#include "TMath.h"
-
-
 // This class is used to find all links between Tracks and HCAL clusters
 // using a KDTree algorithm.
 // It is used in PFBlockAlgo.cc in the function links().
