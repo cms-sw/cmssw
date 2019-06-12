@@ -5,7 +5,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 typedef SmearedJetProducerT<reco::CaloJet> SmearedCaloJetProducer;
-typedef SmearedJetProducerT<reco::PFJet>   SmearedPFJetProducer;
+typedef SmearedJetProducerT<reco::PFJet> SmearedPFJetProducer;
 typedef SmearedJetProducerT<pat::Jet> SmearedPATJetProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"

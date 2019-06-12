@@ -33,72 +33,62 @@ namespace reco {
   typedef edm::Ptr<reco::Photon> PhotonPtr;
   typedef edm::Ptr<reco::Muon> MuonPtr;
   typedef edm::Ptr<reco::PFTau> PFTauPtr;
-}
+}  // namespace reco
 
 namespace pat {
   typedef edm::Ptr<pat::Electron> ElectronPtr;
   typedef edm::Ptr<pat::Photon> PhotonPtr;
   typedef edm::Ptr<pat::Muon> MuonPtr;
   typedef edm::Ptr<pat::Tau> TauPtr;
-}
+}  // namespace pat
 
 class CutApplicatorBase : public candf::CandidateCut {
- public:
-  enum CandidateType{NONE,
-		     ELECTRON,MUON,PHOTON,TAU,
-		     PATELECTRON,PATMUON,PATPHOTON,PATTAU};
+public:
+  enum CandidateType { NONE, ELECTRON, MUON, PHOTON, TAU, PATELECTRON, PATMUON, PATPHOTON, PATTAU };
 
- CutApplicatorBase(): CandidateCut() {}
+  CutApplicatorBase() : CandidateCut() {}
 
- CutApplicatorBase(const edm::ParameterSet& c) :
-  _name(c.getParameter<std::string>("cutName")) {
-  }
+  CutApplicatorBase(const edm::ParameterSet& c) : _name(c.getParameter<std::string>("cutName")) {}
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   CutApplicatorBase(const CutApplicatorBase&) = delete;
   CutApplicatorBase& operator=(const CutApplicatorBase&) = delete;
 #endif
-    
-  
-  result_type operator()(const argument_type&) const override
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-    final
-#endif
-    ;
-  
-  // electrons 
-  virtual result_type operator()(const reco::GsfElectronPtr&) const {return false;}
-  virtual result_type operator()(const pat::ElectronPtr&) const {return false;}
+
+  result_type operator()(const argument_type&) const final;
+
+  // electrons
+  virtual result_type operator()(const reco::GsfElectronPtr&) const { return false; }
+  virtual result_type operator()(const pat::ElectronPtr&) const { return false; }
 
   // photons
-  virtual result_type operator()(const reco::PhotonPtr&) const {return false;}
-  virtual result_type operator()(const pat::PhotonPtr&) const {return false;}
-  
+  virtual result_type operator()(const reco::PhotonPtr&) const { return false; }
+  virtual result_type operator()(const pat::PhotonPtr&) const { return false; }
+
   // muons
-  virtual result_type operator()(const reco::MuonPtr&) const {return false;}
-  virtual result_type operator()(const pat::MuonPtr&) const {return false;}
+  virtual result_type operator()(const reco::MuonPtr&) const { return false; }
+  virtual result_type operator()(const pat::MuonPtr&) const { return false; }
 
   // taus
-  virtual result_type operator()(const reco::PFTauPtr&) const {return false;}
-  virtual result_type operator()(const pat::TauPtr&) const {return false;}
+  virtual result_type operator()(const reco::PFTauPtr&) const { return false; }
+  virtual result_type operator()(const pat::TauPtr&) const { return false; }
 
   // candidate operation
-  virtual result_type asCandidate(const argument_type&) const {return false;} 
-  
+  virtual result_type asCandidate(const argument_type&) const { return false; }
+
   virtual CandidateType candidateType() const { return NONE; }
 
   const std::string& name() const override { return _name; }
-  
+
   //! Destructor
   ~CutApplicatorBase() override{};
-  
- private:
+
+private:
   const std::string _name;
-  
 };
 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< CutApplicatorBase* (const edm::ParameterSet&) > CutApplicatorFactory;
+typedef edmplugin::PluginFactory<CutApplicatorBase*(const edm::ParameterSet&)> CutApplicatorFactory;
 #endif
 
 #endif

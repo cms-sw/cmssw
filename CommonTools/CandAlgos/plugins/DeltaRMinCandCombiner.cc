@@ -10,9 +10,7 @@
 #include "CommonTools/UtilAlgos/interface/DeltaRMinPairSelector.h"
 #include "CommonTools/CandAlgos/interface/CandCombiner.h"
 
-typedef reco::modules::CandCombiner<
-          StringCutObjectSelector<reco::Candidate, true>,
-          DeltaRMinPairSelector
-        > DeltaRMinCandCombiner;
+typedef reco::modules::CandCombiner<StringCutObjectSelector<reco::Candidate, true>, DeltaRMinPairSelector>
+    DeltaRMinCandCombiner;
 
 DEFINE_FWK_MODULE(DeltaRMinCandCombiner);
