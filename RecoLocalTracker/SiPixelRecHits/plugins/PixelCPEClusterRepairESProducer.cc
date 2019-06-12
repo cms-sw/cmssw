@@ -14,25 +14,21 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-
-
 #include <string>
 #include <memory>
 
 using namespace edm;
 
-PixelCPEClusterRepairESProducer::PixelCPEClusterRepairESProducer(const edm::ParameterSet & p) 
-{
+PixelCPEClusterRepairESProducer::PixelCPEClusterRepairESProducer(const edm::ParameterSet& p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
 
   //DoLorentz_ = p.getParameter<bool>("DoLorentz"); // True when LA from alignment is used
-  DoLorentz_ = p.existsAs<bool>("DoLorentz")?p.getParameter<bool>("DoLorentz"):false;
+  DoLorentz_ = p.existsAs<bool>("DoLorentz") ? p.getParameter<bool>("DoLorentz") : false;
 
   pset_ = p;
-  setWhatProduced(this,myname);
+  setWhatProduced(this, myname);
 
   //std::cout<<" from ES Producer Templates "<<myname<<" "<<DoLorentz_<<std::endl;  //dk
-
 }
 
 PixelCPEClusterRepairESProducer::~PixelCPEClusterRepairESProducer() {}
@@ -48,37 +44,37 @@ void PixelCPEClusterRepairESProducer::fillDescriptions(edm::ConfigurationDescrip
   desc.add<double>("MinChargeRatio", 0.8);
   desc.add<double>("MaxSizeMismatchInY", 0.3);
   desc.add<bool>("Alpha2Order", true);
-  desc.add<std::vector<std::string>>("Recommend2D", {
-      "PXB 2",
-        "PXB 3",
-        "PXB 4",
-        });
+  desc.add<std::vector<std::string>>("Recommend2D",
+                                     {
+                                         "PXB 2",
+                                         "PXB 3",
+                                         "PXB 4",
+                                     });
   desc.add<int>("ClusterProbComputationFlag", 0);
   desc.add<int>("speed", -2);
   desc.add<bool>("UseClusterSplitter", false);
   descriptions.add("templates2", desc);
 }
 
-std::unique_ptr<PixelClusterParameterEstimator> 
-PixelCPEClusterRepairESProducer::produce(const TkPixelCPERecord & iRecord){ 
-
+std::unique_ptr<PixelClusterParameterEstimator> PixelCPEClusterRepairESProducer::produce(
+    const TkPixelCPERecord& iRecord) {
   ESHandle<MagneticField> magfield;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
+  iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
 
   edm::ESHandle<TrackerGeometry> pDD;
-  iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
+  iRecord.getRecord<TrackerDigiGeometryRecord>().get(pDD);
 
   edm::ESHandle<TrackerTopology> hTT;
   iRecord.getRecord<TrackerDigiGeometryRecord>().getRecord<TrackerTopologyRcd>().get(hTT);
 
   edm::ESHandle<SiPixelLorentzAngle> lorentzAngle;
-  const SiPixelLorentzAngle * lorentzAngleProduct = nullptr;
-  if(DoLorentz_) { //  LA correction from alignment 
-    iRecord.getRecord<SiPixelLorentzAngleRcd>().get("fromAlignment",lorentzAngle);
+  const SiPixelLorentzAngle* lorentzAngleProduct = nullptr;
+  if (DoLorentz_) {  //  LA correction from alignment
+    iRecord.getRecord<SiPixelLorentzAngleRcd>().get("fromAlignment", lorentzAngle);
     lorentzAngleProduct = lorentzAngle.product();
-  } else { // Normal, deafult LA actually is NOT needed
+  } else {  // Normal, deafult LA actually is NOT needed
     //iRecord.getRecord<SiPixelLorentzAngleRcd>().get(lorentzAngle);
-    lorentzAngleProduct=nullptr;  // null is ok becuse LA is not use by templates in this mode
+    lorentzAngleProduct = nullptr;  // null is ok becuse LA is not use by templates in this mode
   }
 
   ESHandle<SiPixelTemplateDBObject> templateDBobject;
@@ -87,14 +83,11 @@ PixelCPEClusterRepairESProducer::produce(const TkPixelCPERecord & iRecord){
   ESHandle<SiPixel2DTemplateDBObject> templateDBobject2D;
   iRecord.getRecord<SiPixel2DTemplateDBObjectESProducerRcd>().get(templateDBobject2D);
 
-  return
-    std::make_unique<PixelCPEClusterRepair>(pset_,
-					    magfield.product(),
-					    *pDD.product(),
-					    *hTT.product(),
-					    lorentzAngleProduct,
-					    templateDBobject.product(),
-					    templateDBobject2D.product() );
+  return std::make_unique<PixelCPEClusterRepair>(pset_,
+                                                 magfield.product(),
+                                                 *pDD.product(),
+                                                 *hTT.product(),
+                                                 lorentzAngleProduct,
+                                                 templateDBobject.product(),
+                                                 templateDBobject2D.product());
 }
-
-

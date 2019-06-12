@@ -25,9 +25,8 @@ class PixelUnpackingRegions;
 
 class SiPixelRawToDigi : public edm::stream::EDProducer<> {
 public:
-
   /// ctor
-  explicit SiPixelRawToDigi( const edm::ParameterSet& );
+  explicit SiPixelRawToDigi(const edm::ParameterSet&);
 
   /// dtor
   ~SiPixelRawToDigi() override;
@@ -35,15 +34,14 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   /// get data, convert to digis attach againe to Event
-  void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  
   edm::ParameterSet config_;
   std::unique_ptr<SiPixelFedCablingTree> cabling_;
   const SiPixelQuality* badPixelInfo_;
   PixelUnpackingRegions* regions_;
-  edm::EDGetTokenT<FEDRawDataCollection> tFEDRawDataCollection; 
+  edm::EDGetTokenT<FEDRawDataCollection> tFEDRawDataCollection;
   TH1D *hCPU, *hDigi;
   std::unique_ptr<edm::CPUTimer> theTimer;
   bool includeErrors;
@@ -55,7 +53,7 @@ private:
   edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
   edm::ESWatcher<SiPixelQualityRcd> qualityWatcher;
   edm::InputTag label;
-  
+
   int ndigis;
   int nwords;
   bool usePilotBlade;

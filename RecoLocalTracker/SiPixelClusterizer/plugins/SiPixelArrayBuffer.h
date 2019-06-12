@@ -22,75 +22,52 @@
 #include <vector>
 #include <iostream>
 
+class SiPixelArrayBuffer {
+public:
+  inline SiPixelArrayBuffer(int rows, int cols);
+  inline SiPixelArrayBuffer() {}
 
-
-class SiPixelArrayBuffer 
-{
- public:
-  inline SiPixelArrayBuffer( int rows, int cols);
-  inline SiPixelArrayBuffer( ){}
-  
-  inline void setSize( int rows, int cols);
-  inline int operator()( int row, int col) const;
-  inline int operator()( const SiPixelCluster::PixelPos&) const;
-  inline int rows() const { return nrows;}
-  inline int columns() const { return ncols;}
+  inline void setSize(int rows, int cols);
+  inline int operator()(int row, int col) const;
+  inline int operator()(const SiPixelCluster::PixelPos&) const;
+  inline int rows() const { return nrows; }
+  inline int columns() const { return ncols; }
 
   inline bool inside(int row, int col) const;
-  inline void set_adc( int row, int col, int adc);
-  inline void set_adc( const SiPixelCluster::PixelPos&, int adc);
-  inline void add_adc( int row, int col, int adc);
-  int size() const { return pixel_vec.size();}
+  inline void set_adc(int row, int col, int adc);
+  inline void set_adc(const SiPixelCluster::PixelPos&, int adc);
+  inline void add_adc(int row, int col, int adc);
+  int size() const { return pixel_vec.size(); }
 
   /// Definition of indexing within the buffer.
-  int index( int row, int col) const {return col*nrows+row;}
-  int index( const SiPixelCluster::PixelPos& pix) const { return index(pix.row(), pix.col()); }
+  int index(int row, int col) const { return col * nrows + row; }
+  int index(const SiPixelCluster::PixelPos& pix) const { return index(pix.row(), pix.col()); }
 
- private:
-  std::vector<int> pixel_vec;   // TO DO: any benefit in using shorts instead?
+private:
+  std::vector<int> pixel_vec;  // TO DO: any benefit in using shorts instead?
   int nrows;
   int ncols;
 };
 
+SiPixelArrayBuffer::SiPixelArrayBuffer(int rows, int cols) : pixel_vec(rows * cols, 0), nrows(rows), ncols(cols) {}
 
-
-SiPixelArrayBuffer::SiPixelArrayBuffer( int rows, int cols) 
-  : pixel_vec(rows*cols,0),  nrows(rows), ncols(cols) {}
-
-
-void SiPixelArrayBuffer::setSize( int rows, int cols) {
-  pixel_vec.resize(rows*cols,0);
+void SiPixelArrayBuffer::setSize(int rows, int cols) {
+  pixel_vec.resize(rows * cols, 0);
   nrows = rows;
   ncols = cols;
 }
 
+bool SiPixelArrayBuffer::inside(int row, int col) const { return (row >= 0 && row < nrows && col >= 0 && col < ncols); }
 
-bool SiPixelArrayBuffer::inside(int row, int col) const 
-{
-  return ( row >= 0 && row < nrows && col >= 0 && col < ncols);
-}
+int SiPixelArrayBuffer::operator()(int row, int col) const { return pixel_vec[index(row, col)]; }
 
-
-int SiPixelArrayBuffer::operator()(int row, int col) const  { return pixel_vec[index(row,col)];}
-
-
-int SiPixelArrayBuffer::operator()(const SiPixelCluster::PixelPos& pix) const {return pixel_vec[index(pix)];}
+int SiPixelArrayBuffer::operator()(const SiPixelCluster::PixelPos& pix) const { return pixel_vec[index(pix)]; }
 
 // unchecked!
-void SiPixelArrayBuffer::set_adc( int row, int col, int adc) 
-{
-  pixel_vec[index(row,col)] = adc;
-}
+void SiPixelArrayBuffer::set_adc(int row, int col, int adc) { pixel_vec[index(row, col)] = adc; }
 
+void SiPixelArrayBuffer::set_adc(const SiPixelCluster::PixelPos& pix, int adc) { pixel_vec[index(pix)] = adc; }
 
-void SiPixelArrayBuffer::set_adc( const SiPixelCluster::PixelPos& pix, int adc)
-{
-  pixel_vec[index(pix)] = adc;
-}
-
-void SiPixelArrayBuffer::add_adc( int row, int col, int adc)
-{
-  pixel_vec[index(row,col)] += adc;
-}
+void SiPixelArrayBuffer::add_adc(int row, int col, int adc) { pixel_vec[index(row, col)] += adc; }
 
 #endif
