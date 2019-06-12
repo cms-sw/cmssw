@@ -470,7 +470,6 @@ bool PFAlgo::recoTracksNotHCAL(const reco::PFBlock &block, reco::PFBlock::LinkDa
 
   // If it is not a muon check if Is it a fake track ?
   //Michalis: I wonder if we should convert this to dpt/pt?
-  bool rejectFake = false;
   if ( !thisIsAMuon  && elements[iTrack].trackRef()->ptError() > ptError_ ) {
 
     double deficit = trackMomentum;
@@ -501,7 +500,6 @@ bool PFAlgo::recoTracksNotHCAL(const reco::PFBlock &block, reco::PFBlock::LinkDa
     bool isPrimary = isFromSecInt(elements[iTrack], "primary");
 
     if ( deficit > nSigmaTRACK_*resol && !isPrimary && !goodTrackDeadHcal) {
-      rejectFake = true;
       active[iTrack] = false;
       if ( debug_ )
         std::cout << elements[iTrack] << std::endl
@@ -517,10 +515,9 @@ bool PFAlgo::recoTracksNotHCAL(const reco::PFBlock &block, reco::PFBlock::LinkDa
                    << " |dz| " << std::abs(trackRef->dz(primaryVertex_.position())) << " +- " << trackRef->dzError()
     	      << "is probably a fake (1) --> lock the track"
     	      << std::endl;
+    return true;
     }
   } // !thisIsaMuon
-
-  if ( rejectFake ) { return true; };
 
   // Create a track candidate
   // unsigned tmpi = reconstructTrack( elements[iTrack] );
