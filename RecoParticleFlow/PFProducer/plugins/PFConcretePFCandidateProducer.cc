@@ -1,11 +1,12 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <string>
+namespace edm {
+class EventSetup;
+}  // namespace edm
 
 class PFConcretePFCandidateProducer : public edm::stream::EDProducer<> {
  public:

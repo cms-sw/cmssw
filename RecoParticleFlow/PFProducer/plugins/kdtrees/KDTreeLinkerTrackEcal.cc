@@ -5,7 +5,6 @@
 
 #include "TMath.h"
 
-
 // This class is used to find all links between Tracks and ECAL clusters
 // using a KDTree algorithm.
 // It is used in PFBlockAlgo.cc in the function links().

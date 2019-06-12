@@ -4,7 +4,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
@@ -15,65 +14,29 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/Common/interface/AssociationVector.h"
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonCoreFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
-#include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h" 
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-#include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/Common/interface/AssociationVector.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 
-#include <Math/VectorUtil.h>
-#include "TLorentzVector.h"
-#include "TMath.h"
-#include <vector>
-#include <iostream>
-#include <string>
-#include <map>
+class CaloGeometry;
+class CaloTopology;
+class DetId;
+namespace edm {
+class EventSetup;
+}  // namespace edm
 
 class PFPhotonTranslator : public edm::stream::EDProducer<>
 {
@@ -185,7 +148,6 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-using namespace ROOT::Math::VectorUtil;
 typedef math::XYZTLorentzVector LorentzVector;
 typedef math::XYZPoint Point;
 typedef math::XYZVector Vector;
