@@ -2570,6 +2570,10 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             p = Process("Test")
             p.maxEvents.output = PSet(out=untracked.int32(10))
             self.assertEqual(p.maxEvents.output.out.value(), 10)
+            p = Process("Test")
+            p.maxEvents = untracked.PSet(input = untracked.int32(5))
+            self.assertEqual(p.maxEvents.input.value(), 5)
+
         
         def testExamples(self):
             p = Process("Test")
