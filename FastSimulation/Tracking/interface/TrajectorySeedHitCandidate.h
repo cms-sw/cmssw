@@ -14,63 +14,48 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
-
 #include "FastSimulation/Tracking/interface/TrackingLayer.h"
 
 #include <vector>
 
 class TrackerTopology;
 
-class TrajectorySeedHitCandidate
-{
+class TrajectorySeedHitCandidate {
 public:
-  
   /// Default Constructor
-  TrajectorySeedHitCandidate():
-    theHit(nullptr),
-    seedingLayer()
-    
-   {
-   }
+  TrajectorySeedHitCandidate()
+      : theHit(nullptr),
+        seedingLayer()
+
+  {}
 
   /// Constructor from a FastTrackerRecHit and topology
-  TrajectorySeedHitCandidate(const FastTrackerRecHit * hit, const TrackerTopology* tTopo);
-  
+  TrajectorySeedHitCandidate(const FastTrackerRecHit* hit, const TrackerTopology* tTopo);
+
   /// The Hit itself
-  inline const FastTrackerRecHit * hit() const { return theHit; }
-      
-  inline const TrackingLayer& getTrackingLayer() const
-  {
-    return seedingLayer;
-  }
-  
+  inline const FastTrackerRecHit* hit() const { return theHit; }
+
+  inline const TrackingLayer& getTrackingLayer() const { return seedingLayer; }
+
   /// The subdet Id
   inline unsigned int subDetId() const { return seedingLayer.getSubDetNumber(); }
-  
+
   /// The Layer Number
   inline unsigned int layerNumber() const { return seedingLayer.getLayerNumber(); }
-  
+
   /// The local position
-  inline LocalPoint localPosition() const { return hit()->localPosition(); }  
+  inline LocalPoint localPosition() const { return hit()->localPosition(); }
   /// Check if the hit is on one of the requested detector
   //  bool isOnRequestedDet(const std::vector<unsigned int>& whichDet) const;
 
-
   /// Check if two hits are on the same layer of the same subdetector
   inline bool isOnTheSameLayer(const TrajectorySeedHitCandidate& other) const {
-    
-    return seedingLayer==other.seedingLayer;
+    return seedingLayer == other.seedingLayer;
   }
 
-
-  
-
- private:
-  
-  const FastTrackerRecHit * theHit;
+private:
+  const FastTrackerRecHit* theHit;
   TrackingLayer seedingLayer;
-
 };
 
 #endif
-
