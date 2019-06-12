@@ -18,8 +18,8 @@ namespace edm {
   namespace eventsetup {
 
     EventSetupRecordIOVQueue::EventSetupRecordIOVQueue(unsigned int nConcurrentIOVs)
-        : nConcurrentIOVs_(nConcurrentIOVs), iovQueue_(nConcurrentIOVs), isAvailable_(nConcurrentIOVs), cacheIdentifier_(1) {
-      for (auto& i: isAvailable_) {
+        : iovQueue_(nConcurrentIOVs), isAvailable_(nConcurrentIOVs), cacheIdentifier_(1) {
+      for (auto& i : isAvailable_) {
         i.store(true);
       }
       waitForIOVsInFlight_ = edm::make_empty_waiting_task();
@@ -81,14 +81,15 @@ namespace edm {
           [this, taskHolder, &endIOVWaitingTasks](edm::LimitedTaskQueue::Resumer iResumer) mutable {
             try {
               unsigned int iovIndex = 0;
-              for (; iovIndex < nConcurrentIOVs_; ++iovIndex) {
+              auto nConcurrentIOVs = isAvailable_.size();
+              for (; iovIndex < nConcurrentIOVs; ++iovIndex) {
                 bool expected = true;
                 if (isAvailable_[iovIndex].compare_exchange_strong(expected, false)) {
                   break;
                 }
               }
               // Should never fail, just a sanity check
-              if (iovIndex == nConcurrentIOVs_) {
+              if (iovIndex == nConcurrentIOVs) {
                 throw edm::Exception(edm::errors::LogicError)
                     << "EventSetupRecordIOVQueue::startNewIOVAsync\n"
                     << "Couldn't find available IOV slot. This should never happen.\n"
