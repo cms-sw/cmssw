@@ -20,9 +20,13 @@ class SiPixelClusterShapeData {
 public:
   typedef std::vector<std::pair<int, int> >::const_iterator const_iterator;
   typedef std::pair<const_iterator, const_iterator> Range;
-  SiPixelClusterShapeData(const_iterator begin, const_iterator end, bool isStraight, bool isComplete, bool hasBigPixelsOnlyInside):
-    begin_(begin), end_(end), isStraight_(isStraight), isComplete_(isComplete), hasBigPixelsOnlyInside_(hasBigPixelsOnlyInside)
-  {}
+  SiPixelClusterShapeData(
+      const_iterator begin, const_iterator end, bool isStraight, bool isComplete, bool hasBigPixelsOnlyInside)
+      : begin_(begin),
+        end_(end),
+        isStraight_(isStraight),
+        isComplete_(isComplete),
+        hasBigPixelsOnlyInside_(hasBigPixelsOnlyInside) {}
   ~SiPixelClusterShapeData();
 
   Range size() const { return std::make_pair(begin_, end_); }
@@ -41,21 +45,21 @@ public:
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> ClusterRef;
 
   struct Field {
-    Field(): offset(0), size(0), straight(false), complete(false), has(false), filled(false) {}
+    Field() : offset(0), size(0), straight(false), complete(false), has(false), filled(false) {}
 
-    Field(unsigned off, unsigned siz, bool s, bool c, bool h):
-      offset(off), size(siz), straight(s), complete(c), has(h), filled(true) {}
-    unsigned offset: 24; // room for 2^24/9 = ~1.8e6 clusters, should be enough
-    unsigned size: 4; // max 9 elements / cluster (2^4-1=15)
-    unsigned straight:1;
-    unsigned complete:1;
-    unsigned has:1;
-    unsigned filled:1;
+    Field(unsigned off, unsigned siz, bool s, bool c, bool h)
+        : offset(off), size(siz), straight(s), complete(c), has(h), filled(true) {}
+    unsigned offset : 24;  // room for 2^24/9 = ~1.8e6 clusters, should be enough
+    unsigned size : 4;     // max 9 elements / cluster (2^4-1=15)
+    unsigned straight : 1;
+    unsigned complete : 1;
+    unsigned has : 1;
+    unsigned filled : 1;
   };
 
-  SiPixelClusterShapeCache() {};
-  explicit SiPixelClusterShapeCache(const edm::HandleBase& handle): productId_(handle.id()) {}
-  explicit SiPixelClusterShapeCache(const edm::ProductID& id): productId_(id) {}
+  SiPixelClusterShapeCache(){};
+  explicit SiPixelClusterShapeCache(const edm::HandleBase& handle) : productId_(handle.id()) {}
+  explicit SiPixelClusterShapeCache(const edm::ProductID& id) : productId_(id) {}
   ~SiPixelClusterShapeCache();
 
   void resize(size_t size) {
@@ -80,7 +84,8 @@ public:
     static_assert(T::ArrayType::capacity() <= 15, "T::ArrayType::capacity() more than 15, bit field too narrow");
     checkRef(cluster);
 
-    data_[cluster.index()] = Field(sizeData_.size(), data.size.size(), data.isStraight, data.isComplete, data.hasBigPixelsOnlyInside);
+    data_[cluster.index()] =
+        Field(sizeData_.size(), data.size.size(), data.isStraight, data.isComplete, data.hasBigPixelsOnlyInside);
     std::copy(data.size.begin(), data.size.end(), std::back_inserter(sizeData_));
   }
 
@@ -89,13 +94,13 @@ public:
     return data_[cluster.index()].filled;
   }
 
-  SiPixelClusterShapeData get(const ClusterRef& cluster, const PixelGeomDetUnit *pixDet) const {
+  SiPixelClusterShapeData get(const ClusterRef& cluster, const PixelGeomDetUnit* pixDet) const {
     checkRef(cluster);
     Field f = data_[cluster.index()];
     assert(f.filled);
 
-    auto beg = sizeData_.begin()+f.offset;
-    auto end = beg+f.size;
+    auto beg = sizeData_.begin() + f.offset;
+    auto end = beg + f.size;
 
     return SiPixelClusterShapeData(beg, end, f.straight, f.complete, f.has);
   }

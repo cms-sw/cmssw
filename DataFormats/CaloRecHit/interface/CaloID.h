@@ -15,9 +15,7 @@
 namespace reco {
 
   class CaloID {
-    
   public:
-
     enum Detectors {
       DET_ECAL_BARREL = 0,
       DET_ECAL_ENDCAP,
@@ -37,49 +35,47 @@ namespace reco {
     CaloID() : detectors_(0) {}
 
     CaloID(Detectors det) : detectors_(0) { setDetector(det, true); }
-    
-    /// abstract class 
+
+    /// abstract class
     virtual ~CaloID() {}
 
     /// tells the CaloID that it describes a given detector
     void setDetector(CaloID::Detectors theDetector, bool value);
-	
+
     /// \return packed detector information
-    unsigned detectors() const {return detectors_;}
-    
+    unsigned detectors() const { return detectors_; }
+
     /// \return true if this CaloID is in a given detector
     bool detector(CaloID::Detectors theDetector) const;
 
     /// \return true if this CaloID describes a single detector
     bool isSingleDetector() const {
       // check that detectors_ is a power of 2
-      return static_cast<bool>(detectors_ && !( (detectors_-1) & detectors_ ));
+      return static_cast<bool>(detectors_ && !((detectors_ - 1) & detectors_));
     }
 
     /// \return the described detector if isSingleDetector(),
     /// and DET_NONE otherwise.
-    Detectors  detector() const; 
+    Detectors detector() const;
 
-    CaloID& operator=(const CaloID& rhs) { 
+    CaloID& operator=(const CaloID& rhs) {
       detectors_ = rhs.detectors_;
       return *this;
     }
 
-    friend std::ostream& operator<<(std::ostream& out,
-				    const CaloID& id);
-   
+    friend std::ostream& operator<<(std::ostream& out, const CaloID& id);
+
   private:
-    
     /// \return lsb position in an integer
     int leastSignificantBitPosition(unsigned n) const;
 
     /// packs the detector information into a bitmask.
     /// a CaloID can describe several detectors (bit or)
-    unsigned  detectors_;
+    unsigned detectors_;
   };
 
   std::ostream& operator<<(std::ostream& out, const CaloID& id);
 
-}
+}  // namespace reco
 
 #endif

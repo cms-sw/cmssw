@@ -7,12 +7,13 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include <memory>
 
-class  PixelCPEGenericESProducer: public edm::ESProducer{
- public:
-  PixelCPEGenericESProducer(const edm::ParameterSet & p);
-  ~PixelCPEGenericESProducer() override; 
+class PixelCPEGenericESProducer : public edm::ESProducer {
+public:
+  PixelCPEGenericESProducer(const edm::ParameterSet &p);
+  ~PixelCPEGenericESProducer() override;
   std::unique_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord &);
- private:
+
+private:
   edm::ParameterSet pset_;
   edm::ESInputTag magname_;
   bool useLAWidthFromDB_;
@@ -20,9 +21,4 @@ class  PixelCPEGenericESProducer: public edm::ESProducer{
   bool UseErrorsFromTemplates_;
 };
 
-
 #endif
-
-
-
-
