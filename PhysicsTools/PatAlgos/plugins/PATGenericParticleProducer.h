@@ -15,7 +15,6 @@
   \version  $Id: PATGenericParticleProducer.h,v 1.9 2009/06/25 23:49:35 gpetrucc Exp $
 */
 
-
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -40,51 +39,47 @@
 namespace pat {
 
   class PATGenericParticleProducer : public edm::stream::EDProducer<> {
+  public:
+    explicit PATGenericParticleProducer(const edm::ParameterSet& iConfig);
+    ~PATGenericParticleProducer() override;
 
-    public:
+    void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-      explicit PATGenericParticleProducer(const edm::ParameterSet & iConfig);
-      ~PATGenericParticleProducer() override;
+  private:
+    // configurables
+    edm::EDGetTokenT<edm::View<reco::Candidate> > srcToken_;
 
-      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+    // embed RECo objects
+    bool embedSuperCluster_, embedTrack_, embedTracks_, embedGsfTrack_, embedCaloTower_, embedStandalone_,
+        embedCombined_;
 
-    private:
+    bool addQuality_;
+    edm::EDGetTokenT<edm::ValueMap<float> > qualitySrcToken_;
 
-      // configurables
-      edm::EDGetTokenT<edm::View<reco::Candidate> > srcToken_;
+    bool addGenMatch_;
+    bool embedGenMatch_;
+    std::vector<edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> > > genMatchTokens_;
 
-      // embed RECo objects
-      bool embedSuperCluster_, embedTrack_, embedTracks_, embedGsfTrack_, embedCaloTower_, embedStandalone_, embedCombined_;
+    // tools
+    GreaterByEt<GenericParticle> eTComparator_;
 
-      bool addQuality_;
-      edm::EDGetTokenT<edm::ValueMap<float> > qualitySrcToken_;
+    pat::helper::MultiIsolator isolator_;
+    pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_;  // better here than recreate at each event
+    std::vector<std::pair<pat::IsolationKeys, edm::InputTag> > isoDepositLabels_;
+    std::vector<edm::EDGetTokenT<edm::ValueMap<IsoDeposit> > > isoDepositTokens_;
 
-      bool addGenMatch_;
-      bool embedGenMatch_;
-      std::vector<edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> > > genMatchTokens_;
+    bool addEfficiencies_;
+    pat::helper::EfficiencyLoader efficiencyLoader_;
 
-      // tools
-      GreaterByEt<GenericParticle> eTComparator_;
+    bool addResolutions_;
+    pat::helper::KinResolutionsLoader resolutionLoader_;
 
-      pat::helper::MultiIsolator isolator_;
-      pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
-      std::vector<std::pair<pat::IsolationKeys,edm::InputTag> > isoDepositLabels_;
-      std::vector<edm::EDGetTokenT<edm::ValueMap<IsoDeposit> > > isoDepositTokens_;
+    pat::helper::VertexingHelper vertexingHelper_;
 
-      bool addEfficiencies_;
-      pat::helper::EfficiencyLoader efficiencyLoader_;
-
-      bool addResolutions_;
-      pat::helper::KinResolutionsLoader resolutionLoader_;
-
-      pat::helper::VertexingHelper vertexingHelper_;
-
-      bool useUserData_;
-      pat::PATUserDataHelper<pat::GenericParticle> userDataHelper_;
-
+    bool useUserData_;
+    pat::PATUserDataHelper<pat::GenericParticle> userDataHelper_;
   };
 
-
-}
+}  // namespace pat
 
 #endif

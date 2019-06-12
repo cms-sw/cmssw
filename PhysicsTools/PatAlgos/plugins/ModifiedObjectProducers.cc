@@ -7,10 +7,10 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 typedef pat::ModifiedObjectProducer<pat::Electron> ModifiedElectronProducer;
-typedef pat::ModifiedObjectProducer<pat::Photon>   ModifiedPhotonProducer;
-typedef pat::ModifiedObjectProducer<pat::Muon>     ModifiedMuonProducer;
-typedef pat::ModifiedObjectProducer<pat::Tau>      ModifiedTauProducer;
-typedef pat::ModifiedObjectProducer<pat::Jet>      ModifiedJetProducer;
+typedef pat::ModifiedObjectProducer<pat::Photon> ModifiedPhotonProducer;
+typedef pat::ModifiedObjectProducer<pat::Muon> ModifiedMuonProducer;
+typedef pat::ModifiedObjectProducer<pat::Tau> ModifiedTauProducer;
+typedef pat::ModifiedObjectProducer<pat::Jet> ModifiedJetProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(ModifiedElectronProducer);

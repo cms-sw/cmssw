@@ -26,42 +26,40 @@
 namespace pat {
 
   class PATSingleVertexSelector : public edm::stream::EDFilter<> {
+  public:
+    explicit PATSingleVertexSelector(const edm::ParameterSet& iConfig);
+    ~PATSingleVertexSelector() override;
 
-    public:
+    bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-      explicit PATSingleVertexSelector(const edm::ParameterSet & iConfig);
-      ~PATSingleVertexSelector() override;
+  private:
+    enum Mode { First, NearestToCand, FromCand, FromBeamSpot };
+    typedef StringCutObjectSelector<reco::Vertex> VtxSel;
+    typedef StringCutObjectSelector<reco::Candidate> CandSel;
 
-      bool filter(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+    Mode parseMode(const std::string& name) const;
 
-    private:
-      enum Mode { First, NearestToCand, FromCand, FromBeamSpot };
-      typedef StringCutObjectSelector<reco::Vertex>    VtxSel;
-      typedef StringCutObjectSelector<reco::Candidate> CandSel;
+    std::unique_ptr<std::vector<reco::Vertex> > filter_(Mode mode,
+                                                        const edm::Event& iEvent,
+                                                        const edm::EventSetup& iSetup);
+    bool hasMode_(Mode mode) const;
+    // configurables
+    std::vector<Mode> modes_;  // mode + optional fallbacks
+    edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken_;
+    std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > candidatesToken_;
+    const VtxSel vtxPreselection_;
+    const CandSel candPreselection_;
+    edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+    // transient data. meaningful while 'filter()' is on the stack
+    std::vector<reco::VertexRef> selVtxs_;
+    reco::CandidatePtr bestCand_;
 
-      Mode parseMode(const std::string &name) const;
-      
-      std::unique_ptr<std::vector<reco::Vertex> >
-        filter_(Mode mode, const edm::Event & iEvent, const edm::EventSetup & iSetup);
-      bool hasMode_(Mode mode) const ;
-      // configurables
-      std::vector<Mode> modes_; // mode + optional fallbacks
-      edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken_;
-      std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > candidatesToken_;
-      const VtxSel vtxPreselection_;
-      const CandSel candPreselection_;
-      edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
-      // transient data. meaningful while 'filter()' is on the stack
-      std::vector<reco::VertexRef> selVtxs_;
-      reco::CandidatePtr           bestCand_;
-
-      // flag to enable/disable EDFilter functionality:
-      // if set to false, PATSingleVertexSelector selects the "one" event vertex,
-      // but does not reject any events
-      bool doFilterEvents_;
+    // flag to enable/disable EDFilter functionality:
+    // if set to false, PATSingleVertexSelector selects the "one" event vertex,
+    // but does not reject any events
+    bool doFilterEvents_;
   };
 
-}
+}  // namespace pat
 
 #endif
-
