@@ -232,8 +232,12 @@ class Process(object):
                               )
     def __updateOptions(self,opt):
         newOpts = self.defaultOptions_()
-        for p in opt.parameters_():
-            setattr(newOpts, p, getattr(opt,p))
+        if isinstance(opt,dict):
+            for k,v in six.iteritems(opt):
+                setattr(newOpts,k,v)
+        else:
+            for p in opt.parameters_():
+                setattr(newOpts, p, getattr(opt,p))
         return newOpts
     @staticmethod
     def defaultMaxEvents_():
@@ -241,8 +245,12 @@ class Process(object):
                               output=optional.untracked.allowed(int32,PSet))
     def __updateMaxEvents(self,ps):
         newMax = self.defaultMaxEvents_()
-        for p in ps.parameters_():
-            setattr(newMax, p, getattr(ps,p))
+        if isinstance(ps,dict):
+            for k,v in six.iteritems(ps):
+                setattr(newMax,k,v)
+        else:
+            for p in ps.parameters_():
+                setattr(newMax, p, getattr(ps,p))
         return newMax
     @staticmethod
     def defaultMaxLuminosityBlocks_():
@@ -2547,6 +2555,10 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             self.assertEqual(p.options.numberOfThreads.value(),8)
             p.options = PSet()
             self.assertEqual(p.options.numberOfThreads.value(),1)
+            p.options = dict(numberOfStreams =2,
+                             numberOfThreads =2)
+            self.assertEqual(p.options.numberOfThreads.value(),2)
+            self.assertEqual(p.options.numberOfStreams.value(),2)
 
         def testMaxEvents(self):
             p = Process("Test")
