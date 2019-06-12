@@ -75,6 +75,16 @@ lastLayerEEzp = layerscheme['lastLayerEEzp']  # last layer of EE +z
 lastLayerFHzp = layerscheme['lastLayerFHzp']  # last layer of FH +z
 maxlayerzp = layerscheme['maxlayerzp'] # last layer of BH +z
 
+hitlayerscheme = { 'EE_min': 1,'EE_max': 28, 'HESilicon_min': 1, 'HESilicon_max': 22, 'HEScintillator_min': 9 , 'HEScintillator_max': 22 }
+print(hitlayerscheme)
+
+EE_min = hitlayerscheme['EE_min']
+EE_max = hitlayerscheme['EE_max']
+HESilicon_min = hitlayerscheme['HESilicon_min']
+HESilicon_max = hitlayerscheme['HESilicon_max']
+HEScintillator_min = hitlayerscheme['HEScintillator_min']
+HEScintillator_max = hitlayerscheme['HEScintillator_max']
+
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 _legend_common = {"legendDx": -0.3,
                   "legendDy": -0.05,
@@ -1496,6 +1506,250 @@ _multicluster_z = PlotGroup("multicluster_z", [
   Plot("multicluster_z", xtitle="", **_common)
 ],ncols=1)
 
+#--------------------------------------------------------------------------------------------
+# SIMHITS, DIGIS, RECHITS
+#--------------------------------------------------------------------------------------------
+
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ymin": 0.1, "ylog": True}
+
+_HitValidation = PlotGroup("HitValidation", [
+                                             Plot("heeEnSim", title="SimHits_EE_Energy", **_common),
+                                             Plot("hebEnSim", title="SimHits_HE_Silicon_Energy", **_common),
+                                             Plot("hefEnSim", title="SimHits_HE_Scintillator_Energy", **_common),
+                                             ])
+
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
+
+_SimHits_Occupancy_EE_zplus = PlotGroup("SimHits_Occupancy_EE_zplus", [
+                                                                       Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="SimHits_Occupancy_EE_zplus", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                                       ], ncols=4)
+
+_SimHits_Occupancy_HE_Silicon_zplus = PlotGroup("SimHits_Occupancy_HE_Silicon_zplus", [
+                                                                                       Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="SimHits_HE_Occupancy_zplus", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                                       ], ncols=4)
+
+_SimHits_Occupancy_HE_Scintillator_zplus = PlotGroup("SimHits_Occupancy_HE_Scintillator_zplus", [
+                                                                                                 Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="SimHits_Occupancy_HE_Scintillator_zplus", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                                                 ], ncols=4)
+
+_SimHits_Occupancy_EE_zminus = PlotGroup("SimHits_Occupancy_EE_zminus", [
+                                                                         Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="SimHits_Occupancy_EE_zminus", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                                         ], ncols=4)
+
+_SimHits_Occupancy_HE_Silicon_zminus = PlotGroup("SimHits_Occupancy_HE_Silicon_zminus", [
+                                                                                         Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="SimHits_Occupancy_HE_Silicon_zminus", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                                         ], ncols=4)
+
+_SimHits_Occupancy_HE_Scintillator_zminus = PlotGroup("SimHits_Occupancy_HE_Scintillator_zminus", [
+                                                                                                   Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="SimHits_Occupancy_HE_Scintillator_zminus", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                                                   ], ncols=4)
+
+_common_etaphi = dict(removeEmptyBins=False, xbinlabelsize=10, xbinlabeloption="d", ymin=None)
+
+_SimHits_EtaPhi_EE_zplus=[]
+for i in range(EE_min,EE_max+1):
+    _SimHits_EtaPhi_EE_zplus.append(PlotOnSideGroup("EE_EtaPhi_zplus_layer_{:02d}".format(i), Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="SimHits_EtaPhi_EE_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+
+_SimHits_EtaPhi_HE_Silicon_zplus=[]
+for i in range(HESilicon_min,HESilicon_max+1):
+    _SimHits_EtaPhi_HE_Silicon_zplus.append(PlotOnSideGroup("HE_Silicon_EtaPhi_zplus_layer_{:02d}".format(i), Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="SimHits_EtaPhi_HE_Silicon_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+
+_SimHits_EtaPhi_HE_Scintillator_zplus=[]
+for i in range(HEScintillator_min,HEScintillator_max+1):
+    _SimHits_EtaPhi_HE_Scintillator_zplus.append(PlotOnSideGroup("HE_Scintillator_EtaPhi_zplus_layer_{:02d}".format(i), Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="SimHits_EtaPhi_HE_Scintillator_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+
+_SimHits_EtaPhi_EE_zminus=[]
+for i in range(EE_min,EE_max+1):
+    _SimHits_EtaPhi_EE_zminus.append(PlotOnSideGroup("EE_EtaPhi_zminus_layer_{:02d}".format(i), Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="SimHits_EtaPhi_EE_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+
+_SimHits_EtaPhi_HE_Silicon_zminus=[]
+for i in range(HESilicon_min,HESilicon_max+1):
+    _SimHits_EtaPhi_HE_Silicon_zminus.append(PlotOnSideGroup("HE_Silicon_EtaPhi_zminus_layer_{:02d}".format(i), Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="SimHits_EtaPhi_HE_Silicon_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+
+_SimHits_EtaPhi_HE_Scintillator_zminus=[]
+for i in range(HEScintillator_min,HEScintillator_max+1):
+    _SimHits_EtaPhi_HE_Scintillator_zminus.append(PlotOnSideGroup("HE_Scintillator_EtaPhi_zminuslayer_{:02d}".format(i), Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="SimHits_EtaPhi_HE_Scintillator_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ymin": 0.1, "ylog": True}
+
+_SimHits_Energy_EE_0 = PlotGroup("SimHits_Energy_Time_0_EE", [
+                                                              Plot("energy_time_0_layer_{:02d}".format(i), title="SimHits_Energy_Time_0_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                              ], ncols=4)
+
+_SimHits_Energy_HE_Silicon_0 = PlotGroup("SimHits_Energy_Time_0_HE_Silicon", [
+                                                                              Plot("energy_time_0_layer_{:02d}".format(i), title="SimHits_Energy_Time_0_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                              ], ncols=4)
+
+_SimHits_Energy_HE_Scintillator_0 = PlotGroup("SimHits_Energy_Time_0_HE_Scintillator", [
+                                                                                        Plot("energy_time_0_layer_{:02d}".format(i), title="SimHits_Energy_Time_0_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                                        ], ncols=4)
+
+_SimHits_Energy_EE_1 = PlotGroup("SimHits_Energy_Time_1_EE", [
+                                                              Plot("energy_time_1_layer_{:02d}".format(i), title="SimHits_Energy_Time_1_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                              ], ncols=4)
+
+_SimHits_Energy_HE_Silicon_1 = PlotGroup("SimHits_Energy_Time_1_HE_Silicon", [
+                                                                              Plot("energy_time_1_layer_{:02d}".format(i), title="SimHits_Energy_Time_1_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                              ], ncols=4)
+
+_SimHits_Energy_HE_Scintillator_1 = PlotGroup("SimHits_Energy_Time_1_HE_Scintillator", [
+                                                                                        Plot("energy_time_1_layer_{:02d}".format(i), title="SimHits_Energy_Time_1_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                                        ], ncols=4)
+
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
+
+_RecHits_Occupancy_EE_zplus = PlotGroup("RecHits_Occupancy_EE_zplus", [
+                                                                       Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="RecHits_Occupancy_EE_zplus", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                                       ], ncols=4)
+
+_RecHits_Occupancy_HE_Silicon_zplus = PlotGroup("RecHits_Occupancy_HE_Silicon_zplus", [
+                                                                                       Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="RecHits_Occupancy_HE_Silicon_zplus", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                                       ], ncols=4)
+
+_RecHits_Occupancy_HE_Scintillator_zplus = PlotGroup("RecHits_Occupancy_HE_Scintillator_zplus", [
+                                                                                                 Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="RecHits_Occupancy_HE_Scintillator_zplus", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                                                 ], ncols=4)
+
+_RecHits_Occupancy_EE_zminus = PlotGroup("RecHits_Occupancy_EE_zminus", [
+                                                                         Plot("HitOccupancy_Minus_layer_{:02d}".format(i), title="RecHits_Occupancy_EE_zminus", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                                         ], ncols=4)
+
+_RecHits_Occupancy_HE_Silicon_zminus = PlotGroup("RecHits_Occupancy_HE_Silicon_zminus", [
+                                                                                         Plot("HitOccupancy_Minus_layer_{:02d}".format(i), title="RecHits_Occupancy_HE_Silicon_zminus", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                                         ], ncols=4)
+
+_RecHits_Occupancy_HE_Scintillator_zminus = PlotGroup("RecHits_Occupancy_HE_Scintillator_zminus", [
+                                                                                                   Plot("HitOccupancy_Minus_layer_{:02d}".format(i),  title="RecHits_Occupancy_HE_Scintillator_zminus", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                                                   ], ncols=4)
+
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ymin": 0.1, "ylog": True}
+
+_RecHits_Energy_EE = PlotGroup("RecHits_Energy_EE", [
+                                                     Plot("energy_layer_{:02d}".format(i), title="RecHits_Energy_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                     ], ncols=4)
+
+_RecHits_Energy_HE_Silicon = PlotGroup("RecHits_Energy_HE_Silicon", [
+                                                                     Plot("energy_layer_{:02d}".format(i), title="RecHits_Energy_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                     ], ncols=4)
+
+_RecHits_Energy_HE_Scintillator = PlotGroup("RecHits_Energy_HE_Scintillator", [
+                                                                               Plot("energy_layer_{:02d}".format(i), title="RecHits_Energy_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                               ], ncols=4)
+
+_RecHits_EtaPhi_EE_zplus=[]
+for i in range(EE_min,EE_max+1):
+    _RecHits_EtaPhi_EE_zplus.append(PlotOnSideGroup("RecHits_EtaPhi_EE_zplus_layer_{:02d}".format(i), Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="RecHits_EtaPhi_EE_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+
+_RecHits_EtaPhi_HE_Silicon_zplus=[]
+for i in range(HESilicon_min,HESilicon_max+1):
+    _RecHits_EtaPhi_HE_Silicon_zplus.append(PlotOnSideGroup("RecHits_EtaPhi_HE_Silicon_zplus_layer_{:02d}".format(i), Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="RecHits_EtaPhi_HE_Silicon_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+
+_RecHits_EtaPhi_HE_Scintillator_zplus=[]
+for i in range(HEScintillator_min,HEScintillator_max+1):
+    _RecHits_EtaPhi_HE_Scintillator_zplus.append(PlotOnSideGroup("RecHits_EtaPhi_HE_Scintillator_zplus_layer_{:02d}".format(i), Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="RecHits_EtaPhi_HE_Scintillator_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+
+_RecHits_EtaPhi_EE_zminus=[]
+for i in range(EE_min,EE_max+1):
+    _RecHits_EtaPhi_EE_zminus.append(PlotOnSideGroup("RecHits_EtaPhi_EE_zminus_layer_{:02d}".format(i), Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="RecHits_EtaPhi_EE_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+
+_RecHits_EtaPhi_HE_Silicon_zminus=[]
+for i in range(HESilicon_min,HESilicon_max+1):
+    _RecHits_EtaPhi_HE_Silicon_zminus.append(PlotOnSideGroup("RecHits_EtaPhi_HE_Silicon_zminus_layer_{:02d}".format(i), Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="RecHits_EtaPhi_HE_Silicon_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+
+_RecHits_EtaPhi_HE_Scintillator_zminus=[]
+for i in range(HEScintillator_min,HEScintillator_max+1):
+    _RecHits_EtaPhi_HE_Scintillator_zminus.append(PlotOnSideGroup("RecHits_EtaPhi_HE_Scintillator_zminus_layer_{:02d}".format(i), Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="RecHits_EtaPhi_HE_Scintillator_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+
+_DigiHits_ADC_EE = PlotGroup("DigiHits_ADC_EE", [
+                                                 Plot("ADC_layer_{:02d}".format(i), title="DigiHits_ADC_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                 ], ncols=4)
+
+_DigiHits_ADC_HE_Silicon = PlotGroup("DigiHits_ADC_HE_Silicon", [
+                                                                 Plot("ADC_layer_{:02d}".format(i), title="DigiHits_ADC_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                 ], ncols=4)
+
+_DigiHits_ADC_HE_Scintillator = PlotGroup("DigiHits_ADC_HE_Scintillator", [
+                                                                           Plot("ADC_layer_{:02d}".format(i), title="DigiHits_ADC_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                           ], ncols=4)
+
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
+
+_DigiHits_Occupancy_EE_zplus = PlotGroup("DigiHits_Occupancy_EE_zplus", [
+                                                                         Plot("DigiOccupancy_Plus_layer_{:02d}".format(i), title="DigiHits_Occupancy_EE_zplus", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                                         ], ncols=4)
+
+_DigiHits_Occupancy_HE_Silicon_zplus = PlotGroup("DigiHits_Occupancy_HE_Silicon_zplus", [
+                                                                                         Plot("DigiOccupancy_Plus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Silicon_zplus", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                                         ], ncols=4)
+
+_DigiHits_Occupancy_HE_Scintillator_zplus = PlotGroup("DigiHits_Occupancy_HE_Scintillator_zplus", [
+                                                                                                   Plot("DigiOccupancy_Plus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Scintillator_zplus", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                                                   ], ncols=4)
+
+_DigiHits_Occupancy_EE_zminus = PlotGroup("DigiHits_Occupancy_EE_zminus", [
+                                                                           Plot("DigiOccupancy_Minus_layer_{:02d}".format(i), title="DigiHits_Occupancy_EE_zminus", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                                           ], ncols=4)
+
+_DigiHits_Occupancy_HE_Silicon_zminus = PlotGroup("DigiHits_Occupancy_HE_Silicon_zminus", [
+                                                                                           Plot("DigiOccupancy_Minus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Silicon_zminus", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                                           ], ncols=4)
+
+_DigiHits_Occupancy_HE_Scintillator_zminus = PlotGroup("DigiHits_Occupancy_HE_Scintillator_zminus", [
+                                                                                                     Plot("DigiOccupancy_Minus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Scintillator_zminus", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                                                     ], ncols=4)
+
+_common_XY = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d", ymin=None)
+
+_DigiHits_Occupancy_XY_EE_zplus=[]
+for i in range(EE_min,EE_max+1):
+    _DigiHits_Occupancy_XY_EE_zplus.append(PlotOnSideGroup("DigiHits_Occupancy_XY_EE_zplus_layer_{:02d}".format(i), Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_EE_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY), ncols=1))
+
+_DigiHits_Occupancy_XY_HE_Silicon_zplus=[]
+for i in range(HESilicon_min,HESilicon_max+1):
+    _DigiHits_Occupancy_XY_HE_Silicon_zplus.append(PlotOnSideGroup("DigiHits_Occupancy_XY_HE_Silicon_zplus_layer_{:02d}".format(i), Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_HE_Silicon_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY), ncols=1))
+
+_DigiHits_Occupancy_XY_HE_Scintillator_zplus=[]
+for i in range(HEScintillator_min,HEScintillator_max+1):
+    _DigiHits_Occupancy_XY_HE_Scintillator_zplus.append(PlotOnSideGroup("DigiHits_Occupancy_XY_HE_Scintillator_zplus_layer_{:02d}".format(i), Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_HE_Scintillator_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY), ncols=1))
+
+_DigiHits_Occupancy_XY_EE_zminus=[]
+for i in range(EE_min,EE_max+1):
+    _DigiHits_Occupancy_XY_EE_zminus.append(PlotOnSideGroup("DigiHits_Occupancy_XY_EE_zminus_layer_{:02d}".format(i), Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_EE_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY), ncols=1))
+
+_DigiHits_Occupancy_XY_HE_Silicon_zminus=[]
+for i in range(HESilicon_min,HESilicon_max+1):
+    _DigiHits_Occupancy_XY_HE_Silicon_zminus.append(PlotOnSideGroup("DigiHits_Occupancy_XY_HE_Silicon_zminus_layer_{:02d}".format(i), Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_HE_Silicon_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY), ncols=1))
+
+_DigiHits_Occupancy_XY_HE_Scintillator_zminus=[]
+for i in range(HEScintillator_min,HEScintillator_max+1):
+    _DigiHits_Occupancy_XY_HE_Scintillator_zminus.append(PlotOnSideGroup("DigiHits_Occupancy_XY_HE_Scintillator_zminus_layer_{:02d}".format(i), Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_HE_Scintillator_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY), ncols=1))
+
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ymin": 0.1, "ylog": True}
+
+_DigiHits_TOA_EE = PlotGroup("DigiHits_TOA_EE", [
+                                                 Plot("TOA_layer_{:02d}".format(i), title="DigiHits_TOA_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                 ], ncols=4)
+
+_DigiHits_TOA_HE_Silicon = PlotGroup("DigiHits_TOA_HE_Silicon", [
+                                                                 Plot("TOA_layer_{:02d}".format(i), title="DigiHits_TOA_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                 ], ncols=4)
+
+_DigiHits_TOA_HE_Scintillator = PlotGroup("DigiHits_TOA_HE_Scintillator", [
+                                                                           Plot("TOA_layer_{:02d}".format(i), title="DigiHits_TOA_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                           ], ncols=4)
+
+_DigiHits_TOT_EE = PlotGroup("DigiHits_TOT_EE", [
+                                                 Plot("TOT_layer_{:02d}".format(i), title="DigiHits_TOT_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                 ], ncols=4)
+
+_DigiHits_TOT_HE_Silicon = PlotGroup("DigiHits_TOT_HE_Silicon", [
+                                                                 Plot("TOT_layer_{:02d}".format(i), title="DigiHits_TOT_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                 ], ncols=4)
+
+_DigiHits_TOT_HE_Scintillator = PlotGroup("DigiHits_TOT_HE_Scintillator", [
+                                                                           Plot("TOT_layer_{:02d}".format(i), title="DigiHits_TOT_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                           ], ncols=4)
+
 #=================================================================================================
 hgcalLayerClustersPlotter = Plotter()
 #We follow Chris categories in folders
@@ -2183,3 +2437,461 @@ hgcalMultiClustersPlotter.append("Multiplicity", [
         purpose=PlotPurpose.Timing, page="Multiplicity",
         numberOfEventsHistogram=_multiplicity_zplus_numberOfEventsHistogram
         ))
+
+#=================================================================================================
+# hitValidation
+hgcalHitPlotter = Plotter()
+
+hgcalHitPlotter.append("SimHits_Validation", [
+                                              "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HitValidation",
+                                              ], PlotFolder(
+                                                            _HitValidation,
+                                                            loopSubFolders=False,
+                                                            purpose=PlotPurpose.Timing, page="SimHits_Validation"
+                                                            ))
+
+hgcalHitPlotter.append("SimHits_Occupancy_zplus", [
+                                                   "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalEESensitive"
+                                                   ], PlotFolder(
+                                                                 _SimHits_Occupancy_EE_zplus,
+                                                                 loopSubFolders=False,
+                                                                 purpose=PlotPurpose.Timing, page="SimHits_Occupancy_zplus"
+                                                                 ))
+
+hgcalHitPlotter.append("SimHits_Occupancy_zplus", [
+                                                   "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHESiliconSensitive"
+                                                   ], PlotFolder(
+                                                                 _SimHits_Occupancy_HE_Silicon_zplus,
+                                                                 loopSubFolders=False,
+                                                                 purpose=PlotPurpose.Timing, page="SimHits_Occupancy_zplus"
+                                                                 ))
+
+hgcalHitPlotter.append("SimHits_Occupancy_zplus", [
+                                                   "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHEScintillatorSensitive"
+                                                   ], PlotFolder(
+                                                                 _SimHits_Occupancy_HE_Scintillator_zplus,
+                                                                 loopSubFolders=False,
+                                                                 purpose=PlotPurpose.Timing, page="SimHits_Occupancy_zplus"
+                                                                 ))
+
+hgcalHitPlotter.append("SimHits_Occupancy_zminus", [
+                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalEESensitive"
+                                                    ], PlotFolder(
+                                                                  _SimHits_Occupancy_EE_zminus,
+                                                                  loopSubFolders=False,
+                                                                  purpose=PlotPurpose.Timing, page="SimHits_Occupancy_zminus"
+                                                                  ))
+
+hgcalHitPlotter.append("SimHits_Occupancy_zminus", [
+                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHESiliconSensitive"
+                                                    ], PlotFolder(
+                                                                  _SimHits_Occupancy_HE_Silicon_zminus,
+                                                                  loopSubFolders=False,
+                                                                  purpose=PlotPurpose.Timing, page="SimHits_Occupancy_zminus"
+                                                                  ))
+
+hgcalHitPlotter.append("SimHits_Occupancy_zminus", [
+                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHEScintillatorSensitive"
+                                                    ], PlotFolder(
+                                                                  _SimHits_Occupancy_HE_Scintillator_zminus,
+                                                                  loopSubFolders=False,
+                                                                  purpose=PlotPurpose.Timing, page="SimHits_Occupancy_zminus"
+                                                                  ))
+
+for i,item in enumerate(_SimHits_EtaPhi_EE_zplus, start=1):
+    hgcalHitPlotter.append("SimHits_EtaPhi_zplus", [
+                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalEESensitive"
+                                                    ], PlotFolder(
+                                                                  item,
+                                                                  loopSubFolders=False,
+                                                                  purpose=PlotPurpose.Timing, page="SimHits_EtaPhi_zplus"
+                                                                  ))
+
+for i,item in enumerate(_SimHits_EtaPhi_HE_Silicon_zplus, start=1):
+    hgcalHitPlotter.append("SimHits_EtaPhi_zplus", [
+                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHESiliconSensitive"
+                                                    ], PlotFolder(
+                                                                  item,
+                                                                  loopSubFolders=False,
+                                                                  purpose=PlotPurpose.Timing, page="SimHits_EtaPhi_zplus"
+                                                                  ))
+
+for i,item in enumerate(_SimHits_EtaPhi_HE_Scintillator_zplus, start=1):
+    hgcalHitPlotter.append("SimHits_EtaPhi_zplus", [
+                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHEScintillatorSensitive",
+                                                    ], PlotFolder(
+                                                                  item,
+                                                                  loopSubFolders=False,
+                                                                  purpose=PlotPurpose.Timing, page="SimHits_EtaPhi_zplus"))
+
+for i,item in enumerate(_SimHits_EtaPhi_EE_zminus, start=1):
+    hgcalHitPlotter.append("SimHits_EtaPhi_zminus", [
+                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalEESensitive"
+                                                     ], PlotFolder(
+                                                                   item,
+                                                                   loopSubFolders=False,
+                                                                   purpose=PlotPurpose.Timing, page="SimHits_EtaPhi_zminus"
+                                                                   ))
+
+for i,item in enumerate(_SimHits_EtaPhi_HE_Silicon_zminus, start=1):
+    hgcalHitPlotter.append("SimHits_EtaPhi_zminus", [
+                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHESiliconSensitive"
+                                                     ], PlotFolder(
+                                                                   item,
+                                                                   loopSubFolders=False,
+                                                                   purpose=PlotPurpose.Timing, page="SimHits_EtaPhi_zminus"
+                                                                   ))
+
+for i,item in enumerate(_SimHits_EtaPhi_HE_Scintillator_zminus, start=1):
+    hgcalHitPlotter.append("SimHits_EtaPhi_zminus", [
+                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHEScintillatorSensitive"
+                                                     ], PlotFolder(
+                                                                   item,
+                                                                   loopSubFolders=False,
+                                                                   purpose=PlotPurpose.Timing, page="SimHits_EtaPhi_zminus"
+                                                                   ))
+
+hgcalHitPlotter.append("SimHits_Energy", [
+                                          "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalEESensitive"
+                                          ], PlotFolder(
+                                                        _SimHits_Energy_EE_0,
+                                                        loopSubFolders=False,
+                                                        purpose=PlotPurpose.Timing, page="SimHits_Energy"
+                                                        ))
+
+hgcalHitPlotter.append("SimHits_Energy", [
+                                          "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHESiliconSensitive"
+                                          ], PlotFolder(
+                                                        _SimHits_Energy_HE_Silicon_0,
+                                                        loopSubFolders=False,
+                                                        purpose=PlotPurpose.Timing, page="SimHits_Energy"
+                                                        ))
+
+hgcalHitPlotter.append("SimHits_Energy", [
+                                          "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHEScintillatorSensitive"
+                                          ], PlotFolder(
+                                                        _SimHits_Energy_HE_Scintillator_0,
+                                                        loopSubFolders=False,
+                                                        purpose=PlotPurpose.Timing, page="SimHits_Energy"
+                                                        ))
+
+hgcalHitPlotter.append("SimHits_Energy", [
+                                          "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalEESensitive"
+                                          ], PlotFolder(
+                                                        _SimHits_Energy_EE_1,
+                                                        loopSubFolders=False,
+                                                        purpose=PlotPurpose.Timing, page="SimHits_Energy"
+                                                        ))
+
+hgcalHitPlotter.append("SimHits_Energy", [
+                                          "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHESiliconSensitive"
+                                          ], PlotFolder(
+                                                        _SimHits_Energy_HE_Silicon_1,
+                                                        loopSubFolders=False,
+                                                        purpose=PlotPurpose.Timing, page="SimHits_Energy"
+                                                        ))
+
+hgcalHitPlotter.append("SimHits_Energy", [
+                                          "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHEScintillatorSensitive"
+                                          ], PlotFolder(
+                                                        _SimHits_Energy_HE_Scintillator_1,
+                                                        loopSubFolders=False,
+                                                        purpose=PlotPurpose.Timing, page="SimHits_Energy"
+                                                        ))
+
+hgcalHitPlotter.append("RecHits_Occupancy_zplus", [
+                                                   "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalEESensitive"
+                                                   ], PlotFolder(
+                                                                 _RecHits_Occupancy_EE_zplus,
+                                                                 loopSubFolders=False,
+                                                                 purpose=PlotPurpose.Timing, page="RecHits_Occupancy_zplus"
+                                                                 ))
+
+hgcalHitPlotter.append("RecHits_Occupancy_zplus", [
+                                                   "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHESiliconSensitive"
+                                                   ], PlotFolder(
+                                                                 _RecHits_Occupancy_HE_Silicon_zplus,
+                                                                 loopSubFolders=False,
+                                                                 purpose=PlotPurpose.Timing, page="RecHits_Occupancy_zplus"
+                                                                 ))
+
+hgcalHitPlotter.append("RecHits_Occupancy_zplus", [
+                                                   "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHEScintillatorSensitive"
+                                                   ], PlotFolder(
+                                                                 _RecHits_Occupancy_HE_Scintillator_zplus,
+                                                                 loopSubFolders=False,
+                                                                 purpose=PlotPurpose.Timing, page="RecHits_Occupancy_zplus"
+                                                                 ))
+
+hgcalHitPlotter.append("RecHits_Occupancy_zminus", [
+                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalEESensitive"
+                                                    ], PlotFolder(
+                                                                  _RecHits_Occupancy_EE_zminus,
+                                                                  loopSubFolders=False,
+                                                                  purpose=PlotPurpose.Timing, page="RecHits_Occupancy_zminus"
+                                                                  ))
+
+hgcalHitPlotter.append("RecHits_Occupancy_zminus", [
+                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHESiliconSensitive"
+                                                    ], PlotFolder(
+                                                                  _RecHits_Occupancy_HE_Silicon_zminus,
+                                                                  loopSubFolders=False,
+                                                                  purpose=PlotPurpose.Timing, page="RecHits_Occupancy_zminus"
+                                                                  ))
+
+hgcalHitPlotter.append("RecHits_Occupancy_zminus", [
+                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHEScintillatorSensitive"
+                                                    ], PlotFolder(
+                                                                  _RecHits_Occupancy_HE_Scintillator_zminus,
+                                                                  loopSubFolders=False,
+                                                                  purpose=PlotPurpose.Timing, page="RecHits_Occupancy_zminus"
+                                                                  ))
+
+hgcalHitPlotter.append("RecHits_Energy", [
+                                          "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalEESensitive"
+                                          ], PlotFolder(
+                                                        _RecHits_Energy_EE,
+                                                        loopSubFolders=False,
+                                                        purpose=PlotPurpose.Timing, page="RecHits_Energy"
+                                                        ))
+
+hgcalHitPlotter.append("RecHits_Energy", [
+                                          "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHESiliconSensitive"
+                                          ], PlotFolder(
+                                                        _RecHits_Energy_HE_Silicon,
+                                                        loopSubFolders=False,
+                                                        purpose=PlotPurpose.Timing, page="RecHits_Energy"
+                                                        ))
+
+hgcalHitPlotter.append("RecHits_Energy", [
+                                          "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHEScintillatorSensitive"
+                                          ], PlotFolder(
+                                                        _RecHits_Energy_HE_Scintillator,
+                                                        loopSubFolders=False,
+                                                        purpose=PlotPurpose.Timing, page="RecHits_Energy"
+                                                        ))
+
+for i,item in enumerate(_RecHits_EtaPhi_EE_zplus, start=1):
+    hgcalHitPlotter.append("RecHits_EtaPhi_zplus", [
+                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalEESensitive"
+                                                    ], PlotFolder(
+                                                                  item,
+                                                                  loopSubFolders=False,
+                                                                  purpose=PlotPurpose.Timing, page="RecHits_EtaPhi_zplus"
+                                                                  ))
+
+for i,item in enumerate(_RecHits_EtaPhi_HE_Silicon_zplus, start=1):
+    hgcalHitPlotter.append("RecHits_EtaPhi_zplus", [
+                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHESiliconSensitive"
+                                                    ], PlotFolder(
+                                                                  item,
+                                                                  loopSubFolders=False,
+                                                                  purpose=PlotPurpose.Timing, page="RecHits_EtaPhi_zplus"
+                                                                  ))
+
+for i,item in enumerate(_RecHits_EtaPhi_HE_Scintillator_zplus, start=1):
+    hgcalHitPlotter.append("RecHits_EtaPhi_zplus", [
+                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHEScintillatorSensitive",
+                                                    ], PlotFolder(
+                                                                  item,
+                                                                  loopSubFolders=False,
+                                                                  purpose=PlotPurpose.Timing, page="RecHits_EtaPhi_zplus"))
+
+for i,item in enumerate(_RecHits_EtaPhi_EE_zminus, start=1):
+    hgcalHitPlotter.append("RecHits_EtaPhi_zminus", [
+                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalEESensitive"
+                                                     ], PlotFolder(
+                                                                   item,
+                                                                   loopSubFolders=False,
+                                                                   purpose=PlotPurpose.Timing, page="RecHits_EtaPhi_zminus"
+                                                                   ))
+
+for i,item in enumerate(_RecHits_EtaPhi_HE_Silicon_zminus, start=1):
+    hgcalHitPlotter.append("RecHits_EtaPhi_zminus", [
+                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHESiliconSensitive"
+                                                     ], PlotFolder(
+                                                                   item,
+                                                                   loopSubFolders=False,
+                                                                   purpose=PlotPurpose.Timing, page="RecHits_EtaPhi_zminus"
+                                                                   ))
+
+for i,item in enumerate(_RecHits_EtaPhi_HE_Scintillator_zminus, start=1):
+    hgcalHitPlotter.append("RecHits_EtaPhi_zminus", [
+                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHEScintillatorSensitive"
+                                                     ], PlotFolder(
+                                                                   item,
+                                                                   loopSubFolders=False,
+                                                                   purpose=PlotPurpose.Timing, page="RecHits_EtaPhi_zminus"
+                                                                   ))
+
+hgcalHitPlotter.append("DigiHits_ADC", [
+                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalEESensitive"
+                                        ], PlotFolder(
+                                                      _DigiHits_ADC_EE,
+                                                      loopSubFolders=False,
+                                                      purpose=PlotPurpose.Timing, page="DigiHits_ADC"
+                                                      ))
+
+hgcalHitPlotter.append("DigiHits_ADC", [
+                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHESiliconSensitive"
+                                        ], PlotFolder(
+                                                      _DigiHits_ADC_HE_Silicon,
+                                                      loopSubFolders=False,
+                                                      purpose=PlotPurpose.Timing, page="DigiHits_ADC"
+                                                      ))
+
+hgcalHitPlotter.append("DigiHits_ADC", [
+                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHEScintillatorSensitive"
+                                        ], PlotFolder(
+                                                      _DigiHits_ADC_HE_Scintillator,
+                                                      loopSubFolders=False,
+                                                      purpose=PlotPurpose.Timing, page="DigiHits_ADC"
+                                                      ))
+
+hgcalHitPlotter.append("DigiHits_Occupancy_zplus", [
+                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalEESensitive"
+                                                    ], PlotFolder(
+                                                                  _DigiHits_Occupancy_EE_zplus,
+                                                                  loopSubFolders=False,
+                                                                  purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_zplus"
+                                                                  ))
+
+hgcalHitPlotter.append("DigiHits_Occupancy_zplus", [
+                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHESiliconSensitive"
+                                                    ], PlotFolder(
+                                                                  _DigiHits_Occupancy_HE_Silicon_zplus,
+                                                                  loopSubFolders=False,
+                                                                  purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_zplus"
+                                                                  ))
+
+hgcalHitPlotter.append("DigiHits_Occupancy_zplus", [
+                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHEScintillatorSensitive"
+                                                    ], PlotFolder(
+                                                                  _DigiHits_Occupancy_HE_Scintillator_zplus,
+                                                                  loopSubFolders=False,
+                                                                  purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_zplus"
+                                                                  ))
+
+hgcalHitPlotter.append("DigiHits_Occupancy_zminus", [
+                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalEESensitive"
+                                                     ], PlotFolder(
+                                                                   _DigiHits_Occupancy_EE_zminus,
+                                                                   loopSubFolders=False,
+                                                                   purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_zminus"
+                                                                   ))
+
+hgcalHitPlotter.append("DigiHits_Occupancy_zminus", [
+                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHESiliconSensitive"
+                                                     ], PlotFolder(
+                                                                   _DigiHits_Occupancy_HE_Silicon_zminus,
+                                                                   loopSubFolders=False,
+                                                                   purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_zminus"
+                                                                   ))
+
+hgcalHitPlotter.append("DigiHits_Occupancy_zminus", [
+                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHEScintillatorSensitive"
+                                                     ], PlotFolder(
+                                                                   _DigiHits_Occupancy_HE_Scintillator_zminus,
+                                                                   loopSubFolders=False,
+                                                                   purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_zminus"
+                                                                   ))
+
+for i,item in enumerate(_DigiHits_Occupancy_XY_EE_zplus, start=1):
+    hgcalHitPlotter.append("DigiHits_Occupancy_XY_zplus", [
+                                                           "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalEESensitive"
+                                                           ], PlotFolder(
+                                                                         item,
+                                                                         loopSubFolders=False,
+                                                                         purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_XY_zplus"
+                                                                         ))
+
+for i,item in enumerate(_DigiHits_Occupancy_XY_HE_Silicon_zplus, start=1):
+    hgcalHitPlotter.append("DigiHits_Occupancy_XY_zplus", [
+                                                           "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHESiliconSensitive"
+                                                           ], PlotFolder(
+                                                                         item,
+                                                                         loopSubFolders=False,
+                                                                         purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_XY_zplus"
+                                                                         ))
+
+for i,item in enumerate(_DigiHits_Occupancy_XY_HE_Scintillator_zplus, start=1):
+    hgcalHitPlotter.append("DigiHits_Occupancy_XY_zplus", [
+                                                           "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHEScintillatorSensitive",
+                                                           ], PlotFolder(
+                                                                         item,
+                                                                         loopSubFolders=False,
+                                                                         purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_XY_zplus"))
+
+for i,item in enumerate(_DigiHits_Occupancy_XY_EE_zminus, start=1):
+    hgcalHitPlotter.append("DigiHits_Occupancy_XY_zminus", [
+                                                            "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalEESensitive"
+                                                            ], PlotFolder(
+                                                                          item,
+                                                                          loopSubFolders=False,
+                                                                          purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_XY_zminus"
+                                                                          ))
+
+for i,item in enumerate(_DigiHits_Occupancy_XY_HE_Silicon_zminus, start=1):
+    hgcalHitPlotter.append("DigiHits_Occupancy_XY_zminus", [
+                                                            "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHESiliconSensitive"
+                                                            ], PlotFolder(
+                                                                          item,
+                                                                          loopSubFolders=False,
+                                                                          purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_XY_zminus"
+                                                                          ))
+
+for i,item in enumerate(_DigiHits_Occupancy_XY_HE_Scintillator_zminus, start=1):
+    hgcalHitPlotter.append("DigiHits_Occupancy_XY_zminus", [
+                                                            "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHEScintillatorSensitive",
+                                                            ], PlotFolder(
+                                                                          item,
+                                                                          loopSubFolders=False,
+                                                                          purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_XY_zminus"))
+
+hgcalHitPlotter.append("DigiHits_TOA", [
+                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalEESensitive"
+                                        ], PlotFolder(
+                                                      _DigiHits_TOA_EE,
+                                                      loopSubFolders=False,
+                                                      purpose=PlotPurpose.Timing, page="DigiHits_TOA"
+                                                      ))
+
+hgcalHitPlotter.append("DigiHits_TOA", [
+                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHESiliconSensitive"
+                                        ], PlotFolder(
+                                                      _DigiHits_TOA_HE_Silicon,
+                                                      loopSubFolders=False,
+                                                      purpose=PlotPurpose.Timing, page="DigiHits_TOA"
+                                                      ))
+
+hgcalHitPlotter.append("DigiHits_TOA", [
+                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHEScintillatorSensitive"
+                                        ], PlotFolder(
+                                                      _DigiHits_TOA_HE_Scintillator,
+                                                      loopSubFolders=False,
+                                                      purpose=PlotPurpose.Timing, page="DigiHits_TOA"
+                                                      ))
+
+hgcalHitPlotter.append("DigiHits_TOT", [
+                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalEESensitive"
+                                        ], PlotFolder(
+                                                      _DigiHits_TOT_EE,
+                                                      loopSubFolders=False,
+                                                      purpose=PlotPurpose.Timing, page="DigiHits_TOT"
+                                                      ))
+
+hgcalHitPlotter.append("DigiHits_TOT", [
+                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHESiliconSensitive"
+                                        ], PlotFolder(
+                                                      _DigiHits_TOT_HE_Silicon,
+                                                      loopSubFolders=False,
+                                                      purpose=PlotPurpose.Timing, page="DigiHits_TOT"
+                                                      ))
+
+hgcalHitPlotter.append("DigiHits_TOT", [
+                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHEScintillatorSensitive"
+                                        ], PlotFolder(
+                                                      _DigiHits_TOT_HE_Scintillator,
+                                                      loopSubFolders=False,
+                                                      purpose=PlotPurpose.Timing, page="DigiHits_TOT"
+                                                      ))
