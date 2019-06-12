@@ -800,6 +800,10 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
     @staticmethod
     def _isValid(value):
         return True
+    def setValue(self,value):
+        if isinstance(value,dict):
+            for k,v in six.iteritems(value):
+                setattr(self,k,v)
 
     def configValue(self, options=PrintOptions()):
         config = '{ \n'
@@ -1570,6 +1574,15 @@ if __name__ == "__main__":
             self.assertRaises(TypeError, p4.clone, dict(b = None))
             self.assertRaises(TypeError, p4.clone, [])
             self.assertRaises(TypeError, p4.clone, 42)
+            p5 = PSet(p = PSet(anInt = int32(1), aString=string("foo") ) )
+            p5.p=dict(aString = "bar")
+            self.assertEqual(p5.p.aString.value(), "bar")
+            self.assertEqual(p5.p.anInt.value(), 1)
+            p5.p = dict(aDouble = double(3.14))
+            self.assertEqual(p5.p.aString.value(), "bar")
+            self.assertEqual(p5.p.anInt.value(), 1)
+            self.assertEqual(p5.p.aDouble, 3.14)
+            self.assertRaises(TypeError, p5.p , dict(bar = 3) )
         def testRequired(self):
             p1 = PSet(anInt = required.int32)
             self.assert_(hasattr(p1,"anInt"))
