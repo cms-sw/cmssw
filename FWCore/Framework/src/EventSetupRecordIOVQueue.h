@@ -58,8 +58,6 @@ namespace edm {
       void addRecProvider(EventSetupRecordProvider* recProvider);
 
     private:
-      unsigned int nConcurrentIOVs_;
-
       // Used to limit the number of concurrent IOVs
       edm::LimitedTaskQueue iovQueue_;
       std::unique_ptr<edm::EmptyWaitingTask, waitingtask::TaskDestroyer> waitForIOVsInFlight_;
