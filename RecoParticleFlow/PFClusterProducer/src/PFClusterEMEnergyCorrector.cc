@@ -11,12 +11,13 @@ namespace {
   double getScale(const double lo, const double hi) { return 0.5 * (hi - lo); }
 }  // namespace
 
+
 PFClusterEMEnergyCorrector::PFClusterEMEnergyCorrector(const edm::ParameterSet &conf, edm::ConsumesCollector &&cc)
     : calibrator_(new PFEnergyCalibration) {
   applyCrackCorrections_ = conf.getParameter<bool>("applyCrackCorrections");
   applyMVACorrections_ = conf.getParameter<bool>("applyMVACorrections");
   srfAwareCorrection_ = conf.getParameter<bool>("srfAwareCorrection");
-
+  setEnergyUncertainty_ = conf.getParameter<bool>("setEnergyUncertainty");
   maxPtForMVAEvaluation_ = conf.getParameter<double>("maxPtForMVAEvaluation");
 
   if (applyMVACorrections_) {
@@ -244,7 +245,8 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
       double sigmacor = sigma * ecor;
 
       cluster.setCorrectedEnergy(ecor);
-      cluster.setCorrectedEnergyUncertainty(sigmacor);
+      if(setEnergyUncertainty_) cluster.setCorrectedEnergyUncertainty(sigmacor);
+      else cluster.setCorrectedEnergyUncertainty(0.);
     }
     return;
   }
@@ -412,7 +414,8 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
         << "response : correction = " << exp(mean) << " " << ecor;
 
     cluster.setCorrectedEnergy(ecor);
-    cluster.setCorrectedEnergyUncertainty(sigmacor);
+    if(setEnergyUncertainty_) cluster.setCorrectedEnergyUncertainty(sigmacor);
+    else cluster.setCorrectedEnergyUncertainty(0.);
   }
 }
 
