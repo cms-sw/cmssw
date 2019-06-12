@@ -312,8 +312,8 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     if (version_ != SUMMER18) etaB=2.6;
     if((version_ != WINTER17 && version_ != WINTER17PUPPI && version_ != SUMMER18) ||  quality_ != TIGHT ) {if ( ignoreCut(indexCEF_)           || ( cef < cut(indexCEF_, double()) || std::abs(jet.eta()) > etaB ) ) passCut( ret, indexCEF_);}
 
-    if ( ignoreCut(indexCHF_)           || ( chf > cut(indexCHF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCHF_);
-    if ( ignoreCut(indexNCH_)           || ( nch > cut(indexNCH_, int())    || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexNCH_);
+    if ( ignoreCut(indexCHF_)           || ( chf > cut(indexCHF_, double()) || std::abs(jet.eta()) > etaB ) ) passCut( ret, indexCHF_);
+    if ( ignoreCut(indexNCH_)           || ( nch > cut(indexNCH_, int())    || std::abs(jet.eta()) > etaB ) ) passCut( ret, indexNCH_);
 
     if(version_ == FIRSTDATA){// Cuts for all eta for FIRSTDATA
       if ( ignoreCut(indexNConstituents_) || ( nconstituents > cut(indexNConstituents_, int()) ) ) passCut( ret, indexNConstituents_);
