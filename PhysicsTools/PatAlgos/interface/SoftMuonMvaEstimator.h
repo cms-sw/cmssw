@@ -15,9 +15,8 @@ namespace edm {
 }
 
 namespace pat {
-  class SoftMuonMvaEstimator{
+  class SoftMuonMvaEstimator {
   public:
-
     SoftMuonMvaEstimator(const edm::FileInPath& weightsfile);
 
     ~SoftMuonMvaEstimator();
@@ -25,9 +24,7 @@ namespace pat {
     float computeMva(const pat::Muon& imuon) const;
 
   private:
-
     std::unique_ptr<const GBRForest> gbrForest_;
-
   };
-}
+}  // namespace pat
 #endif
