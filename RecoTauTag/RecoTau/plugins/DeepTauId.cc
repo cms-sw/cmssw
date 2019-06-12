@@ -7,6 +7,7 @@
  */
 
 #include "RecoTauTag/RecoTau/interface/DeepTauBase.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 namespace deep_tau {
     constexpr int NumberOfOutputs = 4;
@@ -707,8 +708,8 @@ private:
                     for(int k = 0; k < n_inputs; ++k) {
                         const float input = n_eta == 1 && n_phi == 1
                                           ? inputs.matrix<float>()(0, k) : inputs.tensor<float,4>()(0, eta, phi, k);
-                        if(std::isnan(input))
-                            throw cms::Exception("DeepTauId") << "in the " << block_name << ", input is NaN for eta_index = "
+                        if(edm::isNotFinite(input))
+                            throw cms::Exception("DeepTauId") << "in the " << block_name << ", input is not finite, i.e. infinite or NaN, for eta_index = "
                                                               << n_eta << ", phi_index = " << n_phi << ", input_index = " << k;
                         if(debug_level >= 2)
                             std::cout << block_name << "," << eta << ","<< phi << "," << k << "," << std::setprecision(5) << std::fixed << input << '\n';
