@@ -234,7 +234,7 @@ class _Parameterizable(object):
             self._isModified = True
             return
         if not isinstance(value,_ParameterTypeBase):
-            if self.__validator:
+            if self.__validator is not None:
                 value = self.__validator.convert_(value)
             else:
                 self.__raiseBadSetAttr(name)
