@@ -1243,6 +1243,10 @@ class ProcessFragment(object):
             self.__process = process
         elif isinstance(process, str):
             self.__process = Process(process)
+            #make sure we do not override the defaults
+            del self.__process.options
+            del self.__process.maxEvents
+            del self.__process.maxLuminosityBlocks
         else:
             raise TypeError('a ProcessFragment can only be constructed from an existig Process or from process name')
     def __dir__(self):
@@ -3260,6 +3264,22 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             # Replace an alias with EDProducer
             self.assertRaises(TypeError, lambda: m.toReplaceWith(sp.test2, EDProducer("Foo")))
             m.toModify(sp, test2 = EDProducer("Foo"))
-
+        def testProcessFragment(self):
+            #check defaults are not overwritten
+            f = ProcessFragment('Fragment')
+            p = Process('PROCESS')
+            p.maxEvents.input = 10
+            p.options.numberOfThreads = 4
+            p.maxLuminosityBlocks.input = 2
+            p.extend(f)
+            self.assertEqual(p.maxEvents.input.value(),10)
+            self.assertEqual(p.options.numberOfThreads.value(), 4)
+            self.assertEqual(p.maxLuminosityBlocks.input.value(),2)
+            #general checks
+            f = ProcessFragment("Fragment")
+            f.fltr = EDFilter("Foo")
+            p = Process('PROCESS')
+            p.extend(f)
+            self.assert_(hasattr(p,'fltr'))
 
     unittest.main()
