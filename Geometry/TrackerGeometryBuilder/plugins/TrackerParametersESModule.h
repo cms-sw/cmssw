@@ -12,17 +12,16 @@ namespace edm {
 class PTrackerParameters;
 class PTrackerParametersRcd;
 
-class  TrackerParametersESModule: public edm::ESProducer
-{
- public:
-  TrackerParametersESModule( const edm::ParameterSet & );
-  ~TrackerParametersESModule( void ) override;
+class TrackerParametersESModule : public edm::ESProducer {
+public:
+  TrackerParametersESModule(const edm::ParameterSet&);
+  ~TrackerParametersESModule(void) override;
 
   using ReturnType = std::unique_ptr<PTrackerParameters>;
 
-  static void fillDescriptions( edm::ConfigurationDescriptions & );
-  
-  ReturnType produce( const PTrackerParametersRcd & );
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
+  ReturnType produce(const PTrackerParametersRcd&);
 };
 
 #endif
