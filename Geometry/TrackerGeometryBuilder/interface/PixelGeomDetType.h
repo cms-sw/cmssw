@@ -8,31 +8,25 @@
  * Generic DetType for the Pixels. Specialized in SiPixelGeomDetType.
  */
 
-class PixelGeomDetType final: public GeomDetType {
-
+class PixelGeomDetType final : public GeomDetType {
 public:
   using TopologyType = PixelTopology;
 
-  PixelGeomDetType(TopologyType* t,std::string const& name, SubDetector& det) :
-    GeomDetType(name,det),
-    theTopology(t){}
+  PixelGeomDetType(TopologyType* t, std::string const& name, SubDetector& det)
+      : GeomDetType(name, det), theTopology(t) {}
 
-  ~PixelGeomDetType() override {
-    delete theTopology;
-  }
+  ~PixelGeomDetType() override { delete theTopology; }
 
   // Access to topologies
-  const  Topology& topology() const override { return *theTopology;}
+  const Topology& topology() const override { return *theTopology; }
 
-  virtual const TopologyType& specificTopology() const  { return *theTopology;}
+  virtual const TopologyType& specificTopology() const { return *theTopology; }
 
-  PixelGeomDetType& operator = ( const PixelGeomDetType& other ) = delete;
-  PixelGeomDetType( const PixelGeomDetType& other ) = delete;
+  PixelGeomDetType& operator=(const PixelGeomDetType& other) = delete;
+  PixelGeomDetType(const PixelGeomDetType& other) = delete;
 
- private:    
-  TopologyType*    theTopology;
+private:
+  TopologyType* theTopology;
 };
 
-
-
-#endif // PixelGeomDetType_H
+#endif  // PixelGeomDetType_H
