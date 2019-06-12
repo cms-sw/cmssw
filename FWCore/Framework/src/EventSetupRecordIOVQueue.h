@@ -66,7 +66,7 @@ namespace edm {
 
       // Each element of this vector corresponds to one IOV
       // out the set of possible concurrent IOVs.
-      std::vector<edm::propagate_const<std::unique_ptr<std::atomic<bool>>>> isAvailable_;
+      std::vector<std::atomic<bool>> isAvailable_;
 
       // Unless there are SubProcesses this vector will have only 1 element
       std::vector<edm::propagate_const<EventSetupRecordProvider*>> recordProviders_;
