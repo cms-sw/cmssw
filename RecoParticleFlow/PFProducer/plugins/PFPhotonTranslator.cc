@@ -81,8 +81,6 @@ private:
                          const edm::OrphanHandle<reco::ConversionCollection> &oneLegConversionHandle,
                          reco::PhotonCoreCollection &photonCores);
 
-  //create photons
-  //void createPhotons(reco::VertexCollection &vertexCollection, const edm::OrphanHandle<reco::PhotonCoreCollection> & superClustersHandle, const CaloTopology* topology, const EcalRecHitCollection * barrelRecHits, const EcalRecHitCollection * endcapRecHits, const edm::Handle<CaloTowerCollection> & hcalTowersHandle, const IsolationValueMaps& isolationValues, reco::PhotonCollection &photons) ;
   void createPhotons(reco::VertexCollection &vertexCollection,
                      edm::Handle<reco::PhotonCollection> &egPhotons,
                      const edm::OrphanHandle<reco::PhotonCoreCollection> &photonCoresHandle,
@@ -136,7 +134,6 @@ private:
   std::vector<reco::ConversionRefVector> pfConv_;
   std::vector<std::vector<reco::TrackRef> > pfSingleLegConv_;
   std::vector<std::vector<float> > pfSingleLegConvMva_;
-  //std::vector<reco::TrackRef> * pfSingleLegConv_;
 
   std::vector<int> conv1legPFCandidateIndex_;
   std::vector<int> conv2legPFCandidateIndex_;
