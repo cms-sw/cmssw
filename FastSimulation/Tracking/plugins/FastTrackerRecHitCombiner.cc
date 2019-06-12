@@ -22,84 +22,74 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 class FastTrackerRecHitCombiner : public edm::stream::EDProducer<> {
-    public:
+public:
+  explicit FastTrackerRecHitCombiner(const edm::ParameterSet&);
+  ~FastTrackerRecHitCombiner() override { ; }
 
-    explicit FastTrackerRecHitCombiner(const edm::ParameterSet&);
-    ~FastTrackerRecHitCombiner() override{;}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+private:
+  void beginStream(edm::StreamID) override { ; }
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endStream() override { ; }
 
-    private:
-
-    void beginStream(edm::StreamID) override{;}
-    void produce(edm::Event&, const edm::EventSetup&) override;
-    void endStream() override{;}
-
-    // ----------member data ---------------------------
-    edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken; 
-    edm::EDGetTokenT<FastTrackerRecHitRefCollection> simHit2RecHitMapToken;
-    unsigned int minNHits;
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken;
+  edm::EDGetTokenT<FastTrackerRecHitRefCollection> simHit2RecHitMapToken;
+  unsigned int minNHits;
 };
 
-
 FastTrackerRecHitCombiner::FastTrackerRecHitCombiner(const edm::ParameterSet& iConfig)
-    : simHitsToken(consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("simHits")))
-    , simHit2RecHitMapToken(consumes<FastTrackerRecHitRefCollection>(iConfig.getParameter<edm::InputTag>("simHit2RecHitMap")))
-    , minNHits(iConfig.getParameter<unsigned int>("minNHits"))
-{
-    produces<FastTrackerRecHitCombinationCollection>();
+    : simHitsToken(consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("simHits"))),
+      simHit2RecHitMapToken(
+          consumes<FastTrackerRecHitRefCollection>(iConfig.getParameter<edm::InputTag>("simHit2RecHitMap"))),
+      minNHits(iConfig.getParameter<unsigned int>("minNHits")) {
+  produces<FastTrackerRecHitCombinationCollection>();
 }
 
+void FastTrackerRecHitCombiner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  // input
+  edm::Handle<edm::PSimHitContainer> simHits;
+  iEvent.getByToken(simHitsToken, simHits);
 
-void
-    FastTrackerRecHitCombiner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+  edm::Handle<FastTrackerRecHitRefCollection> simHit2RecHitMap;
+  iEvent.getByToken(simHit2RecHitMapToken, simHit2RecHitMap);
 
-    // input
-    edm::Handle<edm::PSimHitContainer> simHits;
-    iEvent.getByToken(simHitsToken,simHits);
+  // output
+  std::unique_ptr<FastTrackerRecHitCombinationCollection> output(new FastTrackerRecHitCombinationCollection);
 
-    edm::Handle<FastTrackerRecHitRefCollection> simHit2RecHitMap;
-    iEvent.getByToken(simHit2RecHitMapToken,simHit2RecHitMap);
- 
-    // output
-    std::unique_ptr<FastTrackerRecHitCombinationCollection> output(new FastTrackerRecHitCombinationCollection);
-    
-    FastTrackerRecHitCombination currentCombination;
-    for(unsigned int simHitCounter = 0;simHitCounter < simHits->size();simHitCounter++){
-	
-	// get simHit and recHit
-	const PSimHit & simHit = (*simHits)[simHitCounter];
-	const FastTrackerRecHitRef & recHit = (*simHit2RecHitMap)[simHitCounter];
+  FastTrackerRecHitCombination currentCombination;
+  for (unsigned int simHitCounter = 0; simHitCounter < simHits->size(); simHitCounter++) {
+    // get simHit and recHit
+    const PSimHit& simHit = (*simHits)[simHitCounter];
+    const FastTrackerRecHitRef& recHit = (*simHit2RecHitMap)[simHitCounter];
 
-	// add recHit to latest combination
-	if(!recHit.isNull())
-	    currentCombination.push_back(recHit);
+    // add recHit to latest combination
+    if (!recHit.isNull())
+      currentCombination.push_back(recHit);
 
-	// if simTrackId is about to change, add combination
-	if(simHits->size()-simHitCounter == 1 || simHit.trackId() != (*simHits)[simHitCounter+1].trackId() ){
-	    // combination must have sufficient hits
-	    if(currentCombination.size() >= minNHits){
-		currentCombination.shrink_to_fit();
-		output->push_back(currentCombination);
-	    }
-	    currentCombination.clear();
-	}
+    // if simTrackId is about to change, add combination
+    if (simHits->size() - simHitCounter == 1 || simHit.trackId() != (*simHits)[simHitCounter + 1].trackId()) {
+      // combination must have sufficient hits
+      if (currentCombination.size() >= minNHits) {
+        currentCombination.shrink_to_fit();
+        output->push_back(currentCombination);
+      }
+      currentCombination.clear();
     }
+  }
 
-    // put output in event
-    iEvent.put(std::move(output));
+  // put output in event
+  iEvent.put(std::move(output));
 }
-    
 
- 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void FastTrackerRecHitCombiner::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-    //The following says we do not know what parameters are allowed so do no validation
-    // Please change this to state exactly what you do use, even if it is no parameters
-    edm::ParameterSetDescription desc;
-    desc.setUnknown();
-    descriptions.addDefault(desc);
+  //The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
 }
 
 //define this as a plug-in

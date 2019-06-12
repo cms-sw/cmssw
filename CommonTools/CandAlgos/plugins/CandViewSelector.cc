@@ -18,10 +18,9 @@
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef SingleObjectSelector<
-          edm::View<reco::Candidate>,
-  StringCutObjectSelector<reco::Candidate, true>,
-          reco::CandidateCollection
-       > CandViewSelector;
+typedef SingleObjectSelector<edm::View<reco::Candidate>,
+                             StringCutObjectSelector<reco::Candidate, true>,
+                             reco::CandidateCollection>
+    CandViewSelector;
 
 DEFINE_FWK_MODULE(CandViewSelector);

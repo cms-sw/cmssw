@@ -39,19 +39,16 @@
 #include <string>
 #include <vector>
 
-class ShiftedPFCandidateProducerForNoPileUpPFMEt : public edm::stream::EDProducer<>
-{
- public:
-
+class ShiftedPFCandidateProducerForNoPileUpPFMEt : public edm::stream::EDProducer<> {
+public:
   explicit ShiftedPFCandidateProducerForNoPileUpPFMEt(const edm::ParameterSet&);
   ~ShiftedPFCandidateProducerForNoPileUpPFMEt() override;
 
- private:
-
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidatesToken_;
-  edm::EDGetTokenT<reco::PFJetCollection>       srcJetsToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> srcJetsToken_;
 
   edm::FileInPath jetCorrInputFileName_;
   std::string jetCorrPayloadName_;
@@ -67,7 +64,3 @@ class ShiftedPFCandidateProducerForNoPileUpPFMEt : public edm::stream::EDProduce
 };
 
 #endif
-
-
-
-
