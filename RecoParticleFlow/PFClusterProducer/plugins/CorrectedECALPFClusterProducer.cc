@@ -132,6 +132,7 @@ void CorrectedECALPFClusterProducer::fillDescriptions(edm::ConfigurationDescript
     psd0.add<bool>("applyCrackCorrections",false);
     psd0.add<bool>("applyMVACorrections",false);
     psd0.add<bool>("srfAwareCorrection",false);    
+    psd0.add<bool>("setEnergyUncertainty",false);    
     psd0.add<bool>("autoDetectBunchSpacing",true);
     psd0.add<int>("bunchSpacing",25);
     psd0.add<double>("maxPtForMVAEvaluation",-99.);
