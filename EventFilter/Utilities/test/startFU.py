@@ -139,10 +139,14 @@ process.streamC = cms.OutputModule("ShmStreamConsumer",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
 )
 
-#process.streamD = cms.OutputModule("EventStreamFileWriter",
-#    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
-#)
-
-process.ep = cms.EndPath(process.streamA+process.streamB+process.streamC
-  #+process.streamD
+process.streamD = cms.OutputModule("EventStreamFileWriter",
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
 )
+
+process.ep = cms.EndPath(
+  process.streamA
+  + process.streamB
+  + process.streamC
+# + process.streamD
+)
+
