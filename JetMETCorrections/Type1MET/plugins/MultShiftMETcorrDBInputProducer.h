@@ -29,20 +29,16 @@
 #include <string>
 #include <vector>
 
-class MultShiftMETcorrDBInputProducer : public edm::stream::EDProducer<>  
-{
- public:
-
+class MultShiftMETcorrDBInputProducer : public edm::stream::EDProducer<> {
+public:
   explicit MultShiftMETcorrDBInputProducer(const edm::ParameterSet&);
   ~MultShiftMETcorrDBInputProducer() override;
-    
- private:
 
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  static int translateTypeToAbsPdgId( reco::PFCandidate::ParticleType type );
+  static int translateTypeToAbsPdgId(reco::PFCandidate::ParticleType type);
 
-
-  edm::EDGetTokenT<edm::View<reco::Candidate> > pflow_;
+  edm::EDGetTokenT<edm::View<reco::Candidate>> pflow_;
   edm::EDGetTokenT<edm::View<reco::Vertex>> vertices_;
   std::string moduleLabel_;
   std::string mPayloadName;
@@ -54,12 +50,8 @@ class MultShiftMETcorrDBInputProducer : public edm::stream::EDProducer<>
   std::vector<double> etaMin_, etaMax_;
   int counts_;
   double sumPt_;
-  std::unique_ptr< TF1 > formula_x_;
-  std::unique_ptr< TF1 > formula_y_;
+  std::unique_ptr<TF1> formula_x_;
+  std::unique_ptr<TF1> formula_y_;
 };
 
 #endif
-
-
- 
-

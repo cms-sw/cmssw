@@ -4,7 +4,7 @@
 //
 // Package:     CandCombiner
 // Class  :     decayParser
-// 
+//
 /**\class decayParser decayParser.h CommonTools/CandCombiner/interface/decayParser.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Aug  7 20:26:36 EDT 2005
 // $Id: decayParser.h,v 1.2 2009/05/08 12:54:34 llista Exp $
 //
@@ -36,18 +36,19 @@ namespace cand {
     struct ConjInfo {
       enum Mode { kPrimary, kBar, kPlus, kMinus } mode_;
       edm::InputTag tag_;
-      ConjInfo( const std::string& tag ) : mode_( kPrimary ), tag_( tag ) { }
-      ConjInfo( const char* begin, const char* end ) : mode_( kPrimary ), tag_( std::string( begin, end ) ) { }
+      ConjInfo(const std::string& tag) : mode_(kPrimary), tag_(tag) {}
+      ConjInfo(const char* begin, const char* end) : mode_(kPrimary), tag_(std::string(begin, end)) {}
     };
-    
-    inline
-    std::ostream& operator<<(std::ostream& out, const ConjInfo& info ) {
-      return out << info.tag_ .encode() << " " 
-		 << ( 0 == info.mode_ ? "p" : ( info.mode_ == ConjInfo::kBar ? "b" : (info.mode_ == ConjInfo::kPlus ? "+" : "-" ) ) );
+
+    inline std::ostream& operator<<(std::ostream& out, const ConjInfo& info) {
+      return out << info.tag_.encode() << " "
+                 << (0 == info.mode_
+                         ? "p"
+                         : (info.mode_ == ConjInfo::kBar ? "b" : (info.mode_ == ConjInfo::kPlus ? "+" : "-")));
     }
-    
-    bool decayParser( const std::string& iValue, std::vector<ConjInfo>& oStrings );
-  }
-}
+
+    bool decayParser(const std::string& iValue, std::vector<ConjInfo>& oStrings);
+  }  // namespace parser
+}  // namespace cand
 
 #endif /* CANDCOMBINER_DECAYPARSER_H */

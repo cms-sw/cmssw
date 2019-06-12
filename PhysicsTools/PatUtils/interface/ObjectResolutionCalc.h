@@ -12,7 +12,6 @@
   \version  $Id: ObjectResolutionCalc.h,v 1.5 2008/10/08 19:19:25 gpetrucc Exp $
 */
 
-
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,43 +30,37 @@
 #include "TString.h"
 #include "TMultiLayerPerceptron.h"
 
-
 namespace pat {
 
-
   class ObjectResolutionCalc {
+  public:
+    ObjectResolutionCalc();
+    ObjectResolutionCalc(const TString& resopath, bool useNN);
+    ~ObjectResolutionCalc();
 
-    public:
-
-      ObjectResolutionCalc();
-      ObjectResolutionCalc(const TString& resopath, bool useNN);
-      ~ObjectResolutionCalc();
-
-      float obsRes(int obs, int eta, float eT);
-      int   etaBin(float eta);
+    float obsRes(int obs, int eta, float eT);
+    int etaBin(float eta);
 
 #ifdef OBSOLETE
-      void  operator()(Electron & obj);
-      void  operator()(Muon & obj);
-      void  operator()(Tau & obj);
-      void  operator()(Jet & obj);
-      void  operator()(MET & obj);
+    void operator()(Electron& obj);
+    void operator()(Muon& obj);
+    void operator()(Tau& obj);
+    void operator()(Jet& obj);
+    void operator()(MET& obj);
 #else
-      // WORKAROUND
-      template<typename T> void operator()(T &obj) { }
+    // WORKAROUND
+    template <typename T>
+    void operator()(T& obj) {}
 #endif
 
-    private:
-
-      TFile * resoFile_;
-      std::vector<float> etaBinVals_;
-      TF1 fResVsEt_[10][10];
-      TMultiLayerPerceptron * network_[10];
-      bool useNN_;
-
+  private:
+    TFile* resoFile_;
+    std::vector<float> etaBinVals_;
+    TF1 fResVsEt_[10][10];
+    TMultiLayerPerceptron* network_[10];
+    bool useNN_;
   };
 
-
-}
+}  // namespace pat
 
 #endif
