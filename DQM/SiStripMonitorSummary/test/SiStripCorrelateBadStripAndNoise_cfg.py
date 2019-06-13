@@ -18,6 +18,7 @@ process.source = cms.Source("EmptyIOVSource",
 process.load('Configuration.Geometry.GeometryExtended_cff')
 process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
 process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
+process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
@@ -56,7 +57,6 @@ process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
                              TkMapFileName = cms.untracked.string(''),
                              dataLabel = cms.untracked.string('')
                              )
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.analysis = cms.EDAnalyzer("SiStripCorrelateBadStripAndNoise")
 
 
