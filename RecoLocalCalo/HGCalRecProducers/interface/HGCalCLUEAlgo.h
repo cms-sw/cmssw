@@ -143,8 +143,11 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
 
   struct CellsOnLayer {
     std::vector<DetId> detid;
+    std::vector<bool> isSilic;
     std::vector<float> x; 
     std::vector<float> y;
+    std::vector<float> eta; 
+    std::vector<float> phi;
 
     std::vector<float> weight; 
     std::vector<float> rho;
@@ -159,8 +162,11 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
     void clear()
     {
       detid.clear();
+      isSilic.clear();
       x.clear();
       y.clear();
+      eta.clear();
+      phi.clear();
       weight.clear();
       rho.clear();
       delta.clear();
@@ -176,15 +182,25 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
   
   std::vector<int> numberOfClustersPerLayer_;
 
-  inline float distance2(int cell1, int cell2, int layerId) const {  // distance squared
-    const float dx = cells_[layerId].x[cell1] - cells_[layerId].x[cell2];
-    const float dy = cells_[layerId].y[cell1] - cells_[layerId].y[cell2];
-    return (dx * dx + dy * dy);
+  inline float distance2(int cell1, int cell2, int layerId, bool isEtaPhi) const {  // distance squared
+    if (isEtaPhi) {
+      const float dphi = (cells_[layerId].phi[cell1]*cells_[layerId].phi[cell2]>=0 || abs(cells_[layerId].phi[cell1])<1.) ?
+	cells_[layerId].phi[cell1] - cells_[layerId].phi[cell2] : cells_[layerId].phi[cell1] > 0 ?
+	cells_[layerId].phi[cell1] - cells_[layerId].phi[cell2] - 2*M_PI : cells_[layerId].phi[cell1] - cells_[layerId].phi[cell2] + 2*M_PI; 
+      //if (cells_[layerId].phi[cell1]*cells_[layerId].phi[cell2]<0) std::cout << "cell 1 phi: " << cells_[layerId].phi[cell1] << "\n";
+      const float deta = cells_[layerId].eta[cell1] - cells_[layerId].eta[cell2];
+      return (deta * deta + dphi * dphi);
+    } else {
+      const float dx = cells_[layerId].x[cell1] - cells_[layerId].x[cell2];
+      const float dy = cells_[layerId].y[cell1] - cells_[layerId].y[cell2];
+      //std::cout << "distance2: " << dx * dx + dy * dy << std::endl;
+      return (dx * dx + dy * dy);
+    }
   }  
 
   inline float distance(int cell1,
-                         int cell2, int layerId) const {  // 2-d distance on the layer (x-y)
-    return std::sqrt(distance2(cell1, cell2, layerId));
+			int cell2, int layerId, bool isEtaPhi) const {  // 2-d distance on the layer (x-y)
+    return std::sqrt(distance2(cell1, cell2, layerId, isEtaPhi));
   }
   
   void prepareDataStructures(const unsigned int layerId);

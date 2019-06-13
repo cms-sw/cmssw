@@ -98,7 +98,7 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
   }
   else {
     geometryType_ = 0;
-    geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+    auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
     fhOffset_ = (geomEE->topology().dddConstants()).layers(true);
     wmaxEE    = 1 + (geomEE->topology().dddConstants()).waferMax();
     auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
@@ -394,6 +394,13 @@ bool RecHitTools::isHalfCell(const DetId& id) const {
   }
   //new geometry is always false
   return ishalf;
+}
+
+bool RecHitTools::isSilicon( const DetId& id ) const {
+  bool isSilicon_ = false;
+  if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) 
+    isSilicon_ = true;
+  return isSilicon_;
 }
 
 float RecHitTools::getEta(const GlobalPoint& position, const float& vertex_z) const {
