@@ -12,6 +12,10 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
+// 
+// This code is only to add pileup
+// 
+
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -31,6 +35,12 @@
 #include "CondFormats/DataRecord/interface/ESGainRcd.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+// needed for LC'/LC correction for time dependent MC
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
+
+
+
 /** Converts digis back into analog signals, to be used
  *  as noise 
  */
@@ -48,6 +58,8 @@ public:
   typedef typename ECALDIGITIZERTRAITS::Digi DIGI;
   typedef typename ECALDIGITIZERTRAITS::DigiCollection COLLECTION;
 
+  typedef std::unordered_map<uint32_t, double> CalibCache;
+  
   EcalSignalGenerator() : EcalBaseSignalGenerator() {}
 
   EcalSignalGenerator(const edm::InputTag& inputTag,
@@ -81,6 +93,23 @@ public:
     m_maxEneEB = (agc->getEBValue()) * theDefaultGains[1] * MAXADC * m_EBs25notCont;
     m_maxEneEE = (agc->getEEValue()) * theDefaultGains[1] * MAXADC * m_EEs25notCont;
 
+    // Ecal LaserCorrection Constants for laser correction ratio
+    edm::ESHandle<EcalLaserDbService> laser;
+    eventSetup->get<EcalLaserDbRecord>().get(laser);
+//     const edm::TimeValue_t eventTimeValue = event.time().value();
+    m_lasercals = laser.product();
+
+    edm::ESHandle<EcalLaserDbService> laser_prime;
+    eventSetup->get<EcalLaserDbRecord>().get(laser_prime);
+    //     const edm::TimeValue_t eventTimeValue = event.time().value();
+    m_lasercals_prime = laser_prime.product();
+    
+//     m_EBResponse->setEventTime(eventTimeValue);
+    
+    
+    eventSetup->get<EcalIntercalibConstantsMCRcd>().get(pIcal);
+    ical = pIcal.product();
+    
     //ES
     eventSetup->get<ESGainRcd>().get(hesgain);
     eventSetup->get<ESMIPToGeVConstantRcd>().get(hesMIPToGeV);
@@ -187,6 +216,34 @@ private:
 
   CaloSamples samplesInPE(const DIGI& digi);  // have to define this separately for ES
 
+  
+  
+
+  //---- FIXME  
+  double findLaserConstant_LC(const DetId& detId) const {
+    
+//     return 1.0;
+    
+    int m_iTime = 0; //---- FIXME
+    const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
+    return (m_lasercals->getLaserCorrection(detId, evtTimeStamp));
+    
+  }
+  
+  
+  //---- FIXME
+  double findLaserConstant_LC_prime(const DetId& detId) const {
+    
+    return 1.0;
+    
+    int m_iTime = 0; //---- FIXME
+    const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
+    //   return (m_lasercals_prime->getLaserCorrection(detId, evtTimeStamp));
+    
+  }
+  
+    
+  
   const std::vector<float> GetGainRatios(const DetId& detid) {
     std::vector<float> gainRatios(4);
     // get gain ratios
@@ -240,6 +297,13 @@ private:
   const EcalADCToGeVConstant* agc;
   const EcalIntercalibConstantsMC* ical;
 
+  edm::TimeValue_t m_iTime;
+  CalibCache m_valueLCCache_LC;
+  CalibCache m_valueLCCache_LC_prime;
+  const EcalLaserDbService* m_lasercals;
+  const EcalLaserDbService* m_lasercals_prime;
+  
+  
   double theDefaultGains[NGAINS];
 };
 
