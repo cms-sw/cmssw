@@ -6,140 +6,144 @@
 //
 // Constructors
 //
-SiPixelGainCalibrationForHLT::SiPixelGainCalibrationForHLT() :
-  minPed_(0.),
-  maxPed_(255.),
-  minGain_(0.),
-  maxGain_(255.),
-  numberOfRowsToAverageOver_(80),
-  nBinsToUseForEncoding_(253),
-  deadFlag_(255),
-  noisyFlag_(254)
-{
+SiPixelGainCalibrationForHLT::SiPixelGainCalibrationForHLT()
+    : minPed_(0.),
+      maxPed_(255.),
+      minGain_(0.),
+      maxGain_(255.),
+      numberOfRowsToAverageOver_(80),
+      nBinsToUseForEncoding_(253),
+      deadFlag_(255),
+      noisyFlag_(254) {
   initialize();
-   if (deadFlag_ > 0xFF)
-      throw cms::Exception("GainCalibration Payload configuration error")
-         << "[SiPixelGainCalibrationHLT::SiPixelGainCalibrationHLT] Dead flag was set to " << deadFlag_ << ", and it must be set less than or equal to 255";
+  if (deadFlag_ > 0xFF)
+    throw cms::Exception("GainCalibration Payload configuration error")
+        << "[SiPixelGainCalibrationHLT::SiPixelGainCalibrationHLT] Dead flag was set to " << deadFlag_
+        << ", and it must be set less than or equal to 255";
 }
 //
-SiPixelGainCalibrationForHLT::SiPixelGainCalibrationForHLT(float minPed, float maxPed, float minGain, float maxGain) :
-  minPed_(minPed),
-  maxPed_(maxPed),
-  minGain_(minGain),
-  maxGain_(maxGain),
-  numberOfRowsToAverageOver_(80),
-  nBinsToUseForEncoding_(253),
-  deadFlag_(255),
-  noisyFlag_(254)
-{
+SiPixelGainCalibrationForHLT::SiPixelGainCalibrationForHLT(float minPed, float maxPed, float minGain, float maxGain)
+    : minPed_(minPed),
+      maxPed_(maxPed),
+      minGain_(minGain),
+      maxGain_(maxGain),
+      numberOfRowsToAverageOver_(80),
+      nBinsToUseForEncoding_(253),
+      deadFlag_(255),
+      noisyFlag_(254) {
   initialize();
-   if (deadFlag_ > 0xFF)
-      throw cms::Exception("GainCalibration Payload configuration error")
-         << "[SiPixelGainCalibrationHLT::SiPixelGainCalibrationHLT] Dead flag was set to " << deadFlag_ << ", and it must be set less than or equal to 255";
+  if (deadFlag_ > 0xFF)
+    throw cms::Exception("GainCalibration Payload configuration error")
+        << "[SiPixelGainCalibrationHLT::SiPixelGainCalibrationHLT] Dead flag was set to " << deadFlag_
+        << ", and it must be set less than or equal to 255";
 }
 
-
 void SiPixelGainCalibrationForHLT::initialize() {
-  pedPrecision  = (maxPed_-minPed_)/static_cast<float>(nBinsToUseForEncoding_);
-  gainPrecision = (maxGain_-minGain_)/static_cast<float>(nBinsToUseForEncoding_);
-
+  pedPrecision = (maxPed_ - minPed_) / static_cast<float>(nBinsToUseForEncoding_);
+  gainPrecision = (maxGain_ - minGain_) / static_cast<float>(nBinsToUseForEncoding_);
 }
 
 bool SiPixelGainCalibrationForHLT::put(const uint32_t& DetId, Range input, const int& nCols) {
   // put in SiPixelGainCalibrationForHLT of DetId
 
-  Registry::iterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiPixelGainCalibrationForHLT::StrictWeakOrdering());
-  if (p!=indexes.end() && p->detid==DetId)
+  Registry::iterator p =
+      std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibrationForHLT::StrictWeakOrdering());
+  if (p != indexes.end() && p->detid == DetId)
     return false;
-  
-  size_t sd= input.second-input.first;
-  DetRegistry detregistry;
-  detregistry.detid=DetId;
-  detregistry.ibegin=v_pedestals.size();
-  detregistry.iend=v_pedestals.size()+sd;
-  detregistry.ncols=nCols;
-  indexes.insert(p,detregistry);
 
-  v_pedestals.insert(v_pedestals.end(),input.first,input.second);
+  size_t sd = input.second - input.first;
+  DetRegistry detregistry;
+  detregistry.detid = DetId;
+  detregistry.ibegin = v_pedestals.size();
+  detregistry.iend = v_pedestals.size() + sd;
+  detregistry.ncols = nCols;
+  indexes.insert(p, detregistry);
+
+  v_pedestals.insert(v_pedestals.end(), input.first, input.second);
   return true;
 }
 
 const int SiPixelGainCalibrationForHLT::getNCols(const uint32_t& DetId) const {
   // get number of columns of DetId
-  RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiPixelGainCalibrationForHLT::StrictWeakOrdering());
-  if (p==indexes.end()|| p->detid!=DetId) 
+  RegistryIterator p =
+      std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibrationForHLT::StrictWeakOrdering());
+  if (p == indexes.end() || p->detid != DetId)
     return 0;
-  else
-  {
+  else {
     return p->ncols;
   }
 }
 
 const SiPixelGainCalibrationForHLT::Range SiPixelGainCalibrationForHLT::getRange(const uint32_t& DetId) const {
   // get SiPixelGainCalibrationForHLT Range of DetId
-  
-  RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiPixelGainCalibrationForHLT::StrictWeakOrdering());
-  if (p==indexes.end()|| p->detid!=DetId) 
-    return SiPixelGainCalibrationForHLT::Range(v_pedestals.end(),v_pedestals.end()); 
-  else 
-    return SiPixelGainCalibrationForHLT::Range(v_pedestals.begin()+p->ibegin,v_pedestals.begin()+p->iend);
+
+  RegistryIterator p =
+      std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibrationForHLT::StrictWeakOrdering());
+  if (p == indexes.end() || p->detid != DetId)
+    return SiPixelGainCalibrationForHLT::Range(v_pedestals.end(), v_pedestals.end());
+  else
+    return SiPixelGainCalibrationForHLT::Range(v_pedestals.begin() + p->ibegin, v_pedestals.begin() + p->iend);
 }
 
-const std::pair<const SiPixelGainCalibrationForHLT::Range, const int>
-SiPixelGainCalibrationForHLT::getRangeAndNCols(const uint32_t& DetId) const {
-  RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiPixelGainCalibrationForHLT::StrictWeakOrdering());
-  if (p==indexes.end()|| p->detid!=DetId) 
-    return std::make_pair(SiPixelGainCalibrationForHLT::Range(v_pedestals.end(),v_pedestals.end()), 0); 
-  else 
-    return std::make_pair(SiPixelGainCalibrationForHLT::Range(v_pedestals.begin()+p->ibegin,v_pedestals.begin()+p->iend), p->ncols);
+const std::pair<const SiPixelGainCalibrationForHLT::Range, const int> SiPixelGainCalibrationForHLT::getRangeAndNCols(
+    const uint32_t& DetId) const {
+  RegistryIterator p =
+      std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibrationForHLT::StrictWeakOrdering());
+  if (p == indexes.end() || p->detid != DetId)
+    return std::make_pair(SiPixelGainCalibrationForHLT::Range(v_pedestals.end(), v_pedestals.end()), 0);
+  else
+    return std::make_pair(
+        SiPixelGainCalibrationForHLT::Range(v_pedestals.begin() + p->ibegin, v_pedestals.begin() + p->iend), p->ncols);
 }
 
 void SiPixelGainCalibrationForHLT::getDetIds(std::vector<uint32_t>& DetIds_) const {
   // returns vector of DetIds in map
   SiPixelGainCalibrationForHLT::RegistryIterator begin = indexes.begin();
-  SiPixelGainCalibrationForHLT::RegistryIterator end   = indexes.end();
-  for (SiPixelGainCalibrationForHLT::RegistryIterator p=begin; p != end; ++p) {
+  SiPixelGainCalibrationForHLT::RegistryIterator end = indexes.end();
+  for (SiPixelGainCalibrationForHLT::RegistryIterator p = begin; p != end; ++p) {
     DetIds_.push_back(p->detid);
   }
 }
 
-void SiPixelGainCalibrationForHLT::setData(float ped, float gain, std::vector<char>& vped, bool thisColumnIsDead, bool thisColumnIsNoisy){
-  
-  float theEncodedGain=0;
-  float theEncodedPed=0;
-  if(!thisColumnIsDead && !thisColumnIsNoisy){
+void SiPixelGainCalibrationForHLT::setData(
+    float ped, float gain, std::vector<char>& vped, bool thisColumnIsDead, bool thisColumnIsNoisy) {
+  float theEncodedGain = 0;
+  float theEncodedPed = 0;
+  if (!thisColumnIsDead && !thisColumnIsNoisy) {
     theEncodedGain = encodeGain(gain);
-    theEncodedPed = encodePed (ped);
+    theEncodedPed = encodePed(ped);
   }
 
-  unsigned int ped_   = (static_cast<unsigned int>(theEncodedPed))  & 0xFF; 
-  unsigned int gain_  = (static_cast<unsigned int>(theEncodedGain)) & 0xFF;
+  unsigned int ped_ = (static_cast<unsigned int>(theEncodedPed)) & 0xFF;
+  unsigned int gain_ = (static_cast<unsigned int>(theEncodedGain)) & 0xFF;
 
-  if (thisColumnIsDead)
-  {
-     ped_  = deadFlag_ & 0xFF;
-     gain_ = deadFlag_ & 0xFF;
-  }
-  else if (thisColumnIsNoisy)
-  {
-     ped_  = noisyFlag_ & 0xFF;
-     gain_ = noisyFlag_ & 0xFF;
+  if (thisColumnIsDead) {
+    ped_ = deadFlag_ & 0xFF;
+    gain_ = deadFlag_ & 0xFF;
+  } else if (thisColumnIsNoisy) {
+    ped_ = noisyFlag_ & 0xFF;
+    gain_ = noisyFlag_ & 0xFF;
   }
 
-  unsigned int data = (ped_ << 8) | gain_ ;
-  vped.resize(vped.size()+2);
+  unsigned int data = (ped_ << 8) | gain_;
+  vped.resize(vped.size() + 2);
   // insert in vector of char
-  ::memcpy((void*)(&vped[vped.size()-2]),(void*)(&data),2);
+  ::memcpy((void*)(&vped[vped.size() - 2]), (void*)(&data), 2);
 }
 
-
-std::pair<float,float> SiPixelGainCalibrationForHLT::getPedAndGain(const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn ) const {
+std::pair<float, float> SiPixelGainCalibrationForHLT::getPedAndGain(const int& col,
+                                                                    const int& row,
+                                                                    const Range& range,
+                                                                    const int& nCols,
+                                                                    bool& isDeadColumn,
+                                                                    bool& isNoisyColumn) const {
   // determine what averaged data block we are in (there should be 1 or 2 of these depending on if plaquette is 1 by X or 2 by X
-  unsigned int lengthOfColumnData  = (range.second-range.first)/nCols;
-  unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block 
+  unsigned int lengthOfColumnData = (range.second - range.first) / nCols;
+  unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block
   unsigned int numberOfDataBlocksToSkip = row / numberOfRowsToAverageOver_;
 
-  const DecodingStructure & s = (const DecodingStructure & ) *(range.first + col*lengthOfColumnData + lengthOfAveragedDataInEachColumn*numberOfDataBlocksToSkip);
+  const DecodingStructure& s = (const DecodingStructure&)*(range.first + col * lengthOfColumnData +
+                                                           lengthOfAveragedDataInEachColumn * numberOfDataBlocksToSkip);
 
   isDeadColumn = (s.ped & 0xFF) == deadFlag_;
   isNoisyColumn = (s.ped & 0xFF) == noisyFlag_;
@@ -152,81 +156,83 @@ std::pair<float,float> SiPixelGainCalibrationForHLT::getPedAndGain(const int& co
   }  
   */
 
-  return std::make_pair(decodePed(s.ped & 0xFF),decodeGain(s.gain & 0xFF));
-
-
+  return std::make_pair(decodePed(s.ped & 0xFF), decodeGain(s.gain & 0xFF));
 }
 
-
-float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn) const {
-   // TODO MERGE THIS FUNCTION WITH GET GAIN, then provide wrappers  ( VI done, see above)
+float SiPixelGainCalibrationForHLT::getPed(const int& col,
+                                           const int& row,
+                                           const Range& range,
+                                           const int& nCols,
+                                           bool& isDeadColumn,
+                                           bool& isNoisyColumn) const {
+  // TODO MERGE THIS FUNCTION WITH GET GAIN, then provide wrappers  ( VI done, see above)
 
   // determine what averaged data block we are in (there should be 1 or 2 of these depending on if plaquette is 1 by X or 2 by X
-  unsigned int lengthOfColumnData  = (range.second-range.first)/nCols;
-  unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block 
+  unsigned int lengthOfColumnData = (range.second - range.first) / nCols;
+  unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block
   unsigned int numberOfDataBlocksToSkip = row / numberOfRowsToAverageOver_;
 
-  const DecodingStructure & s = (const DecodingStructure & ) *(range.first+col*lengthOfColumnData + lengthOfAveragedDataInEachColumn*numberOfDataBlocksToSkip);
+  const DecodingStructure& s = (const DecodingStructure&)*(range.first + col * lengthOfColumnData +
+                                                           lengthOfAveragedDataInEachColumn * numberOfDataBlocksToSkip);
 
   if ((s.ped & 0xFF) == deadFlag_)
-     isDeadColumn = true;
+    isDeadColumn = true;
   else if ((s.ped & 0xFF) == noisyFlag_)
-     isNoisyColumn = true;
+    isNoisyColumn = true;
 
-  int maxRow = (lengthOfColumnData/lengthOfAveragedDataInEachColumn)*numberOfRowsToAverageOver_ - 1;
-  if (col >= nCols || row > maxRow){
+  int maxRow = (lengthOfColumnData / lengthOfAveragedDataInEachColumn) * numberOfRowsToAverageOver_ - 1;
+  if (col >= nCols || row > maxRow) {
     throw cms::Exception("CorruptedData")
-      << "[SiPixelGainCalibrationForHLT::getPed] Pixel out of range: col " << col << " row: " << row;
-  }  
-  return decodePed(s.ped & 0xFF);  
+        << "[SiPixelGainCalibrationForHLT::getPed] Pixel out of range: col " << col << " row: " << row;
+  }
+  return decodePed(s.ped & 0xFF);
 }
 
-float SiPixelGainCalibrationForHLT::getGain(const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn) const {
-
+float SiPixelGainCalibrationForHLT::getGain(const int& col,
+                                            const int& row,
+                                            const Range& range,
+                                            const int& nCols,
+                                            bool& isDeadColumn,
+                                            bool& isNoisyColumn) const {
   // determine what averaged data block we are in (there should be 1 or 2 of these depending on if plaquette is 1 by X or 2 by X
-  unsigned int lengthOfColumnData  = (range.second-range.first)/nCols;
-  unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block 
+  unsigned int lengthOfColumnData = (range.second - range.first) / nCols;
+  unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block
   unsigned int numberOfDataBlocksToSkip = row / numberOfRowsToAverageOver_;
 
-  const DecodingStructure & s = (const DecodingStructure & ) *(range.first+col*lengthOfColumnData + lengthOfAveragedDataInEachColumn*numberOfDataBlocksToSkip);
+  const DecodingStructure& s = (const DecodingStructure&)*(range.first + col * lengthOfColumnData +
+                                                           lengthOfAveragedDataInEachColumn * numberOfDataBlocksToSkip);
 
   if ((s.gain & 0xFF) == deadFlag_)
-     isDeadColumn = true;
+    isDeadColumn = true;
   else if ((s.gain & 0xFF) == noisyFlag_)
-     isNoisyColumn = true;
-     
-  int maxRow = (lengthOfColumnData/lengthOfAveragedDataInEachColumn)*numberOfRowsToAverageOver_ - 1;
-  if (col >= nCols || row > maxRow){
-    throw cms::Exception("CorruptedData")
-      << "[SiPixelGainCalibrationForHLT::getGain] Pixel out of range: col " << col << " row: " << row;
-  }  
-  return decodeGain(s.gain & 0xFF);  
+    isNoisyColumn = true;
 
+  int maxRow = (lengthOfColumnData / lengthOfAveragedDataInEachColumn) * numberOfRowsToAverageOver_ - 1;
+  if (col >= nCols || row > maxRow) {
+    throw cms::Exception("CorruptedData")
+        << "[SiPixelGainCalibrationForHLT::getGain] Pixel out of range: col " << col << " row: " << row;
+  }
+  return decodeGain(s.gain & 0xFF);
 }
 
-float SiPixelGainCalibrationForHLT::encodeGain( const float& gain ) {
-  
-  if(gain < minGain_ || gain > maxGain_ ) {
-    throw cms::Exception("InsertFailure")
-      << "[SiPixelGainCalibrationForHLT::encodeGain] Trying to encode gain (" << gain << ") out of range [" << minGain_ << "," << maxGain_ << "]\n";
+float SiPixelGainCalibrationForHLT::encodeGain(const float& gain) {
+  if (gain < minGain_ || gain > maxGain_) {
+    throw cms::Exception("InsertFailure") << "[SiPixelGainCalibrationForHLT::encodeGain] Trying to encode gain ("
+                                          << gain << ") out of range [" << minGain_ << "," << maxGain_ << "]\n";
   } else {
-    float precision   = (maxGain_-minGain_)/static_cast<float>(nBinsToUseForEncoding_);
-    float  encodedGain = (float)((gain-minGain_)/precision);
+    float precision = (maxGain_ - minGain_) / static_cast<float>(nBinsToUseForEncoding_);
+    float encodedGain = (float)((gain - minGain_) / precision);
     return encodedGain;
   }
-
 }
 
-float SiPixelGainCalibrationForHLT::encodePed( const float& ped ) {
-
-  if(ped < minPed_ || ped > maxPed_ ) {
-    throw cms::Exception("InsertFailure")
-      << "[SiPixelGainCalibrationForHLT::encodePed] Trying to encode pedestal (" << ped << ") out of range [" << minPed_ << "," << maxPed_ << "]\n";
+float SiPixelGainCalibrationForHLT::encodePed(const float& ped) {
+  if (ped < minPed_ || ped > maxPed_) {
+    throw cms::Exception("InsertFailure") << "[SiPixelGainCalibrationForHLT::encodePed] Trying to encode pedestal ("
+                                          << ped << ") out of range [" << minPed_ << "," << maxPed_ << "]\n";
   } else {
-    float precision   = (maxPed_-minPed_)/static_cast<float>(nBinsToUseForEncoding_);
-    float  encodedPed = (float)((ped-minPed_)/precision);
+    float precision = (maxPed_ - minPed_) / static_cast<float>(nBinsToUseForEncoding_);
+    float encodedPed = (float)((ped - minPed_) / precision);
     return encodedPed;
   }
-
 }
-
