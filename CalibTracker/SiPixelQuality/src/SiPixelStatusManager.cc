@@ -272,7 +272,7 @@ void SiPixelStatusManager::createFEDerror25(){
         }
 
         if(sameAsLastIOV==false){
-            //only write new IOV when this Lumi is not equal to the previous one
+            //only write new IOV when this Lumi's FEDerror25 ROC list is not equal to the previous one
             FEDerror25Map_[tmpLumi] = tmpBadRocLists; 
             // and reset
             previousLumi = tmpLumi;

@@ -18,7 +18,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 // Pixel geometry and cabling map
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -26,32 +25,45 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
-
 // Condition Format
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+// LHCinfo
+//#include "CondFormats/RunInfo/interface/LHCInfo.h"
+//#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+
 // CondOutput
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-
 // Dataformat of SiPixel status in ALCAPROMPT data
 #include "CalibTracker/SiPixelQuality/interface/SiPixelDetectorStatus.h"
 //#include "CondCore/Utilities/bin/cmscond_export_iov.cpp"
 //#include "CondCore/Utilities/interface/Utilities.h"
-
 // harvest helper class
 #include "CalibTracker/SiPixelQuality/interface/SiPixelStatusManager.h"
 // header file
 #include "CalibTracker/SiPixelQuality/plugins/SiPixelStatusHarvester.h"
 
+// output format
+#include "TH1.h"
+#include "TTree.h"
+#include "TString.h"
+
 #include <iostream> 
 #include <cstring>
 
 using namespace edm;
+//class MonitorElement;
 
 //--------------------------------------------------------------------------------------------------
 SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig) :
   HistogramManagerHolder(iConfig),
+  thresholdL1_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<double>("thresholdL1")),
+  thresholdL2_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<double>("thresholdL2")),
+  thresholdL3_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<double>("thresholdL3")),
+  thresholdL4_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<double>("thresholdL4")),
+  thresholdRNG1_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<double>("thresholdRNG1")),
+  thresholdRNG2_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<double>("thresholdRNG2")),
   outputBase_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<std::string>("outputBase")),
   aveDigiOcc_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<int>("aveDigiOcc")),
   nLumi_(iConfig.getParameter<edm::ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<int>("resetEveryNLumi")),
@@ -76,19 +88,22 @@ SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig)
 SiPixelStatusHarvester::~SiPixelStatusHarvester(){}
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusHarvester::beginJob() { }
-
-//--------------------------------------------------------------------------------------------------
-void SiPixelStatusHarvester::endJob() { }  
-
-//--------------------------------------------------------------------------------------------------
-void
-SiPixelStatusHarvester::bookHistograms( DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const& iSetup )
-{
-  for( auto& histoman : histo ){
-    histoman.book( iBooker, iSetup );
-  }
+void SiPixelStatusHarvester::beginJob() {
 }
+
+//--------------------------------------------------------------------------------------------------
+void SiPixelStatusHarvester::endJob() {
+}  
+
+//--------------------------------------------------------------------------------------------------
+void SiPixelStatusHarvester::bookHistograms( DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const& iSetup ){
+
+     for( auto& histoman : histo ){
+       histoman.book( iBooker, iSetup );
+     }
+
+}
+
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
 
@@ -103,6 +118,9 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
   edm::ESHandle<SiPixelFedCablingMap> pixelCabling;
   iSetup.get<SiPixelFedCablingMapRcd>().get(pixelCabling);
   cablingMap_ = pixelCabling.product();
+
+  // Pixel Phase-1 helper class
+  coord_.init(iSetup);
 
   for (TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->dets().begin(); it != trackerGeometry_->dets().end(); it++){
 
@@ -156,7 +174,6 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
 
   if(poolDbService.isAvailable() ) {// if(poolDbService.isAvailable() )
 
-    std::vector<int> vDetId;
     // start producing tag for permanent component removed
     SiPixelQuality *siPixelQualityPermBad = new SiPixelQuality();
     const std::vector<SiPixelQuality::disabledModuleType> badComponentList = badPixelInfo_->getBadComponentList();
@@ -188,8 +205,6 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
     std::map<edm::LuminosityBlockNumber_t, edm::LuminosityBlockNumber_t> fedError25IOV;
     std::map<edm::LuminosityBlockNumber_t, edm::LuminosityBlockNumber_t> pclIOV;
 
-    //int nLumiBlock_ = countLumi_-FEDerror25Map.begin()->first+1;
-
     // container for SiPixelQuality for the whole run
     std::map<int, SiPixelQuality*> siPixelQualityStuckTBM_Tag;
 
@@ -204,7 +219,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
           // interval is the number of lumi sections in the IOV
           SiPixelStatusManager::FEDerror25Map_iterator nextIt = std::next(it);
           if(nextIt!=FEDerror25Map.end()) interval = int(nextIt->first - it->first);
-          else interval = int(endLumiBlock_ - it->first + 1);
+          else interval = int(endLumiBlock_ - it->first + 1); // +1 because need to include the last lumi section
 
           SiPixelQuality *siPixelQuality_stuckTBM = new SiPixelQuality();
           SiPixelQuality *siPixelQuality_FEDerror25 = new SiPixelQuality();
@@ -342,8 +357,10 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                        if(badPixelInfo_->IsRocBad(detId, short(iroc))){
                          std::map<int, std::pair<int,int> > rocToOfflinePixel = pixelO2O_[detid];
                          int row = rocToOfflinePixel[iroc].first;
-                         int column = rocToOfflinePixel[iroc].second;                                                                                                 for (int iLumi = 0; iLumi<interval;iLumi++){
+                         int column = rocToOfflinePixel[iroc].second;
+                         for (int iLumi = 0; iLumi<interval;iLumi++){
                            histo[PROMPTBADROC].fill(detId, nullptr, column, row);//, 1.0/nLumiBlock_);
+                           histo[PERMANENTBADROC].fill(detId, nullptr, column, row);//, 1.0/nLumiBlock_);
                          }
 
                        } // if permanent BAD
@@ -360,8 +377,6 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
             continue;
 
           } 
-
-          ///////////////////////////////////////////////////////////////////////////////////////////////////
 
           // create the DB object
           // payload including all : PCL = permanent bad (low DIGI ROC) + other + stuckTBM
@@ -381,6 +396,20 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                int detid = itMod->first; 
                uint32_t detId = uint32_t(detid);
 
+               double DetAverage_local = SiPixelStatusHarvester::perLayerRingAverage(detid,tmpSiPixelStatus);
+               double local_threshold = 0.0;
+               
+               int layer  = coord_.layer(DetId(detid));
+               int ring   = coord_.ring(DetId(detid));
+
+               if(layer==1) local_threshold = thresholdL1_;
+               if(layer==2) local_threshold = thresholdL2_;
+               if(layer==3) local_threshold = thresholdL3_;
+               if(layer==4) local_threshold = thresholdL4_;
+
+               if(ring==1) local_threshold = thresholdRNG1_;
+               if(ring==2) local_threshold = thresholdRNG2_;
+
                BadModulePCL.DetID = uint32_t(detid); BadModuleOther.DetID = uint32_t(detid);
                BadModulePCL.errorType = 3; BadModuleOther.errorType = 3;
                BadModulePCL.BadRocs = 0; BadModuleOther.BadRocs = 0;
@@ -391,16 +420,16 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                SiPixelModuleStatus modStatus = itMod->second;
                std::vector<int> listFEDerror25 = tmpFEDerror25[detid];
 
+               std::map<int, std::pair<int,int> > rocToOfflinePixel = pixelO2O_[detid];
                for (int iroc = 0; iroc < modStatus.nrocs(); ++iroc) {
 
                    unsigned int rocOccupancy = modStatus.digiOccROC(iroc);
 
-                   // Bad ROC are from low DIGI Occ ROCs
-                   if(rocOccupancy<1.e-4*DetAverage){ // if BAD
+                   int row = rocToOfflinePixel[iroc].first;
+                   int column = rocToOfflinePixel[iroc].second;
 
-                     std::map<int, std::pair<int,int> > rocToOfflinePixel = pixelO2O_[detid];
-                     int row = rocToOfflinePixel[iroc].first;
-                     int column = rocToOfflinePixel[iroc].second;
+                   // Bad ROC are from low DIGI Occ ROCs
+                   if(rocOccupancy<local_threshold*DetAverage_local){ // if BAD
 
                      //PCL bad roc list
                      BadRocListPCL.push_back(uint32_t(iroc));
@@ -473,7 +502,8 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                if(BadRocListPrompt.size()==sensorSize_[detid]) BadModulePrompt.errorType = 0;
 
                short badrocsPrompt = 0;
-               for(std::vector<uint32_t>::iterator iterPrompt = BadRocListPrompt.begin(); iterPrompt != BadRocListPrompt.end(); ++iterPrompt){
+               for(std::vector<uint32_t>::iterator iterPrompt = BadRocListPrompt.begin(); iterPrompt != BadRocListPrompt.end(); ++iterPrompt)
+               {
                    badrocsPrompt +=  1 << *iterPrompt; // 1 << *iter = 2^{*iter} using bitwise shift
                }
                if(badrocsPrompt!=0){
@@ -491,7 +521,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
          siPixelQualityOther_Tag[itIOV->first] = siPixelQualityOther;
 
      }// loop over IOV
- 
+
      // Now construct the tags made of payloads 
      // and only append newIOV if this payload differs wrt last
 
@@ -506,19 +536,28 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
      SiPixelStatusHarvester::constructTag(siPixelQualityStuckTBM_Tag, poolDbService, "stuckTBM", iRun);
 
      // Add a dummy IOV starting from last lumisection+1 to close the tag for the run
-     if(outputBase_ == "nLumibased" || outputBase_ == "dynamicLumibased"){
+     if((outputBase_ == "nLumibased" || outputBase_ == "dynamicLumibased") && !finalIOV.empty()){
 
-         edm::LuminosityBlockID lu(iRun.id().run(),endLumiBlock_+1);
-         cond::Time_t thisIOV = (cond::Time_t)(lu.value());
-         poolDbService->writeOne<SiPixelQuality>(siPixelQualityPermBad, thisIOV, recordName_+"_prompt");
+        itIOV=std::prev(finalIOV.end()); // go to last element in the pixel quality tag  
+        SiPixelQuality* lastPrompt = siPixelQualityPrompt_Tag[itIOV->first];
+        SiPixelQuality* lastOther  = siPixelQualityOther_Tag[itIOV->first];
 
-         // add empty bad components to "other" tag
-         SiPixelQuality* siPixelQualityDummy = new SiPixelQuality();
-         poolDbService->writeOne<SiPixelQuality>(siPixelQualityDummy, thisIOV, recordName_+"_other");
-         delete siPixelQualityDummy;
+        // add permanent bad components to last lumi+1 IF AND ONLY IF the last payload of prompt is not equal to permanent bad components
+        edm::LuminosityBlockID lu(iRun.id().run(),endLumiBlock_+1);
+        cond::Time_t thisIOV = (cond::Time_t)(lu.value());
+        if(!SiPixelStatusHarvester::equal(lastPrompt,siPixelQualityPermBad))
+           poolDbService->writeOne<SiPixelQuality>(siPixelQualityPermBad, thisIOV, recordName_+"_prompt");
+
+        // add empty bad components to last lumi+1 IF AND ONLY IF the last payload of other is not equal to empty
+        SiPixelQuality* siPixelQualityDummy = new SiPixelQuality();
+        if(!SiPixelStatusHarvester::equal(lastOther,siPixelQualityDummy))
+           poolDbService->writeOne<SiPixelQuality>(siPixelQualityDummy, thisIOV, recordName_+"_other");
+
+        delete siPixelQualityDummy;
      }
 
      delete siPixelQualityPermBad;
+
 
   } // end of if(poolDbService.isAvailable() )
 
@@ -531,12 +570,12 @@ void SiPixelStatusHarvester::beginLuminosityBlock(const edm::LuminosityBlock& iL
 
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusHarvester::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iEVentSetup) {
+void SiPixelStatusHarvester::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iEventSetup) {
 
-  siPixelStatusManager_.readLumi(iLumi);
-  // update endLumiBlock_ by current lumi block
-  if(endLumiBlock_<iLumi.luminosityBlock())
-    endLumiBlock_ = iLumi.luminosityBlock();
+     siPixelStatusManager_.readLumi(iLumi);
+     // update endLumiBlock_ by current lumi block
+     if(endLumiBlock_<iLumi.luminosityBlock())
+       endLumiBlock_ = iLumi.luminosityBlock();
 
 }
 
@@ -566,6 +605,7 @@ edm::LuminosityBlockNumber_t SiPixelStatusHarvester::stepIOV(edm::LuminosityBloc
    
 }
 
+//--------------------------------------------------------------------------------------------------
 bool SiPixelStatusHarvester::equal(SiPixelQuality* a, SiPixelQuality* b){
 
   std::vector<SiPixelQuality::disabledModuleType> badRocListA;
@@ -604,6 +644,7 @@ bool SiPixelStatusHarvester::equal(SiPixelQuality* a, SiPixelQuality* b){
 
 }
 
+//--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::constructTag(std::map<int,SiPixelQuality*>siPixelQualityTag, edm::Service<cond::service::PoolDBOutputService>& poolDbService, std::string tagName,edm::Run& iRun){
 
      for (std::map<int, SiPixelQuality*>::iterator qIt = siPixelQualityTag.begin(); qIt != siPixelQualityTag.end(); ++qIt) {
@@ -611,7 +652,7 @@ void SiPixelStatusHarvester::constructTag(std::map<int,SiPixelQuality*>siPixelQu
             edm::LuminosityBlockID lu(iRun.id().run(),qIt->first);
             cond::Time_t thisIOV = (cond::Time_t)(lu.value());
 
-            SiPixelQuality* thisPayload =  qIt->second;
+            SiPixelQuality* thisPayload = qIt->second;
             if(qIt==siPixelQualityTag.begin())
                 poolDbService->writeOne<SiPixelQuality>(thisPayload, thisIOV, recordName_+"_"+tagName);
             else{
@@ -622,5 +663,52 @@ void SiPixelStatusHarvester::constructTag(std::map<int,SiPixelQuality*>siPixelQu
      }
 
 }
+
+//--------------------------------------------------------------------------------------------------------
+double SiPixelStatusHarvester::perLayerRingAverage(int detid, SiPixelDetectorStatus tmpSiPixelStatus) {
+
+          unsigned long int ave(0);
+          int nrocs(0);
+
+          int layer  = coord_.layer(DetId(detid));
+          int ring   = coord_.ring(DetId(detid));
+
+          std::map<int, SiPixelModuleStatus> detectorStatus = tmpSiPixelStatus.getDetectorStatus();
+          std::map<int, SiPixelModuleStatus>::iterator itModEnd = detectorStatus.end();
+          for (std::map<int, SiPixelModuleStatus>::iterator itMod = detectorStatus.begin(); itMod != itModEnd; ++itMod) {
+
+               if( layer != coord_.layer(DetId(itMod->first)) ) continue;
+               if( ring != coord_.ring(DetId(itMod->first)) ) continue;
+               unsigned long int inc = itMod->second.digiOccMOD();
+               ave += inc;
+               nrocs += itMod->second.nrocs();
+          }
+
+          if(nrocs>0)
+            return ave*1.0/nrocs;
+          else return 0.0;
+
+}     
+
+std::string SiPixelStatusHarvester::substructure(int detid){     
+     
+       std::string substructure = "";
+       int layer = coord_.layer(DetId(detid));
+
+       if(layer>0){
+         std::string L = std::to_string(layer);
+         substructure = "BpixLYR";
+         substructure += L;
+       }  
+       else{
+         substructure = "FpixRNG";
+         int ring  = coord_.ring(DetId(detid));
+         std::string R = std::to_string(ring);
+         substructure += R; 
+       }
+
+       return substructure;
+}
+
 
 DEFINE_FWK_MODULE(SiPixelStatusHarvester);
