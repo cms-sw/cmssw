@@ -147,17 +147,31 @@ private:
  *   uint64_t - total size of the raw file (including header)
  *
  * */
+#define FRDHEADERID  {0x52, 0x41, 0x57, 0x5f}
+#define FRDVERSION_1 {0x30, 0x30, 0x30, 0x31}
+constexpr unsigned char FRDFileHeader_id[4] = FRDHEADERID;
+constexpr unsigned char FRDFileVersion_1[4] = FRDVERSION_1;
 
 struct FRDFileHeader_v1 {
+
+  FRDFileHeader_v1() = default;
+
+  FRDFileHeader_v1(uint16_t eventCount, uint32_t lumiSection, uint64_t fileSize):
+    id_ FRDHEADERID,
+    version_ FRDVERSION_1,
+    headerSize_(sizeof(FRDFileHeader_v1)),
+    eventCount_(eventCount),
+    lumiSection_(lumiSection),
+    fileSize_(fileSize) {}
+
   uint8_t id_[4];
   uint8_t version_[4];
   uint16_t headerSize_;
-  uint16_t reserved_;
-  uint32_t nbEventsWritten_;
+  uint16_t eventCount_;
+  uint32_t lumiSection_;
   uint64_t fileSize_;
 };
 
-const unsigned char FRDFileHeader_id[4] = {0x52, 0x41, 0x57, 0x5f};
 
 inline uint16_t getFRDFileHeaderVersion(const uint8_t* id, const uint8_t* version) {
   size_t i;

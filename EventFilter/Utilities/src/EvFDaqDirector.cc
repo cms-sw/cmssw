@@ -1009,7 +1009,7 @@ namespace evf {
         return -1;
       }
       //allow header size to exceed read size. Future header versions will not break this, but the size can change.
-      eventsFromHeader = (int32_t)fileHead->nbEventsWritten_;
+      eventsFromHeader = (int32_t)fileHead->eventCount_;
       fileSizeFromHeader = (int64_t)fileHead->fileSize_;
       rawHeaderSize = fileHead->headerSize_;
     }
