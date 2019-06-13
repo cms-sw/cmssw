@@ -8,7 +8,6 @@
 #include "JetMETCorrections/Modules/interface/JetCorrectionESSource.h"
 #include "JetMETCorrections/Modules/interface/JetCorrectionESChain.h"
 #include "JetMETCorrections/Modules/interface/JetCorrectionProducer.h"
-#include "JetMETCorrections/Modules/interface/QGLikelihoodSystematicsESProducer.h"
 #include "JetMETCorrections/Modules/interface/JetResolutionESProducer.h"
 #include "JetMETCorrections/Algorithms/interface/LXXXCorrector.h"
 #include "JetMETCorrections/Algorithms/interface/L1OffsetCorrector.h"
@@ -45,8 +44,6 @@ typedef JetCorrectionProducer<BasicJet> BasicJetCorrectionProducer;
 DEFINE_FWK_MODULE(BasicJetCorrectionProducer);
 
 DEFINE_FWK_EVENTSETUP_MODULE(JetCorrectionESChain);
-
-DEFINE_FWK_EVENTSETUP_MODULE(QGLikelihoodSystematicsESProducer);
 
 DEFINE_FWK_EVENTSETUP_MODULE(JetResolutionESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(JetResolutionScaleFactorESProducer);
