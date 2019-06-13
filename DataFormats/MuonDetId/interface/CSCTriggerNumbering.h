@@ -13,17 +13,15 @@
 class CSCDetId;
 
 class CSCTriggerNumbering {
-  
- public:
-
+public:
   CSCTriggerNumbering();
   ~CSCTriggerNumbering();
-  
+
   /**
    * The following functions transform standard chamber labels into
    * their corresponding trigger labels.
    */
-  
+
   /**
     * Return trigger-level sector id for an Endcap Muon chamber.
     *
@@ -45,7 +43,7 @@ class CSCTriggerNumbering {
     */
   static int triggerSectorFromLabels(int station, int ring, int chamber);
   static int triggerSectorFromLabels(CSCDetId id);
-  
+
   /**
    * Return trigger-level sub sector id within a sector in station one.
    * 
@@ -109,22 +107,21 @@ class CSCTriggerNumbering {
    * Minimum and Maximum values for trigger specific labels.
    */
 
-  static int maxTriggerCscId()        { return MAX_CSCID; }
-  static int minTriggerCscId()        { return MIN_CSCID; }
-  static int maxTriggerSectorId()     { return MAX_TRIGSECTOR; }
-  static int minTriggerSectorId()     { return MIN_TRIGSECTOR; }
-  static int maxTriggerSubSectorId()  { return MAX_TRIGSUBSECTOR; }
-  static int minTriggerSubSectorId()  { return MIN_TRIGSUBSECTOR+1; }
+  static int maxTriggerCscId() { return MAX_CSCID; }
+  static int minTriggerCscId() { return MIN_CSCID; }
+  static int maxTriggerSectorId() { return MAX_TRIGSECTOR; }
+  static int minTriggerSectorId() { return MIN_TRIGSECTOR; }
+  static int maxTriggerSubSectorId() { return MAX_TRIGSUBSECTOR; }
+  static int minTriggerSubSectorId() { return MIN_TRIGSUBSECTOR + 1; }
 
- private:
-
+private:
   // Below are counts for trigger based labels.
-  
+
   // Max counts for trigger labels.
-  enum eTrigMaxNum{ MAX_TRIGSECTOR=6, MAX_CSCID=9, MAX_TRIGSUBSECTOR = 2 };
+  enum eTrigMaxNum { MAX_TRIGSECTOR = 6, MAX_CSCID = 9, MAX_TRIGSUBSECTOR = 2 };
 
   // Min counts for trigger labels. Again, we count from one.
-  enum eTrigMinNum{ MIN_TRIGSECTOR=1, MIN_CSCID=1, MIN_TRIGSUBSECTOR = 0 };
+  enum eTrigMinNum { MIN_TRIGSECTOR = 1, MIN_CSCID = 1, MIN_TRIGSUBSECTOR = 0 };
 };
 
 #endif
