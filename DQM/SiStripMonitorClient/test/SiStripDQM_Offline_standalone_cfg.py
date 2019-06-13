@@ -23,7 +23,7 @@ process.GlobalTag.globaltag = "GR09_P_V2::All"
 # DQM Environment
 process.load("DQMServices.Core.DQM_cfg")
 
-process.load("CalibTracker.SiStripCommon.TkDetMap_cff")
+process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
 process.trackerTopology = cms.ESProducer("TrackerTopologyEP")
 
 # SiStrip Offline DQM Client
