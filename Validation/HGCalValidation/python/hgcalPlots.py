@@ -1051,25 +1051,24 @@ _cell_association_table_zminus = PlotGroup("cellAssociation_table_zminus", [
         ], ncols=8 )
 
 _bin_count = 0
-_xbinlabels = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_xbinlabels = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
 _common_eff = {"stat": False, "legend": False}
 _effplots_zminus = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
 _effplots_zminus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)])
 _common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
-_common_eff["xmin"] = 0.
-_bin_count += maxlayerzm
-_common_eff["xmax"] =_bin_count
+_common_eff["xmin"] = _bin_count
+_common_eff["xmax"] = maxlayerzm
+_bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
 _effplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies in z-", **_common_eff)])
 _efficiencies_zminus = PlotGroup("Efficiencies_zminus", _effplots_zminus, ncols=8)
-
 
 _common_dup = {"stat": False, "legend": False}
 _dupplots_zminus = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
 _dupplots_zminus.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)])
 _common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
-_common_dup["xmin"] = _bin_count+maxlayerzm+1
-_bin_count += maxlayerzm
-_common_dup["xmax"] = _bin_count
+_common_dup["xmin"] = _bin_count
+_common_dup["xmax"] = _common_dup["xmin"] + maxlayerzm
+_bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
 _dupplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Duplicates in z-", **_common_dup)])
 _duplicates_zminus = PlotGroup("Duplicates_zminus", _dupplots_zminus, ncols=8)
 
@@ -1077,10 +1076,10 @@ _common_fake = {"stat": False, "legend": False}
 _fakeplots_zminus = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
 _fakeplots_zminus.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)])
 _common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
-_common_fake["xmin"] = _bin_count+maxlayerzm+1
-_bin_count += maxlayerzm
-_common_fake["xmax"] = _bin_count
-_common_fake["xbinlabels"] = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_common_fake["xmin"] = _bin_count
+_common_fake["xmax"] = _common_fake["xmin"] + maxlayerzm
+_bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
+_common_fake["xbinlabels"] = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
 _common_fake["xbinlabelsize"] = 10.
 _fakeplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate in z-", **_common_fake)])
 _fakes_zminus = PlotGroup("FakeRate_zminus", _fakeplots_zminus, ncols=8)
@@ -1089,10 +1088,10 @@ _common_merge = {"stat": False, "legend": False}
 _mergeplots_zminus = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
 _mergeplots_zminus.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)])
 _common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
-_common_merge["xmin"] = _bin_count+maxlayerzm+1
-_bin_count += maxlayerzm
-_common_merge["xmax"] = _bin_count
-_common_merge["xbinlabels"] = [ "Layer {:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_common_merge["xmin"] = _bin_count
+_common_merge["xmax"] = _common_merge["xmin"] + maxlayerzm
+_bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
+_common_merge["xbinlabels"] = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
 _common_merge["xbinlabelsize"] = 10.
 _mergeplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global merge Rate in z-", **_common_merge)])
 _merges_zminus = PlotGroup("MergeRate_zminus", _mergeplots_zminus, ncols=8)
@@ -1183,18 +1182,15 @@ _cell_association_table_zplus = PlotGroup("cellAssociation_table_zplus", [
         Plot("cellAssociation_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_assoc) for i in range(maxlayerzm,maxlayerzp)
         ], ncols=8 )
 
-# Chain _bin_count from the above loop over the Z- side. The first bin in the
-# first histogram of efficieny has yet to skip the maxlayerzm from the above
-# loop, since all plots come bundled in eta and phi.
 
-#_bin_count = 0
+_bin_count = 50
 _common_eff = {"stat": False, "legend": False}
 _effplots_zplus = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
 _effplots_zplus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)])
 _common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
-_common_eff["xmin"] = _bin_count+maxlayerzm+1
-_bin_count += maxlayerzp
-_common_eff["xmax"] =_bin_count
+_common_eff["xmin"] = _bin_count
+_common_eff["xmax"] = _common_eff["xmin"] + maxlayerzm
+_bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
 _effplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies in z+", **_common_eff)])
 _efficiencies_zplus = PlotGroup("Efficiencies_zplus", _effplots_zplus, ncols=8)
 
@@ -1203,9 +1199,9 @@ _common_dup = {"stat": False, "legend": False}
 _dupplots_zplus = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
 _dupplots_zplus.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)])
 _common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
-_common_dup["xmin"] = _bin_count+maxlayerzm+1
-_bin_count += maxlayerzp
-_common_dup["xmax"] = _bin_count
+_common_dup["xmin"] = _bin_count
+_common_dup["xmax"] = _common_dup["xmin"] + maxlayerzm
+_bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
 _dupplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Duplicates in z+", **_common_dup)])
 _duplicates_zplus = PlotGroup("Duplicates_zplus", _dupplots_zplus, ncols=8)
 
@@ -1213,9 +1209,9 @@ _common_fake = {"stat": False, "legend": False}
 _fakeplots_zplus = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
 _fakeplots_zplus.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)])
 _common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
-_common_fake["xmin"] = _bin_count+maxlayerzm+1
-_bin_count += maxlayerzp
-_common_fake["xmax"] = _bin_count
+_common_fake["xmin"] = _bin_count
+_common_fake["xmax"] = _common_fake["xmin"] + maxlayerzm
+_bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
 _fakeplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate in z+", **_common_fake)])
 _fakes_zplus = PlotGroup("FakeRate_zplus", _fakeplots_zplus, ncols=8)
 
@@ -1223,9 +1219,9 @@ _common_merge = {"stat": False, "legend": False}
 _mergeplots_zplus = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
 _mergeplots_zplus.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)])
 _common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
-_common_merge["xmin"] = _bin_count+maxlayerzm+1
-_bin_count += maxlayerzp
-_common_merge["xmax"] = _bin_count
+_common_merge["xmin"] = _bin_count
+_common_merge["xmax"] = _common_merge["xmin"] + maxlayerzm
+_bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
 _mergeplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global merge Rate in z+", **_common_merge)])
 _merges_zplus = PlotGroup("MergeRate_zplus", _mergeplots_zplus, ncols=8)
 
@@ -2133,14 +2129,14 @@ hgcalMultiClustersPlotter.append("NumberofMultiClusters_First_Last_NLayers", [
         purpose=PlotPurpose.Timing, page="NumberofMultiClusters_First_Last_NLayers"
         ))
 
-#[O] Multiplicity of layer clusters in multicluster 
+#[O] Multiplicity of layer clusters in multicluster
 hgcalMultiClustersPlotter.append("Multiplicity", [
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
         ], PlotFolder(
         _multiplicityOfLCinMCL,
         _multiplicityOfLCinMCL_vs_layerclusterenergy,
         loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="Multiplicity", 
+        purpose=PlotPurpose.Timing, page="Multiplicity",
         numberOfEventsHistogram=_multiplicity_numberOfEventsHistogram
         ))
 
@@ -2151,7 +2147,7 @@ hgcalMultiClustersPlotter.append("Multiplicity", [
         ], PlotFolder(
         _multiplicityOfLCinMCL_vs_layercluster_zminus,
         loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="Multiplicity", 
+        purpose=PlotPurpose.Timing, page="Multiplicity",
         numberOfEventsHistogram=_multiplicity_zminus_numberOfEventsHistogram
         ))
 
@@ -2160,6 +2156,6 @@ hgcalMultiClustersPlotter.append("Multiplicity", [
         ], PlotFolder(
         _multiplicityOfLCinMCL_vs_layercluster_zplus,
         loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="Multiplicity", 
+        purpose=PlotPurpose.Timing, page="Multiplicity",
         numberOfEventsHistogram=_multiplicity_zplus_numberOfEventsHistogram
         ))
