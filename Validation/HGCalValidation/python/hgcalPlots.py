@@ -1810,7 +1810,7 @@ hgcalLayerClustersPlotter.append("ScoreLayerClustersToCaloParticles_zplus", [
 
 # [K] Shared Energy between CaloParticle and LayerClusters
 # z-
-hgcalLayerClustersPlotter.append("SharedEnergy_zminus", [
+hgcalLayerClustersPlotter.append("SharedEnergyC2L_zminus", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
             ], PlotFolder(
             _sharedEnergy_caloparticle_to_layercluster_zminus,
@@ -1818,7 +1818,7 @@ hgcalLayerClustersPlotter.append("SharedEnergy_zminus", [
             purpose=PlotPurpose.Timing, page="SharedEnergyCaloParticleToLayerCluster_zminus"))
 
 # z+
-hgcalLayerClustersPlotter.append("SharedEnergy_zplus", [
+hgcalLayerClustersPlotter.append("SharedEnergyC2L_zplus", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
             ], PlotFolder(
             _sharedEnergy_caloparticle_to_layercluster_zplus,
@@ -1827,7 +1827,7 @@ hgcalLayerClustersPlotter.append("SharedEnergy_zplus", [
 
 # [K2] Shared Energy between LayerClusters and CaloParticle
 # z-
-hgcalLayerClustersPlotter.append("SharedEnergy_zminus", [
+hgcalLayerClustersPlotter.append("SharedEnergyL2C_zminus", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
             ], PlotFolder(
             _sharedEnergy_layercluster_to_caloparticle_zminus,
@@ -1835,7 +1835,7 @@ hgcalLayerClustersPlotter.append("SharedEnergy_zminus", [
             purpose=PlotPurpose.Timing, page="SharedEnergyLayerClusterToCaloParticle_zminus"))
 
 # z+
-hgcalLayerClustersPlotter.append("SharedEnergy_zplus", [
+hgcalLayerClustersPlotter.append("SharedEnergyL2C_zplus", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
             ], PlotFolder(
             _sharedEnergy_layercluster_to_caloparticle_zplus,
