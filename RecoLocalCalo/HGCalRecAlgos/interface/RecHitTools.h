@@ -44,6 +44,8 @@ namespace hgcal {
 
     bool isHalfCell(const DetId&) const;
 
+    bool isSilicon(const DetId&) const;
+
     // 4-vector helper functions using GlobalPoint
     float getEta(const GlobalPoint& position, const float& vertex_z = 0.) const;
     float getPhi(const GlobalPoint& position) const;
