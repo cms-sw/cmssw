@@ -2,7 +2,7 @@
 //
 // Package:    TestMixedSource
 // Class:      TestMixedSource
-// 
+//
 /**\class TestMixedSource TestMixedSource.cc TestMixed/TestMixedSource/src/TestMixedSource.cc
 
  Description: <one line class summary>
@@ -47,37 +47,36 @@
 //
 // class decleration
 //
-namespace edm
-{
+namespace edm {
   class TestMixedSource : public edm::one::EDAnalyzer<> {
-   public:
-      explicit TestMixedSource(const edm::ParameterSet&);
-      ~TestMixedSource() override;
+  public:
+    explicit TestMixedSource(const edm::ParameterSet &);
+    ~TestMixedSource() override;
 
-   private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+  private:
+    void beginJob() override;
+    void analyze(const edm::Event &, const edm::EventSetup &) override;
+    void endJob() override;
 
-      // ----------member data ---------------------------
-      std::ofstream outputFile;
-      std::string fileName_;
-      int bunchcr_;
-      int minbunch_;
-      int maxbunch_;
-      TH1I * histTrack_bunchPileups_;
-      TH1I * histTrack_bunchSignal_;
-      TH1I * histVertex_bunch_;
-      TH1I * histPCaloHit_bunch_;
-      TH1I * histPSimHit_bunchSignal_TrackerHitsTECHighTof_;
-      TH1I * histPSimHit_bunchPileups_TrackerHitsTECHighTof_;
-      TH1I * tofhist_;
-      TH1I * tofhist_sig_;
-      TH1I * histPSimHit_bunchSignal_MuonCSCHits_;
-      TH1I * histPSimHit_bunchPileups_MuonCSCHits_;
-      TH1I * histHepMCProduct_bunch_;
-      TFile *histFile_;
-       
+    // ----------member data ---------------------------
+    std::ofstream outputFile;
+    std::string fileName_;
+    int bunchcr_;
+    int minbunch_;
+    int maxbunch_;
+    TH1I *histTrack_bunchPileups_;
+    TH1I *histTrack_bunchSignal_;
+    TH1I *histVertex_bunch_;
+    TH1I *histPCaloHit_bunch_;
+    TH1I *histPSimHit_bunchSignal_TrackerHitsTECHighTof_;
+    TH1I *histPSimHit_bunchPileups_TrackerHitsTECHighTof_;
+    TH1I *tofhist_;
+    TH1I *tofhist_sig_;
+    TH1I *histPSimHit_bunchSignal_MuonCSCHits_;
+    TH1I *histPSimHit_bunchPileups_MuonCSCHits_;
+    TH1I *histHepMCProduct_bunch_;
+    TFile *histFile_;
+
     edm::EDGetTokenT<CrossingFrame<PSimHit>> TrackerToken0_;
     edm::EDGetTokenT<CrossingFrame<PSimHit>> MuonToken_;
 
@@ -86,7 +85,6 @@ namespace edm
     edm::EDGetTokenT<CrossingFrame<SimTrack>> SimTrackToken_;
     edm::EDGetTokenT<CrossingFrame<SimVertex>> SimVertexToken_;
     edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct>> HepMCToken_;
-
-};
-}//edm
+  };
+}  // namespace edm
 #endif

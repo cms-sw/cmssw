@@ -3,6 +3,7 @@ from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import patDiscriminationByIsolationMVArun2v1raw, patDiscriminationByIsolationMVArun2v1VLoose
 import os
 import re
+import six
 
 class TauIDEmbedder(object):
     """class to rerun the tau seq and acces trainings from the database"""
@@ -1050,11 +1051,11 @@ class TauIDEmbedder(object):
 
 
     def processDeepProducer(self, producer_name, tauIDSources, workingPoints_):
-        for target,points in workingPoints_.iteritems():
+        for target,points in six.iteritems(workingPoints_):
             cuts = self.cms.PSet()
             setattr(tauIDSources, 'by{}VS{}raw'.format(producer_name[0].upper()+producer_name[1:], target),
                         self.cms.InputTag(producer_name, 'VS{}'.format(target)))
-            for point,cut in points.iteritems():
+            for point,cut in six.iteritems(points):
                 setattr(cuts, point, self.cms.string(str(cut)))
 
                 setattr(tauIDSources, 'by{}{}VS{}'.format(point, producer_name[0].upper()+producer_name[1:], target),

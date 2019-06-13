@@ -4,4 +4,4 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 using BoundSurface = Surface;
 
-#endif // Geom_BoundSurface_H
+#endif  // Geom_BoundSurface_H
