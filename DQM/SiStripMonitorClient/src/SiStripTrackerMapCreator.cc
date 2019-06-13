@@ -15,6 +15,7 @@
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerNumberingBuilder/interface/utils.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
 
 #include <iostream>
@@ -435,8 +436,7 @@ uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* const dqm
 //
 void SiStripTrackerMapCreator::createInfoFile(std::vector<std::string> const& map_names,
                                               TTree* tkinfo_tree,
-                                              DQMStore& dqm_store,
-                                              std::vector<uint32_t> const& detidList) {
+                                              DQMStore& dqm_store) {
   std::map<std::string, float> tkhmap_value;
   int qtalarm_flag = 0;
   uint32_t det_id = 0;
@@ -481,6 +481,9 @@ void SiStripTrackerMapCreator::createInfoFile(std::vector<std::string> const& ma
       }
     }
 
+    edm::ESHandle<GeometricDet> geomDetHandle;
+    eSetup_.get<IdealGeometryRecord>().get(geomDetHandle);
+    const auto detidList = getSiStripDetIds(*geomDetHandle);
     for (auto const id : detidList) {
       det_id = id;
       for (uint32_t ih = 0; ih < nHists; ++ih) {

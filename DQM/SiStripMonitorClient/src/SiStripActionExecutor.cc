@@ -2,7 +2,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
@@ -100,9 +99,7 @@ void SiStripActionExecutor::createTkInfoFile(std::vector<std::string> map_names,
   if (!tkMapCreator_)
     return;
 
-  auto const& detidList = edm::Service<SiStripDetInfoFileReader> {}
-  ->getAllDetIds();
-  tkMapCreator_->createInfoFile(map_names, tkinfo_tree, dqm_store, detidList);
+  tkMapCreator_->createInfoFile(map_names, tkinfo_tree, dqm_store);
 }
 //
 // -- Create Status Monitor Elements
