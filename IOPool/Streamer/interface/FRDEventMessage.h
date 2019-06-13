@@ -139,32 +139,32 @@ private:
  * FRD File Header optionally found at the beginning of the FRD RAW file
  *
  * Version 1 Format:
- *   uint8 [4] - id contanining 4 characters: 0x52, 0x41, 0x57, 0x5f  "RAW_"
- *   uint8 [4] - version string 4 characters: 0x30, 0x30, 0x30, 0x31  "0001"
- *   uint16 - header size: 24
- *   uint16 - reserved (padding)
- *   uint32 - number of events in the RAW file
- *   uint64 - total size of the raw file (including header)
+ *   uint8_t [4] - id contanining 4 characters: 0x52, 0x41, 0x57, 0x5f  "RAW_"
+ *   uint8_t [4] - version string 4 characters: 0x30, 0x30, 0x30, 0x31  "0001"
+ *   uint16_t - header size: 24
+ *   uint16_t - reserved (padding)
+ *   uint32_t - number of events in the RAW file
+ *   uint64_t - total size of the raw file (including header)
  *
  * */
 
 struct FRDFileHeader_v1 {
-  uint8 id_[4];
-  uint8 version_[4];
-  uint16 headerSize_;
-  uint16 reserved_;
-  uint32 nbEventsWritten_;
-  uint64 fileSize_;
+  uint8_t id_[4];
+  uint8_t version_[4];
+  uint16_t headerSize_;
+  uint16_t reserved_;
+  uint32_t nbEventsWritten_;
+  uint64_t fileSize_;
 };
 
 const unsigned char FRDFileHeader_id[4] = {0x52, 0x41, 0x57, 0x5f};
 
-inline uint16 getFRDFileHeaderVersion(const unsigned char* id, const unsigned char* version) {
+inline uint16_t getFRDFileHeaderVersion(const uint8_t* id, const uint8_t* version) {
   size_t i;
   for (i = 0; i < 4; i++)
     if (id[i] != FRDFileHeader_id[i])
       return 0;  //not FRD file header
-  uint16 ret = 0;
+  uint16_t ret = 0;
   for (i = 4; i < 8; i++) {
     if (version[i] > 0x39 || version[i] < 0x30)
       return 0;  //NaN sequence

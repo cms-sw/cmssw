@@ -1002,7 +1002,7 @@ namespace evf {
       }
     } else {
       //version 1 header
-      uint32 headerSizeRaw = fileHead->headerSize_;
+      uint32_t headerSizeRaw = fileHead->headerSize_;
       if (headerSizeRaw < buf_sz) {
         edm::LogError("EvFDaqDirector") << "inconsistent header size: " << rawSourcePath << " size: " << headerSizeRaw
                                         << " v:" << frd_version;
