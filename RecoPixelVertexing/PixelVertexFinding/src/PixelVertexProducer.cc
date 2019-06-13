@@ -11,10 +11,10 @@
 #include <cmath>
 
 PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
-    : verbose_(conf.getParameter<int>("Verbosity"))  // 0 silent, 1 chatty, 2 loud
-      ,
-      ptMin_(conf.getParameter<double>("PtMin"))  // 1.0 GeV
-      ,
+    // 0 silent, 1 chatty, 2 loud
+    : verbose_(conf.getParameter<int>("Verbosity")),
+      // 1.0 GeV
+      ptMin_(conf.getParameter<double>("PtMin")),
       method2(conf.getParameter<bool>("Method2")),
       trackCollName(conf.getParameter<edm::InputTag>("TrackCollection")),
       token_Tracks(consumes<reco::TrackCollection>(trackCollName)),
@@ -95,8 +95,8 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   e.getByToken(token_BeamSpot, bsHandle);
   math::XYZPoint myPoint(0., 0., 0.);
   if (bsHandle.isValid())
-    myPoint =
-        math::XYZPoint(bsHandle->x0(), bsHandle->y0(), 0.);  //FIXME: fix last coordinate with vertex.z() at same time
+    //FIXME: fix last coordinate with vertex.z() at same time
+    myPoint = math::XYZPoint(bsHandle->x0(), bsHandle->y0(), 0.);
 
   // Third, ship these tracks off to be vertexed
   auto vertexes = std::make_unique<reco::VertexCollection>();
