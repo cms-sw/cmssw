@@ -6,7 +6,6 @@
 #include <string>
 
 class G4ProcessHelper;
-class G4Decay;
 class CustomParticleFactory;
 
 class CustomPhysicsListSS : public G4VPhysicsConstructor {
@@ -18,7 +17,6 @@ public:
   void ConstructProcess() override;
 
 private:
-  static G4ThreadLocal std::unique_ptr<G4Decay> fDecayProcess;
   static G4ThreadLocal std::unique_ptr<G4ProcessHelper> myHelper;
 
   std::unique_ptr<CustomParticleFactory> fParticleFactory;
