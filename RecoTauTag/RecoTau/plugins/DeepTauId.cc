@@ -7,7 +7,6 @@
  */
 
 #include "RecoTauTag/RecoTau/interface/DeepTauBase.h"
-#include "FWCore/Utilities/interface/isFinite.h"
 
 namespace deep_tau {
     constexpr int NumberOfOutputs = 4;
@@ -708,8 +707,8 @@ private:
                     for(int k = 0; k < n_inputs; ++k) {
                         const float input = n_eta == 1 && n_phi == 1
                                           ? inputs.matrix<float>()(0, k) : inputs.tensor<float,4>()(0, eta, phi, k);
-                        if(edm::isNotFinite(input))
-                            throw cms::Exception("DeepTauId") << "in the " << block_name << ", input is not finite, i.e. infinite or NaN, for eta_index = "
+                        if(std::isnan(input))
+                            throw cms::Exception("DeepTauId") << "in the " << block_name << ", input is NaN for eta_index = "
                                                               << n_eta << ", phi_index = " << n_phi << ", input_index = " << k;
                         if(debug_level >= 2)
                             std::cout << block_name << "," << eta << ","<< phi << "," << k << "," << std::setprecision(5) << std::fixed << input << '\n';
@@ -1337,13 +1336,7 @@ private:
                 get(dnn::pfCand_chHad_track_ndof) = pfCands.at(index_chH).pseudoTrack().ndof() > 0 ?
                     getValueNorm(pfCands.at(index_chH).pseudoTrack().ndof(), 13.92f, 6.581f) : 0;
             }
-	    float hcal_fraction = 0.;
-	    if(pfCands.at(index_chH).pdgId() == 1 || pfCands.at(index_chH).pdgId() == 130) {
-	      hcal_fraction = pfCands.at(index_chH).hcalFraction();
-	    } else if(pfCands.at(index_chH).isIsolatedChargedHadron()) {
-	      hcal_fraction = pfCands.at(index_chH).rawHcalFraction();
-	    }
-            get(dnn::pfCand_chHad_hcalFraction) = getValue(hcal_fraction);
+            get(dnn::pfCand_chHad_hcalFraction) = getValue(pfCands.at(index_chH).hcalFraction());
             get(dnn::pfCand_chHad_rawCaloFraction) = getValueLinear(pfCands.at(index_chH).rawCaloFraction(), 0.f, 2.6f, true);
         }
         if(valid_nH){
@@ -1358,13 +1351,7 @@ private:
                 is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
             get(dnn::pfCand_nHad_puppiWeight) = getValue(pfCands.at(index_nH).puppiWeight());
             get(dnn::pfCand_nHad_puppiWeightNoLep) = getValue(pfCands.at(index_nH).puppiWeightNoLep());
-	    float hcal_fraction = 0.;
-	    if(pfCands.at(index_nH).pdgId() == 1 || pfCands.at(index_nH).pdgId() == 130) {
-	      hcal_fraction = pfCands.at(index_nH).hcalFraction();
-	    } else if(pfCands.at(index_nH).isIsolatedChargedHadron()) {
-	      hcal_fraction = pfCands.at(index_nH).rawHcalFraction();
-	    }
-            get(dnn::pfCand_nHad_hcalFraction) = getValue(hcal_fraction);
+            get(dnn::pfCand_nHad_hcalFraction) = getValue(pfCands.at(index_nH).hcalFraction());
         }
         checkInputs(inputs, is_inner ? "hadron_inner_block" : "hadron_outer_block", dnn::NumberOfInputs);
     }
