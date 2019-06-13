@@ -21,6 +21,13 @@ namespace hgcaltilesconstants {
   constexpr float tileSize = 5.f;
   constexpr int nColumns = hgcaltilesconstants::ceil((maxX - minX) / tileSize);
   constexpr int nRows = hgcaltilesconstants::ceil((maxY - minY) / tileSize);
+  constexpr float minEta = -3.f;
+  constexpr float maxEta = 3.f;
+  constexpr float minPhi = -3.3;
+  constexpr float maxPhi = 3.3;
+  constexpr float tileSizeEtaPhi = 0.15;
+  constexpr int nColumnsEta = hgcaltilesconstants::ceil((maxEta - minEta) / tileSizeEtaPhi);
+  constexpr int nRowsPhi = hgcaltilesconstants::ceil((maxPhi - minPhi) / tileSizeEtaPhi);
 
 }  // namespace hgcaltilesconstants
 
