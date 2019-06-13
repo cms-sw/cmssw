@@ -201,8 +201,8 @@ protected:
                              const GlobalVector& bfield,
                              const DetId& detId) const;
 
-  virtual void module_killing_conf(
-      uint32_t detID);  // remove dead modules using the list in the configuration file PixelDigi_cfi.py
+  // remove dead modules using the list in the configuration file PixelDigi_cfi.py
+  virtual void module_killing_conf(uint32_t detID);
   virtual void module_killing_DB(uint32_t detID);  // remove dead modules uisng the list in the DB
 
   const SubdetEfficiencies subdetEfficiencies_;
