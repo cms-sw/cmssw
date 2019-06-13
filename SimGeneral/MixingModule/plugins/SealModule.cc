@@ -11,13 +11,12 @@
 #include "TestMixedSource.h"
 #include "Mixing2DB.h"
 
-  using edm::MixingModule;
-  using edm::TestMix;
-  using edm::CFWriter;
-  using edm::InputAnalyzer;
-  using edm::SecSourceAnalyzer;
-  using edm::TestMixedSource;
-  
+using edm::CFWriter;
+using edm::InputAnalyzer;
+using edm::MixingModule;
+using edm::SecSourceAnalyzer;
+using edm::TestMix;
+using edm::TestMixedSource;
 
 DEFINE_FWK_MODULE(MixingModule);
 DEFINE_FWK_MODULE(TestMix);
