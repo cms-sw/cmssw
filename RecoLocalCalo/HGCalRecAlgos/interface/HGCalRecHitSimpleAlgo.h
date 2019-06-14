@@ -63,7 +63,7 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
       layer = HGCScintillatorDetId(baseid).layer() + 28;
     } else if ( DetId::Forward == baseid.det() && HFNose == baseid.subdetId() ) {
 	layer = HFNoseDetId(baseid).layer(); hfnose = true;
-      } else if( DetId::Hcal == baseid.det() && HcalEndcap == baseid.subdetId() ) {
+    } else if( DetId::Hcal == baseid.det() && HcalEndcap == baseid.subdetId() ) {
       layer =  HcalDetId(baseid).depth() + 40;
     } else if ( DetId::Forward == baseid.det() && HGCEE == baseid.subdetId() ) {
       layer = HGCalDetId(baseid).layer();

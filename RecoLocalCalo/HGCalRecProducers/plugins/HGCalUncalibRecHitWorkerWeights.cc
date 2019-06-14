@@ -94,36 +94,32 @@ HGCalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es)
 
 
 bool
-HGCalUncalibRecHitWorkerWeights::run1( const edm::Event & evt,
-                                       const HGCalDigiCollection::const_iterator & itdg,
-                                       HGCeeUncalibratedRecHitCollection & result )
+HGCalUncalibRecHitWorkerWeights::runHGCEE( const HGCalDigiCollection::const_iterator & itdg,
+					   HGCeeUncalibratedRecHitCollection & result )
 {
   result.push_back(uncalibMaker_ee_.makeRecHit(*itdg));  
   return true;
 }
 
 bool
-HGCalUncalibRecHitWorkerWeights::run2( const edm::Event & evt,
-				       const HGCalDigiCollection::const_iterator & itdg,
-				       HGChefUncalibratedRecHitCollection & result )
+HGCalUncalibRecHitWorkerWeights::runHGCHEsil( const HGCalDigiCollection::const_iterator & itdg,
+					      HGChefUncalibratedRecHitCollection & result )
 {
   result.push_back(uncalibMaker_hef_.makeRecHit(*itdg));
   return true;
 }
 
 bool
-HGCalUncalibRecHitWorkerWeights::run3( const edm::Event & evt,
-				       const HGCalDigiCollection::const_iterator & itdg,
-				       HGChebUncalibratedRecHitCollection & result )
+HGCalUncalibRecHitWorkerWeights::runHGCHEscint(	const HGCalDigiCollection::const_iterator & itdg,
+						HGChebUncalibratedRecHitCollection & result )
 {
   result.push_back(uncalibMaker_heb_.makeRecHit(*itdg));
   return true;
 }
 
 bool
-HGCalUncalibRecHitWorkerWeights::run4( const edm::Event & evt,
-                                       const HGCalDigiCollection::const_iterator & itdg,
-                                       HGChfnoseUncalibratedRecHitCollection & result )
+HGCalUncalibRecHitWorkerWeights::runHGCHFNose( const HGCalDigiCollection::const_iterator & itdg,
+					       HGChfnoseUncalibratedRecHitCollection & result )
 {
   result.push_back(uncalibMaker_hfnose_.makeRecHit(*itdg));  
   return true;

@@ -29,10 +29,10 @@ class HGCalUncalibRecHitWorkerWeights : public HGCalUncalibRecHitWorkerBaseClass
   ~HGCalUncalibRecHitWorkerWeights() override {};
   
   void set(const edm::EventSetup& es) override;
-  bool run1(const edm::Event& evt, const HGCalDigiCollection::const_iterator & digi, HGCeeUncalibratedRecHitCollection & result) override;
-  bool run2(const edm::Event& evt, const HGCalDigiCollection::const_iterator & digi, HGChefUncalibratedRecHitCollection & result) override;
-  bool run3(const edm::Event& evt, const HGCalDigiCollection::const_iterator & digi, HGChebUncalibratedRecHitCollection & result) override;
-  bool run4(const edm::Event& evt, const HGCalDigiCollection::const_iterator & digi, HGChfnoseUncalibratedRecHitCollection & result) override;
+  bool runHGCEE(const HGCalDigiCollection::const_iterator & digi, HGCeeUncalibratedRecHitCollection & result) override;
+  bool runHGCHEsil(const HGCalDigiCollection::const_iterator & digi, HGChefUncalibratedRecHitCollection & result) override;
+  bool runHGCHEscint(const HGCalDigiCollection::const_iterator & digi, HGChebUncalibratedRecHitCollection & result) override;
+  bool runHGCHFNose(const HGCalDigiCollection::const_iterator & digi, HGChfnoseUncalibratedRecHitCollection & result) override;
 
  protected:
     

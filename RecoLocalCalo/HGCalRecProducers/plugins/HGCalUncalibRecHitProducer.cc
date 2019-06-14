@@ -49,28 +49,30 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   edm::Handle< HGCalDigiCollection > pHGCEEDigis;
   evt.getByToken( eeDigiCollection_, pHGCEEDigis);
   const HGCalDigiCollection* eeDigis = 
-    pHGCEEDigis.product(); // get a ptr to the product
+    pHGCEEDigis.product();
   eeUncalibRechits->reserve(eeDigis->size());
   for(auto itdg = eeDigis->begin(); itdg != eeDigis->end(); ++itdg) {
-    worker_->run1(evt, itdg, *eeUncalibRechits);
+    worker_->runHGCEE(itdg, *eeUncalibRechits);
   }
   
+  // loop over HGCHEsil digis
   edm::Handle< HGCalDigiCollection > pHGCHEFDigis;
   evt.getByToken( hefDigiCollection_, pHGCHEFDigis);
   const HGCalDigiCollection* hefDigis = 
-    pHGCHEFDigis.product(); // get a ptr to the product
+    pHGCHEFDigis.product();
   hefUncalibRechits->reserve(hefDigis->size());
   for(auto itdg = hefDigis->begin(); itdg != hefDigis->end(); ++itdg) {
-    worker_->run2(evt, itdg, *hefUncalibRechits);
+    worker_->runHGCHEsil(itdg, *hefUncalibRechits);
   }
 
+  // loop over HGCHEscint digis
   edm::Handle< HGCalDigiCollection > pHGCHEBDigis;
   evt.getByToken( hebDigiCollection_, pHGCHEBDigis);
   const HGCalDigiCollection* hebDigis = 
-    pHGCHEBDigis.product(); // get a ptr to the product
+    pHGCHEBDigis.product();
   hebUncalibRechits->reserve(hebDigis->size());
   for(auto itdg = hebDigis->begin(); itdg != hebDigis->end(); ++itdg) {
-    worker_->run3(evt, itdg, *hebUncalibRechits);
+    worker_->runHGCHEscint(itdg, *hebUncalibRechits);
   }
   
   // loop over HFNose digis
@@ -78,11 +80,11 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   evt.getByToken( hfnoseDigiCollection_, pHGCHFNoseDigis);
   if (pHGCHFNoseDigis.isValid()) {
     const HGCalDigiCollection* hfnoseDigis = 
-      pHGCHFNoseDigis.product(); // get a ptr to the product
+      pHGCHFNoseDigis.product();
     if (!(hfnoseDigis->empty())) {
       hfnoseUncalibRechits->reserve(hfnoseDigis->size());
       for(auto itdg = hfnoseDigis->begin(); itdg != hfnoseDigis->end(); ++itdg)
-	worker_->run4(evt, itdg, *hfnoseUncalibRechits);
+	worker_->runHGCHFNose(itdg, *hfnoseUncalibRechits);
     }
   }
   
