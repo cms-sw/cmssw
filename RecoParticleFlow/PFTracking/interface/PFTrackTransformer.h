@@ -58,6 +58,7 @@ private:
   ///B field
   math::XYZVector B_;
   PFGeometry pfGeometry_;
+  double cos2ThetaV_Endcap_HiEnd_;
 };
 
 #endif
