@@ -33,7 +33,6 @@ PFTrackTransformer::PFTrackTransformer(const math::XYZVector& B) : B_(B) {
   LogInfo("PFTrackTransformer") << "PFTrackTransformer built";
 
   onlyprop_ = false;
-  cos2ThetaV_Endcap_HiEnd_ = 0.99014;
 
 }
 
