@@ -60,21 +60,15 @@ class PFClusterValidation : public DQMEDAnalyzer {
   double dR(double eta1, double phi1, double eta2, double phi2);
   double sumEnergy(edm::Handle<reco::PFClusterCollection> pfCluster1);
   std::string outputFile_;
-  //  std::string hcalselector_;
   std::string mc_;
-  bool        useAllHistos_;
 
   typedef math::RhoEtaPhiVector Vector;
 
-  //  edm::EDGetTokenT<std::vector<reco::PFCluster> > PFClusterTok_;
   edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
   edm::EDGetTokenT<reco::PFClusterCollection> PFClusterECALTok_;
   edm::EDGetTokenT<reco::PFClusterCollection> PFClusterHCALTok_;
   edm::EDGetTokenT<reco::PFClusterCollection> PFClusterHOTok_;
   edm::EDGetTokenT<reco::PFClusterCollection> PFClusterHFTok_;
-
-  int isub;
-  int nevent;
 
   int imc;
   
@@ -83,15 +77,8 @@ class PFClusterValidation : public DQMEDAnalyzer {
   const double partR = 0.3; // dr cutoff
   double eta_MC, phi_MC,energy_MC = 9999.;
 
-  // eta limits to calcualte MET, SET (not to include HF if not needed)
-  double etaMax[3];
-  double etaMin[3];
-
-
   //************Modules
 
-  
-  // ieta scan
   MonitorElement*  emean_vs_eta_E;
   MonitorElement*  emean_vs_eta_H;
   MonitorElement*  emean_vs_eta_EH;
@@ -100,40 +87,6 @@ class PFClusterValidation : public DQMEDAnalyzer {
   MonitorElement*  emean_vs_eta_HO;
   MonitorElement*  emean_vs_eta_EHF;
   MonitorElement*  emean_vs_eta_EHFO;
-
-  MonitorElement* Esummed_ECAL_0;
-  MonitorElement* Esummed_HCAL_0;
-  MonitorElement* Esummed_HO_0;
- 
-  MonitorElement* Esummed_ECAL_1;
-  MonitorElement* Esummed_HCAL_1;
-  MonitorElement* Esummed_HO_1;
- 
-  MonitorElement* Esummed_ECAL_2;
-  MonitorElement* Esummed_HCAL_2;
-  MonitorElement* Esummed_HO_2;
- 
-  MonitorElement* Esummed_ECAL_3;
-  MonitorElement* Esummed_HCAL_3;
-  MonitorElement* Esummed_HO_3;
- 
-  MonitorElement* Esummed_ECAL_4;
-  MonitorElement* Esummed_HCAL_4;
-  MonitorElement* Esummed_HO_4;
- 
-  MonitorElement* Esummed_HF_5;
-  MonitorElement* Esummed_HF_6;
-
-  MonitorElement* Esummed_ECAL_HCAL_0;
-  MonitorElement* Esummed_ECAL_HCAL_HO_0;
-  MonitorElement* Esummed_ECAL_HCAL_1;
-  MonitorElement* Esummed_ECAL_HCAL_HO_1;
-  MonitorElement* Esummed_ECAL_HCAL_2;
-  MonitorElement* Esummed_ECAL_HCAL_HO_2;
-  MonitorElement* Esummed_ECAL_HCAL_3;
-  MonitorElement* Esummed_ECAL_HCAL_HO_3;
-  MonitorElement* Esummed_ECAL_HCAL_4;
-  MonitorElement* Esummed_ECAL_HCAL_HO_4;
 
   MonitorElement* Ratio_Esummed_ECAL_0;
   MonitorElement* Ratio_Esummed_HCAL_0;
@@ -170,12 +123,6 @@ class PFClusterValidation : public DQMEDAnalyzer {
   MonitorElement* Ratio_Esummed_ECAL_HCAL_HO_4;
 
   MonitorElement* Egen_MC;
-
-  
-  // MonitorElement*  emean_vs_eta_H1;
-  //MonitorElement*  emean_vs_eta_EH1;
-  
-
 
 };
 

@@ -12,47 +12,33 @@ PFClusterValidation::PFClusterValidation(const edm::ParameterSet & conf)
 
   tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
 
-  PFClusterECALTok_ = consumes<reco::PFClusterCollection> (conf.getUntrackedParameter<edm::InputTag>("pflowClusterECAL"));  // cms.InputTag("particleFlowClusterECAL");
-  PFClusterHCALTok_ = consumes<reco::PFClusterCollection> (conf.getUntrackedParameter<edm::InputTag>("pflowClusterHCAL"));  // cms.InputTag("particleFlowClusterHCAL");
-  PFClusterHOTok_ = consumes<reco::PFClusterCollection> (conf.getUntrackedParameter<edm::InputTag>("pflowClusterHO"));  // cms.InputTag("particleFlowClusterECAL"); 
+  PFClusterECALTok_ = consumes<reco::PFClusterCollection> (conf.getUntrackedParameter<edm::InputTag>("pflowClusterECAL"));  
+  PFClusterHCALTok_ = consumes<reco::PFClusterCollection> (conf.getUntrackedParameter<edm::InputTag>("pflowClusterHCAL"));  
+  PFClusterHOTok_ = consumes<reco::PFClusterCollection> (conf.getUntrackedParameter<edm::InputTag>("pflowClusterHO"));  
   PFClusterHFTok_ = consumes<reco::PFClusterCollection> (conf.getUntrackedParameter<edm::InputTag>("pflowClusterHF"));  // cms.InputTag("particleFlowClusterECAL"); 
 
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
   mc_           = conf.getUntrackedParameter<std::string>("mc", "yes");
-  useAllHistos_ = conf.getUntrackedParameter<bool>("useAllHistos", false);
-
-  etaMin[0] = 0.;
-  etaMax[0] = 1.4;
-  etaMin[1] = 1.4;
-  etaMax[1] = 2.9;
-  etaMin[2] = 2.9;
-  etaMax[2] = 5.2;
 
   imc = 1;
   if(mc_ == "no") imc = 0;
-  
   
   if ( !outputFile_.empty() ) {
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";
   }
-  
-  nevent = 0;
 
 }
-
 
 PFClusterValidation::~PFClusterValidation() {
 
 }
 
-
 void PFClusterValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & irun, edm::EventSetup const & isetup)
 {
 
   Char_t histo[100];
-
   ibooker.setCurrentFolder("ParticleFlow/PFClusterV");
   Double_t etaBinsOffset[83] = {-5.191, -4.889, -4.716, -4.538, -4.363, -4.191, -4.013, -3.839, -3.664, -3.489, -3.314, -3.139, -2.964, -2.853, -2.65,
 				-2.5, -2.322, -2.172, -2.043, -1.93, -1.83, -1.74, -1.653, -1.566, -1.479, -1.392, -1.305, -1.218, -1.131, -1.044, -0.957,
@@ -81,67 +67,6 @@ void PFClusterValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
   emean_vs_eta_EHFO = ibooker.bookProfile(histo, histo, 82, etaBinsOffset, -100., 2000., " ");
    
   //1D histos
-
-  sprintf (histo,"Esummed_ECAL_0");
-  Esummed_ECAL_0= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_HCAL_0");
-  Esummed_HCAL_0= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_HO_0");
-  Esummed_HO_0= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_ECAL_HCAL_0");
-  Esummed_ECAL_HCAL_0= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_ECAL_HCAL_HO_0");
-  Esummed_ECAL_HCAL_HO_0= ibooker.book1D(histo, histo, 50, 0, 50); 
-  
-  sprintf (histo,"Esummed_ECAL_1");
-  Esummed_ECAL_1= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_HCAL_1");
-  Esummed_HCAL_1= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_HO_1");
-  Esummed_HO_1= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_ECAL_HCAL_1");
-  Esummed_ECAL_HCAL_1= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_ECAL_HCAL_HO_1");
-  Esummed_ECAL_HCAL_HO_1= ibooker.book1D(histo, histo, 50, 0, 50); 
-  
-  sprintf (histo,"Esummed_ECAL_2");
-  Esummed_ECAL_2= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_HCAL_2");
-  Esummed_HCAL_2= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_HO_2");
-  Esummed_HO_2= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_ECAL_HCAL_2");
-  Esummed_ECAL_HCAL_2= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_ECAL_HCAL_HO_2");
-  Esummed_ECAL_HCAL_HO_2= ibooker.book1D(histo, histo, 50, 0, 50); 
-  
-  sprintf (histo,"Esummed_ECAL_3");
-  Esummed_ECAL_3= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_HCAL_3");
-  Esummed_HCAL_3= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_HO_3");
-  Esummed_HO_3= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_ECAL_HCAL_3");
-  Esummed_ECAL_HCAL_3= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_ECAL_HCAL_HO_3");
-  Esummed_ECAL_HCAL_HO_3= ibooker.book1D(histo, histo, 50, 0, 50); 
-  
-  sprintf (histo,"Esummed_ECAL_4");
-  Esummed_ECAL_4= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_HCAL_4");
-  Esummed_HCAL_4= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_HO_4");
-  Esummed_HO_4= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_ECAL_HCAL_4");
-  Esummed_ECAL_HCAL_4= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_ECAL_HCAL_HO_4");
-  Esummed_ECAL_HCAL_HO_4= ibooker.book1D(histo, histo, 50, 0, 50); 
-  
-  
-  sprintf (histo,"Esummed_HF_5");
-  Esummed_HF_5= ibooker.book1D(histo, histo, 50, 0, 50); 
-  sprintf (histo,"Esummed_HF_6");
-  Esummed_HF_6= ibooker.book1D(histo, histo, 50, 0, 50); 
   
   sprintf (histo,"Ratio_Esummed_ECAL_0");
   Ratio_Esummed_ECAL_0= ibooker.book1D(histo, histo, 50, 0., 5.); 
@@ -198,7 +123,6 @@ void PFClusterValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
   sprintf (histo,"Ratio_Esummed_ECAL_HCAL_HO_4");
   Ratio_Esummed_ECAL_HCAL_HO_4= ibooker.book1D(histo, histo, 50, 0., 5.); 
   
-  
   sprintf (histo,"Ratio_Esummed_HF_5");
   Ratio_Esummed_HF_5= ibooker.book1D(histo, histo, 50, 0., 5.); 
   sprintf (histo,"Ratio_Esummed_HF_6");
@@ -207,30 +131,18 @@ void PFClusterValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
   sprintf (histo,"Egen_MC");
   Egen_MC= ibooker.book1D(histo, histo, 50, 0, 50); 
 
-
   //-------------------------------------------------------------------------------------------
   
-  
 } // BOOKING HISTOS
-
-
  
 void PFClusterValidation::analyze(edm::Event const& event, edm::EventSetup const& c) {
-  
-  nevent++;
-  //double   phi_MC = 9999.;
-  //double   eta_MC = 9999.;
- 
    
   if (imc != 0){
     edm::Handle<edm::HepMCProduct> evtMC;
     event.getByToken(tok_evt_,evtMC);  // generator in late 310_preX
     if (!evtMC.isValid()) {
-      std::cout << "no HepMCProduct found" << std::endl;    
-    } else {
-      // MC=true; // UNUSED
-      //    std::cout << "*** source HepMCProduct found"<< std::endl;
-    }  
+      edm::LogWarning("Module named pfclusterAnalyzer") << "no HepMCProduct found";    
+    } 
     
     // MC particle with highest pt is taken as a direction reference  
     double maxPt = -99999.;
@@ -252,9 +164,7 @@ void PFClusterValidation::analyze(edm::Event const& event, edm::EventSetup const
     }
   }    
   Egen_MC -> Fill(energy_MC);
-  std::cout<<"In analyze"<<std::endl;
-  std::cout<<"eta and phi and energy MC"<< eta_MC <<" "<< phi_MC <<" "<< energy_MC <<std::endl;
-  
+    
   edm::Handle<reco::PFClusterCollection> pfClusterECAL;
   event.getByToken(PFClusterECALTok_, pfClusterECAL);
   reco::PFClusterCollection::const_iterator pf; 
@@ -268,8 +178,6 @@ void PFClusterValidation::analyze(edm::Event const& event, edm::EventSetup const
   edm::Handle<reco::PFClusterCollection> pfClusterHF;
   event.getByToken(PFClusterHFTok_, pfClusterHF);
     
-
-  
   double Econe  = 0.;
   double Hcone  = 0.;
   double HFcone  = 0.;
@@ -281,82 +189,50 @@ void PFClusterValidation::analyze(edm::Event const& event, edm::EventSetup const
   HOcone = sumEnergy(pfClusterHO);
   HFcone = sumEnergy(pfClusterHF);
 
-  if (fabs(eta_MC) < 0.5) {
-    Esummed_ECAL_0 -> Fill(Econe);
-    Esummed_HCAL_0 -> Fill(Hcone);
-    Esummed_HO_0 -> Fill(HOcone);
-    Esummed_ECAL_HCAL_0 -> Fill(Econe+Hcone);
-    Esummed_ECAL_HCAL_HO_0 -> Fill(Econe+Hcone+HOcone);
-    
-    Ratio_Esummed_ECAL_0 -> Fill(Econe/energy_MC);
-    Ratio_Esummed_HCAL_0 -> Fill(Hcone/energy_MC);
-    Ratio_Esummed_HO_0 -> Fill(HOcone/energy_MC);
-    Ratio_Esummed_ECAL_HCAL_0 -> Fill((Econe+Hcone)/energy_MC);
-    Ratio_Esummed_ECAL_HCAL_HO_0 -> Fill((Econe+Hcone+HOcone)/energy_MC);
-  }  
-  else if(fabs(eta_MC) < 1.3 && fabs(eta_MC) > 0.5) {
-    Esummed_ECAL_1 -> Fill(Econe);
-    Esummed_HCAL_1 -> Fill(Hcone);
-    Esummed_HO_1 -> Fill(HOcone);
-    Esummed_ECAL_HCAL_1 -> Fill(Econe+Hcone);
-    Esummed_ECAL_HCAL_HO_1 -> Fill(Econe+Hcone+HOcone);
-
-    Ratio_Esummed_ECAL_1 -> Fill(Econe/energy_MC);
-    Ratio_Esummed_HCAL_1 -> Fill(Hcone/energy_MC);
-    Ratio_Esummed_HO_1 -> Fill(HOcone/energy_MC);
-    Ratio_Esummed_ECAL_HCAL_1 -> Fill((Econe+Hcone)/energy_MC);
-    Ratio_Esummed_ECAL_HCAL_HO_1 -> Fill((Econe+Hcone+HOcone)/energy_MC);
+  if (energy_MC>0.){
+    if (fabs(eta_MC) < 0.5) {
+      Ratio_Esummed_ECAL_0 -> Fill(Econe/energy_MC);
+      Ratio_Esummed_HCAL_0 -> Fill(Hcone/energy_MC);
+      Ratio_Esummed_HO_0 -> Fill(HOcone/energy_MC);
+      Ratio_Esummed_ECAL_HCAL_0 -> Fill((Econe+Hcone)/energy_MC);
+      Ratio_Esummed_ECAL_HCAL_HO_0 -> Fill((Econe+Hcone+HOcone)/energy_MC);
+    }  
+    else if(fabs(eta_MC) < 1.3 && fabs(eta_MC) > 0.5) {
+      Ratio_Esummed_ECAL_1 -> Fill(Econe/energy_MC);
+      Ratio_Esummed_HCAL_1 -> Fill(Hcone/energy_MC);
+      Ratio_Esummed_HO_1 -> Fill(HOcone/energy_MC);
+      Ratio_Esummed_ECAL_HCAL_1 -> Fill((Econe+Hcone)/energy_MC);
+      Ratio_Esummed_ECAL_HCAL_HO_1 -> Fill((Econe+Hcone+HOcone)/energy_MC);
+    }
+    else if(fabs(eta_MC) < 2.1 && fabs(eta_MC) > 1.3) {
+      Ratio_Esummed_ECAL_2 -> Fill(Econe/energy_MC);
+      Ratio_Esummed_HCAL_2 -> Fill(Hcone/energy_MC);
+      Ratio_Esummed_HO_2 -> Fill(HOcone/energy_MC);
+      Ratio_Esummed_ECAL_HCAL_2 -> Fill((Econe+Hcone)/energy_MC);
+      Ratio_Esummed_ECAL_HCAL_HO_2 -> Fill((Econe+Hcone+HOcone)/energy_MC);
+    }
+    else if(fabs(eta_MC) < 2.5 && fabs(eta_MC) > 2.1) {
+      Ratio_Esummed_ECAL_3 -> Fill(Econe/energy_MC);
+      Ratio_Esummed_HCAL_3 -> Fill(Hcone/energy_MC);
+      Ratio_Esummed_HO_3 -> Fill(HOcone/energy_MC);
+      Ratio_Esummed_ECAL_HCAL_3 -> Fill((Econe+Hcone)/energy_MC);
+      Ratio_Esummed_ECAL_HCAL_HO_3 -> Fill((Econe+Hcone+HOcone)/energy_MC);
+    }
+    else if(2.5 < fabs(eta_MC) && fabs(eta_MC) < 3.0) {
+      Ratio_Esummed_ECAL_4 -> Fill(Econe/energy_MC);
+      Ratio_Esummed_HCAL_4 -> Fill(Hcone/energy_MC);
+      Ratio_Esummed_HO_4 -> Fill(HOcone/energy_MC);
+      Ratio_Esummed_ECAL_HCAL_4 -> Fill((Econe+Hcone)/energy_MC);
+      Ratio_Esummed_ECAL_HCAL_HO_4 -> Fill((Econe+Hcone+HOcone)/energy_MC);
+    }
+    else if(3.0 < fabs(eta_MC) && fabs(eta_MC) < 4.0) {
+      Ratio_Esummed_HF_5 -> Fill(HFcone/energy_MC);
+    }
+    else if(4.0 < fabs(eta_MC) && fabs(eta_MC) < 5.0) {
+      Ratio_Esummed_HF_6 -> Fill(HFcone/energy_MC);
+    }
   }
-  else if(fabs(eta_MC) < 2.1 && fabs(eta_MC) > 1.3) {
-    Esummed_ECAL_2 -> Fill(Econe);
-    Esummed_HCAL_2 -> Fill(Hcone);
-    Esummed_HO_2 -> Fill(HOcone);
-    Esummed_ECAL_HCAL_2 -> Fill(Econe+Hcone);
-    Esummed_ECAL_HCAL_HO_2 -> Fill(Econe+Hcone+HOcone);
-
-    Ratio_Esummed_ECAL_2 -> Fill(Econe/energy_MC);
-    Ratio_Esummed_HCAL_2 -> Fill(Hcone/energy_MC);
-    Ratio_Esummed_HO_2 -> Fill(HOcone/energy_MC);
-    Ratio_Esummed_ECAL_HCAL_2 -> Fill((Econe+Hcone)/energy_MC);
-    Ratio_Esummed_ECAL_HCAL_HO_2 -> Fill((Econe+Hcone+HOcone)/energy_MC);
-
-  }
-  else if(fabs(eta_MC) < 2.5 && fabs(eta_MC) > 2.1) {
-    Esummed_ECAL_3 -> Fill(Econe);
-    Esummed_HCAL_3 -> Fill(Hcone);
-    Esummed_HO_3 -> Fill(HOcone);
-    Esummed_ECAL_HCAL_3 -> Fill(Econe+Hcone);
-    Esummed_ECAL_HCAL_HO_3 -> Fill(Econe+Hcone+HOcone);
-
-    Ratio_Esummed_ECAL_3 -> Fill(Econe/energy_MC);
-    Ratio_Esummed_HCAL_3 -> Fill(Hcone/energy_MC);
-    Ratio_Esummed_HO_3 -> Fill(HOcone/energy_MC);
-    Ratio_Esummed_ECAL_HCAL_3 -> Fill((Econe+Hcone)/energy_MC);
-    Ratio_Esummed_ECAL_HCAL_HO_3 -> Fill((Econe+Hcone+HOcone)/energy_MC);
-
-  }
-  else if(2.5 < fabs(eta_MC) && fabs(eta_MC) < 3.0) {
-    Esummed_ECAL_4 -> Fill(Econe);
-    Esummed_HCAL_4 -> Fill(Hcone);
-    Esummed_HO_4 -> Fill(HOcone);
-    Esummed_ECAL_HCAL_4 -> Fill(Econe+Hcone);
-    Esummed_ECAL_HCAL_HO_4 -> Fill(Econe+Hcone+HOcone);
-
-    Ratio_Esummed_ECAL_4 -> Fill(Econe/energy_MC);
-    Ratio_Esummed_HCAL_4 -> Fill(Hcone/energy_MC);
-    Ratio_Esummed_HO_4 -> Fill(HOcone/energy_MC);
-    Ratio_Esummed_ECAL_HCAL_4 -> Fill((Econe+Hcone)/energy_MC);
-    Ratio_Esummed_ECAL_HCAL_HO_4 -> Fill((Econe+Hcone+HOcone)/energy_MC);
-
-  }
-  else if(3.0 < fabs(eta_MC) && fabs(eta_MC) < 4.0) {
-    Esummed_HF_5 -> Fill(HFcone);
-    Ratio_Esummed_HF_5 -> Fill(HFcone/energy_MC);
-  }
-  else if(4.0 < fabs(eta_MC) && fabs(eta_MC) < 5.0) {
-    Ratio_Esummed_HF_6 -> Fill(HFcone/energy_MC);
-  }
-
+  
   //These are the six single pion histos
   emean_vs_eta_E  -> Fill(double(eta_MC), Econe); 
   emean_vs_eta_H  -> Fill(double(eta_MC), Hcone); 
@@ -367,7 +243,6 @@ void PFClusterValidation::analyze(edm::Event const& event, edm::EventSetup const
   emean_vs_eta_EHF -> Fill(double(eta_MC), Econe+Hcone+HFcone); 
   emean_vs_eta_EHFO -> Fill(double(eta_MC), Econe+Hcone+HFcone+HOcone); 
   
-    
 } //end for analyze
 
 double PFClusterValidation::dR(double eta1, double phi1, double eta2, double phi2) { 
@@ -393,11 +268,9 @@ double PFClusterValidation::sumEnergy(edm::Handle<reco::PFClusterCollection> pfC
 	sumenergy += en;
       }
     }
-    
   }
   return sumenergy;
 }
-
 
 DEFINE_FWK_MODULE(PFClusterValidation);
 
