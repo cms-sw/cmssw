@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Utilities/interface/do_nothing_deleter.h"
 
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
 #include "CondFormats/DataRecord/interface/QGLikelihoodSystematicsRcd.h"
@@ -26,7 +27,7 @@ public:
   QGLikelihoodSystematicsESProducer(const edm::ParameterSet &);
   ~QGLikelihoodSystematicsESProducer() override{};
 
-  std::unique_ptr<QGLikelihoodSystematicsObject> produce(const QGLikelihoodSystematicsRcd &);
+  std::shared_ptr<const QGLikelihoodSystematicsObject> produce(const QGLikelihoodSystematicsRcd &);
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &, edm::ValidityInterval &);
 
 private:
@@ -49,9 +50,9 @@ void QGLikelihoodSystematicsESProducer::setIntervalFor(const edm::eventsetup::Ev
 }
 
 // Produce the data
-std::unique_ptr<QGLikelihoodSystematicsObject> QGLikelihoodSystematicsESProducer::produce(
+std::shared_ptr<const QGLikelihoodSystematicsObject> QGLikelihoodSystematicsESProducer::produce(
     const QGLikelihoodSystematicsRcd& iRecord) {
-  return std::make_unique<QGLikelihoodSystematicsObject>(iRecord.get(token_));
+  return std::shared_ptr<const QGLikelihoodSystematicsObject>(&iRecord.get(token_), edm::do_nothing_deleter());
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(QGLikelihoodSystematicsESProducer);
