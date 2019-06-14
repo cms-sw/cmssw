@@ -17,6 +17,14 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+# use 5DHit as seed
+def customiseFor99999(process):
+   for pset in process._Process__psets.values():
+       if hasattr(pset,'ComponentType'):
+             if (pset.ComponentType == 'CkfTrajectoryBuilder' or pset.ComponentType == 'GroupedCkfTrajectoryBuilder'):
+                 if not hasattr(pset,'seedAs5DHit'):
+                     pset.seedAs5DHit = cms.bool(False)
+   return process
 
 def customiseFor2017DtUnpacking(process):
     """Adapt the HLT to run the legacy DT unpacking
@@ -52,6 +60,6 @@ def customiseFor2017DtUnpacking(process):
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
-    # process = customiseFor12718(process)
+    process = customiseFor99999(process)
 
     return process

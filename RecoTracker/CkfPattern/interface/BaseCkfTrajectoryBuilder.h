@@ -152,7 +152,7 @@ protected:
   StateAndLayers findStateAndLayers(const TrajectorySeed& seed, const TempTrajectory& traj) const;
 
 private:
-  void seedMeasurements(const TrajectorySeed& seed, TempTrajectory& result) const;
+  void seedMeasurements(const TrajectorySeed& seed, TempTrajectory& result, bool as5D) const;
 
 protected:
   void setData(const MeasurementTrackerEvent* data);
@@ -167,23 +167,18 @@ protected:
 protected:
   typedef TrackingComponentsRecord Chi2MeasurementEstimatorRecord;
 
-  const TrajectoryStateUpdator* theUpdator;
-  const Propagator* thePropagatorAlong;
-  const Propagator* thePropagatorOpposite;
-  const Chi2MeasurementEstimatorBase* theEstimator;
-  const TransientTrackingRecHitBuilder* theTTRHBuilder;
-  const MeasurementTrackerEvent* theMeasurementTracker;
+  const TrajectoryStateUpdator* theUpdator = nullptr;
+  const Propagator* thePropagatorAlong = nullptr;
+  const Propagator* thePropagatorOpposite = nullptr;
+  const Chi2MeasurementEstimatorBase* theEstimator = nullptr;
+  const TransientTrackingRecHitBuilder* theTTRHBuilder = nullptr;
+  const MeasurementTrackerEvent* theMeasurementTracker = nullptr;
   const NavigationSchool* theNavigationSchool = nullptr;
 
 private:
-  //  int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/
-  //  int theMaxConsecLostHit;      /**< Maximum number of consecutive lost hits
-  //                                     per trajectory candidate. */
-  //  int theMinimumNumberOfHits;   /**< Minimum number of hits for a trajectory to be returned.*/
-  //  float theChargeSignificance;  /**< Value to declare (q/p)/sig(q/p) significant. Negative: ignore. */
 
-  //  TrajectoryFilter*              theMinPtCondition;
-  //  TrajectoryFilter*              theMaxHitsCondition;
+  bool theSeedAs5DHit;
+
   std::unique_ptr<TrajectoryFilter> theFilter;      /** Filter used at end of complete tracking */
   std::unique_ptr<TrajectoryFilter> theInOutFilter; /** Filter used at end of in-out tracking */
 
