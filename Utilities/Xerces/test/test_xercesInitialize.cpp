@@ -1,4 +1,4 @@
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <vector>
 #include <thread>

@@ -2,7 +2,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
-<use name="FWCore/Concurrency"/>
+<use name="Utilities/Xerces"/>
 <use name="CondFormats/PhysicsToolsObjects"/>
 <use name="CondCore/DBOutputService"/>
 <use name="PhysicsTools/MVAComputer"/>

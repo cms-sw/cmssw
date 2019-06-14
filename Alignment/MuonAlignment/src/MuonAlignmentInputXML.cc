@@ -13,7 +13,7 @@
 
 // system include files
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 
 // Xerces include files
 #include "xercesc/parsers/XercesDOMParser.hpp"
