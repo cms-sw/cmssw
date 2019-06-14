@@ -840,6 +840,7 @@ void FedRawDataInputSource::readSupervisor() {
 
     evf::EvFDaqDirector::FileStatus status = evf::EvFDaqDirector::noFile;
     uint16_t rawHeaderSize = 0;
+    uint32_t lsFromRaw = 0;
     int32_t serverEventsInNewFile = -1;
 
     int backoff_exp = 0;
@@ -856,12 +857,13 @@ void FedRawDataInputSource::readSupervisor() {
         status = getFile(ls, nextFile, fileSizeIndex, thisLockWaitTimeUs);
         if (status == evf::EvFDaqDirector::newFile) {
           if (evf::EvFDaqDirector::parseFRDFileHeader(
-                  nextFile, rawHeaderSize, serverEventsInNewFile, fileSizeFromMetadata, false, false) != 0) {
+                  nextFile, rawHeaderSize, lsFromRaw, serverEventsInNewFile, fileSizeFromMetadata, false, false) != 0) {
             //error
             setExceptionState_ = true;
             stop = true;
             break;
           }
+          if (!getLSFromFilename_) ls = lsFromRaw;
         }
       } else if (!useFileBroker_)
         status = daqDirector_->updateFuLock(ls, nextFile, fileSizeIndex, thisLockWaitTimeUs);

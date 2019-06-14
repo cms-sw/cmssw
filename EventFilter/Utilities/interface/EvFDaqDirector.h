@@ -125,6 +125,7 @@ namespace evf {
                                 bool doCreateBoLS = true);
     static int parseFRDFileHeader(std::string const& rawSourcePath,
                                   uint16_t& rawHeaderSize,
+                                  uint32_t& lsFromHeader,
                                   int32_t& eventsFromHeader,
                                   int64_t& fileSizeFromHeader,
                                   bool requireHeader,
@@ -132,7 +133,8 @@ namespace evf {
     int grabNextJsonFromRaw(std::string const& rawSourcePath,
                             uint16_t& rawHeaderSize,
                             int64_t& fileSizeFromHeader,
-                            bool& fileFound);
+                            bool& fileFound,
+                            uint32_t serverLS);
     int grabNextJsonFile(std::string const& jsonSourcePath,
                          std::string const& rawSourcePath,
                          int64_t& fileSizeFromJson,
